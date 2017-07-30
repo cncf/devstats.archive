@@ -227,6 +227,26 @@ def structure
     ')'
   )
 
+  # gha_labels
+  # Table details and analysis in `analysis/analysis.txt` and `analysis/label_*.json`
+  c.exec('drop table if exists gha_labels')
+  c.exec(
+    'create table gha_labels(' +
+    'id bigint not null primary key, ' +
+    'name varchar(80) not null, ' +
+    'color varchar(8) not null, ' +
+    'is_default boolean not null' +
+    ')'
+  )
+  c.exec('drop table if exists gha_issues_labels')
+  c.exec(
+    'create table gha_issues_labels(' +
+    'issue_id bigint not null, ' +
+    'label_id bigint not null, ' +
+    'primary key(issue_id, label_id)' +
+    ')'
+  )
+
   # FIXME: remember to add foreign keys !
 rescue PG::Error => e
   puts e.message

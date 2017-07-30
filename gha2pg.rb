@@ -263,6 +263,8 @@ def write_to_pg(con, ev)
         ]
       ]
     )
+
+    # payload-commit connection
     process_table(
       con,
       sid,
@@ -284,6 +286,7 @@ def write_to_pg(con, ev)
   pages = ev['payload']['pages'] || []
   pages.each do |page|
     sha = page['sha']
+    # page
     process_table(
       con,
       sid,
@@ -300,6 +303,7 @@ def write_to_pg(con, ev)
         ]
       ]
     )
+    # payload-page connection
     process_table(
       con,
       sid,
@@ -318,8 +322,10 @@ def write_to_pg(con, ev)
   # Table details and analysis in `analysis/analysis.txt` and `analysis/comment_*.json`
   comment = ev['payload']['comment']
   if comment
+    # user
     gha_actor(con, sid, comment['user']['id'], comment['user']['login'])
 
+    # comment
     cid = comment['id'].to_i
     process_table(
       con,
@@ -356,12 +362,13 @@ def write_to_pg(con, ev)
 
   # gha_issues
   # Table details and analysis in `analysis/analysis.txt` and `analysis/issue_*.json`
-  # TODO: arrays: assignees, labels
   issue = ev['payload']['issue']
   if issue
+    # user, assignee
     gha_actor(con, sid, issue['user']['id'], issue['user']['login'])
     gha_actor(con, sid, issue['assignee']['id'], issue['assignee']['login']) if issue['assignee']
 
+    # issue
     iid = issue['id'].to_i
     process_table(
       con,
@@ -399,6 +406,7 @@ def write_to_pg(con, ev)
       gha_actor(con, sid, milestone['creator']['id'], milestone['creator']['login'])
 
       mid = milestone['id'].to_i
+      # gha_milestones
       process_table(
         con,
         sid,
@@ -435,6 +443,8 @@ def write_to_pg(con, ev)
     assignees.each do |assignee|
       aid = assignee['id']
       next if aid == p_aid
+
+      # issue-assignee connection
       gha_actor(con, sid, aid, assignee['login'])
       process_table(
         con,
@@ -444,8 +454,44 @@ def write_to_pg(con, ev)
           'insert into gha_issues_assignees(issue_id, assignee_id) values($1, $2)'
         ],
         [
-          [aid, iid],
-          [aid, iid]
+          [iid, aid],
+          [iid, aid]
+        ]
+      )
+    end
+
+    # labels
+    labels = issue['labels']
+    labels.each do |label|
+      lid = label['id']
+      process_table(
+        con,
+        sid,
+        [
+          'select 1 from gha_labels where id=$1',
+          'insert into gha_labels(id, name, color, is_default) ' + n_values(4)
+        ],
+        [
+          [lid],
+          [
+            lid,
+            label['name'],
+            label['color'],
+            label['default']
+          ]
+        ]
+      )
+      # issue-label connection
+      process_table(
+        con,
+        sid,
+        [
+          'select 1 from gha_issues_labels where issue_id=$1 and label_id=$2',
+          'insert into gha_issues_labels(issue_id, label_id) values($1, $2)'
+        ],
+        [
+          [iid, lid],
+          [iid, lid]
         ]
       )
     end
