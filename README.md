@@ -116,6 +116,8 @@ Ubuntu like Linux:
 `structure.rb` script is used to create Postgres database schema.
 It gets connection details from environmental variables and falls back to some defaults.
 
+Alternatively You can use `structure.sql` to create database structure.
+
 Defaults are:
 - Database host: environment variable PG_HOST or `localhost`
 - Database port: PG_PORT or 5432
