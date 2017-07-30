@@ -353,6 +353,68 @@ def write_to_pg(con, ev)
       ]
     )
   end
+
+  # gha_issues
+  # Table details and analysis in `analysis/analysis.txt` and `analysis/issue_*.json`
+  # TODO: process depth first, so milestone
+  # TODO: arrays: assignees, labels
+  issue = ev['payload']['issue']
+  if issue
+    gha_actor(con, sid, issue['user']['id'], issue['user']['login'])
+    gha_actor(con, sid, issue['assignee']['id'], issue['assignee']['login']) if issue['assignee']
+
+    iid = issue['id'].to_i
+    process_table(
+      con,
+      sid,
+      [
+        'select 1 from gha_issues where id=$1', 
+        'insert into gha_issues(' +
+        'id, assignee_id, body, closed_at, comments, created_at, locked, ' +
+        'milestone_id, number, state, title, updated_at, user_id' +
+        ') ' + n_values(13)
+      ],
+      [
+        [iid],
+        [
+          iid,
+          issue['assignee'] ? issue['assignee']['id'] : nil,
+          issue['body'],
+          issue['closed_at'] ? Time.parse(issue['closed_at']) : nil,
+          issue['comments'],
+          Time.parse(issue['created_at']),
+          issue['locked'],
+          issue['milestone'] ? issue['milestone']['id'] : nil, 
+          issue['number'], 
+          issue['state'], 
+          issue['title'], 
+          Time.parse(issue['updated_at']),
+          issue['user']['id']
+        ]
+      ]
+    )
+
+    # assignees
+    assignees = issue['assignees']
+    p_aid = issue['assignee'] ? issue['assignee']['id'] : nil
+    assignees.each do |assignee|
+      aid = assignee['id']
+      next if aid == p_aid
+      gha_actor(con, sid, aid, assignee['login'])
+      process_table(
+        con,
+        sid,
+        [
+          'select 1 from gha_issues_assignees where issue_id=$1 and assignee_id=$2',
+          'insert into gha_issues_assignees(issue_id, assignee_id) values($1, $2)'
+        ],
+        [
+          [aid, iid],
+          [aid, iid]
+        ]
+      )
+    end
+  end
 end
 
 # Are we interested in this org/repo ?

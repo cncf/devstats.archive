@@ -153,6 +153,7 @@ def structure
 
   # gha_comments
   # Table details and analysis in `analysis/analysis.txt` and `analysis/comment_*.json`
+  # Keys: user_id, commit_id, original_commit_id, pull_request_review_id
   c.exec('drop table if exists gha_comments')
   c.exec(
     'create table gha_comments(' +
@@ -170,6 +171,37 @@ def structure
     'path text, ' +
     'pull_request_review_id bigint, ' +
     'line int' +
+    ')'
+  )
+
+  # gha_issues
+  # Table details and analysis in `analysis/analysis.txt` and `analysis/issue_*.json`
+  # Arrays: assignees, labels
+  # Keys: assignee_id, milestone_id, user_id
+  c.exec('drop table if exists gha_issues')
+  c.exec(
+    'create table gha_issues(' +
+    'id bigint not null primary key, ' +
+    'assignee_id bigint, ' +
+    'body text, ' +
+    'closed_at timestamp, ' +
+    'comments int not null, ' +
+    'created_at timestamp not null, ' +
+    'locked boolean not null, ' +
+    'milestone_id bigint, ' +
+    'number int not null, ' +
+    'state varchar(20) not null, ' +
+    'title text not null, ' +
+    'updated_at timestamp not null, ' +
+    'user_id bigint not null' +
+    ')'
+  )
+  c.exec('drop table if exists gha_issues_assignees')
+  c.exec(
+    'create table gha_issues_assignees(' +
+    'issue_id bigint not null, ' +
+    'assignee_id bigint not null, ' +
+    'primary key(issue_id, assignee_id)' +
     ')'
   )
 
