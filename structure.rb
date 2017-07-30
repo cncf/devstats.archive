@@ -277,6 +277,54 @@ def structure
     ')'
   )
 
+  # gha_releases
+  # Table details and analysis in `analysis/analysis.txt` and `analysis/release_*.json`
+  # Key: author_id
+  # Array: assets
+  c.exec('drop table if exists gha_releases')
+  c.exec(
+    'create table gha_releases(' +
+    'id bigint not null primary key, ' +
+    'tag_name varchar(120) not null, ' +
+    'target_commitish varchar(160) not null, ' +
+    'name varchar(120), ' +
+    'draft boolean not null, ' +
+    'author_id bigint not null, ' +
+    'prerelease boolean not null, ' +
+    'created_at timestamp not null, ' +
+    'published_at timestamp not null, ' +
+    'body text' +
+    ')'
+  )
+  c.exec('drop table if exists gha_releases_assets')
+  c.exec(
+    'create table gha_releases_assets(' +
+    'release_id bigint not null, ' +
+    'asset_id bigint not null, ' +
+    'primary key(release_id, asset_id)' +
+    ')'
+  )
+
+  # gha_assets
+  # Table details and analysis in `analysis/analysis.txt` and `analysis/asset_*.json`
+  # Key: uploader_id
+  c.exec('drop table if exists gha_assets')
+  c.exec(
+    'create table gha_assets(' +
+    'id bigint not null primary key, ' +
+    'name varchar(160) not null, ' +
+    'label varchar(40), ' +
+    'uploader_id bigint not null, ' +
+    'content_type varchar(80) not null, ' +
+    'state varchar(20) not null, ' +
+    'size int not null, ' +
+    'download_count int not null, ' +
+    'created_at timestamp not null, ' +
+    'updated_at timestamp not null' +
+    ')'
+  )
+  # TODO: only `pull_request` remain.
+
   # FIXME: remember to add foreign keys !
 rescue PG::Error => e
   puts e.message

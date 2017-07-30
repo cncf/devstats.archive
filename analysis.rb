@@ -78,7 +78,11 @@ def analysis(jsons)
     # h = h['org']        # Investigate gha_orgs table
     h = h['payload']    # Investigate gha_payloads table (most complex)
     next unless h
-    h = h['forkee']
+    h = h['release']
+    next unless h
+    h = h['assets']
+    next unless h
+    h = h.first
     next unless h
 
     s = object_structure('', h, true, true, 1)
@@ -99,7 +103,7 @@ def analysis(jsons)
     n += 1
   end
 
-  prefix = 'forkee'
+  prefix = 'asset'
   strs.keys.each_with_index do |key, index|
     h = strs[key]
     h['a_structure'] = key

@@ -47,6 +47,26 @@ CREATE TABLE gha_actors (
 ALTER TABLE gha_actors OWNER TO gha_admin;
 
 --
+-- Name: gha_assets; Type: TABLE; Schema: public; Owner: gha_admin
+--
+
+CREATE TABLE gha_assets (
+    id bigint NOT NULL,
+    name character varying(160) NOT NULL,
+    label character varying(40),
+    uploader_id bigint NOT NULL,
+    content_type character varying(80) NOT NULL,
+    state character varying(20) NOT NULL,
+    size integer NOT NULL,
+    download_count integer NOT NULL,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
+);
+
+
+ALTER TABLE gha_assets OWNER TO gha_admin;
+
+--
 -- Name: gha_comments; Type: TABLE; Schema: public; Owner: gha_admin
 --
 
@@ -101,6 +121,38 @@ CREATE TABLE gha_events (
 
 
 ALTER TABLE gha_events OWNER TO gha_admin;
+
+--
+-- Name: gha_forkees; Type: TABLE; Schema: public; Owner: gha_admin
+--
+
+CREATE TABLE gha_forkees (
+    id bigint NOT NULL,
+    name character varying(80) NOT NULL,
+    full_name character varying(160) NOT NULL,
+    owner_id bigint NOT NULL,
+    description text,
+    fork boolean NOT NULL,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL,
+    pushed_at timestamp without time zone NOT NULL,
+    homepage text,
+    size integer NOT NULL,
+    stargazers_count integer NOT NULL,
+    has_issues boolean NOT NULL,
+    has_projects boolean NOT NULL,
+    has_downloads boolean NOT NULL,
+    has_wiki boolean NOT NULL,
+    has_pages boolean NOT NULL,
+    forks integer NOT NULL,
+    open_issues integer NOT NULL,
+    watchers integer NOT NULL,
+    default_branch character varying(160) NOT NULL,
+    public boolean NOT NULL
+);
+
+
+ALTER TABLE gha_forkees OWNER TO gha_admin;
 
 --
 -- Name: gha_issues; Type: TABLE; Schema: public; Owner: gha_admin
@@ -261,6 +313,38 @@ CREATE TABLE gha_payloads_pages (
 ALTER TABLE gha_payloads_pages OWNER TO gha_admin;
 
 --
+-- Name: gha_releases; Type: TABLE; Schema: public; Owner: gha_admin
+--
+
+CREATE TABLE gha_releases (
+    id bigint NOT NULL,
+    tag_name character varying(120) NOT NULL,
+    target_commitish character varying(160) NOT NULL,
+    name character varying(120),
+    draft boolean NOT NULL,
+    author_id bigint NOT NULL,
+    prerelease boolean NOT NULL,
+    created_at timestamp without time zone NOT NULL,
+    published_at timestamp without time zone NOT NULL,
+    body text
+);
+
+
+ALTER TABLE gha_releases OWNER TO gha_admin;
+
+--
+-- Name: gha_releases_assets; Type: TABLE; Schema: public; Owner: gha_admin
+--
+
+CREATE TABLE gha_releases_assets (
+    release_id bigint NOT NULL,
+    asset_id bigint NOT NULL
+);
+
+
+ALTER TABLE gha_releases_assets OWNER TO gha_admin;
+
+--
 -- Name: gha_repos; Type: TABLE; Schema: public; Owner: gha_admin
 --
 
@@ -277,6 +361,14 @@ ALTER TABLE gha_repos OWNER TO gha_admin;
 --
 
 COPY gha_actors (id, login) FROM stdin;
+\.
+
+
+--
+-- Data for Name: gha_assets; Type: TABLE DATA; Schema: public; Owner: gha_admin
+--
+
+COPY gha_assets (id, name, label, uploader_id, content_type, state, size, download_count, created_at, updated_at) FROM stdin;
 \.
 
 
@@ -301,6 +393,14 @@ COPY gha_commits (sha, author_name, message, is_distinct) FROM stdin;
 --
 
 COPY gha_events (id, type, actor_id, repo_id, payload_id, public, created_at, org_id) FROM stdin;
+\.
+
+
+--
+-- Data for Name: gha_forkees; Type: TABLE DATA; Schema: public; Owner: gha_admin
+--
+
+COPY gha_forkees (id, name, full_name, owner_id, description, fork, created_at, updated_at, pushed_at, homepage, size, stargazers_count, has_issues, has_projects, has_downloads, has_wiki, has_pages, forks, open_issues, watchers, default_branch, public) FROM stdin;
 \.
 
 
@@ -385,6 +485,22 @@ COPY gha_payloads_pages (payload_id, sha) FROM stdin;
 
 
 --
+-- Data for Name: gha_releases; Type: TABLE DATA; Schema: public; Owner: gha_admin
+--
+
+COPY gha_releases (id, tag_name, target_commitish, name, draft, author_id, prerelease, created_at, published_at, body) FROM stdin;
+\.
+
+
+--
+-- Data for Name: gha_releases_assets; Type: TABLE DATA; Schema: public; Owner: gha_admin
+--
+
+COPY gha_releases_assets (release_id, asset_id) FROM stdin;
+\.
+
+
+--
 -- Data for Name: gha_repos; Type: TABLE DATA; Schema: public; Owner: gha_admin
 --
 
@@ -398,6 +514,14 @@ COPY gha_repos (id, name) FROM stdin;
 
 ALTER TABLE ONLY gha_actors
     ADD CONSTRAINT gha_actors_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: gha_assets gha_assets_pkey; Type: CONSTRAINT; Schema: public; Owner: gha_admin
+--
+
+ALTER TABLE ONLY gha_assets
+    ADD CONSTRAINT gha_assets_pkey PRIMARY KEY (id);
 
 
 --
@@ -422,6 +546,14 @@ ALTER TABLE ONLY gha_commits
 
 ALTER TABLE ONLY gha_events
     ADD CONSTRAINT gha_events_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: gha_forkees gha_forkees_pkey; Type: CONSTRAINT; Schema: public; Owner: gha_admin
+--
+
+ALTER TABLE ONLY gha_forkees
+    ADD CONSTRAINT gha_forkees_pkey PRIMARY KEY (id);
 
 
 --
@@ -502,6 +634,22 @@ ALTER TABLE ONLY gha_payloads_pages
 
 ALTER TABLE ONLY gha_payloads
     ADD CONSTRAINT gha_payloads_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: gha_releases_assets gha_releases_assets_pkey; Type: CONSTRAINT; Schema: public; Owner: gha_admin
+--
+
+ALTER TABLE ONLY gha_releases_assets
+    ADD CONSTRAINT gha_releases_assets_pkey PRIMARY KEY (release_id, asset_id);
+
+
+--
+-- Name: gha_releases gha_releases_pkey; Type: CONSTRAINT; Schema: public; Owner: gha_admin
+--
+
+ALTER TABLE ONLY gha_releases
+    ADD CONSTRAINT gha_releases_pkey PRIMARY KEY (id);
 
 
 --

@@ -323,6 +323,10 @@ def write_to_pg(con, ev)
     )
   end
 
+  # member
+  member = ev['payload']['member']
+  gha_actor(con, sid, member['id'], member['login']) if member
+
   # gha_comments
   # Table details and analysis in `analysis/analysis.txt` and `analysis/comment_*.json`
   comment = ev['payload']['comment']
@@ -552,6 +556,93 @@ def write_to_pg(con, ev)
         ]
       ]
     )
+  end
+
+  # gha_releases
+  # Table details and analysis in `analysis/analysis.txt` and `analysis/release_*.json`
+  release = ev['payload']['release']
+  if release
+    # author
+    gha_actor(con, sid, release['author']['id'], release['author']['login'])
+
+    # release
+    rid = release['id']
+    process_table(
+      con,
+      sid,
+      [
+        'select 1 from gha_releases where id=$1',
+        'insert into gha_releases(' +
+        'id, tag_name, target_commitish, name, draft, author_id, ' +
+        'prerelease, created_at, published_at, body' +
+        ') ' + n_values(10)
+      ],
+      [
+        [rid],
+        [
+          rid,
+          release['tag_name'],
+          release['target_commitish'],
+          release['name'],
+          release['draft'],
+          release['author']['id'],
+          release['prerelease'],
+          Time.parse(release['created_at']),
+          Time.parse(release['published_at']),
+          release['body']
+        ]
+      ]
+    )
+
+    # assets
+    assets = release['assets']
+    assets.each do |asset|
+      # uploader
+      gha_actor(con, sid, asset['uploader']['id'], asset['uploader']['login'])
+
+      # asset
+      aid = asset['id']
+      process_table(
+        con,
+        sid,
+        [
+          'select 1 from gha_assets where id=$1',
+          'insert into gha_assets(' +
+          'id, name, label, uploader_id, content_type, state, ' +
+          'size, download_count, created_at, updated_at' +
+          ') ' + n_values(10)
+        ],
+        [
+          [aid],
+          [
+            aid,
+            asset['name'],
+            asset['label'],
+            asset['uploader']['id'],
+            asset['content_type'],
+            asset['state'],
+            asset['size'],
+            asset['download_count'],
+            Time.parse(asset['created_at']),
+            Time.parse(asset['updated_at'])
+          ]
+        ]
+      )
+
+      # release-asset connection
+      process_table(
+        con,
+        sid,
+        [
+          'select 1 from gha_releases_assets where release_id=$1 and asset_id=$2',
+          'insert into gha_releases_assets(release_id, asset_id) values($1, $2)'
+        ],
+        [
+          [rid, aid],
+          [rid, aid]
+        ]
+      )
+    end
   end
 end
 
