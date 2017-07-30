@@ -98,6 +98,28 @@ rescue PG::UniqueViolation => e
   return process_table(con, sid, stmts, argss, retr + 1)
 end
 
+def gha_actor(con, sid, aid, login)
+  # gha_actors
+  # {"id:Fixnum"=>48592, "login:String"=>48592, "display_login:String"=>48592, "gravatar_id:String"=>48592, "url:String"=>48592, "avatar_url:String"=>48592}
+  # {"id"=>8, "login"=>34, "display_login"=>34, "gravatar_id"=>0, "url"=>63, "avatar_url"=>49}
+  process_table(
+    con,
+    sid,
+    [
+      'select 1 from gha_actors where id=$1', 
+      'insert into gha_actors(id, login) ' +
+      'values($1, $2)'
+    ],
+    [
+      [aid],
+      [
+        aid,
+        login
+      ]
+    ]
+  )
+end
+
 # Write single event to PSQL
 def write_to_pg(con, ev)
   sid = 'stmt' + Thread.current.object_id.to_s
@@ -125,26 +147,7 @@ def write_to_pg(con, ev)
   )
 
   # gha_actors
-  # {"id:Fixnum"=>48592, "login:String"=>48592, "display_login:String"=>48592, "gravatar_id:String"=>48592, "url:String"=>48592, "avatar_url:String"=>48592}
-  # {"id"=>8, "login"=>34, "display_login"=>34, "gravatar_id"=>0, "url"=>63, "avatar_url"=>49}
-  act = ev['actor']
-  aid = act['id'].to_i
-  process_table(
-    con,
-    sid,
-    [
-      'select 1 from gha_actors where id=$1', 
-      'insert into gha_actors(id, login) ' +
-      'values($1, $2)'
-    ],
-    [
-      [aid],
-      [
-        aid,
-        act['login']
-      ]
-    ]
-  )
+  gha_actor(con, sid, ev['actor']['id'], ev['actor']['login'])
 
   # gha_repos
   # {"id:Fixnum"=>48592, "name:String"=>48592, "url:String"=>48592}
@@ -315,6 +318,8 @@ def write_to_pg(con, ev)
   # Table details and analysis in `analysis/analysis.txt` and `analysis/comment_*.json`
   comment = ev['payload']['comment']
   if comment
+    gha_actor(con, sid, comment['user']['id'], comment['user']['login'])
+
     cid = comment['id'].to_i
     process_table(
       con,
