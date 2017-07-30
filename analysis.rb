@@ -19,7 +19,7 @@ def object_structure(s, o, is=false, md=nil, d=0)
         s += k.to_s + ':' + object_structure('', v, is, md, d + 1)
         s += ','
       end
-      s = s[0..-2] + '}'
+      s.include?(',') ? s = s[0..-2] + '}' : s += '}'
     else
       s += '{}'
     end

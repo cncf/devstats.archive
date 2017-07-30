@@ -63,7 +63,7 @@ Running this program on a 5 days of data with org `kubernetes` (and no repo set 
 - Takes: 10 minutes 50 seconds.
 - Generates 12002 JSONs in `jsons/` directory with summary size 165 Mb (each JSON is a single GitHub event).
 - To do so it processes about 21 Gb of data.
-- XZipped file: `kubernetes_events.tar.xz`.
+- XZipped file: `results/kubernetes_events.tar.xz`.
 
 Running this program 1 month of data with org `kubernetes` (and no repo set - which means all kubernetes repos).
 June 2017:
@@ -71,7 +71,7 @@ June 2017:
 - Takes: 61 minutes 26 seconds.
 - Generates 60773 JSONs in `jsons/` directory with summary size 815 Mb (each JSON is a single GitHub event).
 - To do so it processes about 126 Gb of data.
-- XZipped file: `k8s_month.tar.xz`.
+- XZipped file: `results/k8s_month.tar.xz`.
 
 Taking all event from single day is 5 minutes 50 seconds (2017-07-28):
 - Generates 1194599 JSON files (1.2M)
