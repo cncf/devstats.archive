@@ -111,6 +111,7 @@ Ubuntu like Linux:
 - create user gha_admin with password 'your_password_here';
 - grant all privileges on database "gha" to gha_admin;
 - ./structure.rb
+- psql gha
 
 `structure.rb` script is used to create Postgres database schema.
 It gets connection details from environmental variables and falls back to some defaults.

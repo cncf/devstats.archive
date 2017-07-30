@@ -68,6 +68,7 @@ def analysis(jsons)
   strs = {}
   jsons.each do |json|
     h = JSON.parse(File.read(json)).to_h
+    oh = h
     # Leave h "as is" to investigate top level DB table
     # h = h['actor']      # Investigate gha_actors table
     # h = h['repo']       # Investigate gha_repos table
@@ -77,7 +78,7 @@ def analysis(jsons)
     # h = h['issue']
     # next unless h
     s = object_structure('', h, true, 1)
-    strs[s] = h
+    strs[s] = oh
 
     # Analysis
     keys = h.keys
@@ -96,7 +97,15 @@ def analysis(jsons)
   p occ
   p ml
   p n
-  binding.pry if strs.keys.length > 1
+  prefix = 'payload'
+  if strs.keys.length > 1
+    strs.keys.each_with_index do |key, index|
+      h = strs[key]
+      h['a_structure'] = key
+      File.write("analysis/#{prefix}_#{index}.structure", JSON.pretty_generate(h))
+    end
+    binding.pry
+  end
 end
 
 analysis(ARGV)
