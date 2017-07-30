@@ -247,6 +247,36 @@ def structure
     ')'
   )
 
+  # gha_forkees
+  # Table details and analysis in `analysis/analysis.txt` and `analysis/forkee_*.json`
+  c.exec('drop table if exists gha_forkees')
+  c.exec(
+    'create table gha_forkees(' +
+    'id bigint not null primary key, ' +
+    'name varchar(80) not null, ' +
+    'full_name varchar(160) not null, ' +
+    'owner_id bigint not null, ' +
+    'description text, ' +
+    'fork boolean not null, ' +
+    'created_at timestamp not null, ' +
+    'updated_at timestamp not null, ' +
+    'pushed_at timestamp not null, ' +
+    'homepage text, ' +
+    'size int not null, ' +
+    'stargazers_count int not null, ' +
+    'has_issues boolean not null, ' +
+    'has_projects boolean not null, ' +
+    'has_downloads boolean not null, ' +
+    'has_wiki boolean not null, ' +
+    'has_pages boolean not null, ' +
+    'forks int not null, ' +
+    'open_issues int not null, ' +
+    'watchers int not null, ' +
+    'default_branch varchar(160) not null, ' +
+    'public boolean not null' +
+    ')'
+  )
+
   # FIXME: remember to add foreign keys !
 rescue PG::Error => e
   puts e.message

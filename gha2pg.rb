@@ -86,6 +86,7 @@ def process_table(con, sid, stmts, argss, retr=0)
   con.transaction do |con|
     stmts.each_with_index do |stmt, index|
       args = argss[index]
+      args.each { |arg| arg = arg.gsub!("\000", '') if arg.is_a?(String) } if index == 1
       res = exec_stmt(con, sid, stmt, args)
       return res if index == 0 && res.count > 0
     end
@@ -96,6 +97,10 @@ rescue PG::UniqueViolation => e
   # puts "UNIQUE violation #{e.message}"
   exit(1) if retr >= 1
   return process_table(con, sid, stmts, argss, retr + 1)
+# rescue Exception => e
+#   puts "Unsupported exception"
+#   p [stmts, argss]
+#   raise e
 end
 
 def gha_actor(con, sid, aid, login)
@@ -126,7 +131,7 @@ def write_to_pg(con, ev)
   # gha_events
   # {"id:String"=>48592, "type:String"=>48592, "actor:Hash"=>48592, "repo:Hash"=>48592, "payload:Hash"=>48592, "public:TrueClass"=>48592, "created_at:String"=>48592, "org:Hash"=>19451}
   # {"id"=>10, "type"=>29, "actor"=>278, "repo"=>290, "payload"=>216017, "public"=>4, "created_at"=>20, "org"=>230}
-  eid = ev['id'].to_i
+  eid = ev['id']
   rs = exec_stmt(con, sid, 'select 1 from gha_events where id=$1', [eid])
   return if rs.count > 0
   exec_stmt(
@@ -153,7 +158,7 @@ def write_to_pg(con, ev)
   # {"id:Fixnum"=>48592, "name:String"=>48592, "url:String"=>48592}
   # {"id"=>8, "name"=>111, "url"=>140}
   repo = ev['repo']
-  rid = repo['id'].to_i
+  rid = repo['id']
   process_table(
     con,
     sid,
@@ -176,7 +181,7 @@ def write_to_pg(con, ev)
   # {"id"=>8, "login"=>38, "gravatar_id"=>0, "url"=>66, "avatar_url"=>49}
   org = ev['org']
   if org
-    oid = org['id'].to_i
+    oid = org['id']
     process_table(
       con,
       sid,
@@ -326,7 +331,7 @@ def write_to_pg(con, ev)
     gha_actor(con, sid, comment['user']['id'], comment['user']['login'])
 
     # comment
-    cid = comment['id'].to_i
+    cid = comment['id']
     process_table(
       con,
       sid,
@@ -369,7 +374,7 @@ def write_to_pg(con, ev)
     gha_actor(con, sid, issue['assignee']['id'], issue['assignee']['login']) if issue['assignee']
 
     # issue
-    iid = issue['id'].to_i
+    iid = issue['id']
     process_table(
       con,
       sid,
@@ -405,7 +410,7 @@ def write_to_pg(con, ev)
     if milestone
       gha_actor(con, sid, milestone['creator']['id'], milestone['creator']['login'])
 
-      mid = milestone['id'].to_i
+      mid = milestone['id']
       # gha_milestones
       process_table(
         con,
@@ -469,7 +474,8 @@ def write_to_pg(con, ev)
         sid,
         [
           'select 1 from gha_labels where id=$1',
-          'insert into gha_labels(id, name, color, is_default) ' + n_values(4)
+          'insert into gha_labels(id, name, color, is_default) ' +
+          'values($1, $2, $3, $4)'
         ],
         [
           [lid],
@@ -495,6 +501,57 @@ def write_to_pg(con, ev)
         ]
       )
     end
+  end
+
+  # gha_forkees
+  # Table details and analysis in `analysis/analysis.txt` and `analysis/forkee_*.json`
+  forkee = ev['payload']['forkee']
+  if forkee
+    # owner
+    gha_actor(con, sid, forkee['owner']['id'], forkee['owner']['login'])
+
+    # forkee
+    fid = forkee['id']
+    process_table(
+      con,
+      sid,
+      [
+        'select 1 from gha_forkees where id=$1',
+        'insert into gha_forkees(' +
+        'id, name, full_name, owner_id, description, fork, ' +
+        'created_at, updated_at, pushed_at, homepage, size, ' +
+        'stargazers_count, has_issues, has_projects, has_downloads, ' +
+        'has_wiki, has_pages, forks, default_branch, open_issues, ' +
+        'watchers, public) ' + n_values(22)
+      ],
+      [
+        [fid],
+        [
+          fid,
+          forkee['name'],
+          forkee['full_name'],
+          forkee['owner']['id'],
+          forkee['description'],
+          forkee['fork'],
+          Time.parse(forkee['created_at']),
+          Time.parse(forkee['updated_at']),
+          Time.parse(forkee['pushed_at']),
+          forkee['homepage'],
+          forkee['size'],
+          forkee['stargazers_count'],
+          forkee['has_issues'],
+          forkee['has_projects'],
+          forkee['has_downloads'],
+          forkee['has_wiki'],
+          forkee['has_pages'],
+          forkee['forks'],
+          forkee['default_branch'],
+          forkee['open_issues'],
+          forkee['watchers'],
+          forkee['public']
+        ]
+      ]
+    )
   end
 end
 
