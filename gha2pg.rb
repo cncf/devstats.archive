@@ -247,15 +247,14 @@ def write_to_pg(con, ev)
       [
         'select 1 from gha_commits where sha=$1',
         'insert into gha_commits(' +
-        'sha, author_name, author_email, message, is_distinct) ' +
-        'values($1, $2, $3, $4, $5)'
+        'sha, author_name, message, is_distinct) ' +
+        'values($1, $2, $3, $4)'
       ],
       [
         [sha],
         [
           sha,
           commit['author']['name'],
-          commit['author']['email'],
           commit['message'],
           commit['distinct']
         ]
@@ -287,14 +286,13 @@ def write_to_pg(con, ev)
       sid,
       [
         'select 1 from gha_pages where sha=$1',
-        'insert into gha_pages(sha, action, page_name, title) values($1, $2, $3, $4)'
+        'insert into gha_pages(sha, action, title) values($1, $2, $3)'
       ],
       [
         [sha],
         [
           sha,
           page['action'],
-          page['page_name'],
           page['title']
         ]
       ]
@@ -309,6 +307,44 @@ def write_to_pg(con, ev)
       [
         [plid, sha],
         [plid, sha]
+      ]
+    )
+  end
+
+  # gha_comments
+  # Table details and analysis in `analysis/analysis.txt` and `analysis/comment_*.json`
+  comment = ev['payload']['comment']
+  if comment
+    cid = comment['id'].to_i
+    process_table(
+      con,
+      sid,
+      [
+        'select 1 from gha_comments where id=$1', 
+        'insert into gha_comments(' +
+        'id, body, created_at, updated_at, type, user_id, ' +
+        'commit_id, original_commit_id, diff_hunk, position, ' +
+        'original_position, path, pull_request_review_id, line' +
+        ') ' + n_values(14)
+      ],
+      [
+        [cid],
+        [
+          cid,
+          comment['body'],
+          Time.parse(comment['created_at']),
+          Time.parse(comment['updated_at']),
+          ev['type'],
+          comment['user']['id'],
+          comment['commit_id'],
+          comment['original_commit_id'],
+          comment['diff_hunk'],
+          comment['position'],
+          comment['original_position'],
+          comment['path'],
+          comment['pull_request_review_id'],
+          comment['line']
+        ]
       ]
     )
   end

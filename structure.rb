@@ -52,7 +52,7 @@ def structure
   c.exec(
     'create table gha_actors(' +
     'id bigint not null primary key, ' +
-    'login varchar(80) not null' +
+    'login varchar(100) not null' +
     ')'
   )
   # gha_repos
@@ -115,7 +115,7 @@ def structure
     'create table gha_commits(' +
     'sha varchar(40) not null primary key, ' +
     'author_name varchar(160) not null, ' +
-    'author_email varchar(160) not null, ' +
+    # 'author_email varchar(160) not null, ' +
     'message text not null, ' +
     'is_distinct boolean not null' +
     ')'
@@ -138,7 +138,7 @@ def structure
     'create table gha_pages(' +
     'sha varchar(40) not null primary key, ' +
     'action varchar(20) not null, ' +
-    'page_name varchar(160) not null, ' +
+    # 'page_name varchar(160) not null, ' +
     'title varchar(160) not null' +
     ')'
   )
@@ -151,6 +151,27 @@ def structure
     ')'
   )
 
+  # gha_comments
+  # Table details and analysis in `analysis/analysis.txt` and `analysis/comment_*.json`
+  c.exec('drop table if exists gha_comments')
+  c.exec(
+    'create table gha_comments(' +
+    'id bigint not null primary key, ' +
+    'body text not null, ' +
+    'created_at timestamp not null, ' +
+    'updated_at timestamp not null, ' +
+    'type varchar(40) not null, ' +
+    'user_id bigint not null, ' +
+    'commit_id varchar(40), ' +
+    'original_commit_id varchar(40), ' +
+    'diff_hunk text, ' +
+    'position int, ' +
+    'original_position int, ' +
+    'path text, ' +
+    'pull_request_review_id bigint, ' +
+    'line int' +
+    ')'
+  )
 
   # FIXME: remember to add foreign keys !
 rescue PG::Error => e
