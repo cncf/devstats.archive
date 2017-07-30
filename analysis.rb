@@ -75,8 +75,8 @@ def analysis(jsons)
     # h = h['org']        # Investigate gha_orgs table
     h = h['payload']    # Investigate gha_payloads table (most complex)
     next unless h
-    # h = h['issue']
-    # next unless h
+    h = h['comment']
+    next unless h
     s = object_structure('', h, true, 1)
     strs[s] = oh
 
@@ -97,12 +97,12 @@ def analysis(jsons)
   p occ
   p ml
   p n
-  prefix = 'payload'
+  prefix = 'comment'
   if strs.keys.length > 1
     strs.keys.each_with_index do |key, index|
       h = strs[key]
       h['a_structure'] = key
-      File.write("analysis/#{prefix}_#{index}.structure", JSON.pretty_generate(h))
+      File.write("analysis/#{prefix}_#{index}.json", JSON.pretty_generate(h))
     end
     binding.pry
   end
