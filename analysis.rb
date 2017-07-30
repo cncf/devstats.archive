@@ -6,35 +6,38 @@ require 'pry'
 # Outputs object structure (without data), to compare if different objects are representing similar data
 # s: output string
 # o: object
+# ie: ignore empty arrays and empty hashes - skip adding {}, [] in such cases
 # is: ignore scalars: true ==> will not output data types, false => will output values data type
 # md: max depth (recursion depth), 1 will only search top level fields, 2 will look in one level deeper etc
 # d: current depth (used automatically in recursion)
-def object_structure(s, o, is=false, md=nil, d=0)
+def object_structure(s, o, ie=false, is=false, md=nil, d=0)
   case o
   when Hash
     if !md || d < md
-      s += '{'
+      r = '{'
       o.keys.sort.each do |k|
         v = o[k]
-        s += k.to_s + ':' + object_structure('', v, is, md, d + 1)
-        s += ','
+        r += k.to_s + ':' + object_structure('', v, ie, is, md, d + 1)
+        r += ','
       end
-      s.include?(',') ? s = s[0..-2] + '}' : s += '}'
+      r.include?(',') ? r = r[0..-2] + '}' : r += '}'
+      s += r unless r == '{}' && ie
     else
-      s += '{}'
+      s += '{}' unless ie
     end
   when Array
     if !md || d < md
       v = o.first
-      s += '[' + object_structure('', v, is, md, d + 1) + ']'
+      r = '[' + object_structure('', v, ie, is, md, d + 1) + ']'
       nd = o.map(&:class).uniq.count
       if nd >= 2
         puts "Non unique type array elements"
         p o
         binding.pry
       end
+      s += r unless r == '[]' && ie
     else
-      s += '[]'
+      s += '[]' unless ie
     end
   when NilClass
     s += '(nil)' unless is
@@ -75,9 +78,9 @@ def analysis(jsons)
     # h = h['org']        # Investigate gha_orgs table
     h = h['payload']    # Investigate gha_payloads table (most complex)
     next unless h
-    h = h['comment']
+    h = h['issue']
     next unless h
-    s = object_structure('', h, true, 1)
+    s = object_structure('', h, true, true, 1)
     strs[s] = oh
 
     # Analysis
@@ -94,18 +97,18 @@ def analysis(jsons)
     end
     n += 1
   end
+
+  prefix = 'issue'
+  strs.keys.each_with_index do |key, index|
+    h = strs[key]
+    h['a_structure'] = key
+    File.write("analysis/#{prefix}_#{index}.json", JSON.pretty_generate(h))
+  end
+  strs.keys.sort.each { |k| p k }
   p occ
   p ml
   p n
-  prefix = 'comment'
-  if strs.keys.length > 1
-    strs.keys.each_with_index do |key, index|
-      h = strs[key]
-      h['a_structure'] = key
-      File.write("analysis/#{prefix}_#{index}.json", JSON.pretty_generate(h))
-    end
-    binding.pry
-  end
+  binding.pry if strs.keys.length > 1
 end
 
 analysis(ARGV)
