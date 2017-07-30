@@ -356,7 +356,6 @@ def write_to_pg(con, ev)
 
   # gha_issues
   # Table details and analysis in `analysis/analysis.txt` and `analysis/issue_*.json`
-  # TODO: process depth first, so milestone
   # TODO: arrays: assignees, labels
   issue = ev['payload']['issue']
   if issue
@@ -393,6 +392,42 @@ def write_to_pg(con, ev)
         ]
       ]
     )
+
+    # milestone
+    milestone = issue['milestone']
+    if milestone
+      gha_actor(con, sid, milestone['creator']['id'], milestone['creator']['login'])
+
+      mid = milestone['id'].to_i
+      process_table(
+        con,
+        sid,
+        [
+          'select 1 from gha_milestones where id=$1', 
+          'insert into gha_milestones(' +
+          'id, closed_at, closed_issues, created_at, creator_id, description, ' +
+          'due_on, number, open_issues, state, title, updated_at' +
+          ') ' + n_values(12)
+        ],
+        [
+          [mid],
+          [
+            mid,
+            milestone['closed_at'] ? Time.parse(milestone['closed_at']) : nil,
+            milestone['closed_issues'], 
+            Time.parse(milestone['created_at']),
+            milestone['creator']['id'], 
+            milestone['description'], 
+            milestone['due_on'] ? Time.parse(milestone['due_on']) : nil,
+            milestone['number'], 
+            milestone['open_issues'], 
+            milestone['state'], 
+            milestone['title'], 
+            Time.parse(milestone['updated_at'])
+          ]
+        ]
+      )
+    end
 
     # assignees
     assignees = issue['assignees']
