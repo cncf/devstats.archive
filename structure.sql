@@ -182,7 +182,7 @@ CREATE TABLE gha_forkees (
     size integer NOT NULL,
     stargazers_count integer NOT NULL,
     has_issues boolean NOT NULL,
-    has_projects boolean NOT NULL,
+    has_projects boolean,
     has_downloads boolean NOT NULL,
     has_wiki boolean NOT NULL,
     has_pages boolean NOT NULL,

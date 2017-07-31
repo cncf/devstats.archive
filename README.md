@@ -145,7 +145,7 @@ PostgreSQL:
 - Creates 17992 releases.
 - Creates 10682 release - asset connections.
 - Creates 670613 repos.
-- See `results/all_3days_psql.sql.xz`
+- See <http://cncftest.io/all_3days_psql.sql.xz>
 
 # PostgreSQL database
 Setup:

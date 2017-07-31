@@ -289,7 +289,7 @@ def structure
     'size int not null, ' +
     'stargazers_count int not null, ' +
     'has_issues boolean not null, ' +
-    'has_projects boolean not null, ' +
+    'has_projects boolean, ' +
     'has_downloads boolean not null, ' +
     'has_wiki boolean not null, ' +
     'has_pages boolean not null, ' +

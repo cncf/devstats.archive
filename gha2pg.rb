@@ -67,9 +67,9 @@ def exec_stmt(con, sid, stmt, args)
     con.exec('deallocate ' + sid)
   end
 rescue Exception => e
-  puts "Exception on"
+  puts "Exception:"
   puts e.message
-  p [con, sid, stmt, args]
+  p [sid, stmt, args]
   raise e
 end
 
@@ -410,7 +410,7 @@ def write_to_pg(con, ev)
     gha_milestone(con, sid, event_id, issue['milestone']) if issue['milestone']
 
     # assignees
-    assignees = issue['assignees']
+    assignees = issue['assignees'] || []
     p_aid = issue['assignee'] ? issue['assignee']['id'] : nil
     assignees.each do |assignee|
       aid = assignee['id']
@@ -602,7 +602,7 @@ def write_to_pg(con, ev)
 
     # Arrays: actors: assignees, requested_reviewers
     # assignees
-    assignees = pr['assignees']
+    assignees = pr['assignees'] || []
     p_aid = pr['assignee'] ? pr['assignee']['id'] : nil
     assignees.each do |assignee|
       aid = assignee['id']
@@ -621,7 +621,7 @@ def write_to_pg(con, ev)
     end
 
     # requested_reviewers
-    reviewers = pr['requested_reviewers']
+    reviewers = pr['requested_reviewers'] || []
     reviewers.each do |reviewer|
       # reviewer
       gha_actor(con, sid, reviewer)
