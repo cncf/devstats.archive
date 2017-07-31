@@ -32,6 +32,7 @@ def structure
   # gha_events
   # {"id:String"=>48592, "type:String"=>48592, "actor:Hash"=>48592, "repo:Hash"=>48592, "payload:Hash"=>48592, "public:TrueClass"=>48592, "created_at:String"=>48592, "org:Hash"=>19451}
   # {"id"=>10, "type"=>29, "actor"=>278, "repo"=>290, "payload"=>216017, "public"=>4, "created_at"=>20, "org"=>230}
+  # const
   c.exec('drop table if exists gha_events')
   c.exec(
     'create table gha_events(' +
@@ -39,7 +40,6 @@ def structure
     'type varchar(40) not null, ' +
     'actor_id bigint not null, ' +
     'repo_id bigint not null, ' +
-    'payload_id bigint not null, ' +
     'public boolean not null, ' +
     'created_at timestamp not null, ' +
     'org_id bigint' +
@@ -48,6 +48,7 @@ def structure
   # gha_actors
   # {"id:Fixnum"=>48592, "login:String"=>48592, "display_login:String"=>48592, "gravatar_id:String"=>48592, "url:String"=>48592, "avatar_url:String"=>48592}
   # {"id"=>8, "login"=>34, "display_login"=>34, "gravatar_id"=>0, "url"=>63, "avatar_url"=>49}
+  # const
   c.exec('drop table if exists gha_actors')
   c.exec(
     'create table gha_actors(' +
@@ -58,6 +59,7 @@ def structure
   # gha_repos
   # {"id:Fixnum"=>48592, "name:String"=>48592, "url:String"=>48592}
   # {"id"=>8, "name"=>111, "url"=>140}
+  # const
   c.exec('drop table if exists gha_repos')
   c.exec(
     'create table gha_repos(' +
@@ -67,8 +69,9 @@ def structure
   )
 
   # gha_orgs
-  #{"id:Fixnum"=>18494, "login:String"=>18494, "gravatar_id:String"=>18494, "url:String"=>18494, "avatar_url:String"=>18494}
-  #{"id"=>8, "login"=>38, "gravatar_id"=>0, "url"=>66, "avatar_url"=>49}
+  # {"id:Fixnum"=>18494, "login:String"=>18494, "gravatar_id:String"=>18494, "url:String"=>18494, "avatar_url:String"=>18494}
+  # {"id"=>8, "login"=>38, "gravatar_id"=>0, "url"=>66, "avatar_url"=>49}
+  # const
   c.exec('drop table if exists gha_orgs')
   c.exec(
     'create table gha_orgs(' +
@@ -81,10 +84,11 @@ def structure
   # {"push_id:Fixnum"=>24636, "size:Fixnum"=>24636, "distinct_size:Fixnum"=>24636, "ref:String"=>30522, "head:String"=>24636, "before:String"=>24636, "commits:Array"=>24636, "action:String"=>14317, "issue:Hash"=>6446, "comment:Hash"=>6055, "ref_type:String"=>8010, "master_branch:String"=>6724, "description:String"=>3701, "pusher_type:String"=>8010, "pull_request:Hash"=>4475, "ref:NilClass"=>2124, "description:NilClass"=>3023, "number:Fixnum"=>2992, "forkee:Hash"=>1211, "pages:Array"=>370, "release:Hash"=>156, "member:Hash"=>219}
   # {"push_id"=>10, "size"=>4, "distinct_size"=>4, "ref"=>110, "head"=>40, "before"=>40, "commits"=>33215, "action"=>9, "issue"=>87776, "comment"=>177917, "ref_type"=>10, "master_branch"=>34, "description"=>3222, "pusher_type"=>4, "pull_request"=>70565, "number"=>5, "forkee"=>6880, "pages"=>855, "release"=>31206, "member"=>1040}
   # 48746
+  # const
   c.exec('drop table if exists gha_payloads')
   c.exec(
     'create table gha_payloads(' +
-    'id bigint not null primary key, ' +
+    'event_id bigint not null primary key, ' +
     'push_id int, ' +
     'size int, ' +
     'ref varchar(160), ' +
@@ -110,22 +114,26 @@ def structure
   # author: {"name:String"=>23265, "email:String"=>23265} (only git username/email)
   # author: {"name"=>96, "email"=>95}
   # 23265
+  # variable (per event)
   c.exec('drop table if exists gha_commits')
   c.exec(
     'create table gha_commits(' +
-    'sha varchar(40) not null primary key, ' +
+    'sha varchar(40) not null, ' +
+    'event_id bigint not null, ' +
     'author_name varchar(160) not null, ' +
     # 'author_email varchar(160) not null, ' +
     'message text not null, ' +
-    'is_distinct boolean not null' +
+    'is_distinct boolean not null, ' +
+    'primary key(sha, event_id)' +
     ')'
   )
-  c.exec('drop table if exists gha_payloads_commits')
+  # variable
+  c.exec('drop table if exists gha_events_commits')
   c.exec(
-    'create table gha_payloads_commits(' +
-    'payload_id bigint not null, ' +
+    'create table gha_events_commits(' +
+    'event_id bigint not null, ' +
     'sha varchar(40) not null, ' +
-    'primary key(payload_id, sha)' +
+    'primary key(event_id, sha)' +
     ')'
   )
 
@@ -133,31 +141,37 @@ def structure
   # {"page_name:String"=>370, "title:String"=>370, "summary:NilClass"=>370, "action:String"=>370, "sha:String"=>370, "html_url:String"=>370}
   # {"page_name"=>65, "title"=>65, "summary"=>0, "action"=>7, "sha"=>40, "html_url"=>130}
   # 370
+  # variable
   c.exec('drop table if exists gha_pages')
   c.exec(
     'create table gha_pages(' +
-    'sha varchar(40) not null primary key, ' +
+    'sha varchar(40) not null, ' +
+    'event_id bigint not null, ' +
     'action varchar(20) not null, ' +
     # 'page_name varchar(160) not null, ' +
-    'title varchar(160) not null' +
+    'title varchar(160) not null, ' +
+    'primary key(sha, event_id, action, title)' +
     ')'
   )
-  c.exec('drop table if exists gha_payloads_pages')
+  # variable
+  c.exec('drop table if exists gha_events_pages')
   c.exec(
-    'create table gha_payloads_pages(' +
-    'payload_id bigint not null, ' +
+    'create table gha_events_pages(' +
+    'event_id bigint not null, ' +
     'sha varchar(40) not null, ' +
-    'primary key(payload_id, sha)' +
+    'primary key(event_id, sha)' +
     ')'
   )
 
   # gha_comments
   # Table details and analysis in `analysis/analysis.txt` and `analysis/comment_*.json`
   # Keys: user_id, commit_id, original_commit_id, pull_request_review_id
+  # const & per event
   c.exec('drop table if exists gha_comments')
   c.exec(
     'create table gha_comments(' +
     'id bigint not null primary key, ' +
+    # 'event_id bigint not null, ' +
     'body text not null, ' +
     'created_at timestamp not null, ' +
     'updated_at timestamp not null, ' +
@@ -179,10 +193,12 @@ def structure
   # Arrays: assignees, labels
   # Keys: assignee_id, milestone_id, user_id
   # NOTICE: We are skipoping pull_request Hash there because it contains only URL links!
+  # variable
   c.exec('drop table if exists gha_issues')
   c.exec(
     'create table gha_issues(' +
-    'id bigint not null primary key, ' +
+    'id bigint not null, ' +
+    'event_id bigint not null, ' +
     'assignee_id bigint, ' +
     'body text, ' +
     'closed_at timestamp, ' +
@@ -194,41 +210,48 @@ def structure
     'state varchar(20) not null, ' +
     'title text not null, ' +
     'updated_at timestamp not null, ' +
-    'user_id bigint not null' +
+    'user_id bigint not null, ' +
+    'primary key(id, event_id)' +
     ')'
   )
+  # variable
   c.exec('drop table if exists gha_issues_assignees')
   c.exec(
     'create table gha_issues_assignees(' +
     'issue_id bigint not null, ' +
+    'event_id bigint not null, ' +
     'assignee_id bigint not null, ' +
-    'primary key(issue_id, assignee_id)' +
+    'primary key(issue_id, event_id, assignee_id)' +
     ')'
   )
 
   # gha_milestones
   # Table details and analysis in `analysis/analysis.txt` and `analysis/milestone_*.json`
   # Keys: creator_id
+  # variable
   c.exec('drop table if exists gha_milestones')
   c.exec(
     'create table gha_milestones(' +
-    'id bigint not null primary key, ' +
+    'id bigint not null, ' +
+    'event_id bigint not null, ' +
     'closed_at timestamp, ' +
     'closed_issues int not null, ' +
     'created_at timestamp not null, ' +
-    'creator_id bigint not null, ' +
+    'creator_id bigint, ' +
     'description text, ' +
     'due_on timestamp, ' +
     'number int not null, ' +
     'open_issues int not null, ' +
     'state varchar(20) not null, ' +
     'title varchar(120) not null, ' +
-    'updated_at timestamp not null' +
+    'updated_at timestamp not null, ' +
+    'primary key(id, event_id)' +
     ')'
   )
 
   # gha_labels
   # Table details and analysis in `analysis/analysis.txt` and `analysis/label_*.json`
+  # const
   c.exec('drop table if exists gha_labels')
   c.exec(
     'create table gha_labels(' +
@@ -238,21 +261,25 @@ def structure
     'is_default boolean not null' +
     ')'
   )
+  # variable
   c.exec('drop table if exists gha_issues_labels')
   c.exec(
     'create table gha_issues_labels(' +
     'issue_id bigint not null, ' +
+    'event_id bigint not null, ' +
     'label_id bigint not null, ' +
-    'primary key(issue_id, label_id)' +
+    'primary key(issue_id, event_id, label_id)' +
     ')'
   )
 
   # gha_forkees
   # Table details and analysis in `analysis/analysis.txt` and `analysis/forkee_*.json`
+  # variable
   c.exec('drop table if exists gha_forkees')
   c.exec(
     'create table gha_forkees(' +
-    'id bigint not null primary key, ' +
+    'id bigint not null, ' +
+    'event_id bigint not null, ' +
     'name varchar(80) not null, ' +
     'full_name varchar(160) not null, ' +
     'owner_id bigint not null, ' +
@@ -273,7 +300,8 @@ def structure
     'open_issues int not null, ' +
     'watchers int not null, ' +
     'default_branch varchar(160) not null, ' +
-    'public boolean not null' +
+    'public boolean not null, ' +
+    'primary key(id, event_id)' +
     ')'
   )
 
@@ -281,10 +309,12 @@ def structure
   # Table details and analysis in `analysis/analysis.txt` and `analysis/release_*.json`
   # Key: author_id
   # Array: assets
+  # variable
   c.exec('drop table if exists gha_releases')
   c.exec(
     'create table gha_releases(' +
-    'id bigint not null primary key, ' +
+    'id bigint not null, ' +
+    'event_id bigint not null, ' +
     'tag_name varchar(120) not null, ' +
     'target_commitish varchar(160) not null, ' +
     'name varchar(120), ' +
@@ -293,25 +323,30 @@ def structure
     'prerelease boolean not null, ' +
     'created_at timestamp not null, ' +
     'published_at timestamp not null, ' +
-    'body text' +
+    'body text, ' +
+    'primary key(id, event_id)' +
     ')'
   )
+  # variable
   c.exec('drop table if exists gha_releases_assets')
   c.exec(
     'create table gha_releases_assets(' +
     'release_id bigint not null, ' +
+    'event_id bigint not null, ' +
     'asset_id bigint not null, ' +
-    'primary key(release_id, asset_id)' +
+    'primary key(release_id, event_id, asset_id)' +
     ')'
   )
 
   # gha_assets
   # Table details and analysis in `analysis/analysis.txt` and `analysis/asset_*.json`
   # Key: uploader_id
+  # variable
   c.exec('drop table if exists gha_assets')
   c.exec(
     'create table gha_assets(' +
-    'id bigint not null primary key, ' +
+    'id bigint not null, ' +
+    'event_id bigint not null, ' +
     'name varchar(160) not null, ' +
     'label varchar(40), ' +
     'uploader_id bigint not null, ' +
@@ -320,7 +355,8 @@ def structure
     'size int not null, ' +
     'download_count int not null, ' +
     'created_at timestamp not null, ' +
-    'updated_at timestamp not null' +
+    'updated_at timestamp not null, ' +
+    'primary key(id, event_id)' +
     ')'
   )
   # TODO: only `pull_request` remain.
