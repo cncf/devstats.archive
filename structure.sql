@@ -40,7 +40,7 @@ SET default_with_oids = false;
 
 CREATE TABLE gha_actors (
     id bigint NOT NULL,
-    login character varying(100) NOT NULL
+    login character varying(120) NOT NULL
 );
 
 
@@ -53,8 +53,8 @@ ALTER TABLE gha_actors OWNER TO gha_admin;
 CREATE TABLE gha_assets (
     id bigint NOT NULL,
     event_id bigint NOT NULL,
-    name character varying(160) NOT NULL,
-    label character varying(40),
+    name character varying(200) NOT NULL,
+    label character varying(120),
     uploader_id bigint NOT NULL,
     content_type character varying(80) NOT NULL,
     state character varying(20) NOT NULL,
@@ -74,10 +74,10 @@ ALTER TABLE gha_assets OWNER TO gha_admin;
 CREATE TABLE gha_branches (
     sha character varying(40) NOT NULL,
     event_id bigint NOT NULL,
-    user_id bigint NOT NULL,
+    user_id bigint,
     repo_id bigint,
-    label character varying(160) NOT NULL,
-    ref character varying(160) NOT NULL
+    label character varying(200) NOT NULL,
+    ref character varying(200) NOT NULL
 );
 
 
@@ -171,7 +171,7 @@ CREATE TABLE gha_forkees (
     id bigint NOT NULL,
     event_id bigint NOT NULL,
     name character varying(80) NOT NULL,
-    full_name character varying(160) NOT NULL,
+    full_name character varying(200) NOT NULL,
     owner_id bigint NOT NULL,
     description text,
     fork boolean NOT NULL,
@@ -189,7 +189,7 @@ CREATE TABLE gha_forkees (
     forks integer NOT NULL,
     open_issues integer NOT NULL,
     watchers integer NOT NULL,
-    default_branch character varying(160) NOT NULL,
+    default_branch character varying(200) NOT NULL,
     public boolean
 );
 
@@ -252,7 +252,7 @@ ALTER TABLE gha_issues_labels OWNER TO gha_admin;
 
 CREATE TABLE gha_labels (
     id bigint NOT NULL,
-    name character varying(120) NOT NULL,
+    name character varying(160) NOT NULL,
     color character varying(8) NOT NULL,
     is_default boolean NOT NULL
 );
@@ -276,7 +276,7 @@ CREATE TABLE gha_milestones (
     number integer NOT NULL,
     open_issues integer NOT NULL,
     state character varying(20) NOT NULL,
-    title character varying(120) NOT NULL,
+    title character varying(200) NOT NULL,
     updated_at timestamp without time zone NOT NULL
 );
 
@@ -289,7 +289,7 @@ ALTER TABLE gha_milestones OWNER TO gha_admin;
 
 CREATE TABLE gha_orgs (
     id bigint NOT NULL,
-    login character varying(80) NOT NULL
+    login character varying(100) NOT NULL
 );
 
 
@@ -317,14 +317,14 @@ CREATE TABLE gha_payloads (
     event_id bigint NOT NULL,
     push_id integer,
     size integer,
-    ref character varying(160),
+    ref character varying(200),
     head character varying(40),
     before character varying(40),
     action character varying(20),
     issue_id bigint,
     comment_id bigint,
     ref_type character varying(20),
-    master_branch character varying(160),
+    master_branch character varying(200),
     description text,
     number integer,
     forkee_id bigint,
@@ -407,9 +407,9 @@ ALTER TABLE gha_pull_requests_requested_reviewers OWNER TO gha_admin;
 CREATE TABLE gha_releases (
     id bigint NOT NULL,
     event_id bigint NOT NULL,
-    tag_name character varying(120) NOT NULL,
-    target_commitish character varying(160) NOT NULL,
-    name character varying(120),
+    tag_name character varying(200) NOT NULL,
+    target_commitish character varying(200) NOT NULL,
+    name character varying(200),
     draft boolean NOT NULL,
     author_id bigint NOT NULL,
     prerelease boolean NOT NULL,

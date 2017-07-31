@@ -5,7 +5,8 @@ Author: Łukasz Gryglicki <lukaszgryglick@o2.pl>
 This tools filters GitHub archive for given date period and given organization, repository and saves results into JSON files.
 
 Usage:
-./gha2pg.rb YYYY-MM-DD HH YYYY-MM-DD HH [org [repo]]
+
+`./gha2pg.rb YYYY-MM-DD HH YYYY-MM-DD HH [org [repo]]`
 
 First two parameters are date from:
 - YYYY-MM-DD
@@ -19,10 +20,11 @@ Both next two parameters are optional:
 - org (if given and non empty '' then only return JSONs matching given org). You can also provide a comma separated list of orgs here: 'org1,org2,org3'.
 - repo (if given and non empty '' then only return JSONs matching given repo). You can also provide a comma separated list of repos here: 'repo1,repo2'.
 
-You can filter only by org by passing for example 'kubernetes' for org and '' for repo or skipping repo.
-You can filter only by repo, You need to pass '' as org and then repo name.
-You can return all JSONs by skipping both params.
-You can provide both to observe only events from given org/repo.
+Org/Repo filtering:
+- You can filter only by org by passing for example 'kubernetes' for org and '' for repo or skipping repo.
+- You can filter only by repo, You need to pass '' as org and then repo name.
+- You can return all JSONs by skipping both params.
+- You can provide both to observe only events from given org/repo.
 
 # Configuration
 
@@ -33,6 +35,7 @@ You can tweak `gha2pg.rb` by:
 - Set `$debug` to: 1: You will see events data being processed, 2: You will also see all DB queries.
 
 Examples in this shell script (some commented out, some not):
+
 `time PG_PASS=your_pass ./gha2pg.sh`
 
 # Informations
@@ -51,7 +54,7 @@ Once saved, You can review those JSONs manually (they''re pretty printed)
 
 # Mutithreading
 
-For example cncftest.io server has 48 CPU cores.
+For example <http://cncftest.io> server has 48 CPU cores.
 It will just process 48 hours in parallel.
 It detects number of available CPUs automatically.
 
@@ -90,7 +93,7 @@ PostgreSQL:
 
 1) Running on all 3 orgs `kubernetes,kubernetes-client,kubernetes-incubator` repos for June 2017 yields:
 - Takes: 61 minutes 52 seconds.
-- Note that those caount include historical changes to objects (for example single issue can have multiple entries with dirrent state on different events)
+- Note that those counts include historical changes to objects (for example single issue can have multiple entries with dirrent state on different events)
 - Creates 5765 actors.
 - Creates 42 assets.
 - Creates 28552 branches.
@@ -117,31 +120,31 @@ PostgreSQL:
 - See `results/k8s_month_psql.sql.xz`
 
 2) Running for 3 days 25th, 26th, 27th July 2017 (without org/repo filers) yields:
-- Takes: xx minutes xx seconds.
-- Note that those caount include historical changes to objects (for example single issue can have multiple entries with dirrent state on different events)
-- Creates  actors.
-- Creates  assets.
-- Creates  branches.
-- Creates  comments.
-- Creates  commits.
-- Creates  events.
-- Creates  event - commit connections.
-- Creates  event - page connections.
-- Creates  forkees.
-- Creates  issues.
-- Creates  issue - assignee connections.
-- Creates  issue - label connections.
-- Creates  labels.
-- Creates  milestones.
-- Creates  orgs.
-- Creates  pages.
-- Creates  payloads.
-- Creates  pull requests.
-- Creates  pull request - assignee connections.
-- Creates  pull request - requested reviewer connections.
-- Creates  releases.
-- Creates  release - asset connections.
-- Creates  repos.
+- Takes: 55 minutes 16 seconds.
+- Note that those counts include historical changes to objects (for example single issue can have multiple entries with dirrent state on different events)
+- Creates 614901 actors.
+- Creates 10682 assets.
+- Creates 616456 branches.
+- Creates 391575 comments.
+- Creates 3158733 commits.
+- Creates 3826738 events.
+- Creates 3158731 event - commit connections.
+- Creates 21357 event - page connections.
+- Creates 565224 forkees.
+- Creates 439524 issues.
+- Creates 16299 issue - assignee connections.
+- Creates 261149 issue - label connections.
+- Creates 48918 labels.
+- Creates 47518 milestones.
+- Creates 50894 orgs.
+- Creates 22581 pages.
+- Creates 3826726 payloads.
+- Creates 308277 pull requests.
+- Creates 5161 pull request - assignee connections.
+- Creates 37140 pull request - requested reviewer connections.
+- Creates 17992 releases.
+- Creates 10682 release - asset connections.
+- Creates 670613 repos.
 - See `results/all_3days_psql.sql.xz`
 
 # PostgreSQL database

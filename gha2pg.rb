@@ -66,6 +66,11 @@ def exec_stmt(con, sid, stmt, args)
   con.exec_prepared(sid, args).tap do
     con.exec('deallocate ' + sid)
   end
+rescue Exception => e
+  puts "Exception on"
+  puts e.message
+  p [con, sid, stmt, args]
+  raise e
 end
 
 def gha_actor(con, sid, actor)
@@ -104,7 +109,7 @@ def gha_milestone(con, sid, eid, milestone)
       milestone['number'],
       milestone['open_issues'],
       milestone['state'],
-      milestone['title'],
+      milestone['title'][0..199],
       Time.parse(milestone['updated_at'])
     ]
   )
@@ -128,8 +133,8 @@ def gha_forkee(con, sid, eid, forkee)
     [
       forkee['id'],
       eid,
-      forkee['name'],
-      forkee['full_name'],
+      forkee['name'][0..79],
+      forkee['full_name'][0..199],
       forkee['owner']['id'],
       forkee['description'],
       forkee['fork'],
@@ -145,7 +150,7 @@ def gha_forkee(con, sid, eid, forkee)
       forkee['has_wiki'],
       forkee['has_pages'],
       forkee['forks'],
-      forkee['default_branch'],
+      forkee['default_branch'][0..199],
       forkee['open_issues'],
       forkee['watchers'],
       forkee['public']
@@ -155,7 +160,7 @@ end
 
 def gha_branch(con, sid, eid, branch, skip_repo_id=nil)
   # user
-  gha_actor(con, sid, branch['user'])
+  gha_actor(con, sid, branch['user']) if branch['user']
 
   # repo
   if branch['repo']
@@ -172,8 +177,8 @@ def gha_branch(con, sid, eid, branch, skip_repo_id=nil)
       eid,
       branch['user']['id'],
       branch['repo'] ? branch['repo']['id'] : nil,
-      branch['label'],
-      branch['ref']
+      branch['label'][0..199],
+      branch['ref'][0..199]
     ]
   )
 end
@@ -248,14 +253,14 @@ def write_to_pg(con, ev)
       event_id,
       pl['push_id'],
       pl['size'],
-      pl['ref'],
+      pl['ref'] ? pl['ref'][0..199] : nil,
       pl['head'],
       pl['before'],
       pl['action'],
       pl['issue'] ? pl['issue']['id'] : nil,
       pl['comment'] ? pl['comment']['id'] : nil,
       pl['ref_type'],
-      pl['master_branch'],
+      pl['master_branch'] ? pl['master_branch'][0..199] : nil,
       pl['description'],
       pl['number'],
       pl['forkee'] ? pl['forkee']['id'] : nil,
@@ -434,7 +439,7 @@ def write_to_pg(con, ev)
         'values($1, $2, $3, $4) on conflict do nothing',
         [
           lid,
-          label['name'][0..119],
+          label['name'][0..159],
           label['color'],
           label['default']
         ]
@@ -471,9 +476,9 @@ def write_to_pg(con, ev)
       [
         rid,
         event_id,
-        release['tag_name'],
-        release['target_commitish'],
-        release['name'],
+        release['tag_name'][0..199],
+        release['target_commitish'][0..199],
+        release['name'] ? release['name'][0..199] : nil,
         release['draft'],
         release['author']['id'],
         release['prerelease'],
@@ -501,8 +506,8 @@ def write_to_pg(con, ev)
           [
           aid,
           event_id,
-          asset['name'],
-          asset['label'],
+          asset['name'][0..199],
+          asset['label'] ? asset['label'][0..119] : nil,
           asset['uploader']['id'],
           asset['content_type'],
           asset['state'],

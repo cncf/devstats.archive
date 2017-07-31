@@ -53,7 +53,7 @@ def structure
   c.exec(
     'create table gha_actors(' +
     'id bigint not null primary key, ' +
-    'login varchar(100) not null' +
+    'login varchar(120) not null' +
     ')'
   )
   # gha_repos
@@ -76,7 +76,7 @@ def structure
   c.exec(
     'create table gha_orgs(' +
     'id bigint not null primary key, ' +
-    'login varchar(80) not null' +
+    'login varchar(100) not null' +
     ')'
   )
 
@@ -91,14 +91,14 @@ def structure
     'event_id bigint not null primary key, ' +
     'push_id int, ' +
     'size int, ' +
-    'ref varchar(160), ' +
+    'ref varchar(200), ' +
     'head varchar(40), ' +
     'before varchar(40), ' +
     'action varchar(20), ' +
     'issue_id bigint, ' +
     'comment_id bigint, ' +
     'ref_type varchar(20), ' +
-    'master_branch varchar(160), ' +
+    'master_branch varchar(200), ' +
     'description text, ' +
     'number int, ' +
     'forkee_id bigint, ' +
@@ -120,7 +120,6 @@ def structure
     'sha varchar(40) not null, ' +
     'event_id bigint not null, ' +
     'author_name varchar(160) not null, ' +
-    # 'author_email varchar(160) not null, ' +
     'message text not null, ' +
     'is_distinct boolean not null, ' +
     'primary key(sha, event_id)' +
@@ -147,7 +146,6 @@ def structure
     'sha varchar(40) not null, ' +
     'event_id bigint not null, ' +
     'action varchar(20) not null, ' +
-    # 'page_name varchar(160) not null, ' +
     'title varchar(300) not null, ' +
     'primary key(sha, event_id, action, title)' +
     ')'
@@ -242,7 +240,7 @@ def structure
     'number int not null, ' +
     'open_issues int not null, ' +
     'state varchar(20) not null, ' +
-    'title varchar(120) not null, ' +
+    'title varchar(200) not null, ' +
     'updated_at timestamp not null, ' +
     'primary key(id, event_id)' +
     ')'
@@ -255,7 +253,7 @@ def structure
   c.exec(
     'create table gha_labels(' +
     'id bigint not null primary key, ' +
-    'name varchar(120) not null, ' +
+    'name varchar(160) not null, ' +
     'color varchar(8) not null, ' +
     'is_default boolean not null' +
     ')'
@@ -280,7 +278,7 @@ def structure
     'id bigint not null, ' +
     'event_id bigint not null, ' +
     'name varchar(80) not null, ' +
-    'full_name varchar(160) not null, ' +
+    'full_name varchar(200) not null, ' +
     'owner_id bigint not null, ' +
     'description text, ' +
     'fork boolean not null, ' +
@@ -298,7 +296,7 @@ def structure
     'forks int not null, ' +
     'open_issues int not null, ' +
     'watchers int not null, ' +
-    'default_branch varchar(160) not null, ' +
+    'default_branch varchar(200) not null, ' +
     'public boolean, ' +
     'primary key(id, event_id)' +
     ')'
@@ -314,9 +312,9 @@ def structure
     'create table gha_releases(' +
     'id bigint not null, ' +
     'event_id bigint not null, ' +
-    'tag_name varchar(120) not null, ' +
-    'target_commitish varchar(160) not null, ' +
-    'name varchar(120), ' +
+    'tag_name varchar(200) not null, ' +
+    'target_commitish varchar(200) not null, ' +
+    'name varchar(200), ' +
     'draft boolean not null, ' +
     'author_id bigint not null, ' +
     'prerelease boolean not null, ' +
@@ -346,8 +344,8 @@ def structure
     'create table gha_assets(' +
     'id bigint not null, ' +
     'event_id bigint not null, ' +
-    'name varchar(160) not null, ' +
-    'label varchar(40), ' +
+    'name varchar(200) not null, ' +
+    'label varchar(120), ' +
     'uploader_id bigint not null, ' +
     'content_type varchar(80) not null, ' +
     'state varchar(20) not null, ' +
@@ -423,18 +421,17 @@ def structure
 
   # gha_branches
   # Table details and analysis in `analysis/analysis.txt` and `analysis/branch_*.json`
-  # Keys: actor: user_id
-  # Nullable keys: forkee: repo_id
+  # Nullable keys: forkee: repo_id, actor: user_id
   # variable
   c.exec('drop table if exists gha_branches')
   c.exec(
     'create table gha_branches(' +
     'sha varchar(40) not null, ' +
     'event_id bigint not null, ' +
-    'user_id bigint not null, ' +
+    'user_id bigint, ' +
     'repo_id bigint, ' +
-    'label varchar(160) not null, ' +
-    'ref varchar(160) not null, ' +
+    'label varchar(200) not null, ' +
+    'ref varchar(200) not null, ' +
     'primary key(sha, event_id)' +
     ')'
   )
