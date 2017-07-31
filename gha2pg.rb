@@ -68,7 +68,7 @@ def exec_stmt(con, sid, stmt, args)
   end
 end
 
-def gha_actor(con, sid, aid, login)
+def gha_actor(con, sid, actor)
   # gha_actors
   # {"id:Fixnum"=>48592, "login:String"=>48592, "display_login:String"=>48592, "gravatar_id:String"=>48592, "url:String"=>48592, "avatar_url:String"=>48592}
   # {"id"=>8, "login"=>34, "display_login"=>34, "gravatar_id"=>0, "url"=>63, "avatar_url"=>49}
@@ -76,7 +76,105 @@ def gha_actor(con, sid, aid, login)
     con,
     sid,
     'insert into gha_actors(id, login) values($1, $2) on conflict do nothing',
-    [aid, login]
+    [actor['id'], actor['login']]
+  )
+end
+
+def gha_milestone(con, sid, eid, milestone)
+  # creator
+  gha_actor(con, sid, milestone['creator']) if milestone['creator']
+
+  # gha_milestones
+  exec_stmt(
+    con,
+    sid,
+    'insert into gha_milestones(' +
+    'id, event_id, closed_at, closed_issues, created_at, creator_id, ' +
+    'description, due_on, number, open_issues, state, title, updated_at' +
+    ') ' + n_values(13),
+    [
+      milestone['id'],
+      eid,
+      milestone['closed_at'] ? Time.parse(milestone['closed_at']) : nil,
+      milestone['closed_issues'],
+      Time.parse(milestone['created_at']),
+      milestone['creator'] ? milestone['creator']['id']: nil,
+      milestone['description'],
+      milestone['due_on'] ? Time.parse(milestone['due_on']) : nil,
+      milestone['number'],
+      milestone['open_issues'],
+      milestone['state'],
+      milestone['title'],
+      Time.parse(milestone['updated_at'])
+    ]
+  )
+end
+
+def gha_forkee(con, sid, eid, forkee)
+  # owner
+  gha_actor(con, sid, forkee['owner'])
+
+  # gha_forkees
+  # Table details and analysis in `analysis/analysis.txt` and `analysis/forkee_*.json`
+  exec_stmt(
+    con,
+    sid,
+    'insert into gha_forkees(' +
+    'id, event_id, name, full_name, owner_id, description, fork, ' +
+    'created_at, updated_at, pushed_at, homepage, size, ' +
+    'stargazers_count, has_issues, has_projects, has_downloads, ' +
+    'has_wiki, has_pages, forks, default_branch, open_issues, ' +
+    'watchers, public) ' + n_values(23),
+    [
+      forkee['id'],
+      eid,
+      forkee['name'],
+      forkee['full_name'],
+      forkee['owner']['id'],
+      forkee['description'],
+      forkee['fork'],
+      Time.parse(forkee['created_at']),
+      Time.parse(forkee['updated_at']),
+      Time.parse(forkee['pushed_at']),
+      forkee['homepage'],
+      forkee['size'],
+      forkee['stargazers_count'],
+      forkee['has_issues'],
+      forkee['has_projects'],
+      forkee['has_downloads'],
+      forkee['has_wiki'],
+      forkee['has_pages'],
+      forkee['forks'],
+      forkee['default_branch'],
+      forkee['open_issues'],
+      forkee['watchers'],
+      forkee['public']
+    ]
+  )
+end
+
+def gha_branch(con, sid, eid, branch, skip_repo_id=nil)
+  # user
+  gha_actor(con, sid, branch['user'])
+
+  # repo
+  if branch['repo']
+    gha_forkee(con, sid, eid, branch['repo']) unless skip_repo_id && branch['repo']['id'] == skip_repo_id
+  end
+
+  # gha_branches
+  exec_stmt(
+    con,
+    sid,
+    'insert into gha_branches(sha, event_id, user_id, repo_id, label, ref) ' + n_values(6),
+    [
+      branch['sha'],
+      eid,
+      branch['user']['id'],
+      branch['repo'] ? branch['repo']['id'] : nil,
+      branch['label'],
+      branch['ref']
+    ]
   )
 end
 
@@ -106,7 +204,7 @@ def write_to_pg(con, ev)
   )
 
   # gha_actors
-  gha_actor(con, sid, ev['actor']['id'], ev['actor']['login'])
+  gha_actor(con, sid, ev['actor'])
 
   # gha_repos
   # {"id:Fixnum"=>48592, "name:String"=>48592, "url:String"=>48592}
@@ -184,7 +282,7 @@ def write_to_pg(con, ev)
       [
         sha,
         event_id,
-        commit['author']['name'],
+        commit['author']['name'][0..159],
         commit['message'],
         commit['distinct']
       ]
@@ -215,7 +313,7 @@ def write_to_pg(con, ev)
         sha,
         event_id,
         page['action'],
-        page['title']
+        page['title'][0..299]
       ]
     )
 
@@ -230,14 +328,14 @@ def write_to_pg(con, ev)
 
   # member
   member = pl['member']
-  gha_actor(con, sid, member['id'], member['login']) if member
+  gha_actor(con, sid, member) if member
 
   # gha_comments
   # Table details and analysis in `analysis/analysis.txt` and `analysis/comment_*.json`
   comment = pl['comment']
   if comment
     # user
-    gha_actor(con, sid, comment['user']['id'], comment['user']['login'])
+    gha_actor(con, sid, comment['user'])
 
     # comment
     cid = comment['id']
@@ -273,8 +371,8 @@ def write_to_pg(con, ev)
   issue = pl['issue']
   if issue
     # user, assignee
-    gha_actor(con, sid, issue['user']['id'], issue['user']['login'])
-    gha_actor(con, sid, issue['assignee']['id'], issue['assignee']['login']) if issue['assignee']
+    gha_actor(con, sid, issue['user'])
+    gha_actor(con, sid, issue['assignee']) if issue['assignee']
 
     # issue
     iid = issue['id']
@@ -304,36 +402,7 @@ def write_to_pg(con, ev)
     )
 
     # milestone
-    milestone = issue['milestone']
-    if milestone
-      gha_actor(con, sid, milestone['creator']['id'], milestone['creator']['login']) if milestone['creator']
-
-      mid = milestone['id']
-      # gha_milestones
-      exec_stmt(
-        con,
-        sid,
-        'insert into gha_milestones(' +
-        'id, event_id, closed_at, closed_issues, created_at, creator_id, ' +
-        'description, due_on, number, open_issues, state, title, updated_at' +
-        ') ' + n_values(13),
-        [
-          mid,
-          event_id,
-          milestone['closed_at'] ? Time.parse(milestone['closed_at']) : nil,
-          milestone['closed_issues'],
-          Time.parse(milestone['created_at']),
-          milestone['creator'] ? milestone['creator']['id']: nil,
-          milestone['description'],
-          milestone['due_on'] ? Time.parse(milestone['due_on']) : nil,
-          milestone['number'],
-          milestone['open_issues'],
-          milestone['state'],
-          milestone['title'],
-          Time.parse(milestone['updated_at'])
-        ]
-      )
-    end
+    gha_milestone(con, sid, event_id, issue['milestone']) if issue['milestone']
 
     # assignees
     assignees = issue['assignees']
@@ -342,8 +411,10 @@ def write_to_pg(con, ev)
       aid = assignee['id']
       next if aid == p_aid
 
+      # assignee
+      gha_actor(con, sid, assignee)
+
       # issue-assignee connection
-      gha_actor(con, sid, aid, assignee['login'])
       exec_stmt(
         con,
         sid,
@@ -363,7 +434,7 @@ def write_to_pg(con, ev)
         'values($1, $2, $3, $4) on conflict do nothing',
         [
           lid,
-          label['name'],
+          label['name'][0..119],
           label['color'],
           label['default']
         ]
@@ -379,57 +450,14 @@ def write_to_pg(con, ev)
   end
 
   # gha_forkees
-  # Table details and analysis in `analysis/analysis.txt` and `analysis/forkee_*.json`
-  forkee = pl['forkee']
-  if forkee
-    # owner
-    gha_actor(con, sid, forkee['owner']['id'], forkee['owner']['login'])
-
-    # forkee
-    fid = forkee['id']
-    exec_stmt(
-      con,
-      sid,
-      'insert into gha_forkees(' +
-      'id, event_id, name, full_name, owner_id, description, fork, ' +
-      'created_at, updated_at, pushed_at, homepage, size, ' +
-      'stargazers_count, has_issues, has_projects, has_downloads, ' +
-      'has_wiki, has_pages, forks, default_branch, open_issues, ' +
-      'watchers, public) ' + n_values(23),
-      [
-        fid,
-        event_id,
-        forkee['name'],
-        forkee['full_name'],
-        forkee['owner']['id'],
-        forkee['description'],
-        forkee['fork'],
-        Time.parse(forkee['created_at']),
-        Time.parse(forkee['updated_at']),
-        Time.parse(forkee['pushed_at']),
-        forkee['homepage'],
-        forkee['size'],
-        forkee['stargazers_count'],
-        forkee['has_issues'],
-        forkee['has_projects'],
-        forkee['has_downloads'],
-        forkee['has_wiki'],
-        forkee['has_pages'],
-        forkee['forks'],
-        forkee['default_branch'],
-        forkee['open_issues'],
-        forkee['watchers'],
-        forkee['public']
-      ]
-    )
-  end
+  gha_forkee(con, sid, event_id, pl['forkee']) if pl['forkee']
 
   # gha_releases
   # Table details and analysis in `analysis/analysis.txt` and `analysis/release_*.json`
   release = pl['release']
   if release
     # author
-    gha_actor(con, sid, release['author']['id'], release['author']['login'])
+    gha_actor(con, sid, release['author'])
 
     # release
     rid = release['id']
@@ -459,7 +487,7 @@ def write_to_pg(con, ev)
     assets = release['assets']
     assets.each do |asset|
       # uploader
-      gha_actor(con, sid, asset['uploader']['id'], asset['uploader']['login'])
+      gha_actor(con, sid, asset['uploader'])
 
       # asset
       aid = asset['id']
@@ -491,6 +519,114 @@ def write_to_pg(con, ev)
         sid,
         'insert into gha_releases_assets(release_id, event_id, asset_id) values($1, $2, $3)',
         [rid, event_id, aid],
+      )
+    end
+  end
+
+  # gha_pull_requests
+  # Table details and analysis in `analysis/analysis.txt` and `analysis/pull_request_*.json`
+  pr = pl['pull_request']
+  if pr
+    # gha_pull_requests
+
+    # user
+    gha_actor(con, sid, pr['user'])
+
+    base_sha = pr['base']['sha']
+    head_sha = pr['head']['sha']
+    base_repo_id = pr['base']['repo'] && pr['base']['repo']['id']
+
+    # base
+    gha_branch(con, sid, event_id, pr['base'])
+
+    # head (if different, and skip its repo if defined and the same as base repo)
+    gha_branch(con, sid, event_id, pr['head'], base_repo_id) unless base_sha == head_sha
+
+    # merged_by
+    gha_actor(con, sid, pr['merged_by']) if pr['merged_by']
+
+    # assignee
+    gha_actor(con, sid, pr['assignee']) if pr['assignee']
+
+    # milestone
+    gha_milestone(con, sid, event_id, pr['milestone']) if pr['milestone']
+
+    # pull_request
+    prid = pr['id']
+    exec_stmt(
+      con,
+      sid,
+      'insert into gha_pull_requests(' +
+      'id, event_id, user_id, base_sha, head_sha, merged_by_id, assignee_id, milestone_id, ' +
+      'number, state, locked, title, body, created_at, updated_at, closed_at, merged_at, ' +
+      'merge_commit_sha, merged, mergeable, rebaseable, mergeable_state, comments, ' +
+      'review_comments, maintainer_can_modify, commits, additions, deletions, changed_files' +
+      ') ' + n_values(29),
+      [
+        prid,
+        event_id,
+        pr['user']['id'],
+        base_sha,
+        head_sha,
+        pr['merged_by'] ? pr['merged_by']['id'] : nil,
+        pr['assignee'] ? pr['assignee']['id'] : nil,
+        pr['milestone'] ? pr['milestone']['id'] : nil,
+        pr['number'],
+        pr['state'],
+        pr['locked'],
+        pr['title'],
+        pr['body'],
+        Time.parse(pr['created_at']),
+        Time.parse(pr['updated_at']),
+        pr['closed_at'] ? Time.parse(pr['closed_at']) : nil,
+        pr['merged_at'] ? Time.parse(pr['merged_at']) : nil,
+        pr['merge_commit_sha'],
+        pr['merged'],
+        pr['mergeable'],
+        pr['rebaseable'],
+        pr['mergeable_state'],
+        pr['comments'],
+        pr['review_comments'],
+        pr['maintainer_can_modify'],
+        pr['commits'],
+        pr['additions'],
+        pr['deletions'],
+        pr['changed_files']
+      ]
+    )
+
+    # Arrays: actors: assignees, requested_reviewers
+    # assignees
+    assignees = pr['assignees']
+    p_aid = pr['assignee'] ? pr['assignee']['id'] : nil
+    assignees.each do |assignee|
+      aid = assignee['id']
+      next if aid == p_aid
+
+      # assignee
+      gha_actor(con, sid, assignee)
+
+      # pull_request-assignee connection
+      exec_stmt(
+        con,
+        sid,
+        'insert into gha_pull_requests_assignees(pull_request_id, event_id, assignee_id) values($1, $2, $3)',
+        [prid, event_id, aid],
+      )
+    end
+
+    # requested_reviewers
+    reviewers = pr['requested_reviewers']
+    reviewers.each do |reviewer|
+      # reviewer
+      gha_actor(con, sid, reviewer)
+
+      # pull_request-requested_reviewer connection
+      exec_stmt(
+        con,
+        sid,
+        'insert into gha_pull_requests_requested_reviewers(pull_request_id, event_id, requested_reviewer_id) values($1, $2, $3)',
+        [prid, event_id, reviewer['id']],
       )
     end
   end

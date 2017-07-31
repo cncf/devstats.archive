@@ -52,6 +52,7 @@ ALTER TABLE gha_actors OWNER TO gha_admin;
 
 CREATE TABLE gha_assets (
     id bigint NOT NULL,
+    event_id bigint NOT NULL,
     name character varying(160) NOT NULL,
     label character varying(40),
     uploader_id bigint NOT NULL,
@@ -65,6 +66,22 @@ CREATE TABLE gha_assets (
 
 
 ALTER TABLE gha_assets OWNER TO gha_admin;
+
+--
+-- Name: gha_branches; Type: TABLE; Schema: public; Owner: gha_admin
+--
+
+CREATE TABLE gha_branches (
+    sha character varying(40) NOT NULL,
+    event_id bigint NOT NULL,
+    user_id bigint NOT NULL,
+    repo_id bigint,
+    label character varying(160) NOT NULL,
+    ref character varying(160) NOT NULL
+);
+
+
+ALTER TABLE gha_branches OWNER TO gha_admin;
 
 --
 -- Name: gha_comments; Type: TABLE; Schema: public; Owner: gha_admin
@@ -96,6 +113,7 @@ ALTER TABLE gha_comments OWNER TO gha_admin;
 
 CREATE TABLE gha_commits (
     sha character varying(40) NOT NULL,
+    event_id bigint NOT NULL,
     author_name character varying(160) NOT NULL,
     message text NOT NULL,
     is_distinct boolean NOT NULL
@@ -113,7 +131,6 @@ CREATE TABLE gha_events (
     type character varying(40) NOT NULL,
     actor_id bigint NOT NULL,
     repo_id bigint NOT NULL,
-    payload_id bigint NOT NULL,
     public boolean NOT NULL,
     created_at timestamp without time zone NOT NULL,
     org_id bigint
@@ -123,11 +140,36 @@ CREATE TABLE gha_events (
 ALTER TABLE gha_events OWNER TO gha_admin;
 
 --
+-- Name: gha_events_commits; Type: TABLE; Schema: public; Owner: gha_admin
+--
+
+CREATE TABLE gha_events_commits (
+    event_id bigint NOT NULL,
+    sha character varying(40) NOT NULL
+);
+
+
+ALTER TABLE gha_events_commits OWNER TO gha_admin;
+
+--
+-- Name: gha_events_pages; Type: TABLE; Schema: public; Owner: gha_admin
+--
+
+CREATE TABLE gha_events_pages (
+    event_id bigint NOT NULL,
+    sha character varying(40) NOT NULL
+);
+
+
+ALTER TABLE gha_events_pages OWNER TO gha_admin;
+
+--
 -- Name: gha_forkees; Type: TABLE; Schema: public; Owner: gha_admin
 --
 
 CREATE TABLE gha_forkees (
     id bigint NOT NULL,
+    event_id bigint NOT NULL,
     name character varying(80) NOT NULL,
     full_name character varying(160) NOT NULL,
     owner_id bigint NOT NULL,
@@ -148,7 +190,7 @@ CREATE TABLE gha_forkees (
     open_issues integer NOT NULL,
     watchers integer NOT NULL,
     default_branch character varying(160) NOT NULL,
-    public boolean NOT NULL
+    public boolean
 );
 
 
@@ -160,6 +202,7 @@ ALTER TABLE gha_forkees OWNER TO gha_admin;
 
 CREATE TABLE gha_issues (
     id bigint NOT NULL,
+    event_id bigint NOT NULL,
     assignee_id bigint,
     body text,
     closed_at timestamp without time zone,
@@ -183,6 +226,7 @@ ALTER TABLE gha_issues OWNER TO gha_admin;
 
 CREATE TABLE gha_issues_assignees (
     issue_id bigint NOT NULL,
+    event_id bigint NOT NULL,
     assignee_id bigint NOT NULL
 );
 
@@ -195,6 +239,7 @@ ALTER TABLE gha_issues_assignees OWNER TO gha_admin;
 
 CREATE TABLE gha_issues_labels (
     issue_id bigint NOT NULL,
+    event_id bigint NOT NULL,
     label_id bigint NOT NULL
 );
 
@@ -207,7 +252,7 @@ ALTER TABLE gha_issues_labels OWNER TO gha_admin;
 
 CREATE TABLE gha_labels (
     id bigint NOT NULL,
-    name character varying(80) NOT NULL,
+    name character varying(120) NOT NULL,
     color character varying(8) NOT NULL,
     is_default boolean NOT NULL
 );
@@ -221,10 +266,11 @@ ALTER TABLE gha_labels OWNER TO gha_admin;
 
 CREATE TABLE gha_milestones (
     id bigint NOT NULL,
+    event_id bigint NOT NULL,
     closed_at timestamp without time zone,
     closed_issues integer NOT NULL,
     created_at timestamp without time zone NOT NULL,
-    creator_id bigint NOT NULL,
+    creator_id bigint,
     description text,
     due_on timestamp without time zone,
     number integer NOT NULL,
@@ -255,8 +301,9 @@ ALTER TABLE gha_orgs OWNER TO gha_admin;
 
 CREATE TABLE gha_pages (
     sha character varying(40) NOT NULL,
+    event_id bigint NOT NULL,
     action character varying(20) NOT NULL,
-    title character varying(160) NOT NULL
+    title character varying(300) NOT NULL
 );
 
 
@@ -267,7 +314,7 @@ ALTER TABLE gha_pages OWNER TO gha_admin;
 --
 
 CREATE TABLE gha_payloads (
-    id bigint NOT NULL,
+    event_id bigint NOT NULL,
     push_id integer,
     size integer,
     ref character varying(160),
@@ -289,28 +336,69 @@ CREATE TABLE gha_payloads (
 ALTER TABLE gha_payloads OWNER TO gha_admin;
 
 --
--- Name: gha_payloads_commits; Type: TABLE; Schema: public; Owner: gha_admin
+-- Name: gha_pull_requests; Type: TABLE; Schema: public; Owner: gha_admin
 --
 
-CREATE TABLE gha_payloads_commits (
-    payload_id bigint NOT NULL,
-    sha character varying(40) NOT NULL
+CREATE TABLE gha_pull_requests (
+    id bigint NOT NULL,
+    event_id bigint NOT NULL,
+    user_id bigint NOT NULL,
+    base_sha character varying(40) NOT NULL,
+    head_sha character varying(40) NOT NULL,
+    merged_by_id bigint,
+    assignee_id bigint,
+    milestone_id bigint,
+    number integer NOT NULL,
+    state character varying(20) NOT NULL,
+    locked boolean NOT NULL,
+    title text NOT NULL,
+    body text,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL,
+    closed_at timestamp without time zone,
+    merged_at timestamp without time zone,
+    merge_commit_sha character varying(40),
+    merged boolean,
+    mergeable boolean,
+    rebaseable boolean,
+    mergeable_state character varying(20),
+    comments integer,
+    review_comments integer,
+    maintainer_can_modify boolean,
+    commits integer,
+    additions integer,
+    deletions integer,
+    changed_files integer
 );
 
 
-ALTER TABLE gha_payloads_commits OWNER TO gha_admin;
+ALTER TABLE gha_pull_requests OWNER TO gha_admin;
 
 --
--- Name: gha_payloads_pages; Type: TABLE; Schema: public; Owner: gha_admin
+-- Name: gha_pull_requests_assignees; Type: TABLE; Schema: public; Owner: gha_admin
 --
 
-CREATE TABLE gha_payloads_pages (
-    payload_id bigint NOT NULL,
-    sha character varying(40) NOT NULL
+CREATE TABLE gha_pull_requests_assignees (
+    pull_request_id bigint NOT NULL,
+    event_id bigint NOT NULL,
+    assignee_id bigint NOT NULL
 );
 
 
-ALTER TABLE gha_payloads_pages OWNER TO gha_admin;
+ALTER TABLE gha_pull_requests_assignees OWNER TO gha_admin;
+
+--
+-- Name: gha_pull_requests_requested_reviewers; Type: TABLE; Schema: public; Owner: gha_admin
+--
+
+CREATE TABLE gha_pull_requests_requested_reviewers (
+    pull_request_id bigint NOT NULL,
+    event_id bigint NOT NULL,
+    requested_reviewer_id bigint NOT NULL
+);
+
+
+ALTER TABLE gha_pull_requests_requested_reviewers OWNER TO gha_admin;
 
 --
 -- Name: gha_releases; Type: TABLE; Schema: public; Owner: gha_admin
@@ -318,6 +406,7 @@ ALTER TABLE gha_payloads_pages OWNER TO gha_admin;
 
 CREATE TABLE gha_releases (
     id bigint NOT NULL,
+    event_id bigint NOT NULL,
     tag_name character varying(120) NOT NULL,
     target_commitish character varying(160) NOT NULL,
     name character varying(120),
@@ -338,6 +427,7 @@ ALTER TABLE gha_releases OWNER TO gha_admin;
 
 CREATE TABLE gha_releases_assets (
     release_id bigint NOT NULL,
+    event_id bigint NOT NULL,
     asset_id bigint NOT NULL
 );
 
@@ -368,7 +458,15 @@ COPY gha_actors (id, login) FROM stdin;
 -- Data for Name: gha_assets; Type: TABLE DATA; Schema: public; Owner: gha_admin
 --
 
-COPY gha_assets (id, name, label, uploader_id, content_type, state, size, download_count, created_at, updated_at) FROM stdin;
+COPY gha_assets (id, event_id, name, label, uploader_id, content_type, state, size, download_count, created_at, updated_at) FROM stdin;
+\.
+
+
+--
+-- Data for Name: gha_branches; Type: TABLE DATA; Schema: public; Owner: gha_admin
+--
+
+COPY gha_branches (sha, event_id, user_id, repo_id, label, ref) FROM stdin;
 \.
 
 
@@ -384,7 +482,7 @@ COPY gha_comments (id, body, created_at, updated_at, type, user_id, commit_id, o
 -- Data for Name: gha_commits; Type: TABLE DATA; Schema: public; Owner: gha_admin
 --
 
-COPY gha_commits (sha, author_name, message, is_distinct) FROM stdin;
+COPY gha_commits (sha, event_id, author_name, message, is_distinct) FROM stdin;
 \.
 
 
@@ -392,7 +490,23 @@ COPY gha_commits (sha, author_name, message, is_distinct) FROM stdin;
 -- Data for Name: gha_events; Type: TABLE DATA; Schema: public; Owner: gha_admin
 --
 
-COPY gha_events (id, type, actor_id, repo_id, payload_id, public, created_at, org_id) FROM stdin;
+COPY gha_events (id, type, actor_id, repo_id, public, created_at, org_id) FROM stdin;
+\.
+
+
+--
+-- Data for Name: gha_events_commits; Type: TABLE DATA; Schema: public; Owner: gha_admin
+--
+
+COPY gha_events_commits (event_id, sha) FROM stdin;
+\.
+
+
+--
+-- Data for Name: gha_events_pages; Type: TABLE DATA; Schema: public; Owner: gha_admin
+--
+
+COPY gha_events_pages (event_id, sha) FROM stdin;
 \.
 
 
@@ -400,7 +514,7 @@ COPY gha_events (id, type, actor_id, repo_id, payload_id, public, created_at, or
 -- Data for Name: gha_forkees; Type: TABLE DATA; Schema: public; Owner: gha_admin
 --
 
-COPY gha_forkees (id, name, full_name, owner_id, description, fork, created_at, updated_at, pushed_at, homepage, size, stargazers_count, has_issues, has_projects, has_downloads, has_wiki, has_pages, forks, open_issues, watchers, default_branch, public) FROM stdin;
+COPY gha_forkees (id, event_id, name, full_name, owner_id, description, fork, created_at, updated_at, pushed_at, homepage, size, stargazers_count, has_issues, has_projects, has_downloads, has_wiki, has_pages, forks, open_issues, watchers, default_branch, public) FROM stdin;
 \.
 
 
@@ -408,7 +522,7 @@ COPY gha_forkees (id, name, full_name, owner_id, description, fork, created_at, 
 -- Data for Name: gha_issues; Type: TABLE DATA; Schema: public; Owner: gha_admin
 --
 
-COPY gha_issues (id, assignee_id, body, closed_at, comments, created_at, locked, milestone_id, number, state, title, updated_at, user_id) FROM stdin;
+COPY gha_issues (id, event_id, assignee_id, body, closed_at, comments, created_at, locked, milestone_id, number, state, title, updated_at, user_id) FROM stdin;
 \.
 
 
@@ -416,7 +530,7 @@ COPY gha_issues (id, assignee_id, body, closed_at, comments, created_at, locked,
 -- Data for Name: gha_issues_assignees; Type: TABLE DATA; Schema: public; Owner: gha_admin
 --
 
-COPY gha_issues_assignees (issue_id, assignee_id) FROM stdin;
+COPY gha_issues_assignees (issue_id, event_id, assignee_id) FROM stdin;
 \.
 
 
@@ -424,7 +538,7 @@ COPY gha_issues_assignees (issue_id, assignee_id) FROM stdin;
 -- Data for Name: gha_issues_labels; Type: TABLE DATA; Schema: public; Owner: gha_admin
 --
 
-COPY gha_issues_labels (issue_id, label_id) FROM stdin;
+COPY gha_issues_labels (issue_id, event_id, label_id) FROM stdin;
 \.
 
 
@@ -440,7 +554,7 @@ COPY gha_labels (id, name, color, is_default) FROM stdin;
 -- Data for Name: gha_milestones; Type: TABLE DATA; Schema: public; Owner: gha_admin
 --
 
-COPY gha_milestones (id, closed_at, closed_issues, created_at, creator_id, description, due_on, number, open_issues, state, title, updated_at) FROM stdin;
+COPY gha_milestones (id, event_id, closed_at, closed_issues, created_at, creator_id, description, due_on, number, open_issues, state, title, updated_at) FROM stdin;
 \.
 
 
@@ -456,7 +570,7 @@ COPY gha_orgs (id, login) FROM stdin;
 -- Data for Name: gha_pages; Type: TABLE DATA; Schema: public; Owner: gha_admin
 --
 
-COPY gha_pages (sha, action, title) FROM stdin;
+COPY gha_pages (sha, event_id, action, title) FROM stdin;
 \.
 
 
@@ -464,23 +578,31 @@ COPY gha_pages (sha, action, title) FROM stdin;
 -- Data for Name: gha_payloads; Type: TABLE DATA; Schema: public; Owner: gha_admin
 --
 
-COPY gha_payloads (id, push_id, size, ref, head, before, action, issue_id, comment_id, ref_type, master_branch, description, number, forkee_id, release_id, member_id) FROM stdin;
+COPY gha_payloads (event_id, push_id, size, ref, head, before, action, issue_id, comment_id, ref_type, master_branch, description, number, forkee_id, release_id, member_id) FROM stdin;
 \.
 
 
 --
--- Data for Name: gha_payloads_commits; Type: TABLE DATA; Schema: public; Owner: gha_admin
+-- Data for Name: gha_pull_requests; Type: TABLE DATA; Schema: public; Owner: gha_admin
 --
 
-COPY gha_payloads_commits (payload_id, sha) FROM stdin;
+COPY gha_pull_requests (id, event_id, user_id, base_sha, head_sha, merged_by_id, assignee_id, milestone_id, number, state, locked, title, body, created_at, updated_at, closed_at, merged_at, merge_commit_sha, merged, mergeable, rebaseable, mergeable_state, comments, review_comments, maintainer_can_modify, commits, additions, deletions, changed_files) FROM stdin;
 \.
 
 
 --
--- Data for Name: gha_payloads_pages; Type: TABLE DATA; Schema: public; Owner: gha_admin
+-- Data for Name: gha_pull_requests_assignees; Type: TABLE DATA; Schema: public; Owner: gha_admin
 --
 
-COPY gha_payloads_pages (payload_id, sha) FROM stdin;
+COPY gha_pull_requests_assignees (pull_request_id, event_id, assignee_id) FROM stdin;
+\.
+
+
+--
+-- Data for Name: gha_pull_requests_requested_reviewers; Type: TABLE DATA; Schema: public; Owner: gha_admin
+--
+
+COPY gha_pull_requests_requested_reviewers (pull_request_id, event_id, requested_reviewer_id) FROM stdin;
 \.
 
 
@@ -488,7 +610,7 @@ COPY gha_payloads_pages (payload_id, sha) FROM stdin;
 -- Data for Name: gha_releases; Type: TABLE DATA; Schema: public; Owner: gha_admin
 --
 
-COPY gha_releases (id, tag_name, target_commitish, name, draft, author_id, prerelease, created_at, published_at, body) FROM stdin;
+COPY gha_releases (id, event_id, tag_name, target_commitish, name, draft, author_id, prerelease, created_at, published_at, body) FROM stdin;
 \.
 
 
@@ -496,7 +618,7 @@ COPY gha_releases (id, tag_name, target_commitish, name, draft, author_id, prere
 -- Data for Name: gha_releases_assets; Type: TABLE DATA; Schema: public; Owner: gha_admin
 --
 
-COPY gha_releases_assets (release_id, asset_id) FROM stdin;
+COPY gha_releases_assets (release_id, event_id, asset_id) FROM stdin;
 \.
 
 
@@ -521,7 +643,15 @@ ALTER TABLE ONLY gha_actors
 --
 
 ALTER TABLE ONLY gha_assets
-    ADD CONSTRAINT gha_assets_pkey PRIMARY KEY (id);
+    ADD CONSTRAINT gha_assets_pkey PRIMARY KEY (id, event_id);
+
+
+--
+-- Name: gha_branches gha_branches_pkey; Type: CONSTRAINT; Schema: public; Owner: gha_admin
+--
+
+ALTER TABLE ONLY gha_branches
+    ADD CONSTRAINT gha_branches_pkey PRIMARY KEY (sha, event_id);
 
 
 --
@@ -537,7 +667,23 @@ ALTER TABLE ONLY gha_comments
 --
 
 ALTER TABLE ONLY gha_commits
-    ADD CONSTRAINT gha_commits_pkey PRIMARY KEY (sha);
+    ADD CONSTRAINT gha_commits_pkey PRIMARY KEY (sha, event_id);
+
+
+--
+-- Name: gha_events_commits gha_events_commits_pkey; Type: CONSTRAINT; Schema: public; Owner: gha_admin
+--
+
+ALTER TABLE ONLY gha_events_commits
+    ADD CONSTRAINT gha_events_commits_pkey PRIMARY KEY (event_id, sha);
+
+
+--
+-- Name: gha_events_pages gha_events_pages_pkey; Type: CONSTRAINT; Schema: public; Owner: gha_admin
+--
+
+ALTER TABLE ONLY gha_events_pages
+    ADD CONSTRAINT gha_events_pages_pkey PRIMARY KEY (event_id, sha);
 
 
 --
@@ -553,7 +699,7 @@ ALTER TABLE ONLY gha_events
 --
 
 ALTER TABLE ONLY gha_forkees
-    ADD CONSTRAINT gha_forkees_pkey PRIMARY KEY (id);
+    ADD CONSTRAINT gha_forkees_pkey PRIMARY KEY (id, event_id);
 
 
 --
@@ -561,7 +707,7 @@ ALTER TABLE ONLY gha_forkees
 --
 
 ALTER TABLE ONLY gha_issues_assignees
-    ADD CONSTRAINT gha_issues_assignees_pkey PRIMARY KEY (issue_id, assignee_id);
+    ADD CONSTRAINT gha_issues_assignees_pkey PRIMARY KEY (issue_id, event_id, assignee_id);
 
 
 --
@@ -569,7 +715,7 @@ ALTER TABLE ONLY gha_issues_assignees
 --
 
 ALTER TABLE ONLY gha_issues_labels
-    ADD CONSTRAINT gha_issues_labels_pkey PRIMARY KEY (issue_id, label_id);
+    ADD CONSTRAINT gha_issues_labels_pkey PRIMARY KEY (issue_id, event_id, label_id);
 
 
 --
@@ -577,7 +723,7 @@ ALTER TABLE ONLY gha_issues_labels
 --
 
 ALTER TABLE ONLY gha_issues
-    ADD CONSTRAINT gha_issues_pkey PRIMARY KEY (id);
+    ADD CONSTRAINT gha_issues_pkey PRIMARY KEY (id, event_id);
 
 
 --
@@ -593,7 +739,7 @@ ALTER TABLE ONLY gha_labels
 --
 
 ALTER TABLE ONLY gha_milestones
-    ADD CONSTRAINT gha_milestones_pkey PRIMARY KEY (id);
+    ADD CONSTRAINT gha_milestones_pkey PRIMARY KEY (id, event_id);
 
 
 --
@@ -609,23 +755,7 @@ ALTER TABLE ONLY gha_orgs
 --
 
 ALTER TABLE ONLY gha_pages
-    ADD CONSTRAINT gha_pages_pkey PRIMARY KEY (sha);
-
-
---
--- Name: gha_payloads_commits gha_payloads_commits_pkey; Type: CONSTRAINT; Schema: public; Owner: gha_admin
---
-
-ALTER TABLE ONLY gha_payloads_commits
-    ADD CONSTRAINT gha_payloads_commits_pkey PRIMARY KEY (payload_id, sha);
-
-
---
--- Name: gha_payloads_pages gha_payloads_pages_pkey; Type: CONSTRAINT; Schema: public; Owner: gha_admin
---
-
-ALTER TABLE ONLY gha_payloads_pages
-    ADD CONSTRAINT gha_payloads_pages_pkey PRIMARY KEY (payload_id, sha);
+    ADD CONSTRAINT gha_pages_pkey PRIMARY KEY (sha, event_id, action, title);
 
 
 --
@@ -633,7 +763,31 @@ ALTER TABLE ONLY gha_payloads_pages
 --
 
 ALTER TABLE ONLY gha_payloads
-    ADD CONSTRAINT gha_payloads_pkey PRIMARY KEY (id);
+    ADD CONSTRAINT gha_payloads_pkey PRIMARY KEY (event_id);
+
+
+--
+-- Name: gha_pull_requests_assignees gha_pull_requests_assignees_pkey; Type: CONSTRAINT; Schema: public; Owner: gha_admin
+--
+
+ALTER TABLE ONLY gha_pull_requests_assignees
+    ADD CONSTRAINT gha_pull_requests_assignees_pkey PRIMARY KEY (pull_request_id, event_id, assignee_id);
+
+
+--
+-- Name: gha_pull_requests gha_pull_requests_pkey; Type: CONSTRAINT; Schema: public; Owner: gha_admin
+--
+
+ALTER TABLE ONLY gha_pull_requests
+    ADD CONSTRAINT gha_pull_requests_pkey PRIMARY KEY (id, event_id);
+
+
+--
+-- Name: gha_pull_requests_requested_reviewers gha_pull_requests_requested_reviewers_pkey; Type: CONSTRAINT; Schema: public; Owner: gha_admin
+--
+
+ALTER TABLE ONLY gha_pull_requests_requested_reviewers
+    ADD CONSTRAINT gha_pull_requests_requested_reviewers_pkey PRIMARY KEY (pull_request_id, event_id, requested_reviewer_id);
 
 
 --
@@ -641,7 +795,7 @@ ALTER TABLE ONLY gha_payloads
 --
 
 ALTER TABLE ONLY gha_releases_assets
-    ADD CONSTRAINT gha_releases_assets_pkey PRIMARY KEY (release_id, asset_id);
+    ADD CONSTRAINT gha_releases_assets_pkey PRIMARY KEY (release_id, event_id, asset_id);
 
 
 --
@@ -649,7 +803,7 @@ ALTER TABLE ONLY gha_releases_assets
 --
 
 ALTER TABLE ONLY gha_releases
-    ADD CONSTRAINT gha_releases_pkey PRIMARY KEY (id);
+    ADD CONSTRAINT gha_releases_pkey PRIMARY KEY (id, event_id);
 
 
 --

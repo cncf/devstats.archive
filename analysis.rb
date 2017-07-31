@@ -80,10 +80,10 @@ def analysis(jsons)
     next unless h
     h = h['pull_request']
     next unless h
-    #h = h['milestone']
-    #next unless h
-    #h = h.first
-    #next unless h
+    h = h['requested_reviewers']
+    next unless h
+    h = h.first
+    next unless h
 
     s = object_structure('', h, true, true, 1)
     strs[s] = oh
@@ -103,7 +103,7 @@ def analysis(jsons)
     n += 1
   end
 
-  prefix = 'pull_request'
+  prefix = 'requested_reviewer'
   strs.keys.each_with_index do |key, index|
     h = strs[key]
     h['a_structure'] = key

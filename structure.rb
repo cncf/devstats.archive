@@ -106,7 +106,6 @@ def structure
     'member_id bigint' +
     ')'
   )
-  # special handle (commits, pages)
 
   # gha_commits
   # {"sha:String"=>23265, "author:Hash"=>23265, "message:String"=>23265, "distinct:TrueClass"=>21789, "url:String"=>23265, "distinct:FalseClass"=>1476}
@@ -149,7 +148,7 @@ def structure
     'event_id bigint not null, ' +
     'action varchar(20) not null, ' +
     # 'page_name varchar(160) not null, ' +
-    'title varchar(160) not null, ' +
+    'title varchar(300) not null, ' +
     'primary key(sha, event_id, action, title)' +
     ')'
   )
@@ -256,7 +255,7 @@ def structure
   c.exec(
     'create table gha_labels(' +
     'id bigint not null primary key, ' +
-    'name varchar(80) not null, ' +
+    'name varchar(120) not null, ' +
     'color varchar(8) not null, ' +
     'is_default boolean not null' +
     ')'
@@ -300,7 +299,7 @@ def structure
     'open_issues int not null, ' +
     'watchers int not null, ' +
     'default_branch varchar(160) not null, ' +
-    'public boolean not null, ' +
+    'public boolean, ' +
     'primary key(id, event_id)' +
     ')'
   )
@@ -359,9 +358,88 @@ def structure
     'primary key(id, event_id)' +
     ')'
   )
-  # TODO: only `pull_request` remain.
 
-  # FIXME: remember to add foreign keys !
+  # gha_pull_requests
+  # Table details and analysis in `analysis/analysis.txt` and `analysis/pull_request_*.json`
+  # Keys: actor: user_id, branch: base_sha, head_sha
+  # Nullable keys: actor: merged_by_id, assignee_id, milestone: milestone_id
+  # Arrays: actors: assignees, requested_reviewers
+  # variable
+  c.exec('drop table if exists gha_pull_requests')
+  c.exec(
+    'create table gha_pull_requests(' +
+    'id bigint not null, ' +
+    'event_id bigint not null, ' +
+    'user_id bigint not null, ' +
+    'base_sha varchar(40) not null, ' +
+    'head_sha varchar(40) not null, ' +
+    'merged_by_id bigint, ' +
+    'assignee_id bigint, ' +
+    'milestone_id bigint, ' +
+    'number int not null, ' +
+    'state varchar(20) not null, ' +
+    'locked boolean not null, ' +
+    'title text not null, ' +
+    'body text, ' +
+    'created_at timestamp not null, ' +
+    'updated_at timestamp not null, ' +
+    'closed_at timestamp, ' +
+    'merged_at timestamp, ' +
+    'merge_commit_sha varchar(40), ' +
+    'merged boolean, ' +
+    'mergeable boolean, ' +
+    'rebaseable boolean, ' +
+    'mergeable_state varchar(20), ' +
+    'comments int, ' +
+    'review_comments int, ' +
+    'maintainer_can_modify boolean, ' +
+    'commits int, ' +
+    'additions int, ' +
+    'deletions int, ' +
+    'changed_files int, ' +
+    'primary key(id, event_id)' +
+    ')'
+  )
+  # variable
+  c.exec('drop table if exists gha_pull_requests_assignees')
+  c.exec(
+    'create table gha_pull_requests_assignees(' +
+    'pull_request_id bigint not null, ' +
+    'event_id bigint not null, ' +
+    'assignee_id bigint not null, ' +
+    'primary key(pull_request_id, event_id, assignee_id)' +
+    ')'
+  )
+  # variable
+  c.exec('drop table if exists gha_pull_requests_requested_reviewers')
+  c.exec(
+    'create table gha_pull_requests_requested_reviewers(' +
+    'pull_request_id bigint not null, ' +
+    'event_id bigint not null, ' +
+    'requested_reviewer_id bigint not null, ' +
+    'primary key(pull_request_id, event_id, requested_reviewer_id)' +
+    ')'
+  )
+
+  # gha_branches
+  # Table details and analysis in `analysis/analysis.txt` and `analysis/branch_*.json`
+  # Keys: actor: user_id
+  # Nullable keys: forkee: repo_id
+  # variable
+  c.exec('drop table if exists gha_branches')
+  c.exec(
+    'create table gha_branches(' +
+    'sha varchar(40) not null, ' +
+    'event_id bigint not null, ' +
+    'user_id bigint not null, ' +
+    'repo_id bigint, ' +
+    'label varchar(160) not null, ' +
+    'ref varchar(160) not null, ' +
+    'primary key(sha, event_id)' +
+    ')'
+  )
+  # TODO: consider adding INDEXes, foreign keys are not needed - they slow down processing a lot.
+
 rescue PG::Error => e
   puts e.message
   binding.pry

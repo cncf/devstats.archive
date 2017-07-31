@@ -1,5 +1,7 @@
 # GitHub Archives to PostgreSQL
 
+Author: Łukasz Gryglicki <lukaszgryglick@o2.pl>
+
 This tools filters GitHub archive for given date period and given organization, repository and saves results into JSON files.
 
 Usage:
@@ -14,8 +16,8 @@ Next two parameters are date to:
 - HH
 
 Both next two parameters are optional:
-- org (if given and non empty '' then only return JSONs matching given org). You can also provide a comma separated list of orgs here: 'org1,org2,org3'
-- repo (if given and non empty '' then only return JSONs matching given repo). You can also provide a comma separated list of repos here: 'repo1,repo2'
+- org (if given and non empty '' then only return JSONs matching given org). You can also provide a comma separated list of orgs here: 'org1,org2,org3'.
+- repo (if given and non empty '' then only return JSONs matching given repo). You can also provide a comma separated list of repos here: 'repo1,repo2'.
 
 You can filter only by org by passing for example 'kubernetes' for org and '' for repo or skipping repo.
 You can filter only by repo, You need to pass '' as org and then repo name.
@@ -56,48 +58,91 @@ It detects number of available CPUs automatically.
 # Results
 
 JSON:
-Usually there are about 25000 GitHub events in single hour in Jan 2017 (for July 2017 it is 40000).
-Average seems to be from 15000 to 50000.
-Running this program on a 5 days of data with org `kubernetes` (and no repo set - which means all kubernetes repos).
 
+Usually there are about 25000 GitHub events in single hour in Jan 2017 (for July 2017 it is 40000).
+Average seems to be from 15000 to 60000.
+
+1) Running this program on a 5 days of data with org `kubernetes` (and no repo set - which means all kubernetes repos):
 - Takes: 10 minutes 50 seconds.
 - Generates 12002 JSONs in `jsons/` directory with summary size 165 Mb (each JSON is a single GitHub event).
 - To do so it processes about 21 Gb of data.
-- XZipped file: `results/kubernetes_events.tar.xz`.
+- XZipped file: `results/k8s_5days_jsons.tar.xz`.
 
-Running this program 1 month of data with org `kubernetes` (and no repo set - which means all kubernetes repos).
+2) Running this program 1 month of data with org `kubernetes` (and no repo set - which means all kubernetes repos).
 June 2017:
-
 - Takes: 61 minutes 26 seconds.
-- Generates 60773 JSONs in `jsons/` directory with summary size 815 Mb (each JSON is a single GitHub event).
+- Generates 60773 JSONs in `jsons/` directory with summary size 815 Mb.
 - To do so it processes about 126 Gb of data.
-- XZipped file: `results/k8s_month.tar.xz`.
+- XZipped file: `results/k8s_month_jsons.tar.xz`.
 
-Taking all event from single day is 5 minutes 50 seconds (2017-07-28):
+3) Running this program 3 hours of data with no filters.
+2017-07-05 hours: 18, 19, 20:
+- Takes: 55 seconds.
+- Generates 168683 JSONs in `jsons/` directory with summary size 1.1 Gb.
+- To do so it processes about 126 Gb of data.
+- XZipped file: `results/all_3hours_jsons.tar.xz`.
+
+Taking all events from single day is 5 minutes 50 seconds (2017-07-28):
 - Generates 1194599 JSON files (1.2M)
 - Takes 7 Gb of disck space
 
-PostgreSQL (wip):
-- Processing on 48 CPUS with all events for 3 days (1st, 2nd, 3rd Jan 2017):
-- Takes 28 minutes 30 seconds.
-- Creases 2,13M rows in `gha_events` table (DB is `gha`).
-- Creates 367K rows in `gha_actors` table.
-- Creates 438K rows in `gha_repos` table.
+PostgreSQL:
 
-Running on all `kubernetes` repos for June 2017 yields:
-- Takes: 66 minutes 24 seconds.
-- Creates 4429 actors.
-- Creates 4288 commits.
-- Creates 60722 events.
-- Creates 1 org.
-- Creates 30 pages.
-- Creates 58357 payloads.
-- Creates 41 repos.
-- Creates 4953 payload - commit connections.
-- Creates 30 payloads - pages connections.
+1) Running on all 3 orgs `kubernetes,kubernetes-client,kubernetes-incubator` repos for June 2017 yields:
+- Takes: 61 minutes 52 seconds.
+- Note that those caount include historical changes to objects (for example single issue can have multiple entries with dirrent state on different events)
+- Creates 5765 actors.
+- Creates 42 assets.
+- Creates 28552 branches.
+- Creates 51412 comments.
+- Creates 5989 commits.
+- Creates 67911 events.
+- Creates 5989 event - commit connections.
+- Creates 32 event - page connections.
+- Creates 29816 forkees.
+- Creates 46328 issues.
+- Creates 31078 issue - assignee connections.
+- Creates 151478 issue - label connections.
+- Creates 601 labels.
+- Creates 15364 milestones.
+- Creates 3 orgs.
+- Creates 32 pages.
+- Creates 67911 payloads.
+- Creates 14280 pull requests.
+- Creates 8140 pull request - assignee connections.
+- Creates 3168 pull request - requested reviewer connections.
+- Creates 50 releases.
+- Creates 42 release - asset connections.
+- Creates 70 repos.
+- See `results/k8s_month_psql.sql.xz`
 
-Running on all 3 kubernetes orgs (and my org 'lukaszgryglicki') for 1-29 July 2017 yields:
-
+2) Running for 3 days 25th, 26th, 27th July 2017 (without org/repo filers) yields:
+- Takes: xx minutes xx seconds.
+- Note that those caount include historical changes to objects (for example single issue can have multiple entries with dirrent state on different events)
+- Creates  actors.
+- Creates  assets.
+- Creates  branches.
+- Creates  comments.
+- Creates  commits.
+- Creates  events.
+- Creates  event - commit connections.
+- Creates  event - page connections.
+- Creates  forkees.
+- Creates  issues.
+- Creates  issue - assignee connections.
+- Creates  issue - label connections.
+- Creates  labels.
+- Creates  milestones.
+- Creates  orgs.
+- Creates  pages.
+- Creates  payloads.
+- Creates  pull requests.
+- Creates  pull request - assignee connections.
+- Creates  pull request - requested reviewer connections.
+- Creates  releases.
+- Creates  release - asset connections.
+- Creates  repos.
+- See `results/all_3days_psql.sql.xz`
 
 # PostgreSQL database
 Setup:
@@ -116,8 +161,6 @@ Ubuntu like Linux:
 `structure.rb` script is used to create Postgres database schema.
 It gets connection details from environmental variables and falls back to some defaults.
 
-Alternatively You can use `structure.sql` to create database structure.
-
 Defaults are:
 - Database host: environment variable PG_HOST or `localhost`
 - Database port: PG_PORT or 5432
@@ -127,6 +170,8 @@ Defaults are:
 
 Typical internal usage: 
 `time PG_PASS=your_password ./structure.rb`
+
+Alternatively You can use `structure.sql` to create database structure.
 
 # JSON structure analysis tool
 There is also an internal tool: `analysis.rb`/`analysis.sh` to figure out how to create psql tables for gha.
@@ -145,6 +190,6 @@ For example June 2017:
 
 
 # Future
-- Plan is to finish PostgreSQL database support and save matching JSONs there.
-- Update analysis tool to recursivelly check Hash keys structure (without values) to see if they are the same in different event type's payloads.
+- Do some real queries and optimize them by adding `index` where needed.
+- Foreign keys are slowing things down and I'm almost sure they're not needed in such kind of database.
 
