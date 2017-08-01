@@ -189,7 +189,6 @@ def structure
   # Table details and analysis in `analysis/analysis.txt` and `analysis/issue_*.json`
   # Arrays: assignees, labels
   # Keys: assignee_id, milestone_id, user_id
-  # NOTICE: We are skipoping pull_request Hash there because it contains only URL links!
   # variable
   c.exec('drop table if exists gha_issues')
   c.exec(
@@ -208,6 +207,7 @@ def structure
     'title text not null, ' +
     'updated_at timestamp not null, ' +
     'user_id bigint not null, ' +
+    'is_pull_request boolean not null, ' +
     'primary key(id, event_id)' +
     ')'
   )

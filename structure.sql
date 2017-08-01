@@ -214,7 +214,8 @@ CREATE TABLE gha_issues (
     state character varying(20) NOT NULL,
     title text NOT NULL,
     updated_at timestamp without time zone NOT NULL,
-    user_id bigint NOT NULL
+    user_id bigint NOT NULL,
+    is_pull_request boolean NOT NULL
 );
 
 
@@ -522,7 +523,7 @@ COPY gha_forkees (id, event_id, name, full_name, owner_id, description, fork, cr
 -- Data for Name: gha_issues; Type: TABLE DATA; Schema: public; Owner: gha_admin
 --
 
-COPY gha_issues (id, event_id, assignee_id, body, closed_at, comments, created_at, locked, milestone_id, number, state, title, updated_at, user_id) FROM stdin;
+COPY gha_issues (id, event_id, assignee_id, body, closed_at, comments, created_at, locked, milestone_id, number, state, title, updated_at, user_id, is_pull_request) FROM stdin;
 \.
 
 

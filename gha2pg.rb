@@ -397,8 +397,8 @@ def write_to_pg(con, ev)
       sid,
       'insert into gha_issues(' +
       'id, event_id, assignee_id, body, closed_at, comments, created_at, ' +
-      'locked, milestone_id, number, state, title, updated_at, user_id' +
-      ') ' + n_values(14),
+      'locked, milestone_id, number, state, title, updated_at, user_id, ' +
+      'is_pull_request) ' + n_values(15),
       [
         iid,
         event_id,
@@ -413,7 +413,8 @@ def write_to_pg(con, ev)
         issue['state'],
         issue['title'],
         Time.parse(issue['updated_at']),
-        issue['user']['id']
+        issue['user']['id'],
+        issue['pull_request'] ? true : false
       ]
     )
 

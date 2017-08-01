@@ -191,29 +191,29 @@ Main idea is that we divide tables into 2 groups:
 - variable: meaning that data in those tables can change between GH events, and GH event_id is a part of this tables primary keys.
 
 List of tables:
-- gha_actors: const, users table
-- gha_assets: variable, assets
-- gha_branches: varbiable, branches data
-- gha_comments: const, comments (issue, PR, review)
-- gha_commits: variable, commits
-- gha_events: const, single GitHub archive event
-- gha_events_commits: variable, event's commits
-- gha_events_pages: variable, event's pages
-- gha_forkees: variable, forkee, repo state
-- gha_issues: variable, issues
-- gha_issues_assignees: variable, issue assignees
-- gha_issues_labels: variable, issue labels
-- gha_labels: const, labels
-- gha_milestones: variable, milestones
-- gha_orgs: const, orgs
-- gha_pages: variable, pages
-- gha_payloads: const, event payloads
-- gha_pull_requests: variable, pull requests
-- gha_pull_requests_assignees: variable pull request assignees
-- gha_pull_requests_requested_reviewers: variable, pull request requested reviewers
-- gha_releases: variable, releases
-- gha_releases_assets: variable, release assets
-- gha_repos: const, repos
+- `gha_actors`: const, users table
+- `gha_assets`: variable, assets
+- `gha_branches`: varbiable, branches data
+- `gha_comments`: const, comments (issue, PR, review)
+- `gha_commits`: variable, commits
+- `gha_events`: const, single GitHub archive event
+- `gha_events_commits`: variable, event's commits
+- `gha_events_pages`: variable, event's pages
+- `gha_forkees`: variable, forkee, repo state
+- `gha_issues`: variable, issues
+- `gha_issues_assignees`: variable, issue assignees
+- `gha_issues_labels`: variable, issue labels
+- `gha_labels`: const, labels
+- `gha_milestones`: variable, milestones
+- `gha_orgs`: const, orgs
+- `gha_pages`: variable, pages
+- `gha_payloads`: const, event payloads
+- `gha_pull_requests`: variable, pull requests
+- `gha_pull_requests_assignees`: variable pull request assignees
+- `gha_pull_requests_requested_reviewers`: variable, pull request requested reviewers
+- `gha_releases`: variable, releases
+- `gha_releases_assets`: variable, release assets
+- `gha_repos`: const, repos
 
 # JSON structure analysis tool
 There is also an internal tool: `analysis.rb`/`analysis.sh` to figure out how to create psql tables for gha.
