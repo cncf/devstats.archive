@@ -13,5 +13,5 @@
 # ./gha2pg.rb 2017-07-05 0 2017-07-06 0
 # ./gha2pg.rb 2017-07-05 14 2017-07-05 22
 # ./gha2pg.rb 2017-07-25 0 2017-07-28 0
-./gha2pg.rb 2015-11-16 0 2017-10-07 0 'kubernetes,kubernetes-client,kubernetes-incubator'
-# ./gha2pg.rb 2015-08-06 0 2017-08-01 0 'kubernetes,kubernetes-client,kubernetes-incubator'
+# ./gha2pg.rb 2015-11-16 0 2017-10-07 0 'kubernetes,kubernetes-client,kubernetes-incubator'
+./gha2pg.rb 2015-08-06 0 2017-08-05 0 'kubernetes,kubernetes-client,kubernetes-incubator'
