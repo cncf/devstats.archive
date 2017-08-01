@@ -254,7 +254,7 @@ CREATE TABLE gha_labels (
     id bigint NOT NULL,
     name character varying(160) NOT NULL,
     color character varying(8) NOT NULL,
-    is_default boolean NOT NULL
+    is_default boolean
 );
 
 

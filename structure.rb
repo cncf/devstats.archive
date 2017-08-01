@@ -255,7 +255,7 @@ def structure
     'id bigint not null primary key, ' +
     'name varchar(160) not null, ' +
     'color varchar(8) not null, ' +
-    'is_default boolean not null' +
+    'is_default boolean' +
     ')'
   )
   # variable

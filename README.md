@@ -33,6 +33,7 @@ You can tweak `gha2pg.rb` by:
 - Set `$db_out = true` if You want to put int PSQL DB.
 - Set `$json_out = true` to save output JSON files.
 - Set `$debug` to: 1: You will see events data being processed, 2: You will also see all DB queries.
+- Set `GHA2PG_ST` environment variable to run single threaded version
 
 Examples in this shell script (some commented out, some not):
 
@@ -147,6 +148,11 @@ PostgreSQL:
 - Creates 670613 repos.
 - See <http://cncftest.io/all_3days_psql.sql.xz>
 
+3) Running on 3 Kubernetes orgs for 2017-01-01 - 2017-08-01:
+- Takes 7 hours 30 minutes.
+- Generates 455321 events.
+
+
 # PostgreSQL database
 Setup:
 
@@ -175,6 +181,39 @@ Typical internal usage:
 `time PG_PASS=your_password ./structure.rb`
 
 Alternatively You can use `structure.sql` to create database structure.
+
+# Database structure
+
+You can see database structure in `structure.rb` or `structure.sql`.
+
+Main idea is that we divide tables into 2 groups:
+- const: meaning that data in this table is not changing in time (is saved onece)
+- variable: meaning that data in those tables can change between GH events, and GH event_id is a part of this tables primary keys.
+
+List of tables:
+- gha_actors: const, users table
+- gha_assets: variable, assets
+- gha_branches: varbiable, branches data
+- gha_comments: const, comments (issue, PR, review)
+- gha_commits: variable, commits
+- gha_events: const, single GitHub archive event
+- gha_events_commits: variable, event's commits
+- gha_events_pages: variable, event's pages
+- gha_forkees: variable, forkee, repo state
+- gha_issues: variable, issues
+- gha_issues_assignees: variable, issue assignees
+- gha_issues_labels: variable, issue labels
+- gha_labels: const, labels
+- gha_milestones: variable, milestones
+- gha_orgs: const, orgs
+- gha_pages: variable, pages
+- gha_payloads: const, event payloads
+- gha_pull_requests: variable, pull requests
+- gha_pull_requests_assignees: variable pull request assignees
+- gha_pull_requests_requested_reviewers: variable, pull request requested reviewers
+- gha_releases: variable, releases
+- gha_releases_assets: variable, release assets
+- gha_repos: const, repos
 
 # JSON structure analysis tool
 There is also an internal tool: `analysis.rb`/`analysis.sh` to figure out how to create psql tables for gha.

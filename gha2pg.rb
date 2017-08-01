@@ -11,7 +11,7 @@ require 'pg'
 
 $thr_n = Etc.nprocessors
 puts "Available #{$thr_n} processors"
-# $thr_n = 1 # You can use ST version for debugging if needed
+$thr_n = 1 if ENV['GHA2PG_ST']
 
 # Set $debug = 1 to see output for all events generated
 # Set $debug = 2 to see database queries
@@ -70,7 +70,18 @@ rescue Exception => e
   puts "Exception:"
   puts e.message
   p [sid, stmt, args]
+  p $ev[Thread.current.object_id]
   raise e
+end
+
+def lookup_label(con, sid, name, color)
+  r = exec_stmt(
+    con,
+    sid,
+    'select id from gha_labels where name=$1 and color=$2',
+    [name, color]
+  )
+  r.count > 0 ? r.first['id'] : [name, color].hash
 end
 
 def gha_actor(con, sid, actor)
@@ -432,6 +443,7 @@ def write_to_pg(con, ev)
     labels = issue['labels']
     labels.each do |label|
       lid = label['id']
+      lid = lookup_label(con, sid, label['name'][0..159], label['color']) unless lid
       exec_stmt(
         con,
         sid,
@@ -448,7 +460,7 @@ def write_to_pg(con, ev)
       exec_stmt(
         con,
         sid,
-        'insert into gha_issues_labels(issue_id, event_id, label_id) values($1, $2, $3)',
+        'insert into gha_issues_labels(issue_id, event_id, label_id) values($1, $2, $3) on conflict do nothing',
         [iid, event_id, lid],
       )
     end
@@ -649,6 +661,7 @@ def repo_hit(data, forg, frepo)
   true
 end
 
+$ev = {}  # This is for debugging
 # Parse signe GHA JSON event
 def threaded_parse(con, json, dt, forg, frepo)
   h = JSON.parse json
@@ -661,7 +674,11 @@ def threaded_parse(con, json, dt, forg, frepo)
       ofn = "jsons/#{dt.to_i}_#{eid}.json"
       File.write ofn, prt
     end
-    write_to_pg(con, h) if $db_out
+    if $db_out
+      $ev[Thread.current.object_id] = h
+      write_to_pg(con, h)
+      $ev.delete(Thread.current.object_id)
+    end
     puts "Processed: '#{dt}' event: #{eid}" if $debug >= 1
     f = 1
   end
@@ -689,6 +706,15 @@ def get_gha_json(dt, forg, frepo)
   puts "Parsed: #{fn}: #{n} JSONs, found #{f} matching"
 rescue OpenURI::HTTPError => e
   puts "No data yet for #{dt}"
+rescue Zlib::GzipFile::Error => e
+  puts "Gzip decompression exception:"
+  puts e.message
+  p "Date: #{dt}"
+rescue Exception => e
+  puts "General exception:"
+  puts e.message
+  p "Date: #{dt}"
+  raise e
 ensure
   con.close if con
 end
