@@ -11,15 +11,18 @@ require 'pg'
 
 $thr_n = Etc.nprocessors
 puts "Available #{$thr_n} processors"
+
+# Use environment variable to have singlethreaded version
 $thr_n = 1 if ENV['GHA2PG_ST']
 
+# All those variables can be set via environment variables
 # Set $debug = 1 to see output for all events generated
 # Set $debug = 2 to see database queries
 # Set $json_out to save output JSON file
 # Set $db_out = true if You want to put int PSQL DB
-$debug = 0
-$json_out = false
-$db_out = true
+$debug = ENV['GHA2PG_DEBUG'] ? ENV['GHA2PG_DEBUG'].to_i : 0
+$json_out = ENV['GHA2PG_JSON'] ? true : false
+$db_out = ENV['GHA2PG_NODB'] ? false : true
 
 # DB setup:
 # apt-get install postgresql
@@ -202,7 +205,7 @@ def write_to_pg(con, ev)
   # {"id"=>10, "type"=>29, "actor"=>278, "repo"=>290, "payload"=>216017, "public"=>4, "created_at"=>20, "org"=>230}
   event_id = ev['id']
   rs = exec_stmt(con, sid, 'select 1 from gha_events where id=$1', [event_id])
-  return if rs.count > 0
+  return 0 if rs.count > 0
   exec_stmt(
     con,
     sid,
@@ -648,6 +651,7 @@ def write_to_pg(con, ev)
       )
     end
   end
+  1
 end
 
 # Are we interested in this org/repo ?
@@ -667,6 +671,7 @@ $ev = {}  # This is for debugging
 def threaded_parse(con, json, dt, forg, frepo)
   h = JSON.parse json
   f = 0
+  e = 0
   full_name = h['repo']['name']
   if repo_hit(full_name, forg, frepo)
     eid = h['id']
@@ -677,13 +682,13 @@ def threaded_parse(con, json, dt, forg, frepo)
     end
     if $db_out
       $ev[Thread.current.object_id] = h
-      write_to_pg(con, h)
+      e = write_to_pg(con, h)
       $ev.delete(Thread.current.object_id)
     end
     puts "Processed: '#{dt}' event: #{eid}" if $debug >= 1
     f = 1
   end
-  return f
+  return [f, e]
 end
 
 # This is a work for single thread - 1 hour of GHA data
@@ -692,7 +697,7 @@ def get_gha_json(dt, forg, frepo)
   con = connect_db
   fn = dt.strftime('http://data.githubarchive.org/%Y-%m-%d-%k.json.gz').sub(' ', '')
   puts "Working on: #{fn}"
-  n = f = 0
+  n = f = e = 0
   open(fn, 'rb') do |json_tmp_file|
     puts "Opened: #{fn}"
     jsons = Zlib::GzipReader.new(json_tmp_file).read
@@ -700,11 +705,13 @@ def get_gha_json(dt, forg, frepo)
     jsons = jsons.split("\n")
     puts "Splitted: #{fn}"
     jsons.each do |json|
+      r = threaded_parse(con, json, dt, forg, frepo)
       n += 1
-      f += threaded_parse(con, json, dt, forg, frepo)
+      f += r[0]
+      e += r[1]
     end
   end
-  puts "Parsed: #{fn}: #{n} JSONs, found #{f} matching"
+  puts "Parsed: #{fn}: #{n} JSONs, found #{f} matching, events #{e}"
 rescue OpenURI::HTTPError => e
   puts "No data yet for #{dt}"
 rescue Zlib::GzipFile::Error => e

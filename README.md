@@ -34,6 +34,9 @@ You can tweak `gha2pg.rb` by:
 - Set `$json_out = true` to save output JSON files.
 - Set `$debug` to: 1: You will see events data being processed, 2: You will also see all DB queries.
 - Set `GHA2PG_ST` environment variable to run single threaded version
+- Set `GHA2PG_JSON` to save single events JSONs in `jsons/` directory
+- Set `GHA2PG_NODB` to skip PostgreSQL processing at all (if `GHA2PG_JSON` not set it will parse all data from GHA, but do nothing with it)
+- Set `GHA2PG_DEBUG` set to 1 to see output for all events generated, set to 2 to see all SQL query parameters
 
 Examples in this shell script (some commented out, some not):
 

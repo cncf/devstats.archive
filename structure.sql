@@ -185,7 +185,7 @@ CREATE TABLE gha_forkees (
     has_projects boolean,
     has_downloads boolean NOT NULL,
     has_wiki boolean NOT NULL,
-    has_pages boolean NOT NULL,
+    has_pages boolean,
     forks integer NOT NULL,
     open_issues integer NOT NULL,
     watchers integer NOT NULL,

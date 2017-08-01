@@ -292,7 +292,7 @@ def structure
     'has_projects boolean, ' +
     'has_downloads boolean not null, ' +
     'has_wiki boolean not null, ' +
-    'has_pages boolean not null, ' +
+    'has_pages boolean, ' +
     'forks int not null, ' +
     'open_issues int not null, ' +
     'watchers int not null, ' +
