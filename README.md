@@ -176,9 +176,16 @@ Defaults are:
 - Database name: PG_DB or 'gha'
 - Database user: PG_USER or 'gha_admin'
 - Database password: PG_PASS || 'password'
+- If You want it to generate database indexes set `GHA2PG_INDEX` environment variable
+- If You want to skip table creations set `GHA2PG_SKIPTABLE` environment variable (when `GHA2PG_INDEX` also set, it will create indexes on already existing table structure, possibly already populated)
+
+Recommended run is to create structure without indexes first (the default), then get data from GHA and populate array, and finally add indexes. To do do:
+- `time PG_PASS=your_password ./structure.rb`
+- `time PG_PASS=your_password ./gha2pg.sh`
+- `time GHA2PG_SKIPTABLE=1 GHA2PG_INDEX=1 PG_PASS=your_password ./structure.rb` (will take some time to generate indexes on populated database)
 
 Typical internal usage: 
-`time PG_PASS=your_password ./structure.rb`
+`time GHA2PG_INDEX=1 PG_PASS=your_password ./structure.rb`
 
 Alternatively You can use `structure.sql` to create database structure.
 
