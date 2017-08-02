@@ -152,6 +152,34 @@ PostgreSQL:
 - Takes 7 hours 30 minutes.
 - Generates 455321 events.
 
+4) Finally running on all Kubernetes org since real beginning (2015-08-06 22:00 UTC) until (2017-08-02 14:00 UTC):
+- Takes 11 hours 6 minutes (*really* 666 minutes)
+- Database dump is 2820860403 bytes (2.8 Gb), XZ compressed dump is 154 Mb
+- Note that those counts include historical changes to objects (for example single issue can have multiple entries with dirrent state on different events)
+- Creates 38470 actors.
+- Creates 259 assets.
+- Creates 484327 branches.
+- Creates 882089 comments.
+- Creates 91973 commits.
+- Creates 1133757 events.
+- Creates 91973 event - commit connections.
+- Creates 777 event - page connections.
+- Creates 499620 forkees.
+- Creates 764744 issues.
+- Creates 210208 issue - assignee connections.
+- Creates 2321179 issue - label connections.
+- Creates 1440 labels.
+- Creates 189529 milestones.
+- Creates 3 orgs.
+- Creates 777 pages.
+- Creates 1133757 payloads.
+- Creates 242203 pull requests.
+- Creates 67501 pull request - assignee connections.
+- Creates 9757 pull request - requested reviewer connections.
+- Creates 490 releases.
+- Creates 259 release - asset connections.
+- Creates 87 repos.
+- See <http://cncftest.io/k8s.sql.xz>
 
 # PostgreSQL database
 Setup:

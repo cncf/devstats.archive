@@ -89,6 +89,7 @@ ALTER TABLE gha_branches OWNER TO gha_admin;
 
 CREATE TABLE gha_comments (
     id bigint NOT NULL,
+    event_id bigint NOT NULL,
     body text NOT NULL,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
@@ -475,7 +476,7 @@ COPY gha_branches (sha, event_id, user_id, repo_id, label, ref) FROM stdin;
 -- Data for Name: gha_comments; Type: TABLE DATA; Schema: public; Owner: gha_admin
 --
 
-COPY gha_comments (id, body, created_at, updated_at, type, user_id, commit_id, original_commit_id, diff_hunk, "position", original_position, path, pull_request_review_id, line) FROM stdin;
+COPY gha_comments (id, event_id, body, created_at, updated_at, type, user_id, commit_id, original_commit_id, diff_hunk, "position", original_position, path, pull_request_review_id, line) FROM stdin;
 \.
 
 
@@ -813,6 +814,447 @@ ALTER TABLE ONLY gha_releases
 
 ALTER TABLE ONLY gha_repos
     ADD CONSTRAINT gha_repos_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: actors_login_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX actors_login_idx ON gha_actors USING btree (login);
+
+
+--
+-- Name: assets_content_type_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX assets_content_type_idx ON gha_assets USING btree (content_type);
+
+
+--
+-- Name: assets_created_at_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX assets_created_at_idx ON gha_assets USING btree (created_at);
+
+
+--
+-- Name: assets_event_id_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX assets_event_id_idx ON gha_assets USING btree (event_id);
+
+
+--
+-- Name: assets_state_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX assets_state_idx ON gha_assets USING btree (state);
+
+
+--
+-- Name: assets_uploader_id_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX assets_uploader_id_idx ON gha_assets USING btree (uploader_id);
+
+
+--
+-- Name: branches_event_id_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX branches_event_id_idx ON gha_branches USING btree (event_id);
+
+
+--
+-- Name: branches_repo_id_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX branches_repo_id_idx ON gha_branches USING btree (repo_id);
+
+
+--
+-- Name: branches_user_id_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX branches_user_id_idx ON gha_branches USING btree (user_id);
+
+
+--
+-- Name: comments_commit_id_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX comments_commit_id_idx ON gha_comments USING btree (commit_id);
+
+
+--
+-- Name: comments_created_at_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX comments_created_at_idx ON gha_comments USING btree (created_at);
+
+
+--
+-- Name: comments_event_id_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX comments_event_id_idx ON gha_comments USING btree (event_id);
+
+
+--
+-- Name: comments_pull_request_review_id_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX comments_pull_request_review_id_idx ON gha_comments USING btree (pull_request_review_id);
+
+
+--
+-- Name: comments_type_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX comments_type_idx ON gha_comments USING btree (type);
+
+
+--
+-- Name: comments_user_id_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX comments_user_id_idx ON gha_comments USING btree (user_id);
+
+
+--
+-- Name: commits_event_id_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX commits_event_id_idx ON gha_commits USING btree (event_id);
+
+
+--
+-- Name: events_actor_id_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX events_actor_id_idx ON gha_events USING btree (actor_id);
+
+
+--
+-- Name: events_created_at_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX events_created_at_idx ON gha_events USING btree (created_at);
+
+
+--
+-- Name: events_org_id_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX events_org_id_idx ON gha_events USING btree (org_id);
+
+
+--
+-- Name: events_repo_id_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX events_repo_id_idx ON gha_events USING btree (repo_id);
+
+
+--
+-- Name: events_type_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX events_type_idx ON gha_events USING btree (type);
+
+
+--
+-- Name: forkees_created_at_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX forkees_created_at_idx ON gha_forkees USING btree (created_at);
+
+
+--
+-- Name: forkees_event_id_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX forkees_event_id_idx ON gha_forkees USING btree (event_id);
+
+
+--
+-- Name: forkees_owner_id_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX forkees_owner_id_idx ON gha_forkees USING btree (owner_id);
+
+
+--
+-- Name: issues_assignee_id_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX issues_assignee_id_idx ON gha_issues USING btree (assignee_id);
+
+
+--
+-- Name: issues_closed_at_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX issues_closed_at_idx ON gha_issues USING btree (closed_at);
+
+
+--
+-- Name: issues_created_at_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX issues_created_at_idx ON gha_issues USING btree (created_at);
+
+
+--
+-- Name: issues_event_id_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX issues_event_id_idx ON gha_issues USING btree (event_id);
+
+
+--
+-- Name: issues_is_pull_request_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX issues_is_pull_request_idx ON gha_issues USING btree (is_pull_request);
+
+
+--
+-- Name: issues_milestone_id_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX issues_milestone_id_idx ON gha_issues USING btree (milestone_id);
+
+
+--
+-- Name: issues_state_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX issues_state_idx ON gha_issues USING btree (state);
+
+
+--
+-- Name: issues_user_id_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX issues_user_id_idx ON gha_issues USING btree (user_id);
+
+
+--
+-- Name: labels_name_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX labels_name_idx ON gha_labels USING btree (name);
+
+
+--
+-- Name: milestones_created_at_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX milestones_created_at_idx ON gha_milestones USING btree (created_at);
+
+
+--
+-- Name: milestones_creator_id_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX milestones_creator_id_idx ON gha_milestones USING btree (creator_id);
+
+
+--
+-- Name: milestones_event_id_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX milestones_event_id_idx ON gha_milestones USING btree (event_id);
+
+
+--
+-- Name: milestones_state_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX milestones_state_idx ON gha_milestones USING btree (state);
+
+
+--
+-- Name: orgs_login_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX orgs_login_idx ON gha_orgs USING btree (login);
+
+
+--
+-- Name: pages_action_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX pages_action_idx ON gha_pages USING btree (action);
+
+
+--
+-- Name: pages_event_id_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX pages_event_id_idx ON gha_pages USING btree (event_id);
+
+
+--
+-- Name: payloads_action_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX payloads_action_idx ON gha_payloads USING btree (action);
+
+
+--
+-- Name: payloads_comment_id_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX payloads_comment_id_idx ON gha_payloads USING btree (comment_id);
+
+
+--
+-- Name: payloads_forkee_id_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX payloads_forkee_id_idx ON gha_payloads USING btree (forkee_id);
+
+
+--
+-- Name: payloads_head_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX payloads_head_idx ON gha_payloads USING btree (head);
+
+
+--
+-- Name: payloads_issue_id_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX payloads_issue_id_idx ON gha_payloads USING btree (issue_id);
+
+
+--
+-- Name: payloads_member_id_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX payloads_member_id_idx ON gha_payloads USING btree (member_id);
+
+
+--
+-- Name: payloads_ref_type_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX payloads_ref_type_idx ON gha_payloads USING btree (ref_type);
+
+
+--
+-- Name: payloads_release_id_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX payloads_release_id_idx ON gha_payloads USING btree (release_id);
+
+
+--
+-- Name: pull_requests_assignee_id_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX pull_requests_assignee_id_idx ON gha_pull_requests USING btree (assignee_id);
+
+
+--
+-- Name: pull_requests_base_sha_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX pull_requests_base_sha_idx ON gha_pull_requests USING btree (base_sha);
+
+
+--
+-- Name: pull_requests_closed_at_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX pull_requests_closed_at_idx ON gha_pull_requests USING btree (closed_at);
+
+
+--
+-- Name: pull_requests_created_at_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX pull_requests_created_at_idx ON gha_pull_requests USING btree (created_at);
+
+
+--
+-- Name: pull_requests_event_id_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX pull_requests_event_id_idx ON gha_pull_requests USING btree (event_id);
+
+
+--
+-- Name: pull_requests_head_sha_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX pull_requests_head_sha_idx ON gha_pull_requests USING btree (head_sha);
+
+
+--
+-- Name: pull_requests_merged_at_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX pull_requests_merged_at_idx ON gha_pull_requests USING btree (merged_at);
+
+
+--
+-- Name: pull_requests_merged_by_id_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX pull_requests_merged_by_id_idx ON gha_pull_requests USING btree (merged_by_id);
+
+
+--
+-- Name: pull_requests_milestone_id_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX pull_requests_milestone_id_idx ON gha_pull_requests USING btree (milestone_id);
+
+
+--
+-- Name: pull_requests_state_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX pull_requests_state_idx ON gha_pull_requests USING btree (state);
+
+
+--
+-- Name: pull_requests_user_id_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX pull_requests_user_id_idx ON gha_pull_requests USING btree (user_id);
+
+
+--
+-- Name: releases_author_id_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX releases_author_id_idx ON gha_releases USING btree (author_id);
+
+
+--
+-- Name: releases_created_at_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX releases_created_at_idx ON gha_releases USING btree (created_at);
+
+
+--
+-- Name: releases_event_id_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX releases_event_id_idx ON gha_releases USING btree (event_id);
+
+
+--
+-- Name: repos_name_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX repos_name_idx ON gha_repos USING btree (name);
 
 
 --

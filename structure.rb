@@ -208,13 +208,13 @@ def structure
   # gha_comments
   # Table details and analysis in `analysis/analysis.txt` and `analysis/comment_*.json`
   # Keys: user_id, commit_id, original_commit_id, pull_request_review_id
-  # const & per event
+  # variable
   if $table
     c.exec('drop table if exists gha_comments')
     c.exec(
       'create table gha_comments(' +
       'id bigint not null primary key, ' +
-      # 'event_id bigint not null, ' +
+      'event_id bigint not null, ' +
       'body text not null, ' +
       'created_at timestamp not null, ' +
       'updated_at timestamp not null, ' +
@@ -232,7 +232,7 @@ def structure
     )
   end
   if $index
-    # c.exec('create index comments_event_id_idx on gha_comments(event_id)')
+    c.exec('create index comments_event_id_idx on gha_comments(event_id)')
     c.exec('create index comments_type_idx on gha_comments(type)')
     c.exec('create index comments_created_at_idx on gha_comments(created_at)')
     c.exec('create index comments_user_id_idx on gha_comments(user_id)')
@@ -435,7 +435,7 @@ def structure
     c.exec('drop table if exists gha_assets')
     c.exec(
       'create table gha_assets(' +
-     'id bigint not null, ' +
+      'id bigint not null, ' +
       'event_id bigint not null, ' +
       'name varchar(200) not null, ' +
       'label varchar(120), ' +
@@ -524,8 +524,8 @@ def structure
   if $index
     c.exec('create index pull_requests_event_id_idx on gha_pull_requests(event_id)')
     c.exec('create index pull_requests_user_id_idx on gha_pull_requests(user_id)')
-    # c.exec('create index pull_requests_base_sha_idx on gha_pull_requests(base_sha)')
-    # c.exec('create index pull_requests_head_sha_idx on gha_pull_requests(head_sha)')
+    c.exec('create index pull_requests_base_sha_idx on gha_pull_requests(base_sha)')
+    c.exec('create index pull_requests_head_sha_idx on gha_pull_requests(head_sha)')
     c.exec('create index pull_requests_merged_by_id_idx on gha_pull_requests(merged_by_id)')
     c.exec('create index pull_requests_assignee_id_idx on gha_pull_requests(assignee_id)')
     c.exec('create index pull_requests_milestone_id_idx on gha_pull_requests(milestone_id)')

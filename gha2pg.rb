@@ -363,12 +363,13 @@ def write_to_pg(con, ev)
       con,
       sid,
       'insert into gha_comments(' +
-      'id, body, created_at, updated_at, type, user_id, ' +
+      'id, event_id, body, created_at, updated_at, type, user_id, ' +
       'commit_id, original_commit_id, diff_hunk, position, ' +
       'original_position, path, pull_request_review_id, line' +
-      ') ' + n_values(14) + '  on conflict do nothing',
+      ') ' + n_values(15) + '  on conflict do nothing',
       [
         cid,
+        event_id,
         comment['body'],
         Time.parse(comment['created_at']),
         Time.parse(comment['updated_at']),
