@@ -558,7 +558,7 @@ def structure
     c.exec('create index branches_user_id_idx on gha_branches(user_id)')
     c.exec('create index branches_repo_id_idx on gha_branches(repo_id)')
   end
-  # TODO: consider adding INDEXes, foreign keys are not needed - they slow down processing a lot.
+  # Foreign keys are not needed - they slow down processing a lot.
 
 rescue PG::Error => e
   puts e.message
