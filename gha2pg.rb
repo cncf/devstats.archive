@@ -74,6 +74,7 @@ rescue Exception => e
   puts e.message
   p [sid, stmt, args]
   p $ev[Thread.current.object_id]
+  p $dts
   raise e
 end
 
@@ -189,7 +190,7 @@ def gha_branch(con, sid, eid, branch, skip_repo_id=nil)
     [
       branch['sha'],
       eid,
-      branch['user']['id'],
+      branch['user'] ? branch['user']['id'] : nil,
       branch['repo'] ? branch['repo']['id'] : nil,
       branch['label'][0..199],
       branch['ref'][0..199]
@@ -365,7 +366,7 @@ def write_to_pg(con, ev)
       'id, body, created_at, updated_at, type, user_id, ' +
       'commit_id, original_commit_id, diff_hunk, position, ' +
       'original_position, path, pull_request_review_id, line' +
-      ') ' + n_values(14),
+      ') ' + n_values(14) + '  on conflict do nothing',
       [
         cid,
         comment['body'],
@@ -691,6 +692,7 @@ def threaded_parse(con, json, dt, forg, frepo)
   return [f, e]
 end
 
+$dts = {} # Debug which dates are parsing at the moment of eventual exception
 # This is a work for single thread - 1 hour of GHA data
 # Usually such JSON conatin about 15000 - 60000 singe GHA events
 def get_gha_json(dt, forg, frepo)
@@ -698,6 +700,7 @@ def get_gha_json(dt, forg, frepo)
   fn = dt.strftime('http://data.githubarchive.org/%Y-%m-%d-%k.json.gz').sub(' ', '')
   puts "Working on: #{fn}"
   n = f = e = 0
+  $dts[Thread.current.object_id] = dt
   open(fn, 'rb') do |json_tmp_file|
     puts "Opened: #{fn}"
     jsons = Zlib::GzipReader.new(json_tmp_file).read
@@ -711,6 +714,7 @@ def get_gha_json(dt, forg, frepo)
       e += r[1]
     end
   end
+  $dts.delete(Thread.current.object_id)
   puts "Parsed: #{fn}: #{n} JSONs, found #{f} matching, events #{e}"
 rescue OpenURI::HTTPError => e
   puts "No data yet for #{dt}"
@@ -722,6 +726,7 @@ rescue Exception => e
   puts "General exception:"
   puts e.message
   p "Date: #{dt}"
+  p $dts
   raise e
 ensure
   con.close if con
