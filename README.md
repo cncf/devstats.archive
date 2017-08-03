@@ -206,6 +206,7 @@ Defaults are:
 - Database password: PG_PASS || 'password'
 - If You want it to generate database indexes set `GHA2PG_INDEX` environment variable
 - If You want to skip table creations set `GHA2PG_SKIPTABLE` environment variable (when `GHA2PG_INDEX` also set, it will create indexes on already existing table structure, possibly already populated)
+- If You want to skip creating DB tools (like views and functions), user `GHA2PG_SKIPTOOLS` environment variable.
 
 Recommended run is to create structure without indexes first (the default), then get data from GHA and populate array, and finally add indexes. To do do:
 - `time PG_PASS=your_password ./structure.rb`
@@ -265,8 +266,17 @@ For example June 2017:
 
 `time PG_PASS=pwd ./gha2pg.rb 2017-06-01 0 2017-07-01 0 'kubernetes,kubernetes-incubator,kubernetes-client'`
 
+# Metrics tool
+There is also a tool `runq.rb`. It is used to compute metrics saved is `sql` files. 
 
-# Future
-- Do some real queries and optimize them by adding `index` where needed.
-- Foreign keys are slowing things down and I'm almost sure they're not needed in such kind of database.
+Example metrics are in `./sql/` directory.
+
+This tool takes single parameter - sql file name.
+Database uses materialized view for speedup metrics processing.
+If You updated database since last run then please set `GHA2PG_REFRESH` environment variable to rebuild views.
+
+Typical usages:
+
+- `time PG_PASS='password' ./runq.rb sql_metrics/metric.sql`
+- `time GHA2PG_REFRESH=1 PG_PASS='password' ./runq.rb sql_metrics/other_metric.sql`
 

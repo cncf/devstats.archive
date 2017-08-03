@@ -21,6 +21,7 @@ require './mgetc'
 # Database password: PG_PASS || 'password'
 $index = ENV['GHA2PG_INDEX'] ? true : false
 $table = ENV['GHA2PG_SKIPTABLE'] ? false : true
+$tools = ENV['GHA2PG_SKIPTOOLS'] ? false : true
 
 def structure
   # Connect to database
@@ -559,6 +560,56 @@ def structure
     c.exec('create index branches_repo_id_idx on gha_branches(repo_id)')
   end
   # Foreign keys are not needed - they slow down processing a lot.
+
+  # Tools (like views and functions needed for generating metrics)
+  if $tools
+    # Drop in correct order
+    c.exec('drop view if exists gha_view_last_year_texts')
+    c.exec('drop materialized view if exists gha_view_texts')
+    c.exec('drop view if exists gha_view_last_year_event_ids')
+    c.exec('drop view if exists gha_view_last_month_event_ids')
+    c.exec('drop view if exists gha_view_last_week_event_ids')
+    # Create
+    c.exec(
+      'create view gha_view_last_week_event_ids as ' +
+      'select * from gha_events where created_at between ' +
+      "'now'::timestamp - '1 week'::interval and 'now'::timestamp"
+    )
+    c.exec(
+      'create view gha_view_last_month_event_ids as ' +
+      'select * from gha_events where created_at between ' +
+      "'now'::timestamp - '1 month'::interval and 'now'::timestamp"
+    )
+    c.exec(
+      'create view gha_view_last_year_event_ids as ' +
+      'select * from gha_events where created_at between ' +
+      "'now'::timestamp - '1 year'::interval and 'now'::timestamp"
+    )
+    c.exec(
+      'create materialized view gha_view_texts(event_id, body) as ' +
+      # 'select event_id, body from gha_comments where body != \'\' union ' +
+      'select event_id, message from gha_commits where message != \'\' union ' +
+      'select event_id, title from gha_issues where title != \'\'  union ' +
+      'select event_id, body from gha_issues where body != \'\' union ' +
+      'select event_id, title from gha_pull_requests where title != \'\' union ' +
+      'select event_id, body from gha_pull_requests where body != \'\''
+    )
+    c.exec(
+      'create view gha_view_last_year_texts as ' +
+      'select v.* from gha_view_texts v, gha_view_last_year_event_ids ev ' +
+      'where ev.id = v.event_id'
+    )
+    c.exec(
+      'create view gha_view_last_month_texts as ' +
+      'select v.* from gha_view_texts v, gha_view_last_month_event_ids ev ' +
+      'where ev.id = v.event_id'
+    )
+    c.exec(
+      'create view gha_view_last_week_texts as ' +
+      'select v.* from gha_view_texts v, gha_view_last_week_event_ids ev ' +
+      'where ev.id = v.event_id'
+    )
+  end
 
 rescue PG::Error => e
   puts e.message
