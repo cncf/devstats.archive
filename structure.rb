@@ -34,6 +34,17 @@ def structure
   )
   puts 'Connected'
 
+  if $tools
+    # Drop in correct order
+    c.exec('drop view if exists gha_view_last_year_texts')
+    c.exec('drop view if exists gha_view_last_month_texts')
+    c.exec('drop view if exists gha_view_last_week_texts')
+    c.exec('drop materialized view if exists gha_view_texts')
+    c.exec('drop view if exists gha_view_last_year_event_ids')
+    c.exec('drop view if exists gha_view_last_month_event_ids')
+    c.exec('drop view if exists gha_view_last_week_event_ids')
+  end
+
   # gha_events
   # {"id:String"=>48592, "type:String"=>48592, "actor:Hash"=>48592, "repo:Hash"=>48592, "payload:Hash"=>48592, "public:TrueClass"=>48592, "created_at:String"=>48592, "org:Hash"=>19451}
   # {"id"=>10, "type"=>29, "actor"=>278, "repo"=>290, "payload"=>216017, "public"=>4, "created_at"=>20, "org"=>230}
@@ -563,29 +574,26 @@ def structure
 
   # Tools (like views and functions needed for generating metrics)
   if $tools
-    # Drop in correct order
-    c.exec('drop view if exists gha_view_last_year_texts')
-    c.exec('drop view if exists gha_view_last_month_texts')
-    c.exec('drop view if exists gha_view_last_week_texts')
-    c.exec('drop materialized view if exists gha_view_texts')
-    c.exec('drop view if exists gha_view_last_year_event_ids')
-    c.exec('drop view if exists gha_view_last_month_event_ids')
-    c.exec('drop view if exists gha_view_last_week_event_ids')
+    # Get max date from database
+    r = c.exec('select max(created_at) from gha_events')
+    max_dt = "'now'"
+    max_dt = "'#{r.first['max']}'" if r.first['max']
+
     # Create
     c.exec(
       'create view gha_view_last_week_event_ids as ' +
-      'select * from gha_events where created_at between ' +
-      "'now'::timestamp - '1 week'::interval and 'now'::timestamp"
+      'select * from gha_events where ' +
+      "created_at >= #{max_dt}::timestamp - '1 week'::interval"
     )
     c.exec(
       'create view gha_view_last_month_event_ids as ' +
-      'select * from gha_events where created_at between ' +
-      "'now'::timestamp - '1 month'::interval and 'now'::timestamp"
+      'select * from gha_events where ' +
+      "created_at >= #{max_dt}::timestamp - '1 month'::interval"
     )
     c.exec(
       'create view gha_view_last_year_event_ids as ' +
-      'select * from gha_events where created_at between ' +
-      "'now'::timestamp - '1 year'::interval and 'now'::timestamp"
+      'select * from gha_events where ' +
+      "created_at >= #{max_dt}::timestamp - '1 year'::interval"
     )
     c.exec(
       'create materialized view gha_view_texts(event_id, body) as ' +
