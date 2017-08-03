@@ -587,7 +587,7 @@ def structure
     )
     c.exec(
       'create materialized view gha_view_texts(event_id, body) as ' +
-      # 'select event_id, body from gha_comments where body != \'\' union ' +
+      'select event_id, body from gha_comments where body != \'\' union ' +
       'select event_id, message from gha_commits where message != \'\' union ' +
       'select event_id, title from gha_issues where title != \'\'  union ' +
       'select event_id, body from gha_issues where body != \'\' union ' +

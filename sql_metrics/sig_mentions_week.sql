@@ -17,5 +17,3 @@ group by
 order by
   count_last_week desc,
   sel.sig asc
-;
-

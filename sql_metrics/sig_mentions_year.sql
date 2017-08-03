@@ -17,5 +17,3 @@ group by
 order by
   count_last_year desc,
   sel.sig asc
-;
-

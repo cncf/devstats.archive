@@ -17,5 +17,3 @@ group by
 order by
   count_all_time desc,
   sel.sig asc
-;
-

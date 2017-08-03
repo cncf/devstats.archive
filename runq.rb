@@ -88,6 +88,7 @@ def runq(sql_file)
   end
   s = s[0..-2] + "/\n"
   puts s
+  puts "Rows: #{res.count}"
 
 rescue PG::Error => e
   puts e.message

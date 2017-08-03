@@ -17,5 +17,3 @@ group by
 order by
   count_last_month desc,
   sel.sig asc
-;
-
