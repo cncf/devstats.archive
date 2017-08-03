@@ -229,8 +229,8 @@ Main idea is that we divide tables into 2 groups:
 List of tables:
 - `gha_actors`: const, users table
 - `gha_assets`: variable, assets
-- `gha_branches`: varbiable, branches data
-- `gha_comments`: const, comments (issue, PR, review)
+- `gha_branches`: variable, branches data
+- `gha_comments`: variable (issue, PR, review)
 - `gha_commits`: variable, commits
 - `gha_events`: const, single GitHub archive event
 - `gha_events_commits`: variable, event's commits

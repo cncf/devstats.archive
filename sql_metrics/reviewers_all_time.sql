@@ -1,11 +1,10 @@
 select
-  a.login,
-  count(*) as reviewers_count
+  count(distinct a.id)
 from
   gha_events e,
   gha_actors a
-where e.id in
-  (
+where
+  e.id in (
     select
       min(event_id)
     from
@@ -26,7 +25,3 @@ where e.id in
 and e.actor_id = a.id
 and a.login not in ('googlebot')
 and a.login not like 'k8s-%'
-group by a.login
-order by
-  reviewers_count desc,
-  a.login asc

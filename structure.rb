@@ -559,12 +559,14 @@ def structure
     c.exec('create index branches_user_id_idx on gha_branches(user_id)')
     c.exec('create index branches_repo_id_idx on gha_branches(repo_id)')
   end
-  # Foreign keys are not needed - they slow down processing a lot.
+  # Foreign keys are not needed - they slow down processing a lweek
 
   # Tools (like views and functions needed for generating metrics)
   if $tools
     # Drop in correct order
     c.exec('drop view if exists gha_view_last_year_texts')
+    c.exec('drop view if exists gha_view_last_month_texts')
+    c.exec('drop view if exists gha_view_last_week_texts')
     c.exec('drop materialized view if exists gha_view_texts')
     c.exec('drop view if exists gha_view_last_year_event_ids')
     c.exec('drop view if exists gha_view_last_month_event_ids')
