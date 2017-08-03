@@ -449,6 +449,141 @@ CREATE TABLE gha_repos (
 ALTER TABLE gha_repos OWNER TO gha_admin;
 
 --
+-- Name: gha_view_last_month_event_ids; Type: VIEW; Schema: public; Owner: gha_admin
+--
+
+CREATE VIEW gha_view_last_month_event_ids AS
+ SELECT gha_events.id,
+    gha_events.type,
+    gha_events.actor_id,
+    gha_events.repo_id,
+    gha_events.public,
+    gha_events.created_at,
+    gha_events.org_id
+   FROM gha_events
+  WHERE (gha_events.created_at >= ('2017-08-03 13:41:03.400361'::timestamp without time zone - '1 mon'::interval));
+
+
+ALTER TABLE gha_view_last_month_event_ids OWNER TO gha_admin;
+
+--
+-- Name: gha_view_texts; Type: MATERIALIZED VIEW; Schema: public; Owner: gha_admin
+--
+
+CREATE MATERIALIZED VIEW gha_view_texts AS
+ SELECT gha_comments.event_id,
+    gha_comments.body
+   FROM gha_comments
+  WHERE (gha_comments.body <> ''::text)
+UNION
+ SELECT gha_commits.event_id,
+    gha_commits.message AS body
+   FROM gha_commits
+  WHERE (gha_commits.message <> ''::text)
+UNION
+ SELECT gha_issues.event_id,
+    gha_issues.title AS body
+   FROM gha_issues
+  WHERE (gha_issues.title <> ''::text)
+UNION
+ SELECT gha_issues.event_id,
+    gha_issues.body
+   FROM gha_issues
+  WHERE (gha_issues.body <> ''::text)
+UNION
+ SELECT gha_pull_requests.event_id,
+    gha_pull_requests.title AS body
+   FROM gha_pull_requests
+  WHERE (gha_pull_requests.title <> ''::text)
+UNION
+ SELECT gha_pull_requests.event_id,
+    gha_pull_requests.body
+   FROM gha_pull_requests
+  WHERE (gha_pull_requests.body <> ''::text)
+  WITH NO DATA;
+
+
+ALTER TABLE gha_view_texts OWNER TO gha_admin;
+
+--
+-- Name: gha_view_last_month_texts; Type: VIEW; Schema: public; Owner: gha_admin
+--
+
+CREATE VIEW gha_view_last_month_texts AS
+ SELECT v.event_id,
+    v.body
+   FROM gha_view_texts v,
+    gha_view_last_month_event_ids ev
+  WHERE (ev.id = v.event_id);
+
+
+ALTER TABLE gha_view_last_month_texts OWNER TO gha_admin;
+
+--
+-- Name: gha_view_last_week_event_ids; Type: VIEW; Schema: public; Owner: gha_admin
+--
+
+CREATE VIEW gha_view_last_week_event_ids AS
+ SELECT gha_events.id,
+    gha_events.type,
+    gha_events.actor_id,
+    gha_events.repo_id,
+    gha_events.public,
+    gha_events.created_at,
+    gha_events.org_id
+   FROM gha_events
+  WHERE (gha_events.created_at >= ('2017-08-03 13:41:03.398872'::timestamp without time zone - '7 days'::interval));
+
+
+ALTER TABLE gha_view_last_week_event_ids OWNER TO gha_admin;
+
+--
+-- Name: gha_view_last_week_texts; Type: VIEW; Schema: public; Owner: gha_admin
+--
+
+CREATE VIEW gha_view_last_week_texts AS
+ SELECT v.event_id,
+    v.body
+   FROM gha_view_texts v,
+    gha_view_last_week_event_ids ev
+  WHERE (ev.id = v.event_id);
+
+
+ALTER TABLE gha_view_last_week_texts OWNER TO gha_admin;
+
+--
+-- Name: gha_view_last_year_event_ids; Type: VIEW; Schema: public; Owner: gha_admin
+--
+
+CREATE VIEW gha_view_last_year_event_ids AS
+ SELECT gha_events.id,
+    gha_events.type,
+    gha_events.actor_id,
+    gha_events.repo_id,
+    gha_events.public,
+    gha_events.created_at,
+    gha_events.org_id
+   FROM gha_events
+  WHERE (gha_events.created_at >= ('2017-08-03 13:41:03.401506'::timestamp without time zone - '1 year'::interval));
+
+
+ALTER TABLE gha_view_last_year_event_ids OWNER TO gha_admin;
+
+--
+-- Name: gha_view_last_year_texts; Type: VIEW; Schema: public; Owner: gha_admin
+--
+
+CREATE VIEW gha_view_last_year_texts AS
+ SELECT v.event_id,
+    v.body
+   FROM gha_view_texts v,
+    gha_view_last_year_event_ids ev
+  WHERE (ev.id = v.event_id);
+
+
+ALTER TABLE gha_view_last_year_texts OWNER TO gha_admin;
+
+--
 -- Data for Name: gha_actors; Type: TABLE DATA; Schema: public; Owner: gha_admin
 --
 
@@ -1255,6 +1390,13 @@ CREATE INDEX releases_event_id_idx ON gha_releases USING btree (event_id);
 --
 
 CREATE INDEX repos_name_idx ON gha_repos USING btree (name);
+
+
+--
+-- Name: gha_view_texts; Type: MATERIALIZED VIEW DATA; Schema: public; Owner: gha_admin
+--
+
+REFRESH MATERIALIZED VIEW gha_view_texts;
 
 
 --

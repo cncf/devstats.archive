@@ -280,3 +280,129 @@ Typical usages:
 - `time PG_PASS='password' ./runq.rb sql_metrics/metric.sql`
 - `time GHA2PG_REFRESH=1 PG_PASS='password' ./runq.rb sql_metrics/other_metric.sql`
 
+# Metrics results
+
+Last GitHub archive date is 2017-08-03 13:00 UTC:
+
+1) SIG mentions (all of them takes <30 seconds, `time PG_PASS='pwd' ./runq.rb sql/sig_mentions_*.sql`):
+- All Time:
+```
+time PG_PASS='***REMOVED***_#' ./runq.rb sql_metrics/sig_mentions_all_time.sql
+/--------------------------+--------------\
+|sig                       |count_all_time|
++--------------------------+--------------+
+|sig-federation            |5006          |
+|sig-apps                  |4793          |
+|sig-api-machinery         |4554          |
+|sig-node                  |3395          |
+|sig-cli                   |3152          |
+|sig-storage               |2469          |
+|sig-scalability           |2453          |
+|sig-scheduling            |2161          |
+|sig-auth                  |1743          |
+|sig-cluster-lifecycle     |1733          |
+|sig-network               |1429          |
+|sig-testing               |840           |
+|sig-contributor-experience|480           |
+|sig-release               |277           |
+|sig-aws                   |76            |
+|sig-instrumentation       |64            |
+|sig-apimachinery          |49            |
+|sig-autoscaling           |48            |
+|sig-docs                  |30            |
+|sig-openstack             |25            |
+|sig-windows               |24            |
+|sig-controller-manager    |21            |
+|sig-OpenStack             |16            |
+|sig-cluster-ops           |13            |
+|sig-Apps                  |7             |
+|sig-Auth                  |5             |
+|sig-Network               |5             |
+|sig-azure                 |4             |
+|sig-rktnetes              |4             |
+|sig-onprem                |3             |
+|sig-service-catalog       |3             |
+|sig-architecture          |2             |
+|sig-Federation            |2             |
+|sig-Azure                 |1             |
+|sig-big-data              |1             |
+|sig-Storage               |1             |
+|sig-Testing               |1             |
+|sig-ui                    |1             |
+\--------------------------+--------------/
+Rows: 38
+real  0m27.565s
+user  0m0.168s
+sys 0m0.044s
+```
+- Last year (same result as for all data)
+- Last month:
+```
+|sig-scalability           |527             |
+|sig-cluster-lifecycle     |525             |
+|sig-scheduling            |517             |
+|sig-federation            |515             |
+|sig-storage               |486             |
+|sig-api-machinery         |470             |
+|sig-cli                   |412             |
+|sig-apps                  |256             |
+|sig-network               |221             |
+|sig-auth                  |214             |
+|sig-node                  |182             |
+|sig-release               |114             |
+|sig-contributor-experience|62              |
+|sig-testing               |31              |
+|sig-aws                   |24              |
+|sig-controller-manager    |21              |
+|sig-windows               |13              |
+|sig-cluster-ops           |11              |
+|sig-OpenStack             |9               |
+|sig-autoscaling           |8               |
+|sig-instrumentation       |6               |
+|sig-azure                 |4               |
+|sig-architecture          |2               |
+|sig-service-catalog       |2               |
+|sig-Network               |1               |
+|sig-openstack             |1               |
+|sig-ui                    |1               |
+```
+- Last week:
+```
+|sig-scheduling            |174            |
+|sig-api-machinery         |153            |
+|sig-storage               |126            |
+|sig-cluster-lifecycle     |115            |
+|sig-federation            |103            |
+|sig-auth                  |97             |
+|sig-scalability           |93             |
+|sig-node                  |75             |
+|sig-network               |71             |
+|sig-apps                  |59             |
+|sig-cli                   |48             |
+|sig-release               |14             |
+|sig-contributor-experience|12             |
+|sig-testing               |8              |
+|sig-azure                 |3              |
+|sig-aws                   |2              |
+|sig-autoscaling           |1              |
+|sig-instrumentation       |1              |
+|sig-service-catalog       |1              |
+```
+
+2) Number of reviewers. Definded as number of authors adding `/lgtm` in comment or adding `lgtm` label (all of them takes <30 seconds, `time PG_PASS='pwd' ./runq.rb sql/reviewers_*.sql`):
+- All Time: 506
+```
+2017-08-03 13:49:33 root@cncftest:/home/justa/dev/cncf/gha2pg# time PG_PASS='***REMOVED***_#' ./runq.rb sql_metrics/reviewers_all_time.sql
+/-----\
+|count|
++-----+
+|506  |
+\-----/
+Rows: 1
+```
+- Last year: 457
+- Last month: 224
+- Last week: 143
+
+3) List reviewers (`time PG_PASS='pwd' ./runq.rb sql/list_*_reviewers.sql`):
+- Takes <30s for all time, generates long list (not pasted here)
