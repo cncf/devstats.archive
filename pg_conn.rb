@@ -17,7 +17,7 @@ require 'pry'
 # Database user: PG_USER or 'gha_admin'
 # Database password: PG_PASS || 'password'
 
-def pg_conn
+def conn
   # Connect to database
   PG::Connection.new(
     host: ENV['PG_HOST'] || 'localhost',
@@ -29,4 +29,8 @@ def pg_conn
 rescue PG::Error => e
   puts e.message
   exit(1)
+end
+
+def exec_sql(c, query)
+  c.exec(query)
 end
