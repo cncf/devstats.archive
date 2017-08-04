@@ -415,3 +415,21 @@ Rows: 1
 
 3) List reviewers (`time PG_PASS='pwd' ./runq.rb sql/list_*_reviewers.sql`):
 - Takes <30s for all time, generates long list (not pasted here)
+
+# Grafana output
+
+You can visualise data using Grafana, see `./grafana/` directory.
+- Start grafana using `GRAFANA_PASS='password' ./grafana/grafana_start.sh`, this requires Docker.
+- Start InfluxDB using `INFLUXDB_PASS='password' ./grafana/influxdb_setup.sh`, this requires Docker & previous command succesfully executed.
+
+# Feeding InfluxDB & Grafana (wip)
+
+Feed InfluxDB using:
+- `PG_PASS='psql_pwd' IDB_PASS='influxdb_pwd' ./ts2idb.rb sql_metrics/reviewers.sql '2015-08-03' '2017-08-07' '1 week'`
+
+Then see results in the InfluxDB:
+- influx
+- auth (gha_admin/influxdb_pwd)
+- use gha
+- select * from reviewers
+- select count(*) from reviewers
