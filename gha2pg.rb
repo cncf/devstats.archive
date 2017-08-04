@@ -8,6 +8,7 @@ require 'stringio'
 require 'json'
 require 'etc'
 require 'pg'
+require './pg_conn' # All database details & setup there
 
 $thr_n = Etc.nprocessors
 puts "Available #{$thr_n} processors"
@@ -23,34 +24,6 @@ $thr_n = 1 if ENV['GHA2PG_ST']
 $debug = ENV['GHA2PG_DEBUG'] ? ENV['GHA2PG_DEBUG'].to_i : 0
 $json_out = ENV['GHA2PG_JSON'] ? true : false
 $db_out = ENV['GHA2PG_NODB'] ? false : true
-
-# DB setup:
-# apt-get install postgresql
-#
-# sudo -i -u postgres
-# psql
-# create database gha;
-# create user gha_admin with password '<<your_password_here>>';
-# grant all privileges on database "gha" to gha_admin;
-
-# Defaults are:
-# Database host: environment variable PG_HOST or `localhost`
-# Database port: PG_PORT or 5432
-# Database name: PG_DB or 'gha'
-# Database user: PG_USER or 'gha_admin'
-# Database password: PG_PASS || 'password'
-def connect_db
-  PG::Connection.new(
-    host: ENV['PG_HOST'] || 'localhost',
-    port: (ENV['PG_PORT'] || '5432').to_i,
-    dbname: ENV['PG_DB'] || 'gha',
-    user: ENV['PG_USER'] || 'gha_admin',
-    password: ENV['PG_PASS'] || 'password'
-  )
-rescue PG::Error => e
-  puts e.message
-  exit(1)
-end
 
 # returns for n:
 # n=1 -> values($1)
@@ -697,7 +670,7 @@ $dts = {} # Debug which dates are parsing at the moment of eventual exception
 # This is a work for single thread - 1 hour of GHA data
 # Usually such JSON conatin about 15000 - 60000 singe GHA events
 def get_gha_json(dt, forg, frepo)
-  con = connect_db
+  con = pg_conn
   fn = dt.strftime('http://data.githubarchive.org/%Y-%m-%d-%k.json.gz').sub(' ', '')
   puts "Working on: #{fn}"
   n = f = e = 0
