@@ -22,11 +22,11 @@ def threaded_ts2idb(sql, p_name, from, to)
   s_to = to.to_s[0..-7]
   q = sql.gsub('{{from}}', s_from).gsub('{{to}}', s_to)
   r = pc.exec(q)
-  n = r.first['result']
+  n = r.first['result'].to_i
   puts "#{from} - #{to} -> #{n}" if $debug
   data = {
     values: { value: n },
-    tags: { period: p_name },
+    # tags: { period: p_name },
     timestamp: from.to_i
   }
   ic.write_point('reviewers', data)
