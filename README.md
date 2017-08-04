@@ -426,6 +426,7 @@ You can visualise data using Grafana, see `./grafana/` directory.
 
 Feed InfluxDB using:
 - `PG_PASS='psql_pwd' IDB_PASS='influxdb_pwd' ./ts2idb.rb sql_metrics/reviewers.sql '2015-08-03' '2017-08-07' '1 week'`
+- This tool uses environmental variables starting with `IDB_`, please see `idb_conn.rb` and `ts2idb.rb` for details.
 
 Then see results in the InfluxDB:
 - influx
