@@ -1,4 +1,4 @@
-# GitHub Archives to PostgreSQL
+# GitHub Archives to PostgreSQL/MySQL
 
 Author: Łukasz Gryglicki <lukaszgryglick@o2.pl>
 
@@ -6,7 +6,7 @@ This tools filters GitHub archive for given date period and given organization, 
 
 Usage:
 
-`./gha2pg.rb YYYY-MM-DD HH YYYY-MM-DD HH [org [repo]]`
+`ENV_VARIABLES ./gha2db.rb YYYY-MM-DD HH YYYY-MM-DD HH [org [repo]]`
 
 First two parameters are date from:
 - YYYY-MM-DD
@@ -28,16 +28,19 @@ Org/Repo filtering:
 
 # Configuration
 
-You can tweak `gha2pg.rb` by:
+You can tweak `gha2db.rb` by:
 
-- Set `GHA2PG_ST` environment variable to run single threaded version
-- Set `GHA2PG_JSON` to save single events JSONs in `jsons/` directory
-- Set `GHA2PG_NODB` to skip PostgreSQL processing at all (if `GHA2PG_JSON` not set it will parse all data from GHA, but do nothing with it)
-- Set `GHA2PG_DEBUG` set to 1 to see output for all events generated, set to 2 to see all SQL query parameters
+- Set `GHA2DB_PSQL` to use PostgreSQL output
+- Set `GHA2DB_MYSQL` to use MySQL output
+- You need to set `GHA2DB_PSQL` or `GHA2DB_MYSQL` to use DB output
+- Set `GHA2DB_ST` environment variable to run single threaded version
+- Set `GHA2DB_JSON` to save single events JSONs in `jsons/` directory
+- Set `GHA2DB_NODB` to skip DB processing at all (if `GHA2DB_JSON` not set it will parse all data from GHA, but do nothing with it)
+- Set `GHA2DB_DEBUG` set to 1 to see output for all events generated, set to 2 to see all SQL query parameters
 
 Examples in this shell script (some commented out, some not):
 
-`time PG_PASS=your_pass ./gha2pg.sh`
+`time GHA2DB_PSQL=1 PG_PASS=your_pass ./gha2db.sh`
 
 # Informations
 
@@ -190,6 +193,9 @@ PostgreSQL:
 - Creates 87 repos.
 - See <http://cncftest.io/k8s.sql.xz>
 
+# MySQL
+1) No data yet, TODO: wip
+
 # PostgreSQL database
 Setup:
 
@@ -201,7 +207,7 @@ Ubuntu like Linux:
 - create database gha;
 - create user gha_admin with password 'your_password_here';
 - grant all privileges on database "gha" to gha_admin;
-- ./structure.rb
+- GHA2DB_PSQL=1 PG_PASS='pwd' ./structure.rb
 - psql gha
 
 `structure.rb` script is used to create Postgres database schema.
@@ -213,23 +219,60 @@ Defaults are:
 - Database name: PG_DB or 'gha'
 - Database user: PG_USER or 'gha_admin'
 - Database password: PG_PASS || 'password'
-- If You want it to generate database indexes set `GHA2PG_INDEX` environment variable
-- If You want to skip table creations set `GHA2PG_SKIPTABLE` environment variable (when `GHA2PG_INDEX` also set, it will create indexes on already existing table structure, possibly already populated)
-- If You want to skip creating DB tools (like views and functions), use `GHA2PG_SKIPTOOLS` environment variable.
+- If You want it to generate database indexes set `GHA2DB_INDEX` environment variable
+- If You want to skip table creations set `GHA2DB_SKIPTABLE` environment variable (when `GHA2DB_INDEX` also set, it will create indexes on already existing table structure, possibly already populated)
+- If You want to skip creating DB tools (like views and functions), use `GHA2DB_SKIPTOOLS` environment variable.
 
 Recommended run is to create structure without indexes first (the default), then get data from GHA and populate array, and finally add indexes. To do do:
-- `time PG_PASS=your_password ./structure.rb`
-- `time PG_PASS=your_password ./gha2pg.sh`
-- `time GHA2PG_SKIPTABLE=1 GHA2PG_INDEX=1 PG_PASS=your_password ./structure.rb` (will take some time to generate indexes on populated database)
+- `time GHA2DB_PSQL=1 PG_PASS=your_password ./structure.rb`
+- `time GHA2DB_PSQL=1 PG_PASS=your_password ./gha2db.sh`
+- `time GHA2DB_PSQL=1 GHA2DB_SKIPTABLE=1 GHA2DB_INDEX=1 PG_PASS=your_password ./structure.rb` (will take some time to generate indexes on populated database)
 
 Typical internal usage: 
-`time GHA2PG_INDEX=1 PG_PASS=your_password ./structure.rb`
+`time GHA2DB_PSQL=1 GHA2DB_INDEX=1 PG_PASS=your_password ./structure.rb`
 
-Alternatively You can use `structure.sql` to create database structure.
+Alternatively You can use `structure_psql.sql` to create database structure.
+
+# MySQL database
+
+Ubuntu like Linux:
+
+- sudo apt-get install mysql-server
+- sudo mysql_secure_installation
+- mysql -uusername -ppassword
+- create database gha;
+- create user 'gha_admin'@'localhost' identified by 'your_password_here';
+- grant all privileges on gha.* to 'gha_admin'@'localhost';
+- flush privileges;
+- GHA2DB_MYSQL=1 MYSQL_PASS='pwd' ./structure.rb
+- mysql -uusername -ppassword gha
+
+`structure.rb` script is used to create MySQL database schema.
+It gets connection details from environmental variables and falls back to some defaults.
+
+Defaults are:
+- Database host: environment variable MYSQL_HOST or `localhost`
+- Database port: MYSQL_PORT or 3306
+- Database name: MYSQL_DB or 'gha'
+- Database user: MYSQL_USER or 'gha_admin'
+- Database password: MYSQL_PASS || 'password'
+- If You want it to generate database indexes set `GHA2DB_INDEX` environment variable
+- If You want to skip table creations set `GHA2DB_SKIPTABLE` environment variable (when `GHA2DB_INDEX` also set, it will create indexes on already existing table structure, possibly already populated)
+- If You want to skip creating DB tools (like views and functions), use `GHA2DB_SKIPTOOLS` environment variable.
+
+Recommended run is to create structure without indexes first (the default), then get data from GHA and populate array, and finally add indexes. To do do:
+- `time GHA2DB_MYSQL=1 MYSQL_PASS=your_password ./structure.rb`
+- `time GHA2DB_MYSQL=1 MYSQL_PASS=your_password ./gha2db.sh`
+- `time GHA2DB_MYSQL=1 GHA2DB_SKIPTABLE=1 GHA2DB_INDEX=1 MYSQL_PASS=your_password ./structure.rb` (will take some time to generate indexes on populated database)
+
+Typical internal usage: 
+`time GHA2DB_MYSQL=1 GHA2DB_INDEX=1 MYSQL_PASS=your_password ./structure.rb`
+
+Alternatively You can use `structure_mysql.sql` to create database structure.
 
 # Database structure
 
-You can see database structure in `structure.rb` or `structure.sql`.
+You can see database structure in `structure.rb`, `structure_psql.sql`, `structure_mysql.sql`.
 
 Main idea is that we divide tables into 2 groups:
 - const: meaning that data in this table is not changing in time (is saved onece)
@@ -261,11 +304,11 @@ List of tables:
 - `gha_repos`: const, repos
 
 # JSON structure analysis tool
-There is also an internal tool: `analysis.rb`/`analysis.sh` to figure out how to create psql tables for gha.
+There is also an internal tool: `analysis.rb`/`analysis.sh` to figure out how to create tables for gha.
 But this is only useful while developing this tool.
 
 This tool can generate all possible distinct structures of any key at any depths, to see possible veriants of this key.
-It is used very intensively during development of PSQL table structure.
+It is used very intensively during development of SQL table structure.
 
 # Running on Kubernetes
 
@@ -273,7 +316,7 @@ Kubernetes consists of 3 different orgs, so to gather data for Kubernetes You ne
 
 For example June 2017:
 
-`time PG_PASS=pwd ./gha2pg.rb 2017-06-01 0 2017-07-01 0 'kubernetes,kubernetes-incubator,kubernetes-client'`
+`time GHA2DB_PSQL=1 PG_PASS=pwd ./gha2db.rb 2017-06-01 0 2017-07-01 0 'kubernetes,kubernetes-incubator,kubernetes-client'`
 
 # Metrics tool
 There is also a tool `runq.rb`. It is used to compute metrics saved is `sql` files.
@@ -282,12 +325,12 @@ Example metrics are in `./sql/` directory.
 
 This tool takes single parameter - sql file name.
 Database uses materialized view for speedup metrics processing.
-If You updated database since last run then please set `GHA2PG_REFRESH` environment variable to rebuild views.
+If You updated database since last run then please set `GHA2DB_REFRESH` environment variable to rebuild views.
 
 Typical usages:
 
-- `time PG_PASS='password' ./runq.rb sql_metrics/metric.sql`
-- `time GHA2PG_REFRESH=1 PG_PASS='password' ./runq.rb sql_metrics/other_metric.sql`
+- `time GHA2DB_PSQL=1 PG_PASS='password' ./runq.rb sql_metrics/metric.sql`
+- `time GHA2DB_PSQL=1 GHA2DB_REFRESH=1 PG_PASS='password' ./runq.rb sql_metrics/other_metric.sql`
 
 # Metrics results
 
@@ -296,7 +339,7 @@ Last GitHub archive date is 2017-08-03 13:00 UTC:
 1) SIG mentions (all of them takes <30 seconds, `time PG_PASS='pwd' ./runq.rb sql/sig_mentions_*.sql`):
 - All Time:
 ```
-time PG_PASS='***REMOVED***_#' ./runq.rb sql_metrics/sig_mentions_all_time.sql
+time GHA2DB_PSQL=1 PG_PASS='pwd' ./runq.rb sql_metrics/sig_mentions_all_time.sql
 /--------------------------+--------------\
 |sig                       |count_all_time|
 +--------------------------+--------------+
@@ -398,10 +441,10 @@ sys 0m0.044s
 |sig-service-catalog       |1              |
 ```
 
-2) Number of reviewers. Definded as number of authors adding `/lgtm` in comment or adding `lgtm` label (all of them takes <30 seconds, `time PG_PASS='pwd' ./runq.rb sql/reviewers_*.sql`):
+2) Number of reviewers. Definded as number of authors adding `/lgtm` in comment or adding `lgtm` label (all of them takes <30 seconds, `time GHA2DB_PSQL=1 PG_PASS='pwd' ./runq.rb sql/reviewers_*.sql`):
 - All Time: 506
 ```
-2017-08-03 13:49:33 root@cncftest:/home/justa/dev/cncf/gha2pg# time PG_PASS='***REMOVED***_#' ./runq.rb sql_metrics/reviewers_all_time.sql
+2017-08-03 13:49:33 root@cncftest:/home/justa/dev/cncf/gha2db# time GHA2DB_PSQL=1 PG_PASS='***REMOVED***_#' ./runq.rb sql_metrics/reviewers_all_time.sql
 /-----\
 |count|
 +-----+
@@ -413,7 +456,7 @@ Rows: 1
 - Last month: 224
 - Last week: 143
 
-3) List reviewers (`time PG_PASS='pwd' ./runq.rb sql/list_*_reviewers.sql`):
+3) List reviewers (`time GHA2DB_PSQL=1 PG_PASS='pwd' ./runq.rb sql/list_*_reviewers.sql`):
 - Takes <30s for all time, generates long list (not pasted here)
 
 # Grafana output
@@ -425,8 +468,9 @@ You can visualise data using Grafana, see `./grafana/` directory.
 # Feeding InfluxDB & Grafana (wip)
 
 Feed InfluxDB using:
-- `PG_PASS='psql_pwd' IDB_PASS='influxdb_pwd' ./ts2idb.rb sql_metrics/reviewers.sql '2015-08-03' '2017-08-07' '1 week'`
-- This tool uses environmental variables starting with `IDB_`, please see `idb_conn.rb` and `ts2idb.rb` for details.
+- `GHA2DB_PSQL=1 PG_PASS='psql_pwd' IDB_PASS='influxdb_pwd' ./db2influx.rb sql_metrics/reviewers.sql '2015-08-03' '2017-08-07' '1 week'`
+- This tool uses environmental variables starting with `IDB_`, please see `idb_conn.rb` and `db2influx.rb` for details.
+- `IDB_`variables are exactly the same as `PG_` and `MYSQL_` to set host, databaxe, user name, password.
 
 Then see results in the InfluxDB:
 - influx
@@ -434,3 +478,4 @@ Then see results in the InfluxDB:
 - use gha
 - select * from reviewers
 - select count(*) from reviewers
+
