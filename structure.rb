@@ -4,9 +4,9 @@ require 'pg'
 require 'pry'
 require './pg_conn' # All database details & setup there
 require './mgetc'
-$index = ENV['GHA2PG_INDEX'] ? true : false
-$table = ENV['GHA2PG_SKIPTABLE'] ? false : true
-$tools = ENV['GHA2PG_SKIPTOOLS'] ? false : true
+$index = ENV['GHA2DB_INDEX'] ? true : false
+$table = ENV['GHA2DB_SKIPTABLE'] ? false : true
+$tools = ENV['GHA2DB_SKIPTOOLS'] ? false : true
 
 def structure
   # Connect to database

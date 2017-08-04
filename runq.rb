@@ -5,10 +5,10 @@ require 'pry'
 require './pg_conn' # All database details & setup there
 
 # By default we're not refreshing materialized view before doing query
-# You can do it by setting GHA2PG_REFRESH environment variable
+# You can do it by setting GHA2DB_REFRESH environment variable
 # Materialized index holds all texts used in commits, comments, PRs, issues
 # Refreshing materialized view is needed if You changes database data since last run.
-$refresh = ENV['GHA2PG_REFRESH'] ? true : false
+$refresh = ENV['GHA2DB_REFRESH'] ? true : false
 
 def runq(sql_file)
   # Connect to database
