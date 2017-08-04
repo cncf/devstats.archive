@@ -2,7 +2,7 @@
 
 require 'chronic_duration'
 require 'time'
-require './pg_conn'  # All Postgres database details & setup there
+require './conn'  # All Postgres database details & setup there
 require './idb_conn' # All InfluxDB database details & setup there
 
 # db2influx --> psql/mysql to InfluxDB time series
@@ -16,12 +16,12 @@ puts "Available #{$thr_n} processors"
 $thr_n = 1 if ENV['GHA2DB_ST']
 
 def threaded_db2influx(sql, p_name, from, to)
-  pc = pg_conn
+  sqlc = conn
   ic = idb_conn
   s_from = from.to_s[0..-7]
   s_to = to.to_s[0..-7]
   q = sql.gsub('{{from}}', s_from).gsub('{{to}}', s_to)
-  r = pc.exec(q)
+  r = sqlc.exec(q)
   n = r.first['result'].to_i
   puts "#{from} - #{to} -> #{n}" if $debug
   data = {
@@ -37,7 +37,7 @@ rescue PG::Error => e
   puts e.message
   exit(1)
 ensure
-  pc.close if pc
+  sqlc.close if sqlc
 end
 
 def db2influx(sql_file, from, to, interval)

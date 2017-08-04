@@ -2,7 +2,7 @@
 
 require 'pg'
 require 'pry'
-require './pg_conn' # All database details & setup there
+require './conn' # All database details & setup there
 require './mgetc'
 $index = ENV['GHA2DB_INDEX'] ? true : false
 $table = ENV['GHA2DB_SKIPTABLE'] ? false : true
@@ -10,17 +10,17 @@ $tools = ENV['GHA2DB_SKIPTOOLS'] ? false : true
 
 def structure
   # Connect to database
-  c = pg_conn
+  c = conn
 
   if $tools
     # Drop in correct order
-    c.exec('drop view if exists gha_view_last_year_texts')
-    c.exec('drop view if exists gha_view_last_month_texts')
-    c.exec('drop view if exists gha_view_last_week_texts')
-    c.exec('drop materialized view if exists gha_view_texts')
-    c.exec('drop view if exists gha_view_last_year_event_ids')
-    c.exec('drop view if exists gha_view_last_month_event_ids')
-    c.exec('drop view if exists gha_view_last_week_event_ids')
+    exec_sql(c, 'drop view if exists gha_view_last_year_texts')
+    exec_sql(c, 'drop view if exists gha_view_last_month_texts')
+    exec_sql(c, 'drop view if exists gha_view_last_week_texts')
+    exec_sql(c, 'drop materialized view if exists gha_view_texts')
+    exec_sql(c, 'drop view if exists gha_view_last_year_event_ids')
+    exec_sql(c, 'drop view if exists gha_view_last_month_event_ids')
+    exec_sql(c, 'drop view if exists gha_view_last_week_event_ids')
   end
 
   # gha_events
@@ -28,7 +28,7 @@ def structure
   # {"id"=>10, "type"=>29, "actor"=>278, "repo"=>290, "payload"=>216017, "public"=>4, "created_at"=>20, "org"=>230}
   # const
   if $table
-    c.exec('drop table if exists gha_events')
+    exec_sql(c, 'drop table if exists gha_events')
     c.exec(
       'create table gha_events(' +
       'id bigint not null primary key, ' +
@@ -42,11 +42,11 @@ def structure
     )
   end
   if $index
-    c.exec('create index events_type_idx on gha_events(type)')
-    c.exec('create index events_actor_id_idx on gha_events(actor_id)')
-    c.exec('create index events_repo_id_idx on gha_events(repo_id)')
-    c.exec('create index events_org_id_idx on gha_events(org_id)')
-    c.exec('create index events_created_at_idx on gha_events(created_at)')
+    exec_sql(c, 'create index events_type_idx on gha_events(type)')
+    exec_sql(c, 'create index events_actor_id_idx on gha_events(actor_id)')
+    exec_sql(c, 'create index events_repo_id_idx on gha_events(repo_id)')
+    exec_sql(c, 'create index events_org_id_idx on gha_events(org_id)')
+    exec_sql(c, 'create index events_created_at_idx on gha_events(created_at)')
   end
 
   # gha_actors
@@ -54,7 +54,7 @@ def structure
   # {"id"=>8, "login"=>34, "display_login"=>34, "gravatar_id"=>0, "url"=>63, "avatar_url"=>49}
   # const
   if $table
-    c.exec('drop table if exists gha_actors')
+    exec_sql(c, 'drop table if exists gha_actors')
     c.exec(
       'create table gha_actors(' +
       'id bigint not null primary key, ' +
@@ -62,14 +62,14 @@ def structure
       ')'
     )
   end
-  c.exec('create index actors_login_idx on gha_actors(login)') if $index
+  exec_sql(c, 'create index actors_login_idx on gha_actors(login)') if $index
 
   # gha_repos
   # {"id:Fixnum"=>48592, "name:String"=>48592, "url:String"=>48592}
   # {"id"=>8, "name"=>111, "url"=>140}
   # const
   if $table
-    c.exec('drop table if exists gha_repos')
+    exec_sql(c, 'drop table if exists gha_repos')
     c.exec(
       'create table gha_repos(' +
       'id bigint not null primary key, ' +
@@ -77,14 +77,14 @@ def structure
       ')'
     )
   end
-  c.exec('create index repos_name_idx on gha_repos(name)') if $index
+  exec_sql(c, 'create index repos_name_idx on gha_repos(name)') if $index
 
   # gha_orgs
   # {"id:Fixnum"=>18494, "login:String"=>18494, "gravatar_id:String"=>18494, "url:String"=>18494, "avatar_url:String"=>18494}
   # {"id"=>8, "login"=>38, "gravatar_id"=>0, "url"=>66, "avatar_url"=>49}
   # const
   if $table
-    c.exec('drop table if exists gha_orgs')
+    exec_sql(c, 'drop table if exists gha_orgs')
     c.exec(
       'create table gha_orgs(' +
       'id bigint not null primary key, ' +
@@ -92,7 +92,7 @@ def structure
       ')'
     )
   end
-  c.exec('create index orgs_login_idx on gha_orgs(login)') if $index
+  exec_sql(c, 'create index orgs_login_idx on gha_orgs(login)') if $index
 
   # gha_payloads
   # {"push_id:Fixnum"=>24636, "size:Fixnum"=>24636, "distinct_size:Fixnum"=>24636, "ref:String"=>30522, "head:String"=>24636, "before:String"=>24636, "commits:Array"=>24636, "action:String"=>14317, "issue:Hash"=>6446, "comment:Hash"=>6055, "ref_type:String"=>8010, "master_branch:String"=>6724, "description:String"=>3701, "pusher_type:String"=>8010, "pull_request:Hash"=>4475, "ref:NilClass"=>2124, "description:NilClass"=>3023, "number:Fixnum"=>2992, "forkee:Hash"=>1211, "pages:Array"=>370, "release:Hash"=>156, "member:Hash"=>219}
@@ -100,7 +100,7 @@ def structure
   # 48746
   # const
   if $table
-    c.exec('drop table if exists gha_payloads')
+    exec_sql(c, 'drop table if exists gha_payloads')
     c.exec(
       'create table gha_payloads(' +
       'event_id bigint not null primary key, ' +
@@ -123,14 +123,14 @@ def structure
     )
   end
   if $index
-    c.exec('create index payloads_action_idx on gha_payloads(action)')
-    c.exec('create index payloads_head_idx on gha_payloads(head)')
-    c.exec('create index payloads_issue_id_idx on gha_payloads(issue_id)')
-    c.exec('create index payloads_comment_id_idx on gha_payloads(comment_id)')
-    c.exec('create index payloads_ref_type_idx on gha_payloads(ref_type)')
-    c.exec('create index payloads_forkee_id_idx on gha_payloads(forkee_id)')
-    c.exec('create index payloads_release_id_idx on gha_payloads(release_id)')
-    c.exec('create index payloads_member_id_idx on gha_payloads(member_id)')
+    exec_sql(c, 'create index payloads_action_idx on gha_payloads(action)')
+    exec_sql(c, 'create index payloads_head_idx on gha_payloads(head)')
+    exec_sql(c, 'create index payloads_issue_id_idx on gha_payloads(issue_id)')
+    exec_sql(c, 'create index payloads_comment_id_idx on gha_payloads(comment_id)')
+    exec_sql(c, 'create index payloads_ref_type_idx on gha_payloads(ref_type)')
+    exec_sql(c, 'create index payloads_forkee_id_idx on gha_payloads(forkee_id)')
+    exec_sql(c, 'create index payloads_release_id_idx on gha_payloads(release_id)')
+    exec_sql(c, 'create index payloads_member_id_idx on gha_payloads(member_id)')
   end
 
   # gha_commits
@@ -141,7 +141,7 @@ def structure
   # 23265
   # variable (per event)
   if $table
-    c.exec('drop table if exists gha_commits')
+    exec_sql(c, 'drop table if exists gha_commits')
     c.exec(
       'create table gha_commits(' +
       'sha varchar(40) not null, ' +
@@ -153,7 +153,7 @@ def structure
       ')'
     )
     # variable
-    c.exec('drop table if exists gha_events_commits')
+    exec_sql(c, 'drop table if exists gha_events_commits')
     c.exec(
       'create table gha_events_commits(' +
       'event_id bigint not null, ' +
@@ -162,7 +162,7 @@ def structure
       ')'
     )
   end
-  c.exec('create index commits_event_id_idx on gha_commits(event_id)') if $index
+  exec_sql(c, 'create index commits_event_id_idx on gha_commits(event_id)') if $index
 
   # gha_pages
   # {"page_name:String"=>370, "title:String"=>370, "summary:NilClass"=>370, "action:String"=>370, "sha:String"=>370, "html_url:String"=>370}
@@ -170,7 +170,7 @@ def structure
   # 370
   # variable
   if $table
-    c.exec('drop table if exists gha_pages')
+    exec_sql(c, 'drop table if exists gha_pages')
     c.exec(
       'create table gha_pages(' +
       'sha varchar(40) not null, ' +
@@ -181,7 +181,7 @@ def structure
       ')'
     )
     # variable
-    c.exec('drop table if exists gha_events_pages')
+    exec_sql(c, 'drop table if exists gha_events_pages')
     c.exec(
       'create table gha_events_pages(' +
       'event_id bigint not null, ' +
@@ -191,8 +191,8 @@ def structure
     )
   end
   if $index
-    c.exec('create index pages_event_id_idx on gha_pages(event_id)')
-    c.exec('create index pages_action_idx on gha_pages(action)')
+    exec_sql(c, 'create index pages_event_id_idx on gha_pages(event_id)')
+    exec_sql(c, 'create index pages_action_idx on gha_pages(action)')
   end
 
   # gha_comments
@@ -200,7 +200,7 @@ def structure
   # Keys: user_id, commit_id, original_commit_id, pull_request_review_id
   # variable
   if $table
-    c.exec('drop table if exists gha_comments')
+    exec_sql(c, 'drop table if exists gha_comments')
     c.exec(
       'create table gha_comments(' +
       'id bigint not null primary key, ' +
@@ -222,12 +222,12 @@ def structure
     )
   end
   if $index
-    c.exec('create index comments_event_id_idx on gha_comments(event_id)')
-    c.exec('create index comments_type_idx on gha_comments(type)')
-    c.exec('create index comments_created_at_idx on gha_comments(created_at)')
-    c.exec('create index comments_user_id_idx on gha_comments(user_id)')
-    c.exec('create index comments_commit_id_idx on gha_comments(commit_id)')
-    c.exec('create index comments_pull_request_review_id_idx on gha_comments(pull_request_review_id)')
+    exec_sql(c, 'create index comments_event_id_idx on gha_comments(event_id)')
+    exec_sql(c, 'create index comments_type_idx on gha_comments(type)')
+    exec_sql(c, 'create index comments_created_at_idx on gha_comments(created_at)')
+    exec_sql(c, 'create index comments_user_id_idx on gha_comments(user_id)')
+    exec_sql(c, 'create index comments_commit_id_idx on gha_comments(commit_id)')
+    exec_sql(c, 'create index comments_pull_request_review_id_idx on gha_comments(pull_request_review_id)')
   end
 
   # gha_issues
@@ -236,7 +236,7 @@ def structure
   # Keys: assignee_id, milestone_id, user_id
   # variable
   if $table
-    c.exec('drop table if exists gha_issues')
+    exec_sql(c, 'drop table if exists gha_issues')
     c.exec(
       'create table gha_issues(' +
       'id bigint not null, ' +
@@ -258,7 +258,7 @@ def structure
       ')'
     )
     # variable
-    c.exec('drop table if exists gha_issues_assignees')
+    exec_sql(c, 'drop table if exists gha_issues_assignees')
     c.exec(
       'create table gha_issues_assignees(' +
       'issue_id bigint not null, ' +
@@ -269,14 +269,14 @@ def structure
     )
   end
   if $index
-    c.exec('create index issues_event_id_idx on gha_issues(event_id)')
-    c.exec('create index issues_assignee_id_idx on gha_issues(assignee_id)')
-    c.exec('create index issues_created_at_idx on gha_issues(created_at)')
-    c.exec('create index issues_closed_at_idx on gha_issues(closed_at)')
-    c.exec('create index issues_milestone_id_idx on gha_issues(milestone_id)')
-    c.exec('create index issues_state_idx on gha_issues(state)')
-    c.exec('create index issues_user_id_idx on gha_issues(user_id)')
-    c.exec('create index issues_is_pull_request_idx on gha_issues(is_pull_request)')
+    exec_sql(c, 'create index issues_event_id_idx on gha_issues(event_id)')
+    exec_sql(c, 'create index issues_assignee_id_idx on gha_issues(assignee_id)')
+    exec_sql(c, 'create index issues_created_at_idx on gha_issues(created_at)')
+    exec_sql(c, 'create index issues_closed_at_idx on gha_issues(closed_at)')
+    exec_sql(c, 'create index issues_milestone_id_idx on gha_issues(milestone_id)')
+    exec_sql(c, 'create index issues_state_idx on gha_issues(state)')
+    exec_sql(c, 'create index issues_user_id_idx on gha_issues(user_id)')
+    exec_sql(c, 'create index issues_is_pull_request_idx on gha_issues(is_pull_request)')
   end
 
   # gha_milestones
@@ -284,7 +284,7 @@ def structure
   # Keys: creator_id
   # variable
   if $table
-    c.exec('drop table if exists gha_milestones')
+    exec_sql(c, 'drop table if exists gha_milestones')
     c.exec(
       'create table gha_milestones(' +
       'id bigint not null, ' +
@@ -305,17 +305,17 @@ def structure
     )
   end
   if $index
-    c.exec('create index milestones_event_id_idx on gha_milestones(event_id)')
-    c.exec('create index milestones_created_at_idx on gha_milestones(created_at)')
-    c.exec('create index milestones_creator_id_idx on gha_milestones(creator_id)')
-    c.exec('create index milestones_state_idx on gha_milestones(state)')
+    exec_sql(c, 'create index milestones_event_id_idx on gha_milestones(event_id)')
+    exec_sql(c, 'create index milestones_created_at_idx on gha_milestones(created_at)')
+    exec_sql(c, 'create index milestones_creator_id_idx on gha_milestones(creator_id)')
+    exec_sql(c, 'create index milestones_state_idx on gha_milestones(state)')
   end
 
   # gha_labels
   # Table details and analysis in `analysis/analysis.txt` and `analysis/label_*.json`
   # const
   if $table
-    c.exec('drop table if exists gha_labels')
+    exec_sql(c, 'drop table if exists gha_labels')
     c.exec(
       'create table gha_labels(' +
       'id bigint not null primary key, ' +
@@ -325,7 +325,7 @@ def structure
       ')'
     )
     # variable
-    c.exec('drop table if exists gha_issues_labels')
+    exec_sql(c, 'drop table if exists gha_issues_labels')
     c.exec(
       'create table gha_issues_labels(' +
       'issue_id bigint not null, ' +
@@ -335,13 +335,13 @@ def structure
       ')'
     )
   end
-  c.exec('create index labels_name_idx on gha_labels(name)') if $index
+  exec_sql(c, 'create index labels_name_idx on gha_labels(name)') if $index
 
   # gha_forkees
   # Table details and analysis in `analysis/analysis.txt` and `analysis/forkee_*.json`
   # variable
   if $table
-    c.exec('drop table if exists gha_forkees')
+    exec_sql(c, 'drop table if exists gha_forkees')
     c.exec(
       'create table gha_forkees(' +
       'id bigint not null, ' +
@@ -372,9 +372,9 @@ def structure
     )
   end
   if $index
-    c.exec('create index forkees_event_id_idx on gha_forkees(event_id)')
-    c.exec('create index forkees_owner_id_idx on gha_forkees(owner_id)')
-    c.exec('create index forkees_created_at_idx on gha_forkees(created_at)')
+    exec_sql(c, 'create index forkees_event_id_idx on gha_forkees(event_id)')
+    exec_sql(c, 'create index forkees_owner_id_idx on gha_forkees(owner_id)')
+    exec_sql(c, 'create index forkees_created_at_idx on gha_forkees(created_at)')
   end
 
   # gha_releases
@@ -383,7 +383,7 @@ def structure
   # Array: assets
   # variable
   if $table
-    c.exec('drop table if exists gha_releases')
+    exec_sql(c, 'drop table if exists gha_releases')
     c.exec(
       'create table gha_releases(' +
       'id bigint not null, ' +
@@ -401,7 +401,7 @@ def structure
       ')'
     )
     # variable
-    c.exec('drop table if exists gha_releases_assets')
+    exec_sql(c, 'drop table if exists gha_releases_assets')
     c.exec(
       'create table gha_releases_assets(' +
       'release_id bigint not null, ' +
@@ -412,9 +412,9 @@ def structure
     )
   end
   if $index
-    c.exec('create index releases_event_id_idx on gha_releases(event_id)')
-    c.exec('create index releases_author_id_idx on gha_releases(author_id)')
-    c.exec('create index releases_created_at_idx on gha_releases(created_at)')
+    exec_sql(c, 'create index releases_event_id_idx on gha_releases(event_id)')
+    exec_sql(c, 'create index releases_author_id_idx on gha_releases(author_id)')
+    exec_sql(c, 'create index releases_created_at_idx on gha_releases(created_at)')
   end
 
   # gha_assets
@@ -422,7 +422,7 @@ def structure
   # Key: uploader_id
   # variable
   if $table
-    c.exec('drop table if exists gha_assets')
+    exec_sql(c, 'drop table if exists gha_assets')
     c.exec(
       'create table gha_assets(' +
       'id bigint not null, ' +
@@ -441,11 +441,11 @@ def structure
     )
   end
   if $index
-    c.exec('create index assets_event_id_idx on gha_assets(event_id)')
-    c.exec('create index assets_uploader_id_idx on gha_assets(uploader_id)')
-    c.exec('create index assets_content_type_idx on gha_assets(content_type)')
-    c.exec('create index assets_state_idx on gha_assets(state)')
-    c.exec('create index assets_created_at_idx on gha_assets(created_at)')
+    exec_sql(c, 'create index assets_event_id_idx on gha_assets(event_id)')
+    exec_sql(c, 'create index assets_uploader_id_idx on gha_assets(uploader_id)')
+    exec_sql(c, 'create index assets_content_type_idx on gha_assets(content_type)')
+    exec_sql(c, 'create index assets_state_idx on gha_assets(state)')
+    exec_sql(c, 'create index assets_created_at_idx on gha_assets(created_at)')
   end
 
   # gha_pull_requests
@@ -455,7 +455,7 @@ def structure
   # Arrays: actors: assignees, requested_reviewers
   # variable
   if $table
-    c.exec('drop table if exists gha_pull_requests')
+    exec_sql(c, 'drop table if exists gha_pull_requests')
     c.exec(
       'create table gha_pull_requests(' +
       'id bigint not null, ' +
@@ -491,7 +491,7 @@ def structure
       ')'
     )
     # variable
-    c.exec('drop table if exists gha_pull_requests_assignees')
+    exec_sql(c, 'drop table if exists gha_pull_requests_assignees')
     c.exec(
       'create table gha_pull_requests_assignees(' +
       'pull_request_id bigint not null, ' +
@@ -501,7 +501,7 @@ def structure
       ')'
     )
     # variable
-    c.exec('drop table if exists gha_pull_requests_requested_reviewers')
+    exec_sql(c, 'drop table if exists gha_pull_requests_requested_reviewers')
     c.exec(
       'create table gha_pull_requests_requested_reviewers(' +
       'pull_request_id bigint not null, ' +
@@ -512,17 +512,17 @@ def structure
     )
   end
   if $index
-    c.exec('create index pull_requests_event_id_idx on gha_pull_requests(event_id)')
-    c.exec('create index pull_requests_user_id_idx on gha_pull_requests(user_id)')
-    c.exec('create index pull_requests_base_sha_idx on gha_pull_requests(base_sha)')
-    c.exec('create index pull_requests_head_sha_idx on gha_pull_requests(head_sha)')
-    c.exec('create index pull_requests_merged_by_id_idx on gha_pull_requests(merged_by_id)')
-    c.exec('create index pull_requests_assignee_id_idx on gha_pull_requests(assignee_id)')
-    c.exec('create index pull_requests_milestone_id_idx on gha_pull_requests(milestone_id)')
-    c.exec('create index pull_requests_state_idx on gha_pull_requests(state)')
-    c.exec('create index pull_requests_created_at_idx on gha_pull_requests(created_at)')
-    c.exec('create index pull_requests_closed_at_idx on gha_pull_requests(closed_at)')
-    c.exec('create index pull_requests_merged_at_idx on gha_pull_requests(merged_at)')
+    exec_sql(c, 'create index pull_requests_event_id_idx on gha_pull_requests(event_id)')
+    exec_sql(c, 'create index pull_requests_user_id_idx on gha_pull_requests(user_id)')
+    exec_sql(c, 'create index pull_requests_base_sha_idx on gha_pull_requests(base_sha)')
+    exec_sql(c, 'create index pull_requests_head_sha_idx on gha_pull_requests(head_sha)')
+    exec_sql(c, 'create index pull_requests_merged_by_id_idx on gha_pull_requests(merged_by_id)')
+    exec_sql(c, 'create index pull_requests_assignee_id_idx on gha_pull_requests(assignee_id)')
+    exec_sql(c, 'create index pull_requests_milestone_id_idx on gha_pull_requests(milestone_id)')
+    exec_sql(c, 'create index pull_requests_state_idx on gha_pull_requests(state)')
+    exec_sql(c, 'create index pull_requests_created_at_idx on gha_pull_requests(created_at)')
+    exec_sql(c, 'create index pull_requests_closed_at_idx on gha_pull_requests(closed_at)')
+    exec_sql(c, 'create index pull_requests_merged_at_idx on gha_pull_requests(merged_at)')
   end
 
   # gha_branches
@@ -530,7 +530,7 @@ def structure
   # Nullable keys: forkee: repo_id, actor: user_id
   # variable
   if $table
-    c.exec('drop table if exists gha_branches')
+    exec_sql(c, 'drop table if exists gha_branches')
     c.exec(
       'create table gha_branches(' +
       'sha varchar(40) not null, ' +
@@ -544,16 +544,16 @@ def structure
     )
   end
   if $index
-    c.exec('create index branches_event_id_idx on gha_branches(event_id)')
-    c.exec('create index branches_user_id_idx on gha_branches(user_id)')
-    c.exec('create index branches_repo_id_idx on gha_branches(repo_id)')
+    exec_sql(c, 'create index branches_event_id_idx on gha_branches(event_id)')
+    exec_sql(c, 'create index branches_user_id_idx on gha_branches(user_id)')
+    exec_sql(c, 'create index branches_repo_id_idx on gha_branches(repo_id)')
   end
   # Foreign keys are not needed - they slow down processing a lweek
 
   # Tools (like views and functions needed for generating metrics)
   if $tools
     # Get max date from database
-    r = c.exec('select max(created_at) from gha_events')
+    r = exec_sql(c, 'select max(created_at) from gha_events')
     max_dt = "'now'"
     max_dt = "'#{r.first['max']}'" if r.first['max']
 

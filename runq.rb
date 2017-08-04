@@ -2,7 +2,7 @@
 
 require 'pg'
 require 'pry'
-require './pg_conn' # All database details & setup there
+require './conn' # All database details & setup there
 
 # By default we're not refreshing materialized view before doing query
 # You can do it by setting GHA2DB_REFRESH environment variable
@@ -12,7 +12,7 @@ $refresh = ENV['GHA2DB_REFRESH'] ? true : false
 
 def runq(sql_file)
   # Connect to database
-  c = pg_conn
+  c = conn
   sql = File.read(sql_file)
   c.exec('refresh materialized view gha_view_texts') if $refresh
   res = c.exec(sql)
