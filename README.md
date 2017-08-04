@@ -45,6 +45,15 @@ GitHub archives keeps data as Gzipped JSONs for each hour (24 gzipped JSONs per 
 Single JSON is not a real JSON file, but "\n" newline separated list of JSONs for each GitHub event in that hour.
 So this is a JSON array in reality.
 
+GihHub archive files can be found there <https://www.githubarchive.org>
+
+For example to fetch 2017-08-03 18:00 UTC can be fetched by:
+
+`wget http://data.githubarchive.org/2017-08-03-18.json.gz`
+
+Gzipped files are usually 10-30 Mb in size (single hour).
+Decompressed fiels are usually 100-200 Mb.
+
 We download this gzipped JSON, process it on the fly, creating array of JSON events and
 then each single event JSON matching org/repo criteria is saved in `jsons` directory as
 `N_ID.json` where:
