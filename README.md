@@ -228,7 +228,7 @@ Recommended run is to create structure without indexes first (the default), then
 - `time GHA2DB_PSQL=1 PG_PASS=your_password ./gha2db.sh`
 - `time GHA2DB_PSQL=1 GHA2DB_SKIPTABLE=1 GHA2DB_INDEX=1 PG_PASS=your_password ./structure.rb` (will take some time to generate indexes on populated database)
 
-Typical internal usage: 
+Typical internal usage:
 `time GHA2DB_PSQL=1 GHA2DB_INDEX=1 PG_PASS=your_password ./structure.rb`
 
 Alternatively You can use `structure_psql.sql` to create database structure.
@@ -444,7 +444,7 @@ sys 0m0.044s
 2) Number of reviewers. Definded as number of authors adding `/lgtm` in comment or adding `lgtm` label (all of them takes <30 seconds, `time GHA2DB_PSQL=1 PG_PASS='pwd' ./runq.rb sql/reviewers_*.sql`):
 - All Time: 506
 ```
-2017-08-03 13:49:33 root@cncftest:/home/justa/dev/cncf/gha2db# time GHA2DB_PSQL=1 PG_PASS='***REMOVED***_#' ./runq.rb sql_metrics/reviewers_all_time.sql
+2017-08-03 13:49:33 root@cncftest:/home/justa/dev/cncf/gha2db# time GHA2DB_PSQL=1 PG_PASS='pwd' ./runq.rb sql_metrics/reviewers_all_time.sql
 /-----\
 |count|
 +-----+
