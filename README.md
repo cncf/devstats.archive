@@ -222,7 +222,7 @@ Recommended run is to create structure without indexes first (the default), then
 - `time PG_PASS=your_password ./gha2pg.sh`
 - `time GHA2PG_SKIPTABLE=1 GHA2PG_INDEX=1 PG_PASS=your_password ./structure.rb` (will take some time to generate indexes on populated database)
 
-Typical internal usage: 
+Typical internal usage:
 `time GHA2PG_INDEX=1 PG_PASS=your_password ./structure.rb`
 
 Alternatively You can use `structure.sql` to create database structure.
@@ -296,7 +296,7 @@ Last GitHub archive date is 2017-08-03 13:00 UTC:
 1) SIG mentions (all of them takes <30 seconds, `time PG_PASS='pwd' ./runq.rb sql/sig_mentions_*.sql`):
 - All Time:
 ```
-time PG_PASS='Admin123_#' ./runq.rb sql_metrics/sig_mentions_all_time.sql
+time PG_PASS='pwd' ./runq.rb sql_metrics/sig_mentions_all_time.sql
 /--------------------------+--------------\
 |sig                       |count_all_time|
 +--------------------------+--------------+
@@ -401,7 +401,7 @@ sys 0m0.044s
 2) Number of reviewers. Definded as number of authors adding `/lgtm` in comment or adding `lgtm` label (all of them takes <30 seconds, `time PG_PASS='pwd' ./runq.rb sql/reviewers_*.sql`):
 - All Time: 506
 ```
-2017-08-03 13:49:33 root@cncftest:/home/justa/dev/cncf/gha2pg# time PG_PASS='Admin123_#' ./runq.rb sql_metrics/reviewers_all_time.sql
+2017-08-03 13:49:33 root@cncftest:/home/justa/dev/cncf/gha2pg# time PG_PASS='pwd' ./runq.rb sql_metrics/reviewers_all_time.sql
 /-----\
 |count|
 +-----+
