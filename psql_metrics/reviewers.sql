@@ -17,16 +17,16 @@ where
         select id from gha_labels where name in ('lgtm', 'LGTM')
       )
     group by issue_id
-    union 
-    select 
+    union
+    select
       ev.id
-    from 
-      gha_view_texts t,
+    from
+      gha_texts t,
       gha_events ev
     where
       ev.id = t.event_id
       and ev.created_at >= '{{from}}' and ev.created_at < '{{to}}'
-      and substring(body from '(?i)/lgtm') is not null
+      and substring(body from '(?i)/^\s*/lgtm\s*$') is not null
   )
 and e.actor_id = a.id
 and a.login not in ('googlebot')
