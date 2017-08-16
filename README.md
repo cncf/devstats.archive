@@ -266,7 +266,7 @@ Recommended run is to create structure without indexes first (the default), then
 - `time GHA2DB_MYSQL=1 MYSQL_PASS=your_password ./gha2db.sh`
 - `time GHA2DB_MYSQL=1 GHA2DB_SKIPTABLE=1 GHA2DB_INDEX=1 MYSQL_PASS=your_password ./structure.rb` (will take some time to generate indexes on populated database)
 
-Typical internal usage: 
+Typical internal usage:
 `time GHA2DB_MYSQL=1 GHA2DB_INDEX=1 MYSQL_PASS=your_password ./structure.rb`
 
 Alternatively You can use `structure_mysql.sql` to create database structure.

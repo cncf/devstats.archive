@@ -24,6 +24,19 @@ $debug = ENV['GHA2DB_DEBUG'] ? ENV['GHA2DB_DEBUG'].to_i : 0
 $json_out = ENV['GHA2DB_JSON'] ? true : false
 $db_out = ENV['GHA2DB_NODB'] ? false : true
 
+# Truncate text to <= size bytes (note that this can be a lot less UTF-8 runes)
+def trunc(str, size)
+  len = str.bytesize
+  return str if len < size
+  r = ''
+  i = 0
+  while r.bytesize < size
+    r += str[i]
+    i += 1
+  end
+  r.bytesize <= size ? r : r[0..-2]
+end
+
 # Create prepared statement, bind args, execute and destroy statement
 def exec_stmt(con, sid, stmt, args)
   args.each { |arg| arg = arg.gsub!("\000", '') if arg.is_a?(String) }
@@ -34,8 +47,12 @@ def exec_stmt(con, sid, stmt, args)
       con.exec('deallocate ' + sid)
     end
   else
-    s = con.prepare stmt
-    s.execute *args
+    pstmt = con.prepare stmt
+    results = pstmt.execute *args
+    ary = []
+    results.each { |row| ary << row } if results
+    pstmt.close
+    ary
   end
 rescue Exception => e
   puts "Exception:"
@@ -87,12 +104,12 @@ def gha_milestone(con, sid, eid, milestone)
       milestone['closed_issues'],
       parse_timestamp(milestone['created_at']),
       milestone['creator'] ? milestone['creator']['id']: nil,
-      milestone['description'] ? milestone['description'][0..0xFFFE] : nil,
+      milestone['description'] ? trunc(milestone['description'], 0xffff) : nil,
       milestone['due_on'] ? parse_timestamp(milestone['due_on']) : nil,
       milestone['number'],
       milestone['open_issues'],
       milestone['state'],
-      milestone['title'][0..199],
+      trunc(milestone['title'], 200),
       parse_timestamp(milestone['updated_at'])
     ]
   )
@@ -116,10 +133,10 @@ def gha_forkee(con, sid, eid, forkee)
     [
       forkee['id'],
       eid,
-      forkee['name'][0..79],
-      forkee['full_name'][0..199],
+      trunc(forkee['name'], 80),
+      trunc(forkee['full_name'], 200),
       forkee['owner']['id'],
-      forkee['description'] ? forkee['description'][0..0xFFFE] : nil,
+      forkee['description'] ? trunc(forkee['description'], 0xffff) : nil,
       forkee['fork'],
       parse_timestamp(forkee['created_at']),
       parse_timestamp(forkee['updated_at']),
@@ -133,7 +150,7 @@ def gha_forkee(con, sid, eid, forkee)
       forkee['has_wiki'],
       forkee['has_pages'],
       forkee['forks'],
-      forkee['default_branch'][0..199],
+      trunc(forkee['default_branch'], 200),
       forkee['open_issues'],
       forkee['watchers'],
       forkee['public']
@@ -160,8 +177,8 @@ def gha_branch(con, sid, eid, branch, skip_repo_id=nil)
       eid,
       branch['user'] ? branch['user']['id'] : nil,
       branch['repo'] ? branch['repo']['id'] : nil,
-      branch['label'][0..199],
-      branch['ref'][0..199]
+      trunc(branch['label'], 200),
+      trunc(branch['ref'], 200)
     ]
   )
 end
@@ -235,15 +252,15 @@ def write_to_pg(con, ev)
       event_id,
       pl['push_id'],
       pl['size'],
-      pl['ref'] ? pl['ref'][0..199] : nil,
+      pl['ref'] ? trunc(pl['ref'], 200) : nil,
       pl['head'],
       pl['before'],
       pl['action'],
       pl['issue'] ? pl['issue']['id'] : nil,
       pl['comment'] ? pl['comment']['id'] : nil,
       pl['ref_type'],
-      pl['master_branch'] ? pl['master_branch'][0..199] : nil,
-      pl['description'] ? pl['description'][0..0xFFFE] : nil,
+      pl['master_branch'] ? trunc(pl['master_branch'], 200) : nil,
+      pl['description'] ? trunc(pl['description'], 0xffff) : nil,
       pl['number'],
       pl['forkee'] ? pl['forkee']['id'] : nil,
       pl['release'] ? pl['release']['id'] : nil,
@@ -268,8 +285,8 @@ def write_to_pg(con, ev)
       [
         sha,
         event_id,
-        commit['author']['name'][0..159],
-        commit['message'] ? commit['message'][0..0xFFFE] : nil,
+        trunc(commit['author']['name'], 160),
+        commit['message'] ? trunc(commit['message'], 0xffff) : nil,
         commit['distinct']
       ]
     )
@@ -299,7 +316,7 @@ def write_to_pg(con, ev)
         sha,
         event_id,
         page['action'],
-        page['title'][0..299]
+        trunc(page['title'], 300)
       ]
     )
 
@@ -336,7 +353,7 @@ def write_to_pg(con, ev)
       [
         cid,
         event_id,
-        comment['body'] ? comment['body'][0..0xFFFE] : nil,
+        comment['body'] ? trunc(comment['body'], 0xffff) : nil,
         parse_timestamp(comment['created_at']),
         parse_timestamp(comment['updated_at']),
         ev['type'],
@@ -374,7 +391,7 @@ def write_to_pg(con, ev)
         iid,
         event_id,
         issue['assignee'] ? issue['assignee']['id'] : nil,
-        issue['body'] ? issue['body'][0..0xFFFE] : nil,
+        issue['body'] ? trunc(issue['body'], 0xffff) : nil,
         issue['closed_at'] ? parse_timestamp(issue['closed_at']) : nil,
         issue['comments'],
         parse_timestamp(issue['created_at']),
@@ -415,14 +432,14 @@ def write_to_pg(con, ev)
     labels = issue['labels']
     labels.each do |label|
       lid = label['id']
-      lid = lookup_label(con, sid, label['name'][0..159], label['color']) unless lid
+      lid = lookup_label(con, sid, trunc(label['name'], 160), label['color']) unless lid
       exec_stmt(
         con,
         sid,
         insert_ignore('into gha_labels(id, name, color, is_default) ' + n_values(4)),
         [
           lid,
-          label['name'][0..159],
+          trunc(label['name'], 160),
           label['color'],
           label['default']
         ]
@@ -459,15 +476,15 @@ def write_to_pg(con, ev)
       [
         rid,
         event_id,
-        release['tag_name'][0..199],
-        release['target_commitish'][0..199],
-        release['name'] ? release['name'][0..199] : nil,
+        trunc(release['tag_name'], 200),
+        trunc(release['target_commitish'], 200),
+        release['name'] ? trunc(release['name'], 200) : nil,
         release['draft'],
         release['author']['id'],
         release['prerelease'],
         parse_timestamp(release['created_at']),
         parse_timestamp(release['published_at']),
-        release['body'] ? release['body'][0..0xFFFE] : nil
+        release['body'] ? trunc(release['body'], 0xffff) : nil
       ]
     )
 
@@ -489,8 +506,8 @@ def write_to_pg(con, ev)
           [
           aid,
           event_id,
-          asset['name'][0..199],
-          asset['label'] ? asset['label'][0..119] : nil,
+          trunc(asset['name'], 200),
+          asset['label'] ? trunc(asset['label'], 120) : nil,
           asset['uploader']['id'],
           asset['content_type'],
           asset['state'],
@@ -563,7 +580,7 @@ def write_to_pg(con, ev)
         pr['state'],
         pr['locked'],
         pr['title'],
-        pr['body'] ? pr['body'][0..0xFFFE] : nil,
+        pr['body'] ? trunc(pr['body'], 0xffff) : nil,
         parse_timestamp(pr['created_at']),
         parse_timestamp(pr['updated_at']),
         pr['closed_at'] ? parse_timestamp(pr['closed_at']) : nil,
@@ -635,7 +652,7 @@ end
 
 $ev = {}  # This is for debugging
 # Parse signe GHA JSON event
-def threaded_parse(con, json, dt, forg, frepo)
+def parse_json(con, json, dt, forg, frepo)
   h = JSON.parse json
   f = 0
   e = 0
@@ -674,7 +691,7 @@ def get_gha_json(dt, forg, frepo)
     jsons = jsons.split("\n")
     puts "Splitted: #{fn}"
     jsons.each do |json|
-      r = threaded_parse(con, json, dt, forg, frepo)
+      r = parse_json(con, json, dt, forg, frepo)
       n += 1
       f += r[0]
       e += r[1]
@@ -737,3 +754,4 @@ if ARGV.length < 4
 end
 
 gha2db(ARGV)
+
