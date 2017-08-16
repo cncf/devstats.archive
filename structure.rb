@@ -29,15 +29,17 @@ def structure
     exec_sql(c, 'drop table if exists gha_events')
     exec_sql(
       c,
-      'create table gha_events(' +
-      'id bigint not null primary key, ' +
-      'type varchar(40) not null, ' +
-      'actor_id bigint not null, ' +
-      'repo_id bigint not null, ' +
-      'public boolean not null, ' +
-      'created_at timestamp not null default \'1970-01-01 00:00:01\', ' +
-      'org_id bigint' +
-      ')'
+      create_table(
+        'gha_events(' +
+        'id bigint not null primary key, ' +
+        'type varchar(40) not null, ' +
+        'actor_id bigint not null, ' +
+        'repo_id bigint not null, ' +
+        'public boolean not null, ' +
+        'created_at timestamp not null default \'1970-01-01 00:00:01\', ' +
+        'org_id bigint' +
+        ')'
+      )
     )
   end
   if $index
@@ -56,10 +58,12 @@ def structure
     exec_sql(c, 'drop table if exists gha_actors')
     exec_sql(
       c,
-      'create table gha_actors(' +
-      'id bigint not null primary key, ' +
-      'login varchar(120) not null' +
-      ')'
+      create_table(
+        'gha_actors(' +
+        'id bigint not null primary key, ' +
+        'login varchar(120) not null' +
+        ')'
+      )
     )
   end
   exec_sql(c, 'create index actors_login_idx on gha_actors(login)') if $index
@@ -72,10 +76,12 @@ def structure
     exec_sql(c, 'drop table if exists gha_repos')
     exec_sql(
       c,
-      'create table gha_repos(' +
-      'id bigint not null primary key, ' +
-      'name varchar(160) not null' +
-      ')'
+      create_table(
+        'gha_repos(' +
+        'id bigint not null primary key, ' +
+        'name varchar(160) not null' +
+        ')'
+      )
     )
   end
   exec_sql(c, 'create index repos_name_idx on gha_repos(name)') if $index
@@ -88,10 +94,12 @@ def structure
     exec_sql(c, 'drop table if exists gha_orgs')
     exec_sql(
       c,
-      'create table gha_orgs(' +
-      'id bigint not null primary key, ' +
-      'login varchar(100) not null' +
-      ')'
+      create_table(
+        'gha_orgs(' +
+        'id bigint not null primary key, ' +
+        'login varchar(100) not null' +
+        ')'
+      )
     )
   end
   exec_sql(c, 'create index orgs_login_idx on gha_orgs(login)') if $index
@@ -105,24 +113,26 @@ def structure
     exec_sql(c, 'drop table if exists gha_payloads')
     exec_sql(
       c,
-      'create table gha_payloads(' +
-      'event_id bigint not null primary key, ' +
-      'push_id int, ' +
-      'size int, ' +
-      'ref varchar(200), ' +
-      'head varchar(40), ' +
-      'befor varchar(40), ' +
-      'action varchar(20), ' +
-      'issue_id bigint, ' +
-      'comment_id bigint, ' +
-      'ref_type varchar(20), ' +
-      'master_branch varchar(200), ' +
-      'description text, ' +
-      'number int, ' +
-      'forkee_id bigint, ' +
-      'release_id bigint, ' +
-      'member_id bigint' +
-      ')'
+      create_table(
+        'gha_payloads(' +
+        'event_id bigint not null primary key, ' +
+        'push_id int, ' +
+        'size int, ' +
+        'ref varchar(200), ' +
+        'head varchar(40), ' +
+        'befor varchar(40), ' +
+        'action varchar(20), ' +
+        'issue_id bigint, ' +
+        'comment_id bigint, ' +
+        'ref_type varchar(20), ' +
+        'master_branch varchar(200), ' +
+        'description text, ' +
+        'number int, ' +
+        'forkee_id bigint, ' +
+        'release_id bigint, ' +
+        'member_id bigint' +
+        ')'
+      )
     )
   end
   if $index
@@ -147,24 +157,28 @@ def structure
     exec_sql(c, 'drop table if exists gha_commits')
     exec_sql(
       c,
-      'create table gha_commits(' +
-      'sha varchar(40) not null, ' +
-      'event_id bigint not null, ' +
-      'author_name varchar(160) not null, ' +
-      'message text not null, ' +
-      'is_distinct boolean not null, ' +
-      'primary key(sha, event_id)' +
-      ')'
+      create_table(
+        'gha_commits(' +
+        'sha varchar(40) not null, ' +
+        'event_id bigint not null, ' +
+        'author_name varchar(160) not null, ' +
+        'message text not null, ' +
+        'is_distinct boolean not null, ' +
+        'primary key(sha, event_id)' +
+        ')'
+      )
     )
     # variable
     exec_sql(c, 'drop table if exists gha_events_commits')
     exec_sql(
       c,
-      'create table gha_events_commits(' +
-      'event_id bigint not null, ' +
-      'sha varchar(40) not null, ' +
-      'primary key(event_id, sha)' +
-      ')'
+      create_table(
+        'gha_events_commits(' +
+        'event_id bigint not null, ' +
+        'sha varchar(40) not null, ' +
+        'primary key(event_id, sha)' +
+        ')'
+      )
     )
   end
   exec_sql(c, 'create index commits_event_id_idx on gha_commits(event_id)') if $index
@@ -178,23 +192,27 @@ def structure
     exec_sql(c, 'drop table if exists gha_pages')
     exec_sql(
       c,
-      'create table gha_pages(' +
-      'sha varchar(40) not null, ' +
-      'event_id bigint not null, ' +
-      'action varchar(20) not null, ' +
-      'title varchar(300) not null, ' +
-      'primary key(sha, event_id, action, title)' +
-      ')'
+      create_table(
+        'gha_pages(' +
+        'sha varchar(40) not null, ' +
+        'event_id bigint not null, ' +
+        'action varchar(20) not null, ' +
+        'title varchar(300) not null, ' +
+        'primary key(sha, event_id, action, title)' +
+        ')'
+      )
     )
     # variable
     exec_sql(c, 'drop table if exists gha_events_pages')
     exec_sql(
       c,
-      'create table gha_events_pages(' +
-      'event_id bigint not null, ' +
-      'sha varchar(40) not null, ' +
-      'primary key(event_id, sha)' +
-      ')'
+      create_table(
+        'gha_events_pages(' +
+        'event_id bigint not null, ' +
+        'sha varchar(40) not null, ' +
+        'primary key(event_id, sha)' +
+        ')'
+      )
     )
   end
   if $index
@@ -210,23 +228,25 @@ def structure
     exec_sql(c, 'drop table if exists gha_comments')
     exec_sql(
       c,
-      'create table gha_comments(' +
-      'id bigint not null primary key, ' +
-      'event_id bigint not null, ' +
-      'body text not null, ' +
-      'created_at timestamp not null default \'1970-01-01 00:00:01\', ' +
-      'updated_at timestamp not null default \'1970-01-01 00:00:01\', ' +
-      'type varchar(40) not null, ' +
-      'user_id bigint not null, ' +
-      'commit_id varchar(40), ' +
-      'original_commit_id varchar(40), ' +
-      'diff_hunk text, ' +
-      'position int, ' +
-      'original_position int, ' +
-      'path text, ' +
-      'pull_request_review_id bigint, ' +
-      'line int' +
-      ')'
+      create_table(
+        'gha_comments(' +
+        'id bigint not null primary key, ' +
+        'event_id bigint not null, ' +
+        'body text not null, ' +
+        'created_at timestamp not null default \'1970-01-01 00:00:01\', ' +
+        'updated_at timestamp not null default \'1970-01-01 00:00:01\', ' +
+        'type varchar(40) not null, ' +
+        'user_id bigint not null, ' +
+        'commit_id varchar(40), ' +
+        'original_commit_id varchar(40), ' +
+        'diff_hunk text, ' +
+        'position int, ' +
+        'original_position int, ' +
+        'path text, ' +
+        'pull_request_review_id bigint, ' +
+        'line int' +
+        ')'
+      )
     )
   end
   if $index
@@ -247,35 +267,39 @@ def structure
     exec_sql(c, 'drop table if exists gha_issues')
     exec_sql(
       c,
-      'create table gha_issues(' +
-      'id bigint not null, ' +
-      'event_id bigint not null, ' +
-      'assignee_id bigint, ' +
-      'body text, ' +
-      'closed_at timestamp default \'1970-01-01 00:00:01\', ' +
-      'comments int not null, ' +
-      'created_at timestamp not null default \'1970-01-01 00:00:01\', ' +
-      'locked boolean not null, ' +
-      'milestone_id bigint, ' +
-      'number int not null, ' +
-      'state varchar(20) not null, ' +
-      'title text not null, ' +
-      'updated_at timestamp not null default \'1970-01-01 00:00:01\', ' +
-      'user_id bigint not null, ' +
-      'is_pull_request boolean not null, ' +
-      'primary key(id, event_id)' +
-      ')'
+      create_table(
+        'gha_issues(' +
+        'id bigint not null, ' +
+        'event_id bigint not null, ' +
+        'assignee_id bigint, ' +
+        'body text, ' +
+        'closed_at timestamp default \'1970-01-01 00:00:01\', ' +
+        'comments int not null, ' +
+        'created_at timestamp not null default \'1970-01-01 00:00:01\', ' +
+        'locked boolean not null, ' +
+        'milestone_id bigint, ' +
+        'number int not null, ' +
+        'state varchar(20) not null, ' +
+        'title text not null, ' +
+        'updated_at timestamp not null default \'1970-01-01 00:00:01\', ' +
+        'user_id bigint not null, ' +
+        'is_pull_request boolean not null, ' +
+        'primary key(id, event_id)' +
+        ')'
+      )
     )
     # variable
     exec_sql(c, 'drop table if exists gha_issues_assignees')
     exec_sql(
       c,
-      'create table gha_issues_assignees(' +
-      'issue_id bigint not null, ' +
-      'event_id bigint not null, ' +
-      'assignee_id bigint not null, ' +
-      'primary key(issue_id, event_id, assignee_id)' +
-      ')'
+      create_table(
+        'gha_issues_assignees(' +
+        'issue_id bigint not null, ' +
+        'event_id bigint not null, ' +
+        'assignee_id bigint not null, ' +
+        'primary key(issue_id, event_id, assignee_id)' +
+        ')'
+      )
     )
   end
   if $index
@@ -297,22 +321,24 @@ def structure
     exec_sql(c, 'drop table if exists gha_milestones')
     exec_sql(
       c,
-      'create table gha_milestones(' +
-      'id bigint not null, ' +
-      'event_id bigint not null, ' +
-      'closed_at timestamp default \'1970-01-01 00:00:01\', ' +
-      'closed_issues int not null, ' +
-      'created_at timestamp not null default \'1970-01-01 00:00:01\', ' +
-      'creator_id bigint, ' +
-      'description text, ' +
-      'due_on timestamp default \'1970-01-01 00:00:01\', ' +
-      'number int not null, ' +
-      'open_issues int not null, ' +
-      'state varchar(20) not null, ' +
-      'title varchar(200) not null, ' +
-      'updated_at timestamp not null default \'1970-01-01 00:00:01\', ' +
-      'primary key(id, event_id)' +
-      ')'
+      create_table(
+        'gha_milestones(' +
+        'id bigint not null, ' +
+        'event_id bigint not null, ' +
+        'closed_at timestamp default \'1970-01-01 00:00:01\', ' +
+        'closed_issues int not null, ' +
+        'created_at timestamp not null default \'1970-01-01 00:00:01\', ' +
+        'creator_id bigint, ' +
+        'description text, ' +
+        'due_on timestamp default \'1970-01-01 00:00:01\', ' +
+        'number int not null, ' +
+        'open_issues int not null, ' +
+        'state varchar(20) not null, ' +
+        'title varchar(200) not null, ' +
+        'updated_at timestamp not null default \'1970-01-01 00:00:01\', ' +
+        'primary key(id, event_id)' +
+        ')'
+      )
     )
   end
   if $index
@@ -329,23 +355,27 @@ def structure
     exec_sql(c, 'drop table if exists gha_labels')
     exec_sql(
       c,
-      'create table gha_labels(' +
-      'id bigint not null primary key, ' +
-      'name varchar(160) not null, ' +
-      'color varchar(8) not null, ' +
-      'is_default boolean' +
-      ')'
+      create_table(
+        'gha_labels(' +
+        'id bigint not null primary key, ' +
+        'name varchar(160) not null, ' +
+        'color varchar(8) not null, ' +
+        'is_default boolean' +
+        ')'
+      )
     )
     # variable
     exec_sql(c, 'drop table if exists gha_issues_labels')
     exec_sql(
       c,
-      'create table gha_issues_labels(' +
-      'issue_id bigint not null, ' +
-      'event_id bigint not null, ' +
-      'label_id bigint not null, ' +
-      'primary key(issue_id, event_id, label_id)' +
-      ')'
+      create_table(
+        'gha_issues_labels(' +
+        'issue_id bigint not null, ' +
+        'event_id bigint not null, ' +
+        'label_id bigint not null, ' +
+        'primary key(issue_id, event_id, label_id)' +
+        ')'
+      )
     )
   end
   exec_sql(c, 'create index labels_name_idx on gha_labels(name)') if $index
@@ -357,32 +387,34 @@ def structure
     exec_sql(c, 'drop table if exists gha_forkees')
     exec_sql(
       c,
-      'create table gha_forkees(' +
-      'id bigint not null, ' +
-      'event_id bigint not null, ' +
-      'name varchar(80) not null, ' +
-      'full_name varchar(200) not null, ' +
-      'owner_id bigint not null, ' +
-      'description text, ' +
-      'fork boolean not null, ' +
-      'created_at timestamp not null default \'1970-01-01 00:00:01\', ' +
-      'updated_at timestamp not null default \'1970-01-01 00:00:01\', ' +
-      'pushed_at timestamp not null default \'1970-01-01 00:00:01\', ' +
-      'homepage text, ' +
-      'size int not null, ' +
-      'stargazers_count int not null, ' +
-      'has_issues boolean not null, ' +
-      'has_projects boolean, ' +
-      'has_downloads boolean not null, ' +
-      'has_wiki boolean not null, ' +
-      'has_pages boolean, ' +
-      'forks int not null, ' +
-      'open_issues int not null, ' +
-      'watchers int not null, ' +
-      'default_branch varchar(200) not null, ' +
-      'public boolean, ' +
-      'primary key(id, event_id)' +
-      ')'
+      create_table(
+        'gha_forkees(' +
+        'id bigint not null, ' +
+        'event_id bigint not null, ' +
+        'name varchar(80) not null, ' +
+        'full_name varchar(200) not null, ' +
+        'owner_id bigint not null, ' +
+        'description text, ' +
+        'fork boolean not null, ' +
+        'created_at timestamp not null default \'1970-01-01 00:00:01\', ' +
+        'updated_at timestamp not null default \'1970-01-01 00:00:01\', ' +
+        'pushed_at timestamp not null default \'1970-01-01 00:00:01\', ' +
+        'homepage text, ' +
+        'size int not null, ' +
+        'stargazers_count int not null, ' +
+        'has_issues boolean not null, ' +
+        'has_projects boolean, ' +
+        'has_downloads boolean not null, ' +
+        'has_wiki boolean not null, ' +
+        'has_pages boolean, ' +
+        'forks int not null, ' +
+        'open_issues int not null, ' +
+        'watchers int not null, ' +
+        'default_branch varchar(200) not null, ' +
+        'public boolean, ' +
+        'primary key(id, event_id)' +
+        ')'
+      )
     )
   end
   if $index
@@ -400,31 +432,35 @@ def structure
     exec_sql(c, 'drop table if exists gha_releases')
     exec_sql(
       c,
-      'create table gha_releases(' +
-      'id bigint not null, ' +
-      'event_id bigint not null, ' +
-      'tag_name varchar(200) not null, ' +
-      'target_commitish varchar(200) not null, ' +
-      'name varchar(200), ' +
-      'draft boolean not null, ' +
-      'author_id bigint not null, ' +
-      'prerelease boolean not null, ' +
-      'created_at timestamp not null default \'1970-01-01 00:00:01\', ' +
-      'published_at timestamp not null default \'1970-01-01 00:00:01\', ' +
-      'body text, ' +
-      'primary key(id, event_id)' +
-      ')'
+      create_table(
+        'gha_releases(' +
+        'id bigint not null, ' +
+        'event_id bigint not null, ' +
+        'tag_name varchar(200) not null, ' +
+        'target_commitish varchar(200) not null, ' +
+        'name varchar(200), ' +
+        'draft boolean not null, ' +
+        'author_id bigint not null, ' +
+        'prerelease boolean not null, ' +
+        'created_at timestamp not null default \'1970-01-01 00:00:01\', ' +
+        'published_at timestamp not null default \'1970-01-01 00:00:01\', ' +
+        'body text, ' +
+        'primary key(id, event_id)' +
+        ')'
+      )
     )
     # variable
     exec_sql(c, 'drop table if exists gha_releases_assets')
     exec_sql(
       c,
-      'create table gha_releases_assets(' +
-      'release_id bigint not null, ' +
-      'event_id bigint not null, ' +
-      'asset_id bigint not null, ' +
-      'primary key(release_id, event_id, asset_id)' +
-      ')'
+      create_table(
+        'gha_releases_assets(' +
+        'release_id bigint not null, ' +
+        'event_id bigint not null, ' +
+        'asset_id bigint not null, ' +
+        'primary key(release_id, event_id, asset_id)' +
+        ')'
+      )
     )
   end
   if $index
@@ -441,20 +477,22 @@ def structure
     exec_sql(c, 'drop table if exists gha_assets')
     exec_sql(
       c,
-      'create table gha_assets(' +
-      'id bigint not null, ' +
-      'event_id bigint not null, ' +
-      'name varchar(200) not null, ' +
-      'label varchar(120), ' +
-      'uploader_id bigint not null, ' +
-      'content_type varchar(80) not null, ' +
-      'state varchar(20) not null, ' +
-      'size int not null, ' +
-      'download_count int not null, ' +
-      'created_at timestamp not null default \'1970-01-01 00:00:01\', ' +
-      'updated_at timestamp not null default \'1970-01-01 00:00:01\', ' +
-      'primary key(id, event_id)' +
-      ')'
+      create_table(
+        'gha_assets(' +
+        'id bigint not null, ' +
+        'event_id bigint not null, ' +
+        'name varchar(200) not null, ' +
+        'label varchar(120), ' +
+        'uploader_id bigint not null, ' +
+        'content_type varchar(80) not null, ' +
+        'state varchar(20) not null, ' +
+        'size int not null, ' +
+        'download_count int not null, ' +
+        'created_at timestamp not null default \'1970-01-01 00:00:01\', ' +
+        'updated_at timestamp not null default \'1970-01-01 00:00:01\', ' +
+        'primary key(id, event_id)' +
+        ')'
+      )
     )
   end
   if $index
@@ -475,60 +513,66 @@ def structure
     exec_sql(c, 'drop table if exists gha_pull_requests')
     exec_sql(
       c,
-      'create table gha_pull_requests(' +
-      'id bigint not null, ' +
-      'event_id bigint not null, ' +
-      'user_id bigint not null, ' +
-      'base_sha varchar(40) not null, ' +
-      'head_sha varchar(40) not null, ' +
-      'merged_by_id bigint, ' +
-      'assignee_id bigint, ' +
-      'milestone_id bigint, ' +
-      'number int not null, ' +
-      'state varchar(20) not null, ' +
-      'locked boolean not null, ' +
-      'title text not null, ' +
-      'body text, ' +
-      'created_at timestamp not null default \'1970-01-01 00:00:01\', ' +
-      'updated_at timestamp not null default \'1970-01-01 00:00:01\', ' +
-      'closed_at timestamp default \'1970-01-01 00:00:01\', ' +
-      'merged_at timestamp default \'1970-01-01 00:00:01\', ' +
-      'merge_commit_sha varchar(40), ' +
-      'merged boolean, ' +
-      'mergeable boolean, ' +
-      'rebaseable boolean, ' +
-      'mergeable_state varchar(20), ' +
-      'comments int, ' +
-      'review_comments int, ' +
-      'maintainer_can_modify boolean, ' +
-      'commits int, ' +
-      'additions int, ' +
-      'deletions int, ' +
-      'changed_files int, ' +
-      'primary key(id, event_id)' +
-      ')'
+      create_table(
+        'gha_pull_requests(' +
+        'id bigint not null, ' +
+        'event_id bigint not null, ' +
+        'user_id bigint not null, ' +
+        'base_sha varchar(40) not null, ' +
+        'head_sha varchar(40) not null, ' +
+        'merged_by_id bigint, ' +
+        'assignee_id bigint, ' +
+        'milestone_id bigint, ' +
+        'number int not null, ' +
+        'state varchar(20) not null, ' +
+        'locked boolean not null, ' +
+        'title text not null, ' +
+        'body text, ' +
+        'created_at timestamp not null default \'1970-01-01 00:00:01\', ' +
+        'updated_at timestamp not null default \'1970-01-01 00:00:01\', ' +
+        'closed_at timestamp default \'1970-01-01 00:00:01\', ' +
+        'merged_at timestamp default \'1970-01-01 00:00:01\', ' +
+        'merge_commit_sha varchar(40), ' +
+        'merged boolean, ' +
+        'mergeable boolean, ' +
+        'rebaseable boolean, ' +
+        'mergeable_state varchar(20), ' +
+        'comments int, ' +
+        'review_comments int, ' +
+        'maintainer_can_modify boolean, ' +
+        'commits int, ' +
+        'additions int, ' +
+        'deletions int, ' +
+        'changed_files int, ' +
+        'primary key(id, event_id)' +
+        ')'
+      )
     )
     # variable
     exec_sql(c, 'drop table if exists gha_pull_requests_assignees')
     exec_sql(
       c,
-      'create table gha_pull_requests_assignees(' +
-      'pull_request_id bigint not null, ' +
-      'event_id bigint not null, ' +
-      'assignee_id bigint not null, ' +
-      'primary key(pull_request_id, event_id, assignee_id)' +
-      ')'
+      create_table(
+        'gha_pull_requests_assignees(' +
+        'pull_request_id bigint not null, ' +
+        'event_id bigint not null, ' +
+        'assignee_id bigint not null, ' +
+        'primary key(pull_request_id, event_id, assignee_id)' +
+       ')'
+      )
     )
     # variable
     exec_sql(c, 'drop table if exists gha_pull_requests_requested_reviewers')
     exec_sql(
       c,
-      'create table gha_pull_requests_requested_reviewers(' +
-      'pull_request_id bigint not null, ' +
-      'event_id bigint not null, ' +
-      'requested_reviewer_id bigint not null, ' +
-      'primary key(pull_request_id, event_id, requested_reviewer_id)' +
-      ')'
+      create_table(
+        'gha_pull_requests_requested_reviewers(' +
+        'pull_request_id bigint not null, ' +
+        'event_id bigint not null, ' +
+        'requested_reviewer_id bigint not null, ' +
+        'primary key(pull_request_id, event_id, requested_reviewer_id)' +
+        ')'
+      )
     )
   end
   if $index
@@ -553,15 +597,17 @@ def structure
     exec_sql(c, 'drop table if exists gha_branches')
     exec_sql(
       c,
-      'create table gha_branches(' +
-      'sha varchar(40) not null, ' +
-      'event_id bigint not null, ' +
-      'user_id bigint, ' +
-      'repo_id bigint, ' +
-      'label varchar(200) not null, ' +
-      'ref varchar(200) not null, ' +
-      'primary key(sha, event_id)' +
-      ')'
+      create_table(
+        'gha_branches(' +
+        'sha varchar(40) not null, ' +
+        'event_id bigint not null, ' +
+        'user_id bigint, ' +
+        'repo_id bigint, ' +
+        'label varchar(200) not null, ' +
+        'ref varchar(200) not null, ' +
+        'primary key(sha, event_id)' +
+        ')'
+      )
     )
   end
   if $index
@@ -575,10 +621,12 @@ def structure
     exec_sql(c, 'drop table if exists gha_texts')
     exec_sql(
       c,
-      'create table gha_texts(' +
-      'event_id bigint, ' +
-      'body text' +
-      ')'
+      create_table(
+        'gha_texts(' +
+        'event_id bigint, ' +
+        'body text' +
+        ')'
+      )
     )
   end
   if $index

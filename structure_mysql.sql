@@ -7,7 +7,7 @@
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!40101 SET NAMES utf8 */;
+/*!40101 SET NAMES utf8mb4 */;
 /*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
 /*!40103 SET TIME_ZONE='+00:00' */;
 /*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
@@ -24,9 +24,10 @@ DROP TABLE IF EXISTS `gha_actors`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `gha_actors` (
   `id` bigint(20) NOT NULL,
-  `login` varchar(120) NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+  `login` varchar(120) COLLATE utf8mb4_unicode_ci NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `actors_login_idx` (`login`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -48,17 +49,22 @@ DROP TABLE IF EXISTS `gha_assets`;
 CREATE TABLE `gha_assets` (
   `id` bigint(20) NOT NULL,
   `event_id` bigint(20) NOT NULL,
-  `name` varchar(200) NOT NULL,
-  `label` varchar(120) DEFAULT NULL,
+  `name` varchar(200) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `label` varchar(120) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `uploader_id` bigint(20) NOT NULL,
-  `content_type` varchar(80) NOT NULL,
-  `state` varchar(20) NOT NULL,
+  `content_type` varchar(80) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `state` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL,
   `size` int(11) NOT NULL,
   `download_count` int(11) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT '1970-01-01 00:00:01',
   `updated_at` timestamp NOT NULL DEFAULT '1970-01-01 00:00:01',
-  PRIMARY KEY (`id`,`event_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+  PRIMARY KEY (`id`,`event_id`),
+  KEY `assets_event_id_idx` (`event_id`),
+  KEY `assets_uploader_id_idx` (`uploader_id`),
+  KEY `assets_content_type_idx` (`content_type`),
+  KEY `assets_state_idx` (`state`),
+  KEY `assets_created_at_idx` (`created_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -78,14 +84,17 @@ DROP TABLE IF EXISTS `gha_branches`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `gha_branches` (
-  `sha` varchar(40) NOT NULL,
+  `sha` varchar(40) COLLATE utf8mb4_unicode_ci NOT NULL,
   `event_id` bigint(20) NOT NULL,
   `user_id` bigint(20) DEFAULT NULL,
   `repo_id` bigint(20) DEFAULT NULL,
-  `label` varchar(200) NOT NULL,
-  `ref` varchar(200) NOT NULL,
-  PRIMARY KEY (`sha`,`event_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+  `label` varchar(200) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `ref` varchar(200) COLLATE utf8mb4_unicode_ci NOT NULL,
+  PRIMARY KEY (`sha`,`event_id`),
+  KEY `branches_event_id_idx` (`event_id`),
+  KEY `branches_user_id_idx` (`user_id`),
+  KEY `branches_repo_id_idx` (`repo_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -107,21 +116,27 @@ DROP TABLE IF EXISTS `gha_comments`;
 CREATE TABLE `gha_comments` (
   `id` bigint(20) NOT NULL,
   `event_id` bigint(20) NOT NULL,
-  `body` text NOT NULL,
+  `body` text COLLATE utf8mb4_unicode_ci NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT '1970-01-01 00:00:01',
   `updated_at` timestamp NOT NULL DEFAULT '1970-01-01 00:00:01',
-  `type` varchar(40) NOT NULL,
+  `type` varchar(40) COLLATE utf8mb4_unicode_ci NOT NULL,
   `user_id` bigint(20) NOT NULL,
-  `commit_id` varchar(40) DEFAULT NULL,
-  `original_commit_id` varchar(40) DEFAULT NULL,
-  `diff_hunk` text,
+  `commit_id` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `original_commit_id` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `diff_hunk` text COLLATE utf8mb4_unicode_ci,
   `position` int(11) DEFAULT NULL,
   `original_position` int(11) DEFAULT NULL,
-  `path` text,
+  `path` text COLLATE utf8mb4_unicode_ci,
   `pull_request_review_id` bigint(20) DEFAULT NULL,
   `line` int(11) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+  PRIMARY KEY (`id`),
+  KEY `comments_event_id_idx` (`event_id`),
+  KEY `comments_type_idx` (`type`),
+  KEY `comments_created_at_idx` (`created_at`),
+  KEY `comments_user_id_idx` (`user_id`),
+  KEY `comments_commit_id_idx` (`commit_id`),
+  KEY `comments_pull_request_review_id_idx` (`pull_request_review_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -141,13 +156,14 @@ DROP TABLE IF EXISTS `gha_commits`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `gha_commits` (
-  `sha` varchar(40) NOT NULL,
+  `sha` varchar(40) COLLATE utf8mb4_unicode_ci NOT NULL,
   `event_id` bigint(20) NOT NULL,
-  `author_name` varchar(160) NOT NULL,
-  `message` text NOT NULL,
+  `author_name` varchar(160) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `message` text COLLATE utf8mb4_unicode_ci NOT NULL,
   `is_distinct` tinyint(1) NOT NULL,
-  PRIMARY KEY (`sha`,`event_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+  PRIMARY KEY (`sha`,`event_id`),
+  KEY `commits_event_id_idx` (`event_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -168,14 +184,19 @@ DROP TABLE IF EXISTS `gha_events`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `gha_events` (
   `id` bigint(20) NOT NULL,
-  `type` varchar(40) NOT NULL,
+  `type` varchar(40) COLLATE utf8mb4_unicode_ci NOT NULL,
   `actor_id` bigint(20) NOT NULL,
   `repo_id` bigint(20) NOT NULL,
   `public` tinyint(1) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT '1970-01-01 00:00:01',
   `org_id` bigint(20) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+  PRIMARY KEY (`id`),
+  KEY `events_type_idx` (`type`),
+  KEY `events_actor_id_idx` (`actor_id`),
+  KEY `events_repo_id_idx` (`repo_id`),
+  KEY `events_org_id_idx` (`org_id`),
+  KEY `events_created_at_idx` (`created_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -196,9 +217,9 @@ DROP TABLE IF EXISTS `gha_events_commits`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `gha_events_commits` (
   `event_id` bigint(20) NOT NULL,
-  `sha` varchar(40) NOT NULL,
+  `sha` varchar(40) COLLATE utf8mb4_unicode_ci NOT NULL,
   PRIMARY KEY (`event_id`,`sha`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -219,9 +240,9 @@ DROP TABLE IF EXISTS `gha_events_pages`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `gha_events_pages` (
   `event_id` bigint(20) NOT NULL,
-  `sha` varchar(40) NOT NULL,
+  `sha` varchar(40) COLLATE utf8mb4_unicode_ci NOT NULL,
   PRIMARY KEY (`event_id`,`sha`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -243,15 +264,15 @@ DROP TABLE IF EXISTS `gha_forkees`;
 CREATE TABLE `gha_forkees` (
   `id` bigint(20) NOT NULL,
   `event_id` bigint(20) NOT NULL,
-  `name` varchar(80) NOT NULL,
-  `full_name` varchar(200) NOT NULL,
+  `name` varchar(80) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `full_name` varchar(200) COLLATE utf8mb4_unicode_ci NOT NULL,
   `owner_id` bigint(20) NOT NULL,
-  `description` text,
+  `description` text COLLATE utf8mb4_unicode_ci,
   `fork` tinyint(1) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT '1970-01-01 00:00:01',
   `updated_at` timestamp NOT NULL DEFAULT '1970-01-01 00:00:01',
   `pushed_at` timestamp NOT NULL DEFAULT '1970-01-01 00:00:01',
-  `homepage` text,
+  `homepage` text COLLATE utf8mb4_unicode_ci,
   `size` int(11) NOT NULL,
   `stargazers_count` int(11) NOT NULL,
   `has_issues` tinyint(1) NOT NULL,
@@ -262,10 +283,13 @@ CREATE TABLE `gha_forkees` (
   `forks` int(11) NOT NULL,
   `open_issues` int(11) NOT NULL,
   `watchers` int(11) NOT NULL,
-  `default_branch` varchar(200) NOT NULL,
+  `default_branch` varchar(200) COLLATE utf8mb4_unicode_ci NOT NULL,
   `public` tinyint(1) DEFAULT NULL,
-  PRIMARY KEY (`id`,`event_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+  PRIMARY KEY (`id`,`event_id`),
+  KEY `forkees_event_id_idx` (`event_id`),
+  KEY `forkees_owner_id_idx` (`owner_id`),
+  KEY `forkees_created_at_idx` (`created_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -288,20 +312,28 @@ CREATE TABLE `gha_issues` (
   `id` bigint(20) NOT NULL,
   `event_id` bigint(20) NOT NULL,
   `assignee_id` bigint(20) DEFAULT NULL,
-  `body` text,
+  `body` text COLLATE utf8mb4_unicode_ci,
   `closed_at` timestamp NOT NULL DEFAULT '1970-01-01 00:00:01',
   `comments` int(11) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT '1970-01-01 00:00:01',
   `locked` tinyint(1) NOT NULL,
   `milestone_id` bigint(20) DEFAULT NULL,
   `number` int(11) NOT NULL,
-  `state` varchar(20) NOT NULL,
-  `title` text NOT NULL,
+  `state` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `title` text COLLATE utf8mb4_unicode_ci NOT NULL,
   `updated_at` timestamp NOT NULL DEFAULT '1970-01-01 00:00:01',
   `user_id` bigint(20) NOT NULL,
   `is_pull_request` tinyint(1) NOT NULL,
-  PRIMARY KEY (`id`,`event_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+  PRIMARY KEY (`id`,`event_id`),
+  KEY `issues_event_id_idx` (`event_id`),
+  KEY `issues_assignee_id_idx` (`assignee_id`),
+  KEY `issues_created_at_idx` (`created_at`),
+  KEY `issues_closed_at_idx` (`closed_at`),
+  KEY `issues_milestone_id_idx` (`milestone_id`),
+  KEY `issues_state_idx` (`state`),
+  KEY `issues_user_id_idx` (`user_id`),
+  KEY `issues_is_pull_request_idx` (`is_pull_request`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -325,7 +357,7 @@ CREATE TABLE `gha_issues_assignees` (
   `event_id` bigint(20) NOT NULL,
   `assignee_id` bigint(20) NOT NULL,
   PRIMARY KEY (`issue_id`,`event_id`,`assignee_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -349,7 +381,7 @@ CREATE TABLE `gha_issues_labels` (
   `event_id` bigint(20) NOT NULL,
   `label_id` bigint(20) NOT NULL,
   PRIMARY KEY (`issue_id`,`event_id`,`label_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -370,11 +402,12 @@ DROP TABLE IF EXISTS `gha_labels`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `gha_labels` (
   `id` bigint(20) NOT NULL,
-  `name` varchar(160) NOT NULL,
-  `color` varchar(8) NOT NULL,
+  `name` varchar(160) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `color` varchar(8) COLLATE utf8mb4_unicode_ci NOT NULL,
   `is_default` tinyint(1) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+  PRIMARY KEY (`id`),
+  KEY `labels_name_idx` (`name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -400,15 +433,19 @@ CREATE TABLE `gha_milestones` (
   `closed_issues` int(11) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT '1970-01-01 00:00:01',
   `creator_id` bigint(20) DEFAULT NULL,
-  `description` text,
+  `description` text COLLATE utf8mb4_unicode_ci,
   `due_on` timestamp NOT NULL DEFAULT '1970-01-01 00:00:01',
   `number` int(11) NOT NULL,
   `open_issues` int(11) NOT NULL,
-  `state` varchar(20) NOT NULL,
-  `title` varchar(200) NOT NULL,
+  `state` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `title` varchar(200) COLLATE utf8mb4_unicode_ci NOT NULL,
   `updated_at` timestamp NOT NULL DEFAULT '1970-01-01 00:00:01',
-  PRIMARY KEY (`id`,`event_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+  PRIMARY KEY (`id`,`event_id`),
+  KEY `milestones_event_id_idx` (`event_id`),
+  KEY `milestones_created_at_idx` (`created_at`),
+  KEY `milestones_creator_id_idx` (`creator_id`),
+  KEY `milestones_state_idx` (`state`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -429,9 +466,10 @@ DROP TABLE IF EXISTS `gha_orgs`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `gha_orgs` (
   `id` bigint(20) NOT NULL,
-  `login` varchar(100) NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+  `login` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `orgs_login_idx` (`login`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -451,12 +489,14 @@ DROP TABLE IF EXISTS `gha_pages`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `gha_pages` (
-  `sha` varchar(40) NOT NULL,
+  `sha` varchar(40) COLLATE utf8mb4_unicode_ci NOT NULL,
   `event_id` bigint(20) NOT NULL,
-  `action` varchar(20) NOT NULL,
-  `title` varchar(300) NOT NULL,
-  PRIMARY KEY (`sha`,`event_id`,`action`,`title`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+  `action` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `title` varchar(300) COLLATE utf8mb4_unicode_ci NOT NULL,
+  PRIMARY KEY (`sha`,`event_id`,`action`,`title`),
+  KEY `pages_event_id_idx` (`event_id`),
+  KEY `pages_action_idx` (`action`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -479,21 +519,29 @@ CREATE TABLE `gha_payloads` (
   `event_id` bigint(20) NOT NULL,
   `push_id` int(11) DEFAULT NULL,
   `size` int(11) DEFAULT NULL,
-  `ref` varchar(200) DEFAULT NULL,
-  `head` varchar(40) DEFAULT NULL,
-  `befor` varchar(40) DEFAULT NULL,
-  `action` varchar(20) DEFAULT NULL,
+  `ref` varchar(200) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `head` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `befor` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `action` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `issue_id` bigint(20) DEFAULT NULL,
   `comment_id` bigint(20) DEFAULT NULL,
-  `ref_type` varchar(20) DEFAULT NULL,
-  `master_branch` varchar(200) DEFAULT NULL,
-  `description` text,
+  `ref_type` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `master_branch` varchar(200) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `description` text COLLATE utf8mb4_unicode_ci,
   `number` int(11) DEFAULT NULL,
   `forkee_id` bigint(20) DEFAULT NULL,
   `release_id` bigint(20) DEFAULT NULL,
   `member_id` bigint(20) DEFAULT NULL,
-  PRIMARY KEY (`event_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+  PRIMARY KEY (`event_id`),
+  KEY `payloads_action_idx` (`action`),
+  KEY `payloads_head_idx` (`head`),
+  KEY `payloads_issue_id_idx` (`issue_id`),
+  KEY `payloads_comment_id_idx` (`comment_id`),
+  KEY `payloads_ref_type_idx` (`ref_type`),
+  KEY `payloads_forkee_id_idx` (`forkee_id`),
+  KEY `payloads_release_id_idx` (`release_id`),
+  KEY `payloads_member_id_idx` (`member_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -516,25 +564,25 @@ CREATE TABLE `gha_pull_requests` (
   `id` bigint(20) NOT NULL,
   `event_id` bigint(20) NOT NULL,
   `user_id` bigint(20) NOT NULL,
-  `base_sha` varchar(40) NOT NULL,
-  `head_sha` varchar(40) NOT NULL,
+  `base_sha` varchar(40) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `head_sha` varchar(40) COLLATE utf8mb4_unicode_ci NOT NULL,
   `merged_by_id` bigint(20) DEFAULT NULL,
   `assignee_id` bigint(20) DEFAULT NULL,
   `milestone_id` bigint(20) DEFAULT NULL,
   `number` int(11) NOT NULL,
-  `state` varchar(20) NOT NULL,
+  `state` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL,
   `locked` tinyint(1) NOT NULL,
-  `title` text NOT NULL,
-  `body` text,
+  `title` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `body` text COLLATE utf8mb4_unicode_ci,
   `created_at` timestamp NOT NULL DEFAULT '1970-01-01 00:00:01',
   `updated_at` timestamp NOT NULL DEFAULT '1970-01-01 00:00:01',
   `closed_at` timestamp NOT NULL DEFAULT '1970-01-01 00:00:01',
   `merged_at` timestamp NOT NULL DEFAULT '1970-01-01 00:00:01',
-  `merge_commit_sha` varchar(40) DEFAULT NULL,
+  `merge_commit_sha` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `merged` tinyint(1) DEFAULT NULL,
   `mergeable` tinyint(1) DEFAULT NULL,
   `rebaseable` tinyint(1) DEFAULT NULL,
-  `mergeable_state` varchar(20) DEFAULT NULL,
+  `mergeable_state` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `comments` int(11) DEFAULT NULL,
   `review_comments` int(11) DEFAULT NULL,
   `maintainer_can_modify` tinyint(1) DEFAULT NULL,
@@ -542,8 +590,19 @@ CREATE TABLE `gha_pull_requests` (
   `additions` int(11) DEFAULT NULL,
   `deletions` int(11) DEFAULT NULL,
   `changed_files` int(11) DEFAULT NULL,
-  PRIMARY KEY (`id`,`event_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+  PRIMARY KEY (`id`,`event_id`),
+  KEY `pull_requests_event_id_idx` (`event_id`),
+  KEY `pull_requests_user_id_idx` (`user_id`),
+  KEY `pull_requests_base_sha_idx` (`base_sha`),
+  KEY `pull_requests_head_sha_idx` (`head_sha`),
+  KEY `pull_requests_merged_by_id_idx` (`merged_by_id`),
+  KEY `pull_requests_assignee_id_idx` (`assignee_id`),
+  KEY `pull_requests_milestone_id_idx` (`milestone_id`),
+  KEY `pull_requests_state_idx` (`state`),
+  KEY `pull_requests_created_at_idx` (`created_at`),
+  KEY `pull_requests_closed_at_idx` (`closed_at`),
+  KEY `pull_requests_merged_at_idx` (`merged_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -567,7 +626,7 @@ CREATE TABLE `gha_pull_requests_assignees` (
   `event_id` bigint(20) NOT NULL,
   `assignee_id` bigint(20) NOT NULL,
   PRIMARY KEY (`pull_request_id`,`event_id`,`assignee_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -591,7 +650,7 @@ CREATE TABLE `gha_pull_requests_requested_reviewers` (
   `event_id` bigint(20) NOT NULL,
   `requested_reviewer_id` bigint(20) NOT NULL,
   PRIMARY KEY (`pull_request_id`,`event_id`,`requested_reviewer_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -613,17 +672,20 @@ DROP TABLE IF EXISTS `gha_releases`;
 CREATE TABLE `gha_releases` (
   `id` bigint(20) NOT NULL,
   `event_id` bigint(20) NOT NULL,
-  `tag_name` varchar(200) NOT NULL,
-  `target_commitish` varchar(200) NOT NULL,
-  `name` varchar(200) DEFAULT NULL,
+  `tag_name` varchar(200) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `target_commitish` varchar(200) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `name` varchar(200) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `draft` tinyint(1) NOT NULL,
   `author_id` bigint(20) NOT NULL,
   `prerelease` tinyint(1) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT '1970-01-01 00:00:01',
   `published_at` timestamp NOT NULL DEFAULT '1970-01-01 00:00:01',
-  `body` text,
-  PRIMARY KEY (`id`,`event_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+  `body` text COLLATE utf8mb4_unicode_ci,
+  PRIMARY KEY (`id`,`event_id`),
+  KEY `releases_event_id_idx` (`event_id`),
+  KEY `releases_author_id_idx` (`author_id`),
+  KEY `releases_created_at_idx` (`created_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -647,7 +709,7 @@ CREATE TABLE `gha_releases_assets` (
   `event_id` bigint(20) NOT NULL,
   `asset_id` bigint(20) NOT NULL,
   PRIMARY KEY (`release_id`,`event_id`,`asset_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -668,9 +730,10 @@ DROP TABLE IF EXISTS `gha_repos`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `gha_repos` (
   `id` bigint(20) NOT NULL,
-  `name` varchar(160) NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+  `name` varchar(160) COLLATE utf8mb4_unicode_ci NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `repos_name_idx` (`name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -691,8 +754,9 @@ DROP TABLE IF EXISTS `gha_texts`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `gha_texts` (
   `event_id` bigint(20) DEFAULT NULL,
-  `body` text
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+  `body` text COLLATE utf8mb4_unicode_ci,
+  KEY `texts_event_id_idx` (`event_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -805,9 +869,9 @@ SET character_set_client = @saved_cs_client;
 /*!50001 SET @saved_cs_client          = @@character_set_client */;
 /*!50001 SET @saved_cs_results         = @@character_set_results */;
 /*!50001 SET @saved_col_connection     = @@collation_connection */;
-/*!50001 SET character_set_client      = utf8 */;
-/*!50001 SET character_set_results     = utf8 */;
-/*!50001 SET collation_connection      = utf8_general_ci */;
+/*!50001 SET character_set_client      = utf8mb4 */;
+/*!50001 SET character_set_results     = utf8mb4 */;
+/*!50001 SET collation_connection      = utf8mb4_unicode_ci */;
 /*!50001 CREATE ALGORITHM=UNDEFINED */
 /*!50013 DEFINER=`gha_admin`@`localhost` SQL SECURITY DEFINER */
 /*!50001 VIEW `gha_view_last_month_event_ids` AS select `gha_events`.`id` AS `id`,`gha_events`.`type` AS `type`,`gha_events`.`actor_id` AS `actor_id`,`gha_events`.`repo_id` AS `repo_id`,`gha_events`.`public` AS `public`,`gha_events`.`created_at` AS `created_at`,`gha_events`.`org_id` AS `org_id` from `gha_events` where (`gha_events`.`created_at` >= (now() - interval 1 month)) */;
@@ -823,9 +887,9 @@ SET character_set_client = @saved_cs_client;
 /*!50001 SET @saved_cs_client          = @@character_set_client */;
 /*!50001 SET @saved_cs_results         = @@character_set_results */;
 /*!50001 SET @saved_col_connection     = @@collation_connection */;
-/*!50001 SET character_set_client      = utf8 */;
-/*!50001 SET character_set_results     = utf8 */;
-/*!50001 SET collation_connection      = utf8_general_ci */;
+/*!50001 SET character_set_client      = utf8mb4 */;
+/*!50001 SET character_set_results     = utf8mb4 */;
+/*!50001 SET collation_connection      = utf8mb4_unicode_ci */;
 /*!50001 CREATE ALGORITHM=UNDEFINED */
 /*!50013 DEFINER=`gha_admin`@`localhost` SQL SECURITY DEFINER */
 /*!50001 VIEW `gha_view_last_month_texts` AS select `v`.`event_id` AS `event_id`,`v`.`body` AS `body` from (`gha_texts` `v` join `gha_view_last_month_event_ids` `ev`) where (`ev`.`id` = `v`.`event_id`) */;
@@ -841,9 +905,9 @@ SET character_set_client = @saved_cs_client;
 /*!50001 SET @saved_cs_client          = @@character_set_client */;
 /*!50001 SET @saved_cs_results         = @@character_set_results */;
 /*!50001 SET @saved_col_connection     = @@collation_connection */;
-/*!50001 SET character_set_client      = utf8 */;
-/*!50001 SET character_set_results     = utf8 */;
-/*!50001 SET collation_connection      = utf8_general_ci */;
+/*!50001 SET character_set_client      = utf8mb4 */;
+/*!50001 SET character_set_results     = utf8mb4 */;
+/*!50001 SET collation_connection      = utf8mb4_unicode_ci */;
 /*!50001 CREATE ALGORITHM=UNDEFINED */
 /*!50013 DEFINER=`gha_admin`@`localhost` SQL SECURITY DEFINER */
 /*!50001 VIEW `gha_view_last_week_event_ids` AS select `gha_events`.`id` AS `id`,`gha_events`.`type` AS `type`,`gha_events`.`actor_id` AS `actor_id`,`gha_events`.`repo_id` AS `repo_id`,`gha_events`.`public` AS `public`,`gha_events`.`created_at` AS `created_at`,`gha_events`.`org_id` AS `org_id` from `gha_events` where (`gha_events`.`created_at` >= (now() - interval 1 week)) */;
@@ -859,9 +923,9 @@ SET character_set_client = @saved_cs_client;
 /*!50001 SET @saved_cs_client          = @@character_set_client */;
 /*!50001 SET @saved_cs_results         = @@character_set_results */;
 /*!50001 SET @saved_col_connection     = @@collation_connection */;
-/*!50001 SET character_set_client      = utf8 */;
-/*!50001 SET character_set_results     = utf8 */;
-/*!50001 SET collation_connection      = utf8_general_ci */;
+/*!50001 SET character_set_client      = utf8mb4 */;
+/*!50001 SET character_set_results     = utf8mb4 */;
+/*!50001 SET collation_connection      = utf8mb4_unicode_ci */;
 /*!50001 CREATE ALGORITHM=UNDEFINED */
 /*!50013 DEFINER=`gha_admin`@`localhost` SQL SECURITY DEFINER */
 /*!50001 VIEW `gha_view_last_week_texts` AS select `v`.`event_id` AS `event_id`,`v`.`body` AS `body` from (`gha_texts` `v` join `gha_view_last_week_event_ids` `ev`) where (`ev`.`id` = `v`.`event_id`) */;
@@ -877,9 +941,9 @@ SET character_set_client = @saved_cs_client;
 /*!50001 SET @saved_cs_client          = @@character_set_client */;
 /*!50001 SET @saved_cs_results         = @@character_set_results */;
 /*!50001 SET @saved_col_connection     = @@collation_connection */;
-/*!50001 SET character_set_client      = utf8 */;
-/*!50001 SET character_set_results     = utf8 */;
-/*!50001 SET collation_connection      = utf8_general_ci */;
+/*!50001 SET character_set_client      = utf8mb4 */;
+/*!50001 SET character_set_results     = utf8mb4 */;
+/*!50001 SET collation_connection      = utf8mb4_unicode_ci */;
 /*!50001 CREATE ALGORITHM=UNDEFINED */
 /*!50013 DEFINER=`gha_admin`@`localhost` SQL SECURITY DEFINER */
 /*!50001 VIEW `gha_view_last_year_event_ids` AS select `gha_events`.`id` AS `id`,`gha_events`.`type` AS `type`,`gha_events`.`actor_id` AS `actor_id`,`gha_events`.`repo_id` AS `repo_id`,`gha_events`.`public` AS `public`,`gha_events`.`created_at` AS `created_at`,`gha_events`.`org_id` AS `org_id` from `gha_events` where (`gha_events`.`created_at` >= (now() - interval 1 year)) */;
@@ -895,9 +959,9 @@ SET character_set_client = @saved_cs_client;
 /*!50001 SET @saved_cs_client          = @@character_set_client */;
 /*!50001 SET @saved_cs_results         = @@character_set_results */;
 /*!50001 SET @saved_col_connection     = @@collation_connection */;
-/*!50001 SET character_set_client      = utf8 */;
-/*!50001 SET character_set_results     = utf8 */;
-/*!50001 SET collation_connection      = utf8_general_ci */;
+/*!50001 SET character_set_client      = utf8mb4 */;
+/*!50001 SET character_set_results     = utf8mb4 */;
+/*!50001 SET collation_connection      = utf8mb4_unicode_ci */;
 /*!50001 CREATE ALGORITHM=UNDEFINED */
 /*!50013 DEFINER=`gha_admin`@`localhost` SQL SECURITY DEFINER */
 /*!50001 VIEW `gha_view_last_year_texts` AS select `v`.`event_id` AS `event_id`,`v`.`body` AS `body` from (`gha_texts` `v` join `gha_view_last_year_event_ids` `ev`) where (`ev`.`id` = `v`.`event_id`) */;
@@ -914,4 +978,4 @@ SET character_set_client = @saved_cs_client;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2017-08-16  7:03:25
+-- Dump completed on 2017-08-16  8:58:04

@@ -239,8 +239,9 @@ Ubuntu like Linux:
 
 - sudo apt-get install mysql-server
 - sudo mysql_secure_installation
+- Update mysql config to use UTF8MB4, see below (**)
 - mysql -uusername -ppassword
-- create database gha;
+- create database gha character set utf8mb4 collate utf8mb4_unicode_ci;
 - create user 'gha_admin'@'localhost' identified by 'your_password_here';
 - grant all privileges on gha.* to 'gha_admin'@'localhost';
 - flush privileges;
@@ -269,6 +270,25 @@ Typical internal usage:
 `time GHA2DB_MYSQL=1 GHA2DB_INDEX=1 MYSQL_PASS=your_password ./structure.rb`
 
 Alternatively You can use `structure_mysql.sql` to create database structure.
+
+(**) Update MySQL to use UTF8MB4:
+- Locate Your MySQL config file (usually in `/etc/mysql/my.cnf`
+- Make sure You have those options:
+```
+[client]
+default-character-set = utf8mb4
+
+[mysql]
+default-character-set = utf8mb4
+
+[mysqld]
+character-set-client-handshake = FALSE
+character-set-server = utf8mb4
+collation-server = utf8mb4_unicode_ci
+```
+- Restart mysql service: `service mysql restart`
+- See if You have correct variables: `show variables where Variable_name like 'character\_set\_%' or Variable_name like 'collation%';`
+- For detailed description see <https://mathiasbynens.be/notes/mysql-utf8mb4>
 
 # Database structure
 
