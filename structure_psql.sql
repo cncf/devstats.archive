@@ -60,8 +60,8 @@ CREATE TABLE gha_assets (
     state character varying(20) NOT NULL,
     size integer NOT NULL,
     download_count integer NOT NULL,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
+    created_at timestamp without time zone DEFAULT '1970-01-01 00:00:01'::timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone DEFAULT '1970-01-01 00:00:01'::timestamp without time zone NOT NULL
 );
 
 
@@ -91,8 +91,8 @@ CREATE TABLE gha_comments (
     id bigint NOT NULL,
     event_id bigint NOT NULL,
     body text NOT NULL,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL,
+    created_at timestamp without time zone DEFAULT '1970-01-01 00:00:01'::timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone DEFAULT '1970-01-01 00:00:01'::timestamp without time zone NOT NULL,
     type character varying(40) NOT NULL,
     user_id bigint NOT NULL,
     commit_id character varying(40),
@@ -133,7 +133,7 @@ CREATE TABLE gha_events (
     actor_id bigint NOT NULL,
     repo_id bigint NOT NULL,
     public boolean NOT NULL,
-    created_at timestamp without time zone NOT NULL,
+    created_at timestamp without time zone DEFAULT '1970-01-01 00:00:01'::timestamp without time zone NOT NULL,
     org_id bigint
 );
 
@@ -176,9 +176,9 @@ CREATE TABLE gha_forkees (
     owner_id bigint NOT NULL,
     description text,
     fork boolean NOT NULL,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL,
-    pushed_at timestamp without time zone NOT NULL,
+    created_at timestamp without time zone DEFAULT '1970-01-01 00:00:01'::timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone DEFAULT '1970-01-01 00:00:01'::timestamp without time zone NOT NULL,
+    pushed_at timestamp without time zone DEFAULT '1970-01-01 00:00:01'::timestamp without time zone NOT NULL,
     homepage text,
     size integer NOT NULL,
     stargazers_count integer NOT NULL,
@@ -206,15 +206,15 @@ CREATE TABLE gha_issues (
     event_id bigint NOT NULL,
     assignee_id bigint,
     body text,
-    closed_at timestamp without time zone,
+    closed_at timestamp without time zone DEFAULT '1970-01-01 00:00:01'::timestamp without time zone,
     comments integer NOT NULL,
-    created_at timestamp without time zone NOT NULL,
+    created_at timestamp without time zone DEFAULT '1970-01-01 00:00:01'::timestamp without time zone NOT NULL,
     locked boolean NOT NULL,
     milestone_id bigint,
     number integer NOT NULL,
     state character varying(20) NOT NULL,
     title text NOT NULL,
-    updated_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone DEFAULT '1970-01-01 00:00:01'::timestamp without time zone NOT NULL,
     user_id bigint NOT NULL,
     is_pull_request boolean NOT NULL
 );
@@ -269,17 +269,17 @@ ALTER TABLE gha_labels OWNER TO gha_admin;
 CREATE TABLE gha_milestones (
     id bigint NOT NULL,
     event_id bigint NOT NULL,
-    closed_at timestamp without time zone,
+    closed_at timestamp without time zone DEFAULT '1970-01-01 00:00:01'::timestamp without time zone,
     closed_issues integer NOT NULL,
-    created_at timestamp without time zone NOT NULL,
+    created_at timestamp without time zone DEFAULT '1970-01-01 00:00:01'::timestamp without time zone NOT NULL,
     creator_id bigint,
     description text,
-    due_on timestamp without time zone,
+    due_on timestamp without time zone DEFAULT '1970-01-01 00:00:01'::timestamp without time zone,
     number integer NOT NULL,
     open_issues integer NOT NULL,
     state character varying(20) NOT NULL,
     title character varying(200) NOT NULL,
-    updated_at timestamp without time zone NOT NULL
+    updated_at timestamp without time zone DEFAULT '1970-01-01 00:00:01'::timestamp without time zone NOT NULL
 );
 
 
@@ -355,10 +355,10 @@ CREATE TABLE gha_pull_requests (
     locked boolean NOT NULL,
     title text NOT NULL,
     body text,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL,
-    closed_at timestamp without time zone,
-    merged_at timestamp without time zone,
+    created_at timestamp without time zone DEFAULT '1970-01-01 00:00:01'::timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone DEFAULT '1970-01-01 00:00:01'::timestamp without time zone NOT NULL,
+    closed_at timestamp without time zone DEFAULT '1970-01-01 00:00:01'::timestamp without time zone,
+    merged_at timestamp without time zone DEFAULT '1970-01-01 00:00:01'::timestamp without time zone,
     merge_commit_sha character varying(40),
     merged boolean,
     mergeable boolean,
@@ -415,8 +415,8 @@ CREATE TABLE gha_releases (
     draft boolean NOT NULL,
     author_id bigint NOT NULL,
     prerelease boolean NOT NULL,
-    created_at timestamp without time zone NOT NULL,
-    published_at timestamp without time zone NOT NULL,
+    created_at timestamp without time zone DEFAULT '1970-01-01 00:00:01'::timestamp without time zone NOT NULL,
+    published_at timestamp without time zone DEFAULT '1970-01-01 00:00:01'::timestamp without time zone NOT NULL,
     body text
 );
 
@@ -473,7 +473,7 @@ CREATE VIEW gha_view_last_month_event_ids AS
     gha_events.created_at,
     gha_events.org_id
    FROM gha_events
-  WHERE (gha_events.created_at >= ('2017-08-16 06:11:21.701466'::timestamp without time zone - '1 mon'::interval));
+  WHERE (gha_events.created_at >= ('2017-08-16 12:49:24.529805'::timestamp without time zone - '1 mon'::interval));
 
 
 ALTER TABLE gha_view_last_month_event_ids OWNER TO gha_admin;
@@ -505,7 +505,7 @@ CREATE VIEW gha_view_last_week_event_ids AS
     gha_events.created_at,
     gha_events.org_id
    FROM gha_events
-  WHERE (gha_events.created_at >= ('2017-08-16 06:11:21.698976'::timestamp without time zone - '7 days'::interval));
+  WHERE (gha_events.created_at >= ('2017-08-16 12:49:24.52794'::timestamp without time zone - '7 days'::interval));
 
 
 ALTER TABLE gha_view_last_week_event_ids OWNER TO gha_admin;
@@ -537,7 +537,7 @@ CREATE VIEW gha_view_last_year_event_ids AS
     gha_events.created_at,
     gha_events.org_id
    FROM gha_events
-  WHERE (gha_events.created_at >= ('2017-08-16 06:11:21.703031'::timestamp without time zone - '1 year'::interval));
+  WHERE (gha_events.created_at >= ('2017-08-16 12:49:24.531253'::timestamp without time zone - '1 year'::interval));
 
 
 ALTER TABLE gha_view_last_year_event_ids OWNER TO gha_admin;
