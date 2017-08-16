@@ -24,22 +24,18 @@ $debug = ENV['GHA2DB_DEBUG'] ? ENV['GHA2DB_DEBUG'].to_i : 0
 $json_out = ENV['GHA2DB_JSON'] ? true : false
 $db_out = ENV['GHA2DB_NODB'] ? false : true
 
-# returns for n:
-# n=1 -> values($1)
-# n=10 -> values($1, $2, $3, .., $10)
-def n_values(n)
-  s = 'values('
-  (1..n).each { |i| s += "$#{i}, " }
-  s[0..-3] + ')'
-end
-
 # Create prepared statement, bind args, execute and destroy statement
 def exec_stmt(con, sid, stmt, args)
   args.each { |arg| arg = arg.gsub!("\000", '') if arg.is_a?(String) }
   p [sid, stmt, args] if $debug >= 2
-  con.prepare sid, stmt
-  con.exec_prepared(sid, args).tap do
-    con.exec('deallocate ' + sid)
+  if $pg
+    con.prepare sid, stmt
+    con.exec_prepared(sid, args).tap do
+      con.exec('deallocate ' + sid)
+    end
+  else
+    s = con.prepare stmt
+    s.execute *args
   end
 rescue Exception => e
   puts "Exception:"
@@ -54,7 +50,7 @@ def lookup_label(con, sid, name, color)
   r = exec_stmt(
     con,
     sid,
-    'select id from gha_labels where name=$1 and color=$2',
+    "select id from gha_labels where name=#{n_value(1)} and color=#{n_value(2)}",
     [name, color]
   )
   r.count > 0 ? r.first['id'] : [name, color].hash
@@ -67,7 +63,7 @@ def gha_actor(con, sid, actor)
   exec_stmt(
     con,
     sid,
-    'insert into gha_actors(id, login) values($1, $2) on conflict do nothing',
+    insert_ignore("into gha_actors(id, login) #{n_values(2)}"),
     [actor['id'], actor['login']]
   )
 end
@@ -87,17 +83,17 @@ def gha_milestone(con, sid, eid, milestone)
     [
       milestone['id'],
       eid,
-      milestone['closed_at'] ? Time.parse(milestone['closed_at']) : nil,
+      milestone['closed_at'] ? parse_timestamp(milestone['closed_at']) : nil,
       milestone['closed_issues'],
-      Time.parse(milestone['created_at']),
+      parse_timestamp(milestone['created_at']),
       milestone['creator'] ? milestone['creator']['id']: nil,
-      milestone['description'],
-      milestone['due_on'] ? Time.parse(milestone['due_on']) : nil,
+      milestone['description'] ? milestone['description'][0..0xFFFE] : nil,
+      milestone['due_on'] ? parse_timestamp(milestone['due_on']) : nil,
       milestone['number'],
       milestone['open_issues'],
       milestone['state'],
       milestone['title'][0..199],
-      Time.parse(milestone['updated_at'])
+      parse_timestamp(milestone['updated_at'])
     ]
   )
 end
@@ -123,11 +119,11 @@ def gha_forkee(con, sid, eid, forkee)
       forkee['name'][0..79],
       forkee['full_name'][0..199],
       forkee['owner']['id'],
-      forkee['description'],
+      forkee['description'] ? forkee['description'][0..0xFFFE] : nil,
       forkee['fork'],
-      Time.parse(forkee['created_at']),
-      Time.parse(forkee['updated_at']),
-      Time.parse(forkee['pushed_at']),
+      parse_timestamp(forkee['created_at']),
+      parse_timestamp(forkee['updated_at']),
+      parse_timestamp(forkee['pushed_at']),
       forkee['homepage'],
       forkee['size'],
       forkee['stargazers_count'],
@@ -172,25 +168,24 @@ end
 
 # Write single event to PSQL
 def write_to_pg(con, ev)
-  sid = 'stmt' + Thread.current.object_id.to_s
+  sid = $pg ? 'stmt' + Thread.current.object_id.to_s : ''
   # gha_events
   # {"id:String"=>48592, "type:String"=>48592, "actor:Hash"=>48592, "repo:Hash"=>48592, "payload:Hash"=>48592, "public:TrueClass"=>48592, "created_at:String"=>48592, "org:Hash"=>19451}
   # {"id"=>10, "type"=>29, "actor"=>278, "repo"=>290, "payload"=>216017, "public"=>4, "created_at"=>20, "org"=>230}
   event_id = ev['id']
-  rs = exec_stmt(con, sid, 'select 1 from gha_events where id=$1', [event_id])
+  rs = exec_stmt(con, sid, 'select 1 from gha_events where id=' + n_value(1), [event_id])
   return 0 if rs.count > 0
   exec_stmt(
     con,
     sid,
-    'insert into gha_events(id, type, actor_id, repo_id, public, created_at, org_id) ' +
-    'values($1, $2, $3, $4, $5, $6, $7)',
+    'insert into gha_events(id, type, actor_id, repo_id, public, created_at, org_id) ' + n_values(7),
     [
       event_id,
       ev['type'],
       ev['actor']['id'],
       ev['repo']['id'],
       ev['public'],
-      Time.parse(ev['created_at']),
+      parse_timestamp(ev['created_at']),
       ev['org'] ? ev['org']['id'] : nil
     ]
   )
@@ -205,7 +200,7 @@ def write_to_pg(con, ev)
   exec_stmt(
     con,
     sid,
-    'insert into gha_repos(id, name) values($1, $2) on conflict do nothing',
+    insert_ignore("into gha_repos(id, name) #{n_values(2)}"),
     [repo['id'], repo['name']]
   )
 
@@ -217,7 +212,7 @@ def write_to_pg(con, ev)
     exec_stmt(
       con,
       sid,
-      'insert into gha_orgs(id, login) values($1, $2) on conflict do nothing',
+      insert_ignore("into gha_orgs(id, login) #{n_values(2)}"),
       [org['id'], org['login']]
     )
   end
@@ -248,7 +243,7 @@ def write_to_pg(con, ev)
       pl['comment'] ? pl['comment']['id'] : nil,
       pl['ref_type'],
       pl['master_branch'] ? pl['master_branch'][0..199] : nil,
-      pl['description'],
+      pl['description'] ? pl['description'][0..0xFFFE] : nil,
       pl['number'],
       pl['forkee'] ? pl['forkee']['id'] : nil,
       pl['release'] ? pl['release']['id'] : nil,
@@ -269,13 +264,12 @@ def write_to_pg(con, ev)
       con,
       sid,
         'insert into gha_commits(' +
-        'sha, event_id, author_name, message, is_distinct) ' +
-        'values($1, $2, $3, $4, $5)',
+        'sha, event_id, author_name, message, is_distinct) ' + n_values(5),
       [
         sha,
         event_id,
         commit['author']['name'][0..159],
-        commit['message'],
+        commit['message'] ? commit['message'][0..0xFFFE] : nil,
         commit['distinct']
       ]
     )
@@ -284,7 +278,7 @@ def write_to_pg(con, ev)
     exec_stmt(
       con,
       sid,
-      'insert into gha_events_commits(event_id, sha) values($1, $2)',
+      'insert into gha_events_commits(event_id, sha) ' + n_values(2),
       [event_id, sha]
     )
   end
@@ -300,7 +294,7 @@ def write_to_pg(con, ev)
     exec_stmt(
       con,
       sid,
-        'insert into gha_pages(sha, event_id, action, title) values($1, $2, $3, $4) on conflict do nothing',
+        insert_ignore("into gha_pages(sha, event_id, action, title) #{n_values(4)}"),
       [
         sha,
         event_id,
@@ -313,7 +307,7 @@ def write_to_pg(con, ev)
     exec_stmt(
       con,
       sid,
-      'insert into gha_events_pages(event_id, sha) values($1, $2) on conflict do nothing',
+      insert_ignore("into gha_events_pages(event_id, sha) #{n_values(2)}"),
       [event_id, sha]
     )
   end
@@ -334,17 +328,17 @@ def write_to_pg(con, ev)
     exec_stmt(
       con,
       sid,
-      'insert into gha_comments(' +
+      insert_ignore('into gha_comments(' +
       'id, event_id, body, created_at, updated_at, type, user_id, ' +
       'commit_id, original_commit_id, diff_hunk, position, ' +
       'original_position, path, pull_request_review_id, line' +
-      ') ' + n_values(15) + '  on conflict do nothing',
+      ') ' + n_values(15)),
       [
         cid,
         event_id,
-        comment['body'],
-        Time.parse(comment['created_at']),
-        Time.parse(comment['updated_at']),
+        comment['body'] ? comment['body'][0..0xFFFE] : nil,
+        parse_timestamp(comment['created_at']),
+        parse_timestamp(comment['updated_at']),
         ev['type'],
         comment['user']['id'],
         comment['commit_id'],
@@ -380,16 +374,16 @@ def write_to_pg(con, ev)
         iid,
         event_id,
         issue['assignee'] ? issue['assignee']['id'] : nil,
-        issue['body'],
-        issue['closed_at'] ? Time.parse(issue['closed_at']) : nil,
+        issue['body'] ? issue['body'][0..0xFFFE] : nil,
+        issue['closed_at'] ? parse_timestamp(issue['closed_at']) : nil,
         issue['comments'],
-        Time.parse(issue['created_at']),
+        parse_timestamp(issue['created_at']),
         issue['locked'],
         issue['milestone'] ? issue['milestone']['id'] : nil,
         issue['number'],
         issue['state'],
         issue['title'],
-        Time.parse(issue['updated_at']),
+        parse_timestamp(issue['updated_at']),
         issue['user']['id'],
         issue['pull_request'] ? true : false
       ]
@@ -412,7 +406,7 @@ def write_to_pg(con, ev)
       exec_stmt(
         con,
         sid,
-        'insert into gha_issues_assignees(issue_id, event_id, assignee_id) values($1, $2, $3)',
+        'insert into gha_issues_assignees(issue_id, event_id, assignee_id) ' + n_values(3),
         [iid, event_id, aid],
       )
     end
@@ -425,8 +419,7 @@ def write_to_pg(con, ev)
       exec_stmt(
         con,
         sid,
-        'insert into gha_labels(id, name, color, is_default) ' +
-        'values($1, $2, $3, $4) on conflict do nothing',
+        insert_ignore('into gha_labels(id, name, color, is_default) ' + n_values(4)),
         [
           lid,
           label['name'][0..159],
@@ -438,7 +431,7 @@ def write_to_pg(con, ev)
       exec_stmt(
         con,
         sid,
-        'insert into gha_issues_labels(issue_id, event_id, label_id) values($1, $2, $3) on conflict do nothing',
+        insert_ignore("into gha_issues_labels(issue_id, event_id, label_id) #{n_values(3)}"),
         [iid, event_id, lid],
       )
     end
@@ -472,9 +465,9 @@ def write_to_pg(con, ev)
         release['draft'],
         release['author']['id'],
         release['prerelease'],
-        Time.parse(release['created_at']),
-        Time.parse(release['published_at']),
-        release['body']
+        parse_timestamp(release['created_at']),
+        parse_timestamp(release['published_at']),
+        release['body'] ? release['body'][0..0xFFFE] : nil
       ]
     )
 
@@ -503,8 +496,8 @@ def write_to_pg(con, ev)
           asset['state'],
           asset['size'],
           asset['download_count'],
-          Time.parse(asset['created_at']),
-          Time.parse(asset['updated_at'])
+          parse_timestamp(asset['created_at']),
+          parse_timestamp(asset['updated_at'])
         ]
       )
 
@@ -512,7 +505,7 @@ def write_to_pg(con, ev)
       exec_stmt(
         con,
         sid,
-        'insert into gha_releases_assets(release_id, event_id, asset_id) values($1, $2, $3)',
+        'insert into gha_releases_assets(release_id, event_id, asset_id) ' + n_values(3),
         [rid, event_id, aid],
       )
     end
@@ -570,11 +563,11 @@ def write_to_pg(con, ev)
         pr['state'],
         pr['locked'],
         pr['title'],
-        pr['body'],
-        Time.parse(pr['created_at']),
-        Time.parse(pr['updated_at']),
-        pr['closed_at'] ? Time.parse(pr['closed_at']) : nil,
-        pr['merged_at'] ? Time.parse(pr['merged_at']) : nil,
+        pr['body'] ? pr['body'][0..0xFFFE] : nil,
+        parse_timestamp(pr['created_at']),
+        parse_timestamp(pr['updated_at']),
+        pr['closed_at'] ? parse_timestamp(pr['closed_at']) : nil,
+        pr['merged_at'] ? parse_timestamp(pr['merged_at']) : nil,
         pr['merge_commit_sha'],
         pr['merged'],
         pr['mergeable'],
@@ -605,7 +598,7 @@ def write_to_pg(con, ev)
       exec_stmt(
         con,
         sid,
-        'insert into gha_pull_requests_assignees(pull_request_id, event_id, assignee_id) values($1, $2, $3)',
+        'insert into gha_pull_requests_assignees(pull_request_id, event_id, assignee_id) ' + n_values(3),
         [prid, event_id, aid],
       )
     end
@@ -620,7 +613,7 @@ def write_to_pg(con, ev)
       exec_stmt(
         con,
         sid,
-        'insert into gha_pull_requests_requested_reviewers(pull_request_id, event_id, requested_reviewer_id) values($1, $2, $3)',
+        'insert into gha_pull_requests_requested_reviewers(pull_request_id, event_id, requested_reviewer_id) ' + n_values(3),
         [prid, event_id, reviewer['id']],
       )
     end

@@ -321,7 +321,7 @@ CREATE TABLE gha_payloads (
     size integer,
     ref character varying(200),
     head character varying(40),
-    before character varying(40),
+    befor character varying(40),
     action character varying(20),
     issue_id bigint,
     comment_id bigint,
@@ -688,7 +688,7 @@ COPY gha_pages (sha, event_id, action, title) FROM stdin;
 -- Data for Name: gha_payloads; Type: TABLE DATA; Schema: public; Owner: gha_admin
 --
 
-COPY gha_payloads (event_id, push_id, size, ref, head, before, action, issue_id, comment_id, ref_type, master_branch, description, number, forkee_id, release_id, member_id) FROM stdin;
+COPY gha_payloads (event_id, push_id, size, ref, head, befor, action, issue_id, comment_id, ref_type, master_branch, description, number, forkee_id, release_id, member_id) FROM stdin;
 \.
 
 
