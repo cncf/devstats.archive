@@ -1,20 +1,12 @@
 #!/usr/bin/env ruby
 
-require 'pg'
 require 'pry'
 require './conn' # All database details & setup there
-
-# By default we're not refreshing materialized view before doing query
-# You can do it by setting GHA2DB_REFRESH environment variable
-# Materialized index holds all texts used in commits, comments, PRs, issues
-# Refreshing materialized view is needed if You changes database data since last run.
-$refresh = ENV['GHA2DB_REFRESH'] ? true : false
 
 def runq(sql_file)
   # Connect to database
   c = conn
   sql = File.read(sql_file)
-  c.exec('refresh materialized view gha_view_texts') if $refresh
   res = c.exec(sql)
   return unless res.count > 0
   hdr = res.first.keys

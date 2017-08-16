@@ -1,6 +1,5 @@
 #!/usr/bin/env ruby
 
-require 'pg'
 require 'pry'
 require './conn' # All database details & setup there
 require './mgetc'
@@ -17,7 +16,6 @@ def structure
     exec_sql(c, 'drop view if exists gha_view_last_year_texts')
     exec_sql(c, 'drop view if exists gha_view_last_month_texts')
     exec_sql(c, 'drop view if exists gha_view_last_week_texts')
-    exec_sql(c, 'drop materialized view if exists gha_view_texts')
     exec_sql(c, 'drop view if exists gha_view_last_year_event_ids')
     exec_sql(c, 'drop view if exists gha_view_last_month_event_ids')
     exec_sql(c, 'drop view if exists gha_view_last_week_event_ids')
@@ -29,14 +27,15 @@ def structure
   # const
   if $table
     exec_sql(c, 'drop table if exists gha_events')
-    c.exec(
+    exec_sql(
+      c,
       'create table gha_events(' +
       'id bigint not null primary key, ' +
       'type varchar(40) not null, ' +
       'actor_id bigint not null, ' +
       'repo_id bigint not null, ' +
       'public boolean not null, ' +
-      'created_at timestamp not null, ' +
+      'created_at timestamp not null default \'1970-01-01 00:00:01\', ' +
       'org_id bigint' +
       ')'
     )
@@ -55,7 +54,8 @@ def structure
   # const
   if $table
     exec_sql(c, 'drop table if exists gha_actors')
-    c.exec(
+    exec_sql(
+      c,
       'create table gha_actors(' +
       'id bigint not null primary key, ' +
       'login varchar(120) not null' +
@@ -70,7 +70,8 @@ def structure
   # const
   if $table
     exec_sql(c, 'drop table if exists gha_repos')
-    c.exec(
+    exec_sql(
+      c,
       'create table gha_repos(' +
       'id bigint not null primary key, ' +
       'name varchar(160) not null' +
@@ -85,7 +86,8 @@ def structure
   # const
   if $table
     exec_sql(c, 'drop table if exists gha_orgs')
-    c.exec(
+    exec_sql(
+      c,
       'create table gha_orgs(' +
       'id bigint not null primary key, ' +
       'login varchar(100) not null' +
@@ -101,14 +103,15 @@ def structure
   # const
   if $table
     exec_sql(c, 'drop table if exists gha_payloads')
-    c.exec(
+    exec_sql(
+      c,
       'create table gha_payloads(' +
       'event_id bigint not null primary key, ' +
       'push_id int, ' +
       'size int, ' +
       'ref varchar(200), ' +
       'head varchar(40), ' +
-      'before varchar(40), ' +
+      'befor varchar(40), ' +
       'action varchar(20), ' +
       'issue_id bigint, ' +
       'comment_id bigint, ' +
@@ -142,7 +145,8 @@ def structure
   # variable (per event)
   if $table
     exec_sql(c, 'drop table if exists gha_commits')
-    c.exec(
+    exec_sql(
+      c,
       'create table gha_commits(' +
       'sha varchar(40) not null, ' +
       'event_id bigint not null, ' +
@@ -154,7 +158,8 @@ def structure
     )
     # variable
     exec_sql(c, 'drop table if exists gha_events_commits')
-    c.exec(
+    exec_sql(
+      c,
       'create table gha_events_commits(' +
       'event_id bigint not null, ' +
       'sha varchar(40) not null, ' +
@@ -171,7 +176,8 @@ def structure
   # variable
   if $table
     exec_sql(c, 'drop table if exists gha_pages')
-    c.exec(
+    exec_sql(
+      c,
       'create table gha_pages(' +
       'sha varchar(40) not null, ' +
       'event_id bigint not null, ' +
@@ -182,7 +188,8 @@ def structure
     )
     # variable
     exec_sql(c, 'drop table if exists gha_events_pages')
-    c.exec(
+    exec_sql(
+      c,
       'create table gha_events_pages(' +
       'event_id bigint not null, ' +
       'sha varchar(40) not null, ' +
@@ -201,13 +208,14 @@ def structure
   # variable
   if $table
     exec_sql(c, 'drop table if exists gha_comments')
-    c.exec(
+    exec_sql(
+      c,
       'create table gha_comments(' +
       'id bigint not null primary key, ' +
       'event_id bigint not null, ' +
       'body text not null, ' +
-      'created_at timestamp not null, ' +
-      'updated_at timestamp not null, ' +
+      'created_at timestamp not null default \'1970-01-01 00:00:01\', ' +
+      'updated_at timestamp not null default \'1970-01-01 00:00:01\', ' +
       'type varchar(40) not null, ' +
       'user_id bigint not null, ' +
       'commit_id varchar(40), ' +
@@ -237,21 +245,22 @@ def structure
   # variable
   if $table
     exec_sql(c, 'drop table if exists gha_issues')
-    c.exec(
+    exec_sql(
+      c,
       'create table gha_issues(' +
       'id bigint not null, ' +
       'event_id bigint not null, ' +
       'assignee_id bigint, ' +
       'body text, ' +
-      'closed_at timestamp, ' +
+      'closed_at timestamp default \'1970-01-01 00:00:01\', ' +
       'comments int not null, ' +
-      'created_at timestamp not null, ' +
+      'created_at timestamp not null default \'1970-01-01 00:00:01\', ' +
       'locked boolean not null, ' +
       'milestone_id bigint, ' +
       'number int not null, ' +
       'state varchar(20) not null, ' +
       'title text not null, ' +
-      'updated_at timestamp not null, ' +
+      'updated_at timestamp not null default \'1970-01-01 00:00:01\', ' +
       'user_id bigint not null, ' +
       'is_pull_request boolean not null, ' +
       'primary key(id, event_id)' +
@@ -259,7 +268,8 @@ def structure
     )
     # variable
     exec_sql(c, 'drop table if exists gha_issues_assignees')
-    c.exec(
+    exec_sql(
+      c,
       'create table gha_issues_assignees(' +
       'issue_id bigint not null, ' +
       'event_id bigint not null, ' +
@@ -285,21 +295,22 @@ def structure
   # variable
   if $table
     exec_sql(c, 'drop table if exists gha_milestones')
-    c.exec(
+    exec_sql(
+      c,
       'create table gha_milestones(' +
       'id bigint not null, ' +
       'event_id bigint not null, ' +
-      'closed_at timestamp, ' +
+      'closed_at timestamp default \'1970-01-01 00:00:01\', ' +
       'closed_issues int not null, ' +
-      'created_at timestamp not null, ' +
+      'created_at timestamp not null default \'1970-01-01 00:00:01\', ' +
       'creator_id bigint, ' +
       'description text, ' +
-      'due_on timestamp, ' +
+      'due_on timestamp default \'1970-01-01 00:00:01\', ' +
       'number int not null, ' +
       'open_issues int not null, ' +
       'state varchar(20) not null, ' +
       'title varchar(200) not null, ' +
-      'updated_at timestamp not null, ' +
+      'updated_at timestamp not null default \'1970-01-01 00:00:01\', ' +
       'primary key(id, event_id)' +
       ')'
     )
@@ -316,7 +327,8 @@ def structure
   # const
   if $table
     exec_sql(c, 'drop table if exists gha_labels')
-    c.exec(
+    exec_sql(
+      c,
       'create table gha_labels(' +
       'id bigint not null primary key, ' +
       'name varchar(160) not null, ' +
@@ -326,7 +338,8 @@ def structure
     )
     # variable
     exec_sql(c, 'drop table if exists gha_issues_labels')
-    c.exec(
+    exec_sql(
+      c,
       'create table gha_issues_labels(' +
       'issue_id bigint not null, ' +
       'event_id bigint not null, ' +
@@ -342,7 +355,8 @@ def structure
   # variable
   if $table
     exec_sql(c, 'drop table if exists gha_forkees')
-    c.exec(
+    exec_sql(
+      c,
       'create table gha_forkees(' +
       'id bigint not null, ' +
       'event_id bigint not null, ' +
@@ -351,9 +365,9 @@ def structure
       'owner_id bigint not null, ' +
       'description text, ' +
       'fork boolean not null, ' +
-      'created_at timestamp not null, ' +
-      'updated_at timestamp not null, ' +
-      'pushed_at timestamp not null, ' +
+      'created_at timestamp not null default \'1970-01-01 00:00:01\', ' +
+      'updated_at timestamp not null default \'1970-01-01 00:00:01\', ' +
+      'pushed_at timestamp not null default \'1970-01-01 00:00:01\', ' +
       'homepage text, ' +
       'size int not null, ' +
       'stargazers_count int not null, ' +
@@ -384,7 +398,8 @@ def structure
   # variable
   if $table
     exec_sql(c, 'drop table if exists gha_releases')
-    c.exec(
+    exec_sql(
+      c,
       'create table gha_releases(' +
       'id bigint not null, ' +
       'event_id bigint not null, ' +
@@ -394,15 +409,16 @@ def structure
       'draft boolean not null, ' +
       'author_id bigint not null, ' +
       'prerelease boolean not null, ' +
-      'created_at timestamp not null, ' +
-      'published_at timestamp not null, ' +
+      'created_at timestamp not null default \'1970-01-01 00:00:01\', ' +
+      'published_at timestamp not null default \'1970-01-01 00:00:01\', ' +
       'body text, ' +
       'primary key(id, event_id)' +
       ')'
     )
     # variable
     exec_sql(c, 'drop table if exists gha_releases_assets')
-    c.exec(
+    exec_sql(
+      c,
       'create table gha_releases_assets(' +
       'release_id bigint not null, ' +
       'event_id bigint not null, ' +
@@ -423,7 +439,8 @@ def structure
   # variable
   if $table
     exec_sql(c, 'drop table if exists gha_assets')
-    c.exec(
+    exec_sql(
+      c,
       'create table gha_assets(' +
       'id bigint not null, ' +
       'event_id bigint not null, ' +
@@ -434,8 +451,8 @@ def structure
       'state varchar(20) not null, ' +
       'size int not null, ' +
       'download_count int not null, ' +
-      'created_at timestamp not null, ' +
-      'updated_at timestamp not null, ' +
+      'created_at timestamp not null default \'1970-01-01 00:00:01\', ' +
+      'updated_at timestamp not null default \'1970-01-01 00:00:01\', ' +
       'primary key(id, event_id)' +
       ')'
     )
@@ -456,7 +473,8 @@ def structure
   # variable
   if $table
     exec_sql(c, 'drop table if exists gha_pull_requests')
-    c.exec(
+    exec_sql(
+      c,
       'create table gha_pull_requests(' +
       'id bigint not null, ' +
       'event_id bigint not null, ' +
@@ -471,10 +489,10 @@ def structure
       'locked boolean not null, ' +
       'title text not null, ' +
       'body text, ' +
-      'created_at timestamp not null, ' +
-      'updated_at timestamp not null, ' +
-      'closed_at timestamp, ' +
-      'merged_at timestamp, ' +
+      'created_at timestamp not null default \'1970-01-01 00:00:01\', ' +
+      'updated_at timestamp not null default \'1970-01-01 00:00:01\', ' +
+      'closed_at timestamp default \'1970-01-01 00:00:01\', ' +
+      'merged_at timestamp default \'1970-01-01 00:00:01\', ' +
       'merge_commit_sha varchar(40), ' +
       'merged boolean, ' +
       'mergeable boolean, ' +
@@ -492,7 +510,8 @@ def structure
     )
     # variable
     exec_sql(c, 'drop table if exists gha_pull_requests_assignees')
-    c.exec(
+    exec_sql(
+      c,
       'create table gha_pull_requests_assignees(' +
       'pull_request_id bigint not null, ' +
       'event_id bigint not null, ' +
@@ -502,7 +521,8 @@ def structure
     )
     # variable
     exec_sql(c, 'drop table if exists gha_pull_requests_requested_reviewers')
-    c.exec(
+    exec_sql(
+      c,
       'create table gha_pull_requests_requested_reviewers(' +
       'pull_request_id bigint not null, ' +
       'event_id bigint not null, ' +
@@ -531,7 +551,8 @@ def structure
   # variable
   if $table
     exec_sql(c, 'drop table if exists gha_branches')
-    c.exec(
+    exec_sql(
+      c,
       'create table gha_branches(' +
       'sha varchar(40) not null, ' +
       'event_id bigint not null, ' +
@@ -548,58 +569,94 @@ def structure
     exec_sql(c, 'create index branches_user_id_idx on gha_branches(user_id)')
     exec_sql(c, 'create index branches_repo_id_idx on gha_branches(repo_id)')
   end
+
+  # This table is a kind of `materialized view` of all texts
+  if $table
+    exec_sql(c, 'drop table if exists gha_texts')
+    exec_sql(
+      c,
+      'create table gha_texts(' +
+      'event_id bigint, ' +
+      'body text' +
+      ')'
+    )
+  end
+  if $index
+    exec_sql(c, 'create index texts_event_id_idx on gha_texts(event_id)')
+  end
   # Foreign keys are not needed - they slow down processing a lweek
 
   # Tools (like views and functions needed for generating metrics)
   if $tools
-    # Get max date from database
-    r = exec_sql(c, 'select max(created_at) from gha_events')
-    max_dt = "'now'"
-    max_dt = "'#{r.first['max']}'" if r.first['max']
+    # Get max date from gha_events
+    r = exec_sql(
+      c,
+      'select max(created_at) as max_created_at ' +
+      'from gha_events'
+    )
+    max_dt = $pg ? "'now'" : 'now()'
+    max_dt = "'#{r.first['max_created_at']}'" if r.first['max_created_at']
 
     # Create
-    c.exec(
+    exec_sql(
+      c,
       'create view gha_view_last_week_event_ids as ' +
       'select * from gha_events where ' +
-      "created_at >= #{max_dt}::timestamp - '1 week'::interval"
+      ($pg ? "created_at >= #{max_dt}::timestamp - '1 week'::interval" : "created_at >= #{max_dt} - interval 1 week")
     )
-    c.exec(
+    exec_sql(
+      c,
       'create view gha_view_last_month_event_ids as ' +
       'select * from gha_events where ' +
-      "created_at >= #{max_dt}::timestamp - '1 month'::interval"
+      ($pg ? "created_at >= #{max_dt}::timestamp - '1 month'::interval" : "created_at >= #{max_dt} - interval 1 month")
     )
-    c.exec(
+    exec_sql(
+      c,
       'create view gha_view_last_year_event_ids as ' +
       'select * from gha_events where ' +
-      "created_at >= #{max_dt}::timestamp - '1 year'::interval"
+      ($pg ? "created_at >= #{max_dt}::timestamp - '1 year'::interval" : "created_at >= #{max_dt} - interval 1 year")
     )
-    c.exec(
-      'create materialized view gha_view_texts(event_id, body) as ' +
-      'select event_id, body from gha_comments where body != \'\' union ' +
-      'select event_id, message from gha_commits where message != \'\' union ' +
-      'select event_id, title from gha_issues where title != \'\'  union ' +
-      'select event_id, body from gha_issues where body != \'\' union ' +
-      'select event_id, title from gha_pull_requests where title != \'\' union ' +
-      'select event_id, body from gha_pull_requests where body != \'\''
+
+    # Get max event_id from gha_texts
+    r = exec_sql(
+      c,
+      'select max(event_id) as max_event_id ' +
+      'from gha_texts'
     )
-    c.exec(
+    max_event_id = 0
+    max_event_id = "'#{r.first['max_event_id']}'" if r.first['max_event_id']
+
+    # Add texts to gha_texts table (or fill it initially)
+    exec_sql(
+      c,
+      'insert into gha_texts(event_id, body) ' +
+      "select event_id, body from gha_comments where body != '' and event_id > #{max_event_id} union " +
+      "select event_id, message from gha_commits where message != '' and event_id > #{max_event_id} union " +
+      "select event_id, title from gha_issues where title != '' and event_id > #{max_event_id}  union " +
+      "select event_id, body from gha_issues where body != '' and event_id > #{max_event_id} union " +
+      "select event_id, title from gha_pull_requests where title != '' and event_id > #{max_event_id} union " +
+      "select event_id, body from gha_pull_requests where body != '' and event_id > #{max_event_id}"
+    )
+    exec_sql(
+      c,
       'create view gha_view_last_year_texts as ' +
-      'select v.* from gha_view_texts v, gha_view_last_year_event_ids ev ' +
+      'select v.* from gha_texts v, gha_view_last_year_event_ids ev ' +
       'where ev.id = v.event_id'
     )
-    c.exec(
+    exec_sql(
+      c,
       'create view gha_view_last_month_texts as ' +
-      'select v.* from gha_view_texts v, gha_view_last_month_event_ids ev ' +
+      'select v.* from gha_texts v, gha_view_last_month_event_ids ev ' +
       'where ev.id = v.event_id'
     )
-    c.exec(
+    exec_sql(
+      c,
       'create view gha_view_last_week_texts as ' +
-      'select v.* from gha_view_texts v, gha_view_last_week_event_ids ev ' +
+      'select v.* from gha_texts v, gha_view_last_week_event_ids ev ' +
       'where ev.id = v.event_id'
     )
   end
-
-rescue PG::Error => e
+rescue $DBError => e
   puts e.message
   binding.pry
 ensure

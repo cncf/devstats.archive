@@ -17,6 +17,9 @@ require 'pry'
 # Database user: PG_USER or 'gha_admin'
 # Database password: PG_PASS || 'password'
 
+$pg = true
+$DBError = PG::Error
+
 def conn
   # Connect to database
   PG::Connection.new(
@@ -32,5 +35,6 @@ rescue PG::Error => e
 end
 
 def exec_sql(c, query)
+  # puts query
   c.exec(query)
 end

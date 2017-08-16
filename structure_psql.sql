@@ -2,8 +2,8 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 9.6.3
--- Dumped by pg_dump version 9.6.3
+-- Dumped from database version 9.6.4
+-- Dumped by pg_dump version 9.6.4
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -449,6 +449,18 @@ CREATE TABLE gha_repos (
 ALTER TABLE gha_repos OWNER TO gha_admin;
 
 --
+-- Name: gha_texts; Type: TABLE; Schema: public; Owner: gha_admin
+--
+
+CREATE TABLE gha_texts (
+    event_id bigint,
+    body text
+);
+
+
+ALTER TABLE gha_texts OWNER TO gha_admin;
+
+--
 -- Name: gha_view_last_month_event_ids; Type: VIEW; Schema: public; Owner: gha_admin
 --
 
@@ -461,49 +473,10 @@ CREATE VIEW gha_view_last_month_event_ids AS
     gha_events.created_at,
     gha_events.org_id
    FROM gha_events
-  WHERE (gha_events.created_at >= ('2017-08-03 13:41:03.400361'::timestamp without time zone - '1 mon'::interval));
+  WHERE (gha_events.created_at >= ('2017-08-16 06:11:21.701466'::timestamp without time zone - '1 mon'::interval));
 
 
 ALTER TABLE gha_view_last_month_event_ids OWNER TO gha_admin;
-
---
--- Name: gha_view_texts; Type: MATERIALIZED VIEW; Schema: public; Owner: gha_admin
---
-
-CREATE MATERIALIZED VIEW gha_view_texts AS
- SELECT gha_comments.event_id,
-    gha_comments.body
-   FROM gha_comments
-  WHERE (gha_comments.body <> ''::text)
-UNION
- SELECT gha_commits.event_id,
-    gha_commits.message AS body
-   FROM gha_commits
-  WHERE (gha_commits.message <> ''::text)
-UNION
- SELECT gha_issues.event_id,
-    gha_issues.title AS body
-   FROM gha_issues
-  WHERE (gha_issues.title <> ''::text)
-UNION
- SELECT gha_issues.event_id,
-    gha_issues.body
-   FROM gha_issues
-  WHERE (gha_issues.body <> ''::text)
-UNION
- SELECT gha_pull_requests.event_id,
-    gha_pull_requests.title AS body
-   FROM gha_pull_requests
-  WHERE (gha_pull_requests.title <> ''::text)
-UNION
- SELECT gha_pull_requests.event_id,
-    gha_pull_requests.body
-   FROM gha_pull_requests
-  WHERE (gha_pull_requests.body <> ''::text)
-  WITH NO DATA;
-
-
-ALTER TABLE gha_view_texts OWNER TO gha_admin;
 
 --
 -- Name: gha_view_last_month_texts; Type: VIEW; Schema: public; Owner: gha_admin
@@ -512,7 +485,7 @@ ALTER TABLE gha_view_texts OWNER TO gha_admin;
 CREATE VIEW gha_view_last_month_texts AS
  SELECT v.event_id,
     v.body
-   FROM gha_view_texts v,
+   FROM gha_texts v,
     gha_view_last_month_event_ids ev
   WHERE (ev.id = v.event_id);
 
@@ -532,7 +505,7 @@ CREATE VIEW gha_view_last_week_event_ids AS
     gha_events.created_at,
     gha_events.org_id
    FROM gha_events
-  WHERE (gha_events.created_at >= ('2017-08-03 13:41:03.398872'::timestamp without time zone - '7 days'::interval));
+  WHERE (gha_events.created_at >= ('2017-08-16 06:11:21.698976'::timestamp without time zone - '7 days'::interval));
 
 
 ALTER TABLE gha_view_last_week_event_ids OWNER TO gha_admin;
@@ -544,7 +517,7 @@ ALTER TABLE gha_view_last_week_event_ids OWNER TO gha_admin;
 CREATE VIEW gha_view_last_week_texts AS
  SELECT v.event_id,
     v.body
-   FROM gha_view_texts v,
+   FROM gha_texts v,
     gha_view_last_week_event_ids ev
   WHERE (ev.id = v.event_id);
 
@@ -564,7 +537,7 @@ CREATE VIEW gha_view_last_year_event_ids AS
     gha_events.created_at,
     gha_events.org_id
    FROM gha_events
-  WHERE (gha_events.created_at >= ('2017-08-03 13:41:03.401506'::timestamp without time zone - '1 year'::interval));
+  WHERE (gha_events.created_at >= ('2017-08-16 06:11:21.703031'::timestamp without time zone - '1 year'::interval));
 
 
 ALTER TABLE gha_view_last_year_event_ids OWNER TO gha_admin;
@@ -576,7 +549,7 @@ ALTER TABLE gha_view_last_year_event_ids OWNER TO gha_admin;
 CREATE VIEW gha_view_last_year_texts AS
  SELECT v.event_id,
     v.body
-   FROM gha_view_texts v,
+   FROM gha_texts v,
     gha_view_last_year_event_ids ev
   WHERE (ev.id = v.event_id);
 
@@ -764,6 +737,14 @@ COPY gha_releases_assets (release_id, event_id, asset_id) FROM stdin;
 --
 
 COPY gha_repos (id, name) FROM stdin;
+\.
+
+
+--
+-- Data for Name: gha_texts; Type: TABLE DATA; Schema: public; Owner: gha_admin
+--
+
+COPY gha_texts (event_id, body) FROM stdin;
 \.
 
 
@@ -1393,10 +1374,10 @@ CREATE INDEX repos_name_idx ON gha_repos USING btree (name);
 
 
 --
--- Name: gha_view_texts; Type: MATERIALIZED VIEW DATA; Schema: public; Owner: gha_admin
+-- Name: texts_event_id_idx; Type: INDEX; Schema: public; Owner: gha_admin
 --
 
-REFRESH MATERIALIZED VIEW gha_view_texts;
+CREATE INDEX texts_event_id_idx ON gha_texts USING btree (event_id);
 
 
 --
