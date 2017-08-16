@@ -2,26 +2,26 @@
 
 require 'chronic_duration'
 require 'time'
-require './pg_conn'  # All Postgres database details & setup there
+require './conn'  # All Postgres database details & setup there
 require './idb_conn' # All InfluxDB database details & setup there
 
-# ts2idb --> Time Series to InfluxDB
-# Debug level can be set via GHA2PG_DEBUG
-$debug = ENV['GHA2PG_DEBUG'] ? ENV['GHA2PG_DEBUG'].to_i : 0
+# db2influx --> psql/mysql to InfluxDB time series
+# Debug level can be set via GHA2DB_DEBUG
+$debug = ENV['GHA2DB_DEBUG'] ? ENV['GHA2DB_DEBUG'].to_i : 0
 
 $thr_n = Etc.nprocessors
 puts "Available #{$thr_n} processors"
 
 # Use environment variable to have singlethreaded version
-$thr_n = 1 if ENV['GHA2PG_ST']
+$thr_n = 1 if ENV['GHA2DB_ST']
 
-def threaded_ts2idb(sql, p_name, from, to)
-  pc = pg_conn
+def threaded_db2influx(sql, p_name, from, to)
+  sqlc = conn
   ic = idb_conn
   s_from = from.to_s[0..-7]
   s_to = to.to_s[0..-7]
   q = sql.gsub('{{from}}', s_from).gsub('{{to}}', s_to)
-  r = pc.exec(q)
+  r = exec_sql(sqlc, q)
   n = r.first['result'].to_i
   puts "#{from} - #{to} -> #{n}" if $debug
   data = {
@@ -33,14 +33,14 @@ def threaded_ts2idb(sql, p_name, from, to)
 rescue InfluxDB::ConnectionError => e
   puts e.message
   exit(1)
-rescue PG::Error => e
+rescue $DBError => e
   puts e.message
   exit(1)
 ensure
-  pc.close if pc
+  sqlc.close if sqlc
 end
 
-def ts2idb(sql_file, from, to, interval)
+def db2influx(sql_file, from, to, interval)
   # Connect to database
   sql = File.read(sql_file)
   d_from = Time.parse(from)
@@ -51,7 +51,7 @@ def ts2idb(sql_file, from, to, interval)
   if $thr_n > 1
     thr_pool = []
     while dt <= d_to
-      thr = Thread.new(dt) { |adt| threaded_ts2idb(sql, interval, adt, adt + s_int) }
+      thr = Thread.new(dt) { |adt| threaded_db2influx(sql, interval, adt, adt + s_int) }
       thr_pool << thr
       dt = dt + s_int
       if thr_pool.length == $thr_n
@@ -65,7 +65,7 @@ def ts2idb(sql_file, from, to, interval)
   else
     puts "Using single threaded version"
     while dt <= d_to
-      threaded_ts2idb(sql, interval, dt, dt + s_int)
+      threaded_db2influx(sql, interval, dt, dt + s_int)
       dt = dt + s_int
     end
   end
@@ -79,5 +79,5 @@ if ARGV.count < 4
   exit 1
 end
 
-ts2idb(ARGV[0], ARGV[1], ARGV[2], ARGV[3])
+db2influx(ARGV[0], ARGV[1], ARGV[2], ARGV[3])
 
