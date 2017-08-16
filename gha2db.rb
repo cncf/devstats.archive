@@ -701,7 +701,7 @@ def get_gha_json(dt, forg, frepo)
   puts "Parsed: #{fn}: #{n} JSONs, found #{f} matching, events #{e}"
 rescue OpenURI::HTTPError => e
   puts "No data yet for #{dt}"
-rescue Zlib::GzipFile::Error => e
+rescue Zlib::GzipFile::Error, Zlib::DataError => e
   puts "Gzip decompression exception:"
   puts e.message
   p "Date: #{dt}"
