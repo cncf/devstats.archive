@@ -17,7 +17,10 @@ require 'pry'
 # Database user: PG_USER or 'gha_admin'
 # Database password: PG_PASS || 'password'
 
-def pg_conn
+$pg = true
+$DBError = PG::Error
+
+def conn
   # Connect to database
   PG::Connection.new(
     host: ENV['PG_HOST'] || 'localhost',
@@ -29,4 +32,36 @@ def pg_conn
 rescue PG::Error => e
   puts e.message
   exit(1)
+end
+
+def exec_sql(c, query)
+  # puts query
+  c.exec(query)
+end
+
+# DB specific wrappers:
+
+# returns for n:
+# n=1 -> values($1)
+# n=10 -> values($1, $2, $3, .., $10)
+def n_values(n)
+  s = 'values('
+  (1..n).each { |i| s += "$#{i}, " }
+  s[0..-3] + ')'
+end
+
+def n_value(index)
+  "$#{index}"
+end
+
+def insert_ignore(query)
+  "insert #{query} on conflict do nothing"
+end
+
+def create_table(tdef)
+  "create table #{tdef}"
+end
+
+def parse_timestamp(tval)
+  Time.parse(tval)
 end

@@ -6,23 +6,21 @@ from
 where
   e.id in (
     select
-      min(ev.id)
+      min(event_id)
     from
-      gha_issues_labels il,
-      gha_view_last_week_event_ids ev
+      gha_issues_labels
     where
-      ev.id = il.event_id
-      and il.label_id in (
+      label_id in (
         select id from gha_labels where name in ('lgtm', 'LGTM')
       )
     group by issue_id
-    union 
-    select 
+    union
+    select
       event_id
-    from 
-      gha_view_last_week_texts
+    from
+      gha_texts
     where
-      substring(body from '(?i)/lgtm') is not null
+      substring(body from '(?i)/^\s*/lgtm\s*$') is not null
   )
 and e.actor_id = a.id
 and a.login not in ('googlebot')
