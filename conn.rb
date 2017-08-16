@@ -1,3 +1,7 @@
+# Global variables to specify which DB is used and error class
+$pg = false
+$mysql = false
+$DBError = nil
 
 if ENV['GHA2DB_PSQL']
   # All PostgreSQL connection details here

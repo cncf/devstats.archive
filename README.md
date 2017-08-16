@@ -324,13 +324,10 @@ There is also a tool `runq.rb`. It is used to compute metrics saved is `sql` fil
 Example metrics are in `./sql/` directory.
 
 This tool takes single parameter - sql file name.
-Database uses materialized view for speedup metrics processing.
-If You updated database since last run then please set `GHA2DB_REFRESH` environment variable to rebuild views.
 
 Typical usages:
 
 - `time GHA2DB_PSQL=1 PG_PASS='password' ./runq.rb sql_metrics/metric.sql`
-- `time GHA2DB_PSQL=1 GHA2DB_REFRESH=1 PG_PASS='password' ./runq.rb sql_metrics/other_metric.sql`
 
 # Metrics results
 

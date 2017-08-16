@@ -19,6 +19,9 @@ require 'pry'
 # Database user: MYSQL_USER or 'gha_admin'
 # Database password: MYSQL_PASS || 'password'
 
+$mysql = true
+$DBError = Mysql2::Error
+
 def conn
   # Connect to database
   Mysql2::Client.new(
@@ -34,5 +37,6 @@ rescue Mysql2::Error => e
 end
 
 def exec_sql(c, query)
+  # puts query
   c.query(query)
 end

@@ -7,7 +7,6 @@ require 'zlib'
 require 'stringio'
 require 'json'
 require 'etc'
-require 'pg'
 require './conn' # All database details & setup there
 
 $thr_n = Etc.nprocessors
@@ -233,7 +232,7 @@ def write_to_pg(con, ev)
     con,
     sid,
     'insert into gha_payloads(' +
-    'event_id, push_id, size, ref, head, before, action, ' +
+    'event_id, push_id, size, ref, head, befor, action, ' +
     'issue_id, comment_id, ref_type, master_branch, ' +
     'description, number, forkee_id, release_id, member_id' +
     ') ' + n_values(16),
