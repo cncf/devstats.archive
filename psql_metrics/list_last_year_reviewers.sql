@@ -7,21 +7,23 @@ from
 where e.id in
   (
     select
-      min(event_id)
+      min(ev.id)
     from
-      gha_issues_labels
+      gha_issues_labels il,
+      gha_view_last_year_event_ids ev
     where
-      label_id in (
+      ev.id = il.event_id
+      and il.label_id in (
         select id from gha_labels where name in ('lgtm', 'LGTM')
       )
     group by issue_id
-    union 
-    select 
+    union
+    select
       event_id
-    from 
-      gha_view_texts
+    from
+      gha_view_last_year_texts
     where
-      substring(body from '(?i)/lgtm') is not null
+      substring(body from '(?i)/^\s*/lgtm\s*$') is not null
   )
 and e.actor_id = a.id
 and a.login not in ('googlebot')

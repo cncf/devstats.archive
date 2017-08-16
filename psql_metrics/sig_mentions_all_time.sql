@@ -8,7 +8,7 @@ from
         body from '(@kubernetes/sig-[\w-]+)(-bugs|-feature-request|-pr-review|-api-review|-misc|-proposal|-design-proposal|-test-failure)s?\s+'
       ) as sig 
     from 
-      gha_view_texts
+      gha_texts
   ) sel 
 where
   sel.sig is not null

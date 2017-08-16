@@ -21,7 +21,7 @@ def threaded_db2influx(sql, p_name, from, to)
   s_from = from.to_s[0..-7]
   s_to = to.to_s[0..-7]
   q = sql.gsub('{{from}}', s_from).gsub('{{to}}', s_to)
-  r = sqlc.exec(q)
+  r = exec_sql(sqlc, q)
   n = r.first['result'].to_i
   puts "#{from} - #{to} -> #{n}" if $debug
   data = {
@@ -33,7 +33,7 @@ def threaded_db2influx(sql, p_name, from, to)
 rescue InfluxDB::ConnectionError => e
   puts e.message
   exit(1)
-rescue PG::Error => e
+rescue $DBError => e
   puts e.message
   exit(1)
 ensure

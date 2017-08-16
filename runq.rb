@@ -7,7 +7,7 @@ def runq(sql_file)
   # Connect to database
   c = conn
   sql = File.read(sql_file)
-  res = c.exec(sql)
+  res = exec_sql(c, sql)
   return unless res.count > 0
   hdr = res.first.keys
   hdrl = {}
@@ -61,7 +61,7 @@ def runq(sql_file)
   puts s
   puts "Rows: #{res.count}"
 
-rescue PG::Error => e
+rescue $DBError => e
   puts e.message
   binding.pry
 ensure

@@ -341,13 +341,15 @@ For example June 2017:
 # Metrics tool
 There is also a tool `runq.rb`. It is used to compute metrics saved is `sql` files.
 
-Example metrics are in `./sql/` directory.
+Example metrics are in `./psql_metrics/` and `./mysql_metrics/` directories.
+They're usually different for different databases (they're complex SQL's that uses DB specific REGEXP processing etc)
 
 This tool takes single parameter - sql file name.
 
 Typical usages:
 
-- `time GHA2DB_PSQL=1 PG_PASS='password' ./runq.rb sql_metrics/metric.sql`
+- `time GHA2DB_PSQL=1 PG_PASS='password' ./runq.rb psql_metrics/metric.sql`
+- `time GHA2DB_MYSQL=1 MYSQL_PASS='password' ./runq.rb mysql_metrics/metric.sql`
 
 # Metrics results
 
@@ -356,7 +358,7 @@ Last GitHub archive date is 2017-08-03 13:00 UTC:
 1) SIG mentions (all of them takes <30 seconds, `time PG_PASS='pwd' ./runq.rb sql/sig_mentions_*.sql`):
 - All Time:
 ```
-time GHA2DB_PSQL=1 PG_PASS='pwd' ./runq.rb sql_metrics/sig_mentions_all_time.sql
+time GHA2DB_PSQL=1 PG_PASS='pwd' ./runq.rb psql_metrics/sig_mentions_all_time.sql
 /--------------------------+--------------\
 |sig                       |count_all_time|
 +--------------------------+--------------+
@@ -461,7 +463,7 @@ sys 0m0.044s
 2) Number of reviewers. Definded as number of authors adding `/lgtm` in comment or adding `lgtm` label (all of them takes <30 seconds, `time GHA2DB_PSQL=1 PG_PASS='pwd' ./runq.rb sql/reviewers_*.sql`):
 - All Time: 506
 ```
-2017-08-03 13:49:33 root@cncftest:/home/justa/dev/cncf/gha2db# time GHA2DB_PSQL=1 PG_PASS='pwd' ./runq.rb sql_metrics/reviewers_all_time.sql
+2017-08-03 13:49:33 root@cncftest:/home/justa/dev/cncf/gha2db# time GHA2DB_PSQL=1 PG_PASS='pwd' ./runq.rb psql_metrics/reviewers_all_time.sql
 /-----\
 |count|
 +-----+
@@ -481,13 +483,14 @@ Rows: 1
 You can visualise data using Grafana, see `./grafana/` directory.
 - Start grafana using `GRAFANA_PASS='password' ./grafana/grafana_start.sh`, this requires Docker.
 - Start InfluxDB using `INFLUXDB_PASS='password' ./grafana/influxdb_setup.sh`, this requires Docker & previous command succesfully executed.
+- To cleanup Docker images and start from scratch use `./grafana/docker_cleanup.sh`.
 
 # Feeding InfluxDB & Grafana (wip)
 
 Feed InfluxDB using:
-- `GHA2DB_PSQL=1 PG_PASS='psql_pwd' IDB_PASS='influxdb_pwd' ./db2influx.rb sql_metrics/reviewers.sql '2015-08-03' '2017-08-07' '1 week'`
+- `GHA2DB_PSQL=1 PG_PASS='psql_pwd' IDB_PASS='influxdb_pwd' ./db2influx.rb psql_metrics/reviewers.sql '2015-08-03' '2017-08-07' '1 week'`
 - This tool uses environmental variables starting with `IDB_`, please see `idb_conn.rb` and `db2influx.rb` for details.
-- `IDB_`variables are exactly the same as `PG_` and `MYSQL_` to set host, databaxe, user name, password.
+- `IDB_` variables are exactly the same as `PG_` and `MYSQL_` to set host, databaxe, user name, password.
 
 Then see results in the InfluxDB:
 - influx
@@ -495,4 +498,10 @@ Then see results in the InfluxDB:
 - use gha
 - select * from reviewers
 - select count(*) from reviewers
+- show tag keys
+- show field keys
+
+To drop data from InfluxDB:
+- drop measurement reviewers
+- drop series from reviewers
 

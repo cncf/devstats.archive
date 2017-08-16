@@ -1,5 +1,5 @@
 select
-  count(distinct a.id)
+  count(distinct a.id) as cnt
 from
   gha_events e,
   gha_actors a
@@ -16,13 +16,13 @@ where
         select id from gha_labels where name in ('lgtm', 'LGTM')
       )
     group by issue_id
-    union 
-    select 
+    union
+    select
       event_id
-    from 
+    from
       gha_view_last_year_texts
     where
-      substring(body from '(?i)/lgtm') is not null
+      lower(body) regexp '^\s*lgtm\s*$'
   )
 and e.actor_id = a.id
 and a.login not in ('googlebot')
