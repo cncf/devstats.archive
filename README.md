@@ -499,13 +499,15 @@ Use `sync.rb`/`sync.sh` tool to update all Your data.
 Example call:
 - `GHA2DB_MYSQL=1 MYSQL_PASS='pwd' IDB_PASS='pwd' ./sync.sh`
 - `GHA2DB_PSQL=1 PG_PASS='pwd' IDB_PASS='pwd' ./sync.sh`
+- Add `GHA2DB_RESETIDB` environment variable to rebuild InfluxDB stats instead of update since last run
 
 # Grafana output
 
 You can visualise data using Grafana, see `./grafana/` directory.
 - Start grafana using `GRAFANA_PASS='password' ./grafana/grafana_start.sh`, this requires Docker.
 - Start InfluxDB using `INFLUXDB_PASS='password' ./grafana/influxdb_setup.sh`, this requires Docker & previous command succesfully executed.
-- To cleanup Docker images and start from scratch use `./grafana/docker_cleanup.sh`.
+- To cleanup Docker images and start from scratch use `./grafana/docker_cleanup.sh`. This will not delete Your grafana config because it is stored in local volume `/var/lib/grafana`.
+- Output will be at: <http://cncftest.io:3000>, for example: <http://cncftest.io:3000/dashboard/db/reviewers?orgId=1>
 
 # Feeding InfluxDB & Grafana (wip)
 
