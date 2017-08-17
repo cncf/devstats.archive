@@ -478,6 +478,17 @@ Rows: 1
 3) List reviewers (`time GHA2DB_PSQL=1 PG_PASS='pwd' ./runq.rb sql/list_*_reviewers.sql`):
 - Takes <30s for all time, generates long list (not pasted here)
 
+# Update/Sync tool
+
+When You have imported all data You need - it needs to be updated periodically.
+GitHub archive generates new file every hour.
+
+Use `sync.rb`/`sync.sh` tool to update all Your data.
+
+Example call:
+- `GHA2DB_MYSQL=1 MYSQL_PASS='pwd' IDB_PASS='pwd' ./sync.sh`
+- `GHA2DB_PSQL=1 PG_PASS='pwd' IDB_PASS='pwd' ./sync.sh`
+
 # Grafana output
 
 You can visualise data using Grafana, see `./grafana/` directory.
@@ -488,7 +499,8 @@ You can visualise data using Grafana, see `./grafana/` directory.
 # Feeding InfluxDB & Grafana (wip)
 
 Feed InfluxDB using:
-- `GHA2DB_PSQL=1 PG_PASS='psql_pwd' IDB_PASS='influxdb_pwd' ./db2influx.rb psql_metrics/reviewers.sql '2015-08-03' '2017-08-07' '1 week'`
+- `GHA2DB_PSQL=1 PG_PASS='psql_pwd' IDB_PASS='influxdb_pwd' ./db2influx.rb reviewers_w psql_metrics/reviewers.sql '2015-08-03' '2017-08-21' w`
+- Last parameter can be d, w, m, y (day, week, month, year).
 - This tool uses environmental variables starting with `IDB_`, please see `idb_conn.rb` and `db2influx.rb` for details.
 - `IDB_` variables are exactly the same as `PG_` and `MYSQL_` to set host, databaxe, user name, password.
 

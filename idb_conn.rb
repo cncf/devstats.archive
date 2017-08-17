@@ -20,7 +20,7 @@ def idb_conn
       port: (ENV['IDB_PORT'] || '8086').to_i,
       username: ENV['IDB_USER'] || 'gha_admin',
       password: ENV['IDB_PASS'] || 'password',
-      retry: false
+      retry: true
     }
   )
 rescue Exception => e

@@ -712,7 +712,7 @@ ensure
   puts 'Done'
 end
 
-puts 'This program will recreate DB structure (dropping all existing data)'
+puts 'This program will recreate DB structure (dropping all existing data)' unless ENV['GHA2DB_SKIPTABLE']
 print 'Continue? (y/n) '
 c = mgetc
 puts "\n"
