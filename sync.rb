@@ -53,7 +53,7 @@ def sync(args)
 
   # DB2Influx
   metrics_dir = $pg ? 'psql_metrics' : 'mysql_metrics'
- 
+
   # Reviewers daily, weekly, monthly, yearly
   %w(d w m y).each do |period|
     cmd = "./db2influx.rb reviewers_#{period} psql_metrics/reviewers.sql '#{to_ymd(from)}' '#{to_ymd(to)}' #{period}"
