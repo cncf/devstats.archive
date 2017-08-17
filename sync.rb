@@ -53,6 +53,7 @@ def sync(args)
 
   # DB2Influx
   metrics_dir = $pg ? 'psql_metrics' : 'mysql_metrics'
+  from = Time.parse('2015-08-01') if ENV['GHA2DB_RESETIDB']
 
   # Reviewers daily, weekly, monthly, yearly
   %w(d w m y).each do |period|

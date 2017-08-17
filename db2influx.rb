@@ -22,11 +22,14 @@ def threaded_db2influx(series_name, sql, p_name, from, to)
   q = sql.gsub('{{from}}', s_from).gsub('{{to}}', s_to)
   r = exec_sql(sqlc, q)
   n = r.first['result'].to_i
+  # ts = (from.to_i + to.to_i) / 2
+  ts = from.to_i
+  # ts = to.to_i
   puts "#{from.to_date} - #{to.to_date} -> #{n}" if $debug
   data = {
     values: { value: n },
     # tags: { period: p_name },
-    timestamp: from.to_i
+    timestamp: ts
   }
   ic.write_point(series_name, data)
 rescue InfluxDB::ConnectionError => e
