@@ -239,6 +239,7 @@ Ubuntu like Linux:
 
 - sudo apt-get install mysql-server
 - sudo mysql_secure_installation
+- You will need `lib_mysqludf_preg` to support PCRE REGEXPs (*)
 - Update mysql config to use UTF8MB4, see below (**)
 - mysql -uusername -ppassword
 - create database gha character set utf8mb4 collate utf8mb4_unicode_ci;
@@ -270,6 +271,16 @@ Typical internal usage:
 `time GHA2DB_MYSQL=1 GHA2DB_INDEX=1 MYSQL_PASS=your_password ./structure.rb`
 
 Alternatively You can use `structure_mysql.sql` to create database structure.
+
+(*) Install lib_mysqludf_preg` (*)
+- apt-get install libpcre3-dev
+- git clone https://github.com/mysqludf/lib_mysqludf_preg.git
+- cd lib_mysqludf_preg
+- ./configure
+- You may need to run `touch aclocal.m4 configure Makefile.*` before next step due to aclocal strange errors.
+- make
+- make install
+- make MYSQL="mysql -p" installdb
 
 (**) Update MySQL to use UTF8MB4:
 - Locate Your MySQL config file (usually in `/etc/mysql/my.cnf`
