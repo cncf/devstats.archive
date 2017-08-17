@@ -236,6 +236,21 @@ CREATE TABLE gha_issues_assignees (
 ALTER TABLE gha_issues_assignees OWNER TO gha_admin;
 
 --
+-- Name: gha_issues_events_labels; Type: TABLE; Schema: public; Owner: gha_admin
+--
+
+CREATE TABLE gha_issues_events_labels (
+    issue_id bigint NOT NULL,
+    event_id bigint NOT NULL,
+    label_id bigint NOT NULL,
+    label_name character varying(160) NOT NULL,
+    created_at timestamp without time zone DEFAULT '1970-01-01 00:00:01'::timestamp without time zone NOT NULL
+);
+
+
+ALTER TABLE gha_issues_events_labels OWNER TO gha_admin;
+
+--
 -- Name: gha_issues_labels; Type: TABLE; Schema: public; Owner: gha_admin
 --
 
@@ -473,7 +488,7 @@ CREATE VIEW gha_view_last_month_event_ids AS
     gha_events.created_at,
     gha_events.org_id
    FROM gha_events
-  WHERE (gha_events.created_at >= ('2017-08-16 12:49:24.529805'::timestamp without time zone - '1 mon'::interval));
+  WHERE (gha_events.created_at >= ('2017-08-17 14:47:16.802919'::timestamp without time zone - '1 mon'::interval));
 
 
 ALTER TABLE gha_view_last_month_event_ids OWNER TO gha_admin;
@@ -505,7 +520,7 @@ CREATE VIEW gha_view_last_week_event_ids AS
     gha_events.created_at,
     gha_events.org_id
    FROM gha_events
-  WHERE (gha_events.created_at >= ('2017-08-16 12:49:24.52794'::timestamp without time zone - '7 days'::interval));
+  WHERE (gha_events.created_at >= ('2017-08-17 14:47:16.80142'::timestamp without time zone - '7 days'::interval));
 
 
 ALTER TABLE gha_view_last_week_event_ids OWNER TO gha_admin;
@@ -537,7 +552,7 @@ CREATE VIEW gha_view_last_year_event_ids AS
     gha_events.created_at,
     gha_events.org_id
    FROM gha_events
-  WHERE (gha_events.created_at >= ('2017-08-16 12:49:24.531253'::timestamp without time zone - '1 year'::interval));
+  WHERE (gha_events.created_at >= ('2017-08-17 14:47:16.804051'::timestamp without time zone - '1 year'::interval));
 
 
 ALTER TABLE gha_view_last_year_event_ids OWNER TO gha_admin;
@@ -641,6 +656,14 @@ COPY gha_issues (id, event_id, assignee_id, body, closed_at, comments, created_a
 --
 
 COPY gha_issues_assignees (issue_id, event_id, assignee_id) FROM stdin;
+\.
+
+
+--
+-- Data for Name: gha_issues_events_labels; Type: TABLE DATA; Schema: public; Owner: gha_admin
+--
+
+COPY gha_issues_events_labels (issue_id, event_id, label_id, label_name, created_at) FROM stdin;
 \.
 
 
@@ -1126,6 +1149,41 @@ CREATE INDEX issues_created_at_idx ON gha_issues USING btree (created_at);
 --
 
 CREATE INDEX issues_event_id_idx ON gha_issues USING btree (event_id);
+
+
+--
+-- Name: issues_events_labels_created_at_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX issues_events_labels_created_at_idx ON gha_issues_events_labels USING btree (created_at);
+
+
+--
+-- Name: issues_events_labels_event_id_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX issues_events_labels_event_id_idx ON gha_issues_events_labels USING btree (event_id);
+
+
+--
+-- Name: issues_events_labels_issue_id_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX issues_events_labels_issue_id_idx ON gha_issues_events_labels USING btree (issue_id);
+
+
+--
+-- Name: issues_events_labels_label_id_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX issues_events_labels_label_id_idx ON gha_issues_events_labels USING btree (label_id);
+
+
+--
+-- Name: issues_events_labels_label_name_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX issues_events_labels_label_name_idx ON gha_issues_events_labels USING btree (label_name);
 
 
 --

@@ -9,13 +9,11 @@ where e.id in
     select
       min(ev.id)
     from
-      gha_issues_labels il,
+      gha_issues_events_labels iel,
       gha_view_last_year_event_ids ev
     where
-      ev.id = il.event_id
-      and il.label_id in (
-        select id from gha_labels where name in ('lgtm', 'LGTM')
-      )
+      ev.id = iel.event_id
+      and iel.label_name in ('lgtm', 'LGTM')
     group by issue_id
     union
     select

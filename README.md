@@ -191,7 +191,7 @@ PostgreSQL:
 - Creates 490 releases.
 - Creates 259 release - asset connections.
 - Creates 87 repos.
-- See <http://cncftest.io/k8s.sql.xz>
+- See <http://cncftest.io:8080/k8s_psql.sql.xz>
 
 # MySQL
 1) No data yet, TODO: wip
@@ -506,8 +506,11 @@ Example call:
 You can visualise data using Grafana, see `./grafana/` directory.
 - Start grafana using `GRAFANA_PASS='password' ./grafana/grafana_start.sh`, this requires Docker.
 - Start InfluxDB using `INFLUXDB_PASS='password' ./grafana/influxdb_setup.sh`, this requires Docker & previous command succesfully executed.
+- Feed InfluxDB from Postgres: `GHA2DB_PSQL=1 GHA2DB_RESETIDB=1 PG_PASS='pwd' IDB_PASS='pwd' ./sync.sh`
+- Or Feed InfluxDB from MySQL: `GHA2DB_MYSQL=1 GHA2DB_RESETIDB=1 MYSQL_PASS='pwd' IDB_PASS='pwd' ./sync.sh`
 - To cleanup Docker images and start from scratch use `./grafana/docker_cleanup.sh`. This will not delete Your grafana config because it is stored in local volume `/var/lib/grafana`.
 - Output will be at: <http://cncftest.io:3000>, for example: <http://cncftest.io:3000/dashboard/db/reviewers?orgId=1>
+- To recreate all Grafana stuff from scratch do: `GRAFANA_PASS='' INFLUXDB_PASS='' GHA2DB_PSQL=1 GHA2DB_RESETIDB=1 PG_PASS='' IDB_PASS='' ./grafana/reinit.sh`
 
 # Feeding InfluxDB & Grafana (wip)
 
