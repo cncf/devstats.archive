@@ -21,7 +21,7 @@ where e.id in
     from
       gha_texts
     where
-      lower(body) regexp '^\s*lgtm\s*$'
+      preg_rlike('{^\\s*lgtm\\s*$}i', body)
   )
 and e.actor_id = a.id
 and a.login not in ('googlebot')

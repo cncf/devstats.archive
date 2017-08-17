@@ -632,6 +632,30 @@ def structure
   if $index
     exec_sql(c, 'create index texts_event_id_idx on gha_texts(event_id)')
   end
+
+  # This table is a kind of `materialized view` of issue event labels
+  if $table
+    exec_sql(c, 'drop table if exists gha_issues_events_labels')
+    exec_sql(
+      c,
+      create_table(
+        'gha_issues_events_labels(' +
+        'issue_id bigint not null, ' +
+        'event_id bigint not null, ' +
+        'label_id bigint not null, ' +
+        'label_name varchar(160) not null, ' +
+        'created_at timestamp not null default \'1970-01-01 00:00:01\'' +
+        ')'
+      )
+    )
+  end
+  if $index
+    exec_sql(c, 'create index issues_events_labels_issue_id_idx on gha_issues_events_labels(issue_id)')
+    exec_sql(c, 'create index issues_events_labels_event_id_idx on gha_issues_events_labels(event_id)')
+    exec_sql(c, 'create index issues_events_labels_label_id_idx on gha_issues_events_labels(label_id)')
+    exec_sql(c, 'create index issues_events_labels_label_name_idx on gha_issues_events_labels(label_name)')
+    exec_sql(c, 'create index issues_events_labels_created_at_idx on gha_issues_events_labels(created_at)')
+  end
   # Foreign keys are not needed - they slow down processing a lweek
 
   # Tools (like views and functions needed for generating metrics)
@@ -702,6 +726,24 @@ def structure
       'create view gha_view_last_week_texts as ' +
       'select v.* from gha_texts v, gha_view_last_week_event_ids ev ' +
       'where ev.id = v.event_id'
+    )
+
+    # Get max event_id from gha_issues_events_labels
+    r = exec_sql(
+      c,
+      'select max(event_id) as max_event_id ' +
+      'from gha_issues_events_labels'
+    )
+    max_event_id = 0
+    max_event_id = "'#{r.first['max_event_id']}'" if r.first['max_event_id']
+
+    # Add texts to gha_texts table (or fill it initially)
+    exec_sql(
+      c,
+      'insert into gha_issues_events_labels(issue_id, event_id, label_id, label_name, created_at) ' +
+      'select il.issue_id, ev.id, lb.id, lb.name, ev.created_at ' +
+      'from gha_issues_labels il, gha_events ev, gha_labels lb ' +
+      "where ev.id = il.event_id and il.label_id = lb.id and ev.id > #{max_event_id}"
     )
   end
 rescue $DBError => e

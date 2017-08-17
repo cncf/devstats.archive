@@ -1,6 +1,6 @@
 -- MySQL dump 10.13  Distrib 5.7.19, for Linux (x86_64)
 --
--- Host: localhost    Database: gha
+-- Host: localhost    Database: test
 -- ------------------------------------------------------
 -- Server version	5.7.19-0ubuntu0.17.04.1
 
@@ -367,6 +367,36 @@ CREATE TABLE `gha_issues_assignees` (
 LOCK TABLES `gha_issues_assignees` WRITE;
 /*!40000 ALTER TABLE `gha_issues_assignees` DISABLE KEYS */;
 /*!40000 ALTER TABLE `gha_issues_assignees` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `gha_issues_events_labels`
+--
+
+DROP TABLE IF EXISTS `gha_issues_events_labels`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `gha_issues_events_labels` (
+  `issue_id` bigint(20) NOT NULL,
+  `event_id` bigint(20) NOT NULL,
+  `label_id` bigint(20) NOT NULL,
+  `label_name` varchar(160) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT '1970-01-01 00:00:01',
+  KEY `issues_events_labels_issue_id_idx` (`issue_id`),
+  KEY `issues_events_labels_event_id_idx` (`event_id`),
+  KEY `issues_events_labels_label_id_idx` (`label_id`),
+  KEY `issues_events_labels_label_name_idx` (`label_name`),
+  KEY `issues_events_labels_created_at_idx` (`created_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `gha_issues_events_labels`
+--
+
+LOCK TABLES `gha_issues_events_labels` WRITE;
+/*!40000 ALTER TABLE `gha_issues_events_labels` DISABLE KEYS */;
+/*!40000 ALTER TABLE `gha_issues_events_labels` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -978,4 +1008,4 @@ SET character_set_client = @saved_cs_client;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2017-08-16 12:52:50
+-- Dump completed on 2017-08-17 14:49:54

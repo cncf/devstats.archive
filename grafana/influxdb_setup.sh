@@ -1,5 +1,6 @@
 #!/bin/sh
 # CALL this script with INFLUXDB_PASS='pwd_here' ./influxdb_setup.sh
+echo "Initialize InfluxDB"
 if [ -z "${INFLUXDB_PASS}" ]
 then
   echo "You need to set INFLUXDB_PASS environment variable to run this script"

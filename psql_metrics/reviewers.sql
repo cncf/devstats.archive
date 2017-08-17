@@ -6,16 +6,13 @@ from
 where
   e.id in (
     select
-      min(ev.id)
+      min(event_id)
     from
-      gha_issues_labels il,
-      gha_events ev
+      gha_issues_events_labels
     where
-      ev.id = il.event_id
-      and ev.created_at >= '{{from}}' and ev.created_at < '{{to}}'
-      and il.label_id in (
-        select id from gha_labels where name in ('lgtm', 'LGTM')
-      )
+      created_at >= '{{from}}'
+      and created_at < '{{to}}'
+      and label_name in ('lgtm', 'LGTM')
     group by issue_id
     union
     select
