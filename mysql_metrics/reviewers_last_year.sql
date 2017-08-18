@@ -1,26 +1,23 @@
 select
-  count(distinct a.id) as cnt
+  count(distinct actor_id) as cnt
 from
-  gha_events e,
-  gha_actors a
+  gha_events
 where
-  e.actor_id = a.id
-  and e.created_at >= now() - interval 1 year
-  and a.login not in ('googlebot')
-  and a.login not like 'k8s-%'
+  actor_login not in ('googlebot')
+  and actor_login not like 'k8s-%'
   and (
-    e.id in (
+    id in (
       select
         min(event_id)
       from
         gha_issues_events_labels
       where
         created_at >= now() - interval 1 year
-        and label_name in ('lgtm', 'LGTM')
+        and label_name = 'lgtm'
       group by
         issue_id
     )
-    or e.id in (
+    or id in (
       select
         event_id
       from

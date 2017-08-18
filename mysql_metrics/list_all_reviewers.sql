@@ -1,24 +1,23 @@
 select
-  a.login,
+  actor_login,
   count(*) as reviewers_count
 from
-  gha_events e,
-  gha_actors a
+  gha_events
 where
-  e.actor_id = a.id
-  and a.login not in ('googlebot')
-  and a.login not like 'k8s-%'
+  actor_login not in ('googlebot')
+  and actor_login not like 'k8s-%'
   and (
-    e.id in (
+    id in (
       select
         min(event_id)
       from
         gha_issues_events_labels
       where
-        label_name in ('lgtm', 'LGTM')
-      group by issue_id
+        label_name = 'lgtm'
+      group by
+        issue_id
     )
-    or e.id in (
+    or id in (
       select
         event_id
       from
@@ -27,7 +26,8 @@ where
         preg_rlike('{^\\s*lgtm\\s*$}i', body)
     )
   )
-group by a.login
+group by
+  actor_login
 order by
   reviewers_count desc,
-  a.login asc
+  actor_login asc

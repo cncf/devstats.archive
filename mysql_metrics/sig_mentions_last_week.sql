@@ -10,7 +10,9 @@ from
         1
       ) as sig
     from 
-      gha_view_last_week_texts
+      gha_texts
+    where
+      created_at >= now() - interval 1 week
   ) sel 
 where
   sel.sig is not null

@@ -190,12 +190,14 @@ CREATE TABLE `gha_events` (
   `public` tinyint(1) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT '1970-01-01 00:00:01',
   `org_id` bigint(20) DEFAULT NULL,
+  `actor_login` varchar(120) COLLATE utf8mb4_unicode_ci NOT NULL,
   PRIMARY KEY (`id`),
   KEY `events_type_idx` (`type`),
   KEY `events_actor_id_idx` (`actor_id`),
   KEY `events_repo_id_idx` (`repo_id`),
   KEY `events_org_id_idx` (`org_id`),
-  KEY `events_created_at_idx` (`created_at`)
+  KEY `events_created_at_idx` (`created_at`),
+  KEY `events_actor_login_idx` (`actor_login`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -799,210 +801,6 @@ LOCK TABLES `gha_texts` WRITE;
 /*!40000 ALTER TABLE `gha_texts` DISABLE KEYS */;
 /*!40000 ALTER TABLE `gha_texts` ENABLE KEYS */;
 UNLOCK TABLES;
-
---
--- Temporary table structure for view `gha_view_last_month_event_ids`
---
-
-DROP TABLE IF EXISTS `gha_view_last_month_event_ids`;
-/*!50001 DROP VIEW IF EXISTS `gha_view_last_month_event_ids`*/;
-SET @saved_cs_client     = @@character_set_client;
-SET character_set_client = utf8;
-/*!50001 CREATE VIEW `gha_view_last_month_event_ids` AS SELECT 
- 1 AS `id`,
- 1 AS `type`,
- 1 AS `actor_id`,
- 1 AS `repo_id`,
- 1 AS `public`,
- 1 AS `created_at`,
- 1 AS `org_id`*/;
-SET character_set_client = @saved_cs_client;
-
---
--- Temporary table structure for view `gha_view_last_month_texts`
---
-
-DROP TABLE IF EXISTS `gha_view_last_month_texts`;
-/*!50001 DROP VIEW IF EXISTS `gha_view_last_month_texts`*/;
-SET @saved_cs_client     = @@character_set_client;
-SET character_set_client = utf8;
-/*!50001 CREATE VIEW `gha_view_last_month_texts` AS SELECT 
- 1 AS `event_id`,
- 1 AS `body`,
- 1 AS `created_at`*/;
-SET character_set_client = @saved_cs_client;
-
---
--- Temporary table structure for view `gha_view_last_week_event_ids`
---
-
-DROP TABLE IF EXISTS `gha_view_last_week_event_ids`;
-/*!50001 DROP VIEW IF EXISTS `gha_view_last_week_event_ids`*/;
-SET @saved_cs_client     = @@character_set_client;
-SET character_set_client = utf8;
-/*!50001 CREATE VIEW `gha_view_last_week_event_ids` AS SELECT 
- 1 AS `id`,
- 1 AS `type`,
- 1 AS `actor_id`,
- 1 AS `repo_id`,
- 1 AS `public`,
- 1 AS `created_at`,
- 1 AS `org_id`*/;
-SET character_set_client = @saved_cs_client;
-
---
--- Temporary table structure for view `gha_view_last_week_texts`
---
-
-DROP TABLE IF EXISTS `gha_view_last_week_texts`;
-/*!50001 DROP VIEW IF EXISTS `gha_view_last_week_texts`*/;
-SET @saved_cs_client     = @@character_set_client;
-SET character_set_client = utf8;
-/*!50001 CREATE VIEW `gha_view_last_week_texts` AS SELECT 
- 1 AS `event_id`,
- 1 AS `body`,
- 1 AS `created_at`*/;
-SET character_set_client = @saved_cs_client;
-
---
--- Temporary table structure for view `gha_view_last_year_event_ids`
---
-
-DROP TABLE IF EXISTS `gha_view_last_year_event_ids`;
-/*!50001 DROP VIEW IF EXISTS `gha_view_last_year_event_ids`*/;
-SET @saved_cs_client     = @@character_set_client;
-SET character_set_client = utf8;
-/*!50001 CREATE VIEW `gha_view_last_year_event_ids` AS SELECT 
- 1 AS `id`,
- 1 AS `type`,
- 1 AS `actor_id`,
- 1 AS `repo_id`,
- 1 AS `public`,
- 1 AS `created_at`,
- 1 AS `org_id`*/;
-SET character_set_client = @saved_cs_client;
-
---
--- Temporary table structure for view `gha_view_last_year_texts`
---
-
-DROP TABLE IF EXISTS `gha_view_last_year_texts`;
-/*!50001 DROP VIEW IF EXISTS `gha_view_last_year_texts`*/;
-SET @saved_cs_client     = @@character_set_client;
-SET character_set_client = utf8;
-/*!50001 CREATE VIEW `gha_view_last_year_texts` AS SELECT 
- 1 AS `event_id`,
- 1 AS `body`,
- 1 AS `created_at`*/;
-SET character_set_client = @saved_cs_client;
-
---
--- Final view structure for view `gha_view_last_month_event_ids`
---
-
-/*!50001 DROP VIEW IF EXISTS `gha_view_last_month_event_ids`*/;
-/*!50001 SET @saved_cs_client          = @@character_set_client */;
-/*!50001 SET @saved_cs_results         = @@character_set_results */;
-/*!50001 SET @saved_col_connection     = @@collation_connection */;
-/*!50001 SET character_set_client      = utf8mb4 */;
-/*!50001 SET character_set_results     = utf8mb4 */;
-/*!50001 SET collation_connection      = utf8mb4_unicode_ci */;
-/*!50001 CREATE ALGORITHM=UNDEFINED */
-/*!50013 DEFINER=`gha_admin`@`localhost` SQL SECURITY DEFINER */
-/*!50001 VIEW `gha_view_last_month_event_ids` AS select `gha_events`.`id` AS `id`,`gha_events`.`type` AS `type`,`gha_events`.`actor_id` AS `actor_id`,`gha_events`.`repo_id` AS `repo_id`,`gha_events`.`public` AS `public`,`gha_events`.`created_at` AS `created_at`,`gha_events`.`org_id` AS `org_id` from `gha_events` where (`gha_events`.`created_at` >= (now() - interval 1 month)) */;
-/*!50001 SET character_set_client      = @saved_cs_client */;
-/*!50001 SET character_set_results     = @saved_cs_results */;
-/*!50001 SET collation_connection      = @saved_col_connection */;
-
---
--- Final view structure for view `gha_view_last_month_texts`
---
-
-/*!50001 DROP VIEW IF EXISTS `gha_view_last_month_texts`*/;
-/*!50001 SET @saved_cs_client          = @@character_set_client */;
-/*!50001 SET @saved_cs_results         = @@character_set_results */;
-/*!50001 SET @saved_col_connection     = @@collation_connection */;
-/*!50001 SET character_set_client      = utf8mb4 */;
-/*!50001 SET character_set_results     = utf8mb4 */;
-/*!50001 SET collation_connection      = utf8mb4_unicode_ci */;
-/*!50001 CREATE ALGORITHM=UNDEFINED */
-/*!50013 DEFINER=`gha_admin`@`localhost` SQL SECURITY DEFINER */
-/*!50001 VIEW `gha_view_last_month_texts` AS select `v`.`event_id` AS `event_id`,`v`.`body` AS `body`,`v`.`created_at` AS `created_at` from (`gha_texts` `v` join `gha_view_last_month_event_ids` `ev`) where (`ev`.`id` = `v`.`event_id`) */;
-/*!50001 SET character_set_client      = @saved_cs_client */;
-/*!50001 SET character_set_results     = @saved_cs_results */;
-/*!50001 SET collation_connection      = @saved_col_connection */;
-
---
--- Final view structure for view `gha_view_last_week_event_ids`
---
-
-/*!50001 DROP VIEW IF EXISTS `gha_view_last_week_event_ids`*/;
-/*!50001 SET @saved_cs_client          = @@character_set_client */;
-/*!50001 SET @saved_cs_results         = @@character_set_results */;
-/*!50001 SET @saved_col_connection     = @@collation_connection */;
-/*!50001 SET character_set_client      = utf8mb4 */;
-/*!50001 SET character_set_results     = utf8mb4 */;
-/*!50001 SET collation_connection      = utf8mb4_unicode_ci */;
-/*!50001 CREATE ALGORITHM=UNDEFINED */
-/*!50013 DEFINER=`gha_admin`@`localhost` SQL SECURITY DEFINER */
-/*!50001 VIEW `gha_view_last_week_event_ids` AS select `gha_events`.`id` AS `id`,`gha_events`.`type` AS `type`,`gha_events`.`actor_id` AS `actor_id`,`gha_events`.`repo_id` AS `repo_id`,`gha_events`.`public` AS `public`,`gha_events`.`created_at` AS `created_at`,`gha_events`.`org_id` AS `org_id` from `gha_events` where (`gha_events`.`created_at` >= (now() - interval 1 week)) */;
-/*!50001 SET character_set_client      = @saved_cs_client */;
-/*!50001 SET character_set_results     = @saved_cs_results */;
-/*!50001 SET collation_connection      = @saved_col_connection */;
-
---
--- Final view structure for view `gha_view_last_week_texts`
---
-
-/*!50001 DROP VIEW IF EXISTS `gha_view_last_week_texts`*/;
-/*!50001 SET @saved_cs_client          = @@character_set_client */;
-/*!50001 SET @saved_cs_results         = @@character_set_results */;
-/*!50001 SET @saved_col_connection     = @@collation_connection */;
-/*!50001 SET character_set_client      = utf8mb4 */;
-/*!50001 SET character_set_results     = utf8mb4 */;
-/*!50001 SET collation_connection      = utf8mb4_unicode_ci */;
-/*!50001 CREATE ALGORITHM=UNDEFINED */
-/*!50013 DEFINER=`gha_admin`@`localhost` SQL SECURITY DEFINER */
-/*!50001 VIEW `gha_view_last_week_texts` AS select `v`.`event_id` AS `event_id`,`v`.`body` AS `body`,`v`.`created_at` AS `created_at` from (`gha_texts` `v` join `gha_view_last_week_event_ids` `ev`) where (`ev`.`id` = `v`.`event_id`) */;
-/*!50001 SET character_set_client      = @saved_cs_client */;
-/*!50001 SET character_set_results     = @saved_cs_results */;
-/*!50001 SET collation_connection      = @saved_col_connection */;
-
---
--- Final view structure for view `gha_view_last_year_event_ids`
---
-
-/*!50001 DROP VIEW IF EXISTS `gha_view_last_year_event_ids`*/;
-/*!50001 SET @saved_cs_client          = @@character_set_client */;
-/*!50001 SET @saved_cs_results         = @@character_set_results */;
-/*!50001 SET @saved_col_connection     = @@collation_connection */;
-/*!50001 SET character_set_client      = utf8mb4 */;
-/*!50001 SET character_set_results     = utf8mb4 */;
-/*!50001 SET collation_connection      = utf8mb4_unicode_ci */;
-/*!50001 CREATE ALGORITHM=UNDEFINED */
-/*!50013 DEFINER=`gha_admin`@`localhost` SQL SECURITY DEFINER */
-/*!50001 VIEW `gha_view_last_year_event_ids` AS select `gha_events`.`id` AS `id`,`gha_events`.`type` AS `type`,`gha_events`.`actor_id` AS `actor_id`,`gha_events`.`repo_id` AS `repo_id`,`gha_events`.`public` AS `public`,`gha_events`.`created_at` AS `created_at`,`gha_events`.`org_id` AS `org_id` from `gha_events` where (`gha_events`.`created_at` >= (now() - interval 1 year)) */;
-/*!50001 SET character_set_client      = @saved_cs_client */;
-/*!50001 SET character_set_results     = @saved_cs_results */;
-/*!50001 SET collation_connection      = @saved_col_connection */;
-
---
--- Final view structure for view `gha_view_last_year_texts`
---
-
-/*!50001 DROP VIEW IF EXISTS `gha_view_last_year_texts`*/;
-/*!50001 SET @saved_cs_client          = @@character_set_client */;
-/*!50001 SET @saved_cs_results         = @@character_set_results */;
-/*!50001 SET @saved_col_connection     = @@collation_connection */;
-/*!50001 SET character_set_client      = utf8mb4 */;
-/*!50001 SET character_set_results     = utf8mb4 */;
-/*!50001 SET collation_connection      = utf8mb4_unicode_ci */;
-/*!50001 CREATE ALGORITHM=UNDEFINED */
-/*!50013 DEFINER=`gha_admin`@`localhost` SQL SECURITY DEFINER */
-/*!50001 VIEW `gha_view_last_year_texts` AS select `v`.`event_id` AS `event_id`,`v`.`body` AS `body`,`v`.`created_at` AS `created_at` from (`gha_texts` `v` join `gha_view_last_year_event_ids` `ev`) where (`ev`.`id` = `v`.`event_id`) */;
-/*!50001 SET character_set_client      = @saved_cs_client */;
-/*!50001 SET character_set_results     = @saved_cs_results */;
-/*!50001 SET collation_connection      = @saved_col_connection */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -1013,4 +811,4 @@ SET character_set_client = @saved_cs_client;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2017-08-18  5:53:27
+-- Dump completed on 2017-08-18  9:27:41
