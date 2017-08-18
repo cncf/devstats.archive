@@ -57,7 +57,7 @@ def sync(args)
 
   # Reviewers daily, weekly, monthly, yearly
   %w(d w m y).each do |period|
-    cmd = "./db2influx.rb reviewers_#{period} psql_metrics/reviewers.sql '#{to_ymd(from)}' '#{to_ymd(to)}' #{period}"
+    cmd = "./db2influx.rb reviewers_#{period} #{metrics_dir}/reviewers.sql '#{to_ymd(from)}' '#{to_ymd(to)}' #{period}"
     puts cmd
     res = system cmd
     unless res
