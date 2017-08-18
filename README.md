@@ -159,7 +159,7 @@ PostgreSQL:
 - Creates 17992 releases.
 - Creates 10682 release - asset connections.
 - Creates 670613 repos.
-- See <http://cncftest.io/all_3days_psql.sql.xz>
+- See <https://cncftest.io/web/all_3days_psql.sql.xz>
 
 3) Running on 3 Kubernetes orgs for 2017-01-01 - 2017-08-01:
 - Takes 7 hours 30 minutes.
@@ -167,7 +167,7 @@ PostgreSQL:
 
 4) Finally running on all Kubernetes org since real beginning (2015-08-06 22:00 UTC) until (2017-08-02 14:00 UTC):
 - Takes 11 hours 6 minutes (*really* 666 minutes)
-- Database dump is 5.01 Gb, XZ compressed dump is 154 Mb
+- Database dump is 5.01 Gb, XZ compressed dump is 267 Mb
 - Note that those counts include historical changes to objects (for example single issue can have multiple entries with dirrent state on different events)
 - Creates 38470 actors.
 - Creates 259 assets.
@@ -192,12 +192,12 @@ PostgreSQL:
 - Creates 490 releases.
 - Creates 259 release - asset connections.
 - Creates 87 repos.
-- See <http://cncftest.io:8080/k8s_psql.sql.xz>
+- See <https://cncftest.io/web/k8s_psql.sql.xz>
 
 # MySQL
 1) Running on all Kubernetes org since real beginning (2015-08-06 22:00 UTC) until (2017-08-18 06:00 UTC):
 - Takes about 20 hours (MySQL is a lot slower than Postgres)
-- Database dump is 5.17 Gb, XZ compressed dump is 154 Mb
+- Database dump is 5.17 Gb, XZ compressed dump is 249 Mb
 - Note that those counts include historical changes to objects (for example single issue can have multiple entries with dirrent state on different events)
 - Creates 39222 actors.
 - Creates 262 assets.
@@ -222,7 +222,7 @@ PostgreSQL:
 - Creates 510 releases.
 - Creates 262 release - asset connections.
 - Creates 90 repos.
-- See <http://cncftest.io:8080/k8s_mysql.sql.xz>
+- See <https://cncftest.io/web/k8s_mysql.sql.xz>
 
 # PostgreSQL database
 Setup:
@@ -537,7 +537,7 @@ You can visualise data using Grafana, see `./grafana/` directory.
 - Feed InfluxDB from Postgres: `GHA2DB_PSQL=1 GHA2DB_RESETIDB=1 PG_PASS='pwd' IDB_PASS='pwd' ./sync.sh`
 - Or Feed InfluxDB from MySQL: `GHA2DB_MYSQL=1 GHA2DB_RESETIDB=1 MYSQL_PASS='pwd' IDB_PASS='pwd' ./sync.sh`
 - To cleanup Docker images and start from scratch use `./grafana/docker_cleanup.sh`. This will not delete Your grafana config because it is stored in local volume `/var/lib/grafana`.
-- Output will be at: <http://cncftest.io:3000>, for example: <http://cncftest.io:3000/dashboard/db/reviewers?orgId=1>
+- Output will be at: <https://cncftest.io>, for example: <https://cncftest.io/dashboard/db/reviewers?orgId=1>
 - To recreate all Grafana stuff from scratch do: `GRAFANA_PASS='' INFLUXDB_PASS='' GHA2DB_PSQL=1 GHA2DB_RESETIDB=1 PG_PASS='' IDB_PASS='' ./grafana/reinit.sh`
 
 # Feeding InfluxDB & Grafana (wip)
@@ -561,3 +561,17 @@ To drop data from InfluxDB:
 - drop measurement reviewers
 - drop series from reviewers
 
+# To enable SSL Grafana:
+- First You need to install certbot, this is for example for Apache on Ubuntu 17.04:
+- `sudo apt-get update`
+- `sudo apt-get install software-properties-common`
+- `sudo add-apt-repository ppa:certbot/certbot`
+- `sudo apt-get update`
+- `sudo apt-get install python-certbot-apache`
+- `sudo certbot --apache`
+- Then You need to proxy apache https/SSL on prot 443 to http on port 3000 (this is where grafana docker container listens)
+- Then You need to proxy apache https/SSL on prot 10443 to http on port 8086 (this is where InfluxDB server listens)
+- Modified Apache config files are in `grafana/apache`, You need to check them and enable something similar on Your machine.
+- Your data source lives in https://<your_domain>:10443 (and https is served by Apache proxy to InfluxDB https:10443 -> http:8086)
+- Your Grafana lives in https://<your_domain> (and https is served by Apache proxy to Grafana https:443 -> http:3000)
+- Files in `grafana/apache` should be copied to `/etc/apache2` (see comments starting with `LG:`) and then `service apache2 restart`
