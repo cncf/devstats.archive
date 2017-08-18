@@ -533,10 +533,11 @@ Example call:
 
 You can visualise data using Grafana, see `./grafana/` directory.
 - Start grafana using `GRAFANA_PASS='password' ./grafana/grafana_start.sh`, this requires Docker.
+- Install InfluxDB locally via `apt-get install influxdb`
 - Start InfluxDB using `INFLUXDB_PASS='password' ./grafana/influxdb_setup.sh`, this requires Docker & previous command succesfully executed.
 - Feed InfluxDB from Postgres: `GHA2DB_PSQL=1 GHA2DB_RESETIDB=1 PG_PASS='pwd' IDB_PASS='pwd' ./sync.sh`
 - Or Feed InfluxDB from MySQL: `GHA2DB_MYSQL=1 GHA2DB_RESETIDB=1 MYSQL_PASS='pwd' IDB_PASS='pwd' ./sync.sh`
-- To cleanup Docker images and start from scratch use `./grafana/docker_cleanup.sh`. This will not delete Your grafana config because it is stored in local volume `/var/lib/grafana`.
+- To cleanup Docker Grafana image and start from scratch use `./grafana/docker_cleanup.sh`. This will not delete Your grafana config because it is stored in local volume `/var/lib/grafana`.
 - Output will be at: <https://cncftest.io>, for example: <https://cncftest.io/dashboard/db/reviewers?orgId=1>
 - To recreate all Grafana stuff from scratch do: `GRAFANA_PASS='' INFLUXDB_PASS='' GHA2DB_PSQL=1 GHA2DB_RESETIDB=1 PG_PASS='' IDB_PASS='' ./grafana/reinit.sh`
 
@@ -569,7 +570,7 @@ To drop data from InfluxDB:
 - `sudo apt-get update`
 - `sudo apt-get install python-certbot-apache`
 - `sudo certbot --apache`
-- Then You need to proxy apache https/SSL on prot 443 to http on port 3000 (this is where grafana docker container listens)
+- Then You need to proxy apache https/SSL on prot 443 to http on port 3000 (this is where grafana Docker container listens)
 - Then You need to proxy apache https/SSL on prot 10443 to http on port 8086 (this is where InfluxDB server listens)
 - Modified Apache config files are in `grafana/apache`, You need to check them and enable something similar on Your machine.
 - Your data source lives in https://<your_domain>:10443 (and https is served by Apache proxy to InfluxDB https:10443 -> http:8086)
