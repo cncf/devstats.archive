@@ -11,16 +11,6 @@ def structure
   # Connect to database
   c = conn
 
-  if $tools
-    # Drop in correct order
-    exec_sql(c, 'drop view if exists gha_view_last_year_texts')
-    exec_sql(c, 'drop view if exists gha_view_last_month_texts')
-    exec_sql(c, 'drop view if exists gha_view_last_week_texts')
-    exec_sql(c, 'drop view if exists gha_view_last_year_event_ids')
-    exec_sql(c, 'drop view if exists gha_view_last_month_event_ids')
-    exec_sql(c, 'drop view if exists gha_view_last_week_event_ids')
-  end
-
   # gha_events
   # {"id:String"=>48592, "type:String"=>48592, "actor:Hash"=>48592, "repo:Hash"=>48592, "payload:Hash"=>48592, "public:TrueClass"=>48592, "created_at:String"=>48592, "org:Hash"=>19451}
   # {"id"=>10, "type"=>29, "actor"=>278, "repo"=>290, "payload"=>216017, "public"=>4, "created_at"=>20, "org"=>230}
@@ -37,7 +27,8 @@ def structure
         'repo_id bigint not null, ' +
         'public boolean not null, ' +
         'created_at timestamp not null default \'1970-01-01 00:00:01\', ' +
-        'org_id bigint' +
+        'org_id bigint, ' +
+        'actor_login varchar(120) not null' +
         ')'
       )
     )
@@ -48,6 +39,7 @@ def structure
     exec_sql(c, 'create index events_repo_id_idx on gha_events(repo_id)')
     exec_sql(c, 'create index events_org_id_idx on gha_events(org_id)')
     exec_sql(c, 'create index events_created_at_idx on gha_events(created_at)')
+    exec_sql(c, 'create index events_actor_login_idx on gha_events(actor_login)')
   end
 
   # gha_actors
@@ -662,35 +654,6 @@ def structure
 
   # Tools (like views and functions needed for generating metrics)
   if $tools
-    # Get max date from gha_events
-    r = exec_sql(
-      c,
-      'select max(created_at) as max_created_at ' +
-      'from gha_events'
-    )
-    max_dt = $pg ? "'now'" : 'now()'
-    max_dt = "'#{r.first['max_created_at']}'" if r.first['max_created_at']
-
-    # Create
-    exec_sql(
-      c,
-      'create view gha_view_last_week_event_ids as ' +
-      'select * from gha_events where ' +
-      ($pg ? "created_at >= #{max_dt}::timestamp - '1 week'::interval" : "created_at >= #{max_dt} - interval 1 week")
-    )
-    exec_sql(
-      c,
-      'create view gha_view_last_month_event_ids as ' +
-      'select * from gha_events where ' +
-      ($pg ? "created_at >= #{max_dt}::timestamp - '1 month'::interval" : "created_at >= #{max_dt} - interval 1 month")
-    )
-    exec_sql(
-      c,
-      'create view gha_view_last_year_event_ids as ' +
-      'select * from gha_events where ' +
-      ($pg ? "created_at >= #{max_dt}::timestamp - '1 year'::interval" : "created_at >= #{max_dt} - interval 1 year")
-    )
-
     # Get max event_id from gha_texts
     r = exec_sql(
       c,
@@ -711,24 +674,6 @@ def structure
       "select event_id, body, created_at from gha_issues where body != '' and event_id > #{max_event_id} union " +
       "select event_id, title, created_at from gha_pull_requests where title != '' and event_id > #{max_event_id} union " +
       "select event_id, body, created_at from gha_pull_requests where body != '' and event_id > #{max_event_id}"
-    )
-    exec_sql(
-      c,
-      'create view gha_view_last_year_texts as ' +
-      'select v.* from gha_texts v, gha_view_last_year_event_ids ev ' +
-      'where ev.id = v.event_id'
-    )
-    exec_sql(
-      c,
-      'create view gha_view_last_month_texts as ' +
-      'select v.* from gha_texts v, gha_view_last_month_event_ids ev ' +
-      'where ev.id = v.event_id'
-    )
-    exec_sql(
-      c,
-      'create view gha_view_last_week_texts as ' +
-      'select v.* from gha_texts v, gha_view_last_week_event_ids ev ' +
-      'where ev.id = v.event_id'
     )
 
     # Get max event_id from gha_issues_events_labels

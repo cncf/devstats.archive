@@ -195,7 +195,7 @@ def write_to_pg(con, ev)
   exec_stmt(
     con,
     sid,
-    'insert into gha_events(id, type, actor_id, repo_id, public, created_at, org_id) ' + n_values(7),
+    'insert into gha_events(id, type, actor_id, repo_id, public, created_at, org_id, actor_login) ' + n_values(8),
     [
       event_id,
       ev['type'],
@@ -203,7 +203,8 @@ def write_to_pg(con, ev)
       ev['repo']['id'],
       ev['public'],
       parse_timestamp(ev['created_at']),
-      ev['org'] ? ev['org']['id'] : nil
+      ev['org'] ? ev['org']['id'] : nil,
+      ev['actor']['login']
     ]
   )
 

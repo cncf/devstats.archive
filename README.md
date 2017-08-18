@@ -167,7 +167,7 @@ PostgreSQL:
 
 4) Finally running on all Kubernetes org since real beginning (2015-08-06 22:00 UTC) until (2017-08-02 14:00 UTC):
 - Takes 11 hours 6 minutes (*really* 666 minutes)
-- Database dump is 4.8 Gb, XZ compressed dump is 154 Mb
+- Database dump is 5.01 Gb, XZ compressed dump is 154 Mb
 - Note that those counts include historical changes to objects (for example single issue can have multiple entries with dirrent state on different events)
 - Creates 38470 actors.
 - Creates 259 assets.
@@ -197,7 +197,7 @@ PostgreSQL:
 # MySQL
 1) Running on all Kubernetes org since real beginning (2015-08-06 22:00 UTC) until (2017-08-18 06:00 UTC):
 - Takes about 20 hours (MySQL is a lot slower than Postgres)
-- Database dump is 5.16 Gb, XZ compressed dump is 154 Mb
+- Database dump is 5.17 Gb, XZ compressed dump is 154 Mb
 - Note that those counts include historical changes to objects (for example single issue can have multiple entries with dirrent state on different events)
 - Creates 39222 actors.
 - Creates 262 assets.

@@ -134,7 +134,8 @@ CREATE TABLE gha_events (
     repo_id bigint NOT NULL,
     public boolean NOT NULL,
     created_at timestamp without time zone DEFAULT '1970-01-01 00:00:01'::timestamp without time zone NOT NULL,
-    org_id bigint
+    org_id bigint,
+    actor_login character varying(120) NOT NULL
 );
 
 
@@ -477,105 +478,6 @@ CREATE TABLE gha_texts (
 ALTER TABLE gha_texts OWNER TO gha_admin;
 
 --
--- Name: gha_view_last_month_event_ids; Type: VIEW; Schema: public; Owner: gha_admin
---
-
-CREATE VIEW gha_view_last_month_event_ids AS
- SELECT gha_events.id,
-    gha_events.type,
-    gha_events.actor_id,
-    gha_events.repo_id,
-    gha_events.public,
-    gha_events.created_at,
-    gha_events.org_id
-   FROM gha_events
-  WHERE (gha_events.created_at >= ('2017-08-18 05:51:54.891639'::timestamp without time zone - '1 mon'::interval));
-
-
-ALTER TABLE gha_view_last_month_event_ids OWNER TO gha_admin;
-
---
--- Name: gha_view_last_month_texts; Type: VIEW; Schema: public; Owner: gha_admin
---
-
-CREATE VIEW gha_view_last_month_texts AS
- SELECT v.event_id,
-    v.body,
-    v.created_at
-   FROM gha_texts v,
-    gha_view_last_month_event_ids ev
-  WHERE (ev.id = v.event_id);
-
-
-ALTER TABLE gha_view_last_month_texts OWNER TO gha_admin;
-
---
--- Name: gha_view_last_week_event_ids; Type: VIEW; Schema: public; Owner: gha_admin
---
-
-CREATE VIEW gha_view_last_week_event_ids AS
- SELECT gha_events.id,
-    gha_events.type,
-    gha_events.actor_id,
-    gha_events.repo_id,
-    gha_events.public,
-    gha_events.created_at,
-    gha_events.org_id
-   FROM gha_events
-  WHERE (gha_events.created_at >= ('2017-08-18 05:51:54.889662'::timestamp without time zone - '7 days'::interval));
-
-
-ALTER TABLE gha_view_last_week_event_ids OWNER TO gha_admin;
-
---
--- Name: gha_view_last_week_texts; Type: VIEW; Schema: public; Owner: gha_admin
---
-
-CREATE VIEW gha_view_last_week_texts AS
- SELECT v.event_id,
-    v.body,
-    v.created_at
-   FROM gha_texts v,
-    gha_view_last_week_event_ids ev
-  WHERE (ev.id = v.event_id);
-
-
-ALTER TABLE gha_view_last_week_texts OWNER TO gha_admin;
-
---
--- Name: gha_view_last_year_event_ids; Type: VIEW; Schema: public; Owner: gha_admin
---
-
-CREATE VIEW gha_view_last_year_event_ids AS
- SELECT gha_events.id,
-    gha_events.type,
-    gha_events.actor_id,
-    gha_events.repo_id,
-    gha_events.public,
-    gha_events.created_at,
-    gha_events.org_id
-   FROM gha_events
-  WHERE (gha_events.created_at >= ('2017-08-18 05:51:54.89327'::timestamp without time zone - '1 year'::interval));
-
-
-ALTER TABLE gha_view_last_year_event_ids OWNER TO gha_admin;
-
---
--- Name: gha_view_last_year_texts; Type: VIEW; Schema: public; Owner: gha_admin
---
-
-CREATE VIEW gha_view_last_year_texts AS
- SELECT v.event_id,
-    v.body,
-    v.created_at
-   FROM gha_texts v,
-    gha_view_last_year_event_ids ev
-  WHERE (ev.id = v.event_id);
-
-
-ALTER TABLE gha_view_last_year_texts OWNER TO gha_admin;
-
---
 -- Data for Name: gha_actors; Type: TABLE DATA; Schema: public; Owner: gha_admin
 --
 
@@ -619,7 +521,7 @@ COPY gha_commits (sha, event_id, author_name, message, is_distinct) FROM stdin;
 -- Data for Name: gha_events; Type: TABLE DATA; Schema: public; Owner: gha_admin
 --
 
-COPY gha_events (id, type, actor_id, repo_id, public, created_at, org_id) FROM stdin;
+COPY gha_events (id, type, actor_id, repo_id, public, created_at, org_id, actor_login) FROM stdin;
 \.
 
 
@@ -1076,6 +978,13 @@ CREATE INDEX commits_event_id_idx ON gha_commits USING btree (event_id);
 --
 
 CREATE INDEX events_actor_id_idx ON gha_events USING btree (actor_id);
+
+
+--
+-- Name: events_actor_login_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX events_actor_login_idx ON gha_events USING btree (actor_login);
 
 
 --

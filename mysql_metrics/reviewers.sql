@@ -1,16 +1,12 @@
 select
-  count(distinct a.id) as result
+  count(distinct actor_id) as result
 from
-  gha_events e,
-  gha_actors a
+  gha_events
 where
-  e.actor_id = a.id
---  and e.created_at >= '{{from}}'
---  and e.created_at < '{{to}}'
-  and a.login not in ('googlebot')
-  and a.login not like 'k8s-%'
+  actor_login not in ('googlebot')
+  and actor_login not like 'k8s-%'
   and (
-    e.id in (
+    id in (
       select
         min(event_id)
       from
@@ -22,7 +18,7 @@ where
       group by
         issue_id
     )
-    or e.id in (
+    or id in (
       select
         event_id
       from
@@ -31,5 +27,5 @@ where
         created_at >= '{{from}}'
         and created_at < '{{to}}'
         and preg_rlike('{^\\s*lgtm\\s*$}i', body)
-      )
     )
+  )

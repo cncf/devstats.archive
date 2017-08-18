@@ -8,7 +8,9 @@ from
         body from '(@kubernetes/sig-[\w-]+)(-bugs|-feature-request|-pr-review|-api-review|-misc|-proposal|-design-proposal|-test-failure)s?\s+'
       ) as sig 
     from 
-      gha_view_last_month_texts
+      gha_texts
+    where
+      created_at >= 'now'::timestamp - '1 month'::interval
   ) sel 
 where
   sel.sig is not null

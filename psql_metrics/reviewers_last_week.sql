@@ -1,27 +1,29 @@
 select
-  count(distinct a.id)
+  count(distinct actor_id)
 from
-  gha_events e,
-  gha_actors a
+  gha_events
 where
-  e.id in (
-    select
-      min(ev.id)
-    from
-      gha_issues_events_labels iel,
-      gha_view_last_week_event_ids ev
-    where
-      ev.id = iel.event_id
-      and iel.label_name in ('lgtm', 'LGTM')
-    group by issue_id
-    union
-    select
-      event_id
-    from
-      gha_view_last_week_texts
-    where
-      substring(body from '(?i)/^\s*/lgtm\s*$') is not null
+  actor_login not in ('googlebot')
+  and actor_login not like 'k8s-%'
+  and (
+    id in (
+      select
+        min(event_id)
+      from
+        gha_issues_events_labels
+      where
+        created_at >= 'now'::timestamp - '1 week'::interval
+        and label_name in ('lgtm', 'LGTM')
+      group by
+        issue_id
+    )
+    or id in (
+      select
+        event_id
+      from
+        gha_texts
+      where
+        created_at >= 'now'::timestamp - '1 week'::interval
+        and substring(body from '(?i)/^\s*/lgtm\s*$') is not null
+    )
   )
-and e.actor_id = a.id
-and a.login not in ('googlebot')
-and a.login not like 'k8s-%'
