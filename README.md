@@ -517,7 +517,7 @@ Rows: 1
 3) List reviewers (`time GHA2DB_PSQL=1 PG_PASS='pwd' ./runq.rb sql/list_*_reviewers.sql`):
 - Takes <30s for all time, generates long list (not pasted here)
 
-# Update/Sync tool
+# Update/Sync tool (wip)
 
 When You have imported all data You need - it needs to be updated periodically.
 GitHub archive generates new file every hour.
@@ -529,19 +529,32 @@ Example call:
 - `GHA2DB_PSQL=1 PG_PASS='pwd' IDB_PASS='pwd' ./sync.sh`
 - Add `GHA2DB_RESETIDB` environment variable to rebuild InfluxDB stats instead of update since last run
 
+WIP: sync.sh tool should be called by some kind of cron job to auto-update metrics every hour.
+
 # Grafana output
 
-You can visualise data using Grafana, see `./grafana/` directory.
-- Start grafana using `GRAFANA_PASS='password' ./grafana/grafana_start.sh`, this requires Docker.
+You can visualise data using Grafana, see `./grafana/` directory:
+
+Install Grafana using:
+- Follow: http://docs.grafana.org/installation/debian/
+- wget https://s3-us-west-2.amazonaws.com/grafana-releases/release/grafana_4.4.3_amd64.deb
+- sudo dpkg -i grafana_4.4.3_amd64.deb
+- sudo service grafana-server start
+
+Install & configure InfluxDB:
 - Install InfluxDB locally via `apt-get install influxdb`
-- Start InfluxDB using `INFLUXDB_PASS='password' ./grafana/influxdb_setup.sh`, this requires Docker & previous command succesfully executed.
+- Start InfluxDB using `INFLUXDB_PASS='password' ./grafana/influxdb_setup.sh`.
 - Feed InfluxDB from Postgres: `GHA2DB_PSQL=1 GHA2DB_RESETIDB=1 PG_PASS='pwd' IDB_PASS='pwd' ./sync.sh`
 - Or Feed InfluxDB from MySQL: `GHA2DB_MYSQL=1 GHA2DB_RESETIDB=1 MYSQL_PASS='pwd' IDB_PASS='pwd' ./sync.sh`
-- To cleanup Docker Grafana image and start from scratch use `./grafana/docker_cleanup.sh`. This will not delete Your grafana config because it is stored in local volume `/var/lib/grafana`.
 - Output will be at: <https://cncftest.io>, for example: <https://cncftest.io/dashboard/db/reviewers?orgId=1>
-- To recreate all Grafana stuff from scratch do: `GRAFANA_PASS='' INFLUXDB_PASS='' GHA2DB_PSQL=1 GHA2DB_RESETIDB=1 PG_PASS='' IDB_PASS='' ./grafana/reinit.sh`
 
-# Feeding InfluxDB & Grafana (wip)
+Alternate solution with Docker:
+- Start grafana using `GRAFANA_PASS='password' grafana/grafana_start.sh` to install Grafana & InfluxDB as docker containers (this requires Docker).
+- Start InfluxDB using `INFLUXDB_PASS='password' ./grafana/influxdb_setup.sh`, this requires Docker & previous command succesfully executed.
+- To cleanup Docker Grafana image and start from scratch use `./grafana/docker_cleanup.sh`. This will not delete Your grafana config because it is stored in local volume `/var/lib/grafana`.
+- To recreate all Docker Grafana/InfluxDB stuff from scratch do: `GRAFANA_PASS='' INFLUXDB_PASS='' GHA2DB_PSQL=1 GHA2DB_RESETIDB=1 PG_PASS='' IDB_PASS='' ./grafana/reinit.sh`
+
+# Feeding InfluxDB & Grafana:
 
 Feed InfluxDB using:
 - `GHA2DB_PSQL=1 PG_PASS='psql_pwd' IDB_PASS='influxdb_pwd' ./db2influx.rb reviewers_w psql_metrics/reviewers.sql '2015-08-03' '2017-08-21' w`
@@ -570,7 +583,7 @@ To drop data from InfluxDB:
 - `sudo apt-get update`
 - `sudo apt-get install python-certbot-apache`
 - `sudo certbot --apache`
-- Then You need to proxy apache https/SSL on prot 443 to http on port 3000 (this is where grafana Docker container listens)
+- Then You need to proxy apache https/SSL on prot 443 to http on port 3000 (this is where Grafana listens)
 - Then You need to proxy apache https/SSL on prot 10443 to http on port 8086 (this is where InfluxDB server listens)
 - Modified Apache config files are in `grafana/apache`, You need to check them and enable something similar on Your machine.
 - Your data source lives in https://<your_domain>:10443 (and https is served by Apache proxy to InfluxDB https:10443 -> http:8086)
