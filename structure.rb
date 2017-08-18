@@ -624,13 +624,15 @@ def structure
       create_table(
         'gha_texts(' +
         'event_id bigint, ' +
-        'body text' +
+        'body text, ' +
+        'created_at timestamp not null default \'1970-01-01 00:00:01\'' +
         ')'
       )
     )
   end
   if $index
     exec_sql(c, 'create index texts_event_id_idx on gha_texts(event_id)')
+    exec_sql(c, 'create index texts_created_at_idx on gha_texts(created_at)')
   end
 
   # This table is a kind of `materialized view` of issue event labels
@@ -701,13 +703,14 @@ def structure
     # Add texts to gha_texts table (or fill it initially)
     exec_sql(
       c,
-      'insert into gha_texts(event_id, body) ' +
-      "select event_id, body from gha_comments where body != '' and event_id > #{max_event_id} union " +
-      "select event_id, message from gha_commits where message != '' and event_id > #{max_event_id} union " +
-      "select event_id, title from gha_issues where title != '' and event_id > #{max_event_id}  union " +
-      "select event_id, body from gha_issues where body != '' and event_id > #{max_event_id} union " +
-      "select event_id, title from gha_pull_requests where title != '' and event_id > #{max_event_id} union " +
-      "select event_id, body from gha_pull_requests where body != '' and event_id > #{max_event_id}"
+      'insert into gha_texts(event_id, body, created_at) ' +
+      "select event_id, body, created_at from gha_comments where body != '' and event_id > #{max_event_id} union " +
+      'select c.event_id, c.message, e.created_at from gha_commits c, gha_events e ' +
+      "where c.event_id = e.id and c.message != '' and e.id > #{max_event_id} union " +
+      "select event_id, title, created_at from gha_issues where title != '' and event_id > #{max_event_id}  union " +
+      "select event_id, body, created_at from gha_issues where body != '' and event_id > #{max_event_id} union " +
+      "select event_id, title, created_at from gha_pull_requests where title != '' and event_id > #{max_event_id} union " +
+      "select event_id, body, created_at from gha_pull_requests where body != '' and event_id > #{max_event_id}"
     )
     exec_sql(
       c,
@@ -737,7 +740,7 @@ def structure
     max_event_id = 0
     max_event_id = "'#{r.first['max_event_id']}'" if r.first['max_event_id']
 
-    # Add texts to gha_texts table (or fill it initially)
+    # Add data to gha_issues_events_labels table (or fill it initially)
     exec_sql(
       c,
       'insert into gha_issues_events_labels(issue_id, event_id, label_id, label_name, created_at) ' +

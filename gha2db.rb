@@ -40,7 +40,7 @@ end
 # Create prepared statement, bind args, execute and destroy statement
 def exec_stmt(con, sid, stmt, args)
   args.each { |arg| arg = arg.gsub!("\000", '') if arg.is_a?(String) }
-  p [sid, stmt, args] if $debug >= 2
+  p [sid, stmt, args] if $debug >= 2 || ENV['GHA2DB_QOUT']
   if $pg
     con.prepare sid, stmt
     con.exec_prepared(sid, args).tap do

@@ -785,7 +785,9 @@ DROP TABLE IF EXISTS `gha_texts`;
 CREATE TABLE `gha_texts` (
   `event_id` bigint(20) DEFAULT NULL,
   `body` text COLLATE utf8mb4_unicode_ci,
-  KEY `texts_event_id_idx` (`event_id`)
+  `created_at` timestamp NOT NULL DEFAULT '1970-01-01 00:00:01',
+  KEY `texts_event_id_idx` (`event_id`),
+  KEY `texts_created_at_idx` (`created_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -826,7 +828,8 @@ SET @saved_cs_client     = @@character_set_client;
 SET character_set_client = utf8;
 /*!50001 CREATE VIEW `gha_view_last_month_texts` AS SELECT 
  1 AS `event_id`,
- 1 AS `body`*/;
+ 1 AS `body`,
+ 1 AS `created_at`*/;
 SET character_set_client = @saved_cs_client;
 
 --
@@ -857,7 +860,8 @@ SET @saved_cs_client     = @@character_set_client;
 SET character_set_client = utf8;
 /*!50001 CREATE VIEW `gha_view_last_week_texts` AS SELECT 
  1 AS `event_id`,
- 1 AS `body`*/;
+ 1 AS `body`,
+ 1 AS `created_at`*/;
 SET character_set_client = @saved_cs_client;
 
 --
@@ -888,7 +892,8 @@ SET @saved_cs_client     = @@character_set_client;
 SET character_set_client = utf8;
 /*!50001 CREATE VIEW `gha_view_last_year_texts` AS SELECT 
  1 AS `event_id`,
- 1 AS `body`*/;
+ 1 AS `body`,
+ 1 AS `created_at`*/;
 SET character_set_client = @saved_cs_client;
 
 --
@@ -922,7 +927,7 @@ SET character_set_client = @saved_cs_client;
 /*!50001 SET collation_connection      = utf8mb4_unicode_ci */;
 /*!50001 CREATE ALGORITHM=UNDEFINED */
 /*!50013 DEFINER=`gha_admin`@`localhost` SQL SECURITY DEFINER */
-/*!50001 VIEW `gha_view_last_month_texts` AS select `v`.`event_id` AS `event_id`,`v`.`body` AS `body` from (`gha_texts` `v` join `gha_view_last_month_event_ids` `ev`) where (`ev`.`id` = `v`.`event_id`) */;
+/*!50001 VIEW `gha_view_last_month_texts` AS select `v`.`event_id` AS `event_id`,`v`.`body` AS `body`,`v`.`created_at` AS `created_at` from (`gha_texts` `v` join `gha_view_last_month_event_ids` `ev`) where (`ev`.`id` = `v`.`event_id`) */;
 /*!50001 SET character_set_client      = @saved_cs_client */;
 /*!50001 SET character_set_results     = @saved_cs_results */;
 /*!50001 SET collation_connection      = @saved_col_connection */;
@@ -958,7 +963,7 @@ SET character_set_client = @saved_cs_client;
 /*!50001 SET collation_connection      = utf8mb4_unicode_ci */;
 /*!50001 CREATE ALGORITHM=UNDEFINED */
 /*!50013 DEFINER=`gha_admin`@`localhost` SQL SECURITY DEFINER */
-/*!50001 VIEW `gha_view_last_week_texts` AS select `v`.`event_id` AS `event_id`,`v`.`body` AS `body` from (`gha_texts` `v` join `gha_view_last_week_event_ids` `ev`) where (`ev`.`id` = `v`.`event_id`) */;
+/*!50001 VIEW `gha_view_last_week_texts` AS select `v`.`event_id` AS `event_id`,`v`.`body` AS `body`,`v`.`created_at` AS `created_at` from (`gha_texts` `v` join `gha_view_last_week_event_ids` `ev`) where (`ev`.`id` = `v`.`event_id`) */;
 /*!50001 SET character_set_client      = @saved_cs_client */;
 /*!50001 SET character_set_results     = @saved_cs_results */;
 /*!50001 SET collation_connection      = @saved_col_connection */;
@@ -994,7 +999,7 @@ SET character_set_client = @saved_cs_client;
 /*!50001 SET collation_connection      = utf8mb4_unicode_ci */;
 /*!50001 CREATE ALGORITHM=UNDEFINED */
 /*!50013 DEFINER=`gha_admin`@`localhost` SQL SECURITY DEFINER */
-/*!50001 VIEW `gha_view_last_year_texts` AS select `v`.`event_id` AS `event_id`,`v`.`body` AS `body` from (`gha_texts` `v` join `gha_view_last_year_event_ids` `ev`) where (`ev`.`id` = `v`.`event_id`) */;
+/*!50001 VIEW `gha_view_last_year_texts` AS select `v`.`event_id` AS `event_id`,`v`.`body` AS `body`,`v`.`created_at` AS `created_at` from (`gha_texts` `v` join `gha_view_last_year_event_ids` `ev`) where (`ev`.`id` = `v`.`event_id`) */;
 /*!50001 SET character_set_client      = @saved_cs_client */;
 /*!50001 SET character_set_results     = @saved_cs_results */;
 /*!50001 SET collation_connection      = @saved_col_connection */;
@@ -1008,4 +1013,4 @@ SET character_set_client = @saved_cs_client;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2017-08-17 14:49:54
+-- Dump completed on 2017-08-18  5:53:27

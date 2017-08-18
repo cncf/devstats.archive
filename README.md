@@ -37,6 +37,7 @@ You can tweak `gha2db.rb` by:
 - Set `GHA2DB_JSON` to save single events JSONs in `jsons/` directory
 - Set `GHA2DB_NODB` to skip DB processing at all (if `GHA2DB_JSON` not set it will parse all data from GHA, but do nothing with it)
 - Set `GHA2DB_DEBUG` set to 1 to see output for all events generated, set to 2 to see all SQL query parameters
+- Set `GHA2DB_QOUT` to see all SQL queries
 
 Examples in this shell script (some commented out, some not):
 
