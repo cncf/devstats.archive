@@ -39,7 +39,7 @@ rescue Mysql2::Error => e
 end
 
 def exec_sql(c, query)
-  # puts query
+  puts query if ENV['GHA2DB_QOUT']
   c.query(query)
 end
 
