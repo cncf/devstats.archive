@@ -9,7 +9,7 @@ and a.login not in ('googlebot')
 and a.login not like 'k8s-%'
 and (
   e.id in (
-    select 
+    select
       min(event_id)
     from
       gha_issues_events_labels
@@ -17,7 +17,7 @@ and (
       label_name in ('lgtm', 'LGTM')
     group by
       issue_id
-  ) 
+  )
   or e.id in (
     select
       event_id

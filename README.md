@@ -167,7 +167,7 @@ PostgreSQL:
 
 4) Finally running on all Kubernetes org since real beginning (2015-08-06 22:00 UTC) until (2017-08-02 14:00 UTC):
 - Takes 11 hours 6 minutes (*really* 666 minutes)
-- Database dump is 2820860403 bytes (2.8 Gb), XZ compressed dump is 154 Mb
+- Database dump is 4.8 Gb, XZ compressed dump is 154 Mb
 - Note that those counts include historical changes to objects (for example single issue can have multiple entries with dirrent state on different events)
 - Creates 38470 actors.
 - Creates 259 assets.
@@ -195,7 +195,34 @@ PostgreSQL:
 - See <http://cncftest.io:8080/k8s_psql.sql.xz>
 
 # MySQL
-1) No data yet, TODO: wip
+1) Running on all Kubernetes org since real beginning (2015-08-06 22:00 UTC) until (2017-08-18 06:00 UTC):
+- Takes about 20 hours (MySQL is a lot slower than Postgres)
+- Database dump is 5.16 Gb, XZ compressed dump is 154 Mb
+- Note that those counts include historical changes to objects (for example single issue can have multiple entries with dirrent state on different events)
+- Creates 39222 actors.
+- Creates 262 assets.
+- Creates 506629 branches.
+- Creates 915225 comments.
+- Creates 96166 commits.
+- Creates 1178301 events.
+- Creates 96166 event - commit connections.
+- Creates 793 event - page connections.
+- Creates 522872 forkees.
+- Creates 792780 issues.
+- Creates 230748 issue - assignee connections.
+- Creates 2406121 issue - label connections.
+- Creates 1488 labels.
+- Creates 192904 milestones.
+- Creates 3 orgs.
+- Creates 793 pages.
+- Creates 1178300 payloads.
+- Creates 253357 pull requests.
+- Creates 73876 pull request - assignee connections.
+- Creates 11902 pull request - requested reviewer connections.
+- Creates 510 releases.
+- Creates 262 release - asset connections.
+- Creates 90 repos.
+- See <http://cncftest.io:8080/k8s_mysql.sql.xz>
 
 # PostgreSQL database
 Setup:
