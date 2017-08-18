@@ -531,6 +531,10 @@ Example call:
 
 WIP: sync.sh tool should be called by some kind of cron job to auto-update metrics every hour.
 
+For now there is a manual script that can be used to loop sync every defined numeber of seconds, for example for sync every 30 minutes:
+
+`GHA2DB_MYSQL=1 MYSQL_PASS='pwd' IDB_PASS='pwd' ./syncer.sh 1800`
+
 # Grafana output
 
 You can visualise data using Grafana, see `./grafana/` directory:
