@@ -66,6 +66,17 @@ def sync(args)
     end
   end
 
+  # SIG mentions daily, weekly, monthly, yearly
+  %w(d w m y).each do |period|
+    cmd = "./db2influx.rb sig_metions_data #{metrics_dir}/sig_mentions.sql '#{to_ymd(from)}' '#{to_ymd(to)}' #{period}"
+    puts cmd
+    res = system cmd
+    unless res
+      puts "Command failed: '#{cmd}'"
+      exit 1
+    end
+  end
+
   puts "Sync success"
 end
 
