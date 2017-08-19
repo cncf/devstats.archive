@@ -19,6 +19,7 @@ require 'pry'
 # Database user: MYSQL_USER or 'gha_admin'
 # Database password: MYSQL_PASS || 'password'
 
+# rubocop:disable Style/GlobalVars
 $mysql = true
 $DBError = Mysql2::Error
 
@@ -54,7 +55,7 @@ def n_values(n)
   s[0..-3] + ')'
 end
 
-def n_value(index)
+def n_value(_)
   '?'
 end
 
@@ -70,5 +71,6 @@ def parse_timestamp(tval)
   y = tval[0..3].to_i
   return '1970-01-01 00:00:01' if y < 1970
   return '2038-01-19 03:14:07' if y > 2038
-  Time.parse(tval)
+  Time.parse(tval).utc
 end
+# rubocop:enable Style/GlobalVars

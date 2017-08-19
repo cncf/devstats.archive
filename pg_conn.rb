@@ -17,6 +17,7 @@ require 'pry'
 # Database user: PG_USER or 'gha_admin'
 # Database password: PG_PASS || 'password'
 
+# rubocop:disable Style/GlobalVars
 $pg = true
 $DBError = PG::Error
 
@@ -63,5 +64,6 @@ def create_table(tdef)
 end
 
 def parse_timestamp(tval)
-  Time.parse(tval)
+  Time.parse(tval).utc
 end
+# rubocop:enable Style/GlobalVars

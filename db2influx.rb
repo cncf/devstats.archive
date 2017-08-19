@@ -48,7 +48,7 @@ def threaded_db2influx(series_name_or_func, sql, period, from, to)
     ic.write_point(name, data)
   elsif r.count.positive? && r.first.keys.count == 2
     r.each do |row|
-      name, value = public_send(series_name_or_func, row, period)
+      name, value = __send__(series_name_or_func, row, period)
       puts "#{from.to_date} - #{to.to_date} -> #{name}, #{value}" if $debug.positive?
       data = {
         values: { value: value },
@@ -86,14 +86,14 @@ def db2influx(series_name_or_func, sql_file, from, to, interval_abbr)
     when 'y' then 'year'
     else raise Exception, "Unknown interval #{interval}"
     end
-  d_from = public_send("#{interval}_start", d_from)
-  d_to = public_send("next_#{interval}_start", d_to)
+  d_from = __send__("#{interval}_start", d_from)
+  d_to = __send__("next_#{interval}_start", d_to)
   puts "Running: #{d_from} - #{d_to} with interval #{interval}"
   dt = d_from
   if $thr_n > 1
     thr_pool = []
     while dt < d_to
-      ndt = public_send("next_#{interval}_start", dt)
+      ndt = __send__("next_#{interval}_start", dt)
       thr =
         Thread.new(dt, ndt) do |adtf, adtt|
           threaded_db2influx(series_name_or_func, sql, interval_abbr, adtf, adtt)
@@ -113,7 +113,7 @@ def db2influx(series_name_or_func, sql_file, from, to, interval_abbr)
   else
     puts 'Using single threaded version'
     while dt < d_to
-      ndt = public_send("next_#{interval}_start", dt)
+      ndt = __send__("next_#{interval}_start", dt)
       threaded_db2influx(series_name_or_func, sql, interval_abbr, dt, ndt)
       dt = ndt
     end
