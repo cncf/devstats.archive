@@ -1,4 +1,5 @@
 # Global variables to specify which DB is used and error class
+# rubocop:disable Style/GlobalVars
 $pg = false
 $mysql = false
 $DBError = nil
@@ -10,5 +11,6 @@ elsif ENV['GHA2DB_MYSQL']
   # All MySQL connection details here
   require './mysql_conn'
 else
-  raise "You need to set `GHA2DB_PSQL` or `GHA2DB_MYSQL` environment variable."
+  raise Exception, 'You need to set `GHA2DB_PSQL` or `GHA2DB_MYSQL` environment variable.'
 end
+# rubocop:enable Style/GlobalVars

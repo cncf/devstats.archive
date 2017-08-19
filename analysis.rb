@@ -3,14 +3,18 @@
 require 'json'
 require 'pry'
 
-# Outputs object structure (without data), to compare if different objects are representing similar data
+# Outputs object structure (without data), to compare if different objects
+# are representing similar data
 # s: output string
 # o: object
 # ie: ignore empty arrays and empty hashes - skip adding {}, [] in such cases
 # is: ignore scalars: true ==> will not output data types, false => will output values data type
-# md: max depth (recursion depth), 1 will only search top level fields, 2 will look in one level deeper etc
+# md: max depth (recursion depth):
+#   1 will only search top level fields
+#   2 will look in one level deeper etc
 # d: current depth (used automatically in recursion)
-def object_structure(s, o, ie=false, is=false, md=nil, d=0)
+# rubocop:disable Metrics/ParameterLists, Lint/Debugger
+def object_structure(s, o, ie = false, is = false, md = nil, d = 0)
   case o
   when Hash
     if !md || d < md
@@ -31,7 +35,7 @@ def object_structure(s, o, ie=false, is=false, md=nil, d=0)
       r = '[' + object_structure('', v, ie, is, md, d + 1) + ']'
       nd = o.map(&:class).uniq.count
       if nd >= 2
-        puts "Non unique type array elements"
+        puts 'Non unique type array elements'
         p o
         binding.pry
       end
@@ -47,10 +51,8 @@ def object_structure(s, o, ie=false, is=false, md=nil, d=0)
     s += '(string)' unless is
   when Symbol
     s += '(symbol)' unless is
-  when Fixnum
-    s += '(fixnum)' unless is
-  when Bignum
-    s += '(bignum)' unless is
+  when Integer
+    s += '(integer)' unless is
   when Float
     s += '(float)' unless is
   when Time, Date, DateTime
@@ -61,7 +63,7 @@ def object_structure(s, o, ie=false, is=false, md=nil, d=0)
   end
   s
 end
-
+# rubocop:enable Metrics/ParameterLists
 
 # Analysis of JSON data to determine PSQL tables to create
 def analysis(jsons)
@@ -73,10 +75,10 @@ def analysis(jsons)
     h = JSON.parse(File.read(json)).to_h
     oh = h
     # Leave h "as is" to investigate top level DB table
-    # h = h['actor']      # Investigate gha_actors table
-    # h = h['repo']       # Investigate gha_repos table
-    # h = h['org']        # Investigate gha_orgs table
-    h = h['payload']    # Investigate gha_payloads table (most complex)
+    # h = h['actor']
+    # h = h['repo']
+    # h = h['org']
+    h = h['payload']
     next unless h
     h = h['pull_request']
     next unless h
@@ -116,11 +118,23 @@ def analysis(jsons)
   binding.pry if strs.keys.length > 1
 end
 
+# rubocop:enable Lint/Debugger
+
 analysis(ARGV)
 
-# gha_events: {"id:String"=>48592, "type:String"=>48592, "actor:Hash"=>48592, "repo:Hash"=>48592, "payload:Hash"=>48592, "public:TrueClass"=>48592, "created_at:String"=>48592, "org:Hash"=>19451}
-# gha_actors: {"id:Fixnum"=>48592, "login:String"=>48592, "display_login:String"=>48592, "gravatar_id:String"=>48592, "url:String"=>48592, "avatar_url:String"=>48592}
+# gha_events: {"id:String"=>48592, "type:String"=>48592, "actor:Hash"=>48592, "repo:Hash"=>48592,
+# "payload:Hash"=>48592, "public:TrueClass"=>48592, "created_at:String"=>48592, "org:Hash"=>19451}
+# gha_actors: {"id:Fixnum"=>48592, "login:String"=>48592, "display_login:String"=>48592,
+# "gravatar_id:String"=>48592, "url:String"=>48592, "avatar_url:String"=>48592}
 # gha_repos: {"id:Fixnum"=>48592, "name:String"=>48592, "url:String"=>48592}
-# gha_orgs: {"id:Fixnum"=>18494, "login:String"=>18494, "gravatar_id:String"=>18494, "url:String"=>18494, "avatar_url:String"=>18494}
-# gha_payloads: {"push_id:Fixnum"=>24636, "size:Fixnum"=>24636, "distinct_size:Fixnum"=>24636, "ref:String"=>30522, "head:String"=>24636, "before:String"=>24636, "commits:Array"=>24636, "action:String"=>14317, "issue:Hash"=>6446, "comment:Hash"=>6055, "ref_type:String"=>8010, "master_branch:String"=>6724, "description:String"=>3701, "pusher_type:String"=>8010, "pull_request:Hash"=>4475, "ref:NilClass"=>2124, "description:NilClass"=>3023, "number:Fixnum"=>2992, "forkee:Hash"=>1211, "pages:Array"=>370, "release:Hash"=>156, "member:Hash"=>219}
-# gha_commits: {"sha:String"=>23265, "author:Hash"=>23265, "message:String"=>23265, "distinct:TrueClass"=>21789, "url:String"=>23265, "distinct:FalseClass"=>1476}
+# gha_orgs: {"id:Fixnum"=>18494, "login:String"=>18494, "gravatar_id:String"=>18494,
+# "url:String"=>18494, "avatar_url:String"=>18494}
+# gha_payloads: {"push_id:Fixnum"=>24636, "size:Fixnum"=>24636, "distinct_size:Fixnum"=>24636,
+# "ref:String"=>30522, "head:String"=>24636, "before:String"=>24636, "commits:Array"=>24636,
+# "action:String"=>14317, "issue:Hash"=>6446, "comment:Hash"=>6055, "ref_type:String"=>8010,
+# "master_branch:String"=>6724, "description:String"=>3701, "pusher_type:String"=>8010,
+# "pull_request:Hash"=>4475, "ref:NilClass"=>2124, "description:NilClass"=>3023,
+# "number:Fixnum"=>2992, "forkee:Hash"=>1211, "pages:Array"=>370, "release:Hash"=>156,
+# "member:Hash"=>219}
+# gha_commits: {"sha:String"=>23265, "author:Hash"=>23265, "message:String"=>23265,
+# "distinct:TrueClass"=>21789, "url:String"=>23265, "distinct:FalseClass"=>1476}
