@@ -528,6 +528,7 @@ Example call:
 - `GHA2DB_MYSQL=1 MYSQL_PASS='pwd' IDB_PASS='pwd' ./sync.sh`
 - `GHA2DB_PSQL=1 PG_PASS='pwd' IDB_PASS='pwd' ./sync.sh`
 - Add `GHA2DB_RESETIDB` environment variable to rebuild InfluxDB stats instead of update since last run
+- Add `GHA2DB_SKIPIDB` environment variable to skip syncing InfluxDB (so it will only sync Postgres or MySQL)
 
 WIP: sync.sh tool should be called by some kind of cron job to auto-update metrics every hour.
 
