@@ -18,7 +18,7 @@ $thr_n = 1 if ENV['GHA2DB_ST']
 # Returns InfluxDB series name and value
 def sig_metions_data(sig_row, period)
   [
-    sig_row['sig'].gsub('-', '_').downcase + '_' + period,
+    sig_row['sig'].gsub('-', '_') + '_' + period,
     sig_row.values.last.to_i
   ]
 end
@@ -50,8 +50,8 @@ def threaded_db2influx(series_name_or_func, sql, period, from, to)
       data = {
         values: { value: value },
         timestamp: ts
-     }
-     ic.write_point(name, data)
+      }
+      ic.write_point(name, data)
     end
   else
     raise "Wrong query:\n#{q}\nMetrics query should either return single row with single value or at least 1 row, each with two values"
