@@ -1,5 +1,6 @@
 #!/usr/bin/env ruby
 
+# rubocop:disable Style/GlobalVars
 require 'pry'
 require './time_stuff'
 require './conn' # All database details & setup there
@@ -15,15 +16,16 @@ def sync(args)
   # Get max date from gha_events
   r = exec_sql(
     con,
-    'select max(created_at) as max_created_at ' +
+    'select max(created_at) as max_created_at '\
     'from gha_events'
   )
   max_dt = $pg ? "'now'" : 'now()'
   max_dt = "'#{r.first['max_created_at']}'" if r.first['max_created_at']
 
   # Create date range
-  from = Time.parse(max_dt) + 300
-  to = Time.now
+  # Just to get into next GHA hour
+  from = Time.parse(max_dt).utc + 300
+  to = Time.now.utc
   from_date = from.strftime('%Y-%m-%d')
   from_hour = from.hour.to_s
   to_date = to.strftime('%Y-%m-%d')
@@ -31,7 +33,8 @@ def sync(args)
 
   # Get new GHAs
   puts "Range: #{from_date} #{from_hour} - #{to_date} #{to_hour}"
-  cmd = "./gha2db.rb #{from_date} #{from_hour} #{to_date} #{to_hour} #{org.join(',')} #{repo.join(',')}"
+  cmd = "./gha2db.rb #{from_date} #{from_hour} #{to_date} "\
+        "#{to_hour} #{org.join(',')} #{repo.join(',')}"
   puts cmd
   res = system cmd
   unless res
@@ -43,7 +46,7 @@ def sync(args)
   cmd = './structure.rb'
   puts cmd
   res = system(
-    {'GHA2DB_SKIPTABLE' => '1', 'GHA2DB_MGETC' => 'y'},
+    { 'GHA2DB_SKIPTABLE' => '1', 'GHA2DB_MGETC' => 'y' },
     cmd
   )
   unless res
@@ -53,11 +56,12 @@ def sync(args)
 
   # DB2Influx
   metrics_dir = $pg ? 'psql_metrics' : 'mysql_metrics'
-  from = Time.parse('2015-08-01') if ENV['GHA2DB_RESETIDB']
+  from = Time.parse('2015-08-01').utc if ENV['GHA2DB_RESETIDB']
 
   # Reviewers daily, weekly, monthly, yearly
-  %w(d w m y).each do |period|
-    cmd = "./db2influx.rb reviewers_#{period} #{metrics_dir}/reviewers.sql '#{to_ymd(from)}' '#{to_ymd(to)}' #{period}"
+  %w[d w m y].each do |period|
+    cmd = "./db2influx.rb reviewers_#{period} #{metrics_dir}/reviewers.sql "\
+          "'#{to_ymd(from)}' '#{to_ymd(to)}' #{period}"
     puts cmd
     res = system cmd
     unless res
@@ -67,8 +71,9 @@ def sync(args)
   end
 
   # SIG mentions daily, weekly, monthly, yearly
-  %w(d w m y).each do |period|
-    cmd = "./db2influx.rb sig_metions_data #{metrics_dir}/sig_mentions.sql '#{to_ymd(from)}' '#{to_ymd(to)}' #{period}"
+  %w[d w m y].each do |period|
+    cmd = "./db2influx.rb sig_metions_data #{metrics_dir}/sig_mentions.sql "\
+          "'#{to_ymd(from)}' '#{to_ymd(to)}' #{period}"
     puts cmd
     res = system cmd
     unless res
@@ -77,7 +82,8 @@ def sync(args)
     end
   end
 
-  puts "Sync success"
+  puts 'Sync success'
 end
 
 sync(ARGV)
+# rubocop:enable Style/GlobalVars

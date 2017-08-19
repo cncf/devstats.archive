@@ -10,7 +10,7 @@ def seconds_in_week
 end
 
 def day_start(dt)
-  dt.to_date.to_time
+  dt.to_date.to_time.utc
 end
 
 def next_day_start(dt)
@@ -25,11 +25,11 @@ def next_month_start(dt)
     m = 1
     y += 1
   end
-  Time.new y, m
+  Time.new(y, m).utc
 end
 
 def next_year_start(dt)
-  Time.new dt.year + 1
+  Time.new(dt.year + 1).utc
 end
 
 def week_start(dt)
@@ -41,11 +41,11 @@ def next_week_start(dt)
 end
 
 def month_start(dt)
-  Time.new dt.year, dt.month
+  Time.new(dt.year, dt.month).utc
 end
 
 def year_start(dt)
-  Time.new dt.year
+  Time.new(dt.year).utc
 end
 
 def to_ymd(dt)

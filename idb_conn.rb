@@ -14,16 +14,14 @@ require 'pry'
 def idb_conn
   # Connect to database
   InfluxDB::Client.new(
-    ENV['IDB_DB'] || 'gha', 
-    {
-      host: ENV['IDB_HOST'] || 'localhost',
-      port: (ENV['IDB_PORT'] || '8086').to_i,
-      username: ENV['IDB_USER'] || 'gha_admin',
-      password: ENV['IDB_PASS'] || 'password',
-      retry: false
-    }
+    ENV['IDB_DB'] || 'gha',
+    host: ENV['IDB_HOST'] || 'localhost',
+    port: (ENV['IDB_PORT'] || '8086').to_i,
+    username: ENV['IDB_USER'] || 'gha_admin',
+    password: ENV['IDB_PASS'] || 'password',
+    retry: false
   )
-rescue Exception => e
+rescue => e
   puts [e.class, e.message]
   exit(1)
 end
