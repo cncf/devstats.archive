@@ -559,7 +559,9 @@ Alternate solution with Docker:
 - To recreate all Docker Grafana/InfluxDB stuff from scratch do: `GRAFANA_PASS='' INFLUXDB_PASS='' GHA2DB_PSQL=1 GHA2DB_RESETIDB=1 PG_PASS='' IDB_PASS='' ./grafana/reinit.sh`
 
 To drop & recreate InfluxDB:
-- INFLUXDB_PASS='idb_password' ./grafana/influxdb_recreate.sh
+- `INFLUXDB_PASS='idb_password' ./grafana/influxdb_recreate.sh`
+- `GHA2DB_RESETIDB=1 GHA2DB_MYSQL=1 MYSQL_PASS='pwd' IDB_PASS='pwd' ./sync.sh`
+- Then eventually start syncer: `GHA2DB_MYSQL=1 MYSQL_PASS='pwd' IDB_PASS='pwd' ./syncer.sh 1800`
 
 # Feeding InfluxDB & Grafana:
 
