@@ -55,30 +55,32 @@ def sync(args)
   end
 
   # DB2Influx
-  metrics_dir = $pg ? 'psql_metrics' : 'mysql_metrics'
-  from = Time.parse('2015-08-01').utc if ENV['GHA2DB_RESETIDB']
+  unless ENV['GHA2DB_SKIPIDB']
+    metrics_dir = $pg ? 'psql_metrics' : 'mysql_metrics'
+    from = Time.parse('2015-08-01').utc if ENV['GHA2DB_RESETIDB']
 
-  # Reviewers daily, weekly, monthly, yearly
-  %w[d w m y].each do |period|
-    cmd = "./db2influx.rb reviewers_#{period} #{metrics_dir}/reviewers.sql "\
-          "'#{to_ymd(from)}' '#{to_ymd(to)}' #{period}"
-    puts cmd
-    res = system cmd
-    unless res
-      puts "Command failed: '#{cmd}'"
-      exit 1
+    # Reviewers daily, weekly, monthly, yearly
+    %w[d w m y].each do |period|
+      cmd = "./db2influx.rb reviewers_#{period} #{metrics_dir}/reviewers.sql "\
+            "'#{to_ymd(from)}' '#{to_ymd(to)}' #{period}"
+      puts cmd
+      res = system cmd
+      unless res
+        puts "Command failed: '#{cmd}'"
+        exit 1
+      end
     end
-  end
 
-  # SIG mentions daily, weekly, monthly, yearly
-  %w[d w m y].each do |period|
-    cmd = "./db2influx.rb sig_metions_data #{metrics_dir}/sig_mentions.sql "\
-          "'#{to_ymd(from)}' '#{to_ymd(to)}' #{period}"
-    puts cmd
-    res = system cmd
-    unless res
-      puts "Command failed: '#{cmd}'"
-      exit 1
+    # SIG mentions daily, weekly, monthly, yearly
+    %w[d w m y].each do |period|
+      cmd = "./db2influx.rb sig_metions_data #{metrics_dir}/sig_mentions.sql "\
+            "'#{to_ymd(from)}' '#{to_ymd(to)}' #{period}"
+      puts cmd
+      res = system cmd
+      unless res
+        puts "Command failed: '#{cmd}'"
+        exit 1
+      end
     end
   end
 
