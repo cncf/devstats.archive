@@ -558,10 +558,18 @@ Alternate solution with Docker:
 - To cleanup Docker Grafana image and start from scratch use `./grafana/docker_cleanup.sh`. This will not delete Your grafana config because it is stored in local volume `/var/lib/grafana`.
 - To recreate all Docker Grafana/InfluxDB stuff from scratch do: `GRAFANA_PASS='' INFLUXDB_PASS='' GHA2DB_PSQL=1 GHA2DB_RESETIDB=1 PG_PASS='' IDB_PASS='' ./grafana/reinit.sh`
 
+To drop & recreate InfluxDB:
+- INFLUXDB_PASS='idb_password' ./grafana/influxdb_recreate.sh
+
 # Feeding InfluxDB & Grafana:
 
 Feed InfluxDB using:
 - `GHA2DB_PSQL=1 PG_PASS='psql_pwd' IDB_PASS='influxdb_pwd' ./db2influx.rb reviewers_w psql_metrics/reviewers.sql '2015-08-03' '2017-08-21' w`
+- `GHA2DB_MYSQL=1 MYSQL_PASS='mysql_pwd' IDB_PASS='influxdb_pwd' ./db2influx.rb sig_metions_data mysql_metrics/sig_mentions.sql '2017-08-14' '2017-08-21' d`
+- First parameter is used as exact series name when metrics query returns single row with single column value.
+- First parameter is used as function name when metrics query return mutiple rows, each with two columns. This function receives data row and period name and should return series name and value.
+- Second parameter is a metrics SQL file, it should contain time conditions defined as `'{{from}}'` and `'{{to}}'`.
+- Next two parameters are date ranges.
 - Last parameter can be d, w, m, y (day, week, month, year).
 - This tool uses environmental variables starting with `IDB_`, please see `idb_conn.rb` and `db2influx.rb` for details.
 - `IDB_` variables are exactly the same as `PG_` and `MYSQL_` to set host, databaxe, user name, password.

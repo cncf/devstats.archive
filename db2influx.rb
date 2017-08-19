@@ -14,24 +14,48 @@ puts "Available #{$thr_n} processors"
 # Use environment variable to have singlethreaded version
 $thr_n = 1 if ENV['GHA2DB_ST']
 
-def threaded_db2influx(series_name, sql, p_name, from, to)
+# This receives SIG mentions row and period name
+# Returns InfluxDB series name and value
+def sig_metions_data(sig_row, period)
+  [
+    sig_row['sig'].gsub('-', '_').downcase + '_' + period,
+    sig_row.values.last.to_i
+  ]
+end
+
+def threaded_db2influx(series_name_or_func, sql, period, from, to)
   sqlc = conn
   ic = idb_conn
   s_from = from.to_s[0..-7]
   s_to = to.to_s[0..-7]
   q = sql.gsub('{{from}}', s_from).gsub('{{to}}', s_to)
   r = exec_sql(sqlc, q)
-  n = r.first['result'].to_i
+  return if r.count == 0
   # ts = (from.to_i + to.to_i) / 2
   ts = from.to_i
   # ts = to.to_i
-  puts "#{from.to_date} - #{to.to_date} -> #{n}" if $debug
-  data = {
-    values: { value: n },
-    # tags: { period: p_name },
-    timestamp: ts
-  }
-  ic.write_point(series_name, data)
+  if r.count == 1 && r.first.keys.count == 1
+    value = r.first.values.first.to_i
+    name = series_name_or_func
+    puts "#{from.to_date} - #{to.to_date} -> #{name}, #{value}" if $debug > 0
+    data = {
+      values: { value: value },
+      timestamp: ts
+   }
+   ic.write_point(name, data)
+  elsif r.count > 0 && r.first.keys.count == 2
+    r.each do |row|
+      name, value = send(series_name_or_func, row, period)
+      puts "#{from.to_date} - #{to.to_date} -> #{name}, #{value}" if $debug > 0
+      data = {
+        values: { value: value },
+        timestamp: ts
+     }
+     ic.write_point(name, data)
+    end
+  else
+    raise "Wrong query:\n#{q}\nMetrics query should either return single row with single value or at least 1 row, each with two values"
+  end
 rescue InfluxDB::ConnectionError => e
   puts e.message
   exit(1)
@@ -42,12 +66,12 @@ ensure
   sqlc.close if sqlc
 end
 
-def db2influx(series_name, sql_file, from, to, interval)
+def db2influx(series_name_or_func, sql_file, from, to, interval_abbr)
   # Connect to database
   sql = File.read(sql_file)
   d_from = Time.parse(from)
   d_to = Time.parse(to)
-  interval = case interval.downcase
+  interval = case interval_abbr.downcase
     when 'd' then 'day'
     when 'w' then 'week'
     when 'm' then 'month'
@@ -62,7 +86,7 @@ def db2influx(series_name, sql_file, from, to, interval)
     thr_pool = []
     while dt < d_to
       ndt = send("next_#{interval}_start", dt)
-      thr = Thread.new(dt, ndt) { |adtf, adtt| threaded_db2influx(series_name, sql, interval, adtf, adtt) }
+      thr = Thread.new(dt, ndt) { |adtf, adtt| threaded_db2influx(series_name_or_func, sql, interval_abbr, adtf, adtt) }
       thr_pool << thr
       dt = ndt
       if thr_pool.length == $thr_n
@@ -77,7 +101,7 @@ def db2influx(series_name, sql_file, from, to, interval)
     puts "Using single threaded version"
     while dt < d_to
       ndt = send("next_#{interval}_start", dt)
-      threaded_db2influx(series_name, sql, interval, dt, ndt)
+      threaded_db2influx(series_name_or_func, sql, interval_abbr, dt, ndt)
       dt = ndt
     end
   end
@@ -88,7 +112,10 @@ rescue Exception => e
 end
 
 if ARGV.count < 5
-  puts "Required series name, SQL file name, from, to, period [name some.sql '2015-08-03' '2017-08-21' d|w|m|y"
+  puts "Required series name, SQL file name, from, to, period [series_name_or_func some.sql '2015-08-03' '2017-08-21' d|w|m|y"
+  puts "Series name (series_name_or_func) will become exact series name if query return just single numeric value"
+  puts "For queries returning multiple rows 'series_name_or_func' will be used as function that"
+  puts "receives data row and period and returns name and value for it"
   exit 1
 end
 
