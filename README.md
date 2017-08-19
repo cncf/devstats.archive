@@ -587,6 +587,14 @@ To drop data from InfluxDB:
 - drop measurement reviewers
 - drop series from reviewers
 
+# Grafana dashboards
+Grafana allows to save dashboards to JSON files.
+There are few defined dashboards in `grafana/dashboard/` directory.
+
+Currently:
+- Reviewers dashboard: `reviewers.sql`
+- SIG mentions dashboard `sig_metntions.json`
+
 # To enable SSL Grafana:
 - First You need to install certbot, this is for example for Apache on Ubuntu 17.04:
 - `sudo apt-get update`
