@@ -30,7 +30,7 @@ def structure
         'actor_id bigint not null, '\
         'repo_id bigint not null, '\
         'public boolean not null, '\
-        'created_at timestamp not null default \'1970-01-01 00:00:01\', '\
+        'created_at {{ts}} not null, '\
         'org_id bigint, '\
         'actor_login varchar(120) not null'\
         ')'
@@ -243,8 +243,8 @@ def structure
         'id bigint not null primary key, '\
         'event_id bigint not null, '\
         'body text not null, '\
-        'created_at timestamp not null default \'1970-01-01 00:00:01\', '\
-        'updated_at timestamp not null default \'1970-01-01 00:00:01\', '\
+        'created_at {{ts}} not null, '\
+        'updated_at {{ts}} not null, '\
         'type varchar(40) not null, '\
         'user_id bigint not null, '\
         'commit_id varchar(40), '\
@@ -286,15 +286,15 @@ def structure
         'event_id bigint not null, '\
         'assignee_id bigint, '\
         'body text, '\
-        'closed_at timestamp default \'1970-01-01 00:00:01\', '\
+        'closed_at {{ts}}, '\
         'comments int not null, '\
-        'created_at timestamp not null default \'1970-01-01 00:00:01\', '\
+        'created_at {{ts}} not null, '\
         'locked boolean not null, '\
         'milestone_id bigint, '\
         'number int not null, '\
         'state varchar(20) not null, '\
         'title text not null, '\
-        'updated_at timestamp not null default \'1970-01-01 00:00:01\', '\
+        'updated_at {{ts}} not null, '\
         'user_id bigint not null, '\
         'is_pull_request boolean not null, '\
         'primary key(id, event_id)'\
@@ -338,17 +338,17 @@ def structure
         'gha_milestones('\
         'id bigint not null, '\
         'event_id bigint not null, '\
-        'closed_at timestamp default \'1970-01-01 00:00:01\', '\
+        'closed_at {{ts}}, '\
         'closed_issues int not null, '\
-        'created_at timestamp not null default \'1970-01-01 00:00:01\', '\
+        'created_at {{ts}} not null, '\
         'creator_id bigint, '\
         'description text, '\
-        'due_on timestamp default \'1970-01-01 00:00:01\', '\
+        'due_on {{ts}}, '\
         'number int not null, '\
         'open_issues int not null, '\
         'state varchar(20) not null, '\
         'title varchar(200) not null, '\
-        'updated_at timestamp not null default \'1970-01-01 00:00:01\', '\
+        'updated_at {{ts}} not null, '\
         'primary key(id, event_id)'\
         ')'
       )
@@ -409,9 +409,9 @@ def structure
         'owner_id bigint not null, '\
         'description text, '\
         'fork boolean not null, '\
-        'created_at timestamp not null default \'1970-01-01 00:00:01\', '\
-        'updated_at timestamp not null default \'1970-01-01 00:00:01\', '\
-        'pushed_at timestamp not null default \'1970-01-01 00:00:01\', '\
+        'created_at {{ts}} not null, '\
+        'updated_at {{ts}} not null, '\
+        'pushed_at {{ts}} not null, '\
         'homepage text, '\
         'size int not null, '\
         'stargazers_count int not null, '\
@@ -455,8 +455,8 @@ def structure
         'draft boolean not null, '\
         'author_id bigint not null, '\
         'prerelease boolean not null, '\
-        'created_at timestamp not null default \'1970-01-01 00:00:01\', '\
-        'published_at timestamp not null default \'1970-01-01 00:00:01\', '\
+        'created_at {{ts}} not null, '\
+        'published_at {{ts}} not null, '\
         'body text, '\
         'primary key(id, event_id)'\
         ')'
@@ -501,8 +501,8 @@ def structure
         'state varchar(20) not null, '\
         'size int not null, '\
         'download_count int not null, '\
-        'created_at timestamp not null default \'1970-01-01 00:00:01\', '\
-        'updated_at timestamp not null default \'1970-01-01 00:00:01\', '\
+        'created_at {{ts}} not null, '\
+        'updated_at {{ts}} not null, '\
         'primary key(id, event_id)'\
         ')'
       )
@@ -541,10 +541,10 @@ def structure
         'locked boolean not null, '\
         'title text not null, '\
         'body text, '\
-        'created_at timestamp not null default \'1970-01-01 00:00:01\', '\
-        'updated_at timestamp not null default \'1970-01-01 00:00:01\', '\
-        'closed_at timestamp default \'1970-01-01 00:00:01\', '\
-        'merged_at timestamp default \'1970-01-01 00:00:01\', '\
+        'created_at {{ts}} not null, '\
+        'updated_at {{ts}} not null, '\
+        'closed_at {{ts}}, '\
+        'merged_at {{ts}}, '\
         'merge_commit_sha varchar(40), '\
         'merged boolean, '\
         'mergeable boolean, '\
@@ -638,7 +638,7 @@ def structure
         'gha_texts('\
         'event_id bigint, '\
         'body text, '\
-        'created_at timestamp not null default \'1970-01-01 00:00:01\''\
+        'created_at {{ts}} not null'\
         ')'
       )
     )
@@ -659,7 +659,7 @@ def structure
         'event_id bigint not null, '\
         'label_id bigint not null, '\
         'label_name varchar(160) not null, '\
-        'created_at timestamp not null default \'1970-01-01 00:00:01\''\
+        'created_at {{ts}} not null'\
         ')'
       )
     )
