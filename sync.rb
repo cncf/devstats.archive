@@ -106,6 +106,18 @@ def sync(args)
         exit 1
       end
     end
+
+    # Time opened to merged (number of hours) daily, weekly, monthly, yearly
+    %w[d w m y].each do |period|
+      cmd = "./db2influx.rb hours_pr_open_to_merge_#{period} #{metrics_dir}/opened_to_merged.sql "\
+            "'#{to_ymd(from)}' '#{to_ymd(to)}' #{period}"
+      puts cmd
+      res = system cmd
+      unless res
+        puts "Command failed: '#{cmd}'"
+        exit 1
+      end
+    end
   end
 
   puts 'Sync success'

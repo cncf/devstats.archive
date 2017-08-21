@@ -622,6 +622,9 @@ There are few defined dashboards in `grafana/dashboard/` directory.
 Currently:
 - Reviewers dashboard: `reviewers.sql`
 - SIG mentions dashboard `sig_metntions.json`
+- Number of PRs merged in all Kubernetes repos `all_prs_merged.json`
+- Number of PRs merged per repository `prs_merged.json`
+- Average time from PR open to merge `time_to_merge.json`
 
 # To enable SSL Grafana:
 - First You need to install certbot, this is for example for Apache on Ubuntu 17.04:
