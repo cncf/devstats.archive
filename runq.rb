@@ -5,10 +5,30 @@ require 'pry'
 require './conn' # All database details & setup there
 
 # rubocop:disable Lint/Debugger
-def runq(sql_file)
+def runq(sql_file, params)
+  # SQL arguments parse
+  raise Exception, 'Must provide correct parameter value pairs.' if (params.count % 2).positive?
+  replaces = {}
+  param_name = nil
+  params.each_with_index do |param, index|
+    if (index % 2).zero?
+      replaces[param] = nil
+      param_name = param
+    else
+      replaces[param_name] = param
+      param_name = nil
+    end
+  end
+
+  # Read and eventually transform SQL file.
+  sql = File.read(sql_file)
+  replaces.each do |from, to|
+    sql.gsub!(from, to)
+  end
+
   # Connect to database
   con = conn
-  sql = File.read(sql_file)
+
   # Results
   results = exec_sql(con, sql)
   unless results.count.positive?
@@ -85,10 +105,10 @@ end
 # rubocop:enable Lint/Debugger
 
 if ARGV.count < 1
-  puts 'Required SQL file name'
+  puts 'Required SQL file name [param1 value1 [param2 value2 ...]]'
   exit 1
 end
 
-runq(ARGV.first)
+runq(ARGV.first, ARGV[1..-1])
 
 # rubocop:enable Style/GlobalVars

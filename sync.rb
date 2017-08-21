@@ -94,6 +94,18 @@ def sync(args)
         exit 1
       end
     end
+
+    # All PRs merged hourly, daily, weekly, monthly, yearly
+    %w[h d w m y].each do |period|
+      cmd = "./db2influx.rb all_prs_merged_#{period} #{metrics_dir}/all_prs_merged.sql "\
+            "'#{to_ymdhms(from)}' '#{to_ymdhms(to)}' #{period}"
+      puts cmd
+      res = system cmd
+      unless res
+        puts "Command failed: '#{cmd}'"
+        exit 1
+      end
+    end
   end
 
   puts 'Sync success'

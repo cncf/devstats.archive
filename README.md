@@ -407,6 +407,13 @@ Typical usages:
 - `time GHA2DB_PSQL=1 PG_PASS='password' ./runq.rb psql_metrics/metric.sql`
 - `time GHA2DB_MYSQL=1 MYSQL_PASS='password' ./runq.rb mysql_metrics/metric.sql`
 
+Some SQL files require parameter substitution (like all metrics used by Grafana).
+
+They usually have `'{{from}}'` and `'{{to}}'` parameters, to run such files do:
+`time GHA2DB_MYSQL=1 MYSQL_PASS='password' ./runq.rb mysql_metrics/metric.sql '{{from}}' 'YYYY-MM-DD HH:MM:SS' '{{to}}' 'YYYY-MM-DD HH:MM:SS'`
+
+You can also change any other value, just note that parameters after SQL file name are pairs: `value_to_replace` `replacement`.
+
 # Metrics results
 
 For last GitHub archive date 2017-08-03 13:00 UTC:

@@ -89,6 +89,7 @@ def db2influx(series_name_or_func, sql_file, from, to, interval_abbr)
   d_to = Time.parse(to).utc
   interval =
     case interval_abbr.downcase
+    when 'h' then 'hour'
     when 'd' then 'day'
     when 'w' then 'week'
     when 'm' then 'month'
