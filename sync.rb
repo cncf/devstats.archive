@@ -73,7 +73,19 @@ def sync(args)
 
     # SIG mentions daily, weekly, monthly, yearly
     %w[d w m y].each do |period|
-      cmd = "./db2influx.rb sig_metions_data #{metrics_dir}/sig_mentions.sql "\
+      cmd = "./db2influx.rb sig_mentions_data #{metrics_dir}/sig_mentions.sql "\
+            "'#{to_ymd(from)}' '#{to_ymd(to)}' #{period}"
+      puts cmd
+      res = system cmd
+      unless res
+        puts "Command failed: '#{cmd}'"
+        exit 1
+      end
+    end
+
+    # PRs merged per repo daily, weekly, monthly, yearly
+    %w[d w m y].each do |period|
+      cmd = "./db2influx.rb prs_merged_data #{metrics_dir}/prs_merged.sql "\
             "'#{to_ymd(from)}' '#{to_ymd(to)}' #{period}"
       puts cmd
       res = system cmd
