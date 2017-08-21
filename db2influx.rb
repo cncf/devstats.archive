@@ -30,7 +30,7 @@ end
 # Return InfluxDB series name & value
 def prs_merged_data(prs_row, period)
   [
-    'prs_' + prs_row['repo_name'].tr('-/', '_') + '_' + period,
+    'prs_' + prs_row['repo_name'].tr('-/.', '_') + '_' + period,
     prs_row.values.last.to_i
   ]
 end
