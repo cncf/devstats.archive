@@ -64,7 +64,10 @@ def insert_ignore(query)
 end
 
 def create_table(tdef)
-  "create table #{tdef} character set utf8mb4 collate utf8mb4_unicode_ci"
+  "create table #{tdef} character set utf8mb4 collate utf8mb4_unicode_ci".gsub(
+    '{{ts}}',
+    'datetime'
+  )
 end
 
 def parse_timestamp(tval)

@@ -60,7 +60,10 @@ def insert_ignore(query)
 end
 
 def create_table(tdef)
-  "create table #{tdef}"
+  "create table #{tdef}".gsub(
+    '{{ts}}',
+    'timestamp'
+  )
 end
 
 def parse_timestamp(tval)
