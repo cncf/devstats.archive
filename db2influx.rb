@@ -19,10 +19,19 @@ $thr_n = 1 if ENV['GHA2DB_ST']
 
 # This receives SIG mentions row and period name
 # Returns InfluxDB series name and value
-def sig_metions_data(sig_row, period)
+def sig_mentions_data(sig_row, period)
   [
     sig_row['sig'].tr('-', '_') + '_' + period,
     sig_row.values.last.to_i
+  ]
+end
+
+# This receives PRs merged row and period name
+# Return InfluxDB series name & value
+def prs_merged_data(prs_row, period)
+  [
+    'prs_' + prs_row['repo_name'].tr('-/', '_') + '_' + period,
+    prs_row.values.last.to_i
   ]
 end
 
