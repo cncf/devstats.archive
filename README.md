@@ -2,7 +2,9 @@
 
 Author: Łukasz Gryglicki <lukaszgryglick@o2.pl>
 
-This tools filters GitHub archive for given date period and given organization, repository and saves results into JSON files.
+This tools filters GitHub archive for given date period and given organization, repository and saves results in MySQL and/or Postgres database.
+It can also save results into JSON files.
+It displays results using Grafana and InfluxDB time series database.
 
 Usage:
 
@@ -30,14 +32,14 @@ Org/Repo filtering:
 
 You can tweak `gha2db.rb` by:
 
-- Set `GHA2DB_PSQL` to use PostgreSQL output
-- Set `GHA2DB_MYSQL` to use MySQL output
-- You need to set `GHA2DB_PSQL` or `GHA2DB_MYSQL` to use DB output
-- Set `GHA2DB_ST` environment variable to run single threaded version
-- Set `GHA2DB_JSON` to save single events JSONs in `jsons/` directory
-- Set `GHA2DB_NODB` to skip DB processing at all (if `GHA2DB_JSON` not set it will parse all data from GHA, but do nothing with it)
-- Set `GHA2DB_DEBUG` set to 1 to see output for all events generated, set to 2 to see all SQL query parameters
-- Set `GHA2DB_QOUT` to see all SQL queries
+- Set `GHA2DB_PSQL` to use PostgreSQL output.
+- Set `GHA2DB_MYSQL` to use MySQL output.
+- You need to set `GHA2DB_PSQL` or `GHA2DB_MYSQL` to use DB output.
+- Set `GHA2DB_ST` environment variable to run single threaded version.
+- Set `GHA2DB_JSON` to save single events JSONs in `jsons/` directory.
+- Set `GHA2DB_NODB` to skip DB processing at all (if `GHA2DB_JSON` not set it will parse all data from GHA, but do nothing with it).
+- Set `GHA2DB_DEBUG` set to 1 to see output for all events generated, set to 2 to see all SQL query parameters.
+- Set `GHA2DB_QOUT` to see all SQL queries.
 
 Examples in this shell script (some commented out, some not):
 
@@ -61,10 +63,10 @@ Decompressed fiels are usually 100-200 Mb.
 We download this gzipped JSON, process it on the fly, creating array of JSON events and
 then each single event JSON matching org/repo criteria is saved in `jsons` directory as
 `N_ID.json` where:
-- N - given GitHub archive''s JSON hour as UNIX timestamp
-- ID - GitHub event ID
+- N - given GitHub archive''s JSON hour as UNIX timestamp.
+- ID - GitHub event ID.
 
-Once saved, You can review those JSONs manually (they''re pretty printed)
+Once saved, You can review those JSONs manually (they're pretty printed).
 
 # Mutithreading
 
@@ -74,7 +76,7 @@ It detects number of available CPUs automatically.
 
 # Results
 
-JSON:
+# JSON:
 
 Usually there are about 25000 GitHub events in single hour in Jan 2017 (for July 2017 it is 40000).
 Average seems to be from 15000 to 60000.
@@ -103,7 +105,9 @@ Taking all events from single day is 5 minutes 50 seconds (2017-07-28):
 - Generates 1194599 JSON files (1.2M)
 - Takes 7 Gb of disck space
 
-PostgreSQL:
+# Databases:
+
+# PostgreSQL:
 
 1) Running on all 3 orgs `kubernetes,kubernetes-client,kubernetes-incubator` repos for June 2017 yields:
 - Takes: 61 minutes 52 seconds.
@@ -267,7 +271,7 @@ Ubuntu like Linux:
 
 - sudo apt-get install mysql-server
 - sudo mysql_secure_installation
-- You will need `lib_mysqludf_preg` to support PCRE REGEXPs (*)
+- You will need `lib_mysqludf_pcre` to support PCRE REGEXPs (*)
 - Update mysql config to use UTF8MB4, see below (**)
 - mysql -uusername -ppassword
 - create database gha character set utf8mb4 collate utf8mb4_unicode_ci;
@@ -300,7 +304,8 @@ Typical internal usage:
 
 Alternatively You can use `structure_mysql.sql` to create database structure.
 
-(*) Install lib_mysqludf_preg` (*)
+(*) Install lib_mysqludf_pcre` (*)
+You need this because MySQL has no native REGEXP extraction functions, and built in MySQL's `regexp` is terribly slow (and it can only return 0/1 for regexp matching).
 - apt-get install libpcre3-dev
 - git clone https://github.com/mysqludf/lib_mysqludf_preg.git
 - cd lib_mysqludf_preg
@@ -311,6 +316,7 @@ Alternatively You can use `structure_mysql.sql` to create database structure.
 - make MYSQL="mysql -p" installdb
 
 (**) Update MySQL to use UTF8MB4:
+This is needed because there are a lot of full UTF8 texts in GHA archives,a nd starndard MySQL's `utf8` is not fully compatible with UTF8 standard.
 - Locate Your MySQL config file (usually in `/etc/mysql/my.cnf`
 - Make sure You have those options:
 ```
@@ -334,8 +340,8 @@ collation-server = utf8mb4_unicode_ci
 You can see database structure in `structure.rb`, `structure_psql.sql`, `structure_mysql.sql`.
 
 Main idea is that we divide tables into 2 groups:
-- const: meaning that data in this table is not changing in time (is saved onece)
-- variable: meaning that data in those tables can change between GH events, and GH event_id is a part of this tables primary keys.
+- const: meaning that data in this table is not changing in time (is saved once)
+- variable: meaning that data in those tables can change between GH events, and GH event_id is a part of this tables primary key.
 
 List of tables:
 - `gha_actors`: const, users table
@@ -366,8 +372,8 @@ List of tables:
 There is also an internal tool: `analysis.rb`/`analysis.sh` to figure out how to create tables for gha.
 But this is only useful while developing this tool.
 
-This tool can generate all possible distinct structures of any key at any depths, to see possible veriants of this key.
-It is used very intensively during development of SQL table structure.
+This tool can generate all possible distinct structures of any key at any depth, to see possible veriants of this key.
+It was used very intensively during development of SQL table structure.
 
 # Running on Kubernetes
 
@@ -378,7 +384,7 @@ For example June 2017:
 `time GHA2DB_PSQL=1 PG_PASS=pwd ./gha2db.rb 2017-06-01 0 2017-07-01 0 'kubernetes,kubernetes-incubator,kubernetes-client'`
 
 # Metrics tool
-There is also a tool `runq.rb`. It is used to compute metrics saved is `sql` files.
+There is also a tool `runq.rb`. It is used to compute metrics saved in `sql` files.
 
 Example metrics are in `./psql_metrics/` and `./mysql_metrics/` directories.
 They're usually different for different databases (they're complex SQL's that uses DB specific REGEXP processing etc)
@@ -386,13 +392,12 @@ They're usually different for different databases (they're complex SQL's that us
 This tool takes single parameter - sql file name.
 
 Typical usages:
-
 - `time GHA2DB_PSQL=1 PG_PASS='password' ./runq.rb psql_metrics/metric.sql`
 - `time GHA2DB_MYSQL=1 MYSQL_PASS='password' ./runq.rb mysql_metrics/metric.sql`
 
 # Metrics results
 
-Last GitHub archive date is 2017-08-03 13:00 UTC:
+For last GitHub archive date 2017-08-03 13:00 UTC:
 
 1) SIG mentions (all of them takes <30 seconds, `time PG_PASS='pwd' ./runq.rb sql/sig_mentions_*.sql`):
 - All Time:
@@ -517,7 +522,7 @@ Rows: 1
 3) List reviewers (`time GHA2DB_PSQL=1 PG_PASS='pwd' ./runq.rb sql/list_*_reviewers.sql`):
 - Takes <30s for all time, generates long list (not pasted here)
 
-# Update/Sync tool (wip)
+# Update/Sync tool
 
 When You have imported all data You need - it needs to be updated periodically.
 GitHub archive generates new file every hour.
@@ -530,7 +535,7 @@ Example call:
 - Add `GHA2DB_RESETIDB` environment variable to rebuild InfluxDB stats instead of update since last run
 - Add `GHA2DB_SKIPIDB` environment variable to skip syncing InfluxDB (so it will only sync Postgres or MySQL)
 
-WIP: sync.sh tool should be called by some kind of cron job to auto-update metrics every hour.
+`sync.sh` tool should be called by some kind of cron job to auto-update metrics every hour.
 
 For now there is a manual script that can be used to loop sync every defined numeber of seconds, for example for sync every 30 minutes:
 
@@ -540,29 +545,30 @@ For now there is a manual script that can be used to loop sync every defined num
 
 You can visualise data using Grafana, see `./grafana/` directory:
 
-Install Grafana using:
+# Install Grafana using:
 - Follow: http://docs.grafana.org/installation/debian/
 - wget https://s3-us-west-2.amazonaws.com/grafana-releases/release/grafana_4.4.3_amd64.deb
 - sudo dpkg -i grafana_4.4.3_amd64.deb
 - sudo service grafana-server start
+- Note that default verion installed by `apt-get install grafana` is very old and have drag&drop related bug.
 
-Install & configure InfluxDB:
+# Install & configure InfluxDB:
 - Install InfluxDB locally via `apt-get install influxdb`
 - Start InfluxDB using `INFLUXDB_PASS='password' ./grafana/influxdb_setup.sh`.
 - Feed InfluxDB from Postgres: `GHA2DB_PSQL=1 GHA2DB_RESETIDB=1 PG_PASS='pwd' IDB_PASS='pwd' ./sync.sh`
 - Or Feed InfluxDB from MySQL: `GHA2DB_MYSQL=1 GHA2DB_RESETIDB=1 MYSQL_PASS='pwd' IDB_PASS='pwd' ./sync.sh`
 - Output will be at: <https://cncftest.io>, for example: <https://cncftest.io/dashboard/db/reviewers?orgId=1>
 
-Alternate solution with Docker:
-- Start grafana using `GRAFANA_PASS='password' grafana/grafana_start.sh` to install Grafana & InfluxDB as docker containers (this requires Docker).
-- Start InfluxDB using `INFLUXDB_PASS='password' ./grafana/influxdb_setup.sh`, this requires Docker & previous command succesfully executed.
-- To cleanup Docker Grafana image and start from scratch use `./grafana/docker_cleanup.sh`. This will not delete Your grafana config because it is stored in local volume `/var/lib/grafana`.
-- To recreate all Docker Grafana/InfluxDB stuff from scratch do: `GRAFANA_PASS='' INFLUXDB_PASS='' GHA2DB_PSQL=1 GHA2DB_RESETIDB=1 PG_PASS='' IDB_PASS='' ./grafana/reinit.sh`
-
-To drop & recreate InfluxDB:
+# To drop & recreate InfluxDB:
 - `INFLUXDB_PASS='idb_password' ./grafana/influxdb_recreate.sh`
 - `GHA2DB_RESETIDB=1 GHA2DB_MYSQL=1 MYSQL_PASS='pwd' IDB_PASS='pwd' ./sync.sh`
 - Then eventually start syncer: `GHA2DB_MYSQL=1 MYSQL_PASS='pwd' IDB_PASS='pwd' ./syncer.sh 1800`
+
+# Alternate solution with Docker:
+- Start Grafana using `GRAFANA_PASS='password' grafana/grafana_start.sh` to install Grafana & InfluxDB as docker containers (this requires Docker).
+- Start InfluxDB using `INFLUXDB_PASS='password' ./grafana/influxdb_setup.sh`, this requires Docker & previous command succesfully executed.
+- To cleanup Docker Grafana image and start from scratch use `./grafana/docker_cleanup.sh`. This will not delete Your grafana config because it is stored in local volume `/var/lib/grafana`.
+- To recreate all Docker Grafana/InfluxDB stuff from scratch do: `GRAFANA_PASS='' INFLUXDB_PASS='' GHA2DB_PSQL=1 GHA2DB_RESETIDB=1 PG_PASS='' IDB_PASS='' ./grafana/reinit.sh`
 
 # Feeding InfluxDB & Grafana:
 
@@ -577,7 +583,7 @@ Feed InfluxDB using:
 - This tool uses environmental variables starting with `IDB_`, please see `idb_conn.rb` and `db2influx.rb` for details.
 - `IDB_` variables are exactly the same as `PG_` and `MYSQL_` to set host, databaxe, user name, password.
 
-Then see results in the InfluxDB:
+# To check esults in the InfluxDB:
 - influx
 - auth (gha_admin/influxdb_pwd)
 - use gha
@@ -586,7 +592,7 @@ Then see results in the InfluxDB:
 - show tag keys
 - show field keys
 
-To drop data from InfluxDB:
+# To drop data from InfluxDB:
 - drop measurement reviewers
 - drop series from reviewers
 
@@ -606,8 +612,8 @@ Currently:
 - `sudo apt-get update`
 - `sudo apt-get install python-certbot-apache`
 - `sudo certbot --apache`
-- Then You need to proxy apache https/SSL on prot 443 to http on port 3000 (this is where Grafana listens)
-- Then You need to proxy apache https/SSL on prot 10443 to http on port 8086 (this is where InfluxDB server listens)
+- Then You need to proxy Apache https/SSL on prot 443 to http on port 3000 (this is where Grafana listens)
+- Then You need to proxy Apache https/SSL on prot 10443 to http on port 8086 (this is where InfluxDB server listens)
 - Modified Apache config files are in `grafana/apache`, You need to check them and enable something similar on Your machine.
 - Your data source lives in https://<your_domain>:10443 (and https is served by Apache proxy to InfluxDB https:10443 -> http:8086)
 - Your Grafana lives in https://<your_domain> (and https is served by Apache proxy to Grafana https:443 -> http:3000)
