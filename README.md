@@ -368,6 +368,18 @@ List of tables:
 - `gha_releases_assets`: variable, release assets
 - `gha_repos`: const, repos
 
+# Adding columns to existing database
+
+Postgres:
+- alter table table_name add col_name col_def;
+- update ...
+- alter table table_name alter column col_name set not null;
+
+MySQL:
+- alter table table_name add col_name col_def;
+- update ...
+- alter table table_name modify col_name col_def not null;
+
 # JSON structure analysis tool
 There is also an internal tool: `analysis.rb`/`analysis.sh` to figure out how to create tables for gha.
 But this is only useful while developing this tool.

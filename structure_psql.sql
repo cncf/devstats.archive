@@ -60,8 +60,8 @@ CREATE TABLE gha_assets (
     state character varying(20) NOT NULL,
     size integer NOT NULL,
     download_count integer NOT NULL,
-    created_at timestamp without time zone DEFAULT '1970-01-01 00:00:01'::timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone DEFAULT '1970-01-01 00:00:01'::timestamp without time zone NOT NULL
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
 );
 
 
@@ -91,8 +91,8 @@ CREATE TABLE gha_comments (
     id bigint NOT NULL,
     event_id bigint NOT NULL,
     body text NOT NULL,
-    created_at timestamp without time zone DEFAULT '1970-01-01 00:00:01'::timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone DEFAULT '1970-01-01 00:00:01'::timestamp without time zone NOT NULL,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL,
     type character varying(40) NOT NULL,
     user_id bigint NOT NULL,
     commit_id character varying(40),
@@ -133,9 +133,10 @@ CREATE TABLE gha_events (
     actor_id bigint NOT NULL,
     repo_id bigint NOT NULL,
     public boolean NOT NULL,
-    created_at timestamp without time zone DEFAULT '1970-01-01 00:00:01'::timestamp without time zone NOT NULL,
+    created_at timestamp without time zone NOT NULL,
     org_id bigint,
-    actor_login character varying(120) NOT NULL
+    actor_login character varying(120) NOT NULL,
+    repo_name character varying(160) NOT NULL
 );
 
 
@@ -177,9 +178,9 @@ CREATE TABLE gha_forkees (
     owner_id bigint NOT NULL,
     description text,
     fork boolean NOT NULL,
-    created_at timestamp without time zone DEFAULT '1970-01-01 00:00:01'::timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone DEFAULT '1970-01-01 00:00:01'::timestamp without time zone NOT NULL,
-    pushed_at timestamp without time zone DEFAULT '1970-01-01 00:00:01'::timestamp without time zone NOT NULL,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL,
+    pushed_at timestamp without time zone NOT NULL,
     homepage text,
     size integer NOT NULL,
     stargazers_count integer NOT NULL,
@@ -207,15 +208,15 @@ CREATE TABLE gha_issues (
     event_id bigint NOT NULL,
     assignee_id bigint,
     body text,
-    closed_at timestamp without time zone DEFAULT '1970-01-01 00:00:01'::timestamp without time zone,
+    closed_at timestamp without time zone,
     comments integer NOT NULL,
-    created_at timestamp without time zone DEFAULT '1970-01-01 00:00:01'::timestamp without time zone NOT NULL,
+    created_at timestamp without time zone NOT NULL,
     locked boolean NOT NULL,
     milestone_id bigint,
     number integer NOT NULL,
     state character varying(20) NOT NULL,
     title text NOT NULL,
-    updated_at timestamp without time zone DEFAULT '1970-01-01 00:00:01'::timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL,
     user_id bigint NOT NULL,
     is_pull_request boolean NOT NULL
 );
@@ -245,7 +246,7 @@ CREATE TABLE gha_issues_events_labels (
     event_id bigint NOT NULL,
     label_id bigint NOT NULL,
     label_name character varying(160) NOT NULL,
-    created_at timestamp without time zone DEFAULT '1970-01-01 00:00:01'::timestamp without time zone NOT NULL
+    created_at timestamp without time zone NOT NULL
 );
 
 
@@ -285,17 +286,17 @@ ALTER TABLE gha_labels OWNER TO gha_admin;
 CREATE TABLE gha_milestones (
     id bigint NOT NULL,
     event_id bigint NOT NULL,
-    closed_at timestamp without time zone DEFAULT '1970-01-01 00:00:01'::timestamp without time zone,
+    closed_at timestamp without time zone,
     closed_issues integer NOT NULL,
-    created_at timestamp without time zone DEFAULT '1970-01-01 00:00:01'::timestamp without time zone NOT NULL,
+    created_at timestamp without time zone NOT NULL,
     creator_id bigint,
     description text,
-    due_on timestamp without time zone DEFAULT '1970-01-01 00:00:01'::timestamp without time zone,
+    due_on timestamp without time zone,
     number integer NOT NULL,
     open_issues integer NOT NULL,
     state character varying(20) NOT NULL,
     title character varying(200) NOT NULL,
-    updated_at timestamp without time zone DEFAULT '1970-01-01 00:00:01'::timestamp without time zone NOT NULL
+    updated_at timestamp without time zone NOT NULL
 );
 
 
@@ -371,10 +372,10 @@ CREATE TABLE gha_pull_requests (
     locked boolean NOT NULL,
     title text NOT NULL,
     body text,
-    created_at timestamp without time zone DEFAULT '1970-01-01 00:00:01'::timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone DEFAULT '1970-01-01 00:00:01'::timestamp without time zone NOT NULL,
-    closed_at timestamp without time zone DEFAULT '1970-01-01 00:00:01'::timestamp without time zone,
-    merged_at timestamp without time zone DEFAULT '1970-01-01 00:00:01'::timestamp without time zone,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL,
+    closed_at timestamp without time zone,
+    merged_at timestamp without time zone,
     merge_commit_sha character varying(40),
     merged boolean,
     mergeable boolean,
@@ -431,8 +432,8 @@ CREATE TABLE gha_releases (
     draft boolean NOT NULL,
     author_id bigint NOT NULL,
     prerelease boolean NOT NULL,
-    created_at timestamp without time zone DEFAULT '1970-01-01 00:00:01'::timestamp without time zone NOT NULL,
-    published_at timestamp without time zone DEFAULT '1970-01-01 00:00:01'::timestamp without time zone NOT NULL,
+    created_at timestamp without time zone NOT NULL,
+    published_at timestamp without time zone NOT NULL,
     body text
 );
 
@@ -471,7 +472,7 @@ ALTER TABLE gha_repos OWNER TO gha_admin;
 CREATE TABLE gha_texts (
     event_id bigint,
     body text,
-    created_at timestamp without time zone DEFAULT '1970-01-01 00:00:01'::timestamp without time zone NOT NULL
+    created_at timestamp without time zone NOT NULL
 );
 
 
@@ -521,7 +522,7 @@ COPY gha_commits (sha, event_id, author_name, message, is_distinct) FROM stdin;
 -- Data for Name: gha_events; Type: TABLE DATA; Schema: public; Owner: gha_admin
 --
 
-COPY gha_events (id, type, actor_id, repo_id, public, created_at, org_id, actor_login) FROM stdin;
+COPY gha_events (id, type, actor_id, repo_id, public, created_at, org_id, actor_login, repo_name) FROM stdin;
 \.
 
 
@@ -1006,6 +1007,13 @@ CREATE INDEX events_org_id_idx ON gha_events USING btree (org_id);
 --
 
 CREATE INDEX events_repo_id_idx ON gha_events USING btree (repo_id);
+
+
+--
+-- Name: events_repo_name_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX events_repo_name_idx ON gha_events USING btree (repo_name);
 
 
 --
