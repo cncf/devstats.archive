@@ -93,6 +93,7 @@ def db2influx(series_name_or_func, sql_file, from, to, interval_abbr)
     when 'd' then 'day'
     when 'w' then 'week'
     when 'm' then 'month'
+    when 'q' then 'quarter'
     when 'y' then 'year'
     else raise Exception, "Unknown interval #{interval}"
     end

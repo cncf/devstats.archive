@@ -59,8 +59,8 @@ def sync(args)
     metrics_dir = $pg ? 'psql_metrics' : 'mysql_metrics'
     from = Time.parse('2015-08-01').utc if ENV['GHA2DB_RESETIDB']
 
-    # Reviewers daily, weekly, monthly, yearly
-    %w[d w m y].each do |period|
+    # Reviewers daily, weekly, monthly, quarterly, yearly
+    %w[d w m q y].each do |period|
       cmd = "./db2influx.rb reviewers_#{period} #{metrics_dir}/reviewers.sql "\
             "'#{to_ymd(from)}' '#{to_ymd(to)}' #{period}"
       puts cmd
@@ -71,8 +71,8 @@ def sync(args)
       end
     end
 
-    # SIG mentions daily, weekly, monthly, yearly
-    %w[d w m y].each do |period|
+    # SIG mentions daily, weekly, monthly, quarterly, yearly
+    %w[d w m q y].each do |period|
       cmd = "./db2influx.rb sig_mentions_data #{metrics_dir}/sig_mentions.sql "\
             "'#{to_ymd(from)}' '#{to_ymd(to)}' #{period}"
       puts cmd
@@ -83,8 +83,8 @@ def sync(args)
       end
     end
 
-    # PRs merged per repo daily, weekly, monthly, yearly
-    %w[d w m y].each do |period|
+    # PRs merged per repo daily, weekly, monthly, quarterly, yearly
+    %w[d w m q y].each do |period|
       cmd = "./db2influx.rb prs_merged_data #{metrics_dir}/prs_merged.sql "\
             "'#{to_ymd(from)}' '#{to_ymd(to)}' #{period}"
       puts cmd
@@ -95,8 +95,8 @@ def sync(args)
       end
     end
 
-    # All PRs merged hourly, daily, weekly, monthly, yearly
-    %w[h d w m y].each do |period|
+    # All PRs merged hourly, daily, weekly, monthly, quarterly, yearly
+    %w[h d w m q y].each do |period|
       cmd = "./db2influx.rb all_prs_merged_#{period} #{metrics_dir}/all_prs_merged.sql "\
             "'#{to_ymdhms(from)}' '#{to_ymdhms(to)}' #{period}"
       puts cmd
@@ -107,8 +107,8 @@ def sync(args)
       end
     end
 
-    # Time opened to merged (number of hours) daily, weekly, monthly, yearly
-    %w[d w m y].each do |period|
+    # Time opened to merged (number of hours) daily, weekly, monthly, quarterly, yearly
+    %w[d w m q y].each do |period|
       cmd = "./db2influx.rb hours_pr_open_to_merge_#{period} #{metrics_dir}/opened_to_merged.sql "\
             "'#{to_ymd(from)}' '#{to_ymd(to)}' #{period}"
       puts cmd
