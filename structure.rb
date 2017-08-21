@@ -32,7 +32,8 @@ def structure
         'public boolean not null, '\
         'created_at {{ts}} not null, '\
         'org_id bigint, '\
-        'actor_login varchar(120) not null'\
+        'actor_login varchar(120) not null, '\
+        'repo_name varchar(160) not null'\
         ')'
       )
     )
@@ -44,6 +45,7 @@ def structure
     exec_sql(c, 'create index events_org_id_idx on gha_events(org_id)')
     exec_sql(c, 'create index events_created_at_idx on gha_events(created_at)')
     exec_sql(c, 'create index events_actor_login_idx on gha_events(actor_login)')
+    exec_sql(c, 'create index events_repo_name_idx on gha_events(repo_name)')
   end
 
   # gha_actors

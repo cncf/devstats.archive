@@ -1,6 +1,6 @@
 -- MySQL dump 10.13  Distrib 5.7.19, for Linux (x86_64)
 --
--- Host: localhost    Database: test
+-- Host: localhost    Database: gha
 -- ------------------------------------------------------
 -- Server version	5.7.19-0ubuntu0.17.04.1
 
@@ -56,8 +56,8 @@ CREATE TABLE `gha_assets` (
   `state` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL,
   `size` int(11) NOT NULL,
   `download_count` int(11) NOT NULL,
-  `created_at` timestamp NOT NULL DEFAULT '1970-01-01 00:00:01',
-  `updated_at` timestamp NOT NULL DEFAULT '1970-01-01 00:00:01',
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL,
   PRIMARY KEY (`id`,`event_id`),
   KEY `assets_event_id_idx` (`event_id`),
   KEY `assets_uploader_id_idx` (`uploader_id`),
@@ -117,8 +117,8 @@ CREATE TABLE `gha_comments` (
   `id` bigint(20) NOT NULL,
   `event_id` bigint(20) NOT NULL,
   `body` text COLLATE utf8mb4_unicode_ci NOT NULL,
-  `created_at` timestamp NOT NULL DEFAULT '1970-01-01 00:00:01',
-  `updated_at` timestamp NOT NULL DEFAULT '1970-01-01 00:00:01',
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL,
   `type` varchar(40) COLLATE utf8mb4_unicode_ci NOT NULL,
   `user_id` bigint(20) NOT NULL,
   `commit_id` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
@@ -188,16 +188,18 @@ CREATE TABLE `gha_events` (
   `actor_id` bigint(20) NOT NULL,
   `repo_id` bigint(20) NOT NULL,
   `public` tinyint(1) NOT NULL,
-  `created_at` timestamp NOT NULL DEFAULT '1970-01-01 00:00:01',
+  `created_at` datetime NOT NULL,
   `org_id` bigint(20) DEFAULT NULL,
   `actor_login` varchar(120) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `repo_name` varchar(160) COLLATE utf8mb4_unicode_ci NOT NULL,
   PRIMARY KEY (`id`),
   KEY `events_type_idx` (`type`),
   KEY `events_actor_id_idx` (`actor_id`),
   KEY `events_repo_id_idx` (`repo_id`),
   KEY `events_org_id_idx` (`org_id`),
   KEY `events_created_at_idx` (`created_at`),
-  KEY `events_actor_login_idx` (`actor_login`)
+  KEY `events_actor_login_idx` (`actor_login`),
+  KEY `events_repo_name_idx` (`repo_name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -271,9 +273,9 @@ CREATE TABLE `gha_forkees` (
   `owner_id` bigint(20) NOT NULL,
   `description` text COLLATE utf8mb4_unicode_ci,
   `fork` tinyint(1) NOT NULL,
-  `created_at` timestamp NOT NULL DEFAULT '1970-01-01 00:00:01',
-  `updated_at` timestamp NOT NULL DEFAULT '1970-01-01 00:00:01',
-  `pushed_at` timestamp NOT NULL DEFAULT '1970-01-01 00:00:01',
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL,
+  `pushed_at` datetime NOT NULL,
   `homepage` text COLLATE utf8mb4_unicode_ci,
   `size` int(11) NOT NULL,
   `stargazers_count` int(11) NOT NULL,
@@ -315,15 +317,15 @@ CREATE TABLE `gha_issues` (
   `event_id` bigint(20) NOT NULL,
   `assignee_id` bigint(20) DEFAULT NULL,
   `body` text COLLATE utf8mb4_unicode_ci,
-  `closed_at` timestamp NOT NULL DEFAULT '1970-01-01 00:00:01',
+  `closed_at` datetime DEFAULT NULL,
   `comments` int(11) NOT NULL,
-  `created_at` timestamp NOT NULL DEFAULT '1970-01-01 00:00:01',
+  `created_at` datetime NOT NULL,
   `locked` tinyint(1) NOT NULL,
   `milestone_id` bigint(20) DEFAULT NULL,
   `number` int(11) NOT NULL,
   `state` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL,
   `title` text COLLATE utf8mb4_unicode_ci NOT NULL,
-  `updated_at` timestamp NOT NULL DEFAULT '1970-01-01 00:00:01',
+  `updated_at` datetime NOT NULL,
   `user_id` bigint(20) NOT NULL,
   `is_pull_request` tinyint(1) NOT NULL,
   PRIMARY KEY (`id`,`event_id`),
@@ -383,7 +385,7 @@ CREATE TABLE `gha_issues_events_labels` (
   `event_id` bigint(20) NOT NULL,
   `label_id` bigint(20) NOT NULL,
   `label_name` varchar(160) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `created_at` timestamp NOT NULL DEFAULT '1970-01-01 00:00:01',
+  `created_at` datetime NOT NULL,
   KEY `issues_events_labels_issue_id_idx` (`issue_id`),
   KEY `issues_events_labels_event_id_idx` (`event_id`),
   KEY `issues_events_labels_label_id_idx` (`label_id`),
@@ -461,17 +463,17 @@ DROP TABLE IF EXISTS `gha_milestones`;
 CREATE TABLE `gha_milestones` (
   `id` bigint(20) NOT NULL,
   `event_id` bigint(20) NOT NULL,
-  `closed_at` timestamp NOT NULL DEFAULT '1970-01-01 00:00:01',
+  `closed_at` datetime DEFAULT NULL,
   `closed_issues` int(11) NOT NULL,
-  `created_at` timestamp NOT NULL DEFAULT '1970-01-01 00:00:01',
+  `created_at` datetime NOT NULL,
   `creator_id` bigint(20) DEFAULT NULL,
   `description` text COLLATE utf8mb4_unicode_ci,
-  `due_on` timestamp NOT NULL DEFAULT '1970-01-01 00:00:01',
+  `due_on` datetime DEFAULT NULL,
   `number` int(11) NOT NULL,
   `open_issues` int(11) NOT NULL,
   `state` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL,
   `title` varchar(200) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `updated_at` timestamp NOT NULL DEFAULT '1970-01-01 00:00:01',
+  `updated_at` datetime NOT NULL,
   PRIMARY KEY (`id`,`event_id`),
   KEY `milestones_event_id_idx` (`event_id`),
   KEY `milestones_created_at_idx` (`created_at`),
@@ -606,10 +608,10 @@ CREATE TABLE `gha_pull_requests` (
   `locked` tinyint(1) NOT NULL,
   `title` text COLLATE utf8mb4_unicode_ci NOT NULL,
   `body` text COLLATE utf8mb4_unicode_ci,
-  `created_at` timestamp NOT NULL DEFAULT '1970-01-01 00:00:01',
-  `updated_at` timestamp NOT NULL DEFAULT '1970-01-01 00:00:01',
-  `closed_at` timestamp NOT NULL DEFAULT '1970-01-01 00:00:01',
-  `merged_at` timestamp NOT NULL DEFAULT '1970-01-01 00:00:01',
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL,
+  `closed_at` datetime DEFAULT NULL,
+  `merged_at` datetime DEFAULT NULL,
   `merge_commit_sha` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `merged` tinyint(1) DEFAULT NULL,
   `mergeable` tinyint(1) DEFAULT NULL,
@@ -710,8 +712,8 @@ CREATE TABLE `gha_releases` (
   `draft` tinyint(1) NOT NULL,
   `author_id` bigint(20) NOT NULL,
   `prerelease` tinyint(1) NOT NULL,
-  `created_at` timestamp NOT NULL DEFAULT '1970-01-01 00:00:01',
-  `published_at` timestamp NOT NULL DEFAULT '1970-01-01 00:00:01',
+  `created_at` datetime NOT NULL,
+  `published_at` datetime NOT NULL,
   `body` text COLLATE utf8mb4_unicode_ci,
   PRIMARY KEY (`id`,`event_id`),
   KEY `releases_event_id_idx` (`event_id`),
@@ -787,7 +789,7 @@ DROP TABLE IF EXISTS `gha_texts`;
 CREATE TABLE `gha_texts` (
   `event_id` bigint(20) DEFAULT NULL,
   `body` text COLLATE utf8mb4_unicode_ci,
-  `created_at` timestamp NOT NULL DEFAULT '1970-01-01 00:00:01',
+  `created_at` datetime NOT NULL,
   KEY `texts_event_id_idx` (`event_id`),
   KEY `texts_created_at_idx` (`created_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -811,4 +813,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2017-08-18  9:27:41
+-- Dump completed on 2017-08-21  6:50:01

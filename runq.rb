@@ -11,7 +11,10 @@ def runq(sql_file)
   sql = File.read(sql_file)
   # Results
   results = exec_sql(con, sql)
-  return unless results.count.positive?
+  unless results.count.positive?
+    puts 'Metric returned no data'
+    return
+  end
 
   columns = results.first.keys
   column_lengths = {}

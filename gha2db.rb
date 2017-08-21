@@ -195,6 +195,8 @@ def write_to_pg(con, ev)
   # "org:Hash"=>19451}
   # {"id"=>10, "type"=>29, "actor"=>278, "repo"=>290, "payload"=>216017, "public"=>4,
   # "created_at"=>20, "org"=>230}
+  # Fields actor_login, repo_name are copied from (gha_actors and gha_repos) to save
+  # joins on complex queries (MySQL has no hash joins and is very slow on big tables joins)
   event_id = ev['id']
   rs = exec_stmt(con, sid, 'select 1 from gha_events where id=' + n_value(1), [event_id])
   return 0 if rs.count.positive?
@@ -202,7 +204,8 @@ def write_to_pg(con, ev)
     con,
     sid,
     'insert into gha_events('\
-    'id, type, actor_id, repo_id, public, created_at, org_id, actor_login) ' + n_values(8),
+    'id, type, actor_id, repo_id, public, created_at, '\
+    'org_id, actor_login, repo_name) ' + n_values(9),
     [
       event_id,
       ev['type'],
@@ -211,7 +214,8 @@ def write_to_pg(con, ev)
       ev['public'],
       parse_timestamp(ev['created_at']),
       ev['org'] ? ev['org']['id'] : nil,
-      ev['actor']['login']
+      ev['actor']['login'],
+      ev['repo']['name']
     ]
   )
 
