@@ -15,6 +15,7 @@ func structure() {
 	// Connect to Postgres DB
 	c, err := lib.Conn()
 	lib.FatalOnError(err)
+	defer c.Close()
 
 	// gha_events
 	// {"id:String"=>48592, "type:String"=>48592, "actor:Hash"=>48592, "repo:Hash"=>48592,
@@ -706,54 +707,42 @@ func structure() {
 	// Tools (like views and functions needed for generating metrics)
 	if tools {
 		// Get max event_id from gha_texts
-		r, _ := lib.ExecSQLWithErr(
-			c,
-			"select max(event_id) as max_event_id "+
-				"from gha_texts",
+		maxEventID := 0
+		err := c.QueryRow("select coalesce(max(event_id), 0) from gha_texts").Scan(&maxEventID)
+		lib.FatalOnError(err)
+		sql := fmt.Sprintf(
+			"insert into gha_texts(event_id, body, created_at) "+
+				"select event_id, body, created_at from gha_comments "+
+				"where body != '' and event_id > %v union "+
+				"select c.event_id, c.message, e.created_at from gha_commits c, gha_events e "+
+				"where c.event_id = e.id and c.message != '' and e.id > %v union "+
+				"select event_id, title, created_at from gha_issues where "+
+				"title != '' and event_id > %v union "+
+				"select event_id, body, created_at from gha_issues where "+
+				"body != '' and event_id > %v union "+
+				"select event_id, title, created_at from gha_pull_requests where "+
+				"title != '' and event_id > %v union "+
+				"select event_id, body, created_at from gha_pull_requests "+
+				"where body != '' and event_id > %v",
+			maxEventID, maxEventID, maxEventID, maxEventID, maxEventID, maxEventID,
 		)
-		fmt.Printf("%v\n", r)
-		/*
-		   max_event_id = 0
-		   max_event_id = "'#{r.first['max_event_id']}'" if r.first['max_event_id']
-		   os.Exit(2)
+		// Add texts to gha_texts table (or fill it initially)
+		lib.ExecSQLWithErr(c, sql)
 
-		   // Add texts to gha_texts table (or fill it initially)
-		   lib.ExecSQLWithErr(
-		     c,
-		     "insert into gha_texts(event_id, body, created_at) " +
-		     "select event_id, body, created_at from gha_comments " +
-		     "where body != '' and event_id > #{max_event_id} union "\
-		     "select c.event_id, c.message, e.created_at from gha_commits c, gha_events e " +
-		     "where c.event_id = e.id and c.message != '' and e.id > #{max_event_id} union "\
-		     "select event_id, title, created_at from gha_issues where " +
-		     "title != '' and event_id > #{max_event_id}  union "\
-		     "select event_id, body, created_at from gha_issues where " +
-		     "body != '' and event_id > #{max_event_id} union "\
-		     "select event_id, title, created_at from gha_pull_requests where " +
-		     "title != '' and event_id > #{max_event_id} union "\
-		     "select event_id, body, created_at from gha_pull_requests " +
-		     "where body != '' and event_id > #{max_event_id}"
-		   )
+		// Get max event_id from gha_issues_events_labels
+		err = c.QueryRow("select coalesce(max(event_id), 0) from gha_issues_events_labels").Scan(&maxEventID)
+		lib.FatalOnError(err)
 
-		   // Get max event_id from gha_issues_events_labels
-		   r = lib.ExecSQLWithErr(
-		     c,
-		     "select max(event_id) as max_event_id " +
-		     "from gha_issues_events_labels"
-		   )
-		   max_event_id = 0
-		   max_event_id = "'#{r.first['max_event_id']}'" if r.first['max_event_id']
-
-		   // Add data to gha_issues_events_labels table (or fill it initially)
-		   lib.ExecSQLWithErr(
-		     c,
-		     "insert into gha_issues_events_labels(" +
-		     "issue_id, event_id, label_id, label_name, created_at) " +
-		     "select il.issue_id, ev.id, lb.id, lb.name, ev.created_at " +
-		     "from gha_issues_labels il, gha_events ev, gha_labels lb " +
-		     "where ev.id = il.event_id and il.label_id = lb.id and ev.id > #{max_event_id}"
-		   )
-		*/
+		// Add data to gha_issues_events_labels table (or fill it initially)
+		sql = fmt.Sprintf(
+			"insert into gha_issues_events_labels("+
+				"issue_id, event_id, label_id, label_name, created_at) "+
+				"select il.issue_id, ev.id, lb.id, lb.name, ev.created_at "+
+				"from gha_issues_labels il, gha_events ev, gha_labels lb "+
+				"where ev.id = il.event_id and il.label_id = lb.id and ev.id > %v",
+			maxEventID,
+		)
+		lib.ExecSQLWithErr(c, sql)
 	}
 }
 
