@@ -55,3 +55,10 @@ func ExecSQL(con *sql.DB, query string) (*sql.Rows, error) {
 	}
 	return con.Query(query)
 }
+
+// ExecSQLWithErr wrapper to ExecSQL that exists on error
+func ExecSQLWithErr(con *sql.DB, query string) (*sql.Rows, error) {
+	res, err := ExecSQL(con, query)
+	FatalOnError(err)
+	return res, err
+}
