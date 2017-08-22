@@ -640,3 +640,16 @@ Currently:
 - Your data source lives in https://<your_domain>:10443 (and https is served by Apache proxy to InfluxDB https:10443 -> http:8086)
 - Your Grafana lives in https://<your_domain> (and https is served by Apache proxy to Grafana https:443 -> http:3000)
 - Files in `grafana/apache` should be copied to `/etc/apache2` (see comments starting with `LG:`) and then `service apache2 restart`
+
+# Grafana anonymous login
+
+To enable Grafana anonymous login, do the foloowoing:
+- Edit Grafana config file: `/etc/grafana/grafana.ini`
+- Make sure You have options enabled:
+```
+[auth.anonymous]
+enabled = true
+org_name = Main Org.
+org_role = Viewer
+```
+- `service grafana-server restart`
