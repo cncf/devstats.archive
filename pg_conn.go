@@ -48,16 +48,31 @@ func CreateTable(tdef string) string {
 	return strings.Replace("create table "+tdef, "{{ts}}", "timestamp", -1)
 }
 
-// ExecSQL executes given SQL on Postgres DB
-func ExecSQL(con *sql.DB, query string) (*sql.Rows, error) {
+// QuerySQL executes given SQL on Postgres DB (and returns rowset that needs ti be closed)
+func QuerySQL(con *sql.DB, query string) (*sql.Rows, error) {
 	if os.Getenv("GHA2DB_QOUT") != "" {
 		fmt.Printf("%s\n", query)
 	}
 	return con.Query(query)
 }
 
+// QuerySQLWithErr wrapper to QuerySQL that exists on error
+func QuerySQLWithErr(con *sql.DB, query string) (*sql.Rows, error) {
+	res, err := QuerySQL(con, query)
+	FatalOnError(err)
+	return res, err
+}
+
+// ExecSQL executes given SQL on Postgres DB (and return single state result, that doesn't need to be closed)
+func ExecSQL(con *sql.DB, query string) (sql.Result, error) {
+	if os.Getenv("GHA2DB_QOUT") != "" {
+		fmt.Printf("%s\n", query)
+	}
+	return con.Exec(query)
+}
+
 // ExecSQLWithErr wrapper to ExecSQL that exists on error
-func ExecSQLWithErr(con *sql.DB, query string) (*sql.Rows, error) {
+func ExecSQLWithErr(con *sql.DB, query string) (sql.Result, error) {
 	res, err := ExecSQL(con, query)
 	FatalOnError(err)
 	return res, err
