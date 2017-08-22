@@ -22,7 +22,7 @@ func Conn() (*sql.DB, error) {
 		port = "5432"
 	}
 	if db == "" {
-		db = "test" // FIXME: change to gha finally!
+		db = "gha"
 	}
 	if user == "" {
 		user = "gha_admin"
