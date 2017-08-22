@@ -6,7 +6,7 @@ This is a toolset to visualize GitHub archives using Grafana dashboards.
 
 We want to create various metrics visualization toolset for Kubernetes community.
 
-It already has some metrics visualization: `kubernetes/test-infra` velodrome.
+It already has some metrics visualization: `kubernetes/test-infra` `velodrome`.
 
 This project aims to add new metrics for existing Grafana dashboards.
 
@@ -98,6 +98,12 @@ It consists of:
 - This is implemented as `runq.rb` and various `*.sh` shell scripts in POC.
 - `runq` gets SQL file name and parameter values and allows to run metric manually from the command line (this is for local development)
 - There are few shell scripts for example: running sync every N seconds, setup InfluxDB etc.
+
+# Current Velodrome
+
+My toolset can either replace velodrome or just add value to velodrome.
+They both can use shared InfluxDB (I will name series in such a way to avoid conflicts with existing ones).
+Then we can just add new dashboards that use my `gha2db`/`db2influx` workflow in the existing Grafana, and add cron job that will keep them up to date.
 
 # Adding new metrics
 
