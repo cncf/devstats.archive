@@ -43,12 +43,12 @@ func Conn() (*sql.DB, error) {
 	return con, nil
 }
 
-// CreateTable this is used to replace DB specific parts of Create Table SQL statement
+// CreateTable is used to replace DB specific parts of Create Table SQL statement
 func CreateTable(tdef string) string {
 	return strings.Replace("create table "+tdef, "{{ts}}", "timestamp", -1)
 }
 
-// QuerySQL executes given SQL on Postgres DB (and returns rowset that needs ti be closed)
+// QuerySQL executes given SQL on Postgres DB (and returns rowset that needs to be closed)
 func QuerySQL(con *sql.DB, query string) (*sql.Rows, error) {
 	if os.Getenv("GHA2DB_QOUT") != "" {
 		fmt.Printf("%s\n", query)
