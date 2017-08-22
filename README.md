@@ -34,7 +34,7 @@ Possible alternatives are:
 2) GitHub API:
 - You can get the current state of the objects, but you cannot get repo, PR, issue state in the past (for example summary fields etc).
 - It is limited by GitHub API usage per hour, which makes local development harder.
-- API limits are very aggressive for unauthorized access, and even with authorized access You're limited to 5000 API calls/hour.
+- API limits are very aggressive for unauthorized access, and even with authorized access you're limited to 5000 API calls/hour.
 - It is much slower than processing GitHub archives or BigQuery
 - You must query it via API and it is returning single result.
 - You can use GitHub hook callbacks, but they only fire for current events.
@@ -62,7 +62,7 @@ My architecture is quite similar (but I'm getting all possible GitHub data for a
 It consists of:
 
 1) `structure` (manages database structure, summaries, views)
-- This is implemented as `structure.rb` in POC.
+- This is implemented as [structure.rb](https://github.com/cncf/gha2db/blob/master/structure.rb) in POC.
 - It is used to create database structure, indexes and to update database summary tables, views etc.
 - POC supports both MySQL and Postgres. Tests have shown that Postgres is a way better than MySQL for this.
 - Postgres supports hash joins that allows multi-million table joins in less than 1s, while MySQL requires more than 3 minutes. MySQL had to use data duplication in multiple tables to create fast metrics.
@@ -71,7 +71,7 @@ It consists of:
 - MySQL has utf8 related issues, I've found finally workaround that requires to use `utf8mb4` and do some additional `mysqld` configuration.
 
 2) `gha2db` (imports GitHub archives to database and eventually JSON files)
-- This is implemented as `gha2db.rb` in POC.
+- This is implemented as [gha2db.rb](https://github.com/cncf/gha2db/blob/master/gha2db.rb) in POC.
 - This is a `fetcher` equivalent, differences are that it reads from GitHub archive instead of GitHub API and writes to Postgres instead of MySQL
 - It saves ALL data from GitHub archives, so we have all GitHub structures fully populated. See [Database structure](https://github.com/cncf/gha2db/blob/master/README.ruby.md).
 - We have all historical data from all possible GitHub events and summary values for repositories at given points of time.
@@ -80,7 +80,7 @@ It consists of:
 - The program can be parallelized very easy (events are distinct in different hours, so each hour can be processed by other CPU), POC uses 48 CPUs on cncftest.io.
 
 3) `db2influx` (computes metrics given as SQL files to be run on Postgres and saves time series output to InfluxDB)
-- This is implemented as `db2influx.rb` in POC.
+- This is implemented as [db2influx.rb](https://github.com/cncf/gha2db/blob/master/db2influx.rb) in POC.
 - This separates metrics complex logic in SQL files, `db2influx` executes parameterized SQL files and write final time-series to InfluxDB.
 - Parameters are `'{{from}}'`, `'{{to}}'` to allow computing the given metric for any date period.
 - This means that InfluxDB will only hold multiple time-series (very simple data). InfluxDB is extremely good at manipulating such kind of data - this is what it was created for.
@@ -89,7 +89,7 @@ It consists of:
 - Grafana can read from MySQL database directly but: it is slower that time-series Influx (which is designed for that), and also we are preferring Postgres as described above. So we're skipping direct MySQL usage path.
 
 4) `sync` (synchronizes GitHub archive data and Postgres, InfluxDB databases)
-- This is implemented as `sync.rb` in POC.
+- This is implemented as [sync.rb](https://github.com/cncf/gha2db/blob/master/structure.rb) in POC.
 - This program figures out what is the most recent data in Postgres database then queries GitHub archive from this date to current date.
 - It will add data to Postgres database (since the last run)
 - It will update summary tables and/or (materialized) views on Postgres DB.
@@ -99,7 +99,7 @@ It consists of:
 - It will be called from cron job at least every 45 minutes - GitHub archive publishes new file every hour, so we're off by at most 1 hour.
 
 5) Additional stuff
-- This is implemented as `runq.rb` and various `*.sh` shell scripts in POC.
+- This is implemented as [runq.rb](https://github.com/cncf/gha2db/blob/master/runq.rb) and various `*.sh` shell scripts in POC.
 - `runq` gets SQL file name and parameter values and allows to run metric manually from the command line (this is for local development)
 - There are few shell scripts for example: running sync every N seconds, setup InfluxDB etc.
 
