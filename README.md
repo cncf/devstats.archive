@@ -12,7 +12,7 @@ This project aims to add new metrics for existing Grafana dashboards.
 
 We want to support all kind of metrics, including historical ones.
 
-Please see [requested metrics]<https://docs.google.com/document/d/1ShHr3cNCTXhtm0tKJrqI1wG_QJ2ahZBsQ7UDllfc2Dc/edit> to see what kind of metrics are needed.
+Please see [requested metrics](https://docs.google.com/document/d/1ShHr3cNCTXhtm0tKJrqI1wG_QJ2ahZBsQ7UDllfc2Dc/edit) to see what kind of metrics are needed.
 
 Many of them cannot be coputed currently and current MySQL database has not enough data.
 
@@ -43,8 +43,8 @@ Possible alternatives are:
 - You are getting all possible events, and all of them include current state of PRs, issues, repos at given point in time.
 - Processing of GitHub archives is free, so local developement is easy.
 - You can optionally save downloaded JSONs to avoid network traffic in next calls (also usable for local development mode).
-- There is already implemented proof of concept (POC), please see [Ruby version]<https://github.com/cncf/gha2db/blob/master/README.ruby.md>
-- It implements 5 example metrics: Reviewers, SIG mentions, PRs merged per repo, PRs merged in all repos, Time to merge, please see [Dashboards]<https://cncftest.io/?orgId=1>
+- There is already implemented proof of concept (POC), please see [Ruby version](https://github.com/cncf/gha2db/blob/master/README.ruby.md)
+- It implements 5 example metrics: Reviewers, SIG mentions, PRs merged per repo, PRs merged in all repos, Time to merge, please see [Dashboards](https://cncftest.io/?orgId=1)
 
 # Proposed architecture
 
@@ -68,10 +68,10 @@ It consists of:
 2) `gha2db` (imports GitHub archives to database and eventually JSON files)
 - This is implemented as `gha2db.rb` in POC.
 - This is a `fetcher` equivalent, diffrences are that it reads from GitHub archive instead of GitHub API and writes to Postgres instead of MySQL
-- It saves ALL data from GitHub archives, so we have all GitHub structures fully populated. See [Database structure]<https://github.com/cncf/gha2db/blob/master/README.ruby.md>
+- It saves ALL data from GitHub archives, so we have all GitHub structures fully populated. See [Database structure](https://github.com/cncf/gha2db/blob/master/README.ruby.md).
 - We have all historical data from all possible GitHub events and summary values for repositories at given points of time.
 - Idea is to dived all data into two categories: const and variable. Const data is a data that is not changing in time, variable data is a data that changes in time, so `event_id` is added as a part of this data primary key.
-- Table structure, const and variable description can be found in [Ruby version readme]<https://github.com/cncf/gha2db/blob/master/README.ruby.md>
+- Table structure, const and variable description can be found in [Ruby version readme](https://github.com/cncf/gha2db/blob/master/README.ruby.md)
 - Program can be paralellized very easy (events are distinct in different hours, so each hour can be processed by other CPU), POC uses 48 CPUs on cncftest.io.
 
 3) `db2influx` (computes metrics given as SQL files to be run on Postgres and saves time series output to InfluxDB)
@@ -110,5 +110,18 @@ To add new metrics we need to:
 # Local development
 Local development is much easier:
 1) Install psql, influx, grafana - all with default options.
-2) Fetch populated psql database [Postgres database dump]<https://cncftest.io/web/k8s_psql.sql.xz>
+2) Fetch populated psql database [Postgres database dump](https://cncftest.io/web/k8s_psql.sql.xz)
 3) Just run Go tools manually: structure, gha2db, db2influx, sync.
+
+# POC dashboards
+
+Here are already working dashboards (written in Ruby) using this repo.
+
+1) [Reviewers](https://cncftest.io/dashboard/db/reviewers?orgId=1).
+2) [SIG mentions](https://cncftest.io/dashboard/db/sig-mentions?orgId=1).
+3) [PRs merged per repo](https://cncftest.io/dashboard/db/prs-merged?orgId=1).
+4) [PRs merged in all repos](https://cncftest.io/dashboard/db/all-prs-merged?orgId=1).
+5) [Time to merge](https://cncftest.io/dashboard/db/time-to-merge?orgId=1).
+
+All of them works live on [cncftest.io](https://cncftest.io) with auto sync tool running.
+
