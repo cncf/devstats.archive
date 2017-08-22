@@ -34,9 +34,9 @@ Possible alternatives are:
 2) GitHub API:
 - You can get the current state of the objects, but you cannot get repo, PR, issue state in the past (for example summary fields etc).
 - It is limited by GitHub API usage per hour, which makes local development harder.
-- API limits are very aggressive for unauthorized access, and even with authorized access you're limited to 5000 API calls/hour.
+- API limits are very aggressive for unauthorized access, and even with authorized access, you're limited to 5000 API calls/hour.
 - It is much slower than processing GitHub archives or BigQuery
-- You must query it via API and it is returning single result.
+- You must query it via API and it is returning a single result.
 - You can use GitHub hook callbacks, but they only fire for current events.
 
 3) GitHub archives
@@ -46,7 +46,7 @@ Possible alternatives are:
 - You are getting all possible events, and all of them include the current state of PRs, issues, repos at given point in time.
 - Processing of GitHub archives is free, so local development is easy.
 - I have 1.2M events in my Psql database, and each event contains quite complex structure, I would estimate about 3-6 GitHub API calls are needed to get that data. It means about 7M API calls.
-- 7.2M / 5K (API limit per hour) gives: 1440 hours which is 2 months. And we're on GitHub API limit all the time. Processing ALL GitHub events takes about 12 hours without ANY limit.
+- 7.2M / 5K (API limit per hour) gives 1440 hours which is 2 months. And we're on GitHub API limit all the time. Processing ALL GitHub events takes about 12 hours without ANY limit.
 - You can optionally save downloaded JSONs to avoid network traffic in next calls (also usable for local development mode).
 - There is already implemented proof of concept (POC), please see [Ruby version README](https://github.com/cncf/gha2db/blob/master/README.ruby.md)
 - It implements 5 example metrics: Reviewers, SIG mentions, PRs merged per repo, PRs merged in all repos, Time to merge, please see [Dashboards](https://cncftest.io/?orgId=1)
@@ -75,7 +75,7 @@ It consists of:
 - This is a `fetcher` equivalent, differences are that it reads from GitHub archive instead of GitHub API and writes to Postgres instead of MySQL
 - It saves ALL data from GitHub archives, so we have all GitHub structures fully populated. See [Database structure](https://github.com/cncf/gha2db/blob/master/README.ruby.md).
 - We have all historical data from all possible GitHub events and summary values for repositories at given points of time.
-- The idea is to divide all data into two categories: const and variable. Const data is a data that is not changing in time, variable data is a data that changes in time, so `event_id` is added as a part of this data primary key.
+- The idea is to divide all data into two categories: `const` and `variable`. Const data is a data that is not changing in time, variable data is a data that changes in time, so `event_id` is added as a part of this data primary key.
 - Table structure, `const` and `variable` description can be found in [Ruby version readme](https://github.com/cncf/gha2db/blob/master/README.ruby.md)
 - The program can be parallelized very easy (events are distinct in different hours, so each hour can be processed by other CPU), POC uses 48 CPUs on cncftest.io.
 
@@ -89,7 +89,7 @@ It consists of:
 - Grafana can read from MySQL database directly but: it is slower that time-series Influx (which is designed for that), and also we are preferring Postgres as described above. So we're skipping direct MySQL usage path.
 
 4) `sync` (synchronizes GitHub archive data and Postgres, InfluxDB databases)
-- This is implemented as [sync.rb](https://github.com/cncf/gha2db/blob/master/structure.rb) in POC.
+- This is implemented as [sync.rb](https://github.com/cncf/gha2db/blob/master/sync.rb) in POC.
 - This program figures out what is the most recent data in Postgres database then queries GitHub archive from this date to current date.
 - It will add data to Postgres database (since the last run)
 - It will update summary tables and/or (materialized) views on Postgres DB.
@@ -105,14 +105,16 @@ It consists of:
 
 # Current Velodrome
 
-My toolset can either replace velodrome or just add value to velodrome.
+My toolset can either replace velodrome or just add value to `velodrome`.
+
 They both can use shared InfluxDB (I will name series in such a way to avoid conflicts with existing ones).
-Then we can just add new dashboards that use my `gha2db`/`db2influx` workflow in the existing Grafana, and add cron job that will keep them up to date.
+
+Then we can just add new dashboards that use my `gha2db`/`db2influx` workflow in the existing Grafana, and add a cron job that will keep them up to date.
 
 # Adding new metrics
 
 To add new metrics we need to:
-1) Define parameterized SQL (with {{from}} and {{to}} params) that returns this metric data.
+1) Define parameterized SQL (with `{{from}}` and `{{to}}` params) that returns this metric data.
 2) Add `db2influx` call for this metric in `sync` tool. 
 3) Add Grafana dashboard or row that displays this metric
 4) Export new Grafana dashboard to JSON
@@ -122,11 +124,11 @@ To add new metrics we need to:
 Local development is much easier:
 1) Install psql, influx, grafana - all with default options.
 2) Fetch populated psql database [Postgres database dump](https://cncftest.io/web/k8s_psql.sql.xz)
-3) Just run Go tools manually: structure, gha2db, db2influx, sync.
+3) Just run Go tools manually: `structure`, `gha2db`, `db2influx`, `sync`, `runq`.
 
 # Database structure details
 
-Main idea is that we divide tables into 2 groups:
+The main idea is that we divide tables into 2 groups:
 - const: meaning that data in this table is not changing in time (is saved once)
 - variable: meaning that data in those tables can change between GH events, and GH `event_id` is a part of this tables primary key.
 
