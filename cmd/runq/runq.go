@@ -43,8 +43,7 @@ func runq(sqlFile string, params []string) {
 	defer c.Close()
 
 	// Execute SQL
-	rows, err := lib.QuerySQLWithErr(c, sqlQuery)
-	lib.FatalOnError(err)
+	rows := lib.QuerySQLWithErr(c, sqlQuery)
 	defer rows.Close()
 
 	// Now unknown rows, with unknown types
