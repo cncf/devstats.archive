@@ -22,7 +22,20 @@ type Ctx struct {
 	dbOut   bool
 }
 
-func writeToDb(ctx Ctx, con *sql.DB, ev lib.Event) int {
+// Inserts single GHA Actor
+func ghaActor(con *sql.DB, actor lib.Actor) {
+	// gha_actors
+	// {"id:Fixnum"=>48592, "login:String"=>48592, "display_login:String"=>48592,
+	// "gravatar_id:String"=>48592, "url:String"=>48592, "avatar_url:String"=>48592}
+	// {"id"=>8, "login"=>34, "display_login"=>34, "gravatar_id"=>0, "url"=>63, "avatar_url"=>49}
+	lib.ExecSQLWithErr(
+		con,
+		lib.InsertIgnore("into gha_actors(id, login) "+lib.NValues(2)),
+		lib.AnyArray{actor.ID, actor.Login}...,
+	)
+}
+
+func writeToDB(ctx Ctx, con *sql.DB, ev lib.Event) int {
 	// gha_events
 	// {"id:String"=>48592, "type:String"=>48592, "actor:Hash"=>48592, "repo:Hash"=>48592,
 	// "payload:Hash"=>48592, "public:TrueClass"=>48592, "created_at:String"=>48592,
@@ -38,33 +51,96 @@ func writeToDb(ctx Ctx, con *sql.DB, ev lib.Event) int {
 	for rows.Next() {
 		exists = 1
 	}
-	fmt.Printf("eid=%v, exists=%v\n", eventID, exists)
 	if exists == 1 {
 		return 0
-	}
-	args := []interface{}{
-		eventID,
-		ev.Type,
-		ev.Actor.ID,
-		ev.Repo.ID,
-		ev.Public,
-		ev.CreatedAt,
-		ev.Actor.Login,
-		ev.Repo.Name,
-	}
-	if ev.Org == nil {
-		args = append(args, ev.Org.ID)
-	} else {
-		args = append(args, nil)
 	}
 	lib.ExecSQLWithErr(
 		con,
 		"insert into gha_events("+
 			"id, type, actor_id, repo_id, public, created_at, "+
 			"actor_login, repo_name, org_id) "+lib.NValues(9),
-		args...,
+		lib.AnyArray{
+			eventID,
+			ev.Type,
+			ev.Actor.ID,
+			ev.Repo.ID,
+			ev.Public,
+			ev.CreatedAt,
+			ev.Actor.Login,
+			ev.Repo.Name,
+			lib.OrgIDOrNil(ev.Org),
+		}...,
 	)
-  // TODO: continue
+
+	// gha_actors
+	ghaActor(con, ev.Actor)
+
+	// gha_repos
+	// {"id:Fixnum"=>48592, "name:String"=>48592, "url:String"=>48592}
+	// {"id"=>8, "name"=>111, "url"=>140}
+	repo := ev.Repo
+	lib.ExecSQLWithErr(
+		con,
+		lib.InsertIgnore("into gha_repos(id, name) "+lib.NValues(2)),
+		lib.AnyArray{repo.ID, repo.Name}...,
+	)
+
+	// gha_orgs
+	// {"id:Fixnum"=>18494, "login:String"=>18494, "gravatar_id:String"=>18494,
+	// "url:String"=>18494, "avatar_url:String"=>18494}
+	// {"id"=>8, "login"=>38, "gravatar_id"=>0, "url"=>66, "avatar_url"=>49}
+	org := ev.Org
+	if org != nil {
+		lib.ExecSQLWithErr(
+			con,
+			lib.InsertIgnore("into gha_orgs(id, login) "+lib.NValues(2)),
+			lib.AnyArray{org.ID, org.Login}...,
+		)
+	}
+
+	// gha_payloads
+	// {"push_id:Fixnum"=>24636, "size:Fixnum"=>24636, "distinct_size:Fixnum"=>24636,
+	// "ref:String"=>30522, "head:String"=>24636, "before:String"=>24636, "commits:Array"=>24636,
+	// "action:String"=>14317, "issue:Hash"=>6446, "comment:Hash"=>6055, "ref_type:String"=>8010,
+	// "master_branch:String"=>6724, "description:String"=>3701, "pusher_type:String"=>8010,
+	// "pull_request:Hash"=>4475, "ref:NilClass"=>2124, "description:NilClass"=>3023,
+	// "number:Fixnum"=>2992, "forkee:Hash"=>1211, "pages:Array"=>370, "release:Hash"=>156,
+	// "member:Hash"=>219}
+	// {"push_id"=>10, "size"=>4, "distinct_size"=>4, "ref"=>110, "head"=>40, "before"=>40,
+	// "commits"=>33215, "action"=>9, "issue"=>87776, "comment"=>177917, "ref_type"=>10,
+	// "master_branch"=>34, "description"=>3222, "pusher_type"=>4, "pull_request"=>70565,
+	// "number"=>5, "forkee"=>6880, "pages"=>855, "release"=>31206, "member"=>1040}
+	// 48746
+	// using exec_stmt (without select), because payload are per event_id.
+	pl := ev.Payload
+	lib.ExecSQLWithErr(
+		con,
+		"insert into gha_payloads("+
+			"event_id, push_id, size, ref, head, befor, action, "+
+			"issue_id, comment_id, ref_type, master_branch, "+
+			"description, number, forkee_id, release_id, member_id"+
+			") "+lib.NValues(16),
+		lib.AnyArray{
+			eventID,
+			lib.IntOrNil(pl.PushID),
+			lib.IntOrNil(pl.Size),
+			lib.TruncStringOrNil(pl.Ref, 200),
+			lib.StringOrNil(pl.Head),
+			lib.StringOrNil(pl.Before),
+			lib.StringOrNil(pl.Action),
+			lib.IssueIDOrNil(pl.Issue),
+			lib.CommentIDOrNil(pl.Comment),
+			lib.StringOrNil(pl.RefType),
+			lib.TruncStringOrNil(pl.MasterBranch, 200),
+			lib.TruncStringOrNil(pl.Description, 0xffff),
+			lib.IntOrNil(pl.Number),
+			lib.ForkeeIDOrNil(pl.Forkee),
+			lib.ReleaseIDOrNil(pl.Release),
+			lib.ActorIDOrNil(pl.Member),
+		}...,
+	)
+
+	// TODO: continue
 	return 1
 }
 
@@ -101,17 +177,15 @@ func parseJSON(ctx Ctx, con *sql.DB, jsonStr []byte, dt time.Time, forg, frepo m
 		eid := h.ID
 		if ctx.jsonOut {
 			// We want to Unmarshal/Marshall ALL JSON data, regardless of what is defined in lib.Event
-			var full interface{}
-			err := json.Unmarshal(jsonStr, &full)
-			lib.FatalOnError(err)
-			data, err := json.MarshalIndent(full, "", "  ")
-			lib.FatalOnError(err)
+			pretty := lib.PrettyPrintJSON(jsonStr)
 			ofn := fmt.Sprintf("jsons/%v_%v.json", dt.Unix(), eid)
-			err = ioutil.WriteFile(ofn, []byte(data), 0644)
+			err = ioutil.WriteFile(ofn, pretty, 0644)
 			lib.FatalOnError(err)
 		}
 		if ctx.dbOut {
-			e = writeToDb(ctx, con, h)
+			// FIXME: not needed
+			// fmt.Printf("JSON:\n%v\n", string(lib.PrettyPrintJSON(jsonStr)))
+			e = writeToDB(ctx, con, h)
 		}
 		if ctx.Debug >= 1 {
 			fmt.Printf("Processed: '%v' event: %v\n", dt, eid)
