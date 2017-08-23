@@ -1,4 +1,4 @@
-GO_LIB_FILES=pg_conn.go error.go mgetc.go map.go threads.go gha.go
+GO_LIB_FILES=pg_conn.go error.go mgetc.go map.go threads.go gha.go json.go
 GO_BIN_FILES=cmd/structure/structure.go cmd/runq/runq.go cmd/gha2db/gha2db.go
 GO_BIN_CMDS=k8s.io/test-infra/gha2db/cmd/structure k8s.io/test-infra/gha2db/cmd/runq k8s.io/test-infra/gha2db/cmd/gha2db
 GO_ENV=CGO_ENABLED=0
