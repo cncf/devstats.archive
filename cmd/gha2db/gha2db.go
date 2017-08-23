@@ -10,6 +10,13 @@ import (
 	"time"
 )
 
+func getGHAJSON(ch chan bool, dt time.Time, org []string, repo []string) {
+	fmt.Printf("Working on %v\n", dt)
+  if ch != nil {
+    ch <- true
+  }
+}
+
 func gha2db(args []string) {
 	hourFrom, err := strconv.Atoi(args[1])
 	lib.FatalOnError(err)
@@ -49,8 +56,33 @@ func gha2db(args []string) {
 
 	// Get number of CPUs available
 	thrN := lib.GetThreadsNum()
-
 	fmt.Printf("Running (%v CPUs): %v - %v %v %v\n", thrN, dFrom, dTo, strings.Join(org, "+"), strings.Join(repo, "+"))
+
+	dt := dFrom
+	if thrN > 1 {
+		chanPool := []chan bool{}
+		for dt.Before(dTo) || dt.Equal(dTo) {
+      ch := make(chan bool)
+      chanPool = append(chanPool, ch)
+      go getGHAJSON(ch, dt, org, repo)
+			dt = dt.Add(time.Hour)
+      if len(chanPool) == thrN {
+        ch = chanPool[0]
+        <-ch
+        chanPool = chanPool[1:]
+      }
+		}
+    fmt.Printf("Final threads join\n")
+    for _, ch := range chanPool {
+        <-ch
+    }
+	} else {
+		fmt.Printf("Using single threaded version\n")
+		for dt.Before(dTo) || dt.Equal(dTo) {
+			getGHAJSON(nil, dt, org, repo)
+			dt = dt.Add(time.Hour)
+		}
+	}
 
 	/*
 	  dt = dFrom
@@ -71,11 +103,6 @@ func gha2db(args []string) {
 	    puts 'Final threads join'
 	    thr_pool.each(&:join)
 	  else
-	    puts 'Using single threaded version'
-	    while dt <= d_to
-	      get_gha_json(dt, org, repo)
-	      dt += 3600
-	    end
 	  end
 	*/
 	fmt.Printf("All done.\n")
