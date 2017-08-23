@@ -5,6 +5,7 @@ import (
 	"fmt"
 	_ "github.com/lib/pq" // As suggested by lib/pq driver
 	"os"
+	"strconv"
 	"strings"
 )
 
@@ -49,31 +50,52 @@ func CreateTable(tdef string) string {
 }
 
 // QuerySQL executes given SQL on Postgres DB (and returns rowset that needs to be closed)
-func QuerySQL(con *sql.DB, query string) (*sql.Rows, error) {
+func QuerySQL(con *sql.DB, query string, args ...interface{}) (*sql.Rows, error) {
 	if os.Getenv("GHA2DB_QOUT") != "" {
 		fmt.Printf("%s\n", query)
 	}
-	return con.Query(query)
+	return con.Query(query, args...)
 }
 
 // QuerySQLWithErr wrapper to QuerySQL that exists on error
-func QuerySQLWithErr(con *sql.DB, query string) (*sql.Rows, error) {
-	res, err := QuerySQL(con, query)
+func QuerySQLWithErr(con *sql.DB, query string, args ...interface{}) *sql.Rows {
+	res, err := QuerySQL(con, query, args...)
 	FatalOnError(err)
-	return res, err
+	return res
 }
 
 // ExecSQL executes given SQL on Postgres DB (and return single state result, that doesn't need to be closed)
-func ExecSQL(con *sql.DB, query string) (sql.Result, error) {
+func ExecSQL(con *sql.DB, query string, args ...interface{}) (sql.Result, error) {
 	if os.Getenv("GHA2DB_QOUT") != "" {
 		fmt.Printf("%s\n", query)
 	}
-	return con.Exec(query)
+	return con.Exec(query, args...)
 }
 
 // ExecSQLWithErr wrapper to ExecSQL that exists on error
-func ExecSQLWithErr(con *sql.DB, query string) (sql.Result, error) {
-	res, err := ExecSQL(con, query)
+func ExecSQLWithErr(con *sql.DB, query string, args ...interface{}) sql.Result {
+	res, err := ExecSQL(con, query, args...)
 	FatalOnError(err)
-	return res, err
+	return res
+}
+
+// NValues will return values($1, $2, .., $n)
+func NValues(n int) string {
+	s := "values("
+	i := 1
+	for i <= n {
+		s += "$" + strconv.Itoa(i) + ", "
+		i++
+	}
+	return s[:len(s)-2] + ")"
+}
+
+// NValue will return $n
+func NValue(index int) string {
+	return fmt.Sprintf("$%d", index)
+}
+
+// InsertIgnore - will return insert statement with ignore option specific for DB
+func InsertIgnore(query string) string {
+	return fmt.Sprintf("insert %s on conflict do nothing", query)
 }

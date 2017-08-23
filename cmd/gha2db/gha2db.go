@@ -15,45 +15,116 @@ import (
 	"time"
 )
 
-// parseJSON - Parse signle GHA JSON event
-func parseJSON(con *sql.DB, jsonStr []byte, dt time.Time, forg []string, frepo []string) (f int, e int) {
-	var h lib.GHA
-	if len(jsonStr) < 1 {
-		return
+// Ctx - environment context packed in structure
+type Ctx struct {
+	Debug   int
+	jsonOut bool
+	dbOut   bool
+}
+
+func writeToDb(ctx Ctx, con *sql.DB, ev lib.Event) int {
+	// gha_events
+	// {"id:String"=>48592, "type:String"=>48592, "actor:Hash"=>48592, "repo:Hash"=>48592,
+	// "payload:Hash"=>48592, "public:TrueClass"=>48592, "created_at:String"=>48592,
+	// "org:Hash"=>19451}
+	// {"id"=>10, "type"=>29, "actor"=>278, "repo"=>290, "payload"=>216017, "public"=>4,
+	// "created_at"=>20, "org"=>230}
+	// Fields actor_login, repo_name are copied from (gha_actors and gha_repos) to save
+	// joins on complex queries (MySQL has no hash joins and is very slow on big tables joins)
+	eventID := ev.ID
+	rows := lib.QuerySQLWithErr(con, fmt.Sprintf("select 1 from gha_events where id=%s", lib.NValue(1)), eventID)
+	defer rows.Close()
+	exists := 0
+	for rows.Next() {
+		exists = 1
 	}
+	fmt.Printf("eid=%v, exists=%v\n", eventID, exists)
+	if exists == 1 {
+		return 0
+	}
+	args := []interface{}{
+		eventID,
+		ev.Type,
+		ev.Actor.ID,
+		ev.Repo.ID,
+		ev.Public,
+		ev.CreatedAt,
+		ev.Actor.Login,
+		ev.Repo.Name,
+	}
+	if ev.Org == nil {
+		args = append(args, ev.Org.ID)
+	} else {
+		args = append(args, nil)
+	}
+	lib.ExecSQLWithErr(
+		con,
+		"insert into gha_events("+
+			"id, type, actor_id, repo_id, public, created_at, "+
+			"actor_login, repo_name, org_id) "+lib.NValues(9),
+		args...,
+	)
+  // TODO: continue
+	return 1
+}
+
+// repoHit - are we interested in this org/repo ?
+func repoHit(fullName string, forg, frepo map[string]bool) bool {
+	if fullName == "" {
+		return false
+	}
+	res := strings.Split(fullName, "/")
+	org, repo := res[0], res[1]
+	if len(forg) > 0 {
+		if _, ok := forg[org]; !ok {
+			return false
+		}
+	}
+	if len(frepo) > 0 {
+		if _, ok := frepo[repo]; !ok {
+			return false
+		}
+	}
+	return true
+}
+
+// parseJSON - parse signle GHA JSON event
+func parseJSON(ctx Ctx, con *sql.DB, jsonStr []byte, dt time.Time, forg, frepo map[string]bool) (f int, e int) {
+	var h lib.Event
 	err := json.Unmarshal(jsonStr, &h)
 	if err != nil {
-		fmt.Printf("'%v'\n", jsonStr)
+		fmt.Printf("'%v'\n", string(jsonStr))
 	}
 	lib.FatalOnError(err)
-  fmt.Printf("repo: %v\n", h.Repo.Name)
-	/*
-	  h = JSON.parse json
-	  full_name = h['repo']['name']
-	  if repo_hit(full_name, forg, frepo)
-	    eid = h['id']
-	    if $json_out
-	      prt = JSON.pretty_generate(h)
-	      ofn = "jsons/#{dt.to_i}_#{eid}.json"
-	      File.write ofn, prt
-	    end
-	    if $db_out
-	      $ev[Thread.current.object_id] = h
-	      e = write_to_pg(con, h)
-	      $ev.delete(Thread.current.object_id)
-	    end
-	    puts "Processed: '#{dt}' event: #{eid}" if $debug >= 1
-	    f = 1
-	  end
-	  [f, e]
-	*/
+	fullName := h.Repo.Name
+	if repoHit(fullName, forg, frepo) {
+		eid := h.ID
+		if ctx.jsonOut {
+			// We want to Unmarshal/Marshall ALL JSON data, regardless of what is defined in lib.Event
+			var full interface{}
+			err := json.Unmarshal(jsonStr, &full)
+			lib.FatalOnError(err)
+			data, err := json.MarshalIndent(full, "", "  ")
+			lib.FatalOnError(err)
+			ofn := fmt.Sprintf("jsons/%v_%v.json", dt.Unix(), eid)
+			err = ioutil.WriteFile(ofn, []byte(data), 0644)
+			lib.FatalOnError(err)
+		}
+		if ctx.dbOut {
+			e = writeToDb(ctx, con, h)
+		}
+		if ctx.Debug >= 1 {
+			fmt.Printf("Processed: '%v' event: %v\n", dt, eid)
+		}
+		f = 1
+	}
 	return
 }
 
 // getGHAJSON - This is a work for single go routine - 1 hour of GHA data
 // Usually such JSON conatin about 15000 - 60000 singe GHA events
 // Boolean channel `ch` is used to synchronize go routines
-func getGHAJSON(ch chan bool, dt time.Time, forg []string, frepo []string) {
+func getGHAJSON(ch chan bool, ctx Ctx, dt time.Time, forg map[string]bool, frepo map[string]bool) {
 	fmt.Printf("Working on %v\n", dt)
 
 	// Connect to Postgres DB
@@ -87,7 +158,10 @@ func getGHAJSON(ch chan bool, dt time.Time, forg []string, frepo []string) {
 	// Process JSONs one by one
 	n, f, e := 0, 0, 0
 	for _, json := range jsonsArray {
-		fi, ei := parseJSON(con, json, dt, forg, frepo)
+		if len(json) < 1 {
+			continue
+		}
+		fi, ei := parseJSON(ctx, con, json, dt, forg, frepo)
 		n++
 		f += fi
 		e += ei
@@ -103,6 +177,18 @@ func getGHAJSON(ch chan bool, dt time.Time, forg []string, frepo []string) {
 
 // gha2db - main work horse
 func gha2db(args []string) {
+	// Environment context parse
+	var ctx Ctx
+	ctx.jsonOut = os.Getenv("GHA2DB_JSON") != ""
+	ctx.dbOut = os.Getenv("GHA2DB_NODB") == ""
+	if os.Getenv("GHA2DB_DEBUG") == "" {
+		ctx.Debug = 0
+	} else {
+		debugLevel, err := strconv.Atoi(os.Getenv("GHA2DB_DEBUG"))
+		lib.FatalOnError(err)
+		ctx.Debug = debugLevel
+	}
+
 	hourFrom, err := strconv.Atoi(args[1])
 	lib.FatalOnError(err)
 	dFrom, err := time.Parse(
@@ -123,17 +209,17 @@ func gha2db(args []string) {
 	stripFunc := func(x string) string { return strings.TrimSpace(x) }
 
 	// Stripping whitespace from org and repo params
-	org := []string{}
+	var org map[string]bool
 	if len(args) >= 5 {
-		org = lib.StringsMap(
+		org = lib.StringsMapToSet(
 			stripFunc,
 			strings.Split(args[4], ","),
 		)
 	}
 
-	repo := []string{}
+	var repo map[string]bool
 	if len(args) >= 6 {
-		repo = lib.StringsMap(
+		repo = lib.StringsMapToSet(
 			stripFunc,
 			strings.Split(args[5], ","),
 		)
@@ -141,7 +227,12 @@ func gha2db(args []string) {
 
 	// Get number of CPUs available
 	thrN := lib.GetThreadsNum()
-	fmt.Printf("Running (%v CPUs): %v - %v %v %v\n", thrN, dFrom, dTo, strings.Join(org, "+"), strings.Join(repo, "+"))
+	fmt.Printf(
+		"Running (%v CPUs): %v - %v %v %v\n",
+		thrN, dFrom, dTo,
+		strings.Join(lib.StringsSetKeys(org), "+"),
+		strings.Join(lib.StringsSetKeys(repo), "+"),
+	)
 
 	dt := dFrom
 	if thrN > 1 {
@@ -149,7 +240,7 @@ func gha2db(args []string) {
 		for dt.Before(dTo) || dt.Equal(dTo) {
 			ch := make(chan bool)
 			chanPool = append(chanPool, ch)
-			go getGHAJSON(ch, dt, org, repo)
+			go getGHAJSON(ch, ctx, dt, org, repo)
 			dt = dt.Add(time.Hour)
 			if len(chanPool) == thrN {
 				ch = chanPool[0]
@@ -164,7 +255,7 @@ func gha2db(args []string) {
 	} else {
 		fmt.Printf("Using single threaded version\n")
 		for dt.Before(dTo) || dt.Equal(dTo) {
-			getGHAJSON(nil, dt, org, repo)
+			getGHAJSON(nil, ctx, dt, org, repo)
 			dt = dt.Add(time.Hour)
 		}
 	}
