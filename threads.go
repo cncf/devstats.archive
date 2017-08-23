@@ -14,5 +14,6 @@ func GetThreadsNum() int {
 		return 1
 	}
 	thrN := runtime.NumCPU()
+	runtime.GOMAXPROCS(thrN)
 	return thrN
 }
