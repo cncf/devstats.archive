@@ -167,6 +167,72 @@ func writeToDB(ctx Ctx, con *sql.DB, ev lib.Event) int {
 		)
 	}
 
+	// gha_pages
+	// {"page_name:String"=>370, "title:String"=>370, "summary:NilClass"=>370,
+	// "action:String"=>370, "sha:String"=>370, "html_url:String"=>370}
+	// {"page_name"=>65, "title"=>65, "summary"=>0, "action"=>7, "sha"=>40, "html_url"=>130}
+	// 370
+	pages := []lib.Page{}
+	if pl.Pages != nil {
+		pages = *pl.Pages
+	}
+	for _, page := range pages {
+		sha := page.SHA
+		lib.ExecSQLWithErr(
+			con,
+			lib.InsertIgnore("into gha_pages(sha, event_id, action, title) "+lib.NValues(4)),
+			lib.AnyArray{
+				sha,
+				eventID,
+				page.Action,
+				lib.TruncToBytes(page.Title, 300),
+			}...,
+		)
+	}
+
+	// member
+	if pl.Member != nil {
+		ghaActor(con, *pl.Member)
+	}
+
+	// gha_comments
+	// Table details and analysis in `analysis/analysis.txt` and `analysis/comment_*.json`
+	if pl.Comment != nil {
+		comment := *pl.Comment
+		// user
+		ghaActor(con, comment.User)
+
+		// comment
+		cid := comment.ID
+		lib.ExecSQLWithErr(
+			con,
+			lib.InsertIgnore(
+				"into gha_comments("+
+					"id, event_id, body, created_at, updated_at, type, user_id, "+
+					"commit_id, original_commit_id, diff_hunk, position, "+
+					"original_position, path, pull_request_review_id, line"+
+					") "+lib.NValues(15),
+			),
+			lib.AnyArray{
+				cid,
+				eventID,
+				lib.TruncToBytes(comment.Body, 0xffff), // FIXME: gha2db.rb was using conditional nil here
+				comment.CreatedAt,
+				comment.UpdatedAt,
+				ev.Type,
+				comment.User.ID,
+				lib.StringOrNil(comment.CommitID),
+				lib.StringOrNil(comment.OriginalCommitID),
+				lib.StringOrNil(comment.DiffHunk),
+				lib.IntOrNil(comment.Position),
+				lib.IntOrNil(comment.OriginalPosition),
+				lib.StringOrNil(comment.Path),
+				lib.IntOrNil(comment.PullRequestReviewID),
+				lib.IntOrNil(comment.Line),
+			}...,
+		)
+	}
+
 	// TODO: continue
 	return 1
 }
