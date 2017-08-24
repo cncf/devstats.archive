@@ -7,6 +7,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 )
 
 // Conn Connects to Postgres database
@@ -112,6 +113,22 @@ func NValue(index int) string {
 // InsertIgnore - will return insert statement with ignore option specific for DB
 func InsertIgnore(query string) string {
 	return fmt.Sprintf("insert %s on conflict do nothing", query)
+}
+
+// BoolOrNil - return either nil or value of boolPtr
+func BoolOrNil(boolPtr *bool) interface{} {
+	if boolPtr == nil {
+		return nil
+	}
+	return *boolPtr
+}
+
+// TimeOrNil - return either nil or value of timePtr
+func TimeOrNil(timePtr *time.Time) interface{} {
+	if timePtr == nil {
+		return nil
+	}
+	return *timePtr
 }
 
 // IntOrNil - return either nil or value of intPtr

@@ -233,7 +233,282 @@ func writeToDB(ctx Ctx, con *sql.DB, ev lib.Event) int {
 		)
 	}
 
-	// TODO: continue
+	// gha_issues
+	// Table details and analysis in `analysis/analysis.txt` and `analysis/issue_*.json`
+	if pl.Issue != nil {
+		issue := *pl.Issue
+
+		// user, assignee
+		ghaActor(con, issue.User)
+		if issue.Assignee != nil {
+			ghaActor(con, *issue.Assignee)
+		}
+
+		// issue
+		iid := issue.ID
+		isPR := false
+		if issue.PullRequest != nil {
+			isPR = true
+		}
+		lib.ExecSQLWithErr(
+			con,
+			"insert into gha_issues("+
+				"id, event_id, assignee_id, body, closed_at, comments, created_at, "+
+				"locked, milestone_id, number, state, title, updated_at, user_id, "+
+				"is_pull_request) "+lib.NValues(15),
+			lib.AnyArray{
+				iid,
+				eventID,
+				lib.ActorIDOrNil(issue.Assignee),
+				lib.TruncStringOrNil(issue.Body, 0xffff),
+				lib.TimeOrNil(issue.ClosedAt),
+				issue.Comments,
+				issue.CreatedAt,
+				issue.Locked,
+				lib.MilestoneIDOrNil(issue.Milestone),
+				issue.Number,
+				issue.State,
+				issue.Title,
+				issue.UpdatedAt,
+				issue.User.ID,
+				isPR,
+			}...,
+		)
+	}
+	/*
+	    # milestone
+	    gha_milestone(con, sid, event_id, issue['milestone']) if issue['milestone']
+
+	    # assignees
+	    assignees = issue['assignees'] || []
+	    p_aid = issue['assignee'] ? issue['assignee']['id'] : nil
+	    assignees.each do |assignee|
+	      aid = assignee['id']
+	      next if aid == p_aid
+
+	      # assignee
+	      gha_actor(con, sid, assignee)
+
+	      # issue-assignee connection
+	      exec_stmt(
+	        con,
+	        sid,
+	        'insert into gha_issues_assignees(issue_id, event_id, assignee_id) ' + n_values(3),
+	        [iid, event_id, aid]
+	      )
+	    end
+
+	    # labels
+	    labels = issue['labels']
+	    labels.each do |label|
+	      lid = label['id']
+	      lid = lookup_label(con, sid, trunc(label['name'], 160), label['color']) unless lid
+	      exec_stmt(
+	        con,
+	        sid,
+	        insert_ignore('into gha_labels(id, name, color, is_default) ' + n_values(4)),
+	        [
+	          lid,
+	          trunc(label['name'], 160),
+	          label['color'],
+	          label['default']
+	        ]
+	      )
+	      # issue-label connection
+	      exec_stmt(
+	        con,
+	        sid,
+	        insert_ignore("into gha_issues_labels(issue_id, event_id, label_id) #{n_values(3)}"),
+	        [iid, event_id, lid]
+	      )
+	    end
+	  end
+
+	  # gha_forkees
+	  gha_forkee(con, sid, event_id, pl['forkee']) if pl['forkee']
+
+	  # gha_releases
+	  # Table details and analysis in `analysis/analysis.txt` and `analysis/release_*.json`
+	  release = pl['release']
+	  if release
+	    # author
+	    gha_actor(con, sid, release['author'])
+
+	    # release
+	    rid = release['id']
+	    exec_stmt(
+	      con,
+	      sid,
+	      'insert into gha_releases('\
+	      'id, event_id, tag_name, target_commitish, name, draft, '\
+	      'author_id, prerelease, created_at, published_at, body'\
+	      ') ' + n_values(11),
+	      [
+	        rid,
+	        event_id,
+	        trunc(release['tag_name'], 200),
+	        trunc(release['target_commitish'], 200),
+	        release['name'] ? trunc(release['name'], 200) : nil,
+	        release['draft'],
+	        release['author']['id'],
+	        release['prerelease'],
+	        parse_timestamp(release['created_at']),
+	        parse_timestamp(release['published_at']),
+	        release['body'] ? trunc(release['body'], 0xffff) : nil
+	      ]
+	    )
+
+	    # assets
+	    assets = release['assets']
+	    assets.each do |asset|
+	      # uploader
+	      gha_actor(con, sid, asset['uploader'])
+
+	      # asset
+	      aid = asset['id']
+	      exec_stmt(
+	        con,
+	        sid,
+	        'insert into gha_assets('\
+	        'id, event_id, name, label, uploader_id, content_type, '\
+	        'state, size, download_count, created_at, updated_at'\
+	        ') ' + n_values(11),
+	        [
+	          aid,
+	          event_id,
+	          trunc(asset['name'], 200),
+	          asset['label'] ? trunc(asset['label'], 120) : nil,
+	          asset['uploader']['id'],
+	          asset['content_type'],
+	          asset['state'],
+	          asset['size'],
+	          asset['download_count'],
+	          parse_timestamp(asset['created_at']),
+	          parse_timestamp(asset['updated_at'])
+	        ]
+	      )
+
+	      # release-asset connection
+	      exec_stmt(
+	        con,
+	        sid,
+	        'insert into gha_releases_assets(release_id, event_id, asset_id) ' + n_values(3),
+	        [rid, event_id, aid]
+	      )
+	    end
+	  end
+
+	  # gha_pull_requests
+	  # Table details and analysis in `analysis/analysis.txt` and `analysis/pull_request_*.json`
+	  pr = pl['pull_request']
+	  if pr
+	    # gha_pull_requests
+
+	    # user
+	    gha_actor(con, sid, pr['user'])
+
+	    base_sha = pr['base']['sha']
+	    head_sha = pr['head']['sha']
+	    base_repo_id = pr['base']['repo'] && pr['base']['repo']['id']
+
+	    # base
+	    gha_branch(con, sid, event_id, pr['base'])
+
+	    # head (if different, and skip its repo if defined and the same as base repo)
+	    gha_branch(con, sid, event_id, pr['head'], base_repo_id) unless base_sha == head_sha
+
+	    # merged_by
+	    gha_actor(con, sid, pr['merged_by']) if pr['merged_by']
+
+	    # assignee
+	    gha_actor(con, sid, pr['assignee']) if pr['assignee']
+
+	    # milestone
+	    gha_milestone(con, sid, event_id, pr['milestone']) if pr['milestone']
+
+	    # pull_request
+	    prid = pr['id']
+	    exec_stmt(
+	      con,
+	      sid,
+	      'insert into gha_pull_requests('\
+	      'id, event_id, user_id, base_sha, head_sha, merged_by_id, assignee_id, milestone_id, '\
+	      'number, state, locked, title, body, created_at, updated_at, closed_at, merged_at, '\
+	      'merge_commit_sha, merged, mergeable, rebaseable, mergeable_state, comments, '\
+	      'review_comments, maintainer_can_modify, commits, additions, deletions, changed_files'\
+	      ') ' + n_values(29),
+	      [
+	        prid,
+	        event_id,
+	        pr['user']['id'],
+	        base_sha,
+	        head_sha,
+	        pr['merged_by'] ? pr['merged_by']['id'] : nil,
+	        pr['assignee'] ? pr['assignee']['id'] : nil,
+	        pr['milestone'] ? pr['milestone']['id'] : nil,
+	        pr['number'],
+	        pr['state'],
+	        pr['locked'],
+	        pr['title'],
+	        pr['body'] ? trunc(pr['body'], 0xffff) : nil,
+	        parse_timestamp(pr['created_at']),
+	        parse_timestamp(pr['updated_at']),
+	        pr['closed_at'] ? parse_timestamp(pr['closed_at']) : nil,
+	        pr['merged_at'] ? parse_timestamp(pr['merged_at']) : nil,
+	        pr['merge_commit_sha'],
+	        pr['merged'],
+	        pr['mergeable'],
+	        pr['rebaseable'],
+	        pr['mergeable_state'],
+	        pr['comments'],
+	        pr['review_comments'],
+	        pr['maintainer_can_modify'],
+	        pr['commits'],
+	        pr['additions'],
+	        pr['deletions'],
+	        pr['changed_files']
+	      ]
+	    )
+
+	    # Arrays: actors: assignees, requested_reviewers
+	    # assignees
+	    assignees = pr['assignees'] || []
+	    p_aid = pr['assignee'] ? pr['assignee']['id'] : nil
+	    assignees.each do |assignee|
+	      aid = assignee['id']
+	      next if aid == p_aid
+
+	      # assignee
+	      gha_actor(con, sid, assignee)
+
+	      # pull_request-assignee connection
+	      exec_stmt(
+	        con,
+	        sid,
+	        'insert into gha_pull_requests_assignees('\
+	        'pull_request_id, event_id, assignee_id) ' + n_values(3),
+	        [prid, event_id, aid]
+	      )
+	    end
+
+	    # requested_reviewers
+	    reviewers = pr['requested_reviewers'] || []
+	    reviewers.each do |reviewer|
+	      # reviewer
+	      gha_actor(con, sid, reviewer)
+
+	      # pull_request-requested_reviewer connection
+	      exec_stmt(
+	        con,
+	        sid,
+	        'insert into gha_pull_requests_requested_reviewers('\
+	        'pull_request_id, event_id, requested_reviewer_id) ' + n_values(3),
+	        [prid, event_id, reviewer['id']]
+	      )
+	    end
+	  end
+	*/
+
 	return 1
 }
 
