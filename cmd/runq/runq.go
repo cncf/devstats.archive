@@ -61,8 +61,7 @@ func runq(sqlFile string, params []string) {
 	rowCount := 0
 	for rows.Next() {
 		rowMap := make(map[string]string)
-		err = rows.Scan(vals...)
-		lib.FatalOnError(err)
+		lib.FatalOnError(rows.Scan(vals...))
 		for index, val := range vals {
 			value := ""
 			if val != nil {
@@ -73,8 +72,7 @@ func runq(sqlFile string, params []string) {
 		results = append(results, rowMap)
 		rowCount++
 	}
-	err = rows.Err()
-	lib.FatalOnError(err)
+	lib.FatalOnError(rows.Err())
 
 	if len(results) < 1 {
 		fmt.Printf("Metric returned no data\n")
