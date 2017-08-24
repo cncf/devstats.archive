@@ -7,8 +7,7 @@ import (
 // PrettyPrintJSON - pretty formats raw JSON bytes
 func PrettyPrintJSON(jsonBytes []byte) []byte {
 	var jsonObj interface{}
-	err := json.Unmarshal(jsonBytes, &jsonObj)
-	FatalOnError(err)
+	FatalOnError(json.Unmarshal(jsonBytes, &jsonObj))
 	pretty, err := json.MarshalIndent(jsonObj, "", "  ")
 	FatalOnError(err)
 	return pretty

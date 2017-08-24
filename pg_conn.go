@@ -94,6 +94,26 @@ func ExecSQLWithErr(con *sql.DB, query string, args ...interface{}) sql.Result {
 	return res
 }
 
+// ExecSQLTx executes given SQL on Postgres DB (and return single state result, that doesn't need to be closed)
+// It is for running inside transaction
+func ExecSQLTx(con *sql.Tx, query string, args ...interface{}) (sql.Result, error) {
+	if os.Getenv("GHA2DB_QOUT") != "" {
+		queryOut(query, args...)
+	}
+	return con.Exec(query, args...)
+}
+
+// ExecSQLTxWithErr wrapper to ExecSQL that exists on error
+// It is for running inside transaction
+func ExecSQLTxWithErr(con *sql.Tx, query string, args ...interface{}) sql.Result {
+	res, err := ExecSQLTx(con, query, args...)
+	if err != nil {
+		queryOut(query, args...)
+	}
+	FatalOnError(err)
+	return res
+}
+
 // NValues will return values($1, $2, .., $n)
 func NValues(n int) string {
 	s := "values("
@@ -139,12 +159,20 @@ func IntOrNil(intPtr *int) interface{} {
 	return *intPtr
 }
 
+// CleanUTF8 - clean UTF8 string to containg only Pq allowed runes
+func CleanUTF8(str string) string {
+	if strings.Contains(str, "\x00") {
+		return strings.Replace(str, "\x00", "", -1)
+	}
+	return str
+}
+
 // StringOrNil - return either nil or value of strPtr
 func StringOrNil(strPtr *string) interface{} {
 	if strPtr == nil {
 		return nil
 	}
-	return *strPtr
+	return CleanUTF8(*strPtr)
 }
 
 // TruncToBytes - truncates text to <= size bytes (note that this can be a lot less UTF-8 runes)
@@ -170,5 +198,5 @@ func TruncStringOrNil(strPtr *string, maxLen int) interface{} {
 	if strPtr == nil {
 		return nil
 	}
-	return TruncToBytes(*strPtr, maxLen)
+	return TruncToBytes(CleanUTF8(*strPtr), maxLen)
 }
