@@ -76,6 +76,26 @@ func QuerySQLWithErr(con *sql.DB, query string, args ...interface{}) *sql.Rows {
 	return res
 }
 
+// QuerySQLTx executes given SQL on Postgres DB (and returns rowset that needs to be closed)
+// It is for running inside transaction
+func QuerySQLTx(con *sql.Tx, query string, args ...interface{}) (*sql.Rows, error) {
+	if os.Getenv("GHA2DB_QOUT") != "" {
+		queryOut(query, args...)
+	}
+	return con.Query(query, args...)
+}
+
+// QuerySQLTxWithErr wrapper to QuerySQLTx that exists on error
+// It is for running inside transaction
+func QuerySQLTxWithErr(con *sql.Tx, query string, args ...interface{}) *sql.Rows {
+	res, err := QuerySQLTx(con, query, args...)
+	if err != nil {
+		queryOut(query, args...)
+	}
+	FatalOnError(err)
+	return res
+}
+
 // ExecSQL executes given SQL on Postgres DB (and return single state result, that doesn't need to be closed)
 func ExecSQL(con *sql.DB, query string, args ...interface{}) (sql.Result, error) {
 	if os.Getenv("GHA2DB_QOUT") != "" {
@@ -103,7 +123,7 @@ func ExecSQLTx(con *sql.Tx, query string, args ...interface{}) (sql.Result, erro
 	return con.Exec(query, args...)
 }
 
-// ExecSQLTxWithErr wrapper to ExecSQL that exists on error
+// ExecSQLTxWithErr wrapper to ExecSQLTx that exists on error
 // It is for running inside transaction
 func ExecSQLTxWithErr(con *sql.Tx, query string, args ...interface{}) sql.Result {
 	res, err := ExecSQLTx(con, query, args...)
@@ -177,6 +197,7 @@ func StringOrNil(strPtr *string) interface{} {
 
 // TruncToBytes - truncates text to <= size bytes (note that this can be a lot less UTF-8 runes)
 func TruncToBytes(str string, size int) string {
+	str = CleanUTF8(str)
 	length := len(str)
 	if length < size {
 		return str
@@ -198,5 +219,5 @@ func TruncStringOrNil(strPtr *string, maxLen int) interface{} {
 	if strPtr == nil {
 		return nil
 	}
-	return TruncToBytes(CleanUTF8(*strPtr), maxLen)
+	return TruncToBytes(*strPtr, maxLen)
 }

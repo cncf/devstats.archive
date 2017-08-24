@@ -94,10 +94,10 @@ type Issue struct {
 
 // Label - GHA Label structure
 type Label struct {
-	ID        int    `json:"id"`
-	Name      string `json:"name"`
-	Color     string `json:"color"`
-	IsDefault *bool  `json:"default"`
+	ID      *int   `json:"id"`
+	Name    string `json:"name"`
+	Color   string `json:"color"`
+	Default *bool  `json:"default"`
 }
 
 // Milestone - GHA Milestone structure
