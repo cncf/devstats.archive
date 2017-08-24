@@ -350,7 +350,6 @@ List of tables:
 - `gha_comments`: variable (issue, PR, review)
 - `gha_commits`: variable, commits
 - `gha_events`: const, single GitHub archive event
-- `gha_events_commits`: variable, event's commits
 - `gha_events_pages`: variable, event's pages
 - `gha_forkees`: variable, forkee, repo state
 - `gha_issues`: variable, issues

@@ -189,18 +189,6 @@ func structure() {
 					")",
 			),
 		)
-		// variable
-		lib.ExecSQLWithErr(c, "drop table if exists gha_events_commits")
-		lib.ExecSQLWithErr(
-			c,
-			lib.CreateTable(
-				"gha_events_commits("+
-					"event_id bigint not null, "+
-					"sha varchar(40) not null, "+
-					"primary key(event_id, sha)"+
-					")",
-			),
-		)
 	}
 	if index {
 		lib.ExecSQLWithErr(c, "create index commits_event_id_idx on gha_commits(event_id)")
