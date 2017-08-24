@@ -712,14 +712,10 @@ func getGHAJSON(ch chan bool, ctx Ctx, dt time.Time, forg map[string]bool, frepo
 	fmt.Printf("Working on %v\n", dt)
 
 	// Connect to Postgres DB
-	con, err := lib.Conn()
-	lib.FatalOnError(err)
+	con := lib.Conn()
 	defer con.Close()
 
-	fn := fmt.Sprintf(
-		"http://data.githubarchive.org/%04d-%02d-%02d-%d.json.gz",
-		dt.Year(), dt.Month(), dt.Day(), dt.Hour(),
-	)
+	fn := fmt.Sprintf("http://data.githubarchive.org/%s.json.gz", lib.ToGHADate(dt))
 
 	// Get gzipped JSON array via HTTP
 	response, err := http.Get(fn)
@@ -843,7 +839,7 @@ func gha2db(args []string) {
 			dt = dt.Add(time.Hour)
 		}
 	}
-
+	// Finished
 	fmt.Printf("All done.\n")
 }
 

@@ -83,7 +83,7 @@ ensure
 end
 
 def db2influx(series_name_or_func, sql_file, from, to, interval_abbr)
-  # Connect to database
+  # Read SQL file
   sql = File.read(sql_file)
   d_from = Time.parse(from).utc
   d_to = Time.parse(to).utc

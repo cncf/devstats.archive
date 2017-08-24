@@ -38,8 +38,7 @@ func runq(sqlFile string, params []string) {
 	}
 
 	// Connect to Postgres DB
-	c, err := lib.Conn()
-	lib.FatalOnError(err)
+	c := lib.Conn()
 	defer c.Close()
 
 	// Execute SQL
