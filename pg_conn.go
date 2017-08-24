@@ -11,7 +11,7 @@ import (
 )
 
 // Conn Connects to Postgres database
-func Conn() (*sql.DB, error) {
+func Conn() *sql.DB {
 	host := os.Getenv("PG_HOST")
 	port := os.Getenv("PG_PORT")
 	db := os.Getenv("PG_DB")
@@ -39,10 +39,8 @@ func Conn() (*sql.DB, error) {
 	}
 
 	con, err := sql.Open("postgres", connectionString)
-	if err != nil {
-		return nil, err
-	}
-	return con, nil
+	FatalOnError(err)
+	return con
 }
 
 // CreateTable is used to replace DB specific parts of Create Table SQL statement

@@ -13,8 +13,7 @@ func structure() {
 	tools := os.Getenv("GHA2DB_SKIPTOOLS") == ""
 
 	// Connect to Postgres DB
-	c, err := lib.Conn()
-	lib.FatalOnError(err)
+	c := lib.Conn()
 	defer c.Close()
 
 	// gha_events
