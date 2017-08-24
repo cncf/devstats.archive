@@ -213,29 +213,6 @@ LOCK TABLES `gha_events` WRITE;
 UNLOCK TABLES;
 
 --
--- Table structure for table `gha_events_pages`
---
-
-DROP TABLE IF EXISTS `gha_events_pages`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `gha_events_pages` (
-  `event_id` bigint(20) NOT NULL,
-  `sha` varchar(40) COLLATE utf8mb4_unicode_ci NOT NULL,
-  PRIMARY KEY (`event_id`,`sha`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `gha_events_pages`
---
-
-LOCK TABLES `gha_events_pages` WRITE;
-/*!40000 ALTER TABLE `gha_events_pages` DISABLE KEYS */;
-/*!40000 ALTER TABLE `gha_events_pages` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `gha_forkees`
 --
 
@@ -790,4 +767,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2017-08-24  5:29:33
+-- Dump completed on 2017-08-24  5:43:23

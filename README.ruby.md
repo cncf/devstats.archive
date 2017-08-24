@@ -118,8 +118,6 @@ Taking all events from single day is 5 minutes 50 seconds (2017-07-28):
 - Creates 51412 comments.
 - Creates 5989 commits.
 - Creates 67911 events.
-- Creates 5989 event - commit connections.
-- Creates 32 event - page connections.
 - Creates 29816 forkees.
 - Creates 46328 issues.
 - Creates 31078 issue - assignee connections.
@@ -146,8 +144,6 @@ Taking all events from single day is 5 minutes 50 seconds (2017-07-28):
 - Creates 391575 comments.
 - Creates 3158733 commits.
 - Creates 3826738 events.
-- Creates 3158731 event - commit connections.
-- Creates 21357 event - page connections.
 - Creates 565224 forkees.
 - Creates 439524 issues.
 - Creates 16299 issue - assignee connections.
@@ -179,8 +175,6 @@ Taking all events from single day is 5 minutes 50 seconds (2017-07-28):
 - Creates 882089 comments.
 - Creates 91973 commits.
 - Creates 1133757 events.
-- Creates 91973 event - commit connections.
-- Creates 777 event - page connections.
 - Creates 499620 forkees.
 - Creates 764744 issues.
 - Creates 210208 issue - assignee connections.
@@ -209,8 +203,6 @@ Taking all events from single day is 5 minutes 50 seconds (2017-07-28):
 - Creates 915225 comments.
 - Creates 96166 commits.
 - Creates 1178301 events.
-- Creates 96166 event - commit connections.
-- Creates 793 event - page connections.
 - Creates 522872 forkees.
 - Creates 792780 issues.
 - Creates 230748 issue - assignee connections.
@@ -350,7 +342,6 @@ List of tables:
 - `gha_comments`: variable (issue, PR, review)
 - `gha_commits`: variable, commits
 - `gha_events`: const, single GitHub archive event
-- `gha_events_pages`: variable, event's pages
 - `gha_forkees`: variable, forkee, repo state
 - `gha_issues`: variable, issues
 - `gha_issues_assignees`: variable, issue assignees

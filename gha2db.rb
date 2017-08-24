@@ -335,14 +335,6 @@ def write_to_pg(con, ev)
         trunc(page['title'], 300)
       ]
     )
-
-    # event-page connection
-    exec_stmt(
-      con,
-      sid,
-      insert_ignore("into gha_events_pages(event_id, sha) #{n_values(2)}"),
-      [event_id, sha]
-    )
   end
 
   # member
