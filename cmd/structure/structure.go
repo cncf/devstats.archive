@@ -3,17 +3,11 @@ package main
 import (
 	"fmt"
 	lib "k8s.io/test-infra/gha2db"
-	"os"
 )
 
-func structure() {
-	// Environment controlling index creation, table & tools
-	index := os.Getenv("GHA2DB_INDEX") != ""
-	table := os.Getenv("GHA2DB_SKIPTABLE") == ""
-	tools := os.Getenv("GHA2DB_SKIPTOOLS") == ""
-
+func structure(ctx lib.Ctx) {
 	// Connect to Postgres DB
-	c := lib.Conn()
+	c := lib.Conn(ctx)
 	defer c.Close()
 
 	// gha_events
@@ -22,10 +16,11 @@ func structure() {
 	// {"id"=>10, "type"=>29, "actor"=>278, "repo"=>290, "payload"=>216017, "public"=>4,
 	// "created_at"=>20, "org"=>230}
 	// const
-	if table {
-		lib.ExecSQLWithErr(c, "drop table if exists gha_events")
+	if ctx.Table {
+		lib.ExecSQLWithErr(c, ctx, "drop table if exists gha_events")
 		lib.ExecSQLWithErr(
 			c,
+			ctx,
 			lib.CreateTable(
 				"gha_events("+
 					"id bigint not null primary key, "+
@@ -41,14 +36,14 @@ func structure() {
 			),
 		)
 	}
-	if index {
-		lib.ExecSQLWithErr(c, "create index events_type_idx on gha_events(type)")
-		lib.ExecSQLWithErr(c, "create index events_actor_id_idx on gha_events(actor_id)")
-		lib.ExecSQLWithErr(c, "create index events_repo_id_idx on gha_events(repo_id)")
-		lib.ExecSQLWithErr(c, "create index events_org_id_idx on gha_events(org_id)")
-		lib.ExecSQLWithErr(c, "create index events_created_at_idx on gha_events(created_at)")
-		lib.ExecSQLWithErr(c, "create index events_actor_login_idx on gha_events(actor_login)")
-		lib.ExecSQLWithErr(c, "create index events_repo_name_idx on gha_events(repo_name)")
+	if ctx.Index {
+		lib.ExecSQLWithErr(c, ctx, "create index events_type_idx on gha_events(type)")
+		lib.ExecSQLWithErr(c, ctx, "create index events_actor_id_idx on gha_events(actor_id)")
+		lib.ExecSQLWithErr(c, ctx, "create index events_repo_id_idx on gha_events(repo_id)")
+		lib.ExecSQLWithErr(c, ctx, "create index events_org_id_idx on gha_events(org_id)")
+		lib.ExecSQLWithErr(c, ctx, "create index events_created_at_idx on gha_events(created_at)")
+		lib.ExecSQLWithErr(c, ctx, "create index events_actor_login_idx on gha_events(actor_login)")
+		lib.ExecSQLWithErr(c, ctx, "create index events_repo_name_idx on gha_events(repo_name)")
 	}
 
 	// gha_actors
@@ -57,10 +52,11 @@ func structure() {
 	// {"id"=>8, "login"=>34, "display_login"=>34, "gravatar_id"=>0, "url"=>63,
 	// "avatar_url"=>49}
 	// const
-	if table {
-		lib.ExecSQLWithErr(c, "drop table if exists gha_actors")
+	if ctx.Table {
+		lib.ExecSQLWithErr(c, ctx, "drop table if exists gha_actors")
 		lib.ExecSQLWithErr(
 			c,
+			ctx,
 			lib.CreateTable(
 				"gha_actors("+
 					"id bigint not null primary key, "+
@@ -69,18 +65,19 @@ func structure() {
 			),
 		)
 	}
-	if index {
-		lib.ExecSQLWithErr(c, "create index actors_login_idx on gha_actors(login)")
+	if ctx.Index {
+		lib.ExecSQLWithErr(c, ctx, "create index actors_login_idx on gha_actors(login)")
 	}
 
 	// gha_repos
 	// {"id:Fixnum"=>48592, "name:String"=>48592, "url:String"=>48592}
 	// {"id"=>8, "name"=>111, "url"=>140}
 	// const
-	if table {
-		lib.ExecSQLWithErr(c, "drop table if exists gha_repos")
+	if ctx.Table {
+		lib.ExecSQLWithErr(c, ctx, "drop table if exists gha_repos")
 		lib.ExecSQLWithErr(
 			c,
+			ctx,
 			lib.CreateTable(
 				"gha_repos("+
 					"id bigint not null primary key, "+
@@ -89,8 +86,8 @@ func structure() {
 			),
 		)
 	}
-	if index {
-		lib.ExecSQLWithErr(c, "create index repos_name_idx on gha_repos(name)")
+	if ctx.Index {
+		lib.ExecSQLWithErr(c, ctx, "create index repos_name_idx on gha_repos(name)")
 	}
 
 	// gha_orgs
@@ -98,10 +95,11 @@ func structure() {
 	// "url:String"=>18494, "avatar_url:String"=>18494}
 	// {"id"=>8, "login"=>38, "gravatar_id"=>0, "url"=>66, "avatar_url"=>49}
 	// const
-	if table {
-		lib.ExecSQLWithErr(c, "drop table if exists gha_orgs")
+	if ctx.Table {
+		lib.ExecSQLWithErr(c, ctx, "drop table if exists gha_orgs")
 		lib.ExecSQLWithErr(
 			c,
+			ctx,
 			lib.CreateTable(
 				"gha_orgs("+
 					"id bigint not null primary key, "+
@@ -110,8 +108,8 @@ func structure() {
 			),
 		)
 	}
-	if index {
-		lib.ExecSQLWithErr(c, "create index orgs_login_idx on gha_orgs(login)")
+	if ctx.Index {
+		lib.ExecSQLWithErr(c, ctx, "create index orgs_login_idx on gha_orgs(login)")
 	}
 
 	// gha_payloads
@@ -128,10 +126,11 @@ func structure() {
 	// "number"=>5, "forkee"=>6880, "pages"=>855, "release"=>31206, "member"=>1040}
 	// 48746
 	// const
-	if table {
-		lib.ExecSQLWithErr(c, "drop table if exists gha_payloads")
+	if ctx.Table {
+		lib.ExecSQLWithErr(c, ctx, "drop table if exists gha_payloads")
 		lib.ExecSQLWithErr(
 			c,
+			ctx,
 			lib.CreateTable(
 				"gha_payloads("+
 					"event_id bigint not null primary key, "+
@@ -154,15 +153,15 @@ func structure() {
 			),
 		)
 	}
-	if index {
-		lib.ExecSQLWithErr(c, "create index payloads_action_idx on gha_payloads(action)")
-		lib.ExecSQLWithErr(c, "create index payloads_head_idx on gha_payloads(head)")
-		lib.ExecSQLWithErr(c, "create index payloads_issue_id_idx on gha_payloads(issue_id)")
-		lib.ExecSQLWithErr(c, "create index payloads_comment_id_idx on gha_payloads(comment_id)")
-		lib.ExecSQLWithErr(c, "create index payloads_ref_type_idx on gha_payloads(ref_type)")
-		lib.ExecSQLWithErr(c, "create index payloads_forkee_id_idx on gha_payloads(forkee_id)")
-		lib.ExecSQLWithErr(c, "create index payloads_release_id_idx on gha_payloads(release_id)")
-		lib.ExecSQLWithErr(c, "create index payloads_member_id_idx on gha_payloads(member_id)")
+	if ctx.Index {
+		lib.ExecSQLWithErr(c, ctx, "create index payloads_action_idx on gha_payloads(action)")
+		lib.ExecSQLWithErr(c, ctx, "create index payloads_head_idx on gha_payloads(head)")
+		lib.ExecSQLWithErr(c, ctx, "create index payloads_issue_id_idx on gha_payloads(issue_id)")
+		lib.ExecSQLWithErr(c, ctx, "create index payloads_comment_id_idx on gha_payloads(comment_id)")
+		lib.ExecSQLWithErr(c, ctx, "create index payloads_ref_type_idx on gha_payloads(ref_type)")
+		lib.ExecSQLWithErr(c, ctx, "create index payloads_forkee_id_idx on gha_payloads(forkee_id)")
+		lib.ExecSQLWithErr(c, ctx, "create index payloads_release_id_idx on gha_payloads(release_id)")
+		lib.ExecSQLWithErr(c, ctx, "create index payloads_member_id_idx on gha_payloads(member_id)")
 	}
 
 	// gha_commits
@@ -173,10 +172,11 @@ func structure() {
 	// author: {"name"=>96, "email"=>95}
 	// 23265
 	// variable (per event)
-	if table {
-		lib.ExecSQLWithErr(c, "drop table if exists gha_commits")
+	if ctx.Table {
+		lib.ExecSQLWithErr(c, ctx, "drop table if exists gha_commits")
 		lib.ExecSQLWithErr(
 			c,
+			ctx,
 			lib.CreateTable(
 				"gha_commits("+
 					"sha varchar(40) not null, "+
@@ -189,8 +189,8 @@ func structure() {
 			),
 		)
 	}
-	if index {
-		lib.ExecSQLWithErr(c, "create index commits_event_id_idx on gha_commits(event_id)")
+	if ctx.Index {
+		lib.ExecSQLWithErr(c, ctx, "create index commits_event_id_idx on gha_commits(event_id)")
 	}
 
 	// gha_pages
@@ -199,10 +199,11 @@ func structure() {
 	// {"page_name"=>65, "title"=>65, "summary"=>0, "action"=>7, "sha"=>40, "html_url"=>130}
 	// 370
 	// variable
-	if table {
-		lib.ExecSQLWithErr(c, "drop table if exists gha_pages")
+	if ctx.Table {
+		lib.ExecSQLWithErr(c, ctx, "drop table if exists gha_pages")
 		lib.ExecSQLWithErr(
 			c,
+			ctx,
 			lib.CreateTable(
 				"gha_pages("+
 					"sha varchar(40) not null, "+
@@ -214,19 +215,20 @@ func structure() {
 			),
 		)
 	}
-	if index {
-		lib.ExecSQLWithErr(c, "create index pages_event_id_idx on gha_pages(event_id)")
-		lib.ExecSQLWithErr(c, "create index pages_action_idx on gha_pages(action)")
+	if ctx.Index {
+		lib.ExecSQLWithErr(c, ctx, "create index pages_event_id_idx on gha_pages(event_id)")
+		lib.ExecSQLWithErr(c, ctx, "create index pages_action_idx on gha_pages(action)")
 	}
 
 	// gha_comments
 	// Table details and analysis in `analysis/analysis.txt` and `analysis/comment_*.json`
 	// Keys: user_id, commit_id, original_commit_id, pull_request_review_id
 	// variable
-	if table {
-		lib.ExecSQLWithErr(c, "drop table if exists gha_comments")
+	if ctx.Table {
+		lib.ExecSQLWithErr(c, ctx, "drop table if exists gha_comments")
 		lib.ExecSQLWithErr(
 			c,
+			ctx,
 			lib.CreateTable(
 				"gha_comments("+
 					"id bigint not null primary key, "+
@@ -248,14 +250,15 @@ func structure() {
 			),
 		)
 	}
-	if index {
-		lib.ExecSQLWithErr(c, "create index comments_event_id_idx on gha_comments(event_id)")
-		lib.ExecSQLWithErr(c, "create index comments_type_idx on gha_comments(type)")
-		lib.ExecSQLWithErr(c, "create index comments_created_at_idx on gha_comments(created_at)")
-		lib.ExecSQLWithErr(c, "create index comments_user_id_idx on gha_comments(user_id)")
-		lib.ExecSQLWithErr(c, "create index comments_commit_id_idx on gha_comments(commit_id)")
+	if ctx.Index {
+		lib.ExecSQLWithErr(c, ctx, "create index comments_event_id_idx on gha_comments(event_id)")
+		lib.ExecSQLWithErr(c, ctx, "create index comments_type_idx on gha_comments(type)")
+		lib.ExecSQLWithErr(c, ctx, "create index comments_created_at_idx on gha_comments(created_at)")
+		lib.ExecSQLWithErr(c, ctx, "create index comments_user_id_idx on gha_comments(user_id)")
+		lib.ExecSQLWithErr(c, ctx, "create index comments_commit_id_idx on gha_comments(commit_id)")
 		lib.ExecSQLWithErr(
 			c,
+			ctx,
 			"create index comments_pull_request_review_id_idx on gha_comments(pull_request_review_id)",
 		)
 	}
@@ -265,10 +268,11 @@ func structure() {
 	// Arrays: assignees, labels
 	// Keys: assignee_id, milestone_id, user_id
 	// variable
-	if table {
-		lib.ExecSQLWithErr(c, "drop table if exists gha_issues")
+	if ctx.Table {
+		lib.ExecSQLWithErr(c, ctx, "drop table if exists gha_issues")
 		lib.ExecSQLWithErr(
 			c,
+			ctx,
 			lib.CreateTable(
 				"gha_issues("+
 					"id bigint not null, "+
@@ -291,9 +295,10 @@ func structure() {
 			),
 		)
 		// variable
-		lib.ExecSQLWithErr(c, "drop table if exists gha_issues_assignees")
+		lib.ExecSQLWithErr(c, ctx, "drop table if exists gha_issues_assignees")
 		lib.ExecSQLWithErr(
 			c,
+			ctx,
 			lib.CreateTable(
 				"gha_issues_assignees("+
 					"issue_id bigint not null, "+
@@ -304,25 +309,26 @@ func structure() {
 			),
 		)
 	}
-	if index {
-		lib.ExecSQLWithErr(c, "create index issues_event_id_idx on gha_issues(event_id)")
-		lib.ExecSQLWithErr(c, "create index issues_assignee_id_idx on gha_issues(assignee_id)")
-		lib.ExecSQLWithErr(c, "create index issues_created_at_idx on gha_issues(created_at)")
-		lib.ExecSQLWithErr(c, "create index issues_closed_at_idx on gha_issues(closed_at)")
-		lib.ExecSQLWithErr(c, "create index issues_milestone_id_idx on gha_issues(milestone_id)")
-		lib.ExecSQLWithErr(c, "create index issues_state_idx on gha_issues(state)")
-		lib.ExecSQLWithErr(c, "create index issues_user_id_idx on gha_issues(user_id)")
-		lib.ExecSQLWithErr(c, "create index issues_is_pull_request_idx on gha_issues(is_pull_request)")
+	if ctx.Index {
+		lib.ExecSQLWithErr(c, ctx, "create index issues_event_id_idx on gha_issues(event_id)")
+		lib.ExecSQLWithErr(c, ctx, "create index issues_assignee_id_idx on gha_issues(assignee_id)")
+		lib.ExecSQLWithErr(c, ctx, "create index issues_created_at_idx on gha_issues(created_at)")
+		lib.ExecSQLWithErr(c, ctx, "create index issues_closed_at_idx on gha_issues(closed_at)")
+		lib.ExecSQLWithErr(c, ctx, "create index issues_milestone_id_idx on gha_issues(milestone_id)")
+		lib.ExecSQLWithErr(c, ctx, "create index issues_state_idx on gha_issues(state)")
+		lib.ExecSQLWithErr(c, ctx, "create index issues_user_id_idx on gha_issues(user_id)")
+		lib.ExecSQLWithErr(c, ctx, "create index issues_is_pull_request_idx on gha_issues(is_pull_request)")
 	}
 
 	// gha_milestones
 	// Table details and analysis in `analysis/analysis.txt` and `analysis/milestone_*.json`
 	// Keys: creator_id
 	// variable
-	if table {
-		lib.ExecSQLWithErr(c, "drop table if exists gha_milestones")
+	if ctx.Table {
+		lib.ExecSQLWithErr(c, ctx, "drop table if exists gha_milestones")
 		lib.ExecSQLWithErr(
 			c,
+			ctx,
 			lib.CreateTable(
 				"gha_milestones("+
 					"id bigint not null, "+
@@ -343,20 +349,21 @@ func structure() {
 			),
 		)
 	}
-	if index {
-		lib.ExecSQLWithErr(c, "create index milestones_event_id_idx on gha_milestones(event_id)")
-		lib.ExecSQLWithErr(c, "create index milestones_created_at_idx on gha_milestones(created_at)")
-		lib.ExecSQLWithErr(c, "create index milestones_creator_id_idx on gha_milestones(creator_id)")
-		lib.ExecSQLWithErr(c, "create index milestones_state_idx on gha_milestones(state)")
+	if ctx.Index {
+		lib.ExecSQLWithErr(c, ctx, "create index milestones_event_id_idx on gha_milestones(event_id)")
+		lib.ExecSQLWithErr(c, ctx, "create index milestones_created_at_idx on gha_milestones(created_at)")
+		lib.ExecSQLWithErr(c, ctx, "create index milestones_creator_id_idx on gha_milestones(creator_id)")
+		lib.ExecSQLWithErr(c, ctx, "create index milestones_state_idx on gha_milestones(state)")
 	}
 
 	// gha_labels
 	// Table details and analysis in `analysis/analysis.txt` and `analysis/label_*.json`
 	// const
-	if table {
-		lib.ExecSQLWithErr(c, "drop table if exists gha_labels")
+	if ctx.Table {
+		lib.ExecSQLWithErr(c, ctx, "drop table if exists gha_labels")
 		lib.ExecSQLWithErr(
 			c,
+			ctx,
 			lib.CreateTable(
 				"gha_labels("+
 					"id bigint not null primary key, "+
@@ -367,9 +374,10 @@ func structure() {
 			),
 		)
 		// variable
-		lib.ExecSQLWithErr(c, "drop table if exists gha_issues_labels")
+		lib.ExecSQLWithErr(c, ctx, "drop table if exists gha_issues_labels")
 		lib.ExecSQLWithErr(
 			c,
+			ctx,
 			lib.CreateTable(
 				"gha_issues_labels("+
 					"issue_id bigint not null, "+
@@ -380,17 +388,18 @@ func structure() {
 			),
 		)
 	}
-	if index {
-		lib.ExecSQLWithErr(c, "create index labels_name_idx on gha_labels(name)")
+	if ctx.Index {
+		lib.ExecSQLWithErr(c, ctx, "create index labels_name_idx on gha_labels(name)")
 	}
 
 	// gha_forkees
 	// Table details and analysis in `analysis/analysis.txt` and `analysis/forkee_*.json`
 	// variable
-	if table {
-		lib.ExecSQLWithErr(c, "drop table if exists gha_forkees")
+	if ctx.Table {
+		lib.ExecSQLWithErr(c, ctx, "drop table if exists gha_forkees")
 		lib.ExecSQLWithErr(
 			c,
+			ctx,
 			lib.CreateTable(
 				"gha_forkees("+
 					"id bigint not null, "+
@@ -421,10 +430,10 @@ func structure() {
 			),
 		)
 	}
-	if index {
-		lib.ExecSQLWithErr(c, "create index forkees_event_id_idx on gha_forkees(event_id)")
-		lib.ExecSQLWithErr(c, "create index forkees_owner_id_idx on gha_forkees(owner_id)")
-		lib.ExecSQLWithErr(c, "create index forkees_created_at_idx on gha_forkees(created_at)")
+	if ctx.Index {
+		lib.ExecSQLWithErr(c, ctx, "create index forkees_event_id_idx on gha_forkees(event_id)")
+		lib.ExecSQLWithErr(c, ctx, "create index forkees_owner_id_idx on gha_forkees(owner_id)")
+		lib.ExecSQLWithErr(c, ctx, "create index forkees_created_at_idx on gha_forkees(created_at)")
 	}
 
 	// gha_releases
@@ -432,10 +441,11 @@ func structure() {
 	// Key: author_id
 	// Array: assets
 	// variable
-	if table {
-		lib.ExecSQLWithErr(c, "drop table if exists gha_releases")
+	if ctx.Table {
+		lib.ExecSQLWithErr(c, ctx, "drop table if exists gha_releases")
 		lib.ExecSQLWithErr(
 			c,
+			ctx,
 			lib.CreateTable(
 				"gha_releases("+
 					"id bigint not null, "+
@@ -454,9 +464,10 @@ func structure() {
 			),
 		)
 		// variable
-		lib.ExecSQLWithErr(c, "drop table if exists gha_releases_assets")
+		lib.ExecSQLWithErr(c, ctx, "drop table if exists gha_releases_assets")
 		lib.ExecSQLWithErr(
 			c,
+			ctx,
 			lib.CreateTable(
 				"gha_releases_assets("+
 					"release_id bigint not null, "+
@@ -467,20 +478,21 @@ func structure() {
 			),
 		)
 	}
-	if index {
-		lib.ExecSQLWithErr(c, "create index releases_event_id_idx on gha_releases(event_id)")
-		lib.ExecSQLWithErr(c, "create index releases_author_id_idx on gha_releases(author_id)")
-		lib.ExecSQLWithErr(c, "create index releases_created_at_idx on gha_releases(created_at)")
+	if ctx.Index {
+		lib.ExecSQLWithErr(c, ctx, "create index releases_event_id_idx on gha_releases(event_id)")
+		lib.ExecSQLWithErr(c, ctx, "create index releases_author_id_idx on gha_releases(author_id)")
+		lib.ExecSQLWithErr(c, ctx, "create index releases_created_at_idx on gha_releases(created_at)")
 	}
 
 	// gha_assets
 	// Table details and analysis in `analysis/analysis.txt` and `analysis/asset_*.json`
 	// Key: uploader_id
 	// variable
-	if table {
-		lib.ExecSQLWithErr(c, "drop table if exists gha_assets")
+	if ctx.Table {
+		lib.ExecSQLWithErr(c, ctx, "drop table if exists gha_assets")
 		lib.ExecSQLWithErr(
 			c,
+			ctx,
 			lib.CreateTable(
 				"gha_assets("+
 					"id bigint not null, "+
@@ -499,12 +511,12 @@ func structure() {
 			),
 		)
 	}
-	if index {
-		lib.ExecSQLWithErr(c, "create index assets_event_id_idx on gha_assets(event_id)")
-		lib.ExecSQLWithErr(c, "create index assets_uploader_id_idx on gha_assets(uploader_id)")
-		lib.ExecSQLWithErr(c, "create index assets_content_type_idx on gha_assets(content_type)")
-		lib.ExecSQLWithErr(c, "create index assets_state_idx on gha_assets(state)")
-		lib.ExecSQLWithErr(c, "create index assets_created_at_idx on gha_assets(created_at)")
+	if ctx.Index {
+		lib.ExecSQLWithErr(c, ctx, "create index assets_event_id_idx on gha_assets(event_id)")
+		lib.ExecSQLWithErr(c, ctx, "create index assets_uploader_id_idx on gha_assets(uploader_id)")
+		lib.ExecSQLWithErr(c, ctx, "create index assets_content_type_idx on gha_assets(content_type)")
+		lib.ExecSQLWithErr(c, ctx, "create index assets_state_idx on gha_assets(state)")
+		lib.ExecSQLWithErr(c, ctx, "create index assets_created_at_idx on gha_assets(created_at)")
 	}
 
 	// gha_pull_requests
@@ -513,10 +525,11 @@ func structure() {
 	// Nullable keys: actor: merged_by_id, assignee_id, milestone: milestone_id
 	// Arrays: actors: assignees, requested_reviewers
 	// variable
-	if table {
-		lib.ExecSQLWithErr(c, "drop table if exists gha_pull_requests")
+	if ctx.Table {
+		lib.ExecSQLWithErr(c, ctx, "drop table if exists gha_pull_requests")
 		lib.ExecSQLWithErr(
 			c,
+			ctx,
 			lib.CreateTable(
 				"gha_pull_requests("+
 					"id bigint not null, "+
@@ -553,9 +566,10 @@ func structure() {
 			),
 		)
 		// variable
-		lib.ExecSQLWithErr(c, "drop table if exists gha_pull_requests_assignees")
+		lib.ExecSQLWithErr(c, ctx, "drop table if exists gha_pull_requests_assignees")
 		lib.ExecSQLWithErr(
 			c,
+			ctx,
 			lib.CreateTable(
 				"gha_pull_requests_assignees("+
 					"pull_request_id bigint not null, "+
@@ -566,9 +580,10 @@ func structure() {
 			),
 		)
 		// variable
-		lib.ExecSQLWithErr(c, "drop table if exists gha_pull_requests_requested_reviewers")
+		lib.ExecSQLWithErr(c, ctx, "drop table if exists gha_pull_requests_requested_reviewers")
 		lib.ExecSQLWithErr(
 			c,
+			ctx,
 			lib.CreateTable(
 				"gha_pull_requests_requested_reviewers("+
 					"pull_request_id bigint not null, "+
@@ -579,28 +594,29 @@ func structure() {
 			),
 		)
 	}
-	if index {
-		lib.ExecSQLWithErr(c, "create index pull_requests_event_id_idx on gha_pull_requests(event_id)")
-		lib.ExecSQLWithErr(c, "create index pull_requests_user_id_idx on gha_pull_requests(user_id)")
-		lib.ExecSQLWithErr(c, "create index pull_requests_base_sha_idx on gha_pull_requests(base_sha)")
-		lib.ExecSQLWithErr(c, "create index pull_requests_head_sha_idx on gha_pull_requests(head_sha)")
-		lib.ExecSQLWithErr(c, "create index pull_requests_merged_by_id_idx on gha_pull_requests(merged_by_id)")
-		lib.ExecSQLWithErr(c, "create index pull_requests_assignee_id_idx on gha_pull_requests(assignee_id)")
-		lib.ExecSQLWithErr(c, "create index pull_requests_milestone_id_idx on gha_pull_requests(milestone_id)")
-		lib.ExecSQLWithErr(c, "create index pull_requests_state_idx on gha_pull_requests(state)")
-		lib.ExecSQLWithErr(c, "create index pull_requests_created_at_idx on gha_pull_requests(created_at)")
-		lib.ExecSQLWithErr(c, "create index pull_requests_closed_at_idx on gha_pull_requests(closed_at)")
-		lib.ExecSQLWithErr(c, "create index pull_requests_merged_at_idx on gha_pull_requests(merged_at)")
+	if ctx.Index {
+		lib.ExecSQLWithErr(c, ctx, "create index pull_requests_event_id_idx on gha_pull_requests(event_id)")
+		lib.ExecSQLWithErr(c, ctx, "create index pull_requests_user_id_idx on gha_pull_requests(user_id)")
+		lib.ExecSQLWithErr(c, ctx, "create index pull_requests_base_sha_idx on gha_pull_requests(base_sha)")
+		lib.ExecSQLWithErr(c, ctx, "create index pull_requests_head_sha_idx on gha_pull_requests(head_sha)")
+		lib.ExecSQLWithErr(c, ctx, "create index pull_requests_merged_by_id_idx on gha_pull_requests(merged_by_id)")
+		lib.ExecSQLWithErr(c, ctx, "create index pull_requests_assignee_id_idx on gha_pull_requests(assignee_id)")
+		lib.ExecSQLWithErr(c, ctx, "create index pull_requests_milestone_id_idx on gha_pull_requests(milestone_id)")
+		lib.ExecSQLWithErr(c, ctx, "create index pull_requests_state_idx on gha_pull_requests(state)")
+		lib.ExecSQLWithErr(c, ctx, "create index pull_requests_created_at_idx on gha_pull_requests(created_at)")
+		lib.ExecSQLWithErr(c, ctx, "create index pull_requests_closed_at_idx on gha_pull_requests(closed_at)")
+		lib.ExecSQLWithErr(c, ctx, "create index pull_requests_merged_at_idx on gha_pull_requests(merged_at)")
 	}
 
 	// gha_branches
 	// Table details and analysis in `analysis/analysis.txt` and `analysis/branch_*.json`
 	// Nullable keys: forkee: repo_id, actor: user_id
 	// variable
-	if table {
-		lib.ExecSQLWithErr(c, "drop table if exists gha_branches")
+	if ctx.Table {
+		lib.ExecSQLWithErr(c, ctx, "drop table if exists gha_branches")
 		lib.ExecSQLWithErr(
 			c,
+			ctx,
 			lib.CreateTable(
 				"gha_branches("+
 					"sha varchar(40) not null, "+
@@ -614,17 +630,18 @@ func structure() {
 			),
 		)
 	}
-	if index {
-		lib.ExecSQLWithErr(c, "create index branches_event_id_idx on gha_branches(event_id)")
-		lib.ExecSQLWithErr(c, "create index branches_user_id_idx on gha_branches(user_id)")
-		lib.ExecSQLWithErr(c, "create index branches_repo_id_idx on gha_branches(repo_id)")
+	if ctx.Index {
+		lib.ExecSQLWithErr(c, ctx, "create index branches_event_id_idx on gha_branches(event_id)")
+		lib.ExecSQLWithErr(c, ctx, "create index branches_user_id_idx on gha_branches(user_id)")
+		lib.ExecSQLWithErr(c, ctx, "create index branches_repo_id_idx on gha_branches(repo_id)")
 	}
 
 	// This table is a kind of `materialized view` of all texts
-	if table {
-		lib.ExecSQLWithErr(c, "drop table if exists gha_texts")
+	if ctx.Table {
+		lib.ExecSQLWithErr(c, ctx, "drop table if exists gha_texts")
 		lib.ExecSQLWithErr(
 			c,
+			ctx,
 			lib.CreateTable(
 				"gha_texts("+
 					"event_id bigint, "+
@@ -634,16 +651,17 @@ func structure() {
 			),
 		)
 	}
-	if index {
-		lib.ExecSQLWithErr(c, "create index texts_event_id_idx on gha_texts(event_id)")
-		lib.ExecSQLWithErr(c, "create index texts_created_at_idx on gha_texts(created_at)")
+	if ctx.Index {
+		lib.ExecSQLWithErr(c, ctx, "create index texts_event_id_idx on gha_texts(event_id)")
+		lib.ExecSQLWithErr(c, ctx, "create index texts_created_at_idx on gha_texts(created_at)")
 	}
 
 	// This table is a kind of `materialized view` of issue event labels
-	if table {
-		lib.ExecSQLWithErr(c, "drop table if exists gha_issues_events_labels")
+	if ctx.Table {
+		lib.ExecSQLWithErr(c, ctx, "drop table if exists gha_issues_events_labels")
 		lib.ExecSQLWithErr(
 			c,
+			ctx,
 			lib.CreateTable(
 				"gha_issues_events_labels("+
 					"issue_id bigint not null, "+
@@ -655,32 +673,37 @@ func structure() {
 			),
 		)
 	}
-	if index {
+	if ctx.Index {
 		lib.ExecSQLWithErr(
 			c,
+			ctx,
 			"create index issues_events_labels_issue_id_idx on gha_issues_events_labels(issue_id)",
 		)
 		lib.ExecSQLWithErr(
 			c,
+			ctx,
 			"create index issues_events_labels_event_id_idx on gha_issues_events_labels(event_id)",
 		)
 		lib.ExecSQLWithErr(
 			c,
+			ctx,
 			"create index issues_events_labels_label_id_idx on gha_issues_events_labels(label_id)",
 		)
 		lib.ExecSQLWithErr(
 			c,
+			ctx,
 			"create index issues_events_labels_label_name_idx on gha_issues_events_labels(label_name)",
 		)
 		lib.ExecSQLWithErr(
 			c,
+			ctx,
 			"create index issues_events_labels_created_at_idx on gha_issues_events_labels(created_at)",
 		)
 	}
 	// Foreign keys are not needed - they slow down processing a lweek
 
 	// Tools (like views and functions needed for generating metrics)
-	if tools {
+	if ctx.Tools {
 		// Get max event_id from gha_texts
 		maxEventID := 0
 		lib.FatalOnError(c.QueryRow("select coalesce(max(event_id), 0) from gha_texts").Scan(&maxEventID))
@@ -701,7 +724,7 @@ func structure() {
 			maxEventID, maxEventID, maxEventID, maxEventID, maxEventID, maxEventID,
 		)
 		// Add texts to gha_texts table (or fill it initially)
-		lib.ExecSQLWithErr(c, sql)
+		lib.ExecSQLWithErr(c, ctx, sql)
 
 		// Get max event_id from gha_issues_events_labels
 		lib.FatalOnError(c.QueryRow("select coalesce(max(event_id), 0) from gha_issues_events_labels").Scan(&maxEventID))
@@ -715,18 +738,22 @@ func structure() {
 				"where ev.id = il.event_id and il.label_id = lb.id and ev.id > %v",
 			maxEventID,
 		)
-		lib.ExecSQLWithErr(c, sql)
+		lib.ExecSQLWithErr(c, ctx, sql)
 	}
 }
 
 func main() {
-	if os.Getenv("GHA2DB_SKIPTABLE") == "" {
+	// Environment context parse
+	var ctx lib.Ctx
+	ctx.Init()
+
+	if ctx.Table {
 		fmt.Printf("This program will recreate DB structure (dropping all existing data)\n")
 	}
 	fmt.Printf("Continue? (y/n) ")
-	c := lib.Mgetc()
+	c := lib.Mgetc(ctx)
 	fmt.Printf("\n")
 	if c == "y" {
-		structure()
+		structure(ctx)
 	}
 }

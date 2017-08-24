@@ -3,40 +3,19 @@ package gha2db
 import (
 	"fmt"
 	"github.com/influxdata/influxdb/client/v2"
-	"os"
 	"time"
 )
 
 // IDBConn Connects to InfluxDB database
-func IDBConn() (client.Client, client.BatchPoints) {
-	host := os.Getenv("IDB_HOST")
-	port := os.Getenv("IDB_PORT")
-	db := os.Getenv("IDB_DB")
-	user := os.Getenv("IDB_USER")
-	pass := os.Getenv("IDB_PASS")
-	if host == "" {
-		host = "http://localhost"
-	}
-	if port == "" {
-		port = "8086"
-	}
-	if db == "" {
-		db = "gha"
-	}
-	if user == "" {
-		user = "gha_admin"
-	}
-	if pass == "" {
-		pass = "password"
-	}
+func IDBConn(ctx Ctx) (client.Client, client.BatchPoints) {
 	con, err := client.NewHTTPClient(client.HTTPConfig{
-		Addr:     fmt.Sprintf("%s:%s", host, port),
-		Username: user,
-		Password: pass,
+		Addr:     fmt.Sprintf("%s:%s", ctx.IDBHost, ctx.IDBPort),
+		Username: ctx.IDBUser,
+		Password: ctx.IDBPass,
 	})
 	FatalOnError(err)
 	bp, err := client.NewBatchPoints(client.BatchPointsConfig{
-		Database:  db,
+		Database:  ctx.IDBDB,
 		Precision: "s",
 	})
 	FatalOnError(err)

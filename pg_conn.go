@@ -4,37 +4,15 @@ import (
 	"database/sql"
 	"fmt"
 	_ "github.com/lib/pq" // As suggested by lib/pq driver
-	"os"
 	"strconv"
 	"strings"
 	"time"
 )
 
 // Conn Connects to Postgres database
-func Conn() *sql.DB {
-	host := os.Getenv("PG_HOST")
-	port := os.Getenv("PG_PORT")
-	db := os.Getenv("PG_DB")
-	user := os.Getenv("PG_USER")
-	pass := os.Getenv("PG_PASS")
-	if host == "" {
-		host = "localhost"
-	}
-	if port == "" {
-		port = "5432"
-	}
-	if db == "" {
-		db = "gha"
-	}
-	if user == "" {
-		user = "gha_admin"
-	}
-	if pass == "" {
-		pass = "password"
-	}
-
-	connectionString := "client_encoding=UTF8 host='" + host + "' port=" + port + " dbname='" + db + "' user='" + user + "' password='" + pass + "'"
-	if os.Getenv("GHA2DB_QOUT") != "" {
+func Conn(ctx Ctx) *sql.DB {
+	connectionString := "client_encoding=UTF8 host='" + ctx.PgHost + "' port=" + ctx.PgPort + " dbname='" + ctx.PgDB + "' user='" + ctx.PgUser + "' password='" + ctx.PgPass + "'"
+	if ctx.QOut {
 		fmt.Printf("%s\n", connectionString)
 	}
 
@@ -57,16 +35,16 @@ func queryOut(query string, args ...interface{}) {
 }
 
 // QuerySQL executes given SQL on Postgres DB (and returns rowset that needs to be closed)
-func QuerySQL(con *sql.DB, query string, args ...interface{}) (*sql.Rows, error) {
-	if os.Getenv("GHA2DB_QOUT") != "" {
+func QuerySQL(con *sql.DB, ctx Ctx, query string, args ...interface{}) (*sql.Rows, error) {
+	if ctx.QOut {
 		queryOut(query, args...)
 	}
 	return con.Query(query, args...)
 }
 
 // QuerySQLWithErr wrapper to QuerySQL that exists on error
-func QuerySQLWithErr(con *sql.DB, query string, args ...interface{}) *sql.Rows {
-	res, err := QuerySQL(con, query, args...)
+func QuerySQLWithErr(con *sql.DB, ctx Ctx, query string, args ...interface{}) *sql.Rows {
+	res, err := QuerySQL(con, ctx, query, args...)
 	if err != nil {
 		queryOut(query, args...)
 	}
@@ -76,8 +54,8 @@ func QuerySQLWithErr(con *sql.DB, query string, args ...interface{}) *sql.Rows {
 
 // QuerySQLTx executes given SQL on Postgres DB (and returns rowset that needs to be closed)
 // It is for running inside transaction
-func QuerySQLTx(con *sql.Tx, query string, args ...interface{}) (*sql.Rows, error) {
-	if os.Getenv("GHA2DB_QOUT") != "" {
+func QuerySQLTx(con *sql.Tx, ctx Ctx, query string, args ...interface{}) (*sql.Rows, error) {
+	if ctx.QOut {
 		queryOut(query, args...)
 	}
 	return con.Query(query, args...)
@@ -85,8 +63,8 @@ func QuerySQLTx(con *sql.Tx, query string, args ...interface{}) (*sql.Rows, erro
 
 // QuerySQLTxWithErr wrapper to QuerySQLTx that exists on error
 // It is for running inside transaction
-func QuerySQLTxWithErr(con *sql.Tx, query string, args ...interface{}) *sql.Rows {
-	res, err := QuerySQLTx(con, query, args...)
+func QuerySQLTxWithErr(con *sql.Tx, ctx Ctx, query string, args ...interface{}) *sql.Rows {
+	res, err := QuerySQLTx(con, ctx, query, args...)
 	if err != nil {
 		queryOut(query, args...)
 	}
@@ -95,16 +73,16 @@ func QuerySQLTxWithErr(con *sql.Tx, query string, args ...interface{}) *sql.Rows
 }
 
 // ExecSQL executes given SQL on Postgres DB (and return single state result, that doesn't need to be closed)
-func ExecSQL(con *sql.DB, query string, args ...interface{}) (sql.Result, error) {
-	if os.Getenv("GHA2DB_QOUT") != "" {
+func ExecSQL(con *sql.DB, ctx Ctx, query string, args ...interface{}) (sql.Result, error) {
+	if ctx.QOut {
 		queryOut(query, args...)
 	}
 	return con.Exec(query, args...)
 }
 
 // ExecSQLWithErr wrapper to ExecSQL that exists on error
-func ExecSQLWithErr(con *sql.DB, query string, args ...interface{}) sql.Result {
-	res, err := ExecSQL(con, query, args...)
+func ExecSQLWithErr(con *sql.DB, ctx Ctx, query string, args ...interface{}) sql.Result {
+	res, err := ExecSQL(con, ctx, query, args...)
 	if err != nil {
 		queryOut(query, args...)
 	}
@@ -114,8 +92,8 @@ func ExecSQLWithErr(con *sql.DB, query string, args ...interface{}) sql.Result {
 
 // ExecSQLTx executes given SQL on Postgres DB (and return single state result, that doesn't need to be closed)
 // It is for running inside transaction
-func ExecSQLTx(con *sql.Tx, query string, args ...interface{}) (sql.Result, error) {
-	if os.Getenv("GHA2DB_QOUT") != "" {
+func ExecSQLTx(con *sql.Tx, ctx Ctx, query string, args ...interface{}) (sql.Result, error) {
+	if ctx.QOut {
 		queryOut(query, args...)
 	}
 	return con.Exec(query, args...)
@@ -123,8 +101,8 @@ func ExecSQLTx(con *sql.Tx, query string, args ...interface{}) (sql.Result, erro
 
 // ExecSQLTxWithErr wrapper to ExecSQLTx that exists on error
 // It is for running inside transaction
-func ExecSQLTxWithErr(con *sql.Tx, query string, args ...interface{}) sql.Result {
-	res, err := ExecSQLTx(con, query, args...)
+func ExecSQLTxWithErr(con *sql.Tx, ctx Ctx, query string, args ...interface{}) sql.Result {
+	res, err := ExecSQLTx(con, ctx, query, args...)
 	if err != nil {
 		queryOut(query, args...)
 	}

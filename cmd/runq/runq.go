@@ -10,6 +10,10 @@ import (
 )
 
 func runq(sqlFile string, params []string) {
+	// Environment context parse
+	var ctx lib.Ctx
+	ctx.Init()
+
 	// SQL arguments number
 	if len(params)%2 > 0 {
 		fmt.Printf("Must provide correct parameter value pairs.\n")
@@ -38,11 +42,11 @@ func runq(sqlFile string, params []string) {
 	}
 
 	// Connect to Postgres DB
-	c := lib.Conn()
+	c := lib.Conn(ctx)
 	defer c.Close()
 
 	// Execute SQL
-	rows := lib.QuerySQLWithErr(c, sqlQuery)
+	rows := lib.QuerySQLWithErr(c, ctx, sqlQuery)
 	defer rows.Close()
 
 	// Now unknown rows, with unknown types
