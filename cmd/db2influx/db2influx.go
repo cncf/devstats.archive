@@ -5,61 +5,126 @@ import (
 	"io/ioutil"
 	lib "k8s.io/test-infra/gha2db"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 )
 
-func workerThread(ch chan bool, seriesNameOrFunc, sql, period string, from, to time.Time) {
+// Ctx - environment context packed in structure
+type Ctx struct {
+	Debug int
+}
+
+// Generate name for given series row and period
+func nameForMetricsRow(metric, name, period string) string {
+	if metric == "sig_mentions_data" {
+		return fmt.Sprintf("%s_%s", strings.Replace(name, "-", "_", -1), period)
+	} else if metric == "prs_merged_data" {
+		r := strings.NewReplacer("-", "_", "/", "_", ".", "_")
+		return fmt.Sprintf("prs_%s_%s", r.Replace(name), period)
+	} else {
+		fmt.Printf("Error\nUnknown metric '%v'\n", metric)
+		os.Exit(1)
+	}
+	return ""
+}
+
+func workerThread(ch chan bool, ctx Ctx, seriesNameOrFunc, sqlQuery, period string, from, to time.Time) {
 	// Connect to Postgres DB
 	sqlc := lib.Conn()
 	defer sqlc.Close()
+
+	// Connect to InfluxDB
 	ic, bp := lib.IDBConn()
 	defer ic.Close()
+
+	// Prepare SQL query
 	sFrom := lib.ToSQLDate(from)
 	sTo := lib.ToSQLDate(to)
-	fmt.Printf("%v, %v, %v\n", bp, sFrom, sTo)
+	sqlQuery = strings.Replace(sqlQuery, "{{from}}", sFrom, -1)
+	sqlQuery = strings.Replace(sqlQuery, "{{to}}", sTo, -1)
+
+	// Execute SQL query
+	rows := lib.QuerySQLWithErr(sqlc, sqlQuery)
+	defer rows.Close()
+
+	// Get Number of columns
+	// We support either query returnign single row with single numeric value
+	// Or multiple rows, each containing string (series name) and its numeric value
+	columns, err := rows.Columns()
+	lib.FatalOnError(err)
+	nColumns := len(columns)
+
+	// Metric Results
+	var pValue *float64
+	value := 0.0
+	name := ""
+	if nColumns == 1 {
+		rowCount := 0
+		for rows.Next() {
+			lib.FatalOnError(rows.Scan(&pValue))
+			rowCount++
+		}
+		lib.FatalOnError(rows.Err())
+		if rowCount != 1 {
+			fmt.Printf(
+				"Error:\nQuery should return either single value or "+
+					"multiple rows, each containing string and number\n"+
+					"Got %d rows, each containing single number\nQuery:\n",
+				rowCount, sqlQuery,
+			)
+		}
+		if pValue != nil {
+			value = *pValue
+		}
+		name = seriesNameOrFunc
+		if ctx.Debug > 0 {
+			fmt.Printf("%v - %v -> %v, %v\n", from, to, name, value)
+		}
+	} else if nColumns == 2 {
+		for rows.Next() {
+			lib.FatalOnError(rows.Scan(&name, &pValue))
+			if pValue != nil {
+				value = *pValue
+			}
+			name = nameForMetricsRow(seriesNameOrFunc, name, period)
+			if ctx.Debug > 0 {
+				fmt.Printf("%v - %v -> %v, %v\n", from, to, name, value)
+			}
+		}
+		lib.FatalOnError(rows.Err())
+	} else {
+		fmt.Printf(
+			"Wrong query:\n#{q}\nMetrics query should either return single row " +
+				"with single value or at least 1 row, each with two values\n",
+		)
+		os.Exit(1)
+	}
+
 	/*
-			  s_from = from.to_s[0..-7]
-			  s_to = to.to_s[0..-7]
-			  q = sql.gsub('{{from}}', s_from).gsub('{{to}}', s_to)
-			  r = exec_sql(sqlc, q)
-			  return if r.count.zero?
-			  # ts = (from.to_i + to.to_i) / 2
-			  ts = from.to_i
-			  # ts = to.to_i
-			  if r.count == 1 && r.first.keys.count == 1
-			    value = r.first.values.first.to_i
-			    name = series_name_or_func
-			    puts "#{from.to_date} - #{to.to_date} -> #{name}, #{value}" if $debug.positive?
-			    data = {
-			      values: { value: value },
-			      timestamp: ts
-			    }
-			    ic.write_point(name, data)
-			  elsif r.count.positive? && r.first.keys.count == 2
-			    r.each do |row|
-			      name, value = __send__(series_name_or_func, row, period)
-			      puts "#{from.to_date} - #{to.to_date} -> #{name}, #{value}" if $debug.positive?
-			      data = {
-			        values: { value: value },
-			        timestamp: ts
-			      }
-			      ic.write_point(name, data)
-			    end
-		      :else
-			    raise(
-			      Exception,
-			      "Wrong query:\n#{q}\nMetrics query should either return single row "\
-			      'with single value or at least 1 row, each with two values'
-			    )
-			  end
+	   data = {
+	     values: { value: value },
+	     timestamp: ts
+	   }
+	   ic.write_point(name, data)
 	*/
+	fmt.Printf("%v\n", bp)
 	if ch != nil {
 		ch <- true
 	}
 }
 
 func db2influx(seriesNameOrFunc, sqlFile, from, to, intervalAbbr string) {
+	// Environment context parse
+	var ctx Ctx
+	if os.Getenv("GHA2DB_DEBUG") == "" {
+		ctx.Debug = 0
+	} else {
+		debugLevel, err := strconv.Atoi(os.Getenv("GHA2DB_DEBUG"))
+		lib.FatalOnError(err)
+		ctx.Debug = debugLevel
+	}
+
 	// Parse input dates
 	dFrom := lib.TimeParseAny(from)
 	dTo := lib.TimeParseAny(to)
@@ -121,7 +186,7 @@ func db2influx(seriesNameOrFunc, sqlFile, from, to, intervalAbbr string) {
 			ch := make(chan bool)
 			chanPool = append(chanPool, ch)
 			nDt := nextIntervalStart(dt)
-			go workerThread(ch, seriesNameOrFunc, sqlQuery, intervalAbbr, dt, nDt)
+			go workerThread(ch, ctx, seriesNameOrFunc, sqlQuery, intervalAbbr, dt, nDt)
 			dt = nDt
 			if len(chanPool) == thrN {
 				ch = chanPool[0]
@@ -137,7 +202,7 @@ func db2influx(seriesNameOrFunc, sqlFile, from, to, intervalAbbr string) {
 		fmt.Printf("Using single threaded version\n")
 		for dt.Before(dTo) {
 			nDt := nextIntervalStart(dt)
-			workerThread(nil, seriesNameOrFunc, sqlQuery, intervalAbbr, dt, nDt)
+			workerThread(nil, ctx, seriesNameOrFunc, sqlQuery, intervalAbbr, dt, nDt)
 			dt = nDt
 		}
 	}
