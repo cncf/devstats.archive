@@ -37,6 +37,7 @@ type Payload struct {
 	Issue        *Issue    `json:"issue"`
 	Comment      *Comment  `json:"comment"`
 	Commits      *[]Commit `json:"commits"`
+	Pages        *[]Page   `json:"pages"`
 }
 
 // Repo - GHA Repo structure
@@ -74,7 +75,19 @@ type Issue struct {
 
 // Comment - GHA Comment structure
 type Comment struct {
-	ID int `json:"id"`
+	ID                  int       `json:"id"`
+	Body                string    `json:"body"`
+	CreatedAt           time.Time `json:"created_at"`
+	UpdatedAt           time.Time `json:"updated_at"`
+	User                Actor     `json:"user"`
+	CommitID            *string   `json:"commit_id"`
+	OriginalCommitID    *string   `json:"original_commit_id"`
+	DiffHunk            *string   `json:"diff_hunk"`
+	Position            *int      `json:"position"`
+	OriginalPosition    *int      `json:"original_position"`
+	Path                *string   `json:"path"`
+	PullRequestReviewID *int      `json:"pull_request_review_id"`
+	Line                *int      `json:"line"`
 }
 
 // Commit - GHA Commit structure
@@ -89,6 +102,13 @@ type Commit struct {
 type Author struct {
 	Name  string `json:"name"`
 	Email string `json:"email"`
+}
+
+// Page - GHA Page structure
+type Page struct {
+	SHA    string `json:"sha"`
+	Action string `json:"action"`
+	Title  string `json:"title"`
 }
 
 // OrgIDOrNil - return Org ID from pointer or nil
