@@ -140,6 +140,33 @@ func writeToDB(ctx Ctx, con *sql.DB, ev lib.Event) int {
 		}...,
 	)
 
+	// gha_commits
+	// {"sha:String"=>23265, "author:Hash"=>23265, "message:String"=>23265,
+	// "distinct:TrueClass"=>21789, "url:String"=>23265, "distinct:FalseClass"=>1476}
+	// {"sha"=>40, "author"=>177, "message"=>19005, "distinct"=>5, "url"=>191}
+	// author: {"name:String"=>23265, "email:String"=>23265} (only git username/email)
+	// author: {"name"=>96, "email"=>95}
+	// 23265
+	commits := []lib.Commit{}
+	if pl.Commits != nil {
+		commits = *pl.Commits
+	}
+	for _, commit := range commits {
+		sha := commit.SHA
+		lib.ExecSQLWithErr(
+			con,
+			"insert into gha_commits("+
+				"sha, event_id, author_name, message, is_distinct) "+lib.NValues(5),
+			lib.AnyArray{
+				sha,
+				eventID,
+				lib.TruncToBytes(commit.Author.Name, 160),
+				lib.TruncToBytes(commit.Message, 0xffff), // FIXME: in gha2db.rb it was allowing null, while DB structure doesn not permit this
+				commit.Distinct,
+			}...,
+		)
+	}
+
 	// TODO: continue
 	return 1
 }

@@ -143,18 +143,6 @@ CREATE TABLE gha_events (
 ALTER TABLE gha_events OWNER TO gha_admin;
 
 --
--- Name: gha_events_commits; Type: TABLE; Schema: public; Owner: gha_admin
---
-
-CREATE TABLE gha_events_commits (
-    event_id bigint NOT NULL,
-    sha character varying(40) NOT NULL
-);
-
-
-ALTER TABLE gha_events_commits OWNER TO gha_admin;
-
---
 -- Name: gha_events_pages; Type: TABLE; Schema: public; Owner: gha_admin
 --
 
@@ -527,14 +515,6 @@ COPY gha_events (id, type, actor_id, repo_id, public, created_at, org_id, actor_
 
 
 --
--- Data for Name: gha_events_commits; Type: TABLE DATA; Schema: public; Owner: gha_admin
---
-
-COPY gha_events_commits (event_id, sha) FROM stdin;
-\.
-
-
---
 -- Data for Name: gha_events_pages; Type: TABLE DATA; Schema: public; Owner: gha_admin
 --
 
@@ -716,14 +696,6 @@ ALTER TABLE ONLY gha_comments
 
 ALTER TABLE ONLY gha_commits
     ADD CONSTRAINT gha_commits_pkey PRIMARY KEY (sha, event_id);
-
-
---
--- Name: gha_events_commits gha_events_commits_pkey; Type: CONSTRAINT; Schema: public; Owner: gha_admin
---
-
-ALTER TABLE ONLY gha_events_commits
-    ADD CONSTRAINT gha_events_commits_pkey PRIMARY KEY (event_id, sha);
 
 
 --

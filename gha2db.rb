@@ -313,14 +313,6 @@ def write_to_pg(con, ev)
         commit['distinct']
       ]
     )
-
-    # event-commit connection
-    exec_stmt(
-      con,
-      sid,
-      'insert into gha_events_commits(event_id, sha) ' + n_values(2),
-      [event_id, sha]
-    )
   end
 
   # gha_pages

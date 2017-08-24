@@ -21,21 +21,22 @@ type Event struct {
 
 // Payload - GHA Payload structure
 type Payload struct {
-	PushID       *int     `json:"push_id"`
-	Size         *int     `json:"size"`
-	Ref          *string  `json:"ref"`
-	Head         *string  `json:"head"`
-	Before       *string  `json:"before"`
-	Action       *string  `json:"action"`
-	RefType      *string  `json:"ref_type"`
-	MasterBranch *string  `json:"master_branch"`
-	Description  *string  `json:"description"`
-	Number       *int     `json:"number"`
-	Forkee       *Forkee  `json:"forkee"`
-	Release      *Release `json:"release"`
-	Member       *Actor   `json:"member"`
-	Issue        *Issue   `json:"issue"`
-	Comment      *Comment `json:"comment"`
+	PushID       *int      `json:"push_id"`
+	Size         *int      `json:"size"`
+	Ref          *string   `json:"ref"`
+	Head         *string   `json:"head"`
+	Before       *string   `json:"before"`
+	Action       *string   `json:"action"`
+	RefType      *string   `json:"ref_type"`
+	MasterBranch *string   `json:"master_branch"`
+	Description  *string   `json:"description"`
+	Number       *int      `json:"number"`
+	Forkee       *Forkee   `json:"forkee"`
+	Release      *Release  `json:"release"`
+	Member       *Actor    `json:"member"`
+	Issue        *Issue    `json:"issue"`
+	Comment      *Comment  `json:"comment"`
+	Commits      *[]Commit `json:"commits"`
 }
 
 // Repo - GHA Repo structure
@@ -74,6 +75,20 @@ type Issue struct {
 // Comment - GHA Comment structure
 type Comment struct {
 	ID int `json:"id"`
+}
+
+// Commit - GHA Commit structure
+type Commit struct {
+	SHA      string `json:"sha"`
+	Author   Author `json:"author"`
+	Message  string `json:"message"`
+	Distinct bool   `json:"distinct"`
+}
+
+// Author - GHA Commit Author structure
+type Author struct {
+	Name  string `json:"name"`
+	Email string `json:"email"`
 }
 
 // OrgIDOrNil - return Org ID from pointer or nil

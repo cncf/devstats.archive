@@ -179,18 +179,6 @@ def structure
         ')'
       )
     )
-    # variable
-    exec_sql(c, 'drop table if exists gha_events_commits')
-    exec_sql(
-      c,
-      create_table(
-        'gha_events_commits('\
-        'event_id bigint not null, '\
-        'sha varchar(40) not null, '\
-        'primary key(event_id, sha)'\
-        ')'
-      )
-    )
   end
   exec_sql(c, 'create index commits_event_id_idx on gha_commits(event_id)') if $index
 
