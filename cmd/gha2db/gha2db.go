@@ -6,6 +6,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"hash/fnv"
 	"io/ioutil"
 	lib "k8s.io/test-infra/gha2db"
 	"net/http"
@@ -20,6 +21,20 @@ type Ctx struct {
 	Debug   int
 	jsonOut bool
 	dbOut   bool
+}
+
+func hashStrings(strs []string) int {
+	h := fnv.New64a()
+	s := ""
+	for _, str := range strs {
+		s += str
+	}
+	h.Write([]byte(s))
+	res := int(h.Sum64())
+	if res > 0 {
+		res *= -1
+	}
+	return res
 }
 
 // Inserts single GHA Actor
@@ -65,6 +80,29 @@ func ghaMilestone(con *sql.Tx, eid string, milestone lib.Milestone) {
 			milestone.UpdatedAt,
 		}...,
 	)
+}
+
+func lookupLabel(con *sql.Tx, name string, color string) int {
+	rows := lib.QuerySQLTxWithErr(
+		con,
+		fmt.Sprintf(
+			"select id from gha_labels where name=%s and color=%s",
+			lib.NValue(1),
+			lib.NValue(2),
+		),
+		name,
+		color,
+	)
+	defer rows.Close()
+	lid := 0
+	for rows.Next() {
+		lib.FatalOnError(rows.Scan(&lid))
+	}
+	lib.FatalOnError(rows.Err())
+	if lid == 0 {
+		lid = hashStrings([]string{name, color})
+	}
+	return lid
 }
 
 func writeToDB(ctx Ctx, db *sql.DB, ev lib.Event) int {
@@ -315,53 +353,48 @@ func writeToDB(ctx Ctx, db *sql.DB, ev lib.Event) int {
 		if issue.Milestone != nil {
 			ghaMilestone(con, eventID, *issue.Milestone)
 		}
+
+		pAid := lib.ActorIDOrNil(issue.Assignee)
+		for _, assignee := range issue.Assignees {
+			aid := assignee.ID
+			if aid == pAid {
+				continue
+			}
+
+			// assignee
+			ghaActor(con, assignee)
+
+			// issue-assignee connection
+			lib.ExecSQLTxWithErr(
+				con,
+				"insert into gha_issues_assignees(issue_id, event_id, assignee_id) "+lib.NValues(3),
+				lib.AnyArray{iid, eventID, assignee.ID}...,
+			)
+		}
+
+		// labels
+		for _, label := range issue.Labels {
+			lid := lib.IntOrNil(label.ID)
+			if lid == nil {
+				lid = lookupLabel(con, lib.TruncToBytes(label.Name, 160), label.Color)
+			}
+
+			// label
+			lib.ExecSQLTxWithErr(
+				con,
+				lib.InsertIgnore("into gha_labels(id, name, color, is_default) "+lib.NValues(4)),
+				lib.AnyArray{lid, lib.TruncToBytes(label.Name, 160), label.Color, lib.BoolOrNil(label.Default)}...,
+			)
+
+			// issue-label connection
+			lib.ExecSQLTxWithErr(
+				con,
+				lib.InsertIgnore("into gha_issues_labels(issue_id, event_id, label_id) "+lib.NValues(3)),
+				lib.AnyArray{iid, eventID, lid}...,
+			)
+		}
 	}
 	/*
-	    # assignees
-	    assignees = issue['assignees'] || []
-	    p_aid = issue['assignee'] ? issue['assignee']['id'] : nil
-	    assignees.each do |assignee|
-	      aid = assignee['id']
-	      next if aid == p_aid
-
-	      # assignee
-	      gha_actor(con, sid, assignee)
-
-	      # issue-assignee connection
-	      exec_stmt(
-	        con,
-	        sid,
-	        'insert into gha_issues_assignees(issue_id, event_id, assignee_id) ' + n_values(3),
-	        [iid, event_id, aid]
-	      )
-	    end
-
-	    # labels
-	    labels = issue['labels']
-	    labels.each do |label|
-	      lid = label['id']
-	      lid = lookup_label(con, sid, trunc(label['name'], 160), label['color']) unless lid
-	      exec_stmt(
-	        con,
-	        sid,
-	        insert_ignore('into gha_labels(id, name, color, is_default) ' + n_values(4)),
-	        [
-	          lid,
-	          trunc(label['name'], 160),
-	          label['color'],
-	          label['default']
-	        ]
-	      )
-	      # issue-label connection
-	      exec_stmt(
-	        con,
-	        sid,
-	        insert_ignore("into gha_issues_labels(issue_id, event_id, label_id) #{n_values(3)}"),
-	        [iid, event_id, lid]
-	      )
-	    end
-	  end
-
 	  # gha_forkees
 	  gha_forkee(con, sid, event_id, pl['forkee']) if pl['forkee']
 
