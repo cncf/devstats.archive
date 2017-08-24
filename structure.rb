@@ -202,18 +202,6 @@ def structure
         ')'
       )
     )
-    # variable
-    exec_sql(c, 'drop table if exists gha_events_pages')
-    exec_sql(
-      c,
-      create_table(
-        'gha_events_pages('\
-        'event_id bigint not null, '\
-        'sha varchar(40) not null, '\
-        'primary key(event_id, sha)'\
-        ')'
-      )
-    )
   end
   if $index
     exec_sql(c, 'create index pages_event_id_idx on gha_pages(event_id)')
