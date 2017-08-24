@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/influxdata/influxdb/client/v2"
 	"os"
+	"time"
 )
 
 // IDBConn Connects to InfluxDB database
@@ -40,4 +41,11 @@ func IDBConn() (client.Client, client.BatchPoints) {
 	})
 	FatalOnError(err)
 	return con, bp
+}
+
+// IDBNewPointWithErr - return InfluxDB Point
+func IDBNewPointWithErr(name string, tags map[string]string, fields map[string]interface{}, dt time.Time) *client.Point {
+	pt, err := client.NewPoint(name, tags, fields, dt)
+	FatalOnError(err)
+	return pt
 }

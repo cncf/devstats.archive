@@ -55,10 +55,11 @@ func workerThread(ch chan bool, ctx Ctx, seriesNameOrFunc, sqlQuery, period stri
 	lib.FatalOnError(err)
 	nColumns := len(columns)
 
-	// Metric Results
-	var pValue *float64
-	value := 0.0
+	// Metric Results, currently assume they're integers
+	var pValue *int
+	value := 0
 	name := ""
+	// Single row & single column result
 	if nColumns == 1 {
 		rowCount := 0
 		for rows.Next() {
@@ -74,6 +75,7 @@ func workerThread(ch chan bool, ctx Ctx, seriesNameOrFunc, sqlQuery, period stri
 				rowCount, sqlQuery,
 			)
 		}
+		// Handle nulls
 		if pValue != nil {
 			value = *pValue
 		}
@@ -81,7 +83,12 @@ func workerThread(ch chan bool, ctx Ctx, seriesNameOrFunc, sqlQuery, period stri
 		if ctx.Debug > 0 {
 			fmt.Printf("%v - %v -> %v, %v\n", from, to, name, value)
 		}
+		// Add batch point
+		fields := map[string]interface{}{"value": value}
+		pt := lib.IDBNewPointWithErr(name, nil, fields, from)
+		bp.AddPoint(pt)
 	} else if nColumns == 2 {
+		// Multiple rows, each with (series name, value)
 		for rows.Next() {
 			lib.FatalOnError(rows.Scan(&name, &pValue))
 			if pValue != nil {
@@ -91,6 +98,10 @@ func workerThread(ch chan bool, ctx Ctx, seriesNameOrFunc, sqlQuery, period stri
 			if ctx.Debug > 0 {
 				fmt.Printf("%v - %v -> %v, %v\n", from, to, name, value)
 			}
+			// Add batch point
+			fields := map[string]interface{}{"value": value}
+			pt := lib.IDBNewPointWithErr(name, nil, fields, from)
+			bp.AddPoint(pt)
 		}
 		lib.FatalOnError(rows.Err())
 	} else {
@@ -100,15 +111,11 @@ func workerThread(ch chan bool, ctx Ctx, seriesNameOrFunc, sqlQuery, period stri
 		)
 		os.Exit(1)
 	}
+	// Write the batch
+	err = ic.Write(bp)
+	lib.FatalOnError(err)
 
-	/*
-	   data = {
-	     values: { value: value },
-	     timestamp: ts
-	   }
-	   ic.write_point(name, data)
-	*/
-	fmt.Printf("%v\n", bp)
+	// Synchronize go routine
 	if ch != nil {
 		ch <- true
 	}
