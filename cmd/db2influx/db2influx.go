@@ -5,15 +5,9 @@ import (
 	"io/ioutil"
 	lib "k8s.io/test-infra/gha2db"
 	"os"
-	"strconv"
 	"strings"
 	"time"
 )
-
-// Ctx - environment context packed in structure
-type Ctx struct {
-	Debug int
-}
 
 // Generate name for given series row and period
 func nameForMetricsRow(metric, name, period string) string {
@@ -29,13 +23,13 @@ func nameForMetricsRow(metric, name, period string) string {
 	return ""
 }
 
-func workerThread(ch chan bool, ctx Ctx, seriesNameOrFunc, sqlQuery, period string, from, to time.Time) {
+func workerThread(ch chan bool, ctx lib.Ctx, seriesNameOrFunc, sqlQuery, period string, from, to time.Time) {
 	// Connect to Postgres DB
-	sqlc := lib.Conn()
+	sqlc := lib.Conn(ctx)
 	defer sqlc.Close()
 
 	// Connect to InfluxDB
-	ic, bp := lib.IDBConn()
+	ic, bp := lib.IDBConn(ctx)
 	defer ic.Close()
 
 	// Prepare SQL query
@@ -45,7 +39,7 @@ func workerThread(ch chan bool, ctx Ctx, seriesNameOrFunc, sqlQuery, period stri
 	sqlQuery = strings.Replace(sqlQuery, "{{to}}", sTo, -1)
 
 	// Execute SQL query
-	rows := lib.QuerySQLWithErr(sqlc, sqlQuery)
+	rows := lib.QuerySQLWithErr(sqlc, ctx, sqlQuery)
 	defer rows.Close()
 
 	// Get Number of columns
@@ -123,14 +117,8 @@ func workerThread(ch chan bool, ctx Ctx, seriesNameOrFunc, sqlQuery, period stri
 
 func db2influx(seriesNameOrFunc, sqlFile, from, to, intervalAbbr string) {
 	// Environment context parse
-	var ctx Ctx
-	if os.Getenv("GHA2DB_DEBUG") == "" {
-		ctx.Debug = 0
-	} else {
-		debugLevel, err := strconv.Atoi(os.Getenv("GHA2DB_DEBUG"))
-		lib.FatalOnError(err)
-		ctx.Debug = debugLevel
-	}
+	var ctx lib.Ctx
+	ctx.Init()
 
 	// Parse input dates
 	dFrom := lib.TimeParseAny(from)
@@ -182,7 +170,7 @@ func db2influx(seriesNameOrFunc, sqlFile, from, to, intervalAbbr string) {
 	dTo = nextIntervalStart(dTo)
 
 	// Get number of CPUs available
-	thrN := lib.GetThreadsNum()
+	thrN := lib.GetThreadsNum(ctx)
 
 	// Run
 	fmt.Printf("Running (on %d CPUs): %v - %v with interval %s\n", thrN, dFrom, dTo, interval)

@@ -16,13 +16,6 @@ import (
 	"time"
 )
 
-// Ctx - environment context packed in structure
-type Ctx struct {
-	Debug   int
-	jsonOut bool
-	dbOut   bool
-}
-
 func hashStrings(strs []string) int {
 	h := fnv.New64a()
 	s := ""
@@ -38,28 +31,30 @@ func hashStrings(strs []string) int {
 }
 
 // Inserts single GHA Actor
-func ghaActor(con *sql.Tx, actor lib.Actor) {
+func ghaActor(con *sql.Tx, ctx lib.Ctx, actor lib.Actor) {
 	// gha_actors
 	// {"id:Fixnum"=>48592, "login:String"=>48592, "display_login:String"=>48592,
 	// "gravatar_id:String"=>48592, "url:String"=>48592, "avatar_url:String"=>48592}
 	// {"id"=>8, "login"=>34, "display_login"=>34, "gravatar_id"=>0, "url"=>63, "avatar_url"=>49}
 	lib.ExecSQLTxWithErr(
 		con,
+		ctx,
 		lib.InsertIgnore("into gha_actors(id, login) "+lib.NValues(2)),
 		lib.AnyArray{actor.ID, actor.Login}...,
 	)
 }
 
 // Inserts single GHA Milestone
-func ghaMilestone(con *sql.Tx, eid string, milestone lib.Milestone) {
+func ghaMilestone(con *sql.Tx, ctx lib.Ctx, eid string, milestone lib.Milestone) {
 	// creator
 	if milestone.Creator != nil {
-		ghaActor(con, *milestone.Creator)
+		ghaActor(con, ctx, *milestone.Creator)
 	}
 
 	// gha_milestones
 	lib.ExecSQLTxWithErr(
 		con,
+		ctx,
 		"insert into gha_milestones("+
 			"id, event_id, closed_at, closed_issues, created_at, creator_id, "+
 			"description, due_on, number, open_issues, state, title, updated_at"+
@@ -83,14 +78,15 @@ func ghaMilestone(con *sql.Tx, eid string, milestone lib.Milestone) {
 }
 
 // Inserts single GHA Forkee
-func ghaForkee(con *sql.Tx, eid string, forkee lib.Forkee) {
+func ghaForkee(con *sql.Tx, ctx lib.Ctx, eid string, forkee lib.Forkee) {
 	// owner
-	ghaActor(con, forkee.Owner)
+	ghaActor(con, ctx, forkee.Owner)
 
 	// gha_forkees
 	// Table details and analysis in `analysis/analysis.txt` and `analysis/forkee_*.json`
 	lib.ExecSQLTxWithErr(
 		con,
+		ctx,
 		"insert into gha_forkees("+
 			"id, event_id, name, full_name, owner_id, description, fork, "+
 			"created_at, updated_at, pushed_at, homepage, size, "+
@@ -126,20 +122,21 @@ func ghaForkee(con *sql.Tx, eid string, forkee lib.Forkee) {
 }
 
 // Inserts single GHA Branch
-func ghaBranch(con *sql.Tx, eid string, branch lib.Branch, skipRepoID interface{}) {
+func ghaBranch(con *sql.Tx, ctx lib.Ctx, eid string, branch lib.Branch, skipRepoID interface{}) {
 	// user
 	if branch.User != nil {
-		ghaActor(con, *branch.User)
+		ghaActor(con, ctx, *branch.User)
 	}
 
 	// repo
 	if branch.Repo != nil && branch.Repo.ID != skipRepoID {
-		ghaForkee(con, eid, *branch.Repo)
+		ghaForkee(con, ctx, eid, *branch.Repo)
 	}
 
 	// gha_branches
 	lib.ExecSQLTxWithErr(
 		con,
+		ctx,
 		"insert into gha_branches(sha, event_id, user_id, repo_id, label, ref) "+lib.NValues(6),
 		lib.AnyArray{
 			branch.SHA,
@@ -152,9 +149,10 @@ func ghaBranch(con *sql.Tx, eid string, branch lib.Branch, skipRepoID interface{
 	)
 }
 
-func lookupLabel(con *sql.Tx, name string, color string) int {
+func lookupLabel(con *sql.Tx, ctx lib.Ctx, name string, color string) int {
 	rows := lib.QuerySQLTxWithErr(
 		con,
+		ctx,
 		fmt.Sprintf(
 			"select id from gha_labels where name=%s and color=%s",
 			lib.NValue(1),
@@ -175,7 +173,7 @@ func lookupLabel(con *sql.Tx, name string, color string) int {
 	return lid
 }
 
-func writeToDB(ctx Ctx, db *sql.DB, ev lib.Event) int {
+func writeToDB(db *sql.DB, ctx lib.Ctx, ev lib.Event) int {
 	// gha_events
 	// {"id:String"=>48592, "type:String"=>48592, "actor:Hash"=>48592, "repo:Hash"=>48592,
 	// "payload:Hash"=>48592, "public:TrueClass"=>48592, "created_at:String"=>48592,
@@ -185,7 +183,7 @@ func writeToDB(ctx Ctx, db *sql.DB, ev lib.Event) int {
 	// Fields actor_login, repo_name are copied from (gha_actors and gha_repos) to save
 	// joins on complex queries (MySQL has no hash joins and is very slow on big tables joins)
 	eventID := ev.ID
-	rows := lib.QuerySQLWithErr(db, fmt.Sprintf("select 1 from gha_events where id=%s", lib.NValue(1)), eventID)
+	rows := lib.QuerySQLWithErr(db, ctx, fmt.Sprintf("select 1 from gha_events where id=%s", lib.NValue(1)), eventID)
 	defer rows.Close()
 	exists := 0
 	for rows.Next() {
@@ -200,6 +198,7 @@ func writeToDB(ctx Ctx, db *sql.DB, ev lib.Event) int {
 	lib.FatalOnError(err)
 	lib.ExecSQLTxWithErr(
 		con,
+		ctx,
 		"insert into gha_events("+
 			"id, type, actor_id, repo_id, public, created_at, "+
 			"actor_login, repo_name, org_id) "+lib.NValues(9),
@@ -217,7 +216,7 @@ func writeToDB(ctx Ctx, db *sql.DB, ev lib.Event) int {
 	)
 
 	// gha_actors
-	ghaActor(con, ev.Actor)
+	ghaActor(con, ctx, ev.Actor)
 
 	// gha_repos
 	// {"id:Fixnum"=>48592, "name:String"=>48592, "url:String"=>48592}
@@ -225,6 +224,7 @@ func writeToDB(ctx Ctx, db *sql.DB, ev lib.Event) int {
 	repo := ev.Repo
 	lib.ExecSQLTxWithErr(
 		con,
+		ctx,
 		lib.InsertIgnore("into gha_repos(id, name) "+lib.NValues(2)),
 		lib.AnyArray{repo.ID, repo.Name}...,
 	)
@@ -237,6 +237,7 @@ func writeToDB(ctx Ctx, db *sql.DB, ev lib.Event) int {
 	if org != nil {
 		lib.ExecSQLTxWithErr(
 			con,
+			ctx,
 			lib.InsertIgnore("into gha_orgs(id, login) "+lib.NValues(2)),
 			lib.AnyArray{org.ID, org.Login}...,
 		)
@@ -259,6 +260,7 @@ func writeToDB(ctx Ctx, db *sql.DB, ev lib.Event) int {
 	pl := ev.Payload
 	lib.ExecSQLTxWithErr(
 		con,
+		ctx,
 		"insert into gha_payloads("+
 			"event_id, push_id, size, ref, head, befor, action, "+
 			"issue_id, comment_id, ref_type, master_branch, "+
@@ -299,6 +301,7 @@ func writeToDB(ctx Ctx, db *sql.DB, ev lib.Event) int {
 		sha := commit.SHA
 		lib.ExecSQLTxWithErr(
 			con,
+			ctx,
 			"insert into gha_commits("+
 				"sha, event_id, author_name, message, is_distinct) "+lib.NValues(5),
 			lib.AnyArray{
@@ -324,6 +327,7 @@ func writeToDB(ctx Ctx, db *sql.DB, ev lib.Event) int {
 		sha := page.SHA
 		lib.ExecSQLTxWithErr(
 			con,
+			ctx,
 			lib.InsertIgnore("into gha_pages(sha, event_id, action, title) "+lib.NValues(4)),
 			lib.AnyArray{
 				sha,
@@ -336,7 +340,7 @@ func writeToDB(ctx Ctx, db *sql.DB, ev lib.Event) int {
 
 	// member
 	if pl.Member != nil {
-		ghaActor(con, *pl.Member)
+		ghaActor(con, ctx, *pl.Member)
 	}
 
 	// gha_comments
@@ -344,12 +348,13 @@ func writeToDB(ctx Ctx, db *sql.DB, ev lib.Event) int {
 	if pl.Comment != nil {
 		comment := *pl.Comment
 		// user
-		ghaActor(con, comment.User)
+		ghaActor(con, ctx, comment.User)
 
 		// comment
 		cid := comment.ID
 		lib.ExecSQLTxWithErr(
 			con,
+			ctx,
 			lib.InsertIgnore(
 				"into gha_comments("+
 					"id, event_id, body, created_at, updated_at, type, user_id, "+
@@ -383,9 +388,9 @@ func writeToDB(ctx Ctx, db *sql.DB, ev lib.Event) int {
 		issue := *pl.Issue
 
 		// user, assignee
-		ghaActor(con, issue.User)
+		ghaActor(con, ctx, issue.User)
 		if issue.Assignee != nil {
-			ghaActor(con, *issue.Assignee)
+			ghaActor(con, ctx, *issue.Assignee)
 		}
 
 		// issue
@@ -396,6 +401,7 @@ func writeToDB(ctx Ctx, db *sql.DB, ev lib.Event) int {
 		}
 		lib.ExecSQLTxWithErr(
 			con,
+			ctx,
 			"insert into gha_issues("+
 				"id, event_id, assignee_id, body, closed_at, comments, created_at, "+
 				"locked, milestone_id, number, state, title, updated_at, user_id, "+
@@ -421,7 +427,7 @@ func writeToDB(ctx Ctx, db *sql.DB, ev lib.Event) int {
 
 		// milestone
 		if issue.Milestone != nil {
-			ghaMilestone(con, eventID, *issue.Milestone)
+			ghaMilestone(con, ctx, eventID, *issue.Milestone)
 		}
 
 		pAid := lib.ActorIDOrNil(issue.Assignee)
@@ -432,11 +438,12 @@ func writeToDB(ctx Ctx, db *sql.DB, ev lib.Event) int {
 			}
 
 			// assignee
-			ghaActor(con, assignee)
+			ghaActor(con, ctx, assignee)
 
 			// issue-assignee connection
 			lib.ExecSQLTxWithErr(
 				con,
+				ctx,
 				"insert into gha_issues_assignees(issue_id, event_id, assignee_id) "+lib.NValues(3),
 				lib.AnyArray{iid, eventID, aid}...,
 			)
@@ -446,12 +453,13 @@ func writeToDB(ctx Ctx, db *sql.DB, ev lib.Event) int {
 		for _, label := range issue.Labels {
 			lid := lib.IntOrNil(label.ID)
 			if lid == nil {
-				lid = lookupLabel(con, lib.TruncToBytes(label.Name, 160), label.Color)
+				lid = lookupLabel(con, ctx, lib.TruncToBytes(label.Name, 160), label.Color)
 			}
 
 			// label
 			lib.ExecSQLTxWithErr(
 				con,
+				ctx,
 				lib.InsertIgnore("into gha_labels(id, name, color, is_default) "+lib.NValues(4)),
 				lib.AnyArray{lid, lib.TruncToBytes(label.Name, 160), label.Color, lib.BoolOrNil(label.Default)}...,
 			)
@@ -459,6 +467,7 @@ func writeToDB(ctx Ctx, db *sql.DB, ev lib.Event) int {
 			// issue-label connection
 			lib.ExecSQLTxWithErr(
 				con,
+				ctx,
 				lib.InsertIgnore("into gha_issues_labels(issue_id, event_id, label_id) "+lib.NValues(3)),
 				lib.AnyArray{iid, eventID, lid}...,
 			)
@@ -467,7 +476,7 @@ func writeToDB(ctx Ctx, db *sql.DB, ev lib.Event) int {
 
 	// gha_forkees
 	if pl.Forkee != nil {
-		ghaForkee(con, eventID, *pl.Forkee)
+		ghaForkee(con, ctx, eventID, *pl.Forkee)
 	}
 
 	// gha_releases
@@ -476,12 +485,13 @@ func writeToDB(ctx Ctx, db *sql.DB, ev lib.Event) int {
 		release := *pl.Release
 
 		// author
-		ghaActor(con, release.Author)
+		ghaActor(con, ctx, release.Author)
 
 		// release
 		rid := release.ID
 		lib.ExecSQLTxWithErr(
 			con,
+			ctx,
 			"insert into gha_releases("+
 				"id, event_id, tag_name, target_commitish, name, draft, "+
 				"author_id, prerelease, created_at, published_at, body"+
@@ -504,12 +514,13 @@ func writeToDB(ctx Ctx, db *sql.DB, ev lib.Event) int {
 		// Assets
 		for _, asset := range release.Assets {
 			// uploader
-			ghaActor(con, asset.Uploader)
+			ghaActor(con, ctx, asset.Uploader)
 
 			// asset
 			aid := asset.ID
 			lib.ExecSQLTxWithErr(
 				con,
+				ctx,
 				"insert into gha_assets("+
 					"id, event_id, name, label, uploader_id, content_type, "+
 					"state, size, download_count, created_at, updated_at"+
@@ -532,6 +543,7 @@ func writeToDB(ctx Ctx, db *sql.DB, ev lib.Event) int {
 			// release-asset connection
 			lib.ExecSQLTxWithErr(
 				con,
+				ctx,
 				"insert into gha_releases_assets(release_id, event_id, asset_id) "+lib.NValues(3),
 				lib.AnyArray{rid, eventID, aid}...,
 			)
@@ -544,39 +556,40 @@ func writeToDB(ctx Ctx, db *sql.DB, ev lib.Event) int {
 		pr := *pl.PullRequest
 
 		// user
-		ghaActor(con, pr.User)
+		ghaActor(con, ctx, pr.User)
 
 		baseSHA := pr.Base.SHA
 		headSHA := pr.Head.SHA
 		baseRepoID := lib.ForkeeIDOrNil(pr.Base.Repo)
 
 		// base
-		ghaBranch(con, eventID, pr.Base, nil)
+		ghaBranch(con, ctx, eventID, pr.Base, nil)
 
 		// head (if different, and skip its repo if defined and the same as base repo)
 		if baseSHA != headSHA {
-			ghaBranch(con, eventID, pr.Head, baseRepoID)
+			ghaBranch(con, ctx, eventID, pr.Head, baseRepoID)
 		}
 
 		// merged_by
 		if pr.MergedBy != nil {
-			ghaActor(con, *pr.MergedBy)
+			ghaActor(con, ctx, *pr.MergedBy)
 		}
 
 		// assignee
 		if pr.Assignee != nil {
-			ghaActor(con, *pr.Assignee)
+			ghaActor(con, ctx, *pr.Assignee)
 		}
 
 		// milestone
 		if pr.Milestone != nil {
-			ghaMilestone(con, eventID, *pr.Milestone)
+			ghaMilestone(con, ctx, eventID, *pr.Milestone)
 		}
 
 		// pull_request
 		prid := pr.ID
 		lib.ExecSQLTxWithErr(
 			con,
+			ctx,
 			"insert into gha_pull_requests("+
 				"id, event_id, user_id, base_sha, head_sha, merged_by_id, assignee_id, milestone_id, "+
 				"number, state, locked, title, body, created_at, updated_at, closed_at, merged_at, "+
@@ -626,11 +639,12 @@ func writeToDB(ctx Ctx, db *sql.DB, ev lib.Event) int {
 			}
 
 			// assignee
-			ghaActor(con, assignee)
+			ghaActor(con, ctx, assignee)
 
 			// pull_request-assignee connection
 			lib.ExecSQLTxWithErr(
 				con,
+				ctx,
 				"insert into gha_pull_requests_assignees(pull_request_id, event_id, assignee_id) "+lib.NValues(3),
 				lib.AnyArray{prid, eventID, aid}...,
 			)
@@ -639,11 +653,12 @@ func writeToDB(ctx Ctx, db *sql.DB, ev lib.Event) int {
 		// requested_reviewers
 		for _, reviewer := range pr.RequestedReviewers {
 			// reviewer
-			ghaActor(con, reviewer)
+			ghaActor(con, ctx, reviewer)
 
 			// pull_request-requested_reviewer connection
 			lib.ExecSQLTxWithErr(
 				con,
+				ctx,
 				"insert into gha_pull_requests_requested_reviewers(pull_request_id, event_id, requested_reviewer_id) "+lib.NValues(3),
 				lib.AnyArray{prid, eventID, reviewer.ID}...,
 			)
@@ -676,7 +691,7 @@ func repoHit(fullName string, forg, frepo map[string]bool) bool {
 }
 
 // parseJSON - parse signle GHA JSON event
-func parseJSON(ctx Ctx, con *sql.DB, jsonStr []byte, dt time.Time, forg, frepo map[string]bool) (f int, e int) {
+func parseJSON(con *sql.DB, ctx lib.Ctx, jsonStr []byte, dt time.Time, forg, frepo map[string]bool) (f int, e int) {
 	var h lib.Event
 	err := json.Unmarshal(jsonStr, &h)
 	if err != nil {
@@ -686,16 +701,16 @@ func parseJSON(ctx Ctx, con *sql.DB, jsonStr []byte, dt time.Time, forg, frepo m
 	fullName := h.Repo.Name
 	if repoHit(fullName, forg, frepo) {
 		eid := h.ID
-		if ctx.jsonOut {
+		if ctx.JSONOut {
 			// We want to Unmarshal/Marshall ALL JSON data, regardless of what is defined in lib.Event
 			pretty := lib.PrettyPrintJSON(jsonStr)
 			ofn := fmt.Sprintf("jsons/%v_%v.json", dt.Unix(), eid)
 			lib.FatalOnError(ioutil.WriteFile(ofn, pretty, 0644))
 		}
-		if ctx.dbOut {
+		if ctx.DBOut {
 			// FIXME: not needed
 			// fmt.Printf("JSON:\n%v\n", string(lib.PrettyPrintJSON(jsonStr)))
-			e = writeToDB(ctx, con, h)
+			e = writeToDB(con, ctx, h)
 		}
 		if ctx.Debug >= 1 {
 			fmt.Printf("Processed: '%v' event: %v\n", dt, eid)
@@ -708,11 +723,11 @@ func parseJSON(ctx Ctx, con *sql.DB, jsonStr []byte, dt time.Time, forg, frepo m
 // getGHAJSON - This is a work for single go routine - 1 hour of GHA data
 // Usually such JSON conatin about 15000 - 60000 singe GHA events
 // Boolean channel `ch` is used to synchronize go routines
-func getGHAJSON(ch chan bool, ctx Ctx, dt time.Time, forg map[string]bool, frepo map[string]bool) {
+func getGHAJSON(ch chan bool, ctx lib.Ctx, dt time.Time, forg map[string]bool, frepo map[string]bool) {
 	fmt.Printf("Working on %v\n", dt)
 
 	// Connect to Postgres DB
-	con := lib.Conn()
+	con := lib.Conn(ctx)
 	defer con.Close()
 
 	fn := fmt.Sprintf("http://data.githubarchive.org/%s.json.gz", lib.ToGHADate(dt))
@@ -741,7 +756,7 @@ func getGHAJSON(ch chan bool, ctx Ctx, dt time.Time, forg map[string]bool, frepo
 		if len(json) < 1 {
 			continue
 		}
-		fi, ei := parseJSON(ctx, con, json, dt, forg, frepo)
+		fi, ei := parseJSON(con, ctx, json, dt, forg, frepo)
 		n++
 		f += fi
 		e += ei
@@ -758,16 +773,8 @@ func getGHAJSON(ch chan bool, ctx Ctx, dt time.Time, forg map[string]bool, frepo
 // gha2db - main work horse
 func gha2db(args []string) {
 	// Environment context parse
-	var ctx Ctx
-	ctx.jsonOut = os.Getenv("GHA2DB_JSON") != ""
-	ctx.dbOut = os.Getenv("GHA2DB_NODB") == ""
-	if os.Getenv("GHA2DB_DEBUG") == "" {
-		ctx.Debug = 0
-	} else {
-		debugLevel, err := strconv.Atoi(os.Getenv("GHA2DB_DEBUG"))
-		lib.FatalOnError(err)
-		ctx.Debug = debugLevel
-	}
+	var ctx lib.Ctx
+	ctx.Init()
 
 	hourFrom, err := strconv.Atoi(args[1])
 	lib.FatalOnError(err)
@@ -806,7 +813,7 @@ func gha2db(args []string) {
 	}
 
 	// Get number of CPUs available
-	thrN := lib.GetThreadsNum()
+	thrN := lib.GetThreadsNum(ctx)
 	fmt.Printf(
 		"Running (%v CPUs): %v - %v %v %v\n",
 		thrN, dFrom, dTo,
