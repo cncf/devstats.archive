@@ -125,6 +125,33 @@ func ghaForkee(con *sql.Tx, eid string, forkee lib.Forkee) {
 	)
 }
 
+// Inserts single GHA Branch
+func ghaBranch(con *sql.Tx, eid string, branch lib.Branch, skipRepoID interface{}) {
+	// user
+	if branch.User != nil {
+		ghaActor(con, *branch.User)
+	}
+
+	// repo
+	if branch.Repo != nil && branch.Repo.ID != skipRepoID {
+		ghaForkee(con, eid, *branch.Repo)
+	}
+
+	// gha_branches
+	lib.ExecSQLTxWithErr(
+		con,
+		"insert into gha_branches(sha, event_id, user_id, repo_id, label, ref) "+lib.NValues(6),
+		lib.AnyArray{
+			branch.SHA,
+			eid,
+			lib.ActorIDOrNil(branch.User),
+			lib.ForkeeIDOrNil(branch.Repo),
+			lib.TruncToBytes(branch.Label, 200),
+			lib.TruncToBytes(branch.Ref, 200),
+		}...,
+	)
+}
+
 func lookupLabel(con *sql.Tx, name string, color string) int {
 	rows := lib.QuerySQLTxWithErr(
 		con,
@@ -411,7 +438,7 @@ func writeToDB(ctx Ctx, db *sql.DB, ev lib.Event) int {
 			lib.ExecSQLTxWithErr(
 				con,
 				"insert into gha_issues_assignees(issue_id, event_id, assignee_id) "+lib.NValues(3),
-				lib.AnyArray{iid, eventID, assignee.ID}...,
+				lib.AnyArray{iid, eventID, aid}...,
 			)
 		}
 
@@ -510,117 +537,120 @@ func writeToDB(ctx Ctx, db *sql.DB, ev lib.Event) int {
 			)
 		}
 	}
-	/*
-	  # gha_pull_requests
-	  # Table details and analysis in `analysis/analysis.txt` and `analysis/pull_request_*.json`
-	  pr = pl['pull_request']
-	  if pr
-	    # gha_pull_requests
 
-	    # user
-	    gha_actor(con, sid, pr['user'])
+	// gha_pull_requests
+	// Table details and analysis in `analysis/analysis.txt` and `analysis/pull_request_*.json`
+	if pl.PullRequest != nil {
+		pr := *pl.PullRequest
 
-	    base_sha = pr['base']['sha']
-	    head_sha = pr['head']['sha']
-	    base_repo_id = pr['base']['repo'] && pr['base']['repo']['id']
+		// user
+		ghaActor(con, pr.User)
 
-	    # base
-	    gha_branch(con, sid, event_id, pr['base'])
+		baseSHA := pr.Base.SHA
+		headSHA := pr.Head.SHA
+		baseRepoID := lib.ForkeeIDOrNil(pr.Base.Repo)
 
-	    # head (if different, and skip its repo if defined and the same as base repo)
-	    gha_branch(con, sid, event_id, pr['head'], base_repo_id) unless base_sha == head_sha
+		// base
+		ghaBranch(con, eventID, pr.Base, nil)
 
-	    # merged_by
-	    gha_actor(con, sid, pr['merged_by']) if pr['merged_by']
+		// head (if different, and skip its repo if defined and the same as base repo)
+		if baseSHA != headSHA {
+			ghaBranch(con, eventID, pr.Head, baseRepoID)
+		}
 
-	    # assignee
-	    gha_actor(con, sid, pr['assignee']) if pr['assignee']
+		// merged_by
+		if pr.MergedBy != nil {
+			ghaActor(con, *pr.MergedBy)
+		}
 
-	    # milestone
-	    gha_milestone(con, sid, event_id, pr['milestone']) if pr['milestone']
+		// assignee
+		if pr.Assignee != nil {
+			ghaActor(con, *pr.Assignee)
+		}
 
-	    # pull_request
-	    prid = pr['id']
-	    exec_stmt(
-	      con,
-	      sid,
-	      'insert into gha_pull_requests('\
-	      'id, event_id, user_id, base_sha, head_sha, merged_by_id, assignee_id, milestone_id, '\
-	      'number, state, locked, title, body, created_at, updated_at, closed_at, merged_at, '\
-	      'merge_commit_sha, merged, mergeable, rebaseable, mergeable_state, comments, '\
-	      'review_comments, maintainer_can_modify, commits, additions, deletions, changed_files'\
-	      ') ' + n_values(29),
-	      [
-	        prid,
-	        event_id,
-	        pr['user']['id'],
-	        base_sha,
-	        head_sha,
-	        pr['merged_by'] ? pr['merged_by']['id'] : nil,
-	        pr['assignee'] ? pr['assignee']['id'] : nil,
-	        pr['milestone'] ? pr['milestone']['id'] : nil,
-	        pr['number'],
-	        pr['state'],
-	        pr['locked'],
-	        pr['title'],
-	        pr['body'] ? trunc(pr['body'], 0xffff) : nil,
-	        parse_timestamp(pr['created_at']),
-	        parse_timestamp(pr['updated_at']),
-	        pr['closed_at'] ? parse_timestamp(pr['closed_at']) : nil,
-	        pr['merged_at'] ? parse_timestamp(pr['merged_at']) : nil,
-	        pr['merge_commit_sha'],
-	        pr['merged'],
-	        pr['mergeable'],
-	        pr['rebaseable'],
-	        pr['mergeable_state'],
-	        pr['comments'],
-	        pr['review_comments'],
-	        pr['maintainer_can_modify'],
-	        pr['commits'],
-	        pr['additions'],
-	        pr['deletions'],
-	        pr['changed_files']
-	      ]
-	    )
+		// milestone
+		if pr.Milestone != nil {
+			ghaMilestone(con, eventID, *pr.Milestone)
+		}
 
-	    # Arrays: actors: assignees, requested_reviewers
-	    # assignees
-	    assignees = pr['assignees'] || []
-	    p_aid = pr['assignee'] ? pr['assignee']['id'] : nil
-	    assignees.each do |assignee|
-	      aid = assignee['id']
-	      next if aid == p_aid
+		// pull_request
+		prid := pr.ID
+		lib.ExecSQLTxWithErr(
+			con,
+			"insert into gha_pull_requests("+
+				"id, event_id, user_id, base_sha, head_sha, merged_by_id, assignee_id, milestone_id, "+
+				"number, state, locked, title, body, created_at, updated_at, closed_at, merged_at, "+
+				"merge_commit_sha, merged, mergeable, rebaseable, mergeable_state, comments, "+
+				"review_comments, maintainer_can_modify, commits, additions, deletions, changed_files"+
+				") "+lib.NValues(29),
+			lib.AnyArray{
+				prid,
+				eventID,
+				pr.User.ID,
+				baseSHA,
+				headSHA,
+				lib.ActorIDOrNil(pr.MergedBy),
+				lib.ActorIDOrNil(pr.Assignee),
+				lib.MilestoneIDOrNil(pr.Milestone),
+				pr.Number,
+				pr.State,
+				pr.Locked,
+				pr.Title,
+				lib.TruncStringOrNil(pr.Body, 0xffff),
+				pr.CreatedAt,
+				pr.UpdatedAt,
+				lib.TimeOrNil(pr.ClosedAt),
+				lib.TimeOrNil(pr.MergedAt),
+				lib.StringOrNil(pr.MergeCommitSHA),
+				lib.BoolOrNil(pr.Merged),
+				lib.BoolOrNil(pr.Mergeable),
+				lib.BoolOrNil(pr.Rebaseable),
+				lib.StringOrNil(pr.MergeableState),
+				lib.IntOrNil(pr.Comments),
+				lib.IntOrNil(pr.ReviewComments),
+				lib.BoolOrNil(pr.MaintainerCanModify),
+				lib.IntOrNil(pr.Commits),
+				lib.IntOrNil(pr.Additions),
+				lib.IntOrNil(pr.Deletions),
+				lib.IntOrNil(pr.ChangedFiles),
+			}...,
+		)
 
-	      # assignee
-	      gha_actor(con, sid, assignee)
+		// Arrays: actors: assignees, requested_reviewers
+		// assignees
+		prAid := lib.ActorIDOrNil(pr.Assignee)
+		for _, assignee := range pr.Assignees {
+			aid := assignee.ID
+			if aid == prAid {
+				continue
+			}
 
-	      # pull_request-assignee connection
-	      exec_stmt(
-	        con,
-	        sid,
-	        'insert into gha_pull_requests_assignees('\
-	        'pull_request_id, event_id, assignee_id) ' + n_values(3),
-	        [prid, event_id, aid]
-	      )
-	    end
+			// assignee
+			ghaActor(con, assignee)
 
-	    # requested_reviewers
-	    reviewers = pr['requested_reviewers'] || []
-	    reviewers.each do |reviewer|
-	      # reviewer
-	      gha_actor(con, sid, reviewer)
+			// pull_request-assignee connection
+			lib.ExecSQLTxWithErr(
+				con,
+				"insert into gha_pull_requests_assignees(pull_request_id, event_id, assignee_id) "+lib.NValues(3),
+				lib.AnyArray{prid, eventID, aid}...,
+			)
+		}
 
-	      # pull_request-requested_reviewer connection
-	      exec_stmt(
-	        con,
-	        sid,
-	        'insert into gha_pull_requests_requested_reviewers('\
-	        'pull_request_id, event_id, requested_reviewer_id) ' + n_values(3),
-	        [prid, event_id, reviewer['id']]
-	      )
-	    end
-	  end
-	*/
+		// requested_reviewers
+		for _, reviewer := range pr.RequestedReviewers {
+			// reviewer
+			ghaActor(con, reviewer)
+
+			// pull_request-requested_reviewer connection
+			lib.ExecSQLTxWithErr(
+				con,
+				"insert into gha_pull_requests_requested_reviewers(pull_request_id, event_id, requested_reviewer_id) "+lib.NValues(3),
+				lib.AnyArray{prid, eventID, reviewer.ID}...,
+			)
+		}
+	}
+
+	// Final commit
 	lib.FatalOnError(con.Commit())
 	return 1
 }

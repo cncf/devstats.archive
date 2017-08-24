@@ -25,23 +25,24 @@ type Event struct {
 
 // Payload - GHA Payload structure
 type Payload struct {
-	PushID       *int      `json:"push_id"`
-	Size         *int      `json:"size"`
-	Ref          *string   `json:"ref"`
-	Head         *string   `json:"head"`
-	Before       *string   `json:"before"`
-	Action       *string   `json:"action"`
-	RefType      *string   `json:"ref_type"`
-	MasterBranch *string   `json:"master_branch"`
-	Description  *string   `json:"description"`
-	Number       *int      `json:"number"`
-	Forkee       *Forkee   `json:"forkee"`
-	Release      *Release  `json:"release"`
-	Member       *Actor    `json:"member"`
-	Issue        *Issue    `json:"issue"`
-	Comment      *Comment  `json:"comment"`
-	Commits      *[]Commit `json:"commits"`
-	Pages        *[]Page   `json:"pages"`
+	PushID       *int         `json:"push_id"`
+	Size         *int         `json:"size"`
+	Ref          *string      `json:"ref"`
+	Head         *string      `json:"head"`
+	Before       *string      `json:"before"`
+	Action       *string      `json:"action"`
+	RefType      *string      `json:"ref_type"`
+	MasterBranch *string      `json:"master_branch"`
+	Description  *string      `json:"description"`
+	Number       *int         `json:"number"`
+	Forkee       *Forkee      `json:"forkee"`
+	Release      *Release     `json:"release"`
+	Member       *Actor       `json:"member"`
+	Issue        *Issue       `json:"issue"`
+	Comment      *Comment     `json:"comment"`
+	Commits      *[]Commit    `json:"commits"`
+	Pages        *[]Page      `json:"pages"`
+	PullRequest  *PullRequest `json:"pull_request"`
 }
 
 // Repo - GHA Repo structure
@@ -115,6 +116,49 @@ type Asset struct {
 	State         string    `json:"state"`
 	Size          int       `json:"size"`
 	DownloadCount int       `json:"download_count"`
+}
+
+// PullRequest - GHA Pull Request structure
+type PullRequest struct {
+	ID                  int        `json:"id"`
+	Base                Branch     `json:"base"`
+	Head                Branch     `json:"head"`
+	User                Actor      `json:"user"`
+	Number              int        `json:"number"`
+	State               string     `json:"state"`
+	Locked              bool       `json:"locked"`
+	Title               string     `json:"title"`
+	Body                *string    `json:"body"`
+	CreatedAt           time.Time  `json:"created_at"`
+	UpdatedAt           time.Time  `json:"updated_at"`
+	ClosedAt            *time.Time `json:"closed_at"`
+	MergedAt            *time.Time `json:"merged_at"`
+	MergeCommitSHA      *string    `json:"merge_commit_sha"`
+	Assignee            *Actor     `json:"assignee"`
+	Assignees           []Actor    `json:"assignees"`
+	RequestedReviewers  []Actor    `json:"requested_reviewers"`
+	Milestone           *Milestone `json:"milestone"`
+	Merged              *bool      `json:"merged"`
+	Mergeable           *bool      `json:"mergeable"`
+	MergedBy            *Actor     `json:"merged_by"`
+	MergeableState      *string    `json:"mergeable_state"`
+	Rebaseable          *bool      `json:"rebaseable"`
+	Comments            *int       `json:"comments"`
+	ReviewComments      *int       `json:"review_comments"`
+	MaintainerCanModify *bool      `json:"maintainer_can_modify"`
+	Commits             *int       `json:"commits"`
+	Additions           *int       `json:"additions"`
+	Deletions           *int       `json:"deletions"`
+	ChangedFiles        *int       `json:"changed_files"`
+}
+
+// Branch - GHA Branch structure
+type Branch struct {
+	SHA   string  `json:"sha"`
+	User  *Actor  `json:"user"`
+	Repo  *Forkee `json:"repo"` // This is confusing, but actually GHA has "repo" fields that holds "forkee" structure
+	Label string  `json:"label"`
+	Ref   string  `json:"ref"`
 }
 
 // Issue - GHA Issue structure
@@ -206,6 +250,14 @@ func OrgIDOrNil(orgPtr *Org) interface{} {
 		return nil
 	}
 	return orgPtr.ID
+}
+
+// RepoIDOrNil - return Repo ID from pointer or nil
+func RepoIDOrNil(repoPtr *Repo) interface{} {
+	if repoPtr == nil {
+		return nil
+	}
+	return repoPtr.ID
 }
 
 // IssueIDOrNil - return Issue ID from pointer or nil
