@@ -63,6 +63,7 @@ It consists of:
 
 1) `structure` (manages database structure, summaries, views)
 - This is implemented as [structure.rb](https://github.com/cncf/gha2db/blob/master/structure.rb) in POC.
+- Already implemented in Go  [structure.go](https://github.com/cncf/gha2db/blob/master/cmd/structure/structure.go).
 - It is used to create database structure, indexes and to update database summary tables, views etc.
 - POC supports both MySQL and Postgres. Tests have shown that Postgres is a way better than MySQL for this.
 - Postgres supports hash joins that allows multi-million table joins in less than 1s, while MySQL requires more than 3 minutes. MySQL had to use data duplication in multiple tables to create fast metrics.
@@ -72,6 +73,7 @@ It consists of:
 
 2) `gha2db` (imports GitHub archives to database and eventually JSON files)
 - This is implemented as [gha2db.rb](https://github.com/cncf/gha2db/blob/master/gha2db.rb) in POC.
+- Already implemented in Go [gha2db.go](https://github.com/cncf/gha2db/blob/master/cmd/gha2db/gha2db.go).
 - This is a `fetcher` equivalent, differences are that it reads from GitHub archive instead of GitHub API and writes to Postgres instead of MySQL
 - It saves ALL data from GitHub archives, so we have all GitHub structures fully populated. See [Database structure](https://github.com/cncf/gha2db/blob/master/README.ruby.md).
 - We have all historical data from all possible GitHub events and summary values for repositories at given points of time.
@@ -81,6 +83,7 @@ It consists of:
 
 3) `db2influx` (computes metrics given as SQL files to be run on Postgres and saves time series output to InfluxDB)
 - This is implemented as [db2influx.rb](https://github.com/cncf/gha2db/blob/master/db2influx.rb) in POC.
+- ALready implemented in Go [db2influx.go](https://github.com/cncf/gha2db/blob/master/cmd/db2influx/db2influx.go).
 - This separates metrics complex logic in SQL files, `db2influx` executes parameterized SQL files and write final time-series to InfluxDB.
 - Parameters are `'{{from}}'`, `'{{to}}'` to allow computing the given metric for any date period.
 - This means that InfluxDB will only hold multiple time-series (very simple data). InfluxDB is extremely good at manipulating such kind of data - this is what it was created for.
@@ -90,6 +93,7 @@ It consists of:
 
 4) `sync` (synchronizes GitHub archive data and Postgres, InfluxDB databases)
 - This is implemented as [sync.rb](https://github.com/cncf/gha2db/blob/master/sync.rb) in POC.
+- No Go version yet, it will be there [sync.go](https://github.com/cncf/gha2db/blob/master/cmd/sync/sync.go).
 - This program figures out what is the most recent data in Postgres database then queries GitHub archive from this date to current date.
 - It will add data to Postgres database (since the last run)
 - It will update summary tables and/or (materialized) views on Postgres DB.
@@ -100,6 +104,7 @@ It consists of:
 
 5) Additional stuff
 - This is implemented as [runq.rb](https://github.com/cncf/gha2db/blob/master/runq.rb) and various `*.sh` shell scripts in POC.
+- ALready implemented in Go [runq.go](https://github.com/cncf/gha2db/blob/master/cmd/runq/runq.go).
 - `runq` gets SQL file name and parameter values and allows to run metric manually from the command line (this is for local development)
 - There are few shell scripts for example: running sync every N seconds, setup InfluxDB etc.
 
