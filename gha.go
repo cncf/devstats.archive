@@ -64,12 +64,57 @@ type Org struct {
 
 // Forkee - GHA Forkee structure
 type Forkee struct {
-	ID int `json:"id"`
+	ID              int       `json:"id"`
+	Name            string    `json:"name"`
+	FullName        string    `json:"full_name"`
+	Owner           Actor     `json:"owner"`
+	Description     *string   `json:"description"`
+	Public          *bool     `json:"public"`
+	Fork            bool      `json:"fork"`
+	CreatedAt       time.Time `json:"created_at"`
+	UpdatedAt       time.Time `json:"updated_at"`
+	PushedAt        time.Time `json:"updated_at"`
+	Homepage        *string   `json:"homepage"`
+	Size            int       `json:"size"`
+	StargazersCount int       `json:"stargazers_count"`
+	HasIssues       bool      `json:"has_issues"`
+	HasProjects     *bool     `json:"has_projects"`
+	HasDownloads    bool      `json:"has_downloads"`
+	HasWiki         bool      `json:"has_wiki"`
+	HasPages        *bool     `json:"has_pages"`
+	Forks           int       `json:"forks"`
+	OpenIssues      int       `json:"open_issues"`
+	Watchers        int       `json:"watchers"`
+	DefaultBranch   string    `json:"default_branch"`
 }
 
 // Release - GHA Release structure
 type Release struct {
-	ID int `json:"id"`
+	ID              int       `json:"id"`
+	TagName         string    `json:"tag_name"`
+	TargetCommitish string    `json:"target_commitish"`
+	Name            *string   `json:"name"`
+	Draft           bool      `json:"draft"`
+	Author          Actor     `json:"author"`
+	Prerelease      bool      `json:"prerelease"`
+	CreatedAt       time.Time `json:"created_at"`
+	PublishedAt     time.Time `json:"published_at"`
+	Body            *string   `json:"body"`
+	Assets          []Asset   `json:"assets"`
+}
+
+// Asset - GHA Asset structure
+type Asset struct {
+	ID            int       `json:"id"`
+	CreatedAt     time.Time `json:"created_at"`
+	UpdatedAt     time.Time `json:"updated_at"`
+	Name          string    `json:"name"`
+	Label         *string   `json:"label"`
+	Uploader      Actor     `json:"uploader"`
+	ContentType   string    `json:"content_type"`
+	State         string    `json:"state"`
+	Size          int       `json:"size"`
+	DownloadCount int       `json:"download_count"`
 }
 
 // Issue - GHA Issue structure

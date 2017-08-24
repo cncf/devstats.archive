@@ -82,6 +82,49 @@ func ghaMilestone(con *sql.Tx, eid string, milestone lib.Milestone) {
 	)
 }
 
+// Inserts single GHA Forkee
+func ghaForkee(con *sql.Tx, eid string, forkee lib.Forkee) {
+	// owner
+	ghaActor(con, forkee.Owner)
+
+	// gha_forkees
+	// Table details and analysis in `analysis/analysis.txt` and `analysis/forkee_*.json`
+	lib.ExecSQLTxWithErr(
+		con,
+		"insert into gha_forkees("+
+			"id, event_id, name, full_name, owner_id, description, fork, "+
+			"created_at, updated_at, pushed_at, homepage, size, "+
+			"stargazers_count, has_issues, has_projects, has_downloads, "+
+			"has_wiki, has_pages, forks, default_branch, open_issues, "+
+			"watchers, public) "+lib.NValues(23),
+		lib.AnyArray{
+			forkee.ID,
+			eid,
+			lib.TruncToBytes(forkee.Name, 80),
+			lib.TruncToBytes(forkee.FullName, 200),
+			forkee.Owner.ID,
+			lib.TruncStringOrNil(forkee.Description, 0xffff),
+			forkee.Fork,
+			forkee.CreatedAt,
+			forkee.UpdatedAt,
+			forkee.PushedAt,
+			lib.StringOrNil(forkee.Homepage),
+			forkee.Size,
+			forkee.StargazersCount,
+			forkee.HasIssues,
+			lib.BoolOrNil(forkee.HasProjects),
+			forkee.HasDownloads,
+			forkee.HasWiki,
+			lib.BoolOrNil(forkee.HasPages),
+			forkee.Forks,
+			lib.TruncToBytes(forkee.DefaultBranch, 200),
+			forkee.OpenIssues,
+			forkee.Watchers,
+			lib.BoolOrNil(forkee.Public),
+		}...,
+	)
+}
+
 func lookupLabel(con *sql.Tx, name string, color string) int {
 	rows := lib.QuerySQLTxWithErr(
 		con,
@@ -394,81 +437,80 @@ func writeToDB(ctx Ctx, db *sql.DB, ev lib.Event) int {
 			)
 		}
 	}
+
+	// gha_forkees
+	if pl.Forkee != nil {
+		ghaForkee(con, eventID, *pl.Forkee)
+	}
+
+	// gha_releases
+	// Table details and analysis in `analysis/analysis.txt` and `analysis/release_*.json`
+	if pl.Release != nil {
+		release := *pl.Release
+
+		// author
+		ghaActor(con, release.Author)
+
+		// release
+		rid := release.ID
+		lib.ExecSQLTxWithErr(
+			con,
+			"insert into gha_releases("+
+				"id, event_id, tag_name, target_commitish, name, draft, "+
+				"author_id, prerelease, created_at, published_at, body"+
+				") "+lib.NValues(11),
+			lib.AnyArray{
+				rid,
+				eventID,
+				lib.TruncToBytes(release.TagName, 200),
+				lib.TruncToBytes(release.TargetCommitish, 200),
+				lib.TruncStringOrNil(release.Name, 200),
+				release.Draft,
+				release.Author.ID,
+				release.Prerelease,
+				release.CreatedAt,
+				release.PublishedAt,
+				lib.TruncStringOrNil(release.Body, 0xffff),
+			}...,
+		)
+
+		// Assets
+		for _, asset := range release.Assets {
+			// uploader
+			ghaActor(con, asset.Uploader)
+
+			// asset
+			aid := asset.ID
+			lib.ExecSQLTxWithErr(
+				con,
+				"insert into gha_assets("+
+					"id, event_id, name, label, uploader_id, content_type, "+
+					"state, size, download_count, created_at, updated_at"+
+					") "+lib.NValues(11),
+				lib.AnyArray{
+					aid,
+					eventID,
+					lib.TruncToBytes(asset.Name, 200),
+					lib.TruncStringOrNil(asset.Label, 120),
+					asset.Uploader.ID,
+					asset.ContentType,
+					asset.State,
+					asset.Size,
+					asset.DownloadCount,
+					asset.CreatedAt,
+					asset.UpdatedAt,
+				}...,
+			)
+
+			// release-asset connection
+			lib.ExecSQLTxWithErr(
+				con,
+				"insert into gha_releases_assets(release_id, event_id, asset_id) "+lib.NValues(3),
+				lib.AnyArray{rid, eventID, aid}...,
+			)
+		}
+	}
 	/*
-	  # gha_forkees
-	  gha_forkee(con, sid, event_id, pl['forkee']) if pl['forkee']
-
-	  # gha_releases
-	  # Table details and analysis in `analysis/analysis.txt` and `analysis/release_*.json`
-	  release = pl['release']
-	  if release
-	    # author
-	    gha_actor(con, sid, release['author'])
-
-	    # release
-	    rid = release['id']
-	    exec_stmt(
-	      con,
-	      sid,
-	      'insert into gha_releases('\
-	      'id, event_id, tag_name, target_commitish, name, draft, '\
-	      'author_id, prerelease, created_at, published_at, body'\
-	      ') ' + n_values(11),
-	      [
-	        rid,
-	        event_id,
-	        trunc(release['tag_name'], 200),
-	        trunc(release['target_commitish'], 200),
-	        release['name'] ? trunc(release['name'], 200) : nil,
-	        release['draft'],
-	        release['author']['id'],
-	        release['prerelease'],
-	        parse_timestamp(release['created_at']),
-	        parse_timestamp(release['published_at']),
-	        release['body'] ? trunc(release['body'], 0xffff) : nil
-	      ]
-	    )
-
-	    # assets
-	    assets = release['assets']
-	    assets.each do |asset|
-	      # uploader
-	      gha_actor(con, sid, asset['uploader'])
-
-	      # asset
-	      aid = asset['id']
-	      exec_stmt(
-	        con,
-	        sid,
-	        'insert into gha_assets('\
-	        'id, event_id, name, label, uploader_id, content_type, '\
-	        'state, size, download_count, created_at, updated_at'\
-	        ') ' + n_values(11),
-	        [
-	          aid,
-	          event_id,
-	          trunc(asset['name'], 200),
-	          asset['label'] ? trunc(asset['label'], 120) : nil,
-	          asset['uploader']['id'],
-	          asset['content_type'],
-	          asset['state'],
-	          asset['size'],
-	          asset['download_count'],
-	          parse_timestamp(asset['created_at']),
-	          parse_timestamp(asset['updated_at'])
-	        ]
-	      )
-
-	      # release-asset connection
-	      exec_stmt(
-	        con,
-	        sid,
-	        'insert into gha_releases_assets(release_id, event_id, asset_id) ' + n_values(3),
-	        [rid, event_id, aid]
-	      )
-	    end
-	  end
-
 	  # gha_pull_requests
 	  # Table details and analysis in `analysis/analysis.txt` and `analysis/pull_request_*.json`
 	  pr = pl['pull_request']
