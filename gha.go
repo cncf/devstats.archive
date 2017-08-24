@@ -7,6 +7,10 @@ import (
 // AnyArray - holds array of interface{} - just a shortcut
 type AnyArray []interface{}
 
+// Dummy - structure with no data
+// pointer to this struct is used to test if such field was present in JSON or not
+type Dummy struct{}
+
 // Event - full GHA (GitHub Archive) event structure
 type Event struct {
 	ID        string    `json:"id"`
@@ -70,7 +74,47 @@ type Release struct {
 
 // Issue - GHA Issue structure
 type Issue struct {
-	ID int `json:"id"`
+	ID          int        `json:"id"`
+	Number      int        `json:"number"`
+	Comments    int        `json:"comments"`
+	Title       string     `json:"title"`
+	State       string     `json:"state"`
+	Locked      bool       `json:"locked"`
+	Body        *string    `json:"body"`
+	User        Actor      `json:"user"`
+	Assignee    *Actor     `json:"assignee"`
+	Labels      []Label    `json:"labels"`
+	Assignees   []Actor    `json:"assignees"`
+	Milestone   *Milestone `json:"milestone"`
+	CreatedAt   time.Time  `json:"created_at"`
+	UpdatedAt   time.Time  `json:"updated_at"`
+	ClosedAt    *time.Time `json:"closed_at"`
+	PullRequest *Dummy     `json:"pull_request"`
+}
+
+// Label - GHA Label structure
+type Label struct {
+	ID        int    `json:"id"`
+	Name      string `json:"name"`
+	Color     string `json:"color"`
+	IsDefault *bool  `json:"default"`
+}
+
+// Milestone - GHA Milestone structure
+type Milestone struct {
+	ID           int        `json:"id"`
+	Name         string     `json:"name"`
+	Number       int        `json:"number"`
+	Title        string     `json:"title"`
+	Description  *string    `json:"description"`
+	Creator      *Actor     `json"creator"`
+	OpenIssues   int        `json:"open_issues"`
+	ClosedIssues int        `json:"closed_issues"`
+	State        string     `json:"state"`
+	CreatedAt    time.Time  `json:"created_at"`
+	UpdatedAt    time.Time  `json:"updated_at"`
+	ClosedAt     *time.Time `json:"closed_at"`
+	DueOn        *time.Time `json:"due_on"`
 }
 
 // Comment - GHA Comment structure
@@ -157,4 +201,12 @@ func ReleaseIDOrNil(relPtr *Release) interface{} {
 		return nil
 	}
 	return relPtr.ID
+}
+
+// MilestoneIDOrNil - return Milestone ID from pointer or nil
+func MilestoneIDOrNil(milPtr *Milestone) interface{} {
+	if milPtr == nil {
+		return nil
+	}
+	return milPtr.ID
 }
