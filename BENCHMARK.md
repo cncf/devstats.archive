@@ -58,7 +58,7 @@ Links:
 - `For true concurrency having more then 2 cores or 2 processors is required - but it may not work if implementation is single-threaded (such as the MRI).`:
 - [Ruby threads in parallel](https://stackoverflow.com/questions/2428140/how-do-i-run-two-threads-in-ruby-at-the-same-time)
 - [Ruby interpreter GIL](https://en.wikipedia.org/wiki/Global_interpreter_lock)
-- [JRuby](https://en.wikipedia.org/wiki/JRuby): 
+- [JRuby](https://en.wikipedia.org/wiki/JRuby):
 ```
 JRuby has the significant architectural advantage to be able to leverage JVM threads without being constrained by a global interpreter lock (similarly to Rubinius), therefore achieving full parallelism within a process, which Ruby MRI cannot achieve despite leveraging OS threads.
 ```
@@ -70,7 +70,7 @@ Remember that only in JRuby threads are truly parallel (other interpreters imple
 
 So Go will kill Ruby all the time! It is about 10x - 15x faster than Ruby on average.
 
-One word: Go version can import all GitHub archives data (not discarding anything) for all Kubernetes orgs/repos, from the beginning on GithHub 2015-08-06 in about 2 hours!
+One word: Go version can import all GitHub archives data (not discarding anything) for all Kubernetes orgs/repos, from the beginning on GitHub 2015-08-06 in about 2 hours!
 
 We can also see that MySQL is very slightly slower that Postgres (but this is just for inserting data, without indexes defined yet).
 MySQL is a lot slower on metrics/queries - but this is not checked in this benchmark.
