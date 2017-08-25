@@ -70,6 +70,8 @@ Remember that only in JRuby threads are truly parallel (other interpreters imple
 
 So Go will kill Ruby all the time! It is about 10x - 15x faster than Ruby on average.
 
+One word: Go version can import all GitHub archives data (not discarding anything) for all Kubernetes orgs/repos, from the beginning on GithHub 2015-08-06 in about 2 hours!
+
 We can also see that MySQL is very slightly slower that Postgres (but this is just for inserting data, without indexes defined yet).
 MySQL is a lot slower on metrics/queries - but this is not checked in this benchmark.
 

@@ -186,3 +186,5 @@ All of them works live on [cncftest.io](https://cncftest.io) with auto sync tool
 
 Please see [Benchmarks](https://github.com/cncf/gha2db/blob/master/BENCHMARK.md)
 
+One word: Go version can import all GitHub archives data (not discarding anything) for all Kubernetes orgs/repos, from the beginning on GithHub 2015-08-06 in about 2 hours!
+
