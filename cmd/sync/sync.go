@@ -66,27 +66,20 @@ func sync(args []string) {
 
 	// Get new GHAs
 	fmt.Printf("Range: %s %s - %s %s\n", fromDate, fromHour, toDate, toHour)
-	lib.ExecCommand(
-		&ctx,
-		[]string{
-			"./gha2db",
-			fromDate,
-			fromHour,
-			toDate,
-			toHour,
-			strings.Join(org, ","),
-			strings.Join(repo, ","),
-		},
-		nil,
-	)
-	fmt.Printf("we're fine.\n")
+		lib.ExecCommand(
+			&ctx,
+			[]string{
+				"./gha2db",
+				fromDate,
+				fromHour,
+				toDate,
+				toHour,
+				strings.Join(org, ","),
+				strings.Join(repo, ","),
+			},
+			nil,
+		)
 	/*
-	  res = system cmd
-	  unless res
-	    puts "Command failed: '#{cmd}'"
-	    exit 1
-	  end
-
 	  # Recompute views and DB summaries
 	  cmd = './structure.rb'
 	  puts cmd
@@ -94,10 +87,6 @@ func sync(args []string) {
 	    { 'GHA2DB_SKIPTABLE' => '1', 'GHA2DB_MGETC' => 'y' },
 	    cmd
 	  )
-	  unless res
-	    puts "Command failed: '#{cmd}'"
-	    exit 1
-	  end
 
 	  # DB2Influx
 	  unless ENV['GHA2DB_SKIPIDB']
