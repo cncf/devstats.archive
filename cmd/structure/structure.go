@@ -5,9 +5,9 @@ import (
 	lib "k8s.io/test-infra/gha2db"
 )
 
-func structure(ctx lib.Ctx) {
+func structure(ctx *lib.Ctx) {
 	// Connect to Postgres DB
-	c := lib.Conn(ctx)
+	c := lib.PgConn(ctx)
 	defer c.Close()
 
 	// gha_events
@@ -751,9 +751,9 @@ func main() {
 		fmt.Printf("This program will recreate DB structure (dropping all existing data)\n")
 	}
 	fmt.Printf("Continue? (y/n) ")
-	c := lib.Mgetc(ctx)
+	c := lib.Mgetc(&ctx)
 	fmt.Printf("\n")
 	if c == "y" {
-		structure(ctx)
+		structure(&ctx)
 	}
 }

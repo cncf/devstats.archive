@@ -5,7 +5,7 @@ import (
 )
 
 // Mgetc waits for single key press and return character pressed
-func Mgetc(ctx Ctx) string {
+func Mgetc(ctx *Ctx) string {
 	if ctx.Mgetc != "" {
 		return ctx.Mgetc
 	}

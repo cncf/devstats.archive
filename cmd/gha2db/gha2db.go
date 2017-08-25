@@ -31,7 +31,7 @@ func hashStrings(strs []string) int {
 }
 
 // Inserts single GHA Actor
-func ghaActor(con *sql.Tx, ctx lib.Ctx, actor lib.Actor) {
+func ghaActor(con *sql.Tx, ctx *lib.Ctx, actor lib.Actor) {
 	// gha_actors
 	// {"id:Fixnum"=>48592, "login:String"=>48592, "display_login:String"=>48592,
 	// "gravatar_id:String"=>48592, "url:String"=>48592, "avatar_url:String"=>48592}
@@ -45,7 +45,7 @@ func ghaActor(con *sql.Tx, ctx lib.Ctx, actor lib.Actor) {
 }
 
 // Inserts single GHA Milestone
-func ghaMilestone(con *sql.Tx, ctx lib.Ctx, eid string, milestone lib.Milestone) {
+func ghaMilestone(con *sql.Tx, ctx *lib.Ctx, eid string, milestone lib.Milestone) {
 	// creator
 	if milestone.Creator != nil {
 		ghaActor(con, ctx, *milestone.Creator)
@@ -78,7 +78,7 @@ func ghaMilestone(con *sql.Tx, ctx lib.Ctx, eid string, milestone lib.Milestone)
 }
 
 // Inserts single GHA Forkee
-func ghaForkee(con *sql.Tx, ctx lib.Ctx, eid string, forkee lib.Forkee) {
+func ghaForkee(con *sql.Tx, ctx *lib.Ctx, eid string, forkee lib.Forkee) {
 	// owner
 	ghaActor(con, ctx, forkee.Owner)
 
@@ -122,7 +122,7 @@ func ghaForkee(con *sql.Tx, ctx lib.Ctx, eid string, forkee lib.Forkee) {
 }
 
 // Inserts single GHA Branch
-func ghaBranch(con *sql.Tx, ctx lib.Ctx, eid string, branch lib.Branch, skipRepoID interface{}) {
+func ghaBranch(con *sql.Tx, ctx *lib.Ctx, eid string, branch lib.Branch, skipRepoID interface{}) {
 	// user
 	if branch.User != nil {
 		ghaActor(con, ctx, *branch.User)
@@ -149,7 +149,7 @@ func ghaBranch(con *sql.Tx, ctx lib.Ctx, eid string, branch lib.Branch, skipRepo
 	)
 }
 
-func lookupLabel(con *sql.Tx, ctx lib.Ctx, name string, color string) int {
+func lookupLabel(con *sql.Tx, ctx *lib.Ctx, name string, color string) int {
 	rows := lib.QuerySQLTxWithErr(
 		con,
 		ctx,
@@ -173,7 +173,7 @@ func lookupLabel(con *sql.Tx, ctx lib.Ctx, name string, color string) int {
 	return lid
 }
 
-func writeToDB(db *sql.DB, ctx lib.Ctx, ev lib.Event) int {
+func writeToDB(db *sql.DB, ctx *lib.Ctx, ev lib.Event) int {
 	// gha_events
 	// {"id:String"=>48592, "type:String"=>48592, "actor:Hash"=>48592, "repo:Hash"=>48592,
 	// "payload:Hash"=>48592, "public:TrueClass"=>48592, "created_at:String"=>48592,
@@ -308,7 +308,7 @@ func writeToDB(db *sql.DB, ctx lib.Ctx, ev lib.Event) int {
 				sha,
 				eventID,
 				lib.TruncToBytes(commit.Author.Name, 160),
-				lib.TruncToBytes(commit.Message, 0xffff), // FIXME: in gha2db.rb it was allowing null, while DB structure doesn not permit this
+				lib.TruncToBytes(commit.Message, 0xffff),
 				commit.Distinct,
 			}...,
 		)
@@ -365,7 +365,7 @@ func writeToDB(db *sql.DB, ctx lib.Ctx, ev lib.Event) int {
 			lib.AnyArray{
 				cid,
 				eventID,
-				lib.TruncToBytes(comment.Body, 0xffff), // FIXME: gha2db.rb was using conditional nil here
+				lib.TruncToBytes(comment.Body, 0xffff),
 				comment.CreatedAt,
 				comment.UpdatedAt,
 				ev.Type,
@@ -691,7 +691,7 @@ func repoHit(fullName string, forg, frepo map[string]bool) bool {
 }
 
 // parseJSON - parse signle GHA JSON event
-func parseJSON(con *sql.DB, ctx lib.Ctx, jsonStr []byte, dt time.Time, forg, frepo map[string]bool) (f int, e int) {
+func parseJSON(con *sql.DB, ctx *lib.Ctx, jsonStr []byte, dt time.Time, forg, frepo map[string]bool) (f int, e int) {
 	var h lib.Event
 	err := json.Unmarshal(jsonStr, &h)
 	if err != nil {
@@ -723,11 +723,11 @@ func parseJSON(con *sql.DB, ctx lib.Ctx, jsonStr []byte, dt time.Time, forg, fre
 // getGHAJSON - This is a work for single go routine - 1 hour of GHA data
 // Usually such JSON conatin about 15000 - 60000 singe GHA events
 // Boolean channel `ch` is used to synchronize go routines
-func getGHAJSON(ch chan bool, ctx lib.Ctx, dt time.Time, forg map[string]bool, frepo map[string]bool) {
+func getGHAJSON(ch chan bool, ctx *lib.Ctx, dt time.Time, forg map[string]bool, frepo map[string]bool) {
 	fmt.Printf("Working on %v\n", dt)
 
 	// Connect to Postgres DB
-	con := lib.Conn(ctx)
+	con := lib.PgConn(ctx)
 	defer con.Close()
 
 	fn := fmt.Sprintf("http://data.githubarchive.org/%s.json.gz", lib.ToGHADate(dt))
@@ -813,7 +813,7 @@ func gha2db(args []string) {
 	}
 
 	// Get number of CPUs available
-	thrN := lib.GetThreadsNum(ctx)
+	thrN := lib.GetThreadsNum(&ctx)
 	fmt.Printf(
 		"Running (%v CPUs): %v - %v %v %v\n",
 		thrN, dFrom, dTo,
@@ -827,7 +827,7 @@ func gha2db(args []string) {
 		for dt.Before(dTo) || dt.Equal(dTo) {
 			ch := make(chan bool)
 			chanPool = append(chanPool, ch)
-			go getGHAJSON(ch, ctx, dt, org, repo)
+			go getGHAJSON(ch, &ctx, dt, org, repo)
 			dt = dt.Add(time.Hour)
 			if len(chanPool) == thrN {
 				ch = chanPool[0]
@@ -842,7 +842,7 @@ func gha2db(args []string) {
 	} else {
 		fmt.Printf("Using single threaded version\n")
 		for dt.Before(dTo) || dt.Equal(dTo) {
-			getGHAJSON(nil, ctx, dt, org, repo)
+			getGHAJSON(nil, &ctx, dt, org, repo)
 			dt = dt.Add(time.Hour)
 		}
 	}

@@ -12,6 +12,7 @@ type Ctx struct {
 	JSONOut bool   // from GHA2DB_JSON gha2db: write JSON files? default false
 	DBOut   bool   // from GHA2DB_NODB gha2db: write to SQL database, default true
 	ST      bool   // from GHA2DB_ST true: use single threaded version, false: use multi threaded version, default false
+	NCPUs   int    // from GHA2DB_NCPUS, set to override number of CPUs to run, this overwrites GHA2DB_ST, default 0 (which means do not use it)
 	PgHost  string // from PG_HOST, default "localhost"
 	PgPort  string // from PG_PORT, default "5432"
 	PgDB    string // from PG_DB, default "gha"
@@ -47,6 +48,16 @@ func (ctx Ctx) Init() {
 	ctx.CtxOut = os.Getenv("GHA2DB_CTXOUT") != ""
 	// Threading
 	ctx.ST = os.Getenv("GHA2DB_ST") != ""
+	// Debug
+	if os.Getenv("GHA2DB_NCPUS") == "" {
+		ctx.NCPUs = 0
+	} else {
+		nCPUs, err := strconv.Atoi(os.Getenv("GHA2DB_NCPUS"))
+		FatalOnError(err)
+		if nCPUs > 0 {
+			ctx.NCPUs = nCPUs
+		}
+	}
 	// Postgres DB
 	ctx.PgHost = os.Getenv("PG_HOST")
 	ctx.PgPort = os.Getenv("PG_PORT")
