@@ -2,6 +2,8 @@
 
 Here are results of benchmarks:
 
+# gha2db tool
+
 We're trying 3 versions:
 - Ruby on Postgres.
 - Ruby on MySQL.
@@ -17,19 +19,43 @@ Columns:
 - `Real time` - time it took to compute.
 - `User time` - time it took to compute on all CPUs (so this is the time it *would* take on single CPU machine).
 - `Parallelism` - this is the ratio of `User time` to `Real time` - parallelism factor.
-- `Sys time` - time spent is system calls.
 
-| Benchmark         | Events      | Real time   | User time   | Parallelism | Sys time    | Sys percent  |
-|-------------------|:-----------:|------------:|------------:|------------:|------------:|-------------:|
-| K8s Go / Psql     | 65851       | 05m5.3s     | 81m44.1s    | 16.06x      | 3m21.304s   | 65.9%        |
-| K8s Ruby / Psql   | xxxxx       | xxxxxxx     | xxxxxxxx    | xxxxx       |             |              |
-| K8s Ruby / MySQL  | xxxxx       | xxxxxxx     | xxxxxxxx    | xxxxx       |             |              |
-| All Go / Psql     | xxxxx       | xxxxxxx     | xxxxxxxx    | xxxxx       |             |              |
-| All Ruby / Psql   | xxxxx       | xxxxxxx     | xxxxxxxx    | xxxxx       |             |              |
-| All Ruby / MySQL  | xxxxx       | xxxxxxx     | xxxxxxxx    | xxxxx       |             |              |
+Table:
+
+| Benchmark         | Events      | Real time   | User time   | Parallelism |
+|-------------------|:-----------:|------------:|------------:|------------:|
+| K8s Go / Psql     | 65851       | 05m5.3s     | 81m44.1s    | 16.06x      |
+| K8s Ruby / Psql   | 65851       | 63m26.817s  | 68m25.120s  | 1.078x      |
+| K8s Ruby / MySQL  | xxxxx       | xxxxxxx     | xxxxxxxx    | xxxxx       |
+| All Go / Psql     | 2550663     | 6m4.652s    | 37m10.932s  | 6.12x       |
+| All Ruby / Psql   | 2550663     | 45m16.238s  | 50m19.916s  | 1.118x      |
+| All Ruby / MySQL  | xxxxx       | xxxxxxx     | xxxxxxxx    | xxxxx       |
 
 # Results
 
 When processing only Kubernetes events, we still need to download, decompress, parse all JSON and slect only those with specific org.
 
 This is lightning fast in Go, while terribly slow in Ruby.
+
+Ruby is not really multi-threaded (Ruby MRI), it uses GIL, and essentially it is just single threaded.
+
+We can see max parallelism ratio about 1.11x which meanst even with 48 CPU cores, current Ruby implementation can make use of 1.07 core.
+
+Links:
+- [Ruby threads not really use multiple CPUs](https://stackoverflow.com/questions/56087/does-ruby-have-real-multithreading)
+- `For true concurrency having more then 2 cores or 2 processors is required - but it may not work if implementation is single-threaded (such as the MRI).`:
+- [link](https://stackoverflow.com/questions/2428140/how-do-i-run-two-threads-in-ruby-at-the-same-time)
+- [GIL](https://en.wikipedia.org/wiki/Global_interpreter_lock)
+
+Seems like only JRuby has real MT processing:
+```
+http://ruby-doc.org/core/classes/Thread.html
+Remember that only in JRuby threads are truly parallel (other interpreters implement GIL). From here:
+```
+
+So Go will kill Ruby all the time!
+
+# db2influx tool
+
+WIP
+
