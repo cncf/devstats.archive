@@ -29,7 +29,7 @@ Table:
 | K8s Ruby / MySQL  | xxxxx       | xxxxxxx     | xxxxxxxx    | xxxxx       |
 | All Go / Psql     | 2550663     | 6m4.652s    | 37m10.932s  | 6.12x       |
 | All Ruby / Psql   | 2550663     | 45m16.238s  | 50m19.916s  | 1.118x      |
-| All Ruby / MySQL  | xxxxx       | xxxxxxx     | xxxxxxxx    | xxxxx       |
+| All Ruby / MySQL  | 2550663     | 46m55.949s  | 40m43.796s  | 0.868x      |
 
 # Results
 
@@ -53,6 +53,9 @@ Remember that only in JRuby threads are truly parallel (other interpreters imple
 ```
 
 So Go will kill Ruby all the time!
+
+We can also see that MySQL is very slightly slower that Postgres (but this is just for inserting data, without indexes defined yet).
+MySQL is a lot slower on metrics/queries - but this is not checked in this benchmark.
 
 # db2influx tool benchmarks
 
