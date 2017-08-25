@@ -363,7 +363,8 @@ Typical internal usage:
 
 Alternatively You can use `structure_mysql.sql` to create database structure.
 
-(1) Install lib_mysqludf_pcre`:
+(1) Install `lib_mysqludf_pcre`:
+
 You need this because MySQL has no native REGEXP extraction functions, and built in MySQL's `regexp` is terribly slow (and it can only return 0/1 for regexp matching).
 - apt-get install libpcre3-dev
 - git clone https://github.com/mysqludf/lib_mysqludf_preg.git
@@ -375,7 +376,8 @@ You need this because MySQL has no native REGEXP extraction functions, and built
 - make MYSQL="mysql -p" installdb
 
 (2) Update MySQL to use UTF8MB4:
-This is needed because there are a lot of full UTF8 texts in GHA archives,a nd starndard MySQL's `utf8` is not fully compatible with UTF8 standard.
+
+This is needed because there are a lot of full UTF8 texts in GHA archives and starndard MySQL's `utf8` is not fully compatible with UTF8 standard.
 - Locate Your MySQL config file (usually in `/etc/mysql/my.cnf`
 - Make sure You have those options:
 ```
@@ -674,7 +676,7 @@ Feed InfluxDB using:
 - This tool uses environmental variables starting with `IDB_`, please see `idb_conn.rb`/`idb_conn.go` and `db2influx.rb`/`cmd/db2influx/db2influx.go` for details.
 - `IDB_` variables are exactly the same as `PG_` and `MYSQL_` to set host, databaxe, user name, password.
 
-# To check esults in the InfluxDB:
+# To check results in the InfluxDB:
 - influx
 - auth (gha_admin/influxdb_pwd)
 - use gha
