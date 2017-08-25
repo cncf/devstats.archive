@@ -728,3 +728,7 @@ org_role = Viewer
 ```
 - `service grafana-server restart`
 
+# Benchmarks
+
+Please see [Benchmarks](https://github.com/cncf/gha2db/blob/master/BENCHMARK.md)
+
