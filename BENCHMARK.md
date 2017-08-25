@@ -1,4 +1,6 @@
-Here are results of benchmarsk.
+# Benchmark
+
+Here are results of benchmark:
 
 We're trying 3 versions:
 - Ruby on Postgres
@@ -9,7 +11,13 @@ On 2 data sets:
 - All kubernetes GHA activity (orgs kubernetes, kubernetes-incubator, kubernetes-client) on one month 2017-07-01 - 2017-08-01
 - All GHA (no org/repo filter) on 2 days 2017-08-01 - 2017-08-03 (Tue and Wed)
 
-| Benchmark      | Events      | Real Time | User Time | Parallel |
+- `Benchmark` - benchmark name.
+- `Events` - number of GHA events created.
+- `Real time` - time it took to compute.
+- `User time` - time it took to compute on all CPUs (so this is the time it *would* take on single CPU machine).
+- `Parrallel` - this is the ration of `User time` to `Real time` - parallelism factor.
+
+| Benchmark      | Events      | Real time | User time | Parallel |
 |----------------|:-----------:|----------:|----------:|---------:|
 | K8s go@Psql    | 65851       | 05m5.3s   | 81m44.1s  | 13.9x    |
 | K8s Ruby@Psql  | xxxxx       | xxxxxxx   | xxxxxxxx  | xxxxx    |
@@ -17,3 +25,9 @@ On 2 data sets:
 | All go@Psql    | 65851       | 05m5.3s   | 81m44.1s  | 13.9x    |
 | All Ruby@Psql  | xxxxx       | xxxxxxx   | xxxxxxxx  | xxxxx    |
 | All Ruby@MySQL | xxxxx       | xxxxxxx   | xxxxxxxx  | xxxxx    |
+
+# Results
+
+When processing only Kubernetes events, we still need to download, decompress, parse all JSON and slect only those with specific org.
+
+This is lightning fast in Go, while terribly slow in Ruby.

@@ -182,3 +182,7 @@ All of them works live on [cncftest.io](https://cncftest.io) with auto sync tool
 
 - [USAGE](https://github.com/cncf/gha2db/blob/master/USAGE.md)
 
+# Benchmarks
+
+Please see [Benchmarks](https://github.com/cncf/gha2db/blob/master/BENCHMARK.md)
+
