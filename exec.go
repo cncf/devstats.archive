@@ -31,7 +31,7 @@ func ExecCommand(ctx *Ctx, cmdAndArgs []string, env map[string]string) {
 		cmd.Env = newEnv
 		if ctx.CmdDebug > 0 {
 			fmt.Printf("Environment Override: %+v\n", env)
-			if ctx.CmdDebug > 1 {
+			if ctx.CmdDebug > 2 {
 				fmt.Printf("Full Environment: %+v\n", newEnv)
 			}
 		}
