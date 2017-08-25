@@ -15,25 +15,26 @@ On 2 data sets:
 
 Columns:
 - `Benchmark` - benchmark name.
-- `Events` - number of GHA events created.
+- `Events` - number of GHA events created. Note that for `All` we have 2.5M events in just 2 days, while for only Kubernetes we have 66K events in a month.
 - `Real time` - time it took to compute.
 - `User time` - time it took to compute on all CPUs (so this is the time it *would* take on single CPU machine).
 - `Parallelism` - this is the ratio of `User time` to `Real time` - parallelism factor.
+- `Range` - length of data processed.
 
-And final run for Kubernetes for all 2015-08-06 - 2017-08-26 in Go:
+And final run for Kubernetes for all `2015-08-06` - `2017-08-26` using Go version of `gha2db`:
 - `time PG_PASS='...' PG_DB='test' ./gha2db 2015-08-06 0 2017-08-26 0 'kubernetes,kubernetes-incubator,kubernetes-client'`
 
 Table:
 
-| Benchmark          | Events      | Real time   | User time   | Parallelism |
-|--------------------|:-----------:|------------:|------------:|------------:|
-| K8s Go / Psql      | 65851       | 5m5.3s      | 81m44.1s    | 16.06x      |
-| K8s Ruby / Psql    | 65851       | 63m26.817s  | 68m25.120s  | 1.078x      |
-| K8s Ruby / MySQL   | 65851       | 66m13.291s  | 69m45.604s  | 1.053x      |
-| All Go / Psql      | 2550663     | 6m4.652s    | 37m10.932s  | 6.12x       |
-| All Ruby / Psql    | 2550663     | 45m16.238s  | 50m19.916s  | 1.118x      |
-| All Ruby / MySQL   | 2550663     | 46m55.949s  | 40m43.796s  | 0.868x      |
-| Full K8s Go / Psql | xxxxx       | xxxxxxxxxx  | xxxxxxxxxx  | xxxxxx      |
+| Benchmark          | Events      | Real time   | User time   | Parallelism | Range    |
+|--------------------|:-----------:|------------:|------------:|------------:|---------:|
+| K8s Go / Psql      | 65851       | 5m5.3s      | 81m44.1s    | 16.06x      | 1 month  |
+| K8s Ruby / Psql    | 65851       | 63m26.817s  | 68m25.120s  | 1.078x      | 1 month  |
+| K8s Ruby / MySQL   | 65851       | 66m13.291s  | 69m45.604s  | 1.053x      | 1 month  |
+| All Go / Psql      | 2550663     | 6m4.652s    | 37m10.932s  | 6.12x       | 2 days   |
+| All Ruby / Psql    | 2550663     | 45m16.238s  | 50m19.916s  | 1.118x      | 2 days   |
+| All Ruby / MySQL   | 2550663     | 46m55.949s  | 40m43.796s  | 0.868x      | 2 days   |
+| Full K8s Go / Psql | xxxxx       | xxxxxxxxxx  | xxxxxxxxxx  | xxxxxx      | ~2 years |
 
 # Results
 
