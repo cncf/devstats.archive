@@ -43,6 +43,11 @@ You can tweak `gha2db.rb` by:
 - Set `GHA2DB_MGETC` to "y" to assume "y" for get char function (for example to answer "y" to `structure.rb`'s Continue? question).
 - Set `GHA2DB_CTXOUT` to display full environment context.
 - Set `GHA2DB_NCPUS` to positive numeric value, to override numbe rof CPUs to run, this overwrites `GHA2DB_ST`.
+- Set `GHA2DB_STARTDT`, to use start date for processing events (when syncing data with empty database), default `2015-08-06 22:00 UTC`, expects format "YYYY-MM-DD HH:MI:SS"
+- Set `GHA2DB_LASTSERIES`, to specify which InfluxDB series use to determine newest data (it will be used to query newest timestamp), default `hours_pr_open_to_merge_d`
+- Set `GHA2DB_CMDDEBUG` set to 1 to see commands executed, set to 2 to see commands executed and their output
+
+All environment context details are defined in `context.go`, please see that file for details.
 
 Examples in this shell script (some commented out, some not):
 
