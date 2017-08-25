@@ -8,15 +8,15 @@ We're trying 3 versions:
 - Go on Postgres.
 
 On 2 data sets:
-- All kubernetes GHA events (orgs kubernetes, kubernetes-incubator, kubernetes-client) on one month 2017-07-01 - 2017-08-01.
-- All GHA ievents (no org/repo filter) on 2 days 2017-08-01 - 2017-08-03 (Tue and Wed).
+- All kubernetes GHA events (orgs `kubernetes`, `kubernetes-incubator` and `kubernetes-client`) on single month `2017-07-01` - `2017-08-01`.
+- All GHA events (no org/repo filter) on 2 days `2017-08-01` - `2017-08-03` (Tue and Wed).
 
 Columns:
 - `Benchmark` - benchmark name.
 - `Events` - number of GHA events created.
 - `Real time` - time it took to compute.
 - `User time` - time it took to compute on all CPUs (so this is the time it *would* take on single CPU machine).
-- `Parrallel` - this is the ration of `User time` to `Real time` - parallelism factor.
+- `Parrallel` - this is the ratio of `User time` to `Real time` - parallelism factor.
 
 | Benchmark      | Events      | Real time | User time | Parallel |
 |----------------|:-----------:|----------:|----------:|---------:|
