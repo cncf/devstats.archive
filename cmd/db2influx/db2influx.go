@@ -23,6 +23,14 @@ func nameForMetricsRow(metric, name, period string) string {
 	return ""
 }
 
+// Round float64 to int
+func roundF2I(val float64) int {
+	if val < 0.0 {
+		return int(val - 0.5)
+	}
+	return int(val + 0.5)
+}
+
 func workerThread(ch chan bool, ctx *lib.Ctx, seriesNameOrFunc, sqlQuery, period string, from, to time.Time) {
 	// Connect to Postgres DB
 	sqlc := lib.PgConn(ctx)
@@ -50,7 +58,7 @@ func workerThread(ch chan bool, ctx *lib.Ctx, seriesNameOrFunc, sqlQuery, period
 	nColumns := len(columns)
 
 	// Metric Results, currently assume they're integers
-	var pValue *int
+	var pValue *float64
 	value := 0
 	name := ""
 	// Single row & single column result
@@ -71,7 +79,7 @@ func workerThread(ch chan bool, ctx *lib.Ctx, seriesNameOrFunc, sqlQuery, period
 		}
 		// Handle nulls
 		if pValue != nil {
-			value = *pValue
+			value = roundF2I(*pValue)
 		}
 		name = seriesNameOrFunc
 		if ctx.Debug > 0 {
@@ -86,7 +94,7 @@ func workerThread(ch chan bool, ctx *lib.Ctx, seriesNameOrFunc, sqlQuery, period
 		for rows.Next() {
 			lib.FatalOnError(rows.Scan(&name, &pValue))
 			if pValue != nil {
-				value = *pValue
+				value = roundF2I(*pValue)
 			}
 			name = nameForMetricsRow(seriesNameOrFunc, name, period)
 			if ctx.Debug > 0 {

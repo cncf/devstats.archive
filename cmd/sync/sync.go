@@ -105,6 +105,7 @@ func sync(args []string) {
 			from = maxDtIDB
 		}
 
+		// Metrics from daily to yearly
 		for _, period := range periodsFromDay {
 			// Reviewers daily, weekly, monthly, quarterly, yearly
 			lib.ExecCommand(
@@ -147,47 +148,40 @@ func sync(args []string) {
 				},
 				nil,
 			)
+
+			// Time opened to merged (number of hours) daily, weekly, monthly, quarterly, yearly
+			lib.ExecCommand(
+				&ctx,
+				[]string{
+					"./db2influx",
+					"hours_pr_open_to_merge_" + period,
+					metricsDir + "/opened_to_merged.sql",
+					lib.ToYMDDate(from),
+					lib.ToYMDDate(to),
+					period,
+				},
+				nil,
+			)
+		}
+
+		// Metrics that include hourly data
+		for _, period := range periodsFromHour {
+			// All PRs merged hourly, daily, weekly, monthly, quarterly, yearly
+			lib.ExecCommand(
+				&ctx,
+				[]string{
+					"./db2influx",
+					"all_prs_merged_" + period,
+					metricsDir + "/all_prs_merged.sql",
+					lib.ToYMDHMSDate(from),
+					lib.ToYMDHMSDate(to),
+					period,
+				},
+				nil,
+			)
 		}
 	}
-	/*
-	    %w[d w m q y].each do |period|
-	      cmd = "./db2influx.rb prs_merged_data #{metrics_dir}/prs_merged.sql "\
-	            "'#{to_ymd(from)}' '#{to_ymd(to)}' #{period}"
-	      puts cmd
-	      res = system cmd
-	      unless res
-	        puts "Command failed: '#{cmd}'"
-	        exit 1
-	      end
-	    end
-
-	    # All PRs merged hourly, daily, weekly, monthly, quarterly, yearly
-	    %w[h d w m q y].each do |period|
-	      cmd = "./db2influx.rb all_prs_merged_#{period} #{metrics_dir}/all_prs_merged.sql "\
-	            "'#{to_ymdhms(from)}' '#{to_ymdhms(to)}' #{period}"
-	      puts cmd
-	      res = system cmd
-	      unless res
-	        puts "Command failed: '#{cmd}'"
-	        exit 1
-	      end
-	    end
-
-	    # Time opened to merged (number of hours) daily, weekly, monthly, quarterly, yearly
-	    %w[d w m q y].each do |period|
-	      cmd = "./db2influx.rb hours_pr_open_to_merge_#{period} #{metrics_dir}/opened_to_merged.sql "\
-	            "'#{to_ymd(from)}' '#{to_ymd(to)}' #{period}"
-	      puts cmd
-	      res = system cmd
-	      unless res
-	        puts "Command failed: '#{cmd}'"
-	        exit 1
-	      end
-	    end
-	  end
-
-	  puts 'Sync success'
-	*/
+	fmt.Printf("Sync success\n")
 }
 
 func main() {
