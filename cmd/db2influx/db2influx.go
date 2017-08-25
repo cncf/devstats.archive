@@ -181,7 +181,7 @@ func db2influx(seriesNameOrFunc, sqlFile, from, to, intervalAbbr string) {
 	thrN := lib.GetThreadsNum(&ctx)
 
 	// Run
-	fmt.Printf("Running (on %d CPUs): %v - %v with interval %s\n", thrN, dFrom, dTo, interval)
+	fmt.Printf("db2influx.go: Running (on %d CPUs): %v - %v with interval %s\n", thrN, dFrom, dTo, interval)
 	dt := dFrom
 	if thrN > 1 {
 		chanPool := []chan bool{}

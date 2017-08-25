@@ -81,7 +81,7 @@ You can tweak `gha2db.rb`/`gha2db` by:
 - Set `GHA2DB_NCPUS` to positive numeric value, to override numbe rof CPUs to run, this overwrites `GHA2DB_ST`.. Only related to Go version.
 - Set `GHA2DB_STARTDT`, to use start date for processing events (when syncing data with empty database), default `2015-08-06 22:00 UTC`, expects format "YYYY-MM-DD HH:MI:SS". Only related to Go version.
 - Set `GHA2DB_LASTSERIES`, to specify which InfluxDB series use to determine newest data (it will be used to query newest timestamp), default `'all_prs_merged_d'`. Only related to Go version.
-- Set `GHA2DB_CMDDEBUG` set to 1 to see commands executed, set to 2 to see commands executed and their output. Only related to Go version.
+- Set `GHA2DB_CMDDEBUG` set to 1 to see commands executed, set to 2 to see commands executed and their output, set to 3 to see full exec environment. Only related to Go version.
 
 Go version: All environment context details are defined in `context.go`, please see that file for details.
 
@@ -122,7 +122,7 @@ It detects number of available CPUs automatically.
 
 # Results
 
-# JSON:
+# JSON
 
 Usually there are about 25000 GitHub events in single hour in Jan 2017 (for July 2017 it is 40000).
 Average seems to be from 15000 to 60000.
@@ -151,9 +151,9 @@ Taking all events from single day is 5 minutes 50 seconds (2017-07-28):
 - Generates 1194599 JSON files (1.2M)
 - Takes 7 Gb of disck space
 
-# Databases:
+# Databases
 
-# PostgreSQL:
+# PostgreSQL
 
 1) Running on all 3 orgs `kubernetes,kubernetes-client,kubernetes-incubator` repos for June 2017 yields:
 - Takes: 61 minutes 52 seconds.
@@ -330,8 +330,8 @@ Ubuntu like Linux:
 
 - sudo apt-get install mysql-server
 - sudo mysql_secure_installation
-- You will need `lib_mysqludf_pcre` to support PCRE REGEXPs (*)
-- Update mysql config to use UTF8MB4, see below (**)
+- You will need `lib_mysqludf_pcre` to support PCRE REGEXPs (1)
+- Update mysql config to use UTF8MB4, see below (2)
 - mysql -uusername -ppassword
 - create database gha character set utf8mb4 collate utf8mb4_unicode_ci;
 - create user 'gha_admin'@'localhost' identified by 'your_password_here';
@@ -363,7 +363,7 @@ Typical internal usage:
 
 Alternatively You can use `structure_mysql.sql` to create database structure.
 
-(*) Install lib_mysqludf_pcre` (*)
+(1) Install lib_mysqludf_pcre`:
 You need this because MySQL has no native REGEXP extraction functions, and built in MySQL's `regexp` is terribly slow (and it can only return 0/1 for regexp matching).
 - apt-get install libpcre3-dev
 - git clone https://github.com/mysqludf/lib_mysqludf_preg.git
@@ -374,7 +374,7 @@ You need this because MySQL has no native REGEXP extraction functions, and built
 - make install
 - make MYSQL="mysql -p" installdb
 
-(**) Update MySQL to use UTF8MB4 (**):
+(2) Update MySQL to use UTF8MB4:
 This is needed because there are a lot of full UTF8 texts in GHA archives,a nd starndard MySQL's `utf8` is not fully compatible with UTF8 standard.
 - Locate Your MySQL config file (usually in `/etc/mysql/my.cnf`
 - Make sure You have those options:

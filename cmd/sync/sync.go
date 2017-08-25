@@ -28,7 +28,7 @@ func sync(args []string) {
 	}
 	org := lib.StringsMapToArray(stripFunc, strings.Split(sOrg, ","))
 	repo := lib.StringsMapToArray(stripFunc, strings.Split(sRepo, ","))
-	fmt.Printf("Running on: %s/%s\n", strings.Join(org, "+"), strings.Join(repo, "+"))
+	fmt.Printf("sync.go: Running on: %s/%s\n", strings.Join(org, "+"), strings.Join(repo, "+"))
 
 	// Connect to Postgres DB
 	con := lib.PgConn(&ctx)

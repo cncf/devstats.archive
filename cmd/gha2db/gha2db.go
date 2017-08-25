@@ -820,7 +820,7 @@ func gha2db(args []string) {
 	// Get number of CPUs available
 	thrN := lib.GetThreadsNum(&ctx)
 	fmt.Printf(
-		"Running (%v CPUs): %v - %v %v %v\n",
+		"gha2db.go: Running (%v CPUs): %v - %v %v %v\n",
 		thrN, dFrom, dTo,
 		strings.Join(lib.StringsSetKeys(org), "+"),
 		strings.Join(lib.StringsSetKeys(repo), "+"),
