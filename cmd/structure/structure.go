@@ -706,7 +706,7 @@ func structure(ctx *lib.Ctx) {
 	if ctx.Tools {
 		// Get max event_id from gha_texts
 		maxEventID := 0
-		lib.FatalOnError(c.QueryRow("select coalesce(max(event_id), 0) from gha_texts").Scan(&maxEventID))
+		lib.FatalOnError(lib.QueryRowSQL(c, ctx, "select coalesce(max(event_id), 0) from gha_texts").Scan(&maxEventID))
 		sql := fmt.Sprintf(
 			"insert into gha_texts(event_id, body, created_at) "+
 				"select event_id, body, created_at from gha_comments "+
@@ -727,7 +727,7 @@ func structure(ctx *lib.Ctx) {
 		lib.ExecSQLWithErr(c, ctx, sql)
 
 		// Get max event_id from gha_issues_events_labels
-		lib.FatalOnError(c.QueryRow("select coalesce(max(event_id), 0) from gha_issues_events_labels").Scan(&maxEventID))
+		lib.FatalOnError(lib.QueryRowSQL(c, ctx, "select coalesce(max(event_id), 0) from gha_issues_events_labels").Scan(&maxEventID))
 
 		// Add data to gha_issues_events_labels table (or fill it initially)
 		sql = fmt.Sprintf(

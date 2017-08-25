@@ -13,7 +13,7 @@ import (
 func PgConn(ctx *Ctx) *sql.DB {
 	connectionString := "client_encoding=UTF8 host='" + ctx.PgHost + "' port=" + ctx.PgPort + " dbname='" + ctx.PgDB + "' user='" + ctx.PgUser + "' password='" + ctx.PgPass + "'"
 	if ctx.QOut {
-		fmt.Printf("%s\n", connectionString)
+		fmt.Printf("ConnectString: %s\n", connectionString)
 	}
 
 	con, err := sql.Open("postgres", connectionString)
@@ -29,9 +29,17 @@ func CreateTable(tdef string) string {
 // Outputs query info
 func queryOut(query string, args ...interface{}) {
 	if len(args) > 0 {
-		fmt.Printf("%v\n", args)
+		fmt.Printf("%+v\n", args) // FIXME: do we need %+v here?
 	}
 	fmt.Printf("%s\n", query)
+}
+
+// QueryRowSQL executes given SQL on Postgres DB (and returns single row)
+func QueryRowSQL(con *sql.DB, ctx *Ctx, query string, args ...interface{}) *sql.Row {
+	if ctx.QOut {
+		queryOut(query, args...)
+	}
+	return con.QueryRow(query, args...)
 }
 
 // QuerySQL executes given SQL on Postgres DB (and returns rowset that needs to be closed)

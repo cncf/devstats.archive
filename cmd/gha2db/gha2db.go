@@ -708,7 +708,6 @@ func parseJSON(con *sql.DB, ctx *lib.Ctx, jsonStr []byte, dt time.Time, forg, fr
 			lib.FatalOnError(ioutil.WriteFile(ofn, pretty, 0644))
 		}
 		if ctx.DBOut {
-			// FIXME: not needed
 			// fmt.Printf("JSON:\n%v\n", string(lib.PrettyPrintJSON(jsonStr)))
 			e = writeToDB(con, ctx, h)
 		}
@@ -739,7 +738,13 @@ func getGHAJSON(ch chan bool, ctx *lib.Ctx, dt time.Time, forg map[string]bool, 
 
 	// Decompress Gzipped response
 	reader, err := gzip.NewReader(response.Body)
-	lib.FatalOnError(err)
+	if err != nil {
+		fmt.Printf("Error (no data yet):\n%v\n", err)
+		if ch != nil {
+			ch <- true
+		}
+		return
+	}
 	fmt.Printf("Opened %s\n", fn)
 	defer reader.Close()
 	jsonsBytes, err := ioutil.ReadAll(reader)
