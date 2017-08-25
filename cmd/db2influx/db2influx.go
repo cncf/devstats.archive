@@ -23,9 +23,9 @@ func nameForMetricsRow(metric, name, period string) string {
 	return ""
 }
 
-func workerThread(ch chan bool, ctx lib.Ctx, seriesNameOrFunc, sqlQuery, period string, from, to time.Time) {
+func workerThread(ch chan bool, ctx *lib.Ctx, seriesNameOrFunc, sqlQuery, period string, from, to time.Time) {
 	// Connect to Postgres DB
-	sqlc := lib.Conn(ctx)
+	sqlc := lib.PgConn(ctx)
 	defer sqlc.Close()
 
 	// Connect to InfluxDB
@@ -170,7 +170,7 @@ func db2influx(seriesNameOrFunc, sqlFile, from, to, intervalAbbr string) {
 	dTo = nextIntervalStart(dTo)
 
 	// Get number of CPUs available
-	thrN := lib.GetThreadsNum(ctx)
+	thrN := lib.GetThreadsNum(&ctx)
 
 	// Run
 	fmt.Printf("Running (on %d CPUs): %v - %v with interval %s\n", thrN, dFrom, dTo, interval)
@@ -181,7 +181,7 @@ func db2influx(seriesNameOrFunc, sqlFile, from, to, intervalAbbr string) {
 			ch := make(chan bool)
 			chanPool = append(chanPool, ch)
 			nDt := nextIntervalStart(dt)
-			go workerThread(ch, ctx, seriesNameOrFunc, sqlQuery, intervalAbbr, dt, nDt)
+			go workerThread(ch, &ctx, seriesNameOrFunc, sqlQuery, intervalAbbr, dt, nDt)
 			dt = nDt
 			if len(chanPool) == thrN {
 				ch = chanPool[0]
@@ -197,7 +197,7 @@ func db2influx(seriesNameOrFunc, sqlFile, from, to, intervalAbbr string) {
 		fmt.Printf("Using single threaded version\n")
 		for dt.Before(dTo) {
 			nDt := nextIntervalStart(dt)
-			workerThread(nil, ctx, seriesNameOrFunc, sqlQuery, intervalAbbr, dt, nDt)
+			workerThread(nil, &ctx, seriesNameOrFunc, sqlQuery, intervalAbbr, dt, nDt)
 			dt = nDt
 		}
 	}

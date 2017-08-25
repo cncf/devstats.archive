@@ -9,8 +9,8 @@ import (
 	"time"
 )
 
-// Conn Connects to Postgres database
-func Conn(ctx Ctx) *sql.DB {
+// PgConn Connects to Postgres database
+func PgConn(ctx *Ctx) *sql.DB {
 	connectionString := "client_encoding=UTF8 host='" + ctx.PgHost + "' port=" + ctx.PgPort + " dbname='" + ctx.PgDB + "' user='" + ctx.PgUser + "' password='" + ctx.PgPass + "'"
 	if ctx.QOut {
 		fmt.Printf("%s\n", connectionString)
@@ -35,7 +35,7 @@ func queryOut(query string, args ...interface{}) {
 }
 
 // QuerySQL executes given SQL on Postgres DB (and returns rowset that needs to be closed)
-func QuerySQL(con *sql.DB, ctx Ctx, query string, args ...interface{}) (*sql.Rows, error) {
+func QuerySQL(con *sql.DB, ctx *Ctx, query string, args ...interface{}) (*sql.Rows, error) {
 	if ctx.QOut {
 		queryOut(query, args...)
 	}
@@ -43,7 +43,7 @@ func QuerySQL(con *sql.DB, ctx Ctx, query string, args ...interface{}) (*sql.Row
 }
 
 // QuerySQLWithErr wrapper to QuerySQL that exists on error
-func QuerySQLWithErr(con *sql.DB, ctx Ctx, query string, args ...interface{}) *sql.Rows {
+func QuerySQLWithErr(con *sql.DB, ctx *Ctx, query string, args ...interface{}) *sql.Rows {
 	res, err := QuerySQL(con, ctx, query, args...)
 	if err != nil {
 		queryOut(query, args...)
@@ -54,7 +54,7 @@ func QuerySQLWithErr(con *sql.DB, ctx Ctx, query string, args ...interface{}) *s
 
 // QuerySQLTx executes given SQL on Postgres DB (and returns rowset that needs to be closed)
 // It is for running inside transaction
-func QuerySQLTx(con *sql.Tx, ctx Ctx, query string, args ...interface{}) (*sql.Rows, error) {
+func QuerySQLTx(con *sql.Tx, ctx *Ctx, query string, args ...interface{}) (*sql.Rows, error) {
 	if ctx.QOut {
 		queryOut(query, args...)
 	}
@@ -63,7 +63,7 @@ func QuerySQLTx(con *sql.Tx, ctx Ctx, query string, args ...interface{}) (*sql.R
 
 // QuerySQLTxWithErr wrapper to QuerySQLTx that exists on error
 // It is for running inside transaction
-func QuerySQLTxWithErr(con *sql.Tx, ctx Ctx, query string, args ...interface{}) *sql.Rows {
+func QuerySQLTxWithErr(con *sql.Tx, ctx *Ctx, query string, args ...interface{}) *sql.Rows {
 	res, err := QuerySQLTx(con, ctx, query, args...)
 	if err != nil {
 		queryOut(query, args...)
@@ -73,7 +73,7 @@ func QuerySQLTxWithErr(con *sql.Tx, ctx Ctx, query string, args ...interface{}) 
 }
 
 // ExecSQL executes given SQL on Postgres DB (and return single state result, that doesn't need to be closed)
-func ExecSQL(con *sql.DB, ctx Ctx, query string, args ...interface{}) (sql.Result, error) {
+func ExecSQL(con *sql.DB, ctx *Ctx, query string, args ...interface{}) (sql.Result, error) {
 	if ctx.QOut {
 		queryOut(query, args...)
 	}
@@ -81,7 +81,7 @@ func ExecSQL(con *sql.DB, ctx Ctx, query string, args ...interface{}) (sql.Resul
 }
 
 // ExecSQLWithErr wrapper to ExecSQL that exists on error
-func ExecSQLWithErr(con *sql.DB, ctx Ctx, query string, args ...interface{}) sql.Result {
+func ExecSQLWithErr(con *sql.DB, ctx *Ctx, query string, args ...interface{}) sql.Result {
 	res, err := ExecSQL(con, ctx, query, args...)
 	if err != nil {
 		queryOut(query, args...)
@@ -92,7 +92,7 @@ func ExecSQLWithErr(con *sql.DB, ctx Ctx, query string, args ...interface{}) sql
 
 // ExecSQLTx executes given SQL on Postgres DB (and return single state result, that doesn't need to be closed)
 // It is for running inside transaction
-func ExecSQLTx(con *sql.Tx, ctx Ctx, query string, args ...interface{}) (sql.Result, error) {
+func ExecSQLTx(con *sql.Tx, ctx *Ctx, query string, args ...interface{}) (sql.Result, error) {
 	if ctx.QOut {
 		queryOut(query, args...)
 	}
@@ -101,7 +101,7 @@ func ExecSQLTx(con *sql.Tx, ctx Ctx, query string, args ...interface{}) (sql.Res
 
 // ExecSQLTxWithErr wrapper to ExecSQLTx that exists on error
 // It is for running inside transaction
-func ExecSQLTxWithErr(con *sql.Tx, ctx Ctx, query string, args ...interface{}) sql.Result {
+func ExecSQLTxWithErr(con *sql.Tx, ctx *Ctx, query string, args ...interface{}) sql.Result {
 	res, err := ExecSQLTx(con, ctx, query, args...)
 	if err != nil {
 		queryOut(query, args...)

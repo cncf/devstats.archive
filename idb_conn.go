@@ -7,7 +7,7 @@ import (
 )
 
 // IDBConn Connects to InfluxDB database
-func IDBConn(ctx Ctx) (client.Client, client.BatchPoints) {
+func IDBConn(ctx *Ctx) (client.Client, client.BatchPoints) {
 	con, err := client.NewHTTPClient(client.HTTPConfig{
 		Addr:     fmt.Sprintf("%s:%s", ctx.IDBHost, ctx.IDBPort),
 		Username: ctx.IDBUser,

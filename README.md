@@ -1,5 +1,7 @@
 # GitHub Archives Visualisation
 
+Author: Łukasz Gryglicki <lukaszgryglick@o2.pl>
+
 This is a toolset to visualize GitHub archives using Grafana dashboards.
 
 # Goal
@@ -171,4 +173,9 @@ Here are already working dashboards (written in Ruby) using this repo.
 5) [Time to merge](https://cncftest.io/dashboard/db/time-to-merge?orgId=1).
 
 All of them works live on [cncftest.io](https://cncftest.io) with auto sync tool running.
+
+# Detailed README for Ruby and Go versions
+
+- [Ruby version README](https://github.com/cncf/gha2db/blob/master/README.ruby.md)
+- [Go version README (wip)](https://github.com/cncf/gha2db/blob/master/README.go.md)
 

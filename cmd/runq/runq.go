@@ -42,11 +42,11 @@ func runq(sqlFile string, params []string) {
 	}
 
 	// Connect to Postgres DB
-	c := lib.Conn(ctx)
+	c := lib.PgConn(&ctx)
 	defer c.Close()
 
 	// Execute SQL
-	rows := lib.QuerySQLWithErr(c, ctx, sqlQuery)
+	rows := lib.QuerySQLWithErr(c, &ctx, sqlQuery)
 	defer rows.Close()
 
 	// Now unknown rows, with unknown types
