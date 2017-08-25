@@ -29,7 +29,7 @@ func CreateTable(tdef string) string {
 // Outputs query info
 func queryOut(query string, args ...interface{}) {
 	if len(args) > 0 {
-		fmt.Printf("%+v\n", args) // FIXME: do we need %+v here?
+		fmt.Printf("%v\n", args)
 	}
 	fmt.Printf("%s\n", query)
 }

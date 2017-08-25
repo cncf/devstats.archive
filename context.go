@@ -33,6 +33,8 @@ type Ctx struct {
 	CtxOut           bool      // from GHA2DB_CTXOUT output all context data (this struct), default false
 	DefaultStartDate time.Time // from GHA2DB_STARTDT, default `2015-08-06 22:00 UTC`, expects format "YYYY-MM-DD HH:MI:SS"
 	LastSeries       string    // from GHA2DB_LASTSERIES, use this InfluxDB series to determine last timestamp date, default "hours_pr_open_to_merge_d"
+	SkipIDB          bool      // from GHA2DB_SKIPIDB sync tool, skip InfluxDB processing? default false
+	ResetIDB         bool      // from GHA2DB_RESETIDB sync tool, regenerate all InfluxDB points? default false
 }
 
 // Init - get context from environment variables
@@ -128,6 +130,9 @@ func (ctx *Ctx) Init() {
 	if ctx.LastSeries == "" {
 		ctx.LastSeries = "hours_pr_open_to_merge_d"
 	}
+	// IfluxDB variables
+	ctx.SkipIDB = os.Getenv("GHA2DB_SKIPIDB") != ""
+	ctx.ResetIDB = os.Getenv("GHA2DB_RESETIDB") != ""
 
 	// Context out if requested
 	if ctx.CtxOut {

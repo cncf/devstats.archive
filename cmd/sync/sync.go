@@ -53,7 +53,6 @@ func sync(args []string) {
 	if len(series) > 0 {
 		maxDtIDB = lib.TimeParseIDB(series[0].Values[0][0].(string))
 	}
-	fmt.Printf("maxDtPg = %v, maxDtIDB = %v\n", maxDtPg, maxDtIDB)
 
 	// Create date range
 	// Just to get into next GHA hour
@@ -66,58 +65,91 @@ func sync(args []string) {
 
 	// Get new GHAs
 	fmt.Printf("Range: %s %s - %s %s\n", fromDate, fromHour, toDate, toHour)
-		lib.ExecCommand(
-			&ctx,
-			[]string{
-				"./gha2db",
-				fromDate,
-				fromHour,
-				toDate,
-				toHour,
-				strings.Join(org, ","),
-				strings.Join(repo, ","),
-			},
-			nil,
-		)
+	lib.ExecCommand(
+		&ctx,
+		[]string{
+			"./gha2db",
+			fromDate,
+			fromHour,
+			toDate,
+			toHour,
+			strings.Join(org, ","),
+			strings.Join(repo, ","),
+		},
+		nil,
+	)
+
+	// Recompute views and DB summaries
+	lib.ExecCommand(
+		&ctx,
+		[]string{
+			"./structure",
+		},
+		map[string]string{
+			"GHA2DB_SKIPTABLE": "1",
+			"GHA2DB_MGETC":     "1",
+		},
+	)
+
+	// InfluxDB periods
+	periodsFromHour := []string{"h", "d", "w", "m", "q", "y"}
+	periodsFromDay := periodsFromHour[1:]
+
+	// DB2Influx
+	if !ctx.SkipIDB {
+		metricsDir := "psql_metrics"
+		// Regenerate points from this date
+		if ctx.ResetIDB {
+			from = ctx.DefaultStartDate
+		} else {
+			from = maxDtIDB
+		}
+
+		for _, period := range periodsFromDay {
+			// Reviewers daily, weekly, monthly, quarterly, yearly
+			lib.ExecCommand(
+				&ctx,
+				[]string{
+					"./db2influx",
+					"reviewers_" + period,
+					metricsDir + "/reviewers.sql",
+					lib.ToYMDDate(from),
+					lib.ToYMDDate(to),
+					period,
+				},
+				nil,
+			)
+
+			// SIG mentions daily, weekly, monthly, quarterly, yearly
+			lib.ExecCommand(
+				&ctx,
+				[]string{
+					"./db2influx",
+					"sig_mentions_data",
+					metricsDir + "/sig_mentions.sql",
+					lib.ToYMDDate(from),
+					lib.ToYMDDate(to),
+					period,
+				},
+				nil,
+			)
+
+			// PRs merged per repo daily, weekly, monthly, quarterly, yearly
+			lib.ExecCommand(
+				&ctx,
+				[]string{
+					"./db2influx",
+					"prs_merged_data",
+					metricsDir + "/prs_merged.sql",
+					lib.ToYMDDate(from),
+					lib.ToYMDDate(to),
+					period,
+				},
+				nil,
+			)
+		}
+	}
 	/*
-	  # Recompute views and DB summaries
-	  cmd = './structure.rb'
-	  puts cmd
-	  res = system(
-	    { 'GHA2DB_SKIPTABLE' => '1', 'GHA2DB_MGETC' => 'y' },
-	    cmd
-	  )
-
-	  # DB2Influx
-	  unless ENV['GHA2DB_SKIPIDB']
-	    metrics_dir = $pg ? 'psql_metrics' : 'mysql_metrics'
-	    from = Time.parse('2015-08-01').utc if ENV['GHA2DB_RESETIDB']
-
-	    # Reviewers daily, weekly, monthly, quarterly, yearly
-	    %w[d w m q y].each do |period|
-	      cmd = "./db2influx.rb reviewers_#{period} #{metrics_dir}/reviewers.sql "\
-	            "'#{to_ymd(from)}' '#{to_ymd(to)}' #{period}"
-	      puts cmd
-	      res = system cmd
-	      unless res
-	        puts "Command failed: '#{cmd}'"
-	        exit 1
-	      end
-	    end
-
-	    # SIG mentions daily, weekly, monthly, quarterly, yearly
-	    %w[d w m q y].each do |period|
-	      cmd = "./db2influx.rb sig_mentions_data #{metrics_dir}/sig_mentions.sql "\
-	            "'#{to_ymd(from)}' '#{to_ymd(to)}' #{period}"
-	      puts cmd
-	      res = system cmd
-	      unless res
-	        puts "Command failed: '#{cmd}'"
-	        exit 1
-	      end
-	    end
-
-	    # PRs merged per repo daily, weekly, monthly, quarterly, yearly
 	    %w[d w m q y].each do |period|
 	      cmd = "./db2influx.rb prs_merged_data #{metrics_dir}/prs_merged.sql "\
 	            "'#{to_ymd(from)}' '#{to_ymd(to)}' #{period}"

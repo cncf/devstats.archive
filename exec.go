@@ -29,6 +29,12 @@ func ExecCommand(ctx *Ctx, cmdAndArgs []string, env map[string]string) {
 			newEnv = append(newEnv, key+"="+value)
 		}
 		cmd.Env = newEnv
+		if ctx.CmdDebug > 0 {
+			fmt.Printf("Environment Override: %+v\n", env)
+			if ctx.CmdDebug > 1 {
+				fmt.Printf("Full Environment: %+v\n", newEnv)
+			}
+		}
 	}
 
 	// Capture STDOUT (non buffered - all at once when command finishes), only used on error and when no buffered/piped version used

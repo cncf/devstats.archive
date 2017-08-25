@@ -16,7 +16,7 @@ func IDBConn(ctx *Ctx) (client.Client, client.BatchPoints) {
 	FatalOnError(err)
 	bp, err := client.NewBatchPoints(client.BatchPointsConfig{
 		Database:  ctx.IDBDB,
-		Precision: "h", // FIXME: was "s" - but GHA resolution is hours
+		Precision: "h", // Was "s" - but GHA resolution is hours
 	})
 	FatalOnError(err)
 	return con, bp
