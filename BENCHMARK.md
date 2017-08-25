@@ -16,16 +16,17 @@ Columns:
 - `Events` - number of GHA events created.
 - `Real time` - time it took to compute.
 - `User time` - time it took to compute on all CPUs (so this is the time it *would* take on single CPU machine).
-- `Parrallel` - this is the ratio of `User time` to `Real time` - parallelism factor.
+- `Parallelism` - this is the ratio of `User time` to `Real time` - parallelism factor.
+- `Sys time` - time spent is system calls.
 
-| Benchmark      | Events      | Real time | User time | Parallel |
-|----------------|:-----------:|----------:|----------:|---------:|
-| K8s go@Psql    | 65851       | 05m5.3s   | 81m44.1s  | 13.9x    |
-| K8s Ruby@Psql  | xxxxx       | xxxxxxx   | xxxxxxxx  | xxxxx    |
-| K8s Ruby@MySQL | xxxxx       | xxxxxxx   | xxxxxxxx  | xxxxx    |
-| All go@Psql    | xxxxx       | xxxxxxx   | xxxxxxxx  | xxxxx    |
-| All Ruby@Psql  | xxxxx       | xxxxxxx   | xxxxxxxx  | xxxxx    |
-| All Ruby@MySQL | xxxxx       | xxxxxxx   | xxxxxxxx  | xxxxx    |
+| Benchmark         | Events      | Real time   | User time   | Parallelism | Sys time    | Sys percent  |
+|-------------------|:-----------:|------------:|------------:|------------:|------------:|-------------:|
+| K8s Go / Psql     | 65851       | 05m5.3s     | 81m44.1s    | 16.06x      | 3m21.304s   | 65.9%        |
+| K8s Ruby / Psql   | xxxxx       | xxxxxxx     | xxxxxxxx    | xxxxx       |             |              |
+| K8s Ruby / MySQL  | xxxxx       | xxxxxxx     | xxxxxxxx    | xxxxx       |             |              |
+| All Go / Psql     | xxxxx       | xxxxxxx     | xxxxxxxx    | xxxxx       |             |              |
+| All Ruby / Psql   | xxxxx       | xxxxxxx     | xxxxxxxx    | xxxxx       |             |              |
+| All Ruby / MySQL  | xxxxx       | xxxxxxx     | xxxxxxxx    | xxxxx       |             |              |
 
 # Results
 
