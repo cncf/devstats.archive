@@ -277,6 +277,7 @@ Ubuntu like Linux:
 - create database gha;
 - create user gha_admin with password 'your_password_here';
 - grant all privileges on database "gha" to gha_admin;
+- alter user gha_admin createdb;
 
 Continue with Go:
 - go get github.com/lib/pq

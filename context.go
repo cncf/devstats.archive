@@ -136,6 +136,11 @@ func (ctx *Ctx) Init() {
 
 	// Context out if requested
 	if ctx.CtxOut {
-		fmt.Printf("Environment Context Dump\n%+v\n", ctx)
+		ctx.Print()
 	}
+}
+
+// Print context contents
+func (ctx *Ctx) Print() {
+	fmt.Printf("Environment Context Dump\n%+v\n", ctx)
 }
