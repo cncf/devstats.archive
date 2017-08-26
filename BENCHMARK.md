@@ -75,7 +75,39 @@ One word: Go version can import all GitHub archives data (not discarding anythin
 We can also see that MySQL is very slightly slower that Postgres (but this is just for inserting data, without indexes defined yet).
 MySQL is a lot slower on metrics/queries - but this is not checked in this benchmark.
 
-# db2influx tool benchmarks
+# db2influx/sync tools benchmarks
 
-WIP
+To benchmark db2influx we're just running a command that regenerates all metrics.
+
+This is done automatically by `sync`/`sync.rb` tool that just call `db2influx`/`db2influx.rb` for all time range (when `GHA2DB_RESETIDB` env is set).
+
+This also updates Postgres DB (since last run) using `gha2db`/`gha2db.rb`, so we need to run it once, to make sure no updates are needed.
+
+And then we can start benchmark in another run (it will only recompute all InfluxDB time-series then).
+
+- Go version: `time GHA2DB_RESETIDB=1 PG_PASS='***REMOVED***_#' IDB_PASS='***REMOVED***_#' PG_DB=test IDB_DB=test ./sync_go.sh`
+```
+real  1m28.336s
+user  1m54.352s
+sys 1m11.860s
+```
+- Ruby version: `time GHA2DB_PSQL=1 GHA2DB_RESETIDB=1 PG_PASS='***REMOVED***_#' IDB_PASS='***REMOVED***_#' PG_DB=test IDB_DB=test ./sync_ruby.sh`
+```
+real  1m46.342s
+user  0m51.488s
+sys 0m27.408s
+```
+
+| Benchmark           | Real time   | User time   | Parallelism | Range    |
+|---------------------|------------:|------------:|------------:|---------:|
+| All InfluxDB / Go   | 1m28.336s   | 1m54.352s   | 1.29x       | ~2 years |
+| All InfluxDB / Ruby | 1m46.342s   | 0m51.488s   | 0.484x      | ~2 years |
+
+We can see that this task is dominated by query Postgres time, so it is less important which programming language is used to do queries.
+
+We can see that Ruby is very slightly slower.
+
+Plase note that this regenerates ALL InfluxDB data for 2 years and is < 2minutes.
+
+In a typical case it will only add new time-series since last run + eventually process single new GHA hour (since last run). It usually takes less than minute in both languages.
 
