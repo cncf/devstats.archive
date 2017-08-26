@@ -742,18 +742,58 @@ func structure(ctx *lib.Ctx) {
 	}
 }
 
+// Creates requested database if not exists
+func createDatabaseIfNeeded(ctx *lib.Ctx) bool {
+	// We cannot connect to database stored in context, because it is possible it's not there
+	db := ctx.PgDB
+	ctx.PgDB = "postgres"
+
+	// Connect to Postgres DB using its default database "postgres"
+	c := lib.PgConn(ctx)
+	defer c.Close()
+
+	// Try to get database name from `pg_database` - it will return row if database exists
+	rows := lib.QuerySQLWithErr(c, ctx, "select 1 from pg_database where datname = $1", db)
+	defer rows.Close()
+	exists := false
+	for rows.Next() {
+		exists = true
+	}
+	lib.FatalOnError(rows.Err())
+
+	// Restore original database name in the context
+	ctx.PgDB = db
+
+	// Create database if not exists
+	if !exists {
+		lib.ExecSQLWithErr(c, ctx, "create database "+ctx.PgDB)
+	}
+
+	// Return whatever we created DB or not
+	return !exists
+}
+
 func main() {
 	// Environment context parse
 	var ctx lib.Ctx
 	ctx.Init()
 
-	if ctx.Table {
-		fmt.Printf("This program will recreate DB structure (dropping all existing data)\n")
-	}
-	fmt.Printf("Continue? (y/n) ")
-	c := lib.Mgetc(&ctx)
-	fmt.Printf("\n")
-	if c == "y" {
+	// Create database if needed
+	createdDatabase := createDatabaseIfNeeded(&ctx)
+
+	// If we are using existing database, then display warnings
+	// And ask for continue
+	if !createdDatabase {
+		if ctx.Table {
+			fmt.Printf("This program will recreate DB structure (dropping all existing data)\n")
+		}
+		fmt.Printf("Continue? (y/n) ")
+		c := lib.Mgetc(&ctx)
+		fmt.Printf("\n")
+		if c == "y" {
+			structure(&ctx)
+		}
+	} else {
 		structure(&ctx)
 	}
 }
