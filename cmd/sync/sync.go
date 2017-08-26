@@ -64,7 +64,7 @@ func sync(args []string) {
 	toHour := strconv.Itoa(to.Hour())
 
 	// Get new GHAs
-	fmt.Printf("Range: %s %s - %s %s\n", fromDate, fromHour, toDate, toHour)
+	fmt.Printf("GHA range: %s %s - %s %s\n", fromDate, fromHour, toDate, toHour)
 	lib.ExecCommand(
 		&ctx,
 		[]string{
@@ -79,6 +79,7 @@ func sync(args []string) {
 		nil,
 	)
 
+	fmt.Printf("Update structure\n")
 	// Recompute views and DB summaries
 	lib.ExecCommand(
 		&ctx,
@@ -104,6 +105,7 @@ func sync(args []string) {
 		} else {
 			from = maxDtIDB
 		}
+		fmt.Printf("Influx range: %s - %s\n", lib.ToYMDHDate(from), lib.ToYMDHDate(to))
 
 		// Metrics from daily to yearly
 		for _, period := range periodsFromDay {
