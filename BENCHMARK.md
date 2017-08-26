@@ -85,13 +85,13 @@ This also updates Postgres DB (since last run) using `gha2db`/`gha2db.rb`, so we
 
 And then we can start benchmark in another run (it will only recompute all InfluxDB time-series then).
 
-- Go version: `time GHA2DB_RESETIDB=1 PG_PASS='***REMOVED***_#' IDB_PASS='***REMOVED***_#' PG_DB=test IDB_DB=test ./sync_go.sh`
+- Go version: `time GHA2DB_RESETIDB=1 PG_PASS='...' IDB_PASS='...' PG_DB=test IDB_DB=test ./sync_go.sh`
 ```
 real  1m28.336s
 user  1m54.352s
 sys 1m11.860s
 ```
-- Ruby version: `time GHA2DB_PSQL=1 GHA2DB_RESETIDB=1 PG_PASS='***REMOVED***_#' IDB_PASS='***REMOVED***_#' PG_DB=test IDB_DB=test ./sync_ruby.sh`
+- Ruby version: `time GHA2DB_PSQL=1 GHA2DB_RESETIDB=1 PG_PASS='...' IDB_PASS='...' PG_DB=test IDB_DB=test ./sync_ruby.sh`
 ```
 real  1m46.342s
 user  0m51.488s
