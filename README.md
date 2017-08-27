@@ -6,25 +6,17 @@ This is a toolset to visualize GitHub archives using Grafana dashboards.
 
 # Goal
 
-We want to create various metrics visualization toolset for Kubernetes community.
+We want to create various metrics visualization toolset for the Kubernetes community. Everything is open source so that it can be used by other CNCF and non-CNCF open source projects. The work is building on the [Velodrome](https://github.com/kubernetes/test-infra/tree/master/velodrome) tool primarily by [apelisse](https://github.com/apelisse).
 
-It already has some metrics visualization: `kubernetes/test-infra` `velodrome`.
-
-This project aims to add new metrics for existing Grafana dashboards.
-
-We want to support all kind of metrics, including historical ones.
-
-Please see [requested metrics](https://docs.google.com/document/d/1ShHr3cNCTXhtm0tKJrqI1wG_QJ2ahZBsQ7UDllfc2Dc/edit) to see what kind of metrics are needed.
-
-Many of them cannot be computed currently and current MySQL database has not enough data.
+This project aims to add new metrics for the existing Grafana dashboards. We want to support all kind of metrics, including historical ones. Please see [requested metrics](https://docs.google.com/document/d/1ShHr3cNCTXhtm0tKJrqI1wG_QJ2ahZBsQ7UDllfc2Dc/edit) to see what kind of metrics are needed. Many of them cannot be computed based on the data sources currently used.
 
 Current Velodrome implementation uses GitHub API to get its data. This has some limitations:
 - It is not able to get repo, PR state at any given point of history
-- It is limited by GitHub API points usage.
+- It is limited by GitHub API token rate limits.
 
 # GitHub Archives
 
-My approach is to use GitHub archives instead.
+Our approach is to use GitHub archives instead.
 Possible alternatives are:
 
 1) BigQuery:
@@ -34,7 +26,7 @@ Possible alternatives are:
 - It is not a standard SQL.
 
 2) GitHub API:
-- You can get the current state of the objects, but you cannot get repo, PR, issue state in the past (for example summary fields etc).
+- You can get the current state of the objects, but you cannot get repo, PR, issue state in the past (for example summary fields, etc).
 - It is limited by GitHub API usage per hour, which makes local development harder.
 - API limits are very aggressive for unauthorized access, and even with authorized access, you're limited to 5000 API calls/hour.
 - It is much slower than processing GitHub archives or BigQuery
@@ -42,13 +34,13 @@ Possible alternatives are:
 - You can use GitHub hook callbacks, but they only fire for current events.
 
 3) GitHub archives
-- All GitHub events are packed into multi-json gzipped files for each hour, you need to extract all hours (since Kubernetes project started) and filter 3 kubernetes orgs events.
-- This is a lot of data to process, but you have all possible GitHub events in the past, processing 2 years of this data takes 12 hours, but this is done already and must be done only once.
+- All GitHub events are packed into multi-json gzipped files each hour and made available from [Github Archive](https://www.githubarchive.org/). To use this data, you need to extract all hours (since the Kubernetes project started) and filter out all data except for events from the 3 kubernetes organizations ([kubernetes](https://github.com/kubernetes), [kubernetes-incubator](https://github.com/kubernetes-incubator), and [kubernetes-client](https://github.com/kubernetes-client).
+- This is a lot of data to process, but you have all possible GitHub events in the past, processing 2 years of this data takes 2 hours, but this must only be done once and then the processed results are available for other's use.
 - You have a lot of data in a single file, that can be processed/filtered in memory.
 - You are getting all possible events, and all of them include the current state of PRs, issues, repos at given point in time.
 - Processing of GitHub archives is free, so local development is easy.
 - I have 1.2M events in my Psql database, and each event contains quite complex structure, I would estimate about 3-6 GitHub API calls are needed to get that data. It means about 7M API calls.
-- 7.2M / 5K (API limit per hour) gives 1440 hours which is 2 months. And we're on GitHub API limit all the time. Processing ALL GitHub events takes about 12 hours without ANY limit.
+- 7.2M / 5K (API limit per hour) gives 1440 hours which is 2 months. And we're on GitHub API limit all the time. Processing ALL GitHub events takes about 2 hours without ANY limit.
 - You can optionally save downloaded JSONs to avoid network traffic in next calls (also usable for local development mode).
 - There is already implemented proof of concept (POC), please see usage here [USAGE](https://github.com/cncf/gha2db/blob/master/USAGE.md)
 - POC is implemented in both Ruby and Go.
@@ -61,8 +53,7 @@ Velodrome consists of 3 parts:
 - `Transform` - it is used to compute some metrics on MySQL database and save them as InfluxDB series
 - `Grafana` - displays data from InfluxDB time series.
 
-My architecture is quite similar (but I'm getting all possible GitHub data for all objects, and all objects historical state as well).
-It consists of:
+Our architecture is quite similar, but we're getting all possible GitHub data for all objects, and all objects historical state as well. It consists of:
 
 1) `structure` (manages database structure, summaries, views)
 - This is implemented as [structure.rb](https://github.com/cncf/gha2db/blob/master/structure.rb) in POC.
@@ -116,9 +107,9 @@ Detailed usage is here [USAGE](https://github.com/cncf/gha2db/blob/master/USAGE.
 
 # Current Velodrome
 
-My toolset can either replace velodrome or just add value to `velodrome`.
+This toolset can either replace velodrome or just add value to `velodrome`.
 
-They both can use shared InfluxDB (I will name series in such a way to avoid conflicts with existing ones).
+They both can use shared InfluxDB (We are naming series in such a way to avoid conflicts with existing ones).
 
 Then we can just add new dashboards that use my `gha2db`/`db2influx` workflow in the existing Grafana, and add a cron job that will keep them up to date.
 
@@ -186,5 +177,5 @@ All of them works live on [cncftest.io](https://cncftest.io) with auto sync tool
 
 Please see [Benchmarks](https://github.com/cncf/gha2db/blob/master/BENCHMARK.md)
 
-One word: Go version can import all GitHub archives data (not discarding anything) for all Kubernetes orgs/repos, from the beginning on GitHub 2015-08-06 in about 2 hours!
+In summary: Go version can import all GitHub archives data (not discarding anything) for all Kubernetes orgs/repos, from the beginning on GitHub 2015-08-06 in about 2 hours, compared to 12 hours for Ruby!
 
