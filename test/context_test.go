@@ -1,4 +1,4 @@
-package gha2db
+package gha2db_test
 
 import (
 	"os"
@@ -9,6 +9,7 @@ import (
 	lib "k8s.io/test-infra/gha2db"
 )
 
+// Copies Ctx structure
 func copyContext(in *lib.Ctx) *lib.Ctx {
 	out := lib.Ctx{
 		Debug:            in.Debug,
@@ -41,6 +42,7 @@ func copyContext(in *lib.Ctx) *lib.Ctx {
 	return &out
 }
 
+// Dynamically sets Ctx fields (uses map of field names into their new values)
 func dynamicSetFields(t *testing.T, ctx *lib.Ctx, fields map[string]interface{}) *lib.Ctx {
 	// Prepare mapping field name -> index
 	valueOf := reflect.Indirect(reflect.ValueOf(*ctx))
@@ -107,6 +109,7 @@ func dynamicSetFields(t *testing.T, ctx *lib.Ctx, fields map[string]interface{})
 }
 
 func TestInit(t *testing.T) {
+	// This is the expected default struct state
 	defaultContext := lib.Ctx{
 		Debug:            0,
 		CmdDebug:         0,
@@ -135,6 +138,8 @@ func TestInit(t *testing.T) {
 		SkipIDB:          false,
 		ResetIDB:         false,
 	}
+
+	// Test cases
 	var testCases = []struct {
 		name            string
 		environment     map[string]string
@@ -293,8 +298,8 @@ func TestInit(t *testing.T) {
 			),
 		},
 		{
-      "Setting default start date to 1982-07-16 10:15:45",
-      map[string]string{"GHA2DB_STARTDT": "1982-07-16 10:15:45"},
+			"Setting default start date to 1982-07-16 10:15:45",
+			map[string]string{"GHA2DB_STARTDT": "1982-07-16 10:15:45"},
 			dynamicSetFields(
 				t,
 				copyContext(&defaultContext),
@@ -305,25 +310,43 @@ func TestInit(t *testing.T) {
 		},
 	}
 
-	//DefaultStartDate: time.Date(2015, 8, 6, 22, 0, 0, 0, time.UTC),
+	// Context Init() is verbose when called with CtxDebug
+	// For this case we want to discard its STDOUT
+	stdout := os.Stdout
+
 	// Execute test cases
 	for index, test := range testCases {
-		var (
-			gotContext lib.Ctx
-		)
+		var gotContext lib.Ctx
+
+		// Remember initial environment
 		currEnv := make(map[string]string)
+		for key := range test.environment {
+			currEnv[key] = os.Getenv(key)
+		}
 
 		// Set new environment
 		for key, value := range test.environment {
-			currEnv[key] = os.Getenv(key)
 			err := os.Setenv(key, value)
 			if err != nil {
 				t.Errorf(err.Error())
 			}
 		}
 
+		// When CTXOUT is set, Ctx.Init() writes debug data to STDOUT
+		// We don't want to see it while running tests
+		if test.environment["GHA2DB_CTXOUT"] != "" {
+			fd, err := os.Open(os.DevNull)
+			if err != nil {
+				t.Errorf(err.Error())
+			}
+			os.Stdout = fd
+		}
+
 		// Initialize context while new environment is set
 		gotContext.Init()
+		if test.environment["GHA2DB_CTXOUT"] != "" {
+			os.Stdout = stdout
+		}
 
 		// Restore original environment
 		for key := range test.environment {
