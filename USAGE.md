@@ -733,3 +733,6 @@ org_role = Viewer
 
 Please see [Benchmarks](https://github.com/cncf/gha2db/blob/master/BENCHMARK.md)
 
+# Testing
+
+Please see [Tests](https://github.com/cncf/gha2db/blob/master/TESTING.md)

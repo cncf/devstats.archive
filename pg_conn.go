@@ -206,3 +206,66 @@ func TruncStringOrNil(strPtr *string, maxLen int) interface{} {
 	}
 	return TruncToBytes(*strPtr, maxLen)
 }
+
+// DatabaseExists - checks if database stored in context exists
+// If closeConn is true - then it closes connection after checking if database exists
+// If closeConn is false, then it returns open connection to default database "postgres"
+func DatabaseExists(ctx *Ctx, closeConn bool) (exists bool, c *sql.DB) {
+	// We cannot connect to database stored in context, because it is possible it's not there
+	db := ctx.PgDB
+	ctx.PgDB = "postgres"
+
+	// Connect to Postgres DB using its default database "postgres"
+	c = PgConn(ctx)
+	if closeConn {
+		defer func() {
+			c.Close()
+			c = nil
+		}()
+	}
+
+	// Try to get database name from `pg_database` - it will return row if database exists
+	rows := QuerySQLWithErr(c, ctx, "select 1 from pg_database where datname = $1", db)
+	defer rows.Close()
+	for rows.Next() {
+		exists = true
+	}
+	FatalOnError(rows.Err())
+
+	// Restore original database name in the context
+	ctx.PgDB = db
+
+	return
+}
+
+// DropDatabaseIfExists - drops requested database if exists
+// Returns true if database existed and was dropped
+func DropDatabaseIfExists(ctx *Ctx) bool {
+	// Check if database exists
+	exists, c := DatabaseExists(ctx, false)
+	defer c.Close()
+
+	// Drop database if exists
+	if exists {
+		ExecSQLWithErr(c, ctx, "drop database "+ctx.PgDB)
+	}
+
+	// Return whatever we created DB or not
+	return exists
+}
+
+// CreateDatabaseIfNeeded - creates requested database if not exists
+// Returns true if database was not existing existed and created dropped
+func CreateDatabaseIfNeeded(ctx *Ctx) bool {
+	// Check if database exists
+	exists, c := DatabaseExists(ctx, false)
+	defer c.Close()
+
+	// Create database if not exists
+	if !exists {
+		ExecSQLWithErr(c, ctx, "create database "+ctx.PgDB)
+	}
+
+	// Return whatever we created DB or not
+	return !exists
+}
