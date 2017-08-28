@@ -48,7 +48,9 @@ func (ctx *Ctx) Init() {
 	} else {
 		debugLevel, err := strconv.Atoi(os.Getenv("GHA2DB_DEBUG"))
 		FatalOnError(err)
-		ctx.Debug = debugLevel
+		if debugLevel > 0 {
+			ctx.Debug = debugLevel
+		}
 	}
 	// CmdDebug
 	if os.Getenv("GHA2DB_CMDDEBUG") == "" {
@@ -119,6 +121,9 @@ func (ctx *Ctx) Init() {
 	ctx.Table = os.Getenv("GHA2DB_SKIPTABLE") == ""
 	ctx.Tools = os.Getenv("GHA2DB_SKIPTOOLS") == ""
 	ctx.Mgetc = os.Getenv("GHA2DB_MGETC")
+	if len(ctx.Mgetc) > 1 {
+		ctx.Mgetc = ctx.Mgetc[:1]
+	}
 	// Default start date
 	if os.Getenv("GHA2DB_STARTDT") != "" {
 		ctx.DefaultStartDate = TimeParseAny(os.Getenv("GHA2DB_STARTDT"))
