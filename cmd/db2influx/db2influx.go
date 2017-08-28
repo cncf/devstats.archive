@@ -74,7 +74,7 @@ func workerThread(ch chan bool, ctx *lib.Ctx, seriesNameOrFunc, sqlQuery, period
 			fmt.Printf(
 				"Error:\nQuery should return either single value or "+
 					"multiple rows, each containing string and number\n"+
-					"Got %d rows, each containing single number\nQuery:\n",
+					"Got %d rows, each containing single number\nQuery:%s\n",
 				rowCount, sqlQuery,
 			)
 		}

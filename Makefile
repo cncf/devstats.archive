@@ -8,6 +8,7 @@ GO_BUILD=go build
 GO_INSTALL=go install
 GO_FMT=gofmt -w
 GO_LINT=golint
+GO_VET=go vet
 GO_IMPORTS=goimports -w
 GO_TEST=go test
 
@@ -40,6 +41,9 @@ lint: ${GO_BIN_FILES} ${GO_LIB_FILES} ${GO_TEST_FILES} ${GO_DBTEST_FILES}
 	${GO_LINT} ${GO_TEST_FILES}
 	${GO_LINT} ${GO_DBTEST_FILES}
 
+vet: ${GO_BIN_FILES} ${GO_LIB_FILES} ${GO_TEST_FILES} ${GO_DBTEST_FILES}
+	./govet.sh
+
 imports: ${GO_BIN_FILES} ${GO_LIB_FILES} ${GO_TEST_FILES} ${GO_DBTEST_FILES}
 	${GO_IMPORTS} ${GO_LIB_FILES}
 	${GO_IMPORTS} ${GO_BIN_FILES}
@@ -52,7 +56,7 @@ test:
 dbtest:
 	${GO_TEST} ${GO_DBTEST_FILES}
 
-check: fmt lint imports
+check: fmt lint imports vet
 
 install: check structure runq gha2db db2influx sync
 	${GO_INSTALL} ${GO_BIN_CMDS}

@@ -196,7 +196,7 @@ type Milestone struct {
 	Number       int        `json:"number"`
 	Title        string     `json:"title"`
 	Description  *string    `json:"description"`
-	Creator      *Actor     `json"creator"`
+	Creator      *Actor     `json:"creator"`
 	OpenIssues   int        `json:"open_issues"`
 	ClosedIssues int        `json:"closed_issues"`
 	State        string     `json:"state"`
