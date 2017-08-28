@@ -1,4 +1,4 @@
-# GitHub Archives Visualisation
+# GitHub Archives Visualization
 
 Author: Łukasz Gryglicki <lukaszgryglick@o2.pl>
 
@@ -6,18 +6,17 @@ This is a toolset to visualize GitHub archives using Grafana dashboards.
 
 # Goal
 
-We want to create various metrics visualization toolset for the Kubernetes community. Everything is open source so that it can be used by other CNCF and non-CNCF open source projects. The work is building on the [Velodrome](https://github.com/kubernetes/test-infra/tree/master/velodrome) tool primarily by [apelisse](https://github.com/apelisse).
+We want to create a toolset for visualizing various metrics for the Kubernetes community. Everything is open source so that it can be used by other CNCF and non-CNCF open source projects. The work builds on the [Velodrome](https://github.com/kubernetes/test-infra/tree/master/velodrome) tool that was built by [apelisse](https://github.com/apelisse) and others.
 
 This project aims to add new metrics for the existing Grafana dashboards. We want to support all kind of metrics, including historical ones. Please see [requested metrics](https://docs.google.com/document/d/1ShHr3cNCTXhtm0tKJrqI1wG_QJ2ahZBsQ7UDllfc2Dc/edit) to see what kind of metrics are needed. Many of them cannot be computed based on the data sources currently used.
 
-Current Velodrome implementation uses GitHub API to get its data. This has some limitations:
-- It is not able to get repo, PR state at any given point of history
+The current Velodrome implementation uses the GitHub API to get its data. This has some limitations:
+- It is not able to get repo and PR state at any given point of history
 - It is limited by GitHub API token rate limits.
 
 # GitHub Archives
 
-Our approach is to use GitHub archives instead.
-Possible alternatives are:
+Our approach is to use GitHub archives instead. The possible alternatives are:
 
 1) BigQuery:
 - You can query any data you want, but the structure is quite flat and entire GitHub event payloads are stored as a single column containing JSON text.
