@@ -2,8 +2,9 @@ package gha2db
 
 import (
 	"fmt"
-	"github.com/influxdata/influxdb/client/v2"
 	"time"
+
+	"github.com/influxdata/influxdb/client/v2"
 )
 
 // IDBConn Connects to InfluxDB database

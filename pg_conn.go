@@ -3,10 +3,11 @@ package gha2db
 import (
 	"database/sql"
 	"fmt"
-	_ "github.com/lib/pq" // As suggested by lib/pq driver
 	"strconv"
 	"strings"
 	"time"
+
+	_ "github.com/lib/pq" // As suggested by lib/pq driver
 )
 
 // PgConn Connects to Postgres database

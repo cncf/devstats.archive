@@ -8,12 +8,13 @@ import (
 	"fmt"
 	"hash/fnv"
 	"io/ioutil"
-	lib "k8s.io/test-infra/gha2db"
 	"net/http"
 	"os"
 	"strconv"
 	"strings"
 	"time"
+
+	lib "k8s.io/test-infra/gha2db"
 )
 
 func hashStrings(strs []string) int {
