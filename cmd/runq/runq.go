@@ -4,9 +4,10 @@ import (
 	"database/sql"
 	"fmt"
 	"io/ioutil"
-	lib "k8s.io/test-infra/gha2db"
 	"os"
 	"strings"
+
+	lib "k8s.io/test-infra/gha2db"
 )
 
 func runq(sqlFile string, params []string) {

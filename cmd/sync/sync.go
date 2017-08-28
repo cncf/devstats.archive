@@ -2,11 +2,12 @@ package main
 
 import (
 	"fmt"
-	lib "k8s.io/test-infra/gha2db"
 	"os"
 	"strconv"
 	"strings"
 	"time"
+
+	lib "k8s.io/test-infra/gha2db"
 )
 
 func sync(args []string) {

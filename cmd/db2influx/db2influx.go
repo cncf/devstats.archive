@@ -3,10 +3,11 @@ package main
 import (
 	"fmt"
 	"io/ioutil"
-	lib "k8s.io/test-infra/gha2db"
 	"os"
 	"strings"
 	"time"
+
+	lib "k8s.io/test-infra/gha2db"
 )
 
 // Generate name for given series row and period
