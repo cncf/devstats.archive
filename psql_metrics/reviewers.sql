@@ -14,7 +14,7 @@ where
       where
         created_at >= '{{from}}'
         and created_at < '{{to}}'
-        and label_name in ('lgtm', 'LGTM')
+        and label_name in ('lgtm', 'Lgtm', 'lGtm', 'lgTm', 'lgtM', 'LGtm', 'LgTm', 'LgtM', 'lGTm', 'lGtM', 'lgTM', 'LGTm', 'LGtM', 'LgTM', 'lGTM', 'LGTM')
       group by
         issue_id
     )
@@ -26,6 +26,6 @@ where
       where
         created_at >= '{{from}}'
         and created_at < '{{to}}'
-        and substring(body from '(?i)/^\s*/lgtm\s*$') is not null
+        and substring(body from '(?i)^\s*/lgtm\s*$') is not null
     )
   )

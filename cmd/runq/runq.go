@@ -60,7 +60,7 @@ func runq(sqlFile string, params []string) {
 		vals[i] = new(sql.RawBytes)
 	}
 
-	// Get results into `results` appary of maps
+	// Get results into `results` array of maps
 	var results []map[string]string
 	rowCount := 0
 	for rows.Next() {
