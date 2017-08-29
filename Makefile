@@ -1,6 +1,6 @@
 GO_LIB_FILES=pg_conn.go error.go mgetc.go map.go threads.go gha.go json.go idb_conn.go time_stuff.go context.go exec.go
 GO_BIN_FILES=cmd/structure/structure.go cmd/runq/runq.go cmd/gha2db/gha2db.go cmd/db2influx/db2influx.go cmd/sync/sync.go
-GO_TEST_FILES=context_test.go gha_test.go map_test.go
+GO_TEST_FILES=context_test.go gha_test.go map_test.go mgetc_test.go threads_test.go
 GO_DBTEST_FILES=pg_test.go idb_test.go
 GO_LIBTEST_FILES=test/compare.go
 GO_BIN_CMDS=k8s.io/test-infra/gha2db/cmd/structure k8s.io/test-infra/gha2db/cmd/runq k8s.io/test-infra/gha2db/cmd/gha2db k8s.io/test-infra/db2influx/cmd/db2influx k8s.io/test-infra/db2influx/cmd/sync
