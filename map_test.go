@@ -25,7 +25,7 @@ func TestSkipEmpty(t *testing.T) {
 	// Execute test cases
 	for index, test := range testCases {
 		got := lib.SkipEmpty(test.values)
-		if !testlib.CompareStringSlices(&got, &test.expected) {
+		if !testlib.CompareStringSlices(got, test.expected) {
 			t.Errorf(
 				"test number %d, expected %v length %d, got %v length %d",
 				index+1, test.expected, len(test.expected), got, len(got),
@@ -63,7 +63,7 @@ func TestStringsMapToArray(t *testing.T) {
 	// Execute test cases
 	for index, test := range testCases {
 		got := lib.StringsMapToArray(test.function, test.values)
-		if !testlib.CompareStringSlices(&got, &test.expected) {
+		if !testlib.CompareStringSlices(got, test.expected) {
 			t.Errorf(
 				"test number %d, expected %v, got %v",
 				index+1, test.expected, got,
@@ -72,37 +72,76 @@ func TestStringsMapToArray(t *testing.T) {
 	}
 }
 
-/*
-// StringsMapToArray this is a function that calls given function for all array items and returns array of items processed by this func
-// Example call: lib.StringsMapToArray(func(x string) string { return strings.TrimSpace(x) }, []string{" a", " b ", "c "})
-func StringsMapToArray(f func(string) string, strArr []string) []string {
-	strArr = skipEmpty(strArr)
-	outArr := make([]string, len(strArr))
-	for index, str := range strArr {
-		outArr[index] = f(str)
+func TestStringsMapToSet(t *testing.T) {
+	// Test cases
+	stripFunc := func(x string) string {
+		return strings.TrimSpace(x)
 	}
-	return outArr
+	var testCases = []struct {
+		values   []string
+		function func(string) string
+		expected map[string]struct{}
+	}{
+		{
+			values:   []string{},
+			function: stripFunc,
+			expected: map[string]struct{}{},
+		},
+		{
+			values:   []string{" a\n\t"},
+			function: stripFunc,
+			expected: map[string]struct{}{"a": struct{}{}},
+		},
+		{
+			values:   []string{"a  ", "  b", "\tc\t", "d e"},
+			function: stripFunc,
+			expected: map[string]struct{}{
+				"a":   struct{}{},
+				"b":   struct{}{},
+				"c":   struct{}{},
+				"d e": struct{}{},
+			},
+		},
+	}
+	// Execute test cases
+	for index, test := range testCases {
+		got := lib.StringsMapToSet(test.function, test.values)
+		if !testlib.CompareSets(got, test.expected) {
+			t.Errorf(
+				"test number %d, expected %v, got %v",
+				index+1, test.expected, got,
+			)
+		}
+	}
 }
 
-// StringsMapToSet this is a function that calls given function for all array items and returns set of items processed by this func
-// Example call: lib.StringsMapToSet(func(x string) string { return strings.TrimSpace(x) }, []string{" a", " b ", "c "})
-func StringsMapToSet(f func(string) string, strArr []string) map[string]bool {
-	strArr = skipEmpty(strArr)
-	outSet := make(map[string]bool)
-	for _, str := range strArr {
-		outSet[f(str)] = true
+func TestStringsSetKeys(t *testing.T) {
+	// Test cases
+	var testCases = []struct {
+		set      map[string]struct{}
+		expected []string
+	}{
+		{
+			set:      map[string]struct{}{},
+			expected: []string{},
+		},
+		{
+			set:      map[string]struct{}{"xyz": struct{}{}},
+			expected: []string{"xyz"},
+		},
+		{
+			set:      map[string]struct{}{"b": struct{}{}, "a": struct{}{}, "c": struct{}{}},
+			expected: []string{"a", "b", "c"},
+		},
 	}
-	return outSet
-}
-
-// StringsSetKeys - returns all keys from string map
-func StringsSetKeys(set map[string]bool) []string {
-	outArr := make([]string, len(set))
-	index := 0
-	for key := range set {
-		outArr[index] = key
-		index++
+	// Execute test cases
+	for index, test := range testCases {
+		got := lib.StringsSetKeys(test.set)
+		if !testlib.CompareStringSlices(got, test.expected) {
+			t.Errorf(
+				"test number %d, expected %v, got %v",
+				index+1, test.expected, got,
+			)
+		}
 	}
-	return outArr
 }
-*/
