@@ -28,6 +28,19 @@ func CompareStringSlices(s1 []string, s2 []string) bool {
 	return true
 }
 
+// CompareStringSlices2D - comparses two slices of string slices
+func CompareStringSlices2D(s1 [][]string, s2 [][]string) bool {
+	if len(s1) != len(s2) {
+		return false
+	}
+	for index, value := range s1 {
+		if !CompareStringSlices(value, s2[index]) {
+			return false
+		}
+	}
+	return true
+}
+
 // CompareSets - comparses two string sets
 func CompareSets(s1 map[string]struct{}, s2 map[string]struct{}) bool {
 	// Different if different length

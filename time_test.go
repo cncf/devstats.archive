@@ -8,27 +8,6 @@ import (
 	testlib "k8s.io/test-infra/gha2db/test"
 )
 
-/*
-func HourStart(dt time.Time) time.Time {
-func NextHourStart(dt time.Time) time.Time {
-func DayStart(dt time.Time) time.Time {
-func NextDayStart(dt time.Time) time.Time {
-func WeekStart(dt time.Time) time.Time {
-func NextWeekStart(dt time.Time) time.Time {
-func MonthStart(dt time.Time) time.Time {
-func NextMonthStart(dt time.Time) time.Time {
-func QuarterStart(dt time.Time) time.Time {
-func NextQuarterStart(dt time.Time) time.Time {
-func YearStart(dt time.Time) time.Time {
-func NextYearStart(dt time.Time) time.Time {
-func TimeParseAny(dtStr string) time.Time {
-func TimeParseIDB(dtStr string) time.Time {
-func ToGHADate(dt time.Time) string {
-func ToYMDDate(dt time.Time) string {
-func ToYMDHMSDate(dt time.Time) string {
-func ToYMDHDate(dt time.Time) string {
-*/
-
 func TestHourStart(t *testing.T) {
 	// Test cases
 	ft := testlib.YMDHMS
