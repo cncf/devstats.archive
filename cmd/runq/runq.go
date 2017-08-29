@@ -41,6 +41,9 @@ func runq(sqlFile string, params []string) {
 	for from, to := range replaces {
 		sqlQuery = strings.Replace(sqlQuery, from, to, -1)
 	}
+	if ctx.Explain {
+		sqlQuery = "explain " + sqlQuery
+	}
 
 	// Connect to Postgres DB
 	c := lib.PgConn(&ctx)
