@@ -1,4 +1,4 @@
-select 
+select
   substring(sig from 13) as sig, 
   count(*) as count_last_year
 from 
