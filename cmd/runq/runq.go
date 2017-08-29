@@ -42,7 +42,7 @@ func runq(sqlFile string, params []string) {
 		sqlQuery = strings.Replace(sqlQuery, from, to, -1)
 	}
 	if ctx.Explain {
-		sqlQuery = "explain " + sqlQuery
+		sqlQuery = strings.Replace(sqlQuery, "select\n", "explain select\n", -1)
 	}
 
 	// Connect to Postgres DB
