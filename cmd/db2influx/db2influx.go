@@ -45,8 +45,8 @@ func workerThread(ch chan bool, ctx *lib.Ctx, seriesNameOrFunc, sqlQuery, period
 	bp := lib.IDBBatchPoints(ctx, &ic)
 
 	// Prepare SQL query
-	sFrom := lib.ToSQLDate(from)
-	sTo := lib.ToSQLDate(to)
+	sFrom := lib.ToYMDHMSDate(from)
+	sTo := lib.ToYMDHMSDate(to)
 	sqlQuery = strings.Replace(sqlQuery, "{{from}}", sFrom, -1)
 	sqlQuery = strings.Replace(sqlQuery, "{{to}}", sTo, -1)
 
