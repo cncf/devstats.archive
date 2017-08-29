@@ -1,6 +1,6 @@
-select 
+select
   substring(sig from 13) as sig, 
-  count(*) as count_last_week 
+  count(*) as count_value
 from 
   (
     select 
@@ -18,5 +18,5 @@ where
 group by 
   sel.sig
 order by
-  count_last_week desc,
+  count_value desc,
   sel.sig asc

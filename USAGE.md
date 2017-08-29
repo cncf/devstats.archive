@@ -82,7 +82,7 @@ You can tweak `gha2db.rb`/`gha2db` by:
 - Set `GHA2DB_STARTDT`, to use start date for processing events (when syncing data with empty database), default `2015-08-06 22:00 UTC`, expects format "YYYY-MM-DD HH:MI:SS". Only related to Go version.
 - Set `GHA2DB_LASTSERIES`, to specify which InfluxDB series use to determine newest data (it will be used to query newest timestamp), default `'all_prs_merged_d'`. Only related to Go version.
 - Set `GHA2DB_CMDDEBUG` set to 1 to see commands executed, set to 2 to see commands executed and their output, set to 3 to see full exec environment. Only related to Go version.
-- Set `GHA2DB_EXPLAIN` for `runq` tool, it will prefix query with "explain " to display query plan instead of executing real query
+- Set `GHA2DB_EXPLAIN` for `runq` tool, it will prefix query with "explain " to display query plan instead of executing real query. Because metric can have multiple selects, and only main select should be replaced with "explain select" - we're replacing only downcases "select" statement followed by new line.
 
 Go version: All environment context details are defined in `context.go`, please see that file for details.
 

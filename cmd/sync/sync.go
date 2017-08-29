@@ -10,6 +10,18 @@ import (
 	lib "k8s.io/test-infra/gha2db"
 )
 
+// computePeriodAtThisDate - for some longer periods, only recalculate them on specific dates
+func computePeriodAtThisDate(period string, to time.Time) bool {
+	to = lib.HourStart(to)
+	if period == "h" || period == "d" || period == "w" {
+		return true
+	} else if period == "m" || period == "q" || period == "y" {
+		return to.Hour() == 0
+	} else {
+		return false
+	}
+}
+
 func sync(args []string) {
 	// Environment context parse
 	var ctx lib.Ctx
@@ -110,6 +122,12 @@ func sync(args []string) {
 
 		// Metrics from daily to yearly
 		for _, period := range periodsFromDay {
+			// Some bigger periods like month, quarters, years doesn't need to be updated every run
+			if !ctx.ResetIDB && !computePeriodAtThisDate(period, to) {
+				fmt.Printf("Skipping recalculating period \"%s\" for date to %v\n", period, to)
+				continue
+			}
+
 			// Reviewers daily, weekly, monthly, quarterly, yearly
 			lib.ExecCommand(
 				&ctx,
@@ -169,6 +187,12 @@ func sync(args []string) {
 
 		// Metrics that include hourly data
 		for _, period := range periodsFromHour {
+			// Some bigger periods like month, quarters, years doesn't need to be updated every run
+			if !ctx.ResetIDB && !computePeriodAtThisDate(period, to) {
+				fmt.Printf("Skipping recalculating period \"%s\" for date to %v\n", period, to)
+				continue
+			}
+
 			// All PRs merged hourly, daily, weekly, monthly, quarterly, yearly
 			lib.ExecCommand(
 				&ctx,
