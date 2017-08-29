@@ -35,6 +35,7 @@ type Ctx struct {
 	LastSeries       string    // from GHA2DB_LASTSERIES, use this InfluxDB series to determine last timestamp date, default "all_prs_merged_d"
 	SkipIDB          bool      // from GHA2DB_SKIPIDB sync tool, skip InfluxDB processing? default false
 	ResetIDB         bool      // from GHA2DB_RESETIDB sync tool, regenerate all InfluxDB points? default false
+	Explain          bool      // from GHA2DB_EXPLAIN runq tool, prefix query with "explain " - it will display query plan instead of executing real query, default false
 }
 
 // Init - get context from environment variables
@@ -138,6 +139,9 @@ func (ctx *Ctx) Init() {
 	// IfluxDB variables
 	ctx.SkipIDB = os.Getenv("GHA2DB_SKIPIDB") != ""
 	ctx.ResetIDB = os.Getenv("GHA2DB_RESETIDB") != ""
+
+	// Explain
+	ctx.Explain = os.Getenv("GHA2DB_EXPLAIN") != ""
 
 	// Context out if requested
 	if ctx.CtxOut {

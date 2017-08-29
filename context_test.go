@@ -38,6 +38,7 @@ func copyContext(in *lib.Ctx) *lib.Ctx {
 		LastSeries:       in.LastSeries,
 		SkipIDB:          in.SkipIDB,
 		ResetIDB:         in.ResetIDB,
+		Explain:          in.Explain,
 	}
 	return &out
 }
@@ -137,6 +138,7 @@ func TestInit(t *testing.T) {
 		LastSeries:       "all_prs_merged_d",
 		SkipIDB:          false,
 		ResetIDB:         false,
+		Explain:          false,
 	}
 
 	// Test cases
@@ -275,6 +277,15 @@ func TestInit(t *testing.T) {
 				t,
 				copyContext(&defaultContext),
 				map[string]interface{}{"SkipIDB": true, "ResetIDB": true},
+			),
+		},
+		{
+			"Setting explain query mode",
+			map[string]string{"GHA2DB_EXPLAIN": "1"},
+			dynamicSetFields(
+				t,
+				copyContext(&defaultContext),
+				map[string]interface{}{"Explain": true},
 			),
 		},
 		{
