@@ -236,7 +236,7 @@ func TestPostgres(t *testing.T) {
 	gotArr := getInts(c, &ctx)
 
 	expectedArr := []int{1, 11}
-	if !testlib.CompareIntSlices(&gotArr, &expectedArr) {
+	if !testlib.CompareIntSlices(gotArr, expectedArr) {
 		t.Errorf("expected %v after two inserts, got %v", expectedArr, gotArr)
 	}
 
@@ -260,7 +260,7 @@ func TestPostgres(t *testing.T) {
 	// Get all ints from database
 	gotArr = getInts(c, &ctx)
 
-	if !testlib.CompareIntSlices(&gotArr, &expectedArr) {
+	if !testlib.CompareIntSlices(gotArr, expectedArr) {
 		t.Errorf("expected %v after rollback, got %v", expectedArr, gotArr)
 	}
 
@@ -285,7 +285,7 @@ func TestPostgres(t *testing.T) {
 	gotArr = getInts(c, &ctx)
 
 	expectedArr = []int{1, 11, 31}
-	if !testlib.CompareIntSlices(&gotArr, &expectedArr) {
+	if !testlib.CompareIntSlices(gotArr, expectedArr) {
 		t.Errorf("expected %v after commit, got %v", expectedArr, gotArr)
 	}
 
@@ -300,7 +300,7 @@ func TestPostgres(t *testing.T) {
 	// Get all ints from database
 	gotArr = getInts(c, &ctx)
 
-	if !testlib.CompareIntSlices(&gotArr, &expectedArr) {
+	if !testlib.CompareIntSlices(gotArr, expectedArr) {
 		t.Errorf("expected %v after insert ignore, got %v", expectedArr, gotArr)
 	}
 }

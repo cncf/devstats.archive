@@ -672,7 +672,7 @@ func writeToDB(db *sql.DB, ctx *lib.Ctx, ev lib.Event) int {
 }
 
 // repoHit - are we interested in this org/repo ?
-func repoHit(fullName string, forg, frepo map[string]bool) bool {
+func repoHit(fullName string, forg, frepo map[string]struct{}) bool {
 	if fullName == "" {
 		return false
 	}
@@ -692,7 +692,7 @@ func repoHit(fullName string, forg, frepo map[string]bool) bool {
 }
 
 // parseJSON - parse signle GHA JSON event
-func parseJSON(con *sql.DB, ctx *lib.Ctx, jsonStr []byte, dt time.Time, forg, frepo map[string]bool) (f int, e int) {
+func parseJSON(con *sql.DB, ctx *lib.Ctx, jsonStr []byte, dt time.Time, forg, frepo map[string]struct{}) (f int, e int) {
 	var h lib.Event
 	err := json.Unmarshal(jsonStr, &h)
 	if err != nil {
@@ -723,7 +723,7 @@ func parseJSON(con *sql.DB, ctx *lib.Ctx, jsonStr []byte, dt time.Time, forg, fr
 // getGHAJSON - This is a work for single go routine - 1 hour of GHA data
 // Usually such JSON conatin about 15000 - 60000 singe GHA events
 // Boolean channel `ch` is used to synchronize go routines
-func getGHAJSON(ch chan bool, ctx *lib.Ctx, dt time.Time, forg map[string]bool, frepo map[string]bool) {
+func getGHAJSON(ch chan bool, ctx *lib.Ctx, dt time.Time, forg map[string]struct{}, frepo map[string]struct{}) {
 	fmt.Printf("Working on %v\n", dt)
 
 	// Connect to Postgres DB
@@ -802,7 +802,7 @@ func gha2db(args []string) {
 	stripFunc := func(x string) string { return strings.TrimSpace(x) }
 
 	// Stripping whitespace from org and repo params
-	var org map[string]bool
+	var org map[string]struct{}
 	if len(args) >= 5 {
 		org = lib.StringsMapToSet(
 			stripFunc,
@@ -810,7 +810,7 @@ func gha2db(args []string) {
 		)
 	}
 
-	var repo map[string]bool
+	var repo map[string]struct{}
 	if len(args) >= 6 {
 		repo = lib.StringsMapToSet(
 			stripFunc,
