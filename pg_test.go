@@ -1,4 +1,4 @@
-package gha2db_test
+package gha2db
 
 import (
 	"database/sql"
@@ -123,49 +123,49 @@ func TestTruncStringOrNil(t *testing.T) {
 func TestBoolOrNil(t *testing.T) {
 	result := lib.BoolOrNil(nil)
 	if result != nil {
-		t.Errorf("test nil case: expected <nil>, got %v\n", result)
+		t.Errorf("test nil case: expected <nil>, got %v", result)
 	}
 	val := true
 	result = lib.BoolOrNil(&val)
 	if result != val {
-		t.Errorf("expected true, got %v\n", result)
+		t.Errorf("expected true, got %v", result)
 	}
 }
 
 func TestTimeOrNil(t *testing.T) {
 	result := lib.TimeOrNil(nil)
 	if result != nil {
-		t.Errorf("test nil case: expected <nil>, got %v\n", result)
+		t.Errorf("test nil case: expected <nil>, got %v", result)
 	}
 	val := time.Now()
 	result = lib.TimeOrNil(&val)
 	if result != val {
-		t.Errorf("expected %v, got %v\n", val, result)
+		t.Errorf("expected %v, got %v", val, result)
 	}
 }
 
 func TestIntOrNil(t *testing.T) {
 	result := lib.IntOrNil(nil)
 	if result != nil {
-		t.Errorf("test nil case: expected <nil>, got %v\n", result)
+		t.Errorf("test nil case: expected <nil>, got %v", result)
 	}
 	val := 2
 	result = lib.IntOrNil(&val)
 	if result != val {
-		t.Errorf("expected %v, got %v\n", val, result)
+		t.Errorf("expected %v, got %v", val, result)
 	}
 }
 
 func TestStringOrNil(t *testing.T) {
 	result := lib.StringOrNil(nil)
 	if result != nil {
-		t.Errorf("test nil case: expected <nil>, got %v\n", result)
+		t.Errorf("test nil case: expected <nil>, got %v", result)
 	}
 	val := "hello\x00 world"
 	expected := "hello world"
 	result = lib.StringOrNil(&val)
 	if result != expected {
-		t.Errorf("expected %v, got %v\n", val, result)
+		t.Errorf("expected %v, got %v", val, result)
 	}
 }
 
@@ -220,7 +220,7 @@ func TestPostgres(t *testing.T) {
 	i := 0
 	lib.QueryRowSQL(c, &ctx, "select an_int from test").Scan(&i)
 	if i != 1 {
-		t.Errorf("expected 1, go %v", i)
+		t.Errorf("expected to insert 1, got %v", i)
 	}
 
 	// Insert another row
@@ -236,7 +236,7 @@ func TestPostgres(t *testing.T) {
 
 	expectedArr := []int{1, 11}
 	if !compareSlices(&gotArr, &expectedArr) {
-		t.Errorf("expected %v, got %v", expectedArr, gotArr)
+		t.Errorf("expected %v after two inserts, got %v", expectedArr, gotArr)
 	}
 
 	// Start transaction
@@ -260,7 +260,7 @@ func TestPostgres(t *testing.T) {
 	gotArr = getInts(c, &ctx)
 
 	if !compareSlices(&gotArr, &expectedArr) {
-		t.Errorf("expected %v, got %v", expectedArr, gotArr)
+		t.Errorf("expected %v after rollback, got %v", expectedArr, gotArr)
 	}
 
 	// Start transaction
@@ -285,7 +285,7 @@ func TestPostgres(t *testing.T) {
 
 	expectedArr = []int{1, 11, 31}
 	if !compareSlices(&gotArr, &expectedArr) {
-		t.Errorf("expected %v, got %v", expectedArr, gotArr)
+		t.Errorf("expected %v after commit, got %v", expectedArr, gotArr)
 	}
 
 	// Insert ignore row (that violetes primary key constraint)
@@ -300,7 +300,7 @@ func TestPostgres(t *testing.T) {
 	gotArr = getInts(c, &ctx)
 
 	if !compareSlices(&gotArr, &expectedArr) {
-		t.Errorf("expected %v, got %v", expectedArr, gotArr)
+		t.Errorf("expected %v after insert ignore, got %v", expectedArr, gotArr)
 	}
 }
 
@@ -334,3 +334,4 @@ func getInts(c *sql.DB, ctx *lib.Ctx) []int {
 	lib.FatalOnError(rows.Err())
 	return arr
 }
+
