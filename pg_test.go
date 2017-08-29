@@ -6,6 +6,7 @@ import (
 	"time"
 
 	lib "k8s.io/test-infra/gha2db"
+	testlib "k8s.io/test-infra/gha2db/test"
 )
 
 func TestCleanUTF8(t *testing.T) {
@@ -235,7 +236,7 @@ func TestPostgres(t *testing.T) {
 	gotArr := getInts(c, &ctx)
 
 	expectedArr := []int{1, 11}
-	if !compareSlices(&gotArr, &expectedArr) {
+	if !testlib.CompareIntSlices(&gotArr, &expectedArr) {
 		t.Errorf("expected %v after two inserts, got %v", expectedArr, gotArr)
 	}
 
@@ -259,7 +260,7 @@ func TestPostgres(t *testing.T) {
 	// Get all ints from database
 	gotArr = getInts(c, &ctx)
 
-	if !compareSlices(&gotArr, &expectedArr) {
+	if !testlib.CompareIntSlices(&gotArr, &expectedArr) {
 		t.Errorf("expected %v after rollback, got %v", expectedArr, gotArr)
 	}
 
@@ -284,7 +285,7 @@ func TestPostgres(t *testing.T) {
 	gotArr = getInts(c, &ctx)
 
 	expectedArr = []int{1, 11, 31}
-	if !compareSlices(&gotArr, &expectedArr) {
+	if !testlib.CompareIntSlices(&gotArr, &expectedArr) {
 		t.Errorf("expected %v after commit, got %v", expectedArr, gotArr)
 	}
 
@@ -299,22 +300,9 @@ func TestPostgres(t *testing.T) {
 	// Get all ints from database
 	gotArr = getInts(c, &ctx)
 
-	if !compareSlices(&gotArr, &expectedArr) {
+	if !testlib.CompareIntSlices(&gotArr, &expectedArr) {
 		t.Errorf("expected %v after insert ignore, got %v", expectedArr, gotArr)
 	}
-}
-
-// compareSlices - comparses two int slices
-func compareSlices(s1 *[]int, s2 *[]int) bool {
-	if len(*s1) != len(*s2) {
-		return false
-	}
-	for index, value := range *s1 {
-		if value != (*s2)[index] {
-			return false
-		}
-	}
-	return true
 }
 
 // getInts - gets all ints from database, sorted
