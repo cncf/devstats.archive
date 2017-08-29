@@ -8,19 +8,24 @@ import (
 )
 
 // IDBConn Connects to InfluxDB database
-func IDBConn(ctx *Ctx) (client.Client, client.BatchPoints) {
+func IDBConn(ctx *Ctx) client.Client {
 	con, err := client.NewHTTPClient(client.HTTPConfig{
 		Addr:     fmt.Sprintf("%s:%s", ctx.IDBHost, ctx.IDBPort),
 		Username: ctx.IDBUser,
 		Password: ctx.IDBPass,
 	})
 	FatalOnError(err)
+	return con
+}
+
+// IDBBatchPoints returns batch points for given connection and database from context
+func IDBBatchPoints(ctx *Ctx, con *client.Client) client.BatchPoints {
 	bp, err := client.NewBatchPoints(client.BatchPointsConfig{
 		Database:  ctx.IDBDB,
 		Precision: "h", // Was "s" - but GHA resolution is hours
 	})
 	FatalOnError(err)
-	return con, bp
+	return bp
 }
 
 // IDBNewPointWithErr - return InfluxDB Point
