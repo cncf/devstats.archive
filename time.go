@@ -151,15 +151,6 @@ func ToGHADate(dt time.Time) string {
 	return fmt.Sprintf("%04d-%02d-%02d-%d", dt.Year(), dt.Month(), dt.Day(), dt.Hour())
 }
 
-// ToSQLDate - return time formatted as YYYY-MM-DD HH24:MI:SS
-func ToSQLDate(dt time.Time) string {
-	return fmt.Sprintf(
-		"%04d-%02d-%02d %02d:%02d:%02d",
-		dt.Year(), dt.Month(), dt.Day(),
-		dt.Hour(), dt.Minute(), dt.Second(),
-	)
-}
-
 // ToYMDDate - return time formatted as YYYY-MM-DD
 func ToYMDDate(dt time.Time) string {
 	return fmt.Sprintf("%04d-%02d-%02d", dt.Year(), dt.Month(), dt.Day())
