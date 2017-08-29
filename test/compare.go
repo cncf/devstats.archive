@@ -2,7 +2,7 @@ package test
 
 import "sort"
 
-// CompareIntSlices - comparses two int slices
+// CompareIntSlices - compares two int slices
 func CompareIntSlices(s1 []int, s2 []int) bool {
 	if len(s1) != len(s2) {
 		return false
@@ -15,7 +15,7 @@ func CompareIntSlices(s1 []int, s2 []int) bool {
 	return true
 }
 
-// CompareStringSlices - comparses two string slices
+// CompareStringSlices - compares two string slices
 func CompareStringSlices(s1 []string, s2 []string) bool {
 	if len(s1) != len(s2) {
 		return false
@@ -28,13 +28,39 @@ func CompareStringSlices(s1 []string, s2 []string) bool {
 	return true
 }
 
-// CompareStringSlices2D - comparses two slices of string slices
+// CompareSlices - compares two any type slices
+func CompareSlices(s1 []interface{}, s2 []interface{}) bool {
+	if len(s1) != len(s2) {
+		return false
+	}
+	for index, value := range s1 {
+		if value != s2[index] {
+			return false
+		}
+	}
+	return true
+}
+
+// CompareStringSlices2D - compares two slices of string slices
 func CompareStringSlices2D(s1 [][]string, s2 [][]string) bool {
 	if len(s1) != len(s2) {
 		return false
 	}
 	for index, value := range s1 {
 		if !CompareStringSlices(value, s2[index]) {
+			return false
+		}
+	}
+	return true
+}
+
+// CompareSlices2D - compares two slices of any type slices
+func CompareSlices2D(s1 [][]interface{}, s2 [][]interface{}) bool {
+	if len(s1) != len(s2) {
+		return false
+	}
+	for index, value := range s1 {
+		if !CompareSlices(value, s2[index]) {
 			return false
 		}
 	}
