@@ -334,4 +334,3 @@ func getInts(c *sql.DB, ctx *lib.Ctx) []int {
 	lib.FatalOnError(rows.Err())
 	return arr
 }
-

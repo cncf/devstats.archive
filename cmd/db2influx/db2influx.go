@@ -38,8 +38,11 @@ func workerThread(ch chan bool, ctx *lib.Ctx, seriesNameOrFunc, sqlQuery, period
 	defer sqlc.Close()
 
 	// Connect to InfluxDB
-	ic, bp := lib.IDBConn(ctx)
+	ic := lib.IDBConn(ctx)
 	defer ic.Close()
+
+	// Get BatchPoints
+	bp := lib.IDBBatchPoints(ctx, &ic)
 
 	// Prepare SQL query
 	sFrom := lib.ToSQLDate(from)

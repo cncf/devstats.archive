@@ -36,7 +36,7 @@ func sync(args []string) {
 	defer con.Close()
 
 	// Connect to InfluxDB
-	ic, _ := lib.IDBConn(&ctx)
+	ic := lib.IDBConn(&ctx)
 	defer ic.Close()
 
 	// Get max event date from Postgres database
