@@ -1,4 +1,4 @@
-package gha2db_test
+package gha2db
 
 import (
 	"os"
