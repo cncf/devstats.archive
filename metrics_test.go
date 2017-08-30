@@ -24,6 +24,7 @@ type MetricTestCase struct {
 	metric   string
 	from     time.Time
 	to       time.Time
+	debugDB  bool // if set, test will not drop database at the end, so You can run metric manually via `runq` or directly on DB
 	expected [][]interface{}
 }
 
@@ -45,9 +46,21 @@ func TestMetrics(t *testing.T) {
 		{
 			setup:    setupReviewersMetric,
 			metric:   "reviewers",
-			from:     ft(2017, 6, 1),
+			from:     ft(2017, 6),
 			to:       ft(2017, 7, 12, 23),
 			expected: [][]interface{}{[]interface{}{3}},
+		},
+		{
+			setup:   setupSigMentionsMetric,
+			metric:  "sig_mentions",
+			from:    ft(2017, 7),
+			to:      ft(2017, 8),
+			debugDB: false,
+			expected: [][]interface{}{
+				[]interface{}{"sig-group-1", 3},
+				[]interface{}{"sig-group2", 2},
+				[]interface{}{"sig-a-b-c", 1},
+			},
 		},
 	}
 
@@ -90,10 +103,12 @@ func executeMetricTestCase(testMetric *MetricTestCase, ctx *lib.Ctx) (result [][
 	}
 
 	// Drop database after tests
-	defer func() {
-		// Drop database after tests
-		lib.DropDatabaseIfExists(ctx)
-	}()
+	if !testMetric.debugDB {
+		defer func() {
+			// Drop database after tests
+			lib.DropDatabaseIfExists(ctx)
+		}()
+	}
 
 	// Connect to Postgres DB
 	c := lib.PgConn(ctx)
@@ -227,6 +242,32 @@ func addText(con *sql.DB, ctx *lib.Ctx, args ...interface{}) (err error) {
 	return
 }
 
+// Create data for SIG mentions metric
+func setupSigMentionsMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
+	ft := testlib.YMDHMS
+
+	// texts to add
+	texts := [][]interface{}{
+		[]interface{}{1, `Hello @kubernetes/sig-group-1`, ft(2017, 7, 1)},
+		[]interface{}{2, `@kubernetes/sig-group-1-bugs, do you know about this bug?`, ft(2017, 7, 2)},
+		[]interface{}{3, `kubernetes/sig-group missing @ - not counted`, ft(2017, 7, 3)},
+		[]interface{}{4, `@kubernetes/sig-group-1- not included, group cannot end with -`, ft(2017, 7, 4)},
+		[]interface{}{5, `XYZ@kubernetes/sig-group-1 - not included, there must be white space or beggining of string before @`, ft(2017, 7, 5)},
+		[]interface{}{6, " \t@kubernetes/sig-group-1-feature-request: we should consider adding new bot... \n ", ft(2017, 7, 6)},
+	}
+
+	// Add texts
+	for _, text := range texts {
+		err = addText(con, ctx, text...)
+		if err != nil {
+			return
+		}
+	}
+
+	return
+}
+
+// Create data for reviewers metric
 func setupReviewersMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 	ft := testlib.YMDHMS
 
@@ -257,13 +298,13 @@ func setupReviewersMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 		[]interface{}{12, 12, 1, "LGTM", ft(2017, 8, 10)}, // Out of date range
 	}
 
-	// Texts to add
+	// texts to add
 	texts := [][]interface{}{
 		[]interface{}{3, "/lgtm", ft(2017, 7, 12)},
-		[]interface{}{4, " /LGTM ", ft(2017, 7, 13)},
-		[]interface{}{7, " /LGTM ", ft(2017, 7, 16)},
-		[]interface{}{8, "\t/LGtm\n", ft(2017, 7, 17)},
-		[]interface{}{11, "/LGTM with additional text", ft(2017, 7, 20)}, // additional text causes this line to be skipped
+		[]interface{}{4, " /lgtm ", ft(2017, 7, 13)},
+		[]interface{}{7, " /lgtm ", ft(2017, 7, 16)},
+		[]interface{}{8, "\t/lgtm\n", ft(2017, 7, 17)},
+		[]interface{}{11, "/lgtm with additional text", ft(2017, 7, 20)}, // additional text causes this line to be skipped
 	}
 
 	// Add events
