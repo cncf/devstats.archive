@@ -101,7 +101,7 @@ func sync(args []string) {
 		},
 		map[string]string{
 			"GHA2DB_SKIPTABLE": "1",
-			"GHA2DB_MGETC":     "1",
+			"GHA2DB_MGETC":     "y",
 		},
 	)
 
@@ -111,7 +111,7 @@ func sync(args []string) {
 
 	// DB2Influx
 	if !ctx.SkipIDB {
-		metricsDir := "psql_metrics"
+		metricsDir := "metrics"
 		// Regenerate points from this date
 		if ctx.ResetIDB {
 			from = ctx.DefaultStartDate

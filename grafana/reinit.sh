@@ -5,5 +5,5 @@ echo "Reinit all Grafana stuff"
 sleep 10
 ./grafana/influxdb_setup.sh || exit 3
 sleep 10
-./sync_ruby.sh || exit 4
+./sync.sh || exit 4
 echo "All OK"

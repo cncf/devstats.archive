@@ -15,7 +15,7 @@ import (
 
 // MetricTestCase - used to test single metric
 // setup is called to create database entries for metric to return results
-// metric - psql_metrics/{{metric}}.sql file is used to run metric, inside file {{from}} and {{to}} are replaced with from, to
+// metric - metrics/{{metric}}.sql file is used to run metric, inside file {{from}} and {{to}} are replaced with from, to
 // from, to - used as data range when calling metric
 // expected - we're expecting this result from metric, it can either be a single row with single column numeric value
 // or multiple rows, each containing metric name and its numeric value
@@ -155,11 +155,11 @@ func executeMetricTestCase(testMetric *MetricTestCase, ctx *lib.Ctx) (result [][
 	return
 }
 
-// execute metric psql_metrics/{{metric}}.sql with {{from}} and {{to}} replaced by from/YMDHMS, to/YMDHMS
+// execute metric metrics/{{metric}}.sql with {{from}} and {{to}} replaced by from/YMDHMS, to/YMDHMS
 // end result slice of slices of any type
 func executeMetric(c *sql.DB, ctx *lib.Ctx, metric string, from, to time.Time) (result [][]interface{}, err error) {
 	// Metric file name
-	sqlFile := fmt.Sprintf("psql_metrics/%s.sql", metric)
+	sqlFile := fmt.Sprintf("metrics/%s.sql", metric)
 
 	// Read and transform SQL file.
 	bytes, err := ioutil.ReadFile(sqlFile)

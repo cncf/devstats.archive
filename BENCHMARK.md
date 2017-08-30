@@ -1,6 +1,10 @@
 # Benchmarks
 
-Here are results of benchmarks:
+Please not that Ruby version was removed. It was slower, and Kubernetes community prefer tools written in go.
+
+Postgresql was fater than MySQL, so it was only supporte din dropped Ruby version. Go version uses Postgres.
+
+Here are historical results of benchmarks Go & Ruby tools:
 
 # gha2db tool benchmarks
 

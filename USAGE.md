@@ -1,50 +1,42 @@
-# GitHub Archives to PostgreSQL/MySQL
+# GitHub Archives to Postgres, InfluxDB, Grafana
 
 Author: Łukasz Gryglicki <lukaszgryglick@o2.pl>
 
-# Implemented in two languages
+# Implemented in two languages (history)
 
 This toolset was first implemented in Ruby with Postgres database.
 
-The MySQL support was added. MySQL proved to be slower and harder to use than Postgres.
+Then MySQL support was added.
 
-Entire toolset was rewritten in Go later.
+MySQL proved to be slower and harder to use than Postgres.
 
-Go version only support Postgres. Ruby version still supports both Postgres & MySQL.
+Entire toolset was rewritten in Go.
 
-When reading this file, please not that when I refer to MySQL and/or choosing type of database - this is only related to Ruby version.
+Go version only support Postgres, it proved to be a lot faster than Ruby version.
 
-Go version only support Postgres database.
+Finally Ruby version was dropped.
 
-This tools filters GitHub archive for given date period and given organization, repository and saves results in MySQL and/or Postgres database.
+This tools filters GitHub archive for given date period and given organization, repository and save results in a Postgres database.
 It can also save results into JSON files.
 It displays results using Grafana and InfluxDB time series database.
 
-# Shell scripts
-
-Some shell scripts are either Ruby or Go specific (their equivalents).
-
-- If script ends with `_ruby.sh` then it will call `Ruby` version.
-- If script ends with `_go.sh` then it will call `Go` version.
-
 # Compilation
 
-Only refers to Go version:
+Uses GNU `Makefile`:
 - `make check` - to apply gofmt and golint
 - `make` to compile binaries: `structure`, `gha2db`, `db2influx`, `sync`, `runq`.
 - `make install` - to install binaries
 - `make clean` - to clean binaries
-
-Go version uses commands subdirectories for executable files.
-
-So for example `db2influxb` command sources are in `./cmd/db2influx/db2influx.go`.
+- `make test` - to execute non-DB tests
+- `PG_DB=dbtest PG_PASS=pwd IDB_DB=dbtest IDB_PASS=pwd make dbtest`
 
 All `*.go` files in project root directory are common library `gha2db` for all go executables.
+All `*_test.go` and `test/*.go` are Go test files, that are used only for testing.
 
 # Usage:
 
-- Ruby version: `ENV_VARIABLES ./gha2db.rb YYYY-MM-DD HH YYYY-MM-DD HH [org [repo]]`
-- Go version: `make && ENV_VARIABLES ./gha2db YYYY-MM-DD HH YYYY-MM-DD HH [org [repo]]`
+- `make`
+- `ENV_VARIABLES ./gha2db YYYY-MM-DD HH YYYY-MM-DD HH [org [repo]]`
 
 First two parameters are date from:
 - YYYY-MM-DD
@@ -66,31 +58,25 @@ Org/Repo filtering:
 
 # Configuration
 
-You can tweak `gha2db.rb`/`gha2db` by:
-
-- Set `GHA2DB_PSQL` to use PostgreSQL output. Only related to Ruby version.
-- Set `GHA2DB_MYSQL` to use MySQL output. Only releted to Ruby version.
-- You need to set `GHA2DB_PSQL` or `GHA2DB_MYSQL` to use DB output (only for Ruby version, Go version support only Postgres).
+You can tweak `gha2db` tools:
 - Set `GHA2DB_ST` environment variable to run single threaded version.
 - Set `GHA2DB_JSON` to save single events JSONs in `jsons/` directory.
 - Set `GHA2DB_NODB` to skip DB processing at all (if `GHA2DB_JSON` not set it will parse all data from GHA, but do nothing with it).
 - Set `GHA2DB_DEBUG` set to 1 to see output for all events generated, set to 2 to see all SQL query parameters.
 - Set `GHA2DB_QOUT` to see all SQL queries.
 - Set `GHA2DB_MGETC` to "y" to assume "y" for get char function (for example to answer "y" to `structure.rb`/`structure`'s Continue? question).
-- Set `GHA2DB_CTXOUT` to display full environment context. Only related to Go version.
-- Set `GHA2DB_NCPUS` to positive numeric value, to override numbe rof CPUs to run, this overwrites `GHA2DB_ST`.. Only related to Go version.
-- Set `GHA2DB_STARTDT`, to use start date for processing events (when syncing data with empty database), default `2015-08-06 22:00 UTC`, expects format "YYYY-MM-DD HH:MI:SS". Only related to Go version.
-- Set `GHA2DB_LASTSERIES`, to specify which InfluxDB series use to determine newest data (it will be used to query newest timestamp), default `'all_prs_merged_d'`. Only related to Go version.
-- Set `GHA2DB_CMDDEBUG` set to 1 to see commands executed, set to 2 to see commands executed and their output, set to 3 to see full exec environment. Only related to Go version.
+- Set `GHA2DB_CTXOUT` to display full environment context.
+- Set `GHA2DB_NCPUS` to positive numeric value, to override number of CPUs to run, this overwrites `GHA2DB_ST`.
+- Set `GHA2DB_STARTDT`, to use start date for processing events (when syncing data with empty database), default `2015-08-06 22:00 UTC`, expects format "YYYY-MM-DD HH:MI:SS".
+- Set `GHA2DB_LASTSERIES`, to specify which InfluxDB series use to determine newest data (it will be used to query newest timestamp), default `'all_prs_merged_d'`.
+- Set `GHA2DB_CMDDEBUG` set to 1 to see commands executed, set to 2 to see commands executed and their output, set to 3 to see full exec environment.
 - Set `GHA2DB_EXPLAIN` for `runq` tool, it will prefix query with "explain " to display query plan instead of executing real query. Because metric can have multiple selects, and only main select should be replaced with "explain select" - we're replacing only downcased "select" statement followed by new line.
 
-Go version: All environment context details are defined in `context.go`, please see that file for details.
+All environment context details are defined in `context.go`, please see that file for details.
 
 Examples in this shell script (some commented out, some not):
 
-`time GHA2DB_MYSQL=1 MYSQL_PASS=your_pass ./gha2db_ruby.sh`
-`time GHA2DB_PSQL=1 PG_PASS=your_pass ./gha2db_ruby.sh`
-`time PG_PASS=your_pass ./gha2db_go.sh`
+`time PG_PASS=your_pass ./gha2db.sh`
 
 # Informations
 
@@ -132,29 +118,24 @@ Average seems to be from 15000 to 60000.
 - Takes: 10 minutes 50 seconds.
 - Generates 12002 JSONs in `jsons/` directory with summary size 165 Mb (each JSON is a single GitHub event).
 - To do so it processes about 21 Gb of data.
-- XZipped file: `results/k8s_5days_jsons.tar.xz`.
 
 2) Running this program 1 month of data with org `kubernetes` (and no repo set - which means all kubernetes repos).
 June 2017:
 - Takes: 61 minutes 26 seconds.
 - Generates 60773 JSONs in `jsons/` directory with summary size 815 Mb.
 - To do so it processes about 126 Gb of data.
-- XZipped file: `results/k8s_month_jsons.tar.xz`.
 
 3) Running this program 3 hours of data with no filters.
 2017-07-05 hours: 18, 19, 20:
 - Takes: 55 seconds.
 - Generates 168683 JSONs in `jsons/` directory with summary size 1.1 Gb.
 - To do so it processes about 126 Gb of data.
-- XZipped file: `results/all_3hours_jsons.tar.xz`.
 
 Taking all events from single day is 5 minutes 50 seconds (2017-07-28):
 - Generates 1194599 JSON files (1.2M)
 - Takes 7 Gb of disck space
 
-# Databases
-
-# PostgreSQL
+# PostgreSQL database
 
 1) Running on all 3 orgs `kubernetes,kubernetes-client,kubernetes-incubator` repos for June 2017 yields:
 - Takes: 61 minutes 52 seconds.
@@ -180,7 +161,6 @@ Taking all events from single day is 5 minutes 50 seconds (2017-07-28):
 - Creates 50 releases.
 - Creates 42 release - asset connections.
 - Creates 70 repos.
-- See `results/k8s_month_psql.sql.xz`
 
 2) Running for 3 days 25th, 26th, 27th July 2017 (without org/repo filers) yields:
 - Takes: 55 minutes 16 seconds.
@@ -206,7 +186,6 @@ Taking all events from single day is 5 minutes 50 seconds (2017-07-28):
 - Creates 17992 releases.
 - Creates 10682 release - asset connections.
 - Creates 670613 repos.
-- See <https://cncftest.io/web/all_3days_psql.sql.xz>
 
 3) Running on 3 Kubernetes orgs for 2017-01-01 - 2017-08-01:
 - Takes 7 hours 30 minutes.
@@ -237,38 +216,9 @@ Taking all events from single day is 5 minutes 50 seconds (2017-07-28):
 - Creates 490 releases.
 - Creates 259 release - asset connections.
 - Creates 87 repos.
-- See <https://cncftest.io/web/k8s_psql.sql.xz>
+- See <https://cncftest.io/web/k8s.sql.xz>
 
-# MySQL (only in Ruby version)
-1) Running on all Kubernetes org since real beginning (2015-08-06 22:00 UTC) until (2017-08-18 06:00 UTC):
-- Takes about 20 hours (MySQL is a lot slower than Postgres)
-- Database dump is 5.17 Gb, XZ compressed dump is 249 Mb
-- Note that those counts include historical changes to objects (for example single issue can have multiple entries with dirrent state on different events)
-- Creates 39222 actors.
-- Creates 262 assets.
-- Creates 506629 branches.
-- Creates 915225 comments.
-- Creates 96166 commits.
-- Creates 1178301 events.
-- Creates 522872 forkees.
-- Creates 792780 issues.
-- Creates 230748 issue - assignee connections.
-- Creates 2406121 issue - label connections.
-- Creates 1488 labels.
-- Creates 192904 milestones.
-- Creates 3 orgs.
-- Creates 793 pages.
-- Creates 1178300 payloads.
-- Creates 253357 pull requests.
-- Creates 73876 pull request - assignee connections.
-- Creates 11902 pull request - requested reviewer connections.
-- Creates 510 releases.
-- Creates 262 release - asset connections.
-- Creates 90 repos.
-- See <https://cncftest.io/web/k8s_mysql.sql.xz>
-
-# PostgreSQL database
-Setup:
+# PostgreSQL database setup
 
 Ubuntu like Linux:
 
@@ -279,17 +229,11 @@ Ubuntu like Linux:
 - create user gha_admin with password 'your_password_here';
 - grant all privileges on database "gha" to gha_admin;
 - alter user gha_admin createdb;
-
-Continue with Go:
 - go get github.com/lib/pq
 - PG_PASS='pwd' ./structure
 - psql gha
 
-Continue with Ruby:
-- GHA2DB_PSQL=1 PG_PASS='pwd' ./structure.rb
-- psql gha
-
-`structure.rb`/`structure` script is used to create Postgres database schema.
+`structure` script is used to create Postgres database schema.
 It gets connection details from environmental variables and falls back to some defaults.
 
 Defaults are:
@@ -303,104 +247,18 @@ Defaults are:
 - If You want to skip creating DB tools (like views and functions), use `GHA2DB_SKIPTOOLS` environment variable.
 
 Recommended run is to create structure without indexes first (the default), then get data from GHA and populate array, and finally add indexes. To do do:
-
-Ruby with MySQL:
-- `time GHA2DB_MYSQL=1 MYSQL_PASS=your_password ./structure.rb`
-- `time GHA2DB_MYSQL=1 MYSQL_PASS=your_password ./gha2db_ruby.sh`
-- `time GHA2DB_MYSQL=1 GHA2DB_SKIPTABLE=1 GHA2DB_INDEX=1 MYSQL_PASS=your_password ./structure.rb` (will take some time to generate indexes on populated database)
-
-Ruby with Postgres:
-- `time GHA2DB_PSQL=1 PG_PASS=your_password ./structure.rb`
-- `time GHA2DB_PSQL=1 PG_PASS=your_password ./gha2db_ruby.sh`
-- `time GHA2DB_PSQL=1 GHA2DB_SKIPTABLE=1 GHA2DB_INDEX=1 PG_PASS=your_password ./structure.rb` (will take some time to generate indexes on populated database)
-
-Go:
 - `time PG_PASS=your_password ./structure`
-- `time PG_PASS=your_password ./gha2db_go.sh`
+- `time PG_PASS=your_password ./gha2db.sh`
 - `time GHA2DB_SKIPTABLE=1 GHA2DB_INDEX=1 PG_PASS=your_password ./structure` (will take some time to generate indexes on populated database)
 
 Typical internal usage:
-`time GHA2DB_PSQL=1 GHA2DB_INDEX=1 PG_PASS=your_password ./structure.rb`
-`time GHA2DB_MYSQL=1 GHA2DB_INDEX=1 MYSQL_PASS=your_password ./structure.rb`
 `time GHA2DB_INDEX=1 PG_PASS=your_password ./structure`
 
-Alternatively You can use `structure_psql.sql` to create database structure.
-
-# MySQL database (only Ruby version)
-
-Ubuntu like Linux:
-
-- sudo apt-get install mysql-server
-- sudo mysql_secure_installation
-- You will need `lib_mysqludf_pcre` to support PCRE REGEXPs (1)
-- Update mysql config to use UTF8MB4, see below (2)
-- mysql -uusername -ppassword
-- create database gha character set utf8mb4 collate utf8mb4_unicode_ci;
-- create user 'gha_admin'@'localhost' identified by 'your_password_here';
-- grant all privileges on gha.* to 'gha_admin'@'localhost';
-- flush privileges;
-- GHA2DB_MYSQL=1 MYSQL_PASS='pwd' ./structure.rb
-- mysql -uusername -ppassword gha
-
-`structure.rb` script is used to create MySQL database schema.
-It gets connection details from environmental variables and falls back to some defaults.
-
-Defaults are:
-- Database host: environment variable MYSQL_HOST or `localhost`
-- Database port: MYSQL_PORT or 3306
-- Database name: MYSQL_DB or 'gha'
-- Database user: MYSQL_USER or 'gha_admin'
-- Database password: MYSQL_PASS || 'password'
-- If You want it to generate database indexes set `GHA2DB_INDEX` environment variable
-- If You want to skip table creations set `GHA2DB_SKIPTABLE` environment variable (when `GHA2DB_INDEX` also set, it will create indexes on already existing table structure, possibly already populated)
-- If You want to skip creating DB tools (like views and functions), use `GHA2DB_SKIPTOOLS` environment variable.
-
-Recommended run is to create structure without indexes first (the default), then get data from GHA and populate array, and finally add indexes. To do do:
-- `time GHA2DB_MYSQL=1 MYSQL_PASS=your_password ./structure.rb`
-- `time GHA2DB_MYSQL=1 MYSQL_PASS=your_password ./gha2db.sh`
-- `time GHA2DB_MYSQL=1 GHA2DB_SKIPTABLE=1 GHA2DB_INDEX=1 MYSQL_PASS=your_password ./structure.rb` (will take some time to generate indexes on populated database)
-
-Typical internal usage:
-`time GHA2DB_MYSQL=1 GHA2DB_INDEX=1 MYSQL_PASS=your_password ./structure.rb`
-
-Alternatively You can use `structure_mysql.sql` to create database structure.
-
-(1) Install `lib_mysqludf_pcre`:
-
-You need this because MySQL has no native REGEXP extraction functions, and built in MySQL's `regexp` is terribly slow (and it can only return 0/1 for regexp matching).
-- apt-get install libpcre3-dev
-- git clone https://github.com/mysqludf/lib_mysqludf_preg.git
-- cd lib_mysqludf_preg
-- ./configure
-- You may need to run `touch aclocal.m4 configure Makefile.*` before next step due to aclocal strange errors.
-- make
-- make install
-- make MYSQL="mysql -p" installdb
-
-(2) Update MySQL to use UTF8MB4:
-
-This is needed because there are a lot of full UTF8 texts in GHA archives and starndard MySQL's `utf8` is not fully compatible with UTF8 standard.
-- Locate Your MySQL config file (usually in `/etc/mysql/my.cnf`
-- Make sure You have those options:
-```
-[client]
-default-character-set = utf8mb4
-
-[mysql]
-default-character-set = utf8mb4
-
-[mysqld]
-character-set-client-handshake = FALSE
-character-set-server = utf8mb4
-collation-server = utf8mb4_unicode_ci
-```
-- Restart mysql service: `service mysql restart`
-- See if You have correct variables: `show variables where Variable_name like 'character\_set\_%' or Variable_name like 'collation%';`
-- For detailed description see <https://mathiasbynens.be/notes/mysql-utf8mb4>
+Alternatively You can use `structure.sql` to create database structure.
 
 # Database structure
 
-You can see database structure in `structure`/`structure.rb`, `structure_psql.sql`, `structure_mysql.sql`.
+You can see database structure in `structure.go`/`structure.sql`.
 
 Main idea is that we divide tables into 2 groups:
 - const: meaning that data in this table is not changing in time (is saved once)
@@ -436,18 +294,11 @@ Postgres:
 - update ...
 - alter table table_name alter column col_name set not null;
 
-MySQL:
-- alter table table_name add col_name col_def;
-- update ...
-- alter table table_name modify col_name col_def not null;
+# JSON examples
 
-# JSON structure analysis tool
-There is also an internal tool: `analysis.rb`/`analysis.sh` to figure out how to create tables for gha.
-But this is only useful while developing this tool.
+There are examples of all kinds of GHA events JSONs in `./example_jsons` directory.
+There is also a file `example_jsons/analysis.txt` that describes JSON structure analysis.
 
-This is only in Ruby, no Go version was created, because it is not more needed.
-
-This tool can generate all possible distinct structures of any key at any depth, to see possible veriants of this key.
 It was used very intensively during development of SQL table structure.
 
 # Running on Kubernetes
@@ -455,28 +306,26 @@ It was used very intensively during development of SQL table structure.
 Kubernetes consists of 3 different orgs, so to gather data for Kubernetes You need to provide them comma separated.
 
 For example June 2017:
-
-`time GHA2DB_MYSQL=1 MYSQL_PASS=pwd ./gha2db.rb 2017-06-01 0 2017-07-01 0 'kubernetes,kubernetes-incubator,kubernetes-client'`
-`time PG_PASS=pwd ./gha2db 2017-06-01 0 2017-07-01 0 'kubernetes,kubernetes-incubator,kubernetes-client'`
+- `time PG_PASS=pwd ./gha2db 2017-06-01 0 2017-07-01 0 'kubernetes,kubernetes-incubator,kubernetes-client'`
 
 # Metrics tool
-There is also a tool `runq.rb`/`runq`. It is used to compute metrics saved in `sql` files.
+There is a tool `runq`. It is used to compute metrics saved in `*.sql` files.
+Please be careful when creating metric files, that needs to support `explain` mode (please see `GHA2DB_EXPLAIN` environment variable description):
 
-Example metrics are in `./psql_metrics/` and `./mysql_metrics/` directories.
-They're usually different for different databases (they're complex SQL's that uses DB specific REGEXP processing etc)
+Because metric can have multiple selects, and only main select should be replaced with "explain select" - we're replacing only lower case "select" statement followed by new line.
+Exact match "select\n". Please see `metrics/reviewers.sql` to see how it works.
 
-This tool takes single parameter - sql file name.
+Example metrics are in `./metrics/` directory.
+
+This tool takes at least one parameter - sql file name.
 
 Typical usages:
-- `time GHA2DB_PSQL=1 PG_PASS='password' ./runq.rb psql_metrics/metric.sql`
-- `time GHA2DB_MYSQL=1 MYSQL_PASS='password' ./runq.rb mysql_metrics/metric.sql`
-- `time PG_PASS='password' ./runq psql_metrics/metric.sql`
+- `time PG_PASS='password' ./runq metrics/metric.sql`
 
-Some SQL files require parameter substitution (like all metrics used by Grafana).
+Some SQLis files require parameter substitution (like all metrics used by Grafana).
 
 They usually have `'{{from}}'` and `'{{to}}'` parameters, to run such files do:
-- `time GHA2DB_MYSQL=1 MYSQL_PASS='password' ./runq.rb mysql_metrics/metric.sql '{{from}}' 'YYYY-MM-DD HH:MM:SS' '{{to}}' 'YYYY-MM-DD HH:MM:SS'`
-- `time PG_PASS='password' ./runq psql_metrics/metric.sql '{{from}}' 'YYYY-MM-DD HH:MM:SS' '{{to}}' 'YYYY-MM-DD HH:MM:SS'`
+- `time PG_PASS='password' ./runq metrics/metric.sql '{{from}}' 'YYYY-MM-DD HH:MM:SS' '{{to}}' 'YYYY-MM-DD HH:MM:SS'`
 
 You can also change any other value, just note that parameters after SQL file name are pairs: (`value_to_replace`, `replacement`).
 
@@ -484,10 +333,10 @@ You can also change any other value, just note that parameters after SQL file na
 
 For last GitHub archive date 2017-08-03 13:00 UTC:
 
-1) SIG mentions (all of them takes <30 seconds, `time PG_PASS='pwd' ./runq.rb sql/sig_mentions_*.sql`):
+1) SIG mentions (all of them takes <30 seconds, `time PG_PASS='pwd' ./runq sql/sig_mentions_*.sql`):
 - All Time:
 ```
-time GHA2DB_PSQL=1 PG_PASS='pwd' ./runq.rb psql_metrics/sig_mentions_all_time.sql
+time PG_PASS='pwd' ./runq metrics/sig_mentions_all_time.sql
 /--------------------------+--------------\
 |sig                       |count_all_time|
 +--------------------------+--------------+
@@ -589,10 +438,10 @@ sys 0m0.044s
 |sig-service-catalog       |1              |
 ```
 
-2) Number of reviewers. Definded as number of authors adding `/lgtm` in comment or adding `lgtm` label (all of them takes <30 seconds, `time GHA2DB_PSQL=1 PG_PASS='pwd' ./runq.rb sql/reviewers_*.sql`):
+2) Number of reviewers. Definded as number of authors adding `/lgtm` in comment or adding `lgtm` label (all of them takes <30 seconds, `time PG_PASS='pwd' ./runq sql/reviewers_*.sql`):
 - All Time: 506
 ```
-2017-08-03 13:49:33 root@cncftest:/home/justa/dev/cncf/gha2db# time GHA2DB_PSQL=1 PG_PASS='pwd' ./runq.rb psql_metrics/reviewers_all_time.sql
+2017-08-03 13:49:33 root@cncftest:/home/justa/dev/cncf/gha2db# time PG_PASS='pwd' ./runq metrics/reviewers_all_time.sql
 /-----\
 |count|
 +-----+
@@ -604,7 +453,7 @@ Rows: 1
 - Last month: 224
 - Last week: 143
 
-3) List reviewers (`time GHA2DB_PSQL=1 PG_PASS='pwd' ./runq.rb sql/list_*_reviewers.sql`):
+3) List reviewers (`time PG_PASS='pwd' ./runq sql/list_*_reviewers.sql`):
 - Takes <30s for all time, generates long list (not pasted here)
 
 # Update/Sync tool
@@ -612,21 +461,18 @@ Rows: 1
 When You have imported all data You need - it needs to be updated periodically.
 GitHub archive generates new file every hour.
 
-Use `sync`/`sync.rb` and/or `sync_go.sh`/`sync_ruby.sh`` tools to update all Your data.
+Use `sync` and/or `sync.sh` tools to update all Your data.
 
 Example call:
-- `GHA2DB_MYSQL=1 MYSQL_PASS='pwd' IDB_PASS='pwd' ./sync_ruby.sh`
-- `GHA2DB_PSQL=1 PG_PASS='pwd' IDB_PASS='pwd' ./sync_ruby.sh`
-- `PG_PASS='pwd' IDB_PASS='pwd' ./sync_go.sh`
+- `PG_PASS='pwd' IDB_PASS='pwd' ./sync.sh`
 - Add `GHA2DB_RESETIDB` environment variable to rebuild InfluxDB stats instead of update since last run
-- Add `GHA2DB_SKIPIDB` environment variable to skip syncing InfluxDB (so it will only sync Postgres or MySQL)
+- Add `GHA2DB_SKIPIDB` environment variable to skip syncing InfluxDB (so it will only sync Postgres DB)
 
-`sync_go.sh`/`sync_ruby.sh`/`sync.rb`/`sync` tool should be called by some kind of cron job to auto-update metrics every hour.
+`sync.sh`/`sync` tool should be called by some kind of cron job to auto-update metrics every hour.
 
 For now there is a manual script that can be used to loop sync every defined numeber of seconds, for example for sync every 30 minutes:
 
-- `GHA2DB_MYSQL=1 MYSQL_PASS='pwd' IDB_PASS='pwd' ./syncer_ruby.sh 1800`
-- `PG_PASS='pwd' IDB_PASS='pwd' ./syncer_go.sh 1800`
+- `PG_PASS='pwd' IDB_PASS='pwd' ./syncer.sh 1800`
 
 # Grafana output
 
@@ -641,42 +487,35 @@ You can visualise data using Grafana, see `./grafana/` directory:
 
 # Install & configure InfluxDB:
 - Install InfluxDB locally via `apt-get install influxdb`
-- Start InfluxDB using `INFLUXDB_PASS='password' ./grafana/influxdb_setup.sh`.
-- Feed InfluxDB from Ruby/Postgres: `GHA2DB_PSQL=1 GHA2DB_RESETIDB=1 PG_PASS='pwd' IDB_PASS='pwd' ./sync_ruby.sh`
-- Or Feed InfluxDB from Ruby/MySQL: `GHA2DB_MYSQL=1 GHA2DB_RESETIDB=1 MYSQL_PASS='pwd' IDB_PASS='pwd' ./sync_ruby.sh`
-- Or Feed InfluxDB from Go/Postgres: `GHA2DB_RESETIDB=1 PG_PASS='pwd' IDB_PASS='pwd' ./sync_go.sh`
+- Start InfluxDB using `IDB_PASS='password' ./grafana/influxdb_setup.sh`.
+- Or Feed InfluxDB: `GHA2DB_RESETIDB=1 PG_PASS='pwd' IDB_PASS='pwd' ./sync.sh`
 - Output will be at: <https://cncftest.io>, for example: <https://cncftest.io/dashboard/db/reviewers?orgId=1>
 
 # To drop & recreate InfluxDB:
-- `INFLUXDB_PASS='idb_password' ./grafana/influxdb_recreate.sh`
+- `IDB_PASS='idb_password' ./grafana/influxdb_recreate.sh`
+- `GHA2DB_RESETIDB=1 PG_PASS='pwd' IDB_PASS='pwd' ./sync.sh`
+- Then eventually start syncer: `PG_PASS='pwd' IDB_PASS='pwd' ./syncer.sh 1800`
 
-Ruby with MySQL:
-- `GHA2DB_RESETIDB=1 GHA2DB_MYSQL=1 MYSQL_PASS='pwd' IDB_PASS='pwd' ./sync_ruby.sh`
-- Then eventually start syncer: `GHA2DB_MYSQL=1 MYSQL_PASS='pwd' IDB_PASS='pwd' ./syncer_ruby.sh 1800`
-
-Go with Postgres:
-- `GHA2DB_RESETIDB=1 PG_PASS='pwd' IDB_PASS='pwd' ./sync_go.sh`
-- Then eventually start syncer: `PG_PASS='pwd' IDB_PASS='pwd' ./syncer_go.sh 1800`
+Or automatically: drop & create Influx DB, update Postgres DB since last run, full populate InfluxDB, start syncer every 30 minutes:
+- `IDB_PASS=pwd PG_PASS=pwd ./reinit_all.sh`
 
 # Alternate solution with Docker:
 - Start Grafana using `GRAFANA_PASS='password' grafana/grafana_start.sh` to install Grafana & InfluxDB as docker containers (this requires Docker).
-- Start InfluxDB using `INFLUXDB_PASS='password' ./grafana/influxdb_setup.sh`, this requires Docker & previous command succesfully executed.
+- Start InfluxDB using `IDB_PASS='password' ./grafana/influxdb_setup.sh`, this requires Docker & previous command succesfully executed.
 - To cleanup Docker Grafana image and start from scratch use `./grafana/docker_cleanup.sh`. This will not delete Your grafana config because it is stored in local volume `/var/lib/grafana`.
-- To recreate all Docker Grafana/InfluxDB stuff from scratch do: `GRAFANA_PASS='' INFLUXDB_PASS='' GHA2DB_PSQL=1 GHA2DB_RESETIDB=1 PG_PASS='' IDB_PASS='' ./grafana/reinit.sh`
+- To recreate all Docker Grafana/InfluxDB stuff from scratch do: `GRAFANA_PASS='' IDB_PASS='' GHA2DB_RESETIDB=1 PG_PASS='' IDB_PASS='' ./grafana/reinit.sh`
 
 # Feeding InfluxDB & Grafana:
 
 Feed InfluxDB using:
-- `GHA2DB_PSQL=1 PG_PASS='psql_pwd' IDB_PASS='influxdb_pwd' ./db2influx.rb reviewers_w psql_metrics/reviewers.sql '2015-08-03' '2017-08-21' w`
-- `GHA2DB_MYSQL=1 MYSQL_PASS='mysql_pwd' IDB_PASS='influxdb_pwd' ./db2influx.rb sig_metions_data mysql_metrics/sig_mentions.sql '2017-08-14' '2017-08-21' d`
-- `PG_PASS='psql_pwd' IDB_PASS='influxdb_pwd' ./db2influx sig_metions_data psql_metrics/sig_mentions.sql '2017-08-14' '2017-08-21' d`
+- `PG_PASS='psql_pwd' IDB_PASS='influxdb_pwd' ./db2influx sig_metions_data metrics/sig_mentions.sql '2017-08-14' '2017-08-21' d`
 - First parameter is used as exact series name when metrics query returns single row with single column value.
 - First parameter is used as function name when metrics query return mutiple rows, each with two columns. This function receives data row and period name and should return series name and value.
 - Second parameter is a metrics SQL file, it should contain time conditions defined as `'{{from}}'` and `'{{to}}'`.
 - Next two parameters are date ranges.
-- Last parameter can be d, w, m, y (day, week, month, year).
-- This tool uses environmental variables starting with `IDB_`, please see `idb_conn.rb`/`idb_conn.go` and `db2influx.rb`/`cmd/db2influx/db2influx.go` for details.
-- `IDB_` variables are exactly the same as `PG_` and `MYSQL_` to set host, databaxe, user name, password.
+- Last parameter can be h, d, w, m, q, y (hour, day, week, month, quarter, year).
+- This tool uses environmental variables starting with `IDB_`, please see `context.go`, `idb_conn.go` and `cmd/db2influx/db2influx.go` for details.
+- `IDB_` variables are exactly the same as `PG_` to set host, databaxe, user name, password.
 
 # To check results in the InfluxDB:
 - influx
@@ -731,9 +570,11 @@ org_role = Viewer
 - `service grafana-server restart`
 
 # Benchmarks
+Benchmarks were executed on historical Ruby version and current Go verion.
 
 Please see [Benchmarks](https://github.com/cncf/gha2db/blob/master/BENCHMARK.md)
 
 # Testing
 
 Please see [Tests](https://github.com/cncf/gha2db/blob/master/TESTING.md)
+
