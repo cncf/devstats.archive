@@ -62,7 +62,7 @@ Org/Repo filtering:
 
 You can tweak `gha2db` tools:
 - Set `GHA2DB_ST` environment variable to run single threaded version.
-- Set `GHA2DB_JSON` to save single events JSONs in `jsons/` directory.
+- Set `GHA2DB_JSON` to save single events JSONs in [jsons/](https://github.com/cncf/gha2db/blob/master/jsons/) directory.
 - Set `GHA2DB_NODB` to skip DB processing at all (if `GHA2DB_JSON` not set it will parse all data from GHA, but do nothing with it).
 - Set `GHA2DB_DEBUG` set to 1 to see output for all events generated, set to 2 to see all SQL query parameters.
 - Set `GHA2DB_QOUT` to see all SQL queries.
@@ -74,7 +74,7 @@ You can tweak `gha2db` tools:
 - Set `GHA2DB_CMDDEBUG` set to 1 to see commands executed, set to 2 to see commands executed and their output, set to 3 to see full exec environment.
 - Set `GHA2DB_EXPLAIN` for `runq` tool, it will prefix query select(s) with "explain " to display query plan instead of executing real query. Because metric can have multiple selects, and only main select should be replaced with "explain select" - we're replacing only downcased "select" statement followed by new line ("select\n" --> "explain select\n")
 
-All environment context details are defined in `context.go`, please see that file for details (Yu can also see how it works in `context_test.go`).
+All environment context details are defined in [context.go](https://github.com/cncf/gha2db/blob/master/context.go), please see that file for details (Yu can also see how it works in [context_test.go](https://github.com/cncf/gha2db/blob/master/context_test.go)).
 
 Examples in this shell script (some commented out, some not):
 
