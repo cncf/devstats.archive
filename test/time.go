@@ -1,6 +1,10 @@
 package test
 
-import "time"
+import (
+	"fmt"
+	"os"
+	"time"
+)
 
 // YMDHMS - return time defined by args
 func YMDHMS(in ...int) time.Time {
@@ -25,7 +29,7 @@ func YMDHMS(in ...int) time.Time {
 	if l >= 6 {
 		s = in[5]
 	}
-	return time.Date(
+	t := time.Date(
 		in[0],
 		time.Month(m),
 		d,
@@ -35,4 +39,9 @@ func YMDHMS(in ...int) time.Time {
 		0,
 		time.UTC,
 	)
+	if t.Year() != in[0] || t.Month() != time.Month(m) || t.Day() != d || t.Hour() != h || t.Minute() != mi || t.Second() != s {
+		fmt.Printf("Expected to set date from %v, got %v\n", in, t)
+		os.Exit(1)
+	}
+	return t
 }
