@@ -163,11 +163,11 @@ Here are already working dashboards using this repo.
 
 Each dashboard is defined by its metrics SQL, saved Grafana JSON export and link to dashboard running on <https://cncftest.io>
 
-1) Reviewers dashboard: [reviewers.sql](https://github.com/cncf/gha2db/blob/master/metrics/reviewers.sql), [reviewers.json](https://github.com/cncf/gha2db/blob/master/grafana/dashboards/reviewers.json), [Reviewers](https://cncftest.io/dashboard/db/reviewers?orgId=1).
-2) SIG mentions dashboard: [sig_metntions.sql](https://github.com/cncf/gha2db/blob/master/metrics/sig_mentions.sql), [sig_metntions.json](https://github.com/cncf/gha2db/blob/master/grafana/dashboards/sig_mentions.json), [SIG mentions](https://cncftest.io/dashboard/db/sig-mentions?orgId=1).
-3) Number of PRs merged in all Kubernetes repos [all_prs_merged.sql](https://github.com/cncf/gha2db/blob/master/metrics/all_prs_merged.sql), [all_prs_merged.json](https://github.com/cncf/gha2db/blob/master/grafana/dashboards/all_prs_merged.json), [PRs merged in all repos](https://cncftest.io/dashboard/db/all-prs-merged?orgId=1).
-4) Number of PRs merged per repository [prs_merged.sql](https://github.com/cncf/gha2db/blob/master/metrics/prs_merged.sql), [prs_merged.json](https://github.com/cncf/gha2db/blob/master/grafana/dashboards/prs_merged.json), [PRs merged per repo](https://cncftest.io/dashboard/db/prs-merged?orgId=1).
-5) Average time from PR open to merge [opened_to_merged.sql.json](https://github.com/cncf/gha2db/blob/master/metrics/opened_to_merged.sql), [time_to_merge.json](https://github.com/cncf/gha2db/blob/master/grafana/dashboards/time_to_merge.json), [Time to merge](https://cncftest.io/dashboard/db/time-to-merge?orgId=1).
+1) Reviewers dashboard: [reviewers.sql](https://github.com/cncf/gha2db/blob/master/metrics/reviewers.sql), [reviewers.json](https://github.com/cncf/gha2db/blob/master/grafana/dashboards/reviewers.json), [view](https://cncftest.io/dashboard/db/reviewers?orgId=1).
+2) SIG mentions dashboard: [sig_mentions.sql](https://github.com/cncf/gha2db/blob/master/metrics/sig_mentions.sql), [sig_mentions.json](https://github.com/cncf/gha2db/blob/master/grafana/dashboards/sig_mentions.json), [view](https://cncftest.io/dashboard/db/sig-mentions?orgId=1).
+3) Number of PRs merged in all Kubernetes repos [all_prs_merged.sql](https://github.com/cncf/gha2db/blob/master/metrics/all_prs_merged.sql), [all_prs_merged.json](https://github.com/cncf/gha2db/blob/master/grafana/dashboards/all_prs_merged.json), [view](https://cncftest.io/dashboard/db/all-prs-merged?orgId=1).
+4) Number of PRs merged per repository [prs_merged.sql](https://github.com/cncf/gha2db/blob/master/metrics/prs_merged.sql), [prs_merged.json](https://github.com/cncf/gha2db/blob/master/grafana/dashboards/prs_merged.json), [view](https://cncftest.io/dashboard/db/prs-merged?orgId=1).
+5) Average time from PR open to merge [opened_to_merged.sql.json](https://github.com/cncf/gha2db/blob/master/metrics/opened_to_merged.sql), [time_to_merge.json](https://github.com/cncf/gha2db/blob/master/grafana/dashboards/time_to_merge.json), [view](https://cncftest.io/dashboard/db/time-to-merge?orgId=1).
 
 All of them works live on [cncftest.io](https://cncftest.io) with auto sync tool running.
 
