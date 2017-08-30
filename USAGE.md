@@ -16,7 +16,7 @@ Go version only support Postgres, it proved to be a lot faster than Ruby version
 
 Finally Ruby version was dropped.
 
-This tools filters GitHub archive for given date period and given organization, repository and save results in a Postgres database.
+This tools filter GitHub archive for given date period and given organization, repository and save results in a Postgres database.
 It can also save results into JSON files.
 It displays results using Grafana and InfluxDB time series database.
 
@@ -24,7 +24,7 @@ It displays results using Grafana and InfluxDB time series database.
 
 Uses GNU `Makefile`:
 - `make check` - to apply gofmt and golint
-- `make` to compile binaries: `structure`, `gha2db`, `db2influx`, `sync`, `runq`.
+- `make` to compile static binaries: `structure`, `gha2db`, `db2influx`, `sync`, `runq`.
 - `make install` - to install binaries
 - `make clean` - to clean binaries
 - `make test` - to execute non-DB tests
@@ -37,6 +37,8 @@ All `*_test.go` and `test/*.go` are Go test files, that are used only for testin
 
 - `make`
 - `ENV_VARIABLES ./gha2db YYYY-MM-DD HH YYYY-MM-DD HH [org [repo]]`
+
+You can use already populated Postgres dump: [Kubernetes Psql dump](https://cncftest.io/web/k8s.sql.xz)
 
 First two parameters are date from:
 - YYYY-MM-DD
@@ -64,15 +66,15 @@ You can tweak `gha2db` tools:
 - Set `GHA2DB_NODB` to skip DB processing at all (if `GHA2DB_JSON` not set it will parse all data from GHA, but do nothing with it).
 - Set `GHA2DB_DEBUG` set to 1 to see output for all events generated, set to 2 to see all SQL query parameters.
 - Set `GHA2DB_QOUT` to see all SQL queries.
-- Set `GHA2DB_MGETC` to "y" to assume "y" for get char function (for example to answer "y" to `structure.rb`/`structure`'s Continue? question).
+- Set `GHA2DB_MGETC` to "y" to assume "y" for get char function (for example to answer "y" to `structure`'s Continue? question).
 - Set `GHA2DB_CTXOUT` to display full environment context.
 - Set `GHA2DB_NCPUS` to positive numeric value, to override number of CPUs to run, this overwrites `GHA2DB_ST`.
 - Set `GHA2DB_STARTDT`, to use start date for processing events (when syncing data with empty database), default `2015-08-06 22:00 UTC`, expects format "YYYY-MM-DD HH:MI:SS".
 - Set `GHA2DB_LASTSERIES`, to specify which InfluxDB series use to determine newest data (it will be used to query newest timestamp), default `'all_prs_merged_d'`.
 - Set `GHA2DB_CMDDEBUG` set to 1 to see commands executed, set to 2 to see commands executed and their output, set to 3 to see full exec environment.
-- Set `GHA2DB_EXPLAIN` for `runq` tool, it will prefix query with "explain " to display query plan instead of executing real query. Because metric can have multiple selects, and only main select should be replaced with "explain select" - we're replacing only downcased "select" statement followed by new line.
+- Set `GHA2DB_EXPLAIN` for `runq` tool, it will prefix query select(s) with "explain " to display query plan instead of executing real query. Because metric can have multiple selects, and only main select should be replaced with "explain select" - we're replacing only downcased "select" statement followed by new line ("select\n" --> "explain select\n")
 
-All environment context details are defined in `context.go`, please see that file for details.
+All environment context details are defined in `context.go`, please see that file for details (Yu can also see how it works in `context_test.go`).
 
 Examples in this shell script (some commented out, some not):
 
@@ -256,6 +258,8 @@ Typical internal usage:
 
 Alternatively You can use `structure.sql` to create database structure.
 
+You can also use already populated Postgres dump: [Kubernetes Psql dump](https://cncftest.io/web/k8s.sql.xz)
+
 # Database structure
 
 You can see database structure in `structure.go`/`structure.sql`.
@@ -289,7 +293,6 @@ List of tables:
 
 # Adding columns to existing database
 
-Postgres:
 - alter table table_name add col_name col_def;
 - update ...
 - alter table table_name alter column col_name set not null;
@@ -313,7 +316,7 @@ There is a tool `runq`. It is used to compute metrics saved in `*.sql` files.
 Please be careful when creating metric files, that needs to support `explain` mode (please see `GHA2DB_EXPLAIN` environment variable description):
 
 Because metric can have multiple selects, and only main select should be replaced with "explain select" - we're replacing only lower case "select" statement followed by new line.
-Exact match "select\n". Please see `metrics/reviewers.sql` to see how it works.
+Exact match "select\n". Please see [metrics/reviewers.sql](https://github.com/cncf/gha2db/blob/master/metrics/reviewers.sql) to see how it works.
 
 Example metrics are in `./metrics/` directory.
 
