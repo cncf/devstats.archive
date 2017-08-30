@@ -260,7 +260,7 @@ You can also use already populated Postgres dump: [Kubernetes Psql dump](https:/
 
 # Database structure
 
-You can see database structure in `structure.go`/`structure.sql`.
+You can see database structure in [structure.go](https://github.com/cncf/gha2db/blob/master/structure.go)/[structure.sql](https://github.com/cncf/gha2db/blob/master/structure.sql).
 
 Main idea is that we divide tables into 2 groups:
 - const: meaning that data in this table is not changing in time (is saved once)
@@ -297,8 +297,8 @@ List of tables:
 
 # JSON examples
 
-There are examples of all kinds of GHA events JSONs in `./example_jsons` directory.
-There is also a file `example_jsons/analysis.txt` that describes JSON structure analysis.
+There are examples of all kinds of GHA events JSONs in [./example_jsons](https://github.com/cncf/gha2db/blob/master/example_jsons/) directory.
+There is also a file [example_jsons/analysis.txt](https://github.com/cncf/gha2db/blob/master/example_jsons/analysis.txt) that describes JSON structure analysis.
 
 It was used very intensively during development of SQL table structure.
 
@@ -316,7 +316,7 @@ Please be careful when creating metric files, that needs to support `explain` mo
 Because metric can have multiple selects, and only main select should be replaced with "explain select" - we're replacing only lower case "select" statement followed by new line.
 Exact match "select\n". Please see [metrics/reviewers.sql](https://github.com/cncf/gha2db/blob/master/metrics/reviewers.sql) to see how it works.
 
-Example metrics are in `./metrics/` directory.
+Metrics are in [./metrics/](https://github.com/cncf/gha2db/blob/master/metrics/) directory.
 
 This tool takes at least one parameter - sql file name.
 
@@ -477,7 +477,7 @@ For now there is a manual script that can be used to loop sync every defined num
 
 # Grafana output
 
-You can visualise data using Grafana, see `./grafana/` directory:
+You can visualise data using Grafana, see [grafana/](https://github.com/cncf/gha2db/blob/master/grafana/) directory:
 
 # Install Grafana using:
 - Follow: http://docs.grafana.org/installation/debian/
@@ -533,14 +533,14 @@ Feed InfluxDB using:
 
 # Grafana dashboards
 Grafana allows to save dashboards to JSON files.
-There are few defined dashboards in `grafana/dashboard/` directory.
+There are few defined dashboards in [grafana/dashboards/](https://github.com/cncf/gha2db/blob/master/grafana/dashboards/) directory.
 
 Currently:
-- Reviewers dashboard: `reviewers.sql`
-- SIG mentions dashboard `sig_metntions.json`
-- Number of PRs merged in all Kubernetes repos `all_prs_merged.json`
-- Number of PRs merged per repository `prs_merged.json`
-- Average time from PR open to merge `time_to_merge.json`
+- Reviewers dashboard: [reviewers.sql](https://github.com/cncf/gha2db/blob/master/metrics/reviewers.sql), [reviewers.json](https://github.com/cncf/gha2db/blob/master/grafana/dashboards/reviewers.json)
+- SIG mentions dashboard: [sig_metntions.sql](https://github.com/cncf/gha2db/blob/master/metrics/sig_mentions.sql), [sig_metntions.json](https://github.com/cncf/gha2db/blob/master/grafana/dashboards/sig_mentions.json)
+- Number of PRs merged in all Kubernetes repos [all_prs_merged.sql](https://github.com/cncf/gha2db/blob/master/metrics/all_prs_merged.sql), [all_prs_merged.json](https://github.com/cncf/gha2db/blob/master/metrics/all_prs_merged.json)
+- Number of PRs merged per repository [prs_merged.sql](https://github.com/cncf/gha2db/blob/master/metrics/prs_merged.sql), [prs_merged.json](https://github.com/cncf/gha2db/blob/master/grafana/dashboards/prs_merged.json)
+- Average time from PR open to merge [opened_to_merged.sql.json](https://github.com/cncf/gha2db/blob/master/metrics/opened_to_merged.sql), [time_to_merge.json](https://github.com/cncf/gha2db/blob/master/grafana/dashboards/time_to_merge.json)
 
 # To enable SSL Grafana:
 - First You need to install certbot, this is for example for Apache on Ubuntu 17.04:
@@ -552,10 +552,10 @@ Currently:
 - `sudo certbot --apache`
 - Then You need to proxy Apache https/SSL on prot 443 to http on port 3000 (this is where Grafana listens)
 - Then You need to proxy Apache https/SSL on prot 10443 to http on port 8086 (this is where InfluxDB server listens)
-- Modified Apache config files are in `grafana/apache`, You need to check them and enable something similar on Your machine.
+- Modified Apache config files are in [grafana/apache](https://github.com/cncf/gha2db/blob/master/grafana/apache/), You need to check them and enable something similar on Your machine.
 - Your data source lives in https://<your_domain>:10443 (and https is served by Apache proxy to InfluxDB https:10443 -> http:8086)
 - Your Grafana lives in https://<your_domain> (and https is served by Apache proxy to Grafana https:443 -> http:3000)
-- Files in `grafana/apache` should be copied to `/etc/apache2` (see comments starting with `LG:`) and then `service apache2 restart`
+- Files in `[grafana/apache](https://github.com/cncf/gha2db/blob/master/grafana/apache/) should be copied to `/etc/apache2` (see comments starting with `LG:`) and then `service apache2 restart`
 
 # Grafana anonymous login
 
