@@ -90,14 +90,12 @@ GihHub archive files can be found there <https://www.githubarchive.org>
 
 For example to fetch 2017-08-03 18:00 UTC can be fetched by:
 
-`wget http://data.githubarchive.org/2017-08-03-18.json.gz`
+- wget http://data.githubarchive.org/2017-08-03-18.json.gz
 
 Gzipped files are usually 10-30 Mb in size (single hour).
 Decompressed fiels are usually 100-200 Mb.
 
-We download this gzipped JSON, process it on the fly, creating array of JSON events and
-then each single event JSON matching org/repo criteria is saved in `jsons` directory as
-`N_ID.json` where:
+We download this gzipped JSON, process it on the fly, creating array of JSON events and then each single event JSON matching org/repo criteria is saved in [jsons](https://github.com/cncf/gha2db/blob/master/jsons/) directory as `N_ID.json` where:
 - N - given GitHub archive''s JSON hour as UNIX timestamp.
 - ID - GitHub event ID.
 
@@ -118,19 +116,19 @@ Average seems to be from 15000 to 60000.
 
 1) Running this program on a 5 days of data with org `kubernetes` (and no repo set - which means all kubernetes repos):
 - Takes: 10 minutes 50 seconds.
-- Generates 12002 JSONs in `jsons/` directory with summary size 165 Mb (each JSON is a single GitHub event).
+- Generates 12002 JSONs with summary size 165 Mb (each JSON is a single GitHub event).
 - To do so it processes about 21 Gb of data.
 
 2) Running this program 1 month of data with org `kubernetes` (and no repo set - which means all kubernetes repos).
 June 2017:
 - Takes: 61 minutes 26 seconds.
-- Generates 60773 JSONs in `jsons/` directory with summary size 815 Mb.
+- Generates 60773 JSONs with summary size 815 Mb.
 - To do so it processes about 126 Gb of data.
 
 3) Running this program 3 hours of data with no filters.
 2017-07-05 hours: 18, 19, 20:
 - Takes: 55 seconds.
-- Generates 168683 JSONs in `jsons/` directory with summary size 1.1 Gb.
+- Generates 168683 JSONs with summary size 1.1 Gb.
 - To do so it processes about 126 Gb of data.
 
 Taking all events from single day is 5 minutes 50 seconds (2017-07-28):
@@ -256,7 +254,7 @@ Recommended run is to create structure without indexes first (the default), then
 Typical internal usage:
 `time GHA2DB_INDEX=1 PG_PASS=your_password ./structure`
 
-Alternatively You can use `structure.sql` to create database structure.
+Alternatively You can use [structure.sql](https://github.com/cncf/gha2db/blob/master/structure.sql) to create database structure.
 
 You can also use already populated Postgres dump: [Kubernetes Psql dump](https://cncftest.io/web/k8s.sql.xz)
 
