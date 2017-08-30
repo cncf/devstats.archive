@@ -857,6 +857,7 @@ func gha2db(args []string) {
 }
 
 func main() {
+	dtStart := time.Now()
 	// Required args
 	if len(os.Args) < 5 {
 		fmt.Printf(
@@ -866,4 +867,6 @@ func main() {
 		os.Exit(1)
 	}
 	gha2db(os.Args[1:])
+	dtEnd := time.Now()
+	fmt.Printf("Time: %v\n", dtEnd.Sub(dtStart))
 }

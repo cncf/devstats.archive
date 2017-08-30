@@ -218,6 +218,7 @@ func db2influx(seriesNameOrFunc, sqlFile, from, to, intervalAbbr string) {
 }
 
 func main() {
+	dtStart := time.Now()
 	if len(os.Args) < 6 {
 		fmt.Printf(
 			"Required series name, SQL file name, from, to, period " +
@@ -232,4 +233,6 @@ func main() {
 		os.Exit(1)
 	}
 	db2influx(os.Args[1], os.Args[2], os.Args[3], os.Args[4], os.Args[5])
+	dtEnd := time.Now()
+	fmt.Printf("Time: %v\n", dtEnd.Sub(dtStart))
 }

@@ -2,11 +2,13 @@ package main
 
 import (
 	"fmt"
+	"time"
 
 	lib "k8s.io/test-infra/gha2db"
 )
 
 func main() {
+	dtStart := time.Now()
 	// Environment context parse
 	var ctx lib.Ctx
 	ctx.Init()
@@ -29,4 +31,6 @@ func main() {
 	} else {
 		lib.Structure(&ctx)
 	}
+	dtEnd := time.Now()
+	fmt.Printf("Time: %v\n", dtEnd.Sub(dtStart))
 }

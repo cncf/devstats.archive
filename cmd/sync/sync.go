@@ -212,5 +212,8 @@ func sync(args []string) {
 }
 
 func main() {
+	dtStart := time.Now()
 	sync(os.Args[1:])
+	dtEnd := time.Now()
+	fmt.Printf("Time: %v\n", dtEnd.Sub(dtStart))
 }
