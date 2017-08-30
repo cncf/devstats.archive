@@ -48,18 +48,29 @@ func TestMetrics(t *testing.T) {
 			metric:   "reviewers",
 			from:     ft(2017, 6),
 			to:       ft(2017, 7, 12, 23),
+			debugDB:  false,
 			expected: [][]interface{}{[]interface{}{3}},
 		},
 		{
-			setup:   setupSigMentionsMetric,
-			metric:  "sig_mentions",
-			from:    ft(2017, 7),
-			to:      ft(2017, 8),
-			debugDB: false,
+			setup:  setupSigMentionsMetric,
+			metric: "sig_mentions",
+			from:   ft(2017, 7),
+			to:     ft(2017, 8),
 			expected: [][]interface{}{
 				[]interface{}{"sig-group-1", 3},
 				[]interface{}{"sig-group2", 3},
 				[]interface{}{"sig-a-b-c", 1},
+			},
+		},
+		{
+			setup:  setupPRsMergedMetric,
+			metric: "prs_merged",
+			from:   ft(2017, 7),
+			to:     ft(2017, 8),
+			expected: [][]interface{}{
+				[]interface{}{"Repo 1", 3},
+				[]interface{}{"Repo 2", 2},
+				[]interface{}{"Repo 3", 1},
 			},
 		},
 	}
@@ -192,6 +203,7 @@ func executeMetric(c *sql.DB, ctx *lib.Ctx, metric string, from, to time.Time) (
 }
 
 // Add event
+// eid, etype, aid, rid, public, created_at, aname, rname, orgid
 func addEvent(con *sql.DB, ctx *lib.Ctx, args ...interface{}) (err error) {
 	if len(args) != 9 {
 		err = fmt.Errorf("addEvent: expects 9 variadic parameters")
@@ -209,6 +221,7 @@ func addEvent(con *sql.DB, ctx *lib.Ctx, args ...interface{}) (err error) {
 }
 
 // Add issue event label
+// iid, eid, lid, lname, created_at
 func addIssueEventLabel(con *sql.DB, ctx *lib.Ctx, args ...interface{}) (err error) {
 	if len(args) != 5 {
 		err = fmt.Errorf("addIssueEventLabel: expects 5 variadic parameters")
@@ -226,6 +239,7 @@ func addIssueEventLabel(con *sql.DB, ctx *lib.Ctx, args ...interface{}) (err err
 }
 
 // Add text
+// eid, body, created_at
 func addText(con *sql.DB, ctx *lib.Ctx, args ...interface{}) (err error) {
 	if len(args) != 3 {
 		err = fmt.Errorf("addText: expects 3 variadic parameters")
@@ -242,11 +256,116 @@ func addText(con *sql.DB, ctx *lib.Ctx, args ...interface{}) (err error) {
 	return
 }
 
+// Add PR
+// prid, eid, uid, merged_id, assignee_id, num, state, title, body, created_at, closed_at, merged_at, merged
+func addPR(con *sql.DB, ctx *lib.Ctx, args ...interface{}) (err error) {
+	if len(args) != 13 {
+		err = fmt.Errorf("addPR: expects 13 variadic parameters")
+		return
+	}
+
+	newArgs := lib.AnyArray{
+		args[0], // PR.id
+		args[1], // event.ID
+		args[2], // user.ID
+		"250aac33d5aae922aac08bba4f06bd139c1c8994", // base SHA
+		"9c31bcbc683a491c3d4122adcfe4caaab6e2d0fc", // head SHA
+		args[3], // MergedBy.ID
+		args[4], // Assignee.ID
+		nil,
+		args[5],    // PR.Number
+		args[6],    // PR.State (open, closed)
+		false,      // PR.Locked
+		args[7],    // PR.Title
+		args[8],    // PR.Body
+		args[9],    // PR.CreatedAt
+		time.Now(), // PR.UpdatedAt
+		args[10],   // PR.ClosedAt
+		args[11],   // PR.MergedAt
+		"9c31bcbc683a491c3d4122adcfe4caaab6e2d0fc", // PR.MergeCommitSHA
+		args[12], // PR.Merged
+		true,     // PR.mergable
+		true,     // PR.Rebaseable
+		"clean",  // PR.MergeableState (nil, unknown, clean, unstable, dirty)
+		1,        // PR.Comments
+		1,        // PR.ReviewComments
+		true,     // PR.MaintainerCanModify
+		1,        // PR.Commits
+		1,        // PR.additions
+		1,        // PR.Deletions
+		1,        // PR.ChangedFiles
+	}
+	_, err = lib.ExecSQL(
+		con,
+		ctx,
+		"insert into gha_pull_requests("+
+			"id, event_id, user_id, base_sha, head_sha, merged_by_id, assignee_id, milestone_id, "+
+			"number, state, locked, title, body, created_at, updated_at, closed_at, merged_at, "+
+			"merge_commit_sha, merged, mergeable, rebaseable, mergeable_state, comments, "+
+			"review_comments, maintainer_can_modify, commits, additions, deletions, changed_files"+
+			") "+lib.NValues(29),
+		newArgs...,
+	)
+	return
+}
+
+// Create data for PRs merged metric
+func setupPRsMergedMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
+	ft := testlib.YMDHMS
+
+	// Events to add
+	// eid, etype, aid, rid, public, created_at, aname, rname, orgid
+	events := [][]interface{}{
+		[]interface{}{1, "T", 1, 1, true, ft(2017, 7, 1), "Actor 1", "Repo 1", 1},
+		[]interface{}{2, "T", 1, 2, true, ft(2017, 7, 2), "Actor 1", "Repo 2", 1},
+		[]interface{}{3, "T", 2, 3, true, ft(2017, 7, 3), "Actor 2", "Repo 3", nil},
+		[]interface{}{4, "T", 2, 1, true, ft(2017, 7, 4), "Actor 2", "Repo 1", 1},
+		[]interface{}{5, "T", 3, 1, true, ft(2017, 7, 5), "Actor 3", "Repo 1", 1},
+		[]interface{}{6, "T", 4, 2, true, ft(2017, 7, 6), "Actor 4", "Repo 2", 1},
+		[]interface{}{7, "T", 1, 1, true, ft(2017, 8), "Actor 1", "Repo 1", 1},
+		[]interface{}{8, "T", 2, 2, true, ft(2017, 7, 7), "Actor 2", "Repo 2", 1},
+		[]interface{}{9, "T", 3, 3, true, ft(2017, 7, 8), "Actor 3", "Repo 3", nil},
+	}
+
+	// PRs to add
+	// prid, eid, uid, merged_id, assignee_id, num, state, title, body, created_at, closed_at, merged_at, merged
+	prs := [][]interface{}{
+		[]interface{}{1, 1, 1, 1, 1, 1, "closed", "PR 1", "Body PR 1", ft(2017, 6, 20), ft(2017, 7, 1), ft(2017, 7, 1), true},
+		[]interface{}{2, 5, 3, 2, 3, 2, "closed", "PR 2", "Body PR 2", ft(2017, 7, 1), ft(2017, 7, 5), ft(2017, 7, 5), true},
+		[]interface{}{3, 4, 2, 3, 2, 3, "closed", "PR 3", "Body PR 3", ft(2017, 7, 2), ft(2017, 7, 4), ft(2017, 7, 4), true},
+		[]interface{}{4, 2, 2, 4, 4, 4, "closed", "PR 4", "Body PR 4", ft(2017, 6, 10), ft(2017, 7, 2), ft(2017, 7, 2), true},
+		[]interface{}{5, 6, 4, 4, 4, 5, "closed", "PR 5", "Body PR 5", ft(2017, 7, 5), ft(2017, 7, 6), ft(2017, 7, 6), true},
+		[]interface{}{6, 3, 2, 2, 4, 6, "closed", "PR 6", "Body PR 6", ft(2017, 7, 2), ft(2017, 7, 3), ft(2017, 7, 3), true},
+		[]interface{}{7, 7, 1, 1, 1, 7, "closed", "PR 7", "Body PR 7", ft(2017, 7, 1), ft(2017, 8), ft(2017, 8), true},
+		[]interface{}{8, 8, 2, nil, 2, 8, "closed", "PR 8", "Body PR 8", ft(2017, 7, 7), ft(2017, 7, 8), nil, true},
+		[]interface{}{9, 9, 3, nil, 1, 9, "open", "PR 9", "Body PR 9", ft(2017, 7, 8), nil, nil, true},
+	}
+
+	// Add events
+	for _, event := range events {
+		err = addEvent(con, ctx, event...)
+		if err != nil {
+			return
+		}
+	}
+
+	// Add PRs
+	for _, pr := range prs {
+		err = addPR(con, ctx, pr...)
+		if err != nil {
+			return
+		}
+	}
+
+	return
+}
+
 // Create data for SIG mentions metric
 func setupSigMentionsMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 	ft := testlib.YMDHMS
 
 	// texts to add
+	// eid, body, created_at
 	texts := [][]interface{}{
 		[]interface{}{1, `Hello @kubernetes/sig-group-1`, ft(2017, 7, 1)},
 		[]interface{}{2, `@kubernetes/sig-group-1-bugs, do you know about this bug?`, ft(2017, 7, 2)},
@@ -277,6 +396,7 @@ func setupReviewersMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 	ft := testlib.YMDHMS
 
 	// Events to add
+	// eid, etype, aid, rid, public, created_at, aname, rname, orgid
 	events := [][]interface{}{
 		[]interface{}{1, "T", 1, 1, true, ft(2017, 7, 10), "Actor 1", "Repo 1", 1},
 		[]interface{}{2, "T", 2, 2, true, ft(2017, 7, 11), "Actor 2", "Repo 2", 1},
@@ -293,6 +413,7 @@ func setupReviewersMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 	}
 
 	// Issue Event Labels to add
+	// iid, eid, lid, lname, created_at
 	iels := [][]interface{}{
 		[]interface{}{1, 1, 1, "LGTM", ft(2017, 7, 10)},
 		[]interface{}{2, 2, 2, "lgtm", ft(2017, 7, 11)},
@@ -304,6 +425,7 @@ func setupReviewersMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 	}
 
 	// texts to add
+	// eid, body, created_at
 	texts := [][]interface{}{
 		[]interface{}{3, "/lgtm", ft(2017, 7, 12)},
 		[]interface{}{4, " /LGTM ", ft(2017, 7, 13)},
