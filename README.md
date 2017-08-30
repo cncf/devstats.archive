@@ -116,7 +116,7 @@ Then we can just add new dashboards that use my `gha2db`/`db2influx` workflow in
 To add new metrics we need to:
 1) Define parameterized SQL (with `{{from}}` and `{{to}}` params) that returns this metric data.
 2) Add `db2influx` call for this metric in `sync` tool. 
-3) Add test coverage in `metrics_test.go`.
+3) Add test coverage in [metrics_test.go](https://github.com/cncf/gha2db/blob/master/metrics_test.go).
 4) Add Grafana dashboard or row that displays this metric
 5) Export new Grafana dashboard to JSON
 6) Create PR for the new metric.
