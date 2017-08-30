@@ -58,7 +58,7 @@ func TestMetrics(t *testing.T) {
 			debugDB: false,
 			expected: [][]interface{}{
 				[]interface{}{"sig-group-1", 3},
-				[]interface{}{"sig-group2", 2},
+				[]interface{}{"sig-group2", 3},
 				[]interface{}{"sig-a-b-c", 1},
 			},
 		},
@@ -254,6 +254,11 @@ func setupSigMentionsMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 		[]interface{}{4, `@kubernetes/sig-group-1- not included, group cannot end with -`, ft(2017, 7, 4)},
 		[]interface{}{5, `XYZ@kubernetes/sig-group-1 - not included, there must be white space or beggining of string before @`, ft(2017, 7, 5)},
 		[]interface{}{6, " \t@kubernetes/sig-group-1-feature-request: we should consider adding new bot... \n ", ft(2017, 7, 6)},
+		[]interface{}{7, `Hi @kubernetes/sig-group2-bugs; I wanted to report bug`, ft(2017, 7, 7)},
+		[]interface{}{8, `I have reviewed this PR, @kubernetes/sig-group2-pr-reviews ping!`, ft(2017, 7, 8)},
+		[]interface{}{9, `Is there a @kubernetes/sig-a-b-c? Or maybe @kubernetes/sig-a-b-c-bugs?`, ft(2017, 7, 9)}, // counts as single mention.
+		[]interface{}{10, `@kubernetes/sig-group2-bugs? @kubernetes/sig-group2? @kubernetes/sig-group2-pr-review? anybody?`, ft(2017, 7, 10)},
+		[]interface{}{11, `@kubernetes/sig-group2-feature-requests out of test range`, ft(2017, 8, 11)},
 	}
 
 	// Add texts
@@ -301,10 +306,10 @@ func setupReviewersMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 	// texts to add
 	texts := [][]interface{}{
 		[]interface{}{3, "/lgtm", ft(2017, 7, 12)},
-		[]interface{}{4, " /lgtm ", ft(2017, 7, 13)},
-		[]interface{}{7, " /lgtm ", ft(2017, 7, 16)},
-		[]interface{}{8, "\t/lgtm\n", ft(2017, 7, 17)},
-		[]interface{}{11, "/lgtm with additional text", ft(2017, 7, 20)}, // additional text causes this line to be skipped
+		[]interface{}{4, " /LGTM ", ft(2017, 7, 13)},
+		[]interface{}{7, " /LGtm ", ft(2017, 7, 16)},
+		[]interface{}{8, "\t/lgTM\n", ft(2017, 7, 17)},
+		[]interface{}{11, "/lGtM with additional text", ft(2017, 7, 20)}, // additional text causes this line to be skipped
 	}
 
 	// Add events
