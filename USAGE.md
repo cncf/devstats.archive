@@ -536,11 +536,11 @@ Grafana allows to save dashboards to JSON files.
 There are few defined dashboards in [grafana/dashboards/](https://github.com/cncf/gha2db/blob/master/grafana/dashboards/) directory.
 
 Currently:
-- Reviewers dashboard: [reviewers.sql](https://github.com/cncf/gha2db/blob/master/metrics/reviewers.sql), [reviewers.json](https://github.com/cncf/gha2db/blob/master/grafana/dashboards/reviewers.json)
-- SIG mentions dashboard: [sig_metntions.sql](https://github.com/cncf/gha2db/blob/master/metrics/sig_mentions.sql), [sig_metntions.json](https://github.com/cncf/gha2db/blob/master/grafana/dashboards/sig_mentions.json)
-- Number of PRs merged in all Kubernetes repos [all_prs_merged.sql](https://github.com/cncf/gha2db/blob/master/metrics/all_prs_merged.sql), [all_prs_merged.json](https://github.com/cncf/gha2db/blob/master/metrics/all_prs_merged.json)
-- Number of PRs merged per repository [prs_merged.sql](https://github.com/cncf/gha2db/blob/master/metrics/prs_merged.sql), [prs_merged.json](https://github.com/cncf/gha2db/blob/master/grafana/dashboards/prs_merged.json)
-- Average time from PR open to merge [opened_to_merged.sql.json](https://github.com/cncf/gha2db/blob/master/metrics/opened_to_merged.sql), [time_to_merge.json](https://github.com/cncf/gha2db/blob/master/grafana/dashboards/time_to_merge.json)
+- Reviewers dashboard: [reviewers.sql](https://github.com/cncf/gha2db/blob/master/metrics/reviewers.sql), [reviewers.json](https://github.com/cncf/gha2db/blob/master/grafana/dashboards/reviewers.json), [Reviewers](https://cncftest.io/dashboard/db/reviewers?orgId=1).
+- SIG mentions dashboard: [sig_metntions.sql](https://github.com/cncf/gha2db/blob/master/metrics/sig_mentions.sql), [sig_metntions.json](https://github.com/cncf/gha2db/blob/master/grafana/dashboards/sig_mentions.json), [SIG mentions](https://cncftest.io/dashboard/db/sig-mentions?orgId=1).
+- Number of PRs merged in all Kubernetes repos [all_prs_merged.sql](https://github.com/cncf/gha2db/blob/master/metrics/all_prs_merged.sql), [all_prs_merged.json](https://github.com/cncf/gha2db/blob/master/grafana/dashboards/all_prs_merged.json), [PRs merged in all repos](https://cncftest.io/dashboard/db/all-prs-merged?orgId=1).
+- Number of PRs merged per repository [prs_merged.sql](https://github.com/cncf/gha2db/blob/master/metrics/prs_merged.sql), [prs_merged.json](https://github.com/cncf/gha2db/blob/master/grafana/dashboards/prs_merged.json), [PRs merged per repo](https://cncftest.io/dashboard/db/prs-merged?orgId=1).
+- Average time from PR open to merge [opened_to_merged.sql.json](https://github.com/cncf/gha2db/blob/master/metrics/opened_to_merged.sql), [time_to_merge.json](https://github.com/cncf/gha2db/blob/master/grafana/dashboards/time_to_merge.json), [Time to merge](https://cncftest.io/dashboard/db/time-to-merge?orgId=1).
 
 # To enable SSL Grafana:
 - First You need to install certbot, this is for example for Apache on Ubuntu 17.04:
