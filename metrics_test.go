@@ -80,6 +80,13 @@ func TestMetrics(t *testing.T) {
 			to:       ft(2017, 8),
 			expected: [][]interface{}{[]interface{}{6}},
 		},
+		{
+			setup:    setupOpenedToMergedMetric,
+			metric:   "opened_to_merged",
+			from:     ft(2017, 7),
+			to:       ft(2017, 8),
+			expected: [][]interface{}{[]interface{}{48}},
+		},
 	}
 
 	// Environment context parse
@@ -316,7 +323,36 @@ func addPR(con *sql.DB, ctx *lib.Ctx, args ...interface{}) (err error) {
 	return
 }
 
-// Create data for PRs merged metric
+// Create data for opened to merged metric
+func setupOpenedToMergedMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
+	ft := testlib.YMDHMS
+
+	// PRs to add
+	// prid, eid, uid, merged_id, assignee_id, num, state, title, body, created_at, closed_at, merged_at, merged
+	prs := [][]interface{}{
+		[]interface{}{1, 1, 1, 1, 1, 1, "closed", "PR 1", "Body PR 1", ft(2017, 7, 1), ft(2017, 7, 3), ft(2017, 7, 3), true}, // average of PR 1-6 created -> merged is 48 hours
+		[]interface{}{2, 2, 1, 1, 1, 2, "closed", "PR 2", "Body PR 2", ft(2017, 7, 2), ft(2017, 7, 3), ft(2017, 7, 3), true},
+		[]interface{}{3, 3, 1, 1, 1, 3, "closed", "PR 3", "Body PR 3", ft(2017, 7, 3), ft(2017, 7, 6), ft(2017, 7, 6), true},
+		[]interface{}{4, 4, 1, 1, 1, 4, "closed", "PR 4", "Body PR 4", ft(2017, 7, 4), ft(2017, 7, 5, 21, 15), ft(2017, 7, 5, 21, 15), true},
+		[]interface{}{5, 5, 1, 1, 1, 5, "closed", "PR 5", "Body PR 5", ft(2017, 7, 5), ft(2017, 7, 6, 20), ft(2017, 7, 6, 20), true},
+		[]interface{}{6, 6, 1, 1, 1, 6, "closed", "PR 6", "Body PR 6", ft(2017, 7, 6), ft(2017, 7, 8, 6, 45), ft(2017, 7, 8, 6, 45), true},
+		[]interface{}{7, 7, 1, 1, 1, 7, "closed", "PR 7", "Body PR 7", ft(2017, 6, 30), ft(2017, 7, 10), ft(2017, 7, 10), true}, // skipped because not created in Aug
+		[]interface{}{8, 1, 1, nil, 1, 8, "closed", "PR 8", "Body PR 8", ft(2017, 7, 2), ft(2017, 7, 8), nil, true},             // Skipped because not merged
+		[]interface{}{9, 1, 1, nil, 1, 9, "open", "PR 9", "Body PR 9", ft(2017, 7, 8), nil, nil, true},                          // Skipped because not merged
+	}
+
+	// Add PRs
+	for _, pr := range prs {
+		err = addPR(con, ctx, pr...)
+		if err != nil {
+			return
+		}
+	}
+
+	return
+}
+
+// Create data for (All) PRs merged metrics
 func setupPRsMergedMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 	ft := testlib.YMDHMS
 
