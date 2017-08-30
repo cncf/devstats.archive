@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"os"
 	"strings"
+	"time"
 
 	lib "k8s.io/test-infra/gha2db"
 )
@@ -155,9 +156,12 @@ func runq(sqlFile string, params []string) {
 }
 
 func main() {
+	dtStart := time.Now()
 	if len(os.Args) < 2 {
 		fmt.Printf("Required SQL file name [param1 value1 [param2 value2 ...]]\n")
 		os.Exit(1)
 	}
 	runq(os.Args[1], os.Args[2:])
+	dtEnd := time.Now()
+	fmt.Printf("Time: %v\n", dtEnd.Sub(dtStart))
 }

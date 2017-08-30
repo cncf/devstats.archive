@@ -7,10 +7,14 @@ import (
 	"os"
 	"os/exec"
 	"strings"
+	"time"
 )
 
 // ExecCommand - execute command given by array of strings with eventual environment map
 func ExecCommand(ctx *Ctx, cmdAndArgs []string, env map[string]string) {
+	// Execution time
+	dtStart := time.Now()
+
 	// STDOUT pipe size
 	pipeSize := 0x100
 
@@ -91,5 +95,9 @@ func ExecCommand(ctx *Ctx, cmdAndArgs []string, env map[string]string) {
 		if len(errStr) > 0 {
 			fmt.Printf("Errors:\n%v\n", errStr)
 		}
+	}
+	if ctx.CmdDebug > 0 {
+		dtEnd := time.Now()
+		fmt.Printf("%s ... %+v\n", strings.Join(cmdAndArgs, " "), dtEnd.Sub(dtStart))
 	}
 }
