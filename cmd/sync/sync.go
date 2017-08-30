@@ -101,7 +101,7 @@ func sync(args []string) {
 		},
 		map[string]string{
 			"GHA2DB_SKIPTABLE": "1",
-			"GHA2DB_MGETC":     "1",
+			"GHA2DB_MGETC":     "y",
 		},
 	)
 
