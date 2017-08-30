@@ -73,6 +73,13 @@ func TestMetrics(t *testing.T) {
 				[]interface{}{"Repo 3", 1},
 			},
 		},
+		{
+			setup:    setupPRsMergedMetric,
+			metric:   "all_prs_merged",
+			from:     ft(2017, 7),
+			to:       ft(2017, 8),
+			expected: [][]interface{}{[]interface{}{6}},
+		},
 	}
 
 	// Environment context parse
