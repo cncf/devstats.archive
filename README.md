@@ -2,7 +2,7 @@
 
 Author: Łukasz Gryglicki <lukaszgryglick@o2.pl>
 
-This is a toolset to visualize GitHub archives using Grafana dashboards.
+This is a toolset to visualize GitHub [archives](https://www.githubarchive.org/) using Grafana dashboards.
 
 # Goal
 
