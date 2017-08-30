@@ -60,7 +60,7 @@ Velodrome consists of 3 parts:
 Our architecture is quite similar, but we're getting all possible GitHub data for all objects, and all objects historical state as well. It consists of:
 
 1) `structure` (manages database structure, summaries, views)
-- [structure.go](https://github.com/cncf/gha2db/blob/master/cmd/structure/structure.go).
+- [structure](https://github.com/cncf/gha2db/blob/master/cmd/structure/structure.go)
 - It is used to create database structure, indexes and to update database summary tables, views etc.
 - Ruby version supported both MySQL and Postgres. Tests have shown that Postgres is a way better than MySQL for this.
 - Go version only supports Postgres. Ruby version is removed and no longer maintained.
@@ -70,7 +70,7 @@ Our architecture is quite similar, but we're getting all possible GitHub data fo
 - MySQL has utf8 related issues, I've found finally workaround that requires to use `utf8mb4` and do some additional `mysqld` configuration.
 
 2) `gha2db` (imports GitHub archives to database and eventually JSON files)
-- [gha2db.go](https://github.com/cncf/gha2db/blob/master/cmd/gha2db/gha2db.go).
+- [gha2db](https://github.com/cncf/gha2db/blob/master/cmd/gha2db/gha2db.go)
 - This is a `fetcher` equivalent, differences are that it reads from GitHub archive instead of GitHub API and writes to Postgres instead of MySQL
 - It saves ALL data from GitHub archives, so we have all GitHub structures fully populated. See [Database structure](https://github.com/cncf/gha2db/blob/master/USAGE.md).
 - We have all historical data from all possible GitHub events and summary values for repositories at given points of time.
@@ -79,7 +79,7 @@ Our architecture is quite similar, but we're getting all possible GitHub data fo
 - The program can be parallelized very easy (events are distinct in different hours, so each hour can be processed by other CPU), POC uses 48 CPUs on cncftest.io.
 
 3) `db2influx` (computes metrics given as SQL files to be run on Postgres and saves time series output to InfluxDB)
-- [db2influx.go](https://github.com/cncf/gha2db/blob/master/cmd/db2influx/db2influx.go).
+- [db2influx](https://github.com/cncf/gha2db/blob/master/cmd/db2influx/db2influx.go)
 - This separates metrics complex logic in SQL files, `db2influx` executes parameterized SQL files and write final time-series to InfluxDB.
 - Parameters are `'{{from}}'`, `'{{to}}'` to allow computing the given metric for any date period.
 - This means that InfluxDB will only hold multiple time-series (very simple data). InfluxDB is extremely good at manipulating such kind of data - this is what it was created for.
@@ -87,7 +87,7 @@ Our architecture is quite similar, but we're getting all possible GitHub data fo
 - Adding new metric will mean add Postgres SQL that will compute this metric.
 
 4) `sync` (synchronizes GitHub archive data and Postgres, InfluxDB databases)
-- [sync.go](https://github.com/cncf/gha2db/blob/master/cmd/sync/sync.go).
+- [sync](https://github.com/cncf/gha2db/blob/master/cmd/sync/sync.go)
 - This program figures out what is the most recent data in Postgres database then queries GitHub archive from this date to current date.
 - It will add data to Postgres database (since the last run)
 - It will update summary tables and/or (materialized) views on Postgres DB.
@@ -97,7 +97,7 @@ Our architecture is quite similar, but we're getting all possible GitHub data fo
 - It will be called from cron job at least every 45 minutes - GitHub archive publishes new file every hour, so we're off by at most 1 hour.
 
 5) Additional stuff, most important being `runq` tool.
-- [runq.go](https://github.com/cncf/gha2db/blob/master/cmd/runq/runq.go).
+- [runq](https://github.com/cncf/gha2db/blob/master/cmd/runq/runq.go)
 - `runq` gets SQL file name and parameter values and allows to run metric manually from the command line (this is for local development)
 - There are few shell scripts for example: running sync every N seconds, setup InfluxDB etc.
 
@@ -116,15 +116,17 @@ Then we can just add new dashboards that use my `gha2db`/`db2influx` workflow in
 To add new metrics we need to:
 1) Define parameterized SQL (with `{{from}}` and `{{to}}` params) that returns this metric data.
 2) Add `db2influx` call for this metric in `sync` tool. 
-3) Add Grafana dashboard or row that displays this metric
-4) Export new Grafana dashboard to JSON
-5) Create PR for the new metric.
+3) Add test coverage in `metrics_test.go`.
+4) Add Grafana dashboard or row that displays this metric
+5) Export new Grafana dashboard to JSON
+6) Create PR for the new metric.
 
 # Local development
 Local development is much easier:
 1) Install psql, influx, grafana - all with default options.
 2) Fetch populated psql database [Postgres database dump](https://cncftest.io/web/k8s.sql.xz)
 3) Just run Go tools manually: `structure`, `gha2db`, `db2influx`, `sync`, `runq`.
+4) Run tests locally, plaese see [testing](https://github.com/cncf/gha2db/blob/master/TESTING.md)
 
 # Database structure details
 
