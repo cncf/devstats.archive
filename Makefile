@@ -7,7 +7,7 @@ GO_BIN_CMDS=k8s.io/test-infra/gha2db/cmd/structure k8s.io/test-infra/gha2db/cmd/
 GO_ENV=CGO_ENABLED=0
 GO_BUILD=go build
 GO_INSTALL=go install
-GO_FMT=gofmt -w
+GO_FMT=gofmt -s -w
 GO_LINT=golint
 GO_VET=go vet
 GO_IMPORTS=goimports -w
