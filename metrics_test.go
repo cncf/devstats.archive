@@ -41,7 +41,7 @@ func TestMetrics(t *testing.T) {
 			metric:   "reviewers",
 			from:     ft(2017, 7, 9),
 			to:       ft(2017, 7, 25),
-			expected: [][]interface{}{[]interface{}{7}},
+			expected: [][]interface{}{{7}},
 		},
 		{
 			setup:    setupReviewersMetric,
@@ -49,7 +49,7 @@ func TestMetrics(t *testing.T) {
 			from:     ft(2017, 6),
 			to:       ft(2017, 7, 12, 23),
 			debugDB:  false,
-			expected: [][]interface{}{[]interface{}{3}},
+			expected: [][]interface{}{{3}},
 		},
 		{
 			setup:  setupSigMentionsMetric,
@@ -57,9 +57,9 @@ func TestMetrics(t *testing.T) {
 			from:   ft(2017, 7),
 			to:     ft(2017, 8),
 			expected: [][]interface{}{
-				[]interface{}{"sig-group-1", 3},
-				[]interface{}{"sig-group2", 3},
-				[]interface{}{"sig-a-b-c", 1},
+				{"sig-group-1", 3},
+				{"sig-group2", 3},
+				{"sig-a-b-c", 1},
 			},
 		},
 		{
@@ -68,9 +68,9 @@ func TestMetrics(t *testing.T) {
 			from:   ft(2017, 7),
 			to:     ft(2017, 8),
 			expected: [][]interface{}{
-				[]interface{}{"Repo 1", 3},
-				[]interface{}{"Repo 2", 2},
-				[]interface{}{"Repo 3", 1},
+				{"Repo 1", 3},
+				{"Repo 2", 2},
+				{"Repo 3", 1},
 			},
 		},
 		{
@@ -78,14 +78,14 @@ func TestMetrics(t *testing.T) {
 			metric:   "all_prs_merged",
 			from:     ft(2017, 7),
 			to:       ft(2017, 8),
-			expected: [][]interface{}{[]interface{}{6}},
+			expected: [][]interface{}{{6}},
 		},
 		{
 			setup:    setupOpenedToMergedMetric,
 			metric:   "opened_to_merged",
 			from:     ft(2017, 7),
 			to:       ft(2017, 8),
-			expected: [][]interface{}{[]interface{}{48}},
+			expected: [][]interface{}{{48}},
 		},
 	}
 
@@ -334,15 +334,15 @@ func setupOpenedToMergedMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 	// PRs to add
 	// prid, eid, uid, merged_id, assignee_id, num, state, title, body, created_at, closed_at, merged_at, merged
 	prs := [][]interface{}{
-		[]interface{}{1, 1, 1, 1, 1, 1, "closed", "PR 1", "Body PR 1", ft(2017, 7, 1), ft(2017, 7, 3), ft(2017, 7, 3), true}, // average of PR 1-6 created -> merged is 48 hours
-		[]interface{}{2, 2, 1, 1, 1, 2, "closed", "PR 2", "Body PR 2", ft(2017, 7, 2), ft(2017, 7, 3), ft(2017, 7, 3), true},
-		[]interface{}{3, 3, 1, 1, 1, 3, "closed", "PR 3", "Body PR 3", ft(2017, 7, 3), ft(2017, 7, 6), ft(2017, 7, 6), true},
-		[]interface{}{4, 4, 1, 1, 1, 4, "closed", "PR 4", "Body PR 4", ft(2017, 7, 4), ft(2017, 7, 5, 21, 15), ft(2017, 7, 5, 21, 15), true},
-		[]interface{}{5, 5, 1, 1, 1, 5, "closed", "PR 5", "Body PR 5", ft(2017, 7, 5), ft(2017, 7, 6, 20), ft(2017, 7, 6, 20), true},
-		[]interface{}{6, 6, 1, 1, 1, 6, "closed", "PR 6", "Body PR 6", ft(2017, 7, 6), ft(2017, 7, 8, 6, 45), ft(2017, 7, 8, 6, 45), true},
-		[]interface{}{7, 7, 1, 1, 1, 7, "closed", "PR 7", "Body PR 7", ft(2017, 6, 30), ft(2017, 7, 10), ft(2017, 7, 10), true}, // skipped because not created in Aug
-		[]interface{}{8, 1, 1, nil, 1, 8, "closed", "PR 8", "Body PR 8", ft(2017, 7, 2), ft(2017, 7, 8), nil, true},             // Skipped because not merged
-		[]interface{}{9, 1, 1, nil, 1, 9, "open", "PR 9", "Body PR 9", ft(2017, 7, 8), nil, nil, true},                          // Skipped because not merged
+		{1, 1, 1, 1, 1, 1, "closed", "PR 1", "Body PR 1", ft(2017, 7, 1), ft(2017, 7, 3), ft(2017, 7, 3), true}, // average of PR 1-6 created -> merged is 48 hours
+		{2, 2, 1, 1, 1, 2, "closed", "PR 2", "Body PR 2", ft(2017, 7, 2), ft(2017, 7, 3), ft(2017, 7, 3), true},
+		{3, 3, 1, 1, 1, 3, "closed", "PR 3", "Body PR 3", ft(2017, 7, 3), ft(2017, 7, 6), ft(2017, 7, 6), true},
+		{4, 4, 1, 1, 1, 4, "closed", "PR 4", "Body PR 4", ft(2017, 7, 4), ft(2017, 7, 5, 21, 15), ft(2017, 7, 5, 21, 15), true},
+		{5, 5, 1, 1, 1, 5, "closed", "PR 5", "Body PR 5", ft(2017, 7, 5), ft(2017, 7, 6, 20), ft(2017, 7, 6, 20), true},
+		{6, 6, 1, 1, 1, 6, "closed", "PR 6", "Body PR 6", ft(2017, 7, 6), ft(2017, 7, 8, 6, 45), ft(2017, 7, 8, 6, 45), true},
+		{7, 7, 1, 1, 1, 7, "closed", "PR 7", "Body PR 7", ft(2017, 6, 30), ft(2017, 7, 10), ft(2017, 7, 10), true}, // skipped because not created in Aug
+		{8, 1, 1, nil, 1, 8, "closed", "PR 8", "Body PR 8", ft(2017, 7, 2), ft(2017, 7, 8), nil, true},             // Skipped because not merged
+		{9, 1, 1, nil, 1, 9, "open", "PR 9", "Body PR 9", ft(2017, 7, 8), nil, nil, true},                          // Skipped because not merged
 	}
 
 	// Add PRs
@@ -363,29 +363,29 @@ func setupPRsMergedMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 	// Events to add
 	// eid, etype, aid, rid, public, created_at, aname, rname, orgid
 	events := [][]interface{}{
-		[]interface{}{1, "T", 1, 1, true, ft(2017, 7, 1), "Actor 1", "Repo 1", 1},
-		[]interface{}{2, "T", 1, 2, true, ft(2017, 7, 2), "Actor 1", "Repo 2", 1},
-		[]interface{}{3, "T", 2, 3, true, ft(2017, 7, 3), "Actor 2", "Repo 3", nil},
-		[]interface{}{4, "T", 2, 1, true, ft(2017, 7, 4), "Actor 2", "Repo 1", 1},
-		[]interface{}{5, "T", 3, 1, true, ft(2017, 7, 5), "Actor 3", "Repo 1", 1},
-		[]interface{}{6, "T", 4, 2, true, ft(2017, 7, 6), "Actor 4", "Repo 2", 1},
-		[]interface{}{7, "T", 1, 1, true, ft(2017, 8), "Actor 1", "Repo 1", 1},
-		[]interface{}{8, "T", 2, 2, true, ft(2017, 7, 7), "Actor 2", "Repo 2", 1},
-		[]interface{}{9, "T", 3, 3, true, ft(2017, 7, 8), "Actor 3", "Repo 3", nil},
+		{1, "T", 1, 1, true, ft(2017, 7, 1), "Actor 1", "Repo 1", 1},
+		{2, "T", 1, 2, true, ft(2017, 7, 2), "Actor 1", "Repo 2", 1},
+		{3, "T", 2, 3, true, ft(2017, 7, 3), "Actor 2", "Repo 3", nil},
+		{4, "T", 2, 1, true, ft(2017, 7, 4), "Actor 2", "Repo 1", 1},
+		{5, "T", 3, 1, true, ft(2017, 7, 5), "Actor 3", "Repo 1", 1},
+		{6, "T", 4, 2, true, ft(2017, 7, 6), "Actor 4", "Repo 2", 1},
+		{7, "T", 1, 1, true, ft(2017, 8), "Actor 1", "Repo 1", 1},
+		{8, "T", 2, 2, true, ft(2017, 7, 7), "Actor 2", "Repo 2", 1},
+		{9, "T", 3, 3, true, ft(2017, 7, 8), "Actor 3", "Repo 3", nil},
 	}
 
 	// PRs to add
 	// prid, eid, uid, merged_id, assignee_id, num, state, title, body, created_at, closed_at, merged_at, merged
 	prs := [][]interface{}{
-		[]interface{}{1, 1, 1, 1, 1, 1, "closed", "PR 1", "Body PR 1", ft(2017, 6, 20), ft(2017, 7, 1), ft(2017, 7, 1), true},
-		[]interface{}{2, 5, 3, 2, 3, 2, "closed", "PR 2", "Body PR 2", ft(2017, 7, 1), ft(2017, 7, 5), ft(2017, 7, 5), true},
-		[]interface{}{3, 4, 2, 3, 2, 3, "closed", "PR 3", "Body PR 3", ft(2017, 7, 2), ft(2017, 7, 4), ft(2017, 7, 4), true},
-		[]interface{}{4, 2, 2, 4, 4, 4, "closed", "PR 4", "Body PR 4", ft(2017, 6, 10), ft(2017, 7, 2), ft(2017, 7, 2), true},
-		[]interface{}{5, 6, 4, 4, 4, 5, "closed", "PR 5", "Body PR 5", ft(2017, 7, 5), ft(2017, 7, 6), ft(2017, 7, 6), true},
-		[]interface{}{6, 3, 2, 2, 4, 6, "closed", "PR 6", "Body PR 6", ft(2017, 7, 2), ft(2017, 7, 3), ft(2017, 7, 3), true},
-		[]interface{}{7, 7, 1, 1, 1, 7, "closed", "PR 7", "Body PR 7", ft(2017, 7, 1), ft(2017, 8), ft(2017, 8), true},
-		[]interface{}{8, 8, 2, nil, 2, 8, "closed", "PR 8", "Body PR 8", ft(2017, 7, 7), ft(2017, 7, 8), nil, true},
-		[]interface{}{9, 9, 3, nil, 1, 9, "open", "PR 9", "Body PR 9", ft(2017, 7, 8), nil, nil, true},
+		{1, 1, 1, 1, 1, 1, "closed", "PR 1", "Body PR 1", ft(2017, 6, 20), ft(2017, 7, 1), ft(2017, 7, 1), true},
+		{2, 5, 3, 2, 3, 2, "closed", "PR 2", "Body PR 2", ft(2017, 7, 1), ft(2017, 7, 5), ft(2017, 7, 5), true},
+		{3, 4, 2, 3, 2, 3, "closed", "PR 3", "Body PR 3", ft(2017, 7, 2), ft(2017, 7, 4), ft(2017, 7, 4), true},
+		{4, 2, 2, 4, 4, 4, "closed", "PR 4", "Body PR 4", ft(2017, 6, 10), ft(2017, 7, 2), ft(2017, 7, 2), true},
+		{5, 6, 4, 4, 4, 5, "closed", "PR 5", "Body PR 5", ft(2017, 7, 5), ft(2017, 7, 6), ft(2017, 7, 6), true},
+		{6, 3, 2, 2, 4, 6, "closed", "PR 6", "Body PR 6", ft(2017, 7, 2), ft(2017, 7, 3), ft(2017, 7, 3), true},
+		{7, 7, 1, 1, 1, 7, "closed", "PR 7", "Body PR 7", ft(2017, 7, 1), ft(2017, 8), ft(2017, 8), true},
+		{8, 8, 2, nil, 2, 8, "closed", "PR 8", "Body PR 8", ft(2017, 7, 7), ft(2017, 7, 8), nil, true},
+		{9, 9, 3, nil, 1, 9, "open", "PR 9", "Body PR 9", ft(2017, 7, 8), nil, nil, true},
 	}
 
 	// Add events
@@ -414,17 +414,17 @@ func setupSigMentionsMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 	// texts to add
 	// eid, body, created_at
 	texts := [][]interface{}{
-		[]interface{}{1, `Hello @kubernetes/sig-group-1`, ft(2017, 7, 1)},
-		[]interface{}{2, `@kubernetes/sig-group-1-bugs, do you know about this bug?`, ft(2017, 7, 2)},
-		[]interface{}{3, `kubernetes/sig-group missing @ - not counted`, ft(2017, 7, 3)},
-		[]interface{}{4, `@kubernetes/sig-group-1- not included, group cannot end with -`, ft(2017, 7, 4)},
-		[]interface{}{5, `XYZ@kubernetes/sig-group-1 - not included, there must be white space or beggining of string before @`, ft(2017, 7, 5)},
-		[]interface{}{6, " \t@kubernetes/sig-group-1-feature-request: we should consider adding new bot... \n ", ft(2017, 7, 6)},
-		[]interface{}{7, `Hi @kubernetes/sig-group2-bugs; I wanted to report bug`, ft(2017, 7, 7)},
-		[]interface{}{8, `I have reviewed this PR, @kubernetes/sig-group2-pr-reviews ping!`, ft(2017, 7, 8)},
-		[]interface{}{9, `Is there a @kubernetes/sig-a-b-c? Or maybe @kubernetes/sig-a-b-c-bugs?`, ft(2017, 7, 9)}, // counts as single mention.
-		[]interface{}{10, `@kubernetes/sig-group2-bugs? @kubernetes/sig-group2? @kubernetes/sig-group2-pr-review? anybody?`, ft(2017, 7, 10)},
-		[]interface{}{11, `@kubernetes/sig-group2-feature-requests out of test range`, ft(2017, 8, 11)},
+		{1, `Hello @kubernetes/sig-group-1`, ft(2017, 7, 1)},
+		{2, `@kubernetes/sig-group-1-bugs, do you know about this bug?`, ft(2017, 7, 2)},
+		{3, `kubernetes/sig-group missing @ - not counted`, ft(2017, 7, 3)},
+		{4, `@kubernetes/sig-group-1- not included, group cannot end with -`, ft(2017, 7, 4)},
+		{5, `XYZ@kubernetes/sig-group-1 - not included, there must be white space or beggining of string before @`, ft(2017, 7, 5)},
+		{6, " \t@kubernetes/sig-group-1-feature-request: we should consider adding new bot... \n ", ft(2017, 7, 6)},
+		{7, `Hi @kubernetes/sig-group2-bugs; I wanted to report bug`, ft(2017, 7, 7)},
+		{8, `I have reviewed this PR, @kubernetes/sig-group2-pr-reviews ping!`, ft(2017, 7, 8)},
+		{9, `Is there a @kubernetes/sig-a-b-c? Or maybe @kubernetes/sig-a-b-c-bugs?`, ft(2017, 7, 9)}, // counts as single mention.
+		{10, `@kubernetes/sig-group2-bugs? @kubernetes/sig-group2? @kubernetes/sig-group2-pr-review? anybody?`, ft(2017, 7, 10)},
+		{11, `@kubernetes/sig-group2-feature-requests out of test range`, ft(2017, 8, 11)},
 	}
 
 	// Add texts
@@ -445,42 +445,42 @@ func setupReviewersMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 	// Events to add
 	// eid, etype, aid, rid, public, created_at, aname, rname, orgid
 	events := [][]interface{}{
-		[]interface{}{1, "T", 1, 1, true, ft(2017, 7, 10), "Actor 1", "Repo 1", 1},
-		[]interface{}{2, "T", 2, 2, true, ft(2017, 7, 11), "Actor 2", "Repo 2", 1},
-		[]interface{}{3, "T", 3, 1, true, ft(2017, 7, 12), "Actor 3", "Repo 1", 1},
-		[]interface{}{4, "T", 4, 3, true, ft(2017, 7, 13), "Actor 4", "Repo 3", 2},
-		[]interface{}{5, "T", 5, 2, true, ft(2017, 7, 14), "Actor 5", "Repo 2", 1},
-		[]interface{}{6, "T", 5, 2, true, ft(2017, 7, 15), "Actor 5", "Repo 2", 1},
-		[]interface{}{7, "T", 3, 2, true, ft(2017, 7, 16), "Actor 5", "Repo 2", 1},
-		[]interface{}{8, "T", 6, 4, true, ft(2017, 7, 17), "Actor 6", "Repo 4", 2},
-		[]interface{}{9, "T", 7, 5, true, ft(2017, 7, 18), "Actor 7", "Repo 5", nil},
-		[]interface{}{10, "T", 8, 5, true, ft(2017, 7, 19), "Actor 8", "Repo 5", nil},
-		[]interface{}{11, "T", 9, 5, true, ft(2017, 7, 20), "Actor 9", "Repo 5", nil},
-		[]interface{}{12, "T", 9, 5, true, ft(2017, 8, 10), "Actor X", "Repo 5", nil},
-		[]interface{}{13, "T", 10, 1, true, ft(2017, 7, 21), "Actor Y", "Repo 1", 1},
+		{1, "T", 1, 1, true, ft(2017, 7, 10), "Actor 1", "Repo 1", 1},
+		{2, "T", 2, 2, true, ft(2017, 7, 11), "Actor 2", "Repo 2", 1},
+		{3, "T", 3, 1, true, ft(2017, 7, 12), "Actor 3", "Repo 1", 1},
+		{4, "T", 4, 3, true, ft(2017, 7, 13), "Actor 4", "Repo 3", 2},
+		{5, "T", 5, 2, true, ft(2017, 7, 14), "Actor 5", "Repo 2", 1},
+		{6, "T", 5, 2, true, ft(2017, 7, 15), "Actor 5", "Repo 2", 1},
+		{7, "T", 3, 2, true, ft(2017, 7, 16), "Actor 5", "Repo 2", 1},
+		{8, "T", 6, 4, true, ft(2017, 7, 17), "Actor 6", "Repo 4", 2},
+		{9, "T", 7, 5, true, ft(2017, 7, 18), "Actor 7", "Repo 5", nil},
+		{10, "T", 8, 5, true, ft(2017, 7, 19), "Actor 8", "Repo 5", nil},
+		{11, "T", 9, 5, true, ft(2017, 7, 20), "Actor 9", "Repo 5", nil},
+		{12, "T", 9, 5, true, ft(2017, 8, 10), "Actor X", "Repo 5", nil},
+		{13, "T", 10, 1, true, ft(2017, 7, 21), "Actor Y", "Repo 1", 1},
 	}
 
 	// Issue Event Labels to add
 	// iid, eid, lid, lname, created_at
 	iels := [][]interface{}{
-		[]interface{}{1, 1, 1, "LGTM", ft(2017, 7, 10)}, // 4 labels match, but 5 and 6 have the same actor, so 3 reviewers here.
-		[]interface{}{2, 2, 2, "lgtm", ft(2017, 7, 11)},
-		[]interface{}{5, 5, 5, "LGtM", ft(2017, 7, 14)},
-		[]interface{}{6, 6, 6, "lgTm", ft(2017, 7, 15)},
-		[]interface{}{6, 9, 1, "LGTM", ft(2017, 7, 18)},     // Not counted because it belongs to issue_id (6) which received LGTM in previous line
-		[]interface{}{10, 10, 10, "other", ft(2017, 7, 19)}, // Not LGTM
-		[]interface{}{12, 12, 1, "LGTM", ft(2017, 8, 10)},   // Out of date range
+		{1, 1, 1, "LGTM", ft(2017, 7, 10)}, // 4 labels match, but 5 and 6 have the same actor, so 3 reviewers here.
+		{2, 2, 2, "lgtm", ft(2017, 7, 11)},
+		{5, 5, 5, "LGtM", ft(2017, 7, 14)},
+		{6, 6, 6, "lgTm", ft(2017, 7, 15)},
+		{6, 9, 1, "LGTM", ft(2017, 7, 18)},     // Not counted because it belongs to issue_id (6) which received LGTM in previous line
+		{10, 10, 10, "other", ft(2017, 7, 19)}, // Not LGTM
+		{12, 12, 1, "LGTM", ft(2017, 8, 10)},   // Out of date range
 	}
 
 	// texts to add
 	// eid, body, created_at
 	texts := [][]interface{}{
-		[]interface{}{3, "/lgtm", ft(2017, 7, 12)},   // 7 gives actor already present in issue event lables
-		[]interface{}{4, " /LGTM ", ft(2017, 7, 13)}, // so 4 reviewers here, sum 7
-		[]interface{}{7, " /LGtm ", ft(2017, 7, 16)},
-		[]interface{}{8, "\t/lgTM\n", ft(2017, 7, 17)},
-		[]interface{}{11, "/lGtM with additional text", ft(2017, 7, 20)}, // additional text causes this line to be skipped
-		[]interface{}{13, "Line 1\n/lGtM\nLine 2", ft(2017, 7, 21)},      // This is included because /LGTM is in its own line only eventually surrounded by whitespace
+		{3, "/lgtm", ft(2017, 7, 12)},   // 7 gives actor already present in issue event lables
+		{4, " /LGTM ", ft(2017, 7, 13)}, // so 4 reviewers here, sum 7
+		{7, " /LGtm ", ft(2017, 7, 16)},
+		{8, "\t/lgTM\n", ft(2017, 7, 17)},
+		{11, "/lGtM with additional text", ft(2017, 7, 20)}, // additional text causes this line to be skipped
+		{13, "Line 1\n/lGtM\nLine 2", ft(2017, 7, 21)},      // This is included because /LGTM is in its own line only eventually surrounded by whitespace
 	}
 
 	// Add events

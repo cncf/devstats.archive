@@ -90,16 +90,16 @@ func TestStringsMapToSet(t *testing.T) {
 		{
 			values:   []string{" a\n\t"},
 			function: stripFunc,
-			expected: map[string]struct{}{"a": struct{}{}},
+			expected: map[string]struct{}{"a": {}},
 		},
 		{
 			values:   []string{"a  ", "  b", "\tc\t", "d e"},
 			function: stripFunc,
 			expected: map[string]struct{}{
-				"a":   struct{}{},
-				"b":   struct{}{},
-				"c":   struct{}{},
-				"d e": struct{}{},
+				"a":   {},
+				"b":   {},
+				"c":   {},
+				"d e": {},
 			},
 		},
 	}
@@ -126,11 +126,11 @@ func TestStringsSetKeys(t *testing.T) {
 			expected: []string{},
 		},
 		{
-			set:      map[string]struct{}{"xyz": struct{}{}},
+			set:      map[string]struct{}{"xyz": {}},
 			expected: []string{"xyz"},
 		},
 		{
-			set:      map[string]struct{}{"b": struct{}{}, "a": struct{}{}, "c": struct{}{}},
+			set:      map[string]struct{}{"b": {}, "a": {}, "c": {}},
 			expected: []string{"a", "b", "c"},
 		},
 	}
