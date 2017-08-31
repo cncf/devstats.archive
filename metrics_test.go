@@ -24,7 +24,7 @@ type MetricTestCase struct {
 	metric   string
 	from     time.Time
 	to       time.Time
-	debugDB  bool // if set, test will not drop database at the end, so You can run metric manually via `runq` or directly on DB
+	debugDB  bool // if set, test will not drop database at the end and will return after such test, so You can run metric manually via `runq` or directly on DB
 	expected [][]interface{}
 }
 
@@ -41,7 +41,7 @@ func TestMetrics(t *testing.T) {
 			metric:   "reviewers",
 			from:     ft(2017, 7, 9),
 			to:       ft(2017, 7, 25),
-			expected: [][]interface{}{[]interface{}{6}},
+			expected: [][]interface{}{[]interface{}{7}},
 		},
 		{
 			setup:    setupReviewersMetric,
@@ -107,6 +107,10 @@ func TestMetrics(t *testing.T) {
 		}
 		if !testlib.CompareSlices2D(test.expected, got) {
 			t.Errorf("test number %d, expected %+v, got %+v", index+1, test.expected, got)
+		}
+		if test.debugDB {
+			t.Errorf("returing due to debugDB mode")
+			return
 		}
 	}
 }
@@ -453,28 +457,30 @@ func setupReviewersMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 		[]interface{}{10, "T", 8, 5, true, ft(2017, 7, 19), "Actor 8", "Repo 5", nil},
 		[]interface{}{11, "T", 9, 5, true, ft(2017, 7, 20), "Actor 9", "Repo 5", nil},
 		[]interface{}{12, "T", 9, 5, true, ft(2017, 8, 10), "Actor X", "Repo 5", nil},
+		[]interface{}{13, "T", 10, 1, true, ft(2017, 7, 21), "Actor Y", "Repo 1", 1},
 	}
 
 	// Issue Event Labels to add
 	// iid, eid, lid, lname, created_at
 	iels := [][]interface{}{
-		[]interface{}{1, 1, 1, "LGTM", ft(2017, 7, 10)},
+		[]interface{}{1, 1, 1, "LGTM", ft(2017, 7, 10)}, // 4 labels match, but 5 and 6 have the same actor, so 3 reviewers here.
 		[]interface{}{2, 2, 2, "lgtm", ft(2017, 7, 11)},
 		[]interface{}{5, 5, 5, "LGtM", ft(2017, 7, 14)},
 		[]interface{}{6, 6, 6, "lgTm", ft(2017, 7, 15)},
-		[]interface{}{6, 9, 1, "LGTM", ft(2017, 7, 18)}, // Not counted because it belongs to issue_id (6) which received LGTM in previous line
-		[]interface{}{10, 10, 10, "other", ft(2017, 7, 19)},
-		[]interface{}{12, 12, 1, "LGTM", ft(2017, 8, 10)}, // Out of date range
+		[]interface{}{6, 9, 1, "LGTM", ft(2017, 7, 18)},     // Not counted because it belongs to issue_id (6) which received LGTM in previous line
+		[]interface{}{10, 10, 10, "other", ft(2017, 7, 19)}, // Not LGTM
+		[]interface{}{12, 12, 1, "LGTM", ft(2017, 8, 10)},   // Out of date range
 	}
 
 	// texts to add
 	// eid, body, created_at
 	texts := [][]interface{}{
-		[]interface{}{3, "/lgtm", ft(2017, 7, 12)},
-		[]interface{}{4, " /LGTM ", ft(2017, 7, 13)},
+		[]interface{}{3, "/lgtm", ft(2017, 7, 12)},   // 7 gives actor already present in issue event lables
+		[]interface{}{4, " /LGTM ", ft(2017, 7, 13)}, // so 4 reviewers here, sum 7
 		[]interface{}{7, " /LGtm ", ft(2017, 7, 16)},
 		[]interface{}{8, "\t/lgTM\n", ft(2017, 7, 17)},
 		[]interface{}{11, "/lGtM with additional text", ft(2017, 7, 20)}, // additional text causes this line to be skipped
+		[]interface{}{13, "Line 1\n/lGtM\nLine 2", ft(2017, 7, 21)},      // This is included because /LGTM is in its own line only eventually surrounded by whitespace
 	}
 
 	// Add events
