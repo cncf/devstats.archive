@@ -1,13 +1,13 @@
 create temp table matching as select event_id from gha_texts where created_at >= 'now'::timestamp - '1 year'::interval and substring(body from '(?i)(?:^|\n|\r)\s*/lgtm\s*(?:\n|\r|$)') is not null;
 select
-  dup_actor_login as actor_login,
+  actor_login as actor_login,
   count(*) as reviewers_count
 from
-  gha_events
+  gha_issues_events_labels
 where 
   actor_login not in ('googlebot')
   and actor_login not like 'k8s-%'
-  and id in (
+  and event_id in (
     select min(event_id)
     from
       gha_issues_events_labels

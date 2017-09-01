@@ -2,7 +2,7 @@
 
 Please note that Ruby version was removed. It was slower, and Kubernetes community prefer tools written in Go.
 
-Postgresql was fater than MySQL, so it was only supported in a dropped Ruby version. Go version uses Postgres.
+Postgresql was faster than MySQL, so it was only supported in a dropped Ruby version. Go version uses Postgres.
 
 Here are historical results of benchmarks Go & Ruby tools:
 
@@ -111,7 +111,9 @@ We can see that this task is dominated by query Postgres time, so it is less imp
 
 We can see that Ruby is very slightly slower.
 
-Plase note that this regenerates ALL InfluxDB data for 2 years and is < 2minutes.
+Plase note that this regenerates ALL InfluxDB data for 2 years and is < 2 minutes.
+
+Generating index takes < 3 minutes.
 
 In a typical case it will only add new time-series since last run + eventually process single new GHA hour (since last run). It usually takes less than minute in both languages.
 
