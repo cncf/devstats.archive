@@ -12,7 +12,7 @@ The work builds on the [Velodrome](https://github.com/kubernetes/test-infra/tree
 
 This project aims to add new metrics for the existing Grafana dashboards.
 We want to support all kind of metrics, including historical ones.
-Please see [requested metrics](https://docs.google.com/document/d/1ShHr3cNCTXhtm0tKJrqI1wG_QJ2ahZBsQ7UDllfc2Dc/edit) to see what kind of metrics are needed.
+Please see [requested metrics](https://docs.google.com/document/d/1o5ncrY6lVX3qSNJGWtJXx2aAC2MEqSjnML4VJDrNpmE/edit?usp=sharing) to see what kind of metrics are needed.
 Many of them cannot be computed based on the data sources currently used.
 
 The current Velodrome implementation uses the GitHub API to get its data. This has some limitations:
