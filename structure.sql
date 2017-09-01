@@ -295,6 +295,23 @@ CREATE TABLE gha_issues_labels (
 ALTER TABLE gha_issues_labels OWNER TO gha_admin;
 
 --
+-- Name: gha_issues_pull_requests; Type: TABLE; Schema: public; Owner: gha_admin
+--
+
+CREATE TABLE gha_issues_pull_requests (
+    issue_id bigint NOT NULL,
+    pull_request_id bigint NOT NULL,
+    number integer NOT NULL,
+    repo_id bigint NOT NULL,
+    repo_name character varying(160) NOT NULL,
+    issue_created_at timestamp without time zone NOT NULL,
+    pull_request_created_at timestamp without time zone NOT NULL
+);
+
+
+ALTER TABLE gha_issues_pull_requests OWNER TO gha_admin;
+
+--
 -- Name: gha_labels; Type: TABLE; Schema: public; Owner: gha_admin
 --
 
@@ -632,6 +649,14 @@ COPY gha_issues_events_labels (issue_id, event_id, label_id, label_name, created
 --
 
 COPY gha_issues_labels (issue_id, event_id, label_id, dup_actor_id, dup_actor_login, dup_repo_id, dup_repo_name, dup_type, dup_created_at, dup_issue_number, dup_label_name) FROM stdin;
+\.
+
+
+--
+-- Data for Name: gha_issues_pull_requests; Type: TABLE DATA; Schema: public; Owner: gha_admin
+--
+
+COPY gha_issues_pull_requests (issue_id, pull_request_id, number, repo_id, repo_name, issue_created_at, pull_request_created_at) FROM stdin;
 \.
 
 
@@ -1535,6 +1560,55 @@ CREATE INDEX issues_labels_dup_type_idx ON gha_issues_labels USING btree (dup_ty
 --
 
 CREATE INDEX issues_milestone_id_idx ON gha_issues USING btree (milestone_id);
+
+
+--
+-- Name: issues_pull_requests_issue_created_at_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX issues_pull_requests_issue_created_at_idx ON gha_issues_pull_requests USING btree (issue_created_at);
+
+
+--
+-- Name: issues_pull_requests_issue_id_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX issues_pull_requests_issue_id_idx ON gha_issues_pull_requests USING btree (issue_id);
+
+
+--
+-- Name: issues_pull_requests_number_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX issues_pull_requests_number_idx ON gha_issues_pull_requests USING btree (number);
+
+
+--
+-- Name: issues_pull_requests_pull_request_created_at_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX issues_pull_requests_pull_request_created_at_idx ON gha_issues_pull_requests USING btree (pull_request_created_at);
+
+
+--
+-- Name: issues_pull_requests_pull_request_id_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX issues_pull_requests_pull_request_id_idx ON gha_issues_pull_requests USING btree (pull_request_id);
+
+
+--
+-- Name: issues_pull_requests_repo_id_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX issues_pull_requests_repo_id_idx ON gha_issues_pull_requests USING btree (repo_id);
+
+
+--
+-- Name: issues_pull_requests_repo_name_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX issues_pull_requests_repo_name_idx ON gha_issues_pull_requests USING btree (repo_name);
 
 
 --

@@ -889,6 +889,35 @@ func Structure(ctx *Ctx) {
 		ExecSQLWithErr(c, ctx, "create index issues_events_labels_type_idx on gha_issues_events_labels(type)")
 		ExecSQLWithErr(c, ctx, "create index issues_events_labels_issue_number_idx on gha_issues_events_labels(issue_number)")
 	}
+
+	// This table is a kind of `materialized view` of issues - PRs connections
+	if ctx.Table {
+		ExecSQLWithErr(c, ctx, "drop table if exists gha_issues_pull_requests")
+		ExecSQLWithErr(
+			c,
+			ctx,
+			CreateTable(
+				"gha_issues_pull_requests("+
+					"issue_id bigint not null, "+
+					"pull_request_id bigint not null, "+
+					"number int not null, "+
+					"repo_id bigint not null, "+
+					"repo_name varchar(160) not null, "+
+					"issue_created_at {{ts}} not null, "+
+					"pull_request_created_at {{ts}} not null"+
+					")",
+			),
+		)
+	}
+	if ctx.Index {
+		ExecSQLWithErr(c, ctx, "create index issues_pull_requests_issue_id_idx on gha_issues_pull_requests(issue_id)")
+		ExecSQLWithErr(c, ctx, "create index issues_pull_requests_pull_request_id_idx on gha_issues_pull_requests(pull_request_id)")
+		ExecSQLWithErr(c, ctx, "create index issues_pull_requests_number_idx on gha_issues_pull_requests(number)")
+		ExecSQLWithErr(c, ctx, "create index issues_pull_requests_repo_id_idx on gha_issues_pull_requests(repo_id)")
+		ExecSQLWithErr(c, ctx, "create index issues_pull_requests_repo_name_idx on gha_issues_pull_requests(repo_name)")
+		ExecSQLWithErr(c, ctx, "create index issues_pull_requests_issue_created_at_idx on gha_issues_pull_requests(issue_created_at)")
+		ExecSQLWithErr(c, ctx, "create index issues_pull_requests_pull_request_created_at_idx on gha_issues_pull_requests(pull_request_created_at)")
+	}
 	// Foreign keys are not needed - they slow down processing a lweek
 
 	// Tools (like views and functions needed for generating metrics)
@@ -928,6 +957,26 @@ func Structure(ctx *Ctx) {
 				"where il.label_id = lb.id and il.event_id > %v",
 			maxEventID,
 		)
+		// Add Issues Events Labels
+		ExecSQLWithErr(c, ctx, sql)
+
+		// Get max issue_id & pull_request_id from gha_issues_pull_requests
+		maxIssueID := 0
+		maxPRID := 0
+		FatalOnError(QueryRowSQL(c, ctx, "select coalesce(max(issue_id), 0) from gha_issues_pull_requests").Scan(&maxIssueID))
+		FatalOnError(QueryRowSQL(c, ctx, "select coalesce(max(pull_request_id), 0) from gha_issues_pull_requests").Scan(&maxPRID))
+
+		// Add data to gha_issues_pull_requests table (or fill it initially)
+		sql = fmt.Sprintf(
+			"insert into gha_issues_pull_requests("+
+				"issue_id, pull_request_id, number, repo_id, repo_name, issue_created_at, pull_request_created_at) "+
+				"select distinct i.id, pr.id, i.number, i.dup_repo_id, i.dup_repo_name, i.created_at, pr.created_at "+
+				"from gha_issues i, gha_pull_requests pr where i.number = pr.number and i.dup_repo_id = pr.dup_repo_id "+
+				"and i.id > %v and pr.id > %v",
+			maxIssueID,
+			maxPRID,
+		)
+		// Insert connected PRs and Issues
 		ExecSQLWithErr(c, ctx, sql)
 	}
 }
