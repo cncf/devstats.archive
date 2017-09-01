@@ -1,5 +1,5 @@
 select
-  e.repo_name as repo_name,
+  e.dup_repo_name as repo_name,
   count(pr.id) as merge_count
 from
   gha_pull_requests pr,

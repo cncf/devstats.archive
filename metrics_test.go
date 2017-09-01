@@ -232,7 +232,7 @@ func addEvent(con *sql.DB, ctx *lib.Ctx, args ...interface{}) (err error) {
 		ctx,
 		"insert into gha_events("+
 			"id, type, actor_id, repo_id, public, created_at, "+
-			"actor_login, repo_name, org_id) "+lib.NValues(9),
+			"dup_actor_login, dup_repo_name, org_id) "+lib.NValues(9),
 		args...,
 	)
 	return
@@ -245,12 +245,15 @@ func addIssueEventLabel(con *sql.DB, ctx *lib.Ctx, args ...interface{}) (err err
 		err = fmt.Errorf("addIssueEventLabel: expects 5 variadic parameters")
 		return
 	}
+	// STUB duplicated values for now
+	args = append(args, []interface{}{0, "", 0, "", "D", 0}...)
 	_, err = lib.ExecSQL(
 		con,
 		ctx,
 		"insert into gha_issues_events_labels("+
-			"issue_id, event_id, label_id, label_name, created_at"+
-			") "+lib.NValues(5),
+			"issue_id, event_id, label_id, label_name, created_at, "+
+			"repo_id, repo_name, actor_id, actor_login, type, issue_number"+
+			") "+lib.NValues(11),
 		args...,
 	)
 	return
@@ -263,12 +266,15 @@ func addText(con *sql.DB, ctx *lib.Ctx, args ...interface{}) (err error) {
 		err = fmt.Errorf("addText: expects 3 variadic parameters")
 		return
 	}
+	// STUB duplicated values for now
+	args = append(args, []interface{}{0, "", 0, "", "D"}...)
 	_, err = lib.ExecSQL(
 		con,
 		ctx,
 		"insert into gha_texts("+
-			"event_id, body, created_at"+
-			") "+lib.NValues(3),
+			"event_id, body, created_at, "+
+			"repo_id, repo_name, actor_id, actor_login, type"+
+			") "+lib.NValues(8),
 		args...,
 	)
 	return
@@ -301,17 +307,26 @@ func addPR(con *sql.DB, ctx *lib.Ctx, args ...interface{}) (err error) {
 		args[10],   // PR.ClosedAt
 		args[11],   // PR.MergedAt
 		"9c31bcbc683a491c3d4122adcfe4caaab6e2d0fc", // PR.MergeCommitSHA
-		args[12], // PR.Merged
-		true,     // PR.mergable
-		true,     // PR.Rebaseable
-		"clean",  // PR.MergeableState (nil, unknown, clean, unstable, dirty)
-		1,        // PR.Comments
-		1,        // PR.ReviewComments
-		true,     // PR.MaintainerCanModify
-		1,        // PR.Commits
-		1,        // PR.additions
-		1,        // PR.Deletions
-		1,        // PR.ChangedFiles
+		args[12],   // PR.Merged
+		true,       // PR.mergable
+		true,       // PR.Rebaseable
+		"clean",    // PR.MergeableState (nil, unknown, clean, unstable, dirty)
+		1,          // PR.Comments
+		1,          // PR.ReviewComments
+		true,       // PR.MaintainerCanModify
+		1,          // PR.Commits
+		1,          // PR.additions
+		1,          // PR.Deletions
+		1,          // PR.ChangedFiles
+		0,          // Duplicate data starts here: ev.Actor.ID
+		"",         // ev.Actor.Login
+		0,          // ev.Repo.ID
+		"",         // ev.Repo.Name
+		"T",        // ev.Type
+		time.Now(), // ev.CreatedAt
+		"",         // PR.User.Login
+		nil,        // PR.Assignee.Login
+		nil,        // PR.MergedBy.Login
 	}
 	_, err = lib.ExecSQL(
 		con,
@@ -320,8 +335,9 @@ func addPR(con *sql.DB, ctx *lib.Ctx, args ...interface{}) (err error) {
 			"id, event_id, user_id, base_sha, head_sha, merged_by_id, assignee_id, milestone_id, "+
 			"number, state, locked, title, body, created_at, updated_at, closed_at, merged_at, "+
 			"merge_commit_sha, merged, mergeable, rebaseable, mergeable_state, comments, "+
-			"review_comments, maintainer_can_modify, commits, additions, deletions, changed_files"+
-			") "+lib.NValues(29),
+			"review_comments, maintainer_can_modify, commits, additions, deletions, changed_files, "+
+			"dup_actor_id, dup_actor_login, dup_repo_id, dup_repo_name, dup_type, dup_created_at, "+
+			"dup_user_login, dupn_assignee_login, dupn_merged_by_login) "+lib.NValues(38),
 		newArgs...,
 	)
 	return

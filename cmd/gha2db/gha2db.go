@@ -32,7 +32,7 @@ func hashStrings(strs []string) int {
 }
 
 // Inserts single GHA Actor
-func ghaActor(con *sql.Tx, ctx *lib.Ctx, actor lib.Actor) {
+func ghaActor(con *sql.Tx, ctx *lib.Ctx, actor *lib.Actor) {
 	// gha_actors
 	// {"id:Fixnum"=>48592, "login:String"=>48592, "display_login:String"=>48592,
 	// "gravatar_id:String"=>48592, "url:String"=>48592, "avatar_url:String"=>48592}
@@ -46,10 +46,10 @@ func ghaActor(con *sql.Tx, ctx *lib.Ctx, actor lib.Actor) {
 }
 
 // Inserts single GHA Milestone
-func ghaMilestone(con *sql.Tx, ctx *lib.Ctx, eid string, milestone lib.Milestone) {
+func ghaMilestone(con *sql.Tx, ctx *lib.Ctx, eid string, milestone *lib.Milestone, ev *lib.Event) {
 	// creator
 	if milestone.Creator != nil {
-		ghaActor(con, ctx, *milestone.Creator)
+		ghaActor(con, ctx, milestone.Creator)
 	}
 
 	// gha_milestones
@@ -58,8 +58,9 @@ func ghaMilestone(con *sql.Tx, ctx *lib.Ctx, eid string, milestone lib.Milestone
 		ctx,
 		"insert into gha_milestones("+
 			"id, event_id, closed_at, closed_issues, created_at, creator_id, "+
-			"description, due_on, number, open_issues, state, title, updated_at"+
-			") "+lib.NValues(13),
+			"description, due_on, number, open_issues, state, title, updated_at, "+
+			"dup_actor_id, dup_actor_login, dup_repo_id, dup_repo_name, dup_type, dup_created_at, "+
+			"dupn_creator_login) "+lib.NValues(20),
 		lib.AnyArray{
 			milestone.ID,
 			eid,
@@ -74,14 +75,21 @@ func ghaMilestone(con *sql.Tx, ctx *lib.Ctx, eid string, milestone lib.Milestone
 			milestone.State,
 			lib.TruncToBytes(milestone.Title, 200),
 			milestone.UpdatedAt,
+			ev.Actor.ID,
+			ev.Actor.Login,
+			ev.Repo.ID,
+			ev.Repo.Name,
+			ev.Type,
+			ev.CreatedAt,
+			lib.ActorLoginOrNil(milestone.Creator),
 		}...,
 	)
 }
 
 // Inserts single GHA Forkee
-func ghaForkee(con *sql.Tx, ctx *lib.Ctx, eid string, forkee lib.Forkee) {
+func ghaForkee(con *sql.Tx, ctx *lib.Ctx, eid string, forkee *lib.Forkee, ev *lib.Event) {
 	// owner
-	ghaActor(con, ctx, forkee.Owner)
+	ghaActor(con, ctx, &forkee.Owner)
 
 	// gha_forkees
 	// Table details and analysis in `analysis/analysis.txt` and `analysis/forkee_*.json`
@@ -92,8 +100,9 @@ func ghaForkee(con *sql.Tx, ctx *lib.Ctx, eid string, forkee lib.Forkee) {
 			"id, event_id, name, full_name, owner_id, description, fork, "+
 			"created_at, updated_at, pushed_at, homepage, size, "+
 			"stargazers_count, has_issues, has_projects, has_downloads, "+
-			"has_wiki, has_pages, forks, default_branch, open_issues, "+
-			"watchers, public) "+lib.NValues(23),
+			"has_wiki, has_pages, forks, default_branch, open_issues, watchers, public, "+
+			"dup_actor_id, dup_actor_login, dup_repo_id, dup_repo_name, dup_type, dup_created_at, "+
+			"dup_owner_login) "+lib.NValues(30),
 		lib.AnyArray{
 			forkee.ID,
 			eid,
@@ -118,34 +127,48 @@ func ghaForkee(con *sql.Tx, ctx *lib.Ctx, eid string, forkee lib.Forkee) {
 			forkee.OpenIssues,
 			forkee.Watchers,
 			lib.BoolOrNil(forkee.Public),
+			ev.Actor.ID,
+			ev.Actor.Login,
+			ev.Repo.ID,
+			ev.Repo.Name,
+			ev.Type,
+			ev.CreatedAt,
+			forkee.Owner.Login,
 		}...,
 	)
 }
 
 // Inserts single GHA Branch
-func ghaBranch(con *sql.Tx, ctx *lib.Ctx, eid string, branch lib.Branch, skipRepoID interface{}) {
+func ghaBranch(con *sql.Tx, ctx *lib.Ctx, eid string, branch *lib.Branch, ev *lib.Event, skipRepoID interface{}) {
 	// user
 	if branch.User != nil {
-		ghaActor(con, ctx, *branch.User)
+		ghaActor(con, ctx, branch.User)
 	}
 
 	// repo
 	if branch.Repo != nil && branch.Repo.ID != skipRepoID {
-		ghaForkee(con, ctx, eid, *branch.Repo)
+		ghaForkee(con, ctx, eid, branch.Repo, ev)
 	}
 
 	// gha_branches
 	lib.ExecSQLTxWithErr(
 		con,
 		ctx,
-		"insert into gha_branches(sha, event_id, user_id, repo_id, label, ref) "+lib.NValues(6),
+		"insert into gha_branches("+
+			"sha, event_id, user_id, repo_id, label, ref, "+
+			"dup_type, dup_created_at, dupn_user_login, dupn_forkee_name"+
+			") "+lib.NValues(10),
 		lib.AnyArray{
 			branch.SHA,
 			eid,
 			lib.ActorIDOrNil(branch.User),
-			lib.ForkeeIDOrNil(branch.Repo),
+			lib.ForkeeIDOrNil(branch.Repo), // GitHub uses JSON "repo" but it conatins Forkee
 			lib.TruncToBytes(branch.Label, 200),
 			lib.TruncToBytes(branch.Ref, 200),
+			ev.Type,
+			ev.CreatedAt,
+			lib.ActorLoginOrNil(branch.User),
+			lib.ForkeeNameOrNil(branch.Repo),
 		}...,
 	)
 }
@@ -181,7 +204,7 @@ func writeToDB(db *sql.DB, ctx *lib.Ctx, ev lib.Event) int {
 	// "org:Hash"=>19451}
 	// {"id"=>10, "type"=>29, "actor"=>278, "repo"=>290, "payload"=>216017, "public"=>4,
 	// "created_at"=>20, "org"=>230}
-	// Fields actor_login, repo_name are copied from (gha_actors and gha_repos) to save
+	// Fields dup_actor_login, dup_repo_name are copied from (gha_actors and gha_repos) to save
 	// joins on complex queries (MySQL has no hash joins and is very slow on big tables joins)
 	eventID := ev.ID
 	rows := lib.QuerySQLWithErr(db, ctx, fmt.Sprintf("select 1 from gha_events where id=%s", lib.NValue(1)), eventID)
@@ -194,15 +217,13 @@ func writeToDB(db *sql.DB, ctx *lib.Ctx, ev lib.Event) int {
 		return 0
 	}
 
-	// Start transaction for entire event
-	con, err := db.Begin()
-	lib.FatalOnError(err)
-	lib.ExecSQLTxWithErr(
-		con,
+	// We defer transaction create untill we're inserting data that can be shared between different events
+	lib.ExecSQLWithErr(
+		db,
 		ctx,
 		"insert into gha_events("+
 			"id, type, actor_id, repo_id, public, created_at, "+
-			"actor_login, repo_name, org_id) "+lib.NValues(9),
+			"dup_actor_login, dup_repo_name, org_id) "+lib.NValues(9),
 		lib.AnyArray{
 			eventID,
 			ev.Type,
@@ -216,15 +237,12 @@ func writeToDB(db *sql.DB, ctx *lib.Ctx, ev lib.Event) int {
 		}...,
 	)
 
-	// gha_actors
-	ghaActor(con, ctx, ev.Actor)
-
 	// gha_repos
 	// {"id:Fixnum"=>48592, "name:String"=>48592, "url:String"=>48592}
 	// {"id"=>8, "name"=>111, "url"=>140}
 	repo := ev.Repo
-	lib.ExecSQLTxWithErr(
-		con,
+	lib.ExecSQLWithErr(
+		db,
 		ctx,
 		lib.InsertIgnore("into gha_repos(id, name) "+lib.NValues(2)),
 		lib.AnyArray{repo.ID, repo.Name}...,
@@ -236,8 +254,8 @@ func writeToDB(db *sql.DB, ctx *lib.Ctx, ev lib.Event) int {
 	// {"id"=>8, "login"=>38, "gravatar_id"=>0, "url"=>66, "avatar_url"=>49}
 	org := ev.Org
 	if org != nil {
-		lib.ExecSQLTxWithErr(
-			con,
+		lib.ExecSQLWithErr(
+			db,
 			ctx,
 			lib.InsertIgnore("into gha_orgs(id, login) "+lib.NValues(2)),
 			lib.AnyArray{org.ID, org.Login}...,
@@ -258,15 +276,17 @@ func writeToDB(db *sql.DB, ctx *lib.Ctx, ev lib.Event) int {
 	// "number"=>5, "forkee"=>6880, "pages"=>855, "release"=>31206, "member"=>1040}
 	// 48746
 	// using exec_stmt (without select), because payload are per event_id.
+	// Columns duplicated from gha_events starts with "dup_"
 	pl := ev.Payload
-	lib.ExecSQLTxWithErr(
-		con,
+	lib.ExecSQLWithErr(
+		db,
 		ctx,
 		"insert into gha_payloads("+
 			"event_id, push_id, size, ref, head, befor, action, "+
 			"issue_id, comment_id, ref_type, master_branch, "+
-			"description, number, forkee_id, release_id, member_id"+
-			") "+lib.NValues(16),
+			"description, number, forkee_id, release_id, member_id, "+
+			"dup_actor_id, dup_actor_login, dup_repo_id, dup_repo_name, dup_type, dup_created_at"+
+			") "+lib.NValues(22),
 		lib.AnyArray{
 			eventID,
 			lib.IntOrNil(pl.PushID),
@@ -284,8 +304,21 @@ func writeToDB(db *sql.DB, ctx *lib.Ctx, ev lib.Event) int {
 			lib.ForkeeIDOrNil(pl.Forkee),
 			lib.ReleaseIDOrNil(pl.Release),
 			lib.ActorIDOrNil(pl.Member),
+			ev.Actor.ID,
+			ev.Actor.Login,
+			ev.Repo.ID,
+			ev.Repo.Name,
+			ev.Type,
+			ev.CreatedAt,
 		}...,
 	)
+
+	// Start transaction for data possibly shared between events
+	con, err := db.Begin()
+	lib.FatalOnError(err)
+
+	// gha_actors
+	ghaActor(con, ctx, &ev.Actor)
 
 	// gha_commits
 	// {"sha:String"=>23265, "author:Hash"=>23265, "message:String"=>23265,
@@ -304,13 +337,21 @@ func writeToDB(db *sql.DB, ctx *lib.Ctx, ev lib.Event) int {
 			con,
 			ctx,
 			"insert into gha_commits("+
-				"sha, event_id, author_name, message, is_distinct) "+lib.NValues(5),
+				"sha, event_id, author_name, message, is_distinct, "+
+				"dup_actor_id, dup_actor_login, dup_repo_id, dup_repo_name, dup_type, dup_created_at"+
+				") "+lib.NValues(11),
 			lib.AnyArray{
 				sha,
 				eventID,
 				lib.TruncToBytes(commit.Author.Name, 160),
 				lib.TruncToBytes(commit.Message, 0xffff),
 				commit.Distinct,
+				ev.Actor.ID,
+				ev.Actor.Login,
+				ev.Repo.ID,
+				ev.Repo.Name,
+				ev.Type,
+				ev.CreatedAt,
 			}...,
 		)
 	}
@@ -329,19 +370,28 @@ func writeToDB(db *sql.DB, ctx *lib.Ctx, ev lib.Event) int {
 		lib.ExecSQLTxWithErr(
 			con,
 			ctx,
-			lib.InsertIgnore("into gha_pages(sha, event_id, action, title) "+lib.NValues(4)),
+			lib.InsertIgnore(
+				"into gha_pages(sha, event_id, action, title, "+
+					"dup_actor_id, dup_actor_login, dup_repo_id, dup_repo_name, dup_type, dup_created_at"+
+					") "+lib.NValues(10)),
 			lib.AnyArray{
 				sha,
 				eventID,
 				page.Action,
 				lib.TruncToBytes(page.Title, 300),
+				ev.Actor.ID,
+				ev.Actor.Login,
+				ev.Repo.ID,
+				ev.Repo.Name,
+				ev.Type,
+				ev.CreatedAt,
 			}...,
 		)
 	}
 
 	// member
 	if pl.Member != nil {
-		ghaActor(con, ctx, *pl.Member)
+		ghaActor(con, ctx, pl.Member)
 	}
 
 	// gha_comments
@@ -349,7 +399,7 @@ func writeToDB(db *sql.DB, ctx *lib.Ctx, ev lib.Event) int {
 	if pl.Comment != nil {
 		comment := *pl.Comment
 		// user
-		ghaActor(con, ctx, comment.User)
+		ghaActor(con, ctx, &comment.User)
 
 		// comment
 		cid := comment.ID
@@ -360,8 +410,9 @@ func writeToDB(db *sql.DB, ctx *lib.Ctx, ev lib.Event) int {
 				"into gha_comments("+
 					"id, event_id, body, created_at, updated_at, type, user_id, "+
 					"commit_id, original_commit_id, diff_hunk, position, "+
-					"original_position, path, pull_request_review_id, line"+
-					") "+lib.NValues(15),
+					"original_position, path, pull_request_review_id, line, "+
+					"dup_actor_id, dup_actor_login, dup_repo_id, dup_repo_name, dup_type, dup_created_at, "+
+					"dup_user_login) "+lib.NValues(22),
 			),
 			lib.AnyArray{
 				cid,
@@ -379,6 +430,13 @@ func writeToDB(db *sql.DB, ctx *lib.Ctx, ev lib.Event) int {
 				lib.StringOrNil(comment.Path),
 				lib.IntOrNil(comment.PullRequestReviewID),
 				lib.IntOrNil(comment.Line),
+				ev.Actor.ID,
+				ev.Actor.Login,
+				ev.Repo.ID,
+				ev.Repo.Name,
+				ev.Type,
+				ev.CreatedAt,
+				comment.User.Login,
 			}...,
 		)
 	}
@@ -389,9 +447,9 @@ func writeToDB(db *sql.DB, ctx *lib.Ctx, ev lib.Event) int {
 		issue := *pl.Issue
 
 		// user, assignee
-		ghaActor(con, ctx, issue.User)
+		ghaActor(con, ctx, &issue.User)
 		if issue.Assignee != nil {
-			ghaActor(con, ctx, *issue.Assignee)
+			ghaActor(con, ctx, issue.Assignee)
 		}
 
 		// issue
@@ -406,7 +464,8 @@ func writeToDB(db *sql.DB, ctx *lib.Ctx, ev lib.Event) int {
 			"insert into gha_issues("+
 				"id, event_id, assignee_id, body, closed_at, comments, created_at, "+
 				"locked, milestone_id, number, state, title, updated_at, user_id, "+
-				"is_pull_request) "+lib.NValues(15),
+				"dup_actor_id, dup_actor_login, dup_repo_id, dup_repo_name, dup_type, dup_created_at, "+
+				"dup_user_login, dupn_assignee_login, is_pull_request) "+lib.NValues(23),
 			lib.AnyArray{
 				iid,
 				eventID,
@@ -422,13 +481,21 @@ func writeToDB(db *sql.DB, ctx *lib.Ctx, ev lib.Event) int {
 				issue.Title,
 				issue.UpdatedAt,
 				issue.User.ID,
+				ev.Actor.ID,
+				ev.Actor.Login,
+				ev.Repo.ID,
+				ev.Repo.Name,
+				ev.Type,
+				ev.CreatedAt,
+				issue.User.Login,
+				lib.ActorLoginOrNil(issue.Assignee),
 				isPR,
 			}...,
 		)
 
 		// milestone
 		if issue.Milestone != nil {
-			ghaMilestone(con, ctx, eventID, *issue.Milestone)
+			ghaMilestone(con, ctx, eventID, issue.Milestone, &ev)
 		}
 
 		pAid := lib.ActorIDOrNil(issue.Assignee)
@@ -439,7 +506,7 @@ func writeToDB(db *sql.DB, ctx *lib.Ctx, ev lib.Event) int {
 			}
 
 			// assignee
-			ghaActor(con, ctx, assignee)
+			ghaActor(con, ctx, &assignee)
 
 			// issue-assignee connection
 			lib.ExecSQLTxWithErr(
@@ -469,15 +536,31 @@ func writeToDB(db *sql.DB, ctx *lib.Ctx, ev lib.Event) int {
 			lib.ExecSQLTxWithErr(
 				con,
 				ctx,
-				lib.InsertIgnore("into gha_issues_labels(issue_id, event_id, label_id) "+lib.NValues(3)),
-				lib.AnyArray{iid, eventID, lid}...,
+				lib.InsertIgnore(
+					"into gha_issues_labels(issue_id, event_id, label_id, "+
+						"dup_actor_id, dup_actor_login, dup_repo_id, dup_repo_name, dup_type, dup_created_at, "+
+						"dup_issue_number, dup_label_name"+
+						") "+lib.NValues(11)),
+				lib.AnyArray{
+					iid,
+					eventID,
+					lid,
+					ev.Actor.ID,
+					ev.Actor.Login,
+					ev.Repo.ID,
+					ev.Repo.Name,
+					ev.Type,
+					ev.CreatedAt,
+					issue.Number,
+					label.Name,
+				}...,
 			)
 		}
 	}
 
 	// gha_forkees
 	if pl.Forkee != nil {
-		ghaForkee(con, ctx, eventID, *pl.Forkee)
+		ghaForkee(con, ctx, eventID, pl.Forkee, &ev)
 	}
 
 	// gha_releases
@@ -486,7 +569,7 @@ func writeToDB(db *sql.DB, ctx *lib.Ctx, ev lib.Event) int {
 		release := *pl.Release
 
 		// author
-		ghaActor(con, ctx, release.Author)
+		ghaActor(con, ctx, &release.Author)
 
 		// release
 		rid := release.ID
@@ -495,8 +578,9 @@ func writeToDB(db *sql.DB, ctx *lib.Ctx, ev lib.Event) int {
 			ctx,
 			"insert into gha_releases("+
 				"id, event_id, tag_name, target_commitish, name, draft, "+
-				"author_id, prerelease, created_at, published_at, body"+
-				") "+lib.NValues(11),
+				"author_id, prerelease, created_at, published_at, body, "+
+				"dup_actor_id, dup_actor_login, dup_repo_id, dup_repo_name, dup_type, dup_created_at, "+
+				"dup_author_login) "+lib.NValues(18),
 			lib.AnyArray{
 				rid,
 				eventID,
@@ -509,13 +593,20 @@ func writeToDB(db *sql.DB, ctx *lib.Ctx, ev lib.Event) int {
 				release.CreatedAt,
 				release.PublishedAt,
 				lib.TruncStringOrNil(release.Body, 0xffff),
+				ev.Actor.ID,
+				ev.Actor.Login,
+				ev.Repo.ID,
+				ev.Repo.Name,
+				ev.Type,
+				ev.CreatedAt,
+				release.Author.Login,
 			}...,
 		)
 
 		// Assets
 		for _, asset := range release.Assets {
 			// uploader
-			ghaActor(con, ctx, asset.Uploader)
+			ghaActor(con, ctx, &asset.Uploader)
 
 			// asset
 			aid := asset.ID
@@ -524,8 +615,9 @@ func writeToDB(db *sql.DB, ctx *lib.Ctx, ev lib.Event) int {
 				ctx,
 				"insert into gha_assets("+
 					"id, event_id, name, label, uploader_id, content_type, "+
-					"state, size, download_count, created_at, updated_at"+
-					") "+lib.NValues(11),
+					"state, size, download_count, created_at, updated_at, "+
+					"dup_actor_id, dup_actor_login, dup_repo_id, dup_repo_name, dup_type, dup_created_at, "+
+					"dup_uploader_login) "+lib.NValues(18),
 				lib.AnyArray{
 					aid,
 					eventID,
@@ -538,6 +630,13 @@ func writeToDB(db *sql.DB, ctx *lib.Ctx, ev lib.Event) int {
 					asset.DownloadCount,
 					asset.CreatedAt,
 					asset.UpdatedAt,
+					ev.Actor.ID,
+					ev.Actor.Login,
+					ev.Repo.ID,
+					ev.Repo.Name,
+					ev.Type,
+					ev.CreatedAt,
+					asset.Uploader.Login,
 				}...,
 			)
 
@@ -557,33 +656,33 @@ func writeToDB(db *sql.DB, ctx *lib.Ctx, ev lib.Event) int {
 		pr := *pl.PullRequest
 
 		// user
-		ghaActor(con, ctx, pr.User)
+		ghaActor(con, ctx, &pr.User)
 
 		baseSHA := pr.Base.SHA
 		headSHA := pr.Head.SHA
 		baseRepoID := lib.ForkeeIDOrNil(pr.Base.Repo)
 
 		// base
-		ghaBranch(con, ctx, eventID, pr.Base, nil)
+		ghaBranch(con, ctx, eventID, &pr.Base, &ev, nil)
 
 		// head (if different, and skip its repo if defined and the same as base repo)
 		if baseSHA != headSHA {
-			ghaBranch(con, ctx, eventID, pr.Head, baseRepoID)
+			ghaBranch(con, ctx, eventID, &pr.Head, &ev, baseRepoID)
 		}
 
 		// merged_by
 		if pr.MergedBy != nil {
-			ghaActor(con, ctx, *pr.MergedBy)
+			ghaActor(con, ctx, pr.MergedBy)
 		}
 
 		// assignee
 		if pr.Assignee != nil {
-			ghaActor(con, ctx, *pr.Assignee)
+			ghaActor(con, ctx, pr.Assignee)
 		}
 
 		// milestone
 		if pr.Milestone != nil {
-			ghaMilestone(con, ctx, eventID, *pr.Milestone)
+			ghaMilestone(con, ctx, eventID, pr.Milestone, &ev)
 		}
 
 		// pull_request
@@ -595,8 +694,9 @@ func writeToDB(db *sql.DB, ctx *lib.Ctx, ev lib.Event) int {
 				"id, event_id, user_id, base_sha, head_sha, merged_by_id, assignee_id, milestone_id, "+
 				"number, state, locked, title, body, created_at, updated_at, closed_at, merged_at, "+
 				"merge_commit_sha, merged, mergeable, rebaseable, mergeable_state, comments, "+
-				"review_comments, maintainer_can_modify, commits, additions, deletions, changed_files"+
-				") "+lib.NValues(29),
+				"review_comments, maintainer_can_modify, commits, additions, deletions, changed_files, "+
+				"dup_actor_id, dup_actor_login, dup_repo_id, dup_repo_name, dup_type, dup_created_at, "+
+				"dup_user_login, dupn_assignee_login, dupn_merged_by_login) "+lib.NValues(38),
 			lib.AnyArray{
 				prid,
 				eventID,
@@ -627,6 +727,15 @@ func writeToDB(db *sql.DB, ctx *lib.Ctx, ev lib.Event) int {
 				lib.IntOrNil(pr.Additions),
 				lib.IntOrNil(pr.Deletions),
 				lib.IntOrNil(pr.ChangedFiles),
+				ev.Actor.ID,
+				ev.Actor.Login,
+				ev.Repo.ID,
+				ev.Repo.Name,
+				ev.Type,
+				ev.CreatedAt,
+				pr.User.Login,
+				lib.ActorLoginOrNil(pr.Assignee),
+				lib.ActorLoginOrNil(pr.MergedBy),
 			}...,
 		)
 
@@ -640,7 +749,7 @@ func writeToDB(db *sql.DB, ctx *lib.Ctx, ev lib.Event) int {
 			}
 
 			// assignee
-			ghaActor(con, ctx, assignee)
+			ghaActor(con, ctx, &assignee)
 
 			// pull_request-assignee connection
 			lib.ExecSQLTxWithErr(
@@ -654,7 +763,7 @@ func writeToDB(db *sql.DB, ctx *lib.Ctx, ev lib.Event) int {
 		// requested_reviewers
 		for _, reviewer := range pr.RequestedReviewers {
 			// reviewer
-			ghaActor(con, ctx, reviewer)
+			ghaActor(con, ctx, &reviewer)
 
 			// pull_request-requested_reviewer connection
 			lib.ExecSQLTxWithErr(
