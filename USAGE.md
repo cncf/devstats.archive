@@ -472,6 +472,14 @@ Rows: 1
 3) List reviewers (`time PG_PASS='pwd' ./runq sql/list_*_reviewers.sql`):
 - Takes <30s for all time, generates long list (not pasted here)
 
+4) Opened to LGTMed, Approved, Merged.
+It is not obvious but average time to Approve or LGTM can be longer than time to merge.
+
+LGTM & Approve must be before merge, but:
+- To compute average time to merge, we are counting only merged PRs
+- To compute time to approve or LGTM - we're also averaging PRs that are not yet merged (for example huge ones), that can have longer distance from open to LGTM that average merge time in some periods.
+- This is not a metric bug, this is supposed to happen!
+
 # Update/Sync tool
 
 When You have imported all data You need - it needs to be updated periodically.
@@ -555,7 +563,7 @@ Currently:
 - SIG mentions dashboard: [sig_mentions.sql](https://github.com/cncf/gha2db/blob/master/metrics/sig_mentions.sql), [sig_mentions.json](https://github.com/cncf/gha2db/blob/master/grafana/dashboards/sig_mentions.json), [view](https://cncftest.io/dashboard/db/sig-mentions?orgId=1).
 - Number of PRs merged in all Kubernetes repos [all_prs_merged.sql](https://github.com/cncf/gha2db/blob/master/metrics/all_prs_merged.sql), [all_prs_merged.json](https://github.com/cncf/gha2db/blob/master/grafana/dashboards/all_prs_merged.json), [view](https://cncftest.io/dashboard/db/all-prs-merged?orgId=1).
 - Number of PRs merged per repository [prs_merged.sql](https://github.com/cncf/gha2db/blob/master/metrics/prs_merged.sql), [prs_merged.json](https://github.com/cncf/gha2db/blob/master/grafana/dashboards/prs_merged.json), [view](https://cncftest.io/dashboard/db/prs-merged?orgId=1).
-- Average time from PR open to merge [opened_to_merged.sql.json](https://github.com/cncf/gha2db/blob/master/metrics/opened_to_merged.sql), [time_to_merge.json](https://github.com/cncf/gha2db/blob/master/grafana/dashboards/time_to_merge.json), [view](https://cncftest.io/dashboard/db/time-to-merge?orgId=1).
+- Time metrics [opened_to_lgtmed.sql](https://github.com/cncf/gha2db/blob/master/metrics/opened_to_lgtmed.sql), [opened_to_approved.sql](https://github.com/cncf/gha2db/blob/master/metrics/opened_to_approved.sql), [opened_to_merged.sql](https://github.com/cncf/gha2db/blob/master/metrics/opened_to_merged.sql), [time_metrics.json](https://github.com/cncf/gha2db/blob/master/grafana/dashboards/time_metrics.json), [view](https://cncftest.io/dashboard/db/time-metrics?orgId=1).
 
 # To enable SSL Grafana:
 - First You need to install certbot, this is for example for Apache on Ubuntu 17.04:
