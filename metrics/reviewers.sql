@@ -13,7 +13,7 @@ where
     where
       created_at >= '{{from}}'
       and created_at < '{{to}}'
-      and label_name in ('lgtm', 'Lgtm', 'lGtm', 'lgTm', 'lgtM', 'LGtm', 'LgTm', 'LgtM', 'lGTm', 'lGtM', 'lgTM', 'LGTm', 'LGtM', 'LgTM', 'lGTM', 'LGTM')
+      and label_name = 'lgtm'
     group by
       issue_id
     union select event_id from matching

@@ -12,7 +12,7 @@ where
       gha_issues_events_labels
     where
       created_at >= 'now'::timestamp - '1 year'::interval
-      and label_name in ('lgtm', 'Lgtm', 'lGtm', 'lgTm', 'lgtM', 'LGtm', 'LgTm', 'LgtM', 'lGTm', 'lGtM', 'lgTM', 'LGTm', 'LGtM', 'LgTM', 'lGTM', 'LGTM')
+      and label_name = 'lgtm'
     group by
       issue_id
     union select event_id from matching

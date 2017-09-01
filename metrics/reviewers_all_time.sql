@@ -11,7 +11,7 @@ where
     from
       gha_issues_events_labels
     where
-      label_name in ('lgtm', 'Lgtm', 'lGtm', 'lgTm', 'lgtM', 'LGtm', 'LgTm', 'LgtM', 'lGTm', 'lGtM', 'lgTM', 'LGTm', 'LGtM', 'LgTM', 'lGTM', 'LGTM')
+      label_name = 'lgtm'
     group by
       issue_id
     union select event_id from matching
