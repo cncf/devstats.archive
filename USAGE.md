@@ -293,6 +293,17 @@ List of tables:
 - `gha_releases_assets`: variable, release assets
 - `gha_repos`: const, repos
 
+There is some data duplication in various columns. This is to speedup metrics processing.
+Such columns are described as "dup columns" in [structure.go](https://github.com/cncf/gha2db/blob/master/structure.go)
+Such columns are prefixed by "dup_". The're usually not null columns, but there can also be null able columns - they start with "dupn_".
+
+There is a standard duplicate event structure consisting of (dup_type, dup_actor_id, dup_actor_login, dup_repo_id, dup_repo_name, dup_created_at), I'll call it `eventd`
+
+Duplicated columns:
+- dup_actor_login, dup_repo_name in `gha_events` are taken from `gha_actors` and `gha_repos` to save joins.
+- `eventd` on `gha_payloads`
+- Just take a look at "dup_" and "dupn_" fields on all tables.
+
 # Adding columns to existing database
 
 - alter table table_name add col_name col_def;

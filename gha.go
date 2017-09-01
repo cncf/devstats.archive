@@ -260,6 +260,14 @@ func RepoIDOrNil(repoPtr *Repo) interface{} {
 	return repoPtr.ID
 }
 
+// RepoNameOrNil - return Repo Name from pointer or nil
+func RepoNameOrNil(repoPtr *Repo) interface{} {
+	if repoPtr == nil {
+		return nil
+	}
+	return repoPtr.Name
+}
+
 // IssueIDOrNil - return Issue ID from pointer or nil
 func IssueIDOrNil(issuePtr *Issue) interface{} {
 	if issuePtr == nil {
@@ -284,12 +292,28 @@ func ForkeeIDOrNil(forkPtr *Forkee) interface{} {
 	return forkPtr.ID
 }
 
+// ForkeeNameOrNil - return Forkee Name from pointer or nil
+func ForkeeNameOrNil(forkPtr *Forkee) interface{} {
+	if forkPtr == nil {
+		return nil
+	}
+	return forkPtr.Name
+}
+
 // ActorIDOrNil - return Actor ID from pointer or nil
 func ActorIDOrNil(actPtr *Actor) interface{} {
 	if actPtr == nil {
 		return nil
 	}
 	return actPtr.ID
+}
+
+// ActorLoginOrNil - return Actor Login from pointer or nil
+func ActorLoginOrNil(actPtr *Actor) interface{} {
+	if actPtr == nil {
+		return nil
+	}
+	return actPtr.Login
 }
 
 // ReleaseIDOrNil - return Release ID from pointer or nil

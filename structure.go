@@ -14,6 +14,7 @@ func Structure(ctx *Ctx) {
 	// {"id"=>10, "type"=>29, "actor"=>278, "repo"=>290, "payload"=>216017, "public"=>4,
 	// "created_at"=>20, "org"=>230}
 	// const
+	// dup columns: dup_actor_login, dup_repo_name
 	if ctx.Table {
 		ExecSQLWithErr(c, ctx, "drop table if exists gha_events")
 		ExecSQLWithErr(
@@ -28,8 +29,8 @@ func Structure(ctx *Ctx) {
 					"public boolean not null, "+
 					"created_at {{ts}} not null, "+
 					"org_id bigint, "+
-					"actor_login varchar(120) not null, "+
-					"repo_name varchar(160) not null"+
+					"dup_actor_login varchar(120) not null, "+
+					"dup_repo_name varchar(160) not null"+
 					")",
 			),
 		)
@@ -40,8 +41,8 @@ func Structure(ctx *Ctx) {
 		ExecSQLWithErr(c, ctx, "create index events_repo_id_idx on gha_events(repo_id)")
 		ExecSQLWithErr(c, ctx, "create index events_org_id_idx on gha_events(org_id)")
 		ExecSQLWithErr(c, ctx, "create index events_created_at_idx on gha_events(created_at)")
-		ExecSQLWithErr(c, ctx, "create index events_actor_login_idx on gha_events(actor_login)")
-		ExecSQLWithErr(c, ctx, "create index events_repo_name_idx on gha_events(repo_name)")
+		ExecSQLWithErr(c, ctx, "create index events_dup_actor_login_idx on gha_events(dup_actor_login)")
+		ExecSQLWithErr(c, ctx, "create index events_dup_repo_name_idx on gha_events(dup_repo_name)")
 	}
 
 	// gha_actors
@@ -146,7 +147,13 @@ func Structure(ctx *Ctx) {
 					"number int, "+
 					"forkee_id bigint, "+
 					"release_id bigint, "+
-					"member_id bigint"+
+					"member_id bigint, "+
+					"dup_actor_id bigint not null, "+
+					"dup_actor_login varchar(120) not null, "+
+					"dup_repo_id bigint not null, "+
+					"dup_repo_name varchar(160) not null, "+
+					"dup_type varchar(40) not null, "+
+					"dup_created_at {{ts}} not null"+
 					")",
 			),
 		)
@@ -160,6 +167,12 @@ func Structure(ctx *Ctx) {
 		ExecSQLWithErr(c, ctx, "create index payloads_forkee_id_idx on gha_payloads(forkee_id)")
 		ExecSQLWithErr(c, ctx, "create index payloads_release_id_idx on gha_payloads(release_id)")
 		ExecSQLWithErr(c, ctx, "create index payloads_member_id_idx on gha_payloads(member_id)")
+		ExecSQLWithErr(c, ctx, "create index payloads_dup_actor_id_idx on gha_payloads(dup_actor_id)")
+		ExecSQLWithErr(c, ctx, "create index payloads_dup_actor_login_idx on gha_payloads(dup_actor_login)")
+		ExecSQLWithErr(c, ctx, "create index payloads_dup_repo_id_idx on gha_payloads(dup_repo_id)")
+		ExecSQLWithErr(c, ctx, "create index payloads_dup_repo_name_idx on gha_payloads(dup_repo_name)")
+		ExecSQLWithErr(c, ctx, "create index payloads_dup_type_idx on gha_payloads(dup_type)")
+		ExecSQLWithErr(c, ctx, "create index payloads_dup_created_at_idx on gha_payloads(dup_created_at)")
 	}
 
 	// gha_commits
@@ -182,6 +195,12 @@ func Structure(ctx *Ctx) {
 					"author_name varchar(160) not null, "+
 					"message text not null, "+
 					"is_distinct boolean not null, "+
+					"dup_actor_id bigint not null, "+
+					"dup_actor_login varchar(120) not null, "+
+					"dup_repo_id bigint not null, "+
+					"dup_repo_name varchar(160) not null, "+
+					"dup_type varchar(40) not null, "+
+					"dup_created_at {{ts}} not null, "+
 					"primary key(sha, event_id)"+
 					")",
 			),
@@ -189,6 +208,12 @@ func Structure(ctx *Ctx) {
 	}
 	if ctx.Index {
 		ExecSQLWithErr(c, ctx, "create index commits_event_id_idx on gha_commits(event_id)")
+		ExecSQLWithErr(c, ctx, "create index commits_dup_actor_id_idx on gha_commits(dup_actor_id)")
+		ExecSQLWithErr(c, ctx, "create index commits_dup_actor_login_idx on gha_commits(dup_actor_login)")
+		ExecSQLWithErr(c, ctx, "create index commits_dup_repo_id_idx on gha_commits(dup_repo_id)")
+		ExecSQLWithErr(c, ctx, "create index commits_dup_repo_name_idx on gha_commits(dup_repo_name)")
+		ExecSQLWithErr(c, ctx, "create index commits_dup_type_idx on gha_commits(dup_type)")
+		ExecSQLWithErr(c, ctx, "create index commits_dup_created_at_idx on gha_commits(dup_created_at)")
 	}
 
 	// gha_pages
@@ -208,6 +233,12 @@ func Structure(ctx *Ctx) {
 					"event_id bigint not null, "+
 					"action varchar(20) not null, "+
 					"title varchar(300) not null, "+
+					"dup_actor_id bigint not null, "+
+					"dup_actor_login varchar(120) not null, "+
+					"dup_repo_id bigint not null, "+
+					"dup_repo_name varchar(160) not null, "+
+					"dup_type varchar(40) not null, "+
+					"dup_created_at {{ts}} not null, "+
 					"primary key(sha, event_id, action, title)"+
 					")",
 			),
@@ -216,6 +247,12 @@ func Structure(ctx *Ctx) {
 	if ctx.Index {
 		ExecSQLWithErr(c, ctx, "create index pages_event_id_idx on gha_pages(event_id)")
 		ExecSQLWithErr(c, ctx, "create index pages_action_idx on gha_pages(action)")
+		ExecSQLWithErr(c, ctx, "create index pages_dup_actor_id_idx on gha_pages(dup_actor_id)")
+		ExecSQLWithErr(c, ctx, "create index pages_dup_actor_login_idx on gha_pages(dup_actor_login)")
+		ExecSQLWithErr(c, ctx, "create index pages_dup_repo_id_idx on gha_pages(dup_repo_id)")
+		ExecSQLWithErr(c, ctx, "create index pages_dup_repo_name_idx on gha_pages(dup_repo_name)")
+		ExecSQLWithErr(c, ctx, "create index pages_dup_type_idx on gha_pages(dup_type)")
+		ExecSQLWithErr(c, ctx, "create index pages_dup_created_at_idx on gha_pages(dup_created_at)")
 	}
 
 	// gha_comments
@@ -229,7 +266,7 @@ func Structure(ctx *Ctx) {
 			ctx,
 			CreateTable(
 				"gha_comments("+
-					"id bigint not null primary key, "+
+					"id bigint not null, "+
 					"event_id bigint not null, "+
 					"body text not null, "+
 					"created_at {{ts}} not null, "+
@@ -243,7 +280,15 @@ func Structure(ctx *Ctx) {
 					"original_position int, "+
 					"path text, "+
 					"pull_request_review_id bigint, "+
-					"line int"+
+					"line int, "+
+					"dup_actor_id bigint not null, "+
+					"dup_actor_login varchar(120) not null, "+
+					"dup_repo_id bigint not null, "+
+					"dup_repo_name varchar(160) not null, "+
+					"dup_type varchar(40) not null, "+
+					"dup_created_at {{ts}} not null, "+
+					"dup_user_login varchar(120) not null, "+
+					"primary key(id, event_id)"+
 					")",
 			),
 		)
@@ -259,6 +304,13 @@ func Structure(ctx *Ctx) {
 			ctx,
 			"create index comments_pull_request_review_id_idx on gha_comments(pull_request_review_id)",
 		)
+		ExecSQLWithErr(c, ctx, "create index comments_dup_actor_id_idx on gha_comments(dup_actor_id)")
+		ExecSQLWithErr(c, ctx, "create index comments_dup_actor_login_idx on gha_comments(dup_actor_login)")
+		ExecSQLWithErr(c, ctx, "create index comments_dup_repo_id_idx on gha_comments(dup_repo_id)")
+		ExecSQLWithErr(c, ctx, "create index comments_dup_repo_name_idx on gha_comments(dup_repo_name)")
+		ExecSQLWithErr(c, ctx, "create index comments_dup_type_idx on gha_comments(dup_type)")
+		ExecSQLWithErr(c, ctx, "create index comments_dup_created_at_idx on gha_comments(dup_created_at)")
+		ExecSQLWithErr(c, ctx, "create index comments_dup_user_login_idx on gha_comments(dup_user_login)")
 	}
 
 	// gha_issues
@@ -288,6 +340,14 @@ func Structure(ctx *Ctx) {
 					"updated_at {{ts}} not null, "+
 					"user_id bigint not null, "+
 					"is_pull_request boolean not null, "+
+					"dup_actor_id bigint not null, "+
+					"dup_actor_login varchar(120) not null, "+
+					"dup_repo_id bigint not null, "+
+					"dup_repo_name varchar(160) not null, "+
+					"dup_type varchar(40) not null, "+
+					"dup_created_at {{ts}} not null, "+
+					"dupn_assignee_login varchar(120), "+
+					"dup_user_login varchar(120) not null, "+
 					"primary key(id, event_id)"+
 					")",
 			),
@@ -316,6 +376,14 @@ func Structure(ctx *Ctx) {
 		ExecSQLWithErr(c, ctx, "create index issues_state_idx on gha_issues(state)")
 		ExecSQLWithErr(c, ctx, "create index issues_user_id_idx on gha_issues(user_id)")
 		ExecSQLWithErr(c, ctx, "create index issues_is_pull_request_idx on gha_issues(is_pull_request)")
+		ExecSQLWithErr(c, ctx, "create index issues_dup_actor_id_idx on gha_issues(dup_actor_id)")
+		ExecSQLWithErr(c, ctx, "create index issues_dup_actor_login_idx on gha_issues(dup_actor_login)")
+		ExecSQLWithErr(c, ctx, "create index issues_dup_repo_id_idx on gha_issues(dup_repo_id)")
+		ExecSQLWithErr(c, ctx, "create index issues_dup_repo_name_idx on gha_issues(dup_repo_name)")
+		ExecSQLWithErr(c, ctx, "create index issues_dup_type_idx on gha_issues(dup_type)")
+		ExecSQLWithErr(c, ctx, "create index issues_dup_created_at_idx on gha_issues(dup_created_at)")
+		ExecSQLWithErr(c, ctx, "create index issues_dup_user_login_idx on gha_issues(dup_user_login)")
+		ExecSQLWithErr(c, ctx, "create index issues_dupn_assignee_login_idx on gha_issues(dupn_assignee_login)")
 	}
 
 	// gha_milestones
@@ -342,6 +410,13 @@ func Structure(ctx *Ctx) {
 					"state varchar(20) not null, "+
 					"title varchar(200) not null, "+
 					"updated_at {{ts}} not null, "+
+					"dup_actor_id bigint not null, "+
+					"dup_actor_login varchar(120) not null, "+
+					"dup_repo_id bigint not null, "+
+					"dup_repo_name varchar(160) not null, "+
+					"dup_type varchar(40) not null, "+
+					"dup_created_at {{ts}} not null, "+
+					"dupn_creator_login varchar(120), "+
 					"primary key(id, event_id)"+
 					")",
 			),
@@ -352,6 +427,13 @@ func Structure(ctx *Ctx) {
 		ExecSQLWithErr(c, ctx, "create index milestones_created_at_idx on gha_milestones(created_at)")
 		ExecSQLWithErr(c, ctx, "create index milestones_creator_id_idx on gha_milestones(creator_id)")
 		ExecSQLWithErr(c, ctx, "create index milestones_state_idx on gha_milestones(state)")
+		ExecSQLWithErr(c, ctx, "create index milestones_dup_actor_id_idx on gha_milestones(dup_actor_id)")
+		ExecSQLWithErr(c, ctx, "create index milestones_dup_actor_login_idx on gha_milestones(dup_actor_login)")
+		ExecSQLWithErr(c, ctx, "create index milestones_dup_repo_id_idx on gha_milestones(dup_repo_id)")
+		ExecSQLWithErr(c, ctx, "create index milestones_dup_repo_name_idx on gha_milestones(dup_repo_name)")
+		ExecSQLWithErr(c, ctx, "create index milestones_dup_type_idx on gha_milestones(dup_type)")
+		ExecSQLWithErr(c, ctx, "create index milestones_dup_created_at_idx on gha_milestones(dup_created_at)")
+		ExecSQLWithErr(c, ctx, "create index milestones_dupn_creator_login_idx on gha_milestones(dupn_creator_login)")
 	}
 
 	// gha_labels
@@ -381,6 +463,14 @@ func Structure(ctx *Ctx) {
 					"issue_id bigint not null, "+
 					"event_id bigint not null, "+
 					"label_id bigint not null, "+
+					"dup_actor_id bigint not null, "+
+					"dup_actor_login varchar(120) not null, "+
+					"dup_repo_id bigint not null, "+
+					"dup_repo_name varchar(160) not null, "+
+					"dup_type varchar(40) not null, "+
+					"dup_created_at {{ts}} not null, "+
+					"dup_issue_number int not null, "+
+					"dup_label_name varchar(160) not null, "+
 					"primary key(issue_id, event_id, label_id)"+
 					")",
 			),
@@ -388,6 +478,16 @@ func Structure(ctx *Ctx) {
 	}
 	if ctx.Index {
 		ExecSQLWithErr(c, ctx, "create index labels_name_idx on gha_labels(name)")
+
+		// gha_issues_labels
+		ExecSQLWithErr(c, ctx, "create index issues_labels_dup_actor_id_idx on gha_issues_labels(dup_actor_id)")
+		ExecSQLWithErr(c, ctx, "create index issues_labels_dup_actor_login_idx on gha_issues_labels(dup_actor_login)")
+		ExecSQLWithErr(c, ctx, "create index issues_labels_dup_repo_id_idx on gha_issues_labels(dup_repo_id)")
+		ExecSQLWithErr(c, ctx, "create index issues_labels_dup_repo_name_idx on gha_issues_labels(dup_repo_name)")
+		ExecSQLWithErr(c, ctx, "create index issues_labels_dup_type_idx on gha_issues_labels(dup_type)")
+		ExecSQLWithErr(c, ctx, "create index issues_labels_dup_created_at_idx on gha_issues_labels(dup_created_at)")
+		ExecSQLWithErr(c, ctx, "create index issues_labels_dup_issue_number_idx on gha_issues_labels(dup_issue_number)")
+		ExecSQLWithErr(c, ctx, "create index issues_labels_dup_label_name_idx on gha_issues_labels(dup_label_name)")
 	}
 
 	// gha_forkees
@@ -423,6 +523,13 @@ func Structure(ctx *Ctx) {
 					"watchers int not null, "+
 					"default_branch varchar(200) not null, "+
 					"public boolean, "+
+					"dup_actor_id bigint not null, "+
+					"dup_actor_login varchar(120) not null, "+
+					"dup_repo_id bigint not null, "+
+					"dup_repo_name varchar(160) not null, "+
+					"dup_type varchar(40) not null, "+
+					"dup_created_at {{ts}} not null, "+
+					"dup_owner_login varchar(120) not null, "+
 					"primary key(id, event_id)"+
 					")",
 			),
@@ -432,6 +539,13 @@ func Structure(ctx *Ctx) {
 		ExecSQLWithErr(c, ctx, "create index forkees_event_id_idx on gha_forkees(event_id)")
 		ExecSQLWithErr(c, ctx, "create index forkees_owner_id_idx on gha_forkees(owner_id)")
 		ExecSQLWithErr(c, ctx, "create index forkees_created_at_idx on gha_forkees(created_at)")
+		ExecSQLWithErr(c, ctx, "create index forkees_dup_actor_id_idx on gha_forkees(dup_actor_id)")
+		ExecSQLWithErr(c, ctx, "create index forkees_dup_actor_login_idx on gha_forkees(dup_actor_login)")
+		ExecSQLWithErr(c, ctx, "create index forkees_dup_repo_id_idx on gha_forkees(dup_repo_id)")
+		ExecSQLWithErr(c, ctx, "create index forkees_dup_repo_name_idx on gha_forkees(dup_repo_name)")
+		ExecSQLWithErr(c, ctx, "create index forkees_dup_type_idx on gha_forkees(dup_type)")
+		ExecSQLWithErr(c, ctx, "create index forkees_dup_created_at_idx on gha_forkees(dup_created_at)")
+		ExecSQLWithErr(c, ctx, "create index forkees_dup_owner_login_idx on gha_forkees(dup_owner_login)")
 	}
 
 	// gha_releases
@@ -457,6 +571,13 @@ func Structure(ctx *Ctx) {
 					"created_at {{ts}} not null, "+
 					"published_at {{ts}} not null, "+
 					"body text, "+
+					"dup_actor_id bigint not null, "+
+					"dup_actor_login varchar(120) not null, "+
+					"dup_repo_id bigint not null, "+
+					"dup_repo_name varchar(160) not null, "+
+					"dup_type varchar(40) not null, "+
+					"dup_created_at {{ts}} not null, "+
+					"dup_author_login varchar(120) not null, "+
 					"primary key(id, event_id)"+
 					")",
 			),
@@ -480,6 +601,13 @@ func Structure(ctx *Ctx) {
 		ExecSQLWithErr(c, ctx, "create index releases_event_id_idx on gha_releases(event_id)")
 		ExecSQLWithErr(c, ctx, "create index releases_author_id_idx on gha_releases(author_id)")
 		ExecSQLWithErr(c, ctx, "create index releases_created_at_idx on gha_releases(created_at)")
+		ExecSQLWithErr(c, ctx, "create index releases_dup_actor_id_idx on gha_releases(dup_actor_id)")
+		ExecSQLWithErr(c, ctx, "create index releases_dup_actor_login_idx on gha_releases(dup_actor_login)")
+		ExecSQLWithErr(c, ctx, "create index releases_dup_repo_id_idx on gha_releases(dup_repo_id)")
+		ExecSQLWithErr(c, ctx, "create index releases_dup_repo_name_idx on gha_releases(dup_repo_name)")
+		ExecSQLWithErr(c, ctx, "create index releases_dup_type_idx on gha_releases(dup_type)")
+		ExecSQLWithErr(c, ctx, "create index releases_dup_created_at_idx on gha_releases(dup_created_at)")
+		ExecSQLWithErr(c, ctx, "create index releases_dup_author_login_idx on gha_releases(dup_author_login)")
 	}
 
 	// gha_assets
@@ -504,6 +632,13 @@ func Structure(ctx *Ctx) {
 					"download_count int not null, "+
 					"created_at {{ts}} not null, "+
 					"updated_at {{ts}} not null, "+
+					"dup_actor_id bigint not null, "+
+					"dup_actor_login varchar(120) not null, "+
+					"dup_repo_id bigint not null, "+
+					"dup_repo_name varchar(160) not null, "+
+					"dup_type varchar(40) not null, "+
+					"dup_created_at {{ts}} not null, "+
+					"dup_uploader_login varchar(120) not null, "+
 					"primary key(id, event_id)"+
 					")",
 			),
@@ -515,6 +650,13 @@ func Structure(ctx *Ctx) {
 		ExecSQLWithErr(c, ctx, "create index assets_content_type_idx on gha_assets(content_type)")
 		ExecSQLWithErr(c, ctx, "create index assets_state_idx on gha_assets(state)")
 		ExecSQLWithErr(c, ctx, "create index assets_created_at_idx on gha_assets(created_at)")
+		ExecSQLWithErr(c, ctx, "create index assets_dup_actor_id_idx on gha_assets(dup_actor_id)")
+		ExecSQLWithErr(c, ctx, "create index assets_dup_actor_login_idx on gha_assets(dup_actor_login)")
+		ExecSQLWithErr(c, ctx, "create index assets_dup_repo_id_idx on gha_assets(dup_repo_id)")
+		ExecSQLWithErr(c, ctx, "create index assets_dup_repo_name_idx on gha_assets(dup_repo_name)")
+		ExecSQLWithErr(c, ctx, "create index assets_dup_type_idx on gha_assets(dup_type)")
+		ExecSQLWithErr(c, ctx, "create index assets_dup_created_at_idx on gha_assets(dup_created_at)")
+		ExecSQLWithErr(c, ctx, "create index assets_dup_uploader_login_idx on gha_assets(dup_uploader_login)")
 	}
 
 	// gha_pull_requests
@@ -559,6 +701,15 @@ func Structure(ctx *Ctx) {
 					"additions int, "+
 					"deletions int, "+
 					"changed_files int, "+
+					"dup_actor_id bigint not null, "+
+					"dup_actor_login varchar(120) not null, "+
+					"dup_repo_id bigint not null, "+
+					"dup_repo_name varchar(160) not null, "+
+					"dup_type varchar(40) not null, "+
+					"dup_created_at {{ts}} not null, "+
+					"dup_user_login varchar(120) not null, "+
+					"dupn_assignee_login varchar(120), "+
+					"dupn_merged_by_login varchar(120), "+
 					"primary key(id, event_id)"+
 					")",
 			),
@@ -604,6 +755,15 @@ func Structure(ctx *Ctx) {
 		ExecSQLWithErr(c, ctx, "create index pull_requests_created_at_idx on gha_pull_requests(created_at)")
 		ExecSQLWithErr(c, ctx, "create index pull_requests_closed_at_idx on gha_pull_requests(closed_at)")
 		ExecSQLWithErr(c, ctx, "create index pull_requests_merged_at_idx on gha_pull_requests(merged_at)")
+		ExecSQLWithErr(c, ctx, "create index pull_requests_dup_actor_id_idx on gha_pull_requests(dup_actor_id)")
+		ExecSQLWithErr(c, ctx, "create index pull_requests_dup_actor_login_idx on gha_pull_requests(dup_actor_login)")
+		ExecSQLWithErr(c, ctx, "create index pull_requests_dup_repo_id_idx on gha_pull_requests(dup_repo_id)")
+		ExecSQLWithErr(c, ctx, "create index pull_requests_dup_repo_name_idx on gha_pull_requests(dup_repo_name)")
+		ExecSQLWithErr(c, ctx, "create index pull_requests_dup_type_idx on gha_pull_requests(dup_type)")
+		ExecSQLWithErr(c, ctx, "create index pull_requests_dup_created_at_idx on gha_pull_requests(dup_created_at)")
+		ExecSQLWithErr(c, ctx, "create index pull_requests_dup_user_login_idx on gha_pull_requests(dup_user_login)")
+		ExecSQLWithErr(c, ctx, "create index pull_requests_dupn_assignee_login_idx on gha_pull_requests(dupn_assignee_login)")
+		ExecSQLWithErr(c, ctx, "create index pull_requests_dupn_merged_by_login_idx on gha_pull_requests(dupn_merged_by_login)")
 	}
 
 	// gha_branches
@@ -623,6 +783,10 @@ func Structure(ctx *Ctx) {
 					"repo_id bigint, "+
 					"label varchar(200) not null, "+
 					"ref varchar(200) not null, "+
+					"dup_type varchar(40) not null, "+
+					"dup_created_at {{ts}} not null, "+
+					"dupn_forkee_name varchar(160) not null, "+
+					"dupn_user_login varchar(120) not null, "+
 					"primary key(sha, event_id)"+
 					")",
 			),
@@ -632,6 +796,10 @@ func Structure(ctx *Ctx) {
 		ExecSQLWithErr(c, ctx, "create index branches_event_id_idx on gha_branches(event_id)")
 		ExecSQLWithErr(c, ctx, "create index branches_user_id_idx on gha_branches(user_id)")
 		ExecSQLWithErr(c, ctx, "create index branches_repo_id_idx on gha_branches(repo_id)")
+		ExecSQLWithErr(c, ctx, "create index branches_dupn_user_login_idx on gha_branches(dupn_user_login)")
+		ExecSQLWithErr(c, ctx, "create index branches_dupn_forkee_name_idx on gha_branches(dupn_forkee_name)")
+		ExecSQLWithErr(c, ctx, "create index branches_dup_type_idx on gha_branches(dup_type)")
+		ExecSQLWithErr(c, ctx, "create index branches_dup_created_at_idx on gha_branches(dup_created_at)")
 	}
 
 	// This table is a kind of `materialized view` of all texts
@@ -644,7 +812,12 @@ func Structure(ctx *Ctx) {
 				"gha_texts("+
 					"event_id bigint, "+
 					"body text, "+
-					"created_at {{ts}} not null"+
+					"created_at {{ts}} not null, "+
+					"actor_id bigint not null, "+
+					"actor_login varchar(120) not null, "+
+					"repo_id bigint not null, "+
+					"repo_name varchar(160) not null, "+
+					"type varchar(40) not null"+
 					")",
 			),
 		)
@@ -652,6 +825,11 @@ func Structure(ctx *Ctx) {
 	if ctx.Index {
 		ExecSQLWithErr(c, ctx, "create index texts_event_id_idx on gha_texts(event_id)")
 		ExecSQLWithErr(c, ctx, "create index texts_created_at_idx on gha_texts(created_at)")
+		ExecSQLWithErr(c, ctx, "create index texts_actor_id_idx on gha_texts(actor_id)")
+		ExecSQLWithErr(c, ctx, "create index texts_actor_login_idx on gha_texts(actor_login)")
+		ExecSQLWithErr(c, ctx, "create index texts_repo_id_idx on gha_texts(repo_id)")
+		ExecSQLWithErr(c, ctx, "create index texts_repo_name_idx on gha_texts(repo_name)")
+		ExecSQLWithErr(c, ctx, "create index texts_type_idx on gha_texts(type)")
 	}
 
 	// This table is a kind of `materialized view` of issue event labels
@@ -666,7 +844,14 @@ func Structure(ctx *Ctx) {
 					"event_id bigint not null, "+
 					"label_id bigint not null, "+
 					"label_name varchar(160) not null, "+
-					"created_at {{ts}} not null"+
+					"created_at {{ts}} not null, "+
+					"actor_id bigint not null, "+
+					"actor_login varchar(120) not null, "+
+					"repo_id bigint not null, "+
+					"repo_name varchar(160) not null, "+
+					"type varchar(40) not null, "+
+					"issue_number int not null, "+
+					"primary key(issue_id, event_id, label_id)"+
 					")",
 			),
 		)
@@ -697,6 +882,12 @@ func Structure(ctx *Ctx) {
 			ctx,
 			"create index issues_events_labels_created_at_idx on gha_issues_events_labels(created_at)",
 		)
+		ExecSQLWithErr(c, ctx, "create index issues_events_labels_actor_id_idx on gha_issues_events_labels(actor_id)")
+		ExecSQLWithErr(c, ctx, "create index issues_events_labels_actor_login_idx on gha_issues_events_labels(actor_login)")
+		ExecSQLWithErr(c, ctx, "create index issues_events_labels_repo_id_idx on gha_issues_events_labels(repo_id)")
+		ExecSQLWithErr(c, ctx, "create index issues_events_labels_repo_name_idx on gha_issues_events_labels(repo_name)")
+		ExecSQLWithErr(c, ctx, "create index issues_events_labels_type_idx on gha_issues_events_labels(type)")
+		ExecSQLWithErr(c, ctx, "create index issues_events_labels_issue_number_idx on gha_issues_events_labels(issue_number)")
 	}
 	// Foreign keys are not needed - they slow down processing a lweek
 
@@ -706,18 +897,18 @@ func Structure(ctx *Ctx) {
 		maxEventID := 0
 		FatalOnError(QueryRowSQL(c, ctx, "select coalesce(max(event_id), 0) from gha_texts").Scan(&maxEventID))
 		sql := fmt.Sprintf(
-			"insert into gha_texts(event_id, body, created_at) "+
-				"select event_id, body, created_at from gha_comments "+
+			"insert into gha_texts(event_id, body, created_at, repo_id, repo_name, actor_id, actor_login, type) "+
+				"select event_id, body, created_at, dup_repo_id, dup_repo_name, dup_actor_id, dup_actor_login, dup_type from gha_comments "+
 				"where body != '' and event_id > %v union "+
-				"select c.event_id, c.message, e.created_at from gha_commits c, gha_events e "+
+				"select c.event_id, c.message, e.created_at, e.repo_id, e.dup_repo_name, e.actor_id, e.dup_actor_login, e.type from gha_commits c, gha_events e "+
 				"where c.event_id = e.id and c.message != '' and e.id > %v union "+
-				"select event_id, title, created_at from gha_issues where "+
+				"select event_id, title, created_at, dup_repo_id, dup_repo_name, dup_actor_id, dup_actor_login, dup_type from gha_issues where "+
 				"title != '' and event_id > %v union "+
-				"select event_id, body, created_at from gha_issues where "+
+				"select event_id, body, created_at, dup_repo_id, dup_repo_name, dup_actor_id, dup_actor_login, dup_type from gha_issues where "+
 				"body != '' and event_id > %v union "+
-				"select event_id, title, created_at from gha_pull_requests where "+
+				"select event_id, title, created_at, dup_repo_id, dup_repo_name, dup_actor_id, dup_actor_login, dup_type from gha_pull_requests where "+
 				"title != '' and event_id > %v union "+
-				"select event_id, body, created_at from gha_pull_requests "+
+				"select event_id, body, created_at, dup_repo_id, dup_repo_name, dup_actor_id, dup_actor_login, dup_type from gha_pull_requests "+
 				"where body != '' and event_id > %v",
 			maxEventID, maxEventID, maxEventID, maxEventID, maxEventID, maxEventID,
 		)
@@ -730,10 +921,11 @@ func Structure(ctx *Ctx) {
 		// Add data to gha_issues_events_labels table (or fill it initially)
 		sql = fmt.Sprintf(
 			"insert into gha_issues_events_labels("+
-				"issue_id, event_id, label_id, label_name, created_at) "+
-				"select il.issue_id, ev.id, lb.id, lb.name, ev.created_at "+
-				"from gha_issues_labels il, gha_events ev, gha_labels lb "+
-				"where ev.id = il.event_id and il.label_id = lb.id and ev.id > %v",
+				"issue_id, event_id, label_id, label_name, created_at, repo_id, repo_name, actor_id, actor_login, type, issue_number) "+
+				"select il.issue_id, il.event_id, lb.id, lb.name, il.dup_created_at, "+
+				"il.dup_repo_id, il.dup_repo_name, il.dup_actor_id, il.dup_actor_login, il.dup_type, il.dup_issue_number "+
+				"from gha_issues_labels il, gha_labels lb "+
+				"where il.label_id = lb.id and il.event_id > %v",
 			maxEventID,
 		)
 		ExecSQLWithErr(c, ctx, sql)

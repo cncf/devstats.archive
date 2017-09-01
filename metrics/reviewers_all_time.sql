@@ -4,8 +4,8 @@ select
 from
   gha_events
 where
-  actor_login not in ('googlebot')
-  and actor_login not like 'k8s-%'
+  dup_actor_login not in ('googlebot')
+  and dup_actor_login not like 'k8s-%'
   and id in (
     select min(event_id)
     from

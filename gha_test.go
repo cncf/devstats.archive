@@ -28,6 +28,18 @@ func TestRepoIDOrNil(t *testing.T) {
 	}
 }
 
+func TestRepoNameOrNil(t *testing.T) {
+	result := lib.RepoNameOrNil(nil)
+	if result != nil {
+		t.Errorf("test nil case: expected <nil>, got %v", result)
+	}
+	expected := "kubernetes"
+	result = lib.RepoNameOrNil(&lib.Repo{Name: expected})
+	if result != expected {
+		t.Errorf("test Name=%s case: expected %s, got %v", expected, expected, result)
+	}
+}
+
 func TestIssueIDOrNil(t *testing.T) {
 	result := lib.IssueIDOrNil(nil)
 	if result != nil {
@@ -61,6 +73,18 @@ func TestForkeeIDOrNil(t *testing.T) {
 	}
 }
 
+func TestForkeeNameOrNil(t *testing.T) {
+	result := lib.ForkeeNameOrNil(nil)
+	if result != nil {
+		t.Errorf("test nil case: expected <nil>, got %v", result)
+	}
+	expected := "kubernetes"
+	result = lib.ForkeeNameOrNil(&lib.Forkee{Name: expected})
+	if result != expected {
+		t.Errorf("test Name=%s case: expected %s, got %v", expected, expected, result)
+	}
+}
+
 func TestActorIDOrNil(t *testing.T) {
 	result := lib.ActorIDOrNil(nil)
 	if result != nil {
@@ -69,6 +93,18 @@ func TestActorIDOrNil(t *testing.T) {
 	result = lib.ActorIDOrNil(&lib.Actor{ID: 2})
 	if result != 2 {
 		t.Errorf("test ID=2 case: expected 2, got %v", result)
+	}
+}
+
+func TestActorLoginOrNil(t *testing.T) {
+	result := lib.ActorLoginOrNil(nil)
+	if result != nil {
+		t.Errorf("test nil case: expected <nil>, got %v", result)
+	}
+	expected := "lukaszgryglicki"
+	result = lib.ActorLoginOrNil(&lib.Actor{Login: expected})
+	if result != expected {
+		t.Errorf("test Login=%s case: expected %s, got %v", expected, expected, result)
 	}
 }
 
