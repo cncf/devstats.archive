@@ -11,7 +11,7 @@ group by
   ipr.issue_id, pr.created_at;
 
 create temp table pr_ends as
-select issue_id, min(created_at) as lgtmed_at
+select issue_id, min(created_at) as lgtm_at
 from
   gha_issues_events_labels
 where
@@ -21,13 +21,13 @@ group by
   issue_id;
 
 select
-  avg(extract(epoch from least(e.lgtmed_at, s.merged_at) - s.created_at)/3600) as time_in_hours
+  avg(extract(epoch from least(e.lgtm_at, s.merged_at) - s.created_at)/3600) as time_in_hours
 from
-  pr_starts s,
-  pr_ends e
+  pr_starts s
+left join
+  pr_ends e on s.issue_id = e.issue_id
 where
-  s.issue_id = e.issue_id;
-
-
+  e.issue_id is not null
+  or s.merged_at is not null;
 drop table pr_ends;
 drop table pr_starts;
