@@ -569,7 +569,7 @@ func Structure(ctx *Ctx) {
 					"author_id bigint not null, "+
 					"prerelease boolean not null, "+
 					"created_at {{ts}} not null, "+
-					"published_at {{ts}} not null, "+
+					"published_at {{ts}}, "+
 					"body text, "+
 					"dup_actor_id bigint not null, "+
 					"dup_actor_login varchar(120) not null, "+
@@ -785,8 +785,8 @@ func Structure(ctx *Ctx) {
 					"ref varchar(200) not null, "+
 					"dup_type varchar(40) not null, "+
 					"dup_created_at {{ts}} not null, "+
-					"dupn_forkee_name varchar(160) not null, "+
-					"dupn_user_login varchar(120) not null, "+
+					"dupn_forkee_name varchar(160), "+
+					"dupn_user_login varchar(120), "+
 					"primary key(sha, event_id)"+
 					")",
 			),
