@@ -591,7 +591,7 @@ func writeToDB(db *sql.DB, ctx *lib.Ctx, ev lib.Event) int {
 				release.Author.ID,
 				release.Prerelease,
 				release.CreatedAt,
-				release.PublishedAt,
+				lib.TimeOrNil(release.PublishedAt),
 				lib.TruncStringOrNil(release.Body, 0xffff),
 				ev.Actor.ID,
 				ev.Actor.Login,
@@ -805,7 +805,8 @@ func parseJSON(con *sql.DB, ctx *lib.Ctx, jsonStr []byte, dt time.Time, forg, fr
 	var h lib.Event
 	err := json.Unmarshal(jsonStr, &h)
 	if err != nil {
-		fmt.Printf("'%v'\n", string(jsonStr))
+		pretty := lib.PrettyPrintJSON(jsonStr)
+		fmt.Printf("'%v'\n", string(pretty))
 	}
 	lib.FatalOnError(err)
 	fullName := h.Repo.Name

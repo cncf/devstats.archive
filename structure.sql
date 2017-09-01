@@ -87,8 +87,8 @@ CREATE TABLE gha_branches (
     ref character varying(200) NOT NULL,
     dup_type character varying(40) NOT NULL,
     dup_created_at timestamp without time zone NOT NULL,
-    dupn_forkee_name character varying(160) NOT NULL,
-    dupn_user_login character varying(120) NOT NULL
+    dupn_forkee_name character varying(160),
+    dupn_user_login character varying(120)
 );
 
 
@@ -490,7 +490,7 @@ CREATE TABLE gha_releases (
     author_id bigint NOT NULL,
     prerelease boolean NOT NULL,
     created_at timestamp without time zone NOT NULL,
-    published_at timestamp without time zone NOT NULL,
+    published_at timestamp without time zone,
     body text,
     dup_actor_id bigint NOT NULL,
     dup_actor_login character varying(120) NOT NULL,
