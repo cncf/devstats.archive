@@ -171,7 +171,7 @@ Each dashboard is defined by its metrics SQL, saved Grafana JSON export and link
 
 All of them works live on [cncftest.io](https://cncftest.io) with auto sync tool running.
 
-# Detailed USAGE instructions
+# Detailed Usage instructions
 
 - [USAGE](https://github.com/cncf/gha2db/blob/master/USAGE.md)
 

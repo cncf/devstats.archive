@@ -1,13 +1,11 @@
 select
-  e.dup_repo_name as repo_name,
-  count(pr.id) as merge_count
+  dup_repo_name as repo_name,
+  count(id) as merge_count
 from
-  gha_pull_requests pr,
-  gha_events e
+  gha_pull_requests
 where
-  pr.event_id = e.id
-  and pr.merged_at >= '{{from}}'
-  and pr.merged_at < '{{to}}'
+  merged_at >= '{{from}}'
+  and merged_at < '{{to}}'
 group by
   repo_name
 order by
