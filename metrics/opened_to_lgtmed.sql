@@ -1,10 +1,17 @@
 create temp table pr_starts as
-select issue_id, pull_request_created_at as created_at
-from gha_issues_pull_requests
-where pull_request_created_at >= '{{from}}' and pull_request_created_at < '{{to}}';
+select ipr.issue_id, pr.created_at, min(pr.merged_at) as merged_at
+from
+  gha_issues_pull_requests ipr,
+  gha_pull_requests pr
+where
+  pr.id = ipr.pull_request_id
+  and pr.created_at >= '{{from}}'
+  and pr.created_at < '{{to}}'
+group by
+  ipr.issue_id, pr.created_at;
 
 create temp table pr_ends as
-select issue_id, min(created_at) as approved_at
+select issue_id, min(created_at) as lgtmed_at
 from
   gha_issues_events_labels
 where
@@ -14,7 +21,7 @@ group by
   issue_id;
 
 select
-  avg(extract(epoch from e.approved_at - s.created_at)/3600) as time_in_hours
+  avg(extract(epoch from least(e.lgtmed_at, s.merged_at) - s.created_at)/3600) as time_in_hours
 from
   pr_starts s,
   pr_ends e
