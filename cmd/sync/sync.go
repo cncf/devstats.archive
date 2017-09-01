@@ -183,6 +183,34 @@ func sync(args []string) {
 				},
 				nil,
 			)
+
+			// Time opened to approved (number of hours) daily, weekly, monthly, quarterly, yearly
+			lib.ExecCommand(
+				&ctx,
+				[]string{
+					"./db2influx",
+					"hours_pr_open_to_approve_" + period,
+					metricsDir + "/opened_to_approved.sql",
+					lib.ToYMDDate(from),
+					lib.ToYMDDate(to),
+					period,
+				},
+				nil,
+			)
+
+			// Time opened to LGTM-ed (number of hours) daily, weekly, monthly, quarterly, yearly
+			lib.ExecCommand(
+				&ctx,
+				[]string{
+					"./db2influx",
+					"hours_pr_open_to_lgtm_" + period,
+					metricsDir + "/opened_to_lgtmed.sql",
+					lib.ToYMDDate(from),
+					lib.ToYMDDate(to),
+					period,
+				},
+				nil,
+			)
 		}
 
 		// Metrics that include hourly data

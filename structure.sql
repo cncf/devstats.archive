@@ -304,8 +304,7 @@ CREATE TABLE gha_issues_pull_requests (
     number integer NOT NULL,
     repo_id bigint NOT NULL,
     repo_name character varying(160) NOT NULL,
-    issue_created_at timestamp without time zone NOT NULL,
-    pull_request_created_at timestamp without time zone NOT NULL
+    created_at timestamp without time zone NOT NULL
 );
 
 
@@ -656,7 +655,7 @@ COPY gha_issues_labels (issue_id, event_id, label_id, dup_actor_id, dup_actor_lo
 -- Data for Name: gha_issues_pull_requests; Type: TABLE DATA; Schema: public; Owner: gha_admin
 --
 
-COPY gha_issues_pull_requests (issue_id, pull_request_id, number, repo_id, repo_name, issue_created_at, pull_request_created_at) FROM stdin;
+COPY gha_issues_pull_requests (issue_id, pull_request_id, number, repo_id, repo_name, created_at) FROM stdin;
 \.
 
 
@@ -1563,10 +1562,10 @@ CREATE INDEX issues_milestone_id_idx ON gha_issues USING btree (milestone_id);
 
 
 --
--- Name: issues_pull_requests_issue_created_at_idx; Type: INDEX; Schema: public; Owner: gha_admin
+-- Name: issues_pull_requests_created_at_idx; Type: INDEX; Schema: public; Owner: gha_admin
 --
 
-CREATE INDEX issues_pull_requests_issue_created_at_idx ON gha_issues_pull_requests USING btree (issue_created_at);
+CREATE INDEX issues_pull_requests_created_at_idx ON gha_issues_pull_requests USING btree (created_at);
 
 
 --
@@ -1581,13 +1580,6 @@ CREATE INDEX issues_pull_requests_issue_id_idx ON gha_issues_pull_requests USING
 --
 
 CREATE INDEX issues_pull_requests_number_idx ON gha_issues_pull_requests USING btree (number);
-
-
---
--- Name: issues_pull_requests_pull_request_created_at_idx; Type: INDEX; Schema: public; Owner: gha_admin
---
-
-CREATE INDEX issues_pull_requests_pull_request_created_at_idx ON gha_issues_pull_requests USING btree (pull_request_created_at);
 
 
 --

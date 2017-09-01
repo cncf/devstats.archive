@@ -120,6 +120,7 @@ To add new metrics we need to:
 4) Add Grafana dashboard or row that displays this metric
 5) Export new Grafana dashboard to JSON
 6) Create PR for the new metric.
+7) Explain how metrics SQLs works in USAGE.md (currently this is pending for all metrics defined so far)
 
 # Local development
 Local development is much easier:

@@ -903,8 +903,7 @@ func Structure(ctx *Ctx) {
 					"number int not null, "+
 					"repo_id bigint not null, "+
 					"repo_name varchar(160) not null, "+
-					"issue_created_at {{ts}} not null, "+
-					"pull_request_created_at {{ts}} not null"+
+					"created_at {{ts}} not null"+
 					")",
 			),
 		)
@@ -915,8 +914,7 @@ func Structure(ctx *Ctx) {
 		ExecSQLWithErr(c, ctx, "create index issues_pull_requests_number_idx on gha_issues_pull_requests(number)")
 		ExecSQLWithErr(c, ctx, "create index issues_pull_requests_repo_id_idx on gha_issues_pull_requests(repo_id)")
 		ExecSQLWithErr(c, ctx, "create index issues_pull_requests_repo_name_idx on gha_issues_pull_requests(repo_name)")
-		ExecSQLWithErr(c, ctx, "create index issues_pull_requests_issue_created_at_idx on gha_issues_pull_requests(issue_created_at)")
-		ExecSQLWithErr(c, ctx, "create index issues_pull_requests_pull_request_created_at_idx on gha_issues_pull_requests(pull_request_created_at)")
+		ExecSQLWithErr(c, ctx, "create index issues_pull_requests_created_at_idx on gha_issues_pull_requests(created_at)")
 	}
 	// Foreign keys are not needed - they slow down processing a lweek
 
@@ -969,8 +967,8 @@ func Structure(ctx *Ctx) {
 		// Add data to gha_issues_pull_requests table (or fill it initially)
 		sql = fmt.Sprintf(
 			"insert into gha_issues_pull_requests("+
-				"issue_id, pull_request_id, number, repo_id, repo_name, issue_created_at, pull_request_created_at) "+
-				"select distinct i.id, pr.id, i.number, i.dup_repo_id, i.dup_repo_name, i.created_at, pr.created_at "+
+				"issue_id, pull_request_id, number, repo_id, repo_name, created_at) "+
+				"select distinct i.id, pr.id, i.number, i.dup_repo_id, i.dup_repo_name, pr.created_at "+
 				"from gha_issues i, gha_pull_requests pr where i.number = pr.number and i.dup_repo_id = pr.dup_repo_id "+
 				"and i.id > %v and pr.id > %v",
 			maxIssueID,
