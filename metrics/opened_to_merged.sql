@@ -1,5 +1,4 @@
 create temp table prs as
-
 select ipr.issue_id, pr.created_at, min(pr.merged_at) as merged_at
 from
   gha_issues_pull_requests ipr,

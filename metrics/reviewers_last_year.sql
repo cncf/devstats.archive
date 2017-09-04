@@ -2,11 +2,11 @@ create temp table matching as select event_id from gha_texts where created_at >=
 select
   count(distinct actor_id) as reviewers
 from
-  gha_issues_events_labels
+  gha_events
 where
-  actor_login not in ('googlebot')
-  and actor_login not like 'k8s-%'
-  and event_id in (
+  dup_actor_login not in ('googlebot')
+  and dup_actor_login not like 'k8s-%'
+  and id in (
     select min(event_id)
     from
       gha_issues_events_labels

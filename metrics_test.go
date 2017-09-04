@@ -109,7 +109,7 @@ func TestMetrics(t *testing.T) {
 			t.Errorf("test number %d, expected %+v, got %+v", index+1, test.expected, got)
 		}
 		if test.debugDB {
-			t.Errorf("returing due to debugDB mode")
+			t.Errorf("returning due to debugDB mode")
 			return
 		}
 	}
@@ -241,12 +241,10 @@ func addEvent(con *sql.DB, ctx *lib.Ctx, args ...interface{}) (err error) {
 // Add issue event label
 // iid, eid, lid, lname, created_at
 func addIssueEventLabel(con *sql.DB, ctx *lib.Ctx, args ...interface{}) (err error) {
-	if len(args) != 5 {
-		err = fmt.Errorf("addIssueEventLabel: expects 5 variadic parameters")
+	if len(args) != 11 {
+		err = fmt.Errorf("addIssueEventLabel: expects 11 variadic parameters, got %v", len(args))
 		return
 	}
-	// STUB duplicated values for now
-	args = append(args, []interface{}{0, "", 0, "", "D", 0}...)
 	_, err = lib.ExecSQL(
 		con,
 		ctx,
@@ -283,8 +281,8 @@ func addText(con *sql.DB, ctx *lib.Ctx, args ...interface{}) (err error) {
 // Add PR
 // prid, eid, uid, merged_id, assignee_id, num, state, title, body, created_at, closed_at, merged_at, merged
 func addPR(con *sql.DB, ctx *lib.Ctx, args ...interface{}) (err error) {
-	if len(args) != 13 {
-		err = fmt.Errorf("addPR: expects 13 variadic parameters")
+	if len(args) != 17 {
+		err = fmt.Errorf("addPR: expects 17 variadic parameters, got %v", len(args))
 		return
 	}
 
@@ -318,10 +316,10 @@ func addPR(con *sql.DB, ctx *lib.Ctx, args ...interface{}) (err error) {
 		1,          // PR.additions
 		1,          // PR.Deletions
 		1,          // PR.ChangedFiles
-		0,          // Duplicate data starts here: ev.Actor.ID
-		"",         // ev.Actor.Login
-		0,          // ev.Repo.ID
-		"",         // ev.Repo.Name
+		args[15],   // Duplicate data starts here: ev.Actor.ID
+		args[16],   // ev.Actor.Login
+		args[13],   // ev.Repo.ID
+		args[14],   // ev.Repo.Name
 		"T",        // ev.Type
 		time.Now(), // ev.CreatedAt
 		"",         // PR.User.Login
@@ -343,27 +341,68 @@ func addPR(con *sql.DB, ctx *lib.Ctx, args ...interface{}) (err error) {
 	return
 }
 
+// Add Issue PR
+// issue_id, pr_id, number, repo_id, repo_name, created_at
+func addIssuePR(con *sql.DB, ctx *lib.Ctx, args ...interface{}) (err error) {
+	if len(args) != 6 {
+		err = fmt.Errorf("addIssuePR: expects 6 variadic parameters, got %v", len(args))
+		return
+	}
+	_, err = lib.ExecSQL(
+		con,
+		ctx,
+		"insert into gha_issues_pull_requests("+
+			"issue_id, pull_request_id, number, repo_id, repo_name, created_at"+
+			") "+lib.NValues(6),
+		args...,
+	)
+	return
+}
+
 // Create data for opened to merged metric
 func setupOpenedToMergedMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 	ft := testlib.YMDHMS
 
 	// PRs to add
 	// prid, eid, uid, merged_id, assignee_id, num, state, title, body, created_at, closed_at, merged_at, merged
+	// repo_id, repo_name, actor_id, actor_login
 	prs := [][]interface{}{
-		{1, 1, 1, 1, 1, 1, "closed", "PR 1", "Body PR 1", ft(2017, 7, 1), ft(2017, 7, 3), ft(2017, 7, 3), true}, // average of PR 1-6 created -> merged is 48 hours
-		{2, 2, 1, 1, 1, 2, "closed", "PR 2", "Body PR 2", ft(2017, 7, 2), ft(2017, 7, 3), ft(2017, 7, 3), true},
-		{3, 3, 1, 1, 1, 3, "closed", "PR 3", "Body PR 3", ft(2017, 7, 3), ft(2017, 7, 6), ft(2017, 7, 6), true},
-		{4, 4, 1, 1, 1, 4, "closed", "PR 4", "Body PR 4", ft(2017, 7, 4), ft(2017, 7, 5, 21, 15), ft(2017, 7, 5, 21, 15), true},
-		{5, 5, 1, 1, 1, 5, "closed", "PR 5", "Body PR 5", ft(2017, 7, 5), ft(2017, 7, 6, 20), ft(2017, 7, 6, 20), true},
-		{6, 6, 1, 1, 1, 6, "closed", "PR 6", "Body PR 6", ft(2017, 7, 6), ft(2017, 7, 8, 6, 45), ft(2017, 7, 8, 6, 45), true},
-		{7, 7, 1, 1, 1, 7, "closed", "PR 7", "Body PR 7", ft(2017, 6, 30), ft(2017, 7, 10), ft(2017, 7, 10), true}, // skipped because not created in Aug
-		{8, 1, 1, nil, 1, 8, "closed", "PR 8", "Body PR 8", ft(2017, 7, 2), ft(2017, 7, 8), nil, true},             // Skipped because not merged
-		{9, 1, 1, nil, 1, 9, "open", "PR 9", "Body PR 9", ft(2017, 7, 8), nil, nil, true},                          // Skipped because not merged
+		{1, 1, 1, 1, 1, 1, "closed", "PR 1", "Body PR 1", ft(2017, 7, 1), ft(2017, 7, 3), ft(2017, 7, 3), true, 1, "R1", 1, "A1"}, // average of PR 1-6 created -> merged is 48 hours
+		{2, 2, 1, 1, 1, 2, "closed", "PR 2", "Body PR 2", ft(2017, 7, 2), ft(2017, 7, 3), ft(2017, 7, 3), true, 1, "R1", 1, "A1"},
+		{3, 3, 1, 1, 1, 3, "closed", "PR 3", "Body PR 3", ft(2017, 7, 3), ft(2017, 7, 6), ft(2017, 7, 6), true, 1, "R1", 1, "A1"},
+		{4, 4, 1, 1, 1, 4, "closed", "PR 4", "Body PR 4", ft(2017, 7, 4), ft(2017, 7, 5, 21, 15), ft(2017, 7, 5, 21, 15), true, 1, "R1", 1, "A1"},
+		{5, 5, 1, 1, 1, 5, "closed", "PR 5", "Body PR 5", ft(2017, 7, 5), ft(2017, 7, 6, 20), ft(2017, 7, 6, 20), true, 1, "R1", 1, "A1"},
+		{6, 6, 1, 1, 1, 6, "closed", "PR 6", "Body PR 6", ft(2017, 7, 6), ft(2017, 7, 8, 6, 45), ft(2017, 7, 8, 6, 45), true, 1, "R1", 1, "A1"},
+		{7, 7, 1, 1, 1, 7, "closed", "PR 7", "Body PR 7", ft(2017, 6, 30), ft(2017, 7, 10), ft(2017, 7, 10), true, 1, "R1", 1, "A1"}, // skipped because not created in Aug
+		{8, 1, 1, nil, 1, 8, "closed", "PR 8", "Body PR 8", ft(2017, 7, 2), ft(2017, 7, 8), nil, true, 1, "R1", 1, "A1"},             // Skipped because not merged
+		{9, 1, 1, nil, 1, 9, "open", "PR 9", "Body PR 9", ft(2017, 7, 8), nil, nil, true, 1, "R1", 1, "A1"},                          // Skipped because not merged
+	}
+
+	// Issues/PRs to add
+	// issue_id, pr_id, number, repo_id, repo_name, created_at
+	iprs := [][]interface{}{
+		{1, 1, 1, 1, "R1", ft(2017, 7, 1)},
+		{2, 2, 2, 1, "R1", ft(2017, 7, 2)},
+		{3, 3, 3, 1, "R1", ft(2017, 7, 3)},
+		{4, 4, 4, 1, "R1", ft(2017, 7, 4)},
+		{5, 5, 5, 1, "R1", ft(2017, 7, 5)},
+		{6, 6, 6, 1, "R1", ft(2017, 7, 6)},
+		{7, 7, 7, 1, "R1", ft(2017, 6, 30)},
+		{8, 8, 8, 1, "R1", ft(2017, 7, 2)},
+		{9, 9, 9, 1, "R1", ft(2017, 7, 8)},
 	}
 
 	// Add PRs
 	for _, pr := range prs {
 		err = addPR(con, ctx, pr...)
+		if err != nil {
+			return
+		}
+	}
+
+	// Add Issue PRs
+	for _, ipr := range iprs {
+		err = addIssuePR(con, ctx, ipr...)
 		if err != nil {
 			return
 		}
@@ -392,16 +431,17 @@ func setupPRsMergedMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 
 	// PRs to add
 	// prid, eid, uid, merged_id, assignee_id, num, state, title, body, created_at, closed_at, merged_at, merged
+	// repo_id, repo_name, actor_id, actor_login
 	prs := [][]interface{}{
-		{1, 1, 1, 1, 1, 1, "closed", "PR 1", "Body PR 1", ft(2017, 6, 20), ft(2017, 7, 1), ft(2017, 7, 1), true},
-		{2, 5, 3, 2, 3, 2, "closed", "PR 2", "Body PR 2", ft(2017, 7, 1), ft(2017, 7, 5), ft(2017, 7, 5), true},
-		{3, 4, 2, 3, 2, 3, "closed", "PR 3", "Body PR 3", ft(2017, 7, 2), ft(2017, 7, 4), ft(2017, 7, 4), true},
-		{4, 2, 2, 4, 4, 4, "closed", "PR 4", "Body PR 4", ft(2017, 6, 10), ft(2017, 7, 2), ft(2017, 7, 2), true},
-		{5, 6, 4, 4, 4, 5, "closed", "PR 5", "Body PR 5", ft(2017, 7, 5), ft(2017, 7, 6), ft(2017, 7, 6), true},
-		{6, 3, 2, 2, 4, 6, "closed", "PR 6", "Body PR 6", ft(2017, 7, 2), ft(2017, 7, 3), ft(2017, 7, 3), true},
-		{7, 7, 1, 1, 1, 7, "closed", "PR 7", "Body PR 7", ft(2017, 7, 1), ft(2017, 8), ft(2017, 8), true},
-		{8, 8, 2, nil, 2, 8, "closed", "PR 8", "Body PR 8", ft(2017, 7, 7), ft(2017, 7, 8), nil, true},
-		{9, 9, 3, nil, 1, 9, "open", "PR 9", "Body PR 9", ft(2017, 7, 8), nil, nil, true},
+		{1, 1, 1, 1, 1, 1, "closed", "PR 1", "Body PR 1", ft(2017, 6, 20), ft(2017, 7, 1), ft(2017, 7, 1), true, 1, "Repo 1", 1, "Actor 1"},
+		{2, 5, 3, 2, 3, 2, "closed", "PR 2", "Body PR 2", ft(2017, 7, 1), ft(2017, 7, 5), ft(2017, 7, 5), true, 1, "Repo 1", 3, "Actor 3"},
+		{3, 4, 2, 3, 2, 3, "closed", "PR 3", "Body PR 3", ft(2017, 7, 2), ft(2017, 7, 4), ft(2017, 7, 4), true, 1, "Repo 1", 2, "Actor 2"},
+		{4, 2, 2, 4, 4, 4, "closed", "PR 4", "Body PR 4", ft(2017, 6, 10), ft(2017, 7, 2), ft(2017, 7, 2), true, 2, "Repo 2", 1, "Actor 1"},
+		{5, 6, 4, 4, 4, 5, "closed", "PR 5", "Body PR 5", ft(2017, 7, 5), ft(2017, 7, 6), ft(2017, 7, 6), true, 2, "Repo 2", 4, "Actor 4"},
+		{6, 3, 2, 2, 4, 6, "closed", "PR 6", "Body PR 6", ft(2017, 7, 2), ft(2017, 7, 3), ft(2017, 7, 3), true, 3, "Repo 3", 2, "Actor 2"},
+		{7, 7, 1, 1, 1, 7, "closed", "PR 7", "Body PR 7", ft(2017, 7, 1), ft(2017, 8), ft(2017, 8), true, 1, "Repo 1", 1, "Actor 1"},
+		{8, 8, 2, nil, 2, 8, "closed", "PR 8", "Body PR 8", ft(2017, 7, 7), ft(2017, 7, 8), nil, true, 2, "Repo 2", 2, "Actor 2"},
+		{9, 9, 3, nil, 1, 9, "open", "PR 9", "Body PR 9", ft(2017, 7, 8), nil, nil, true, 3, "Repo 3", 3, "Actor 3"},
 	}
 
 	// Add events
@@ -478,14 +518,15 @@ func setupReviewersMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 
 	// Issue Event Labels to add
 	// iid, eid, lid, lname, created_at
+	// repo_id, repo_name, actor_id, actor_login, type, issue_number
 	iels := [][]interface{}{
-		{1, 1, 1, "LGTM", ft(2017, 7, 10)}, // 4 labels match, but 5 and 6 have the same actor, so 3 reviewers here.
-		{2, 2, 2, "lgtm", ft(2017, 7, 11)},
-		{5, 5, 5, "LGtM", ft(2017, 7, 14)},
-		{6, 6, 6, "lgTm", ft(2017, 7, 15)},
-		{6, 9, 1, "LGTM", ft(2017, 7, 18)},     // Not counted because it belongs to issue_id (6) which received LGTM in previous line
-		{10, 10, 10, "other", ft(2017, 7, 19)}, // Not LGTM
-		{12, 12, 1, "LGTM", ft(2017, 8, 10)},   // Out of date range
+		{1, 1, 1, "lgtm", ft(2017, 7, 10), 1, "Repo 1", 1, "Actor 1", "T", 1}, // 4 labels match, but 5 and 6 have the same actor, so 3 reviewers here.
+		{2, 2, 2, "lgtm", ft(2017, 7, 11), 2, "Repo 2", 2, "Actor 2", "T", 2},
+		{5, 5, 5, "lgtm", ft(2017, 7, 14), 2, "Repo 2", 5, "Actor 5", "T", 5},
+		{6, 6, 6, "lgtm", ft(2017, 7, 15), 2, "Repo 2", 5, "Actor 5", "T", 6},
+		{6, 9, 1, "lgtm", ft(2017, 7, 18), 5, "Repo 5", 7, "Actor 7", "T", 6},      // Not counted because it belongs to issue_id (6) which received LGTM in previous line
+		{10, 10, 10, "other", ft(2017, 7, 19), 5, "Repo 5", 8, "Actor 8", "T", 10}, // Not LGTM
+		{12, 12, 1, "lgtm", ft(2017, 8, 10), 5, "Repo 5", 9, "Actor 9", "T", 12},   // Out of date range
 	}
 
 	// texts to add

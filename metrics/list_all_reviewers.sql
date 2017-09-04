@@ -3,11 +3,11 @@ select
   actor_login as actor_login,
   count(*) as reviewers_count
 from
-  gha_issues_events_labels
+  gha_events
 where
-  actor_login not in ('googlebot')
-  and actor_login not like 'k8s-%'
-  and event_id in (
+  dup_actor_login not in ('googlebot')
+  and dup_actor_login not like 'k8s-%'
+  and id in (
     select min(event_id)
     from
       gha_issues_events_labels
