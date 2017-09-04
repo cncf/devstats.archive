@@ -81,11 +81,25 @@ func TestMetrics(t *testing.T) {
 			expected: [][]interface{}{{6}},
 		},
 		{
-			setup:    setupOpenedToMergedMetric,
+			setup:    setupTimeMetrics,
 			metric:   "opened_to_merged",
 			from:     ft(2017, 7),
 			to:       ft(2017, 8),
 			expected: [][]interface{}{{48}},
+		},
+		{
+			setup:    setupTimeMetrics,
+			metric:   "opened_to_lgtmed",
+			from:     ft(2017, 7),
+			to:       ft(2017, 8),
+			expected: [][]interface{}{{24}},
+		},
+		{
+			setup:    setupTimeMetrics,
+			metric:   "opened_to_approved",
+			from:     ft(2017, 7),
+			to:       ft(2017, 8),
+			expected: [][]interface{}{{36}},
 		},
 	}
 
@@ -360,7 +374,7 @@ func addIssuePR(con *sql.DB, ctx *lib.Ctx, args ...interface{}) (err error) {
 }
 
 // Create data for opened to merged metric
-func setupOpenedToMergedMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
+func setupTimeMetrics(con *sql.DB, ctx *lib.Ctx) (err error) {
 	ft := testlib.YMDHMS
 
 	// PRs to add
@@ -373,7 +387,7 @@ func setupOpenedToMergedMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 		{4, 4, 1, 1, 1, 4, "closed", "PR 4", "Body PR 4", ft(2017, 7, 4), ft(2017, 7, 5, 21, 15), ft(2017, 7, 5, 21, 15), true, 1, "R1", 1, "A1"},
 		{5, 5, 1, 1, 1, 5, "closed", "PR 5", "Body PR 5", ft(2017, 7, 5), ft(2017, 7, 6, 20), ft(2017, 7, 6, 20), true, 1, "R1", 1, "A1"},
 		{6, 6, 1, 1, 1, 6, "closed", "PR 6", "Body PR 6", ft(2017, 7, 6), ft(2017, 7, 8, 6, 45), ft(2017, 7, 8, 6, 45), true, 1, "R1", 1, "A1"},
-		{7, 7, 1, 1, 1, 7, "closed", "PR 7", "Body PR 7", ft(2017, 6, 30), ft(2017, 7, 10), ft(2017, 7, 10), true, 1, "R1", 1, "A1"}, // skipped because not created in Aug
+		{7, 7, 1, 1, 1, 7, "closed", "PR 7", "Body PR 7", ft(2017, 6, 30), ft(2017, 7, 10), ft(2017, 7, 10), true, 1, "R1", 1, "A1"}, // Skipped because not created in Aug
 		{8, 1, 1, nil, 1, 8, "closed", "PR 8", "Body PR 8", ft(2017, 7, 2), ft(2017, 7, 8), nil, true, 1, "R1", 1, "A1"},             // Skipped because not merged
 		{9, 1, 1, nil, 1, 9, "open", "PR 9", "Body PR 9", ft(2017, 7, 8), nil, nil, true, 1, "R1", 1, "A1"},                          // Skipped because not merged
 	}
@@ -392,6 +406,23 @@ func setupOpenedToMergedMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 		{9, 9, 9, 1, "R1", ft(2017, 7, 8)},
 	}
 
+	// Issue Event Labels to add
+	// iid, eid, lid, lname, created_at
+	// repo_id, repo_name, actor_id, actor_login, type, issue_number
+	iels := [][]interface{}{
+		//{1, 1, 1, "lgtm", ft(2017, 7, 2), 1, "R1", 1, "A1", "T", 1},
+		{2, 1, 1, "lgtm", ft(2017, 7, 2, 12), 1, "R1", 1, "A1", "T", 1},
+		{3, 2, 1, "lgtm", ft(2017, 7, 4, 12), 1, "R1", 1, "A1", "T", 1},
+		{4, 3, 1, "lgtm", ft(2017, 7, 5), 1, "R1", 1, "A1", "T", 1},
+		{5, 4, 1, "lgtm", ft(2017, 7, 5, 10), 1, "R1", 1, "A1", "T", 1},
+		{6, 5, 1, "lgtm", ft(2017, 7, 6, 14), 1, "R1", 1, "A1", "T", 1},
+		{2, 6, 2, "approved", ft(2017, 7, 3), 1, "R1", 1, "A1", "T", 1},
+		{3, 7, 2, "approved", ft(2017, 7, 5), 1, "R1", 1, "A1", "T", 1},
+		{4, 8, 2, "approved", ft(2017, 7, 5, 12), 1, "R1", 1, "A1", "T", 1},
+		{5, 9, 2, "approved", ft(2017, 7, 5, 22), 1, "R1", 1, "A1", "T", 1},
+		{6, 10, 2, "approved", ft(2017, 7, 7, 14), 1, "R1", 1, "A1", "T", 1},
+	}
+
 	// Add PRs
 	for _, pr := range prs {
 		err = addPR(con, ctx, pr...)
@@ -403,6 +434,14 @@ func setupOpenedToMergedMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 	// Add Issue PRs
 	for _, ipr := range iprs {
 		err = addIssuePR(con, ctx, ipr...)
+		if err != nil {
+			return
+		}
+	}
+
+	// Add issue event labels
+	for _, iel := range iels {
+		err = addIssueEventLabel(con, ctx, iel...)
 		if err != nil {
 			return
 		}
