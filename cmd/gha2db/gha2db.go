@@ -197,6 +197,11 @@ func lookupLabel(con *sql.Tx, ctx *lib.Ctx, name string, color string) int {
 	return lid
 }
 
+func writeToDBOldFmt(db *sql.DB, ctx *lib.Ctx, eid string, ev *lib.EventOld) int {
+  fmt.Printf("%v: %+v\n", eid, ev)
+	return 0
+}
+
 func writeToDB(db *sql.DB, ctx *lib.Ctx, ev *lib.Event) int {
 	// gha_events
 	// {"id:String"=>48592, "type:String"=>48592, "actor:Hash"=>48592, "repo:Hash"=>48592,
@@ -786,8 +791,11 @@ func repoHit(fullName string, forg, frepo map[string]struct{}) bool {
 		return false
 	}
 	res := strings.Split(fullName, "/")
-	org, repo := res[0], res[1]
-	if len(forg) > 0 {
+	org, repo := "", res[0]
+	if len(res) > 1 {
+		org, repo = res[0], res[1]
+	}
+	if len(forg) > 0 && org != "" {
 		if _, ok := forg[org]; !ok {
 			return false
 		}
@@ -802,16 +810,34 @@ func repoHit(fullName string, forg, frepo map[string]struct{}) bool {
 
 // parseJSON - parse signle GHA JSON event
 func parseJSON(con *sql.DB, ctx *lib.Ctx, jsonStr []byte, dt time.Time, forg, frepo map[string]struct{}) (f int, e int) {
-	var h lib.Event
-	err := json.Unmarshal(jsonStr, &h)
+	var (
+		h        lib.Event
+		hOld     lib.EventOld
+		err      error
+		fullName string
+		eid      string
+	)
+	if ctx.OldFormat {
+		err = json.Unmarshal(jsonStr, &hOld)
+	} else {
+		err = json.Unmarshal(jsonStr, &h)
+	}
 	if err != nil {
 		pretty := lib.PrettyPrintJSON(jsonStr)
 		fmt.Printf("'%v'\n", string(pretty))
 	}
 	lib.FatalOnError(err)
-	fullName := h.Repo.Name
+	if ctx.OldFormat {
+		fullName = hOld.Repo.Name
+	} else {
+		fullName = h.Repo.Name
+	}
 	if repoHit(fullName, forg, frepo) {
-		eid := h.ID
+		if ctx.OldFormat {
+		  eid = fmt.Sprintf("%v", hashStrings([]string{hOld.Type, hOld.Actor, hOld.Repo.Name, lib.ToYMDHMSDate(hOld.CreatedAt)}))
+		} else {
+			eid = h.ID
+		}
 		if ctx.JSONOut {
 			// We want to Unmarshal/Marshall ALL JSON data, regardless of what is defined in lib.Event
 			pretty := lib.PrettyPrintJSON(jsonStr)
@@ -820,7 +846,11 @@ func parseJSON(con *sql.DB, ctx *lib.Ctx, jsonStr []byte, dt time.Time, forg, fr
 		}
 		if ctx.DBOut {
 			// fmt.Printf("JSON:\n%v\n", string(lib.PrettyPrintJSON(jsonStr)))
-			e = writeToDB(con, ctx, &h)
+			if ctx.OldFormat {
+				e = writeToDBOldFmt(con, ctx, eid, &hOld)
+			} else {
+				e = writeToDB(con, ctx, &h)
+			}
 		}
 		if ctx.Debug >= 1 {
 			fmt.Printf("Processed: '%v' event: %v\n", dt, eid)

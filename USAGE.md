@@ -73,6 +73,7 @@ You can tweak `gha2db` tools:
 - Set `GHA2DB_LASTSERIES`, to specify which InfluxDB series use to determine newest data (it will be used to query newest timestamp), default `'all_prs_merged_d'`.
 - Set `GHA2DB_CMDDEBUG` set to 1 to see commands executed, set to 2 to see commands executed and their output, set to 3 to see full exec environment.
 - Set `GHA2DB_EXPLAIN` for `runq` tool, it will prefix query select(s) with "explain " to display query plan instead of executing real query. Because metric can have multiple selects, and only main select should be replaced with "explain select" - we're replacing only downcased "select" statement followed by new line ("select\n" --> "explain select\n")
+- Set `GHA2DB_OLDFMT` for `gha2db` tool to make it use old pre 2015 GHA JSONs format (instead of new one used by GitHub Archives from 2015-01-01).
 
 All environment context details are defined in [context.go](https://github.com/cncf/gha2db/blob/master/context.go), please see that file for details (Yu can also see how it works in [context_test.go](https://github.com/cncf/gha2db/blob/master/context_test.go)).
 

@@ -36,6 +36,7 @@ type Ctx struct {
 	SkipIDB          bool      // from GHA2DB_SKIPIDB sync tool, skip InfluxDB processing? default false
 	ResetIDB         bool      // from GHA2DB_RESETIDB sync tool, regenerate all InfluxDB points? default false
 	Explain          bool      // from GHA2DB_EXPLAIN runq tool, prefix query with "explain " - it will display query plan instead of executing real query, default false
+	OldFormat        bool      // from GHA2DB_OLDFMT gha2db tool, if set then use pre 2015 GHA JSONs format
 }
 
 // Init - get context from environment variables
@@ -142,6 +143,9 @@ func (ctx *Ctx) Init() {
 
 	// Explain
 	ctx.Explain = os.Getenv("GHA2DB_EXPLAIN") != ""
+
+	// Old (pre 2015) GHA JSONs format
+	ctx.OldFormat = os.Getenv("GHA2DB_OLDFMT") != ""
 
 	// Context out if requested
 	if ctx.CtxOut {
