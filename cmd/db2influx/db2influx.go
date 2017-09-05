@@ -12,12 +12,15 @@ import (
 
 // Generate name for given series row and period
 func nameForMetricsRow(metric, name, period string) string {
-	if metric == "sig_mentions_data" {
+	switch metric {
+	case "sig_mentions_data":
 		return fmt.Sprintf("%s_%s", strings.Replace(name, "-", "_", -1), period)
-	} else if metric == "prs_merged_data" {
+	case "sig_mentions_breakdown_data":
+		return fmt.Sprintf("bd_%s_%s", strings.Replace(name, "-", "_", -1), period)
+	case "prs_merged_data":
 		r := strings.NewReplacer("-", "_", "/", "_", ".", "_")
 		return fmt.Sprintf("prs_%s_%s", r.Replace(name), period)
-	} else {
+	default:
 		fmt.Printf("Error\nUnknown metric '%v'\n", metric)
 		os.Exit(1)
 	}
