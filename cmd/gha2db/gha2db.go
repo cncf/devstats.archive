@@ -197,7 +197,7 @@ func lookupLabel(con *sql.Tx, ctx *lib.Ctx, name string, color string) int {
 	return lid
 }
 
-func writeToDB(db *sql.DB, ctx *lib.Ctx, ev lib.Event) int {
+func writeToDB(db *sql.DB, ctx *lib.Ctx, ev *lib.Event) int {
 	// gha_events
 	// {"id:String"=>48592, "type:String"=>48592, "actor:Hash"=>48592, "repo:Hash"=>48592,
 	// "payload:Hash"=>48592, "public:TrueClass"=>48592, "created_at:String"=>48592,
@@ -495,7 +495,7 @@ func writeToDB(db *sql.DB, ctx *lib.Ctx, ev lib.Event) int {
 
 		// milestone
 		if issue.Milestone != nil {
-			ghaMilestone(con, ctx, eventID, issue.Milestone, &ev)
+			ghaMilestone(con, ctx, eventID, issue.Milestone, ev)
 		}
 
 		pAid := lib.ActorIDOrNil(issue.Assignee)
@@ -560,7 +560,7 @@ func writeToDB(db *sql.DB, ctx *lib.Ctx, ev lib.Event) int {
 
 	// gha_forkees
 	if pl.Forkee != nil {
-		ghaForkee(con, ctx, eventID, pl.Forkee, &ev)
+		ghaForkee(con, ctx, eventID, pl.Forkee, ev)
 	}
 
 	// gha_releases
@@ -663,11 +663,11 @@ func writeToDB(db *sql.DB, ctx *lib.Ctx, ev lib.Event) int {
 		baseRepoID := lib.ForkeeIDOrNil(pr.Base.Repo)
 
 		// base
-		ghaBranch(con, ctx, eventID, &pr.Base, &ev, nil)
+		ghaBranch(con, ctx, eventID, &pr.Base, ev, nil)
 
 		// head (if different, and skip its repo if defined and the same as base repo)
 		if baseSHA != headSHA {
-			ghaBranch(con, ctx, eventID, &pr.Head, &ev, baseRepoID)
+			ghaBranch(con, ctx, eventID, &pr.Head, ev, baseRepoID)
 		}
 
 		// merged_by
@@ -682,7 +682,7 @@ func writeToDB(db *sql.DB, ctx *lib.Ctx, ev lib.Event) int {
 
 		// milestone
 		if pr.Milestone != nil {
-			ghaMilestone(con, ctx, eventID, pr.Milestone, &ev)
+			ghaMilestone(con, ctx, eventID, pr.Milestone, ev)
 		}
 
 		// pull_request
@@ -820,7 +820,7 @@ func parseJSON(con *sql.DB, ctx *lib.Ctx, jsonStr []byte, dt time.Time, forg, fr
 		}
 		if ctx.DBOut {
 			// fmt.Printf("JSON:\n%v\n", string(lib.PrettyPrintJSON(jsonStr)))
-			e = writeToDB(con, ctx, h)
+			e = writeToDB(con, ctx, &h)
 		}
 		if ctx.Debug >= 1 {
 			fmt.Printf("Processed: '%v' event: %v\n", dt, eid)
