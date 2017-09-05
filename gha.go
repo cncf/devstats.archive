@@ -23,6 +23,17 @@ type Event struct {
 	Payload   Payload   `json:"payload"`
 }
 
+// EventOld - full GHA (GitHub Archive) event structure, before 2015
+type EventOld struct {
+	ID        string    `json:"-"`
+	Type      string    `json:"type"`
+	Public    bool      `json:"public"`
+	CreatedAt time.Time `json:"created_at"`
+	Actor     string    `json:"actor"`
+	Repo      Repo      `json:"repository"`
+	//Payload   Payload   `json:"payload"`
+}
+
 // Payload - GHA Payload structure
 type Payload struct {
 	PushID       *int         `json:"push_id"`

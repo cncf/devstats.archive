@@ -39,6 +39,7 @@ func copyContext(in *lib.Ctx) *lib.Ctx {
 		SkipIDB:          in.SkipIDB,
 		ResetIDB:         in.ResetIDB,
 		Explain:          in.Explain,
+		OldFormat:        in.OldFormat,
 	}
 	return &out
 }
@@ -139,6 +140,7 @@ func TestInit(t *testing.T) {
 		SkipIDB:          false,
 		ResetIDB:         false,
 		Explain:          false,
+		OldFormat:        false,
 	}
 
 	// Test cases
@@ -317,6 +319,15 @@ func TestInit(t *testing.T) {
 				map[string]interface{}{
 					"DefaultStartDate": time.Date(1982, 7, 16, 10, 15, 45, 0, time.UTC),
 				},
+			),
+		},
+		{
+			"Setting Old pre 2015 GHA JSONs format",
+			map[string]string{"GHA2DB_OLDFMT": "1"},
+			dynamicSetFields(
+				t,
+				copyContext(&defaultContext),
+				map[string]interface{}{"OldFormat": true},
 			),
 		},
 	}
