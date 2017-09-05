@@ -378,6 +378,8 @@ func writeToDBOldFmt(db *sql.DB, ctx *lib.Ctx, eventID string, ev *lib.EventOld)
 	repo := lib.Repo{ID: rid, Name: repository.Name}
 	ghaRepo(db, ctx, &repo, oid, repository.Organization)
 
+  // TODO: cleanup prontfs and continue from org.
+
 	// Final return
 	return 1
 }
