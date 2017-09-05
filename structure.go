@@ -499,6 +499,7 @@ func Structure(ctx *Ctx) {
 	// gha_forkees
 	// Table details and analysis in `analysis/analysis.txt` and `analysis/forkee_*.json`
 	// variable
+  // TODO: add stuff from ForkeeOld
 	if ctx.Table {
 		ExecSQLWithErr(c, ctx, "drop table if exists gha_forkees")
 		ExecSQLWithErr(

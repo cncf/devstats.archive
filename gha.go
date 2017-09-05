@@ -79,6 +79,8 @@ type PayloadOld struct {
 }
 
 // ForkeeOld - GHA Forkee structure (from before 2015)
+// TODO: support Language and Organization in DB.
+// Handle missing 4 last properties (including two non-nulls!)
 type ForkeeOld struct {
 	ID           int       `json:"id"`
 	CreatedAt    time.Time `json:"created_at"`
