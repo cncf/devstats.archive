@@ -29,6 +29,7 @@ func Structure(ctx *Ctx) {
 					"public boolean not null, "+
 					"created_at {{ts}} not null, "+
 					"org_id bigint, "+
+					"forkee_id bigint, "+
 					"dup_actor_login varchar(120) not null, "+
 					"dup_repo_name varchar(160) not null"+
 					")",
@@ -40,6 +41,7 @@ func Structure(ctx *Ctx) {
 		ExecSQLWithErr(c, ctx, "create index events_actor_id_idx on gha_events(actor_id)")
 		ExecSQLWithErr(c, ctx, "create index events_repo_id_idx on gha_events(repo_id)")
 		ExecSQLWithErr(c, ctx, "create index events_org_id_idx on gha_events(org_id)")
+		ExecSQLWithErr(c, ctx, "create index events_forkee_id_idx on gha_events(forkee_id)")
 		ExecSQLWithErr(c, ctx, "create index events_created_at_idx on gha_events(created_at)")
 		ExecSQLWithErr(c, ctx, "create index events_dup_actor_login_idx on gha_events(dup_actor_login)")
 		ExecSQLWithErr(c, ctx, "create index events_dup_repo_name_idx on gha_events(dup_repo_name)")
@@ -80,13 +82,17 @@ func Structure(ctx *Ctx) {
 			CreateTable(
 				"gha_repos("+
 					"id bigint not null primary key, "+
-					"name varchar(160) not null"+
+					"name varchar(160) not null, "+
+					"org_id bigint, "+
+					"org_login varchar(100)"+
 					")",
 			),
 		)
 	}
 	if ctx.Index {
 		ExecSQLWithErr(c, ctx, "create index repos_name_idx on gha_repos(name)")
+		ExecSQLWithErr(c, ctx, "create index repos_org_id_idx on gha_repos(org_id)")
+		ExecSQLWithErr(c, ctx, "create index repos_org_login_idx on gha_repos(org_login)")
 	}
 
 	// gha_orgs

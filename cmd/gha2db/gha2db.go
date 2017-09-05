@@ -45,6 +45,35 @@ func ghaActor(con *sql.Tx, ctx *lib.Ctx, actor *lib.Actor) {
 	)
 }
 
+// Inserts single GHA Repo
+func ghaRepo(db *sql.DB, ctx *lib.Ctx, repo *lib.Repo, orgID, orgLogin interface{}) {
+	// gha_repos
+	// {"id:Fixnum"=>48592, "name:String"=>48592, "url:String"=>48592}
+	// {"id"=>8, "name"=>111, "url"=>140}
+	lib.ExecSQLWithErr(
+		db,
+		ctx,
+		lib.InsertIgnore("into gha_repos(id, name, org_id, org_login) "+lib.NValues(4)),
+		lib.AnyArray{repo.ID, repo.Name, orgID, orgLogin}...,
+	)
+}
+
+// Inserts single GHA Org
+func ghaOrg(db *sql.DB, ctx *lib.Ctx, org *lib.Org) {
+	// gha_orgs
+	// {"id:Fixnum"=>18494, "login:String"=>18494, "gravatar_id:String"=>18494,
+	// "url:String"=>18494, "avatar_url:String"=>18494}
+	// {"id"=>8, "login"=>38, "gravatar_id"=>0, "url"=>66, "avatar_url"=>49}
+	if org != nil {
+		lib.ExecSQLWithErr(
+			db,
+			ctx,
+			lib.InsertIgnore("into gha_orgs(id, login) "+lib.NValues(2)),
+			lib.AnyArray{org.ID, org.Login}...,
+		)
+	}
+}
+
 // Inserts single GHA Milestone
 func ghaMilestone(con *sql.Tx, ctx *lib.Ctx, eid string, milestone *lib.Milestone, ev *lib.Event) {
 	// creator
@@ -173,6 +202,8 @@ func ghaBranch(con *sql.Tx, ctx *lib.Ctx, eid string, branch *lib.Branch, ev *li
 	)
 }
 
+// Search for given label using name & color
+// If not found, return hash as its ID
 func lookupLabel(con *sql.Tx, ctx *lib.Ctx, name string, color string) int {
 	rows := lib.QuerySQLTxWithErr(
 		con,
@@ -197,12 +228,168 @@ func lookupLabel(con *sql.Tx, ctx *lib.Ctx, name string, color string) int {
 	return lid
 }
 
-func writeToDBOldFmt(db *sql.DB, ctx *lib.Ctx, eid string, ev *lib.EventOld) int {
-  fmt.Printf("%v: %+v\n", eid, ev)
-	return 0
+// Search for given actor using his/her login
+// If not found, return hash as its ID
+func lookupActor(db *sql.DB, ctx *lib.Ctx, login string) int {
+	rows := lib.QuerySQLWithErr(
+		db,
+		ctx,
+		fmt.Sprintf("select id from gha_actors where login=%s", lib.NValue(1)),
+		login,
+	)
+	defer rows.Close()
+	aid := 0
+	for rows.Next() {
+		lib.FatalOnError(rows.Scan(&aid))
+	}
+	lib.FatalOnError(rows.Err())
+	if aid == 0 {
+		aid = hashStrings([]string{login})
+	}
+	return aid
 }
 
+// Try to find Repo by name and Organization
+func findRepoFromNameAndOrg(db *sql.DB, ctx *lib.Ctx, repoName string, orgID *int) (int, bool) {
+	var rows *sql.Rows
+	if orgID != nil {
+		rows = lib.QuerySQLWithErr(
+			db,
+			ctx,
+			fmt.Sprintf(
+				"select id from gha_repos where name=%s and org_id=%s",
+				lib.NValue(1),
+				lib.NValue(2),
+			),
+			repoName,
+			orgID,
+		)
+	} else {
+		rows = lib.QuerySQLWithErr(
+			db,
+			ctx,
+			fmt.Sprintf(
+				"select id from gha_repos where name=%s and org_id is null",
+				lib.NValue(1),
+			),
+			repoName,
+		)
+	}
+	defer rows.Close()
+	exists := false
+	rid := 0
+	for rows.Next() {
+		lib.FatalOnError(rows.Scan(&rid))
+		exists = true
+	}
+	lib.FatalOnError(rows.Err())
+	return rid, exists
+}
+
+// Try to find OrgID for given OrgLogin (returns nil for nil)
+func findOrgIDOrNil(db *sql.DB, ctx *lib.Ctx, orgLogin *string) *int {
+	var orgID int
+	if orgLogin == nil {
+		return nil
+	}
+	rows := lib.QuerySQLWithErr(
+		db,
+		ctx,
+		fmt.Sprintf(
+			"select id from gha_orgs where login=%s",
+			lib.NValue(1),
+		),
+		*orgLogin,
+	)
+	defer rows.Close()
+	for rows.Next() {
+		lib.FatalOnError(rows.Scan(&orgID))
+		return &orgID
+	}
+	lib.FatalOnError(rows.Err())
+	return nil
+}
+
+// Check if given event existis (given by ID)
+func eventExists(db *sql.DB, ctx *lib.Ctx, eventID string) bool {
+	rows := lib.QuerySQLWithErr(db, ctx, fmt.Sprintf("select 1 from gha_events where id=%s", lib.NValue(1)), eventID)
+	defer rows.Close()
+	exists := false
+	for rows.Next() {
+		exists = true
+	}
+	return exists
+}
+
+// Write GHA entire event (in old pre 2015 format) into Postgres DB
+func writeToDBOldFmt(db *sql.DB, ctx *lib.Ctx, eventID string, ev *lib.EventOld) int {
+	if eventExists(db, ctx, eventID) {
+		return 0
+	}
+	//fmt.Printf("%v: %+v\n", eventID, ev.Payload)
+
+	// Lookup author by GitHub login
+	aid := lookupActor(db, ctx, ev.Actor)
+
+	// Repository
+	repository := ev.Repository
+
+	// Find Org ID from Repository.Organization
+	oid := findOrgIDOrNil(db, ctx, repository.Organization)
+
+	// Find Repo ID from Repository (this is a ForkeeOld before 2015).
+	rid, ok := findRepoFromNameAndOrg(db, ctx, repository.Name, oid)
+	if !ok {
+		rid = repository.ID
+	}
+	fmt.Printf("eid=%v, aid=%v, oid=%v, rid=%v, ok=%v\n", eventID, aid, oid, rid, ok)
+
+	// We defer transaction create until we're inserting data that can be shared between different events
+	lib.ExecSQLWithErr(
+		db,
+		ctx,
+		"insert into gha_events("+
+			"id, type, actor_id, repo_id, public, created_at, "+
+			"dup_actor_login, dup_repo_name, org_id, forkee_id) "+lib.NValues(10),
+		lib.AnyArray{
+			eventID,
+			ev.Type,
+			aid,
+			rid,
+			ev.Public,
+			ev.CreatedAt,
+			ev.Actor,
+			ev.Repository.Name,
+			oid,
+			ev.Repository.ID,
+		}...,
+	)
+
+	// Organization
+	if repository.Organization != nil {
+		if oid == nil {
+			h := hashStrings([]string{*repository.Organization})
+			oid = &h
+		}
+		ghaOrg(db, ctx, &lib.Org{ID: *oid, Login: *repository.Organization})
+	}
+
+	// Add Repository
+	repo := lib.Repo{ID: rid, Name: repository.Name}
+	ghaRepo(db, ctx, &repo, oid, repository.Organization)
+
+	// Final return
+	return 1
+}
+
+// Write entire GHA event (in a new 2015+ format) into Postgres DB
 func writeToDB(db *sql.DB, ctx *lib.Ctx, ev *lib.Event) int {
+	eventID := ev.ID
+	if eventExists(db, ctx, eventID) {
+		return 0
+	}
+
+	// We defer transaction create until we're inserting data that can be shared between different events
 	// gha_events
 	// {"id:String"=>48592, "type:String"=>48592, "actor:Hash"=>48592, "repo:Hash"=>48592,
 	// "payload:Hash"=>48592, "public:TrueClass"=>48592, "created_at:String"=>48592,
@@ -211,24 +398,12 @@ func writeToDB(db *sql.DB, ctx *lib.Ctx, ev *lib.Event) int {
 	// "created_at"=>20, "org"=>230}
 	// Fields dup_actor_login, dup_repo_name are copied from (gha_actors and gha_repos) to save
 	// joins on complex queries (MySQL has no hash joins and is very slow on big tables joins)
-	eventID := ev.ID
-	rows := lib.QuerySQLWithErr(db, ctx, fmt.Sprintf("select 1 from gha_events where id=%s", lib.NValue(1)), eventID)
-	defer rows.Close()
-	exists := 0
-	for rows.Next() {
-		exists = 1
-	}
-	if exists == 1 {
-		return 0
-	}
-
-	// We defer transaction create untill we're inserting data that can be shared between different events
 	lib.ExecSQLWithErr(
 		db,
 		ctx,
 		"insert into gha_events("+
 			"id, type, actor_id, repo_id, public, created_at, "+
-			"dup_actor_login, dup_repo_name, org_id) "+lib.NValues(9),
+			"dup_actor_login, dup_repo_name, org_id, forkee_id) "+lib.NValues(10),
 		lib.AnyArray{
 			eventID,
 			ev.Type,
@@ -239,32 +414,18 @@ func writeToDB(db *sql.DB, ctx *lib.Ctx, ev *lib.Event) int {
 			ev.Actor.Login,
 			ev.Repo.Name,
 			lib.OrgIDOrNil(ev.Org),
+			nil,
 		}...,
 	)
 
-	// gha_repos
-	// {"id:Fixnum"=>48592, "name:String"=>48592, "url:String"=>48592}
-	// {"id"=>8, "name"=>111, "url"=>140}
+	// Repository
 	repo := ev.Repo
-	lib.ExecSQLWithErr(
-		db,
-		ctx,
-		lib.InsertIgnore("into gha_repos(id, name) "+lib.NValues(2)),
-		lib.AnyArray{repo.ID, repo.Name}...,
-	)
-
-	// gha_orgs
-	// {"id:Fixnum"=>18494, "login:String"=>18494, "gravatar_id:String"=>18494,
-	// "url:String"=>18494, "avatar_url:String"=>18494}
-	// {"id"=>8, "login"=>38, "gravatar_id"=>0, "url"=>66, "avatar_url"=>49}
 	org := ev.Org
+	ghaRepo(db, ctx, &repo, lib.OrgIDOrNil(org), lib.OrgLoginOrNil(org))
+
+	// Organization
 	if org != nil {
-		lib.ExecSQLWithErr(
-			db,
-			ctx,
-			lib.InsertIgnore("into gha_orgs(id, login) "+lib.NValues(2)),
-			lib.AnyArray{org.ID, org.Login}...,
-		)
+		ghaOrg(db, ctx, org)
 	}
 
 	// gha_payloads
@@ -786,16 +947,20 @@ func writeToDB(db *sql.DB, ctx *lib.Ctx, ev *lib.Event) int {
 }
 
 // repoHit - are we interested in this org/repo ?
-func repoHit(fullName string, forg, frepo map[string]struct{}) bool {
+func repoHit(exact bool, fullName string, forg, frepo map[string]struct{}) bool {
 	if fullName == "" {
 		return false
+	}
+	if exact {
+		_, ok := forg[fullName]
+		return ok
 	}
 	res := strings.Split(fullName, "/")
 	org, repo := "", res[0]
 	if len(res) > 1 {
 		org, repo = res[0], res[1]
 	}
-	if len(forg) > 0 && org != "" {
+	if len(forg) > 0 {
 		if _, ok := forg[org]; !ok {
 			return false
 		}
@@ -806,6 +971,14 @@ func repoHit(fullName string, forg, frepo map[string]struct{}) bool {
 		}
 	}
 	return true
+}
+
+// Before 2015 rpository name should be Organization/Name (if Organization present) or just Name
+func makeOldRepoName(repo *lib.ForkeeOld) string {
+	if repo.Organization == nil || *repo.Organization == "" {
+		return repo.Name
+	}
+	return fmt.Sprintf("%s/%s", *repo.Organization, repo.Name)
 }
 
 // parseJSON - parse signle GHA JSON event
@@ -828,13 +1001,13 @@ func parseJSON(con *sql.DB, ctx *lib.Ctx, jsonStr []byte, dt time.Time, forg, fr
 	}
 	lib.FatalOnError(err)
 	if ctx.OldFormat {
-		fullName = hOld.Repo.Name
+		fullName = makeOldRepoName(&hOld.Repository)
 	} else {
 		fullName = h.Repo.Name
 	}
-	if repoHit(fullName, forg, frepo) {
+	if repoHit(ctx.Exact, fullName, forg, frepo) {
 		if ctx.OldFormat {
-		  eid = fmt.Sprintf("%v", hashStrings([]string{hOld.Type, hOld.Actor, hOld.Repo.Name, lib.ToYMDHMSDate(hOld.CreatedAt)}))
+			eid = fmt.Sprintf("%v", hashStrings([]string{hOld.Type, hOld.Actor, hOld.Repository.Name, lib.ToYMDHMSDate(hOld.CreatedAt)}))
 		} else {
 			eid = h.ID
 		}
