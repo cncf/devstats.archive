@@ -108,6 +108,7 @@ func sync(args []string) {
 	// InfluxDB periods
 	periodsFromHour := []string{"h", "d", "w", "m", "q", "y"}
 	periodsFromDay := periodsFromHour[1:]
+	periodsFromWeekToQuarter := periodsFromHour[2:5]
 
 	// DB2Influx
 	if !ctx.SkipIDB {
@@ -119,6 +120,31 @@ func sync(args []string) {
 			from = maxDtIDB
 		}
 		fmt.Printf("Influx range: %s - %s\n", lib.ToYMDHDate(from), lib.ToYMDHDate(to))
+
+		// Metrics from daily to yearly
+		fmt.Printf("Weekly - quarterly metrics\n")
+		for _, period := range periodsFromWeekToQuarter {
+			// Some bigger periods like month, quarters, years doesn't need to be updated every run
+			if !ctx.ResetIDB && !computePeriodAtThisDate(period, to) {
+				fmt.Printf("Skipping recalculating period \"%s\" for date to %v\n", period, to)
+				continue
+			}
+
+			// SIG mentions breakdown to categories weekly, monthly, quarterly
+			lib.ExecCommand(
+				&ctx,
+				[]string{
+					"./db2influx",
+					"sig_mentions_breakdown_data",
+					metricsDir + "/sig_mentions_breakdown.sql",
+					lib.ToYMDDate(from),
+					lib.ToYMDDate(to),
+					period,
+				},
+				nil,
+			)
+		}
+		fmt.Printf("Daily - yearly metrics\n")
 
 		// Metrics from daily to yearly
 		for _, period := range periodsFromDay {
@@ -214,6 +240,7 @@ func sync(args []string) {
 		}
 
 		// Metrics that include hourly data
+		fmt.Printf("Hourly - yearly metrics\n")
 		for _, period := range periodsFromHour {
 			// Some bigger periods like month, quarters, years doesn't need to be updated every run
 			if !ctx.ResetIDB && !computePeriodAtThisDate(period, to) {
