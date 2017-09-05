@@ -25,13 +25,13 @@ type Event struct {
 
 // EventOld - full GHA (GitHub Archive) event structure, before 2015
 type EventOld struct {
-	ID        string    `json:"-"`
-	Type      string    `json:"type"`
-	Public    bool      `json:"public"`
-	CreatedAt time.Time `json:"created_at"`
-	Actor     string    `json:"actor"`
-	Repo      Repo      `json:"repository"`
-	//Payload   Payload   `json:"payload"`
+	ID         string      `json:"-"`
+	Type       string      `json:"type"`
+	Public     bool        `json:"public"`
+	CreatedAt  time.Time   `json:"created_at"`
+	Actor      string      `json:"actor"`
+	Repository ForkeeOld   `json:"repository"`
+	Payload    *PayloadOld `json:"payload"`
 }
 
 // Payload - GHA Payload structure
@@ -54,6 +54,61 @@ type Payload struct {
 	Commits      *[]Commit    `json:"commits"`
 	Pages        *[]Page      `json:"pages"`
 	PullRequest  *PullRequest `json:"pull_request"`
+}
+
+// PayloadOld - GHA Payload structure (from before 2015)
+type PayloadOld struct {
+	//PushID       *int         `json:"push_id"`
+	Size *int    `json:"size"`
+	Ref  *string `json:"ref"`
+	Head *string `json:"head"`
+	//Before       *string      `json:"before"`
+	Action       *string `json:"action"`
+	RefType      *string `json:"ref_type"`
+	MasterBranch *string `json:"master_branch"`
+	Description  *string `json:"description"`
+	Number       *int    `json:"number"`
+	//Forkee       *Forkee      `json:"forkee"`
+	Release     *Release     `json:"release"`
+	Member      *Actor       `json:"member"`
+	Issue       *int         `json:"issue"`
+	Comment     *Comment     `json:"comment"`
+	Commits     *[]Commit    `json:"commits"`
+	Pages       *[]Page      `json:"pages"`
+	PullRequest *PullRequest `json:"pull_request"`
+}
+
+// ForkeeOld - GHA Forkee structure (from before 2015)
+type ForkeeOld struct {
+	ID           int       `json:"id"`
+	CreatedAt    time.Time `json:"created_at"`
+	Description  *string   `json:"description"`
+	Fork         bool      `json:"fork"`
+	Forks        int       `json:"forks"`
+	HasDownloads bool      `json:"has_downloads"`
+	HasIssues    bool      `json:"has_issues"`
+	HasWiki      bool      `json:"has_wiki"`
+	Homepage     *string   `json:"homepage"`
+
+	Language *string `json:"language"`
+
+	DefaultBranch string `json:"master_branch"`
+	Name          string `json:"name"`
+	OpenIssues    int    `json:"open_issues"`
+
+	Organization *string `json:"organization"`
+
+	Owner      string    `json:"owner"`
+	Private    *bool     `json:"private"`
+	PushedAt   time.Time `json:"updated_at"`
+	Size       int       `json:"size"`
+	Stargazers int       `json:"stargazers"`
+	Watchers   int       `json:"watchers"`
+
+	//FullName        string    `json:"full_name"`
+	//UpdatedAt       time.Time `json:"updated_at"`
+	//HasProjects     *bool     `json:"has_projects"`
+	//HasPages        *bool     `json:"has_pages"`
 }
 
 // Repo - GHA Repo structure
@@ -261,6 +316,14 @@ func OrgIDOrNil(orgPtr *Org) interface{} {
 		return nil
 	}
 	return orgPtr.ID
+}
+
+// OrgLoginOrNil - return Org ID from pointer or nil
+func OrgLoginOrNil(orgPtr *Org) interface{} {
+	if orgPtr == nil {
+		return nil
+	}
+	return orgPtr.Login
 }
 
 // RepoIDOrNil - return Repo ID from pointer or nil

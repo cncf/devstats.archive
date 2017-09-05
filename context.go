@@ -37,6 +37,7 @@ type Ctx struct {
 	ResetIDB         bool      // from GHA2DB_RESETIDB sync tool, regenerate all InfluxDB points? default false
 	Explain          bool      // from GHA2DB_EXPLAIN runq tool, prefix query with "explain " - it will display query plan instead of executing real query, default false
 	OldFormat        bool      // from GHA2DB_OLDFMT gha2db tool, if set then use pre 2015 GHA JSONs format
+	Exact            bool      // FROM GHA2DB_EXACT gha2db tool, if set then orgs list provided from commandline is used as a list of exact repository full names, like "a/b,c/d,e"
 }
 
 // Init - get context from environment variables
@@ -146,6 +147,9 @@ func (ctx *Ctx) Init() {
 
 	// Old (pre 2015) GHA JSONs format
 	ctx.OldFormat = os.Getenv("GHA2DB_OLDFMT") != ""
+
+	// Exact repository full names to match
+	ctx.Exact = os.Getenv("GHA2DB_EXACT") != ""
 
 	// Context out if requested
 	if ctx.CtxOut {

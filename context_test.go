@@ -40,6 +40,7 @@ func copyContext(in *lib.Ctx) *lib.Ctx {
 		ResetIDB:         in.ResetIDB,
 		Explain:          in.Explain,
 		OldFormat:        in.OldFormat,
+		Exact:            in.Exact,
 	}
 	return &out
 }
@@ -141,6 +142,7 @@ func TestInit(t *testing.T) {
 		ResetIDB:         false,
 		Explain:          false,
 		OldFormat:        false,
+		Exact:            false,
 	}
 
 	// Test cases
@@ -328,6 +330,15 @@ func TestInit(t *testing.T) {
 				t,
 				copyContext(&defaultContext),
 				map[string]interface{}{"OldFormat": true},
+			),
+		},
+		{
+			"Setting exact repository names mode",
+			map[string]string{"GHA2DB_EXACT": "1"},
+			dynamicSetFields(
+				t,
+				copyContext(&defaultContext),
+				map[string]interface{}{"Exact": true},
 			),
 		},
 	}
