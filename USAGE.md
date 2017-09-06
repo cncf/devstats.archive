@@ -346,7 +346,8 @@ And finally before 2015-01-01 GitHub used different JSONs format. To process the
 For example June 2017:
 - `time PG_PASS=pwd ./gha2db 2017-06-01 0 2017-07-01 0 'kubernetes,kubernetes-incubator,kubernetes-client'`
 
-To process kubernetes all time just use `kubernetes.sh` script.
+To process kubernetes all time just use `kubernetes.sh` script. Like this:
+- `time PG_PASS=pwd ./kubernetes.sh`.
 
 # Metrics tool
 There is a tool `runq`. It is used to compute metrics saved in `*.sql` files.
