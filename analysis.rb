@@ -66,27 +66,20 @@ end
 # rubocop:enable Metrics/ParameterLists
 
 # Analysis of JSON data to determine PSQL tables to create
-def analysis(jsons)
+def analysis(prefix, calls, jsons)
   n = 0
   occ = {}
   ml = {}
   strs = {}
-  prefix = 'old_repository'
+  calls = calls.split(',').map(&:strip)
   jsons.each do |json|
     h = JSON.parse(File.read(json)).to_h
     oh = h
-    # Leave h "as is" to investigate top level DB table
-    # h = h['actor']
-    h = h['repository']
-    # h = h['org']
-    # h = h['payload']
+    calls.each do |call|
+      h = h.send(:[], call)
+      next unless h
+    end
     next unless h
-    # h = h['pull_request']
-    # next unless h
-    # h = h['requested_reviewers']
-    # next unless h
-    # h = h.first
-    # next unless h
 
     s = object_structure('', h, true, true, 1)
     strs[s] = oh
@@ -115,12 +108,12 @@ def analysis(jsons)
   p occ
   p ml
   p n
-  binding.pry if strs.keys.length > 1
+  # binding.pry if strs.keys.length > 1
 end
 
 # rubocop:enable Lint/Debugger
 
-analysis(ARGV)
+analysis(ARGV[0], ARGV[1], ARGV[2..-1])
 
 # gha_events: {"id:String"=>48592, "type:String"=>48592, "actor:Hash"=>48592, "repo:Hash"=>48592,
 # "payload:Hash"=>48592, "public:TrueClass"=>48592, "created_at:String"=>48592, "org:Hash"=>19451}

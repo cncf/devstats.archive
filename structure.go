@@ -499,7 +499,6 @@ func Structure(ctx *Ctx) {
 	// gha_forkees
 	// Table details and analysis in `analysis/analysis.txt` and `analysis/forkee_*.json`
 	// variable
-	// TODO: add stuff from ForkeeOld
 	if ctx.Table {
 		ExecSQLWithErr(c, ctx, "drop table if exists gha_forkees")
 		ExecSQLWithErr(
@@ -537,6 +536,8 @@ func Structure(ctx *Ctx) {
 					"dup_type varchar(40) not null, "+
 					"dup_created_at {{ts}} not null, "+
 					"dup_owner_login varchar(120) not null, "+
+					"language varchar(80), "+
+					"organization varchar(100), "+
 					"primary key(id, event_id)"+
 					")",
 			),
@@ -553,6 +554,8 @@ func Structure(ctx *Ctx) {
 		ExecSQLWithErr(c, ctx, "create index forkees_dup_type_idx on gha_forkees(dup_type)")
 		ExecSQLWithErr(c, ctx, "create index forkees_dup_created_at_idx on gha_forkees(dup_created_at)")
 		ExecSQLWithErr(c, ctx, "create index forkees_dup_owner_login_idx on gha_forkees(dup_owner_login)")
+		ExecSQLWithErr(c, ctx, "create index forkees_language_idx on gha_forkees(language)")
+		ExecSQLWithErr(c, ctx, "create index forkees_organization_idx on gha_forkees(organization)")
 	}
 
 	// gha_releases

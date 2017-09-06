@@ -79,38 +79,28 @@ type PayloadOld struct {
 }
 
 // ForkeeOld - GHA Forkee structure (from before 2015)
-// TODO: support Language and Organization in DB.
 // Handle missing 4 last properties (including two non-nulls!)
 type ForkeeOld struct {
-	ID           int       `json:"id"`
-	CreatedAt    time.Time `json:"created_at"`
-	Description  *string   `json:"description"`
-	Fork         bool      `json:"fork"`
-	Forks        int       `json:"forks"`
-	HasDownloads bool      `json:"has_downloads"`
-	HasIssues    bool      `json:"has_issues"`
-	HasWiki      bool      `json:"has_wiki"`
-	Homepage     *string   `json:"homepage"`
-
-	Language *string `json:"language"`
-
-	DefaultBranch string `json:"master_branch"`
-	Name          string `json:"name"`
-	OpenIssues    int    `json:"open_issues"`
-
-	Organization *string `json:"organization"`
-
-	Owner      string    `json:"owner"`
-	Private    *bool     `json:"private"`
-	PushedAt   time.Time `json:"updated_at"`
-	Size       int       `json:"size"`
-	Stargazers int       `json:"stargazers"`
-	Watchers   int       `json:"watchers"`
-
-	//FullName        string    `json:"full_name"`
-	//UpdatedAt       time.Time `json:"updated_at"`
-	//HasProjects     *bool     `json:"has_projects"`
-	//HasPages        *bool     `json:"has_pages"`
+	ID            int       `json:"id"`
+	CreatedAt     time.Time `json:"created_at"`
+	Description   *string   `json:"description"`
+	Fork          bool      `json:"fork"`
+	Forks         int       `json:"forks"`
+	HasDownloads  bool      `json:"has_downloads"`
+	HasIssues     bool      `json:"has_issues"`
+	HasWiki       bool      `json:"has_wiki"`
+	Homepage      *string   `json:"homepage"`
+	Language      *string   `json:"language"`
+	DefaultBranch string    `json:"master_branch"`
+	Name          string    `json:"name"`
+	OpenIssues    int       `json:"open_issues"`
+	Organization  *string   `json:"organization"`
+	Owner         string    `json:"owner"`
+	Private       *bool     `json:"private"`
+	PushedAt      time.Time `json:"updated_at"`
+	Size          int       `json:"size"`
+	Stargazers    int       `json:"stargazers"`
+	Watchers      int       `json:"watchers"`
 }
 
 // Repo - GHA Repo structure
