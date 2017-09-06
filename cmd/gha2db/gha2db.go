@@ -695,10 +695,12 @@ func ghaPullRequest(con *sql.Tx, ctx *lib.Ctx, payloadPullRequest *lib.PullReque
 	// Arrays: actors: assignees, requested_reviewers
 	// assignees
 	var assignees []lib.Actor
+
 	prAid := lib.ActorIDOrNil(pr.Assignee)
 	if pr.Assignee != nil {
 		assignees = append(assignees, *pr.Assignee)
 	}
+
 	if pr.Assignees != nil {
 		for _, assignee := range *pr.Assignees {
 			aid := assignee.ID
@@ -708,6 +710,7 @@ func ghaPullRequest(con *sql.Tx, ctx *lib.Ctx, payloadPullRequest *lib.PullReque
 			assignees = append(assignees, assignee)
 		}
 	}
+
 	for _, assignee := range assignees {
 		// assignee
 		ghaActor(con, ctx, &assignee)
@@ -959,6 +962,86 @@ func writeToDBOldFmt(db *sql.DB, ctx *lib.Ctx, eventID string, ev *lib.EventOld)
 		forkeeIDsToSkip = append(forkeeIDsToSkip, pl.Repository.ID)
 	}
 	ghaPullRequest(con, ctx, pl.PullRequest, eventID, &actor, &repo, ev.Type, ev.CreatedAt, forkeeIDsToSkip)
+
+	// We need artifical issue
+	// gha_issues
+	// Table details and analysis in `analysis/analysis.txt` and `analysis/issue_*.json`
+	if pl.PullRequest != nil {
+		pr := *pl.PullRequest
+
+		// issue
+		iid = hashStrings([]string{eventID, strconv.Itoa(pr.ID)})
+		isPR := true
+		comments := 0
+		locked := false
+		if pr.Comments != nil {
+			comments = *pr.Comments
+		}
+		if pr.Locked != nil {
+			locked = *pr.Locked
+		}
+		lib.ExecSQLTxWithErr(
+			con,
+			ctx,
+			"insert into gha_issues("+
+				"id, event_id, assignee_id, body, closed_at, comments, created_at, "+
+				"locked, milestone_id, number, state, title, updated_at, user_id, "+
+				"dup_actor_id, dup_actor_login, dup_repo_id, dup_repo_name, dup_type, dup_created_at, "+
+				"dup_user_login, dupn_assignee_login, is_pull_request) "+lib.NValues(23),
+			lib.AnyArray{
+				iid,
+				eventID,
+				lib.ActorIDOrNil(pr.Assignee),
+				lib.TruncStringOrNil(pr.Body, 0xffff),
+				lib.TimeOrNil(pr.ClosedAt),
+				comments,
+				pr.CreatedAt,
+				locked,
+				lib.MilestoneIDOrNil(pr.Milestone),
+				pr.Number,
+				pr.State,
+				pr.Title,
+				pr.UpdatedAt,
+				pr.User.ID,
+				actor.ID,
+				actor.Login,
+				repo.ID,
+				repo.Name,
+				ev.Type,
+				ev.CreatedAt,
+				pr.User.Login,
+				lib.ActorLoginOrNil(pr.Assignee),
+				isPR,
+			}...,
+		)
+
+		var assignees []lib.Actor
+
+		prAid := lib.ActorIDOrNil(pr.Assignee)
+		if pr.Assignee != nil {
+			assignees = append(assignees, *pr.Assignee)
+		}
+
+		if pr.Assignees != nil {
+			for _, assignee := range *pr.Assignees {
+				aid := assignee.ID
+				if aid == prAid {
+					continue
+				}
+				assignees = append(assignees, assignee)
+			}
+		}
+
+		for _, assignee := range assignees {
+			// pull_request-assignee connection
+			lib.ExecSQLTxWithErr(
+				con,
+				ctx,
+				"insert into gha_issues_assignees(issue_id, event_id, assignee_id) "+lib.NValues(3),
+				lib.AnyArray{iid, eventID, assignee.ID}...,
+			)
+		}
+	}
 
 	// Final commit
 	lib.FatalOnError(con.Commit())

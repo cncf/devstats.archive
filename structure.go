@@ -1020,7 +1020,7 @@ func Structure(ctx *Ctx) {
 		ExecSQLWithErr(c, ctx, sql)
 
 		// Get max issue_id & pull_request_id from gha_issues_pull_requests
-    // Minimum possible signed int 64 value
+		// Minimum possible signed int 64 value
 		maxIssueID := -0x8000000000000000
 		maxPRID := -0x8000000000000000
 		FatalOnError(QueryRowSQL(c, ctx, "select coalesce(max(issue_id), -9223372036854775808) from gha_issues_pull_requests").Scan(&maxIssueID))
