@@ -12,4 +12,5 @@
 #ruby analysis.rb old_payload_release_assets_uploader 'payload,release,assets,i:0,uploader' jsons/*.json | tee analysis/old_payload_release_assets_uploader.txt
 #ruby analysis.rb old_payload_repository 'payload,repository' jsons/*.json | tee analysis/old_payload_repository.txt
 #ruby analysis.rb old_payload_repository_owner 'payload,repository,owner' jsons/*.json | tee analysis/old_payload_repository_owner.txt
-ruby analysis.rb old_payload_team 'payload,team' jsons/*.json | tee analysis/old_payload_team.txt
+#ruby analysis.rb old_payload_team 'payload,team' jsons/*.json | tee analysis/old_payload_team.txt
+ruby analysis.rb old_payload_pull_request 'payload,pull_request' jsons/*.json | tee analysis/old_payload_pull_request.txt

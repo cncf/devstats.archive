@@ -316,10 +316,12 @@ Duplicated columns:
 
 # JSON examples
 
-There are examples of all kinds of GHA events JSONs in [./example_jsons](https://github.com/cncf/gha2db/blob/master/example_jsons/) directory.
-There is also a file [example_jsons/analysis.txt](https://github.com/cncf/gha2db/blob/master/example_jsons/analysis.txt) that describes JSON structure analysis.
+There are examples of all kinds of GHA events JSONs in [./analysis](https://github.com/cncf/gha2db/blob/master/analysis/) directory.
+There is also a file [analysis/analysis.txt](https://github.com/cncf/gha2db/blob/master/analysis/analysis.txt) that describes JSON structure analysis.
 
 It was used very intensively during development of SQL table structure.
+
+All JSON file starting with "old_" and txt files starting with "old_" are result of pre-2015 GHA JSONs structure analysis.
 
 # Running on Kubernetes
 
