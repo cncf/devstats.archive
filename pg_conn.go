@@ -172,6 +172,16 @@ func IntOrNil(intPtr *int) interface{} {
 	return *intPtr
 }
 
+// FirstIntOrNil - return either nil or value of intPtr
+func FirstIntOrNil(intPtrs []*int) interface{} {
+	for _, intPtr := range intPtrs {
+		if intPtr != nil {
+			return *intPtr
+		}
+	}
+	return nil
+}
+
 // CleanUTF8 - clean UTF8 string to containg only Pq allowed runes
 func CleanUTF8(str string) string {
 	if strings.Contains(str, "\x00") {

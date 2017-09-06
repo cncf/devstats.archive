@@ -551,6 +551,12 @@ func writeToDBOldFmt(db *sql.DB, ctx *lib.Ctx, eventID string, ev *lib.EventOld)
 		return 0
 	}
 
+	iid := lib.FirstIntOrNil([]*int{pl.Issue, pl.IssueID})
+	cid := lib.CommentIDOrNil(pl.Comment)
+	if cid == nil {
+		cid = lib.IntOrNil(pl.CommentID)
+	}
+
 	lib.ExecSQLWithErr(
 		db,
 		ctx,
@@ -568,8 +574,8 @@ func writeToDBOldFmt(db *sql.DB, ctx *lib.Ctx, eventID string, ev *lib.EventOld)
 			lib.StringOrNil(pl.Head),
 			nil,
 			lib.StringOrNil(pl.Action),
-			lib.IntOrNil(pl.Issue), // Is this real Issue ID from new system?
-			lib.CommentIDOrNil(pl.Comment),
+			iid, // Is this real Issue ID from new system?
+			cid,
 			lib.StringOrNil(pl.RefType),
 			lib.TruncStringOrNil(pl.MasterBranch, 200),
 			lib.StringOrNil(pl.Commit),

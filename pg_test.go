@@ -170,6 +170,32 @@ func TestIntOrNil(t *testing.T) {
 	}
 }
 
+func TestFirstIntOrNil(t *testing.T) {
+	nn1 := 1
+	nn2 := 2
+	var testCases = []struct {
+		array    []*int
+		expected interface{}
+	}{
+		{array: []*int{}, expected: nil},
+		{array: []*int{nil}, expected: nil},
+		{array: []*int{&nn1}, expected: nn1},
+		{array: []*int{nil, nil}, expected: nil},
+		{array: []*int{nil, &nn1}, expected: nn1},
+		{array: []*int{&nn1, nil}, expected: nn1},
+		{array: []*int{&nn1, &nn2}, expected: nn1},
+		{array: []*int{&nn2, &nn1}, expected: nn2},
+		{array: []*int{nil, &nn2, &nn1}, expected: nn2},
+	}
+	// Execute test cases
+	for index, test := range testCases {
+		got := lib.FirstIntOrNil(test.array)
+		if got != test.expected {
+			t.Errorf("test number %d, expected %v, got %v", index+1, test.expected, got)
+		}
+	}
+}
+
 func TestStringOrNil(t *testing.T) {
 	result := lib.StringOrNil(nil)
 	if result != nil {
