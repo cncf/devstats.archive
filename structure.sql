@@ -104,7 +104,6 @@ CREATE TABLE gha_comments (
     body text NOT NULL,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
-    type character varying(40) NOT NULL,
     user_id bigint NOT NULL,
     commit_id character varying(40),
     original_commit_id character varying(40),
@@ -159,6 +158,7 @@ CREATE TABLE gha_events (
     public boolean NOT NULL,
     created_at timestamp without time zone NOT NULL,
     org_id bigint,
+    forkee_id bigint,
     dup_actor_login character varying(120) NOT NULL,
     dup_repo_name character varying(160) NOT NULL
 );
@@ -194,6 +194,8 @@ CREATE TABLE gha_forkees (
     watchers integer NOT NULL,
     default_branch character varying(200) NOT NULL,
     public boolean,
+    language character varying(80),
+    organization character varying(100),
     dup_actor_id bigint NOT NULL,
     dup_actor_login character varying(120) NOT NULL,
     dup_repo_id bigint NOT NULL,
@@ -407,6 +409,7 @@ CREATE TABLE gha_payloads (
     forkee_id bigint,
     release_id bigint,
     member_id bigint,
+    commit character varying(40),
     dup_actor_id bigint NOT NULL,
     dup_actor_login character varying(120) NOT NULL,
     dup_repo_id bigint NOT NULL,
@@ -433,7 +436,7 @@ CREATE TABLE gha_pull_requests (
     milestone_id bigint,
     number integer NOT NULL,
     state character varying(20) NOT NULL,
-    locked boolean NOT NULL,
+    locked boolean,
     title text NOT NULL,
     body text,
     created_at timestamp without time zone NOT NULL,
@@ -539,11 +542,47 @@ ALTER TABLE gha_releases_assets OWNER TO gha_admin;
 
 CREATE TABLE gha_repos (
     id bigint NOT NULL,
-    name character varying(160) NOT NULL
+    name character varying(160) NOT NULL,
+    org_id bigint,
+    org_login character varying(100)
 );
 
 
 ALTER TABLE gha_repos OWNER TO gha_admin;
+
+--
+-- Name: gha_teams; Type: TABLE; Schema: public; Owner: gha_admin
+--
+
+CREATE TABLE gha_teams (
+    id bigint NOT NULL,
+    event_id bigint NOT NULL,
+    name character varying(120) NOT NULL,
+    slug character varying(100) NOT NULL,
+    permission character varying(20) NOT NULL,
+    dup_actor_id bigint NOT NULL,
+    dup_actor_login character varying(120) NOT NULL,
+    dup_repo_id bigint NOT NULL,
+    dup_repo_name character varying(160) NOT NULL,
+    dup_type character varying(40) NOT NULL,
+    dup_created_at timestamp without time zone NOT NULL
+);
+
+
+ALTER TABLE gha_teams OWNER TO gha_admin;
+
+--
+-- Name: gha_teams_repositories; Type: TABLE; Schema: public; Owner: gha_admin
+--
+
+CREATE TABLE gha_teams_repositories (
+    team_id bigint NOT NULL,
+    event_id bigint NOT NULL,
+    repository_id bigint NOT NULL
+);
+
+
+ALTER TABLE gha_teams_repositories OWNER TO gha_admin;
 
 --
 -- Name: gha_texts; Type: TABLE; Schema: public; Owner: gha_admin
@@ -591,7 +630,7 @@ COPY gha_branches (sha, event_id, user_id, repo_id, label, ref, dup_type, dup_cr
 -- Data for Name: gha_comments; Type: TABLE DATA; Schema: public; Owner: gha_admin
 --
 
-COPY gha_comments (id, event_id, body, created_at, updated_at, type, user_id, commit_id, original_commit_id, diff_hunk, "position", original_position, path, pull_request_review_id, line, dup_actor_id, dup_actor_login, dup_repo_id, dup_repo_name, dup_type, dup_created_at, dup_user_login) FROM stdin;
+COPY gha_comments (id, event_id, body, created_at, updated_at, user_id, commit_id, original_commit_id, diff_hunk, "position", original_position, path, pull_request_review_id, line, dup_actor_id, dup_actor_login, dup_repo_id, dup_repo_name, dup_type, dup_created_at, dup_user_login) FROM stdin;
 \.
 
 
@@ -607,7 +646,7 @@ COPY gha_commits (sha, event_id, author_name, message, is_distinct, dup_actor_id
 -- Data for Name: gha_events; Type: TABLE DATA; Schema: public; Owner: gha_admin
 --
 
-COPY gha_events (id, type, actor_id, repo_id, public, created_at, org_id, dup_actor_login, dup_repo_name) FROM stdin;
+COPY gha_events (id, type, actor_id, repo_id, public, created_at, org_id, forkee_id, dup_actor_login, dup_repo_name) FROM stdin;
 \.
 
 
@@ -615,7 +654,7 @@ COPY gha_events (id, type, actor_id, repo_id, public, created_at, org_id, dup_ac
 -- Data for Name: gha_forkees; Type: TABLE DATA; Schema: public; Owner: gha_admin
 --
 
-COPY gha_forkees (id, event_id, name, full_name, owner_id, description, fork, created_at, updated_at, pushed_at, homepage, size, stargazers_count, has_issues, has_projects, has_downloads, has_wiki, has_pages, forks, open_issues, watchers, default_branch, public, dup_actor_id, dup_actor_login, dup_repo_id, dup_repo_name, dup_type, dup_created_at, dup_owner_login) FROM stdin;
+COPY gha_forkees (id, event_id, name, full_name, owner_id, description, fork, created_at, updated_at, pushed_at, homepage, size, stargazers_count, has_issues, has_projects, has_downloads, has_wiki, has_pages, forks, open_issues, watchers, default_branch, public, language, organization, dup_actor_id, dup_actor_login, dup_repo_id, dup_repo_name, dup_type, dup_created_at, dup_owner_login) FROM stdin;
 \.
 
 
@@ -695,7 +734,7 @@ COPY gha_pages (sha, event_id, action, title, dup_actor_id, dup_actor_login, dup
 -- Data for Name: gha_payloads; Type: TABLE DATA; Schema: public; Owner: gha_admin
 --
 
-COPY gha_payloads (event_id, push_id, size, ref, head, befor, action, issue_id, comment_id, ref_type, master_branch, description, number, forkee_id, release_id, member_id, dup_actor_id, dup_actor_login, dup_repo_id, dup_repo_name, dup_type, dup_created_at) FROM stdin;
+COPY gha_payloads (event_id, push_id, size, ref, head, befor, action, issue_id, comment_id, ref_type, master_branch, description, number, forkee_id, release_id, member_id, commit, dup_actor_id, dup_actor_login, dup_repo_id, dup_repo_name, dup_type, dup_created_at) FROM stdin;
 \.
 
 
@@ -743,7 +782,23 @@ COPY gha_releases_assets (release_id, event_id, asset_id) FROM stdin;
 -- Data for Name: gha_repos; Type: TABLE DATA; Schema: public; Owner: gha_admin
 --
 
-COPY gha_repos (id, name) FROM stdin;
+COPY gha_repos (id, name, org_id, org_login) FROM stdin;
+\.
+
+
+--
+-- Data for Name: gha_teams; Type: TABLE DATA; Schema: public; Owner: gha_admin
+--
+
+COPY gha_teams (id, event_id, name, slug, permission, dup_actor_id, dup_actor_login, dup_repo_id, dup_repo_name, dup_type, dup_created_at) FROM stdin;
+\.
+
+
+--
+-- Data for Name: gha_teams_repositories; Type: TABLE DATA; Schema: public; Owner: gha_admin
+--
+
+COPY gha_teams_repositories (team_id, event_id, repository_id) FROM stdin;
 \.
 
 
@@ -928,7 +983,23 @@ ALTER TABLE ONLY gha_releases
 --
 
 ALTER TABLE ONLY gha_repos
-    ADD CONSTRAINT gha_repos_pkey PRIMARY KEY (id);
+    ADD CONSTRAINT gha_repos_pkey PRIMARY KEY (id, name);
+
+
+--
+-- Name: gha_teams gha_teams_pkey; Type: CONSTRAINT; Schema: public; Owner: gha_admin
+--
+
+ALTER TABLE ONLY gha_teams
+    ADD CONSTRAINT gha_teams_pkey PRIMARY KEY (id, event_id);
+
+
+--
+-- Name: gha_teams_repositories gha_teams_repositories_pkey; Type: CONSTRAINT; Schema: public; Owner: gha_admin
+--
+
+ALTER TABLE ONLY gha_teams_repositories
+    ADD CONSTRAINT gha_teams_repositories_pkey PRIMARY KEY (team_id, event_id, repository_id);
 
 
 --
@@ -1149,13 +1220,6 @@ CREATE INDEX comments_pull_request_review_id_idx ON gha_comments USING btree (pu
 
 
 --
--- Name: comments_type_idx; Type: INDEX; Schema: public; Owner: gha_admin
---
-
-CREATE INDEX comments_type_idx ON gha_comments USING btree (type);
-
-
---
 -- Name: comments_user_id_idx; Type: INDEX; Schema: public; Owner: gha_admin
 --
 
@@ -1240,6 +1304,13 @@ CREATE INDEX events_dup_repo_name_idx ON gha_events USING btree (dup_repo_name);
 
 
 --
+-- Name: events_forkee_id_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX events_forkee_id_idx ON gha_events USING btree (forkee_id);
+
+
+--
 -- Name: events_org_id_idx; Type: INDEX; Schema: public; Owner: gha_admin
 --
 
@@ -1321,6 +1392,20 @@ CREATE INDEX forkees_dup_type_idx ON gha_forkees USING btree (dup_type);
 --
 
 CREATE INDEX forkees_event_id_idx ON gha_forkees USING btree (event_id);
+
+
+--
+-- Name: forkees_language_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX forkees_language_idx ON gha_forkees USING btree (language);
+
+
+--
+-- Name: forkees_organization_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX forkees_organization_idx ON gha_forkees USING btree (organization);
 
 
 --
@@ -1779,6 +1864,13 @@ CREATE INDEX payloads_comment_id_idx ON gha_payloads USING btree (comment_id);
 
 
 --
+-- Name: payloads_commit_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX payloads_commit_idx ON gha_payloads USING btree (commit);
+
+
+--
 -- Name: payloads_dup_actor_id_idx; Type: INDEX; Schema: public; Owner: gha_admin
 --
 
@@ -2077,6 +2169,90 @@ CREATE INDEX releases_event_id_idx ON gha_releases USING btree (event_id);
 --
 
 CREATE INDEX repos_name_idx ON gha_repos USING btree (name);
+
+
+--
+-- Name: repos_org_id_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX repos_org_id_idx ON gha_repos USING btree (org_id);
+
+
+--
+-- Name: repos_org_login_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX repos_org_login_idx ON gha_repos USING btree (org_login);
+
+
+--
+-- Name: teams_dup_actor_id_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX teams_dup_actor_id_idx ON gha_teams USING btree (dup_actor_id);
+
+
+--
+-- Name: teams_dup_actor_login_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX teams_dup_actor_login_idx ON gha_teams USING btree (dup_actor_login);
+
+
+--
+-- Name: teams_dup_created_at_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX teams_dup_created_at_idx ON gha_teams USING btree (dup_created_at);
+
+
+--
+-- Name: teams_dup_repo_id_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX teams_dup_repo_id_idx ON gha_teams USING btree (dup_repo_id);
+
+
+--
+-- Name: teams_dup_repo_name_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX teams_dup_repo_name_idx ON gha_teams USING btree (dup_repo_name);
+
+
+--
+-- Name: teams_dup_type_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX teams_dup_type_idx ON gha_teams USING btree (dup_type);
+
+
+--
+-- Name: teams_event_id_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX teams_event_id_idx ON gha_teams USING btree (event_id);
+
+
+--
+-- Name: teams_name_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX teams_name_idx ON gha_teams USING btree (name);
+
+
+--
+-- Name: teams_permission_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX teams_permission_idx ON gha_teams USING btree (permission);
+
+
+--
+-- Name: teams_slug_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX teams_slug_idx ON gha_teams USING btree (slug);
 
 
 --
