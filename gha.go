@@ -59,7 +59,9 @@ type Payload struct {
 // PayloadOld - GHA Payload structure (from before 2015)
 type PayloadOld struct {
 	Issue        *int           `json:"issue"`
+	IssueID      *int           `json:"issue_id"`
 	Comment      *Comment       `json:"comment"`
+	CommentID    *int           `json:"comment_id"`
 	Description  *string        `json:"description"`
 	MasterBranch *string        `json:"master_branch"`
 	Ref          *string        `json:"ref"`
