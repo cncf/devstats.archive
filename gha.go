@@ -186,7 +186,7 @@ type PullRequest struct {
 	User                Actor      `json:"user"`
 	Number              int        `json:"number"`
 	State               string     `json:"state"`
-	Locked              bool       `json:"locked"`
+	Locked              *bool      `json:"locked"`
 	Title               string     `json:"title"`
 	Body                *string    `json:"body"`
 	CreatedAt           time.Time  `json:"created_at"`
@@ -195,8 +195,8 @@ type PullRequest struct {
 	MergedAt            *time.Time `json:"merged_at"`
 	MergeCommitSHA      *string    `json:"merge_commit_sha"`
 	Assignee            *Actor     `json:"assignee"`
-	Assignees           []Actor    `json:"assignees"`
-	RequestedReviewers  []Actor    `json:"requested_reviewers"`
+	Assignees           *[]Actor   `json:"assignees"`
+	RequestedReviewers  *[]Actor   `json:"requested_reviewers"`
 	Milestone           *Milestone `json:"milestone"`
 	Merged              *bool      `json:"merged"`
 	Mergeable           *bool      `json:"mergeable"`

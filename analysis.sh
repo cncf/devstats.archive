@@ -13,4 +13,11 @@
 #ruby analysis.rb old_payload_repository 'payload,repository' jsons/*.json | tee analysis/old_payload_repository.txt
 #ruby analysis.rb old_payload_repository_owner 'payload,repository,owner' jsons/*.json | tee analysis/old_payload_repository_owner.txt
 #ruby analysis.rb old_payload_team 'payload,team' jsons/*.json | tee analysis/old_payload_team.txt
-ruby analysis.rb old_payload_pull_request 'payload,pull_request' jsons/*.json | tee analysis/old_payload_pull_request.txt
+#ruby analysis.rb old_payload_pull_request 'payload,pull_request' jsons/*.json | tee analysis/old_payload_pull_request.txt
+ruby analysis.rb old_payload_pull_request_base 'payload,pull_request,base' jsons/*.json | tee analysis/old_payload_pull_request_base.txt
+ruby analysis.rb old_payload_pull_request_head 'payload,pull_request,head' jsons/*.json | tee analysis/old_payload_pull_request_head.txt
+ruby analysis.rb old_payload_pull_request_merged_by 'payload,pull_request,merged_by' jsons/*.json | tee analysis/old_payload_pull_request_merged_by.txt
+ruby analysis.rb old_payload_pull_request_user 'payload,pull_request,user' jsons/*.json | tee analysis/old_payload_pull_request_user.txt
+ruby analysis.rb old_payload_pull_request_assignee 'payload,pull_request,assignee' jsons/*.json | tee analysis/old_payload_pull_request_assignee.txt
+ruby analysis.rb old_payload_pull_request_milestone 'payload,pull_request,milestone' jsons/*.json | tee analysis/old_payload_pull_request_milestone.txt
+ruby analysis.rb old_payload_pull_request_links 'payload,pull_request,_links' jsons/*.json | tee analysis/old_payload_pull_request_links.txt
