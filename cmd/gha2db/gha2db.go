@@ -439,6 +439,56 @@ func ghaPages(con *sql.Tx, ctx *lib.Ctx, payloadPages *[]lib.Page, eventID strin
 	}
 }
 
+// gha_comments
+// Table details and analysis in `analysis/analysis.txt` and `analysis/comment_*.json`
+func ghaComment(con *sql.Tx, ctx *lib.Ctx, payloadComment *lib.Comment, eventID string, actor *lib.Actor, repo *lib.Repo, eType string, eCreatedAt time.Time) {
+	if payloadComment == nil {
+		return
+	}
+	comment := *payloadComment
+
+	// user
+	ghaActor(con, ctx, &comment.User)
+
+	// comment
+	cid := comment.ID
+	lib.ExecSQLTxWithErr(
+		con,
+		ctx,
+		lib.InsertIgnore(
+			"into gha_comments("+
+				"id, event_id, body, created_at, updated_at, user_id, "+
+				"commit_id, original_commit_id, diff_hunk, position, "+
+				"original_position, path, pull_request_review_id, line, "+
+				"dup_actor_id, dup_actor_login, dup_repo_id, dup_repo_name, dup_type, dup_created_at, "+
+				"dup_user_login) "+lib.NValues(21),
+		),
+		lib.AnyArray{
+			cid,
+			eventID,
+			lib.TruncToBytes(comment.Body, 0xffff),
+			comment.CreatedAt,
+			comment.UpdatedAt,
+			comment.User.ID,
+			lib.StringOrNil(comment.CommitID),
+			lib.StringOrNil(comment.OriginalCommitID),
+			lib.StringOrNil(comment.DiffHunk),
+			lib.IntOrNil(comment.Position),
+			lib.IntOrNil(comment.OriginalPosition),
+			lib.StringOrNil(comment.Path),
+			lib.IntOrNil(comment.PullRequestReviewID),
+			lib.IntOrNil(comment.Line),
+			actor.ID,
+			actor.Login,
+			repo.ID,
+			repo.Name,
+			eType,
+			eCreatedAt,
+			comment.User.Login,
+		}...,
+	)
+}
+
 // Write GHA entire event (in old pre 2015 format) into Postgres DB
 func writeToDBOldFmt(db *sql.DB, ctx *lib.Ctx, eventID string, ev *lib.EventOld) int {
 	if eventExists(db, ctx, eventID) {
@@ -579,6 +629,14 @@ func writeToDBOldFmt(db *sql.DB, ctx *lib.Ctx, eventID string, ev *lib.EventOld)
 
 	// Pages
 	ghaPages(con, ctx, pl.Pages, eventID, &actor, &repo, ev.Type, ev.CreatedAt)
+
+	// Member
+	if pl.Member != nil {
+		ghaActor(con, ctx, pl.Member)
+	}
+
+	// Comment
+	ghaComment(con, ctx, pl.Comment, eventID, &actor, &repo, ev.Type, ev.CreatedAt)
 
 	// Final commit
 	lib.FatalOnError(con.Commit())
@@ -729,57 +787,13 @@ func writeToDB(db *sql.DB, ctx *lib.Ctx, ev *lib.Event) int {
 	// Pages
 	ghaPages(con, ctx, pl.Pages, eventID, &ev.Actor, &ev.Repo, ev.Type, ev.CreatedAt)
 
-	// member
+	// Member
 	if pl.Member != nil {
 		ghaActor(con, ctx, pl.Member)
 	}
 
-	// gha_comments
-	// Table details and analysis in `analysis/analysis.txt` and `analysis/comment_*.json`
-	if pl.Comment != nil {
-		comment := *pl.Comment
-		// user
-		ghaActor(con, ctx, &comment.User)
-
-		// comment
-		cid := comment.ID
-		lib.ExecSQLTxWithErr(
-			con,
-			ctx,
-			lib.InsertIgnore(
-				"into gha_comments("+
-					"id, event_id, body, created_at, updated_at, type, user_id, "+
-					"commit_id, original_commit_id, diff_hunk, position, "+
-					"original_position, path, pull_request_review_id, line, "+
-					"dup_actor_id, dup_actor_login, dup_repo_id, dup_repo_name, dup_type, dup_created_at, "+
-					"dup_user_login) "+lib.NValues(22),
-			),
-			lib.AnyArray{
-				cid,
-				eventID,
-				lib.TruncToBytes(comment.Body, 0xffff),
-				comment.CreatedAt,
-				comment.UpdatedAt,
-				ev.Type,
-				comment.User.ID,
-				lib.StringOrNil(comment.CommitID),
-				lib.StringOrNil(comment.OriginalCommitID),
-				lib.StringOrNil(comment.DiffHunk),
-				lib.IntOrNil(comment.Position),
-				lib.IntOrNil(comment.OriginalPosition),
-				lib.StringOrNil(comment.Path),
-				lib.IntOrNil(comment.PullRequestReviewID),
-				lib.IntOrNil(comment.Line),
-				ev.Actor.ID,
-				ev.Actor.Login,
-				ev.Repo.ID,
-				ev.Repo.Name,
-				ev.Type,
-				ev.CreatedAt,
-				comment.User.Login,
-			}...,
-		)
-	}
+	// Comment
+	ghaComment(con, ctx, pl.Comment, eventID, &ev.Actor, &ev.Repo, ev.Type, ev.CreatedAt)
 
 	// gha_issues
 	// Table details and analysis in `analysis/analysis.txt` and `analysis/issue_*.json`

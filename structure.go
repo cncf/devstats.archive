@@ -279,7 +279,6 @@ func Structure(ctx *Ctx) {
 					"body text not null, "+
 					"created_at {{ts}} not null, "+
 					"updated_at {{ts}} not null, "+
-					"type varchar(40) not null, "+
 					"user_id bigint not null, "+
 					"commit_id varchar(40), "+
 					"original_commit_id varchar(40), "+
@@ -303,7 +302,6 @@ func Structure(ctx *Ctx) {
 	}
 	if ctx.Index {
 		ExecSQLWithErr(c, ctx, "create index comments_event_id_idx on gha_comments(event_id)")
-		ExecSQLWithErr(c, ctx, "create index comments_type_idx on gha_comments(type)")
 		ExecSQLWithErr(c, ctx, "create index comments_created_at_idx on gha_comments(created_at)")
 		ExecSQLWithErr(c, ctx, "create index comments_user_id_idx on gha_comments(user_id)")
 		ExecSQLWithErr(c, ctx, "create index comments_commit_id_idx on gha_comments(commit_id)")
