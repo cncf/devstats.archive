@@ -133,6 +133,19 @@ func TestBoolOrNil(t *testing.T) {
 	}
 }
 
+func TestNegatedBoolOrNil(t *testing.T) {
+	result := lib.NegatedBoolOrNil(nil)
+	if result != nil {
+		t.Errorf("test nil case: expected <nil>, got %v", result)
+	}
+	val := true
+	result = lib.NegatedBoolOrNil(&val)
+	expected := !val
+	if result != expected {
+		t.Errorf("expected %v, got %v", expected, result)
+	}
+}
+
 func TestTimeOrNil(t *testing.T) {
 	result := lib.TimeOrNil(nil)
 	if result != nil {

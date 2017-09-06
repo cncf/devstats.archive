@@ -148,6 +148,14 @@ func BoolOrNil(boolPtr *bool) interface{} {
 	return *boolPtr
 }
 
+// NegatedBoolOrNil - return either nil or negated value of boolPtr
+func NegatedBoolOrNil(boolPtr *bool) interface{} {
+	if boolPtr == nil {
+		return nil
+	}
+	return !*boolPtr
+}
+
 // TimeOrNil - return either nil or value of timePtr
 func TimeOrNil(timePtr *time.Time) interface{} {
 	if timePtr == nil {

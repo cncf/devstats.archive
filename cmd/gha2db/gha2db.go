@@ -115,6 +115,65 @@ func ghaMilestone(con *sql.Tx, ctx *lib.Ctx, eid string, milestone *lib.Mileston
 	)
 }
 
+// Inserts single GHA Forkee (old format < 2015)
+func ghaForkeeOld(con *sql.Tx, ctx *lib.Ctx, eid string, forkee *lib.ForkeeOld, actor *lib.Actor, repo *lib.Repo, ev *lib.EventOld) {
+
+	// Lookup author by GitHub login
+	aid := lookupActorTx(con, ctx, forkee.Owner)
+
+	// Owner
+	owner := lib.Actor{ID: aid, Login: forkee.Owner}
+	ghaActor(con, ctx, &owner)
+
+	// gha_forkees
+	// Table details and analysis in `analysis/analysis.txt` and `analysis/forkee_*.json`
+	lib.ExecSQLTxWithErr(
+		con,
+		ctx,
+		"insert into gha_forkees("+
+			"id, event_id, name, full_name, owner_id, description, fork, "+
+			"created_at, updated_at, pushed_at, homepage, size, language, organization, "+
+			"stargazers_count, has_issues, has_projects, has_downloads, "+
+			"has_wiki, has_pages, forks, default_branch, open_issues, watchers, public, "+
+			"dup_actor_id, dup_actor_login, dup_repo_id, dup_repo_name, dup_type, dup_created_at, "+
+			"dup_owner_login) "+lib.NValues(32),
+		lib.AnyArray{
+			forkee.ID,
+			eid,
+			lib.TruncToBytes(forkee.Name, 80),
+			lib.TruncToBytes(forkee.Name, 200), // ForkeeOld has no FullName
+			owner.ID,
+			lib.TruncStringOrNil(forkee.Description, 0xffff),
+			forkee.Fork,
+			forkee.CreatedAt,
+			forkee.CreatedAt, // ForkeeOld has no UpdatedAt
+			forkee.PushedAt,
+			lib.StringOrNil(forkee.Homepage),
+			forkee.Size,
+			lib.StringOrNil(forkee.Language),
+			lib.StringOrNil(forkee.Organization),
+			forkee.Stargazers,
+			forkee.HasIssues,
+			nil,
+			forkee.HasDownloads,
+			forkee.HasWiki,
+			nil,
+			forkee.Forks,
+			lib.TruncToBytes(forkee.DefaultBranch, 200),
+			forkee.OpenIssues,
+			forkee.Watchers,
+			lib.NegatedBoolOrNil(forkee.Private),
+			actor.ID,
+			actor.Login,
+			repo.ID,
+			repo.Name,
+			ev.Type,
+			ev.CreatedAt,
+			owner.Login,
+		}...,
+	)
+}
+
 // Inserts single GHA Forkee
 func ghaForkee(con *sql.Tx, ctx *lib.Ctx, eid string, forkee *lib.Forkee, ev *lib.Event) {
 	// owner
@@ -127,11 +186,11 @@ func ghaForkee(con *sql.Tx, ctx *lib.Ctx, eid string, forkee *lib.Forkee, ev *li
 		ctx,
 		"insert into gha_forkees("+
 			"id, event_id, name, full_name, owner_id, description, fork, "+
-			"created_at, updated_at, pushed_at, homepage, size, "+
+			"created_at, updated_at, pushed_at, homepage, size, language, organization, "+
 			"stargazers_count, has_issues, has_projects, has_downloads, "+
 			"has_wiki, has_pages, forks, default_branch, open_issues, watchers, public, "+
 			"dup_actor_id, dup_actor_login, dup_repo_id, dup_repo_name, dup_type, dup_created_at, "+
-			"dup_owner_login) "+lib.NValues(30),
+			"dup_owner_login) "+lib.NValues(32),
 		lib.AnyArray{
 			forkee.ID,
 			eid,
@@ -145,6 +204,8 @@ func ghaForkee(con *sql.Tx, ctx *lib.Ctx, eid string, forkee *lib.Forkee, ev *li
 			forkee.PushedAt,
 			lib.StringOrNil(forkee.Homepage),
 			forkee.Size,
+			nil,
+			nil,
 			forkee.StargazersCount,
 			forkee.HasIssues,
 			lib.BoolOrNil(forkee.HasProjects),
@@ -249,6 +310,27 @@ func lookupActor(db *sql.DB, ctx *lib.Ctx, login string) int {
 	return aid
 }
 
+// Search for given actor using his/her login
+// If not found, return hash as its ID
+func lookupActorTx(con *sql.Tx, ctx *lib.Ctx, login string) int {
+	rows := lib.QuerySQLTxWithErr(
+		con,
+		ctx,
+		fmt.Sprintf("select id from gha_actors where login=%s", lib.NValue(1)),
+		login,
+	)
+	defer rows.Close()
+	aid := 0
+	for rows.Next() {
+		lib.FatalOnError(rows.Scan(&aid))
+	}
+	lib.FatalOnError(rows.Err())
+	if aid == 0 {
+		aid = hashStrings([]string{login})
+	}
+	return aid
+}
+
 // Try to find Repo by name and Organization
 func findRepoFromNameAndOrg(db *sql.DB, ctx *lib.Ctx, repoName string, orgID *int) (int, bool) {
 	var rows *sql.Rows
@@ -330,6 +412,7 @@ func writeToDBOldFmt(db *sql.DB, ctx *lib.Ctx, eventID string, ev *lib.EventOld)
 
 	// Lookup author by GitHub login
 	aid := lookupActor(db, ctx, ev.Actor)
+	actor := lib.Actor{ID: aid, Login: ev.Actor}
 
 	// Repository
 	repository := ev.Repository
@@ -378,9 +461,17 @@ func writeToDBOldFmt(db *sql.DB, ctx *lib.Ctx, eventID string, ev *lib.EventOld)
 	repo := lib.Repo{ID: rid, Name: repository.Name}
 	ghaRepo(db, ctx, &repo, oid, repository.Organization)
 
-	// TODO: cleanup prontfs and continue from org.
+	// TODO: Add Payload Here
 
-	// Final return
+	// Start transaction for data possibly shared between events
+	con, err := db.Begin()
+	lib.FatalOnError(err)
+
+	// Add Forkee
+	ghaForkeeOld(con, ctx, eventID, &ev.Repository, &actor, &repo, ev)
+
+	// Final commit
+	lib.FatalOnError(con.Commit())
 	return 1
 }
 
