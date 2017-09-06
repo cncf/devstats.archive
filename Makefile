@@ -12,8 +12,10 @@ GO_LINT=golint
 GO_VET=go vet
 GO_IMPORTS=goimports -w
 GO_TEST=go test
+BINARIES=structure runq gha2db db2influx sync
+STRIP=strip
 
-all: check structure runq gha2db db2influx sync
+all: check ${BINARIES}
 
 structure: cmd/structure/structure.go ${GO_LIB_FILES}
 	 ${GO_ENV} ${GO_BUILD} -o structure cmd/structure/structure.go
@@ -52,6 +54,9 @@ check: fmt lint imports vet
 
 install: check structure runq gha2db db2influx sync
 	${GO_INSTALL} ${GO_BIN_CMDS}
+
+strip: ${BINARIES}
+	${STRIP} ${BINARIES}
 
 clean:
 	rm -f structure runq gha2db db2influx sync
