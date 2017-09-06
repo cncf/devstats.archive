@@ -325,6 +325,16 @@ All JSON and TXT files starting with "old_" and txt files starting with "old_" a
 
 All JSON and TXT files starting with "new_" and txt files starting with "new_" are result of new 2015+ GHA JSONs structure analysis.
 
+To Run JSON structure analysis for either pre or from 2015 please do:
+- `analysis_from2015.sh`.
+- `analysis_pre2015.sh`.
+
+Both those tools require Ruby. This tool was originally in Ruby, and there is no sense to rewrite it in Go because:
+- It uses very dynamic code, reflection and code evaluation as provided by properties list from command line.
+- It is used only during implementation (first post 2015 version, and now for pre 2015).
+- It would be at least 10x longer and more complicated in Go, and probably not really faster, because it would have to use reflection too.
+- This kind of code will be very hard to read in Go.
+
 # Running on Kubernetes
 
 Kubernetes consists of 3 different orgs (from 2015-08-06 22:00), so to gather data for Kubernetes You need to provide them comma separated.

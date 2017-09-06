@@ -229,15 +229,25 @@ func ghaForkee(con *sql.Tx, ctx *lib.Ctx, eid string, forkee *lib.Forkee, ev *li
 }
 
 // Inserts single GHA Branch
-func ghaBranch(con *sql.Tx, ctx *lib.Ctx, eid string, branch *lib.Branch, ev *lib.Event, skipRepoID interface{}) {
+func ghaBranch(con *sql.Tx, ctx *lib.Ctx, eid string, branch *lib.Branch, ev *lib.Event, skipIDs []int) {
 	// user
 	if branch.User != nil {
 		ghaActor(con, ctx, branch.User)
 	}
 
 	// repo
-	if branch.Repo != nil && branch.Repo.ID != skipRepoID {
-		ghaForkee(con, ctx, eid, branch.Repo, ev)
+	if branch.Repo != nil {
+		rid := branch.Repo.ID
+		insert := true
+		for _, skipID := range skipIDs {
+			if rid == skipID {
+				insert = false
+				break
+			}
+		}
+		if insert {
+			ghaForkee(con, ctx, eid, branch.Repo, ev)
+		}
 	}
 
 	// gha_branches
@@ -579,6 +589,152 @@ func ghaRelease(con *sql.Tx, ctx *lib.Ctx, payloadRelease *lib.Release, eventID 
 	}
 }
 
+// gha_pull_requests
+// Table details and analysis in `analysis/analysis.txt` and `analysis/pull_request_*.json`
+func ghaPullRequest(con *sql.Tx, ctx *lib.Ctx, payloadPullRequest *lib.PullRequest, eventID string, actor *lib.Actor, repo *lib.Repo, eType string, eCreatedAt time.Time, forkeeIDsToSkip []int) {
+	if payloadPullRequest == nil {
+		return
+	}
+
+	// PR object
+	pr := *payloadPullRequest
+
+	// user
+	ghaActor(con, ctx, &pr.User)
+
+	baseSHA := pr.Base.SHA
+	headSHA := pr.Head.SHA
+	baseRepoID := lib.ForkeeIDOrNil(pr.Base.Repo)
+
+	// Create Event
+	ev := lib.Event{Actor: *actor, Repo: *repo, Type: eType, CreatedAt: eCreatedAt}
+
+	// base
+	ghaBranch(con, ctx, eventID, &pr.Base, &ev, forkeeIDsToSkip)
+
+	// head (if different, and skip its repo if defined and the same as base repo)
+	if baseSHA != headSHA {
+		if baseRepoID != nil {
+			forkeeIDsToSkip = append(forkeeIDsToSkip, baseRepoID.(int))
+		}
+		ghaBranch(con, ctx, eventID, &pr.Head, &ev, forkeeIDsToSkip)
+	}
+
+	// merged_by
+	if pr.MergedBy != nil {
+		ghaActor(con, ctx, pr.MergedBy)
+	}
+
+	// assignee
+	if pr.Assignee != nil {
+		ghaActor(con, ctx, pr.Assignee)
+	}
+
+	// milestone
+	if pr.Milestone != nil {
+		ghaMilestone(con, ctx, eventID, pr.Milestone, &ev)
+	}
+
+	// pull_request
+	prid := pr.ID
+	lib.ExecSQLTxWithErr(
+		con,
+		ctx,
+		"insert into gha_pull_requests("+
+			"id, event_id, user_id, base_sha, head_sha, merged_by_id, assignee_id, milestone_id, "+
+			"number, state, locked, title, body, created_at, updated_at, closed_at, merged_at, "+
+			"merge_commit_sha, merged, mergeable, rebaseable, mergeable_state, comments, "+
+			"review_comments, maintainer_can_modify, commits, additions, deletions, changed_files, "+
+			"dup_actor_id, dup_actor_login, dup_repo_id, dup_repo_name, dup_type, dup_created_at, "+
+			"dup_user_login, dupn_assignee_login, dupn_merged_by_login) "+lib.NValues(38),
+		lib.AnyArray{
+			prid,
+			eventID,
+			pr.User.ID,
+			baseSHA,
+			headSHA,
+			lib.ActorIDOrNil(pr.MergedBy),
+			lib.ActorIDOrNil(pr.Assignee),
+			lib.MilestoneIDOrNil(pr.Milestone),
+			pr.Number,
+			pr.State,
+			lib.BoolOrNil(pr.Locked),
+			pr.Title,
+			lib.TruncStringOrNil(pr.Body, 0xffff),
+			pr.CreatedAt,
+			pr.UpdatedAt,
+			lib.TimeOrNil(pr.ClosedAt),
+			lib.TimeOrNil(pr.MergedAt),
+			lib.StringOrNil(pr.MergeCommitSHA),
+			lib.BoolOrNil(pr.Merged),
+			lib.BoolOrNil(pr.Mergeable),
+			lib.BoolOrNil(pr.Rebaseable),
+			lib.StringOrNil(pr.MergeableState),
+			lib.IntOrNil(pr.Comments),
+			lib.IntOrNil(pr.ReviewComments),
+			lib.BoolOrNil(pr.MaintainerCanModify),
+			lib.IntOrNil(pr.Commits),
+			lib.IntOrNil(pr.Additions),
+			lib.IntOrNil(pr.Deletions),
+			lib.IntOrNil(pr.ChangedFiles),
+			actor.ID,
+			actor.Login,
+			repo.ID,
+			repo.Name,
+			eType,
+			eCreatedAt,
+			pr.User.Login,
+			lib.ActorLoginOrNil(pr.Assignee),
+			lib.ActorLoginOrNil(pr.MergedBy),
+		}...,
+	)
+
+	// Arrays: actors: assignees, requested_reviewers
+	// assignees
+	var assignees []lib.Actor
+	prAid := lib.ActorIDOrNil(pr.Assignee)
+	if pr.Assignee != nil {
+		assignees = append(assignees, *pr.Assignee)
+	}
+	if pr.Assignees != nil {
+		for _, assignee := range *pr.Assignees {
+			aid := assignee.ID
+			if aid == prAid {
+				continue
+			}
+			assignees = append(assignees, assignee)
+		}
+	}
+	for _, assignee := range assignees {
+		// assignee
+		ghaActor(con, ctx, &assignee)
+
+		// pull_request-assignee connection
+		lib.ExecSQLTxWithErr(
+			con,
+			ctx,
+			"insert into gha_pull_requests_assignees(pull_request_id, event_id, assignee_id) "+lib.NValues(3),
+			lib.AnyArray{prid, eventID, assignee.ID}...,
+		)
+	}
+
+	// requested_reviewers
+	if pr.RequestedReviewers != nil {
+		for _, reviewer := range *pr.RequestedReviewers {
+			// reviewer
+			ghaActor(con, ctx, &reviewer)
+
+			// pull_request-requested_reviewer connection
+			lib.ExecSQLTxWithErr(
+				con,
+				ctx,
+				"insert into gha_pull_requests_requested_reviewers(pull_request_id, event_id, requested_reviewer_id) "+lib.NValues(3),
+				lib.AnyArray{prid, eventID, reviewer.ID}...,
+			)
+		}
+	}
+}
+
 // gha_teams
 func ghaTeam(con *sql.Tx, ctx *lib.Ctx, payloadTeam *lib.Team, payloadRepo *lib.Forkee, eventID string, actor *lib.Actor, repo *lib.Repo, eType string, eCreatedAt time.Time) {
 	if payloadTeam == nil {
@@ -793,6 +949,13 @@ func writeToDBOldFmt(db *sql.DB, ctx *lib.Ctx, eventID string, ev *lib.EventOld)
 
 	// Team & Repo connection
 	ghaTeam(con, ctx, pl.Team, pl.Repository, eventID, &actor, &repo, ev.Type, ev.CreatedAt)
+
+	// Pull Request
+	forkeeIDsToSkip := []int{ev.Repository.ID}
+	if pl.Repository != nil {
+		forkeeIDsToSkip = append(forkeeIDsToSkip, pl.Repository.ID)
+	}
+	ghaPullRequest(con, ctx, pl.PullRequest, eventID, &actor, &repo, ev.Type, ev.CreatedAt, forkeeIDsToSkip)
 
 	// Final commit
 	lib.FatalOnError(con.Commit())
@@ -1076,140 +1239,8 @@ func writeToDB(db *sql.DB, ctx *lib.Ctx, ev *lib.Event) int {
 	// Release & assets
 	ghaRelease(con, ctx, pl.Release, eventID, &ev.Actor, &ev.Repo, ev.Type, ev.CreatedAt)
 
-	// gha_pull_requests
-	// Table details and analysis in `analysis/analysis.txt` and `analysis/pull_request_*.json`
-	if pl.PullRequest != nil {
-		pr := *pl.PullRequest
-
-		// user
-		ghaActor(con, ctx, &pr.User)
-
-		baseSHA := pr.Base.SHA
-		headSHA := pr.Head.SHA
-		baseRepoID := lib.ForkeeIDOrNil(pr.Base.Repo)
-
-		// base
-		ghaBranch(con, ctx, eventID, &pr.Base, ev, nil)
-
-		// head (if different, and skip its repo if defined and the same as base repo)
-		if baseSHA != headSHA {
-			ghaBranch(con, ctx, eventID, &pr.Head, ev, baseRepoID)
-		}
-
-		// merged_by
-		if pr.MergedBy != nil {
-			ghaActor(con, ctx, pr.MergedBy)
-		}
-
-		// assignee
-		if pr.Assignee != nil {
-			ghaActor(con, ctx, pr.Assignee)
-		}
-
-		// milestone
-		if pr.Milestone != nil {
-			ghaMilestone(con, ctx, eventID, pr.Milestone, ev)
-		}
-
-		// pull_request
-		prid := pr.ID
-		lib.ExecSQLTxWithErr(
-			con,
-			ctx,
-			"insert into gha_pull_requests("+
-				"id, event_id, user_id, base_sha, head_sha, merged_by_id, assignee_id, milestone_id, "+
-				"number, state, locked, title, body, created_at, updated_at, closed_at, merged_at, "+
-				"merge_commit_sha, merged, mergeable, rebaseable, mergeable_state, comments, "+
-				"review_comments, maintainer_can_modify, commits, additions, deletions, changed_files, "+
-				"dup_actor_id, dup_actor_login, dup_repo_id, dup_repo_name, dup_type, dup_created_at, "+
-				"dup_user_login, dupn_assignee_login, dupn_merged_by_login) "+lib.NValues(38),
-			lib.AnyArray{
-				prid,
-				eventID,
-				pr.User.ID,
-				baseSHA,
-				headSHA,
-				lib.ActorIDOrNil(pr.MergedBy),
-				lib.ActorIDOrNil(pr.Assignee),
-				lib.MilestoneIDOrNil(pr.Milestone),
-				pr.Number,
-				pr.State,
-				lib.BoolOrNil(pr.Locked),
-				pr.Title,
-				lib.TruncStringOrNil(pr.Body, 0xffff),
-				pr.CreatedAt,
-				pr.UpdatedAt,
-				lib.TimeOrNil(pr.ClosedAt),
-				lib.TimeOrNil(pr.MergedAt),
-				lib.StringOrNil(pr.MergeCommitSHA),
-				lib.BoolOrNil(pr.Merged),
-				lib.BoolOrNil(pr.Mergeable),
-				lib.BoolOrNil(pr.Rebaseable),
-				lib.StringOrNil(pr.MergeableState),
-				lib.IntOrNil(pr.Comments),
-				lib.IntOrNil(pr.ReviewComments),
-				lib.BoolOrNil(pr.MaintainerCanModify),
-				lib.IntOrNil(pr.Commits),
-				lib.IntOrNil(pr.Additions),
-				lib.IntOrNil(pr.Deletions),
-				lib.IntOrNil(pr.ChangedFiles),
-				ev.Actor.ID,
-				ev.Actor.Login,
-				ev.Repo.ID,
-				ev.Repo.Name,
-				ev.Type,
-				ev.CreatedAt,
-				pr.User.Login,
-				lib.ActorLoginOrNil(pr.Assignee),
-				lib.ActorLoginOrNil(pr.MergedBy),
-			}...,
-		)
-
-		// Arrays: actors: assignees, requested_reviewers
-		// assignees
-		var assignees []lib.Actor
-		prAid := lib.ActorIDOrNil(pr.Assignee)
-		if pr.Assignee != nil {
-			assignees = append(assignees, *pr.Assignee)
-		}
-		if pr.Assignees != nil {
-			for _, assignee := range *pr.Assignees {
-				aid := assignee.ID
-				if aid == prAid {
-					continue
-				}
-				assignees = append(assignees, assignee)
-			}
-		}
-		for _, assignee := range assignees {
-			// assignee
-			ghaActor(con, ctx, &assignee)
-
-			// pull_request-assignee connection
-			lib.ExecSQLTxWithErr(
-				con,
-				ctx,
-				"insert into gha_pull_requests_assignees(pull_request_id, event_id, assignee_id) "+lib.NValues(3),
-				lib.AnyArray{prid, eventID, assignee.ID}...,
-			)
-		}
-
-		// requested_reviewers
-		if pr.RequestedReviewers != nil {
-			for _, reviewer := range *pr.RequestedReviewers {
-				// reviewer
-				ghaActor(con, ctx, &reviewer)
-
-				// pull_request-requested_reviewer connection
-				lib.ExecSQLTxWithErr(
-					con,
-					ctx,
-					"insert into gha_pull_requests_requested_reviewers(pull_request_id, event_id, requested_reviewer_id) "+lib.NValues(3),
-					lib.AnyArray{prid, eventID, reviewer.ID}...,
-				)
-			}
-		}
-	}
+	// Pull Request
+	ghaPullRequest(con, ctx, pl.PullRequest, eventID, &ev.Actor, &ev.Repo, ev.Type, ev.CreatedAt, []int{})
 
 	// Final commit
 	lib.FatalOnError(con.Commit())
