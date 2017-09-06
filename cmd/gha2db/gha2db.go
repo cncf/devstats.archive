@@ -408,7 +408,6 @@ func writeToDBOldFmt(db *sql.DB, ctx *lib.Ctx, eventID string, ev *lib.EventOld)
 	if eventExists(db, ctx, eventID) {
 		return 0
 	}
-	//fmt.Printf("%v: %+v\n", eventID, ev.Payload)
 
 	// Lookup author by GitHub login
 	aid := lookupActor(db, ctx, ev.Actor)
@@ -425,7 +424,6 @@ func writeToDBOldFmt(db *sql.DB, ctx *lib.Ctx, eventID string, ev *lib.EventOld)
 	if !ok {
 		rid = repository.ID
 	}
-	fmt.Printf("eid=%v, aid=%v, oid=%v, rid=%v, ok=%v\n", eventID, aid, oid, rid, ok)
 
 	// We defer transaction create until we're inserting data that can be shared between different events
 	lib.ExecSQLWithErr(
@@ -461,11 +459,50 @@ func writeToDBOldFmt(db *sql.DB, ctx *lib.Ctx, eventID string, ev *lib.EventOld)
 	repo := lib.Repo{ID: rid, Name: repository.Name}
 	ghaRepo(db, ctx, &repo, oid, repository.Organization)
 
-	// TODO: Add Payload Here
+	// Pre 2015 Payload
+	pl := ev.Payload
+	lib.ExecSQLWithErr(
+		db,
+		ctx,
+		"insert into gha_payloads("+
+			"event_id, push_id, size, ref, head, befor, action, "+
+			"issue_id, comment_id, ref_type, master_branch, commit, "+
+			"description, number, forkee_id, release_id, member_id, "+
+			"dup_actor_id, dup_actor_login, dup_repo_id, dup_repo_name, dup_type, dup_created_at"+
+			") "+lib.NValues(23),
+		lib.AnyArray{
+			eventID,
+			nil,
+			lib.IntOrNil(pl.Size),
+			lib.TruncStringOrNil(pl.Ref, 200),
+			lib.StringOrNil(pl.Head),
+			nil,
+			lib.StringOrNil(pl.Action),
+			lib.IntOrNil(pl.Issue), // Is this real Issue ID from new system?
+			lib.CommentIDOrNil(pl.Comment),
+			lib.StringOrNil(pl.RefType),
+			lib.TruncStringOrNil(pl.MasterBranch, 200),
+			lib.StringOrNil(pl.Commit),
+			lib.TruncStringOrNil(pl.Description, 0xffff),
+			lib.IntOrNil(pl.Number),
+			nil,
+			lib.ReleaseIDOrNil(pl.Release),
+			lib.ActorIDOrNil(pl.Member),
+			actor.ID,
+			actor.Login,
+			repo.ID,
+			repo.Name,
+			ev.Type,
+			ev.CreatedAt,
+		}...,
+	)
 
 	// Start transaction for data possibly shared between events
 	con, err := db.Begin()
 	lib.FatalOnError(err)
+
+	// gha_actors
+	ghaActor(con, ctx, &actor)
 
 	// Add Forkee
 	ghaForkeeOld(con, ctx, eventID, &ev.Repository, &actor, &repo, ev)
@@ -542,10 +579,10 @@ func writeToDB(db *sql.DB, ctx *lib.Ctx, ev *lib.Event) int {
 		ctx,
 		"insert into gha_payloads("+
 			"event_id, push_id, size, ref, head, befor, action, "+
-			"issue_id, comment_id, ref_type, master_branch, "+
+			"issue_id, comment_id, ref_type, master_branch, commit, "+
 			"description, number, forkee_id, release_id, member_id, "+
 			"dup_actor_id, dup_actor_login, dup_repo_id, dup_repo_name, dup_type, dup_created_at"+
-			") "+lib.NValues(22),
+			") "+lib.NValues(23),
 		lib.AnyArray{
 			eventID,
 			lib.IntOrNil(pl.PushID),
@@ -558,6 +595,7 @@ func writeToDB(db *sql.DB, ctx *lib.Ctx, ev *lib.Event) int {
 			lib.CommentIDOrNil(pl.Comment),
 			lib.StringOrNil(pl.RefType),
 			lib.TruncStringOrNil(pl.MasterBranch, 200),
+			nil,
 			lib.TruncStringOrNil(pl.Description, 0xffff),
 			lib.IntOrNil(pl.Number),
 			lib.ForkeeIDOrNil(pl.Forkee),

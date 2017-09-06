@@ -154,6 +154,7 @@ func Structure(ctx *Ctx) {
 					"forkee_id bigint, "+
 					"release_id bigint, "+
 					"member_id bigint, "+
+					"commit varchar(40), "+
 					"dup_actor_id bigint not null, "+
 					"dup_actor_login varchar(120) not null, "+
 					"dup_repo_id bigint not null, "+
@@ -173,6 +174,7 @@ func Structure(ctx *Ctx) {
 		ExecSQLWithErr(c, ctx, "create index payloads_forkee_id_idx on gha_payloads(forkee_id)")
 		ExecSQLWithErr(c, ctx, "create index payloads_release_id_idx on gha_payloads(release_id)")
 		ExecSQLWithErr(c, ctx, "create index payloads_member_id_idx on gha_payloads(member_id)")
+		ExecSQLWithErr(c, ctx, "create index payloads_commit_idx on gha_payloads(commit)")
 		ExecSQLWithErr(c, ctx, "create index payloads_dup_actor_id_idx on gha_payloads(dup_actor_id)")
 		ExecSQLWithErr(c, ctx, "create index payloads_dup_actor_login_idx on gha_payloads(dup_actor_login)")
 		ExecSQLWithErr(c, ctx, "create index payloads_dup_repo_id_idx on gha_payloads(dup_repo_id)")
@@ -529,6 +531,8 @@ func Structure(ctx *Ctx) {
 					"watchers int not null, "+
 					"default_branch varchar(200) not null, "+
 					"public boolean, "+
+					"language varchar(80), "+
+					"organization varchar(100), "+
 					"dup_actor_id bigint not null, "+
 					"dup_actor_login varchar(120) not null, "+
 					"dup_repo_id bigint not null, "+
@@ -536,8 +540,6 @@ func Structure(ctx *Ctx) {
 					"dup_type varchar(40) not null, "+
 					"dup_created_at {{ts}} not null, "+
 					"dup_owner_login varchar(120) not null, "+
-					"language varchar(80), "+
-					"organization varchar(100), "+
 					"primary key(id, event_id)"+
 					")",
 			),
