@@ -81,11 +81,11 @@ func Structure(ctx *Ctx) {
 			ctx,
 			CreateTable(
 				"gha_repos("+
-					"id bigint not null primary key, "+
+					"id bigint not null, "+
 					"name varchar(160) not null, "+
 					"org_id bigint, "+
-					"org_login varchar(100)"+
-					")",
+					"org_login varchar(100), "+
+					"primary key(id, name))",
 			),
 		)
 	}
@@ -499,7 +499,7 @@ func Structure(ctx *Ctx) {
 	// gha_forkees
 	// Table details and analysis in `analysis/analysis.txt` and `analysis/forkee_*.json`
 	// variable
-  // TODO: add stuff from ForkeeOld
+	// TODO: add stuff from ForkeeOld
 	if ctx.Table {
 		ExecSQLWithErr(c, ctx, "drop table if exists gha_forkees")
 		ExecSQLWithErr(

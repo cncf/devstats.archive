@@ -378,7 +378,7 @@ func writeToDBOldFmt(db *sql.DB, ctx *lib.Ctx, eventID string, ev *lib.EventOld)
 	repo := lib.Repo{ID: rid, Name: repository.Name}
 	ghaRepo(db, ctx, &repo, oid, repository.Organization)
 
-  // TODO: cleanup prontfs and continue from org.
+	// TODO: cleanup prontfs and continue from org.
 
 	// Final return
 	return 1
@@ -1094,24 +1094,55 @@ func getGHAJSON(ch chan bool, ctx *lib.Ctx, dt time.Time, forg map[string]struct
 // gha2db - main work horse
 func gha2db(args []string) {
 	// Environment context parse
-	var ctx lib.Ctx
+	var (
+		ctx      lib.Ctx
+		err      error
+		hourFrom int
+		hourTo   int
+		dFrom    time.Time
+		dTo      time.Time
+	)
 	ctx.Init()
 
-	hourFrom, err := strconv.Atoi(args[1])
-	lib.FatalOnError(err)
-	dFrom, err := time.Parse(
-		time.RFC3339,
-		fmt.Sprintf("%sT%02d:00:00+00:00", args[0], hourFrom),
-	)
-	lib.FatalOnError(err)
+	// Current date
+	now := time.Now()
+	startD, startH, endD, endH := args[0], args[1], args[2], args[3]
 
-	hourTo, err := strconv.Atoi(args[3])
-	lib.FatalOnError(err)
-	dTo, err := time.Parse(
-		time.RFC3339,
-		fmt.Sprintf("%sT%02d:00:00+00:00", args[2], hourTo),
-	)
-	lib.FatalOnError(err)
+	// Parse from day & hour
+	if strings.ToLower(startH) == "now" {
+		hourFrom = now.Hour()
+	} else {
+		hourFrom, err = strconv.Atoi(startH)
+		lib.FatalOnError(err)
+	}
+
+	if strings.ToLower(startD) == "today" {
+		dFrom = lib.DayStart(now).Add(time.Duration(hourFrom) * time.Hour)
+	} else {
+		dFrom, err = time.Parse(
+			time.RFC3339,
+			fmt.Sprintf("%sT%02d:00:00+00:00", startD, hourFrom),
+		)
+		lib.FatalOnError(err)
+	}
+
+	// Parse to day & hour
+	if strings.ToLower(endH) == "now" {
+		hourTo = now.Hour()
+	} else {
+		hourTo, err = strconv.Atoi(endH)
+		lib.FatalOnError(err)
+	}
+
+	if strings.ToLower(endD) == "today" {
+		dTo = lib.DayStart(now).Add(time.Duration(hourTo) * time.Hour)
+	} else {
+		dTo, err = time.Parse(
+			time.RFC3339,
+			fmt.Sprintf("%sT%02d:00:00+00:00", endD, hourTo),
+		)
+		lib.FatalOnError(err)
+	}
 
 	// Strip function to be used by MapString
 	stripFunc := func(x string) string { return strings.TrimSpace(x) }
