@@ -321,7 +321,9 @@ There is also a file [analysis/analysis.txt](https://github.com/cncf/gha2db/blob
 
 It was used very intensively during development of SQL table structure.
 
-All JSON file starting with "old_" and txt files starting with "old_" are result of pre-2015 GHA JSONs structure analysis.
+All JSON and TXT files starting with "old_" and txt files starting with "old_" are result of pre-2015 GHA JSONs structure analysis.
+
+All JSON and TXT files starting with "new_" and txt files starting with "new_" are result of new 2015+ GHA JSONs structure analysis.
 
 # Running on Kubernetes
 
