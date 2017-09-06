@@ -1385,6 +1385,7 @@ func parseJSON(con *sql.DB, ctx *lib.Ctx, jsonStr []byte, dt time.Time, forg, fr
 	if err != nil {
 		pretty := lib.PrettyPrintJSON(jsonStr)
 		fmt.Printf("'%v'\n", string(pretty))
+		fmt.Fprintf(os.Stderr, "'%v'\n", string(pretty))
 	}
 	lib.FatalOnError(err)
 	if ctx.OldFormat {
@@ -1439,8 +1440,10 @@ func getGHAJSON(ch chan bool, ctx *lib.Ctx, dt time.Time, forg map[string]struct
 
 	// Decompress Gzipped response
 	reader, err := gzip.NewReader(response.Body)
+	//lib.FatalOnError(err)
 	if err != nil {
 		fmt.Printf("Error (no data yet):\n%v\n", err)
+		fmt.Fprintf(os.Stderr, "Error (no data yet):\n%v\n", err)
 		if ch != nil {
 			ch <- true
 		}
@@ -1449,7 +1452,15 @@ func getGHAJSON(ch chan bool, ctx *lib.Ctx, dt time.Time, forg map[string]struct
 	fmt.Printf("Opened %s\n", fn)
 	defer reader.Close()
 	jsonsBytes, err := ioutil.ReadAll(reader)
-	lib.FatalOnError(err)
+	//lib.FatalOnError(err)
+	if err != nil {
+		fmt.Printf("Error (no data yet):\n%v\n", err)
+		fmt.Fprintf(os.Stderr, "Error (no data yet):\n%v\n", err)
+		if ch != nil {
+			ch <- true
+		}
+		return
+	}
 	fmt.Printf("Decompressed %s\n", fn)
 
 	// Split JSON array into separate JSONs
