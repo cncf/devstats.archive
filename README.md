@@ -157,6 +157,8 @@ List of tables:
 - `gha_releases`: variable, releases
 - `gha_releases_assets`: variable, release assets
 - `gha_repos`: const, repos
+- `gha_teams`: variable, teams
+- `gha_teams_repositories`: variable, teams repositories connections
 
 # POC dashboards
 

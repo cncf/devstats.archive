@@ -294,6 +294,8 @@ List of tables:
 - `gha_releases`: variable, releases
 - `gha_releases_assets`: variable, release assets
 - `gha_repos`: const, repos
+- `gha_teams`: variable, teams
+- `gha_teams_repositories`: variable, teams repositories connections
 
 There is some data duplication in various columns. This is to speedup metrics processing.
 Such columns are described as "dup columns" in [structure.go](https://github.com/cncf/gha2db/blob/master/structure.go)

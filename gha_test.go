@@ -73,6 +73,17 @@ func TestForkeeIDOrNil(t *testing.T) {
 	}
 }
 
+func TestForkeeOldIDOrNil(t *testing.T) {
+	result := lib.ForkeeOldIDOrNil(nil)
+	if result != nil {
+		t.Errorf("test nil case: expected <nil>, got %v", result)
+	}
+	result = lib.ForkeeOldIDOrNil(&lib.ForkeeOld{ID: 2})
+	if result != 2 {
+		t.Errorf("test ID=2 case: expected 2, got %v", result)
+	}
+}
+
 func TestForkeeNameOrNil(t *testing.T) {
 	result := lib.ForkeeNameOrNil(nil)
 	if result != nil {

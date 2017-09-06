@@ -812,6 +812,57 @@ func Structure(ctx *Ctx) {
 		ExecSQLWithErr(c, ctx, "create index branches_dup_created_at_idx on gha_branches(dup_created_at)")
 	}
 
+	// gha_teams
+	if ctx.Table {
+		ExecSQLWithErr(c, ctx, "drop table if exists gha_teams")
+		ExecSQLWithErr(
+			c,
+			ctx,
+			CreateTable(
+				"gha_teams("+
+					"id bigint not null, "+
+					"event_id bigint not null, "+
+					"name varchar(120) not null, "+
+					"slug varchar(100) not null, "+
+					"permission varchar(20) not null, "+
+					"dup_actor_id bigint not null, "+
+					"dup_actor_login varchar(120) not null, "+
+					"dup_repo_id bigint not null, "+
+					"dup_repo_name varchar(160) not null, "+
+					"dup_type varchar(40) not null, "+
+					"dup_created_at {{ts}} not null, "+
+					"primary key(id, event_id)"+
+					")",
+			),
+		)
+		// variable
+		ExecSQLWithErr(c, ctx, "drop table if exists gha_teams_repositories")
+		ExecSQLWithErr(
+			c,
+			ctx,
+			CreateTable(
+				"gha_teams_repositories("+
+					"team_id bigint not null, "+
+					"event_id bigint not null, "+
+					"repository_id bigint not null, "+
+					"primary key(team_id, event_id, repository_id)"+
+					")",
+			),
+		)
+	}
+	if ctx.Index {
+		ExecSQLWithErr(c, ctx, "create index teams_event_id_idx on gha_teams(event_id)")
+		ExecSQLWithErr(c, ctx, "create index teams_name_idx on gha_teams(name)")
+		ExecSQLWithErr(c, ctx, "create index teams_slug_idx on gha_teams(slug)")
+		ExecSQLWithErr(c, ctx, "create index teams_permission_idx on gha_teams(permission)")
+		ExecSQLWithErr(c, ctx, "create index teams_dup_actor_id_idx on gha_teams(dup_actor_id)")
+		ExecSQLWithErr(c, ctx, "create index teams_dup_actor_login_idx on gha_teams(dup_actor_login)")
+		ExecSQLWithErr(c, ctx, "create index teams_dup_repo_id_idx on gha_teams(dup_repo_id)")
+		ExecSQLWithErr(c, ctx, "create index teams_dup_repo_name_idx on gha_teams(dup_repo_name)")
+		ExecSQLWithErr(c, ctx, "create index teams_dup_type_idx on gha_teams(dup_type)")
+		ExecSQLWithErr(c, ctx, "create index teams_dup_created_at_idx on gha_teams(dup_created_at)")
+	}
+
 	// This table is a kind of `materialized view` of all texts
 	if ctx.Table {
 		ExecSQLWithErr(c, ctx, "drop table if exists gha_texts")
