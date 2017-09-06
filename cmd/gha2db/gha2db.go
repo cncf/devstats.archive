@@ -1384,8 +1384,8 @@ func parseJSON(con *sql.DB, ctx *lib.Ctx, jsonStr []byte, dt time.Time, forg, fr
 	}
 	if err != nil {
 		pretty := lib.PrettyPrintJSON(jsonStr)
-		fmt.Printf("JSON Unmarshal failed for:\n'%v'\n", string(pretty))
-		fmt.Fprintf(os.Stderr, "JSON Unmarshal failed for:\n'%v'\n", string(pretty))
+		fmt.Printf("%v: JSON Unmarshal failed for:\n'%v'\n", dt, string(pretty))
+		fmt.Fprintf(os.Stderr, "%v: JSON Unmarshal failed for:\n'%v'\n", dt, string(pretty))
 	}
 	lib.FatalOnError(err)
 	if ctx.OldFormat {
@@ -1442,8 +1442,8 @@ func getGHAJSON(ch chan bool, ctx *lib.Ctx, dt time.Time, forg map[string]struct
 	reader, err := gzip.NewReader(response.Body)
 	//lib.FatalOnError(err)
 	if err != nil {
-		fmt.Printf("Error (no data yet, gzip reader):\n%v\n", err)
-		fmt.Fprintf(os.Stderr, "Error (no data yet, gzip reader):\n%v\n", err)
+		fmt.Printf("%v: Error (no data yet, gzip reader):\n%v\n", dt, err)
+		fmt.Fprintf(os.Stderr, "%v: Error (no data yet, gzip reader):\n%v\n", dt, err)
 		if ch != nil {
 			ch <- true
 		}
@@ -1454,8 +1454,8 @@ func getGHAJSON(ch chan bool, ctx *lib.Ctx, dt time.Time, forg map[string]struct
 	jsonsBytes, err := ioutil.ReadAll(reader)
 	//lib.FatalOnError(err)
 	if err != nil {
-		fmt.Printf("Error (no data yet, ioutil readall):\n%v\n", err)
-		fmt.Fprintf(os.Stderr, "Error (no data yet, ioutil readall):\n%v\n", err)
+		fmt.Printf("%v: Error (no data yet, ioutil readall):\n%v\n", dt, err)
+		fmt.Fprintf(os.Stderr, "%v: Error (no data yet, ioutil readall):\n%v\n", dt, err)
 		if ch != nil {
 			ch <- true
 		}
