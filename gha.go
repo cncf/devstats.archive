@@ -58,21 +58,22 @@ type Payload struct {
 
 // PayloadOld - GHA Payload structure (from before 2015)
 type PayloadOld struct {
-	Issue        *int         `json:"issue"`
-	Comment      *Comment     `json:"comment"`
-	Description  *string      `json:"description"`
-	MasterBranch *string      `json:"master_branch"`
-	Ref          *string      `json:"ref"`
-	Action       *string      `json:"action"`
-	RefType      *string      `json:"ref_type"`
-	Head         *string      `json:"head"`
-	Size         *int         `json:"size"`
-	Number       *int         `json:"number"`
-	PullRequest  *PullRequest `json:"pull_request"`
-	Member       *Actor       `json:"member"`
-	Release      *Release     `json:"release"`
-	Pages        *[]Page      `json:"pages"`
-	Commit       *string      `json:"commit"`
+	Issue        *int           `json:"issue"`
+	Comment      *Comment       `json:"comment"`
+	Description  *string        `json:"description"`
+	MasterBranch *string        `json:"master_branch"`
+	Ref          *string        `json:"ref"`
+	Action       *string        `json:"action"`
+	RefType      *string        `json:"ref_type"`
+	Head         *string        `json:"head"`
+	Size         *int           `json:"size"`
+	Number       *int           `json:"number"`
+	PullRequest  *PullRequest   `json:"pull_request"`
+	Member       *Actor         `json:"member"`
+	Release      *Release       `json:"release"`
+	Pages        *[]Page        `json:"pages"`
+	Commit       *string        `json:"commit"`
+	SHAs         *[]interface{} `json:"shas"`
 }
 
 // ForkeeOld - GHA Forkee structure (from before 2015)

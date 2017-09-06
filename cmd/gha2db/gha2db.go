@@ -403,6 +403,42 @@ func eventExists(db *sql.DB, ctx *lib.Ctx, eventID string) bool {
 	return exists
 }
 
+// Process GHA pages
+// gha_pages
+// {"page_name:String"=>370, "title:String"=>370, "summary:NilClass"=>370,
+// "action:String"=>370, "sha:String"=>370, "html_url:String"=>370}
+// {"page_name"=>65, "title"=>65, "summary"=>0, "action"=>7, "sha"=>40, "html_url"=>130}
+// 370
+func ghaPages(con *sql.Tx, ctx *lib.Ctx, payloadPages *[]lib.Page, eventID string, actor *lib.Actor, repo *lib.Repo, eType string, eCreatedAt time.Time) {
+	pages := []lib.Page{}
+	if payloadPages != nil {
+		pages = *payloadPages
+	}
+	for _, page := range pages {
+		sha := page.SHA
+		lib.ExecSQLTxWithErr(
+			con,
+			ctx,
+			lib.InsertIgnore(
+				"into gha_pages(sha, event_id, action, title, "+
+					"dup_actor_id, dup_actor_login, dup_repo_id, dup_repo_name, dup_type, dup_created_at"+
+					") "+lib.NValues(10)),
+			lib.AnyArray{
+				sha,
+				eventID,
+				page.Action,
+				lib.TruncToBytes(page.Title, 300),
+				actor.ID,
+				actor.Login,
+				repo.ID,
+				repo.Name,
+				eType,
+				eCreatedAt,
+			}...,
+		)
+	}
+}
+
 // Write GHA entire event (in old pre 2015 format) into Postgres DB
 func writeToDBOldFmt(db *sql.DB, ctx *lib.Ctx, eventID string, ev *lib.EventOld) int {
 	if eventExists(db, ctx, eventID) {
@@ -461,6 +497,10 @@ func writeToDBOldFmt(db *sql.DB, ctx *lib.Ctx, eventID string, ev *lib.EventOld)
 
 	// Pre 2015 Payload
 	pl := ev.Payload
+	if pl == nil {
+		return 0
+	}
+
 	lib.ExecSQLWithErr(
 		db,
 		ctx,
@@ -506,6 +546,39 @@ func writeToDBOldFmt(db *sql.DB, ctx *lib.Ctx, eventID string, ev *lib.EventOld)
 
 	// Add Forkee
 	ghaForkeeOld(con, ctx, eventID, &ev.Repository, &actor, &repo, ev)
+
+	// SHAs - commits
+	if pl.SHAs != nil {
+		commits := *pl.SHAs
+		for _, comm := range commits {
+			commit := comm.([]interface{})
+			sha := commit[0].(string)
+			lib.ExecSQLTxWithErr(
+				con,
+				ctx,
+				"insert into gha_commits("+
+					"sha, event_id, author_name, message, is_distinct, "+
+					"dup_actor_id, dup_actor_login, dup_repo_id, dup_repo_name, dup_type, dup_created_at"+
+					") "+lib.NValues(11),
+				lib.AnyArray{
+					sha,
+					eventID,
+					lib.TruncToBytes(commit[3].(string), 160),
+					lib.TruncToBytes(commit[2].(string), 0xffff),
+					commit[4].(bool),
+					actor.ID,
+					actor.Login,
+					repo.ID,
+					repo.Name,
+					ev.Type,
+					ev.CreatedAt,
+				}...,
+			)
+		}
+	}
+
+	// Pages
+	ghaPages(con, ctx, pl.Pages, eventID, &actor, &repo, ev.Type, ev.CreatedAt)
 
 	// Final commit
 	lib.FatalOnError(con.Commit())
@@ -653,38 +726,8 @@ func writeToDB(db *sql.DB, ctx *lib.Ctx, ev *lib.Event) int {
 		)
 	}
 
-	// gha_pages
-	// {"page_name:String"=>370, "title:String"=>370, "summary:NilClass"=>370,
-	// "action:String"=>370, "sha:String"=>370, "html_url:String"=>370}
-	// {"page_name"=>65, "title"=>65, "summary"=>0, "action"=>7, "sha"=>40, "html_url"=>130}
-	// 370
-	pages := []lib.Page{}
-	if pl.Pages != nil {
-		pages = *pl.Pages
-	}
-	for _, page := range pages {
-		sha := page.SHA
-		lib.ExecSQLTxWithErr(
-			con,
-			ctx,
-			lib.InsertIgnore(
-				"into gha_pages(sha, event_id, action, title, "+
-					"dup_actor_id, dup_actor_login, dup_repo_id, dup_repo_name, dup_type, dup_created_at"+
-					") "+lib.NValues(10)),
-			lib.AnyArray{
-				sha,
-				eventID,
-				page.Action,
-				lib.TruncToBytes(page.Title, 300),
-				ev.Actor.ID,
-				ev.Actor.Login,
-				ev.Repo.ID,
-				ev.Repo.Name,
-				ev.Type,
-				ev.CreatedAt,
-			}...,
-		)
-	}
+	// Pages
+	ghaPages(con, ctx, pl.Pages, eventID, &ev.Actor, &ev.Repo, ev.Type, ev.CreatedAt)
 
 	// member
 	if pl.Member != nil {

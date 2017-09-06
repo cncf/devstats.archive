@@ -76,8 +76,13 @@ def analysis(prefix, calls, jsons)
     h = JSON.parse(File.read(json)).to_h
     oh = h
     calls.each do |call|
-      h = h.send(:[], call)
       next unless h
+      if call.include?(':')
+        ary = call.split ':'
+        h = h[ary[1].to_i] if ary[0] == 'i'
+      else
+        h = h.send(:[], call)
+      end
     end
     next unless h
 
