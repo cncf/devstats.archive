@@ -579,6 +579,48 @@ func ghaRelease(con *sql.Tx, ctx *lib.Ctx, payloadRelease *lib.Release, eventID 
 	}
 }
 
+// gha_teams
+func ghaTeam(con *sql.Tx, ctx *lib.Ctx, payloadTeam *lib.Team, payloadRepo *lib.Forkee, eventID string, actor *lib.Actor, repo *lib.Repo, eType string, eCreatedAt time.Time) {
+	if payloadTeam == nil {
+		return
+	}
+	team := *payloadTeam
+
+	// team
+	tid := team.ID
+	lib.ExecSQLTxWithErr(
+		con,
+		ctx,
+		"insert into gha_teams("+
+			"id, event_id, name, slug, permission, "+
+			"dup_actor_id, dup_actor_login, dup_repo_id, dup_repo_name, dup_type, dup_created_at"+
+			") "+lib.NValues(11),
+		lib.AnyArray{
+			tid,
+			eventID,
+			lib.TruncToBytes(team.Name, 120),
+			lib.TruncToBytes(team.Slug, 100),
+			lib.TruncToBytes(team.Permission, 20),
+			actor.ID,
+			actor.Login,
+			repo.ID,
+			repo.Name,
+			eType,
+			eCreatedAt,
+		}...,
+	)
+
+	// team-repository connection
+	if payloadRepo != nil {
+		lib.ExecSQLTxWithErr(
+			con,
+			ctx,
+			"insert into gha_teams_repositories(team_id, event_id, repository_id) "+lib.NValues(3),
+			lib.AnyArray{tid, eventID, payloadRepo.ID}...,
+		)
+	}
+}
+
 // Write GHA entire event (in old pre 2015 format) into Postgres DB
 func writeToDBOldFmt(db *sql.DB, ctx *lib.Ctx, eventID string, ev *lib.EventOld) int {
 	if eventExists(db, ctx, eventID) {
@@ -664,14 +706,14 @@ func writeToDBOldFmt(db *sql.DB, ctx *lib.Ctx, eventID string, ev *lib.EventOld)
 			lib.StringOrNil(pl.Head),
 			nil,
 			lib.StringOrNil(pl.Action),
-			iid, // Is this real Issue ID from new system?
+			iid,
 			cid,
 			lib.StringOrNil(pl.RefType),
 			lib.TruncStringOrNil(pl.MasterBranch, 200),
 			lib.StringOrNil(pl.Commit),
 			lib.TruncStringOrNil(pl.Description, 0xffff),
 			lib.IntOrNil(pl.Number),
-			nil,
+			lib.ForkeeIDOrNil(pl.Repository),
 			lib.ReleaseIDOrNil(pl.Release),
 			lib.ActorIDOrNil(pl.Member),
 			actor.ID,
@@ -690,8 +732,20 @@ func writeToDBOldFmt(db *sql.DB, ctx *lib.Ctx, eventID string, ev *lib.EventOld)
 	// gha_actors
 	ghaActor(con, ctx, &actor)
 
-	// Add Forkee
-	ghaForkeeOld(con, ctx, eventID, &ev.Repository, &actor, &repo, ev)
+	// Payload's Forkee (it uses new structure, so I'm giving it precedence over
+	// Event's Forkee (which uses older structure)
+	if pl.Repository != nil {
+		// Reposotory is actually a Forkee (non old in this case!)
+		// Artificial event is only used to allow duplicating EventOld's data
+		// (passed as Event to avoid code duplication)
+		artificialEv := lib.Event{Actor: actor, Repo: repo, Type: ev.Type, CreatedAt: ev.CreatedAt}
+		ghaForkee(con, ctx, eventID, pl.Repository, &artificialEv)
+	}
+
+	// Add Forkee in old mode if we didn't added it from payload or if it is a different Forkee
+	if pl.Repository == nil || pl.Repository.ID != ev.Repository.ID {
+		ghaForkeeOld(con, ctx, eventID, &ev.Repository, &actor, &repo, ev)
+	}
 
 	// SHAs - commits
 	if pl.SHAs != nil {
@@ -736,6 +790,9 @@ func writeToDBOldFmt(db *sql.DB, ctx *lib.Ctx, eventID string, ev *lib.EventOld)
 
 	// Release & assets
 	ghaRelease(con, ctx, pl.Release, eventID, &actor, &repo, ev.Type, ev.CreatedAt)
+
+	// Team & Repo connection
+	ghaTeam(con, ctx, pl.Team, pl.Repository, eventID, &actor, &repo, ev.Type, ev.CreatedAt)
 
 	// Final commit
 	lib.FatalOnError(con.Commit())

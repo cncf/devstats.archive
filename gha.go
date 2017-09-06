@@ -76,6 +76,8 @@ type PayloadOld struct {
 	Pages        *[]Page        `json:"pages"`
 	Commit       *string        `json:"commit"`
 	SHAs         *[]interface{} `json:"shas"`
+	Repository   *Forkee        `json:"repository"`
+	Team         *Team          `json:"team"`
 }
 
 // ForkeeOld - GHA Forkee structure (from before 2015)
@@ -352,6 +354,22 @@ func CommentIDOrNil(commPtr *Comment) interface{} {
 
 // ForkeeIDOrNil - return Forkee ID from pointer or nil
 func ForkeeIDOrNil(forkPtr *Forkee) interface{} {
+	if forkPtr == nil {
+		return nil
+	}
+	return forkPtr.ID
+}
+
+// Team - GHA Team structure (only used before 2015)
+type Team struct {
+	ID         int    `json:"id"`
+	Name       string `json:"name"`
+	Slug       string `json:"slug"`
+	Permission string `json:"permission"`
+}
+
+// ForkeeOldIDOrNil - return ForkeeOld ID from pointer or nil
+func ForkeeOldIDOrNil(forkPtr *ForkeeOld) interface{} {
 	if forkPtr == nil {
 		return nil
 	}
