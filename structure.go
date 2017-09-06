@@ -982,8 +982,8 @@ func Structure(ctx *Ctx) {
 	// Tools (like views and functions needed for generating metrics)
 	if ctx.Tools {
 		// Get max event_id from gha_texts
-		maxEventID := 0
-		FatalOnError(QueryRowSQL(c, ctx, "select coalesce(max(event_id), 0) from gha_texts").Scan(&maxEventID))
+		maxEventID := -0x8000000000000000
+		FatalOnError(QueryRowSQL(c, ctx, "select coalesce(max(event_id), -9223372036854775808) from gha_texts").Scan(&maxEventID))
 		sql := fmt.Sprintf(
 			"insert into gha_texts(event_id, body, created_at, repo_id, repo_name, actor_id, actor_login, type) "+
 				"select event_id, body, created_at, dup_repo_id, dup_repo_name, dup_actor_id, dup_actor_login, dup_type from gha_comments "+
@@ -1004,7 +1004,7 @@ func Structure(ctx *Ctx) {
 		ExecSQLWithErr(c, ctx, sql)
 
 		// Get max event_id from gha_issues_events_labels
-		FatalOnError(QueryRowSQL(c, ctx, "select coalesce(max(event_id), 0) from gha_issues_events_labels").Scan(&maxEventID))
+		FatalOnError(QueryRowSQL(c, ctx, "select coalesce(max(event_id), -9223372036854775808) from gha_issues_events_labels").Scan(&maxEventID))
 
 		// Add data to gha_issues_events_labels table (or fill it initially)
 		sql = fmt.Sprintf(
@@ -1020,10 +1020,11 @@ func Structure(ctx *Ctx) {
 		ExecSQLWithErr(c, ctx, sql)
 
 		// Get max issue_id & pull_request_id from gha_issues_pull_requests
-		maxIssueID := 0
-		maxPRID := 0
-		FatalOnError(QueryRowSQL(c, ctx, "select coalesce(max(issue_id), 0) from gha_issues_pull_requests").Scan(&maxIssueID))
-		FatalOnError(QueryRowSQL(c, ctx, "select coalesce(max(pull_request_id), 0) from gha_issues_pull_requests").Scan(&maxPRID))
+    // Minimum possible signed int 64 value
+		maxIssueID := -0x8000000000000000
+		maxPRID := -0x8000000000000000
+		FatalOnError(QueryRowSQL(c, ctx, "select coalesce(max(issue_id), -9223372036854775808) from gha_issues_pull_requests").Scan(&maxIssueID))
+		FatalOnError(QueryRowSQL(c, ctx, "select coalesce(max(pull_request_id), -9223372036854775808) from gha_issues_pull_requests").Scan(&maxPRID))
 
 		// Add data to gha_issues_pull_requests table (or fill it initially)
 		sql = fmt.Sprintf(

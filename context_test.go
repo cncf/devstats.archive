@@ -136,7 +136,7 @@ func TestInit(t *testing.T) {
 		IDBPass:          "password",
 		QOut:             false,
 		CtxOut:           false,
-		DefaultStartDate: time.Date(2015, 8, 6, 22, 0, 0, 0, time.UTC),
+		DefaultStartDate: time.Date(2014, 6, 1, 0, 0, 0, 0, time.UTC),
 		LastSeries:       "all_prs_merged_d",
 		SkipIDB:          false,
 		ResetIDB:         false,
