@@ -31,7 +31,7 @@ type Ctx struct {
 	IDBPass          string    // from IDB_PASS, default "password"
 	QOut             bool      // from GHA2DB_QOUT output all SQL queries?, default false
 	CtxOut           bool      // from GHA2DB_CTXOUT output all context data (this struct), default false
-	DefaultStartDate time.Time // from GHA2DB_STARTDT, default `2015-08-06 22:00 UTC`, expects format "YYYY-MM-DD HH:MI:SS"
+	DefaultStartDate time.Time // from GHA2DB_STARTDT, default `2014-06-01 00:00 UTC`, expects format "YYYY-MM-DD HH:MI:SS"
 	LastSeries       string    // from GHA2DB_LASTSERIES, use this InfluxDB series to determine last timestamp date, default "all_prs_merged_d"
 	SkipIDB          bool      // from GHA2DB_SKIPIDB sync tool, skip InfluxDB processing? default false
 	ResetIDB         bool      // from GHA2DB_RESETIDB sync tool, regenerate all InfluxDB points? default false
@@ -131,7 +131,7 @@ func (ctx *Ctx) Init() {
 	if os.Getenv("GHA2DB_STARTDT") != "" {
 		ctx.DefaultStartDate = TimeParseAny(os.Getenv("GHA2DB_STARTDT"))
 	} else {
-		ctx.DefaultStartDate = time.Date(2015, 8, 6, 22, 0, 0, 0, time.UTC)
+		ctx.DefaultStartDate = time.Date(2014, 6, 1, 0, 0, 0, 0, time.UTC)
 	}
 	// Last InfluxDB series
 	ctx.LastSeries = os.Getenv("GHA2DB_LASTSERIES")

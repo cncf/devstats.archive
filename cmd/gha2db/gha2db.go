@@ -28,6 +28,9 @@ func hashStrings(strs []string) int {
 	if res > 0 {
 		res *= -1
 	}
+	if res == -0x8000000000000000 {
+		return hashStrings(append(strs, "a"))
+	}
 	return res
 }
 
