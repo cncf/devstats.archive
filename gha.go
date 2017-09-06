@@ -134,7 +134,7 @@ type Forkee struct {
 	Fork            bool      `json:"fork"`
 	CreatedAt       time.Time `json:"created_at"`
 	UpdatedAt       time.Time `json:"updated_at"`
-	PushedAt        time.Time `json:"updated_at"`
+	PushedAt        time.Time `json:"pushed_at"`
 	Homepage        *string   `json:"homepage"`
 	Size            int       `json:"size"`
 	StargazersCount int       `json:"stargazers_count"`
