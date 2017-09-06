@@ -197,7 +197,7 @@ Please note that this is not a correct JSON, it contains files separated by line
 - Takes 7 hours 30 minutes.
 - Generates 455321 events.
 
-4) Finally running on all Kubernetes org since real beginning (2015-08-06 22:00 UTC) until (2017-08-02 14:00 UTC):
+4) Finally running on all Kubernetes org since beginning of kubernetes orgs (2015-08-06 22:00 UTC) until (2017-08-02 14:00 UTC):
 - Takes 11 hours 6 minutes (*really* 666 minutes)
 - Database dump is 5.01 Gb, XZ compressed dump is 267 Mb
 - Note that those counts include historical changes to objects (for example single issue can have multiple entries with dirrent state on different events)
@@ -321,10 +321,16 @@ It was used very intensively during development of SQL table structure.
 
 # Running on Kubernetes
 
-Kubernetes consists of 3 different orgs, so to gather data for Kubernetes You need to provide them comma separated.
+Kubernetes consists of 3 different orgs (from 2015-08-06 22:00), so to gather data for Kubernetes You need to provide them comma separated.
+
+Before 2015-08-06 Kubernetes is in GoogleCloudPlatform/kubernetes or just few kubernetes repos without org. To process them You need to use special list mode `GHA2DB_EXACT`.
+
+And finally before 2015-01-01 GitHub used different JSONs format. To process them You have to use `GHA2DB_OLDFMT` mode.
 
 For example June 2017:
 - `time PG_PASS=pwd ./gha2db 2017-06-01 0 2017-07-01 0 'kubernetes,kubernetes-incubator,kubernetes-client'`
+
+To process kubernetes all time just use `kubernetes.sh` script.
 
 # Metrics tool
 There is a tool `runq`. It is used to compute metrics saved in `*.sql` files.
