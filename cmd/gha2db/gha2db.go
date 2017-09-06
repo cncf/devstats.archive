@@ -1134,7 +1134,7 @@ func writeToDB(db *sql.DB, ctx *lib.Ctx, ev *lib.Event) int {
 				lib.MilestoneIDOrNil(pr.Milestone),
 				pr.Number,
 				pr.State,
-				pr.Locked,
+				lib.BoolOrNil(pr.Locked),
 				pr.Title,
 				lib.TruncStringOrNil(pr.Body, 0xffff),
 				pr.CreatedAt,
@@ -1167,13 +1167,21 @@ func writeToDB(db *sql.DB, ctx *lib.Ctx, ev *lib.Event) int {
 
 		// Arrays: actors: assignees, requested_reviewers
 		// assignees
+		var assignees []lib.Actor
 		prAid := lib.ActorIDOrNil(pr.Assignee)
-		for _, assignee := range pr.Assignees {
-			aid := assignee.ID
-			if aid == prAid {
-				continue
+		if pr.Assignee != nil {
+			assignees = append(assignees, *pr.Assignee)
+		}
+		if pr.Assignees != nil {
+			for _, assignee := range *pr.Assignees {
+				aid := assignee.ID
+				if aid == prAid {
+					continue
+				}
+				assignees = append(assignees, assignee)
 			}
-
+		}
+		for _, assignee := range assignees {
 			// assignee
 			ghaActor(con, ctx, &assignee)
 
@@ -1182,22 +1190,24 @@ func writeToDB(db *sql.DB, ctx *lib.Ctx, ev *lib.Event) int {
 				con,
 				ctx,
 				"insert into gha_pull_requests_assignees(pull_request_id, event_id, assignee_id) "+lib.NValues(3),
-				lib.AnyArray{prid, eventID, aid}...,
+				lib.AnyArray{prid, eventID, assignee.ID}...,
 			)
 		}
 
 		// requested_reviewers
-		for _, reviewer := range pr.RequestedReviewers {
-			// reviewer
-			ghaActor(con, ctx, &reviewer)
+		if pr.RequestedReviewers != nil {
+			for _, reviewer := range *pr.RequestedReviewers {
+				// reviewer
+				ghaActor(con, ctx, &reviewer)
 
-			// pull_request-requested_reviewer connection
-			lib.ExecSQLTxWithErr(
-				con,
-				ctx,
-				"insert into gha_pull_requests_requested_reviewers(pull_request_id, event_id, requested_reviewer_id) "+lib.NValues(3),
-				lib.AnyArray{prid, eventID, reviewer.ID}...,
-			)
+				// pull_request-requested_reviewer connection
+				lib.ExecSQLTxWithErr(
+					con,
+					ctx,
+					"insert into gha_pull_requests_requested_reviewers(pull_request_id, event_id, requested_reviewer_id) "+lib.NValues(3),
+					lib.AnyArray{prid, eventID, reviewer.ID}...,
+				)
+			}
 		}
 	}
 

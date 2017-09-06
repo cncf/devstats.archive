@@ -692,7 +692,7 @@ func Structure(ctx *Ctx) {
 					"milestone_id bigint, "+
 					"number int not null, "+
 					"state varchar(20) not null, "+
-					"locked boolean not null, "+
+					"locked boolean, "+
 					"title text not null, "+
 					"body text, "+
 					"created_at {{ts}} not null, "+
