@@ -489,6 +489,96 @@ func ghaComment(con *sql.Tx, ctx *lib.Ctx, payloadComment *lib.Comment, eventID 
 	)
 }
 
+// gha_releases
+// Table details and analysis in `analysis/analysis.txt` and `analysis/release_*.json`
+func ghaRelease(con *sql.Tx, ctx *lib.Ctx, payloadRelease *lib.Release, eventID string, actor *lib.Actor, repo *lib.Repo, eType string, eCreatedAt time.Time) {
+	if payloadRelease == nil {
+		return
+	}
+	release := *payloadRelease
+
+	// author
+	ghaActor(con, ctx, &release.Author)
+
+	// release
+	rid := release.ID
+	lib.ExecSQLTxWithErr(
+		con,
+		ctx,
+		"insert into gha_releases("+
+			"id, event_id, tag_name, target_commitish, name, draft, "+
+			"author_id, prerelease, created_at, published_at, body, "+
+			"dup_actor_id, dup_actor_login, dup_repo_id, dup_repo_name, dup_type, dup_created_at, "+
+			"dup_author_login) "+lib.NValues(18),
+		lib.AnyArray{
+			rid,
+			eventID,
+			lib.TruncToBytes(release.TagName, 200),
+			lib.TruncToBytes(release.TargetCommitish, 200),
+			lib.TruncStringOrNil(release.Name, 200),
+			release.Draft,
+			release.Author.ID,
+			release.Prerelease,
+			release.CreatedAt,
+			lib.TimeOrNil(release.PublishedAt),
+			lib.TruncStringOrNil(release.Body, 0xffff),
+			actor.ID,
+			actor.Login,
+			repo.ID,
+			repo.Name,
+			eType,
+			eCreatedAt,
+			release.Author.Login,
+		}...,
+	)
+
+	// Assets
+	for _, asset := range release.Assets {
+		// uploader
+		ghaActor(con, ctx, &asset.Uploader)
+
+		// asset
+		aid := asset.ID
+		lib.ExecSQLTxWithErr(
+			con,
+			ctx,
+			"insert into gha_assets("+
+				"id, event_id, name, label, uploader_id, content_type, "+
+				"state, size, download_count, created_at, updated_at, "+
+				"dup_actor_id, dup_actor_login, dup_repo_id, dup_repo_name, dup_type, dup_created_at, "+
+				"dup_uploader_login) "+lib.NValues(18),
+			lib.AnyArray{
+				aid,
+				eventID,
+				lib.TruncToBytes(asset.Name, 200),
+				lib.TruncStringOrNil(asset.Label, 120),
+				asset.Uploader.ID,
+				asset.ContentType,
+				asset.State,
+				asset.Size,
+				asset.DownloadCount,
+				asset.CreatedAt,
+				asset.UpdatedAt,
+				actor.ID,
+				actor.Login,
+				repo.ID,
+				repo.Name,
+				eType,
+				eCreatedAt,
+				asset.Uploader.Login,
+			}...,
+		)
+
+		// release-asset connection
+		lib.ExecSQLTxWithErr(
+			con,
+			ctx,
+			"insert into gha_releases_assets(release_id, event_id, asset_id) "+lib.NValues(3),
+			lib.AnyArray{rid, eventID, aid}...,
+		)
+	}
+}
+
 // Write GHA entire event (in old pre 2015 format) into Postgres DB
 func writeToDBOldFmt(db *sql.DB, ctx *lib.Ctx, eventID string, ev *lib.EventOld) int {
 	if eventExists(db, ctx, eventID) {
@@ -643,6 +733,9 @@ func writeToDBOldFmt(db *sql.DB, ctx *lib.Ctx, eventID string, ev *lib.EventOld)
 
 	// Comment
 	ghaComment(con, ctx, pl.Comment, eventID, &actor, &repo, ev.Type, ev.CreatedAt)
+
+	// Release & assets
+	ghaRelease(con, ctx, pl.Release, eventID, &actor, &repo, ev.Type, ev.CreatedAt)
 
 	// Final commit
 	lib.FatalOnError(con.Commit())
@@ -923,92 +1016,8 @@ func writeToDB(db *sql.DB, ctx *lib.Ctx, ev *lib.Event) int {
 		ghaForkee(con, ctx, eventID, pl.Forkee, ev)
 	}
 
-	// gha_releases
-	// Table details and analysis in `analysis/analysis.txt` and `analysis/release_*.json`
-	if pl.Release != nil {
-		release := *pl.Release
-
-		// author
-		ghaActor(con, ctx, &release.Author)
-
-		// release
-		rid := release.ID
-		lib.ExecSQLTxWithErr(
-			con,
-			ctx,
-			"insert into gha_releases("+
-				"id, event_id, tag_name, target_commitish, name, draft, "+
-				"author_id, prerelease, created_at, published_at, body, "+
-				"dup_actor_id, dup_actor_login, dup_repo_id, dup_repo_name, dup_type, dup_created_at, "+
-				"dup_author_login) "+lib.NValues(18),
-			lib.AnyArray{
-				rid,
-				eventID,
-				lib.TruncToBytes(release.TagName, 200),
-				lib.TruncToBytes(release.TargetCommitish, 200),
-				lib.TruncStringOrNil(release.Name, 200),
-				release.Draft,
-				release.Author.ID,
-				release.Prerelease,
-				release.CreatedAt,
-				lib.TimeOrNil(release.PublishedAt),
-				lib.TruncStringOrNil(release.Body, 0xffff),
-				ev.Actor.ID,
-				ev.Actor.Login,
-				ev.Repo.ID,
-				ev.Repo.Name,
-				ev.Type,
-				ev.CreatedAt,
-				release.Author.Login,
-			}...,
-		)
-
-		// Assets
-		for _, asset := range release.Assets {
-			// uploader
-			ghaActor(con, ctx, &asset.Uploader)
-
-			// asset
-			aid := asset.ID
-			lib.ExecSQLTxWithErr(
-				con,
-				ctx,
-				"insert into gha_assets("+
-					"id, event_id, name, label, uploader_id, content_type, "+
-					"state, size, download_count, created_at, updated_at, "+
-					"dup_actor_id, dup_actor_login, dup_repo_id, dup_repo_name, dup_type, dup_created_at, "+
-					"dup_uploader_login) "+lib.NValues(18),
-				lib.AnyArray{
-					aid,
-					eventID,
-					lib.TruncToBytes(asset.Name, 200),
-					lib.TruncStringOrNil(asset.Label, 120),
-					asset.Uploader.ID,
-					asset.ContentType,
-					asset.State,
-					asset.Size,
-					asset.DownloadCount,
-					asset.CreatedAt,
-					asset.UpdatedAt,
-					ev.Actor.ID,
-					ev.Actor.Login,
-					ev.Repo.ID,
-					ev.Repo.Name,
-					ev.Type,
-					ev.CreatedAt,
-					asset.Uploader.Login,
-				}...,
-			)
-
-			// release-asset connection
-			lib.ExecSQLTxWithErr(
-				con,
-				ctx,
-				"insert into gha_releases_assets(release_id, event_id, asset_id) "+lib.NValues(3),
-				lib.AnyArray{rid, eventID, aid}...,
-			)
-		}
-	}
+	// Release & assets
+	ghaRelease(con, ctx, pl.Release, eventID, &ev.Actor, &ev.Repo, ev.Type, ev.CreatedAt)
 
 	// gha_pull_requests
 	// Table details and analysis in `analysis/analysis.txt` and `analysis/pull_request_*.json`
