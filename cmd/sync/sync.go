@@ -143,6 +143,20 @@ func sync(args []string) {
 				},
 				nil,
 			)
+
+			// PRs opened -> lgtmed -> approved -> merged (median and 85th percentile), weekly, monthly, quarterly
+			lib.ExecCommand(
+				&ctx,
+				[]string{
+					"./db2influx",
+					"time_metrics_data",
+					metricsDir + "/time_metrics.sql",
+					lib.ToYMDDate(from),
+					lib.ToYMDDate(to),
+					period,
+				},
+				nil,
+			)
 		}
 		fmt.Printf("Daily - yearly metrics\n")
 
