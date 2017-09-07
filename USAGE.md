@@ -141,6 +141,11 @@ There is a big file containing all Kubernetes events JSONs from Aug 2017 concate
 
 Please note that this is not a correct JSON, it contains files separated by line `JSON: jsons/filename.json` - that says what was the original JSON filename. This file is 16.7M xzipped, but 1.07G uncompressed.
 
+Please also note that JSON for 2016-10-21 18:00 is broken, so running this command will produce no data. Code will output error to logs and continue. Always examine `errors.txt` from `kubernetes*.sh` script.
+
+This will log error and process no JSONs:
+- `./gha2db 2016-10-21 18 2016-10-21 18 'kubernetes,kubernetes-client,kubernetes-incubator'`.
+
 # PostgreSQL database
 
 1) Running on all 3 orgs `kubernetes,kubernetes-client,kubernetes-incubator` repos for June 2017 yields:

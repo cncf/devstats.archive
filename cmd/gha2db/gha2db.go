@@ -970,7 +970,7 @@ func writeToDBOldFmt(db *sql.DB, ctx *lib.Ctx, eventID string, ev *lib.EventOld)
 		pr := *pl.PullRequest
 
 		// issue
-		iid = hashStrings([]string{strconv.Itoa(pr.ID)})
+		iid = -pr.ID
 		isPR := true
 		comments := 0
 		locked := false
