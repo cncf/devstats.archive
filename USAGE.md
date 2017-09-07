@@ -559,7 +559,7 @@ Or automatically: drop & create Influx DB, update Postgres DB since last run, fu
 Feed InfluxDB using:
 - `PG_PASS='psql_pwd' IDB_PASS='influxdb_pwd' ./db2influx sig_metions_data metrics/sig_mentions.sql '2017-08-14' '2017-08-21' d`
 - First parameter is used as exact series name when metrics query returns single row with single column value.
-- First parameter is used as function name when metrics query return mutiple rows, each with two columns. This function receives data row and period name and should return series name and value.
+- First parameter is used as function name when metrics query return mutiple rows, each with >= 2 columns. This function receives data row and period name and should return series name and value(s).
 - Second parameter is a metrics SQL file, it should contain time conditions defined as `'{{from}}'` and `'{{to}}'`.
 - Next two parameters are date ranges.
 - Last parameter can be h, d, w, m, q, y (hour, day, week, month, quarter, year).

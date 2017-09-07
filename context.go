@@ -33,7 +33,7 @@ type Ctx struct {
 	CtxOut           bool      // from GHA2DB_CTXOUT output all context data (this struct), default false
 	DefaultStartDate time.Time // from GHA2DB_STARTDT, default `2014-06-01 00:00 UTC`, expects format "YYYY-MM-DD HH:MI:SS"
 	LastSeries       string    // from GHA2DB_LASTSERIES, use this InfluxDB series to determine last timestamp date, default "all_prs_merged_d"
-	SkipIDB          bool      // from GHA2DB_SKIPIDB sync tool, skip InfluxDB processing? default false
+	SkipIDB          bool      // from GHA2DB_SKIPIDB sync tool, skip InfluxDB processing? for db2influx it skips final series write, default false
 	ResetIDB         bool      // from GHA2DB_RESETIDB sync tool, regenerate all InfluxDB points? default false
 	Explain          bool      // from GHA2DB_EXPLAIN runq tool, prefix query with "explain " - it will display query plan instead of executing real query, default false
 	OldFormat        bool      // from GHA2DB_OLDFMT gha2db tool, if set then use pre 2015 GHA JSONs format

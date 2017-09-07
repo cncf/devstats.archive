@@ -1,9 +1,11 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
 	"io/ioutil"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 
@@ -11,20 +13,27 @@ import (
 )
 
 // Generate name for given series row and period
-func nameForMetricsRow(metric, name, period string) string {
+func nameForMetricsRow(metric, name, period string) []string {
 	switch metric {
 	case "sig_mentions_data":
-		return fmt.Sprintf("%s_%s", strings.Replace(name, "-", "_", -1), period)
+		return []string{fmt.Sprintf("%s_%s", strings.Replace(name, "-", "_", -1), period)}
 	case "sig_mentions_breakdown_data":
-		return fmt.Sprintf("bd_%s_%s", strings.Replace(name, "-", "_", -1), period)
+		return []string{fmt.Sprintf("bd_%s_%s", strings.Replace(name, "-", "_", -1), period)}
 	case "prs_merged_data":
 		r := strings.NewReplacer("-", "_", "/", "_", ".", "_")
-		return fmt.Sprintf("prs_%s_%s", r.Replace(name), period)
+		return []string{fmt.Sprintf("prs_%s_%s", r.Replace(name), period)}
+	case "time_metrics_data":
+		splitted := strings.Split(name, ",")
+		var result []string
+		for _, str := range splitted {
+			result = append(result, str+"_"+period)
+		}
+		return result
 	default:
 		fmt.Printf("Error\nUnknown metric '%v'\n", metric)
 		os.Exit(1)
 	}
-	return ""
+	return []string{""}
 }
 
 // Round float64 to int
@@ -59,7 +68,7 @@ func workerThread(ch chan bool, ctx *lib.Ctx, seriesNameOrFunc, sqlQuery, period
 
 	// Get Number of columns
 	// We support either query returnign single row with single numeric value
-	// Or multiple rows, each containing string (series name) and its numeric value
+	// Or multiple rows, each containing string (series name) and its numeric value(s)
 	columns, err := rows.Columns()
 	lib.FatalOnError(err)
 	nColumns := len(columns)
@@ -79,7 +88,7 @@ func workerThread(ch chan bool, ctx *lib.Ctx, seriesNameOrFunc, sqlQuery, period
 		if rowCount != 1 {
 			fmt.Printf(
 				"Error:\nQuery should return either single value or "+
-					"multiple rows, each containing string and number\n"+
+					"multiple rows, each containing string and numbers\n"+
 					"Got %d rows, each containing single number\nQuery:%s\n",
 				rowCount, sqlQuery,
 			)
@@ -96,33 +105,52 @@ func workerThread(ch chan bool, ctx *lib.Ctx, seriesNameOrFunc, sqlQuery, period
 		fields := map[string]interface{}{"value": value}
 		pt := lib.IDBNewPointWithErr(name, nil, fields, from)
 		bp.AddPoint(pt)
-	} else if nColumns == 2 {
-		// Multiple rows, each with (series name, value)
+	} else if nColumns >= 2 {
+		// Multiple rows, each with (series name, value(s))
+		// Number of columns
+		columns, err := rows.Columns()
+		lib.FatalOnError(err)
+		nColumns := len(columns)
+		// Alocate nColumns numeric values (first is series name)
+		pValues := make([]interface{}, nColumns)
+		for i := range columns {
+			pValues[i] = new(sql.RawBytes)
+		}
 		for rows.Next() {
-			lib.FatalOnError(rows.Scan(&name, &pValue))
-			if pValue != nil {
-				value = roundF2I(*pValue)
+			// Get row values
+			lib.FatalOnError(rows.Scan(pValues...))
+			// Get first column name, and using it all series names
+			// First column should contain nColumns - 1 names separated by ","
+			name := string(*pValues[0].(*sql.RawBytes))
+			names := nameForMetricsRow(seriesNameOrFunc, name, period)
+			// Iterate values
+			pFloats := pValues[1:]
+			for idx, pVal := range pFloats {
+				if pVal != nil {
+					fVal, _ := strconv.ParseFloat(string(*pVal.(*sql.RawBytes)), 64)
+					value = roundF2I(fVal)
+				} else {
+					value = 0
+				}
+				name = names[idx]
+				if ctx.Debug > 0 {
+					fmt.Printf("%v - %v -> %v: %v, %v\n", from, to, idx, name, value)
+				}
+				// Add batch point
+				fields := map[string]interface{}{"value": value}
+				pt := lib.IDBNewPointWithErr(name, nil, fields, from)
+				bp.AddPoint(pt)
 			}
-			name = nameForMetricsRow(seriesNameOrFunc, name, period)
-			if ctx.Debug > 0 {
-				fmt.Printf("%v - %v -> %v, %v\n", from, to, name, value)
-			}
-			// Add batch point
-			fields := map[string]interface{}{"value": value}
-			pt := lib.IDBNewPointWithErr(name, nil, fields, from)
-			bp.AddPoint(pt)
 		}
 		lib.FatalOnError(rows.Err())
-	} else {
-		fmt.Printf(
-			"Wrong query:\n#{q}\nMetrics query should either return single row " +
-				"with single value or at least 1 row, each with two values\n",
-		)
-		os.Exit(1)
 	}
 	// Write the batch
-	err = ic.Write(bp)
-	lib.FatalOnError(err)
+	if !ctx.SkipIDB {
+		err = ic.Write(bp)
+		lib.FatalOnError(err)
+	} else if ctx.Debug > 0 {
+		fmt.Printf("Skipping series write\n")
+	}
 
 	// Synchronize go routine
 	if ch != nil {
@@ -232,7 +260,7 @@ func main() {
 				"query return just single numeric value\n",
 		)
 		fmt.Printf("For queries returning multiple rows 'series_name_or_func' will be used as function that\n")
-		fmt.Printf("receives data row and period and returns name and value for it\n")
+		fmt.Printf("receives data row and period and returns name and value(s) for it\n")
 		os.Exit(1)
 	}
 	db2influx(os.Args[1], os.Args[2], os.Args[3], os.Args[4], os.Args[5])
