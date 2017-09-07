@@ -83,26 +83,26 @@ type PayloadOld struct {
 // ForkeeOld - GHA Forkee structure (from before 2015)
 // Handle missing 4 last properties (including two non-nulls!)
 type ForkeeOld struct {
-	ID            int       `json:"id"`
-	CreatedAt     time.Time `json:"created_at"`
-	Description   *string   `json:"description"`
-	Fork          bool      `json:"fork"`
-	Forks         int       `json:"forks"`
-	HasDownloads  bool      `json:"has_downloads"`
-	HasIssues     bool      `json:"has_issues"`
-	HasWiki       bool      `json:"has_wiki"`
-	Homepage      *string   `json:"homepage"`
-	Language      *string   `json:"language"`
-	DefaultBranch string    `json:"master_branch"`
-	Name          string    `json:"name"`
-	OpenIssues    int       `json:"open_issues"`
-	Organization  *string   `json:"organization"`
-	Owner         string    `json:"owner"`
-	Private       *bool     `json:"private"`
-	PushedAt      time.Time `json:"updated_at"`
-	Size          int       `json:"size"`
-	Stargazers    int       `json:"stargazers"`
-	Watchers      int       `json:"watchers"`
+	ID            int        `json:"id"`
+	CreatedAt     time.Time  `json:"created_at"`
+	Description   *string    `json:"description"`
+	Fork          bool       `json:"fork"`
+	Forks         int        `json:"forks"`
+	HasDownloads  bool       `json:"has_downloads"`
+	HasIssues     bool       `json:"has_issues"`
+	HasWiki       bool       `json:"has_wiki"`
+	Homepage      *string    `json:"homepage"`
+	Language      *string    `json:"language"`
+	DefaultBranch string     `json:"master_branch"`
+	Name          string     `json:"name"`
+	OpenIssues    int        `json:"open_issues"`
+	Organization  *string    `json:"organization"`
+	Owner         string     `json:"owner"`
+	Private       *bool      `json:"private"`
+	PushedAt      *time.Time `json:"pushed_at"`
+	Size          int        `json:"size"`
+	Stargazers    int        `json:"stargazers"`
+	Watchers      int        `json:"watchers"`
 }
 
 // Repo - GHA Repo structure
@@ -125,28 +125,28 @@ type Org struct {
 
 // Forkee - GHA Forkee structure
 type Forkee struct {
-	ID              int       `json:"id"`
-	Name            string    `json:"name"`
-	FullName        string    `json:"full_name"`
-	Owner           Actor     `json:"owner"`
-	Description     *string   `json:"description"`
-	Public          *bool     `json:"public"`
-	Fork            bool      `json:"fork"`
-	CreatedAt       time.Time `json:"created_at"`
-	UpdatedAt       time.Time `json:"updated_at"`
-	PushedAt        time.Time `json:"pushed_at"`
-	Homepage        *string   `json:"homepage"`
-	Size            int       `json:"size"`
-	StargazersCount int       `json:"stargazers_count"`
-	HasIssues       bool      `json:"has_issues"`
-	HasProjects     *bool     `json:"has_projects"`
-	HasDownloads    bool      `json:"has_downloads"`
-	HasWiki         bool      `json:"has_wiki"`
-	HasPages        *bool     `json:"has_pages"`
-	Forks           int       `json:"forks"`
-	OpenIssues      int       `json:"open_issues"`
-	Watchers        int       `json:"watchers"`
-	DefaultBranch   string    `json:"default_branch"`
+	ID              int        `json:"id"`
+	Name            string     `json:"name"`
+	FullName        string     `json:"full_name"`
+	Owner           Actor      `json:"owner"`
+	Description     *string    `json:"description"`
+	Public          *bool      `json:"public"`
+	Fork            bool       `json:"fork"`
+	CreatedAt       time.Time  `json:"created_at"`
+	UpdatedAt       time.Time  `json:"updated_at"`
+	PushedAt        *time.Time `json:"pushed_at"`
+	Homepage        *string    `json:"homepage"`
+	Size            int        `json:"size"`
+	StargazersCount int        `json:"stargazers_count"`
+	HasIssues       bool       `json:"has_issues"`
+	HasProjects     *bool      `json:"has_projects"`
+	HasDownloads    bool       `json:"has_downloads"`
+	HasWiki         bool       `json:"has_wiki"`
+	HasPages        *bool      `json:"has_pages"`
+	Forks           int        `json:"forks"`
+	OpenIssues      int        `json:"open_issues"`
+	Watchers        int        `json:"watchers"`
+	DefaultBranch   string     `json:"default_branch"`
 }
 
 // Release - GHA Release structure
