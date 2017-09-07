@@ -74,9 +74,11 @@ func workerThread(ch chan bool, ctx *lib.Ctx, seriesNameOrFunc, sqlQuery, period
 	nColumns := len(columns)
 
 	// Metric Results, currently assume they're integers
-	var pValue *float64
-	value := 0
-	name := ""
+	var (
+		pValue *float64
+		value  float64
+		name   string
+	)
 	// Single row & single column result
 	if nColumns == 1 {
 		rowCount := 0
@@ -95,7 +97,7 @@ func workerThread(ch chan bool, ctx *lib.Ctx, seriesNameOrFunc, sqlQuery, period
 		}
 		// Handle nulls
 		if pValue != nil {
-			value = roundF2I(*pValue)
+			value = *pValue
 		}
 		name = seriesNameOrFunc
 		if ctx.Debug > 0 {
@@ -127,10 +129,9 @@ func workerThread(ch chan bool, ctx *lib.Ctx, seriesNameOrFunc, sqlQuery, period
 			pFloats := pValues[1:]
 			for idx, pVal := range pFloats {
 				if pVal != nil {
-					fVal, _ := strconv.ParseFloat(string(*pVal.(*sql.RawBytes)), 64)
-					value = roundF2I(fVal)
+					value, _ = strconv.ParseFloat(string(*pVal.(*sql.RawBytes)), 64)
 				} else {
-					value = 0
+					value = 0.0
 				}
 				name = names[idx]
 				if ctx.Debug > 0 {

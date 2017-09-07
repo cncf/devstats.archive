@@ -36,6 +36,7 @@ create temp table tdiffs as
 select extract(epoch from lgtm.lgtm_at - prs.created_at) / 3600 as open_to_lgtm,
   extract(epoch from approve.approve_at - lgtm.lgtm_at) / 3600 as lgtm_to_approve,
   extract(epoch from prs.merged_at - approve.approve_at) / 3600 as approve_to_merge
+  --prs.merged_at - approve.approve_at as approve_to_merge
 from
   prs
 join
