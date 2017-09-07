@@ -33,7 +33,7 @@ Our approach is to use GitHub archives instead. The possible alternatives are:
 - You can get the current state of the objects, but you cannot get repo, PR, issue state in the past (for example summary fields, etc).
 - It is limited by GitHub API usage per hour, which makes local development harder.
 - API limits are very aggressive for unauthorized access, and even with authorized access, you're limited to 5000 API calls/hour.
-- It is much slower than processing GitHub archives or BigQuery
+- It is much slower than processing GitHub archives or BigQuery.
 - You must query it via API and it is returning a single result.
 - You can use GitHub hook callbacks, but they only fire for current events.
 
