@@ -7,7 +7,6 @@ select 'events' as name, count(*) as count_value from gha_events union
 select 'forkees' as name, count(*) as count_value from gha_forkees union
 select 'issues' as name, count(*) as count_value from gha_issues union
 select 'issue assignees' as name, count(*) as count_value from gha_issues_assignees union
-select 'issue events labels' as name, count(*) as count_value from gha_issues_events_labels union
 select 'issue labels' as name, count(*) as count_value from gha_issues_labels union
 select 'labels' as name, count(*) as count_value from gha_labels union
 select 'milestones' as name, count(*) as count_value from gha_milestones union
@@ -20,5 +19,9 @@ select 'pull request requested reviewers' as name, count(*) as count_value from 
 select 'releases' as name, count(*) as count_value from gha_releases union
 select 'release assets' as name, count(*) as count_value from gha_releases_assets union
 select 'repos' as name, count(*) as count_value from gha_repos union
+select 'teams' as name, count(*) as count_value from gha_teams union
+select 'team repositories' as name, count(*) as count_value from gha_teams_repositories union
+select 'issue events labels' as name, count(*) as count_value from gha_issues_events_labels union
+select 'issue pull requests' as name, count(*) as count_value from gha_issues_pull_requests union
 select 'texts' as name, count(*) as count_value from gha_texts
 order by name

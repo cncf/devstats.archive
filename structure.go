@@ -515,7 +515,7 @@ func Structure(ctx *Ctx) {
 					"fork boolean not null, "+
 					"created_at {{ts}} not null, "+
 					"updated_at {{ts}} not null, "+
-					"pushed_at {{ts}} not null, "+
+					"pushed_at {{ts}}, "+
 					"homepage text, "+
 					"size int not null, "+
 					"stargazers_count int not null, "+
