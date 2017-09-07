@@ -1,4 +1,5 @@
-#!/bin/sh
+#!/bin/bash
+set -o pipefail
 > errors.txt
 > run.log
 PG_DB=test GHA2DB_MGETC=y ./structure 2>>errors.txt | tee -a run.log || exit 1
