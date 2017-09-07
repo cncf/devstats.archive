@@ -1,14 +1,16 @@
 create temp table prs as
-select ipr.issue_id, pr.created_at, min(pr.merged_at) as merged_at
+select ipr.issue_id, pr.created_at, pr.merged_at as merged_at
 from
   gha_issues_pull_requests ipr,
   gha_pull_requests pr
 where
   pr.id = ipr.pull_request_id
+  and pr.merged_at is not null
   and pr.created_at >= '{{from}}'
   and pr.created_at < '{{to}}'
-group by
-  ipr.issue_id, pr.created_at;
+  and pr.event_id = (
+    select i.event_id from gha_pull_requests i where i.id = pr.id order by i.updated_at desc limit 1
+  );
 
 create temp table pr_lgtm as
 select issue_id, min(created_at) as lgtm_at
@@ -30,22 +32,31 @@ where
 group by
   issue_id;
 
-select
-  'hours_open_to_lgtm,hours_lgtm_to_approve,hours_approve_to_merge' as name,
-  avg(extract(epoch from least(lgtm.lgtm_at, prs.merged_at) - prs.created_at)/3600) as hours_open_to_lgtm,
-  avg(extract(epoch from least(approve.approve_at, prs.merged_at) - least(lgtm.lgtm_at, prs.merged_at))/3600) as hours_lgtm_to_approve,
-  avg(extract(epoch from prs.merged_at - least(approve.approve_at, prs.merged_at))/3600) as hours_approve_to_merge
+create temp table tdiffs as
+select extract(epoch from lgtm.lgtm_at - prs.created_at) / 3600 as open_to_lgtm,
+  extract(epoch from approve.approve_at - lgtm.lgtm_at) / 3600 as lgtm_to_approve,
+  extract(epoch from prs.merged_at - approve.approve_at) / 3600 as approve_to_merge
 from
   prs
--- left join
 join
   pr_lgtm lgtm on prs.issue_id = lgtm.issue_id
--- left join
 join
   pr_approve approve on prs.issue_id = approve.issue_id
 where
   prs.merged_at is not null;
 
+select
+  'm_o2l,m_l2a,m_a2m,pc_o2l,pc_l2a,pc_a2m' as name,
+  percentile_cont(0.5) within group (order by open_to_lgtm asc) as m_o2l,
+  percentile_cont(0.5) within group (order by lgtm_to_approve asc) as m_l2a,
+  percentile_cont(0.5) within group (order by approve_to_merge asc) as m_a2m,
+  percentile_cont(0.85) within group (order by open_to_lgtm asc) as pc_o2l,
+  percentile_cont(0.85) within group (order by lgtm_to_approve asc) as pc_l2a,
+  percentile_cont(0.85) within group (order by approve_to_merge asc) as pc_a2m
+from
+  tdiffs;
+
+drop table tdiffs;
 drop table pr_lgtm;
 drop table pr_approve;
 drop table prs;
