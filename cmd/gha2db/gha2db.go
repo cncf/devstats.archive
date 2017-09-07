@@ -963,14 +963,14 @@ func writeToDBOldFmt(db *sql.DB, ctx *lib.Ctx, eventID string, ev *lib.EventOld)
 	}
 	ghaPullRequest(con, ctx, pl.PullRequest, eventID, &actor, &repo, ev.Type, ev.CreatedAt, forkeeIDsToSkip)
 
-	// We need artifical issue
+	// We need artificial issue
 	// gha_issues
 	// Table details and analysis in `analysis/analysis.txt` and `analysis/issue_*.json`
 	if pl.PullRequest != nil {
 		pr := *pl.PullRequest
 
 		// issue
-		iid = hashStrings([]string{eventID, strconv.Itoa(pr.ID)})
+		iid = hashStrings([]string{strconv.Itoa(pr.ID)})
 		isPR := true
 		comments := 0
 		locked := false
