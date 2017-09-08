@@ -45,7 +45,7 @@ join
   pr_approve approve on prs.issue_id = approve.issue_id;
 
 select
-  'm_o2l,m_l2a,m_a2m,pc_o2l,pc_l2a,pc_a2m' as name,
+  'median_open_to_lgtm,median_lgtm_to_approve,median_approve_to_merge,percentile_75_open_to_lgtm,percentile_75_lgtm_to_approve,percentile_75_approve_to_merge' as name,
   percentile_disc(0.5) within group (order by open_to_lgtm asc) as m_o2l,
   percentile_disc(0.5) within group (order by lgtm_to_approve asc) as m_l2a,
   percentile_disc(0.5) within group (order by approve_to_merge asc) as m_a2m,
