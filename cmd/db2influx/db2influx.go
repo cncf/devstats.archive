@@ -22,7 +22,7 @@ func nameForMetricsRow(metric, name, period string) []string {
 	case "prs_merged_data":
 		r := strings.NewReplacer("-", "_", "/", "_", ".", "_")
 		return []string{fmt.Sprintf("prs_%s_%s", r.Replace(name), period)}
-	case "time_metrics_data":
+	case "default_multi_column":
 		splitted := strings.Split(name, ",")
 		var result []string
 		for _, str := range splitted {

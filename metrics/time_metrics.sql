@@ -42,9 +42,7 @@ from
 join
   pr_lgtm lgtm on prs.issue_id = lgtm.issue_id
 join
-  pr_approve approve on prs.issue_id = approve.issue_id
-where
-  prs.merged_at is not null;
+  pr_approve approve on prs.issue_id = approve.issue_id;
 
 select
   'm_o2l,m_l2a,m_a2m,pc_o2l,pc_l2a,pc_a2m' as name,

@@ -121,7 +121,7 @@ func sync(args []string) {
 		}
 		fmt.Printf("Influx range: %s - %s\n", lib.ToYMDHDate(from), lib.ToYMDHDate(to))
 
-		// Metrics from daily to yearly
+		// Metrics from weekly to quarterly
 		fmt.Printf("Weekly - quarterly metrics\n")
 		for _, period := range periodsFromWeekToQuarter {
 			// Some bigger periods like month, quarters, years doesn't need to be updated every run
@@ -149,8 +149,22 @@ func sync(args []string) {
 				&ctx,
 				[]string{
 					"./db2influx",
-					"time_metrics_data",
+					"default_multi_column",
 					metricsDir + "/time_metrics.sql",
+					lib.ToYMDDate(from),
+					lib.ToYMDDate(to),
+					period,
+				},
+				nil,
+			)
+
+			// Time opened to merged (number of hours) weekly, monthly, quarterly (median 25th and 75th percentiles)
+			lib.ExecCommand(
+				&ctx,
+				[]string{
+					"./db2influx",
+					"default_multi_column",
+					metricsDir + "/opened_to_merged.sql",
 					lib.ToYMDDate(from),
 					lib.ToYMDDate(to),
 					period,
@@ -203,48 +217,6 @@ func sync(args []string) {
 					"./db2influx",
 					"prs_merged_data",
 					metricsDir + "/prs_merged.sql",
-					lib.ToYMDDate(from),
-					lib.ToYMDDate(to),
-					period,
-				},
-				nil,
-			)
-
-			// Time opened to merged (number of hours) daily, weekly, monthly, quarterly, yearly
-			lib.ExecCommand(
-				&ctx,
-				[]string{
-					"./db2influx",
-					"hours_pr_open_to_merge_" + period,
-					metricsDir + "/opened_to_merged.sql",
-					lib.ToYMDDate(from),
-					lib.ToYMDDate(to),
-					period,
-				},
-				nil,
-			)
-
-			// Time opened to approved (number of hours) daily, weekly, monthly, quarterly, yearly
-			lib.ExecCommand(
-				&ctx,
-				[]string{
-					"./db2influx",
-					"hours_pr_open_to_approve_" + period,
-					metricsDir + "/opened_to_approved.sql",
-					lib.ToYMDDate(from),
-					lib.ToYMDDate(to),
-					period,
-				},
-				nil,
-			)
-
-			// Time opened to LGTM-ed (number of hours) daily, weekly, monthly, quarterly, yearly
-			lib.ExecCommand(
-				&ctx,
-				[]string{
-					"./db2influx",
-					"hours_pr_open_to_lgtm_" + period,
-					metricsDir + "/opened_to_lgtmed.sql",
 					lib.ToYMDDate(from),
 					lib.ToYMDDate(to),
 					period,
