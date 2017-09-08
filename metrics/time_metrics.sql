@@ -46,12 +46,12 @@ join
 
 select
   'm_o2l,m_l2a,m_a2m,pc_o2l,pc_l2a,pc_a2m' as name,
-  percentile_cont(0.5) within group (order by open_to_lgtm asc) as m_o2l,
-  percentile_cont(0.5) within group (order by lgtm_to_approve asc) as m_l2a,
-  percentile_cont(0.5) within group (order by approve_to_merge asc) as m_a2m,
-  percentile_cont(0.85) within group (order by open_to_lgtm asc) as pc_o2l,
-  percentile_cont(0.85) within group (order by lgtm_to_approve asc) as pc_l2a,
-  percentile_cont(0.85) within group (order by approve_to_merge asc) as pc_a2m
+  percentile_disc(0.5) within group (order by open_to_lgtm asc) as m_o2l,
+  percentile_disc(0.5) within group (order by lgtm_to_approve asc) as m_l2a,
+  percentile_disc(0.5) within group (order by approve_to_merge asc) as m_a2m,
+  percentile_disc(0.85) within group (order by open_to_lgtm asc) as pc_o2l,
+  percentile_disc(0.85) within group (order by lgtm_to_approve asc) as pc_l2a,
+  percentile_disc(0.85) within group (order by approve_to_merge asc) as pc_a2m
 from
   tdiffs;
 
