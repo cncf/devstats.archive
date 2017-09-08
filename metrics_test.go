@@ -63,6 +63,19 @@ func TestMetrics(t *testing.T) {
 			},
 		},
 		{
+			setup:  setupSigMentionsMetric,
+			metric: "sig_mentions_breakdown",
+			from:   ft(2017, 7),
+			to:     ft(2017, 8),
+			expected: [][]interface{}{
+				{"sig-group2-bug", 2},
+				{"sig-a-b-c-bug", 1},
+				{"sig-group-1-bug", 1},
+				{"sig-group-1-feature-request", 1},
+				{"sig-group2-pr-review", 1},
+			},
+		},
+		{
 			setup:  setupPRsMergedMetric,
 			metric: "prs_merged",
 			from:   ft(2017, 7),
@@ -81,25 +94,29 @@ func TestMetrics(t *testing.T) {
 			expected: [][]interface{}{{6}},
 		},
 		{
-			setup:    setupTimeMetrics,
-			metric:   "opened_to_merged",
-			from:     ft(2017, 7),
-			to:       ft(2017, 8),
-			expected: [][]interface{}{{48}},
+			setup:  setupTimeMetrics,
+			metric: "opened_to_merged",
+			from:   ft(2017, 7),
+			to:     ft(2017, 8),
+			expected: [][]interface{}{
+				{
+					"opened_to_merged_percentile_25,opened_to_merged_median,opened_to_merged_percentile_75",
+					480, 504, 552,
+				},
+			},
 		},
 		{
-			setup:    setupTimeMetrics,
-			metric:   "opened_to_lgtmed",
-			from:     ft(2017, 7),
-			to:       ft(2017, 8),
-			expected: [][]interface{}{{24}},
-		},
-		{
-			setup:    setupTimeMetrics,
-			metric:   "opened_to_approved",
-			from:     ft(2017, 7),
-			to:       ft(2017, 8),
-			expected: [][]interface{}{{36}},
+			setup:  setupTimeMetrics,
+			metric: "time_metrics",
+			from:   ft(2017, 7),
+			to:     ft(2017, 8),
+			expected: [][]interface{}{
+				{
+					"m_o2l,m_l2a,m_a2m,pc_o2l,pc_l2a,pc_a2m",
+					144, 120, 216,
+					264, 168, 288,
+				},
+			},
 		},
 	}
 
@@ -381,15 +398,14 @@ func setupTimeMetrics(con *sql.DB, ctx *lib.Ctx) (err error) {
 	// prid, eid, uid, merged_id, assignee_id, num, state, title, body, created_at, closed_at, merged_at, merged
 	// repo_id, repo_name, actor_id, actor_login
 	prs := [][]interface{}{
-		{1, 1, 1, 1, 1, 1, "closed", "PR 1", "Body PR 1", ft(2017, 7, 1), ft(2017, 7, 3), ft(2017, 7, 3), true, 1, "R1", 1, "A1"}, // average of PR 1-6 created -> merged is 48 hours
-		{2, 2, 1, 1, 1, 2, "closed", "PR 2", "Body PR 2", ft(2017, 7, 2), ft(2017, 7, 3), ft(2017, 7, 3), true, 1, "R1", 1, "A1"},
-		{3, 3, 1, 1, 1, 3, "closed", "PR 3", "Body PR 3", ft(2017, 7, 3), ft(2017, 7, 6), ft(2017, 7, 6), true, 1, "R1", 1, "A1"},
-		{4, 4, 1, 1, 1, 4, "closed", "PR 4", "Body PR 4", ft(2017, 7, 4), ft(2017, 7, 5, 21, 15), ft(2017, 7, 5, 21, 15), true, 1, "R1", 1, "A1"},
-		{5, 5, 1, 1, 1, 5, "closed", "PR 5", "Body PR 5", ft(2017, 7, 5), ft(2017, 7, 6, 20), ft(2017, 7, 6, 20), true, 1, "R1", 1, "A1"},
-		{6, 6, 1, 1, 1, 6, "closed", "PR 6", "Body PR 6", ft(2017, 7, 6), ft(2017, 7, 8, 6, 45), ft(2017, 7, 8, 6, 45), true, 1, "R1", 1, "A1"},
-		{7, 7, 1, 1, 1, 7, "closed", "PR 7", "Body PR 7", ft(2017, 6, 30), ft(2017, 7, 10), ft(2017, 7, 10), true, 1, "R1", 1, "A1"}, // Skipped because not created in Aug
-		{8, 1, 1, nil, 1, 8, "closed", "PR 8", "Body PR 8", ft(2017, 7, 2), ft(2017, 7, 8), nil, true, 1, "R1", 1, "A1"},             // Skipped because not merged
-		{9, 1, 1, nil, 1, 9, "open", "PR 9", "Body PR 9", ft(2017, 7, 8), nil, nil, true, 1, "R1", 1, "A1"},                          // Skipped because not merged
+		{1, 1, 1, 1, 1, 1, "closed", "PR 1", "Body PR 1", ft(2017, 7, 1), ft(2017, 7, 21), ft(2017, 7, 21), true, 1, "R1", 1, "A1"}, // average of PR 1-6 created -> merged is 48 hours
+		{2, 2, 1, 1, 1, 2, "closed", "PR 2", "Body PR 2", ft(2017, 7, 2), ft(2017, 7, 23), ft(2017, 7, 23), true, 1, "R1", 1, "A1"},
+		{3, 3, 1, 1, 1, 3, "closed", "PR 3", "Body PR 3", ft(2017, 7, 3), ft(2017, 7, 26), ft(2017, 7, 26), true, 1, "R1", 1, "A1"},
+		{4, 4, 1, 1, 1, 4, "closed", "PR 4", "Body PR 4", ft(2017, 7, 4), ft(2017, 7, 30), ft(2017, 7, 30), true, 1, "R1", 1, "A1"},
+
+		{5, 5, 1, 1, 1, 5, "closed", "PR 5", "Body PR 5", ft(2017, 6, 30), ft(2017, 7, 10), ft(2017, 7, 10), true, 1, "R1", 1, "A1"}, // Skipped because not created in Aug
+		{6, 6, 1, nil, 1, 6, "closed", "PR 6", "Body PR 6", ft(2017, 7, 2), ft(2017, 7, 8), nil, true, 1, "R1", 1, "A1"},             // Skipped because not merged
+		{7, 7, 1, nil, 1, 7, "open", "PR 7", "Body PR 7", ft(2017, 7, 8), nil, nil, true, 1, "R1", 1, "A1"},                          // Skipped because not merged
 	}
 
 	// Issues/PRs to add
@@ -399,29 +415,36 @@ func setupTimeMetrics(con *sql.DB, ctx *lib.Ctx) (err error) {
 		{2, 2, 2, 1, "R1", ft(2017, 7, 2)},
 		{3, 3, 3, 1, "R1", ft(2017, 7, 3)},
 		{4, 4, 4, 1, "R1", ft(2017, 7, 4)},
-		{5, 5, 5, 1, "R1", ft(2017, 7, 5)},
-		{6, 6, 6, 1, "R1", ft(2017, 7, 6)},
-		{7, 7, 7, 1, "R1", ft(2017, 6, 30)},
-		{8, 8, 8, 1, "R1", ft(2017, 7, 2)},
-		{9, 9, 9, 1, "R1", ft(2017, 7, 8)},
+
+		{5, 5, 5, 1, "R1", ft(2017, 6, 30)},
+		{6, 6, 6, 1, "R1", ft(2017, 7, 2)},
+		{7, 7, 7, 1, "R1", ft(2017, 7, 8)},
 	}
 
 	// Issue Event Labels to add
 	// iid, eid, lid, lname, created_at
 	// repo_id, repo_name, actor_id, actor_login, type, issue_number
 	iels := [][]interface{}{
-		//{1, 1, 1, "lgtm", ft(2017, 7, 2), 1, "R1", 1, "A1", "T", 1},
-		{2, 1, 1, "lgtm", ft(2017, 7, 2, 12), 1, "R1", 1, "A1", "T", 1},
-		{3, 2, 1, "lgtm", ft(2017, 7, 4, 12), 1, "R1", 1, "A1", "T", 1},
-		{4, 3, 1, "lgtm", ft(2017, 7, 5), 1, "R1", 1, "A1", "T", 1},
-		{5, 4, 1, "lgtm", ft(2017, 7, 5, 10), 1, "R1", 1, "A1", "T", 1},
-		{6, 5, 1, "lgtm", ft(2017, 7, 6, 14), 1, "R1", 1, "A1", "T", 1},
-		{2, 6, 2, "approved", ft(2017, 7, 3), 1, "R1", 1, "A1", "T", 1},
-		{3, 7, 2, "approved", ft(2017, 7, 5), 1, "R1", 1, "A1", "T", 1},
-		{4, 8, 2, "approved", ft(2017, 7, 5, 12), 1, "R1", 1, "A1", "T", 1},
-		{5, 9, 2, "approved", ft(2017, 7, 5, 22), 1, "R1", 1, "A1", "T", 1},
-		{6, 10, 2, "approved", ft(2017, 7, 7, 14), 1, "R1", 1, "A1", "T", 1},
+		{1, 8, 1, "lgtm", ft(2017, 7, 6), 1, "R1", 1, "A1", "T", 1},
+		{2, 9, 1, "lgtm", ft(2017, 7, 8), 1, "R1", 1, "A1", "T", 1},
+		{3, 10, 1, "lgtm", ft(2017, 7, 11), 1, "R1", 1, "A1", "T", 1},
+		{4, 11, 1, "lgtm", ft(2017, 7, 15), 1, "R1", 1, "A1", "T", 1},
+		{1, 12, 2, "approved", ft(2017, 7, 11), 1, "R1", 1, "A1", "T", 1},
+		{2, 13, 2, "approved", ft(2017, 7, 14), 1, "R1", 1, "A1", "T", 1},
+		{3, 14, 2, "approved", ft(2017, 7, 18), 1, "R1", 1, "A1", "T", 1},
+		{4, 15, 2, "approved", ft(2017, 7, 18), 1, "R1", 1, "A1", "T", 1},
 	}
+
+	// Opened -> Merged is:   20, 21, 23, 26 days: sorted [20, 21, 23, 26]
+	// Opened -> LGTMed is:   5,  6,  8,  11 days: sorted [5, 6, 8, 11]
+	// Opened -> Approved is: 10, 12, 15, 14 days: sorted [10, 12, 14, 15]
+	// LGTMed -> Approved is: 5,  6,  7,  3  days: sorted [3, 5, 6, 7]
+	// Approved -> Merged is: 10, 9,  8,  12 days: sorted [8, 9, 10, 12]
+	// So Opened->Merged:   we exepect median = 21, 25th percentile = 20, 75th percentile = 23
+	// So Opened->LGTMed:   we exepect median = 6, 75th percentile = 8,  85th percentile, next discrete:  11
+	// So LGTMed->Approved: we exepect median = 5, 75th percentile = 6,  85th percentile, next discrete: 7
+	// So Approved->Merged: we exepect median = 9, 75th percentile = 10, 85th percentile, next discrete: 12
+	// We expect all those values in hours (* 24).
 
 	// Add PRs
 	for _, pr := range prs {
