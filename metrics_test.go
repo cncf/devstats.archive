@@ -112,7 +112,8 @@ func TestMetrics(t *testing.T) {
 			to:     ft(2017, 8),
 			expected: [][]interface{}{
 				{
-					"m_o2l,m_l2a,m_a2m,pc_o2l,pc_l2a,pc_a2m",
+					"median_open_to_lgtm,median_lgtm_to_approve,median_approve_to_merge," +
+						"percentile_75_open_to_lgtm,percentile_75_lgtm_to_approve,percentile_75_approve_to_merge",
 					144, 120, 216,
 					264, 168, 288,
 				},
