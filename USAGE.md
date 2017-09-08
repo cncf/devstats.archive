@@ -588,12 +588,7 @@ Feed InfluxDB using:
 Grafana allows to save dashboards to JSON files.
 There are few defined dashboards in [grafana/dashboards/](https://github.com/cncf/gha2db/blob/master/grafana/dashboards/) directory.
 
-Currently:
-- Reviewers dashboard: [reviewers.sql](https://github.com/cncf/gha2db/blob/master/metrics/reviewers.sql), [reviewers.json](https://github.com/cncf/gha2db/blob/master/grafana/dashboards/reviewers.json), [view](https://cncftest.io/dashboard/db/reviewers?orgId=1).
-- SIG mentions dashboard: [sig_mentions.sql](https://github.com/cncf/gha2db/blob/master/metrics/sig_mentions.sql), [sig_mentions.json](https://github.com/cncf/gha2db/blob/master/grafana/dashboards/sig_mentions.json), [view](https://cncftest.io/dashboard/db/sig-mentions?orgId=1).
-- Number of PRs merged in all Kubernetes repos [all_prs_merged.sql](https://github.com/cncf/gha2db/blob/master/metrics/all_prs_merged.sql), [all_prs_merged.json](https://github.com/cncf/gha2db/blob/master/grafana/dashboards/all_prs_merged.json), [view](https://cncftest.io/dashboard/db/all-prs-merged?orgId=1).
-- Number of PRs merged per repository [prs_merged.sql](https://github.com/cncf/gha2db/blob/master/metrics/prs_merged.sql), [prs_merged.json](https://github.com/cncf/gha2db/blob/master/grafana/dashboards/prs_merged.json), [view](https://cncftest.io/dashboard/db/prs-merged?orgId=1).
-- Time metrics [opened_to_lgtmed.sql](https://github.com/cncf/gha2db/blob/master/metrics/opened_to_lgtmed.sql), [opened_to_approved.sql](https://github.com/cncf/gha2db/blob/master/metrics/opened_to_approved.sql), [opened_to_merged.sql](https://github.com/cncf/gha2db/blob/master/metrics/opened_to_merged.sql), [time_metrics.json](https://github.com/cncf/gha2db/blob/master/grafana/dashboards/time_metrics.json), [view](https://cncftest.io/dashboard/db/time-metrics?orgId=1).
+Metrics are described in [READ](https://github.com/cncf/gha2db/blob/master/README.md) in `Grafana dashboards` section.
 
 # To enable SSL Grafana:
 - First You need to install certbot, this is for example for Apache on Ubuntu 17.04:

@@ -41,27 +41,30 @@
   "rows": [
     {
       "collapse": false,
-      "height": 395,
+      "height": 390,
       "panels": [
         {
           "aliasColors": {},
-          "bars": false,
+          "bars": true,
           "dashLength": 10,
           "dashes": false,
           "datasource": "${DS_INFLUXGHA}",
-          "description": "Average number of hours from open to merging​ for PR opened at given day",
+          "decimals": 2,
+          "description": "Stacked times from open to lgtm, approve and merge",
           "fill": 1,
-          "id": 1,
+          "id": 2,
           "legend": {
+            "alignAsTable": true,
             "avg": true,
             "current": true,
             "max": true,
             "min": true,
+            "rightSide": false,
             "show": true,
             "total": false,
             "values": true
           },
-          "lines": true,
+          "lines": false,
           "linewidth": 1,
           "links": [],
           "nullPointMode": "null",
@@ -72,7 +75,7 @@
           "seriesOverrides": [],
           "spaceLength": 10,
           "span": 6,
-          "stack": false,
+          "stack": true,
           "steppedLine": false,
           "targets": [
             {
@@ -80,7 +83,7 @@
               "groupBy": [],
               "orderByTime": "ASC",
               "policy": "default",
-              "query": "SELECT \"value\" FROM \"hours_pr_open_to_merge_d\" WHERE $timeFilter",
+              "query": "SELECT \"value\" FROM \"m_o2l_w\" WHERE $timeFilter",
               "rawQuery": true,
               "refId": "A",
               "resultFormat": "time_series",
@@ -101,7 +104,7 @@
               "groupBy": [],
               "orderByTime": "ASC",
               "policy": "default",
-              "query": "SELECT \"value\" FROM \"hours_pr_open_to_approve_d\" WHERE $timeFilter",
+              "query": "SELECT \"value\" FROM \"m_l2a_w\" WHERE $timeFilter",
               "rawQuery": true,
               "refId": "B",
               "resultFormat": "time_series",
@@ -122,7 +125,7 @@
               "groupBy": [],
               "orderByTime": "ASC",
               "policy": "default",
-              "query": "SELECT \"value\" FROM \"hours_pr_open_to_lgtm_d\" WHERE $timeFilter",
+              "query": "SELECT \"value\" FROM \"m_a2m_w\" WHERE $timeFilter",
               "rawQuery": true,
               "refId": "C",
               "resultFormat": "time_series",
@@ -142,10 +145,10 @@
           "thresholds": [],
           "timeFrom": null,
           "timeShift": null,
-          "title": "Average time in hours from open to merge (daily)",
+          "title": "Weekly median time in hours PRs from open to lgtm, approve, merge",
           "tooltip": {
             "shared": true,
-            "sort": 2,
+            "sort": 0,
             "value_type": "individual"
           },
           "type": "graph",
@@ -154,46 +157,51 @@
             "mode": "time",
             "name": null,
             "show": true,
-            "values": []
+            "values": [
+              "avg"
+            ]
           },
           "yaxes": [
             {
-              "format": "short",
-              "label": null,
+              "format": "none",
+              "label": "",
               "logBase": 1,
               "max": null,
-              "min": null,
+              "min": "0",
               "show": true
             },
             {
-              "format": "short",
+              "format": "none",
               "label": null,
-              "logBase": 1,
+              "logBase": 10,
               "max": null,
-              "min": null,
+              "min": "0",
               "show": true
             }
           ]
         },
         {
           "aliasColors": {},
-          "bars": false,
+          "bars": true,
           "dashLength": 10,
           "dashes": false,
           "datasource": "${DS_INFLUXGHA}",
-          "description": "Average number of hours from open to merging​ for PR opened at given week",
+          "decimals": 2,
+          "description": "Stacked times from open to lgtm, approve and merge",
           "fill": 1,
-          "id": 2,
+          "id": 3,
           "legend": {
+            "alignAsTable": true,
             "avg": true,
             "current": true,
             "max": true,
             "min": true,
+            "rightSide": false,
             "show": true,
             "total": false,
             "values": true
           },
-          "lines": true,
+          "lines": false,
           "linewidth": 1,
           "links": [],
           "nullPointMode": "null",
@@ -204,7 +212,7 @@
           "seriesOverrides": [],
           "spaceLength": 10,
           "span": 6,
-          "stack": false,
+          "stack": true,
           "steppedLine": false,
           "targets": [
             {
@@ -212,7 +220,7 @@
               "groupBy": [],
               "orderByTime": "ASC",
               "policy": "default",
-              "query": "SELECT \"value\" FROM \"hours_pr_open_to_merge_w\" WHERE $timeFilter",
+              "query": "SELECT \"value\" FROM \"pc_o2l_w\" WHERE $timeFilter",
               "rawQuery": true,
               "refId": "A",
               "resultFormat": "time_series",
@@ -233,7 +241,7 @@
               "groupBy": [],
               "orderByTime": "ASC",
               "policy": "default",
-              "query": "SELECT \"value\" FROM \"hours_pr_open_to_approve_w\" WHERE $timeFilter",
+              "query": "SELECT \"value\" FROM \"pc_l2a_w\" WHERE $timeFilter",
               "rawQuery": true,
               "refId": "B",
               "resultFormat": "time_series",
@@ -254,7 +262,7 @@
               "groupBy": [],
               "orderByTime": "ASC",
               "policy": "default",
-              "query": "SELECT \"value\" FROM \"hours_pr_open_to_lgtm_w\" WHERE $timeFilter",
+              "query": "SELECT \"value\" FROM \"pc_a2m_w\" WHERE $timeFilter",
               "rawQuery": true,
               "refId": "C",
               "resultFormat": "time_series",
@@ -274,10 +282,10 @@
           "thresholds": [],
           "timeFrom": null,
           "timeShift": null,
-          "title": "Average time in hours from open to merge (weekly)",
+          "title": "Weekly 85th percentile time in hours PRs from open to lgtm, approve, merge",
           "tooltip": {
             "shared": true,
-            "sort": 2,
+            "sort": 0,
             "value_type": "individual"
           },
           "type": "graph",
@@ -286,23 +294,25 @@
             "mode": "time",
             "name": null,
             "show": true,
-            "values": []
+            "values": [
+              "avg"
+            ]
           },
           "yaxes": [
             {
-              "format": "short",
-              "label": null,
+              "format": "none",
+              "label": "",
               "logBase": 1,
               "max": null,
-              "min": null,
+              "min": "0",
               "show": true
             },
             {
-              "format": "short",
+              "format": "none",
               "label": null,
-              "logBase": 1,
+              "logBase": 10,
               "max": null,
-              "min": null,
+              "min": "0",
               "show": true
             }
           ]
@@ -317,154 +327,25 @@
     },
     {
       "collapse": false,
-      "height": 458,
+      "height": 386,
       "panels": [
         {
           "aliasColors": {},
-          "bars": false,
-          "dashLength": 10,
-          "dashes": false,
-          "datasource": "${DS_INFLUXGHA}",
-          "description": "Average number of hours from open to merging​ for PR opened at given month",
-          "fill": 1,
-          "id": 3,
-          "legend": {
-            "avg": true,
-            "current": true,
-            "max": true,
-            "min": true,
-            "show": true,
-            "total": false,
-            "values": true
-          },
-          "lines": true,
-          "linewidth": 1,
-          "links": [],
-          "nullPointMode": "null",
-          "percentage": false,
-          "pointradius": 5,
-          "points": false,
-          "renderer": "flot",
-          "seriesOverrides": [],
-          "spaceLength": 10,
-          "span": 4,
-          "stack": false,
-          "steppedLine": false,
-          "targets": [
-            {
-              "dsType": "influxdb",
-              "groupBy": [],
-              "orderByTime": "ASC",
-              "policy": "default",
-              "query": "SELECT \"value\" FROM \"hours_pr_open_to_merge_m\" WHERE $timeFilter",
-              "rawQuery": true,
-              "refId": "A",
-              "resultFormat": "time_series",
-              "select": [
-                [
-                  {
-                    "params": [
-                      "value"
-                    ],
-                    "type": "field"
-                  }
-                ]
-              ],
-              "tags": []
-            },
-            {
-              "dsType": "influxdb",
-              "groupBy": [],
-              "orderByTime": "ASC",
-              "policy": "default",
-              "query": "SELECT \"value\" FROM \"hours_pr_open_to_approve_m\" WHERE $timeFilter",
-              "rawQuery": true,
-              "refId": "B",
-              "resultFormat": "time_series",
-              "select": [
-                [
-                  {
-                    "params": [
-                      "value"
-                    ],
-                    "type": "field"
-                  }
-                ]
-              ],
-              "tags": []
-            },
-            {
-              "dsType": "influxdb",
-              "groupBy": [],
-              "orderByTime": "ASC",
-              "policy": "default",
-              "query": "SELECT \"value\" FROM \"hours_pr_open_to_lgtm_m\" WHERE $timeFilter",
-              "rawQuery": true,
-              "refId": "C",
-              "resultFormat": "time_series",
-              "select": [
-                [
-                  {
-                    "params": [
-                      "value"
-                    ],
-                    "type": "field"
-                  }
-                ]
-              ],
-              "tags": []
-            }
-          ],
-          "thresholds": [],
-          "timeFrom": null,
-          "timeShift": null,
-          "title": "Average time in hours from open to merge (monthly)",
-          "tooltip": {
-            "shared": true,
-            "sort": 2,
-            "value_type": "individual"
-          },
-          "type": "graph",
-          "xaxis": {
-            "buckets": null,
-            "mode": "time",
-            "name": null,
-            "show": true,
-            "values": []
-          },
-          "yaxes": [
-            {
-              "format": "short",
-              "label": null,
-              "logBase": 1,
-              "max": null,
-              "min": null,
-              "show": true
-            },
-            {
-              "format": "short",
-              "label": null,
-              "logBase": 1,
-              "max": null,
-              "min": null,
-              "show": true
-            }
-          ]
-        },
-        {
-          "aliasColors": {},
           "bars": true,
           "dashLength": 10,
           "dashes": false,
           "datasource": "${DS_INFLUXGHA}",
-          "description": "Average number of hours from open to merging​ for PR opened in given quarter",
+          "decimals": 2,
+          "description": "Stacked times from open to lgtm, approve and merge",
           "fill": 1,
           "id": 4,
           "legend": {
+            "alignAsTable": true,
             "avg": true,
             "current": true,
             "max": true,
             "min": true,
+            "rightSide": false,
             "show": true,
             "total": false,
             "values": true
@@ -479,8 +360,8 @@
           "renderer": "flot",
           "seriesOverrides": [],
           "spaceLength": 10,
-          "span": 4,
-          "stack": false,
+          "span": 6,
+          "stack": true,
           "steppedLine": false,
           "targets": [
             {
@@ -488,7 +369,7 @@
               "groupBy": [],
               "orderByTime": "ASC",
               "policy": "default",
-              "query": "SELECT \"value\" FROM \"hours_pr_open_to_merge_q\" WHERE $timeFilter",
+              "query": "SELECT \"value\" FROM \"m_o2l_m\" WHERE $timeFilter",
               "rawQuery": true,
               "refId": "A",
               "resultFormat": "time_series",
@@ -509,7 +390,7 @@
               "groupBy": [],
               "orderByTime": "ASC",
               "policy": "default",
-              "query": "SELECT \"value\" FROM \"hours_pr_open_to_approve_q\" WHERE $timeFilter",
+              "query": "SELECT \"value\" FROM \"m_l2a_m\" WHERE $timeFilter",
               "rawQuery": true,
               "refId": "B",
               "resultFormat": "time_series",
@@ -530,7 +411,7 @@
               "groupBy": [],
               "orderByTime": "ASC",
               "policy": "default",
-              "query": "SELECT \"value\" FROM \"hours_pr_open_to_lgtm_q\" WHERE $timeFilter",
+              "query": "SELECT \"value\" FROM \"m_a2m_m\" WHERE $timeFilter",
               "rawQuery": true,
               "refId": "C",
               "resultFormat": "time_series",
@@ -550,10 +431,10 @@
           "thresholds": [],
           "timeFrom": null,
           "timeShift": null,
-          "title": "Average time in hours from open to merge (quarterly)",
+          "title": "Monthly median time in hours PRs from open to lgtm, approve, merge",
           "tooltip": {
             "shared": true,
-            "sort": 2,
+            "sort": 0,
             "value_type": "individual"
           },
           "type": "graph",
@@ -562,23 +443,25 @@
             "mode": "time",
             "name": null,
             "show": true,
-            "values": []
+            "values": [
+              "avg"
+            ]
           },
           "yaxes": [
             {
-              "format": "short",
-              "label": null,
+              "format": "none",
+              "label": "",
               "logBase": 1,
               "max": null,
-              "min": null,
+              "min": "0",
               "show": true
             },
             {
-              "format": "short",
+              "format": "none",
               "label": null,
-              "logBase": 1,
+              "logBase": 10,
               "max": null,
-              "min": null,
+              "min": "0",
               "show": true
             }
           ]
@@ -589,14 +472,17 @@
           "dashLength": 10,
           "dashes": false,
           "datasource": "${DS_INFLUXGHA}",
-          "description": "Average number of hours from open to merging​ for PR opened at given year",
+          "decimals": 2,
+          "description": "Stacked times from open to lgtm, approve and merge",
           "fill": 1,
           "id": 5,
           "legend": {
+            "alignAsTable": true,
             "avg": true,
             "current": true,
             "max": true,
             "min": true,
+            "rightSide": false,
             "show": true,
             "total": false,
             "values": true
@@ -611,8 +497,8 @@
           "renderer": "flot",
           "seriesOverrides": [],
           "spaceLength": 10,
-          "span": 4,
-          "stack": false,
+          "span": 6,
+          "stack": true,
           "steppedLine": false,
           "targets": [
             {
@@ -620,7 +506,7 @@
               "groupBy": [],
               "orderByTime": "ASC",
               "policy": "default",
-              "query": "SELECT \"value\" FROM \"hours_pr_open_to_merge_y\" WHERE $timeFilter",
+              "query": "SELECT \"value\" FROM \"pc_o2l_m\" WHERE $timeFilter",
               "rawQuery": true,
               "refId": "A",
               "resultFormat": "time_series",
@@ -641,7 +527,7 @@
               "groupBy": [],
               "orderByTime": "ASC",
               "policy": "default",
-              "query": "SELECT \"value\" FROM \"hours_pr_open_to_approve_y\" WHERE $timeFilter",
+              "query": "SELECT \"value\" FROM \"pc_l2a_m\" WHERE $timeFilter",
               "rawQuery": true,
               "refId": "B",
               "resultFormat": "time_series",
@@ -662,7 +548,7 @@
               "groupBy": [],
               "orderByTime": "ASC",
               "policy": "default",
-              "query": "SELECT \"value\" FROM \"hours_pr_open_to_lgtm_y\" WHERE $timeFilter",
+              "query": "SELECT \"value\" FROM \"pc_a2m_m\" WHERE $timeFilter",
               "rawQuery": true,
               "refId": "C",
               "resultFormat": "time_series",
@@ -682,10 +568,10 @@
           "thresholds": [],
           "timeFrom": null,
           "timeShift": null,
-          "title": "Average time in hours from open to merge (yearly)",
+          "title": "Monthly 85th percentile time in hours PRs from open to lgtm, approve, merge",
           "tooltip": {
             "shared": true,
-            "sort": 2,
+            "sort": 0,
             "value_type": "individual"
           },
           "type": "graph",
@@ -694,23 +580,311 @@
             "mode": "time",
             "name": null,
             "show": true,
-            "values": []
+            "values": [
+              "avg"
+            ]
           },
           "yaxes": [
             {
-              "format": "short",
-              "label": null,
+              "format": "none",
+              "label": "",
               "logBase": 1,
               "max": null,
-              "min": null,
+              "min": "0",
               "show": true
             },
             {
-              "format": "short",
+              "format": "none",
               "label": null,
+              "logBase": 10,
+              "max": null,
+              "min": "0",
+              "show": true
+            }
+          ]
+        }
+      ],
+      "repeat": null,
+      "repeatIteration": null,
+      "repeatRowId": null,
+      "showTitle": false,
+      "title": "Dashboard Row",
+      "titleSize": "h6"
+    },
+    {
+      "collapse": false,
+      "height": 389,
+      "panels": [
+        {
+          "aliasColors": {},
+          "bars": true,
+          "dashLength": 10,
+          "dashes": false,
+          "datasource": "${DS_INFLUXGHA}",
+          "decimals": 2,
+          "description": "Stacked times from open to lgtm, approve and merge",
+          "fill": 1,
+          "id": 6,
+          "legend": {
+            "alignAsTable": true,
+            "avg": true,
+            "current": true,
+            "max": true,
+            "min": true,
+            "rightSide": false,
+            "show": true,
+            "total": false,
+            "values": true
+          },
+          "lines": false,
+          "linewidth": 1,
+          "links": [],
+          "nullPointMode": "null",
+          "percentage": false,
+          "pointradius": 5,
+          "points": false,
+          "renderer": "flot",
+          "seriesOverrides": [],
+          "spaceLength": 10,
+          "span": 6,
+          "stack": true,
+          "steppedLine": false,
+          "targets": [
+            {
+              "dsType": "influxdb",
+              "groupBy": [],
+              "orderByTime": "ASC",
+              "policy": "default",
+              "query": "SELECT \"value\" FROM \"m_o2l_q\" WHERE $timeFilter",
+              "rawQuery": true,
+              "refId": "A",
+              "resultFormat": "time_series",
+              "select": [
+                [
+                  {
+                    "params": [
+                      "value"
+                    ],
+                    "type": "field"
+                  }
+                ]
+              ],
+              "tags": []
+            },
+            {
+              "dsType": "influxdb",
+              "groupBy": [],
+              "orderByTime": "ASC",
+              "policy": "default",
+              "query": "SELECT \"value\" FROM \"m_l2a_q\" WHERE $timeFilter",
+              "rawQuery": true,
+              "refId": "B",
+              "resultFormat": "time_series",
+              "select": [
+                [
+                  {
+                    "params": [
+                      "value"
+                    ],
+                    "type": "field"
+                  }
+                ]
+              ],
+              "tags": []
+            },
+            {
+              "dsType": "influxdb",
+              "groupBy": [],
+              "orderByTime": "ASC",
+              "policy": "default",
+              "query": "SELECT \"value\" FROM \"m_a2m_q\" WHERE $timeFilter",
+              "rawQuery": true,
+              "refId": "C",
+              "resultFormat": "time_series",
+              "select": [
+                [
+                  {
+                    "params": [
+                      "value"
+                    ],
+                    "type": "field"
+                  }
+                ]
+              ],
+              "tags": []
+            }
+          ],
+          "thresholds": [],
+          "timeFrom": null,
+          "timeShift": null,
+          "title": "Quarterly median time in hours PRs from open to lgtm, approve, merge",
+          "tooltip": {
+            "shared": true,
+            "sort": 0,
+            "value_type": "individual"
+          },
+          "type": "graph",
+          "xaxis": {
+            "buckets": null,
+            "mode": "time",
+            "name": null,
+            "show": true,
+            "values": [
+              "avg"
+            ]
+          },
+          "yaxes": [
+            {
+              "format": "none",
+              "label": "",
               "logBase": 1,
               "max": null,
-              "min": null,
+              "min": "0",
+              "show": true
+            },
+            {
+              "format": "none",
+              "label": null,
+              "logBase": 10,
+              "max": null,
+              "min": "0",
+              "show": true
+            }
+          ]
+        },
+        {
+          "aliasColors": {},
+          "bars": true,
+          "dashLength": 10,
+          "dashes": false,
+          "datasource": "${DS_INFLUXGHA}",
+          "decimals": 2,
+          "description": "Stacked times from open to lgtm, approve and merge",
+          "fill": 1,
+          "id": 7,
+          "legend": {
+            "alignAsTable": true,
+            "avg": true,
+            "current": true,
+            "max": true,
+            "min": true,
+            "rightSide": false,
+            "show": true,
+            "total": false,
+            "values": true
+          },
+          "lines": false,
+          "linewidth": 1,
+          "links": [],
+          "nullPointMode": "null",
+          "percentage": false,
+          "pointradius": 5,
+          "points": false,
+          "renderer": "flot",
+          "seriesOverrides": [],
+          "spaceLength": 10,
+          "span": 6,
+          "stack": true,
+          "steppedLine": false,
+          "targets": [
+            {
+              "dsType": "influxdb",
+              "groupBy": [],
+              "orderByTime": "ASC",
+              "policy": "default",
+              "query": "SELECT \"value\" FROM \"pc_o2l_q\" WHERE $timeFilter",
+              "rawQuery": true,
+              "refId": "A",
+              "resultFormat": "time_series",
+              "select": [
+                [
+                  {
+                    "params": [
+                      "value"
+                    ],
+                    "type": "field"
+                  }
+                ]
+              ],
+              "tags": []
+            },
+            {
+              "dsType": "influxdb",
+              "groupBy": [],
+              "orderByTime": "ASC",
+              "policy": "default",
+              "query": "SELECT \"value\" FROM \"pc_l2a_q\" WHERE $timeFilter",
+              "rawQuery": true,
+              "refId": "B",
+              "resultFormat": "time_series",
+              "select": [
+                [
+                  {
+                    "params": [
+                      "value"
+                    ],
+                    "type": "field"
+                  }
+                ]
+              ],
+              "tags": []
+            },
+            {
+              "dsType": "influxdb",
+              "groupBy": [],
+              "orderByTime": "ASC",
+              "policy": "default",
+              "query": "SELECT \"value\" FROM \"pc_a2m_q\" WHERE $timeFilter",
+              "rawQuery": true,
+              "refId": "C",
+              "resultFormat": "time_series",
+              "select": [
+                [
+                  {
+                    "params": [
+                      "value"
+                    ],
+                    "type": "field"
+                  }
+                ]
+              ],
+              "tags": []
+            }
+          ],
+          "thresholds": [],
+          "timeFrom": null,
+          "timeShift": null,
+          "title": "Quarterly 85th percentile time in hours PRs from open to lgtm, approve, merge",
+          "tooltip": {
+            "shared": true,
+            "sort": 0,
+            "value_type": "individual"
+          },
+          "type": "graph",
+          "xaxis": {
+            "buckets": null,
+            "mode": "time",
+            "name": null,
+            "show": true,
+            "values": [
+              "avg"
+            ]
+          },
+          "yaxes": [
+            {
+              "format": "none",
+              "label": "",
+              "logBase": 1,
+              "max": null,
+              "min": "0",
+              "show": true
+            },
+            {
+              "format": "none",
+              "label": null,
+              "logBase": 10,
+              "max": null,
+              "min": "0",
               "show": true
             }
           ]
@@ -731,7 +905,7 @@
     "list": []
   },
   "time": {
-    "from": "now-2y",
+    "from": "now-7M",
     "to": "now"
   },
   "timepicker": {
@@ -761,5 +935,5 @@
   },
   "timezone": "",
   "title": "Time metrics",
-  "version": 2
+  "version": 6
 }
