@@ -344,6 +344,14 @@ func IssueIDOrNil(issuePtr *Issue) interface{} {
 	return issuePtr.ID
 }
 
+// PullRequestIDOrNil - return PullRequest ID from pointer or nil
+func PullRequestIDOrNil(prPtr *PullRequest) interface{} {
+	if prPtr == nil {
+		return nil
+	}
+	return prPtr.ID
+}
+
 // CommentIDOrNil - return Comment ID from pointer or nil
 func CommentIDOrNil(commPtr *Comment) interface{} {
 	if commPtr == nil {

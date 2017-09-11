@@ -1115,10 +1115,10 @@ func writeToDB(db *sql.DB, ctx *lib.Ctx, ev *lib.Event) int {
 		ctx,
 		"insert into gha_payloads("+
 			"event_id, push_id, size, ref, head, befor, action, "+
-			"issue_id, comment_id, ref_type, master_branch, commit, "+
+			"issue_id, pull_request_id, comment_id, ref_type, master_branch, commit, "+
 			"description, number, forkee_id, release_id, member_id, "+
 			"dup_actor_id, dup_actor_login, dup_repo_id, dup_repo_name, dup_type, dup_created_at"+
-			") "+lib.NValues(23),
+			") "+lib.NValues(24),
 		lib.AnyArray{
 			eventID,
 			lib.IntOrNil(pl.PushID),
@@ -1128,6 +1128,7 @@ func writeToDB(db *sql.DB, ctx *lib.Ctx, ev *lib.Event) int {
 			lib.StringOrNil(pl.Before),
 			lib.StringOrNil(pl.Action),
 			lib.IssueIDOrNil(pl.Issue),
+			lib.PullRequestIDOrNil(pl.PullRequest),
 			lib.CommentIDOrNil(pl.Comment),
 			lib.StringOrNil(pl.RefType),
 			lib.TruncStringOrNil(pl.MasterBranch, 200),

@@ -51,6 +51,17 @@ func TestIssueIDOrNil(t *testing.T) {
 	}
 }
 
+func TestPullRequestIDOrNil(t *testing.T) {
+	result := lib.PullRequestIDOrNil(nil)
+	if result != nil {
+		t.Errorf("test nil case: expected <nil>, got %v", result)
+	}
+	result = lib.PullRequestIDOrNil(&lib.PullRequest{ID: 2})
+	if result != 2 {
+		t.Errorf("test ID=2 case: expected 2, got %v", result)
+	}
+}
+
 func TestCommentIDOrNil(t *testing.T) {
 	result := lib.CommentIDOrNil(nil)
 	if result != nil {
