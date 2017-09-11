@@ -146,6 +146,7 @@ func Structure(ctx *Ctx) {
 					"befor varchar(40), "+
 					"action varchar(20), "+
 					"issue_id bigint, "+
+					"pull_request_id bigint, "+
 					"comment_id bigint, "+
 					"ref_type varchar(20), "+
 					"master_branch varchar(200), "+
@@ -169,6 +170,7 @@ func Structure(ctx *Ctx) {
 		ExecSQLWithErr(c, ctx, "create index payloads_action_idx on gha_payloads(action)")
 		ExecSQLWithErr(c, ctx, "create index payloads_head_idx on gha_payloads(head)")
 		ExecSQLWithErr(c, ctx, "create index payloads_issue_id_idx on gha_payloads(issue_id)")
+		ExecSQLWithErr(c, ctx, "create index payloads_pull_request_id_idx on gha_payloads(issue_id)")
 		ExecSQLWithErr(c, ctx, "create index payloads_comment_id_idx on gha_payloads(comment_id)")
 		ExecSQLWithErr(c, ctx, "create index payloads_ref_type_idx on gha_payloads(ref_type)")
 		ExecSQLWithErr(c, ctx, "create index payloads_forkee_id_idx on gha_payloads(forkee_id)")
