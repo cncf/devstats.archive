@@ -856,10 +856,10 @@ func writeToDBOldFmt(db *sql.DB, ctx *lib.Ctx, eventID string, ev *lib.EventOld)
 		ctx,
 		"insert into gha_payloads("+
 			"event_id, push_id, size, ref, head, befor, action, "+
-			"issue_id, comment_id, ref_type, master_branch, commit, "+
+			"issue_id, pull_request_id, comment_id, ref_type, master_branch, commit, "+
 			"description, number, forkee_id, release_id, member_id, "+
 			"dup_actor_id, dup_actor_login, dup_repo_id, dup_repo_name, dup_type, dup_created_at"+
-			") "+lib.NValues(23),
+			") "+lib.NValues(24),
 		lib.AnyArray{
 			eventID,
 			nil,
@@ -869,6 +869,7 @@ func writeToDBOldFmt(db *sql.DB, ctx *lib.Ctx, eventID string, ev *lib.EventOld)
 			nil,
 			lib.StringOrNil(pl.Action),
 			iid,
+			lib.PullRequestIDOrNil(pl.PullRequest),
 			cid,
 			lib.StringOrNil(pl.RefType),
 			lib.TruncStringOrNil(pl.MasterBranch, 200),
