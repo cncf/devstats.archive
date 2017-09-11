@@ -1,12 +1,13 @@
 select
-  count(*) as cnt
+  count(distinct pl.comment_id) as cnt
 from
-  gha_payloads
+  gha_payloads pl,
+  gha_pull_requests pr
 where
-  pull_request_id is not null
-  and comment_id is not null
-  and dup_created_at >= '{{from}}'
-  and dup_created_at < '{{to}}'
+  pl.pull_request_id = pr.id
+  and pl.comment_id is not null
+  and pr.created_at >= '{{from}}'
+  and pr.created_at < '{{to}}'
 group by
   pull_request_id
 order by cnt desc

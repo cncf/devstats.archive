@@ -223,6 +223,20 @@ func sync(args []string) {
 				},
 				nil,
 			)
+
+			// PR comments daily, weekly, monthly, quarterly, yearly
+			lib.ExecCommand(
+				&ctx,
+				[]string{
+					"./db2influx",
+					"pr_comments_" + period,
+					metricsDir + "/pr_comments.sql",
+					lib.ToYMDDate(from),
+					lib.ToYMDDate(to),
+					period,
+				},
+				nil,
+			)
 		}
 
 		// Metrics that include hourly data

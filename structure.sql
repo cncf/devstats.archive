@@ -401,6 +401,7 @@ CREATE TABLE gha_payloads (
     befor character varying(40),
     action character varying(20),
     issue_id bigint,
+    pull_request_id bigint,
     comment_id bigint,
     ref_type character varying(20),
     master_branch character varying(200),
@@ -1730,6 +1731,13 @@ CREATE INDEX payloads_issue_id_idx ON gha_payloads USING btree (issue_id);
 --
 
 CREATE INDEX payloads_member_id_idx ON gha_payloads USING btree (member_id);
+
+
+--
+-- Name: payloads_pull_request_id_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX payloads_pull_request_id_idx ON gha_payloads USING btree (issue_id);
 
 
 --
