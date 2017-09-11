@@ -119,6 +119,13 @@ func TestMetrics(t *testing.T) {
 				},
 			},
 		},
+		{
+			setup:    setupPRCommentsMetric,
+			metric:   "pr_comments",
+			from:     ft(2017, 8),
+			to:       ft(2017, 9),
+			expected: [][]interface{}{{3}},
+		},
 	}
 
 	// Environment context parse
@@ -310,6 +317,54 @@ func addText(con *sql.DB, ctx *lib.Ctx, args ...interface{}) (err error) {
 	return
 }
 
+// Add payload
+// event_id, issue_id, pull_request_id, comment_id, number, forkee_id, release_id, member_id
+// actor_id, actor_login, repo_id, repo_name, event_type, event_created_at
+func addPayload(con *sql.DB, ctx *lib.Ctx, args ...interface{}) (err error) {
+	if len(args) != 14 {
+		err = fmt.Errorf("addText: expects 14 variadic parameters")
+		return
+	}
+	newArgs := lib.AnyArray{
+		args[0], // event_id
+		nil,     // push_id, size, ref, head, befor
+		nil,
+		nil,
+		nil,
+		nil,
+		"created", // action
+		args[1],   // issue_id
+		args[2],   // pull_request_id
+		args[3],   // comment_id
+		nil,       // ref_type, master_branch, commit
+		nil,
+		nil,
+		"desc",   // description
+		args[4],  // number
+		args[5],  // forkee_id
+		args[6],  // release_id
+		args[7],  // member_id
+		args[8],  // actor.ID
+		args[9],  // actor.Login
+		args[10], // repo.ID
+		args[11], // repo.Name
+		args[12], // event.Type
+		args[13], // event.CreatedAt
+	}
+	_, err = lib.ExecSQL(
+		con,
+		ctx,
+		"insert into gha_payloads("+
+			"event_id, push_id, size, ref, head, befor, action, "+
+			"issue_id, pull_request_id, comment_id, ref_type, master_branch, commit, "+
+			"description, number, forkee_id, release_id, member_id, "+
+			"dup_actor_id, dup_actor_login, dup_repo_id, dup_repo_name, dup_type, dup_created_at"+
+			") "+lib.NValues(24),
+		newArgs...,
+	)
+	return
+}
+
 // Add PR
 // prid, eid, uid, merged_id, assignee_id, num, state, title, body, created_at, closed_at, merged_at, merged
 func addPR(con *sql.DB, ctx *lib.Ctx, args ...interface{}) (err error) {
@@ -388,6 +443,55 @@ func addIssuePR(con *sql.DB, ctx *lib.Ctx, args ...interface{}) (err error) {
 			") "+lib.NValues(6),
 		args...,
 	)
+	return
+}
+
+// Create data for PR comments metric
+func setupPRCommentsMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
+	ft := testlib.YMDHMS
+
+	// PRs to add
+	// prid, eid, uid, merged_id, assignee_id, num, state, title, body, created_at, closed_at, merged_at, merged
+	// repo_id, repo_name, actor_id, actor_login
+	prs := [][]interface{}{
+		{1, 1, 1, 1, 1, 1, "closed", "PR 1", "Body PR 1", ft(2017, 8, 1), nil, nil, false, 1, "R1", 1, "A1"},
+		{2, 2, 1, 1, 1, 2, "closed", "PR 2", "Body PR 2", ft(2017, 8, 2), nil, nil, false, 1, "R1", 1, "A1"},
+		{3, 3, 1, 1, 1, 3, "closed", "PR 3", "Body PR 3", ft(2017, 8, 3), nil, nil, false, 1, "R1", 1, "A1"},
+		{4, 4, 1, 1, 1, 4, "closed", "PR 4", "Body PR 4", ft(2017, 7, 30), nil, nil, false, 1, "R1", 1, "A1"},
+	}
+
+	// Add payload
+	// event_id, issue_id, pull_request_id, comment_id, number, forkee_id, release_id, member_id
+	// actor_id, actor_login, repo_id, repo_name, event_type, event_created_at
+	payloads := [][]interface{}{
+		{1, 0, 1, 1, 0, 0, 0, 0, 1, "A1", 1, "R1", "E", ft(2017, 8, 1)},
+		{2, 0, 1, 2, 0, 0, 0, 0, 1, "A1", 1, "R1", "E", ft(2017, 8, 10)},
+		{3, 0, 2, 3, 0, 0, 0, 0, 1, "A1", 1, "R1", "E", ft(2017, 8, 20)},
+		{4, 0, 3, 4, 0, 0, 0, 0, 1, "A1", 1, "R1", "E", ft(2017, 8, 30)},
+		{5, 0, 2, 5, 0, 0, 0, 0, 1, "A1", 1, "R1", "E", ft(2017, 9, 10)},
+		{6, 0, 1, 6, 0, 0, 0, 0, 1, "A1", 1, "R1", "E", ft(2017, 9, 20)},
+		{7, 0, 4, 7, 0, 0, 0, 0, 1, "A1", 1, "R1", "E", ft(2017, 8, 5)},
+		{8, 0, 4, 8, 0, 0, 0, 0, 1, "A1", 1, "R1", "E", ft(2017, 8, 6)},
+		{9, 0, 4, 9, 0, 0, 0, 0, 1, "A1", 1, "R1", "E", ft(2017, 8, 7)},
+		{10, 0, 4, 10, 0, 0, 0, 0, 1, "A1", 1, "R1", "E", ft(2017, 8, 8)},
+	}
+
+	// Add PRs
+	for _, pr := range prs {
+		err = addPR(con, ctx, pr...)
+		if err != nil {
+			return
+		}
+	}
+
+	// Add Payloads
+	for _, payload := range payloads {
+		err = addPayload(con, ctx, payload...)
+		if err != nil {
+			return
+		}
+	}
+
 	return
 }
 
