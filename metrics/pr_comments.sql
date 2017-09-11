@@ -10,5 +10,6 @@ where
   and pr.created_at < '{{to}}'
 group by
   pull_request_id
+union select 0 as cnt
 order by cnt desc
 limit 1;

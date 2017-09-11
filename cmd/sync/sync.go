@@ -171,6 +171,20 @@ func sync(args []string) {
 				},
 				nil,
 			)
+
+			// PR comments weekly, monthly, quarterly
+			lib.ExecCommand(
+				&ctx,
+				[]string{
+					"./db2influx",
+					"pr_comments_" + period,
+					metricsDir + "/pr_comments.sql",
+					lib.ToYMDDate(from),
+					lib.ToYMDDate(to),
+					period,
+				},
+				nil,
+			)
 		}
 		fmt.Printf("Daily - yearly metrics\n")
 
@@ -217,20 +231,6 @@ func sync(args []string) {
 					"./db2influx",
 					"prs_merged_data",
 					metricsDir + "/prs_merged.sql",
-					lib.ToYMDDate(from),
-					lib.ToYMDDate(to),
-					period,
-				},
-				nil,
-			)
-
-			// PR comments daily, weekly, monthly, quarterly, yearly
-			lib.ExecCommand(
-				&ctx,
-				[]string{
-					"./db2influx",
-					"pr_comments_" + period,
-					metricsDir + "/pr_comments.sql",
 					lib.ToYMDDate(from),
 					lib.ToYMDDate(to),
 					period,
