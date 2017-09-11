@@ -173,6 +173,7 @@ Each dashboard is defined by its metrics SQL, saved Grafana JSON export and link
 5) Number of PRs merged per repository dashboard [prs_merged.sql](https://github.com/cncf/gha2db/blob/master/metrics/prs_merged.sql), [prs_merged.json](https://github.com/cncf/gha2db/blob/master/grafana/dashboards/prs_merged.json), [view](https://cncftest.io/dashboard/db/prs-merged?orgId=1).
 6) PRs from opened to merged, from 2014-06 dashboard [opened_to_merged.sql](https://github.com/cncf/gha2db/blob/master/metrics/opened_to_merged.sql), [opened_to_merged.json](https://github.com/cncf/gha2db/blob/master/grafana/dashboards/opened_to_merged.json), [view](https://cncftest.io/dashboard/db/opened-to-merged?orgId=1).
 7) PRs from opened to LGTMed, approved and merged dashboard [time_metrics.sql](https://github.com/cncf/gha2db/blob/master/metrics/time_metrics.sql), [time_metrics.json](https://github.com/cncf/gha2db/blob/master/grafana/dashboards/time_metrics.json), [view](https://cncftest.io/dashboard/db/time-metrics?orgId=1).
+8) PR Comments dashboard [pr_comments.sql](https://github.com/cncf/gha2db/blob/master/metrics/pr_comments.sql), [pr_comments.json](https://github.com/cncf/gha2db/blob/master/grafana/dashboards/pr_comments.json), [view](https://cncftest.io/dashboard/db/pr-comments?orgId=1).
 
 All of them works live on [cncftest.io](https://cncftest.io) with auto sync tool running.
 
