@@ -21,6 +21,12 @@ func nameForMetricsRow(metric, name, period string) []string {
 		return []string{fmt.Sprintf("cat_%s_%s", strings.Replace(name, "-", "_", -1), period)}
 	case "sig_mentions_breakdown_data":
 		return []string{fmt.Sprintf("bd_%s_%s", strings.Replace(name, "-", "_", -1), period)}
+	case "sig_mentions_labels_data":
+		return []string{fmt.Sprintf("labels_sig_%s_%s", strings.Replace(name, "-", "_", -1), period)}
+	case "kind_mentions_labels_data":
+		return []string{fmt.Sprintf("labels_kind_%s_%s", strings.Replace(name, "-", "_", -1), period)}
+	case "sig_kind_mentions_labels_data":
+		return []string{fmt.Sprintf("labels_sig_kind_%s_%s", strings.Replace(name, "-", "_", -1), period)}
 	case "prs_merged_data":
 		r := strings.NewReplacer("-", "_", "/", "_", ".", "_")
 		return []string{fmt.Sprintf("prs_%s_%s", r.Replace(name), period)}
