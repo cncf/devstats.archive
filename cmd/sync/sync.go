@@ -37,7 +37,7 @@ func addPeriodSuffix(seriesArr []string, period string) (result []string) {
 func fillGapsInSeries(ctx *lib.Ctx, from, to time.Time) {
 	fmt.Printf("Fill gaps in series\n")
 	var gaps Gaps
-	data, err := ioutil.ReadFile("metrics/fill_gaps.yaml")
+	data, err := ioutil.ReadFile("metrics/gaps.yaml")
 	if err != nil {
 		lib.FatalOnError(err)
 		return
@@ -48,6 +48,10 @@ func fillGapsInSeries(ctx *lib.Ctx, from, to time.Time) {
 	// Series (join values with ,)
 	for _, metric := range gaps.Metrics {
 		for _, period := range metric.Periods {
+			if !ctx.ResetIDB && !computePeriodAtThisDate(period, to) {
+				fmt.Printf("Skipping filling gaps for period \"%s\" for date %v\n", period, to)
+				continue
+			}
 			lib.ExecCommand(
 				ctx,
 				[]string{
