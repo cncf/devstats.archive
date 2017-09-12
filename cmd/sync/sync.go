@@ -246,6 +246,48 @@ func sync(args []string) {
 				},
 				nil,
 			)
+
+			// SIG mentions using labels weekly, monthly, quarterly
+			lib.ExecCommand(
+				&ctx,
+				[]string{
+					"./db2influx",
+					"sig_mentions_labels_data",
+					metricsDir + "/labels_sig.sql",
+					lib.ToYMDDate(from),
+					lib.ToYMDDate(to),
+					period,
+				},
+				nil,
+			)
+
+			// KIND mentions using labels weekly, monthly, quarterly
+			lib.ExecCommand(
+				&ctx,
+				[]string{
+					"./db2influx",
+					"kind_mentions_labels_data",
+					metricsDir + "/labels_kind.sql",
+					lib.ToYMDDate(from),
+					lib.ToYMDDate(to),
+					period,
+				},
+				nil,
+			)
+
+			// SIG KIND mentions using labels weekly, monthly, quarterly
+			lib.ExecCommand(
+				&ctx,
+				[]string{
+					"./db2influx",
+					"sig_kind_mentions_labels_data",
+					metricsDir + "/labels_sig_kind.sql",
+					lib.ToYMDDate(from),
+					lib.ToYMDDate(to),
+					period,
+				},
+				nil,
+			)
 		}
 		fmt.Printf("Daily - yearly metrics\n")
 
