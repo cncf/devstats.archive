@@ -21,7 +21,7 @@ type Gaps struct {
 // Series formula allows to write a lot of series name in a shorter way
 // Say we have series in this form prefix_{x}_{y}_{z}_suffix
 // and {x} can be a,b,c,d, {y} can be 1,2,3, z can be yes,no
-// Instea dof listing all combinations prefix_a_1_yes_suffix, ..., prefix_d_3_no_suffix
+// Instead of listing all combinations prefix_a_1_yes_suffix, ..., prefix_d_3_no_suffix
 // Which is 4 * 3 * 2 = 24 items, You can write series formula:
 // "=prefix;suffix;_;a,b,c,d;1,2,3;yes,no"
 // format is "=prefix;suffix;join;list1item1,list1item2,...;list2item1,list2item2,...;..."
