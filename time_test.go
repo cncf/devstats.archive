@@ -1,6 +1,7 @@
 package gha2db
 
 import (
+	"reflect"
 	"testing"
 	"time"
 
@@ -298,6 +299,79 @@ func TestNextYearStart(t *testing.T) {
 		if got != expected {
 			t.Errorf(
 				"test number %d, expected %v, got %v",
+				index+1, expected, got,
+			)
+		}
+	}
+}
+
+func TestGetIntervalFunctions(t *testing.T) {
+	// Test cases
+	var testCases = []struct {
+		periodAbbr        string
+		expectedPeriod    string
+		expectedStart     func(time.Time) time.Time
+		expectedNextStart func(time.Time) time.Time
+	}{
+		{
+			periodAbbr:        "h",
+			expectedPeriod:    "hour",
+			expectedStart:     lib.HourStart,
+			expectedNextStart: lib.NextHourStart,
+		},
+		{
+			periodAbbr:        "d",
+			expectedPeriod:    "day",
+			expectedStart:     lib.DayStart,
+			expectedNextStart: lib.NextDayStart,
+		},
+		{
+			periodAbbr:        "w",
+			expectedPeriod:    "week",
+			expectedStart:     lib.WeekStart,
+			expectedNextStart: lib.NextWeekStart,
+		},
+		{
+			periodAbbr:        "m",
+			expectedPeriod:    "month",
+			expectedStart:     lib.MonthStart,
+			expectedNextStart: lib.NextMonthStart,
+		},
+		{
+			periodAbbr:        "q",
+			expectedPeriod:    "quarter",
+			expectedStart:     lib.QuarterStart,
+			expectedNextStart: lib.NextQuarterStart,
+		},
+		{
+			periodAbbr:        "y",
+			expectedPeriod:    "year",
+			expectedStart:     lib.YearStart,
+			expectedNextStart: lib.NextYearStart,
+		},
+	}
+	// Execute test cases
+	for index, test := range testCases {
+		gotPeriod, gotStart, gotNextStart := lib.GetIntervalFunctions(test.periodAbbr)
+		if gotPeriod != test.expectedPeriod {
+			t.Errorf(
+				"test number %d, expected period %v, got %v",
+				index+1, test.expectedPeriod, gotPeriod,
+			)
+		}
+		got := reflect.ValueOf(gotStart).Pointer()
+		expected := reflect.ValueOf(test.expectedStart).Pointer()
+		if got != expected {
+			t.Errorf(
+				"test number %d, expected start function %v, got %v",
+				index+1, expected, got,
+			)
+		}
+		got = reflect.ValueOf(gotNextStart).Pointer()
+		expected = reflect.ValueOf(test.expectedNextStart).Pointer()
+		if got != expected {
+			t.Errorf(
+				"test number %d, expected start function %+v, got %+v",
 				index+1, expected, got,
 			)
 		}

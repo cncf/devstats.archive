@@ -174,40 +174,7 @@ func db2influx(seriesNameOrFunc, sqlFile, from, to, intervalAbbr string) {
 	sqlQuery := string(bytes)
 
 	// Process interval
-	interval := ""
-	var (
-		intervalStart     func(time.Time) time.Time
-		nextIntervalStart func(time.Time) time.Time
-	)
-	switch strings.ToLower(intervalAbbr) {
-	case "h":
-		interval = "hour"
-		intervalStart = lib.HourStart
-		nextIntervalStart = lib.NextHourStart
-	case "d":
-		interval = "day"
-		intervalStart = lib.DayStart
-		nextIntervalStart = lib.NextDayStart
-	case "w":
-		interval = "week"
-		intervalStart = lib.WeekStart
-		nextIntervalStart = lib.NextWeekStart
-	case "m":
-		interval = "month"
-		intervalStart = lib.MonthStart
-		nextIntervalStart = lib.NextMonthStart
-	case "q":
-		interval = "quarter"
-		intervalStart = lib.QuarterStart
-		nextIntervalStart = lib.NextQuarterStart
-	case "y":
-		interval = "year"
-		intervalStart = lib.YearStart
-		nextIntervalStart = lib.NextYearStart
-	default:
-		fmt.Printf("Error:\nUnknown interval '%v'\n", intervalAbbr)
-		os.Exit(1)
-	}
+	interval, intervalStart, nextIntervalStart := lib.GetIntervalFunctions(intervalAbbr)
 
 	// Round dates to the given interval
 	dFrom = intervalStart(dFrom)
@@ -254,7 +221,7 @@ func main() {
 	if len(os.Args) < 6 {
 		fmt.Printf(
 			"Required series name, SQL file name, from, to, period " +
-				"[series_name_or_func some.sql '2015-08-03' '2017-08-21' d|w|m|y\n",
+				"[series_name_or_func some.sql '2015-08-03' '2017-08-21' h|d|w|m|q|y\n",
 		)
 		fmt.Printf(
 			"Series name (series_name_or_func) will become exact series name if " +
