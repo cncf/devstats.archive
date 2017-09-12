@@ -3,6 +3,7 @@ package gha2db
 import (
 	"fmt"
 	"os"
+	"strings"
 	"time"
 )
 
@@ -164,4 +165,38 @@ func ToYMDHMSDate(dt time.Time) string {
 // ToYMDHDate - return time formatted as YYYY-MM-DD HH
 func ToYMDHDate(dt time.Time) string {
 	return fmt.Sprintf("%04d-%02d-%02d %d", dt.Year(), dt.Month(), dt.Day(), dt.Hour())
+}
+
+// GetIntervalFunctions - return interval name, interval start & end function from interval abbr: h|d|w|m|q|y
+func GetIntervalFunctions(intervalAbbr string) (interval string, intervalStart, nextIntervalStart func(time.Time) time.Time) {
+	switch strings.ToLower(intervalAbbr) {
+	case "h":
+		interval = "hour"
+		intervalStart = HourStart
+		nextIntervalStart = NextHourStart
+	case "d":
+		interval = "day"
+		intervalStart = DayStart
+		nextIntervalStart = NextDayStart
+	case "w":
+		interval = "week"
+		intervalStart = WeekStart
+		nextIntervalStart = NextWeekStart
+	case "m":
+		interval = "month"
+		intervalStart = MonthStart
+		nextIntervalStart = NextMonthStart
+	case "q":
+		interval = "quarter"
+		intervalStart = QuarterStart
+		nextIntervalStart = NextQuarterStart
+	case "y":
+		interval = "year"
+		intervalStart = YearStart
+		nextIntervalStart = NextYearStart
+	default:
+		fmt.Printf("Error:\nUnknown interval '%v'\n", intervalAbbr)
+		os.Exit(1)
+	}
+	return
 }
