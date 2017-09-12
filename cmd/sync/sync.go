@@ -2,13 +2,66 @@ package main
 
 import (
 	"fmt"
+	"io/ioutil"
 	"os"
 	"strconv"
 	"strings"
 	"time"
 
+	yaml "gopkg.in/yaml.v2"
 	lib "k8s.io/test-infra/gha2db"
 )
+
+// Gaps contain list of metrics to fill gaps
+type Gaps struct {
+	Metrics []Metric `json:"metrics"`
+}
+
+// Metric conain list of series names and periods to fill gaps
+type Metric struct {
+	Name    string   `json:"name"`
+	Series  []string `json:"series"`
+	Periods []string `json:"periods"`
+}
+
+// Add _period to all array items
+func addPeriodSuffix(seriesArr []string, period string) (result []string) {
+	for _, series := range seriesArr {
+		result = append(result, series+"_"+period)
+	}
+	return
+}
+
+// fills series gaps
+// Reads config from YAML (which series, for which periods)
+func fillGapsInSeries(ctx *lib.Ctx, from, to time.Time) {
+	fmt.Printf("Fill gaps in series\n")
+	var gaps Gaps
+	data, err := ioutil.ReadFile("metrics/fill_gaps.yaml")
+	if err != nil {
+		lib.FatalOnError(err)
+		return
+	}
+	lib.FatalOnError(yaml.Unmarshal(data, &gaps))
+
+	// Iterate metrics and periods
+	// Series (join values with ,)
+	for _, metric := range gaps.Metrics {
+		for _, period := range metric.Periods {
+			lib.ExecCommand(
+				ctx,
+				[]string{
+					"./z2influx",
+					strings.Join(addPeriodSuffix(metric.Series, period), ","),
+					lib.ToYMDDate(from),
+					lib.ToYMDDate(to),
+					period,
+				},
+				nil,
+			)
+		}
+	}
+}
 
 // computePeriodAtThisDate - for some longer periods, only recalculate them on specific dates
 func computePeriodAtThisDate(period string, to time.Time) bool {
@@ -120,6 +173,9 @@ func sync(args []string) {
 			from = maxDtIDB
 		}
 		fmt.Printf("Influx range: %s - %s\n", lib.ToYMDHDate(from), lib.ToYMDHDate(to))
+
+		// Fill gaps in series
+		fillGapsInSeries(&ctx, from, to)
 
 		// Metrics from weekly to quarterly
 		fmt.Printf("Weekly - quarterly metrics\n")
