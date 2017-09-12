@@ -52,6 +52,7 @@ func fillGapsInSeries(ctx *lib.Ctx, from, to time.Time) {
 				fmt.Printf("Skipping filling gaps for period \"%s\" for date %v\n", period, to)
 				continue
 			}
+			fmt.Printf("Metric %v...\n", metric.Name)
 			lib.ExecCommand(
 				ctx,
 				[]string{
@@ -277,6 +278,20 @@ func sync(args []string) {
 					"./db2influx",
 					"sig_mentions_data",
 					metricsDir + "/sig_mentions.sql",
+					lib.ToYMDDate(from),
+					lib.ToYMDDate(to),
+					period,
+				},
+				nil,
+			)
+
+			// SIG mentions categories daily, weekly, monthly, quarterly, yearly
+			lib.ExecCommand(
+				&ctx,
+				[]string{
+					"./db2influx",
+					"sig_mentions_cats_data",
+					metricsDir + "/sig_mentions_cats.sql",
 					lib.ToYMDDate(from),
 					lib.ToYMDDate(to),
 					period,

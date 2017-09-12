@@ -528,6 +528,9 @@ For now there is a manual script that can be used to loop sync every defined num
 
 - `PG_PASS='pwd' IDB_PASS='pwd' ./syncer.sh 1800`
 
+
+Sync tool uses [gaps.yaml](https://github.com/cncf/gha2db/blob/master/metrics/gaps.yaml), to prefill some series with zeros. This is needed for metrics (like SIG mentions or PRs merged) that return > 0 count values.
+
 # Grafana output
 
 You can visualise data using Grafana, see [grafana/](https://github.com/cncf/gha2db/blob/master/grafana/) directory:
