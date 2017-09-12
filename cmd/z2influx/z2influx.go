@@ -18,7 +18,7 @@ func workerThread(ch chan bool, ctx *lib.Ctx, seriesSet map[string]struct{}, per
 	bp := lib.IDBBatchPoints(ctx, &ic)
 
 	// Zero
-	fields := map[string]interface{}{"value": 0}
+	fields := map[string]interface{}{"value": 0.0}
 
 	for series := range seriesSet {
 		if ctx.Debug > 0 {
