@@ -3,9 +3,9 @@ select
   count(*) as count_value
 from
   (
-    select substring(
-          body from '(?:^|\s)+(?:@kubernetes/sig-[\w\d-]+)(-bug|-feature-request|-pr-review|-api-review|-misc|-proposal|-design-proposal|-test-failure)s?(?:$|[^\w\d-]+)'
-        ) as sig
+    select lower(substring(
+          body from '(?i)(?:^|\s)+(?:@kubernetes/sig-[\w\d-]+)(-bug|-feature-request|-pr-review|-api-review|-misc|-proposal|-design-proposal|-test-failure)s?(?:$|[^\w\d-]+)'
+        )) as sig
     from
       gha_texts
     where
