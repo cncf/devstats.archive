@@ -10,7 +10,34 @@ import (
 )
 
 func workerThread(ch chan bool, ctx *lib.Ctx, seriesSet map[string]struct{}, period string, from, to time.Time) {
-	fmt.Printf("%+v %v - %v %v\n", seriesSet, from, to, period)
+	// Connect to InfluxDB
+	ic := lib.IDBConn(ctx)
+	defer ic.Close()
+
+	// Get BatchPoints
+	bp := lib.IDBBatchPoints(ctx, &ic)
+
+	// Zero
+	fields := map[string]interface{}{"value": 0}
+
+	for series := range seriesSet {
+		if ctx.Debug > 0 {
+			fmt.Printf("%+v %v - %v %v\n", series, from, to, period)
+		}
+
+		// Add batch point
+		pt := lib.IDBNewPointWithErr(series, nil, fields, from)
+		bp.AddPoint(pt)
+	}
+
+	// Write the batch
+	if !ctx.SkipIDB {
+		err := ic.Write(bp)
+		lib.FatalOnError(err)
+	} else if ctx.Debug > 0 {
+		fmt.Printf("Skipping series write\n")
+	}
+
 	// Synchronize go routine
 	if ch != nil {
 		ch <- true
