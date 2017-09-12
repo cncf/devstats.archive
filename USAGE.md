@@ -24,7 +24,7 @@ It displays results using Grafana and InfluxDB time series database.
 
 Uses GNU `Makefile`:
 - `make check` - to apply gofmt and golint
-- `make` to compile static binaries: `structure`, `gha2db`, `db2influx`, `sync`, `runq`.
+- `make` to compile static binaries: `structure`, `gha2db`, `db2influx`, `sync`, `runq`, `z2influx`.
 - `make install` - to install binaries
 - `make clean` - to clean binaries
 - `make test` - to execute non-DB tests
@@ -570,6 +570,7 @@ Feed InfluxDB using:
 - Last parameter can be h, d, w, m, q, y (hour, day, week, month, quarter, year).
 - This tool uses environmental variables starting with `IDB_`, please see `context.go`, `idb_conn.go` and `cmd/db2influx/db2influx.go` for details.
 - `IDB_` variables are exactly the same as `PG_` to set host, databaxe, user name, password.
+- There is also `z2influx` tool. It is used to fill given series with zeros. Typical usage: `./z2influx 'series1,series2' 2017-01-01 2018-01-01 w` - will fill all weeks from 2017 with zeros for series1 and series2.
 
 # To check results in the InfluxDB:
 - influx
