@@ -18,6 +18,13 @@ type Gaps struct {
 }
 
 // Metric conain list of series names and periods to fill gaps
+// Series formula allows to write a lot of series name in a shorter way
+// Say we have series in this form prefix_{x}_{y}_{z}_suffix
+// and {x} can be a,b,c,d, {y} can be 1,2,3, z can be yes,no
+// Instea dof listing all combinations prefix_a_1_yes_suffix, ..., prefix_d_3_no_suffix
+// Which is 4 * 3 * 2 = 24 items, You can write series formula:
+// "=prefix;suffix;_;a,b,c,d;1,2,3;yes,no"
+// format is "=prefix;suffix;join;list1item1,list1item2,...;list2item1,list2item2,...;..."
 type Metric struct {
 	Name    string   `json:"name"`
 	Series  []string `json:"series"`
@@ -29,6 +36,97 @@ func addPeriodSuffix(seriesArr []string, period string) (result []string) {
 	for _, series := range seriesArr {
 		result = append(result, series+"_"+period)
 	}
+	return
+}
+
+// Return cartesian product of all arrays starting with prefix, joined by "join" ending with suffix
+func joinedCartesian(mat [][]string, prefix, join, suffix string) (result []string) {
+	//fmt.Printf("%+v\n", mat)
+	// rows - number of arrays to join, rowsm1 (last index of array to join)
+	rows := len(mat)
+	rowsm1 := rows - 1
+
+	// lens[i] - i-th row length - 1 (last i-th row column index)
+	// curr[i] - current position in i-th row, we're processing N x M x ... positions
+	// All possible combinations = Cartesian
+	var (
+		lens []int
+		curr []int
+	)
+	for _, row := range mat {
+		lens = append(lens, len(row)-1)
+		curr = append(curr, 0)
+	}
+
+	// While not for all i curr[i] == lens[i]
+	for {
+		// Create one of output combinations
+		str := prefix
+		for i := 0; i < rows; i++ {
+			str += mat[i][curr[i]]
+			if i < rowsm1 {
+				str += join
+			}
+		}
+		str += suffix
+		result = append(result, str)
+
+		// Stop if for all i curr[i] == lens[i]
+		// Which means we processed all possible combinations
+		stop := true
+		for i := 0; i < rows; i++ {
+			if curr[i] < lens[i] {
+				stop = false
+				break
+			}
+		}
+		if stop {
+			break
+		}
+
+		// increase curr[i] for some i
+		for i := 0; i < rows; i++ {
+			// We can move to next permutation at this i
+			if curr[i] < lens[i] {
+				curr[i]++
+				break
+			} else {
+				// We have to go to another row and zero all lower positions
+				for j := 0; j <= i; j++ {
+					curr[j] = 0
+				}
+			}
+		}
+	}
+
+	// Retunrs "result" containing all possible permutations
+	//fmt.Printf("%+v\n", result)
+	return
+}
+
+// Parse formula in format "=prefix;suffix;join;list1item1,list1item2,...;list2item1,list2item2,...;..."
+func createSeriesFromFormula(def string) (result []string) {
+	ary := strings.Split(def[1:], ";")
+	if len(ary) < 4 {
+		lib.FatalOnError(fmt.Errorf(
+			"series formula must have at least 4 paramaters: "+
+				"prefix, suffix, join, list, %v",
+			def,
+		))
+	}
+
+	// Prefix, join value (how to connect strings from different arrays), suffix
+	prefix, suffix, join := ary[0], ary[1], ary[2]
+
+	// Create "matrix" of strings (not a real matrix because rows can have different counts)
+	var matrix [][]string
+	for _, list := range ary[3:] {
+		vals := strings.Split(list, ",")
+		matrix = append(matrix, vals)
+	}
+
+	// Create cartesian result with all possible combinations
+	result = joinedCartesian(matrix, prefix, join, suffix)
 	return
 }
 
@@ -45,8 +143,18 @@ func fillGapsInSeries(ctx *lib.Ctx, from, to time.Time) {
 	lib.FatalOnError(yaml.Unmarshal(data, &gaps))
 
 	// Iterate metrics and periods
-	// Series (join values with ,)
 	for _, metric := range gaps.Metrics {
+		series := []string{}
+		for _, ser := range metric.Series {
+			if ser[0:1] == "=" {
+				formulaSeries := createSeriesFromFormula(ser)
+				for _, formulaSer := range formulaSeries {
+					series = append(series, formulaSer)
+				}
+			} else {
+				series = append(series, ser)
+			}
+		}
 		for _, period := range metric.Periods {
 			if !ctx.ResetIDB && !computePeriodAtThisDate(period, to) {
 				fmt.Printf("Skipping filling gaps for period \"%s\" for date %v\n", period, to)
@@ -57,7 +165,7 @@ func fillGapsInSeries(ctx *lib.Ctx, from, to time.Time) {
 				ctx,
 				[]string{
 					"./z2influx",
-					strings.Join(addPeriodSuffix(metric.Series, period), ","),
+					strings.Join(addPeriodSuffix(series, period), ","),
 					lib.ToYMDDate(from),
 					lib.ToYMDDate(to),
 					period,
