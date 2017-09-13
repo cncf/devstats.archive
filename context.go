@@ -1,6 +1,7 @@
 package gha2db
 
 import (
+	"fmt"
 	"os"
 	"strconv"
 	"time"
@@ -37,6 +38,7 @@ type Ctx struct {
 	Explain          bool      // from GHA2DB_EXPLAIN runq tool, prefix query with "explain " - it will display query plan instead of executing real query, default false
 	OldFormat        bool      // from GHA2DB_OLDFMT gha2db tool, if set then use pre 2015 GHA JSONs format
 	Exact            bool      // FROM GHA2DB_EXACT gha2db tool, if set then orgs list provided from commandline is used as a list of exact repository full names, like "a/b,c/d,e"
+	LogToDB          bool      // FROM GHA2DB_SKIPLOG all tools, if set, DB logging into Postgres table `gha_logs` will be disabled
 }
 
 // Init - get context from environment variables
@@ -150,6 +152,9 @@ func (ctx *Ctx) Init() {
 	// Exact repository full names to match
 	ctx.Exact = os.Getenv("GHA2DB_EXACT") != ""
 
+	// Log to Postgres DB, table `gha_logs`
+	ctx.LogToDB = os.Getenv("GHA2DB_SKIPLOG") == ""
+
 	// Context out if requested
 	if ctx.CtxOut {
 		ctx.Print()
@@ -158,5 +163,5 @@ func (ctx *Ctx) Init() {
 
 // Print context contents
 func (ctx *Ctx) Print() {
-	Printf("Environment Context Dump\n%+v\n", ctx)
+	fmt.Printf("Environment Context Dump\n%+v\n", ctx)
 }
