@@ -38,7 +38,8 @@ func nameForMetricsRow(metric, name, period string) []string {
 		}
 		return result
 	default:
-		fmt.Printf("Error\nUnknown metric '%v'\n", metric)
+		lib.Printf("Error\nUnknown metric '%v'\n", metric)
+		fmt.Fprintf(os.Stdout, "Error\nUnknown metric '%v'\n", metric)
 		os.Exit(1)
 	}
 	return []string{""}
@@ -96,7 +97,7 @@ func workerThread(ch chan bool, ctx *lib.Ctx, seriesNameOrFunc, sqlQuery, period
 		}
 		lib.FatalOnError(rows.Err())
 		if rowCount != 1 {
-			fmt.Printf(
+			lib.Printf(
 				"Error:\nQuery should return either single value or "+
 					"multiple rows, each containing string and numbers\n"+
 					"Got %d rows, each containing single number\nQuery:%s\n",
@@ -109,7 +110,7 @@ func workerThread(ch chan bool, ctx *lib.Ctx, seriesNameOrFunc, sqlQuery, period
 		}
 		name = seriesNameOrFunc
 		if ctx.Debug > 0 {
-			fmt.Printf("%v - %v -> %v, %v\n", from, to, name, value)
+			lib.Printf("%v - %v -> %v, %v\n", from, to, name, value)
 		}
 		// Add batch point
 		fields := map[string]interface{}{"value": value}
@@ -143,7 +144,7 @@ func workerThread(ch chan bool, ctx *lib.Ctx, seriesNameOrFunc, sqlQuery, period
 				}
 				name = names[idx]
 				if ctx.Debug > 0 {
-					fmt.Printf("%v - %v -> %v: %v, %v\n", from, to, idx, name, value)
+					lib.Printf("%v - %v -> %v: %v, %v\n", from, to, idx, name, value)
 				}
 				// Add batch point
 				fields := map[string]interface{}{"value": value}
@@ -158,7 +159,7 @@ func workerThread(ch chan bool, ctx *lib.Ctx, seriesNameOrFunc, sqlQuery, period
 		err = ic.Write(bp)
 		lib.FatalOnError(err)
 	} else if ctx.Debug > 0 {
-		fmt.Printf("Skipping series write\n")
+		lib.Printf("Skipping series write\n")
 	}
 
 	// Synchronize go routine
@@ -192,7 +193,7 @@ func db2influx(seriesNameOrFunc, sqlFile, from, to, intervalAbbr string) {
 	thrN := lib.GetThreadsNum(&ctx)
 
 	// Run
-	fmt.Printf("db2influx.go: Running (on %d CPUs): %v - %v with interval %s\n", thrN, dFrom, dTo, interval)
+	lib.Printf("db2influx.go: Running (on %d CPUs): %v - %v with interval %s\n", thrN, dFrom, dTo, interval)
 	dt := dFrom
 	if thrN > 1 {
 		chanPool := []chan bool{}
@@ -208,12 +209,12 @@ func db2influx(seriesNameOrFunc, sqlFile, from, to, intervalAbbr string) {
 				chanPool = chanPool[1:]
 			}
 		}
-		fmt.Printf("Final threads join\n")
+		lib.Printf("Final threads join\n")
 		for _, ch := range chanPool {
 			<-ch
 		}
 	} else {
-		fmt.Printf("Using single threaded version\n")
+		lib.Printf("Using single threaded version\n")
 		for dt.Before(dTo) {
 			nDt := nextIntervalStart(dt)
 			workerThread(nil, &ctx, seriesNameOrFunc, sqlQuery, intervalAbbr, dt, nDt)
@@ -221,25 +222,25 @@ func db2influx(seriesNameOrFunc, sqlFile, from, to, intervalAbbr string) {
 		}
 	}
 	// Finished
-	fmt.Printf("All done.\n")
+	lib.Printf("All done.\n")
 }
 
 func main() {
 	dtStart := time.Now()
 	if len(os.Args) < 6 {
-		fmt.Printf(
+		lib.Printf(
 			"Required series name, SQL file name, from, to, period " +
 				"[series_name_or_func some.sql '2015-08-03' '2017-08-21' h|d|w|m|q|y\n",
 		)
-		fmt.Printf(
+		lib.Printf(
 			"Series name (series_name_or_func) will become exact series name if " +
 				"query return just single numeric value\n",
 		)
-		fmt.Printf("For queries returning multiple rows 'series_name_or_func' will be used as function that\n")
-		fmt.Printf("receives data row and period and returns name and value(s) for it\n")
+		lib.Printf("For queries returning multiple rows 'series_name_or_func' will be used as function that\n")
+		lib.Printf("receives data row and period and returns name and value(s) for it\n")
 		os.Exit(1)
 	}
 	db2influx(os.Args[1], os.Args[2], os.Args[3], os.Args[4], os.Args[5])
 	dtEnd := time.Now()
-	fmt.Printf("Time: %v\n", dtEnd.Sub(dtStart))
+	lib.Printf("Time: %v\n", dtEnd.Sub(dtStart))
 }

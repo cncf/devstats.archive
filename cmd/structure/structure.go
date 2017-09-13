@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"time"
 
 	lib "k8s.io/test-infra/gha2db"
@@ -20,11 +19,11 @@ func main() {
 	// And ask for continue
 	if !createdDatabase {
 		if ctx.Table {
-			fmt.Printf("This program will recreate DB structure (dropping all existing data)\n")
+			lib.Printf("This program will recreate DB structure (dropping all existing data)\n")
 		}
-		fmt.Printf("Continue? (y/n) ")
+		lib.Printf("Continue? (y/n) ")
 		c := lib.Mgetc(&ctx)
-		fmt.Printf("\n")
+		lib.Printf("\n")
 		if c == "y" {
 			lib.Structure(&ctx)
 		}
@@ -32,5 +31,5 @@ func main() {
 		lib.Structure(&ctx)
 	}
 	dtEnd := time.Now()
-	fmt.Printf("Time: %v\n", dtEnd.Sub(dtStart))
+	lib.Printf("Time: %v\n", dtEnd.Sub(dtStart))
 }

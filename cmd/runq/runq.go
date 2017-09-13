@@ -18,7 +18,7 @@ func runq(sqlFile string, params []string) {
 
 	// SQL arguments number
 	if len(params)%2 > 0 {
-		fmt.Printf("Must provide correct parameter value pairs.\n")
+		lib.Printf("Must provide correct parameter value pairs: %+v\n", params)
 		os.Exit(1)
 	}
 
@@ -83,7 +83,7 @@ func runq(sqlFile string, params []string) {
 	lib.FatalOnError(rows.Err())
 
 	if len(results) < 1 {
-		fmt.Printf("Metric returned no data\n")
+		lib.Printf("Metric returned no data\n")
 		return
 	}
 
@@ -108,7 +108,7 @@ func runq(sqlFile string, params []string) {
 		output += fmt.Sprintf(strFormat, value) + "+"
 	}
 	output = output[:len(output)-1] + "\\\n"
-	fmt.Printf(output)
+	lib.Printf(output)
 
 	// Header row
 	output = "|"
@@ -117,7 +117,7 @@ func runq(sqlFile string, params []string) {
 		output += fmt.Sprintf(strFormat, column) + "|"
 	}
 	output += "\n"
-	fmt.Printf(output)
+	lib.Printf(output)
 
 	// Frame between header row and data rows
 	output = "+"
@@ -127,7 +127,7 @@ func runq(sqlFile string, params []string) {
 		output += fmt.Sprintf(strFormat, value) + "+"
 	}
 	output = output[:len(output)-1] + "+\n"
-	fmt.Printf(output)
+	lib.Printf(output)
 
 	// Data rows loop
 	for _, row := range results {
@@ -139,7 +139,7 @@ func runq(sqlFile string, params []string) {
 			output += fmt.Sprintf(strFormat, value) + "|"
 		}
 		output = output[:len(output)-1] + "|\n"
-		fmt.Printf(output)
+		lib.Printf(output)
 	}
 
 	// Frame below data rows
@@ -150,18 +150,18 @@ func runq(sqlFile string, params []string) {
 		output += fmt.Sprintf(strFormat, value) + "+"
 	}
 	output = output[:len(output)-1] + "/\n"
-	fmt.Printf(output)
+	lib.Printf(output)
 
-	fmt.Printf("Rows: %v\n", rowCount)
+	lib.Printf("Rows: %v\n", rowCount)
 }
 
 func main() {
 	dtStart := time.Now()
 	if len(os.Args) < 2 {
-		fmt.Printf("Required SQL file name [param1 value1 [param2 value2 ...]]\n")
+		lib.Printf("Required SQL file name [param1 value1 [param2 value2 ...]]\n")
 		os.Exit(1)
 	}
 	runq(os.Args[1], os.Args[2:])
 	dtEnd := time.Now()
-	fmt.Printf("Time: %v\n", dtEnd.Sub(dtStart))
+	lib.Printf("Time: %v\n", dtEnd.Sub(dtStart))
 }

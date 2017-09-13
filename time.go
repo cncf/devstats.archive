@@ -135,7 +135,8 @@ func TimeParseAny(dtStr string) time.Time {
 			return t
 		}
 	}
-	fmt.Printf("Error:\nCannot parse date: '%v'\n", dtStr)
+	Printf("Error:\nCannot parse date: '%v'\n", dtStr)
+	fmt.Fprintf(os.Stdout, "Error:\nCannot parse date: '%v'\n", dtStr)
 	os.Exit(1)
 	return time.Now()
 }
@@ -195,7 +196,8 @@ func GetIntervalFunctions(intervalAbbr string) (interval string, intervalStart, 
 		intervalStart = YearStart
 		nextIntervalStart = NextYearStart
 	default:
-		fmt.Printf("Error:\nUnknown interval '%v'\n", intervalAbbr)
+		Printf("Error:\nUnknown interval '%v'\n", intervalAbbr)
+		fmt.Fprintf(os.Stdout, "Error:\nUnknown interval '%v'\n", intervalAbbr)
 		os.Exit(1)
 	}
 	return
