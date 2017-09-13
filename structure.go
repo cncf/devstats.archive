@@ -865,6 +865,27 @@ func Structure(ctx *Ctx) {
 		ExecSQLWithErr(c, ctx, "create index teams_dup_created_at_idx on gha_teams(dup_created_at)")
 	}
 
+	// Logs table
+	if ctx.Table {
+		ExecSQLWithErr(c, ctx, "drop table if exists gha_logs")
+		ExecSQLWithErr(
+			c,
+			ctx,
+			CreateTable(
+				"gha_logs("+
+					"id {{pkauto}}, "+
+					"dt {{tsnow}}, "+
+					"msg text"+
+					")",
+			),
+		)
+	}
+	if ctx.Index {
+		ExecSQLWithErr(c, ctx, "create index logs_id_idx on gha_logs(id)")
+		ExecSQLWithErr(c, ctx, "create index logs_dt_idx on gha_logs(dt)")
+		ExecSQLWithErr(c, ctx, "create index logs_msg_idx on gha_logs(msg)")
+	}
+
 	// This table is a kind of `materialized view` of all texts
 	if ctx.Table {
 		ExecSQLWithErr(c, ctx, "drop table if exists gha_texts")

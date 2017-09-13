@@ -24,7 +24,10 @@ func PgConn(ctx *Ctx) *sql.DB {
 
 // CreateTable is used to replace DB specific parts of Create Table SQL statement
 func CreateTable(tdef string) string {
-	return strings.Replace("create table "+tdef, "{{ts}}", "timestamp", -1)
+	tdef = strings.Replace(tdef, "{{ts}}", "timestamp", -1)
+	tdef = strings.Replace(tdef, "{{tsnow}}", "timestamp default now()", -1)
+	tdef = strings.Replace(tdef, "{{pkauto}}", "serial", -1)
+	return "create table " + tdef
 }
 
 // Outputs query info
