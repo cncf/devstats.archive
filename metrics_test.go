@@ -52,7 +52,7 @@ func TestMetrics(t *testing.T) {
 			expected: [][]interface{}{{3}},
 		},
 		{
-			setup:  setupSigMentionsMetric,
+			setup:  setupSigMentionsTextMetric,
 			metric: "sig_mentions",
 			from:   ft(2017, 7),
 			to:     ft(2017, 8),
@@ -63,7 +63,7 @@ func TestMetrics(t *testing.T) {
 			},
 		},
 		{
-			setup:  setupSigMentionsMetric,
+			setup:  setupSigMentionsTextMetric,
 			metric: "sig_mentions_breakdown",
 			from:   ft(2017, 7),
 			to:     ft(2017, 8),
@@ -76,7 +76,7 @@ func TestMetrics(t *testing.T) {
 			},
 		},
 		{
-			setup:  setupSigMentionsMetric,
+			setup:  setupSigMentionsTextMetric,
 			metric: "sig_mentions_cats",
 			from:   ft(2017, 7),
 			to:     ft(2017, 8),
@@ -136,6 +136,39 @@ func TestMetrics(t *testing.T) {
 			from:     ft(2017, 8),
 			to:       ft(2017, 9),
 			expected: [][]interface{}{{3}},
+		},
+		{
+			setup:  setupSigMentionsLabelMetric,
+			metric: "labels_sig",
+			from:   ft(2017, 9),
+			to:     ft(2017, 10),
+			expected: [][]interface{}{
+				{"sig1", 3},
+				{"sig2", 2},
+				{"sig3", 1},
+			},
+		},
+		{
+			setup:  setupSigMentionsLabelMetric,
+			metric: "labels_kind",
+			from:   ft(2017, 9),
+			to:     ft(2017, 10),
+			expected: [][]interface{}{
+				{"kind1", 2},
+				{"kind2", 2},
+				{"kind3", 1},
+			},
+		},
+		{
+			setup:  setupSigMentionsLabelMetric,
+			metric: "labels_sig_kind",
+			from:   ft(2017, 9),
+			to:     ft(2017, 10),
+			expected: [][]interface{}{
+				{"sig1_kind1", 2},
+				{"sig1_kind2", 1},
+				{"sig2_kind2", 1},
+			},
 		},
 	}
 
@@ -301,6 +334,26 @@ func addIssueEventLabel(con *sql.DB, ctx *lib.Ctx, args ...interface{}) (err err
 		"insert into gha_issues_events_labels("+
 			"issue_id, event_id, label_id, label_name, created_at, "+
 			"repo_id, repo_name, actor_id, actor_login, type, issue_number"+
+			") "+lib.NValues(11),
+		args...,
+	)
+	return
+}
+
+// Add issue label
+// iid, eid, lid, actor_id, actor_login, repo_id, repo_name,
+// ev_type, ev_created_at, issue_number, label_name
+func addIssueLabel(con *sql.DB, ctx *lib.Ctx, args ...interface{}) (err error) {
+	if len(args) != 11 {
+		err = fmt.Errorf("addIssueLabel: expects 11 variadic parameters, got %v", len(args))
+		return
+	}
+	_, err = lib.ExecSQL(
+		con,
+		ctx,
+		"insert into gha_issues_labels(issue_id, event_id, label_id, "+
+			"dup_actor_id, dup_actor_login, dup_repo_id, dup_repo_name, dup_type, dup_created_at, "+
+			"dup_issue_number, dup_label_name"+
 			") "+lib.NValues(11),
 		args...,
 	)
@@ -641,8 +694,8 @@ func setupPRsMergedMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 	return
 }
 
-// Create data for SIG mentions metric
-func setupSigMentionsMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
+// Create data for SIG mentions metric (that uses texts)
+func setupSigMentionsTextMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 	ft := testlib.YMDHMS
 
 	// texts to add
@@ -664,6 +717,40 @@ func setupSigMentionsMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 	// Add texts
 	for _, text := range texts {
 		err = addText(con, ctx, text...)
+		if err != nil {
+			return
+		}
+	}
+
+	return
+}
+
+// Create data for SIG mentions metricc (that uses labels)
+func setupSigMentionsLabelMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
+	ft := testlib.YMDHMS
+
+	// issues labels to add
+	// iid, eid, lid, actor_id, actor_login, repo_id, repo_name,
+	// ev_type, ev_created_at, issue_number, label_name
+	issuesLabels := [][]interface{}{
+		{1, 0, 1, 1, "A1", 1, "R1", "T", ft(2017, 8, 1), 0, "sig/sig1"},
+		{1, 1, 1, 1, "A1", 1, "R1", "T", ft(2017, 9, 1), 1, "sig/sig1"},
+		{2, 2, 1, 1, "A1", 1, "R1", "T", ft(2017, 9, 2), 2, "sig/sig1"},
+		{3, 3, 1, 1, "A1", 1, "R1", "T", ft(2017, 9, 3), 3, "sig/sig1"},
+		{4, 4, 2, 1, "A1", 1, "R1", "T", ft(2017, 9, 4), 4, "sig/sig2"},
+		{5, 5, 2, 1, "A1", 1, "R1", "T", ft(2017, 9, 5), 5, "sig/sig2"},
+		{1, 6, 3, 1, "A1", 1, "R1", "T", ft(2017, 9, 6), 1, "kind/kind1"},
+		{2, 7, 3, 1, "A1", 1, "R1", "T", ft(2017, 9, 7), 2, "kind/kind1"},
+		{3, 8, 4, 1, "A1", 1, "R1", "T", ft(2017, 9, 8), 3, "kind/kind2"},
+		{4, 9, 4, 1, "A1", 1, "R1", "T", ft(2017, 9, 9), 4, "kind/kind2"},
+		{6, 10, 5, 1, "A1", 1, "R1", "T", ft(2017, 9, 10), 6, "sig/sig3"},
+		{7, 11, 6, 1, "A1", 1, "R1", "T", ft(2017, 9, 11), 7, "kind/kind3"},
+		{1, 12, 1, 1, "A1", 1, "R1", "T", ft(2017, 10, 2), 1, "sig/sig1"},
+	}
+
+	// Add issues labels
+	for _, issueLabel := range issuesLabels {
+		err = addIssueLabel(con, ctx, issueLabel...)
 		if err != nil {
 			return
 		}

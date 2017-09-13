@@ -15,4 +15,5 @@ where
 group by
   kind
 order by
-  cnt desc
+  cnt desc,
+  kind asc;

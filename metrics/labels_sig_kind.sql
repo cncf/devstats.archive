@@ -25,4 +25,5 @@ where
 group by
   sig_kind
 order by
-  cnt desc
+  cnt desc,
+  sig_kind asc;
