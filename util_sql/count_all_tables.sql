@@ -23,5 +23,6 @@ select 'teams' as name, count(*) as count_value from gha_teams union
 select 'team repositories' as name, count(*) as count_value from gha_teams_repositories union
 select 'issue events labels' as name, count(*) as count_value from gha_issues_events_labels union
 select 'issue pull requests' as name, count(*) as count_value from gha_issues_pull_requests union
-select 'texts' as name, count(*) as count_value from gha_texts
+select 'texts' as name, count(*) as count_value from gha_texts union
+select 'logs' as name, count(*) as count_value from gha_logs
 order by name

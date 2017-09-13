@@ -327,6 +327,40 @@ CREATE TABLE gha_labels (
 ALTER TABLE gha_labels OWNER TO gha_admin;
 
 --
+-- Name: gha_logs; Type: TABLE; Schema: public; Owner: gha_admin
+--
+
+CREATE TABLE gha_logs (
+    id integer NOT NULL,
+    dt timestamp without time zone DEFAULT now(),
+    msg text
+);
+
+
+ALTER TABLE gha_logs OWNER TO gha_admin;
+
+--
+-- Name: gha_logs_id_seq; Type: SEQUENCE; Schema: public; Owner: gha_admin
+--
+
+CREATE SEQUENCE gha_logs_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE gha_logs_id_seq OWNER TO gha_admin;
+
+--
+-- Name: gha_logs_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: gha_admin
+--
+
+ALTER SEQUENCE gha_logs_id_seq OWNED BY gha_logs.id;
+
+
+--
 -- Name: gha_milestones; Type: TABLE; Schema: public; Owner: gha_admin
 --
 
@@ -602,6 +636,13 @@ CREATE TABLE gha_texts (
 
 
 ALTER TABLE gha_texts OWNER TO gha_admin;
+
+--
+-- Name: gha_logs id; Type: DEFAULT; Schema: public; Owner: gha_admin
+--
+
+ALTER TABLE ONLY gha_logs ALTER COLUMN id SET DEFAULT nextval('gha_logs_id_seq'::regclass);
+
 
 --
 -- Name: gha_actors gha_actors_pkey; Type: CONSTRAINT; Schema: public; Owner: gha_admin
