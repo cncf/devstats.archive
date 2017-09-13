@@ -41,7 +41,6 @@ func addPeriodSuffix(seriesArr []string, period string) (result []string) {
 
 // Return cartesian product of all arrays starting with prefix, joined by "join" ending with suffix
 func joinedCartesian(mat [][]string, prefix, join, suffix string) (result []string) {
-	//fmt.Printf("%+v\n", mat)
 	// rows - number of arrays to join, rowsm1 (last index of array to join)
 	rows := len(mat)
 	rowsm1 := rows - 1
@@ -100,7 +99,6 @@ func joinedCartesian(mat [][]string, prefix, join, suffix string) (result []stri
 	}
 
 	// Retunrs "result" containing all possible permutations
-	//fmt.Printf("%+v\n", result)
 	return
 }
 
@@ -133,7 +131,7 @@ func createSeriesFromFormula(def string) (result []string) {
 // fills series gaps
 // Reads config from YAML (which series, for which periods)
 func fillGapsInSeries(ctx *lib.Ctx, from, to time.Time) {
-	fmt.Printf("Fill gaps in series\n")
+	lib.Printf("Fill gaps in series\n")
 	var gaps Gaps
 	data, err := ioutil.ReadFile("metrics/gaps.yaml")
 	if err != nil {
@@ -157,10 +155,10 @@ func fillGapsInSeries(ctx *lib.Ctx, from, to time.Time) {
 		}
 		for _, period := range metric.Periods {
 			if !ctx.ResetIDB && !computePeriodAtThisDate(period, to) {
-				fmt.Printf("Skipping filling gaps for period \"%s\" for date %v\n", period, to)
+				lib.Printf("Skipping filling gaps for period \"%s\" for date %v\n", period, to)
 				continue
 			}
-			fmt.Printf("Metric %v...\n", metric.Name)
+			lib.Printf("Metric %v...\n", metric.Name)
 			lib.ExecCommand(
 				ctx,
 				[]string{
@@ -207,7 +205,7 @@ func sync(args []string) {
 	}
 	org := lib.StringsMapToArray(stripFunc, strings.Split(sOrg, ","))
 	repo := lib.StringsMapToArray(stripFunc, strings.Split(sRepo, ","))
-	fmt.Printf("sync.go: Running on: %s/%s\n", strings.Join(org, "+"), strings.Join(repo, "+"))
+	lib.Printf("sync.go: Running on: %s/%s\n", strings.Join(org, "+"), strings.Join(repo, "+"))
 
 	// Connect to Postgres DB
 	con := lib.PgConn(&ctx)
@@ -243,7 +241,7 @@ func sync(args []string) {
 	toHour := strconv.Itoa(to.Hour())
 
 	// Get new GHAs
-	fmt.Printf("GHA range: %s %s - %s %s\n", fromDate, fromHour, toDate, toHour)
+	lib.Printf("GHA range: %s %s - %s %s\n", fromDate, fromHour, toDate, toHour)
 	lib.ExecCommand(
 		&ctx,
 		[]string{
@@ -258,7 +256,7 @@ func sync(args []string) {
 		nil,
 	)
 
-	fmt.Printf("Update structure\n")
+	lib.Printf("Update structure\n")
 	// Recompute views and DB summaries
 	lib.ExecCommand(
 		&ctx,
@@ -285,17 +283,17 @@ func sync(args []string) {
 		} else {
 			from = maxDtIDB
 		}
-		fmt.Printf("Influx range: %s - %s\n", lib.ToYMDHDate(from), lib.ToYMDHDate(to))
+		lib.Printf("Influx range: %s - %s\n", lib.ToYMDHDate(from), lib.ToYMDHDate(to))
 
 		// Fill gaps in series
 		fillGapsInSeries(&ctx, from, to)
 
 		// Metrics from weekly to quarterly
-		fmt.Printf("Weekly - quarterly metrics\n")
+		lib.Printf("Weekly - quarterly metrics\n")
 		for _, period := range periodsFromWeekToQuarter {
 			// Some bigger periods like month, quarters, years doesn't need to be updated every run
 			if !ctx.ResetIDB && !computePeriodAtThisDate(period, to) {
-				fmt.Printf("Skipping recalculating period \"%s\" for date to %v\n", period, to)
+				lib.Printf("Skipping recalculating period \"%s\" for date to %v\n", period, to)
 				continue
 			}
 
@@ -397,13 +395,13 @@ func sync(args []string) {
 				nil,
 			)
 		}
-		fmt.Printf("Daily - yearly metrics\n")
+		lib.Printf("Daily - yearly metrics\n")
 
 		// Metrics from daily to yearly
 		for _, period := range periodsFromDay {
 			// Some bigger periods like month, quarters, years doesn't need to be updated every run
 			if !ctx.ResetIDB && !computePeriodAtThisDate(period, to) {
-				fmt.Printf("Skipping recalculating period \"%s\" for date to %v\n", period, to)
+				lib.Printf("Skipping recalculating period \"%s\" for date to %v\n", period, to)
 				continue
 			}
 
@@ -465,11 +463,11 @@ func sync(args []string) {
 		}
 
 		// Metrics that include hourly data
-		fmt.Printf("Hourly - yearly metrics\n")
+		lib.Printf("Hourly - yearly metrics\n")
 		for _, period := range periodsFromHour {
 			// Some bigger periods like month, quarters, years doesn't need to be updated every run
 			if !ctx.ResetIDB && !computePeriodAtThisDate(period, to) {
-				fmt.Printf("Skipping recalculating period \"%s\" for date to %v\n", period, to)
+				lib.Printf("Skipping recalculating period \"%s\" for date to %v\n", period, to)
 				continue
 			}
 
@@ -488,12 +486,12 @@ func sync(args []string) {
 			)
 		}
 	}
-	fmt.Printf("Sync success\n")
+	lib.Printf("Sync success\n")
 }
 
 func main() {
 	dtStart := time.Now()
 	sync(os.Args[1:])
 	dtEnd := time.Now()
-	fmt.Printf("Time: %v\n", dtEnd.Sub(dtStart))
+	lib.Printf("Time: %v\n", dtEnd.Sub(dtStart))
 }

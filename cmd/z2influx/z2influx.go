@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"os"
 	"strings"
 	"time"
@@ -22,7 +21,7 @@ func workerThread(ch chan bool, ctx *lib.Ctx, seriesSet map[string]struct{}, per
 
 	for series := range seriesSet {
 		if ctx.Debug > 0 {
-			fmt.Printf("%+v %v - %v %v\n", series, from, to, period)
+			lib.Printf("%+v %v - %v %v\n", series, from, to, period)
 		}
 
 		// Add batch point
@@ -35,7 +34,7 @@ func workerThread(ch chan bool, ctx *lib.Ctx, seriesSet map[string]struct{}, per
 		err := ic.Write(bp)
 		lib.FatalOnError(err)
 	} else if ctx.Debug > 0 {
-		fmt.Printf("Skipping series write\n")
+		lib.Printf("Skipping series write\n")
 	}
 
 	// Synchronize go routine
@@ -74,7 +73,7 @@ func z2influx(series, from, to, intervalAbbr string) {
 	thrN := lib.GetThreadsNum(&ctx)
 
 	// Run
-	fmt.Printf("z2influx.go: Running (on %d CPUs): %v - %v with interval %s\n", thrN, dFrom, dTo, interval)
+	lib.Printf("z2influx.go: Running (on %d CPUs): %v - %v with interval %s\n", thrN, dFrom, dTo, interval)
 	dt := dFrom
 	if thrN > 1 {
 		chanPool := []chan bool{}
@@ -90,12 +89,12 @@ func z2influx(series, from, to, intervalAbbr string) {
 				chanPool = chanPool[1:]
 			}
 		}
-		fmt.Printf("Final threads join\n")
+		lib.Printf("Final threads join\n")
 		for _, ch := range chanPool {
 			<-ch
 		}
 	} else {
-		fmt.Printf("Using single threaded version\n")
+		lib.Printf("Using single threaded version\n")
 		for dt.Before(dTo) {
 			nDt := nextIntervalStart(dt)
 			workerThread(nil, &ctx, seriesSet, intervalAbbr, dt, nDt)
@@ -103,18 +102,19 @@ func z2influx(series, from, to, intervalAbbr string) {
 		}
 	}
 	// Finished
-	fmt.Printf("All done.\n")
+	lib.Printf("All done.\n")
 }
 
 func main() {
 	dtStart := time.Now()
 	if len(os.Args) < 5 {
-		fmt.Print("Required args: 'series1,series2,..' from to period\n",
-			"'s1,s2,s3' 2015-08-03 2017-08-2' h|d|w|m|q|y\n",
+		lib.Printf("%s: Required args: 'series1,series2,..' from to period\n"+
+			"Example: 's1,s2,s3' 2015-08-03 2017-08-2' h|d|w|m|q|y\n",
+			os.Args[0],
 		)
 		os.Exit(1)
 	}
 	z2influx(os.Args[1], os.Args[2], os.Args[3], os.Args[4])
 	dtEnd := time.Now()
-	fmt.Printf("Time: %v\n", dtEnd.Sub(dtStart))
+	lib.Printf("Time: %v\n", dtEnd.Sub(dtStart))
 }

@@ -1386,7 +1386,7 @@ func parseJSON(con *sql.DB, ctx *lib.Ctx, jsonStr []byte, dt time.Time, forg, fr
 	}
 	if err != nil {
 		pretty := lib.PrettyPrintJSON(jsonStr)
-		fmt.Printf("%v: JSON Unmarshal failed for:\n'%v'\n", dt, string(pretty))
+		lib.Printf("%v: JSON Unmarshal failed for:\n'%v'\n", dt, string(pretty))
 		fmt.Fprintf(os.Stderr, "%v: JSON Unmarshal failed for:\n'%v'\n", dt, string(pretty))
 	}
 	lib.FatalOnError(err)
@@ -1408,7 +1408,6 @@ func parseJSON(con *sql.DB, ctx *lib.Ctx, jsonStr []byte, dt time.Time, forg, fr
 			lib.FatalOnError(ioutil.WriteFile(ofn, pretty, 0644))
 		}
 		if ctx.DBOut {
-			// fmt.Printf("JSON:\n%v\n", string(lib.PrettyPrintJSON(jsonStr)))
 			if ctx.OldFormat {
 				e = writeToDBOldFmt(con, ctx, eid, &hOld)
 			} else {
@@ -1416,7 +1415,7 @@ func parseJSON(con *sql.DB, ctx *lib.Ctx, jsonStr []byte, dt time.Time, forg, fr
 			}
 		}
 		if ctx.Debug >= 1 {
-			fmt.Printf("Processed: '%v' event: %v\n", dt, eid)
+			lib.Printf("Processed: '%v' event: %v\n", dt, eid)
 		}
 		f = 1
 	}
@@ -1427,7 +1426,7 @@ func parseJSON(con *sql.DB, ctx *lib.Ctx, jsonStr []byte, dt time.Time, forg, fr
 // Usually such JSON conatin about 15000 - 60000 singe GHA events
 // Boolean channel `ch` is used to synchronize go routines
 func getGHAJSON(ch chan bool, ctx *lib.Ctx, dt time.Time, forg map[string]struct{}, frepo map[string]struct{}) {
-	fmt.Printf("Working on %v\n", dt)
+	lib.Printf("Working on %v\n", dt)
 
 	// Connect to Postgres DB
 	con := lib.PgConn(ctx)
@@ -1444,30 +1443,30 @@ func getGHAJSON(ch chan bool, ctx *lib.Ctx, dt time.Time, forg map[string]struct
 	reader, err := gzip.NewReader(response.Body)
 	//lib.FatalOnError(err)
 	if err != nil {
-		fmt.Printf("%v: Error (no data yet, gzip reader):\n%v\n", dt, err)
+		lib.Printf("%v: Error (no data yet, gzip reader):\n%v\n", dt, err)
 		fmt.Fprintf(os.Stderr, "%v: Error (no data yet, gzip reader):\n%v\n", dt, err)
 		if ch != nil {
 			ch <- true
 		}
 		return
 	}
-	fmt.Printf("Opened %s\n", fn)
+	lib.Printf("Opened %s\n", fn)
 	defer reader.Close()
 	jsonsBytes, err := ioutil.ReadAll(reader)
 	//lib.FatalOnError(err)
 	if err != nil {
-		fmt.Printf("%v: Error (no data yet, ioutil readall):\n%v\n", dt, err)
+		lib.Printf("%v: Error (no data yet, ioutil readall):\n%v\n", dt, err)
 		fmt.Fprintf(os.Stderr, "%v: Error (no data yet, ioutil readall):\n%v\n", dt, err)
 		if ch != nil {
 			ch <- true
 		}
 		return
 	}
-	fmt.Printf("Decompressed %s\n", fn)
+	lib.Printf("Decompressed %s\n", fn)
 
 	// Split JSON array into separate JSONs
 	jsonsArray := bytes.Split(jsonsBytes, []byte("\n"))
-	fmt.Printf("Splitted %s, %d JSONs\n", fn, len(jsonsArray))
+	lib.Printf("Splitted %s, %d JSONs\n", fn, len(jsonsArray))
 
 	// Process JSONs one by one
 	n, f, e := 0, 0, 0
@@ -1480,7 +1479,7 @@ func getGHAJSON(ch chan bool, ctx *lib.Ctx, dt time.Time, forg map[string]struct
 		f += fi
 		e += ei
 	}
-	fmt.Printf(
+	lib.Printf(
 		"Parsed: %s: %d JSONs, found %d matching, events %d\n",
 		fn, n, f, e,
 	)
@@ -1564,7 +1563,7 @@ func gha2db(args []string) {
 
 	// Get number of CPUs available
 	thrN := lib.GetThreadsNum(&ctx)
-	fmt.Printf(
+	lib.Printf(
 		"gha2db.go: Running (%v CPUs): %v - %v %v %v\n",
 		thrN, dFrom, dTo,
 		strings.Join(lib.StringsSetKeys(org), "+"),
@@ -1585,26 +1584,26 @@ func gha2db(args []string) {
 				chanPool = chanPool[1:]
 			}
 		}
-		fmt.Printf("Final threads join\n")
+		lib.Printf("Final threads join\n")
 		for _, ch := range chanPool {
 			<-ch
 		}
 	} else {
-		fmt.Printf("Using single threaded version\n")
+		lib.Printf("Using single threaded version\n")
 		for dt.Before(dTo) || dt.Equal(dTo) {
 			getGHAJSON(nil, &ctx, dt, org, repo)
 			dt = dt.Add(time.Hour)
 		}
 	}
 	// Finished
-	fmt.Printf("All done.\n")
+	lib.Printf("All done.\n")
 }
 
 func main() {
 	dtStart := time.Now()
 	// Required args
 	if len(os.Args) < 5 {
-		fmt.Printf(
+		lib.Printf(
 			"Arguments required: date_from_YYYY-MM-DD hour_from_HH date_to_YYYY-MM-DD hour_to_HH " +
 				"['org1,org2,...,orgN' ['repo1,repo2,...,repoN']]\n",
 		)
@@ -1612,5 +1611,5 @@ func main() {
 	}
 	gha2db(os.Args[1:])
 	dtEnd := time.Now()
-	fmt.Printf("Time: %v\n", dtEnd.Sub(dtStart))
+	lib.Printf("Time: %v\n", dtEnd.Sub(dtStart))
 }

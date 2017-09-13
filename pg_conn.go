@@ -14,7 +14,7 @@ import (
 func PgConn(ctx *Ctx) *sql.DB {
 	connectionString := "client_encoding=UTF8 host='" + ctx.PgHost + "' port=" + ctx.PgPort + " dbname='" + ctx.PgDB + "' user='" + ctx.PgUser + "' password='" + ctx.PgPass + "'"
 	if ctx.QOut {
-		fmt.Printf("ConnectString: %s\n", connectionString)
+		Printf("ConnectString: %s\n", connectionString)
 	}
 
 	con, err := sql.Open("postgres", connectionString)
@@ -30,9 +30,9 @@ func CreateTable(tdef string) string {
 // Outputs query info
 func queryOut(query string, args ...interface{}) {
 	if len(args) > 0 {
-		fmt.Printf("%v\n", args)
+		Printf("%v\n", args)
 	}
-	fmt.Printf("%s\n", query)
+	Printf("%s\n", query)
 }
 
 // QueryRowSQL executes given SQL on Postgres DB (and returns single row)

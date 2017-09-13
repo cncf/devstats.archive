@@ -1,7 +1,6 @@
 package gha2db
 
 import (
-	"fmt"
 	"os"
 	"strconv"
 	"time"
@@ -159,5 +158,5 @@ func (ctx *Ctx) Init() {
 
 // Print context contents
 func (ctx *Ctx) Print() {
-	fmt.Printf("Environment Context Dump\n%+v\n", ctx)
+	Printf("Environment Context Dump\n%+v\n", ctx)
 }

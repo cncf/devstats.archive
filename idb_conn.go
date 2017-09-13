@@ -38,7 +38,7 @@ func IDBNewPointWithErr(name string, tags map[string]string, fields map[string]i
 // QueryIDB - do InfluxDB query
 func QueryIDB(con client.Client, ctx *Ctx, query string) []client.Result {
 	if ctx.QOut {
-		fmt.Printf("%s\n", query)
+		Printf("%s\n", query)
 	}
 	q := client.Query{
 		Command:  query,

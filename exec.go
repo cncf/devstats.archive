@@ -2,7 +2,6 @@ package gha2db
 
 import (
 	"bytes"
-	"fmt"
 	"io"
 	"os"
 	"os/exec"
@@ -22,7 +21,7 @@ func ExecCommand(ctx *Ctx, cmdAndArgs []string, env map[string]string) {
 	command := cmdAndArgs[0]
 	arguments := cmdAndArgs[1:]
 	if ctx.CmdDebug > 0 {
-		fmt.Printf("%s\n", strings.Join(cmdAndArgs, " "))
+		Printf("%s\n", strings.Join(cmdAndArgs, " "))
 	}
 	cmd := exec.Command(command, arguments...)
 
@@ -34,9 +33,9 @@ func ExecCommand(ctx *Ctx, cmdAndArgs []string, env map[string]string) {
 		}
 		cmd.Env = newEnv
 		if ctx.CmdDebug > 0 {
-			fmt.Printf("Environment Override: %+v\n", env)
+			Printf("Environment Override: %+v\n", env)
 			if ctx.CmdDebug > 2 {
-				fmt.Printf("Full Environment: %+v\n", newEnv)
+				Printf("Full Environment: %+v\n", newEnv)
 			}
 		}
 	}
@@ -62,7 +61,7 @@ func ExecCommand(ctx *Ctx, cmdAndArgs []string, env map[string]string) {
 		buffer := make([]byte, pipeSize, pipeSize)
 		nBytes, e := stdOutPipe.Read(buffer)
 		for e == nil && nBytes > 0 {
-			fmt.Printf("%s", buffer[:nBytes])
+			Printf("%s", buffer[:nBytes])
 			nBytes, e = stdOutPipe.Read(buffer)
 		}
 		if e != io.EOF {
@@ -79,12 +78,12 @@ func ExecCommand(ctx *Ctx, cmdAndArgs []string, env map[string]string) {
 		if ctx.CmdDebug <= 1 {
 			outStr := stdOut.String()
 			if len(outStr) > 0 {
-				fmt.Printf("%v\n", outStr)
+				Printf("%v\n", outStr)
 			}
 		}
 		errStr := stdErr.String()
 		if len(errStr) > 0 {
-			fmt.Printf("STDERR:\n%v\n", errStr)
+			Printf("STDERR:\n%v\n", errStr)
 		}
 		FatalOnError(err)
 	}
@@ -93,11 +92,11 @@ func ExecCommand(ctx *Ctx, cmdAndArgs []string, env map[string]string) {
 	if ctx.CmdDebug > 1 {
 		errStr := stdErr.String()
 		if len(errStr) > 0 {
-			fmt.Printf("Errors:\n%v\n", errStr)
+			Printf("Errors:\n%v\n", errStr)
 		}
 	}
 	if ctx.CmdDebug > 0 {
 		dtEnd := time.Now()
-		fmt.Printf("%s ... %+v\n", strings.Join(cmdAndArgs, " "), dtEnd.Sub(dtStart))
+		Printf("%s ... %+v\n", strings.Join(cmdAndArgs, " "), dtEnd.Sub(dtStart))
 	}
 }
