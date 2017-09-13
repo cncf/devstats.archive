@@ -41,6 +41,7 @@ func copyContext(in *lib.Ctx) *lib.Ctx {
 		Explain:          in.Explain,
 		OldFormat:        in.OldFormat,
 		Exact:            in.Exact,
+		LogToDB:          in.LogToDB,
 	}
 	return &out
 }
@@ -143,6 +144,7 @@ func TestInit(t *testing.T) {
 		Explain:          false,
 		OldFormat:        false,
 		Exact:            false,
+		LogToDB:          true,
 	}
 
 	// Test cases
@@ -339,6 +341,15 @@ func TestInit(t *testing.T) {
 				t,
 				copyContext(&defaultContext),
 				map[string]interface{}{"Exact": true},
+			),
+		},
+		{
+			"Setting skip DB log mode mode",
+			map[string]string{"GHA2DB_SKIPLOG": "1"},
+			dynamicSetFields(
+				t,
+				copyContext(&defaultContext),
+				map[string]interface{}{"LogToDB": false},
 			),
 		},
 	}
