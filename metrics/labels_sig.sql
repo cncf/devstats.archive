@@ -15,4 +15,5 @@ where
 group by
   sig
 order by
-  cnt desc
+  cnt desc,
+  sig asc;
