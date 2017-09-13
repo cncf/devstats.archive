@@ -159,6 +159,7 @@ List of tables:
 - `gha_repos`: const, repos
 - `gha_teams`: variable, teams
 - `gha_teams_repositories`: variable, teams repositories connections
+- `gha_logs`: this is a table that holds all tools logs (unless `GHA2DB_SKIPLOG` is set)
 
 # Grafana dashboards
 
