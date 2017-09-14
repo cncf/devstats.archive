@@ -14,8 +14,8 @@ import (
 func PgConn(ctx *Ctx) *sql.DB {
 	connectionString := "client_encoding=UTF8 host='" + ctx.PgHost + "' port=" + ctx.PgPort + " dbname='" + ctx.PgDB + "' user='" + ctx.PgUser + "' password='" + ctx.PgPass + "'"
 	if ctx.QOut {
-    // Use fmt.Printf (not lib.Printf that logs to DB) here
-    // Avoid trying to log something to DB while connecting
+		// Use fmt.Printf (not lib.Printf that logs to DB) here
+		// Avoid trying to log something to DB while connecting
 		fmt.Printf("ConnectString: %s\n", connectionString)
 	}
 
@@ -34,9 +34,9 @@ func CreateTable(tdef string) string {
 
 // Outputs query info
 func queryOut(query string, args ...interface{}) {
-  // use fmt.Printf not lib.Printf here
-  // If we use lib.Printf (that logs to DB) while ouputting some query's parameters
-  // We would have infinite recurence
+	// use fmt.Printf not lib.Printf here
+	// If we use lib.Printf (that logs to DB) while ouputting some query's parameters
+	// We would have infinite recurence
 	if len(args) > 0 {
 		fmt.Printf("%v\n", args)
 	}

@@ -280,10 +280,13 @@ Main idea is that we divide tables into 2 groups:
 
 List of tables:
 - `gha_actors`: const, users table
+- `gha_actors_emails`: const, holds one or more email addresses for actors, this is filled by `./import_affs` tool.
+- `gha_actors_affiliations`: const, holds one or more company affiliations for actors, this is filled by `./import_affs` tool.
 - `gha_assets`: variable, assets
 - `gha_branches`: variable, branches data
 - `gha_comments`: variable (issue, PR, review)
 - `gha_commits`: variable, commits
+- `gha_companies`: const, companies, this is filled by `./import_affs` tool.
 - `gha_events`: const, single GitHub archive event
 - `gha_forkees`: variable, forkee, repo state
 - `gha_issues`: variable, issues
@@ -302,6 +305,7 @@ List of tables:
 - `gha_repos`: const, repos
 - `gha_teams`: variable, teams
 - `gha_teams_repositories`: variable, teams repositories connections
+- `gha_logs`: this is a table that holds all tools logs (unless `GHA2DB_SKIPLOG` is set)
 
 There is some data duplication in various columns. This is to speedup metrics processing.
 Such columns are described as "dup columns" in [structure.go](https://github.com/cncf/gha2db/blob/master/structure.go)
