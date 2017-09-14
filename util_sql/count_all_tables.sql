@@ -1,8 +1,11 @@
 select 'actors' as name, count(*) as count_value from gha_actors union
+select 'actors_emails' as name, count(*) as count_value from gha_actors_emails union
+select 'actors_affiliations' as name, count(*) as count_value from gha_actors_affiliations union
 select 'assets' as name, count(*) as count_value from gha_assets union
 select 'branches' as name, count(*) as count_value from gha_branches union
 select 'comments' as name, count(*) as count_value from gha_comments union
 select 'commits' as name, count(*) as count_value from gha_commits union
+select 'companies' as name, count(*) as count_value from gha_companies union
 select 'events' as name, count(*) as count_value from gha_events union
 select 'forkees' as name, count(*) as count_value from gha_forkees union
 select 'issues' as name, count(*) as count_value from gha_issues union
