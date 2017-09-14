@@ -57,8 +57,8 @@ func Printf(format string, args ...interface{}) (n int, err error) {
 		logCtxMutex.Unlock()
 	}
 	// Avoid query out on adding to logs itself
-  // it would print any text with its particular logs DB insert which
-  // would result in stdout mess
+	// it would print any text with its particular logs DB insert which
+	// would result in stdout mess
 	qOut := logCtx.ctx.QOut
 	logCtx.ctx.QOut = false
 	defer func() {

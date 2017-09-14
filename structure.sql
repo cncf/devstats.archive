@@ -40,11 +40,38 @@ SET default_with_oids = false;
 
 CREATE TABLE gha_actors (
     id bigint NOT NULL,
-    login character varying(120) NOT NULL
+    login character varying(120) NOT NULL,
+    name character varying(120)
 );
 
 
 ALTER TABLE gha_actors OWNER TO gha_admin;
+
+--
+-- Name: gha_actors_affiliations; Type: TABLE; Schema: public; Owner: gha_admin
+--
+
+CREATE TABLE gha_actors_affiliations (
+    actor_id bigint NOT NULL,
+    company_id bigint NOT NULL,
+    dt_from timestamp without time zone NOT NULL,
+    dt_to timestamp without time zone NOT NULL
+);
+
+
+ALTER TABLE gha_actors_affiliations OWNER TO gha_admin;
+
+--
+-- Name: gha_actors_emails; Type: TABLE; Schema: public; Owner: gha_admin
+--
+
+CREATE TABLE gha_actors_emails (
+    actor_id bigint NOT NULL,
+    email character varying(120) NOT NULL
+);
+
+
+ALTER TABLE gha_actors_emails OWNER TO gha_admin;
 
 --
 -- Name: gha_assets; Type: TABLE; Schema: public; Owner: gha_admin
@@ -145,6 +172,17 @@ CREATE TABLE gha_commits (
 
 
 ALTER TABLE gha_commits OWNER TO gha_admin;
+
+--
+-- Name: gha_companies; Type: TABLE; Schema: public; Owner: gha_admin
+--
+
+CREATE TABLE gha_companies (
+    name character varying(160) NOT NULL
+);
+
+
+ALTER TABLE gha_companies OWNER TO gha_admin;
 
 --
 -- Name: gha_events; Type: TABLE; Schema: public; Owner: gha_admin
@@ -645,6 +683,22 @@ ALTER TABLE ONLY gha_logs ALTER COLUMN id SET DEFAULT nextval('gha_logs_id_seq':
 
 
 --
+-- Name: gha_actors_affiliations gha_actors_affiliations_pkey; Type: CONSTRAINT; Schema: public; Owner: gha_admin
+--
+
+ALTER TABLE ONLY gha_actors_affiliations
+    ADD CONSTRAINT gha_actors_affiliations_pkey PRIMARY KEY (actor_id, company_id, dt_from, dt_to);
+
+
+--
+-- Name: gha_actors_emails gha_actors_emails_pkey; Type: CONSTRAINT; Schema: public; Owner: gha_admin
+--
+
+ALTER TABLE ONLY gha_actors_emails
+    ADD CONSTRAINT gha_actors_emails_pkey PRIMARY KEY (actor_id, email);
+
+
+--
 -- Name: gha_actors gha_actors_pkey; Type: CONSTRAINT; Schema: public; Owner: gha_admin
 --
 
@@ -682,6 +736,14 @@ ALTER TABLE ONLY gha_comments
 
 ALTER TABLE ONLY gha_commits
     ADD CONSTRAINT gha_commits_pkey PRIMARY KEY (sha, event_id);
+
+
+--
+-- Name: gha_companies gha_companies_pkey; Type: CONSTRAINT; Schema: public; Owner: gha_admin
+--
+
+ALTER TABLE ONLY gha_companies
+    ADD CONSTRAINT gha_companies_pkey PRIMARY KEY (name);
 
 
 --
@@ -837,10 +899,59 @@ ALTER TABLE ONLY gha_teams_repositories
 
 
 --
+-- Name: actors_affiliations_actor_id_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX actors_affiliations_actor_id_idx ON gha_actors_affiliations USING btree (actor_id);
+
+
+--
+-- Name: actors_affiliations_company_id_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX actors_affiliations_company_id_idx ON gha_actors_affiliations USING btree (company_id);
+
+
+--
+-- Name: actors_affiliations_dt_from_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX actors_affiliations_dt_from_idx ON gha_actors_affiliations USING btree (dt_from);
+
+
+--
+-- Name: actors_affiliations_dt_to_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX actors_affiliations_dt_to_idx ON gha_actors_affiliations USING btree (dt_to);
+
+
+--
+-- Name: actors_emails_actor_id_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX actors_emails_actor_id_idx ON gha_actors_emails USING btree (actor_id);
+
+
+--
+-- Name: actors_emails_email_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX actors_emails_email_idx ON gha_actors_emails USING btree (email);
+
+
+--
 -- Name: actors_login_idx; Type: INDEX; Schema: public; Owner: gha_admin
 --
 
 CREATE INDEX actors_login_idx ON gha_actors USING btree (login);
+
+
+--
+-- Name: actors_name_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX actors_name_idx ON gha_actors USING btree (name);
 
 
 --
@@ -1541,6 +1652,27 @@ CREATE INDEX issues_user_id_idx ON gha_issues USING btree (user_id);
 --
 
 CREATE INDEX labels_name_idx ON gha_labels USING btree (name);
+
+
+--
+-- Name: logs_dt_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX logs_dt_idx ON gha_logs USING btree (dt);
+
+
+--
+-- Name: logs_id_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX logs_id_idx ON gha_logs USING btree (id);
+
+
+--
+-- Name: logs_msg_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX logs_msg_idx ON gha_logs USING btree (msg);
 
 
 --
