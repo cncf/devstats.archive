@@ -72,6 +72,65 @@ func Structure(ctx *Ctx) {
 		ExecSQLWithErr(c, ctx, "create index actors_name_idx on gha_actors(name)")
 	}
 
+	// gha_actors_emails: this is filled by `import_affs` tool, that uses cncf/gitdm:github_users.json
+	if ctx.Table {
+		ExecSQLWithErr(c, ctx, "drop table if exists gha_actors_emails")
+		ExecSQLWithErr(
+			c,
+			ctx,
+			CreateTable(
+				"gha_actors_emails("+
+					"actor_id bigint not null, "+
+					"email varchar(120) not null, "+
+					"primary key(actor_id, email)"+
+					")",
+			),
+		)
+	}
+	if ctx.Index {
+		ExecSQLWithErr(c, ctx, "create index actors_emails_actor_id_idx on gha_actors_emails(actor_id)")
+		ExecSQLWithErr(c, ctx, "create index actors_emails_email_idx on gha_actors_emails(email)")
+	}
+
+	// gha_companies: this is filled by `import_affs` tool, that uses cncf/gitdm:github_users.json
+	if ctx.Table {
+		ExecSQLWithErr(c, ctx, "drop table if exists gha_companies")
+		ExecSQLWithErr(
+			c,
+			ctx,
+			CreateTable(
+				"gha_companies("+
+					"name varchar(160) not null, "+
+					"primary key(name)"+
+					")",
+			),
+		)
+	}
+
+	// gha_actors_affiliations: this is filled by `import_affs` tool, that uses cncf/gitdm:github_users.json
+	if ctx.Table {
+		ExecSQLWithErr(c, ctx, "drop table if exists gha_actors_affiliations")
+		ExecSQLWithErr(
+			c,
+			ctx,
+			CreateTable(
+				"gha_actors_affiliations("+
+					"actor_id bigint not null, "+
+					"company_id bigint not null, "+
+					"dt_from {{ts}} not null, "+
+					"dt_to {{ts}} not null, "+
+					"primary key(actor_id, company_id, dt_from, dt_to)"+
+					")",
+			),
+		)
+	}
+	if ctx.Index {
+		ExecSQLWithErr(c, ctx, "create index actors_affiliations_actor_id_idx on gha_actors_affiliations(actor_id)")
+		ExecSQLWithErr(c, ctx, "create index actors_affiliations_company_id_idx on gha_actors_affiliations(company_id)")
+		ExecSQLWithErr(c, ctx, "create index actors_affiliations_dt_from_idx on gha_actors_affiliations(dt_from)")
+		ExecSQLWithErr(c, ctx, "create index actors_affiliations_dt_to_idx on gha_actors_affiliations(dt_to)")
+	}
+
 	// gha_repos
 	// {"id:Fixnum"=>48592, "name:String"=>48592, "url:String"=>48592}
 	// {"id"=>8, "name"=>111, "url"=>140}
