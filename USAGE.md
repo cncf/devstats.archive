@@ -532,6 +532,17 @@ For now there is a manual script that can be used to loop sync every defined num
 
 Sync tool uses [gaps.yaml](https://github.com/cncf/gha2db/blob/master/metrics/gaps.yaml), to prefill some series with zeros. This is needed for metrics (like SIG mentions or PRs merged) that return > 0 count values.
 
+# Developers affiliations
+
+You need to get [github_users.json](https://raw.githubusercontent.com/cncf/gitdm/master/github_users.json) file from [CNCF/gitdm](https://github.com/cncf/gitdm).
+
+To generate this file follow instructions on cncf/gitdm, or just get the newest version.
+
+This file contains all GitHub user name - company affiliations found by cncf/gitdm.
+
+To load it into our database use:
+- `PG_PASS=pwd ./import_affs github_users.json`
+
 # Grafana output
 
 You can visualise data using Grafana, see [grafana/](https://github.com/cncf/gha2db/blob/master/grafana/) directory:
