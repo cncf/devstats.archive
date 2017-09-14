@@ -116,17 +116,17 @@ func Structure(ctx *Ctx) {
 			CreateTable(
 				"gha_actors_affiliations("+
 					"actor_id bigint not null, "+
-					"company_id bigint not null, "+
+					"company_name varchar(160) not null, "+
 					"dt_from {{ts}} not null, "+
 					"dt_to {{ts}} not null, "+
-					"primary key(actor_id, company_id, dt_from, dt_to)"+
+					"primary key(actor_id, company_name, dt_from, dt_to)"+
 					")",
 			),
 		)
 	}
 	if ctx.Index {
 		ExecSQLWithErr(c, ctx, "create index actors_affiliations_actor_id_idx on gha_actors_affiliations(actor_id)")
-		ExecSQLWithErr(c, ctx, "create index actors_affiliations_company_id_idx on gha_actors_affiliations(company_id)")
+		ExecSQLWithErr(c, ctx, "create index actors_affiliations_company_name_idx on gha_actors_affiliations(company_name)")
 		ExecSQLWithErr(c, ctx, "create index actors_affiliations_dt_from_idx on gha_actors_affiliations(dt_from)")
 		ExecSQLWithErr(c, ctx, "create index actors_affiliations_dt_to_idx on gha_actors_affiliations(dt_to)")
 	}

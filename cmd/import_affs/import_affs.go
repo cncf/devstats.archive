@@ -27,8 +27,11 @@ type GitHubUser struct {
 // StringSet - set of strings
 type StringSet map[string]struct{}
 
-// MapSet - this is a map from string to Set of strings
-type MapSet map[string]StringSet
+// MapStringSet - this is a map from string to Set of strings
+type MapStringSet map[string]StringSet
+
+// MapIntArray - this is a map form string to array of ints
+type MapIntArray map[string][]int
 
 // AffData - holds single affiliation data
 type AffData struct {
@@ -46,11 +49,12 @@ func emailDecode(line string) string {
 }
 
 // Search for given actor using his/her login
+// Returns first author found with maximum ID or sets ok=false when not found
 func findActor(db *sql.DB, ctx *lib.Ctx, login string) (actor lib.Actor, ok bool) {
 	rows := lib.QuerySQLWithErr(
 		db,
 		ctx,
-		fmt.Sprintf("select id, name from gha_actors where login=%s", lib.NValue(1)),
+		fmt.Sprintf("select id, name from gha_actors where login=%s order by id desc limit 1", lib.NValue(1)),
 		login,
 	)
 	defer rows.Close()
@@ -62,6 +66,25 @@ func findActor(db *sql.DB, ctx *lib.Ctx, login string) (actor lib.Actor, ok bool
 			actor.Name = *name
 		}
 		ok = true
+	}
+	lib.FatalOnError(rows.Err())
+	return
+}
+
+// Search for given actor ID(s) using His/Her login
+// Return list of actor IDs with that login
+func findActorIDs(db *sql.DB, ctx *lib.Ctx, login string) (actIDs []int) {
+	rows := lib.QuerySQLWithErr(
+		db,
+		ctx,
+		fmt.Sprintf("select id from gha_actors where login=%s", lib.NValue(1)),
+		login,
+	)
+	defer rows.Close()
+	var aid int
+	for rows.Next() {
+		lib.FatalOnError(rows.Scan(&aid))
+		actIDs = append(actIDs, aid)
 	}
 	lib.FatalOnError(rows.Err())
 	return
@@ -106,9 +129,9 @@ func importAffs(jsonFN string) {
 
 	// Process users affiliations
 	emptyVal := struct{}{}
-	loginEmails := make(MapSet)
-	loginNames := make(MapSet)
-	loginAffs := make(MapSet)
+	loginEmails := make(MapStringSet)
+	loginNames := make(MapStringSet)
+	loginAffs := make(MapStringSet)
 	eNames, eEmails, eAffs := 0, 0, 0
 	for _, user := range users {
 		// Email decode ! --> @
@@ -140,7 +163,7 @@ func importAffs(jsonFN string) {
 
 		// Affiliation
 		aff := user.Affiliation
-		if aff != "NotFound" {
+		if aff != "NotFound" && aff != "?" {
 			_, ok := loginAffs[login]
 			if !ok {
 				loginAffs[login] = StringSet{}
@@ -183,31 +206,36 @@ func importAffs(jsonFN string) {
 	lib.Printf("%d non-empty names, added actors: %d, updated actors: %d\n", len(loginNames), added, updated)
 
 	// Login - Email(s) 1:N
+	cacheActIDs := make(MapIntArray)
 	added, allEmails := 0, 0
 	for login, emails := range loginEmails {
+		actIDs := findActorIDs(con, &ctx, login)
+		if len(actIDs) < 1 {
+			// Can happen if user have github login but name = "" or null
+			// In that case previous loop by loginName didn't add such user
+			actIDs = append(actIDs, addActor(con, &ctx, login, ""))
+			added++
+		}
+		// Store given login's actor IDs in the case
+		cacheActIDs[login] = actIDs
 		for email := range emails {
-			actor, ok := findActor(con, &ctx, login)
-			if !ok {
-				// Can happen if user have github login but name = "" or null
-				// In that case previous loop by loginName didn't add such user
-				actor.ID = addActor(con, &ctx, login, "")
-				added++
-			}
 			// One actor can have multiple emails but...
 			// One email can also belong to multiple actors
 			// This happens when actor was first defined in pre-2015 era (so He/She have negative ID then)
 			// And then in new API era 2015+ that actor was active too (so He/Sha will
 			// have entry with valid GitHub actor_id > 0)
-			lib.ExecSQLWithErr(con, &ctx,
-				lib.InsertIgnore("into gha_actors_emails(actor_id, email) "+lib.NValues(2)),
-				lib.AnyArray{actor.ID, email}...,
-			)
-			allEmails++
+			for _, aid := range actIDs {
+				lib.ExecSQLWithErr(con, &ctx,
+					lib.InsertIgnore("into gha_actors_emails(actor_id, email) "+lib.NValues(2)),
+					lib.AnyArray{aid, email}...,
+				)
+				allEmails++
+			}
 		}
 	}
 	lib.Printf("%d emails lists, added actors: %d, all emails: %d\n", len(loginEmails), added, allEmails)
 
-	// Login - Affiliation should be 1:1
+	// Login - Affiliation should be 1:1, but it is sometimes 1:2 or 1:3
 	// There are some ambigous affiliations in github_users.json
 	// For such cases we're picking up the one with most entries
 	// And then if more than 1 with the same number of entries, then pick up first
@@ -251,7 +279,7 @@ func importAffs(jsonFN string) {
 		for _, aff := range affsAry {
 			var dtFrom, dtTo time.Time
 			ary := strings.Split(aff, " < ")
-			company := ary[0]
+			company := strings.TrimSpace(ary[0])
 			if len(ary) > 1 {
 				// "company < date" form
 				dtFrom = prevDate
@@ -271,7 +299,50 @@ func importAffs(jsonFN string) {
 		"%d affiliations, unique: %d, non-unique: %d, all user-company connections: %d\n",
 		len(loginAffs), unique, nonUnique, allAffs,
 	)
-	//fmt.Printf("%v %v [%v - %v]\n", login, company, dtFrom, dtTo)
+
+	// Add companies
+	for company := range companies {
+		lib.ExecSQLWithErr(con, &ctx,
+			lib.InsertIgnore("into gha_companies(name) "+lib.NValues(1)),
+			lib.AnyArray{company}...,
+		)
+	}
+	lib.Printf("Processed %d companies\n", len(companies))
+
+	// Add affiliations
+	added, cached, nonCached := 0, 0, 0
+	for _, aff := range affList {
+		login := aff.Login
+		// Check if we have that actor IDs cached
+		actIDs, ok := cacheActIDs[login]
+		if !ok {
+			actIDs = findActorIDs(con, &ctx, login)
+			if len(actIDs) < 1 {
+				// Can happen if user have github login but email = "" or null
+				// In that case previous loop by loginEmail didn't add such user
+				actIDs = append(actIDs, addActor(con, &ctx, login, ""))
+				added++
+			}
+			cacheActIDs[login] = actIDs
+			nonCached++
+		} else {
+			cached++
+		}
+		company := aff.Company
+		dtFrom := aff.From
+		dtTo := aff.To
+		for _, aid := range actIDs {
+			lib.ExecSQLWithErr(con, &ctx,
+				lib.InsertIgnore(
+					"into gha_actors_affiliations(actor_id, company_name, dt_from, dt_to) "+lib.NValues(4)),
+				lib.AnyArray{aid, company, dtFrom, dtTo}...,
+			)
+		}
+	}
+	lib.Printf(
+		"Processed %d affiliations, added %d actors, cache hit: %d, miss: %d\n",
+		len(affList), added, cached, nonCached,
+	)
 }
 
 func main() {

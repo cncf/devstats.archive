@@ -10,4 +10,5 @@ where
     having count(actor_id) > 1
   )
 order by
-  email asc;
+  email asc,
+  actor_id asc;

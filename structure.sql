@@ -53,7 +53,7 @@ ALTER TABLE gha_actors OWNER TO gha_admin;
 
 CREATE TABLE gha_actors_affiliations (
     actor_id bigint NOT NULL,
-    company_id bigint NOT NULL,
+    company_name character varying(160) NOT NULL,
     dt_from timestamp without time zone NOT NULL,
     dt_to timestamp without time zone NOT NULL
 );
@@ -687,7 +687,7 @@ ALTER TABLE ONLY gha_logs ALTER COLUMN id SET DEFAULT nextval('gha_logs_id_seq':
 --
 
 ALTER TABLE ONLY gha_actors_affiliations
-    ADD CONSTRAINT gha_actors_affiliations_pkey PRIMARY KEY (actor_id, company_id, dt_from, dt_to);
+    ADD CONSTRAINT gha_actors_affiliations_pkey PRIMARY KEY (actor_id, company_name, dt_from, dt_to);
 
 
 --
@@ -906,10 +906,10 @@ CREATE INDEX actors_affiliations_actor_id_idx ON gha_actors_affiliations USING b
 
 
 --
--- Name: actors_affiliations_company_id_idx; Type: INDEX; Schema: public; Owner: gha_admin
+-- Name: actors_affiliations_company_name_idx; Type: INDEX; Schema: public; Owner: gha_admin
 --
 
-CREATE INDEX actors_affiliations_company_id_idx ON gha_actors_affiliations USING btree (company_id);
+CREATE INDEX actors_affiliations_company_name_idx ON gha_actors_affiliations USING btree (company_name);
 
 
 --
