@@ -47,15 +47,25 @@ func logToDB(format string, args ...interface{}) (err error) {
 
 // Printf is a wrapper around Printf(...) that supports logging.
 func Printf(format string, args ...interface{}) (n int, err error) {
+	// Initialize context once
 	if logCtx == nil {
 		logCtxMutex.Lock()
 		if logCtx == nil {
 			logCtx = newLogContext()
 			fmt.Print("Initialized DB logs\n")
-			logToDB("%s", "Initialized DB logs")
 		}
 		logCtxMutex.Unlock()
 	}
+	// Avoid query out on adding to logs itself
+  // it would print any text with its particular logs DB insert which
+  // would result in stdout mess
+	qOut := logCtx.ctx.QOut
+	logCtx.ctx.QOut = false
+	defer func() {
+		logCtx.ctx.QOut = qOut
+	}()
+
+	// Actual logging to stdout & DB
 	n, err = fmt.Printf(format, args...)
 	err = logToDB(format, args...)
 	return

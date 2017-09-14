@@ -6,7 +6,6 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
-	"hash/fnv"
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -17,23 +16,6 @@ import (
 	lib "k8s.io/test-infra/gha2db"
 )
 
-func hashStrings(strs []string) int {
-	h := fnv.New64a()
-	s := ""
-	for _, str := range strs {
-		s += str
-	}
-	h.Write([]byte(s))
-	res := int(h.Sum64())
-	if res > 0 {
-		res *= -1
-	}
-	if res == -0x8000000000000000 {
-		return hashStrings(append(strs, "a"))
-	}
-	return res
-}
-
 // Inserts single GHA Actor
 func ghaActor(con *sql.Tx, ctx *lib.Ctx, actor *lib.Actor) {
 	// gha_actors
@@ -43,8 +25,8 @@ func ghaActor(con *sql.Tx, ctx *lib.Ctx, actor *lib.Actor) {
 	lib.ExecSQLTxWithErr(
 		con,
 		ctx,
-		lib.InsertIgnore("into gha_actors(id, login) "+lib.NValues(2)),
-		lib.AnyArray{actor.ID, actor.Login}...,
+		lib.InsertIgnore("into gha_actors(id, login, name) "+lib.NValues(3)),
+		lib.AnyArray{actor.ID, actor.Login, ""}...,
 	)
 }
 
@@ -297,7 +279,7 @@ func lookupLabel(con *sql.Tx, ctx *lib.Ctx, name string, color string) int {
 	}
 	lib.FatalOnError(rows.Err())
 	if lid == 0 {
-		lid = hashStrings([]string{name, color})
+		lid = lib.HashStrings([]string{name, color})
 	}
 	return lid
 }
@@ -318,7 +300,7 @@ func lookupActor(db *sql.DB, ctx *lib.Ctx, login string) int {
 	}
 	lib.FatalOnError(rows.Err())
 	if aid == 0 {
-		aid = hashStrings([]string{login})
+		aid = lib.HashStrings([]string{login})
 	}
 	return aid
 }
@@ -339,7 +321,7 @@ func lookupActorTx(con *sql.Tx, ctx *lib.Ctx, login string) int {
 	}
 	lib.FatalOnError(rows.Err())
 	if aid == 0 {
-		aid = hashStrings([]string{login})
+		aid = lib.HashStrings([]string{login})
 	}
 	return aid
 }
@@ -829,7 +811,7 @@ func writeToDBOldFmt(db *sql.DB, ctx *lib.Ctx, eventID string, ev *lib.EventOld)
 	// Organization
 	if repository.Organization != nil {
 		if oid == nil {
-			h := hashStrings([]string{*repository.Organization})
+			h := lib.HashStrings([]string{*repository.Organization})
 			oid = &h
 		}
 		ghaOrg(db, ctx, &lib.Org{ID: *oid, Login: *repository.Organization})
@@ -1397,7 +1379,7 @@ func parseJSON(con *sql.DB, ctx *lib.Ctx, jsonStr []byte, dt time.Time, forg, fr
 	}
 	if repoHit(ctx.Exact, fullName, forg, frepo) {
 		if ctx.OldFormat {
-			eid = fmt.Sprintf("%v", hashStrings([]string{hOld.Type, hOld.Actor, hOld.Repository.Name, lib.ToYMDHMSDate(hOld.CreatedAt)}))
+			eid = fmt.Sprintf("%v", lib.HashStrings([]string{hOld.Type, hOld.Actor, hOld.Repository.Name, lib.ToYMDHMSDate(hOld.CreatedAt)}))
 		} else {
 			eid = h.ID
 		}
