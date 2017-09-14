@@ -66,6 +66,16 @@ func firstKey(strMap stringSet) string {
 	return ""
 }
 
+// Adds non-existing actor
+func addActor(con *sql.DB, ctx *lib.Ctx, login, name string) int {
+	aid := lib.HashStrings([]string{login})
+	lib.ExecSQLWithErr(con, ctx,
+		"insert into gha_actors(id, login, name) "+lib.NValues(3),
+		lib.AnyArray{aid, login, name}...,
+	)
+	return aid
+}
+
 // Imports given JSON file.
 func importAffs(jsonFN string) {
 	// Environment context parse
@@ -103,6 +113,7 @@ func importAffs(jsonFN string) {
 			}
 			loginEmails[login][email] = emptyVal
 		}
+
 		// Name
 		name := user.Name
 		if name != "" {
@@ -112,6 +123,7 @@ func importAffs(jsonFN string) {
 			}
 			loginNames[login][name] = emptyVal
 		}
+
 		// Affiliation
 		aff := user.Affiliation
 		if aff != "NotFound" {
@@ -122,8 +134,13 @@ func importAffs(jsonFN string) {
 			loginAffs[login][aff] = emptyVal
 		}
 	}
+	lib.Printf(
+		"Processing non-empty: %d names, %d emails lists and %d affiliations lists\n",
+		len(loginNames), len(loginEmails), len(loginAffs),
+	)
 
 	// Login - Names should be 1:1
+	added, updated := 0, 0
 	for login, names := range loginNames {
 		if len(names) > 1 {
 			lib.FatalOnError(fmt.Errorf("login has multiple names: %v: %+v\n", login, names))
@@ -133,29 +150,45 @@ func importAffs(jsonFN string) {
 		actor, ok := findActor(con, &ctx, login)
 		if !ok {
 			// If no such actor, add with artificial ID (just like data from pre-2015)
-			aid := lib.HashStrings([]string{login})
-			lib.ExecSQLWithErr(con, &ctx,
-				"insert into gha_actors(id, login, name) "+lib.NValues(3),
-				lib.AnyArray{aid, login, name}...,
-			)
+			addActor(con, &ctx, login, name)
+			added++
 		} else if name != actor.Name {
 			// If actor found, but with different name (actually with name == "" after standard GHA import), update name
 			// Because there can be the same actor (by id) with different IDs (pre-2015 and post 2015), update His/Her name
 			// for all records with this login
-			fmt.Printf("Need to update name login=%v -> aid=%v (%v != %v)\n", login, actor.ID, name, actor.Name)
 			lib.ExecSQLWithErr(con, &ctx,
 				"update gha_actors set name="+lib.NValue(1)+" where login="+lib.NValue(2),
 				lib.AnyArray{name, login}...,
 			)
+			updated++
 		}
 	}
+	lib.Printf("%d non-empty names, added actors: %d, updated actors: %d\n", len(loginNames), added, updated)
 
 	// Login - Email(s) 1:N
+	added, allEmails := 0, 0
 	for login, emails := range loginEmails {
 		for email := range emails {
-			_, _ = login, email
+			actor, ok := findActor(con, &ctx, login)
+			if !ok {
+				// Can happen if user have github login but name = "" or null
+				// In that case previous loop by loginName didn't add such user
+				actor.ID = addActor(con, &ctx, login, "")
+				added++
+			}
+			// One actor can have multiple emails but...
+			// One email can also belong to multiple actors
+			// This happens when actor was first defined in pre-2015 era (so He/She have negative ID then)
+			// And then in new API era 2015+ that actor was active too (so He/Sha will
+			// have entry with valid GitHub actor_id > 0)
+			lib.ExecSQLWithErr(con, &ctx,
+				lib.InsertIgnore("into gha_actors_emails(actor_id, email) "+lib.NValues(2)),
+				lib.AnyArray{actor.ID, email}...,
+			)
+			allEmails++
 		}
 	}
+	lib.Printf("%d emails lists, added actors: %d, all emails: %d\n", len(loginEmails), added, allEmails)
 
 	// Login - Affiliation should be 1:1
 	// There are some ambigous affiliations in github_users.json
