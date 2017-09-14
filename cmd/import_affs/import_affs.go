@@ -43,7 +43,6 @@ type AffData struct {
 
 // decode emails with ! instead of @
 func emailDecode(line string) string {
-	//line.gsub(/[^\s!]+![^\s!]+/) { |email| email.sub('!', '@') }
 	re := regexp.MustCompile(`([^\s!]+)!([^\s!]+)`)
 	return re.ReplaceAllString(line, `$1@$2`)
 }
