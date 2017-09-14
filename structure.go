@@ -61,13 +61,15 @@ func Structure(ctx *Ctx) {
 			CreateTable(
 				"gha_actors("+
 					"id bigint not null primary key, "+
-					"login varchar(120) not null"+
+					"login varchar(120) not null, "+
+					"name varchar(120)"+
 					")",
 			),
 		)
 	}
 	if ctx.Index {
 		ExecSQLWithErr(c, ctx, "create index actors_login_idx on gha_actors(login)")
+		ExecSQLWithErr(c, ctx, "create index actors_name_idx on gha_actors(name)")
 	}
 
 	// gha_repos
