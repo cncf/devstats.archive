@@ -37,20 +37,33 @@ func emailDecode(line string) string {
 }
 
 // Search for given actor using his/her login
-func findActor(db *sql.DB, ctx *lib.Ctx, login string) (aid int, ok bool) {
+func findActor(db *sql.DB, ctx *lib.Ctx, login string) (actor lib.Actor, ok bool) {
 	rows := lib.QuerySQLWithErr(
 		db,
 		ctx,
-		fmt.Sprintf("select id from gha_actors where login=%s", lib.NValue(1)),
+		fmt.Sprintf("select id, name from gha_actors where login=%s", lib.NValue(1)),
 		login,
 	)
 	defer rows.Close()
+	var name *string
 	for rows.Next() {
-		lib.FatalOnError(rows.Scan(&aid))
+		lib.FatalOnError(rows.Scan(&actor.ID, &name))
+		actor.Login = login
+		if name != nil {
+			actor.Name = *name
+		}
 		ok = true
 	}
 	lib.FatalOnError(rows.Err())
 	return
+}
+
+// returns first value from stringSet
+func firstKey(strMap stringSet) string {
+	for key := range strMap {
+		return key
+	}
+	return ""
 }
 
 // Imports given JSON file.
@@ -115,12 +128,32 @@ func importAffs(jsonFN string) {
 		if len(names) > 1 {
 			lib.FatalOnError(fmt.Errorf("login has multiple names: %v: %+v\n", login, names))
 		}
+		name := firstKey(names)
+		// Try to find actor by login
+		actor, ok := findActor(con, &ctx, login)
+		if !ok {
+			// If no such actor, add with artificial ID (just like data from pre-2015)
+			aid := lib.HashStrings([]string{login})
+			lib.ExecSQLWithErr(con, &ctx,
+				"insert into gha_actors(id, login, name) "+lib.NValues(3),
+				lib.AnyArray{aid, login, name}...,
+			)
+		} else if name != actor.Name {
+			// If actor found, but with different name (actually with name == "" after standard GHA import), update name
+			// Because there can be the same actor (by id) with different IDs (pre-2015 and post 2015), update His/Her name
+			// for all records with this login
+			fmt.Printf("Need to update name login=%v -> aid=%v (%v != %v)\n", login, actor.ID, name, actor.Name)
+			lib.ExecSQLWithErr(con, &ctx,
+				"update gha_actors set name="+lib.NValue(1)+" where login="+lib.NValue(2),
+				lib.AnyArray{name, login}...,
+			)
+		}
 	}
 
 	// Login - Email(s) 1:N
 	for login, emails := range loginEmails {
 		for email := range emails {
-			fmt.Printf("%v - %v\n", login, email)
+			_, _ = login, email
 		}
 	}
 
@@ -130,8 +163,8 @@ func importAffs(jsonFN string) {
 	// And then if more than 1 with the same number of entries, then pick up first
 	for login, affs := range loginAffs {
 		if len(affs) > 1 {
-			fmt.Printf("%v: %+v\n", login, affs)
 		}
+		_, _ = login, affs
 	}
 }
 

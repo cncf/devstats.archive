@@ -112,9 +112,12 @@ type Repo struct {
 }
 
 // Actor - GHA Actor structure
+// Name is unexported and not used by JSON load/save
+// But is used when importing affiliations from cncf/gitdm:github_users.json
 type Actor struct {
 	ID    int    `json:"id"`
 	Login string `json:"login"`
+	Name  string `json:"-"`
 }
 
 // Org - GHA Org structure
