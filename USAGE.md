@@ -306,6 +306,9 @@ List of tables:
 - `gha_teams`: variable, teams
 - `gha_teams_repositories`: variable, teams repositories connections
 - `gha_logs`: this is a table that holds all tools logs (unless `GHA2DB_SKIPLOG` is set)
+- `gha_texts`: this is a compute table, that contains texts from comments, commits, issues and pull requests, updated by sync and structure tools
+- `gha_issues_pull_requests`: this is a compute table that contains PRs and issues connections, updated by sync and structure tools
+- `gha_issues_events_labels`: this is a compute table, that contains shortcuts to issues labels (for metrics speedup), updated by sync and structure tools
 
 There is some data duplication in various columns. This is to speedup metrics processing.
 Such columns are described as "dup columns" in [structure.go](https://github.com/cncf/gha2db/blob/master/structure.go)
