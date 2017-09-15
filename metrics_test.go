@@ -48,7 +48,6 @@ func TestMetrics(t *testing.T) {
 			metric:   "reviewers",
 			from:     ft(2017, 6),
 			to:       ft(2017, 7, 12, 23),
-			debugDB:  false,
 			expected: [][]interface{}{{3}},
 		},
 		{
@@ -124,7 +123,7 @@ func TestMetrics(t *testing.T) {
 			expected: [][]interface{}{
 				{
 					"median_open_to_lgtm,median_lgtm_to_approve,median_approve_to_merge," +
-						"percentile_75_open_to_lgtm,percentile_75_lgtm_to_approve,percentile_75_approve_to_merge",
+						"percentile_85_open_to_lgtm,percentile_85_lgtm_to_approve,percentile_85_approve_to_merge",
 					144, 120, 216,
 					264, 168, 288,
 				},
@@ -168,6 +167,18 @@ func TestMetrics(t *testing.T) {
 				{"sig1_kind1", 2},
 				{"sig1_kind2", 1},
 				{"sig2_kind2", 1},
+			},
+		},
+		{
+			setup:  setupAffiliationsMetric,
+			metric: "company_activity",
+			from:   ft(2017, 9),
+			to:     ft(2017, 10),
+			expected: [][]interface{}{
+				{"company3;activity,authors,issues,prs,commits,review_comments,issue_comments,commit_comments,comments", 144, 3, 24, 24, 24, 24, 24, 24, 72},
+				{"company1;activity,authors,issues,prs,commits,review_comments,issue_comments,commit_comments,comments", 360, 2, 60, 60, 60, 60, 60, 60, 180},
+				{"company2;activity,authors,issues,prs,commits,review_comments,issue_comments,commit_comments,comments", 108, 2, 18, 18, 18, 18, 18, 18, 54},
+				{"company4;activity,authors,issues,prs,commits,review_comments,issue_comments,commit_comments,comments", 96, 2, 16, 16, 16, 16, 16, 16, 48},
 			},
 		},
 	}
@@ -316,6 +327,22 @@ func addEvent(con *sql.DB, ctx *lib.Ctx, args ...interface{}) (err error) {
 		"insert into gha_events("+
 			"id, type, actor_id, repo_id, public, created_at, "+
 			"dup_actor_login, dup_repo_name, org_id) "+lib.NValues(9),
+		args...,
+	)
+	return
+}
+
+// Add actor affiliation
+// actor_id, company_name, dt_from, dt_to
+func addActorAffiliation(con *sql.DB, ctx *lib.Ctx, args ...interface{}) (err error) {
+	if len(args) != 4 {
+		err = fmt.Errorf("addActorAffiliation: expects 4 variadic parameters")
+		return
+	}
+	_, err = lib.ExecSQL(
+		con,
+		ctx,
+		"insert into gha_actors_affiliations(actor_id, company_name, dt_from, dt_to) "+lib.NValues(4),
 		args...,
 	)
 	return
@@ -507,6 +534,79 @@ func addIssuePR(con *sql.DB, ctx *lib.Ctx, args ...interface{}) (err error) {
 			") "+lib.NValues(6),
 		args...,
 	)
+	return
+}
+
+// Create data for affiliations metric
+func setupAffiliationsMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
+	ft := testlib.YMDHMS
+
+	// Activities counted
+	etypes := []string{
+		"PullRequestReviewCommentEvent",
+		"PushEvent",
+		"PullRequestEvent",
+		"IssuesEvent",
+		"IssueCommentEvent",
+		"CommitCommentEvent",
+	}
+
+	// Date ranges (two dates are outside metric area)
+	dates := []time.Time{}
+	dt := ft(2017, 8, 31)
+	dtTo := ft(2017, 10, 2)
+	for dt.Before(dtTo) || dt.Equal(dtTo) {
+		dates = append(dates, dt)
+		dt = lib.NextDayStart(dt)
+	}
+
+	// Will hold all events generated
+	events := [][]interface{}{}
+	eid := 1
+	for _, aid := range []string{"1", "2", "3"} {
+		for _, etype := range etypes {
+			for _, dt := range dates {
+				// Events to add
+				// eid, etype, aid, rid, public, created_at, aname, rname, orgid
+				events = append(events, []interface{}{eid, etype, aid, 0, true, dt, "A" + aid, "R", nil})
+				eid++
+			}
+		}
+	}
+
+	// Affiliations to add
+	// actor_id, company_name, dt_from, dt_to
+	// We have 3 authors that works for 4 companies in different time ranges
+	// Metric only count companies with > 1 authors and with all other activities > 0
+	affiliations := [][]interface{}{
+		{1, "company1", ft(2000), ft(2017, 10, 10)},
+		{1, "company2", ft(2017, 9, 10), ft(2017, 9, 20)},
+		{1, "company3", ft(2017, 9, 20), ft(2020)},
+		{2, "company1", ft(2000), ft(2017, 10, 7)},
+		{2, "company2", ft(2017, 9, 7), ft(2017, 9, 15)},
+		{2, "company3", ft(2017, 9, 15), ft(2017, 9, 22)},
+		{2, "company4", ft(2017, 9, 22), ft(2020)},
+		{3, "company2", ft(2017, 9, 12), ft(2017, 9, 12)},
+		{3, "company3", ft(2017, 9, 18), ft(2017, 9, 24)},
+		{3, "company4", ft(2017, 9, 24), ft(2020)},
+	}
+
+	// Add events
+	for _, event := range events {
+		err = addEvent(con, ctx, event...)
+		if err != nil {
+			return
+		}
+	}
+
+	// Add affiliations
+	for _, affiliation := range affiliations {
+		err = addActorAffiliation(con, ctx, affiliation...)
+		if err != nil {
+			return
+		}
+	}
+
 	return
 }
 
