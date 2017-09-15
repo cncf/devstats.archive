@@ -8,6 +8,7 @@ This is a toolset to visualize GitHub [archives](https://www.githubarchive.org/)
 
 We want to create a toolset for visualizing various metrics for the Kubernetes community.
 Everything is open source so that it can be used by other CNCF and non-CNCF open source projects.
+The only requirement is that project must be hosted on a public GitHub repositor/repositories.
 The work builds on the [Velodrome](https://github.com/kubernetes/test-infra/tree/master/velodrome) tool that was built by [apelisse](https://github.com/apelisse) and others.
 
 This project aims to add new metrics for the existing Grafana dashboards.
@@ -39,16 +40,16 @@ Our approach is to use GitHub archives instead. The possible alternatives are:
 
 3) GitHub archives
 - All GitHub events are packed into multi-json gzipped files each hour and made available from [Github Archive](https://www.githubarchive.org/). To use this data, you need to extract all hours (since the Kubernetes project started) and filter out all data except for events from the 3 kubernetes organizations ([kubernetes](https://github.com/kubernetes), [kubernetes-incubator](https://github.com/kubernetes-incubator), and [kubernetes-client](https://github.com/kubernetes-client).
-- This is a lot of data to process, but you have all possible GitHub events in the past, processing 2 years of this data takes 2 hours, but this must only be done once and then the processed results are available for other's use.
+- This is a lot of data to process, but you have all possible GitHub events in the past, processing more than 3 years of this data takes about 2-2,5 hours, but this must only be done once and then the processed results are available for other's use.
 - You have a lot of data in a single file, that can be processed/filtered in memory.
 - You are getting all possible events, and all of them include the current state of PRs, issues, repos at given point in time.
 - Processing of GitHub archives is free, so local development is easy.
+- GitHub archives format changed in 2015-01-01, so it is using older format (pre-2015) before that date, and newer after. For details please see [USAGE.md](https://github.com/cncf/gha2db/blob/master/USAGE.md), specially `GHA2DB_OLDFMT` environment variable.
 - I have 1.2M events in my Psql database, and each event contains quite complex structure, I would estimate about 3-6 GitHub API calls are needed to get that data. It means about 7M API calls.
 - 7.2M / 5K (API limit per hour) gives 1440 hours which is 2 months. And we're on GitHub API limit all the time. Processing ALL GitHub events takes about 2 hours without ANY limit.
 - You can optionally save downloaded JSONs to avoid network traffic in next calls (also usable for local development mode).
-- There is already implemented proof of concept (POC), please see usage here [USAGE](https://github.com/cncf/gha2db/blob/master/USAGE.md)
-- POC is implemented in Go.
-- It implements 5 example metrics: Reviewers, SIG mentions, PRs merged per repo, PRs merged in all repos, Time to merge, please see [Dashboards](https://cncftest.io/?orgId=1)
+- There is an already implemented version in Go, please see usage here [USAGE](https://github.com/cncf/gha2db/blob/master/USAGE.md)
+- Dashboards can be displayed here [link](https://cncftest.io/?orgId=1)
 
 # Proposed architecture
 
@@ -76,7 +77,7 @@ Our architecture is quite similar, but we're getting all possible GitHub data fo
 - We have all historical data from all possible GitHub events and summary values for repositories at given points of time.
 - The idea is to divide all data into two categories: `const` and `variable`. Const data is a data that is not changing in time, variable data is a data that changes in time, so `event_id` is added as a part of this data primary key.
 - Table structure, `const` and `variable` description can be found in [USAGE](https://github.com/cncf/gha2db/blob/master/USAGE.md)
-- The program can be parallelized very easy (events are distinct in different hours, so each hour can be processed by other CPU), POC uses 48 CPUs on cncftest.io.
+- The program can be parallelized very easy (events are distinct in different hours, so each hour can be processed by other CPU), uses 48 CPUs on cncftest.io.
 
 3) `db2influx` (computes metrics given as SQL files to be run on Postgres and saves time series output to InfluxDB)
 - [db2influx](https://github.com/cncf/gha2db/blob/master/cmd/db2influx/db2influx.go)
@@ -96,9 +97,14 @@ Our architecture is quite similar, but we're getting all possible GitHub data fo
 - This tool also supports initial computing of All InfluxDB data (instead of default update since last run).
 - It will be called from cron job at least every 45 minutes - GitHub archive publishes new file every hour, so we're off by at most 1 hour.
 
-5) Additional stuff, most important being `runq` tool.
+5) Additional stuff, most important being `runq`  and `import_affs` tools.
 - [runq](https://github.com/cncf/gha2db/blob/master/cmd/runq/runq.go)
 - `runq` gets SQL file name and parameter values and allows to run metric manually from the command line (this is for local development)
+- [import_affs](https://github.com/cncf/gha2db/blob/master/cmd/import_affs/import_affs.go)
+- `import_affs` takes one parameter - JSON file name (this is a file from [cncf/gitdm](https://github.com/cncf/gitdm): [github_users.json](https://raw.githubusercontent.com/cncf/gitdm/master/github_users.json)
+- This tools imports GitHub user names (in addition to logins from GHA) and creates developers - companies affiliations (that can be used by [Companies velocity](https://cncftest.io/dashboard/db/companies-velocity?orgId=1) metric)
+- [z2influx](https://github.com/cncf/gha2db/blob/master/cmd/z2influx/z2influx.go)
+- `z2influx` is used to fill gaps that can occur for metrics that returns multiple columns and rows, but number of rows depends on date range, it uses [gaps.yaml](https://github.com/cncf/gha2db/blob/master/metrics/gaps.yaml) file to define which metrics should be zero filled.
 - There are few shell scripts for example: running sync every N seconds, setup InfluxDB etc.
 
 Detailed usage is here [USAGE](https://github.com/cncf/gha2db/blob/master/USAGE.md)
@@ -116,17 +122,18 @@ Then we can just add new dashboards that use my `gha2db`/`db2influx` workflow in
 To add new metrics we need to:
 1) Define parameterized SQL (with `{{from}}` and `{{to}}` params) that returns this metric data.
 2) Add `db2influx` call for this metric in `sync` tool. 
-3) Add test coverage in [metrics_test.go](https://github.com/cncf/gha2db/blob/master/metrics_test.go).
-4) Add Grafana dashboard or row that displays this metric
-5) Export new Grafana dashboard to JSON
-6) Create PR for the new metric.
-7) Explain how metrics SQLs works in USAGE.md (currently this is pending for all metrics defined so far)
+3) If metrics create data gaps (for example returns multipe rows with different counts depending on data range), add automatic filling gaps in [gaps.yaml](https://github.com/cncf/gha2db/blob/master/metrics/gaps.yaml) (file is used by `z2influx` tool).
+4) Add test coverage in [metrics_test.go](https://github.com/cncf/gha2db/blob/master/metrics_test.go).
+5) Add Grafana dashboard or row that displays this metric
+6) Export new Grafana dashboard to JSON
+7) Create PR for the new metric.
+8) Explain how metrics SQLs works in USAGE.md (currently this is pending for all metrics defined so far)
 
 # Local development
 Local development is much easier:
 1) Install psql, influx, grafana - all with default options.
 2) Fetch populated psql database [Postgres database dump](https://cncftest.io/web/k8s.sql.xz)
-3) Just run Go tools manually: `structure`, `gha2db`, `db2influx`, `sync`, `runq`.
+3) Just run Go tools manually: `structure`, `gha2db`, `db2influx`, `sync`, `runq`, `z2influx`, `import_affs`.
 4) Run tests locally, plaese see [testing](https://github.com/cncf/gha2db/blob/master/TESTING.md)
 
 # Database structure details
@@ -134,6 +141,7 @@ Local development is much easier:
 The main idea is that we divide tables into 2 groups:
 - const: meaning that data in this table is not changing in time (is saved once)
 - variable: meaning that data in those tables can change between GH events, and GH `event_id` is a part of this tables primary key.
+- there are also "compute" tables that are auto-updated by `sync`/`structure` tools and affiliations table that are filled by `import_affs` tool.
 
 List of tables:
 - `gha_actors`: const, users table
@@ -196,5 +204,5 @@ Ruby version was dropped, but You can see benchmarks of Ruby using MySQL, Ruby u
 
 [Benchmarks](https://github.com/cncf/gha2db/blob/master/BENCHMARK.md)
 
-In summary: Go version can import all GitHub archives data (not discarding anything) for all Kubernetes orgs/repos, from the beginning on GitHub 2015-08-06 in about 2 hours!
+In summary: Go version can import all GitHub archives data (not discarding anything) for all Kubernetes orgs/repos, from the beginning on GitHub 2014-06-01 in about 2-2,5 hours!
 
