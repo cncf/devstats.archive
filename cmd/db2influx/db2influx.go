@@ -12,6 +12,33 @@ import (
 	lib "k8s.io/test-infra/gha2db"
 )
 
+// Returns companyActivity series names array
+func companyActivity(name, period string) (result []string) {
+	ary := strings.Split(name, ";")
+	r := strings.NewReplacer("-", "_", "/", "_", ".", "_", " ", "_")
+	company := r.Replace(strings.ToLower(strings.TrimSpace(lib.StripUnicode(ary[0]))))
+	if company == "" {
+		lib.Printf("WARNING: company '%v' maps to empty string, skipping\n", ary[0])
+		return
+	}
+	splitted := strings.Split(ary[1], ",")
+	for _, str := range splitted {
+		result = append(result, fmt.Sprintf("company_%s_%s_%s", company, str, period))
+	}
+	return
+}
+
+// Return default series names from multi column result
+// It takes name "a,b,c,d,...,z" and period for example "q"
+// and returns array [a_q, b_q, c_q, .., z_q]
+func defaultMultiColumn(name, period string) (result []string) {
+	splitted := strings.Split(name, ",")
+	for _, str := range splitted {
+		result = append(result, str+"_"+period)
+	}
+	return
+}
+
 // Generate name for given series row and period
 func nameForMetricsRow(metric, name, period string) []string {
 	switch metric {
@@ -30,13 +57,10 @@ func nameForMetricsRow(metric, name, period string) []string {
 	case "prs_merged_data":
 		r := strings.NewReplacer("-", "_", "/", "_", ".", "_")
 		return []string{fmt.Sprintf("prs_%s_%s", r.Replace(name), period)}
+	case "company_activity":
+		return companyActivity(name, period)
 	case "default_multi_column":
-		splitted := strings.Split(name, ",")
-		var result []string
-		for _, str := range splitted {
-			result = append(result, str+"_"+period)
-		}
-		return result
+		return defaultMultiColumn(name, period)
 	default:
 		lib.Printf("Error\nUnknown metric '%v'\n", metric)
 		fmt.Fprintf(os.Stdout, "Error\nUnknown metric '%v'\n", metric)
@@ -134,22 +158,24 @@ func workerThread(ch chan bool, ctx *lib.Ctx, seriesNameOrFunc, sqlQuery, period
 			// First column should contain nColumns - 1 names separated by ","
 			name := string(*pValues[0].(*sql.RawBytes))
 			names := nameForMetricsRow(seriesNameOrFunc, name, period)
-			// Iterate values
-			pFloats := pValues[1:]
-			for idx, pVal := range pFloats {
-				if pVal != nil {
-					value, _ = strconv.ParseFloat(string(*pVal.(*sql.RawBytes)), 64)
-				} else {
-					value = 0.0
+			if len(names) > 0 {
+				// Iterate values
+				pFloats := pValues[1:]
+				for idx, pVal := range pFloats {
+					if pVal != nil {
+						value, _ = strconv.ParseFloat(string(*pVal.(*sql.RawBytes)), 64)
+					} else {
+						value = 0.0
+					}
+					name = names[idx]
+					if ctx.Debug > 0 {
+						lib.Printf("%v - %v -> %v: %v, %v\n", from, to, idx, name, value)
+					}
+					// Add batch point
+					fields := map[string]interface{}{"value": value}
+					pt := lib.IDBNewPointWithErr(name, nil, fields, from)
+					bp.AddPoint(pt)
 				}
-				name = names[idx]
-				if ctx.Debug > 0 {
-					lib.Printf("%v - %v -> %v: %v, %v\n", from, to, idx, name, value)
-				}
-				// Add batch point
-				fields := map[string]interface{}{"value": value}
-				pt := lib.IDBNewPointWithErr(name, nil, fields, from)
-				bp.AddPoint(pt)
 			}
 		}
 		lib.FatalOnError(rows.Err())
