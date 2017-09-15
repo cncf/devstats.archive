@@ -182,6 +182,7 @@ Each dashboard is defined by its metrics SQL, saved Grafana JSON export and link
 7) PRs from opened to merged, from 2014-06 dashboard [opened_to_merged.sql](https://github.com/cncf/gha2db/blob/master/metrics/opened_to_merged.sql), [opened_to_merged.json](https://github.com/cncf/gha2db/blob/master/grafana/dashboards/opened_to_merged.json), [view](https://cncftest.io/dashboard/db/opened-to-merged?orgId=1).
 8) PRs from opened to LGTMed, approved and merged dashboard [time_metrics.sql](https://github.com/cncf/gha2db/blob/master/metrics/time_metrics.sql), [time_metrics.json](https://github.com/cncf/gha2db/blob/master/grafana/dashboards/time_metrics.json), [view](https://cncftest.io/dashboard/db/time-metrics?orgId=1).
 9) PR Comments dashboard [pr_comments.sql](https://github.com/cncf/gha2db/blob/master/metrics/pr_comments.sql), [pr_comments.json](https://github.com/cncf/gha2db/blob/master/grafana/dashboards/pr_comments.json), [view](https://cncftest.io/dashboard/db/pr-comments?orgId=1).
+10) Companies velocity dashboard [company_activity.sql](https://github.com/cncf/gha2db/blob/master/metrics/company_activity.sql), [companies_velocity.json](https://github.com/cncf/gha2db/blob/master/grafana/dashboards/companies_velocity.json), [view](https://cncftest.io/dashboard/db/companies-velocity?orgId=1).
 
 All of them works live on [cncftest.io](https://cncftest.io) with auto sync tool running.
 
