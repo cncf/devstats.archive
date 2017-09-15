@@ -40,7 +40,9 @@ from (
   group by
     affs.company_name
   order by
-    authors desc
+    authors desc,
+    activity desc,
+    company asc
   ) sub
 where
   sub.authors > 1
