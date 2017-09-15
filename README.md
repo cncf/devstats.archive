@@ -44,7 +44,7 @@ Our approach is to use GitHub archives instead. The possible alternatives are:
 - You have a lot of data in a single file, that can be processed/filtered in memory.
 - You are getting all possible events, and all of them include the current state of PRs, issues, repos at given point in time.
 - Processing of GitHub archives is free, so local development is easy.
-- GitHub archives format changed in 2015-01-01, so it is using older format (pre-2015) before that date, and newer after. For details please see [USAGE.md](https://github.com/cncf/gha2db/blob/master/USAGE.md), specially `GHA2DB_OLDFMT` environment variable.
+- GitHub archives format changed in 2015-01-01, so it is using older format (pre-2015) before that date, and newer after. For details please see [USAGE](https://github.com/cncf/gha2db/blob/master/USAGE.md), specially `GHA2DB_OLDFMT` environment variable.
 - I have 1.2M events in my Psql database, and each event contains quite complex structure, I would estimate about 3-6 GitHub API calls are needed to get that data. It means about 7M API calls.
 - 7.2M / 5K (API limit per hour) gives 1440 hours which is 2 months. And we're on GitHub API limit all the time. Processing ALL GitHub events takes about 2 hours without ANY limit.
 - You can optionally save downloaded JSONs to avoid network traffic in next calls (also usable for local development mode).
