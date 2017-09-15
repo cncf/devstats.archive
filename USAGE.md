@@ -38,7 +38,9 @@ All `*_test.go` and `test/*.go` are Go test files, that are used only for testin
 - `make`
 - `ENV_VARIABLES ./gha2db YYYY-MM-DD HH YYYY-MM-DD HH [org [repo]]`
 
-You can use already populated Postgres dump: [Kubernetes Psql dump](https://cncftest.io/web/k8s.sql.xz)
+You can use already populated Postgres dump: [Kubernetes Psql dump](https://cncftest.io/web/k8s.sql.xz) (more than 380 Mb, more than 7,5Gb uncompressed)
+
+There is also a dump for `cncf` org: [CNCF Psql dump](https://cncftest.io/web/cncf.sql.xz) (less than 900 kb, about 8,5 Mb uncompressed, data from 2017-03-01)
 
 First two parameters are date from:
 - YYYY-MM-DD
