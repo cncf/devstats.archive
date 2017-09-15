@@ -1,4 +1,12 @@
-select sub.*,
+select concat(sub.company, ';activity,authors,issues,prs,commits,review_comments,issue_comments,commit_comments,comments'),
+  sub.activity,
+  sub.authors,
+  sub.issues,
+  sub.prs,
+  sub.commits,
+  sub.review_comments,
+  sub.issue_comments,
+  sub.commit_comments,
   sub.review_comments + sub.issue_comments + sub.commit_comments as comments
 from (
   select
@@ -32,7 +40,7 @@ from (
   group by
     affs.company_name
   order by
-    activity desc
+    authors desc
   ) sub
 where
   sub.authors > 1

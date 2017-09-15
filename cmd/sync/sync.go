@@ -460,6 +460,20 @@ func sync(args []string) {
 				},
 				nil,
 			)
+
+			// PRs merged per repo daily, weekly, monthly, quarterly, yearly
+			lib.ExecCommand(
+				&ctx,
+				[]string{
+					"./db2influx",
+					"company_activity",
+					metricsDir + "/company_activity.sql",
+					lib.ToYMDDate(from),
+					lib.ToYMDDate(to),
+					period,
+				},
+				nil,
+			)
 		}
 
 		// Metrics that include hourly data
