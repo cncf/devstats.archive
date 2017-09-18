@@ -87,8 +87,8 @@ Our architecture is quite similar, but we're getting all possible GitHub data fo
 - Grafana will read from InfluxDB by default and will use its power to generate all possible aggregates, minimums, maximums, averages, medians, percentiles, charts etc.
 - Adding new metric will mean add Postgres SQL that will compute this metric.
 
-4) `sync` (synchronizes GitHub archive data and Postgres, InfluxDB databases)
-- [sync](https://github.com/cncf/gha2db/blob/master/cmd/sync/sync.go)
+4) `gha2db_sync` (synchronizes GitHub archive data and Postgres, InfluxDB databases)
+- [gha2db_sync](https://github.com/cncf/gha2db/blob/master/cmd/gha2db_sync/gha2db_sync.go)
 - This program figures out what is the most recent data in Postgres database then queries GitHub archive from this date to current date.
 - It will add data to Postgres database (since the last run)
 - It will update summary tables and/or (materialized) views on Postgres DB.
@@ -121,7 +121,7 @@ Then we can just add new dashboards that use my `gha2db`/`db2influx` workflow in
 
 To add new metrics we need to:
 1) Define parameterized SQL (with `{{from}}` and `{{to}}` params) that returns this metric data.
-2) Add `db2influx` call for this metric in `sync` tool. 
+2) Add `db2influx` call for this metric in `gha2db_sync` tool. 
 3) If metrics create data gaps (for example returns multipe rows with different counts depending on data range), add automatic filling gaps in [gaps.yaml](https://github.com/cncf/gha2db/blob/master/metrics/gaps.yaml) (file is used by `z2influx` tool).
 4) Add test coverage in [metrics_test.go](https://github.com/cncf/gha2db/blob/master/metrics_test.go).
 5) Add Grafana dashboard or row that displays this metric
@@ -133,7 +133,7 @@ To add new metrics we need to:
 Local development is much easier:
 1) Install psql, influx, grafana - all with default options.
 2) Fetch populated psql database [Postgres database dump](https://cncftest.io/web/k8s.sql.xz)
-3) Just run Go tools manually: `structure`, `gha2db`, `db2influx`, `sync`, `runq`, `z2influx`, `import_affs`.
+3) Just run Go tools manually: `structure`, `gha2db`, `db2influx`, `gha2db_sync`, `runq`, `z2influx`, `import_affs`.
 4) Run tests locally, plaese see [testing](https://github.com/cncf/gha2db/blob/master/TESTING.md)
 
 # Database structure details
@@ -141,7 +141,7 @@ Local development is much easier:
 The main idea is that we divide tables into 2 groups:
 - const: meaning that data in this table is not changing in time (is saved once)
 - variable: meaning that data in those tables can change between GH events, and GH `event_id` is a part of this tables primary key.
-- there are also "compute" tables that are auto-updated by `sync`/`structure` tools and affiliations table that are filled by `import_affs` tool.
+- there are also "compute" tables that are auto-updated by `gha2db_sync`/`structure` tools and affiliations table that are filled by `import_affs` tool.
 
 List of tables:
 - `gha_actors`: const, users table
@@ -171,9 +171,9 @@ List of tables:
 - `gha_teams`: variable, teams
 - `gha_teams_repositories`: variable, teams repositories connections
 - `gha_logs`: this is a table that holds all tools logs (unless `GHA2DB_SKIPLOG` is set)
-- `gha_texts`: this is a compute table, that contains texts from comments, commits, issues and pull requests, updated by sync and structure tools
-- `gha_issues_pull_requests`: this is a compute table that contains PRs and issues connections, updated by sync and structure tools
-- `gha_issues_events_labels`: this is a compute table, that contains shortcuts to issues labels (for metrics speedup), updated by sync and structure tools
+- `gha_texts`: this is a compute table, that contains texts from comments, commits, issues and pull requests, updated by gha2db_sync and structure tools
+- `gha_issues_pull_requests`: this is a compute table that contains PRs and issues connections, updated by gha2db_sync and structure tools
+- `gha_issues_events_labels`: this is a compute table, that contains shortcuts to issues labels (for metrics speedup), updated by gha2db_sync and structure tools
 
 # Grafana dashboards
 
@@ -192,7 +192,7 @@ Each dashboard is defined by its metrics SQL, saved Grafana JSON export and link
 9) PR Comments dashboard [pr_comments.sql](https://github.com/cncf/gha2db/blob/master/metrics/pr_comments.sql), [pr_comments.json](https://github.com/cncf/gha2db/blob/master/grafana/dashboards/pr_comments.json), [view](https://cncftest.io/dashboard/db/pr-comments?orgId=1).
 10) Companies velocity dashboard [company_activity.sql](https://github.com/cncf/gha2db/blob/master/metrics/company_activity.sql), [companies_velocity.json](https://github.com/cncf/gha2db/blob/master/grafana/dashboards/companies_velocity.json), [view](https://cncftest.io/dashboard/db/companies-velocity?orgId=1).
 
-All of them works live on [cncftest.io](https://cncftest.io) with auto sync tool running.
+All of them works live on [cncftest.io](https://cncftest.io) with auto gha2db_sync tool running.
 
 # Detailed Usage instructions
 
