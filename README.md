@@ -4,23 +4,25 @@ Author: Łukasz Gryglicki <lukaszgryglick@o2.pl>
 
 This is a toolset to visualize GitHub [archives](https://www.githubarchive.org/) using Grafana dashboards.
 
-Gha2db stands for [G]it[H]ub [A]rchives to [D]ash[B]oards.
+Gha2db stands for **G**it**H**ub **A**rchives to **D**ash**B**oards.
 
 # Goal
 
 We want to create a toolset for visualizing various metrics for the Kubernetes community.
+
 Everything is open source so that it can be used by other CNCF and non-CNCF open source projects.
-The only requirement is that project must be hosted on a public GitHub repositor/repositories.
+
+The only requirement is that project must be hosted on a public GitHub repository/repositories.
 
 # Forking and installing locally
 
-This toolset uses only Open Source tools: Postgres database, InfluxDB time-series database nad Grafana dashboards.
+This toolset uses only Open Source tools: Postgres database, InfluxDB time-series database and Grafana dashboards.
 It is written in Go, and can be forked and installed by anyone.
 
 Contributions and PRs are welcome.
-If You see a bug or want to add na new metric please create [issue](https://github.com/cncf/gha2db/issues) and/or [PR](https://github.com/cncf/gha2db/pulls).
+If You see a bug or want to add a new metric please create an [issue](https://github.com/cncf/gha2db/issues) and/or [PR](https://github.com/cncf/gha2db/pulls).
 
-To work on this project locally please fork original [repository](https://github.com/cncf/gha2db), and then follow instructions about running locally:
+To work on this project locally please fork the original [repository](https://github.com/cncf/gha2db), and then follow instructions about running locally:
 - [Compiling and running on macOS](https://github.com/cncf/gha2db/INSTALL_MAC.md).
 - [Compiling and running on Linux](https://github.com/cncf/gha2db/INSTALL_UBUNTU.md).
 
@@ -33,7 +35,7 @@ Many of them cannot be computed based on the data sources currently used.
 
 We also want to have per company statistics. To implement such metrics we need a mapping of developers and their employers.
 
-There is a projects that attempts to create such mapping [cncf/gitdm](https://github.com/cncf/gitdm).
+There is a project that attempts to create such mapping [cncf/gitdm](https://github.com/cncf/gitdm).
 
 Gha2db has an import tool that fetches company affiliations `from cncf/gitdm` and allows to create per company metrics/statistics.
 
@@ -50,7 +52,7 @@ Our approach is to use GitHub archives instead. The possible alternatives are:
 2) GitHub API:
 - You can get the current state of the objects, but you cannot get repo, PR, issue state in the past (for example summary fields, etc).
 - It is limited by GitHub API usage per hour, which makes local development harder.
-- API limits are very aggressive for unauthorized access, and even with authorized access, you're limited to 5000 API calls/hour. With this limit it would take more than 2 months to get all Kubernetes GitHub events (estimate).
+- API limits are very aggressive for unauthorized access, and even with authorized access, you're limited to 5000 API calls/hour. With this limit, it would take more than 2 months to get all Kubernetes GitHub events (estimate).
 - It is much slower than processing GitHub archives or BigQuery.
 - You must query it via API and it is returning a single result.
 - You can use GitHub hook callbacks, but they only fire for current events.
@@ -104,8 +106,8 @@ We're getting all possible GitHub data for all objects, and all objects historic
 - It will add data to Postgres database (since the last run)
 - It will update summary tables and/or (materialized) views on Postgres DB.
 - Then it will call `db2influx` for all defined SQL metrics and update Influx database as well.
-- It reads list of metrics from YAML file: `metrics/metrics.yaml`, some metrics require to fill gaps in their data. Those metrics are defined in another YAML file `metrics/gaps.yaml`.
-- This tool also supports initial computing of All InfluxDB data (instead of default update since last run).
+- It reads a list of metrics from YAML file: `metrics/metrics.yaml`, some metrics require to fill gaps in their data. Those metrics are defined in another YAML file `metrics/gaps.yaml`.
+- This tool also supports initial computing of All InfluxDB data (instead of default update since the last run).
 - It is called by cron job on 1:10, 2:10, ... and so on - GitHub archive publishes new file every hour, so we're off by at most 1 hour.
 
 5) Additional stuff, most important being `runq`  and `import_affs` tools.
@@ -113,9 +115,9 @@ We're getting all possible GitHub data for all objects, and all objects historic
 - `runq` gets SQL file name and parameter values and allows to run metric manually from the command line (this is for local development)
 - [import_affs](https://github.com/cncf/gha2db/blob/master/cmd/import_affs/import_affs.go)
 - `import_affs` takes one parameter - JSON file name (this is a file from [cncf/gitdm](https://github.com/cncf/gitdm): [github_users.json](https://raw.githubusercontent.com/cncf/gitdm/master/github_users.json)
-- This tools imports GitHub user names (in addition to logins from GHA) and creates developers - companies affiliations (that can be used by [Companies velocity](https://cncftest.io/dashboard/db/companies-velocity?orgId=1) metric)
+- This tools imports GitHub usernames (in addition to logins from GHA) and creates developers - companies affiliations (that can be used by [Companies velocity](https://cncftest.io/dashboard/db/companies-velocity?orgId=1) metric)
 - [z2influx](https://github.com/cncf/gha2db/blob/master/cmd/z2influx/z2influx.go)
-- `z2influx` is used to fill gaps that can occur for metrics that returns multiple columns and rows, but number of rows depends on date range, it uses [gaps.yaml](https://github.com/cncf/gha2db/blob/master/metrics/gaps.yaml) file to define which metrics should be zero filled.
+- `z2influx` is used to fill gaps that can occur for metrics that returns multiple columns and rows, but the number of rows depends on date range, it uses [gaps.yaml](https://github.com/cncf/gha2db/blob/master/metrics/gaps.yaml) file to define which metrics should be zero filled.
 - There are few shell scripts for example: running sync every N seconds, setup InfluxDB etc.
 
 Detailed usage is here [USAGE](https://github.com/cncf/gha2db/blob/master/USAGE.md)
@@ -124,7 +126,7 @@ Detailed usage is here [USAGE](https://github.com/cncf/gha2db/blob/master/USAGE.
 
 This toolset can either replace velodrome or just add value to `velodrome`.
 
-They both can use shared InfluxDB (assuming there are no series names conflicts, but gha2db can prefix every serie with some special value if needed.)
+They both can use shared InfluxDB (assuming there are no series names conflicts, but gha2db can prefix all series with some special value if needed.)
 
 Then we can just add new dashboards that use my `gha2db`/`db2influx` workflow in the existing Grafana, or we can just use gha2db alone.
 
@@ -133,7 +135,7 @@ Then we can just add new dashboards that use my `gha2db`/`db2influx` workflow in
 To add new metrics we need to:
 1) Define parameterized SQL (with `{{from}}` and `{{to}}` params) that returns this metric data.
 2) Define this metric in [metrics/metrics.yaml](https://github.com/cncf/gha2db/blob/master/metrics/metrics.yaml) (file used by `gha2db_sync` tool).
-3) If metrics create data gaps (for example returns multipe rows with different counts depending on data range), add automatic filling gaps in [metrics/gaps.yaml](https://github.com/cncf/gha2db/blob/master/metrics/gaps.yaml) (file is used by `z2influx` tool).
+3) If metrics create data gaps (for example returns multiple rows with different counts depending on data range), add automatic filling gaps in [metrics/gaps.yaml](https://github.com/cncf/gha2db/blob/master/metrics/gaps.yaml) (file is used by `z2influx` tool).
 4) Add test coverage in [metrics_test.go](https://github.com/cncf/gha2db/blob/master/metrics_test.go).
 5) Add Grafana dashboard or row that displays this metric.
 6) Export new Grafana dashboard to JSON.
@@ -145,7 +147,7 @@ To add new metrics we need to:
 The main idea is that we divide tables into 2 groups:
 - const: meaning that data in this table is not changing in time (is saved once)
 - variable: meaning that data in those tables can change between GH events, and GH `event_id` is a part of this tables primary key.
-- there are also "compute" tables that are auto-updated by `gha2db_sync`/`structure` tools and affiliations table that are filled by `import_affs` tool.
+- there are also "compute" tables that are auto-updated by `gha2db_sync`/`structure` tools and affiliations table thaiss filled by `import_affs` tool.
 
 List of tables:
 - `gha_actors`: const, users table
@@ -189,8 +191,8 @@ Each dashboard is defined by its metrics SQL, saved Grafana JSON export and link
 2) SIG mentions dashboard: [sig_mentions.sql](https://github.com/cncf/gha2db/blob/master/metrics/sig_mentions.sql), [sig_mentions.json](https://github.com/cncf/gha2db/blob/master/grafana/dashboards/sig_mentions.json), [view](https://cncftest.io/dashboard/db/sig-mentions?orgId=1).
 3) SIG mentions breakdown by categories dashboard: [sig_mentions_cats.sql](https://github.com/cncf/gha2db/blob/master/metrics/sig_mentions_cats.sql), [sig_mentions_breakdown.sql](https://github.com/cncf/gha2db/blob/master/metrics/sig_mentions_breakdown.sql), [sig_mentions_cats.json](https://github.com/cncf/gha2db/blob/master/grafana/dashboards/sig_mentions_cats.json), [view](https://cncftest.io/dashboard/db/sig-mentions-categories?orgId=1).
 4) SIG mentions using labels dashboard: [labels_sig.sql](https://github.com/cncf/gha2db/blob/master/metrics/labels_sig.sql), [labels_kind.sql](https://github.com/cncf/gha2db/blob/master/metrics/labels_kind.sql), [labels_sig_kind.sql](https://github.com/cncf/gha2db/blob/master/metrics/labels_sig_kind.sql), [sig_mentions_labels.json](https://github.com/cncf/gha2db/blob/master/grafana/dashboards/sig_mentions_labels.json), [view](https://cncftest.io/dashboard/db/sig-mentions-using-labels?orgId=1).
-5) Number of all PRs merged in all Kubernetes repos, from 2014-06 dashboard [all_prs_merged.sql](https://github.com/cncf/gha2db/blob/master/metrics/all_prs_merged.sql), [all_prs_merged.json](https://github.com/cncf/gha2db/blob/master/grafana/dashboards/all_prs_merged.json), [view](https://cncftest.io/dashboard/db/all-prs-merged?orgId=1).
-6) Number of PRs merged per repository dashboard [prs_merged.sql](https://github.com/cncf/gha2db/blob/master/metrics/prs_merged.sql), [prs_merged.json](https://github.com/cncf/gha2db/blob/master/grafana/dashboards/prs_merged.json), [view](https://cncftest.io/dashboard/db/prs-merged?orgId=1).
+5) The Number of all PRs merged in all Kubernetes repos, from 2014-06 dashboard [all_prs_merged.sql](https://github.com/cncf/gha2db/blob/master/metrics/all_prs_merged.sql), [all_prs_merged.json](https://github.com/cncf/gha2db/blob/master/grafana/dashboards/all_prs_merged.json), [view](https://cncftest.io/dashboard/db/all-prs-merged?orgId=1).
+6) The Number of PRs merged per repository dashboard [prs_merged.sql](https://github.com/cncf/gha2db/blob/master/metrics/prs_merged.sql), [prs_merged.json](https://github.com/cncf/gha2db/blob/master/grafana/dashboards/prs_merged.json), [view](https://cncftest.io/dashboard/db/prs-merged?orgId=1).
 7) PRs from opened to merged, from 2014-06 dashboard [opened_to_merged.sql](https://github.com/cncf/gha2db/blob/master/metrics/opened_to_merged.sql), [opened_to_merged.json](https://github.com/cncf/gha2db/blob/master/grafana/dashboards/opened_to_merged.json), [view](https://cncftest.io/dashboard/db/opened-to-merged?orgId=1).
 8) PRs from opened to LGTMed, approved and merged dashboard [time_metrics.sql](https://github.com/cncf/gha2db/blob/master/metrics/time_metrics.sql), [time_metrics.json](https://github.com/cncf/gha2db/blob/master/grafana/dashboards/time_metrics.json), [view](https://cncftest.io/dashboard/db/time-metrics?orgId=1).
 9) PR Comments dashboard [pr_comments.sql](https://github.com/cncf/gha2db/blob/master/metrics/pr_comments.sql), [pr_comments.json](https://github.com/cncf/gha2db/blob/master/grafana/dashboards/pr_comments.json), [view](https://cncftest.io/dashboard/db/pr-comments?orgId=1).
