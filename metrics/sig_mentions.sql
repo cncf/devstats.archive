@@ -1,5 +1,5 @@
 select
-  substring(sig from 13) as sig,
+  ',' || substring(sig from 13) as sig,
   count(*) as count_value
 from
   (

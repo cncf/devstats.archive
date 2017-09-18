@@ -12,55 +12,67 @@ import (
 	lib "gha2db"
 )
 
-// Returns companyActivity series names array
-func companyActivity(name, period string) (result []string) {
-	ary := strings.Split(name, ";")
+// Returns multi row and multi column series names array (differen for different rows)
+// Each row must be in format: 'prefix;name;series1,series2,..,seriesN' serVal1 serVal2 ... serValN
+func multiRowMultiColumn(col, period string) (result []string) {
+	ary := strings.Split(col, ";")
 	r := strings.NewReplacer("-", "_", "/", "_", ".", "_", " ", "_")
-	company := r.Replace(strings.ToLower(strings.TrimSpace(lib.StripUnicode(ary[0]))))
-	if company == "" {
-		lib.Printf("WARNING: company '%v' maps to empty string, skipping\n", ary[0])
+	name := r.Replace(strings.ToLower(strings.TrimSpace(lib.StripUnicode(ary[1]))))
+	if name == "" {
+		lib.Printf("multiRowMultiColumn: WARNING: name '%v' (%+v) maps to empty string, skipping\n", ary[1], ary)
 		return
 	}
-	splitted := strings.Split(ary[1], ",")
-	for _, str := range splitted {
-		result = append(result, fmt.Sprintf("company_%s_%s_%s", company, str, period))
+	splitted := strings.Split(ary[2], ",")
+	if ary[0] != "" {
+		pref := ary[0]
+		for _, series := range splitted {
+			result = append(result, fmt.Sprintf("%s_%s_%s_%s", pref, name, series, period))
+		}
+	} else {
+		for _, series := range splitted {
+			result = append(result, fmt.Sprintf("%s_%s_%s", name, series, period))
+		}
 	}
 	return
 }
 
-// Return default series names from multi column result
+// Return default series names from multi column single row result
 // It takes name "a,b,c,d,...,z" and period for example "q"
 // and returns array [a_q, b_q, c_q, .., z_q]
-func defaultMultiColumn(name, period string) (result []string) {
-	splitted := strings.Split(name, ",")
+func singleRowMultiColumn(col, period string) (result []string) {
+	splitted := strings.Split(col, ",")
 	for _, str := range splitted {
 		result = append(result, str+"_"+period)
 	}
 	return
 }
 
+// Return default series names from multi row result single column
+// Each row is "prefix,name", value (prefix is hardcoded in metric, so it is assumed safe)
+// and returns array [a_q, b_q, c_q, .., z_q]
+func multiRowSingleColumn(col, period string) (result []string) {
+	ary := strings.Split(col, ",")
+	r := strings.NewReplacer("-", "_", "/", "_", ".", "_", " ", "_")
+	name := r.Replace(strings.ToLower(strings.TrimSpace(lib.StripUnicode(ary[1]))))
+	if name == "" {
+		lib.Printf("multiRowSingleColumn: WARNING: name '%v' (%+v) maps to empty string, skipping\n", ary[1], ary)
+		return
+	}
+	if ary[0] != "" {
+		name = ary[0] + "_" + name
+	}
+	return []string{fmt.Sprintf("%s_%s", name, period)}
+}
+
 // Generate name for given series row and period
 func nameForMetricsRow(metric, name, period string) []string {
 	switch metric {
-	case "sig_mentions_data":
-		return []string{fmt.Sprintf("%s_%s", strings.Replace(name, "-", "_", -1), period)}
-	case "sig_mentions_cats_data":
-		return []string{fmt.Sprintf("cat_%s_%s", strings.Replace(name, "-", "_", -1), period)}
-	case "sig_mentions_breakdown_data":
-		return []string{fmt.Sprintf("bd_%s_%s", strings.Replace(name, "-", "_", -1), period)}
-	case "sig_mentions_labels_data":
-		return []string{fmt.Sprintf("labels_sig_%s_%s", strings.Replace(name, "-", "_", -1), period)}
-	case "kind_mentions_labels_data":
-		return []string{fmt.Sprintf("labels_kind_%s_%s", strings.Replace(name, "-", "_", -1), period)}
-	case "sig_kind_mentions_labels_data":
-		return []string{fmt.Sprintf("labels_sig_kind_%s_%s", strings.Replace(name, "-", "_", -1), period)}
-	case "prs_merged_data":
-		r := strings.NewReplacer("-", "_", "/", "_", ".", "_")
-		return []string{fmt.Sprintf("prs_%s_%s", r.Replace(name), period)}
-	case "company_activity":
-		return companyActivity(name, period)
-	case "default_multi_column":
-		return defaultMultiColumn(name, period)
+	case "single_row_multi_column":
+		return singleRowMultiColumn(name, period)
+	case "multi_row_single_column":
+		return multiRowSingleColumn(name, period)
+	case "multi_row_multi_column":
+		return multiRowMultiColumn(name, period)
 	default:
 		lib.Printf("Error\nUnknown metric '%v'\n", metric)
 		fmt.Fprintf(os.Stdout, "Error\nUnknown metric '%v'\n", metric)
@@ -132,6 +144,8 @@ func workerThread(ch chan bool, ctx *lib.Ctx, seriesNameOrFunc, sqlQuery, period
 		if pValue != nil {
 			value = *pValue
 		}
+		// In this simplest case 1 row, 1 column - series name is taken directly from YAML (metrics.yaml)
+		// It usually uses `add_period_to_name: true` to have _perio suffix, period{=h,d,w,m,q,y}
 		name = seriesNameOrFunc
 		if ctx.Debug > 0 {
 			lib.Printf("%v - %v -> %v, %v\n", from, to, name, value)

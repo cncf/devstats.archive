@@ -1,5 +1,5 @@
 select
-  substring(sig from 2) as sig,
+  'cat,' || substring(sig from 2) as sig,
   count(*) as count_value
 from
   (
