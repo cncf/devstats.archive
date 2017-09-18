@@ -59,13 +59,13 @@ dbtest:
 check: fmt lint imports vet
 
 data:
-	mkdir /etc/gha2db 2>/dev/null || echo ""
-	mkdir /etc/gha2db/metrics 2>/dev/null || echo ""
+	mkdir /etc/gha2db 2>/dev/null || echo "mkdir waring"
+	mkdir /etc/gha2db/metrics 2>/dev/null || echo "mkdir warning"
 	cp metrics/* /etc/gha2db/metrics/ || exit 1
 
 install: check ${BINARIES} data
-	#${GO_INSTALL} ${GO_BIN_CMDS}
-	cp -v ${BINARIES} cron_gha2db_sync.sh /usr/bin
+	${GO_INSTALL} ${GO_BIN_CMDS}
+	cp -v cron_gha2db_sync.sh ${GOPATH}/bin
 
 strip: ${BINARIES}
 	${STRIP} ${BINARIES}
