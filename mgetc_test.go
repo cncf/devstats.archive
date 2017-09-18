@@ -3,7 +3,7 @@ package gha2db
 import (
 	"testing"
 
-	lib "k8s.io/test-infra/gha2db"
+	lib "gha2db"
 )
 
 func TestMgetc(t *testing.T) {

@@ -5,7 +5,7 @@ import (
 	"strings"
 	"time"
 
-	lib "k8s.io/test-infra/gha2db"
+	lib "gha2db"
 )
 
 func workerThread(ch chan bool, ctx *lib.Ctx, seriesSet map[string]struct{}, period string, from, to time.Time) {

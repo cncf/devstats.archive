@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	lib "k8s.io/test-infra/gha2db"
+	lib "gha2db"
 )
 
 func TestInfluxDB(t *testing.T) {

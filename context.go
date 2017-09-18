@@ -20,6 +20,7 @@ type Ctx struct {
 	PgDB             string    // from PG_DB, default "gha"
 	PgUser           string    // from PG_USER, default "gha_admin"
 	PgPass           string    // from PG_PASS, default "password"
+	PgSSL            string    // from PG_SSL, default "disable"
 	Index            bool      // from GHA2DB_INDEX Create DB index? default false
 	Table            bool      // from GHA2DB_SKIPTABLE Create table structure? default true
 	Tools            bool      // from GHA2DB_SKIPTOOLS Create DB tools (like views, summary tables, materialized views etc)? default true
@@ -85,6 +86,7 @@ func (ctx *Ctx) Init() {
 	ctx.PgDB = os.Getenv("PG_DB")
 	ctx.PgUser = os.Getenv("PG_USER")
 	ctx.PgPass = os.Getenv("PG_PASS")
+	ctx.PgSSL = os.Getenv("PG_SSL")
 	if ctx.PgHost == "" {
 		ctx.PgHost = "localhost"
 	}
@@ -99,6 +101,9 @@ func (ctx *Ctx) Init() {
 	}
 	if ctx.PgPass == "" {
 		ctx.PgPass = "password"
+	}
+	if ctx.PgSSL == "" {
+		ctx.PgSSL = "disable"
 	}
 	// Influx DB
 	ctx.IDBHost = os.Getenv("IDB_HOST")
