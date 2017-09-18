@@ -37,8 +37,9 @@ type Ctx struct {
 	ResetIDB         bool      // from GHA2DB_RESETIDB sync tool, regenerate all InfluxDB points? default false
 	Explain          bool      // from GHA2DB_EXPLAIN runq tool, prefix query with "explain " - it will display query plan instead of executing real query, default false
 	OldFormat        bool      // from GHA2DB_OLDFMT gha2db tool, if set then use pre 2015 GHA JSONs format
-	Exact            bool      // FROM GHA2DB_EXACT gha2db tool, if set then orgs list provided from commandline is used as a list of exact repository full names, like "a/b,c/d,e"
-	LogToDB          bool      // FROM GHA2DB_SKIPLOG all tools, if set, DB logging into Postgres table `gha_logs` will be disabled
+	Exact            bool      // From GHA2DB_EXACT gha2db tool, if set then orgs list provided from commandline is used as a list of exact repository full names, like "a/b,c/d,e"
+	LogToDB          bool      // From GHA2DB_SKIPLOG all tools, if set, DB logging into Postgres table `gha_logs` will be disabled
+	Local            bool      // From GHA2DB_LOCAL gha2db_sync tool, if set, gha2_db will call other tools prefixed with "./" to use local compile ones. Otherwise it will call binaries without prefix (so it will use thos ein /usr/bin/).
 }
 
 // Init - get context from environment variables
@@ -154,6 +155,9 @@ func (ctx *Ctx) Init() {
 
 	// Log to Postgres DB, table `gha_logs`
 	ctx.LogToDB = os.Getenv("GHA2DB_SKIPLOG") == ""
+
+	// Local mode
+	ctx.Local = os.Getenv("GHA2DB_LOCAL") != ""
 
 	// Context out if requested
 	if ctx.CtxOut {

@@ -24,7 +24,7 @@ It displays results using Grafana and InfluxDB time series database.
 
 Uses GNU `Makefile`:
 - `make check` - to apply gofmt and golint
-- `make` to compile static binaries: `structure`, `gha2db`, `db2influx`, `sync`, `runq`, `z2influx`.
+- `make` to compile static binaries: `structure`, `gha2db`, `db2influx`, `gha2db_sync`, `runq`, `z2influx`.
 - `make install` - to install binaries
 - `make clean` - to clean binaries
 - `make test` - to execute non-DB tests
@@ -78,6 +78,7 @@ You can tweak `gha2db` tools:
 - Set `GHA2DB_OLDFMT` for `gha2db` tool to make it use old pre 2015 GHA JSONs format (instead of new one used by GitHub Archives from 2015-01-01).
 - Set `GHA2DB_EXACT` for `gha2db` tool to make it process only repositories listed as "orgs" parameter, by their full names, like for example 3 repos: "GoogleCloudPlatform/kubernetes,kubernetes,kubernetes/kubernetes"
 - Set `GHA2DB_SKIPLOG` for any tool to skip logging output to `gha_logs` table.
+- Set `GHA2DB_LOCAL` for gha2db_sync tool to make it prefix call to othe rtools with "./" (so it will use othe rtools binaries from current working directory instead of `/usr/bin/`). Local mode uses "./metrics/" to search for metrics files. Otherwise "/etc/gha2db/metrics/" is used.
 
 All environment context details are defined in [context.go](https://github.com/cncf/gha2db/blob/master/context.go), please see that file for details (Yu can also see how it works in [context_test.go](https://github.com/cncf/gha2db/blob/master/context_test.go)).
 
@@ -308,9 +309,9 @@ List of tables:
 - `gha_teams`: variable, teams
 - `gha_teams_repositories`: variable, teams repositories connections
 - `gha_logs`: this is a table that holds all tools logs (unless `GHA2DB_SKIPLOG` is set)
-- `gha_texts`: this is a compute table, that contains texts from comments, commits, issues and pull requests, updated by sync and structure tools
-- `gha_issues_pull_requests`: this is a compute table that contains PRs and issues connections, updated by sync and structure tools
-- `gha_issues_events_labels`: this is a compute table, that contains shortcuts to issues labels (for metrics speedup), updated by sync and structure tools
+- `gha_texts`: this is a compute table, that contains texts from comments, commits, issues and pull requests, updated by gha2db_sync and structure tools
+- `gha_issues_pull_requests`: this is a compute table that contains PRs and issues connections, updated by gha2db_sync and structure tools
+- `gha_issues_events_labels`: this is a compute table, that contains shortcuts to issues labels (for metrics speedup), updated by gha2db_sync and structure tools
 
 There is some data duplication in various columns. This is to speedup metrics processing.
 Such columns are described as "dup columns" in [structure.go](https://github.com/cncf/gha2db/blob/master/structure.go)
@@ -525,14 +526,14 @@ LGTM & Approve must be before merge, but:
 When You have imported all data You need - it needs to be updated periodically.
 GitHub archive generates new file every hour.
 
-Use `sync` and/or `sync.sh` tools to update all Your data.
+Use `gha2db_sync` and/or `sync.sh` tools to update all Your data.
 
 Example call:
 - `PG_PASS='pwd' IDB_PASS='pwd' ./sync.sh`
 - Add `GHA2DB_RESETIDB` environment variable to rebuild InfluxDB stats instead of update since last run
 - Add `GHA2DB_SKIPIDB` environment variable to skip syncing InfluxDB (so it will only sync Postgres DB)
 
-`sync.sh`/`sync` tool should be called by some kind of cron job to auto-update metrics every hour.
+`sync.sh`/`gha2db_sync` tool should be called by some kind of cron job to auto-update metrics every hour.
 
 For now there is a manual script that can be used to loop sync every defined numeber of seconds, for example for sync every 30 minutes:
 
