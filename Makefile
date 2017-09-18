@@ -3,7 +3,7 @@ GO_BIN_FILES=cmd/structure/structure.go cmd/runq/runq.go cmd/gha2db/gha2db.go cm
 GO_TEST_FILES=context_test.go gha_test.go map_test.go mgetc_test.go threads_test.go time_test.go unicode_test.go
 GO_DBTEST_FILES=pg_test.go idb_test.go metrics_test.go
 GO_LIBTEST_FILES=test/compare.go test/time.go
-GO_BIN_CMDS=k8s.io/test-infra/gha2db/cmd/structure k8s.io/test-infra/gha2db/cmd/runq k8s.io/test-infra/gha2db/cmd/gha2db k8s.io/test-infra/db2influx/cmd/db2influx k8s.io/test-infra/db2influx/cmd/gha2db_sync k8s.io/test-infra/cmd/z2influx k8s.io/test-infra/import_affs/import_affs
+GO_BIN_CMDS=gha2db/cmd/structure gha2db/cmd/runq gha2db/cmd/gha2db gha2db/cmd/db2influx gha2db/cmd/gha2db_sync gha2db/cmd/z2influx gha2db/cmd/import_affs
 GO_ENV=CGO_ENABLED=0
 GO_BUILD=go build
 GO_INSTALL=go install
@@ -59,11 +59,11 @@ dbtest:
 check: fmt lint imports vet
 
 data:
-	mkdir /etc/gha2db 2>/dev/null || echo "/etc/gha2db already exists, ok"
-	mkdir /etc/gha2db/metrics 2>/dev/null || echo "/etc/gha2db/metrics already exists, ok"
-	cp metrics/* /etc/gha2db/metrics/
+	mkdir /etc/gha2db 2>/dev/null || echo ""
+	mkdir /etc/gha2db/metrics 2>/dev/null || echo ""
+	cp metrics/* /etc/gha2db/metrics/ || exit 1
 
-install: check strip data ${BINARIES}
+install: check ${BINARIES} data
 	#${GO_INSTALL} ${GO_BIN_CMDS}
 	cp -v ${BINARIES} cron_gha2db_sync.sh /usr/bin
 

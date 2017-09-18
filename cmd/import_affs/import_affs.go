@@ -10,7 +10,7 @@ import (
 	"strings"
 	"time"
 
-	lib "k8s.io/test-infra/gha2db"
+	lib "gha2db"
 )
 
 // GitHubUsers - list of GitHub user data from cncf/gitdm.
@@ -182,7 +182,7 @@ func importAffs(jsonFN string) {
 	added, updated := 0, 0
 	for login, names := range loginNames {
 		if len(names) > 1 {
-			lib.FatalOnError(fmt.Errorf("login has multiple names: %v: %+v\n", login, names))
+			lib.FatalOnError(fmt.Errorf("login has multiple names: %v: %+v", login, names))
 		}
 		name := firstKey(names)
 		// Try to find actor by login

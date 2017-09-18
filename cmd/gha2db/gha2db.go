@@ -13,7 +13,7 @@ import (
 	"strings"
 	"time"
 
-	lib "k8s.io/test-infra/gha2db"
+	lib "gha2db"
 )
 
 // Inserts single GHA Actor
