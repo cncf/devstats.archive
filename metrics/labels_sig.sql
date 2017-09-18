@@ -1,5 +1,5 @@
 select
-  sel.sig as sig,
+  'labels_sig,' || sel.sig as sig,
   count(distinct issue_id) as cnt
 from (
   select distinct issue_id,

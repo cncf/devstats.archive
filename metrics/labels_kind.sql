@@ -1,5 +1,5 @@
 select
-  sel.kind as kind,
+  'labels_kind,' || sel.kind as kind,
   count(distinct issue_id) as cnt
 from (
   select distinct issue_id,
