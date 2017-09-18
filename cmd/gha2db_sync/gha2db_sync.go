@@ -15,10 +15,10 @@ import (
 
 // Gaps contain list of metrics to fill gaps
 type Gaps struct {
-	Metrics []Metric `json:"metrics"`
+	Metrics []MetricGap `yaml:"metrics"`
 }
 
-// Metric conain list of series names and periods to fill gaps
+// MetricGap conain list of series names and periods to fill gaps
 // Series formula allows to write a lot of series name in a shorter way
 // Say we have series in this form prefix_{x}_{y}_{z}_suffix
 // and {x} can be a,b,c,d, {y} can be 1,2,3, z can be yes,no
@@ -26,10 +26,24 @@ type Gaps struct {
 // Which is 4 * 3 * 2 = 24 items, You can write series formula:
 // "=prefix;suffix;_;a,b,c,d;1,2,3;yes,no"
 // format is "=prefix;suffix;join;list1item1,list1item2,...;list2item1,list2item2,...;..."
+type MetricGap struct {
+	Name    string   `yaml:"name"`
+	Series  []string `yaml:"series"`
+	Periods string   `yaml:"periods"`
+}
+
+// Metrics contain list of metrics to evaluate
+type Metrics struct {
+	Metrics []Metric `yaml:"metrics"`
+}
+
+// Metric contain each metric data
 type Metric struct {
-	Name    string   `json:"name"`
-	Series  []string `json:"series"`
-	Periods []string `json:"periods"`
+	Name             string `yaml:"name"`
+	Periods          string `yaml:"periods"`
+	SeriesNameOrFunc string `yaml:"series_name_or_func"`
+	MetricSQL        string `yaml:"sql"`
+	AddPeriodToName  bool   `yaml:"add_period_to_name"`
 }
 
 // Add _period to all array items
@@ -114,7 +128,7 @@ func createSeriesFromFormula(def string) (result []string) {
 		))
 	}
 
-	// Prefix, join value (how to connect strings from different arrays), suffix
+	// prefix, join value (how to connect strings from different arrays), suffix
 	prefix, suffix, join := ary[0], ary[1], ary[2]
 
 	// Create "matrix" of strings (not a real matrix because rows can have different counts)
@@ -163,12 +177,13 @@ func fillGapsInSeries(ctx *lib.Ctx, from, to time.Time) {
 				series = append(series, ser)
 			}
 		}
-		for _, period := range metric.Periods {
+		periods := strings.Split(metric.Periods, ",")
+		for _, period := range periods {
 			if !ctx.ResetIDB && !computePeriodAtThisDate(period, to) {
 				lib.Printf("Skipping filling gaps for period \"%s\" for date %v\n", period, to)
 				continue
 			}
-			lib.Printf("Metric %v...\n", metric.Name)
+			lib.Printf("Filling metric gaps %v...\n", metric.Name)
 			lib.ExecCommand(
 				ctx,
 				[]string{
@@ -287,11 +302,6 @@ func sync(args []string) {
 		},
 	)
 
-	// InfluxDB periods
-	periodsFromHour := []string{"h", "d", "w", "m", "q", "y"}
-	periodsFromDay := periodsFromHour[1:]
-	periodsFromWeekToQuarter := periodsFromHour[2:5]
-
 	// DB2Influx
 	if !ctx.SkipIDB {
 		metricsDir := dataPrefix + "metrics"
@@ -306,216 +316,41 @@ func sync(args []string) {
 		// Fill gaps in series
 		fillGapsInSeries(&ctx, from, to)
 
-		// Metrics from weekly to quarterly
-		lib.Printf("Weekly - quarterly metrics\n")
-		for _, period := range periodsFromWeekToQuarter {
-			// Some bigger periods like month, quarters, years doesn't need to be updated every run
-			if !ctx.ResetIDB && !computePeriodAtThisDate(period, to) {
-				lib.Printf("Skipping recalculating period \"%s\" for date to %v\n", period, to)
-				continue
-			}
-
-			// SIG mentions breakdown to categories weekly, monthly, quarterly
-			lib.ExecCommand(
-				&ctx,
-				[]string{
-					cmdPrefix + "db2influx",
-					"sig_mentions_breakdown_data",
-					metricsDir + "/sig_mentions_breakdown.sql",
-					lib.ToYMDDate(from),
-					lib.ToYMDDate(to),
-					period,
-				},
-				nil,
-			)
-
-			// PRs opened -> lgtmed -> approved -> merged (median and 85th percentile), weekly, monthly, quarterly
-			lib.ExecCommand(
-				&ctx,
-				[]string{
-					cmdPrefix + "db2influx",
-					"default_multi_column",
-					metricsDir + "/time_metrics.sql",
-					lib.ToYMDDate(from),
-					lib.ToYMDDate(to),
-					period,
-				},
-				nil,
-			)
-
-			// Time opened to merged (number of hours) weekly, monthly, quarterly (median 25th and 75th percentiles)
-			lib.ExecCommand(
-				&ctx,
-				[]string{
-					cmdPrefix + "db2influx",
-					"default_multi_column",
-					metricsDir + "/opened_to_merged.sql",
-					lib.ToYMDDate(from),
-					lib.ToYMDDate(to),
-					period,
-				},
-				nil,
-			)
-
-			// PR comments weekly, monthly, quarterly
-			lib.ExecCommand(
-				&ctx,
-				[]string{
-					cmdPrefix + "db2influx",
-					"pr_comments_" + period,
-					metricsDir + "/pr_comments.sql",
-					lib.ToYMDDate(from),
-					lib.ToYMDDate(to),
-					period,
-				},
-				nil,
-			)
-
-			// SIG mentions using labels weekly, monthly, quarterly
-			lib.ExecCommand(
-				&ctx,
-				[]string{
-					cmdPrefix + "db2influx",
-					"sig_mentions_labels_data",
-					metricsDir + "/labels_sig.sql",
-					lib.ToYMDDate(from),
-					lib.ToYMDDate(to),
-					period,
-				},
-				nil,
-			)
-
-			// KIND mentions using labels weekly, monthly, quarterly
-			lib.ExecCommand(
-				&ctx,
-				[]string{
-					cmdPrefix + "db2influx",
-					"kind_mentions_labels_data",
-					metricsDir + "/labels_kind.sql",
-					lib.ToYMDDate(from),
-					lib.ToYMDDate(to),
-					period,
-				},
-				nil,
-			)
-
-			// SIG KIND mentions using labels weekly, monthly, quarterly
-			lib.ExecCommand(
-				&ctx,
-				[]string{
-					cmdPrefix + "db2influx",
-					"sig_kind_mentions_labels_data",
-					metricsDir + "/labels_sig_kind.sql",
-					lib.ToYMDDate(from),
-					lib.ToYMDDate(to),
-					period,
-				},
-				nil,
-			)
+		// Read metrics configuration
+		data, err := ioutil.ReadFile(dataPrefix + "metrics/metrics.yaml")
+		if err != nil {
+			lib.FatalOnError(err)
+			return
 		}
-		lib.Printf("Daily - yearly metrics\n")
+		var allMetrics Metrics
+		lib.FatalOnError(yaml.Unmarshal(data, &allMetrics))
 
-		// Metrics from daily to yearly
-		for _, period := range periodsFromDay {
-			// Some bigger periods like month, quarters, years doesn't need to be updated every run
-			if !ctx.ResetIDB && !computePeriodAtThisDate(period, to) {
-				lib.Printf("Skipping recalculating period \"%s\" for date to %v\n", period, to)
-				continue
+		// Iterate all metrics
+		for _, metric := range allMetrics.Metrics {
+			periods := strings.Split(metric.Periods, ",")
+			for _, period := range periods {
+				if !ctx.ResetIDB && !computePeriodAtThisDate(period, to) {
+					lib.Printf("Skipping recalculating period \"%s\" for date to %v\n", period, to)
+					continue
+				}
+				lib.Printf("Calculate metric %v...\n", metric.Name)
+				seriesNameOrFunc := metric.SeriesNameOrFunc
+				if metric.AddPeriodToName {
+					seriesNameOrFunc += "_" + period
+				}
+				lib.ExecCommand(
+					&ctx,
+					[]string{
+						cmdPrefix + "db2influx",
+						seriesNameOrFunc,
+						fmt.Sprintf("%s/%s.sql", metricsDir, metric.MetricSQL),
+						lib.ToYMDDate(from),
+						lib.ToYMDDate(to),
+						period,
+					},
+					nil,
+				)
 			}
-
-			// Reviewers daily, weekly, monthly, quarterly, yearly
-			lib.ExecCommand(
-				&ctx,
-				[]string{
-					cmdPrefix + "db2influx",
-					"reviewers_" + period,
-					metricsDir + "/reviewers.sql",
-					lib.ToYMDDate(from),
-					lib.ToYMDDate(to),
-					period,
-				},
-				nil,
-			)
-
-			// SIG mentions daily, weekly, monthly, quarterly, yearly
-			lib.ExecCommand(
-				&ctx,
-				[]string{
-					cmdPrefix + "db2influx",
-					"sig_mentions_data",
-					metricsDir + "/sig_mentions.sql",
-					lib.ToYMDDate(from),
-					lib.ToYMDDate(to),
-					period,
-				},
-				nil,
-			)
-
-			// SIG mentions categories daily, weekly, monthly, quarterly, yearly
-			lib.ExecCommand(
-				&ctx,
-				[]string{
-					cmdPrefix + "db2influx",
-					"sig_mentions_cats_data",
-					metricsDir + "/sig_mentions_cats.sql",
-					lib.ToYMDDate(from),
-					lib.ToYMDDate(to),
-					period,
-				},
-				nil,
-			)
-
-			// PRs merged per repo daily, weekly, monthly, quarterly, yearly
-			lib.ExecCommand(
-				&ctx,
-				[]string{
-					cmdPrefix + "db2influx",
-					"prs_merged_data",
-					metricsDir + "/prs_merged.sql",
-					lib.ToYMDDate(from),
-					lib.ToYMDDate(to),
-					period,
-				},
-				nil,
-			)
-
-			// PRs merged per repo daily, weekly, monthly, quarterly, yearly
-			lib.ExecCommand(
-				&ctx,
-				[]string{
-					cmdPrefix + "db2influx",
-					"company_activity",
-					metricsDir + "/company_activity.sql",
-					lib.ToYMDDate(from),
-					lib.ToYMDDate(to),
-					period,
-				},
-				nil,
-			)
-		}
-
-		// Metrics that include hourly data
-		lib.Printf("Hourly - yearly metrics\n")
-		for _, period := range periodsFromHour {
-			// Some bigger periods like month, quarters, years doesn't need to be updated every run
-			if !ctx.ResetIDB && !computePeriodAtThisDate(period, to) {
-				lib.Printf("Skipping recalculating period \"%s\" for date to %v\n", period, to)
-				continue
-			}
-
-			// All PRs merged hourly, daily, weekly, monthly, quarterly, yearly
-			lib.ExecCommand(
-				&ctx,
-				[]string{
-					cmdPrefix + "db2influx",
-					"all_prs_merged_" + period,
-					metricsDir + "/all_prs_merged.sql",
-					lib.ToYMDHMSDate(from),
-					lib.ToYMDHMSDate(to),
-					period,
-				},
-				nil,
-			)
 		}
 	}
 	lib.Printf("Sync success\n")
