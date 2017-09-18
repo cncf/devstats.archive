@@ -5,8 +5,8 @@ import (
 	"testing"
 	"time"
 
-	lib "k8s.io/test-infra/gha2db"
-	testlib "k8s.io/test-infra/gha2db/test"
+	lib "gha2db"
+	testlib "gha2db/test"
 )
 
 func TestCleanUTF8(t *testing.T) {

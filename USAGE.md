@@ -24,7 +24,7 @@ It displays results using Grafana and InfluxDB time series database.
 
 Uses GNU `Makefile`:
 - `make check` - to apply gofmt and golint
-- `make` to compile static binaries: `structure`, `gha2db`, `db2influx`, `gha2db_sync`, `runq`, `z2influx`.
+- `make` to compile static binaries: `structure`, `gha2db`, `db2influx`, `gha2db_sync`, `runq`, `z2influx`, `import_affs`.
 - `make install` - to install binaries
 - `make clean` - to clean binaries
 - `make test` - to execute non-DB tests
@@ -257,6 +257,7 @@ Defaults are:
 - Database name: PG_DB or 'gha'
 - Database user: PG_USER or 'gha_admin'
 - Database password: PG_PASS || 'password'
+- Database SSL: PG_SSL || 'disable'
 - If You want it to generate database indexes set `GHA2DB_INDEX` environment variable
 - If You want to skip table creations set `GHA2DB_SKIPTABLE` environment variable (when `GHA2DB_INDEX` also set, it will create indexes on already existing table structure, possibly already populated)
 - If You want to skip creating DB tools (like views and functions), use `GHA2DB_SKIPTOOLS` environment variable.
@@ -379,7 +380,7 @@ This tool takes at least one parameter - sql file name.
 Typical usages:
 - `time PG_PASS='password' ./runq metrics/metric.sql`
 
-Some SQLis files require parameter substitution (like all metrics used by Grafana).
+Some SQLs files require parameter substitution (like all metrics used by Grafana).
 
 They usually have `'{{from}}'` and `'{{to}}'` parameters, to run such files do:
 - `time PG_PASS='password' ./runq metrics/metric.sql '{{from}}' 'YYYY-MM-DD HH:MM:SS' '{{to}}' 'YYYY-MM-DD HH:MM:SS'`
@@ -614,7 +615,7 @@ Feed InfluxDB using:
 Grafana allows to save dashboards to JSON files.
 There are few defined dashboards in [grafana/dashboards/](https://github.com/cncf/gha2db/blob/master/grafana/dashboards/) directory.
 
-Metrics are described in [READ](https://github.com/cncf/gha2db/blob/master/README.md) in `Grafana dashboards` section.
+Metrics are described in [README](https://github.com/cncf/gha2db/blob/master/README.md) in `Grafana dashboards` section.
 
 # To enable SSL Grafana:
 - First You need to install certbot, this is for example for Apache on Ubuntu 17.04:
