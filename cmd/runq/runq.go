@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	lib "k8s.io/test-infra/gha2db"
+	lib "gha2db"
 )
 
 func runq(sqlFile string, params []string) {

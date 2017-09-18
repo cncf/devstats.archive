@@ -12,7 +12,7 @@ import (
 
 // PgConn Connects to Postgres database
 func PgConn(ctx *Ctx) *sql.DB {
-	connectionString := "client_encoding=UTF8 host='" + ctx.PgHost + "' port=" + ctx.PgPort + " dbname='" + ctx.PgDB + "' user='" + ctx.PgUser + "' password='" + ctx.PgPass + "'"
+	connectionString := "client_encoding=UTF8 sslmode='" + ctx.PgSSL + "' host='" + ctx.PgHost + "' port=" + ctx.PgPort + " dbname='" + ctx.PgDB + "' user='" + ctx.PgUser + "' password='" + ctx.PgPass + "'"
 	if ctx.QOut {
 		// Use fmt.Printf (not lib.Printf that logs to DB) here
 		// Avoid trying to log something to DB while connecting

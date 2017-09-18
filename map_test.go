@@ -4,8 +4,8 @@ import (
 	"strings"
 	"testing"
 
-	lib "k8s.io/test-infra/gha2db"
-	testlib "k8s.io/test-infra/gha2db/test"
+	lib "gha2db"
+	testlib "gha2db/test"
 )
 
 func TestSkipEmpty(t *testing.T) {

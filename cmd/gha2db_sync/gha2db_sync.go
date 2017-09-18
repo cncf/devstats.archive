@@ -8,8 +8,9 @@ import (
 	"strings"
 	"time"
 
+	lib "gha2db"
+
 	yaml "gopkg.in/yaml.v2"
-	lib "k8s.io/test-infra/gha2db"
 )
 
 // Gaps contain list of metrics to fill gaps

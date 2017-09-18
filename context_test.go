@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	lib "k8s.io/test-infra/gha2db"
+	lib "gha2db"
 )
 
 // Copies Ctx structure
@@ -23,6 +23,7 @@ func copyContext(in *lib.Ctx) *lib.Ctx {
 		PgDB:             in.PgDB,
 		PgUser:           in.PgUser,
 		PgPass:           in.PgPass,
+		PgSSL:            in.PgSSL,
 		Index:            in.Index,
 		Table:            in.Table,
 		Tools:            in.Tools,
@@ -127,6 +128,7 @@ func TestInit(t *testing.T) {
 		PgDB:             "gha",
 		PgUser:           "gha_admin",
 		PgPass:           "password",
+		PgSSL:            "disable",
 		Index:            false,
 		Table:            true,
 		Tools:            true,
@@ -209,6 +211,7 @@ func TestInit(t *testing.T) {
 				"PG_DB":   "test",
 				"PG_USER": "pgadm",
 				"PG_PASS": "123!@#",
+				"PG_SSL":  "enable",
 			},
 			dynamicSetFields(
 				t,
@@ -219,6 +222,7 @@ func TestInit(t *testing.T) {
 					"PgDB":   "test",
 					"PgUser": "pgadm",
 					"PgPass": "123!@#",
+					"PgSSL":  "enable",
 				},
 			),
 		},
