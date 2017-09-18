@@ -1,5 +1,5 @@
 select
-  concat(sel1.sig, '_', sel2.kind) as sig_kind,
+  concat('labels_sig_kind,', sel1.sig, '_', sel2.kind) as sig_kind,
   count(distinct sel1.issue_id) as cnt
 from (
   select distinct issue_id,
