@@ -136,13 +136,13 @@ func fillGapsInSeries(ctx *lib.Ctx, from, to time.Time) {
 
 	// Local or cron mode?
 	cmdPrefix := ""
-	metricsPrefix := "/etc/gha2db/"
+	dataPrefix := "/etc/gha2db/"
 	if ctx.Local {
 		cmdPrefix = "./"
-		metricsPrefix = "./"
+		dataPrefix = "./"
 	}
 
-	data, err := ioutil.ReadFile(metricsPrefix + "metrics/gaps.yaml")
+	data, err := ioutil.ReadFile(dataPrefix + "metrics/gaps.yaml")
 	if err != nil {
 		lib.FatalOnError(err)
 		return
@@ -218,10 +218,10 @@ func sync(args []string) {
 
 	// Local or cron mode?
 	cmdPrefix := ""
-	metricsPrefix := "/etc/gha2db/"
+	dataPrefix := "/etc/gha2db/"
 	if ctx.Local {
 		cmdPrefix = "./"
-		metricsPrefix = "./"
+		dataPrefix = "./"
 	}
 
 	// Connect to Postgres DB
@@ -293,7 +293,7 @@ func sync(args []string) {
 
 	// DB2Influx
 	if !ctx.SkipIDB {
-		metricsDir := metricsPrefix + "metrics"
+		metricsDir := dataPrefix + "metrics"
 		// Regenerate points from this date
 		if ctx.ResetIDB {
 			from = ctx.DefaultStartDate
