@@ -16,4 +16,4 @@
 # ./gha2db 2017-07-25 0 2017-07-28 0
 # ./gha2db 2015-11-16 0 2017-10-07 0 'kubernetes,kubernetes-client,kubernetes-incubator'
 # ./gha2db 2016-05-07 0 2017-08-19 0 'kubernetes,kubernetes-client,kubernetes-incubator'
-./gha2db 2015-08-06 0 2017-08-22 0 'kubernetes,kubernetes-client,kubernetes-incubator'
+GHA2DB_LOCAL=1 ./gha2db 2015-08-06 0 2017-08-22 0 'kubernetes,kubernetes-client,kubernetes-incubator'
