@@ -1,21 +1,26 @@
 # gha2db installation on Mac
 
 Prerequisites:
-- macOS >= 10.12.
-- [golang](https://golang.org), this tutorial uses Go 1.9
-- [brew](https://brew.sh)
-- [golint](https://github.com/golang/lint): `go get -u github.com/golang/lint/golint`
-- [goimports](https://godoc.org/golang.org/x/tools/cmd/goimports): `go get golang.org/x/tools/cmd/goimports`
-- Go InfluxDB client: install with: `go get github.com/influxdata/influxdb/client/v2`
-- Go Postgres client: install with: `go get github.com/lib/pq`
-- Go unicode text transform tools: install with: `go get golang.org/x/text/transform` and `go get golang.org/x/text/unicode/norm`
-- Go YAML parser library: install with: `go get gopkg.in/yaml.v2`
-- Wget: install with: `brew install wget`
+1. Ubuntu 16.04 LTS (quite old, but longest support).
+2. [golang](https://golang.org), this tutorial uses Go 1.6
+- `apt-get update`
+- `apt-get install golang`
+- `mkdir /data/dev`
+- `GOPATH=/data/dev`
+- `export GOPATH`
+- `PATH=$PATH:$GOPATH/bin`
+- `export PATH`
+3. [golint](https://github.com/golang/lint): `go get -u github.com/golang/lint/golint`
+4. [goimports](https://godoc.org/golang.org/x/tools/cmd/goimports): `go get golang.org/x/tools/cmd/goimports`
+5. Go InfluxDB client: install with: `go get github.com/influxdata/influxdb/client/v2`
+6. Go Postgres client: install with: `go get github.com/lib/pq`
+7. Go unicode text transform tools: install with: `go get golang.org/x/text/transform` and `go get golang.org/x/text/unicode/norm`
+8. Go YAML parser library: install with: `go get gopkg.in/yaml.v2`
 
 1. Configure Go:
-- Add those lines to `~/.bash_profile`:
+- For example add to `~/.bash_profile` and/or `~/.profile`:
 ```
-GOPATH=$HOME/dev/go; export GOPATH
+GOPATH=$HOME/data/dev; export GOPATH
 PATH=$PATH:$GOPATH/bin; export PATH
 ```
 2. Go to $GOPATH/src/ and clone gha2db there:
@@ -31,13 +36,12 @@ PATH=$PATH:$GOPATH/bin; export PATH
 - `sudo make install`
 
 9. Install Postgres database ([link](https://gist.github.com/sgnl/609557ebacd3378f3b72)):
-- `brew doctor`
-- `brew update`
-- `brew install postgresql`
-- `brew services start postgresql`
-- `createdb gha`
-- `psql gha`
+- apt-get install postgresql 
+- sudo -i -u postgres
+- psql
+
 10. Inside psql client shell:
+- `create database gha;`
 - `create user gha_admin with password 'your_password_here';`
 - `grant all privileges on database "gha" to gha_admin;`
 - `alter user gha_admin createdb;`
@@ -47,10 +51,12 @@ PATH=$PATH:$GOPATH/bin; export PATH
 - `psql gha < k8s.sql` (restore DB dump)
 
 12. Install InfluxDB time-series database ([link](https://docs.influxdata.com/influxdb/v0.9/introduction/installation/)):
-- `brew update`
-- `brew install influxdb`
-- `ln -sfv /usr/local/opt/influxdb/*.plist ~/Library/LaunchAgents`
-- `launchctl load ~/Library/LaunchAgents/homebrew.mxcl.influxdb.plist`
+- Ubuntu 16 contains very old `influxdb` when installed by default `apt-get install influxdb`, so:
+- `curl -sL https://repos.influxdata.com/influxdb.key | sudo apt-key add -`
+- `source /etc/lsb-release`
+- `echo "deb https://repos.influxdata.com/${DISTRIB_ID,,} ${DISTRIB_CODENAME} stable" | sudo tee /etc/apt/sources.list.d/influxdb.list`
+- `sudo apt-get update && sudo apt-get install influxdb`
+- `sudo service influxdb start`
 - Create InfluxDB user, database: `IDB_PASS='your_password_here' ./grafana/influxdb_setup.sh`
 
 13. Databases installed, now You need to test if all works fine, use database test coverage:
@@ -77,9 +83,11 @@ PATH=$PATH:$GOPATH/bin; export PATH
 - Check max event created date: `select max(created_at) from gha_events` and logs `select * from gha_logs order by dt desc limit 20`.
 
 16. Install [Grafana](http://docs.grafana.org/installation/mac/)
-- `brew update`
-- `brew install grafana`
-- `brew services start grafana`
+- Follow: http://docs.grafana.org/installation/debian/
+- `wget https://s3-us-west-2.amazonaws.com/grafana-releases/release/grafana_4.5.1_amd64.deb`
+- `sudo apt-get install -y adduser libfontconfig`
+- `sudo dpkg -i grafana_4.5.1_amd64.deb`
+- `sudo service grafana-server start`
 - Go to Grafana UI: `http://localhost:3000`
 - Login as "admin"/"admin" (You can change passwords later)
 - Choose add data source, then Add Influx DB with those settings:
@@ -88,7 +96,7 @@ PATH=$PATH:$GOPATH/bin; export PATH
 - Click Home, Import dashboard, Upload JSON file, choose dashboards saved as JSONs in `grafana/dashboards/dashboard_name.json`, data source "InfluxDB" and save.
 - Do the same for all defined dashboards.
 To enable Grafana anonymous login, do the following:
-- Edit Grafana config file: `/usr/local/share/grafana/conf/defaults.ini` and/or `/usr/local/etc/grafana/grafana.ini`:
+- Edit Grafana config file: `/etc/grafana/grafana.ini`:
 - Make sure You have options enabled:
 ```
 [auth.anonymous]
@@ -96,7 +104,7 @@ enabled = true
 org_name = Main Org.
 org_role = Viewer
 ```
-- `brew services restart grafana`
+- `service grafana-server restart`
 - Go to Grafana UI (localhost:3000), choose sign out, and then access localhost:3000 again. You should be able to view dashboards as a guest now. To login again use http://localhost:3000/login.
 - You can also enable SSL, to do so You need to follow SSL instruction in [USAGE](https://github.com/cncf/gha2db/blob/master/USAGE.md) (that requires domain name).
 
