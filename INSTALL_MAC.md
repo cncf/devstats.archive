@@ -67,9 +67,10 @@ PATH=$PATH:$GOPATH/bin; export PATH
 15. Now we need to setup cron job that will call sync every hour (10 minutes after 1:00, 2:00, ...)
 - You need to open `crontab.entry` file, it looks like this:
 ```
-10 * * * * PG_PASS="..." cron_gha2db_sync.sh 1> /tmp/gha2db_sync.out 2> /tmp/gha2db_sync.err
+10 * * * * PATH=$PATH:/path/to/your/GOROOT/bin PG_PASS="..." cron_gha2db_sync.sh 1> /tmp/gha2db_sync.out 2> /tmp/gha2db_sync.err
 ```
 - You need to change "..." PG_PASS to the real postgres password value and copy this line.
+- You need to change "/path/to/your/GOROOT/bin" to the value of "$GOREOOT/bin", You cannot use $GOROOT in crontab directly.
 - Now run `crontab -e` and put this line at the end of file and save.
 - Cron job will update Postgres and InfluxDB databases at 0:10, 1:10, ... 23:10 every day.
 - It outputs logs to `/tmp/gha2db_sync.out` and `/tmp/gha2db_sync.err` and also to gha Postgres database: into table `gha_logs`.
