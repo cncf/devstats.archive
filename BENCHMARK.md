@@ -79,7 +79,7 @@ One word: Go version can import all GitHub archives data (not discarding anythin
 We can also see that MySQL is very slightly slower that Postgres (but this is just for inserting data, without indexes defined yet).
 MySQL is a lot slower on metrics/queries - but this is not checked in this benchmark.
 
-# db2influx/sync tools benchmarks
+# db2influx/gha2db_sync tools benchmarks
 
 To benchmark db2influx we're just running a command that regenerates all metrics.
 

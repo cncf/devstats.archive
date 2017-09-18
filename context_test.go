@@ -42,6 +42,7 @@ func copyContext(in *lib.Ctx) *lib.Ctx {
 		OldFormat:        in.OldFormat,
 		Exact:            in.Exact,
 		LogToDB:          in.LogToDB,
+		Local:            in.Local,
 	}
 	return &out
 }
@@ -145,6 +146,7 @@ func TestInit(t *testing.T) {
 		OldFormat:        false,
 		Exact:            false,
 		LogToDB:          true,
+		Local:            false,
 	}
 
 	// Test cases
@@ -350,6 +352,15 @@ func TestInit(t *testing.T) {
 				t,
 				copyContext(&defaultContext),
 				map[string]interface{}{"LogToDB": false},
+			),
+		},
+		{
+			"Setting local mode",
+			map[string]string{"GHA2DB_LOCAL": "yeah"},
+			dynamicSetFields(
+				t,
+				copyContext(&defaultContext),
+				map[string]interface{}{"Local": true},
 			),
 		},
 	}
