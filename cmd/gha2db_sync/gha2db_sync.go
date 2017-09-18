@@ -133,7 +133,16 @@ func createSeriesFromFormula(def string) (result []string) {
 func fillGapsInSeries(ctx *lib.Ctx, from, to time.Time) {
 	lib.Printf("Fill gaps in series\n")
 	var gaps Gaps
-	data, err := ioutil.ReadFile("metrics/gaps.yaml")
+
+	// Local or cron mode?
+	cmdPrefix := ""
+	metricsPrefix := "/etc/gha2db/"
+	if ctx.Local {
+		cmdPrefix = "./"
+		metricsPrefix = "./"
+	}
+
+	data, err := ioutil.ReadFile(metricsPrefix + "metrics/gaps.yaml")
 	if err != nil {
 		lib.FatalOnError(err)
 		return
@@ -162,7 +171,7 @@ func fillGapsInSeries(ctx *lib.Ctx, from, to time.Time) {
 			lib.ExecCommand(
 				ctx,
 				[]string{
-					"./z2influx",
+					cmdPrefix + "z2influx",
 					strings.Join(addPeriodSuffix(series, period), ","),
 					lib.ToYMDDate(from),
 					lib.ToYMDDate(to),
@@ -205,7 +214,15 @@ func sync(args []string) {
 	}
 	org := lib.StringsMapToArray(stripFunc, strings.Split(sOrg, ","))
 	repo := lib.StringsMapToArray(stripFunc, strings.Split(sRepo, ","))
-	lib.Printf("sync.go: Running on: %s/%s\n", strings.Join(org, "+"), strings.Join(repo, "+"))
+	lib.Printf("gha2db_sync.go: Running on: %s/%s\n", strings.Join(org, "+"), strings.Join(repo, "+"))
+
+	// Local or cron mode?
+	cmdPrefix := ""
+	metricsPrefix := "/etc/gha2db/"
+	if ctx.Local {
+		cmdPrefix = "./"
+		metricsPrefix = "./"
+	}
 
 	// Connect to Postgres DB
 	con := lib.PgConn(&ctx)
@@ -245,7 +262,7 @@ func sync(args []string) {
 	lib.ExecCommand(
 		&ctx,
 		[]string{
-			"./gha2db",
+			cmdPrefix + "gha2db",
 			fromDate,
 			fromHour,
 			toDate,
@@ -261,7 +278,7 @@ func sync(args []string) {
 	lib.ExecCommand(
 		&ctx,
 		[]string{
-			"./structure",
+			cmdPrefix + "structure",
 		},
 		map[string]string{
 			"GHA2DB_SKIPTABLE": "1",
@@ -276,7 +293,7 @@ func sync(args []string) {
 
 	// DB2Influx
 	if !ctx.SkipIDB {
-		metricsDir := "metrics"
+		metricsDir := metricsPrefix + "metrics"
 		// Regenerate points from this date
 		if ctx.ResetIDB {
 			from = ctx.DefaultStartDate
@@ -301,7 +318,7 @@ func sync(args []string) {
 			lib.ExecCommand(
 				&ctx,
 				[]string{
-					"./db2influx",
+					cmdPrefix + "db2influx",
 					"sig_mentions_breakdown_data",
 					metricsDir + "/sig_mentions_breakdown.sql",
 					lib.ToYMDDate(from),
@@ -315,7 +332,7 @@ func sync(args []string) {
 			lib.ExecCommand(
 				&ctx,
 				[]string{
-					"./db2influx",
+					cmdPrefix + "db2influx",
 					"default_multi_column",
 					metricsDir + "/time_metrics.sql",
 					lib.ToYMDDate(from),
@@ -329,7 +346,7 @@ func sync(args []string) {
 			lib.ExecCommand(
 				&ctx,
 				[]string{
-					"./db2influx",
+					cmdPrefix + "db2influx",
 					"default_multi_column",
 					metricsDir + "/opened_to_merged.sql",
 					lib.ToYMDDate(from),
@@ -343,7 +360,7 @@ func sync(args []string) {
 			lib.ExecCommand(
 				&ctx,
 				[]string{
-					"./db2influx",
+					cmdPrefix + "db2influx",
 					"pr_comments_" + period,
 					metricsDir + "/pr_comments.sql",
 					lib.ToYMDDate(from),
@@ -357,7 +374,7 @@ func sync(args []string) {
 			lib.ExecCommand(
 				&ctx,
 				[]string{
-					"./db2influx",
+					cmdPrefix + "db2influx",
 					"sig_mentions_labels_data",
 					metricsDir + "/labels_sig.sql",
 					lib.ToYMDDate(from),
@@ -371,7 +388,7 @@ func sync(args []string) {
 			lib.ExecCommand(
 				&ctx,
 				[]string{
-					"./db2influx",
+					cmdPrefix + "db2influx",
 					"kind_mentions_labels_data",
 					metricsDir + "/labels_kind.sql",
 					lib.ToYMDDate(from),
@@ -385,7 +402,7 @@ func sync(args []string) {
 			lib.ExecCommand(
 				&ctx,
 				[]string{
-					"./db2influx",
+					cmdPrefix + "db2influx",
 					"sig_kind_mentions_labels_data",
 					metricsDir + "/labels_sig_kind.sql",
 					lib.ToYMDDate(from),
@@ -409,7 +426,7 @@ func sync(args []string) {
 			lib.ExecCommand(
 				&ctx,
 				[]string{
-					"./db2influx",
+					cmdPrefix + "db2influx",
 					"reviewers_" + period,
 					metricsDir + "/reviewers.sql",
 					lib.ToYMDDate(from),
@@ -423,7 +440,7 @@ func sync(args []string) {
 			lib.ExecCommand(
 				&ctx,
 				[]string{
-					"./db2influx",
+					cmdPrefix + "db2influx",
 					"sig_mentions_data",
 					metricsDir + "/sig_mentions.sql",
 					lib.ToYMDDate(from),
@@ -437,7 +454,7 @@ func sync(args []string) {
 			lib.ExecCommand(
 				&ctx,
 				[]string{
-					"./db2influx",
+					cmdPrefix + "db2influx",
 					"sig_mentions_cats_data",
 					metricsDir + "/sig_mentions_cats.sql",
 					lib.ToYMDDate(from),
@@ -451,7 +468,7 @@ func sync(args []string) {
 			lib.ExecCommand(
 				&ctx,
 				[]string{
-					"./db2influx",
+					cmdPrefix + "db2influx",
 					"prs_merged_data",
 					metricsDir + "/prs_merged.sql",
 					lib.ToYMDDate(from),
@@ -465,7 +482,7 @@ func sync(args []string) {
 			lib.ExecCommand(
 				&ctx,
 				[]string{
-					"./db2influx",
+					cmdPrefix + "db2influx",
 					"company_activity",
 					metricsDir + "/company_activity.sql",
 					lib.ToYMDDate(from),
@@ -489,7 +506,7 @@ func sync(args []string) {
 			lib.ExecCommand(
 				&ctx,
 				[]string{
-					"./db2influx",
+					cmdPrefix + "db2influx",
 					"all_prs_merged_" + period,
 					metricsDir + "/all_prs_merged.sql",
 					lib.ToYMDHMSDate(from),
