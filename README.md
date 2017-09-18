@@ -1,24 +1,41 @@
-# GitHub Archives Visualization
+# GitHub archives Grafana visualization dashboards
 
 Author: Łukasz Gryglicki <lukaszgryglick@o2.pl>
 
 This is a toolset to visualize GitHub [archives](https://www.githubarchive.org/) using Grafana dashboards.
+
+Gha2db stands for [G]it[H]ub [A]rchives to [D]ash[B]oards.
 
 # Goal
 
 We want to create a toolset for visualizing various metrics for the Kubernetes community.
 Everything is open source so that it can be used by other CNCF and non-CNCF open source projects.
 The only requirement is that project must be hosted on a public GitHub repositor/repositories.
-The work builds on the [Velodrome](https://github.com/kubernetes/test-infra/tree/master/velodrome) tool that was built by [apelisse](https://github.com/apelisse) and others.
 
-This project aims to add new metrics for the existing Grafana dashboards.
+# Forking and installing locally
+
+This toolset uses only Open Source tools: Postgres database, InfluxDB time-series database nad Grafana dashboards.
+It is written in Go, and can be forked and installed by anyone.
+
+Contributions and PRs are welcome.
+If You see a bug or want to add na new metric please create [issue](https://github.com/cncf/gha2db/issues) and/or [PR](https://github.com/cncf/gha2db/pulls).
+
+To work on this project locally please fork original [repository](https://github.com/cncf/gha2db), and then follow instructions about running locally:
+- [Compiling and running on macOS](https://github.com/cncf/gha2db/INSTALL_MAC.md).
+- [Compiling and running on Linux](https://github.com/cncf/gha2db/INSTALL_UBUNTU.md).
+
+For more detailed description of all environment variables, tools, switches etc, please see [usage](https://github.com/cncf/gha2db/USAGE.md).
+
+# Metrics
 We want to support all kind of metrics, including historical ones.
 Please see [requested metrics](https://docs.google.com/document/d/1o5ncrY6lVX3qSNJGWtJXx2aAC2MEqSjnML4VJDrNpmE/edit?usp=sharing) to see what kind of metrics are needed.
 Many of them cannot be computed based on the data sources currently used.
 
-The current Velodrome implementation uses the GitHub API to get its data. This has some limitations:
-- It is not able to get repo and PR state at any given point of history
-- It is limited by GitHub API token rate limits.
+We also want to have per company statistics. To implement such metrics we need a mapping of developers and their employers.
+
+There is a projects that attempts to create such mapping [cncf/gitdm](https://github.com/cncf/gitdm).
+
+Gha2db has an import tool that fetches company affiliations `from cncf/gitdm` and allows to create per company metrics/statistics.
 
 # GitHub Archives
 
@@ -33,7 +50,7 @@ Our approach is to use GitHub archives instead. The possible alternatives are:
 2) GitHub API:
 - You can get the current state of the objects, but you cannot get repo, PR, issue state in the past (for example summary fields, etc).
 - It is limited by GitHub API usage per hour, which makes local development harder.
-- API limits are very aggressive for unauthorized access, and even with authorized access, you're limited to 5000 API calls/hour.
+- API limits are very aggressive for unauthorized access, and even with authorized access, you're limited to 5000 API calls/hour. With this limit it would take more than 2 months to get all Kubernetes GitHub events (estimate).
 - It is much slower than processing GitHub archives or BigQuery.
 - You must query it via API and it is returning a single result.
 - You can use GitHub hook callbacks, but they only fire for current events.
@@ -51,20 +68,14 @@ Our approach is to use GitHub archives instead. The possible alternatives are:
 - There is an already implemented version in Go, please see usage here [USAGE](https://github.com/cncf/gha2db/blob/master/USAGE.md)
 - Dashboards can be displayed here [link](https://cncftest.io/?orgId=1)
 
-# Proposed architecture
+# Architecture
 
-Velodrome consists of 3 parts:
-- `Fetcher` - it is used to query GitHub API and store results in MySQL database (but only a small part of data available is stored)
-- `Transform` - it is used to compute some metrics on MySQL database and save them as InfluxDB series
-- `Grafana` - displays data from InfluxDB time series.
-
-Our architecture is quite similar, but we're getting all possible GitHub data for all objects, and all objects historical state as well. It consists of:
+We're getting all possible GitHub data for all objects, and all objects historical state as well (not discarding any data):
 
 1) `structure` (manages database structure, summaries, views)
 - [structure](https://github.com/cncf/gha2db/blob/master/cmd/structure/structure.go)
 - It is used to create database structure, indexes and to update database summary tables, views etc.
-- Ruby version supported both MySQL and Postgres. Tests have shown that Postgres is a way better than MySQL for this.
-- Go version only supports Postgres. Ruby version is removed and no longer maintained.
+- Postgres advantages over MySQL include:
 - Postgres supports hash joins that allows multi-million table joins in less than 1s, while MySQL requires more than 3 minutes. MySQL had to use data duplication in multiple tables to create fast metrics.
 - Postgres has built-in fast REGEXP extract & match, while MySQL only has slow REGEXP match and no REGEXP extract, requiring external libraries like `lib_mysql_pcre` to be installed.
 - Postgres supports materialized views - so complex metrics can be stored by such views, and we only need to refresh them when syncing data. MySQL requires creating an additional table and managing it.
@@ -72,7 +83,7 @@ Our architecture is quite similar, but we're getting all possible GitHub data fo
 
 2) `gha2db` (imports GitHub archives to database and eventually JSON files)
 - [gha2db](https://github.com/cncf/gha2db/blob/master/cmd/gha2db/gha2db.go)
-- This is a `fetcher` equivalent, differences are that it reads from GitHub archive instead of GitHub API and writes to Postgres instead of MySQL
+- Reads from GitHub archive and writes to Postgres
 - It saves ALL data from GitHub archives, so we have all GitHub structures fully populated. See [Database structure](https://github.com/cncf/gha2db/blob/master/USAGE.md).
 - We have all historical data from all possible GitHub events and summary values for repositories at given points of time.
 - The idea is to divide all data into two categories: `const` and `variable`. Const data is a data that is not changing in time, variable data is a data that changes in time, so `event_id` is added as a part of this data primary key.
@@ -92,10 +103,10 @@ Our architecture is quite similar, but we're getting all possible GitHub data fo
 - This program figures out what is the most recent data in Postgres database then queries GitHub archive from this date to current date.
 - It will add data to Postgres database (since the last run)
 - It will update summary tables and/or (materialized) views on Postgres DB.
-- Then it will call `db2influx` for all defined SQL metrics.
-- When adding new metrics, it needs to be called here.
+- Then it will call `db2influx` for all defined SQL metrics and update Influx database as well.
+- It reads list of metrics from YAML file: `metrics/metrics.yaml`, some metrics require to fill gaps in their data. Those metrics are defined in another YAML file `metrics/gaps.yaml`.
 - This tool also supports initial computing of All InfluxDB data (instead of default update since last run).
-- It will be called from cron job at least every 45 minutes - GitHub archive publishes new file every hour, so we're off by at most 1 hour.
+- It is called by cron job on 1:10, 2:10, ... and so on - GitHub archive publishes new file every hour, so we're off by at most 1 hour.
 
 5) Additional stuff, most important being `runq`  and `import_affs` tools.
 - [runq](https://github.com/cncf/gha2db/blob/master/cmd/runq/runq.go)
@@ -113,28 +124,21 @@ Detailed usage is here [USAGE](https://github.com/cncf/gha2db/blob/master/USAGE.
 
 This toolset can either replace velodrome or just add value to `velodrome`.
 
-They both can use shared InfluxDB (We are naming series in such a way to avoid conflicts with existing ones).
+They both can use shared InfluxDB (assuming there are no series names conflicts, but gha2db can prefix every serie with some special value if needed.)
 
-Then we can just add new dashboards that use my `gha2db`/`db2influx` workflow in the existing Grafana, and add a cron job that will keep them up to date.
+Then we can just add new dashboards that use my `gha2db`/`db2influx` workflow in the existing Grafana, or we can just use gha2db alone.
 
 # Adding new metrics
 
 To add new metrics we need to:
 1) Define parameterized SQL (with `{{from}}` and `{{to}}` params) that returns this metric data.
-2) Add `db2influx` call for this metric in `gha2db_sync` tool. 
-3) If metrics create data gaps (for example returns multipe rows with different counts depending on data range), add automatic filling gaps in [gaps.yaml](https://github.com/cncf/gha2db/blob/master/metrics/gaps.yaml) (file is used by `z2influx` tool).
+2) Define this metric in [metrics/metrics.yaml](https://github.com/cncf/gha2db/blob/master/metrics/metrics.yaml) (file used by `gha2db_sync` tool).
+3) If metrics create data gaps (for example returns multipe rows with different counts depending on data range), add automatic filling gaps in [metrics/gaps.yaml](https://github.com/cncf/gha2db/blob/master/metrics/gaps.yaml) (file is used by `z2influx` tool).
 4) Add test coverage in [metrics_test.go](https://github.com/cncf/gha2db/blob/master/metrics_test.go).
-5) Add Grafana dashboard or row that displays this metric
-6) Export new Grafana dashboard to JSON
+5) Add Grafana dashboard or row that displays this metric.
+6) Export new Grafana dashboard to JSON.
 7) Create PR for the new metric.
-8) Explain how metrics SQLs works in USAGE.md (currently this is pending for all metrics defined so far)
-
-# Local development
-Local development is much easier:
-1) Install psql, influx, grafana - all with default options.
-2) Fetch populated psql database [Postgres database dump](https://cncftest.io/web/k8s.sql.xz)
-3) Just run Go tools manually: `structure`, `gha2db`, `db2influx`, `gha2db_sync`, `runq`, `z2influx`, `import_affs`.
-4) Run tests locally, plaese see [testing](https://github.com/cncf/gha2db/blob/master/TESTING.md)
+8) Explain how metrics SQLs works in USAGE.md (currently this is pending for all metrics defined so far).
 
 # Database structure details
 
