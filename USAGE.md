@@ -14,7 +14,7 @@ Entire toolset was rewritten in Go.
 
 Go version only support Postgres, it proved to be a lot faster than Ruby version.
 
-Finally Ruby version was dropped.
+Finally, Ruby version was dropped.
 
 This tools filter GitHub archive for given date period and given organization, repository and save results in a Postgres database.
 It can also save results into JSON files.
@@ -62,8 +62,8 @@ Next two parameters are date to:
 - HH
 
 Both next two parameters are optional:
-- org (if given and non empty '' then only return JSONs matching given org). You can also provide a comma separated list of orgs here: 'org1,org2,org3'.
-- repo (if given and non empty '' then only return JSONs matching given repo). You can also provide a comma separated list of repos here: 'repo1,repo2'.
+- org (if given and non-empty '' then only return JSONs matching given org). You can also provide a comma-separated list of orgs here: 'org1,org2,org3'.
+- repo (if given and non-empty '' then only return JSONs matching given repo). You can also provide a comma-separated list of repos here: 'repo1,repo2'.
 
 Org/Repo filtering:
 - You can filter only by org by passing for example 'kubernetes' for org and '' for repo or skipping repo.
@@ -80,17 +80,17 @@ You can tweak `gha2db` tools by environment variables:
 - Set `GHA2DB_NODB` to skip DB processing at all (if `GHA2DB_JSON` not set it will parse all data from GHA, but do nothing with it).
 - Set `GHA2DB_DEBUG` set to 1 to see output for all events generated, set to 2 to see all SQL query parameters.
 - Set `GHA2DB_QOUT` to see all SQL queries.
-- Set `GHA2DB_MGETC` to "y" to assume "y" for get char function (for example to answer "y" to `structure`'s Continue? question).
+- Set `GHA2DB_MGETC` to "y" to assume "y" for `getchar` function (for example to answer "y" to `structure`'s Continue? question).
 - Set `GHA2DB_CTXOUT` to display full environment context.
-- Set `GHA2DB_NCPUS` to positive numeric value, to override number of CPUs to run, this overwrites `GHA2DB_ST`.
-- Set `GHA2DB_STARTDT`, to use start date for processing events (when syncing data with empty database), default `2015-08-06 22:00 UTC`, expects format "YYYY-MM-DD HH:MI:SS".
-- Set `GHA2DB_LASTSERIES`, to specify which InfluxDB series use to determine newest data (it will be used to query newest timestamp), default `'all_prs_merged_d'`.
+- Set `GHA2DB_NCPUS` to positive numeric value, to override the number of CPUs to run, this overwrites `GHA2DB_ST`.
+- Set `GHA2DB_STARTDT`, to use start date for processing events (when syncing data with an empty database), default `2015-08-06 22:00 UTC`, expects format "YYYY-MM-DD HH:MI:SS".
+- Set `GHA2DB_LASTSERIES`, to specify which InfluxDB series use to determine newest data (it will be used to query the newest timestamp), default `'all_prs_merged_d'`.
 - Set `GHA2DB_CMDDEBUG` set to 1 to see commands executed, set to 2 to see commands executed and their output, set to 3 to see full exec environment.
-- Set `GHA2DB_EXPLAIN` for `runq` tool, it will prefix query select(s) with "explain " to display query plan instead of executing real query. Because metric can have multiple selects, and only main select should be replaced with "explain select" - we're replacing only downcased "select" statement followed by new line ("select\n" --> "explain select\n")
-- Set `GHA2DB_OLDFMT` for `gha2db` tool to make it use old pre 2015 GHA JSONs format (instead of new one used by GitHub Archives from 2015-01-01).
+- Set `GHA2DB_EXPLAIN` for `runq` tool, it will prefix query select(s) with "explain " to display query plan instead of executing the real query. Because metric can have multiple selects, and only main select should be replaced with "explain select" - we're replacing only downcased "select" statement followed by newline ("select\n" --> "explain select\n")
+- Set `GHA2DB_OLDFMT` for `gha2db` tool to make it use old pre-2015 GHA JSONs format (instead of a new one used by GitHub Archives from 2015-01-01).
 - Set `GHA2DB_EXACT` for `gha2db` tool to make it process only repositories listed as "orgs" parameter, by their full names, like for example 3 repos: "GoogleCloudPlatform/kubernetes,kubernetes,kubernetes/kubernetes"
 - Set `GHA2DB_SKIPLOG` for any tool to skip logging output to `gha_logs` table.
-- Set `GHA2DB_LOCAL` for gha2db_sync tool to make it prefix call to othe rtools with "./" (so it will use othe rtools binaries from current working directory instead of `/usr/bin/`). Local mode uses "./metrics/" to search for metrics files. Otherwise "/etc/gha2db/metrics/" is used.
+- Set `GHA2DB_LOCAL` for gha2db_sync tool to make it prefix call to other tools with "./" (so it will use other tools binaries from the current working directory instead of `/usr/bin/`). Local mode uses "./metrics/" to search for metrics files. Otherwise "/etc/gha2db/metrics/" is used.
 
 All environment context details are defined in [context.go](https://github.com/cncf/gha2db/blob/master/context.go), please see that file for details (You can also see how it works in [context_test.go](https://github.com/cncf/gha2db/blob/master/context_test.go)).
 
@@ -100,38 +100,38 @@ Examples in this shell script (some commented out, some not):
 
 # Informations
 
-GitHub archives keeps data as Gzipped JSONs for each hour (24 gzipped JSONs per day).
+GitHub archives keep data as Gzipped JSONs for each hour (24 gzipped JSONs per day).
 Single JSON is not a real JSON file, but "\n" newline separated list of JSONs for each GitHub event in that hour.
 So this is a JSON array in reality.
 
-GihHub archive files can be found there <https://www.githubarchive.org>
+GihHub archive files can be found here <https://www.githubarchive.org>
 
 For example to fetch 2017-08-03 18:00 UTC can be fetched by:
 
 - wget http://data.githubarchive.org/2017-08-03-18.json.gz
 
 Gzipped files are usually 10-30 Mb in size (single hour).
-Decompressed fiels are usually 100-200 Mb.
+Decompressed fields are usually 100-200 Mb.
 
-We download this gzipped JSON, process it on the fly, creating array of JSON events and then each single event JSON matching org/repo criteria is saved in [jsons](https://github.com/cncf/gha2db/blob/master/jsons/) directory as `N_ID.json` where:
+We download this gzipped JSON, process it on the fly, creating the array of JSON events and then each single event JSON matching org/repo criteria is saved in [jsons](https://github.com/cncf/gha2db/blob/master/jsons/) directory as `N_ID.json` where:
 - N - given GitHub archive''s JSON hour as UNIX timestamp.
 - ID - GitHub event ID.
 
 Once saved, You can review those JSONs manually (they're pretty printed).
 
-# Mutithreading
+# Multithreading
 
 For example <http://cncftest.io> server has 48 CPU cores.
 It will just process 48 hours in parallel.
-It detects number of available CPUs automatically.
+It detects the number of available CPUs automatically.
 You can use `GHA2DB_ST` environment variable to force single threaded version.
 
 # Results (JSON)
 
-Usually there are about 25000 GitHub events in single hour in Jan 2017 (for July 2017 it is 40000).
+Usually, there are about 25000 GitHub events in a single hour in Jan 2017 (for July 2017 it is 40000).
 Average seems to be from 15000 to 60000.
 
-1) Running this program on a 5 days of data with org `kubernetes` (and no repo set - which means all kubernetes repos):
+1) Running this program on 5 days of data with org `kubernetes` (and no repo set - which means all kubernetes repos):
 - Takes: 10 minutes 50 seconds.
 - Generates 12002 JSONs with summary size 165 Mb (each JSON is a single GitHub event).
 - To do so it processes about 21 Gb of data.
@@ -148,23 +148,23 @@ June 2017:
 - Generates 168683 JSONs with summary size 1.1 Gb.
 - To do so it processes about 126 Gb of data.
 
-Taking all events from single day is 5 minutes 50 seconds (2017-07-28):
+Taking all events from a single day is 5 minutes 50 seconds (2017-07-28):
 - Generates 1194599 JSON files (1.2M)
-- Takes 7 Gb of disck space
+- Takes 7 Gb of disc space
 
 There is a big file containing all Kubernetes events JSONs from Aug 2017 concatenated and xzipped: [K8s August 2017](https://cncftest.io/web/k8s_201708.json.xz).
 
 Please note that this is not a correct JSON, it contains files separated by line `JSON: jsons/filename.json` - that says what was the original JSON filename. This file is 16.7M xzipped, but 1.07G uncompressed.
 
-Please also note that JSON for 2016-10-21 18:00 is broken, so running this command will produce no data. Code will output error to logs and continue. Always examine `errors.txt` from `kubernetes*.sh` script.
+Please also note that JSON for 2016-10-21 18:00 is broken, so running this command will produce no data. The code will output error to logs and continue. Always examine `errors.txt` from `kubernetes*.sh` script.
 
 This will log error and process no JSONs:
 - `./gha2db 2016-10-21 18 2016-10-21 18 'kubernetes,kubernetes-client,kubernetes-incubator'`.
 
-1) Running on all Kubernetes org since beginning of kubernetes:
+1) Running on all Kubernetes org since the beginning of kubernetes:
 - Takes about 2h15m.
 - Database dump is 7.5 Gb, XZ compressed dump is ~400 Mb
-- Note that those counts include historical changes to objects (for example single issue can have multiple entries with dirrent state on different events)
+- Note that those counts include historical changes to objects (for example single issue can have multiple entries with a different state on different events)
 - Completed dump <https://cncftest.io/web/k8s.sql.xz>
 
 # PostgreSQL database setup
@@ -208,7 +208,7 @@ It is recommended to create structure without indexes first (the default), then 
 Typical internal usage:
 `time GHA2DB_INDEX=1 PG_PASS=your_password ./structure`
 
-Alternatively You can use [structure.sql](https://github.com/cncf/gha2db/blob/master/structure.sql) to create database structure.
+Alternatively, you can use [structure.sql](https://github.com/cncf/gha2db/blob/master/structure.sql) to create database structure.
 
 You can also use already populated Postgres dump: [Kubernetes Psql dump](https://cncftest.io/web/k8s.sql.xz)
 
@@ -216,7 +216,7 @@ You can also use already populated Postgres dump: [Kubernetes Psql dump](https:/
 
 You can see database structure in [structure.go](https://github.com/cncf/gha2db/blob/master/structure.go)/[structure.sql](https://github.com/cncf/gha2db/blob/master/structure.sql).
 
-Main idea is that we divide tables into 2 groups:
+The main idea is that we divide tables into 2 groups:
 - const: meaning that data in this table is not changing in time (is saved once)
 - variable: meaning that data in those tables can change between GH events, and GH event_id is a part of this tables primary key.
 
@@ -254,7 +254,7 @@ List of tables:
 
 There is some data duplication in various columns. This is to speedup metrics processing.
 Such columns are described as "dup columns" in [structure.go](https://github.com/cncf/gha2db/blob/master/structure.go)
-Such columns are prefixed by "dup_". The're usually not null columns, but there can also be null able columns - they start with "dupn_".
+Such columns are prefixed by "dup_". They're usually not null columns, but there can also be null able columns - they start with "dupn_".
 
 There is a standard duplicate event structure consisting of (dup_type, dup_actor_id, dup_actor_login, dup_repo_id, dup_repo_name, dup_created_at), I'll call it `eventd`
 
@@ -274,20 +274,20 @@ Duplicated columns:
 There are examples of all kinds of GHA events JSONs in [./analysis](https://github.com/cncf/gha2db/blob/master/analysis/) directory.
 There is also a file [analysis/analysis.txt](https://github.com/cncf/gha2db/blob/master/analysis/analysis.txt) that describes JSON structure analysis.
 
-It was used very intensively during development of SQL table structure.
+It was used very intensively during a development of SQL table structure.
 
-All JSON and TXT files starting with "old_" and txt files starting with "old_" are result of pre-2015 GHA JSONs structure analysis.
+All JSON and TXT files starting with "old_" and txt files starting with "old_" are the result of pre-2015 GHA JSONs structure analysis.
 
-All JSON and TXT files starting with "new_" and txt files starting with "new_" are result of new 2015+ GHA JSONs structure analysis.
+All JSON and TXT files starting with "new_" and txt files starting with "new_" are the result of new 2015+ GHA JSONs structure analysis.
 
 To Run JSON structure analysis for either pre or from 2015 please do:
 - `analysis_from2015.sh`.
 - `analysis_pre2015.sh`.
 
 Both those tools require Ruby. This tool was originally in Ruby, and there is no sense to rewrite it in Go because:
-- It uses very dynamic code, reflection and code evaluation as provided by properties list from command line.
-- It is used only during implementation (first post 2015 version, and now for pre 2015).
-- It would be at least 10x longer and more complicated in Go, and probably not really faster, because it would have to use reflection too.
+- It uses a very dynamic code, reflection and code evaluation as provided by properties list from the command line.
+- It is used only during implementation (first post 2015 version, and now for pre-2015).
+- It would be at least 10x longer and more complicated in Go, and probably not really faster because it would have to use reflection too.
 - This kind of code will be very hard to read in Go.
 
 # Running on Kubernetes
@@ -334,10 +334,10 @@ Use `gha2db_sync` and/or `sync.sh` tools to update all Your data.
 
 Example call:
 - `PG_PASS='pwd' IDB_PASS='pwd' ./sync.sh`
-- Add `GHA2DB_RESETIDB` environment variable to rebuild InfluxDB stats instead of update since last run
+- Add `GHA2DB_RESETIDB` environment variable to rebuild InfluxDB stats instead of update since the last run
 - Add `GHA2DB_SKIPIDB` environment variable to skip syncing InfluxDB (so it will only sync Postgres DB)
 
-There is a manual script that can be used to loop sync every defined numeber of seconds, for example for sync every 30 minutes:
+There is a manual script that can be used to loop sync every defined number of seconds, for example for sync every 30 minutes:
 - `PG_PASS='pwd' IDB_PASS='pwd' ./syncer.sh 1800`
 
 
@@ -375,7 +375,7 @@ Grafana install instruction are here:
 - `GHA2DB_RESETIDB=1 PG_PASS='pwd' IDB_PASS='pwd' ./sync.sh`
 - Then eventually start syncer: `PG_PASS='pwd' IDB_PASS='pwd' ./syncer.sh 1800`
 
-Or automatically: drop & create Influx DB, update Postgres DB since last run, full populate InfluxDB, start syncer every 30 minutes:
+Or automatically: drop & create Influx DB, update Postgres DB since the last run, full populate InfluxDB, start syncer every 30 minutes:
 - `IDB_PASS=pwd PG_PASS=pwd ./reinit_all.sh`
 
 # Alternate solution with Docker:
@@ -391,13 +391,13 @@ Note that this is an old solution that worked, but wasn't tested recently.
 
 Feed InfluxDB using:
 - `PG_PASS='psql_pwd' IDB_PASS='influxdb_pwd' ./db2influx sig_metions_data metrics/sig_mentions.sql '2017-08-14' '2017-08-21' d`
-- First parameter is used as exact series name when metrics query returns single row with single column value.
-- First parameter is used as function name when metrics query return mutiple rows, each with >= 2 columns. This function receives data row and period name and should return series name and value(s).
-- Second parameter is a metrics SQL file, it should contain time conditions defined as `'{{from}}'` and `'{{to}}'`.
+- The first parameter is used as exact series name when metrics query returns single row with single column value.
+- First parameter is used as function name when metrics query return mutiple rows, each with >= 2 columns. This function receives data row and the period name and should return series name and value(s).
+- The second parameter is a metrics SQL file, it should contain time conditions defined as `'{{from}}'` and `'{{to}}'`.
 - Next two parameters are date ranges.
-- Last parameter can be h, d, w, m, q, y (hour, day, week, month, quarter, year).
+- The last parameter can be h, d, w, m, q, y (hour, day, week, month, quarter, year).
 - This tool uses environmental variables starting with `IDB_`, please see `context.go`, `idb_conn.go` and `cmd/db2influx/db2influx.go` for details.
-- `IDB_` variables are exactly the same as `PG_` to set host, databaxe, user name, password.
+- `IDB_` variables are exactly the same as `PG_` to set host, database, user name, password.
 - There is also `z2influx` tool. It is used to fill given series with zeros. Typical usage: `./z2influx 'series1,series2' 2017-01-01 2018-01-01 w` - will fill all weeks from 2017 with zeros for series1 and series2.
 
 # To check results in the InfluxDB:
@@ -415,7 +415,7 @@ Feed InfluxDB using:
 - drop series from reviewers
 
 # Grafana dashboards
-Grafana allows to save dashboards to JSON files.
+Grafana allows saving dashboards to JSON files.
 There are few defined dashboards in [grafana/dashboards/](https://github.com/cncf/gha2db/blob/master/grafana/dashboards/) directory.
 
 Metrics are described in [README](https://github.com/cncf/gha2db/blob/master/README.md) in `Grafana dashboards` and `Adding new metrics` sections.
@@ -428,8 +428,8 @@ Metrics are described in [README](https://github.com/cncf/gha2db/blob/master/REA
 - `sudo apt-get update`
 - `sudo apt-get install python-certbot-apache`
 - `sudo certbot --apache`
-- Then You need to proxy Apache https/SSL on prot 443 to http on port 3000 (this is where Grafana listens)
-- Then You need to proxy Apache https/SSL on prot 10443 to http on port 8086 (this is where InfluxDB server listens)
+- Then You need to proxy Apache https/SSL on port 443 to http on port 3000 (this is where Grafana listens)
+- Then You need to proxy Apache https/SSL on port 10443 to http on port 8086 (this is where InfluxDB server listens)
 - Modified Apache config files are in [grafana/apache](https://github.com/cncf/gha2db/blob/master/grafana/apache/), You need to check them and enable something similar on Your machine.
 - Your data source lives in https://<your_domain>:10443 (and https is served by Apache proxy to InfluxDB https:10443 -> http:8086)
 - Your Grafana lives in https://<your_domain> (and https is served by Apache proxy to Grafana https:443 -> http:3000)
@@ -442,7 +442,7 @@ Please see Grafana section in:
 - [Linux](https://github.com/cncf/gha2db/INSTALL_UBUNTU.md)
 
 # Benchmarks
-Benchmarks were executed on historical Ruby version and current Go verion.
+Benchmarks were executed on historical Ruby version and current Go version.
 
 Please see [Benchmarks](https://github.com/cncf/gha2db/blob/master/BENCHMARK.md)
 
