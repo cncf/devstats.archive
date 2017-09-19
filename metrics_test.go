@@ -56,9 +56,9 @@ func TestMetrics(t *testing.T) {
 			from:   ft(2017, 7),
 			to:     ft(2017, 8),
 			expected: [][]interface{}{
-				{"sig-group-1", 3},
-				{"sig-group2", 3},
-				{"sig-a-b-c", 1},
+				{",sig-group-1", 3},
+				{",sig-group2", 3},
+				{",sig-a-b-c", 1},
 			},
 		},
 		{
@@ -67,11 +67,11 @@ func TestMetrics(t *testing.T) {
 			from:   ft(2017, 7),
 			to:     ft(2017, 8),
 			expected: [][]interface{}{
-				{"sig-group2-bug", 2},
-				{"sig-a-b-c-bug", 1},
-				{"sig-group-1-bug", 1},
-				{"sig-group-1-feature-request", 1},
-				{"sig-group2-pr-review", 1},
+				{"bd,sig-group2-bug", 2},
+				{"bd,sig-a-b-c-bug", 1},
+				{"bd,sig-group-1-bug", 1},
+				{"bd,sig-group-1-feature-request", 1},
+				{"bd,sig-group2-pr-review", 1},
 			},
 		},
 		{
@@ -80,9 +80,9 @@ func TestMetrics(t *testing.T) {
 			from:   ft(2017, 7),
 			to:     ft(2017, 8),
 			expected: [][]interface{}{
-				{"bug", 4},
-				{"feature-request", 1},
-				{"pr-review", 1},
+				{"cat,bug", 4},
+				{"cat,feature-request", 1},
+				{"cat,pr-review", 1},
 			},
 		},
 		{
@@ -91,9 +91,9 @@ func TestMetrics(t *testing.T) {
 			from:   ft(2017, 7),
 			to:     ft(2017, 8),
 			expected: [][]interface{}{
-				{"Repo 1", 3},
-				{"Repo 2", 2},
-				{"Repo 3", 1},
+				{"prs,Repo 1", 3},
+				{"prs,Repo 2", 2},
+				{"prs,Repo 3", 1},
 			},
 		},
 		{
@@ -110,8 +110,8 @@ func TestMetrics(t *testing.T) {
 			to:     ft(2017, 8),
 			expected: [][]interface{}{
 				{
-					"opened_to_merged_percentile_25,opened_to_merged_median,opened_to_merged_percentile_75",
-					480, 504, 552,
+					"opened_to_merged_percentile_15,opened_to_merged_median,opened_to_merged_percentile_85",
+					480, 504, 624,
 				},
 			},
 		},
@@ -142,9 +142,9 @@ func TestMetrics(t *testing.T) {
 			from:   ft(2017, 9),
 			to:     ft(2017, 10),
 			expected: [][]interface{}{
-				{"sig1", 3},
-				{"sig2", 2},
-				{"sig3", 1},
+				{"labels_sig,sig1", 3},
+				{"labels_sig,sig2", 2},
+				{"labels_sig,sig3", 1},
 			},
 		},
 		{
@@ -153,9 +153,9 @@ func TestMetrics(t *testing.T) {
 			from:   ft(2017, 9),
 			to:     ft(2017, 10),
 			expected: [][]interface{}{
-				{"kind1", 2},
-				{"kind2", 2},
-				{"kind3", 1},
+				{"labels_kind,kind1", 2},
+				{"labels_kind,kind2", 2},
+				{"labels_kind,kind3", 1},
 			},
 		},
 		{
@@ -164,9 +164,9 @@ func TestMetrics(t *testing.T) {
 			from:   ft(2017, 9),
 			to:     ft(2017, 10),
 			expected: [][]interface{}{
-				{"sig1_kind1", 2},
-				{"sig1_kind2", 1},
-				{"sig2_kind2", 1},
+				{"labels_sig_kind,sig1_kind1", 2},
+				{"labels_sig_kind,sig1_kind2", 1},
+				{"labels_sig_kind,sig2_kind2", 1},
 			},
 		},
 		{
@@ -175,10 +175,10 @@ func TestMetrics(t *testing.T) {
 			from:   ft(2017, 9),
 			to:     ft(2017, 10),
 			expected: [][]interface{}{
-				{"company3;activity,authors,issues,prs,commits,review_comments,issue_comments,commit_comments,comments", 144, 3, 24, 24, 24, 24, 24, 24, 72},
-				{"company1;activity,authors,issues,prs,commits,review_comments,issue_comments,commit_comments,comments", 360, 2, 60, 60, 60, 60, 60, 60, 180},
-				{"company2;activity,authors,issues,prs,commits,review_comments,issue_comments,commit_comments,comments", 108, 2, 18, 18, 18, 18, 18, 18, 54},
-				{"company4;activity,authors,issues,prs,commits,review_comments,issue_comments,commit_comments,comments", 96, 2, 16, 16, 16, 16, 16, 16, 48},
+				{"company;company3;activity,authors,issues,prs,commits,review_comments,issue_comments,commit_comments,comments", 144, 3, 24, 24, 24, 24, 24, 24, 72},
+				{"company;company1;activity,authors,issues,prs,commits,review_comments,issue_comments,commit_comments,comments", 360, 2, 60, 60, 60, 60, 60, 60, 180},
+				{"company;company2;activity,authors,issues,prs,commits,review_comments,issue_comments,commit_comments,comments", 108, 2, 18, 18, 18, 18, 18, 18, 54},
+				{"company;company4;activity,authors,issues,prs,commits,review_comments,issue_comments,commit_comments,comments", 96, 2, 16, 16, 16, 16, 16, 16, 48},
 			},
 		},
 	}
