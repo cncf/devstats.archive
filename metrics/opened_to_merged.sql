@@ -18,9 +18,9 @@ from prs;
 
 select
   'opened_to_merged_percentile_15,opened_to_merged_median,opened_to_merged_percentile_85' as name,
-  percentile_disc(0.15) within group (order by open_to_merge asc) as open_to_merge_25_percentile,
+  percentile_disc(0.15) within group (order by open_to_merge asc) as open_to_merge_15_percentile,
   percentile_disc(0.5) within group (order by open_to_merge asc) as open_to_merge_median,
-  percentile_disc(0.85) within group (order by open_to_merge asc) as open_to_merge_75_percentile
+  percentile_disc(0.85) within group (order by open_to_merge asc) as open_to_merge_85_percentile
 from
   tdiffs;
 
