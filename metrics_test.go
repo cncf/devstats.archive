@@ -115,6 +115,7 @@ func TestMetrics(t *testing.T) {
 				},
 			},
 		},
+		// TODO: add coverage for opened_to_merged_mono, once approved as useful
 		{
 			setup:  setupTimeMetrics,
 			metric: "time_metrics",
