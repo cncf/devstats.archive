@@ -617,7 +617,8 @@ CREATE TABLE gha_repos (
     id bigint NOT NULL,
     name character varying(160) NOT NULL,
     org_id bigint,
-    org_login character varying(100)
+    org_login character varying(100),
+    repo_group character varying(80)
 );
 
 
@@ -2156,6 +2157,13 @@ CREATE INDEX repos_org_id_idx ON gha_repos USING btree (org_id);
 --
 
 CREATE INDEX repos_org_login_idx ON gha_repos USING btree (org_login);
+
+
+--
+-- Name: repos_repo_group_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX repos_repo_group_idx ON gha_repos USING btree (repo_group);
 
 
 --
