@@ -129,6 +129,7 @@ func TestMetrics(t *testing.T) {
 				},
 			},
 		},
+		// TODO: add coverage for time_metrics_mono, once approved as useful
 		{
 			setup:    setupPRCommentsMetric,
 			metric:   "pr_comments",
