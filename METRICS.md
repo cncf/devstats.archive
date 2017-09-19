@@ -25,4 +25,3 @@ To add new metric:
 7) Create PR for the new metric.
 8) Explain how metrics SQLs works in USAGE.md (currently this is pending for all metrics defined so far).
 9) Add metrics dashboard decription in this file.
-

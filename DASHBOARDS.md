@@ -17,5 +17,7 @@ Each dashboard is defined by its metrics SQL, saved Grafana JSON export and link
 All of them works live on [cncftest.io](https://cncftest.io) with auto gha2db_sync tool running.
 
 Dashboard definitions are read from YAML file:  [metrics/metrics.yaml](https://github.com/cncf/gha2db/blob/master/metrics/metrics.yaml)
-If dashboard need additional preprocessing (filling gaps with zeros), then it must be listed in this YAML file:  [metrics/gaps.yaml](https://github.com/cncf/gha2db/blob/master/metrics/gaps.yaml).
+
+If dashboard needs an additional preprocessing (filling gaps with zeros), then it must be listed in this YAML file:  [metrics/gaps.yaml](https://github.com/cncf/gha2db/blob/master/metrics/gaps.yaml).
+
 See [adding new metrics](https://github.com/cncf/gha2db/blob/master/METRICS.md) for details.
