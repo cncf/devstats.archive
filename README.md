@@ -23,8 +23,8 @@ Contributions and PRs are welcome.
 If You see a bug or want to add a new metric please create an [issue](https://github.com/cncf/gha2db/issues) and/or [PR](https://github.com/cncf/gha2db/pulls).
 
 To work on this project locally please fork the original [repository](https://github.com/cncf/gha2db), and then follow instructions about running locally:
-- [Compiling and running on macOS](https://github.com/cncf/gha2db/INSTALL_MAC.md).
-- [Compiling and running on Linux](https://github.com/cncf/gha2db/INSTALL_UBUNTU.md).
+- [Compiling and running on macOS](./INSTALL_MAC.md).
+- [Compiling and running on Linux](./INSTALL_UBUNTU.md).
 
 For more detailed description of all environment variables, tools, switches etc, please see [usage](https://github.com/cncf/gha2db/USAGE.md).
 
