@@ -96,7 +96,16 @@ func TestMetrics(t *testing.T) {
 				{"prs,Repo 3", 1},
 			},
 		},
-		// TODO: add test coverage for prs_merged_groups, once approved as useful
+		{
+			setup:  setupPRsMergedMetric,
+			metric: "prs_merged_groups",
+			from:   ft(2017, 7),
+			to:     ft(2017, 8),
+			expected: [][]interface{}{
+				{"group_prs,Group 1", 4},
+				{"group_prs,Group 2", 2},
+			},
+		},
 		{
 			setup:    setupPRsMergedMetric,
 			metric:   "all_prs_merged",
@@ -116,7 +125,18 @@ func TestMetrics(t *testing.T) {
 				},
 			},
 		},
-		// TODO: add coverage for opened_to_merged_mono, once approved as useful
+		{
+			setup:  setupTimeMetrics,
+			metric: "opened_to_merged_mono",
+			from:   ft(2017, 7),
+			to:     ft(2017, 8),
+			expected: [][]interface{}{
+				{
+					"mono_opened_to_merged_percentile_15,mono_opened_to_merged_median,mono_opened_to_merged_percentile_85",
+					480, 480, 552,
+				},
+			},
+		},
 		{
 			setup:  setupTimeMetrics,
 			metric: "time_metrics",
@@ -131,15 +151,29 @@ func TestMetrics(t *testing.T) {
 				},
 			},
 		},
-		// TODO: add coverage for time_metrics_mono, once approved as useful
 		{
-			setup:    setupPRCommentsMetric,
-			metric:   "pr_comments",
-			from:     ft(2017, 8),
-			to:       ft(2017, 9),
-			expected: [][]interface{}{{3}},
+			setup:  setupTimeMetrics,
+			metric: "time_metrics_mono",
+			from:   ft(2017, 7),
+			to:     ft(2017, 8),
+			expected: [][]interface{}{
+				{
+					"mono_median_open_to_lgtm,mono_median_lgtm_to_approve,mono_median_approve_to_merge," +
+						"mono_percentile_85_open_to_lgtm,mono_percentile_85_lgtm_to_approve,mono_percentile_85_approve_to_merge",
+					120, 120, 192,
+					192, 168, 240,
+				},
+			},
 		},
-		// TODO: update test for PR comments because now it uses percentile not max
+		{
+			setup:  setupPRCommentsMetric,
+			metric: "pr_comments",
+			from:   ft(2017, 8),
+			to:     ft(2017, 9),
+			expected: [][]interface{}{
+				{"pr_comments_median,pr_comments_percentile_85,pr_comments_percentile_95", 2, 5, 5},
+			},
+		},
 		{
 			setup:  setupSigMentionsLabelMetric,
 			metric: "labels_sig",
@@ -331,6 +365,22 @@ func addEvent(con *sql.DB, ctx *lib.Ctx, args ...interface{}) (err error) {
 		"insert into gha_events("+
 			"id, type, actor_id, repo_id, public, created_at, "+
 			"dup_actor_login, dup_repo_name, org_id) "+lib.NValues(9),
+		args...,
+	)
+	return
+}
+
+// Add repo
+// id, name, org_id, org_login, repo group
+func addRepo(con *sql.DB, ctx *lib.Ctx, args ...interface{}) (err error) {
+	if len(args) != 5 {
+		err = fmt.Errorf("addRepo: expects 5 variadic parameters")
+		return
+	}
+	_, err = lib.ExecSQL(
+		con,
+		ctx,
+		"insert into gha_repos(id, name, org_id, org_login, repo_group) "+lib.NValues(5),
 		args...,
 	)
 	return
@@ -626,6 +676,7 @@ func setupPRCommentsMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 		{2, 2, 1, 1, 1, 2, "closed", "PR 2", "Body PR 2", ft(2017, 8, 2), nil, nil, false, 1, "R1", 1, "A1"},
 		{3, 3, 1, 1, 1, 3, "closed", "PR 3", "Body PR 3", ft(2017, 8, 3), nil, nil, false, 1, "R1", 1, "A1"},
 		{4, 4, 1, 1, 1, 4, "closed", "PR 4", "Body PR 4", ft(2017, 7, 30), nil, nil, false, 1, "R1", 1, "A1"},
+		{5, 5, 1, nil, 1, 5, "open", "PR 5", "Body PR 5", ft(2017, 8, 5), nil, nil, false, 1, "R1", 1, "A1"},
 	}
 
 	// Add payload
@@ -641,7 +692,12 @@ func setupPRCommentsMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 		{7, 0, 4, 7, 0, 0, 0, 0, 1, "A1", 1, "R1", "E", ft(2017, 8, 5)},
 		{8, 0, 4, 8, 0, 0, 0, 0, 1, "A1", 1, "R1", "E", ft(2017, 8, 6)},
 		{9, 0, 4, 9, 0, 0, 0, 0, 1, "A1", 1, "R1", "E", ft(2017, 8, 7)},
-		{10, 0, 4, 10, 0, 0, 0, 0, 1, "A1", 1, "R1", "E", ft(2017, 8, 8)},
+		{10, 0, 4, 10, 0, 0, 0, 0, 1, "A1", 1, "R1", "E", ft(2017, 8, 15)},
+		{11, 0, 5, 11, 0, 0, 0, 0, 1, "A1", 1, "R1", "E", ft(2017, 8, 16)},
+		{12, 0, 5, 12, 0, 0, 0, 0, 1, "A1", 1, "R1", "E", ft(2017, 8, 17)},
+		{13, 0, 5, 13, 0, 0, 0, 0, 1, "A1", 1, "R1", "E", ft(2017, 8, 18)},
+		{14, 0, 5, 14, 0, 0, 0, 0, 1, "A1", 1, "R1", "E", ft(2017, 8, 19)},
+		{15, 0, 5, 15, 0, 0, 0, 0, 1, "A1", 1, "R1", "E", ft(2017, 8, 20)},
 	}
 
 	// Add PRs
@@ -667,14 +723,21 @@ func setupPRCommentsMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 func setupTimeMetrics(con *sql.DB, ctx *lib.Ctx) (err error) {
 	ft := testlib.YMDHMS
 
+	// Repos to add
+	// id, name, org_id, org_login, repo group
+	repos := [][]interface{}{
+		{1, "R1", nil, nil, "Kubernetes"}, // Mono repos only count repositories from `Kubernetes` and `Contrib`.
+		{2, "R2", nil, nil, "Other"},
+	}
+
 	// PRs to add
 	// prid, eid, uid, merged_id, assignee_id, num, state, title, body, created_at, closed_at, merged_at, merged
 	// repo_id, repo_name, actor_id, actor_login
 	prs := [][]interface{}{
 		{1, 1, 1, 1, 1, 1, "closed", "PR 1", "Body PR 1", ft(2017, 7, 1), ft(2017, 7, 21), ft(2017, 7, 21), true, 1, "R1", 1, "A1"}, // average of PR 1-6 created -> merged is 48 hours
-		{2, 2, 1, 1, 1, 2, "closed", "PR 2", "Body PR 2", ft(2017, 7, 2), ft(2017, 7, 23), ft(2017, 7, 23), true, 1, "R1", 1, "A1"},
+		{2, 2, 1, 1, 1, 2, "closed", "PR 2", "Body PR 2", ft(2017, 7, 2), ft(2017, 7, 23), ft(2017, 7, 23), true, 2, "R2", 1, "A1"},
 		{3, 3, 1, 1, 1, 3, "closed", "PR 3", "Body PR 3", ft(2017, 7, 3), ft(2017, 7, 26), ft(2017, 7, 26), true, 1, "R1", 1, "A1"},
-		{4, 4, 1, 1, 1, 4, "closed", "PR 4", "Body PR 4", ft(2017, 7, 4), ft(2017, 7, 30), ft(2017, 7, 30), true, 1, "R1", 1, "A1"},
+		{4, 4, 1, 1, 1, 4, "closed", "PR 4", "Body PR 4", ft(2017, 7, 4), ft(2017, 7, 30), ft(2017, 7, 30), true, 2, "R2", 1, "A1"}, // R2 don't belong to mono-repo group, will be skipped by `_mono` metrics
 
 		{5, 5, 1, 1, 1, 5, "closed", "PR 5", "Body PR 5", ft(2017, 6, 30), ft(2017, 7, 10), ft(2017, 7, 10), true, 1, "R1", 1, "A1"}, // Skipped because not created in Aug
 		{6, 6, 1, nil, 1, 6, "closed", "PR 6", "Body PR 6", ft(2017, 7, 2), ft(2017, 7, 8), nil, true, 1, "R1", 1, "A1"},             // Skipped because not merged
@@ -719,6 +782,14 @@ func setupTimeMetrics(con *sql.DB, ctx *lib.Ctx) (err error) {
 	// So Approved->Merged: we exepect median = 9, 75th percentile = 10, 85th percentile, next discrete: 12
 	// We expect all those values in hours (* 24).
 
+	// Add repos
+	for _, repo := range repos {
+		err = addRepo(con, ctx, repo...)
+		if err != nil {
+			return
+		}
+	}
+
 	// Add PRs
 	for _, pr := range prs {
 		err = addPR(con, ctx, pr...)
@@ -750,6 +821,14 @@ func setupTimeMetrics(con *sql.DB, ctx *lib.Ctx) (err error) {
 func setupPRsMergedMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 	ft := testlib.YMDHMS
 
+	// Repos to add
+	// id, name, org_id, org_login, repo group
+	repos := [][]interface{}{
+		{1, "Repo 1", 1, "Org 1", "Group 1"},
+		{2, "Repo 2", 1, "Org 1", "Group 2"},
+		{3, "Repo 3", nil, nil, "Group 1"},
+	}
+
 	// Events to add
 	// eid, etype, aid, rid, public, created_at, aname, rname, orgid
 	events := [][]interface{}{
@@ -777,6 +856,14 @@ func setupPRsMergedMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 		{7, 7, 1, 1, 1, 7, "closed", "PR 7", "Body PR 7", ft(2017, 7, 1), ft(2017, 8), ft(2017, 8), true, 1, "Repo 1", 1, "Actor 1"},
 		{8, 8, 2, nil, 2, 8, "closed", "PR 8", "Body PR 8", ft(2017, 7, 7), ft(2017, 7, 8), nil, true, 2, "Repo 2", 2, "Actor 2"},
 		{9, 9, 3, nil, 1, 9, "open", "PR 9", "Body PR 9", ft(2017, 7, 8), nil, nil, true, 3, "Repo 3", 3, "Actor 3"},
+	}
+
+	// Add repos
+	for _, repo := range repos {
+		err = addRepo(con, ctx, repo...)
+		if err != nil {
+			return
+		}
 	}
 
 	// Add events
