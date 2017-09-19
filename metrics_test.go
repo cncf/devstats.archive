@@ -139,6 +139,7 @@ func TestMetrics(t *testing.T) {
 			to:       ft(2017, 9),
 			expected: [][]interface{}{{3}},
 		},
+		// TODO: update test for PR comments because now it uses percentile not max
 		{
 			setup:  setupSigMentionsLabelMetric,
 			metric: "labels_sig",
