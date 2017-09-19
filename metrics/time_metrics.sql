@@ -32,17 +32,24 @@ where
 group by
   issue_id;
 
-create temp table tdiffs as
-select extract(epoch from lgtm.lgtm_at - prs.created_at) / 3600 as open_to_lgtm,
-  extract(epoch from approve.approve_at - lgtm.lgtm_at) / 3600 as lgtm_to_approve,
-  extract(epoch from prs.merged_at - approve.approve_at) / 3600 as approve_to_merge
-  --prs.merged_at - approve.approve_at as approve_to_merge
+create temp table ranges as
+select prs.created_at as open,
+  lgtm.lgtm_at as lgtm,
+  approve.approve_at as approve,
+  prs.merged_at as merge
 from
   prs
-join
+left join
   pr_lgtm lgtm on prs.issue_id = lgtm.issue_id
-join
+left join
   pr_approve approve on prs.issue_id = approve.issue_id;
+
+create temp table tdiffs as
+select extract(epoch from coalesce(lgtm - open, approve - open, merge - open)) / 3600 as open_to_lgtm,
+  extract(epoch from coalesce(approve - lgtm, merge - lgtm, '0'::interval)) / 3600 as lgtm_to_approve,
+  extract(epoch from coalesce(merge - approve, '0'::interval)) / 3600 as approve_to_merge
+from
+  ranges;
 
 select
   'median_open_to_lgtm,median_lgtm_to_approve,median_approve_to_merge,percentile_85_open_to_lgtm,percentile_85_lgtm_to_approve,percentile_85_approve_to_merge' as name,
@@ -56,6 +63,7 @@ from
   tdiffs;
 
 drop table tdiffs;
+drop table ranges;
 drop table pr_lgtm;
 drop table pr_approve;
 drop table prs;
