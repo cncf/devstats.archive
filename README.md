@@ -122,40 +122,9 @@ We're getting all possible GitHub data for all objects, and all objects historic
 
 Detailed usage is here [USAGE](https://github.com/cncf/gha2db/blob/master/USAGE.md)
 
-# Current Velodrome
-
-This toolset can either replace velodrome or just add value to `velodrome`.
-
-They both can use shared InfluxDB (assuming there are no series names conflicts, but gha2db can prefix all series with some special value if needed.)
-
-Then we can just add new dashboards that use my `gha2db`/`db2influx` workflow in the existing Grafana, or we can just use gha2db alone.
-
 # Adding new metrics
 
-To add new metrics we need to:
-1) Define parameterized SQL (with `{{from}}` and `{{to}}` params) that returns this metric data.
-- This SQL will be automatically called on different periods by `gha2db_sync` tool.
-2) Define this metric in [metrics/metrics.yaml](https://github.com/cncf/gha2db/blob/master/metrics/metrics.yaml) (file used by `gha2db_sync` tool).
-- You need to define periods for calculations, for example m,q,y for "month, quarter and year", or h,d,w for "hour, day and week". You can use any combination of h,d,w,m,q,y.
-- You need to define SQL file via `sql: filename`. It will use `metrics/filename.sql`.
-- You need to define how to generate InfluxDB series name(s) for this metrics. There are 4 options here:
-- Metric can return a single row with a single value (like for instance "All PRs merged" - in that case, you can define series name inside YAML file via `series_name_or_func: your_series_name`. If metrics use more than single period, You should add `add_period_to_name: true` which will add period name to your series name (it adds _w, _d, _q etc.)
-- Metric can return a single row containing multiple columns, for example, "Time opened to merged". It returns lower percentile, median and higher percentile for the time from open to merge for PRs in a given period. You should use `series_name_or_func: single_row_multi_column` in such case, and SQL should return single row, with the first column in format `series_name1,seriesn_name2,...,series_nameN` and then N value columns. The period name will be added to all N series automatically.
-- Metric can return multiple rows, each containing column with series name and column with a value. Use `series_name_or_func: multi_row_single_column` in such case, for example "SIG mentions categories". Metric should return 0-N rows each one containing series name in format `prefix,series_name`, followed by value column. Series names would be in format `prefix_series_name_period`. The prefix is optional, You can use `,series_name` - it will create "series_name_period", `series_name` comes from metric so it will be normalized (like downcased, white space characters changed to underscores, UTF8 characters normalized or stripped etc.). Such series returns different row counts for different periods (for example some SIG were not mentioned in some periods). This creates data gaps.
-- Metric can return multiple rows with multiple columns. You should use `series_name_or_func: multi_row_multi_column` in such case, for example, "Companies velocity", it returns multiple rows (companies) each row containing multiple company measurements (activities, authors, commits etc.). This requires special format of the first column: `prefix;series_name;measurement1,measurement2,...,measurementN`. `series_names` changes for each row, and will be normalized as if `multi_row_single_column`, the prefix is also optional as if `multi_row_single_column`. Then each row will create N series in format: `prefix_series_name_measurement1_period`, ... `prefix_series_name_measurementN_period` or if period is skipped: `series_name_measurementI_period`. Those metrics also create data gaps.
-3) If metrics create data gaps (for example returns multiple rows with different counts depending on data range), you have to add automatic filling gaps in [metrics/gaps.yaml](https://github.com/cncf/gha2db/blob/master/metrics/gaps.yaml) (file is used by `z2influx` tool):
-- You need to define periods to fill gaps, they should be the same as in `metrics.yaml` definition.
-- You need to define a series list to fill gaps on them. Use `series: ` to set them. It expects a list of series (YAML list).
-- You should at least gap fill series visible on any Grafana dashboard, without doing so data display will be disturbed. If You only show subset of metrics series, You can gap fill only this subset.
-- Each entry can be either a full series name, like `- my_series_d` or...
-- It can also be a series formula to create series list in this format: `"- =prefix;suffix;join_string;list1item1,list1item2,...;list2item1,list2item2,...;..."`
-- Series formula allows writing a lot of series name in a shorter way. Say we have series in this form prefix_{x}_{y}_{z}_suffix and {x} can be a,b,c,d, {y} can be 1,2,3, z can be yes,no. Instead of listing all combinations prefix_a_1_yes_suffix, ..., prefix_d_3_no_suffix, which is 4 * 3 * 2 = 24 items, you can write series formula: `- =prefix;suffix;_;a,b,c,d;1,2,3;yes,no`. In this case You can see join character is _ `...;_;...`.
-4) Add test coverage in [metrics_test.go](https://github.com/cncf/gha2db/blob/master/metrics_test.go).
-5) Add Grafana dashboard or row that displays this metric.
-6) Export new Grafana dashboard to JSON.
-7) Create PR for the new metric.
-8) Explain how metrics SQLs works in USAGE.md (currently this is pending for all metrics defined so far).
-9) Add metrics dashboard decription in this file (README.md)
+Please see [metrics](https://github.com/cncf/gha2db/blob/master/METRICS.md) to see how to add new metrics.
 
 # Database structure details
 
@@ -168,23 +137,7 @@ Please see [USAGE](https://github.com/cncf/gha2db/blob/master/USAGE.md) for deta
 
 # Grafana dashboards
 
-Here are already working dashboards using this repo.
-
-Each dashboard is defined by its metrics SQL, saved Grafana JSON export and link to dashboard running on <https://cncftest.io>  
-
-1) Reviewers dashboard: [reviewers.sql](https://github.com/cncf/gha2db/blob/master/metrics/reviewers.sql), [reviewers.json](https://github.com/cncf/gha2db/blob/master/grafana/dashboards/reviewers.json), [view](https://cncftest.io/dashboard/db/reviewers?orgId=1).
-2) SIG mentions dashboard: [sig_mentions.sql](https://github.com/cncf/gha2db/blob/master/metrics/sig_mentions.sql), [sig_mentions.json](https://github.com/cncf/gha2db/blob/master/grafana/dashboards/sig_mentions.json), [view](https://cncftest.io/dashboard/db/sig-mentions?orgId=1).
-3) SIG mentions breakdown by categories dashboard: [sig_mentions_cats.sql](https://github.com/cncf/gha2db/blob/master/metrics/sig_mentions_cats.sql), [sig_mentions_breakdown.sql](https://github.com/cncf/gha2db/blob/master/metrics/sig_mentions_breakdown.sql), [sig_mentions_cats.json](https://github.com/cncf/gha2db/blob/master/grafana/dashboards/sig_mentions_cats.json), [view](https://cncftest.io/dashboard/db/sig-mentions-categories?orgId=1).
-4) SIG mentions using labels dashboard: [labels_sig.sql](https://github.com/cncf/gha2db/blob/master/metrics/labels_sig.sql), [labels_kind.sql](https://github.com/cncf/gha2db/blob/master/metrics/labels_kind.sql), [labels_sig_kind.sql](https://github.com/cncf/gha2db/blob/master/metrics/labels_sig_kind.sql), [sig_mentions_labels.json](https://github.com/cncf/gha2db/blob/master/grafana/dashboards/sig_mentions_labels.json), [view](https://cncftest.io/dashboard/db/sig-mentions-using-labels?orgId=1).
-5) The Number of all PRs merged in all Kubernetes repos, from 2014-06 dashboard [all_prs_merged.sql](https://github.com/cncf/gha2db/blob/master/metrics/all_prs_merged.sql), [all_prs_merged.json](https://github.com/cncf/gha2db/blob/master/grafana/dashboards/all_prs_merged.json), [view](https://cncftest.io/dashboard/db/all-prs-merged?orgId=1).
-6) The Number of PRs merged per repository dashboard [prs_merged.sql](https://github.com/cncf/gha2db/blob/master/metrics/prs_merged.sql), [prs_merged.json](https://github.com/cncf/gha2db/blob/master/grafana/dashboards/prs_merged.json), [view](https://cncftest.io/dashboard/db/prs-merged?orgId=1).
-7) PRs from opened to merged, from 2014-06 dashboard [opened_to_merged.sql](https://github.com/cncf/gha2db/blob/master/metrics/opened_to_merged.sql), [opened_to_merged_mono.sql](https://github.com/cncf/gha2db/blob/master/metrics/opened_to_merged_mono.sql), [opened_to_merged.json](https://github.com/cncf/gha2db/blob/master/grafana/dashboards/opened_to_merged.json), [view](https://cncftest.io/dashboard/db/opened-to-merged?orgId=1).
-8) PRs from opened to LGTMed, approved and merged dashboard [time_metrics.sql](https://github.com/cncf/gha2db/blob/master/metrics/time_metrics.sql), [time_metrics_mono.sql](https://github.com/cncf/gha2db/blob/master/metrics/time_metrics_mono.sql), [time_metrics.json](https://github.com/cncf/gha2db/blob/master/grafana/dashboards/time_metrics.json), [view](https://cncftest.io/dashboard/db/time-metrics?orgId=1).
-9) PR Comments dashboard [pr_comments.sql](https://github.com/cncf/gha2db/blob/master/metrics/pr_comments.sql), [pr_comments.json](https://github.com/cncf/gha2db/blob/master/grafana/dashboards/pr_comments.json), [view](https://cncftest.io/dashboard/db/pr-comments?orgId=1).
-10) Companies velocity dashboard [company_activity.sql](https://github.com/cncf/gha2db/blob/master/metrics/company_activity.sql), [companies_velocity.json](https://github.com/cncf/gha2db/blob/master/grafana/dashboards/companies_velocity.json), [view](https://cncftest.io/dashboard/db/companies-velocity?orgId=1).
-11) The Number of PRs merged per repository groups dashboard [prs_merged_groups.sql](https://github.com/cncf/gha2db/blob/master/metrics/prs_merged_groups.sql), [prs_merged_gropus.json](https://github.com/cncf/gha2db/blob/master/grafana/dashboards/prs_merged_groups.json), [view](https://cncftest.io/dashboard/db/prs-merged-repository-groups?orgId=1).
-
-All of them works live on [cncftest.io](https://cncftest.io) with auto gha2db_sync tool running.
+Please see [dashboards](https://github.com/cncf/gha2db/blob/master/DASHBOARDS.md) to see list of already defined Grafana dashboards.
 
 # Detailed Usage instructions
 
