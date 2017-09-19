@@ -19,7 +19,7 @@ type Gaps struct {
 }
 
 // MetricGap conain list of series names and periods to fill gaps
-// Series formula allows to write a lot of series name in a shorter way
+// Series formula allows writing a lot of series name in a shorter way
 // Say we have series in this form prefix_{x}_{y}_{z}_suffix
 // and {x} can be a,b,c,d, {y} can be 1,2,3, z can be yes,no
 // Instead of listing all combinations prefix_a_1_yes_suffix, ..., prefix_d_3_no_suffix
