@@ -360,6 +360,16 @@ This file contains all GitHub user name - company affiliations found by `cncf/gi
 To load it into our database use:
 - `PG_PASS=pwd ./import_affs github_users.json`
 
+# Repository groups
+
+There are some groups of repositories that can be used to create metrics for lists of repositories.
+Repository group is defined on `gha_repos` table using `repo_group` value.
+
+To setup default repository groups:
+- `PG_PASS=pwd ./setup_repo_groups.sh`.
+
+This is a part of `kubernetes.sh` script and [kubernetes psql dump](https://cncftest.io/web/k8s.sql.xz) already has groups configured.
+
 # Grafana output
 
 You can visualise data using Grafana, see [grafana/](https://github.com/cncf/gha2db/blob/master/grafana/) directory:
@@ -387,7 +397,7 @@ Note that this is an old solution that worked, but wasn't tested recently.
 - To cleanup Docker Grafana image and start from scratch use `./grafana/docker_cleanup.sh`. This will not delete Your grafana config because it is stored in local volume `/var/lib/grafana`.
 - To recreate all Docker Grafana/InfluxDB stuff from scratch do: `GRAFANA_PASS='' IDB_PASS='' GHA2DB_RESETIDB=1 PG_PASS='' IDB_PASS='' ./grafana/reinit.sh`
 
-# iManually feeding InfluxDB & Grafana:
+# Manually feeding InfluxDB & Grafana:
 
 Feed InfluxDB using:
 - `PG_PASS='psql_pwd' IDB_PASS='influxdb_pwd' ./db2influx sig_metions_data metrics/sig_mentions.sql '2017-08-14' '2017-08-21' d`
