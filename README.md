@@ -163,37 +163,7 @@ The main idea is that we divide tables into 2 groups:
 - variable: meaning that data in those tables can change between GH events, and GH `event_id` is a part of this tables primary key.
 - there are also "compute" tables that are auto-updated by `gha2db_sync`/`structure` tools and affiliations table thaiss filled by `import_affs` tool.
 
-List of tables:
-- `gha_actors`: const, users table
-- `gha_actors_emails`: const, holds one or more email addresses for actors, this is filled by `./import_affs` tool.
-- `gha_actors_affiliations`: const, holds one or more company affiliations for actors, this is filled by `./import_affs` tool.
-- `gha_assets`: variable, assets
-- `gha_branches`: variable, branches data
-- `gha_comments`: variable (issue, PR, review)
-- `gha_commits`: variable, commits
-- `gha_companies`: const, companies, this is filled by `./import_affs` tool.
-- `gha_events`: const, single GitHub archive event
-- `gha_forkees`: variable, forkee, repo state
-- `gha_issues`: variable, issues
-- `gha_issues_assignees`: variable, issue assignees
-- `gha_issues_labels`: variable, issue labels
-- `gha_labels`: const, labels
-- `gha_milestones`: variable, milestones
-- `gha_orgs`: const, orgs
-- `gha_pages`: variable, pages
-- `gha_payloads`: const, event payloads
-- `gha_pull_requests`: variable, pull requests
-- `gha_pull_requests_assignees`: variable pull request assignees
-- `gha_pull_requests_requested_reviewers`: variable, pull request requested reviewers
-- `gha_releases`: variable, releases
-- `gha_releases_assets`: variable, release assets
-- `gha_repos`: const, repos
-- `gha_teams`: variable, teams
-- `gha_teams_repositories`: variable, teams repositories connections
-- `gha_logs`: this is a table that holds all tools logs (unless `GHA2DB_SKIPLOG` is set)
-- `gha_texts`: this is a compute table, that contains texts from comments, commits, issues and pull requests, updated by gha2db_sync and structure tools
-- `gha_issues_pull_requests`: this is a compute table that contains PRs and issues connections, updated by gha2db_sync and structure tools
-- `gha_issues_events_labels`: this is a compute table, that contains shortcuts to issues labels (for metrics speedup), updated by gha2db_sync and structure tools
+Please see [USAGE](https://github.com/cncf/gha2db/blob/master/USAGE.md) for detailed list of database tables.
 
 # Grafana dashboards
 
