@@ -1,6 +1,7 @@
 # Adding new metrics
 
-To add new metrics we need to:
+To add new metric:
+
 1) Define parameterized SQL (with `{{from}}` and `{{to}}` params) that returns this metric data.
 - This SQL will be automatically called on different periods by `gha2db_sync` tool.
 2) Define this metric in [metrics/metrics.yaml](https://github.com/cncf/gha2db/blob/master/metrics/metrics.yaml) (file used by `gha2db_sync` tool).
