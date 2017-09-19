@@ -155,6 +155,7 @@ To add new metrics we need to:
 6) Export new Grafana dashboard to JSON.
 7) Create PR for the new metric.
 8) Explain how metrics SQLs works in USAGE.md (currently this is pending for all metrics defined so far).
+9) Add metrics dashboard decription in this file (README.md)
 
 # Database structure details
 
@@ -181,6 +182,7 @@ Each dashboard is defined by its metrics SQL, saved Grafana JSON export and link
 8) PRs from opened to LGTMed, approved and merged dashboard [time_metrics.sql](https://github.com/cncf/gha2db/blob/master/metrics/time_metrics.sql), [time_metrics_mono.sql](https://github.com/cncf/gha2db/blob/master/metrics/time_metrics_mono.sql), [time_metrics.json](https://github.com/cncf/gha2db/blob/master/grafana/dashboards/time_metrics.json), [view](https://cncftest.io/dashboard/db/time-metrics?orgId=1).
 9) PR Comments dashboard [pr_comments.sql](https://github.com/cncf/gha2db/blob/master/metrics/pr_comments.sql), [pr_comments.json](https://github.com/cncf/gha2db/blob/master/grafana/dashboards/pr_comments.json), [view](https://cncftest.io/dashboard/db/pr-comments?orgId=1).
 10) Companies velocity dashboard [company_activity.sql](https://github.com/cncf/gha2db/blob/master/metrics/company_activity.sql), [companies_velocity.json](https://github.com/cncf/gha2db/blob/master/grafana/dashboards/companies_velocity.json), [view](https://cncftest.io/dashboard/db/companies-velocity?orgId=1).
+11) The Number of PRs merged per repository groups dashboard [prs_merged_groups.sql](https://github.com/cncf/gha2db/blob/master/metrics/prs_merged_groups.sql), [prs_merged_gropus.json](https://github.com/cncf/gha2db/blob/master/grafana/dashboards/prs_merged_groups.json), [view](https://cncftest.io/dashboard/db/prs-merged-repository-groups?orgId=1).
 
 All of them works live on [cncftest.io](https://cncftest.io) with auto gha2db_sync tool running.
 
