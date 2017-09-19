@@ -96,6 +96,7 @@ func TestMetrics(t *testing.T) {
 				{"prs,Repo 3", 1},
 			},
 		},
+		// TODO: add test coverage for prs_merged_groups, once approved as useful
 		{
 			setup:    setupPRsMergedMetric,
 			metric:   "all_prs_merged",
