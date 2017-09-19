@@ -1,7 +1,5 @@
 # Grafana dashboards
 
-Here are already working dashboards using this repo.
-
 Each dashboard is defined by its metrics SQL, saved Grafana JSON export and link to dashboard running on <https://cncftest.io>  
 
 1) Reviewers dashboard: [reviewers.sql](https://github.com/cncf/gha2db/blob/master/metrics/reviewers.sql), [reviewers.json](https://github.com/cncf/gha2db/blob/master/grafana/dashboards/reviewers.json), [view](https://cncftest.io/dashboard/db/reviewers?orgId=1).
@@ -14,7 +12,10 @@ Each dashboard is defined by its metrics SQL, saved Grafana JSON export and link
 8) PRs from opened to LGTMed, approved and merged dashboard [time_metrics.sql](https://github.com/cncf/gha2db/blob/master/metrics/time_metrics.sql), [time_metrics_mono.sql](https://github.com/cncf/gha2db/blob/master/metrics/time_metrics_mono.sql), [time_metrics.json](https://github.com/cncf/gha2db/blob/master/grafana/dashboards/time_metrics.json), [view](https://cncftest.io/dashboard/db/time-metrics?orgId=1).
 9) PR Comments dashboard [pr_comments.sql](https://github.com/cncf/gha2db/blob/master/metrics/pr_comments.sql), [pr_comments.json](https://github.com/cncf/gha2db/blob/master/grafana/dashboards/pr_comments.json), [view](https://cncftest.io/dashboard/db/pr-comments?orgId=1).
 10) Companies velocity dashboard [company_activity.sql](https://github.com/cncf/gha2db/blob/master/metrics/company_activity.sql), [companies_velocity.json](https://github.com/cncf/gha2db/blob/master/grafana/dashboards/companies_velocity.json), [view](https://cncftest.io/dashboard/db/companies-velocity?orgId=1).
-11) The Number of PRs merged per repository groups dashboard [prs_merged_groups.sql](https://github.com/cncf/gha2db/blob/master/metrics/prs_merged_groups.sql), [prs_merged_gropus.json](https://github.com/cncf/gha2db/blob/master/grafana/dashboards/prs_merged_groups.json), [view](https://cncftest.io/dashboard/db/prs-merged-repository-groups?orgId=1).
+11) The Number of PRs merged per repository groups dashboard [prs_merged_groups.sql](https://github.com/cncf/gha2db/blob/master/metrics/prs_merged_groups.sql), [prs_merged_groups.json](https://github.com/cncf/gha2db/blob/master/grafana/dashboards/prs_merged_groups.json), [view](https://cncftest.io/dashboard/db/prs-merged-repository-groups?orgId=1).
 
 All of them works live on [cncftest.io](https://cncftest.io) with auto gha2db_sync tool running.
 
+Dashboard definitions are read from YAML file:  [metrics/metrics.yaml](https://github.com/cncf/gha2db/blob/master/metrics/metrics.yaml)
+If dashboard need additional preprocessing (filling gaps with zeros), then it must be listed in this YAML file:  [metrics/gaps.yaml](https://github.com/cncf/gha2db/blob/master/metrics/gaps.yaml).
+See [adding new metrics](https://github.com/cncf/gha2db/blob/master/METRICS.md) for details.
