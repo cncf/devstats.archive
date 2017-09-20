@@ -39,6 +39,13 @@ func TestMetrics(t *testing.T) {
 	// And their setup function at the bottom of this file
 	var testCases = []MetricTestCase{
 		{
+			setup:    setupEventsMetric,
+			metric:   "events",
+			from:     ft(2017, 9),
+			to:       ft(2017, 10),
+			expected: [][]interface{}{{3}},
+		},
+		{
 			setup:    setupReviewersMetric,
 			metric:   "reviewers",
 			from:     ft(2017, 7, 9),
@@ -967,6 +974,30 @@ func setupSigMentionsLabelMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 	// Add issues labels
 	for _, issueLabel := range issuesLabels {
 		err = addIssueLabel(con, ctx, issueLabel...)
+		if err != nil {
+			return
+		}
+	}
+
+	return
+}
+
+// Create data for simplest events metric
+func setupEventsMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
+	ft := testlib.YMDHMS
+
+	// Events to add
+	// eid, etype, aid, rid, public, created_at, aname, rname, orgid
+	events := [][]interface{}{
+		{1, "T", 1, 1, true, ft(2017, 9, 1), "Actor 1", "Repo 1", 1},
+		{2, "T", 2, 2, true, ft(2017, 9, 2), "Actor 2", "Repo 2", 1},
+		{3, "T", 3, 1, true, ft(2017, 9, 3), "Actor 3", "Repo 1", 1},
+		{4, "T", 1, 1, true, ft(2017, 10, 4), "Actor 1", "Repo 1", 1},
+	}
+
+	// Add events
+	for _, event := range events {
+		err = addEvent(con, ctx, event...)
 		if err != nil {
 			return
 		}
