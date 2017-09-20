@@ -26,7 +26,7 @@ To work on this project locally please fork the original [repository](https://gi
 - [Compiling and running on macOS](./INSTALL_MAC.md).
 - [Compiling and running on Linux](./INSTALL_UBUNTU.md).
 
-For more detailed description of all environment variables, tools, switches etc, please see [usage](https://github.com/cncf/gha2db/USAGE.md).
+For more detailed description of all environment variables, tools, switches etc, please see [usage](https://github.com/cncf/gha2db/blob/master/USAGE.md).
 
 # Metrics
 We want to support all kind of metrics, including historical ones.
