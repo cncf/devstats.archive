@@ -24,8 +24,8 @@ type MetricTestCase struct {
 	metric   string
 	from     time.Time // used by non-histogram metrics
 	to       time.Time // used by non-histogram metrics
-	period   string // used by histogram metrics
-	debugDB  bool   // if set, test will not drop database at the end and will return after such test, so You can run metric manually via `runq` or directly on DB
+	period   string    // used by histogram metrics
+	debugDB  bool      // if set, test will not drop database at the end and will return after such test, so You can run metric manually via `runq` or directly on DB
 	replaces [][2]string
 	expected [][]interface{}
 }
