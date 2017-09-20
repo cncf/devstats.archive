@@ -446,9 +446,7 @@ Metrics are described in [README](https://github.com/cncf/gha2db/blob/master/REA
 
 # Grafana anonymous login
 
-Please see Grafana section in:
-- [Mac](https://github.com/cncf/gha2db/blob/master/INSTALL_MAC.md)
-- [Linux](https://github.com/cncf/gha2db/blob/master/INSTALL_UBUNTU.md)
+Please see instructions [here](https://github.com/cncf/gha2db/blob/master/GRAFANA.md)
 
 # Benchmarks
 Benchmarks were executed on historical Ruby version and current Go version.
