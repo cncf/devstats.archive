@@ -118,6 +118,8 @@ We're getting all possible GitHub data for all objects, and all objects historic
 - This tools imports GitHub usernames (in addition to logins from GHA) and creates developers - companies affiliations (that can be used by [Companies velocity](https://cncftest.io/dashboard/db/companies-velocity?orgId=1) metric)
 - [z2influx](https://github.com/cncf/gha2db/blob/master/cmd/z2influx/z2influx.go)
 - `z2influx` is used to fill gaps that can occur for metrics that returns multiple columns and rows, but the number of rows depends on date range, it uses [gaps.yaml](https://github.com/cncf/gha2db/blob/master/metrics/gaps.yaml) file to define which metrics should be zero filled.
+- [annotations](https://github.com/cncf/gha2db/blob/master/cmd/annotations/annotations.go)
+- `annotations` is used to add annotations on charts, it uses [annotations.yaml](https://github.com/cncf/gha2db/blob/master/metrics/annotations.yaml) file to define them, syntax is self describing.
 - There are few shell scripts for example: running sync every N seconds, setup InfluxDB etc.
 
 Detailed usage is here [USAGE](https://github.com/cncf/gha2db/blob/master/USAGE.md)
