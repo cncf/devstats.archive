@@ -13,7 +13,7 @@
 
 To enable Grafana anonymous login, do the following:
 - Edit Grafana config file: `/etc/grafana/grafana.ini` or `/usr/local/share/grafana/conf/defaults.ini` or `/usr/local/etc/grafana/grafana.ini`:
-- Make sure You have options enabled (replace `XYZ`: with Your organization name)
+- Make sure You have options enabled (replace `XYZ`: with Your organization name):
 ```
 [auth.anonymous]
 enabled = true
