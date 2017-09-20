@@ -439,10 +439,9 @@ Metrics are described in [README](https://github.com/cncf/gha2db/blob/master/REA
 - `sudo apt-get install python-certbot-apache`
 - `sudo certbot --apache`
 - Then You need to proxy Apache https/SSL on port 443 to http on port 3000 (this is where Grafana listens)
-- Then You need to proxy Apache https/SSL on port 10443 to http on port 8086 (this is where InfluxDB server listens)
-- Modified Apache config files are in [grafana/apache](https://github.com/cncf/gha2db/blob/master/grafana/apache/), You need to check them and enable something similar on Your machine.
-- Your data source lives in https://<your_domain>:10443 (and https is served by Apache proxy to InfluxDB https:10443 -> http:8086)
 - Your Grafana lives in https://<your_domain> (and https is served by Apache proxy to Grafana https:443 -> http:3000)
+- Modified Apache config files are in [grafana/apache](https://github.com/cncf/gha2db/blob/master/grafana/apache/), You need to check them and enable something similar on Your machine.
+- Please note that those modified Apache files additionally allows to put You website in `/web` path (this path is in exception list and is not proxied to Grafana), so You can for instance put [database dump](https://cncftest.io/web/k8s.sql.xz) there.
 - Files in `[grafana/apache](https://github.com/cncf/gha2db/blob/master/grafana/apache/) should be copied to `/etc/apache2` (see comments starting with `LG:`) and then `service apache2 restart`
 
 # Grafana anonymous login
