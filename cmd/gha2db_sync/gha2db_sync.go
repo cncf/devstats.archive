@@ -44,6 +44,7 @@ type Metric struct {
 	SeriesNameOrFunc string `yaml:"series_name_or_func"`
 	MetricSQL        string `yaml:"sql"`
 	AddPeriodToName  bool   `yaml:"add_period_to_name"`
+	Histogram        bool   `yaml:"histogram"`
 }
 
 // Add _period to all array items
@@ -337,6 +338,10 @@ func sync(args []string) {
 
 		// Iterate all metrics
 		for _, metric := range allMetrics.Metrics {
+			histParam := ""
+			if metric.Histogram {
+				histParam = "h"
+			}
 			periods := strings.Split(metric.Periods, ",")
 			for _, period := range periods {
 				if !ctx.ResetIDB && !computePeriodAtThisDate(period, to) {
@@ -357,6 +362,7 @@ func sync(args []string) {
 						lib.ToYMDDate(from),
 						lib.ToYMDDate(to),
 						period,
+						histParam,
 					},
 					nil,
 				)
