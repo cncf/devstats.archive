@@ -118,7 +118,7 @@ func workerThread(ch chan bool, ctx *lib.Ctx, seriesNameOrFunc, sqlQuery, period
 	lib.FatalOnError(err)
 	nColumns := len(columns)
 
-	// Metric Results, currently assume they're integers
+	// Metric Results, assume they're floats
 	var (
 		pValue *float64
 		value  float64
@@ -208,14 +208,78 @@ func workerThread(ch chan bool, ctx *lib.Ctx, seriesNameOrFunc, sqlQuery, period
 	}
 }
 
-func db2influx(seriesNameOrFunc, sqlFile, from, to, intervalAbbr string) {
+func db2influxHistogram(ctx *lib.Ctx, seriesNameOrFunc, sqlQuery, interval string) {
+	// Connect to Postgres DB
+	sqlc := lib.PgConn(ctx)
+	defer sqlc.Close()
+
+	// Connect to InfluxDB
+	ic := lib.IDBConn(ctx)
+	defer ic.Close()
+
+	// Get BatchPoints
+	bp := lib.IDBBatchPoints(ctx, &ic)
+
+	// Prepare SQL query
+	dbInterval := "1 " + interval
+	if interval == "quarter" {
+		dbInterval = "3 months"
+	}
+	sqlQuery = strings.Replace(sqlQuery, "{{period}}", dbInterval, -1)
+
+	// Execute SQL query
+	rows := lib.QuerySQLWithErr(sqlc, ctx, sqlQuery)
+	defer rows.Close()
+
+	// Get number of columns, for histograms there should be exactly 2 columns
+	columns, err := rows.Columns()
+	lib.FatalOnError(err)
+	nColumns := len(columns)
+
+	// Expect 2 columns: string column with name and float column with value
+	var (
+		value float64
+		name  string
+	)
+	if nColumns == 2 {
+		// Drop existing data
+		lib.SafeQueryIDB(ic, ctx, "drop measurement "+seriesNameOrFunc)
+
+		// Add new data
+		tm := time.Now()
+		rowCount := 0
+		for rows.Next() {
+			lib.FatalOnError(rows.Scan(&name, &value))
+			if ctx.Debug > 0 {
+				lib.Printf("hist %v, %v -> %v, %v\n", seriesNameOrFunc, interval, name, value)
+			}
+			// Add batch point
+			fields := map[string]interface{}{"name": name, "value": value}
+			pt := lib.IDBNewPointWithErr(seriesNameOrFunc, nil, fields, tm)
+			bp.AddPoint(pt)
+			rowCount++
+			tm = tm.Add(-time.Hour)
+		}
+		if ctx.Debug > 0 {
+			lib.Printf("hist %v, %v: %v rows\n", seriesNameOrFunc, interval, rowCount)
+		}
+		lib.FatalOnError(rows.Err())
+	} else {
+		lib.FatalOnError(fmt.Errorf("histogram metric should return 2 clumns, returned %v", nColumns))
+	}
+	// Write the batch
+	if !ctx.SkipIDB {
+		err = ic.Write(bp)
+		lib.FatalOnError(err)
+	} else if ctx.Debug > 0 {
+		lib.Printf("Skipping series write\n")
+	}
+}
+
+func db2influx(seriesNameOrFunc, sqlFile, from, to, intervalAbbr string, hist bool) {
 	// Environment context parse
 	var ctx lib.Ctx
 	ctx.Init()
-
-	// Parse input dates
-	dFrom := lib.TimeParseAny(from)
-	dTo := lib.TimeParseAny(to)
 
 	// Read SQL file.
 	bytes, err := ioutil.ReadFile(sqlFile)
@@ -224,6 +288,15 @@ func db2influx(seriesNameOrFunc, sqlFile, from, to, intervalAbbr string) {
 
 	// Process interval
 	interval, intervalStart, nextIntervalStart := lib.GetIntervalFunctions(intervalAbbr)
+
+	if hist {
+		db2influxHistogram(&ctx, seriesNameOrFunc, sqlQuery, interval)
+		return
+	}
+
+	// Parse input dates
+	dFrom := lib.TimeParseAny(from)
+	dTo := lib.TimeParseAny(to)
 
 	// Round dates to the given interval
 	dFrom = intervalStart(dFrom)
@@ -280,7 +353,11 @@ func main() {
 		lib.Printf("receives data row and period and returns name and value(s) for it\n")
 		os.Exit(1)
 	}
-	db2influx(os.Args[1], os.Args[2], os.Args[3], os.Args[4], os.Args[5])
+	hist := false
+	if len(os.Args) > 6 && len(os.Args[6]) > 0 && strings.ToLower(os.Args[6][0:1]) == "h" {
+		hist = true
+	}
+	db2influx(os.Args[1], os.Args[2], os.Args[3], os.Args[4], os.Args[5], hist)
 	dtEnd := time.Now()
 	lib.Printf("Time: %v\n", dtEnd.Sub(dtStart))
 }

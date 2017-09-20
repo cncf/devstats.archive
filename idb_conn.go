@@ -28,7 +28,7 @@ func IDBBatchPoints(ctx *Ctx, con *client.Client) client.BatchPoints {
 	return bp
 }
 
-// IDBNewPointWithErr - return InfluxDB Point
+// IDBNewPointWithErr - return InfluxDB Point, on error exit
 func IDBNewPointWithErr(name string, tags map[string]string, fields map[string]interface{}, dt time.Time) *client.Point {
 	pt, err := client.NewPoint(name, tags, fields, dt)
 	FatalOnError(err)
@@ -48,4 +48,16 @@ func QueryIDB(con client.Client, ctx *Ctx, query string) []client.Result {
 	FatalOnError(err)
 	FatalOnError(response.Error())
 	return response.Results
+}
+
+// SafeQueryIDB - do InfluxDB query, on error return error data
+func SafeQueryIDB(con client.Client, ctx *Ctx, query string) (*client.Response, error) {
+	if ctx.QOut {
+		Printf("%s\n", query)
+	}
+	q := client.Query{
+		Command:  query,
+		Database: ctx.IDBDB,
+	}
+	return con.Query(q)
 }
