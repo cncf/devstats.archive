@@ -96,6 +96,7 @@ We're getting all possible GitHub data for all objects, and all objects historic
 - [db2influx](https://github.com/cncf/gha2db/blob/master/cmd/db2influx/db2influx.go)
 - This separates metrics complex logic in SQL files, `db2influx` executes parameterized SQL files and write final time-series to InfluxDB.
 - Parameters are `'{{from}}'`, `'{{to}}'` to allow computing the given metric for any date period.
+- For histogram metrics there is a single parameter `'{{period}}'` instead. To run `db2influx` in histogram mode add "h" as last parameter after all other params. `gha2db_sync` already handles this.
 - This means that InfluxDB will only hold multiple time-series (very simple data). InfluxDB is extremely good at manipulating such kind of data - this is what it was created for.
 - Grafana will read from InfluxDB by default and will use its power to generate all possible aggregates, minimums, maximums, averages, medians, percentiles, charts etc.
 - Adding new metric will mean add Postgres SQL that will compute this metric.

@@ -14,6 +14,7 @@ Each dashboard is defined by its metrics SQL, saved Grafana JSON export and link
 10) Companies velocity dashboard [company_activity.sql](https://github.com/cncf/gha2db/blob/master/metrics/company_activity.sql), [companies_velocity.json](https://github.com/cncf/gha2db/blob/master/grafana/dashboards/companies_velocity.json), [view](https://cncftest.io/dashboard/db/companies-velocity?orgId=1).
 11) Companies stats dashboard [company_activity.sql](https://github.com/cncf/gha2db/blob/master/metrics/company_activity.sql), [companies_stats.json](https://github.com/cncf/gha2db/blob/master/grafana/dashboards/companies_stats.json), [view](https://cncftest.io/dashboard/db/companies-stats?orgId=1).
 12) The Number of PRs merged per repository groups dashboard [prs_merged_groups.sql](https://github.com/cncf/gha2db/blob/master/metrics/prs_merged_groups.sql), [prs_merged_groups.json](https://github.com/cncf/gha2db/blob/master/grafana/dashboards/prs_merged_groups.json), [view](https://cncftest.io/dashboard/db/prs-merged-repository-groups?orgId=1).
+13) Reviewers histogram dashboard: [hist_reviewers.sql](https://github.com/cncf/gha2db/blob/master/metrics/hist_reviewers.sql), [reviewers_histogram.json](https://github.com/cncf/gha2db/blob/master/grafana/dashboards/reviewers_histogram.json), [view](https://cncftest.io/dashboard/db/reviewers-histogram?orgId=1).
 
 All of them works live on [cncftest.io](https://cncftest.io) with auto gha2db_sync tool running.
 
