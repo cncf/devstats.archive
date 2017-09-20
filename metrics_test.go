@@ -22,9 +22,11 @@ import (
 type MetricTestCase struct {
 	setup    func(*sql.DB, *lib.Ctx) error
 	metric   string
-	from     time.Time
-	to       time.Time
-	debugDB  bool // if set, test will not drop database at the end and will return after such test, so You can run metric manually via `runq` or directly on DB
+	from     time.Time // used by non-histogram metrics
+	to       time.Time // used by non-histogram metrics
+	period   string // used by histogram metrics
+	debugDB  bool   // if set, test will not drop database at the end and will return after such test, so You can run metric manually via `runq` or directly on DB
+	replaces [][2]string
 	expected [][]interface{}
 }
 
@@ -49,6 +51,17 @@ func TestMetrics(t *testing.T) {
 			from:     ft(2017, 6),
 			to:       ft(2017, 7, 12, 23),
 			expected: [][]interface{}{{3}},
+		},
+		{
+			setup:    setupReviewersHistMetric,
+			metric:   "hist_reviewers",
+			period:   "1 week",
+			replaces: [][2]string{{"count(id) >= 5", "count(id) >= 0"}},
+			expected: [][]interface{}{
+				{"Actor 1", 4},
+				{"Actor 2", 4},
+				{"Actor 3", 2},
+			},
 		},
 		{
 			setup:  setupSigMentionsTextMetric,
@@ -238,7 +251,7 @@ func TestMetrics(t *testing.T) {
 			t.Errorf("test number %d: %v", index+1, err.Error())
 		}
 		if !testlib.CompareSlices2D(test.expected, got) {
-			t.Errorf("test number %d, expected %+v, got %+v", index+1, test.expected, got)
+			t.Errorf("test number %d, expected %+v, got %+v    test case: %+v", index+1, test.expected, got, test)
 		}
 		if test.debugDB {
 			t.Errorf("returning due to debugDB mode")
@@ -285,7 +298,15 @@ func executeMetricTestCase(testMetric *MetricTestCase, ctx *lib.Ctx) (result [][
 	}
 
 	// Execute metric and get its results
-	result, err = executeMetric(c, ctx, testMetric.metric, testMetric.from, testMetric.to)
+	result, err = executeMetric(
+		c,
+		ctx,
+		testMetric.metric,
+		testMetric.from,
+		testMetric.to,
+		testMetric.period,
+		testMetric.replaces,
+	)
 
 	// We're after succesfull setup
 	return
@@ -293,7 +314,7 @@ func executeMetricTestCase(testMetric *MetricTestCase, ctx *lib.Ctx) (result [][
 
 // execute metric metrics/{{metric}}.sql with {{from}} and {{to}} replaced by from/YMDHMS, to/YMDHMS
 // end result slice of slices of any type
-func executeMetric(c *sql.DB, ctx *lib.Ctx, metric string, from, to time.Time) (result [][]interface{}, err error) {
+func executeMetric(c *sql.DB, ctx *lib.Ctx, metric string, from, to time.Time, period string, replaces [][2]string) (result [][]interface{}, err error) {
 	// Metric file name
 	sqlFile := fmt.Sprintf("metrics/%s.sql", metric)
 
@@ -305,6 +326,10 @@ func executeMetric(c *sql.DB, ctx *lib.Ctx, metric string, from, to time.Time) (
 	sqlQuery := string(bytes)
 	sqlQuery = strings.Replace(sqlQuery, "{{from}}", lib.ToYMDHMSDate(from), -1)
 	sqlQuery = strings.Replace(sqlQuery, "{{to}}", lib.ToYMDHMSDate(to), -1)
+	sqlQuery = strings.Replace(sqlQuery, "{{period}}", period, -1)
+	for _, replace := range replaces {
+		sqlQuery = strings.Replace(sqlQuery, replace[0], replace[1], -1)
+	}
 
 	// Execute SQL
 	rows := lib.QuerySQLWithErr(c, ctx, sqlQuery)
@@ -994,6 +1019,79 @@ func setupReviewersMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 		{8, "\t/lgTM\n", ft(2017, 7, 17)},
 		{11, "/lGtM with additional text", ft(2017, 7, 20)}, // additional text causes this line to be skipped
 		{13, "Line 1\n/lGtM\nLine 2", ft(2017, 7, 21)},      // This is included because /LGTM is in its own line only eventually surrounded by whitespace
+	}
+
+	// Add events
+	for _, event := range events {
+		err = addEvent(con, ctx, event...)
+		if err != nil {
+			return
+		}
+	}
+
+	// Add issue event labels
+	for _, iel := range iels {
+		err = addIssueEventLabel(con, ctx, iel...)
+		if err != nil {
+			return
+		}
+	}
+
+	// Add texts
+	for _, text := range texts {
+		err = addText(con, ctx, text...)
+		if err != nil {
+			return
+		}
+	}
+
+	return
+}
+
+// Create data for reviewers histogram metric
+func setupReviewersHistMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
+	tm := time.Now().Add(-time.Hour)
+
+	// Events to add
+	// eid, etype, aid, rid, public, created_at, aname, rname, orgid
+	events := [][]interface{}{
+		{1, "T", 1, 1, true, tm, "Actor 1", "Repo 1", 1},
+		{2, "T", 2, 2, true, tm, "Actor 2", "Repo 2", 1},
+		{3, "T", 3, 1, true, tm, "Actor 3", "Repo 1", 1},
+		{4, "T", 1, 3, true, tm, "Actor 1", "Repo 3", 2},
+		{5, "T", 2, 2, true, tm, "Actor 2", "Repo 2", 1},
+		{6, "T", 2, 2, true, tm, "Actor 2", "Repo 2", 1},
+		{7, "T", 2, 2, true, tm, "Actor 2", "Repo 2", 1},
+		{8, "T", 3, 4, true, tm, "Actor 3", "Repo 4", 2},
+		{9, "T", 1, 5, true, tm, "Actor 1", "Repo 5", nil},
+		{10, "T", 2, 5, true, tm, "Actor 2", "Repo 5", nil},
+		{11, "T", 3, 5, true, tm, "Actor 3", "Repo 5", nil},
+		{12, "T", 1, 5, true, tm, "Actor 1", "Repo 5", nil},
+		{13, "T", 1, 1, true, tm, "Actor 1", "Repo 1", 1},
+	}
+
+	// Issue Event Labels to add
+	// iid, eid, lid, lname, created_at
+	// repo_id, repo_name, actor_id, actor_login, type, issue_number
+	iels := [][]interface{}{
+		{1, 1, 1, "lgtm", tm, 1, "Repo 1", 1, "Actor 1", "T", 1},
+		{2, 2, 2, "lgtm", tm, 2, "Repo 2", 2, "Actor 2", "T", 2},
+		{5, 5, 5, "lgtm", tm, 2, "Repo 2", 2, "Actor 2", "T", 5},
+		{6, 6, 6, "lgtm", tm, 2, "Repo 2", 2, "Actor 2", "T", 6},
+		{6, 9, 1, "lgtm", tm, 5, "Repo 5", 1, "Actor 1", "T", 6},
+		{10, 10, 10, "other", tm, 5, "Repo 5", 2, "Actor 2", "T", 10},
+		{12, 12, 1, "lgtm", tm, 5, "Repo 5", 3, "Actor 3", "T", 12},
+	}
+
+	// texts to add
+	// eid, body, created_at
+	texts := [][]interface{}{
+		{3, "/lgtm", tm},
+		{4, " /LGTM ", tm},
+		{7, " /LGtm ", tm},
+		{8, "\t/lgTM\n", tm},
+		{11, "/lGtM with additional text", tm},
+		{13, "Line 1\n/lGtM\nLine 2", tm},
 	}
 
 	// Add events
