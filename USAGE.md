@@ -170,8 +170,8 @@ This will log error and process no JSONs:
 # PostgreSQL database setup
 
 Detailed setup instructions are here (they use already populated postgres dump):
-- [Mac](https://github.com/cncf/gha2db/INSTALL_MAC.md)
-- [Linux](https://github.com/cncf/gha2db/INSTALL_UBUNTU.md)
+- [Mac](https://github.com/cncf/gha2db/blob/master/INSTALL_MAC.md)
+- [Linux](https://github.com/cncf/gha2db/blob/master/INSTALL_UBUNTU.md)
 
 In short for Ubuntu like Linux:
 
@@ -346,8 +346,8 @@ Sync tool uses [gaps.yaml](https://github.com/cncf/gha2db/blob/master/metrics/ga
 # Cron
 
 You can install a cron job to run `gha2db_sync` automatically, please check "cron" section:
-- [Mac](https://github.com/cncf/gha2db/INSTALL_MAC.md)
-- [Linux](https://github.com/cncf/gha2db/INSTALL_UBUNTU.md)
+- [Mac](https://github.com/cncf/gha2db/blob/master/INSTALL_MAC.md)
+- [Linux](https://github.com/cncf/gha2db/blob/master/INSTALL_UBUNTU.md)
 
 # Developers affiliations
 
@@ -377,8 +377,8 @@ You can visualise data using Grafana, see [grafana/](https://github.com/cncf/gha
 # Install Grafana using:
 
 Grafana install instruction are here:
-- [Mac](https://github.com/cncf/gha2db/INSTALL_MAC.md)
-- [Linux](https://github.com/cncf/gha2db/INSTALL_UBUNTU.md)
+- [Mac](https://github.com/cncf/gha2db/blob/master/INSTALL_MAC.md)
+- [Linux](https://github.com/cncf/gha2db/blob/master/INSTALL_UBUNTU.md)
 
 # To drop & recreate InfluxDB:
 - `IDB_PASS='idb_password' ./grafana/influxdb_recreate.sh`
@@ -448,8 +448,8 @@ Metrics are described in [README](https://github.com/cncf/gha2db/blob/master/REA
 # Grafana anonymous login
 
 Please see Grafana section in:
-- [Mac](https://github.com/cncf/gha2db/INSTALL_MAC.md)
-- [Linux](https://github.com/cncf/gha2db/INSTALL_UBUNTU.md)
+- [Mac](https://github.com/cncf/gha2db/blob/master/INSTALL_MAC.md)
+- [Linux](https://github.com/cncf/gha2db/blob/master/INSTALL_UBUNTU.md)
 
 # Benchmarks
 Benchmarks were executed on historical Ruby version and current Go version.
