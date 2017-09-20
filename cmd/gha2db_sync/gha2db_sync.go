@@ -313,6 +313,16 @@ func sync(args []string) {
 		}
 		lib.Printf("Influx range: %s - %s\n", lib.ToYMDHDate(from), lib.ToYMDHDate(to))
 
+		// Annotations
+		lib.ExecCommand(
+			&ctx,
+			[]string{
+				cmdPrefix + "annotations",
+				lib.ToYMDDate(from),
+			},
+			nil,
+		)
+
 		// Fill gaps in series
 		fillGapsInSeries(&ctx, from, to)
 
