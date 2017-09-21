@@ -190,8 +190,8 @@ func fillGapsInSeries(ctx *lib.Ctx, from, to time.Time) {
 				[]string{
 					cmdPrefix + "z2influx",
 					strings.Join(addPeriodSuffix(series, period), ","),
-					lib.ToYMDDate(from),
-					lib.ToYMDDate(to),
+					lib.ToYMDHDate(from),
+					lib.ToYMDHDate(to),
 					period,
 				},
 				nil,
@@ -319,7 +319,7 @@ func sync(args []string) {
 			&ctx,
 			[]string{
 				cmdPrefix + "annotations",
-				lib.ToYMDDate(from),
+				lib.ToYMDHDate(from),
 			},
 			nil,
 		)
@@ -359,8 +359,8 @@ func sync(args []string) {
 						cmdPrefix + "db2influx",
 						seriesNameOrFunc,
 						fmt.Sprintf("%s/%s.sql", metricsDir, metric.MetricSQL),
-						lib.ToYMDDate(from),
-						lib.ToYMDDate(to),
+						lib.ToYMDHDate(from),
+						lib.ToYMDHDate(to),
 						period,
 						histParam,
 					},
