@@ -141,7 +141,7 @@ func TestInit(t *testing.T) {
 		QOut:             false,
 		CtxOut:           false,
 		DefaultStartDate: time.Date(2014, 6, 1, 0, 0, 0, 0, time.UTC),
-		LastSeries:       "all_prs_merged_d",
+		LastSeries:       "events_h",
 		SkipIDB:          false,
 		ResetIDB:         false,
 		Explain:          false,
