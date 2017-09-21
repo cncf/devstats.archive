@@ -21,7 +21,15 @@ func ExecCommand(ctx *Ctx, cmdAndArgs []string, env map[string]string) {
 	command := cmdAndArgs[0]
 	arguments := cmdAndArgs[1:]
 	if ctx.CmdDebug > 0 {
-		Printf("%s\n", strings.Join(cmdAndArgs, " "))
+		var args []string
+		for _, arg := range cmdAndArgs {
+			if strings.Contains(arg, " ") {
+				args = append(args, "'"+arg+"'")
+			} else {
+				args = append(args, arg)
+			}
+		}
+		Printf("%s\n", strings.Join(args, " "))
 	}
 	cmd := exec.Command(command, arguments...)
 
