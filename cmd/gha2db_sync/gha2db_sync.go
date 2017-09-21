@@ -348,7 +348,7 @@ func sync(args []string) {
 					lib.Printf("Skipping recalculating period \"%s\" for date to %v\n", period, to)
 					continue
 				}
-				lib.Printf("Calculate metric %v, period %v...\n", metric.Name, period)
+				lib.Printf("Calculate metric %v, period %v, histogram: %v...\n", metric.Name, period, metric.Histogram)
 				seriesNameOrFunc := metric.SeriesNameOrFunc
 				if metric.AddPeriodToName {
 					seriesNameOrFunc += "_" + period
