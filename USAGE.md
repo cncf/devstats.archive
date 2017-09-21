@@ -415,6 +415,7 @@ Feed InfluxDB using:
 - influx
 - auth (gha_admin/influxdb_pwd)
 - use gha
+- precision rfc3339
 - select * from reviewers
 - select count(*) from reviewers
 - show tag keys
