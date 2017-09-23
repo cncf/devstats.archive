@@ -1,4 +1,4 @@
-# gha2db installation on Mac
+# gha2db installation on Ubuntu
 
 Prerequisites:
 1. Ubuntu 16.04 LTS (quite old, but longest support).
