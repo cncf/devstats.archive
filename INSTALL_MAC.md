@@ -58,7 +58,7 @@ Prerequisites:
     - `brew install influxdb`
     - `ln -sfv /usr/local/opt/influxdb/*.plist ~/Library/LaunchAgents`
     - `launchctl load ~/Library/LaunchAgents/homebrew.mxcl.influxdb.plist`
-    - Create InfluxDB user, database: `IDB_PASS='your_password_here' ./grafana/influxdb_setup.sh`
+    - Create InfluxDB user, database: `IDB_PASS='your_password_here' ./grafana/influxdb_setup.sh gha`
 
 11. Databases installed, you need to test if all works fine, use database test coverage:
     - `IDB_DB=dbtest IDB_PASS=your_influx_pwd PG_DB=dbtest PG_PASS=your_postgres_pwd make dbtest`

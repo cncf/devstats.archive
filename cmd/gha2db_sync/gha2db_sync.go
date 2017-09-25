@@ -158,7 +158,7 @@ func fillGapsInSeries(ctx *lib.Ctx, from, to time.Time) {
 		dataPrefix = "./"
 	}
 
-	data, err := ioutil.ReadFile(dataPrefix + "metrics/gaps.yaml")
+	data, err := ioutil.ReadFile(dataPrefix + ctx.GapsYaml)
 	if err != nil {
 		lib.FatalOnError(err)
 		return
@@ -328,7 +328,7 @@ func sync(args []string) {
 		fillGapsInSeries(&ctx, from, to)
 
 		// Read metrics configuration
-		data, err := ioutil.ReadFile(dataPrefix + "metrics/metrics.yaml")
+		data, err := ioutil.ReadFile(dataPrefix + ctx.MetricsYaml)
 		if err != nil {
 			lib.FatalOnError(err)
 			return
