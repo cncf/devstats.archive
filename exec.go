@@ -23,6 +23,10 @@ func ExecCommand(ctx *Ctx, cmdAndArgs []string, env map[string]string) {
 	if ctx.CmdDebug > 0 {
 		var args []string
 		for _, arg := range cmdAndArgs {
+			argLen := len(arg)
+			if argLen > 0x200 {
+				arg = arg[0:0x100] + "..." + arg[argLen-0x100:argLen]
+			}
 			if strings.Contains(arg, " ") {
 				args = append(args, "'"+arg+"'")
 			} else {
@@ -104,7 +108,12 @@ func ExecCommand(ctx *Ctx, cmdAndArgs []string, env map[string]string) {
 		}
 	}
 	if ctx.CmdDebug > 0 {
+		info := strings.Join(cmdAndArgs, " ")
+		lenInfo := len(info)
+		if lenInfo > 0x280 {
+			info = info[0:0x140] + "..." + info[lenInfo-0x140:lenInfo]
+		}
 		dtEnd := time.Now()
-		Printf("%s ... %+v\n", strings.Join(cmdAndArgs, " "), dtEnd.Sub(dtStart))
+		Printf("%s ... %+v\n", info, dtEnd.Sub(dtStart))
 	}
 }
