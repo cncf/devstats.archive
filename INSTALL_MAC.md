@@ -75,7 +75,7 @@ Prerequisites:
     - You need to open `crontab.entry` file, it looks like this:
     ```
     10 * * * * PATH=$PATH:/path/to/your/GOROOT/bin PG_PASS="..." cron_gha2db_sync.sh 1> /tmp/gha2db_sync.out 2> /tmp/gha2db_sync.err
-    50 3 * * * PATH=$PATH:/path/to/your/GOROOT/bin cron_db_backup.sh gha 2>> /tmp/gha2db_backup.err 1>> /tmp/gha2db_backup.log
+    20 3 * * * PATH=$PATH:/path/to/your/GOROOT/bin cron_db_backup.sh gha 2>> /tmp/gha2db_backup.err 1>> /tmp/gha2db_backup.log
     ```
     - Second crontab entry is for automatic daily backup of GHA database.
     - You need to change "..." PG_PASS to the real postgres password value and copy this line.
