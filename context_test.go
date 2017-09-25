@@ -44,6 +44,9 @@ func copyContext(in *lib.Ctx) *lib.Ctx {
 		Exact:            in.Exact,
 		LogToDB:          in.LogToDB,
 		Local:            in.Local,
+		AnnotationsYaml:  in.AnnotationsYaml,
+		MetricsYaml:      in.MetricsYaml,
+		GapsYaml:         in.GapsYaml,
 	}
 	return &out
 }
@@ -149,6 +152,9 @@ func TestInit(t *testing.T) {
 		Exact:            false,
 		LogToDB:          true,
 		Local:            false,
+		AnnotationsYaml:  "metrics/annotations.yaml",
+		MetricsYaml:      "metrics/metrics.yaml",
+		GapsYaml:         "metrics/gaps.yaml",
 	}
 
 	// Test cases
@@ -365,6 +371,23 @@ func TestInit(t *testing.T) {
 				t,
 				copyContext(&defaultContext),
 				map[string]interface{}{"Local": true},
+			),
+		},
+		{
+			"Setting non standard YAML files",
+			map[string]string{
+				"GHA2DB_ANNOTATIONS_YAML": "other/anno.yml",
+				"GHA2DB_METRICS_YAML":     "met.YAML",
+				"GHA2DB_GAPS_YAML":        "/gapz.yml",
+			},
+			dynamicSetFields(
+				t,
+				copyContext(&defaultContext),
+				map[string]interface{}{
+					"AnnotationsYaml": "other/anno.yml",
+					"MetricsYaml":     "met.YAML",
+					"GapsYaml":        "/gapz.yml",
+				},
 			),
 		},
 	}
