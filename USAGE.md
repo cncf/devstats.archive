@@ -91,6 +91,9 @@ You can tweak `gha2db` tools by environment variables:
 - Set `GHA2DB_EXACT` for `gha2db` tool to make it process only repositories listed as "orgs" parameter, by their full names, like for example 3 repos: "GoogleCloudPlatform/kubernetes,kubernetes,kubernetes/kubernetes"
 - Set `GHA2DB_SKIPLOG` for any tool to skip logging output to `gha_logs` table.
 - Set `GHA2DB_LOCAL` for gha2db_sync tool to make it prefix call to other tools with "./" (so it will use other tools binaries from the current working directory instead of `/usr/bin/`). Local mode uses "./metrics/" to search for metrics files. Otherwise "/etc/gha2db/metrics/" is used.
+- Set `GHA2DB_ANNOTATIONS_YAML` for `annotations` tool, set name of annotation yaml file, default is "metrics/annotations.yaml"
+- Set `GHA2DB_METRICS_YAML` for `gha2db_sync` tool, set name of metrics yaml file, default is "metrics/metrics.yaml"
+- Set `GHA2DB_GAPS_YAML` for `gha2db_sync` tool tool, set name of gaps yaml file, default is "metrics/gaps.yaml"
 
 All environment context details are defined in [context.go](https://github.com/cncf/gha2db/blob/master/context.go), please see that file for details (You can also see how it works in [context_test.go](https://github.com/cncf/gha2db/blob/master/context_test.go)).
 
@@ -336,6 +339,7 @@ Example call:
 - `PG_PASS='pwd' IDB_PASS='pwd' ./sync.sh`
 - Add `GHA2DB_RESETIDB` environment variable to rebuild InfluxDB stats instead of update since the last run
 - Add `GHA2DB_SKIPIDB` environment variable to skip syncing InfluxDB (so it will only sync Postgres DB)
+- Add `GHA2DB_SKIPPDB` environment variable to skip syncing Postgres (so it will only sync Influx DB)
 
 There is a manual script that can be used to loop sync every defined number of seconds, for example for sync every 30 minutes:
 - `PG_PASS='pwd' IDB_PASS='pwd' ./syncer.sh 1800`
