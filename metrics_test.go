@@ -60,14 +60,20 @@ func TestMetrics(t *testing.T) {
 			expected: [][]interface{}{{3}},
 		},
 		{
-			setup:    setupReviewersHistMetric,
-			metric:   "hist_reviewers",
-			period:   "1 week",
-			replaces: [][2]string{{"count(id) >= 5", "count(id) >= 0"}},
+			setup:  setupReviewersHistMetric,
+			metric: "hist_reviewers",
+			period: "1 week",
+			replaces: [][2]string{
+				{" >= 5", " >= 0"},
+				{" >= 3", " >= 0"},
+			},
 			expected: [][]interface{}{
-				{"Actor 1", 4},
-				{"Actor 2", 4},
-				{"Actor 3", 2},
+				{"reviewers_hist,All", "Actor 1", 4},
+				{"reviewers_hist,All", "Actor 2", 4},
+				{"reviewers_hist,Group", "Actor 2", 4},
+				{"reviewers_hist,All", "Actor 3", 2},
+				{"reviewers_hist,Group", "Actor 1", 2},
+				{"reviewers_hist,Group", "Actor 3", 1},
 			},
 		},
 		{
@@ -403,7 +409,7 @@ func addEvent(con *sql.DB, ctx *lib.Ctx, args ...interface{}) (err error) {
 }
 
 // Add repo
-// id, name, org_id, org_login, repo group
+// id, name, org_id, org_login, repo_group
 func addRepo(con *sql.DB, ctx *lib.Ctx, args ...interface{}) (err error) {
 	if len(args) != 5 {
 		err = fmt.Errorf("addRepo: expects 5 variadic parameters")
@@ -756,7 +762,7 @@ func setupTimeMetrics(con *sql.DB, ctx *lib.Ctx) (err error) {
 	ft := testlib.YMDHMS
 
 	// Repos to add
-	// id, name, org_id, org_login, repo group
+	// id, name, org_id, org_login, repo_group
 	repos := [][]interface{}{
 		{1, "R1", nil, nil, "Kubernetes"}, // Mono repos only count repositories from `Kubernetes` and `Contrib`.
 		{2, "R2", nil, nil, "Other"},
@@ -854,7 +860,7 @@ func setupPRsMergedMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 	ft := testlib.YMDHMS
 
 	// Repos to add
-	// id, name, org_id, org_login, repo group
+	// id, name, org_id, org_login, repo_group
 	repos := [][]interface{}{
 		{1, "Repo 1", 1, "Org 1", "Group 1"},
 		{2, "Repo 2", 1, "Org 1", "Group 2"},
@@ -1083,6 +1089,13 @@ func setupReviewersMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 func setupReviewersHistMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 	tm := time.Now().Add(-time.Hour)
 
+	// Repos to add
+	// id, name, org_id, org_login, repo_group
+	repos := [][]interface{}{
+		{1, "Repo 1", 1, "Org", "Group"},
+		{2, "Repo 2", 1, "Org", "Group"},
+	}
+
 	// Events to add
 	// eid, etype, aid, rid, public, created_at, aname, rname, orgid
 	events := [][]interface{}{
@@ -1123,6 +1136,14 @@ func setupReviewersHistMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 		{8, "\t/lgTM\n", tm},
 		{11, "/lGtM with additional text", tm},
 		{13, "Line 1\n/lGtM\nLine 2", tm},
+	}
+
+	// Add repos
+	for _, repo := range repos {
+		err = addRepo(con, ctx, repo...)
+		if err != nil {
+			return
+		}
 	}
 
 	// Add events
