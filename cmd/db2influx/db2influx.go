@@ -208,7 +208,7 @@ func workerThread(ch chan bool, ctx *lib.Ctx, seriesNameOrFunc, sqlQuery, period
 	}
 }
 
-func db2influxHistogram(ctx *lib.Ctx, seriesNameOrFunc, sqlQuery, interval string) {
+func db2influxHistogram(ctx *lib.Ctx, seriesNameOrFunc, sqlQuery, interval, intervalAbbr string) {
 	// Connect to Postgres DB
 	sqlc := lib.PgConn(ctx)
 	defer sqlc.Close()
@@ -264,8 +264,65 @@ func db2influxHistogram(ctx *lib.Ctx, seriesNameOrFunc, sqlQuery, interval strin
 			lib.Printf("hist %v, %v: %v rows\n", seriesNameOrFunc, interval, rowCount)
 		}
 		lib.FatalOnError(rows.Err())
-	} else {
-		lib.FatalOnError(fmt.Errorf("histogram metric should return 2 columns, returned %v", nColumns))
+	} else if nColumns >= 3 {
+		var (
+			fValue float64
+			sValue string
+		)
+		columns, err := rows.Columns()
+		lib.FatalOnError(err)
+		nColumns := len(columns)
+		pValues := make([]interface{}, nColumns)
+		for i := range columns {
+			pValues[i] = new(sql.RawBytes)
+		}
+		seriesToClear := make(map[string]time.Time)
+		for rows.Next() {
+			// Get row values
+			lib.FatalOnError(rows.Scan(pValues...))
+			name := string(*pValues[0].(*sql.RawBytes))
+			names := nameForMetricsRow(seriesNameOrFunc, name, intervalAbbr)
+			nNames := len(names)
+			if nNames > 0 {
+				for i := 0; i < nNames; i++ {
+					pName := pValues[2*i+1]
+					if pName != nil {
+						sValue = string(*pName.(*sql.RawBytes))
+					} else {
+						sValue = "(nil)"
+					}
+					pVal := pValues[2*i+2]
+					if pVal != nil {
+						fValue, _ = strconv.ParseFloat(string(*pVal.(*sql.RawBytes)), 64)
+					} else {
+						fValue = 0.0
+					}
+					name = names[i]
+					if ctx.Debug > 0 {
+						lib.Printf("hist %v, %v -> %v, %v\n", name, interval, sValue, fValue)
+					}
+					tm, ok := seriesToClear[name]
+					if ok {
+						tm = tm.Add(-time.Hour)
+						seriesToClear[name] = tm
+					} else {
+						tm = time.Now()
+						seriesToClear[name] = tm
+					}
+					// Add batch point
+					fields := map[string]interface{}{"name": sValue, "value": fValue}
+					pt := lib.IDBNewPointWithErr(name, nil, fields, tm)
+					bp.AddPoint(pt)
+				}
+			}
+		}
+		lib.FatalOnError(rows.Err())
+		allSeries := ""
+		for series := range seriesToClear {
+			allSeries += series + "|"
+		}
+		allSeries = allSeries[0 : len(allSeries)-1]
+		lib.SafeQueryIDB(ic, ctx, "drop series from /"+allSeries+"/")
 	}
 	// Write the batch
 	if !ctx.SkipIDB {
@@ -290,7 +347,7 @@ func db2influx(seriesNameOrFunc, sqlFile, from, to, intervalAbbr string, hist bo
 	interval, intervalStart, nextIntervalStart := lib.GetIntervalFunctions(intervalAbbr)
 
 	if hist {
-		db2influxHistogram(&ctx, seriesNameOrFunc, sqlQuery, interval)
+		db2influxHistogram(&ctx, seriesNameOrFunc, sqlQuery, interval, intervalAbbr)
 		return
 	}
 
