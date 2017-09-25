@@ -41,6 +41,9 @@ type Ctx struct {
 	Exact            bool      // From GHA2DB_EXACT gha2db tool, if set then orgs list provided from commandline is used as a list of exact repository full names, like "a/b,c/d,e"
 	LogToDB          bool      // From GHA2DB_SKIPLOG all tools, if set, DB logging into Postgres table `gha_logs` will be disabled
 	Local            bool      // From GHA2DB_LOCAL gha2db_sync tool, if set, gha2_db will call other tools prefixed with "./" to use local compile ones. Otherwise it will call binaries without prefix (so it will use thos ein /usr/bin/).
+	AnnotationsYaml  string    // From GHA2DB_ANNOTATIONS_YAML annotations tool, set other annotations.yaml file, default is "metrics/annotations.yaml"
+	MetricsYaml      string    // From GHA2DB_METRICS_YAML gha2db_sync tool, set other metrics.yaml file, default is "metrics/metrics.yaml"
+	GapsYaml         string    // From GHA2DB_GAPS_YAML gha2db_sync tool, set other gaps.yaml file, default is "metrics/gaps.yaml"
 }
 
 // Init - get context from environment variables
@@ -48,6 +51,7 @@ func (ctx *Ctx) Init() {
 	// Outputs
 	ctx.JSONOut = os.Getenv("GHA2DB_JSON") != ""
 	ctx.DBOut = os.Getenv("GHA2DB_NODB") == ""
+
 	// Debug
 	if os.Getenv("GHA2DB_DEBUG") == "" {
 		ctx.Debug = 0
@@ -68,6 +72,7 @@ func (ctx *Ctx) Init() {
 	}
 	ctx.QOut = os.Getenv("GHA2DB_QOUT") != ""
 	ctx.CtxOut = os.Getenv("GHA2DB_CTXOUT") != ""
+
 	// Threading
 	ctx.ST = os.Getenv("GHA2DB_ST") != ""
 	// NCPUs
@@ -80,6 +85,7 @@ func (ctx *Ctx) Init() {
 			ctx.NCPUs = nCPUs
 		}
 	}
+
 	// Postgres DB
 	ctx.PgHost = os.Getenv("PG_HOST")
 	ctx.PgPort = os.Getenv("PG_PORT")
@@ -105,6 +111,7 @@ func (ctx *Ctx) Init() {
 	if ctx.PgSSL == "" {
 		ctx.PgSSL = "disable"
 	}
+
 	// Influx DB
 	ctx.IDBHost = os.Getenv("IDB_HOST")
 	ctx.IDBPort = os.Getenv("IDB_PORT")
@@ -126,6 +133,7 @@ func (ctx *Ctx) Init() {
 	if ctx.IDBPass == "" {
 		ctx.IDBPass = "password"
 	}
+
 	// Environment controlling index creation, table & tools
 	ctx.Index = os.Getenv("GHA2DB_INDEX") != ""
 	ctx.Table = os.Getenv("GHA2DB_SKIPTABLE") == ""
@@ -134,17 +142,20 @@ func (ctx *Ctx) Init() {
 	if len(ctx.Mgetc) > 1 {
 		ctx.Mgetc = ctx.Mgetc[:1]
 	}
+
 	// Default start date
 	if os.Getenv("GHA2DB_STARTDT") != "" {
 		ctx.DefaultStartDate = TimeParseAny(os.Getenv("GHA2DB_STARTDT"))
 	} else {
 		ctx.DefaultStartDate = time.Date(2014, 6, 1, 0, 0, 0, 0, time.UTC)
 	}
+
 	// Last InfluxDB series
 	ctx.LastSeries = os.Getenv("GHA2DB_LASTSERIES")
 	if ctx.LastSeries == "" {
 		ctx.LastSeries = "events_h"
 	}
+
 	// IfluxDB variables
 	ctx.SkipIDB = os.Getenv("GHA2DB_SKIPIDB") != ""
 	ctx.ResetIDB = os.Getenv("GHA2DB_RESETIDB") != ""
@@ -163,6 +174,20 @@ func (ctx *Ctx) Init() {
 
 	// Local mode
 	ctx.Local = os.Getenv("GHA2DB_LOCAL") != ""
+
+	// YAML config files
+	ctx.AnnotationsYaml = os.Getenv("GHA2DB_ANNOTATIONS_YAML")
+	ctx.MetricsYaml = os.Getenv("GHA2DB_METRICS_YAML")
+	ctx.GapsYaml = os.Getenv("GHA2DB_GAPS_YAML")
+	if ctx.AnnotationsYaml == "" {
+		ctx.AnnotationsYaml = "metrics/annotations.yaml"
+	}
+	if ctx.MetricsYaml == "" {
+		ctx.MetricsYaml = "metrics/metrics.yaml"
+	}
+	if ctx.GapsYaml == "" {
+		ctx.GapsYaml = "metrics/gaps.yaml"
+	}
 
 	// Context out if requested
 	if ctx.CtxOut {

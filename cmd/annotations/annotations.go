@@ -46,7 +46,7 @@ func annotations(sdt string) {
 	}
 
 	// Read annotations
-	data, err := ioutil.ReadFile(dataPrefix + "metrics/annotations.yaml")
+	data, err := ioutil.ReadFile(dataPrefix + ctx.AnnotationsYaml)
 	if err != nil {
 		lib.FatalOnError(err)
 		return

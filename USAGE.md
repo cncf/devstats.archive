@@ -393,7 +393,7 @@ Or automatically: drop & create Influx DB, update Postgres DB since the last run
 Note that this is an old solution that worked, but wasn't tested recently.
 
 - Start Grafana using `GRAFANA_PASS='password' grafana/grafana_start.sh` to install Grafana & InfluxDB as docker containers (this requires Docker).
-- Start InfluxDB using `IDB_PASS='password' ./grafana/influxdb_setup.sh`, this requires Docker & previous command succesfully executed.
+- Start InfluxDB using `IDB_PASS='password' ./grafana/influxdb_setup.sh gha`, this requires Docker & previous command succesfully executed.
 - To cleanup Docker Grafana image and start from scratch use `./grafana/docker_cleanup.sh`. This will not delete Your grafana config because it is stored in local volume `/var/lib/grafana`.
 - To recreate all Docker Grafana/InfluxDB stuff from scratch do: `GRAFANA_PASS='' IDB_PASS='' GHA2DB_RESETIDB=1 PG_PASS='' IDB_PASS='' ./grafana/reinit.sh`
 
