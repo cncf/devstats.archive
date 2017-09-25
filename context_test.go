@@ -38,6 +38,7 @@ func copyContext(in *lib.Ctx) *lib.Ctx {
 		DefaultStartDate: in.DefaultStartDate,
 		LastSeries:       in.LastSeries,
 		SkipIDB:          in.SkipIDB,
+		SkipPDB:          in.SkipPDB,
 		ResetIDB:         in.ResetIDB,
 		Explain:          in.Explain,
 		OldFormat:        in.OldFormat,
@@ -146,6 +147,7 @@ func TestInit(t *testing.T) {
 		DefaultStartDate: time.Date(2014, 6, 1, 0, 0, 0, 0, time.UTC),
 		LastSeries:       "events_h",
 		SkipIDB:          false,
+		SkipPDB:          false,
 		ResetIDB:         false,
 		Explain:          false,
 		OldFormat:        false,
@@ -295,6 +297,15 @@ func TestInit(t *testing.T) {
 				t,
 				copyContext(&defaultContext),
 				map[string]interface{}{"SkipIDB": true, "ResetIDB": true},
+			),
+		},
+		{
+			"Setting skip PDB",
+			map[string]string{"GHA2DB_SKIPPDB": "1"},
+			dynamicSetFields(
+				t,
+				copyContext(&defaultContext),
+				map[string]interface{}{"SkipPDB": true},
 			),
 		},
 		{

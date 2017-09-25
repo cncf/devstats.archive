@@ -275,33 +275,35 @@ func sync(args []string) {
 	toHour := strconv.Itoa(to.Hour())
 
 	// Get new GHAs
-	lib.Printf("GHA range: %s %s - %s %s\n", fromDate, fromHour, toDate, toHour)
-	lib.ExecCommand(
-		&ctx,
-		[]string{
-			cmdPrefix + "gha2db",
-			fromDate,
-			fromHour,
-			toDate,
-			toHour,
-			strings.Join(org, ","),
-			strings.Join(repo, ","),
-		},
-		nil,
-	)
+	if !ctx.SkipPDB {
+		lib.Printf("GHA range: %s %s - %s %s\n", fromDate, fromHour, toDate, toHour)
+		lib.ExecCommand(
+			&ctx,
+			[]string{
+				cmdPrefix + "gha2db",
+				fromDate,
+				fromHour,
+				toDate,
+				toHour,
+				strings.Join(org, ","),
+				strings.Join(repo, ","),
+			},
+			nil,
+		)
 
-	lib.Printf("Update structure\n")
-	// Recompute views and DB summaries
-	lib.ExecCommand(
-		&ctx,
-		[]string{
-			cmdPrefix + "structure",
-		},
-		map[string]string{
-			"GHA2DB_SKIPTABLE": "1",
-			"GHA2DB_MGETC":     "y",
-		},
-	)
+		lib.Printf("Update structure\n")
+		// Recompute views and DB summaries
+		lib.ExecCommand(
+			&ctx,
+			[]string{
+				cmdPrefix + "structure",
+			},
+			map[string]string{
+				"GHA2DB_SKIPTABLE": "1",
+				"GHA2DB_MGETC":     "y",
+			},
+		)
+	}
 
 	// DB2Influx
 	if !ctx.SkipIDB {
