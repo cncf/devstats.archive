@@ -57,7 +57,7 @@ Prerequisites:
     - `echo "deb https://repos.influxdata.com/${DISTRIB_ID,,} ${DISTRIB_CODENAME} stable" | sudo tee      /etc/apt/sources.list.d/influxdb.list`
     - `sudo apt-get update && sudo apt-get install influxdb`
     - `sudo service influxdb start`
-    - Create InfluxDB user, database: `IDB_PASS='your_password_here' ./grafana/influxdb_setup.sh`
+    - Create InfluxDB user, database: `IDB_PASS='your_password_here' ./grafana/influxdb_setup.sh gha`
 
 13. Databases installed, you need to test if all works fine, use database test coverage:
     - `IDB_DB=dbtest IDB_PASS=your_influx_pwd PG_DB=dbtest PG_PASS=your_postgres_pwd make dbtest`

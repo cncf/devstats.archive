@@ -265,7 +265,7 @@ func db2influxHistogram(ctx *lib.Ctx, seriesNameOrFunc, sqlQuery, interval strin
 		}
 		lib.FatalOnError(rows.Err())
 	} else {
-		lib.FatalOnError(fmt.Errorf("histogram metric should return 2 clumns, returned %v", nColumns))
+		lib.FatalOnError(fmt.Errorf("histogram metric should return 2 columns, returned %v", nColumns))
 	}
 	// Write the batch
 	if !ctx.SkipIDB {
