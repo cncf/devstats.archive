@@ -181,19 +181,22 @@ func fillGapsInSeries(ctx *lib.Ctx, from, to time.Time) {
 		}
 		nSeries := len(series)
 		nBuckets := nSeries / bSize
+		if nSeries%bSize > 0 {
+			nBuckets++
+		}
 		periods := strings.Split(metric.Periods, ",")
 		for _, period := range periods {
 			if !ctx.ResetIDB && !computePeriodAtThisDate(period, to) {
 				lib.Printf("Skipping filling gaps for period \"%s\" for date %v\n", period, to)
 				continue
 			}
-			lib.Printf("Filling metric gaps %v, %d series...\n", metric.Name, len(series))
 			for i := 0; i < nBuckets; i++ {
 				bFrom := i * bSize
 				bTo := bFrom + bSize
 				if bTo > nSeries {
 					bTo = nSeries
 				}
+				lib.Printf("Filling metric gaps %v, %d series (%d - %d)...\n", metric.Name, nSeries, bFrom, bTo)
 				lib.ExecCommand(
 					ctx,
 					[]string{
