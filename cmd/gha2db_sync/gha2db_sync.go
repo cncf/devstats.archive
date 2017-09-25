@@ -166,6 +166,7 @@ func fillGapsInSeries(ctx *lib.Ctx, from, to time.Time) {
 	lib.FatalOnError(yaml.Unmarshal(data, &gaps))
 
 	// Iterate metrics and periods
+	bSize := 1000
 	for _, metric := range gaps.Metrics {
 		series := []string{}
 		for _, ser := range metric.Series {
@@ -178,24 +179,33 @@ func fillGapsInSeries(ctx *lib.Ctx, from, to time.Time) {
 				series = append(series, ser)
 			}
 		}
+		nSeries := len(series)
+		nBuckets := nSeries / bSize
 		periods := strings.Split(metric.Periods, ",")
 		for _, period := range periods {
 			if !ctx.ResetIDB && !computePeriodAtThisDate(period, to) {
 				lib.Printf("Skipping filling gaps for period \"%s\" for date %v\n", period, to)
 				continue
 			}
-			lib.Printf("Filling metric gaps %v...\n", metric.Name)
-			lib.ExecCommand(
-				ctx,
-				[]string{
-					cmdPrefix + "z2influx",
-					strings.Join(addPeriodSuffix(series, period), ","),
-					lib.ToYMDHDate(from),
-					lib.ToYMDHDate(to),
-					period,
-				},
-				nil,
-			)
+			lib.Printf("Filling metric gaps %v, %d series...\n", metric.Name, len(series))
+			for i := 0; i < nBuckets; i++ {
+				bFrom := i * bSize
+				bTo := bFrom + bSize
+				if bTo > nSeries {
+					bTo = nSeries
+				}
+				lib.ExecCommand(
+					ctx,
+					[]string{
+						cmdPrefix + "z2influx",
+						strings.Join(addPeriodSuffix(series[bFrom:bTo], period), ","),
+						lib.ToYMDHDate(from),
+						lib.ToYMDHDate(to),
+						period,
+					},
+					nil,
+				)
+			}
 		}
 	}
 }
