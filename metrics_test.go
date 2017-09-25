@@ -239,10 +239,10 @@ func TestMetrics(t *testing.T) {
 			from:   ft(2017, 9),
 			to:     ft(2017, 10),
 			expected: [][]interface{}{
-				{"company;company3;activity,authors,issues,prs,commits,review_comments,issue_comments,commit_comments,comments", 144, 3, 24, 24, 24, 24, 24, 24, 72},
-				{"company;company1;activity,authors,issues,prs,commits,review_comments,issue_comments,commit_comments,comments", 360, 2, 60, 60, 60, 60, 60, 60, 180},
-				{"company;company2;activity,authors,issues,prs,commits,review_comments,issue_comments,commit_comments,comments", 108, 2, 18, 18, 18, 18, 18, 18, 54},
-				{"company;company4;activity,authors,issues,prs,commits,review_comments,issue_comments,commit_comments,comments", 96, 2, 16, 16, 16, 16, 16, 16, 48},
+				{"company;company3_all;activity,authors,issues,prs,commits,review_comments,issue_comments,commit_comments,comments", 144, 3, 24, 24, 24, 24, 24, 24, 72},
+				{"company;company1_all;activity,authors,issues,prs,commits,review_comments,issue_comments,commit_comments,comments", 360, 2, 60, 60, 60, 60, 60, 60, 180},
+				{"company;company2_all;activity,authors,issues,prs,commits,review_comments,issue_comments,commit_comments,comments", 108, 2, 18, 18, 18, 18, 18, 18, 54},
+				{"company;company4_all;activity,authors,issues,prs,commits,review_comments,issue_comments,commit_comments,comments", 96, 2, 16, 16, 16, 16, 16, 16, 48},
 			},
 		},
 	}
