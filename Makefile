@@ -13,6 +13,7 @@ GO_VET=go vet
 GO_IMPORTS=goimports -w
 GO_TEST=go test
 BINARIES=structure runq gha2db db2influx z2influx gha2db_sync import_affs annotations
+CRON_SCRIPTS=cron_db_backup.sh cron_gha2db_sync.sh
 STRIP=strip
 
 all: check ${BINARIES}
@@ -68,7 +69,7 @@ data:
 
 install: check ${BINARIES} data
 	${GO_INSTALL} ${GO_BIN_CMDS}
-	cp -v cron_gha2db_sync.sh ${GOPATH}/bin
+	cp -v ${CRON_SCRIPTS} ${GOPATH}/bin
 
 strip: ${BINARIES}
 	${STRIP} ${BINARIES}
