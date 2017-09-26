@@ -1,6 +1,6 @@
 select
   'group_prs,' || r.repo_group as repo_group,
-  count(pr.id) as merge_count
+  count(distinct pr.id) as merge_count
 from
   gha_pull_requests pr,
   gha_repos r
