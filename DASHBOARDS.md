@@ -17,6 +17,7 @@ Each dashboard is defined by its metrics SQL, saved Grafana JSON export and link
 13) Reviewers histogram dashboard: [hist_reviewers.sql](https://github.com/cncf/gha2db/blob/master/metrics/hist_reviewers.sql), [reviewers_histogram.json](https://github.com/cncf/gha2db/blob/master/grafana/dashboards/reviewers_histogram.json), [view](https://cncftest.io/dashboard/db/reviewers-histogram?orgId=1).
 14) Repository comments dashboard: [repo_comments.sql](https://github.com/cncf/gha2db/blob/master/metrics/repo_comments.sql), [repository_comments.json](https://github.com/cncf/gha2db/blob/master/grafana/dashboards/repository_comments.json), [view](https://cncftest.io/dashboard/db/repository-comments?orgId=1).
 15) Repository unique commenters dashboard: [repo_commenters.sql](https://github.com/cncf/gha2db/blob/master/metrics/repo_commenters.sql), [repository_commenters.json](https://github.com/cncf/gha2db/blob/master/grafana/dashboards/repository_commenters.json), [view](https://cncftest.io/dashboard/db/repository-commenters?orgId=1).
+16) New PRs dashboard: [new_prs.sql](https://github.com/cncf/gha2db/blob/master/metrics/new_prs.sql), [new_prs.json](https://github.com/cncf/gha2db/blob/master/grafana/dashboards/new_prs.json), [view](https://cncftest.io/dashboard/db/new-prs?orgId=1).
 
 All of them works live on [cncftest.io](https://cncftest.io) with auto gha2db_sync tool running.
 
