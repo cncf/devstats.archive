@@ -234,6 +234,17 @@ func TestMetrics(t *testing.T) {
 				{"company;company4_all;activity,authors,issues,prs,commits,review_comments,issue_comments,commit_comments,comments", 96, 2, 16, 16, 16, 16, 16, 16, 48},
 			},
 		},
+		{
+			setup:  setupRepoCommentsMetric,
+			metric: "repo_comments",
+			from:   ft(2017, 9),
+			to:     ft(2017, 10),
+			expected: [][]interface{}{
+				{"repo_comments,All", 5},
+				{"repo_comments,Group", 2},
+				{"repo_comments,Mono-group", 2},
+			},
+		},
 	}
 
 	// Environment context parse
@@ -470,13 +481,12 @@ func addIssueLabel(con *sql.DB, ctx *lib.Ctx, args ...interface{}) (err error) {
 
 // Add text
 // eid, body, created_at
+// repo_id, repo_name, actor_id, actor_login, type
 func addText(con *sql.DB, ctx *lib.Ctx, args ...interface{}) (err error) {
-	if len(args) != 3 {
-		err = fmt.Errorf("addText: expects 3 variadic parameters")
+	if len(args) != 8 {
+		err = fmt.Errorf("addText: expects 8 variadic parameters")
 		return
 	}
-	// STUB duplicated values for now
-	args = append(args, []interface{}{0, "", 0, "", "D"}...)
 	_, err = lib.ExecSQL(
 		con,
 		ctx,
@@ -494,7 +504,7 @@ func addText(con *sql.DB, ctx *lib.Ctx, args ...interface{}) (err error) {
 // actor_id, actor_login, repo_id, repo_name, event_type, event_created_at
 func addPayload(con *sql.DB, ctx *lib.Ctx, args ...interface{}) (err error) {
 	if len(args) != 14 {
-		err = fmt.Errorf("addText: expects 14 variadic parameters")
+		err = fmt.Errorf("addPayload: expects 14 variadic parameters")
 		return
 	}
 	newArgs := lib.AnyArray{
@@ -934,7 +944,9 @@ func setupSigMentionsTextMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 	}
 
 	// Add texts
+	stub := []interface{}{0, "", 0, "", "D"}
 	for _, text := range texts {
+		text = append(text, stub...)
 		err = addText(con, ctx, text...)
 		if err != nil {
 			return
@@ -994,6 +1006,53 @@ func setupEventsMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 	// Add events
 	for _, event := range events {
 		err = addEvent(con, ctx, event...)
+		if err != nil {
+			return
+		}
+	}
+
+	return
+}
+
+// Create data for repo comments metric
+func setupRepoCommentsMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
+	ft := testlib.YMDHMS
+
+	// Repos to add
+	// id, name, org_id, org_login, repo_group
+	repos := [][]interface{}{
+		{1, "R1", 1, "O1", "Group"},
+		{2, "R2", 1, "O1", "Group"},
+		{3, "R3", 2, "O2", "Mono-group"},
+		{4, "R4", 2, "O2", nil},
+	}
+
+	// texts to add
+	// eid, body, created_at
+	// repo_id, repo_name, actor_id, actor_login, type
+	texts := [][]interface{}{
+		{1, "example comment", ft(2017, 9), 1, "R1", 1, "A1", "T"},
+		{2, "com1", ft(2017, 9, 2), 2, "R2", 1, "A1", "T"},
+		{3, "com2", ft(2017, 9, 3), 3, "R3", 1, "A1", "T"},
+		{4, "com3", ft(2017, 9, 4), 4, "R4", 1, "A1", "T"},
+		{5, "com4", ft(2017, 10, 5), 1, "R1", 1, "A1", "T"},
+		{6, "com5", ft(2017, 8, 6), 2, "R2", 1, "A1", "T"},
+		{7, "com6", ft(2017, 7, 7), 3, "R3", 1, "A1", "T"},
+		{7, "com7", ft(2017, 6, 8), 4, "R4", 1, "A1", "T"},
+		{7, "com7", ft(2017, 9, 9), 3, "R3", 1, "A1", "T"},
+	}
+
+	// Add repos
+	for _, repo := range repos {
+		err = addRepo(con, ctx, repo...)
+		if err != nil {
+			return
+		}
+	}
+
+	// Add texts
+	for _, text := range texts {
+		err = addText(con, ctx, text...)
 		if err != nil {
 			return
 		}
@@ -1083,7 +1142,9 @@ func setupReviewersMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 	}
 
 	// Add texts
+	stub := []interface{}{0, "", 0, "", "D"}
 	for _, text := range texts {
+		text = append(text, stub...)
 		err = addText(con, ctx, text...)
 		if err != nil {
 			return
@@ -1171,7 +1232,9 @@ func setupReviewersHistMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 	}
 
 	// Add texts
+	stub := []interface{}{0, "", 0, "", "D"}
 	for _, text := range texts {
+		text = append(text, stub...)
 		err = addText(con, ctx, text...)
 		if err != nil {
 			return
