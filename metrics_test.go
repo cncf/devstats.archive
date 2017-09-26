@@ -71,8 +71,8 @@ func TestMetrics(t *testing.T) {
 			metric: "hist_reviewers",
 			period: "1 week",
 			replaces: [][2]string{
-				{" >= 5", " >= 0"},
 				{" >= 3", " >= 0"},
+				{" >= 2", " >= 0"},
 			},
 			expected: [][]interface{}{
 				{"reviewers_hist,All", "Actor 1", 4},
