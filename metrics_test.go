@@ -256,6 +256,17 @@ func TestMetrics(t *testing.T) {
 				{"repo_commenters,Mono-group", 1},
 			},
 		},
+		{
+			setup:  setupNewPRsMetric,
+			metric: "new_prs",
+			from:   ft(2017, 9),
+			to:     ft(2017, 10),
+			expected: [][]interface{}{
+				{"new_prs,All", 7},
+				{"new_prs,Group 1", 5},
+				{"new_prs,Group 2", 2},
+			},
+		},
 	}
 
 	// Environment context parse
@@ -858,6 +869,52 @@ func setupTimeMetrics(con *sql.DB, ctx *lib.Ctx) (err error) {
 	// Add issue event labels
 	for _, iel := range iels {
 		err = addIssueEventLabel(con, ctx, iel...)
+		if err != nil {
+			return
+		}
+	}
+
+	return
+}
+
+// Create data for New PRs metric
+func setupNewPRsMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
+	ft := testlib.YMDHMS
+
+	// Repos to add
+	// id, name, org_id, org_login, repo_group
+	repos := [][]interface{}{
+		{1, "Repo 1", 1, "Org 1", "Group 1"},
+		{2, "Repo 2", 1, "Org 1", "Group 2"},
+		{3, "Repo 3", nil, nil, "Group 1"},
+	}
+
+	// PRs to add
+	// prid, eid, uid, merged_id, assignee_id, num, state, title, body, created_at, closed_at, merged_at, merged
+	// repo_id, repo_name, actor_id, actor_login
+	prs := [][]interface{}{
+		{1, 1, 1, 1, 1, 1, "open", "PR 1", "Body PR 1", ft(2017, 8, 20), nil, nil, true, 1, "Repo 1", 1, "Actor 1"},
+		{2, 5, 3, 2, 3, 2, "open", "PR 2", "Body PR 2", ft(2017, 9, 1), nil, nil, true, 1, "Repo 1", 3, "Actor 3"},
+		{3, 4, 2, 3, 2, 3, "open", "PR 3", "Body PR 3", ft(2017, 9, 2), nil, nil, true, 1, "Repo 1", 2, "Actor 2"},
+		{4, 2, 2, 4, 4, 4, "open", "PR 4", "Body PR 4", ft(2017, 8, 10), nil, nil, true, 2, "Repo 2", 1, "Actor 1"},
+		{5, 6, 4, 4, 4, 5, "open", "PR 5", "Body PR 5", ft(2017, 9, 5), nil, nil, true, 2, "Repo 2", 4, "Actor 4"},
+		{6, 3, 2, 2, 4, 6, "open", "PR 6", "Body PR 6", ft(2017, 9, 2), nil, nil, true, 3, "Repo 3", 2, "Actor 2"},
+		{7, 7, 1, 1, 1, 7, "open", "PR 7", "Body PR 7", ft(2017, 9, 1), nil, nil, true, 1, "Repo 1", 1, "Actor 1"},
+		{8, 8, 2, nil, 2, 8, "open", "PR 8", "Body PR 8", ft(2017, 9, 7), nil, nil, true, 2, "Repo 2", 2, "Actor 2"},
+		{9, 9, 3, nil, 1, 9, "open", "PR 9", "Body PR 9", ft(2017, 9, 8), nil, nil, true, 3, "Repo 3", 3, "Actor 3"},
+	}
+
+	// Add repos
+	for _, repo := range repos {
+		err = addRepo(con, ctx, repo...)
+		if err != nil {
+			return
+		}
+	}
+
+	// Add PRs
+	for _, pr := range prs {
+		err = addPR(con, ctx, pr...)
 		if err != nil {
 			return
 		}
