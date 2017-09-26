@@ -46,18 +46,25 @@ func TestMetrics(t *testing.T) {
 			expected: [][]interface{}{{3}},
 		},
 		{
-			setup:    setupReviewersMetric,
-			metric:   "reviewers",
-			from:     ft(2017, 7, 9),
-			to:       ft(2017, 7, 25),
-			expected: [][]interface{}{{7}},
+			setup:  setupReviewersMetric,
+			metric: "reviewers",
+			from:   ft(2017, 7, 9),
+			to:     ft(2017, 7, 25),
+			expected: [][]interface{}{
+				{"reviewers,All", 7},
+				{"reviewers,Group", 5},
+				{"reviewers,Mono-group", 1},
+			},
 		},
 		{
-			setup:    setupReviewersMetric,
-			metric:   "reviewers",
-			from:     ft(2017, 6),
-			to:       ft(2017, 7, 12, 23),
-			expected: [][]interface{}{{3}},
+			setup:  setupReviewersMetric,
+			metric: "reviewers",
+			from:   ft(2017, 6),
+			to:     ft(2017, 7, 12, 23),
+			expected: [][]interface{}{
+				{"reviewers,All", 3},
+				{"reviewers,Group", 3},
+			},
 		},
 		{
 			setup:  setupReviewersHistMetric,
@@ -145,22 +152,9 @@ func TestMetrics(t *testing.T) {
 			from:   ft(2017, 7),
 			to:     ft(2017, 8),
 			expected: [][]interface{}{
-				{
-					"opened_to_merged_percentile_15,opened_to_merged_median,opened_to_merged_percentile_85",
-					480, 504, 624,
-				},
-			},
-		},
-		{
-			setup:  setupTimeMetrics,
-			metric: "opened_to_merged_mono",
-			from:   ft(2017, 7),
-			to:     ft(2017, 8),
-			expected: [][]interface{}{
-				{
-					"mono_opened_to_merged_percentile_15,mono_opened_to_merged_median,mono_opened_to_merged_percentile_85",
-					480, 480, 552,
-				},
+				{"opened_to_merged;All;percentile_15,median,percentile_85", 480, 504, 552},
+				{"opened_to_merged;Group2;percentile_15,median,percentile_85", 504, 504, 504},
+				{"opened_to_merged;Group1;percentile_15,median,percentile_85", 480, 480, 552},
 			},
 		},
 		{
@@ -170,24 +164,19 @@ func TestMetrics(t *testing.T) {
 			to:     ft(2017, 8),
 			expected: [][]interface{}{
 				{
-					"median_open_to_lgtm,median_lgtm_to_approve,median_approve_to_merge," +
+					"time_metrics;All;median_open_to_lgtm,median_lgtm_to_approve,median_approve_to_merge," +
 						"percentile_85_open_to_lgtm,percentile_85_lgtm_to_approve,percentile_85_approve_to_merge",
-					144, 120, 216,
-					264, 168, 288,
+					144, 120, 216, 264, 168, 288,
 				},
-			},
-		},
-		{
-			setup:  setupTimeMetrics,
-			metric: "time_metrics_mono",
-			from:   ft(2017, 7),
-			to:     ft(2017, 8),
-			expected: [][]interface{}{
 				{
-					"mono_median_open_to_lgtm,mono_median_lgtm_to_approve,mono_median_approve_to_merge," +
-						"mono_percentile_85_open_to_lgtm,mono_percentile_85_lgtm_to_approve,mono_percentile_85_approve_to_merge",
-					120, 120, 192,
-					192, 168, 240,
+					"time_metrics;Group1;median_open_to_lgtm,median_lgtm_to_approve,median_approve_to_merge," +
+						"percentile_85_open_to_lgtm,percentile_85_lgtm_to_approve,percentile_85_approve_to_merge",
+					120, 120, 192, 192, 168, 240,
+				},
+				{
+					"time_metrics;Group2;median_open_to_lgtm,median_lgtm_to_approve,median_approve_to_merge," +
+						"percentile_85_open_to_lgtm,percentile_85_lgtm_to_approve,percentile_85_approve_to_merge",
+					144, 144, 216, 144, 144, 216,
 				},
 			},
 		},
@@ -764,8 +753,9 @@ func setupTimeMetrics(con *sql.DB, ctx *lib.Ctx) (err error) {
 	// Repos to add
 	// id, name, org_id, org_login, repo_group
 	repos := [][]interface{}{
-		{1, "R1", nil, nil, "Kubernetes"}, // Mono repos only count repositories from `Kubernetes` and `Contrib`.
-		{2, "R2", nil, nil, "Other"},
+		{1, "R1", nil, nil, "Group1"},
+		{2, "R2", nil, nil, "Group2"},
+		{3, "R3", nil, nil, nil},
 	}
 
 	// PRs to add
@@ -775,7 +765,7 @@ func setupTimeMetrics(con *sql.DB, ctx *lib.Ctx) (err error) {
 		{1, 1, 1, 1, 1, 1, "closed", "PR 1", "Body PR 1", ft(2017, 7, 1), ft(2017, 7, 21), ft(2017, 7, 21), true, 1, "R1", 1, "A1"}, // average of PR 1-6 created -> merged is 48 hours
 		{2, 2, 1, 1, 1, 2, "closed", "PR 2", "Body PR 2", ft(2017, 7, 2), ft(2017, 7, 23), ft(2017, 7, 23), true, 2, "R2", 1, "A1"},
 		{3, 3, 1, 1, 1, 3, "closed", "PR 3", "Body PR 3", ft(2017, 7, 3), ft(2017, 7, 26), ft(2017, 7, 26), true, 1, "R1", 1, "A1"},
-		{4, 4, 1, 1, 1, 4, "closed", "PR 4", "Body PR 4", ft(2017, 7, 4), ft(2017, 7, 30), ft(2017, 7, 30), true, 2, "R2", 1, "A1"}, // R2 don't belong to mono-repo group, will be skipped by `_mono` metrics
+		{4, 4, 1, 1, 1, 4, "closed", "PR 4", "Body PR 4", ft(2017, 7, 4), ft(2017, 7, 30), ft(2017, 7, 30), true, 3, "R3", 1, "A1"},
 
 		{5, 5, 1, 1, 1, 5, "closed", "PR 5", "Body PR 5", ft(2017, 6, 30), ft(2017, 7, 10), ft(2017, 7, 10), true, 1, "R1", 1, "A1"}, // Skipped because not created in Aug
 		{6, 6, 1, nil, 1, 6, "closed", "PR 6", "Body PR 6", ft(2017, 7, 2), ft(2017, 7, 8), nil, true, 1, "R1", 1, "A1"},             // Skipped because not merged
@@ -786,9 +776,9 @@ func setupTimeMetrics(con *sql.DB, ctx *lib.Ctx) (err error) {
 	// issue_id, pr_id, number, repo_id, repo_name, created_at
 	iprs := [][]interface{}{
 		{1, 1, 1, 1, "R1", ft(2017, 7, 1)},
-		{2, 2, 2, 1, "R1", ft(2017, 7, 2)},
+		{2, 2, 2, 2, "R2", ft(2017, 7, 2)},
 		{3, 3, 3, 1, "R1", ft(2017, 7, 3)},
-		{4, 4, 4, 1, "R1", ft(2017, 7, 4)},
+		{4, 4, 4, 3, "R3", ft(2017, 7, 4)},
 
 		{5, 5, 5, 1, "R1", ft(2017, 6, 30)},
 		{6, 6, 6, 1, "R1", ft(2017, 7, 2)},
@@ -800,13 +790,13 @@ func setupTimeMetrics(con *sql.DB, ctx *lib.Ctx) (err error) {
 	// repo_id, repo_name, actor_id, actor_login, type, issue_number
 	iels := [][]interface{}{
 		{1, 8, 1, "lgtm", ft(2017, 7, 6), 1, "R1", 1, "A1", "T", 1},
-		{2, 9, 1, "lgtm", ft(2017, 7, 8), 1, "R1", 1, "A1", "T", 1},
-		{3, 10, 1, "lgtm", ft(2017, 7, 11), 1, "R1", 1, "A1", "T", 1},
-		{4, 11, 1, "lgtm", ft(2017, 7, 15), 1, "R1", 1, "A1", "T", 1},
+		{2, 9, 1, "lgtm", ft(2017, 7, 8), 2, "R2", 1, "A1", "T", 1},
+		{3, 10, 1, "lgtm", ft(2017, 7, 11), 3, "R3", 1, "A1", "T", 1},
+		{4, 11, 1, "lgtm", ft(2017, 7, 15), 2, "R2", 1, "A1", "T", 1},
 		{1, 12, 2, "approved", ft(2017, 7, 11), 1, "R1", 1, "A1", "T", 1},
-		{2, 13, 2, "approved", ft(2017, 7, 14), 1, "R1", 1, "A1", "T", 1},
+		{2, 13, 2, "approved", ft(2017, 7, 14), 2, "R2", 1, "A1", "T", 1},
 		{3, 14, 2, "approved", ft(2017, 7, 18), 1, "R1", 1, "A1", "T", 1},
-		{4, 15, 2, "approved", ft(2017, 7, 18), 1, "R1", 1, "A1", "T", 1},
+		{4, 15, 2, "approved", ft(2017, 7, 18), 3, "R3", 1, "A1", "T", 1},
 	}
 
 	// Opened -> Merged is:   20, 21, 23, 26 days: sorted [20, 21, 23, 26]
@@ -1016,6 +1006,16 @@ func setupEventsMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 func setupReviewersMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 	ft := testlib.YMDHMS
 
+	// Repos to add
+	// id, name, org_id, org_login, repo_group
+	repos := [][]interface{}{
+		{1, "Repo 1", 1, "Org 1", "Group"},
+		{2, "Repo 2", 1, "Org 1", "Group"},
+		{3, "Repo 3", 2, "Org 2", "Mono-group"},
+		{4, "Repo 4", 2, "Org 2", nil},
+		{4, "Repo 5", nil, nil, nil},
+	}
+
 	// Events to add
 	// eid, etype, aid, rid, public, created_at, aname, rname, orgid
 	events := [][]interface{}{
@@ -1056,6 +1056,14 @@ func setupReviewersMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 		{8, "\t/lgTM\n", ft(2017, 7, 17)},
 		{11, "/lGtM with additional text", ft(2017, 7, 20)}, // additional text causes this line to be skipped
 		{13, "Line 1\n/lGtM\nLine 2", ft(2017, 7, 21)},      // This is included because /LGTM is in its own line only eventually surrounded by whitespace
+	}
+
+	// Add repos
+	for _, repo := range repos {
+		err = addRepo(con, ctx, repo...)
+		if err != nil {
+			return
+		}
 	}
 
 	// Add events
