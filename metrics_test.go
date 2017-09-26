@@ -245,6 +245,17 @@ func TestMetrics(t *testing.T) {
 				{"repo_comments,Mono-group", 2},
 			},
 		},
+		{
+			setup:  setupRepoCommentsMetric,
+			metric: "repo_commenters",
+			from:   ft(2017, 9),
+			to:     ft(2017, 10),
+			expected: [][]interface{}{
+				{"repo_commenters,All", 3},
+				{"repo_commenters,Group", 2},
+				{"repo_commenters,Mono-group", 1},
+			},
+		},
 	}
 
 	// Environment context parse
@@ -1031,15 +1042,15 @@ func setupRepoCommentsMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 	// eid, body, created_at
 	// repo_id, repo_name, actor_id, actor_login, type
 	texts := [][]interface{}{
-		{1, "example comment", ft(2017, 9), 1, "R1", 1, "A1", "T"},
-		{2, "com1", ft(2017, 9, 2), 2, "R2", 1, "A1", "T"},
-		{3, "com2", ft(2017, 9, 3), 3, "R3", 1, "A1", "T"},
+		{1, "com0", ft(2017, 9), 1, "R1", 1, "A1", "T"},
+		{2, "com1", ft(2017, 9, 2), 2, "R2", 2, "A2", "T"},
+		{3, "com2", ft(2017, 9, 3), 3, "R3", 3, "A3", "T"},
 		{4, "com3", ft(2017, 9, 4), 4, "R4", 1, "A1", "T"},
-		{5, "com4", ft(2017, 10, 5), 1, "R1", 1, "A1", "T"},
-		{6, "com5", ft(2017, 8, 6), 2, "R2", 1, "A1", "T"},
+		{5, "com4", ft(2017, 10, 5), 1, "R1", 2, "A2", "T"},
+		{6, "com5", ft(2017, 8, 6), 2, "R2", 3, "A3", "T"},
 		{7, "com6", ft(2017, 7, 7), 3, "R3", 1, "A1", "T"},
-		{7, "com7", ft(2017, 6, 8), 4, "R4", 1, "A1", "T"},
-		{7, "com7", ft(2017, 9, 9), 3, "R3", 1, "A1", "T"},
+		{7, "com7", ft(2017, 6, 8), 4, "R4", 2, "A2", "T"},
+		{7, "com7", ft(2017, 9, 9), 3, "R3", 3, "A3", "T"},
 	}
 
 	// Add repos
