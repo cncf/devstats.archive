@@ -65,7 +65,8 @@ check: fmt lint imports vet
 data:
 	mkdir /etc/gha2db 2>/dev/null || echo "mkdir waring"
 	mkdir /etc/gha2db/metrics 2>/dev/null || echo "mkdir warning"
-	cp metrics/* /etc/gha2db/metrics/ || exit 1
+	rm -f /etc/gha2db/metrics/* || exit 1
+	cp metrics/* /etc/gha2db/metrics/ || exit 2
 
 install: check ${BINARIES} data
 	${GO_INSTALL} ${GO_BIN_CMDS}
