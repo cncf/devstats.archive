@@ -5,6 +5,7 @@ To add new metric:
 1) Define parameterized SQL (with `{{from}}` and `{{to}}` params) that returns this metric data. For histogram metrics define `{{period}}` instead.
 - This SQL will be automatically called on different periods by `gha2db_sync` tool.
 2) Define this metric in [metrics/metrics.yaml](https://github.com/cncf/gha2db/blob/master/metrics/metrics.yaml) (file used by `gha2db_sync` tool).
+- You can define this metric in `test_metric.yaml` first (and eventually in `test_gaps.yaml`) and run `test_metric_sync.sh` and then call `influx` floowed by `use test`, `precision rfc3339`, `show series`, 'select * from series_name` to see the results.
 - You need to define periods for calculations, for example m,q,y for "month, quarter and year", or h,d,w for "hour, day and week". You can use any combination of h,d,w,m,q,y.
 - You need to define SQL file via `sql: filename`. It will use `metrics/filename.sql`.
 - You need to define how to generate InfluxDB series name(s) for this metrics. There are 4 options here:
@@ -24,12 +25,12 @@ To add new metric:
 - Series formula allows writing a lot of series name in a shorter way. Say we have series in this form prefix_{x}_{y}_{z}_suffix and {x} can be a,b,c,d, {y} can be 1,2,3, z can be yes,no. Instead of listing all combinations prefix_a_1_yes_suffix, ..., prefix_d_3_no_suffix, which is 4 * 3 * 2 = 24 items, you can write series formula: `- =prefix;suffix;_;a,b,c,d;1,2,3;yes,no`. In this case You can see join character is _ `...;_;...`.
 4) Add test coverage in [metrics_test.go](https://github.com/cncf/gha2db/blob/master/metrics_test.go).
 5) You need to either regenerate all InfluxDB data (it takes about 5-10 minutes) using `PG_PASS=... IDB_PASS=... ./reinit_all.sh` or use `PG_PASS=... IDB_PASS=... ./add_single_metric,sh`. If You choose to use add single metric, You need to create 3 files: `test_gaps.yaml` (if empty copy from metrics/empty.yaml), `test_annotations.yaml` (usually empty) and `test_metrics.yaml`. Those YAML files should contain only new metric related data.
-6) To tets new metric on non-production InfluxDB "test", use: `test_metric_sync.sh` script.
+6) To test new metric on non-production InfluxDB "test", use: `test_metric_sync.sh` script.
 7) Add Grafana dashboard or row that displays this metric.
 8) Export new Grafana dashboard to JSON.
 9) Create PR for the new metric.
 10) Explain how metrics SQLs works in USAGE.md (currently this is pending for all metrics defined so far).
-11) Add metrics dashboard decription in this file.
+11) Add metrics dashboard decription in this [file](https://github.com/cncf/gha2db/blob/master/DASHBOARDS.md).
 
 # Annotations
 
