@@ -31,7 +31,7 @@ group by
   r.repo_group,
   e.dup_actor_login
 having
-  count(e.id) >= 3
+  count(e.id) >= 2
 union select 'reviewers_hist,All' as repo_group,
   dup_actor_login as actor,
   count(id) as reviews
@@ -54,7 +54,7 @@ where
 group by
   dup_actor_login
 having
-  count(id) >= 5
+  count(id) >= 3
 order by
   reviews desc,
   repo_group asc,
