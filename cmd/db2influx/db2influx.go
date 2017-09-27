@@ -89,7 +89,7 @@ func roundF2I(val float64) int {
 	return int(val + 0.5)
 }
 
-func workerThread(ch chan bool, ctx *lib.Ctx, seriesNameOrFunc, sqlQuery, period string, from, to time.Time, nIntervals int) {
+func workerThread(ch chan bool, ctx *lib.Ctx, seriesNameOrFunc, sqlQuery, period string, dt, from, to time.Time, nIntervals int) {
 	// Connect to Postgres DB
 	sqlc := lib.PgConn(ctx)
 	defer sqlc.Close()
@@ -153,7 +153,7 @@ func workerThread(ch chan bool, ctx *lib.Ctx, seriesNameOrFunc, sqlQuery, period
 		}
 		// Add batch point
 		fields := map[string]interface{}{"value": value}
-		pt := lib.IDBNewPointWithErr(name, nil, fields, from)
+		pt := lib.IDBNewPointWithErr(name, nil, fields, dt)
 		bp.AddPoint(pt)
 	} else if nColumns >= 2 {
 		// Multiple rows, each with (series name, value(s))
@@ -188,7 +188,7 @@ func workerThread(ch chan bool, ctx *lib.Ctx, seriesNameOrFunc, sqlQuery, period
 					}
 					// Add batch point
 					fields := map[string]interface{}{"value": value}
-					pt := lib.IDBNewPointWithErr(name, nil, fields, from)
+					pt := lib.IDBNewPointWithErr(name, nil, fields, dt)
 					bp.AddPoint(pt)
 				}
 			}
@@ -379,7 +379,7 @@ func db2influx(seriesNameOrFunc, sqlFile, from, to, intervalAbbr string, hist bo
 			} else {
 				pDt = lib.AddNIntervals(dt, 1-nIntervals, nextIntervalStart, prevIntervalStart)
 			}
-			go workerThread(ch, &ctx, seriesNameOrFunc, sqlQuery, intervalAbbr, pDt, nDt, nIntervals)
+			go workerThread(ch, &ctx, seriesNameOrFunc, sqlQuery, intervalAbbr, dt, pDt, nDt, nIntervals)
 			dt = nDt
 			if len(chanPool) == thrN {
 				ch = chanPool[0]
@@ -400,7 +400,7 @@ func db2influx(seriesNameOrFunc, sqlFile, from, to, intervalAbbr string, hist bo
 			} else {
 				pDt = lib.AddNIntervals(dt, 1-nIntervals, nextIntervalStart, prevIntervalStart)
 			}
-			workerThread(nil, &ctx, seriesNameOrFunc, sqlQuery, intervalAbbr, pDt, nDt, nIntervals)
+			workerThread(nil, &ctx, seriesNameOrFunc, sqlQuery, intervalAbbr, dt, pDt, nDt, nIntervals)
 			dt = nDt
 		}
 	}
