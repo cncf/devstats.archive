@@ -54,7 +54,7 @@ where
 group by
   dup_actor_login
 having
-  count(id) >= 3
+  count(id) >= 2
 order by
   reviews desc,
   repo_group asc,
