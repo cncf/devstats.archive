@@ -1,5 +1,5 @@
 select
-  count(distinct id) / {{n}} as merge_count
+  round(count(distinct id) / {{n}}, 2) as merge_count
 from
   gha_pull_requests
 where

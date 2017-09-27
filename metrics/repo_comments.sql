@@ -1,6 +1,6 @@
 select
   'repo_comments,All' as repo_group,
-  count(distinct event_id) / {{n}} as result
+  round(count(distinct event_id) / {{n}}, 2) as result
 from
   gha_texts
 where
@@ -9,7 +9,7 @@ where
   and actor_login not in ('googlebot')
   and actor_login not like 'k8s-%'
 union select 'repo_comments,' || r.repo_group as repo_group,
-  count(distinct t.event_id) / {{n}} as result
+  round(count(distinct t.event_id) / {{n}}, 2) as result
 from
   gha_texts t,
   gha_repos r

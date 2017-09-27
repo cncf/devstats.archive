@@ -25,6 +25,7 @@ type MetricTestCase struct {
 	from     time.Time // used by non-histogram metrics
 	to       time.Time // used by non-histogram metrics
 	period   string    // used by histogram metrics
+	n        int       // used by metrics that use moving periods
 	debugDB  bool      // if set, test will not drop database at the end and will return after such test, so You can run metric manually via `runq` or directly on DB
 	replaces [][2]string
 	expected [][]interface{}
@@ -43,6 +44,7 @@ func TestMetrics(t *testing.T) {
 			metric:   "events",
 			from:     ft(2017, 9),
 			to:       ft(2017, 10),
+			n:        1,
 			expected: [][]interface{}{{3}},
 		},
 		{
@@ -50,6 +52,7 @@ func TestMetrics(t *testing.T) {
 			metric: "reviewers",
 			from:   ft(2017, 7, 9),
 			to:     ft(2017, 7, 25),
+			n:      1,
 			expected: [][]interface{}{
 				{"reviewers,All", 7},
 				{"reviewers,Group", 5},
@@ -61,6 +64,7 @@ func TestMetrics(t *testing.T) {
 			metric: "reviewers",
 			from:   ft(2017, 6),
 			to:     ft(2017, 7, 12, 23),
+			n:      1,
 			expected: [][]interface{}{
 				{"reviewers,All", 3},
 				{"reviewers,Group", 3},
@@ -70,6 +74,7 @@ func TestMetrics(t *testing.T) {
 			setup:  setupReviewersHistMetric,
 			metric: "hist_reviewers",
 			period: "1 week",
+			n:      1,
 			replaces: [][2]string{
 				{" >= 3", " >= 0"},
 				{" >= 2", " >= 0"},
@@ -88,6 +93,7 @@ func TestMetrics(t *testing.T) {
 			metric: "sig_mentions",
 			from:   ft(2017, 7),
 			to:     ft(2017, 8),
+			n:      1,
 			expected: [][]interface{}{
 				{",sig-group-1", 3},
 				{",sig-group2", 3},
@@ -99,6 +105,7 @@ func TestMetrics(t *testing.T) {
 			metric: "sig_mentions_breakdown",
 			from:   ft(2017, 7),
 			to:     ft(2017, 8),
+			n:      1,
 			expected: [][]interface{}{
 				{"bd,sig-group2-bug", 2},
 				{"bd,sig-a-b-c-bug", 1},
@@ -112,6 +119,7 @@ func TestMetrics(t *testing.T) {
 			metric: "sig_mentions_cats",
 			from:   ft(2017, 7),
 			to:     ft(2017, 8),
+			n:      1,
 			expected: [][]interface{}{
 				{"cat,bug", 4},
 				{"cat,feature-request", 1},
@@ -123,6 +131,7 @@ func TestMetrics(t *testing.T) {
 			metric: "prs_merged",
 			from:   ft(2017, 7),
 			to:     ft(2017, 8),
+			n:      1,
 			expected: [][]interface{}{
 				{"prs,Repo 1", 3},
 				{"prs,Repo 2", 2},
@@ -134,6 +143,7 @@ func TestMetrics(t *testing.T) {
 			metric: "prs_merged_groups",
 			from:   ft(2017, 7),
 			to:     ft(2017, 8),
+			n:      1,
 			expected: [][]interface{}{
 				{"group_prs,Group 1", 4},
 				{"group_prs,Group 2", 2},
@@ -144,13 +154,23 @@ func TestMetrics(t *testing.T) {
 			metric:   "all_prs_merged",
 			from:     ft(2017, 7),
 			to:       ft(2017, 8),
-			expected: [][]interface{}{{6}},
+			n:        1,
+			expected: [][]interface{}{{"6.00"}},
+		},
+		{
+			setup:    setupPRsMergedMetric,
+			metric:   "all_prs_merged",
+			from:     ft(2017, 7),
+			to:       ft(2017, 8),
+			n:        4,
+			expected: [][]interface{}{{"1.50"}},
 		},
 		{
 			setup:  setupTimeMetrics,
 			metric: "opened_to_merged",
 			from:   ft(2017, 7),
 			to:     ft(2017, 8),
+			n:      1,
 			expected: [][]interface{}{
 				{"opened_to_merged;All;percentile_15,median,percentile_85", 480, 504, 552},
 				{"opened_to_merged;Group2;percentile_15,median,percentile_85", 504, 504, 504},
@@ -162,6 +182,7 @@ func TestMetrics(t *testing.T) {
 			metric: "time_metrics",
 			from:   ft(2017, 7),
 			to:     ft(2017, 8),
+			n:      1,
 			expected: [][]interface{}{
 				{
 					"time_metrics;All;median_open_to_lgtm,median_lgtm_to_approve,median_approve_to_merge," +
@@ -185,6 +206,7 @@ func TestMetrics(t *testing.T) {
 			metric: "pr_comments",
 			from:   ft(2017, 8),
 			to:     ft(2017, 9),
+			n:      1,
 			expected: [][]interface{}{
 				{"pr_comments_median,pr_comments_percentile_85,pr_comments_percentile_95", 2, 5, 5},
 			},
@@ -194,6 +216,7 @@ func TestMetrics(t *testing.T) {
 			metric: "labels_sig",
 			from:   ft(2017, 9),
 			to:     ft(2017, 10),
+			n:      1,
 			expected: [][]interface{}{
 				{"labels_sig,sig1", 3},
 				{"labels_sig,sig2", 2},
@@ -205,6 +228,7 @@ func TestMetrics(t *testing.T) {
 			metric: "labels_kind",
 			from:   ft(2017, 9),
 			to:     ft(2017, 10),
+			n:      1,
 			expected: [][]interface{}{
 				{"labels_kind,kind1", 2},
 				{"labels_kind,kind2", 2},
@@ -216,6 +240,7 @@ func TestMetrics(t *testing.T) {
 			metric: "labels_sig_kind",
 			from:   ft(2017, 9),
 			to:     ft(2017, 10),
+			n:      1,
 			expected: [][]interface{}{
 				{"labels_sig_kind,sig1_kind1", 2},
 				{"labels_sig_kind,sig1_kind2", 1},
@@ -227,6 +252,7 @@ func TestMetrics(t *testing.T) {
 			metric: "company_activity",
 			from:   ft(2017, 9),
 			to:     ft(2017, 10),
+			n:      1,
 			expected: [][]interface{}{
 				{"company;company3_all;activity,authors,issues,prs,commits,review_comments,issue_comments,commit_comments,comments", 144, 3, 24, 24, 24, 24, 24, 24, 72},
 				{"company;company1_all;activity,authors,issues,prs,commits,review_comments,issue_comments,commit_comments,comments", 360, 2, 60, 60, 60, 60, 60, 60, 180},
@@ -239,10 +265,23 @@ func TestMetrics(t *testing.T) {
 			metric: "repo_comments",
 			from:   ft(2017, 9),
 			to:     ft(2017, 10),
+			n:      1,
 			expected: [][]interface{}{
-				{"repo_comments,All", 5},
-				{"repo_comments,Group", 2},
-				{"repo_comments,Mono-group", 2},
+				{"repo_comments,All", "5.00"},
+				{"repo_comments,Group", "2.00"},
+				{"repo_comments,Mono-group", "2.00"},
+			},
+		},
+		{
+			setup:  setupRepoCommentsMetric,
+			metric: "repo_comments",
+			from:   ft(2017, 9),
+			to:     ft(2017, 10),
+			n:      3,
+			expected: [][]interface{}{
+				{"repo_comments,All", "1.67"},
+				{"repo_comments,Group", "0.67"},
+				{"repo_comments,Mono-group", "0.67"},
 			},
 		},
 		{
@@ -250,10 +289,23 @@ func TestMetrics(t *testing.T) {
 			metric: "repo_commenters",
 			from:   ft(2017, 9),
 			to:     ft(2017, 10),
+			n:      1,
 			expected: [][]interface{}{
-				{"repo_commenters,All", 3},
-				{"repo_commenters,Group", 2},
-				{"repo_commenters,Mono-group", 1},
+				{"repo_commenters,All", "3.00"},
+				{"repo_commenters,Group", "2.00"},
+				{"repo_commenters,Mono-group", "1.00"},
+			},
+		},
+		{
+			setup:  setupRepoCommentsMetric,
+			metric: "repo_commenters",
+			from:   ft(2017, 9),
+			to:     ft(2017, 10),
+			n:      2,
+			expected: [][]interface{}{
+				{"repo_commenters,All", "1.50"},
+				{"repo_commenters,Group", "1.00"},
+				{"repo_commenters,Mono-group", "0.50"},
 			},
 		},
 		{
@@ -261,10 +313,23 @@ func TestMetrics(t *testing.T) {
 			metric: "new_prs",
 			from:   ft(2017, 9),
 			to:     ft(2017, 10),
+			n:      1,
 			expected: [][]interface{}{
-				{"new_prs,All", 7},
-				{"new_prs,Group 1", 5},
-				{"new_prs,Group 2", 2},
+				{"new_prs,All", "7.00"},
+				{"new_prs,Group 1", "5.00"},
+				{"new_prs,Group 2", "2.00"},
+			},
+		},
+		{
+			setup:  setupNewPRsMetric,
+			metric: "new_prs",
+			from:   ft(2017, 9),
+			to:     ft(2017, 10),
+			n:      10,
+			expected: [][]interface{}{
+				{"new_prs,All", "0.70"},
+				{"new_prs,Group 1", "0.50"},
+				{"new_prs,Group 2", "0.20"},
 			},
 		},
 	}
@@ -340,6 +405,7 @@ func executeMetricTestCase(testMetric *MetricTestCase, ctx *lib.Ctx) (result [][
 		testMetric.from,
 		testMetric.to,
 		testMetric.period,
+		testMetric.n,
 		testMetric.replaces,
 	)
 
@@ -349,7 +415,7 @@ func executeMetricTestCase(testMetric *MetricTestCase, ctx *lib.Ctx) (result [][
 
 // execute metric metrics/{{metric}}.sql with {{from}} and {{to}} replaced by from/YMDHMS, to/YMDHMS
 // end result slice of slices of any type
-func executeMetric(c *sql.DB, ctx *lib.Ctx, metric string, from, to time.Time, period string, replaces [][2]string) (result [][]interface{}, err error) {
+func executeMetric(c *sql.DB, ctx *lib.Ctx, metric string, from, to time.Time, period string, n int, replaces [][2]string) (result [][]interface{}, err error) {
 	// Metric file name
 	sqlFile := fmt.Sprintf("metrics/%s.sql", metric)
 
@@ -362,6 +428,7 @@ func executeMetric(c *sql.DB, ctx *lib.Ctx, metric string, from, to time.Time, p
 	sqlQuery = strings.Replace(sqlQuery, "{{from}}", lib.ToYMDHMSDate(from), -1)
 	sqlQuery = strings.Replace(sqlQuery, "{{to}}", lib.ToYMDHMSDate(to), -1)
 	sqlQuery = strings.Replace(sqlQuery, "{{period}}", period, -1)
+	sqlQuery = strings.Replace(sqlQuery, "{{n}}", strconv.Itoa(n)+".0", -1)
 	for _, replace := range replaces {
 		sqlQuery = strings.Replace(sqlQuery, replace[0], replace[1], -1)
 	}
