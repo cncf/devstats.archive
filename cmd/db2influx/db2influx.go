@@ -89,7 +89,7 @@ func roundF2I(val float64) int {
 	return int(val + 0.5)
 }
 
-func workerThread(ch chan bool, ctx *lib.Ctx, seriesNameOrFunc, sqlQuery, period string, from, to time.Time) {
+func workerThread(ch chan bool, ctx *lib.Ctx, seriesNameOrFunc, sqlQuery, period string, from, to time.Time, nIntervals int) {
 	// Connect to Postgres DB
 	sqlc := lib.PgConn(ctx)
 	defer sqlc.Close()
@@ -106,6 +106,7 @@ func workerThread(ch chan bool, ctx *lib.Ctx, seriesNameOrFunc, sqlQuery, period
 	sTo := lib.ToYMDHMSDate(to)
 	sqlQuery = strings.Replace(sqlQuery, "{{from}}", sFrom, -1)
 	sqlQuery = strings.Replace(sqlQuery, "{{to}}", sTo, -1)
+	sqlQuery = strings.Replace(sqlQuery, "{{nn}}", strconv.Itoa(nIntervals)+".0", -1)
 
 	// Execute SQL query
 	rows := lib.QuerySQLWithErr(sqlc, ctx, sqlQuery)
@@ -208,7 +209,7 @@ func workerThread(ch chan bool, ctx *lib.Ctx, seriesNameOrFunc, sqlQuery, period
 	}
 }
 
-func db2influxHistogram(ctx *lib.Ctx, seriesNameOrFunc, sqlQuery, interval, intervalAbbr string) {
+func db2influxHistogram(ctx *lib.Ctx, seriesNameOrFunc, sqlQuery, interval, intervalAbbr string, nIntervals int) {
 	// Connect to Postgres DB
 	sqlc := lib.PgConn(ctx)
 	defer sqlc.Close()
@@ -221,11 +222,12 @@ func db2influxHistogram(ctx *lib.Ctx, seriesNameOrFunc, sqlQuery, interval, inte
 	bp := lib.IDBBatchPoints(ctx, &ic)
 
 	// Prepare SQL query
-	dbInterval := "1 " + interval
+	dbInterval := fmt.Sprintf("%d %s", nIntervals, interval)
 	if interval == "quarter" {
-		dbInterval = "3 months"
+		dbInterval = fmt.Sprintf("%d month", nIntervals*3)
 	}
 	sqlQuery = strings.Replace(sqlQuery, "{{period}}", dbInterval, -1)
+	sqlQuery = strings.Replace(sqlQuery, "{{n}}", strconv.Itoa(nIntervals)+".0", -1)
 
 	// Execute SQL query
 	rows := lib.QuerySQLWithErr(sqlc, ctx, sqlQuery)
@@ -251,7 +253,7 @@ func db2influxHistogram(ctx *lib.Ctx, seriesNameOrFunc, sqlQuery, interval, inte
 		for rows.Next() {
 			lib.FatalOnError(rows.Scan(&name, &value))
 			if ctx.Debug > 0 {
-				lib.Printf("hist %v, %v -> %v, %v\n", seriesNameOrFunc, interval, name, value)
+				lib.Printf("hist %v, %v %v -> %v, %v\n", seriesNameOrFunc, nIntervals, interval, name, value)
 			}
 			// Add batch point
 			fields := map[string]interface{}{"name": name, "value": value}
@@ -261,7 +263,7 @@ func db2influxHistogram(ctx *lib.Ctx, seriesNameOrFunc, sqlQuery, interval, inte
 			tm = tm.Add(-time.Hour)
 		}
 		if ctx.Debug > 0 {
-			lib.Printf("hist %v, %v: %v rows\n", seriesNameOrFunc, interval, rowCount)
+			lib.Printf("hist %v, %v %v: %v rows\n", seriesNameOrFunc, nIntervals, interval, rowCount)
 		}
 		lib.FatalOnError(rows.Err())
 	} else if nColumns >= 3 {
@@ -299,7 +301,7 @@ func db2influxHistogram(ctx *lib.Ctx, seriesNameOrFunc, sqlQuery, interval, inte
 					}
 					name = names[i]
 					if ctx.Debug > 0 {
-						lib.Printf("hist %v, %v -> %v, %v\n", name, interval, sValue, fValue)
+						lib.Printf("hist %v, %v %v -> %v, %v\n", name, nIntervals, interval, sValue, fValue)
 					}
 					tm, ok := seriesToClear[name]
 					if ok {
@@ -344,10 +346,10 @@ func db2influx(seriesNameOrFunc, sqlFile, from, to, intervalAbbr string, hist bo
 	sqlQuery := string(bytes)
 
 	// Process interval
-	interval, intervalStart, nextIntervalStart := lib.GetIntervalFunctions(intervalAbbr)
+	interval, nIntervals, intervalStart, nextIntervalStart, prevIntervalStart := lib.GetIntervalFunctions(intervalAbbr)
 
 	if hist {
-		db2influxHistogram(&ctx, seriesNameOrFunc, sqlQuery, interval, intervalAbbr)
+		db2influxHistogram(&ctx, seriesNameOrFunc, sqlQuery, interval, intervalAbbr, nIntervals)
 		return
 	}
 
@@ -365,13 +367,19 @@ func db2influx(seriesNameOrFunc, sqlFile, from, to, intervalAbbr string, hist bo
 	// Run
 	lib.Printf("db2influx.go: Running (on %d CPUs): %v - %v with interval %s\n", thrN, dFrom, dTo, interval)
 	dt := dFrom
+	var pDt time.Time
 	if thrN > 1 {
 		chanPool := []chan bool{}
 		for dt.Before(dTo) {
 			ch := make(chan bool)
 			chanPool = append(chanPool, ch)
 			nDt := nextIntervalStart(dt)
-			go workerThread(ch, &ctx, seriesNameOrFunc, sqlQuery, intervalAbbr, dt, nDt)
+			if nIntervals <= 1 {
+				pDt = dt
+			} else {
+				pDt = lib.AddNIntervals(dt, 1-nIntervals, nextIntervalStart, prevIntervalStart)
+			}
+			go workerThread(ch, &ctx, seriesNameOrFunc, sqlQuery, intervalAbbr, pDt, nDt, nIntervals)
 			dt = nDt
 			if len(chanPool) == thrN {
 				ch = chanPool[0]
@@ -387,7 +395,12 @@ func db2influx(seriesNameOrFunc, sqlFile, from, to, intervalAbbr string, hist bo
 		lib.Printf("Using single threaded version\n")
 		for dt.Before(dTo) {
 			nDt := nextIntervalStart(dt)
-			workerThread(nil, &ctx, seriesNameOrFunc, sqlQuery, intervalAbbr, dt, nDt)
+			if nIntervals <= 1 {
+				pDt = dt
+			} else {
+				pDt = lib.AddNIntervals(dt, 1-nIntervals, nextIntervalStart, prevIntervalStart)
+			}
+			workerThread(nil, &ctx, seriesNameOrFunc, sqlQuery, intervalAbbr, pDt, nDt, nIntervals)
 			dt = nDt
 		}
 	}

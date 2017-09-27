@@ -2,11 +2,13 @@
 
 To add new metric:
 
-1) Define parameterized SQL (with `{{from}}` and `{{to}}` params) that returns this metric data. For histogram metrics define `{{period}}` instead.
+1) Define parameterized SQL (with `{{from}}`, `{{to}}`  and `{{n}}` params) that returns this metric data. For histogram metrics define `{{period}}` instead.
+- {{n}} is only used in aggregate periods mode and it will get value from `Number of periods` drop-down. For example for 7 days MA (moving average) it will be 7.
 - This SQL will be automatically called on different periods by `gha2db_sync` tool.
 2) Define this metric in [metrics/metrics.yaml](https://github.com/cncf/gha2db/blob/master/metrics/metrics.yaml) (file used by `gha2db_sync` tool).
 - You can define this metric in `test_metric.yaml` first (and eventually in `test_gaps.yaml`) and run `test_metric_sync.sh` and then call `influx` floowed by `use test`, `precision rfc3339`, `show series`, 'select * from series_name` to see the results.
 - You need to define periods for calculations, for example m,q,y for "month, quarter and year", or h,d,w for "hour, day and week". You can use any combination of h,d,w,m,q,y.
+- You can define aggregate periods via `aggregate: n1,n2,n3,...`, if You don't define this, there will be one aggregation period = 1.
 - You need to define SQL file via `sql: filename`. It will use `metrics/filename.sql`.
 - You need to define how to generate InfluxDB series name(s) for this metrics. There are 4 options here:
 - Metric can return a single row with a single value (like for instance "All PRs merged" - in that case, you can define series name inside YAML file via `series_name_or_func: your_series_name`. If metrics use more than single period, You should add `add_period_to_name: true` which will add period name to your series name (it adds _w, _d, _q etc.)

@@ -45,6 +45,7 @@ type Metric struct {
 	MetricSQL        string `yaml:"sql"`
 	AddPeriodToName  bool   `yaml:"add_period_to_name"`
 	Histogram        bool   `yaml:"histogram"`
+	Aggregate        string `yaml:"aggregate"`
 }
 
 // Add _period to all array items
@@ -358,29 +359,42 @@ func sync(args []string) {
 				histParam = "h"
 			}
 			periods := strings.Split(metric.Periods, ",")
-			for _, period := range periods {
-				if !ctx.ResetIDB && !computePeriodAtThisDate(period, to) {
-					lib.Printf("Skipping recalculating period \"%s\" for date to %v\n", period, to)
-					continue
+			aggregate := metric.Aggregate
+			if aggregate == "" {
+				aggregate = "1"
+			}
+			aggregateArr := strings.Split(aggregate, ",")
+			for _, aggrStr := range aggregateArr {
+				_, err := strconv.Atoi(aggrStr)
+				lib.FatalOnError(err)
+				aggrSuffix := aggrStr
+				if aggrSuffix == "1" {
+					aggrSuffix = ""
 				}
-				lib.Printf("Calculate metric %v, period %v, histogram: %v...\n", metric.Name, period, metric.Histogram)
-				seriesNameOrFunc := metric.SeriesNameOrFunc
-				if metric.AddPeriodToName {
-					seriesNameOrFunc += "_" + period
+				for _, period := range periods {
+					if !ctx.ResetIDB && !computePeriodAtThisDate(period, to) {
+						lib.Printf("Skipping recalculating period \"%s\" for date to %v\n", period, to)
+						continue
+					}
+					lib.Printf("Calculate metric %v, period %v, histogram: %v, aggregate: '%v' ...\n", metric.Name, period, metric.Histogram, aggrSuffix)
+					seriesNameOrFunc := metric.SeriesNameOrFunc
+					if metric.AddPeriodToName {
+						seriesNameOrFunc += "_" + period
+					}
+					lib.ExecCommand(
+						&ctx,
+						[]string{
+							cmdPrefix + "db2influx",
+							seriesNameOrFunc,
+							fmt.Sprintf("%s/%s.sql", metricsDir, metric.MetricSQL),
+							lib.ToYMDHDate(from),
+							lib.ToYMDHDate(to),
+							period + aggrSuffix,
+							histParam,
+						},
+						nil,
+					)
 				}
-				lib.ExecCommand(
-					&ctx,
-					[]string{
-						cmdPrefix + "db2influx",
-						seriesNameOrFunc,
-						fmt.Sprintf("%s/%s.sql", metricsDir, metric.MetricSQL),
-						lib.ToYMDHDate(from),
-						lib.ToYMDHDate(to),
-						period,
-						histParam,
-					},
-					nil,
-				)
 			}
 		}
 	}

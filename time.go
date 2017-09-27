@@ -3,6 +3,7 @@ package gha2db
 import (
 	"fmt"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -26,6 +27,11 @@ func NextHourStart(dt time.Time) time.Time {
 	return HourStart(dt).Add(time.Hour)
 }
 
+// PrevHourStart - return time rounded to prev hour start
+func PrevHourStart(dt time.Time) time.Time {
+	return HourStart(dt).Add(-time.Hour)
+}
+
 // DayStart - return time rounded to current day start
 func DayStart(dt time.Time) time.Time {
 	return time.Date(
@@ -40,9 +46,14 @@ func DayStart(dt time.Time) time.Time {
 	)
 }
 
-// NextDayStart - return time rounded to next hour start
+// NextDayStart - return time rounded to next day start
 func NextDayStart(dt time.Time) time.Time {
 	return DayStart(dt).AddDate(0, 0, 1)
+}
+
+// PrevDayStart - return time rounded to prev day start
+func PrevDayStart(dt time.Time) time.Time {
+	return DayStart(dt).AddDate(0, 0, -1)
 }
 
 // WeekStart - return time rounded to current week start
@@ -55,9 +66,14 @@ func WeekStart(dt time.Time) time.Time {
 	return DayStart(dt).AddDate(0, 0, -subDays)
 }
 
-// NextWeekStart - return time rounded to next hour start
+// NextWeekStart - return time rounded to next week start
 func NextWeekStart(dt time.Time) time.Time {
 	return WeekStart(dt).AddDate(0, 0, 7)
+}
+
+// PrevWeekStart - return time rounded to prev week start
+func PrevWeekStart(dt time.Time) time.Time {
+	return WeekStart(dt).AddDate(0, 0, -7)
 }
 
 // MonthStart - return time rounded to current month start
@@ -74,9 +90,14 @@ func MonthStart(dt time.Time) time.Time {
 	)
 }
 
-// NextMonthStart - return time rounded to next hour start
+// NextMonthStart - return time rounded to next month start
 func NextMonthStart(dt time.Time) time.Time {
 	return MonthStart(dt).AddDate(0, 1, 0)
+}
+
+// PrevMonthStart - return time rounded to prev month start
+func PrevMonthStart(dt time.Time) time.Time {
+	return MonthStart(dt).AddDate(0, -1, 0)
 }
 
 // QuarterStart - return time rounded to current month start
@@ -94,9 +115,14 @@ func QuarterStart(dt time.Time) time.Time {
 	)
 }
 
-// NextQuarterStart - return time rounded to next hour start
+// NextQuarterStart - return time rounded to next quarter start
 func NextQuarterStart(dt time.Time) time.Time {
 	return QuarterStart(dt).AddDate(0, 3, 0)
+}
+
+// PrevQuarterStart - return time rounded to prev quarter start
+func PrevQuarterStart(dt time.Time) time.Time {
+	return QuarterStart(dt).AddDate(0, -3, 0)
 }
 
 // YearStart - return time rounded to current month start
@@ -113,9 +139,14 @@ func YearStart(dt time.Time) time.Time {
 	)
 }
 
-// NextYearStart - return time rounded to next hour start
+// NextYearStart - return time rounded to next year start
 func NextYearStart(dt time.Time) time.Time {
 	return YearStart(dt).AddDate(1, 0, 0)
+}
+
+// PrevYearStart - return time rounded to prev year start
+func PrevYearStart(dt time.Time) time.Time {
+	return YearStart(dt).AddDate(-1, 0, 0)
 }
 
 // TimeParseAny - attempts to parse time from string YYYY-MM-DD HH:MI:SS
@@ -168,37 +199,73 @@ func ToYMDHDate(dt time.Time) string {
 	return fmt.Sprintf("%04d-%02d-%02d %d", dt.Year(), dt.Month(), dt.Day(), dt.Hour())
 }
 
-// GetIntervalFunctions - return interval name, interval start & end function from interval abbr: h|d|w|m|q|y
-func GetIntervalFunctions(intervalAbbr string) (interval string, intervalStart, nextIntervalStart func(time.Time) time.Time) {
-	switch strings.ToLower(intervalAbbr) {
+// AddNIntervals adds (using nextIntervalStart) or subtracts (using prevIntervalStart) N itervals to the given date
+// Functions Next/Prev can use Hour, Day, Week, Month, Quarter, Year functions (defined in this module) or other custom defined functions
+// With `func(time.Time) time.Time` signature
+func AddNIntervals(dt time.Time, n int, nextIntervalStart, prevIntervalStart func(time.Time) time.Time) time.Time {
+	if n == 0 {
+		return dt
+	}
+	times := n
+	fun := nextIntervalStart
+	if n < 0 {
+		times = -n
+		fun = prevIntervalStart
+	}
+	for i := 0; i < times; i++ {
+		dt = fun(dt)
+	}
+	return dt
+}
+
+// GetIntervalFunctions - return interval name, interval number, interval start, next, prev function from interval abbr: h|d2|w3|m4|q|y
+// w3 = 3 weeks, q2 = 2 quarters, y = year (1), d7 = 7 days (not the same as w), m3 = 3 months (not the same as q)
+func GetIntervalFunctions(intervalAbbr string) (interval string, n int, intervalStart, nextIntervalStart, prevIntervalStart func(time.Time) time.Time) {
+	n = 1
+	switch strings.ToLower(intervalAbbr[0:1]) {
 	case "h":
 		interval = "hour"
 		intervalStart = HourStart
 		nextIntervalStart = NextHourStart
+		prevIntervalStart = PrevHourStart
 	case "d":
 		interval = "day"
 		intervalStart = DayStart
 		nextIntervalStart = NextDayStart
+		prevIntervalStart = PrevDayStart
 	case "w":
 		interval = "week"
 		intervalStart = WeekStart
 		nextIntervalStart = NextWeekStart
+		prevIntervalStart = PrevWeekStart
 	case "m":
 		interval = "month"
 		intervalStart = MonthStart
 		nextIntervalStart = NextMonthStart
+		prevIntervalStart = PrevMonthStart
 	case "q":
 		interval = "quarter"
 		intervalStart = QuarterStart
 		nextIntervalStart = NextQuarterStart
+		prevIntervalStart = PrevQuarterStart
 	case "y":
 		interval = "year"
 		intervalStart = YearStart
 		nextIntervalStart = NextYearStart
+		prevIntervalStart = PrevYearStart
 	default:
 		Printf("Error:\nUnknown interval '%v'\n", intervalAbbr)
 		fmt.Fprintf(os.Stdout, "Error:\nUnknown interval '%v'\n", intervalAbbr)
 		os.Exit(1)
+	}
+	lenIntervalAbbr := len(intervalAbbr)
+	if lenIntervalAbbr > 1 {
+		nStr := intervalAbbr[1:lenIntervalAbbr]
+		nI, err := strconv.Atoi(nStr)
+		FatalOnError(err)
+		if nI > 1 {
+			n = nI
+		}
 	}
 	return
 }
