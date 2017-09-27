@@ -332,6 +332,30 @@ func TestMetrics(t *testing.T) {
 				{"new_prs,Group 2", "0.20"},
 			},
 		},
+		{
+			setup:  setupNewPRsMetric,
+			metric: "prs_authors",
+			from:   ft(2017, 9),
+			to:     ft(2017, 10),
+			n:      1,
+			expected: [][]interface{}{
+        {"prs_authors,All", "4.00"},
+        {"prs_authors,Group 1", "3.00"},
+        {"prs_authors,Group 2", "2.00"},
+			},
+		},
+		{
+			setup:  setupNewPRsMetric,
+			metric: "prs_authors",
+			from:   ft(2017, 9),
+			to:     ft(2017, 10),
+			n:      3,
+			expected: [][]interface{}{
+        {"prs_authors,All", "1.33"},
+        {"prs_authors,Group 1", "1.00"},
+        {"prs_authors,Group 2", "0.67"},
+			},
+		},
 	}
 
 	// Environment context parse
