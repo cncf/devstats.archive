@@ -1,6 +1,8 @@
 package test
 
-import "sort"
+import (
+	"sort"
+)
 
 // CompareIntSlices - compares two int slices
 func CompareIntSlices(s1 []int, s2 []int) bool {
