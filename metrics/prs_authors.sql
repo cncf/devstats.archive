@@ -1,13 +1,13 @@
 select
-  'new_prs,All' as repo_group,
-  round(count(distinct id) / {{n}}, 2) as new
+  'prs_authors,All' as repo_group,
+  round(count(distinct dup_actor_login) / {{n}}, 2) as authors
 from
   gha_pull_requests
 where
   created_at >= '{{from}}'
   and created_at < '{{to}}'
-union select 'new_prs,' || r.repo_group as repo_group,
-  round(count(distinct pr.id) / {{n}}, 2) as new
+union select 'prs_authors,' || r.repo_group as repo_group,
+  round(count(distinct pr.dup_actor_login) / {{n}}, 2) as authors
 from
   gha_pull_requests pr,
   gha_repos r
@@ -19,6 +19,6 @@ where
 group by
   r.repo_group
 order by
-  new desc,
+  authors desc,
   repo_group asc
 ;
