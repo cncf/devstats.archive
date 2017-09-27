@@ -391,7 +391,7 @@ func sync(args []string) {
 					lib.Printf("Calculate metric %v, period %v, histogram: %v, aggregate: '%v' ...\n", metric.Name, period, metric.Histogram, aggrSuffix)
 					seriesNameOrFunc := metric.SeriesNameOrFunc
 					if metric.AddPeriodToName {
-						seriesNameOrFunc += "_" + period
+						seriesNameOrFunc += "_" + periodAggr
 					}
 					lib.ExecCommand(
 						&ctx,
