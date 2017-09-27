@@ -106,7 +106,7 @@ func workerThread(ch chan bool, ctx *lib.Ctx, seriesNameOrFunc, sqlQuery, period
 	sTo := lib.ToYMDHMSDate(to)
 	sqlQuery = strings.Replace(sqlQuery, "{{from}}", sFrom, -1)
 	sqlQuery = strings.Replace(sqlQuery, "{{to}}", sTo, -1)
-	sqlQuery = strings.Replace(sqlQuery, "{{nn}}", strconv.Itoa(nIntervals)+".0", -1)
+	sqlQuery = strings.Replace(sqlQuery, "{{n}}", strconv.Itoa(nIntervals)+".0", -1)
 
 	// Execute SQL query
 	rows := lib.QuerySQLWithErr(sqlc, ctx, sqlQuery)
@@ -146,7 +146,7 @@ func workerThread(ch chan bool, ctx *lib.Ctx, seriesNameOrFunc, sqlQuery, period
 			value = *pValue
 		}
 		// In this simplest case 1 row, 1 column - series name is taken directly from YAML (metrics.yaml)
-		// It usually uses `add_period_to_name: true` to have _perio suffix, period{=h,d,w,m,q,y}
+		// It usually uses `add_period_to_name: true` to have _period suffix, period{=h,d,w,m,q,y}
 		name = seriesNameOrFunc
 		if ctx.Debug > 0 {
 			lib.Printf("%v - %v -> %v, %v\n", from, to, name, value)
