@@ -46,6 +46,7 @@ type Metric struct {
 	AddPeriodToName  bool   `yaml:"add_period_to_name"`
 	Histogram        bool   `yaml:"histogram"`
 	Aggregate        string `yaml:"aggregate"`
+	Skip             string `yaml:"skip"`
 }
 
 // Add _period to all array items
@@ -364,6 +365,11 @@ func sync(args []string) {
 				aggregate = "1"
 			}
 			aggregateArr := strings.Split(aggregate, ",")
+			skips := strings.Split(metric.Skip, ",")
+			skipMap := make(map[string]struct{})
+			for _, skip := range skips {
+				skipMap[skip] = struct{}{}
+			}
 			for _, aggrStr := range aggregateArr {
 				_, err := strconv.Atoi(aggrStr)
 				lib.FatalOnError(err)
@@ -372,8 +378,14 @@ func sync(args []string) {
 					aggrSuffix = ""
 				}
 				for _, period := range periods {
+					periodAggr := period + aggrSuffix
+					_, found := skipMap[periodAggr]
+					if found {
+						lib.Printf("Skipped period %s\n", periodAggr)
+						continue
+					}
 					if !ctx.ResetIDB && !computePeriodAtThisDate(period, to) {
-						lib.Printf("Skipping recalculating period \"%s\" for date to %v\n", period, to)
+						lib.Printf("Skipping recalculating period \"%s%s\" for date to %v\n", period, aggrSuffix, to)
 						continue
 					}
 					lib.Printf("Calculate metric %v, period %v, histogram: %v, aggregate: '%v' ...\n", metric.Name, period, metric.Histogram, aggrSuffix)
@@ -389,7 +401,7 @@ func sync(args []string) {
 							fmt.Sprintf("%s/%s.sql", metricsDir, metric.MetricSQL),
 							lib.ToYMDHDate(from),
 							lib.ToYMDHDate(to),
-							period + aggrSuffix,
+							periodAggr,
 							histParam,
 						},
 						nil,
