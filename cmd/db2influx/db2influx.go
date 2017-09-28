@@ -13,7 +13,7 @@ import (
 )
 
 // valueDescription - return string description for given float value
-// descFuncspecifies how to treat value
+// descFunc specifies how to treat value
 // currently supported:
 // `time_diff_as_string`: return string description of value that holds number of hours passed
 // like 30 -> 1 day 6 hours, 100 -> 4 days 4 hours, etc...
