@@ -36,7 +36,7 @@ from (
     and dup_actor_login not in (
       'googlebot', 'k8s-ci-robot', 'k8s-merge-robot', 'k8s-bot',
       'k8s-teamcity-mesosphere', 'k8s-reviewable', 'k8s-cherrypick-bot',
-      'k8s-publish-robot'
+      'k8s-publish-robot', 'fejta-bot'
     )
   group by
     affs.company_name
@@ -70,7 +70,7 @@ from (
     and dup_actor_login not in (
       'googlebot', 'k8s-ci-robot', 'k8s-merge-robot', 'k8s-bot',
       'k8s-teamcity-mesosphere', 'k8s-reviewable', 'k8s-cherrypick-bot',
-      'k8s-publish-robot'
+      'k8s-publish-robot', 'fejta-bot'
     )
   group by
     affs.company_name,
