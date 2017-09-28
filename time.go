@@ -199,6 +199,68 @@ func ToYMDHDate(dt time.Time) string {
 	return fmt.Sprintf("%04d-%02d-%02d %d", dt.Year(), dt.Month(), dt.Day(), dt.Hour())
 }
 
+// DescriblePeriodInHours - return string description of a time period given in hours
+func DescriblePeriodInHours(hrs float64) (desc string) {
+	secs := int((hrs * 3600.0) + 0.5)
+	weeks := secs / 604800
+	if weeks > 0 {
+		if weeks > 1 {
+			desc += strconv.Itoa(weeks) + " weeks "
+		} else {
+			desc += "a week "
+		}
+		secs -= weeks * 604800
+	}
+	days := secs / 86400
+	if days > 0 {
+		if desc != "" {
+			desc += "and "
+		}
+		if days > 1 {
+			desc += strconv.Itoa(days) + " days "
+		} else {
+			desc += "a day "
+		}
+		secs -= days * 86400
+	}
+	hours := secs / 3600
+	if hours > 0 {
+		if desc != "" {
+			desc += "and "
+		}
+		if hours > 1 {
+			desc += strconv.Itoa(hours) + " hours "
+		} else {
+			desc += "an hour "
+		}
+		secs -= hours * 3600
+	}
+	minutes := secs / 60
+	if minutes > 0 {
+		if desc != "" {
+			desc += "and "
+		}
+		if minutes > 1 {
+			desc += strconv.Itoa(minutes) + " minutes "
+		} else {
+			desc += "a minute "
+		}
+		secs -= minutes * 60
+	}
+	if secs > 0 {
+		if desc != "" {
+			desc += "and "
+		}
+		if secs > 1 {
+			desc += strconv.Itoa(secs) + " seconds "
+		} else {
+			desc += "a second "
+		}
+	}
+
+	return strings.TrimSpace(desc)
+}
+
 // AddNIntervals adds (using nextIntervalStart) or subtracts (using prevIntervalStart) N itervals to the given date
 // Functions Next/Prev can use Hour, Day, Week, Month, Quarter, Year functions (defined in this module) or other custom defined functions
 // With `func(time.Time) time.Time` signature
