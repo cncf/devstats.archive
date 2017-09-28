@@ -202,6 +202,12 @@ func ToYMDHDate(dt time.Time) string {
 // DescriblePeriodInHours - return string description of a time period given in hours
 func DescriblePeriodInHours(hrs float64) (desc string) {
 	secs := int((hrs * 3600.0) + 0.5)
+	if secs < 0 {
+		return "minus " + DescriblePeriodInHours(-hrs)
+	}
+	if secs == 0 {
+		return "zero"
+	}
 	weeks := secs / 604800
 	if weeks > 0 {
 		if weeks > 1 {
