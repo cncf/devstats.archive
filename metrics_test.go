@@ -76,8 +76,8 @@ func TestMetrics(t *testing.T) {
 			period: "1 week",
 			n:      1,
 			replaces: [][2]string{
+				{" >= 5", " >= 0"},
 				{" >= 3", " >= 0"},
-				{" >= 2", " >= 0"},
 			},
 			expected: [][]interface{}{
 				{"reviewers_hist,All", "Actor 1", 4},
@@ -378,6 +378,22 @@ func TestMetrics(t *testing.T) {
 				{"prs_age;All;number,median", "3.50", 96},
 				{"prs_age;Group 1;number,median", "2.50", 96},
 				{"prs_age;Group 2;number,median", "1.00", 72},
+			},
+		},
+		{
+			setup:  setupTopCommentersMetric,
+			metric: "hist_commenters",
+			period: "1 week",
+			n:      1,
+			replaces: [][2]string{
+				{" >= 30", " >= 2"},
+				{" >= 20", " >= 2"},
+			},
+			expected: [][]interface{}{
+				{"top_commenters,All", "A1", 3},
+				{"top_commenters,All", "A2", 3},
+				{"top_commenters,All", "A3", 2},
+				{"top_commenters,Group 1", "A2", 2},
 			},
 		},
 	}
@@ -1272,7 +1288,7 @@ func setupRepoCommentsMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 	}
 
 	// Add comments
-	// id, event_id, body, created_at, user_id, actor_id, actor_login, repo_id, repo_name, type
+	// id, event_id, body, created_at, user_id, repo_id, repo_name, actor_id, actor_login, type
 	comments := [][]interface{}{
 		{1, 1, "com0", ft(2017, 9), 1, 1, "R1", 1, "A1", "T"},
 		{2, 2, "com1", ft(2017, 9, 2), 2, 2, "R2", 2, "A2", "T"},
@@ -1397,6 +1413,56 @@ func setupReviewersMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 	for _, text := range texts {
 		text = append(text, stub...)
 		err = addText(con, ctx, text...)
+		if err != nil {
+			return
+		}
+	}
+
+	return
+}
+
+// Create data for top commenters metric (histogram)
+func setupTopCommentersMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
+	tm := time.Now().Add(-time.Hour)
+	tmOld := time.Now().AddDate(-1, -1, -1)
+
+	// Repos to add
+	// id, name, org_id, org_login, repo_group
+	repos := [][]interface{}{
+		{1, "Repo 1", 1, "Org 1", "Group 1"},
+		{2, "Repo 2", 1, "Org 1", "Group 1"},
+		{3, "Repo 3", nil, nil, "Group 2"},
+		{4, "Repo 4", 2, "Org 2", nil},
+	}
+
+	// Add comments
+	// id, event_id, body, created_at, user_id, repo_id, repo_name, actor_id, actor_login, type
+	comments := [][]interface{}{
+		{1, 0, "comment", tm, 1, 1, "R1", 1, "A1", "T"},
+		{2, 0, "comment", tm, 1, 2, "R2", 2, "A2", "T"},
+		{3, 0, "comment", tm, 1, 3, "R3", 3, "A3", "T"},
+		{4, 0, "comment", tm, 1, 4, "R4", 1, "A1", "T"},
+		{5, 0, "comment", tm, 1, 1, "R1", 2, "A2", "T"},
+		{6, 0, "comment", tm, 1, 2, "R2", 3, "A3", "T"},
+		{7, 0, "comment", tm, 1, 3, "R3", 1, "A1", "T"},
+		{8, 0, "comment", tm, 1, 4, "R4", 2, "A2", "T"},
+		{9, 0, "comment", tmOld, 1, 1, "R1", 3, "A3", "T"},
+		{10, 0, "comment", tmOld, 1, 2, "R2", 1, "A1", "T"},
+		{11, 0, "comment", tmOld, 1, 3, "R3", 2, "A2", "T"},
+		{12, 0, "comment", tmOld, 1, 4, "R4", 3, "A3", "T"},
+	}
+
+	// Add repos
+	for _, repo := range repos {
+		err = addRepo(con, ctx, repo...)
+		if err != nil {
+			return
+		}
+	}
+
+	// Add comments
+	for _, comment := range comments {
+		err = addComment(con, ctx, comment...)
 		if err != nil {
 			return
 		}
