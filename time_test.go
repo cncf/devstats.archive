@@ -15,6 +15,8 @@ func TestDescriblePeriodInHours(t *testing.T) {
 		hours    float64
 		expected string
 	}{
+		{hours: -337, expected: "minus 2 weeks and an hour"},
+		{hours: 0, expected: "zero"},
 		{hours: 336, expected: "2 weeks"},
 		{hours: 360, expected: "2 weeks and a day"},
 		{hours: 337, expected: "2 weeks and an hour"},
