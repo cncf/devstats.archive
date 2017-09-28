@@ -636,6 +636,52 @@ func addText(con *sql.DB, ctx *lib.Ctx, args ...interface{}) (err error) {
 	return
 }
 
+// Add comment
+// id, event_id, body, created_at, user_id, repo_id, repo_name, actor_id, actor_login, type
+func addComment(con *sql.DB, ctx *lib.Ctx, args ...interface{}) (err error) {
+	if len(args) != 10 {
+		err = fmt.Errorf("addComment: expects 10 variadic parameters")
+		return
+	}
+
+  // New args
+	newArgs := lib.AnyArray{
+		args[0],    // id
+		args[1],    // event_id
+		args[2],    // body
+		args[3],    // created_at
+    time.Now(), // updated_at
+		args[4],    // user_id
+    nil,        // commit_id
+    nil,        // original_commit_id
+    nil,        // diff_hunk
+    nil,        // position
+    nil,        // original_position
+    nil,        // path
+    nil,        // pull_request_review_ai
+    nil,        // line
+		args[7],    // actor_id
+		args[8],    // actor_login
+		args[5],    // repo_id
+		args[6],    // repo_name
+		args[9],    // type
+		args[3],    // dup_created_at
+		args[6],    // dup_user_login
+  }
+	_, err = lib.ExecSQL(
+		con,
+		ctx,
+		"insert into gha_comments("+
+			"id, event_id, body, created_at, updated_at, user_id, "+
+			"commit_id, original_commit_id, diff_hunk, position, "+
+			"original_position, path, pull_request_review_id, line, "+
+			"dup_actor_id, dup_actor_login, dup_repo_id, dup_repo_name, dup_type, dup_created_at, "+
+			"dup_user_login) "+lib.NValues(21),
+		newArgs...,
+	)
+	return
+}
+
 // Add payload
 // event_id, issue_id, pull_request_id, comment_id, number, forkee_id, release_id, member_id
 // actor_id, actor_login, repo_id, repo_name, event_type, event_created_at
@@ -1221,9 +1267,23 @@ func setupRepoCommentsMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 		{5, "com4", ft(2017, 10, 5), 1, "R1", 2, "A2", "T"},
 		{6, "com5", ft(2017, 8, 6), 2, "R2", 3, "A3", "T"},
 		{7, "com6", ft(2017, 7, 7), 3, "R3", 1, "A1", "T"},
-		{7, "com7", ft(2017, 6, 8), 4, "R4", 2, "A2", "T"},
-		{7, "com7", ft(2017, 9, 9), 3, "R3", 3, "A3", "T"},
+		{8, "com7", ft(2017, 6, 8), 4, "R4", 2, "A2", "T"},
+		{9, "com7", ft(2017, 9, 9), 3, "R3", 3, "A3", "T"},
 	}
+
+  // Add comments
+  // id, event_id, body, created_at, user_id, actor_id, actor_login, repo_id, repo_name, type
+	comments := [][]interface{}{
+		{1, 1, "com0", ft(2017, 9), 1, 1, "R1", 1, "A1", "T"},
+		{2, 2, "com1", ft(2017, 9, 2), 2, 2, "R2", 2, "A2", "T"},
+		{3, 3, "com2", ft(2017, 9, 3), 3, 3, "R3", 3, "A3", "T"},
+		{4, 4, "com3", ft(2017, 9, 4), 1, 4, "R4", 1, "A1", "T"},
+		{5, 5, "com4", ft(2017, 10, 5), 2, 1, "R1", 2, "A2", "T"},
+		{6, 6, "com5", ft(2017, 8, 6), 3, 2, "R2", 3, "A3", "T"},
+		{7, 7, "com6", ft(2017, 7, 7), 1, 3, "R3", 1, "A1", "T"},
+		{8, 8, "com7", ft(2017, 6, 8), 2, 4, "R4", 2, "A2", "T"},
+		{9, 9, "com7", ft(2017, 9, 9), 3, 3, "R3", 3, "A3", "T"},
+  }
 
 	// Add repos
 	for _, repo := range repos {
@@ -1236,6 +1296,14 @@ func setupRepoCommentsMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 	// Add texts
 	for _, text := range texts {
 		err = addText(con, ctx, text...)
+		if err != nil {
+			return
+		}
+	}
+
+  // Add comments
+	for _, comment := range comments {
+		err = addComment(con, ctx, comment...)
 		if err != nil {
 			return
 		}

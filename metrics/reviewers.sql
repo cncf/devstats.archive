@@ -12,6 +12,7 @@ from
 where
   dup_actor_login not in ('googlebot')
   and dup_actor_login not like 'k8s-%'
+  and dup_actor_login not like '%-bot'
   and id in (
     select min(event_id)
     from
@@ -34,6 +35,7 @@ where
   and r.repo_group is not null
   and e.dup_actor_login not in ('googlebot')
   and e.dup_actor_login not like 'k8s-%'
+  and e.dup_actor_login not like '%-bot'
   and e.id in (
     select min(event_id)
     from

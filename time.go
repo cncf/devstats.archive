@@ -203,7 +203,7 @@ func ToYMDHDate(dt time.Time) string {
 func DescriblePeriodInHours(hrs float64) (desc string) {
 	secs := int((hrs * 3600.0) + 0.5)
 	if secs < 0 {
-		return "minus " + DescriblePeriodInHours(-hrs)
+		return "- " + DescriblePeriodInHours(-hrs)
 	}
 	if secs == 0 {
 		return "zero"
@@ -213,54 +213,42 @@ func DescriblePeriodInHours(hrs float64) (desc string) {
 		if weeks > 1 {
 			desc += strconv.Itoa(weeks) + " weeks "
 		} else {
-			desc += "a week "
+			desc += "1 week "
 		}
 		secs -= weeks * 604800
 	}
 	days := secs / 86400
 	if days > 0 {
-		if desc != "" {
-			desc += "and "
-		}
 		if days > 1 {
 			desc += strconv.Itoa(days) + " days "
 		} else {
-			desc += "a day "
+			desc += "1 day "
 		}
 		secs -= days * 86400
 	}
 	hours := secs / 3600
 	if hours > 0 {
-		if desc != "" {
-			desc += "and "
-		}
 		if hours > 1 {
 			desc += strconv.Itoa(hours) + " hours "
 		} else {
-			desc += "an hour "
+			desc += "1 hour "
 		}
 		secs -= hours * 3600
 	}
 	minutes := secs / 60
 	if minutes > 0 {
-		if desc != "" {
-			desc += "and "
-		}
 		if minutes > 1 {
 			desc += strconv.Itoa(minutes) + " minutes "
 		} else {
-			desc += "a minute "
+			desc += "1 minute "
 		}
 		secs -= minutes * 60
 	}
 	if secs > 0 {
-		if desc != "" {
-			desc += "and "
-		}
 		if secs > 1 {
 			desc += strconv.Itoa(secs) + " seconds "
 		} else {
-			desc += "a second "
+			desc += "1 second "
 		}
 	}
 
