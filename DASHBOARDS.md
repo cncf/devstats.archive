@@ -19,6 +19,7 @@ Each dashboard is defined by its metrics SQL, saved Grafana JSON export and link
 15) Repository unique commenters dashboard: [repo_commenters.sql](https://github.com/cncf/gha2db/blob/master/metrics/repo_commenters.sql), [repository_commenters.json](https://github.com/cncf/gha2db/blob/master/grafana/dashboards/repository_commenters.json), [view](https://cncftest.io/dashboard/db/repository-commenters?orgId=1).
 16) New PRs dashboard: [new_prs.sql](https://github.com/cncf/gha2db/blob/master/metrics/new_prs.sql), [new_prs.json](https://github.com/cncf/gha2db/blob/master/grafana/dashboards/new_prs.json), [view](https://cncftest.io/dashboard/db/new-prs?orgId=1).
 17) PRs unique authors dashboard: [prs_authors.sql](https://github.com/cncf/gha2db/blob/master/metrics/prs_authors.sql), [prs_authors.json](https://github.com/cncf/gha2db/blob/master/grafana/dashboards/prs_authors.json), [view](https://cncftest.io/dashboard/db/prs-authors?orgId=1).
+18) Opened PRs age/count dashboard: [prs_age.sql](https://github.com/cncf/gha2db/blob/master/metrics/prs_authors.sql), [prs_age.json](https://github.com/cncf/gha2db/blob/master/grafana/dashboards/prs_age.json), [view](https://cncftest.io/dashboard/db/prs-age?orgId=1).
 
 All of them works live on [cncftest.io](https://cncftest.io) with auto gha2db_sync tool running.
 
