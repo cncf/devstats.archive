@@ -172,7 +172,7 @@ func TestMetrics(t *testing.T) {
 			to:     ft(2017, 8),
 			n:      1,
 			expected: [][]interface{}{
-				{"opened_to_merged;All;percentile_15,median,percentile_85", 480, 504, 552},
+				{"opened_to_merged;All;percentile_15,median,percentile_85", 480, 504, 624},
 				{"opened_to_merged;Group2;percentile_15,median,percentile_85", 504, 504, 504},
 				{"opened_to_merged;Group1;percentile_15,median,percentile_85", 480, 480, 552},
 			},
@@ -354,6 +354,30 @@ func TestMetrics(t *testing.T) {
 				{"prs_authors,All", "1.33"},
 				{"prs_authors,Group 1", "1.00"},
 				{"prs_authors,Group 2", "0.67"},
+			},
+		},
+		{
+			setup:  setupNewPRsMetric,
+			metric: "prs_age",
+			from:   ft(2017, 9),
+			to:     ft(2017, 10),
+			n:      1,
+			expected: [][]interface{}{
+				{"prs_age;All;number,median", "7.00", 96},
+				{"prs_age;Group 1;number,median", "5.00", 96},
+				{"prs_age;Group 2;number,median", "2.00", 72},
+			},
+		},
+		{
+			setup:  setupNewPRsMetric,
+			metric: "prs_age",
+			from:   ft(2017, 9),
+			to:     ft(2017, 10),
+			n:      2,
+			expected: [][]interface{}{
+				{"prs_age;All;number,median", "3.50", 96},
+				{"prs_age;Group 1;number,median", "2.50", 96},
+				{"prs_age;Group 2;number,median", "1.00", 72},
 			},
 		},
 	}
@@ -985,14 +1009,14 @@ func setupNewPRsMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 	// repo_id, repo_name, actor_id, actor_login
 	prs := [][]interface{}{
 		{1, 1, 1, 1, 1, 1, "open", "PR 1", "Body PR 1", ft(2017, 8, 20), nil, nil, true, 1, "Repo 1", 1, "Actor 1"},
-		{2, 5, 3, 2, 3, 2, "open", "PR 2", "Body PR 2", ft(2017, 9, 1), nil, nil, true, 1, "Repo 1", 3, "Actor 3"},
-		{3, 4, 2, 3, 2, 3, "open", "PR 3", "Body PR 3", ft(2017, 9, 2), nil, nil, true, 1, "Repo 1", 2, "Actor 2"},
+		{2, 5, 3, 2, 3, 2, "merged", "PR 2", "Body PR 2", ft(2017, 9, 1), ft(2017, 9, 2), ft(2017, 9, 2), true, 1, "Repo 1", 3, "Actor 3"},
+		{3, 4, 2, 3, 2, 3, "merged", "PR 3", "Body PR 3", ft(2017, 9, 2), ft(2017, 9, 4), ft(2017, 9, 4), true, 1, "Repo 1", 2, "Actor 2"},
 		{4, 2, 2, 4, 4, 4, "open", "PR 4", "Body PR 4", ft(2017, 8, 10), nil, nil, true, 2, "Repo 2", 1, "Actor 1"},
-		{5, 6, 4, 4, 4, 5, "open", "PR 5", "Body PR 5", ft(2017, 9, 5), nil, nil, true, 2, "Repo 2", 4, "Actor 4"},
-		{6, 3, 2, 2, 4, 6, "open", "PR 6", "Body PR 6", ft(2017, 9, 2), nil, nil, true, 3, "Repo 3", 2, "Actor 2"},
-		{7, 7, 1, 1, 1, 7, "open", "PR 7", "Body PR 7", ft(2017, 9, 1), nil, nil, true, 1, "Repo 1", 1, "Actor 1"},
-		{8, 8, 2, nil, 2, 8, "open", "PR 8", "Body PR 8", ft(2017, 9, 7), nil, nil, true, 2, "Repo 2", 2, "Actor 2"},
-		{9, 9, 3, nil, 1, 9, "open", "PR 9", "Body PR 9", ft(2017, 9, 8), nil, nil, true, 3, "Repo 3", 3, "Actor 3"},
+		{5, 6, 4, 4, 4, 5, "merged", "PR 5", "Body PR 5", ft(2017, 9, 5), ft(2017, 9, 8), ft(2017, 9, 8), true, 2, "Repo 2", 4, "Actor 4"},
+		{6, 3, 2, 2, 4, 6, "merged", "PR 6", "Body PR 6", ft(2017, 9, 2), ft(2017, 9, 6), ft(2017, 9, 6), true, 3, "Repo 3", 2, "Actor 2"},
+		{7, 7, 1, 1, 1, 7, "merged", "PR 7", "Body PR 7", ft(2017, 9, 1), nil, nil, true, 1, "Repo 1", 1, "Actor 1"},
+		{8, 8, 2, nil, 2, 8, "merged", "PR 8", "Body PR 8", ft(2017, 9, 7), nil, nil, true, 2, "Repo 2", 2, "Actor 2"},
+		{9, 9, 3, nil, 1, 9, "merged", "PR 9", "Body PR 9", ft(2017, 9, 8), nil, nil, true, 3, "Repo 3", 3, "Actor 3"},
 	}
 
 	// Add repos
