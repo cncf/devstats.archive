@@ -27,6 +27,12 @@
       "id": "influxdb",
       "name": "InfluxDB",
       "version": "1.0.0"
+    },
+    {
+      "type": "panel",
+      "id": "table",
+      "name": "Table",
+      "version": ""
     }
   ],
   "annotations": {
@@ -56,7 +62,7 @@
   "rows": [
     {
       "collapse": false,
-      "height": 802,
+      "height": 508,
       "panels": [
         {
           "aliasColors": {},
@@ -163,7 +169,7 @@
           "thresholds": [],
           "timeFrom": null,
           "timeShift": null,
-          "title": "Median time in hours PRs from open to lgtm, approve, merge for [[repogroup]] repository group",
+          "title": "Median time in hours PRs from open to lgtm, approve, merge for [[repogroup]] repository group ([[period]])",
           "tooltip": {
             "shared": true,
             "sort": 0,
@@ -303,7 +309,7 @@
           "thresholds": [],
           "timeFrom": null,
           "timeShift": null,
-          "title": "85th percentile hours PRs from open to lgtm, approve, merge for [[repogroup]] repository group",
+          "title": "85th percentile hours PRs from open to lgtm, approve, merge for [[repogroup]] repository group ([[period]])",
           "tooltip": {
             "shared": true,
             "sort": 0,
@@ -337,6 +343,294 @@
               "show": true
             }
           ]
+        }
+      ],
+      "repeat": null,
+      "repeatIteration": null,
+      "repeatRowId": null,
+      "showTitle": false,
+      "title": "Dashboard Row",
+      "titleSize": "h6"
+    },
+    {
+      "collapse": false,
+      "height": 376,
+      "panels": [
+        {
+          "columns": [],
+          "description": "Time PRs from open to lgtm, approve, merge",
+          "fontSize": "80%",
+          "id": 10,
+          "links": [],
+          "pageSize": 10,
+          "scroll": true,
+          "showHeader": true,
+          "sort": {
+            "col": 0,
+            "desc": true
+          },
+          "span": 12,
+          "styles": [
+            {
+              "alias": "Time",
+              "dateFormat": "MM/DD/YYYY",
+              "pattern": "Time",
+              "type": "date"
+            },
+            {
+              "alias": "",
+              "colorMode": null,
+              "colors": [
+                "rgba(245, 54, 54, 0.9)",
+                "rgba(237, 129, 40, 0.89)",
+                "rgba(50, 172, 45, 0.97)"
+              ],
+              "decimals": 2,
+              "pattern": "/.*/",
+              "thresholds": [],
+              "type": "number",
+              "unit": "short"
+            }
+          ],
+          "targets": [
+            {
+              "alias": "Median open to LGTM",
+              "dsType": "influxdb",
+              "groupBy": [
+                {
+                  "params": [
+                    "$__interval"
+                  ],
+                  "type": "time"
+                },
+                {
+                  "params": [
+                    "null"
+                  ],
+                  "type": "fill"
+                }
+              ],
+              "orderByTime": "ASC",
+              "policy": "default",
+              "query": "SELECT \"descr\" FROM \"time_metrics_[[repogroup]]_median_open_to_lgtm_[[period]]\" WHERE $timeFilter",
+              "rawQuery": true,
+              "refId": "A",
+              "resultFormat": "time_series",
+              "select": [
+                [
+                  {
+                    "params": [
+                      "value"
+                    ],
+                    "type": "field"
+                  },
+                  {
+                    "params": [],
+                    "type": "mean"
+                  }
+                ]
+              ],
+              "tags": []
+            },
+            {
+              "alias": "Median LGTM to approve",
+              "dsType": "influxdb",
+              "groupBy": [
+                {
+                  "params": [
+                    "$__interval"
+                  ],
+                  "type": "time"
+                },
+                {
+                  "params": [
+                    "null"
+                  ],
+                  "type": "fill"
+                }
+              ],
+              "orderByTime": "ASC",
+              "policy": "default",
+              "query": "SELECT \"descr\" FROM \"time_metrics_[[repogroup]]_median_lgtm_to_approve_[[period]]\" WHERE $timeFilter",
+              "rawQuery": true,
+              "refId": "B",
+              "resultFormat": "time_series",
+              "select": [
+                [
+                  {
+                    "params": [
+                      "value"
+                    ],
+                    "type": "field"
+                  },
+                  {
+                    "params": [],
+                    "type": "mean"
+                  }
+                ]
+              ],
+              "tags": []
+            },
+            {
+              "alias": "Median approve to merge",
+              "dsType": "influxdb",
+              "groupBy": [
+                {
+                  "params": [
+                    "$__interval"
+                  ],
+                  "type": "time"
+                },
+                {
+                  "params": [
+                    "null"
+                  ],
+                  "type": "fill"
+                }
+              ],
+              "orderByTime": "ASC",
+              "policy": "default",
+              "query": "SELECT \"descr\" FROM \"time_metrics_[[repogroup]]_median_approve_to_merge_[[period]]\" WHERE $timeFilter",
+              "rawQuery": true,
+              "refId": "C",
+              "resultFormat": "time_series",
+              "select": [
+                [
+                  {
+                    "params": [
+                      "value"
+                    ],
+                    "type": "field"
+                  },
+                  {
+                    "params": [],
+                    "type": "mean"
+                  }
+                ]
+              ],
+              "tags": []
+            },
+            {
+              "alias": "85th percentile open to LGTM",
+              "dsType": "influxdb",
+              "groupBy": [
+                {
+                  "params": [
+                    "$__interval"
+                  ],
+                  "type": "time"
+                },
+                {
+                  "params": [
+                    "null"
+                  ],
+                  "type": "fill"
+                }
+              ],
+              "orderByTime": "ASC",
+              "policy": "default",
+              "query": "SELECT \"descr\" FROM \"time_metrics_[[repogroup]]_percentile_85_open_to_lgtm_[[period]]\" WHERE $timeFilter",
+              "rawQuery": true,
+              "refId": "D",
+              "resultFormat": "time_series",
+              "select": [
+                [
+                  {
+                    "params": [
+                      "value"
+                    ],
+                    "type": "field"
+                  },
+                  {
+                    "params": [],
+                    "type": "mean"
+                  }
+                ]
+              ],
+              "tags": []
+            },
+            {
+              "alias": "85th percentile LGTM to approve",
+              "dsType": "influxdb",
+              "groupBy": [
+                {
+                  "params": [
+                    "$__interval"
+                  ],
+                  "type": "time"
+                },
+                {
+                  "params": [
+                    "null"
+                  ],
+                  "type": "fill"
+                }
+              ],
+              "orderByTime": "ASC",
+              "policy": "default",
+              "query": "SELECT \"descr\" FROM \"time_metrics_[[repogroup]]_percentile_85_lgtm_to_approve_[[period]]\" WHERE $timeFilter",
+              "rawQuery": true,
+              "refId": "E",
+              "resultFormat": "time_series",
+              "select": [
+                [
+                  {
+                    "params": [
+                      "value"
+                    ],
+                    "type": "field"
+                  },
+                  {
+                    "params": [],
+                    "type": "mean"
+                  }
+                ]
+              ],
+              "tags": []
+            },
+            {
+              "alias": "85th percentile approve to merge",
+              "dsType": "influxdb",
+              "groupBy": [
+                {
+                  "params": [
+                    "$__interval"
+                  ],
+                  "type": "time"
+                },
+                {
+                  "params": [
+                    "null"
+                  ],
+                  "type": "fill"
+                }
+              ],
+              "orderByTime": "ASC",
+              "policy": "default",
+              "query": "SELECT \"descr\" FROM \"time_metrics_[[repogroup]]_percentile_85_approve_to_merge_[[period]]\" WHERE $timeFilter",
+              "rawQuery": true,
+              "refId": "F",
+              "resultFormat": "time_series",
+              "select": [
+                [
+                  {
+                    "params": [
+                      "value"
+                    ],
+                    "type": "field"
+                  },
+                  {
+                    "params": [],
+                    "type": "mean"
+                  }
+                ]
+              ],
+              "tags": []
+            }
+          ],
+          "title": "Time PRs from open to lgtm, approve, merge for [[repogroup]] repository group ([[period]])",
+          "transform": "timeseries_to_columns",
+          "type": "table"
         }
       ],
       "repeat": null,
@@ -400,8 +694,8 @@
         "allValue": null,
         "current": {
           "tags": [],
-          "text": "All",
-          "value": "all"
+          "text": "Kubernetes",
+          "value": "kubernetes"
         },
         "hide": 0,
         "includeAll": false,
@@ -410,12 +704,12 @@
         "name": "repogroup",
         "options": [
           {
-            "selected": true,
+            "selected": false,
             "text": "All",
             "value": "all"
           },
           {
-            "selected": false,
+            "selected": true,
             "text": "Kubernetes",
             "value": "kubernetes"
           },
@@ -531,5 +825,5 @@
   },
   "timezone": "",
   "title": "Time metrics",
-  "version": 16
+  "version": 18
 }
