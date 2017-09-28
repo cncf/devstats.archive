@@ -35,16 +35,14 @@ select repo_group, id, extract(epoch from coalesce(merged_at - created_at, now()
 from prs_groups;
 
 select
-  'prs_age;All;number,median,percentile_85' as name,
+  'prs_age;All;number,median' as name,
   round(count(distinct id) / {{n}}, 2) as num,
-  percentile_disc(0.5) within group (order by age asc) as age_median,
-  percentile_disc(0.85) within group (order by age asc) as age_85_percentile
+  percentile_disc(0.5) within group (order by age asc) as age_median
 from
   tdiffs
-union select 'prs_age;' || repo_group || ';number,median,percentile_85' as name,
+union select 'prs_age;' || repo_group || ';number,median' as name,
   round(count(distinct id) / {{n}}, 2) as num,
-  percentile_disc(0.5) within group (order by age asc) as age_median,
-  percentile_disc(0.85) within group (order by age asc) as age_85_percentile
+  percentile_disc(0.5) within group (order by age asc) as age_median
 from
   tdiffs_groups
 group by
