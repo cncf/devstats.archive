@@ -16,7 +16,7 @@ group by
   r.repo_group,
   t.dup_actor_login
 having
-  count(t.id) >= 50
+  count(t.id) >= 20
 union select 'top_commenters,All' as repo_group,
   dup_actor_login as actor,
   count(id) as comments
@@ -30,7 +30,7 @@ where
 group by
   dup_actor_login
 having
-  count(id) >= 50
+  count(id) >= 30
 order by
   comments desc,
   repo_group asc,
