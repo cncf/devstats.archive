@@ -644,22 +644,22 @@ func addComment(con *sql.DB, ctx *lib.Ctx, args ...interface{}) (err error) {
 		return
 	}
 
-  // New args
+	// New args
 	newArgs := lib.AnyArray{
 		args[0],    // id
 		args[1],    // event_id
 		args[2],    // body
 		args[3],    // created_at
-    time.Now(), // updated_at
+		time.Now(), // updated_at
 		args[4],    // user_id
-    nil,        // commit_id
-    nil,        // original_commit_id
-    nil,        // diff_hunk
-    nil,        // position
-    nil,        // original_position
-    nil,        // path
-    nil,        // pull_request_review_ai
-    nil,        // line
+		nil,        // commit_id
+		nil,        // original_commit_id
+		nil,        // diff_hunk
+		nil,        // position
+		nil,        // original_position
+		nil,        // path
+		nil,        // pull_request_review_ai
+		nil,        // line
 		args[7],    // actor_id
 		args[8],    // actor_login
 		args[5],    // repo_id
@@ -667,7 +667,7 @@ func addComment(con *sql.DB, ctx *lib.Ctx, args ...interface{}) (err error) {
 		args[9],    // type
 		args[3],    // dup_created_at
 		args[6],    // dup_user_login
-  }
+	}
 	_, err = lib.ExecSQL(
 		con,
 		ctx,
@@ -1271,8 +1271,8 @@ func setupRepoCommentsMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 		{9, "com7", ft(2017, 9, 9), 3, "R3", 3, "A3", "T"},
 	}
 
-  // Add comments
-  // id, event_id, body, created_at, user_id, actor_id, actor_login, repo_id, repo_name, type
+	// Add comments
+	// id, event_id, body, created_at, user_id, actor_id, actor_login, repo_id, repo_name, type
 	comments := [][]interface{}{
 		{1, 1, "com0", ft(2017, 9), 1, 1, "R1", 1, "A1", "T"},
 		{2, 2, "com1", ft(2017, 9, 2), 2, 2, "R2", 2, "A2", "T"},
@@ -1283,7 +1283,7 @@ func setupRepoCommentsMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 		{7, 7, "com6", ft(2017, 7, 7), 1, 3, "R3", 1, "A1", "T"},
 		{8, 8, "com7", ft(2017, 6, 8), 2, 4, "R4", 2, "A2", "T"},
 		{9, 9, "com7", ft(2017, 9, 9), 3, 3, "R3", 3, "A3", "T"},
-  }
+	}
 
 	// Add repos
 	for _, repo := range repos {
@@ -1301,7 +1301,7 @@ func setupRepoCommentsMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 		}
 	}
 
-  // Add comments
+	// Add comments
 	for _, comment := range comments {
 		err = addComment(con, ctx, comment...)
 		if err != nil {
