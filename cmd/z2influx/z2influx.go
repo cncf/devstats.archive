@@ -8,7 +8,7 @@ import (
 	lib "gha2db"
 )
 
-func workerThread(ch chan bool, ctx *lib.Ctx, seriesSet map[string]struct{}, period string, from, to time.Time) {
+func workerThread(ch chan bool, ctx *lib.Ctx, seriesSet map[string]struct{}, period string, desc bool, from, to time.Time) {
 	// Connect to InfluxDB
 	ic := lib.IDBConn(ctx)
 	defer ic.Close()
@@ -18,6 +18,9 @@ func workerThread(ch chan bool, ctx *lib.Ctx, seriesSet map[string]struct{}, per
 
 	// Zero
 	fields := map[string]interface{}{"value": 0.0}
+	if desc {
+		fields["descr"] = ""
+	}
 
 	for series := range seriesSet {
 		if ctx.Debug > 0 {
@@ -43,7 +46,7 @@ func workerThread(ch chan bool, ctx *lib.Ctx, seriesSet map[string]struct{}, per
 	}
 }
 
-func z2influx(series, from, to, intervalAbbr string) {
+func z2influx(series, from, to, intervalAbbr string, desc bool) {
 	// Environment context parse
 	var ctx lib.Ctx
 	ctx.Init()
@@ -73,7 +76,7 @@ func z2influx(series, from, to, intervalAbbr string) {
 	thrN := lib.GetThreadsNum(&ctx)
 
 	// Run
-	lib.Printf("z2influx.go: Running (on %d CPUs): %v - %v with interval %s\n", thrN, dFrom, dTo, interval)
+	lib.Printf("z2influx.go: Running (on %d CPUs): %v - %v with interval %s, descriptions %v\n", thrN, dFrom, dTo, interval, desc)
 	dt := dFrom
 	if thrN > 1 {
 		chanPool := []chan bool{}
@@ -81,7 +84,7 @@ func z2influx(series, from, to, intervalAbbr string) {
 			ch := make(chan bool)
 			chanPool = append(chanPool, ch)
 			nDt := nextIntervalStart(dt)
-			go workerThread(ch, &ctx, seriesSet, intervalAbbr, dt, nDt)
+			go workerThread(ch, &ctx, seriesSet, intervalAbbr, desc, dt, nDt)
 			dt = nDt
 			if len(chanPool) == thrN {
 				ch = chanPool[0]
@@ -97,7 +100,7 @@ func z2influx(series, from, to, intervalAbbr string) {
 		lib.Printf("Using single threaded version\n")
 		for dt.Before(dTo) {
 			nDt := nextIntervalStart(dt)
-			workerThread(nil, &ctx, seriesSet, intervalAbbr, dt, nDt)
+			workerThread(nil, &ctx, seriesSet, intervalAbbr, desc, dt, nDt)
 			dt = nDt
 		}
 	}
@@ -109,12 +112,29 @@ func main() {
 	dtStart := time.Now()
 	if len(os.Args) < 5 {
 		lib.Printf("%s: Required args: 'series1,series2,..' from to period\n"+
-			"Example: 's1,s2,s3' 2015-08-03 2017-08-2' h|d|w|m|q|y\n",
+			"Example: 's1,s2,s3' 2015-08-03 2017-08-2' h|d|w|m|q|y [desc]\n",
 			os.Args[0],
 		)
 		os.Exit(1)
 	}
-	z2influx(os.Args[1], os.Args[2], os.Args[3], os.Args[4])
+	desc := false
+	if len(os.Args) > 5 {
+		opts := strings.Split(os.Args[5], ",")
+		optMap := make(map[string]string)
+		for _, opt := range opts {
+			optArr := strings.Split(opt, ":")
+			optName := optArr[0]
+			optVal := ""
+			if len(optArr) > 1 {
+				optVal = optArr[1]
+			}
+			optMap[optName] = optVal
+		}
+		if _, ok := optMap["desc"]; ok {
+			desc = true
+		}
+	}
+	z2influx(os.Args[1], os.Args[2], os.Args[3], os.Args[4], desc)
 	dtEnd := time.Now()
 	lib.Printf("Time: %v\n", dtEnd.Sub(dtStart))
 }

@@ -12,6 +12,23 @@ import (
 	lib "gha2db"
 )
 
+// valueDescription - return string description for given float value
+// descFuncspecifies how to treat value
+// currently supported:
+// `time_diff_as_string`: return string description of value that holds number of hours passed
+// like 30 -> 1 day 6 hours, 100 -> 4 days 4 hours, etc...
+func valueDescription(descFunc string, value float64) (result string) {
+	switch descFunc {
+	case "time_diff_as_string":
+		return lib.DescriblePeriodInHours(value)
+	default:
+		lib.Printf("Error\nUnknown value description function '%v'\n", descFunc)
+		fmt.Fprintf(os.Stdout, "Error\nUnknown value description function '%v'\n", descFunc)
+		os.Exit(1)
+	}
+	return
+}
+
 // Returns multi row and multi column series names array (differen for different rows)
 // Each row must be in format: 'prefix;name;series1,series2,..,seriesN' serVal1 serVal2 ... serValN
 func multiRowMultiColumn(col, period string) (result []string) {
@@ -89,7 +106,7 @@ func roundF2I(val float64) int {
 	return int(val + 0.5)
 }
 
-func workerThread(ch chan bool, ctx *lib.Ctx, seriesNameOrFunc, sqlQuery, period string, dt, from, to time.Time, nIntervals int) {
+func workerThread(ch chan bool, ctx *lib.Ctx, seriesNameOrFunc, sqlQuery, period, desc string, nIntervals int, dt, from, to time.Time) {
 	// Connect to Postgres DB
 	sqlc := lib.PgConn(ctx)
 	defer sqlc.Close()
@@ -118,6 +135,9 @@ func workerThread(ch chan bool, ctx *lib.Ctx, seriesNameOrFunc, sqlQuery, period
 	columns, err := rows.Columns()
 	lib.FatalOnError(err)
 	nColumns := len(columns)
+
+	// Use value descriptions?
+	useDesc := desc != ""
 
 	// Metric Results, assume they're floats
 	var (
@@ -153,6 +173,9 @@ func workerThread(ch chan bool, ctx *lib.Ctx, seriesNameOrFunc, sqlQuery, period
 		}
 		// Add batch point
 		fields := map[string]interface{}{"value": value}
+		if useDesc {
+			fields["descr"] = valueDescription(desc, value)
+		}
 		pt := lib.IDBNewPointWithErr(name, nil, fields, dt)
 		bp.AddPoint(pt)
 	} else if nColumns >= 2 {
@@ -188,6 +211,9 @@ func workerThread(ch chan bool, ctx *lib.Ctx, seriesNameOrFunc, sqlQuery, period
 					}
 					// Add batch point
 					fields := map[string]interface{}{"value": value}
+					if useDesc {
+						fields["descr"] = valueDescription(desc, value)
+					}
 					pt := lib.IDBNewPointWithErr(name, nil, fields, dt)
 					bp.AddPoint(pt)
 				}
@@ -335,7 +361,7 @@ func db2influxHistogram(ctx *lib.Ctx, seriesNameOrFunc, sqlQuery, interval, inte
 	}
 }
 
-func db2influx(seriesNameOrFunc, sqlFile, from, to, intervalAbbr string, hist bool) {
+func db2influx(seriesNameOrFunc, sqlFile, from, to, intervalAbbr string, hist bool, desc string) {
 	// Environment context parse
 	var ctx lib.Ctx
 	ctx.Init()
@@ -365,7 +391,7 @@ func db2influx(seriesNameOrFunc, sqlFile, from, to, intervalAbbr string, hist bo
 	thrN := lib.GetThreadsNum(&ctx)
 
 	// Run
-	lib.Printf("db2influx.go: Running (on %d CPUs): %v - %v with interval %s\n", thrN, dFrom, dTo, interval)
+	lib.Printf("db2influx.go: Running (on %d CPUs): %v - %v with interval %s, descriptions %s\n", thrN, dFrom, dTo, interval, desc)
 	dt := dFrom
 	var pDt time.Time
 	if thrN > 1 {
@@ -379,7 +405,7 @@ func db2influx(seriesNameOrFunc, sqlFile, from, to, intervalAbbr string, hist bo
 			} else {
 				pDt = lib.AddNIntervals(dt, 1-nIntervals, nextIntervalStart, prevIntervalStart)
 			}
-			go workerThread(ch, &ctx, seriesNameOrFunc, sqlQuery, intervalAbbr, dt, pDt, nDt, nIntervals)
+			go workerThread(ch, &ctx, seriesNameOrFunc, sqlQuery, intervalAbbr, desc, nIntervals, dt, pDt, nDt)
 			dt = nDt
 			if len(chanPool) == thrN {
 				ch = chanPool[0]
@@ -400,7 +426,7 @@ func db2influx(seriesNameOrFunc, sqlFile, from, to, intervalAbbr string, hist bo
 			} else {
 				pDt = lib.AddNIntervals(dt, 1-nIntervals, nextIntervalStart, prevIntervalStart)
 			}
-			workerThread(nil, &ctx, seriesNameOrFunc, sqlQuery, intervalAbbr, dt, pDt, nDt, nIntervals)
+			workerThread(nil, &ctx, seriesNameOrFunc, sqlQuery, intervalAbbr, desc, nIntervals, dt, pDt, nDt)
 			dt = nDt
 		}
 	}
@@ -413,7 +439,7 @@ func main() {
 	if len(os.Args) < 6 {
 		lib.Printf(
 			"Required series name, SQL file name, from, to, period " +
-				"[series_name_or_func some.sql '2015-08-03' '2017-08-21' h|d|w|m|q|y\n",
+				"[series_name_or_func some.sql '2015-08-03' '2017-08-21' h|d|w|m|q|y [hist,desc:time_diff_as_string]]\n",
 		)
 		lib.Printf(
 			"Series name (series_name_or_func) will become exact series name if " +
@@ -424,10 +450,27 @@ func main() {
 		os.Exit(1)
 	}
 	hist := false
-	if len(os.Args) > 6 && len(os.Args[6]) > 0 && strings.ToLower(os.Args[6][0:1]) == "h" {
-		hist = true
+	desc := ""
+	if len(os.Args) > 6 {
+		opts := strings.Split(os.Args[6], ",")
+		optMap := make(map[string]string)
+		for _, opt := range opts {
+			optArr := strings.Split(opt, ":")
+			optName := optArr[0]
+			optVal := ""
+			if len(optArr) > 1 {
+				optVal = optArr[1]
+			}
+			optMap[optName] = optVal
+		}
+		if _, ok := optMap["hist"]; ok {
+			hist = true
+		}
+		if d, ok := optMap["desc"]; ok {
+			desc = d
+		}
 	}
-	db2influx(os.Args[1], os.Args[2], os.Args[3], os.Args[4], os.Args[5], hist)
+	db2influx(os.Args[1], os.Args[2], os.Args[3], os.Args[4], os.Args[5], hist, desc)
 	dtEnd := time.Now()
 	lib.Printf("Time: %v\n", dtEnd.Sub(dtStart))
 }

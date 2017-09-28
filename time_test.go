@@ -9,6 +9,42 @@ import (
 	testlib "gha2db/test"
 )
 
+func TestDescriblePeriodInHours(t *testing.T) {
+	// Test cases
+	var testCases = []struct {
+		hours    float64
+		expected string
+	}{
+		{hours: 336, expected: "2 weeks"},
+		{hours: 360, expected: "2 weeks and a day"},
+		{hours: 337, expected: "2 weeks and an hour"},
+		{hours: 338, expected: "2 weeks and 2 hours"},
+		{hours: 335, expected: "a week and 6 days and 23 hours"},
+		{hours: 168, expected: "a week"},
+		{hours: 216, expected: "a week and 2 days"},
+		{hours: 169, expected: "a week and an hour"},
+		{hours: 170, expected: "a week and 2 hours"},
+		{hours: 167, expected: "6 days and 23 hours"},
+		{hours: 167.9, expected: "6 days and 23 hours and 54 minutes"},
+		{hours: 168.2, expected: "a week and 12 minutes"},
+		{hours: 335.99, expected: "a week and 6 days and 23 hours and 59 minutes and 24 seconds"},
+		{hours: 100, expected: "4 days and 4 hours"},
+		{hours: 1000, expected: "5 weeks and 6 days and 16 hours"},
+		{hours: 0.3, expected: "18 minutes"},
+	}
+	// Execute test cases
+	for index, test := range testCases {
+		expected := test.expected
+		got := lib.DescriblePeriodInHours(test.hours)
+		if got != expected {
+			t.Errorf(
+				"test number %d, expected '%v' from %v hours, got '%v'",
+				index+1, expected, test.hours, got,
+			)
+		}
+	}
+}
+
 func TestHourStart(t *testing.T) {
 	// Test cases
 	ft := testlib.YMDHMS
