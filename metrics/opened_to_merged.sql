@@ -1,11 +1,9 @@
 create temp table prs as
-select ipr.issue_id, pr.created_at, pr.merged_at as merged_at
+select pr.created_at, pr.merged_at
 from
-  gha_issues_pull_requests ipr,
   gha_pull_requests pr
 where
-  pr.id = ipr.pull_request_id
-  and pr.merged_at is not null
+  pr.merged_at is not null
   and pr.created_at >= '{{from}}'
   and pr.created_at < '{{to}}'
   and pr.event_id = (
@@ -14,17 +12,14 @@ where
 
 create temp table prs_groups as
 select r.repo_group,
-  ipr.issue_id,
   pr.created_at,
   pr.merged_at as merged_at
 from
-  gha_issues_pull_requests ipr,
   gha_pull_requests pr,
   gha_repos r
 where
-  r.id = ipr.repo_id
+  r.id = pr.dup_repo_id
   and r.repo_group is not null
-  and pr.id = ipr.pull_request_id
   and pr.merged_at is not null
   and pr.created_at >= '{{from}}'
   and pr.created_at < '{{to}}'
@@ -46,7 +41,7 @@ select
   percentile_disc(0.5) within group (order by open_to_merge asc) as open_to_merge_median,
   percentile_disc(0.85) within group (order by open_to_merge asc) as open_to_merge_85_percentile
 from
-  tdiffs_groups
+  tdiffs
 union select 'opened_to_merged;' || repo_group || ';percentile_15,median,percentile_85' as name,
   percentile_disc(0.15) within group (order by open_to_merge asc) as open_to_merge_15_percentile,
   percentile_disc(0.5) within group (order by open_to_merge asc) as open_to_merge_median,
@@ -55,6 +50,9 @@ from
   tdiffs_groups
 group by
   repo_group
+order by
+  open_to_merge_median desc,
+  name asc
 ;
 
 drop table tdiffs_groups;
