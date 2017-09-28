@@ -30,6 +30,7 @@ type MetricGap struct {
 	Name    string   `yaml:"name"`
 	Series  []string `yaml:"series"`
 	Periods string   `yaml:"periods"`
+	Desc    bool     `yaml:"desc"`
 }
 
 // Metrics contain list of metrics to evaluate
@@ -47,6 +48,7 @@ type Metric struct {
 	Histogram        bool   `yaml:"histogram"`
 	Aggregate        string `yaml:"aggregate"`
 	Skip             string `yaml:"skip"`
+	Desc             string `yaml:"desc"`
 }
 
 // Add _period to all array items
@@ -170,6 +172,10 @@ func fillGapsInSeries(ctx *lib.Ctx, from, to time.Time) {
 	// Iterate metrics and periods
 	bSize := 1000
 	for _, metric := range gaps.Metrics {
+		extraParams := []string{}
+		if metric.Desc {
+			extraParams = append(extraParams, "desc")
+		}
 		series := []string{}
 		for _, ser := range metric.Series {
 			if ser[0:1] == "=" {
@@ -198,7 +204,7 @@ func fillGapsInSeries(ctx *lib.Ctx, from, to time.Time) {
 				if bTo > nSeries {
 					bTo = nSeries
 				}
-				lib.Printf("Filling metric gaps %v, %d series (%d - %d)...\n", metric.Name, nSeries, bFrom, bTo)
+				lib.Printf("Filling metric gaps %v, descritions %v, %d series (%d - %d)...\n", metric.Name, metric.Desc, nSeries, bFrom, bTo)
 				lib.ExecCommand(
 					ctx,
 					[]string{
@@ -207,6 +213,7 @@ func fillGapsInSeries(ctx *lib.Ctx, from, to time.Time) {
 						lib.ToYMDHDate(from),
 						lib.ToYMDHDate(to),
 						period,
+						strings.Join(extraParams, ","),
 					},
 					nil,
 				)
@@ -355,9 +362,12 @@ func sync(args []string) {
 
 		// Iterate all metrics
 		for _, metric := range allMetrics.Metrics {
-			histParam := ""
+			extraParams := []string{}
 			if metric.Histogram {
-				histParam = "h"
+				extraParams = append(extraParams, "hist")
+			}
+			if metric.Desc != "" {
+				extraParams = append(extraParams, "desc:"+metric.Desc)
 			}
 			periods := strings.Split(metric.Periods, ",")
 			aggregate := metric.Aggregate
@@ -388,7 +398,7 @@ func sync(args []string) {
 						lib.Printf("Skipping recalculating period \"%s%s\" for date to %v\n", period, aggrSuffix, to)
 						continue
 					}
-					lib.Printf("Calculate metric %v, period %v, histogram: %v, aggregate: '%v' ...\n", metric.Name, period, metric.Histogram, aggrSuffix)
+					lib.Printf("Calculate metric %v, period %v, histogram: %v, desc: '%v', aggregate: '%v' ...\n", metric.Name, period, metric.Histogram, metric.Desc, aggrSuffix)
 					seriesNameOrFunc := metric.SeriesNameOrFunc
 					if metric.AddPeriodToName {
 						seriesNameOrFunc += "_" + periodAggr
@@ -402,7 +412,7 @@ func sync(args []string) {
 							lib.ToYMDHDate(from),
 							lib.ToYMDHDate(to),
 							periodAggr,
-							histParam,
+							strings.Join(extraParams, ","),
 						},
 						nil,
 					)
