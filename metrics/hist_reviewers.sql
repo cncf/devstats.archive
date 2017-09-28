@@ -1,7 +1,9 @@
 create temp table matching as
 select event_id
-from gha_texts
-where created_at >= now() - '{{period}}'::interval
+from
+  gha_texts
+where
+  created_at >= now() - '{{period}}'::interval
   and substring(body from '(?i)(?:^|\n|\r)\s*/(?:lgtm|approve)\s*(?:\n|\r|$)') is not null;
 
 select
@@ -16,6 +18,7 @@ where
   and r.repo_group is not null
   and e.dup_actor_login not in ('googlebot')
   and e.dup_actor_login not like 'k8s-%'
+  and e.dup_actor_login not like '%-bot'
   and e.id in (
     select min(event_id)
     from
@@ -40,6 +43,7 @@ from
 where
   dup_actor_login not in ('googlebot')
   and dup_actor_login not like 'k8s-%'
+  and dup_actor_login not like '%-bot'
   and id in (
     select min(event_id)
     from
