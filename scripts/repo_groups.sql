@@ -1,6 +1,8 @@
 -- Add repository groups
 update gha_repos set repo_group = 'Kubernetes' where name in (
-  'kubernetes/kubernetes'
+  'kubernetes/kubernetes',
+  'GoogleCloudPlatform/kubernetes',
+  'kubernetes'
 );
 
 update gha_repos set repo_group = 'Contrib' where name in (
@@ -21,6 +23,7 @@ update gha_repos set repo_group = 'API machinery' where name in (
 );
 
 update gha_repos set repo_group = 'Clients' where name in (
+  'kubernetes-client',
   'kubernetes-client/community',
   'kubernetes-client/csharp',
   'kubernetes-client/gen',
