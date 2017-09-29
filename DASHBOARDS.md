@@ -21,6 +21,7 @@ Each dashboard is defined by its metrics SQL, saved Grafana JSON export and link
 17) PRs unique authors dashboard: [prs_authors.sql](https://github.com/cncf/gha2db/blob/master/metrics/prs_authors.sql), [prs_authors.json](https://github.com/cncf/gha2db/blob/master/grafana/dashboards/prs_authors.json), [view](https://cncftest.io/dashboard/db/prs-authors?orgId=1).
 18) Opened PRs age/count dashboard: [prs_age.sql](https://github.com/cncf/gha2db/blob/master/metrics/prs_authors.sql), [prs_age.json](https://github.com/cncf/gha2db/blob/master/grafana/dashboards/prs_age.json), [view](https://cncftest.io/dashboard/db/prs-age?orgId=1).
 19) Top commenters dashboard: [hist_commenters.sql](https://github.com/cncf/gha2db/blob/master/metrics/hist_commenters.sql), [top_commenters.json](https://github.com/cncf/gha2db/blob/master/grafana/dashboards/top_commenters.json), [view](https://cncftest.io/dashboard/db/top-commenters?orgId=1).
+19) Community stats dashboard: [watchers.sql](https://github.com/cncf/gha2db/blob/master/metrics/watchers.sql), [community_stats.json](https://github.com/cncf/gha2db/blob/master/grafana/dashboards/community_stats.json), [view](https://cncftest.io/dashboard/db/community-stats?orgId=1).
 
 All of them works live on [cncftest.io](https://cncftest.io) with auto gha2db_sync tool running.
 
