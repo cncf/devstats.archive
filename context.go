@@ -45,6 +45,7 @@ type Ctx struct {
 	AnnotationsYaml  string    // From GHA2DB_ANNOTATIONS_YAML annotations tool, set other annotations.yaml file, default is "metrics/annotations.yaml"
 	MetricsYaml      string    // From GHA2DB_METRICS_YAML gha2db_sync tool, set other metrics.yaml file, default is "metrics/metrics.yaml"
 	GapsYaml         string    // From GHA2DB_GAPS_YAML gha2db_sync tool, set other gaps.yaml file, default is "metrics/gaps.yaml"
+	ClearDBPeriod    string    // FROM GHA2DB_MAXLOGAGE gha2db_sync tool, maximum age of gha_logs entries, default "1 week"
 }
 
 // Init - get context from environment variables
@@ -191,6 +192,12 @@ func (ctx *Ctx) Init() {
 	}
 	if ctx.GapsYaml == "" {
 		ctx.GapsYaml = "metrics/gaps.yaml"
+	}
+
+	// Max DB logs age
+	ctx.ClearDBPeriod = os.Getenv("GHA2DB_MAXLOGAGE")
+	if ctx.ClearDBPeriod == "" {
+		ctx.ClearDBPeriod = "1 week"
 	}
 
 	// Context out if requested
