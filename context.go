@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -46,6 +47,7 @@ type Ctx struct {
 	MetricsYaml      string    // From GHA2DB_METRICS_YAML gha2db_sync tool, set other metrics.yaml file, default is "metrics/metrics.yaml"
 	GapsYaml         string    // From GHA2DB_GAPS_YAML gha2db_sync tool, set other gaps.yaml file, default is "metrics/gaps.yaml"
 	ClearDBPeriod    string    // FROM GHA2DB_MAXLOGAGE gha2db_sync tool, maximum age of gha_logs entries, default "1 week"
+	Trials           []int     // FROM GHA2DB_TRIALS, all Postgres related tools, retry periods for "too many connections open" error
 }
 
 // Init - get context from environment variables
@@ -198,6 +200,19 @@ func (ctx *Ctx) Init() {
 	ctx.ClearDBPeriod = os.Getenv("GHA2DB_MAXLOGAGE")
 	if ctx.ClearDBPeriod == "" {
 		ctx.ClearDBPeriod = "1 week"
+	}
+
+	// Trials
+	trials := os.Getenv("GHA2DB_TRIALS")
+	if trials == "" {
+		ctx.Trials = []int{10, 30, 60, 120, 300, 600}
+	} else {
+		trialsArr := strings.Split(trials, ",")
+		for _, try := range trialsArr {
+			iTry, err := strconv.Atoi(try)
+			FatalOnError(err)
+			ctx.Trials = append(ctx.Trials, iTry)
+		}
 	}
 
 	// Context out if requested
