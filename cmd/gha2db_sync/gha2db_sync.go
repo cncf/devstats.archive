@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -234,6 +235,11 @@ func computePeriodAtThisDate(period string, to time.Time) bool {
 	}
 }
 
+func clearDBLogs(c *sql.DB, ctx *lib.Ctx) {
+	lib.Printf("Clearing old DB logs.\n")
+	lib.ExecSQLWithErr(c, ctx, "delete from gha_logs where dt < now() - '"+ctx.ClearDBPeriod+"'::interval")
+}
+
 func sync(args []string) {
 	// Environment context parse
 	var ctx lib.Ctx
@@ -298,6 +304,10 @@ func sync(args []string) {
 
 	// Get new GHAs
 	if !ctx.SkipPDB {
+		// Clear old DB logs
+		clearDBLogs(con, &ctx)
+
+		// gha2db
 		lib.Printf("GHA range: %s %s - %s %s\n", fromDate, fromHour, toDate, toHour)
 		lib.ExecCommand(
 			&ctx,
