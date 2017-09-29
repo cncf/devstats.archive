@@ -1,6 +1,7 @@
 package gha2db
 
 import (
+	"fmt"
 	"os"
 	"reflect"
 	"testing"
@@ -49,6 +50,7 @@ func copyContext(in *lib.Ctx) *lib.Ctx {
 		MetricsYaml:      in.MetricsYaml,
 		GapsYaml:         in.GapsYaml,
 		ClearDBPeriod:    in.ClearDBPeriod,
+		Trials:           in.Trials,
 	}
 	return &out
 }
@@ -82,7 +84,6 @@ func dynamicSetFields(t *testing.T, ctx *lib.Ctx, fields map[string]interface{})
 				t.Errorf("trying to set value %v, type %T for field \"%s\", type %v", interfaceValue, interfaceValue, fieldName, fieldKind)
 				return ctx
 			}
-			// Set integer value on integer field
 			field.SetInt(int64(interfaceValue))
 		case bool:
 			// Check if types match
@@ -90,7 +91,6 @@ func dynamicSetFields(t *testing.T, ctx *lib.Ctx, fields map[string]interface{})
 				t.Errorf("trying to set value %v, type %T for field \"%s\", type %v", interfaceValue, interfaceValue, fieldName, fieldKind)
 				return ctx
 			}
-			// Set integer value on integer field
 			field.SetBool(interfaceValue)
 		case string:
 			// Check if types match
@@ -98,7 +98,6 @@ func dynamicSetFields(t *testing.T, ctx *lib.Ctx, fields map[string]interface{})
 				t.Errorf("trying to set value %v, type %T for field \"%s\", type %v", interfaceValue, interfaceValue, fieldName, fieldKind)
 				return ctx
 			}
-			// Set integer value on integer field
 			field.SetString(interfaceValue)
 		case time.Time:
 			// Check if types match
@@ -107,7 +106,14 @@ func dynamicSetFields(t *testing.T, ctx *lib.Ctx, fields map[string]interface{})
 				t.Errorf("trying to set value %v, type %T for field \"%s\", type %v", interfaceValue, interfaceValue, fieldName, fieldKind)
 				return ctx
 			}
-			// Set integer value on integer field
+			field.Set(reflect.ValueOf(fieldValue))
+		case []int:
+			// Check if types match
+			fieldType := field.Type()
+			if fieldType != reflect.TypeOf([]int{}) {
+				t.Errorf("trying to set value %v, type %T for field \"%s\", type %v", interfaceValue, interfaceValue, fieldName, fieldKind)
+				return ctx
+			}
 			field.Set(reflect.ValueOf(fieldValue))
 		default:
 			// Unknown type provided
@@ -159,6 +165,7 @@ func TestInit(t *testing.T) {
 		MetricsYaml:      "metrics/metrics.yaml",
 		GapsYaml:         "metrics/gaps.yaml",
 		ClearDBPeriod:    "1 week",
+		Trials:           []int{10, 30, 60, 120, 300, 600},
 	}
 
 	// Test cases
@@ -412,6 +419,15 @@ func TestInit(t *testing.T) {
 				map[string]interface{}{"ClearDBPeriod": "3 days"},
 			),
 		},
+		{
+			"Setting trials",
+			map[string]string{"GHA2DB_TRIALS": "1,2,3,4"},
+			dynamicSetFields(
+				t,
+				copyContext(&defaultContext),
+				map[string]interface{}{"Trials": []int{1, 2, 3, 4}},
+			),
+		},
 	}
 
 	// Context Init() is verbose when called with CtxDebug
@@ -461,10 +477,12 @@ func TestInit(t *testing.T) {
 		}
 
 		// Check if we got expected context
-		if gotContext != *test.expectedContext {
+		got := fmt.Sprintf("%+v", gotContext)
+		expected := fmt.Sprintf("%+v", *test.expectedContext)
+		if got != expected {
 			t.Errorf(
 				"Test case number %d \"%s\"\nExpected:\n%+v\nGot:\n%+v\n",
-				index+1, test.name, *test.expectedContext, gotContext,
+				index+1, test.name, expected, got,
 			)
 		}
 	}
