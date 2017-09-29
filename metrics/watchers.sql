@@ -7,7 +7,7 @@ from
   gha_forkees f,
   gha_repos r
 where
-  r.id = f.dup_repo_id
+  r.name = f.full_name
   and r.repo_group is not null
   and f.updated_at < '{{to}}'
 group by
