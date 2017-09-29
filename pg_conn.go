@@ -61,11 +61,28 @@ func QuerySQL(con *sql.DB, ctx *Ctx, query string, args ...interface{}) (*sql.Ro
 
 // QuerySQLWithErr wrapper to QuerySQL that exists on error
 func QuerySQLWithErr(con *sql.DB, ctx *Ctx, query string, args ...interface{}) *sql.Rows {
-	res, err := QuerySQL(con, ctx, query, args...)
-	if err != nil {
-		queryOut(query, args...)
+	// Try to handle "too many connections" error
+	var (
+		status string
+		res    *sql.Rows
+		err    error
+	)
+	for _, try := range ctx.Trials {
+		res, err = QuerySQL(con, ctx, query, args...)
+		if err != nil {
+			queryOut(query, args...)
+		}
+		status = FatalOnError(err)
+		if status == "ok" {
+			break
+		}
+		fmt.Printf("Will retry after %d seconds...\n", try)
+		time.Sleep(time.Duration(try) * time.Second)
+		fmt.Printf("%d seconds passed, retrying...\n", try)
 	}
-	FatalOnError(err)
+	if status == "retry" {
+		FatalOnError(fmt.Errorf("too many connections used, tried %d times", len(ctx.Trials)))
+	}
 	return res
 }
 
@@ -81,11 +98,28 @@ func QuerySQLTx(con *sql.Tx, ctx *Ctx, query string, args ...interface{}) (*sql.
 // QuerySQLTxWithErr wrapper to QuerySQLTx that exists on error
 // It is for running inside transaction
 func QuerySQLTxWithErr(con *sql.Tx, ctx *Ctx, query string, args ...interface{}) *sql.Rows {
-	res, err := QuerySQLTx(con, ctx, query, args...)
-	if err != nil {
-		queryOut(query, args...)
+	// Try to handle "too many connections" error
+	var (
+		status string
+		res    *sql.Rows
+		err    error
+	)
+	for _, try := range ctx.Trials {
+		res, err = QuerySQLTx(con, ctx, query, args...)
+		if err != nil {
+			queryOut(query, args...)
+		}
+		status = FatalOnError(err)
+		if status == "ok" {
+			break
+		}
+		fmt.Printf("Will retry after %d seconds...\n", try)
+		time.Sleep(time.Duration(try) * time.Second)
+		fmt.Printf("%d seconds passed, retrying...\n", try)
 	}
-	FatalOnError(err)
+	if status == "retry" {
+		FatalOnError(fmt.Errorf("too many connections used, tried %d times", len(ctx.Trials)))
+	}
 	return res
 }
 
@@ -99,11 +133,28 @@ func ExecSQL(con *sql.DB, ctx *Ctx, query string, args ...interface{}) (sql.Resu
 
 // ExecSQLWithErr wrapper to ExecSQL that exists on error
 func ExecSQLWithErr(con *sql.DB, ctx *Ctx, query string, args ...interface{}) sql.Result {
-	res, err := ExecSQL(con, ctx, query, args...)
-	if err != nil {
-		queryOut(query, args...)
+	// Try to handle "too many connections" error
+	var (
+		status string
+		res    sql.Result
+		err    error
+	)
+	for _, try := range ctx.Trials {
+		res, err = ExecSQL(con, ctx, query, args...)
+		if err != nil {
+			queryOut(query, args...)
+		}
+		status = FatalOnError(err)
+		if status == "ok" {
+			break
+		}
+		fmt.Printf("Will retry after %d seconds...\n", try)
+		time.Sleep(time.Duration(try) * time.Second)
+		fmt.Printf("%d seconds passed, retrying...\n", try)
 	}
-	FatalOnError(err)
+	if status == "retry" {
+		FatalOnError(fmt.Errorf("too many connections used, tried %d times", len(ctx.Trials)))
+	}
 	return res
 }
 
@@ -119,11 +170,28 @@ func ExecSQLTx(con *sql.Tx, ctx *Ctx, query string, args ...interface{}) (sql.Re
 // ExecSQLTxWithErr wrapper to ExecSQLTx that exists on error
 // It is for running inside transaction
 func ExecSQLTxWithErr(con *sql.Tx, ctx *Ctx, query string, args ...interface{}) sql.Result {
-	res, err := ExecSQLTx(con, ctx, query, args...)
-	if err != nil {
-		queryOut(query, args...)
+	// Try to handle "too many connections" error
+	var (
+		status string
+		res    sql.Result
+		err    error
+	)
+	for _, try := range ctx.Trials {
+		res, err = ExecSQLTx(con, ctx, query, args...)
+		if err != nil {
+			queryOut(query, args...)
+		}
+		status = FatalOnError(err)
+		if status == "ok" {
+			break
+		}
+		fmt.Printf("Will retry after %d seconds...\n", try)
+		time.Sleep(time.Duration(try) * time.Second)
+		fmt.Printf("%d seconds passed, retrying...\n", try)
 	}
-	FatalOnError(err)
+	if status == "retry" {
+		FatalOnError(fmt.Errorf("too many connections used, tried %d times", len(ctx.Trials)))
+	}
 	return res
 }
 
