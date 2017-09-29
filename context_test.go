@@ -48,6 +48,7 @@ func copyContext(in *lib.Ctx) *lib.Ctx {
 		AnnotationsYaml:  in.AnnotationsYaml,
 		MetricsYaml:      in.MetricsYaml,
 		GapsYaml:         in.GapsYaml,
+		ClearDBPeriod:    in.ClearDBPeriod,
 	}
 	return &out
 }
@@ -157,6 +158,7 @@ func TestInit(t *testing.T) {
 		AnnotationsYaml:  "metrics/annotations.yaml",
 		MetricsYaml:      "metrics/metrics.yaml",
 		GapsYaml:         "metrics/gaps.yaml",
+		ClearDBPeriod:    "1 week",
 	}
 
 	// Test cases
@@ -399,6 +401,15 @@ func TestInit(t *testing.T) {
 					"MetricsYaml":     "met.YAML",
 					"GapsYaml":        "/gapz.yml",
 				},
+			),
+		},
+		{
+			"Setting clear DB logs period",
+			map[string]string{"GHA2DB_MAXLOGAGE": "3 days"},
+			dynamicSetFields(
+				t,
+				copyContext(&defaultContext),
+				map[string]interface{}{"ClearDBPeriod": "3 days"},
 			),
 		},
 	}
