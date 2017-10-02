@@ -28,10 +28,12 @@ type Gaps struct {
 // "=prefix;suffix;_;a,b,c,d;1,2,3;yes,no"
 // format is "=prefix;suffix;join;list1item1,list1item2,...;list2item1,list2item2,...;..."
 type MetricGap struct {
-	Name    string   `yaml:"name"`
-	Series  []string `yaml:"series"`
-	Periods string   `yaml:"periods"`
-	Desc    bool     `yaml:"desc"`
+	Name      string   `yaml:"name"`
+	Series    []string `yaml:"series"`
+	Periods   string   `yaml:"periods"`
+	Aggregate string   `yaml:"aggregate"`
+	Skip      string   `yaml:"skip"`
+	Desc      bool     `yaml:"desc"`
 }
 
 // Metrics contain list of metrics to evaluate
@@ -194,30 +196,54 @@ func fillGapsInSeries(ctx *lib.Ctx, from, to time.Time) {
 			nBuckets++
 		}
 		periods := strings.Split(metric.Periods, ",")
-		for _, period := range periods {
-			if !ctx.ResetIDB && !computePeriodAtThisDate(period, to) {
-				lib.Printf("Skipping filling gaps for period \"%s\" for date %v\n", period, to)
-				continue
+		aggregate := metric.Aggregate
+		if aggregate == "" {
+			aggregate = "1"
+		}
+		aggregateArr := strings.Split(aggregate, ",")
+		skips := strings.Split(metric.Skip, ",")
+		skipMap := make(map[string]struct{})
+		for _, skip := range skips {
+			skipMap[skip] = struct{}{}
+		}
+		for _, aggrStr := range aggregateArr {
+			_, err := strconv.Atoi(aggrStr)
+			lib.FatalOnError(err)
+			aggrSuffix := aggrStr
+			if aggrSuffix == "1" {
+				aggrSuffix = ""
 			}
-			for i := 0; i < nBuckets; i++ {
-				bFrom := i * bSize
-				bTo := bFrom + bSize
-				if bTo > nSeries {
-					bTo = nSeries
+			for _, period := range periods {
+				periodAggr := period + aggrSuffix
+				_, found := skipMap[periodAggr]
+				if found {
+					lib.Printf("Skipped filling gaps on period %s\n", periodAggr)
+					continue
 				}
-				lib.Printf("Filling metric gaps %v, descritions %v, %d series (%d - %d)...\n", metric.Name, metric.Desc, nSeries, bFrom, bTo)
-				lib.ExecCommand(
-					ctx,
-					[]string{
-						cmdPrefix + "z2influx",
-						strings.Join(addPeriodSuffix(series[bFrom:bTo], period), ","),
-						lib.ToYMDHDate(from),
-						lib.ToYMDHDate(to),
-						period,
-						strings.Join(extraParams, ","),
-					},
-					nil,
-				)
+				if !ctx.ResetIDB && !computePeriodAtThisDate(period, to) {
+					lib.Printf("Skipping filling gaps for period \"%s\" for date %v\n", periodAggr, to)
+					continue
+				}
+				for i := 0; i < nBuckets; i++ {
+					bFrom := i * bSize
+					bTo := bFrom + bSize
+					if bTo > nSeries {
+						bTo = nSeries
+					}
+					lib.Printf("Filling metric gaps %v, descriptions %v, period: %s, %d series (%d - %d)...\n", metric.Name, metric.Desc, periodAggr, nSeries, bFrom, bTo)
+					lib.ExecCommand(
+						ctx,
+						[]string{
+							cmdPrefix + "z2influx",
+							strings.Join(addPeriodSuffix(series[bFrom:bTo], periodAggr), ","),
+							lib.ToYMDHDate(from),
+							lib.ToYMDHDate(to),
+							periodAggr,
+							strings.Join(extraParams, ","),
+						},
+						nil,
+					)
+				}
 			}
 		}
 	}
