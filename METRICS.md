@@ -22,6 +22,7 @@ To add new metric:
 3) If metrics create data gaps (for example returns multiple rows with different counts depending on data range), you have to add automatic filling gaps in [metrics/gaps.yaml](https://github.com/cncf/gha2db/blob/master/metrics/gaps.yaml) (file is used by `z2influx` tool):
 - You need to define periods to fill gaps, they should be the same as in `metrics.yaml` definition.
 - You need to define a series list to fill gaps on them. Use `series: ` to set them. It expects a list of series (YAML list).
+- You need to define the same `aggregate` and `skip` values for gaps too.
 - You should at least gap fill series visible on any Grafana dashboard, without doing so data display will be disturbed. If You only show subset of metrics series, You can gap fill only this subset.
 - Each entry can be either a full series name, like `- my_series_d` or...
 - It can also be a series formula to create series list in this format: `"- =prefix;suffix;join_string;list1item1,list1item2,...;list2item1,list2item2,...;..."`
