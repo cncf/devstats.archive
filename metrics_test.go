@@ -399,6 +399,7 @@ func TestMetrics(t *testing.T) {
 		{
 			setup:  setupCommunityStatsMetric,
 			metric: "watchers",
+			from:   ft(2017, 8, 1),
 			to:     ft(2017, 9, 15),
 			n:      1,
 			expected: [][]interface{}{
@@ -406,6 +407,18 @@ func TestMetrics(t *testing.T) {
 				{"contrib;Repo3;watchers,forks,open_issues", 23, 22, 21},
 				{"contrib;Org1/Repo2;watchers,forks,open_issues", 13, 12, 11},
 				{"contrib;Org1/Repo1;watchers,forks,open_issues", 11, 12, 13},
+			},
+		},
+		{
+			setup:  setupFirstNonAuthorActivityMetric,
+			metric: "first_non_author_activity",
+			from:   ft(2017, 9),
+			to:     ft(2017, 10),
+			n:      1,
+			expected: [][]interface{}{
+				{"non_author;Group2;percentile_15,median,percentile_85", 72, 72, 72},
+				{"non_author;All;percentile_15,median,percentile_85", 24, 48, 96},
+				{"non_author;Group1;percentile_15,median,percentile_85", 24, 24, 48},
 			},
 		},
 	}
@@ -818,9 +831,10 @@ func addPayload(con *sql.DB, ctx *lib.Ctx, args ...interface{}) (err error) {
 
 // Add PR
 // prid, eid, uid, merged_id, assignee_id, num, state, title, body, created_at, closed_at, merged_at, merged
+// repo_id, repo_name, actor_id, actor_login, updated_at
 func addPR(con *sql.DB, ctx *lib.Ctx, args ...interface{}) (err error) {
-	if len(args) != 17 {
-		err = fmt.Errorf("addPR: expects 17 variadic parameters, got %v", len(args))
+	if len(args) != 18 {
+		err = fmt.Errorf("addPR: expects 18 variadic parameters, got %v", len(args))
 		return
 	}
 
@@ -833,15 +847,15 @@ func addPR(con *sql.DB, ctx *lib.Ctx, args ...interface{}) (err error) {
 		args[3], // MergedBy.ID
 		args[4], // Assignee.ID
 		nil,
-		args[5],    // PR.Number
-		args[6],    // PR.State (open, closed)
-		false,      // PR.Locked
-		args[7],    // PR.Title
-		args[8],    // PR.Body
-		args[9],    // PR.CreatedAt
-		time.Now(), // PR.UpdatedAt
-		args[10],   // PR.ClosedAt
-		args[11],   // PR.MergedAt
+		args[5],  // PR.Number
+		args[6],  // PR.State (open, closed)
+		false,    // PR.Locked
+		args[7],  // PR.Title
+		args[8],  // PR.Body
+		args[9],  // PR.CreatedAt
+		args[17], // PR.UpdatedAt
+		args[10], // PR.ClosedAt
+		args[11], // PR.MergedAt
 		"9c31bcbc683a491c3d4122adcfe4caaab6e2d0fc", // PR.MergeCommitSHA
 		args[12],   // PR.Merged
 		true,       // PR.mergable
@@ -1007,7 +1021,10 @@ func setupPRCommentsMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 	}
 
 	// Add PRs
+	// Add updated_at
+	stub := []interface{}{time.Now()}
 	for _, pr := range prs {
+		pr = append(pr, stub...)
 		err = addPR(con, ctx, pr...)
 		if err != nil {
 			return
@@ -1017,6 +1034,52 @@ func setupPRCommentsMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 	// Add Payloads
 	for _, payload := range payloads {
 		err = addPayload(con, ctx, payload...)
+		if err != nil {
+			return
+		}
+	}
+
+	return
+}
+
+// Create data for first non-author activity metric
+func setupFirstNonAuthorActivityMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
+	ft := testlib.YMDHMS
+
+	// Repos to add
+	// id, name, org_id, org_login, repo_group
+	repos := [][]interface{}{
+		{1, "R1", nil, nil, "Group1"},
+		{2, "R2", nil, nil, "Group1"},
+		{3, "R3", nil, nil, "Group2"},
+		{4, "R4", nil, nil, nil},
+	}
+
+	// PRs to add
+	// prid, eid, uid, merged_id, assignee_id, num, state, title, body, created_at, closed_at, merged_at, merged
+	// repo_id, repo_name, actor_id, actor_login
+	prs := [][]interface{}{
+		{1, 1, 1, 2, 0, 1, "open", "PR1", "Body PR 1", ft(2017, 9), nil, nil, true, 1, "R1", 1, "A1", ft(2017, 9)},
+		{2, 2, 2, 1, 0, 2, "open", "PR2", "Body PR 2", ft(2017, 9, 2), nil, nil, true, 2, "R2", 2, "A2", ft(2017, 9, 2)},
+		{3, 3, 3, 4, 0, 3, "open", "PR3", "Body PR 3", ft(2017, 9, 3), nil, nil, true, 3, "R3", 3, "A3", ft(2017, 9, 3)},
+		{4, 4, 4, 3, 0, 4, "open", "PR4", "Body PR 4", ft(2017, 9, 4), nil, nil, true, 4, "R4", 4, "A4", ft(2017, 9, 4)},
+		{2, 5, 1, 1, 0, 2, "closed", "PR2", "Body PR 2", ft(2017, 9, 2), ft(2017, 9, 3), ft(2017, 9, 3), true, 2, "R2", 1, "A1", ft(2017, 9, 3)},
+		{1, 6, 2, 2, 0, 1, "closed", "PR1", "Body PR 1", ft(2017, 9), ft(2017, 9, 3), ft(2017, 9, 3), true, 1, "R1", 2, "A2", ft(2017, 9, 3)},
+		{3, 7, 4, 4, 0, 3, "closed", "PR3", "Body PR 3", ft(2017, 9, 3), ft(2017, 9, 6), ft(2017, 9, 6), true, 3, "R3", 4, "A4", ft(2017, 9, 6)},
+		{4, 8, 3, 3, 0, 4, "closed", "PR4", "Body PR 4", ft(2017, 9, 4), ft(2017, 9, 8), ft(2017, 9, 8), true, 4, "R4", 3, "A3", ft(2017, 9, 8)},
+	}
+
+	// Add repos
+	for _, repo := range repos {
+		err = addRepo(con, ctx, repo...)
+		if err != nil {
+			return
+		}
+	}
+
+	// Add PRs
+	for _, pr := range prs {
+		err = addPR(con, ctx, pr...)
 		if err != nil {
 			return
 		}
@@ -1098,7 +1161,9 @@ func setupTimeMetrics(con *sql.DB, ctx *lib.Ctx) (err error) {
 	}
 
 	// Add PRs
+	stub := []interface{}{time.Now()}
 	for _, pr := range prs {
+		pr = append(pr, stub...)
 		err = addPR(con, ctx, pr...)
 		if err != nil {
 			return
@@ -1160,7 +1225,9 @@ func setupNewPRsMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 	}
 
 	// Add PRs
+	stub := []interface{}{time.Now()}
 	for _, pr := range prs {
+		pr = append(pr, stub...)
 		err = addPR(con, ctx, pr...)
 		if err != nil {
 			return
@@ -1228,7 +1295,9 @@ func setupPRsMergedMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 	}
 
 	// Add PRs
+	stub := []interface{}{time.Now()}
 	for _, pr := range prs {
+		pr = append(pr, stub...)
 		err = addPR(con, ctx, pr...)
 		if err != nil {
 			return
