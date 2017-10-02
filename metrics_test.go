@@ -421,6 +421,21 @@ func TestMetrics(t *testing.T) {
 				{"non_author;Group1;percentile_15,median,percentile_85", 24, 24, 48},
 			},
 		},
+		{
+			setup:    setupBotCommandsMetric,
+			metric:   "bot_commands",
+			from:     ft(2017, 10),
+			to:       ft(2017, 11),
+			n:        1,
+			replaces: [][2]string{{"count(*) >= 5", "count(*) >= 1"}},
+			expected: [][]interface{}{
+				{"bot_commands,com4", 3},
+				{"bot_commands,com2", 2},
+				{"bot_commands,com3", 2},
+				{"bot_commands,com", 1},
+				{"bot_commands,com1", 1},
+			},
+		},
 	}
 
 	// Environment context parse
@@ -1299,6 +1314,39 @@ func setupPRsMergedMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 	for _, pr := range prs {
 		pr = append(pr, stub...)
 		err = addPR(con, ctx, pr...)
+		if err != nil {
+			return
+		}
+	}
+
+	return
+}
+
+// Create data for bot commands metric
+func setupBotCommandsMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
+	ft := testlib.YMDHMS
+
+	// texts to add
+	// eid, body, created_at
+	texts := [][]interface{}{
+		{1, "/com1", ft(2017, 10, 10)},
+		{2, " /com2", ft(2017, 10, 10)},
+		{3, "/com2 ", ft(2017, 10, 10)},
+		{4, "\n/com3\n", ft(2017, 10, 10)},
+		{5, "\n /com3 \n", ft(2017, 10, 10)},
+		{6, "/ com3", ft(2017, 10, 10)},
+		{7, "/com 4", ft(2017, 10, 10)},
+		{8, " /a b c d ", ft(2017, 10, 10)},
+		{9, "/com4", ft(2017, 10, 10)},
+		{10, " /com4  ", ft(2017, 10, 10)},
+		{11, "abc /com4  def", ft(2017, 10, 10)},
+	}
+
+	// Add texts
+	stub := []interface{}{0, "", 0, "", "D"}
+	for _, text := range texts {
+		text = append(text, stub...)
+		err = addText(con, ctx, text...)
 		if err != nil {
 			return
 		}
