@@ -23,6 +23,7 @@ Each dashboard is defined by its metrics SQL, saved Grafana JSON export and link
 19) Top commenters dashboard: [hist_commenters.sql](https://github.com/cncf/gha2db/blob/master/metrics/hist_commenters.sql), [top_commenters.json](https://github.com/cncf/gha2db/blob/master/grafana/dashboards/top_commenters.json), [view](https://cncftest.io/dashboard/db/top-commenters?orgId=1).
 19) Community stats dashboard: [watchers.sql](https://github.com/cncf/gha2db/blob/master/metrics/watchers.sql), [community_stats.json](https://github.com/cncf/gha2db/blob/master/grafana/dashboards/community_stats.json), [view](https://cncftest.io/dashboard/db/community-stats?orgId=1).
 20) First non-author activity dashboard: [first_non_author_activity.sql](https://github.com/cncf/gha2db/blob/master/metrics/first_non_author_activity.sql), [first_non_author_activity.json](https://github.com/cncf/gha2db/blob/master/grafana/dashboards/first_non_author_activity.json), [view](https://cncftest.io/dashboard/db/first-non-autor-activity?orgId=1).
+21) Bot commands usage dashboard: [bot_commands.sql](https://github.com/cncf/gha2db/blob/master/metrics/bot_commands.sql), [bot_commands.json](https://github.com/cncf/gha2db/blob/master/grafana/dashboards/bot_commands.json), [view](https://cncftest.io/dashboard/db/bot-commands?orgId=1).
 
 All of them works live on [cncftest.io](https://cncftest.io) with auto gha2db_sync tool running.
 

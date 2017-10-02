@@ -11,6 +11,9 @@ from
     where
       created_at >= '{{from}}'
       and created_at < '{{to}}'
+      and actor_login not in ('googlebot')
+      and actor_login not like 'k8s-%'
+      and actor_login not like '%-bot'
   ) sel
 where
   sel.sig is not null
