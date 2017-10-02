@@ -1,6 +1,6 @@
 select
   'bot_commands,' || substring(cmd from 2) as command,
-  count(*) as count_value
+  round(count(*) / {{n}}, 2) as count_value
 from
   (
     select lower(
