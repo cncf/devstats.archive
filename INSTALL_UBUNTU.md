@@ -54,7 +54,7 @@ Prerequisites:
     - Ubuntu 16 contains very old `influxdb` when installed by default `apt-get install influxdb`, so:
     - `curl -sL https://repos.influxdata.com/influxdb.key | sudo apt-key add -`
     - `source /etc/lsb-release`
-    - `echo "deb https://repos.influxdata.com/${DISTRIB_ID,,} ${DISTRIB_CODENAME} stable" | sudo tee      /etc/apt/sources.list.d/influxdb.list`
+    - `echo "deb https://repos.influxdata.com/${DISTRIB_ID,,} ${DISTRIB_CODENAME} stable" | sudo tee /etc/apt/sources.list.d/influxdb.list`
     - `sudo apt-get update && sudo apt-get install influxdb`
     - `sudo service influxdb start`
     - Create InfluxDB user, database: `IDB_PASS='your_password_here' ./grafana/influxdb_setup.sh gha`
@@ -81,23 +81,30 @@ Prerequisites:
     - You need to change "/path/to/your/GOROOT/bin" to the value of "$GOREOOT/bin", You cannot use $GOROOT in crontab directly.
     - Run `crontab -e` and put this line at the end of file and save.
     - Cron job will update Postgres and InfluxDB databases at 0:10, 1:10, ... 23:10 every day.
-    - It outputs logs to `/tmp/gha2db_sync.out` and `/tmp/gha2db_sync.err` and also to gha Postgres database: into table           `gha_logs`.
+    - It outputs logs to `/tmp/gha2db_sync.out` and `/tmp/gha2db_sync.err` and also to gha Postgres database: into table `gha_logs`.
     - Check database values and logs about 15 minutes after full hours, like 14:15:
-    - Check max event created date: `select max(created_at) from gha_events` and logs `select * from gha_logs order by dt   desc limit 20`.
+    - Check max event created date: `select max(created_at) from gha_events` and logs `select * from gha_logs order by dt desc limit 20`.
 
 16. Install [Grafana](http://docs.grafana.org/installation/mac/)
-     - Follow: http://docs.grafana.org/installation/debian/
-     - `wget https://s3-us-west-2.amazonaws.com/grafana-releases/release/grafana_4.5.1_amd64.deb`
-     - `sudo apt-get install -y adduser libfontconfig`
-     - `sudo dpkg -i grafana_4.5.1_amd64.deb`
-     - `sudo service grafana-server start`
-     - Configure Grafana, as described [here](https://github.com/cncf/gha2db/blob/master/GRAFANA.md).
-     - `service grafana-server restart`
-     - Go to Grafana UI (localhost:3000), choose sign out, and then access localhost:3000 again. You should be able to view  dashboards as a guest. To login again use http://localhost:3000/login.
-      - You can also enable SSL, to do so You need to follow SSL instruction in [USAGE](https://github.com/cncf/gha2db/blob/master/USAGE.md) (that requires domain name).
+    - Follow: http://docs.grafana.org/installation/debian/
+    - `wget https://s3-us-west-2.amazonaws.com/grafana-releases/release/grafana_4.5.1_amd64.deb`
+    - `sudo apt-get install -y adduser libfontconfig`
+    - `sudo dpkg -i grafana_4.5.1_amd64.deb`
+    - `sudo service grafana-server start`
+    - Configure Grafana, as described [here](https://github.com/cncf/gha2db/blob/master/GRAFANA.md).
+    - `service grafana-server restart`
+    - Go to Grafana UI (localhost:3000), choose sign out, and then access localhost:3000 again. You should be able to view dashboards as a guest. To login again use http://localhost:3000/login.
+    - You can also enable SSL, to do so You need to follow SSL instruction in [USAGE](https://github.com/cncf/gha2db/blob/master/USAGE.md) (that requires domain name).
 
-17. You can create new metrics (as SQL files and YAML definitions) and dashboards in Grafana (export as JSON).
-18. PRs and suggestions are welcome, please create PRs and Issues on the [GitHub](https://github.com/cncf/gha2db).
+17. To change all Grafana page titles (starting with "Grafana - ") use this script:
+    - `GRAFANA_DATA=/usr/share/grafana/ ./grafana/change_title.sh`.
+    - Replace `GRAFANA_DATA` with You Grafana data directory.
+    - `service grafana-server restart`
+    - In some cases browser and/or Grafana cache old settings in this case temporarily move Grafana's `settings.js` file:
+    - `mv /usr/share/grafana/public/app/core/settings.js /usr/share/grafana/public/app/core/settings.js.old`, restart grafana server and restore file.
+
+18. You can create new metrics (as SQL files and YAML definitions) and dashboards in Grafana (export as JSON).
+19. PRs and suggestions are welcome, please create PRs and Issues on the [GitHub](https://github.com/cncf/gha2db).
 
 # More details
 - [README](https://github.com/cncf/gha2db/blob/master/README.md)
