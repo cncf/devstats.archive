@@ -6,6 +6,9 @@ from
 where
   created_at >= '{{from}}'
   and created_at < '{{to}}'
+  and dup_actor_login not in ('googlebot')
+  and dup_actor_login not like 'k8s-%'
+  and dup_actor_login not like '%-bot'
 union select 'prs_authors,' || r.repo_group as repo_group,
   round(count(distinct pr.dup_actor_login) / {{n}}, 2) as authors
 from
@@ -16,6 +19,9 @@ where
   and r.repo_group is not null
   and pr.created_at >= '{{from}}'
   and pr.created_at < '{{to}}'
+  and pr.dup_actor_login not in ('googlebot')
+  and pr.dup_actor_login not like 'k8s-%'
+  and pr.dup_actor_login not like '%-bot'
 group by
   r.repo_group
 order by
