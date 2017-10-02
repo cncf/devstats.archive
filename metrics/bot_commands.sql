@@ -5,7 +5,7 @@ from
   (
     select lower(
         substring(
-          body from '(?i)(?:^|\s)+(/[a-zA-Z]+)(?:$|\s)+'
+          body from '(?i)(?:^|\s)+(/[a-zA-Z]+[a-zA-Z0-9]+)(?:$|\s)+'
         )
       ) as cmd
     from
