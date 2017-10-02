@@ -20,5 +20,5 @@ To enable Grafana anonymous login, do the following:
 [auth.anonymous]
 enabled = true
 org_name = XYZ
-org_role = Viewer
+org_role = Read Only Editor
 ```
