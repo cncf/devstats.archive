@@ -1,5 +1,5 @@
 select
-  'bot_commands,' || substring(cmd from 1) as command,
+  'bot_commands,' || substring(cmd from 2) as command,
   count(*) as count_value
 from
   (
