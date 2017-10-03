@@ -46,6 +46,7 @@ type Ctx struct {
 	AnnotationsYaml  string    // From GHA2DB_ANNOTATIONS_YAML annotations tool, set other annotations.yaml file, default is "metrics/annotations.yaml"
 	MetricsYaml      string    // From GHA2DB_METRICS_YAML gha2db_sync tool, set other metrics.yaml file, default is "metrics/metrics.yaml"
 	GapsYaml         string    // From GHA2DB_GAPS_YAML gha2db_sync tool, set other gaps.yaml file, default is "metrics/gaps.yaml"
+	TagsYaml         string    // From GHA2DB_TAGS_YAML idb_tags tool, set other idb_tags.yaml file, default is "metrics/idb_tags.yaml"
 	ClearDBPeriod    string    // FROM GHA2DB_MAXLOGAGE gha2db_sync tool, maximum age of gha_logs entries, default "1 week"
 	Trials           []int     // FROM GHA2DB_TRIALS, all Postgres related tools, retry periods for "too many connections open" error
 }
@@ -186,6 +187,7 @@ func (ctx *Ctx) Init() {
 	ctx.AnnotationsYaml = os.Getenv("GHA2DB_ANNOTATIONS_YAML")
 	ctx.MetricsYaml = os.Getenv("GHA2DB_METRICS_YAML")
 	ctx.GapsYaml = os.Getenv("GHA2DB_GAPS_YAML")
+	ctx.TagsYaml = os.Getenv("GHA2DB_TAGS_YAML")
 	if ctx.AnnotationsYaml == "" {
 		ctx.AnnotationsYaml = "metrics/annotations.yaml"
 	}
@@ -194,6 +196,9 @@ func (ctx *Ctx) Init() {
 	}
 	if ctx.GapsYaml == "" {
 		ctx.GapsYaml = "metrics/gaps.yaml"
+	}
+	if ctx.TagsYaml == "" {
+		ctx.TagsYaml = "metrics/idb_tags.yaml"
 	}
 
 	// Max DB logs age
