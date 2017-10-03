@@ -31,6 +31,7 @@ where
   and i2.dup_actor_login not in ('googlebot')
   and i2.dup_actor_login not like 'k8s-%'
   and i2.dup_actor_login not like '%-bot'
+  and i2.dup_actor_login not like '%-robot'
   and i2.event_id in (
     select event_id
     from
@@ -55,6 +56,7 @@ where
   and p2.dup_actor_login not in ('googlebot')
   and p2.dup_actor_login not like 'k8s-%'
   and p2.dup_actor_login not like '%-bot'
+  and p2.dup_actor_login not like '%-robot'
   and p2.event_id in (
     select event_id
     from

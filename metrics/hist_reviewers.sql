@@ -19,6 +19,7 @@ where
   and e.dup_actor_login not in ('googlebot')
   and e.dup_actor_login not like 'k8s-%'
   and e.dup_actor_login not like '%-bot'
+  and e.dup_actor_login not like '%-robot'
   and e.id in (
     select min(event_id)
     from
@@ -44,6 +45,7 @@ where
   dup_actor_login not in ('googlebot')
   and dup_actor_login not like 'k8s-%'
   and dup_actor_login not like '%-bot'
+  and dup_actor_login not like '%-robot'
   and id in (
     select min(event_id)
     from
