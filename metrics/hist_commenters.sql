@@ -12,6 +12,7 @@ where
   and t.dup_actor_login not in ('googlebot')
   and t.dup_actor_login not like 'k8s-%'
   and t.dup_actor_login not like '%-bot'
+  and t.dup_actor_login not like '%-robot'
 group by
   r.repo_group,
   t.dup_actor_login
@@ -27,6 +28,7 @@ where
   and dup_actor_login not in ('googlebot')
   and dup_actor_login not like 'k8s-%'
   and dup_actor_login not like '%-bot'
+  and dup_actor_login not like '%-robot'
 group by
   dup_actor_login
 having
