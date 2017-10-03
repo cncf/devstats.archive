@@ -147,6 +147,7 @@ func Structure(ctx *Ctx) {
 					"org_id bigint, "+
 					"org_login varchar(100), "+
 					"repo_group varchar(80), "+
+					"alias varchar(160), "+
 					"primary key(id, name))",
 			),
 		)
@@ -156,6 +157,7 @@ func Structure(ctx *Ctx) {
 		ExecSQLWithErr(c, ctx, "create index repos_org_id_idx on gha_repos(org_id)")
 		ExecSQLWithErr(c, ctx, "create index repos_org_login_idx on gha_repos(org_login)")
 		ExecSQLWithErr(c, ctx, "create index repos_repo_group_idx on gha_repos(repo_group)")
+		ExecSQLWithErr(c, ctx, "create index repos_alias_idx on gha_repos(alias)")
 	}
 
 	// gha_orgs
