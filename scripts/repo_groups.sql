@@ -138,6 +138,10 @@ update gha_repos set repo_group = 'Docs' where name in (
   'kubernetes/md-format'
 );
 
+update gha_repos set alias = name;
+
+update gha_repos set alias = 'kubernetes/kubernetes' where name like '%kubernetes';
+
 select
   repo_group,
   count(*) as number_of_repos

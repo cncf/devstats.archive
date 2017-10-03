@@ -49,6 +49,7 @@ func copyContext(in *lib.Ctx) *lib.Ctx {
 		AnnotationsYaml:  in.AnnotationsYaml,
 		MetricsYaml:      in.MetricsYaml,
 		GapsYaml:         in.GapsYaml,
+		TagsYaml:         in.TagsYaml,
 		ClearDBPeriod:    in.ClearDBPeriod,
 		Trials:           in.Trials,
 	}
@@ -164,6 +165,7 @@ func TestInit(t *testing.T) {
 		AnnotationsYaml:  "metrics/annotations.yaml",
 		MetricsYaml:      "metrics/metrics.yaml",
 		GapsYaml:         "metrics/gaps.yaml",
+		TagsYaml:         "metrics/idb_tags.yaml",
 		ClearDBPeriod:    "1 week",
 		Trials:           []int{10, 30, 60, 120, 300, 600},
 	}
@@ -399,6 +401,7 @@ func TestInit(t *testing.T) {
 				"GHA2DB_ANNOTATIONS_YAML": "other/anno.yml",
 				"GHA2DB_METRICS_YAML":     "met.YAML",
 				"GHA2DB_GAPS_YAML":        "/gapz.yml",
+				"GHA2DB_TAGS_YAML":        "/t/g/s.yml",
 			},
 			dynamicSetFields(
 				t,
@@ -407,6 +410,7 @@ func TestInit(t *testing.T) {
 					"AnnotationsYaml": "other/anno.yml",
 					"MetricsYaml":     "met.YAML",
 					"GapsYaml":        "/gapz.yml",
+					"TagsYaml":        "/t/g/s.yml",
 				},
 			),
 		},
