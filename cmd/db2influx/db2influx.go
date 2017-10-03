@@ -33,8 +33,7 @@ func valueDescription(descFunc string, value float64) (result string) {
 // Each row must be in format: 'prefix;name;series1,series2,..,seriesN' serVal1 serVal2 ... serValN
 func multiRowMultiColumn(col, period string) (result []string) {
 	ary := strings.Split(col, ";")
-	r := strings.NewReplacer("-", "_", "/", "_", ".", "_", " ", "_")
-	name := r.Replace(strings.ToLower(strings.TrimSpace(lib.StripUnicode(ary[1]))))
+	name := lib.NormalizeName(ary[1])
 	if name == "" {
 		lib.Printf("multiRowMultiColumn: WARNING: name '%v' (%+v) maps to empty string, skipping\n", ary[1], ary)
 		return
@@ -69,8 +68,7 @@ func singleRowMultiColumn(col, period string) (result []string) {
 // and returns array [a_q, b_q, c_q, .., z_q]
 func multiRowSingleColumn(col, period string) (result []string) {
 	ary := strings.Split(col, ",")
-	r := strings.NewReplacer("-", "_", "/", "_", ".", "_", " ", "_")
-	name := r.Replace(strings.ToLower(strings.TrimSpace(lib.StripUnicode(ary[1]))))
+	name := lib.NormalizeName(ary[1])
 	if name == "" {
 		lib.Printf("multiRowSingleColumn: WARNING: name '%v' (%+v) maps to empty string, skipping\n", ary[1], ary)
 		return

@@ -384,6 +384,15 @@ func sync(args []string) {
 			nil,
 		)
 
+		// InfluxDB tags (repo groups template variable currently)
+		lib.ExecCommand(
+			&ctx,
+			[]string{
+				cmdPrefix + "idb_tags",
+			},
+			nil,
+		)
+
 		// Fill gaps in series
 		fillGapsInSeries(&ctx, from, to)
 
