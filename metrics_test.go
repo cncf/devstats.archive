@@ -449,6 +449,16 @@ func TestMetrics(t *testing.T) {
 				{"bot_commands,com3", "1.00"},
 			},
 		},
+		{
+			setup:  setupAffiliationsMetric,
+			metric: "num_stats",
+			from:   ft(2017, 7),
+			to:     ft(2017, 11),
+			n:      1,
+			expected: [][]interface{}{
+				{"num_stats;All;companies,developers", 4, 3},
+			},
+		},
 	}
 
 	// Environment context parse
