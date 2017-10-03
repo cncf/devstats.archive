@@ -56,6 +56,33 @@ func idbTags() {
 	}
 	lib.FatalOnError(rows.Err())
 
+	// Execute SQL
+	rows = lib.QuerySQLWithErr(
+		con,
+		&ctx,
+		"select distinct name from gha_repos order by name",
+	)
+	defer rows.Close()
+
+	// Drop current tags
+	lib.SafeQueryIDB(ic, &ctx, "drop series from all_repo_names")
+
+	// Iterate repository groups
+	repoName := ""
+	tags = make(map[string]string)
+	for rows.Next() {
+		lib.FatalOnError(rows.Scan(&repoName))
+		if ctx.Debug > 0 {
+			fmt.Printf("Repo name: %v\n", repoName)
+		}
+		tags["all_repo_names_name"] = repoName
+		tags["all_repo_names_value"] = lib.NormalizeName(repoName)
+		// Add batch point
+		pt := lib.IDBNewPointWithErr("all_repo_names", tags, fields, time.Now())
+		bp.AddPoint(pt)
+	}
+	lib.FatalOnError(rows.Err())
+
 	// Write the batch
 	if !ctx.SkipIDB {
 		err := ic.Write(bp)
