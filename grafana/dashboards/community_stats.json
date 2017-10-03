@@ -66,7 +66,7 @@
           "dashes": false,
           "datasource": "${DS_INFLUXGHA}",
           "decimals": 0,
-          "description": "",
+          "description": "Community stats ([[repo_name]], [[period]])",
           "fill": 0,
           "id": 1,
           "legend": {
@@ -117,7 +117,7 @@
               "measurement": "reviewers_d",
               "orderByTime": "ASC",
               "policy": "autogen",
-              "query": "SELECT \"value\" FROM \"autogen\".\"contrib_[[repogroup]]_watchers_[[period]]\" WHERE $timeFilter",
+              "query": "SELECT \"value\" FROM \"autogen\".\"contrib_[[repo]]_watchers_[[period]]\" WHERE $timeFilter",
               "rawQuery": true,
               "refId": "A",
               "resultFormat": "time_series",
@@ -141,7 +141,7 @@
               "measurement": "reviewers_d",
               "orderByTime": "ASC",
               "policy": "autogen",
-              "query": "SELECT \"value\" FROM \"autogen\".\"contrib_[[repogroup]]_forks_[[period]]\" WHERE $timeFilter",
+              "query": "SELECT \"value\" FROM \"autogen\".\"contrib_[[repo]]_forks_[[period]]\" WHERE $timeFilter",
               "rawQuery": true,
               "refId": "B",
               "resultFormat": "time_series",
@@ -165,7 +165,7 @@
               "measurement": "reviewers_d",
               "orderByTime": "ASC",
               "policy": "autogen",
-              "query": "SELECT \"value\" FROM \"autogen\".\"contrib_[[repogroup]]_open_issues_[[period]]\" WHERE $timeFilter",
+              "query": "SELECT \"value\" FROM \"autogen\".\"contrib_[[repo]]_open_issues_[[period]]\" WHERE $timeFilter",
               "rawQuery": true,
               "refId": "C",
               "resultFormat": "time_series",
@@ -185,7 +185,7 @@
           "thresholds": [],
           "timeFrom": null,
           "timeShift": null,
-          "title": "Community stats ([[repogroup]], [[period]])",
+          "title": "Community stats ([[repo_name]], [[period]])",
           "tooltip": {
             "shared": true,
             "sort": 2,
@@ -281,105 +281,43 @@
       },
       {
         "allValue": null,
-        "current": {
-          "tags": [],
-          "text": "Community",
-          "value": "kubernetes_community"
-        },
+        "current": {},
+        "datasource": "${DS_INFLUXGHA}",
         "hide": 0,
         "includeAll": false,
         "label": "Repository",
         "multi": false,
-        "name": "repogroup",
-        "options": [
-          {
-            "selected": false,
-            "text": "Kubernetes",
-            "value": "kubernetes_kubernetes"
-          },
-          {
-            "selected": false,
-            "text": "Minikube",
-            "value": "kubernetes_minikube"
-          },
-          {
-            "selected": false,
-            "text": "Kops",
-            "value": "kubernetes_kops"
-          },
-          {
-            "selected": false,
-            "text": "Helm",
-            "value": "kubernetes_helm"
-          },
-          {
-            "selected": false,
-            "text": "Kompose",
-            "value": "kubernetes_kompose"
-          },
-          {
-            "selected": false,
-            "text": "Heapster",
-            "value": "kubernetes_heapster"
-          },
-          {
-            "selected": false,
-            "text": "Dashboard",
-            "value": "kubernetes_dashboard"
-          },
-          {
-            "selected": false,
-            "text": "Incubator/Kompose",
-            "value": "kubernetes_incubator_kompose"
-          },
-          {
-            "selected": false,
-            "text": "Contrib",
-            "value": "kubernetes_contrib"
-          },
-          {
-            "selected": false,
-            "text": "Kubespray",
-            "value": "kubernetes_incubator_kubespray"
-          },
-          {
-            "selected": false,
-            "text": "Charts",
-            "value": "kubernetes_charts"
-          },
-          {
-            "selected": false,
-            "text": "Kargo",
-            "value": "kubernetes_incubator_kargo"
-          },
-          {
-            "selected": true,
-            "text": "Community",
-            "value": "kubernetes_community"
-          },
-          {
-            "selected": false,
-            "text": "Ingress",
-            "value": "kubernetes_ingress"
-          },
-          {
-            "selected": false,
-            "text": "Cri-o",
-            "value": "kubernetes_incubator_cri_o"
-          },
-          {
-            "selected": false,
-            "text": "Kube AWS",
-            "value": "kubernetes_incubator_kube_aws"
-          },
-          {
-            "selected": false,
-            "text": "Test infra",
-            "value": "kubernetes_test_infra"
-          }
-        ],
-        "query": "all,kubernetes,cluster_lifecycle,apps,project_infra,docs,contrib,ui,project,node,autoscaling_and_monitoring,networking,clients,storage,api_machinery,misc,multi_cluster",
-        "type": "custom"
+        "name": "repo_name",
+        "options": [],
+        "query": "SHOW TAG VALUES WITH KEY = all_repo_names_name",
+        "refresh": 1,
+        "regex": "",
+        "sort": 1,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {},
+        "datasource": "${DS_INFLUXGHA}",
+        "hide": 2,
+        "includeAll": false,
+        "label": "",
+        "multi": false,
+        "name": "repo",
+        "options": [],
+        "query": "SHOW TAG VALUES WITH KEY = all_repo_names_value where all_repo_names_name =~ /^[[repo_name]]$/",
+        "refresh": 1,
+        "regex": "",
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
       }
     ]
   },
@@ -414,5 +352,5 @@
   },
   "timezone": "",
   "title": "Community stats",
-  "version": 13
+  "version": 15
 }
