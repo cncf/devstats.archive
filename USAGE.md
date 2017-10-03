@@ -417,6 +417,7 @@ Feed InfluxDB using:
 - There is also `z2influx` tool. It is used to fill given series with zeros. Typical usage: `./z2influx 'series1,series2' 2017-01-01 2018-01-01 w` - will fill all weeks from 2017 with zeros for series1 and series2.
 - `annotations` tool adds variuos data annotations that can be used in Grafana charts. It uses [annotations.yaml](https://github.com/cncf/gha2db/blob/master/metrics/annotations.yaml) file to define them, syntax is self describing. 
 - `idb_tags` tool used to add InfluxDB tags on some specified series. Those tags are used to populate Grafana template drop-down values and names. This is used to auto-populate Repository groups drop down, so when somebody adds new repository group - it will automatically appear in the drop-down.
+- `idb_tags` uses [idb_tags.yaml](https://github.com/cncf/gha2db/blob/master/metrics/idb_tags.yaml) file to configure InfluxDB tags generation.
 
 # To check results in the InfluxDB:
 - influx

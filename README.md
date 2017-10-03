@@ -123,6 +123,7 @@ We're getting all possible GitHub data for all objects, and all objects historic
 - `annotations` is used to add annotations on charts, it uses [annotations.yaml](https://github.com/cncf/gha2db/blob/master/metrics/annotations.yaml) file to define them, syntax is self describing.
 - [idb_tags](https://github.com/cncf/gha2db/blob/master/cmd/idb_tags/idb_tags.go)
 - `idb_tags` is used to add InfluxDB tags on some specified series. Those tags are used to populate Grafana template drop-down values and names. This is used to auto-populate Repository groups drop down, so when somebody adds new repository group - it will automatically appear in the drop-down.
+- `idb_tags` uses [idb_tags.yaml](https://github.com/cncf/gha2db/blob/master/metrics/idb_tags.yaml) file to configure InfluxDB tags generation.
 - There are few shell scripts for example: running sync every N seconds, setup InfluxDB etc.
 
 Detailed usage is here [USAGE](https://github.com/cncf/gha2db/blob/master/USAGE.md)

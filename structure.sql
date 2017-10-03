@@ -618,7 +618,8 @@ CREATE TABLE gha_repos (
     name character varying(160) NOT NULL,
     org_id bigint,
     org_login character varying(100),
-    repo_group character varying(80)
+    repo_group character varying(80),
+    alias character varying(160)
 );
 
 
@@ -2136,6 +2137,13 @@ CREATE INDEX releases_dup_type_idx ON gha_releases USING btree (dup_type);
 --
 
 CREATE INDEX releases_event_id_idx ON gha_releases USING btree (event_id);
+
+
+--
+-- Name: repos_alias_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX repos_alias_idx ON gha_repos USING btree (alias);
 
 
 --
