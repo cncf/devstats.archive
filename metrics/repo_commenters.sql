@@ -9,6 +9,7 @@ where
   and actor_login not in ('googlebot')
   and actor_login not like 'k8s-%'
   and actor_login not like '%-bot'
+  and actor_login not like '%-robot'
 union select 'repo_commenters,' || r.repo_group as repo_group,
   round(count(distinct t.actor_login) / {{n}}, 2) as result
 from
@@ -22,6 +23,7 @@ where
   and t.actor_login not in ('googlebot')
   and t.actor_login not like 'k8s-%'
   and t.actor_login not like '%-bot'
+  and t.actor_login not like '%-robot'
 group by
   r.repo_group
 order by

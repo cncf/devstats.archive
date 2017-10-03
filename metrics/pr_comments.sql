@@ -12,6 +12,7 @@ where
   and pr.dup_actor_login not in ('googlebot')
   and pr.dup_actor_login not like 'k8s-%'
   and pr.dup_actor_login not like '%-bot'
+  and pr.dup_actor_login not like '%-robot'
 group by
   pl.pull_request_id;
 

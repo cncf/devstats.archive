@@ -14,6 +14,7 @@ from
       and actor_login not in ('googlebot')
       and actor_login not like 'k8s-%'
       and actor_login not like '%-bot'
+      and actor_login not like '%-robot'
   ) sel
 where
   sel.sig is not null

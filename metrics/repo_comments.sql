@@ -9,6 +9,7 @@ where
   and dup_actor_login not in ('googlebot')
   and dup_actor_login not like 'k8s-%'
   and dup_actor_login not like '%-bot'
+  and dup_actor_login not like '%-robot'
 union select 'repo_comments,' || r.repo_group as repo_group,
   round(count(distinct t.id) / {{n}}, 2) as result
 from
@@ -22,6 +23,7 @@ where
   and t.dup_actor_login not in ('googlebot')
   and t.dup_actor_login not like 'k8s-%'
   and t.dup_actor_login not like '%-bot'
+  and t.dup_actor_login not like '%-robot'
 group by
   r.repo_group
 order by
