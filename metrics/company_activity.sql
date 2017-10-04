@@ -1,4 +1,4 @@
-select concat('company;', sub.company, '_', sub.repo_group, ';activity,authors,issues,prs,commits,review_comments,issue_comments,commit_comments,comments'),
+select concat('company;', sub.company, '`', sub.repo_group, ';activity,authors,issues,prs,commits,review_comments,issue_comments,commit_comments,comments'),
   sub.activity,
   sub.authors,
   sub.issues,

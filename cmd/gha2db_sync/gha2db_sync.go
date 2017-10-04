@@ -27,6 +27,8 @@ type Gaps struct {
 // Which is 4 * 3 * 2 = 24 items, You can write series formula:
 // "=prefix;suffix;_;a,b,c,d;1,2,3;yes,no"
 // format is "=prefix;suffix;join;list1item1,list1item2,...;list2item1,list2item2,...;..."
+// Values can be set the same way as Series, it is the array of series properties to clear
+// If not specified, ["value"] is assumed - it is used for multi-value series
 type MetricGap struct {
 	Name      string   `yaml:"name"`
 	Series    []string `yaml:"series"`
@@ -34,6 +36,7 @@ type MetricGap struct {
 	Aggregate string   `yaml:"aggregate"`
 	Skip      string   `yaml:"skip"`
 	Desc      bool     `yaml:"desc"`
+	Values    []string `yaml:"values"`
 }
 
 // Metrics contain list of metrics to evaluate
@@ -52,6 +55,7 @@ type Metric struct {
 	Aggregate        string `yaml:"aggregate"`
 	Skip             string `yaml:"skip"`
 	Desc             string `yaml:"desc"`
+	MultiValue       bool   `yaml:"multi_value"`
 }
 
 // Add _period to all array items
@@ -179,13 +183,26 @@ func fillGapsInSeries(ctx *lib.Ctx, from, to time.Time) {
 		if metric.Desc {
 			extraParams = append(extraParams, "desc")
 		}
+		// Parse multi values
+		values := []string{}
+		for _, value := range metric.Values {
+			if value[0:1] == "=" {
+				valuesArr := createSeriesFromFormula(value)
+				values = append(values, valuesArr...)
+			} else {
+				values = append(values, value)
+			}
+		}
+		if len(values) == 0 {
+			values = append(values, "value")
+		}
+		extraParams = append(extraParams, "values:"+strings.Join(values, ";"))
+		// Parse series
 		series := []string{}
 		for _, ser := range metric.Series {
 			if ser[0:1] == "=" {
 				formulaSeries := createSeriesFromFormula(ser)
-				for _, formulaSer := range formulaSeries {
-					series = append(series, formulaSer)
-				}
+				series = append(series, formulaSeries...)
 			} else {
 				series = append(series, ser)
 			}
@@ -410,6 +427,9 @@ func sync(args []string) {
 			extraParams := []string{}
 			if metric.Histogram {
 				extraParams = append(extraParams, "hist")
+			}
+			if metric.MultiValue {
+				extraParams = append(extraParams, "multivalue")
 			}
 			if metric.Desc != "" {
 				extraParams = append(extraParams, "desc:"+metric.Desc)

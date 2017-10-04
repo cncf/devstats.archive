@@ -19,6 +19,7 @@ To add new metric:
 - Simplest type of histogram `series_name_or_func` is just a InfluxDB series name. Because we're calculating histogram for last `{{period}}` each time, given series is cleared and recalculated.
 - Metric can return multiple rows with single column (which means 3 columns in histogram mode: `prefix,series_name` and then histogram value (2 columns: `name` and `value`), exactly the same as `series_name_or_func: multi_row_single_column`.
 - If metrics need additiona string descriptions (like when we are returning number of hours as age, and want to have nice formatted string value like "1 day 12 hours") use `desc: time_diff_as_string`.
+- Metric can return multiple values in a single series (for example for SIG mentions stacking, bot commands, company stats etc), use `multi_value: true` to mark serie to return multi value in a single serie (instead of creating multiple series with single values).
 3) If metrics create data gaps (for example returns multiple rows with different counts depending on data range), you have to add automatic filling gaps in [metrics/gaps.yaml](https://github.com/cncf/gha2db/blob/master/metrics/gaps.yaml) (file is used by `z2influx` tool):
 - You need to define periods to fill gaps, they should be the same as in `metrics.yaml` definition.
 - You need to define a series list to fill gaps on them. Use `series: ` to set them. It expects a list of series (YAML list).
@@ -28,6 +29,7 @@ To add new metric:
 - It can also be a series formula to create series list in this format: `"- =prefix;suffix;join_string;list1item1,list1item2,...;list2item1,list2item2,...;..."`
 - Series formula allows writing a lot of series name in a shorter way. Say we have series in this form prefix_{x}_{y}_{z}_suffix and {x} can be a,b,c,d, {y} can be 1,2,3, z can be yes,no. Instead of listing all combinations prefix_a_1_yes_suffix, ..., prefix_d_3_no_suffix, which is 4 * 3 * 2 = 24 items, you can write series formula: `- =prefix;suffix;_;a,b,c,d;1,2,3;yes,no`. In this case You can see join character is _ `...;_;...`.
 - If metrics uses string descriptions (like `desc: time_diff_as_string`), add `desc: true` in gaps file to clear descriptions too.
+- If Metric returns multiple values in a single series and creates data gaps, then You have to list values to clear via `values: ` property, You can use series formula format to do so.
 4) Add test coverage in [metrics_test.go](https://github.com/cncf/gha2db/blob/master/metrics_test.go).
 5) You need to either regenerate all InfluxDB data (it takes about 10-15 minutes) using `PG_PASS=... IDB_PASS=... ./reinit_all.sh` or use `PG_PASS=... IDB_PASS=... ./add_single_metric,sh`. If You choose to use add single metric, You need to create 3 files: `test_gaps.yaml` (if empty copy from metrics/empty.yaml), `test_annotations.yaml` (usually empty) and `test_metrics.yaml`. Those YAML files should contain only new metric related data.
 6) To test new metric on non-production InfluxDB "test", use: `test_metric_sync.sh` script.
