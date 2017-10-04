@@ -278,6 +278,7 @@ func computePeriodAtThisDate(period string, to time.Time) bool {
 	}
 }
 
+// Clear DB logs older by defined period (in context.go)
 func clearDBLogs(c *sql.DB, ctx *lib.Ctx) {
 	lib.Printf("Clearing old DB logs.\n")
 	lib.ExecSQLWithErr(c, ctx, "delete from gha_logs where dt < now() - '"+ctx.ClearDBPeriod+"'::interval")
@@ -402,13 +403,11 @@ func sync(args []string) {
 		)
 
 		// InfluxDB tags (repo groups template variable currently)
-		lib.ExecCommand(
-			&ctx,
-			[]string{
-				cmdPrefix + "idb_tags",
-			},
-			nil,
-		)
+		if time.Now().Hour() == 0 {
+			lib.ExecCommand(&ctx, []string{cmdPrefix + "idb_tags"}, nil)
+		} else {
+			lib.Printf("Skipping `idb_tags` recalculation, it is only computed once per day\n")
+		}
 
 		// Fill gaps in series
 		fillGapsInSeries(&ctx, from, to)
