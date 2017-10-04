@@ -39,15 +39,14 @@ func multiRowMultiColumn(col, period string) (result []string) {
 		return
 	}
 	splitted := strings.Split(ary[2], ",")
-	if ary[0] != "" {
-		pref := ary[0]
-		for _, series := range splitted {
-			result = append(result, fmt.Sprintf("%s_%s_%s_%s", pref, name, series, period))
-		}
-	} else {
-		for _, series := range splitted {
-			result = append(result, fmt.Sprintf("%s_%s_%s", name, series, period))
-		}
+	pref := ary[0]
+	if pref == "" {
+		lib.Printf("multiRowMultiColumn: WARNING: prefix '%v' (%+v) skipping\n", pref, ary)
+		return
+	}
+	for _, series := range splitted {
+		//result = append(result, fmt.Sprintf("%s_%s_%s_%s;%s_%s_%s;%s", pref, name, series, period, pref, series, period, ary[1]))
+		result = append(result, fmt.Sprintf("%s_%s_%s_%s", pref, name, series, period))
 	}
 	return
 }
@@ -73,10 +72,13 @@ func multiRowSingleColumn(col, period string) (result []string) {
 		lib.Printf("multiRowSingleColumn: WARNING: name '%v' (%+v) maps to empty string, skipping\n", ary[1], ary)
 		return
 	}
-	if ary[0] != "" {
-		name = ary[0] + "_" + name
+	pref := ary[0]
+	if pref == "" {
+		lib.Printf("multiRowSingleColumn: WARNING: prefix '%v' (%+v) skipping\n", pref, ary)
+		return
 	}
-	return []string{fmt.Sprintf("%s_%s", name, period)}
+	seriesName := pref + "_" + name
+	return []string{fmt.Sprintf("%s_%s", seriesName, period)}
 }
 
 // Generate name for given series row and period
