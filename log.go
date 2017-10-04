@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strings"
 	"sync"
+	"time"
 )
 
 // Holds data needed to make DB calls
@@ -52,7 +53,7 @@ func Printf(format string, args ...interface{}) (n int, err error) {
 		logCtxMutex.Lock()
 		if logCtx == nil {
 			logCtx = newLogContext()
-			fmt.Print("Initialized DB logs\n")
+			fmt.Printf("%v: Initialized DB logs\n", time.Now())
 		}
 		logCtxMutex.Unlock()
 	}
@@ -66,7 +67,11 @@ func Printf(format string, args ...interface{}) (n int, err error) {
 	}()
 
 	// Actual logging to stdout & DB
-	n, err = fmt.Printf(format, args...)
+	if logCtx.ctx.LogTime {
+		n, err = fmt.Printf("%s: "+format, append([]interface{}{ToYMDHMSDate(time.Now())}, args...)...)
+	} else {
+		n, err = fmt.Printf(format, args...)
+	}
 	err = logToDB(format, args...)
 	return
 }
