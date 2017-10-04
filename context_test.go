@@ -52,6 +52,7 @@ func copyContext(in *lib.Ctx) *lib.Ctx {
 		TagsYaml:         in.TagsYaml,
 		ClearDBPeriod:    in.ClearDBPeriod,
 		Trials:           in.Trials,
+		LogTime:          in.LogTime,
 	}
 	return &out
 }
@@ -168,6 +169,7 @@ func TestInit(t *testing.T) {
 		TagsYaml:         "metrics/idb_tags.yaml",
 		ClearDBPeriod:    "1 week",
 		Trials:           []int{10, 30, 60, 120, 300, 600},
+		LogTime:          true,
 	}
 
 	// Test cases
@@ -259,6 +261,19 @@ func TestInit(t *testing.T) {
 					"Index": true,
 					"Table": false,
 					"Tools": false,
+				},
+			),
+		},
+		{
+			"Setting skip log time",
+			map[string]string{
+				"GHA2DB_SKIPTIME": "Y",
+			},
+			dynamicSetFields(
+				t,
+				copyContext(&defaultContext),
+				map[string]interface{}{
+					"LogTime": false,
 				},
 			),
 		},
