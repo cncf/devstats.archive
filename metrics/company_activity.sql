@@ -82,8 +82,4 @@ from (
   ) sub
 where
   sub.authors > 0
-  and sub.issues > 0
-  and sub.prs > 0
-  and sub.commits > 0
-  and sub.review_comments + sub.issue_comments > 0
 ;
