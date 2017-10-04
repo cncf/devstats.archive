@@ -37,10 +37,10 @@ func TestNormalizeName(t *testing.T) {
 		str, expected string
 	}{
 		{str: "hello", expected: "hello"},
-		{str: "control:\t\n\r", expected: "control:"},
+		{str: "control:\t\n\r", expected: "control_"},
 		{str: "gżegżółką", expected: "gzegzoka"},
 		{str: "net_ease_网易有态", expected: "net_ease_"},
-		{str: " hello-world/k8s.io said HE ", expected: "hello_world_k8s_io_said_he"},
+		{str: " see;hello-world/k8s.io, said: HE`MAN ", expected: "see_hello_world_k8s_io__said__he_man"},
 	}
 	// Execute test cases
 	for index, test := range testCases {
