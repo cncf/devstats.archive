@@ -84,8 +84,12 @@ func idbTags() {
 			if ctx.Debug > 0 {
 				lib.Printf("'%s': %v\n", tag.SeriesName, strVal)
 			}
-			tags[tag.NameTag] = strVal
-			tags[tag.ValueTag] = lib.NormalizeName(strVal)
+			if tag.NameTag != "" {
+				tags[tag.NameTag] = strVal
+			}
+			if tag.ValueTag != "" {
+				tags[tag.ValueTag] = lib.NormalizeName(strVal)
+			}
 			// Add batch point
 			pt := lib.IDBNewPointWithErr(tag.SeriesName, tags, fields, time.Now())
 			bp.AddPoint(pt)
