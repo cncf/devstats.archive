@@ -133,9 +133,21 @@ func TestMetrics(t *testing.T) {
 			to:     ft(2017, 8),
 			n:      1,
 			expected: [][]interface{}{
-				{"prs,Repo 1", "3.00"},
-				{"prs,Repo 2", "2.00"},
-				{"prs,Repo 3", "1.00"},
+				{"prs_merged,Repo 1", "3.00"},
+				{"prs_merged,Repo 2", "2.00"},
+				{"prs_merged,Repo 3", "1.00"},
+			},
+		},
+		{
+			setup:  setupPRsMergedMetric,
+			metric: "prs_merged",
+			from:   ft(2017, 7),
+			to:     ft(2017, 8),
+			n:      2,
+			expected: [][]interface{}{
+				{"prs_merged,Repo 1", "1.50"},
+				{"prs_merged,Repo 2", "1.00"},
+				{"prs_merged,Repo 3", "0.50"},
 			},
 		},
 		{
@@ -145,8 +157,19 @@ func TestMetrics(t *testing.T) {
 			to:     ft(2017, 8),
 			n:      1,
 			expected: [][]interface{}{
-				{"group_prs,Group 1", 4},
-				{"group_prs,Group 2", 2},
+				{"group_prs_merged,Group 1", "4.00"},
+				{"group_prs_merged,Group 2", "2.00"},
+			},
+		},
+		{
+			setup:  setupPRsMergedMetric,
+			metric: "prs_merged_groups",
+			from:   ft(2017, 7),
+			to:     ft(2017, 8),
+			n:      3,
+			expected: [][]interface{}{
+				{"group_prs_merged,Group 1", "1.33"},
+				{"group_prs_merged,Group 2", "0.67"},
 			},
 		},
 		{
@@ -970,6 +993,12 @@ func addIssuePR(con *sql.DB, ctx *lib.Ctx, args ...interface{}) (err error) {
 	return
 }
 
+// Sets Repo aliast to be the same as Name on all repos
+func updateRepoAliasFromName(con *sql.DB, ctx *lib.Ctx) {
+	_, err := lib.ExecSQL(con, ctx, "update gha_repos set alias = name")
+	lib.FatalOnError(err)
+}
+
 // Create data for affiliations metric
 func setupAffiliationsMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 	ft := testlib.YMDHMS
@@ -1363,6 +1392,9 @@ func setupPRsMergedMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 		}
 	}
 
+	// Update repo alias to be the same as repo_group for this test
+	updateRepoAliasFromName(con, ctx)
+
 	return
 }
 
@@ -1717,7 +1749,7 @@ func setupCommunityStatsMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 	}
 
 	// Update repo alias to be the same as repo_group for this test
-	_, err = lib.ExecSQL(con, ctx, "update gha_repos set alias = name")
+	updateRepoAliasFromName(con, ctx)
 
 	return
 }
