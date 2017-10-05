@@ -1,6 +1,6 @@
 select
   'prs,' || dup_repo_name as repo_name,
-  count(distinct id) as merge_count
+  round(count(distinct id) / {{n}}, 2) as merge_count
 from
   gha_pull_requests
 where
