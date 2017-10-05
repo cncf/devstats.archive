@@ -2,16 +2,20 @@ select
   -- string_agg(sub.command, ',')
   sub.command
 from (
-  select
-    substring(cmd from 2) as command,
+  select substring(cmd from 2) as command,
     count(*) as count_value
   from
     (
-      select lower(
+      select regexp_replace(
+        lower(
           substring(
-            body from '(?i)(?:^|\s)+(/[a-zA-Z]+[a-zA-Z0-9]+)(?:$|\s)+'
+            body from '(?i)(?:^|\s)+(/(approve|approve\s+no-issue|approve\s+cancel|area|remove\s+area|assign|unassign|cc|uncc|close|reopen|hold|hold\s+cancel|joke|kind|remove-kind|lgtm|lgtm\s+cancel|ok-to-test|test|test\s+all|retest|priority|remove-priority|sig|remove-sig|release-note|release-note-action-required|release-note-none))(?:$|\s)+'
           )
-        ) as cmd
+        ),
+        '\s+',
+        ' ',
+        'g'
+      ) as cmd
       from
         gha_texts
       where
@@ -27,6 +31,5 @@ from (
   order by
     count_value desc,
     sel.cmd asc
-  limit 25
 ) sub
 ;
