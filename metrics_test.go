@@ -133,9 +133,9 @@ func TestMetrics(t *testing.T) {
 			to:     ft(2017, 8),
 			n:      1,
 			expected: [][]interface{}{
-				{"prs,Repo 1", 3},
-				{"prs,Repo 2", 2},
-				{"prs,Repo 3", 1},
+				{"prs,Repo 1", "3.00"},
+				{"prs,Repo 2", "2.00"},
+				{"prs,Repo 3", "1.00"},
 			},
 		},
 		{
