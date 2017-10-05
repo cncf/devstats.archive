@@ -403,7 +403,7 @@ func sync(args []string) {
 		)
 
 		// InfluxDB tags (repo groups template variable currently)
-		if time.Now().Hour() == 0 {
+		if ctx.ResetIDB || time.Now().Hour() == 0 {
 			lib.ExecCommand(&ctx, []string{cmdPrefix + "idb_tags"}, nil)
 		} else {
 			lib.Printf("Skipping `idb_tags` recalculation, it is only computed once per day\n")

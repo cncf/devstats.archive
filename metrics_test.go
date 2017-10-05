@@ -422,31 +422,28 @@ func TestMetrics(t *testing.T) {
 			},
 		},
 		{
-			setup:    setupBotCommandsMetric,
-			metric:   "bot_commands",
-			from:     ft(2017, 10),
-			to:       ft(2017, 11),
-			n:        1,
-			replaces: [][2]string{{"count(*) >= 5", "count(*) >= 1"}},
+			setup:  setupBotCommandsMetric,
+			metric: "bot_commands",
+			from:   ft(2017, 10),
+			to:     ft(2017, 11),
+			n:      1,
 			expected: [][]interface{}{
-				{"bot_commands,com4", "3.00"},
-				{"bot_commands,com2", "2.00"},
-				{"bot_commands,com3", "2.00"},
-				{"bot_commands,com", "1.00"},
-				{"bot_commands,com1", "1.00"},
-			},
-		},
-		{
-			setup:    setupBotCommandsMetric,
-			metric:   "bot_commands",
-			from:     ft(2017, 10),
-			to:       ft(2017, 11),
-			n:        2,
-			replaces: [][2]string{{"count(*) >= 5", "count(*) > 1"}},
-			expected: [][]interface{}{
-				{"bot_commands,com4", "1.50"},
-				{"bot_commands,com2", "1.00"},
-				{"bot_commands,com3", "1.00"},
+				{"bot_commands,approve`All", "1.00"},
+				{"bot_commands,approve cancel`All", "1.00"},
+				{"bot_commands,approve cancel`Mono-group", "1.00"},
+				{"bot_commands,approve`Group", "1.00"},
+				{"bot_commands,approve no-issue`All", "1.00"},
+				{"bot_commands,approve no-issue`Group", "1.00"},
+				{"bot_commands,close`All", "1.00"},
+				{"bot_commands,close`Group", "1.00"},
+				{"bot_commands,remove area`All", "1.00"},
+				{"bot_commands,remove area`Group", "1.00"},
+				{"bot_commands,reopen`All", "1.00"},
+				{"bot_commands,reopen`Mono-group", "1.00"},
+				{"bot_commands,unassign`All", "1.00"},
+				{"bot_commands,unassign`Mono-group", "1.00"},
+				{"bot_commands,uncc`All", "1.00"},
+				{"bot_commands,uncc`Group", "1.00"},
 			},
 		},
 		{
@@ -1349,27 +1346,43 @@ func setupPRsMergedMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 func setupBotCommandsMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 	ft := testlib.YMDHMS
 
-	// texts to add
+	// Repos to add
+	// id, name, org_id, org_login, repo_group
+	repos := [][]interface{}{
+		{1, "R1", 1, "O1", "Group"},
+		{2, "R2", 1, "O1", "Group"},
+		{3, "R3", 2, "O2", "Mono-group"},
+		{4, "R4", 2, "O2", nil},
+	}
+
+	// Texts to add
 	// eid, body, created_at
+	// repo_id, repo_name, actor_id, actor_login, type
 	texts := [][]interface{}{
-		{1, "/com1", ft(2017, 10, 10)},
-		{2, " /com2", ft(2017, 10, 10)},
-		{3, "/com2 ", ft(2017, 10, 10)},
-		{4, "\n/com3\n", ft(2017, 10, 10)},
-		{5, "\n /com3 \n", ft(2017, 10, 10)},
-		{6, "/ com3", ft(2017, 10, 10)},
-		{7, "/com 4", ft(2017, 10, 10)},
-		{8, " /a b c d ", ft(2017, 10, 10)},
-		{9, "/com4", ft(2017, 10, 10)},
-		{10, " /com4  ", ft(2017, 10, 10)},
-		{11, "abc /com4  def", ft(2017, 10, 10)},
+		{1, "/approve", ft(2017, 10, 10), 1, "R1", 1, "A1", "T"},
+		{2, " /approve  no-issue", ft(2017, 10, 10), 2, "R2", 1, "A1", "T"},
+		{3, "/approve cancel ", ft(2017, 10, 10), 3, "R3", 1, "A1", "T"},
+		{4, "\n/area\n", ft(2017, 10, 10), 4, "R4", 1, "A1", "T"},
+		{5, "\n /remove   area \n", ft(2017, 10, 10), 1, "R1", 1, "A1", "T"},
+		{6, "/ assign", ft(2017, 10, 10), 2, "R2", 1, "A1", "T"},
+		{7, "/unassign 4", ft(2017, 10, 10), 3, "R3", 1, "A1", "T"},
+		{8, " /cc b c d ", ft(2017, 10, 10), 4, "R4", 1, "A1", "T"},
+		{9, "/uncc", ft(2017, 10, 10), 1, "R1", 1, "A1", "T"},
+		{10, " /close  ", ft(2017, 10, 10), 2, "R2", 1, "A1", "T"},
+		{11, "abc /reopen  def", ft(2017, 10, 10), 3, "R3", 1, "A1", "T"},
 	}
 
 	// Add texts
-	stub := []interface{}{0, "", 0, "", "D"}
 	for _, text := range texts {
-		text = append(text, stub...)
 		err = addText(con, ctx, text...)
+		if err != nil {
+			return
+		}
+	}
+
+	// Add repos
+	for _, repo := range repos {
+		err = addRepo(con, ctx, repo...)
 		if err != nil {
 			return
 		}

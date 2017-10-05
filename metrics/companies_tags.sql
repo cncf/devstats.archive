@@ -1,6 +1,6 @@
-select sub.name from (
-  select
-    c.name as name,
+select
+  sub.name from (
+  select c.name as name,
     count(distinct e.id) as cnt
   from
     gha_companies c,
