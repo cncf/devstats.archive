@@ -392,23 +392,6 @@ func sync(args []string) {
 		}
 		lib.Printf("Influx range: %s - %s\n", lib.ToYMDHDate(from), lib.ToYMDHDate(to))
 
-		// Annotations
-		lib.ExecCommand(
-			&ctx,
-			[]string{
-				cmdPrefix + "annotations",
-				lib.ToYMDHDate(from),
-			},
-			nil,
-		)
-
-		// InfluxDB tags (repo groups template variable currently)
-		if ctx.ResetIDB || time.Now().Hour() == 0 {
-			lib.ExecCommand(&ctx, []string{cmdPrefix + "idb_tags"}, nil)
-		} else {
-			lib.Printf("Skipping `idb_tags` recalculation, it is only computed once per day\n")
-		}
-
 		// Fill gaps in series
 		fillGapsInSeries(&ctx, from, to)
 
@@ -483,6 +466,23 @@ func sync(args []string) {
 				}
 			}
 		}
+
+		// InfluxDB tags (repo groups template variable currently)
+		if ctx.ResetIDB || time.Now().Hour() == 0 {
+			lib.ExecCommand(&ctx, []string{cmdPrefix + "idb_tags"}, nil)
+		} else {
+			lib.Printf("Skipping `idb_tags` recalculation, it is only computed once per day\n")
+		}
+
+		// Annotations
+		lib.ExecCommand(
+			&ctx,
+			[]string{
+				cmdPrefix + "annotations",
+				lib.ToYMDHDate(from),
+			},
+			nil,
+		)
 	}
 	lib.Printf("Sync success\n")
 }
