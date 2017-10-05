@@ -95,16 +95,15 @@ Prerequisites:
     - Go to Grafana UI (localhost:3000), choose sign out, and then access localhost:3000 again. You should be able to view dashboards as a guest. To login again use http://localhost:3000/login.
     - You can also enable SSL, to do so You need to follow SSL instruction in [USAGE](https://github.com/cncf/gha2db/blob/master/USAGE.md) (that requires domain name).
 
-17. To change all Grafana page titles (starting with "Grafana - ") and icons use this script:
+15. To change all Grafana page titles (starting with "Grafana - ") and icons use this script:
     - `GRAFANA_DATA=/usr/share/grafana/ ./grafana/change_title_and_icons.sh`.
     - Replace `GRAFANA_DATA` with You Grafana data directory.
     - `brew services restart grafana`
     - In some cases browser and/or Grafana cache old settings in this case temporarily move Grafana's `settings.js` file:
     - `mv /usr/share/grafana/public/app/core/settings.js /usr/share/grafana/public/app/core/settings.js.old`, restart grafana server and restore file.
 
-15. You can create new metrics (as SQL files and YAML definitions) and dashboards in Grafana (export as JSON).
-16. PRs and suggestions are welcome, please create PRs and Issues on the [GitHub](https://github.com/cncf/gha2db).
-
+16. You can create new metrics (as SQL files and YAML definitions) and dashboards in Grafana (export as JSON).
+17. PRs and suggestions are welcome, please create PRs and Issues on the [GitHub](https://github.com/cncf/gha2db).
 
 # More details
 - [README](https://github.com/cncf/gha2db/blob/master/README.md)
