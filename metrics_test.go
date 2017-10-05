@@ -447,6 +447,17 @@ func TestMetrics(t *testing.T) {
 			},
 		},
 		{
+			setup:  setupBotCommandsMetric,
+			metric: "bot_commands",
+			from:   ft(2017, 10, 12),
+			to:     ft(2017, 10, 14),
+			n:      2,
+			expected: [][]interface{}{
+				{"bot_commands,approve cancel`All", "0.50"},
+				{"bot_commands,approve cancel`Mono-group", "0.50"},
+			},
+		},
+		{
 			setup:  setupAffiliationsMetric,
 			metric: "num_stats",
 			from:   ft(2017, 7),
@@ -1360,16 +1371,16 @@ func setupBotCommandsMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 	// repo_id, repo_name, actor_id, actor_login, type
 	texts := [][]interface{}{
 		{1, "/approve", ft(2017, 10, 10), 1, "R1", 1, "A1", "T"},
-		{2, " /approve  no-issue", ft(2017, 10, 10), 2, "R2", 1, "A1", "T"},
-		{3, "/approve cancel ", ft(2017, 10, 10), 3, "R3", 1, "A1", "T"},
-		{4, "\n/area\n", ft(2017, 10, 10), 4, "R4", 1, "A1", "T"},
-		{5, "\n /remove   area \n", ft(2017, 10, 10), 1, "R1", 1, "A1", "T"},
-		{6, "/ assign", ft(2017, 10, 10), 2, "R2", 1, "A1", "T"},
-		{7, "/unassign 4", ft(2017, 10, 10), 3, "R3", 1, "A1", "T"},
-		{8, " /cc b c d ", ft(2017, 10, 10), 4, "R4", 1, "A1", "T"},
-		{9, "/uncc", ft(2017, 10, 10), 1, "R1", 1, "A1", "T"},
-		{10, " /close  ", ft(2017, 10, 10), 2, "R2", 1, "A1", "T"},
-		{11, "abc /reopen  def", ft(2017, 10, 10), 3, "R3", 1, "A1", "T"},
+		{2, " /approve  no-issue", ft(2017, 10, 11), 2, "R2", 1, "A1", "T"},
+		{3, "/approve cancel ", ft(2017, 10, 12), 3, "R3", 1, "A1", "T"},
+		{4, "\n/area\n", ft(2017, 10, 13), 4, "R4", 1, "A1", "T"},
+		{5, "\n /remove   area \n", ft(2017, 10, 14), 1, "R1", 1, "A1", "T"},
+		{6, "/ assign", ft(2017, 10, 15), 2, "R2", 1, "A1", "T"},
+		{7, "/unassign 4", ft(2017, 10, 16), 3, "R3", 1, "A1", "T"},
+		{8, " /cc b c d ", ft(2017, 10, 17), 4, "R4", 1, "A1", "T"},
+		{9, "/uncc", ft(2017, 10, 18), 1, "R1", 1, "A1", "T"},
+		{10, " /close  ", ft(2017, 10, 19), 2, "R2", 1, "A1", "T"},
+		{11, "abc /reopen  def", ft(2017, 10, 20), 3, "R3", 1, "A1", "T"},
 	}
 
 	// Add texts
