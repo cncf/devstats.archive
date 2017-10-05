@@ -9,4 +9,10 @@ cp -n ${GRAFANA_DATA}public/img/grafana_icon.svg ${GRAFANA_DATA}public/img/grafa
 cp grafana/img/k8s.svg ${GRAFANA_DATA}public/img/grafana_icon.svg || exit 1
 cp -n ${GRAFANA_DATA}public/img/fav32.png ${GRAFANA_DATA}public/img/fav32.png.bak
 cp grafana/img/k8s32.png ${GRAFANA_DATA}public/img/fav32.png || exit 1
+cp -n ${GRAFANA_DATA}public/img/fav16.png ${GRAFANA_DATA}public/img/fav16.png.bak
+cp grafana/img/k8s32.png ${GRAFANA_DATA}public/img/fav16.png || exit 1
+cp -n ${GRAFANA_DATA}public/img/fav_dark_16.png ${GRAFANA_DATA}public/img/fav_dark_16.png.bak
+cp grafana/img/k8s32.png ${GRAFANA_DATA}public/img/fav_dark_16.png || exit 1
+cp -n ${GRAFANA_DATA}public/img/fav_dark_32.png ${GRAFANA_DATA}public/img/fav_dark_32.png.bak
+cp grafana/img/k8s32.png ${GRAFANA_DATA}public/img/fav_dark_32.png || exit 1
 echo 'OK'
