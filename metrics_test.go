@@ -254,10 +254,23 @@ func TestMetrics(t *testing.T) {
 			to:     ft(2017, 10),
 			n:      1,
 			expected: [][]interface{}{
-				{"company;company3`all;activity,authors,issues,prs,commits,review_comments,issue_comments,commit_comments,comments", 144, 3, 24, 24, 24, 24, 24, 24, 72},
-				{"company;company1`all;activity,authors,issues,prs,commits,review_comments,issue_comments,commit_comments,comments", 360, 2, 60, 60, 60, 60, 60, 60, 180},
-				{"company;company2`all;activity,authors,issues,prs,commits,review_comments,issue_comments,commit_comments,comments", 108, 2, 18, 18, 18, 18, 18, 18, 54},
-				{"company;company4`all;activity,authors,issues,prs,commits,review_comments,issue_comments,commit_comments,comments", 96, 2, 16, 16, 16, 16, 16, 16, 48},
+				{"company;company3`all;activity,authors,issues,prs,commits,review_comments,issue_comments,commit_comments,comments", "144.00", 3, "24.00", "24.00", "24.00", "24.00", "24.00", "24.00", "72.00"},
+				{"company;company1`all;activity,authors,issues,prs,commits,review_comments,issue_comments,commit_comments,comments", "360.00", 2, "60.00", "60.00", "60.00", "60.00", "60.00", "60.00", "180.00"},
+				{"company;company2`all;activity,authors,issues,prs,commits,review_comments,issue_comments,commit_comments,comments", "108.00", 2, "18.00", "18.00", "18.00", "18.00", "18.00", "18.00", "54.00"},
+				{"company;company4`all;activity,authors,issues,prs,commits,review_comments,issue_comments,commit_comments,comments", "96.00", 2, "16.00", "16.00", "16.00", "16.00", "16.00", "16.00", "48.00"},
+			},
+		},
+		{
+			setup:  setupAffiliationsMetric,
+			metric: "company_activity",
+			from:   ft(2017, 9),
+			to:     ft(2017, 10),
+			n:      2,
+			expected: [][]interface{}{
+				{"company;company3`all;activity,authors,issues,prs,commits,review_comments,issue_comments,commit_comments,comments", "72.00", 3, "12.00", "12.00", "12.00", "12.00", "12.00", "12.00", "36.00"},
+				{"company;company1`all;activity,authors,issues,prs,commits,review_comments,issue_comments,commit_comments,comments", "180.00", 2, "30.00", "30.00", "30.00", "30.00", "30.00", "30.00", "90.00"},
+				{"company;company2`all;activity,authors,issues,prs,commits,review_comments,issue_comments,commit_comments,comments", "54.00", 2, "9.00", "9.00", "9.00", "9.00", "9.00", "9.00", "27.00"},
+				{"company;company4`all;activity,authors,issues,prs,commits,review_comments,issue_comments,commit_comments,comments", "48.00", 2, "8.00", "8.00", "8.00", "8.00", "8.00", "8.00", "24.00"},
 			},
 		},
 		{
