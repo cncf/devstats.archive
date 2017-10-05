@@ -12,8 +12,7 @@ where
   and ev.created_at >= '{{from}}'
   and ev.created_at < '{{to}}'
   and affs.company_name not in ('Self')
-union select
-  'num_stats;' || r.repo_group || ';companies,developers' as name,
+union select 'num_stats;' || r.repo_group || ';companies,developers' as name,
   count(distinct affs.company_name) as n_companies,
   count(distinct ev.dup_actor_login) as n_authors
 from

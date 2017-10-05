@@ -65,7 +65,7 @@
           "dashes": false,
           "datasource": "${DS_INFLUXGHA}",
           "decimals": 0,
-          "description": "Shows how often various bot commands are used.",
+          "description": "Shows how often various bot commands are used in [[repogroup_name]] repository group.",
           "fill": 1,
           "id": 1,
           "legend": {
@@ -104,7 +104,7 @@
               "measurement": "sig_federation_d",
               "orderByTime": "ASC",
               "policy": "default",
-              "query": "SELECT /^[[commands]]$/ FROM \"bot_commands_[[period]]\" WHERE $timeFilter",
+              "query": "SELECT /^[[commands]]$/ FROM \"bot_commands_[[repogroup]]_[[period]]\" WHERE $timeFilter",
               "rawQuery": true,
               "refId": "A",
               "resultFormat": "time_series",
@@ -124,7 +124,7 @@
           "thresholds": [],
           "timeFrom": null,
           "timeShift": null,
-          "title": "Bot commands usage ([[period]])",
+          "title": "Bot commands usage ([[repogroup_name]], [[period]])",
           "tooltip": {
             "shared": true,
             "sort": 2,
@@ -224,6 +224,46 @@
         "type": "custom"
       },
       {
+        "allValue": null,
+        "current": {},
+        "datasource": "${DS_INFLUXGHA}",
+        "hide": 0,
+        "includeAll": false,
+        "label": "Repository group",
+        "multi": false,
+        "name": "repogroup_name",
+        "options": [],
+        "query": "SHOW TAG VALUES WITH KEY = all_repo_group_name",
+        "refresh": 1,
+        "regex": "",
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {},
+        "datasource": "${DS_INFLUXGHA}",
+        "hide": 2,
+        "includeAll": false,
+        "label": "",
+        "multi": false,
+        "name": "repogroup",
+        "options": [],
+        "query": "SHOW TAG VALUES WITH KEY = all_repo_group_value where all_repo_group_name =~ /^[[repogroup_name]]$/",
+        "refresh": 1,
+        "regex": "",
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
         "allValue": "",
         "current": {},
         "datasource": "${DS_INFLUXGHA}",
@@ -276,5 +316,5 @@
   },
   "timezone": "",
   "title": "Bot commands",
-  "version": 7
+  "version": 14
 }

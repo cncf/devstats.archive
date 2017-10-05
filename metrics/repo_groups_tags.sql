@@ -1,7 +1,6 @@
 select
   'All' as repo_group
-union select
-  distinct repo_group
+union select distinct repo_group
 from
   gha_repos
 where
