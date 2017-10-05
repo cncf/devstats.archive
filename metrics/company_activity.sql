@@ -1,13 +1,13 @@
 select concat('company;', sub.company, '`', sub.repo_group, ';activity,authors,issues,prs,commits,review_comments,issue_comments,commit_comments,comments'),
-  sub.activity,
+  round(sub.activity / {{n}}, 2) as activity,
   sub.authors,
-  sub.issues,
-  sub.prs,
-  sub.commits,
-  sub.review_comments,
-  sub.issue_comments,
-  sub.commit_comments,
-  sub.review_comments + sub.issue_comments + sub.commit_comments as comments
+  round(sub.issues / {{n}}, 2) as issues,
+  round(sub.prs / {{n}}, 2) as prs,
+  round(sub.commits / {{n}}, 2) as commits,
+  round(sub.review_comments / {{n}}, 2) as review_comments,
+  round(sub.issue_comments / {{n}}, 2) as issue_comments,
+  round(sub.commit_comments / {{n}}, 2) as commit_comments,
+  round((sub.review_comments + sub.issue_comments + sub.commit_comments) / {{n}}, 2) as comments
 from (
   select
     affs.company_name as company,
