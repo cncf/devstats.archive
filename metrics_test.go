@@ -119,11 +119,11 @@ func TestMetrics(t *testing.T) {
 			to:     ft(2017, 8),
 			n:      1,
 			expected: [][]interface{}{
-        {"sig_mentions_texts_bd,group2-bug", "2.00"},
-        {"sig_mentions_texts_bd,a-b-c-bug", "1.00"},
-        {"sig_mentions_texts_bd,group-1-bug", "1.00"},
-        {"sig_mentions_texts_bd,group-1-feature-request", "1.00"},
-        {"sig_mentions_texts_bd,group2-pr-review", "1.00"},
+				{"sig_mentions_texts_bd,group2-bug", "2.00"},
+				{"sig_mentions_texts_bd,a-b-c-bug", "1.00"},
+				{"sig_mentions_texts_bd,group-1-bug", "1.00"},
+				{"sig_mentions_texts_bd,group-1-feature-request", "1.00"},
+				{"sig_mentions_texts_bd,group2-pr-review", "1.00"},
 			},
 		},
 		{
@@ -133,11 +133,11 @@ func TestMetrics(t *testing.T) {
 			to:     ft(2017, 8),
 			n:      3,
 			expected: [][]interface{}{
-        {"sig_mentions_texts_bd,group2-bug", "0.67"},
-        {"sig_mentions_texts_bd,a-b-c-bug", "0.33"},
-        {"sig_mentions_texts_bd,group-1-bug", "0.33"},
-        {"sig_mentions_texts_bd,group-1-feature-request", "0.33"},
-        {"sig_mentions_texts_bd,group2-pr-review", "0.33"},
+				{"sig_mentions_texts_bd,group2-bug", "0.67"},
+				{"sig_mentions_texts_bd,a-b-c-bug", "0.33"},
+				{"sig_mentions_texts_bd,group-1-bug", "0.33"},
+				{"sig_mentions_texts_bd,group-1-feature-request", "0.33"},
+				{"sig_mentions_texts_bd,group2-pr-review", "0.33"},
 			},
 		},
 		{
@@ -147,9 +147,9 @@ func TestMetrics(t *testing.T) {
 			to:     ft(2017, 8),
 			n:      1,
 			expected: [][]interface{}{
-        {"sig_mentions_texts_cat,bug", "4.00"},
-        {"sig_mentions_texts_cat,feature-request", "1.00"},
-        {"sig_mentions_texts_cat,pr-review", "1.00"},
+				{"sig_mentions_texts_cat,bug", "4.00"},
+				{"sig_mentions_texts_cat,feature-request", "1.00"},
+				{"sig_mentions_texts_cat,pr-review", "1.00"},
 			},
 		},
 		{
