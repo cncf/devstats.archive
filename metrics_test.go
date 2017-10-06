@@ -95,9 +95,9 @@ func TestMetrics(t *testing.T) {
 			to:     ft(2017, 8),
 			n:      1,
 			expected: [][]interface{}{
-        {"sig_mentions_texts,group-1", "3.00"},
-        {"sig_mentions_texts,group2", "3.00"},
-        {"sig_mentions_texts,a-b-c", "1.00"},
+				{"sig_mentions_texts,group-1", "3.00"},
+				{"sig_mentions_texts,group2", "3.00"},
+				{"sig_mentions_texts,a-b-c", "1.00"},
 			},
 		},
 		{
@@ -107,9 +107,9 @@ func TestMetrics(t *testing.T) {
 			to:     ft(2017, 8),
 			n:      2,
 			expected: [][]interface{}{
-        {"sig_mentions_texts,group-1", "1.50"},
-        {"sig_mentions_texts,group2", "1.50"},
-        {"sig_mentions_texts,a-b-c", "0.50"},
+				{"sig_mentions_texts,group-1", "1.50"},
+				{"sig_mentions_texts,group2", "1.50"},
+				{"sig_mentions_texts,a-b-c", "0.50"},
 			},
 		},
 		{
