@@ -23,6 +23,7 @@ Prerequisites:
      GOPATH=$HOME/data/dev; export GOPATH
      PATH=$PATH:$GOPATH/bin; export PATH
      ```
+    - Set reuse TCP connections (Golang InfluxDB may need this under heavy load): `./scripts/net_tcp_config.sh`
 2. Go to $GOPATH/src/ and clone gha2db there:
     - `git clone https://github.com/cncf/gha2db.git`
 3. If you want to make changes and PRs, please clone `gha2db` from GitHub UI, and clone your forked version instead, like this:
