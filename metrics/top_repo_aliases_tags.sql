@@ -9,6 +9,7 @@ from (
     gha_events e
   where
     e.repo_id = r.id
+    and r.alias is not null
   group by
     r.alias
   order by

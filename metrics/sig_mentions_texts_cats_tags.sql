@@ -1,7 +1,7 @@
 select
   *
 from (
-  values 
+  values
     ('pr-review'),
     ('misc'),
     ('bug'),
