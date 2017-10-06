@@ -267,9 +267,9 @@ func TestMetrics(t *testing.T) {
 			to:     ft(2017, 10),
 			n:      1,
 			expected: [][]interface{}{
-				{"labels_sig,sig1", 3},
-				{"labels_sig,sig2", 2},
-				{"labels_sig,sig3", 1},
+				{"sig_mentions_labels_sig,sig1", "3.00"},
+				{"sig_mentions_labels_sig,sig2", "2.00"},
+				{"sig_mentions_labels_sig,sig3", "1.00"},
 			},
 		},
 		{
@@ -279,9 +279,9 @@ func TestMetrics(t *testing.T) {
 			to:     ft(2017, 10),
 			n:      1,
 			expected: [][]interface{}{
-				{"labels_kind,kind1", 2},
-				{"labels_kind,kind2", 2},
-				{"labels_kind,kind3", 1},
+				{"sig_mentions_labels_kind,kind1", "2.00"},
+				{"sig_mentions_labels_kind,kind2", "2.00"},
+				{"sig_mentions_labels_kind,kind3", "1.00"},
 			},
 		},
 		{
@@ -291,9 +291,9 @@ func TestMetrics(t *testing.T) {
 			to:     ft(2017, 10),
 			n:      1,
 			expected: [][]interface{}{
-				{"labels_sig_kind,sig1_kind1", 2},
-				{"labels_sig_kind,sig1_kind2", 1},
-				{"labels_sig_kind,sig2_kind2", 1},
+				{"sig_mentions_labels_sig_kind,sig1-kind1", "2.00"},
+				{"sig_mentions_labels_sig_kind,sig1-kind2", "1.00"},
+				{"sig_mentions_labels_sig_kind,sig2-kind2", "1.00"},
 			},
 		},
 		{
