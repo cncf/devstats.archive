@@ -1,9 +1,10 @@
 select
-  'sigm,' || substring(sig from 13) as sig,
-  count(*) as count_value
+  'sig_mentions_texts,' || substring(sig from 17) as sig,
+  round(count(distinct eid) / {{n}}, 2) as count_value
 from
   (
-    select lower(coalesce(
+    select event_id as eid,
+      lower(coalesce(
         substring(
           body from '(?i)(?:^|\s)+(@kubernetes/sig-[\w\d-]+)(?:-bug|-feature-request|-pr-review|-api-review|-misc|-proposal|-design-proposal|-test-failure)s?(?:$|[^\w\d-]+)'
         ),
