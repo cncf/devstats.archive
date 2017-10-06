@@ -439,6 +439,7 @@ func TestMetrics(t *testing.T) {
 			to:     ft(2017, 9, 15),
 			n:      1,
 			expected: [][]interface{}{
+				{"contrib;All;watchers,forks,open_issues", 158, 158, 158},
 				{"contrib;Org2/Repo4;watchers,forks,open_issues", 111, 112, 113},
 				{"contrib;Repo3;watchers,forks,open_issues", 23, 22, 21},
 				{"contrib;Org1/Repo2;watchers,forks,open_issues", 13, 12, 11},
