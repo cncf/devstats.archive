@@ -1,6 +1,6 @@
 select
-  'labels_kind,' || sel.kind as kind,
-  count(distinct issue_id) as cnt
+  'sig_mentions_labels_kind,' || sel.kind as kind,
+  round(count(distinct issue_id) / {{n}}, 2) as cnt
 from (
   select distinct issue_id,
     lower(substring(dup_label_name from '(?i)kind/(.*)')) as kind
