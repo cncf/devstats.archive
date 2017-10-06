@@ -1,6 +1,6 @@
 select
-  concat('labels_sig_kind,', sel1.sig, '_', sel2.kind) as sig_kind,
-  count(distinct sel1.issue_id) as cnt
+  concat('sig_mentions_labels_sig_kind,', sel1.sig, '-', sel2.kind) as sig_kind,
+  round(count(distinct sel1.issue_id) / {{n}}, 2) as cnt
 from (
   select distinct issue_id,
     lower(substring(dup_label_name from '(?i)sig/(.*)')) as sig
