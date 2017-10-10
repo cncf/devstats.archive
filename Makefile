@@ -1,9 +1,9 @@
 GO_LIB_FILES=pg_conn.go error.go mgetc.go map.go threads.go gha.go json.go idb_conn.go time.go context.go exec.go structure.go log.go hash.go unicode.go
-GO_BIN_FILES=cmd/structure/structure.go cmd/runq/runq.go cmd/gha2db/gha2db.go cmd/db2influx/db2influx.go cmd/gha2db_sync/gha2db_sync.go cmd/z2influx/z2influx.go cmd/import_affs/import_affs.go cmd/annotations/annotations.go cmd/idb_tags/idb_tags.go
+GO_BIN_FILES=cmd/structure/structure.go cmd/runq/runq.go cmd/gha2db/gha2db.go cmd/db2influx/db2influx.go cmd/gha2db_sync/gha2db_sync.go cmd/z2influx/z2influx.go cmd/import_affs/import_affs.go cmd/annotations/annotations.go cmd/idb_tags/idb_tags.go cmd/idb_backup/idb_backup.go
 GO_TEST_FILES=context_test.go gha_test.go map_test.go mgetc_test.go threads_test.go time_test.go unicode_test.go
 GO_DBTEST_FILES=pg_test.go idb_test.go metrics_test.go
 GO_LIBTEST_FILES=test/compare.go test/time.go
-GO_BIN_CMDS=gha2db/cmd/structure gha2db/cmd/runq gha2db/cmd/gha2db gha2db/cmd/db2influx gha2db/cmd/gha2db_sync gha2db/cmd/z2influx gha2db/cmd/import_affs gha2db/cmd/annotations gha2db/cmd/idb_tags
+GO_BIN_CMDS=gha2db/cmd/structure gha2db/cmd/runq gha2db/cmd/gha2db gha2db/cmd/db2influx gha2db/cmd/gha2db_sync gha2db/cmd/z2influx gha2db/cmd/import_affs gha2db/cmd/annotations gha2db/cmd/idb_tags gha2db/cmd/idb_backup
 GO_ENV=CGO_ENABLED=0
 GO_BUILD=go build
 GO_INSTALL=go install
@@ -12,7 +12,7 @@ GO_LINT=golint
 GO_VET=go vet
 GO_IMPORTS=goimports -w
 GO_TEST=go test
-BINARIES=structure runq gha2db db2influx z2influx gha2db_sync import_affs annotations idb_tags
+BINARIES=structure runq gha2db db2influx z2influx gha2db_sync import_affs annotations idb_tags idb_backup
 CRON_SCRIPTS=cron_db_backup.sh cron_gha2db_sync.sh
 STRIP=strip
 
@@ -44,6 +44,9 @@ annotations: cmd/annotations/annotations.go ${GO_LIB_FILES}
 
 idb_tags: cmd/idb_tags/idb_tags.go ${GO_LIB_FILES}
 	 ${GO_ENV} ${GO_BUILD} -o idb_tags cmd/idb_tags/idb_tags.go
+
+idb_backup: cmd/idb_backup/idb_backup.go ${GO_LIB_FILES}
+	 ${GO_ENV} ${GO_BUILD} -o idb_backup cmd/idb_backup/idb_backup.go
 
 fmt: ${GO_BIN_FILES} ${GO_LIB_FILES} ${GO_TEST_FILES} ${GO_DBTEST_FILES} ${GO_LIBTEST_FILES}
 	./for_each_go_file.sh "${GO_FMT}"
@@ -79,6 +82,6 @@ strip: ${BINARIES}
 	${STRIP} ${BINARIES}
 
 clean:
-	rm -f structure runq gha2db db2influx z2influx gha2db_sync import_affs annotations idb_tags
+	rm -f structure runq gha2db db2influx z2influx gha2db_sync import_affs annotations idb_tags idb_backup
 
 .PHONY: test
