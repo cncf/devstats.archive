@@ -45,7 +45,7 @@ func TestMetrics(t *testing.T) {
 			from:     ft(2017, 9),
 			to:       ft(2017, 10),
 			n:        1,
-			expected: [][]interface{}{{3}},
+			expected: [][]interface{}{{4}},
 		},
 		{
 			setup:  setupReviewersMetric,
