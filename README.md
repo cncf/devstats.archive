@@ -1,3 +1,4 @@
+https://travis-ci.org/cncf/gha2db.svg?branch=master
 # GitHub archives Grafana visualization dashboards
 
 Author: Łukasz Gryglicki <lukaszgryglick@o2.pl>
