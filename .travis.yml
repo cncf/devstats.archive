@@ -13,7 +13,7 @@ before_install:
   - go get golang.org/x/text/transform
   - go get golang.org/x/text/unicode/norm
   - go get gopkg.in/yaml.v2
-  - apt-get install postgresql
+  - sudo apt-get install postgresql curl
   - sudo -u postgres createdb gha
   - sudo -u postgres psql gha -c "create user gha_admin with password 'pwd';"
   - sudo -u postgres psql gha -c 'grant all privileges on database "gha" to gha_admin;'
@@ -21,7 +21,8 @@ before_install:
   - curl -sL https://repos.influxdata.com/influxdb.key | sudo apt-key add -
   - source /etc/lsb-release
   - echo "deb https://repos.influxdata.com/${DISTRIB_ID,,} ${DISTRIB_CODENAME} stable" | sudo tee /etc/apt/sources.list.d/influxdb.list
-  - sudo apt-get update && sudo apt-get install influxdb
+  - sudo apt-get update
+  - sudo apt-get install influxdb
   - sudo service influxdb start
 
 script:
