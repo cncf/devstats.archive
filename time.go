@@ -172,7 +172,7 @@ func TimeParseAny(dtStr string) time.Time {
 	return time.Now()
 }
 
-// TimeParseIDB - parse IfluxDB time output string into time.Time
+// TimeParseIDB - parse InfluxDB time output string into time.Time
 func TimeParseIDB(dtStr string) time.Time {
 	t, err := time.Parse(time.RFC3339, dtStr)
 	FatalOnError(err)
