@@ -1,4 +1,5 @@
-https://travis-ci.org/cncf/gha2db.svg?branch=master
+[![Build Status](https://travis-ci.org/cncf/gha2db.svg?branch=master)](https://travis-ci.org/cncf/gha2db)
+
 # GitHub archives Grafana visualization dashboards
 
 Author: Łukasz Gryglicki <lukaszgryglick@o2.pl>
