@@ -2,6 +2,9 @@
 
 Each dashboard is defined by its metrics SQL, saved Grafana JSON export and link to dashboard running on <https://cncftest.io>  
 
+Many dashboards use "Repository group" drop-down. Repository groups are defined manually to group similar repositories into single projects.
+They are defined here: [repo_groups.sql](https://github.com/cncf/gha2db/blob/master/scripts/repo_groups.sql)
+
 1) Reviewers dashboard: [reviewers.sql](https://github.com/cncf/gha2db/blob/master/metrics/reviewers.sql), [reviewers.json](https://github.com/cncf/gha2db/blob/master/grafana/dashboards/reviewers.json), [view](https://cncftest.io/dashboard/db/reviewers?orgId=1).
 2) SIG mentions dashboard: [sig_mentions.sql](https://github.com/cncf/gha2db/blob/master/metrics/sig_mentions.sql), [sig_mentions.json](https://github.com/cncf/gha2db/blob/master/grafana/dashboards/sig_mentions.json), [view](https://cncftest.io/dashboard/db/sig-mentions?orgId=1).
 3) SIG mentions breakdown by categories dashboard: [sig_mentions_cats.sql](https://github.com/cncf/gha2db/blob/master/metrics/sig_mentions_cats.sql), [sig_mentions_breakdown.sql](https://github.com/cncf/gha2db/blob/master/metrics/sig_mentions_breakdown.sql), [sig_mentions_cats.json](https://github.com/cncf/gha2db/blob/master/grafana/dashboards/sig_mentions_cats.json), [view](https://cncftest.io/dashboard/db/sig-mentions-categories?orgId=1).
