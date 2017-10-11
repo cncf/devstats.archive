@@ -55,6 +55,7 @@ func copyContext(in *lib.Ctx) *lib.Ctx {
 		LogTime:          in.LogTime,
 		WebHookRoot:      in.WebHookRoot,
 		WebHookPort:      in.WebHookPort,
+		CheckPayload:     in.CheckPayload,
 	}
 	return &out
 }
@@ -174,6 +175,7 @@ func TestInit(t *testing.T) {
 		LogTime:          true,
 		WebHookRoot:      "/hook",
 		WebHookPort:      ":1982",
+		CheckPayload:     true,
 	}
 
 	// Test cases
@@ -449,6 +451,15 @@ func TestInit(t *testing.T) {
 				t,
 				copyContext(&defaultContext),
 				map[string]interface{}{"WebHookRoot": "/root", "WebHookPort": ":1666"},
+			),
+		},
+		{
+			"Setting skip check webhook payload",
+			map[string]string{"GHA2DB_SKIP_VERIFY_PAYLOAD": "1"},
+			dynamicSetFields(
+				t,
+				copyContext(&defaultContext),
+				map[string]interface{}{"CheckPayload": false},
 			),
 		},
 		{

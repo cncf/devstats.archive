@@ -8,7 +8,7 @@ GO_ENV=CGO_ENABLED=0
 GO_BUILD=go build
 GO_INSTALL=go install
 GO_FMT=gofmt -s -w
-GO_LINT=golint
+GO_LINT=golint -set_exit_status
 GO_VET=go vet
 GO_CONST=goconst
 GO_IMPORTS=goimports -w
