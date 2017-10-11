@@ -16,7 +16,7 @@ func FatalOnError(err error) string {
 		case *pq.Error:
 			errName := e.Code.Name()
 			if errName == "too_many_connections" {
-				return "retry"
+				return Retry
 			}
 		}
 		panic("stacktrace")

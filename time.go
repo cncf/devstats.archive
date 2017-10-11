@@ -300,7 +300,7 @@ func GetIntervalFunctions(intervalAbbr string) (interval string, n int, interval
 		nextIntervalStart = NextMonthStart
 		prevIntervalStart = PrevMonthStart
 	case "q":
-		interval = "quarter"
+		interval = Quarter
 		intervalStart = QuarterStart
 		nextIntervalStart = NextQuarterStart
 		prevIntervalStart = PrevQuarterStart
