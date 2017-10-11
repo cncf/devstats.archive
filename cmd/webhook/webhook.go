@@ -134,6 +134,7 @@ func webhookHandler(w http.ResponseWriter, r *http.Request) {
 	ctx.Init()
 
 	// Payload checking
+	var jsonStr string
 	if ctx.CheckPayload {
 		key, err := travisPublicKey()
 		if checkError(w, err) {
@@ -143,31 +144,33 @@ func webhookHandler(w http.ResponseWriter, r *http.Request) {
 		if checkError(w, err) {
 			return
 		}
-		formPayload := r.FormValue("payload")
-		fmt.Printf("payload-->%s\n", formPayload)
-		payload := payloadDigest(formPayload)
+		jsonStr = r.FormValue("payload")
+		payload := payloadDigest(jsonStr)
 		err = rsa.VerifyPKCS1v15(key, crypto.SHA1, payload, signature)
 		if err != nil {
 			lib.Printf("webhook: unauthorized payload: %v", err)
 			respondWithError(w, errors.New("unauthorized payload").Error())
 			return
 		}
+	} else {
+		body, err := ioutil.ReadAll(r.Body)
+		if checkError(w, err) {
+			return
+		}
+		sBody, err := url.QueryUnescape(string(body))
+		if checkError(w, err) {
+			return
+		}
+		jsonStr = sBody[8:]
 	}
-	body, err := ioutil.ReadAll(r.Body)
-	if checkError(w, err) {
-		return
-	}
-	sBody, err := url.QueryUnescape(string(body))
-	if checkError(w, err) {
-		return
-	}
+	fmt.Printf("jsonStr: %+v\n", jsonStr)
+	pretty := lib.PrettyPrintJSON([]byte(jsonStr))
+	fmt.Printf("pretty: %+v\n", string(pretty))
 	var payload payload
-	jsonStr := []byte(sBody[8:])
-	err = json.Unmarshal(jsonStr, &payload)
+	err := json.Unmarshal([]byte(jsonStr), &payload)
 	if checkError(w, err) {
 		return
 	}
-	//pretty := lib.PrettyPrintJSON(jsonStr)
 	fmt.Printf("%+v\n", payload)
 	respondWithSuccess(w, "ok")
 }
