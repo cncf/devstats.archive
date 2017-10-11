@@ -97,6 +97,8 @@ You can tweak `gha2db` tools by environment variables:
 - Set `GHA2DB_MAXLOGAGE` for `gha2db_sync` tool, maximum age of DB logs stored in `gha_logs` table, default "1 week" (logs are cleared in `gha2db_sync` job).
 - Set `GHA2DB_TRIALS` for tools that use Postgres DB, set retry periods when "too many connection open" psql error appears, default is "10,30,60,120,300,600" (so 30s, 1min, 2min, 5min, 10min).
 - Set `GHA2DB_SKIPTIME` for all tools to skip time output in program outputs (default is to show time).
+- Set `GHA2DB_WHROOT`, for webhook tool, default "/hook", must match .travis.yml notifications webhooks
+- Set `GHA2DB_WHPORT`, for webhook tool, default ":1982", must match .travis.yml notifications webhooks
 
 All environment context details are defined in [context.go](https://github.com/cncf/gha2db/blob/master/context.go), please see that file for details (You can also see how it works in [context_test.go](https://github.com/cncf/gha2db/blob/master/context_test.go)).
 
