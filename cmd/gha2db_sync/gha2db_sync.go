@@ -14,12 +14,12 @@ import (
 	yaml "gopkg.in/yaml.v2"
 )
 
-// Gaps contain list of metrics to fill gaps
-type Gaps struct {
-	Metrics []MetricGap `yaml:"metrics"`
+// gaps contain list of metrics to fill gaps
+type gaps struct {
+	Metrics []metricGap `yaml:"metrics"`
 }
 
-// MetricGap conain list of series names and periods to fill gaps
+// metricGap conain list of series names and periods to fill gaps
 // Series formula allows writing a lot of series name in a shorter way
 // Say we have series in this form prefix_{x}_{y}_{z}_suffix
 // and {x} can be a,b,c,d, {y} can be 1,2,3, z can be yes,no
@@ -29,7 +29,7 @@ type Gaps struct {
 // format is "=prefix;suffix;join;list1item1,list1item2,...;list2item1,list2item2,...;..."
 // Values can be set the same way as Series, it is the array of series properties to clear
 // If not specified, ["value"] is assumed - it is used for multi-value series
-type MetricGap struct {
+type metricGap struct {
 	Name      string   `yaml:"name"`
 	Series    []string `yaml:"series"`
 	Periods   string   `yaml:"periods"`
@@ -39,13 +39,13 @@ type MetricGap struct {
 	Values    []string `yaml:"values"`
 }
 
-// Metrics contain list of metrics to evaluate
-type Metrics struct {
-	Metrics []Metric `yaml:"metrics"`
+// metrics contain list of metrics to evaluate
+type metrics struct {
+	Metrics []metric `yaml:"metrics"`
 }
 
-// Metric contain each metric data
-type Metric struct {
+// metric contain each metric data
+type metric struct {
 	Name             string `yaml:"name"`
 	Periods          string `yaml:"periods"`
 	SeriesNameOrFunc string `yaml:"series_name_or_func"`
@@ -159,11 +159,11 @@ func createSeriesFromFormula(def string) (result []string) {
 // Reads config from YAML (which series, for which periods)
 func fillGapsInSeries(ctx *lib.Ctx, from, to time.Time) {
 	lib.Printf("Fill gaps in series\n")
-	var gaps Gaps
+	var gaps gaps
 
 	// Local or cron mode?
 	cmdPrefix := ""
-	dataPrefix := "/etc/gha2db/"
+	dataPrefix := lib.DataDir
 	if ctx.Local {
 		cmdPrefix = "./"
 		dataPrefix = "./"
@@ -307,7 +307,7 @@ func sync(args []string) {
 
 	// Local or cron mode?
 	cmdPrefix := ""
-	dataPrefix := "/etc/gha2db/"
+	dataPrefix := lib.DataDir
 	if ctx.Local {
 		cmdPrefix = "./"
 		dataPrefix = "./"
@@ -401,7 +401,7 @@ func sync(args []string) {
 			lib.FatalOnError(err)
 			return
 		}
-		var allMetrics Metrics
+		var allMetrics metrics
 		lib.FatalOnError(yaml.Unmarshal(data, &allMetrics))
 
 		// Iterate all metrics

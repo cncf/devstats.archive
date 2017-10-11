@@ -296,7 +296,7 @@ func db2influxHistogram(ctx *lib.Ctx, seriesNameOrFunc, sqlQuery, interval, inte
 
 	// Prepare SQL query
 	dbInterval := fmt.Sprintf("%d %s", nIntervals, interval)
-	if interval == "quarter" {
+	if interval == lib.Quarter {
 		dbInterval = fmt.Sprintf("%d month", nIntervals*3)
 	}
 	sqlQuery = strings.Replace(sqlQuery, "{{period}}", dbInterval, -1)

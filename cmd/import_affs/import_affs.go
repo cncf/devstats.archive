@@ -13,28 +13,28 @@ import (
 	lib "gha2db"
 )
 
-// GitHubUsers - list of GitHub user data from cncf/gitdm.
-type GitHubUsers []GitHubUser
+// gitHubUsers - list of GitHub user data from cncf/gitdm.
+type gitHubUsers []gitHubUser
 
-// GitHubUser - single GitHug user entry from cncf/gitdm `github_users.json` JSON.
-type GitHubUser struct {
+// gitHubUser - single GitHug user entry from cncf/gitdm `github_users.json` JSON.
+type gitHubUser struct {
 	Login       string `json:"login"`
 	Email       string `json:"email"`
 	Affiliation string `json:"affiliation"`
 	Name        string `json:"name"`
 }
 
-// StringSet - set of strings
-type StringSet map[string]struct{}
+// stringSet - set of strings
+type stringSet map[string]struct{}
 
-// MapStringSet - this is a map from string to Set of strings
-type MapStringSet map[string]StringSet
+// mapStringSet - this is a map from string to Set of strings
+type mapStringSet map[string]stringSet
 
-// MapIntArray - this is a map form string to array of ints
-type MapIntArray map[string][]int
+// mapIntArray - this is a map form string to array of ints
+type mapIntArray map[string][]int
 
-// AffData - holds single affiliation data
-type AffData struct {
+// affData - holds single affiliation data
+type affData struct {
 	Login   string
 	Company string
 	From    time.Time
@@ -89,8 +89,8 @@ func findActorIDs(db *sql.DB, ctx *lib.Ctx, login string) (actIDs []int) {
 	return
 }
 
-// returns first value from StringSet
-func firstKey(strMap StringSet) string {
+// returns first value from stringSet
+func firstKey(strMap stringSet) string {
 	for key := range strMap {
 		return key
 	}
@@ -118,7 +118,7 @@ func importAffs(jsonFN string) {
 	defer con.Close()
 
 	// Parse github_users.json
-	var users GitHubUsers
+	var users gitHubUsers
 	data, err := ioutil.ReadFile(jsonFN)
 	if err != nil {
 		lib.FatalOnError(err)
@@ -128,9 +128,9 @@ func importAffs(jsonFN string) {
 
 	// Process users affiliations
 	emptyVal := struct{}{}
-	loginEmails := make(MapStringSet)
-	loginNames := make(MapStringSet)
-	loginAffs := make(MapStringSet)
+	loginEmails := make(mapStringSet)
+	loginNames := make(mapStringSet)
+	loginAffs := make(mapStringSet)
 	eNames, eEmails, eAffs := 0, 0, 0
 	for _, user := range users {
 		// Email decode ! --> @
@@ -141,7 +141,7 @@ func importAffs(jsonFN string) {
 		if email != "" {
 			_, ok := loginEmails[login]
 			if !ok {
-				loginEmails[login] = StringSet{}
+				loginEmails[login] = stringSet{}
 			}
 			loginEmails[login][email] = emptyVal
 		} else {
@@ -153,7 +153,7 @@ func importAffs(jsonFN string) {
 		if name != "" {
 			_, ok := loginNames[login]
 			if !ok {
-				loginNames[login] = StringSet{}
+				loginNames[login] = stringSet{}
 			}
 			loginNames[login][name] = emptyVal
 		} else {
@@ -165,7 +165,7 @@ func importAffs(jsonFN string) {
 		if aff != "NotFound" && aff != "?" {
 			_, ok := loginAffs[login]
 			if !ok {
-				loginAffs[login] = StringSet{}
+				loginAffs[login] = stringSet{}
 			}
 			loginAffs[login][aff] = emptyVal
 		} else {
@@ -205,7 +205,7 @@ func importAffs(jsonFN string) {
 	lib.Printf("%d non-empty names, added actors: %d, updated actors: %d\n", len(loginNames), added, updated)
 
 	// Login - Email(s) 1:N
-	cacheActIDs := make(MapIntArray)
+	cacheActIDs := make(mapIntArray)
 	added, allEmails := 0, 0
 	for login, emails := range loginEmails {
 		actIDs := findActorIDs(con, &ctx, login)
@@ -241,8 +241,8 @@ func importAffs(jsonFN string) {
 	unique, nonUnique, allAffs := 0, 0, 0
 	defaultStartDate := time.Date(1970, 1, 1, 0, 0, 0, 0, time.UTC)
 	defaultEndDate := time.Date(2099, 1, 1, 0, 0, 0, 0, time.UTC)
-	companies := make(StringSet)
-	var affList []AffData
+	companies := make(stringSet)
+	var affList []affData
 	for login, affs := range loginAffs {
 		var affsAry []string
 		if len(affs) > 1 {
@@ -289,7 +289,7 @@ func importAffs(jsonFN string) {
 				dtTo = defaultEndDate
 			}
 			companies[company] = emptyVal
-			affList = append(affList, AffData{Login: login, Company: company, From: dtFrom, To: dtTo})
+			affList = append(affList, affData{Login: login, Company: company, From: dtFrom, To: dtTo})
 			prevDate = dtTo
 			allAffs++
 		}
