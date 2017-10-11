@@ -1488,14 +1488,14 @@ func gha2db(args []string) {
 	startD, startH, endD, endH := args[0], args[1], args[2], args[3]
 
 	// Parse from day & hour
-	if strings.ToLower(startH) == "now" {
+	if strings.ToLower(startH) == lib.Now {
 		hourFrom = now.Hour()
 	} else {
 		hourFrom, err = strconv.Atoi(startH)
 		lib.FatalOnError(err)
 	}
 
-	if strings.ToLower(startD) == "today" {
+	if strings.ToLower(startD) == lib.Today {
 		dFrom = lib.DayStart(now).Add(time.Duration(hourFrom) * time.Hour)
 	} else {
 		dFrom, err = time.Parse(
@@ -1506,14 +1506,14 @@ func gha2db(args []string) {
 	}
 
 	// Parse to day & hour
-	if strings.ToLower(endH) == "now" {
+	if strings.ToLower(endH) == lib.Now {
 		hourTo = now.Hour()
 	} else {
 		hourTo, err = strconv.Atoi(endH)
 		lib.FatalOnError(err)
 	}
 
-	if strings.ToLower(endD) == "today" {
+	if strings.ToLower(endD) == lib.Today {
 		dTo = lib.DayStart(now).Add(time.Duration(hourTo) * time.Hour)
 	} else {
 		dTo, err = time.Parse(

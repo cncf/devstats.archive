@@ -1,8 +1,8 @@
 # gha2db installation on Ubuntu
 
 Prerequisites:
-1. Ubuntu 16.04 LTS (quite old, but longest support).
-2. [golang](https://golang.org), this tutorial uses Go 1.6
+- Ubuntu 16.04 LTS (quite old, but longest support).
+- [golang](https://golang.org), this tutorial uses Go 1.6
     - `apt-get update`
     - `apt-get install golang`
     - `mkdir /data/dev`
@@ -10,12 +10,14 @@ Prerequisites:
     - `export GOPATH`
     - `PATH=$PATH:$GOPATH/bin`
     - `export PATH`
-3. [golint](https://github.com/golang/lint): `go get -u github.com/golang/lint/golint`
-4. [goimports](https://godoc.org/golang.org/x/tools/cmd/goimports): `go get golang.org/x/tools/cmd/goimports`
-5. Go InfluxDB client: install with: `go get github.com/influxdata/influxdb/client/v2`
-6. Go Postgres client: install with: `go get github.com/lib/pq`
-7. Go unicode text transform tools: install with: `go get golang.org/x/text/transform` and `go get golang.org/x/text/unicode/norm`
-8. Go YAML parser library: install with: `go get gopkg.in/yaml.v2`
+- [golint](https://github.com/golang/lint): `go get -u github.com/golang/lint/golint`
+- [goimports](https://godoc.org/golang.org/x/tools/cmd/goimports): `go get golang.org/x/tools/cmd/goimports`
+- [goconst](https://github.com/jgautheron/goconst): `go get github.com/jgautheron/goconst/cmd/goconst`
+- [usedexports](https://github.com/jgautheron/usedexports): `go get github.com/jgautheron/usedexports`
+- Go InfluxDB client: install with: `go get github.com/influxdata/influxdb/client/v2`
+- Go Postgres client: install with: `go get github.com/lib/pq`
+- Go unicode text transform tools: install with: `go get golang.org/x/text/transform` and `go get golang.org/x/text/unicode/norm`
+- Go YAML parser library: install with: `go get gopkg.in/yaml.v2`
 
 1. Configure Go:
     - For example add to `~/.bash_profile` and/or `~/.profile`:
