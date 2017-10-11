@@ -14,6 +14,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"time"
 )
 
 // Payload signature verification based on:
@@ -138,6 +139,9 @@ func webhookHandler(w http.ResponseWriter, r *http.Request) {
 	var ctx lib.Ctx
 	ctx.Init()
 
+	// Processing new webhook
+	lib.Printf("Webhook processing event at %v\n", time.Now())
+
 	// Payload checking
 	var jsonStr string
 	if ctx.CheckPayload {
@@ -191,5 +195,6 @@ func main() {
 	// WebHookRoot defaults to "/"
 	// WebHookPort defaults to ":1982"
 	http.HandleFunc(ctx.WebHookRoot, webhookHandler)
+	lib.Printf("Webhook started at %v\n", time.Now())
 	http.ListenAndServe(ctx.WebHookPort, nil)
 }

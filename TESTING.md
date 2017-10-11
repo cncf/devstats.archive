@@ -7,3 +7,4 @@
 - Or use script shortcut: `PG_PASS=pwd IDB_PASS=pwd ./dbtest.sh`.
 3. To check all sources using multiple go tools (like fmt, lint, imports, vet, goconst, usedexports), run `make check`.
 4. To check Travis CI payloads use `GHA2DB_SKIP_VERIFY_PAYLOAD=1 ./webhook` and then `./test_webhook.sh`.
+5. Continuous deployment instructions are [here](https://github.com/cncf/gha2db/blob/master/CONTINUOUS_DEPLOYMENT.md).
