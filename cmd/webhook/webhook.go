@@ -127,6 +127,11 @@ func checkError(w http.ResponseWriter, err error) bool {
 	return false
 }
 
+// successPayload: is this a success payload?
+func successPayload(pl payload) bool {
+	return pl.Result == 0 && (pl.ResultMessage == "Passed" || pl.ResultMessage == "Fixed")
+}
+
 // webhookHandler receives Travis CI webhook and parses it
 func webhookHandler(w http.ResponseWriter, r *http.Request) {
 	// Environment context parse
@@ -163,12 +168,14 @@ func webhookHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		jsonStr = sBody[8:]
 	}
-	fmt.Printf("jsonStr: %+v\n", jsonStr)
-	pretty := lib.PrettyPrintJSON([]byte(jsonStr))
-	fmt.Printf("pretty: %+v\n", string(pretty))
+	//pretty := lib.PrettyPrintJSON([]byte(jsonStr))
 	var payload payload
 	err := json.Unmarshal([]byte(jsonStr), &payload)
 	if checkError(w, err) {
+		return
+	}
+	if !successPayload(payload) {
+		checkError(w, errors.New("webhook: this is a failed payload, skipping deploy step"))
 		return
 	}
 	fmt.Printf("%+v\n", payload)
