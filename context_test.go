@@ -53,6 +53,8 @@ func copyContext(in *lib.Ctx) *lib.Ctx {
 		ClearDBPeriod:    in.ClearDBPeriod,
 		Trials:           in.Trials,
 		LogTime:          in.LogTime,
+		WebHookRoot:      in.WebHookRoot,
+		WebHookPort:      in.WebHookPort,
 	}
 	return &out
 }
@@ -170,6 +172,8 @@ func TestInit(t *testing.T) {
 		ClearDBPeriod:    "1 week",
 		Trials:           []int{10, 30, 60, 120, 300, 600},
 		LogTime:          true,
+		WebHookRoot:      "/hook",
+		WebHookPort:      ":1982",
 	}
 
 	// Test cases
@@ -436,6 +440,15 @@ func TestInit(t *testing.T) {
 				t,
 				copyContext(&defaultContext),
 				map[string]interface{}{"ClearDBPeriod": "3 days"},
+			),
+		},
+		{
+			"Setting webhook data",
+			map[string]string{"GHA2DB_WHROOT": "/root", "GHA2DB_WHPORT": ":1666"},
+			dynamicSetFields(
+				t,
+				copyContext(&defaultContext),
+				map[string]interface{}{"WebHookRoot": "/root", "WebHookPort": ":1666"},
 			),
 		},
 		{
