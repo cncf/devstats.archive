@@ -48,10 +48,11 @@ type Ctx struct {
 	MetricsYaml      string    // From GHA2DB_METRICS_YAML gha2db_sync tool, set other metrics.yaml file, default is "metrics/metrics.yaml"
 	GapsYaml         string    // From GHA2DB_GAPS_YAML gha2db_sync tool, set other gaps.yaml file, default is "metrics/gaps.yaml"
 	TagsYaml         string    // From GHA2DB_TAGS_YAML idb_tags tool, set other idb_tags.yaml file, default is "metrics/idb_tags.yaml"
-	ClearDBPeriod    string    // FROM GHA2DB_MAXLOGAGE gha2db_sync tool, maximum age of gha_logs entries, default "1 week"
-	Trials           []int     // FROM GHA2DB_TRIALS, all Postgres related tools, retry periods for "too many connections open" error
+	ClearDBPeriod    string    // From GHA2DB_MAXLOGAGE gha2db_sync tool, maximum age of gha_logs entries, default "1 week"
+	Trials           []int     // From GHA2DB_TRIALS, all Postgres related tools, retry periods for "too many connections open" error
 	WebHookRoot      string    // From GHA2DB_WHROOT, webhook tool, default "/hook", must match .travis.yml notifications webhooks
 	WebHookPort      string    // From GHA2DB_WHPORT, webhook tool, default ":1982", must match .travis.yml notifications webhooks
+	CheckPayload     bool      // From GHA2DB_SKIP_VERIFY_PAYLOAD, webhook tool, default true, use GHA2DB_SKIP_VERIFY_PAYLOAD=1 to manually test payloads
 }
 
 // Init - get context from environment variables
@@ -235,6 +236,7 @@ func (ctx *Ctx) Init() {
 	if ctx.WebHookPort == "" {
 		ctx.WebHookPort = ":1982"
 	}
+	ctx.CheckPayload = os.Getenv("GHA2DB_SKIP_VERIFY_PAYLOAD") == ""
 
 	// Context out if requested
 	if ctx.CtxOut {
