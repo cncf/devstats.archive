@@ -50,6 +50,8 @@ type Ctx struct {
 	TagsYaml         string    // From GHA2DB_TAGS_YAML idb_tags tool, set other idb_tags.yaml file, default is "metrics/idb_tags.yaml"
 	ClearDBPeriod    string    // FROM GHA2DB_MAXLOGAGE gha2db_sync tool, maximum age of gha_logs entries, default "1 week"
 	Trials           []int     // FROM GHA2DB_TRIALS, all Postgres related tools, retry periods for "too many connections open" error
+	WebHookRoot      string    // From GHA2DB_WHROOT, webhook tool, default "/hook", must match .travis.yml notifications webhooks
+	WebHookPort      string    // From GHA2DB_WHPORT, webhook tool, default ":1982", must match .travis.yml notifications webhooks
 }
 
 // Init - get context from environment variables
@@ -222,6 +224,16 @@ func (ctx *Ctx) Init() {
 			FatalOnError(err)
 			ctx.Trials = append(ctx.Trials, iTry)
 		}
+	}
+
+	// WebHook Root & Port
+	ctx.WebHookRoot = os.Getenv("GHA2DB_WHROOT")
+	if ctx.WebHookRoot == "" {
+		ctx.WebHookRoot = "/hook"
+	}
+	ctx.WebHookPort = os.Getenv("GHA2DB_WHPORT")
+	if ctx.WebHookPort == "" {
+		ctx.WebHookPort = ":1982"
 	}
 
 	// Context out if requested

@@ -2,11 +2,12 @@ package main
 
 import (
 	"fmt"
+	lib "gha2db"
 	"io/ioutil"
 	"net/http"
 )
 
-func handler(w http.ResponseWriter, r *http.Request) {
+func webhookHandler(w http.ResponseWriter, r *http.Request) {
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		fmt.Printf("Error reading body: %v\n", err)
@@ -19,6 +20,13 @@ func handler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	http.HandleFunc("/", handler)
-	http.ListenAndServe(":1982", nil)
+	// Environment context parse
+	var ctx lib.Ctx
+	ctx.Init()
+
+	// Start webhook server
+	// WebHookRoot defaults to "/"
+	// WebHookPort defaults to ":1982"
+	http.HandleFunc(ctx.WebHookRoot, webhookHandler)
+	http.ListenAndServe(ctx.WebHookPort, nil)
 }
