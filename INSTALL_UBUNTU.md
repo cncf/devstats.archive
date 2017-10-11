@@ -106,8 +106,10 @@ Prerequisites:
     - In some cases browser and/or Grafana cache old settings in this case temporarily move Grafana's `settings.js` file:
     - `mv /usr/share/grafana/public/app/core/settings.js /usr/share/grafana/public/app/core/settings.js.old`, restart grafana server and restore file.
 
-18. You can create new metrics (as SQL files and YAML definitions) and dashboards in Grafana (export as JSON).
-19. PRs and suggestions are welcome, please create PRs and Issues on the [GitHub](https://github.com/cncf/gha2db).
+18. To enable Continuous deployment using Travis, please follow instructions [here](https://github.com/cncf/gha2db/blob/master/CONTINUOUS_DEPLOYMENT.md).
+
+19. You can create new metrics (as SQL files and YAML definitions) and dashboards in Grafana (export as JSON).
+20. PRs and suggestions are welcome, please create PRs and Issues on the [GitHub](https://github.com/cncf/gha2db).
 
 # More details
 - [README](https://github.com/cncf/gha2db/blob/master/README.md)
