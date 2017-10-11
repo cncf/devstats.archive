@@ -100,6 +100,9 @@ You can tweak `gha2db` tools by environment variables:
 - Set `GHA2DB_WHROOT`, for webhook tool, default "/hook", must match .travis.yml notifications webhooks
 - Set `GHA2DB_WHPORT`, for webhook tool, default ":1982", (note that webhook listens at 1982, but we are using https via apache proxy, apache listens on https port 2892 and proxy request to http 1982)
 - Set `GHA2DB_SKIP_VERIFY_PAYLOAD`, webhook tool, default true, use to skip payload checking and allow manual testing `GHA2DB_SKIP_VERIFY_PAYLOAD=1 ./webhook`
+- Set `GHA2DB_DEPLOY_BRANCHES`, webhook tool, default "master", comma separated list, use to set which branches should be deployed
+- Set `GHA2DB_DEPLOY_STATUSES`, webhook tool, default "Passed,Fixed", comma separated list, use to set which branches should be deployed
+- Set `GHA2DB_PROJECT_ROOT`, webhook tool, no default - You have to set it to where the project repository is cloned (usually $GOPATH:/src/gha2db)
 
 All environment context details are defined in [context.go](https://github.com/cncf/gha2db/blob/master/context.go), please see that file for details (You can also see how it works in [context_test.go](https://github.com/cncf/gha2db/blob/master/context_test.go)).
 

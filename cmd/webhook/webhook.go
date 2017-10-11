@@ -14,6 +14,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"os"
 	"time"
 )
 
@@ -129,8 +130,25 @@ func checkError(w http.ResponseWriter, err error) bool {
 }
 
 // successPayload: is this a success payload?
-func successPayload(pl payload) bool {
-	return pl.Result == 0 && (pl.ResultMessage == "Passed" || pl.ResultMessage == "Fixed")
+func successPayload(ctx *lib.Ctx, pl payload) bool {
+	ok := false
+	for _, status := range ctx.DeployStatuses {
+		if pl.ResultMessage == status {
+			ok = true
+			break
+		}
+	}
+	if !ok {
+		return false
+	}
+	ok = false
+	for _, branch := range ctx.DeployBranches {
+		if pl.Branch == branch {
+			ok = true
+			break
+		}
+	}
+	return ok
 }
 
 // webhookHandler receives Travis CI webhook and parses it
@@ -178,8 +196,8 @@ func webhookHandler(w http.ResponseWriter, r *http.Request) {
 	if checkError(w, err) {
 		return
 	}
-	if !successPayload(payload) {
-		checkError(w, errors.New("webhook: this is a failed payload, skipping deploy step"))
+	if !successPayload(&ctx, payload) {
+		checkError(w, errors.New("webhook: skipping payload due to wrong status and/or branch"))
 		return
 	}
 	fmt.Printf("%+v\n", payload)
@@ -190,11 +208,14 @@ func main() {
 	// Environment context parse
 	var ctx lib.Ctx
 	ctx.Init()
+	if ctx.ProjectRoot == "" {
+		lib.Printf("You need to define reposiory path via GHA2DB_PROJECT_ROOT=/path/to/repo %s\n", os.Args[0])
+		return
+	}
 
 	// Start webhook server
 	// WebHookRoot defaults to "/"
 	// WebHookPort defaults to ":1982"
 	http.HandleFunc(ctx.WebHookRoot, webhookHandler)
-	lib.Printf("Webhook started at %v\n", time.Now())
 	http.ListenAndServe(ctx.WebHookPort, nil)
 }
