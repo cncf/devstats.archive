@@ -53,6 +53,9 @@ type Ctx struct {
 	WebHookRoot      string    // From GHA2DB_WHROOT, webhook tool, default "/hook", must match .travis.yml notifications webhooks
 	WebHookPort      string    // From GHA2DB_WHPORT, webhook tool, default ":1982", note that webhook listens using http:1982, but we use apache on https:2982 (to enable https protocol and proxy requests to http:1982)
 	CheckPayload     bool      // From GHA2DB_SKIP_VERIFY_PAYLOAD, webhook tool, default true, use GHA2DB_SKIP_VERIFY_PAYLOAD=1 to manually test payloads
+	DeployBranches   []string  // From GHA2DB_DEPLOY_BRANCHES, webhook tool, default "master" - comma separated list
+	DeployStatuses   []string  // From GHA2DB_DEPLOY_STATUSES, webhook tool, default "Passed,Fixed", - comma separated list
+	ProjectRoot      string    // From GHA2DB_PROJECT_ROOT, webhook tool, no default, must be specified to run webhook tool
 }
 
 // Init - get context from environment variables
@@ -227,6 +230,21 @@ func (ctx *Ctx) Init() {
 		}
 	}
 
+	// Deploy statuses and branches
+	branches := os.Getenv("GHA2DB_DEPLOY_BRANCHES")
+	if branches == "" {
+		ctx.DeployBranches = []string{"master"}
+	} else {
+		ctx.DeployBranches = strings.Split(branches, ",")
+	}
+	statuses := os.Getenv("GHA2DB_DEPLOY_STATUSES")
+	if statuses == "" {
+		ctx.DeployStatuses = []string{"Passed", "Fixed"}
+	} else {
+		ctx.DeployStatuses = strings.Split(statuses, ",")
+	}
+	ctx.ProjectRoot = os.Getenv("GHA2DB_PROJECT_ROOT")
+
 	// WebHook Root & Port
 	ctx.WebHookRoot = os.Getenv("GHA2DB_WHROOT")
 	if ctx.WebHookRoot == "" {
@@ -235,6 +253,10 @@ func (ctx *Ctx) Init() {
 	ctx.WebHookPort = os.Getenv("GHA2DB_WHPORT")
 	if ctx.WebHookPort == "" {
 		ctx.WebHookPort = ":1982"
+	} else {
+		if ctx.WebHookPort[0:1] != ":" {
+			ctx.WebHookPort = ":" + ctx.WebHookPort
+		}
 	}
 	ctx.CheckPayload = os.Getenv("GHA2DB_SKIP_VERIFY_PAYLOAD") == ""
 

@@ -56,6 +56,9 @@ func copyContext(in *lib.Ctx) *lib.Ctx {
 		WebHookRoot:      in.WebHookRoot,
 		WebHookPort:      in.WebHookPort,
 		CheckPayload:     in.CheckPayload,
+		DeployBranches:   in.DeployBranches,
+		DeployStatuses:   in.DeployStatuses,
+		ProjectRoot:      in.ProjectRoot,
 	}
 	return &out
 }
@@ -120,6 +123,14 @@ func dynamicSetFields(t *testing.T, ctx *lib.Ctx, fields map[string]interface{})
 				return ctx
 			}
 			field.Set(reflect.ValueOf(fieldValue))
+		case []string:
+			// Check if types match
+			fieldType := field.Type()
+			if fieldType != reflect.TypeOf([]string{}) {
+				t.Errorf("trying to set value %v, type %T for field \"%s\", type %v", interfaceValue, interfaceValue, fieldName, fieldKind)
+				return ctx
+			}
+			field.Set(reflect.ValueOf(fieldValue))
 		default:
 			// Unknown type provided
 			t.Errorf("unknown type %T for field \"%s\"", interfaceValue, fieldName)
@@ -176,6 +187,9 @@ func TestInit(t *testing.T) {
 		WebHookRoot:      "/hook",
 		WebHookPort:      ":1982",
 		CheckPayload:     true,
+		DeployBranches:   []string{"master"},
+		DeployStatuses:   []string{"Passed", "Fixed"},
+		ProjectRoot:      "",
 	}
 
 	// Test cases
@@ -454,6 +468,15 @@ func TestInit(t *testing.T) {
 			),
 		},
 		{
+			"Setting webhook data missing ':'",
+			map[string]string{"GHA2DB_WHPORT": "1986"},
+			dynamicSetFields(
+				t,
+				copyContext(&defaultContext),
+				map[string]interface{}{"WebHookPort": ":1986"},
+			),
+		},
+		{
 			"Setting skip check webhook payload",
 			map[string]string{"GHA2DB_SKIP_VERIFY_PAYLOAD": "1"},
 			dynamicSetFields(
@@ -469,6 +492,23 @@ func TestInit(t *testing.T) {
 				t,
 				copyContext(&defaultContext),
 				map[string]interface{}{"Trials": []int{1, 2, 3, 4}},
+			),
+		},
+		{
+			"Setting webhook params",
+			map[string]string{
+				"GHA2DB_DEPLOY_BRANCHES": "master,staging,production",
+				"GHA2DB_DEPLOY_STATUSES": "ok,passed,fixed",
+				"GHA2DB_PROJECT_ROOT":    "/home/lukaszgryglicki/dev/go/src/gha2db",
+			},
+			dynamicSetFields(
+				t,
+				copyContext(&defaultContext),
+				map[string]interface{}{
+					"DeployBranches": []string{"master", "staging", "production"},
+					"DeployStatuses": []string{"ok", "passed", "fixed"},
+					"ProjectRoot":    "/home/lukaszgryglicki/dev/go/src/gha2db",
+				},
 			),
 		},
 	}
