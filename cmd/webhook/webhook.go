@@ -63,7 +63,6 @@ func respondWithSuccess(w http.ResponseWriter, m string) {
 }
 
 func payloadSignature(r *http.Request) ([]byte, error) {
-
 	signature := r.Header.Get("Signature")
 	b64, err := base64.StdEncoding.DecodeString(signature)
 	if err != nil {
@@ -144,7 +143,9 @@ func webhookHandler(w http.ResponseWriter, r *http.Request) {
 		if checkError(w, err) {
 			return
 		}
-		payload := payloadDigest(r.FormValue("payload"))
+		formPayload := r.FormValue("payload")
+		fmt.Printf("payload-->%s\n", formPayload)
+		payload := payloadDigest(formPayload)
 		err = rsa.VerifyPKCS1v15(key, crypto.SHA1, payload, signature)
 		if err != nil {
 			lib.Printf("webhook: unauthorized payload: %v", err)
