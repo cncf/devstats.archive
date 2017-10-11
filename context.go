@@ -106,13 +106,13 @@ func (ctx *Ctx) Init() {
 		ctx.PgPort = "5432"
 	}
 	if ctx.PgDB == "" {
-		ctx.PgDB = "gha"
+		ctx.PgDB = GHA
 	}
 	if ctx.PgUser == "" {
-		ctx.PgUser = "gha_admin"
+		ctx.PgUser = GHAAdmin
 	}
 	if ctx.PgPass == "" {
-		ctx.PgPass = "password"
+		ctx.PgPass = Password
 	}
 	if ctx.PgSSL == "" {
 		ctx.PgSSL = "disable"
@@ -131,13 +131,13 @@ func (ctx *Ctx) Init() {
 		ctx.IDBPort = "8086"
 	}
 	if ctx.IDBDB == "" {
-		ctx.IDBDB = "gha"
+		ctx.IDBDB = GHA
 	}
 	if ctx.IDBUser == "" {
-		ctx.IDBUser = "gha_admin"
+		ctx.IDBUser = GHAAdmin
 	}
 	if ctx.IDBPass == "" {
-		ctx.IDBPass = "password"
+		ctx.IDBPass = Password
 	}
 
 	// Environment controlling index creation, table & tools

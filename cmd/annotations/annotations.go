@@ -10,21 +10,21 @@ import (
 	yaml "gopkg.in/yaml.v2"
 )
 
-// Annotations contain list of annotations
-type Annotations struct {
-	Annotations []Annotation `yaml:"annotations"`
+// annotations contain list of annotations
+type annotations struct {
+	Annotations []annotation `yaml:"annotations"`
 }
 
-// Annotation contain each annotation data
-type Annotation struct {
+// annotation contain each annotation data
+type annotation struct {
 	Title       string    `yaml:"title"`
 	Description string    `yaml:"description"`
 	SeriesName  string    `yaml:"series_name"`
 	Date        time.Time `yaml:"date"`
 }
 
-// Insert InfluxDB annotations starting after `dt`
-func annotations(sdt string) {
+// makeAnnotations: Insert InfluxDB annotations starting after `dt`
+func makeAnnotations(sdt string) {
 	// Environment context parse
 	var ctx lib.Ctx
 	ctx.Init()
@@ -40,7 +40,7 @@ func annotations(sdt string) {
 	bp := lib.IDBBatchPoints(&ctx, &ic)
 
 	// Local or cron mode?
-	dataPrefix := "/etc/gha2db/"
+	dataPrefix := lib.DataDir
 	if ctx.Local {
 		dataPrefix = "./"
 	}
@@ -51,7 +51,7 @@ func annotations(sdt string) {
 		lib.FatalOnError(err)
 		return
 	}
-	var annotations Annotations
+	var annotations annotations
 	lib.FatalOnError(yaml.Unmarshal(data, &annotations))
 
 	// Iterate annotations
@@ -92,7 +92,7 @@ func main() {
 		lib.Printf("Required date_from\n")
 		os.Exit(1)
 	}
-	annotations(os.Args[1])
+	makeAnnotations(os.Args[1])
 	dtEnd := time.Now()
 	lib.Printf("Time: %v\n", dtEnd.Sub(dtStart))
 }

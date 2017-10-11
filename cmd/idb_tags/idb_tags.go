@@ -9,13 +9,13 @@ import (
 	yaml "gopkg.in/yaml.v2"
 )
 
-// Tags contain list of InfluxDB tags
-type Tags struct {
-	Tags []Tag `yaml:"tags"`
+// tags contain list of InfluxDB tags
+type tags struct {
+	tags []tag `yaml:"tags"`
 }
 
-// Tag contain each InfluxDB tag data
-type Tag struct {
+// tag contain each InfluxDB tag data
+type tag struct {
 	Name       string `yaml:"name"`
 	SQLFile    string `yaml:"sql"`
 	SeriesName string `yaml:"series_name"`
@@ -52,7 +52,7 @@ func idbTags() {
 		lib.FatalOnError(err)
 		return
 	}
-	var allTags Tags
+	var allTags tags
 	lib.FatalOnError(yaml.Unmarshal(data, &allTags))
 
 	// No fields value needed
@@ -61,7 +61,7 @@ func idbTags() {
 	strVal := ""
 
 	// Iterate tags
-	for _, tag := range allTags.Tags {
+	for _, tag := range allTags.tags {
 		if ctx.Debug > 0 {
 			lib.Printf("Tag '%s' --> '%s'\n", tag.Name, tag.SeriesName)
 		}
