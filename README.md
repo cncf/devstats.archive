@@ -1,4 +1,5 @@
 [![Build Status](https://travis-ci.org/cncf/gha2db.svg?branch=master)](https://travis-ci.org/cncf/gha2db)
+[![CII Best Practices](https://master.bestpractices.coreinfrastructure.org/projects/1149/badge)](https://master.bestpractices.coreinfrastructure.org/projects/1149)
 
 # GitHub archives Grafana visualization dashboards
 
