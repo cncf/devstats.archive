@@ -61,6 +61,7 @@ func copyContext(in *lib.Ctx) *lib.Ctx {
 		DeployResults:    in.DeployResults,
 		DeployTypes:      in.DeployTypes,
 		ProjectRoot:      in.ProjectRoot,
+		ExecFatal:        in.ExecFatal,
 	}
 	return &out
 }
@@ -194,6 +195,7 @@ func TestInit(t *testing.T) {
 		DeployResults:    []int{0},
 		DeployTypes:      []string{"push"},
 		ProjectRoot:      "",
+		ExecFatal:        true,
 	}
 
 	// Test cases
