@@ -121,7 +121,7 @@ func travisPublicKey() (*rsa.PublicKey, error) {
 // checkError: report error to HTTP writer if present
 func checkError(w http.ResponseWriter, err error) bool {
 	if err != nil {
-		lib.Printf("webhook: error: %v", err)
+		lib.Printf("webhook: error: %v\n", err)
 		errMsg := fmt.Sprintf("error: %v", err)
 		respondWithError(w, errMsg)
 		return true
@@ -221,7 +221,7 @@ func webhookHandler(w http.ResponseWriter, r *http.Request) {
 	lib.Printf("WebHook: type: %s, allowed types: %v\n", payload.Type, ctx.DeployTypes)
 	lib.Printf("WebHook: result: %d, allowed results: %v\n", payload.Result, ctx.DeployResults)
 	if !successPayload(&ctx, payload) {
-		checkError(w, errors.New("webhook: skipping payload due to wrong status, result, branch and/or type"))
+		checkError(w, errors.New("webhook: skipping deploy due to wrong status, result, branch and/or type"))
 		return
 	}
 	err = os.Chdir(ctx.ProjectRoot)
