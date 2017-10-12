@@ -80,7 +80,7 @@ dbtest:
 check: fmt lint imports vet const usedexports
 
 data:
-	mkdir /etc/gha2db 2>/dev/null || echo "mkdir waring"
+	mkdir /etc/gha2db 2>/dev/null || echo "mkdir warning"
 	mkdir /etc/gha2db/metrics 2>/dev/null || echo "mkdir warning"
 	rm -f /etc/gha2db/metrics/* || exit 1
 	cp metrics/* /etc/gha2db/metrics/ || exit 2
