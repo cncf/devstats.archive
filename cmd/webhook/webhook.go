@@ -142,6 +142,26 @@ func successPayload(ctx *lib.Ctx, pl payload) bool {
 		return false
 	}
 	ok = false
+	for _, result := range ctx.DeployResults {
+		if pl.Result == result {
+			ok = true
+			break
+		}
+	}
+	if !ok {
+		return false
+	}
+	ok = false
+	for _, typ := range ctx.DeployTypes {
+		if pl.Type == typ {
+			ok = true
+			break
+		}
+	}
+	if !ok {
+		return false
+	}
+	ok = false
 	for _, branch := range ctx.DeployBranches {
 		if pl.Branch == branch {
 			ok = true
@@ -196,11 +216,14 @@ func webhookHandler(w http.ResponseWriter, r *http.Request) {
 	if checkError(w, err) {
 		return
 	}
+	lib.Printf("WebHook: branch: %s, allowed branches: %v\n", payload.Branch, ctx.DeployBranches)
+	lib.Printf("WebHook: status: %s, allowed statuses: %v\n", payload.ResultMessage, ctx.DeployStatuses)
+	lib.Printf("WebHook: type: %s, allowed types: %v\n", payload.Type, ctx.DeployTypes)
+	lib.Printf("WebHook: result: %d, allowed results: %v\n", payload.Result, ctx.DeployResults)
 	if !successPayload(&ctx, payload) {
-		checkError(w, errors.New("webhook: skipping payload due to wrong status and/or branch"))
+		checkError(w, errors.New("webhook: skipping payload due to wrong status, result, branch and/or type"))
 		return
 	}
-	lib.Printf("%+v\n", payload)
 	respondWithSuccess(w, "ok")
 }
 
