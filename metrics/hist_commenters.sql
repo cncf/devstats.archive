@@ -1,7 +1,7 @@
 select
   'top_commenters,' || r.repo_group as repo_group,
   t.dup_actor_login as actor,
-  count(t.id) as comments
+  count(distinct t.id) as comments
 from
   gha_comments t,
   gha_repos r
@@ -17,10 +17,10 @@ group by
   r.repo_group,
   t.dup_actor_login
 having
-  count(t.id) >= 20
+  count(distinct t.id) >= 20
 union select 'top_commenters,All' as repo_group,
   dup_actor_login as actor,
-  count(id) as comments
+  count(distinct id) as comments
 from
   gha_comments
 where
@@ -32,7 +32,7 @@ where
 group by
   dup_actor_login
 having
-  count(id) >= 30
+  count(distinct id) >= 30
 order by
   comments desc,
   repo_group asc,
