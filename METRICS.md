@@ -42,3 +42,4 @@ To add new metric:
 # Annotations
 
 You can define annotations in [metrics/annotations.yaml](https://github.com/cncf/gha2db/blob/master/metrics/annotations.yaml)
+You can define tags in [metrics/idb_tags.yaml](https://github.com/cncf/gha2db/blob/master/metrics/idb_tags.yaml)

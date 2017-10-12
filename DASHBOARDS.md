@@ -28,6 +28,7 @@ They are defined here: [repo_groups.sql](https://github.com/cncf/gha2db/blob/mas
 20) First non-author activity dashboard: [first_non_author_activity.sql](https://github.com/cncf/gha2db/blob/master/metrics/first_non_author_activity.sql), [first_non_author_activity.json](https://github.com/cncf/gha2db/blob/master/grafana/dashboards/first_non_author_activity.json), [view](https://cncftest.io/dashboard/db/first-non-author-activity?orgId=1).
 21) Bot commands usage dashboard: [bot_commands.sql](https://github.com/cncf/gha2db/blob/master/metrics/bot_commands.sql), [bot_commands.json](https://github.com/cncf/gha2db/blob/master/grafana/dashboards/bot_commands.json), [view](https://cncftest.io/dashboard/db/bot-commands?orgId=1).
 22) Contributing companies dashboard: [num_stats.sql](https://github.com/cncf/gha2db/blob/master/metrics/num_stats.sql), [contributing_companies.json](https://github.com/cncf/gha2db/blob/master/grafana/dashboards/contributing_companies.json), [view](https://cncftest.io/dashboard/db/contributing-companies?orgId=1).
+23) Approvers dashboard: [approvers.sql](https://github.com/cncf/gha2db/blob/master/metrics/approvers.sql), [approvers.json](https://github.com/cncf/gha2db/blob/master/grafana/dashboards/approvers.json), [view](https://cncftest.io/dashboard/db/approvers?orgId=1).
 
 All of them works live on [cncftest.io](https://cncftest.io) with auto gha2db_sync tool running.
 

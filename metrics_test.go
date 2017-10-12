@@ -531,14 +531,14 @@ func TestMetrics(t *testing.T) {
 			},
 		},
 		{
-			setup:  setupReviewersMetric,
+			setup:  setupApproversMetric,
 			metric: "approvers",
 			from:   ft(2017, 7),
 			to:     ft(2017, 8),
 			n:      1,
 			expected: [][]interface{}{
-				{"approvers,Group 1", 4},
-				{"approvers,Group 2", 2},
+				{"approvers,Group", 3},
+				{"approvers,Mono-group", 1},
 			},
 		},
 	}
@@ -1645,6 +1645,71 @@ func setupRepoCommentsMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 	return
 }
 
+// Create data for approvers metric
+func setupApproversMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
+	ft := testlib.YMDHMS
+
+	// Repos to add
+	// id, name, org_id, org_login, repo_group
+	repos := [][]interface{}{
+		{1, "Repo 1", 1, "Org 1", "Group"},
+		{2, "Repo 2", 1, "Org 1", "Group"},
+		{3, "Repo 3", 2, "Org 2", "Mono-group"},
+		{4, "Repo 4", 2, "Org 2", nil},
+		{4, "Repo 5", nil, nil, nil},
+	}
+
+	// Events to add
+	// eid, etype, aid, rid, public, created_at, aname, rname, orgid
+	events := [][]interface{}{
+		{3, "T", 3, 1, true, ft(2017, 7, 12), "Actor 3", "Repo 1", 1},
+		{4, "T", 4, 3, true, ft(2017, 7, 13), "Actor 4", "Repo 3", 2},
+		{7, "T", 3, 2, true, ft(2017, 7, 16), "Actor 5", "Repo 2", 1},
+		{8, "T", 6, 4, true, ft(2017, 7, 17), "Actor 6", "Repo 4", 2},
+		{11, "T", 9, 5, true, ft(2017, 7, 20), "Actor 9", "Repo 5", nil},
+		{13, "T", 10, 1, true, ft(2017, 7, 21), "Actor Y", "Repo 1", 1},
+	}
+
+	// texts to add
+	// eid, body, created_at
+	texts := [][]interface{}{
+		{3, "/approve", ft(2017, 7, 12)},
+		{4, " /APPROVE ", ft(2017, 7, 13)},
+		{7, " /APprove ", ft(2017, 7, 16)},
+		{8, "\t/appROVE\n", ft(2017, 7, 17)},
+		{11, "/aApProVE with additional text", ft(2017, 7, 20)},
+		{13, "Line 1\n/Approve\nLine 2", ft(2017, 7, 21)},
+	}
+
+	// Add repos
+	for _, repo := range repos {
+		err = addRepo(con, ctx, repo...)
+		if err != nil {
+			return
+		}
+	}
+
+	// Add events
+	for _, event := range events {
+		err = addEvent(con, ctx, event...)
+		if err != nil {
+			return
+		}
+	}
+
+	// Add texts
+	stub := []interface{}{0, "", 0, "", "D"}
+	for _, text := range texts {
+		text = append(text, stub...)
+		err = addText(con, ctx, text...)
+		if err != nil {
+			return
+		}
+	}
+
+	return
+}
+
 // Create data for reviewers metric
 func setupReviewersMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 	ft := testlib.YMDHMS
@@ -1682,9 +1747,9 @@ func setupReviewersMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 	// repo_id, repo_name, actor_id, actor_login, type, issue_number
 	iels := [][]interface{}{
 		{1, 1, 1, "lgtm", ft(2017, 7, 10), 1, "Repo 1", 1, "Actor 1", "T", 1}, // 4 labels match, but 5 and 6 have the same actor, so 3 reviewers here.
-		{2, 2, 2, "lgtm", ft(2017, 7, 11), 2, "Repo 2", 2, "Actor 2", "T", 2},
+		{2, 2, 2, "approved", ft(2017, 7, 11), 2, "Repo 2", 2, "Actor 2", "T", 2},
 		{5, 5, 5, "lgtm", ft(2017, 7, 14), 2, "Repo 2", 5, "Actor 5", "T", 5},
-		{6, 6, 6, "lgtm", ft(2017, 7, 15), 2, "Repo 2", 5, "Actor 5", "T", 6},
+		{6, 6, 6, "approved", ft(2017, 7, 15), 2, "Repo 2", 5, "Actor 5", "T", 6},
 		{6, 9, 1, "lgtm", ft(2017, 7, 18), 5, "Repo 5", 7, "Actor 7", "T", 6},      // Not counted because it belongs to issue_id (6) which received LGTM in previous line
 		{10, 10, 10, "other", ft(2017, 7, 19), 5, "Repo 5", 8, "Actor 8", "T", 10}, // Not LGTM
 		{12, 12, 1, "lgtm", ft(2017, 8, 10), 5, "Repo 5", 9, "Actor 9", "T", 12},   // Out of date range
@@ -1695,10 +1760,10 @@ func setupReviewersMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 	texts := [][]interface{}{
 		{3, "/lgtm", ft(2017, 7, 12)},   // 7 gives actor already present in issue event lables
 		{4, " /LGTM ", ft(2017, 7, 13)}, // so 4 reviewers here, sum 7
-		{7, " /LGtm ", ft(2017, 7, 16)},
+		{7, " /Approve ", ft(2017, 7, 16)},
 		{8, "\t/lgTM\n", ft(2017, 7, 17)},
-		{11, "/lGtM with additional text", ft(2017, 7, 20)}, // additional text causes this line to be skipped
-		{13, "Line 1\n/lGtM\nLine 2", ft(2017, 7, 21)},      // This is included because /LGTM is in its own line only eventually surrounded by whitespace
+		{11, "/APPROVE with additional text", ft(2017, 7, 20)}, // additional text causes this line to be skipped
+		{13, "Line 1\n/lGtM\nLine 2", ft(2017, 7, 21)},         // This is included because /LGTM is in its own line only eventually surrounded by whitespace
 	}
 
 	// Add repos
