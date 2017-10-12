@@ -58,6 +58,8 @@ func copyContext(in *lib.Ctx) *lib.Ctx {
 		CheckPayload:     in.CheckPayload,
 		DeployBranches:   in.DeployBranches,
 		DeployStatuses:   in.DeployStatuses,
+		DeployResults:    in.DeployResults,
+		DeployTypes:      in.DeployTypes,
 		ProjectRoot:      in.ProjectRoot,
 	}
 	return &out
@@ -189,6 +191,8 @@ func TestInit(t *testing.T) {
 		CheckPayload:     true,
 		DeployBranches:   []string{"master"},
 		DeployStatuses:   []string{"Passed", "Fixed"},
+		DeployResults:    []int{0},
+		DeployTypes:      []string{"push"},
 		ProjectRoot:      "",
 	}
 
@@ -499,6 +503,8 @@ func TestInit(t *testing.T) {
 			map[string]string{
 				"GHA2DB_DEPLOY_BRANCHES": "master,staging,production",
 				"GHA2DB_DEPLOY_STATUSES": "ok,passed,fixed",
+				"GHA2DB_DEPLOY_RESULTS":  "-1,0,1",
+				"GHA2DB_DEPLOY_TYPES":    "push,pull_request",
 				"GHA2DB_PROJECT_ROOT":    "/home/lukaszgryglicki/dev/go/src/gha2db",
 			},
 			dynamicSetFields(
@@ -507,6 +513,8 @@ func TestInit(t *testing.T) {
 				map[string]interface{}{
 					"DeployBranches": []string{"master", "staging", "production"},
 					"DeployStatuses": []string{"ok", "passed", "fixed"},
+					"DeployResults":  []int{-1, 0, 1},
+					"DeployTypes":    []string{"push", "pull_request"},
 					"ProjectRoot":    "/home/lukaszgryglicki/dev/go/src/gha2db",
 				},
 			),

@@ -97,12 +97,14 @@ You can tweak `gha2db` tools by environment variables:
 - Set `GHA2DB_MAXLOGAGE` for `gha2db_sync` tool, maximum age of DB logs stored in `gha_logs` table, default "1 week" (logs are cleared in `gha2db_sync` job).
 - Set `GHA2DB_TRIALS` for tools that use Postgres DB, set retry periods when "too many connection open" psql error appears, default is "10,30,60,120,300,600" (so 30s, 1min, 2min, 5min, 10min).
 - Set `GHA2DB_SKIPTIME` for all tools to skip time output in program outputs (default is to show time).
-- Set `GHA2DB_WHROOT`, for webhook tool, default "/hook", must match .travis.yml notifications webhooks
-- Set `GHA2DB_WHPORT`, for webhook tool, default ":1982", (note that webhook listens at 1982, but we are using https via apache proxy, apache listens on https port 2892 and proxy request to http 1982)
-- Set `GHA2DB_SKIP_VERIFY_PAYLOAD`, webhook tool, default true, use to skip payload checking and allow manual testing `GHA2DB_SKIP_VERIFY_PAYLOAD=1 ./webhook`
-- Set `GHA2DB_DEPLOY_BRANCHES`, webhook tool, default "master", comma separated list, use to set which branches should be deployed
-- Set `GHA2DB_DEPLOY_STATUSES`, webhook tool, default "Passed,Fixed", comma separated list, use to set which branches should be deployed
-- Set `GHA2DB_PROJECT_ROOT`, webhook tool, no default - You have to set it to where the project repository is cloned (usually $GOPATH:/src/gha2db)
+- Set `GHA2DB_WHROOT`, for webhook tool, default "/hook", must match .travis.yml notifications webhooks.
+- Set `GHA2DB_WHPORT`, for webhook tool, default ":1982", (note that webhook listens at 1982, but we are using https via apache proxy, apache listens on https port 2892 and proxy request to http 1982).
+- Set `GHA2DB_SKIP_VERIFY_PAYLOAD`, webhook tool, default true, use to skip payload checking and allow manual testing `GHA2DB_SKIP_VERIFY_PAYLOAD=1 ./webhook`.
+- Set `GHA2DB_DEPLOY_BRANCHES`, webhook tool, default "master", comma separated list, use to set which branches should be deployed.
+- Set `GHA2DB_DEPLOY_STATUSES`, webhook tool, default "Passed,Fixed", comma separated list, use to set which branches should be deployed.
+- Set `GHA2DB_DEPLOY_RESULTS`, webhook tool, default "0", comma separated list, use to set which travis ci results should be deployed.
+- Set `GHA2DB_DEPLOY_TYPES`, webhook tool, default "push", comma separated list, use to set which event types should be deployed.
+- Set `GHA2DB_PROJECT_ROOT`, webhook tool, no default - You have to set it to where the project repository is cloned (usually $GOPATH:/src/gha2db).
 
 All environment context details are defined in [context.go](https://github.com/cncf/gha2db/blob/master/context.go), please see that file for details (You can also see how it works in [context_test.go](https://github.com/cncf/gha2db/blob/master/context_test.go)).
 
@@ -425,7 +427,7 @@ Feed InfluxDB using:
 - `annotations` tool adds variuos data annotations that can be used in Grafana charts. It uses [annotations.yaml](https://github.com/cncf/gha2db/blob/master/metrics/annotations.yaml) file to define them, syntax is self describing. 
 - `idb_tags` tool used to add InfluxDB tags on some specified series. Those tags are used to populate Grafana template drop-down values and names. This is used to auto-populate Repository groups drop down, so when somebody adds new repository group - it will automatically appear in the drop-down.
 - `idb_tags` uses [idb_tags.yaml](https://github.com/cncf/gha2db/blob/master/metrics/idb_tags.yaml) file to configure InfluxDB tags generation.
-- `idb_backup` is used to backup/restore InfluxDB. Full renenerate of InfluxDB takes about 12 minutes. To avoid downtime when we need to rebuild InfluDB - we can generate new InfluxDB on `test` database and then if succeeded, restore it on `gha`. Downtime will be about 2 minutes.
+- `idb_backup` is used to backup/restore InfluxDB. Full renenerate of InfluxDB takes about 12 minutes. To avoid downtime when we need to rebuild InfluxDB - we can generate new InfluxDB on `test` database and then if succeeded, restore it on `gha`. Downtime will be about 2 minutes.
 
 # To check results in the InfluxDB:
 - influx
@@ -458,13 +460,19 @@ Metrics are described in [README](https://github.com/cncf/gha2db/blob/master/REA
 - `sudo certbot --apache`
 - Then You need to proxy Apache https/SSL on port 443 to http on port 3000 (this is where Grafana listens)
 - Your Grafana lives in https://<your_domain> (and https is served by Apache proxy to Grafana https:443 -> http:3000)
-- Modified Apache config files are in [grafana/apache](https://github.com/cncf/gha2db/blob/master/grafana/apache/), You need to check them and enable something similar on Your machine.
+- Modified Apache config files are in [apache](https://github.com/cncf/gha2db/blob/master/apache/), You need to check them and enable something similar on Your machine.
 - Please note that those modified Apache files additionally allows to put You website in `/web` path (this path is in exception list and is not proxied to Grafana), so You can for instance put [database dump](https://cncftest.io/web/k8s.sql.xz) there.
-- Files in `[grafana/apache](https://github.com/cncf/gha2db/blob/master/grafana/apache/) should be copied to `/etc/apache2` (see comments starting with `LG:`) and then `service apache2 restart`
+- Files in `[apache](https://github.com/cncf/gha2db/blob/master/apache/) should be copied to `/etc/apache2` (see comments starting with `LG:`) and then `service apache2 restart`
 
 # Grafana anonymous login
 
 Please see instructions [here](https://github.com/cncf/gha2db/blob/master/GRAFANA.md)
+
+# Continuous deployment
+
+There is a tool [webhook](https://github.com/cncf/gha2db/blob/master/metrics/cmd/webhook/webhook.go) that is used to make deployments on successful build webhooks sent by Travis CI.
+
+Details [here](https://github.com/cncf/gha2db/blob/master/metrics/CONTINUOUS_DEPLOYMENT.md).
 
 # Benchmarks
 Benchmarks were executed on historical Ruby version and current Go version.
