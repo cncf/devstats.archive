@@ -200,7 +200,7 @@ func webhookHandler(w http.ResponseWriter, r *http.Request) {
 		checkError(w, errors.New("webhook: skipping payload due to wrong status and/or branch"))
 		return
 	}
-	fmt.Printf("%+v\n", payload)
+	lib.Printf("%+v\n", payload)
 	respondWithSuccess(w, "ok")
 }
 

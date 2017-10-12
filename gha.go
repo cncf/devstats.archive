@@ -307,6 +307,14 @@ type Page struct {
 	Title  string `json:"title"`
 }
 
+// Team - GHA Team structure (only used before 2015)
+type Team struct {
+	ID         int    `json:"id"`
+	Name       string `json:"name"`
+	Slug       string `json:"slug"`
+	Permission string `json:"permission"`
+}
+
 // OrgIDOrNil - return Org ID from pointer or nil
 func OrgIDOrNil(orgPtr *Org) interface{} {
 	if orgPtr == nil {
@@ -369,14 +377,6 @@ func ForkeeIDOrNil(forkPtr *Forkee) interface{} {
 		return nil
 	}
 	return forkPtr.ID
-}
-
-// Team - GHA Team structure (only used before 2015)
-type Team struct {
-	ID         int    `json:"id"`
-	Name       string `json:"name"`
-	Slug       string `json:"slug"`
-	Permission string `json:"permission"`
 }
 
 // ForkeeOldIDOrNil - return ForkeeOld ID from pointer or nil
