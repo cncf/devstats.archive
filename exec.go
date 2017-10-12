@@ -10,7 +10,7 @@ import (
 )
 
 // ExecCommand - execute command given by array of strings with eventual environment map
-func ExecCommand(ctx *Ctx, cmdAndArgs []string, env map[string]string) {
+func ExecCommand(ctx *Ctx, cmdAndArgs []string, env map[string]string) error {
 	// Execution time
 	dtStart := time.Now()
 
@@ -68,8 +68,21 @@ func ExecCommand(ctx *Ctx, cmdAndArgs []string, env map[string]string) {
 	// Or just starts command when no DTDOUT debug
 	if ctx.CmdDebug > 1 {
 		stdOutPipe, e := cmd.StdoutPipe()
-		FatalOnError(e)
-		FatalOnError(cmd.Start())
+		if e != nil {
+			if ctx.ExecFatal {
+				FatalOnError(e)
+			} else {
+				return e
+			}
+		}
+		e = cmd.Start()
+		if e != nil {
+			if ctx.ExecFatal {
+				FatalOnError(e)
+			} else {
+				return e
+			}
+		}
 		buffer := make([]byte, pipeSize, pipeSize)
 		nBytes, e := stdOutPipe.Read(buffer)
 		for e == nil && nBytes > 0 {
@@ -77,10 +90,21 @@ func ExecCommand(ctx *Ctx, cmdAndArgs []string, env map[string]string) {
 			nBytes, e = stdOutPipe.Read(buffer)
 		}
 		if e != io.EOF {
-			FatalOnError(e)
+			if ctx.ExecFatal {
+				FatalOnError(e)
+			} else {
+				return e
+			}
 		}
 	} else {
-		FatalOnError(cmd.Start())
+		e := cmd.Start()
+		if e != nil {
+			if ctx.ExecFatal {
+				FatalOnError(e)
+			} else {
+				return e
+			}
+		}
 	}
 	// Wait for command to finish
 	err := cmd.Wait()
@@ -97,7 +121,13 @@ func ExecCommand(ctx *Ctx, cmdAndArgs []string, env map[string]string) {
 		if len(errStr) > 0 {
 			Printf("STDERR:\n%v\n", errStr)
 		}
-		FatalOnError(err)
+		if err != nil {
+			if ctx.ExecFatal {
+				FatalOnError(err)
+			} else {
+				return err
+			}
+		}
 	}
 
 	// If CmdDebug > 1 display STDERR contents as well (if any)
@@ -116,4 +146,5 @@ func ExecCommand(ctx *Ctx, cmdAndArgs []string, env map[string]string) {
 		dtEnd := time.Now()
 		Printf("%s ... %+v\n", info, dtEnd.Sub(dtStart))
 	}
+	return nil
 }

@@ -58,10 +58,13 @@ type Ctx struct {
 	DeployResults    []int     // From GHA2DB_DEPLOY_RESULTS, webhook tool, default "0", - comma separated list
 	DeployTypes      []string  // From GHA2DB_DEPLOY_TYPES, webhook tool, default "push", - comma separated list
 	ProjectRoot      string    // From GHA2DB_PROJECT_ROOT, webhook tool, no default, must be specified to run webhook tool
+	ExecFatal        bool      // default true, set this manually to false to avoid lib.ExecCommand calling os.Exit() on failure and return error instead
 }
 
 // Init - get context from environment variables
 func (ctx *Ctx) Init() {
+	ctx.ExecFatal = true
+
 	// Outputs
 	ctx.JSONOut = os.Getenv("GHA2DB_JSON") != ""
 	ctx.DBOut = os.Getenv("GHA2DB_NODB") == ""
