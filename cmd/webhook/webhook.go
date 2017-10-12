@@ -178,7 +178,7 @@ func webhookHandler(w http.ResponseWriter, r *http.Request) {
 	ctx.Init()
 
 	// Processing new webhook
-	lib.Printf("Webhook processing event at %v\n", time.Now())
+	lib.Printf("WebHook processing event at %v\n", time.Now())
 
 	// Payload checking
 	var jsonStr string
