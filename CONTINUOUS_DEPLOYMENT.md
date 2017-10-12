@@ -8,6 +8,7 @@
 - To configure Apache we use those config files [ports.conf](https://github.com/cncf/gha2db/blob/master/apache/ports.conf) and [000-default-le-ssl.conf](https://github.com/cncf/gha2db/blob/master/apache/sites-available/000-default-le-ssl.conf).
 - You can change `webhook`'s port via `GHA2DB_WHPORT` environment variable (default is 1982) and `webhook`'s root via `GHA2DB_WHROOT` (default is `hook`). Please see [usage](https://github.com/cncf/gha2db/blob/master/USAGE.md) for details.
 - By default `webhook` tool verifies payloads to determine if they are original Travis CI payloads. To enable testing locally You can start tool via `GOPATH=/path GHA2DB_PROJECT_ROOT=/path/to/repo PG_PASS=... GHA2DB_SKIP_VERIFY_PAYLOAD=1 ./webhook` or use ready script `webhook.sh` and then use `./test_webhook.sh` script for testing.
+- You need to set both GOPATH and GHA2DB_PROJECT_ROOT because cron job environment have no environment variables set at all, You also have to set PG_PASS (this is to allow `webhook` to log into database in addition to `/tmp/gha2db_*` files).
 - Webook must be run via cron job (it can be called every 5 minutes because every next instance will either start or do nothing due to port being used by previous instance).
 - See [crontab.entry](https://github.com/cncf/gha2db/blob/master/crontab.entry) for details, you need to tweak it a little and install via `crontab -e`.
 - You can set `GHA2DB_DEPLOY_BRANCHES`, default "master", comma separated list, uto set which branches should be deployed.
