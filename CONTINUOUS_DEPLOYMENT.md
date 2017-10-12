@@ -15,3 +15,4 @@
 - You can set `GHA2DB_DEPLOY_RESULTS`, default "0", comma separated list, to set which Travis CI results should be deployed.
 - You can set `GHA2DB_DEPLOY_TYPES`, default "push", comma separated list, to set which event types should be deployed.
 - You *MUST* set `GHA2DB_PROJECT_ROOT=/path/to/repo` for webhook tool, this is needed to decide where to run `make install` on successful build.
+- If You changed `webhook` tool and deploy was successful - you need to kill old running instance via `killall webhook` then wait for cron to fire it again, to se if it works use `ps -aux | grep webhook`.
