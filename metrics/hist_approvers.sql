@@ -4,12 +4,12 @@ from
   gha_texts
 where
   created_at >= now() - '{{period}}'::interval
-  and substring(body from '(?i)(?:^|\n|\r)\s*/(?:lgtm|approve)\s*(?:\n|\r|$)') is not null;
+  and substring(body from '(?i)(?:^|\n|\r)\s*/approve\s*(?:\n|\r|$)') is not null;
 
 select
-  'reviewers_hist,' || r.repo_group as repo_group,
+  'approvers_hist,' || r.repo_group as repo_group,
   e.dup_actor_login as actor,
-  count(distinct e.id) as reviews
+  count(distinct e.id) as approves
 from
   gha_events e,
   gha_repos r
@@ -21,24 +21,18 @@ where
   and e.dup_actor_login not like '%-bot'
   and e.dup_actor_login not like '%-robot'
   and e.id in (
-    select min(event_id)
+    select event_id
     from
-      gha_issues_events_labels
-    where
-      created_at >= now() - '{{period}}'::interval
-      and label_name in ('lgtm', 'approved')
-    group by
-      issue_id
-    union select event_id from matching
+      matching
   )
 group by
   r.repo_group,
   e.dup_actor_login
 having
-  count(distinct e.id) >= 3
-union select 'reviewers_hist,All' as repo_group,
+  count(distinct e.id) >= 2
+union select 'approvers_hist,All' as repo_group,
   dup_actor_login as actor,
-  count(distinct id) as reviews
+  count(distinct id) as approves
 from
   gha_events
 where
@@ -47,22 +41,16 @@ where
   and dup_actor_login not like '%-bot'
   and dup_actor_login not like '%-robot'
   and id in (
-    select min(event_id)
+    select event_id
     from
-      gha_issues_events_labels
-    where
-      created_at >= now() - '{{period}}'::interval
-      and label_name in ('lgtm', 'approved')
-    group by
-      issue_id
-    union select event_id from matching
+      matching
   )
 group by
   dup_actor_login
 having
-  count(distinct id) >= 5
+  count(distinct id) >= 3
 order by
-  reviews desc,
+  approves desc,
   repo_group asc,
   actor asc
 ;
