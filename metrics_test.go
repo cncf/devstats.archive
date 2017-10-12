@@ -89,6 +89,24 @@ func TestMetrics(t *testing.T) {
 			},
 		},
 		{
+			setup:  setupApproversHistMetric,
+			metric: "hist_approvers",
+			period: "1 week",
+			n:      1,
+			replaces: [][2]string{
+				{" >= 3", " >= 0"},
+				{" >= 2", " >= 0"},
+			},
+			expected: [][]interface{}{
+				{"approvers_hist,All", "Actor 1", 2},
+				{"approvers_hist,All", "Actor 3", 2},
+				{"approvers_hist,All", "Actor 2", 1},
+				{"approvers_hist,Group", "Actor 1", 1},
+				{"approvers_hist,Group", "Actor 2", 1},
+				{"approvers_hist,Group", "Actor 3", 1},
+			},
+		},
+		{
 			setup:  setupSigMentionsTextMetric,
 			metric: "sig_mentions",
 			from:   ft(2017, 7),
@@ -1941,9 +1959,9 @@ func setupReviewersHistMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 	// repo_id, repo_name, actor_id, actor_login, type, issue_number
 	iels := [][]interface{}{
 		{1, 1, 1, "lgtm", tm, 1, "Repo 1", 1, "Actor 1", "T", 1},
-		{2, 2, 2, "lgtm", tm, 2, "Repo 2", 2, "Actor 2", "T", 2},
+		{2, 2, 2, "approved", tm, 2, "Repo 2", 2, "Actor 2", "T", 2},
 		{5, 5, 5, "lgtm", tm, 2, "Repo 2", 2, "Actor 2", "T", 5},
-		{6, 6, 6, "lgtm", tm, 2, "Repo 2", 2, "Actor 2", "T", 6},
+		{6, 6, 6, "approved", tm, 2, "Repo 2", 2, "Actor 2", "T", 6},
 		{6, 9, 1, "lgtm", tm, 5, "Repo 5", 1, "Actor 1", "T", 6},
 		{10, 10, 10, "other", tm, 5, "Repo 5", 2, "Actor 2", "T", 10},
 		{12, 12, 1, "lgtm", tm, 5, "Repo 5", 3, "Actor 3", "T", 12},
@@ -1953,9 +1971,9 @@ func setupReviewersHistMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 	// eid, body, created_at
 	texts := [][]interface{}{
 		{3, "/lgtm", tm},
-		{4, " /LGTM ", tm},
+		{4, " /APPROVE ", tm},
 		{7, " /LGtm ", tm},
-		{8, "\t/lgTM\n", tm},
+		{8, "\t/AppROve\n", tm},
 		{11, "/lGtM with additional text", tm},
 		{13, "Line 1\n/lGtM\nLine 2", tm},
 	}
@@ -1979,6 +1997,68 @@ func setupReviewersHistMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 	// Add issue event labels
 	for _, iel := range iels {
 		err = addIssueEventLabel(con, ctx, iel...)
+		if err != nil {
+			return
+		}
+	}
+
+	// Add texts
+	stub := []interface{}{0, "", 0, "", "D"}
+	for _, text := range texts {
+		text = append(text, stub...)
+		err = addText(con, ctx, text...)
+		if err != nil {
+			return
+		}
+	}
+
+	return
+}
+
+// Create data for approvers histogram metric
+func setupApproversHistMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
+	tm := time.Now().Add(-time.Hour)
+
+	// Repos to add
+	// id, name, org_id, org_login, repo_group
+	repos := [][]interface{}{
+		{1, "Repo 1", 1, "Org", "Group"},
+		{2, "Repo 2", 1, "Org", "Group"},
+	}
+
+	// Events to add
+	// eid, etype, aid, rid, public, created_at, aname, rname, orgid
+	events := [][]interface{}{
+		{3, "T", 3, 1, true, tm, "Actor 3", "Repo 1", 1},
+		{4, "T", 1, 3, true, tm, "Actor 1", "Repo 3", 2},
+		{7, "T", 2, 2, true, tm, "Actor 2", "Repo 2", 1},
+		{8, "T", 3, 4, true, tm, "Actor 3", "Repo 4", 2},
+		{11, "T", 3, 5, true, tm, "Actor 3", "Repo 5", nil},
+		{13, "T", 1, 1, true, tm, "Actor 1", "Repo 1", 1},
+	}
+
+	// texts to add
+	// eid, body, created_at
+	texts := [][]interface{}{
+		{3, "/approve", tm},
+		{4, " /APPROVE ", tm},
+		{7, " /APprove ", tm},
+		{8, "\t/aPpRoVe\n", tm},
+		{11, "/APProve with additional text", tm},
+		{13, "Line 1\n/approve\nLine 2", tm},
+	}
+
+	// Add repos
+	for _, repo := range repos {
+		err = addRepo(con, ctx, repo...)
+		if err != nil {
+			return
+		}
+	}
+
+	// Add events
+	for _, event := range events {
+		err = addEvent(con, ctx, event...)
 		if err != nil {
 			return
 		}
