@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	lib "gha2db"
 	"os"
@@ -29,7 +30,16 @@ func copySeries(ch chan bool, ctx *lib.Ctx, ic client.Client, from, to, seriesNa
 				if column == "time" {
 					dt = lib.TimeParseIDB(value[i].(string))
 				} else if value[i] != nil {
-					fields[column] = value[i]
+					switch interfaceValue := value[i].(type) {
+					case json.Number:
+						fVal, err := interfaceValue.Float64()
+						lib.FatalOnError(err)
+						fields[column] = fVal
+					case string:
+						fields[column] = interfaceValue
+					default:
+						lib.FatalOnError(fmt.Errorf("unknown type %T/%+v for field \"%s\"", interfaceValue, interfaceValue, column))
+					}
 				}
 			}
 			if ctx.Debug > 0 {
