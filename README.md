@@ -129,6 +129,8 @@ We're getting all possible GitHub data for all objects, and all objects historic
 - `idb_tags` uses [idb_tags.yaml](https://github.com/cncf/gha2db/blob/master/metrics/idb_tags.yaml) file to configure InfluxDB tags generation.
 - [idb_backup](https://github.com/cncf/gha2db/blob/master/cmd/idb_backup/idb_backup.go)
 - `idb_backup` is used to backup/restore InfluxDB. Full renenerate of InfluxDB takes about 12 minutes. To avoid downtime when we need to rebuild InfluDB - we can generate new InfluxDB on `test` database and then if succeeded, restore it on `gha`. Downtime will be about 2 minutes.
+- [webhook](https://github.com/cncf/gha2db/blob/master/cmd/webhook/webhook.go)
+- `webhook` is used to react to Travis CI webhooks and trigger deploy if status, branch and type match defined values, more details [here](https://github.com/cncf/gha2db/blob/master/CONTINUOUS_DEPLOYMENT.md).
 - There are few shell scripts for example: running sync every N seconds, setup InfluxDB etc.
 
 Detailed usage is here [USAGE](https://github.com/cncf/gha2db/blob/master/USAGE.md)

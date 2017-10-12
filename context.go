@@ -55,6 +55,8 @@ type Ctx struct {
 	CheckPayload     bool      // From GHA2DB_SKIP_VERIFY_PAYLOAD, webhook tool, default true, use GHA2DB_SKIP_VERIFY_PAYLOAD=1 to manually test payloads
 	DeployBranches   []string  // From GHA2DB_DEPLOY_BRANCHES, webhook tool, default "master" - comma separated list
 	DeployStatuses   []string  // From GHA2DB_DEPLOY_STATUSES, webhook tool, default "Passed,Fixed", - comma separated list
+	DeployResults    []int     // From GHA2DB_DEPLOY_RESULTS, webhook tool, default "0", - comma separated list
+	DeployTypes      []string  // From GHA2DB_DEPLOY_TYPES, webhook tool, default "push", - comma separated list
 	ProjectRoot      string    // From GHA2DB_PROJECT_ROOT, webhook tool, no default, must be specified to run webhook tool
 }
 
@@ -242,6 +244,23 @@ func (ctx *Ctx) Init() {
 		ctx.DeployStatuses = []string{"Passed", "Fixed"}
 	} else {
 		ctx.DeployStatuses = strings.Split(statuses, ",")
+	}
+	types := os.Getenv("GHA2DB_DEPLOY_TYPES")
+	if types == "" {
+		ctx.DeployTypes = []string{"push"}
+	} else {
+		ctx.DeployTypes = strings.Split(types, ",")
+	}
+	results := os.Getenv("GHA2DB_DEPLOY_RESULTS")
+	if results == "" {
+		ctx.DeployResults = []int{0}
+	} else {
+		resultsArr := strings.Split(results, ",")
+		for _, result := range resultsArr {
+			iResult, err := strconv.Atoi(result)
+			FatalOnError(err)
+			ctx.DeployResults = append(ctx.DeployResults, iResult)
+		}
 	}
 	ctx.ProjectRoot = os.Getenv("GHA2DB_PROJECT_ROOT")
 
