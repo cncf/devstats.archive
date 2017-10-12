@@ -32,7 +32,7 @@ To add new metric:
 - If Metric returns multiple values in a single series and creates data gaps, then you have to list values to clear via `values: ` property, you can use series formula format to do so.
 4) Add test coverage in [metrics_test.go](https://github.com/cncf/gha2db/blob/master/metrics_test.go).
 5) You need to either regenerate all InfluxDB data (it takes about 10-15 minutes) using `PG_PASS=... IDB_PASS=... ./reinit_all.sh` or use `PG_PASS=... IDB_PASS=... ./add_single_metric,sh`. If you choose to use add single metric, you need to create 4 files: `test_gaps.yaml` (if empty copy from metrics/empty.yaml), `test_annotations.yaml` (usually empty), `test_metrics.yaml` and `test_tags.yaml`. Those YAML files should contain only new metric related data.
-6) To test new metric on non-production InfluxDB "test", use: `test_metric_sync.sh` script.
+6) To test new metric on non-production InfluxDB "test", use: `test_metric_sync.sh` script. You can chekc field types via: `influx; use test; show field keys`.
 7) Add Grafana dashboard or row that displays this metric.
 8) Export new Grafana dashboard to JSON.
 9) Create PR for the new metric.

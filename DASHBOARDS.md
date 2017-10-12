@@ -29,6 +29,7 @@ They are defined here: [repo_groups.sql](https://github.com/cncf/gha2db/blob/mas
 21) Bot commands usage dashboard: [bot_commands.sql](https://github.com/cncf/gha2db/blob/master/metrics/bot_commands.sql), [bot_commands.json](https://github.com/cncf/gha2db/blob/master/grafana/dashboards/bot_commands.json), [view](https://cncftest.io/dashboard/db/bot-commands?orgId=1).
 22) Contributing companies dashboard: [num_stats.sql](https://github.com/cncf/gha2db/blob/master/metrics/num_stats.sql), [contributing_companies.json](https://github.com/cncf/gha2db/blob/master/grafana/dashboards/contributing_companies.json), [view](https://cncftest.io/dashboard/db/contributing-companies?orgId=1).
 23) Approvers dashboard: [approvers.sql](https://github.com/cncf/gha2db/blob/master/metrics/approvers.sql), [approvers.json](https://github.com/cncf/gha2db/blob/master/grafana/dashboards/approvers.json), [view](https://cncftest.io/dashboard/db/approvers?orgId=1).
+24) Approvers histogram dashboard: [hist_approvers.sql](https://github.com/cncf/gha2db/blob/master/metrics/hist_approvers.sql), [approvers_histogram.json](https://github.com/cncf/gha2db/blob/master/grafana/dashboards/approvers_histogram.json), [view](https://cncftest.io/dashboard/db/approvers-histogram?orgId=1).
 
 All of them works live on [cncftest.io](https://cncftest.io) with auto gha2db_sync tool running.
 
