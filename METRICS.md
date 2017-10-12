@@ -6,7 +6,7 @@ To add new metric:
 - {{n}} is only used in aggregate periods mode and it will get value from `Number of periods` drop-down. For example for 7 days MA (moving average) it will be 7.
 - This SQL will be automatically called on different periods by `gha2db_sync` tool.
 2) Define this metric in [metrics/metrics.yaml](https://github.com/cncf/gha2db/blob/master/metrics/metrics.yaml) (file used by `gha2db_sync` tool).
-- You can define this metric in `test_metric.yaml` first (and eventually in `test_gaps.yaml`) and run `test_metric_sync.sh` and then call `influx` floowed by `use test`, `precision rfc3339`, `show series`, 'select * from series_name` to see the results.
+- You can define this metric in `test_metric.yaml` first (and eventually in `test_gaps.yaml`, `test_annotations.yaml`, `test_tags.yaml``) and run `test_metric_sync.sh` and then call `influx` floowed by `use test`, `precision rfc3339`, `show series`, 'select * from series_name` to see the results.
 - You need to define periods for calculations, for example m,q,y for "month, quarter and year", or h,d,w for "hour, day and week". You can use any combination of h,d,w,m,q,y.
 - You can define aggregate periods via `aggregate: n1,n2,n3,...`, if you don't define this, there will be one aggregation period = 1. Some aggregate combinations can be set to skip, for example you have `periods: m,q,y`, `aggregate: 1,3,7`, you want to skip >1 aggregate for y and 7 for q, then set: `skip: y3,y7,q3`.
 - You need to define SQL file via `sql: filename`. It will use `metrics/filename.sql`.
@@ -31,7 +31,7 @@ To add new metric:
 - If metrics uses string descriptions (like `desc: time_diff_as_string`), add `desc: true` in gaps file to clear descriptions too.
 - If Metric returns multiple values in a single series and creates data gaps, then you have to list values to clear via `values: ` property, you can use series formula format to do so.
 4) Add test coverage in [metrics_test.go](https://github.com/cncf/gha2db/blob/master/metrics_test.go).
-5) You need to either regenerate all InfluxDB data (it takes about 10-15 minutes) using `PG_PASS=... IDB_PASS=... ./reinit_all.sh` or use `PG_PASS=... IDB_PASS=... ./add_single_metric,sh`. If you choose to use add single metric, you need to create 3 files: `test_gaps.yaml` (if empty copy from metrics/empty.yaml), `test_annotations.yaml` (usually empty) and `test_metrics.yaml`. Those YAML files should contain only new metric related data.
+5) You need to either regenerate all InfluxDB data (it takes about 10-15 minutes) using `PG_PASS=... IDB_PASS=... ./reinit_all.sh` or use `PG_PASS=... IDB_PASS=... ./add_single_metric,sh`. If you choose to use add single metric, you need to create 4 files: `test_gaps.yaml` (if empty copy from metrics/empty.yaml), `test_annotations.yaml` (usually empty), `test_metrics.yaml` and `test_tags.yaml`. Those YAML files should contain only new metric related data.
 6) To test new metric on non-production InfluxDB "test", use: `test_metric_sync.sh` script.
 7) Add Grafana dashboard or row that displays this metric.
 8) Export new Grafana dashboard to JSON.

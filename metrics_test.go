@@ -530,6 +530,17 @@ func TestMetrics(t *testing.T) {
 				{"num_stats;All;companies,developers", 4, 3},
 			},
 		},
+		{
+			setup:  setupReviewersMetric,
+			metric: "approvers",
+			from:   ft(2017, 7),
+			to:     ft(2017, 8),
+			n:      1,
+			expected: [][]interface{}{
+				{"approvers,Group 1", 4},
+				{"approvers,Group 2", 2},
+			},
+		},
 	}
 
 	// Environment context parse
