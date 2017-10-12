@@ -224,6 +224,24 @@ func webhookHandler(w http.ResponseWriter, r *http.Request) {
 		checkError(w, errors.New("webhook: skipping payload due to wrong status, result, branch and/or type"))
 		return
 	}
+	err = os.Chdir(ctx.ProjectRoot)
+	if checkError(w, err) {
+		return
+	}
+	// Do deployment
+	lib.Printf("WebHook: deploying via `%s`\n", "make && make install")
+	ctx.ExecFatal = false
+	lib.Printf("WebHook: %s\n", "make")
+	err = lib.ExecCommand(&ctx, []string{"make"}, nil)
+	if checkError(w, err) {
+		return
+	}
+	lib.Printf("WebHook: %s\n", "make install")
+	err = lib.ExecCommand(&ctx, []string{"make", "install"}, nil)
+	if checkError(w, err) {
+		return
+	}
+	lib.Printf("WebHook: deployed via `%s`\n\n", "make && make install")
 	respondWithSuccess(w, "ok")
 }
 
