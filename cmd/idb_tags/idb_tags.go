@@ -11,7 +11,7 @@ import (
 
 // tags contain list of InfluxDB tags
 type tags struct {
-	tags []tag `yaml:"tags"`
+	Tags []tag `yaml:"tags"`
 }
 
 // tag contain each InfluxDB tag data
@@ -61,7 +61,7 @@ func idbTags() {
 	strVal := ""
 
 	// Iterate tags
-	for _, tag := range allTags.tags {
+	for _, tag := range allTags.Tags {
 		if ctx.Debug > 0 {
 			lib.Printf("Tag '%s' --> '%s'\n", tag.Name, tag.SeriesName)
 		}
