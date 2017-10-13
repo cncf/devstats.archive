@@ -4,30 +4,27 @@ Prerequisites:
 - Ubuntu 16.04 LTS (quite old, but longest support).
 - [golang](https://golang.org), this tutorial uses Go 1.6
     - `apt-get update`
-    - `apt-get install golang`
-    - `mkdir /data/dev`
-    - `GOPATH=/data/dev`
-    - `export GOPATH`
-    - `PATH=$PATH:$GOPATH/bin`
-    - `export PATH`
-- [golint](https://github.com/golang/lint): `go get -u github.com/golang/lint/golint`
-- [goimports](https://godoc.org/golang.org/x/tools/cmd/goimports): `go get golang.org/x/tools/cmd/goimports`
-- [goconst](https://github.com/jgautheron/goconst): `go get github.com/jgautheron/goconst/cmd/goconst`
-- [usedexports](https://github.com/jgautheron/usedexports): `go get github.com/jgautheron/usedexports`
-- Go InfluxDB client: install with: `go get github.com/influxdata/influxdb/client/v2`
-- Go Postgres client: install with: `go get github.com/lib/pq`
-- Go unicode text transform tools: install with: `go get golang.org/x/text/transform` and `go get golang.org/x/text/unicode/norm`
-- Go YAML parser library: install with: `go get gopkg.in/yaml.v2`
-
+    - `apt-get install golang git`
+    - `mkdir /data; mkdir /data/dev`
 1. Configure Go:
     - For example add to `~/.bash_profile` and/or `~/.profile`:
      ```
      GOPATH=$HOME/data/dev; export GOPATH
      PATH=$PATH:$GOPATH/bin; export PATH
      ```
-    - Set reuse TCP connections (Golang InfluxDB may need this under heavy load): `./scripts/net_tcp_config.sh`
+    - Logout and login again.
+    - [golint](https://github.com/golang/lint): `go get -u github.com/golang/lint/golint`
+    - [goimports](https://godoc.org/golang.org/x/tools/cmd/goimports): `go get golang.org/x/tools/cmd/goimports`
+    - [goconst](https://github.com/jgautheron/goconst): `go get github.com/jgautheron/goconst/cmd/goconst`
+    - [usedexports](https://github.com/jgautheron/usedexports): `go get github.com/jgautheron/usedexports`
+    - Go InfluxDB client: install with: `go get github.com/influxdata/influxdb/client/v2`
+    - Go Postgres client: install with: `go get github.com/lib/pq`
+    - Go unicode text transform tools: install with: `go get golang.org/x/text/transform` and `go get golang.org/x/text/unicode/norm`
+    - Go YAML parser library: install with: `go get gopkg.in/yaml.v2`
+
 2. Go to $GOPATH/src/ and clone gha2db there:
     - `git clone https://github.com/cncf/gha2db.git`
+    - Set reuse TCP connections (Golang InfluxDB may need this under heavy load): `./scripts/net_tcp_config.sh`
 3. If you want to make changes and PRs, please clone `gha2db` from GitHub UI, and clone your forked version instead, like this:
     - `git clone https://github.com/your_github_username/gha2db.git`
 6. Go to gha2db directory, so you are in `~/dev/go/src/gha2db` directory and compile binaries:
@@ -51,7 +48,7 @@ Prerequisites:
 11. Leave `psql` shell, and get newest Kubernetes database dump:
     - `wget https://cncftest.io/web/k8s.sql.xz` (it is about 400Mb).
     - `xz -d k8s.sql.xz` (uncompressed dump is more than 7Gb).
-    - `psql gha < k8s.sql` (restore DB dump)
+    - `sudo -u postgres psql gha < k8s.sql` (restore DB dump)
 
 12. Install InfluxDB time-series database ([link](https://docs.influxdata.com/influxdb/v0.9/introduction/installation/)):
     - Ubuntu 16 contains very old `influxdb` when installed by default `apt-get install influxdb`, so:

@@ -27,7 +27,8 @@ If You see a bug or want to add a new metric please create an [issue](https://gi
 
 To work on this project locally please fork the original [repository](https://github.com/cncf/gha2db), and then follow instructions about running locally:
 - [Compiling and running on macOS](./INSTALL_MAC.md).
-- [Compiling and running on Linux](./INSTALL_UBUNTU.md).
+- [Compiling and running on Linux Ubuntu 16 LTS](./INSTALL_UBUNTU16.md).
+- [Compiling and running on Linux Ubuntu 17](./INSTALL_UBUNTU17.md).
 
 For more detailed description of all environment variables, tools, switches etc, please see [usage](https://github.com/cncf/gha2db/blob/master/USAGE.md).
 
