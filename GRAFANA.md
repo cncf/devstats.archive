@@ -3,7 +3,7 @@
 - Go to Grafana UI: `http://localhost:3000`
 - Login as "admin"/"admin" (You can change passwords later)
 - Choose add data source, then Add Influx DB with those settings:
-- Name and type "InfluxDB", url default "http://localhost:8086", access: "proxy", database "gha", user "gha_admin", password "your_influx_pwd", min time interval "1h"
+- Name "yourname" and type "InfluxDB", url default "http://localhost:8086", access: "proxy", database "gha", user "gha_admin", password "your_influx_pwd", min time interval "1h"
 - Test & save datasource, then proceed to dashboards.
 - Click Home, Import dashboard, Upload JSON file, choose dashboards saved as JSONs in `grafana/dashboards/dashboard_name.json`, data source "InfluxDB" and save.
 - All dashboards are [here](https://github.com/cncf/gha2db/blob/master/grafana/dashboards/).
@@ -22,3 +22,4 @@ enabled = true
 org_name = XYZ
 org_role = Read Only Editor
 ```
+- Restart grafana server.
