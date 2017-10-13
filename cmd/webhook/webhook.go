@@ -229,8 +229,13 @@ func webhookHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// Do deployment
-	lib.Printf("WebHook: deploying via `%s`\n", "git pull && make && make install")
+	lib.Printf("WebHook: deploying via `%s`\n", "make install")
 	ctx.ExecFatal = false
+	lib.Printf("WebHook: git checkout %s\n", payload.Branch)
+	err = lib.ExecCommand(&ctx, []string{"git", "checkout", payload.Branch}, nil)
+	if checkError(w, err) {
+		return
+	}
 	lib.Printf("WebHook: %s\n", "git pull")
 	err = lib.ExecCommand(&ctx, []string{"git", "pull"}, nil)
 	if checkError(w, err) {
@@ -246,7 +251,7 @@ func webhookHandler(w http.ResponseWriter, r *http.Request) {
 	if checkError(w, err) {
 		return
 	}
-	lib.Printf("WebHook: deployed via `%s`\n\n", "git pull && make && make install")
+	lib.Printf("WebHook: deployed via `%s`\n\n", "make install")
 	respondWithSuccess(w, "ok")
 }
 
