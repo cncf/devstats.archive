@@ -72,7 +72,7 @@ Our approach is to use GitHub archives instead. The possible alternatives are:
 - 7.2M / 5K (API limit per hour) gives 1440 hours which is 2 months. And we're on GitHub API limit all the time. Processing ALL GitHub events takes about 2 hours without ANY limit.
 - You can optionally save downloaded JSONs to avoid network traffic in next calls (also usable for local development mode).
 - There is an already implemented version in Go, please see usage here [USAGE](https://github.com/cncf/gha2db/blob/master/USAGE.md)
-- Dashboards can be displayed here [link](https://cncftest.io/?orgId=1)
+- Dashboards can be displayed here [link](https://devstats.k8s.io/?orgId=1)
 
 # Architecture
 
@@ -94,7 +94,7 @@ We're getting all possible GitHub data for all objects, and all objects historic
 - We have all historical data from all possible GitHub events and summary values for repositories at given points of time.
 - The idea is to divide all data into two categories: `const` and `variable`. Const data is a data that is not changing in time, variable data is a data that changes in time, so `event_id` is added as a part of this data primary key.
 - Table structure, `const` and `variable` description can be found in [USAGE](https://github.com/cncf/gha2db/blob/master/USAGE.md)
-- The program can be parallelized very easy (events are distinct in different hours, so each hour can be processed by other CPU), uses 48 CPUs on cncftest.io.
+- The program can be parallelized very easy (events are distinct in different hours, so each hour can be processed by other CPU), uses 48 CPUs on our test machine.
 
 3) `db2influx` (computes metrics given as SQL files to be run on Postgres and saves time series output to InfluxDB)
 - [db2influx](https://github.com/cncf/gha2db/blob/master/cmd/db2influx/db2influx.go)
@@ -120,7 +120,7 @@ We're getting all possible GitHub data for all objects, and all objects historic
 - `runq` gets SQL file name and parameter values and allows to run metric manually from the command line (this is for local development)
 - [import_affs](https://github.com/cncf/gha2db/blob/master/cmd/import_affs/import_affs.go)
 - `import_affs` takes one parameter - JSON file name (this is a file from [cncf/gitdm](https://github.com/cncf/gitdm): [github_users.json](https://raw.githubusercontent.com/cncf/gitdm/master/github_users.json)
-- This tools imports GitHub usernames (in addition to logins from GHA) and creates developers - companies affiliations (that can be used by [Companies velocity](https://cncftest.io/dashboard/db/companies-velocity?orgId=1) metric)
+- This tools imports GitHub usernames (in addition to logins from GHA) and creates developers - companies affiliations (that can be used by [Companies stats](https://devstats.k8s.io/dashboard/db/companies-stats?orgId=1) metric)
 - [z2influx](https://github.com/cncf/gha2db/blob/master/cmd/z2influx/z2influx.go)
 - `z2influx` is used to fill gaps that can occur for metrics that returns multiple columns and rows, but the number of rows depends on date range, it uses [gaps.yaml](https://github.com/cncf/gha2db/blob/master/metrics/gaps.yaml) file to define which metrics should be zero filled.
 - [annotations](https://github.com/cncf/gha2db/blob/master/cmd/annotations/annotations.go)
