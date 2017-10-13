@@ -173,6 +173,9 @@ func successPayload(ctx *lib.Ctx, pl payload) bool {
 
 // webhookHandler receives Travis CI webhook and parses it
 func webhookHandler(w http.ResponseWriter, r *http.Request) {
+	// Start date
+	dtStart := time.Now()
+
 	// Environment context parse
 	var ctx lib.Ctx
 	ctx.Init()
@@ -251,7 +254,8 @@ func webhookHandler(w http.ResponseWriter, r *http.Request) {
 	if checkError(w, err) {
 		return
 	}
-	lib.Printf("WebHook: deployed via `%s`\n\n", "make install")
+	dtEnd := time.Now()
+	lib.Printf("WebHook: deployed via `make install` in %v\n", dtEnd.Sub(dtStart))
 	respondWithSuccess(w, "ok")
 }
 
