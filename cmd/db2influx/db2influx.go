@@ -392,12 +392,14 @@ func db2influxHistogram(ctx *lib.Ctx, seriesNameOrFunc, sqlQuery, interval, inte
 			}
 		}
 		lib.FatalOnError(rows.Err())
-		allSeries := ""
-		for series := range seriesToClear {
-			allSeries += series + "|"
+		if len(seriesToClear) > 0 {
+			allSeries := ""
+			for series := range seriesToClear {
+				allSeries += series + "|"
+			}
+			allSeries = allSeries[0 : len(allSeries)-1]
+			lib.SafeQueryIDB(ic, ctx, "drop series from /"+allSeries+"/")
 		}
-		allSeries = allSeries[0 : len(allSeries)-1]
-		lib.SafeQueryIDB(ic, ctx, "drop series from /"+allSeries+"/")
 	}
 	// Write the batch
 	if !ctx.SkipIDB {
