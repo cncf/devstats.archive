@@ -184,8 +184,9 @@ This will log error and process no JSONs:
 # PostgreSQL database setup
 
 Detailed setup instructions are here (they use already populated postgres dump):
-- [Mac](https://github.com/cncf/gha2db/blob/master/INSTALL_MAC.md)
-- [Linux](https://github.com/cncf/gha2db/blob/master/INSTALL_UBUNTU.md)
+- [Mac >= 10.12](https://github.com/cncf/gha2db/blob/master/INSTALL_MAC.md)
+- [Linux Ubuntu 16 LTS](https://github.com/cncf/gha2db/blob/master/INSTALL_UBUNTU16.md)
+- [Linux Ubuntu 17](https://github.com/cncf/gha2db/blob/master/INSTALL_UBUNTU17.md)
 
 In short for Ubuntu like Linux:
 
@@ -362,7 +363,8 @@ Sync tool uses [gaps.yaml](https://github.com/cncf/gha2db/blob/master/metrics/ga
 
 You can install a cron job to run `gha2db_sync` automatically, please check "cron" section:
 - [Mac](https://github.com/cncf/gha2db/blob/master/INSTALL_MAC.md)
-- [Linux](https://github.com/cncf/gha2db/blob/master/INSTALL_UBUNTU.md)
+- [Linux Ubuntu 16 LTS](https://github.com/cncf/gha2db/blob/master/INSTALL_UBUNTU16.md)
+- [Linux Ubuntu 17](https://github.com/cncf/gha2db/blob/master/INSTALL_UBUNTU17.md)
 
 # Developers affiliations
 
@@ -393,7 +395,8 @@ You can visualise data using Grafana, see [grafana/](https://github.com/cncf/gha
 
 Grafana install instruction are here:
 - [Mac](https://github.com/cncf/gha2db/blob/master/INSTALL_MAC.md)
-- [Linux](https://github.com/cncf/gha2db/blob/master/INSTALL_UBUNTU.md)
+- [Linux Ubuntu 16 LTS](https://github.com/cncf/gha2db/blob/master/INSTALL_UBUNTU16.md)
+- [Linux Ubuntu 17](https://github.com/cncf/gha2db/blob/master/INSTALL_UBUNTU17.md)
 
 # To drop & recreate InfluxDB:
 - `IDB_PASS='idb_password' ./grafana/influxdb_recreate.sh`
