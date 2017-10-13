@@ -4,7 +4,7 @@ Prerequisites:
 - Ubuntu 17.04.
 - [golang](https://golang.org), this tutorial uses Go 1.6
     - `apt-get update`
-    - `apt-get install golang git`
+    - `apt-get install golang git psmisc`
     - `mkdir /data; mkdir /data/dev`
 1. Configure Go:
     - For example add to `~/.bash_profile` and/or `~/.profile`:
@@ -70,18 +70,21 @@ Prerequisites:
     - We need to prefix call with GHA2DB_LOCAL to enable using tools from "./" directory
     - To import data for the first time (Influx database is empty and postgres database is at the state when Kubernetes SQL dump was made on [cncftest.io](https://cncftest.io)):
     - `GHA2DB_LOCAL=1 IDB_PASS=pwd PG_PASS=pwd ./reinit_all.sh`
-    - This can take a while (depending how old is psql dump `k8s.sql.xz` on [cncftest](https://cncftest.io).
+    - This can take a while (depending how old is psql dump `k8s.sql.xz` on [cncftest](https://cncftest.io). It is generated daily at 3:00 AM UTC.
     - Command should be successfull.
 
 15. We need to setup cron job that will call sync every hour (10 minutes after 1:00, 2:00, ...)
     - You need to open `crontab.entry` file, it looks like this:
     ```
-    10 * * * * PATH=$PATH:/path/to/your/GOROOT/bin PG_PASS="..." cron_gha2db_sync.sh 1> /tmp/gha2db_sync.out 2> /tmp/gha2db_sync.err
-    20 3 * * * PATH=$PATH:/path/to/your/GOROOT/bin cron_db_backup.sh gha 2>> /tmp/gha2db_backup.err 1>> /tmp/gha2db_backup.log
+    10 * * * * PATH=$PATH:/path/to/your/GOPATH/bin GHA2DB_CMDDEBUG=1 IDB_PASS='...' PG_PASS='...' cron_gha2db_sync.sh 2>> /tmp/gha2db_sync.err 1>> /tmp/gha2db_sync.log
+    20 3 * * * PATH=$PATH:/path/to/your/GOPATH/bin cron_db_backup.sh gha 2>> /tmp/gha2db_backup.err 1>> /tmp/gha2db_backup.log
+    */5 * * * * PATH=$PATH:/path/to/your/GOPATH/bin GOPATH=/your/gopath GHA2DB_CMDDEBUG=1 GHA2DB_PROJECT_ROOT=/path/to/repo PG_PASS="..." webhook 2>> /tmp/gha2db_webhook.err 1>> /tmp/gha2db_webhook.log
     ```
+    - First crontab entry is for automatic GHA sync.
     - Second crontab entry is for automatic daily backup of GHA database.
-    - You need to change "..." PG_PASS to the real postgres password value and copy this line.
-    - You need to change "/path/to/your/GOROOT/bin" to the value of "$GOREOOT/bin", You cannot use $GOROOT in crontab directly.
+    - Third crontab entry is for Continuous Deployment - this a Travis Web Hook listener server, it deploys project when specific conditions are met, details [here](https://github.com/cncf/gha2db/blob/master/CONTINUOUS_DEPLOYMENT.md).
+    - You need to change "..." PG_PASS and IDB_PASS to the real postgres password value and copy this line.
+    - You need to change "/path/to/your/GOPATH/bin" to the value of "$GOPATH/bin", You cannot use $GOPATH in crontab directly.
     - Run `crontab -e` and put this line at the end of file and save.
     - Cron job will update Postgres and InfluxDB databases at 0:10, 1:10, ... 23:10 every day.
     - It outputs logs to `/tmp/gha2db_sync.out` and `/tmp/gha2db_sync.err` and also to gha Postgres database: into table `gha_logs`.
@@ -89,15 +92,17 @@ Prerequisites:
     - Check max event created date: `select max(created_at) from gha_events` and logs `select * from gha_logs order by dt desc limit 20`.
 
 16. Install [Grafana](http://docs.grafana.org/installation/mac/)
-    - Follow: http://docs.grafana.org/installation/debian/
-    - `wget https://s3-us-west-2.amazonaws.com/grafana-releases/release/grafana_4.5.1_amd64.deb`
+    - Follow: `http://docs.grafana.org/installation/debian/`
+    - `wget https://s3-us-west-2.amazonaws.com/grafana-releases/release/grafana_4.5.2_amd64.deb`
     - `sudo apt-get install -y adduser libfontconfig`
-    - `sudo dpkg -i grafana_4.5.1_amd64.deb`
+    - `sudo dpkg -i grafana_4.5.2_amd64.deb`
     - `sudo service grafana-server start`
     - Configure Grafana, as described [here](https://github.com/cncf/gha2db/blob/master/GRAFANA.md).
     - `service grafana-server restart`
     - Go to Grafana UI (localhost:3000), choose sign out, and then access localhost:3000 again. You should be able to view dashboards as a guest. To login again use http://localhost:3000/login.
     - You can also enable SSL, to do so You need to follow SSL instruction in [USAGE](https://github.com/cncf/gha2db/blob/master/USAGE.md) (that requires domain name).
+    - Install Apache as described [here](https://github.com/cncf/gha2db/blob/master/APACHE.md).
+    - You can also enable SSL, to do so You need to follow SSL instruction in [SSL](https://github.com/cncf/gha2db/blob/master/SSL.md) (that requires domain name).
 
 17. To change all Grafana page titles (starting with "Grafana - ") and icons use this script:
     - `GRAFANA_DATA=/usr/share/grafana/ ./grafana/change_title_and_icons.sh`.
@@ -105,6 +110,7 @@ Prerequisites:
     - `service grafana-server restart`
     - In some cases browser and/or Grafana cache old settings in this case temporarily move Grafana's `settings.js` file:
     - `mv /usr/share/grafana/public/app/core/settings.js /usr/share/grafana/public/app/core/settings.js.old`, restart grafana server and restore file.
+    - On Safari you can use Develop -> Empty Caches followed by refresh page (Command+R).
 
 18. To enable Continuous deployment using Travis, please follow instructions [here](https://github.com/cncf/gha2db/blob/master/CONTINUOUS_DEPLOYMENT.md).
 
