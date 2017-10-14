@@ -165,3 +165,6 @@ Ruby version was dropped, but You can see benchmarks of Ruby using MySQL, Ruby u
 
 In summary: Go version can import all GitHub archives data (not discarding anything) for all Kubernetes orgs/repos, from the beginning on GitHub 2014-06-01 in about 2-2,5 hours!
 
+# Servers
+
+The servers to run gha2db are generously provided by [Packet](https://www.packet.net/) bare metal hosting as part of CNCF's [Community Infrastructure Lab](https://github.com/cncf/cluster).
