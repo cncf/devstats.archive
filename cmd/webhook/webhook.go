@@ -21,11 +21,17 @@ import (
 // Payload signature verification based on:
 // https://gist.github.com/theshapguy/7d10ea4fa39fab7db393021af959048e
 
+type repository struct {
+	Name      string `json:"name"`
+	OwnerName string `json:"owner_name"`
+}
+
 type payload struct {
-	Branch        string `json:"branch"`
-	Result        int    `json:"result"`
-	ResultMessage string `json:"result_message"`
-	Type          string `json:"type"`
+	Branch        string     `json:"branch"`
+	Result        int        `json:"result"`
+	ResultMessage string     `json:"result_message"`
+	Type          string     `json:"type"`
+	Repo          repository `json:"repository"`
 }
 
 type configKey struct {
@@ -131,6 +137,9 @@ func checkError(w http.ResponseWriter, err error) bool {
 
 // successPayload: is this a success payload?
 func successPayload(ctx *lib.Ctx, pl payload) bool {
+	if pl.Repo.Name != "gha2db" || pl.Repo.OwnerName != "cncf" {
+		return false
+	}
 	ok := false
 	for _, status := range ctx.DeployStatuses {
 		if pl.ResultMessage == status {
@@ -219,6 +228,7 @@ func webhookHandler(w http.ResponseWriter, r *http.Request) {
 	if checkError(w, err) {
 		return
 	}
+	lib.Printf("WebHook: repo: %s/%s, allowed: cncf/gha2db\n", payload.Repo.OwnerName, payload.Repo.Name)
 	lib.Printf("WebHook: branch: %s, allowed branches: %v\n", payload.Branch, ctx.DeployBranches)
 	lib.Printf("WebHook: status: %s, allowed statuses: %v\n", payload.ResultMessage, ctx.DeployStatuses)
 	lib.Printf("WebHook: type: %s, allowed types: %v\n", payload.Type, ctx.DeployTypes)
