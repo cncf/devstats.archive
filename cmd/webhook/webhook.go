@@ -31,6 +31,8 @@ type payload struct {
 	Result        int        `json:"result"`
 	ResultMessage string     `json:"result_message"`
 	Type          string     `json:"type"`
+	AuthorEmail   string     `json:"author_email"`
+	AuthorName    string     `json:"author_name"`
 	Repo          repository `json:"repository"`
 }
 
@@ -233,6 +235,7 @@ func webhookHandler(w http.ResponseWriter, r *http.Request) {
 	lib.Printf("WebHook: status: %s, allowed statuses: %v\n", payload.ResultMessage, ctx.DeployStatuses)
 	lib.Printf("WebHook: type: %s, allowed types: %v\n", payload.Type, ctx.DeployTypes)
 	lib.Printf("WebHook: result: %d, allowed results: %v\n", payload.Result, ctx.DeployResults)
+	lib.Printf("WebHook: author: name: %s, email: %s\n", payload.AuthorName, payload.AuthorEmail)
 	if !successPayload(&ctx, payload) {
 		checkError(w, errors.New("webhook: skipping deploy due to wrong status, result, branch and/or type"))
 		return
