@@ -37,11 +37,15 @@ We want to support all kind of metrics, including historical ones.
 Please see [requested metrics](https://docs.google.com/document/d/1o5ncrY6lVX3qSNJGWtJXx2aAC2MEqSjnML4VJDrNpmE/edit?usp=sharing) to see what kind of metrics are needed.
 Many of them cannot be computed based on the data sources currently used.
 
+# Company Affiliations
+
 We also want to have per company statistics. To implement such metrics we need a mapping of developers and their employers.
 
 There is a project that attempts to create such mapping [cncf/gitdm](https://github.com/cncf/gitdm).
 
 Gha2db has an import tool that fetches company affiliations `from cncf/gitdm` and allows to create per company metrics/statistics.
+
+If you see errors in the company affiliations, please open a pull request on [cncf/gitdm](https://github.com/cncf/gitdm) and the updates will be reflected on [https://devstats.k8s.io](https://devstats.k8s.io) a couple days after the PR has been accepted. Note that gitdm supports mapping based on dates, to account for developers moving between companies.
 
 # GitHub Archives
 
