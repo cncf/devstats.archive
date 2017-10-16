@@ -375,7 +375,7 @@ To generate this file follow instructions on cncf/gitdm, or just get the newest 
 This file contains all GitHub user name - company affiliations found by `cncf/gitdm`.
 
 To load it into our database use:
-- `PG_PASS=pwd ./import_affs github_users.json`
+- `PG_PASS=pwd ./import_affs.sh`
 
 # Repository groups
 
