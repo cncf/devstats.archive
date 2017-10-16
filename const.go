@@ -1,4 +1,4 @@
-package gha2db
+package devstats
 
 // Today - common constant string
 const Today string = "today"

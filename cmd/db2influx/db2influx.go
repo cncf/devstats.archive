@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	lib "gha2db"
+	lib "devstats"
 )
 
 // valueDescription - return string description for given float value
