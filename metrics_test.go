@@ -1,4 +1,4 @@
-package gha2db
+package devstats
 
 import (
 	"database/sql"
@@ -9,8 +9,8 @@ import (
 	"testing"
 	"time"
 
-	lib "gha2db"
-	testlib "gha2db/test"
+	lib "devstats"
+	testlib "devstats/test"
 )
 
 // MetricTestCase - used to test single metric

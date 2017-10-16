@@ -1,11 +1,11 @@
-package gha2db
+package devstats
 
 import (
 	"encoding/json"
 	"testing"
 	"time"
 
-	lib "gha2db"
+	lib "devstats"
 )
 
 func TestInfluxDB(t *testing.T) {

@@ -10,7 +10,7 @@ import (
 	"strings"
 	"time"
 
-	lib "gha2db"
+	lib "devstats"
 )
 
 // gitHubUsers - list of GitHub user data from cncf/gitdm.
