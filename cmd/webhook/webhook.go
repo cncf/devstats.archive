@@ -139,7 +139,7 @@ func checkError(w http.ResponseWriter, err error) bool {
 
 // successPayload: is this a success payload?
 func successPayload(ctx *lib.Ctx, pl payload) bool {
-	if pl.Repo.Name != "devstats" || pl.Repo.OwnerName != "cncf" {
+	if (pl.Repo.Name != "devstats" && pl.Repo.Name != "gha2db") || pl.Repo.OwnerName != "cncf" {
 		return false
 	}
 	ok := false
@@ -230,7 +230,7 @@ func webhookHandler(w http.ResponseWriter, r *http.Request) {
 	if checkError(w, err) {
 		return
 	}
-	lib.Printf("WebHook: repo: %s/%s, allowed: cncf/gha2db\n", payload.Repo.OwnerName, payload.Repo.Name)
+	lib.Printf("WebHook: repo: %s/%s, allowed: cncf/gha2db, cncf/devstats\n", payload.Repo.OwnerName, payload.Repo.Name)
 	lib.Printf("WebHook: branch: %s, allowed branches: %v\n", payload.Branch, ctx.DeployBranches)
 	lib.Printf("WebHook: status: %s, allowed statuses: %v\n", payload.ResultMessage, ctx.DeployStatuses)
 	lib.Printf("WebHook: type: %s, allowed types: %v\n", payload.Type, ctx.DeployTypes)
