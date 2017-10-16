@@ -3,7 +3,7 @@ GO_BIN_FILES=cmd/structure/structure.go cmd/runq/runq.go cmd/gha2db/gha2db.go cm
 GO_TEST_FILES=context_test.go gha_test.go map_test.go mgetc_test.go threads_test.go time_test.go unicode_test.go
 GO_DBTEST_FILES=pg_test.go idb_test.go metrics_test.go
 GO_LIBTEST_FILES=test/compare.go test/time.go
-GO_BIN_CMDS=gha2db/cmd/structure gha2db/cmd/runq gha2db/cmd/gha2db gha2db/cmd/db2influx gha2db/cmd/gha2db_sync gha2db/cmd/z2influx gha2db/cmd/import_affs gha2db/cmd/annotations gha2db/cmd/idb_tags gha2db/cmd/idb_backup gha2db/cmd/webhook
+GO_BIN_CMDS=devstats/cmd/structure devstats/cmd/runq devstats/cmd/gha2db devstats/cmd/db2influx devstats/cmd/gha2db_sync devstats/cmd/z2influx devstats/cmd/import_affs devstats/cmd/annotations devstats/cmd/idb_tags devstats/cmd/idb_backup devstats/cmd/webhook
 GO_ENV=CGO_ENABLED=0
 GO_BUILD=go build
 GO_INSTALL=go install
