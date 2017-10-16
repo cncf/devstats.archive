@@ -1,5 +1,5 @@
-# Contributing to gha2db
-If You see any error, or if You have suggestion please create [issue and/or PR](https://github.com/cncf/gha2db).
+# Contributing to devstats
+If You see any error, or if You have suggestion please create [issue and/or PR](https://github.com/cncf/devstats).
 
 # Coding standards
 - Please follow coding standards required for Go language.
@@ -9,7 +9,7 @@ If You see any error, or if You have suggestion please create [issue and/or PR](
 - New metrics test coverage should be added in `metrics_test.go`.
 
 # Testing
-Please see [Tests](https://github.com/cncf/gha2db/blob/master/TESTING.md)
+Please see [Tests](https://github.com/cncf/devstats/blob/master/TESTING.md)
 
 # Vulnerabilities
-Please use GitHub [issues](https://github.com/cncf/gha2db/issues) to report any vulnerability found.
+Please use GitHub [issues](https://github.com/cncf/devstats/issues) to report any vulnerability found.

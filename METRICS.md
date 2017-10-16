@@ -5,7 +5,7 @@ To add new metric:
 1) Define parameterized SQL (with `{{from}}`, `{{to}}`  and `{{n}}` params) that returns this metric data. For histogram metrics define `{{period}}` instead.
 - {{n}} is only used in aggregate periods mode and it will get value from `Number of periods` drop-down. For example for 7 days MA (moving average) it will be 7.
 - This SQL will be automatically called on different periods by `gha2db_sync` tool.
-2) Define this metric in [metrics/metrics.yaml](https://github.com/cncf/gha2db/blob/master/metrics/metrics.yaml) (file used by `gha2db_sync` tool).
+2) Define this metric in [metrics/metrics.yaml](https://github.com/cncf/devstats/blob/master/metrics/metrics.yaml) (file used by `gha2db_sync` tool).
 - You can define this metric in `test_metric.yaml` first (and eventually in `test_gaps.yaml`, `test_annotations.yaml`, `test_tags.yaml``) and run `test_metric_sync.sh` and then call `influx` floowed by `use test`, `precision rfc3339`, `show series`, 'select * from series_name` to see the results.
 - You need to define periods for calculations, for example m,q,y for "month, quarter and year", or h,d,w for "hour, day and week". You can use any combination of h,d,w,m,q,y.
 - You can define aggregate periods via `aggregate: n1,n2,n3,...`, if you don't define this, there will be one aggregation period = 1. Some aggregate combinations can be set to skip, for example you have `periods: m,q,y`, `aggregate: 1,3,7`, you want to skip >1 aggregate for y and 7 for q, then set: `skip: y3,y7,q3`.
@@ -20,7 +20,7 @@ To add new metric:
 - Metric can return multiple rows with single column (which means 3 columns in histogram mode: `prefix,series_name` and then histogram value (2 columns: `name` and `value`), exactly the same as `series_name_or_func: multi_row_single_column`.
 - If metrics need additiona string descriptions (like when we are returning number of hours as age, and want to have nice formatted string value like "1 day 12 hours") use `desc: time_diff_as_string`.
 - Metric can return multiple values in a single series (for example for SIG mentions stacking, bot commands, company stats etc), use `multi_value: true` to mark series to return multi value in a single series (instead of creating multiple series with single values).
-3) If metrics create data gaps (for example returns multiple rows with different counts depending on data range), you have to add automatic filling gaps in [metrics/gaps.yaml](https://github.com/cncf/gha2db/blob/master/metrics/gaps.yaml) (file is used by `z2influx` tool):
+3) If metrics create data gaps (for example returns multiple rows with different counts depending on data range), you have to add automatic filling gaps in [metrics/gaps.yaml](https://github.com/cncf/devstats/blob/master/metrics/gaps.yaml) (file is used by `z2influx` tool):
 - You need to define periods to fill gaps, they should be the same as in `metrics.yaml` definition.
 - You need to define a series list to fill gaps on them. Use `series: ` to set them. It expects a list of series (YAML list).
 - You need to define the same `aggregate` and `skip` values for gaps too.
@@ -30,16 +30,16 @@ To add new metric:
 - Series formula allows writing a lot of series name in a shorter way. Say we have series in this form prefix_{x}_{y}_{z}_suffix and {x} can be a,b,c,d, {y} can be 1,2,3, z can be yes,no. Instead of listing all combinations prefix_a_1_yes_suffix, ..., prefix_d_3_no_suffix, which is 4 * 3 * 2 = 24 items, you can write series formula: `- =prefix;suffix;_;a,b,c,d;1,2,3;yes,no`. In this case you can see join character is _ `...;_;...`.
 - If metrics uses string descriptions (like `desc: time_diff_as_string`), add `desc: true` in gaps file to clear descriptions too.
 - If Metric returns multiple values in a single series and creates data gaps, then you have to list values to clear via `values: ` property, you can use series formula format to do so.
-4) Add test coverage in [metrics_test.go](https://github.com/cncf/gha2db/blob/master/metrics_test.go).
+4) Add test coverage in [metrics_test.go](https://github.com/cncf/devstats/blob/master/metrics_test.go).
 5) You need to either regenerate all InfluxDB data (it takes about 10-15 minutes) using `PG_PASS=... IDB_PASS=... ./reinit_all.sh` or use `PG_PASS=... IDB_PASS=... ./add_single_metric,sh`. If you choose to use add single metric, you need to create 4 files: `test_gaps.yaml` (if empty copy from metrics/empty.yaml), `test_annotations.yaml` (usually empty), `test_metrics.yaml` and `test_tags.yaml`. Those YAML files should contain only new metric related data.
 6) To test new metric on non-production InfluxDB "test", use: `test_metric_sync.sh` script. You can chekc field types via: `influx; use test; show field keys`.
 7) Add Grafana dashboard or row that displays this metric.
 8) Export new Grafana dashboard to JSON.
 9) Create PR for the new metric.
 10) Explain how metrics SQLs works in USAGE.md (currently this is pending for all metrics defined so far).
-11) Add metrics dashboard decription in this [file](https://github.com/cncf/gha2db/blob/master/DASHBOARDS.md).
+11) Add metrics dashboard decription in this [file](https://github.com/cncf/devstats/blob/master/DASHBOARDS.md).
 
 # Annotations
 
-You can define annotations in [metrics/annotations.yaml](https://github.com/cncf/gha2db/blob/master/metrics/annotations.yaml)
-You can define tags in [metrics/idb_tags.yaml](https://github.com/cncf/gha2db/blob/master/metrics/idb_tags.yaml)
+You can define annotations in [metrics/annotations.yaml](https://github.com/cncf/devstats/blob/master/metrics/annotations.yaml)
+You can define tags in [metrics/idb_tags.yaml](https://github.com/cncf/devstats/blob/master/metrics/idb_tags.yaml)
