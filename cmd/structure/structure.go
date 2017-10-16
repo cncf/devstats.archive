@@ -3,7 +3,7 @@ package main
 import (
 	"time"
 
-	lib "gha2db"
+	lib "devstats"
 )
 
 func main() {

@@ -1,9 +1,9 @@
-package gha2db
+package devstats
 
 import (
 	"testing"
 
-	lib "gha2db"
+	lib "devstats"
 )
 
 func TestOrgIDOrNil(t *testing.T) {

@@ -13,7 +13,7 @@ import (
 	"strings"
 	"time"
 
-	lib "gha2db"
+	lib "devstats"
 )
 
 // Inserts single GHA Actor

@@ -1,9 +1,9 @@
 package main
 
 import (
+	lib "devstats"
 	"encoding/json"
 	"fmt"
-	lib "gha2db"
 	"os"
 	"strings"
 	"time"

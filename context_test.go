@@ -1,4 +1,4 @@
-package gha2db
+package devstats
 
 import (
 	"fmt"
@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	lib "gha2db"
+	lib "devstats"
 )
 
 // Copies Ctx structure

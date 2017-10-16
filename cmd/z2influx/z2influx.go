@@ -5,7 +5,7 @@ import (
 	"strings"
 	"time"
 
-	lib "gha2db"
+	lib "devstats"
 )
 
 func workerThread(ch chan bool, ctx *lib.Ctx, seriesSet map[string]struct{}, period string, desc bool, values []string, from, to time.Time) {
