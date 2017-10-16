@@ -74,9 +74,9 @@ Org/Repo filtering:
 
 # Configuration
 
-You can tweak `gha2db` tools by environment variables:
+You can tweak `devstats` tools by environment variables:
 - Set `GHA2DB_ST` environment variable to run single threaded version.
-- Set `GHA2DB_JSON` to save single events JSONs in [jsons/](https://github.com/cncf/gha2db/blob/master/jsons/) directory.
+- Set `GHA2DB_JSON` to save single events JSONs in [jsons/](https://github.com/cncf/devstats/blob/master/jsons/) directory.
 - Set `GHA2DB_NODB` to skip DB processing at all (if `GHA2DB_JSON` not set it will parse all data from GHA, but do nothing with it).
 - Set `GHA2DB_DEBUG` set to 1 to see output for all events generated, set to 2 to see all SQL query parameters.
 - Set `GHA2DB_QOUT` to see all SQL queries.
@@ -90,7 +90,7 @@ You can tweak `gha2db` tools by environment variables:
 - Set `GHA2DB_OLDFMT` for `gha2db` tool to make it use old pre-2015 GHA JSONs format (instead of a new one used by GitHub Archives from 2015-01-01).
 - Set `GHA2DB_EXACT` for `gha2db` tool to make it process only repositories listed as "orgs" parameter, by their full names, like for example 3 repos: "GoogleCloudPlatform/kubernetes,kubernetes,kubernetes/kubernetes"
 - Set `GHA2DB_SKIPLOG` for any tool to skip logging output to `gha_logs` table.
-- Set `GHA2DB_LOCAL` for gha2db_sync tool to make it prefix call to other tools with "./" (so it will use other tools binaries from the current working directory instead of `/usr/bin/`). Local mode uses "./metrics/" to search for metrics files. Otherwise "/etc/gha2db/metrics/" is used.
+- Set `GHA2DB_LOCAL` for `gha2db_sync` tool to make it prefix call to other tools with "./" (so it will use other tools binaries from the current working directory instead of `/usr/bin/`). Local mode uses "./metrics/" to search for metrics files. Otherwise "/etc/gha2db/metrics/" is used.
 - Set `GHA2DB_ANNOTATIONS_YAML` for `annotations` tool, set name of annotation yaml file, default is "metrics/annotations.yaml".
 - Set `GHA2DB_METRICS_YAML` for `gha2db_sync` tool, set name of metrics yaml file, default is "metrics/metrics.yaml".
 - Set `GHA2DB_GAPS_YAML` for `gha2db_sync` tool, set name of gaps yaml file, default is "metrics/gaps.yaml".
@@ -104,9 +104,9 @@ You can tweak `gha2db` tools by environment variables:
 - Set `GHA2DB_DEPLOY_STATUSES`, webhook tool, default "Passed,Fixed", comma separated list, use to set which branches should be deployed.
 - Set `GHA2DB_DEPLOY_RESULTS`, webhook tool, default "0", comma separated list, use to set which travis ci results should be deployed.
 - Set `GHA2DB_DEPLOY_TYPES`, webhook tool, default "push", comma separated list, use to set which event types should be deployed.
-- Set `GHA2DB_PROJECT_ROOT`, webhook tool, no default - You have to set it to where the project repository is cloned (usually $GOPATH:/src/gha2db).
+- Set `GHA2DB_PROJECT_ROOT`, webhook tool, no default - You have to set it to where the project repository is cloned (usually $GOPATH:/src/devstats).
 
-All environment context details are defined in [context.go](https://github.com/cncf/gha2db/blob/master/context.go), please see that file for details (You can also see how it works in [context_test.go](https://github.com/cncf/gha2db/blob/master/context_test.go)).
+All environment context details are defined in [context.go](https://github.com/cncf/devstats/blob/master/context.go), please see that file for details (You can also see how it works in [context_test.go](https://github.com/cncf/devstats/blob/master/context_test.go)).
 
 Examples in this shell script (some commented out, some not):
 
@@ -127,7 +127,7 @@ For example to fetch 2017-08-03 18:00 UTC can be fetched by:
 Gzipped files are usually 10-30 Mb in size (single hour).
 Decompressed fields are usually 100-200 Mb.
 
-We download this gzipped JSON, process it on the fly, creating the array of JSON events and then each single event JSON matching org/repo criteria is saved in [jsons](https://github.com/cncf/gha2db/blob/master/jsons/) directory as `N_ID.json` where:
+We download this gzipped JSON, process it on the fly, creating the array of JSON events and then each single event JSON matching org/repo criteria is saved in [jsons](https://github.com/cncf/devstats/blob/master/jsons/) directory as `N_ID.json` where:
 - N - given GitHub archive''s JSON hour as UNIX timestamp.
 - ID - GitHub event ID.
 
@@ -184,9 +184,9 @@ This will log error and process no JSONs:
 # PostgreSQL database setup
 
 Detailed setup instructions are here (they use already populated postgres dump):
-- [Mac >= 10.12](https://github.com/cncf/gha2db/blob/master/INSTALL_MAC.md)
-- [Linux Ubuntu 16 LTS](https://github.com/cncf/gha2db/blob/master/INSTALL_UBUNTU16.md)
-- [Linux Ubuntu 17](https://github.com/cncf/gha2db/blob/master/INSTALL_UBUNTU17.md)
+- [Mac >= 10.12](https://github.com/cncf/devstats/blob/master/INSTALL_MAC.md)
+- [Linux Ubuntu 16 LTS](https://github.com/cncf/devstats/blob/master/INSTALL_UBUNTU16.md)
+- [Linux Ubuntu 17](https://github.com/cncf/devstats/blob/master/INSTALL_UBUNTU17.md)
 
 In short for Ubuntu like Linux:
 
@@ -223,13 +223,13 @@ It is recommended to create structure without indexes first (the default), then 
 Typical internal usage:
 `time GHA2DB_INDEX=1 PG_PASS=your_password ./structure`
 
-Alternatively, you can use [structure.sql](https://github.com/cncf/gha2db/blob/master/structure.sql) to create database structure.
+Alternatively, you can use [structure.sql](https://github.com/cncf/devstats/blob/master/structure.sql) to create database structure.
 
 You can also use already populated Postgres dump: [Kubernetes Psql dump](https://devstats.k8s.io/web/k8s.sql.xz)
 
 # Database structure
 
-You can see database structure in [structure.go](https://github.com/cncf/gha2db/blob/master/structure.go)/[structure.sql](https://github.com/cncf/gha2db/blob/master/structure.sql).
+You can see database structure in [structure.go](https://github.com/cncf/devstats/blob/master/structure.go)/[structure.sql](https://github.com/cncf/devstats/blob/master/structure.sql).
 
 The main idea is that we divide tables into 2 groups:
 - const: meaning that data in this table is not changing in time (is saved once)
@@ -263,12 +263,12 @@ List of tables:
 - `gha_teams`: variable, teams
 - `gha_teams_repositories`: variable, teams repositories connections
 - `gha_logs`: this is a table that holds all tools logs (unless `GHA2DB_SKIPLOG` is set)
-- `gha_texts`: this is a compute table, that contains texts from comments, commits, issues and pull requests, updated by gha2db_sync and structure tools
-- `gha_issues_pull_requests`: this is a compute table that contains PRs and issues connections, updated by gha2db_sync and structure tools
-- `gha_issues_events_labels`: this is a compute table, that contains shortcuts to issues labels (for metrics speedup), updated by gha2db_sync and structure tools
+- `gha_texts`: this is a compute table, that contains texts from comments, commits, issues and pull requests, updated by `gha2db_sync` and structure tools
+- `gha_issues_pull_requests`: this is a compute table that contains PRs and issues connections, updated by `gha2db_sync` and structure tools
+- `gha_issues_events_labels`: this is a compute table, that contains shortcuts to issues labels (for metrics speedup), updated by `gha2db_sync` and structure tools
 
 There is some data duplication in various columns. This is to speedup metrics processing.
-Such columns are described as "dup columns" in [structure.go](https://github.com/cncf/gha2db/blob/master/structure.go)
+Such columns are described as "dup columns" in [structure.go](https://github.com/cncf/devstats/blob/master/structure.go)
 Such columns are prefixed by "dup_". They're usually not null columns, but there can also be null able columns - they start with "dupn_".
 
 There is a standard duplicate event structure consisting of (dup_type, dup_actor_id, dup_actor_login, dup_repo_id, dup_repo_name, dup_created_at), I'll call it `eventd`
@@ -286,8 +286,8 @@ Duplicated columns:
 
 # JSON examples
 
-There are examples of all kinds of GHA events JSONs in [./analysis](https://github.com/cncf/gha2db/blob/master/analysis/) directory.
-There is also a file [analysis/analysis.txt](https://github.com/cncf/gha2db/blob/master/analysis/analysis.txt) that describes JSON structure analysis.
+There are examples of all kinds of GHA events JSONs in [./analysis](https://github.com/cncf/devstats/blob/master/analysis/) directory.
+There is also a file [analysis/analysis.txt](https://github.com/cncf/devstats/blob/master/analysis/analysis.txt) that describes JSON structure analysis.
 
 It was used very intensively during a development of SQL table structure.
 
@@ -324,9 +324,9 @@ There is a tool `runq`. It is used to compute metrics saved in `*.sql` files.
 Please be careful when creating metric files, that needs to support `explain` mode (please see `GHA2DB_EXPLAIN` environment variable description):
 
 Because metric can have multiple selects, and only main select should be replaced with "explain select" - we're replacing only lower case "select" statement followed by new line.
-Exact match "select\n". Please see [metrics/reviewers.sql](https://github.com/cncf/gha2db/blob/master/metrics/reviewers.sql) to see how it works.
+Exact match "select\n". Please see [metrics/reviewers.sql](https://github.com/cncf/devstats/blob/master/metrics/reviewers.sql) to see how it works.
 
-Metrics are in [./metrics/](https://github.com/cncf/gha2db/blob/master/metrics/) directory.
+Metrics are in [./metrics/](https://github.com/cncf/devstats/blob/master/metrics/) directory.
 
 This tool takes at least one parameter - sql file name.
 
@@ -357,14 +357,14 @@ There is a manual script that can be used to loop sync every defined number of s
 - `PG_PASS='pwd' IDB_PASS='pwd' ./syncer.sh 1800`
 
 
-Sync tool uses [gaps.yaml](https://github.com/cncf/gha2db/blob/master/metrics/gaps.yaml), to prefill some series with zeros. This is needed for metrics (like SIG mentions or PRs merged) that return multiple rows, depending on data range.
+Sync tool uses [gaps.yaml](https://github.com/cncf/devstats/blob/master/metrics/gaps.yaml), to prefill some series with zeros. This is needed for metrics (like SIG mentions or PRs merged) that return multiple rows, depending on data range.
 
 # Cron
 
-You can install a cron job to run `gha2db_sync` automatically, please check "cron" section:
-- [Mac](https://github.com/cncf/gha2db/blob/master/INSTALL_MAC.md)
-- [Linux Ubuntu 16 LTS](https://github.com/cncf/gha2db/blob/master/INSTALL_UBUNTU16.md)
-- [Linux Ubuntu 17](https://github.com/cncf/gha2db/blob/master/INSTALL_UBUNTU17.md)
+You can install a cron job to run `devstats_sync` automatically, please check "cron" section:
+- [Mac](https://github.com/cncf/devstats/blob/master/INSTALL_MAC.md)
+- [Linux Ubuntu 16 LTS](https://github.com/cncf/devstats/blob/master/INSTALL_UBUNTU16.md)
+- [Linux Ubuntu 17](https://github.com/cncf/devstats/blob/master/INSTALL_UBUNTU17.md)
 
 # Developers affiliations
 
@@ -389,14 +389,14 @@ This is a part of `kubernetes.sh` script and [kubernetes psql dump](https://devs
 
 # Grafana output
 
-You can visualise data using Grafana, see [grafana/](https://github.com/cncf/gha2db/blob/master/grafana/) directory:
+You can visualise data using Grafana, see [grafana/](https://github.com/cncf/devstats/blob/master/grafana/) directory:
 
 # Install Grafana using:
 
 Grafana install instruction are here:
-- [Mac](https://github.com/cncf/gha2db/blob/master/INSTALL_MAC.md)
-- [Linux Ubuntu 16 LTS](https://github.com/cncf/gha2db/blob/master/INSTALL_UBUNTU16.md)
-- [Linux Ubuntu 17](https://github.com/cncf/gha2db/blob/master/INSTALL_UBUNTU17.md)
+- [Mac](https://github.com/cncf/devstats/blob/master/INSTALL_MAC.md)
+- [Linux Ubuntu 16 LTS](https://github.com/cncf/devstats/blob/master/INSTALL_UBUNTU16.md)
+- [Linux Ubuntu 17](https://github.com/cncf/devstats/blob/master/INSTALL_UBUNTU17.md)
 
 # To drop & recreate InfluxDB:
 - `IDB_PASS='idb_password' ./grafana/influxdb_recreate.sh`
@@ -427,9 +427,9 @@ Feed InfluxDB using:
 - This tool uses environmental variables starting with `IDB_`, please see `context.go`, `idb_conn.go` and `cmd/db2influx/db2influx.go` for details.
 - `IDB_` variables are exactly the same as `PG_` to set host, database, user name, password.
 - There is also `z2influx` tool. It is used to fill given series with zeros. Typical usage: `./z2influx 'series1,series2' 2017-01-01 2018-01-01 w` - will fill all weeks from 2017 with zeros for series1 and series2.
-- `annotations` tool adds variuos data annotations that can be used in Grafana charts. It uses [annotations.yaml](https://github.com/cncf/gha2db/blob/master/metrics/annotations.yaml) file to define them, syntax is self describing. 
+- `annotations` tool adds variuos data annotations that can be used in Grafana charts. It uses [annotations.yaml](https://github.com/cncf/devstats/blob/master/metrics/annotations.yaml) file to define them, syntax is self describing. 
 - `idb_tags` tool used to add InfluxDB tags on some specified series. Those tags are used to populate Grafana template drop-down values and names. This is used to auto-populate Repository groups drop down, so when somebody adds new repository group - it will automatically appear in the drop-down.
-- `idb_tags` uses [idb_tags.yaml](https://github.com/cncf/gha2db/blob/master/metrics/idb_tags.yaml) file to configure InfluxDB tags generation.
+- `idb_tags` uses [idb_tags.yaml](https://github.com/cncf/devstats/blob/master/metrics/idb_tags.yaml) file to configure InfluxDB tags generation.
 - `idb_backup` is used to backup/restore InfluxDB. Full renenerate of InfluxDB takes about 12 minutes. To avoid downtime when we need to rebuild InfluxDB - we can generate new InfluxDB on `test` database and then if succeeded, restore it on `gha`. Downtime will be about 2 minutes.
 
 # To check results in the InfluxDB:
@@ -449,30 +449,30 @@ Feed InfluxDB using:
 
 # Grafana dashboards
 Grafana allows saving dashboards to JSON files.
-There are few defined dashboards in [grafana/dashboards/](https://github.com/cncf/gha2db/blob/master/grafana/dashboards/) directory.
+There are few defined dashboards in [grafana/dashboards/](https://github.com/cncf/devstats/blob/master/grafana/dashboards/) directory.
 
-Metrics are described in [README](https://github.com/cncf/gha2db/blob/master/README.md) in `Grafana dashboards` and `Adding new metrics` sections.
+Metrics are described in [README](https://github.com/cncf/devstats/blob/master/README.md) in `Grafana dashboards` and `Adding new metrics` sections.
 
 # To enable SSL Grafana:
 
-Please see instructions [here](https://github.com/cncf/gha2db/blob/master/SSL.md)
+Please see instructions [here](https://github.com/cncf/devstats/blob/master/SSL.md)
 
 # Grafana anonymous login
 
-Please see instructions [here](https://github.com/cncf/gha2db/blob/master/GRAFANA.md)
+Please see instructions [here](https://github.com/cncf/devstats/blob/master/GRAFANA.md)
 
 # Continuous deployment
 
-There is a tool [webhook](https://github.com/cncf/gha2db/blob/master/metrics/cmd/webhook/webhook.go) that is used to make deployments on successful build webhooks sent by Travis CI.
+There is a tool [webhook](https://github.com/cncf/devstats/blob/master/metrics/cmd/webhook/webhook.go) that is used to make deployments on successful build webhooks sent by Travis CI.
 
-Details [here](https://github.com/cncf/gha2db/blob/master/metrics/CONTINUOUS_DEPLOYMENT.md).
+Details [here](https://github.com/cncf/devstats/blob/master/metrics/CONTINUOUS_DEPLOYMENT.md).
 
 # Benchmarks
 Benchmarks were executed on historical Ruby version and current Go version.
 
-Please see [Benchmarks](https://github.com/cncf/gha2db/blob/master/BENCHMARK.md)
+Please see [Benchmarks](https://github.com/cncf/devstats/blob/master/BENCHMARK.md)
 
 # Testing
 
-Please see [Tests](https://github.com/cncf/gha2db/blob/master/TESTING.md)
+Please see [Tests](https://github.com/cncf/devstats/blob/master/TESTING.md)
 
