@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/cncf/gha2db.svg?branch=master)](https://travis-ci.org/cncf/gha2db)
+[![Build Status](https://travis-ci.org/cncf/devstats.svg?branch=master)](https://travis-ci.org/cncf/devstats)
 [![CII Best Practices](https://master.bestpractices.coreinfrastructure.org/projects/1149/badge)](https://master.bestpractices.coreinfrastructure.org/projects/1149)
 
 # GitHub archives Grafana visualization dashboards
@@ -149,7 +149,7 @@ Please see [metrics](https://github.com/cncf/devstats/blob/master/METRICS.md) to
 The main idea is that we divide tables into 2 groups:
 - const: meaning that data in this table is not changing in time (is saved once)
 - variable: meaning that data in those tables can change between GH events, and GH `event_id` is a part of this tables primary key.
-- there are also "compute" tables that are auto-updated by `gha2db_sync`/`structure` tools and affiliations table thaiss filled by `import_affs` tool.
+- there are also "compute" tables that are auto-updated by `gha2db_sync`/`structure` tools and affiliations table that is filled by `import_affs` tool.
 
 Please see [USAGE](https://github.com/cncf/devstats/blob/master/USAGE.md) for detailed list of database tables.
 
