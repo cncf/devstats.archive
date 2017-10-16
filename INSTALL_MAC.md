@@ -1,4 +1,4 @@
-# gha2db installation on Mac
+# devstats installation on Mac
 
 Prerequisites:
 - macOS >= 10.12.
@@ -22,13 +22,13 @@ Prerequisites:
     - Go YAML parser library: install with: `go get gopkg.in/yaml.v2`
     - Wget: install with: `brew install wget`
 
-2. Go to $GOPATH/src/ and clone gha2db there:
-    - `git clone https://github.com/cncf/gha2db.git`
+2. Go to $GOPATH/src/ and clone devstats there:
+    - `git clone https://github.com/cncf/devstats.git`
 
-3. If You want to make changes and PRs, please clone `gha2db` from GitHub UI, and the clone Your forked version instead, like this:
-    - `git clone https://github.com/your_github_username/gha2db.git`
+3. If You want to make changes and PRs, please clone `devstats` from GitHub UI, and the clone Your forked version instead, like this:
+    - `git clone https://github.com/your_github_username/devstats.git`
 
-4. Go to gha2db directory, so you are in `~/dev/go/src/gha2db` directory and compile binaries:
+4. Go to devstats directory, so you are in `~/dev/go/src/devstats` directory and compile binaries:
     - `make`
 
 5. If compiled sucessfully then execute test coverage that doesn't need databases:
@@ -83,7 +83,7 @@ Prerequisites:
     ```
     - First crontab entry is for automatic GHA sync.
     - Second crontab entry is for automatic daily backup of GHA database.
-    - Third crontab entry is for Continuous Deployment - this a Travis Web Hook listener server, it deploys project when specific conditions are met, details [here](https://github.com/cncf/gha2db/blob/master/CONTINUOUS_DEPLOYMENT.md).
+    - Third crontab entry is for Continuous Deployment - this a Travis Web Hook listener server, it deploys project when specific conditions are met, details [here](https://github.com/cncf/devstats/blob/master/CONTINUOUS_DEPLOYMENT.md).
     - You need to change "..." PG_PASS and IDB_PASS to the real postgres password value and copy this line.
     - You need to change "/path/to/your/GOPATH/bin" to the value of "$GOPATH/bin", You cannot use $GOPATH in crontab directly.
     - Run `crontab -e` and put this line at the end of file and save.
@@ -96,11 +96,11 @@ Prerequisites:
     - `brew update`
     - `brew install grafana`
     - `brew services start grafana`
-    - Configure Grafana, as described [here](https://github.com/cncf/gha2db/blob/master/GRAFANA.md).
+    - Configure Grafana, as described [here](https://github.com/cncf/devstats/blob/master/GRAFANA.md).
     - `brew services restart grafana`
     - Go to Grafana UI (localhost:3000), choose sign out, and then access localhost:3000 again. You should be able to view dashboards as a guest. To login again use http://localhost:3000/login.
-    - Install Apache as described [here](https://github.com/cncf/gha2db/blob/master/APACHE.md).
-    - You can also enable SSL, to do so You need to follow SSL instruction in [SSL](https://github.com/cncf/gha2db/blob/master/SSL.md) (that requires domain name).
+    - Install Apache as described [here](https://github.com/cncf/devstats/blob/master/APACHE.md).
+    - You can also enable SSL, to do so You need to follow SSL instruction in [SSL](https://github.com/cncf/devstats/blob/master/SSL.md) (that requires domain name).
 
 15. To change all Grafana page titles (starting with "Grafana - ") and icons use this script:
     - `GRAFANA_DATA=/usr/share/grafana/ ./grafana/change_title_and_icons.sh`.
@@ -109,11 +109,11 @@ Prerequisites:
     - In some cases browser and/or Grafana cache old settings in this case temporarily move Grafana's `settings.js` file:
     - `mv /usr/share/grafana/public/app/core/settings.js /usr/share/grafana/public/app/core/settings.js.old`, restart grafana server and restore file.
 
-16. To enable Continuous deployment using Travis, please follow instructions [here](https://github.com/cncf/gha2db/blob/master/CONTINUOUS_DEPLOYMENT.md).
+16. To enable Continuous deployment using Travis, please follow instructions [here](https://github.com/cncf/devstats/blob/master/CONTINUOUS_DEPLOYMENT.md).
 
 17. You can create new metrics (as SQL files and YAML definitions) and dashboards in Grafana (export as JSON).
-18. PRs and suggestions are welcome, please create PRs and Issues on the [GitHub](https://github.com/cncf/gha2db).
+18. PRs and suggestions are welcome, please create PRs and Issues on the [GitHub](https://github.com/cncf/devstats).
 
 # More details
-- [README](https://github.com/cncf/gha2db/blob/master/README.md)
-- [USAGE](https://github.com/cncf/gha2db/blob/master/USAGE.md)
+- [README](https://github.com/cncf/devstats/blob/master/README.md)
+- [USAGE](https://github.com/cncf/devstats/blob/master/USAGE.md)
