@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	lib "gha2db"
+	lib "devstats"
 )
 
 func runq(sqlFile string, params []string) {

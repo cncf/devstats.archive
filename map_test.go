@@ -1,11 +1,11 @@
-package gha2db
+package devstats
 
 import (
 	"strings"
 	"testing"
 
-	lib "gha2db"
-	testlib "gha2db/test"
+	lib "devstats"
+	testlib "devstats/test"
 )
 
 func TestSkipEmpty(t *testing.T) {

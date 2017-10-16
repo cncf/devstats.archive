@@ -4,7 +4,7 @@ import (
 	"io/ioutil"
 	"time"
 
-	lib "gha2db"
+	lib "devstats"
 
 	yaml "gopkg.in/yaml.v2"
 )

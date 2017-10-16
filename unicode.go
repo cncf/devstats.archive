@@ -1,4 +1,4 @@
-package gha2db
+package devstats
 
 import (
 	"strings"
