@@ -309,9 +309,57 @@ func TestMetrics(t *testing.T) {
 			to:     ft(2017, 10),
 			n:      1,
 			expected: [][]interface{}{
+				{"sig_mentions_labels_sig_kind,All-All", "7.00"},
+				{"sig_mentions_labels_sig_kind,sig1-All", "3.00"},
+				{"sig_mentions_labels_sig_kind,All-kind1", "2.00"},
+				{"sig_mentions_labels_sig_kind,All-kind2", "2.00"},
 				{"sig_mentions_labels_sig_kind,sig1-kind1", "2.00"},
+				{"sig_mentions_labels_sig_kind,sig2-All", "2.00"},
+				{"sig_mentions_labels_sig_kind,All-kind3", "1.00"},
 				{"sig_mentions_labels_sig_kind,sig1-kind2", "1.00"},
 				{"sig_mentions_labels_sig_kind,sig2-kind2", "1.00"},
+				{"sig_mentions_labels_sig_kind,sig3-All", "1.00"},
+			},
+		},
+		{
+			setup:  setupIssuesMetric,
+			metric: "labels_sig_kind_closed",
+			from:   ft(2017, 10),
+			to:     ft(2017, 11),
+			n:      1,
+			expected: [][]interface{}{
+				{"issues_closed_labels_sig_kind,All-All", "4.00"},
+				{"issues_closed_labels_sig_kind,sig1-All", "3.00"},
+				{"issues_closed_labels_sig_kind,All-kind1", "2.00"},
+				{"issues_closed_labels_sig_kind,All-kind2", "2.00"},
+				{"issues_closed_labels_sig_kind,sig1-kind1", "2.00"},
+				{"issues_closed_labels_sig_kind,sig1-kind2", "1.00"},
+				{"issues_closed_labels_sig_kind,sig2-All", "1.00"},
+				{"issues_closed_labels_sig_kind,sig2-kind2", "1.00"},
+			},
+		},
+		{
+			setup:  setupIssuesMetric,
+			metric: "issues_opened",
+			from:   ft(2017, 10),
+			to:     ft(2017, 11),
+			n:      1,
+			expected: [][]interface{}{
+				{"issues_opened,All", "8.00"},
+				{"issues_opened,Group", "4.00"},
+				{"issues_opened,Mono-group", "2.00"},
+			},
+		},
+		{
+			setup:  setupIssuesMetric,
+			metric: "issues_closed",
+			from:   ft(2017, 10),
+			to:     ft(2017, 11),
+			n:      1,
+			expected: [][]interface{}{
+				{"issues_closed,All", "4.00"},
+				{"issues_closed,Group", "2.00"},
+				{"issues_closed,Mono-group", "1.00"},
 			},
 		},
 		{
@@ -1049,6 +1097,52 @@ func addIssuePR(con *sql.DB, ctx *lib.Ctx, args ...interface{}) (err error) {
 	return
 }
 
+// Add Issue
+// id, event_id, assignee_id, body, closed_at, created_at, number, state, title, updated_at
+// user_id, dup_actor_id, dup_actor_login, dup_repo_id, dup_repo_name, dup_type, is_pull_request
+func addIssue(con *sql.DB, ctx *lib.Ctx, args ...interface{}) (err error) {
+	if len(args) != 17 {
+		err = fmt.Errorf("addIssue: expects 17 variadic parameters, got %v", len(args))
+		return
+	}
+	newArgs := lib.AnyArray{
+		args[0],  // id
+		args[1],  // event_id
+		args[2],  // assignee_id
+		args[3],  // body
+		args[4],  // closed_at
+		0,        // comments
+		args[5],  // created_at
+		false,    // locked
+		nil,      // milestone_id
+		args[6],  // number
+		args[7],  // state
+		args[8],  // title
+		args[9],  // updated_at
+		args[10], // user_id
+		args[11], // dup_actor_id
+		args[12], // dup_actor_login
+		args[13], // dup_repo_id
+		args[14], // dup_repo_name
+		args[15], // dup_type
+		args[5],  // dup_created_at
+		"",       // dup_user_login
+		"",       // dup_assignee_login
+		args[16], // is_pull_request
+	}
+	_, err = lib.ExecSQL(
+		con,
+		ctx,
+		"insert into gha_issues("+
+			"id, event_id, assignee_id, body, closed_at, comments, created_at, "+
+			"locked, milestone_id, number, state, title, updated_at, user_id, "+
+			"dup_actor_id, dup_actor_login, dup_repo_id, dup_repo_name, dup_type, dup_created_at, "+
+			"dup_user_login, dupn_assignee_login, is_pull_request) "+lib.NValues(23),
+		newArgs...,
+	)
+	return
+}
+
 // Sets Repo aliast to be the same as Name on all repos
 func updateRepoAliasFromName(con *sql.DB, ctx *lib.Ctx) {
 	_, err := lib.ExecSQL(con, ctx, "update gha_repos set alias = name")
@@ -1536,9 +1630,32 @@ func setupSigMentionsTextMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 	return
 }
 
-// Create data for SIG mentions metricc (that uses labels)
-func setupSigMentionsLabelMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
+// Create data for Issues metrics (SIG Issues & Issues repository group)
+func setupIssuesMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 	ft := testlib.YMDHMS
+
+	// Repos to add
+	// id, name, org_id, org_login, repo_group
+	repos := [][]interface{}{
+		{1, "R1", 1, "O1", "Group"},
+		{2, "R2", 1, "O1", "Group"},
+		{3, "R3", 2, "O2", "Mono-group"},
+		{4, "R4", 2, "O2", nil},
+	}
+
+	// issues to add
+	// id, event_id, assignee_id, body, closed_at, created_at, number, state, title, updated_at
+	// user_id, dup_actor_id, dup_actor_login, dup_repo_id, dup_repo_name, dup_type, is_pull_request
+	issues := [][]interface{}{
+		{1, 0, 0, "", ft(2017, 10, 2), ft(2017, 10, 1), 1, "closed", "", time.Now(), 0, 0, "", 1, "R1", "T", false},
+		{2, 0, 0, "", ft(2017, 10, 3), ft(2017, 10, 2), 1, "closed", "", time.Now(), 0, 0, "", 2, "R2", "T", false},
+		{3, 0, 0, "", ft(2017, 10, 4), ft(2017, 10, 3), 1, "closed", "", time.Now(), 0, 0, "", 3, "R3", "T", false},
+		{4, 0, 0, "", ft(2017, 10, 5), ft(2017, 10, 4), 1, "closed", "", time.Now(), 0, 0, "", 4, "R4", "T", false},
+		{5, 0, 0, "", nil, ft(2017, 10, 5), 1, "open", "", time.Now(), 0, 0, "", 1, "R1", "T", false},
+		{6, 0, 0, "", nil, ft(2017, 10, 6), 1, "open", "", time.Now(), 0, 0, "", 2, "R2", "T", false},
+		{7, 0, 0, "", nil, ft(2017, 10, 7), 1, "open", "", time.Now(), 0, 0, "", 3, "R3", "T", false},
+		{8, 0, 0, "", nil, ft(2017, 10, 8), 1, "open", "", time.Now(), 0, 0, "", 4, "R4", "T", false},
+	}
 
 	// issues labels to add
 	// iid, eid, lid, actor_id, actor_login, repo_id, repo_name,
@@ -1562,6 +1679,77 @@ func setupSigMentionsLabelMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 	// Add issues labels
 	for _, issueLabel := range issuesLabels {
 		err = addIssueLabel(con, ctx, issueLabel...)
+		if err != nil {
+			return
+		}
+	}
+
+	// Add issues
+	for _, issue := range issues {
+		err = addIssue(con, ctx, issue...)
+		if err != nil {
+			return
+		}
+	}
+
+	// Add repos
+	for _, repo := range repos {
+		err = addRepo(con, ctx, repo...)
+		if err != nil {
+			return
+		}
+	}
+
+	return
+}
+
+// Create data for SIG mentions metric (that uses labels)
+func setupSigMentionsLabelMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
+	ft := testlib.YMDHMS
+
+	// issues labels to add
+	// iid, eid, lid, actor_id, actor_login, repo_id, repo_name,
+	// ev_type, ev_created_at, issue_number, label_name
+	issuesLabels := [][]interface{}{
+		{1, 0, 1, 1, "A1", 1, "R1", "T", ft(2017, 8, 1), 0, "sig/sig1"},
+		{1, 1, 1, 1, "A1", 1, "R1", "T", ft(2017, 9, 1), 1, "sig/sig1"},
+		{2, 2, 1, 1, "A1", 1, "R1", "T", ft(2017, 9, 2), 2, "sig/sig1"},
+		{3, 3, 1, 1, "A1", 1, "R1", "T", ft(2017, 9, 3), 3, "sig/sig1"},
+		{4, 4, 2, 1, "A1", 1, "R1", "T", ft(2017, 9, 4), 4, "sig/sig2"},
+		{5, 5, 2, 1, "A1", 1, "R1", "T", ft(2017, 9, 5), 5, "sig/sig2"},
+		{1, 6, 3, 1, "A1", 1, "R1", "T", ft(2017, 9, 6), 1, "kind/kind1"},
+		{2, 7, 3, 1, "A1", 1, "R1", "T", ft(2017, 9, 7), 2, "kind/kind1"},
+		{3, 8, 4, 1, "A1", 1, "R1", "T", ft(2017, 9, 8), 3, "kind/kind2"},
+		{4, 9, 4, 1, "A1", 1, "R1", "T", ft(2017, 9, 9), 4, "kind/kind2"},
+		{6, 10, 5, 1, "A1", 1, "R1", "T", ft(2017, 9, 10), 6, "sig/sig3"},
+		{7, 11, 6, 1, "A1", 1, "R1", "T", ft(2017, 9, 11), 7, "kind/kind3"},
+		{1, 12, 1, 1, "A1", 1, "R1", "T", ft(2017, 10, 2), 1, "sig/sig1"},
+	}
+
+	// issues to add
+	// id, event_id, assignee_id, body, closed_at, created_at, number, state, title, updated_at
+	// user_id, dup_actor_id, dup_actor_login, dup_repo_id, dup_repo_name, dup_type, is_pull_request
+	issues := [][]interface{}{
+		{1, 0, 0, "", nil, ft(2017, 9, 1), 1, "open", "", time.Now(), 0, 0, "", 1, "R1", "T", false},
+		{2, 0, 0, "", nil, ft(2017, 9, 2), 1, "open", "", time.Now(), 0, 0, "", 2, "R2", "T", false},
+		{3, 0, 0, "", nil, ft(2017, 9, 3), 1, "open", "", time.Now(), 0, 0, "", 3, "R3", "T", false},
+		{4, 0, 0, "", nil, ft(2017, 9, 4), 1, "open", "", time.Now(), 0, 0, "", 4, "R4", "T", false},
+		{5, 0, 0, "", nil, ft(2017, 9, 5), 1, "open", "", time.Now(), 0, 0, "", 1, "R1", "T", false},
+		{6, 0, 0, "", nil, ft(2017, 9, 6), 1, "open", "", time.Now(), 0, 0, "", 2, "R2", "T", false},
+		{7, 0, 0, "", nil, ft(2017, 9, 7), 1, "open", "", time.Now(), 0, 0, "", 3, "R3", "T", false},
+	}
+
+	// Add issues labels
+	for _, issueLabel := range issuesLabels {
+		err = addIssueLabel(con, ctx, issueLabel...)
+		if err != nil {
+			return
+		}
+	}
+
+	// Add issues
+	for _, issue := range issues {
+		err = addIssue(con, ctx, issue...)
 		if err != nil {
 			return
 		}
