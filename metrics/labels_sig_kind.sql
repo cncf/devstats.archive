@@ -9,6 +9,13 @@ from (
   where
     dup_created_at >= '{{from}}'
     and dup_created_at < '{{to}}'
+  union select id as issue_id,
+    'All' as sig
+  from
+    gha_issues
+  where
+    created_at >= '{{from}}'
+    and created_at < '{{to}}'
   ) sel1, (
   select distinct issue_id,
     lower(substring(dup_label_name from '(?i)kind/(.*)')) as kind
@@ -17,6 +24,13 @@ from (
   where
     dup_created_at >= '{{from}}'
     and dup_created_at < '{{to}}'
+  union select id as issue_id,
+    'All' as kind
+  from
+    gha_issues
+  where
+    created_at >= '{{from}}'
+    and created_at < '{{to}}'
   ) sel2
 where
   sel1.issue_id = sel2.issue_id
