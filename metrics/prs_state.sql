@@ -31,8 +31,7 @@ where
 ;
 
 select
-  'prs_approve_state;All;all,approved;awaiting' as name,
-  round(count(distinct prs.id) / {{n}}, 2) as all_prs,
+  'prs_approve_state;All;approved,awaiting' as name,
   round(count(distinct prs.id) filter (where a.id is not null) / {{n}}, 2) as approved,
   round(count(distinct prs.id) filter (where a.id is null) / {{n}}, 2) as awaiting
 from
@@ -41,8 +40,7 @@ left join
   approved_prs a
 on
   prs.id = a.id
-union select 'prs_approve_state;' || r.repo_group ||';all,approved;awaiting' as name,
-  round(count(distinct prs.id) / {{n}}, 2) as all_prs,
+union select 'prs_approve_state;' || r.repo_group ||';approved,awaiting' as name,
   round(count(distinct prs.id) filter (where a.id is not null) / {{n}}, 2) as approved,
   round(count(distinct prs.id) filter (where a.id is null) / {{n}}, 2) as awaiting
 from
@@ -59,7 +57,8 @@ on
 group by
   r.repo_group
 order by
-  all_prs desc,
+  approved desc,
+  awaiting desc,
   name asc
 ;
 
