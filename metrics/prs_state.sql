@@ -1,12 +1,20 @@
 create temp table all_prs as
-select distinct id,
-  dup_repo_name
+select distinct i.id,
+  i.dup_repo_name
 from
-  gha_issues
+  gha_issues i,
+  gha_issues_pull_requests ipr,
+  gha_pull_requests pr
 where
-  is_pull_request = true
-  and created_at >= '{{from}}'
-  and created_at < '{{to}}'
+  ipr.issue_id = i.id
+  and ipr.pull_request_id = pr.id
+  and i.is_pull_request = true
+  and i.updated_at >= '{{from}}'
+  and i.updated_at < '{{to}}'
+  and (
+    pr.merged_at is not null
+    or pr.closed_at is null
+  )
 ;
 
 create temp table approved_prs as
@@ -22,11 +30,14 @@ where
   and ipr.pull_request_id = pr.id
   and i.event_id = c.event_id
   and i.is_pull_request = true
-  and i.created_at >= '{{from}}'
-  and i.created_at < '{{to}}'
+  and i.updated_at >= '{{from}}'
+  and i.updated_at < '{{to}}'
   and (
     pr.merged_at is not null
-    or substring(c.body from '(?i)(?:^|\n|\r)\s*/(approve|lgtm)\s*(?:\n|\r|$)') is not null
+    or (
+      pr.closed_at is null
+      and substring(c.body from '(?i)(?:^|\n|\r)\s*/(approve|lgtm)\s*(?:\n|\r|$)') is not null
+  )
  )
 ;
 
