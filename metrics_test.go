@@ -619,6 +619,44 @@ func TestMetrics(t *testing.T) {
 				{"approvers,Mono-group", 1},
 			},
 		},
+		{
+			setup:  setupPRAuthorsMetric,
+			metric: "hist_pr_authors",
+			period: "1 week",
+			n:      1,
+			replaces: [][2]string{
+				{" >= 5", " >= 1"},
+				{" >= 3", " >= 1"},
+			},
+			expected: [][]interface{}{
+				{"hist_pr_authors,All", "Actor 1", 3},
+				{"hist_pr_authors,All", "Actor 2", 3},
+				{"hist_pr_authors,All", "Actor 3", 3},
+				{"hist_pr_authors,Group 1", "Actor 2", 2},
+				{"hist_pr_authors,Group 1", "Actor 3", 2},
+				{"hist_pr_authors,Group 1", "Actor 1", 1},
+				{"hist_pr_authors,Group 2", "Actor 1", 1},
+				{"hist_pr_authors,Group 2", "Actor 3", 1},
+			},
+		},
+		{
+			setup:  setupPRAuthorsMetric,
+			metric: "hist_pr_companies",
+			period: "1 week",
+			n:      1,
+			replaces: [][2]string{
+				{" >= 5", " >= 1"},
+				{" >= 3", " >= 1"},
+			},
+			expected: [][]interface{}{
+				{"hist_pr_companies,All", "company1", 6},
+				{"hist_pr_companies,All", "company2", 3},
+				{"hist_pr_companies,Group 1", "company1", 3},
+				{"hist_pr_companies,Group 1", "company2", 2},
+				{"hist_pr_companies,Group 2", "company1", 1},
+				{"hist_pr_companies,Group 2", "company2", 1},
+			},
+		},
 	}
 
 	// Environment context parse
@@ -1155,7 +1193,7 @@ func addIssue(con *sql.DB, ctx *lib.Ctx, args ...interface{}) (err error) {
 	return
 }
 
-// Sets Repo aliast to be the same as Name on all repos
+// Sets Repo alias to be the same as Name on all repos
 func updateRepoAliasFromName(con *sql.DB, ctx *lib.Ctx) {
 	_, err := lib.ExecSQL(con, ctx, "update gha_repos set alias = name")
 	lib.FatalOnError(err)
@@ -1430,6 +1468,76 @@ func setupTimeMetrics(con *sql.DB, ctx *lib.Ctx) (err error) {
 	// Add issue event labels
 	for _, iel := range iels {
 		err = addIssueEventLabel(con, ctx, iel...)
+		if err != nil {
+			return
+		}
+	}
+
+	return
+}
+
+// Create data for PR authors/authors companies (histogram)
+func setupPRAuthorsMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
+	tm := time.Now().Add(-time.Hour)
+	tmOld := time.Now().AddDate(-1, -1, -1)
+	tmFuture := time.Now().AddDate(1, 1, 1)
+
+	// Repos to add
+	// id, name, org_id, org_login, repo_group
+	repos := [][]interface{}{
+		{1, "Repo 1", 1, "Org 1", "Group 1"},
+		{2, "Repo 2", 1, "Org 1", "Group 1"},
+		{3, "Repo 3", nil, nil, "Group 2"},
+		{4, "Repo 4", 2, "Org 2", nil},
+	}
+
+	// PRs to add
+	// prid, eid, uid, merged_id, assignee_id, num, state, title, body, created_at, closed_at, merged_at, merged
+	// repo_id, repo_name, actor_id, actor_login
+	prs := [][]interface{}{
+		{1, 0, 1, 0, 0, 1, "open", "PR1", "BodyPR1", tm, nil, nil, true, 1, "Repo 1", 1, "Actor 1"},
+		{2, 0, 2, 0, 0, 2, "open", "PR2", "BodyPR2", tm, nil, nil, true, 2, "Repo 2", 2, "Actor 2"},
+		{3, 0, 3, 0, 0, 3, "open", "PR3", "BodyPR3", tm, nil, nil, true, 3, "Repo 3", 3, "Actor 3"},
+		{4, 0, 1, 0, 0, 4, "open", "PR4", "BodyPR4", tm, nil, nil, true, 4, "Repo 4", 1, "Actor 1"},
+		{5, 0, 2, 0, 0, 5, "open", "PR5", "BodyPR5", tm, nil, nil, true, 1, "Repo 1", 2, "Actor 2"},
+		{6, 0, 3, 0, 0, 6, "open", "PR6", "BodyPR6", tm, nil, nil, true, 2, "Repo 2", 3, "Actor 3"},
+		{7, 0, 1, 0, 0, 7, "open", "PR7", "BodyPR7", tm, nil, nil, true, 3, "Repo 3", 1, "Actor 1"},
+		{8, 0, 2, 0, 0, 8, "open", "PR8", "BodyPR8", tm, nil, nil, true, 4, "Repo 4", 2, "Actor 2"},
+		{9, 0, 3, 0, 0, 9, "open", "PR9", "BodyPR9", tm, nil, nil, true, 1, "Repo 1", 3, "Actor 3"},
+		{10, 0, 1, 0, 0, 10, "open", "PR10", "BodyPR10", tmOld, nil, nil, true, 2, "Repo 2", 1, "Actor 1"},
+	}
+
+	// Affiliations to add
+	// actor_id, company_name, dt_from, dt_to
+	// We have 3 authors that works for 4 companies in different time ranges
+	// Metric only count companies with > 1 authors and with all other activities > 0
+	affiliations := [][]interface{}{
+		{1, "company1", tmOld, tmFuture},
+		{2, "company1", tmOld, tmFuture},
+		{3, "company2", tmOld, tmFuture},
+	}
+
+	// Add repos
+	for _, repo := range repos {
+		err = addRepo(con, ctx, repo...)
+		if err != nil {
+			return
+		}
+	}
+
+	// Add PRs
+	stub := []interface{}{time.Now()}
+	for _, pr := range prs {
+		pr = append(pr, stub...)
+		err = addPR(con, ctx, pr...)
+		if err != nil {
+			return
+		}
+	}
+
+	// Add affiliations
+	for _, affiliation := range affiliations {
+		err = addActorAffiliation(con, ctx, affiliation...)
 		if err != nil {
 			return
 		}
