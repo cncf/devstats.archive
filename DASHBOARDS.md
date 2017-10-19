@@ -36,6 +36,7 @@ They are defined here: [repo_groups.sql](https://github.com/cncf/devstats/blob/m
 29) PRs approval stacked dashboard: [prs_state.sql](https://github.com/cncf/devstats/blob/master/metrics/prs_state.sql), [prs_approval_stacked.json](https://github.com/cncf/devstats/blob/master/grafana/dashboards/prs_approval_stacked.json), [view](https://devstats.k8s.io/dashboard/db/prs-approval-stacked?orgId=1).
 30) PRs authors histogram dashboard: [hist_pr_authors.sql](https://github.com/cncf/devstats/blob/master/metrics/hist_pr_authors.sql), [prs_authors_histogram.json](https://github.com/cncf/devstats/blob/master/grafana/dashboards/prs_authors_histogram.json), [view](https://devstats.k8s.io/dashboard/db/prs-authors-histogram?orgId=1).
 31) PRs authors companies histogram dashboard: [hist_pr_companies.sql](https://github.com/cncf/devstats/blob/master/metrics/hist_pr_companies.sql), [prs_authors_companies_histogram.json](https://github.com/cncf/devstats/blob/master/grafana/dashboards/prs_authors_companies_histogram.json), [view](https://devstats.k8s.io/dashboard/db/prs-authors-companies-histogram?orgId=1).
+32) Blocked dashboard: [prs_blocked.sql](https://github.com/cncf/devstats/blob/master/metrics/prs_blocked.sql), [blocked_prs.json](https://github.com/cncf/devstats/blob/master/grafana/dashboards/blocked_prs.json), [view](https://devstats.k8s.io/dashboard/db/blocked-prs?orgId=1).
 
 All of them works live on [devstats.k8s.io](https://devstats.k8s.io) with auto `gha2db_sync` tool running.
 
