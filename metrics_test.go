@@ -245,6 +245,18 @@ func TestMetrics(t *testing.T) {
 			},
 		},
 		{
+			setup:  setupBlockedPRsMetric,
+			metric: "prs_blocked",
+			from:   ft(2017, 10),
+			to:     ft(2017, 11),
+			n:      1,
+			expected: [][]interface{}{
+				{"prs_blocked;All;all_prs,needs_ok_to_test,release_note_label_needed,no_lgtm,no_approve,do_not_merge", "4.00", "1.00", "1.00", "4.00", "3.00", "1.00"},
+				{"prs_blocked;G1;all_prs,needs_ok_to_test,release_note_label_needed,no_lgtm,no_approve,do_not_merge", "2.00", "1.00", "0.00", "2.00", "1.00", "0.00"},
+				{"prs_blocked;G2;all_prs,needs_ok_to_test,release_note_label_needed,no_lgtm,no_approve,do_not_merge", "2.00", "0.00", "1.00", "2.00", "2.00", "1.00"},
+			},
+		},
+		{
 			setup:  setupTimeMetrics,
 			metric: "opened_to_merged",
 			from:   ft(2017, 7),
@@ -1586,6 +1598,115 @@ func setupNewPRsMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 	for _, pr := range prs {
 		pr = append(pr, stub...)
 		err = addPR(con, ctx, pr...)
+		if err != nil {
+			return
+		}
+	}
+
+	return
+}
+
+// Create data for blocked PRs metrics
+func setupBlockedPRsMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
+	ft := testlib.YMDHMS
+	//gha_comments c
+
+	// Repos to add
+	// id, name, org_id, org_login, repo_group
+	repos := [][]interface{}{
+		{1, "R1", 1, "O1", "G1"},
+		{2, "R2", 1, "O1", "G2"},
+		{3, "R3", nil, nil, "G1"},
+	}
+
+	// PRs to add
+	// prid, eid, uid, merged_id, assignee_id, num, state, title, body, created_at, closed_at, merged_at, merged
+	// repo_id, repo_name, actor_id, actor_login
+	prs := [][]interface{}{
+		{1, 1, 0, 0, 0, 1, "closed", "PR1", "BodyPR3", ft(2017, 10, 1), ft(2017, 11, 2), ft(2017, 11, 2), true, 1, "R1", 0, ""},
+		{2, 2, 0, 0, 0, 2, "closed", "PR2", "BodyPR2", ft(2017, 10, 2), ft(2017, 11, 3), nil, false, 2, "R2", 0, ""},
+		{3, 3, 0, 0, 0, 3, "open", "PR3", "BodyPR3", ft(2017, 10, 3), nil, nil, false, 3, "R3", 0, ""},
+		{4, 4, 0, 0, 0, 4, "closed", "PR4", "BodyPR4", ft(2017, 10, 10), ft(2017, 11, 2), ft(2017, 11, 2), true, 1, "R1", 0, ""},
+		{5, 5, 0, 0, 0, 5, "closed", "PR5", "BodyPR5", ft(2017, 10, 4), ft(2017, 11, 5), nil, false, 2, "R2", 0, ""},
+		{6, 6, 0, 0, 0, 6, "open", "PR6", "BodyPR6", ft(2017, 10, 5), nil, nil, false, 3, "R3", 0, ""},
+		{7, 7, 0, 0, 0, 7, "closed", "PR2", "BodyPR2", ft(2017, 10, 6), ft(2017, 11, 7), ft(2017, 11, 7), false, 2, "R2", 0, ""},
+	}
+
+	// issues to add
+	// id, event_id, assignee_id, body, closed_at, created_at, number, state, title, updated_at
+	// user_id, dup_actor_id, dup_actor_login, dup_repo_id, dup_repo_name, dup_type, is_pull_request
+	issues := [][]interface{}{
+		{1, 1, 0, "", ft(2017, 11, 2), ft(2017, 10, 1), 1, "closed", "", time.Now(), 0, 0, "", 1, "R1", "", true},
+		{2, 2, 0, "", ft(2017, 11, 3), ft(2017, 10, 2), 2, "closed", "", time.Now(), 0, 0, "", 2, "R2", "", true},
+		{3, 3, 0, "", nil, ft(2017, 11, 3), 3, "open", "", time.Now(), 0, 0, "", 3, "R3", "", true},
+		{4, 4, 0, "", ft(2017, 11, 2), ft(2017, 10, 10), 4, "closed", "", time.Now(), 0, 0, "", 1, "R1", "", true},
+		{5, 5, 0, "", ft(2017, 11, 5), ft(2017, 10, 4), 5, "closed", "", time.Now(), 0, 0, "", 2, "R2", "", false},
+		{6, 6, 0, "", nil, ft(2017, 11, 5), 6, "open", "", time.Now(), 0, 0, "", 3, "R3", "", true},
+		{7, 7, 0, "", ft(2017, 11, 7), ft(2017, 10, 6), 7, "closed", "", time.Now(), 0, 0, "", 2, "R2", "", true},
+	}
+
+	// Issues/PRs to add
+	// issue_id, pr_id, number, repo_id, repo_name, created_at
+	iprs := [][]interface{}{
+		{1, 1, 1, 1, "R1", ft(2017, 10, 1)},
+		{2, 2, 2, 2, "R2", ft(2017, 10, 2)},
+		{3, 3, 3, 3, "R3", ft(2017, 10, 3)},
+		{4, 4, 4, 1, "R1", ft(2017, 10, 10)},
+		{5, 5, 5, 2, "R2", ft(2017, 10, 4)},
+		{6, 6, 6, 3, "R3", ft(2017, 10, 5)},
+		{7, 7, 7, 2, "R2", ft(2017, 10, 6)},
+	}
+
+	// issues labels to add
+	// iid, eid, lid, actor_id, actor_login, repo_id, repo_name,
+	// ev_type, ev_created_at, issue_number, label_name
+	issuesLabels := [][]interface{}{
+		{1, 0, 0, 0, "", 1, "R1", "", ft(2017, 10, 11), 1, "needs-ok-to-test"},
+		{2, 0, 0, 0, "", 2, "R2", "", ft(2017, 10, 12), 2, "release-note-label-needed"},
+		{3, 0, 0, 0, "", 3, "R3", "", ft(2017, 10, 13), 3, "lgtm"},
+		{4, 0, 0, 0, "", 1, "R1", "", ft(2017, 10, 14), 4, "approved"},
+		{5, 0, 0, 0, "", 2, "R2", "", ft(2017, 10, 15), 5, "do-not-merge"},
+		{6, 0, 0, 0, "", 3, "R3", "", ft(2017, 10, 16), 6, "do-not-merge/because-it-is-evil"},
+		{7, 0, 0, 0, "", 2, "R2", "", ft(2017, 10, 16), 7, "do-not-merge/broken-test"},
+	}
+
+	// Add repos
+	for _, repo := range repos {
+		err = addRepo(con, ctx, repo...)
+		if err != nil {
+			return
+		}
+	}
+
+	// Add PRs
+	stub := []interface{}{time.Now()}
+	for _, pr := range prs {
+		pr = append(pr, stub...)
+		err = addPR(con, ctx, pr...)
+		if err != nil {
+			return
+		}
+	}
+
+	// Add issues
+	for _, issue := range issues {
+		err = addIssue(con, ctx, issue...)
+		if err != nil {
+			return
+		}
+	}
+
+	// Add Issue PRs
+	for _, ipr := range iprs {
+		err = addIssuePR(con, ctx, ipr...)
+		if err != nil {
+			return
+		}
+	}
+
+	// Add issues labels
+	for _, issueLabel := range issuesLabels {
+		err = addIssueLabel(con, ctx, issueLabel...)
 		if err != nil {
 			return
 		}
