@@ -6,7 +6,7 @@ from
   gha_issues
 where
   created_at >= '{{from}}'
-  and created_at <= '{{to}}';
+  and created_at < '{{to}}';
 
 create temp table prs as
 select distinct id,
@@ -16,7 +16,7 @@ from
   gha_pull_requests
 where
   created_at >= '{{from}}'
-  and created_at <= '{{to}}';
+  and created_at < '{{to}}';
 
 create temp table tdiffs as
 select extract(epoch from i2.updated_at - i.created_at) / 3600 as diff,

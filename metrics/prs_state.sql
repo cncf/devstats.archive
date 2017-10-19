@@ -8,6 +8,8 @@ from
 where
   ipr.issue_id = i.id
   and ipr.pull_request_id = pr.id
+  and i.number = pr.number
+  and i.dup_repo_id = pr.dup_repo_id
   and i.is_pull_request = true
   and i.updated_at >= '{{from}}'
   and i.updated_at < '{{to}}'
@@ -28,6 +30,8 @@ from
 where
   ipr.issue_id = i.id
   and ipr.pull_request_id = pr.id
+  and i.number = pr.number
+  and i.dup_repo_id = pr.dup_repo_id
   and i.event_id = c.event_id
   and i.is_pull_request = true
   and i.updated_at >= '{{from}}'
