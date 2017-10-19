@@ -1630,7 +1630,7 @@ func setupPRsStateMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 		{4, 4, 0, "", ft(2017, 11, 2), ft(2017, 11, 1), 4, "closed", "", time.Now(), 0, 0, "", 1, "R1", "", true},
 		{5, 5, 0, "", ft(2017, 10, 5), ft(2017, 10, 4), 5, "closed", "", time.Now(), 0, 0, "", 2, "R2", "", false},
 		{6, 6, 0, "", nil, ft(2017, 10, 5), 6, "open", "", time.Now(), 0, 0, "", 3, "R3", "", true},
-		{7, 7, 0, "", ft(2017, 10, 7), ft(2017, 10, 6), 5, "closed", "", time.Now(), 0, 0, "", 2, "R2", "", true},
+		{7, 7, 0, "", ft(2017, 10, 7), ft(2017, 10, 6), 7, "closed", "", time.Now(), 0, 0, "", 2, "R2", "", true},
 	}
 
 	// Issues/PRs to add
