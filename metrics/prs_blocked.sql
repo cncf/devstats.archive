@@ -21,7 +21,7 @@ where
 
 create temp table issues_labels as
 select 'All' as repo_group,
-  count(distinct i.pr_id) as all_prs,
+  round(count(distinct i.pr_id) / {{n}}, 2) as all_prs,
   round(count(distinct i.pr_id) filter (where il.dup_label_name = 'needs-ok-to-test') / {{n}}, 2) as needs_ok_to_test,
   round(count(distinct i.pr_id) filter (where il.dup_label_name = 'release-note-label-needed') / {{n}}, 2) as release_note_label_needed,
   round(count(distinct i.pr_id) filter (where il.dup_label_name = 'lgtm') / {{n}}, 2) as lgtm,
@@ -42,7 +42,7 @@ on
     or il.dup_label_name like 'do-not-merge%'
   )
 union select r.repo_group,
-  count(distinct i.pr_id) as all_prs,
+  round(count(distinct i.pr_id) / {{n}}, 2) as all_prs,
   round(count(distinct i.pr_id) filter (where il.dup_label_name = 'needs-ok-to-test') / {{n}}, 2) as needs_ok_to_test,
   round(count(distinct i.pr_id) filter (where il.dup_label_name = 'release-note-label-needed') / {{n}}, 2) as release_note_label_needed,
   round(count(distinct i.pr_id) filter (where il.dup_label_name = 'lgtm') / {{n}}, 2) as lgtm,
