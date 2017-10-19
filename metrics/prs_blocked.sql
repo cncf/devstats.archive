@@ -19,58 +19,35 @@ where
   and (i.closed_at is null or i.closed_at >= '{{to}}')
 ;
 
-select
-  'prs_blocked;All;all,needs_ok_to_test,release_note_label_needed,no_lgtm,no_approve,do_not_merge' as name,
+create temp table issues_labels as
+select 'All' as repo_group,
   count(distinct i.pr_id) as all_prs,
-  round(count(distinct i.pr_id) filter (where il_nott.issue_id is null) / {{n}}, 2) as needs_ok_to_test,
-  round(count(distinct i.pr_id) filter (where il_rn.issue_id is null) / {{n}}, 2) as release_note_label_needed,
-  round(count(distinct i.pr_id) filter (where il_lgtm.issue_id is null) / {{n}}, 2) as no_lgtm,
-  round(count(distinct i.pr_id) filter (where il_ap.issue_id is null) / {{n}}, 2) as no_approve,
-  round(count(distinct i.pr_id) filter (where il_dnm.issue_id is not null) / {{n}}, 2) as do_not_merge
+  round(count(distinct i.pr_id) filter (where il.dup_label_name = 'needs-ok-to-test') / {{n}}, 2) as needs_ok_to_test,
+  round(count(distinct i.pr_id) filter (where il.dup_label_name = 'release-note-label-needed') / {{n}}, 2) as release_note_label_needed,
+  round(count(distinct i.pr_id) filter (where il.dup_label_name = 'lgtm') / {{n}}, 2) as lgtm,
+  round(count(distinct i.pr_id) filter (where il.dup_label_name = 'approved') / {{n}}, 2) as approved,
+  round(count(distinct i.pr_id) filter (where il.dup_label_name like 'do-not-merge%') / {{n}}, 2) as do_not_merge
 from
   issues i
 left join
-  gha_issues_labels il_nott
+  gha_issues_labels il
 on
-  il_nott.issue_id = i.issue_id
-  and il_nott.dup_created_at >= '{{from}}'
-  and il_nott.dup_created_at < '{{to}}'
-  and il_nott.dup_label_name = 'needs-ok-to-test'
-left join
-  gha_issues_labels il_rn
-on
-  il_rn.issue_id = i.issue_id
-  and il_rn.dup_created_at >= '{{from}}'
-  and il_rn.dup_created_at < '{{to}}'
-  and il_rn.dup_label_name = 'release-note-label-needed'
-left join
-  gha_issues_labels il_lgtm
-on
-  il_lgtm.issue_id = i.issue_id
-  and il_lgtm.dup_created_at >= '{{from}}'
-  and il_lgtm.dup_created_at < '{{to}}'
-  and il_lgtm.dup_label_name = 'lgtm'
-left join
-  gha_issues_labels il_ap
-on
-  il_ap.issue_id = i.issue_id
-  and il_ap.dup_created_at >= '{{from}}'
-  and il_ap.dup_created_at < '{{to}}'
-  and il_ap.dup_label_name = 'approved'
-left join
-  gha_issues_labels il_dnm
-on
-  il_dnm.issue_id = i.issue_id
-  and il_dnm.dup_created_at >= '{{from}}'
-  and il_dnm.dup_created_at < '{{to}}'
-  and il_dnm.dup_label_name like 'do-not-merge%'
-union select 'prs_blocked;' || r.repo_group ||';all,needs_ok_to_test,release_note_label_needed,no_lgtm,no_approve,do_not_merge' as name,
+  il.issue_id = i.issue_id
+  and il.dup_created_at >= '{{from}}'
+  and il.dup_created_at < '{{to}}'
+  and (
+    il.dup_label_name in (
+      'needs-ok-to-test', 'release-note-label-needed', 'lgtm', 'approved'
+    )
+    or il.dup_label_name like 'do-not-merge%'
+  )
+union select r.repo_group,
   count(distinct i.pr_id) as all_prs,
-  round(count(distinct i.pr_id) filter (where il_nott.issue_id is null) / {{n}}, 2) as needs_ok_to_test,
-  round(count(distinct i.pr_id) filter (where il_rn.issue_id is null) / {{n}}, 2) as release_note_label_needed,
-  round(count(distinct i.pr_id) filter (where il_lgtm.issue_id is null) / {{n}}, 2) as no_lgtm,
-  round(count(distinct i.pr_id) filter (where il_ap.issue_id is null) / {{n}}, 2) as no_approve,
-  round(count(distinct i.pr_id) filter (where il_dnm.issue_id is not null) / {{n}}, 2) as do_not_merge
+  round(count(distinct i.pr_id) filter (where il.dup_label_name = 'needs-ok-to-test') / {{n}}, 2) as needs_ok_to_test,
+  round(count(distinct i.pr_id) filter (where il.dup_label_name = 'release-note-label-needed') / {{n}}, 2) as release_note_label_needed,
+  round(count(distinct i.pr_id) filter (where il.dup_label_name = 'lgtm') / {{n}}, 2) as lgtm,
+  round(count(distinct i.pr_id) filter (where il.dup_label_name = 'approved') / {{n}}, 2) as approved,
+  round(count(distinct i.pr_id) filter (where il.dup_label_name like 'do-not-merge%') / {{n}}, 2) as do_not_merge
 from
   issues i
 join
@@ -79,45 +56,35 @@ on
   i.dup_repo_name = r.name
   and r.repo_group is not null
 left join
-  gha_issues_labels il_nott
+  gha_issues_labels il
 on
-  il_nott.issue_id = i.issue_id
-  and il_nott.dup_created_at >= '{{from}}'
-  and il_nott.dup_created_at < '{{to}}'
-  and il_nott.dup_label_name = 'needs-ok-to-test'
-left join
-  gha_issues_labels il_rn
-on
-  il_rn.issue_id = i.issue_id
-  and il_rn.dup_created_at >= '{{from}}'
-  and il_rn.dup_created_at < '{{to}}'
-  and il_rn.dup_label_name = 'release-note-label-needed'
-left join
-  gha_issues_labels il_lgtm
-on
-  il_lgtm.issue_id = i.issue_id
-  and il_lgtm.dup_created_at >= '{{from}}'
-  and il_lgtm.dup_created_at < '{{to}}'
-  and il_lgtm.dup_label_name = 'lgtm'
-left join
-  gha_issues_labels il_ap
-on
-  il_ap.issue_id = i.issue_id
-  and il_ap.dup_created_at >= '{{from}}'
-  and il_ap.dup_created_at < '{{to}}'
-  and il_ap.dup_label_name = 'approved'
-left join
-  gha_issues_labels il_dnm
-on
-  il_dnm.issue_id = i.issue_id
-  and il_dnm.dup_created_at >= '{{from}}'
-  and il_dnm.dup_created_at < '{{to}}'
-  and il_dnm.dup_label_name like 'do-not-merge%'
+  il.issue_id = i.issue_id
+  and il.dup_created_at >= '{{from}}'
+  and il.dup_created_at < '{{to}}'
+  and (
+    il.dup_label_name in (
+      'needs-ok-to-test', 'release-note-label-needed', 'lgtm', 'approved'
+    )
+    or il.dup_label_name like 'do-not-merge%'
+  )
 group by
   r.repo_group
+;
+
+select
+  'prs_blocked;' || repo_group ||';all_prs,needs_ok_to_test,release_note_label_needed,no_lgtm,no_approve,do_not_merge' as name,
+  all_prs,
+  needs_ok_to_test,
+  release_note_label_needed,
+  all_prs - lgtm as no_lgtm,
+  all_prs - approved as no_approve,
+  do_not_merge
+from
+  issues_labels
 order by
   all_prs desc,
   name asc
 ;
 
+drop table issues_labels;
 drop table issues;
