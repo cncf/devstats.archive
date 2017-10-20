@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 
@@ -57,6 +58,10 @@ func runq(sqlFile string, params []string) {
 	// Now unknown rows, with unknown types
 	columns, err := rows.Columns()
 	lib.FatalOnError(err)
+	// Make columns unique
+	for i := range columns {
+		columns[i] += strconv.Itoa(i)
+	}
 
 	// Vals to hold any type as []interface{}
 	vals := make([]interface{}, len(columns))
@@ -90,7 +95,7 @@ func runq(sqlFile string, params []string) {
 	// Compute column Lengths
 	columnLengths := make(map[string]int)
 	for _, column := range columns {
-		maxLen := len(column)
+		maxLen := len(column) - 1
 		for _, row := range results {
 			valLen := len(row[column])
 			if valLen > maxLen {
@@ -114,7 +119,7 @@ func runq(sqlFile string, params []string) {
 	output = "|"
 	for _, column := range columns {
 		strFormat := fmt.Sprintf("%%-%ds", columnLengths[column])
-		output += fmt.Sprintf(strFormat, column) + "|"
+		output += fmt.Sprintf(strFormat, column[:len(column)-1]) + "|"
 	}
 	output += "\n"
 	lib.Printf(output)
