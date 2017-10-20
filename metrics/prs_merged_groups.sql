@@ -13,5 +13,6 @@ where
 group by
   r.repo_group
 order by
-  merge_count desc
+  merge_count desc,
+  repo_group asc
 ;
