@@ -32,7 +32,7 @@ func valueDescription(descFunc string, value float64) (result string) {
 // Returns multi row and multi column series names array (different for different rows)
 // Each row must be in format: 'prefix;rowName;series1,series2,..,seriesN' serVal1 serVal2 ... serValN
 // if multivalue is true then rowName is not used for generating series name
-// Series name is independed from rowName, and metric returns "series_name;rowName"
+// Series name is independent from rowName, and metric returns "series_name;rowName"
 // Multivalue series can even have partialy multivalue row: "this_comes_to_multivalues`this_comes_to_series_name", separator is `
 func multiRowMultiColumn(expr, period string, multivalue bool) (result []string) {
 	ary := strings.Split(expr, ";")
@@ -83,7 +83,7 @@ func singleRowMultiColumn(columns, period string) (result []string) {
 // Each row is "prefix,rowName", value (prefix is hardcoded in metric, so it is assumed safe)
 // and returns array [a_q, b_q, c_q, .., z_q]
 // if multivalue is true then rowName is not used for generating series name
-// Series name is independed from rowName, and metric returns "series_name;rowName"
+// Series name is independent from rowName, and metric returns "series_name;rowName"
 // Multivalue series can even have partialy multivalue row: "this_comes_to_multivalues`this_comes_to_series_name", separator is `
 func multiRowSingleColumn(col, period string, multivalue bool) (result []string) {
 	ary := strings.Split(col, ",")
