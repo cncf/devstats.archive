@@ -38,7 +38,7 @@ func multiRowMultiColumn(expr, period string, multivalue bool) (result []string)
 	ary := strings.Split(expr, ";")
 	pref := ary[0]
 	if pref == "" {
-		lib.Printf("multiRowMultiColumn: WARNING: prefix '%v' (%+v) skipping\n", pref, ary)
+		lib.Printf("multiRowMultiColumn: WARNING: prefix '%v' (ary=%+v,expr=%+v,mv=%+v) skipping\n", pref, ary, expr, multivalue)
 		return
 	}
 	splitColumns := strings.Split(ary[2], ",")
@@ -89,7 +89,7 @@ func multiRowSingleColumn(col, period string, multivalue bool) (result []string)
 	ary := strings.Split(col, ",")
 	pref := ary[0]
 	if pref == "" {
-		lib.Printf("multiRowSingleColumn: WARNING: prefix '%v' (%+v) skipping\n", pref, ary)
+		lib.Printf("multiRowSingleColumn: WARNING: prefix '%v' (ary=%+v,col=%+v,mv=%+v) skipping\n", pref, ary, col, multivalue)
 		return
 	}
 	if multivalue {
