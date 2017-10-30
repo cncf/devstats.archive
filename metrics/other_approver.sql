@@ -10,8 +10,8 @@ from
   gha_issues i
 where
   i.is_pull_request = true
-  and c.event_id = pl.event_id
-  and i.event_id = pl.event_id
+  and c.id = pl.comment_id
+  and i.id = pl.issue_id
   and i.created_at >= '{{from}}'
   and i.created_at < '{{to}}'
   and c.dup_actor_login = 'k8s-merge-robot'
@@ -30,8 +30,8 @@ from
   gha_issues i
 where
   i.is_pull_request = true
-  and c.event_id = pl.event_id
-  and i.event_id = pl.event_id
+  and c.id = pl.comment_id
+  and i.id = pl.issue_id
   and i.created_at >= '{{from}}'
   and i.created_at < '{{to}}'
   and c.dup_actor_login not in ('googlebot')

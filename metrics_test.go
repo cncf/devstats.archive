@@ -651,6 +651,18 @@ func TestMetrics(t *testing.T) {
 			},
 		},
 		{
+			setup:  setupPRApproversMetric,
+			metric: "other_approver",
+			from:   ft(2017, 10),
+			to:     ft(2017, 11),
+			n:      1,
+			expected: [][]interface{}{
+				{"other_approvers;All;all_suggested_approvers,no_approver,other_approver,suggested_approver", "4.00", "1.00", "2.00", "1.00"},
+				{"other_approvers;G1;all_suggested_approvers,no_approver,other_approver,suggested_approver", "2.00", "1.00", "0.00", "1.00"},
+				{"other_approvers;G2;all_suggested_approvers,no_approver,other_approver,suggested_approver", "1.00", "0.00", "1.00", "0.00"},
+			},
+		},
+		{
 			setup:  setupPRAuthorsMetric,
 			metric: "hist_pr_authors",
 			period: "1 week",
@@ -1604,6 +1616,91 @@ func setupPRAuthorsMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 	// Add affiliations
 	for _, affiliation := range affiliations {
 		err = addActorAffiliation(con, ctx, affiliation...)
+		if err != nil {
+			return
+		}
+	}
+
+	return
+}
+
+// Create data for Suggested Approvers metric
+func setupPRApproversMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
+	ft := testlib.YMDHMS
+
+	// Repos to add
+	// id, name, org_id, org_login, repo_group
+	repos := [][]interface{}{
+		{1, "Repo 1", 1, "Org 1", "G1"},
+		{2, "Repo 2", 1, "Org 1", "G2"},
+		{3, "Repo 3", nil, nil, "G1"},
+		{4, "Repo 4", nil, nil, nil},
+	}
+
+	// issues to add
+	// id, event_id, assignee_id, body, closed_at, created_at, number, state, title, updated_at
+	// user_id, dup_actor_id, dup_actor_login, dup_repo_id, dup_repo_name, dup_type, is_pull_request
+	issues := [][]interface{}{
+		{1, 1, 0, "", nil, ft(2017, 10, 1), 1, "open", "", time.Now(), 0, 1, "A1", 1, "Repo 1", "", true},
+		{2, 2, 0, "", nil, ft(2017, 10, 2), 1, "open", "", time.Now(), 0, 2, "A2", 2, "Repo 2", "", true},
+		{3, 3, 0, "", nil, ft(2017, 10, 3), 1, "open", "", time.Now(), 0, 3, "A3", 3, "Repo 3", "", true},
+		{4, 4, 0, "", nil, ft(2017, 10, 4), 1, "open", "", time.Now(), 0, 4, "A4", 4, "Repo 4", "", true},
+	}
+
+	// Add comments
+	// id, event_id, body, created_at, user_id, repo_id, repo_name, actor_id, actor_login, type
+	comments := [][]interface{}{
+		{1, 1, "[APPROVALNOTIFIER] META={\"approvers\":[\"approver1\"]}", ft(2017, 10, 2), 0, 1, "Repo 1", 100, "k8s-merge-robot", "robot"},
+		{2, 2, "[APPROVALNOTIFIER] META={\"approvers\":[\"approver2\"]}", ft(2017, 10, 3), 0, 2, "Repo 2", 100, "k8s-merge-robot", "robot"},
+		{3, 3, "[APPROVALNOTIFIER] META={\"approvers\":[\"approver3\"]}", ft(2017, 10, 4), 0, 3, "Repo 3", 100, "k8s-merge-robot", "robot"},
+		{4, 4, "[APPROVALNOTIFIER] META={\"approvers\":[\"approver4\"]}", ft(2017, 10, 5), 0, 4, "Repo 4", 100, "k8s-merge-robot", "robot"},
+		{5, 5, "/approve", ft(2017, 10, 6), 0, 1, "Repo 1", 5, "approver1", "comment"},
+		{6, 6, "/approve", ft(2017, 10, 7), 0, 2, "Repo 2", 1, "A1", "comment"},
+		{7, 7, "/lgtm", ft(2017, 10, 8), 0, 3, "Repo 3", 7, "approver3", "comment"},
+		{8, 8, "/approve", ft(2017, 10, 9), 0, 4, "Repo 4", 6, "approver2", "comment"},
+	}
+
+	// Add payload
+	// event_id, issue_id, pull_request_id, comment_id, number, forkee_id, release_id, member_id
+	// actor_id, actor_login, repo_id, repo_name, event_type, event_created_at
+	payloads := [][]interface{}{
+		{1, 1, 0, 1, 1, 0, 0, 0, 100, "k8s-merge-robot", 1, "Repo 1", "E", ft(2017, 10, 2)},
+		{2, 2, 0, 2, 2, 0, 0, 0, 100, "k8s-merge-robot", 2, "Repo 2", "E", ft(2017, 10, 3)},
+		{3, 3, 0, 3, 3, 0, 0, 0, 100, "k8s-merge-robot", 3, "Repo 3", "E", ft(2017, 10, 4)},
+		{4, 4, 0, 4, 4, 0, 0, 0, 100, "k8s-merge-robot", 4, "Repo 4", "E", ft(2017, 10, 5)},
+		{5, 1, 0, 5, 1, 0, 0, 0, 5, "approver1", 1, "Repo 1", "E", ft(2017, 10, 6)},
+		{6, 2, 0, 6, 2, 0, 0, 0, 1, "A1", 2, "Repo 2", "E", ft(2017, 10, 7)},
+		{7, 3, 0, 7, 3, 0, 0, 0, 7, "approver3", 3, "Repo 3", "E", ft(2017, 10, 8)},
+		{8, 4, 0, 8, 4, 0, 0, 0, 6, "approver2", 4, "Repo 4", "E", ft(2017, 10, 9)},
+	}
+
+	// Add repos
+	for _, repo := range repos {
+		err = addRepo(con, ctx, repo...)
+		if err != nil {
+			return
+		}
+	}
+
+	// Add issues
+	for _, issue := range issues {
+		err = addIssue(con, ctx, issue...)
+		if err != nil {
+			return
+		}
+	}
+
+	// Add comments
+	for _, comment := range comments {
+		err = addComment(con, ctx, comment...)
+		if err != nil {
+			return
+		}
+	}
+
+	// Add Payloads
+	for _, payload := range payloads {
+		err = addPayload(con, ctx, payload...)
 		if err != nil {
 			return
 		}
