@@ -1645,10 +1645,15 @@ func setupPRApproversMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 		{2, 2, 0, "", nil, ft(2017, 10, 2), 1, "open", "", time.Now(), 0, 2, "A2", 2, "Repo 2", "", true},
 		{3, 3, 0, "", nil, ft(2017, 10, 3), 1, "open", "", time.Now(), 0, 3, "A3", 3, "Repo 3", "", true},
 		{4, 4, 0, "", nil, ft(2017, 10, 4), 1, "open", "", time.Now(), 0, 4, "A4", 4, "Repo 4", "", true},
+		{1, 5, 0, "", nil, ft(2017, 10, 1), 1, "open", "", time.Now(), 0, 1, "A1", 1, "Repo 1", "", true},
+		{2, 6, 0, "", nil, ft(2017, 10, 2), 1, "open", "", time.Now(), 0, 2, "A2", 2, "Repo 2", "", true},
+		{3, 7, 0, "", nil, ft(2017, 10, 3), 1, "open", "", time.Now(), 0, 3, "A3", 3, "Repo 3", "", true},
+		{4, 8, 0, "", nil, ft(2017, 10, 4), 1, "open", "", time.Now(), 0, 4, "A4", 4, "Repo 4", "", true},
 	}
 
 	// Add comments
 	// id, event_id, body, created_at, user_id, repo_id, repo_name, actor_id, actor_login, type
+  // 4 issues but each of them changes state once, so 8 entries: issues in time
 	comments := [][]interface{}{
 		{1, 1, "[APPROVALNOTIFIER] META={\"approvers\":[\"approver1\"]}", ft(2017, 10, 2), 0, 1, "Repo 1", 100, "k8s-merge-robot", "robot"},
 		{2, 2, "[APPROVALNOTIFIER] META={\"approvers\":[\"approver2\"]}", ft(2017, 10, 3), 0, 2, "Repo 2", 100, "k8s-merge-robot", "robot"},
