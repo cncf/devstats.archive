@@ -40,6 +40,7 @@ They are defined here: [repo_groups.sql](https://github.com/cncf/devstats/blob/m
 33) Need rebase PRs dashboard: [prs_rebase.sql](https://github.com/cncf/devstats/blob/master/metrics/prs_rebase.sql), [need_rebase_prs.json](https://github.com/cncf/devstats/blob/master/grafana/dashboards/need_rebase_prs.json), [view](https://devstats.k8s.io/dashboard/db/need-rebase-prs?orgId=1).
 34) All need rebase PRs dashboard: [all_prs_rebase.sql](https://github.com/cncf/devstats/blob/master/metrics/all_prs_rebase.sql), [all_need_rebase_prs.json](https://github.com/cncf/devstats/blob/master/grafana/dashboards/all_need_rebase_prs.json), [view](https://devstats.k8s.io/dashboard/db/all-need-rebase-prs?orgId=1).
 35) Issues age dashboard: [issues_age.sql](https://github.com/cncf/devstats/blob/master/metrics/issues_age.sql), [issues_age.json](https://github.com/cncf/devstats/blob/master/grafana/dashboards/issues_age.json), [view](https://devstats.k8s.io/dashboard/db/issues-age?orgId=1).
+36) Companies stats percent dashboard [company_activity.sql](https://github.com/cncf/devstats/blob/master/metrics/company_activity.sql), [companies_stats_percent.json](https://github.com/cncf/devstats/blob/master/grafana/dashboards/companies_stats_percent.json), [view](https://devstats.k8s.io/dashboard/db/companies-stats-percent?orgId=1).
 
 All of them works live on [devstats.k8s.io](https://devstats.k8s.io) with auto `gha2db_sync` tool running.
 
