@@ -1653,7 +1653,7 @@ func setupPRApproversMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 
 	// Add comments
 	// id, event_id, body, created_at, user_id, repo_id, repo_name, actor_id, actor_login, type
-  // 4 issues but each of them changes state once, so 8 entries: issues in time
+	// 4 issues but each of them changes state once, so 8 entries: issues in time
 	comments := [][]interface{}{
 		{1, 1, "[APPROVALNOTIFIER] META={\"approvers\":[\"approver1\"]}", ft(2017, 10, 2), 0, 1, "Repo 1", 100, "k8s-merge-robot", "robot"},
 		{2, 2, "[APPROVALNOTIFIER] META={\"approvers\":[\"approver2\"]}", ft(2017, 10, 3), 0, 2, "Repo 2", 100, "k8s-merge-robot", "robot"},
