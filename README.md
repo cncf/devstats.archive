@@ -1,5 +1,5 @@
 [![Build Status](https://travis-ci.org/cncf/devstats.svg?branch=master)](https://travis-ci.org/cncf/devstats)
-[![CII Best Practices](https://master.bestpractices.coreinfrastructure.org/projects/1357/badge)](https://master.bestpractices.coreinfrastructure.org/projects/1357)
+[![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/1357/badge)](https://bestpractices.coreinfrastructure.org/projects/1357)
 
 # GitHub archives Grafana visualization dashboards
 
