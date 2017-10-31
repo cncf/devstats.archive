@@ -1,8 +1,8 @@
 {
   "__inputs": [
     {
-      "name": "DS_INFLUXGHA",
-      "label": "influxgha",
+      "name": "DS_GHA",
+      "label": "gha",
       "description": "",
       "type": "datasource",
       "pluginId": "influxdb",
@@ -14,7 +14,7 @@
       "type": "grafana",
       "id": "grafana",
       "name": "Grafana",
-      "version": "4.4.3"
+      "version": "4.7.0-pre1"
     },
     {
       "type": "panel",
@@ -38,7 +38,16 @@
   "annotations": {
     "list": [
       {
-        "datasource": "${DS_INFLUXGHA}",
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      },
+      {
+        "datasource": "${DS_GHA}",
         "enable": true,
         "hide": false,
         "iconColor": "rgba(255, 96, 96, 1)",
@@ -69,7 +78,7 @@
           "bars": true,
           "dashLength": 10,
           "dashes": false,
-          "datasource": "${DS_INFLUXGHA}",
+          "datasource": "${DS_GHA}",
           "decimals": 2,
           "description": "Stacked times from open to lgtm, approve and merge.",
           "fill": 1,
@@ -105,7 +114,7 @@
               "groupBy": [],
               "orderByTime": "ASC",
               "policy": "default",
-              "query": "SELECT \"value\" FROM \"time_metrics_[[repogroup]]_median_open_to_lgtm_[[period]]\" WHERE $timeFilter",
+              "query": "SELECT \"value\" FROM \"time_metrics_[[repogroup]]_[[size]]_[[apichange]]_median_open_to_lgtm_[[period]]\" WHERE $timeFilter",
               "rawQuery": true,
               "refId": "A",
               "resultFormat": "time_series",
@@ -127,7 +136,7 @@
               "groupBy": [],
               "orderByTime": "ASC",
               "policy": "default",
-              "query": "SELECT \"value\" FROM \"time_metrics_[[repogroup]]_median_lgtm_to_approve_[[period]]\" WHERE $timeFilter",
+              "query": "SELECT \"value\" FROM \"time_metrics_[[repogroup]]_[[size]]_[[apichange]]_median_lgtm_to_approve_[[period]]\" WHERE $timeFilter",
               "rawQuery": true,
               "refId": "B",
               "resultFormat": "time_series",
@@ -149,7 +158,7 @@
               "groupBy": [],
               "orderByTime": "ASC",
               "policy": "default",
-              "query": "SELECT \"value\" FROM \"time_metrics_[[repogroup]]_median_approve_to_merge_[[period]]\" WHERE $timeFilter",
+              "query": "SELECT \"value\" FROM \"time_metrics_[[repogroup]]_[[size]]_[[apichange]]_median_approve_to_merge_[[period]]\" WHERE $timeFilter",
               "rawQuery": true,
               "refId": "C",
               "resultFormat": "time_series",
@@ -169,7 +178,7 @@
           "thresholds": [],
           "timeFrom": null,
           "timeShift": null,
-          "title": "Median time PRs from open to lgtm, approve, merge for [[repogroup]] repository group ([[repogroup_name]], [[period]])",
+          "title": "Median time PRs from open to lgtm, approve, merge for [[repogroup_name]] repository group ([[period]], API change: [[apichange]], Size: [[size_name]])",
           "tooltip": {
             "shared": true,
             "sort": 0,
@@ -209,7 +218,7 @@
           "bars": true,
           "dashLength": 10,
           "dashes": false,
-          "datasource": "${DS_INFLUXGHA}",
+          "datasource": "${DS_GHA}",
           "decimals": 2,
           "description": "Stacked times from open to lgtm, approve and merge for mono-repos kubernetes and contrib",
           "fill": 1,
@@ -245,7 +254,7 @@
               "groupBy": [],
               "orderByTime": "ASC",
               "policy": "default",
-              "query": "SELECT \"value\" FROM \"time_metrics_[[repogroup]]_percentile_85_open_to_lgtm_[[period]]\" WHERE $timeFilter",
+              "query": "SELECT \"value\" FROM \"time_metrics_[[repogroup]]_[[size]]_[[apichange]]_percentile_85_open_to_lgtm_[[period]]\" WHERE $timeFilter",
               "rawQuery": true,
               "refId": "A",
               "resultFormat": "time_series",
@@ -267,7 +276,7 @@
               "groupBy": [],
               "orderByTime": "ASC",
               "policy": "default",
-              "query": "SELECT \"value\" FROM \"time_metrics_[[repogroup]]_percentile_85_lgtm_to_approve_[[period]]\" WHERE $timeFilter",
+              "query": "SELECT \"value\" FROM \"time_metrics_[[repogroup]]_[[size]]_[[apichange]]_percentile_85_lgtm_to_approve_[[period]]\" WHERE $timeFilter",
               "rawQuery": true,
               "refId": "B",
               "resultFormat": "time_series",
@@ -289,7 +298,7 @@
               "groupBy": [],
               "orderByTime": "ASC",
               "policy": "default",
-              "query": "SELECT \"value\" FROM \"time_metrics_[[repogroup]]_percentile_85_approve_to_merge_[[period]]\" WHERE $timeFilter",
+              "query": "SELECT \"value\" FROM \"time_metrics_[[repogroup]]_[[size]]_[[apichange]]_percentile_85_approve_to_merge_[[period]]\" WHERE $timeFilter",
               "rawQuery": true,
               "refId": "C",
               "resultFormat": "time_series",
@@ -309,7 +318,7 @@
           "thresholds": [],
           "timeFrom": null,
           "timeShift": null,
-          "title": "85th percentile time PRs from open to lgtm, approve, merge for [[repogroup]] repository group ([[repogroup_name]], [[period]])",
+          "title": "85th percentile time PRs from open to lgtm, approve, merge for [[repogroup_name]] repository group ([[period]], API change: [[apichange]], Size: [[size_name]])",
           "tooltip": {
             "shared": true,
             "sort": 0,
@@ -358,6 +367,7 @@
       "panels": [
         {
           "columns": [],
+          "datasource": "${DS_GHA}",
           "description": "Time PRs from open to lgtm, approve, merge",
           "fontSize": "80%",
           "id": 10,
@@ -412,7 +422,7 @@
               ],
               "orderByTime": "ASC",
               "policy": "default",
-              "query": "SELECT \"descr\" FROM \"time_metrics_[[repogroup]]_median_open_to_lgtm_[[period]]\" WHERE $timeFilter",
+              "query": "SELECT \"descr\" FROM \"time_metrics_[[repogroup]]_[[size]]_[[apichange]]_median_open_to_lgtm_[[period]]\" WHERE $timeFilter",
               "rawQuery": true,
               "refId": "A",
               "resultFormat": "time_series",
@@ -451,7 +461,7 @@
               ],
               "orderByTime": "ASC",
               "policy": "default",
-              "query": "SELECT \"descr\" FROM \"time_metrics_[[repogroup]]_median_lgtm_to_approve_[[period]]\" WHERE $timeFilter",
+              "query": "SELECT \"descr\" FROM \"time_metrics_[[repogroup]]_[[size]]_[[apichange]]_median_lgtm_to_approve_[[period]]\" WHERE $timeFilter",
               "rawQuery": true,
               "refId": "B",
               "resultFormat": "time_series",
@@ -490,7 +500,7 @@
               ],
               "orderByTime": "ASC",
               "policy": "default",
-              "query": "SELECT \"descr\" FROM \"time_metrics_[[repogroup]]_median_approve_to_merge_[[period]]\" WHERE $timeFilter",
+              "query": "SELECT \"descr\" FROM \"time_metrics_[[repogroup]]_[[size]]_[[apichange]]_median_approve_to_merge_[[period]]\" WHERE $timeFilter",
               "rawQuery": true,
               "refId": "C",
               "resultFormat": "time_series",
@@ -529,7 +539,7 @@
               ],
               "orderByTime": "ASC",
               "policy": "default",
-              "query": "SELECT \"descr\" FROM \"time_metrics_[[repogroup]]_percentile_85_open_to_lgtm_[[period]]\" WHERE $timeFilter",
+              "query": "SELECT \"descr\" FROM \"time_metrics_[[repogroup]]_[[size]]_[[apichange]]_percentile_85_open_to_lgtm_[[period]]\" WHERE $timeFilter",
               "rawQuery": true,
               "refId": "D",
               "resultFormat": "time_series",
@@ -568,7 +578,7 @@
               ],
               "orderByTime": "ASC",
               "policy": "default",
-              "query": "SELECT \"descr\" FROM \"time_metrics_[[repogroup]]_percentile_85_lgtm_to_approve_[[period]]\" WHERE $timeFilter",
+              "query": "SELECT \"descr\" FROM \"time_metrics_[[repogroup]]_[[size]]_[[apichange]]_percentile_85_lgtm_to_approve_[[period]]\" WHERE $timeFilter",
               "rawQuery": true,
               "refId": "E",
               "resultFormat": "time_series",
@@ -607,7 +617,7 @@
               ],
               "orderByTime": "ASC",
               "policy": "default",
-              "query": "SELECT \"descr\" FROM \"time_metrics_[[repogroup]]_percentile_85_approve_to_merge_[[period]]\" WHERE $timeFilter",
+              "query": "SELECT \"descr\" FROM \"time_metrics_[[repogroup]]_[[size]]_[[apichange]]_percentile_85_approve_to_merge_[[period]]\" WHERE $timeFilter",
               "rawQuery": true,
               "refId": "F",
               "resultFormat": "time_series",
@@ -628,7 +638,7 @@
               "tags": []
             }
           ],
-          "title": "Time PRs from open to lgtm, approve, merge for [[repogroup]] repository group ([[repogroup_name]], [[period]])",
+          "title": "Time PRs from open to lgtm, approve, merge for [[repogroup_name]] repository group ([[period]], API change: [[apichange]], Size: [[size_name]])",
           "transform": "timeseries_to_columns",
           "type": "table"
         }
@@ -698,7 +708,7 @@
       {
         "allValue": null,
         "current": {},
-        "datasource": "${DS_INFLUXGHA}",
+        "datasource": "${DS_GHA}",
         "hide": 0,
         "includeAll": false,
         "label": "Repository group",
@@ -718,7 +728,7 @@
       {
         "allValue": null,
         "current": {},
-        "datasource": "${DS_INFLUXGHA}",
+        "datasource": "${DS_GHA}",
         "hide": 2,
         "includeAll": false,
         "label": "",
@@ -726,6 +736,78 @@
         "name": "repogroup",
         "options": [],
         "query": "SHOW TAG VALUES WITH KEY = all_repo_group_value where all_repo_group_name =~ /^[[repogroup_name]]$/",
+        "refresh": 1,
+        "regex": "",
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "tags": [],
+          "text": "All",
+          "value": "all"
+        },
+        "hide": 0,
+        "includeAll": false,
+        "label": "API change",
+        "multi": false,
+        "name": "apichange",
+        "options": [
+          {
+            "selected": true,
+            "text": "All",
+            "value": "all"
+          },
+          {
+            "selected": false,
+            "text": "Yes",
+            "value": "yes"
+          },
+          {
+            "selected": false,
+            "text": "No",
+            "value": "no"
+          }
+        ],
+        "query": "all,yes,no",
+        "type": "custom"
+      },
+      {
+        "allValue": null,
+        "current": {},
+        "datasource": "${DS_GHA}",
+        "hide": 0,
+        "includeAll": false,
+        "label": "Size",
+        "multi": false,
+        "name": "size_name",
+        "options": [],
+        "query": "SHOW TAG VALUES WITH KEY = size_labels_name_with_all",
+        "refresh": 1,
+        "regex": "",
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {},
+        "datasource": "${DS_GHA}",
+        "hide": 2,
+        "includeAll": false,
+        "label": null,
+        "multi": false,
+        "name": "size",
+        "options": [],
+        "query": "SHOW TAG VALUES WITH KEY = size_labels_value_with_all where size_labels_name_with_all =~ /^[[size_name]]$/",
         "refresh": 1,
         "regex": "",
         "sort": 0,
@@ -768,5 +850,5 @@
   },
   "timezone": "",
   "title": "Time metrics",
-  "version": 25
+  "version": 9
 }
