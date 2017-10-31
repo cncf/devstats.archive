@@ -1,21 +1,21 @@
 select
-  sub.prio
+  sub.size
 from (
-  select sel.prio as prio,
+  select sel.size as size,
     count(distinct issue_id) as cnt
   from (
     select distinct issue_id,
-      substring(dup_label_name from '(?i)priority/(.*)') as prio
+      substring(dup_label_name from '(?i)size/(.*)') as size
     from
       gha_issues_labels
     ) sel
   where
-    sel.prio is not null
+    sel.size is not null
   group by
-    prio
+    size
   order by
     cnt desc,
-    prio asc
+    size asc
   limit 30
 ) sub
 union select 'All'
