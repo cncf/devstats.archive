@@ -294,21 +294,12 @@ func TestMetrics(t *testing.T) {
 			to:     ft(2017, 8),
 			n:      1,
 			expected: [][]interface{}{
-				{
-					"time_metrics;All;median_open_to_lgtm,median_lgtm_to_approve,median_approve_to_merge," +
-						"percentile_85_open_to_lgtm,percentile_85_lgtm_to_approve,percentile_85_approve_to_merge",
-					144, 120, 216, 264, 168, 288,
-				},
-				{
-					"time_metrics;Group1;median_open_to_lgtm,median_lgtm_to_approve,median_approve_to_merge," +
-						"percentile_85_open_to_lgtm,percentile_85_lgtm_to_approve,percentile_85_approve_to_merge",
-					120, 120, 192, 192, 168, 240,
-				},
-				{
-					"time_metrics;Group2;median_open_to_lgtm,median_lgtm_to_approve,median_approve_to_merge," +
-						"percentile_85_open_to_lgtm,percentile_85_lgtm_to_approve,percentile_85_approve_to_merge",
-					144, 144, 216, 144, 144, 216,
-				},
+				{"time_metrics;All_All;all_median_open_to_lgtm,all_median_lgtm_to_approve,all_median_approve_to_merge,all_percentile_85_open_to_lgtm,all_percentile_85_lgtm_to_approve,all_percentile_85_approve_to_merge,yes_median_open_to_lgtm,yes_median_lgtm_to_approve,yes_median_approve_to_merge,yes_percentile_85_open_to_lgtm,yes_percentile_85_lgtm_to_approve,yes_percentile_85_approve_to_merge,no_median_open_to_lgtm,no_median_lgtm_to_approve,no_median_approve_to_merge,no_percentile_85_open_to_lgtm,no_percentile_85_lgtm_to_approve,no_percentile_85_approve_to_merge", 144, 120, 216, 264, 168, 288, 120, 120, 216, 144, 144, 240, 192, 72, 192, 264, 168, 288},
+				{"time_metrics;All_XL;all_median_open_to_lgtm,all_median_lgtm_to_approve,all_median_approve_to_merge,all_percentile_85_open_to_lgtm,all_percentile_85_lgtm_to_approve,all_percentile_85_approve_to_merge,yes_median_open_to_lgtm,yes_median_lgtm_to_approve,yes_median_approve_to_merge,yes_percentile_85_open_to_lgtm,yes_percentile_85_lgtm_to_approve,yes_percentile_85_approve_to_merge,no_median_open_to_lgtm,no_median_lgtm_to_approve,no_median_approve_to_merge,no_percentile_85_open_to_lgtm,no_percentile_85_lgtm_to_approve,no_percentile_85_approve_to_merge", 264, 72, 288, 264, 72, 288, 0, 0, 0, 0, 0, 0, 264, 72, 288, 264, 72, 288},
+				{"time_metrics;All_XS;all_median_open_to_lgtm,all_median_lgtm_to_approve,all_median_approve_to_merge,all_percentile_85_open_to_lgtm,all_percentile_85_lgtm_to_approve,all_percentile_85_approve_to_merge,yes_median_open_to_lgtm,yes_median_lgtm_to_approve,yes_median_approve_to_merge,yes_percentile_85_open_to_lgtm,yes_percentile_85_lgtm_to_approve,yes_percentile_85_approve_to_merge,no_median_open_to_lgtm,no_median_lgtm_to_approve,no_median_approve_to_merge,no_percentile_85_open_to_lgtm,no_percentile_85_lgtm_to_approve,no_percentile_85_approve_to_merge", 120, 120, 192, 192, 168, 240, 120, 120, 240, 120, 120, 240, 192, 168, 192, 192, 168, 192},
+				{"time_metrics;Group1_All;all_median_open_to_lgtm,all_median_lgtm_to_approve,all_median_approve_to_merge,all_percentile_85_open_to_lgtm,all_percentile_85_lgtm_to_approve,all_percentile_85_approve_to_merge,yes_median_open_to_lgtm,yes_median_lgtm_to_approve,yes_median_approve_to_merge,yes_percentile_85_open_to_lgtm,yes_percentile_85_lgtm_to_approve,yes_percentile_85_approve_to_merge,no_median_open_to_lgtm,no_median_lgtm_to_approve,no_median_approve_to_merge,no_percentile_85_open_to_lgtm,no_percentile_85_lgtm_to_approve,no_percentile_85_approve_to_merge", 120, 120, 192, 192, 168, 240, 120, 120, 240, 120, 120, 240, 192, 168, 192, 192, 168, 192},
+				{"time_metrics;Group1_XS;all_median_open_to_lgtm,all_median_lgtm_to_approve,all_median_approve_to_merge,all_percentile_85_open_to_lgtm,all_percentile_85_lgtm_to_approve,all_percentile_85_approve_to_merge,yes_median_open_to_lgtm,yes_median_lgtm_to_approve,yes_median_approve_to_merge,yes_percentile_85_open_to_lgtm,yes_percentile_85_lgtm_to_approve,yes_percentile_85_approve_to_merge,no_median_open_to_lgtm,no_median_lgtm_to_approve,no_median_approve_to_merge,no_percentile_85_open_to_lgtm,no_percentile_85_lgtm_to_approve,no_percentile_85_approve_to_merge", 120, 120, 192, 192, 168, 240, 120, 120, 240, 120, 120, 240, 192, 168, 192, 192, 168, 192},
+				{"time_metrics;Group2_All;all_median_open_to_lgtm,all_median_lgtm_to_approve,all_median_approve_to_merge,all_percentile_85_open_to_lgtm,all_percentile_85_lgtm_to_approve,all_percentile_85_approve_to_merge,yes_median_open_to_lgtm,yes_median_lgtm_to_approve,yes_median_approve_to_merge,yes_percentile_85_open_to_lgtm,yes_percentile_85_lgtm_to_approve,yes_percentile_85_approve_to_merge,no_median_open_to_lgtm,no_median_lgtm_to_approve,no_median_approve_to_merge,no_percentile_85_open_to_lgtm,no_percentile_85_lgtm_to_approve,no_percentile_85_approve_to_merge", 144, 144, 216, 144, 144, 216, 144, 144, 216, 144, 144, 216, 0, 0, 0, 0, 0, 0},
 			},
 		},
 		{
@@ -1496,6 +1487,11 @@ func setupTimeMetrics(con *sql.DB, ctx *lib.Ctx) (err error) {
 	// iid, eid, lid, lname, created_at
 	// repo_id, repo_name, actor_id, actor_login, type, issue_number
 	iels := [][]interface{}{
+		{1, 1, 3, "kind/api-change", ft(2017, 7, 10), 1, "R1", 1, "A1", "T", 1},
+		{2, 2, 3, "kind/api-change", ft(2017, 7, 10), 2, "R2", 1, "A1", "T", 1},
+		{3, 3, 4, "size/XS", ft(2017, 7, 10), 3, "R3", 1, "A1", "T", 1},
+		{4, 4, 5, "size/XL", ft(2017, 7, 10), 4, "R4", 1, "A1", "T", 1},
+		{1, 5, 4, "size/XS", ft(2017, 7, 10), 1, "R1", 1, "A1", "T", 1},
 		{1, 8, 1, "lgtm", ft(2017, 7, 6), 1, "R1", 1, "A1", "T", 1},
 		{2, 9, 1, "lgtm", ft(2017, 7, 8), 2, "R2", 1, "A1", "T", 1},
 		{3, 10, 1, "lgtm", ft(2017, 7, 11), 3, "R3", 1, "A1", "T", 1},
