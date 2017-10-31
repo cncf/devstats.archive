@@ -94,8 +94,12 @@ func runq(sqlFile string, params []string) {
 
 	// Compute column Lengths
 	columnLengths := make(map[string]int)
-	for _, column := range columns {
-		maxLen := len(column) - 1
+	indexLen := 1
+	for index, column := range columns {
+		if index == 10 {
+			indexLen++
+		}
+		maxLen := len(column) - indexLen
 		for _, row := range results {
 			valLen := len(row[column])
 			if valLen > maxLen {
@@ -117,9 +121,13 @@ func runq(sqlFile string, params []string) {
 
 	// Header row
 	output = "|"
-	for _, column := range columns {
+	indexLen = 1
+	for index, column := range columns {
+		if index == 10 {
+			indexLen++
+		}
 		strFormat := fmt.Sprintf("%%-%ds", columnLengths[column])
-		output += fmt.Sprintf(strFormat, column[:len(column)-1]) + "|"
+		output += fmt.Sprintf(strFormat, column[:len(column)-indexLen]) + "|"
 	}
 	output += "\n"
 	lib.Printf(output)
