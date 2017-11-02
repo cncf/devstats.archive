@@ -45,9 +45,9 @@ Prerequisites:
     - `grant all privileges on database "gha" to gha_admin;`
     - `alter user gha_admin createdb;`
 11. Leave `psql` shell, and get newest Kubernetes database dump:
-    - `wget https://devstats.k8s.io/web/k8s.sql.xz` (it is about 400Mb).
-    - `xz -d k8s.sql.xz` (uncompressed dump is more than 7Gb).
-    - `sudo -u postgres psql gha < k8s.sql` (restore DB dump)
+    - `wget https://devstats.k8s.io/web/gha.sql.xz` (it is about 400Mb).
+    - `xz -d gha.sql.xz` (uncompressed dump is more than 7Gb).
+    - `sudo -u postgres psql gha < gha.sql` (restore DB dump)
 
 12. Install InfluxDB time-series database ([link](https://docs.influxdata.com/influxdb/v0.9/introduction/installation/)):
     - Ubuntu 17 contains an old `influxdb` when installed by default `apt-get install influxdb`, so:
@@ -70,7 +70,7 @@ Prerequisites:
     - We need to prefix call with GHA2DB_LOCAL to enable using tools from "./" directory
     - To import data for the first time (Influx database is empty and postgres database is at the state when Kubernetes SQL dump was made on [devstats.k8s.io](https://devstats.k8s.io)):
     - `GHA2DB_PROJECT=kubernetes GHA2DB_LOCAL=1 IDB_PASS=pwd PG_PASS=pwd ./reinit_all.sh`
-    - This can take a while (depending how old is psql dump `k8s.sql.xz` on [devstats.k8s](https://devstats.k8s.io). It is generated daily at 3:00 AM UTC.
+    - This can take a while (depending how old is psql dump `gha.sql.xz` on [devstats.k8s](https://devstats.k8s.io). It is generated daily at 3:00 AM UTC.
     - Command should be successfull.
 
 15. We need to setup cron job that will call sync every hour (10 minutes after 1:00, 2:00, ...)
