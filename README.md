@@ -37,6 +37,16 @@ We want to support all kind of metrics, including historical ones.
 Please see [requested metrics](https://docs.google.com/document/d/1o5ncrY6lVX3qSNJGWtJXx2aAC2MEqSjnML4VJDrNpmE/edit?usp=sharing) to see what kind of metrics are needed.
 Many of them cannot be computed based on the data sources currently used.
 
+# Repository groups
+
+There are some groups of repositories that are groupped together as a repository groups.
+There are defined in [repo_groups.sql](https://github.com/cncf/devstats/blob/master/scripts/repo_groups.sql).
+
+To setup default repository groups:
+- `PG_PASS=pwd ./setup_repo_groups.sh`.
+
+This is a part of `kubernetes.sh` script and [kubernetes psql dump](https://devstats.k8s.io/web/k8s.sql.xz) already has groups configured.
+
 # Company Affiliations
 
 We also want to have per company statistics. To implement such metrics we need a mapping of developers and their employers.
