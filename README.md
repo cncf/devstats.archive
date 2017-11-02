@@ -39,7 +39,7 @@ Many of them cannot be computed based on the data sources currently used.
 
 # Repository groups
 
-There are some groups of repositories that are groupped together as a repository groups.
+There are some groups of repositories that are grouped together as a repository groups.
 There are defined in [repo_groups.sql](https://github.com/cncf/devstats/blob/master/scripts/repo_groups.sql).
 
 To setup default repository groups:
