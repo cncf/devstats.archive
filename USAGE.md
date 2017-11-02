@@ -173,7 +173,7 @@ Please note that this is not a correct JSON, it contains files separated by line
 Please also note that JSON for 2016-10-21 18:00 is broken, so running this command will produce no data. The code will output error to logs and continue. Always examine `errors.txt` from `kubernetes*.sh` script.
 
 This will log error and process no JSONs:
-- `./gha2db 2016-10-21 18 2016-10-21 18 'kubernetes,kubernetes-client,kubernetes-incubator'`.
+- `./gha2db 2016-10-21 18 2016-10-21 18 'kubernetes,kubernetes-client,kubernetes-incubator,kubernetes-helm'`.
 
 1) Running on all Kubernetes org since the beginning of kubernetes:
 - Takes about 2h15m.
@@ -314,7 +314,7 @@ Before 2015-08-06 Kubernetes is in `GoogleCloudPlatform/kubernetes` or just few 
 And finally before 2015-01-01 GitHub used different JSONs format. To process them You have to use `GHA2DB_OLDFMT` mode.
 
 For example June 2017:
-- `time PG_PASS=pwd ./gha2db 2017-06-01 0 2017-07-01 0 'kubernetes,kubernetes-incubator,kubernetes-client'`
+- `time PG_PASS=pwd ./gha2db 2017-06-01 0 2017-07-01 0 'kubernetes,kubernetes-incubator,kubernetes-client,kubernetes-helm'`
 
 To process kubernetes all time just use `kubernetes.sh` script. Like this:
 - `time PG_PASS=pwd ./kubernetes.sh`.
