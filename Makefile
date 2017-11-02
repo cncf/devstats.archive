@@ -15,7 +15,7 @@ GO_IMPORTS=goimports -w
 GO_USEDEXPORTS=usedexports
 GO_TEST=go test
 BINARIES=structure runq gha2db db2influx z2influx gha2db_sync import_affs annotations idb_tags idb_backup webhook
-CRON_SCRIPTS=cron_db_backup.sh cron_gha2db_sync.sh
+CRON_SCRIPTS=cron_db_backup.sh
 STRIP=strip
 
 all: check ${BINARIES}
@@ -80,10 +80,10 @@ dbtest:
 check: fmt lint imports vet const usedexports
 
 data:
-	mkdir /etc/gha2db 2>/dev/null || echo "mkdir warning"
-	mkdir /etc/gha2db/metrics 2>/dev/null || echo "mkdir warning"
-	rm -f /etc/gha2db/metrics/* || exit 1
-	cp metrics/* /etc/gha2db/metrics/ || exit 2
+	mkdir /etc/gha2db 2>/dev/null || echo "..."
+	rm -fr /etc/gha2db/* || exit 1
+	cp -R metrics/ /etc/gha2db/metrics/ || exit 2
+	cp projects.yaml /etc/gha2db/ || exit 3
 
 install: check ${BINARIES} data
 	${GO_INSTALL} ${GO_BIN_CMDS}

@@ -1,4 +1,5 @@
 #!/bin/sh
+# Run this script from the repository top level: ./scripts/gha2db.sh
 # ./gha2db 2017-07-24 00 2017-07-31 00 kubernetes
 # ./gha2db 2017-07-28 00 2017-07-29 00 lukaszgryglicki dn
 # ./gha2db 2017-01-01 20 2017-01-01 20
@@ -17,4 +18,4 @@
 # ./gha2db 2015-11-16 0 2017-10-07 0 'kubernetes,kubernetes-client,kubernetes-incubator'
 # ./gha2db 2016-05-07 0 2017-08-19 0 'kubernetes,kubernetes-client,kubernetes-incubator'
 # GHA2DB_LOCAL=1 ./gha2db 2015-08-06 0 today now 'kubernetes,kubernetes-client,kubernetes-incubator,kubernetes-helm'
-GHA2DB_LOCAL=1 ./gha2db 2017-06-01 0 today now 'kubernetes-helm'
+# GHA2DB_LOCAL=1 ./gha2db 2017-06-01 0 today now 'kubernetes-helm'

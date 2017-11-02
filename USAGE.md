@@ -90,10 +90,10 @@ You can tweak `devstats` tools by environment variables:
 - Set `GHA2DB_OLDFMT` for `gha2db` tool to make it use old pre-2015 GHA JSONs format (instead of a new one used by GitHub Archives from 2015-01-01).
 - Set `GHA2DB_EXACT` for `gha2db` tool to make it process only repositories listed as "orgs" parameter, by their full names, like for example 3 repos: "GoogleCloudPlatform/kubernetes,kubernetes,kubernetes/kubernetes"
 - Set `GHA2DB_SKIPLOG` for any tool to skip logging output to `gha_logs` table.
-- Set `GHA2DB_LOCAL` for `gha2db_sync` tool to make it prefix call to other tools with "./" (so it will use other tools binaries from the current working directory instead of `/usr/bin/`). Local mode uses "./metrics/" to search for metrics files. Otherwise "/etc/gha2db/metrics/" is used.
-- Set `GHA2DB_ANNOTATIONS_YAML` for `annotations` tool, set name of annotation yaml file, default is "metrics/annotations.yaml".
-- Set `GHA2DB_METRICS_YAML` for `gha2db_sync` tool, set name of metrics yaml file, default is "metrics/metrics.yaml".
-- Set `GHA2DB_GAPS_YAML` for `gha2db_sync` tool, set name of gaps yaml file, default is "metrics/gaps.yaml".
+- Set `GHA2DB_LOCAL` for `gha2db_sync` tool to make it prefix call to other tools with "./" (so it will use other tools binaries from the current working directory instead of `/usr/bin/`). Local mode uses "./metrics/{{project}}/" to search for metrics files. Otherwise "/etc/gha2db/metrics/{{project}}/" is used.
+- Set `GHA2DB_ANNOTATIONS_YAML` for `annotations` tool, set name of annotation yaml file, default is "metrics/{{project}}/annotations.yaml".
+- Set `GHA2DB_METRICS_YAML` for `gha2db_sync` tool, set name of metrics yaml file, default is "metrics/{{project}}/metrics.yaml".
+- Set `GHA2DB_GAPS_YAML` for `gha2db_sync` tool, set name of gaps yaml file, default is "metrics/{{project}}/gaps.yaml".
 - Set `GHA2DB_MAXLOGAGE` for `gha2db_sync` tool, maximum age of DB logs stored in `gha_logs` table, default "1 week" (logs are cleared in `gha2db_sync` job).
 - Set `GHA2DB_TRIALS` for tools that use Postgres DB, set retry periods when "too many connection open" psql error appears, default is "10,30,60,120,300,600" (so 30s, 1min, 2min, 5min, 10min).
 - Set `GHA2DB_SKIPTIME` for all tools to skip time output in program outputs (default is to show time).
@@ -110,7 +110,7 @@ All environment context details are defined in [context.go](https://github.com/c
 
 Examples in this shell script (some commented out, some not):
 
-`time PG_PASS=your_pass ./gha2db.sh`
+`time PG_PASS=your_pass ./scripts/gha2db.sh`
 
 # Informations
 
@@ -170,7 +170,7 @@ There is a big file containing all Kubernetes events JSONs from Aug 2017 concate
 
 Please note that this is not a correct JSON, it contains files separated by line `JSON: jsons/filename.json` - that says what was the original JSON filename. This file is 16.7M xzipped, but 1.07G uncompressed.
 
-Please also note that JSON for 2016-10-21 18:00 is broken, so running this command will produce no data. The code will output error to logs and continue. Always examine `errors.txt` from `kubernetes*.sh` script.
+Please also note that JSON for 2016-10-21 18:00 is broken, so running this command will produce no data. The code will output error to logs and continue. Always examine `errors.txt` from `kubernetes/kubernetes*.sh` script.
 
 This will log error and process no JSONs:
 - `./gha2db 2016-10-21 18 2016-10-21 18 'kubernetes,kubernetes-client,kubernetes-incubator,kubernetes-helm'`.
@@ -217,7 +217,7 @@ Defaults are:
 
 It is recommended to create structure without indexes first (the default), then get data from GHA and populate array, and finally add indexes. To do do:
 - `time PG_PASS=your_password ./structure`
-- `time PG_PASS=your_password ./gha2db.sh`
+- `time PG_PASS=your_password ./scripts/gha2db.sh`
 - `time GHA2DB_SKIPTABLE=1 GHA2DB_INDEX=1 PG_PASS=your_password ./structure` (will take some time to generate indexes on populated database)
 
 Typical internal usage:
@@ -296,8 +296,8 @@ All JSON and TXT files starting with "old_" and txt files starting with "old_" a
 All JSON and TXT files starting with "new_" and txt files starting with "new_" are the result of new 2015+ GHA JSONs structure analysis.
 
 To Run JSON structure analysis for either pre or from 2015 please do:
-- `analysis_from2015.sh`.
-- `analysis_pre2015.sh`.
+- `analysis/analysis_from2015.sh`.
+- `analysis/analysis_pre2015.sh`.
 
 Both those tools require Ruby. This tool was originally in Ruby, and there is no sense to rewrite it in Go because:
 - It uses a very dynamic code, reflection and code evaluation as provided by properties list from the command line.
@@ -316,27 +316,27 @@ And finally before 2015-01-01 GitHub used different JSONs format. To process the
 For example June 2017:
 - `time PG_PASS=pwd ./gha2db 2017-06-01 0 2017-07-01 0 'kubernetes,kubernetes-incubator,kubernetes-client,kubernetes-helm'`
 
-To process kubernetes all time just use `kubernetes.sh` script. Like this:
-- `time PG_PASS=pwd ./kubernetes.sh`.
+To process kubernetes all time just use `kubernetes/kubernetes.sh` script. Like this:
+- `time PG_PASS=pwd ./kubernetes/kubernetes.sh`.
 
 # Metrics tool
 There is a tool `runq`. It is used to compute metrics saved in `*.sql` files.
 Please be careful when creating metric files, that needs to support `explain` mode (please see `GHA2DB_EXPLAIN` environment variable description):
 
 Because metric can have multiple selects, and only main select should be replaced with "explain select" - we're replacing only lower case "select" statement followed by new line.
-Exact match "select\n". Please see [metrics/reviewers.sql](https://github.com/cncf/devstats/blob/master/metrics/reviewers.sql) to see how it works.
+Exact match "select\n". Please see [metrics/{{project}}/reviewers.sql](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/reviewers.sql) to see how it works.
 
-Metrics are in [./metrics/](https://github.com/cncf/devstats/blob/master/metrics/) directory.
+Metrics are in [./metrics/{{project}}/](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/) directory.
 
 This tool takes at least one parameter - sql file name.
 
 Typical usages:
-- `time PG_PASS='password' ./runq metrics/metric.sql`
+- `time PG_PASS='password' ./runq metrics/{{project}}/metric.sql`
 
 Some SQLs files require parameter substitution (like all metrics used by Grafana).
 
 They usually have `'{{from}}'` and `'{{to}}'` parameters, to run such files do:
-- `time PG_PASS='password' ./runq metrics/metric.sql '{{from}}' 'YYYY-MM-DD HH:MM:SS' '{{to}}' 'YYYY-MM-DD HH:MM:SS'`
+- `time PG_PASS='password' ./runq metrics/{{project}}/metric.sql '{{from}}' 'YYYY-MM-DD HH:MM:SS' '{{to}}' 'YYYY-MM-DD HH:MM:SS' '{{n}}' 1.0`
 
 You can also change any other value, just note that parameters after SQL file name are pairs: (`value_to_replace`, `replacement`).
 
@@ -345,19 +345,15 @@ You can also change any other value, just note that parameters after SQL file na
 When You have imported all data You need - it needs to be updated periodically.
 GitHub archive generates new file every hour.
 
-Use `gha2db_sync` and/or `sync.sh` tools to update all Your data.
+Use `gha2db_sync` tool to update all Your data.
 
 Example call:
-- `PG_PASS='pwd' IDB_PASS='pwd' ./sync.sh`
+- `GHA2DB_PROJECT=kubernetes PG_PASS='pwd' IDB_PASS='pwd' ./gha2db_sync`
 - Add `GHA2DB_RESETIDB` environment variable to rebuild InfluxDB stats instead of update since the last run
 - Add `GHA2DB_SKIPIDB` environment variable to skip syncing InfluxDB (so it will only sync Postgres DB)
 - Add `GHA2DB_SKIPPDB` environment variable to skip syncing Postgres (so it will only sync Influx DB)
 
-There is a manual script that can be used to loop sync every defined number of seconds, for example for sync every 30 minutes:
-- `PG_PASS='pwd' IDB_PASS='pwd' ./syncer.sh 1800`
-
-
-Sync tool uses [gaps.yaml](https://github.com/cncf/devstats/blob/master/metrics/gaps.yaml), to prefill some series with zeros. This is needed for metrics (like SIG mentions or PRs merged) that return multiple rows, depending on data range.
+Sync tool uses [gaps.yaml](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/gaps.yaml), to prefill some series with zeros. This is needed for metrics (like SIG mentions or PRs merged) that return multiple rows, depending on data range.
 
 # Cron
 
@@ -380,12 +376,13 @@ To load it into our database use:
 # Repository groups
 
 There are some groups of repositories that can be used to create metrics for lists of repositories.
+They are defined in [scripts/kubernetes/repo_groups.sql](https://github.com/cncf/devstats/blob/master/scripts/kubernetes/repo_groups.sql).
 Repository group is defined on `gha_repos` table using `repo_group` value.
 
 To setup default repository groups:
-- `PG_PASS=pwd ./setup_repo_groups.sh`.
+- `PG_PASS=pwd ./kubernetes/setup_repo_groups.sh`.
 
-This is a part of `kubernetes.sh` script and [kubernetes psql dump](https://devstats.k8s.io/web/k8s.sql.xz) already has groups configured.
+This is a part of `kubernetes/kubernetes.sh` script and [kubernetes psql dump](https://devstats.k8s.io/web/k8s.sql.xz) already has groups configured.
 
 # Grafana output
 
@@ -400,11 +397,10 @@ Grafana install instruction are here:
 
 # To drop & recreate InfluxDB:
 - `IDB_PASS='idb_password' ./grafana/influxdb_recreate.sh`
-- `GHA2DB_RESETIDB=1 PG_PASS='pwd' IDB_PASS='pwd' ./sync.sh`
-- Then eventually start syncer: `PG_PASS='pwd' IDB_PASS='pwd' ./syncer.sh 1800`
+- `GHA2DB_PROJECT=kubernetes GHA2DB_RESETIDB=1 PG_PASS='pwd' IDB_PASS='pwd' ./gha2db_sync`
 
 Or automatically: drop & create Influx DB, update Postgres DB since the last run, full populate InfluxDB, start syncer every 30 minutes:
-- `IDB_PASS=pwd PG_PASS=pwd ./reinit_all.sh`
+- `GHA2DB_PROJECT=kubernetes IDB_PASS=pwd PG_PASS=pwd ./reinit_all.sh`
 
 # Alternate solution with Docker:
 
@@ -418,7 +414,7 @@ Note that this is an old solution that worked, but wasn't tested recently.
 # Manually feeding InfluxDB & Grafana:
 
 Feed InfluxDB using:
-- `PG_PASS='psql_pwd' IDB_PASS='influxdb_pwd' ./db2influx sig_metions_data metrics/sig_mentions.sql '2017-08-14' '2017-08-21' d`
+- `PG_PASS='psql_pwd' IDB_PASS='influxdb_pwd' ./db2influx sig_metions_data metrics/kubernetes/sig_mentions.sql '2017-08-14' '2017-08-21' d`
 - The first parameter is used as exact series name when metrics query returns single row with single column value.
 - First parameter is used as function name when metrics query return mutiple rows, each with >= 2 columns. This function receives data row and the period name and should return series name and value(s).
 - The second parameter is a metrics SQL file, it should contain time conditions defined as `'{{from}}'` and `'{{to}}'`.
@@ -427,9 +423,9 @@ Feed InfluxDB using:
 - This tool uses environmental variables starting with `IDB_`, please see `context.go`, `idb_conn.go` and `cmd/db2influx/db2influx.go` for details.
 - `IDB_` variables are exactly the same as `PG_` to set host, database, user name, password.
 - There is also `z2influx` tool. It is used to fill given series with zeros. Typical usage: `./z2influx 'series1,series2' 2017-01-01 2018-01-01 w` - will fill all weeks from 2017 with zeros for series1 and series2.
-- `annotations` tool adds variuos data annotations that can be used in Grafana charts. It uses [annotations.yaml](https://github.com/cncf/devstats/blob/master/metrics/annotations.yaml) file to define them, syntax is self describing. 
+- `annotations` tool adds variuos data annotations that can be used in Grafana charts. It uses [annotations.yaml](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/annotations.yaml) file to define them, syntax is self describing. 
 - `idb_tags` tool used to add InfluxDB tags on some specified series. Those tags are used to populate Grafana template drop-down values and names. This is used to auto-populate Repository groups drop down, so when somebody adds new repository group - it will automatically appear in the drop-down.
-- `idb_tags` uses [idb_tags.yaml](https://github.com/cncf/devstats/blob/master/metrics/idb_tags.yaml) file to configure InfluxDB tags generation.
+- `idb_tags` uses [idb_tags.yaml](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/idb_tags.yaml) file to configure InfluxDB tags generation.
 - `idb_backup` is used to backup/restore InfluxDB. Full renenerate of InfluxDB takes about 12 minutes. To avoid downtime when we need to rebuild InfluxDB - we can generate new InfluxDB on `test` database and then if succeeded, restore it on `gha`. Downtime will be about 2 minutes.
 
 # To check results in the InfluxDB:
