@@ -44,10 +44,10 @@ type Ctx struct {
 	Exact            bool      // From GHA2DB_EXACT gha2db tool, if set then orgs list provided from commandline is used as a list of exact repository full names, like "a/b,c/d,e"
 	LogToDB          bool      // From GHA2DB_SKIPLOG all tools, if set, DB logging into Postgres table `gha_logs` will be disabled
 	Local            bool      // From GHA2DB_LOCAL gha2db_sync tool, if set, gha2_db will call other tools prefixed with "./" to use local compile ones. Otherwise it will call binaries without prefix (so it will use thos ein /usr/bin/).
-	AnnotationsYaml  string    // From GHA2DB_ANNOTATIONS_YAML annotations tool, set other annotations.yaml file, default is "metrics/annotations.yaml"
-	MetricsYaml      string    // From GHA2DB_METRICS_YAML gha2db_sync tool, set other metrics.yaml file, default is "metrics/metrics.yaml"
-	GapsYaml         string    // From GHA2DB_GAPS_YAML gha2db_sync tool, set other gaps.yaml file, default is "metrics/gaps.yaml"
-	TagsYaml         string    // From GHA2DB_TAGS_YAML idb_tags tool, set other idb_tags.yaml file, default is "metrics/idb_tags.yaml"
+	AnnotationsYaml  string    // From GHA2DB_ANNOTATIONS_YAML annotations tool, set other annotations.yaml file, default is "metrics/{{project}}/annotations.yaml"
+	MetricsYaml      string    // From GHA2DB_METRICS_YAML gha2db_sync tool, set other metrics.yaml file, default is "metrics/{{project}}metrics.yaml"
+	GapsYaml         string    // From GHA2DB_GAPS_YAML gha2db_sync tool, set other gaps.yaml file, default is "metrics/{{project}}/gaps.yaml"
+	TagsYaml         string    // From GHA2DB_TAGS_YAML idb_tags tool, set other idb_tags.yaml file, default is "metrics/{{project}}/idb_tags.yaml"
 	ClearDBPeriod    string    // From GHA2DB_MAXLOGAGE gha2db_sync tool, maximum age of gha_logs entries, default "1 week"
 	Trials           []int     // From GHA2DB_TRIALS, all Postgres related tools, retry periods for "too many connections open" error
 	WebHookRoot      string    // From GHA2DB_WHROOT, webhook tool, default "/hook", must match .travis.yml notifications webhooks
@@ -59,6 +59,7 @@ type Ctx struct {
 	DeployTypes      []string  // From GHA2DB_DEPLOY_TYPES, webhook tool, default "push", - comma separated list
 	ProjectRoot      string    // From GHA2DB_PROJECT_ROOT, webhook tool, no default, must be specified to run webhook tool
 	ExecFatal        bool      // default true, set this manually to false to avoid lib.ExecCommand calling os.Exit() on failure and return error instead
+	Project          string    // From GHA2DB_PROJECT, gha2db_sync default "", You should set it to something like "kubernetes", "prometheus" etc.
 }
 
 // Init - get context from environment variables
@@ -198,22 +199,29 @@ func (ctx *Ctx) Init() {
 	// Local mode
 	ctx.Local = os.Getenv("GHA2DB_LOCAL") != ""
 
+	// Project
+	ctx.Project = os.Getenv("GHA2DB_PROJECT")
+	proj := ""
+	if ctx.Project != "" {
+		proj = ctx.Project + "/"
+	}
+
 	// YAML config files
 	ctx.AnnotationsYaml = os.Getenv("GHA2DB_ANNOTATIONS_YAML")
 	ctx.MetricsYaml = os.Getenv("GHA2DB_METRICS_YAML")
 	ctx.GapsYaml = os.Getenv("GHA2DB_GAPS_YAML")
 	ctx.TagsYaml = os.Getenv("GHA2DB_TAGS_YAML")
 	if ctx.AnnotationsYaml == "" {
-		ctx.AnnotationsYaml = "metrics/annotations.yaml"
+		ctx.AnnotationsYaml = "metrics/" + proj + "annotations.yaml"
 	}
 	if ctx.MetricsYaml == "" {
-		ctx.MetricsYaml = "metrics/metrics.yaml"
+		ctx.MetricsYaml = "metrics/" + proj + "metrics.yaml"
 	}
 	if ctx.GapsYaml == "" {
-		ctx.GapsYaml = "metrics/gaps.yaml"
+		ctx.GapsYaml = "metrics/" + proj + "gaps.yaml"
 	}
 	if ctx.TagsYaml == "" {
-		ctx.TagsYaml = "metrics/idb_tags.yaml"
+		ctx.TagsYaml = "metrics/" + proj + "idb_tags.yaml"
 	}
 
 	// Max DB logs age

@@ -58,6 +58,17 @@ type metric struct {
 	MultiValue       bool   `yaml:"multi_value"`
 }
 
+// projects contain list of project mappings to command line
+type projects struct {
+	Projects []project `yaml:"projects"`
+}
+
+// project contain mapping from project name to its command line used to sync it
+type project struct {
+	Name        string `yaml:"name"`
+	CommandLine string `yaml:"command_line"`
+}
+
 // Add _period to all array items
 func addPeriodSuffix(seriesArr []string, period string) (result []string) {
 	for _, series := range seriesArr {
@@ -284,11 +295,7 @@ func clearDBLogs(c *sql.DB, ctx *lib.Ctx) {
 	lib.ExecSQLWithErr(c, ctx, "delete from gha_logs where dt < now() - '"+ctx.ClearDBPeriod+"'::interval")
 }
 
-func sync(args []string) {
-	// Environment context parse
-	var ctx lib.Ctx
-	ctx.Init()
-
+func sync(ctx *lib.Ctx, args []string) {
 	// Strip function to be used by MapString
 	stripFunc := func(x string) string { return strings.TrimSpace(x) }
 
@@ -314,24 +321,24 @@ func sync(args []string) {
 	}
 
 	// Connect to Postgres DB
-	con := lib.PgConn(&ctx)
+	con := lib.PgConn(ctx)
 	defer con.Close()
 
 	// Connect to InfluxDB
-	ic := lib.IDBConn(&ctx)
+	ic := lib.IDBConn(ctx)
 	defer ic.Close()
 
 	// Get max event date from Postgres database
 	var maxDtPtr *time.Time
 	maxDtPg := ctx.DefaultStartDate
-	lib.FatalOnError(lib.QueryRowSQL(con, &ctx, "select max(created_at) from gha_events").Scan(&maxDtPtr))
+	lib.FatalOnError(lib.QueryRowSQL(con, ctx, "select max(created_at) from gha_events").Scan(&maxDtPtr))
 	if maxDtPtr != nil {
 		maxDtPg = *maxDtPtr
 	}
 
 	// Get max series date from Influx database
 	maxDtIDB := ctx.DefaultStartDate
-	res := lib.QueryIDB(ic, &ctx, "select last(value) from "+ctx.LastSeries)
+	res := lib.QueryIDB(ic, ctx, "select last(value) from "+ctx.LastSeries)
 	series := res[0].Series
 	if len(series) > 0 {
 		maxDtIDB = lib.TimeParseIDB(series[0].Values[0][0].(string))
@@ -349,12 +356,12 @@ func sync(args []string) {
 	// Get new GHAs
 	if !ctx.SkipPDB {
 		// Clear old DB logs
-		clearDBLogs(con, &ctx)
+		clearDBLogs(con, ctx)
 
 		// gha2db
 		lib.Printf("GHA range: %s %s - %s %s\n", fromDate, fromHour, toDate, toHour)
 		lib.ExecCommand(
-			&ctx,
+			ctx,
 			[]string{
 				cmdPrefix + "gha2db",
 				fromDate,
@@ -370,7 +377,7 @@ func sync(args []string) {
 		lib.Printf("Update structure\n")
 		// Recompute views and DB summaries
 		lib.ExecCommand(
-			&ctx,
+			ctx,
 			[]string{
 				cmdPrefix + "structure",
 			},
@@ -384,6 +391,9 @@ func sync(args []string) {
 	// DB2Influx
 	if !ctx.SkipIDB {
 		metricsDir := dataPrefix + "metrics"
+		if ctx.Project != "" {
+			metricsDir += "/" + ctx.Project
+		}
 		// Regenerate points from this date
 		if ctx.ResetIDB {
 			from = ctx.DefaultStartDate
@@ -393,7 +403,7 @@ func sync(args []string) {
 		lib.Printf("Influx range: %s - %s\n", lib.ToYMDHDate(from), lib.ToYMDHDate(to))
 
 		// Fill gaps in series
-		fillGapsInSeries(&ctx, from, to)
+		fillGapsInSeries(ctx, from, to)
 
 		// Read metrics configuration
 		data, err := ioutil.ReadFile(dataPrefix + ctx.MetricsYaml)
@@ -451,7 +461,7 @@ func sync(args []string) {
 						seriesNameOrFunc += "_" + periodAggr
 					}
 					lib.ExecCommand(
-						&ctx,
+						ctx,
 						[]string{
 							cmdPrefix + "db2influx",
 							seriesNameOrFunc,
@@ -469,14 +479,14 @@ func sync(args []string) {
 
 		// InfluxDB tags (repo groups template variable currently)
 		if ctx.ResetIDB || time.Now().Hour() == 0 {
-			lib.ExecCommand(&ctx, []string{cmdPrefix + "idb_tags"}, nil)
+			lib.ExecCommand(ctx, []string{cmdPrefix + "idb_tags"}, nil)
 		} else {
 			lib.Printf("Skipping `idb_tags` recalculation, it is only computed once per day\n")
 		}
 
 		// Annotations
 		lib.ExecCommand(
-			&ctx,
+			ctx,
 			[]string{
 				cmdPrefix + "annotations",
 				lib.ToYMDHDate(from),
@@ -487,9 +497,55 @@ func sync(args []string) {
 	lib.Printf("Sync success\n")
 }
 
+// Return per project args (if no args given) or get args from command line (if given)
+// When no args given and no project set (via GHA2DB_PROJECT) it panics
+func getSyncArgs(ctx *lib.Ctx, osArgs []string) []string {
+	// User commandline override
+	if len(osArgs) > 1 {
+		return osArgs[1:]
+	}
+
+	// No user commandline, get args specific to project GHA2DB_PROJECT
+	if ctx.Project == "" {
+		lib.FatalOnError(fmt.Errorf(
+			"you have to set project via GHA2DB_PROJECT environment variable if you provide no commandline arguments",
+		),
+		)
+	}
+	// Local or cron mode?
+	dataPrefix := lib.DataDir
+	if ctx.Local {
+		dataPrefix = "./"
+	}
+
+	// Read defined projects
+	data, err := ioutil.ReadFile(dataPrefix + "projects.yaml")
+	if err != nil {
+		lib.FatalOnError(err)
+		return []string{}
+	}
+	var projs projects
+	lib.FatalOnError(yaml.Unmarshal(data, &projs))
+	for _, proj := range projs.Projects {
+		if proj.Name == ctx.Project {
+			return []string{proj.CommandLine}
+		}
+	}
+	// No user commandline and project not found
+	lib.FatalOnError(fmt.Errorf(
+		"project %s is not defined in projects.yaml",
+		ctx.Project,
+	),
+	)
+	return []string{}
+}
+
 func main() {
 	dtStart := time.Now()
-	sync(os.Args[1:])
+	// Environment context parse
+	var ctx lib.Ctx
+	ctx.Init()
+	sync(&ctx, getSyncArgs(&ctx, os.Args))
 	dtEnd := time.Now()
 	lib.Printf("Time: %v\n", dtEnd.Sub(dtStart))
 }

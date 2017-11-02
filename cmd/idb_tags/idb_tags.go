@@ -60,13 +60,19 @@ func idbTags() {
 	// String value to read tags into
 	strVal := ""
 
+	// Per project directory for SQL files
+	dir := "metrics/"
+	if ctx.Project != "" {
+		dir += ctx.Project + "/"
+	}
+
 	// Iterate tags
 	for _, tag := range allTags.Tags {
 		if ctx.Debug > 0 {
 			lib.Printf("Tag '%s' --> '%s'\n", tag.Name, tag.SeriesName)
 		}
 		// Read SQL file
-		bytes, err := ioutil.ReadFile(dataPrefix + "metrics/" + tag.SQLFile + ".sql")
+		bytes, err := ioutil.ReadFile(dataPrefix + dir + tag.SQLFile + ".sql")
 		lib.FatalOnError(err)
 		sqlQuery := string(bytes)
 
