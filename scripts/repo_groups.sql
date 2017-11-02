@@ -44,7 +44,11 @@ update gha_repos set repo_group = 'Apps' where name in (
   'kubernetes/application-images',
   'kubernetes/examples',
   'kubernetes-incubator/kompose',
-  'kubernetes-incubator/service-catalog'
+  'kubernetes-incubator/service-catalog',
+  'kubernetes-helm/chartmuseum',
+  'kubernetes-helm/monocular',
+  'kubernetes-helm/rudder-federation',
+  'kubernetes-helm/community'
 );
 
 update gha_repos set repo_group = 'Autoscaling and monitoring' where name in (
