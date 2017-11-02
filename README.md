@@ -40,12 +40,12 @@ Many of them cannot be computed based on the data sources currently used.
 # Repository groups
 
 There are some groups of repositories that are grouped together as a repository groups.
-There are defined in [repo_groups.sql](https://github.com/cncf/devstats/blob/master/scripts/repo_groups.sql).
+They are defined in [scripts/kubernetes/repo_groups.sql](https://github.com/cncf/devstats/blob/master/scripts/kubernetes/repo_groups.sql).
 
 To setup default repository groups:
-- `PG_PASS=pwd ./setup_repo_groups.sh`.
+- `PG_PASS=pwd ./kubernetes/setup_repo_groups.sh`.
 
-This is a part of `kubernetes.sh` script and [kubernetes psql dump](https://devstats.k8s.io/web/k8s.sql.xz) already has groups configured.
+This is a part of `kubernetes/kubernetes.sh` script and [kubernetes psql dump](https://devstats.k8s.io/web/k8s.sql.xz) already has groups configured.
 
 # Company Affiliations
 
@@ -125,7 +125,7 @@ We're getting all possible GitHub data for all objects, and all objects historic
 - It will add data to Postgres database (since the last run)
 - It will update summary tables and/or (materialized) views on Postgres DB.
 - Then it will call `db2influx` for all defined SQL metrics and update Influx database as well.
-- It reads a list of metrics from YAML file: `metrics/metrics.yaml`, some metrics require to fill gaps in their data. Those metrics are defined in another YAML file `metrics/gaps.yaml`.
+- It reads a list of metrics from YAML file: `metrics/{{project}}/metrics.yaml`, some metrics require to fill gaps in their data. Those metrics are defined in another YAML file `metrics/{{project}}/gaps.yaml`.
 - This tool also supports initial computing of All InfluxDB data (instead of default update since the last run).
 - It is called by cron job on 1:10, 2:10, ... and so on - GitHub archive publishes new file every hour, so we're off by at most 1 hour.
 
@@ -136,12 +136,12 @@ We're getting all possible GitHub data for all objects, and all objects historic
 - `import_affs` takes one parameter - JSON file name (this is a file from [cncf/gitdm](https://github.com/cncf/gitdm): [github_users.json](https://raw.githubusercontent.com/cncf/gitdm/master/github_users.json)
 - This tools imports GitHub usernames (in addition to logins from GHA) and creates developers - companies affiliations (that can be used by [Companies stats](https://devstats.k8s.io/dashboard/db/companies-stats?orgId=1) metric)
 - [z2influx](https://github.com/cncf/devstats/blob/master/cmd/z2influx/z2influx.go)
-- `z2influx` is used to fill gaps that can occur for metrics that returns multiple columns and rows, but the number of rows depends on date range, it uses [gaps.yaml](https://github.com/cncf/devstats/blob/master/metrics/gaps.yaml) file to define which metrics should be zero filled.
+- `z2influx` is used to fill gaps that can occur for metrics that returns multiple columns and rows, but the number of rows depends on date range, it uses [gaps.yaml](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/gaps.yaml) file to define which metrics should be zero filled.
 - [annotations](https://github.com/cncf/devstats/blob/master/cmd/annotations/annotations.go)
-- `annotations` is used to add annotations on charts, it uses [annotations.yaml](https://github.com/cncf/devstats/blob/master/metrics/annotations.yaml) file to define them, syntax is self describing.
+- `annotations` is used to add annotations on charts, it uses [annotations.yaml](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/annotations.yaml) file to define them, syntax is self describing.
 - [idb_tags](https://github.com/cncf/devstats/blob/master/cmd/idb_tags/idb_tags.go)
 - `idb_tags` is used to add InfluxDB tags on some specified series. Those tags are used to populate Grafana template drop-down values and names. This is used to auto-populate Repository groups drop down, so when somebody adds new repository group - it will automatically appear in the drop-down.
-- `idb_tags` uses [idb_tags.yaml](https://github.com/cncf/devstats/blob/master/metrics/idb_tags.yaml) file to configure InfluxDB tags generation.
+- `idb_tags` uses [idb_tags.yaml](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/idb_tags.yaml) file to configure InfluxDB tags generation.
 - [idb_backup](https://github.com/cncf/devstats/blob/master/cmd/idb_backup/idb_backup.go)
 - `idb_backup` is used to backup/restore InfluxDB. Full renenerate of InfluxDB takes about 12 minutes. To avoid downtime when we need to rebuild InfluDB - we can generate new InfluxDB on `test` database and then if succeeded, restore it on `gha`. Downtime will be about 2 minutes.
 - [webhook](https://github.com/cncf/devstats/blob/master/cmd/webhook/webhook.go)

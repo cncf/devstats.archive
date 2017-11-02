@@ -66,14 +66,14 @@ Prerequisites:
 14. We have both databases running and Go tools installed, let's try to sync database dump from devstats.k8s.io manually:
     - We need to prefix call with GHA2DB_LOCAL to enable using tools from "./" directory
     - To import data for the first time (Influx database is empty and postgres database is at the state when Kubernetes SQL dump was made on [devstats.k8s.io](https://devstats.k8s.io)):
-    - `GHA2DB_LOCAL=1 IDB_PASS=pwd PG_PASS=pwd ./reinit_all.sh`
+    - `GHA2DB_PROJECT=kubernetes GHA2DB_LOCAL=1 IDB_PASS=pwd PG_PASS=pwd ./reinit_all.sh`
     - This can take a while (depending how old is psql dump `k8s.sql.xz` on [devstats.k8s](https://devstats.k8s.io). It is generated daily at 3:00 AM UTC.
     - Command should be successfull.
 
 15. We need to setup cron job that will call sync every hour (10 minutes after 1:00, 2:00, ...)
     - You need to open `crontab.entry` file, it looks like this:
     ```
-    10 * * * * PATH=$PATH:/path/to/your/GOPATH/bin GHA2DB_CMDDEBUG=1 IDB_PASS='...' PG_PASS='...' cron_gha2db_sync.sh 2>> /tmp/gha2db_sync.err 1>> /tmp/gha2db_sync.log
+    10 * * * * PATH=$PATH:/path/to/your/GOPATH/bin GHA2DB_PROJECT=kubernetes GHA2DB_CMDDEBUG=1 IDB_PASS='...' PG_PASS='...' gha2db_sync 2>> /tmp/gha2db_sync.err 1>> /tmp/gha2db_sync.log
     20 3 * * * PATH=$PATH:/path/to/your/GOPATH/bin cron_db_backup.sh gha 2>> /tmp/gha2db_backup.err 1>> /tmp/gha2db_backup.log
     */5 * * * * PATH=$PATH:/path/to/your/GOPATH/bin GOPATH=/your/gopath GHA2DB_CMDDEBUG=1 GHA2DB_PROJECT_ROOT=/path/to/repo PG_PASS="..." webhook 2>> /tmp/gha2db_webhook.err 1>> /tmp/gha2db_webhook.log
     ```

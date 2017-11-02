@@ -61,6 +61,7 @@ func copyContext(in *lib.Ctx) *lib.Ctx {
 		DeployResults:    in.DeployResults,
 		DeployTypes:      in.DeployTypes,
 		ProjectRoot:      in.ProjectRoot,
+		Project:          in.Project,
 		ExecFatal:        in.ExecFatal,
 	}
 	return &out
@@ -195,6 +196,7 @@ func TestInit(t *testing.T) {
 		DeployResults:    []int{0},
 		DeployTypes:      []string{"push"},
 		ProjectRoot:      "",
+		Project:          "",
 		ExecFatal:        true,
 	}
 
@@ -518,6 +520,39 @@ func TestInit(t *testing.T) {
 					"DeployResults":  []int{-1, 0, 1},
 					"DeployTypes":    []string{"push", "pull_request"},
 					"ProjectRoot":    "/home/lukaszgryglicki/dev/go/src/gha2db",
+				},
+			),
+		},
+		{
+			"Setting project",
+			map[string]string{"GHA2DB_PROJECT": "prometheus"},
+			dynamicSetFields(
+				t,
+				copyContext(&defaultContext),
+				map[string]interface{}{
+					"Project":         "prometheus",
+					"AnnotationsYaml": "metrics/prometheus/annotations.yaml",
+					"MetricsYaml":     "metrics/prometheus/metrics.yaml",
+					"GapsYaml":        "metrics/prometheus/gaps.yaml",
+					"TagsYaml":        "metrics/prometheus/idb_tags.yaml",
+				},
+			),
+		},
+		{
+			"Setting project and non standard yaml",
+			map[string]string{
+				"GHA2DB_PROJECT":   "prometheus",
+				"GHA2DB_GAPS_YAML": "/gapz.yml",
+			},
+			dynamicSetFields(
+				t,
+				copyContext(&defaultContext),
+				map[string]interface{}{
+					"Project":         "prometheus",
+					"AnnotationsYaml": "metrics/prometheus/annotations.yaml",
+					"MetricsYaml":     "metrics/prometheus/metrics.yaml",
+					"GapsYaml":        "/gapz.yml",
+					"TagsYaml":        "metrics/prometheus/idb_tags.yaml",
 				},
 			),
 		},

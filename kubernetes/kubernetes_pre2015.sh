@@ -1,4 +1,5 @@
 #!/bin/bash
+# Run this script from the repository top level: ./kubernetes/kubernetes_pre2015.sh
 set -o pipefail
 > errors.txt
 > run.log
