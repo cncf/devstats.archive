@@ -811,7 +811,7 @@ func executeMetricTestCase(testMetric *MetricTestCase, ctx *lib.Ctx) (result [][
 // end result slice of slices of any type
 func executeMetric(c *sql.DB, ctx *lib.Ctx, metric string, from, to time.Time, period string, n int, replaces [][2]string) (result [][]interface{}, err error) {
 	// Metric file name
-	sqlFile := fmt.Sprintf("metrics/%s.sql", metric)
+	sqlFile := fmt.Sprintf("metrics/%s/%s.sql", ctx.Project, metric)
 
 	// Read and transform SQL file.
 	bytes, err := ioutil.ReadFile(sqlFile)
