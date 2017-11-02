@@ -307,7 +307,7 @@ Both those tools require Ruby. This tool was originally in Ruby, and there is no
 
 # Running on Kubernetes
 
-Kubernetes consists of 3 different orgs (from 2015-08-06 22:00), so to gather data for Kubernetes You need to provide them comma separated.
+Kubernetes consists of 4 different orgs (from 2014-06-01), so to gather data for Kubernetes You need to provide them comma separated.
 
 Before 2015-08-06 Kubernetes is in `GoogleCloudPlatform/kubernetes` or just few kubernetes repos without org. To process them You need to use special list mode `GHA2DB_EXACT`.
 
