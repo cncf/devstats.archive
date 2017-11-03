@@ -445,7 +445,9 @@ Feed InfluxDB using:
 
 # Grafana dashboards
 Grafana allows saving dashboards to JSON files.
-There are few defined dashboards in [grafana/dashboards/](https://github.com/cncf/devstats/blob/master/grafana/dashboards/) directory.
+There are few defined dashboards kubernetes and prometheus directories:
+- [grafana/dashboards/kubernetes/](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/).
+- [grafana/dashboards/prometheus/](https://github.com/cncf/devstats/blob/master/grafana/dashboards/prometheus/).
 
 Metrics are described in [README](https://github.com/cncf/devstats/blob/master/README.md) in `Grafana dashboards` and `Adding new metrics` sections.
 

@@ -5,10 +5,10 @@
 - Choose add data source, then Add Influx DB with those settings:
 - Name "yourname" and type "InfluxDB", url default "http://localhost:8086", access: "proxy", database "gha", user "gha_admin", password "your_influx_pwd", min time interval "1h"
 - Test & save datasource, then proceed to dashboards.
-- Click Home, Import dashboard, Upload JSON file, choose dashboards saved as JSONs in `grafana/dashboards/dashboard_name.json`, data source "InfluxDB" and save.
-- All dashboards are [here](https://github.com/cncf/devstats/blob/master/grafana/dashboards/).
+- Click Home, Import dashboard, Upload JSON file, choose dashboards saved as JSONs in `grafana/dashboards/{{project}}dashboard_name.json`, data source "InfluxDB" and save.
+- All dashboards are here: [kubernetes](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/), [prometheus](https://github.com/cncf/devstats/blob/master/grafana/dashboards/prometheus/)
 - Do the same for all defined dashboards.
-- Import main home [dahsboard](https://github.com/cncf/devstats/blob/master/grafana/dashboards/dashboards.json).
+- Import main home for example [kubernetes dahsboard](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/dashboards.json).
 - Choose Admin -> Preferences, name Your organization (for example set it to `XYZ`)
 - Set You home dashboard to just imported "Dashboards".
 - You can also **try** to use current [grafana.db](https://devstats.k8s.io/web/grafana.db) to import everything at once, but be careful, because this is file is version specific.
