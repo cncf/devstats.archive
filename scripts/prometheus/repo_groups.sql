@@ -15,3 +15,5 @@ order by
   number_of_repos desc,
   repo_group asc;
 
+update gha_repos set alias = name;
+-- update gha_repos set alias = 'prometheus' where name like '%prometheus';
