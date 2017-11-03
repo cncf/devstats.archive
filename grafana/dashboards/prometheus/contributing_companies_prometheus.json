@@ -37,9 +37,7 @@
         "enable": true,
         "hide": true,
         "iconColor": "rgba(0, 211, 255, 1)",
-        "limit": 100,
         "name": "Annotations & Alerts",
-        "showIn": 0,
         "type": "dashboard"
       },
       {
@@ -64,19 +62,20 @@
   "hideControls": false,
   "id": null,
   "links": [],
+  "refresh": false,
   "rows": [
     {
       "collapse": false,
-      "height": 847,
+      "height": 842,
       "panels": [
         {
           "aliasColors": {},
-          "bars": true,
+          "bars": false,
           "dashLength": 10,
           "dashes": false,
           "datasource": "${DS_PROMETHEUS}",
           "decimals": 0,
-          "description": "Measures company [[metric]]. Self means developers working on their own.",
+          "description": "",
           "fill": 1,
           "id": 1,
           "legend": {
@@ -87,37 +86,65 @@
             "hideZero": false,
             "max": true,
             "min": true,
-            "rightSide": true,
+            "rightSide": false,
             "show": true,
-            "sort": "avg",
-            "sortDesc": true,
             "total": false,
             "values": true
           },
-          "lines": false,
+          "lines": true,
           "linewidth": 1,
           "links": [],
           "nullPointMode": "null",
           "percentage": false,
-          "pointradius": 5,
+          "pointradius": 1,
           "points": false,
           "renderer": "flot",
-          "seriesOverrides": [],
+          "seriesOverrides": [
+            {
+              "alias": "Number of contributing developers",
+              "yaxis": 2
+            }
+          ],
           "spaceLength": 10,
           "span": 12,
-          "stack": true,
+          "stack": false,
           "steppedLine": false,
           "targets": [
             {
-              "alias": "$col",
+              "alias": "Number of contributing companies",
               "dsType": "influxdb",
               "groupBy": [],
-              "measurement": "sig_federation_d",
+              "hide": false,
+              "measurement": "reviewers_d",
               "orderByTime": "ASC",
-              "policy": "default",
-              "query": "SELECT /^[[companies]]$/ FROM \"company_[[repogroup]]_[[metric]]_[[period]]\" WHERE $timeFilter",
+              "policy": "autogen",
+              "query": "SELECT \"value\" FROM \"autogen\".\"num_stats_[[repogroup]]_companies_[[period]]\" WHERE $timeFilter",
               "rawQuery": true,
               "refId": "A",
+              "resultFormat": "time_series",
+              "select": [
+                [
+                  {
+                    "params": [
+                      "value"
+                    ],
+                    "type": "field"
+                  }
+                ]
+              ],
+              "tags": []
+            },
+            {
+              "alias": "Number of contributing developers",
+              "dsType": "influxdb",
+              "groupBy": [],
+              "hide": false,
+              "measurement": "reviewers_d",
+              "orderByTime": "ASC",
+              "policy": "autogen",
+              "query": "SELECT \"value\" FROM \"autogen\".\"num_stats_[[repogroup]]_developers_[[period]]\" WHERE $timeFilter",
+              "rawQuery": true,
+              "refId": "B",
               "resultFormat": "time_series",
               "select": [
                 [
@@ -135,10 +162,10 @@
           "thresholds": [],
           "timeFrom": null,
           "timeShift": null,
-          "title": "Companies [[metric]] metric ([[repogroup_name]], [[period]])",
+          "title": "Contributing companies and developers ([[repogroup_name]], [[period]])",
           "tooltip": {
             "shared": true,
-            "sort": 2,
+            "sort": 0,
             "value_type": "individual"
           },
           "transparent": true,
@@ -148,20 +175,22 @@
             "mode": "time",
             "name": null,
             "show": true,
-            "values": []
+            "values": [
+              "total"
+            ]
           },
           "yaxes": [
             {
-              "format": "short",
-              "label": null,
+              "format": "none",
+              "label": "Companies",
               "logBase": 1,
               "max": null,
               "min": "0",
               "show": true
             },
             {
-              "format": "short",
-              "label": null,
+              "format": "none",
+              "label": "Developers",
               "logBase": 1,
               "max": null,
               "min": "0",
@@ -190,8 +219,8 @@
         "allValue": null,
         "current": {
           "tags": [],
-          "text": "7 Days MA",
-          "value": "d7"
+          "text": "14 Days MA",
+          "value": "d14"
         },
         "hide": 0,
         "includeAll": false,
@@ -201,83 +230,41 @@
         "options": [
           {
             "selected": false,
-            "text": "Day",
-            "value": "d"
-          },
-          {
-            "selected": true,
             "text": "7 Days MA",
             "value": "d7"
           },
           {
-            "selected": false,
-            "text": "Week",
-            "value": "w"
-          },
-          {
-            "selected": false,
-            "text": "Month",
-            "value": "m"
-          },
-          {
-            "selected": false,
-            "text": "Quarter",
-            "value": "q"
-          },
-          {
-            "selected": false,
-            "text": "Year",
-            "value": "y"
-          }
-        ],
-        "query": "d,w,m,q,y",
-        "type": "custom"
-      },
-      {
-        "allValue": null,
-        "current": {
-          "tags": [],
-          "text": "All activity",
-          "value": "activity"
-        },
-        "hide": 0,
-        "includeAll": false,
-        "label": "Metric",
-        "multi": false,
-        "name": "metric",
-        "options": [
-          {
             "selected": true,
-            "text": "All activity",
-            "value": "activity"
+            "text": "14 Days MA",
+            "value": "d14"
           },
           {
             "selected": false,
-            "text": "Active authors",
-            "value": "authors"
+            "text": "4 Weeks MA",
+            "value": "w4"
           },
           {
             "selected": false,
-            "text": "Issues created",
-            "value": "issues"
+            "text": "3 Months MA",
+            "value": "m3"
           },
           {
             "selected": false,
-            "text": "Pull requests created",
-            "value": "prs"
+            "text": "4 Months MA",
+            "value": "m4"
           },
           {
             "selected": false,
-            "text": "Commits made",
-            "value": "commits"
+            "text": "6 Months MA",
+            "value": "m6"
           },
           {
             "selected": false,
-            "text": "Added comments",
-            "value": "comments"
+            "text": "4 Quarters MA",
+            "value": "q4"
           }
         ],
-        "query": "activity,authors,issues,prs,commits,comments",
+        "query": "d7,d14,w4,m3,m4,m6,q4",
         "type": "custom"
       },
       {
@@ -319,26 +306,6 @@
         "tagsQuery": "",
         "type": "query",
         "useTags": false
-      },
-      {
-        "allValue": "",
-        "current": {},
-        "datasource": "${DS_PROMETHEUS}",
-        "hide": 0,
-        "includeAll": true,
-        "label": "Companies",
-        "multi": true,
-        "name": "companies",
-        "options": [],
-        "query": "SHOW TAG VALUES WITH KEY = companies_name",
-        "refresh": 1,
-        "regex": "",
-        "sort": 0,
-        "tagValuesQuery": "",
-        "tags": [],
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false
       }
     ]
   },
@@ -372,6 +339,6 @@
     ]
   },
   "timezone": "",
-  "title": "Companies stats Prometheus",
-  "version": 7
+  "title": "Contributing Companies Prometheus",
+  "version": 3
 }
