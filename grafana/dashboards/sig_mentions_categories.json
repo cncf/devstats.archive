@@ -1,8 +1,8 @@
 {
   "__inputs": [
     {
-      "name": "DS_INFLUXGHA",
-      "label": "influxgha",
+      "name": "DS_GHA",
+      "label": "gha",
       "description": "",
       "type": "datasource",
       "pluginId": "influxdb",
@@ -14,7 +14,7 @@
       "type": "grafana",
       "id": "grafana",
       "name": "Grafana",
-      "version": "4.4.3"
+      "version": "4.7.0-pre1"
     },
     {
       "type": "panel",
@@ -32,7 +32,18 @@
   "annotations": {
     "list": [
       {
-        "datasource": "${DS_INFLUXGHA}",
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "limit": 100,
+        "name": "Annotations & Alerts",
+        "showIn": 0,
+        "type": "dashboard"
+      },
+      {
+        "datasource": "${DS_GHA}",
         "enable": true,
         "hide": false,
         "iconColor": "rgba(255, 96, 96, 1)",
@@ -53,22 +64,21 @@
   "hideControls": false,
   "id": null,
   "links": [],
-  "refresh": false,
   "rows": [
     {
       "collapse": false,
-      "height": 849,
+      "height": 272,
       "panels": [
         {
           "aliasColors": {},
           "bars": true,
           "dashLength": 10,
           "dashes": false,
-          "datasource": "${DS_INFLUXGHA}",
-          "decimals": 0,
-          "description": "Number of PRs merged in given repository group",
-          "fill": 3,
-          "id": 2,
+          "datasource": "${DS_GHA}",
+          "decimals": 2,
+          "description": "All SIGs mentions breakdown by category.",
+          "fill": 1,
+          "id": 8,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -83,7 +93,7 @@
             "values": true
           },
           "lines": false,
-          "linewidth": 0,
+          "linewidth": 1,
           "links": [],
           "nullPointMode": "null",
           "percentage": false,
@@ -94,16 +104,16 @@
           "spaceLength": 10,
           "span": 12,
           "stack": true,
-          "steppedLine": true,
+          "steppedLine": false,
           "targets": [
             {
               "alias": "$col",
               "dsType": "influxdb",
               "groupBy": [],
-              "measurement": "prs_kubernetes_kubernetes_d",
+              "measurement": "bd_sig_federation_pr_review_w",
               "orderByTime": "ASC",
               "policy": "default",
-              "query": "SELECT /^[[repogroups]]$/ FROM \"group_prs_merged_[[period]]\" WHERE $timeFilter",
+              "query": "SELECT /^[[sigcats]]$/ FROM \"sig_mentions_texts_cat_[[period]]\" WHERE $timeFilter",
               "rawQuery": true,
               "refId": "A",
               "resultFormat": "time_series",
@@ -123,7 +133,7 @@
           "thresholds": [],
           "timeFrom": null,
           "timeShift": null,
-          "title": "PRs merged per repository groups ([[repogroups]], [[period]])",
+          "title": "All SIGs mentions (using text, [[period]])",
           "tooltip": {
             "shared": true,
             "sort": 2,
@@ -135,12 +145,125 @@
             "mode": "time",
             "name": null,
             "show": true,
-            "values": []
+            "values": [
+              "total"
+            ]
           },
           "yaxes": [
             {
               "format": "short",
-              "label": "Pull requests merged",
+              "label": "Mentions count",
+              "logBase": 1,
+              "max": null,
+              "min": "0",
+              "show": true
+            },
+            {
+              "format": "short",
+              "label": "",
+              "logBase": 1,
+              "max": null,
+              "min": "0",
+              "show": true
+            }
+          ]
+        }
+      ],
+      "repeat": null,
+      "repeatIteration": null,
+      "repeatRowId": null,
+      "showTitle": false,
+      "title": "Dashboard Row",
+      "titleSize": "h6"
+    },
+    {
+      "collapse": false,
+      "height": 566,
+      "panels": [
+        {
+          "aliasColors": {},
+          "bars": true,
+          "dashLength": 10,
+          "dashes": false,
+          "datasource": "${DS_GHA}",
+          "decimals": 2,
+          "description": "SIG [[sig]] mentions breakdown by category.",
+          "fill": 1,
+          "id": 9,
+          "legend": {
+            "alignAsTable": true,
+            "avg": true,
+            "current": true,
+            "max": true,
+            "min": true,
+            "rightSide": true,
+            "show": true,
+            "sort": "avg",
+            "sortDesc": true,
+            "total": true,
+            "values": true
+          },
+          "lines": false,
+          "linewidth": 1,
+          "links": [],
+          "nullPointMode": "null",
+          "percentage": false,
+          "pointradius": 5,
+          "points": false,
+          "renderer": "flot",
+          "seriesOverrides": [],
+          "spaceLength": 10,
+          "span": 12,
+          "stack": true,
+          "steppedLine": false,
+          "targets": [
+            {
+              "alias": "[[col]]",
+              "dsType": "influxdb",
+              "groupBy": [],
+              "measurement": "bd_sig_federation_pr_review_w",
+              "orderByTime": "ASC",
+              "policy": "default",
+              "query": "SELECT /^[[sig]]-[[sigcats]]$/ FROM \"sig_mentions_texts_bd_[[period]]\" WHERE $timeFilter",
+              "rawQuery": true,
+              "refId": "A",
+              "resultFormat": "time_series",
+              "select": [
+                [
+                  {
+                    "params": [
+                      "value"
+                    ],
+                    "type": "field"
+                  }
+                ]
+              ],
+              "tags": []
+            }
+          ],
+          "thresholds": [],
+          "timeFrom": null,
+          "timeShift": null,
+          "title": "SIG [[sig]] mentions (using text, [[period]])",
+          "tooltip": {
+            "shared": true,
+            "sort": 2,
+            "value_type": "individual"
+          },
+          "type": "graph",
+          "xaxis": {
+            "buckets": null,
+            "mode": "time",
+            "name": null,
+            "show": true,
+            "values": [
+              "total"
+            ]
+          },
+          "yaxes": [
+            {
+              "format": "short",
+              "label": "Mentions count",
               "logBase": 1,
               "max": null,
               "min": "0",
@@ -168,7 +291,8 @@
   "schemaVersion": 14,
   "style": "dark",
   "tags": [
-    "dashboard"
+    "dashboard",
+    "kubernetes"
   ],
   "templating": {
     "list": [
@@ -222,14 +346,34 @@
       {
         "allValue": "",
         "current": {},
-        "datasource": "${DS_INFLUXGHA}",
+        "datasource": "${DS_GHA}",
+        "hide": 0,
+        "includeAll": false,
+        "label": "SIG",
+        "multi": false,
+        "name": "sig",
+        "options": [],
+        "query": "SHOW TAG VALUES WITH KEY = sig_mentions_texts_name",
+        "refresh": 1,
+        "regex": "",
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": "",
+        "current": {},
+        "datasource": "${DS_GHA}",
         "hide": 0,
         "includeAll": true,
-        "label": "Repository group",
+        "label": "Category",
         "multi": true,
-        "name": "repogroups",
+        "name": "sigcats",
         "options": [],
-        "query": "SHOW TAG VALUES WITH KEY = repo_group_name",
+        "query": "SHOW TAG VALUES WITH KEY = sig_mentions_texts_cat_name",
         "refresh": 1,
         "regex": "",
         "sort": 0,
@@ -242,7 +386,7 @@
     ]
   },
   "time": {
-    "from": "now-40M",
+    "from": "now-1y",
     "to": "now"
   },
   "timepicker": {
@@ -271,6 +415,6 @@
     ]
   },
   "timezone": "",
-  "title": "PRs merged repository groups",
-  "version": 15
+  "title": "SIG mentions categories",
+  "version": 3
 }
