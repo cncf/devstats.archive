@@ -37,9 +37,7 @@
         "enable": true,
         "hide": true,
         "iconColor": "rgba(0, 211, 255, 1)",
-        "limit": 100,
         "name": "Annotations & Alerts",
-        "showIn": 0,
         "type": "dashboard"
       },
       {
@@ -64,10 +62,11 @@
   "hideControls": false,
   "id": null,
   "links": [],
+  "refresh": false,
   "rows": [
     {
       "collapse": false,
-      "height": 272,
+      "height": 849,
       "panels": [
         {
           "aliasColors": {},
@@ -75,10 +74,10 @@
           "dashLength": 10,
           "dashes": false,
           "datasource": "${DS_GHA}",
-          "decimals": 2,
-          "description": "All SIGs mentions breakdown by category.",
-          "fill": 1,
-          "id": 8,
+          "decimals": 0,
+          "description": "Number of PRs merged in given repository group",
+          "fill": 3,
+          "id": 2,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -93,7 +92,7 @@
             "values": true
           },
           "lines": false,
-          "linewidth": 1,
+          "linewidth": 0,
           "links": [],
           "nullPointMode": "null",
           "percentage": false,
@@ -104,16 +103,16 @@
           "spaceLength": 10,
           "span": 12,
           "stack": true,
-          "steppedLine": false,
+          "steppedLine": true,
           "targets": [
             {
               "alias": "$col",
               "dsType": "influxdb",
               "groupBy": [],
-              "measurement": "bd_sig_federation_pr_review_w",
+              "measurement": "prs_kubernetes_kubernetes_d",
               "orderByTime": "ASC",
               "policy": "default",
-              "query": "SELECT /^[[sigcats]]$/ FROM \"sig_mentions_texts_cat_[[period]]\" WHERE $timeFilter",
+              "query": "SELECT /^[[repogroups]]$/ FROM \"group_prs_merged_[[period]]\" WHERE $timeFilter",
               "rawQuery": true,
               "refId": "A",
               "resultFormat": "time_series",
@@ -133,7 +132,7 @@
           "thresholds": [],
           "timeFrom": null,
           "timeShift": null,
-          "title": "All SIGs mentions (using text, [[period]])",
+          "title": "PRs merged per repository groups ([[repogroups]], [[period]])",
           "tooltip": {
             "shared": true,
             "sort": 2,
@@ -145,125 +144,12 @@
             "mode": "time",
             "name": null,
             "show": true,
-            "values": [
-              "total"
-            ]
+            "values": []
           },
           "yaxes": [
             {
               "format": "short",
-              "label": "Mentions count",
-              "logBase": 1,
-              "max": null,
-              "min": "0",
-              "show": true
-            },
-            {
-              "format": "short",
-              "label": "",
-              "logBase": 1,
-              "max": null,
-              "min": "0",
-              "show": true
-            }
-          ]
-        }
-      ],
-      "repeat": null,
-      "repeatIteration": null,
-      "repeatRowId": null,
-      "showTitle": false,
-      "title": "Dashboard Row",
-      "titleSize": "h6"
-    },
-    {
-      "collapse": false,
-      "height": 566,
-      "panels": [
-        {
-          "aliasColors": {},
-          "bars": true,
-          "dashLength": 10,
-          "dashes": false,
-          "datasource": "${DS_GHA}",
-          "decimals": 2,
-          "description": "SIG [[sig]] mentions breakdown by category.",
-          "fill": 1,
-          "id": 9,
-          "legend": {
-            "alignAsTable": true,
-            "avg": true,
-            "current": true,
-            "max": true,
-            "min": true,
-            "rightSide": true,
-            "show": true,
-            "sort": "avg",
-            "sortDesc": true,
-            "total": true,
-            "values": true
-          },
-          "lines": false,
-          "linewidth": 1,
-          "links": [],
-          "nullPointMode": "null",
-          "percentage": false,
-          "pointradius": 5,
-          "points": false,
-          "renderer": "flot",
-          "seriesOverrides": [],
-          "spaceLength": 10,
-          "span": 12,
-          "stack": true,
-          "steppedLine": false,
-          "targets": [
-            {
-              "alias": "[[col]]",
-              "dsType": "influxdb",
-              "groupBy": [],
-              "measurement": "bd_sig_federation_pr_review_w",
-              "orderByTime": "ASC",
-              "policy": "default",
-              "query": "SELECT /^[[sig]]-[[sigcats]]$/ FROM \"sig_mentions_texts_bd_[[period]]\" WHERE $timeFilter",
-              "rawQuery": true,
-              "refId": "A",
-              "resultFormat": "time_series",
-              "select": [
-                [
-                  {
-                    "params": [
-                      "value"
-                    ],
-                    "type": "field"
-                  }
-                ]
-              ],
-              "tags": []
-            }
-          ],
-          "thresholds": [],
-          "timeFrom": null,
-          "timeShift": null,
-          "title": "SIG [[sig]] mentions (using text, [[period]])",
-          "tooltip": {
-            "shared": true,
-            "sort": 2,
-            "value_type": "individual"
-          },
-          "type": "graph",
-          "xaxis": {
-            "buckets": null,
-            "mode": "time",
-            "name": null,
-            "show": true,
-            "values": [
-              "total"
-            ]
-          },
-          "yaxes": [
-            {
-              "format": "short",
-              "label": "Mentions count",
+              "label": "Pull requests merged",
               "logBase": 1,
               "max": null,
               "min": "0",
@@ -291,7 +177,8 @@
   "schemaVersion": 14,
   "style": "dark",
   "tags": [
-    "dashboard"
+    "dashboard",
+    "kubernetes"
   ],
   "templating": {
     "list": [
@@ -347,32 +234,12 @@
         "current": {},
         "datasource": "${DS_GHA}",
         "hide": 0,
-        "includeAll": false,
-        "label": "SIG",
-        "multi": false,
-        "name": "sig",
-        "options": [],
-        "query": "SHOW TAG VALUES WITH KEY = sig_mentions_texts_name",
-        "refresh": 1,
-        "regex": "",
-        "sort": 0,
-        "tagValuesQuery": "",
-        "tags": [],
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false
-      },
-      {
-        "allValue": "",
-        "current": {},
-        "datasource": "${DS_GHA}",
-        "hide": 0,
         "includeAll": true,
-        "label": "Category",
+        "label": "Repository group",
         "multi": true,
-        "name": "sigcats",
+        "name": "repogroups",
         "options": [],
-        "query": "SHOW TAG VALUES WITH KEY = sig_mentions_texts_cat_name",
+        "query": "SHOW TAG VALUES WITH KEY = repo_group_name",
         "refresh": 1,
         "regex": "",
         "sort": 0,
@@ -385,7 +252,7 @@
     ]
   },
   "time": {
-    "from": "now-1y",
+    "from": "now-40M",
     "to": "now"
   },
   "timepicker": {
@@ -414,6 +281,6 @@
     ]
   },
   "timezone": "",
-  "title": "SIG mentions categories",
-  "version": 4
+  "title": "PRs merged repository groups",
+  "version": 3
 }
