@@ -1,4 +1,5 @@
 select
+  -- string_agg(sub.name, ',')
   sub.name
 from (
   select c.name as name,
