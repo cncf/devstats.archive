@@ -64,10 +64,11 @@
   "hideControls": false,
   "id": null,
   "links": [],
+  "refresh": false,
   "rows": [
     {
       "collapse": false,
-      "height": 847,
+      "height": 646,
       "panels": [
         {
           "aliasColors": {},
@@ -75,7 +76,7 @@
           "dashLength": 10,
           "dashes": false,
           "datasource": "${DS_PROMETHEUS}",
-          "decimals": 0,
+          "decimals": 2,
           "description": "Measures company [[metric]]. Self means developers working on their own.",
           "fill": 1,
           "id": 1,
@@ -89,6 +90,7 @@
             "min": true,
             "rightSide": true,
             "show": true,
+            "sideWidth": null,
             "sort": "avg",
             "sortDesc": true,
             "total": false,
@@ -99,6 +101,154 @@
           "links": [],
           "nullPointMode": "null",
           "percentage": false,
+          "pointradius": 5,
+          "points": false,
+          "renderer": "flot",
+          "seriesOverrides": [
+            {
+              "alias": "All",
+              "bars": false,
+              "fill": 0,
+              "lines": true,
+              "stack": false,
+              "yaxis": 2
+            }
+          ],
+          "spaceLength": 10,
+          "span": 12,
+          "stack": true,
+          "steppedLine": false,
+          "targets": [
+            {
+              "alias": "All",
+              "dsType": "influxdb",
+              "groupBy": [],
+              "hide": false,
+              "measurement": "sig_federation_d",
+              "orderByTime": "ASC",
+              "policy": "default",
+              "query": "SELECT \"All\" FROM \"company_[[repogroup]]_[[metric]]_[[period]]\" WHERE $timeFilter",
+              "rawQuery": true,
+              "refId": "B",
+              "resultFormat": "time_series",
+              "select": [
+                [
+                  {
+                    "params": [
+                      "value"
+                    ],
+                    "type": "field"
+                  }
+                ]
+              ],
+              "tags": []
+            },
+            {
+              "alias": "$col",
+              "dsType": "influxdb",
+              "groupBy": [],
+              "measurement": "sig_federation_d",
+              "orderByTime": "ASC",
+              "policy": "default",
+              "query": "SELECT /^[[companies]]$/ FROM \"company_[[repogroup]]_[[metric]]_[[period]]\" WHERE $timeFilter",
+              "rawQuery": true,
+              "refId": "A",
+              "resultFormat": "time_series",
+              "select": [
+                [
+                  {
+                    "params": [
+                      "value"
+                    ],
+                    "type": "field"
+                  }
+                ]
+              ],
+              "tags": []
+            }
+          ],
+          "thresholds": [],
+          "timeFrom": null,
+          "timeShift": null,
+          "title": "Companies [[metric]] metric ([[repogroup_name]], [[period]])",
+          "tooltip": {
+            "shared": true,
+            "sort": 2,
+            "value_type": "individual"
+          },
+          "transparent": true,
+          "type": "graph",
+          "xaxis": {
+            "buckets": null,
+            "mode": "time",
+            "name": null,
+            "show": true,
+            "values": []
+          },
+          "yaxes": [
+            {
+              "decimals": null,
+              "format": "short",
+              "label": "Per company",
+              "logBase": 1,
+              "max": null,
+              "min": "0",
+              "show": true
+            },
+            {
+              "decimals": null,
+              "format": "short",
+              "label": "All",
+              "logBase": 1,
+              "max": null,
+              "min": "0",
+              "show": true
+            }
+          ]
+        }
+      ],
+      "repeat": null,
+      "repeatIteration": null,
+      "repeatRowId": null,
+      "showTitle": false,
+      "title": "Dashboard Row",
+      "titleSize": "h6"
+    },
+    {
+      "collapse": false,
+      "height": 637,
+      "panels": [
+        {
+          "aliasColors": {},
+          "bars": true,
+          "dashLength": 10,
+          "dashes": false,
+          "datasource": "${DS_PROMETHEUS}",
+          "decimals": 2,
+          "description": "Measures company [[metric]]. Self means developers working on their own.",
+          "fill": 1,
+          "id": 2,
+          "legend": {
+            "alignAsTable": true,
+            "avg": true,
+            "current": true,
+            "hideEmpty": false,
+            "hideZero": false,
+            "max": true,
+            "min": true,
+            "rightSide": true,
+            "show": true,
+            "sideWidth": null,
+            "sort": "avg",
+            "sortDesc": true,
+            "total": false,
+            "values": true
+          },
+          "lines": false,
+          "linewidth": 1,
+          "links": [],
+          "nullPointMode": "null",
+          "percentage": true,
           "pointradius": 5,
           "points": false,
           "renderer": "flot",
@@ -152,16 +302,18 @@
           },
           "yaxes": [
             {
+              "decimals": null,
               "format": "short",
-              "label": null,
+              "label": "",
               "logBase": 1,
-              "max": null,
+              "max": "100",
               "min": "0",
               "show": true
             },
             {
+              "decimals": null,
               "format": "short",
-              "label": null,
+              "label": "",
               "logBase": 1,
               "max": null,
               "min": "0",
@@ -170,6 +322,17 @@
           ]
         }
       ],
+      "repeat": null,
+      "repeatIteration": null,
+      "repeatRowId": null,
+      "showTitle": false,
+      "title": "Dashboard Row",
+      "titleSize": "h6"
+    },
+    {
+      "collapse": false,
+      "height": 250,
+      "panels": [],
       "repeat": null,
       "repeatIteration": null,
       "repeatRowId": null,
@@ -343,7 +506,7 @@
     ]
   },
   "time": {
-    "from": "now-40M",
+    "from": "now-2y",
     "to": "now"
   },
   "timepicker": {
@@ -372,6 +535,6 @@
     ]
   },
   "timezone": "",
-  "title": "Companies stats Prometheus",
-  "version": 7
+  "title": "Companies Stats Prometheus",
+  "version": 12
 }
