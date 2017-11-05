@@ -56,6 +56,7 @@ type metric struct {
 	Skip             string `yaml:"skip"`
 	Desc             string `yaml:"desc"`
 	MultiValue       bool   `yaml:"multi_value"`
+	EscapeValueName  bool   `yaml:"escape_value_name"`
 }
 
 // projects contain list of project mappings to command line
@@ -422,6 +423,9 @@ func sync(ctx *lib.Ctx, args []string) {
 			}
 			if metric.MultiValue {
 				extraParams = append(extraParams, "multivalue")
+			}
+			if metric.EscapeValueName {
+				extraParams = append(extraParams, "escape_value_name")
 			}
 			if metric.Desc != "" {
 				extraParams = append(extraParams, "desc:"+metric.Desc)
