@@ -31,5 +31,5 @@ from (
     count_value desc,
     sel.sig asc
 ) sub
-limit 30
+limit 25
 ;
