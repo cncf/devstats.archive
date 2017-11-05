@@ -19,6 +19,6 @@ from (
   order by
     cnt desc,
     name asc
-  limit 30
+  limit 25
 ) sub
 ;
