@@ -403,6 +403,7 @@ func TestMetrics(t *testing.T) {
 			to:     ft(2017, 10),
 			n:      1,
 			expected: [][]interface{}{
+				{"company;All`all;activity,authors,issues,prs,commits,review_comments,issue_comments,commit_comments,comments", "540.00", 3, "90.00", "90.00", "90.00", "90.00", "90.00", "90.00", "270.00"},
 				{"company;company3`all;activity,authors,issues,prs,commits,review_comments,issue_comments,commit_comments,comments", "144.00", 3, "24.00", "24.00", "24.00", "24.00", "24.00", "24.00", "72.00"},
 				{"company;company1`all;activity,authors,issues,prs,commits,review_comments,issue_comments,commit_comments,comments", "360.00", 2, "60.00", "60.00", "60.00", "60.00", "60.00", "60.00", "180.00"},
 				{"company;company2`all;activity,authors,issues,prs,commits,review_comments,issue_comments,commit_comments,comments", "108.00", 2, "18.00", "18.00", "18.00", "18.00", "18.00", "18.00", "54.00"},
@@ -416,6 +417,7 @@ func TestMetrics(t *testing.T) {
 			to:     ft(2017, 10),
 			n:      2,
 			expected: [][]interface{}{
+				{"company;All`all;activity,authors,issues,prs,commits,review_comments,issue_comments,commit_comments,comments", "270.00", 3, "45.00", "45.00", "45.00", "45.00", "45.00", "45.00", "135.00"},
 				{"company;company3`all;activity,authors,issues,prs,commits,review_comments,issue_comments,commit_comments,comments", "72.00", 3, "12.00", "12.00", "12.00", "12.00", "12.00", "12.00", "36.00"},
 				{"company;company1`all;activity,authors,issues,prs,commits,review_comments,issue_comments,commit_comments,comments", "180.00", 2, "30.00", "30.00", "30.00", "30.00", "30.00", "30.00", "90.00"},
 				{"company;company2`all;activity,authors,issues,prs,commits,review_comments,issue_comments,commit_comments,comments", "54.00", 2, "9.00", "9.00", "9.00", "9.00", "9.00", "9.00", "27.00"},
