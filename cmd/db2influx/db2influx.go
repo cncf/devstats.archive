@@ -34,7 +34,7 @@ func valueDescription(descFunc string, value float64) (result string) {
 // if multivalue is true then rowName is not used for generating series name
 // Series name is independent from rowName, and metric returns "series_name;rowName"
 // Multivalue series can even have partialy multivalue row: "this_comes_to_multivalues`this_comes_to_series_name", separator is `
-func multiRowMultiColumn(expr, period string, multivalue bool) (result []string) {
+func multiRowMultiColumn(expr, period string, multivalue, escapeValueName bool) (result []string) {
 	ary := strings.Split(expr, ";")
 	pref := ary[0]
 	if pref == "" {
@@ -45,6 +45,9 @@ func multiRowMultiColumn(expr, period string, multivalue bool) (result []string)
 	if multivalue {
 		rowNameAry := strings.Split(ary[1], "`")
 		rowName := rowNameAry[0]
+		if escapeValueName {
+			rowName = lib.NormalizeName(rowName)
+		}
 		if len(rowNameAry) > 1 {
 			rowNameNonMulti := lib.NormalizeName(rowNameAry[1])
 			for _, series := range splitColumns {
@@ -85,7 +88,7 @@ func singleRowMultiColumn(columns, period string) (result []string) {
 // if multivalue is true then rowName is not used for generating series name
 // Series name is independent from rowName, and metric returns "series_name;rowName"
 // Multivalue series can even have partialy multivalue row: "this_comes_to_multivalues`this_comes_to_series_name", separator is `
-func multiRowSingleColumn(col, period string, multivalue bool) (result []string) {
+func multiRowSingleColumn(col, period string, multivalue, escapeValueName bool) (result []string) {
 	ary := strings.Split(col, ",")
 	pref := ary[0]
 	if pref == "" {
@@ -95,6 +98,9 @@ func multiRowSingleColumn(col, period string, multivalue bool) (result []string)
 	if multivalue {
 		rowNameAry := strings.Split(ary[1], "`")
 		rowName := rowNameAry[0]
+		if escapeValueName {
+			rowName = lib.NormalizeName(rowName)
+		}
 		if len(rowNameAry) > 1 {
 			rowNameNonMulti := lib.NormalizeName(rowNameAry[1])
 			return []string{fmt.Sprintf("%s_%s_%s;%s", pref, rowNameNonMulti, period, rowName)}
@@ -110,14 +116,14 @@ func multiRowSingleColumn(col, period string, multivalue bool) (result []string)
 }
 
 // Generate name for given series row and period
-func nameForMetricsRow(metric, name, period string, multivalue bool) []string {
+func nameForMetricsRow(metric, name, period string, multivalue, escapeValueName bool) []string {
 	switch metric {
 	case "single_row_multi_column":
 		return singleRowMultiColumn(name, period)
 	case "multi_row_single_column":
-		return multiRowSingleColumn(name, period, multivalue)
+		return multiRowSingleColumn(name, period, multivalue, escapeValueName)
 	case "multi_row_multi_column":
-		return multiRowMultiColumn(name, period, multivalue)
+		return multiRowMultiColumn(name, period, multivalue, escapeValueName)
 	default:
 		lib.Printf("Error\nUnknown metric '%v'\n", metric)
 		fmt.Fprintf(os.Stdout, "Error\nUnknown metric '%v'\n", metric)
@@ -134,7 +140,7 @@ func roundF2I(val float64) int {
 	return int(val + 0.5)
 }
 
-func workerThread(ch chan bool, ctx *lib.Ctx, seriesNameOrFunc, sqlQuery, period, desc string, multivalue bool, nIntervals int, dt, from, to time.Time) {
+func workerThread(ch chan bool, ctx *lib.Ctx, seriesNameOrFunc, sqlQuery, period, desc string, multivalue, escapeValueName bool, nIntervals int, dt, from, to time.Time) {
 	// Connect to Postgres DB
 	sqlc := lib.PgConn(ctx)
 	defer sqlc.Close()
@@ -224,7 +230,7 @@ func workerThread(ch chan bool, ctx *lib.Ctx, seriesNameOrFunc, sqlQuery, period
 			// Get first column name, and using it all series names
 			// First column should contain nColumns - 1 names separated by ","
 			name := string(*pValues[0].(*sql.RawBytes))
-			names := nameForMetricsRow(seriesNameOrFunc, name, period, multivalue)
+			names := nameForMetricsRow(seriesNameOrFunc, name, period, multivalue, escapeValueName)
 			if len(names) > 0 {
 				// Iterate values
 				pFloats := pValues[1:]
@@ -356,7 +362,7 @@ func db2influxHistogram(ctx *lib.Ctx, seriesNameOrFunc, sqlQuery, interval, inte
 			// Get row values
 			lib.FatalOnError(rows.Scan(pValues...))
 			name := string(*pValues[0].(*sql.RawBytes))
-			names := nameForMetricsRow(seriesNameOrFunc, name, intervalAbbr, false)
+			names := nameForMetricsRow(seriesNameOrFunc, name, intervalAbbr, false, false)
 			nNames := len(names)
 			if nNames > 0 {
 				for i := 0; i < nNames; i++ {
@@ -410,7 +416,7 @@ func db2influxHistogram(ctx *lib.Ctx, seriesNameOrFunc, sqlQuery, interval, inte
 	}
 }
 
-func db2influx(seriesNameOrFunc, sqlFile, from, to, intervalAbbr string, hist, multivalue bool, desc string) {
+func db2influx(seriesNameOrFunc, sqlFile, from, to, intervalAbbr string, hist, multivalue, escapeValueName bool, desc string) {
 	// Environment context parse
 	var ctx lib.Ctx
 	ctx.Init()
@@ -440,7 +446,7 @@ func db2influx(seriesNameOrFunc, sqlFile, from, to, intervalAbbr string, hist, m
 	thrN := lib.GetThreadsNum(&ctx)
 
 	// Run
-	lib.Printf("db2influx.go: Running (on %d CPUs): %v - %v with interval %s, descriptions '%s', multivalue: %v\n", thrN, dFrom, dTo, interval, desc, multivalue)
+	lib.Printf("db2influx.go: Running (on %d CPUs): %v - %v with interval %s, descriptions '%s', multivalue: %v, escape_value_name: %v\n", thrN, dFrom, dTo, interval, desc, multivalue, escapeValueName)
 	dt := dFrom
 	var pDt time.Time
 	if thrN > 1 {
@@ -454,7 +460,7 @@ func db2influx(seriesNameOrFunc, sqlFile, from, to, intervalAbbr string, hist, m
 			} else {
 				pDt = lib.AddNIntervals(dt, 1-nIntervals, nextIntervalStart, prevIntervalStart)
 			}
-			go workerThread(ch, &ctx, seriesNameOrFunc, sqlQuery, intervalAbbr, desc, multivalue, nIntervals, dt, pDt, nDt)
+			go workerThread(ch, &ctx, seriesNameOrFunc, sqlQuery, intervalAbbr, desc, multivalue, escapeValueName, nIntervals, dt, pDt, nDt)
 			dt = nDt
 			if len(chanPool) == thrN {
 				ch = chanPool[0]
@@ -475,7 +481,7 @@ func db2influx(seriesNameOrFunc, sqlFile, from, to, intervalAbbr string, hist, m
 			} else {
 				pDt = lib.AddNIntervals(dt, 1-nIntervals, nextIntervalStart, prevIntervalStart)
 			}
-			workerThread(nil, &ctx, seriesNameOrFunc, sqlQuery, intervalAbbr, desc, multivalue, nIntervals, dt, pDt, nDt)
+			workerThread(nil, &ctx, seriesNameOrFunc, sqlQuery, intervalAbbr, desc, multivalue, escapeValueName, nIntervals, dt, pDt, nDt)
 			dt = nDt
 		}
 	}
@@ -500,6 +506,7 @@ func main() {
 	}
 	hist := false
 	multivalue := false
+	escapeValueName := false
 	desc := ""
 	if len(os.Args) > 6 {
 		opts := strings.Split(os.Args[6], ",")
@@ -519,11 +526,14 @@ func main() {
 		if _, ok := optMap["multivalue"]; ok {
 			multivalue = true
 		}
+		if _, ok := optMap["escape_value_name"]; ok {
+			escapeValueName = true
+		}
 		if d, ok := optMap["desc"]; ok {
 			desc = d
 		}
 	}
-	db2influx(os.Args[1], os.Args[2], os.Args[3], os.Args[4], os.Args[5], hist, multivalue, desc)
+	db2influx(os.Args[1], os.Args[2], os.Args[3], os.Args[4], os.Args[5], hist, multivalue, escapeValueName, desc)
 	dtEnd := time.Now()
 	lib.Printf("Time: %v\n", dtEnd.Sub(dtStart))
 }
