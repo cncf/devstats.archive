@@ -2,6 +2,7 @@ package main
 
 import (
 	"io/ioutil"
+	"strings"
 	"time"
 
 	lib "devstats"
@@ -75,6 +76,11 @@ func idbTags() {
 		bytes, err := ioutil.ReadFile(dataPrefix + dir + tag.SQLFile + ".sql")
 		lib.FatalOnError(err)
 		sqlQuery := string(bytes)
+
+		// Transform SQL (hardcoded limit 25 for template dropdowns
+		// When dropdown contains "All" there are 26 items then, Grafana names series 1-26 --> "a"-"z"
+		// Next series have no name
+		sqlQuery = strings.Replace(sqlQuery, "{{lim}}", "25", -1)
 
 		// Execute SQL
 		rows := lib.QuerySQLWithErr(con, &ctx, sqlQuery)
