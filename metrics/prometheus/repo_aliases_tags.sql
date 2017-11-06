@@ -1,4 +1,5 @@
 select
+  -- string_agg(sel.alias, ',')
   sel.alias
 from (
   select r.alias,
