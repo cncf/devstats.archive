@@ -18,6 +18,6 @@ select
   order by
     cnt desc,
     name asc
-  limit 25
+  limit {{lim}}
 ) sub
 ;

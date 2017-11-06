@@ -15,6 +15,6 @@ from (
   order by
     cnt desc,
     r.alias asc
-  limit 25
+  limit {{lim}}
   ) sel
 ;

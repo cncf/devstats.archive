@@ -14,7 +14,7 @@ from (
   order by
     cnt desc,
     r.repo_group asc
-  limit 25
+  limit {{lim}}
   ) sel
 union select 'All'
 ;

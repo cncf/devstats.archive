@@ -15,6 +15,6 @@ from (
   order by
     cnt desc,
     alias asc
-  limit 25
+  limit {{lim}}
 ) sub
 ;

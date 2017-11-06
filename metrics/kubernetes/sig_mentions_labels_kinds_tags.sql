@@ -18,5 +18,5 @@ from (
     cnt desc,
     kind asc
 ) sub
-limit 25
+limit {{lim}}
 ;

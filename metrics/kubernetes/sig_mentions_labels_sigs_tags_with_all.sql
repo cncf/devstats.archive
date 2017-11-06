@@ -16,7 +16,7 @@ from (
   order by
     cnt desc,
     sig asc
-  limit 25
+  limit {{lim}}
 ) sub
 union select 'All'
 ;
