@@ -21,7 +21,7 @@ group by
   r.repo_group,
   a.company_name
 having
-  count(distinct pr.id) >= 3
+  count(distinct pr.id) >= 1
 union select 'hist_pr_companies,All' as repo_group,
   a.company_name as company,
   count(distinct pr.id) as prs
@@ -40,7 +40,7 @@ where
 group by
   a.company_name
 having
-  count(distinct pr.id) >= 5
+  count(distinct pr.id) >= 1
 order by
   prs desc,
   repo_group asc,

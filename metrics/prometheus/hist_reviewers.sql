@@ -35,7 +35,7 @@ group by
   r.repo_group,
   e.dup_actor_login
 having
-  count(distinct e.id) >= 3
+  count(distinct e.id) >= 1
 union select 'reviewers_hist,All' as repo_group,
   dup_actor_login as actor,
   count(distinct id) as reviews
@@ -60,7 +60,7 @@ where
 group by
   dup_actor_login
 having
-  count(distinct id) >= 5
+  count(distinct id) >= 1
 order by
   reviews desc,
   repo_group asc,
