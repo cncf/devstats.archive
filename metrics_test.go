@@ -80,6 +80,7 @@ func TestMetrics(t *testing.T) {
 	for _, project := range tests.Projects {
 		if project.ProjectName == ctx.Project {
 			testCases = project.Tests
+			break
 		}
 	}
 	if len(testCases) < 1 {
