@@ -7,7 +7,7 @@
 - Test & save datasource, then proceed to dashboards.
 - Click Home, Import dashboard, Upload JSON file, choose dashboards saved as JSONs in `grafana/dashboards/{{project}}dashboard_name.json`, data source "InfluxDB" and save.
 - All dashboards are here: [kubernetes](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/), [prometheus](https://github.com/cncf/devstats/blob/master/grafana/dashboards/prometheus/)
-- Do the same for all defined dashboards.
+- Do the same for all defined dashboards. Use specific project tag, for example `kubernetes` or `prometheus`.
 - Import main home for example [kubernetes dahsboard](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/dashboards.json).
 - Choose Admin -> Preferences, name Your organization (for example set it to `XYZ`)
 - Set You home dashboard to just imported "Dashboards".
