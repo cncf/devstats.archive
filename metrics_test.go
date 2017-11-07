@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"io/ioutil"
+	"reflect"
 	"strconv"
 	"strings"
 	"testing"
@@ -22,7 +23,7 @@ import (
 // expected - we're expecting this result from metric, it can either be a single row with single column numeric value
 // or multiple rows, each containing metric name and its numeric value
 type metricTestCase struct {
-	Setup     *func(*sql.DB, *lib.Ctx) error
+	Setup     *reflect.Value
 	Metric    string          `yaml:"metric"`
 	From      time.Time       `yaml:"from"`           // used by non-histogram metrics
 	To        time.Time       `yaml:"to"`             // used by non-histogram metrics
@@ -70,7 +71,6 @@ func TestMetrics(t *testing.T) {
 		return
 	}
 	lib.FatalOnError(yaml.Unmarshal(data, &tests))
-	fmt.Printf("%+v\n", tests)
 
 	// Read per project test cases
 	testCases := []metricTestCase{}
@@ -101,9 +101,11 @@ func TestMetrics(t *testing.T) {
 }
 
 // This prepares raw YAML metric to be executed (for example sets Setup function if needed)
-
 func prepareMetricTestCase(testMetric *metricTestCase) {
 	if testMetric.SetupName != "" {
+		reflectTestMetric := reflect.ValueOf(*testMetric)
+		method := reflectTestMetric.MethodByName(testMetric.SetupName)
+		testMetric.Setup = &method
 	}
 }
 
@@ -139,12 +141,16 @@ func executeMetricTestCase(testMetric *metricTestCase, ctx *lib.Ctx) (result [][
 	lib.Structure(ctx)
 
 	// Execute metrics Setup function
-  if testMetric.Setup != nil {
-	  err = (*testMetric.Setup)(c, ctx)
-	  if err != nil {
-		  return
-	  }
-  }
+	if testMetric.Setup != nil {
+		args := []reflect.Value{reflect.ValueOf(c), reflect.ValueOf(ctx)}
+		switch ret := testMetric.Setup.Call(args)[0].Interface().(type) {
+		case error:
+			err = ret
+		}
+		if err != nil {
+			return
+		}
+	}
 
 	// Execute metric and get its results
 	result, err = executeMetric(
@@ -1795,7 +1801,7 @@ func setupSigMentionsLabelMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 }
 
 // Create data for simplest events metric
-func setupEventsMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
+func (m metricTestCase) SetupEventsMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 	ft := testlib.YMDHMS
 
 	// Events to add
