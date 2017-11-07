@@ -11,725 +11,42 @@ import (
 
 	lib "devstats"
 	testlib "devstats/test"
+
+	yaml "gopkg.in/yaml.v2"
 )
 
-// MetricTestCase - used to test single metric
-// setup is called to create database entries for metric to return results
+// metricTestCase - used to test single metric
+// Setup is called to create database entries for metric to return results
 // metric - metrics/{{metric}}.sql file is used to run metric, inside file {{from}} and {{to}} are replaced with from, to
 // from, to - used as data range when calling metric
 // expected - we're expecting this result from metric, it can either be a single row with single column numeric value
 // or multiple rows, each containing metric name and its numeric value
-type MetricTestCase struct {
-	setup    func(*sql.DB, *lib.Ctx) error
-	metric   string
-	from     time.Time // used by non-histogram metrics
-	to       time.Time // used by non-histogram metrics
-	period   string    // used by histogram metrics
-	n        int       // used by metrics that use moving periods
-	debugDB  bool      // if set, test will not drop database at the end and will return after such test, so You can run metric manually via `runq` or directly on DB
-	replaces [][2]string
-	expected [][]interface{}
+type metricTestCase struct {
+	Setup     *func(*sql.DB, *lib.Ctx) error
+	Metric    string          `yaml:"metric"`
+	From      time.Time       `yaml:"from"`           // used by non-histogram metrics
+	To        time.Time       `yaml:"to"`             // used by non-histogram metrics
+	Period    string          `yaml:"period"`         // used by histogram metrics
+	N         int             `yaml:"n"`              // used by metrics that use moving periods
+	DebugDB   bool            `yaml:"debug_database"` // if set, test will not drop database at the end and will return after such test, so You can run metric manually via `runq` or directly on DB
+	Replaces  [][2]string     `yaml:"replaces"`
+	Expected  [][]interface{} `yaml:"expected"`
+	SetupName string          `yaml:"additional_setup_func"`
+}
+
+// Tests set for single project
+type projectMetricTestCase struct {
+	ProjectName string           `yaml:"project_name"`
+	Tests       []metricTestCase `yaml:"tests"`
+}
+
+// Test YAML struct (for all projects)
+type metricTests struct {
+	Projects []projectMetricTestCase `yaml:"projects"`
 }
 
 // Tests all metrics
 func TestMetrics(t *testing.T) {
-	// Test cases for each metric
-	ft := testlib.YMDHMS
-
-	// Please add new cases here
-	// And their setup function at the bottom of this file
-	var testCases = []MetricTestCase{
-		{
-			setup:    setupEventsMetric,
-			metric:   "events",
-			from:     ft(2017, 9),
-			to:       ft(2017, 10),
-			n:        1,
-			expected: [][]interface{}{{3}},
-		},
-		{
-			setup:  setupReviewersMetric,
-			metric: "reviewers",
-			from:   ft(2017, 7, 9),
-			to:     ft(2017, 7, 25),
-			n:      1,
-			expected: [][]interface{}{
-				{"reviewers,All", 7},
-				{"reviewers,Group", 5},
-				{"reviewers,Mono-group", 1},
-			},
-		},
-		{
-			setup:  setupReviewersMetric,
-			metric: "reviewers",
-			from:   ft(2017, 6),
-			to:     ft(2017, 7, 12, 23),
-			n:      1,
-			expected: [][]interface{}{
-				{"reviewers,All", 3},
-				{"reviewers,Group", 3},
-			},
-		},
-		{
-			setup:  setupReviewersHistMetric,
-			metric: "hist_reviewers",
-			period: "1 week",
-			n:      1,
-			replaces: [][2]string{
-				{" >= 5", " >= 0"},
-				{" >= 3", " >= 0"},
-			},
-			expected: [][]interface{}{
-				{"reviewers_hist,All", "Actor 1", 4},
-				{"reviewers_hist,All", "Actor 2", 4},
-				{"reviewers_hist,Group", "Actor 2", 4},
-				{"reviewers_hist,All", "Actor 3", 2},
-				{"reviewers_hist,Group", "Actor 1", 2},
-				{"reviewers_hist,Group", "Actor 3", 1},
-			},
-		},
-		{
-			setup:  setupApproversHistMetric,
-			metric: "hist_approvers",
-			period: "1 week",
-			n:      1,
-			replaces: [][2]string{
-				{" >= 3", " >= 0"},
-				{" >= 2", " >= 0"},
-			},
-			expected: [][]interface{}{
-				{"approvers_hist,All", "Actor 1", 2},
-				{"approvers_hist,All", "Actor 3", 2},
-				{"approvers_hist,All", "Actor 2", 1},
-				{"approvers_hist,Group", "Actor 1", 1},
-				{"approvers_hist,Group", "Actor 2", 1},
-				{"approvers_hist,Group", "Actor 3", 1},
-			},
-		},
-		{
-			setup:  setupSigMentionsTextMetric,
-			metric: "sig_mentions",
-			from:   ft(2017, 7),
-			to:     ft(2017, 8),
-			n:      1,
-			expected: [][]interface{}{
-				{"sig_mentions_texts,group-1", "3.00"},
-				{"sig_mentions_texts,group2", "3.00"},
-				{"sig_mentions_texts,a-b-c", "1.00"},
-			},
-		},
-		{
-			setup:  setupSigMentionsTextMetric,
-			metric: "sig_mentions",
-			from:   ft(2017, 7),
-			to:     ft(2017, 8),
-			n:      2,
-			expected: [][]interface{}{
-				{"sig_mentions_texts,group-1", "1.50"},
-				{"sig_mentions_texts,group2", "1.50"},
-				{"sig_mentions_texts,a-b-c", "0.50"},
-			},
-		},
-		{
-			setup:  setupSigMentionsTextMetric,
-			metric: "sig_mentions_breakdown",
-			from:   ft(2017, 7),
-			to:     ft(2017, 8),
-			n:      1,
-			expected: [][]interface{}{
-				{"sig_mentions_texts_bd,group2-bug", "2.00"},
-				{"sig_mentions_texts_bd,a-b-c-bug", "1.00"},
-				{"sig_mentions_texts_bd,group-1-bug", "1.00"},
-				{"sig_mentions_texts_bd,group-1-feature-request", "1.00"},
-				{"sig_mentions_texts_bd,group2-pr-review", "1.00"},
-			},
-		},
-		{
-			setup:  setupSigMentionsTextMetric,
-			metric: "sig_mentions_breakdown",
-			from:   ft(2017, 7),
-			to:     ft(2017, 8),
-			n:      3,
-			expected: [][]interface{}{
-				{"sig_mentions_texts_bd,group2-bug", "0.67"},
-				{"sig_mentions_texts_bd,a-b-c-bug", "0.33"},
-				{"sig_mentions_texts_bd,group-1-bug", "0.33"},
-				{"sig_mentions_texts_bd,group-1-feature-request", "0.33"},
-				{"sig_mentions_texts_bd,group2-pr-review", "0.33"},
-			},
-		},
-		{
-			setup:  setupSigMentionsTextMetric,
-			metric: "sig_mentions_cats",
-			from:   ft(2017, 7),
-			to:     ft(2017, 8),
-			n:      1,
-			expected: [][]interface{}{
-				{"sig_mentions_texts_cat,bug", "4.00"},
-				{"sig_mentions_texts_cat,feature-request", "1.00"},
-				{"sig_mentions_texts_cat,pr-review", "1.00"},
-			},
-		},
-		{
-			setup:  setupPRsMergedMetric,
-			metric: "prs_merged",
-			from:   ft(2017, 7),
-			to:     ft(2017, 8),
-			n:      1,
-			expected: [][]interface{}{
-				{"prs_merged,Repo 1", "3.00"},
-				{"prs_merged,Repo 2", "2.00"},
-				{"prs_merged,Repo 3", "1.00"},
-			},
-		},
-		{
-			setup:  setupPRsMergedMetric,
-			metric: "prs_merged",
-			from:   ft(2017, 7),
-			to:     ft(2017, 8),
-			n:      2,
-			expected: [][]interface{}{
-				{"prs_merged,Repo 1", "1.50"},
-				{"prs_merged,Repo 2", "1.00"},
-				{"prs_merged,Repo 3", "0.50"},
-			},
-		},
-		{
-			setup:  setupPRsMergedMetric,
-			metric: "prs_merged_groups",
-			from:   ft(2017, 7),
-			to:     ft(2017, 8),
-			n:      1,
-			expected: [][]interface{}{
-				{"group_prs_merged,Group 1", "4.00"},
-				{"group_prs_merged,Group 2", "2.00"},
-			},
-		},
-		{
-			setup:  setupPRsMergedMetric,
-			metric: "prs_merged_groups",
-			from:   ft(2017, 7),
-			to:     ft(2017, 8),
-			n:      3,
-			expected: [][]interface{}{
-				{"group_prs_merged,Group 1", "1.33"},
-				{"group_prs_merged,Group 2", "0.67"},
-			},
-		},
-		{
-			setup:    setupPRsMergedMetric,
-			metric:   "all_prs_merged",
-			from:     ft(2017, 7),
-			to:       ft(2017, 8),
-			n:        1,
-			expected: [][]interface{}{{"6.00"}},
-		},
-		{
-			setup:    setupPRsMergedMetric,
-			metric:   "all_prs_merged",
-			from:     ft(2017, 7),
-			to:       ft(2017, 8),
-			n:        4,
-			expected: [][]interface{}{{"1.50"}},
-		},
-		{
-			setup:  setupPRsStateMetric,
-			metric: "prs_state",
-			from:   ft(2017, 10),
-			to:     ft(2017, 11),
-			n:      1,
-			expected: [][]interface{}{
-				{"prs_approve_state;All;approved,awaiting", "3.00", "1.00"},
-				{"prs_approve_state;G1;approved,awaiting", "2.00", "1.00"},
-				{"prs_approve_state;G2;approved,awaiting", "1.00", "0.00"},
-			},
-		},
-		{
-			setup:  setupBlockedPRsMetric,
-			metric: "prs_blocked",
-			from:   ft(2017, 10),
-			to:     ft(2017, 11),
-			n:      1,
-			expected: [][]interface{}{
-				{"prs_blocked;All;all_prs,needs_ok_to_test,release_note_label_needed,no_lgtm,no_approve,do_not_merge", "4.00", "1.00", "1.00", "4.00", "3.00", "1.00"},
-				{"prs_blocked;G1;all_prs,needs_ok_to_test,release_note_label_needed,no_lgtm,no_approve,do_not_merge", "2.00", "1.00", "0.00", "2.00", "1.00", "0.00"},
-				{"prs_blocked;G2;all_prs,needs_ok_to_test,release_note_label_needed,no_lgtm,no_approve,do_not_merge", "2.00", "0.00", "1.00", "2.00", "2.00", "1.00"},
-			},
-		},
-		{
-			setup:  setupNeedRebasePRsMetric,
-			metric: "prs_rebase",
-			from:   ft(2017, 10),
-			to:     ft(2017, 11),
-			n:      1,
-			expected: [][]interface{}{
-				{"pr_needs_rebase,G1", "4.00"},
-				{"pr_needs_rebase,G2", "2.00"},
-			},
-		},
-		{
-			setup:    setupNeedRebasePRsMetric,
-			metric:   "all_prs_rebase",
-			from:     ft(2017, 10),
-			to:       ft(2017, 11),
-			n:        1,
-			expected: [][]interface{}{{"8.00"}},
-		},
-		{
-			setup:  setupTimeMetrics,
-			metric: "opened_to_merged",
-			from:   ft(2017, 7),
-			to:     ft(2017, 8),
-			n:      1,
-			expected: [][]interface{}{
-				{"opened_to_merged;All;percentile_15,median,percentile_85", 480, 504, 624},
-				{"opened_to_merged;Group2;percentile_15,median,percentile_85", 504, 504, 504},
-				{"opened_to_merged;Group1;percentile_15,median,percentile_85", 480, 480, 552},
-			},
-		},
-		{
-			setup:  setupTimeMetrics,
-			metric: "time_metrics",
-			from:   ft(2017, 7),
-			to:     ft(2017, 8),
-			n:      1,
-			expected: [][]interface{}{
-				{"time_metrics;All_All;all_median_open_to_lgtm,all_median_lgtm_to_approve,all_median_approve_to_merge,all_percentile_85_open_to_lgtm,all_percentile_85_lgtm_to_approve,all_percentile_85_approve_to_merge,yes_median_open_to_lgtm,yes_median_lgtm_to_approve,yes_median_approve_to_merge,yes_percentile_85_open_to_lgtm,yes_percentile_85_lgtm_to_approve,yes_percentile_85_approve_to_merge,no_median_open_to_lgtm,no_median_lgtm_to_approve,no_median_approve_to_merge,no_percentile_85_open_to_lgtm,no_percentile_85_lgtm_to_approve,no_percentile_85_approve_to_merge", 144, 120, 216, 264, 168, 288, 120, 120, 216, 144, 144, 240, 192, 72, 192, 264, 168, 288},
-				{"time_metrics;All_XL;all_median_open_to_lgtm,all_median_lgtm_to_approve,all_median_approve_to_merge,all_percentile_85_open_to_lgtm,all_percentile_85_lgtm_to_approve,all_percentile_85_approve_to_merge,yes_median_open_to_lgtm,yes_median_lgtm_to_approve,yes_median_approve_to_merge,yes_percentile_85_open_to_lgtm,yes_percentile_85_lgtm_to_approve,yes_percentile_85_approve_to_merge,no_median_open_to_lgtm,no_median_lgtm_to_approve,no_median_approve_to_merge,no_percentile_85_open_to_lgtm,no_percentile_85_lgtm_to_approve,no_percentile_85_approve_to_merge", 264, 72, 288, 264, 72, 288, 0, 0, 0, 0, 0, 0, 264, 72, 288, 264, 72, 288},
-				{"time_metrics;All_XS;all_median_open_to_lgtm,all_median_lgtm_to_approve,all_median_approve_to_merge,all_percentile_85_open_to_lgtm,all_percentile_85_lgtm_to_approve,all_percentile_85_approve_to_merge,yes_median_open_to_lgtm,yes_median_lgtm_to_approve,yes_median_approve_to_merge,yes_percentile_85_open_to_lgtm,yes_percentile_85_lgtm_to_approve,yes_percentile_85_approve_to_merge,no_median_open_to_lgtm,no_median_lgtm_to_approve,no_median_approve_to_merge,no_percentile_85_open_to_lgtm,no_percentile_85_lgtm_to_approve,no_percentile_85_approve_to_merge", 120, 120, 192, 192, 168, 240, 120, 120, 240, 120, 120, 240, 192, 168, 192, 192, 168, 192},
-				{"time_metrics;Group1_All;all_median_open_to_lgtm,all_median_lgtm_to_approve,all_median_approve_to_merge,all_percentile_85_open_to_lgtm,all_percentile_85_lgtm_to_approve,all_percentile_85_approve_to_merge,yes_median_open_to_lgtm,yes_median_lgtm_to_approve,yes_median_approve_to_merge,yes_percentile_85_open_to_lgtm,yes_percentile_85_lgtm_to_approve,yes_percentile_85_approve_to_merge,no_median_open_to_lgtm,no_median_lgtm_to_approve,no_median_approve_to_merge,no_percentile_85_open_to_lgtm,no_percentile_85_lgtm_to_approve,no_percentile_85_approve_to_merge", 120, 120, 192, 192, 168, 240, 120, 120, 240, 120, 120, 240, 192, 168, 192, 192, 168, 192},
-				{"time_metrics;Group1_XS;all_median_open_to_lgtm,all_median_lgtm_to_approve,all_median_approve_to_merge,all_percentile_85_open_to_lgtm,all_percentile_85_lgtm_to_approve,all_percentile_85_approve_to_merge,yes_median_open_to_lgtm,yes_median_lgtm_to_approve,yes_median_approve_to_merge,yes_percentile_85_open_to_lgtm,yes_percentile_85_lgtm_to_approve,yes_percentile_85_approve_to_merge,no_median_open_to_lgtm,no_median_lgtm_to_approve,no_median_approve_to_merge,no_percentile_85_open_to_lgtm,no_percentile_85_lgtm_to_approve,no_percentile_85_approve_to_merge", 120, 120, 192, 192, 168, 240, 120, 120, 240, 120, 120, 240, 192, 168, 192, 192, 168, 192},
-				{"time_metrics;Group2_All;all_median_open_to_lgtm,all_median_lgtm_to_approve,all_median_approve_to_merge,all_percentile_85_open_to_lgtm,all_percentile_85_lgtm_to_approve,all_percentile_85_approve_to_merge,yes_median_open_to_lgtm,yes_median_lgtm_to_approve,yes_median_approve_to_merge,yes_percentile_85_open_to_lgtm,yes_percentile_85_lgtm_to_approve,yes_percentile_85_approve_to_merge,no_median_open_to_lgtm,no_median_lgtm_to_approve,no_median_approve_to_merge,no_percentile_85_open_to_lgtm,no_percentile_85_lgtm_to_approve,no_percentile_85_approve_to_merge", 144, 144, 216, 144, 144, 216, 144, 144, 216, 144, 144, 216, 0, 0, 0, 0, 0, 0},
-			},
-		},
-		{
-			setup:  setupPRCommentsMetric,
-			metric: "pr_comments",
-			from:   ft(2017, 8),
-			to:     ft(2017, 9),
-			n:      1,
-			expected: [][]interface{}{
-				{"pr_comments_median,pr_comments_percentile_85,pr_comments_percentile_95", 2, 5, 5},
-			},
-		},
-		{
-			setup:  setupSigMentionsLabelMetric,
-			metric: "labels_sig",
-			from:   ft(2017, 9),
-			to:     ft(2017, 10),
-			n:      1,
-			expected: [][]interface{}{
-				{"sig_mentions_labels_sig,sig1", "3.00"},
-				{"sig_mentions_labels_sig,sig2", "2.00"},
-				{"sig_mentions_labels_sig,sig3", "1.00"},
-			},
-		},
-		{
-			setup:  setupSigMentionsLabelMetric,
-			metric: "labels_kind",
-			from:   ft(2017, 9),
-			to:     ft(2017, 10),
-			n:      1,
-			expected: [][]interface{}{
-				{"sig_mentions_labels_kind,kind1", "2.00"},
-				{"sig_mentions_labels_kind,kind2", "2.00"},
-				{"sig_mentions_labels_kind,kind3", "1.00"},
-			},
-		},
-		{
-			setup:  setupSigMentionsLabelMetric,
-			metric: "labels_sig_kind",
-			from:   ft(2017, 9),
-			to:     ft(2017, 10),
-			n:      1,
-			expected: [][]interface{}{
-				{"sig_mentions_labels_sig_kind,All-All", "7.00"},
-				{"sig_mentions_labels_sig_kind,sig1-All", "3.00"},
-				{"sig_mentions_labels_sig_kind,All-kind1", "2.00"},
-				{"sig_mentions_labels_sig_kind,All-kind2", "2.00"},
-				{"sig_mentions_labels_sig_kind,sig1-kind1", "2.00"},
-				{"sig_mentions_labels_sig_kind,sig2-All", "2.00"},
-				{"sig_mentions_labels_sig_kind,All-kind3", "1.00"},
-				{"sig_mentions_labels_sig_kind,sig1-kind2", "1.00"},
-				{"sig_mentions_labels_sig_kind,sig2-kind2", "1.00"},
-				{"sig_mentions_labels_sig_kind,sig3-All", "1.00"},
-			},
-		},
-		{
-			setup:  setupIssuesMetric,
-			metric: "labels_sig_kind_closed",
-			from:   ft(2017, 10),
-			to:     ft(2017, 11),
-			n:      1,
-			expected: [][]interface{}{
-				{"issues_closed_labels_sig_kind,All-All", "4.00"},
-				{"issues_closed_labels_sig_kind,sig1-All", "3.00"},
-				{"issues_closed_labels_sig_kind,All-kind1", "2.00"},
-				{"issues_closed_labels_sig_kind,All-kind2", "2.00"},
-				{"issues_closed_labels_sig_kind,sig1-kind1", "2.00"},
-				{"issues_closed_labels_sig_kind,sig1-kind2", "1.00"},
-				{"issues_closed_labels_sig_kind,sig2-All", "1.00"},
-				{"issues_closed_labels_sig_kind,sig2-kind2", "1.00"},
-			},
-		},
-		{
-			setup:  setupIssuesMetric,
-			metric: "issues_opened",
-			from:   ft(2017, 10),
-			to:     ft(2017, 11),
-			n:      1,
-			expected: [][]interface{}{
-				{"issues_opened,All", "8.00"},
-				{"issues_opened,Group", "4.00"},
-				{"issues_opened,Mono-group", "2.00"},
-			},
-		},
-		{
-			setup:  setupIssuesMetric,
-			metric: "issues_closed",
-			from:   ft(2017, 10),
-			to:     ft(2017, 11),
-			n:      1,
-			expected: [][]interface{}{
-				{"issues_closed,All", "4.00"},
-				{"issues_closed,Group", "2.00"},
-				{"issues_closed,Mono-group", "1.00"},
-			},
-		},
-		{
-			setup:  setupAffiliationsMetric,
-			metric: "company_activity",
-			from:   ft(2017, 9),
-			to:     ft(2017, 10),
-			n:      1,
-			expected: [][]interface{}{
-				{"company;All`all;activity,authors,issues,prs,commits,review_comments,issue_comments,commit_comments,comments", "540.00", 3, "90.00", "90.00", "90.00", "90.00", "90.00", "90.00", "270.00"},
-				{"company;company3`all;activity,authors,issues,prs,commits,review_comments,issue_comments,commit_comments,comments", "144.00", 3, "24.00", "24.00", "24.00", "24.00", "24.00", "24.00", "72.00"},
-				{"company;company1`all;activity,authors,issues,prs,commits,review_comments,issue_comments,commit_comments,comments", "360.00", 2, "60.00", "60.00", "60.00", "60.00", "60.00", "60.00", "180.00"},
-				{"company;company2`all;activity,authors,issues,prs,commits,review_comments,issue_comments,commit_comments,comments", "108.00", 2, "18.00", "18.00", "18.00", "18.00", "18.00", "18.00", "54.00"},
-				{"company;company4`all;activity,authors,issues,prs,commits,review_comments,issue_comments,commit_comments,comments", "96.00", 2, "16.00", "16.00", "16.00", "16.00", "16.00", "16.00", "48.00"},
-			},
-		},
-		{
-			setup:  setupAffiliationsMetric,
-			metric: "company_activity",
-			from:   ft(2017, 9),
-			to:     ft(2017, 10),
-			n:      2,
-			expected: [][]interface{}{
-				{"company;All`all;activity,authors,issues,prs,commits,review_comments,issue_comments,commit_comments,comments", "270.00", 3, "45.00", "45.00", "45.00", "45.00", "45.00", "45.00", "135.00"},
-				{"company;company3`all;activity,authors,issues,prs,commits,review_comments,issue_comments,commit_comments,comments", "72.00", 3, "12.00", "12.00", "12.00", "12.00", "12.00", "12.00", "36.00"},
-				{"company;company1`all;activity,authors,issues,prs,commits,review_comments,issue_comments,commit_comments,comments", "180.00", 2, "30.00", "30.00", "30.00", "30.00", "30.00", "30.00", "90.00"},
-				{"company;company2`all;activity,authors,issues,prs,commits,review_comments,issue_comments,commit_comments,comments", "54.00", 2, "9.00", "9.00", "9.00", "9.00", "9.00", "9.00", "27.00"},
-				{"company;company4`all;activity,authors,issues,prs,commits,review_comments,issue_comments,commit_comments,comments", "48.00", 2, "8.00", "8.00", "8.00", "8.00", "8.00", "8.00", "24.00"},
-			},
-		},
-		{
-			setup:  setupRepoCommentsMetric,
-			metric: "repo_comments",
-			from:   ft(2017, 9),
-			to:     ft(2017, 10),
-			n:      1,
-			expected: [][]interface{}{
-				{"repo_comments,All", "5.00"},
-				{"repo_comments,Group", "2.00"},
-				{"repo_comments,Mono-group", "2.00"},
-			},
-		},
-		{
-			setup:  setupRepoCommentsMetric,
-			metric: "repo_comments",
-			from:   ft(2017, 9),
-			to:     ft(2017, 10),
-			n:      3,
-			expected: [][]interface{}{
-				{"repo_comments,All", "1.67"},
-				{"repo_comments,Group", "0.67"},
-				{"repo_comments,Mono-group", "0.67"},
-			},
-		},
-		{
-			setup:  setupRepoCommentsMetric,
-			metric: "repo_commenters",
-			from:   ft(2017, 9),
-			to:     ft(2017, 10),
-			n:      1,
-			expected: [][]interface{}{
-				{"repo_commenters,All", "3.00"},
-				{"repo_commenters,Group", "2.00"},
-				{"repo_commenters,Mono-group", "1.00"},
-			},
-		},
-		{
-			setup:  setupRepoCommentsMetric,
-			metric: "repo_commenters",
-			from:   ft(2017, 9),
-			to:     ft(2017, 10),
-			n:      2,
-			expected: [][]interface{}{
-				{"repo_commenters,All", "1.50"},
-				{"repo_commenters,Group", "1.00"},
-				{"repo_commenters,Mono-group", "0.50"},
-			},
-		},
-		{
-			setup:  setupNewPRsMetric,
-			metric: "new_prs",
-			from:   ft(2017, 9),
-			to:     ft(2017, 10),
-			n:      1,
-			expected: [][]interface{}{
-				{"new_prs,All", "7.00"},
-				{"new_prs,Group 1", "5.00"},
-				{"new_prs,Group 2", "2.00"},
-			},
-		},
-		{
-			setup:  setupNewPRsMetric,
-			metric: "new_prs",
-			from:   ft(2017, 9),
-			to:     ft(2017, 10),
-			n:      10,
-			expected: [][]interface{}{
-				{"new_prs,All", "0.70"},
-				{"new_prs,Group 1", "0.50"},
-				{"new_prs,Group 2", "0.20"},
-			},
-		},
-		{
-			setup:  setupNewPRsMetric,
-			metric: "prs_authors",
-			from:   ft(2017, 9),
-			to:     ft(2017, 10),
-			n:      1,
-			expected: [][]interface{}{
-				{"prs_authors,All", "4.00"},
-				{"prs_authors,Group 1", "3.00"},
-				{"prs_authors,Group 2", "2.00"},
-			},
-		},
-		{
-			setup:  setupNewPRsMetric,
-			metric: "prs_authors",
-			from:   ft(2017, 9),
-			to:     ft(2017, 10),
-			n:      3,
-			expected: [][]interface{}{
-				{"prs_authors,All", "1.33"},
-				{"prs_authors,Group 1", "1.00"},
-				{"prs_authors,Group 2", "0.67"},
-			},
-		},
-		{
-			setup:  setupNewPRsMetric,
-			metric: "prs_age",
-			from:   ft(2017, 9),
-			to:     ft(2017, 10),
-			n:      1,
-			expected: [][]interface{}{
-				{"prs_age;All;number,median", "7.00", 96},
-				{"prs_age;Group 1;number,median", "5.00", 96},
-				{"prs_age;Group 2;number,median", "2.00", 72},
-			},
-		},
-		{
-			setup:  setupNewPRsMetric,
-			metric: "prs_age",
-			from:   ft(2017, 9),
-			to:     ft(2017, 10),
-			n:      2,
-			expected: [][]interface{}{
-				{"prs_age;All;number,median", "3.50", 96},
-				{"prs_age;Group 1;number,median", "2.50", 96},
-				{"prs_age;Group 2;number,median", "1.00", 72},
-			},
-		},
-		{
-			setup:  setupTopCommentersMetric,
-			metric: "hist_commenters",
-			period: "1 week",
-			n:      1,
-			replaces: [][2]string{
-				{" >= 30", " >= 2"},
-				{" >= 20", " >= 2"},
-			},
-			expected: [][]interface{}{
-				{"top_commenters,All", "A1", 3},
-				{"top_commenters,All", "A2", 3},
-				{"top_commenters,All", "A3", 2},
-				{"top_commenters,Group 1", "A2", 2},
-			},
-		},
-		{
-			setup:  setupCommunityStatsMetric,
-			metric: "watchers",
-			from:   ft(2017, 8, 1),
-			to:     ft(2017, 9, 15),
-			n:      1,
-			expected: [][]interface{}{
-				{"contrib;All;watchers,forks,open_issues", 158, 158, 158},
-				{"contrib;Org2/Repo4;watchers,forks,open_issues", 111, 112, 113},
-				{"contrib;Repo3;watchers,forks,open_issues", 23, 22, 21},
-				{"contrib;Org1/Repo2;watchers,forks,open_issues", 13, 12, 11},
-				{"contrib;Org1/Repo1;watchers,forks,open_issues", 11, 12, 13},
-			},
-		},
-		{
-			setup:  setupFirstNonAuthorActivityMetric,
-			metric: "first_non_author_activity",
-			from:   ft(2017, 9),
-			to:     ft(2017, 10),
-			n:      1,
-			expected: [][]interface{}{
-				{"non_author;Group2;percentile_15,median,percentile_85", 72, 72, 72},
-				{"non_author;All;percentile_15,median,percentile_85", 24, 48, 96},
-				{"non_author;Group1;percentile_15,median,percentile_85", 24, 24, 48},
-			},
-		},
-		{
-			setup:  setupBotCommandsMetric,
-			metric: "bot_commands",
-			from:   ft(2017, 10),
-			to:     ft(2017, 11),
-			n:      1,
-			expected: [][]interface{}{
-				{"bot_commands,approve`All", "1.00"},
-				{"bot_commands,approve cancel`All", "1.00"},
-				{"bot_commands,approve cancel`Mono-group", "1.00"},
-				{"bot_commands,approve`Group", "1.00"},
-				{"bot_commands,approve no-issue`All", "1.00"},
-				{"bot_commands,approve no-issue`Group", "1.00"},
-				{"bot_commands,close`All", "1.00"},
-				{"bot_commands,close`Group", "1.00"},
-				{"bot_commands,remove area`All", "1.00"},
-				{"bot_commands,remove area`Group", "1.00"},
-				{"bot_commands,reopen`All", "1.00"},
-				{"bot_commands,reopen`Mono-group", "1.00"},
-				{"bot_commands,unassign`All", "1.00"},
-				{"bot_commands,unassign`Mono-group", "1.00"},
-				{"bot_commands,uncc`All", "1.00"},
-				{"bot_commands,uncc`Group", "1.00"},
-			},
-		},
-		{
-			setup:  setupBotCommandsMetric,
-			metric: "bot_commands",
-			from:   ft(2017, 10, 12),
-			to:     ft(2017, 10, 14),
-			n:      2,
-			expected: [][]interface{}{
-				{"bot_commands,approve cancel`All", "0.50"},
-				{"bot_commands,approve cancel`Mono-group", "0.50"},
-			},
-		},
-		{
-			setup:  setupAffiliationsMetric,
-			metric: "num_stats",
-			from:   ft(2017, 7),
-			to:     ft(2017, 11),
-			n:      1,
-			expected: [][]interface{}{
-				{"num_stats;All;companies,developers", 4, 3},
-			},
-		},
-		{
-			setup:  setupApproversMetric,
-			metric: "approvers",
-			from:   ft(2017, 7),
-			to:     ft(2017, 8),
-			n:      1,
-			expected: [][]interface{}{
-				{"approvers,Group", 3},
-				{"approvers,Mono-group", 1},
-			},
-		},
-		{
-			setup:  setupPRApproversMetric,
-			metric: "other_approver",
-			from:   ft(2017, 10),
-			to:     ft(2017, 11),
-			n:      1,
-			expected: [][]interface{}{
-				{"other_approvers;All;all_suggested_approvers,no_approver,other_approver,suggested_approver", "4.00", "1.00", "2.00", "1.00"},
-				{"other_approvers;G1;all_suggested_approvers,no_approver,other_approver,suggested_approver", "2.00", "1.00", "0.00", "1.00"},
-				{"other_approvers;G2;all_suggested_approvers,no_approver,other_approver,suggested_approver", "1.00", "0.00", "1.00", "0.00"},
-			},
-		},
-		{
-			setup:  setupPRAuthorsMetric,
-			metric: "hist_pr_authors",
-			period: "1 week",
-			n:      1,
-			replaces: [][2]string{
-				{" >= 5", " >= 1"},
-				{" >= 3", " >= 1"},
-			},
-			expected: [][]interface{}{
-				{"hist_pr_authors,All", "Actor 1", 3},
-				{"hist_pr_authors,All", "Actor 2", 3},
-				{"hist_pr_authors,All", "Actor 3", 3},
-				{"hist_pr_authors,Group 1", "Actor 2", 2},
-				{"hist_pr_authors,Group 1", "Actor 3", 2},
-				{"hist_pr_authors,Group 1", "Actor 1", 1},
-				{"hist_pr_authors,Group 2", "Actor 1", 1},
-				{"hist_pr_authors,Group 2", "Actor 3", 1},
-			},
-		},
-		{
-			setup:  setupPRAuthorsMetric,
-			metric: "hist_pr_companies",
-			period: "1 week",
-			n:      1,
-			replaces: [][2]string{
-				{" >= 5", " >= 1"},
-				{" >= 3", " >= 1"},
-			},
-			expected: [][]interface{}{
-				{"hist_pr_companies,All", "company1", 6},
-				{"hist_pr_companies,All", "company2", 3},
-				{"hist_pr_companies,Group 1", "company1", 3},
-				{"hist_pr_companies,Group 1", "company2", 2},
-				{"hist_pr_companies,Group 2", "company1", 1},
-				{"hist_pr_companies,Group 2", "company2", 1},
-			},
-		},
-		{
-			setup:  setupIssuesAgeMetric,
-			metric: "issues_age",
-			from:   ft(2017, 10),
-			to:     ft(2017, 11),
-			n:      1,
-			expected: [][]interface{}{
-				{"issues_age;All_All_kind1_All;number,median", "1.00", 240},
-				{"issues_age;All_sig1_All_All;number,median", "1.00", 240},
-				{"issues_age;All_sig1_kind1_All;number,median", "1.00", 240},
-				{"issues_age;All_sigX_All_All;number,median", "1.00", 240},
-				{"issues_age;All_sigX_kind1_All;number,median", "1.00", 240},
-				{"issues_age;G1_All_All_All;number,median", "2.00", 240},
-				{"issues_age;G1_All_kind1_All;number,median", "1.00", 240},
-				{"issues_age;G1_sig1_All_All;number,median", "1.00", 240},
-				{"issues_age;G1_sig1_kind1_All;number,median", "1.00", 240},
-				{"issues_age;G1_sigX_All_All;number,median", "1.00", 240},
-				{"issues_age;G1_sigX_kind1_All;number,median", "1.00", 240},
-				{"issues_age;All_All_All_All;number,median", "4.00", 480},
-				{"issues_age;All_All_kind2_All;number,median", "1.00", 480},
-				{"issues_age;All_All_kindX_All;number,median", "1.00", 480},
-				{"issues_age;All_sig2_All_All;number,median", "1.00", 480},
-				{"issues_age;All_sig2_kind2_All;number,median", "1.00", 480},
-				{"issues_age;All_sig2_kindX_All;number,median", "1.00", 480},
-				{"issues_age;G2_All_All_All;number,median", "1.00", 480},
-				{"issues_age;G2_All_kind2_All;number,median", "1.00", 480},
-				{"issues_age;G2_All_kindX_All;number,median", "1.00", 480},
-				{"issues_age;G2_sig2_All_All;number,median", "1.00", 480},
-				{"issues_age;G2_sig2_kind2_All;number,median", "1.00", 480},
-				{"issues_age;G2_sig2_kindX_All;number,median", "1.00", 480},
-				{"issues_age;All_All_kind3_All;number,median", "1.00", 744},
-				{"issues_age;G1_All_kind3_All;number,median", "1.00", 744},
-				{"issues_age;All_sig4_All_All;number,median", "1.00", 984},
-			},
-		},
-	}
-
 	// Environment context parse
 	var ctx lib.Ctx
 	ctx.Init()
@@ -740,19 +57,53 @@ func TestMetrics(t *testing.T) {
 		return
 	}
 
+	// We need to know project to test
+	if ctx.Project == "" {
+		t.Errorf("you need to set project via GHA2DB_PROJECT=project_name (one of projects from projects.yaml)")
+	}
+
+	// Load test cases
+	var tests metricTests
+	data, err := ioutil.ReadFile(ctx.TestsYaml)
+	if err != nil {
+		lib.FatalOnError(err)
+		return
+	}
+	lib.FatalOnError(yaml.Unmarshal(data, &tests))
+	fmt.Printf("%+v\n", tests)
+
+	// Read per project test cases
+	testCases := []metricTestCase{}
+	for _, project := range tests.Projects {
+		if project.ProjectName == ctx.Project {
+			testCases = project.Tests
+		}
+	}
+	if len(testCases) < 1 {
+		t.Errorf("no tests defined for '%s' project", ctx.Project)
+	}
+
 	// Execute test cases
 	for index, test := range testCases {
+		prepareMetricTestCase(&test)
 		got, err := executeMetricTestCase(&test, &ctx)
 		if err != nil {
 			t.Errorf("test number %d: %v", index+1, err.Error())
 		}
-		if !testlib.CompareSlices2D(test.expected, got) {
-			t.Errorf("test number %d, expected %+v, got %+v    test case: %+v", index+1, test.expected, got, test)
+		if !testlib.CompareSlices2D(test.Expected, got) {
+			t.Errorf("test number %d, expected %+v, got %+v    test case: %+v", index+1, test.Expected, got, test)
 		}
-		if test.debugDB {
+		if test.DebugDB {
 			t.Errorf("returning due to debugDB mode")
 			return
 		}
+	}
+}
+
+// This prepares raw YAML metric to be executed (for example sets Setup function if needed)
+
+func prepareMetricTestCase(testMetric *metricTestCase) {
+	if testMetric.SetupName != "" {
 	}
 }
 
@@ -761,7 +112,7 @@ func TestMetrics(t *testing.T) {
 // Singel metric test is dropping & creating database from scratch (to avoid junky database)
 // It also creates full DB structure - without indexes - they're not needed in
 // small databases - like the ones created by test covergae tools
-func executeMetricTestCase(testMetric *MetricTestCase, ctx *lib.Ctx) (result [][]interface{}, err error) {
+func executeMetricTestCase(testMetric *metricTestCase, ctx *lib.Ctx) (result [][]interface{}, err error) {
 	// Drop database if exists
 	lib.DropDatabaseIfExists(ctx)
 
@@ -773,7 +124,7 @@ func executeMetricTestCase(testMetric *MetricTestCase, ctx *lib.Ctx) (result [][
 	}
 
 	// Drop database after tests
-	if !testMetric.debugDB {
+	if !testMetric.DebugDB {
 		defer func() {
 			// Drop database after tests
 			lib.DropDatabaseIfExists(ctx)
@@ -787,25 +138,26 @@ func executeMetricTestCase(testMetric *MetricTestCase, ctx *lib.Ctx) (result [][
 	// Create DB structure
 	lib.Structure(ctx)
 
-	// Execute metrics setup function
-	err = testMetric.setup(c, ctx)
-	if err != nil {
-		return
-	}
+	// Execute metrics Setup function
+  if testMetric.Setup != nil {
+	  err = (*testMetric.Setup)(c, ctx)
+	  if err != nil {
+		  return
+	  }
+  }
 
 	// Execute metric and get its results
 	result, err = executeMetric(
 		c,
 		ctx,
-		testMetric.metric,
-		testMetric.from,
-		testMetric.to,
-		testMetric.period,
-		testMetric.n,
-		testMetric.replaces,
+		testMetric.Metric,
+		testMetric.From,
+		testMetric.To,
+		testMetric.Period,
+		testMetric.N,
+		testMetric.Replaces,
 	)
 
-	// We're after succesfull setup
 	return
 }
 

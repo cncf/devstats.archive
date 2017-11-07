@@ -60,6 +60,7 @@ type Ctx struct {
 	ProjectRoot      string    // From GHA2DB_PROJECT_ROOT, webhook tool, no default, must be specified to run webhook tool
 	ExecFatal        bool      // default true, set this manually to false to avoid lib.ExecCommand calling os.Exit() on failure and return error instead
 	Project          string    // From GHA2DB_PROJECT, gha2db_sync default "", You should set it to something like "kubernetes", "prometheus" etc.
+	TestsYaml        string    // From GHA2DB_TESTS_YAML ./dbtest.sh tool, set other tests.yaml file, default is "tests.yaml"
 }
 
 // Init - get context from environment variables
@@ -289,6 +290,12 @@ func (ctx *Ctx) Init() {
 		}
 	}
 	ctx.CheckPayload = os.Getenv("GHA2DB_SKIP_VERIFY_PAYLOAD") == ""
+
+	// Tests
+	ctx.TestsYaml = os.Getenv("GHA2DB_TESTS_YAML")
+	if ctx.TestsYaml == "" {
+		ctx.TestsYaml = "tests.yaml"
+	}
 
 	// Context out if requested
 	if ctx.CtxOut {

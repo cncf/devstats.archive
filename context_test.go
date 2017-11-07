@@ -62,6 +62,7 @@ func copyContext(in *lib.Ctx) *lib.Ctx {
 		DeployTypes:      in.DeployTypes,
 		ProjectRoot:      in.ProjectRoot,
 		Project:          in.Project,
+		TestsYaml:        in.TestsYaml,
 		ExecFatal:        in.ExecFatal,
 	}
 	return &out
@@ -197,6 +198,7 @@ func TestInit(t *testing.T) {
 		DeployTypes:      []string{"push"},
 		ProjectRoot:      "",
 		Project:          "",
+		TestsYaml:        "tests.yaml",
 		ExecFatal:        true,
 	}
 
@@ -553,6 +555,19 @@ func TestInit(t *testing.T) {
 					"MetricsYaml":     "metrics/prometheus/metrics.yaml",
 					"GapsYaml":        "/gapz.yml",
 					"TagsYaml":        "metrics/prometheus/idb_tags.yaml",
+				},
+			),
+		},
+		{
+			"Setting tests.yaml",
+			map[string]string{
+				"GHA2DB_TESTS_YAML": "foobar.yml",
+			},
+			dynamicSetFields(
+				t,
+				copyContext(&defaultContext),
+				map[string]interface{}{
+					"TestsYaml": "foobar.yml",
 				},
 			),
 		},
