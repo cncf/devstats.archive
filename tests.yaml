@@ -53,7 +53,136 @@ projects:
             - Actor 3
             - 1
         data: KubernetesReviewersHistMetric
+      - metric: hist_approvers
+        additional_setup_func: SetRelativeDates
+        additional_setup_arg: gha_events;created_at;now()-'1h'::interval,gha_texts;created_at;now()-'1h'::interval
+        n: 1
+        period: 1 week
+        replaces:
+          - - ' >= 3'
+            - ' >= 0'
+          - - ' >= 2'
+            - ' >= 0'
+        expected:
+          - - approvers_hist,All
+            - Actor 1
+            - 2
+          - - approvers_hist,All
+            - Actor 3
+            - 2
+          - - approvers_hist,All
+            - Actor 2
+            - 1
+          - - approvers_hist,Group
+            - Actor 1
+            - 1
+          - - approvers_hist,Group
+            - Actor 2
+            - 1
+          - - approvers_hist,Group
+            - Actor 3
+            - 1
+        data: KubernetesApproversHistMetric
 data:
+  KubernetesApproversHistMetric:
+    # id, name, org_id, org_login, repo_group
+    repos:
+      - - 1
+        - Repo 1
+        - 1
+        - Org
+        - Group
+      - - 2
+        - Repo 2
+        - 1
+        - Org
+        - Group
+    # eid, etype, aid, rid, public, created_at, aname, rname, orgid
+    events:
+    # append to all rows in "texts"
+      - - 3
+        - T
+        - 3
+        - 1
+        - true
+        - 2017-11-07T13:38:11.674664998Z
+        - Actor 3
+        - Repo 1
+        - 1
+      - - 4
+        - T
+        - 1
+        - 3
+        - true
+        - 2017-11-07T13:38:11.674664998Z
+        - Actor 1
+        - Repo 3
+        - 2
+      - - 7
+        - T
+        - 2
+        - 2
+        - true
+        - 2017-11-07T13:38:11.674664998Z
+        - Actor 2
+        - Repo 2
+        - 1
+      - - 8
+        - T
+        - 3
+        - 4
+        - true
+        - 2017-11-07T13:38:11.674664998Z
+        - Actor 3
+        - Repo 4
+        - 2
+      - - 11
+        - T
+        - 3
+        - 5
+        - true
+        - 2017-11-07T13:38:11.674664998Z
+        - Actor 3
+        - Repo 5
+        - null
+      - - 13
+        - T
+        - 1
+        - 1
+        - true
+        - 2017-11-07T13:38:11.674664998Z
+        - Actor 1
+        - Repo 1
+        - 1
+    texts_append:
+      - - 0
+        - ""
+        - 0
+        - ""
+        - D
+    # eid, body, created_at
+    texts:
+      - - 3
+        - /approve
+        - 2017-11-07T13:38:11.674664998Z
+      - - 4
+        - ' /APPROVE '
+        - 2017-11-07T13:38:11.674664998Z
+      - - 7
+        - ' /APprove '
+        - 2017-11-07T13:38:11.674664998Z
+      - - 8
+        - "\t/aPpRoVe\n"
+        - 2017-11-07T13:38:11.674664998Z
+      - - 11
+        - /APProve with additional text
+        - 2017-11-07T13:38:11.674664998Z
+      - - 13
+        - |-
+          Line 1
+          /approve
+          Line 2
+        - 2017-11-07T13:38:11.674664998Z
   KubernetesReviewersHistMetric:
     # id, name, org_id, org_login, repo_group
     repos:
