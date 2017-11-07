@@ -30,7 +30,7 @@ Uses GNU `Makefile`:
 - `make install` - to install binaries, this is needed for cron job.
 - `make clean` - to clean binaries
 - `make test` - to execute non-DB tests
-- `PG_DB=dbtest PG_PASS=pwd IDB_DB=dbtest IDB_PASS=pwd make dbtest` - to execute DB tests.
+- `GHA2DB_PROJECT=kubernetes PG_DB=dbtest PG_PASS=pwd IDB_DB=dbtest IDB_PASS=pwd make dbtest` - to execute DB tests.
 
 All `*.go` files in project root directory are common library `gha2db` for all go executables.
 All `*_test.go` and `test/*.go` are Go test files, that are used only for testing.
@@ -105,6 +105,7 @@ You can tweak `devstats` tools by environment variables:
 - Set `GHA2DB_DEPLOY_RESULTS`, webhook tool, default "0", comma separated list, use to set which travis ci results should be deployed.
 - Set `GHA2DB_DEPLOY_TYPES`, webhook tool, default "push", comma separated list, use to set which event types should be deployed.
 - Set `GHA2DB_PROJECT_ROOT`, webhook tool, no default - You have to set it to where the project repository is cloned (usually $GOPATH:/src/devstats).
+- Set `GHA2DB_PROJECT`, `gha2db_sync` tool to get per project arguments automaticlly and to set all other config files directory prefixes (for example `metrics/prometheus/`), it reads data from `projects.yaml`.
 
 All environment context details are defined in [context.go](https://github.com/cncf/devstats/blob/master/context.go), please see that file for details (You can also see how it works in [context_test.go](https://github.com/cncf/devstats/blob/master/context_test.go)).
 
@@ -354,10 +355,17 @@ Example call:
 - Add `GHA2DB_SKIPPDB` environment variable to skip syncing Postgres (so it will only sync Influx DB)
 
 Sync tool uses [gaps.yaml](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/gaps.yaml), to prefill some series with zeros. This is needed for metrics (like SIG mentions or PRs merged) that return multiple rows, depending on data range.
+Sync tool read project definition from [projects.yaml](https://github.com/cncf/devstats/blob/master/projects.yaml)
 
 # Cron
 
-You can install a cron job to run `devstats_sync` automatically, please check "cron" section:
+You can have multiple projects running on the same machine (like `GHA2DB_PROJECT=kubernetes` and `GHA2DB_PROJECT=prometheus`) runnign in a slightly different time window.
+Both kubernetes and prometheus projects are using tags on their dashboards.
+You should choose only one project on production, and only import given projects dashboards. Each projects should run on a separate server on production.
+Example cron tab file (containing entries for all projects): [crontab.entry](https://github.com/cncf/devstats/blob/master/metrics/crontab.entry)
+
+To install cron job please check "cron" section:
+
 - [Mac](https://github.com/cncf/devstats/blob/master/INSTALL_MAC.md)
 - [Linux Ubuntu 16 LTS](https://github.com/cncf/devstats/blob/master/INSTALL_UBUNTU16.md)
 - [Linux Ubuntu 17](https://github.com/cncf/devstats/blob/master/INSTALL_UBUNTU17.md)
@@ -387,8 +395,6 @@ This is a part of `kubernetes/kubernetes.sh` script and [kubernetes psql dump](h
 # Grafana output
 
 You can visualise data using Grafana, see [grafana/](https://github.com/cncf/devstats/blob/master/grafana/) directory:
-
-# Install Grafana using:
 
 Grafana install instruction are here:
 - [Mac](https://github.com/cncf/devstats/blob/master/INSTALL_MAC.md)
@@ -429,7 +435,7 @@ Feed InfluxDB using:
 - `idb_backup` is used to backup/restore InfluxDB. Full renenerate of InfluxDB takes about 12 minutes. To avoid downtime when we need to rebuild InfluxDB - we can generate new InfluxDB on `test` database and then if succeeded, restore it on `gha`. Downtime will be about 2 minutes.
 
 # To check results in the InfluxDB:
-- influx
+- influx (or just influx -database gha -username gha_admin -password your_pwd)
 - auth (gha_admin/influxdb_pwd)
 - use gha
 - precision rfc3339
@@ -468,7 +474,7 @@ Details [here](https://github.com/cncf/devstats/blob/master/metrics/CONTINUOUS_D
 # Benchmarks
 Benchmarks were executed on historical Ruby version and current Go version.
 
-Please see [Benchmarks](https://github.com/cncf/devstats/blob/master/BENCHMARK.md)
+Please see [Historical benchmarks](https://github.com/cncf/devstats/blob/master/BENCHMARK.md)
 
 # Testing
 

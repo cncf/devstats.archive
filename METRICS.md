@@ -1,6 +1,6 @@
 # Adding new metrics
 
-To add new metric:
+To add new metric (replace `{{project}}` with kubernetes, prometheus or any othe rproject defined in `projects.yaml`):
 
 1) Define parameterized SQL (with `{{from}}`, `{{to}}`  and `{{n}}` params) that returns this metric data. For histogram metrics define `{{period}}` instead.
 - {{n}} is only used in aggregate periods mode and it will get value from `Number of periods` drop-down. For example for 7 days MA (moving average) it will be 7.
@@ -19,8 +19,8 @@ To add new metric:
 - Simplest type of histogram `series_name_or_func` is just a InfluxDB series name. Because we're calculating histogram for last `{{period}}` each time, given series is cleared and recalculated.
 - Metric can return multiple rows with single column (which means 3 columns in histogram mode: `prefix,series_name` and then histogram value (2 columns: `name` and `value`), exactly the same as `series_name_or_func: multi_row_single_column`.
 - If metrics need additiona string descriptions (like when we are returning number of hours as age, and want to have nice formatted string value like "1 day 12 hours") use `desc: time_diff_as_string`.
-- Metric can return multiple values in a single series (for example for SIG mentions stacking, bot commands, company stats etc), use `multi_value: true` to mark series to return multi value in a single series (instead of creating multiple series with single values).
-- If You want to escape value names in multivalued series use `escape_value_name: true` in `metrics.yaml`.
+- Metric can return multiple values in a single series (for example for SIG mentions stacking, bot commands, company stats etc), use `multi_value: true` to mark series to return multi value in a single series (instead of creating multiple series with single values). Multi values are used for stacked charts with multi value drop down to select series.
+- If You want to escape value names in multi-valued series use `escape_value_name: true` in `metrics.yaml`.
 3) If metrics create data gaps (for example returns multiple rows with different counts depending on data range), you have to add automatic filling gaps in [metrics/{{project}}gaps.yaml](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/gaps.yaml) (file is used by `z2influx` tool):
 - You need to define periods to fill gaps, they should be the same as in `metrics.yaml` definition.
 - You need to define a series list to fill gaps on them. Use `series: ` to set them. It expects a list of series (YAML list).
