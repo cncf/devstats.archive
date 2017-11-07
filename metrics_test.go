@@ -25,12 +25,12 @@ import (
 type metricTestCase struct {
 	Setup     *reflect.Value
 	Metric    string          `yaml:"metric"`
-	From      time.Time       `yaml:"from"`           // used by non-histogram metrics
-	To        time.Time       `yaml:"to"`             // used by non-histogram metrics
-	Period    string          `yaml:"period"`         // used by histogram metrics
-	N         int             `yaml:"n"`              // used by metrics that use moving periods
-	DebugDB   bool            `yaml:"debug_database"` // if set, test will not drop database at the end and will return after such test, so You can run metric manually via `runq` or directly on DB
-	Replaces  [][2]string     `yaml:"replaces"`
+	From      time.Time       `yaml:"from"`   // used by non-histogram metrics
+	To        time.Time       `yaml:"to"`     // used by non-histogram metrics
+	Period    string          `yaml:"period"` // used by histogram metrics
+	N         int             `yaml:"n"`      // used by metrics that use moving periods
+	DebugDB   bool            `yaml:"debug"`  // if set, test will not drop database at the end and will return after such test, so You can run metric manually via `runq` or directly on DB
+	Replaces  [][]string      `yaml:"replaces"`
 	Expected  [][]interface{} `yaml:"expected"`
 	SetupName string          `yaml:"additional_setup_func"`
 	DataName  string          `yaml:"data"`
@@ -93,7 +93,7 @@ func TestMetrics(t *testing.T) {
 			t.Errorf("test number %d: %v", index+1, err.Error())
 		}
 		if !testlib.CompareSlices2D(test.Expected, got) {
-			t.Errorf("test number %d, expected %+v, got %+v    test case: %+v", index+1, test.Expected, got, test)
+			t.Errorf("test number %d, expected:\n%+v\n%+v\ngot test case: %+v", index+1, test.Expected, got, test)
 		}
 		if test.DebugDB {
 			t.Errorf("returning due to debugDB mode")
@@ -233,7 +233,7 @@ func executeMetricTestCase(testMetric *metricTestCase, tests *metricTests, ctx *
 
 // execute metric metrics/{{metric}}.sql with {{from}} and {{to}} replaced by from/YMDHMS, to/YMDHMS
 // end result slice of slices of any type
-func executeMetric(c *sql.DB, ctx *lib.Ctx, metric string, from, to time.Time, period string, n int, replaces [][2]string) (result [][]interface{}, err error) {
+func executeMetric(c *sql.DB, ctx *lib.Ctx, metric string, from, to time.Time, period string, n int, replaces [][]string) (result [][]interface{}, err error) {
 	// Metric file name
 	sqlFile := fmt.Sprintf("metrics/%s/%s.sql", ctx.Project, metric)
 
@@ -248,6 +248,10 @@ func executeMetric(c *sql.DB, ctx *lib.Ctx, metric string, from, to time.Time, p
 	sqlQuery = strings.Replace(sqlQuery, "{{period}}", period, -1)
 	sqlQuery = strings.Replace(sqlQuery, "{{n}}", strconv.Itoa(n)+".0", -1)
 	for _, replace := range replaces {
+		if len(replace) != 2 {
+			err = fmt.Errorf("replace(s) should have length 2, invalid: %+v", replace)
+			return
+		}
 		sqlQuery = strings.Replace(sqlQuery, replace[0], replace[1], -1)
 	}
 
@@ -693,7 +697,7 @@ func updateRepoAliasFromName(con *sql.DB, ctx *lib.Ctx) {
 }
 
 // Create data for affiliations metric
-func setupAffiliationsMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
+func (metricTestCase) SetupAffiliationsMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 	ft := testlib.YMDHMS
 
 	// Activities counted
@@ -766,7 +770,7 @@ func setupAffiliationsMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 }
 
 // Create data for PR comments metric
-func setupPRCommentsMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
+func (metricTestCase) SetupPRCommentsMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 	ft := testlib.YMDHMS
 
 	// PRs to add
@@ -824,7 +828,7 @@ func setupPRCommentsMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 }
 
 // Create data for first non-author activity metric
-func setupFirstNonAuthorActivityMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
+func (metricTestCase) SetupFirstNonAuthorActivityMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 	ft := testlib.YMDHMS
 
 	// Repos to add
@@ -870,7 +874,7 @@ func setupFirstNonAuthorActivityMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 }
 
 // Create data for opened to merged metric
-func setupTimeMetrics(con *sql.DB, ctx *lib.Ctx) (err error) {
+func (metricTestCase) SetupTimeMetrics(con *sql.DB, ctx *lib.Ctx) (err error) {
 	ft := testlib.YMDHMS
 
 	// Repos to add
@@ -975,7 +979,7 @@ func setupTimeMetrics(con *sql.DB, ctx *lib.Ctx) (err error) {
 }
 
 // Create data for PR authors/authors companies (histogram)
-func setupPRAuthorsMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
+func (metricTestCase) SetupPRAuthorsMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 	tm := time.Now().Add(-time.Hour)
 	tmOld := time.Now().AddDate(-1, -1, -1)
 	tmFuture := time.Now().AddDate(1, 1, 1)
@@ -1045,7 +1049,7 @@ func setupPRAuthorsMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 }
 
 // Create data for Suggested Approvers metric
-func setupPRApproversMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
+func (metricTestCase) SetupPRApproversMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 	ft := testlib.YMDHMS
 
 	// Repos to add
@@ -1135,7 +1139,7 @@ func setupPRApproversMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 }
 
 // Create data for Issues Age metric
-func setupIssuesAgeMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
+func (metricTestCase) SetupIssuesAgeMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 	ft := testlib.YMDHMS
 
 	// Repos to add
@@ -1203,7 +1207,7 @@ func setupIssuesAgeMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 }
 
 // Create data for New PRs metric
-func setupNewPRsMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
+func (metricTestCase) SetupNewPRsMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 	ft := testlib.YMDHMS
 
 	// Repos to add
@@ -1251,7 +1255,7 @@ func setupNewPRsMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 }
 
 // Create data for need rebase PRs metrics
-func setupNeedRebasePRsMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
+func (metricTestCase) SetupNeedRebasePRsMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 	ft := testlib.YMDHMS
 	//gha_comments c
 
@@ -1365,7 +1369,7 @@ func setupNeedRebasePRsMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 }
 
 // Create data for blocked PRs metrics
-func setupBlockedPRsMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
+func (metricTestCase) SetupBlockedPRsMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 	ft := testlib.YMDHMS
 	//gha_comments c
 
@@ -1474,7 +1478,7 @@ func setupBlockedPRsMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 }
 
 // Create data for PRs state metrics
-func setupPRsStateMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
+func (metricTestCase) SetupPRsStateMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 	ft := testlib.YMDHMS
 	//gha_comments c
 
@@ -1582,7 +1586,7 @@ func setupPRsStateMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 }
 
 // Create data for (All) PRs merged metrics
-func setupPRsMergedMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
+func (metricTestCase) SetupPRsMergedMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 	ft := testlib.YMDHMS
 
 	// Repos to add
@@ -1655,7 +1659,7 @@ func setupPRsMergedMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 }
 
 // Create data for bot commands metric
-func setupBotCommandsMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
+func (metricTestCase) SetupBotCommandsMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 	ft := testlib.YMDHMS
 
 	// Repos to add
@@ -1704,7 +1708,7 @@ func setupBotCommandsMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 }
 
 // Create data for SIG mentions metric (that uses texts)
-func setupSigMentionsTextMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
+func (metricTestCase) SetupSigMentionsTextMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 	ft := testlib.YMDHMS
 
 	// texts to add
@@ -1737,7 +1741,7 @@ func setupSigMentionsTextMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 }
 
 // Create data for Issues metrics (SIG Issues & Issues repository group)
-func setupIssuesMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
+func (metricTestCase) SetupIssuesMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 	ft := testlib.YMDHMS
 
 	// Repos to add
@@ -1810,7 +1814,7 @@ func setupIssuesMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 }
 
 // Create data for SIG mentions metric (that uses labels)
-func setupSigMentionsLabelMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
+func (metricTestCase) SetupSigMentionsLabelMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 	ft := testlib.YMDHMS
 
 	// issues labels to add
@@ -1865,7 +1869,7 @@ func setupSigMentionsLabelMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 }
 
 // Create data for repo comments metric
-func setupRepoCommentsMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
+func (metricTestCase) SetupRepoCommentsMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 	ft := testlib.YMDHMS
 
 	// Repos to add
@@ -1934,7 +1938,7 @@ func setupRepoCommentsMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 }
 
 // Create data for approvers metric
-func setupApproversMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
+func (metricTestCase) SetupApproversMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 	ft := testlib.YMDHMS
 
 	// Repos to add
@@ -2008,7 +2012,7 @@ func interfaceToYaml(fn string, i *[][]interface{}) (err error) {
 }
 
 // Create data for top community stats metric
-func setupCommunityStatsMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
+func (metricTestCase) SetupCommunityStatsMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 	ft := testlib.YMDHMS
 
 	// Repos to add
@@ -2062,7 +2066,7 @@ func setupCommunityStatsMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 }
 
 // Create data for top commenters metric (histogram)
-func setupTopCommentersMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
+func (metricTestCase) SetupTopCommentersMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 	tm := time.Now().Add(-time.Hour)
 	tmOld := time.Now().AddDate(-1, -1, -1)
 
@@ -2112,7 +2116,7 @@ func setupTopCommentersMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 }
 
 // Create data for reviewers histogram metric
-func setupReviewersHistMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
+func (metricTestCase) SetupReviewersHistMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 	tm := time.Now().Add(-time.Hour)
 
 	// Repos to add
@@ -2121,6 +2125,7 @@ func setupReviewersHistMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 		{1, "Repo 1", 1, "Org", "Group"},
 		{2, "Repo 2", 1, "Org", "Group"},
 	}
+	interfaceToYaml("repos.yaml", &repos)
 
 	// Events to add
 	// eid, etype, aid, rid, public, created_at, aname, rname, orgid
@@ -2139,6 +2144,7 @@ func setupReviewersHistMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 		{12, "T", 1, 5, true, tm, "Actor 1", "Repo 5", nil},
 		{13, "T", 1, 1, true, tm, "Actor 1", "Repo 1", 1},
 	}
+	interfaceToYaml("events.yaml", &events)
 
 	// Issue Event Labels to add
 	// iid, eid, lid, lname, created_at
@@ -2152,6 +2158,7 @@ func setupReviewersHistMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 		{10, 10, 10, "other", tm, 5, "Repo 5", 2, "Actor 2", "T", 10},
 		{12, 12, 1, "lgtm", tm, 5, "Repo 5", 3, "Actor 3", "T", 12},
 	}
+	interfaceToYaml("iels.yaml", &iels)
 
 	// texts to add
 	// eid, body, created_at
@@ -2163,6 +2170,7 @@ func setupReviewersHistMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 		{11, "/lGtM with additional text", tm},
 		{13, "Line 1\n/lGtM\nLine 2", tm},
 	}
+	interfaceToYaml("texts.yaml", &texts)
 
 	// Add repos
 	for _, repo := range repos {
@@ -2202,7 +2210,7 @@ func setupReviewersHistMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 }
 
 // Create data for approvers histogram metric
-func setupApproversHistMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
+func (metricTestCase) SetupApproversHistMetric(con *sql.DB, ctx *lib.Ctx) (err error) {
 	tm := time.Now().Add(-time.Hour)
 
 	// Repos to add
