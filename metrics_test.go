@@ -1708,39 +1708,6 @@ func (metricTestCase) SetupBotCommandsMetric(con *sql.DB, ctx *lib.Ctx, arg stri
 	return
 }
 
-// Create data for SIG mentions metric (that uses texts)
-func (metricTestCase) SetupSigMentionsTextMetric(con *sql.DB, ctx *lib.Ctx, arg string) (err error) {
-	ft := testlib.YMDHMS
-
-	// texts to add
-	// eid, body, created_at
-	texts := [][]interface{}{
-		{1, `Hello @kubernetes/SIG-group-1`, ft(2017, 7, 1)},
-		{2, `@Kubernetes/sig-group-1-bugs, do you know about this bug?`, ft(2017, 7, 2)},
-		{3, `kubernetes/sig-group missing @ - not counted`, ft(2017, 7, 3)},
-		{4, `@kubernetes/sig-Group-1- not included, group cannot end with -`, ft(2017, 7, 4)},
-		{5, `XYZ@kubernetes/sig-Group-1 - not included, there must be white space or beggining of string before @`, ft(2017, 7, 5)},
-		{6, " \t@kubernetes/Sig-group-1-feature-request: we should consider adding new bot... \n ", ft(2017, 7, 6)},
-		{7, `Hi @kubernetes/sig-group2-BUGS; I wanted to report bug`, ft(2017, 7, 7)},
-		{8, `I have reviewed this PR, @Kubernetes/Sig-Group2-PR-reviews ping!`, ft(2017, 7, 8)},
-		{9, `Is there a @kubernetes/sig-a-b-c? Or maybe @kubernetes/sig-a-b-c-bugs?`, ft(2017, 7, 9)}, // counts as single mention.
-		{10, `@kubernetes/sig-group2-bugs? @kubernetes/sig-group2? @kubernetes/sig-group2-pr-review? anybody?`, ft(2017, 7, 10)},
-		{11, `@kubernetes/sig-group2-feature-requests out of test range`, ft(2017, 8, 11)},
-	}
-
-	// Add texts
-	stub := []interface{}{0, "", 0, "", "D"}
-	for _, text := range texts {
-		text = append(text, stub...)
-		err = addText(con, ctx, text...)
-		if err != nil {
-			return
-		}
-	}
-
-	return
-}
-
 // Create data for Issues metrics (SIG Issues & Issues repository group)
 func (metricTestCase) SetupIssuesMetric(con *sql.DB, ctx *lib.Ctx, arg string) (err error) {
 	ft := testlib.YMDHMS
