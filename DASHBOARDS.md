@@ -51,3 +51,7 @@ Dashboard definitions are read from YAML file:  [metrics/kubernetes/metrics.yaml
 If dashboard needs an additional preprocessing (filling gaps with zeros), then it must be listed in this YAML file:  [metrics/kubernetes/gaps.yaml](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/gaps.yaml).
 
 See [adding new metrics](https://github.com/cncf/devstats/blob/master/METRICS.md) for details.
+
+Similar set of metrics is defined for Prometheus:
+
+SQL metris in `metrics/prometheus/` directory, Iflux templates/tags `metrics/prometheus/*tags*.sql` files. Prometheus dashboards: `grafana/dashboards/prmetheus/` directory.

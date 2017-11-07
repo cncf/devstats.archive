@@ -15,6 +15,8 @@ We want to create a toolset for visualizing various metrics for the Kubernetes c
 
 Everything is open source so that it can be used by other CNCF and non-CNCF open source projects.
 
+This tool can also be used for Prometheus and other communities as well.
+
 The only requirement is that project must be hosted on a public GitHub repository/repositories.
 
 # Forking and installing locally
@@ -53,7 +55,7 @@ We also want to have per company statistics. To implement such metrics we need a
 
 There is a project that attempts to create such mapping [cncf/gitdm](https://github.com/cncf/gitdm).
 
-Gha2db has an import tool that fetches company affiliations `from cncf/gitdm` and allows to create per company metrics/statistics.
+Gha2db has an import tool that fetches company affiliations from `cncf/gitdm` and allows to create per company metrics/statistics.
 
 If you see errors in the company affiliations, please open a pull request on [cncf/gitdm](https://github.com/cncf/gitdm) and the updates will be reflected on [https://devstats.k8s.io](https://devstats.k8s.io) a couple days after the PR has been accepted. Note that gitdm supports mapping based on dates, to account for developers moving between companies.
 
@@ -125,6 +127,7 @@ We're getting all possible GitHub data for all objects, and all objects historic
 - It will add data to Postgres database (since the last run)
 - It will update summary tables and/or (materialized) views on Postgres DB.
 - Then it will call `db2influx` for all defined SQL metrics and update Influx database as well.
+- You need to set `GHA2DB_PROJECT=project_name` currently it can be either kubernetes or prometheus. Projects are defined in `projects.yaml` file.
 - It reads a list of metrics from YAML file: `metrics/{{project}}/metrics.yaml`, some metrics require to fill gaps in their data. Those metrics are defined in another YAML file `metrics/{{project}}/gaps.yaml`.
 - This tool also supports initial computing of All InfluxDB data (instead of default update since the last run).
 - It is called by cron job on 1:10, 2:10, ... and so on - GitHub archive publishes new file every hour, so we're off by at most 1 hour.
@@ -173,9 +176,9 @@ Please see [dashboards](https://github.com/cncf/devstats/blob/master/DASHBOARDS.
 
 # Benchmarks
 
-Ruby version was dropped, but You can see benchmarks of Ruby using MySQL, Ruby using Postgres and current Go using Postgres here:
+Ruby version was dropped, but you can see benchmarks of Ruby using MySQL, Ruby using Postgres and current Go using Postgres here:
 
-[Benchmarks](https://github.com/cncf/devstats/blob/master/BENCHMARK.md)
+[Historical benchmarks](https://github.com/cncf/devstats/blob/master/BENCHMARK.md)
 
 In summary: Go version can import all GitHub archives data (not discarding anything) for all Kubernetes orgs/repos, from the beginning on GitHub 2014-06-01 in about 2-2,5 hours!
 

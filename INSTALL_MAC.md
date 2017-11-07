@@ -64,7 +64,7 @@ Prerequisites:
     - Create InfluxDB user, database: `IDB_PASS='your_password_here' ./grafana/influxdb_setup.sh gha`
 
 11. Databases installed, you need to test if all works fine, use database test coverage:
-    - `IDB_DB=dbtest IDB_PASS=your_influx_pwd PG_DB=dbtest PG_PASS=your_postgres_pwd make dbtest`
+    - `GHA2DB_PROJECT=kubernetes IDB_DB=dbtest IDB_PASS=your_influx_pwd PG_DB=dbtest PG_PASS=your_postgres_pwd make dbtest`
     - Tests should pass.
 
 12. We have both databases running and Go tools installed, let's try to sync database dump from devstats.k8s.io manually:
