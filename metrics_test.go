@@ -33,6 +33,7 @@ type metricTestCase struct {
 	Replaces  [][2]string     `yaml:"replaces"`
 	Expected  [][]interface{} `yaml:"expected"`
 	SetupName string          `yaml:"additional_setup_func"`
+	DataName  string          `yaml:"data"`
 }
 
 // Tests set for single project
@@ -43,7 +44,8 @@ type projectMetricTestCase struct {
 
 // Test YAML struct (for all projects)
 type metricTests struct {
-	Projects []projectMetricTestCase `yaml:"projects"`
+	Projects []projectMetricTestCase               `yaml:"projects"`
+	Data     map[string]map[string][][]interface{} `yaml:"data"`
 }
 
 // Tests all metrics
@@ -86,7 +88,7 @@ func TestMetrics(t *testing.T) {
 	// Execute test cases
 	for index, test := range testCases {
 		prepareMetricTestCase(&test)
-		got, err := executeMetricTestCase(&test, &ctx)
+		got, err := executeMetricTestCase(&test, &tests, &ctx)
 		if err != nil {
 			t.Errorf("test number %d: %v", index+1, err.Error())
 		}
@@ -100,7 +102,8 @@ func TestMetrics(t *testing.T) {
 	}
 }
 
-// This prepares raw YAML metric to be executed (for example sets Setup function if needed)
+// This prepares raw YAML metric test to be executed:
+// Binds additional setup function if test uses "additional_setup_func" section
 func prepareMetricTestCase(testMetric *metricTestCase) {
 	if testMetric.SetupName != "" {
 		reflectTestMetric := reflect.ValueOf(*testMetric)
@@ -109,12 +112,35 @@ func prepareMetricTestCase(testMetric *metricTestCase) {
 	}
 }
 
+// This prepares raw metric test to be executed:
+// Generates data if test uses "data" section
+func dataForMetricTestCase(con *sql.DB, ctx *lib.Ctx, testMetric *metricTestCase, tests *metricTests) (err error) {
+	if testMetric.DataName != "" {
+		data, ok := tests.Data[testMetric.DataName]
+		if !ok {
+			err = fmt.Errorf("No data key for \"%s\" in \"data\" section of \"%s\"", testMetric.DataName, ctx.TestsYaml)
+			return
+		}
+		events, ok := data["events"]
+		if ok {
+			// Add events
+			for _, event := range events {
+				err = addEvent(con, ctx, event...)
+				if err != nil {
+					return
+				}
+			}
+		}
+	}
+	return
+}
+
 // This executes test of single metric
 // All metric data is defined in "testMetric" argument
 // Singel metric test is dropping & creating database from scratch (to avoid junky database)
 // It also creates full DB structure - without indexes - they're not needed in
 // small databases - like the ones created by test covergae tools
-func executeMetricTestCase(testMetric *metricTestCase, ctx *lib.Ctx) (result [][]interface{}, err error) {
+func executeMetricTestCase(testMetric *metricTestCase, tests *metricTests, ctx *lib.Ctx) (result [][]interface{}, err error) {
 	// Drop database if exists
 	lib.DropDatabaseIfExists(ctx)
 
@@ -140,7 +166,13 @@ func executeMetricTestCase(testMetric *metricTestCase, ctx *lib.Ctx) (result [][
 	// Create DB structure
 	lib.Structure(ctx)
 
-	// Execute metrics Setup function
+	// Setup test data
+	err = dataForMetricTestCase(c, ctx, testMetric, tests)
+	if err != nil {
+		return
+	}
+
+	// Execute metrics additional setup function
 	if testMetric.Setup != nil {
 		args := []reflect.Value{reflect.ValueOf(c), reflect.ValueOf(ctx)}
 		switch ret := testMetric.Setup.Call(args)[0].Interface().(type) {
