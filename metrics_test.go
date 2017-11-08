@@ -200,6 +200,15 @@ func dataForMetricTestCase(con *sql.DB, ctx *lib.Ctx, testMetric *metricTestCase
 				}
 			}
 		}
+		comments, ok := data["comments"]
+		if ok {
+			for _, comment := range comments {
+				err = addComment(con, ctx, comment...)
+				if err != nil {
+					return
+				}
+			}
+		}
 	}
 	return
 }
@@ -1694,75 +1703,6 @@ func (metricTestCase) SetupIssuesMetric(con *sql.DB, ctx *lib.Ctx, arg string) (
 	// Add repos
 	for _, repo := range repos {
 		err = addRepo(con, ctx, repo...)
-		if err != nil {
-			return
-		}
-	}
-
-	return
-}
-
-// Create data for repo comments metric
-func (metricTestCase) SetupRepoCommentsMetric(con *sql.DB, ctx *lib.Ctx, arg string) (err error) {
-	ft := testlib.YMDHMS
-
-	// Repos to add
-	// id, name, org_id, org_login, repo_group
-	repos := [][]interface{}{
-		{1, "R1", 1, "O1", "Group"},
-		{2, "R2", 1, "O1", "Group"},
-		{3, "R3", 2, "O2", "Mono-group"},
-		{4, "R4", 2, "O2", nil},
-	}
-
-	// texts to add
-	// eid, body, created_at
-	// repo_id, repo_name, actor_id, actor_login, type
-	texts := [][]interface{}{
-		{1, "com0", ft(2017, 9), 1, "R1", 1, "A1", "T"},
-		{2, "com1", ft(2017, 9, 2), 2, "R2", 2, "A2", "T"},
-		{3, "com2", ft(2017, 9, 3), 3, "R3", 3, "A3", "T"},
-		{4, "com3", ft(2017, 9, 4), 4, "R4", 1, "A1", "T"},
-		{5, "com4", ft(2017, 10, 5), 1, "R1", 2, "A2", "T"},
-		{6, "com5", ft(2017, 8, 6), 2, "R2", 3, "A3", "T"},
-		{7, "com6", ft(2017, 7, 7), 3, "R3", 1, "A1", "T"},
-		{8, "com7", ft(2017, 6, 8), 4, "R4", 2, "A2", "T"},
-		{9, "com7", ft(2017, 9, 9), 3, "R3", 3, "A3", "T"},
-	}
-
-	// Add comments
-	// id, event_id, body, created_at, user_id, repo_id, repo_name, actor_id, actor_login, type
-	comments := [][]interface{}{
-		{1, 1, "com0", ft(2017, 9), 1, 1, "R1", 1, "A1", "T"},
-		{2, 2, "com1", ft(2017, 9, 2), 2, 2, "R2", 2, "A2", "T"},
-		{3, 3, "com2", ft(2017, 9, 3), 3, 3, "R3", 3, "A3", "T"},
-		{4, 4, "com3", ft(2017, 9, 4), 1, 4, "R4", 1, "A1", "T"},
-		{5, 5, "com4", ft(2017, 10, 5), 2, 1, "R1", 2, "A2", "T"},
-		{6, 6, "com5", ft(2017, 8, 6), 3, 2, "R2", 3, "A3", "T"},
-		{7, 7, "com6", ft(2017, 7, 7), 1, 3, "R3", 1, "A1", "T"},
-		{8, 8, "com7", ft(2017, 6, 8), 2, 4, "R4", 2, "A2", "T"},
-		{9, 9, "com7", ft(2017, 9, 9), 3, 3, "R3", 3, "A3", "T"},
-	}
-
-	// Add repos
-	for _, repo := range repos {
-		err = addRepo(con, ctx, repo...)
-		if err != nil {
-			return
-		}
-	}
-
-	// Add texts
-	for _, text := range texts {
-		err = addText(con, ctx, text...)
-		if err != nil {
-			return
-		}
-	}
-
-	// Add comments
-	for _, comment := range comments {
-		err = addComment(con, ctx, comment...)
 		if err != nil {
 			return
 		}
