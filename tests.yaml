@@ -929,6 +929,25 @@ projects:
             - '1.00'
             - 984
         data: KubernetesIssuesAgeMetric
+      - metric: prs_state
+        additional_setup_funcs:
+          - SetDates
+        additional_setup_args:
+          - gha_pull_requests;updated_at;now()
+        from: 2017-10-01T00:00:00Z
+        to: 2017-11-01T00:00:00Z
+        n: 1
+        expected:
+          - - prs_approve_state;All;approved,awaiting
+            - '3.00'
+            - '1.00'
+          - - prs_approve_state;G1;approved,awaiting
+            - '2.00'
+            - '1.00'
+          - - prs_approve_state;G2;approved,awaiting
+            - '1.00'
+            - '0.00'
+        data: KubernetesSetupPRsStateMetric
       - metric: hist_reviewers
         additional_setup_funcs:
           - SetDates
@@ -1098,6 +1117,392 @@ projects:
             - 2
         data: KubernetesTopCommentersMetric
 data:
+  KubernetesSetupPRsStateMetric:
+    # id, name, org_id, org_login, repo_group
+    repos:
+      - - 1
+        - R1
+        - 1
+        - O1
+        - G1
+      - - 2
+        - R2
+        - 1
+        - O1
+        - G2
+      - - 3
+        - R3
+        - null
+        - null
+        - G1
+    # append to all rows in "prs"
+    prs_append:
+      - - 1980-01-01T12:00:00Z
+    # prid, eid, uid, merged_id, assignee_id, num, state, title, body,
+    # created_at, closed_at, merged_at, merged
+    # repo_id, repo_name, actor_id, actor_login
+    prs:
+      - - 1
+        - 1
+        - 0
+        - 0
+        - 0
+        - 1
+        - closed
+        - PR1
+        - BodyPR3
+        - 2017-10-01T00:00:00Z
+        - 2017-10-02T00:00:00Z
+        - 2017-10-02T00:00:00Z
+        - true
+        - 1
+        - R1
+        - 0
+        - ""
+      - - 2
+        - 2
+        - 0
+        - 0
+        - 0
+        - 2
+        - closed
+        - PR2
+        - BodyPR2
+        - 2017-10-02T00:00:00Z
+        - 2017-10-03T00:00:00Z
+        - null
+        - false
+        - 2
+        - R2
+        - 0
+        - ""
+      - - 3
+        - 3
+        - 0
+        - 0
+        - 0
+        - 3
+        - open
+        - PR3
+        - BodyPR3
+        - 2017-10-03T00:00:00Z
+        - null
+        - null
+        - false
+        - 3
+        - R3
+        - 0
+        - ""
+      - - 4
+        - 4
+        - 0
+        - 0
+        - 0
+        - 4
+        - closed
+        - PR4
+        - BodyPR4
+        - 2017-11-01T00:00:00Z
+        - 2017-11-02T00:00:00Z
+        - 2017-11-02T00:00:00Z
+        - true
+        - 1
+        - R1
+        - 0
+        - ""
+      - - 5
+        - 5
+        - 0
+        - 0
+        - 0
+        - 5
+        - closed
+        - PR5
+        - BodyPR5
+        - 2017-10-04T00:00:00Z
+        - 2017-10-05T00:00:00Z
+        - null
+        - false
+        - 2
+        - R2
+        - 0
+        - ""
+      - - 6
+        - 6
+        - 0
+        - 0
+        - 0
+        - 6
+        - open
+        - PR6
+        - BodyPR6
+        - 2017-10-05T00:00:00Z
+        - null
+        - null
+        - false
+        - 3
+        - R3
+        - 0
+        - ""
+      - - 7
+        - 7
+        - 0
+        - 0
+        - 0
+        - 7
+        - closed
+        - PR7
+        - BodyPR7
+        - 2017-10-06T00:00:00Z
+        - 2017-10-07T00:00:00Z
+        - 2017-10-07T00:00:00Z
+        - false
+        - 2
+        - R2
+        - 0
+        - ""
+    # id, event_id, assignee_id, body, closed_at, created_at, number, state,
+    # title, updated_at, user_id, dup_actor_id, dup_actor_login, dup_repo_id,
+    # dup_repo_name, dup_type, is_pull_request
+    issues:
+      - - 1
+        - 1
+        - 0
+        - ""
+        - 2017-10-02T00:00:00Z
+        - 2017-10-01T00:00:00Z
+        - 1
+        - closed
+        - ""
+        - 2017-10-01T00:00:00Z
+        - 0
+        - 0
+        - ""
+        - 1
+        - R1
+        - ""
+        - true
+      - - 2
+        - 2
+        - 0
+        - ""
+        - 2017-10-03T00:00:00Z
+        - 2017-10-02T00:00:00Z
+        - 2
+        - closed
+        - ""
+        - 2017-10-02T00:00:00Z
+        - 0
+        - 0
+        - ""
+        - 2
+        - R2
+        - ""
+        - true
+      - - 3
+        - 3
+        - 0
+        - ""
+        - null
+        - 2017-10-03T00:00:00Z
+        - 3
+        - open
+        - ""
+        - 2017-10-03T00:00:00Z
+        - 0
+        - 0
+        - ""
+        - 3
+        - R3
+        - ""
+        - true
+      - - 4
+        - 4
+        - 0
+        - ""
+        - 2017-11-02T00:00:00Z
+        - 2017-11-01T00:00:00Z
+        - 4
+        - closed
+        - ""
+        - 2017-11-01T00:00:00Z
+        - 0
+        - 0
+        - ""
+        - 1
+        - R1
+        - ""
+        - true
+      - - 5
+        - 5
+        - 0
+        - ""
+        - 2017-10-05T00:00:00Z
+        - 2017-10-04T00:00:00Z
+        - 5
+        - closed
+        - ""
+        - 2017-10-04T00:00:00Z
+        - 0
+        - 0
+        - ""
+        - 2
+        - R2
+        - ""
+        - false
+      - - 6
+        - 6
+        - 0
+        - ""
+        - null
+        - 2017-10-05T00:00:00Z
+        - 6
+        - open
+        - ""
+        - 2017-10-05T00:00:00Z
+        - 0
+        - 0
+        - ""
+        - 3
+        - R3
+        - ""
+        - true
+      - - 7
+        - 7
+        - 0
+        - ""
+        - 2017-10-07T00:00:00Z
+        - 2017-10-06T00:00:00Z
+        - 7
+        - closed
+        - ""
+        - 2017-10-06T00:00:00Z
+        - 0
+        - 0
+        - ""
+        - 2
+        - R2
+        - ""
+        - true
+    # issue_id, pr_id, number, repo_id, repo_name, created_at
+    issues_prs:
+      - - 1
+        - 1
+        - 1
+        - 1
+        - R1
+        - 2017-10-01T00:00:00Z
+      - - 2
+        - 2
+        - 2
+        - 2
+        - R2
+        - 2017-10-02T00:00:00Z
+      - - 3
+        - 3
+        - 3
+        - 3
+        - R3
+        - 2017-10-03T00:00:00Z
+      - - 4
+        - 4
+        - 4
+        - 4
+        - R1
+        - 2017-11-01T00:00:00Z
+      - - 5
+        - 5
+        - 5
+        - 5
+        - R2
+        - 2017-10-04T00:00:00Z
+      - - 6
+        - 6
+        - 6
+        - 6
+        - R3
+        - 2017-10-05T00:00:00Z
+      - - 7
+        - 7
+        - 7
+        - 7
+        - R3
+        - 2017-10-06T00:00:00Z
+    # id, event_id, body, created_at, user_id, repo_id, repo_name, actor_id,
+    # actor_login, type
+    comments:
+      - - 1
+        - 1
+        - is merged
+        - 2017-10-01T00:00:00Z
+        - 0
+        - 1
+        - R1
+        - 0
+        - ""
+        - ""
+      - - 2
+        - 2
+        - /approve
+        - 2017-10-02T00:00:00Z
+        - 0
+        - 2
+        - R2
+        - 0
+        - ""
+        - ""
+      - - 3
+        - 3
+        - /LGTM
+        - 2017-10-04T00:00:00Z
+        - 0
+        - 3
+        - R3
+        - 0
+        - ""
+        - ""
+      - - 4
+        - 4
+        - Merged so approved
+        - 2017-10-04T00:00:00Z
+        - 0
+        - 3
+        - R3
+        - 0
+        - ""
+        - ""
+      - - 5
+        - 5
+        - /approve
+        - 2017-10-04T00:00:00Z
+        - 0
+        - 3
+        - R3
+        - 0
+        - ""
+        - ""
+      - - 6
+        - 6
+        - This is /LGTM imho.
+        - 2017-10-04T00:00:00Z
+        - 0
+        - 3
+        - R3
+        - 0
+        - ""
+        - ""
+      - - 7
+        - 7
+        - |
+          Hello
+          /lgtm
+        - 2017-10-07T00:00:00Z
+        - 0
+        - 2
+        - R2
+        - 0
+        - ""
+        - ""
   KubernetesIssuesAgeMetric:
     # id, name, org_id, org_login, repo_group
     repos:
