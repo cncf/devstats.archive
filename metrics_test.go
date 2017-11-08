@@ -17,24 +17,24 @@ import (
 )
 
 // metricTestCase - used to test single metric
-// Setup is called to create database entries for metric to return results
+// Setups are called to create database entries for metric to return results
 // metric - metrics/{{metric}}.sql file is used to run metric, inside file {{from}} and {{to}} are replaced with from, to
 // from, to - used as data range when calling metric
 // expected - we're expecting this result from metric, it can either be a single row with single column numeric value
 // or multiple rows, each containing metric name and its numeric value
 type metricTestCase struct {
-	Setup     *reflect.Value
-	Metric    string          `yaml:"metric"`
-	From      time.Time       `yaml:"from"`   // used by non-histogram metrics
-	To        time.Time       `yaml:"to"`     // used by non-histogram metrics
-	Period    string          `yaml:"period"` // used by histogram metrics
-	N         int             `yaml:"n"`      // used by metrics that use moving periods
-	DebugDB   bool            `yaml:"debug"`  // if set, test will not drop database at the end and will return after such test, so You can run metric manually via `runq` or directly on DB
-	Replaces  [][]string      `yaml:"replaces"`
-	Expected  [][]interface{} `yaml:"expected"`
-	SetupName string          `yaml:"additional_setup_func"`
-	SetupArg  string          `yaml:"additional_setup_arg"`
-	DataName  string          `yaml:"data"`
+	Setups     []reflect.Value
+	Metric     string          `yaml:"metric"`
+	From       time.Time       `yaml:"from"`   // used by non-histogram metrics
+	To         time.Time       `yaml:"to"`     // used by non-histogram metrics
+	Period     string          `yaml:"period"` // used by histogram metrics
+	N          int             `yaml:"n"`      // used by metrics that use moving periods
+	DebugDB    bool            `yaml:"debug"`  // if set, test will not drop database at the end and will return after such test, so You can run metric manually via `runq` or directly on DB
+	Replaces   [][]string      `yaml:"replaces"`
+	Expected   [][]interface{} `yaml:"expected"`
+	SetupNames []string        `yaml:"additional_setup_funcs"`
+	SetupArgs  []string        `yaml:"additional_setup_args"`
+	DataName   string          `yaml:"data"`
 }
 
 // Tests set for single project
@@ -105,12 +105,16 @@ func TestMetrics(t *testing.T) {
 }
 
 // This prepares raw YAML metric test to be executed:
-// Binds additional setup function if test uses "additional_setup_func" section
+// Binds additional setup function(s)
+// if test uses "additional_setup_funcs", "additional_setup_args" section(s)
 func prepareMetricTestCase(testMetric *metricTestCase) {
-	if testMetric.SetupName != "" {
-		reflectTestMetric := reflect.ValueOf(*testMetric)
-		method := reflectTestMetric.MethodByName(testMetric.SetupName)
-		testMetric.Setup = &method
+	if len(testMetric.SetupNames) < 1 {
+		return
+	}
+	reflectTestMetric := reflect.ValueOf(*testMetric)
+	for _, setupName := range testMetric.SetupNames {
+		method := reflectTestMetric.MethodByName(setupName)
+		testMetric.Setups = append(testMetric.Setups, method)
 	}
 }
 
@@ -165,6 +169,19 @@ func dataForMetricTestCase(con *sql.DB, ctx *lib.Ctx, testMetric *metricTestCase
 				}
 			}
 		}
+		prs, ok := data["prs"]
+		if ok {
+			prsAppend, okAppend := data["prs_append"]
+			for _, pr := range prs {
+				if okAppend {
+					pr = append(pr, prsAppend[0]...)
+				}
+				err = addPR(con, ctx, pr...)
+				if err != nil {
+					return
+				}
+			}
+		}
 	}
 	return
 }
@@ -206,10 +223,10 @@ func executeMetricTestCase(testMetric *metricTestCase, tests *metricTests, ctx *
 		return
 	}
 
-	// Execute metrics additional setup function
-	if testMetric.Setup != nil {
-		args := []reflect.Value{reflect.ValueOf(c), reflect.ValueOf(ctx), reflect.ValueOf(testMetric.SetupArg)}
-		switch ret := testMetric.Setup.Call(args)[0].Interface().(type) {
+	// Execute metrics additional setup(s) function
+	for index, setup := range testMetric.Setups {
+		args := []reflect.Value{reflect.ValueOf(c), reflect.ValueOf(ctx), reflect.ValueOf(testMetric.SetupArgs[index])}
+		switch ret := setup.Call(args)[0].Interface().(type) {
 		case error:
 			err = ret
 		}
@@ -693,9 +710,10 @@ func addIssue(con *sql.DB, ctx *lib.Ctx, args ...interface{}) (err error) {
 }
 
 // Sets Repo alias to be the same as Name on all repos
-func updateRepoAliasFromName(con *sql.DB, ctx *lib.Ctx) {
-	_, err := lib.ExecSQL(con, ctx, "update gha_repos set alias = name")
+func (metricTestCase) UpdateRepoAliasFromName(con *sql.DB, ctx *lib.Ctx, arg string) (err error) {
+	_, err = lib.ExecSQL(con, ctx, "update gha_repos set alias = name")
 	lib.FatalOnError(err)
+	return
 }
 
 // Create data for affiliations metric
@@ -1587,79 +1605,6 @@ func (metricTestCase) SetupPRsStateMetric(con *sql.DB, ctx *lib.Ctx, arg string)
 	return
 }
 
-// Create data for (All) PRs merged metrics
-func (metricTestCase) SetupPRsMergedMetric(con *sql.DB, ctx *lib.Ctx, arg string) (err error) {
-	ft := testlib.YMDHMS
-
-	// Repos to add
-	// id, name, org_id, org_login, repo_group
-	repos := [][]interface{}{
-		{1, "Repo 1", 1, "Org 1", "Group 1"},
-		{2, "Repo 2", 1, "Org 1", "Group 2"},
-		{3, "Repo 3", nil, nil, "Group 1"},
-	}
-
-	// Events to add
-	// eid, etype, aid, rid, public, created_at, aname, rname, orgid
-	events := [][]interface{}{
-		{1, "T", 1, 1, true, ft(2017, 7, 1), "Actor 1", "Repo 1", 1},
-		{2, "T", 1, 2, true, ft(2017, 7, 2), "Actor 1", "Repo 2", 1},
-		{3, "T", 2, 3, true, ft(2017, 7, 3), "Actor 2", "Repo 3", nil},
-		{4, "T", 2, 1, true, ft(2017, 7, 4), "Actor 2", "Repo 1", 1},
-		{5, "T", 3, 1, true, ft(2017, 7, 5), "Actor 3", "Repo 1", 1},
-		{6, "T", 4, 2, true, ft(2017, 7, 6), "Actor 4", "Repo 2", 1},
-		{7, "T", 1, 1, true, ft(2017, 8), "Actor 1", "Repo 1", 1},
-		{8, "T", 2, 2, true, ft(2017, 7, 7), "Actor 2", "Repo 2", 1},
-		{9, "T", 3, 3, true, ft(2017, 7, 8), "Actor 3", "Repo 3", nil},
-	}
-
-	// PRs to add
-	// prid, eid, uid, merged_id, assignee_id, num, state, title, body, created_at, closed_at, merged_at, merged
-	// repo_id, repo_name, actor_id, actor_login
-	prs := [][]interface{}{
-		{1, 1, 1, 1, 1, 1, "closed", "PR 1", "Body PR 1", ft(2017, 6, 20), ft(2017, 7, 1), ft(2017, 7, 1), true, 1, "Repo 1", 1, "Actor 1"},
-		{2, 5, 3, 2, 3, 2, "closed", "PR 2", "Body PR 2", ft(2017, 7, 1), ft(2017, 7, 5), ft(2017, 7, 5), true, 1, "Repo 1", 3, "Actor 3"},
-		{3, 4, 2, 3, 2, 3, "closed", "PR 3", "Body PR 3", ft(2017, 7, 2), ft(2017, 7, 4), ft(2017, 7, 4), true, 1, "Repo 1", 2, "Actor 2"},
-		{4, 2, 2, 4, 4, 4, "closed", "PR 4", "Body PR 4", ft(2017, 6, 10), ft(2017, 7, 2), ft(2017, 7, 2), true, 2, "Repo 2", 1, "Actor 1"},
-		{5, 6, 4, 4, 4, 5, "closed", "PR 5", "Body PR 5", ft(2017, 7, 5), ft(2017, 7, 6), ft(2017, 7, 6), true, 2, "Repo 2", 4, "Actor 4"},
-		{6, 3, 2, 2, 4, 6, "closed", "PR 6", "Body PR 6", ft(2017, 7, 2), ft(2017, 7, 3), ft(2017, 7, 3), true, 3, "Repo 3", 2, "Actor 2"},
-		{7, 7, 1, 1, 1, 7, "closed", "PR 7", "Body PR 7", ft(2017, 7, 1), ft(2017, 8), ft(2017, 8), true, 1, "Repo 1", 1, "Actor 1"},
-		{8, 8, 2, nil, 2, 8, "closed", "PR 8", "Body PR 8", ft(2017, 7, 7), ft(2017, 7, 8), nil, true, 2, "Repo 2", 2, "Actor 2"},
-		{9, 9, 3, nil, 1, 9, "open", "PR 9", "Body PR 9", ft(2017, 7, 8), nil, nil, true, 3, "Repo 3", 3, "Actor 3"},
-	}
-
-	// Add repos
-	for _, repo := range repos {
-		err = addRepo(con, ctx, repo...)
-		if err != nil {
-			return
-		}
-	}
-
-	// Add events
-	for _, event := range events {
-		err = addEvent(con, ctx, event...)
-		if err != nil {
-			return
-		}
-	}
-
-	// Add PRs
-	stub := []interface{}{time.Now()}
-	for _, pr := range prs {
-		pr = append(pr, stub...)
-		err = addPR(con, ctx, pr...)
-		if err != nil {
-			return
-		}
-	}
-
-	// Update repo alias to be the same as repo_group for this test
-	updateRepoAliasFromName(con, ctx)
-
-	return
-}
-
 // Create data for bot commands metric
 func (metricTestCase) SetupBotCommandsMetric(con *sql.DB, ctx *lib.Ctx, arg string) (err error) {
 	ft := testlib.YMDHMS
@@ -1981,7 +1926,7 @@ func interfaceToYaml(fn string, i *[][]interface{}) (err error) {
 }
 
 // Create data for top community stats metric
-func (metricTestCase) SetupCommunityStatsMetric(con *sql.DB, ctx *lib.Ctx, arg string) (err error) {
+func (testCase metricTestCase) SetupCommunityStatsMetric(con *sql.DB, ctx *lib.Ctx, arg string) (err error) {
 	ft := testlib.YMDHMS
 
 	// Repos to add
@@ -2029,7 +1974,7 @@ func (metricTestCase) SetupCommunityStatsMetric(con *sql.DB, ctx *lib.Ctx, arg s
 	}
 
 	// Update repo alias to be the same as repo_group for this test
-	updateRepoAliasFromName(con, ctx)
+	testCase.UpdateRepoAliasFromName(con, ctx, "")
 
 	return
 }
@@ -2085,7 +2030,7 @@ func (metricTestCase) SetupTopCommentersMetric(con *sql.DB, ctx *lib.Ctx, arg st
 }
 
 // Create data for reviewers histogram metric
-func (metricTestCase) SetRelativeDates(con *sql.DB, ctx *lib.Ctx, arg string) (err error) {
+func (metricTestCase) SetDates(con *sql.DB, ctx *lib.Ctx, arg string) (err error) {
 	//err = fmt.Errorf("got '%s'", arg)
 	//return
 	updates := strings.Split(arg, ",")
