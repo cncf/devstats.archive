@@ -209,6 +209,15 @@ func dataForMetricTestCase(con *sql.DB, ctx *lib.Ctx, testMetric *metricTestCase
 				}
 			}
 		}
+		affiliations, ok := data["affiliations"]
+		if ok {
+			for _, affiliation := range affiliations {
+				err = addActorAffiliation(con, ctx, affiliation...)
+				if err != nil {
+					return
+				}
+			}
+		}
 	}
 	return
 }
@@ -749,7 +758,7 @@ func (metricTestCase) UpdateRepoAliasFromName(con *sql.DB, ctx *lib.Ctx, arg str
 }
 
 // Create data for affiliations metric
-func (metricTestCase) SetupAffiliationsMetric(con *sql.DB, ctx *lib.Ctx, arg string) (err error) {
+func (metricTestCase) AffiliationsTestHelper(con *sql.DB, ctx *lib.Ctx, arg string) (err error) {
 	ft := testlib.YMDHMS
 
 	// Activities counted
@@ -785,34 +794,9 @@ func (metricTestCase) SetupAffiliationsMetric(con *sql.DB, ctx *lib.Ctx, arg str
 		}
 	}
 
-	// Affiliations to add
-	// actor_id, company_name, dt_from, dt_to
-	// We have 3 authors that works for 4 companies in different time ranges
-	// Metric only count companies with > 1 authors and with all other activities > 0
-	affiliations := [][]interface{}{
-		{1, "company1", ft(2000), ft(2017, 10, 10)},
-		{1, "company2", ft(2017, 9, 10), ft(2017, 9, 20)},
-		{1, "company3", ft(2017, 9, 20), ft(2020)},
-		{2, "company1", ft(2000), ft(2017, 10, 7)},
-		{2, "company2", ft(2017, 9, 7), ft(2017, 9, 15)},
-		{2, "company3", ft(2017, 9, 15), ft(2017, 9, 22)},
-		{2, "company4", ft(2017, 9, 22), ft(2020)},
-		{3, "company2", ft(2017, 9, 12), ft(2017, 9, 12)},
-		{3, "company3", ft(2017, 9, 18), ft(2017, 9, 24)},
-		{3, "company4", ft(2017, 9, 24), ft(2020)},
-	}
-
 	// Add events
 	for _, event := range events {
 		err = addEvent(con, ctx, event...)
-		if err != nil {
-			return
-		}
-	}
-
-	// Add affiliations
-	for _, affiliation := range affiliations {
-		err = addActorAffiliation(con, ctx, affiliation...)
 		if err != nil {
 			return
 		}
