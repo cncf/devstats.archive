@@ -2086,6 +2086,8 @@ func (metricTestCase) SetupTopCommentersMetric(con *sql.DB, ctx *lib.Ctx, arg st
 
 // Create data for reviewers histogram metric
 func (metricTestCase) SetRelativeDates(con *sql.DB, ctx *lib.Ctx, arg string) (err error) {
+	//err = fmt.Errorf("got '%s'", arg)
+	//return
 	updates := strings.Split(arg, ",")
 	for _, update := range updates {
 		ary := strings.Split(update, ";")

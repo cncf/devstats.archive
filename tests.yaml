@@ -36,9 +36,68 @@ projects:
           - - sig_mentions_texts,a-b-c
             - '1.00'
         data: KubernetesSigMentionsTextMetric
+      - metric: sig_mentions
+        from: 2017-07-01T00:00:00Z
+        to: 2017-08-01T00:00:00Z
+        n: 2
+        expected:
+          - - sig_mentions_texts,group-1
+            - '1.50'
+          - - sig_mentions_texts,group2
+            - '1.50'
+          - - sig_mentions_texts,a-b-c
+            - '0.50'
+        data: KubernetesSigMentionsTextMetric
+      - metric: sig_mentions_breakdown
+        from: 2017-07-01T00:00:00Z
+        to: 2017-08-01T00:00:00Z
+        n: 1
+        expected:
+          - - sig_mentions_texts_bd,group2-bug
+            - '2.00'
+          - - sig_mentions_texts_bd,a-b-c-bug
+            - '1.00'
+          - - sig_mentions_texts_bd,group-1-bug
+            - '1.00'
+          - - sig_mentions_texts_bd,group-1-feature-request
+            - '1.00'
+          - - sig_mentions_texts_bd,group2-pr-review
+            - '1.00'
+        data: KubernetesSigMentionsTextMetric
+      - metric: sig_mentions_breakdown
+        from: 2017-07-01T00:00:00Z
+        to: 2017-08-01T00:00:00Z
+        n: 3
+        expected:
+          - - sig_mentions_texts_bd,group2-bug
+            - '0.67'
+          - - sig_mentions_texts_bd,a-b-c-bug
+            - '0.33'
+          - - sig_mentions_texts_bd,group-1-bug
+            - '0.33'
+          - - sig_mentions_texts_bd,group-1-feature-request
+            - '0.33'
+          - - sig_mentions_texts_bd,group2-pr-review
+            - '0.33'
+        data: KubernetesSigMentionsTextMetric
+      - metric: sig_mentions_cats
+        from: 2017-07-01T00:00:00Z
+        to: 2017-08-01T00:00:00Z
+        n: 1
+        expected:
+          - - sig_mentions_texts_cat,bug
+            - '4.00'
+          - - sig_mentions_texts_cat,feature-request
+            - '1.00'
+          - - sig_mentions_texts_cat,pr-review
+            - '1.00'
+        data: KubernetesSigMentionsTextMetric
       - metric: hist_reviewers
         additional_setup_func: SetRelativeDates
-        additional_setup_arg: gha_events;created_at;now()-'1h'::interval,gha_issues_events_labels;created_at;now()-'1h'::interval,gha_texts;created_at;now()-'1h'::interval
+        additional_setup_arg:
+          "gha_events;created_at;now()-'1h'::interval,\
+           gha_issues_events_labels;created_at;now()-'1h'::interval,\
+           gha_texts;created_at;now()-'1h'::interval"
         n: 1
         period: 1 week
         replaces:
@@ -68,7 +127,9 @@ projects:
         data: KubernetesReviewersHistMetric
       - metric: hist_approvers
         additional_setup_func: SetRelativeDates
-        additional_setup_arg: gha_events;created_at;now()-'1h'::interval,gha_texts;created_at;now()-'1h'::interval
+        additional_setup_arg:
+          "gha_events;created_at;now()-'1h'::interval,\
+           gha_texts;created_at;now()-'1h'::interval"
         n: 1
         period: 1 week
         replaces:
@@ -120,12 +181,14 @@ data:
         - '@kubernetes/sig-Group-1- not included, group cannot end with -'
         - 2017-07-04T00:00:00Z
       - - 5
-        - XYZ@kubernetes/sig-Group-1 - not included, there must be white space or beggining
-          of string before @
+        - "XYZ@kubernetes/sig-Group-1 - not included, \
+           there must be white space or beggining\n\
+           of string before @"
         - 2017-07-05T00:00:00Z
       - - 6
-        - " \t@kubernetes/Sig-group-1-feature-request: we should consider adding new bot...
-          \n "
+        - " \t@kubernetes/Sig-group-1-feature-request: \
+           we should consider adding new bot...
+           \n "
         - 2017-07-06T00:00:00Z
       - - 7
         - Hi @kubernetes/sig-group2-BUGS; I wanted to report bug
@@ -137,8 +200,8 @@ data:
         - Is there a @kubernetes/sig-a-b-c? Or maybe @kubernetes/sig-a-b-c-bugs?
         - 2017-07-09T00:00:00Z
       - - 10
-        - '@kubernetes/sig-group2-bugs? @kubernetes/sig-group2? @kubernetes/sig-group2-pr-review?
-          anybody?'
+        - "@kubernetes/sig-group2-bugs? @kubernetes/sig-group2? \
+           @kubernetes/sig-group2-pr-review?\nanybody?"
         - 2017-07-10T00:00:00Z
       - - 11
         - '@kubernetes/sig-group2-feature-requests out of test range'
