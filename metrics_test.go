@@ -1573,55 +1573,6 @@ func (metricTestCase) SetupPRsStateMetric(con *sql.DB, ctx *lib.Ctx, arg string)
 	return
 }
 
-// Create data for bot commands metric
-func (metricTestCase) SetupBotCommandsMetric(con *sql.DB, ctx *lib.Ctx, arg string) (err error) {
-	ft := testlib.YMDHMS
-
-	// Repos to add
-	// id, name, org_id, org_login, repo_group
-	repos := [][]interface{}{
-		{1, "R1", 1, "O1", "Group"},
-		{2, "R2", 1, "O1", "Group"},
-		{3, "R3", 2, "O2", "Mono-group"},
-		{4, "R4", 2, "O2", nil},
-	}
-
-	// Texts to add
-	// eid, body, created_at
-	// repo_id, repo_name, actor_id, actor_login, type
-	texts := [][]interface{}{
-		{1, "/approve", ft(2017, 10, 10), 1, "R1", 1, "A1", "T"},
-		{2, " /approve  no-issue", ft(2017, 10, 11), 2, "R2", 1, "A1", "T"},
-		{3, "/approve cancel ", ft(2017, 10, 12), 3, "R3", 1, "A1", "T"},
-		{4, "\n/area\n", ft(2017, 10, 13), 4, "R4", 1, "A1", "T"},
-		{5, "\n /remove   area \n", ft(2017, 10, 14), 1, "R1", 1, "A1", "T"},
-		{6, "/ assign", ft(2017, 10, 15), 2, "R2", 1, "A1", "T"},
-		{7, "/unassign 4", ft(2017, 10, 16), 3, "R3", 1, "A1", "T"},
-		{8, " /cc b c d ", ft(2017, 10, 17), 4, "R4", 1, "A1", "T"},
-		{9, "/uncc", ft(2017, 10, 18), 1, "R1", 1, "A1", "T"},
-		{10, " /close  ", ft(2017, 10, 19), 2, "R2", 1, "A1", "T"},
-		{11, "abc /reopen  def", ft(2017, 10, 20), 3, "R3", 1, "A1", "T"},
-	}
-
-	// Add texts
-	for _, text := range texts {
-		err = addText(con, ctx, text...)
-		if err != nil {
-			return
-		}
-	}
-
-	// Add repos
-	for _, repo := range repos {
-		err = addRepo(con, ctx, repo...)
-		if err != nil {
-			return
-		}
-	}
-
-	return
-}
-
 // Create data for approvers metric
 func (metricTestCase) SetupApproversMetric(con *sql.DB, ctx *lib.Ctx, arg string) (err error) {
 	ft := testlib.YMDHMS
