@@ -147,7 +147,7 @@ func dataForMetricTestCase(con *sql.DB, ctx *lib.Ctx, testMetric *metricTestCase
 				}
 			}
 		}
-		iels, ok := data["issue_event_labels"]
+		iels, ok := data["issues_events_labels"]
 		if ok {
 			for _, iel := range iels {
 				err = addIssueEventLabel(con, ctx, iel...)
@@ -910,111 +910,6 @@ func (metricTestCase) SetupFirstNonAuthorActivityMetric(con *sql.DB, ctx *lib.Ct
 	// Add PRs
 	for _, pr := range prs {
 		err = addPR(con, ctx, pr...)
-		if err != nil {
-			return
-		}
-	}
-
-	return
-}
-
-// Create data for opened to merged metric
-func (metricTestCase) SetupTimeMetrics(con *sql.DB, ctx *lib.Ctx, arg string) (err error) {
-	ft := testlib.YMDHMS
-
-	// Repos to add
-	// id, name, org_id, org_login, repo_group
-	repos := [][]interface{}{
-		{1, "R1", nil, nil, "Group1"},
-		{2, "R2", nil, nil, "Group2"},
-		{3, "R3", nil, nil, nil},
-	}
-
-	// PRs to add
-	// prid, eid, uid, merged_id, assignee_id, num, state, title, body, created_at, closed_at, merged_at, merged
-	// repo_id, repo_name, actor_id, actor_login
-	prs := [][]interface{}{
-		{1, 1, 1, 1, 1, 1, "closed", "PR 1", "Body PR 1", ft(2017, 7, 1), ft(2017, 7, 21), ft(2017, 7, 21), true, 1, "R1", 1, "A1"}, // average of PR 1-6 created -> merged is 48 hours
-		{2, 2, 1, 1, 1, 2, "closed", "PR 2", "Body PR 2", ft(2017, 7, 2), ft(2017, 7, 23), ft(2017, 7, 23), true, 2, "R2", 1, "A1"},
-		{3, 3, 1, 1, 1, 3, "closed", "PR 3", "Body PR 3", ft(2017, 7, 3), ft(2017, 7, 26), ft(2017, 7, 26), true, 1, "R1", 1, "A1"},
-		{4, 4, 1, 1, 1, 4, "closed", "PR 4", "Body PR 4", ft(2017, 7, 4), ft(2017, 7, 30), ft(2017, 7, 30), true, 3, "R3", 1, "A1"},
-
-		{5, 5, 1, 1, 1, 5, "closed", "PR 5", "Body PR 5", ft(2017, 6, 30), ft(2017, 7, 10), ft(2017, 7, 10), true, 1, "R1", 1, "A1"}, // Skipped because not created in Aug
-		{6, 6, 1, nil, 1, 6, "closed", "PR 6", "Body PR 6", ft(2017, 7, 2), ft(2017, 7, 8), nil, true, 1, "R1", 1, "A1"},             // Skipped because not merged
-		{7, 7, 1, nil, 1, 7, "open", "PR 7", "Body PR 7", ft(2017, 7, 8), nil, nil, true, 1, "R1", 1, "A1"},                          // Skipped because not merged
-	}
-
-	// Issues/PRs to add
-	// issue_id, pr_id, number, repo_id, repo_name, created_at
-	iprs := [][]interface{}{
-		{1, 1, 1, 1, "R1", ft(2017, 7, 1)},
-		{2, 2, 2, 2, "R2", ft(2017, 7, 2)},
-		{3, 3, 3, 1, "R1", ft(2017, 7, 3)},
-		{4, 4, 4, 3, "R3", ft(2017, 7, 4)},
-		{5, 5, 5, 1, "R1", ft(2017, 6, 30)},
-		{6, 6, 6, 1, "R1", ft(2017, 7, 2)},
-		{7, 7, 7, 1, "R1", ft(2017, 7, 8)},
-	}
-
-	// Issue Event Labels to add
-	// iid, eid, lid, lname, created_at
-	// repo_id, repo_name, actor_id, actor_login, type, issue_number
-	iels := [][]interface{}{
-		{1, 1, 3, "kind/api-change", ft(2017, 7, 10), 1, "R1", 1, "A1", "T", 1},
-		{2, 2, 3, "kind/api-change", ft(2017, 7, 10), 2, "R2", 1, "A1", "T", 1},
-		{3, 3, 4, "size/XS", ft(2017, 7, 10), 3, "R3", 1, "A1", "T", 1},
-		{4, 4, 5, "size/XL", ft(2017, 7, 10), 4, "R4", 1, "A1", "T", 1},
-		{1, 5, 4, "size/XS", ft(2017, 7, 10), 1, "R1", 1, "A1", "T", 1},
-		{1, 8, 1, "lgtm", ft(2017, 7, 6), 1, "R1", 1, "A1", "T", 1},
-		{2, 9, 1, "lgtm", ft(2017, 7, 8), 2, "R2", 1, "A1", "T", 1},
-		{3, 10, 1, "lgtm", ft(2017, 7, 11), 3, "R3", 1, "A1", "T", 1},
-		{4, 11, 1, "lgtm", ft(2017, 7, 15), 2, "R2", 1, "A1", "T", 1},
-		{1, 12, 2, "approved", ft(2017, 7, 11), 1, "R1", 1, "A1", "T", 1},
-		{2, 13, 2, "approved", ft(2017, 7, 14), 2, "R2", 1, "A1", "T", 1},
-		{3, 14, 2, "approved", ft(2017, 7, 18), 1, "R1", 1, "A1", "T", 1},
-		{4, 15, 2, "approved", ft(2017, 7, 18), 3, "R3", 1, "A1", "T", 1},
-	}
-
-	// Opened -> Merged is:   20, 21, 23, 26 days: sorted [20, 21, 23, 26]
-	// Opened -> LGTMed is:   5,  6,  8,  11 days: sorted [5, 6, 8, 11]
-	// Opened -> Approved is: 10, 12, 15, 14 days: sorted [10, 12, 14, 15]
-	// LGTMed -> Approved is: 5,  6,  7,  3  days: sorted [3, 5, 6, 7]
-	// Approved -> Merged is: 10, 9,  8,  12 days: sorted [8, 9, 10, 12]
-	// So Opened->Merged:   we exepect median = 21, 25th percentile = 20, 75th percentile = 23
-	// So Opened->LGTMed:   we exepect median = 6, 75th percentile = 8,  85th percentile, next discrete:  11
-	// So LGTMed->Approved: we exepect median = 5, 75th percentile = 6,  85th percentile, next discrete: 7
-	// So Approved->Merged: we exepect median = 9, 75th percentile = 10, 85th percentile, next discrete: 12
-	// We expect all those values in hours (* 24).
-
-	// Add repos
-	for _, repo := range repos {
-		err = addRepo(con, ctx, repo...)
-		if err != nil {
-			return
-		}
-	}
-
-	// Add PRs
-	stub := []interface{}{time.Now()}
-	for _, pr := range prs {
-		pr = append(pr, stub...)
-		err = addPR(con, ctx, pr...)
-		if err != nil {
-			return
-		}
-	}
-
-	// Add Issue PRs
-	for _, ipr := range iprs {
-		err = addIssuePR(con, ctx, ipr...)
-		if err != nil {
-			return
-		}
-	}
-
-	// Add issue event labels
-	for _, iel := range iels {
-		err = addIssueEventLabel(con, ctx, iel...)
 		if err != nil {
 			return
 		}
