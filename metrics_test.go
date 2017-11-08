@@ -1526,56 +1526,6 @@ func (testCase metricTestCase) SetupCommunityStatsMetric(con *sql.DB, ctx *lib.C
 	return
 }
 
-// Create data for top commenters metric (histogram)
-func (metricTestCase) SetupTopCommentersMetric(con *sql.DB, ctx *lib.Ctx, arg string) (err error) {
-	tm := time.Now().Add(-time.Hour)
-	tmOld := time.Now().AddDate(-1, -1, -1)
-
-	// Repos to add
-	// id, name, org_id, org_login, repo_group
-	repos := [][]interface{}{
-		{1, "Repo 1", 1, "Org 1", "Group 1"},
-		{2, "Repo 2", 1, "Org 1", "Group 1"},
-		{3, "Repo 3", nil, nil, "Group 2"},
-		{4, "Repo 4", 2, "Org 2", nil},
-	}
-
-	// Add comments
-	// id, event_id, body, created_at, user_id, repo_id, repo_name, actor_id, actor_login, type
-	comments := [][]interface{}{
-		{1, 0, "comment", tm, 1, 1, "R1", 1, "A1", "T"},
-		{2, 0, "comment", tm, 1, 2, "R2", 2, "A2", "T"},
-		{3, 0, "comment", tm, 1, 3, "R3", 3, "A3", "T"},
-		{4, 0, "comment", tm, 1, 4, "R4", 1, "A1", "T"},
-		{5, 0, "comment", tm, 1, 1, "R1", 2, "A2", "T"},
-		{6, 0, "comment", tm, 1, 2, "R2", 3, "A3", "T"},
-		{7, 0, "comment", tm, 1, 3, "R3", 1, "A1", "T"},
-		{8, 0, "comment", tm, 1, 4, "R4", 2, "A2", "T"},
-		{9, 0, "comment", tmOld, 1, 1, "R1", 3, "A3", "T"},
-		{10, 0, "comment", tmOld, 1, 2, "R2", 1, "A1", "T"},
-		{11, 0, "comment", tmOld, 1, 3, "R3", 2, "A2", "T"},
-		{12, 0, "comment", tmOld, 1, 4, "R4", 3, "A3", "T"},
-	}
-
-	// Add repos
-	for _, repo := range repos {
-		err = addRepo(con, ctx, repo...)
-		if err != nil {
-			return
-		}
-	}
-
-	// Add comments
-	for _, comment := range comments {
-		err = addComment(con, ctx, comment...)
-		if err != nil {
-			return
-		}
-	}
-
-	return
-}
-
 // Create data for reviewers histogram metric
 func (metricTestCase) SetDates(con *sql.DB, ctx *lib.Ctx, arg string) (err error) {
 	//err = fmt.Errorf("got '%s'", arg)
@@ -1583,12 +1533,17 @@ func (metricTestCase) SetDates(con *sql.DB, ctx *lib.Ctx, arg string) (err error
 	updates := strings.Split(arg, ",")
 	for _, update := range updates {
 		ary := strings.Split(update, ";")
+		dt := "1980-01-01"
+		if len(ary) > 3 {
+			dt = ary[3]
+		}
 		query := fmt.Sprintf(
-			"update %s set %s = %s where date(%s) = '1980-01-01'",
+			"update %s set %s = %s where date(%s) = '%s'",
 			ary[0],
 			ary[1],
 			ary[2],
 			ary[1],
+			dt,
 		)
 		_, err = lib.ExecSQL(
 			con,
