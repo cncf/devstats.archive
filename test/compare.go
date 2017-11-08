@@ -1,6 +1,7 @@
 package test
 
 import (
+	"fmt"
 	"sort"
 )
 
@@ -33,10 +34,12 @@ func CompareStringSlices(s1 []string, s2 []string) bool {
 // CompareSlices - compares two any type slices
 func CompareSlices(s1 []interface{}, s2 []interface{}) bool {
 	if len(s1) != len(s2) {
+		fmt.Printf("CompareSlices: len: %d != %d\n", len(s1), len(s2))
 		return false
 	}
 	for index, value := range s1 {
 		if value != s2[index] {
+			fmt.Printf("CompareSlices: value:\n%+v not equal to:\n%+v\n", value, s2[index])
 			return false
 		}
 	}
@@ -59,10 +62,12 @@ func CompareStringSlices2D(s1 [][]string, s2 [][]string) bool {
 // CompareSlices2D - compares two slices of any type slices
 func CompareSlices2D(s1 [][]interface{}, s2 [][]interface{}) bool {
 	if len(s1) != len(s2) {
+		fmt.Printf("CompareSlices2D: len: %d != %d\n", len(s1), len(s2))
 		return false
 	}
 	for index, value := range s1 {
 		if !CompareSlices(value, s2[index]) {
+			fmt.Printf("CompareSlices2D: CompareSlices:\n%+v not equal to:\n%+v\n", value, s2[index])
 			return false
 		}
 	}
