@@ -182,6 +182,24 @@ func dataForMetricTestCase(con *sql.DB, ctx *lib.Ctx, testMetric *metricTestCase
 				}
 			}
 		}
+		issuesLabels, ok := data["issues_labels"]
+		if ok {
+			for _, issueLabel := range issuesLabels {
+				err = addIssueLabel(con, ctx, issueLabel...)
+				if err != nil {
+					return
+				}
+			}
+		}
+		issues, ok := data["issues"]
+		if ok {
+			for _, issue := range issues {
+				err = addIssue(con, ctx, issue...)
+				if err != nil {
+					return
+				}
+			}
+		}
 	}
 	return
 }
@@ -224,8 +242,13 @@ func executeMetricTestCase(testMetric *metricTestCase, tests *metricTests, ctx *
 	}
 
 	// Execute metrics additional setup(s) function
+	lenArgs := len(testMetric.SetupArgs)
 	for index, setup := range testMetric.Setups {
-		args := []reflect.Value{reflect.ValueOf(c), reflect.ValueOf(ctx), reflect.ValueOf(testMetric.SetupArgs[index])}
+		setupArgs := ""
+		if index < lenArgs {
+			setupArgs = testMetric.SetupArgs[index]
+		}
+		args := []reflect.Value{reflect.ValueOf(c), reflect.ValueOf(ctx), reflect.ValueOf(setupArgs)}
 		switch ret := setup.Call(args)[0].Interface().(type) {
 		case error:
 			err = ret
@@ -1719,61 +1742,6 @@ func (metricTestCase) SetupIssuesMetric(con *sql.DB, ctx *lib.Ctx, arg string) (
 	// Add repos
 	for _, repo := range repos {
 		err = addRepo(con, ctx, repo...)
-		if err != nil {
-			return
-		}
-	}
-
-	return
-}
-
-// Create data for SIG mentions metric (that uses labels)
-func (metricTestCase) SetupSigMentionsLabelMetric(con *sql.DB, ctx *lib.Ctx, arg string) (err error) {
-	ft := testlib.YMDHMS
-
-	// issues labels to add
-	// iid, eid, lid, actor_id, actor_login, repo_id, repo_name,
-	// ev_type, ev_created_at, issue_number, label_name
-	issuesLabels := [][]interface{}{
-		{1, 0, 1, 1, "A1", 1, "R1", "T", ft(2017, 8, 1), 0, "sig/sig1"},
-		{1, 1, 1, 1, "A1", 1, "R1", "T", ft(2017, 9, 1), 1, "sig/sig1"},
-		{2, 2, 1, 1, "A1", 1, "R1", "T", ft(2017, 9, 2), 2, "sig/sig1"},
-		{3, 3, 1, 1, "A1", 1, "R1", "T", ft(2017, 9, 3), 3, "sig/sig1"},
-		{4, 4, 2, 1, "A1", 1, "R1", "T", ft(2017, 9, 4), 4, "sig/sig2"},
-		{5, 5, 2, 1, "A1", 1, "R1", "T", ft(2017, 9, 5), 5, "sig/sig2"},
-		{1, 6, 3, 1, "A1", 1, "R1", "T", ft(2017, 9, 6), 1, "kind/kind1"},
-		{2, 7, 3, 1, "A1", 1, "R1", "T", ft(2017, 9, 7), 2, "kind/kind1"},
-		{3, 8, 4, 1, "A1", 1, "R1", "T", ft(2017, 9, 8), 3, "kind/kind2"},
-		{4, 9, 4, 1, "A1", 1, "R1", "T", ft(2017, 9, 9), 4, "kind/kind2"},
-		{6, 10, 5, 1, "A1", 1, "R1", "T", ft(2017, 9, 10), 6, "sig/sig3"},
-		{7, 11, 6, 1, "A1", 1, "R1", "T", ft(2017, 9, 11), 7, "kind/kind3"},
-		{1, 12, 1, 1, "A1", 1, "R1", "T", ft(2017, 10, 2), 1, "sig/sig1"},
-	}
-
-	// issues to add
-	// id, event_id, assignee_id, body, closed_at, created_at, number, state, title, updated_at
-	// user_id, dup_actor_id, dup_actor_login, dup_repo_id, dup_repo_name, dup_type, is_pull_request
-	issues := [][]interface{}{
-		{1, 0, 0, "", nil, ft(2017, 9, 1), 1, "open", "", time.Now(), 0, 0, "", 1, "R1", "T", false},
-		{2, 0, 0, "", nil, ft(2017, 9, 2), 1, "open", "", time.Now(), 0, 0, "", 2, "R2", "T", false},
-		{3, 0, 0, "", nil, ft(2017, 9, 3), 1, "open", "", time.Now(), 0, 0, "", 3, "R3", "T", false},
-		{4, 0, 0, "", nil, ft(2017, 9, 4), 1, "open", "", time.Now(), 0, 0, "", 4, "R4", "T", false},
-		{5, 0, 0, "", nil, ft(2017, 9, 5), 1, "open", "", time.Now(), 0, 0, "", 1, "R1", "T", false},
-		{6, 0, 0, "", nil, ft(2017, 9, 6), 1, "open", "", time.Now(), 0, 0, "", 2, "R2", "T", false},
-		{7, 0, 0, "", nil, ft(2017, 9, 7), 1, "open", "", time.Now(), 0, 0, "", 3, "R3", "T", false},
-	}
-
-	// Add issues labels
-	for _, issueLabel := range issuesLabels {
-		err = addIssueLabel(con, ctx, issueLabel...)
-		if err != nil {
-			return
-		}
-	}
-
-	// Add issues
-	for _, issue := range issues {
-		err = addIssue(con, ctx, issue...)
 		if err != nil {
 			return
 		}
