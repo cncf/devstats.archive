@@ -782,7 +782,180 @@ projects:
             - company2
             - 1
         data: KubernetesPRAuthorsMetric
+      - metric: hist_commenters
+        additional_setup_funcs:
+          - SetDates
+        additional_setup_args:
+          - "gha_comments;created_at;now()-'1h'::interval,\
+             gha_comments;created_at;now()-'1y'::interval;1975-01-01"
+        n: 1
+        period: 1 week
+        replaces:
+          - - ' >= 30'
+            - ' >= 2'
+          - - ' >= 20'
+            - ' >= 2'
+        expected:
+          - - top_commenters,All
+            - A1
+            - 3
+          - - top_commenters,All
+            - A2
+            - 3
+          - - top_commenters,All
+            - A3
+            - 2
+          - - top_commenters,Group 1
+            - A2
+            - 2
+        data: KubernetesTopCommentersMetric
 data:
+  KubernetesTopCommentersMetric:
+    # id, name, org_id, org_login, repo_group
+    repos:
+      - - 1
+        - Repo 1
+        - 1
+        - Org 1
+        - Group 1
+      - - 2
+        - Repo 2
+        - 1
+        - Org 1
+        - Group 1
+      - - 3
+        - Repo 3
+        - null
+        - null
+        - Group 2
+      - - 4
+        - Repo 4
+        - 2
+        - Org 2
+        - null
+    # id, event_id, body, created_at, user_id, repo_id, repo_name, actor_id,
+    # actor_login, type
+    comments:
+      - - 1
+        - 0
+        - comment
+        - 1980-01-01T12:00:00Z
+        - 1
+        - 1
+        - R1
+        - 1
+        - A1
+        - T
+      - - 2
+        - 0
+        - comment
+        - 1980-01-01T12:00:00Z
+        - 1
+        - 2
+        - R2
+        - 2
+        - A2
+        - T
+      - - 3
+        - 0
+        - comment
+        - 1980-01-01T12:00:00Z
+        - 1
+        - 3
+        - R3
+        - 3
+        - A3
+        - T
+      - - 4
+        - 0
+        - comment
+        - 1980-01-01T12:00:00Z
+        - 1
+        - 4
+        - R4
+        - 1
+        - A1
+        - T
+      - - 5
+        - 0
+        - comment
+        - 1980-01-01T12:00:00Z
+        - 1
+        - 1
+        - R1
+        - 2
+        - A2
+        - T
+      - - 6
+        - 0
+        - comment
+        - 1980-01-01T12:00:00Z
+        - 1
+        - 2
+        - R2
+        - 3
+        - A3
+        - T
+      - - 7
+        - 0
+        - comment
+        - 1980-01-01T12:00:00Z
+        - 1
+        - 3
+        - R3
+        - 1
+        - A1
+        - T
+      - - 8
+        - 0
+        - comment
+        - 1980-01-01T12:00:00Z
+        - 1
+        - 4
+        - R4
+        - 2
+        - A2
+        - T
+      - - 9
+        - 0
+        - comment
+        - 1975-01-01T12:00:00Z
+        - 1
+        - 1
+        - R1
+        - 3
+        - A3
+        - T
+      - - 10
+        - 0
+        - comment
+        - 1975-01-01T12:00:00Z
+        - 1
+        - 2
+        - R2
+        - 1
+        - A1
+        - T
+      - - 11
+        - 0
+        - comment
+        - 1975-01-01T12:00:00Z
+        - 1
+        - 3
+        - R3
+        - 2
+        - A2
+        - T
+      - - 12
+        - 0
+        - comment
+        - 1975-01-01T12:00:00Z
+        - 1
+        - 4
+        - R4
+        - 3
+        - A3
+        - T
   KubernetesPRAuthorsMetric:
     # id, name, org_id, org_login, repo_group
     repos:
