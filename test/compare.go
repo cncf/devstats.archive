@@ -39,7 +39,7 @@ func CompareSlices(s1 []interface{}, s2 []interface{}) bool {
 	}
 	for index, value := range s1 {
 		if value != s2[index] {
-			fmt.Printf("CompareSlices: value:\n%+v not equal to:\n%+v\n", value, s2[index])
+			fmt.Printf("CompareSlices: value:\n'%+v' not equal to:\n'%+v'\n", value, s2[index])
 			return false
 		}
 	}
@@ -67,7 +67,7 @@ func CompareSlices2D(s1 [][]interface{}, s2 [][]interface{}) bool {
 	}
 	for index, value := range s1 {
 		if !CompareSlices(value, s2[index]) {
-			fmt.Printf("CompareSlices2D: CompareSlices:\n%+v not equal to:\n%+v\n", value, s2[index])
+			fmt.Printf("CompareSlices2D: CompareSlices:\n'%+v' not equal to:\n'%+v'\n", value, s2[index])
 			return false
 		}
 	}

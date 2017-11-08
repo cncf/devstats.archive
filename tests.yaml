@@ -708,7 +708,278 @@ projects:
             - Actor 3
             - 1
         data: KubernetesApproversHistMetric
+      - metric: hist_pr_authors
+        additional_setup_funcs:
+          - SetDates
+        additional_setup_args:
+          - "gha_pull_requests;created_at;now(),\
+             gha_actors_affiliations;dt_from;now()-'1 year'::interval,\
+             gha_actors_affiliations;dt_to;now()+'1 year'::interval"
+        n: 1
+        period: 1 week
+        replaces:
+          - - ' >= 5'
+            - ' >= 1'
+          - - ' >= 3'
+            - ' >= 1'
+        expected:
+          - - hist_pr_authors,All
+            - Actor 1
+            - 3
+          - - hist_pr_authors,All
+            - Actor 2
+            - 3
+          - - hist_pr_authors,All
+            - Actor 3
+            - 3
+          - - hist_pr_authors,Group 1
+            - Actor 2
+            - 2
+          - - hist_pr_authors,Group 1
+            - Actor 3
+            - 2
+          - - hist_pr_authors,Group 1
+            - Actor 1
+            - 1
+          - - hist_pr_authors,Group 2
+            - Actor 1
+            - 1
+          - - hist_pr_authors,Group 2
+            - Actor 3
+            - 1
+        data: KubernetesPRAuthorsMetric
+      - metric: hist_pr_companies
+        additional_setup_funcs:
+          - SetDates
+        additional_setup_args:
+          - "gha_pull_requests;created_at;now(),\
+             gha_actors_affiliations;dt_from;now()-'1 year'::interval,\
+             gha_actors_affiliations;dt_to;now()+'1 year'::interval"
+        n: 1
+        period: 1 week
+        replaces:
+          - - ' >= 5'
+            - ' >= 1'
+          - - ' >= 3'
+            - ' >= 1'
+        expected:
+          - - hist_pr_companies,All
+            - company1
+            - 6
+          - - hist_pr_companies,All
+            - company2
+            - 3
+          - - hist_pr_companies,Group 1
+            - company1
+            - 3
+          - - hist_pr_companies,Group 1
+            - company2
+            - 2
+          - - hist_pr_companies,Group 2
+            - company1
+            - 1
+          - - hist_pr_companies,Group 2
+            - company2
+            - 1
+        data: KubernetesPRAuthorsMetric
 data:
+  KubernetesPRAuthorsMetric:
+    # id, name, org_id, org_login, repo_group
+    repos:
+      - - 1
+        - Repo 1
+        - 1
+        - Org 1
+        - Group 1
+      - - 2
+        - Repo 2
+        - 1
+        - Org 1
+        - Group 1
+      - - 3
+        - Repo 3
+        - null
+        - null
+        - Group 2
+      - - 4
+        - Repo 4
+        - 2
+        - Org 2
+        - null
+    # append to all rows in "prs"
+    prs_append:
+      - - 1980-01-01T12:00:00Z
+    # prid, eid, uid, merged_id, assignee_id, num, state, title, body,
+    # created_at, closed_at, merged_at, merged
+    # repo_id, repo_name, actor_id, actor_login
+    prs:
+      - - 1
+        - 0
+        - 1
+        - 0
+        - 0
+        - 1
+        - open
+        - PR1
+        - BodyPR1
+        - 1980-01-01T12:00:00Z
+        - null
+        - null
+        - true
+        - 1
+        - Repo 1
+        - 1
+        - Actor 1
+      - - 2
+        - 0
+        - 2
+        - 0
+        - 0
+        - 2
+        - open
+        - PR2
+        - BodyPR2
+        - 1980-01-01T12:00:00Z
+        - null
+        - null
+        - true
+        - 2
+        - Repo 2
+        - 2
+        - Actor 2
+      - - 3
+        - 0
+        - 3
+        - 0
+        - 0
+        - 3
+        - open
+        - PR3
+        - BodyPR3
+        - 1980-01-01T12:00:00Z
+        - null
+        - null
+        - true
+        - 3
+        - Repo 3
+        - 3
+        - Actor 3
+      - - 4
+        - 0
+        - 1
+        - 0
+        - 0
+        - 4
+        - open
+        - PR4
+        - BodyPR4
+        - 1980-01-01T12:00:00Z
+        - null
+        - null
+        - true
+        - 4
+        - Repo 4
+        - 1
+        - Actor 1
+      - - 5
+        - 0
+        - 2
+        - 0
+        - 0
+        - 5
+        - open
+        - PR5
+        - BodyPR5
+        - 1980-01-01T12:00:00Z
+        - null
+        - null
+        - true
+        - 1
+        - Repo 1
+        - 2
+        - Actor 2
+      - - 6
+        - 0
+        - 3
+        - 0
+        - 0
+        - 6
+        - open
+        - PR6
+        - BodyPR6
+        - 1980-01-01T12:00:00Z
+        - null
+        - null
+        - true
+        - 2
+        - Repo 2
+        - 3
+        - Actor 3
+      - - 7
+        - 0
+        - 1
+        - 0
+        - 0
+        - 7
+        - open
+        - PR7
+        - BodyPR7
+        - 1980-01-01T12:00:00Z
+        - null
+        - null
+        - true
+        - 3
+        - Repo 3
+        - 1
+        - Actor 1
+      - - 8
+        - 0
+        - 2
+        - 0
+        - 0
+        - 8
+        - open
+        - PR8
+        - BodyPR8
+        - 1980-01-01T12:00:00Z
+        - null
+        - null
+        - true
+        - 4
+        - Repo 4
+        - 2
+        - Actor 2
+      - - 9
+        - 0
+        - 3
+        - 0
+        - 0
+        - 9
+        - open
+        - PR9
+        - BodyPR9
+        - 1980-01-01T12:00:00Z
+        - null
+        - null
+        - true
+        - 1
+        - Repo 1
+        - 3
+        - Actor 3
+    # actor_id, company_name, dt_from, dt_to
+    affiliations:
+      - - 1
+        - company1
+        - 1980-01-01T12:00:00Z
+        - 1980-01-01T12:00:00Z
+      - - 2
+        - company1
+        - 1980-01-01T12:00:00Z
+        - 1980-01-01T12:00:00Z
+      - - 3
+        - company2
+        - 1980-01-01T12:00:00Z
+        - 1980-01-01T12:00:00Z
   KubernetesNeedRebasePRsMetric:
     # id, name, org_id, org_login, repo_group
     repos:
@@ -888,7 +1159,7 @@ data:
         - 1
         - closed
         - ""
-        - 2017-11-08T14:23:50.746336767Z
+        - 1980-01-01T12:00:00Z
         - 0
         - 0
         - ""
@@ -905,7 +1176,7 @@ data:
         - 2
         - closed
         - ""
-        - 2017-11-08T14:23:50.746337997Z
+        - 1980-01-01T12:00:00Z
         - 0
         - 0
         - ""
@@ -922,7 +1193,7 @@ data:
         - 3
         - open
         - ""
-        - 2017-11-08T14:23:50.746338836Z
+        - 1980-01-01T12:00:00Z
         - 0
         - 0
         - ""
@@ -939,7 +1210,7 @@ data:
         - 4
         - closed
         - ""
-        - 2017-11-08T14:23:50.746340071Z
+        - 1980-01-01T12:00:00Z
         - 0
         - 0
         - ""
@@ -956,7 +1227,7 @@ data:
         - 5
         - closed
         - ""
-        - 2017-11-08T14:23:50.746341162Z
+        - 1980-01-01T12:00:00Z
         - 0
         - 0
         - ""
@@ -973,7 +1244,7 @@ data:
         - 6
         - open
         - ""
-        - 2017-11-08T14:23:50.746341886Z
+        - 1980-01-01T12:00:00Z
         - 0
         - 0
         - ""
@@ -990,7 +1261,7 @@ data:
         - 7
         - closed
         - ""
-        - 2017-11-08T14:23:50.74634292Z
+        - 1980-01-01T12:00:00Z
         - 0
         - 0
         - ""
@@ -1007,7 +1278,7 @@ data:
         - 8
         - closed
         - ""
-        - 2017-11-08T14:23:50.746344109Z
+        - 1980-01-01T12:00:00Z
         - 0
         - 0
         - ""
@@ -1348,7 +1619,7 @@ data:
         - 1
         - closed
         - ""
-        - 2017-11-08T10:39:47.342485659Z
+        - 1980-01-01T12:00:00Z
         - 0
         - 0
         - ""
@@ -1365,7 +1636,7 @@ data:
         - 1
         - closed
         - ""
-        - 2017-11-08T10:39:47.342486747Z
+        - 1980-01-01T12:00:00Z
         - 0
         - 0
         - ""
@@ -1382,7 +1653,7 @@ data:
         - 1
         - closed
         - ""
-        - 2017-11-08T10:39:47.342487861Z
+        - 1980-01-01T12:00:00Z
         - 0
         - 0
         - ""
@@ -1399,7 +1670,7 @@ data:
         - 1
         - closed
         - ""
-        - 2017-11-08T10:39:47.342488886Z
+        - 1980-01-01T12:00:00Z
         - 0
         - 0
         - ""
@@ -1416,7 +1687,7 @@ data:
         - 1
         - open
         - ""
-        - 2017-11-08T10:39:47.34248939Z
+        - 1980-01-01T12:00:00Z
         - 0
         - 0
         - ""
@@ -1433,7 +1704,7 @@ data:
         - 1
         - open
         - ""
-        - 2017-11-08T10:39:47.342490599Z
+        - 1980-01-01T12:00:00Z
         - 0
         - 0
         - ""
@@ -1450,7 +1721,7 @@ data:
         - 1
         - open
         - ""
-        - 2017-11-08T10:39:47.342491184Z
+        - 1980-01-01T12:00:00Z
         - 0
         - 0
         - ""
@@ -1467,7 +1738,7 @@ data:
         - 1
         - open
         - ""
-        - 2017-11-08T10:39:47.342492005Z
+        - 1980-01-01T12:00:00Z
         - 0
         - 0
         - ""
