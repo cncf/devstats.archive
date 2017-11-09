@@ -227,6 +227,15 @@ func dataForMetricTestCase(con *sql.DB, ctx *lib.Ctx, testMetric *metricTestCase
 				}
 			}
 		}
+		payloads, ok := data["payloads"]
+		if ok {
+			for _, payload := range payloads {
+				err = addPayload(con, ctx, payload...)
+				if err != nil {
+					return
+				}
+			}
+		}
 	}
 	return
 }
@@ -806,64 +815,6 @@ func (metricTestCase) AffiliationsTestHelper(con *sql.DB, ctx *lib.Ctx, arg stri
 	// Add events
 	for _, event := range events {
 		err = addEvent(con, ctx, event...)
-		if err != nil {
-			return
-		}
-	}
-
-	return
-}
-
-// Create data for PR comments metric
-func (metricTestCase) SetupPRCommentsMetric(con *sql.DB, ctx *lib.Ctx, arg string) (err error) {
-	ft := testlib.YMDHMS
-
-	// PRs to add
-	// prid, eid, uid, merged_id, assignee_id, num, state, title, body, created_at, closed_at, merged_at, merged
-	// repo_id, repo_name, actor_id, actor_login
-	prs := [][]interface{}{
-		{1, 1, 1, 1, 1, 1, "closed", "PR 1", "Body PR 1", ft(2017, 8, 1), nil, nil, false, 1, "R1", 1, "A1"},
-		{2, 2, 1, 1, 1, 2, "closed", "PR 2", "Body PR 2", ft(2017, 8, 2), nil, nil, false, 1, "R1", 1, "A1"},
-		{3, 3, 1, 1, 1, 3, "closed", "PR 3", "Body PR 3", ft(2017, 8, 3), nil, nil, false, 1, "R1", 1, "A1"},
-		{4, 4, 1, 1, 1, 4, "closed", "PR 4", "Body PR 4", ft(2017, 7, 30), nil, nil, false, 1, "R1", 1, "A1"},
-		{5, 5, 1, nil, 1, 5, "open", "PR 5", "Body PR 5", ft(2017, 8, 5), nil, nil, false, 1, "R1", 1, "A1"},
-	}
-
-	// Add payload
-	// event_id, issue_id, pull_request_id, comment_id, number, forkee_id, release_id, member_id
-	// actor_id, actor_login, repo_id, repo_name, event_type, event_created_at
-	payloads := [][]interface{}{
-		{1, 0, 1, 1, 0, 0, 0, 0, 1, "A1", 1, "R1", "E", ft(2017, 8, 1)},
-		{2, 0, 1, 2, 0, 0, 0, 0, 1, "A1", 1, "R1", "E", ft(2017, 8, 10)},
-		{3, 0, 2, 3, 0, 0, 0, 0, 1, "A1", 1, "R1", "E", ft(2017, 8, 20)},
-		{4, 0, 3, 4, 0, 0, 0, 0, 1, "A1", 1, "R1", "E", ft(2017, 8, 30)},
-		{5, 0, 2, 5, 0, 0, 0, 0, 1, "A1", 1, "R1", "E", ft(2017, 9, 10)},
-		{6, 0, 1, 6, 0, 0, 0, 0, 1, "A1", 1, "R1", "E", ft(2017, 9, 20)},
-		{7, 0, 4, 7, 0, 0, 0, 0, 1, "A1", 1, "R1", "E", ft(2017, 8, 5)},
-		{8, 0, 4, 8, 0, 0, 0, 0, 1, "A1", 1, "R1", "E", ft(2017, 8, 6)},
-		{9, 0, 4, 9, 0, 0, 0, 0, 1, "A1", 1, "R1", "E", ft(2017, 8, 7)},
-		{10, 0, 4, 10, 0, 0, 0, 0, 1, "A1", 1, "R1", "E", ft(2017, 8, 15)},
-		{11, 0, 5, 11, 0, 0, 0, 0, 1, "A1", 1, "R1", "E", ft(2017, 8, 16)},
-		{12, 0, 5, 12, 0, 0, 0, 0, 1, "A1", 1, "R1", "E", ft(2017, 8, 17)},
-		{13, 0, 5, 13, 0, 0, 0, 0, 1, "A1", 1, "R1", "E", ft(2017, 8, 18)},
-		{14, 0, 5, 14, 0, 0, 0, 0, 1, "A1", 1, "R1", "E", ft(2017, 8, 19)},
-		{15, 0, 5, 15, 0, 0, 0, 0, 1, "A1", 1, "R1", "E", ft(2017, 8, 20)},
-	}
-
-	// Add PRs
-	// Add updated_at
-	stub := []interface{}{time.Now()}
-	for _, pr := range prs {
-		pr = append(pr, stub...)
-		err = addPR(con, ctx, pr...)
-		if err != nil {
-			return
-		}
-	}
-
-	// Add Payloads
-	for _, payload := range payloads {
-		err = addPayload(con, ctx, payload...)
 		if err != nil {
 			return
 		}
