@@ -236,6 +236,15 @@ func dataForMetricTestCase(con *sql.DB, ctx *lib.Ctx, testMetric *metricTestCase
 				}
 			}
 		}
+		forkees, ok := data["forkees"]
+		if ok {
+			for _, forkee := range forkees {
+				err = addForkee(con, ctx, forkee...)
+				if err != nil {
+					return
+				}
+			}
+		}
 	}
 	return
 }
@@ -940,60 +949,6 @@ func interfaceToYaml(fn string, i *[][]interface{}) (err error) {
 	yml, err := yaml.Marshal(i)
 	lib.FatalOnError(err)
 	lib.FatalOnError(ioutil.WriteFile(fn, yml, 0644))
-	return
-}
-
-// Create data for top community stats metric
-func (testCase metricTestCase) SetupCommunityStatsMetric(con *sql.DB, ctx *lib.Ctx, arg string) (err error) {
-	ft := testlib.YMDHMS
-
-	// Repos to add
-	// id, name, org_id, org_login, repo_group
-	repos := [][]interface{}{
-		{1, "Org1/Repo1", 1, "Org1", "Group1"},
-		{2, "Org1/Repo2", 1, "Org1", "Group1"},
-		{3, "Repo3", nil, nil, "Group2"},
-		{4, "Org2/Repo4", 2, "Org2", nil},
-	}
-
-	// Add forkee
-	// forkee_id, event_id, name, full_name, owner_id, created_at, updated_at
-	// org, stargazers/watchers, forks, open_issues,
-	// actor_id, actor_login, repo_id, repo_name, type, owner_login
-	forkees := [][]interface{}{
-		{1, 1, "Repo1", "Org1/Repo1", 1, ft(2017), ft(2017, 8), "Org1", 1, 2, 3, 1, "A1", 1, "Repo1", "T", "A1"},
-		{2, 2, "Repo1", "Org1/Repo1", 1, ft(2017), ft(2017, 9), "Org1", 11, 12, 13, 1, "A1", 1, "Repo1", "T", "A1"},
-		{3, 3, "Repo1", "Org1/Repo1", 1, ft(2017), ft(2017, 10), "Org1", 21, 22, 23, 1, "A1", 1, "Repo1", "T", "A1"},
-		{4, 4, "Repo2", "Org1/Repo2", 1, ft(2017), ft(2017, 8), "Org1", 3, 2, 1, 1, "A1", 2, "Repo2", "T", "A1"},
-		{5, 5, "Repo2", "Org1/Repo2", 1, ft(2017), ft(2017, 9), "Org1", 13, 12, 11, 1, "A1", 2, "Repo2", "T", "A1"},
-		{6, 6, "Repo2", "Org1/Repo2", 1, ft(2017), ft(2017, 10), "Org1", 23, 22, 21, 1, "A1", 2, "Repo2", "T", "A1"},
-		{7, 7, "Repo3", "Repo3", 1, ft(2017), ft(2017, 8), nil, 13, 12, 11, 1, "A1", 3, "Repo3", "T", "A1"},
-		{8, 8, "Repo3", "Repo3", 1, ft(2017), ft(2017, 9), nil, 23, 22, 21, 1, "A1", 3, "Repo3", "T", "A1"},
-		{9, 9, "Repo3", "Repo3", 1, ft(2017), ft(2017, 10), nil, 33, 32, 31, 1, "A1", 3, "Repo3", "T", "A1"},
-		{10, 10, "Repo4", "Org2/Repo4", 1, ft(2017), ft(2017, 8), "Org2", 101, 102, 103, 4, "A1", 1, "Repo4", "T", "A1"},
-		{11, 11, "Repo4", "Org2/Repo4", 1, ft(2017), ft(2017, 9), "Org2", 111, 112, 113, 4, "A1", 1, "Repo4", "T", "A1"},
-		{12, 12, "Repo4", "Org2/Repo4", 1, ft(2017), ft(2017, 10), "Org2", 121, 122, 123, 4, "A1", 1, "Repo4", "T", "A1"},
-	}
-
-	// Add repos
-	for _, repo := range repos {
-		err = addRepo(con, ctx, repo...)
-		if err != nil {
-			return
-		}
-	}
-
-	// Add forkees
-	for _, forkee := range forkees {
-		err = addForkee(con, ctx, forkee...)
-		if err != nil {
-			return
-		}
-	}
-
-	// Update repo alias to be the same as repo_group for this test
-	testCase.UpdateRepoAliasFromName(con, ctx, "")
-
 	return
 }
 
