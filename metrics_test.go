@@ -832,52 +832,6 @@ func (metricTestCase) AffiliationsTestHelper(con *sql.DB, ctx *lib.Ctx, arg stri
 	return
 }
 
-// Create data for first non-author activity metric
-func (metricTestCase) SetupFirstNonAuthorActivityMetric(con *sql.DB, ctx *lib.Ctx, arg string) (err error) {
-	ft := testlib.YMDHMS
-
-	// Repos to add
-	// id, name, org_id, org_login, repo_group
-	repos := [][]interface{}{
-		{1, "R1", nil, nil, "Group1"},
-		{2, "R2", nil, nil, "Group1"},
-		{3, "R3", nil, nil, "Group2"},
-		{4, "R4", nil, nil, nil},
-	}
-
-	// PRs to add
-	// prid, eid, uid, merged_id, assignee_id, num, state, title, body, created_at, closed_at, merged_at, merged
-	// repo_id, repo_name, actor_id, actor_login
-	prs := [][]interface{}{
-		{1, 1, 1, 2, 0, 1, "open", "PR1", "Body PR 1", ft(2017, 9), nil, nil, true, 1, "R1", 1, "A1", ft(2017, 9)},
-		{2, 2, 2, 1, 0, 2, "open", "PR2", "Body PR 2", ft(2017, 9, 2), nil, nil, true, 2, "R2", 2, "A2", ft(2017, 9, 2)},
-		{3, 3, 3, 4, 0, 3, "open", "PR3", "Body PR 3", ft(2017, 9, 3), nil, nil, true, 3, "R3", 3, "A3", ft(2017, 9, 3)},
-		{4, 4, 4, 3, 0, 4, "open", "PR4", "Body PR 4", ft(2017, 9, 4), nil, nil, true, 4, "R4", 4, "A4", ft(2017, 9, 4)},
-		{2, 5, 1, 1, 0, 2, "closed", "PR2", "Body PR 2", ft(2017, 9, 2), ft(2017, 9, 3), ft(2017, 9, 3), true, 2, "R2", 1, "A1", ft(2017, 9, 3)},
-		{1, 6, 2, 2, 0, 1, "closed", "PR1", "Body PR 1", ft(2017, 9), ft(2017, 9, 3), ft(2017, 9, 3), true, 1, "R1", 2, "A2", ft(2017, 9, 3)},
-		{3, 7, 4, 4, 0, 3, "closed", "PR3", "Body PR 3", ft(2017, 9, 3), ft(2017, 9, 6), ft(2017, 9, 6), true, 3, "R3", 4, "A4", ft(2017, 9, 6)},
-		{4, 8, 3, 3, 0, 4, "closed", "PR4", "Body PR 4", ft(2017, 9, 4), ft(2017, 9, 8), ft(2017, 9, 8), true, 4, "R4", 3, "A3", ft(2017, 9, 8)},
-	}
-
-	// Add repos
-	for _, repo := range repos {
-		err = addRepo(con, ctx, repo...)
-		if err != nil {
-			return
-		}
-	}
-
-	// Add PRs
-	for _, pr := range prs {
-		err = addPR(con, ctx, pr...)
-		if err != nil {
-			return
-		}
-	}
-
-	return
-}
-
 // Helper function - save data structure to YAML
 // Used whn migrating test coverage from go source to yaml file
 func interfaceToYaml(fn string, i *[][]interface{}) (err error) {
