@@ -777,6 +777,43 @@ func addIssue(con *sql.DB, ctx *lib.Ctx, args ...interface{}) (err error) {
 	return
 }
 
+// Helper function - save data structure to YAML
+// Used when migrating test coverage from go source to yaml file
+func interfaceToYaml(fn string, i *[][]interface{}) (err error) {
+	yml, err := yaml.Marshal(i)
+	lib.FatalOnError(err)
+	lib.FatalOnError(ioutil.WriteFile(fn, yml, 0644))
+	return
+}
+
+// Set dynamic dates after loaded static YAML data
+func (metricTestCase) SetDates(con *sql.DB, ctx *lib.Ctx, arg string) (err error) {
+	//err = fmt.Errorf("got '%s'", arg)
+	//return
+	updates := strings.Split(arg, ",")
+	for _, update := range updates {
+		ary := strings.Split(update, ";")
+		dt := "1980-01-01"
+		if len(ary) > 3 {
+			dt = ary[3]
+		}
+		query := fmt.Sprintf(
+			"update %s set %s = %s where date(%s) = '%s'",
+			ary[0],
+			ary[1],
+			ary[2],
+			ary[1],
+			dt,
+		)
+		_, err = lib.ExecSQL(
+			con,
+			ctx,
+			query,
+		)
+	}
+	return
+}
+
 // Sets Repo alias to be the same as Name on all repos
 func (metricTestCase) UpdateRepoAliasFromName(con *sql.DB, ctx *lib.Ctx, arg string) (err error) {
 	_, err = lib.ExecSQL(con, ctx, "update gha_repos set alias = name")
@@ -784,7 +821,7 @@ func (metricTestCase) UpdateRepoAliasFromName(con *sql.DB, ctx *lib.Ctx, arg str
 	return
 }
 
-// Create data for affiliations metric
+// Create dynamic data for affiliations metric after loaded static YAML data
 func (metricTestCase) AffiliationsTestHelper(con *sql.DB, ctx *lib.Ctx, arg string) (err error) {
 	ft := testlib.YMDHMS
 
@@ -829,42 +866,5 @@ func (metricTestCase) AffiliationsTestHelper(con *sql.DB, ctx *lib.Ctx, arg stri
 		}
 	}
 
-	return
-}
-
-// Helper function - save data structure to YAML
-// Used whn migrating test coverage from go source to yaml file
-func interfaceToYaml(fn string, i *[][]interface{}) (err error) {
-	yml, err := yaml.Marshal(i)
-	lib.FatalOnError(err)
-	lib.FatalOnError(ioutil.WriteFile(fn, yml, 0644))
-	return
-}
-
-// Create data for reviewers histogram metric
-func (metricTestCase) SetDates(con *sql.DB, ctx *lib.Ctx, arg string) (err error) {
-	//err = fmt.Errorf("got '%s'", arg)
-	//return
-	updates := strings.Split(arg, ",")
-	for _, update := range updates {
-		ary := strings.Split(update, ";")
-		dt := "1980-01-01"
-		if len(ary) > 3 {
-			dt = ary[3]
-		}
-		query := fmt.Sprintf(
-			"update %s set %s = %s where date(%s) = '%s'",
-			ary[0],
-			ary[1],
-			ary[2],
-			ary[1],
-			dt,
-		)
-		_, err = lib.ExecSQL(
-			con,
-			ctx,
-			query,
-		)
-	}
 	return
 }
