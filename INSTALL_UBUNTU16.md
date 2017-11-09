@@ -81,7 +81,7 @@ Prerequisites:
     - Second crontab entry is for automatic daily backup of GHA database.
     - Third crontab entry is for Continuous Deployment - this a Travis Web Hook listener server, it deploys project when specific conditions are met, details [here](https://github.com/cncf/devstats/blob/master/CONTINUOUS_DEPLOYMENT.md).
     - You need to change "..." PG_PASS and IDB_PASS to the real postgres password value and copy this line.
-    - You need to change "/path/to/your/GOPATH/bin" to the value of "$GOPATH/bin", You cannot use $GOPATH in crontab directly.
+    - You need to change "/path/to/your/GOPATH/bin" to the value of "$GOPATH/bin", you cannot use $GOPATH in crontab directly.
     - Run `crontab -e` and put this line at the end of file and save.
     - Cron job will update Postgres and InfluxDB databases at 0:10, 1:10, ... 23:10 every day.
     - It outputs logs to `/tmp/gha2db_sync.out` and `/tmp/gha2db_sync.err` and also to gha Postgres database: into table `gha_logs`.
@@ -98,11 +98,11 @@ Prerequisites:
     - `service grafana-server restart`
     - Go to Grafana UI (localhost:3000), choose sign out, and then access localhost:3000 again. You should be able to view dashboards as a guest. To login again use http://localhost:3000/login.
     - Install Apache as described [here](https://github.com/cncf/devstats/blob/master/APACHE.md).
-    - You can also enable SSL, to do so You need to follow SSL instruction in [SSL](https://github.com/cncf/devstats/blob/master/SSL.md) (that requires domain name).
+    - You can also enable SSL, to do so you need to follow SSL instruction in [SSL](https://github.com/cncf/devstats/blob/master/SSL.md) (that requires domain name).
 
 17. To change all Grafana page titles (starting with "Grafana - ") and icons use this script:
     - `GRAFANA_DATA=/usr/share/grafana/ ./grafana/change_title_and_icons.sh`.
-    - Replace `GRAFANA_DATA` with You Grafana data directory.
+    - Replace `GRAFANA_DATA` with your Grafana data directory.
     - `service grafana-server restart`
     - In some cases browser and/or Grafana cache old settings in this case temporarily move Grafana's `settings.js` file:
     - `mv /usr/share/grafana/public/app/core/settings.js /usr/share/grafana/public/app/core/settings.js.old`, restart grafana server and restore file.
