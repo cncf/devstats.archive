@@ -138,6 +138,9 @@ func main() {
 		lib.Printf("%s: Required args: source_database destination_database\n", os.Args[0])
 		os.Exit(1)
 	}
+	fmt.Printf(
+		"Consider fresh restart of `influxd` service, this program temporarily doubles influxd memory usage.\n",
+	)
 	idbBackup(os.Args[1], os.Args[2])
 	dtEnd := time.Now()
 	lib.Printf("Time: %v\n", dtEnd.Sub(dtStart))
