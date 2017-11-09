@@ -7,11 +7,13 @@ import (
 	"os"
 	"strings"
 	"time"
-
-	client "github.com/influxdata/influxdb/client/v2"
 )
 
-func copySeries(ch chan bool, ctx *lib.Ctx, ic client.Client, from, to, seriesName string) {
+func copySeries(ch chan bool, ctx *lib.Ctx, from, to, seriesName string) {
+	// Connect to InfluxDB
+	ic := lib.IDBConn(ctx)
+	defer ic.Close()
+
 	// Get BatchPoints
 	bp := lib.IDBBatchPointsWithDB(ctx, &ic, to)
 
@@ -73,7 +75,6 @@ func idbBackup(from, to string) {
 
 	// Connect to InfluxDB
 	ic := lib.IDBConn(&ctx)
-	defer ic.Close()
 
 	// Get all series names from input database
 	res := lib.QueryIDBWithDB(ic, &ctx, "show series", from)
@@ -90,6 +91,10 @@ func idbBackup(from, to string) {
 		series = append(series, ser)
 	}
 	nSeries := len(series)
+
+	// Close connection
+	ic.Close()
+
 	//series[0] = "company_multi_cluster_issues_y"
 	//nSeries = 1
 	lib.Printf("Processing %d series", nSeries)
@@ -100,7 +105,7 @@ func idbBackup(from, to string) {
 		for i := 0; i < nSeries; i++ {
 			ch := make(chan bool)
 			chanPool = append(chanPool, ch)
-			go copySeries(ch, &ctx, ic, from, to, series[i])
+			go copySeries(ch, &ctx, from, to, series[i])
 			if len(chanPool) == thrN {
 				ch = chanPool[0]
 				<-ch
@@ -117,7 +122,7 @@ func idbBackup(from, to string) {
 	} else {
 		lib.Printf("Using single threaded version\n")
 		for i := 0; i < nSeries; i++ {
-			copySeries(nil, &ctx, ic, from, to, series[i])
+			copySeries(nil, &ctx, from, to, series[i])
 			if i%10 == 0 {
 				fmt.Print(".")
 			}
