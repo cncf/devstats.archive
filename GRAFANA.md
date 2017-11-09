@@ -28,3 +28,6 @@ org_role = Read Only Editor
 To enable Google analytics:
 google_analytics_ua_id = UA-XXXXXXXXX-1
 - Restart grafana server.
+
+- To run multiple Grafana instance (for example to have multiple projects on the same host), You need to use Docker.
+- TODO: starting point: `grafana/grafana_start.sh`
