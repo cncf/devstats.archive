@@ -100,13 +100,13 @@ Prerequisites:
     - Configure Grafana, as described [here](https://github.com/cncf/devstats/blob/master/GRAFANA.md).
     - `service grafana-server restart`
     - Go to Grafana UI (localhost:3000), choose sign out, and then access localhost:3000 again. You should be able to view dashboards as a guest. To login again use http://localhost:3000/login.
-    - You can also enable SSL, to do so You need to follow SSL instruction in [USAGE](https://github.com/cncf/devstats/blob/master/USAGE.md) (that requires domain name).
+    - You can also enable SSL, to do so you need to follow SSL instruction in [USAGE](https://github.com/cncf/devstats/blob/master/USAGE.md) (that requires domain name).
     - Install Apache as described [here](https://github.com/cncf/devstats/blob/master/APACHE.md).
-    - You can also enable SSL, to do so You need to follow SSL instruction in [SSL](https://github.com/cncf/devstats/blob/master/SSL.md) (that requires domain name).
+    - You can also enable SSL, to do so you need to follow SSL instruction in [SSL](https://github.com/cncf/devstats/blob/master/SSL.md) (that requires domain name).
 
 17. To change all Grafana page titles (starting with "Grafana - ") and icons use this script:
     - `GRAFANA_DATA=/usr/share/grafana/ ./grafana/change_title_and_icons.sh`.
-    - Replace `GRAFANA_DATA` with You Grafana data directory.
+    - Replace `GRAFANA_DATA` with your Grafana data directory.
     - `service grafana-server restart`
     - In some cases browser and/or Grafana cache old settings in this case temporarily move Grafana's `settings.js` file:
     - `mv /usr/share/grafana/public/app/core/settings.js /usr/share/grafana/public/app/core/settings.js.old`, restart grafana server and restore file.
