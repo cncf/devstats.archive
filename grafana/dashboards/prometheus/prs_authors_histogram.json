@@ -17,16 +17,16 @@
       "version": "4.7.0-pre1"
     },
     {
-      "type": "panel",
-      "id": "graph",
-      "name": "Graph",
-      "version": ""
-    },
-    {
       "type": "datasource",
       "id": "influxdb",
       "name": "InfluxDB",
       "version": "1.0.0"
+    },
+    {
+      "type": "panel",
+      "id": "table",
+      "name": "Table",
+      "version": ""
     }
   ],
   "annotations": {
@@ -39,20 +39,6 @@
         "iconColor": "rgba(0, 211, 255, 1)",
         "name": "Annotations & Alerts",
         "type": "dashboard"
-      },
-      {
-        "datasource": "${DS_PROMETHEUS}",
-        "enable": true,
-        "hide": false,
-        "iconColor": "rgba(255, 96, 96, 1)",
-        "limit": 100,
-        "name": "Releases",
-        "query": "SELECT title, description from annotations WHERE $timeFilter order by time asc",
-        "showIn": 0,
-        "tagsColumn": "title,description",
-        "textColumn": "",
-        "titleColumn": "Kubernetes release",
-        "type": "alert"
       }
     ]
   },
@@ -66,81 +52,101 @@
   "rows": [
     {
       "collapse": false,
-      "height": 717,
+      "height": 842,
       "panels": [
         {
-          "aliasColors": {},
-          "bars": true,
-          "dashLength": 10,
-          "dashes": false,
+          "columns": [],
           "datasource": "${DS_PROMETHEUS}",
-          "decimals": 2,
-          "description": "Show Issues opened/closed for given repository group",
-          "fill": 1,
-          "id": 3,
-          "legend": {
-            "alignAsTable": true,
-            "avg": true,
-            "current": true,
-            "hideEmpty": false,
-            "hideZero": false,
-            "max": true,
-            "min": true,
-            "rightSide": false,
-            "show": true,
-            "sort": "avg",
-            "sortDesc": true,
-            "total": true,
-            "values": true
-          },
-          "lines": false,
-          "linewidth": 1,
+          "description": "Shows PRs authors",
+          "fontSize": "90%",
+          "hideTimeOverride": true,
+          "id": 1,
           "links": [],
-          "nullPointMode": "null",
-          "percentage": false,
-          "pointradius": 5,
-          "points": false,
-          "renderer": "flot",
-          "seriesOverrides": [],
-          "spaceLength": 10,
+          "pageSize": 20,
+          "scroll": true,
+          "showHeader": true,
+          "sort": {
+            "col": 0,
+            "desc": true
+          },
           "span": 12,
-          "stack": true,
-          "steppedLine": false,
-          "targets": [
+          "styles": [
             {
-              "alias": "Issues opened",
-              "dsType": "influxdb",
-              "groupBy": [],
-              "measurement": "sig_federation_d",
-              "orderByTime": "ASC",
-              "policy": "default",
-              "query": "SELECT /^[[repogroup]]$/ FROM \"issues_opened_[[period]]\" WHERE $timeFilter",
-              "rawQuery": true,
-              "refId": "A",
-              "resultFormat": "time_series",
-              "select": [
-                [
-                  {
-                    "params": [
-                      "value"
-                    ],
-                    "type": "field"
-                  }
-                ]
-              ],
-              "tags": []
+              "alias": "Time",
+              "dateFormat": "YYYY-MM-DD HH:mm:ss",
+              "decimals": null,
+              "pattern": "Time",
+              "type": "hidden"
             },
             {
-              "alias": "Issues closed",
+              "alias": "Developer",
+              "colorMode": null,
+              "colors": [
+                "rgba(245, 54, 54, 0.9)",
+                "rgba(237, 129, 40, 0.89)",
+                "rgba(50, 172, 45, 0.97)"
+              ],
+              "dateFormat": "YYYY-MM-DD HH:mm:ss",
+              "decimals": 2,
+              "pattern": "name",
+              "preserveFormat": false,
+              "thresholds": [],
+              "type": "string",
+              "unit": "short"
+            },
+            {
+              "alias": "Opened PRs",
+              "colorMode": null,
+              "colors": [
+                "rgba(245, 54, 54, 0.9)",
+                "rgba(237, 129, 40, 0.89)",
+                "rgba(50, 172, 45, 0.97)"
+              ],
+              "dateFormat": "YYYY-MM-DD HH:mm:ss",
+              "decimals": 0,
+              "pattern": "value",
+              "thresholds": [],
+              "type": "number",
+              "unit": "none"
+            },
+            {
+              "alias": "",
+              "colorMode": null,
+              "colors": [
+                "rgba(245, 54, 54, 0.9)",
+                "rgba(237, 129, 40, 0.89)",
+                "rgba(50, 172, 45, 0.97)"
+              ],
+              "decimals": 2,
+              "pattern": "/.*/",
+              "thresholds": [],
+              "type": "number",
+              "unit": "short"
+            }
+          ],
+          "targets": [
+            {
               "dsType": "influxdb",
-              "groupBy": [],
-              "measurement": "sig_federation_d",
+              "groupBy": [
+                {
+                  "params": [
+                    "$__interval"
+                  ],
+                  "type": "time"
+                },
+                {
+                  "params": [
+                    "null"
+                  ],
+                  "type": "fill"
+                }
+              ],
               "orderByTime": "ASC",
               "policy": "default",
-              "query": "SELECT /^[[repogroup]]$/ FROM \"issues_closed_[[period]]\" WHERE $timeFilter",
+              "query": "SELECT \"name\", \"value\" FROM \"hist_pr_authors_[[repogroup]]_[[period]]\" WHERE $timeFilter",
               "rawQuery": true,
-              "refId": "B",
-              "resultFormat": "time_series",
+              "refId": "A",
+              "resultFormat": "table",
               "select": [
                 [
                   {
@@ -148,50 +154,20 @@
                       "value"
                     ],
                     "type": "field"
+                  },
+                  {
+                    "params": [],
+                    "type": "mean"
                   }
                 ]
               ],
               "tags": []
             }
           ],
-          "thresholds": [],
-          "timeFrom": null,
-          "timeShift": null,
-          "title": "Issues Repository group: [[repogroup_name]] ([[period]])",
-          "tooltip": {
-            "shared": true,
-            "sort": 2,
-            "value_type": "individual"
-          },
-          "transparent": true,
-          "type": "graph",
-          "xaxis": {
-            "buckets": null,
-            "mode": "time",
-            "name": null,
-            "show": true,
-            "values": [
-              "total"
-            ]
-          },
-          "yaxes": [
-            {
-              "format": "short",
-              "label": "Issues",
-              "logBase": 1,
-              "max": null,
-              "min": "0",
-              "show": true
-            },
-            {
-              "format": "short",
-              "label": "",
-              "logBase": 1,
-              "max": null,
-              "min": "0",
-              "show": true
-            }
-          ]
+          "title": "PRs authors (Repository group: [[repogroup_name]], Last [[period]])",
+          "transform": "table",
+          "transparent": false,
+          "type": "table"
         }
       ],
       "repeat": null,
@@ -214,12 +190,12 @@
         "allValue": null,
         "current": {
           "tags": [],
-          "text": "7 Days MA",
-          "value": "d7"
+          "text": "Month",
+          "value": "m"
         },
         "hide": 0,
         "includeAll": false,
-        "label": "Period",
+        "label": "Last",
         "multi": false,
         "name": "period",
         "options": [
@@ -229,17 +205,12 @@
             "value": "d"
           },
           {
-            "selected": true,
-            "text": "7 Days MA",
-            "value": "d7"
-          },
-          {
             "selected": false,
             "text": "Week",
             "value": "w"
           },
           {
-            "selected": false,
+            "selected": true,
             "text": "Month",
             "value": "m"
           },
@@ -258,7 +229,7 @@
         "type": "custom"
       },
       {
-        "allValue": "",
+        "allValue": null,
         "current": {},
         "datasource": "${DS_PROMETHEUS}",
         "hide": 0,
@@ -278,7 +249,7 @@
         "useTags": false
       },
       {
-        "allValue": "",
+        "allValue": null,
         "current": {},
         "datasource": "${DS_PROMETHEUS}",
         "hide": 2,
@@ -300,7 +271,7 @@
     ]
   },
   "time": {
-    "from": "now-3y",
+    "from": "now-5y",
     "to": "now"
   },
   "timepicker": {
@@ -329,6 +300,6 @@
     ]
   },
   "timezone": "",
-  "title": "Issues repository group Prometheus",
-  "version": 4
+  "title": "PRs authors histogram",
+  "version": 2
 }

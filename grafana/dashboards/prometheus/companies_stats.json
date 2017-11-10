@@ -27,12 +27,6 @@
       "id": "influxdb",
       "name": "InfluxDB",
       "version": "1.0.0"
-    },
-    {
-      "type": "panel",
-      "id": "table",
-      "name": "Table",
-      "version": ""
     }
   ],
   "annotations": {
@@ -43,7 +37,9 @@
         "enable": true,
         "hide": true,
         "iconColor": "rgba(0, 211, 255, 1)",
+        "limit": 100,
         "name": "Annotations & Alerts",
+        "showIn": 0,
         "type": "dashboard"
       },
       {
@@ -68,10 +64,11 @@
   "hideControls": false,
   "id": null,
   "links": [],
+  "refresh": false,
   "rows": [
     {
       "collapse": false,
-      "height": 481,
+      "height": 646,
       "panels": [
         {
           "aliasColors": {},
@@ -80,22 +77,27 @@
           "dashes": false,
           "datasource": "${DS_PROMETHEUS}",
           "decimals": 2,
-          "description": "Median, 15th and 85th percentile of number of hours from open to merging for PR",
-          "fill": 0,
-          "id": 2,
+          "description": "Measures company [[metric]]. Self means developers working on their own.",
+          "fill": 6,
+          "id": 1,
           "legend": {
             "alignAsTable": true,
             "avg": true,
             "current": true,
+            "hideEmpty": false,
+            "hideZero": false,
             "max": true,
             "min": true,
-            "rightSide": false,
+            "rightSide": true,
             "show": true,
+            "sideWidth": null,
+            "sort": "avg",
+            "sortDesc": true,
             "total": false,
             "values": true
           },
           "lines": true,
-          "linewidth": 1,
+          "linewidth": 0,
           "links": [],
           "nullPointMode": "null",
           "percentage": false,
@@ -104,44 +106,29 @@
           "renderer": "flot",
           "seriesOverrides": [
             {
-              "alias": "15th percentile time opened to merged (in hours)",
+              "alias": "All",
+              "bars": false,
+              "fill": 0,
+              "lines": true,
+              "linewidth": 1,
+              "stack": false,
               "yaxis": 2
             }
           ],
           "spaceLength": 10,
           "span": 12,
-          "stack": false,
+          "stack": true,
           "steppedLine": false,
           "targets": [
             {
-              "alias": "85th percentile time opened to merged (in hours)",
+              "alias": "All",
               "dsType": "influxdb",
               "groupBy": [],
+              "hide": false,
+              "measurement": "sig_federation_d",
               "orderByTime": "ASC",
               "policy": "default",
-              "query": "SELECT \"value\" FROM \"opened_to_merged_[[repogroup]]_percentile_85_[[period]]\" WHERE $timeFilter",
-              "rawQuery": true,
-              "refId": "A",
-              "resultFormat": "time_series",
-              "select": [
-                [
-                  {
-                    "params": [
-                      "value"
-                    ],
-                    "type": "field"
-                  }
-                ]
-              ],
-              "tags": []
-            },
-            {
-              "alias": "Median time opened to merged (in hours)",
-              "dsType": "influxdb",
-              "groupBy": [],
-              "orderByTime": "ASC",
-              "policy": "default",
-              "query": "SELECT \"value\" FROM \"opened_to_merged_[[repogroup]]_median_[[period]]\" WHERE $timeFilter",
+              "query": "SELECT \"All\" FROM \"company_[[repogroup]]_[[metric]]_[[period]]\" WHERE $timeFilter",
               "rawQuery": true,
               "refId": "B",
               "resultFormat": "time_series",
@@ -158,14 +145,15 @@
               "tags": []
             },
             {
-              "alias": "15th percentile time opened to merged (in hours)",
+              "alias": "$col",
               "dsType": "influxdb",
               "groupBy": [],
+              "measurement": "sig_federation_d",
               "orderByTime": "ASC",
               "policy": "default",
-              "query": "SELECT \"value\" FROM \"opened_to_merged_[[repogroup]]_percentile_15_[[period]]\" WHERE $timeFilter",
+              "query": "SELECT /^[[companies]]$/ FROM \"company_[[repogroup]]_[[metric]]_[[period]]\" WHERE $timeFilter",
               "rawQuery": true,
-              "refId": "C",
+              "refId": "A",
               "resultFormat": "time_series",
               "select": [
                 [
@@ -183,12 +171,13 @@
           "thresholds": [],
           "timeFrom": null,
           "timeShift": null,
-          "title": "Time from open to merge ([[repogroup_name]], [[period]])",
+          "title": "Companies [[metric]] metric ([[repogroup_name]], [[period]])",
           "tooltip": {
             "shared": true,
-            "sort": 0,
+            "sort": 2,
             "value_type": "individual"
           },
+          "transparent": true,
           "type": "graph",
           "xaxis": {
             "buckets": null,
@@ -199,16 +188,18 @@
           },
           "yaxes": [
             {
-              "format": "h",
-              "label": "Opened to merged (median & 85th percentile)",
-              "logBase": 10,
+              "decimals": null,
+              "format": "short",
+              "label": "Per company",
+              "logBase": 1,
               "max": null,
               "min": "0",
               "show": true
             },
             {
+              "decimals": null,
               "format": "short",
-              "label": "Opened to merged (15th percentile)",
+              "label": "All",
               "logBase": 1,
               "max": null,
               "min": "0",
@@ -226,66 +217,56 @@
     },
     {
       "collapse": false,
-      "height": 424,
+      "height": 637,
       "panels": [
         {
-          "columns": [],
+          "aliasColors": {},
+          "bars": false,
+          "dashLength": 10,
+          "dashes": false,
           "datasource": "${DS_PROMETHEUS}",
-          "description": "Time PRs from open to merge",
-          "fontSize": "90%",
-          "id": 3,
-          "links": [],
-          "pageSize": 10,
-          "scroll": true,
-          "showHeader": true,
-          "sort": {
-            "col": 0,
-            "desc": true
+          "decimals": 2,
+          "description": "Measures company [[metric]]. Self means developers working on their own.",
+          "fill": 6,
+          "id": 2,
+          "legend": {
+            "alignAsTable": true,
+            "avg": true,
+            "current": true,
+            "hideEmpty": false,
+            "hideZero": false,
+            "max": true,
+            "min": true,
+            "rightSide": true,
+            "show": true,
+            "sideWidth": null,
+            "sort": "avg",
+            "sortDesc": true,
+            "total": false,
+            "values": true
           },
+          "lines": true,
+          "linewidth": 0,
+          "links": [],
+          "nullPointMode": "null",
+          "percentage": true,
+          "pointradius": 5,
+          "points": false,
+          "renderer": "flot",
+          "seriesOverrides": [],
+          "spaceLength": 10,
           "span": 12,
-          "styles": [
-            {
-              "alias": "Time",
-              "dateFormat": "MM/DD/YYYY",
-              "pattern": "Time",
-              "type": "date"
-            },
-            {
-              "alias": "",
-              "colorMode": null,
-              "colors": [
-                "rgba(245, 54, 54, 0.9)",
-                "rgba(237, 129, 40, 0.89)",
-                "rgba(50, 172, 45, 0.97)"
-              ],
-              "decimals": 2,
-              "pattern": "/.*/",
-              "thresholds": [],
-              "type": "number",
-              "unit": "short"
-            }
-          ],
+          "stack": true,
+          "steppedLine": false,
           "targets": [
             {
-              "alias": "15th percentile",
+              "alias": "$col",
               "dsType": "influxdb",
-              "groupBy": [
-                {
-                  "params": [
-                    "$__interval"
-                  ],
-                  "type": "time"
-                },
-                {
-                  "params": [
-                    "null"
-                  ],
-                  "type": "fill"
-                }
-              ],
+              "groupBy": [],
+              "measurement": "sig_federation_d",
               "orderByTime": "ASC",
               "policy": "default",
-              "query": "SELECT \"descr\" FROM \"opened_to_merged_[[repogroup]]_percentile_15_[[period]]\" WHERE $timeFilter",
+              "query": "SELECT /^[[companies]]$/ FROM \"company_[[repogroup]]_[[metric]]_[[period]]\" WHERE $timeFilter",
               "rawQuery": true,
               "refId": "A",
               "resultFormat": "time_series",
@@ -296,99 +277,63 @@
                       "value"
                     ],
                     "type": "field"
-                  },
-                  {
-                    "params": [],
-                    "type": "mean"
-                  }
-                ]
-              ],
-              "tags": []
-            },
-            {
-              "alias": "Median",
-              "dsType": "influxdb",
-              "groupBy": [
-                {
-                  "params": [
-                    "$__interval"
-                  ],
-                  "type": "time"
-                },
-                {
-                  "params": [
-                    "null"
-                  ],
-                  "type": "fill"
-                }
-              ],
-              "orderByTime": "ASC",
-              "policy": "default",
-              "query": "SELECT \"descr\" FROM \"opened_to_merged_[[repogroup]]_median_[[period]]\" WHERE $timeFilter",
-              "rawQuery": true,
-              "refId": "B",
-              "resultFormat": "time_series",
-              "select": [
-                [
-                  {
-                    "params": [
-                      "value"
-                    ],
-                    "type": "field"
-                  },
-                  {
-                    "params": [],
-                    "type": "mean"
-                  }
-                ]
-              ],
-              "tags": []
-            },
-            {
-              "alias": "85th percentile",
-              "dsType": "influxdb",
-              "groupBy": [
-                {
-                  "params": [
-                    "$__interval"
-                  ],
-                  "type": "time"
-                },
-                {
-                  "params": [
-                    "null"
-                  ],
-                  "type": "fill"
-                }
-              ],
-              "orderByTime": "ASC",
-              "policy": "default",
-              "query": "SELECT \"descr\" FROM \"opened_to_merged_[[repogroup]]_percentile_85_[[period]]\" WHERE $timeFilter",
-              "rawQuery": true,
-              "refId": "C",
-              "resultFormat": "time_series",
-              "select": [
-                [
-                  {
-                    "params": [
-                      "value"
-                    ],
-                    "type": "field"
-                  },
-                  {
-                    "params": [],
-                    "type": "mean"
                   }
                 ]
               ],
               "tags": []
             }
           ],
-          "title": "Time from open to merge ([[repogroup_name]], [[period]])",
-          "transform": "timeseries_to_columns",
-          "type": "table"
+          "thresholds": [],
+          "timeFrom": null,
+          "timeShift": null,
+          "title": "Companies [[metric]] metric ([[repogroup_name]], [[period]])",
+          "tooltip": {
+            "shared": true,
+            "sort": 2,
+            "value_type": "individual"
+          },
+          "transparent": true,
+          "type": "graph",
+          "xaxis": {
+            "buckets": null,
+            "mode": "time",
+            "name": null,
+            "show": true,
+            "values": []
+          },
+          "yaxes": [
+            {
+              "decimals": null,
+              "format": "short",
+              "label": "",
+              "logBase": 1,
+              "max": "100",
+              "min": "0",
+              "show": true
+            },
+            {
+              "decimals": null,
+              "format": "short",
+              "label": "",
+              "logBase": 1,
+              "max": null,
+              "min": "0",
+              "show": true
+            }
+          ]
         }
       ],
+      "repeat": null,
+      "repeatIteration": null,
+      "repeatRowId": null,
+      "showTitle": false,
+      "title": "Dashboard Row",
+      "titleSize": "h6"
+    },
+    {
+      "collapse": false,
+      "height": 250,
+      "panels": [],
       "repeat": null,
       "repeatIteration": null,
       "repeatRowId": null,
@@ -409,8 +354,8 @@
         "allValue": null,
         "current": {
           "tags": [],
-          "text": "Week",
-          "value": "w"
+          "text": "7 Days MA",
+          "value": "d7"
         },
         "hide": 0,
         "includeAll": false,
@@ -419,7 +364,17 @@
         "name": "period",
         "options": [
           {
+            "selected": false,
+            "text": "Day",
+            "value": "d"
+          },
+          {
             "selected": true,
+            "text": "7 Days MA",
+            "value": "d7"
+          },
+          {
+            "selected": false,
             "text": "Week",
             "value": "w"
           },
@@ -439,7 +394,54 @@
             "value": "y"
           }
         ],
-        "query": "w,m,q,y",
+        "query": "d,w,m,q,y",
+        "type": "custom"
+      },
+      {
+        "allValue": null,
+        "current": {
+          "tags": [],
+          "text": "All activity",
+          "value": "activity"
+        },
+        "hide": 0,
+        "includeAll": false,
+        "label": "Metric",
+        "multi": false,
+        "name": "metric",
+        "options": [
+          {
+            "selected": true,
+            "text": "All activity",
+            "value": "activity"
+          },
+          {
+            "selected": false,
+            "text": "Active authors",
+            "value": "authors"
+          },
+          {
+            "selected": false,
+            "text": "Issues created",
+            "value": "issues"
+          },
+          {
+            "selected": false,
+            "text": "Pull requests created",
+            "value": "prs"
+          },
+          {
+            "selected": false,
+            "text": "Commits made",
+            "value": "commits"
+          },
+          {
+            "selected": false,
+            "text": "Added comments",
+            "value": "comments"
+          }
+        ],
+        "query": "activity,authors,issues,prs,commits,comments",
         "type": "custom"
       },
       {
@@ -481,6 +483,26 @@
         "tagsQuery": "",
         "type": "query",
         "useTags": false
+      },
+      {
+        "allValue": "",
+        "current": {},
+        "datasource": "${DS_PROMETHEUS}",
+        "hide": 0,
+        "includeAll": true,
+        "label": "Companies",
+        "multi": true,
+        "name": "companies",
+        "options": [],
+        "query": "SHOW TAG VALUES WITH KEY = companies_name",
+        "refresh": 1,
+        "regex": "",
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
       }
     ]
   },
@@ -514,6 +536,6 @@
     ]
   },
   "timezone": "",
-  "title": "Opened to Merged Prometheus",
-  "version": 3
+  "title": "Companies stats",
+  "version": 13
 }

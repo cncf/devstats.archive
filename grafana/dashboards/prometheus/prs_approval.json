@@ -17,16 +17,16 @@
       "version": "4.7.0-pre1"
     },
     {
+      "type": "panel",
+      "id": "graph",
+      "name": "Graph",
+      "version": ""
+    },
+    {
       "type": "datasource",
       "id": "influxdb",
       "name": "InfluxDB",
       "version": "1.0.0"
-    },
-    {
-      "type": "panel",
-      "id": "table",
-      "name": "Table",
-      "version": ""
     }
   ],
   "annotations": {
@@ -39,6 +39,20 @@
         "iconColor": "rgba(0, 211, 255, 1)",
         "name": "Annotations & Alerts",
         "type": "dashboard"
+      },
+      {
+        "datasource": "${DS_PROMETHEUS}",
+        "enable": true,
+        "hide": false,
+        "iconColor": "rgba(255, 96, 96, 1)",
+        "limit": 100,
+        "name": "Releases",
+        "query": "SELECT title, description from annotations WHERE $timeFilter order by time asc",
+        "showIn": 0,
+        "tagsColumn": "title,description",
+        "textColumn": "",
+        "titleColumn": "Kubernetes release",
+        "type": "alert"
       }
     ]
   },
@@ -52,101 +66,56 @@
   "rows": [
     {
       "collapse": false,
-      "height": 842,
+      "height": 849,
       "panels": [
         {
-          "columns": [],
+          "aliasColors": {},
+          "bars": false,
+          "dashLength": 10,
+          "dashes": false,
           "datasource": "${DS_PROMETHEUS}",
-          "description": "Shows most active commenters",
-          "fontSize": "90%",
-          "hideTimeOverride": true,
-          "id": 1,
-          "links": [],
-          "pageSize": 20,
-          "scroll": true,
-          "showHeader": true,
-          "sort": {
-            "col": 0,
-            "desc": true
+          "decimals": 2,
+          "description": "Number of PRs",
+          "fill": 5,
+          "id": 2,
+          "legend": {
+            "alignAsTable": true,
+            "avg": true,
+            "current": true,
+            "max": true,
+            "min": true,
+            "rightSide": false,
+            "show": true,
+            "sort": "avg",
+            "sortDesc": true,
+            "total": true,
+            "values": true
           },
+          "lines": true,
+          "linewidth": 0,
+          "links": [],
+          "nullPointMode": "null",
+          "percentage": false,
+          "pointradius": 5,
+          "points": false,
+          "renderer": "flot",
+          "seriesOverrides": [],
+          "spaceLength": 10,
           "span": 12,
-          "styles": [
-            {
-              "alias": "Time",
-              "dateFormat": "YYYY-MM-DD HH:mm:ss",
-              "decimals": null,
-              "pattern": "Time",
-              "type": "hidden"
-            },
-            {
-              "alias": "Developer",
-              "colorMode": null,
-              "colors": [
-                "rgba(245, 54, 54, 0.9)",
-                "rgba(237, 129, 40, 0.89)",
-                "rgba(50, 172, 45, 0.97)"
-              ],
-              "dateFormat": "YYYY-MM-DD HH:mm:ss",
-              "decimals": 2,
-              "pattern": "name",
-              "preserveFormat": false,
-              "thresholds": [],
-              "type": "string",
-              "unit": "short"
-            },
-            {
-              "alias": "Comments",
-              "colorMode": null,
-              "colors": [
-                "rgba(245, 54, 54, 0.9)",
-                "rgba(237, 129, 40, 0.89)",
-                "rgba(50, 172, 45, 0.97)"
-              ],
-              "dateFormat": "YYYY-MM-DD HH:mm:ss",
-              "decimals": 0,
-              "pattern": "value",
-              "thresholds": [],
-              "type": "number",
-              "unit": "none"
-            },
-            {
-              "alias": "",
-              "colorMode": null,
-              "colors": [
-                "rgba(245, 54, 54, 0.9)",
-                "rgba(237, 129, 40, 0.89)",
-                "rgba(50, 172, 45, 0.97)"
-              ],
-              "decimals": 2,
-              "pattern": "/.*/",
-              "thresholds": [],
-              "type": "number",
-              "unit": "short"
-            }
-          ],
+          "stack": true,
+          "steppedLine": true,
           "targets": [
             {
+              "alias": "Approved",
               "dsType": "influxdb",
-              "groupBy": [
-                {
-                  "params": [
-                    "$__interval"
-                  ],
-                  "type": "time"
-                },
-                {
-                  "params": [
-                    "null"
-                  ],
-                  "type": "fill"
-                }
-              ],
+              "groupBy": [],
+              "measurement": "prs_kubernetes_kubernetes_d",
               "orderByTime": "ASC",
               "policy": "default",
-              "query": "SELECT \"name\", \"value\" FROM \"top_commenters_[[repogroup]]_[[period]]\" WHERE $timeFilter",
+              "query": "SELECT /^[[repogroup]]$/ FROM \"prs_approve_state_approved_[[period]]\" WHERE $timeFilter",
               "rawQuery": true,
               "refId": "A",
-              "resultFormat": "table",
+              "resultFormat": "time_series",
               "select": [
                 [
                   {
@@ -154,20 +123,70 @@
                       "value"
                     ],
                     "type": "field"
-                  },
+                  }
+                ]
+              ],
+              "tags": []
+            },
+            {
+              "alias": "Awaiting approval",
+              "dsType": "influxdb",
+              "groupBy": [],
+              "measurement": "prs_kubernetes_kubernetes_d",
+              "orderByTime": "ASC",
+              "policy": "default",
+              "query": "SELECT /^[[repogroup]]$/ FROM \"prs_approve_state_awaiting_[[period]]\" WHERE $timeFilter",
+              "rawQuery": true,
+              "refId": "B",
+              "resultFormat": "time_series",
+              "select": [
+                [
                   {
-                    "params": [],
-                    "type": "mean"
+                    "params": [
+                      "value"
+                    ],
+                    "type": "field"
                   }
                 ]
               ],
               "tags": []
             }
           ],
-          "title": "Top commenters ([[repogroup_name]], [[period]])",
-          "transform": "table",
-          "transparent": false,
-          "type": "table"
+          "thresholds": [],
+          "timeFrom": null,
+          "timeShift": null,
+          "title": "PRs approved and awaiting approval ([[repogroup]], [[period]])",
+          "tooltip": {
+            "shared": true,
+            "sort": 2,
+            "value_type": "individual"
+          },
+          "type": "graph",
+          "xaxis": {
+            "buckets": null,
+            "mode": "time",
+            "name": null,
+            "show": true,
+            "values": []
+          },
+          "yaxes": [
+            {
+              "format": "short",
+              "label": "Pull requests",
+              "logBase": 1,
+              "max": null,
+              "min": "0",
+              "show": true
+            },
+            {
+              "format": "short",
+              "label": "",
+              "logBase": 1,
+              "max": null,
+              "min": "0",
+              "show": true
+            }
+          ]
         }
       ],
       "repeat": null,
@@ -190,19 +209,19 @@
         "allValue": null,
         "current": {
           "tags": [],
-          "text": "Month",
-          "value": "m"
+          "text": "7 Days MA",
+          "value": "d7"
         },
         "hide": 0,
         "includeAll": false,
-        "label": "Last",
+        "label": "Period",
         "multi": false,
         "name": "period",
         "options": [
           {
-            "selected": false,
-            "text": "Day",
-            "value": "d"
+            "selected": true,
+            "text": "7 Days MA",
+            "value": "d7"
           },
           {
             "selected": false,
@@ -210,7 +229,7 @@
             "value": "w"
           },
           {
-            "selected": true,
+            "selected": false,
             "text": "Month",
             "value": "m"
           },
@@ -229,7 +248,7 @@
         "type": "custom"
       },
       {
-        "allValue": null,
+        "allValue": "",
         "current": {},
         "datasource": "${DS_PROMETHEUS}",
         "hide": 0,
@@ -249,7 +268,7 @@
         "useTags": false
       },
       {
-        "allValue": null,
+        "allValue": "",
         "current": {},
         "datasource": "${DS_PROMETHEUS}",
         "hide": 2,
@@ -271,7 +290,7 @@
     ]
   },
   "time": {
-    "from": "now-5y",
+    "from": "now-40M",
     "to": "now"
   },
   "timepicker": {
@@ -300,6 +319,6 @@
     ]
   },
   "timezone": "",
-  "title": "Top commenters Prometheus",
-  "version": 2
+  "title": "PRs approval",
+  "version": 3
 }

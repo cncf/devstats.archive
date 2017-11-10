@@ -66,85 +66,56 @@
   "rows": [
     {
       "collapse": false,
-      "height": 842,
+      "height": 841,
       "panels": [
         {
           "aliasColors": {},
-          "bars": false,
+          "bars": true,
           "dashLength": 10,
           "dashes": false,
           "datasource": "${DS_PROMETHEUS}",
           "decimals": 0,
-          "description": "",
-          "fill": 1,
+          "description": "Number of PRs merged in repositories",
+          "fill": 3,
           "id": 1,
           "legend": {
             "alignAsTable": true,
             "avg": true,
             "current": true,
-            "hideEmpty": false,
-            "hideZero": false,
             "max": true,
             "min": true,
-            "rightSide": false,
+            "rightSide": true,
             "show": true,
-            "total": false,
+            "sort": "total",
+            "sortDesc": true,
+            "total": true,
             "values": true
           },
-          "lines": true,
-          "linewidth": 1,
+          "lines": false,
+          "linewidth": 0,
           "links": [],
           "nullPointMode": "null",
           "percentage": false,
-          "pointradius": 1,
+          "pointradius": 5,
           "points": false,
           "renderer": "flot",
-          "seriesOverrides": [
-            {
-              "alias": "Number of contributing developers",
-              "yaxis": 2
-            }
-          ],
+          "seriesOverrides": [],
           "spaceLength": 10,
           "span": 12,
-          "stack": false,
-          "steppedLine": false,
+          "stack": true,
+          "steppedLine": true,
           "targets": [
             {
-              "alias": "Number of contributing companies",
+              "alias": "$col",
               "dsType": "influxdb",
               "groupBy": [],
               "hide": false,
-              "measurement": "reviewers_d",
+              "measurement": "prs_kubernetes_kubernetes_d",
               "orderByTime": "ASC",
-              "policy": "autogen",
-              "query": "SELECT \"value\" FROM \"autogen\".\"num_stats_[[repogroup]]_companies_[[period]]\" WHERE $timeFilter",
+              "policy": "default",
+              "query": "SELECT /^[[repos]]$/ FROM \"prs_merged_[[period]]\" WHERE $timeFilter",
               "rawQuery": true,
               "refId": "A",
-              "resultFormat": "time_series",
-              "select": [
-                [
-                  {
-                    "params": [
-                      "value"
-                    ],
-                    "type": "field"
-                  }
-                ]
-              ],
-              "tags": []
-            },
-            {
-              "alias": "Number of contributing developers",
-              "dsType": "influxdb",
-              "groupBy": [],
-              "hide": false,
-              "measurement": "reviewers_d",
-              "orderByTime": "ASC",
-              "policy": "autogen",
-              "query": "SELECT \"value\" FROM \"autogen\".\"num_stats_[[repogroup]]_developers_[[period]]\" WHERE $timeFilter",
-              "rawQuery": true,
-              "refId": "B",
               "resultFormat": "time_series",
               "select": [
                 [
@@ -162,35 +133,32 @@
           "thresholds": [],
           "timeFrom": null,
           "timeShift": null,
-          "title": "Contributing companies and developers ([[repogroup_name]], [[period]])",
+          "title": "PRs merged per repositories ([[repos]], [[period]])",
           "tooltip": {
             "shared": true,
-            "sort": 0,
+            "sort": 2,
             "value_type": "individual"
           },
-          "transparent": true,
           "type": "graph",
           "xaxis": {
             "buckets": null,
             "mode": "time",
             "name": null,
             "show": true,
-            "values": [
-              "total"
-            ]
+            "values": []
           },
           "yaxes": [
             {
-              "format": "none",
-              "label": "Companies",
+              "format": "short",
+              "label": "Pull requests",
               "logBase": 1,
               "max": null,
               "min": "0",
               "show": true
             },
             {
-              "format": "none",
-              "label": "Developers",
+              "format": "short",
+              "label": "",
               "logBase": 1,
               "max": null,
               "min": "0",
@@ -219,8 +187,8 @@
         "allValue": null,
         "current": {
           "tags": [],
-          "text": "14 Days MA",
-          "value": "d14"
+          "text": "7 Days MA",
+          "value": "d7"
         },
         "hide": 0,
         "includeAll": false,
@@ -230,74 +198,49 @@
         "options": [
           {
             "selected": false,
+            "text": "Day",
+            "value": "d"
+          },
+          {
+            "selected": true,
             "text": "7 Days MA",
             "value": "d7"
           },
           {
-            "selected": true,
-            "text": "14 Days MA",
-            "value": "d14"
+            "selected": false,
+            "text": "Week",
+            "value": "w"
           },
           {
             "selected": false,
-            "text": "4 Weeks MA",
-            "value": "w4"
+            "text": "Month",
+            "value": "m"
           },
           {
             "selected": false,
-            "text": "3 Months MA",
-            "value": "m3"
+            "text": "Quarter",
+            "value": "q"
           },
           {
             "selected": false,
-            "text": "4 Months MA",
-            "value": "m4"
-          },
-          {
-            "selected": false,
-            "text": "6 Months MA",
-            "value": "m6"
-          },
-          {
-            "selected": false,
-            "text": "4 Quarters MA",
-            "value": "q4"
+            "text": "Year",
+            "value": "y"
           }
         ],
-        "query": "d7,d14,w4,m3,m4,m6,q4",
+        "query": "d,w,m,q,y",
         "type": "custom"
       },
       {
-        "allValue": null,
+        "allValue": "",
         "current": {},
         "datasource": "${DS_PROMETHEUS}",
         "hide": 0,
-        "includeAll": false,
-        "label": "Repository group",
-        "multi": false,
-        "name": "repogroup_name",
+        "includeAll": true,
+        "label": "Repository",
+        "multi": true,
+        "name": "repos",
         "options": [],
-        "query": "SHOW TAG VALUES WITH KEY = all_repo_group_name",
-        "refresh": 1,
-        "regex": "",
-        "sort": 0,
-        "tagValuesQuery": "",
-        "tags": [],
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false
-      },
-      {
-        "allValue": null,
-        "current": {},
-        "datasource": "${DS_PROMETHEUS}",
-        "hide": 2,
-        "includeAll": false,
-        "label": "",
-        "multi": false,
-        "name": "repogroup",
-        "options": [],
-        "query": "SHOW TAG VALUES WITH KEY = all_repo_group_value where all_repo_group_name =~ /^[[repogroup_name]]$/",
+        "query": "SHOW TAG VALUES WITH KEY = all_repo_names_name",
         "refresh": 1,
         "regex": "",
         "sort": 0,
@@ -339,6 +282,6 @@
     ]
   },
   "timezone": "",
-  "title": "Contributing Companies Prometheus",
+  "title": "PRs merged",
   "version": 3
 }
