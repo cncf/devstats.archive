@@ -1,13 +1,23 @@
 # Configuration for running multiple projects on single host
 - You need to install docker (see instruction for your Linux distro).
-- Start 2nd Grafna in a docker containser via `./grafana/docker_grafana_start.sh` (there are also `docker_grafana_stop.sh` and `docker_grafana_shell.sh` scripts)
+- Start 2nd Grafna in a docker containser via `GRAFANA_PASS=... ./grafana/docker_grafana_first_start.sh` (this is for first start when there are no `/etc/grafana.prometheus` and `/usr/share/grafana.prometheus` `directories yet).
+- There are also `docker_grafana_start.sh`, `docker_grafana_stop.sh`, `docker_grafana_restart.sh` and `docker_grafana_shell.sh` scripts.
+- Now You need to copy grafana config from the container to the host, do:
+- Login to the container via `./grafana/docker_grafana_shell.sh`.
+- Inside the container: `cp -Rv /etc/grafana/ /var/lib/grafana/etc.grafana.prometheus`.
+- Inside the container: `cp -Rv /usr/share/grafana /var/lib/grafana/share.grafana.prometheus`.
+- Then exit the container `exit`.
+- Then in the host: `mv /var/lib/grafana.prometheus/etc.grafana.prometheus/ /etc/grafana.prometheus`.
+- Then in the host: `mv /var/lib/grafana.prometheus/share.grafana.prometheus/ /usr/share/grafana.prometheus`.
+- Now You have container's config files in host `/var/lib/grafana.prometheus`, `/etc/grafana.prometheus` and `/var/lib/grafana.prometheus`.
+- Start instance that uses freshly copied `/etc/grafana.prometheus` and `/usr/share/grafana.prometheus`: `./grafana/docker_grafana_restart.sh`.
 - Configure Grafana using http:/{{your_domain}}:3001 as described in [GRAFANA.md](https://github.com/cncf/devstats/blob/master/GRAFANA.md), note changes specific to docker listed below:
-- InfluxDB name should point to 2nd, 3rd ... project Influx database, for example "prometheus"
+- InfluxDB name should point to 2nd, 3rd ... project Influx database, for example "prometheus".
 - You won't be able to access InfluxDB running on localhost, You need to get host's virtual address from within docker container:
 - `./grafana/docker_grafana_shell.sh` and execute: `ip route | awk '/default/ { print $3 }'` to get container's gateway address (our host), for example `172.17.0.1`.
+- This is also saved as `grafana/get_gateway_ip.sh`.
 - Use http://{{gateway_ip}}:8086 as InfluxDB url.
-- To edit `grafana.ini` config file (to allow anonymous access), you need to use bash shell inside docker container: `./grafana/docker_grafana_shell.sh`:
-- There is no text editor in grafana docker image, so you have to copy grafana.ini into a host shared path /var/lib/grafana: `cp /etc/grafana/grafana.ini /var/lib/grafana/`
-- Edit file on the host, path on the host would be: `/var/lib/grafana.prometheus/grafana.ini`. Do edits on the host.
-- Check if container sees edits: `diff /var/lib/grafana/grafana.ini /etc/grafana/grafana.ini`.
-- Move edited file to the right place: `mv /var/lib/grafana/grafana.ini /etc/grafana/grafana.ini` (inside the container).
+- To edit `grafana.ini` config file (to allow anonymous access), you need to edit `/etc/grafana.prometheus/grafana.ini`.
+- Instead of restarting the service via `service grafana-server restart` You need to restart docker conatiner via: `./grafana/docker_grafana_restart.sh`.
+- All standard grafanana folders are mapped into grafana.prometheus equivalents accessible on host to configure grafana inside docker container.
+- Evereywhere when grafana server restart is needed, you should restart docker container instead.
