@@ -6,3 +6,8 @@
 - You won't be able to access InfluxDB running on localhost, You need to get host's virtual address from within docker container:
 - `./grafana/docker_grafana_shell.sh` and execute: `ip route | awk '/default/ { print $3 }'` to get container's gateway address (our host), for example `172.17.0.1`.
 - Use http://{{gateway_ip}}:8086 as InfluxDB url.
+- To edit `grafana.ini` config file (to allow anonymous access), you need to use bash shell inside docker container: `./grafana/docker_grafana_shell.sh`:
+- There is no text editor in grafana docker image, so you have to copy grafana.ini into a host shared path /var/lib/grafana: `cp /etc/grafana/grafana.ini /var/lib/grafana/`
+- Edit file on the host, path on the host would be: `/var/lib/grafana.prometheus/grafana.ini`. Do edits on the host.
+- Check if container sees edits: `diff /var/lib/grafana/grafana.ini /etc/grafana/grafana.ini`.
+- Move edited file to the right place: `mv /var/lib/grafana/grafana.ini /etc/grafana/grafana.ini` (inside the container).
