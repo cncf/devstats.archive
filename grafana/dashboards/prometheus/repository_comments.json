@@ -62,10 +62,11 @@
   "hideControls": false,
   "id": null,
   "links": [],
+  "refresh": false,
   "rows": [
     {
       "collapse": false,
-      "height": 809,
+      "height": 842,
       "panels": [
         {
           "aliasColors": {},
@@ -74,13 +75,15 @@
           "dashes": false,
           "datasource": "${DS_PROMETHEUS}",
           "decimals": 0,
-          "description": "Median and 85th, 95th percentile of comments for PRs created in given period",
+          "description": "Number of comments for [[repogroup]] repository group.",
           "fill": 1,
-          "id": 2,
+          "id": 1,
           "legend": {
             "alignAsTable": true,
             "avg": true,
             "current": true,
+            "hideEmpty": false,
+            "hideZero": false,
             "max": true,
             "min": true,
             "rightSide": false,
@@ -91,7 +94,7 @@
           "lines": false,
           "linewidth": 1,
           "links": [],
-          "nullPointMode": "null as zero",
+          "nullPointMode": "null",
           "percentage": false,
           "pointradius": 5,
           "points": false,
@@ -103,58 +106,16 @@
           "steppedLine": false,
           "targets": [
             {
-              "alias": "95th percentile for number of comments on PRs",
+              "alias": "Comments",
               "dsType": "influxdb",
               "groupBy": [],
+              "hide": false,
+              "measurement": "reviewers_d",
               "orderByTime": "ASC",
-              "policy": "default",
-              "query": "SELECT \"value\" FROM \"pr_comments_percentile_95_[[period]]\" WHERE $timeFilter",
+              "policy": "autogen",
+              "query": "SELECT \"value\" FROM \"autogen\".\"repo_comments_[[repogroup]]_[[period]][[aggregate]]\" WHERE $timeFilter",
               "rawQuery": true,
               "refId": "A",
-              "resultFormat": "time_series",
-              "select": [
-                [
-                  {
-                    "params": [
-                      "value"
-                    ],
-                    "type": "field"
-                  }
-                ]
-              ],
-              "tags": []
-            },
-            {
-              "alias": "85th percentile for number of comments on PRs",
-              "dsType": "influxdb",
-              "groupBy": [],
-              "orderByTime": "ASC",
-              "policy": "default",
-              "query": "SELECT \"value\" FROM \"pr_comments_percentile_85_[[period]]\" WHERE $timeFilter",
-              "rawQuery": true,
-              "refId": "B",
-              "resultFormat": "time_series",
-              "select": [
-                [
-                  {
-                    "params": [
-                      "value"
-                    ],
-                    "type": "field"
-                  }
-                ]
-              ],
-              "tags": []
-            },
-            {
-              "alias": "Median for number of comments on PRs",
-              "dsType": "influxdb",
-              "groupBy": [],
-              "orderByTime": "ASC",
-              "policy": "default",
-              "query": "SELECT \"value\" FROM \"pr_comments_median_[[period]]\" WHERE $timeFilter",
-              "rawQuery": true,
-              "refId": "C",
               "resultFormat": "time_series",
               "select": [
                 [
@@ -172,12 +133,13 @@
           "thresholds": [],
           "timeFrom": null,
           "timeShift": null,
-          "title": "Median and 85th, 95th percentile of number of comments for PRs ([[period]])",
+          "title": "[[repogroup_name]] comments ([[aggregate]] [[period]])",
           "tooltip": {
-            "shared": true,
+            "shared": false,
             "sort": 0,
             "value_type": "individual"
           },
+          "transparent": false,
           "type": "graph",
           "xaxis": {
             "buckets": null,
@@ -185,12 +147,12 @@
             "name": null,
             "show": true,
             "values": [
-              "avg"
+              "total"
             ]
           },
           "yaxes": [
             {
-              "format": "none",
+              "format": "short",
               "label": "Comments",
               "logBase": 1,
               "max": null,
@@ -198,7 +160,7 @@
               "show": true
             },
             {
-              "format": "none",
+              "format": "short",
               "label": "",
               "logBase": 1,
               "max": null,
@@ -228,8 +190,8 @@
         "allValue": null,
         "current": {
           "tags": [],
-          "text": "Week",
-          "value": "w"
+          "text": "Day",
+          "value": "d"
         },
         "hide": 0,
         "includeAll": false,
@@ -238,17 +200,12 @@
         "name": "period",
         "options": [
           {
-            "selected": false,
+            "selected": true,
             "text": "Day",
             "value": "d"
           },
           {
             "selected": false,
-            "text": "7 Days MA",
-            "value": "d7"
-          },
-          {
-            "selected": true,
             "text": "Week",
             "value": "w"
           },
@@ -270,11 +227,83 @@
         ],
         "query": "d,w,m,q,y",
         "type": "custom"
+      },
+      {
+        "allValue": null,
+        "current": {
+          "tags": [],
+          "text": "Moving average 7",
+          "value": "7"
+        },
+        "hide": 0,
+        "includeAll": false,
+        "label": "Aggregate",
+        "multi": false,
+        "name": "aggregate",
+        "options": [
+          {
+            "selected": false,
+            "text": "Single",
+            "value": ""
+          },
+          {
+            "selected": false,
+            "text": "Moving average 3",
+            "value": "3"
+          },
+          {
+            "selected": true,
+            "text": "Moving average 7",
+            "value": "7"
+          }
+        ],
+        "query": ",2,3,4,7,12",
+        "type": "custom"
+      },
+      {
+        "allValue": null,
+        "current": {},
+        "datasource": "${DS_PROMETHEUS}",
+        "hide": 0,
+        "includeAll": false,
+        "label": "Repository group",
+        "multi": false,
+        "name": "repogroup_name",
+        "options": [],
+        "query": "SHOW TAG VALUES WITH KEY = all_repo_group_name",
+        "refresh": 1,
+        "regex": "",
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {},
+        "datasource": "${DS_PROMETHEUS}",
+        "hide": 2,
+        "includeAll": false,
+        "label": "",
+        "multi": false,
+        "name": "repogroup",
+        "options": [],
+        "query": "SHOW TAG VALUES WITH KEY = all_repo_group_value where all_repo_group_name =~ /^[[repogroup_name]]$/",
+        "refresh": 1,
+        "regex": "",
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
       }
     ]
   },
   "time": {
-    "from": "now-3y",
+    "from": "now-2y",
     "to": "now"
   },
   "timepicker": {
@@ -303,6 +332,6 @@
     ]
   },
   "timezone": "",
-  "title": "PR comments Prometheus",
-  "version": 3
+  "title": "Repository comments",
+  "version": 2
 }

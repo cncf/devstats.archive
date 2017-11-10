@@ -66,7 +66,7 @@
   "rows": [
     {
       "collapse": false,
-      "height": 842,
+      "height": 717,
       "panels": [
         {
           "aliasColors": {},
@@ -74,10 +74,10 @@
           "dashLength": 10,
           "dashes": false,
           "datasource": "${DS_PROMETHEUS}",
-          "decimals": 0,
-          "description": "Number of new pull requests created in [[repogroup]] repository group.",
+          "decimals": 2,
+          "description": "Show Issues opened/closed for given repository group",
           "fill": 1,
-          "id": 1,
+          "id": 3,
           "legend": {
             "alignAsTable": true,
             "avg": true,
@@ -88,6 +88,8 @@
             "min": true,
             "rightSide": false,
             "show": true,
+            "sort": "avg",
+            "sortDesc": true,
             "total": true,
             "values": true
           },
@@ -102,20 +104,42 @@
           "seriesOverrides": [],
           "spaceLength": 10,
           "span": 12,
-          "stack": false,
+          "stack": true,
           "steppedLine": false,
           "targets": [
             {
-              "alias": "New PRs",
+              "alias": "Issues opened",
               "dsType": "influxdb",
               "groupBy": [],
-              "hide": false,
-              "measurement": "reviewers_d",
+              "measurement": "sig_federation_d",
               "orderByTime": "ASC",
-              "policy": "autogen",
-              "query": "SELECT \"value\" FROM \"autogen\".\"new_prs_[[repogroup]]_[[period]][[aggregate]]\" WHERE $timeFilter",
+              "policy": "default",
+              "query": "SELECT /^[[repogroup]]$/ FROM \"issues_opened_[[period]]\" WHERE $timeFilter",
               "rawQuery": true,
               "refId": "A",
+              "resultFormat": "time_series",
+              "select": [
+                [
+                  {
+                    "params": [
+                      "value"
+                    ],
+                    "type": "field"
+                  }
+                ]
+              ],
+              "tags": []
+            },
+            {
+              "alias": "Issues closed",
+              "dsType": "influxdb",
+              "groupBy": [],
+              "measurement": "sig_federation_d",
+              "orderByTime": "ASC",
+              "policy": "default",
+              "query": "SELECT /^[[repogroup]]$/ FROM \"issues_closed_[[period]]\" WHERE $timeFilter",
+              "rawQuery": true,
+              "refId": "B",
               "resultFormat": "time_series",
               "select": [
                 [
@@ -133,13 +157,13 @@
           "thresholds": [],
           "timeFrom": null,
           "timeShift": null,
-          "title": "New PRs created in [[repogroup_name]] repository group ([[aggregate]] [[period]])",
+          "title": "Issues Repository group: [[repogroup_name]] ([[period]])",
           "tooltip": {
-            "shared": false,
-            "sort": 0,
+            "shared": true,
+            "sort": 2,
             "value_type": "individual"
           },
-          "transparent": false,
+          "transparent": true,
           "type": "graph",
           "xaxis": {
             "buckets": null,
@@ -153,7 +177,7 @@
           "yaxes": [
             {
               "format": "short",
-              "label": "New PRs",
+              "label": "Issues",
               "logBase": 1,
               "max": null,
               "min": "0",
@@ -190,8 +214,8 @@
         "allValue": null,
         "current": {
           "tags": [],
-          "text": "Day",
-          "value": "d"
+          "text": "7 Days MA",
+          "value": "d7"
         },
         "hide": 0,
         "includeAll": false,
@@ -200,9 +224,14 @@
         "name": "period",
         "options": [
           {
-            "selected": true,
+            "selected": false,
             "text": "Day",
             "value": "d"
+          },
+          {
+            "selected": true,
+            "text": "7 Days MA",
+            "value": "d7"
           },
           {
             "selected": false,
@@ -229,39 +258,7 @@
         "type": "custom"
       },
       {
-        "allValue": null,
-        "current": {
-          "tags": [],
-          "text": "Moving average 7",
-          "value": "7"
-        },
-        "hide": 0,
-        "includeAll": false,
-        "label": "Aggregate",
-        "multi": false,
-        "name": "aggregate",
-        "options": [
-          {
-            "selected": false,
-            "text": "Single",
-            "value": ""
-          },
-          {
-            "selected": false,
-            "text": "Moving average 3",
-            "value": "3"
-          },
-          {
-            "selected": true,
-            "text": "Moving average 7",
-            "value": "7"
-          }
-        ],
-        "query": ",2,3,4,7,12",
-        "type": "custom"
-      },
-      {
-        "allValue": null,
+        "allValue": "",
         "current": {},
         "datasource": "${DS_PROMETHEUS}",
         "hide": 0,
@@ -281,7 +278,7 @@
         "useTags": false
       },
       {
-        "allValue": null,
+        "allValue": "",
         "current": {},
         "datasource": "${DS_PROMETHEUS}",
         "hide": 2,
@@ -303,7 +300,7 @@
     ]
   },
   "time": {
-    "from": "now-2y",
+    "from": "now-3y",
     "to": "now"
   },
   "timepicker": {
@@ -332,6 +329,6 @@
     ]
   },
   "timezone": "",
-  "title": "New PRs Prometheus",
-  "version": 2
+  "title": "Issues repository group",
+  "version": 4
 }
