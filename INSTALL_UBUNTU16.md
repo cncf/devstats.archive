@@ -101,7 +101,8 @@ Prerequisites:
     - You can also enable SSL, to do so you need to follow SSL instruction in [SSL](https://github.com/cncf/devstats/blob/master/SSL.md) (that requires domain name).
 
 17. To change all Grafana page titles (starting with "Grafana - ") and icons use this script:
-    - `GRAFANA_DATA=/usr/share/grafana/ ./grafana/change_title_and_icons.sh`.
+    - `GRAFANA_DATA=/usr/share/grafana/ ./grafana/{{project}}_change_title_and_icons.sh`.
+    - `GRAFANA_DATA` can also be `/usr/share/grafana.prometheus/` for example, see [MULTIPROJECT.md](https://github.com/cncf/devstats/blob/master/MULTIPROJECT.md).
     - Replace `GRAFANA_DATA` with your Grafana data directory.
     - `service grafana-server restart`
     - In some cases browser and/or Grafana cache old settings in this case temporarily move Grafana's `settings.js` file:
