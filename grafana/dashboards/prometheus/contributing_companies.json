@@ -70,12 +70,12 @@
       "panels": [
         {
           "aliasColors": {},
-          "bars": true,
+          "bars": false,
           "dashLength": 10,
           "dashes": false,
           "datasource": "${DS_PROMETHEUS}",
           "decimals": 0,
-          "description": "Number of unique PR authors in [[repogroup_name]] repository group.",
+          "description": "",
           "fill": 1,
           "id": 1,
           "legend": {
@@ -88,34 +88,63 @@
             "min": true,
             "rightSide": false,
             "show": true,
-            "total": true,
+            "total": false,
             "values": true
           },
-          "lines": false,
+          "lines": true,
           "linewidth": 1,
           "links": [],
           "nullPointMode": "null",
           "percentage": false,
-          "pointradius": 5,
+          "pointradius": 1,
           "points": false,
           "renderer": "flot",
-          "seriesOverrides": [],
+          "seriesOverrides": [
+            {
+              "alias": "Number of contributing developers",
+              "yaxis": 2
+            }
+          ],
           "spaceLength": 10,
           "span": 12,
           "stack": false,
           "steppedLine": false,
           "targets": [
             {
-              "alias": "Unique PR authors",
+              "alias": "Number of contributing companies",
               "dsType": "influxdb",
               "groupBy": [],
               "hide": false,
               "measurement": "reviewers_d",
               "orderByTime": "ASC",
               "policy": "autogen",
-              "query": "SELECT \"value\" FROM \"autogen\".\"prs_authors_[[repogroup]]_[[period]][[aggregate]]\" WHERE $timeFilter",
+              "query": "SELECT \"value\" FROM \"autogen\".\"num_stats_[[repogroup]]_companies_[[period]]\" WHERE $timeFilter",
               "rawQuery": true,
               "refId": "A",
+              "resultFormat": "time_series",
+              "select": [
+                [
+                  {
+                    "params": [
+                      "value"
+                    ],
+                    "type": "field"
+                  }
+                ]
+              ],
+              "tags": []
+            },
+            {
+              "alias": "Number of contributing developers",
+              "dsType": "influxdb",
+              "groupBy": [],
+              "hide": false,
+              "measurement": "reviewers_d",
+              "orderByTime": "ASC",
+              "policy": "autogen",
+              "query": "SELECT \"value\" FROM \"autogen\".\"num_stats_[[repogroup]]_developers_[[period]]\" WHERE $timeFilter",
+              "rawQuery": true,
+              "refId": "B",
               "resultFormat": "time_series",
               "select": [
                 [
@@ -133,13 +162,13 @@
           "thresholds": [],
           "timeFrom": null,
           "timeShift": null,
-          "title": "Number of unique PRs authors in [[repogroup_name]] repository group ([[aggregate]] [[period]])",
+          "title": "Contributing companies and developers ([[repogroup_name]], [[period]])",
           "tooltip": {
-            "shared": false,
+            "shared": true,
             "sort": 0,
             "value_type": "individual"
           },
-          "transparent": false,
+          "transparent": true,
           "type": "graph",
           "xaxis": {
             "buckets": null,
@@ -152,16 +181,16 @@
           },
           "yaxes": [
             {
-              "format": "short",
-              "label": "Unique PRs authors",
+              "format": "none",
+              "label": "Companies",
               "logBase": 1,
               "max": null,
               "min": "0",
               "show": true
             },
             {
-              "format": "short",
-              "label": "",
+              "format": "none",
+              "label": "Developers",
               "logBase": 1,
               "max": null,
               "min": "0",
@@ -190,8 +219,8 @@
         "allValue": null,
         "current": {
           "tags": [],
-          "text": "Day",
-          "value": "d"
+          "text": "14 Days MA",
+          "value": "d14"
         },
         "hide": 0,
         "includeAll": false,
@@ -200,64 +229,42 @@
         "name": "period",
         "options": [
           {
-            "selected": true,
-            "text": "Day",
-            "value": "d"
-          },
-          {
             "selected": false,
-            "text": "Week",
-            "value": "w"
-          },
-          {
-            "selected": false,
-            "text": "Month",
-            "value": "m"
-          },
-          {
-            "selected": false,
-            "text": "Quarter",
-            "value": "q"
-          },
-          {
-            "selected": false,
-            "text": "Year",
-            "value": "y"
-          }
-        ],
-        "query": "d,w,m,q,y",
-        "type": "custom"
-      },
-      {
-        "allValue": null,
-        "current": {
-          "tags": [],
-          "text": "Moving average 7",
-          "value": "7"
-        },
-        "hide": 0,
-        "includeAll": false,
-        "label": "Aggregate",
-        "multi": false,
-        "name": "aggregate",
-        "options": [
-          {
-            "selected": false,
-            "text": "Single",
-            "value": ""
-          },
-          {
-            "selected": false,
-            "text": "Moving average 3",
-            "value": "3"
+            "text": "7 Days MA",
+            "value": "d7"
           },
           {
             "selected": true,
-            "text": "Moving average 7",
-            "value": "7"
+            "text": "14 Days MA",
+            "value": "d14"
+          },
+          {
+            "selected": false,
+            "text": "4 Weeks MA",
+            "value": "w4"
+          },
+          {
+            "selected": false,
+            "text": "3 Months MA",
+            "value": "m3"
+          },
+          {
+            "selected": false,
+            "text": "4 Months MA",
+            "value": "m4"
+          },
+          {
+            "selected": false,
+            "text": "6 Months MA",
+            "value": "m6"
+          },
+          {
+            "selected": false,
+            "text": "4 Quarters MA",
+            "value": "q4"
           }
         ],
-        "query": ",2,3,4,7,12",
+        "query": "d7,d14,w4,m3,m4,m6,q4",
         "type": "custom"
       },
       {
@@ -303,7 +310,7 @@
     ]
   },
   "time": {
-    "from": "now-2y",
+    "from": "now-40M",
     "to": "now"
   },
   "timepicker": {
@@ -332,6 +339,6 @@
     ]
   },
   "timezone": "",
-  "title": "PRs authors Prometheus",
-  "version": 2
+  "title": "Contributing companies",
+  "version": 3
 }

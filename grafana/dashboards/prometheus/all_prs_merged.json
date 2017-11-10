@@ -37,7 +37,9 @@
         "enable": true,
         "hide": true,
         "iconColor": "rgba(0, 211, 255, 1)",
+        "limit": 100,
         "name": "Annotations & Alerts",
+        "showIn": 0,
         "type": "dashboard"
       },
       {
@@ -66,7 +68,7 @@
   "rows": [
     {
       "collapse": false,
-      "height": 842,
+      "height": 814,
       "panels": [
         {
           "aliasColors": {},
@@ -75,20 +77,16 @@
           "dashes": false,
           "datasource": "${DS_PROMETHEUS}",
           "decimals": 0,
-          "description": "Number of comments for [[repogroup]] repository group.",
-          "fill": 1,
-          "id": 1,
+          "description": "PRs merged in all Kubernetes repositories",
+          "fill": 5,
+          "id": 3,
           "legend": {
-            "alignAsTable": true,
             "avg": true,
             "current": true,
-            "hideEmpty": false,
-            "hideZero": false,
             "max": true,
             "min": true,
-            "rightSide": false,
             "show": true,
-            "total": false,
+            "total": true,
             "values": true
           },
           "lines": false,
@@ -106,14 +104,13 @@
           "steppedLine": false,
           "targets": [
             {
-              "alias": "Comments",
+              "alias": "PRs merged",
               "dsType": "influxdb",
               "groupBy": [],
-              "hide": false,
-              "measurement": "reviewers_d",
+              "measurement": "all_prs_merged_h",
               "orderByTime": "ASC",
-              "policy": "autogen",
-              "query": "SELECT \"value\" FROM \"autogen\".\"repo_comments_[[repogroup]]_[[period]][[aggregate]]\" WHERE $timeFilter",
+              "policy": "default",
+              "query": "SELECT \"value\" FROM \"all_prs_merged_[[period]][[aggregate]]\" WHERE $timeFilter",
               "rawQuery": true,
               "refId": "A",
               "resultFormat": "time_series",
@@ -133,27 +130,24 @@
           "thresholds": [],
           "timeFrom": null,
           "timeShift": null,
-          "title": "[[repogroup_name]] comments ([[aggregate]] [[period]])",
+          "title": "PRs merged in all Kubernetes repositories ([[aggregate]] [[period]])",
           "tooltip": {
-            "shared": false,
+            "shared": true,
             "sort": 0,
             "value_type": "individual"
           },
-          "transparent": false,
           "type": "graph",
           "xaxis": {
             "buckets": null,
             "mode": "time",
             "name": null,
             "show": true,
-            "values": [
-              "total"
-            ]
+            "values": []
           },
           "yaxes": [
             {
               "format": "short",
-              "label": "Comments",
+              "label": "PRs merged",
               "logBase": 1,
               "max": null,
               "min": "0",
@@ -200,6 +194,11 @@
         "name": "period",
         "options": [
           {
+            "selected": false,
+            "text": "Hour",
+            "value": "h"
+          },
+          {
             "selected": true,
             "text": "Day",
             "value": "d"
@@ -225,7 +224,7 @@
             "value": "y"
           }
         ],
-        "query": "d,w,m,q,y",
+        "query": "h,d,w,m,q,y",
         "type": "custom"
       },
       {
@@ -248,57 +247,32 @@
           },
           {
             "selected": false,
+            "text": "Moving average 2",
+            "value": "2"
+          },
+          {
+            "selected": false,
             "text": "Moving average 3",
             "value": "3"
+          },
+          {
+            "selected": false,
+            "text": "Moving average 4",
+            "value": "4"
           },
           {
             "selected": true,
             "text": "Moving average 7",
             "value": "7"
+          },
+          {
+            "selected": false,
+            "text": "Moving average 12",
+            "value": "12"
           }
         ],
         "query": ",2,3,4,7,12",
         "type": "custom"
-      },
-      {
-        "allValue": null,
-        "current": {},
-        "datasource": "${DS_PROMETHEUS}",
-        "hide": 0,
-        "includeAll": false,
-        "label": "Repository group",
-        "multi": false,
-        "name": "repogroup_name",
-        "options": [],
-        "query": "SHOW TAG VALUES WITH KEY = all_repo_group_name",
-        "refresh": 1,
-        "regex": "",
-        "sort": 0,
-        "tagValuesQuery": "",
-        "tags": [],
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false
-      },
-      {
-        "allValue": null,
-        "current": {},
-        "datasource": "${DS_PROMETHEUS}",
-        "hide": 2,
-        "includeAll": false,
-        "label": "",
-        "multi": false,
-        "name": "repogroup",
-        "options": [],
-        "query": "SHOW TAG VALUES WITH KEY = all_repo_group_value where all_repo_group_name =~ /^[[repogroup_name]]$/",
-        "refresh": 1,
-        "regex": "",
-        "sort": 0,
-        "tagValuesQuery": "",
-        "tags": [],
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false
       }
     ]
   },
@@ -332,6 +306,6 @@
     ]
   },
   "timezone": "",
-  "title": "Repository comments Prometheus",
-  "version": 2
+  "title": "All PRs merged",
+  "version": 4
 }

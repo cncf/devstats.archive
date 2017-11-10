@@ -62,11 +62,10 @@
   "hideControls": false,
   "id": null,
   "links": [],
-  "refresh": false,
   "rows": [
     {
       "collapse": false,
-      "height": 841,
+      "height": 809,
       "panels": [
         {
           "aliasColors": {},
@@ -75,26 +74,24 @@
           "dashes": false,
           "datasource": "${DS_PROMETHEUS}",
           "decimals": 0,
-          "description": "Number of PRs merged in repositories",
-          "fill": 3,
-          "id": 1,
+          "description": "Median and 85th, 95th percentile of comments for PRs created in given period",
+          "fill": 1,
+          "id": 2,
           "legend": {
             "alignAsTable": true,
             "avg": true,
             "current": true,
             "max": true,
             "min": true,
-            "rightSide": true,
+            "rightSide": false,
             "show": true,
-            "sort": "total",
-            "sortDesc": true,
-            "total": true,
+            "total": false,
             "values": true
           },
           "lines": false,
-          "linewidth": 0,
+          "linewidth": 1,
           "links": [],
-          "nullPointMode": "null",
+          "nullPointMode": "null as zero",
           "percentage": false,
           "pointradius": 5,
           "points": false,
@@ -102,20 +99,62 @@
           "seriesOverrides": [],
           "spaceLength": 10,
           "span": 12,
-          "stack": true,
-          "steppedLine": true,
+          "stack": false,
+          "steppedLine": false,
           "targets": [
             {
-              "alias": "$col",
+              "alias": "95th percentile for number of comments on PRs",
               "dsType": "influxdb",
               "groupBy": [],
-              "hide": false,
-              "measurement": "prs_kubernetes_kubernetes_d",
               "orderByTime": "ASC",
               "policy": "default",
-              "query": "SELECT /^[[repos]]$/ FROM \"prs_merged_[[period]]\" WHERE $timeFilter",
+              "query": "SELECT \"value\" FROM \"pr_comments_percentile_95_[[period]]\" WHERE $timeFilter",
               "rawQuery": true,
               "refId": "A",
+              "resultFormat": "time_series",
+              "select": [
+                [
+                  {
+                    "params": [
+                      "value"
+                    ],
+                    "type": "field"
+                  }
+                ]
+              ],
+              "tags": []
+            },
+            {
+              "alias": "85th percentile for number of comments on PRs",
+              "dsType": "influxdb",
+              "groupBy": [],
+              "orderByTime": "ASC",
+              "policy": "default",
+              "query": "SELECT \"value\" FROM \"pr_comments_percentile_85_[[period]]\" WHERE $timeFilter",
+              "rawQuery": true,
+              "refId": "B",
+              "resultFormat": "time_series",
+              "select": [
+                [
+                  {
+                    "params": [
+                      "value"
+                    ],
+                    "type": "field"
+                  }
+                ]
+              ],
+              "tags": []
+            },
+            {
+              "alias": "Median for number of comments on PRs",
+              "dsType": "influxdb",
+              "groupBy": [],
+              "orderByTime": "ASC",
+              "policy": "default",
+              "query": "SELECT \"value\" FROM \"pr_comments_median_[[period]]\" WHERE $timeFilter",
+              "rawQuery": true,
+              "refId": "C",
               "resultFormat": "time_series",
               "select": [
                 [
@@ -133,10 +172,10 @@
           "thresholds": [],
           "timeFrom": null,
           "timeShift": null,
-          "title": "PRs merged per repositories ([[repos]], [[period]])",
+          "title": "Median and 85th, 95th percentile of number of comments for PRs ([[period]])",
           "tooltip": {
             "shared": true,
-            "sort": 2,
+            "sort": 0,
             "value_type": "individual"
           },
           "type": "graph",
@@ -145,19 +184,21 @@
             "mode": "time",
             "name": null,
             "show": true,
-            "values": []
+            "values": [
+              "avg"
+            ]
           },
           "yaxes": [
             {
-              "format": "short",
-              "label": "Pull requests",
+              "format": "none",
+              "label": "Comments",
               "logBase": 1,
               "max": null,
               "min": "0",
               "show": true
             },
             {
-              "format": "short",
+              "format": "none",
               "label": "",
               "logBase": 1,
               "max": null,
@@ -187,8 +228,8 @@
         "allValue": null,
         "current": {
           "tags": [],
-          "text": "7 Days MA",
-          "value": "d7"
+          "text": "Week",
+          "value": "w"
         },
         "hide": 0,
         "includeAll": false,
@@ -202,12 +243,12 @@
             "value": "d"
           },
           {
-            "selected": true,
+            "selected": false,
             "text": "7 Days MA",
             "value": "d7"
           },
           {
-            "selected": false,
+            "selected": true,
             "text": "Week",
             "value": "w"
           },
@@ -229,31 +270,11 @@
         ],
         "query": "d,w,m,q,y",
         "type": "custom"
-      },
-      {
-        "allValue": "",
-        "current": {},
-        "datasource": "${DS_PROMETHEUS}",
-        "hide": 0,
-        "includeAll": true,
-        "label": "Repository",
-        "multi": true,
-        "name": "repos",
-        "options": [],
-        "query": "SHOW TAG VALUES WITH KEY = all_repo_names_name",
-        "refresh": 1,
-        "regex": "",
-        "sort": 0,
-        "tagValuesQuery": "",
-        "tags": [],
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false
       }
     ]
   },
   "time": {
-    "from": "now-40M",
+    "from": "now-3y",
     "to": "now"
   },
   "timepicker": {
@@ -282,6 +303,6 @@
     ]
   },
   "timezone": "",
-  "title": "PRs merged Prometheus",
+  "title": "PR comments",
   "version": 3
 }

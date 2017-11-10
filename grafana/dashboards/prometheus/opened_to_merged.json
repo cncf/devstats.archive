@@ -80,7 +80,7 @@
           "dashes": false,
           "datasource": "${DS_PROMETHEUS}",
           "decimals": 2,
-          "description": "Time before any comments or activities from someone other than the author",
+          "description": "Median, 15th and 85th percentile of number of hours from open to merging for PR",
           "fill": 0,
           "id": 2,
           "legend": {
@@ -104,7 +104,8 @@
           "renderer": "flot",
           "seriesOverrides": [
             {
-              "alias": "15th percentile time opened to merged (in hours)"
+              "alias": "15th percentile time opened to merged (in hours)",
+              "yaxis": 2
             }
           ],
           "spaceLength": 10,
@@ -113,12 +114,12 @@
           "steppedLine": false,
           "targets": [
             {
-              "alias": "85th percentile time",
+              "alias": "85th percentile time opened to merged (in hours)",
               "dsType": "influxdb",
               "groupBy": [],
               "orderByTime": "ASC",
               "policy": "default",
-              "query": "SELECT \"value\" FROM \"non_author_[[repogroup]]_percentile_85_[[period]]\" WHERE $timeFilter",
+              "query": "SELECT \"value\" FROM \"opened_to_merged_[[repogroup]]_percentile_85_[[period]]\" WHERE $timeFilter",
               "rawQuery": true,
               "refId": "A",
               "resultFormat": "time_series",
@@ -135,12 +136,12 @@
               "tags": []
             },
             {
-              "alias": "Median time",
+              "alias": "Median time opened to merged (in hours)",
               "dsType": "influxdb",
               "groupBy": [],
               "orderByTime": "ASC",
               "policy": "default",
-              "query": "SELECT \"value\" FROM \"non_author_[[repogroup]]_median_[[period]]\" WHERE $timeFilter",
+              "query": "SELECT \"value\" FROM \"opened_to_merged_[[repogroup]]_median_[[period]]\" WHERE $timeFilter",
               "rawQuery": true,
               "refId": "B",
               "resultFormat": "time_series",
@@ -157,12 +158,12 @@
               "tags": []
             },
             {
-              "alias": "15th percentile",
+              "alias": "15th percentile time opened to merged (in hours)",
               "dsType": "influxdb",
               "groupBy": [],
               "orderByTime": "ASC",
               "policy": "default",
-              "query": "SELECT \"value\" FROM \"non_author_[[repogroup]]_percentile_15_[[period]]\" WHERE $timeFilter",
+              "query": "SELECT \"value\" FROM \"opened_to_merged_[[repogroup]]_percentile_15_[[period]]\" WHERE $timeFilter",
               "rawQuery": true,
               "refId": "C",
               "resultFormat": "time_series",
@@ -182,7 +183,7 @@
           "thresholds": [],
           "timeFrom": null,
           "timeShift": null,
-          "title": "Time before any comments or activities from someone other than the author ([[repogroup_name]], [[period]])",
+          "title": "Time from open to merge ([[repogroup_name]], [[period]])",
           "tooltip": {
             "shared": true,
             "sort": 0,
@@ -199,15 +200,15 @@
           "yaxes": [
             {
               "format": "h",
-              "label": "",
-              "logBase": 2,
+              "label": "Opened to merged (median & 85th percentile)",
+              "logBase": 10,
               "max": null,
               "min": "0",
               "show": true
             },
             {
               "format": "short",
-              "label": "",
+              "label": "Opened to merged (15th percentile)",
               "logBase": 1,
               "max": null,
               "min": "0",
@@ -230,7 +231,7 @@
         {
           "columns": [],
           "datasource": "${DS_PROMETHEUS}",
-          "description": "Time to first non-author activity",
+          "description": "Time PRs from open to merge",
           "fontSize": "90%",
           "id": 3,
           "links": [],
@@ -284,7 +285,7 @@
               ],
               "orderByTime": "ASC",
               "policy": "default",
-              "query": "SELECT \"descr\" FROM \"non_author_[[repogroup]]_percentile_15_[[period]]\" WHERE $timeFilter",
+              "query": "SELECT \"descr\" FROM \"opened_to_merged_[[repogroup]]_percentile_15_[[period]]\" WHERE $timeFilter",
               "rawQuery": true,
               "refId": "A",
               "resultFormat": "time_series",
@@ -323,7 +324,7 @@
               ],
               "orderByTime": "ASC",
               "policy": "default",
-              "query": "SELECT \"descr\" FROM \"non_author_[[repogroup]]_median_[[period]]\" WHERE $timeFilter",
+              "query": "SELECT \"descr\" FROM \"opened_to_merged_[[repogroup]]_median_[[period]]\" WHERE $timeFilter",
               "rawQuery": true,
               "refId": "B",
               "resultFormat": "time_series",
@@ -362,7 +363,7 @@
               ],
               "orderByTime": "ASC",
               "policy": "default",
-              "query": "SELECT \"descr\" FROM \"non_author_[[repogroup]]_percentile_85_[[period]]\" WHERE $timeFilter",
+              "query": "SELECT \"descr\" FROM \"opened_to_merged_[[repogroup]]_percentile_85_[[period]]\" WHERE $timeFilter",
               "rawQuery": true,
               "refId": "C",
               "resultFormat": "time_series",
@@ -383,7 +384,7 @@
               "tags": []
             }
           ],
-          "title": "Time to first non-author activity ([[repogroup]], [[period]])",
+          "title": "Time from open to merge ([[repogroup_name]], [[period]])",
           "transform": "timeseries_to_columns",
           "type": "table"
         }
@@ -485,7 +486,7 @@
   },
   "time": {
     "from": "now-2y",
-    "to": "now-2w"
+    "to": "now"
   },
   "timepicker": {
     "refresh_intervals": [
@@ -513,6 +514,6 @@
     ]
   },
   "timezone": "",
-  "title": "First non-author activity Prometheus",
-  "version": 4
+  "title": "Opened to merged",
+  "version": 3
 }

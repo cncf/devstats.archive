@@ -27,6 +27,12 @@
       "id": "influxdb",
       "name": "InfluxDB",
       "version": "1.0.0"
+    },
+    {
+      "type": "panel",
+      "id": "table",
+      "name": "Table",
+      "version": ""
     }
   ],
   "annotations": {
@@ -37,9 +43,7 @@
         "enable": true,
         "hide": true,
         "iconColor": "rgba(0, 211, 255, 1)",
-        "limit": 100,
         "name": "Annotations & Alerts",
-        "showIn": 0,
         "type": "dashboard"
       },
       {
@@ -64,11 +68,10 @@
   "hideControls": false,
   "id": null,
   "links": [],
-  "refresh": false,
   "rows": [
     {
       "collapse": false,
-      "height": 646,
+      "height": 481,
       "panels": [
         {
           "aliasColors": {},
@@ -77,27 +80,22 @@
           "dashes": false,
           "datasource": "${DS_PROMETHEUS}",
           "decimals": 2,
-          "description": "Measures company [[metric]]. Self means developers working on their own.",
-          "fill": 6,
-          "id": 1,
+          "description": "Time before any comments or activities from someone other than the author",
+          "fill": 0,
+          "id": 2,
           "legend": {
             "alignAsTable": true,
             "avg": true,
             "current": true,
-            "hideEmpty": false,
-            "hideZero": false,
             "max": true,
             "min": true,
-            "rightSide": true,
+            "rightSide": false,
             "show": true,
-            "sideWidth": null,
-            "sort": "avg",
-            "sortDesc": true,
             "total": false,
             "values": true
           },
           "lines": true,
-          "linewidth": 0,
+          "linewidth": 1,
           "links": [],
           "nullPointMode": "null",
           "percentage": false,
@@ -106,29 +104,43 @@
           "renderer": "flot",
           "seriesOverrides": [
             {
-              "alias": "All",
-              "bars": false,
-              "fill": 0,
-              "lines": true,
-              "linewidth": 1,
-              "stack": false,
-              "yaxis": 2
+              "alias": "15th percentile time opened to merged (in hours)"
             }
           ],
           "spaceLength": 10,
           "span": 12,
-          "stack": true,
+          "stack": false,
           "steppedLine": false,
           "targets": [
             {
-              "alias": "All",
+              "alias": "85th percentile time",
               "dsType": "influxdb",
               "groupBy": [],
-              "hide": false,
-              "measurement": "sig_federation_d",
               "orderByTime": "ASC",
               "policy": "default",
-              "query": "SELECT \"All\" FROM \"company_[[repogroup]]_[[metric]]_[[period]]\" WHERE $timeFilter",
+              "query": "SELECT \"value\" FROM \"non_author_[[repogroup]]_percentile_85_[[period]]\" WHERE $timeFilter",
+              "rawQuery": true,
+              "refId": "A",
+              "resultFormat": "time_series",
+              "select": [
+                [
+                  {
+                    "params": [
+                      "value"
+                    ],
+                    "type": "field"
+                  }
+                ]
+              ],
+              "tags": []
+            },
+            {
+              "alias": "Median time",
+              "dsType": "influxdb",
+              "groupBy": [],
+              "orderByTime": "ASC",
+              "policy": "default",
+              "query": "SELECT \"value\" FROM \"non_author_[[repogroup]]_median_[[period]]\" WHERE $timeFilter",
               "rawQuery": true,
               "refId": "B",
               "resultFormat": "time_series",
@@ -145,15 +157,14 @@
               "tags": []
             },
             {
-              "alias": "$col",
+              "alias": "15th percentile",
               "dsType": "influxdb",
               "groupBy": [],
-              "measurement": "sig_federation_d",
               "orderByTime": "ASC",
               "policy": "default",
-              "query": "SELECT /^[[companies]]$/ FROM \"company_[[repogroup]]_[[metric]]_[[period]]\" WHERE $timeFilter",
+              "query": "SELECT \"value\" FROM \"non_author_[[repogroup]]_percentile_15_[[period]]\" WHERE $timeFilter",
               "rawQuery": true,
-              "refId": "A",
+              "refId": "C",
               "resultFormat": "time_series",
               "select": [
                 [
@@ -171,13 +182,12 @@
           "thresholds": [],
           "timeFrom": null,
           "timeShift": null,
-          "title": "Companies [[metric]] metric ([[repogroup_name]], [[period]])",
+          "title": "Time before any comments or activities from someone other than the author ([[repogroup_name]], [[period]])",
           "tooltip": {
             "shared": true,
-            "sort": 2,
+            "sort": 0,
             "value_type": "individual"
           },
-          "transparent": true,
           "type": "graph",
           "xaxis": {
             "buckets": null,
@@ -188,18 +198,16 @@
           },
           "yaxes": [
             {
-              "decimals": null,
-              "format": "short",
-              "label": "Per company",
-              "logBase": 1,
+              "format": "h",
+              "label": "",
+              "logBase": 2,
               "max": null,
               "min": "0",
               "show": true
             },
             {
-              "decimals": null,
               "format": "short",
-              "label": "All",
+              "label": "",
               "logBase": 1,
               "max": null,
               "min": "0",
@@ -217,56 +225,66 @@
     },
     {
       "collapse": false,
-      "height": 637,
+      "height": 424,
       "panels": [
         {
-          "aliasColors": {},
-          "bars": false,
-          "dashLength": 10,
-          "dashes": false,
+          "columns": [],
           "datasource": "${DS_PROMETHEUS}",
-          "decimals": 2,
-          "description": "Measures company [[metric]]. Self means developers working on their own.",
-          "fill": 6,
-          "id": 2,
-          "legend": {
-            "alignAsTable": true,
-            "avg": true,
-            "current": true,
-            "hideEmpty": false,
-            "hideZero": false,
-            "max": true,
-            "min": true,
-            "rightSide": true,
-            "show": true,
-            "sideWidth": null,
-            "sort": "avg",
-            "sortDesc": true,
-            "total": false,
-            "values": true
-          },
-          "lines": true,
-          "linewidth": 0,
+          "description": "Time to first non-author activity",
+          "fontSize": "90%",
+          "id": 3,
           "links": [],
-          "nullPointMode": "null",
-          "percentage": true,
-          "pointradius": 5,
-          "points": false,
-          "renderer": "flot",
-          "seriesOverrides": [],
-          "spaceLength": 10,
+          "pageSize": 10,
+          "scroll": true,
+          "showHeader": true,
+          "sort": {
+            "col": 0,
+            "desc": true
+          },
           "span": 12,
-          "stack": true,
-          "steppedLine": false,
+          "styles": [
+            {
+              "alias": "Time",
+              "dateFormat": "MM/DD/YYYY",
+              "pattern": "Time",
+              "type": "date"
+            },
+            {
+              "alias": "",
+              "colorMode": null,
+              "colors": [
+                "rgba(245, 54, 54, 0.9)",
+                "rgba(237, 129, 40, 0.89)",
+                "rgba(50, 172, 45, 0.97)"
+              ],
+              "decimals": 2,
+              "pattern": "/.*/",
+              "thresholds": [],
+              "type": "number",
+              "unit": "short"
+            }
+          ],
           "targets": [
             {
-              "alias": "$col",
+              "alias": "15th percentile",
               "dsType": "influxdb",
-              "groupBy": [],
-              "measurement": "sig_federation_d",
+              "groupBy": [
+                {
+                  "params": [
+                    "$__interval"
+                  ],
+                  "type": "time"
+                },
+                {
+                  "params": [
+                    "null"
+                  ],
+                  "type": "fill"
+                }
+              ],
               "orderByTime": "ASC",
               "policy": "default",
-              "query": "SELECT /^[[companies]]$/ FROM \"company_[[repogroup]]_[[metric]]_[[period]]\" WHERE $timeFilter",
+              "query": "SELECT \"descr\" FROM \"non_author_[[repogroup]]_percentile_15_[[period]]\" WHERE $timeFilter",
               "rawQuery": true,
               "refId": "A",
               "resultFormat": "time_series",
@@ -277,63 +295,99 @@
                       "value"
                     ],
                     "type": "field"
+                  },
+                  {
+                    "params": [],
+                    "type": "mean"
+                  }
+                ]
+              ],
+              "tags": []
+            },
+            {
+              "alias": "Median",
+              "dsType": "influxdb",
+              "groupBy": [
+                {
+                  "params": [
+                    "$__interval"
+                  ],
+                  "type": "time"
+                },
+                {
+                  "params": [
+                    "null"
+                  ],
+                  "type": "fill"
+                }
+              ],
+              "orderByTime": "ASC",
+              "policy": "default",
+              "query": "SELECT \"descr\" FROM \"non_author_[[repogroup]]_median_[[period]]\" WHERE $timeFilter",
+              "rawQuery": true,
+              "refId": "B",
+              "resultFormat": "time_series",
+              "select": [
+                [
+                  {
+                    "params": [
+                      "value"
+                    ],
+                    "type": "field"
+                  },
+                  {
+                    "params": [],
+                    "type": "mean"
+                  }
+                ]
+              ],
+              "tags": []
+            },
+            {
+              "alias": "85th percentile",
+              "dsType": "influxdb",
+              "groupBy": [
+                {
+                  "params": [
+                    "$__interval"
+                  ],
+                  "type": "time"
+                },
+                {
+                  "params": [
+                    "null"
+                  ],
+                  "type": "fill"
+                }
+              ],
+              "orderByTime": "ASC",
+              "policy": "default",
+              "query": "SELECT \"descr\" FROM \"non_author_[[repogroup]]_percentile_85_[[period]]\" WHERE $timeFilter",
+              "rawQuery": true,
+              "refId": "C",
+              "resultFormat": "time_series",
+              "select": [
+                [
+                  {
+                    "params": [
+                      "value"
+                    ],
+                    "type": "field"
+                  },
+                  {
+                    "params": [],
+                    "type": "mean"
                   }
                 ]
               ],
               "tags": []
             }
           ],
-          "thresholds": [],
-          "timeFrom": null,
-          "timeShift": null,
-          "title": "Companies [[metric]] metric ([[repogroup_name]], [[period]])",
-          "tooltip": {
-            "shared": true,
-            "sort": 2,
-            "value_type": "individual"
-          },
-          "transparent": true,
-          "type": "graph",
-          "xaxis": {
-            "buckets": null,
-            "mode": "time",
-            "name": null,
-            "show": true,
-            "values": []
-          },
-          "yaxes": [
-            {
-              "decimals": null,
-              "format": "short",
-              "label": "",
-              "logBase": 1,
-              "max": "100",
-              "min": "0",
-              "show": true
-            },
-            {
-              "decimals": null,
-              "format": "short",
-              "label": "",
-              "logBase": 1,
-              "max": null,
-              "min": "0",
-              "show": true
-            }
-          ]
+          "title": "Time to first non-author activity ([[repogroup]], [[period]])",
+          "transform": "timeseries_to_columns",
+          "type": "table"
         }
       ],
-      "repeat": null,
-      "repeatIteration": null,
-      "repeatRowId": null,
-      "showTitle": false,
-      "title": "Dashboard Row",
-      "titleSize": "h6"
-    },
-    {
-      "collapse": false,
-      "height": 250,
-      "panels": [],
       "repeat": null,
       "repeatIteration": null,
       "repeatRowId": null,
@@ -354,8 +408,8 @@
         "allValue": null,
         "current": {
           "tags": [],
-          "text": "7 Days MA",
-          "value": "d7"
+          "text": "Week",
+          "value": "w"
         },
         "hide": 0,
         "includeAll": false,
@@ -364,17 +418,7 @@
         "name": "period",
         "options": [
           {
-            "selected": false,
-            "text": "Day",
-            "value": "d"
-          },
-          {
             "selected": true,
-            "text": "7 Days MA",
-            "value": "d7"
-          },
-          {
-            "selected": false,
             "text": "Week",
             "value": "w"
           },
@@ -394,54 +438,7 @@
             "value": "y"
           }
         ],
-        "query": "d,w,m,q,y",
-        "type": "custom"
-      },
-      {
-        "allValue": null,
-        "current": {
-          "tags": [],
-          "text": "All activity",
-          "value": "activity"
-        },
-        "hide": 0,
-        "includeAll": false,
-        "label": "Metric",
-        "multi": false,
-        "name": "metric",
-        "options": [
-          {
-            "selected": true,
-            "text": "All activity",
-            "value": "activity"
-          },
-          {
-            "selected": false,
-            "text": "Active authors",
-            "value": "authors"
-          },
-          {
-            "selected": false,
-            "text": "Issues created",
-            "value": "issues"
-          },
-          {
-            "selected": false,
-            "text": "Pull requests created",
-            "value": "prs"
-          },
-          {
-            "selected": false,
-            "text": "Commits made",
-            "value": "commits"
-          },
-          {
-            "selected": false,
-            "text": "Added comments",
-            "value": "comments"
-          }
-        ],
-        "query": "activity,authors,issues,prs,commits,comments",
+        "query": "w,m,q,y",
         "type": "custom"
       },
       {
@@ -483,32 +480,12 @@
         "tagsQuery": "",
         "type": "query",
         "useTags": false
-      },
-      {
-        "allValue": "",
-        "current": {},
-        "datasource": "${DS_PROMETHEUS}",
-        "hide": 0,
-        "includeAll": true,
-        "label": "Companies",
-        "multi": true,
-        "name": "companies",
-        "options": [],
-        "query": "SHOW TAG VALUES WITH KEY = companies_name",
-        "refresh": 1,
-        "regex": "",
-        "sort": 0,
-        "tagValuesQuery": "",
-        "tags": [],
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false
       }
     ]
   },
   "time": {
     "from": "now-2y",
-    "to": "now"
+    "to": "now-2w"
   },
   "timepicker": {
     "refresh_intervals": [
@@ -536,6 +513,6 @@
     ]
   },
   "timezone": "",
-  "title": "Companies Stats Prometheus",
-  "version": 13
+  "title": "First non-author activity",
+  "version": 4
 }

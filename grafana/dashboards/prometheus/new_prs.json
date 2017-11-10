@@ -66,33 +66,33 @@
   "rows": [
     {
       "collapse": false,
-      "height": 849,
+      "height": 842,
       "panels": [
         {
           "aliasColors": {},
-          "bars": false,
+          "bars": true,
           "dashLength": 10,
           "dashes": false,
           "datasource": "${DS_PROMETHEUS}",
-          "decimals": 2,
-          "description": "Number of PRs",
-          "fill": 5,
-          "id": 2,
+          "decimals": 0,
+          "description": "Number of new pull requests created in [[repogroup]] repository group.",
+          "fill": 1,
+          "id": 1,
           "legend": {
             "alignAsTable": true,
             "avg": true,
             "current": true,
+            "hideEmpty": false,
+            "hideZero": false,
             "max": true,
             "min": true,
             "rightSide": false,
             "show": true,
-            "sort": "avg",
-            "sortDesc": true,
             "total": true,
             "values": true
           },
-          "lines": true,
-          "linewidth": 0,
+          "lines": false,
+          "linewidth": 1,
           "links": [],
           "nullPointMode": "null",
           "percentage": false,
@@ -102,42 +102,20 @@
           "seriesOverrides": [],
           "spaceLength": 10,
           "span": 12,
-          "stack": true,
-          "steppedLine": true,
+          "stack": false,
+          "steppedLine": false,
           "targets": [
             {
-              "alias": "Approved",
+              "alias": "New PRs",
               "dsType": "influxdb",
               "groupBy": [],
-              "measurement": "prs_kubernetes_kubernetes_d",
+              "hide": false,
+              "measurement": "reviewers_d",
               "orderByTime": "ASC",
-              "policy": "default",
-              "query": "SELECT /^[[repogroup]]$/ FROM \"prs_approve_state_approved_[[period]]\" WHERE $timeFilter",
+              "policy": "autogen",
+              "query": "SELECT \"value\" FROM \"autogen\".\"new_prs_[[repogroup]]_[[period]][[aggregate]]\" WHERE $timeFilter",
               "rawQuery": true,
               "refId": "A",
-              "resultFormat": "time_series",
-              "select": [
-                [
-                  {
-                    "params": [
-                      "value"
-                    ],
-                    "type": "field"
-                  }
-                ]
-              ],
-              "tags": []
-            },
-            {
-              "alias": "Awaiting approval",
-              "dsType": "influxdb",
-              "groupBy": [],
-              "measurement": "prs_kubernetes_kubernetes_d",
-              "orderByTime": "ASC",
-              "policy": "default",
-              "query": "SELECT /^[[repogroup]]$/ FROM \"prs_approve_state_awaiting_[[period]]\" WHERE $timeFilter",
-              "rawQuery": true,
-              "refId": "B",
               "resultFormat": "time_series",
               "select": [
                 [
@@ -155,24 +133,27 @@
           "thresholds": [],
           "timeFrom": null,
           "timeShift": null,
-          "title": "PRs approved and awaiting approval ([[repogroup]], [[period]])",
+          "title": "New PRs created in [[repogroup_name]] repository group ([[aggregate]] [[period]])",
           "tooltip": {
-            "shared": true,
-            "sort": 2,
+            "shared": false,
+            "sort": 0,
             "value_type": "individual"
           },
+          "transparent": false,
           "type": "graph",
           "xaxis": {
             "buckets": null,
             "mode": "time",
             "name": null,
             "show": true,
-            "values": []
+            "values": [
+              "total"
+            ]
           },
           "yaxes": [
             {
               "format": "short",
-              "label": "Pull requests",
+              "label": "New PRs",
               "logBase": 1,
               "max": null,
               "min": "0",
@@ -209,8 +190,8 @@
         "allValue": null,
         "current": {
           "tags": [],
-          "text": "7 Days MA",
-          "value": "d7"
+          "text": "Day",
+          "value": "d"
         },
         "hide": 0,
         "includeAll": false,
@@ -220,8 +201,8 @@
         "options": [
           {
             "selected": true,
-            "text": "7 Days MA",
-            "value": "d7"
+            "text": "Day",
+            "value": "d"
           },
           {
             "selected": false,
@@ -248,7 +229,39 @@
         "type": "custom"
       },
       {
-        "allValue": "",
+        "allValue": null,
+        "current": {
+          "tags": [],
+          "text": "Moving average 7",
+          "value": "7"
+        },
+        "hide": 0,
+        "includeAll": false,
+        "label": "Aggregate",
+        "multi": false,
+        "name": "aggregate",
+        "options": [
+          {
+            "selected": false,
+            "text": "Single",
+            "value": ""
+          },
+          {
+            "selected": false,
+            "text": "Moving average 3",
+            "value": "3"
+          },
+          {
+            "selected": true,
+            "text": "Moving average 7",
+            "value": "7"
+          }
+        ],
+        "query": ",2,3,4,7,12",
+        "type": "custom"
+      },
+      {
+        "allValue": null,
         "current": {},
         "datasource": "${DS_PROMETHEUS}",
         "hide": 0,
@@ -268,7 +281,7 @@
         "useTags": false
       },
       {
-        "allValue": "",
+        "allValue": null,
         "current": {},
         "datasource": "${DS_PROMETHEUS}",
         "hide": 2,
@@ -290,7 +303,7 @@
     ]
   },
   "time": {
-    "from": "now-40M",
+    "from": "now-2y",
     "to": "now"
   },
   "timepicker": {
@@ -319,6 +332,6 @@
     ]
   },
   "timezone": "",
-  "title": "PRs approval Prometheus",
-  "version": 3
+  "title": "New PRs",
+  "version": 2
 }
