@@ -104,7 +104,7 @@ Prerequisites:
 
 15. To change all Grafana page titles (starting with "Grafana - ") and icons use this script:
     - `GRAFANA_DATA=/usr/share/grafana/ ./grafana/{{project}}_change_title_and_icons.sh`.
-    - `GRAFANA_DATA` can also be `/usr/share/grafana.prometheus/` for example, see [MULTIPROJECT.md](https://github.com/cncf/devstats/blob/master/MULTIPROJECT.md).
+    - `GRAFANA_DATA` can also be `/usr/share/grafana.prometheus/` or `/usr/share/grafana.opentracing` for example, see [MULTIPROJECT.md](https://github.com/cncf/devstats/blob/master/MULTIPROJECT.md).
     - Replace `GRAFANA_DATA` with you Grafana data directory.
     - `brew services restart grafana`
     - In some cases browser and/or Grafana cache old settings in this case temporarily move Grafana's `settings.js` file:
