@@ -9,9 +9,12 @@ To install Let's encrypt via certbot:
 - `sudo apt-get update`
 - `sudo apt-get install python-certbot-apache`
 - `sudo certbot --apache`
+- To install certificate for multiple domains use: `sudo certbot --apache 'domain1,domain2,..,domainN'`
 - Choose to redirect all HTTP trafic to HTTPS.
 - Then You need to proxy Apache https/SSL on port 443 to http on port 3000 (this is where Grafana listens)
 - Your Grafana lives in https://your-domain.xyz (and https is served by Apache proxy to Grafana https:443 -> http:3000)
+- In multiple hostnames used on single IP/Apache server, then You will redirect to different ports depending on current host name
+- See `apache/sites-available/000-default-le-ssl.conf` for details (cncftest.io and prometheus.cncftest.io configured there).
 - Modified Apache config files are in [apache](https://github.com/cncf/devstats/blob/master/apache/), You need to check them and enable something similar on Your machine.
 - Please note that those modified Apache files additionally allows to put Your website in `/web` path (this path is in exception list and is not proxied to Grafana), so You can for instance put [database dump](https://devstats.k8s.io/web/gha.sql.xz) there.
 - Files in `[apache](https://github.com/cncf/devstats/blob/master/apache/) should be copied to `/etc/apache2` (see comments starting with `LG:`) and then `service apache2 restart`
