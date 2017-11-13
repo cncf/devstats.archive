@@ -1,5 +1,5 @@
 # Configuration for running multiple projects on single host
-- You need to install docker (see instruction for your Linux distro).
+- You need to install docker (see instruction for your Linux distro). This example uses `prometheus`, You can do the same for othe rprojects by changing `prometheus` to othe rproject (like `opentracing` for example).
 - Start 2nd Grafna in a docker containser via `GRAFANA_PASS=... ./grafana/docker_grafana_first_start.sh` (this is for first start when there are no `/etc/grafana.prometheus` and `/usr/share/grafana.prometheus` `directories yet).
 - There are also `docker_grafana_start.sh`, `docker_grafana_stop.sh`, `docker_grafana_restart.sh` and `docker_grafana_shell.sh` scripts.
 - Now You need to copy grafana config from the container to the host, do:

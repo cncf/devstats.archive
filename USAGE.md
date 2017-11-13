@@ -359,7 +359,7 @@ Sync tool read project definition from [projects.yaml](https://github.com/cncf/d
 
 # Cron
 
-You can have multiple projects running on the same machine (like `GHA2DB_PROJECT=kubernetes` and `GHA2DB_PROJECT=prometheus`) runnign in a slightly different time window.
+You can have multiple projects running on the same machine (like `GHA2DB_PROJECT=kubernetes` and `GHA2DB_PROJECT=prometheus`) running in a slightly different time window.
 Both kubernetes and prometheus projects are using tags on their dashboards.
 You should choose only one project on production, and only import given projects dashboards. Each projects should run on a separate server on production.
 Example cron tab file (containing entries for all projects): [crontab.entry](https://github.com/cncf/devstats/blob/master/metrics/crontab.entry)
@@ -451,9 +451,10 @@ Feed InfluxDB using:
 
 # Grafana dashboards
 Grafana allows saving dashboards to JSON files.
-There are few defined dashboards kubernetes and prometheus directories:
+There are few defined dashboards kubernetes, prometheus, opentracing directories:
 - [grafana/dashboards/kubernetes/](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/).
 - [grafana/dashboards/prometheus/](https://github.com/cncf/devstats/blob/master/grafana/dashboards/prometheus/).
+- [grafana/dashboards/opentracing/](https://github.com/cncf/devstats/blob/master/grafana/dashboards/opentracing/).
 
 Metrics are described in [README](https://github.com/cncf/devstats/blob/master/README.md) in `Grafana dashboards` and `Adding new metrics` sections.
 
