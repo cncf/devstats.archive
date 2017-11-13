@@ -9,7 +9,7 @@ To install Let's encrypt via certbot:
 - `sudo apt-get update`
 - `sudo apt-get install python-certbot-apache`
 - `sudo certbot --apache`
-- To install certificate for multiple domains use: `sudo certbot --apache 'domain1,domain2,..,domainN'`
+- To install certificate for multiple domains use: `sudo certbot --apache -d 'domain1,domain2,..,domainN'`
 - Choose to redirect all HTTP trafic to HTTPS.
 - Then You need to proxy Apache https/SSL on port 443 to http on port 3000 (this is where Grafana listens)
 - Your Grafana lives in https://your-domain.xyz (and https is served by Apache proxy to Grafana https:443 -> http:3000)
