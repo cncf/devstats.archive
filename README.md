@@ -127,7 +127,7 @@ We're getting all possible GitHub data for all objects, and all objects historic
 - It will add data to Postgres database (since the last run)
 - It will update summary tables and/or (materialized) views on Postgres DB.
 - Then it will call `db2influx` for all defined SQL metrics and update Influx database as well.
-- You need to set `GHA2DB_PROJECT=project_name` currently it can be either kubernetes or prometheus. Projects are defined in `projects.yaml` file.
+- You need to set `GHA2DB_PROJECT=project_name` currently it can be either kubernetes, prometheus or opentracing. Projects are defined in `projects.yaml` file.
 - It reads a list of metrics from YAML file: `metrics/{{project}}/metrics.yaml`, some metrics require to fill gaps in their data. Those metrics are defined in another YAML file `metrics/{{project}}/gaps.yaml`.
 - This tool also supports initial computing of All InfluxDB data (instead of default update since the last run).
 - It is called by cron job on 1:10, 2:10, ... and so on - GitHub archive publishes new file every hour, so we're off by at most 1 hour.
