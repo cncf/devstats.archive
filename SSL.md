@@ -16,7 +16,7 @@ To install Let's encrypt via certbot:
 - In multiple hostnames used on single IP/Apache server, then You will redirect to different ports depending on current host name
 - See `apache/sites-available/000-default-le-ssl.conf` for details (cncftest.io and prometheus.cncftest.io configured there).
 - Modified Apache config files are in [apache](https://github.com/cncf/devstats/blob/master/apache/), You need to check them and enable something similar on Your machine.
-- Please note that those modified Apache files additionally allows to put Your website in `/web` path (this path is in exception list and is not proxied to Grafana), so You can for instance put [database dump](https://devstats.k8s.io/gha.sql.xz) there.
+- You can for instance put [database dump](https://devstats.k8s.io/gha.sql.xz) there (main domain is a static page, all projects live in subdomains).
 - Files in `[apache](https://github.com/cncf/devstats/blob/master/apache/) should be copied to `/etc/apache2` (see comments starting with `LG:`) and then `service apache2 restart`
 - You can configure multiple domains for a single server:
 - `sudo certbot --apache -d cncftest.io,k8s.cncftest.io,prometheus.cncftest.io,opentracing.cncftest.io`
