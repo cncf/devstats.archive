@@ -21,7 +21,7 @@ b415070c6aa8        grafana/grafana:master   "/run.sh"           19 minutes ago 
 - Now You have container's config files in host `/var/lib/grafana.prometheus`, `/etc/grafana.prometheus` and `/var/lib/grafana.prometheus`.
 - Stop temporary instance via `docker stop 62e71b9d33d6`.
 - Start instance that uses freshly copied `/etc/grafana.prometheus` and `/usr/share/grafana.prometheus`: `./grafana/prometheus/docker_grafana_run.sh` and then `./grafana/prometheus/docker_grafana_start.sh`.
-- Configure Grafana using http:/{{your_domain}}:3001 as described in [GRAFANA.md](https://github.com/cncf/devstats/blob/master/GRAFANA.md), note changes specific to docker listed below:
+- Configure Grafana using `http://{{your_domain}}:3001` as described in [GRAFANA.md](https://github.com/cncf/devstats/blob/master/GRAFANA.md), note changes specific to docker listed below:
 - InfluxDB name should point to 2nd, 3rd ... project Influx database, for example "prometheus".
 - You won't be able to access InfluxDB running on localhost, You need to get host's virtual address from within docker container:
 - `./grafana/prometheus/docker_grafana_shell.sh` and execute: `ip route | awk '/default/ { print $3 }'` to get container's gateway address (our host), for example `172.17.0.1`.
@@ -29,5 +29,5 @@ b415070c6aa8        grafana/grafana:master   "/run.sh"           19 minutes ago 
 - Use http://{{gateway_ip}}:8086 as InfluxDB url.
 - To edit `grafana.ini` config file (to allow anonymous access), you need to edit `/etc/grafana.prometheus/grafana.ini`.
 - Instead of restarting the service via `service grafana-server restart` You need to restart docker conatiner via: `./grafana/prometheus/docker_grafana_restart.sh`.
-- All standard grafanana folders are mapped into grafana.prometheus equivalents accessible on host to configure grafana inside docker container.
+- All standard Grafana folders are mapped into grafana.prometheus equivalents accessible on host to configure grafana inside docker container.
 - Evereywhere when grafana server restart is needed, you should restart docker container instead.
