@@ -45,7 +45,7 @@ Prerequisites:
     - `grant all privileges on database "gha" to gha_admin;`
     - `alter user gha_admin createdb;`
 11. Leave `psql` shell, and get newest Kubernetes database dump:
-    - `wget https://devstats.k8s.io/gha.sql.xz` (it is about 400Mb).
+    - `wget https://devstats.web.io/gha.sql.xz` (it is about 400Mb).
     - `xz -d gha.sql.xz` (uncompressed dump is more than 7Gb).
     - `sudo -u postgres psql gha < gha.sql` (restore DB dump)
 

@@ -52,7 +52,7 @@ Prerequisites:
     - `alter user gha_admin createdb;`
 
 9. Leave `psql` shell, and get newest Kubernetes database dump:
-    - `wget https://devstats.k8s.io/gha.sql.xz` (it is about 400Mb).
+    - `wget https://devstats.web.io/gha.sql.xz` (it is about 400Mb).
     - `xz -d gha.sql.xz` (uncompressed dump is more than 7Gb).
     - `psql gha < gha.sql` (restore DB dump)
 
