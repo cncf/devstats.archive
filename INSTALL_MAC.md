@@ -93,6 +93,7 @@ Prerequisites:
     - Check max event created date: `select max(created_at) from gha_events` and logs `select * from gha_logs order by dt desc limit 20`.
 
 14. Install [Grafana](http://docs.grafana.org/installation/mac/) or use Docker to enable multiple Grafana instances, see [MULTIPROJECT.md](https://github.com/cncf/devstats/blob/master/MULTIPROJECT.md).
+    - Docker on Mac isn't recommended.
     - `brew update`
     - `brew install grafana`
     - `brew services start grafana`

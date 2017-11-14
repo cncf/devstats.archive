@@ -99,7 +99,6 @@ Prerequisites:
     - Configure Grafana, as described [here](https://github.com/cncf/devstats/blob/master/GRAFANA.md).
     - `service grafana-server restart`
     - Go to Grafana UI (localhost:3000), choose sign out, and then access localhost:3000 again. You should be able to view dashboards as a guest. To login again use http://localhost:3000/login.
-    - You can also enable SSL, to do so you need to follow SSL instruction in [USAGE](https://github.com/cncf/devstats/blob/master/USAGE.md) (that requires domain name).
     - Install Apache as described [here](https://github.com/cncf/devstats/blob/master/APACHE.md).
     - You can also enable SSL, to do so you need to follow SSL instruction in [SSL](https://github.com/cncf/devstats/blob/master/SSL.md) (that requires domain name).
 
