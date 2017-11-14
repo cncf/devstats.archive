@@ -70,7 +70,7 @@ Prerequisites:
 12. We have both databases running and Go tools installed, let's try to sync database dump from devstats.k8s.io manually:
     - We need to prefix call with GHA2DB_LOCAL to enable using tools from "./" directory
     - To import data for the first time (Influx database is empty and postgres database is at the state when Kubernetes SQL dump was made on [devstats.k8s.io](https://devstats.k8s.io)):
-    - `GHA2DB_PROJECT=kubernetes GHA2DB_LOCAL=1 IDB_PASS=pwd PG_PASS=pwd ./reinit_all.sh`
+    - `IDB_PASS=pwd PG_PASS=pwd ./kubernetes/reinit_all.sh`
     - This can take a while (depending how old is psql dump `gha.sql.xz` on [devstats.k8s](https://devstats.k8s.io). It is generated daily at 3:00 AM UTC.
     - Command should be successfull.
 
