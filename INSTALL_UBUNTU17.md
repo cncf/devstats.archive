@@ -35,7 +35,7 @@ Prerequisites:
     - `sudo make install`
 
 9. Install Postgres database ([link](https://gist.github.com/sgnl/609557ebacd3378f3b72)):
-    - apt-get install postgresql 
+    - apt-get install postgresql (You can use specific version, for example `postgresql-9.6`)
     - sudo -i -u postgres
     - psql
 
@@ -92,8 +92,7 @@ Prerequisites:
     - Check max event created date: `select max(created_at) from gha_events` and logs `select * from gha_logs order by dt desc limit 20`.
 
 16. Install [Grafana](http://docs.grafana.org/installation/mac/) or use Docker to enable multiple Grafana instances, see [MULTIPROJECT.md](https://github.com/cncf/devstats/blob/master/MULTIPROJECT.md).
-    - Follow: `http://docs.grafana.org/installation/debian/`
-    - `wget https://s3-us-west-2.amazonaws.com/grafana-releases/release/grafana_4.5.2_amd64.deb`
+
     - `sudo apt-get install -y adduser libfontconfig`
     - `sudo dpkg -i grafana_4.5.2_amd64.deb`
     - `sudo service grafana-server start`
