@@ -11,8 +11,8 @@
 - Import main home for example [kubernetes dahsboard](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/dashboards.json).
 - Choose Admin -> Preferences, name Your organization (for example set it to `XYZ`)
 - Set You home dashboard to just imported "Dashboards".
-- You can also **try** to use current [grafana.db](https://devstats.k8s.io/web/grafana.db) to import everything at once, but be careful, because this is file is version specific.
-- When finished, copy final settings file `grafana.db`: `cp /var/lib/grafana/grafana.db /var/www/html/web/`, `chmod go+r /var/www/html/web/grafana.db` to be visible from web server.
+- You can also **try** to use current [grafana.db](https://devstats.k8s.io/grafana.db) to import everything at once, but be careful, because this is file is version specific.
+- When finished, copy final settings file `grafana.db`: `cp /var/lib/grafana/grafana.db /var/www/html/`, `chmod go+r /var/www/html/grafana.db` to be visible from web server.
 - Change Grafana admin/admin credentials to something secure!
 
 To enable Grafana anonymous login, do the following:

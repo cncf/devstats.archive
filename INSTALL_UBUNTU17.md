@@ -45,7 +45,7 @@ Prerequisites:
     - `grant all privileges on database "gha" to gha_admin;`
     - `alter user gha_admin createdb;`
 11. Leave `psql` shell, and get newest Kubernetes database dump:
-    - `wget https://devstats.k8s.io/web/gha.sql.xz` (it is about 400Mb).
+    - `wget https://devstats.k8s.io/gha.sql.xz` (it is about 400Mb).
     - `xz -d gha.sql.xz` (uncompressed dump is more than 7Gb).
     - `sudo -u postgres psql gha < gha.sql` (restore DB dump)
 
@@ -91,7 +91,7 @@ Prerequisites:
     - Check database values and logs about 15 minutes after full hours, like 14:15:
     - Check max event created date: `select max(created_at) from gha_events` and logs `select * from gha_logs order by dt desc limit 20`.
 
-16. Install [Grafana](http://docs.grafana.org/installation/mac/)
+16. Install [Grafana](http://docs.grafana.org/installation/mac/) or use Docker to enable multiple Grafana instances, see [MULTIPROJECT.md](https://github.com/cncf/devstats/blob/master/MULTIPROJECT.md).
     - Follow: `http://docs.grafana.org/installation/debian/`
     - `wget https://s3-us-west-2.amazonaws.com/grafana-releases/release/grafana_4.5.2_amd64.deb`
     - `sudo apt-get install -y adduser libfontconfig`
