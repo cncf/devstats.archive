@@ -47,7 +47,7 @@ They are defined in [scripts/kubernetes/repo_groups.sql](https://github.com/cncf
 To setup default repository groups:
 - `PG_PASS=pwd ./kubernetes/setup_repo_groups.sh`.
 
-This is a part of `kubernetes/kubernetes.sh` script and [kubernetes psql dump](https://devstats.web.io/gha.sql.xz) already has groups configured.
+This is a part of `kubernetes/kubernetes.sh` script and [kubernetes psql dump](https://devstats.cncf.io/gha.sql.xz) already has groups configured.
 
 # Company Affiliations
 
@@ -57,7 +57,7 @@ There is a project that attempts to create such mapping [cncf/gitdm](https://git
 
 Gha2db has an import tool that fetches company affiliations from `cncf/gitdm` and allows to create per company metrics/statistics.
 
-If you see errors in the company affiliations, please open a pull request on [cncf/gitdm](https://github.com/cncf/gitdm) and the updates will be reflected on [https://devstats.k8s.io](https://devstats.k8s.io) a couple days after the PR has been accepted. Note that gitdm supports mapping based on dates, to account for developers moving between companies.
+If you see errors in the company affiliations, please open a pull request on [cncf/gitdm](https://github.com/cncf/gitdm) and the updates will be reflected on [https://k8s.devstats.cncf.io](https://k8s.devstats.cncf.io) a couple days after the PR has been accepted. Note that gitdm supports mapping based on dates, to account for developers moving between companies.
 
 # GitHub Archives
 
@@ -88,7 +88,7 @@ Our approach is to use GitHub archives instead. The possible alternatives are:
 - 7.2M / 5K (API limit per hour) gives 1440 hours which is 2 months. And we're on GitHub API limit all the time. Processing ALL GitHub events takes about 2 hours without ANY limit.
 - You can optionally save downloaded JSONs to avoid network traffic in next calls (also usable for local development mode).
 - There is an already implemented version in Go, please see usage here [USAGE](https://github.com/cncf/devstats/blob/master/USAGE.md)
-- Dashboards can be displayed here [link](https://devstats.k8s.io/?orgId=1)
+- Dashboards can be displayed here [link](https://k8s.devstats.cncf.io/?orgId=1)
 
 # Architecture
 
@@ -137,7 +137,7 @@ We're getting all possible GitHub data for all objects, and all objects historic
 - `runq` gets SQL file name and parameter values and allows to run metric manually from the command line (this is for local development)
 - [import_affs](https://github.com/cncf/devstats/blob/master/cmd/import_affs/import_affs.go)
 - `import_affs` takes one parameter - JSON file name (this is a file from [cncf/gitdm](https://github.com/cncf/gitdm): [github_users.json](https://raw.githubusercontent.com/cncf/gitdm/master/github_users.json)
-- This tools imports GitHub usernames (in addition to logins from GHA) and creates developers - companies affiliations (that can be used by [Companies stats](https://devstats.k8s.io/dashboard/db/companies-stats?orgId=1) metric)
+- This tools imports GitHub usernames (in addition to logins from GHA) and creates developers - companies affiliations (that can be used by [Companies stats](https://k8s.devstats.cncf.io/dashboard/db/companies-stats?orgId=1) metric)
 - [z2influx](https://github.com/cncf/devstats/blob/master/cmd/z2influx/z2influx.go)
 - `z2influx` is used to fill gaps that can occur for metrics that returns multiple columns and rows, but the number of rows depends on date range, it uses [gaps.yaml](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/gaps.yaml) file to define which metrics should be zero filled.
 - [annotations](https://github.com/cncf/devstats/blob/master/cmd/annotations/annotations.go)
