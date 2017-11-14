@@ -6,3 +6,12 @@
 - sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
 - sudo apt-get update
 - sudo apt-get install docker-ce
+
+Docker can have problems with storage driver, You can select `aufs` storage option by doing:
+- `modprobe aufs`
+- `vim /etc/docker/daemon.json`, and put storage driver here:
+```
+{
+          "storage-driver": "aufs"
+} 
+```
