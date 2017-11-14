@@ -49,9 +49,9 @@ Installed:
 - `ENV_VARIABLES gha2db YYYY-MM-DD HH YYYY-MM-DD HH [org [repo]]`.
 
 
-You can use already populated Postgres dump: [Kubernetes Psql dump](https://devstats.k8s.io/web/gha.sql.xz) (more than 380 Mb, more than 7,5Gb uncompressed)
+You can use already populated Postgres dump: [Kubernetes Psql dump](https://devstats.k8s.io/gha.sql.xz) (more than 380 Mb, more than 7,5Gb uncompressed)
 
-There is also a dump for `cncf` org: [CNCF Psql dump](https://cncftest.io/web/cncf.sql.xz) (less than 900 kb, about 8,5 Mb uncompressed, data from 2017-03-01)
+There is also a dump for `cncf` org: [CNCF Psql dump](https://cncftest.io/cncf.sql.xz) (less than 900 kb, about 8,5 Mb uncompressed, data from 2017-03-01)
 
 First two parameters are date from:
 - YYYY-MM-DD
@@ -167,7 +167,7 @@ Taking all events from a single day is 5 minutes 50 seconds (2017-07-28):
 - Generates 1194599 JSON files (1.2M)
 - Takes 7 Gb of disc space
 
-There is a big file containing all Kubernetes events JSONs from Aug 2017 concatenated and xzipped: [K8s August 2017](https://cncftest.io/web/k8s_201708.json.xz).
+There is a big file containing all Kubernetes events JSONs from Aug 2017 concatenated and xzipped: [K8s August 2017](https://cncftest.io/k8s_201708.json.xz).
 
 Please note that this is not a correct JSON, it contains files separated by line `JSON: jsons/filename.json` - that says what was the original JSON filename. This file is 16.7M xzipped, but 1.07G uncompressed.
 
@@ -180,7 +180,7 @@ This will log error and process no JSONs:
 - Takes about 2h15m.
 - Database dump is 7.5 Gb, XZ compressed dump is ~400 Mb
 - Note that those counts include historical changes to objects (for example single issue can have multiple entries with a different state on different events)
-- Completed dump <https://devstats.k8s.io/web/gha.sql.xz>
+- Completed dump <https://devstats.k8s.io/gha.sql.xz>
 
 # PostgreSQL database setup
 
@@ -226,7 +226,7 @@ Typical internal usage:
 
 Alternatively, you can use [structure.sql](https://github.com/cncf/devstats/blob/master/structure.sql) to create database structure.
 
-You can also use already populated Postgres dump: [Kubernetes Psql dump](https://devstats.k8s.io/web/gha.sql.xz)
+You can also use already populated Postgres dump: [Kubernetes Psql dump](https://devstats.k8s.io/gha.sql.xz)
 
 # Database structure
 
@@ -390,7 +390,7 @@ Repository group is defined on `gha_repos` table using `repo_group` value.
 To setup default repository groups:
 - `PG_PASS=pwd ./kubernetes/setup_repo_groups.sh`.
 
-This is a part of `kubernetes/kubernetes.sh` script and [kubernetes psql dump](https://devstats.k8s.io/web/gha.sql.xz) already has groups configured.
+This is a part of `kubernetes/kubernetes.sh` script and [kubernetes psql dump](https://devstats.k8s.io/gha.sql.xz) already has groups configured.
 
 # Grafana output
 
