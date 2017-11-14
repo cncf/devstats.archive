@@ -11,7 +11,7 @@
 - Import main home for example [kubernetes dahsboard](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/dashboards.json).
 - Choose Admin -> Preferences, name Your organization (for example set it to `XYZ`)
 - Set You home dashboard to just imported "Dashboards".
-- You can also **try** to use current [grafana.db](https://devstats.k8s.io/grafana.db) to import everything at once, but be careful, because this is file is version specific.
+- You can also **try** to use current [grafana.db](https://devstats.web.io/grafana.db.k8s) to import everything at once, but be careful, because this is file is version specific.
 - When finished, copy final settings file `grafana.db`: `cp /var/lib/grafana/grafana.db /var/www/html/`, `chmod go+r /var/www/html/grafana.db` to be visible from web server.
 - Change Grafana admin/admin credentials to something secure!
 
