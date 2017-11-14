@@ -46,7 +46,7 @@ Prerequisites:
     - `grant all privileges on database "gha" to gha_admin;`
     - `alter user gha_admin createdb;`
 11. Leave `psql` shell, and get newest Kubernetes database dump:
-    - `wget https://devstats.web.io/gha.sql.xz` (it is about 400Mb).
+    - `wget https://devstats.cncf.io/gha.sql.xz` (it is about 400Mb).
     - `xz -d gha.sql.xz` (uncompressed dump is more than 7Gb).
     - `sudo -u postgres psql gha < gha.sql` (restore DB dump)
 
@@ -63,11 +63,11 @@ Prerequisites:
     - `GHA2DB_PROJECT=kubernetes IDB_DB=dbtest IDB_PASS=your_influx_pwd PG_DB=dbtest PG_PASS=your_postgres_pwd make dbtest`
     - Tests should pass.
 
-14. We have both databases running and Go tools installed, let's try to sync database dump from devstats.k8s.io manually:
+14. We have both databases running and Go tools installed, let's try to sync database dump from k8s.devstats.cncf.io manually:
     - We need to prefix call with GHA2DB_LOCAL to enable using tools from "./" directory
-    - To import data for the first time (Influx database is empty and postgres database is at the state when Kubernetes SQL dump was made on [devstats.k8s.io](https://devstats.k8s.io)):
+    - To import data for the first time (Influx database is empty and postgres database is at the state when Kubernetes SQL dump was made on [k8s.devstats.cncf.io](https://k8s.devstats.cncf.io)):
     - `IDB_PASS=pwd PG_PASS=pwd ./kubernetes/reinit_all.sh`
-    - This can take a while (depending how old is psql dump `gha.sql.xz` on [devstats.k8s](https://devstats.k8s.io). It is generated daily at 3:00 AM UTC.
+    - This can take a while (depending how old is psql dump `gha.sql.xz` on [k8s.devstats.cncf.io](https://k8s.devstats.cncf.io). It is generated daily at 3:00 AM UTC.
     - Command should be successfull.
 
 15. We need to setup cron job that will call sync every hour (10 minutes after 1:00, 2:00, ...)
