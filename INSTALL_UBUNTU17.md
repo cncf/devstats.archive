@@ -38,6 +38,8 @@ Prerequisites:
     - apt-get install postgresql (You can use specific version, for example `postgresql-9.6`)
     - sudo -i -u postgres
     - psql
+    - Postgres only allows local connections by default so it is secure, we don't need to disable external connections:
+    - Config file is: `/etc/postgresql/9.6/main/pg_hba.conf`, instructions to enable external connections (not recommended): `http://www.thegeekstuff.com/2014/02/enable-remote-postgresql-connection/?utm_source=tuicool`
 
 10. Inside psql client shell:
     - `create database gha;`

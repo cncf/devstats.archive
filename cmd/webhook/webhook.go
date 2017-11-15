@@ -192,7 +192,8 @@ func webhookHandler(w http.ResponseWriter, r *http.Request) {
 	ctx.Init()
 
 	// Processing new webhook
-	lib.Printf("WebHook processing event at %v\n", time.Now())
+	lib.Printf("WebHook processing event %s at %v\n", r.RemoteAddr, time.Now())
+	lib.Printf("WebHook config is Host:%s Port:%s Root:%s\n", ctx.WebHookHost, ctx.WebHookPort, ctx.WebHookRoot)
 
 	// Payload checking
 	var jsonStr string
