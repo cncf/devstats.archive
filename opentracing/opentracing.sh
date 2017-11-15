@@ -9,4 +9,4 @@ GHA2DB_PROJECT=opentracing IDB_DB=opentracing PG_DB=opentracing GHA2DB_LOCAL=1 G
 ./grafana/influxdb_recreate.sh opentracing
 ./opentracing/setup_repo_groups.sh 2>>errors.txt | tee -a run.log || exit 6
 ./opentracing/import_affs.sh 2>>errors.txt | tee -a run.log || exit 7
-echo "All done."
+echo "All done. You should run ./opentracing/reinit.sh script now."

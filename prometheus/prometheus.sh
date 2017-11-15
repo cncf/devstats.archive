@@ -10,4 +10,4 @@ GHA2DB_PROJECT=prometheus IDB_DB=prometheus PG_DB=prometheus GHA2DB_LOCAL=1 GHA2
 ./grafana/influxdb_recreate.sh prometheus
 ./prometheus/setup_repo_groups.sh 2>>errors.txt | tee -a run.log || exit 6
 ./prometheus/import_affs.sh 2>>errors.txt | tee -a run.log || exit 7
-echo "All done."
+echo "All done. You should run ./prometheus/reinit.sh script now."

@@ -13,4 +13,4 @@ GHA2DB_LOCAL=1 GHA2DB_MGETC=y GHA2DB_SKIPTABLE=1 GHA2DB_INDEX=1 ./structure 2>>e
 # This imports affiliations from cncf/gitdm:github_users.json
 GHA2DB_LOCAL=1 ./import_affs github_users.json 2>>errors.txt | tee -a run.log || exit 6
 ./kubernetes/setup_repo_groups.sh 2>>errors.txt | tee -a run.log || exit 7
-echo "All done."
+echo "All done. You should run ./kubernetes/reinit_all_full.sh script now."
