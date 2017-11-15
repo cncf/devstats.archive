@@ -55,6 +55,7 @@ func copyContext(in *lib.Ctx) *lib.Ctx {
 		LogTime:          in.LogTime,
 		WebHookRoot:      in.WebHookRoot,
 		WebHookPort:      in.WebHookPort,
+		WebHookHost:      in.WebHookHost,
 		CheckPayload:     in.CheckPayload,
 		DeployBranches:   in.DeployBranches,
 		DeployStatuses:   in.DeployStatuses,
@@ -191,6 +192,7 @@ func TestInit(t *testing.T) {
 		LogTime:          true,
 		WebHookRoot:      "/hook",
 		WebHookPort:      ":1982",
+		WebHookHost:      "127.0.0.1",
 		CheckPayload:     true,
 		DeployBranches:   []string{"master"},
 		DeployStatuses:   []string{"Passed", "Fixed"},
@@ -470,11 +472,19 @@ func TestInit(t *testing.T) {
 		},
 		{
 			"Setting webhook data",
-			map[string]string{"GHA2DB_WHROOT": "/root", "GHA2DB_WHPORT": ":1666"},
+			map[string]string{
+				"GHA2DB_WHROOT": "/root",
+				"GHA2DB_WHPORT": ":1666",
+				"GHA2DB_WHHOST": "0.0.0.0",
+			},
 			dynamicSetFields(
 				t,
 				copyContext(&defaultContext),
-				map[string]interface{}{"WebHookRoot": "/root", "WebHookPort": ":1666"},
+				map[string]interface{}{
+					"WebHookRoot": "/root",
+					"WebHookPort": ":1666",
+					"WebHookHost": "0.0.0.0",
+				},
 			),
 		},
 		{

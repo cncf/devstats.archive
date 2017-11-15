@@ -52,6 +52,7 @@ type Ctx struct {
 	Trials           []int     // From GHA2DB_TRIALS, all Postgres related tools, retry periods for "too many connections open" error
 	WebHookRoot      string    // From GHA2DB_WHROOT, webhook tool, default "/hook", must match .travis.yml notifications webhooks
 	WebHookPort      string    // From GHA2DB_WHPORT, webhook tool, default ":1982", note that webhook listens using http:1982, but we use apache on https:2982 (to enable https protocol and proxy requests to http:1982)
+	WebHookHost      string    // From GHA2DB_WHHOST, webhook tool, default "127.0.0.1" (this can be localhost to disable access by IP, we use Apache proxy to enable https and then apache only need 127.0.0.1)
 	CheckPayload     bool      // From GHA2DB_SKIP_VERIFY_PAYLOAD, webhook tool, default true, use GHA2DB_SKIP_VERIFY_PAYLOAD=1 to manually test payloads
 	DeployBranches   []string  // From GHA2DB_DEPLOY_BRANCHES, webhook tool, default "master" - comma separated list
 	DeployStatuses   []string  // From GHA2DB_DEPLOY_STATUSES, webhook tool, default "Passed,Fixed", - comma separated list
@@ -276,10 +277,10 @@ func (ctx *Ctx) Init() {
 	}
 	ctx.ProjectRoot = os.Getenv("GHA2DB_PROJECT_ROOT")
 
-	// WebHook Root & Port
-	ctx.WebHookRoot = os.Getenv("GHA2DB_WHROOT")
-	if ctx.WebHookRoot == "" {
-		ctx.WebHookRoot = "/hook"
+	// WebHook Host, Port, Root
+	ctx.WebHookHost = os.Getenv("GHA2DB_WHHOST")
+	if ctx.WebHookHost == "" {
+		ctx.WebHookHost = "127.0.0.1"
 	}
 	ctx.WebHookPort = os.Getenv("GHA2DB_WHPORT")
 	if ctx.WebHookPort == "" {
@@ -288,6 +289,10 @@ func (ctx *Ctx) Init() {
 		if ctx.WebHookPort[0:1] != ":" {
 			ctx.WebHookPort = ":" + ctx.WebHookPort
 		}
+	}
+	ctx.WebHookRoot = os.Getenv("GHA2DB_WHROOT")
+	if ctx.WebHookRoot == "" {
+		ctx.WebHookRoot = "/hook"
 	}
 	ctx.CheckPayload = os.Getenv("GHA2DB_SKIP_VERIFY_PAYLOAD") == ""
 
