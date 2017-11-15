@@ -1367,6 +1367,8 @@ func parseJSON(con *sql.DB, ctx *lib.Ctx, jsonStr []byte, dt time.Time, forg, fr
 		err = json.Unmarshal(jsonStr, &h)
 	}
 	if err != nil {
+		lib.Printf("%v: Cannot unmarshal:\n%s\n%v\n", dt, string(jsonStr), err)
+		fmt.Fprintf(os.Stderr, "%v: Cannot unmarshal:\n%s\n%v\n", dt, string(jsonStr), err)
 		pretty := lib.PrettyPrintJSON(jsonStr)
 		lib.Printf("%v: JSON Unmarshal failed for:\n'%v'\n", dt, string(pretty))
 		fmt.Fprintf(os.Stderr, "%v: JSON Unmarshal failed for:\n'%v'\n", dt, string(pretty))
@@ -1418,6 +1420,10 @@ func getGHAJSON(ch chan bool, ctx *lib.Ctx, dt time.Time, forg map[string]struct
 
 	// Get gzipped JSON array via HTTP
 	response, err := http.Get(fn)
+	if err != nil {
+		lib.Printf("%v: Error http.Get:\n%v\n", dt, err)
+		fmt.Fprintf(os.Stderr, "%v: Error http.Get:\n%v\n", dt, err)
+	}
 	lib.FatalOnError(err)
 	defer response.Body.Close()
 
