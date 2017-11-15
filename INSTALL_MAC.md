@@ -45,6 +45,8 @@ Prerequisites:
     - `brew services start postgresql`
     - `createdb gha`
     - `psql gha`
+    - Postgres only allows local connections by default so it is secure, we don't need to disable external connections:
+    - Instructions to enable external connections (not recommended): `http://www.thegeekstuff.com/2014/02/enable-remote-postgresql-connection/?utm_source=tuicool`
 
 8. Inside psql client shell:
     - `create user gha_admin with password 'your_password_here';`
