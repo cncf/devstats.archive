@@ -72,6 +72,9 @@ Org/Repo filtering:
 - You can provide both to observe only events from given org/repo.
 - You can list exact full repository names to run on: use `GHA2DB_EXACT=1` to process only repositories listed as "orgs" parameter, by their full names, like for example 3 repos: "GoogleCloudPlatform/kubernetes,kubernetes,kubernetes/kubernetes".
 
+# Broken githubarchives JSON file
+- For 2017-11-08 01:00:00 githubarchive JSON contains an error.
+
 # Configuration
 
 You can tweak `devstats` tools by environment variables:
