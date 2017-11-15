@@ -39,6 +39,8 @@ Prerequisites:
     - apt-get install postgresql 
     - sudo -i -u postgres
     - psql
+    - Postgres only allows local connections by default so it is secure, we don't need to disable external connections:
+    - Instructions to enable external connections (not recommended): `http://www.thegeekstuff.com/2014/02/enable-remote-postgresql-connection/?utm_source=tuicool`
 
 10. Inside psql client shell:
     - `create database gha;`
