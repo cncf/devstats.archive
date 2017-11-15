@@ -282,8 +282,9 @@ func main() {
 	}
 
 	// Start webhook server
-	// WebHookRoot defaults to "/"
+	// WebHookHost defaults to "127.0.0.1"
 	// WebHookPort defaults to ":1982"
+	// WebHookRoot defaults to "/"
 	http.HandleFunc(ctx.WebHookRoot, webhookHandler)
-	http.ListenAndServe(ctx.WebHookPort, nil)
+	http.ListenAndServe(ctx.WebHookHost+ctx.WebHookPort, nil)
 }
