@@ -59,30 +59,34 @@ Prerequisites:
     - `echo "deb https://repos.influxdata.com/${DISTRIB_ID,,} ${DISTRIB_CODENAME} stable" | sudo tee /etc/apt/sources.list.d/influxdb.list`
     - `sudo apt-get update && sudo apt-get install influxdb`
     - `sudo service influxdb start`
-    - Create InfluxDB user, database: `IDB_PASS='your_password_here' ./grafana/influxdb_setup.sh gha`
+    - Create InfluxDB user, database: `IDB_HOST="172.17.0.1" IDB_PASS='your_password_here' ./grafana/influxdb_setup.sh gha`
+    - InfluxDB has authentication disabled by default.
+    - Edit config file `vim /etc/influxdb/influxdb.conf` and change section [http], `auth-enabled = true`
+    - If You want to disable external InfluxDB access (for any external IP, only localhost) follow those instructions [SECURE_INFLUXDB.md](https://github.com/cncf/devstats/blob/master/SECURE_INFLUXDB.md).
+    - `sudo service influxdb restart`
 
 13. Databases installed, you need to test if all works fine, use database test coverage:
-    - `GHA2DB_PROJECT=kubernetes IDB_DB=dbtest IDB_PASS=your_influx_pwd PG_DB=dbtest PG_PASS=your_postgres_pwd make dbtest`
+    - `GHA2DB_PROJECT=kubernetes IDB_DB=dbtest IDB_HOST="172.17.0.1" IDB_PASS=your_influx_pwd PG_DB=dbtest PG_PASS=your_postgres_pwd make dbtest`
     - Tests should pass.
 
 14. We have both databases running and Go tools installed, let's try to sync database dump from k8s.devstats.cncf.io manually:
     - We need to prefix call with GHA2DB_LOCAL to enable using tools from "./" directory
     - To import data for the first time (Influx database is empty and postgres database is at the state when Kubernetes SQL dump was made on [k8s.devstats.cncf.io](https://k8s.devstats.cncf.io)):
-    - `IDB_PASS=pwd PG_PASS=pwd ./kubernetes/reinit_all.sh`
+    - `IDB_HOST="172.17.0.1" IDB_PASS=pwd PG_PASS=pwd ./kubernetes/reinit_all.sh`
     - This can take a while (depending how old is psql dump `gha.sql.xz` on [k8s.devstats.cncf.io](https://k8s.devstats.cncf.io). It is generated daily at 3:00 AM UTC.
     - Command should be successfull.
 
 15. We need to setup cron job that will call sync every hour (10 minutes after 1:00, 2:00, ...)
     - You need to open `crontab.entry` file, it looks like this:
     ```
-    10 * * * * PATH=$PATH:/path/to/your/GOPATH/bin GHA2DB_PROJECT=kubernetes GHA2DB_CMDDEBUG=1 IDB_PASS='...' PG_PASS='...' gha2db_sync 2>> /tmp/gha2db_sync.err 1>> /tmp/gha2db_sync.log
+    10 * * * * PATH=$PATH:/path/to/your/GOPATH/bin GHA2DB_PROJECT=kubernetes GHA2DB_CMDDEBUG=1 IDB_HOST="172.17.0.1" IDB_PASS='...' PG_PASS='...' gha2db_sync 2>> /tmp/gha2db_sync.err 1>> /tmp/gha2db_sync.log
     20 3 * * * PATH=$PATH:/path/to/your/GOPATH/bin cron_db_backup.sh gha 2>> /tmp/gha2db_backup.err 1>> /tmp/gha2db_backup.log
     */5 * * * * PATH=$PATH:/path/to/your/GOPATH/bin GOPATH=/your/gopath GHA2DB_CMDDEBUG=1 GHA2DB_PROJECT_ROOT=/path/to/repo PG_PASS="..." webhook 2>> /tmp/gha2db_webhook.err 1>> /tmp/gha2db_webhook.log
     ```
     - First crontab entry is for automatic GHA sync.
     - Second crontab entry is for automatic daily backup of GHA database.
     - Third crontab entry is for Continuous Deployment - this a Travis Web Hook listener server, it deploys project when specific conditions are met, details [here](https://github.com/cncf/devstats/blob/master/CONTINUOUS_DEPLOYMENT.md).
-    - You need to change "..." PG_PASS and IDB_PASS to the real postgres password value and copy this line.
+    - You need to change "..." PG_PASS, IDB_HOST and IDB_PASS to the real postgres password value and copy this line.
     - You need to change "/path/to/your/GOPATH/bin" to the value of "$GOPATH/bin", you cannot use $GOPATH in crontab directly.
     - Run `crontab -e` and put this line at the end of file and save.
     - Cron job will update Postgres and InfluxDB databases at 0:10, 1:10, ... 23:10 every day.

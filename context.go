@@ -114,7 +114,7 @@ func (ctx *Ctx) Init() {
 	ctx.PgPass = os.Getenv("PG_PASS")
 	ctx.PgSSL = os.Getenv("PG_SSL")
 	if ctx.PgHost == "" {
-		ctx.PgHost = "localhost"
+		ctx.PgHost = Localhost
 	}
 	if ctx.PgPort == "" {
 		ctx.PgPort = "5432"
@@ -139,7 +139,10 @@ func (ctx *Ctx) Init() {
 	ctx.IDBUser = os.Getenv("IDB_USER")
 	ctx.IDBPass = os.Getenv("IDB_PASS")
 	if ctx.IDBHost == "" {
-		ctx.IDBHost = "http://localhost"
+		ctx.IDBHost = Localhost
+	}
+	if !strings.HasPrefix(ctx.IDBHost, "http://") {
+		ctx.IDBHost = "http://" + ctx.IDBHost
 	}
 	if ctx.IDBPort == "" {
 		ctx.IDBPort = "8086"
