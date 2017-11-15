@@ -29,5 +29,16 @@ To enable Google analytics:
 google_analytics_ua_id = UA-XXXXXXXXX-1
 - Restart grafana server.
 
+To restrict using GRAFANA by server IP, for example 147.72.202.77:3000, You can set:
+- `http_addr = 127.0.0.1`
+
+This will only allow accessing Grafana from Apache proxy, please also see:
+- [APACHE.md](https://github.com/cncf/devstats/blob/master/APACHE.md)
+- [SSL.md](https://github.com/cncf/devstats/blob/master/SSL.md)
+
+This will not work for Grafana(s) running inside docker containers.
+To disallow access to docker containers from outside world you have to specify port mapping that only exposes port to localhost:
+- Instead `-p 3001:3000` (that exposes 3001 to 0.0.0.0) use `127.0.0.1:3001`.
+
 - To run multiple Grafana instances (for example to have multiple projects on the same host), You need to use Docker.
 - Instructions here [MULTIPROJECT.md](https://github.com/cncf/devstats/blob/master/MULTIPROJECT.md).
