@@ -90,7 +90,7 @@ You can tweak `devstats` tools by environment variables:
 - Set `GHA2DB_LASTSERIES`, to specify which InfluxDB series use to determine newest data (it will be used to query the newest timestamp), default `'events_h'`.
 - Set `GHA2DB_CMDDEBUG` set to 1 to see commands executed, set to 2 to see commands executed and their output, set to 3 to see full exec environment.
 - Set `GHA2DB_EXPLAIN` for `runq` tool, it will prefix query select(s) with "explain " to display query plan instead of executing the real query. Because metric can have multiple selects, and only main select should be replaced with "explain select" - we're replacing only downcased "select" statement followed by newline ("select\n" --> "explain select\n")
-- Set `GHA2DB_OLDFMT` for `gha2db` tool to make it use old pre-2015 GHA JSONs format (instead of a new one used by GitHub Archives from 2015-01-01).
+- Set `GHA2DB_OLDFMT` for `gha2db` tool to make it use old pre-2015 GHA JSONs format (instead of a new one used by GitHub Archives from 2015-01-01). It is usable for GH events starting from 2012-07-01.
 - Set `GHA2DB_EXACT` for `gha2db` tool to make it process only repositories listed as "orgs" parameter, by their full names, like for example 3 repos: "GoogleCloudPlatform/kubernetes,kubernetes,kubernetes/kubernetes"
 - Set `GHA2DB_SKIPLOG` for any tool to skip logging output to `gha_logs` table.
 - Set `GHA2DB_LOCAL` for `gha2db_sync` tool to make it prefix call to other tools with "./" (so it will use other tools binaries from the current working directory instead of `/usr/bin/`). Local mode uses "./metrics/{{project}}/" to search for metrics files. Otherwise "/etc/gha2db/metrics/{{project}}/" is used.
@@ -316,7 +316,7 @@ Kubernetes consists of 4 different orgs (from 2014-06-01), so to gather data for
 
 Before 2015-08-06 Kubernetes is in `GoogleCloudPlatform/kubernetes` or just few kubernetes repos without org. To process them You need to use special list mode `GHA2DB_EXACT`.
 
-And finally before 2015-01-01 GitHub used different JSONs format. To process them You have to use `GHA2DB_OLDFMT` mode.
+And finally before 2015-01-01 GitHub used different JSONs format. To process them You have to use `GHA2DB_OLDFMT` mode. It is usable for GH events starting from 2012-07-01.
 
 For example June 2017:
 - `time PG_PASS=pwd ./gha2db 2017-06-01 0 2017-07-01 0 'kubernetes,kubernetes-incubator,kubernetes-client,kubernetes-helm'`
