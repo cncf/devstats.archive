@@ -331,7 +331,7 @@ func TestInit(t *testing.T) {
 				t,
 				copyContext(&defaultContext),
 				map[string]interface{}{
-					"IDBHost": "example.com",
+					"IDBHost": "http://example.com",
 					"IDBPort": "1234",
 					"IDBDB":   "test",
 					"IDBUser": "pgadm",

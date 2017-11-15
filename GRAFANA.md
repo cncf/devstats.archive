@@ -42,3 +42,4 @@ To disallow access to docker containers from outside world you have to specify p
 
 - To run multiple Grafana instances (for example to have multiple projects on the same host), You need to use Docker.
 - Instructions here [MULTIPROJECT.md](https://github.com/cncf/devstats/blob/master/MULTIPROJECT.md).
+- If want to secure InfluxDB and use Docker at the same time please see: [SECURE_INFLUXDB.md](https://github.com/cncf/devstats/blob/master/SECURE_INFLUXDB.md).

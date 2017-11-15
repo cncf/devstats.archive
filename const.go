@@ -23,3 +23,6 @@ const Now string = "now"
 
 // GHA - common constant string
 const GHA string = "gha"
+
+// Localhost - common constant string
+const Localhost string = "localhost"

@@ -15,3 +15,4 @@ Docker can have problems with storage driver, You can select `aufs` storage opti
           "storage-driver": "aufs"
 } 
 ```
+- If want to secure InfluxDB and use Docker at the same time please see: [SECURE_INFLUXDB.md](https://github.com/cncf/devstats/blob/master/SECURE_INFLUXDB.md).
