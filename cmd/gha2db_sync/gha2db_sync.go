@@ -66,8 +66,9 @@ type projects struct {
 
 // project contain mapping from project name to its command line used to sync it
 type project struct {
-	Name        string `yaml:"name"`
-	CommandLine string `yaml:"command_line"`
+	Name        string     `yaml:"name"`
+	CommandLine string     `yaml:"command_line"`
+	StartDate   *time.Time `yaml:"start_date"`
 }
 
 // Add _period to all array items
@@ -532,14 +533,18 @@ func getSyncArgs(ctx *lib.Ctx, osArgs []string) []string {
 	lib.FatalOnError(yaml.Unmarshal(data, &projs))
 	for _, proj := range projs.Projects {
 		if proj.Name == ctx.Project {
+			if proj.StartDate != nil {
+				ctx.DefaultStartDate = *proj.StartDate
+			}
 			return []string{proj.CommandLine}
 		}
 	}
 	// No user commandline and project not found
-	lib.FatalOnError(fmt.Errorf(
-		"project %s is not defined in projects.yaml",
-		ctx.Project,
-	),
+	lib.FatalOnError(
+		fmt.Errorf(
+			"project %s is not defined in projects.yaml",
+			ctx.Project,
+		),
 	)
 	return []string{}
 }
