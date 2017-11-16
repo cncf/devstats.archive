@@ -36,7 +36,7 @@ This will only allow accessing Grafana from Apache proxy, please also see:
 - [APACHE.md](https://github.com/cncf/devstats/blob/master/APACHE.md)
 - [SSL.md](https://github.com/cncf/devstats/blob/master/SSL.md)
 
-This will not work for Grafana(s) running inside docker containers.
+** This will *not* work for Grafana(s) running inside docker containers. **
 To disallow access to docker containers from outside world you have to specify port mapping that only exposes port to localhost:
 - Instead `-p 3001:3000` (that exposes 3001 to 0.0.0.0) use `127.0.0.1:3001`.
 
