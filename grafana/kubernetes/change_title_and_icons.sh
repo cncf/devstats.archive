@@ -1,5 +1,5 @@
 #!/bin/sh
-# GRAFANA_DATA=/usr/share/grafana/
+# GRAFANA_DATA=/usr/share/grafana.k8s/
 for f in `find ${GRAFANA_DATA} -type f -exec grep -l "'Grafana - '" "{}" \; | sort | uniq`
 do
   ls -l "$f"
