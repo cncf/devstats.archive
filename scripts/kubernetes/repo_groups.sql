@@ -40,6 +40,7 @@ update gha_repos set repo_group = 'Clients' where name in (
 
 update gha_repos set repo_group = 'Apps' where name in (
   'kubernetes/kubectl',
+  'kubernetes/helm',
   'kubernetes/charts',
   'kubernetes/application-images',
   'kubernetes/examples',
@@ -140,7 +141,8 @@ update gha_repos set repo_group = 'Docs' where name in (
 update gha_repos set repo_group = 'Helm' where org_login in (
   'kubernetes-helm'
 ) or name in (
-  'kubernetes/helm'
+  'kubernetes/helm',
+  'kubernetes/charts'
 );
 
 update gha_repos set alias = name;
