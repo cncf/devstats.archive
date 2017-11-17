@@ -3,12 +3,12 @@
 for f in `find ${GRAFANA_DATA} -type f -exec grep -l "'Grafana - '" "{}" \; | sort | uniq`
 do
   ls -l "$f"
-  vim -c "%s/'Grafana - '/'Fluentd DevStats - '/g|wq" "$f"
+  vim -c "%s/'Grafana - '/'linkerd DevStats - '/g|wq" "$f"
 done
 for f in `find ${GRAFANA_DATA} -type f -exec grep -l '"Grafana - "' "{}" \; | sort | uniq`
 do
   ls -l "$f"
-  vim -c '%s/"Grafana - "/"Fluentd DevStats - "/g|wq' "$f"
+  vim -c '%s/"Grafana - "/"linkerd DevStats - "/g|wq' "$f"
 done
 cp -n ${GRAFANA_DATA}/public/img/grafana_icon.svg ${GRAFANA_DATA}/public/img/grafana_icon.svg.bak
 cp grafana/img/linkerd.svg ${GRAFANA_DATA}/public/img/grafana_icon.svg || exit 1
