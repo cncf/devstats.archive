@@ -2,12 +2,19 @@ package devstats
 
 import (
 	"bytes"
+	"fmt"
 	"io"
 	"os"
 	"os/exec"
 	"strings"
 	"time"
 )
+
+// logCommand - output command and arguments
+func logCommand(cmdAndArgs []string) {
+	Printf("Command and arguments:\n%+v\n", cmdAndArgs)
+	fmt.Fprintf(os.Stdout, "Command and arguments:\n%+v\n", cmdAndArgs)
+}
 
 // ExecCommand - execute command given by array of strings with eventual environment map
 func ExecCommand(ctx *Ctx, cmdAndArgs []string, env map[string]string) error {
@@ -70,6 +77,7 @@ func ExecCommand(ctx *Ctx, cmdAndArgs []string, env map[string]string) error {
 		stdOutPipe, e := cmd.StdoutPipe()
 		if e != nil {
 			if ctx.ExecFatal {
+				logCommand(cmdAndArgs)
 				FatalOnError(e)
 			} else {
 				return e
@@ -78,6 +86,7 @@ func ExecCommand(ctx *Ctx, cmdAndArgs []string, env map[string]string) error {
 		e = cmd.Start()
 		if e != nil {
 			if ctx.ExecFatal {
+				logCommand(cmdAndArgs)
 				FatalOnError(e)
 			} else {
 				return e
@@ -91,6 +100,7 @@ func ExecCommand(ctx *Ctx, cmdAndArgs []string, env map[string]string) error {
 		}
 		if e != io.EOF {
 			if ctx.ExecFatal {
+				logCommand(cmdAndArgs)
 				FatalOnError(e)
 			} else {
 				return e
@@ -100,6 +110,7 @@ func ExecCommand(ctx *Ctx, cmdAndArgs []string, env map[string]string) error {
 		e := cmd.Start()
 		if e != nil {
 			if ctx.ExecFatal {
+				logCommand(cmdAndArgs)
 				FatalOnError(e)
 			} else {
 				return e
@@ -123,6 +134,7 @@ func ExecCommand(ctx *Ctx, cmdAndArgs []string, env map[string]string) error {
 		}
 		if err != nil {
 			if ctx.ExecFatal {
+				logCommand(cmdAndArgs)
 				FatalOnError(err)
 			} else {
 				return err
