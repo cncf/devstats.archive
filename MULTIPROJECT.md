@@ -36,3 +36,4 @@ b415070c6aa8        grafana/grafana:master   "/run.sh"           19 minutes ago 
 instance_name = {{project}}.cncftest.io
 cookie_name = {{project}}_grafana_sess
 ```
+- Remember to set those values differently on prod and test servers.

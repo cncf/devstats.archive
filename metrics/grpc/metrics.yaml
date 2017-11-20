@@ -1,0 +1,148 @@
+---
+metrics:
+  - name: All PRs merged
+    add_period_to_name: true
+    series_name_or_func: all_prs_merged
+    sql: all_prs_merged
+    periods: h,d,w,m,q,y
+    aggregate: 1,2,3,4,7,12
+    skip: w7,w12,m7,q4,q7,q12,y4,y7,y12
+  - name: Time opened to merged (number of hours)
+    series_name_or_func: multi_row_multi_column
+    sql: opened_to_merged
+    periods: d,w,m,q,y
+    desc: time_diff_as_string
+  - name: PRs opened -> lgtmed -> approved -> merged (numer of hours)
+    series_name_or_func: multi_row_multi_column
+    sql: time_metrics
+    periods: d,w,m,q,y
+    aggregate: 1,7
+    skip: w7,m7,q7,y7
+    desc: time_diff_as_string
+  - name:
+      "Time before any comments or activities from someone other \
+       than the author"
+    series_name_or_func: multi_row_multi_column
+    sql: first_non_author_activity
+    periods: w,m,q,y
+    desc: time_diff_as_string
+  - name: Opened PRs age and count
+    series_name_or_func: multi_row_multi_column
+    sql: prs_age
+    periods: d,w,m,q,y
+    aggregate: 1,3,7
+    skip: m7,q3,q7,y3,y7
+    desc: time_diff_as_string
+  - name: Closed Issues age and count
+    series_name_or_func: multi_row_multi_column
+    sql: issues_age
+    periods: d,w,m,q,y
+    aggregate: 1,7
+    skip: w7,m7,q7,y7
+    desc: time_diff_as_string
+  - name: PR comments percentiles
+    series_name_or_func: single_row_multi_column
+    sql: pr_comments
+    periods: d,w,m,q,y
+    aggregate: 1,7
+    skip: w7,m7,q7,y7
+  - name: Stargazers, watchers, forks
+    series_name_or_func: multi_row_multi_column
+    sql: watchers
+    periods: d,w,m,q,y
+    aggregate: 1,7
+    skip: w7,m7,q7,y7
+  - name: Issues opened broken down by repo group
+    series_name_or_func: multi_row_single_column
+    sql: issues_opened
+    periods: d,w,m,q,y
+    aggregate: 1,7
+    skip: w7,m7,q7,y7
+    multi_value: true
+    escape_value_name: true
+  - name: Issues closed broken down by repo group
+    series_name_or_func: multi_row_single_column
+    sql: issues_closed
+    periods: d,w,m,q,y
+    aggregate: 1,7
+    skip: w7,m7,q7,y7
+    multi_value: true
+    escape_value_name: true
+  - name: Most active commenters
+    histogram: true
+    series_name_or_func: multi_row_single_column
+    sql: hist_commenters
+    periods: d,w,m,q,y
+  - name: PR authors histogram
+    histogram: true
+    series_name_or_func: multi_row_single_column
+    sql: hist_pr_authors
+    periods: d,w,m,q,y
+  - name: PR authors companies histogram
+    histogram: true
+    series_name_or_func: multi_row_single_column
+    sql: hist_pr_companies
+    periods: d,w,m,q,y
+  - name: Project stats
+    histogram: true
+    series_name_or_func: multi_row_single_column
+    sql: project_stats
+    periods: d,w,m,q,y
+    aggregate: 1,10
+    skip: w10,m10,q10
+  - name: Repository comments
+    series_name_or_func: multi_row_single_column
+    sql: repo_comments
+    periods: d,w,m,q,y
+    aggregate: 1,3,7
+    skip: m7,q3,q7,y3,y7
+  - name: Repository commenters
+    series_name_or_func: multi_row_single_column
+    sql: repo_commenters
+    periods: d,w,m,q,y
+    aggregate: 1,3,7
+    skip: m7,q3,q7,y3,y7
+  - name: New pull requests opened per repository
+    series_name_or_func: multi_row_single_column
+    sql: new_prs
+    periods: d,w,m,q,y
+    aggregate: 1,3,7
+    skip: m7,q3,q7,y3,y7
+  - name: Pull requests unique authors per repository
+    series_name_or_func: multi_row_single_column
+    sql: prs_authors
+    periods: d,w,m,q,y
+    aggregate: 1,3,7
+    skip: m7,q3,q7,y3,y7
+  - name: PRs merged per repo
+    series_name_or_func: multi_row_single_column
+    sql: prs_merged
+    periods: d,w,m,q,y
+    aggregate: 1,7
+    skip: w7,m7,q7,y7
+    multi_value: true
+  - name: PRs approved and awaiting approval
+    series_name_or_func: multi_row_multi_column
+    sql: prs_state
+    periods: d,w,m,q,y
+    aggregate: 1,7
+    skip: d,w7,m7,q7,y7
+    multi_value: true
+    escape_value_name: true
+  - name: Companies velocity
+    series_name_or_func: multi_row_multi_column
+    sql: company_activity
+    periods: d,w,m,q,y
+    aggregate: 1,7
+    skip: w7,m7,q7,y7
+    multi_value: true
+  - name: Number of companies and developers contributing
+    series_name_or_func: multi_row_multi_column
+    sql: num_stats
+    periods: d,w,m,q
+    aggregate: 3,4,6,7,14
+    skip: d3,d4,d6,w3,w6,w7,w14,m7,m14,q3,q6,q7,q14
+  - name: GitHub activity
+    series_name_or_func: events_h
+    sql: events
+    periods: h
