@@ -1,2 +1,2 @@
 #!/bin/sh
-GHA2DB_LOCAL=1 GHA2DB_PROJECT=prometheus PG_DB=prometheus IDB_DB=prometheus ./gha2db_sync
+GHA2DB_LOCAL=1 GHA2DB_PROJECT=grpc PG_DB=grpc IDB_DB=grpc ./gha2db_sync
