@@ -54,6 +54,7 @@ create table session(
   primary key(key)
 );
 ```
+- `grant all privileges on table "session" TO gha_admin;`
 - Edit /etc/grafana.[[project]]/grafana.ini, add the following (disable cookie mode):
 - `;cookie_name = ...`
 - Your password should NOT contain # or ;, because Grafana is unable to escape it correctly.
