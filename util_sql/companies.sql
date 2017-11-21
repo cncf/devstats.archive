@@ -1,6 +1,8 @@
 select
-  -- string_agg(sub.name, ',') from (
-  sub.name from (
+  sub.name,
+  sub.acnt,
+  sub.ecnt
+from (
   select c.name as name,
     count(distinct e.actor_id) as acnt,
     count(distinct e.id) as ecnt
