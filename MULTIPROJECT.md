@@ -57,6 +57,7 @@ create table session(
 - Edit /etc/grafana.[[project]]/grafana.ini, add the following (disable cookie mode):
 - `;cookie_name = ...`
 - Your password should NOT contain # or ;, because Grafana is unable to escape it correctly.
+- To change password do: `sudo -u postgres psql` and then `ALTER ROLE gha_admin WITH PASSWORD 'new_pwd';`.
 ```
 provider = postgres
 provider_config = user=gha_admin host=127.0.0.1 port=5432 dbname=grafana_sessions sslmode=disable password=...
