@@ -37,3 +37,37 @@ instance_name = {{project}}.cncftest.io
 cookie_name = {{project}}_grafana_sess
 ```
 - Remember to set those values differently on prod and test servers.
+
+# Grafana sessions in Postgres
+
+To enable storing Grafana session in Postgres database do (setting cookie name is not enough):
+- `sudo -u postgres psql`
+- `create database grafana_sessions;`
+- `grant all privileges on database "grafana_sessions" to gha_admin;`
+- `\q'
+- `sudo -u postgres psql grafana_sessions`
+```
+create table session(
+  key char(16) not null,
+  data bytea,
+  expiry integer not null,
+  primary key(key)
+);
+```
+- Edit /etc/grafana.[[project]]/grafana.ini, add the following (disable cookie mode):
+- `;cookie_name = ...`
+- Your password should NOT contain # or ;, because Grafana is unable to escape it correctly.
+```
+provider = postgres
+provider_config = user=gha_admin host=127.0.0.1 port=5432 dbname=grafana_sessions sslmode=disable password=...
+```
+- If You are adding sessions to dockerized Grafana instance You need to set hostname `172.17.0.1`.
+- This is sometimes tricky to see why connection to Postgres fail. To be able to debu it do:
+- `source /etc/default/grafana-server`
+- `cd /usr/share/grafana`
+- `/usr/sbin/grafana-server --config=${CONF_FILE} --pidfile=${PID_FILE_DIR}/grafana-server.pid cfg:default.paths.logs=${LOG_DIR} cfg:default.paths.data=${DATA_DIR} cfg:default.paths.plugins=${PLUGINS_DIR}`
+- To see error logs of dockerized Grafana do:
+- `docker logs projectname_grafana`
+- Something like this: `panic: pq: no pg_hba.conf entry for host "172.17.0.2", user "gha_admin", database "grafana_sessions"` mean that You need to add:
+- Add `host all all 172.17.0.0/24 md5` to your `/etc/postgresql/X.Y/main/pg_hba.conf` to allow all dockerized Grafanas to acces Postgres (from 172.17.0.xyz) address.
+- `service postgresql restart`
