@@ -157,6 +157,10 @@ Detailed usage is here [USAGE](https://github.com/cncf/devstats/blob/master/USAG
 
 Please see [metrics](https://github.com/cncf/devstats/blob/master/METRICS.md) to see how to add new metrics.
 
+# Adding new projects
+
+To add new project follow [adding new project](https://github.com/cncf/devstats/blob/master/ADDING_NEW_PROJECT.md) instructions.
+
 # Database structure details
 
 The main idea is that we divide tables into 2 groups:
