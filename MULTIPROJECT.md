@@ -71,4 +71,5 @@ provider_config = user=gha_admin host=127.0.0.1 port=5432 dbname=grafana_session
 - `docker logs projectname_grafana`
 - Something like this: `panic: pq: no pg_hba.conf entry for host "172.17.0.2", user "gha_admin", database "grafana_sessions"` mean that You need to add:
 - Add `host all all 172.17.0.0/24 md5` to your `/etc/postgresql/X.Y/main/pg_hba.conf` to allow all dockerized Grafanas to acces Postgres (from 172.17.0.xyz) address.
+- You also need to add: `listen_addresses = '*'` to `/etc/postgresql/X.Y/main/postgresql.conf`.
 - `service postgresql restart`
