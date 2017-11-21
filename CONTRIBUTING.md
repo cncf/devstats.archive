@@ -14,3 +14,6 @@ Please see [Tests](https://github.com/cncf/devstats/blob/master/TESTING.md)
 
 # Vulnerabilities
 Please use GitHub [issues](https://github.com/cncf/devstats/issues) to report any vulnerability found.
+
+# Adding new project
+To add new project follow [adding new project](https://github.com/cncf/devstats/blob/master/ADDING_NEW_PROJECT.md) instructions.

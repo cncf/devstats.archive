@@ -40,7 +40,6 @@ update gha_repos set repo_group = 'Clients' where name in (
 
 update gha_repos set repo_group = 'Apps' where name in (
   'kubernetes/kubectl',
-  'kubernetes/helm',
   'kubernetes/charts',
   'kubernetes/application-images',
   'kubernetes/examples',
