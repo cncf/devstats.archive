@@ -3,6 +3,7 @@ package devstats
 import (
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/lib/pq"
 )
@@ -10,8 +11,9 @@ import (
 // FatalOnError displays error message (if error present) and exits program
 func FatalOnError(err error) string {
 	if err != nil {
-		Printf("Error:\n%v\nStacktrace:\n", err)
-		fmt.Fprintf(os.Stderr, "Error:\n%v\nStacktrace:\n", err)
+		tm := time.Now()
+		Printf("Error(time=%+v):\n%v\nStacktrace:\n", tm, err)
+		fmt.Fprintf(os.Stderr, "Error(time=%+v):\n%v\nStacktrace:\n", tm, err)
 		switch e := err.(type) {
 		case *pq.Error:
 			errName := e.Code.Name()
