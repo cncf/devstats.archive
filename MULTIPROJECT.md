@@ -42,10 +42,11 @@ cookie_name = {{project}}_grafana_sess
 
 To enable storing Grafana session in Postgres database do (setting cookie name is not enough):
 - `sudo -u postgres psql`
-- `create database grafana_sessions;`
-- `grant all privileges on database "grafana_sessions" to gha_admin;`
+- `create database projectname_grafana_sessions;`
+- `grant all privileges on database "projectname_grafana_sessions" to gha_admin;`
 - `\q'
-- `sudo -u postgres psql grafana_sessions`
+- You need to do the for all projects. Replace projectname withcurrent project.
+- `sudo -u postgres psql projectname_grafana_sessions`
 ```
 create table session(
   key char(16) not null,
@@ -54,15 +55,14 @@ create table session(
   primary key(key)
 );
 ```
-- This table is also saved as `util_sql/grafana_session_table.sql`, so You can use: `sudo -u postgres psql grafana_sessions < util_sql/grafana_session_table.sql`.
 - `grant all privileges on table "session" to gha_admin;`
-- Edit /etc/grafana.[[project]]/grafana.ini, add the following (disable cookie mode):
-- `;cookie_name = ...`
+- This table and grant permission is also saved as `util_sql/grafana_session_table.sql`, so You can use: `sudo -u postgres psql projectname_grafana_sessions < util_sql/grafana_session_table.sql`.
+- You need to do the for all projects. Replace projectname withcurrent project.
 - Your password should NOT contain # or ;, because Grafana is unable to escape it correctly.
 - To change password do: `sudo -u postgres psql` and then `ALTER ROLE gha_admin WITH PASSWORD 'new_pwd';`.
 ```
 provider = postgres
-provider_config = user=gha_admin host=127.0.0.1 port=5432 dbname=grafana_sessions sslmode=disable password=...
+provider_config = user=gha_admin host=127.0.0.1 port=5432 dbname=projectname_grafana_sessions sslmode=disable password=...
 ```
 - If You are adding sessions to dockerized Grafana instance You need to set hostname `172.17.0.1`.
 - This is sometimes tricky to see why connection to Postgres fail. To be able to debu it do:
@@ -71,7 +71,7 @@ provider_config = user=gha_admin host=127.0.0.1 port=5432 dbname=grafana_session
 - `/usr/sbin/grafana-server --config=${CONF_FILE} --pidfile=${PID_FILE_DIR}/grafana-server.pid cfg:default.paths.logs=${LOG_DIR} cfg:default.paths.data=${DATA_DIR} cfg:default.paths.plugins=${PLUGINS_DIR}`
 - To see error logs of dockerized Grafana do:
 - `docker logs projectname_grafana`
-- Something like this: `panic: pq: no pg_hba.conf entry for host "172.17.0.2", user "gha_admin", database "grafana_sessions"` mean that You need to add:
+- Something like this: `panic: pq: no pg_hba.conf entry for host "172.17.0.2", user "gha_admin", database "projectname_grafana_sessions"` mean that You need to add:
 - Add `host all all 172.17.0.0/24 md5` to your `/etc/postgresql/X.Y/main/pg_hba.conf` to allow all dockerized Grafanas to acces Postgres (from 172.17.0.xyz) address.
 - You also need to add: `listen_addresses = '*'` to `/etc/postgresql/X.Y/main/postgresql.conf`.
 - `service postgresql restart`
