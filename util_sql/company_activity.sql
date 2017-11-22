@@ -12,7 +12,7 @@ from (
   select
     affs.company_name as company,
     count(distinct ev.id) as activity,
-    count(distinct ev.dup_actor_login) as authors,
+    count(distinct ev.actor_id) as authors,
     sum(case ev.type when 'IssuesEvent' then 1 else 0 end) as issues,
     sum(case ev.type when 'PullRequestEvent' then 1 else 0 end) as prs,
     sum(case ev.type when 'PushEvent' then 1 else 0 end) as commits,
@@ -32,7 +32,7 @@ from (
       'PullRequestReviewCommentEvent', 'PushEvent', 'PullRequestEvent',
       'IssuesEvent', 'IssueCommentEvent', 'CommitCommentEvent'
     )
-    and dup_actor_login not in (
+    and ev.dup_actor_login not in (
       'googlebot', 'k8s-ci-robot', 'k8s-merge-robot', 'k8s-bot',
       'k8s-teamcity-mesosphere', 'k8s-reviewable', 'k8s-cherrypick-bot',
       'k8s-publish-robot'

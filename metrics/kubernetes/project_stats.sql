@@ -132,7 +132,7 @@ where
   and dup_actor_login not like '%-robot'
 union select 'project_stats,' || r.repo_group as repo_group,
   'Commenters' as name,
-  count(distinct c.dup_actor_login) as value
+  count(distinct c.dup_actor_id) as value
 from
   gha_comments c,
   gha_repos r
@@ -148,7 +148,7 @@ group by
   r.repo_group
 union select 'project_stats,All' as repo_group,
   'Commenters' as name,
-  count(distinct dup_actor_login) as value
+  count(distinct dup_actor_id) as value
 from
   gha_comments
 where

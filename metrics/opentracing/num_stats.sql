@@ -1,8 +1,8 @@
 select
   'num_stats;All;companies,developers,unknowns' as name,
   count(distinct affs.company_name) as n_companies,
-  count(distinct ev.dup_actor_login) as n_authors,
-  count(distinct ev.dup_actor_login) filter (where affs.company_name is null) as n_unknown_authors
+  count(distinct ev.actor_id) as n_authors,
+  count(distinct ev.actor_id) filter (where affs.company_name is null) as n_unknown_authors
 from
   gha_events ev
 left join
@@ -20,8 +20,8 @@ where
   )
 union select 'num_stats;' || r.repo_group || ';companies,developers,unknowns' as name,
   count(distinct affs.company_name) as n_companies,
-  count(distinct ev.dup_actor_login) as n_authors,
-  count(distinct ev.dup_actor_login) filter (where affs.company_name is null) as n_unknown_authors
+  count(distinct ev.actor_id) as n_authors,
+  count(distinct ev.actor_id) filter (where affs.company_name is null) as n_unknown_authors
 from
   gha_repos r,
   gha_events ev
