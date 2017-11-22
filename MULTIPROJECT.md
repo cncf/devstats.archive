@@ -54,7 +54,8 @@ create table session(
   primary key(key)
 );
 ```
-- `grant all privileges on table "session" TO gha_admin;`
+- This table is also saved as `util_sql/grafana_session_table.sql`, so You can use: `sudo -u postgres psql grafana_sessions < util_sql/grafana_session_table.sql`.
+- `grant all privileges on table "session" to gha_admin;`
 - Edit /etc/grafana.[[project]]/grafana.ini, add the following (disable cookie mode):
 - `;cookie_name = ...`
 - Your password should NOT contain # or ;, because Grafana is unable to escape it correctly.
