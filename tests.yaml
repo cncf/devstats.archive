@@ -1082,6 +1082,51 @@ projects:
             - 24
             - 48
         data: KubernetesFirstNonAuthorActivityMetric
+      - metric: project_stats
+        additional_setup_funcs:
+          - SetDates
+        additional_setup_args:
+          - "gha_commits;dup_created_at;now()-'1h'::interval,\
+             gha_events;created_at;now()-'1h'::interval,\
+             gha_comments;created_at;now()-'1h'::interval,\
+             gha_issues;created_at;now()-'1h'::interval"
+        n: 1
+        period: 1 month
+        expected:
+          - ['project_stats,All', Commenters, 3]
+          - ['project_stats,Group1', Commenters, 2]
+          - ['project_stats,Group2', Commenters, 1]
+          - ['project_stats,All', Comments, 3]
+          - ['project_stats,Group1', Comments, 2]
+          - ['project_stats,Group2', Comments, 1]
+          - ['project_stats,All', Commit commenters, 1]
+          - ['project_stats,Group2', Commit commenters, 1]
+          - ['project_stats,All', Commits, 4]
+          - ['project_stats,Group1', Commits, 2]
+          - ['project_stats,Group2', Commits, 1]
+          - ['project_stats,All', Committers, 1]
+          - ['project_stats,Group1', Committers, 1]
+          - ['project_stats,All', Events, 8]
+          - ['project_stats,Group1', Events, 4]
+          - ['project_stats,Group2', Events, 2]
+          - ['project_stats,All', Forkers, 1]
+          - ['project_stats,Group1', Forkers, 1]
+          - ['project_stats,All', Issue commenters, 1]
+          - ['project_stats,All', Issue creators, 1]
+          - ['project_stats,Group1', Issues, 2]
+          - ['project_stats,All', Issues, 2]
+          - ['project_stats,All', PR creators, 1]
+          - ['project_stats,Group2', PR creators, 1]
+          - ['project_stats,Group1', PR reviewers, 1]
+          - ['project_stats,All', PR reviewers, 1]
+          - ['project_stats,All', PRs, 2]
+          - ['project_stats,Group2', PRs, 1]
+          - ['project_stats,All', Repositories, 4]
+          - ['project_stats,Group1', Repositories, 2]
+          - ['project_stats,Group2', Repositories, 1]
+          - ['project_stats,All', Watchers, 1]
+          - ['project_stats,Group1', Watchers, 1]
+        data: KubernetesProjectStatsMetric
       - metric: hist_reviewers
         additional_setup_funcs:
           - SetDates
@@ -1241,6 +1286,44 @@ projects:
             - 2
         data: KubernetesTopCommentersMetric
 data:
+  KubernetesProjectStatsMetric:
+    # id, name, org_id, org_login, repo_group
+    repos:
+      - [1, R1, null, null, Group1]
+      - [2, R2, null, null, Group1]
+      - [3, R3, null, null, Group2]
+      - [4, R4, null, null, null]
+    # sha, event_id, author_name, message, dup_actor_id, dup_actor_login,
+    # dup_repo_id, dup_repo_name, dup_type, dup_created_at
+    commits:
+      - [c6da89b8f226d8e24917d24bdf42df588a23a2a0, 1, A1, MSG1, 1, A1, 4, R4, PushEvent, '1980-01-01T12:00:00Z']
+      - [c6da89b8f226d8e24917d24bdf42df588a23a2a7, 2, A2, MSG2, 2, A2, 3, R3, PushEvent, '1980-01-01T12:00:00Z']
+      - [c6da89b8f226d8e24917d24bdf42df588a23a2a8, 3, A3, MSG3, 3, A3, 2, R2, PushEvent, '1980-01-01T12:00:00Z']
+      - [c6da89b8f226d8e24917d24bdf42df588a23a2af, 4, A4, MSG4, 4, A4, 1, R1, PushEvent, '1980-01-01T12:00:00Z']
+    # eid, etype, aid, rid, public, created_at, aname, rname, orgid
+    events:
+      - [1, IssuesEvent, 1, 4, true, '1980-01-01T12:00:00Z', A1, R4, null]
+      - [2, PullRequestEvent, 2, 3, true, '1980-01-01T12:00:00Z', A2, R3, null]
+      - [3, PushEvent, 3, 2, true, '1980-01-01T12:00:00Z', A3, R2, null]
+      - [4, PullRequestReviewCommentEvent, 4, 1, true, '1980-01-01T12:00:00Z', A4, R1, null]
+      - [5, IssueCommentEvent, 5, 4, true, '1980-01-01T12:00:00Z', A5, R4, null]
+      - [6, CommitCommentEvent, 6, 3, true, '1980-01-01T12:00:00Z', A6, R3, null]
+      - [7, WatchEvent, 7, 2, true, '1980-01-01T12:00:00Z', A7, R2, null]
+      - [8, ForkEvent, 8, 1, true, '1980-01-01T12:00:00Z', A8, R1, null]
+    # id, event_id, body, created_at, user_id, repo_id, repo_name, actor_id,
+    # actor_login, type
+    comments:
+      - [1, 4, Com1, '1980-01-01T12:00:00Z', 4, 1, R1, 4, A4, PullRequestReviewCommentEvent]
+      - [2, 5, Com2, '1980-01-01T12:00:00Z', 3, 2, R2, 3, A3, IssueCommentEvent]
+      - [3, 6, Com3, '1980-01-01T12:00:00Z', 2, 3, R3, 2, A2, CommitCommentEvent]
+    # id, event_id, assignee_id, body, closed_at, created_at, number, state,
+    # title, updated_at, user_id, dup_actor_id, dup_actor_login, dup_repo_id,
+    # dup_repo_name, dup_type, is_pull_request
+    issues:
+      - [1, 1, 0, body1, null, '1980-01-01T12:00:00Z', 1, open, pr1, '1980-01-01T12:00:00Z', 0, 1, A1, 4, R4, PullRequestEvent, true]
+      - [2, 2, 0, body2, null, '1980-01-01T12:00:00Z', 2, open, pr2, '1980-01-01T12:00:00Z', 0, 2, A2, 3, R3, PullRequestEvent, true]
+      - [3, 3, 0, body3, null, '1980-01-01T12:00:00Z', 3, open, issue1, '1980-01-01T12:00:00Z', 0, 3, A3, 2, R2, IssuesEvent, false]
+      - [4, 4, 0, body4, null, '1980-01-01T12:00:00Z', 4, open, issue2, '1980-01-01T12:00:00Z', 0, 4, A4, 1, R1, IssuesEvent, false]
   KubernetesFirstNonAuthorActivityMetric:
     # id, name, org_id, org_login, repo_group
     repos:

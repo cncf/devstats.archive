@@ -209,6 +209,15 @@ func dataForMetricTestCase(con *sql.DB, ctx *lib.Ctx, testMetric *metricTestCase
 				}
 			}
 		}
+		commits, ok := data["commits"]
+		if ok {
+			for _, commit := range commits {
+				err = addCommit(con, ctx, commit...)
+				if err != nil {
+					return
+				}
+			}
+		}
 		affiliations, ok := data["affiliations"]
 		if ok {
 			for _, affiliation := range affiliations {
@@ -551,6 +560,41 @@ func addText(con *sql.DB, ctx *lib.Ctx, args ...interface{}) (err error) {
 			"repo_id, repo_name, actor_id, actor_login, type"+
 			") "+lib.NValues(8),
 		args...,
+	)
+	return
+}
+
+// Add commit
+// sha, event_id, author_name, message, dup_actor_id, dup_actor_login,
+// dup_repo_id, dup_repo_name, dup_type, dup_created_at
+func addCommit(con *sql.DB, ctx *lib.Ctx, args ...interface{}) (err error) {
+	if len(args) != 10 {
+		err = fmt.Errorf("addCommit: expects 10 variadic parameters")
+		return
+	}
+
+	// New args
+	newArgs := lib.AnyArray{
+		args[0], // sha
+		args[1], // event_id
+		args[2], // author_name
+		args[3], // message
+		true,    // is_distinct
+		args[4], // dup_actor_id
+		args[5], // dup_actor_login
+		args[6], // dup_repo_id
+		args[7], // dup_repo_name
+		args[8], // dup_type
+		args[9], // dup_created_at
+	}
+	_, err = lib.ExecSQL(
+		con,
+		ctx,
+		"insert into gha_commits("+
+			"sha, event_id, author_name, message, is_distinct, "+
+			"dup_actor_id, dup_actor_login, dup_repo_id, dup_repo_name, dup_type, dup_created_at"+
+			") "+lib.NValues(11),
+		newArgs...,
 	)
 	return
 }
