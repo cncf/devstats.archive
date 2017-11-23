@@ -43,6 +43,10 @@ They are defined here: [repo_groups.sql](https://github.com/cncf/devstats/blob/m
 34) All need rebase PRs dashboard: [all_prs_rebase.sql](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/all_prs_rebase.sql), [all_need_rebase_prs.json](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/all_need_rebase_prs.json), [view](https://k8s.devstats.cncf.io/dashboard/db/all-need-rebase-prs?orgId=1).
 35) Issues age dashboard: [issues_age.sql](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/issues_age.sql), [issues_age.json](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/issues_age.json), [view](https://k8s.devstats.cncf.io/dashboard/db/issues-age?orgId=1).
 36) Suggested approvers dashboard [other_approver.sql](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/other_approver.sql), [suggested_approvers.json](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/suggested_approvers.json), [view](https://k8s.devstats.cncf.io/dashboard/db/suggested-approvers?orgId=1).
+37) Project statistics dashboard [project_stats.sql](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/project_stats.sql), [project_statistics.json](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/project_statistics.json), [view](https://k8s.devstats.cncf.io/dashboard/db/project-statistics?orgId=1).
+
+# Index dashboard showing all projects
+1) All projects dashboard [all_projects.json](https://github.com/cncf/devstats/blob/master/grafana/dashboards/all_projects.json), [view](https://k8s.devstats.cncf.io/dashboard/db/all-projects?orgId=1).
 
 All of them works live on [k8s.devstats.cncf.io](https://k8s.devstats.cncf.io) with auto `gha2db_sync` tool running.
 
