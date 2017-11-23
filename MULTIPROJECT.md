@@ -31,16 +31,18 @@ b415070c6aa8        grafana/grafana:master   "/run.sh"           19 minutes ago 
 - Instead of restarting the service via `service grafana-server restart` You need to restart docker conatiner via: `./grafana/prometheus/docker_grafana_restart.sh`.
 - All standard Grafana folders are mapped into grafana.prometheus equivalents accessible on host to configure grafana inside docker container.
 - Evereywhere when grafana server restart is needed, you should restart docker container instead.
-- You should set instance name and cookie name (different for all dockerized grafanas): `vi /etc/grafana.{{project}}/grafana.ini`:
+- You should set instance name and all 3 cookie names (different for all dockerized grafanas): `vi /etc/grafana.{{project}}/grafana.ini`:
 ```
 instance_name = {{project}}.cncftest.io
 cookie_name = {{project}}_grafana_sess
+cookie_username = {{project}}_grafana_user_test
+cookie_remember_name = {{project}}_grafana_remember_test
 ```
 - Remember to set those values differently on prod and test servers.
 
 # Grafana sessions in Postgres
 
-To enable storing Grafana session in Postgres database do (setting cookie name is not enough):
+To enable storing Grafana session in Postgres database do (setting cookie names is not enough):
 - `sudo -u postgres psql`
 - `create database projectname_grafana_sessions;`
 - `grant all privileges on database "projectname_grafana_sessions" to gha_admin;`
