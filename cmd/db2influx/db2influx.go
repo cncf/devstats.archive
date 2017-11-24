@@ -10,6 +10,8 @@ import (
 	"time"
 
 	lib "devstats"
+
+	client "github.com/influxdata/influxdb/client/v2"
 )
 
 // valueDescription - return string description for given float value
@@ -288,7 +290,19 @@ func workerThread(ch chan bool, ctx *lib.Ctx, seriesNameOrFunc, sqlQuery, period
 	}
 }
 
-func db2influxHistogram(ctx *lib.Ctx, seriesNameOrFunc, sqlQuery, interval, intervalAbbr string, nIntervals int) {
+// Return suffixes used for quick ranges between annotations and last periods
+func getQuickRanges(ic *client.Client, ctx *lib.Ctx) (ret []string) {
+	res := lib.QueryIDB(*ic, ctx, "show tag values with key = quick_ranges_data")
+	if len(res) < 1 || len(res[0].Series) < 1 {
+		return
+	}
+	for _, val := range res[0].Series[0].Values {
+		ret = append(ret, val[1].(string))
+	}
+	return
+}
+
+func db2influxHistogram(ctx *lib.Ctx, seriesNameOrFunc, sqlQuery, interval, intervalAbbr string, nIntervals int, annotationsRanges, skipPast bool) {
 	// Connect to Postgres DB
 	sqlc := lib.PgConn(ctx)
 	defer sqlc.Close()
@@ -300,13 +314,47 @@ func db2influxHistogram(ctx *lib.Ctx, seriesNameOrFunc, sqlQuery, interval, inte
 	// Get BatchPoints
 	bp := lib.IDBBatchPoints(ctx, &ic)
 
-	// Prepare SQL query
-	dbInterval := fmt.Sprintf("%d %s", nIntervals, interval)
-	if interval == lib.Quarter {
-		dbInterval = fmt.Sprintf("%d month", nIntervals*3)
+	// If using annotations ranges, then get their values
+	if annotationsRanges {
+		// Get Quick Ranges from IDB (it is filled by annotations command)
+		quickRanges := getQuickRanges(&ic, ctx)
+		if ctx.Debug > 0 {
+			lib.Printf("Quick ranges: %+v\n", quickRanges)
+		}
+		found := false
+		for _, data := range quickRanges {
+			ary := strings.Split(data, ";")
+			sfx := ary[0]
+			if intervalAbbr == sfx {
+				found = true
+				lib.Printf("Found quick range: %+v\n", ary)
+				period := ary[1]
+				from := ary[2]
+				to := ary[3]
+				// We can skip past data sometimes
+				if skipPast && period == "" {
+					dtTo := lib.TimeParseAny(to)
+					prevHour := lib.PrevHourStart(time.Now())
+					if dtTo.Before(prevHour) {
+						lib.Printf("Skipping past quick range: %v - %v\n", from, to)
+						return
+					}
+				}
+				sqlQuery = lib.PrepareQuickRangeQuery(sqlQuery, period, from, to)
+			}
+		}
+		if !found {
+			lib.FatalOnError(fmt.Errorf("quick range not found: '%s' known quick ranges: %+v", intervalAbbr, quickRanges))
+		}
+	} else {
+		// Prepare SQL query
+		dbInterval := fmt.Sprintf("%d %s", nIntervals, interval)
+		if interval == lib.Quarter {
+			dbInterval = fmt.Sprintf("%d month", nIntervals*3)
+		}
+		sqlQuery = strings.Replace(sqlQuery, "{{period}}", dbInterval, -1)
+		sqlQuery = strings.Replace(sqlQuery, "{{n}}", strconv.Itoa(nIntervals)+".0", -1)
 	}
-	sqlQuery = strings.Replace(sqlQuery, "{{period}}", dbInterval, -1)
-	sqlQuery = strings.Replace(sqlQuery, "{{n}}", strconv.Itoa(nIntervals)+".0", -1)
 
 	// Execute SQL query
 	rows := lib.QuerySQLWithErr(sqlc, ctx, sqlQuery)
@@ -416,7 +464,7 @@ func db2influxHistogram(ctx *lib.Ctx, seriesNameOrFunc, sqlQuery, interval, inte
 	}
 }
 
-func db2influx(seriesNameOrFunc, sqlFile, from, to, intervalAbbr string, hist, multivalue, escapeValueName bool, desc string) {
+func db2influx(seriesNameOrFunc, sqlFile, from, to, intervalAbbr string, hist, multivalue, escapeValueName, annotationsRanges, skipPast bool, desc string) {
 	// Environment context parse
 	var ctx lib.Ctx
 	ctx.Init()
@@ -427,10 +475,19 @@ func db2influx(seriesNameOrFunc, sqlFile, from, to, intervalAbbr string, hist, m
 	sqlQuery := string(bytes)
 
 	// Process interval
-	interval, nIntervals, intervalStart, nextIntervalStart, prevIntervalStart := lib.GetIntervalFunctions(intervalAbbr)
+	interval, nIntervals, intervalStart, nextIntervalStart, prevIntervalStart := lib.GetIntervalFunctions(intervalAbbr, annotationsRanges)
 
 	if hist {
-		db2influxHistogram(&ctx, seriesNameOrFunc, sqlQuery, interval, intervalAbbr, nIntervals)
+		db2influxHistogram(
+			&ctx,
+			seriesNameOrFunc,
+			sqlQuery,
+			interval,
+			intervalAbbr,
+			nIntervals,
+			annotationsRanges,
+			skipPast,
+		)
 		return
 	}
 
@@ -507,6 +564,8 @@ func main() {
 	hist := false
 	multivalue := false
 	escapeValueName := false
+	annotationsRanges := false
+	skipPast := false
 	desc := ""
 	if len(os.Args) > 6 {
 		opts := strings.Split(os.Args[6], ",")
@@ -529,11 +588,29 @@ func main() {
 		if _, ok := optMap["escape_value_name"]; ok {
 			escapeValueName = true
 		}
+		if _, ok := optMap["annotations_ranges"]; ok {
+			annotationsRanges = true
+		}
+		if _, ok := optMap["skip_past"]; ok {
+			skipPast = true
+		}
 		if d, ok := optMap["desc"]; ok {
 			desc = d
 		}
 	}
-	db2influx(os.Args[1], os.Args[2], os.Args[3], os.Args[4], os.Args[5], hist, multivalue, escapeValueName, desc)
+	db2influx(
+		os.Args[1],
+		os.Args[2],
+		os.Args[3],
+		os.Args[4],
+		os.Args[5],
+		hist,
+		multivalue,
+		escapeValueName,
+		annotationsRanges,
+		skipPast,
+		desc,
+	)
 	dtEnd := time.Now()
 	lib.Printf("Time: %v\n", dtEnd.Sub(dtStart))
 }

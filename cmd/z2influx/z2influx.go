@@ -69,7 +69,7 @@ func z2influx(series, from, to, intervalAbbr string, desc bool, values []string)
 	dTo := lib.TimeParseAny(to)
 
 	// Process interval
-	interval, _, intervalStart, nextIntervalStart, _ := lib.GetIntervalFunctions(intervalAbbr)
+	interval, _, intervalStart, nextIntervalStart, _ := lib.GetIntervalFunctions(intervalAbbr, false)
 
 	// Round dates to the given interval
 	dFrom = intervalStart(dFrom)

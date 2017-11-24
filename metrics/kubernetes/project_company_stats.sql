@@ -44,7 +44,7 @@ from (
       'PullRequestReviewCommentEvent', 'IssueCommentEvent',
       'CommitCommentEvent', 'ForkEvent', 'WatchEvent'
     )
-    and e.created_at >= now() - '{{period}}'::interval
+    and {{period:e.created_at}}
     and e.dup_actor_login not in ('googlebot')
     and e.dup_actor_login not like 'k8s-%'
     and e.dup_actor_login not like '%-bot'
@@ -62,7 +62,7 @@ from (
     e.actor_id = af.actor_id
     and af.dt_from <= e.created_at
     and af.dt_to > e.created_at
-    and e.created_at >= now() - '{{period}}'::interval
+    and {{period:e.created_at}}
   group by
     af.company_name
   union select 'Comments' as metric,
@@ -75,7 +75,7 @@ from (
     c.user_id = af.actor_id
     and af.dt_from <= c.created_at
     and af.dt_to > c.created_at
-    and c.created_at >= now() - '{{period}}'::interval
+    and {{period:c.created_at}}
     and c.dup_user_login not in ('googlebot')
     and c.dup_user_login not like 'k8s-%'
     and c.dup_user_login not like '%-bot'
@@ -92,7 +92,7 @@ from (
     c.user_id = af.actor_id
     and af.dt_from <= c.created_at
     and af.dt_to > c.created_at
-    and c.created_at >= now() - '{{period}}'::interval
+    and {{period:c.created_at}}
     and c.dup_user_login not in ('googlebot')
     and c.dup_user_login not like 'k8s-%'
     and c.dup_user_login not like '%-bot'
@@ -109,7 +109,7 @@ from (
     i.user_id = af.actor_id
     and af.dt_from <= i.created_at
     and af.dt_to > i.created_at
-    and i.created_at >= now() - '{{period}}'::interval
+    and {{period:i.created_at}}
     and i.is_pull_request = false
     and i.dup_user_login not in ('googlebot')
     and i.dup_user_login not like 'k8s-%'
@@ -127,7 +127,7 @@ from (
     i.user_id = af.actor_id
     and af.dt_from <= i.created_at
     and af.dt_to > i.created_at
-    and i.created_at >= now() - '{{period}}'::interval
+    and {{period:i.created_at}}
     and i.is_pull_request = true
     and i.dup_user_login not in ('googlebot')
     and i.dup_user_login not like 'k8s-%'
@@ -145,7 +145,7 @@ from (
     e.actor_id = af.actor_id
     and af.dt_from <= e.created_at
     and af.dt_to > e.created_at
-    and e.created_at >= now() - '{{period}}'::interval
+    and {{period:e.created_at}}
     and e.dup_actor_login not in ('googlebot')
     and e.dup_actor_login not like 'k8s-%'
     and e.dup_actor_login not like '%-bot'
@@ -158,7 +158,7 @@ from (
   from
     gha_commits c
   where
-    c.dup_created_at >= now() - '{{period}}'::interval
+    {{period:c.dup_created_at}}
     and c.dup_actor_login not in ('googlebot')
     and c.dup_actor_login not like 'k8s-%'
     and c.dup_actor_login not like '%-bot'
@@ -183,7 +183,7 @@ from (
       'PullRequestReviewCommentEvent', 'IssueCommentEvent',
       'CommitCommentEvent', 'ForkEvent', 'WatchEvent'
     )
-    and e.created_at >= now() - '{{period}}'::interval
+    and {{period:e.created_at}}
     and e.dup_actor_login not in ('googlebot')
     and e.dup_actor_login not like 'k8s-%'
     and e.dup_actor_login not like '%-bot'
@@ -196,14 +196,14 @@ from (
   from
     gha_events e
   where
-    e.created_at >= now() - '{{period}}'::interval
+    {{period:e.created_at}}
   union select 'Comments' as metric,
     'All' as company,
     count(distinct c.id) as value
   from
     gha_comments c
   where
-    c.created_at >= now() - '{{period}}'::interval
+    {{period:c.created_at}}
     and c.dup_user_login not in ('googlebot')
     and c.dup_user_login not like 'k8s-%'
     and c.dup_user_login not like '%-bot'
@@ -214,7 +214,7 @@ from (
   from
     gha_comments c
   where
-    c.created_at >= now() - '{{period}}'::interval
+    {{period:c.created_at}}
     and c.dup_user_login not in ('googlebot')
     and c.dup_user_login not like 'k8s-%'
     and c.dup_user_login not like '%-bot'
@@ -225,7 +225,7 @@ from (
   from
     gha_issues i
   where
-    i.created_at >= now() - '{{period}}'::interval
+    {{period:i.created_at}}
     and i.is_pull_request = false
     and i.dup_user_login not in ('googlebot')
     and i.dup_user_login not like 'k8s-%'
@@ -237,7 +237,7 @@ from (
   from
     gha_issues i
   where
-    i.created_at >= now() - '{{period}}'::interval
+    {{period:i.created_at}}
     and i.is_pull_request = true
     and i.dup_user_login not in ('googlebot')
     and i.dup_user_login not like 'k8s-%'
@@ -249,7 +249,7 @@ from (
   from
     gha_events e
   where
-    e.created_at >= now() - '{{period}}'::interval
+    {{period:e.created_at}}
     and e.dup_actor_login not in ('googlebot')
     and e.dup_actor_login not like 'k8s-%'
     and e.dup_actor_login not like '%-bot'

@@ -276,7 +276,7 @@ func AddNIntervals(dt time.Time, n int, nextIntervalStart, prevIntervalStart fun
 
 // GetIntervalFunctions - return interval name, interval number, interval start, next, prev function from interval abbr: h|d2|w3|m4|q|y
 // w3 = 3 weeks, q2 = 2 quarters, y = year (1), d7 = 7 days (not the same as w), m3 = 3 months (not the same as q)
-func GetIntervalFunctions(intervalAbbr string) (interval string, n int, intervalStart, nextIntervalStart, prevIntervalStart func(time.Time) time.Time) {
+func GetIntervalFunctions(intervalAbbr string, allowUnknown bool) (interval string, n int, intervalStart, nextIntervalStart, prevIntervalStart func(time.Time) time.Time) {
 	n = 1
 	switch strings.ToLower(intervalAbbr[0:1]) {
 	case "h":
@@ -310,9 +310,13 @@ func GetIntervalFunctions(intervalAbbr string) (interval string, n int, interval
 		nextIntervalStart = NextYearStart
 		prevIntervalStart = PrevYearStart
 	default:
-		Printf("Error:\nUnknown interval '%v'\n", intervalAbbr)
-		fmt.Fprintf(os.Stdout, "Error:\nUnknown interval '%v'\n", intervalAbbr)
-		os.Exit(1)
+		if !allowUnknown {
+			Printf("Error:\nUnknown interval '%v'\n", intervalAbbr)
+			fmt.Fprintf(os.Stdout, "Error:\nUnknown interval '%v'\n", intervalAbbr)
+			os.Exit(1)
+		} else {
+			return
+		}
 	}
 	lenIntervalAbbr := len(intervalAbbr)
 	if lenIntervalAbbr > 1 {
