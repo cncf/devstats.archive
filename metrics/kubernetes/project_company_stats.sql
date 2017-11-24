@@ -1,8 +1,9 @@
 select 
-  'project_company_stats,' || sub.name,
-  sub.value
+  'project_company_stats,' || sub.metric as metric,
+  sub.company as name,
+  sub.value as value
 from (
-  select 'Commits' as name,
+  select 'Commits' as metric,
     af.company_name as company,
     count(distinct c.sha) as value
   from
@@ -28,7 +29,7 @@ from (
       when 'CommitCommentEvent' then 'Commit commenters'
       when 'WatchEvent' then 'Watchers'
       when 'ForkEvent' then 'Forkers'
-    end as name,
+    end as metric,
     af.company_name as company,
     count(distinct e.actor_id) as value
   from
@@ -51,7 +52,7 @@ from (
   group by
     e.type,
     af.company_name
-  union select 'Repositories' as name,
+  union select 'Repositories' as metric,
     af.company_name as company,
     count(distinct e.repo_id) as value
   from
@@ -64,7 +65,7 @@ from (
     and e.created_at >= now() - '{{period}}'::interval
   group by
     af.company_name
-  union select 'Comments' as name,
+  union select 'Comments' as metric,
     af.company_name as company,
     count(distinct c.id) as value
   from
@@ -81,7 +82,7 @@ from (
     and c.dup_user_login not like '%-robot'
   group by
     af.company_name
-  union select 'Commenters' as name,
+  union select 'Commenters' as metric,
     af.company_name as company,
     count(distinct c.user_id) as value
   from
@@ -98,7 +99,7 @@ from (
     and c.dup_user_login not like '%-robot'
   group by
     af.company_name
-  union select 'Issues' as name,
+  union select 'Issues' as metric,
     af.company_name as company,
     count(distinct i.id) as value
   from
@@ -116,7 +117,7 @@ from (
     and i.dup_user_login not like '%-robot'
   group by
     af.company_name
-  union select 'PRs' as name,
+  union select 'PRs' as metric,
     af.company_name as company,
     count(distinct i.id) as value
   from
@@ -134,7 +135,7 @@ from (
     and i.dup_user_login not like '%-robot'
   group by
     af.company_name
-  union select 'Events' as name,
+  union select 'Events' as metric,
     af.company_name as company,
     count(e.id) as value
   from
@@ -152,4 +153,22 @@ from (
   group by
     af.company_name
   ) sub
+where
+  (sub.metric = 'Commenters' and sub.value >= 3)
+  or (sub.metric = 'Comments' and sub.value >= 5)
+  or (sub.metric = 'Events' and sub.value >= 10)
+  or (sub.metric = 'Forkers' and sub.value > 1)
+  or (sub.metric = 'Issue commenters' and sub.value > 1)
+  or (sub.metric = 'Issue creators' and sub.value > 1)
+  or (sub.metric = 'Issues' and sub.value > 1)
+  or (sub.metric = 'PR creators' and sub.value > 1)
+  or (sub.metric = 'PR reviewers' and sub.value > 1)
+  or (sub.metric = 'PRs' and sub.value > 1)
+  or (sub.metric = 'Repositories' and sub.value > 1)
+  or (sub.metric = 'Watchers' and sub.value > 2)
+  or (sub.metric in ('Commit commenters', 'Commits', 'Committers'))
+order by
+  metric asc,
+  value desc,
+  name asc
 ;
