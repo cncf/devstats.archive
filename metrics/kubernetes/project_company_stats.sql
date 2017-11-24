@@ -13,7 +13,7 @@ from (
     c.dup_actor_id = af.actor_id
     and af.dt_from <= c.dup_created_at
     and af.dt_to > c.dup_created_at
-    and c.dup_created_at >= now() - '{{period}}'::interval
+    and {{period:c.dup_created_at}}
     and c.dup_actor_login not in ('googlebot')
     and c.dup_actor_login not like 'k8s-%'
     and c.dup_actor_login not like '%-bot'
