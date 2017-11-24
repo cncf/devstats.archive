@@ -113,10 +113,10 @@ where
   c.created_at >= now() - '{{period}}'::interval
   and c.dup_repo_id = r.id
   and r.repo_group is not null
-  and c.dup_actor_login not in ('googlebot')
-  and c.dup_actor_login not like 'k8s-%'
-  and c.dup_actor_login not like '%-bot'
-  and c.dup_actor_login not like '%-robot'
+  and c.dup_user_login not in ('googlebot')
+  and c.dup_user_login not like 'k8s-%'
+  and c.dup_user_login not like '%-bot'
+  and c.dup_user_login not like '%-robot'
 group by
   r.repo_group
 union select 'project_stats,All' as repo_group,
@@ -126,13 +126,13 @@ from
   gha_comments
 where
   created_at >= now() - '{{period}}'::interval
-  and dup_actor_login not in ('googlebot')
-  and dup_actor_login not like 'k8s-%'
-  and dup_actor_login not like '%-bot'
-  and dup_actor_login not like '%-robot'
+  and dup_user_login not in ('googlebot')
+  and dup_user_login not like 'k8s-%'
+  and dup_user_login not like '%-bot'
+  and dup_user_login not like '%-robot'
 union select 'project_stats,' || r.repo_group as repo_group,
   'Commenters' as name,
-  count(distinct c.dup_actor_id) as value
+  count(distinct c.user_id) as value
 from
   gha_comments c,
   gha_repos r
@@ -140,23 +140,23 @@ where
   c.created_at >= now() - '{{period}}'::interval
   and c.dup_repo_id = r.id
   and r.repo_group is not null
-  and c.dup_actor_login not in ('googlebot')
-  and c.dup_actor_login not like 'k8s-%'
-  and c.dup_actor_login not like '%-bot'
-  and c.dup_actor_login not like '%-robot'
+  and c.dup_user_login not in ('googlebot')
+  and c.dup_user_login not like 'k8s-%'
+  and c.dup_user_login not like '%-bot'
+  and c.dup_user_login not like '%-robot'
 group by
   r.repo_group
 union select 'project_stats,All' as repo_group,
   'Commenters' as name,
-  count(distinct dup_actor_id) as value
+  count(distinct user_id) as value
 from
   gha_comments
 where
   created_at >= now() - '{{period}}'::interval
-  and dup_actor_login not in ('googlebot')
-  and dup_actor_login not like 'k8s-%'
-  and dup_actor_login not like '%-bot'
-  and dup_actor_login not like '%-robot'
+  and dup_user_login not in ('googlebot')
+  and dup_user_login not like 'k8s-%'
+  and dup_user_login not like '%-bot'
+  and dup_user_login not like '%-robot'
 union select 'project_stats,' || r.repo_group as repo_group,
   'Issues' as name,
   count(distinct i.id) as value
@@ -168,10 +168,10 @@ where
   and i.dup_repo_id = r.id
   and r.repo_group is not null
   and i.is_pull_request = false
-  and i.dup_actor_login not in ('googlebot')
-  and i.dup_actor_login not like 'k8s-%'
-  and i.dup_actor_login not like '%-bot'
-  and i.dup_actor_login not like '%-robot'
+  and i.dup_user_login not in ('googlebot')
+  and i.dup_user_login not like 'k8s-%'
+  and i.dup_user_login not like '%-bot'
+  and i.dup_user_login not like '%-robot'
 group by
   r.repo_group
 union select 'project_stats,All' as repo_group,
@@ -182,10 +182,10 @@ from
 where
   created_at >= now() - '{{period}}'::interval
   and is_pull_request = false
-  and dup_actor_login not in ('googlebot')
-  and dup_actor_login not like 'k8s-%'
-  and dup_actor_login not like '%-bot'
-  and dup_actor_login not like '%-robot'
+  and dup_user_login not in ('googlebot')
+  and dup_user_login not like 'k8s-%'
+  and dup_user_login not like '%-bot'
+  and dup_user_login not like '%-robot'
 union select 'project_stats,' || r.repo_group as repo_group,
   'PRs' as name,
   count(distinct i.id) as value
@@ -197,10 +197,10 @@ where
   and i.dup_repo_id = r.id
   and r.repo_group is not null
   and i.is_pull_request = true
-  and i.dup_actor_login not in ('googlebot')
-  and i.dup_actor_login not like 'k8s-%'
-  and i.dup_actor_login not like '%-bot'
-  and i.dup_actor_login not like '%-robot'
+  and i.dup_user_login not in ('googlebot')
+  and i.dup_user_login not like 'k8s-%'
+  and i.dup_user_login not like '%-bot'
+  and i.dup_user_login not like '%-robot'
 group by
   r.repo_group
 union select 'project_stats,All' as repo_group,
@@ -211,10 +211,10 @@ from
 where
   created_at >= now() - '{{period}}'::interval
   and is_pull_request = true
-  and dup_actor_login not in ('googlebot')
-  and dup_actor_login not like 'k8s-%'
-  and dup_actor_login not like '%-bot'
-  and dup_actor_login not like '%-robot'
+  and dup_user_login not in ('googlebot')
+  and dup_user_login not like 'k8s-%'
+  and dup_user_login not like '%-bot'
+  and dup_user_login not like '%-robot'
 union select 'project_stats,' || r.repo_group as repo_group,
   'Events' as name,
   count(e.id) as value
