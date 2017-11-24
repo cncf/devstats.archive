@@ -466,7 +466,7 @@ ALTER TABLE gha_pages OWNER TO gha_admin;
 
 CREATE TABLE gha_payloads (
     event_id bigint NOT NULL,
-    push_id integer,
+    push_id bigint,
     size integer,
     ref character varying(200),
     head character varying(40),

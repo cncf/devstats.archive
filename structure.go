@@ -204,7 +204,7 @@ func Structure(ctx *Ctx) {
 			CreateTable(
 				"gha_payloads("+
 					"event_id bigint not null primary key, "+
-					"push_id int, "+
+					"push_id bigint, "+
 					"size int, "+
 					"ref varchar(200), "+
 					"head varchar(40), "+
