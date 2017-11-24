@@ -11,6 +11,7 @@ import (
 
 	lib "devstats"
 
+	client "github.com/influxdata/influxdb/client/v2"
 	yaml "gopkg.in/yaml.v2"
 )
 
@@ -46,17 +47,18 @@ type metrics struct {
 
 // metric contain each metric data
 type metric struct {
-	Name             string `yaml:"name"`
-	Periods          string `yaml:"periods"`
-	SeriesNameOrFunc string `yaml:"series_name_or_func"`
-	MetricSQL        string `yaml:"sql"`
-	AddPeriodToName  bool   `yaml:"add_period_to_name"`
-	Histogram        bool   `yaml:"histogram"`
-	Aggregate        string `yaml:"aggregate"`
-	Skip             string `yaml:"skip"`
-	Desc             string `yaml:"desc"`
-	MultiValue       bool   `yaml:"multi_value"`
-	EscapeValueName  bool   `yaml:"escape_value_name"`
+	Name              string `yaml:"name"`
+	Periods           string `yaml:"periods"`
+	SeriesNameOrFunc  string `yaml:"series_name_or_func"`
+	MetricSQL         string `yaml:"sql"`
+	AddPeriodToName   bool   `yaml:"add_period_to_name"`
+	Histogram         bool   `yaml:"histogram"`
+	Aggregate         string `yaml:"aggregate"`
+	Skip              string `yaml:"skip"`
+	Desc              string `yaml:"desc"`
+	MultiValue        bool   `yaml:"multi_value"`
+	EscapeValueName   bool   `yaml:"escape_value_name"`
+	AnnotationsRanges bool   `yaml:"annotations_ranges"`
 }
 
 // projects contain list of project mappings to command line
@@ -297,6 +299,18 @@ func clearDBLogs(c *sql.DB, ctx *lib.Ctx) {
 	lib.ExecSQLWithErr(c, ctx, "delete from gha_logs where dt < now() - '"+ctx.ClearDBPeriod+"'::interval")
 }
 
+// Return suffixes used for quick ranges between annotations and last periods
+func getQuickRanges(ic *client.Client, ctx *lib.Ctx) (ret []string) {
+	res := lib.QueryIDB(*ic, ctx, "show tag values with key = quick_ranges_suffix")
+	if len(res) < 1 || len(res[0].Series) < 1 {
+		return
+	}
+	for _, val := range res[0].Series[0].Values {
+		ret = append(ret, val[1].(string))
+	}
+	return
+}
+
 func sync(ctx *lib.Ctx, args []string) {
 	// Strip function to be used by MapString
 	stripFunc := func(x string) string { return strings.TrimSpace(x) }
@@ -404,6 +418,33 @@ func sync(ctx *lib.Ctx, args []string) {
 		}
 		lib.Printf("Influx range: %s - %s\n", lib.ToYMDHDate(from), lib.ToYMDHDate(to))
 
+		// InfluxDB tags (repo groups template variable currently)
+		if ctx.ResetIDB || time.Now().Hour() == 0 {
+			lib.ExecCommand(ctx, []string{cmdPrefix + "idb_tags"}, nil)
+		} else {
+			lib.Printf("Skipping `idb_tags` recalculation, it is only computed once per day\n")
+		}
+
+		// Annotations
+		skipPast := true
+		if ctx.ResetIDB || time.Now().Hour() == 0 {
+			lib.ExecCommand(
+				ctx,
+				[]string{
+					cmdPrefix + "annotations",
+					lib.ToYMDHDate(from),
+				},
+				nil,
+			)
+			skipPast = false
+		} else {
+			lib.Printf("Skipping `annotations` recalculation, it is only computed once per day\n")
+		}
+
+		// Get Quick Ranges from IDB (it is filled by annotations command)
+		quickRanges := getQuickRanges(&ic, ctx)
+		lib.Printf("Quick ranges: %+v\n", quickRanges)
+
 		// Fill gaps in series
 		fillGapsInSeries(ctx, from, to)
 
@@ -436,11 +477,19 @@ func sync(ctx *lib.Ctx, args []string) {
 			if aggregate == "" {
 				aggregate = "1"
 			}
+			if metric.AnnotationsRanges {
+				extraParams = append(extraParams, "annotations_ranges")
+				periods = quickRanges
+				aggregate = "1"
+			}
 			aggregateArr := strings.Split(aggregate, ",")
 			skips := strings.Split(metric.Skip, ",")
 			skipMap := make(map[string]struct{})
 			for _, skip := range skips {
 				skipMap[skip] = struct{}{}
+			}
+			if skipPast {
+				extraParams = append(extraParams, "skip_past")
 			}
 			for _, aggrStr := range aggregateArr {
 				_, err := strconv.Atoi(aggrStr)
@@ -481,23 +530,6 @@ func sync(ctx *lib.Ctx, args []string) {
 				}
 			}
 		}
-
-		// InfluxDB tags (repo groups template variable currently)
-		if ctx.ResetIDB || time.Now().Hour() == 0 {
-			lib.ExecCommand(ctx, []string{cmdPrefix + "idb_tags"}, nil)
-		} else {
-			lib.Printf("Skipping `idb_tags` recalculation, it is only computed once per day\n")
-		}
-
-		// Annotations
-		lib.ExecCommand(
-			ctx,
-			[]string{
-				cmdPrefix + "annotations",
-				lib.ToYMDHDate(from),
-			},
-			nil,
-		)
 	}
 	lib.Printf("Sync success\n")
 }

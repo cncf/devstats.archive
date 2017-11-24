@@ -80,18 +80,19 @@ func makeAnnotations(sdt string) {
 
 	// Special ranges
 	periods := [][3]string{
-		{"d", "Day", "1 day"},
-		{"w", "Week", "1 week"},
-		{"d10", "10 Days", "10 days"},
-		{"m", "Month", "1 month"},
-		{"q", "Quarter", "3 months"},
-		{"y", "Year", "1 year"},
-		{"y10", "Decade", "10 years"},
+		{"d", "Last day", "1 day"},
+		{"w", "Last week", "1 week"},
+		{"d10", "Last 10 days", "10 days"},
+		{"m", "Last month", "1 month"},
+		{"q", "Last quarter", "3 months"},
+		{"y", "Last year", "1 year"},
+		{"y10", "Last decade", "10 years"},
 	}
 
 	// tags:
 	// suffix: will be used as InfluxDB series name suffix and Grafana drop-down value (non-dsplayed)
 	// name: will be used as Grafana drop-down value name
+	// data: is suffix;period;from;to
 	// period: only for special values listed here, last ... week, day, quarter, devade etc - will be passed to Postgres
 	// from: only filled when using annotations range - exact date from
 	// to: only filled when using annotations range - exact date to
@@ -101,15 +102,13 @@ func makeAnnotations(sdt string) {
 
 	// Add special periods
 	tagName := "quick_ranges"
-	tags[tagName+"_from"] = "-"
-	tags[tagName+"_to"] = "-"
 	tm := time.Now()
 
 	// Last "..." periods
 	for _, period := range periods {
 		tags[tagName+"_suffix"] = period[0]
 		tags[tagName+"_name"] = period[1]
-		tags[tagName+"_period"] = period[2]
+		tags[tagName+"_data"] = period[0] + ";" + period[2] + ";;"
 		if ctx.Debug > 0 {
 			lib.Printf(
 				"Series: %v: %+v\n",
@@ -125,19 +124,33 @@ func makeAnnotations(sdt string) {
 
 	// Add '(i) - (i+1)' annotation ranges
 	lastIndex := len(annotations.Annotations) - 1
-	tags[tagName+"_period"] = "-"
 	for index, annotation := range annotations.Annotations {
 		if !annotation.Date.After(dt) {
 			continue
 		}
 		if index == lastIndex {
-			continue
+			sfx := fmt.Sprintf("anno_%d_now", index)
+			tags[tagName+"_suffix"] = sfx
+			tags[tagName+"_name"] = fmt.Sprintf("%s - now", annotation.Title)
+			tags[tagName+"_data"] = fmt.Sprintf("%s;;%s;%s", sfx, lib.ToYMDHMSDate(annotation.Date), lib.ToYMDHMSDate(lib.NextDayStart(time.Now())))
+			if ctx.Debug > 0 {
+				lib.Printf(
+					"Series: %v: %+v\n",
+					tagName,
+					tags,
+				)
+			}
+			// Add batch point
+			pt := lib.IDBNewPointWithErr(tagName, tags, fields, tm)
+			bp.AddPoint(pt)
+			tm = tm.Add(time.Hour)
+			break
 		}
 		nextAnnotation := annotations.Annotations[index+1]
-		tags[tagName+"_suffix"] = fmt.Sprintf("anno_%d_%d", index, index+1)
+		sfx := fmt.Sprintf("anno_%d_%d", index, index+1)
+		tags[tagName+"_suffix"] = sfx
 		tags[tagName+"_name"] = fmt.Sprintf("%s - %s", annotation.Title, nextAnnotation.Title)
-		tags[tagName+"_from"] = lib.ToYMDHMSDate(annotation.Date)
-		tags[tagName+"_to"] = lib.ToYMDHMSDate(nextAnnotation.Date)
+		tags[tagName+"_data"] = fmt.Sprintf("%s;;%s;%s", sfx, lib.ToYMDHMSDate(annotation.Date), lib.ToYMDHMSDate(nextAnnotation.Date))
 		if ctx.Debug > 0 {
 			lib.Printf(
 				"Series: %v: %+v\n",

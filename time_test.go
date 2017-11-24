@@ -548,6 +548,7 @@ func TestGetIntervalFunctions(t *testing.T) {
 	// Test cases
 	var testCases = []struct {
 		periodAbbr        string
+		allowUnknown      bool
 		expectedPeriod    string
 		expectedN         int
 		expectedStart     func(time.Time) time.Time
@@ -555,6 +556,7 @@ func TestGetIntervalFunctions(t *testing.T) {
 		expectedPrevStart func(time.Time) time.Time
 	}{
 		{
+			allowUnknown:      false,
 			periodAbbr:        "h",
 			expectedPeriod:    "hour",
 			expectedN:         1,
@@ -563,6 +565,7 @@ func TestGetIntervalFunctions(t *testing.T) {
 			expectedPrevStart: lib.PrevHourStart,
 		},
 		{
+			allowUnknown:      false,
 			periodAbbr:        "d",
 			expectedPeriod:    "day",
 			expectedN:         1,
@@ -571,6 +574,7 @@ func TestGetIntervalFunctions(t *testing.T) {
 			expectedPrevStart: lib.PrevDayStart,
 		},
 		{
+			allowUnknown:      false,
 			periodAbbr:        "w",
 			expectedPeriod:    "week",
 			expectedN:         1,
@@ -579,6 +583,7 @@ func TestGetIntervalFunctions(t *testing.T) {
 			expectedPrevStart: lib.PrevWeekStart,
 		},
 		{
+			allowUnknown:      false,
 			periodAbbr:        "m",
 			expectedPeriod:    "month",
 			expectedN:         1,
@@ -587,6 +592,7 @@ func TestGetIntervalFunctions(t *testing.T) {
 			expectedPrevStart: lib.PrevMonthStart,
 		},
 		{
+			allowUnknown:      false,
 			periodAbbr:        "q",
 			expectedPeriod:    "quarter",
 			expectedN:         1,
@@ -595,6 +601,7 @@ func TestGetIntervalFunctions(t *testing.T) {
 			expectedPrevStart: lib.PrevQuarterStart,
 		},
 		{
+			allowUnknown:      false,
 			periodAbbr:        "y",
 			expectedPeriod:    "year",
 			expectedN:         1,
@@ -603,6 +610,7 @@ func TestGetIntervalFunctions(t *testing.T) {
 			expectedPrevStart: lib.PrevYearStart,
 		},
 		{
+			allowUnknown:      false,
 			periodAbbr:        "y2",
 			expectedPeriod:    "year",
 			expectedN:         2,
@@ -611,6 +619,7 @@ func TestGetIntervalFunctions(t *testing.T) {
 			expectedPrevStart: lib.PrevYearStart,
 		},
 		{
+			allowUnknown:      false,
 			periodAbbr:        "d7",
 			expectedPeriod:    "day",
 			expectedN:         7,
@@ -619,6 +628,7 @@ func TestGetIntervalFunctions(t *testing.T) {
 			expectedPrevStart: lib.PrevDayStart,
 		},
 		{
+			allowUnknown:      false,
 			periodAbbr:        "q0",
 			expectedPeriod:    "quarter",
 			expectedN:         1,
@@ -627,6 +637,7 @@ func TestGetIntervalFunctions(t *testing.T) {
 			expectedPrevStart: lib.PrevQuarterStart,
 		},
 		{
+			allowUnknown:      false,
 			periodAbbr:        "m-2",
 			expectedPeriod:    "month",
 			expectedN:         1,
@@ -634,10 +645,19 @@ func TestGetIntervalFunctions(t *testing.T) {
 			expectedNextStart: lib.NextMonthStart,
 			expectedPrevStart: lib.PrevMonthStart,
 		},
+		{
+			allowUnknown:      true,
+			periodAbbr:        "anno_0_1",
+			expectedPeriod:    "",
+			expectedN:         1,
+			expectedStart:     nil,
+			expectedNextStart: nil,
+			expectedPrevStart: nil,
+		},
 	}
 	// Execute test cases
 	for index, test := range testCases {
-		gotPeriod, gotN, gotStart, gotNextStart, gotPrevStart := lib.GetIntervalFunctions(test.periodAbbr)
+		gotPeriod, gotN, gotStart, gotNextStart, gotPrevStart := lib.GetIntervalFunctions(test.periodAbbr, test.allowUnknown)
 		if gotPeriod != test.expectedPeriod {
 			t.Errorf(
 				"test number %d, expected period %v, got %v",
