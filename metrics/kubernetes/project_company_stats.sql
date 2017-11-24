@@ -20,7 +20,7 @@ from (
     and c.dup_actor_login not like '%-robot'
   group by
     af.company_name
-  union select case e.type 
+  union select case e.type
       when 'IssuesEvent' then 'Issue creators'
       when 'PullRequestEvent' then 'PR creators'
       when 'PushEvent' then 'Committers'
@@ -152,6 +152,108 @@ from (
     and e.dup_actor_login not like '%-robot'
   group by
     af.company_name
+  union select 'Commits' as metric,
+    'All' as company,
+    count(distinct c.sha) as value
+  from
+    gha_commits c
+  where
+    c.dup_created_at >= now() - '{{period}}'::interval
+    and c.dup_actor_login not in ('googlebot')
+    and c.dup_actor_login not like 'k8s-%'
+    and c.dup_actor_login not like '%-bot'
+    and c.dup_actor_login not like '%-robot'
+  union select case e.type
+      when 'IssuesEvent' then 'Issue creators'
+      when 'PullRequestEvent' then 'PR creators'
+      when 'PushEvent' then 'Committers'
+      when 'PullRequestReviewCommentEvent' then 'PR reviewers'
+      when 'IssueCommentEvent' then 'Issue commenters'
+      when 'CommitCommentEvent' then 'Commit commenters'
+      when 'WatchEvent' then 'Watchers'
+      when 'ForkEvent' then 'Forkers'
+    end as metric,
+    'All' as company,
+    count(distinct e.actor_id) as value
+  from
+    gha_events e
+  where
+    e.type in (
+      'IssuesEvent', 'PullRequestEvent', 'PushEvent',
+      'PullRequestReviewCommentEvent', 'IssueCommentEvent',
+      'CommitCommentEvent', 'ForkEvent', 'WatchEvent'
+    )
+    and e.created_at >= now() - '{{period}}'::interval
+    and e.dup_actor_login not in ('googlebot')
+    and e.dup_actor_login not like 'k8s-%'
+    and e.dup_actor_login not like '%-bot'
+    and e.dup_actor_login not like '%-robot'
+  group by
+    e.type
+  union select 'Repositories' as metric,
+    'All' as company,
+    count(distinct e.repo_id) as value
+  from
+    gha_events e
+  where
+    e.created_at >= now() - '{{period}}'::interval
+  union select 'Comments' as metric,
+    'All' as company,
+    count(distinct c.id) as value
+  from
+    gha_comments c
+  where
+    c.created_at >= now() - '{{period}}'::interval
+    and c.dup_user_login not in ('googlebot')
+    and c.dup_user_login not like 'k8s-%'
+    and c.dup_user_login not like '%-bot'
+    and c.dup_user_login not like '%-robot'
+  union select 'Commenters' as metric,
+    'All' as company,
+    count(distinct c.user_id) as value
+  from
+    gha_comments c
+  where
+    c.created_at >= now() - '{{period}}'::interval
+    and c.dup_user_login not in ('googlebot')
+    and c.dup_user_login not like 'k8s-%'
+    and c.dup_user_login not like '%-bot'
+    and c.dup_user_login not like '%-robot'
+  union select 'Issues' as metric,
+    'All' as company,
+    count(distinct i.id) as value
+  from
+    gha_issues i
+  where
+    i.created_at >= now() - '{{period}}'::interval
+    and i.is_pull_request = false
+    and i.dup_user_login not in ('googlebot')
+    and i.dup_user_login not like 'k8s-%'
+    and i.dup_user_login not like '%-bot'
+    and i.dup_user_login not like '%-robot'
+  union select 'PRs' as metric,
+    'All' as company,
+    count(distinct i.id) as value
+  from
+    gha_issues i
+  where
+    i.created_at >= now() - '{{period}}'::interval
+    and i.is_pull_request = true
+    and i.dup_user_login not in ('googlebot')
+    and i.dup_user_login not like 'k8s-%'
+    and i.dup_user_login not like '%-bot'
+    and i.dup_user_login not like '%-robot'
+  union select 'Events' as metric,
+    'All' as company,
+    count(e.id) as value
+  from
+    gha_events e
+  where
+    e.created_at >= now() - '{{period}}'::interval
+    and e.dup_actor_login not in ('googlebot')
+    and e.dup_actor_login not like 'k8s-%'
+    and e.dup_actor_login not like '%-bot'
+    and e.dup_actor_login not like '%-robot'
   ) sub
 where
   (sub.metric = 'Commenters' and sub.value >= 3)
