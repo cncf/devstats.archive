@@ -41,6 +41,7 @@ func copyContext(in *lib.Ctx) *lib.Ctx {
 		SkipIDB:          in.SkipIDB,
 		SkipPDB:          in.SkipPDB,
 		ResetIDB:         in.ResetIDB,
+		ResetRanges:      in.ResetRanges,
 		Explain:          in.Explain,
 		OldFormat:        in.OldFormat,
 		Exact:            in.Exact,
@@ -178,6 +179,7 @@ func TestInit(t *testing.T) {
 		SkipIDB:          false,
 		SkipPDB:          false,
 		ResetIDB:         false,
+		ResetRanges:      false,
 		Explain:          false,
 		OldFormat:        false,
 		Exact:            false,
@@ -349,12 +351,20 @@ func TestInit(t *testing.T) {
 			),
 		},
 		{
-			"Setting skip IDB & reset IDB",
-			map[string]string{"GHA2DB_SKIPIDB": "1", "GHA2DB_RESETIDB": "yes"},
+			"Setting skip IDB, reset IDB, reset quick ranges",
+			map[string]string{
+				"GHA2DB_SKIPIDB":     "1",
+				"GHA2DB_RESETIDB":    "yes",
+				"GHA2DB_RESETRANGES": "yeah",
+			},
 			dynamicSetFields(
 				t,
 				copyContext(&defaultContext),
-				map[string]interface{}{"SkipIDB": true, "ResetIDB": true},
+				map[string]interface{}{
+					"SkipIDB":     true,
+					"ResetIDB":    true,
+					"ResetRanges": true,
+				},
 			),
 		},
 		{
