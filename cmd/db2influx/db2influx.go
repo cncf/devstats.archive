@@ -10,8 +10,6 @@ import (
 	"time"
 
 	lib "devstats"
-
-	client "github.com/influxdata/influxdb/client/v2"
 )
 
 // valueDescription - return string description for given float value
@@ -290,18 +288,6 @@ func workerThread(ch chan bool, ctx *lib.Ctx, seriesNameOrFunc, sqlQuery, period
 	}
 }
 
-// Return suffixes used for quick ranges between annotations and last periods
-func getQuickRanges(ic *client.Client, ctx *lib.Ctx) (ret []string) {
-	res := lib.QueryIDB(*ic, ctx, "show tag values with key = quick_ranges_data")
-	if len(res) < 1 || len(res[0].Series) < 1 {
-		return
-	}
-	for _, val := range res[0].Series[0].Values {
-		ret = append(ret, val[1].(string))
-	}
-	return
-}
-
 func db2influxHistogram(ctx *lib.Ctx, seriesNameOrFunc, sqlQuery, interval, intervalAbbr string, nIntervals int, annotationsRanges, skipPast bool) {
 	// Connect to Postgres DB
 	sqlc := lib.PgConn(ctx)
@@ -317,7 +303,7 @@ func db2influxHistogram(ctx *lib.Ctx, seriesNameOrFunc, sqlQuery, interval, inte
 	// If using annotations ranges, then get their values
 	if annotationsRanges {
 		// Get Quick Ranges from IDB (it is filled by annotations command)
-		quickRanges := getQuickRanges(&ic, ctx)
+		quickRanges := lib.GetTagValues(ic, ctx, "quick_ranges_data")
 		if ctx.Debug > 0 {
 			lib.Printf("Quick ranges: %+v\n", quickRanges)
 		}

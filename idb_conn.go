@@ -86,3 +86,15 @@ func SafeQueryIDB(con client.Client, ctx *Ctx, query string) (*client.Response, 
 	}
 	return con.Query(q)
 }
+
+// GetTagValues returns tag values for a given key
+func GetTagValues(con client.Client, ctx *Ctx, key string) (ret []string) {
+	res := QueryIDB(con, ctx, "show tag values with key = "+key)
+	if len(res) < 1 || len(res[0].Series) < 1 {
+		return
+	}
+	for _, val := range res[0].Series[0].Values {
+		ret = append(ret, val[1].(string))
+	}
+	return
+}

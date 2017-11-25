@@ -39,6 +39,7 @@ type Ctx struct {
 	SkipIDB          bool      // from GHA2DB_SKIPIDB gha2db_sync tool, skip Influx DB processing? for db2influx it skips final series write, default false
 	SkipPDB          bool      // from GHA2DB_SKIPPDB gha2db_sync tool, skip Postgres DB processing? default false
 	ResetIDB         bool      // from GHA2DB_RESETIDB sync tool, regenerate all InfluxDB points? default false
+	ResetRanges      bool      // from GHA2DB_RESETRANGES sync tool, regenerate all past quick ranges? default false
 	Explain          bool      // from GHA2DB_EXPLAIN runq tool, prefix query with "explain " - it will display query plan instead of executing real query, default false
 	OldFormat        bool      // from GHA2DB_OLDFMT gha2db tool, if set then use pre 2015 GHA JSONs format
 	Exact            bool      // From GHA2DB_EXACT gha2db tool, if set then orgs list provided from commandline is used as a list of exact repository full names, like "a/b,c/d,e"
@@ -185,6 +186,7 @@ func (ctx *Ctx) Init() {
 	// InfluxDB variables
 	ctx.SkipIDB = os.Getenv("GHA2DB_SKIPIDB") != ""
 	ctx.ResetIDB = os.Getenv("GHA2DB_RESETIDB") != ""
+	ctx.ResetRanges = os.Getenv("GHA2DB_RESETRANGES") != ""
 
 	// Postgres DB variables
 	ctx.SkipPDB = os.Getenv("GHA2DB_SKIPPDB") != ""

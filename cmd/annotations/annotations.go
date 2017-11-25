@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"sort"
 	"time"
 
 	lib "devstats"
@@ -22,6 +23,19 @@ type annotation struct {
 	Description string    `yaml:"description"`
 	SeriesName  string    `yaml:"series_name"`
 	Date        time.Time `yaml:"date"`
+}
+
+// annotations Sort interface
+type annotationsByDate []annotation
+
+func (a annotationsByDate) Len() int {
+	return len(a)
+}
+func (a annotationsByDate) Swap(i, j int) {
+	a[i], a[j] = a[j], a[i]
+}
+func (a annotationsByDate) Less(i, j int) bool {
+	return a[i].Date.Before(a[j].Date)
 }
 
 // makeAnnotations: Insert InfluxDB annotations starting after `dt`
@@ -121,6 +135,9 @@ func makeAnnotations(sdt string) {
 		bp.AddPoint(pt)
 		tm = tm.Add(time.Hour)
 	}
+
+	// Annotations must be sorted to create ranes
+	sort.Sort(annotationsByDate(annotations.Annotations))
 
 	// Add '(i) - (i+1)' annotation ranges
 	lastIndex := len(annotations.Annotations) - 1

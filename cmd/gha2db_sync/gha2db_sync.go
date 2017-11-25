@@ -11,7 +11,6 @@ import (
 
 	lib "devstats"
 
-	client "github.com/influxdata/influxdb/client/v2"
 	yaml "gopkg.in/yaml.v2"
 )
 
@@ -299,18 +298,6 @@ func clearDBLogs(c *sql.DB, ctx *lib.Ctx) {
 	lib.ExecSQLWithErr(c, ctx, "delete from gha_logs where dt < now() - '"+ctx.ClearDBPeriod+"'::interval")
 }
 
-// Return suffixes used for quick ranges between annotations and last periods
-func getQuickRanges(ic *client.Client, ctx *lib.Ctx) (ret []string) {
-	res := lib.QueryIDB(*ic, ctx, "show tag values with key = quick_ranges_suffix")
-	if len(res) < 1 || len(res[0].Series) < 1 {
-		return
-	}
-	for _, val := range res[0].Series[0].Values {
-		ret = append(ret, val[1].(string))
-	}
-	return
-}
-
 func sync(ctx *lib.Ctx, args []string) {
 	// Strip function to be used by MapString
 	stripFunc := func(x string) string { return strings.TrimSpace(x) }
@@ -426,7 +413,6 @@ func sync(ctx *lib.Ctx, args []string) {
 		}
 
 		// Annotations
-		skipPast := true
 		if ctx.ResetIDB || time.Now().Hour() == 0 {
 			lib.ExecCommand(
 				ctx,
@@ -436,13 +422,12 @@ func sync(ctx *lib.Ctx, args []string) {
 				},
 				nil,
 			)
-			skipPast = false
 		} else {
 			lib.Printf("Skipping `annotations` recalculation, it is only computed once per day\n")
 		}
 
 		// Get Quick Ranges from IDB (it is filled by annotations command)
-		quickRanges := getQuickRanges(&ic, ctx)
+		quickRanges := lib.GetTagValues(ic, ctx, "quick_ranges_suffix")
 		lib.Printf("Quick ranges: %+v\n", quickRanges)
 
 		// Fill gaps in series
@@ -488,7 +473,7 @@ func sync(ctx *lib.Ctx, args []string) {
 			for _, skip := range skips {
 				skipMap[skip] = struct{}{}
 			}
-			if skipPast {
+			if !ctx.ResetIDB && !ctx.ResetRanges {
 				extraParams = append(extraParams, "skip_past")
 			}
 			for _, aggrStr := range aggregateArr {
