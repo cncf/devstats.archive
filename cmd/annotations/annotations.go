@@ -136,7 +136,7 @@ func makeAnnotations(sdt string) {
 		tm = tm.Add(time.Hour)
 	}
 
-	// Annotations must be sorted to create ranes
+	// Annotations must be sorted to create quick ranges
 	sort.Sort(annotationsByDate(annotations.Annotations))
 
 	// Add '(i) - (i+1)' annotation ranges

@@ -15,7 +15,7 @@ GO_IMPORTS=goimports -w
 GO_USEDEXPORTS=usedexports
 GO_TEST=go test
 BINARIES=structure runq gha2db db2influx z2influx gha2db_sync import_affs annotations idb_tags idb_backup webhook devstats
-CRON_SCRIPTS=cron_db_backup.sh cron_db_backup_all.sh
+CRON_SCRIPTS=cron/cron_db_backup.sh cron/cron_db_backup_all.sh
 STRIP=strip
 
 all: check ${BINARIES}
