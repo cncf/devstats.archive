@@ -4,6 +4,21 @@ import (
 	"time"
 )
 
+// Projects contain list of project mappings to command line
+type Projects struct {
+	Projects []Project `yaml:"projects"`
+}
+
+// Project contain mapping from project name to its command line used to sync it
+type Project struct {
+	Name        string     `yaml:"name"`
+	CommandLine string     `yaml:"command_line"`
+	StartDate   *time.Time `yaml:"start_date"`
+	PDB         string     `yaml:"psql_db"`
+	IDB         string     `yaml:"influx_db"`
+	Disabled    bool       `yaml:"disabled"`
+}
+
 // AnyArray - holds array of interface{} - just a shortcut
 type AnyArray []interface{}
 

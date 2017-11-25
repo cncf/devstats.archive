@@ -27,6 +27,7 @@ var (
 func newLogContext() *logContext {
 	var ctx Ctx
 	ctx.Init()
+	ctx.PgDB = Devstats
 	con := PgConn(&ctx)
 	return &logContext{ctx: ctx, con: con}
 }
@@ -53,7 +54,6 @@ func Printf(format string, args ...interface{}) (n int, err error) {
 		logCtxMutex.Lock()
 		if logCtx == nil {
 			logCtx = newLogContext()
-			fmt.Printf("%v: Initialized DB logs\n", time.Now())
 		}
 		logCtxMutex.Unlock()
 	}

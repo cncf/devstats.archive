@@ -43,9 +43,13 @@ Prerequisites:
 
 10. Inside psql client shell:
     - `create database gha;`
+    - `create database devstats;`
     - `create user gha_admin with password 'your_password_here';`
     - `grant all privileges on database "gha" to gha_admin;`
+    - `grant all privileges on database "devstats" to gha_admin;`
     - `alter user gha_admin createdb;`
+    - Leave the shell and create logs table for devstats: `sudo -u postgres psql devstats < util_sql/devstats_log_table.sql`.
+
 11. Leave `psql` shell, and get newest Kubernetes database dump:
     - `wget https://devstats.cncf.io/gha.sql.xz` (it is about 400Mb).
     - `xz -d gha.sql.xz` (uncompressed dump is more than 7Gb).
@@ -77,11 +81,17 @@ Prerequisites:
     - Command should be successfull.
 
 15. We need to setup cron job that will call sync every hour (10 minutes after 1:00, 2:00, ...)
-    - You need to open `crontab.entry` file, it looks like this:
+    - You need to open `crontab.entry` file, it looks like this for single project setup:
     ```
     10 * * * * PATH=$PATH:/path/to/your/GOPATH/bin GHA2DB_CMDDEBUG=1 GHA2DB_PROJECT=kubernetes IDB_HOST="172.17.0.1" IDB_PASS='...' PG_PASS='...' gha2db_sync 2>> /tmp/gha2db_sync.err 1>> /tmp/gha2db_sync.log
     20 3 * * * PATH=$PATH:/path/to/your/GOPATH/bin cron_db_backup.sh gha 2>> /tmp/gha2db_backup.err 1>> /tmp/gha2db_backup.log
     */5 * * * * PATH=$PATH:/path/to/your/GOPATH/bin GOPATH=/your/gopath GHA2DB_CMDDEBUG=1 GHA2DB_PROJECT_ROOT=/path/to/repo PG_PASS="..." webhook 2>> /tmp/gha2db_webhook.err 1>> /tmp/gha2db_webhook.log
+    ```
+    - For multiple projects you can use `devstats` instead of `gha2db_sync` and `cron_db_backup_all.sh` script.
+    ```
+    10 * * * * PATH=$PATH:/path/to/GOPATH/bin IDB_HOST="172.17.0.1" IDB_PASS="..." PG_PASS="..." devstats 2>> /tmp/gha2db_sync.err 1>> /tmp/gha2db_sync.log
+    20 3 * * * PATH=$PATH:/path/to/GOPATH/bin cron_db_backup_all.sh
+    */5 * * * * PATH=$PATH:/path/to/GOPATH/bin GOPATH=/go/path GHA2DB_CMDDEBUG=1 GHA2DB_PROJECT_ROOT=/path/to/repo GHA2DB_DEPLOY_BRANCHES="production,master" PG_PASS=... webhook 2>> /tmp/gha2db_webhook.err 1>> /tmp/gha2db_webhook.log
     ```
     - First crontab entry is for automatic GHA sync.
     - Second crontab entry is for automatic daily backup of GHA database.
