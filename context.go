@@ -43,13 +43,13 @@ type Ctx struct {
 	Explain          bool      // from GHA2DB_EXPLAIN runq tool, prefix query with "explain " - it will display query plan instead of executing real query, default false
 	OldFormat        bool      // from GHA2DB_OLDFMT gha2db tool, if set then use pre 2015 GHA JSONs format
 	Exact            bool      // From GHA2DB_EXACT gha2db tool, if set then orgs list provided from commandline is used as a list of exact repository full names, like "a/b,c/d,e"
-	LogToDB          bool      // From GHA2DB_SKIPLOG all tools, if set, DB logging into Postgres table `gha_logs` will be disabled
+	LogToDB          bool      // From GHA2DB_SKIPLOG all tools, if set, DB logging into Postgres table `gha_logs` in `devstats` database will be disabled
 	Local            bool      // From GHA2DB_LOCAL gha2db_sync tool, if set, gha2_db will call other tools prefixed with "./" to use local compile ones. Otherwise it will call binaries without prefix (so it will use thos ein /usr/bin/).
 	AnnotationsYaml  string    // From GHA2DB_ANNOTATIONS_YAML annotations tool, set other annotations.yaml file, default is "metrics/{{project}}/annotations.yaml"
 	MetricsYaml      string    // From GHA2DB_METRICS_YAML gha2db_sync tool, set other metrics.yaml file, default is "metrics/{{project}}metrics.yaml"
 	GapsYaml         string    // From GHA2DB_GAPS_YAML gha2db_sync tool, set other gaps.yaml file, default is "metrics/{{project}}/gaps.yaml"
 	TagsYaml         string    // From GHA2DB_TAGS_YAML idb_tags tool, set other idb_tags.yaml file, default is "metrics/{{project}}/idb_tags.yaml"
-	ClearDBPeriod    string    // From GHA2DB_MAXLOGAGE gha2db_sync tool, maximum age of gha_logs entries, default "1 week"
+	ClearDBPeriod    string    // From GHA2DB_MAXLOGAGE gha2db_sync tool, maximum age of devstats.gha_logs entries, default "1 week"
 	Trials           []int     // From GHA2DB_TRIALS, all Postgres related tools, retry periods for "too many connections open" error
 	WebHookRoot      string    // From GHA2DB_WHROOT, webhook tool, default "/hook", must match .travis.yml notifications webhooks
 	WebHookPort      string    // From GHA2DB_WHPORT, webhook tool, default ":1982", note that webhook listens using http:1982, but we use apache on https:2982 (to enable https protocol and proxy requests to http:1982)
@@ -200,7 +200,7 @@ func (ctx *Ctx) Init() {
 	// Exact repository full names to match
 	ctx.Exact = os.Getenv("GHA2DB_EXACT") != ""
 
-	// Log to Postgres DB, table `gha_logs`
+	// Log to Postgres DB, table `devstats`.`gha_logs`
 	ctx.LogToDB = os.Getenv("GHA2DB_SKIPLOG") == ""
 
 	// Local mode

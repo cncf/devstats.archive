@@ -87,7 +87,7 @@ Prerequisites:
     20 3 * * * PATH=$PATH:/path/to/your/GOPATH/bin cron_db_backup.sh gha 2>> /tmp/gha2db_backup.err 1>> /tmp/gha2db_backup.log
     */5 * * * * PATH=$PATH:/path/to/your/GOPATH/bin GOPATH=/your/gopath GHA2DB_CMDDEBUG=1 GHA2DB_PROJECT_ROOT=/path/to/repo PG_PASS="..." webhook 2>> /tmp/gha2db_webhook.err 1>> /tmp/gha2db_webhook.log
     ```
-    - For multiple projects you can use `devstats` instead of `gha2db_sync` and `cron_db_backup_all.sh` script.
+    - For multiple projects you can use `devstats` instead of `gha2db_sync` and `cron/cron_db_backup_all.sh` iinstead of `cron/cron_db_backup.sh`.
     ```
     10 * * * * PATH=$PATH:/path/to/GOPATH/bin IDB_HOST="172.17.0.1" IDB_PASS="..." PG_PASS="..." devstats 2>> /tmp/gha2db_sync.err 1>> /tmp/gha2db_sync.log
     20 3 * * * PATH=$PATH:/path/to/GOPATH/bin cron_db_backup_all.sh 2>> /tmp/gha2db_backup.err 1>> /tmp/gha2db_backup.log

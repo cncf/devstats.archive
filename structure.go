@@ -930,7 +930,8 @@ func Structure(ctx *Ctx) {
 		ExecSQLWithErr(c, ctx, "create index teams_dup_created_at_idx on gha_teams(dup_created_at)")
 	}
 
-	// Logs table
+	// Logs table (recently this table moved to separate database `devstats` to separate logs
+	// But all gha databases still do have this table
 	if ctx.Table {
 		ExecSQLWithErr(c, ctx, "drop table if exists gha_logs")
 		ExecSQLWithErr(
