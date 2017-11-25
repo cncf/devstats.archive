@@ -79,7 +79,12 @@ func z2influx(series, from, to, intervalAbbr string, desc bool, values []string)
 	thrN := lib.GetThreadsNum(&ctx)
 
 	// Run
-	lib.Printf("z2influx.go: Running (on %d CPUs): %v - %v with interval %s, descriptions %v, values: %v\n", thrN, dFrom, dTo, interval, desc, values)
+	nValues := len(values)
+	if nValues <= 100 {
+		lib.Printf("z2influx.go: Running (on %d CPUs): %v - %v with interval %s, descriptions %v, values: %v\n", thrN, dFrom, dTo, interval, desc, values)
+	} else {
+		lib.Printf("z2influx.go: Running (on %d CPUs): %v - %v with interval %s, descriptions %v, nValues: %d\n", thrN, dFrom, dTo, interval, desc, nValues)
+	}
 	dt := dFrom
 	if thrN > 1 {
 		chanPool := []chan bool{}

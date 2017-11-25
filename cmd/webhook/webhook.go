@@ -139,7 +139,7 @@ func checkError(w http.ResponseWriter, err error) bool {
 
 // successPayload: is this a success payload?
 func successPayload(ctx *lib.Ctx, pl payload) bool {
-	if pl.Repo.Name != "devstats" || pl.Repo.OwnerName != "cncf" {
+	if pl.Repo.Name != lib.Devstats || pl.Repo.OwnerName != "cncf" {
 		return false
 	}
 	ok := false

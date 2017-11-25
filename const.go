@@ -26,3 +26,6 @@ const GHA string = "gha"
 
 // Localhost - common constant string
 const Localhost string = "localhost"
+
+// Devstats - common constant string
+const Devstats string = "devstats"

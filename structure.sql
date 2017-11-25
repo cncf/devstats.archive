@@ -1671,13 +1671,6 @@ CREATE INDEX logs_id_idx ON gha_logs USING btree (id);
 
 
 --
--- Name: logs_msg_idx; Type: INDEX; Schema: public; Owner: gha_admin
---
-
-CREATE INDEX logs_msg_idx ON gha_logs USING btree (msg);
-
-
---
 -- Name: milestones_created_at_idx; Type: INDEX; Schema: public; Owner: gha_admin
 --
 

@@ -130,9 +130,16 @@ We're getting all possible GitHub data for all objects, and all objects historic
 - You need to set `GHA2DB_PROJECT=project_name` currently it can be either kubernetes, prometheus or opentracing. Projects are defined in `projects.yaml` file.
 - It reads a list of metrics from YAML file: `metrics/{{project}}/metrics.yaml`, some metrics require to fill gaps in their data. Those metrics are defined in another YAML file `metrics/{{project}}/gaps.yaml`.
 - This tool also supports initial computing of All InfluxDB data (instead of default update since the last run).
+- It can be called by cron job on 1:10, 2:10, ... and so on - GitHub archive publishes new file every hour, so we're off by at most 1 hour.
+- It can also be called automatically by `devstats` tool
+
+5) `devstats` (Calls `gha2db_sync` for all defined projects)
+- [gha2db_sync](https://github.com/cncf/devstats/blob/master/cmd/devstats/devstats.go)
+- This program will read `projects.yaml` and call `gha2db_sync` for all defined projects that are not disabled by `disabled: true`.
+- It uses own database just to store logs from running project syncers, this is a Postgres database "devstats".
 - It is called by cron job on 1:10, 2:10, ... and so on - GitHub archive publishes new file every hour, so we're off by at most 1 hour.
 
-5) Additional stuff, most important being `runq`  and `import_affs` tools.
+6) Additional stuff, most important being `runq`  and `import_affs` tools.
 - [runq](https://github.com/cncf/devstats/blob/master/cmd/runq/runq.go)
 - `runq` gets SQL file name and parameter values and allows to run metric manually from the command line (this is for local development)
 - [import_affs](https://github.com/cncf/devstats/blob/master/cmd/import_affs/import_affs.go)

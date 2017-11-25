@@ -948,7 +948,6 @@ func Structure(ctx *Ctx) {
 	if ctx.Index {
 		ExecSQLWithErr(c, ctx, "create index logs_id_idx on gha_logs(id)")
 		ExecSQLWithErr(c, ctx, "create index logs_dt_idx on gha_logs(dt)")
-		ExecSQLWithErr(c, ctx, "create index logs_msg_idx on gha_logs(msg)")
 	}
 
 	// This table is a kind of `materialized view` of all texts

@@ -60,18 +60,6 @@ type metric struct {
 	AnnotationsRanges bool   `yaml:"annotations_ranges"`
 }
 
-// projects contain list of project mappings to command line
-type projects struct {
-	Projects []project `yaml:"projects"`
-}
-
-// project contain mapping from project name to its command line used to sync it
-type project struct {
-	Name        string     `yaml:"name"`
-	CommandLine string     `yaml:"command_line"`
-	StartDate   *time.Time `yaml:"start_date"`
-}
-
 // Add _period to all array items
 func addPeriodSuffix(seriesArr []string, period string) (result []string) {
 	for _, series := range seriesArr {
@@ -546,7 +534,7 @@ func getSyncArgs(ctx *lib.Ctx, osArgs []string) []string {
 		lib.FatalOnError(err)
 		return []string{}
 	}
-	var projs projects
+	var projs lib.Projects
 	lib.FatalOnError(yaml.Unmarshal(data, &projs))
 	for _, proj := range projs.Projects {
 		if proj.Name == ctx.Project {

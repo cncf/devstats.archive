@@ -11,9 +11,9 @@ import (
 )
 
 // logCommand - output command and arguments
-func logCommand(cmdAndArgs []string) {
-	Printf("Command and arguments:\n%+v\n", cmdAndArgs)
-	fmt.Fprintf(os.Stdout, "Command and arguments:\n%+v\n", cmdAndArgs)
+func logCommand(cmdAndArgs []string, env map[string]string) {
+	Printf("Command, arguments, environment:\n%+v\n%+v\n", cmdAndArgs, env)
+	fmt.Fprintf(os.Stdout, "Command and arguments:\n%+v\n%+v\n", cmdAndArgs, env)
 }
 
 // ExecCommand - execute command given by array of strings with eventual environment map
@@ -72,12 +72,12 @@ func ExecCommand(ctx *Ctx, cmdAndArgs []string, env map[string]string) error {
 	}
 
 	// Pipe command's STDOUT during execution (if CmdDebug > 1)
-	// Or just starts command when no DTDOUT debug
+	// Or just starts command when no STDOUT debug
 	if ctx.CmdDebug > 1 {
 		stdOutPipe, e := cmd.StdoutPipe()
 		if e != nil {
+			logCommand(cmdAndArgs, env)
 			if ctx.ExecFatal {
-				logCommand(cmdAndArgs)
 				FatalOnError(e)
 			} else {
 				return e
@@ -85,8 +85,8 @@ func ExecCommand(ctx *Ctx, cmdAndArgs []string, env map[string]string) error {
 		}
 		e = cmd.Start()
 		if e != nil {
+			logCommand(cmdAndArgs, env)
 			if ctx.ExecFatal {
-				logCommand(cmdAndArgs)
 				FatalOnError(e)
 			} else {
 				return e
@@ -99,8 +99,8 @@ func ExecCommand(ctx *Ctx, cmdAndArgs []string, env map[string]string) error {
 			nBytes, e = stdOutPipe.Read(buffer)
 		}
 		if e != io.EOF {
+			logCommand(cmdAndArgs, env)
 			if ctx.ExecFatal {
-				logCommand(cmdAndArgs)
 				FatalOnError(e)
 			} else {
 				return e
@@ -109,8 +109,8 @@ func ExecCommand(ctx *Ctx, cmdAndArgs []string, env map[string]string) error {
 	} else {
 		e := cmd.Start()
 		if e != nil {
+			logCommand(cmdAndArgs, env)
 			if ctx.ExecFatal {
-				logCommand(cmdAndArgs)
 				FatalOnError(e)
 			} else {
 				return e
@@ -133,8 +133,8 @@ func ExecCommand(ctx *Ctx, cmdAndArgs []string, env map[string]string) error {
 			Printf("STDERR:\n%v\n", errStr)
 		}
 		if err != nil {
+			logCommand(cmdAndArgs, env)
 			if ctx.ExecFatal {
-				logCommand(cmdAndArgs)
 				FatalOnError(err)
 			} else {
 				return err
