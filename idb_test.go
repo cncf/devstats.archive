@@ -14,8 +14,8 @@ func TestInfluxDB(t *testing.T) {
 	ctx.Init()
 
 	// Do not allow to run tests in "gha" database
-	if ctx.IDBDB == "gha" {
-		t.Errorf("tests cannot be run on \"gha\" database")
+	if ctx.IDBDB != "dbtest" {
+		t.Errorf("tests can only be run on \"dbtest\" database")
 		return
 	}
 
