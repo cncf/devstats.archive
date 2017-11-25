@@ -56,8 +56,8 @@ func TestMetrics(t *testing.T) {
 	ctx.Init()
 
 	// Do not allow to run tests in "gha" database
-	if ctx.PgDB == "gha" {
-		t.Errorf("tests cannot be run on \"gha\" database")
+	if ctx.PgDB != "dbtest" {
+		t.Errorf("tests can only be run on \"dbtest\" database")
 		return
 	}
 
