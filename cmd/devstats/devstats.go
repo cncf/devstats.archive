@@ -2,7 +2,9 @@ package main
 
 import (
 	lib "devstats"
+	"fmt"
 	"io/ioutil"
+	"os"
 	"time"
 
 	yaml "gopkg.in/yaml.v2"
@@ -31,11 +33,31 @@ func syncAllProjects() {
 
 	var projs lib.Projects
 	lib.FatalOnError(yaml.Unmarshal(data, &projs))
+
+	// Create PID file (if not exists)
+	// If PID file exists, exit
+	pid := os.Getpid()
+	pidFile := "/tmp/devstats.pid"
+	f, err := os.OpenFile(pidFile, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0700)
+	if err != nil {
+		lib.Printf("Another `devstats` instance is running, PID file '%s' exists, exiting\n", pidFile)
+		return
+	}
+	fmt.Fprintf(f, "%d", pid)
+	f.Close()
+
+	// Schedule remove PID file when finished
+	defer func() {
+		lib.FatalOnError(os.Remove(pidFile))
+	}()
+
+	// Sync all projects
 	for _, proj := range projs.Projects {
 		if proj.Disabled {
 			continue
 		}
 		lib.Printf("Syncing %s\n", proj.Name)
+		dtStart := time.Now()
 		res := lib.ExecCommand(
 			&ctx,
 			[]string{
@@ -47,11 +69,12 @@ func syncAllProjects() {
 				"IDB_DB":         proj.IDB,
 			},
 		)
+		dtEnd := time.Now()
 		if res != nil {
-			lib.Printf("Error result for %s: %+v\n", proj.Name, res)
+			lib.Printf("Error result for %s (took %v): %+v\n", proj.Name, dtEnd.Sub(dtStart), res)
 			continue
 		}
-		lib.Printf("Synced %s\n", proj.Name)
+		lib.Printf("Synced %s, took: %v\n", proj.Name, dtEnd.Sub(dtStart))
 	}
 }
 
@@ -59,5 +82,5 @@ func main() {
 	dtStart := time.Now()
 	syncAllProjects()
 	dtEnd := time.Now()
-	lib.Printf("Time: %v\n", dtEnd.Sub(dtStart))
+	lib.Printf("Synced all projects in: %v\n", dtEnd.Sub(dtStart))
 }
