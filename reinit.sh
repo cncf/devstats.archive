@@ -1,5 +1,5 @@
 #!/bin/sh
-./kuberentes/reinit_all.sh
+./kubernetes/reinit_all.sh
 ./prometheus/reinit.sh
 ./opentracing/reinit.sh
 ./fluentd/reinit.sh
