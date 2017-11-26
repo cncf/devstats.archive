@@ -1,7 +1,6 @@
 package main
 
 import (
-	"database/sql"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -280,12 +279,6 @@ func computePeriodAtThisDate(period string, to time.Time) bool {
 	}
 }
 
-// Clear DB logs older by defined period (in context.go)
-func clearDBLogs(c *sql.DB, ctx *lib.Ctx) {
-	lib.Printf("Clearing old DB logs.\n")
-	lib.ExecSQLWithErr(c, ctx, "delete from gha_logs where dt < now() - '"+ctx.ClearDBPeriod+"'::interval")
-}
-
 func sync(ctx *lib.Ctx, args []string) {
 	// Strip function to be used by MapString
 	stripFunc := func(x string) string { return strings.TrimSpace(x) }
@@ -347,7 +340,7 @@ func sync(ctx *lib.Ctx, args []string) {
 	// Get new GHAs
 	if !ctx.SkipPDB {
 		// Clear old DB logs
-		clearDBLogs(con, ctx)
+		lib.ClearDBLogs()
 
 		// gha2db
 		lib.Printf("GHA range: %s %s - %s %s\n", fromDate, fromHour, toDate, toHour)
