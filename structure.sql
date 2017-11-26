@@ -371,6 +371,7 @@ ALTER TABLE gha_labels OWNER TO gha_admin;
 CREATE TABLE gha_logs (
     id integer NOT NULL,
     dt timestamp without time zone DEFAULT now(),
+    prog character varying(32) NOT NULL,
     msg text
 );
 
@@ -1668,6 +1669,14 @@ CREATE INDEX logs_dt_idx ON gha_logs USING btree (dt);
 --
 
 CREATE INDEX logs_id_idx ON gha_logs USING btree (id);
+
+
+
+--
+-- Name: logs_prog_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX logs_prog_idx ON gha_logs USING btree (prog);
 
 
 --

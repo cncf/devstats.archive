@@ -11,7 +11,7 @@ import (
 )
 
 // Sync all projects from "projects.yaml", calling `gha2db_sync` for all of them
-func syncAllProjects() {
+func syncAllProjects() bool {
 	// Environment context parse
 	var ctx lib.Ctx
 	ctx.Init()
@@ -41,7 +41,7 @@ func syncAllProjects() {
 	f, err := os.OpenFile(pidFile, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0700)
 	if err != nil {
 		lib.Printf("Another `devstats` instance is running, PID file '%s' exists, exiting\n", pidFile)
-		return
+		return false
 	}
 	fmt.Fprintf(f, "%d", pid)
 	f.Close()
@@ -76,11 +76,14 @@ func syncAllProjects() {
 		}
 		lib.Printf("Synced %s, took: %v\n", proj.Name, dtEnd.Sub(dtStart))
 	}
+	return true
 }
 
 func main() {
 	dtStart := time.Now()
-	syncAllProjects()
+	synced := syncAllProjects()
 	dtEnd := time.Now()
-	lib.Printf("Synced all projects in: %v\n", dtEnd.Sub(dtStart))
+	if synced {
+		lib.Printf("Synced all projects in: %v\n", dtEnd.Sub(dtStart))
+	}
 }

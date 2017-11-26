@@ -941,6 +941,7 @@ func Structure(ctx *Ctx) {
 				"gha_logs("+
 					"id {{pkauto}}, "+
 					"dt {{tsnow}}, "+
+					"prog varchar(32) not null, "+
 					"msg text"+
 					")",
 			),
