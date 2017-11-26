@@ -137,6 +137,7 @@ We're getting all possible GitHub data for all objects, and all objects historic
 - [gha2db_sync](https://github.com/cncf/devstats/blob/master/cmd/devstats/devstats.go)
 - This program will read `projects.yaml` and call `gha2db_sync` for all defined projects that are not disabled by `disabled: true`.
 - It uses own database just to store logs from running project syncers, this is a Postgres database "devstats".
+- It creates PID file `/tmp/devstats.pid` while it is running, so it is safe when instances overlap.
 - It is called by cron job on 1:10, 2:10, ... and so on - GitHub archive publishes new file every hour, so we're off by at most 1 hour.
 
 6) Additional stuff, most important being `runq`  and `import_affs` tools.

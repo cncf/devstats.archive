@@ -72,7 +72,6 @@ const: ${GO_BIN_FILES} ${GO_LIB_FILES} ${GO_TEST_FILES} ${GO_DBTEST_FILES} ${GO_
 	${GO_CONST} ./...
 
 usedexports: ${GO_BIN_FILES} ${GO_LIB_FILES} ${GO_TEST_FILES} ${GO_DBTEST_FILES} ${GO_LIBTEST_FILES}
-	# 'Len', 'Swap' and 'Less' warnings are expected.
 	${GO_USEDEXPORTS} ./...
 
 test:

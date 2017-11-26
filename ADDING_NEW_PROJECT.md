@@ -2,7 +2,9 @@
   
 To add new project follow instructions:
 - Add project entry to `projects.yaml` file. Find projects orgs, repos, select start date.
-- Add project entry in `crontab.entry` but do not install new cron yet (that will be the last step).
+- Set project databases (Influx and Postgres).
+- Set it to `disabled: true` for now.
+- If not using`devstats` cron job then add project entry in `crontab.entry` but do not install new cron yet (that will be the last step).
 - Add new domain for the project: `projectname.cncftest.io`.
 - Search for all files defined for some existing project, for example `find . -iname "*prometheus*"`.
 - Generate icons for new project: `./grafana/img/projectname32.png`, `./grafana/img/projectname.svg`.
