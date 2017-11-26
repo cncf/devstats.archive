@@ -80,3 +80,22 @@ func Printf(format string, args ...interface{}) (n int, err error) {
 	err = logToDB(format, args...)
 	return
 }
+
+// ClearDBLogs clears logs older by defined period (in context.go)
+// It clears logs on `devstats` database
+func ClearDBLogs() {
+	// Environment context parse
+	var ctx Ctx
+	ctx.Init()
+
+	// Point to logs database
+	ctx.PgDB = "devstats"
+
+	// Connect to DB
+	c := PgConn(&ctx)
+	defer c.Close()
+
+	// Clear logs older that defined period
+	fmt.Printf("Clearing old DB logs.\n")
+	ExecSQLWithErr(c, &ctx, "delete from gha_logs where dt < now() - '"+ctx.ClearDBPeriod+"'::interval")
+}
