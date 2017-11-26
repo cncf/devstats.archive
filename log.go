@@ -3,6 +3,7 @@ package devstats
 import (
 	"database/sql"
 	"fmt"
+	"os"
 	"strings"
 	"sync"
 	"time"
@@ -10,8 +11,9 @@ import (
 
 // Holds data needed to make DB calls
 type logContext struct {
-	ctx Ctx
-	con *sql.DB
+	ctx  Ctx
+	con  *sql.DB
+	prog string
 }
 
 // This is the *only* global variable used in entire toolset.
@@ -29,7 +31,9 @@ func newLogContext() *logContext {
 	ctx.Init()
 	ctx.PgDB = Devstats
 	con := PgConn(&ctx)
-	return &logContext{ctx: ctx, con: con}
+	progSplit := strings.Split(os.Args[0], "/")
+	prog := progSplit[len(progSplit)-1]
+	return &logContext{ctx: ctx, con: con, prog: prog}
 }
 
 // logToDB writes message to database
@@ -41,7 +45,8 @@ func logToDB(format string, args ...interface{}) (err error) {
 	_, err = ExecSQL(
 		logCtx.con,
 		&logCtx.ctx,
-		"insert into gha_logs(msg) "+NValues(1),
+		"insert into gha_logs(prog, msg) "+NValues(2),
+		logCtx.prog,
 		msg,
 	)
 	return
@@ -68,7 +73,7 @@ func Printf(format string, args ...interface{}) (n int, err error) {
 
 	// Actual logging to stdout & DB
 	if logCtx.ctx.LogTime {
-		n, err = fmt.Printf("%s: "+format, append([]interface{}{ToYMDHMSDate(time.Now())}, args...)...)
+		n, err = fmt.Printf("%s %s: "+format, append([]interface{}{ToYMDHMSDate(time.Now()), logCtx.prog}, args...)...)
 	} else {
 		n, err = fmt.Printf(format, args...)
 	}
