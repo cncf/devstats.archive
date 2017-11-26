@@ -41,6 +41,9 @@ func getIDBResultFiltered(res []client.Result) (ret [][]interface{}) {
 		lastJ := len(val) - 1
 		for j, col := range val {
 			// This is a time column, unused, but varies every call
+			// j == 0: first unused time col (related to `now`)
+			// j == lastJ: last usused value, always 0
+			// j == 1 && lastPeriod (last row `version - now`): `now` varies with time
 			// Last row's date to is now which also varies every time
 			if j == 0 || j == lastJ || (j == 1 && lastPeriod) {
 				continue
@@ -134,8 +137,7 @@ func TestProcessAnnotations(t *testing.T) {
 				{"m;1 month;;", "Last month", "m"},
 				{"q;3 months;;", "Last quarter", "q"},
 				{"y;1 year;;", "Last year", "y"},
-				{"y10;10 years;;", "Last decade", "y10"},
-				{"release 0.0.0 - now", "anno_0_now"},
+				{"Last decade", "y10"},
 			},
 		},
 		{
@@ -149,8 +151,7 @@ func TestProcessAnnotations(t *testing.T) {
 				{"m;1 month;;", "Last month", "m"},
 				{"q;3 months;;", "Last quarter", "q"},
 				{"y;1 year;;", "Last year", "y"},
-				{"y10;10 years;;", "Last decade", "y10"},
-				{"release 0.0.0 - now", "anno_0_now"},
+				{"Last decade", "y10"},
 			},
 		},
 		{
@@ -204,10 +205,75 @@ func TestProcessAnnotations(t *testing.T) {
 				{"y;1 year;;", "Last year", "y"},
 				{"y10;10 years;;", "Last decade", "y10"},
 				{"anno_1_2;;2017-02-01 00:00:00;2017-03-01 00:00:00", "release 1.0.0 - release 2.0.0", "anno_1_2"},
-				{"anno_0_now;;2017-02-01 00:00:00;2017-11-26 00:00:00", "release 0.0.0 - now", "anno_0_now"},
 				{"anno_2_3;;2017-03-01 00:00:00;2017-04-01 00:00:00", "release 2.0.0 - release 3.0.0", "anno_2_3"},
 				{"anno_3_4;;2017-04-01 00:00:00;2017-05-01 00:00:00", "release 3.0.0 - release 4.0.0", "anno_3_4"},
 				{"release 4.0.0 - now", "anno_4_now"},
+			},
+		},
+		{
+			annotations: lib.Annotations{
+				[]lib.Annotation{
+					{
+						Title:       "v1.0",
+						Description: "Release v1.0",
+						SeriesName:  "annotations",
+						Date:        ft(2016, 1),
+					},
+					{
+						Title:       "v6.0",
+						Description: "Release v6.0",
+						SeriesName:  "annotations",
+						Date:        ft(2016, 6),
+					},
+					{
+						Title:       "v2.0",
+						Description: "Release v2.0",
+						SeriesName:  "annotations",
+						Date:        ft(2016, 2),
+					},
+					{
+						Title:       "v4.0",
+						Description: "Release v4.0",
+						SeriesName:  "annotations",
+						Date:        ft(2016, 4),
+					},
+					{
+						Title:       "v3.0",
+						Description: "Release v3.0",
+						SeriesName:  "annotations",
+						Date:        ft(2016, 3),
+					},
+					{
+						Title:       "v5.0",
+						Description: "Release v5.0",
+						SeriesName:  "annotations",
+						Date:        ft(2016, 5),
+					},
+				},
+			},
+			dt: ft(2000),
+			expectedAnnotations: [][]interface{}{
+				{"2016-01-01T00:00:00Z", "Release v1.0", "v1.0"},
+				{"2016-02-01T00:00:00Z", "Release v2.0", "v2.0"},
+				{"2016-03-01T00:00:00Z", "Release v3.0", "v3.0"},
+				{"2016-04-01T00:00:00Z", "Release v4.0", "v4.0"},
+				{"2016-05-01T00:00:00Z", "Release v5.0", "v5.0"},
+				{"2016-06-01T00:00:00Z", "Release v6.0", "v6.0"},
+			},
+			expectedQuickRanges: [][]interface{}{
+				{"d;1 day;;", "Last day", "d"},
+				{"w;1 week;;", "Last week", "w"},
+				{"d10;10 days;;", "Last 10 days", "d10"},
+				{"m;1 month;;", "Last month", "m"},
+				{"q;3 months;;", "Last quarter", "q"},
+				{"y;1 year;;", "Last year", "y"},
+				{"y10;10 years;;", "Last decade", "y10"},
+				{"anno_0_1;;2016-01-01 00:00:00;2016-02-01 00:00:00", "v1.0 - v2.0", "anno_0_1"},
+				{"anno_1_2;;2016-02-01 00:00:00;2016-03-01 00:00:00", "v2.0 - v3.0", "anno_1_2"},
+				{"anno_2_3;;2016-03-01 00:00:00;2016-04-01 00:00:00", "v3.0 - v4.0", "anno_2_3"},
+				{"anno_3_4;;2016-04-01 00:00:00;2016-05-01 00:00:00", "v4.0 - v5.0", "anno_3_4"},
+				{"anno_4_5;;2016-05-01 00:00:00;2016-06-01 00:00:00", "v5.0 - v6.0", "anno_4_5"},
+				{"v6.0 - now", "anno_5_now"},
 			},
 		},
 	}
@@ -237,6 +303,6 @@ func TestProcessAnnotations(t *testing.T) {
 			)
 		}
 		// Clean up for next test
-		lib.QueryIDB(con, &ctx, "drop series from annotations")
+		lib.QueryIDB(con, &ctx, "drop series from quick_ranges")
 	}
 }
