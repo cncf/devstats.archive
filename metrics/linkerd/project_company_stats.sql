@@ -1,0 +1,276 @@
+select 
+  'project_company_stats,' || sub.metric as metric,
+  sub.company as name,
+  sub.value as value
+from (
+  select 'Commits' as metric,
+    af.company_name as company,
+    count(distinct c.sha) as value
+  from
+    gha_commits c,
+    gha_actors_affiliations af
+  where
+    c.dup_actor_id = af.actor_id
+    and af.dt_from <= c.dup_created_at
+    and af.dt_to > c.dup_created_at
+    and {{period:c.dup_created_at}}
+    and c.dup_actor_login not in ('googlebot')
+    and c.dup_actor_login not like 'k8s-%'
+    and c.dup_actor_login not like '%-bot'
+    and c.dup_actor_login not like '%-robot'
+  group by
+    af.company_name
+  union select case e.type
+      when 'IssuesEvent' then 'Issue creators'
+      when 'PullRequestEvent' then 'PR creators'
+      when 'PushEvent' then 'Committers'
+      when 'PullRequestReviewCommentEvent' then 'PR reviewers'
+      when 'IssueCommentEvent' then 'Issue commenters'
+      when 'CommitCommentEvent' then 'Commit commenters'
+      when 'WatchEvent' then 'Watchers'
+      when 'ForkEvent' then 'Forkers'
+    end as metric,
+    af.company_name as company,
+    count(distinct e.actor_id) as value
+  from
+    gha_events e,
+    gha_actors_affiliations af
+  where
+    e.actor_id = af.actor_id
+    and af.dt_from <= e.created_at
+    and af.dt_to > e.created_at
+    and e.type in (
+      'IssuesEvent', 'PullRequestEvent', 'PushEvent',
+      'PullRequestReviewCommentEvent', 'IssueCommentEvent',
+      'CommitCommentEvent', 'ForkEvent', 'WatchEvent'
+    )
+    and {{period:e.created_at}}
+    and e.dup_actor_login not in ('googlebot')
+    and e.dup_actor_login not like 'k8s-%'
+    and e.dup_actor_login not like '%-bot'
+    and e.dup_actor_login not like '%-robot'
+  group by
+    e.type,
+    af.company_name
+  union select 'Repositories' as metric,
+    af.company_name as company,
+    count(distinct e.repo_id) as value
+  from
+    gha_events e,
+    gha_actors_affiliations af
+  where
+    e.actor_id = af.actor_id
+    and af.dt_from <= e.created_at
+    and af.dt_to > e.created_at
+    and {{period:e.created_at}}
+  group by
+    af.company_name
+  union select 'Comments' as metric,
+    af.company_name as company,
+    count(distinct c.id) as value
+  from
+    gha_comments c,
+    gha_actors_affiliations af
+  where
+    c.user_id = af.actor_id
+    and af.dt_from <= c.created_at
+    and af.dt_to > c.created_at
+    and {{period:c.created_at}}
+    and c.dup_user_login not in ('googlebot')
+    and c.dup_user_login not like 'k8s-%'
+    and c.dup_user_login not like '%-bot'
+    and c.dup_user_login not like '%-robot'
+  group by
+    af.company_name
+  union select 'Commenters' as metric,
+    af.company_name as company,
+    count(distinct c.user_id) as value
+  from
+    gha_comments c,
+    gha_actors_affiliations af
+  where
+    c.user_id = af.actor_id
+    and af.dt_from <= c.created_at
+    and af.dt_to > c.created_at
+    and {{period:c.created_at}}
+    and c.dup_user_login not in ('googlebot')
+    and c.dup_user_login not like 'k8s-%'
+    and c.dup_user_login not like '%-bot'
+    and c.dup_user_login not like '%-robot'
+  group by
+    af.company_name
+  union select 'Issues' as metric,
+    af.company_name as company,
+    count(distinct i.id) as value
+  from
+    gha_issues i,
+    gha_actors_affiliations af
+  where
+    i.user_id = af.actor_id
+    and af.dt_from <= i.created_at
+    and af.dt_to > i.created_at
+    and {{period:i.created_at}}
+    and i.is_pull_request = false
+    and i.dup_user_login not in ('googlebot')
+    and i.dup_user_login not like 'k8s-%'
+    and i.dup_user_login not like '%-bot'
+    and i.dup_user_login not like '%-robot'
+  group by
+    af.company_name
+  union select 'PRs' as metric,
+    af.company_name as company,
+    count(distinct i.id) as value
+  from
+    gha_issues i,
+    gha_actors_affiliations af
+  where
+    i.user_id = af.actor_id
+    and af.dt_from <= i.created_at
+    and af.dt_to > i.created_at
+    and {{period:i.created_at}}
+    and i.is_pull_request = true
+    and i.dup_user_login not in ('googlebot')
+    and i.dup_user_login not like 'k8s-%'
+    and i.dup_user_login not like '%-bot'
+    and i.dup_user_login not like '%-robot'
+  group by
+    af.company_name
+  union select 'Events' as metric,
+    af.company_name as company,
+    count(e.id) as value
+  from
+    gha_events e,
+    gha_actors_affiliations af
+  where
+    e.actor_id = af.actor_id
+    and af.dt_from <= e.created_at
+    and af.dt_to > e.created_at
+    and {{period:e.created_at}}
+    and e.dup_actor_login not in ('googlebot')
+    and e.dup_actor_login not like 'k8s-%'
+    and e.dup_actor_login not like '%-bot'
+    and e.dup_actor_login not like '%-robot'
+  group by
+    af.company_name
+  union select 'Commits' as metric,
+    'All' as company,
+    count(distinct c.sha) as value
+  from
+    gha_commits c
+  where
+    {{period:c.dup_created_at}}
+    and c.dup_actor_login not in ('googlebot')
+    and c.dup_actor_login not like 'k8s-%'
+    and c.dup_actor_login not like '%-bot'
+    and c.dup_actor_login not like '%-robot'
+  union select case e.type
+      when 'IssuesEvent' then 'Issue creators'
+      when 'PullRequestEvent' then 'PR creators'
+      when 'PushEvent' then 'Committers'
+      when 'PullRequestReviewCommentEvent' then 'PR reviewers'
+      when 'IssueCommentEvent' then 'Issue commenters'
+      when 'CommitCommentEvent' then 'Commit commenters'
+      when 'WatchEvent' then 'Watchers'
+      when 'ForkEvent' then 'Forkers'
+    end as metric,
+    'All' as company,
+    count(distinct e.actor_id) as value
+  from
+    gha_events e
+  where
+    e.type in (
+      'IssuesEvent', 'PullRequestEvent', 'PushEvent',
+      'PullRequestReviewCommentEvent', 'IssueCommentEvent',
+      'CommitCommentEvent', 'ForkEvent', 'WatchEvent'
+    )
+    and {{period:e.created_at}}
+    and e.dup_actor_login not in ('googlebot')
+    and e.dup_actor_login not like 'k8s-%'
+    and e.dup_actor_login not like '%-bot'
+    and e.dup_actor_login not like '%-robot'
+  group by
+    e.type
+  union select 'Repositories' as metric,
+    'All' as company,
+    count(distinct e.repo_id) as value
+  from
+    gha_events e
+  where
+    {{period:e.created_at}}
+  union select 'Comments' as metric,
+    'All' as company,
+    count(distinct c.id) as value
+  from
+    gha_comments c
+  where
+    {{period:c.created_at}}
+    and c.dup_user_login not in ('googlebot')
+    and c.dup_user_login not like 'k8s-%'
+    and c.dup_user_login not like '%-bot'
+    and c.dup_user_login not like '%-robot'
+  union select 'Commenters' as metric,
+    'All' as company,
+    count(distinct c.user_id) as value
+  from
+    gha_comments c
+  where
+    {{period:c.created_at}}
+    and c.dup_user_login not in ('googlebot')
+    and c.dup_user_login not like 'k8s-%'
+    and c.dup_user_login not like '%-bot'
+    and c.dup_user_login not like '%-robot'
+  union select 'Issues' as metric,
+    'All' as company,
+    count(distinct i.id) as value
+  from
+    gha_issues i
+  where
+    {{period:i.created_at}}
+    and i.is_pull_request = false
+    and i.dup_user_login not in ('googlebot')
+    and i.dup_user_login not like 'k8s-%'
+    and i.dup_user_login not like '%-bot'
+    and i.dup_user_login not like '%-robot'
+  union select 'PRs' as metric,
+    'All' as company,
+    count(distinct i.id) as value
+  from
+    gha_issues i
+  where
+    {{period:i.created_at}}
+    and i.is_pull_request = true
+    and i.dup_user_login not in ('googlebot')
+    and i.dup_user_login not like 'k8s-%'
+    and i.dup_user_login not like '%-bot'
+    and i.dup_user_login not like '%-robot'
+  union select 'Events' as metric,
+    'All' as company,
+    count(e.id) as value
+  from
+    gha_events e
+  where
+    {{period:e.created_at}}
+    and e.dup_actor_login not in ('googlebot')
+    and e.dup_actor_login not like 'k8s-%'
+    and e.dup_actor_login not like '%-bot'
+    and e.dup_actor_login not like '%-robot'
+  ) sub
+where
+  (sub.metric = 'Commenters' and sub.value >= 3)
+  or (sub.metric = 'Comments' and sub.value >= 5)
+  or (sub.metric = 'Events' and sub.value >= 10)
+  or (sub.metric = 'Forkers' and sub.value > 1)
+  or (sub.metric = 'Issue commenters' and sub.value > 1)
+  or (sub.metric = 'Issue creators' and sub.value > 1)
+  or (sub.metric = 'Issues' and sub.value > 1)
+  or (sub.metric = 'PR creators' and sub.value > 1)
+  or (sub.metric = 'PR reviewers' and sub.value > 1)
+  or (sub.metric = 'PRs' and sub.value > 1)
+  or (sub.metric = 'Repositories' and sub.value > 1)
+  or (sub.metric = 'Watchers' and sub.value > 2)
+  or (sub.metric in ('Commit commenters', 'Commits', 'Committers'))
+order by
+  metric asc,
+  value desc,
+  name asc
+;
