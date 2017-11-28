@@ -1127,6 +1127,57 @@ projects:
           - ['project_stats,All', Watchers, 1]
           - ['project_stats,Group1', Watchers, 1]
         data: KubernetesProjectStatsMetric
+      - metric: project_company_stats
+        additional_setup_funcs:
+          - SetDates
+        additional_setup_args:
+          - "gha_commits;dup_created_at;now()-'1h'::interval,\
+             gha_events;created_at;now()-'1h'::interval,\
+             gha_comments;created_at;now()-'1h'::interval,\
+             gha_issues;created_at;now()-'1h'::interval"
+        n: 1
+        period: 1 month
+        expected:
+          - ["project_company_stats,Commenters", "All", 3]
+          - ["project_company_stats,Commenters", "Company2", 2]
+          - ["project_company_stats,Commenters", "Company1", 1]
+          - ["project_company_stats,Comments", "All", 3]
+          - ["project_company_stats,Comments", "Company2", 2]
+          - ["project_company_stats,Comments", "Company1", 1]
+          - ["project_company_stats,Commit commenters", "All", 1]
+          - ["project_company_stats,Commits", "All", 4]
+          - ["project_company_stats,Commits", "Company1", 2]
+          - ["project_company_stats,Commits", "Company2", 2]
+          - ["project_company_stats,Committers", "All", 1]
+          - ["project_company_stats,Committers", "Company2", 1]
+          - ["project_company_stats,Events", "All", 8]
+          - ["project_company_stats,Events", "Company1", 2]
+          - ["project_company_stats,Events", "Company2", 2]
+          - ["project_company_stats,Forkers", "All", 1]
+          - ["project_company_stats,Issue commenters", "All", 1]
+          - ["project_company_stats,Issue creators", "All", 1]
+          - ["project_company_stats,Issue creators", "Company1", 1]
+          - ["project_company_stats,Issues", "All", 2]
+          - ["project_company_stats,PR creators", "All", 1]
+          - ["project_company_stats,PR creators", "Company1", 1]
+          - ["project_company_stats,PR reviewers", "All", 1]
+          - ["project_company_stats,PR reviewers", "Company2", 1]
+          - ["project_company_stats,PRs", "All", 2]
+          - ["project_company_stats,Repositories", "All", 4]
+          - ["project_company_stats,Repositories", "Company1", 2]
+          - ["project_company_stats,Repositories", "Company2", 2]
+          - ["project_company_stats,Watchers", "All", 1]
+        replaces:
+            - ['{{period:c.dup_created_at}}', 'true']
+            - ['{{period:e.created_at}}', 'true']
+            - ['{{period:c.created_at}}', 'true']
+            - ['{{period:i.created_at}}', 'true']
+            - ['>= 3', '>= 0']
+            - ['>= 5', '>= 0']
+            - ['>= 10', '>= 0']
+            - ['> 1', '> 0']
+            - ['> 2', '> 0']
+        data: KubernetesProjectStatsMetric
       - metric: hist_reviewers
         additional_setup_funcs:
           - SetDates
@@ -1324,6 +1375,12 @@ data:
       - [2, 2, 0, body2, null, '1980-01-01T12:00:00Z', 2, open, pr2, '1980-01-01T12:00:00Z', 0, 2, A2, 3, R3, PullRequestEvent, true]
       - [3, 3, 0, body3, null, '1980-01-01T12:00:00Z', 3, open, issue1, '1980-01-01T12:00:00Z', 0, 3, A3, 2, R2, IssuesEvent, false]
       - [4, 4, 0, body4, null, '1980-01-01T12:00:00Z', 4, open, issue2, '1980-01-01T12:00:00Z', 0, 4, A4, 1, R1, IssuesEvent, false]
+    # actor_id, company_name, dt_from, dt_to
+    affiliations:
+      - [1, 'Company1', '1990-01-01T12:00:00Z', '2030-01-01T12:00:00Z']
+      - [2, 'Company1', '1990-01-01T12:00:00Z', '2030-01-01T12:00:00Z']
+      - [3, 'Company2', '1990-01-01T12:00:00Z', '2030-01-01T12:00:00Z']
+      - [4, 'Company2', '1990-01-01T12:00:00Z', '2030-01-01T12:00:00Z']
   KubernetesFirstNonAuthorActivityMetric:
     # id, name, org_id, org_login, repo_group
     repos:
