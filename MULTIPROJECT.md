@@ -1,4 +1,13 @@
-# Configuration for running multiple projects on single host
+# Multiple Grafanas
+
+You can run multiple Grafana instances using grafana/*/grafana_start.sh
+You need to install Grafana and then create separate directories for all projects:
+- `cp -R /usr/shaare/grafana /usr/share/grafana.projectname`.
+- `cp -R /var/lib/grafana /var/lib/grafana.projectname`.
+- `cp -R /etc/grafana /etc/grafana.projectname`.
+
+# Configuration for running multiple projects on single host using Docker
+
 - You need to install docker (see instruction for your Linux distro). This example uses `prometheus`, You can do the same for other projects by changing `prometheus` to other project (like `opentracing` for example).
 - Docker instructions [here](https://github.com/cncf/devstats/blob/master/DOCKER.md).
 - Start Grafana in a docker containser via `GRAFANA_PASS=... ./grafana/prometheus/docker_grafana_first_run.sh` (this is for first start when there are no `/etc/grafana.prometheus` and `/usr/share/grafana.prometheus` `directories yet).
