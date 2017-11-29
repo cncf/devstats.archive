@@ -13,8 +13,8 @@ type IDBBatchPointsN struct {
 	NPoints int
 }
 
-// IDBAddPointN - addes point to the batch, eventually auto flushing
-func IDBAddPointN(ctx *Ctx, con *client.Client, points *IDBBatchPointsN, pt *client.Point) error {
+// IDBAddPointNWithDB - adds point to the batch, eventually auto flushing
+func IDBAddPointNWithDB(ctx *Ctx, con *client.Client, points *IDBBatchPointsN, pt *client.Point, db string) error {
 	bp := *(points.Points)
 	bp.AddPoint(pt)
 	points.NPoints++
@@ -24,11 +24,16 @@ func IDBAddPointN(ctx *Ctx, con *client.Client, points *IDBBatchPointsN, pt *cli
 		}
 		err := (*con).Write(*(points.Points))
 		points.NPoints = 0
-		bp := IDBBatchPoints(ctx, con)
+		bp := IDBBatchPointsWithDB(ctx, con, db)
 		points.Points = &bp
 		return err
 	}
 	return nil
+}
+
+// IDBAddPointN - adds point to the batch, eventually auto flushing
+func IDBAddPointN(ctx *Ctx, con *client.Client, points *IDBBatchPointsN, pt *client.Point) error {
+	return IDBAddPointNWithDB(ctx, con, points, pt, ctx.IDBDB)
 }
 
 // IDBWritePointsN - writes batch points

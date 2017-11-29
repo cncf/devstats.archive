@@ -16,7 +16,7 @@ func copySeries(ch chan bool, ctx *lib.Ctx, from, to, seriesName string) {
 
 	// Get BatchPoints
 	var pts lib.IDBBatchPointsN
-	bp := lib.IDBBatchPoints(ctx, &ic)
+	bp := lib.IDBBatchPointsWithDB(ctx, &ic, to)
 	pts.NPoints = 0
 	pts.Points = &bp
 
@@ -51,7 +51,7 @@ func copySeries(ch chan bool, ctx *lib.Ctx, from, to, seriesName string) {
 				fmt.Printf("%s: tags=%+v, fields=%+v, dt=%v\n", series.Name, tags, fields, dt)
 			}
 			pt := lib.IDBNewPointWithErr(series.Name, tags, fields, dt)
-			lib.IDBAddPointN(ctx, &ic, &pts, pt)
+			lib.IDBAddPointNWithDB(ctx, &ic, &pts, pt, to)
 		}
 	}
 	// Write the batch
