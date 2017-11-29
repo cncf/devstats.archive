@@ -134,7 +134,7 @@ We're getting all possible GitHub data for all objects, and all objects historic
 - It can also be called automatically by `devstats` tool
 
 5) `devstats` (Calls `gha2db_sync` for all defined projects)
-- [gha2db_sync](https://github.com/cncf/devstats/blob/master/cmd/devstats/devstats.go)
+- [devstats](https://github.com/cncf/devstats/blob/master/cmd/devstats/devstats.go)
 - This program will read `projects.yaml` and call `gha2db_sync` for all defined projects that are not disabled by `disabled: true`.
 - It uses own database just to store logs from running project syncers, this is a Postgres database "devstats".
 - It creates PID file `/tmp/devstats.pid` while it is running, so it is safe when instances overlap.
