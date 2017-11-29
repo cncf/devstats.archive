@@ -150,7 +150,10 @@ func workerThread(ch chan bool, ctx *lib.Ctx, seriesNameOrFunc, sqlQuery, period
 	defer ic.Close()
 
 	// Get BatchPoints
+	var pts lib.IDBBatchPointsN
 	bp := lib.IDBBatchPoints(ctx, &ic)
+	pts.NPoints = 0
+	pts.Points = &bp
 
 	// Prepare SQL query
 	sFrom := lib.ToYMDHMSDate(from)
@@ -211,7 +214,7 @@ func workerThread(ch chan bool, ctx *lib.Ctx, seriesNameOrFunc, sqlQuery, period
 			fields["descr"] = valueDescription(desc, value)
 		}
 		pt := lib.IDBNewPointWithErr(name, nil, fields, dt)
-		bp.AddPoint(pt)
+		lib.IDBAddPointN(ctx, &ic, &pts, pt)
 	} else if nColumns >= 2 {
 		// Multiple rows, each with (series name, value(s))
 		// Number of columns
@@ -262,7 +265,7 @@ func workerThread(ch chan bool, ctx *lib.Ctx, seriesNameOrFunc, sqlQuery, period
 							fields["descr"] = valueDescription(desc, value)
 						}
 						pt := lib.IDBNewPointWithErr(name, nil, fields, dt)
-						bp.AddPoint(pt)
+						lib.IDBAddPointN(ctx, &ic, &pts, pt)
 					}
 				}
 			}
@@ -270,14 +273,13 @@ func workerThread(ch chan bool, ctx *lib.Ctx, seriesNameOrFunc, sqlQuery, period
 		// Multivalue series if any
 		for seriesName, seriesValues := range allFields {
 			pt := lib.IDBNewPointWithErr(seriesName, nil, seriesValues, dt)
-			bp.AddPoint(pt)
+			lib.IDBAddPointN(ctx, &ic, &pts, pt)
 		}
 		lib.FatalOnError(rows.Err())
 	}
 	// Write the batch
 	if !ctx.SkipIDB {
-		err = ic.Write(bp)
-		lib.FatalOnError(err)
+		lib.FatalOnError(lib.IDBWritePointsN(ctx, &ic, &pts))
 	} else if ctx.Debug > 0 {
 		lib.Printf("Skipping series write\n")
 	}
@@ -298,7 +300,10 @@ func db2influxHistogram(ctx *lib.Ctx, seriesNameOrFunc, sqlQuery, interval, inte
 	defer ic.Close()
 
 	// Get BatchPoints
+	var pts lib.IDBBatchPointsN
 	bp := lib.IDBBatchPoints(ctx, &ic)
+	pts.NPoints = 0
+	pts.Points = &bp
 
 	// If using annotations ranges, then get their values
 	if annotationsRanges {
@@ -371,7 +376,7 @@ func db2influxHistogram(ctx *lib.Ctx, seriesNameOrFunc, sqlQuery, interval, inte
 			// Add batch point
 			fields := map[string]interface{}{"name": name, "value": value}
 			pt := lib.IDBNewPointWithErr(seriesNameOrFunc, nil, fields, tm)
-			bp.AddPoint(pt)
+			lib.IDBAddPointN(ctx, &ic, &pts, pt)
 			rowCount++
 			tm = tm.Add(-time.Hour)
 		}
@@ -427,7 +432,7 @@ func db2influxHistogram(ctx *lib.Ctx, seriesNameOrFunc, sqlQuery, interval, inte
 					// Add batch point
 					fields := map[string]interface{}{"name": sValue, "value": fValue}
 					pt := lib.IDBNewPointWithErr(name, nil, fields, tm)
-					bp.AddPoint(pt)
+					lib.IDBAddPointN(ctx, &ic, &pts, pt)
 				}
 			}
 		}
@@ -443,8 +448,7 @@ func db2influxHistogram(ctx *lib.Ctx, seriesNameOrFunc, sqlQuery, interval, inte
 	}
 	// Write the batch
 	if !ctx.SkipIDB {
-		err = ic.Write(bp)
-		lib.FatalOnError(err)
+		lib.FatalOnError(lib.IDBWritePointsN(ctx, &ic, &pts))
 	} else if ctx.Debug > 0 {
 		lib.Printf("Skipping series write\n")
 	}

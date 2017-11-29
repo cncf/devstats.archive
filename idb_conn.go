@@ -7,6 +7,38 @@ import (
 	client "github.com/influxdata/influxdb/client/v2"
 )
 
+// IDBBatchPointsN - keeps IfluxDB batch points and numbe rof points in the current batch
+type IDBBatchPointsN struct {
+	Points  *client.BatchPoints
+	NPoints int
+}
+
+// IDBAddPointN - addes point to the batch, eventually auto flushing
+func IDBAddPointN(ctx *Ctx, con *client.Client, points *IDBBatchPointsN, pt *client.Point) error {
+	bp := *(points.Points)
+	bp.AddPoint(pt)
+	points.NPoints++
+	if points.NPoints >= ctx.IDBMaxBatchPoints {
+		if ctx.Debug > 0 {
+			Printf("Writing %d points (maximum batch size reached)\n", points.NPoints)
+		}
+		err := (*con).Write(*(points.Points))
+		points.NPoints = 0
+		bp := IDBBatchPoints(ctx, con)
+		points.Points = &bp
+		return err
+	}
+	return nil
+}
+
+// IDBWritePointsN - writes batch points
+func IDBWritePointsN(ctx *Ctx, con *client.Client, points *IDBBatchPointsN) error {
+	if ctx.Debug > 1 {
+		Printf("Writing %d points\n", points.NPoints)
+	}
+	return (*con).Write(*(points.Points))
+}
+
 // IDBConn Connects to InfluxDB database
 func IDBConn(ctx *Ctx) client.Client {
 	con, err := client.NewHTTPClient(client.HTTPConfig{

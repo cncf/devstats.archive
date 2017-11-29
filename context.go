@@ -10,59 +10,60 @@ import (
 
 // Ctx - environment context packed in structure
 type Ctx struct {
-	Debug            int       // from GHA2DB_DEBUG Debug level: 0-no, 1-info, 2-verbose, including SQLs, default 0
-	CmdDebug         int       // from GHA2DB_CMDDEBUG Commands execution Debug level: 0-no, 1-only output commands, 2-output commands and their output, 3-output full environment as well, default 0
-	JSONOut          bool      // from GHA2DB_JSON gha2db: write JSON files? default false
-	DBOut            bool      // from GHA2DB_NODB gha2db: write to SQL database, default true
-	ST               bool      // from GHA2DB_ST true: use single threaded version, false: use multi threaded version, default false
-	NCPUs            int       // from GHA2DB_NCPUS, set to override number of CPUs to run, this overwrites GHA2DB_ST, default 0 (which means do not use it)
-	PgHost           string    // from PG_HOST, default "localhost"
-	PgPort           string    // from PG_PORT, default "5432"
-	PgDB             string    // from PG_DB, default "gha"
-	PgUser           string    // from PG_USER, default "gha_admin"
-	PgPass           string    // from PG_PASS, default "password"
-	PgSSL            string    // from PG_SSL, default "disable"
-	Index            bool      // from GHA2DB_INDEX Create DB index? default false
-	Table            bool      // from GHA2DB_SKIPTABLE Create table structure? default true
-	Tools            bool      // from GHA2DB_SKIPTOOLS Create DB tools (like views, summary tables, materialized views etc)? default true
-	Mgetc            string    // from GHA2DB_MGETC Character returned by mgetc (if non empty), default ""
-	IDBHost          string    // from IDB_HOST, default "http://localhost"
-	IDBPort          string    // form IDB_PORT, default 8086
-	IDBDB            string    // from IDB_DB, default "gha"
-	IDBUser          string    // from IDB_USER, default "gha_admin"
-	IDBPass          string    // from IDB_PASS, default "password"
-	QOut             bool      // from GHA2DB_QOUT output all SQL queries?, default false
-	CtxOut           bool      // from GHA2DB_CTXOUT output all context data (this struct), default false
-	LogTime          bool      // from GHA2DB_SKIPTIME, output time with all lib.Printf(...) calls, default true, use GHA2DB_SKIPTIME to disable
-	DefaultStartDate time.Time // from GHA2DB_STARTDT, default `2014-06-01 00:00 UTC`, expects format "YYYY-MM-DD HH:MI:SS", can be set in `projects.yaml` via `start_date:`, value from projects.yaml (if set) has the highest priority.
-	LastSeries       string    // from GHA2DB_LASTSERIES, use this InfluxDB series to determine last timestamp date, default "events_h"
-	SkipIDB          bool      // from GHA2DB_SKIPIDB gha2db_sync tool, skip Influx DB processing? for db2influx it skips final series write, default false
-	SkipPDB          bool      // from GHA2DB_SKIPPDB gha2db_sync tool, skip Postgres DB processing? default false
-	ResetIDB         bool      // from GHA2DB_RESETIDB sync tool, regenerate all InfluxDB points? default false
-	ResetRanges      bool      // from GHA2DB_RESETRANGES sync tool, regenerate all past quick ranges? default false
-	Explain          bool      // from GHA2DB_EXPLAIN runq tool, prefix query with "explain " - it will display query plan instead of executing real query, default false
-	OldFormat        bool      // from GHA2DB_OLDFMT gha2db tool, if set then use pre 2015 GHA JSONs format
-	Exact            bool      // From GHA2DB_EXACT gha2db tool, if set then orgs list provided from commandline is used as a list of exact repository full names, like "a/b,c/d,e"
-	LogToDB          bool      // From GHA2DB_SKIPLOG all tools, if set, DB logging into Postgres table `gha_logs` in `devstats` database will be disabled
-	Local            bool      // From GHA2DB_LOCAL gha2db_sync tool, if set, gha2_db will call other tools prefixed with "./" to use local compile ones. Otherwise it will call binaries without prefix (so it will use thos ein /usr/bin/).
-	AnnotationsYaml  string    // From GHA2DB_ANNOTATIONS_YAML annotations tool, set other annotations.yaml file, default is "metrics/{{project}}/annotations.yaml"
-	MetricsYaml      string    // From GHA2DB_METRICS_YAML gha2db_sync tool, set other metrics.yaml file, default is "metrics/{{project}}metrics.yaml"
-	GapsYaml         string    // From GHA2DB_GAPS_YAML gha2db_sync tool, set other gaps.yaml file, default is "metrics/{{project}}/gaps.yaml"
-	TagsYaml         string    // From GHA2DB_TAGS_YAML idb_tags tool, set other idb_tags.yaml file, default is "metrics/{{project}}/idb_tags.yaml"
-	ClearDBPeriod    string    // From GHA2DB_MAXLOGAGE gha2db_sync tool, maximum age of devstats.gha_logs entries, default "1 week"
-	Trials           []int     // From GHA2DB_TRIALS, all Postgres related tools, retry periods for "too many connections open" error
-	WebHookRoot      string    // From GHA2DB_WHROOT, webhook tool, default "/hook", must match .travis.yml notifications webhooks
-	WebHookPort      string    // From GHA2DB_WHPORT, webhook tool, default ":1982", note that webhook listens using http:1982, but we use apache on https:2982 (to enable https protocol and proxy requests to http:1982)
-	WebHookHost      string    // From GHA2DB_WHHOST, webhook tool, default "127.0.0.1" (this can be localhost to disable access by IP, we use Apache proxy to enable https and then apache only need 127.0.0.1)
-	CheckPayload     bool      // From GHA2DB_SKIP_VERIFY_PAYLOAD, webhook tool, default true, use GHA2DB_SKIP_VERIFY_PAYLOAD=1 to manually test payloads
-	DeployBranches   []string  // From GHA2DB_DEPLOY_BRANCHES, webhook tool, default "master" - comma separated list
-	DeployStatuses   []string  // From GHA2DB_DEPLOY_STATUSES, webhook tool, default "Passed,Fixed", - comma separated list
-	DeployResults    []int     // From GHA2DB_DEPLOY_RESULTS, webhook tool, default "0", - comma separated list
-	DeployTypes      []string  // From GHA2DB_DEPLOY_TYPES, webhook tool, default "push", - comma separated list
-	ProjectRoot      string    // From GHA2DB_PROJECT_ROOT, webhook tool, no default, must be specified to run webhook tool
-	ExecFatal        bool      // default true, set this manually to false to avoid lib.ExecCommand calling os.Exit() on failure and return error instead
-	Project          string    // From GHA2DB_PROJECT, gha2db_sync default "", You should set it to something like "kubernetes", "prometheus" etc.
-	TestsYaml        string    // From GHA2DB_TESTS_YAML ./dbtest.sh tool, set other tests.yaml file, default is "tests.yaml"
+	Debug             int       // from GHA2DB_DEBUG Debug level: 0-no, 1-info, 2-verbose, including SQLs, default 0
+	CmdDebug          int       // from GHA2DB_CMDDEBUG Commands execution Debug level: 0-no, 1-only output commands, 2-output commands and their output, 3-output full environment as well, default 0
+	JSONOut           bool      // from GHA2DB_JSON gha2db: write JSON files? default false
+	DBOut             bool      // from GHA2DB_NODB gha2db: write to SQL database, default true
+	ST                bool      // from GHA2DB_ST true: use single threaded version, false: use multi threaded version, default false
+	NCPUs             int       // from GHA2DB_NCPUS, set to override number of CPUs to run, this overwrites GHA2DB_ST, default 0 (which means do not use it)
+	PgHost            string    // from PG_HOST, default "localhost"
+	PgPort            string    // from PG_PORT, default "5432"
+	PgDB              string    // from PG_DB, default "gha"
+	PgUser            string    // from PG_USER, default "gha_admin"
+	PgPass            string    // from PG_PASS, default "password"
+	PgSSL             string    // from PG_SSL, default "disable"
+	Index             bool      // from GHA2DB_INDEX Create DB index? default false
+	Table             bool      // from GHA2DB_SKIPTABLE Create table structure? default true
+	Tools             bool      // from GHA2DB_SKIPTOOLS Create DB tools (like views, summary tables, materialized views etc)? default true
+	Mgetc             string    // from GHA2DB_MGETC Character returned by mgetc (if non empty), default ""
+	IDBHost           string    // from IDB_HOST, default "http://localhost"
+	IDBPort           string    // form IDB_PORT, default 8086
+	IDBDB             string    // from IDB_DB, default "gha"
+	IDBUser           string    // from IDB_USER, default "gha_admin"
+	IDBPass           string    // from IDB_PASS, default "password"
+	IDBMaxBatchPoints int       // from IDB_MAXBATCHPONTS, all Influx related tools, default 4096
+	QOut              bool      // from GHA2DB_QOUT output all SQL queries?, default false
+	CtxOut            bool      // from GHA2DB_CTXOUT output all context data (this struct), default false
+	LogTime           bool      // from GHA2DB_SKIPTIME, output time with all lib.Printf(...) calls, default true, use GHA2DB_SKIPTIME to disable
+	DefaultStartDate  time.Time // from GHA2DB_STARTDT, default `2014-06-01 00:00 UTC`, expects format "YYYY-MM-DD HH:MI:SS", can be set in `projects.yaml` via `start_date:`, value from projects.yaml (if set) has the highest priority.
+	LastSeries        string    // from GHA2DB_LASTSERIES, use this InfluxDB series to determine last timestamp date, default "events_h"
+	SkipIDB           bool      // from GHA2DB_SKIPIDB gha2db_sync tool, skip Influx DB processing? for db2influx it skips final series write, default false
+	SkipPDB           bool      // from GHA2DB_SKIPPDB gha2db_sync tool, skip Postgres DB processing? default false
+	ResetIDB          bool      // from GHA2DB_RESETIDB sync tool, regenerate all InfluxDB points? default false
+	ResetRanges       bool      // from GHA2DB_RESETRANGES sync tool, regenerate all past quick ranges? default false
+	Explain           bool      // from GHA2DB_EXPLAIN runq tool, prefix query with "explain " - it will display query plan instead of executing real query, default false
+	OldFormat         bool      // from GHA2DB_OLDFMT gha2db tool, if set then use pre 2015 GHA JSONs format
+	Exact             bool      // From GHA2DB_EXACT gha2db tool, if set then orgs list provided from commandline is used as a list of exact repository full names, like "a/b,c/d,e"
+	LogToDB           bool      // From GHA2DB_SKIPLOG all tools, if set, DB logging into Postgres table `gha_logs` in `devstats` database will be disabled
+	Local             bool      // From GHA2DB_LOCAL gha2db_sync tool, if set, gha2_db will call other tools prefixed with "./" to use local compile ones. Otherwise it will call binaries without prefix (so it will use thos ein /usr/bin/).
+	AnnotationsYaml   string    // From GHA2DB_ANNOTATIONS_YAML annotations tool, set other annotations.yaml file, default is "metrics/{{project}}/annotations.yaml"
+	MetricsYaml       string    // From GHA2DB_METRICS_YAML gha2db_sync tool, set other metrics.yaml file, default is "metrics/{{project}}metrics.yaml"
+	GapsYaml          string    // From GHA2DB_GAPS_YAML gha2db_sync tool, set other gaps.yaml file, default is "metrics/{{project}}/gaps.yaml"
+	TagsYaml          string    // From GHA2DB_TAGS_YAML idb_tags tool, set other idb_tags.yaml file, default is "metrics/{{project}}/idb_tags.yaml"
+	ClearDBPeriod     string    // From GHA2DB_MAXLOGAGE gha2db_sync tool, maximum age of devstats.gha_logs entries, default "1 week"
+	Trials            []int     // From GHA2DB_TRIALS, all Postgres related tools, retry periods for "too many connections open" error
+	WebHookRoot       string    // From GHA2DB_WHROOT, webhook tool, default "/hook", must match .travis.yml notifications webhooks
+	WebHookPort       string    // From GHA2DB_WHPORT, webhook tool, default ":1982", note that webhook listens using http:1982, but we use apache on https:2982 (to enable https protocol and proxy requests to http:1982)
+	WebHookHost       string    // From GHA2DB_WHHOST, webhook tool, default "127.0.0.1" (this can be localhost to disable access by IP, we use Apache proxy to enable https and then apache only need 127.0.0.1)
+	CheckPayload      bool      // From GHA2DB_SKIP_VERIFY_PAYLOAD, webhook tool, default true, use GHA2DB_SKIP_VERIFY_PAYLOAD=1 to manually test payloads
+	DeployBranches    []string  // From GHA2DB_DEPLOY_BRANCHES, webhook tool, default "master" - comma separated list
+	DeployStatuses    []string  // From GHA2DB_DEPLOY_STATUSES, webhook tool, default "Passed,Fixed", - comma separated list
+	DeployResults     []int     // From GHA2DB_DEPLOY_RESULTS, webhook tool, default "0", - comma separated list
+	DeployTypes       []string  // From GHA2DB_DEPLOY_TYPES, webhook tool, default "push", - comma separated list
+	ProjectRoot       string    // From GHA2DB_PROJECT_ROOT, webhook tool, no default, must be specified to run webhook tool
+	ExecFatal         bool      // default true, set this manually to false to avoid lib.ExecCommand calling os.Exit() on failure and return error instead
+	Project           string    // From GHA2DB_PROJECT, gha2db_sync default "", You should set it to something like "kubernetes", "prometheus" etc.
+	TestsYaml         string    // From GHA2DB_TESTS_YAML ./dbtest.sh tool, set other tests.yaml file, default is "tests.yaml"
 }
 
 // Init - get context from environment variables
@@ -156,6 +157,17 @@ func (ctx *Ctx) Init() {
 	}
 	if ctx.IDBPass == "" {
 		ctx.IDBPass = Password
+	}
+
+	// IDBMaxBatchPoints
+	if os.Getenv("IDB_MAXBATCHPOINTS") == "" {
+		ctx.IDBMaxBatchPoints = 4096
+	} else {
+		maxBatchPoints, err := strconv.Atoi(os.Getenv("IDB_MAXBATCHPOINTS"))
+		FatalOnError(err)
+		if maxBatchPoints > 0 {
+			ctx.IDBMaxBatchPoints = maxBatchPoints
+		}
 	}
 
 	// Environment controlling index creation, table & tools
