@@ -22,3 +22,10 @@ To add new project follow instructions:
 - `create database projectname;`
 - `grant all privileges on database "projectname" to gha_admin;`
 - Generate Postgres data: `PG_PASS=... IDB_PASS=... IDB_HOST=172.17.0.1 ./grpc/grpc.sh`.
+- `cp grafana/prometheus/* grafana/projectname/*` and then update files.
+- `cp grafana/dashboards/prometheus/* grafana/dashboards/projectname/*` and then update files.
+
+
+- Update `projects.yaml` remove `disabled: true` for new project.
+- Add new project to `/var/www/html/index.html`.
+- `make install` to install all changed stuff.
