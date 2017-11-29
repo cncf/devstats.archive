@@ -15,7 +15,10 @@ func copySeries(ch chan bool, ctx *lib.Ctx, from, to, seriesName string) {
 	defer ic.Close()
 
 	// Get BatchPoints
-	bp := lib.IDBBatchPointsWithDB(ctx, &ic, to)
+	var pts lib.IDBBatchPointsN
+	bp := lib.IDBBatchPoints(ctx, &ic)
+	pts.NPoints = 0
+	pts.Points = &bp
 
 	// Get values from series
 	res := lib.QueryIDBWithDB(ic, ctx, "select * from "+seriesName+" group by *", from)
@@ -48,13 +51,12 @@ func copySeries(ch chan bool, ctx *lib.Ctx, from, to, seriesName string) {
 				fmt.Printf("%s: tags=%+v, fields=%+v, dt=%v\n", series.Name, tags, fields, dt)
 			}
 			pt := lib.IDBNewPointWithErr(series.Name, tags, fields, dt)
-			bp.AddPoint(pt)
+			lib.IDBAddPointN(ctx, &ic, &pts, pt)
 		}
 	}
 	// Write the batch
 	if !ctx.SkipIDB {
-		err := ic.Write(bp)
-		lib.FatalOnError(err)
+		lib.FatalOnError(lib.IDBWritePointsN(ctx, &ic, &pts))
 	} else if ctx.Debug > 0 {
 		lib.Printf("Skipping tags series write\n")
 	}

@@ -39,7 +39,10 @@ func ProcessAnnotations(ctx *Ctx, annotations *Annotations, dt time.Time) {
 	defer ic.Close()
 
 	// Get BatchPoints
+	var pts IDBBatchPointsN
 	bp := IDBBatchPoints(ctx, &ic)
+	pts.NPoints = 0
+	pts.Points = &bp
 
 	// Iterate annotations
 	for _, annotation := range annotations.Annotations {
@@ -61,7 +64,7 @@ func ProcessAnnotations(ctx *Ctx, annotations *Annotations, dt time.Time) {
 			)
 		}
 		pt := IDBNewPointWithErr(annotation.SeriesName, nil, fields, annotation.Date)
-		bp.AddPoint(pt)
+		IDBAddPointN(ctx, &ic, &pts, pt)
 	}
 
 	// Special ranges
@@ -104,7 +107,7 @@ func ProcessAnnotations(ctx *Ctx, annotations *Annotations, dt time.Time) {
 		}
 		// Add batch point
 		pt := IDBNewPointWithErr(tagName, tags, fields, tm)
-		bp.AddPoint(pt)
+		IDBAddPointN(ctx, &ic, &pts, pt)
 		tm = tm.Add(time.Hour)
 	}
 
@@ -131,7 +134,7 @@ func ProcessAnnotations(ctx *Ctx, annotations *Annotations, dt time.Time) {
 			}
 			// Add batch point
 			pt := IDBNewPointWithErr(tagName, tags, fields, tm)
-			bp.AddPoint(pt)
+			IDBAddPointN(ctx, &ic, &pts, pt)
 			tm = tm.Add(time.Hour)
 			break
 		}
@@ -149,14 +152,13 @@ func ProcessAnnotations(ctx *Ctx, annotations *Annotations, dt time.Time) {
 		}
 		// Add batch point
 		pt := IDBNewPointWithErr(tagName, tags, fields, tm)
-		bp.AddPoint(pt)
+		IDBAddPointN(ctx, &ic, &pts, pt)
 		tm = tm.Add(time.Hour)
 	}
 
 	// Write the batch
 	if !ctx.SkipIDB {
-		err := ic.Write(bp)
-		FatalOnError(err)
+		FatalOnError(IDBWritePointsN(ctx, &ic, &pts))
 	} else if ctx.Debug > 0 {
 		Printf("Skipping annotations series write\n")
 	}

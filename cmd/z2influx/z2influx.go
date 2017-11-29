@@ -14,7 +14,10 @@ func workerThread(ch chan bool, ctx *lib.Ctx, seriesSet map[string]struct{}, per
 	defer ic.Close()
 
 	// Get BatchPoints
+	var pts lib.IDBBatchPointsN
 	bp := lib.IDBBatchPoints(ctx, &ic)
+	pts.NPoints = 0
+	pts.Points = &bp
 
 	// Zero
 	fields := make(map[string]interface{})
@@ -32,13 +35,12 @@ func workerThread(ch chan bool, ctx *lib.Ctx, seriesSet map[string]struct{}, per
 
 		// Add batch point
 		pt := lib.IDBNewPointWithErr(series, nil, fields, from)
-		bp.AddPoint(pt)
+		lib.IDBAddPointN(ctx, &ic, &pts, pt)
 	}
 
 	// Write the batch
 	if !ctx.SkipIDB {
-		err := ic.Write(bp)
-		lib.FatalOnError(err)
+		lib.FatalOnError(lib.IDBWritePointsN(ctx, &ic, &pts))
 	} else if ctx.Debug > 0 {
 		lib.Printf("Skipping series write\n")
 	}

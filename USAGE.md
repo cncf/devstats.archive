@@ -111,6 +111,7 @@ You can tweak `devstats` tools by environment variables:
 - Set `GHA2DB_PROJECT_ROOT`, webhook tool, no default - You have to set it to where the project repository is cloned (usually $GOPATH:/src/devstats).
 - Set `GHA2DB_PROJECT`, `gha2db_sync` tool to get per project arguments automaticlly and to set all other config files directory prefixes (for example `metrics/prometheus/`), it reads data from `projects.yaml`.
 - Set `GHA2DB_RESETRANGES`, `gha2db_sync` tool to regenerate past variables of quick range values, this is useful when you add new annotations.
+- Set `IDB_MAXBATCHPOINTS`, all Influx tools - set maximum batch size, default 4096.
 
 All environment context details are defined in [context.go](https://github.com/cncf/devstats/blob/master/context.go), please see that file for details (You can also see how it works in [context_test.go](https://github.com/cncf/devstats/blob/master/context_test.go)).
 

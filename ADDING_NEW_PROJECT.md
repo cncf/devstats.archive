@@ -22,10 +22,16 @@ To add new project follow instructions:
 - `create database projectname;`
 - `grant all privileges on database "projectname" to gha_admin;`
 - Generate Postgres data: `PG_PASS=... IDB_PASS=... IDB_HOST=172.17.0.1 ./grpc/grpc.sh`.
+- When data is imported into Postgres: projectname, You need to update `metrics/projectname/gaps.yaml`.
+- Using `./metrics/projectname/companies_tags.sql`,  `./projectname/top_n_companies.sh`.
+- And `./projectname/top_n_repos_groups.sh`.
+- There are two kinds of repo group names: direct from query, but also with special characters replaced with "_"
+- You should copy those from query, put there where needed and do VIM replace: `:'<,'>s/[-/.,;:`\s]/_/g`.
+- Run regenerate all InfluxData script `./projectname/reinit.sh`.
 - `cp grafana/prometheus/* grafana/projectname/*` and then update files.
 - `cp grafana/dashboards/prometheus/* grafana/dashboards/projectname/*` and then update files.
-
-
 - Update `projects.yaml` remove `disabled: true` for new project.
-- Add new project to `/var/www/html/index.html`.
 - `make install` to install all changed stuff.
+
+
+- Add new project to `/var/www/html/index.html`.

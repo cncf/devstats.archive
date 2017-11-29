@@ -39,7 +39,10 @@ func idbTags() {
 	defer ic.Close()
 
 	// Get BatchPoints
+	var pts lib.IDBBatchPointsN
 	bp := lib.IDBBatchPoints(&ctx, &ic)
+	pts.NPoints = 0
+	pts.Points = &bp
 
 	// Local or cron mode?
 	dataPrefix := "/etc/gha2db/"
@@ -104,15 +107,14 @@ func idbTags() {
 			}
 			// Add batch point
 			pt := lib.IDBNewPointWithErr(tag.SeriesName, tags, fields, time.Now())
-			bp.AddPoint(pt)
+			lib.IDBAddPointN(&ctx, &ic, &pts, pt)
 		}
 		lib.FatalOnError(rows.Err())
 	}
 
 	// Write the batch
 	if !ctx.SkipIDB {
-		err := ic.Write(bp)
-		lib.FatalOnError(err)
+		lib.FatalOnError(lib.IDBWritePointsN(&ctx, &ic, &pts))
 	} else if ctx.Debug > 0 {
 		lib.Printf("Skipping tags series write\n")
 	}
