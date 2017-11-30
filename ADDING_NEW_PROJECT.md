@@ -40,5 +40,4 @@ To add new project follow instructions:
 - Issue new SSL certificate as described in `SSL.md`: `sudo certbot --apache -d 'cncftest.io,k8s.cncftest.io,prometheus.cncftest.io,opentracing.cncftest.io,fluentd.cncftest.io,linkerd.cncftest.io,newproject.cncftest.io'`
 - Or `sudo certbot --apache -d 'devstats.cncf.io,k8s.devstats.cncf.io,prometheus.devstats.cncf.io,opentracing.devstats.cncf.io,fluentd.devstats.cncf.io,linkerd.devstats.cncf.io,newproject.devstats.cncf.io'`
 - Open `newproject.cncftest.io` login with admin/admin, change the default password! and follow instructions from `GRAFANA.md`.
-
 - Add new project to `/var/www/html/index.html`.
