@@ -6,7 +6,7 @@ from
   gha_pull_requests pr,
   gha_repos r
 where
-  pr.created_at >= now() - '{{period}}'::interval
+  {{period:pr.created_at}}
   and pr.dup_repo_id = r.id
   and r.repo_group is not null
   and pr.dup_actor_login not in ('googlebot')
@@ -24,7 +24,7 @@ union select 'hist_pr_authors,All' as repo_group,
 from
   gha_pull_requests
 where
-  created_at >= now() - '{{period}}'::interval
+  {{period:created_at}}
   and dup_actor_login not in ('googlebot')
   and dup_actor_login not like 'k8s-%'
   and dup_actor_login not like '%-bot'

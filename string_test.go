@@ -17,6 +17,13 @@ func TestPrepareQuickRangeQuery(t *testing.T) {
 	}{
 		{
 			sql:      "simplest period {{period:a}} case",
+			period:   "",
+			from:     "",
+			to:       "",
+			expected: "You need to provide either non-empty `period` or non empty `from` and `to`",
+		},
+		{
+			sql:      "simplest period {{period:a}} case",
 			period:   "1 day",
 			from:     "",
 			to:       "",
