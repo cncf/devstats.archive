@@ -20,7 +20,7 @@ cp ~/dev/cncf/artwork/linkerd/icon/color/linkerd-icon-color.svg /usr/share/grafa
 cp ~/dev/cncf/artwork/linkerd/icon/color/linkerd-icon-color.svg /usr/share/grafana.linkerd/public/img/grafana_com_auth_icon.svg
 cp ~/dev/cncf/artwork/linkerd/icon/color/linkerd-icon-color.svg /usr/share/grafana.linkerd/public/img/grafana_net_logo.svg
 cp ~/dev/cncf/artwork/linkerd/icon/color/linkerd-icon-color.svg /usr/share/grafana.linkerd/public/img/grafana_mask_icon.svg
-# cp ~/dev/cncf/artwork/grpc/color/grpc-color.svg /usr/share/grafana.grpc/public/img/grafana_icon.svg
-# cp ~/dev/cncf/artwork/grpc/color/grpc-color.svg /usr/share/grafana.grpc/public/img/grafana_com_auth_icon.svg
-# cp ~/dev/cncf/artwork/grpc/color/grpc-color.svg /usr/share/grafana.grpc/public/img/grafana_net_logo.svg
-# cp ~/dev/cncf/artwork/grpc/color/grpc-color.svg /usr/share/grafana.grpc/public/img/grafana_mask_icon.svg
+cp ~/dev/cncf/artwork/grpc/color/grpc-color.svg /usr/share/grafana.grpc/public/img/grafana_icon.svg
+cp ~/dev/cncf/artwork/grpc/color/grpc-color.svg /usr/share/grafana.grpc/public/img/grafana_com_auth_icon.svg
+cp ~/dev/cncf/artwork/grpc/color/grpc-color.svg /usr/share/grafana.grpc/public/img/grafana_net_logo.svg
+cp ~/dev/cncf/artwork/grpc/color/grpc-color.svg /usr/share/grafana.grpc/public/img/grafana_mask_icon.svg
