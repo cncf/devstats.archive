@@ -7,38 +7,46 @@ import (
 	client "github.com/influxdata/influxdb/client/v2"
 )
 
-// IDBBatchPointsN - keeps IfluxDB batch points and numbe rof points in the current batch
+// IDBBatchPointsN - keeps InfluxDB batch points and number of points in the current batch
 type IDBBatchPointsN struct {
-	Points  *client.BatchPoints
-	NPoints int
+	Points      *client.BatchPoints
+	fullBatches []*client.BatchPoints
+	NPoints     int
 }
 
 // IDBAddPointNWithDB - adds point to the batch, eventually auto flushing
-func IDBAddPointNWithDB(ctx *Ctx, con *client.Client, points *IDBBatchPointsN, pt *client.Point, db string) error {
+func IDBAddPointNWithDB(ctx *Ctx, con *client.Client, points *IDBBatchPointsN, pt *client.Point, db string) {
 	bp := *(points.Points)
 	bp.AddPoint(pt)
 	points.NPoints++
 	if points.NPoints >= ctx.IDBMaxBatchPoints {
 		if ctx.Debug > 0 {
-			Printf("Writing %d points (maximum batch size reached)\n", points.NPoints)
+			Printf("Caching %d points (maximum batch size reached)\n", points.NPoints)
 		}
-		err := (*con).Write(*(points.Points))
 		points.NPoints = 0
+		points.fullBatches = append(points.fullBatches, points.Points)
 		bp := IDBBatchPointsWithDB(ctx, con, db)
 		points.Points = &bp
-		return err
 	}
-	return nil
 }
 
 // IDBAddPointN - adds point to the batch, eventually auto flushing
-func IDBAddPointN(ctx *Ctx, con *client.Client, points *IDBBatchPointsN, pt *client.Point) error {
-	return IDBAddPointNWithDB(ctx, con, points, pt, ctx.IDBDB)
+func IDBAddPointN(ctx *Ctx, con *client.Client, points *IDBBatchPointsN, pt *client.Point) {
+	IDBAddPointNWithDB(ctx, con, points, pt, ctx.IDBDB)
 }
 
 // IDBWritePointsN - writes batch points
-func IDBWritePointsN(ctx *Ctx, con *client.Client, points *IDBBatchPointsN) error {
-	if ctx.Debug > 1 {
+func IDBWritePointsN(ctx *Ctx, con *client.Client, points *IDBBatchPointsN) (err error) {
+	for idx, bp := range points.fullBatches {
+		if ctx.Debug > 0 {
+			Printf("Batch #%d: writing %d points\n", idx+1, ctx.IDBMaxBatchPoints)
+		}
+		err = (*con).Write(*bp)
+		if err != nil {
+			return err
+		}
+	}
+	if ctx.Debug > 1 || (ctx.Debug == 1 && len(points.fullBatches) > 0) {
 		Printf("Writing %d points\n", points.NPoints)
 	}
 	return (*con).Write(*(points.Points))
