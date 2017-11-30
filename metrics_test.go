@@ -350,6 +350,15 @@ func executeMetric(c *sql.DB, ctx *lib.Ctx, metric string, from, to time.Time, p
 		}
 		sqlQuery = strings.Replace(sqlQuery, replace[0], replace[1], -1)
 	}
+	qrFrom := ""
+	qrTo := ""
+	if from.Year() >= 1980 {
+		qrFrom = lib.ToYMDHMSDate(from)
+	}
+	if to.Year() >= 1980 {
+		qrTo = lib.ToYMDHMSDate(to)
+	}
+	sqlQuery = lib.PrepareQuickRangeQuery(sqlQuery, period, qrFrom, qrTo)
 
 	// Execute SQL
 	rows := lib.QuerySQLWithErr(c, ctx, sqlQuery)

@@ -23,6 +23,27 @@ func TestPrepareQuickRangeQuery(t *testing.T) {
 			expected: "You need to provide either non-empty `period` or non empty `from` and `to`",
 		},
 		{
+			sql:      "simplest no-period case",
+			period:   "",
+			from:     "",
+			to:       "",
+			expected: "simplest no-period case",
+		},
+		{
+			sql:      "simplest no-period case",
+			period:   "1 month",
+			from:     "",
+			to:       "",
+			expected: "simplest no-period case",
+		},
+		{
+			sql:      "simplest no-period case",
+			period:   "",
+			from:     "2010-01-01 12:00:00",
+			to:       "2010-01-01 12:00:00",
+			expected: "simplest no-period case",
+		},
+		{
 			sql:      "simplest period {{period:a}} case",
 			period:   "1 day",
 			from:     "",
@@ -35,6 +56,13 @@ func TestPrepareQuickRangeQuery(t *testing.T) {
 			from:     "2010-01-01 12:00:00",
 			to:       "2015-02-02 13:00:00",
 			expected: "simplest period  (a >= '2010-01-01 12:00:00' and a < '2015-02-02 13:00:00')  case",
+		},
+		{
+			sql:      "simplest period {{period:a}} case",
+			period:   "1 week",
+			from:     "2010-01-01 12:00:00",
+			to:       "2015-02-02 13:00:00",
+			expected: "simplest period  (a >= now() - '1 week'::interval)  case",
 		},
 		{
 			sql:      "{{period:a.b.c}}{{period:c.d.e}}",

@@ -19,10 +19,6 @@ func PrepareQuickRangeQuery(sql, period, from, to string) string {
 	periodMode := false
 	if period != "" {
 		periodMode = true
-	} else {
-		if from == "" || to == "" {
-			return "You need to provide either non-empty `period` or non empty `from` and `to`"
-		}
 	}
 	for {
 		idx1 := strings.Index(sql[start:], startPatt)
@@ -35,6 +31,9 @@ func PrepareQuickRangeQuery(sql, period, from, to string) string {
 		if periodMode {
 			res += " (" + col + " >= now() - '" + period + "'::interval) "
 		} else {
+			if from == "" || to == "" {
+				return "You need to provide either non-empty `period` or non empty `from` and `to`"
+			}
 			res += " (" + col + " >= '" + from + "' and " + col + " < '" + to + "') "
 		}
 		start += idx1 + idx2 + endPattLen
