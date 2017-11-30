@@ -31,7 +31,7 @@ type Ctx struct {
 	IDBDB             string    // from IDB_DB, default "gha"
 	IDBUser           string    // from IDB_USER, default "gha_admin"
 	IDBPass           string    // from IDB_PASS, default "password"
-	IDBMaxBatchPoints int       // from IDB_MAXBATCHPONTS, all Influx related tools, default 4096
+	IDBMaxBatchPoints int       // from IDB_MAXBATCHPONTS, all Influx related tools, default 10240 (10k)
 	QOut              bool      // from GHA2DB_QOUT output all SQL queries?, default false
 	CtxOut            bool      // from GHA2DB_CTXOUT output all context data (this struct), default false
 	LogTime           bool      // from GHA2DB_SKIPTIME, output time with all lib.Printf(...) calls, default true, use GHA2DB_SKIPTIME to disable
@@ -80,7 +80,7 @@ func (ctx *Ctx) Init() {
 	} else {
 		debugLevel, err := strconv.Atoi(os.Getenv("GHA2DB_DEBUG"))
 		FatalOnError(err)
-		if debugLevel > 0 {
+		if debugLevel != 0 {
 			ctx.Debug = debugLevel
 		}
 	}
@@ -161,7 +161,7 @@ func (ctx *Ctx) Init() {
 
 	// IDBMaxBatchPoints
 	if os.Getenv("IDB_MAXBATCHPOINTS") == "" {
-		ctx.IDBMaxBatchPoints = 4096
+		ctx.IDBMaxBatchPoints = 10240
 	} else {
 		maxBatchPoints, err := strconv.Atoi(os.Getenv("IDB_MAXBATCHPOINTS"))
 		FatalOnError(err)

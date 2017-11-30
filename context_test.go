@@ -173,7 +173,7 @@ func TestInit(t *testing.T) {
 		IDBDB:             "gha",
 		IDBUser:           "gha_admin",
 		IDBPass:           "password",
-		IDBMaxBatchPoints: 4096,
+		IDBMaxBatchPoints: 10240,
 		QOut:              false,
 		CtxOut:            false,
 		DefaultStartDate:  time.Date(2014, 6, 1, 0, 0, 0, 0, time.UTC),
@@ -231,7 +231,11 @@ func TestInit(t *testing.T) {
 		{
 			"Setting negative debug level",
 			map[string]string{"GHA2DB_DEBUG": "-1"},
-			&defaultContext,
+			dynamicSetFields(
+				t,
+				copyContext(&defaultContext),
+				map[string]interface{}{"Debug": -1},
+			),
 		},
 		{
 			"Setting command debug level",
