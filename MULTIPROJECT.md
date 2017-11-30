@@ -56,7 +56,7 @@ To enable storing Grafana session in Postgres database do (setting cookie names 
 - `create database projectname_grafana_sessions;`
 - `grant all privileges on database "projectname_grafana_sessions" to gha_admin;`
 - `\q'
-- You need to do the for all projects. Replace projectname withcurrent project.
+- You need to do the for all projects. Replace projectname with the current project.
 - `sudo -u postgres psql projectname_grafana_sessions`
 ```
 create table session(
