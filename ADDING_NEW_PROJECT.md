@@ -30,6 +30,7 @@ To add new project follow instructions:
 - Run regenerate all InfluxData script `./projectname/reinit.sh`.
 - `cp grafana/prometheus/* grafana/projectname/*` and then update files.
 - `cp grafana/dashboards/prometheus/* grafana/dashboards/projectname/*` and then update files.
+- Update: `grafana/copy_artwork_icons.sh`, `apache/www/copy_icons.sh`.
 - Update `projects.yaml` remove `disabled: true` for new project.
 - `make install` to install all changed stuff.
 - Copy directories `/etc/grafana`, `/usr/share/grafana`, `/var/lib/grafana` froma standard unmodified installation adding .projectname to their names.
