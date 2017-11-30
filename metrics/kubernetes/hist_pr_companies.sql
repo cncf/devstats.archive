@@ -10,7 +10,7 @@ where
   pr.dup_actor_id = a.actor_id
   and a.dt_from <= pr.created_at
   and a.dt_to > pr.created_at
-  and pr.created_at >= now() - '{{period}}'::interval
+  and {{period:pr.created_at}}
   and pr.dup_repo_id = r.id
   and r.repo_group is not null
   and pr.dup_actor_login not in ('googlebot')
@@ -32,7 +32,7 @@ where
   pr.dup_actor_id = a.actor_id
   and a.dt_from <= pr.created_at
   and a.dt_to > pr.created_at
-  and pr.created_at >= now() - '{{period}}'::interval
+  and {{period:pr.created_at}}
   and pr.dup_actor_login not in ('googlebot')
   and pr.dup_actor_login not like 'k8s-%'
   and pr.dup_actor_login not like '%-bot'

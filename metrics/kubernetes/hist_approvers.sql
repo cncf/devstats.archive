@@ -3,7 +3,7 @@ select event_id
 from
   gha_texts
 where
-  created_at >= now() - '{{period}}'::interval
+  {{period:created_at}}
   and substring(body from '(?i)(?:^|\n|\r)\s*/approve\s*(?:\n|\r|$)') is not null;
 
 select

@@ -40,8 +40,22 @@ func runq(sqlFile string, params []string) {
 	bytes, err := ioutil.ReadFile(sqlFile)
 	lib.FatalOnError(err)
 	sqlQuery := string(bytes)
+	qrPeriod := ""
+	qrFrom := ""
+	qrTo := ""
+	qr := false
 	for from, to := range replaces {
+		// Special replace 'qr' 'period,from,to' is used for {{period.alias.name}} replacements
+		if from == "qr" {
+			qrAry := strings.Split(to, ",")
+			qr = true
+			qrPeriod, qrFrom, qrTo = qrAry[0], qrAry[1], qrAry[2]
+			continue
+		}
 		sqlQuery = strings.Replace(sqlQuery, from, to, -1)
+	}
+	if qr {
+		sqlQuery = lib.PrepareQuickRangeQuery(sqlQuery, qrPeriod, qrFrom, qrTo)
 	}
 	if ctx.Explain {
 		sqlQuery = strings.Replace(sqlQuery, "select\n", "explain select\n", -1)

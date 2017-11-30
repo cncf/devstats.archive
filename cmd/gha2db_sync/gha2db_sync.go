@@ -270,11 +270,13 @@ func fillGapsInSeries(ctx *lib.Ctx, from, to time.Time) {
 // computePeriodAtThisDate - for some longer periods, only recalculate them on specific dates
 func computePeriodAtThisDate(period string, to time.Time) bool {
 	to = lib.HourStart(to)
-	if period == "h" || period == "d" || period == "w" {
+	periodStart := period[0:1]
+	if periodStart == "h" || periodStart == "d" || periodStart == "w" || periodStart == "a" {
 		return true
-	} else if period == "m" || period == "q" || period == "y" {
+	} else if periodStart == "m" || periodStart == "q" || periodStart == "y" {
 		return to.Hour() == 0
 	} else {
+		lib.FatalOnError(fmt.Errorf("computePeriodAtThisDate: unknown period: '%s'", period))
 		return false
 	}
 }

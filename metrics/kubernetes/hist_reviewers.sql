@@ -3,7 +3,7 @@ select event_id
 from
   gha_texts
 where
-  created_at >= now() - '{{period}}'::interval
+  {{period:created_at}}
   and substring(body from '(?i)(?:^|\n|\r)\s*/(?:lgtm|approve)\s*(?:\n|\r|$)') is not null;
 
 select
@@ -25,7 +25,7 @@ where
     from
       gha_issues_events_labels
     where
-      created_at >= now() - '{{period}}'::interval
+      {{period:created_at}}
       and label_name in ('lgtm', 'approved')
     group by
       issue_id
@@ -51,7 +51,7 @@ where
     from
       gha_issues_events_labels
     where
-      created_at >= now() - '{{period}}'::interval
+      {{period:created_at}}
       and label_name in ('lgtm', 'approved')
     group by
       issue_id
