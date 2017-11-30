@@ -18,7 +18,7 @@ To add new project follow instructions:
 - Copy `metrics/prometheus` to `metrics/projectname`, those files will need tweaks too, but now update `metrics/projectname/annotations.yaml`.
 - You can use something like this to get releases/tags on a GitHub repo: `git log --tags --simplify-by-decoration --pretty="format:%ai %d"`.
 - `cp -Rv scripts/prometheus/ scripts/projectname`, `vim scripts/projectname/*`.
-- create Postgres database for new project: `sudo -u postgres psql`
+- Create Postgres database for new project: `sudo -u postgres psql`
 - `create database projectname;`
 - `grant all privileges on database "projectname" to gha_admin;`
 - Generate Postgres data: `PG_PASS=... IDB_PASS=... IDB_HOST=172.17.0.1 ./grpc/grpc.sh`.
@@ -38,6 +38,7 @@ To add new project follow instructions:
 - Start new grafana: `./grafana/projectname/grafana_start.sh`.
 - Update Apache config to proxy https to new Grafana instance: `vim /etc/apache2/sites-enabled/000-default-le-ssl.conf`, `service apache2 restart`
 - Issue new SSL certificate as described in `SSL.md`: `sudo certbot --apache -d 'cncftest.io,k8s.cncftest.io,prometheus.cncftest.io,opentracing.cncftest.io,fluentd.cncftest.io,linkerd.cncftest.io,newproject.cncftest.io'`
+- Or `sudo certbot --apache -d 'devstats.cncf.io,k8s.devstats.cncf.io,prometheus.devstats.cncf.io,opentracing.devstats.cncf.io,fluentd.devstats.cncf.io,linkerd.devstats.cncf.io,newproject.devstats.cncf.io'`
 - Open `newproject.cncftest.io` login with admin/admin, change the default password! and follow instructions from `GRAFANA.md`.
 
 - Add new project to `/var/www/html/index.html`.
