@@ -6,7 +6,7 @@ from
   gha_commits c,
   gha_repos r
 where
-  c.dup_created_at >= now() - '{{period}}'::interval
+  {{period:c.dup_created_at}}
   and c.dup_repo_id = r.id
   and r.repo_group is not null
   and c.dup_actor_login not in ('googlebot')
@@ -20,7 +20,7 @@ union select 'project_stats,All' as repo_group,
 from
   gha_commits
 where
-  dup_created_at >= now() - '{{period}}'::interval
+  {{period:dup_created_at}}
   and dup_actor_login not in ('googlebot')
   and dup_actor_login not like '%-bot'
   and dup_actor_login not like '%-robot'
@@ -45,7 +45,7 @@ where
     'PullRequestReviewCommentEvent', 'IssueCommentEvent',
     'CommitCommentEvent', 'ForkEvent', 'WatchEvent'
   )
-  and e.created_at >= now() - '{{period}}'::interval
+  and {{period:e.created_at}}
   and e.repo_id = r.id
   and r.repo_group is not null
   and e.dup_actor_login not in ('googlebot')
@@ -74,7 +74,7 @@ where
     'PullRequestReviewCommentEvent', 'IssueCommentEvent',
     'CommitCommentEvent', 'ForkEvent', 'WatchEvent'
   )
-  and created_at >= now() - '{{period}}'::interval
+  and {{period:created_at}}
   and dup_actor_login not in ('googlebot')
   and dup_actor_login not like '%-bot'
   and dup_actor_login not like '%-robot'
@@ -87,7 +87,7 @@ from
   gha_events e,
   gha_repos r
 where
-  e.created_at >= now() - '{{period}}'::interval
+  {{period:e.created_at}}
   and e.repo_id = r.id
   and r.repo_group is not null
 group by
@@ -98,7 +98,7 @@ union select 'project_stats,All' as repo_group,
 from
   gha_events
 where
-  created_at >= now() - '{{period}}'::interval
+  {{period:created_at}}
 union select 'project_stats,' || r.repo_group as repo_group,
   'Comments' as name,
   count(distinct c.id) as value
@@ -106,7 +106,7 @@ from
   gha_comments c,
   gha_repos r
 where
-  c.created_at >= now() - '{{period}}'::interval
+  {{period:c.created_at}}
   and c.dup_repo_id = r.id
   and r.repo_group is not null
   and c.dup_actor_login not in ('googlebot')
@@ -120,7 +120,7 @@ union select 'project_stats,All' as repo_group,
 from
   gha_comments
 where
-  created_at >= now() - '{{period}}'::interval
+  {{period:created_at}}
   and dup_actor_login not in ('googlebot')
   and dup_actor_login not like '%-bot'
   and dup_actor_login not like '%-robot'
@@ -131,7 +131,7 @@ from
   gha_comments c,
   gha_repos r
 where
-  c.created_at >= now() - '{{period}}'::interval
+  {{period:c.created_at}}
   and c.dup_repo_id = r.id
   and r.repo_group is not null
   and c.dup_actor_login not in ('googlebot')
@@ -145,7 +145,7 @@ union select 'project_stats,All' as repo_group,
 from
   gha_comments
 where
-  created_at >= now() - '{{period}}'::interval
+  {{period:created_at}}
   and dup_actor_login not in ('googlebot')
   and dup_actor_login not like '%-bot'
   and dup_actor_login not like '%-robot'
@@ -156,7 +156,7 @@ from
   gha_issues i,
   gha_repos r
 where
-  i.created_at >= now() - '{{period}}'::interval
+  {{period:i.created_at}}
   and i.dup_repo_id = r.id
   and r.repo_group is not null
   and i.is_pull_request = false
@@ -171,7 +171,7 @@ union select 'project_stats,All' as repo_group,
 from
   gha_issues
 where
-  created_at >= now() - '{{period}}'::interval
+  {{period:created_at}}
   and is_pull_request = false
   and dup_actor_login not in ('googlebot')
   and dup_actor_login not like '%-bot'
@@ -183,7 +183,7 @@ from
   gha_issues i,
   gha_repos r
 where
-  i.created_at >= now() - '{{period}}'::interval
+  {{period:i.created_at}}
   and i.dup_repo_id = r.id
   and r.repo_group is not null
   and i.is_pull_request = true
@@ -198,7 +198,7 @@ union select 'project_stats,All' as repo_group,
 from
   gha_issues
 where
-  created_at >= now() - '{{period}}'::interval
+  {{period:created_at}}
   and is_pull_request = true
   and dup_actor_login not in ('googlebot')
   and dup_actor_login not like '%-bot'
@@ -210,7 +210,7 @@ from
   gha_events e,
   gha_repos r
 where
-  e.created_at >= now() - '{{period}}'::interval
+  {{period:e.created_at}}
   and e.repo_id = r.id
   and r.repo_group is not null
   and e.dup_actor_login not in ('googlebot')
@@ -224,7 +224,7 @@ union select 'project_stats,All' as repo_group,
 from
   gha_events
 where
-  created_at >= now() - '{{period}}'::interval
+  {{period:created_at}}
   and dup_actor_login not in ('googlebot')
   and dup_actor_login not like '%-bot'
   and dup_actor_login not like '%-robot'
