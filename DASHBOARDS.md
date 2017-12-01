@@ -47,7 +47,7 @@ They are defined here: [repo_groups.sql](https://github.com/cncf/devstats/blob/m
 38) Companies summary dashboard [project_company_stats.sql](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/project__company_stats.sql), [/companies_summary.json](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes//companies_summary.json), [view](https://k8s.devstats.cncf.io/dashboard/db/companies-summary?orgId=1).
 
 # Index dashboard showing all projects
-1) All projects dashboard [all_projects.json](https://github.com/cncf/devstats/blob/master/grafana/dashboards/all_projects.json), [view](https://k8s.devstats.cncf.io/dashboard/db/all-projects?orgId=1).
+1) All CNCF projects dashboard [all_cncf_projects.json](https://github.com/cncf/devstats/blob/master/grafana/dashboards/all_cncf_projects.json), [view](https://k8s.devstats.cncf.io/dashboard/db/all-projects?orgId=1).
 
 All of them works live on [k8s.devstats.cncf.io](https://k8s.devstats.cncf.io) with auto `gha2db_sync` tool running.
 
