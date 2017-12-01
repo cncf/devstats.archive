@@ -41,7 +41,7 @@ func logToDB(format string, args ...interface{}) (err error) {
 	if logCtx.ctx.LogToDB == false {
 		return
 	}
-	msg := strings.Replace(fmt.Sprintf(format, args...), "\n", " ", -1)
+	msg := strings.Trim(fmt.Sprintf(format, args...), " \t\n\r")
 	_, err = ExecSQL(
 		logCtx.con,
 		&logCtx.ctx,
