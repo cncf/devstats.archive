@@ -48,7 +48,6 @@ func copyContext(in *lib.Ctx) *lib.Ctx {
 		Exact:             in.Exact,
 		LogToDB:           in.LogToDB,
 		Local:             in.Local,
-		AnnotationsYaml:   in.AnnotationsYaml,
 		MetricsYaml:       in.MetricsYaml,
 		GapsYaml:          in.GapsYaml,
 		TagsYaml:          in.TagsYaml,
@@ -187,7 +186,6 @@ func TestInit(t *testing.T) {
 		Exact:             false,
 		LogToDB:           true,
 		Local:             false,
-		AnnotationsYaml:   "metrics/annotations.yaml",
 		MetricsYaml:       "metrics/metrics.yaml",
 		GapsYaml:          "metrics/gaps.yaml",
 		TagsYaml:          "metrics/idb_tags.yaml",
@@ -470,7 +468,6 @@ func TestInit(t *testing.T) {
 		{
 			"Setting non standard YAML files",
 			map[string]string{
-				"GHA2DB_ANNOTATIONS_YAML": "other/anno.yml",
 				"GHA2DB_METRICS_YAML":     "met.YAML",
 				"GHA2DB_GAPS_YAML":        "/gapz.yml",
 				"GHA2DB_TAGS_YAML":        "/t/g/s.yml",
@@ -479,7 +476,6 @@ func TestInit(t *testing.T) {
 				t,
 				copyContext(&defaultContext),
 				map[string]interface{}{
-					"AnnotationsYaml": "other/anno.yml",
 					"MetricsYaml":     "met.YAML",
 					"GapsYaml":        "/gapz.yml",
 					"TagsYaml":        "/t/g/s.yml",
@@ -568,7 +564,6 @@ func TestInit(t *testing.T) {
 				copyContext(&defaultContext),
 				map[string]interface{}{
 					"Project":         "prometheus",
-					"AnnotationsYaml": "metrics/prometheus/annotations.yaml",
 					"MetricsYaml":     "metrics/prometheus/metrics.yaml",
 					"GapsYaml":        "metrics/prometheus/gaps.yaml",
 					"TagsYaml":        "metrics/prometheus/idb_tags.yaml",
@@ -586,7 +581,6 @@ func TestInit(t *testing.T) {
 				copyContext(&defaultContext),
 				map[string]interface{}{
 					"Project":         "prometheus",
-					"AnnotationsYaml": "metrics/prometheus/annotations.yaml",
 					"MetricsYaml":     "metrics/prometheus/metrics.yaml",
 					"GapsYaml":        "/gapz.yml",
 					"TagsYaml":        "metrics/prometheus/idb_tags.yaml",
