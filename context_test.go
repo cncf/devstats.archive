@@ -51,6 +51,7 @@ func copyContext(in *lib.Ctx) *lib.Ctx {
 		MetricsYaml:       in.MetricsYaml,
 		GapsYaml:          in.GapsYaml,
 		TagsYaml:          in.TagsYaml,
+		GitHubOAuth:       in.GitHubOAuth,
 		ClearDBPeriod:     in.ClearDBPeriod,
 		Trials:            in.Trials,
 		LogTime:           in.LogTime,
@@ -189,6 +190,7 @@ func TestInit(t *testing.T) {
 		MetricsYaml:       "metrics/metrics.yaml",
 		GapsYaml:          "metrics/gaps.yaml",
 		TagsYaml:          "metrics/idb_tags.yaml",
+		GitHubOAuth:       "/etc/github/oauth",
 		ClearDBPeriod:     "1 week",
 		Trials:            []int{10, 30, 60, 120, 300, 600},
 		LogTime:           true,
@@ -468,17 +470,43 @@ func TestInit(t *testing.T) {
 		{
 			"Setting non standard YAML files",
 			map[string]string{
-				"GHA2DB_METRICS_YAML":     "met.YAML",
-				"GHA2DB_GAPS_YAML":        "/gapz.yml",
-				"GHA2DB_TAGS_YAML":        "/t/g/s.yml",
+				"GHA2DB_METRICS_YAML": "met.YAML",
+				"GHA2DB_GAPS_YAML":    "/gapz.yml",
+				"GHA2DB_TAGS_YAML":    "/t/g/s.yml",
 			},
 			dynamicSetFields(
 				t,
 				copyContext(&defaultContext),
 				map[string]interface{}{
-					"MetricsYaml":     "met.YAML",
-					"GapsYaml":        "/gapz.yml",
-					"TagsYaml":        "/t/g/s.yml",
+					"MetricsYaml": "met.YAML",
+					"GapsYaml":    "/gapz.yml",
+					"TagsYaml":    "/t/g/s.yml",
+				},
+			),
+		},
+		{
+			"Setting GitHub OAUth key",
+			map[string]string{
+				"GHA2DB_GITHUB_OAUTH": "1234567890123456789012345678901234567890",
+			},
+			dynamicSetFields(
+				t,
+				copyContext(&defaultContext),
+				map[string]interface{}{
+					"GitHubOAuth": "1234567890123456789012345678901234567890",
+				},
+			),
+		},
+		{
+			"Setting GitHub OAUth file",
+			map[string]string{
+				"GHA2DB_GITHUB_OAUTH": "/home/keogh/gh.key",
+			},
+			dynamicSetFields(
+				t,
+				copyContext(&defaultContext),
+				map[string]interface{}{
+					"GitHubOAuth": "/home/keogh/gh.key",
 				},
 			),
 		},
@@ -563,10 +591,10 @@ func TestInit(t *testing.T) {
 				t,
 				copyContext(&defaultContext),
 				map[string]interface{}{
-					"Project":         "prometheus",
-					"MetricsYaml":     "metrics/prometheus/metrics.yaml",
-					"GapsYaml":        "metrics/prometheus/gaps.yaml",
-					"TagsYaml":        "metrics/prometheus/idb_tags.yaml",
+					"Project":     "prometheus",
+					"MetricsYaml": "metrics/prometheus/metrics.yaml",
+					"GapsYaml":    "metrics/prometheus/gaps.yaml",
+					"TagsYaml":    "metrics/prometheus/idb_tags.yaml",
 				},
 			),
 		},
@@ -580,10 +608,10 @@ func TestInit(t *testing.T) {
 				t,
 				copyContext(&defaultContext),
 				map[string]interface{}{
-					"Project":         "prometheus",
-					"MetricsYaml":     "metrics/prometheus/metrics.yaml",
-					"GapsYaml":        "/gapz.yml",
-					"TagsYaml":        "metrics/prometheus/idb_tags.yaml",
+					"Project":     "prometheus",
+					"MetricsYaml": "metrics/prometheus/metrics.yaml",
+					"GapsYaml":    "/gapz.yml",
+					"TagsYaml":    "metrics/prometheus/idb_tags.yaml",
 				},
 			),
 		},
