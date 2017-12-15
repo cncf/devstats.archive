@@ -21,6 +21,8 @@ Prerequisites:
     - Go Postgres client: install with: `go get github.com/lib/pq`
     - Go unicode text transform tools: install with: `go get golang.org/x/text/transform` and `go get golang.org/x/text/unicode/norm`
     - Go YAML parser library: install with: `go get gopkg.in/yaml.v2`
+    - Go GitHub API client: `go get github.com/google/go-github/github`
+    - Go OAuth2 client: `go get golang.org/x/oauth2`
 
 2. Go to $GOPATH/src/ and clone devstats there:
     - `git clone https://github.com/cncf/devstats.git`

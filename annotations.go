@@ -1,12 +1,16 @@
 package devstats
 
 import (
+	"context"
 	"fmt"
 	"io/ioutil"
 	"regexp"
 	"sort"
 	"strings"
 	"time"
+
+	"github.com/google/go-github/github"
+	"golang.org/x/oauth2"
 )
 
 // Annotations contain list of annotations
@@ -49,7 +53,36 @@ func GetAnnotations(ctx *Ctx, repo, annoRegexp string) (annotations Annotations)
 		FatalOnError(err)
 		oAuth = strings.TrimSpace(string(bytes))
 	}
-	FatalOnError(fmt.Errorf("re: %+v, oauth: %+v, repo: %+v\n", re, oAuth, repo))
+
+	// GitHub authentication or use public access
+	ghCtx := context.Background()
+	var client *github.Client
+	if oAuth == "-" {
+		client = github.NewClient(nil)
+	} else {
+		ts := oauth2.StaticTokenSource(
+			&oauth2.Token{AccessToken: oAuth},
+		)
+		tc := oauth2.NewClient(ghCtx, ts)
+		client = github.NewClient(tc)
+	}
+
+	// Get Tags list
+	opt := &github.RepositoryListByOrgOptions{
+		ListOptions: github.ListOptions{PerPage: 1000},
+	}
+	var allRepos []*github.Repository
+	for {
+		repos, resp, err := client.Repositories.ListByOrg(ghCtx, "github", opt)
+		FatalOnError(err)
+		allRepos = append(allRepos, repos...)
+		if resp.NextPage == 0 {
+			break
+		}
+		opt.Page = resp.NextPage
+	}
+
+	FatalOnError(fmt.Errorf("re: %+v, oauth: %+v, repo: %+v\nallRepos: %+v\n", re, oAuth, repo, allRepos))
 	return
 }
 
