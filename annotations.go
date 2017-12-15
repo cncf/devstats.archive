@@ -2,21 +2,22 @@ package devstats
 
 import (
 	"fmt"
+	"io/ioutil"
+	"regexp"
 	"sort"
+	"strings"
 	"time"
 )
 
 // Annotations contain list of annotations
 type Annotations struct {
-	Annotations []Annotation `yaml:"annotations"`
+	Annotations []Annotation
 }
 
 // Annotation contain each annotation data
 type Annotation struct {
-	Title       string    `yaml:"title"`
-	Description string    `yaml:"description"`
-	SeriesName  string    `yaml:"series_name"`
-	Date        time.Time `yaml:"date"`
+	Name string    `yaml:"title"`
+	Date time.Time `yaml:"date"`
 }
 
 // AnnotationsByDate annotations Sort interface
@@ -35,6 +36,20 @@ func (a AnnotationsByDate) Less(i, j int) bool {
 // GetAnnotations queries GitHub `repo` via GitHub API (using ctx.GitHubOAuth)
 // for all tags and returns those matching `annoRegexp`
 func GetAnnotations(ctx *Ctx, repo, annoRegexp string) (annotations Annotations) {
+	// Compile annotation regexp if present, if no regexp then return all tags
+	var re *regexp.Regexp
+	if annoRegexp != "" {
+		re = regexp.MustCompile(annoRegexp)
+	}
+
+	// Get GitHub OAuth from env or from file
+	oAuth := ctx.GitHubOAuth
+	if strings.Contains(ctx.GitHubOAuth, "/") {
+		bytes, err := ioutil.ReadFile(ctx.GitHubOAuth)
+		FatalOnError(err)
+		oAuth = strings.TrimSpace(string(bytes))
+	}
+	FatalOnError(fmt.Errorf("re: %+v, oauth: %+v, repo: %+v\n", re, oAuth, repo))
 	return
 }
 
@@ -56,20 +71,20 @@ func ProcessAnnotations(ctx *Ctx, annotations *Annotations, dt time.Time) {
 			continue
 		}
 		fields := map[string]interface{}{
-			"title":       annotation.Title,
-			"description": annotation.Description,
+			"title":       annotation.Name,
+			"description": annotation.Name,
 		}
 		// Add batch point
 		if ctx.Debug > 0 {
 			Printf(
 				"Series: %v: Date: %v: '%v', '%v'\n",
-				annotation.SeriesName,
+				"annotations",
 				ToYMDDate(annotation.Date),
-				annotation.Title,
-				annotation.Description,
+				annotation.Name,
+				annotation.Name,
 			)
 		}
-		pt := IDBNewPointWithErr(annotation.SeriesName, nil, fields, annotation.Date)
+		pt := IDBNewPointWithErr("annotations", nil, fields, annotation.Date)
 		IDBAddPointN(ctx, &ic, &pts, pt)
 	}
 
@@ -129,7 +144,7 @@ func ProcessAnnotations(ctx *Ctx, annotations *Annotations, dt time.Time) {
 		if index == lastIndex {
 			sfx := fmt.Sprintf("anno_%d_now", index)
 			tags[tagName+"_suffix"] = sfx
-			tags[tagName+"_name"] = fmt.Sprintf("%s - now", annotation.Title)
+			tags[tagName+"_name"] = fmt.Sprintf("%s - now", annotation.Name)
 			tags[tagName+"_data"] = fmt.Sprintf("%s;;%s;%s", sfx, ToYMDHMSDate(annotation.Date), ToYMDHMSDate(NextDayStart(time.Now())))
 			if ctx.Debug > 0 {
 				Printf(
@@ -147,7 +162,7 @@ func ProcessAnnotations(ctx *Ctx, annotations *Annotations, dt time.Time) {
 		nextAnnotation := annotations.Annotations[index+1]
 		sfx := fmt.Sprintf("anno_%d_%d", index, index+1)
 		tags[tagName+"_suffix"] = sfx
-		tags[tagName+"_name"] = fmt.Sprintf("%s - %s", annotation.Title, nextAnnotation.Title)
+		tags[tagName+"_name"] = fmt.Sprintf("%s - %s", annotation.Name, nextAnnotation.Name)
 		tags[tagName+"_data"] = fmt.Sprintf("%s;;%s;%s", sfx, ToYMDHMSDate(annotation.Date), ToYMDHMSDate(nextAnnotation.Date))
 		if ctx.Debug > 0 {
 			Printf(
