@@ -49,6 +49,7 @@ type Ctx struct {
 	MetricsYaml       string    // From GHA2DB_METRICS_YAML gha2db_sync tool, set other metrics.yaml file, default is "metrics/{{project}}metrics.yaml"
 	GapsYaml          string    // From GHA2DB_GAPS_YAML gha2db_sync tool, set other gaps.yaml file, default is "metrics/{{project}}/gaps.yaml"
 	TagsYaml          string    // From GHA2DB_TAGS_YAML idb_tags tool, set other idb_tags.yaml file, default is "metrics/{{project}}/idb_tags.yaml"
+	GitHubOAuth       string    // From GHA2DB_GITHUB_OAUTH annotations tool, if not set read from /etc/github/oauth file, if still no value tries to get tags using anonymous access.
 	ClearDBPeriod     string    // From GHA2DB_MAXLOGAGE gha2db_sync tool, maximum age of devstats.gha_logs entries, default "1 week"
 	Trials            []int     // From GHA2DB_TRIALS, all Postgres related tools, retry periods for "too many connections open" error
 	WebHookRoot       string    // From GHA2DB_WHROOT, webhook tool, default "/hook", must match .travis.yml notifications webhooks
@@ -236,6 +237,12 @@ func (ctx *Ctx) Init() {
 	}
 	if ctx.TagsYaml == "" {
 		ctx.TagsYaml = "metrics/" + proj + "idb_tags.yaml"
+	}
+
+	// GitHub OAuth
+	ctx.GitHubOAuth = os.Getenv("GHA2DB_GITHUB_OAUTH")
+	if ctx.GitHubOAuth == "" {
+		ctx.GitHubOAuth = "/etc/github/oauth"
 	}
 
 	// Max DB logs age
