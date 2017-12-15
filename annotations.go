@@ -37,9 +37,17 @@ func (a AnnotationsByDate) Less(i, j int) bool {
 	return a[i].Date.Before(a[j].Date)
 }
 
-// GetAnnotations queries GitHub `repo` via GitHub API (using ctx.GitHubOAuth)
+// GetAnnotations queries GitHub `orgRepo` via GitHub API (using ctx.GitHubOAuth)
 // for all tags and returns those matching `annoRegexp`
-func GetAnnotations(ctx *Ctx, repo, annoRegexp string) (annotations Annotations) {
+func GetAnnotations(ctx *Ctx, orgRepo, annoRegexp string) (annotations Annotations) {
+	// Get org and repo from orgRepo
+	ary := strings.Split(orgRepo, "/")
+	if len(ary) != 2 {
+		FatalOnError(fmt.Errorf("main repository format must be 'org/repo', found '%s'", orgRepo))
+	}
+	org := ary[0]
+	repo := ary[1]
+
 	// Compile annotation regexp if present, if no regexp then return all tags
 	var re *regexp.Regexp
 	if annoRegexp != "" {
@@ -68,21 +76,28 @@ func GetAnnotations(ctx *Ctx, repo, annoRegexp string) (annotations Annotations)
 	}
 
 	// Get Tags list
-	opt := &github.RepositoryListByOrgOptions{
-		ListOptions: github.ListOptions{PerPage: 1000},
-	}
-	var allRepos []*github.Repository
+	opt := &github.ListOptions{PerPage: 1000}
+	//var allTags []*github.RepositoryTag
 	for {
-		repos, resp, err := client.Repositories.ListByOrg(ghCtx, "github", opt)
+		tags, resp, err := client.Repositories.ListTags(context.Background(), org, repo, opt)
+		if _, ok := err.(*github.RateLimitError); ok {
+			Printf("hit rate limit on %s '%s'\n", orgRepo, annoRegexp)
+		}
 		FatalOnError(err)
-		allRepos = append(allRepos, repos...)
+		for _, tag := range tags {
+			tagName := *tag.Name
+			if re.MatchString(tagName) {
+				fmt.Printf("tag: %s\n", *tag.Name)
+			}
+		}
+		//allTags = append(allTags, tags...)
 		if resp.NextPage == 0 {
 			break
 		}
 		opt.Page = resp.NextPage
 	}
 
-	FatalOnError(fmt.Errorf("re: %+v, oauth: %+v, repo: %+v\nallRepos: %+v\n", re, oAuth, repo, allRepos))
+	FatalOnError(fmt.Errorf("re: %+v, oauth: %+v, repo: %+v\nannotations: %+v\n", re, oAuth, orgRepo, annotations))
 	return
 }
 
