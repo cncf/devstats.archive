@@ -10,6 +10,8 @@ import (
 	"time"
 
 	lib "devstats"
+
+	client "github.com/influxdata/influxdb/client/v2"
 )
 
 // valueDescription - return string description for given float value
@@ -290,7 +292,46 @@ func workerThread(ch chan bool, ctx *lib.Ctx, seriesNameOrFunc, sqlQuery, period
 	}
 }
 
-func db2influxHistogram(ctx *lib.Ctx, seriesNameOrFunc, sqlQuery, interval, intervalAbbr string, nIntervals int, annotationsRanges, skipPast bool) {
+// isAlreadyComputed check if given quick range period was already computed
+// It will skip past period marked as compued unless special flags are passed
+func isAlreadyComputed(ic client.Client, ctx *lib.Ctx, key, from, to string) bool {
+	query := fmt.Sprintf(
+		"select count(*) "+
+			"from computed where computed_key = '%s' "+
+			"and computed_from = '%s' "+
+			"and computed_to = '%s'",
+		key,
+		from,
+		to,
+	)
+	res := lib.QueryIDB(ic, ctx, query)
+	computed := len(res[0].Series) > 0
+	if ctx.Debug > 0 {
+		lib.Printf("Period '%s: %s - %s' compute status: %v\n", key, from, to, computed)
+	}
+	return computed
+}
+
+// setAlreadyComputed marks given quick range period as computed
+func setAlreadyComputed(ic client.Client, ctx *lib.Ctx, pts *lib.IDBBatchPointsN, key, from, to string) {
+	// No fields value needed
+	fields := map[string]interface{}{"value": 0.0}
+
+	// Tags to insert
+	tags := make(map[string]string)
+	tags["computed_from"] = from
+	tags["computed_to"] = to
+	tags["computed_key"] = key
+
+	// Add batch point
+	pt := lib.IDBNewPointWithErr("computed", tags, fields, time.Now())
+	lib.IDBAddPointN(ctx, &ic, pts, pt)
+	if ctx.Debug > 0 {
+		lib.Printf("Period '%s: %s - %s' marked as computed\n", key, from, to)
+	}
+}
+
+func db2influxHistogram(ctx *lib.Ctx, seriesNameOrFunc, sqlFile, sqlQuery, interval, intervalAbbr string, nIntervals int, annotationsRanges, skipPast bool) {
 	// Connect to Postgres DB
 	sqlc := lib.PgConn(ctx)
 	defer sqlc.Close()
@@ -306,6 +347,10 @@ func db2influxHistogram(ctx *lib.Ctx, seriesNameOrFunc, sqlQuery, interval, inte
 	pts.Points = &bp
 
 	// If using annotations ranges, then get their values
+	var (
+		qrFrom *string
+		qrTo   *string
+	)
 	if annotationsRanges {
 		// Get Quick Ranges from IDB (it is filled by annotations command)
 		quickRanges := lib.GetTagValues(ic, ctx, "quick_ranges_data")
@@ -326,12 +371,15 @@ func db2influxHistogram(ctx *lib.Ctx, seriesNameOrFunc, sqlQuery, interval, inte
 				if skipPast && period == "" {
 					dtTo := lib.TimeParseAny(to)
 					prevHour := lib.PrevHourStart(time.Now())
-					if dtTo.Before(prevHour) {
-						lib.Printf("Skipping past quick range: %v - %v\n", from, to)
+					if dtTo.Before(prevHour) && isAlreadyComputed(ic, ctx, sqlFile, from, to) {
+						lib.Printf("Skipping past quick range: %v - %v (already computed)\n", from, to)
 						return
 					}
 				}
 				sqlQuery = lib.PrepareQuickRangeQuery(sqlQuery, period, from, to)
+				qrFrom = &from
+				qrTo = &to
+				break
 			}
 		}
 		if !found {
@@ -448,6 +496,10 @@ func db2influxHistogram(ctx *lib.Ctx, seriesNameOrFunc, sqlQuery, interval, inte
 	}
 	// Write the batch
 	if !ctx.SkipIDB {
+		// Mark this metric & period as already computed if this is a QR period
+		if qrFrom != nil && qrTo != nil {
+			setAlreadyComputed(ic, ctx, &pts, sqlFile, *qrFrom, *qrTo)
+		}
 		lib.FatalOnError(lib.IDBWritePointsN(ctx, &ic, &pts))
 	} else if ctx.Debug > 0 {
 		lib.Printf("Skipping series write\n")
@@ -471,6 +523,7 @@ func db2influx(seriesNameOrFunc, sqlFile, from, to, intervalAbbr string, hist, m
 		db2influxHistogram(
 			&ctx,
 			seriesNameOrFunc,
+			sqlFile,
 			sqlQuery,
 			interval,
 			intervalAbbr,
