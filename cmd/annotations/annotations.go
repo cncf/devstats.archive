@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"io/ioutil"
-	"os"
 	"time"
 
 	lib "devstats"
@@ -12,7 +11,7 @@ import (
 )
 
 // makeAnnotations: Insert InfluxDB annotations starting after `dt`
-func makeAnnotations(sdt string) {
+func makeAnnotations() {
 	// Environment context parse
 	var ctx lib.Ctx
 	ctx.Init()
@@ -23,9 +22,6 @@ func makeAnnotations(sdt string) {
 			fmt.Errorf("you have to set project via GHA2DB_PROJECT environment variable"),
 		)
 	}
-
-	// Parse input dates
-	dt := lib.TimeParseAny(sdt)
 
 	// Local or cron mode?
 	dataPrefix := lib.DataDir
@@ -49,16 +45,12 @@ func makeAnnotations(sdt string) {
 	annotations := lib.GetAnnotations(&ctx, proj.MainRepo, proj.AnnotationRegexp)
 
 	// Add annotations and quick ranges to InfluxDB
-	lib.ProcessAnnotations(&ctx, &annotations, dt)
+	lib.ProcessAnnotations(&ctx, &annotations)
 }
 
 func main() {
 	dtStart := time.Now()
-	if len(os.Args) < 2 {
-		lib.Printf("Required date_from\n")
-		os.Exit(1)
-	}
-	makeAnnotations(os.Args[1])
+	makeAnnotations()
 	dtEnd := time.Now()
 	lib.Printf("Time: %v\n", dtEnd.Sub(dtStart))
 }

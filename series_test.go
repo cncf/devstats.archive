@@ -4,7 +4,6 @@ import (
 	lib "devstats"
 	testlib "devstats/test"
 	"testing"
-	"time"
 
 	client "github.com/influxdata/influxdb/client/v2"
 )
@@ -87,7 +86,6 @@ func TestProcessAnnotations(t *testing.T) {
 	ft := testlib.YMDHMS
 	var testCases = []struct {
 		annotations         lib.Annotations
-		dt                  time.Time
 		expectedAnnotations [][]interface{}
 		expectedQuickRanges [][]interface{}
 	}{
@@ -95,14 +93,14 @@ func TestProcessAnnotations(t *testing.T) {
 			annotations: lib.Annotations{
 				[]lib.Annotation{
 					{
-						Name: "release 0.0.0",
-						Date: ft(2017, 2),
+						Name:        "release 0.0.0",
+						Description: "desc 0.0.0",
+						Date:        ft(2017, 2),
 					},
 				},
 			},
-			dt: ft(2017),
 			expectedAnnotations: [][]interface{}{
-				{"2017-02-01T00:00:00Z", "release 0.0.0", "release 0.0.0"},
+				{"2017-02-01T00:00:00Z", "desc 0.0.0", "release 0.0.0"},
 			},
 			expectedQuickRanges: [][]interface{}{
 				{"d;1 day;;", "Last day", "d"},
@@ -116,29 +114,7 @@ func TestProcessAnnotations(t *testing.T) {
 			},
 		},
 		{
-			annotations: lib.Annotations{
-				[]lib.Annotation{
-					{
-						Name: "release 0.0.0",
-						Date: ft(2017, 2),
-					},
-				},
-			},
-			dt:                  ft(2017, 3),
-			expectedAnnotations: [][]interface{}{},
-			expectedQuickRanges: [][]interface{}{
-				{"d;1 day;;", "Last day", "d"},
-				{"w;1 week;;", "Last week", "w"},
-				{"d10;10 days;;", "Last 10 days", "d10"},
-				{"m;1 month;;", "Last month", "m"},
-				{"q;3 months;;", "Last quarter", "q"},
-				{"y;1 year;;", "Last year", "y"},
-				{"Last decade", "y10"},
-			},
-		},
-		{
 			annotations:         lib.Annotations{[]lib.Annotation{}},
-			dt:                  ft(2017, 3),
 			expectedAnnotations: [][]interface{}{},
 			expectedQuickRanges: [][]interface{}{
 				{"d;1 day;;", "Last day", "d"},
@@ -154,33 +130,38 @@ func TestProcessAnnotations(t *testing.T) {
 			annotations: lib.Annotations{
 				[]lib.Annotation{
 					{
-						Name: "release 4.0.0",
-						Date: ft(2017, 5),
+						Name:        "release 4.0.0",
+						Description: "desc 4.0.0",
+						Date:        ft(2017, 5),
 					},
 					{
-						Name: "release 3.0.0",
-						Date: ft(2017, 4),
+						Name:        "release 3.0.0",
+						Description: "desc 3.0.0",
+						Date:        ft(2017, 4),
 					},
 					{
-						Name: "release 1.0.0",
-						Date: ft(2017, 2),
+						Name:        "release 1.0.0",
+						Description: "desc 1.0.0",
+						Date:        ft(2017, 2),
 					},
 					{
-						Name: "release 0.0.0",
-						Date: ft(2017, 1),
+						Name:        "release 0.0.0",
+						Description: "desc 0.0.0",
+						Date:        ft(2017, 1),
 					},
 					{
-						Name: "release 2.0.0",
-						Date: ft(2017, 3),
+						Name:        "release 2.0.0",
+						Description: "desc 2.0.0",
+						Date:        ft(2017, 3),
 					},
 				},
 			},
-			dt: ft(2017, 1, 19),
 			expectedAnnotations: [][]interface{}{
-				{"2017-02-01T00:00:00Z", "release 1.0.0", "release 1.0.0"},
-				{"2017-03-01T00:00:00Z", "release 2.0.0", "release 2.0.0"},
-				{"2017-04-01T00:00:00Z", "release 3.0.0", "release 3.0.0"},
-				{"2017-05-01T00:00:00Z", "release 4.0.0", "release 4.0.0"},
+				{"2017-01-01T00:00:00Z", "desc 0.0.0", "release 0.0.0"},
+				{"2017-02-01T00:00:00Z", "desc 1.0.0", "release 1.0.0"},
+				{"2017-03-01T00:00:00Z", "desc 2.0.0", "release 2.0.0"},
+				{"2017-04-01T00:00:00Z", "desc 3.0.0", "release 3.0.0"},
+				{"2017-05-01T00:00:00Z", "desc 4.0.0", "release 4.0.0"},
 			},
 			expectedQuickRanges: [][]interface{}{
 				{"d;1 day;;", "Last day", "d"},
@@ -190,6 +171,7 @@ func TestProcessAnnotations(t *testing.T) {
 				{"q;3 months;;", "Last quarter", "q"},
 				{"y;1 year;;", "Last year", "y"},
 				{"y10;10 years;;", "Last decade", "y10"},
+				{"anno_0_1;;2017-01-01 00:00:00;2017-02-01 00:00:00", "release 0.0.0 - release 1.0.0", "anno_0_1"},
 				{"anno_1_2;;2017-02-01 00:00:00;2017-03-01 00:00:00", "release 1.0.0 - release 2.0.0", "anno_1_2"},
 				{"anno_2_3;;2017-03-01 00:00:00;2017-04-01 00:00:00", "release 2.0.0 - release 3.0.0", "anno_2_3"},
 				{"anno_3_4;;2017-04-01 00:00:00;2017-05-01 00:00:00", "release 3.0.0 - release 4.0.0", "anno_3_4"},
@@ -200,39 +182,44 @@ func TestProcessAnnotations(t *testing.T) {
 			annotations: lib.Annotations{
 				[]lib.Annotation{
 					{
-						Name: "v1.0",
-						Date: ft(2016, 1),
+						Name:        "v1.0",
+						Description: "desc v1.0",
+						Date:        ft(2016, 1),
 					},
 					{
-						Name: "v6.0",
-						Date: ft(2016, 6),
+						Name:        "v6.0",
+						Description: "desc v6.0",
+						Date:        ft(2016, 6),
 					},
 					{
-						Name: "v2.0",
-						Date: ft(2016, 2),
+						Name:        "v2.0",
+						Description: "desc v2.0",
+						Date:        ft(2016, 2),
 					},
 					{
-						Name: "v4.0",
-						Date: ft(2016, 4),
+						Name:        "v4.0",
+						Description: "desc v4.0",
+						Date:        ft(2016, 4),
 					},
 					{
-						Name: "v3.0",
-						Date: ft(2016, 3),
+						Name:        "v3.0",
+						Description: "desc v3.0",
+						Date:        ft(2016, 3),
 					},
 					{
-						Name: "v5.0",
-						Date: ft(2016, 5),
+						Name:        "v5.0",
+						Description: "desc v5.0",
+						Date:        ft(2016, 5),
 					},
 				},
 			},
-			dt: ft(2000),
 			expectedAnnotations: [][]interface{}{
-				{"2016-01-01T00:00:00Z", "v1.0", "v1.0"},
-				{"2016-02-01T00:00:00Z", "v2.0", "v2.0"},
-				{"2016-03-01T00:00:00Z", "v3.0", "v3.0"},
-				{"2016-04-01T00:00:00Z", "v4.0", "v4.0"},
-				{"2016-05-01T00:00:00Z", "v5.0", "v5.0"},
-				{"2016-06-01T00:00:00Z", "v6.0", "v6.0"},
+				{"2016-01-01T00:00:00Z", "desc v1.0", "v1.0"},
+				{"2016-02-01T00:00:00Z", "desc v2.0", "v2.0"},
+				{"2016-03-01T00:00:00Z", "desc v3.0", "v3.0"},
+				{"2016-04-01T00:00:00Z", "desc v4.0", "v4.0"},
+				{"2016-05-01T00:00:00Z", "desc v5.0", "v5.0"},
+				{"2016-06-01T00:00:00Z", "desc v6.0", "v6.0"},
 			},
 			expectedQuickRanges: [][]interface{}{
 				{"d;1 day;;", "Last day", "d"},
@@ -254,7 +241,7 @@ func TestProcessAnnotations(t *testing.T) {
 	// Execute test cases
 	for index, test := range testCases {
 		// Execute annotations & quick ranges call
-		lib.ProcessAnnotations(&ctx, &test.annotations, test.dt)
+		lib.ProcessAnnotations(&ctx, &test.annotations)
 
 		// Check annotations created
 		gotAnnotations := getIDBResult(lib.QueryIDB(con, &ctx, "select * from annotations"))
