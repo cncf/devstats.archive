@@ -401,7 +401,6 @@ func sync(ctx *lib.Ctx, args []string) {
 				ctx,
 				[]string{
 					cmdPrefix + "annotations",
-					lib.ToYMDHDate(from),
 				},
 				nil,
 			)
