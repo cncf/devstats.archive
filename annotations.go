@@ -87,7 +87,7 @@ func GetAnnotations(ctx *Ctx, orgRepo, annoRegexp string) (annotations Annotatio
 		FatalOnError(err)
 		for _, tag := range tags {
 			tagName := *tag.Name
-			if !re.MatchString(tagName) {
+			if re != nil && !re.MatchString(tagName) {
 				continue
 			}
 			sha := *tag.Commit.SHA
@@ -98,9 +98,10 @@ func GetAnnotations(ctx *Ctx, orgRepo, annoRegexp string) (annotations Annotatio
 			FatalOnError(err)
 			date := *commit.Commit.Committer.Date
 			message := *commit.Commit.Message
-			if len(message) > 40 {
-				message = message[0:40]
+			if len(message) > 80 {
+				message = message[0:80]
 			}
+			message = strings.Replace(message, "\n", " ", -1)
 			annotations.Annotations = append(annotations.Annotations, Annotation{Name: tagName, Description: message, Date: date})
 		}
 		//allTags = append(allTags, tags...)

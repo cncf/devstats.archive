@@ -396,7 +396,7 @@ func sync(ctx *lib.Ctx, args []string) {
 		}
 
 		// Annotations
-		if ctx.ResetIDB || time.Now().Hour() == 0 {
+		if ctx.Project != "" && (ctx.ResetIDB || time.Now().Hour() == 0) {
 			lib.ExecCommand(
 				ctx,
 				[]string{
