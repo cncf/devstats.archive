@@ -377,8 +377,10 @@ func db2influxHistogram(ctx *lib.Ctx, seriesNameOrFunc, sqlFile, sqlQuery, inter
 					}
 				}
 				sqlQuery = lib.PrepareQuickRangeQuery(sqlQuery, period, from, to)
-				qrFrom = &from
-				qrTo = &to
+				if period == "" {
+					qrFrom = &from
+					qrTo = &to
+				}
 				break
 			}
 		}
