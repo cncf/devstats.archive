@@ -9,8 +9,11 @@ If You see any error, or if You have suggestion please create [issue and/or PR](
 - `GHA2DB_PROJECT=kubernetes IDB_HOST="172.17.0.1" PG_PASS='...' IDB_PASS='...' ./dbtest.sh`.
 - New metrics test coverage should be added in `metrics_test.go`.
 
+# Working locally
+Please see [Development](https://github.com/cncf/devstats/blob/master/DEVELOPMENT.md).
+
 # Testing
-Please see [Tests](https://github.com/cncf/devstats/blob/master/TESTING.md)
+Please see [Tests](https://github.com/cncf/devstats/blob/master/TESTING.md).
 
 # Vulnerabilities
 Please use GitHub [issues](https://github.com/cncf/devstats/issues) to report any vulnerability found.

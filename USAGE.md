@@ -94,7 +94,6 @@ You can tweak `devstats` tools by environment variables:
 - Set `GHA2DB_EXACT` for `gha2db` tool to make it process only repositories listed as "orgs" parameter, by their full names, like for example 3 repos: "GoogleCloudPlatform/kubernetes,kubernetes,kubernetes/kubernetes"
 - Set `GHA2DB_SKIPLOG` for any tool to skip logging output to `gha_logs` table in `devstats` database.
 - Set `GHA2DB_LOCAL` for `gha2db_sync` tool to make it prefix call to other tools with "./" (so it will use other tools binaries from the current working directory instead of `/usr/bin/`). Local mode uses "./metrics/{{project}}/" to search for metrics files. Otherwise "/etc/gha2db/metrics/{{project}}/" is used.
-- Set `GHA2DB_ANNOTATIONS_YAML` for `annotations` tool, set name of annotation yaml file, default is "metrics/{{project}}/annotations.yaml".
 - Set `GHA2DB_METRICS_YAML` for `gha2db_sync` tool, set name of metrics yaml file, default is "metrics/{{project}}/metrics.yaml".
 - Set `GHA2DB_GAPS_YAML` for `gha2db_sync` tool, set name of gaps yaml file, default is "metrics/{{project}}/gaps.yaml".
 - Set `GHA2DB_MAXLOGAGE` for `gha2db_sync` tool, maximum age of DB logs stored in `devstats`.`gha_logs` table, default "1 week" (logs are cleared in `gha2db_sync` job).
@@ -442,7 +441,7 @@ Feed InfluxDB using:
 - This tool uses environmental variables starting with `IDB_`, please see `context.go`, `idb_conn.go` and `cmd/db2influx/db2influx.go` for details.
 - `IDB_` variables are exactly the same as `PG_` to set host, database, user name, password.
 - There is also `z2influx` tool. It is used to fill given series with zeros. Typical usage: `./z2influx 'series1,series2' 2017-01-01 2018-01-01 w` - will fill all weeks from 2017 with zeros for series1 and series2.
-- `annotations` tool adds variuos data annotations that can be used in Grafana charts. It uses [annotations.yaml](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/annotations.yaml) file to define them, syntax is self describing. 
+- `annotations` tool adds variuos data annotations that can be used in Grafana charts. It uses GitHub API to fetch tags from project main repository defined in `projects.yaml`, it only includes tags matching annotation regexp also defined in `projects.yaml`.
 - `idb_tags` tool used to add InfluxDB tags on some specified series. Those tags are used to populate Grafana template drop-down values and names. This is used to auto-populate Repository groups drop down, so when somebody adds new repository group - it will automatically appear in the drop-down.
 - `idb_tags` uses [idb_tags.yaml](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/idb_tags.yaml) file to configure InfluxDB tags generation.
 - `idb_backup` is used to backup/restore InfluxDB. Full renenerate of InfluxDB takes about 12 minutes. To avoid downtime when we need to rebuild InfluxDB - we can generate new InfluxDB on `test` database and then if succeeded, restore it on `gha`. Downtime will be about 2 minutes.

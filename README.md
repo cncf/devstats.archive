@@ -27,10 +27,12 @@ It is written in Go, and can be forked and installed by anyone.
 Contributions and PRs are welcome.
 If You see a bug or want to add a new metric please create an [issue](https://github.com/cncf/devstats/issues) and/or [PR](https://github.com/cncf/devstats/pulls).
 
-To work on this project locally please fork the original [repository](https://github.com/cncf/devstats), and then follow instructions about running locally:
+To work on this project locally please fork the original [repository](https://github.com/cncf/devstats), and:
 - [Compiling and running on macOS](./INSTALL_MAC.md).
 - [Compiling and running on Linux Ubuntu 16 LTS](./INSTALL_UBUNTU16.md).
 - [Compiling and running on Linux Ubuntu 17](./INSTALL_UBUNTU17.md).
+
+Please see [Development](https://github.com/cncf/devstats/blob/master/DEVELOPMENT.md) for local development guide.
 
 For more detailed description of all environment variables, tools, switches etc, please see [usage](https://github.com/cncf/devstats/blob/master/USAGE.md).
 
@@ -149,7 +151,7 @@ We're getting all possible GitHub data for all objects, and all objects historic
 - [z2influx](https://github.com/cncf/devstats/blob/master/cmd/z2influx/z2influx.go)
 - `z2influx` is used to fill gaps that can occur for metrics that returns multiple columns and rows, but the number of rows depends on date range, it uses [gaps.yaml](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/gaps.yaml) file to define which metrics should be zero filled.
 - [annotations](https://github.com/cncf/devstats/blob/master/cmd/annotations/annotations.go)
-- `annotations` is used to add annotations on charts, it uses [annotations.yaml](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/annotations.yaml) file to define them, syntax is self describing.
+- `annotations` is used to add annotations on charts. It uses GitHub API to fetch tags from project main repository defined in `projects.yaml`, it only includes tags matching annotation regexp also defined in `projects.yaml`.
 - [idb_tags](https://github.com/cncf/devstats/blob/master/cmd/idb_tags/idb_tags.go)
 - `idb_tags` is used to add InfluxDB tags on some specified series. Those tags are used to populate Grafana template drop-down values and names. This is used to auto-populate Repository groups drop down, so when somebody adds new repository group - it will automatically appear in the drop-down.
 - `idb_tags` uses [idb_tags.yaml](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/idb_tags.yaml) file to configure InfluxDB tags generation.

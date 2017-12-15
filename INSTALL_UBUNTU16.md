@@ -130,5 +130,6 @@ Prerequisites:
 20. PRs and suggestions are welcome, please create PRs and Issues on the [GitHub](https://github.com/cncf/devstats).
 
 # More details
+- [Local Development](https://github.com/cncf/devstats/blob/master/DEVELOPMENT.md).
 - [README](https://github.com/cncf/devstats/blob/master/README.md)
 - [USAGE](https://github.com/cncf/devstats/blob/master/USAGE.md)
