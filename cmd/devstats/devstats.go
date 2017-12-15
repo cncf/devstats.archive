@@ -31,8 +31,8 @@ func syncAllProjects() bool {
 	data, err := ioutil.ReadFile(dataPrefix + "projects.yaml")
 	lib.FatalOnError(err)
 
-	var projs lib.Projects
-	lib.FatalOnError(yaml.Unmarshal(data, &projs))
+	var projects lib.AllProjects
+	lib.FatalOnError(yaml.Unmarshal(data, &projects))
 
 	// Create PID file (if not exists)
 	// If PID file exists, exit
@@ -52,11 +52,11 @@ func syncAllProjects() bool {
 	}()
 
 	// Sync all projects
-	for _, proj := range projs.Projects {
+	for name, proj := range projects.Projects {
 		if proj.Disabled {
 			continue
 		}
-		lib.Printf("Syncing %s\n", proj.Name)
+		lib.Printf("Syncing %s\n", name)
 		dtStart := time.Now()
 		res := lib.ExecCommand(
 			&ctx,
@@ -64,17 +64,17 @@ func syncAllProjects() bool {
 				cmdPrefix + "gha2db_sync",
 			},
 			map[string]string{
-				"GHA2DB_PROJECT": proj.Name,
+				"GHA2DB_PROJECT": name,
 				"PG_DB":          proj.PDB,
 				"IDB_DB":         proj.IDB,
 			},
 		)
 		dtEnd := time.Now()
 		if res != nil {
-			lib.Printf("Error result for %s (took %v): %+v\n", proj.Name, dtEnd.Sub(dtStart), res)
+			lib.Printf("Error result for %s (took %v): %+v\n", name, dtEnd.Sub(dtStart), res)
 			continue
 		}
-		lib.Printf("Synced %s, took: %v\n", proj.Name, dtEnd.Sub(dtStart))
+		lib.Printf("Synced %s, took: %v\n", name, dtEnd.Sub(dtStart))
 	}
 	return true
 }
