@@ -32,6 +32,12 @@ func (a AnnotationsByDate) Less(i, j int) bool {
 	return a[i].Date.Before(a[j].Date)
 }
 
+// GetAnnotations queries GitHub `repo` via GitHub API (using ctx.GitHubOAuth)
+// for all tags and returns those matching `annoRegexp`
+func GetAnnotations(ctx *Ctx, repo, annoRegexp string) (annotations Annotations) {
+	return
+}
+
 // ProcessAnnotations Creates IfluxDB annotations and quick_series
 func ProcessAnnotations(ctx *Ctx, annotations *Annotations, dt time.Time) {
 	// Connect to InfluxDB

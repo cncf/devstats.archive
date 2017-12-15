@@ -529,15 +529,14 @@ func getSyncArgs(ctx *lib.Ctx, osArgs []string) []string {
 		lib.FatalOnError(err)
 		return []string{}
 	}
-	var projs lib.Projects
-	lib.FatalOnError(yaml.Unmarshal(data, &projs))
-	for _, proj := range projs.Projects {
-		if proj.Name == ctx.Project {
-			if proj.StartDate != nil {
-				ctx.DefaultStartDate = *proj.StartDate
-			}
-			return []string{proj.CommandLine}
+	var projects lib.AllProjects
+	lib.FatalOnError(yaml.Unmarshal(data, &projects))
+	proj, ok := projects.Projects[ctx.Project]
+	if ok {
+		if proj.StartDate != nil {
+			ctx.DefaultStartDate = *proj.StartDate
 		}
+		return []string{proj.CommandLine}
 	}
 	// No user commandline and project not found
 	lib.FatalOnError(
