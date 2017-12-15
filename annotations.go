@@ -98,8 +98,8 @@ func GetAnnotations(ctx *Ctx, orgRepo, annoRegexp string) (annotations Annotatio
 			FatalOnError(err)
 			date := *commit.Commit.Committer.Date
 			message := *commit.Commit.Message
-			if len(message) > 80 {
-				message = message[0:80]
+			if len(message) > 40 {
+				message = message[0:40]
 			}
 			replacer := strings.NewReplacer("\n", " ", "\r", " ", "\t", " ")
 			message = replacer.Replace(message)
