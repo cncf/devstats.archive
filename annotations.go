@@ -20,8 +20,9 @@ type Annotations struct {
 
 // Annotation contain each annotation data
 type Annotation struct {
-	Name string    `yaml:"title"`
-	Date time.Time `yaml:"date"`
+	Name        string
+	Description string
+	Date        time.Time
 }
 
 // AnnotationsByDate annotations Sort interface
@@ -79,16 +80,28 @@ func GetAnnotations(ctx *Ctx, orgRepo, annoRegexp string) (annotations Annotatio
 	opt := &github.ListOptions{PerPage: 1000}
 	//var allTags []*github.RepositoryTag
 	for {
-		tags, resp, err := client.Repositories.ListTags(context.Background(), org, repo, opt)
+		tags, resp, err := client.Repositories.ListTags(ghCtx, org, repo, opt)
 		if _, ok := err.(*github.RateLimitError); ok {
-			Printf("hit rate limit on %s '%s'\n", orgRepo, annoRegexp)
+			Printf("hit rate limit onListTags for  %s '%s'\n", orgRepo, annoRegexp)
 		}
 		FatalOnError(err)
 		for _, tag := range tags {
 			tagName := *tag.Name
-			if re.MatchString(tagName) {
-				fmt.Printf("tag: %s\n", *tag.Name)
+			if !re.MatchString(tagName) {
+				continue
 			}
+			sha := *tag.Commit.SHA
+			commit, _, err := client.Repositories.GetCommit(ghCtx, org, repo, sha)
+			if _, ok := err.(*github.RateLimitError); ok {
+				Printf("hit rate limit on GetCommit for %s '%s'\n", orgRepo, annoRegexp)
+			}
+			FatalOnError(err)
+			date := *commit.Commit.Committer.Date
+			message := *commit.Commit.Message
+			if len(message) > 40 {
+				message = message[0:40]
+			}
+			annotations.Annotations = append(annotations.Annotations, Annotation{Name: tagName, Description: message, Date: date})
 		}
 		//allTags = append(allTags, tags...)
 		if resp.NextPage == 0 {
@@ -97,12 +110,11 @@ func GetAnnotations(ctx *Ctx, orgRepo, annoRegexp string) (annotations Annotatio
 		opt.Page = resp.NextPage
 	}
 
-	FatalOnError(fmt.Errorf("re: %+v, oauth: %+v, repo: %+v\nannotations: %+v\n", re, oAuth, orgRepo, annotations))
 	return
 }
 
 // ProcessAnnotations Creates IfluxDB annotations and quick_series
-func ProcessAnnotations(ctx *Ctx, annotations *Annotations, dt time.Time) {
+func ProcessAnnotations(ctx *Ctx, annotations *Annotations) {
 	// Connect to InfluxDB
 	ic := IDBConn(ctx)
 	defer ic.Close()
@@ -113,14 +125,14 @@ func ProcessAnnotations(ctx *Ctx, annotations *Annotations, dt time.Time) {
 	pts.NPoints = 0
 	pts.Points = &bp
 
+	// Annotations must be sorted to create quick ranges
+	sort.Sort(AnnotationsByDate(annotations.Annotations))
+
 	// Iterate annotations
 	for _, annotation := range annotations.Annotations {
-		if !annotation.Date.After(dt) {
-			continue
-		}
 		fields := map[string]interface{}{
 			"title":       annotation.Name,
-			"description": annotation.Name,
+			"description": annotation.Description,
 		}
 		// Add batch point
 		if ctx.Debug > 0 {
@@ -129,7 +141,7 @@ func ProcessAnnotations(ctx *Ctx, annotations *Annotations, dt time.Time) {
 				"annotations",
 				ToYMDDate(annotation.Date),
 				annotation.Name,
-				annotation.Name,
+				annotation.Description,
 			)
 		}
 		pt := IDBNewPointWithErr("annotations", nil, fields, annotation.Date)
@@ -180,15 +192,9 @@ func ProcessAnnotations(ctx *Ctx, annotations *Annotations, dt time.Time) {
 		tm = tm.Add(time.Hour)
 	}
 
-	// Annotations must be sorted to create quick ranges
-	sort.Sort(AnnotationsByDate(annotations.Annotations))
-
 	// Add '(i) - (i+1)' annotation ranges
 	lastIndex := len(annotations.Annotations) - 1
 	for index, annotation := range annotations.Annotations {
-		if !annotation.Date.After(dt) {
-			continue
-		}
 		if index == lastIndex {
 			sfx := fmt.Sprintf("anno_%d_now", index)
 			tags[tagName+"_suffix"] = sfx
