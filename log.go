@@ -14,6 +14,7 @@ type logContext struct {
 	ctx  Ctx
 	con  *sql.DB
 	prog string
+	proj string
 }
 
 // This is the *only* global variable used in entire toolset.
@@ -33,7 +34,7 @@ func newLogContext() *logContext {
 	con := PgConn(&ctx)
 	progSplit := strings.Split(os.Args[0], "/")
 	prog := progSplit[len(progSplit)-1]
-	return &logContext{ctx: ctx, con: con, prog: prog}
+	return &logContext{ctx: ctx, con: con, prog: prog, proj: ctx.Project}
 }
 
 // logToDB writes message to database
@@ -45,8 +46,9 @@ func logToDB(format string, args ...interface{}) (err error) {
 	_, err = ExecSQL(
 		logCtx.con,
 		&logCtx.ctx,
-		"insert into gha_logs(prog, msg) "+NValues(2),
+		"insert into gha_logs(prog, proj, msg) "+NValues(3),
 		logCtx.prog,
+		logCtx.proj,
 		msg,
 	)
 	return
@@ -73,7 +75,7 @@ func Printf(format string, args ...interface{}) (n int, err error) {
 
 	// Actual logging to stdout & DB
 	if logCtx.ctx.LogTime {
-		n, err = fmt.Printf("%s %s: "+format, append([]interface{}{ToYMDHMSDate(time.Now()), logCtx.prog}, args...)...)
+		n, err = fmt.Printf("%s %s/%s: "+format, append([]interface{}{ToYMDHMSDate(time.Now()), logCtx.proj, logCtx.prog}, args...)...)
 	} else {
 		n, err = fmt.Printf(format, args...)
 	}
