@@ -294,40 +294,38 @@ func workerThread(ch chan bool, ctx *lib.Ctx, seriesNameOrFunc, sqlQuery, period
 
 // isAlreadyComputed check if given quick range period was already computed
 // It will skip past period marked as compued unless special flags are passed
-func isAlreadyComputed(ic client.Client, ctx *lib.Ctx, key, from, to string) bool {
+func isAlreadyComputed(ic client.Client, ctx *lib.Ctx, key, from string) bool {
 	query := fmt.Sprintf(
 		"select count(*) "+
 			"from computed where computed_key = '%s' "+
-			"and computed_from = '%s' "+
-			"and computed_to = '%s'",
+			"and computed_from = '%s'",
 		key,
 		from,
-		to,
 	)
 	res := lib.QueryIDB(ic, ctx, query)
 	computed := len(res[0].Series) > 0
 	if ctx.Debug > 0 {
-		lib.Printf("Period '%s: %s - %s' compute status: %v\n", key, from, to, computed)
+		lib.Printf("Period '%s: %s' compute status: %v\n", key, from, computed)
 	}
 	return computed
 }
 
 // setAlreadyComputed marks given quick range period as computed
-func setAlreadyComputed(ic client.Client, ctx *lib.Ctx, pts *lib.IDBBatchPointsN, key, from, to string) {
+func setAlreadyComputed(ic client.Client, ctx *lib.Ctx, pts *lib.IDBBatchPointsN, key, from string) {
 	// No fields value needed
 	fields := map[string]interface{}{"value": 0.0}
 
 	// Tags to insert
 	tags := make(map[string]string)
 	tags["computed_from"] = from
-	tags["computed_to"] = to
 	tags["computed_key"] = key
+	dtFrom := lib.TimeParseAny(from)
 
 	// Add batch point
-	pt := lib.IDBNewPointWithErr("computed", tags, fields, time.Now())
+	pt := lib.IDBNewPointWithErr("computed", tags, fields, dtFrom)
 	lib.IDBAddPointN(ctx, &ic, pts, pt)
 	if ctx.Debug > 0 {
-		lib.Printf("Period '%s: %s - %s' marked as computed\n", key, from, to)
+		lib.Printf("Period '%s: %s' marked as computed\n", key, from)
 	}
 }
 
@@ -347,10 +345,7 @@ func db2influxHistogram(ctx *lib.Ctx, seriesNameOrFunc, sqlFile, sqlQuery, inter
 	pts.Points = &bp
 
 	// If using annotations ranges, then get their values
-	var (
-		qrFrom *string
-		qrTo   *string
-	)
+	var qrFrom *string
 	if annotationsRanges {
 		// Get Quick Ranges from IDB (it is filled by annotations command)
 		quickRanges := lib.GetTagValues(ic, ctx, "quick_ranges_data")
@@ -371,15 +366,18 @@ func db2influxHistogram(ctx *lib.Ctx, seriesNameOrFunc, sqlFile, sqlQuery, inter
 				if skipPast && period == "" {
 					dtTo := lib.TimeParseAny(to)
 					prevHour := lib.PrevHourStart(time.Now())
-					if dtTo.Before(prevHour) && isAlreadyComputed(ic, ctx, sqlFile, from, to) {
-						lib.Printf("Skipping past quick range: %v - %v (already computed)\n", from, to)
+					if dtTo.Before(prevHour) && isAlreadyComputed(ic, ctx, sqlFile, from) {
+						lib.Printf("Skipping past quick range: %v (already computed)\n", from)
 						return
 					}
 				}
 				sqlQuery = lib.PrepareQuickRangeQuery(sqlQuery, period, from, to)
 				if period == "" {
-					qrFrom = &from
-					qrTo = &to
+					dtTo := lib.TimeParseAny(to)
+					prevHour := lib.PrevHourStart(time.Now())
+					if dtTo.Before(prevHour) {
+						qrFrom = &from
+					}
 				}
 				break
 			}
@@ -413,7 +411,7 @@ func db2influxHistogram(ctx *lib.Ctx, seriesNameOrFunc, sqlFile, sqlQuery, inter
 	)
 	if nColumns == 2 {
 		// Drop existing data
-		lib.SafeQueryIDB(ic, ctx, "drop measurement "+seriesNameOrFunc)
+		lib.QueryIDB(ic, ctx, "drop measurement "+seriesNameOrFunc)
 
 		// Add new data
 		tm := time.Now()
@@ -493,14 +491,14 @@ func db2influxHistogram(ctx *lib.Ctx, seriesNameOrFunc, sqlFile, sqlQuery, inter
 				allSeries += series + "|"
 			}
 			allSeries = allSeries[0 : len(allSeries)-1]
-			lib.SafeQueryIDB(ic, ctx, "drop series from /"+allSeries+"/")
+			lib.QueryIDB(ic, ctx, "drop series from /"+allSeries+"/")
 		}
 	}
 	// Write the batch
 	if !ctx.SkipIDB {
 		// Mark this metric & period as already computed if this is a QR period
-		if qrFrom != nil && qrTo != nil {
-			setAlreadyComputed(ic, ctx, &pts, sqlFile, *qrFrom, *qrTo)
+		if qrFrom != nil {
+			setAlreadyComputed(ic, ctx, &pts, sqlFile, *qrFrom)
 		}
 		lib.FatalOnError(lib.IDBWritePointsN(ctx, &ic, &pts))
 	} else if ctx.Debug > 0 {
