@@ -235,6 +235,7 @@ func ProcessAnnotations(ctx *Ctx, annotations *Annotations) {
 
 	// Write the batch
 	if !ctx.SkipIDB {
+		QueryIDB(ic, ctx, "drop series from quick_ranges")
 		FatalOnError(IDBWritePointsN(ctx, &ic, &pts))
 	} else if ctx.Debug > 0 {
 		Printf("Skipping annotations series write\n")

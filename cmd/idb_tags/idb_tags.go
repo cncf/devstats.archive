@@ -90,7 +90,7 @@ func idbTags() {
 		defer rows.Close()
 
 		// Drop current tags
-		lib.SafeQueryIDB(ic, &ctx, "drop series from "+tag.SeriesName)
+		lib.QueryIDB(ic, &ctx, "drop series from "+tag.SeriesName)
 
 		// Iterate tag values
 		tags := make(map[string]string)
