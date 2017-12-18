@@ -372,6 +372,7 @@ CREATE TABLE gha_logs (
     id integer NOT NULL,
     dt timestamp without time zone DEFAULT now(),
     prog character varying(32) NOT NULL,
+    proj character varying(32) NOT NULL,
     msg text
 );
 
@@ -1677,6 +1678,12 @@ CREATE INDEX logs_id_idx ON gha_logs USING btree (id);
 --
 
 CREATE INDEX logs_prog_idx ON gha_logs USING btree (prog);
+
+--
+-- Name: logs_proj_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX logs_proj_idx ON gha_logs USING btree (proj);
 
 
 --
