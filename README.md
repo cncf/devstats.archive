@@ -184,6 +184,10 @@ Please see [USAGE](https://github.com/cncf/devstats/blob/master/USAGE.md) for de
 
 Please see [dashboards](https://github.com/cncf/devstats/blob/master/DASHBOARDS.md) to see list of already defined Grafana dashboards.
 
+# Exporting data
+
+Every dashboard can be exported to CSV. Click dashboard header - dialog will appear, them menu icon on the bottom-left and choose "Export.CSV".
+
 # Detailed Usage instructions
 
 - [USAGE](https://github.com/cncf/devstats/blob/master/USAGE.md)
