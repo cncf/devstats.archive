@@ -942,6 +942,7 @@ func Structure(ctx *Ctx) {
 					"id {{pkauto}}, "+
 					"dt {{tsnow}}, "+
 					"prog varchar(32) not null, "+
+					"proj varchar(32) not null, "+
 					"msg text"+
 					")",
 			),
@@ -950,6 +951,8 @@ func Structure(ctx *Ctx) {
 	if ctx.Index {
 		ExecSQLWithErr(c, ctx, "create index logs_id_idx on gha_logs(id)")
 		ExecSQLWithErr(c, ctx, "create index logs_dt_idx on gha_logs(dt)")
+		ExecSQLWithErr(c, ctx, "create index logs_prog_idx on gha_logs(prog)")
+		ExecSQLWithErr(c, ctx, "create index logs_proj_idx on gha_logs(proj)")
 	}
 
 	// This table is a kind of `materialized view` of all texts
