@@ -18,6 +18,7 @@ type Project struct {
 	Disabled         bool       `yaml:"disabled"`
 	MainRepo         string     `yaml:"main_repo"`
 	AnnotationRegexp string     `yaml:"annotation_regexp"`
+	Order            int        `yaml:"order"`
 }
 
 // AnyArray - holds array of interface{} - just a shortcut

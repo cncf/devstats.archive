@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"sort"
 	"time"
 
 	yaml "gopkg.in/yaml.v2"
@@ -51,12 +52,23 @@ func syncAllProjects() bool {
 		lib.FatalOnError(os.Remove(pidFile))
 	}()
 
-	// Sync all projects
+	// Sort projects by "order"
+	orders := []int{}
+	projectsMap := make(map[int]string)
 	for name, proj := range projects.Projects {
 		if proj.Disabled {
 			continue
 		}
-		lib.Printf("Syncing %s\n", name)
+		orders = append(orders, proj.Order)
+		projectsMap[proj.Order] = name
+	}
+	sort.Ints(orders)
+
+	// Sync all projects
+	for _, order := range orders {
+		name := projectsMap[order]
+		proj := projects.Projects[name]
+		lib.Printf("Syncing #%d %s\n", order, name)
 		dtStart := time.Now()
 		res := lib.ExecCommand(
 			&ctx,
