@@ -292,9 +292,22 @@ func workerThread(ch chan bool, ctx *lib.Ctx, seriesNameOrFunc, sqlQuery, period
 	}
 }
 
+// getPathIndependentKey (return path value independent from install path
+// /etc/gha2db/metrics/kubernetes/key.sql --> kubernetes/key.sql
+// ./metrics/kubernetes/key.sql --> kubernetes/key.sql
+func getPathIndependentKey(key string) string {
+	keyAry := strings.Split(key, "/")
+	length := len(keyAry)
+	if length < 3 {
+		return key
+	}
+	return keyAry[length-2] + "/" + keyAry[length-1]
+}
+
 // isAlreadyComputed check if given quick range period was already computed
 // It will skip past period marked as compued unless special flags are passed
 func isAlreadyComputed(ic client.Client, ctx *lib.Ctx, key, from string) bool {
+	key = getPathIndependentKey(key)
 	query := fmt.Sprintf(
 		"select count(*) "+
 			"from computed where computed_key = '%s' "+
@@ -312,6 +325,7 @@ func isAlreadyComputed(ic client.Client, ctx *lib.Ctx, key, from string) bool {
 
 // setAlreadyComputed marks given quick range period as computed
 func setAlreadyComputed(ic client.Client, ctx *lib.Ctx, pts *lib.IDBBatchPointsN, key, from string) {
+	key = getPathIndependentKey(key)
 	// No fields value needed
 	fields := map[string]interface{}{"value": 0.0}
 
