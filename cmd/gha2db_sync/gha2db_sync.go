@@ -238,7 +238,7 @@ func fillGapsInSeries(ctx *lib.Ctx, from, to time.Time) {
 					lib.Printf("Skipped filling gaps on period %s\n", periodAggr)
 					continue
 				}
-				if !ctx.ResetIDB && !computePeriodAtThisDate(period, to) {
+				if !ctx.ResetIDB && !lib.ComputePeriodAtThisDate(period, to) {
 					lib.Printf("Skipping filling gaps for period \"%s\" for date %v\n", periodAggr, to)
 					continue
 				}
@@ -264,20 +264,6 @@ func fillGapsInSeries(ctx *lib.Ctx, from, to time.Time) {
 				}
 			}
 		}
-	}
-}
-
-// computePeriodAtThisDate - for some longer periods, only recalculate them on specific dates
-func computePeriodAtThisDate(period string, to time.Time) bool {
-	to = lib.HourStart(to)
-	periodStart := period[0:1]
-	if periodStart == "h" || periodStart == "d" || periodStart == "w" || periodStart == "a" {
-		return true
-	} else if periodStart == "m" || periodStart == "q" || periodStart == "y" {
-		return to.Hour() == 0
-	} else {
-		lib.FatalOnError(fmt.Errorf("computePeriodAtThisDate: unknown period: '%s'", period))
-		return false
 	}
 }
 
@@ -472,7 +458,7 @@ func sync(ctx *lib.Ctx, args []string) {
 						lib.Printf("Skipped period %s\n", periodAggr)
 						continue
 					}
-					if !ctx.ResetIDB && !computePeriodAtThisDate(period, to) {
+					if !ctx.ResetIDB && !lib.ComputePeriodAtThisDate(period, to) {
 						lib.Printf("Skipping recalculating period \"%s%s\" for date to %v\n", period, aggrSuffix, to)
 						continue
 					}
