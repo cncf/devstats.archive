@@ -8,6 +8,41 @@ import (
 	"time"
 )
 
+// ComputePeriodAtThisDate - for some longer periods, only recalculate them on specific dates
+// hourly period is always calculated
+// daily period is always calculated
+// multiple days period are calculaded at hours: 1, 5, 9, 13, 17, 21 (UTC)
+// annotation ranges are calculated:
+// from last release to now - every 2 hours
+// for past ranges only once (calculation is marked as computed) at 2 AM
+// weekly ranges are calculated at hours: 0, 4, 8, 12, 16, 20
+// monthly, quarterly, yearly ranges are calculated at midnight
+func ComputePeriodAtThisDate(period string, to time.Time) bool {
+	to = HourStart(to)
+	periodStart := period[0:1]
+	if periodStart == "h" {
+		return true
+	} else if periodStart == "d" {
+		if len(period) == 1 {
+			return true
+		}
+		return to.Hour()%4 == 1
+	} else if periodStart == "a" {
+		periodLen := len(period)
+		periodEnd := period[periodLen-3:]
+		if periodEnd == "now" {
+			return to.Hour()%2 == 0
+		}
+		return to.Hour() == 2
+	} else if periodStart == "w" {
+		return to.Hour()%4 == 0
+	} else if periodStart == "m" || periodStart == "q" || periodStart == "y" {
+		return to.Hour() == 0
+	}
+	FatalOnError(fmt.Errorf("computePeriodAtThisDate: unknown period: '%s'", period))
+	return false
+}
+
 // HourStart - return time rounded to current hour start
 func HourStart(dt time.Time) time.Time {
 	return time.Date(

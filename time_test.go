@@ -9,6 +9,76 @@ import (
 	testlib "devstats/test"
 )
 
+func TestComputePeriodAtThisDate(t *testing.T) {
+	// Test cases
+	// hourly period is always calculated
+	// daily period is always calculated
+	// multiple days period are calculaded at hours: 1, 5, 9, 13, 17, 21 (UTC)
+	// annotation ranges are calculated:
+	// from last release to now - every 2 hours
+	// for past ranges only once (calculation is marked as computed) at 2 AM
+	// weekly ranges are calculated at hours: 0, 4, 8, 12, 16, 20
+	// monthly, quarterly, yearly ranges are calculated at midnight
+	ft := testlib.YMDHMS
+	var testCases = []struct {
+		period   string
+		dt       time.Time
+		expected bool
+	}{
+		{period: "h", dt: ft(2017, 12, 19), expected: true},
+		{period: "h", dt: ft(2017, 12, 19, 3), expected: true},
+		{period: "h", dt: ft(2017, 12, 19, 5, 45, 17), expected: true},
+		{period: "h2", dt: ft(2017, 12, 19), expected: true},
+		{period: "h12", dt: ft(2017, 12, 19, 3), expected: true},
+		{period: "h240", dt: ft(2017, 12, 19, 5, 45, 17), expected: true},
+		{period: "d", dt: ft(2017, 12, 19), expected: true},
+		{period: "d", dt: ft(2017, 12, 19, 3), expected: true},
+		{period: "d", dt: ft(2017, 12, 19, 5, 45, 17), expected: true},
+		{period: "d2", dt: ft(2017, 12, 19), expected: false},
+		{period: "d3", dt: ft(2017, 12, 19, 3), expected: false},
+		{period: "d7", dt: ft(2017, 12, 19, 5, 45, 17), expected: true},
+		{period: "d14", dt: ft(2017, 12, 19, 13, 45, 17), expected: true},
+		{period: "d14", dt: ft(2017, 12, 19, 12, 45, 17), expected: false},
+		{period: "anno_13_now", dt: ft(2017, 12, 19), expected: true},
+		{period: "anno_13_now", dt: ft(2017, 12, 19, 1), expected: false},
+		{period: "anno_13_now", dt: ft(2017, 12, 19, 2, 11), expected: true},
+		{period: "anno_13_now", dt: ft(2017, 12, 19, 4, 11), expected: true},
+		{period: "anno_12_13", dt: ft(2017, 12, 19), expected: false},
+		{period: "anno_0_1", dt: ft(2017, 12, 19, 1), expected: false},
+		{period: "anno_10_11", dt: ft(2017, 12, 19, 2, 11), expected: true},
+		{period: "anno_10_11", dt: ft(2017, 12, 19, 4, 11), expected: false},
+		{period: "w", dt: ft(2017, 12, 19), expected: true},
+		{period: "w", dt: ft(2017, 12, 19, 1), expected: false},
+		{period: "w", dt: ft(2017, 12, 19, 20, 13), expected: true},
+		{period: "w3", dt: ft(2017, 12, 19, 20, 13), expected: true},
+		{period: "w3", dt: ft(2017, 12, 19, 21, 13), expected: false},
+		{period: "m", dt: ft(2017, 12, 19), expected: true},
+		{period: "q", dt: ft(2017, 12, 19), expected: true},
+		{period: "y", dt: ft(2017, 12, 19), expected: true},
+		{period: "m2", dt: ft(2017, 12, 19), expected: true},
+		{period: "q3", dt: ft(2017, 12, 19), expected: true},
+		{period: "y10", dt: ft(2017, 12, 19), expected: true},
+		{period: "m", dt: ft(2017, 12, 19, 1), expected: false},
+		{period: "q", dt: ft(2017, 12, 19, 2), expected: false},
+		{period: "y", dt: ft(2017, 12, 19, 3), expected: false},
+		{period: "m2", dt: ft(2017, 12, 19, 4), expected: false},
+		{period: "q3", dt: ft(2017, 12, 19, 5), expected: false},
+		{period: "y10", dt: ft(2017, 12, 19, 5), expected: false},
+	}
+
+	// Execute test cases
+	for index, test := range testCases {
+		expected := test.expected
+		got := lib.ComputePeriodAtThisDate(test.period, test.dt)
+		if got != expected {
+			t.Errorf(
+				"test number %d, expected '%v' from period '%v' for date '%v', got '%v'",
+				index+1, expected, test.period, test.dt, got,
+			)
+		}
+	}
+}
+
 func TestDescriblePeriodInHours(t *testing.T) {
 	// Test cases
 	var testCases = []struct {
