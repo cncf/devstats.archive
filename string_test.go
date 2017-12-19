@@ -73,6 +73,13 @@ func TestPrepareQuickRangeQuery(t *testing.T) {
 		},
 		{
 			sql:      "{{period:a.b.c}}{{period:c.d.e}}",
+			period:   "10 days",
+			from:     "",
+			to:       "",
+			expected: " (a.b.c >= now() - '10 days'::interval)  (c.d.e >= now() - '10 days'::interval) ",
+		},
+		{
+			sql:      "{{period:a.b.c}}{{period:c.d.e}}",
 			period:   "",
 			from:     "123",
 			to:       "456",
