@@ -428,6 +428,7 @@ func db2influxHistogram(ctx *lib.Ctx, seriesNameOrFunc, sqlFile, sqlQuery, inter
 		if !ctx.SkipIDB {
 			// Drop existing data
 			lib.QueryIDB(ic, ctx, "drop measurement "+seriesNameOrFunc)
+      lib.Printf("Dropped measurement %s\n", seriesNameOrFunc)
 		}
 
 		// Add new data
@@ -509,7 +510,7 @@ func db2influxHistogram(ctx *lib.Ctx, seriesNameOrFunc, sqlFile, sqlQuery, inter
 			}
 			allSeries = allSeries[0 : len(allSeries)-1]
 			lib.QueryIDB(ic, ctx, "drop series from /"+allSeries+"/")
-			lib.Printf("Dropped series: %s", allSeries)
+			lib.Printf("Dropped series: %s\n", allSeries)
 		}
 	}
 	// Write the batch
