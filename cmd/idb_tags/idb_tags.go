@@ -81,7 +81,7 @@ func idbTags() {
 		sqlQuery := string(bytes)
 
 		// Transform SQL (hardcoded limit 25 for template dropdowns
-		// When dropdown contains "All" there are 26 items then, Grafana names series 1-26 --> "a"-"z"
+		// When dropdown contains "All" there are 40 items then, Grafana names series 1-26 --> "a"-"z"
 		// Next series have no name
 		sqlQuery = strings.Replace(sqlQuery, "{{lim}}", "39", -1)
 
