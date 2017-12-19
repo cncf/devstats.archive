@@ -428,7 +428,7 @@ func db2influxHistogram(ctx *lib.Ctx, seriesNameOrFunc, sqlFile, sqlQuery, inter
 		if !ctx.SkipIDB {
 			// Drop existing data
 			lib.QueryIDB(ic, ctx, "drop measurement "+seriesNameOrFunc)
-      lib.Printf("Dropped measurement %s\n", seriesNameOrFunc)
+			lib.Printf("Dropped measurement %s\n", seriesNameOrFunc)
 		}
 
 		// Add new data
