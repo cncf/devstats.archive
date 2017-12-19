@@ -324,6 +324,7 @@ func isAlreadyComputed(ic client.Client, ctx *lib.Ctx, key, from string) bool {
 }
 
 // setAlreadyComputed marks given quick range period as computed
+// Should be called inside: if !ctx.SkipIDB { ... }
 func setAlreadyComputed(ic client.Client, ctx *lib.Ctx, pts *lib.IDBBatchPointsN, key, from string) {
 	key = getPathIndependentKey(key)
 	// No fields value needed
@@ -424,8 +425,10 @@ func db2influxHistogram(ctx *lib.Ctx, seriesNameOrFunc, sqlFile, sqlQuery, inter
 		name  string
 	)
 	if nColumns == 2 {
-		// Drop existing data
-		lib.QueryIDB(ic, ctx, "drop measurement "+seriesNameOrFunc)
+		if !ctx.SkipIDB {
+			// Drop existing data
+			lib.QueryIDB(ic, ctx, "drop measurement "+seriesNameOrFunc)
+		}
 
 		// Add new data
 		tm := time.Now()
@@ -499,13 +502,14 @@ func db2influxHistogram(ctx *lib.Ctx, seriesNameOrFunc, sqlFile, sqlQuery, inter
 			}
 		}
 		lib.FatalOnError(rows.Err())
-		if len(seriesToClear) > 0 {
+		if len(seriesToClear) > 0 && !ctx.SkipIDB {
 			allSeries := ""
 			for series := range seriesToClear {
 				allSeries += series + "|"
 			}
 			allSeries = allSeries[0 : len(allSeries)-1]
 			lib.QueryIDB(ic, ctx, "drop series from /"+allSeries+"/")
+			lib.Printf("Dropped series: %s", allSeries)
 		}
 	}
 	// Write the batch
