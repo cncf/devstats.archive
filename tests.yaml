@@ -1145,28 +1145,34 @@ projects:
           - ["project_company_stats,Comments", "Company2", 2]
           - ["project_company_stats,Comments", "Company1", 1]
           - ["project_company_stats,Commit commenters", "All", 1]
+          - ["project_company_stats,Commit commenters", "Company1", 1]
           - ["project_company_stats,Commits", "All", 4]
           - ["project_company_stats,Commits", "Company1", 2]
           - ["project_company_stats,Commits", "Company2", 2]
           - ["project_company_stats,Committers", "All", 1]
           - ["project_company_stats,Committers", "Company2", 1]
           - ["project_company_stats,Events", "All", 8]
-          - ["project_company_stats,Events", "Company1", 2]
-          - ["project_company_stats,Events", "Company2", 2]
+          - ["project_company_stats,Events", "Company1", 4]
+          - ["project_company_stats,Events", "Company2", 4]
           - ["project_company_stats,Forkers", "All", 1]
+          - ["project_company_stats,Forkers", "Company2", 1]
           - ["project_company_stats,Issue commenters", "All", 1]
+          - ["project_company_stats,Issue commenters", "Company1", 1]
           - ["project_company_stats,Issue creators", "All", 1]
           - ["project_company_stats,Issue creators", "Company1", 1]
           - ["project_company_stats,Issues", "All", 2]
+          - ["project_company_stats,Issues", "Company2", 2]
           - ["project_company_stats,PR creators", "All", 1]
           - ["project_company_stats,PR creators", "Company1", 1]
           - ["project_company_stats,PR reviewers", "All", 1]
           - ["project_company_stats,PR reviewers", "Company2", 1]
           - ["project_company_stats,PRs", "All", 2]
+          - ["project_company_stats,PRs", "Company1", 2]
           - ["project_company_stats,Repositories", "All", 4]
           - ["project_company_stats,Repositories", "Company1", 2]
           - ["project_company_stats,Repositories", "Company2", 2]
           - ["project_company_stats,Watchers", "All", 1]
+          - ["project_company_stats,Watchers", "Company2", 1]
         replaces:
             - ['{{period:c.dup_created_at}}', 'true']
             - ['{{period:e.created_at}}', 'true']
@@ -1177,6 +1183,49 @@ projects:
             - ['>= 10', '>= 0']
             - ['> 1', '> 0']
             - ['> 2', '> 0']
+        data: KubernetesProjectStatsMetric
+      - metric: project_developer_stats
+        additional_setup_funcs:
+          - SetDates
+        additional_setup_args:
+          - "gha_commits;dup_created_at;now()-'1h'::interval,\
+             gha_events;created_at;now()-'1h'::interval,\
+             gha_comments;created_at;now()-'1h'::interval,\
+             gha_issues;created_at;now()-'1h'::interval"
+        n: 1
+        period: 1 month
+        expected:
+            - ["project_developer_stats,Active repositories", "A1", 1]
+            - ["project_developer_stats,Active repositories", "A2", 1]
+            - ["project_developer_stats,Active repositories", "A3", 1]
+            - ["project_developer_stats,Active repositories", "A4", 1]
+            - ["project_developer_stats,Comments", "A2", 1]
+            - ["project_developer_stats,Comments", "A3", 1]
+            - ["project_developer_stats,Comments", "A4", 1]
+            - ["project_developer_stats,Commit comments", "A2", 1]
+            - ["project_developer_stats,Commits", "A1", 1]
+            - ["project_developer_stats,Commits", "A2", 1]
+            - ["project_developer_stats,Commits", "A3", 1]
+            - ["project_developer_stats,Commits", "A4", 1]
+            - ["project_developer_stats,GitHub events", "A1", 2]
+            - ["project_developer_stats,GitHub events", "A2", 2]
+            - ["project_developer_stats,GitHub events", "A3", 2]
+            - ["project_developer_stats,GitHub events", "A4", 2]
+            - ["project_developer_stats,GitHub pushes", "A3", 1]
+            - ["project_developer_stats,Issue comments", "A1", 1]
+            - ["project_developer_stats,Issues", "A3", 1]
+            - ["project_developer_stats,Issues", "A4", 1]
+            - ["project_developer_stats,PRs", "A1", 1]
+            - ["project_developer_stats,PRs", "A2", 1]
+            - ["project_developer_stats,Review comments", "A4", 1]
+        replaces:
+            - ['{{period:c.dup_created_at}}', 'true']
+            - ['{{period:e.created_at}}', 'true']
+            - ['{{period:c.created_at}}', 'true']
+            - ['{{period:i.created_at}}', 'true']
+            - ['>= 3', '>= 0']
+            - ['>= 5', '>= 0']
+            - ['> 1', '> 0']
         data: KubernetesProjectStatsMetric
       - metric: hist_reviewers
         additional_setup_funcs:
@@ -1357,10 +1406,10 @@ data:
       - [2, PullRequestEvent, 2, 3, true, '1980-01-01T12:00:00Z', A2, R3, null]
       - [3, PushEvent, 3, 2, true, '1980-01-01T12:00:00Z', A3, R2, null]
       - [4, PullRequestReviewCommentEvent, 4, 1, true, '1980-01-01T12:00:00Z', A4, R1, null]
-      - [5, IssueCommentEvent, 5, 4, true, '1980-01-01T12:00:00Z', A5, R4, null]
-      - [6, CommitCommentEvent, 6, 3, true, '1980-01-01T12:00:00Z', A6, R3, null]
-      - [7, WatchEvent, 7, 2, true, '1980-01-01T12:00:00Z', A7, R2, null]
-      - [8, ForkEvent, 8, 1, true, '1980-01-01T12:00:00Z', A8, R1, null]
+      - [5, IssueCommentEvent, 1, 4, true, '1980-01-01T12:00:00Z', A5, R4, null]
+      - [6, CommitCommentEvent, 2, 3, true, '1980-01-01T12:00:00Z', A6, R3, null]
+      - [7, WatchEvent, 3, 2, true, '1980-01-01T12:00:00Z', A7, R2, null]
+      - [8, ForkEvent, 4, 1, true, '1980-01-01T12:00:00Z', A8, R1, null]
     # id, event_id, body, created_at, user_id, repo_id, repo_name, actor_id,
     # actor_login, type
     comments:
@@ -1371,16 +1420,22 @@ data:
     # title, updated_at, user_id, dup_actor_id, dup_actor_login, dup_repo_id,
     # dup_repo_name, dup_type, is_pull_request
     issues:
-      - [1, 1, 0, body1, null, '1980-01-01T12:00:00Z', 1, open, pr1, '1980-01-01T12:00:00Z', 0, 1, A1, 4, R4, PullRequestEvent, true]
-      - [2, 2, 0, body2, null, '1980-01-01T12:00:00Z', 2, open, pr2, '1980-01-01T12:00:00Z', 0, 2, A2, 3, R3, PullRequestEvent, true]
-      - [3, 3, 0, body3, null, '1980-01-01T12:00:00Z', 3, open, issue1, '1980-01-01T12:00:00Z', 0, 3, A3, 2, R2, IssuesEvent, false]
-      - [4, 4, 0, body4, null, '1980-01-01T12:00:00Z', 4, open, issue2, '1980-01-01T12:00:00Z', 0, 4, A4, 1, R1, IssuesEvent, false]
+      - [1, 1, 0, body1, null, '1980-01-01T12:00:00Z', 1, open, pr1, '1980-01-01T12:00:00Z', 1, 1, A1, 4, R4, PullRequestEvent, true]
+      - [2, 2, 0, body2, null, '1980-01-01T12:00:00Z', 2, open, pr2, '1980-01-01T12:00:00Z', 2, 2, A2, 3, R3, PullRequestEvent, true]
+      - [3, 3, 0, body3, null, '1980-01-01T12:00:00Z', 3, open, issue1, '1980-01-01T12:00:00Z', 3, 3, A3, 2, R2, IssuesEvent, false]
+      - [4, 4, 0, body4, null, '1980-01-01T12:00:00Z', 4, open, issue2, '1980-01-01T12:00:00Z', 4, 4, A4, 1, R1, IssuesEvent, false]
     # actor_id, company_name, dt_from, dt_to
     affiliations:
       - [1, 'Company1', '1990-01-01T12:00:00Z', '2030-01-01T12:00:00Z']
       - [2, 'Company1', '1990-01-01T12:00:00Z', '2030-01-01T12:00:00Z']
       - [3, 'Company2', '1990-01-01T12:00:00Z', '2030-01-01T12:00:00Z']
       - [4, 'Company2', '1990-01-01T12:00:00Z', '2030-01-01T12:00:00Z']
+    # id, login, name
+    actors:
+      - [1, A1, Actor 1]
+      - [2, A2, Actor 2]
+      - [3, A3, Actor 3]
+      - [4, A4, Actor 4]
   KubernetesFirstNonAuthorActivityMetric:
     # id, name, org_id, org_login, repo_group
     repos:
@@ -4105,18 +4160,14 @@ data:
         - Actor 3
     # actor_id, company_name, dt_from, dt_to
     affiliations:
-      - - 1
-        - company1
-        - 1980-01-01T12:00:00Z
-        - 1980-01-01T12:00:00Z
-      - - 2
-        - company1
-        - 1980-01-01T12:00:00Z
-        - 1980-01-01T12:00:00Z
-      - - 3
-        - company2
-        - 1980-01-01T12:00:00Z
-        - 1980-01-01T12:00:00Z
+      - [1, company1, '1980-01-01T12:00:00Z', '1980-01-01T12:00:00Z']
+      - [2, company1, '1980-01-01T12:00:00Z', '1980-01-01T12:00:00Z']
+      - [3, company2, '1980-01-01T12:00:00Z', '1980-01-01T12:00:00Z']
+    # id, login, name
+    actors:
+      - [1, Actor 1, Name 1]
+      - [2, Actor 2, Name 2]
+      - [3, Actor 3, Name 3]
   KubernetesNeedRebasePRsMetric:
     # id, name, org_id, org_login, repo_group
     repos:
@@ -4648,46 +4699,21 @@ data:
   KubernetesAffiliationsMetric:
     # actor_id, company_name, dt_from, dt_to
     affiliations:
-      - - 1
-        - company1
-        - 2000-01-01T00:00:00Z
-        - 2017-10-10T00:00:00Z
-      - - 1
-        - company2
-        - 2017-09-10T00:00:00Z
-        - 2017-09-20T00:00:00Z
-      - - 1
-        - company3
-        - 2017-09-20T00:00:00Z
-        - 2020-01-01T00:00:00Z
-      - - 2
-        - company1
-        - 2000-01-01T00:00:00Z
-        - 2017-10-07T00:00:00Z
-      - - 2
-        - company2
-        - 2017-09-07T00:00:00Z
-        - 2017-09-15T00:00:00Z
-      - - 2
-        - company3
-        - 2017-09-15T00:00:00Z
-        - 2017-09-22T00:00:00Z
-      - - 2
-        - company4
-        - 2017-09-22T00:00:00Z
-        - 2020-01-01T00:00:00Z
-      - - 3
-        - company2
-        - 2017-09-12T00:00:00Z
-        - 2017-09-12T00:00:00Z
-      - - 3
-        - company3
-        - 2017-09-18T00:00:00Z
-        - 2017-09-24T00:00:00Z
-      - - 3
-        - company4
-        - 2017-09-24T00:00:00Z
-        - 2020-01-01T00:00:00Z
+      - [1, company1, '2000-01-01T00:00:00Z', '2017-10-10T00:00:00Z']
+      - [1, company2, '2017-09-10T00:00:00Z', '2017-09-20T00:00:00Z']
+      - [1, company3, '2017-09-20T00:00:00Z', '2020-01-01T00:00:00Z']
+      - [2, company1, '2000-01-01T00:00:00Z', '2017-10-07T00:00:00Z']
+      - [2, company2, '2017-09-07T00:00:00Z', '2017-09-15T00:00:00Z']
+      - [2, company3, '2017-09-15T00:00:00Z', '2017-09-22T00:00:00Z']
+      - [2, company4, '2017-09-22T00:00:00Z', '2020-01-01T00:00:00Z']
+      - [3, company2, '2017-09-12T00:00:00Z', '2017-09-12T00:00:00Z']
+      - [3, company3, '2017-09-18T00:00:00Z', '2017-09-24T00:00:00Z']
+      - [3, company4, '2017-09-24T00:00:00Z', '2020-01-01T00:00:00Z']
+    # id, login, name
+    actors:
+      - [1, A1, Actor 1]
+      - [2, A2, Actor 2]
+      - [3, A3, Actor 3]
   KubernetesIssuesMetric:
     # id, name, org_id, org_login, repo_group
     repos:
