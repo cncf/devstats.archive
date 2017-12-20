@@ -128,7 +128,7 @@ from (
   ) sub
 where
   (sub.metric = 'Comments' and sub.value >= 3)
-  or (sub.metric = 'GitHub events' and sub.value >= 5)
+  or (sub.metric = 'GitHub events' and sub.value >= 10)
   or (sub.metric = 'Issue comments' and sub.value > 1)
   or (sub.metric = 'Issues' and sub.value > 1)
   or (sub.metric = 'Review comments' and sub.value > 1)
