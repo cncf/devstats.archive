@@ -227,6 +227,15 @@ func dataForMetricTestCase(con *sql.DB, ctx *lib.Ctx, testMetric *metricTestCase
 				}
 			}
 		}
+		actors, ok := data["actors"]
+		if ok {
+			for _, actor := range actors {
+				err = addActor(con, ctx, actor...)
+				if err != nil {
+					return
+				}
+			}
+		}
 		iprs, ok := data["issues_prs"]
 		if ok {
 			for _, ipr := range iprs {
@@ -494,6 +503,22 @@ func addForkee(con *sql.DB, ctx *lib.Ctx, args ...interface{}) (err error) {
 			"dup_actor_id, dup_actor_login, dup_repo_id, dup_repo_name, dup_type, dup_created_at, "+
 			"dup_owner_login) "+lib.NValues(32),
 		newArgs...,
+	)
+	return
+}
+
+// Add actor
+// id, login, name
+func addActor(con *sql.DB, ctx *lib.Ctx, args ...interface{}) (err error) {
+	if len(args) != 3 {
+		err = fmt.Errorf("addActor: expects 3 variadic parameters")
+		return
+	}
+	_, err = lib.ExecSQL(
+		con,
+		ctx,
+		"insert into gha_actors(id, login, name) "+lib.NValues(3),
+		args...,
 	)
 	return
 }
