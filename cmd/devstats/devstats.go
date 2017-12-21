@@ -84,6 +84,7 @@ func syncAllProjects() bool {
 		dtEnd := time.Now()
 		if res != nil {
 			lib.Printf("Error result for %s (took %v): %+v\n", name, dtEnd.Sub(dtStart), res)
+			fmt.Fprintf(os.Stderr, "%v: Error result for %s (took %v): %+v\n", dtEnd, name, dtEnd.Sub(dtStart), res)
 			continue
 		}
 		lib.Printf("Synced %s, took: %v\n", name, dtEnd.Sub(dtStart))
