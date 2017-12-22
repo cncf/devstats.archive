@@ -24,4 +24,8 @@ cp ~/dev/cncf/artwork/grpc/icon/color/grpc-icon-color.svg /usr/share/grafana.grp
 cp ~/dev/cncf/artwork/grpc/icon/color/grpc-icon-color.svg /usr/share/grafana.grpc/public/img/grafana_com_auth_icon.svg || exit 22
 cp ~/dev/cncf/artwork/grpc/icon/color/grpc-icon-color.svg /usr/share/grafana.grpc/public/img/grafana_net_logo.svg || exit 23
 cp ~/dev/cncf/artwork/grpc/icon/color/grpc-icon-color.svg /usr/share/grafana.grpc/public/img/grafana_mask_icon.svg || exit 24
+cp ~/dev/cncf/artwork/cncf/icon/color/cncf-icon-color.svg /usr/share/grafana.cncf/public/img/grafana_icon.svg || exit 25
+cp ~/dev/cncf/artwork/cncf/icon/color/cncf-icon-color.svg /usr/share/grafana.cncf/public/img/grafana_com_auth_icon.svg || exit 26
+cp ~/dev/cncf/artwork/cncf/icon/color/cncf-icon-color.svg /usr/share/grafana.cncf/public/img/grafana_net_logo.svg || exit 27
+cp ~/dev/cncf/artwork/cncf/icon/color/cncf-icon-color.svg /usr/share/grafana.cncf/public/img/grafana_mask_icon.svg || exit 28
 echo 'OK'
