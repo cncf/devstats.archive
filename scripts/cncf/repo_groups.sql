@@ -8,6 +8,10 @@ update gha_repos set repo_group = 'cncf/devstats', alias = 'cncf/devstats' where
   'cncf/gha2db'
 );
 
+update gha_repos set repo_group = 'cncf/wg-serverless', alias = 'cncf/wg-serverless' where name in (
+  'cncf/draft-wg-serverless'
+);
+
 select
   repo_group,
   count(*) as number_of_repos
