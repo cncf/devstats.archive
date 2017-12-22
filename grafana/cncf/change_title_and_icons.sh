@@ -1,14 +1,14 @@
 #!/bin/sh
 # GRAFANA_DATA=/usr/share/grafana.cncf/
-for f in `find ${GRAFANA_DATA} -type f -exec grep -l "'gRPC - '" "{}" \; | sort | uniq`
+for f in `find ${GRAFANA_DATA} -type f -exec grep -l "'Grafana - '" "{}" \; | sort | uniq`
 do
   ls -l "$f"
-  vim -c "%s/'gRPC - '/'CNCF DevStats - '/g|wq" "$f"
+  vim -c "%s/'Grafana - '/'CNCF DevStats - '/g|wq" "$f"
 done
-for f in `find ${GRAFANA_DATA} -type f -exec grep -l '"gRPC - "' "{}" \; | sort | uniq`
+for f in `find ${GRAFANA_DATA} -type f -exec grep -l '"Grafana - "' "{}" \; | sort | uniq`
 do
   ls -l "$f"
-  vim -c '%s/"gRPC - "/"CNCF DevStats - "/g|wq' "$f"
+  vim -c '%s/"Grafana - "/"CNCF DevStats - "/g|wq' "$f"
 done
 cp -n ${GRAFANA_DATA}/public/img/grafana_icon.svg ${GRAFANA_DATA}/public/img/grafana_icon.svg.bak
 cp grafana/img/cncf.svg ${GRAFANA_DATA}/public/img/grafana_icon.svg || exit 1
