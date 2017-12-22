@@ -36,9 +36,12 @@ To add new project follow instructions:
 - Copy directories `/etc/grafana`, `/usr/share/grafana`, `/var/lib/grafana` from standard unmodified installation adding .projectname to their names.
 - Update `./grafana/cncf/change_title_and_icons.sh` to use right names. Run it with `GRAFANA_DATA=/usr/share/grafana.projectname/ ./grafana/projectsname/change_title_and_icons.sh`.
 - Update `/etc/grafana.projectname/grafana.ini` - set all config options from `GRAFANA.md`, `MULTIPROJECT.md`.
+- Follow `Grafana sessions in Postgres` from MULTIPROJECT.md
+- You now need Apache proxy and SSL, please follow instructions from APACHE.md and SSL.md
+- Apache part is to update `/var/www/html/index.html` file. SSL part is to issue certificate for new domain and setup proxy.
 - Start new grafana: `./grafana/projectname/grafana_start.sh`.
 - Update Apache config to proxy https to new Grafana instance: `vim /etc/apache2/sites-enabled/000-default-le-ssl.conf`, `service apache2 restart`
-- Issue new SSL certificate as described in `SSL.md`: `sudo certbot --apache -d 'cncftest.io,k8s.cncftest.io,prometheus.cncftest.io,opentracing.cncftest.io,fluentd.cncftest.io,linkerd.cncftest.io,newproject.cncftest.io'`
-- Or `sudo certbot --apache -d 'devstats.cncf.io,k8s.devstats.cncf.io,prometheus.devstats.cncf.io,opentracing.devstats.cncf.io,fluentd.devstats.cncf.io,linkerd.devstats.cncf.io,newproject.devstats.cncf.io'`
-- Open `newproject.cncftest.io` login with admin/admin, change the default password! and follow instructions from `GRAFANA.md`.
+- Issue new SSL certificate as described in `SSL.md`: `sudo certbot --apache -d 'cncftest.io,k8s.cncftest.io,prometheus.cncftest.io,opentracing.cncftest.io,fluentd.cncftest.io,linkerd.cncftest.io,grpc.cncftest.io,cncf.cncftest.io,newproject.cncftest.io'`
+- Or `sudo certbot --apache -d 'devstats.cncf.io,k8s.devstats.cncf.io,prometheus.devstats.cncf.io,opentracing.devstats.cncf.io,fluentd.devstats.cncf.io,linkerd.devstats.cncf.io,grpc.devstats.cncf.io,cncf.devstats.cncf.io,newproject.devstats.cncf.io'`
+- Open `newproject.cncftest.io` login with admin/admin, change the default password and follow instructions from `GRAFANA.md`.
 - Add new project to `/var/www/html/index.html`.
