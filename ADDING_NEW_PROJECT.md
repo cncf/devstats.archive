@@ -7,17 +7,17 @@ To add new project follow instructions:
 - If not using`devstats` cron job then add project entry in `crontab.entry` but do not install new cron yet (that will be the last step).
 - Update `./cron/cron_db_backup_all.sh`, `./reinit.sh`, `./devel/add_single_metric_all.sh` but do not install yet.
 - Add new domain for the project: `projectname.cncftest.io`.
-- Search for all files defined for some existing project, for example `find . -iname "*prometheus*"`.
+- Search for all files defined for some existing project, for example `find . -iname "*oldproject*"`.
 - Copy standard grafana disto for new project: `cp -R /usr/share/grafana /usr/share/grafana.projectname/`.
 - Generate icons for new project: `./grafana/img/projectname32.png`, `./grafana/img/projectname.svg`.
 - SVG can be taken from cncf/artwork (should be color & square): `cp ~/dev/projectname/artwork/cncf/icon/color/projectname-icon-color.svg grafana/img/projectname.svg`.
 - PNG should be 32bit RGBA 32x32 PNG. You can use `apt-get install imagemagick` and then: `convert ~/dev/cncf/artwork/cncf/icon/color/cncf-icon-color.png -resize 32x32 grafana/img/cncf32.png`.
 - And/or update `grafana/copy_artwork_icons.sh`, `apache/www/copy_icons.sh`.
 - Copy setup scripts and then adjust them:
-- `cp -R prometheus/ projectname/`, `mv projectname/prometheus.sh projectname/projectname.sh`, `vim projectname/*`.
+- `cp -R oldproject/ projectname/`, `mv projectname/oldproject.sh projectname/projectname.sh`, `vim projectname/*`.
 - You need to set correct project main GitHub repository and annotations match regexp in `projects.yaml` to have working annotations and quick ranges.
-- Copy `metrics/prometheus` to `metrics/projectname`, those files will need tweaks too. Specially `./metrics/projectname/gaps.yaml`.
-- `cp -Rv scripts/prometheus/ scripts/projectname`, `vim scripts/projectname/*`.
+- Copy `metrics/oldproject` to `metrics/projectname`, those files will need tweaks too. Specially `./metrics/projectname/gaps.yaml`.
+- `cp -Rv scripts/oldproject/ scripts/projectname`, `vim scripts/projectname/*`.
 - Create Postgres database for new project: `sudo -u postgres psql`
 - `create database projectname;`
 - `grant all privileges on database "projectname" to gha_admin;`
@@ -28,8 +28,8 @@ To add new project follow instructions:
 - There are two kinds of repo group names: direct from query, but also with special characters replaced with "_"
 - You should copy those from query, put there where needed and do VIM replace: `:'<,'>s/[-/.,;:`\s]/_/g`.
 - Run regenerate all InfluxData script `./projectname/reinit.sh`.
-- `cp grafana/prometheus/* grafana/projectname/*` and then update files.
-- `cp grafana/dashboards/prometheus/* grafana/dashboards/projectname/*` and then update files.
+- `cp -Rv grafana/oldproject/ grafana/projectname/` and then update files. Usually `%s/oldproject/newproject/g|w|next`.
+- `cp -Rv grafana/dashboards/oldproject/ grafana/dashboards/projectname/` and then update files. Usually `%s/"oldproj"/"newproj"/g|%s/DS_OLDPROJ/DS_NEWPROJ/g|%s/OldProj/NewProj/g|w|next`.
 - Update: `grafana/copy_artwork_icons.sh`, `apache/www/copy_icons.sh`.
 - Update `projects.yaml` remove `disabled: true` for new project.
 - `make install` to install all changed stuff.
