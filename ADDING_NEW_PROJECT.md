@@ -34,7 +34,7 @@ To add new project follow instructions:
 - Update `projects.yaml` remove `disabled: true` for new project.
 - `make install` to install all changed stuff.
 - Copy directories `/etc/grafana`, `/usr/share/grafana`, `/var/lib/grafana` from standard unmodified installation adding .projectname to their names.
-- Update `./grafana/projectname/change_icons_and_title.sh` to use right names. Run it with `GRAFANA_DATA=/usr/share/grafana.projectname/ ./grafana/projectsname/change_title_and_icons.sh`.
+- Update `./grafana/cncf/change_title_and_icons.sh` to use right names. Run it with `GRAFANA_DATA=/usr/share/grafana.projectname/ ./grafana/projectsname/change_title_and_icons.sh`.
 - Update `/etc/grafana.projectname/grafana.ini` - set all config options from `GRAFANA.md`, `MULTIPROJECT.md`.
 - Start new grafana: `./grafana/projectname/grafana_start.sh`.
 - Update Apache config to proxy https to new Grafana instance: `vim /etc/apache2/sites-enabled/000-default-le-ssl.conf`, `service apache2 restart`

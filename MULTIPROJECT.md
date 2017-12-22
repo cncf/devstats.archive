@@ -2,7 +2,7 @@
 
 You can run multiple Grafana instances using grafana/*/grafana_start.sh
 You need to install Grafana and then create separate directories for all projects:
-- `cp -R /usr/shaare/grafana /usr/share/grafana.projectname`.
+- `cp -R /usr/share/grafana /usr/share/grafana.projectname`.
 - `cp -R /var/lib/grafana /var/lib/grafana.projectname`.
 - `cp -R /etc/grafana /etc/grafana.projectname`.
 
@@ -76,7 +76,7 @@ provider = postgres
 provider_config = user=gha_admin host=127.0.0.1 port=5432 dbname=projectname_grafana_sessions sslmode=disable password=...
 ```
 - If You are adding sessions to dockerized Grafana instance You need to set hostname `172.17.0.1`.
-- This is sometimes tricky to see why connection to Postgres fail. To be able to debu it do:
+- This is sometimes tricky to see why connection to Postgres fail. To be able to debug it do:
 - `source /etc/default/grafana-server`
 - `cd /usr/share/grafana`
 - `/usr/sbin/grafana-server --config=${CONF_FILE} --pidfile=${PID_FILE_DIR}/grafana-server.pid cfg:default.paths.logs=${LOG_DIR} cfg:default.paths.data=${DATA_DIR} cfg:default.paths.plugins=${PLUGINS_DIR}`
