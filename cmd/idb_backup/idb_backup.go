@@ -80,6 +80,10 @@ func idbBackup(from, to string) {
 
 	// Get all series names from input database
 	res := lib.QueryIDBWithDB(ic, &ctx, "show series", from)
+	if len(res[0].Series) < 1 {
+		lib.Printf("Nothing to copy\n")
+		return
+	}
 	iSeries := res[0].Series[0].Values
 
 	// Get unique series name (without tags)
