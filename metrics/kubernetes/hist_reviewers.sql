@@ -6,6 +6,14 @@ where
   {{period:created_at}}
   and substring(body from '(?i)(?:^|\n|\r)\s*/(?:lgtm|approve)\s*(?:\n|\r|$)') is not null;
 
+create temp table reviews as
+select id as event_id
+from
+  gha_events
+where
+  {{period:created_at}}
+  and type in ('PullRequestReviewCommentEvent');
+
 select
   'reviewers_hist,' || r.repo_group as repo_group,
   e.dup_actor_login as actor,
@@ -30,6 +38,7 @@ where
     group by
       issue_id
     union select event_id from matching
+    union select event_id from reviews
   )
 group by
   r.repo_group,
@@ -56,6 +65,7 @@ where
     group by
       issue_id
     union select event_id from matching
+    union select event_id from reviews
   )
 group by
   dup_actor_login
@@ -67,4 +77,5 @@ order by
   actor asc
 ;
 
+drop table reviews;
 drop table matching;

@@ -4,7 +4,7 @@ from
   gha_texts
 where
   {{period:created_at}}
-  and substring(body from '(?i)(?:^|\n|\r)\s*/approve\s*(?:\n|\r|$)') is not null;
+  and substring(body from '(?i)(?:^|\n|\r)\s*/(?:lgtm|approve)\s*(?:\n|\r|$)') is not null;
 
 select
   'approvers_hist,' || r.repo_group as repo_group,
