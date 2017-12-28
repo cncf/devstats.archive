@@ -1317,33 +1317,6 @@ func writeToDB(db *sql.DB, ctx *lib.Ctx, ev *lib.Event) int {
 	return 1
 }
 
-// repoHit - are we interested in this org/repo ?
-func repoHit(exact bool, fullName string, forg, frepo map[string]struct{}) bool {
-	if fullName == "" {
-		return false
-	}
-	if exact {
-		_, ok := forg[fullName]
-		return ok
-	}
-	res := strings.Split(fullName, "/")
-	org, repo := "", res[0]
-	if len(res) > 1 {
-		org, repo = res[0], res[1]
-	}
-	if len(forg) > 0 {
-		if _, ok := forg[org]; !ok {
-			return false
-		}
-	}
-	if len(frepo) > 0 {
-		if _, ok := frepo[repo]; !ok {
-			return false
-		}
-	}
-	return true
-}
-
 // Before 2015 rpository name should be Organization/Name (if Organization present) or just Name
 func makeOldRepoName(repo *lib.ForkeeOld) string {
 	if repo.Organization == nil || *repo.Organization == "" {
@@ -1379,7 +1352,7 @@ func parseJSON(con *sql.DB, ctx *lib.Ctx, jsonStr []byte, dt time.Time, forg, fr
 	} else {
 		fullName = h.Repo.Name
 	}
-	if repoHit(ctx.Exact, fullName, forg, frepo) {
+	if lib.RepoHit(ctx.Exact, fullName, forg, frepo) {
 		if ctx.OldFormat {
 			eid = fmt.Sprintf("%v", lib.HashStrings([]string{hOld.Type, hOld.Actor, hOld.Repository.Name, lib.ToYMDHMSDate(hOld.CreatedAt)}))
 		} else {

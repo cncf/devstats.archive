@@ -71,6 +71,7 @@ Org/Repo filtering:
 - You can return all JSONs by skipping both params.
 - You can provide both to observe only events from given org/repo.
 - You can list exact full repository names to run on: use `GHA2DB_EXACT=1` to process only repositories listed as "orgs" parameter, by their full names, like for example 3 repos: "GoogleCloudPlatform/kubernetes,kubernetes,kubernetes/kubernetes".
+- Without GHA2DB_EXACT flag only full names like "a/b,x/y" can be treated as exact full repository names, names without "/" are treated either as orgs or as repositories.
 
 # Broken githubarchives JSON file
 - For 2017-11-08 01:00:00 githubarchive JSON contains an error.

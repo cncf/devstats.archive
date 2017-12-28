@@ -6,6 +6,164 @@ import (
 	lib "devstats"
 )
 
+func TestRepoHit(t *testing.T) {
+	// Test cases
+	var testCases = []struct {
+		exact    bool
+		fullName string
+		forg     map[string]struct{}
+		frepo    map[string]struct{}
+		hit      bool
+	}{
+		{
+			exact:    true,
+			fullName: "abc/def",
+			forg:     map[string]struct{}{"a/b": {}, "abc/def": {}, "x/y/z": {}},
+			frepo:    map[string]struct{}{},
+			hit:      true,
+		},
+		{
+			exact:    true,
+			fullName: "a/b",
+			forg:     map[string]struct{}{"a/b": {}, "abc/def": {}, "x/y/z": {}},
+			frepo:    map[string]struct{}{},
+			hit:      true,
+		},
+		{
+			fullName: "abc/def",
+			forg:     map[string]struct{}{"a/b": {}, "abc/def": {}, "x/y/z": {}},
+			frepo:    map[string]struct{}{},
+			hit:      true,
+		},
+		{
+			fullName: "abc/def",
+			forg:     map[string]struct{}{"abc": {}},
+			frepo:    map[string]struct{}{"def": {}},
+			hit:      true,
+		},
+		{
+			fullName: "",
+			forg:     map[string]struct{}{"abc": {}},
+			frepo:    map[string]struct{}{"def": {}},
+		},
+		{
+			fullName: "abc",
+			forg:     map[string]struct{}{"abc": {}},
+			frepo:    map[string]struct{}{},
+		},
+		{
+			fullName: "abc",
+			forg:     map[string]struct{}{},
+			frepo:    map[string]struct{}{"abc": {}},
+			hit:      true,
+		},
+		{
+			fullName: "abcd",
+			forg:     map[string]struct{}{"abc": {}},
+			frepo:    map[string]struct{}{},
+		},
+		{
+			fullName: "abcd",
+			forg:     map[string]struct{}{},
+			frepo:    map[string]struct{}{"abc": {}},
+		},
+		{
+			fullName: "abc",
+			forg:     map[string]struct{}{"abcd": {}},
+			frepo:    map[string]struct{}{},
+		},
+		{
+			fullName: "abc",
+			forg:     map[string]struct{}{},
+			frepo:    map[string]struct{}{"abcd": {}},
+		},
+		{
+			fullName: "abc/def",
+			forg:     map[string]struct{}{"abc": {}},
+			frepo:    map[string]struct{}{"def": {}},
+			hit:      true,
+		},
+		{
+			fullName: "abc/def",
+			forg:     map[string]struct{}{"abc": {}},
+			frepo:    map[string]struct{}{},
+			hit:      true,
+		},
+		{
+			fullName: "abc/def",
+			forg:     map[string]struct{}{},
+			frepo:    map[string]struct{}{"def": {}},
+			hit:      true,
+		},
+		{
+			fullName: "abc/def",
+			forg:     map[string]struct{}{},
+			frepo:    map[string]struct{}{},
+			hit:      true,
+		},
+		{
+			fullName: "abc/xyz",
+			forg:     map[string]struct{}{"abc": {}, "def/ghi": {}, "j/l": {}},
+			frepo:    map[string]struct{}{},
+			hit:      true,
+		},
+		{
+			fullName: "abc/ghi",
+			forg:     map[string]struct{}{"abc": {}, "def/ghi": {}, "j/l": {}},
+			frepo:    map[string]struct{}{},
+			hit:      true,
+		},
+		{
+			fullName: "j/l",
+			forg:     map[string]struct{}{"abc": {}, "def/ghi": {}, "j/l": {}},
+			frepo:    map[string]struct{}{},
+			hit:      true,
+		},
+		{
+			fullName: "j/l",
+			forg:     map[string]struct{}{"abc": {}, "def/ghi": {}, "j/l": {}},
+			frepo:    map[string]struct{}{"l": {}, "klm": {}},
+			hit:      true,
+		},
+		{
+			fullName: "def/ghi",
+			forg:     map[string]struct{}{"abc": {}, "def/ghi": {}, "j/l": {}},
+			frepo:    map[string]struct{}{"l": {}, "klm": {}},
+			hit:      true,
+		},
+		{
+			fullName: "abc",
+			forg:     map[string]struct{}{"abc": {}, "def/ghi": {}, "j/l": {}},
+			frepo:    map[string]struct{}{"l": {}, "klm": {}},
+		},
+		{
+			exact:    true,
+			fullName: "abc",
+			forg:     map[string]struct{}{"abc": {}, "def/ghi": {}, "j/l": {}},
+			frepo:    map[string]struct{}{"l": {}, "klm": {}},
+			hit:      true,
+		},
+		{
+			exact:    true,
+			fullName: "j/l",
+			forg:     map[string]struct{}{"abc": {}, "def/ghi": {}, "j/l": {}},
+			frepo:    map[string]struct{}{"l": {}, "klm": {}},
+			hit:      true,
+		},
+	}
+	// Execute test cases
+	for index, test := range testCases {
+		expected := test.hit
+		got := lib.RepoHit(test.exact, test.fullName, test.forg, test.frepo)
+		if got != expected {
+			t.Errorf(
+				"test number %d, expected '%v', got '%v', test case: %+v",
+				index+1, expected, got, test,
+			)
+		}
+	}
+}
+
 func TestOrgIDOrNil(t *testing.T) {
 	result := lib.OrgIDOrNil(nil)
 	if result != nil {
