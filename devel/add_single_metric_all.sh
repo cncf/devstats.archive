@@ -6,5 +6,6 @@ GHA2DB_PROJECT=fluentd PG_DB=fluentd IDB_DB=fluentd ./devel/add_single_metric.sh
 GHA2DB_PROJECT=linkerd PG_DB=linkerd IDB_DB=linkerd ./devel/add_single_metric.sh || exit 5
 GHA2DB_PROJECT=grpc PG_DB=grpc IDB_DB=grpc ./devel/add_single_metric.sh || exit 6
 GHA2DB_PROJECT=coredns PG_DB=coredns IDB_DB=coredns ./devel/add_single_metric.sh || exit 6
-GHA2DB_PROJECT=cncf PG_DB=cncf IDB_DB=cncf ./devel/add_single_metric.sh || exit 6
+GHA2DB_PROJECT=containerd PG_DB=containerd IDB_DB=containerd ./devel/add_single_metric.sh || exit 6
+# GHA2DB_PROJECT=cncf PG_DB=cncf IDB_DB=cncf ./devel/add_single_metric.sh || exit 6
 echo 'OK'

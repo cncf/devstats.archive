@@ -6,5 +6,6 @@ cron_db_backup.sh fluentd 2>> /tmp/gha2db_backup_fluentd.err 1>> /tmp/gha2db_bac
 cron_db_backup.sh linkerd 2>> /tmp/gha2db_backup_linkerd.err 1>> /tmp/gha2db_backup_linkerd.log
 cron_db_backup.sh grpc 2>> /tmp/gha2db_backup_grpc.err 1>> /tmp/gha2db_backup_grpc.log
 cron_db_backup.sh coredns 2>> /tmp/gha2db_backup_coredns.err 1>> /tmp/gha2db_backup_coredns.log
-cron_db_backup.sh cncf 2>> /tmp/gha2db_backup_cncf.err 1>> /tmp/gha2db_backup_cncf.log
+cron_db_backup.sh containerd 2>> /tmp/gha2db_backup_containerd.err 1>> /tmp/gha2db_backup_containerd.log
+# cron_db_backup.sh cncf 2>> /tmp/gha2db_backup_cncf.err 1>> /tmp/gha2db_backup_cncf.log
 cron_db_backup.sh devstats 2>> /tmp/gha2db_backup_devstats.err 1>> /tmp/gha2db_backup_devstats.log
