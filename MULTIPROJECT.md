@@ -67,8 +67,8 @@ create table session(
 );
 ```
 - `grant all privileges on table "session" to gha_admin;`
-- This table and grant permission is also saved as `util_sql/grafana_session_table.sql`, so You can use: `sudo -u postgres psql projectname_grafana_sessions < util_sql/grafana_session_table.sql`.
-- You need to do the for all projects. Replace projectname withcurrent project.
+- This table and grant permission is also saved as `util_sql/grafana_session_table.sql`, so you can use: `sudo -u postgres psql projectname_grafana_sessions < util_sql/grafana_session_table.sql`.
+- You need to do the for all projects. Replace projectname with current project.
 - Your password should NOT contain # or ;, because Grafana is unable to escape it correctly.
 - To change password do: `sudo -u postgres psql` and then `ALTER ROLE gha_admin WITH PASSWORD 'new_pwd';`.
 ```
