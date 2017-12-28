@@ -2,7 +2,7 @@
   
 To add new project follow instructions:
 - `crontab -e` and turn off `devstats` and/or `gha2db_sync`.
-- Add project entry to `projects.yaml` file. Find projects orgs, repos, select start date.
+- Add project entry to `projects.yaml` file. Find projects orgs, repos, select start date, eventually add test coverage for complex regular expression in `regexp_test.go`.
 - Set project databases (Influx and Postgres).
 - Set it to `disabled: true` for now.
 - If not using`devstats` cron job then add project entry in `crontab.entry` but do not install new cron yet (that will be the last step).
