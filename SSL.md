@@ -19,4 +19,4 @@ To install Let's encrypt via certbot:
 - You can for instance put [database dump](https://devstats.cncf.io/gha.sql.xz) there (main domain is a static page, all projects live in subdomains).
 - Files in `[apache](https://github.com/cncf/devstats/blob/master/apache/) should be copied to `/etc/apache2` (see comments starting with `LG:`) and then `service apache2 restart`
 - You can configure multiple domains for a single server:
-- `sudo certbot --apache -d 'cncftest.io,k8s.cncftest.io,prometheus.cncftest.io,opentracing.cncftest.io,fluentd.cncftest.io,linkerd.cncftest.io'`
+- `sudo certbot --apache -d 'cncftest.io,k8s.cncftest.io,prometheus.cncftest.io,opentracing.cncftest.io,fluentd.cncftest.io,linkerd.cncftest.io,grpc.cncftest.io,coredns.cncftest.io'`
