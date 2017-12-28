@@ -27,9 +27,9 @@ To add new project follow instructions:
 - If running on the production server: `wget https://cncftest.io/projectname.sql.xz`, `xz -d projectname.sql.xz`, `sudo -u postgres psql projectname < projectname.sql`.
 - When data is imported into Postgres: projectname, You need to update `metrics/projectname/gaps.yaml`.
 - Using `./metrics/projectname/companies_tags.sql`,  `./projectname/top_n_companies.sh`.
-- And `./projectname/top_n_repos_groups.sh`.
+- And `./projectname/top_n_repos_groups.sh`. Usually no repo groups are set up on new projects, currently only Kubernetes uses this.
 - There are two kinds of repo group names: direct from query, but also with special characters replaced with "_"
-- You should copy those from query, put there where needed and do VIM replace: `:'<,'>s/[-/.,;:`\s]/_/g`.
+- You should copy those from query, put there where needed and do VIM replace: `:'<,'>s/[-/.: `]/_/g`, `:'<,'>s/[A-Z]/\L&/g`.
 - Run regenerate all InfluxData script `./projectname/reinit.sh`.
 - `cp -Rv grafana/oldproject/ grafana/projectname/` and then update files. Usually `%s/oldproject/newproject/g|w|next`.
 - `cp -Rv grafana/dashboards/oldproject/ grafana/dashboards/projectname/` and then update files. Usually `%s/"oldproj"/"newproj"/g|%s/DS_OLDPROJ/DS_NEWPROJ/g|%s/OldProj/NewProj/g|w|next`.
