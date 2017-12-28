@@ -1,6 +1,7 @@
 package devstats
 
 import (
+	"strings"
 	"time"
 )
 
@@ -330,6 +331,46 @@ type Team struct {
 	Name       string `json:"name"`
 	Slug       string `json:"slug"`
 	Permission string `json:"permission"`
+}
+
+// RepoHit - are we interested in this org/repo ?
+func RepoHit(exact bool, fullName string, forg, frepo map[string]struct{}) bool {
+	// Return false if no repo name
+	if fullName == "" {
+		return false
+	}
+	// If repo name in old format (no org name) then assume org = ""
+	res := strings.Split(fullName, "/")
+	org, repo := "", res[0]
+	// New repo name format org/repo
+	if len(res) > 1 {
+		org, repo = res[0], res[1]
+	}
+	// Now check for full name hit in org (one can provide full repo name org/repo)
+	_, ok := forg[fullName]
+	// If we hit then we can have two cases
+	// We hit a full name with "/" - this is a direct hit, return true
+	// We hit old repo name format but special flag GHA2DB_EXACT is used
+	// Only return hit when this flag is set
+	if ok && (exact || len(res) > 1) {
+		return ok
+	}
+	// Now if org list given and different org, return false
+	if len(forg) > 0 {
+		if _, ok := forg[org]; !ok {
+			return false
+		}
+	}
+	// Now if repo list given and different repo, return false
+	if len(frepo) > 0 {
+		if _, ok := frepo[repo]; !ok {
+			return false
+		}
+	}
+	// Either org matches given list or no org given
+	// and repo name matches given or no repo given
+	// Check all test cases in gha_test.go: TestRepoHit()
+	return true
 }
 
 // OrgIDOrNil - return Org ID from pointer or nil
