@@ -5,15 +5,15 @@ To add new project follow instructions:
 - Add project entry to `projects.yaml` file. Find projects orgs, repos, select start date, eventually add test coverage for complex regular expression in `regexp_test.go`.
 - Set project databases (Influx and Postgres).
 - Set it to `disabled: true` for now.
-- If not using`devstats` cron job then add project entry in `crontab.entry` but do not install new cron yet (that will be the last step).
+- If not using `devstats` cron job then add project entry in `crontab.entry` but do not install new cron yet (that will be the last step).
 - Update `./cron/cron_db_backup_all.sh`, `./reinit.sh`, `./devel/add_single_metric_all.sh` but do not install yet.
 - Add new domain for the project: `projectname.cncftest.io`. If using wildcard domain like *.devstats.cncf.io - this step is not needed.
-- Add google analytics for the new domaimn and update /etc/grafana.projectname/grafana.ini with its `UA-...`.
+- Add google analytics for the new domain and update /etc/grafana.projectname/grafana.ini with its `UA-...`.
 - Search for all files defined for some existing project, for example `find . -iname "*oldproject*"`.
 - Copy standard grafana distro for new project: `cp -R /usr/share/grafana /usr/share/grafana.projectname/`.
 - Generate icons for new project: `./grafana/img/projectname32.png`, `./grafana/img/projectname.svg`.
 - SVG can be taken from cncf/artwork (should be color & square): `cp ~/dev/cncf/artwork/projectname/icon/color/projectname-icon-color.svg grafana/img/projectname.svg`.
-- PNG should be 32bit RGBA 32x32 PNG. You can use `apt-get install imagemagick` and then: `convert ~/dev/cncf/artwork/projectname/icon/color/cncf-icon-color.png -resize 32x32 grafana/img/projectname32.png`.
+- PNG should be 32bit RGBA 32x32 PNG. You can use `apt-get install imagemagick` and then: `convert ~/dev/cncf/artwork/projectname/icon/color/projectname-icon-color.png -resize 32x32 grafana/img/projectname32.png`.
 - And/or update `grafana/copy_artwork_icons.sh`, `apache/www/copy_icons.sh`.
 - Copy setup scripts and then adjust them:
 - `cp -R oldproject/ projectname/`, `mv projectname/oldproject.sh projectname/projectname.sh`, `vim projectname/*`.

@@ -5,5 +5,6 @@
 ./fluentd/reinit.sh || exit 4
 ./linkerd/reinit.sh || exit 5
 ./grpc/reinit.sh || exit 6
-./coredns/reinit.sh || exit 6
-./cncf/reinit.sh || exit 6
+./coredns/reinit.sh || exit 7
+./containerd/reinit.sh || exit 8
+# ./cncf/reinit.sh || exit 9

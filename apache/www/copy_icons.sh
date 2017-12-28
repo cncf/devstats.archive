@@ -7,5 +7,6 @@ cp ~/dev/cncf/artwork/fluentd/icon/color/fluentd-icon-color.png /var/www/html/im
 cp ~/dev/cncf/artwork/linkerd/icon/color/linkerd-icon-color.png /var/www/html/img/ || exit 5
 cp ~/dev/cncf/artwork/grpc/icon/color/grpc-icon-color.png /var/www/html/img/ || exit 6
 cp ~/dev/cncf/artwork/coredns/icon/color/core-dns-icon-color.png /var/www/html/img/ || exit 7
-cp ~/dev/cncf/artwork/cncf/icon/color/cncf-icon-color.png /var/www/html/img/ || exit 8
+cp ~/dev/cncf/artwork/containerd/icon/color/containerd-icon-color.png /var/www/html/img/ || exit 8
+# cp ~/dev/cncf/artwork/cncf/icon/color/cncf-icon-color.png /var/www/html/img/ || exit 9
 echo 'OK'
