@@ -8,7 +8,7 @@ done
 for f in `find ${GRAFANA_DATA} -type f -exec grep -l '"Grafana - "' "{}" \; | sort | uniq`
 do
   ls -l "$f"
-  vim -c '%s/"Grafana - "/"CoreDBS DevStats - "/g|wq' "$f"
+  vim -c '%s/"Grafana - "/"CoreDNS DevStats - "/g|wq' "$f"
 done
 cp -n ${GRAFANA_DATA}/public/img/grafana_icon.svg ${GRAFANA_DATA}/public/img/grafana_icon.svg.bak
 cp grafana/img/coredns.svg ${GRAFANA_DATA}/public/img/grafana_icon.svg || exit 1
