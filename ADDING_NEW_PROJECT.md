@@ -1,16 +1,17 @@
 # Adding new project
   
 To add new project follow instructions:
+- `crontab -e` and turn off `devstats` and/or `gha2db_sync`.
 - Add project entry to `projects.yaml` file. Find projects orgs, repos, select start date.
 - Set project databases (Influx and Postgres).
 - Set it to `disabled: true` for now.
 - If not using`devstats` cron job then add project entry in `crontab.entry` but do not install new cron yet (that will be the last step).
 - Update `./cron/cron_db_backup_all.sh`, `./reinit.sh`, `./devel/add_single_metric_all.sh` but do not install yet.
-- Add new domain for the project: `projectname.cncftest.io`.
+- Add new domain for the project: `projectname.cncftest.io`. Add google analytics.
 - Search for all files defined for some existing project, for example `find . -iname "*oldproject*"`.
-- Copy standard grafana disto for new project: `cp -R /usr/share/grafana /usr/share/grafana.projectname/`.
+- Copy standard grafana distro for new project: `cp -R /usr/share/grafana /usr/share/grafana.projectname/`.
 - Generate icons for new project: `./grafana/img/projectname32.png`, `./grafana/img/projectname.svg`.
-- SVG can be taken from cncf/artwork (should be color & square): `cp ~/dev/projectname/artwork/cncf/icon/color/projectname-icon-color.svg grafana/img/projectname.svg`.
+- SVG can be taken from cncf/artwork (should be color & square): `cp ~/dev/cncf/artwork/projectname/icon/color/projectname-icon-color.svg grafana/img/projectname.svg`.
 - PNG should be 32bit RGBA 32x32 PNG. You can use `apt-get install imagemagick` and then: `convert ~/dev/cncf/artwork/cncf/icon/color/cncf-icon-color.png -resize 32x32 grafana/img/cncf32.png`.
 - And/or update `grafana/copy_artwork_icons.sh`, `apache/www/copy_icons.sh`.
 - Copy setup scripts and then adjust them:
@@ -45,3 +46,4 @@ To add new project follow instructions:
 - Or `sudo certbot --apache -d 'devstats.cncf.io,k8s.devstats.cncf.io,prometheus.devstats.cncf.io,opentracing.devstats.cncf.io,fluentd.devstats.cncf.io,linkerd.devstats.cncf.io,grpc.devstats.cncf.io,cncf.devstats.cncf.io,newproject.devstats.cncf.io'`
 - Open `newproject.cncftest.io` login with admin/admin, change the default password and follow instructions from `GRAFANA.md`.
 - Add new project to `/var/www/html/index.html`.
+- `crontab -e` and turn on `devstats` and/or `gha2db_sync`.
