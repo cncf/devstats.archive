@@ -162,6 +162,15 @@ func ProcessAnnotations(ctx *Ctx, annotations *Annotations, joinDate *time.Time)
 			"title":       "CNCF join Date",
 			"description": ToYMDDate(*joinDate) + " - joined CNCF",
 		}
+		// Add batch point
+		if ctx.Debug > 0 {
+			Printf(
+				"CNCF join date: %v: '%v', '%v'\n",
+				ToYMDDate(*joinDate),
+				fields["title"],
+				fields["description"],
+			)
+		}
 		pt := IDBNewPointWithErr("annotations", nil, fields, *joinDate)
 		IDBAddPointN(ctx, &ic, &pts, pt)
 	}
