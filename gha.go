@@ -20,6 +20,7 @@ type Project struct {
 	MainRepo         string     `yaml:"main_repo"`
 	AnnotationRegexp string     `yaml:"annotation_regexp"`
 	Order            int        `yaml:"order"`
+	JoinDate         *time.Time `yaml:"join_date"`
 }
 
 // AnyArray - holds array of interface{} - just a shortcut

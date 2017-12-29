@@ -122,7 +122,7 @@ func GetAnnotations(ctx *Ctx, orgRepo, annoRegexp string) (annotations Annotatio
 }
 
 // ProcessAnnotations Creates IfluxDB annotations and quick_series
-func ProcessAnnotations(ctx *Ctx, annotations *Annotations) {
+func ProcessAnnotations(ctx *Ctx, annotations *Annotations, joinDate *time.Time) {
 	// Connect to InfluxDB
 	ic := IDBConn(ctx)
 	defer ic.Close()
@@ -153,6 +153,16 @@ func ProcessAnnotations(ctx *Ctx, annotations *Annotations) {
 			)
 		}
 		pt := IDBNewPointWithErr("annotations", nil, fields, annotation.Date)
+		IDBAddPointN(ctx, &ic, &pts, pt)
+	}
+
+	// Join CNCF (additional annotation not used in quick ranges)
+	if joinDate != nil {
+		fields := map[string]interface{}{
+			"title":       "CNCF join Date",
+			"description": ToYMDDate(*joinDate) + " - joined CNCF",
+		}
+		pt := IDBNewPointWithErr("annotations", nil, fields, *joinDate)
 		IDBAddPointN(ctx, &ic, &pts, pt)
 	}
 
