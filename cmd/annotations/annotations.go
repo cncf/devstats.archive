@@ -45,7 +45,7 @@ func makeAnnotations() {
 	annotations := lib.GetAnnotations(&ctx, proj.MainRepo, proj.AnnotationRegexp)
 
 	// Add annotations and quick ranges to InfluxDB
-	lib.ProcessAnnotations(&ctx, &annotations)
+	lib.ProcessAnnotations(&ctx, &annotations, proj.JoinDate)
 }
 
 func main() {

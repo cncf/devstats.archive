@@ -4,6 +4,7 @@ import (
 	lib "devstats"
 	testlib "devstats/test"
 	"testing"
+	"time"
 
 	client "github.com/influxdata/influxdb/client/v2"
 )
@@ -84,8 +85,11 @@ func TestProcessAnnotations(t *testing.T) {
 
 	// Test cases (they will create and close new connection inside ProcessAnnotations)
 	ft := testlib.YMDHMS
+	earlyDate := ft(2014)
+	lateDate := ft(2018)
 	var testCases = []struct {
 		annotations         lib.Annotations
+		joinDate            *time.Time
 		expectedAnnotations [][]interface{}
 		expectedQuickRanges [][]interface{}
 	}{
@@ -101,6 +105,58 @@ func TestProcessAnnotations(t *testing.T) {
 			},
 			expectedAnnotations: [][]interface{}{
 				{"2017-02-01T00:00:00Z", "desc 0.0.0", "release 0.0.0"},
+			},
+			expectedQuickRanges: [][]interface{}{
+				{"d;1 day;;", "Last day", "d"},
+				{"w;1 week;;", "Last week", "w"},
+				{"d10;10 days;;", "Last 10 days", "d10"},
+				{"m;1 month;;", "Last month", "m"},
+				{"q;3 months;;", "Last quarter", "q"},
+				{"y;1 year;;", "Last year", "y"},
+				{"y10;10 years;;", "Last decade", "y10"},
+				{"release 0.0.0 - now", "anno_0_now"},
+			},
+		},
+		{
+			joinDate: &earlyDate,
+			annotations: lib.Annotations{
+				[]lib.Annotation{
+					{
+						Name:        "release 0.0.0",
+						Description: "desc 0.0.0",
+						Date:        ft(2017, 2),
+					},
+				},
+			},
+			expectedAnnotations: [][]interface{}{
+				{"2014-01-01T00:00:00Z", "2014-01-01 - joined CNCF", "CNCF join Date"},
+				{"2017-02-01T00:00:00Z", "desc 0.0.0", "release 0.0.0"},
+			},
+			expectedQuickRanges: [][]interface{}{
+				{"d;1 day;;", "Last day", "d"},
+				{"w;1 week;;", "Last week", "w"},
+				{"d10;10 days;;", "Last 10 days", "d10"},
+				{"m;1 month;;", "Last month", "m"},
+				{"q;3 months;;", "Last quarter", "q"},
+				{"y;1 year;;", "Last year", "y"},
+				{"y10;10 years;;", "Last decade", "y10"},
+				{"release 0.0.0 - now", "anno_0_now"},
+			},
+		},
+		{
+			joinDate: &lateDate,
+			annotations: lib.Annotations{
+				[]lib.Annotation{
+					{
+						Name:        "release 0.0.0",
+						Description: "desc 0.0.0",
+						Date:        ft(2017, 2),
+					},
+				},
+			},
+			expectedAnnotations: [][]interface{}{
+				{"2017-02-01T00:00:00Z", "desc 0.0.0", "release 0.0.0"},
+				{"2018-01-01T00:00:00Z", "2018-01-01 - joined CNCF", "CNCF join Date"},
 			},
 			expectedQuickRanges: [][]interface{}{
 				{"d;1 day;;", "Last day", "d"},
@@ -241,14 +297,14 @@ func TestProcessAnnotations(t *testing.T) {
 	// Execute test cases
 	for index, test := range testCases {
 		// Execute annotations & quick ranges call
-		lib.ProcessAnnotations(&ctx, &test.annotations)
+		lib.ProcessAnnotations(&ctx, &test.annotations, test.joinDate)
 
 		// Check annotations created
 		gotAnnotations := getIDBResult(lib.QueryIDB(con, &ctx, "select * from annotations"))
 		if !testlib.CompareSlices2D(test.expectedAnnotations, gotAnnotations) {
 			t.Errorf(
-				"test number %d, expected annotations:\n%+v\n%+v\ngot.",
-				index+1, test.expectedAnnotations, gotAnnotations,
+				"test number %d: join date: %+v\nannotations: %+v\nExpected annotations:\n%+v\n%+v\ngot.",
+				index+1, test.joinDate, test.annotations, test.expectedAnnotations, gotAnnotations,
 			)
 		}
 		// Clean up for next test
@@ -259,8 +315,8 @@ func TestProcessAnnotations(t *testing.T) {
 		gotQuickRanges := getIDBResultFiltered(lib.QueryIDB(con, &ctx, "select * from quick_ranges"))
 		if !testlib.CompareSlices2D(test.expectedQuickRanges, gotQuickRanges) {
 			t.Errorf(
-				"test number %d, expected quick ranges:\n%+v\n%+v\ngot.",
-				index+1, test.expectedQuickRanges, gotQuickRanges,
+				"test number %d: join date: %+v\nannotations: %+v\nExpected quick ranges:\n%+v\n%+v\ngot",
+				index+1, test.joinDate, test.annotations, test.expectedQuickRanges, gotQuickRanges,
 			)
 		}
 		// Clean up for next test
