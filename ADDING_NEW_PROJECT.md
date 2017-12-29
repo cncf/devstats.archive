@@ -41,11 +41,12 @@ To add new project follow instructions:
 - Update `/etc/grafana.projectname/grafana.ini` - set all config options from `GRAFANA.md`, `MULTIPROJECT.md`.
 - Follow `Grafana sessions in Postgres` from MULTIPROJECT.md
 - You now need Apache proxy and SSL, please follow instructions from APACHE.md and SSL.md
-- Apache part is to update `/var/www/html/index.html` file. SSL part is to issue certificate for new domain and setup proxy.
+- Apache part is to update `/var/www/html/index.html` file, `apache/www/index_*` files and, `/etc/apache2/sites-enabled/*` files, `apache/sites-enabled/*` files
+- SSL part is to issue certificate for new domain and setup proxy.
 - Start new grafana: `./grafana/projectname/grafana_start.sh`.
 - Update Apache config to proxy https to new Grafana instance: `vim /etc/apache2/sites-enabled/000-default-le-ssl.conf`, `service apache2 restart`
-- Issue new SSL certificate as described in `SSL.md`: `sudo certbot --apache -d 'cncftest.io,k8s.cncftest.io,prometheus.cncftest.io,opentracing.cncftest.io,fluentd.cncftest.io,linkerd.cncftest.io,grpc.cncftest.io,cncf.cncftest.io,newproject.cncftest.io'`
-- Or `sudo certbot --apache -d 'devstats.cncf.io,k8s.devstats.cncf.io,prometheus.devstats.cncf.io,opentracing.devstats.cncf.io,fluentd.devstats.cncf.io,linkerd.devstats.cncf.io,grpc.devstats.cncf.io,newproject.devstats.cncf.io'`
+- Issue new SSL certificate as described in `SSL.md`: `sudo certbot --apache -d 'cncftest.io,k8s.cncftest.io,prometheus.cncftest.io,opentracing.cncftest.io,fluentd.cncftest.io,linkerd.cncftest.io,grpc.cncftest.io,coredns.cncftest.io,containerd.cncftest.io,newproj.cncftest.io,cncf.cncftest.io'`.
+- Or `sudo certbot --apache -d 'devstats.cncf.io,k8s.devstats.cncf.io,prometheus.devstats.cncf.io,opentracing.devstats.cncf.io,fluentd.devstats.cncf.io,linkerd.devstats.cncf.io,grpc.devstats.cncf.io,coredns.devstats.cncf.io,containerd.devstats.cncf.io,newproject.devstats.cncf.io'`.
 - Open `newproject.cncftest.io` login with admin/admin, change the default password and follow instructions from `GRAFANA.md`.
-- Add new project to `/var/www/html/index.html`.
+- Add new project to `/var/www/html/index.html` and `grafana/dashboards/all_cncf_projects.json`.
 - `crontab -e` and turn on `devstats` and/or `gha2db_sync`.
