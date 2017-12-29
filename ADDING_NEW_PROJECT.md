@@ -14,7 +14,7 @@ To add new project follow instructions:
 - Generate icons for new project: `./grafana/img/projectname32.png`, `./grafana/img/projectname.svg`.
 - SVG can be taken from cncf/artwork (should be color & square): `cp ~/dev/cncf/artwork/projectname/icon/color/projectname-icon-color.svg grafana/img/projectname.svg`.
 - PNG should be 32bit RGBA 32x32 PNG. You can use `apt-get install imagemagick` and then: `convert ~/dev/cncf/artwork/projectname/icon/color/projectname-icon-color.png -resize 32x32 grafana/img/projectname32.png`.
-- And/or update `grafana/copy_artwork_icons.sh`, `apache/www/copy_icons.sh`.
+- And/Or update `grafana/copy_artwork_icons.sh`, `apache/www/copy_icons.sh`.
 - Copy setup scripts and then adjust them:
 - `cp -R oldproject/ projectname/`, `mv projectname/oldproject.sh projectname/projectname.sh`, `vim projectname/*`.
 - You need to set correct project main GitHub repository and annotations match regexp in `projects.yaml` to have working annotations and quick ranges.
@@ -43,10 +43,10 @@ To add new project follow instructions:
 - You now need Apache proxy and SSL, please follow instructions from APACHE.md and SSL.md
 - Apache part is to update `/var/www/html/index.html` file, `apache/www/index_*` files and, `/etc/apache2/sites-enabled/*` files, `apache/sites-enabled/*` files
 - SSL part is to issue certificate for new domain and setup proxy.
-- Start new grafana: `./grafana/projectname/grafana_start.sh`.
+- Start new grafana: `./grafana/projectname/grafana_start.sh` or `killall grafana-server`, `./grafana/start_all_grafanas.sh`, `ps -aux | grep grafana-server`.
 - Update Apache config to proxy https to new Grafana instance: `vim /etc/apache2/sites-enabled/000-default-le-ssl.conf`, `service apache2 restart`
-- Issue new SSL certificate as described in `SSL.md`: `sudo certbot --apache -d 'cncftest.io,k8s.cncftest.io,prometheus.cncftest.io,opentracing.cncftest.io,fluentd.cncftest.io,linkerd.cncftest.io,grpc.cncftest.io,coredns.cncftest.io,containerd.cncftest.io,newproj.cncftest.io,cncf.cncftest.io'`.
-- Or `sudo certbot --apache -d 'devstats.cncf.io,k8s.devstats.cncf.io,prometheus.devstats.cncf.io,opentracing.devstats.cncf.io,fluentd.devstats.cncf.io,linkerd.devstats.cncf.io,grpc.devstats.cncf.io,coredns.devstats.cncf.io,containerd.devstats.cncf.io,newproject.devstats.cncf.io'`.
+- Issue new SSL certificate as described in `SSL.md` (test server): `sudo certbot --apache -d 'cncftest.io,k8s.cncftest.io,prometheus.cncftest.io,opentracing.cncftest.io,fluentd.cncftest.io,linkerd.cncftest.io,grpc.cncftest.io,coredns.cncftest.io,containerd.cncftest.io,newproj.cncftest.io,cncf.cncftest.io'`.
+- Or (prod server): `sudo certbot --apache -d 'devstats.k8s.io,devstats.cncf.io,k8s.devstats.cncf.io,prometheus.devstats.cncf.io,opentracing.devstats.cncf.io,fluentd.devstats.cncf.io,linkerd.devstats.cncf.io,grpc.devstats.cncf.io,coredns.devstats.cncf.io,containerd.devstats.cncf.io,newproject.devstats.cncf.io'`.
 - Open `newproject.cncftest.io` login with admin/admin, change the default password and follow instructions from `GRAFANA.md`.
 - Add new project to `/var/www/html/index.html` and `grafana/dashboards/all_cncf_projects.json`.
 - Finally: `cp /var/lib/grafana.projectname/grafana.db /var/www/html/grafana.projectname.db` and/or `grafana/copy_grafana_dbs.sh`
