@@ -41,38 +41,43 @@ func IDBWritePointsN(ctx *Ctx, con *client.Client, points *IDBBatchPointsN) (err
 		if ctx.Debug > 0 {
 			Printf("Batch #%d: writing %d points\n", idx+1, ctx.IDBMaxBatchPoints)
 		}
-		for i := 1; i <= 3; i++ {
+		for i := 1; i <= 5; i++ {
 			err = (*con).Write(*bp)
 			if err == nil {
 				break
 			}
-			Printf("Trial #%d: error: %+v,%T,%s\n", i, err, err, err.Error())
-			if err.Error() != "timeout" {
+			Printf("Batch trial #%d: error: %s\n", i, err.Error())
+			if err.Error() != TimeoutError {
 				return err
 			}
-			Printf("Retrying...")
+			Printf("Retrying batch...")
 			time.Sleep(time.Duration(i) * time.Second)
 		}
 		if err != nil {
+			Printf("5 batch trials failed.\n")
 			return err
 		}
 	}
 	if ctx.Debug > 1 || (ctx.Debug == 1 && len(points.fullBatches) > 0) {
 		Printf("Writing %d points\n", points.NPoints)
 	}
-	for i := 1; i <= 3; i++ {
+	for i := 1; i <= 5; i++ {
 		err = (*con).Write(*(points.Points))
 		if err == nil {
 			break
 		}
-		Printf("Trial #%d: error: %+v,%T,%s\n", i, err, err, err.Error())
-		if err.Error() != "timeout" {
+		Printf("Trial #%d: error: %s\n", i, err.Error())
+		if err.Error() != TimeoutError {
 			return err
 		}
 		Printf("Retrying...")
 		time.Sleep(time.Duration(i) * time.Second)
 	}
-	return err
+	if err != nil {
+		Printf("5 trials failed\n.")
+		return err
+	}
+	return nil
 }
 
 // IDBConn Connects to InfluxDB database
