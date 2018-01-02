@@ -12,7 +12,7 @@ where
   and i.number = pr.number
   and i.dup_repo_id = pr.dup_repo_id
   and i.is_pull_request = true
-  and i.created_at < '{{to}}'
+  -- and i.dup_repo_id in (select id from gha_repos where org_login = 'kubernetes')
 group by
   i.id
 ;
@@ -27,14 +27,7 @@ where
   il.issue_id = i.id
   and il.dup_label_name = 'needs-rebase'
   and il.dup_created_at >= i.created
-  and il.dup_created_at < '{{to}}'
-  and (
-    i.closed is null
-    or (
-      il.dup_created_at <= i.closed
-      and i.closed >= '{{to}}'
-    )
-  )
+  and i.closed is null
 group by
   il.issue_id
 ;
@@ -48,13 +41,15 @@ from
 where
   r.issue_id = il.issue_id
   and il.dup_created_at > r.rebase_dt
-  and il.dup_created_at < '{{to}}'
 group by
   il.issue_id
 ;
 
 select
-  count(distinct r.issue_id) as need_rebase_count
+  -- count(distinct r.issue_id) as need_rebase_count
+  r.issue_id,
+  to_char(r.rebase_dt, 'YYYY-MM-DD HH24:MI:SS'),
+  to_char(rr.removed_dt, 'YYYY-MM-DD HH24:MI:SS')
 from
   rebases r
 left join
