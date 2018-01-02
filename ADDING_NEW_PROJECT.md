@@ -15,6 +15,7 @@ To add new project follow instructions:
 - SVG can be taken from cncf/artwork (should be color & square): `cp ~/dev/cncf/artwork/projectname/icon/color/projectname-icon-color.svg grafana/img/projectname.svg`.
 - PNG should be 32bit RGBA 32x32 PNG. You can use `apt-get install imagemagick` and then: `convert ~/dev/cncf/artwork/projectname/icon/color/projectname-icon-color.png -resize 32x32 grafana/img/projectname32.png`.
 - And/Or update `grafana/copy_artwork_icons.sh`, `apache/www/copy_icons.sh`, `grafana/create_images.sh`.
+- Update `grafana/change_title_and_icons_all.sh`.
 - Copy setup scripts and then adjust them:
 - `cp -R oldproject/ projectname/`, `mv projectname/oldproject.sh projectname/projectname.sh`, `vim projectname/*`.
 - You need to set correct project main GitHub repository and annotations match regexp in `projects.yaml` to have working annotations and quick ranges.

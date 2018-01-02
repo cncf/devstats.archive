@@ -1,5 +1,10 @@
 #!/bin/sh
 # GRAFANA_DATA=/usr/share/grafana.linkerd/
+if [ -z "${GRAFANA_DATA}" ]
+then
+  echo "You need to set GRAFANA_DATA environment variable to run this script"
+  exit 1
+fi
 for f in `find ${GRAFANA_DATA} -type f -exec grep -l "'Grafana - '" "{}" \; | sort | uniq`
 do
   ls -l "$f"
