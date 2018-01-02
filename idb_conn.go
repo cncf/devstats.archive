@@ -41,7 +41,18 @@ func IDBWritePointsN(ctx *Ctx, con *client.Client, points *IDBBatchPointsN) (err
 		if ctx.Debug > 0 {
 			Printf("Batch #%d: writing %d points\n", idx+1, ctx.IDBMaxBatchPoints)
 		}
-		err = (*con).Write(*bp)
+		for i := 1; i <= 3; i++ {
+			err = (*con).Write(*bp)
+			if err == nil {
+				break
+			}
+			Printf("Trial #%d: error: %+v,%T,%s\n", i, err, err, err.Error())
+			if err.Error() != "timeout" {
+				return err
+			}
+			Printf("Retrying...")
+			time.Sleep(time.Duration(i) * time.Second)
+		}
 		if err != nil {
 			return err
 		}
@@ -49,7 +60,19 @@ func IDBWritePointsN(ctx *Ctx, con *client.Client, points *IDBBatchPointsN) (err
 	if ctx.Debug > 1 || (ctx.Debug == 1 && len(points.fullBatches) > 0) {
 		Printf("Writing %d points\n", points.NPoints)
 	}
-	return (*con).Write(*(points.Points))
+	for i := 1; i <= 3; i++ {
+		err = (*con).Write(*(points.Points))
+		if err == nil {
+			break
+		}
+		Printf("Trial #%d: error: %+v,%T,%s\n", i, err, err, err.Error())
+		if err.Error() != "timeout" {
+			return err
+		}
+		Printf("Retrying...")
+		time.Sleep(time.Duration(i) * time.Second)
+	}
+	return err
 }
 
 // IDBConn Connects to InfluxDB database
