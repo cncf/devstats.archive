@@ -29,3 +29,6 @@ const Localhost string = "localhost"
 
 // Devstats - common constant string
 const Devstats string = "devstats"
+
+// TimeoutError - common constant string
+const TimeoutError string = "{\"error\":\"timeout\"}\n"
