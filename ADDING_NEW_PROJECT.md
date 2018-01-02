@@ -11,10 +11,10 @@ To add new project follow instructions:
 - Add google analytics for the new domain and update /etc/grafana.projectname/grafana.ini with its `UA-...`.
 - Search for all files defined for some existing project, for example `find . -iname "*oldproject*"`.
 - Copy standard grafana distro for new project: `cp -R /usr/share/grafana /usr/share/grafana.projectname/`.
-- Generate icons for new project: `./grafana/img/projectname32.png`, `./grafana/img/projectname.svg`.
+- Generate icons for new project: `./grafana/img/projectname32.png`, `./grafana/img/projectname.svg`: update & run `./grafana/create_images.sh`.
 - SVG can be taken from cncf/artwork (should be color & square): `cp ~/dev/cncf/artwork/projectname/icon/color/projectname-icon-color.svg grafana/img/projectname.svg`.
 - PNG should be 32bit RGBA 32x32 PNG. You can use `apt-get install imagemagick` and then: `convert ~/dev/cncf/artwork/projectname/icon/color/projectname-icon-color.png -resize 32x32 grafana/img/projectname32.png`.
-- And/Or update `grafana/copy_artwork_icons.sh`, `apache/www/copy_icons.sh`.
+- And/Or update `grafana/copy_artwork_icons.sh`, `apache/www/copy_icons.sh`, `grafana/create_images.sh`.
 - Copy setup scripts and then adjust them:
 - `cp -R oldproject/ projectname/`, `mv projectname/oldproject.sh projectname/projectname.sh`, `vim projectname/*`.
 - You need to set correct project main GitHub repository and annotations match regexp in `projects.yaml` to have working annotations and quick ranges.
@@ -33,7 +33,7 @@ To add new project follow instructions:
 - Run regenerate all InfluxData script `./projectname/reinit.sh`.
 - `cp -Rv grafana/oldproject/ grafana/projectname/` and then update files. Usually `%s/oldproject/newproject/g|w|next`.
 - `cp -Rv grafana/dashboards/oldproject/ grafana/dashboards/projectname/` and then update files. Usually `%s/"oldproj"/"newproj"/g|%s/DS_OLDPROJ/DS_NEWPROJ/g|%s/OldProj/NewProj/g|w|next`.
-- Update: `grafana/copy_artwork_icons.sh`, `apache/www/copy_icons.sh`.
+- Update: `grafana/copy_artwork_icons.sh`, `apache/www/copy_icons.sh`, `grafana/create_images.sh`.
 - Update `projects.yaml` remove `disabled: true` for new project.
 - `make install` to install all changed stuff.
 - Copy directories `/etc/grafana`, `/usr/share/grafana`, `/var/lib/grafana` from standard unmodified installation adding .projectname to their names.

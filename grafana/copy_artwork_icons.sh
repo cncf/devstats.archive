@@ -28,10 +28,10 @@ cp ~/dev/cncf/artwork/coredns/icon/color/core-dns-icon-color.svg /usr/share/graf
 cp ~/dev/cncf/artwork/coredns/icon/color/core-dns-icon-color.svg /usr/share/grafana.coredns/public/img/grafana_com_auth_icon.svg || exit 26
 cp ~/dev/cncf/artwork/coredns/icon/color/core-dns-icon-color.svg /usr/share/grafana.coredns/public/img/grafana_net_logo.svg || exit 27
 cp ~/dev/cncf/artwork/coredns/icon/color/core-dns-icon-color.svg /usr/share/grafana.coredns/public/img/grafana_mask_icon.svg || exit 28
-cp ~/dev/cncf/artwork/containerd/icon/color/containerd-icon-color.svg /usr/share/grafana.containerd/public/img/grafana_icon.svg || exit 29
-cp ~/dev/cncf/artwork/containerd/icon/color/containerd-icon-color.svg /usr/share/grafana.containerd/public/img/grafana_com_auth_icon.svg || exit 30
-cp ~/dev/cncf/artwork/containerd/icon/color/containerd-icon-color.svg /usr/share/grafana.containerd/public/img/grafana_net_logo.svg || exit 31
-cp ~/dev/cncf/artwork/containerd/icon/color/containerd-icon-color.svg /usr/share/grafana.containerd/public/img/grafana_mask_icon.svg || exit 32
+cp ~/dev/cncf/artwork/containerd/icon/white/containerd-icon-white.svg /usr/share/grafana.containerd/public/img/grafana_icon.svg || exit 29
+cp ~/dev/cncf/artwork/containerd/icon/white/containerd-icon-white.svg /usr/share/grafana.containerd/public/img/grafana_com_auth_icon.svg || exit 30
+cp ~/dev/cncf/artwork/containerd/icon/white/containerd-icon-white.svg /usr/share/grafana.containerd/public/img/grafana_net_logo.svg || exit 31
+cp ~/dev/cncf/artwork/containerd/icon/white/containerd-icon-white.svg /usr/share/grafana.containerd/public/img/grafana_mask_icon.svg || exit 32
 # cp ~/dev/cncf/artwork/cncf/icon/color/cncf-icon-color.svg /usr/share/grafana.cncf/public/img/grafana_icon.svg || exit 33
 # cp ~/dev/cncf/artwork/cncf/icon/color/cncf-icon-color.svg /usr/share/grafana.cncf/public/img/grafana_com_auth_icon.svg || exit 34
 # cp ~/dev/cncf/artwork/cncf/icon/color/cncf-icon-color.svg /usr/share/grafana.cncf/public/img/grafana_net_logo.svg || exit 35
