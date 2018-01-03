@@ -2,6 +2,7 @@ package devstats
 
 import (
 	"encoding/json"
+	"fmt"
 	"testing"
 	"time"
 
@@ -48,9 +49,19 @@ func TestInfluxDB(t *testing.T) {
 	bp.AddPoint(pt)
 
 	// Write the batch
-	err := con.Write(bp)
-	if err != nil {
-		t.Errorf(err.Error())
+	for i := 1; i <= 5; i++ {
+		err := con.Write(bp)
+		if err == nil {
+			break
+		}
+		if i < 5 && err.Error() == lib.TimeoutError {
+			fmt.Printf("Timeout error #%d, sleeping\n", i)
+			time.Sleep(time.Duration(i) * time.Second)
+			continue
+		}
+		if err != nil {
+			t.Errorf(err.Error())
+		}
 	}
 
 	// Get newest value
