@@ -333,6 +333,10 @@ For example June 2017:
 To process kubernetes all time just use `kubernetes/kubernetes.sh` script. Like this:
 - `time PG_PASS=pwd ./kubernetes/kubernetes.sh`.
 
+# Check erros
+
+To see if there are any errors please use script: `PG_PASS=... ./devel/get_errors.sh`.
+
 # Metrics tool
 There is a tool `runq`. It is used to compute metrics saved in `*.sql` files.
 Please be careful when creating metric files, that needs to support `explain` mode (please see `GHA2DB_EXPLAIN` environment variable description):
