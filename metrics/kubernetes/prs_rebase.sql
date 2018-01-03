@@ -1,8 +1,8 @@
 create temp table issues as
 select i.id,
   i.dup_repo_name as repo_name,
-  min(i.created_at) as created,
-  max(i.closed_at) as closed
+  min(pr.created_at) as created,
+  max(pr.closed_at) as closed
 from
   gha_issues_pull_requests ipr,
   gha_pull_requests pr,
@@ -13,7 +13,7 @@ where
   and i.number = pr.number
   and i.dup_repo_id = pr.dup_repo_id
   and i.is_pull_request = true
-  and i.created_at < '{{to}}'
+  and pr.created_at < '{{to}}'
 group by
   i.id,
   i.dup_repo_name
