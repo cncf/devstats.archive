@@ -1,5 +1,7 @@
 create temp table issues as
 select i.id,
+  i.number,
+  i.dup_repo_name,
   min(pr.created_at) as created,
   max(pr.closed_at) as closed
 from
@@ -14,11 +16,15 @@ where
   and i.is_pull_request = true
   and pr.created_at < '{{to}}'
 group by
-  i.id
+  i.id,
+  i.number,
+  i.dup_repo_name
 ;
 
 create temp table rebases as
 select il.issue_id,
+  i.number,
+  i.dup_repo_name,
   max(il.dup_created_at) as rebase_dt
 from
   issues i,
@@ -36,11 +42,15 @@ where
     )
   )
 group by
-  il.issue_id
+  il.issue_id,
+  i.number,
+  i.dup_repo_name
 ;
 
 create temp table removed_rebases as
 select il.issue_id,
+  r.number,
+  r.dup_repo_name,
   min(il.dup_created_at) as removed_dt
 from
   gha_issues_labels il,
@@ -50,11 +60,17 @@ where
   and il.dup_created_at > r.rebase_dt
   and il.dup_created_at < '{{to}}'
 group by
-  il.issue_id
+  il.issue_id,
+  r.number,
+  r.dup_repo_name
 ;
 
 select
-  count(distinct r.issue_id) as need_rebase_count
+  -- count(distinct r.number) as need_rebase_count
+  r.dup_repo_name,
+  r.number,
+  r.issue_id,
+  to_char(r.rebase_dt, 'YYYY-MM-DD HH24:MI:SS')
 from
   rebases r
 left join

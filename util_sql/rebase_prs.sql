@@ -1,7 +1,7 @@
 create temp table issues as
 select i.id,
-  min(i.created_at) as created,
-  max(i.closed_at) as closed
+  min(pr.created_at) as created,
+  max(pr.closed_at) as closed
 from
   gha_issues_pull_requests ipr,
   gha_pull_requests pr,
