@@ -150,6 +150,9 @@ You can use `GHA2DB_ST` environment variable to force single threaded version.
 
 # Results (JSON)
 
+Example: you can generate and save all JSONs for a single day in jsons/ directory by running (all GitHub repos/orgs without filtering):
+- `GHA2DB_JSON=1 GHA2DB_NODB=1 ./gha2db 2018-01-02 0 2018-01-02 0`.
+
 Usually, there are about 25000 GitHub events in a single hour in Jan 2017 (for July 2017 it is 40000).
 Average seems to be from 15000 to 60000.
 
