@@ -1404,8 +1404,8 @@ func getGHAJSON(ch chan bool, ctx *lib.Ctx, dt time.Time, forg map[string]struct
 	reader, err := gzip.NewReader(response.Body)
 	//lib.FatalOnError(err)
 	if err != nil {
-		lib.Printf("%v: Error (no data yet, gzip reader):\n%v\n", dt, err)
-		fmt.Fprintf(os.Stderr, "%v: Error (no data yet, gzip reader):\n%v\n", dt, err)
+		lib.Printf("%v: No data yet, gzip reader:\n%v\n", dt, err)
+		fmt.Fprintf(os.Stderr, "%v: No data yet, gzip reader:\n%v\n", dt, err)
 		if ch != nil {
 			ch <- true
 		}
