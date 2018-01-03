@@ -11,10 +11,11 @@ import (
 
 // Holds data needed to make DB calls
 type logContext struct {
-	ctx  Ctx
-	con  *sql.DB
-	prog string
-	proj string
+	ctx   Ctx
+	con   *sql.DB
+	prog  string
+	proj  string
+	runDt time.Time
 }
 
 // This is the *only* global variable used in entire toolset.
@@ -34,7 +35,13 @@ func newLogContext() *logContext {
 	con := PgConn(&ctx)
 	progSplit := strings.Split(os.Args[0], "/")
 	prog := progSplit[len(progSplit)-1]
-	return &logContext{ctx: ctx, con: con, prog: prog, proj: ctx.Project}
+	return &logContext{
+		ctx:   ctx,
+		con:   con,
+		prog:  prog,
+		proj:  ctx.Project,
+		runDt: time.Now(),
+	}
 }
 
 // logToDB writes message to database
@@ -46,9 +53,10 @@ func logToDB(format string, args ...interface{}) (err error) {
 	_, err = ExecSQL(
 		logCtx.con,
 		&logCtx.ctx,
-		"insert into gha_logs(prog, proj, msg) "+NValues(3),
+		"insert into gha_logs(prog, proj, run_dt, msg) "+NValues(4),
 		logCtx.prog,
 		logCtx.proj,
+		logCtx.runDt,
 		msg,
 	)
 	return
