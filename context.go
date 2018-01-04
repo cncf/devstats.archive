@@ -62,13 +62,16 @@ type Ctx struct {
 	DeployTypes       []string  // From GHA2DB_DEPLOY_TYPES, webhook tool, default "push", - comma separated list
 	ProjectRoot       string    // From GHA2DB_PROJECT_ROOT, webhook tool, no default, must be specified to run webhook tool
 	ExecFatal         bool      // default true, set this manually to false to avoid lib.ExecCommand calling os.Exit() on failure and return error instead
+	ExecQuiet         bool      // default false, set this manually to true to have quite exec failures (for example `get_repos` git-clones or git-pulls on errors).
 	Project           string    // From GHA2DB_PROJECT, gha2db_sync default "", You should set it to something like "kubernetes", "prometheus" etc.
 	TestsYaml         string    // From GHA2DB_TESTS_YAML ./dbtest.sh tool, set other tests.yaml file, default is "tests.yaml"
+	ReposDir          string    // From GHA2DB_REPOS_DIR ./get_repos tool, default "~/devstats_repos/"
 }
 
 // Init - get context from environment variables
 func (ctx *Ctx) Init() {
 	ctx.ExecFatal = true
+	ctx.ExecQuiet = false
 
 	// Outputs
 	ctx.JSONOut = os.Getenv("GHA2DB_JSON") != ""
@@ -319,6 +322,15 @@ func (ctx *Ctx) Init() {
 	ctx.TestsYaml = os.Getenv("GHA2DB_TESTS_YAML")
 	if ctx.TestsYaml == "" {
 		ctx.TestsYaml = "tests.yaml"
+	}
+
+	// `get_repos` repositories dir
+	ctx.ReposDir = os.Getenv("GHA2DB_REPOS_DIR")
+	if ctx.ReposDir == "" {
+		ctx.ReposDir = os.Getenv("HOME") + "/devstats_repos/"
+	}
+	if ctx.ReposDir[len(ctx.ReposDir)-1:] != "/" {
+		ctx.ReposDir += "/"
 	}
 
 	// Context out if requested

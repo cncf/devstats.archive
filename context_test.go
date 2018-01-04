@@ -66,7 +66,9 @@ func copyContext(in *lib.Ctx) *lib.Ctx {
 		ProjectRoot:       in.ProjectRoot,
 		Project:           in.Project,
 		TestsYaml:         in.TestsYaml,
+		ReposDir:          in.ReposDir,
 		ExecFatal:         in.ExecFatal,
+		ExecQuiet:         in.ExecQuiet,
 	}
 	return &out
 }
@@ -205,7 +207,9 @@ func TestInit(t *testing.T) {
 		ProjectRoot:       "",
 		Project:           "",
 		TestsYaml:         "tests.yaml",
+		ReposDir:          os.Getenv("HOME") + "/devstats_repos/",
 		ExecFatal:         true,
+		ExecQuiet:         false,
 	}
 
 	// Test cases
@@ -625,6 +629,32 @@ func TestInit(t *testing.T) {
 				copyContext(&defaultContext),
 				map[string]interface{}{
 					"TestsYaml": "foobar.yml",
+				},
+			),
+		},
+		{
+			"Setting repos dir without ending '/'",
+			map[string]string{
+				"GHA2DB_REPOS_DIR": "/abc",
+			},
+			dynamicSetFields(
+				t,
+				copyContext(&defaultContext),
+				map[string]interface{}{
+					"ReposDir": "/abc/",
+				},
+			),
+		},
+		{
+			"Setting repos dir with ending '/'",
+			map[string]string{
+				"GHA2DB_REPOS_DIR": "~/temp/",
+			},
+			dynamicSetFields(
+				t,
+				copyContext(&defaultContext),
+				map[string]interface{}{
+					"ReposDir": "~/temp/",
 				},
 			),
 		},

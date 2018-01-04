@@ -11,9 +11,11 @@ import (
 )
 
 // logCommand - output command and arguments
-func logCommand(cmdAndArgs []string, env map[string]string) {
-	Printf("Command, arguments, environment:\n%+v\n%+v\n", cmdAndArgs, env)
-	fmt.Fprintf(os.Stdout, "Command and arguments:\n%+v\n%+v\n", cmdAndArgs, env)
+func logCommand(ctx *Ctx, cmdAndArgs []string, env map[string]string) {
+	if !ctx.ExecQuiet {
+		Printf("Command, arguments, environment:\n%+v\n%+v\n", cmdAndArgs, env)
+		fmt.Fprintf(os.Stdout, "Command and arguments:\n%+v\n%+v\n", cmdAndArgs, env)
+	}
 }
 
 // ExecCommand - execute command given by array of strings with eventual environment map
@@ -76,7 +78,7 @@ func ExecCommand(ctx *Ctx, cmdAndArgs []string, env map[string]string) error {
 	if ctx.CmdDebug > 1 {
 		stdOutPipe, e := cmd.StdoutPipe()
 		if e != nil {
-			logCommand(cmdAndArgs, env)
+			logCommand(ctx, cmdAndArgs, env)
 			if ctx.ExecFatal {
 				FatalOnError(e)
 			} else {
@@ -85,7 +87,7 @@ func ExecCommand(ctx *Ctx, cmdAndArgs []string, env map[string]string) error {
 		}
 		e = cmd.Start()
 		if e != nil {
-			logCommand(cmdAndArgs, env)
+			logCommand(ctx, cmdAndArgs, env)
 			if ctx.ExecFatal {
 				FatalOnError(e)
 			} else {
@@ -99,7 +101,7 @@ func ExecCommand(ctx *Ctx, cmdAndArgs []string, env map[string]string) error {
 			nBytes, e = stdOutPipe.Read(buffer)
 		}
 		if e != io.EOF {
-			logCommand(cmdAndArgs, env)
+			logCommand(ctx, cmdAndArgs, env)
 			if ctx.ExecFatal {
 				FatalOnError(e)
 			} else {
@@ -109,7 +111,7 @@ func ExecCommand(ctx *Ctx, cmdAndArgs []string, env map[string]string) error {
 	} else {
 		e := cmd.Start()
 		if e != nil {
-			logCommand(cmdAndArgs, env)
+			logCommand(ctx, cmdAndArgs, env)
 			if ctx.ExecFatal {
 				FatalOnError(e)
 			} else {
@@ -124,16 +126,16 @@ func ExecCommand(ctx *Ctx, cmdAndArgs []string, env map[string]string) error {
 	if err != nil {
 		if ctx.CmdDebug <= 1 {
 			outStr := stdOut.String()
-			if len(outStr) > 0 {
+			if len(outStr) > 0 && !ctx.ExecQuiet {
 				Printf("%v\n", outStr)
 			}
 		}
 		errStr := stdErr.String()
-		if len(errStr) > 0 {
+		if len(errStr) > 0 && !ctx.ExecQuiet {
 			Printf("STDERR:\n%v\n", errStr)
 		}
 		if err != nil {
-			logCommand(cmdAndArgs, env)
+			logCommand(ctx, cmdAndArgs, env)
 			if ctx.ExecFatal {
 				FatalOnError(err)
 			} else {

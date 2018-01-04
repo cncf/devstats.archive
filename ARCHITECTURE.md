@@ -97,6 +97,10 @@ We're getting all possible GitHub data for all objects, and all objects historic
 - [webhook](https://github.com/cncf/devstats/blob/master/cmd/webhook/webhook.go)
 - `webhook` is used to react to Travis CI webhooks and trigger deploy if status, branch and type match defined values, more details [here](https://github.com/cncf/devstats/blob/master/CONTINUOUS_DEPLOYMENT.md).
 - There are few shell scripts for example: running sync every N seconds, setup InfluxDB etc.
+- [get_repos](https://github.com/cncf/devstats/blob/master/cmd/get_repos/get_repos.go)
+- `get_repos` is used to clone or pull all repos used in all `devstats` project in a location from `GHA2DB_REPOS_DIR` environment variable, or by default in "~/devstats_repos/".
+- Those repos are used later to search for commit SHA's using `git log` to determine files modifed by particular commits and other objects.
+- It can also be used to return list of all distinct repos and their locations - this can be used by `cncf/gitdm` to create concatenated `git.log` from all repositories for affiliations analysis.
 
 # Database structure details
 
