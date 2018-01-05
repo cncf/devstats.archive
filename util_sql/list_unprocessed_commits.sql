@@ -1,5 +1,5 @@
 select 
-  count(distinct sub.sha)
+  distinct sub.sha
 from (
   select distinct sha from gha_branches
   union select distinct commit_id as sha from gha_comments
@@ -15,4 +15,5 @@ from (
   ) sub
 where
   sub.sha is not null
+  and sub.sha not in (select sha from gha_commits_files);
 ;

@@ -89,7 +89,8 @@ data:
 	mkdir /etc/gha2db 2>/dev/null || echo "..."
 	rm -fr /etc/gha2db/* || exit 1
 	cp -R metrics/ /etc/gha2db/metrics/ || exit 2
-	cp projects.yaml /etc/gha2db/ || exit 3
+	cp -R util_sql/ /etc/gha2db/util_sql/ || exit 3
+	cp projects.yaml /etc/gha2db/ || exit 4
 
 install: check ${BINARIES} data
 	${GO_INSTALL} ${GO_BIN_CMDS}
