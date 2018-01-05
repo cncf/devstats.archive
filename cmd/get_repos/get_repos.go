@@ -135,8 +135,7 @@ func getRepos(ctx *lib.Ctx) (map[string]bool, map[string][]string) {
 	allRepos := make(map[string][]string)
 	for db := range dbs {
 		// Connect to Postgres `db` database.
-		ctx.PgDB = db
-		con := lib.PgConn(ctx)
+		con := lib.PgConnDB(ctx, db)
 		defer con.Close()
 
 		// Get list of orgs in a given database
@@ -209,26 +208,67 @@ func processRepos(ctx *lib.Ctx, allRepos map[string][]string) {
 }
 
 // processCommitsDB creates/updates mapping between commits and list of files they refer to on databse 'db'
-func processCommitsDB(ch chan bool, ctx *lib.Ctx, db string) {
+// using 'query' to get liist of unprocessed commits
+func processCommitsDB(ch chan bool, ctx *lib.Ctx, db, query string) {
+	// Conditional info
+	if ctx.Debug > 0 {
+		lib.Printf("Running on database: %s\n", db)
+	}
+
 	// Close channel on end no matter what happens
 	defer func() {
 		if ch != nil {
 			ch <- true
 		}
 	}()
-	fmt.Printf("Running on database: %s\n", db)
+
+	// Get list of unprocessed commits for current DB
+	dtStart := time.Now()
+	// Connect to Postgres `db` database.
+	con := lib.PgConnDB(ctx, db)
+	defer con.Close()
+
+	rows, err := con.Query(query)
+	lib.FatalOnError(err)
+	defer rows.Close()
+	var (
+		sha  string
+		shas []string
+	)
+	for rows.Next() {
+		lib.FatalOnError(rows.Scan(&sha))
+		shas = append(shas, sha)
+	}
+	lib.FatalOnError(rows.Err())
+	dtEnd := time.Now()
+	if ctx.Debug > 0 {
+		lib.Printf("Database '%s' processed in %v, commits: %d\n", db, dtEnd.Sub(dtStart), len(shas))
+	}
 }
 
 // processCommits process all databases given in `dbs`
 // on each database it creates/updates mapping between commits and list of files they refer to
 // It is multithreaded processing up to NCPU databases at the same time
 func processCommits(ctx *lib.Ctx, dbs map[string]bool) {
+	// Read SQL to get commits to sync from 'util_sql/list_unprocessed_commits.sql' file.
+	// Local or cron mode?
+	dataPrefix := lib.DataDir
+	if ctx.Local {
+		dataPrefix = "./"
+	}
+	bytes, err := ioutil.ReadFile(
+		dataPrefix + "util_sql/list_unprocessed_commits.sql",
+	)
+	lib.FatalOnError(err)
+	sqlQuery := string(bytes)
+
+	// Process all DBs in a separate threads
 	thrN := lib.GetThreadsNum(ctx)
 	chanPool := []chan bool{}
 	for db := range dbs {
 		ch := make(chan bool)
 		chanPool = append(chanPool, ch)
-		go processCommitsDB(ch, ctx, db)
+		go processCommitsDB(ch, ctx, db, sqlQuery)
 		if len(chanPool) == thrN {
 			ch = chanPool[0]
 			<-ch
