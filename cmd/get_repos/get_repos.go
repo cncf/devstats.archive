@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"sort"
 	"strings"
 	"time"
 
@@ -196,11 +197,6 @@ func processRepos(ctx *lib.Ctx, allRepos map[string][]string) {
 		}
 		finalCmd += ctx.ReposDir + org + "/* "
 	}
-	allOkReposStr := "["
-	for _, okRepo := range allOkRepos {
-		allOkReposStr += "  '" + okRepo + "',\n"
-	}
-	allOkReposStr += "]"
 
 	// Return to staring directory
 	lib.FatalOnError(os.Chdir(pwd))
@@ -209,6 +205,17 @@ func processRepos(ctx *lib.Ctx, allRepos map[string][]string) {
 	// Only output when GHA2DB_EXTERNAL_INFO env variable is set
 	// Only output to stdout - not standard logs via lib.Printf(...)
 	if ctx.ExternalInfo {
+		// Sort list of repos
+		sort.Strings(allOkRepos)
+
+		// Create Ruby-like string
+		allOkReposStr := "[\n"
+		for _, okRepo := range allOkRepos {
+			allOkReposStr += "  '" + okRepo + "',\n"
+		}
+		allOkReposStr += "]"
+
+		// Output
 		fmt.Printf("AllRepos:\n%s\n", allOkReposStr)
 		fmt.Printf("Final command:\n%s\n", finalCmd)
 	}
