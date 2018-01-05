@@ -111,7 +111,7 @@ func processOrg(ctx *lib.Ctx, org string, repos []string) (okRepos []string) {
 }
 
 // getRepos returns map { 'org' --> list of repos } for all devstats projects
-func getRepos(ctx *lib.Ctx) map[string][]string {
+func getRepos(ctx *lib.Ctx) (map[string]bool, map[string][]string) {
 	// Local or cron mode?
 	dataPrefix := lib.DataDir
 	if ctx.Local {
@@ -170,7 +170,7 @@ func getRepos(ctx *lib.Ctx) map[string][]string {
 	}
 
 	// return final map
-	return allRepos
+	return dbs, allRepos
 }
 
 // processRepos process map of org -> list of repos to clone or pull them as needed
@@ -199,9 +199,17 @@ func processRepos(ctx *lib.Ctx, allRepos map[string][]string) {
 	allOkReposStr += "]"
 
 	// Output all repos as ruby object & Final cncf/gitdm command to generate concatenated git.log
+	// Only output when GHA2DB_EXTERNAL_INFO env variable is set
 	// Only output to stdout - not standard logs via lib.Printf(...)
-	fmt.Printf("AllRepos:\n%s\n", allOkReposStr)
-	fmt.Printf("Final command:\n%s\n", finalCmd)
+	if ctx.ExternalInfo {
+		fmt.Printf("AllRepos:\n%s\n", allOkReposStr)
+		fmt.Printf("Final command:\n%s\n", finalCmd)
+	}
+}
+
+// processCommits process all databases given in `dbs`
+// on each database it creates/updates mapping between commits and list of files they refer to
+func processCommits(ctx *lib.Ctx, dbs map[string]bool) {
 }
 
 func main() {
@@ -209,8 +217,13 @@ func main() {
 	// Environment context parse
 	var ctx lib.Ctx
 	ctx.Init()
-	repos := getRepos(&ctx)
-	processRepos(&ctx, repos)
+	dbs, repos := getRepos(&ctx)
+	if ctx.ProcessRepos {
+		processRepos(&ctx, repos)
+	}
+	if ctx.ProcessCommits {
+		processCommits(&ctx, dbs)
+	}
 	dtEnd := time.Now()
-	lib.Printf("All repos cloned/pulled in: %v\n", dtEnd.Sub(dtStart))
+	lib.Printf("All repos processed in: %v\n", dtEnd.Sub(dtStart))
 }

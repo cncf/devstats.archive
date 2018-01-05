@@ -69,6 +69,9 @@ func copyContext(in *lib.Ctx) *lib.Ctx {
 		ReposDir:          in.ReposDir,
 		ExecFatal:         in.ExecFatal,
 		ExecQuiet:         in.ExecQuiet,
+		ProcessRepos:      in.ProcessRepos,
+		ProcessCommits:    in.ProcessCommits,
+		ExternalInfo:      in.ExternalInfo,
 	}
 	return &out
 }
@@ -210,6 +213,9 @@ func TestInit(t *testing.T) {
 		ReposDir:          os.Getenv("HOME") + "/devstats_repos/",
 		ExecFatal:         true,
 		ExecQuiet:         false,
+		ProcessRepos:      false,
+		ProcessCommits:    false,
+		ExternalInfo:      false,
 	}
 
 	// Test cases
@@ -655,6 +661,34 @@ func TestInit(t *testing.T) {
 				copyContext(&defaultContext),
 				map[string]interface{}{
 					"ReposDir": "~/temp/",
+				},
+			),
+		},
+		{
+			"Set process repos & commits",
+			map[string]string{
+				"GHA2DB_PROCESS_REPOS":   "1",
+				"GHA2DB_PROCESS_COMMITS": "1",
+			},
+			dynamicSetFields(
+				t,
+				copyContext(&defaultContext),
+				map[string]interface{}{
+					"ProcessRepos":   true,
+					"ProcessCommits": true,
+				},
+			),
+		},
+		{
+			"Set get_repos external info for cncf/gitdm",
+			map[string]string{
+				"GHA2DB_EXTERNAL_INFO": "1",
+			},
+			dynamicSetFields(
+				t,
+				copyContext(&defaultContext),
+				map[string]interface{}{
+					"ExternalInfo": true,
 				},
 			),
 		},

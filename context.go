@@ -66,6 +66,9 @@ type Ctx struct {
 	Project           string    // From GHA2DB_PROJECT, gha2db_sync default "", You should set it to something like "kubernetes", "prometheus" etc.
 	TestsYaml         string    // From GHA2DB_TESTS_YAML ./dbtest.sh tool, set other tests.yaml file, default is "tests.yaml"
 	ReposDir          string    // From GHA2DB_REPOS_DIR ./get_repos tool, default "~/devstats_repos/"
+	ProcessRepos      bool      // From GHA2DB_PROCESS_REPOS ./get_repos tool, enable processing (cloning/pulling) all devstats repos, default false
+	ProcessCommits    bool      // From GHA2DB_PROCESS_COMMITS ./get_repos tool, enable update/create mapping table: commit - list of file that commit refers to, default false
+	ExternalInfo      bool      // From GHA2DB_EXTERNAL_INFO ./get_repos tool, enable outputing data needed by external tools (cncf/gitdm), default false
 }
 
 // Init - get context from environment variables
@@ -332,6 +335,10 @@ func (ctx *Ctx) Init() {
 	if ctx.ReposDir[len(ctx.ReposDir)-1:] != "/" {
 		ctx.ReposDir += "/"
 	}
+	// `get_repos`: process repos, process commits, external info
+	ctx.ProcessRepos = os.Getenv("GHA2DB_PROCESS_REPOS") != ""
+	ctx.ProcessCommits = os.Getenv("GHA2DB_PROCESS_COMMITS") != ""
+	ctx.ExternalInfo = os.Getenv("GHA2DB_EXTERNAL_INFO") != ""
 
 	// Context out if requested
 	if ctx.CtxOut {

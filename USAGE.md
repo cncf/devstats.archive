@@ -113,6 +113,9 @@ You can tweak `devstats` tools by environment variables:
 - Set `GHA2DB_PROJECT`, `gha2db_sync` tool to get per project arguments automaticlly and to set all other config files directory prefixes (for example `metrics/prometheus/`), it reads data from `projects.yaml`.
 - Set `GHA2DB_RESETRANGES`, `gha2db_sync` tool to regenerate past variables of quick range values, this is useful when you add new annotations.
 - Set `GHA2DB_REPOS_DIR`, `get_repos` tool to specify where to clone/pull all devstats projects repositories.
+- Set `GHA2DB_PROCESS_REPOS`, `get_repos` tool to enable repos clone/pull job.
+- Set `GHA2DB_PROCESS_COMMITS`, `get_repos` tool to enable creating/updating "commits SHA - list of files" mapping.
+- Set `GHA2DB_EXTERNAL_INFO`, `get_repos` tool to enable displaying external info needed by cncf/gitdm.
 - Set `IDB_MAXBATCHPOINTS`, all Influx tools - set maximum batch size, default 10240.
 
 All environment context details are defined in [context.go](https://github.com/cncf/devstats/blob/master/context.go), please see that file for details (You can also see how it works in [context_test.go](https://github.com/cncf/devstats/blob/master/context_test.go)).

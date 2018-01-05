@@ -101,6 +101,7 @@ We're getting all possible GitHub data for all objects, and all objects historic
 - `get_repos` is used to clone or pull all repos used in all `devstats` project in a location from `GHA2DB_REPOS_DIR` environment variable, or by default in "~/devstats_repos/".
 - Those repos are used later to search for commit SHA's using `git log` to determine files modifed by particular commits and other objects.
 - It can also be used to return list of all distinct repos and their locations - this can be used by `cncf/gitdm` to create concatenated `git.log` from all repositories for affiliations analysis.
+- This tool is also used to create/update mapping between commits and list of files that given commit refers to.
 
 # Database structure details
 
