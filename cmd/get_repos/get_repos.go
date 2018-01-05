@@ -182,6 +182,10 @@ func processRepos(ctx *lib.Ctx, allRepos map[string][]string) {
 	ctx.ExecFatal = false
 	ctx.ExecQuiet = true
 
+	// Remeber current dir
+	pwd, err := os.Getwd()
+	lib.FatalOnError(err)
+
 	// Process all orgs
 	finalCmd := "./all_repos_log.sh "
 	allOkRepos := []string{}
@@ -197,6 +201,9 @@ func processRepos(ctx *lib.Ctx, allRepos map[string][]string) {
 		allOkReposStr += "  '" + okRepo + "',\n"
 	}
 	allOkReposStr += "]"
+
+	// Return to staring directory
+	lib.FatalOnError(os.Chdir(pwd))
 
 	// Output all repos as ruby object & Final cncf/gitdm command to generate concatenated git.log
 	// Only output when GHA2DB_EXTERNAL_INFO env variable is set
