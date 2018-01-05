@@ -957,6 +957,36 @@ func Structure(ctx *Ctx) {
 		ExecSQLWithErr(c, ctx, "create index logs_run_dt_idx on gha_logs(run_dt)")
 	}
 
+	// `Commit - file list it refers to` mapping table, used by `get_repos` tool
+	if ctx.Table {
+		ExecSQLWithErr(c, ctx, "drop table if exists gha_commits_files")
+		ExecSQLWithErr(
+			c,
+			ctx,
+			CreateTable(
+				"gha_commits_files("+
+					"sha varchar(40) not null, "+
+					"event_id bigint not null, "+
+					"path text not null, "+
+					"dup_repo_id bigint not null, "+
+					"dup_repo_name varchar(160) not null, "+
+					"dup_type varchar(40) not null, "+
+					"dup_created_at {{ts}} not null, "+
+					"primary key(sha, event_id, path)"+
+					")",
+			),
+		)
+	}
+	if ctx.Index {
+		ExecSQLWithErr(c, ctx, "create index commits_files_sha_idx on gha_commits_files(sha)")
+		ExecSQLWithErr(c, ctx, "create index commits_files_event_id_idx on gha_commits_files(event_id)")
+		ExecSQLWithErr(c, ctx, "create index commits_files_path_idx on gha_commits_files(path)")
+		ExecSQLWithErr(c, ctx, "create index commits_files_dup_repo_id_idx on gha_commits_files(dup_repo_id)")
+		ExecSQLWithErr(c, ctx, "create index commits_files_dup_repo_name_idx on gha_commits_files(dup_repo_name)")
+		ExecSQLWithErr(c, ctx, "create index commits_files_dup_type_idx on gha_commits_files(dup_type)")
+		ExecSQLWithErr(c, ctx, "create index commits_files_dup_created_at_idx on gha_commits_files(dup_created_at)")
+	}
+
 	// This table is a kind of `materialized view` of all texts
 	if ctx.Table {
 		ExecSQLWithErr(c, ctx, "drop table if exists gha_texts")
