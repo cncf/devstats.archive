@@ -175,6 +175,7 @@ func getRepos(ctx *lib.Ctx) (map[string]bool, map[string][]string) {
 
 // processRepos process map of org -> list of repos to clone or pull them as needed
 // it also displays cncf/gitdm needed info in debug mode (called manually)
+// It is *singlethreaded* because it changes directories often and os.Chdir() affects all goroutines.
 func processRepos(ctx *lib.Ctx, allRepos map[string][]string) {
 	// Set non-fatal exec mode, we want to run sync for next project(s) if current fails
 	// Also set quite mode, many git-pulls or git-clones can fail and this is not needed to log it to DB
@@ -207,9 +208,36 @@ func processRepos(ctx *lib.Ctx, allRepos map[string][]string) {
 	}
 }
 
+// processCommitsDB creates/updates mapping between commits and list of files they refer to on databse 'db'
+func processCommitsDB(ch chan bool, ctx *lib.Ctx, db string) {
+	// Close channel on end no matter what happens
+	defer func() {
+		if ch != nil {
+			ch <- true
+		}
+	}()
+	fmt.Printf("Running on database: %s\n", db)
+}
+
 // processCommits process all databases given in `dbs`
 // on each database it creates/updates mapping between commits and list of files they refer to
+// It is multithreaded processing up to NCPU databases at the same time
 func processCommits(ctx *lib.Ctx, dbs map[string]bool) {
+	thrN := lib.GetThreadsNum(ctx)
+	chanPool := []chan bool{}
+	for db := range dbs {
+		ch := make(chan bool)
+		chanPool = append(chanPool, ch)
+		go processCommitsDB(ch, ctx, db)
+		if len(chanPool) == thrN {
+			ch = chanPool[0]
+			<-ch
+			chanPool = chanPool[1:]
+		}
+	}
+	for _, ch := range chanPool {
+		<-ch
+	}
 }
 
 func main() {
