@@ -188,14 +188,12 @@ func processRepos(ctx *lib.Ctx, allRepos map[string][]string) {
 	lib.FatalOnError(err)
 
 	// Process all orgs
-	finalCmd := "./all_repos_log.sh "
 	allOkRepos := []string{}
 	for org, repos := range allRepos {
 		okRepos := processOrg(ctx, org, repos)
 		for _, okRepo := range okRepos {
 			allOkRepos = append(allOkRepos, okRepo)
 		}
-		finalCmd += ctx.ReposDir + org + "/* "
 	}
 
 	// Return to staring directory
@@ -208,14 +206,29 @@ func processRepos(ctx *lib.Ctx, allRepos map[string][]string) {
 		// Sort list of repos
 		sort.Strings(allOkRepos)
 
-		// Create Ruby-like string
+		// Create Ruby-like string with all repos array
 		allOkReposStr := "[\n"
 		for _, okRepo := range allOkRepos {
 			allOkReposStr += "  '" + okRepo + "',\n"
 		}
 		allOkReposStr += "]"
 
-		// Output
+		// Create list of orgs
+		orgs := []string{}
+		for org := range allRepos {
+			orgs = append(orgs, org)
+		}
+
+		// Sort orgs
+		sort.Strings(orgs)
+
+		// Output shell command sorted
+		finalCmd := "./all_repos_log.sh "
+		for _, org := range orgs {
+			finalCmd += ctx.ReposDir + org + "/* "
+		}
+
+		// Output cncf/gitdm related data
 		fmt.Printf("AllRepos:\n%s\n", allOkReposStr)
 		fmt.Printf("Final command:\n%s\n", finalCmd)
 	}
