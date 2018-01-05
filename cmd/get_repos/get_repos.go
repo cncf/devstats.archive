@@ -260,16 +260,30 @@ func processCommitsDB(ch chan bool, ctx *lib.Ctx, db, query string) {
 	defer rows.Close()
 	var (
 		sha  string
-		shas []string
+		repo string
+		shas [][2]string
 	)
 	for rows.Next() {
-		lib.FatalOnError(rows.Scan(&sha))
-		shas = append(shas, sha)
+		lib.FatalOnError(rows.Scan(&sha, &repo))
+		shas = append(shas, [2]string{repo, sha})
 	}
 	lib.FatalOnError(rows.Err())
 	dtEnd := time.Now()
 	if ctx.Debug > 0 {
 		lib.Printf("Database '%s' processed in %v, commits: %d\n", db, dtEnd.Sub(dtStart), len(shas))
+	}
+	for i, data := range shas {
+		repo := data[0]
+		sha := data[1]
+		fmt.Printf("Processing commit %06d %s:%s:%s\n", i, db, repo, sha)
+		// TODO: continue here: get list of files affected by commit 'sha' on 'repo' repository
+		// And put results into db:gha_commits_files table.
+		// Algorithm consideration:
+		// Create map of 'repo' --> list of commits from this repo
+		// cd to cloned repo (it is cloned or pulled to most recent state by this tool)
+		// git log for list of commits to get affected files
+		// group by repo to avoid multiple chdirs and
+		// possibly call single git log for multiple commits (rather not?)
 	}
 }
 
