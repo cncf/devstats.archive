@@ -191,9 +191,7 @@ func processRepos(ctx *lib.Ctx, allRepos map[string][]string) {
 	allOkRepos := []string{}
 	for org, repos := range allRepos {
 		okRepos := processOrg(ctx, org, repos)
-		for _, okRepo := range okRepos {
-			allOkRepos = append(allOkRepos, okRepo)
-		}
+		allOkRepos = append(allOkRepos, okRepos...)
 	}
 
 	// Return to staring directory
