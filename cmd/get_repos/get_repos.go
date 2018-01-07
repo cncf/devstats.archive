@@ -13,102 +13,22 @@ import (
 	yaml "gopkg.in/yaml.v2"
 )
 
-// processOrg - processes all entries in a single org (subdirectory) - clones or pulls repo
-func processOrg(ctx *lib.Ctx, org string, repos []string) (okRepos []string) {
-	// Go to main repos directory
-	wd := ctx.ReposDir
-	err := os.Chdir(wd)
-	if err != nil {
-		// Try to Mkdir it if not exists
-		lib.FatalOnError(os.Mkdir(wd, 0755))
-		lib.FatalOnError(os.Chdir(wd))
+// dirExists checks if given path exist and if is a directory
+func dirExists(path string) (bool, error) {
+	if path[len(path)-1:] == "/" {
+		path = path[:len(path)-1]
 	}
-
-	// Go to current 'org' subdirectory
-	wd += org
-	err = os.Chdir(wd)
+	stat, err := os.Stat(path)
 	if err != nil {
-		// Try to Mkdir it if not exists
-		lib.FatalOnError(os.Mkdir(wd, 0755))
-		lib.FatalOnError(os.Chdir(wd))
-	}
-
-	// Iterate org's repositories
-	for _, orgRepo := range repos {
-		// Must be in org directory for every repo call
-		lib.FatalOnError(os.Chdir(wd))
-
-		// repository's working dir (if present we only need to do git reset --hard; git pull)
-		ary := strings.Split(orgRepo, "/")
-		repo := ary[1]
-		rwd := wd + "/" + repo
-		err = os.Chdir(rwd)
-		if err != nil {
-			// We need to clone repo
-			if ctx.Debug > 0 {
-				lib.Printf("Cloning %s\n", orgRepo)
-			}
-			dtStart := time.Now()
-			res := lib.ExecCommand(
-				ctx,
-				[]string{"git", "clone", "https://github.com/" + orgRepo + ".git"},
-				map[string]string{"GIT_TERMINAL_PROMPT": "0"},
-			)
-			dtEnd := time.Now()
-			if res != nil {
-				if ctx.Debug > 0 {
-					lib.Printf("Warining git-clone failed: %s (took %v): %+v\n", orgRepo, dtEnd.Sub(dtStart), res)
-				}
-				fmt.Fprintf(os.Stderr, "Warining git-clone failed: %s (took %v): %+v\n", orgRepo, dtEnd.Sub(dtStart), res)
-				continue
-			}
-			pwd, _ := os.Getwd()
-			if ctx.Debug > 0 {
-				lib.Printf("Cloned %s (took %v) in %s\n", orgRepo, dtEnd.Sub(dtStart), pwd)
-			}
-			okRepos = append(okRepos, orgRepo)
-		} else {
-			// We *may* need to pull repo
-			if ctx.Debug > 0 {
-				lib.Printf("Pulling %s\n", orgRepo)
-			}
-			dtStart := time.Now()
-			res := lib.ExecCommand(
-				ctx,
-				[]string{"git", "reset", "--hard"},
-				map[string]string{"GIT_TERMINAL_PROMPT": "0"},
-			)
-			dtEnd := time.Now()
-			if res != nil {
-				if ctx.Debug > 0 {
-					lib.Printf("Warining git-reset failed: %s (took %v): %+v\n", orgRepo, dtEnd.Sub(dtStart), res)
-				}
-				fmt.Fprintf(os.Stderr, "Warining git-reset failed: %s (took %v): %+v\n", orgRepo, dtEnd.Sub(dtStart), res)
-				continue
-			}
-			res = lib.ExecCommand(
-				ctx,
-				[]string{"git", "pull"},
-				map[string]string{"GIT_TERMINAL_PROMPT": "0"},
-			)
-			dtEnd = time.Now()
-			if res != nil {
-				if ctx.Debug > 0 {
-					lib.Printf("Warining git-pull failed: %s (took %v): %+v\n", orgRepo, dtEnd.Sub(dtStart), res)
-				}
-				fmt.Fprintf(os.Stderr, "Warining git-pull failed: %s (took %v): %+v\n", orgRepo, dtEnd.Sub(dtStart), res)
-				continue
-			}
-			pwd, _ := os.Getwd()
-			if ctx.Debug > 0 {
-				lib.Printf("Pulled %s (took %v) in %s\n", orgRepo, dtEnd.Sub(dtStart), pwd)
-			}
-			okRepos = append(okRepos, orgRepo)
+		if os.IsNotExist(err) {
+			return false, nil
 		}
+		return false, err
 	}
-
-	// return list of successfully processed repos
-	return
+	if stat.IsDir() {
+		return true, nil
+	}
+	return false, fmt.Errorf("%s: exists, but is not a directory", path)
 }
 
 // getRepos returns map { 'org' --> list of repos } for all devstats projects
@@ -173,9 +93,62 @@ func getRepos(ctx *lib.Ctx) (map[string]bool, map[string][]string) {
 	return dbs, allRepos
 }
 
+// processRepo - processes single repo (clone or reset+pull) in a separate thread/goroutine
+func processRepo(ch chan string, ctx *lib.Ctx, orgRepo, rwd string) {
+	exists, err := dirExists(rwd)
+	lib.FatalOnError(err)
+	if !exists {
+		// We need to clone repo
+		if ctx.Debug > 0 {
+			lib.Printf("Cloning %s\n", orgRepo)
+		}
+		dtStart := time.Now()
+		res := lib.ExecCommand(
+			ctx,
+			[]string{"git", "clone", "https://github.com/" + orgRepo + ".git", rwd},
+			map[string]string{"GIT_TERMINAL_PROMPT": "0"},
+		)
+		dtEnd := time.Now()
+		if res != nil {
+			if ctx.Debug > 0 {
+				lib.Printf("Warining git-clone failed: %s (took %v): %+v\n", orgRepo, dtEnd.Sub(dtStart), res)
+			}
+			fmt.Fprintf(os.Stderr, "Warining git-clone failed: %s (took %v): %+v\n", orgRepo, dtEnd.Sub(dtStart), res)
+			ch <- ""
+			return
+		}
+		if ctx.Debug > 0 {
+			lib.Printf("Cloned %s: took %v\n", orgRepo, dtEnd.Sub(dtStart))
+		}
+	} else {
+		// We *may* need to pull repo
+		if ctx.Debug > 0 {
+			lib.Printf("Pulling %s\n", orgRepo)
+		}
+		dtStart := time.Now()
+		res := lib.ExecCommand(
+			ctx,
+			[]string{"git_reset_pull.sh", rwd},
+			map[string]string{"GIT_TERMINAL_PROMPT": "0"},
+		)
+		dtEnd := time.Now()
+		if res != nil {
+			if ctx.Debug > 0 {
+				lib.Printf("Warining git-reset failed: %s (took %v): %+v\n", orgRepo, dtEnd.Sub(dtStart), res)
+			}
+			fmt.Fprintf(os.Stderr, "Warining git-reset failed: %s (took %v): %+v\n", orgRepo, dtEnd.Sub(dtStart), res)
+			ch <- ""
+			return
+		}
+		if ctx.Debug > 0 {
+			lib.Printf("Pulled %s: took %v\n", orgRepo, dtEnd.Sub(dtStart))
+		}
+	}
+	ch <- orgRepo
+}
+
 // processRepos process map of org -> list of repos to clone or pull them as needed
 // it also displays cncf/gitdm needed info in debug mode (called manually)
-// It is *singlethreaded* because it changes directories often and os.Chdir() affects all goroutines.
 func processRepos(ctx *lib.Ctx, allRepos map[string][]string) {
 	// Set non-fatal exec mode, we want to run sync for next project(s) if current fails
 	// Also set quite mode, many git-pulls or git-clones can fail and this is not needed to log it to DB
@@ -183,19 +156,66 @@ func processRepos(ctx *lib.Ctx, allRepos map[string][]string) {
 	ctx.ExecFatal = false
 	ctx.ExecQuiet = true
 
-	// Remeber current dir
-	pwd, err := os.Getwd()
+	// Go to main repos directory
+	wd := ctx.ReposDir
+	exists, err := dirExists(wd)
 	lib.FatalOnError(err)
-
-	// Process all orgs
-	allOkRepos := []string{}
-	for org, repos := range allRepos {
-		okRepos := processOrg(ctx, org, repos)
-		allOkRepos = append(allOkRepos, okRepos...)
+	if !exists {
+		// Try to Mkdir it if not exists
+		lib.FatalOnError(os.Mkdir(wd, 0755))
+		exists, err = dirExists(wd)
+		lib.FatalOnError(err)
+		if !exists {
+			lib.FatalOnError(fmt.Errorf("failed to create directory: %s", wd))
+		}
 	}
 
-	// Return to staring directory
-	lib.FatalOnError(os.Chdir(pwd))
+	// Process all orgs & repos
+	thrN := lib.GetThreadsNum(ctx)
+	chanPool := []chan string{}
+	allOkRepos := []string{}
+	checked := 0
+	// Iterate orgs
+	for org, repos := range allRepos {
+		// Go to current 'org' subdirectory
+		owd := wd + org
+		exists, err = dirExists(owd)
+		lib.FatalOnError(err)
+		if !exists {
+			// Try to Mkdir it if not exists
+			lib.FatalOnError(os.Mkdir(owd, 0755))
+			exists, err = dirExists(owd)
+			lib.FatalOnError(err)
+			if !exists {
+				lib.FatalOnError(fmt.Errorf("failed to create directory: %s", owd))
+			}
+		}
+		// Iterate org's repositories
+		for _, orgRepo := range repos {
+			ch := make(chan string)
+			chanPool = append(chanPool, ch)
+			// repository's working dir (if present we only need to do git reset --hard; git pull)
+			ary := strings.Split(orgRepo, "/")
+			repo := ary[1]
+			rwd := owd + "/" + repo
+			go processRepo(ch, ctx, orgRepo, rwd)
+			checked++
+			if len(chanPool) == thrN {
+				ch = chanPool[0]
+				res := <-ch
+				chanPool = chanPool[1:]
+				if res != "" {
+					allOkRepos = append(allOkRepos, res)
+				}
+			}
+		}
+	}
+	for _, ch := range chanPool {
+		res := <-ch
+		if res != "" {
+			allOkRepos = append(allOkRepos, res)
+		}
+	}
 
 	// Output all repos as ruby object & Final cncf/gitdm command to generate concatenated git.log
 	// Only output when GHA2DB_EXTERNAL_INFO env variable is set
@@ -230,6 +250,7 @@ func processRepos(ctx *lib.Ctx, allRepos map[string][]string) {
 		fmt.Printf("AllRepos:\n%s\n", allOkReposStr)
 		fmt.Printf("Final command:\n%s\n", finalCmd)
 	}
+	lib.Printf("Sucesfully processed %d/%d repos\n", len(allOkRepos), checked)
 }
 
 // processCommitsDB creates/updates mapping between commits and list of files they refer to on databse 'db'
@@ -242,9 +263,7 @@ func processCommitsDB(ch chan bool, ctx *lib.Ctx, db, query string) {
 
 	// Close channel on end no matter what happens
 	defer func() {
-		if ch != nil {
-			ch <- true
-		}
+		ch <- true
 	}()
 
 	// Get list of unprocessed commits for current DB
