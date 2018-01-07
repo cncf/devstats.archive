@@ -359,11 +359,11 @@ func sync(ctx *lib.Ctx, args []string) {
 			},
 		)
 
-    // TODO: connect "get_repos" here:
-    // Only run commits analysis for current DB here
-    // We have updated repos to the newest state as 1st step in "devstats" call
-    // We have also fetched all data from current GHA hour using "gha2db"
-    // "structure" updated simple tables, so now let's update new commits files (from newest hour)
+		// TODO: connect "get_repos" here:
+		// Only run commits analysis for current DB here
+		// We have updated repos to the newest state as 1st step in "devstats" call
+		// We have also fetched all data from current GHA hour using "gha2db"
+		// "structure" updated simple tables, so now let's update new commits files (from newest hour)
 	}
 
 	// DB2Influx
