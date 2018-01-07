@@ -16,6 +16,7 @@ GO_USEDEXPORTS=usedexports
 GO_TEST=go test
 BINARIES=structure runq gha2db db2influx z2influx gha2db_sync import_affs annotations idb_tags idb_backup webhook devstats get_repos
 CRON_SCRIPTS=cron/cron_db_backup.sh cron/cron_db_backup_all.sh
+GIT_SCRIPTS=git/git_reset_pull.sh
 STRIP=strip
 
 all: check ${BINARIES}
@@ -95,6 +96,7 @@ data:
 install: check ${BINARIES} data
 	${GO_INSTALL} ${GO_BIN_CMDS}
 	cp -v ${CRON_SCRIPTS} ${GOPATH}/bin
+	cp -v ${GIT_SCRIPTS} ${GOPATH}/bin
 
 strip: ${BINARIES}
 	${STRIP} ${BINARIES}
