@@ -22,6 +22,8 @@ It displays results using Grafana and InfluxDB time series database.
 
 It can import developers affiliations from [cncf/gitdm](https://github.com/cncf/gitdm).
 
+It also clones all git repos to analyse all commits files.
+
 # Compilation
 
 Uses GNU `Makefile`:
@@ -258,6 +260,7 @@ List of tables:
 - `gha_branches`: variable, branches data
 - `gha_comments`: variable (issue, PR, review)
 - `gha_commits`: variable, commits
+- `gha_commits_files`: const, commit files (uses `git` to get each commit's list of files)
 - `gha_companies`: const, companies, this is filled by `./import_affs` tool.
 - `gha_events`: const, single GitHub archive event
 - `gha_forkees`: variable, forkee, repo state
@@ -382,6 +385,8 @@ Example call:
 
 Sync tool uses [gaps.yaml](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/gaps.yaml), to prefill some series with zeros. This is needed for metrics (like SIG mentions or PRs merged) that return multiple rows, depending on data range.
 Sync tool read project definition from [projects.yaml](https://github.com/cncf/devstats/blob/master/projects.yaml)
+
+You can also use `devstats` tool that calls `gha2db_sync` for all defined projects and also updates local copy of all git repos using `get_repos`.
 
 # Cron
 
