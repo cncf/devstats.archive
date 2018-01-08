@@ -113,6 +113,13 @@ func getRepos(ctx *lib.Ctx) (map[string]bool, map[string][]string) {
 
 // processRepo - processes single repo (clone or reset+pull) in a separate thread/goroutine
 func processRepo(ch chan string, ctx *lib.Ctx, orgRepo, rwd string) {
+	// Local or cron mode?
+	cmdPrefix := ""
+	if ctx.Local {
+		cmdPrefix = lib.LocalGitScripts
+	}
+
+	// Clone or reset+pull repo
 	exists, err := dirExists(rwd)
 	lib.FatalOnError(err)
 	if !exists {
@@ -152,7 +159,7 @@ func processRepo(ch chan string, ctx *lib.Ctx, orgRepo, rwd string) {
 		// And all threads share CWD (current working directory)
 		res := lib.ExecCommand(
 			ctx,
-			[]string{"git_reset_pull.sh", rwd},
+			[]string{cmdPrefix + "git_reset_pull.sh", rwd},
 			map[string]string{"GIT_TERMINAL_PROMPT": "0"},
 		)
 		dtEnd := time.Now()
@@ -320,6 +327,12 @@ func getCommitFiles(ch chan bool, ctx *lib.Ctx, con *sql.DB, repo, sha string) {
 		ch <- true
 	}()
 
+	// Local or cron mode?
+	cmdPrefix := ""
+	if ctx.Local {
+		cmdPrefix = lib.LocalGitScripts
+	}
+
 	// Get files using shell script that does 'chdir'
 	// We cannot chdir because this is a multithreaded app
 	// And all threads share CWD (current working directory)
@@ -330,7 +343,7 @@ func getCommitFiles(ch chan bool, ctx *lib.Ctx, con *sql.DB, repo, sha string) {
 	rwd := ctx.ReposDir + repo
 	res := lib.ExecCommand(
 		ctx,
-		[]string{"git_files.sh", rwd, sha},
+		[]string{cmdPrefix + "git_files.sh", rwd, sha},
 		map[string]string{"GIT_TERMINAL_PROMPT": "0"},
 	)
 	dtEnd := time.Now()
@@ -381,6 +394,12 @@ func processCommits(ctx *lib.Ctx, dbs map[string]bool) {
 		commits := <-ch
 		allCommits = append(allCommits, commits)
 	}
+
+	// Set non-fatal exec mode, we want to run sync for next project(s) if current fails
+	// Also set quite mode, many git-pulls or git-clones can fail and this is not needed to log it to DB
+	// User can set higher debug level and run manually to debug this
+	ctx.ExecFatal = false
+	ctx.ExecQuiet = true
 
 	// Create final 'commits - file list' associations
 	chPool := []chan bool{}
