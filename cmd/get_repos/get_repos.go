@@ -389,6 +389,15 @@ func getCommitFiles(ch chan bool, ctx *lib.Ctx, con *sql.DB, repo, sha string) {
 	ch <- true
 }
 
+// postprocessCommitsDB - calls given SQL on a given database
+// to postprocess just created commit SHAs-files connections
+func postprocessCommitsDB(ch chan bool, ctx *lib.Ctx, con *sql.DB, query string) {
+	_, err := con.Query(query)
+	lib.FatalOnError(err)
+	con.Close()
+	ch <- true
+}
+
 // processCommits process all databases given in `dbs`
 // on each database it creates/updates mapping between commits and list of files they refer to
 // It is multithreaded processing up to NCPU databases at the same time
@@ -466,6 +475,34 @@ func processCommits(ctx *lib.Ctx, dbs map[string]bool) {
 		perc = float64(statuses[true]) * 100.0 / (float64(all))
 	}
 	lib.Printf("Got %d (%.2f%%) new commit's files, %d failed, all %d, took %v\n", statuses[true], perc, statuses[false], all, dtEnd.Sub(dtStart))
+
+	// Post execute SQL 'util_sql/create_events_commits.sql' on each database
+	// This SQL updates 'gha_events_commits_files' table that
+	// holds connections between commits SHA and events that refer to it
+	// So we can query for files modified in the given events (via commits)
+	dtStart = time.Now()
+	bytes, err = ioutil.ReadFile(
+		dataPrefix + "util_sql/create_events_commits.sql",
+	)
+	lib.FatalOnError(err)
+	sqlQuery = string(bytes)
+	chPool = []chan bool{}
+	for _, commits := range allCommits {
+		con := commits.con
+		ch := make(chan bool)
+		chPool = append(chPool, ch)
+		go postprocessCommitsDB(ch, ctx, con, sqlQuery)
+		if len(chPool) == thrN {
+			ch = chPool[0]
+			<-ch
+			chPool = chPool[1:]
+		}
+	}
+	for _, ch := range chPool {
+		<-ch
+	}
+	dtEnd = time.Now()
+	lib.Printf("Postprocessed all new commits, took %v\n", dtEnd.Sub(dtStart))
 }
 
 func main() {
