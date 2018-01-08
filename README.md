@@ -21,7 +21,7 @@ The only requirement is that project must be hosted on a public GitHub repositor
 
 # Forking and installing locally
 
-This toolset uses only Open Source tools: GitHub archives, Postgres databases, InfluxDB time-series databases and multiple Grafana dashboards running in Docker conatiners.
+This toolset uses only Open Source tools: GitHub archives, git, Postgres databases, InfluxDB time-series databases and multiple Grafana dashboards running in Docker conatiners.
 It is written in Go, and can be forked and installed by anyone.
 
 Contributions and PRs are welcome.

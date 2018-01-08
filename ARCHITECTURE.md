@@ -1,6 +1,6 @@
 # GitHub Archives
 
-Our approach is to use GitHub archives instead. The possible alternatives are:
+Project uses use GitHub archives and local copy of all git repositories. The possible alternatives are:
 
 1) BigQuery:
 - You can query any data you want, but the structure is quite flat and entire GitHub event payloads are stored as a single column containing JSON text.
@@ -31,7 +31,7 @@ Our approach is to use GitHub archives instead. The possible alternatives are:
 
 # Architecture
 
-We're getting all possible GitHub data for all objects, and all objects historical state as well (not discarding any data):
+We're getting all possible GitHub data for all objects, and all objects historical state as well (not discarding any data). We are also keeping copy of all git repositories used in all projects and update it every hour:
 
 1) `structure` (manages database structure, summaries, views)
 - [structure](https://github.com/cncf/devstats/blob/master/cmd/structure/structure.go)
@@ -65,6 +65,7 @@ We're getting all possible GitHub data for all objects, and all objects historic
 - This program figures out what is the most recent data in Postgres database then queries GitHub archive from this date to current date.
 - It will add data to Postgres database (since the last run)
 - It will update summary tables and/or (materialized) views on Postgres DB.
+- It will update new commits files list using `get_repos` program.
 - Then it will call `db2influx` for all defined SQL metrics and update Influx database as well.
 - You need to set `GHA2DB_PROJECT=project_name` currently it can be either kubernetes, prometheus or opentracing. Projects are defined in `projects.yaml` file.
 - It reads a list of metrics from YAML file: `metrics/{{project}}/metrics.yaml`, some metrics require to fill gaps in their data. Those metrics are defined in another YAML file `metrics/{{project}}/gaps.yaml`.
@@ -74,10 +75,17 @@ We're getting all possible GitHub data for all objects, and all objects historic
 
 5) `devstats` (Calls `gha2db_sync` for all defined projects)
 - [devstats](https://github.com/cncf/devstats/blob/master/cmd/devstats/devstats.go)
-- This program will read `projects.yaml` and call `gha2db_sync` for all defined projects that are not disabled by `disabled: true`.
+- This program will read `projects.yaml` call `get_repos` to update all projects git repos, then call `gha2db_sync` for all defined projects that are not disabled by `disabled: true`.
 - It uses own database just to store logs from running project syncers, this is a Postgres database "devstats".
 - It creates PID file `/tmp/devstats.pid` while it is running, so it is safe when instances overlap.
 - It is called by cron job on 1:10, 2:10, ... and so on - GitHub archive publishes new file every hour, so we're off by at most 1 hour.
+
+6) `get_repos`: it can update list of all projects repositories (clone and/or pull as needed), update each commits files list, display all repos and orgs data bneeded by `cncf/gitdm`.
+- [get_repos](https://github.com/cncf/devstats/blob/master/cmd/get_repos/get_repos.go)
+- `get_repos` is used to clone or pull all repos used in all `devstats` project in a location from `GHA2DB_REPOS_DIR` environment variable, or by default in "~/devstats_repos/".
+- Those repos are used later to search for commit SHA's using `git log` to determine files modifed by particular commits and other objects.
+- It can also be used to return list of all distinct repos and their locations - this can be used by `cncf/gitdm` to create concatenated `git.log` from all repositories for affiliations analysis.
+- This tool is also used to create/update mapping between commits and list of files that given commit refers to.
 
 6) Additional stuff, most important being `runq`  and `import_affs` tools.
 - [runq](https://github.com/cncf/devstats/blob/master/cmd/runq/runq.go)
@@ -97,11 +105,6 @@ We're getting all possible GitHub data for all objects, and all objects historic
 - [webhook](https://github.com/cncf/devstats/blob/master/cmd/webhook/webhook.go)
 - `webhook` is used to react to Travis CI webhooks and trigger deploy if status, branch and type match defined values, more details [here](https://github.com/cncf/devstats/blob/master/CONTINUOUS_DEPLOYMENT.md).
 - There are few shell scripts for example: running sync every N seconds, setup InfluxDB etc.
-- [get_repos](https://github.com/cncf/devstats/blob/master/cmd/get_repos/get_repos.go)
-- `get_repos` is used to clone or pull all repos used in all `devstats` project in a location from `GHA2DB_REPOS_DIR` environment variable, or by default in "~/devstats_repos/".
-- Those repos are used later to search for commit SHA's using `git log` to determine files modifed by particular commits and other objects.
-- It can also be used to return list of all distinct repos and their locations - this can be used by `cncf/gitdm` to create concatenated `git.log` from all repositories for affiliations analysis.
-- This tool is also used to create/update mapping between commits and list of files that given commit refers to.
 
 # Database structure details
 
@@ -118,4 +121,4 @@ Ruby version was dropped, but you can see benchmarks of Ruby using MySQL, Ruby u
 
 [Historical benchmarks](https://github.com/cncf/devstats/blob/master/BENCHMARK.md)
 
-In summary: Go version can import all GitHub archives data (not discarding anything) for all Kubernetes orgs/repos, from the beginning on GitHub 2014-06-01 in about 2-2,5 hours!
+In summary: Go version can import all GitHub archives data (not discarding anything) for all Kubernetes orgs/repos, from the beginning on GitHub 2014-06-01 in about 2-2,5 hours! Cloning all projects repositories takes about 15 minutes when done for a first time and takes about 12 GB disk space.
