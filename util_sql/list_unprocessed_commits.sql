@@ -4,7 +4,7 @@ from (
   select distinct commit_id as sha, dup_repo_name as repo from gha_comments
   union select distinct original_commit_id as sha, dup_repo_name as repo from gha_comments
   union select distinct sha, dup_repo_name as repo from gha_commits
-  union select distinct sha, dup_repo_name as repo from gha_pages
+  -- union select distinct sha, dup_repo_name as repo from gha_pages
   union select distinct head as sha, dup_repo_name as repo from gha_payloads
   union select distinct befor as sha, dup_repo_name as repo from gha_payloads
   union select distinct commit as sha, dup_repo_name as repo from gha_payloads
