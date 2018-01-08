@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -12,6 +13,12 @@ import (
 
 	yaml "gopkg.in/yaml.v2"
 )
+
+// dbCommits holds all commits for given projec (DB connection)
+type dbCommits struct {
+	shas [][2]string
+	con  *sql.DB
+}
 
 // dirExists checks if given path exist and if is a directory
 func dirExists(path string) (bool, error) {
@@ -33,16 +40,6 @@ func dirExists(path string) (bool, error) {
 
 // getRepos returns map { 'org' --> list of repos } for all devstats projects
 func getRepos(ctx *lib.Ctx) (map[string]bool, map[string][]string) {
-	// Local or cron mode?
-	dataPrefix := lib.DataDir
-	if ctx.Local {
-		dataPrefix = "./"
-	}
-
-	// Read defined projects
-	data, err := ioutil.ReadFile(dataPrefix + "projects.yaml")
-	lib.FatalOnError(err)
-
 	// Process all projects, or restrict from environment variable?
 	onlyProjects := make(map[string]bool)
 	selectedProjects := false
@@ -53,6 +50,16 @@ func getRepos(ctx *lib.Ctx) (map[string]bool, map[string][]string) {
 			onlyProjects[strings.TrimSpace(proj)] = true
 		}
 	}
+
+	// Local or cron mode?
+	dataPrefix := lib.DataDir
+	if ctx.Local {
+		dataPrefix = "./"
+	}
+
+	// Read defined projects
+	data, err := ioutil.ReadFile(dataPrefix + "projects.yaml")
+	lib.FatalOnError(err)
 
 	var projects lib.AllProjects
 	lib.FatalOnError(yaml.Unmarshal(data, &projects))
@@ -114,6 +121,9 @@ func processRepo(ch chan string, ctx *lib.Ctx, orgRepo, rwd string) {
 			lib.Printf("Cloning %s\n", orgRepo)
 		}
 		dtStart := time.Now()
+		// Clone repo into given directory (from command line)
+		// We cannot chdir because this is a multithreaded app
+		// And all threads share CWD (current working directory)
 		res := lib.ExecCommand(
 			ctx,
 			[]string{"git", "clone", "https://github.com/" + orgRepo + ".git", rwd},
@@ -137,6 +147,9 @@ func processRepo(ch chan string, ctx *lib.Ctx, orgRepo, rwd string) {
 			lib.Printf("Pulling %s\n", orgRepo)
 		}
 		dtStart := time.Now()
+		// Update repo using shell script that uses 'chdir'
+		// We cannot chdir because this is a multithreaded app
+		// And all threads share CWD (current working directory)
 		res := lib.ExecCommand(
 			ctx,
 			[]string{"git_reset_pull.sh", rwd},
@@ -145,9 +158,9 @@ func processRepo(ch chan string, ctx *lib.Ctx, orgRepo, rwd string) {
 		dtEnd := time.Now()
 		if res != nil {
 			if ctx.Debug > 0 {
-				lib.Printf("Warining git-reset failed: %s (took %v): %+v\n", orgRepo, dtEnd.Sub(dtStart), res)
+				lib.Printf("Warining git_reset_pull.sh failed: %s (took %v): %+v\n", orgRepo, dtEnd.Sub(dtStart), res)
 			}
-			fmt.Fprintf(os.Stderr, "Warining git-reset failed: %s (took %v): %+v\n", orgRepo, dtEnd.Sub(dtStart), res)
+			fmt.Fprintf(os.Stderr, "Warining git_reset_pull.sh failed: %s (took %v): %+v\n", orgRepo, dtEnd.Sub(dtStart), res)
 			ch <- ""
 			return
 		}
@@ -266,22 +279,19 @@ func processRepos(ctx *lib.Ctx, allRepos map[string][]string) {
 
 // processCommitsDB creates/updates mapping between commits and list of files they refer to on databse 'db'
 // using 'query' to get liist of unprocessed commits
-func processCommitsDB(ch chan bool, ctx *lib.Ctx, db, query string) {
+func processCommitsDB(ch chan *dbCommits, ctx *lib.Ctx, db, query string) {
+	// Result struct to be passed by the channel
+	var commits dbCommits
+
 	// Conditional info
 	if ctx.Debug > 0 {
 		lib.Printf("Running on database: %s\n", db)
 	}
 
-	// Close channel on end no matter what happens
-	defer func() {
-		ch <- true
-	}()
-
 	// Get list of unprocessed commits for current DB
 	dtStart := time.Now()
 	// Connect to Postgres `db` database.
 	con := lib.PgConnDB(ctx, db)
-	defer con.Close()
 
 	rows, err := con.Query(query)
 	lib.FatalOnError(err)
@@ -289,29 +299,50 @@ func processCommitsDB(ch chan bool, ctx *lib.Ctx, db, query string) {
 	var (
 		sha  string
 		repo string
-		shas [][2]string
 	)
 	for rows.Next() {
 		lib.FatalOnError(rows.Scan(&sha, &repo))
-		shas = append(shas, [2]string{repo, sha})
+		commits.shas = append(commits.shas, [2]string{repo, sha})
 	}
 	lib.FatalOnError(rows.Err())
 	dtEnd := time.Now()
 	if ctx.Debug > 0 {
-		lib.Printf("Database '%s' processed in %v, commits: %d\n", db, dtEnd.Sub(dtStart), len(shas))
+		lib.Printf("Database '%s' processed in %v, commits: %d\n", db, dtEnd.Sub(dtStart), len(commits.shas))
 	}
-	for i, data := range shas {
-		repo := data[0]
-		sha := data[1]
-		fmt.Printf("Processing commit %06d %s:%s:%s\n", i, db, repo, sha)
-		// TODO: continue here: get list of files affected by commit 'sha' on 'repo' repository
-		// And put results into db:gha_commits_files table.
-		// Algorithm consideration:
-		// Create map of 'repo' --> list of commits from this repo
-		// cd to cloned repo (it is cloned or pulled to most recent state by this tool)
-		// git log for list of commits to get affected files
-		// group by repo to avoid multiple chdirs and
-		// possibly call single git log for multiple commits (rather not?)
+	commits.con = con
+	ch <- &commits
+}
+
+// getCommitFiles get given commit's list of files and saves it in the database
+func getCommitFiles(ch chan bool, ctx *lib.Ctx, con *sql.DB, repo, sha string) {
+	// Close channel to sync other threads
+	defer func() {
+		ch <- true
+	}()
+
+	// Get files using shell script that does 'chdir'
+	// We cannot chdir because this is a multithreaded app
+	// And all threads share CWD (current working directory)
+	if ctx.Debug > 0 {
+		lib.Printf("Getting files for commit %s:%s\n", repo, sha)
+	}
+	dtStart := time.Now()
+	rwd := ctx.ReposDir + repo
+	res := lib.ExecCommand(
+		ctx,
+		[]string{"git_files.sh", rwd, sha},
+		map[string]string{"GIT_TERMINAL_PROMPT": "0"},
+	)
+	dtEnd := time.Now()
+	if res != nil {
+		if ctx.Debug > 0 {
+			lib.Printf("Warining git_files.sh failed: %s:%s (took %v): %+v\n", repo, sha, dtEnd.Sub(dtStart), res)
+		}
+		fmt.Fprintf(os.Stderr, "Warining git_files.sh failed: %s:%s (took %v): %+v\n", repo, sha, dtEnd.Sub(dtStart), res)
+		return
+	}
+	if ctx.Debug > 0 {
+		lib.Printf("Got %s:%s commits: took %v\n", repo, sha, dtEnd.Sub(dtStart))
 	}
 }
 
@@ -331,20 +362,44 @@ func processCommits(ctx *lib.Ctx, dbs map[string]bool) {
 	lib.FatalOnError(err)
 	sqlQuery := string(bytes)
 
-	// Process all DBs in a separate threads
+	// Process all DBs in a separate threads to get all commits
 	thrN := lib.GetThreadsNum(ctx)
-	chanPool := []chan bool{}
+	chanPool := []chan *dbCommits{}
+	allCommits := []*dbCommits{}
 	for db := range dbs {
-		ch := make(chan bool)
+		ch := make(chan *dbCommits)
 		chanPool = append(chanPool, ch)
 		go processCommitsDB(ch, ctx, db, sqlQuery)
 		if len(chanPool) == thrN {
 			ch = chanPool[0]
-			<-ch
+			commits := <-ch
+			allCommits = append(allCommits, commits)
 			chanPool = chanPool[1:]
 		}
 	}
 	for _, ch := range chanPool {
+		commits := <-ch
+		allCommits = append(allCommits, commits)
+	}
+
+	// Create final 'commits - file list' associations
+	chPool := []chan bool{}
+	for _, commits := range allCommits {
+		con := commits.con
+		for _, data := range commits.shas {
+			repo := data[0]
+			sha := data[1]
+			ch := make(chan bool)
+			chPool = append(chPool, ch)
+			go getCommitFiles(ch, ctx, con, repo, sha)
+			if len(chPool) == thrN {
+				ch = chPool[0]
+				<-ch
+				chPool = chPool[1:]
+			}
+		}
+	}
+	for _, ch := range chPool {
 		<-ch
 	}
 }
