@@ -43,11 +43,22 @@ func getRepos(ctx *lib.Ctx) (map[string]bool, map[string][]string) {
 	data, err := ioutil.ReadFile(dataPrefix + "projects.yaml")
 	lib.FatalOnError(err)
 
+	// Process all projects, or restrict from environment variable?
+	onlyProjects := make(map[string]bool)
+	selectedProjects := false
+	if ctx.ProjectsCommits != "" {
+		selectedProjects = true
+		selProjs := strings.Split(ctx.ProjectsCommits, ",")
+		for _, proj := range selProjs {
+			onlyProjects[strings.TrimSpace(proj)] = true
+		}
+	}
+
 	var projects lib.AllProjects
 	lib.FatalOnError(yaml.Unmarshal(data, &projects))
 	dbs := make(map[string]bool)
-	for _, proj := range projects.Projects {
-		if proj.Disabled {
+	for name, proj := range projects.Projects {
+		if proj.Disabled || (selectedProjects && !onlyProjects[name]) {
 			continue
 		}
 		dbs[proj.PDB] = true

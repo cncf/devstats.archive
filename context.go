@@ -69,6 +69,7 @@ type Ctx struct {
 	ProcessRepos      bool      // From GHA2DB_PROCESS_REPOS ./get_repos tool, enable processing (cloning/pulling) all devstats repos, default false
 	ProcessCommits    bool      // From GHA2DB_PROCESS_COMMITS ./get_repos tool, enable update/create mapping table: commit - list of file that commit refers to, default false
 	ExternalInfo      bool      // From GHA2DB_EXTERNAL_INFO ./get_repos tool, enable outputing data needed by external tools (cncf/gitdm), default false
+	ProjectsCommits   string    // From GHA2DB_PROJECTS_COMMITS ./get_repos tool, set list of projects for commits analysis instead of analysing all, default "" - means all
 }
 
 // Init - get context from environment variables
@@ -339,6 +340,7 @@ func (ctx *Ctx) Init() {
 	ctx.ProcessRepos = os.Getenv("GHA2DB_PROCESS_REPOS") != ""
 	ctx.ProcessCommits = os.Getenv("GHA2DB_PROCESS_COMMITS") != ""
 	ctx.ExternalInfo = os.Getenv("GHA2DB_EXTERNAL_INFO") != ""
+	ctx.ProjectsCommits = os.Getenv("GHA2DB_PROJECTS_COMMITS")
 
 	// Context out if requested
 	if ctx.CtxOut {
