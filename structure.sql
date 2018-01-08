@@ -646,6 +646,17 @@ CREATE TABLE gha_repos (
 ALTER TABLE gha_repos OWNER TO gha_admin;
 
 --
+-- Name: gha_skip_commits; Type: TABLE; Schema: public; Owner: gha_admin
+--
+
+CREATE TABLE gha_skip_commits (
+    sha character varying(40) NOT NULL
+);
+
+
+ALTER TABLE gha_skip_commits OWNER TO gha_admin;
+
+--
 -- Name: gha_teams; Type: TABLE; Schema: public; Owner: gha_admin
 --
 
@@ -910,6 +921,14 @@ ALTER TABLE ONLY gha_releases
 
 ALTER TABLE ONLY gha_repos
     ADD CONSTRAINT gha_repos_pkey PRIMARY KEY (id, name);
+
+
+--
+-- Name: gha_skip_commits gha_skip_commits_pkey; Type: CONSTRAINT; Schema: public; Owner: gha_admin
+--
+
+ALTER TABLE ONLY gha_skip_commits
+    ADD CONSTRAINT gha_skip_commits_pkey PRIMARY KEY (sha);
 
 
 --
@@ -2263,6 +2282,13 @@ CREATE INDEX repos_org_login_idx ON gha_repos USING btree (org_login);
 --
 
 CREATE INDEX repos_repo_group_idx ON gha_repos USING btree (repo_group);
+
+
+--
+-- Name: skip_commits_sha_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX skip_commits_sha_idx ON gha_skip_commits USING btree (sha);
 
 
 --

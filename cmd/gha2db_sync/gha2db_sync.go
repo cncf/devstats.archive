@@ -249,7 +249,7 @@ func fillGapsInSeries(ctx *lib.Ctx, from, to time.Time) {
 						bTo = nSeries
 					}
 					lib.Printf("Filling metric gaps %v, descriptions %v, period: %s, %d series (%d - %d)...\n", metric.Name, metric.Desc, periodAggr, nSeries, bFrom, bTo)
-					lib.ExecCommand(
+					_, err := lib.ExecCommand(
 						ctx,
 						[]string{
 							cmdPrefix + "z2influx",
@@ -261,6 +261,7 @@ func fillGapsInSeries(ctx *lib.Ctx, from, to time.Time) {
 						},
 						nil,
 					)
+					lib.FatalOnError(err)
 				}
 			}
 		}
@@ -332,7 +333,7 @@ func sync(ctx *lib.Ctx, args []string) {
 
 		// gha2db
 		lib.Printf("GHA range: %s %s - %s %s\n", fromDate, fromHour, toDate, toHour)
-		lib.ExecCommand(
+		_, err := lib.ExecCommand(
 			ctx,
 			[]string{
 				cmdPrefix + "gha2db",
@@ -345,10 +346,11 @@ func sync(ctx *lib.Ctx, args []string) {
 			},
 			nil,
 		)
+		lib.FatalOnError(err)
 
 		lib.Printf("Update structure\n")
 		// Recompute views and DB summaries
-		lib.ExecCommand(
+		_, err = lib.ExecCommand(
 			ctx,
 			[]string{
 				cmdPrefix + "structure",
@@ -358,6 +360,7 @@ func sync(ctx *lib.Ctx, args []string) {
 				"GHA2DB_MGETC":     "y",
 			},
 		)
+		lib.FatalOnError(err)
 
 		// TODO: connect "get_repos" here:
 		// Only run commits analysis for current DB here
@@ -382,20 +385,22 @@ func sync(ctx *lib.Ctx, args []string) {
 
 		// InfluxDB tags (repo groups template variable currently)
 		if ctx.ResetIDB || time.Now().Hour() == 0 {
-			lib.ExecCommand(ctx, []string{cmdPrefix + "idb_tags"}, nil)
+			_, err := lib.ExecCommand(ctx, []string{cmdPrefix + "idb_tags"}, nil)
+			lib.FatalOnError(err)
 		} else {
 			lib.Printf("Skipping `idb_tags` recalculation, it is only computed once per day\n")
 		}
 
 		// Annotations
 		if ctx.Project != "" && (ctx.ResetIDB || time.Now().Hour() == 0) {
-			lib.ExecCommand(
+			_, err := lib.ExecCommand(
 				ctx,
 				[]string{
 					cmdPrefix + "annotations",
 				},
 				nil,
 			)
+			lib.FatalOnError(err)
 		} else {
 			lib.Printf("Skipping `annotations` recalculation, it is only computed once per day\n")
 		}
@@ -473,7 +478,7 @@ func sync(ctx *lib.Ctx, args []string) {
 					if metric.AddPeriodToName {
 						seriesNameOrFunc += "_" + periodAggr
 					}
-					lib.ExecCommand(
+					_, err = lib.ExecCommand(
 						ctx,
 						[]string{
 							cmdPrefix + "db2influx",
@@ -486,6 +491,7 @@ func sync(ctx *lib.Ctx, args []string) {
 						},
 						nil,
 					)
+					lib.FatalOnError(err)
 				}
 			}
 		}
