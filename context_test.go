@@ -72,6 +72,7 @@ func copyContext(in *lib.Ctx) *lib.Ctx {
 		ProcessRepos:      in.ProcessRepos,
 		ProcessCommits:    in.ProcessCommits,
 		ExternalInfo:      in.ExternalInfo,
+		ProjectsCommits:   in.ProjectsCommits,
 	}
 	return &out
 }
@@ -216,6 +217,7 @@ func TestInit(t *testing.T) {
 		ProcessRepos:      false,
 		ProcessCommits:    false,
 		ExternalInfo:      false,
+		ProjectsCommits:   "",
 	}
 
 	// Test cases
@@ -689,6 +691,19 @@ func TestInit(t *testing.T) {
 				copyContext(&defaultContext),
 				map[string]interface{}{
 					"ExternalInfo": true,
+				},
+			),
+		},
+		{
+			"Setting projects commits",
+			map[string]string{
+				"GHA2DB_PROJECTS_COMMITS": "a,b,c",
+			},
+			dynamicSetFields(
+				t,
+				copyContext(&defaultContext),
+				map[string]interface{}{
+					"ProjectsCommits": "a,b,c",
 				},
 			),
 		},

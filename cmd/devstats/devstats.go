@@ -70,7 +70,7 @@ func syncAllProjects() bool {
 	// So here we get repo files to the newest state
 	// And the gha2db_sync takes Postgres DB commits to the newest state
 	// after this it need to update commit files
-	lib.Printf("pdating git repos for all projects\n")
+	lib.Printf("Updating git repos for all projects\n")
 	dtStart := time.Now()
 	res := lib.ExecCommand(
 		&ctx,

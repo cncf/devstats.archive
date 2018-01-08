@@ -117,6 +117,7 @@ You can tweak `devstats` tools by environment variables:
 - Set `GHA2DB_REPOS_DIR`, `get_repos` tool to specify where to clone/pull all devstats projects repositories.
 - Set `GHA2DB_PROCESS_REPOS`, `get_repos` tool to enable repos clone/pull job.
 - Set `GHA2DB_PROCESS_COMMITS`, `get_repos` tool to enable creating/updating "commits SHA - list of files" mapping.
+- Set `GHA2DB_PROJECTS_COMMITS`, `get_repos` tool to enable processing commits only on specified projects, format is "projectName1,projectName2,...,projectNameN", default is "" which means to process all projects from `projects.yaml`.
 - Set `GHA2DB_EXTERNAL_INFO`, `get_repos` tool to enable displaying external info needed by cncf/gitdm.
 - Set `IDB_MAXBATCHPOINTS`, all Influx tools - set maximum batch size, default 10240.
 
