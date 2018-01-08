@@ -7,7 +7,7 @@ insert into gha_events_commits_files(
   dup_type,
   dup_created_at)
 select
-  sub.sha,
+  distinct sub.sha,
   sub.event_id,
   sub.path,
   sub.dup_repo_id,
@@ -85,6 +85,11 @@ from (
       or pr.merge_commit_sha = cf.sha
     )
   ) sub
+left join gha_events_commits_files ecf
+on
+  sub.sha = ecf.sha
+  and sub.path = ecf.path
+  and sub.event_id = ecf.event_id
 where
-  sub.sha not in (select distinct sha from gha_events_commits_files)
+  ecf.sha is null
 ;
