@@ -362,11 +362,22 @@ func sync(ctx *lib.Ctx, args []string) {
 		)
 		lib.FatalOnError(err)
 
-		// TODO: connect "get_repos" here:
 		// Only run commits analysis for current DB here
 		// We have updated repos to the newest state as 1st step in "devstats" call
 		// We have also fetched all data from current GHA hour using "gha2db"
 		// "structure" updated simple tables, so now let's update new commits files (from newest hour)
+		lib.Printf("Update git commits\n")
+		_, err = lib.ExecCommand(
+			ctx,
+			[]string{
+				cmdPrefix + "get_repos",
+			},
+			map[string]string{
+				"GHA2DB_PROCESS_COMMITS":  "1",
+				"GHA2DB_PROJECTS_COMMITS": ctx.Project,
+			},
+		)
+		lib.FatalOnError(err)
 	}
 
 	// DB2Influx
