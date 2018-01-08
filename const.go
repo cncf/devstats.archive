@@ -32,3 +32,6 @@ const Devstats string = "devstats"
 
 // TimeoutError - common constant string
 const TimeoutError string = "{\"error\":\"timeout\"}\n"
+
+// LocalGitScripts - common constant string
+const LocalGitScripts string = "./git/"
