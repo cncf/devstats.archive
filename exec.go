@@ -19,7 +19,7 @@ func logCommand(ctx *Ctx, cmdAndArgs []string, env map[string]string) {
 }
 
 // ExecCommand - execute command given by array of strings with eventual environment map
-func ExecCommand(ctx *Ctx, cmdAndArgs []string, env map[string]string) error {
+func ExecCommand(ctx *Ctx, cmdAndArgs []string, env map[string]string) (string, error) {
 	// Execution time
 	dtStart := time.Now()
 
@@ -82,7 +82,7 @@ func ExecCommand(ctx *Ctx, cmdAndArgs []string, env map[string]string) error {
 			if ctx.ExecFatal {
 				FatalOnError(e)
 			} else {
-				return e
+				return "", e
 			}
 		}
 		e = cmd.Start()
@@ -91,7 +91,7 @@ func ExecCommand(ctx *Ctx, cmdAndArgs []string, env map[string]string) error {
 			if ctx.ExecFatal {
 				FatalOnError(e)
 			} else {
-				return e
+				return "", e
 			}
 		}
 		buffer := make([]byte, pipeSize, pipeSize)
@@ -105,7 +105,7 @@ func ExecCommand(ctx *Ctx, cmdAndArgs []string, env map[string]string) error {
 			if ctx.ExecFatal {
 				FatalOnError(e)
 			} else {
-				return e
+				return "", e
 			}
 		}
 	} else {
@@ -115,7 +115,7 @@ func ExecCommand(ctx *Ctx, cmdAndArgs []string, env map[string]string) error {
 			if ctx.ExecFatal {
 				FatalOnError(e)
 			} else {
-				return e
+				return "", e
 			}
 		}
 	}
@@ -139,7 +139,7 @@ func ExecCommand(ctx *Ctx, cmdAndArgs []string, env map[string]string) error {
 			if ctx.ExecFatal {
 				FatalOnError(err)
 			} else {
-				return err
+				return stdOut.String(), err
 			}
 		}
 	}
@@ -160,5 +160,9 @@ func ExecCommand(ctx *Ctx, cmdAndArgs []string, env map[string]string) error {
 		dtEnd := time.Now()
 		Printf("%s ... %+v\n", info, dtEnd.Sub(dtStart))
 	}
-	return nil
+	outStr := ""
+	if ctx.ExecOutput {
+		outStr = stdOut.String()
+	}
+	return outStr, nil
 }

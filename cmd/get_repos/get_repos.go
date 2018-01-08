@@ -131,7 +131,7 @@ func processRepo(ch chan string, ctx *lib.Ctx, orgRepo, rwd string) {
 		// Clone repo into given directory (from command line)
 		// We cannot chdir because this is a multithreaded app
 		// And all threads share CWD (current working directory)
-		res := lib.ExecCommand(
+		_, res := lib.ExecCommand(
 			ctx,
 			[]string{"git", "clone", "https://github.com/" + orgRepo + ".git", rwd},
 			map[string]string{"GIT_TERMINAL_PROMPT": "0"},
@@ -157,7 +157,7 @@ func processRepo(ch chan string, ctx *lib.Ctx, orgRepo, rwd string) {
 		// Update repo using shell script that uses 'chdir'
 		// We cannot chdir because this is a multithreaded app
 		// And all threads share CWD (current working directory)
-		res := lib.ExecCommand(
+		_, res := lib.ExecCommand(
 			ctx,
 			[]string{cmdPrefix + "git_reset_pull.sh", rwd},
 			map[string]string{"GIT_TERMINAL_PROMPT": "0"},
@@ -334,7 +334,7 @@ func getCommitFiles(ch chan bool, ctx *lib.Ctx, con *sql.DB, repo, sha string) {
 	}
 	dtStart := time.Now()
 	rwd := ctx.ReposDir + repo
-	res := lib.ExecCommand(
+	files, res := lib.ExecCommand(
 		ctx,
 		[]string{cmdPrefix + "git_files.sh", rwd, sha},
 		map[string]string{"GIT_TERMINAL_PROMPT": "0"},
@@ -349,8 +349,9 @@ func getCommitFiles(ch chan bool, ctx *lib.Ctx, con *sql.DB, repo, sha string) {
 		return
 	}
 	if ctx.Debug > 0 {
-		lib.Printf("Got %s:%s commits: took %v\n", repo, sha, dtEnd.Sub(dtStart))
+		lib.Printf("Got %s:%s commits: took %v\nfiles: %v\n", repo, sha, dtEnd.Sub(dtStart), files)
 	}
+	//os.Exit(1)
 	ch <- true
 }
 
@@ -396,8 +397,10 @@ func processCommits(ctx *lib.Ctx, dbs map[string]bool) {
 	// Set non-fatal exec mode, we want to run sync for next project(s) if current fails
 	// Also set quite mode, many git-pulls or git-clones can fail and this is not needed to log it to DB
 	// User can set higher debug level and run manually to debug this
+	// Also set capture command's stdout mode
 	ctx.ExecFatal = false
 	ctx.ExecQuiet = true
+	ctx.ExecOutput = true
 
 	// Create final 'commits - file list' associations
 	dtStart = time.Now()

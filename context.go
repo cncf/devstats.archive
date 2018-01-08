@@ -63,6 +63,7 @@ type Ctx struct {
 	ProjectRoot       string    // From GHA2DB_PROJECT_ROOT, webhook tool, no default, must be specified to run webhook tool
 	ExecFatal         bool      // default true, set this manually to false to avoid lib.ExecCommand calling os.Exit() on failure and return error instead
 	ExecQuiet         bool      // default false, set this manually to true to have quite exec failures (for example `get_repos` git-clones or git-pulls on errors).
+	ExecOutput        bool      // default false, set to true to capture commands STDOUT
 	Project           string    // From GHA2DB_PROJECT, gha2db_sync default "", You should set it to something like "kubernetes", "prometheus" etc.
 	TestsYaml         string    // From GHA2DB_TESTS_YAML ./dbtest.sh tool, set other tests.yaml file, default is "tests.yaml"
 	ReposDir          string    // From GHA2DB_REPOS_DIR ./get_repos tool, default "~/devstats_repos/"
@@ -76,6 +77,7 @@ type Ctx struct {
 func (ctx *Ctx) Init() {
 	ctx.ExecFatal = true
 	ctx.ExecQuiet = false
+	ctx.ExecOutput = false
 
 	// Outputs
 	ctx.JSONOut = os.Getenv("GHA2DB_JSON") != ""

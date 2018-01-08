@@ -249,22 +249,22 @@ func webhookHandler(w http.ResponseWriter, r *http.Request) {
 	lib.Printf("WebHook: deploying via `%s`\n", "make install")
 	ctx.ExecFatal = false
 	lib.Printf("WebHook: git checkout %s\n", payload.Branch)
-	err = lib.ExecCommand(&ctx, []string{"git", "checkout", payload.Branch}, nil)
+	_, err = lib.ExecCommand(&ctx, []string{"git", "checkout", payload.Branch}, nil)
 	if checkError(w, err) {
 		return
 	}
 	lib.Printf("WebHook: %s\n", "git pull")
-	err = lib.ExecCommand(&ctx, []string{"git", "pull"}, nil)
+	_, err = lib.ExecCommand(&ctx, []string{"git", "pull"}, nil)
 	if checkError(w, err) {
 		return
 	}
 	lib.Printf("WebHook: %s\n", "make")
-	err = lib.ExecCommand(&ctx, []string{"make"}, nil)
+	_, err = lib.ExecCommand(&ctx, []string{"make"}, nil)
 	if checkError(w, err) {
 		return
 	}
 	lib.Printf("WebHook: %s\n", "make install")
-	err = lib.ExecCommand(&ctx, []string{"make", "install"}, nil)
+	_, err = lib.ExecCommand(&ctx, []string{"make", "install"}, nil)
 	if checkError(w, err) {
 		return
 	}

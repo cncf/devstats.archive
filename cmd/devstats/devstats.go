@@ -72,7 +72,7 @@ func syncAllProjects() bool {
 	// after this it need to update commit files
 	lib.Printf("Updating git repos for all projects\n")
 	dtStart := time.Now()
-	res := lib.ExecCommand(
+	_, res := lib.ExecCommand(
 		&ctx,
 		[]string{
 			cmdPrefix + "get_repos",
@@ -95,7 +95,7 @@ func syncAllProjects() bool {
 		proj := projects.Projects[name]
 		lib.Printf("Syncing #%d %s\n", order, name)
 		dtStart := time.Now()
-		res := lib.ExecCommand(
+		_, res := lib.ExecCommand(
 			&ctx,
 			[]string{
 				cmdPrefix + "gha2db_sync",

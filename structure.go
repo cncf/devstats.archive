@@ -976,6 +976,17 @@ func Structure(ctx *Ctx) {
 					")",
 			),
 		)
+		ExecSQLWithErr(c, ctx, "drop table if exists gha_skip_commits")
+		ExecSQLWithErr(
+			c,
+			ctx,
+			CreateTable(
+				"gha_skip_commits("+
+					"sha varchar(40) not null, "+
+					"primary key(sha)"+
+					")",
+			),
+		)
 	}
 	if ctx.Index {
 		ExecSQLWithErr(c, ctx, "create index commits_files_sha_idx on gha_commits_files(sha)")
@@ -985,6 +996,7 @@ func Structure(ctx *Ctx) {
 		ExecSQLWithErr(c, ctx, "create index commits_files_dup_repo_name_idx on gha_commits_files(dup_repo_name)")
 		ExecSQLWithErr(c, ctx, "create index commits_files_dup_type_idx on gha_commits_files(dup_type)")
 		ExecSQLWithErr(c, ctx, "create index commits_files_dup_created_at_idx on gha_commits_files(dup_created_at)")
+		ExecSQLWithErr(c, ctx, "create index skip_commits_sha_idx on gha_skip_commits(sha)")
 	}
 
 	// This table is a kind of `materialized view` of all texts

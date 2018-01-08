@@ -17,3 +17,11 @@ CREATE INDEX commits_files_dup_type_idx ON gha_commits_files USING btree (dup_ty
 CREATE INDEX commits_files_event_id_idx ON gha_commits_files USING btree (event_id);
 CREATE INDEX commits_files_path_idx ON gha_commits_files USING btree (path);
 CREATE INDEX commits_files_sha_idx ON gha_commits_files USING btree (sha);
+
+CREATE TABLE gha_skip_commits (
+  sha character varying(40) NOT NULL
+);
+ALTER TABLE gha_skip_commits OWNER TO gha_admin;
+ALTER TABLE ONLY gha_skip_commits
+    ADD CONSTRAINT gha_skip_commits_pkey PRIMARY KEY (sha);
+CREATE INDEX skip_commits_sha_idx ON gha_skip_commits USING btree (sha);
