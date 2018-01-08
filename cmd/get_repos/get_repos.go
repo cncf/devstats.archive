@@ -16,8 +16,10 @@ import (
 
 // dbCommits holds all commits for given projec (DB connection)
 type dbCommits struct {
-	shas [][2]string
-	con  *sql.DB
+	shas     []string
+	repos    []string
+	eventIDs []string
+	con      *sql.DB
 }
 
 // dirExists checks if given path exist and if is a directory
@@ -131,17 +133,17 @@ func processRepo(ch chan string, ctx *lib.Ctx, orgRepo, rwd string) {
 		// Clone repo into given directory (from command line)
 		// We cannot chdir because this is a multithreaded app
 		// And all threads share CWD (current working directory)
-		_, res := lib.ExecCommand(
+		_, err := lib.ExecCommand(
 			ctx,
 			[]string{"git", "clone", "https://github.com/" + orgRepo + ".git", rwd},
 			map[string]string{"GIT_TERMINAL_PROMPT": "0"},
 		)
 		dtEnd := time.Now()
-		if res != nil {
+		if err != nil {
 			if ctx.Debug > 0 {
-				lib.Printf("Warning git-clone failed: %s (took %v): %+v\n", orgRepo, dtEnd.Sub(dtStart), res)
+				lib.Printf("Warning git-clone failed: %s (took %v): %+v\n", orgRepo, dtEnd.Sub(dtStart), err)
 			}
-			fmt.Fprintf(os.Stderr, "Warning git-clone failed: %s (took %v): %+v\n", orgRepo, dtEnd.Sub(dtStart), res)
+			fmt.Fprintf(os.Stderr, "Warning git-clone failed: %s (took %v): %+v\n", orgRepo, dtEnd.Sub(dtStart), err)
 			ch <- ""
 			return
 		}
@@ -157,17 +159,17 @@ func processRepo(ch chan string, ctx *lib.Ctx, orgRepo, rwd string) {
 		// Update repo using shell script that uses 'chdir'
 		// We cannot chdir because this is a multithreaded app
 		// And all threads share CWD (current working directory)
-		_, res := lib.ExecCommand(
+		_, err := lib.ExecCommand(
 			ctx,
 			[]string{cmdPrefix + "git_reset_pull.sh", rwd},
 			map[string]string{"GIT_TERMINAL_PROMPT": "0"},
 		)
 		dtEnd := time.Now()
-		if res != nil {
+		if err != nil {
 			if ctx.Debug > 0 {
-				lib.Printf("Warning git_reset_pull.sh failed: %s (took %v): %+v\n", orgRepo, dtEnd.Sub(dtStart), res)
+				lib.Printf("Warning git_reset_pull.sh failed: %s (took %v): %+v\n", orgRepo, dtEnd.Sub(dtStart), err)
 			}
-			fmt.Fprintf(os.Stderr, "Warning git_reset_pull.sh failed: %s (took %v): %+v\n", orgRepo, dtEnd.Sub(dtStart), res)
+			fmt.Fprintf(os.Stderr, "Warning git_reset_pull.sh failed: %s (took %v): %+v\n", orgRepo, dtEnd.Sub(dtStart), err)
 			ch <- ""
 			return
 		}
@@ -304,22 +306,25 @@ func processCommitsDB(ch chan *dbCommits, ctx *lib.Ctx, db, query string) {
 	lib.FatalOnError(err)
 	defer rows.Close()
 	var (
-		sha  string
-		repo string
+		sha     string
+		repo    string
+		eventID string
 	)
 	for rows.Next() {
-		lib.FatalOnError(rows.Scan(&sha, &repo))
-		commits.shas = append(commits.shas, [2]string{repo, sha})
+		lib.FatalOnError(rows.Scan(&sha, &repo, &eventID))
+		commits.shas = append(commits.shas, sha)
+		commits.repos = append(commits.repos, repo)
+		commits.eventIDs = append(commits.eventIDs, eventID)
 	}
 	lib.FatalOnError(rows.Err())
 	dtEnd := time.Now()
-	lib.Printf("Database '%s' processed took %v, commits: %d\n", db, dtEnd.Sub(dtStart), len(commits.shas))
+	lib.Printf("Database '%s' processed took %v, new commits: %d\n", db, dtEnd.Sub(dtStart), len(commits.shas))
 	commits.con = con
 	ch <- &commits
 }
 
 // getCommitFiles get given commit's list of files and saves it in the database
-func getCommitFiles(ch chan bool, ctx *lib.Ctx, con *sql.DB, repo, sha string) {
+func getCommitFiles(ch chan bool, ctx *lib.Ctx, con *sql.DB, repo, sha, eventID string) {
 	// Local or cron mode?
 	cmdPrefix := ""
 	if ctx.Local {
@@ -334,24 +339,48 @@ func getCommitFiles(ch chan bool, ctx *lib.Ctx, con *sql.DB, repo, sha string) {
 	}
 	dtStart := time.Now()
 	rwd := ctx.ReposDir + repo
-	files, res := lib.ExecCommand(
+	filesStr, err := lib.ExecCommand(
 		ctx,
 		[]string{cmdPrefix + "git_files.sh", rwd, sha},
 		map[string]string{"GIT_TERMINAL_PROMPT": "0"},
 	)
 	dtEnd := time.Now()
-	if res != nil {
+	if err != nil {
 		if ctx.Debug > 0 {
-			lib.Printf("Warning git_files.sh failed: %s:%s (took %v): %+v\n", repo, sha, dtEnd.Sub(dtStart), res)
-			fmt.Fprintf(os.Stderr, "Warning git_files.sh failed: %s:%s (took %v): %+v\n", repo, sha, dtEnd.Sub(dtStart), res)
+			lib.Printf("Warning git_files.sh failed: %s:%s (took %v): %+v\n", repo, sha, dtEnd.Sub(dtStart), err)
+			fmt.Fprintf(os.Stderr, "Warning git_files.sh failed: %s:%s (took %v): %+v\n", repo, sha, dtEnd.Sub(dtStart), err)
 		}
+		lib.ExecSQLWithErr(
+			con,
+			ctx,
+			lib.InsertIgnore("into gha_skip_commits(sha) "+lib.NValues(1)),
+			lib.AnyArray{sha}...,
+		)
 		ch <- false
 		return
 	}
-	if ctx.Debug > 0 {
-		lib.Printf("Got %s:%s commits: took %v\nfiles: %v\n", repo, sha, dtEnd.Sub(dtStart), files)
+	files := strings.Split(filesStr, "\n")
+	nFiles := 0
+	for _, file := range files {
+		file = strings.TrimSpace(file)
+		if file == "" {
+			continue
+		}
+		lib.ExecSQLWithErr(
+			con,
+			ctx,
+			lib.InsertIgnore(
+				"into gha_commits_files(sha, event_id, path, dup_repo_id, dup_repo_name, dup_type, dup_created_at) "+
+					"select "+lib.NValue(1)+", id, "+lib.NValue(2)+", repo_id, dup_repo_name, type, created_at "+
+					"from gha_events where id = "+lib.NValue(3),
+			),
+			lib.AnyArray{sha, repo + "/" + file, eventID}...,
+		)
+		nFiles++
 	}
-	//os.Exit(1)
+	if ctx.Debug > 0 {
+		lib.Printf("Got %s:%s commit: %d files: took %v\n", repo, sha, nFiles, dtEnd.Sub(dtStart))
+	}
 	ch <- true
 }
 
@@ -392,7 +421,7 @@ func processCommits(ctx *lib.Ctx, dbs map[string]bool) {
 		allCommits = append(allCommits, commits)
 	}
 	dtEnd := time.Now()
-	lib.Printf("Got commits list: took %v\n", dtEnd.Sub(dtStart))
+	lib.Printf("Got new commits list: took %v\n", dtEnd.Sub(dtStart))
 
 	// Set non-fatal exec mode, we want to run sync for next project(s) if current fails
 	// Also set quite mode, many git-pulls or git-clones can fail and this is not needed to log it to DB
@@ -410,12 +439,12 @@ func processCommits(ctx *lib.Ctx, dbs map[string]bool) {
 	statuses[false] = 0
 	for _, commits := range allCommits {
 		con := commits.con
-		for _, data := range commits.shas {
-			repo := data[0]
-			sha := data[1]
+		for i, sha := range commits.shas {
+			repo := commits.repos[i]
+			eventID := commits.eventIDs[i]
 			ch := make(chan bool)
 			chPool = append(chPool, ch)
-			go getCommitFiles(ch, ctx, con, repo, sha)
+			go getCommitFiles(ch, ctx, con, repo, sha, eventID)
 			if len(chPool) == thrN {
 				ch = chPool[0]
 				statuses[<-ch]++
@@ -429,7 +458,7 @@ func processCommits(ctx *lib.Ctx, dbs map[string]bool) {
 	dtEnd = time.Now()
 	all := statuses[false] + statuses[true]
 	perc := float64(statuses[true]) * 100.0 / (float64(all))
-	lib.Printf("Got %d (%.2f%%) commit files, %d failed, all %d, took %v\n", statuses[true], perc, statuses[false], all, dtEnd.Sub(dtStart))
+	lib.Printf("Got %d (%.2f%%) new commit's files, %d failed, all %d, took %v\n", statuses[true], perc, statuses[false], all, dtEnd.Sub(dtStart))
 }
 
 func main() {
