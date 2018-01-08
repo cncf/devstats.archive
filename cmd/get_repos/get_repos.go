@@ -16,10 +16,9 @@ import (
 
 // dbCommits holds all commits for given projec (DB connection)
 type dbCommits struct {
-	shas     []string
-	repos    []string
-	eventIDs []string
-	con      *sql.DB
+	shas  []string
+	repos []string
+	con   *sql.DB
 }
 
 // dirExists checks if given path exist and if is a directory
@@ -306,15 +305,13 @@ func processCommitsDB(ch chan *dbCommits, ctx *lib.Ctx, db, query string) {
 	lib.FatalOnError(err)
 	defer rows.Close()
 	var (
-		sha     string
-		repo    string
-		eventID string
+		sha  string
+		repo string
 	)
 	for rows.Next() {
-		lib.FatalOnError(rows.Scan(&sha, &repo, &eventID))
+		lib.FatalOnError(rows.Scan(&sha, &repo))
 		commits.shas = append(commits.shas, sha)
 		commits.repos = append(commits.repos, repo)
-		commits.eventIDs = append(commits.eventIDs, eventID)
 	}
 	lib.FatalOnError(rows.Err())
 	dtEnd := time.Now()
@@ -324,7 +321,7 @@ func processCommitsDB(ch chan *dbCommits, ctx *lib.Ctx, db, query string) {
 }
 
 // getCommitFiles get given commit's list of files and saves it in the database
-func getCommitFiles(ch chan bool, ctx *lib.Ctx, con *sql.DB, repo, sha, eventID string) {
+func getCommitFiles(ch chan bool, ctx *lib.Ctx, con *sql.DB, repo, sha string) {
 	// Local or cron mode?
 	cmdPrefix := ""
 	if ctx.Local {
@@ -369,14 +366,22 @@ func getCommitFiles(ch chan bool, ctx *lib.Ctx, con *sql.DB, repo, sha, eventID 
 		lib.ExecSQLWithErr(
 			con,
 			ctx,
-			lib.InsertIgnore(
-				"into gha_commits_files(sha, event_id, path, dup_repo_id, dup_repo_name, dup_type, dup_created_at) "+
-					"select "+lib.NValue(1)+", id, "+lib.NValue(2)+", repo_id, dup_repo_name, type, created_at "+
-					"from gha_events where id = "+lib.NValue(3),
-			),
-			lib.AnyArray{sha, repo + "/" + file, eventID}...,
+			lib.InsertIgnore("into gha_commits_files(sha, path) "+lib.NValues(2)),
+			lib.AnyArray{sha, file}...,
 		)
 		nFiles++
+	}
+	// Some commits have no files (for example only renames)
+	// Mark them as skipped not to process again
+	if nFiles == 0 {
+		lib.ExecSQLWithErr(
+			con,
+			ctx,
+			lib.InsertIgnore("into gha_skip_commits(sha) "+lib.NValues(1)),
+			lib.AnyArray{sha}...,
+		)
+		ch <- true
+		return
 	}
 	if ctx.Debug > 0 {
 		lib.Printf("Got %s:%s commit: %d files: took %v\n", repo, sha, nFiles, dtEnd.Sub(dtStart))
@@ -441,10 +446,9 @@ func processCommits(ctx *lib.Ctx, dbs map[string]bool) {
 		con := commits.con
 		for i, sha := range commits.shas {
 			repo := commits.repos[i]
-			eventID := commits.eventIDs[i]
 			ch := make(chan bool)
 			chPool = append(chPool, ch)
-			go getCommitFiles(ch, ctx, con, repo, sha, eventID)
+			go getCommitFiles(ch, ctx, con, repo, sha)
 			if len(chPool) == thrN {
 				ch = chPool[0]
 				statuses[<-ch]++
@@ -457,7 +461,10 @@ func processCommits(ctx *lib.Ctx, dbs map[string]bool) {
 	}
 	dtEnd = time.Now()
 	all := statuses[false] + statuses[true]
-	perc := float64(statuses[true]) * 100.0 / (float64(all))
+	perc := 0.0
+	if all > 0 {
+		perc = float64(statuses[true]) * 100.0 / (float64(all))
+	}
 	lib.Printf("Got %d (%.2f%%) new commit's files, %d failed, all %d, took %v\n", statuses[true], perc, statuses[false], all, dtEnd.Sub(dtStart))
 }
 

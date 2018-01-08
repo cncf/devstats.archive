@@ -179,12 +179,7 @@ ALTER TABLE gha_commits OWNER TO gha_admin;
 
 CREATE TABLE gha_commits_files (
     sha character varying(40) NOT NULL,
-    event_id bigint NOT NULL,
-    path text NOT NULL,
-    dup_repo_id bigint NOT NULL,
-    dup_repo_name character varying(160) NOT NULL,
-    dup_type character varying(40) NOT NULL,
-    dup_created_at timestamp without time zone NOT NULL
+    path text NOT NULL
 );
 
 
@@ -220,6 +215,23 @@ CREATE TABLE gha_events (
 
 
 ALTER TABLE gha_events OWNER TO gha_admin;
+
+--
+-- Name: gha_events_commits_files; Type: TABLE; Schema: public; Owner: gha_admin
+--
+
+CREATE TABLE gha_events_commits_files (
+    sha character varying(40) NOT NULL,
+    event_id bigint NOT NULL,
+    path text NOT NULL,
+    dup_repo_id bigint NOT NULL,
+    dup_repo_name character varying(160) NOT NULL,
+    dup_type character varying(40) NOT NULL,
+    dup_created_at timestamp without time zone NOT NULL
+);
+
+
+ALTER TABLE gha_events_commits_files OWNER TO gha_admin;
 
 --
 -- Name: gha_forkees; Type: TABLE; Schema: public; Owner: gha_admin
@@ -768,7 +780,7 @@ ALTER TABLE ONLY gha_comments
 --
 
 ALTER TABLE ONLY gha_commits_files
-    ADD CONSTRAINT gha_commits_files_pkey PRIMARY KEY (sha, event_id, path);
+    ADD CONSTRAINT gha_commits_files_pkey PRIMARY KEY (sha, path);
 
 
 --
@@ -785,6 +797,14 @@ ALTER TABLE ONLY gha_commits
 
 ALTER TABLE ONLY gha_companies
     ADD CONSTRAINT gha_companies_pkey PRIMARY KEY (name);
+
+
+--
+-- Name: gha_events_commits_files gha_events_commits_files_pkey; Type: CONSTRAINT; Schema: public; Owner: gha_admin
+--
+
+ALTER TABLE ONLY gha_events_commits_files
+    ADD CONSTRAINT gha_events_commits_files_pkey PRIMARY KEY (sha, event_id, path);
 
 
 --
@@ -1270,41 +1290,6 @@ CREATE INDEX commits_event_id_idx ON gha_commits USING btree (event_id);
 
 
 --
--- Name: commits_files_dup_created_at_idx; Type: INDEX; Schema: public; Owner: gha_admin
---
-
-CREATE INDEX commits_files_dup_created_at_idx ON gha_commits_files USING btree (dup_created_at);
-
-
---
--- Name: commits_files_dup_repo_id_idx; Type: INDEX; Schema: public; Owner: gha_admin
---
-
-CREATE INDEX commits_files_dup_repo_id_idx ON gha_commits_files USING btree (dup_repo_id);
-
-
---
--- Name: commits_files_dup_repo_name_idx; Type: INDEX; Schema: public; Owner: gha_admin
---
-
-CREATE INDEX commits_files_dup_repo_name_idx ON gha_commits_files USING btree (dup_repo_name);
-
-
---
--- Name: commits_files_dup_type_idx; Type: INDEX; Schema: public; Owner: gha_admin
---
-
-CREATE INDEX commits_files_dup_type_idx ON gha_commits_files USING btree (dup_type);
-
-
---
--- Name: commits_files_event_id_idx; Type: INDEX; Schema: public; Owner: gha_admin
---
-
-CREATE INDEX commits_files_event_id_idx ON gha_commits_files USING btree (event_id);
-
-
---
 -- Name: commits_files_path_idx; Type: INDEX; Schema: public; Owner: gha_admin
 --
 
@@ -1323,6 +1308,55 @@ CREATE INDEX commits_files_sha_idx ON gha_commits_files USING btree (sha);
 --
 
 CREATE INDEX events_actor_id_idx ON gha_events USING btree (actor_id);
+
+
+--
+-- Name: events_commits_files_dup_created_at_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX events_commits_files_dup_created_at_idx ON gha_events_commits_files USING btree (dup_created_at);
+
+
+--
+-- Name: events_commits_files_dup_repo_id_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX events_commits_files_dup_repo_id_idx ON gha_events_commits_files USING btree (dup_repo_id);
+
+
+--
+-- Name: events_commits_files_dup_repo_name_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX events_commits_files_dup_repo_name_idx ON gha_events_commits_files USING btree (dup_repo_name);
+
+
+--
+-- Name: events_commits_files_dup_type_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX events_commits_files_dup_type_idx ON gha_events_commits_files USING btree (dup_type);
+
+
+--
+-- Name: events_commits_files_event_id_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX events_commits_files_event_id_idx ON gha_events_commits_files USING btree (event_id);
+
+
+--
+-- Name: events_commits_files_path_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX events_commits_files_path_idx ON gha_events_commits_files USING btree (path);
+
+
+--
+-- Name: events_commits_files_sha_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX events_commits_files_sha_idx ON gha_events_commits_files USING btree (sha);
 
 
 --

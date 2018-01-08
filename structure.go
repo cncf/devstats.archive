@@ -966,6 +966,18 @@ func Structure(ctx *Ctx) {
 			CreateTable(
 				"gha_commits_files("+
 					"sha varchar(40) not null, "+
+					"path text not null, "+
+					"primary key(sha, path)"+
+					")",
+			),
+		)
+		ExecSQLWithErr(c, ctx, "drop table if exists gha_events_commits_files")
+		ExecSQLWithErr(
+			c,
+			ctx,
+			CreateTable(
+				"gha_events_commits_files("+
+					"sha varchar(40) not null, "+
 					"event_id bigint not null, "+
 					"path text not null, "+
 					"dup_repo_id bigint not null, "+
@@ -990,12 +1002,14 @@ func Structure(ctx *Ctx) {
 	}
 	if ctx.Index {
 		ExecSQLWithErr(c, ctx, "create index commits_files_sha_idx on gha_commits_files(sha)")
-		ExecSQLWithErr(c, ctx, "create index commits_files_event_id_idx on gha_commits_files(event_id)")
 		ExecSQLWithErr(c, ctx, "create index commits_files_path_idx on gha_commits_files(path)")
-		ExecSQLWithErr(c, ctx, "create index commits_files_dup_repo_id_idx on gha_commits_files(dup_repo_id)")
-		ExecSQLWithErr(c, ctx, "create index commits_files_dup_repo_name_idx on gha_commits_files(dup_repo_name)")
-		ExecSQLWithErr(c, ctx, "create index commits_files_dup_type_idx on gha_commits_files(dup_type)")
-		ExecSQLWithErr(c, ctx, "create index commits_files_dup_created_at_idx on gha_commits_files(dup_created_at)")
+		ExecSQLWithErr(c, ctx, "create index events_commits_files_sha_idx on gha_events_commits_files(sha)")
+		ExecSQLWithErr(c, ctx, "create index events_commits_files_event_id_idx on gha_events_commits_files(event_id)")
+		ExecSQLWithErr(c, ctx, "create index events_commits_files_path_idx on gha_events_commits_files(path)")
+		ExecSQLWithErr(c, ctx, "create index events_commits_files_dup_repo_id_idx on gha_events_commits_files(dup_repo_id)")
+		ExecSQLWithErr(c, ctx, "create index events_commits_files_dup_repo_name_idx on gha_events_commits_files(dup_repo_name)")
+		ExecSQLWithErr(c, ctx, "create index events_commits_files_dup_type_idx on gha_events_commits_files(dup_type)")
+		ExecSQLWithErr(c, ctx, "create index events_commits_files_dup_created_at_idx on gha_events_commits_files(dup_created_at)")
 		ExecSQLWithErr(c, ctx, "create index skip_commits_sha_idx on gha_skip_commits(sha)")
 	}
 

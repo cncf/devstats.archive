@@ -262,7 +262,9 @@ List of tables:
 - `gha_comments`: variable (issue, PR, review)
 - `gha_commits`: variable, commits
 - `gha_commits_files`: const, commit files (uses `git` to get each commit's list of files)
-- `gha_companies`: const, companies, this is filled by `./import_affs` tool.
+- `gha_events_commits_files`: variable, commit files per event with additional event data
+- `gha_skip_commits`: const, store invalid SHAs, to skip processing them again
+- `gha_companies`: const, companies, this is filled by `./import_affs` tool
 - `gha_events`: const, single GitHub archive event
 - `gha_forkees`: variable, forkee, repo state
 - `gha_issues`: variable, issues
