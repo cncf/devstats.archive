@@ -11,6 +11,7 @@ CREATE TABLE gha_events_commits_files (
     sha character varying(40) NOT NULL,
     event_id bigint NOT NULL,
     path text NOT NULL,
+    repo_group character varying(80),
     dup_repo_id bigint NOT NULL,
     dup_repo_name character varying(160) NOT NULL,
     dup_type character varying(40) NOT NULL,
@@ -24,6 +25,7 @@ CREATE INDEX events_commits_files_dup_repo_name_idx ON gha_events_commits_files 
 CREATE INDEX events_commits_files_dup_type_idx ON gha_events_commits_files USING btree (dup_type);
 CREATE INDEX events_commits_files_event_id_idx ON gha_events_commits_files USING btree (event_id);
 CREATE INDEX events_commits_files_path_idx ON gha_events_commits_files USING btree (path);
+CREATE INDEX events_commits_files_repo_group_idx ON gha_events_commits_files USING btree (repo_group);
 CREATE INDEX events_commits_files_sha_idx ON gha_events_commits_files USING btree (sha);
 
 CREATE TABLE gha_skip_commits (
