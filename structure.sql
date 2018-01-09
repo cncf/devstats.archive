@@ -528,6 +528,18 @@ CREATE TABLE gha_payloads (
 ALTER TABLE gha_payloads OWNER TO gha_admin;
 
 --
+-- Name: gha_postprocess_scripts; Type: TABLE; Schema: public; Owner: gha_admin
+--
+
+CREATE TABLE gha_postprocess_scripts (
+    ord integer NOT NULL,
+    path text NOT NULL
+);
+
+
+ALTER TABLE gha_postprocess_scripts OWNER TO gha_admin;
+
+--
 -- Name: gha_pull_requests; Type: TABLE; Schema: public; Owner: gha_admin
 --
 
@@ -894,6 +906,14 @@ ALTER TABLE ONLY gha_pages
 
 ALTER TABLE ONLY gha_payloads
     ADD CONSTRAINT gha_payloads_pkey PRIMARY KEY (event_id);
+
+
+--
+-- Name: gha_postprocess_scripts gha_postprocess_scripts_pkey; Type: CONSTRAINT; Schema: public; Owner: gha_admin
+--
+
+ALTER TABLE ONLY gha_postprocess_scripts
+    ADD CONSTRAINT gha_postprocess_scripts_pkey PRIMARY KEY (ord, path);
 
 
 --

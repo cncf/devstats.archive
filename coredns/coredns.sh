@@ -11,4 +11,5 @@ GHA2DB_PROJECT=coredns IDB_DB=coredns PG_DB=coredns GHA2DB_LOCAL=1 GHA2DB_MGETC=
 ./grafana/influxdb_recreate.sh coredns
 ./coredns/setup_repo_groups.sh 2>>errors.txt | tee -a run.log || exit 6
 ./coredns/import_affs.sh 2>>errors.txt | tee -a run.log || exit 7
+./coredns/setup_scripts.sh 2>>errors.txt | tee -a run.log || exit 8
 echo "All done. You should run ./coredns/reinit.sh script now."

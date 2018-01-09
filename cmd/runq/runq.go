@@ -1,7 +1,6 @@
 package main
 
 import (
-	"database/sql"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -80,7 +79,7 @@ func runq(sqlFile string, params []string) {
 	// Vals to hold any type as []interface{}
 	vals := make([]interface{}, len(columns))
 	for i := range columns {
-		vals[i] = new(sql.RawBytes)
+		vals[i] = new([]byte)
 	}
 
 	// Get results into `results` array of maps
@@ -92,7 +91,7 @@ func runq(sqlFile string, params []string) {
 		for index, val := range vals {
 			value := ""
 			if val != nil {
-				value = string(*val.(*sql.RawBytes))
+				value = string(*val.(*[]byte))
 			}
 			rowMap[columns[index]] = value
 		}
