@@ -34,3 +34,10 @@ CREATE TABLE gha_skip_commits (
 ALTER TABLE gha_skip_commits OWNER TO gha_admin;
 ALTER TABLE ONLY gha_skip_commits ADD CONSTRAINT gha_skip_commits_pkey PRIMARY KEY (sha);
 CREATE INDEX skip_commits_sha_idx ON gha_skip_commits USING btree (sha);
+
+CREATE TABLE gha_postprocess_scripts (
+  ord integer NOT NULL,
+  path text NOT NULL
+);
+ALTER TABLE gha_postprocess_scripts OWNER TO gha_admin;
+ALTER TABLE ONLY gha_postprocess_scripts ADD CONSTRAINT gha_postprocess_scripts_pkey PRIMARY KEY (ord, path);

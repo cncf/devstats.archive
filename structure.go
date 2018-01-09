@@ -1,6 +1,9 @@
 package devstats
 
-import "fmt"
+import (
+	"io/ioutil"
+	"time"
+)
 
 // Structure creates full database structure, indexes, views/summary tables etc
 func Structure(ctx *Ctx) {
@@ -1015,6 +1018,22 @@ func Structure(ctx *Ctx) {
 		ExecSQLWithErr(c, ctx, "create index skip_commits_sha_idx on gha_skip_commits(sha)")
 	}
 
+	// Scripts to run on a given database
+	if ctx.Table {
+		ExecSQLWithErr(c, ctx, "drop table if exists gha_postprocess_scripts")
+		ExecSQLWithErr(
+			c,
+			ctx,
+			CreateTable(
+				"gha_postprocess_scripts("+
+					"ord int not null, "+
+					"path text not null, "+
+					"primary key(ord, path)"+
+					")",
+			),
+		)
+	}
+
 	// This table is a kind of `materialized view` of all texts
 	if ctx.Table {
 		ExecSQLWithErr(c, ctx, "drop table if exists gha_texts")
@@ -1129,66 +1148,32 @@ func Structure(ctx *Ctx) {
 		ExecSQLWithErr(c, ctx, "create index issues_pull_requests_repo_name_idx on gha_issues_pull_requests(repo_name)")
 		ExecSQLWithErr(c, ctx, "create index issues_pull_requests_created_at_idx on gha_issues_pull_requests(created_at)")
 	}
-	// Foreign keys are not needed - they slow down processing a lweek
+	// Foreign keys are not needed - they slow down processing a lot
 
 	// Tools (like views and functions needed for generating metrics)
 	if ctx.Tools {
-		// Get max event_id from gha_texts
-		maxEventID := -0x8000000000000000
-		FatalOnError(QueryRowSQL(c, ctx, "select coalesce(max(event_id), -9223372036854775808) from gha_texts").Scan(&maxEventID))
-		sql := fmt.Sprintf(
-			"insert into gha_texts(event_id, body, created_at, repo_id, repo_name, actor_id, actor_login, type) "+
-				"select event_id, body, created_at, dup_repo_id, dup_repo_name, dup_actor_id, dup_actor_login, dup_type from gha_comments "+
-				"where body != '' and event_id > %v union "+
-				"select event_id, message, dup_created_at, dup_repo_id, dup_repo_name, dup_actor_id, dup_actor_login, dup_type from gha_commits "+
-				"where message != '' and event_id > %v union "+
-				"select event_id, title, created_at, dup_repo_id, dup_repo_name, dup_actor_id, dup_actor_login, dup_type from gha_issues where "+
-				"title != '' and event_id > %v union "+
-				"select event_id, body, created_at, dup_repo_id, dup_repo_name, dup_actor_id, dup_actor_login, dup_type from gha_issues where "+
-				"body != '' and event_id > %v union "+
-				"select event_id, title, created_at, dup_repo_id, dup_repo_name, dup_actor_id, dup_actor_login, dup_type from gha_pull_requests where "+
-				"title != '' and event_id > %v union "+
-				"select event_id, body, created_at, dup_repo_id, dup_repo_name, dup_actor_id, dup_actor_login, dup_type from gha_pull_requests "+
-				"where body != '' and event_id > %v",
-			maxEventID, maxEventID, maxEventID, maxEventID, maxEventID, maxEventID,
-		)
-		// Add texts to gha_texts table (or fill it initially)
-		ExecSQLWithErr(c, ctx, sql)
-
-		// Get max event_id from gha_issues_events_labels
-		FatalOnError(QueryRowSQL(c, ctx, "select coalesce(max(event_id), -9223372036854775808) from gha_issues_events_labels").Scan(&maxEventID))
-
-		// Add data to gha_issues_events_labels table (or fill it initially)
-		sql = fmt.Sprintf(
-			"insert into gha_issues_events_labels("+
-				"issue_id, event_id, label_id, label_name, created_at, repo_id, repo_name, actor_id, actor_login, type, issue_number) "+
-				"select il.issue_id, il.event_id, lb.id, lb.name, il.dup_created_at, "+
-				"il.dup_repo_id, il.dup_repo_name, il.dup_actor_id, il.dup_actor_login, il.dup_type, il.dup_issue_number "+
-				"from gha_issues_labels il, gha_labels lb "+
-				"where il.label_id = lb.id and il.event_id > %v",
-			maxEventID,
-		)
-		// Add Issues Events Labels
-		ExecSQLWithErr(c, ctx, sql)
-
-		// Get max issue_id & pull_request_id from gha_issues_pull_requests
-		// Minimum possible signed int 64 value
-		maxIssueID := -0x8000000000000000
-		maxPRID := -0x8000000000000000
-		FatalOnError(QueryRowSQL(c, ctx, "select coalesce(max(issue_id), -9223372036854775808) from gha_issues_pull_requests").Scan(&maxIssueID))
-		FatalOnError(QueryRowSQL(c, ctx, "select coalesce(max(pull_request_id), -9223372036854775808) from gha_issues_pull_requests").Scan(&maxPRID))
-
-		// Add data to gha_issues_pull_requests table (or fill it initially)
-		sql = fmt.Sprintf(
-			"insert into gha_issues_pull_requests("+
-				"issue_id, pull_request_id, number, repo_id, repo_name, created_at) "+
-				"select distinct i.id, pr.id, i.number, i.dup_repo_id, i.dup_repo_name, pr.created_at "+
-				"from gha_issues i, gha_pull_requests pr where i.number = pr.number and i.dup_repo_id = pr.dup_repo_id "+
-				"and i.id > %v and pr.id > %v",
-			maxIssueID,
-			maxPRID,
-		)
-		// Insert connected PRs and Issues
-		ExecSQLWithErr(c, ctx, sql)
+		// Local or cron mode?
+		dataPrefix := DataDir
+		if ctx.Local {
+			dataPrefix = "./"
+		}
+		// Get list of script files
+		rows, err := c.Query("select path from gha_postprocess_scripts order by ord")
+		defer rows.Close()
+		FatalOnError(err)
+		script := ""
+		for rows.Next() {
+			dtStart := time.Now()
+			FatalOnError(rows.Scan(&script))
+			bytes, err := ioutil.ReadFile(dataPrefix + script)
+			FatalOnError(err)
+			sql := string(bytes)
+		  ExecSQLWithErr(c, ctx, sql)
+			if ctx.Debug > 0 {
+				dtEnd := time.Now()
+				Printf("Executed script: %s: took %v\n", script, dtEnd.Sub(dtStart))
+			}
+		}
+		FatalOnError(rows.Err())
 	}
 }
