@@ -1168,7 +1168,7 @@ func Structure(ctx *Ctx) {
 			bytes, err := ioutil.ReadFile(dataPrefix + script)
 			FatalOnError(err)
 			sql := string(bytes)
-		  ExecSQLWithErr(c, ctx, sql)
+			ExecSQLWithErr(c, ctx, sql)
 			if ctx.Debug > 0 {
 				dtEnd := time.Now()
 				Printf("Executed script: %s: took %v\n", script, dtEnd.Sub(dtStart))
