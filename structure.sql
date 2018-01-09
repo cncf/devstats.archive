@@ -224,6 +224,7 @@ CREATE TABLE gha_events_commits_files (
     sha character varying(40) NOT NULL,
     event_id bigint NOT NULL,
     path text NOT NULL,
+    repo_group character varying(80),
     dup_repo_id bigint NOT NULL,
     dup_repo_name character varying(160) NOT NULL,
     dup_type character varying(40) NOT NULL,
@@ -1350,6 +1351,13 @@ CREATE INDEX events_commits_files_event_id_idx ON gha_events_commits_files USING
 --
 
 CREATE INDEX events_commits_files_path_idx ON gha_events_commits_files USING btree (path);
+
+
+--
+-- Name: events_commits_files_repo_group_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX events_commits_files_repo_group_idx ON gha_events_commits_files USING btree (repo_group);
 
 
 --

@@ -348,6 +348,24 @@ func sync(ctx *lib.Ctx, args []string) {
 		)
 		lib.FatalOnError(err)
 
+		// Only run commits analysis for current DB here
+		// We have updated repos to the newest state as 1st step in "devstats" call
+		// We have also fetched all data from current GHA hour using "gha2db"
+		// Now let's update new commits files (from newest hour)
+		lib.Printf("Update git commits\n")
+		_, err = lib.ExecCommand(
+			ctx,
+			[]string{
+				cmdPrefix + "get_repos",
+			},
+			map[string]string{
+				"GHA2DB_PROCESS_COMMITS":  "1",
+				"GHA2DB_PROJECTS_COMMITS": ctx.Project,
+			},
+		)
+		lib.FatalOnError(err)
+
+		// Eventual postprocess SQL's from 'structure' call
 		lib.Printf("Update structure\n")
 		// Recompute views and DB summaries
 		_, err = lib.ExecCommand(
@@ -358,23 +376,6 @@ func sync(ctx *lib.Ctx, args []string) {
 			map[string]string{
 				"GHA2DB_SKIPTABLE": "1",
 				"GHA2DB_MGETC":     "y",
-			},
-		)
-		lib.FatalOnError(err)
-
-		// Only run commits analysis for current DB here
-		// We have updated repos to the newest state as 1st step in "devstats" call
-		// We have also fetched all data from current GHA hour using "gha2db"
-		// "structure" updated simple tables, so now let's update new commits files (from newest hour)
-		lib.Printf("Update git commits\n")
-		_, err = lib.ExecCommand(
-			ctx,
-			[]string{
-				cmdPrefix + "get_repos",
-			},
-			map[string]string{
-				"GHA2DB_PROCESS_COMMITS":  "1",
-				"GHA2DB_PROJECTS_COMMITS": ctx.Project,
 			},
 		)
 		lib.FatalOnError(err)

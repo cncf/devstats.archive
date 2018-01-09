@@ -980,6 +980,7 @@ func Structure(ctx *Ctx) {
 					"sha varchar(40) not null, "+
 					"event_id bigint not null, "+
 					"path text not null, "+
+					"repo_group varchar(80), "+
 					"dup_repo_id bigint not null, "+
 					"dup_repo_name varchar(160) not null, "+
 					"dup_type varchar(40) not null, "+
@@ -1006,6 +1007,7 @@ func Structure(ctx *Ctx) {
 		ExecSQLWithErr(c, ctx, "create index events_commits_files_sha_idx on gha_events_commits_files(sha)")
 		ExecSQLWithErr(c, ctx, "create index events_commits_files_event_id_idx on gha_events_commits_files(event_id)")
 		ExecSQLWithErr(c, ctx, "create index events_commits_files_path_idx on gha_events_commits_files(path)")
+		ExecSQLWithErr(c, ctx, "create index events_commits_files_repo_group_idx on gha_events_commits_files(repo_group)")
 		ExecSQLWithErr(c, ctx, "create index events_commits_files_dup_repo_id_idx on gha_events_commits_files(dup_repo_id)")
 		ExecSQLWithErr(c, ctx, "create index events_commits_files_dup_repo_name_idx on gha_events_commits_files(dup_repo_name)")
 		ExecSQLWithErr(c, ctx, "create index events_commits_files_dup_type_idx on gha_events_commits_files(dup_type)")
