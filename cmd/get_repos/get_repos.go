@@ -363,6 +363,9 @@ func getCommitFiles(ch chan bool, ctx *lib.Ctx, con *sql.DB, repo, sha string) {
 	for i, data := range files {
 		if i == 0 {
 			unixTimeStamp, err := strconv.ParseInt(data, 10, 64)
+			if err != nil {
+				lib.Printf("Invalid time returned for repo: %s, sha: %s: '%s'\n", repo, sha, data)
+			}
 			lib.FatalOnError(err)
 			commitDate = time.Unix(unixTimeStamp, 0)
 			// fmt.Printf("unixTimeStamp: %v, commitDate: %v\n", unixTimeStamp, commitDate)
@@ -372,9 +375,10 @@ func getCommitFiles(ch chan bool, ctx *lib.Ctx, con *sql.DB, repo, sha string) {
 		if fileData == "" {
 			continue
 		}
-		fileDataAry := strings.Split(fileData, ",")
+		// Use '♂♀' separator to avoid any character that can appear inside file name
+		fileDataAry := strings.Split(fileData, "♂♀")
 		if len(fileDataAry) != 2 {
-			lib.FatalOnError(fmt.Errorf("invalid fileData returned: %s", fileData))
+			lib.FatalOnError(fmt.Errorf("invalid fileData returned for repo: %s, sha: %s: '%s'", repo, sha, fileData))
 		}
 		fileName := fileDataAry[0]
 		// fileSize can be:
