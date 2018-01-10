@@ -365,6 +365,7 @@ func getCommitFiles(ch chan bool, ctx *lib.Ctx, con *sql.DB, repo, sha string) {
 			unixTimeStamp, err := strconv.ParseInt(data, 10, 64)
 			lib.FatalOnError(err)
 			commitDate = time.Unix(unixTimeStamp, 0)
+			// fmt.Printf("unixTimeStamp: %v, commitDate: %v\n", unixTimeStamp, commitDate)
 			continue
 		}
 		fileData := strings.TrimSpace(data)
@@ -376,7 +377,16 @@ func getCommitFiles(ch chan bool, ctx *lib.Ctx, con *sql.DB, repo, sha string) {
 			lib.FatalOnError(fmt.Errorf("invalid fileData returned: %s", fileData))
 		}
 		fileName := fileDataAry[0]
-		fileSize := fileDataAry[1]
+		// fileSize can be:
+		// > 0 - normal file size
+		// 0 - file created - no contenets
+		// -1 - file referenced in the commit SHA but not found in this commit (means deleted)
+		// -2 - file size returned as "-" from git ls-tree - means some special file, directory
+		fileSize, err := strconv.ParseInt(fileDataAry[1], 10, 64)
+		if err != nil {
+			fileSize = -2
+		}
+		// fmt.Printf("repo: %v, sha: %v, fileData: %v, fileDataAry: %v, fileName: %v, fileSize: %v\n", repo, sha, fileData, fileDataAry, fileName, fileSize)
 		lib.ExecSQLWithErr(
 			con,
 			ctx,
