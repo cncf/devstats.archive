@@ -380,6 +380,9 @@ func getCommitFiles(ch chan int, ctx *lib.Ctx, con *sql.DB, repo, sha string) {
 		if fileData == "" {
 			continue
 		}
+		if strings.HasPrefix(data, "vendor/") {
+			continue
+		}
 		// Use '♂♀' separator to avoid any character that can appear inside file name
 		fileDataAry := strings.Split(fileData, "♂♀")
 		if len(fileDataAry) != 2 {
