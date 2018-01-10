@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"os"
 	"sort"
+	"strconv"
 	"strings"
 	"time"
 
@@ -358,16 +359,29 @@ func getCommitFiles(ch chan bool, ctx *lib.Ctx, con *sql.DB, repo, sha string) {
 	}
 	files := strings.Split(filesStr, "\n")
 	nFiles := 0
-	for _, file := range files {
-		file = strings.TrimSpace(file)
-		if file == "" {
+	var commitDate time.Time
+	for i, data := range files {
+		if i == 0 {
+			unixTimeStamp, err := strconv.ParseInt(data, 10, 64)
+			lib.FatalOnError(err)
+			commitDate = time.Unix(unixTimeStamp, 0)
 			continue
 		}
+		fileData := strings.TrimSpace(data)
+		if fileData == "" {
+			continue
+		}
+		fileDataAry := strings.Split(fileData, ",")
+		if len(fileDataAry) != 2 {
+			lib.FatalOnError(fmt.Errorf("invalid fileData returned: %s", fileData))
+		}
+		fileName := fileDataAry[0]
+		fileSize := fileDataAry[1]
 		lib.ExecSQLWithErr(
 			con,
 			ctx,
-			lib.InsertIgnore("into gha_commits_files(sha, path) "+lib.NValues(2)),
-			lib.AnyArray{sha, file}...,
+			lib.InsertIgnore("into gha_commits_files(sha, dt, path, size) "+lib.NValues(4)),
+			lib.AnyArray{sha, commitDate, fileName, fileSize}...,
 		)
 		nFiles++
 	}
