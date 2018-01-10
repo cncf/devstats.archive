@@ -7,3 +7,4 @@ sudo -u postgres psql linkerd < util_sql/tables_commits_files.sql
 sudo -u postgres psql grpc < util_sql/tables_commits_files.sql
 sudo -u postgres psql coredns < util_sql/tables_commits_files.sql
 sudo -u postgres psql containerd < util_sql/tables_commits_files.sql
+sudo -u postgres psql cncf < util_sql/tables_commits_files.sql
