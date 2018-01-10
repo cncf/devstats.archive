@@ -207,7 +207,13 @@ func processRepos(ctx *lib.Ctx, allRepos map[string][]string) {
 	thrN := lib.GetThreadsNum(ctx)
 	chanPool := []chan string{}
 	allOkRepos := []string{}
+	// Count all data
 	checked := 0
+	allN := 0
+	lastTime := time.Now()
+	for _, repos := range allRepos {
+		allN += len(repos)
+	}
 	// Iterate orgs
 	for org, repos := range allRepos {
 		// Go to current 'org' subdirectory
@@ -232,7 +238,6 @@ func processRepos(ctx *lib.Ctx, allRepos map[string][]string) {
 			repo := ary[1]
 			rwd := owd + "/" + repo
 			go processRepo(ch, ctx, orgRepo, rwd)
-			checked++
 			if len(chanPool) == thrN {
 				ch = chanPool[0]
 				res := <-ch
@@ -240,6 +245,8 @@ func processRepos(ctx *lib.Ctx, allRepos map[string][]string) {
 				if res != "" {
 					allOkRepos = append(allOkRepos, res)
 				}
+				checked++
+				lib.ProgressInfo(checked, allN, &lastTime, time.Duration(10)*time.Second, orgRepo)
 			}
 		}
 	}
@@ -248,6 +255,8 @@ func processRepos(ctx *lib.Ctx, allRepos map[string][]string) {
 		if res != "" {
 			allOkRepos = append(allOkRepos, res)
 		}
+		checked++
+		lib.ProgressInfo(checked, allN, &lastTime, time.Duration(10)*time.Second, "final join...")
 	}
 
 	// Output all repos as ruby object & Final cncf/gitdm command to generate concatenated git.log
@@ -480,6 +489,14 @@ func processCommits(ctx *lib.Ctx, dbs map[string]bool) {
 	statuses[-1] = 0
 	statuses[0] = 0
 	statuses[1] = 0
+	lastTime := time.Now()
+	allN := 0
+	checked := 0
+	// Count all commits
+	for _, commits := range allCommits {
+		allN += len(commits.shas)
+	}
+	// process all commits
 	for _, commits := range allCommits {
 		con := commits.con
 		for i, sha := range commits.shas {
@@ -491,11 +508,15 @@ func processCommits(ctx *lib.Ctx, dbs map[string]bool) {
 				ch = chPool[0]
 				statuses[<-ch]++
 				chPool = chPool[1:]
+				checked++
+				lib.ProgressInfo(checked, allN, &lastTime, time.Duration(10)*time.Second, repo)
 			}
 		}
 	}
 	for _, ch := range chPool {
 		statuses[<-ch]++
+		checked++
+		lib.ProgressInfo(checked, allN, &lastTime, time.Duration(10)*time.Second, "final join...")
 	}
 	dtEnd = time.Now()
 	all := statuses[-1] + statuses[0] + statuses[1]

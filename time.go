@@ -8,6 +8,24 @@ import (
 	"time"
 )
 
+// ProgressInfo display info about progress: i/n if current time >= last + period
+// If displayed info, update last
+func ProgressInfo(i, n int, last *time.Time, period time.Duration, msg string) {
+	now := time.Now()
+	if last.Add(period).Before(now) {
+		perc := 0.0
+		if n > 0 {
+			perc = (float64(i) * 100.0) / float64(n)
+		}
+		if msg != "" {
+			Printf("%d/%d (%.3f%%): %s\n", i, n, perc, msg)
+		} else {
+			Printf("%d/%d (%f.3%%)\n", i, n, perc)
+		}
+		*last = now
+	}
+}
+
 // ComputePeriodAtThisDate - for some longer periods, only recalculate them on specific dates
 // hourly period is always calculated
 // daily period is always calculated
