@@ -179,7 +179,9 @@ ALTER TABLE gha_commits OWNER TO gha_admin;
 
 CREATE TABLE gha_commits_files (
     sha character varying(40) NOT NULL,
-    path text NOT NULL
+    path text NOT NULL,
+    size bigint NOT NULL,
+    dt timestamp without time zone NOT NULL
 );
 
 
@@ -224,6 +226,8 @@ CREATE TABLE gha_events_commits_files (
     sha character varying(40) NOT NULL,
     event_id bigint NOT NULL,
     path text NOT NULL,
+    size bigint NOT NULL,
+    dt timestamp without time zone NOT NULL,
     repo_group character varying(80),
     dup_repo_id bigint NOT NULL,
     dup_repo_name character varying(160) NOT NULL,
@@ -1311,6 +1315,13 @@ CREATE INDEX commits_event_id_idx ON gha_commits USING btree (event_id);
 
 
 --
+-- Name: commits_files_dt_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX commits_files_dt_idx ON gha_commits_files USING btree (dt);
+
+
+--
 -- Name: commits_files_path_idx; Type: INDEX; Schema: public; Owner: gha_admin
 --
 
@@ -1325,10 +1336,24 @@ CREATE INDEX commits_files_sha_idx ON gha_commits_files USING btree (sha);
 
 
 --
+-- Name: commits_files_size_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX commits_files_size_idx ON gha_commits_files USING btree (size);
+
+
+--
 -- Name: events_actor_id_idx; Type: INDEX; Schema: public; Owner: gha_admin
 --
 
 CREATE INDEX events_actor_id_idx ON gha_events USING btree (actor_id);
+
+
+--
+-- Name: events_commits_files_dt_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX events_commits_files_dt_idx ON gha_events_commits_files USING btree (dt);
 
 
 --
@@ -1385,6 +1410,13 @@ CREATE INDEX events_commits_files_repo_group_idx ON gha_events_commits_files USI
 --
 
 CREATE INDEX events_commits_files_sha_idx ON gha_events_commits_files USING btree (sha);
+
+
+--
+-- Name: events_commits_files_size_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX events_commits_files_size_idx ON gha_events_commits_files USING btree (size);
 
 
 --
