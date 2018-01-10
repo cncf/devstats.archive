@@ -11,4 +11,16 @@ then
 fi
 
 cd "$1" || exit 2
-git diff-tree --no-commit-id --name-only -r "$2" || exit 3
+#git show -s --date=format:'%Y-%m-%d %H:%M:%S' --format=%cd "$2"
+git show -s --format=%ct "$2"
+files=`git diff-tree --no-commit-id --name-only -r "$2"` || exit 3
+for file in $files
+do
+    file_and_size=`git ls-tree -r -l "$2" "$file" | awk '{print $5 "," $4}'`
+    if [ -z "$file_and_size" ]
+    then
+      echo "$file,-1"
+    else
+      echo "$file_and_size"
+    fi
+done
