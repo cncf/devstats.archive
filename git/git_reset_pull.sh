@@ -5,6 +5,6 @@ then
   exit 1
 fi
 
-cd "$1" || exit 1
-git reset --hard || exit 2
-git pull || exit 3
+cd "$1" || exit 2
+git reset --hard || exit 3
+git pull || exit 4

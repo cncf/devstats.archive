@@ -10,10 +10,9 @@ then
   exit 2
 fi
 
-cd "$1" || exit 2
-#git show -s --date=format:'%Y-%m-%d %H:%M:%S' --format=%cd "$2"
-git show -s --format=%ct "$2"
-files=`git diff-tree --no-commit-id --name-only -r "$2"` || exit 3
+cd "$1" || exit 3
+git show -s --format=%ct "$2" || exit 4
+files=`git diff-tree --no-commit-id --name-only -r "$2"` || exit 5
 for file in $files
 do
     file_and_size=`git ls-tree -r -l "$2" "$file" | awk '{print $5 "," $4}'`
