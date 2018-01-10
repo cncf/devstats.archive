@@ -292,12 +292,8 @@ func processCommitsDB(ch chan *dbCommits, ctx *lib.Ctx, db, query string) {
 	// Result struct to be passed by the channel
 	var commits dbCommits
 
-	// Conditional info
-	if ctx.Debug > 0 {
-		lib.Printf("Running on database: %s\n", db)
-	}
-
 	// Get list of unprocessed commits for current DB
+	lib.Printf("Running on database: %s\n", db)
 	dtStart := time.Now()
 	// Connect to Postgres `db` database.
 	con := lib.PgConnDB(ctx, db)
@@ -322,7 +318,7 @@ func processCommitsDB(ch chan *dbCommits, ctx *lib.Ctx, db, query string) {
 }
 
 // getCommitFiles get given commit's list of files and saves it in the database
-func getCommitFiles(ch chan bool, ctx *lib.Ctx, con *sql.DB, repo, sha string) {
+func getCommitFiles(ch chan int, ctx *lib.Ctx, con *sql.DB, repo, sha string) {
 	// Local or cron mode?
 	cmdPrefix := ""
 	if ctx.Local {
@@ -354,7 +350,7 @@ func getCommitFiles(ch chan bool, ctx *lib.Ctx, con *sql.DB, repo, sha string) {
 			lib.InsertIgnore("into gha_skip_commits(sha) "+lib.NValues(1)),
 			lib.AnyArray{sha}...,
 		)
-		ch <- false
+		ch <- -1
 		return
 	}
 	files := strings.Split(filesStr, "\n")
@@ -408,22 +404,22 @@ func getCommitFiles(ch chan bool, ctx *lib.Ctx, con *sql.DB, repo, sha string) {
 			lib.InsertIgnore("into gha_skip_commits(sha) "+lib.NValues(1)),
 			lib.AnyArray{sha}...,
 		)
-		ch <- true
+		ch <- 0
 		return
 	}
 	if ctx.Debug > 0 {
 		lib.Printf("Got %s:%s commit: %d files: took %v\n", repo, sha, nFiles, dtEnd.Sub(dtStart))
 	}
-	ch <- true
+	ch <- 1
 }
 
 // postprocessCommitsDB - calls given SQL on a given database
 // to postprocess just created commit SHAs-files connections
-func postprocessCommitsDB(ch chan bool, ctx *lib.Ctx, con *sql.DB, query string) {
+func postprocessCommitsDB(ch chan int, ctx *lib.Ctx, con *sql.DB, query string) {
 	_, err := con.Query(query)
 	lib.FatalOnError(err)
 	con.Close()
-	ch <- true
+	ch <- 1
 }
 
 // processCommits process all databases given in `dbs`
@@ -475,15 +471,20 @@ func processCommits(ctx *lib.Ctx, dbs map[string]bool) {
 
 	// Create final 'commits - file list' associations
 	dtStart = time.Now()
-	chPool := []chan bool{}
-	statuses := make(map[bool]int)
-	statuses[true] = 0
-	statuses[false] = 0
+	chPool := []chan int{}
+	statuses := make(map[int]int)
+	// statuses:
+	// -1: error
+	// 0: commit without files
+	// 1: commit with files
+	statuses[-1] = 0
+	statuses[0] = 0
+	statuses[1] = 0
 	for _, commits := range allCommits {
 		con := commits.con
 		for i, sha := range commits.shas {
 			repo := commits.repos[i]
-			ch := make(chan bool)
+			ch := make(chan int)
 			chPool = append(chPool, ch)
 			go getCommitFiles(ch, ctx, con, repo, sha)
 			if len(chPool) == thrN {
@@ -497,12 +498,20 @@ func processCommits(ctx *lib.Ctx, dbs map[string]bool) {
 		statuses[<-ch]++
 	}
 	dtEnd = time.Now()
-	all := statuses[false] + statuses[true]
+	all := statuses[-1] + statuses[0] + statuses[1]
 	perc := 0.0
 	if all > 0 {
-		perc = float64(statuses[true]) * 100.0 / (float64(all))
+		perc = float64(statuses[1]) * 100.0 / (float64(all))
 	}
-	lib.Printf("Got %d (%.2f%%) new commit's files, %d failed, all %d, took %v\n", statuses[true], perc, statuses[false], all, dtEnd.Sub(dtStart))
+	lib.Printf(
+		"Got %d (%.2f%%) new commit's files, %d without files, %d failed, all %d, took %v\n",
+		statuses[1],
+		perc,
+		statuses[0],
+		statuses[-1],
+		all,
+		dtEnd.Sub(dtStart),
+	)
 
 	// Post execute SQL 'util_sql/create_events_commits.sql' on each database
 	// This SQL updates 'gha_events_commits_files' table that
@@ -514,10 +523,10 @@ func processCommits(ctx *lib.Ctx, dbs map[string]bool) {
 	)
 	lib.FatalOnError(err)
 	sqlQuery = string(bytes)
-	chPool = []chan bool{}
+	chPool = []chan int{}
 	for _, commits := range allCommits {
 		con := commits.con
-		ch := make(chan bool)
+		ch := make(chan int)
 		chPool = append(chPool, ch)
 		go postprocessCommitsDB(ch, ctx, con, sqlQuery)
 		if len(chPool) == thrN {
