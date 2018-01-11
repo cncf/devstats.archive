@@ -300,7 +300,7 @@ func processRepos(ctx *lib.Ctx, allRepos map[string][]string) {
 
 // processCommitsDB creates/updates mapping between commits and list of files they refer to on databse 'db'
 // using 'query' to get liist of unprocessed commits
-func processCommitsDB(ch chan *dbCommits, ctx *lib.Ctx, db, filesSkipPattern, query string) {
+func processCommitsDB(ch chan dbCommits, ctx *lib.Ctx, db, filesSkipPattern, query string) {
 	// Result struct to be passed by the channel
 	var commits dbCommits
 
@@ -327,7 +327,7 @@ func processCommitsDB(ch chan *dbCommits, ctx *lib.Ctx, db, filesSkipPattern, qu
 	lib.Printf("Database '%s' processed took %v, new commits: %d\n", db, dtEnd.Sub(dtStart), len(commits.shas))
 	commits.con = con
 	commits.filesSkipPattern = filesSkipPattern
-	ch <- &commits
+	ch <- commits
 }
 
 // getCommitFiles get given commit's list of files and saves it in the database
@@ -443,6 +443,7 @@ func getCommitFiles(ch chan int, ctx *lib.Ctx, con *sql.DB, filesSkipPattern *re
 func postprocessCommitsDB(ch chan int, ctx *lib.Ctx, con *sql.DB, query string) {
 	_, err := con.Query(query)
 	lib.FatalOnError(err)
+	// Close connection
 	con.Close()
 	ch <- 1
 }
@@ -466,10 +467,10 @@ func processCommits(ctx *lib.Ctx, dbs map[string]string) {
 	// Process all DBs in a separate threads to get all commits
 	dtStart := time.Now()
 	thrN := lib.GetThreadsNum(ctx)
-	chanPool := []chan *dbCommits{}
-	allCommits := []*dbCommits{}
+	chanPool := []chan dbCommits{}
+	allCommits := []dbCommits{}
 	for db, filesSkipPattern := range dbs {
-		ch := make(chan *dbCommits)
+		ch := make(chan dbCommits)
 		chanPool = append(chanPool, ch)
 		go processCommitsDB(ch, ctx, db, filesSkipPattern, sqlQuery)
 		if len(chanPool) == thrN {
