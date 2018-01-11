@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"regexp"
 	"sort"
 	"strconv"
 	"strings"
@@ -17,9 +18,10 @@ import (
 
 // dbCommits holds all commits for given projec (DB connection)
 type dbCommits struct {
-	shas  []string
-	repos []string
-	con   *sql.DB
+	shas             []string
+	repos            []string
+	con              *sql.DB
+	filesSkipPattern string
 }
 
 // dirExists checks if given path exist and if is a directory
@@ -41,7 +43,7 @@ func dirExists(path string) (bool, error) {
 }
 
 // getRepos returns map { 'org' --> list of repos } for all devstats projects
-func getRepos(ctx *lib.Ctx) (map[string]bool, map[string][]string) {
+func getRepos(ctx *lib.Ctx) (map[string]string, map[string][]string) {
 	// Process all projects, or restrict from environment variable?
 	onlyProjects := make(map[string]bool)
 	selectedProjects := false
@@ -65,12 +67,12 @@ func getRepos(ctx *lib.Ctx) (map[string]bool, map[string][]string) {
 
 	var projects lib.AllProjects
 	lib.FatalOnError(yaml.Unmarshal(data, &projects))
-	dbs := make(map[string]bool)
+	dbs := make(map[string]string)
 	for name, proj := range projects.Projects {
 		if proj.Disabled || (selectedProjects && !onlyProjects[name]) {
 			continue
 		}
-		dbs[proj.PDB] = true
+		dbs[proj.PDB] = proj.FilesSkipPattern
 	}
 
 	allRepos := make(map[string][]string)
@@ -297,7 +299,7 @@ func processRepos(ctx *lib.Ctx, allRepos map[string][]string) {
 
 // processCommitsDB creates/updates mapping between commits and list of files they refer to on databse 'db'
 // using 'query' to get liist of unprocessed commits
-func processCommitsDB(ch chan *dbCommits, ctx *lib.Ctx, db, query string) {
+func processCommitsDB(ch chan *dbCommits, ctx *lib.Ctx, db, filesSkipPattern, query string) {
 	// Result struct to be passed by the channel
 	var commits dbCommits
 
@@ -323,11 +325,12 @@ func processCommitsDB(ch chan *dbCommits, ctx *lib.Ctx, db, query string) {
 	dtEnd := time.Now()
 	lib.Printf("Database '%s' processed took %v, new commits: %d\n", db, dtEnd.Sub(dtStart), len(commits.shas))
 	commits.con = con
+	commits.filesSkipPattern = filesSkipPattern
 	ch <- &commits
 }
 
 // getCommitFiles get given commit's list of files and saves it in the database
-func getCommitFiles(ch chan int, ctx *lib.Ctx, con *sql.DB, repo, sha string) {
+func getCommitFiles(ch chan int, ctx *lib.Ctx, con *sql.DB, filesSkipPattern *regexp.Regexp, repo, sha string) {
 	// Local or cron mode?
 	cmdPrefix := ""
 	if ctx.Local {
@@ -380,15 +383,16 @@ func getCommitFiles(ch chan int, ctx *lib.Ctx, con *sql.DB, repo, sha string) {
 		if fileData == "" {
 			continue
 		}
-		if strings.HasPrefix(data, "vendor/") {
-			continue
-		}
 		// Use '♂♀' separator to avoid any character that can appear inside file name
 		fileDataAry := strings.Split(fileData, "♂♀")
 		if len(fileDataAry) != 2 {
 			lib.FatalOnError(fmt.Errorf("invalid fileData returned for repo: %s, sha: %s: '%s'", repo, sha, fileData))
 		}
 		fileName := fileDataAry[0]
+		// If file matches exclude pattern, skip it
+		if fileName == "" || (filesSkipPattern != nil && filesSkipPattern.MatchString(fileName)) {
+			continue
+		}
 		// fileSize can be:
 		// > 0 - normal file size
 		// 0 - file created - no contenets
@@ -437,7 +441,7 @@ func postprocessCommitsDB(ch chan int, ctx *lib.Ctx, con *sql.DB, query string) 
 // processCommits process all databases given in `dbs`
 // on each database it creates/updates mapping between commits and list of files they refer to
 // It is multithreaded processing up to NCPU databases at the same time
-func processCommits(ctx *lib.Ctx, dbs map[string]bool) {
+func processCommits(ctx *lib.Ctx, dbs map[string]string) {
 	// Read SQL to get commits to sync from 'util_sql/list_unprocessed_commits.sql' file.
 	// Local or cron mode?
 	dataPrefix := lib.DataDir
@@ -455,10 +459,10 @@ func processCommits(ctx *lib.Ctx, dbs map[string]bool) {
 	thrN := lib.GetThreadsNum(ctx)
 	chanPool := []chan *dbCommits{}
 	allCommits := []*dbCommits{}
-	for db := range dbs {
+	for db, filesSkipPattern := range dbs {
 		ch := make(chan *dbCommits)
 		chanPool = append(chanPool, ch)
-		go processCommitsDB(ch, ctx, db, sqlQuery)
+		go processCommitsDB(ch, ctx, db, filesSkipPattern, sqlQuery)
 		if len(chanPool) == thrN {
 			ch = chanPool[0]
 			commits := <-ch
@@ -502,11 +506,16 @@ func processCommits(ctx *lib.Ctx, dbs map[string]bool) {
 	// process all commits
 	for _, commits := range allCommits {
 		con := commits.con
+		filesSkipPattern := commits.filesSkipPattern
+		var re *regexp.Regexp
+		if filesSkipPattern != "" {
+			re = regexp.MustCompile(filesSkipPattern)
+		}
 		for i, sha := range commits.shas {
 			repo := commits.repos[i]
 			ch := make(chan int)
 			chPool = append(chPool, ch)
-			go getCommitFiles(ch, ctx, con, repo, sha)
+			go getCommitFiles(ch, ctx, con, re, repo, sha)
 			if len(chPool) == thrN {
 				ch = chPool[0]
 				statuses[<-ch]++

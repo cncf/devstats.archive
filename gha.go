@@ -21,6 +21,7 @@ type Project struct {
 	AnnotationRegexp string     `yaml:"annotation_regexp"`
 	Order            int        `yaml:"order"`
 	JoinDate         *time.Time `yaml:"join_date"`
+	FilesSkipPattern string     `yaml:"files_skip_pattern"`
 }
 
 // AnyArray - holds array of interface{} - just a shortcut
