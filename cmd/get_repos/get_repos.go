@@ -369,6 +369,10 @@ func getCommitFiles(ch chan int, ctx *lib.Ctx, con *sql.DB, filesSkipPattern *re
 	files := strings.Split(filesStr, "\n")
 	nFiles := 0
 	var commitDate time.Time
+
+	// Insert files in transaction: all or none
+	tx, err := con.Begin()
+	lib.FatalOnError(err)
 	for i, data := range files {
 		if i == 0 {
 			unixTimeStamp, err := strconv.ParseInt(data, 10, 64)
@@ -404,8 +408,8 @@ func getCommitFiles(ch chan int, ctx *lib.Ctx, con *sql.DB, filesSkipPattern *re
 			fileSize = -2
 		}
 		// fmt.Printf("repo: %v, sha: %v, fileData: %v, fileDataAry: %v, fileName: %v, fileSize: %v\n", repo, sha, fileData, fileDataAry, fileName, fileSize)
-		lib.ExecSQLWithErr(
-			con,
+		lib.ExecSQLTxWithErr(
+			tx,
 			ctx,
 			lib.InsertIgnore("into gha_commits_files(sha, dt, path, size) "+lib.NValues(4)),
 			lib.AnyArray{sha, commitDate, fileName, fileSize}...,
@@ -415,15 +419,19 @@ func getCommitFiles(ch chan int, ctx *lib.Ctx, con *sql.DB, filesSkipPattern *re
 	// Some commits have no files (for example only renames)
 	// Mark them as skipped not to process again
 	if nFiles == 0 {
-		lib.ExecSQLWithErr(
-			con,
+		lib.ExecSQLTxWithErr(
+			tx,
 			ctx,
 			lib.InsertIgnore("into gha_skip_commits(sha) "+lib.NValues(1)),
 			lib.AnyArray{sha}...,
 		)
+		// Commit transaction
+		lib.FatalOnError(tx.Commit())
 		ch <- 0
 		return
 	}
+	// Commit transaction
+	lib.FatalOnError(tx.Commit())
 	if ctx.Debug > 1 {
 		lib.Printf("Got %s:%s commit: %d files: took %v\n", repo, sha, nFiles, dtEnd.Sub(dtStart))
 	}
