@@ -62,7 +62,7 @@ func getRepos(ctx *lib.Ctx) (map[string]string, map[string][]string) {
 	}
 
 	// Read defined projects
-	data, err := ioutil.ReadFile(dataPrefix + "projects.yaml")
+	data, err := ioutil.ReadFile(dataPrefix + ctx.ProjectsYaml)
 	lib.FatalOnError(err)
 
 	var projects lib.AllProjects

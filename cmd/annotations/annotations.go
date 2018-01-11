@@ -30,7 +30,7 @@ func makeAnnotations() {
 	}
 
 	// Read defined projects
-	data, err := ioutil.ReadFile(dataPrefix + "projects.yaml")
+	data, err := ioutil.ReadFile(dataPrefix + ctx.ProjectsYaml)
 	lib.FatalOnError(err)
 	var projects lib.AllProjects
 	lib.FatalOnError(yaml.Unmarshal(data, &projects))
@@ -38,7 +38,7 @@ func makeAnnotations() {
 	// Get current project's main repo and annotation regexp
 	proj, ok := projects.Projects[ctx.Project]
 	if !ok {
-		lib.FatalOnError(fmt.Errorf("project '%s' not found in projects.yaml", ctx.Project))
+		lib.FatalOnError(fmt.Errorf("project '%s' not found in '%s'", ctx.Project, ctx.ProjectsYaml))
 	}
 
 	// Get annotations using GitHub API

@@ -74,6 +74,7 @@ func copyContext(in *lib.Ctx) *lib.Ctx {
 		ProcessCommits:    in.ProcessCommits,
 		ExternalInfo:      in.ExternalInfo,
 		ProjectsCommits:   in.ProjectsCommits,
+		ProjectsYaml:      in.ProjectsYaml,
 	}
 	return &out
 }
@@ -220,6 +221,7 @@ func TestInit(t *testing.T) {
 		ProcessCommits:    false,
 		ExternalInfo:      false,
 		ProjectsCommits:   "",
+		ProjectsYaml:      "projects.yaml",
 	}
 
 	// Test cases
@@ -639,6 +641,19 @@ func TestInit(t *testing.T) {
 				copyContext(&defaultContext),
 				map[string]interface{}{
 					"TestsYaml": "foobar.yml",
+				},
+			),
+		},
+		{
+			"Setting projects.yaml",
+			map[string]string{
+				"GHA2DB_PROJECTS_YAML": "baz.yml",
+			},
+			dynamicSetFields(
+				t,
+				copyContext(&defaultContext),
+				map[string]interface{}{
+					"ProjectsYaml": "baz.yml",
 				},
 			),
 		},

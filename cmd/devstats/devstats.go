@@ -29,7 +29,7 @@ func syncAllProjects() bool {
 	}
 
 	// Read defined projects
-	data, err := ioutil.ReadFile(dataPrefix + "projects.yaml")
+	data, err := ioutil.ReadFile(dataPrefix + ctx.ProjectsYaml)
 	lib.FatalOnError(err)
 
 	var projects lib.AllProjects
