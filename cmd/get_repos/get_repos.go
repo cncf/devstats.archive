@@ -337,7 +337,7 @@ func getCommitFiles(ch chan int, ctx *lib.Ctx, con *sql.DB, repo, sha string) {
 	// Get files using shell script that does 'chdir'
 	// We cannot chdir because this is a multithreaded app
 	// And all threads share CWD (current working directory)
-	if ctx.Debug > 0 {
+	if ctx.Debug > 1 {
 		lib.Printf("Getting files for commit %s:%s\n", repo, sha)
 	}
 	dtStart := time.Now()
@@ -349,7 +349,7 @@ func getCommitFiles(ch chan int, ctx *lib.Ctx, con *sql.DB, repo, sha string) {
 	)
 	dtEnd := time.Now()
 	if err != nil {
-		if ctx.Debug > 0 {
+		if ctx.Debug > 1 {
 			lib.Printf("Warning git_files.sh failed: %s:%s (took %v): %+v\n", repo, sha, dtEnd.Sub(dtStart), err)
 			fmt.Fprintf(os.Stderr, "Warning git_files.sh failed: %s:%s (took %v): %+v\n", repo, sha, dtEnd.Sub(dtStart), err)
 		}
@@ -419,7 +419,7 @@ func getCommitFiles(ch chan int, ctx *lib.Ctx, con *sql.DB, repo, sha string) {
 		ch <- 0
 		return
 	}
-	if ctx.Debug > 0 {
+	if ctx.Debug > 1 {
 		lib.Printf("Got %s:%s commit: %d files: took %v\n", repo, sha, nFiles, dtEnd.Sub(dtStart))
 	}
 	ch <- 1
