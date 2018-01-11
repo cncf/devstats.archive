@@ -1,19 +1,6 @@
 -- 'Cluster lifecycle': include `cmd/kubeadm` and `cluster` in `kubernetes/kubernetes`.
 
--- First update repo_group from repository definition:
-update
-  gha_events_commits_files ecf
-set
-  repo_group = r.repo_group
-from
-  gha_repos r
-where
-  r.name = ecf.dup_repo_name
-  and r.repo_group is not null
-  and ecf.repo_group is null
-;
-
--- Next update by commit files
+-- Update by commit files
 update
   gha_events_commits_files
 set
@@ -26,7 +13,7 @@ where
   )
 ;
 
--- next update by PR review files
+-- Next update by PR review files
 update
   gha_events_commits_files
 set
@@ -45,4 +32,17 @@ where
         or path like 'cluster/%'
       )
   )
+;
+
+-- Finally update repo_group from repository definition (where it is not yet set from files paths)
+update
+  gha_events_commits_files ecf
+set
+  repo_group = r.repo_group
+from
+  gha_repos r
+where
+  r.name = ecf.dup_repo_name
+  and r.repo_group is not null
+  and ecf.repo_group is null
 ;
