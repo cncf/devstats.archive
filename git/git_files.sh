@@ -13,7 +13,8 @@ fi
 cd "$1" || exit 3
 git show -s --format=%ct "$2" || exit 4
 #files=`git diff-tree --no-commit-id --name-only -M8 -m -r "$2"` || exit 5
-files=`git diff-tree --no-commit-id --name-only -r "$2"` || exit 5
+#files=`git diff-tree --no-commit-id --name-only -r "$2"` || exit 5
+files=`git diff-tree --no-commit-id --name-only -M7 -r "$2"` || exit 5
 for file in $files
 do
     file_and_size=`git ls-tree -r -l "$2" "$file" | awk '{print $5 "♂♀" $4}'`
