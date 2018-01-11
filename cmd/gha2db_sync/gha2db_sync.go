@@ -533,7 +533,7 @@ func getSyncArgs(ctx *lib.Ctx, osArgs []string) []string {
 	}
 
 	// Read defined projects
-	data, err := ioutil.ReadFile(dataPrefix + "projects.yaml")
+	data, err := ioutil.ReadFile(dataPrefix + ctx.ProjectsYaml)
 	if err != nil {
 		lib.FatalOnError(err)
 		return []string{}
@@ -550,8 +550,9 @@ func getSyncArgs(ctx *lib.Ctx, osArgs []string) []string {
 	// No user commandline and project not found
 	lib.FatalOnError(
 		fmt.Errorf(
-			"project %s is not defined in projects.yaml",
+			"project '%s' is not defined in '%s'",
 			ctx.Project,
+			ctx.ProjectsYaml,
 		),
 	)
 	return []string{}

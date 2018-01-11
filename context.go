@@ -71,6 +71,7 @@ type Ctx struct {
 	ProcessCommits    bool      // From GHA2DB_PROCESS_COMMITS ./get_repos tool, enable update/create mapping table: commit - list of file that commit refers to, default false
 	ExternalInfo      bool      // From GHA2DB_EXTERNAL_INFO ./get_repos tool, enable outputing data needed by external tools (cncf/gitdm), default false
 	ProjectsCommits   string    // From GHA2DB_PROJECTS_COMMITS ./get_repos tool, set list of projects for commits analysis instead of analysing all, default "" - means all
+	ProjectsYaml      string    // From GHA2DB_PROJECTS_YAML, many tool - set main projects file, default "projects.yaml"
 }
 
 // Init - get context from environment variables
@@ -328,6 +329,12 @@ func (ctx *Ctx) Init() {
 	ctx.TestsYaml = os.Getenv("GHA2DB_TESTS_YAML")
 	if ctx.TestsYaml == "" {
 		ctx.TestsYaml = "tests.yaml"
+	}
+
+	// Main projects file
+	ctx.ProjectsYaml = os.Getenv("GHA2DB_PROJECTS_YAML")
+	if ctx.ProjectsYaml == "" {
+		ctx.ProjectsYaml = "projects.yaml"
 	}
 
 	// `get_repos` repositories dir
