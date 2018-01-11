@@ -10,17 +10,23 @@ import (
 
 // ProgressInfo display info about progress: i/n if current time >= last + period
 // If displayed info, update last
-func ProgressInfo(i, n int, last *time.Time, period time.Duration, msg string) {
+func ProgressInfo(i, n int, start time.Time, last *time.Time, period time.Duration, msg string) {
 	now := time.Now()
 	if last.Add(period).Before(now) {
 		perc := 0.0
 		if n > 0 {
 			perc = (float64(i) * 100.0) / float64(n)
 		}
+		eta := start
+		if i > 0 && n > 0 {
+			etaNs := float64(now.Sub(start).Nanoseconds()) * (float64(n) / float64(i))
+			etaDuration := time.Duration(etaNs) * time.Nanosecond
+			eta = start.Add(etaDuration)
+		}
 		if msg != "" {
-			Printf("%d/%d (%.3f%%): %s\n", i, n, perc, msg)
+			Printf("%d/%d (%.3f%%), ETA: %v: %s\n", i, n, perc, eta, msg)
 		} else {
-			Printf("%d/%d (%f.3%%)\n", i, n, perc)
+			Printf("%d/%d (%f.3%%), ETA: %v\n", i, n, perc, eta)
 		}
 		*last = now
 	}
