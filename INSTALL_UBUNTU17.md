@@ -4,7 +4,7 @@ Prerequisites:
 - Ubuntu 17.04.
 - [golang](https://golang.org), this tutorial uses Go 1.6
     - `apt-get update`
-    - `apt-get install golang git psmisc jsonlint yamllint`
+    - `apt-get install golang git psmisc jsonlint yamllint gcc`
     - `mkdir /data; mkdir /data/dev`
 1. Configure Go:
     - For example add to `~/.bash_profile` and/or `~/.profile`:
