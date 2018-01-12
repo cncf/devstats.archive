@@ -127,10 +127,14 @@ func travisPublicKey() (*rsa.PublicKey, error) {
 }
 
 // checkError: report error to HTTP writer if present
-func checkError(w http.ResponseWriter, err error) bool {
+func checkError(isError bool, w http.ResponseWriter, err error) bool {
 	if err != nil {
-		lib.Printf("webhook: error: %v\n", err)
-		errMsg := fmt.Sprintf("error: %v", err)
+		if isError {
+			lib.Printf("webhook: error: %v\n", err)
+		} else {
+			lib.Printf("webhook: warning: %v\n", err)
+		}
+		errMsg := fmt.Sprintf("webhook: %v", err)
 		respondWithError(w, errMsg)
 		return true
 	}
@@ -199,11 +203,11 @@ func webhookHandler(w http.ResponseWriter, r *http.Request) {
 	var jsonStr string
 	if ctx.CheckPayload {
 		key, err := travisPublicKey()
-		if checkError(w, err) {
+		if checkError(true, w, err) {
 			return
 		}
 		signature, err := payloadSignature(r)
-		if checkError(w, err) {
+		if checkError(true, w, err) {
 			return
 		}
 		jsonStr = r.FormValue("payload")
@@ -216,11 +220,11 @@ func webhookHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	} else {
 		body, err := ioutil.ReadAll(r.Body)
-		if checkError(w, err) {
+		if checkError(true, w, err) {
 			return
 		}
 		sBody, err := url.QueryUnescape(string(body))
-		if checkError(w, err) {
+		if checkError(true, w, err) {
 			return
 		}
 		jsonStr = sBody[8:]
@@ -228,7 +232,7 @@ func webhookHandler(w http.ResponseWriter, r *http.Request) {
 	//pretty := lib.PrettyPrintJSON([]byte(jsonStr))
 	var payload payload
 	err := json.Unmarshal([]byte(jsonStr), &payload)
-	if checkError(w, err) {
+	if checkError(true, w, err) {
 		return
 	}
 	lib.Printf("WebHook: repo: %s/%s, allowed: cncf/devstats\n", payload.Repo.OwnerName, payload.Repo.Name)
@@ -238,11 +242,11 @@ func webhookHandler(w http.ResponseWriter, r *http.Request) {
 	lib.Printf("WebHook: result: %d, allowed results: %v\n", payload.Result, ctx.DeployResults)
 	lib.Printf("WebHook: author: name: %s, email: %s\n", payload.AuthorName, payload.AuthorEmail)
 	if !successPayload(&ctx, payload) {
-		checkError(w, errors.New("webhook: skipping deploy due to wrong status, result, branch and/or type"))
+		checkError(false, w, errors.New("webhook: skipping deploy due to wrong status, result, branch and/or type"))
 		return
 	}
 	err = os.Chdir(ctx.ProjectRoot)
-	if checkError(w, err) {
+	if checkError(true, w, err) {
 		return
 	}
 	// Do deployment
@@ -250,22 +254,22 @@ func webhookHandler(w http.ResponseWriter, r *http.Request) {
 	ctx.ExecFatal = false
 	lib.Printf("WebHook: git checkout %s\n", payload.Branch)
 	_, err = lib.ExecCommand(&ctx, []string{"git", "checkout", payload.Branch}, nil)
-	if checkError(w, err) {
+	if checkError(true, w, err) {
 		return
 	}
 	lib.Printf("WebHook: %s\n", "git pull")
 	_, err = lib.ExecCommand(&ctx, []string{"git", "pull"}, nil)
-	if checkError(w, err) {
+	if checkError(true, w, err) {
 		return
 	}
 	lib.Printf("WebHook: %s\n", "make")
 	_, err = lib.ExecCommand(&ctx, []string{"make"}, nil)
-	if checkError(w, err) {
+	if checkError(true, w, err) {
 		return
 	}
 	lib.Printf("WebHook: %s\n", "make install")
 	_, err = lib.ExecCommand(&ctx, []string{"make", "install"}, nil)
-	if checkError(w, err) {
+	if checkError(true, w, err) {
 		return
 	}
 	dtEnd := time.Now()
