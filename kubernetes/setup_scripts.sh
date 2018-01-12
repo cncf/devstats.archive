@@ -4,3 +4,4 @@ echo "Setting up default postprocess scripts"
 ./runq util_sql/default_postprocess_scripts.sql
 echo "Setting up repository groups postprocess script"
 ./runq util_sql/repo_groups_postprocess_script.sql
+./runq util_sql/repo_groups_postprocess_script_from_repos.sql
