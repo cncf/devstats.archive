@@ -14,10 +14,10 @@ projects:
         to: 2017-07-25T00:00:00Z
         n: 1
         expected:
-          - ['reviewers,All', 7]
+          - ['reviewers,All', 9]
           - ['reviewers,Group', 4]
-          - ['reviewers,Mono-group', 1]
-          - ['reviewers,Overruled', 1]
+          - ['reviewers,Mono-group', 2]
+          - ['reviewers,Overruled', 2]
         data: KubernetesReviewersMetric
       - metric: sig_mentions
         from: 2017-07-01T00:00:00Z
@@ -1180,12 +1180,13 @@ projects:
           - [' >= 5', ' >= 0']
           - [' >= 3', ' >= 0']
         expected:
-          - ["reviewers_hist,All", Actor 1, 4]
+          - ["reviewers_hist,All", Actor 1, 5]
           - ["reviewers_hist,All", Actor 2, 4]
           - ["reviewers_hist,Group", Actor 2, 4]
           - ["reviewers_hist,All", Actor 3, 2]
           - ["reviewers_hist,Group", Actor 1, 2]
           - ["reviewers_hist,Group", Actor 3, 1]
+          - ["reviewers_hist,Overruled", Actor 1, 1]
         data: KubernetesReviewersHistMetric
       - metric: hist_approvers
         additional_setup_funcs:
@@ -5517,6 +5518,10 @@ data:
     repos:
       - [1, Repo 1, 1, Org, Group]
       - [2, Repo 2, 1, Org, Group]
+    # sha, eid, path, size, dt, repo_group,
+    # dup_repo_id, dup_repo_name, dup_type, dup_created_at
+    events_commits_files:
+        - [deadbeef666, 1, Repo 1/file.txt, 1024, '1980-01-01T12:00:00Z', Overruled, 1, Repo 1, T, '1980-01-01T12:00:00Z']
     # eid, etype, aid, rid, public, created_at, aname, rname, orgid
     events:
       - - 1
@@ -5636,6 +5641,15 @@ data:
         - Actor 1
         - Repo 1
         - 1
+      - - 14
+        - PullRequestReviewCommentEvent
+        - 1
+        - 1
+        - true
+        - 1980-01-01T12:00:00Z
+        - Actor 1
+        - Repo 1
+        - 1
     # iid, eid, lid, lname, created_at
     # repo_id, repo_name, actor_id, actor_login, type, issue_number
     issues_events_labels:
@@ -5746,6 +5760,9 @@ data:
           /lGtM
           Line 2
         - 1980-01-01T12:00:00Z
+      - - 14
+        - review comment
+        - 1980-01-01T12:00:00Z
   KubernetesEventsMetric:
     # eid, etype, aid, rid, public, created_at, aname, rname, orgid
     events:
@@ -5801,17 +5818,20 @@ data:
       - [ 4, T, 4, 3, true, '2017-07-13T00:00:00Z', Actor 4, luke/repo3, 1]
       - [ 5, T, 5, 2, true, '2017-07-14T00:00:00Z', Actor 5, luke/repo2, 1]
       - [ 6, T, 5, 2, true, '2017-07-15T00:00:00Z', Actor 5, luke/repo2, 1]
-      - [ 7, T, 5, 2, true, '2017-07-16T00:00:00Z', Actor 5, luke/repo2, 1] # 3 2, 5 2
+      - [ 7, T, 5, 2, true, '2017-07-16T00:00:00Z', Actor 5, luke/repo2, 1]
       - [ 8, T, 6, 4, true, '2017-07-17T00:00:00Z', Actor 6, luke/repo4, 1]
       - [ 9, T, 7, 5, true, '2017-07-18T00:00:00Z', Actor 7, luke/repo5, null]
       - [ 10, T, 8, 5, true, '2017-07-19T00:00:00Z', Actor 8, luke/repo5, null]
       - [ 11, T, 9, 5, true, '2017-07-20T00:00:00Z', Actor 9, luke/repo5, null]
       - [ 12, T, 10, 5, true, '2017-08-10T00:00:00Z', Actor X, luke/repo5, null]
       - [ 13, T, 11, 1, true, '2017-07-21T00:00:00Z', Actor Y, luke/repo1, null]
+      - [ 14, PullRequestReviewCommentEvent, 14, 3, true, '2017-07-20T00:00:00Z', Actor 14, luke/repo3, null]
+      - [ 15, PullRequestReviewCommentEvent, 12, 2, true, '2017-07-20T00:00:00Z', Actor 12, luke/repo2, null]
     # sha, eid, path, size, dt, repo_group,
     # dup_repo_id, dup_repo_name, dup_type, dup_created_at
     events_commits_files:
         - [deadbeef666, 1, luke/repo1/path/to/some/file.go, 1982, '2017-07-10T00:00:00Z', Overruled, 1, luke/repo1, T, '2017-07-10T00:00:00Z']
+        - [ff19822017, 15, luke/repo2/cmd/devstats/devstats.go, 5845, '2017-07-20T00:00:00Z', Overruled, 2, luke/repo1, 2, '2017-07-20T00:00:00Z']
     # iid, eid, lid, lname, created_at
     # repo_id, repo_name, actor_id, actor_login, type, issue_number
     issues_events_labels:
@@ -5838,3 +5858,5 @@ data:
           /lGtM
           Line 2
         - 2017-07-21T00:00:00Z
+      - [14, 'review comment', '2017-07-21T00:00:00Z']
+      - [15, 'another review comment', '2017-07-21T00:00:00Z']
