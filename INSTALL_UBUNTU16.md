@@ -17,7 +17,7 @@ Prerequisites:
     - [goimports](https://godoc.org/golang.org/x/tools/cmd/goimports): `go get golang.org/x/tools/cmd/goimports`
     - [goconst](https://github.com/jgautheron/goconst): `go get github.com/jgautheron/goconst/cmd/goconst`
     - [usedexports](https://github.com/jgautheron/usedexports): `go get github.com/jgautheron/usedexports`
-    - [errcheck](https://github.com/kisielk/errcheck): `go get -u github.com/kisielk/errcheck`
+    - [errcheck](https://github.com/kisielk/errcheck): `go get github.com/kisielk/errcheck`
     - Go InfluxDB client: install with: `go get github.com/influxdata/influxdb/client/v2`
     - Go Postgres client: install with: `go get github.com/lib/pq`
     - Go unicode text transform tools: install with: `go get golang.org/x/text/transform` and `go get golang.org/x/text/unicode/norm`
