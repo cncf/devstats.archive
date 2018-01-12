@@ -185,6 +185,7 @@ func main() {
 	dtStart := time.Now()
 	if len(os.Args) < 2 {
 		lib.Printf("Required SQL file name [param1 value1 [param2 value2 ...]]\n")
+		lib.Printf("Special replace 'qr' 'period,from,to' is used for {{period.alias.name}} replacements\n")
 		os.Exit(1)
 	}
 	runq(os.Args[1], os.Args[2:])
