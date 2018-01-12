@@ -82,11 +82,15 @@ func GetAnnotations(ctx *Ctx, orgRepo, annoRegexp string) (annotations Annotatio
 	for {
 		tags, resp, err := client.Repositories.ListTags(ghCtx, org, repo, opt)
 		if _, ok := err.(*github.RateLimitError); ok {
-			Printf("hit rate limit on ListTags for  %s '%s'\n", orgRepo, annoRegexp)
+			Printf("Hit rate limit on ListTags for  %s '%s'\n", orgRepo, annoRegexp)
 		}
 		FatalOnError(err)
-		for _, tag := range tags {
+		allTags := len(tags)
+		dtStart := time.Now()
+		lastTime := dtStart
+		for i, tag := range tags {
 			tagName := *tag.Name
+			ProgressInfo(i, allTags, dtStart, &lastTime, time.Duration(10)*time.Second, tagName)
 			if re != nil && !re.MatchString(tagName) {
 				continue
 			}
