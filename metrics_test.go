@@ -285,15 +285,13 @@ func executeMetricTestCase(testMetric *metricTestCase, tests *metricTests, ctx *
 
 	// Drop database after tests
 	if !testMetric.DebugDB {
-		defer func() {
-			// Drop database after tests
-			lib.DropDatabaseIfExists(ctx)
-		}()
+		// Drop database after tests
+		defer func() { lib.DropDatabaseIfExists(ctx) }()
 	}
 
 	// Connect to Postgres DB
 	c := lib.PgConn(ctx)
-	defer c.Close()
+	defer func() { lib.FatalOnError(c.Close()) }()
 
 	// Create DB structure
 	lib.Structure(ctx)
@@ -371,7 +369,7 @@ func executeMetric(c *sql.DB, ctx *lib.Ctx, metric string, from, to time.Time, p
 
 	// Execute SQL
 	rows := lib.QuerySQLWithErr(c, ctx, sqlQuery)
-	defer rows.Close()
+	defer func() { lib.FatalOnError(rows.Close()) }()
 
 	// Now unknown rows, with unknown types
 	columns, err := rows.Columns()

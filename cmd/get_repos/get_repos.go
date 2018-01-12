@@ -79,12 +79,12 @@ func getRepos(ctx *lib.Ctx) (map[string]string, map[string][]string) {
 	for db := range dbs {
 		// Connect to Postgres `db` database.
 		con := lib.PgConnDB(ctx, db)
-		defer con.Close()
+		defer func() { lib.FatalOnError(con.Close()) }()
 
 		// Get list of orgs in a given database
 		rows, err := con.Query("select distinct name from gha_repos where name like '%/%'")
 		lib.FatalOnError(err)
-		defer rows.Close()
+		defer func() { lib.FatalOnError(rows.Close()) }()
 		var (
 			repo  string
 			repos []string
@@ -312,7 +312,7 @@ func processCommitsDB(ch chan dbCommits, ctx *lib.Ctx, db, filesSkipPattern, que
 
 	rows, err := con.Query(query)
 	lib.FatalOnError(err)
-	defer rows.Close()
+	defer func() { lib.FatalOnError(rows.Close()) }()
 	var (
 		sha  string
 		repo string
@@ -444,7 +444,7 @@ func postprocessCommitsDB(ch chan int, ctx *lib.Ctx, con *sql.DB, query string) 
 	_, err := con.Query(query)
 	lib.FatalOnError(err)
 	// Close connection
-	con.Close()
+	lib.FatalOnError(con.Close())
 	ch <- 1
 }
 

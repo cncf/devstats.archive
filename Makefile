@@ -17,6 +17,7 @@ GO_VET=go vet
 GO_CONST=goconst
 GO_IMPORTS=goimports -w
 GO_USEDEXPORTS=usedexports
+GO_ERRCHECK=errcheck -asserts -ignore '[FS]?[Pp]rint*'
 GO_TEST=go test
 BINARIES=structure runq gha2db db2influx z2influx gha2db_sync import_affs annotations idb_tags idb_backup webhook devstats get_repos
 CRON_SCRIPTS=cron/cron_db_backup.sh cron/cron_db_backup_all.sh
@@ -82,13 +83,16 @@ const: ${GO_BIN_FILES} ${GO_LIB_FILES} ${GO_TEST_FILES} ${GO_DBTEST_FILES} ${GO_
 usedexports: ${GO_BIN_FILES} ${GO_LIB_FILES} ${GO_TEST_FILES} ${GO_DBTEST_FILES} ${GO_LIBTEST_FILES}
 	${GO_USEDEXPORTS} ./...
 
+errcheck: ${GO_BIN_FILES} ${GO_LIB_FILES} ${GO_TEST_FILES} ${GO_DBTEST_FILES} ${GO_LIBTEST_FILES}
+	${GO_ERRCHECK} ./...
+
 test:
 	${GO_TEST} ${GO_TEST_FILES}
 
 dbtest:
 	${GO_TEST} ${GO_DBTEST_FILES}
 
-check: fmt lint imports vet const usedexports
+check: fmt lint imports vet const usedexports errcheck
 
 data:
 	mkdir /etc/gha2db 2>/dev/null || echo "..."

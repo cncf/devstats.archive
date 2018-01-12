@@ -12,7 +12,7 @@ import (
 func copySeries(ch chan bool, ctx *lib.Ctx, from, to, seriesName string) {
 	// Connect to InfluxDB
 	ic := lib.IDBConn(ctx)
-	defer ic.Close()
+	defer func() { lib.FatalOnError(ic.Close()) }()
 
 	// Get BatchPoints
 	var pts lib.IDBBatchPointsN
@@ -99,10 +99,13 @@ func idbBackup(from, to string) {
 	nSeries := len(series)
 
 	// Close connection
-	ic.Close()
+	lib.FatalOnError(ic.Close())
 
 	//series[0] = "company_multi_cluster_issues_y"
 	//nSeries = 1
+	dtStart := time.Now()
+	lastTime := dtStart
+	checked := 0
 	lib.Printf("Processing %d series", nSeries)
 
 	// Copy series
@@ -116,22 +119,21 @@ func idbBackup(from, to string) {
 				ch = chanPool[0]
 				<-ch
 				chanPool = chanPool[1:]
-			}
-			if i%10 == 0 {
-				fmt.Print(".")
+				checked++
+				lib.ProgressInfo(checked, nSeries, dtStart, &lastTime, time.Duration(10)*time.Second, "")
 			}
 		}
 		lib.Printf("Final threads join\n")
 		for _, ch := range chanPool {
 			<-ch
+			checked++
+			lib.ProgressInfo(checked, nSeries, dtStart, &lastTime, time.Duration(10)*time.Second, "final join...")
 		}
 	} else {
 		lib.Printf("Using single threaded version\n")
 		for i := 0; i < nSeries; i++ {
 			copySeries(nil, &ctx, from, to, series[i])
-			if i%10 == 0 {
-				fmt.Print(".")
-			}
+			lib.ProgressInfo(i, nSeries, dtStart, &lastTime, time.Duration(10)*time.Second, "")
 		}
 	}
 	// Finished

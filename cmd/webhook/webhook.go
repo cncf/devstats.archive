@@ -62,14 +62,14 @@ func respondWithError(w http.ResponseWriter, m string) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(401)
 	message := fmt.Sprintf("{\"message\": \"%s\"}", m)
-	w.Write([]byte(message))
+	_, _ = w.Write([]byte(message))
 }
 
 func respondWithSuccess(w http.ResponseWriter, m string) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(200)
 	message := fmt.Sprintf("{\"message\": \"%s\"}", m)
-	w.Write([]byte(message))
+	_, _ = w.Write([]byte(message))
 }
 
 func payloadSignature(r *http.Request) ([]byte, error) {
@@ -83,7 +83,7 @@ func payloadSignature(r *http.Request) ([]byte, error) {
 
 func payloadDigest(payload string) []byte {
 	hash := sha1.New()
-	hash.Write([]byte(payload))
+	_, _ = hash.Write([]byte(payload))
 	return hash.Sum(nil)
 }
 
@@ -109,7 +109,7 @@ func travisPublicKey() (*rsa.PublicKey, error) {
 	if err != nil {
 		return nil, errors.New("cannot fetch travis public key")
 	}
-	defer response.Body.Close()
+	defer func() { _ = response.Body.Close() }()
 
 	decoder := json.NewDecoder(response.Body)
 	var t configKey
@@ -287,5 +287,5 @@ func main() {
 	// WebHookPort defaults to ":1982"
 	// WebHookRoot defaults to "/"
 	http.HandleFunc(ctx.WebHookRoot, webhookHandler)
-	http.ListenAndServe(ctx.WebHookHost+ctx.WebHookPort, nil)
+	_ = http.ListenAndServe(ctx.WebHookHost+ctx.WebHookPort, nil)
 }

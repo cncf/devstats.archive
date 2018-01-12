@@ -1,7 +1,7 @@
 [![Build Status](https://travis-ci.org/cncf/devstats.svg?branch=master)](https://travis-ci.org/cncf/devstats)
 [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/1357/badge)](https://bestpractices.coreinfrastructure.org/projects/1357)
 
-# GitHub archives Grafana visualization dashboards
+# GitHub archives and git Grafana visualization dashboards
 
 Author: Łukasz Gryglicki <lukaszgryglick@o2.pl>
 

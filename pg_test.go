@@ -237,7 +237,7 @@ func TestPostgres(t *testing.T) {
 
 	// Connect to Postgres DB
 	c := lib.PgConn(&ctx)
-	defer c.Close()
+	defer func() { lib.FatalOnError(c.Close()) }()
 
 	// Create example table
 	lib.ExecSQLWithErr(
@@ -258,7 +258,7 @@ func TestPostgres(t *testing.T) {
 
 	// Get inserted int
 	i := 0
-	lib.QueryRowSQL(c, &ctx, "select an_int from test").Scan(&i)
+	lib.FatalOnError(lib.QueryRowSQL(c, &ctx, "select an_int from test").Scan(&i))
 	if i != 1 {
 		t.Errorf("expected to insert 1, got %v", i)
 	}
@@ -294,7 +294,7 @@ func TestPostgres(t *testing.T) {
 	)
 
 	// Rollback transaction
-	tx.Rollback()
+	lib.FatalOnError(tx.Rollback())
 
 	// Get all ints from database
 	gotArr = getInts(c, &ctx)
@@ -318,7 +318,7 @@ func TestPostgres(t *testing.T) {
 	)
 
 	// Commit transaction
-	tx.Commit()
+	lib.FatalOnError(tx.Commit())
 
 	// Get all ints from database
 	gotArr = getInts(c, &ctx)
@@ -348,7 +348,7 @@ func TestPostgres(t *testing.T) {
 func getInts(c *sql.DB, ctx *lib.Ctx) []int {
 	// Get inserted values
 	rows := lib.QuerySQLWithErr(c, ctx, "select an_int from test order by an_int asc")
-	defer rows.Close()
+	defer func() { lib.FatalOnError(rows.Close()) }()
 
 	var (
 		i   int

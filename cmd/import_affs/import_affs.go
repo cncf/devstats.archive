@@ -56,7 +56,7 @@ func findActor(db *sql.DB, ctx *lib.Ctx, login string) (actor lib.Actor, ok bool
 		fmt.Sprintf("select id, name from gha_actors where login=%s order by id desc limit 1", lib.NValue(1)),
 		login,
 	)
-	defer rows.Close()
+	defer func() { lib.FatalOnError(rows.Close()) }()
 	var name *string
 	for rows.Next() {
 		lib.FatalOnError(rows.Scan(&actor.ID, &name))
@@ -79,7 +79,7 @@ func findActorIDs(db *sql.DB, ctx *lib.Ctx, login string) (actIDs []int) {
 		fmt.Sprintf("select id from gha_actors where login=%s", lib.NValue(1)),
 		login,
 	)
-	defer rows.Close()
+	defer func() { lib.FatalOnError(rows.Close()) }()
 	var aid int
 	for rows.Next() {
 		lib.FatalOnError(rows.Scan(&aid))
@@ -115,7 +115,7 @@ func importAffs(jsonFN string) {
 
 	// Connect to Postgres DB
 	con := lib.PgConn(&ctx)
-	defer con.Close()
+	defer func() { lib.FatalOnError(con.Close()) }()
 
 	// Parse github_users.json
 	var users gitHubUsers

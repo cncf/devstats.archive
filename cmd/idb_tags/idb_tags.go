@@ -32,11 +32,11 @@ func idbTags() {
 
 	// Connect to Postgres DB
 	con := lib.PgConn(&ctx)
-	defer con.Close()
+	defer func() { lib.FatalOnError(con.Close()) }()
 
 	// Connect to InfluxDB
 	ic := lib.IDBConn(&ctx)
-	defer ic.Close()
+	defer func() { lib.FatalOnError(ic.Close()) }()
 
 	// Get BatchPoints
 	var pts lib.IDBBatchPointsN
@@ -87,7 +87,7 @@ func idbTags() {
 
 		// Execute SQL
 		rows := lib.QuerySQLWithErr(con, &ctx, sqlQuery)
-		defer rows.Close()
+		defer func() { lib.FatalOnError(rows.Close()) }()
 
 		// Drop current tags
 		lib.QueryIDB(ic, &ctx, "drop series from "+tag.SeriesName)

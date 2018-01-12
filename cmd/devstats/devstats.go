@@ -45,12 +45,10 @@ func syncAllProjects() bool {
 		return false
 	}
 	fmt.Fprintf(f, "%d", pid)
-	f.Close()
+	lib.FatalOnError(f.Close())
 
 	// Schedule remove PID file when finished
-	defer func() {
-		lib.FatalOnError(os.Remove(pidFile))
-	}()
+	defer func() { lib.FatalOnError(os.Remove(pidFile)) }()
 
 	// Sort projects by "order"
 	orders := []int{}
