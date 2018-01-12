@@ -263,6 +263,15 @@ func dataForMetricTestCase(con *sql.DB, ctx *lib.Ctx, testMetric *metricTestCase
 				}
 			}
 		}
+		ecfs, ok := data["events_commits_files"]
+		if ok {
+			for _, ecf := range ecfs {
+				err = addEventCommitFile(con, ctx, ecf...)
+				if err != nil {
+					return
+				}
+			}
+		}
 	}
 	return
 }
@@ -551,6 +560,26 @@ func addIssueEventLabel(con *sql.DB, ctx *lib.Ctx, args ...interface{}) (err err
 			"issue_id, event_id, label_id, label_name, created_at, "+
 			"repo_id, repo_name, actor_id, actor_login, type, issue_number"+
 			") "+lib.NValues(11),
+		args...,
+	)
+	return
+}
+
+// Add events commits files
+// sha, eid, path, size, dt, repo_group,
+// dup_repo_id, dup_repo_name, dup_type, dup_created_at
+func addEventCommitFile(con *sql.DB, ctx *lib.Ctx, args ...interface{}) (err error) {
+	if len(args) != 10 {
+		err = fmt.Errorf("addEventCommitFile: expects 10 variadic parameters, got %v", len(args))
+		return
+	}
+	_, err = lib.ExecSQL(
+		con,
+		ctx,
+		"insert into gha_events_commits_files("+
+			"sha, event_id, path, size, dt, repo_group, "+
+			"dup_repo_id, dup_repo_name, dup_type, dup_created_at"+
+			") "+lib.NValues(10),
 		args...,
 	)
 	return
