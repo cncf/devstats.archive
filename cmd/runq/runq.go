@@ -62,11 +62,11 @@ func runq(sqlFile string, params []string) {
 
 	// Connect to Postgres DB
 	c := lib.PgConn(&ctx)
-	defer c.Close()
+	defer func() { lib.FatalOnError(c.Close()) }()
 
 	// Execute SQL
 	rows := lib.QuerySQLWithErr(c, &ctx, sqlQuery)
-	defer rows.Close()
+	defer func() { lib.FatalOnError(rows.Close()) }()
 
 	// Now unknown rows, with unknown types
 	columns, err := rows.Columns()

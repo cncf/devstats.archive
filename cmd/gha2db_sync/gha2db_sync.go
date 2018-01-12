@@ -295,11 +295,11 @@ func sync(ctx *lib.Ctx, args []string) {
 
 	// Connect to Postgres DB
 	con := lib.PgConn(ctx)
-	defer con.Close()
+	defer func() { lib.FatalOnError(con.Close()) }()
 
 	// Connect to InfluxDB
 	ic := lib.IDBConn(ctx)
-	defer ic.Close()
+	defer func() { lib.FatalOnError(ic.Close()) }()
 
 	// Get max event date from Postgres database
 	var maxDtPtr *time.Time

@@ -29,6 +29,12 @@ Project uses use GitHub archives and local copy of all git repositories. The pos
 - There is an already implemented version in Go, please see usage here [USAGE](https://github.com/cncf/devstats/blob/master/USAGE.md)
 - Dashboards can be displayed here [link](https://k8s.devstats.cncf.io/?orgId=1)
 
+4) Project also uses `git` to store local copy of all projects repositories to allow file related analysis (like list of files changed in a given commit, file sizes etc.).
+- All projects repositories are cloned into local directory
+- All projects repositories are updated every hour using `git` (part of standard cron workflow).
+- For all commits retrieved from GitHub archives we are storing list of modified (modified, added, deleted) files and their size (at the commit time).
+- This allows file name analsysis, assigning given files from repositories to repository groups (file level granularity) and file size analysis (for example file size growth in time).
+
 # Architecture
 
 We're getting all possible GitHub data for all objects, and all objects historical state as well (not discarding any data). We are also keeping copy of all git repositories used in all projects and update it every hour:
@@ -85,7 +91,7 @@ We're getting all possible GitHub data for all objects, and all objects historic
 - `get_repos` is used to clone or pull all repos used in all `devstats` project in a location from `GHA2DB_REPOS_DIR` environment variable, or by default in "~/devstats_repos/".
 - Those repos are used later to search for commit SHA's using `git log` to determine files modifed by particular commits and other objects.
 - It can also be used to return list of all distinct repos and their locations - this can be used by `cncf/gitdm` to create concatenated `git.log` from all repositories for affiliations analysis.
-- This tool is also used to create/update mapping between commits and list of files that given commit refers to.
+- This tool is also used to create/update mapping between commits and list of files that given commit refers to, it also keep file sizes info at the commit time.
 
 6) Additional stuff, most important being `runq`  and `import_affs` tools.
 - [runq](https://github.com/cncf/devstats/blob/master/cmd/runq/runq.go)

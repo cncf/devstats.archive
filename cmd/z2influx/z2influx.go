@@ -11,7 +11,7 @@ import (
 func workerThread(ch chan bool, ctx *lib.Ctx, seriesSet map[string]struct{}, period string, desc bool, values []string, from, to time.Time) {
 	// Connect to InfluxDB
 	ic := lib.IDBConn(ctx)
-	defer ic.Close()
+	defer func() { lib.FatalOnError(ic.Close()) }()
 
 	// Get BatchPoints
 	var pts lib.IDBBatchPointsN

@@ -272,7 +272,7 @@ func lookupLabel(con *sql.Tx, ctx *lib.Ctx, name string, color string) int {
 		name,
 		color,
 	)
-	defer rows.Close()
+	defer func() { lib.FatalOnError(rows.Close()) }()
 	lid := 0
 	for rows.Next() {
 		lib.FatalOnError(rows.Scan(&lid))
@@ -293,7 +293,7 @@ func lookupActor(db *sql.DB, ctx *lib.Ctx, login string) int {
 		fmt.Sprintf("select id from gha_actors where login=%s", lib.NValue(1)),
 		login,
 	)
-	defer rows.Close()
+	defer func() { lib.FatalOnError(rows.Close()) }()
 	aid := 0
 	for rows.Next() {
 		lib.FatalOnError(rows.Scan(&aid))
@@ -314,7 +314,7 @@ func lookupActorTx(con *sql.Tx, ctx *lib.Ctx, login string) int {
 		fmt.Sprintf("select id from gha_actors where login=%s", lib.NValue(1)),
 		login,
 	)
-	defer rows.Close()
+	defer func() { lib.FatalOnError(rows.Close()) }()
 	aid := 0
 	for rows.Next() {
 		lib.FatalOnError(rows.Scan(&aid))
@@ -352,7 +352,7 @@ func findRepoFromNameAndOrg(db *sql.DB, ctx *lib.Ctx, repoName string, orgID *in
 			repoName,
 		)
 	}
-	defer rows.Close()
+	defer func() { lib.FatalOnError(rows.Close()) }()
 	exists := false
 	rid := 0
 	for rows.Next() {
@@ -378,7 +378,7 @@ func findOrgIDOrNil(db *sql.DB, ctx *lib.Ctx, orgLogin *string) *int {
 		),
 		*orgLogin,
 	)
-	defer rows.Close()
+	defer func() { lib.FatalOnError(rows.Close()) }()
 	for rows.Next() {
 		lib.FatalOnError(rows.Scan(&orgID))
 		return &orgID
@@ -390,7 +390,7 @@ func findOrgIDOrNil(db *sql.DB, ctx *lib.Ctx, orgLogin *string) *int {
 // Check if given event existis (given by ID)
 func eventExists(db *sql.DB, ctx *lib.Ctx, eventID string) bool {
 	rows := lib.QuerySQLWithErr(db, ctx, fmt.Sprintf("select 1 from gha_events where id=%s", lib.NValue(1)), eventID)
-	defer rows.Close()
+	defer func() { lib.FatalOnError(rows.Close()) }()
 	exists := false
 	for rows.Next() {
 		exists = true
@@ -896,8 +896,14 @@ func writeToDBOldFmt(db *sql.DB, ctx *lib.Ctx, eventID string, ev *lib.EventOld)
 	if pl.SHAs != nil {
 		commits := *pl.SHAs
 		for _, comm := range commits {
-			commit := comm.([]interface{})
-			sha := commit[0].(string)
+			commit, ok := comm.([]interface{})
+			if !ok {
+				lib.FatalOnError(fmt.Errorf("comm is not []interface{}: %+v", comm))
+			}
+			sha, ok := commit[0].(string)
+			if !ok {
+				lib.FatalOnError(fmt.Errorf("commit[0] is not string: %+v", commit[0]))
+			}
 			lib.ExecSQLTxWithErr(
 				con,
 				ctx,
@@ -1387,7 +1393,7 @@ func getGHAJSON(ch chan bool, ctx *lib.Ctx, dt time.Time, forg map[string]struct
 
 	// Connect to Postgres DB
 	con := lib.PgConn(ctx)
-	defer con.Close()
+	defer func() { lib.FatalOnError(con.Close()) }()
 
 	fn := fmt.Sprintf("http://data.githubarchive.org/%s.json.gz", lib.ToGHADate(dt))
 
@@ -1398,7 +1404,7 @@ func getGHAJSON(ch chan bool, ctx *lib.Ctx, dt time.Time, forg map[string]struct
 		fmt.Fprintf(os.Stderr, "%v: Error http.Get:\n%v\n", dt, err)
 	}
 	lib.FatalOnError(err)
-	defer response.Body.Close()
+	defer func() { _ = response.Body.Close() }()
 
 	// Decompress Gzipped response
 	reader, err := gzip.NewReader(response.Body)
@@ -1412,7 +1418,8 @@ func getGHAJSON(ch chan bool, ctx *lib.Ctx, dt time.Time, forg map[string]struct
 		return
 	}
 	lib.Printf("Opened %s\n", fn)
-	defer reader.Close()
+	defer func() { _ = reader.Close() }()
+
 	jsonsBytes, err := ioutil.ReadAll(reader)
 	//lib.FatalOnError(err)
 	if err != nil {

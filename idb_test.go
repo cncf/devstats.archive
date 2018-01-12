@@ -34,7 +34,7 @@ func TestInfluxDB(t *testing.T) {
 		lib.QueryIDB(con, &ctx, "drop database "+ctx.IDBDB)
 
 		// Close IDB connection
-		con.Close()
+		lib.FatalOnError(con.Close())
 	}()
 
 	// Get BatchPoints
@@ -75,7 +75,10 @@ func TestInfluxDB(t *testing.T) {
 		t.Errorf("expected last series name \"test\", got %+v", row.Name)
 	}
 	dt := lib.TimeParseIDB(row.Values[0][0].(string))
-	value := row.Values[0][1].(json.Number)
+	value, ok := row.Values[0][1].(json.Number)
+	if !ok {
+		t.Errorf("%+v is not json.Number", value)
+	}
 	if dt != hourFromNow {
 		t.Errorf("expected last series date %v, got %v", hourFromNow, dt)
 	}
@@ -95,7 +98,10 @@ func TestInfluxDB(t *testing.T) {
 		t.Errorf("expected first series name \"test\", got %+v", row.Name)
 	}
 	dt = lib.TimeParseIDB(row.Values[0][0].(string))
-	value = row.Values[0][1].(json.Number)
+	value, ok = row.Values[0][1].(json.Number)
+	if !ok {
+		t.Errorf("%+v is not json.Number", value)
+	}
 	if dt != hourAgo {
 		t.Errorf("expected first series date %v, got %v", hourAgo, dt)
 	}

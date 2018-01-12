@@ -80,7 +80,7 @@ func TestProcessAnnotations(t *testing.T) {
 		lib.QueryIDB(con, &ctx, "drop database "+ctx.IDBDB)
 
 		// Close IDB connection
-		con.Close()
+		lib.FatalOnError(con.Close())
 	}()
 
 	// Test cases (they will create and close new connection inside ProcessAnnotations)

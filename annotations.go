@@ -129,7 +129,7 @@ func GetAnnotations(ctx *Ctx, orgRepo, annoRegexp string) (annotations Annotatio
 func ProcessAnnotations(ctx *Ctx, annotations *Annotations, joinDate *time.Time) {
 	// Connect to InfluxDB
 	ic := IDBConn(ctx)
-	defer ic.Close()
+	defer func() { FatalOnError(ic.Close()) }()
 
 	// Get BatchPoints
 	var pts IDBBatchPointsN

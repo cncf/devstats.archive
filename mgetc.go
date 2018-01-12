@@ -10,6 +10,7 @@ func Mgetc(ctx *Ctx) string {
 		return ctx.Mgetc
 	}
 	b := make([]byte, 1)
-	os.Stdin.Read(b)
+	_, err := os.Stdin.Read(b)
+	FatalOnError(err)
 	return string(b)
 }

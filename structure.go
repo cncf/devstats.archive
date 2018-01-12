@@ -9,7 +9,7 @@ import (
 func Structure(ctx *Ctx) {
 	// Connect to Postgres DB
 	c := PgConn(ctx)
-	defer c.Close()
+	defer func() { FatalOnError(c.Close()) }()
 
 	// gha_events
 	// {"id:String"=>48592, "type:String"=>48592, "actor:Hash"=>48592, "repo:Hash"=>48592,
@@ -1167,7 +1167,7 @@ func Structure(ctx *Ctx) {
 		}
 		// Get list of script files
 		rows, err := c.Query("select path from gha_postprocess_scripts order by ord")
-		defer rows.Close()
+		defer func() { FatalOnError(rows.Close()) }()
 		FatalOnError(err)
 		script := ""
 		for rows.Next() {

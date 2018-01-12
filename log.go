@@ -77,9 +77,7 @@ func Printf(format string, args ...interface{}) (n int, err error) {
 	// would result in stdout mess
 	qOut := logCtx.ctx.QOut
 	logCtx.ctx.QOut = false
-	defer func() {
-		logCtx.ctx.QOut = qOut
-	}()
+	defer func() { logCtx.ctx.QOut = qOut }()
 
 	// Actual logging to stdout & DB
 	if logCtx.ctx.LogTime {
@@ -103,7 +101,7 @@ func ClearDBLogs() {
 
 	// Connect to DB
 	c := PgConn(&ctx)
-	defer c.Close()
+	defer func() { _ = c.Close() }()
 
 	// Clear logs older that defined period
 	fmt.Printf("Clearing old DB logs.\n")

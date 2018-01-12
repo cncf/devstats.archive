@@ -328,14 +328,14 @@ func DatabaseExists(ctx *Ctx, closeConn bool) (exists bool, c *sql.DB) {
 	c = PgConn(ctx)
 	if closeConn {
 		defer func() {
-			c.Close()
+			FatalOnError(c.Close())
 			c = nil
 		}()
 	}
 
 	// Try to get database name from `pg_database` - it will return row if database exists
 	rows := QuerySQLWithErr(c, ctx, "select 1 from pg_database where datname = $1", db)
-	defer rows.Close()
+	defer func() { FatalOnError(rows.Close()) }()
 	for rows.Next() {
 		exists = true
 	}
@@ -352,7 +352,7 @@ func DatabaseExists(ctx *Ctx, closeConn bool) (exists bool, c *sql.DB) {
 func DropDatabaseIfExists(ctx *Ctx) bool {
 	// Check if database exists
 	exists, c := DatabaseExists(ctx, false)
-	defer c.Close()
+	defer func() { FatalOnError(c.Close()) }()
 
 	// Drop database if exists
 	if exists {
@@ -368,7 +368,7 @@ func DropDatabaseIfExists(ctx *Ctx) bool {
 func CreateDatabaseIfNeeded(ctx *Ctx) bool {
 	// Check if database exists
 	exists, c := DatabaseExists(ctx, false)
-	defer c.Close()
+	defer func() { FatalOnError(c.Close()) }()
 
 	// Create database if not exists
 	if !exists {

@@ -145,11 +145,11 @@ func roundF2I(val float64) int {
 func workerThread(ch chan bool, ctx *lib.Ctx, seriesNameOrFunc, sqlQuery, period, desc string, multivalue, escapeValueName bool, nIntervals int, dt, from, to time.Time) {
 	// Connect to Postgres DB
 	sqlc := lib.PgConn(ctx)
-	defer sqlc.Close()
+	defer func() { lib.FatalOnError(sqlc.Close()) }()
 
 	// Connect to InfluxDB
 	ic := lib.IDBConn(ctx)
-	defer ic.Close()
+	defer func() { lib.FatalOnError(ic.Close()) }()
 
 	// Get BatchPoints
 	var pts lib.IDBBatchPointsN
@@ -166,7 +166,7 @@ func workerThread(ch chan bool, ctx *lib.Ctx, seriesNameOrFunc, sqlQuery, period
 
 	// Execute SQL query
 	rows := lib.QuerySQLWithErr(sqlc, ctx, sqlQuery)
-	defer rows.Close()
+	defer func() { lib.FatalOnError(rows.Close()) }()
 
 	// Get Number of columns
 	// We support either query returnign single row with single numeric value
@@ -347,11 +347,11 @@ func setAlreadyComputed(ic client.Client, ctx *lib.Ctx, pts *lib.IDBBatchPointsN
 func db2influxHistogram(ctx *lib.Ctx, seriesNameOrFunc, sqlFile, sqlQuery, interval, intervalAbbr string, nIntervals int, annotationsRanges, skipPast bool) {
 	// Connect to Postgres DB
 	sqlc := lib.PgConn(ctx)
-	defer sqlc.Close()
+	defer func() { lib.FatalOnError(sqlc.Close()) }()
 
 	// Connect to InfluxDB
 	ic := lib.IDBConn(ctx)
-	defer ic.Close()
+	defer func() { lib.FatalOnError(ic.Close()) }()
 
 	// Get BatchPoints
 	var pts lib.IDBBatchPointsN
@@ -412,7 +412,7 @@ func db2influxHistogram(ctx *lib.Ctx, seriesNameOrFunc, sqlFile, sqlQuery, inter
 
 	// Execute SQL query
 	rows := lib.QuerySQLWithErr(sqlc, ctx, sqlQuery)
-	defer rows.Close()
+	defer func() { lib.FatalOnError(rows.Close()) }()
 
 	// Get number of columns, for histograms there should be exactly 2 columns
 	columns, err := rows.Columns()

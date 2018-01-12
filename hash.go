@@ -12,7 +12,7 @@ func HashStrings(strs []string) int {
 	for _, str := range strs {
 		s += str
 	}
-	h.Write([]byte(s))
+	_, _ = h.Write([]byte(s))
 	res := int(h.Sum64())
 	if res > 0 {
 		res *= -1
