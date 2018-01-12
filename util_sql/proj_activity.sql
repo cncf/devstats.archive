@@ -14,5 +14,5 @@ where
   e.id = f.event_id
 order by
   f.dt desc
-limit 100
+limit {{lim}}
 ;
