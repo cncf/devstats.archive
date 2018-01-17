@@ -26,7 +26,7 @@ func ProgressInfo(i, n int, start time.Time, last *time.Time, period time.Durati
 		if msg != "" {
 			Printf("%d/%d (%.3f%%), ETA: %v: %s\n", i, n, perc, eta, msg)
 		} else {
-			Printf("%d/%d (%f.3%%), ETA: %v\n", i, n, perc, eta)
+			Printf("%d/%d (%.3f%%), ETA: %v\n", i, n, perc, eta)
 		}
 		*last = now
 	}
