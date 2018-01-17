@@ -1,23 +1,33 @@
 select
-  'hist_pr_authors,' || r.repo_group as repo_group,
-  pr.dup_actor_login as actor,
-  count(distinct pr.id) as prs
-from
-  gha_pull_requests pr,
-  gha_repos r
+  sub.repo_group,
+  sub.actor,
+  count(distinct sub.id) as prs
+from (
+  select 'hist_pr_authors,' || coalesce(ecf.repo_group, r.repo_group) as repo_group,
+    pr.dup_actor_login as actor,
+    pr.id
+  from
+    gha_repos r,
+    gha_pull_requests pr
+  left join
+    gha_events_commits_files ecf
+  on
+    ecf.event_id = pr.event_id
+  where
+    {{period:pr.created_at}}
+    and pr.dup_repo_id = r.id
+    and pr.dup_actor_login not in ('googlebot')
+    and pr.dup_actor_login not like 'k8s-%'
+    and pr.dup_actor_login not like '%-bot'
+    and pr.dup_actor_login not like '%-robot'
+  ) sub
 where
-  {{period:pr.created_at}}
-  and pr.dup_repo_id = r.id
-  and r.repo_group is not null
-  and pr.dup_actor_login not in ('googlebot')
-  and pr.dup_actor_login not like 'k8s-%'
-  and pr.dup_actor_login not like '%-bot'
-  and pr.dup_actor_login not like '%-robot'
+  sub.repo_group is not null
 group by
-  r.repo_group,
-  pr.dup_actor_login
+  sub.repo_group,
+  sub.actor
 having
-  count(distinct pr.id) >= 3
+  count(distinct sub.id) >= 3
 union select 'hist_pr_authors,All' as repo_group,
   dup_actor_login as actor,
   count(distinct id) as prs
