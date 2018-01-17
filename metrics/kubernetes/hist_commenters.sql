@@ -3,8 +3,7 @@ select
   sub.actor,
   count(distinct sub.id) as comments
 from (
-  select
-    'top_commenters,' || coalesce(ecf.repo_group, r.repo_group) as repo_group,
+  select 'top_commenters,' || coalesce(ecf.repo_group, r.repo_group) as repo_group,
     t.dup_actor_login as actor,
     t.id
   from
