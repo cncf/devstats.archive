@@ -6,7 +6,7 @@ To add new project follow instructions:
 - Set project databases (Influx and Postgres).
 - Set it to `disabled: true` for now.
 - If not using `devstats` cron job then add project entry in `crontab.entry` but do not install new cron yet (that will be the last step).
-- Update `./cron/cron_db_backup_all.sh`, `./reinit.sh`, `./devel/add_single_metric_all.sh`, `grafana/copy_grafana_dbs.sh` but do not install yet.
+- Update `./cron/cron_db_backup_all.sh`, `./devel/reinit.sh`, `./devel/import_affs.sh`, `./devel/add_single_metric_all.sh`, `grafana/copy_grafana_dbs.sh` but do not install yet.
 - Add new domain for the project: `projectname.cncftest.io`. If using wildcard domain like *.devstats.cncf.io - this step is not needed.
 - Add google analytics for the new domain and update /etc/grafana.projectname/grafana.ini with its `UA-...`.
 - Search for all files defined for some existing project, for example `find . -iname "*oldproject*"`.
