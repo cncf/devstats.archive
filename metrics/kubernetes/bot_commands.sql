@@ -12,13 +12,16 @@ from (
       'g'
     ) as cmd,
     t.event_id as eid,
-    r.repo_group as repo_group
+    coalesce(ecf.repo_group, r.repo_group) as repo_group
   from
-    gha_texts t,
-    gha_repos r
+    gha_repos r,
+    gha_texts t
+  left join
+    gha_events_commits_files ecf
+  on
+    ecf.event_id = t.event_id
   where
     r.id = t.repo_id
-    and r.repo_group is not null
     and t.created_at >= '{{from}}'
     and t.created_at < '{{to}}'
     and t.actor_login not in ('googlebot')
@@ -27,7 +30,8 @@ from (
     and t.actor_login not like '%-robot'
   ) sub
 where
-  sub.cmd is not null;
+  sub.repo_group is not null
+  and sub.cmd is not null;
 
 select
   'bot_commands,' || substring(cmd from 2) || '`All' as command,
