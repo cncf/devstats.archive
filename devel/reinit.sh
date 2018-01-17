@@ -1,4 +1,14 @@
 #!/bin/sh
+if [ -z "${PG_PASS}" ]
+then
+  echo "You need to set PG_PASS environment variable to run this script"
+  exit 1
+fi
+if [ -z "${IDB_PASS}" ]
+then
+  echo "You need to set IDB_PASS environment variable to run this script"
+  exit 1
+fi
 ./kubernetes/reinit_all.sh || exit 1
 ./prometheus/reinit.sh || exit 2
 ./opentracing/reinit.sh || exit 3
