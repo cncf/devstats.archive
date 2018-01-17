@@ -1,11 +1,15 @@
 create temp table issues as
 select i.id,
-  r.repo_group,
+  coalesce(ecf.repo_group, r.repo_group) as repo_group,
   i.created_at,
   i.closed_at as closed_at
 from
   gha_repos r,
   gha_issues i
+left join
+  gha_events_commits_files ecf
+on
+  ecf.event_id = i.event_id
 where
   i.is_pull_request = false
   and i.closed_at is not null
