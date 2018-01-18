@@ -22,7 +22,8 @@ group by
 create temp table rebases as
 select distinct il.issue_id,
   i.repo_name,
-  max(il.dup_created_at) as rebase_dt
+  max(il.dup_created_at) as rebase_dt,
+  min(il.event_id) as event_id
 from
   issues i,
   gha_issues_labels il
@@ -60,23 +61,33 @@ group by
 ;
 
 select
-  'pr_needs_rebase,' || re.repo_group as repo_group,
-  count(distinct r.issue_id) as need_rebase_count
-from
-  gha_repos re
-join
-  rebases r
-on
-  r.repo_name = re.name
-  and re.repo_group is not null
-left join
-  removed_rebases rr
-on
-  r.issue_id = rr.issue_id
+  sub.repo_group,
+  count(distinct sub.issue_id) as need_rebase_count
+from (
+  select 'pr_needs_rebase,' || coalesce(ecf.repo_group, re.repo_group) as repo_group,
+    r.issue_id
+  from
+    rebases r
+  join
+    gha_repos re
+  on
+    r.repo_name = re.name
+  left join
+    gha_events_commits_files ecf
+  on
+    ecf.event_id = r.event_id
+  left join
+    removed_rebases rr
+  on
+    r.issue_id = rr.issue_id
+  where
+    rr.issue_id is null
+  ) sub
 where
-  rr.issue_id is null
+  sub.repo_group is not null
 group by
-  re.repo_group
+  sub.repo_group
+order by need_rebase_count desc
 ;
 
 drop table removed_rebases;
