@@ -10,22 +10,31 @@ where
   and actor_login not like 'k8s-%'
   and actor_login not like '%-bot'
   and actor_login not like '%-robot'
-union select 'repo_commenters,' || r.repo_group as repo_group,
-  round(count(distinct t.actor_login) / {{n}}, 2) as result
-from
-  gha_texts t,
-  gha_repos r
+union select sub.repo_group,
+  round(count(distinct sub.actor_login) / {{n}}, 2) as result
+from (
+  select 'repo_commenters,' || coalesce(ecf.repo_group, r.repo_group) as repo_group,
+    t.actor_login
+  from
+    gha_repos r,
+    gha_texts t
+  left join
+    gha_events_commits_files ecf
+  on
+    ecf.event_id = t.event_id
+  where
+    r.id = t.repo_id
+    and t.created_at >= '{{from}}'
+    and t.created_at < '{{to}}'
+    and t.actor_login not in ('googlebot')
+    and t.actor_login not like 'k8s-%'
+    and t.actor_login not like '%-bot'
+    and t.actor_login not like '%-robot'
+  ) sub
 where
-  r.id = t.repo_id
-  and r.repo_group is not null
-  and t.created_at >= '{{from}}'
-  and t.created_at < '{{to}}'
-  and t.actor_login not in ('googlebot')
-  and t.actor_login not like 'k8s-%'
-  and t.actor_login not like '%-bot'
-  and t.actor_login not like '%-robot'
+  sub.repo_group is not null
 group by
-  r.repo_group
+  sub.repo_group
 order by
   result desc,
   repo_group asc
