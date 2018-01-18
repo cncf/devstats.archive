@@ -1,6 +1,7 @@
 create temp table all_prs as
 select distinct i.id,
-  i.dup_repo_name
+  i.dup_repo_name,
+  pr.event_id
 from
   gha_issues i,
   gha_issues_pull_requests ipr,
@@ -55,22 +56,32 @@ left join
   approved_prs a
 on
   prs.id = a.id
-union select 'prs_approve_state;' || r.repo_group ||';approved,awaiting' as name,
-  round(count(distinct prs.id) filter (where a.id is not null) / {{n}}, 2) as approved,
-  round(count(distinct prs.id) filter (where a.id is null) / {{n}}, 2) as awaiting
-from
-  gha_repos r
-join
-  all_prs prs
-on
-  prs.dup_repo_name = r.name
-  and r.repo_group is not null
-left join 
-  approved_prs a
-on
-  prs.id = a.id
+union select sub.name,
+  round(count(distinct sub.id) filter (where sub.aid is not null) / {{n}}, 2) as approved,
+  round(count(distinct sub.id) filter (where sub.aid is null) / {{n}}, 2) as awaiting
+from (
+  select 'prs_approve_state;' || coalesce(ecf.repo_group, r.repo_group) ||';approved,awaiting' as name,
+    prs.id,
+    a.id as aid
+  from
+    gha_repos r
+  join
+    all_prs prs
+  on
+    prs.dup_repo_name = r.name
+  left join
+    gha_events_commits_files ecf
+  on
+    ecf.event_id = prs.event_id
+  left join 
+    approved_prs a
+  on
+    prs.id = a.id
+  ) sub
+where
+  sub.name is not null
 group by
-  r.repo_group
+  sub.name
 order by
   approved desc,
   awaiting desc,
