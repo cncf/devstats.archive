@@ -23,33 +23,45 @@ on
 ;
 
 create temp table prs_groups as
-select distinct r.repo_group,
-  ipr.issue_id,
-  pr.created_at,
-  pr.merged_at as merged_at,
-  case iel.label_name when 'kind/api-change' then 'yes' else 'no' end as api_change
-from
-  gha_pull_requests pr
-join
-  gha_repos r
-on
-  r.repo_group is not null
-  and pr.merged_at is not null
-  and pr.created_at >= '{{from}}'
-  and pr.created_at < '{{to}}'
-  and pr.event_id = (
-    select i.event_id from gha_pull_requests i where i.id = pr.id order by i.updated_at desc limit 1
-  )
-join
-  gha_issues_pull_requests ipr
-on
-  r.id = ipr.repo_id
-  and pr.id = ipr.pull_request_id
-left join
-  gha_issues_events_labels iel
-on
-  ipr.issue_id = iel.issue_id
-  and iel.label_name = 'kind/api-change'
+select sub.repo_group,
+  sub.issue_id,
+  sub.created_at,
+  sub.merged_at,
+  sub.api_change
+from (
+  select distinct coalesce(ecf.repo_group, r.repo_group) as repo_group,
+    ipr.issue_id,
+    pr.created_at,
+    pr.merged_at as merged_at,
+    case iel.label_name when 'kind/api-change' then 'yes' else 'no' end as api_change
+  from
+    gha_repos r
+  join
+    gha_pull_requests pr
+  on
+    pr.merged_at is not null
+    and pr.created_at >= '{{from}}'
+    and pr.created_at < '{{to}}'
+    and pr.event_id = (
+      select i.event_id from gha_pull_requests i where i.id = pr.id order by i.updated_at desc limit 1
+    )
+  join
+    gha_issues_pull_requests ipr
+  on
+    r.id = ipr.repo_id
+    and pr.id = ipr.pull_request_id
+  left join
+    gha_events_commits_files ecf
+  on
+    ecf.event_id = pr.event_id
+  left join
+    gha_issues_events_labels iel
+  on
+    ipr.issue_id = iel.issue_id
+    and iel.label_name = 'kind/api-change'
+  ) sub
+where
+  sub.repo_group is not null
 ;
 
 create temp table pr_lgtm as
