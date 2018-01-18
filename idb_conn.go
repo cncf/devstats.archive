@@ -61,7 +61,7 @@ func IDBWritePointsN(ctx *Ctx, con *client.Client, points *IDBBatchPointsN) (err
 	if ctx.Debug > 1 || (ctx.Debug == 1 && len(points.fullBatches) > 0) {
 		Printf("Writing %d points\n", points.NPoints)
 	}
-	for i := 1; i <= 5; i++ {
+	for i := 1; i <= 10; i++ {
 		err = (*con).Write(*(points.Points))
 		if err == nil {
 			break
