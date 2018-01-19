@@ -33,15 +33,11 @@ from (
       'PullRequestReviewCommentEvent', 'PushEvent', 'PullRequestEvent',
       'IssuesEvent', 'IssueCommentEvent', 'CommitCommentEvent'
     )
-    and dup_actor_login not in (
-      'googlebot', 'k8s-ci-robot', 'k8s-merge-robot', 'k8s-bot',
-      'k8s-teamcity-mesosphere', 'k8s-reviewable', 'k8s-cherrypick-bot',
-      'k8s-publish-robot', 'fejta-bot', 'openshift-ci-robot'
-    )
+    and (dup_actor_login {{exclude_bots}})
   group by
     affs.company_name
   union select affs.company_name as company,
-    r.repo_group as repo_group,
+    coalesce(ecf.repo_group, r.repo_group) as repo_group,
     count(distinct ev.id) as activity,
     count(distinct ev.actor_id) as authors,
     sum(case ev.type when 'IssuesEvent' then 1 else 0 end) as issues,
@@ -51,12 +47,15 @@ from (
     sum(case ev.type when 'IssueCommentEvent' then 1 else 0 end) as issue_comments,
     sum(case ev.type when 'CommitCommentEvent' then 1 else 0 end) as commit_comments
   from
-    gha_events ev,
     gha_actors_affiliations affs,
-    gha_repos r
+    gha_repos r,
+    gha_events ev
+  left join
+    gha_events_commits_files ecf
+  on
+    ecf.event_id = ev.id
   where
     r.id = ev.repo_id
-    and r.repo_group is not null
     and ev.actor_id = affs.actor_id
     and affs.dt_from <= ev.created_at
     and affs.dt_to > ev.created_at
@@ -66,14 +65,10 @@ from (
       'PullRequestReviewCommentEvent', 'PushEvent', 'PullRequestEvent',
       'IssuesEvent', 'IssueCommentEvent', 'CommitCommentEvent'
     )
-    and dup_actor_login not in (
-      'googlebot', 'k8s-ci-robot', 'k8s-merge-robot', 'k8s-bot',
-      'k8s-teamcity-mesosphere', 'k8s-reviewable', 'k8s-cherrypick-bot',
-      'k8s-publish-robot', 'fejta-bot', 'openshift-ci-robot'
-    )
+    and (dup_actor_login {{exclude_bots}})
   group by
     affs.company_name,
-    r.repo_group
+    coalesce(ecf.repo_group, r.repo_group)
   union select 'All' as company,
     'all' as repo_group,
     count(distinct ev.id) as activity,
@@ -93,13 +88,9 @@ from (
       'PullRequestReviewCommentEvent', 'PushEvent', 'PullRequestEvent',
       'IssuesEvent', 'IssueCommentEvent', 'CommitCommentEvent'
     )
-    and dup_actor_login not in (
-      'googlebot', 'k8s-ci-robot', 'k8s-merge-robot', 'k8s-bot',
-      'k8s-teamcity-mesosphere', 'k8s-reviewable', 'k8s-cherrypick-bot',
-      'k8s-publish-robot', 'fejta-bot', 'openshift-ci-robot'
-    )
+    and (dup_actor_login {{exclude_bots}})
   union select 'All' as company,
-    r.repo_group as repo_group,
+    coalesce(ecf.repo_group, r.repo_group) as repo_group,
     count(distinct ev.id) as activity,
     count(distinct ev.actor_id) as authors,
     sum(case ev.type when 'IssuesEvent' then 1 else 0 end) as issues,
@@ -109,29 +100,29 @@ from (
     sum(case ev.type when 'IssueCommentEvent' then 1 else 0 end) as issue_comments,
     sum(case ev.type when 'CommitCommentEvent' then 1 else 0 end) as commit_comments
   from
-    gha_events ev,
-    gha_repos r
+    gha_repos r,
+    gha_events ev
+  left join
+    gha_events_commits_files ecf
+  on
+    ecf.event_id = ev.id
   where
     r.id = ev.repo_id
-    and r.repo_group is not null
     and ev.created_at >= '{{from}}'
     and ev.created_at < '{{to}}'
     and ev.type in (
       'PullRequestReviewCommentEvent', 'PushEvent', 'PullRequestEvent',
       'IssuesEvent', 'IssueCommentEvent', 'CommitCommentEvent'
     )
-    and dup_actor_login not in (
-      'googlebot', 'k8s-ci-robot', 'k8s-merge-robot', 'k8s-bot',
-      'k8s-teamcity-mesosphere', 'k8s-reviewable', 'k8s-cherrypick-bot',
-      'k8s-publish-robot', 'fejta-bot', 'openshift-ci-robot'
-    )
+    and (dup_actor_login {{exclude_bots}})
   group by
-    r.repo_group
+    coalesce(ecf.repo_group, r.repo_group)
   order by
     authors desc,
     activity desc,
     company asc
   ) sub
 where
-  sub.authors > 0
+  sub.repo_group is not null
+  and sub.authors > 0
 ;

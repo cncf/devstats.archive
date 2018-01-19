@@ -6,10 +6,7 @@ from
 where
   created_at >= '{{from}}'
   and created_at < '{{to}}'
-  and dup_actor_login not in ('googlebot')
-  and dup_actor_login not like 'k8s-%'
-  and dup_actor_login not like '%-bot'
-  and dup_actor_login not like '%-robot'
+  and (dup_actor_login {{exclude_bots}})
 union select sub.repo_group,
   round(count(distinct sub.actor) / {{n}}, 2) as authors
 from (
@@ -26,10 +23,7 @@ from (
     pr.dup_repo_id = r.id
     and pr.created_at >= '{{from}}'
     and pr.created_at < '{{to}}'
-    and pr.dup_actor_login not in ('googlebot')
-    and pr.dup_actor_login not like 'k8s-%'
-    and pr.dup_actor_login not like '%-bot'
-    and pr.dup_actor_login not like '%-robot'
+    and (pr.dup_actor_login {{exclude_bots}})
  ) sub
 where
   sub.repo_group is not null

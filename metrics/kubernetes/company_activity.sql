@@ -33,11 +33,7 @@ from (
       'PullRequestReviewCommentEvent', 'PushEvent', 'PullRequestEvent',
       'IssuesEvent', 'IssueCommentEvent', 'CommitCommentEvent'
     )
-    and dup_actor_login not in (
-      'googlebot', 'k8s-ci-robot', 'k8s-merge-robot', 'k8s-bot',
-      'k8s-teamcity-mesosphere', 'k8s-reviewable', 'k8s-cherrypick-bot',
-      'k8s-publish-robot', 'fejta-bot', 'openshift-ci-robot'
-    )
+    and (dup_actor_login {{exclude_bots}})
   group by
     affs.company_name
   union select affs.company_name as company,
@@ -69,11 +65,7 @@ from (
       'PullRequestReviewCommentEvent', 'PushEvent', 'PullRequestEvent',
       'IssuesEvent', 'IssueCommentEvent', 'CommitCommentEvent'
     )
-    and dup_actor_login not in (
-      'googlebot', 'k8s-ci-robot', 'k8s-merge-robot', 'k8s-bot',
-      'k8s-teamcity-mesosphere', 'k8s-reviewable', 'k8s-cherrypick-bot',
-      'k8s-publish-robot', 'fejta-bot', 'openshift-ci-robot'
-    )
+    and (dup_actor_login {{exclude_bots}})
   group by
     affs.company_name,
     coalesce(ecf.repo_group, r.repo_group)
@@ -96,11 +88,7 @@ from (
       'PullRequestReviewCommentEvent', 'PushEvent', 'PullRequestEvent',
       'IssuesEvent', 'IssueCommentEvent', 'CommitCommentEvent'
     )
-    and dup_actor_login not in (
-      'googlebot', 'k8s-ci-robot', 'k8s-merge-robot', 'k8s-bot',
-      'k8s-teamcity-mesosphere', 'k8s-reviewable', 'k8s-cherrypick-bot',
-      'k8s-publish-robot', 'fejta-bot', 'openshift-ci-robot'
-    )
+    and (dup_actor_login {{exclude_bots}})
   union select 'All' as company,
     coalesce(ecf.repo_group, r.repo_group) as repo_group,
     count(distinct ev.id) as activity,
@@ -126,11 +114,7 @@ from (
       'PullRequestReviewCommentEvent', 'PushEvent', 'PullRequestEvent',
       'IssuesEvent', 'IssueCommentEvent', 'CommitCommentEvent'
     )
-    and dup_actor_login not in (
-      'googlebot', 'k8s-ci-robot', 'k8s-merge-robot', 'k8s-bot',
-      'k8s-teamcity-mesosphere', 'k8s-reviewable', 'k8s-cherrypick-bot',
-      'k8s-publish-robot', 'fejta-bot', 'openshift-ci-robot'
-    )
+    and (dup_actor_login {{exclude_bots}})
   group by
     coalesce(ecf.repo_group, r.repo_group)
   order by

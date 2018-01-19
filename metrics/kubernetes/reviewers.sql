@@ -19,10 +19,7 @@ select
 from
   gha_events
 where
-  dup_actor_login not in ('googlebot')
-  and dup_actor_login not like 'k8s-%'
-  and dup_actor_login not like '%-bot'
-  and dup_actor_login not like '%-robot'
+  (dup_actor_login {{exclude_bots}})
   and id in (
     select min(event_id)
     from
@@ -50,10 +47,7 @@ from (
     ecf.event_id = e.id
   where
     e.repo_id = r.id
-    and e.dup_actor_login not in ('googlebot')
-    and e.dup_actor_login not like 'k8s-%'
-    and e.dup_actor_login not like '%-bot'
-    and e.dup_actor_login not like '%-robot'
+    and (e.dup_actor_login {{exclude_bots}})
     and e.id in (
       select min(event_id)
       from

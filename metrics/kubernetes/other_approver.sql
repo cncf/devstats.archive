@@ -35,10 +35,7 @@ where
   and i.event_id = pl.event_id
   and i.created_at >= '{{from}}'
   and i.created_at < '{{to}}'
-  and c.dup_actor_login not in ('googlebot')
-  and c.dup_actor_login not like 'k8s-%'
-  and c.dup_actor_login not like '%-bot'
-  and c.dup_actor_login not like '%-robot'
+  and (c.dup_actor_login {{exclude_bots}})
   and substring(
     c.body from '(?i)(?:^|\n|\r)\s*/approve\s*(?:\n|\r|$)'
   ) is not null

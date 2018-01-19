@@ -142,7 +142,7 @@ func roundF2I(val float64) int {
 	return int(val + 0.5)
 }
 
-func workerThread(ch chan bool, ctx *lib.Ctx, seriesNameOrFunc, sqlQuery, period, desc string, multivalue, escapeValueName bool, nIntervals int, dt, from, to time.Time) {
+func workerThread(ch chan bool, ctx *lib.Ctx, seriesNameOrFunc, sqlQuery, excludeBots, period, desc string, multivalue, escapeValueName bool, nIntervals int, dt, from, to time.Time) {
 	// Connect to Postgres DB
 	sqlc := lib.PgConn(ctx)
 	defer func() { lib.FatalOnError(sqlc.Close()) }()
@@ -163,6 +163,7 @@ func workerThread(ch chan bool, ctx *lib.Ctx, seriesNameOrFunc, sqlQuery, period
 	sqlQuery = strings.Replace(sqlQuery, "{{from}}", sFrom, -1)
 	sqlQuery = strings.Replace(sqlQuery, "{{to}}", sTo, -1)
 	sqlQuery = strings.Replace(sqlQuery, "{{n}}", strconv.Itoa(nIntervals)+".0", -1)
+	sqlQuery = strings.Replace(sqlQuery, "{{exclude_bots}}", excludeBots, -1)
 
 	// Execute SQL query
 	rows := lib.QuerySQLWithErr(sqlc, ctx, sqlQuery)
@@ -344,7 +345,7 @@ func setAlreadyComputed(ic client.Client, ctx *lib.Ctx, pts *lib.IDBBatchPointsN
 	}
 }
 
-func db2influxHistogram(ctx *lib.Ctx, seriesNameOrFunc, sqlFile, sqlQuery, interval, intervalAbbr string, nIntervals int, annotationsRanges, skipPast bool) {
+func db2influxHistogram(ctx *lib.Ctx, seriesNameOrFunc, sqlFile, sqlQuery, excludeBots, interval, intervalAbbr string, nIntervals int, annotationsRanges, skipPast bool) {
 	// Connect to Postgres DB
 	sqlc := lib.PgConn(ctx)
 	defer func() { lib.FatalOnError(sqlc.Close()) }()
@@ -387,6 +388,7 @@ func db2influxHistogram(ctx *lib.Ctx, seriesNameOrFunc, sqlFile, sqlQuery, inter
 					}
 				}
 				sqlQuery = lib.PrepareQuickRangeQuery(sqlQuery, period, from, to)
+				sqlQuery = strings.Replace(sqlQuery, "{{exclude_bots}}", excludeBots, -1)
 				if period == "" {
 					dtTo := lib.TimeParseAny(to)
 					prevHour := lib.PrevHourStart(time.Now())
@@ -408,6 +410,7 @@ func db2influxHistogram(ctx *lib.Ctx, seriesNameOrFunc, sqlFile, sqlQuery, inter
 		}
 		sqlQuery = strings.Replace(sqlQuery, "{{period}}", dbInterval, -1)
 		sqlQuery = strings.Replace(sqlQuery, "{{n}}", strconv.Itoa(nIntervals)+".0", -1)
+		sqlQuery = strings.Replace(sqlQuery, "{{exclude_bots}}", excludeBots, -1)
 	}
 
 	// Execute SQL query
@@ -534,10 +537,21 @@ func db2influx(seriesNameOrFunc, sqlFile, from, to, intervalAbbr string, hist, m
 	var ctx lib.Ctx
 	ctx.Init()
 
+	// Local or cron mode?
+	dataPrefix := lib.DataDir
+	if ctx.Local {
+		dataPrefix = "./"
+	}
+
 	// Read SQL file.
 	bytes, err := ioutil.ReadFile(sqlFile)
 	lib.FatalOnError(err)
 	sqlQuery := string(bytes)
+
+	// Read bots exclusion partial SQL
+	bytes, err = ioutil.ReadFile(dataPrefix + "util_sql/exclude_bots.sql")
+	lib.FatalOnError(err)
+	excludeBots := string(bytes)
 
 	// Process interval
 	interval, nIntervals, intervalStart, nextIntervalStart, prevIntervalStart := lib.GetIntervalFunctions(intervalAbbr, annotationsRanges)
@@ -548,6 +562,7 @@ func db2influx(seriesNameOrFunc, sqlFile, from, to, intervalAbbr string, hist, m
 			seriesNameOrFunc,
 			sqlFile,
 			sqlQuery,
+			excludeBots,
 			interval,
 			intervalAbbr,
 			nIntervals,
@@ -583,7 +598,21 @@ func db2influx(seriesNameOrFunc, sqlFile, from, to, intervalAbbr string, hist, m
 			} else {
 				pDt = lib.AddNIntervals(dt, 1-nIntervals, nextIntervalStart, prevIntervalStart)
 			}
-			go workerThread(ch, &ctx, seriesNameOrFunc, sqlQuery, intervalAbbr, desc, multivalue, escapeValueName, nIntervals, dt, pDt, nDt)
+			go workerThread(
+				ch,
+				&ctx,
+				seriesNameOrFunc,
+				sqlQuery,
+				excludeBots,
+				intervalAbbr,
+				desc,
+				multivalue,
+				escapeValueName,
+				nIntervals,
+				dt,
+				pDt,
+				nDt,
+			)
 			dt = nDt
 			if len(chanPool) == thrN {
 				ch = chanPool[0]
@@ -604,7 +633,21 @@ func db2influx(seriesNameOrFunc, sqlFile, from, to, intervalAbbr string, hist, m
 			} else {
 				pDt = lib.AddNIntervals(dt, 1-nIntervals, nextIntervalStart, prevIntervalStart)
 			}
-			workerThread(nil, &ctx, seriesNameOrFunc, sqlQuery, intervalAbbr, desc, multivalue, escapeValueName, nIntervals, dt, pDt, nDt)
+			workerThread(
+				nil,
+				&ctx,
+				seriesNameOrFunc,
+				sqlQuery,
+				excludeBots,
+				intervalAbbr,
+				desc,
+				multivalue,
+				escapeValueName,
+				nIntervals,
+				dt,
+				pDt,
+				nDt,
+			)
 			dt = nDt
 		}
 	}

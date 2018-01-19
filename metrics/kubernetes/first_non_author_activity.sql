@@ -32,10 +32,7 @@ on
 where
   i.id = i2.id
   and r.name = i2.dup_repo_name
-  and i2.dup_actor_login not in ('googlebot')
-  and i2.dup_actor_login not like 'k8s-%'
-  and i2.dup_actor_login not like '%-bot'
-  and i2.dup_actor_login not like '%-robot'
+  and (i2.dup_actor_login {{exclude_bots}})
   and i2.event_id in (
     select event_id
     from
@@ -61,10 +58,7 @@ on
 where
   p.id = p2.id
   and r.name = p2.dup_repo_name
-  and p2.dup_actor_login not in ('googlebot')
-  and p2.dup_actor_login not like 'k8s-%'
-  and p2.dup_actor_login not like '%-bot'
-  and p2.dup_actor_login not like '%-robot'
+  and (p2.dup_actor_login {{exclude_bots}})
   and p2.event_id in (
     select event_id
     from

@@ -80,10 +80,14 @@ func idbTags() {
 		lib.FatalOnError(err)
 		sqlQuery := string(bytes)
 
-		// Transform SQL (hardcoded limit 25 for template dropdowns
-		// When dropdown contains "All" there are 40 items then, Grafana names series 1-26 --> "a"-"z"
-		// Next series have no name
+		// Handle excluding bots
+		bytes, err = ioutil.ReadFile(dataPrefix + "util_sql/exclude_bots.sql")
+		lib.FatalOnError(err)
+		excludeBots := string(bytes)
+
+		// Transform SQL
 		sqlQuery = strings.Replace(sqlQuery, "{{lim}}", "39", -1)
+		sqlQuery = strings.Replace(sqlQuery, "{{exclude_bots}}", excludeBots, -1)
 
 		// Execute SQL
 		rows := lib.QuerySQLWithErr(con, &ctx, sqlQuery)

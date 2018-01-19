@@ -15,10 +15,7 @@ from (
   where
     {{period:c.dup_created_at}}
     and c.dup_repo_id = r.id
-    and c.dup_actor_login not in ('googlebot')
-    and c.dup_actor_login not like 'k8s-%'
-    and c.dup_actor_login not like '%-bot'
-    and c.dup_actor_login not like '%-robot'
+    and (c.dup_actor_login {{exclude_bots}})
   ) sub
 where
   sub.repo_group is not null
@@ -31,10 +28,7 @@ from
   gha_commits
 where
   {{period:dup_created_at}}
-  and dup_actor_login not in ('googlebot')
-  and dup_actor_login not like 'k8s-%'
-  and dup_actor_login not like '%-bot'
-  and dup_actor_login not like '%-robot'
+  and (dup_actor_login {{exclude_bots}})
 union select sub.repo_group,
   case sub.type
     when 'IssuesEvent' then 'Issue creators'
@@ -66,10 +60,7 @@ from (
     )
     and {{period:e.created_at}}
     and e.repo_id = r.id
-    and e.dup_actor_login not in ('googlebot')
-    and e.dup_actor_login not like 'k8s-%'
-    and e.dup_actor_login not like '%-bot'
-    and e.dup_actor_login not like '%-robot'
+    and (e.dup_actor_login {{exclude_bots}})
   ) sub
 where
   sub.repo_group is not null
@@ -97,10 +88,7 @@ where
     'CommitCommentEvent', 'ForkEvent', 'WatchEvent'
   )
   and {{period:created_at}}
-  and dup_actor_login not in ('googlebot')
-  and dup_actor_login not like 'k8s-%'
-  and dup_actor_login not like '%-bot'
-  and dup_actor_login not like '%-robot'
+  and (dup_actor_login {{exclude_bots}})
 group by
   type
 union select 'project_stats,' || r.repo_group as repo_group,
@@ -138,10 +126,7 @@ from (
   where
     {{period:c.created_at}}
     and c.dup_repo_id = r.id
-    and c.dup_user_login not in ('googlebot')
-    and c.dup_user_login not like 'k8s-%'
-    and c.dup_user_login not like '%-bot'
-    and c.dup_user_login not like '%-robot'
+    and (c.dup_user_login {{exclude_bots}})
   ) sub
 where
   sub.repo_group is not null
@@ -154,10 +139,7 @@ from
   gha_comments
 where
   {{period:created_at}}
-  and dup_user_login not in ('googlebot')
-  and dup_user_login not like 'k8s-%'
-  and dup_user_login not like '%-bot'
-  and dup_user_login not like '%-robot'
+  and (dup_user_login {{exclude_bots}})
 union select sub.repo_group,
   'Commenters' as name,
   count(distinct sub.user_id) as value
@@ -174,10 +156,7 @@ from (
   where
     {{period:c.created_at}}
     and c.dup_repo_id = r.id
-    and c.dup_user_login not in ('googlebot')
-    and c.dup_user_login not like 'k8s-%'
-    and c.dup_user_login not like '%-bot'
-    and c.dup_user_login not like '%-robot'
+    and (c.dup_user_login {{exclude_bots}})
   ) sub
 where
   sub.repo_group is not null
@@ -190,10 +169,7 @@ from
   gha_comments
 where
   {{period:created_at}}
-  and dup_user_login not in ('googlebot')
-  and dup_user_login not like 'k8s-%'
-  and dup_user_login not like '%-bot'
-  and dup_user_login not like '%-robot'
+  and (dup_user_login {{exclude_bots}})
 union select sub.repo_group,
   'Issues' as name,
   count(distinct sub.id) as value
@@ -211,10 +187,7 @@ from (
     {{period:i.created_at}}
     and i.dup_repo_id = r.id
     and i.is_pull_request = false
-    and i.dup_user_login not in ('googlebot')
-    and i.dup_user_login not like 'k8s-%'
-    and i.dup_user_login not like '%-bot'
-    and i.dup_user_login not like '%-robot'
+    and (i.dup_user_login {{exclude_bots}})
   ) sub
 where
   sub.repo_group is not null
@@ -228,10 +201,7 @@ from
 where
   {{period:created_at}}
   and is_pull_request = false
-  and dup_user_login not in ('googlebot')
-  and dup_user_login not like 'k8s-%'
-  and dup_user_login not like '%-bot'
-  and dup_user_login not like '%-robot'
+  and (dup_user_login {{exclude_bots}})
 union select sub.repo_group,
   'PRs' as name,
   count(distinct sub.id) as value
@@ -249,10 +219,7 @@ from (
     {{period:i.created_at}}
     and i.dup_repo_id = r.id
     and i.is_pull_request = true
-    and i.dup_user_login not in ('googlebot')
-    and i.dup_user_login not like 'k8s-%'
-    and i.dup_user_login not like '%-bot'
-    and i.dup_user_login not like '%-robot'
+    and (i.dup_user_login {{exclude_bots}})
  ) sub
 where
   sub.repo_group is not null
@@ -266,10 +233,7 @@ from
 where
   {{period:created_at}}
   and is_pull_request = true
-  and dup_user_login not in ('googlebot')
-  and dup_user_login not like 'k8s-%'
-  and dup_user_login not like '%-bot'
-  and dup_user_login not like '%-robot'
+  and (dup_user_login {{exclude_bots}})
 union select sub.repo_group,
   'Events' as name,
   count(sub.id) as value
@@ -286,10 +250,7 @@ from (
   where
     {{period:e.created_at}}
     and e.repo_id = r.id
-    and e.dup_actor_login not in ('googlebot')
-    and e.dup_actor_login not like 'k8s-%'
-    and e.dup_actor_login not like '%-bot'
-    and e.dup_actor_login not like '%-robot'
+    and (e.dup_actor_login {{exclude_bots}})
   ) sub
 where
   sub.repo_group is not null
@@ -302,10 +263,7 @@ from
   gha_events
 where
   {{period:created_at}}
-  and dup_actor_login not in ('googlebot')
-  and dup_actor_login not like 'k8s-%'
-  and dup_actor_login not like '%-bot'
-  and dup_actor_login not like '%-robot'
+  and (dup_actor_login {{exclude_bots}})
 order by
   name asc,
   value desc,

@@ -22,10 +22,7 @@ from (
     ecf.event_id = e.id
   where
     e.repo_id = r.id
-    and e.dup_actor_login not in ('googlebot')
-    and e.dup_actor_login not like 'k8s-%'
-    and e.dup_actor_login not like '%-bot'
-    and e.dup_actor_login not like '%-robot'
+    and (e.dup_actor_login {{exclude_bots}})
     and e.id in (
       select event_id
       from

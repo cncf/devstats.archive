@@ -10,11 +10,7 @@ from (
     gha_commits c
   where
     {{period:c.dup_created_at}}
-    and c.dup_actor_login not in ('googlebot')
-    and c.dup_actor_login not like 'k8s-%'
-    and c.dup_actor_login not like '%-bot'
-    and c.dup_actor_login not like '%-robot'
-    and c.dup_actor_login not like '%[bot]%'
+    and (c.dup_actor_login {{exclude_bots}})
   group by
     c.dup_actor_login
   union select case e.type
@@ -35,11 +31,7 @@ from (
       'IssueCommentEvent', 'CommitCommentEvent'
     )
     and {{period:e.created_at}}
-    and e.dup_actor_login not in ('googlebot')
-    and e.dup_actor_login not like 'k8s-%'
-    and e.dup_actor_login not like '%-bot'
-    and e.dup_actor_login not like '%-robot'
-    and e.dup_actor_login not like '%[bot]%'
+    and (e.dup_actor_login {{exclude_bots}})
   group by
     e.type,
     a.login
@@ -52,11 +44,7 @@ from (
   where
     e.actor_id = a.id
     and {{period:e.created_at}}
-    and e.dup_actor_login not in ('googlebot')
-    and e.dup_actor_login not like 'k8s-%'
-    and e.dup_actor_login not like '%-bot'
-    and e.dup_actor_login not like '%-robot'
-    and e.dup_actor_login not like '%[bot]%'
+    and (e.dup_actor_login {{exclude_bots}})
   group by
     a.login
   union select 'Comments' as metric,
@@ -68,11 +56,7 @@ from (
   where
     c.user_id = a.id
     and {{period:c.created_at}}
-    and c.dup_user_login not in ('googlebot')
-    and c.dup_user_login not like 'k8s-%'
-    and c.dup_user_login not like '%-bot'
-    and c.dup_user_login not like '%-robot'
-    and c.dup_actor_login not like '%[bot]%'
+    and (c.dup_user_login {{exclude_bots}})
   group by
     a.login
   union select 'Issues' as metric,
@@ -85,11 +69,7 @@ from (
     i.user_id = a.id
     and {{period:i.created_at}}
     and i.is_pull_request = false
-    and i.dup_user_login not in ('googlebot')
-    and i.dup_user_login not like 'k8s-%'
-    and i.dup_user_login not like '%-bot'
-    and i.dup_user_login not like '%-robot'
-    and i.dup_actor_login not like '%[bot]%'
+    and (i.dup_user_login {{exclude_bots}})
   group by
     a.login
   union select 'PRs' as metric,
@@ -102,11 +82,7 @@ from (
     i.user_id = a.id
     and {{period:i.created_at}}
     and i.is_pull_request = true
-    and i.dup_user_login not in ('googlebot')
-    and i.dup_user_login not like 'k8s-%'
-    and i.dup_user_login not like '%-bot'
-    and i.dup_user_login not like '%-robot'
-    and i.dup_actor_login not like '%[bot]%'
+    and (i.dup_user_login {{exclude_bots}})
   group by
     a.login
   union select 'GitHub events' as metric,
@@ -118,11 +94,7 @@ from (
   where
     e.actor_id = a.id
     and {{period:e.created_at}}
-    and e.dup_actor_login not in ('googlebot')
-    and e.dup_actor_login not like 'k8s-%'
-    and e.dup_actor_login not like '%-bot'
-    and e.dup_actor_login not like '%-robot'
-    and e.dup_actor_login not like '%[bot]%'
+    and (e.dup_actor_login {{exclude_bots}})
   group by
     a.login
   ) sub
