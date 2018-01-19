@@ -24,10 +24,7 @@ from (
     r.id = t.repo_id
     and t.created_at >= '{{from}}'
     and t.created_at < '{{to}}'
-    and t.actor_login not in ('googlebot')
-    and t.actor_login not like 'k8s-%'
-    and t.actor_login not like '%-bot'
-    and t.actor_login not like '%-robot'
+    and (t.actor_login {{exclude_bots}})
   ) sub
 where
   sub.repo_group is not null

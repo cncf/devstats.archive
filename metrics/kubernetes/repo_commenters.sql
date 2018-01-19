@@ -6,10 +6,7 @@ from
 where
   created_at >= '{{from}}'
   and created_at < '{{to}}'
-  and actor_login not in ('googlebot')
-  and actor_login not like 'k8s-%'
-  and actor_login not like '%-bot'
-  and actor_login not like '%-robot'
+  and (actor_login {{exclude_bots}})
 union select sub.repo_group,
   round(count(distinct sub.actor_login) / {{n}}, 2) as result
 from (
@@ -26,10 +23,7 @@ from (
     r.id = t.repo_id
     and t.created_at >= '{{from}}'
     and t.created_at < '{{to}}'
-    and t.actor_login not in ('googlebot')
-    and t.actor_login not like 'k8s-%'
-    and t.actor_login not like '%-bot'
-    and t.actor_login not like '%-robot'
+    and (t.actor_login {{exclude_bots}})
   ) sub
 where
   sub.repo_group is not null

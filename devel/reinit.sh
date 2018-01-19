@@ -9,6 +9,7 @@ then
   echo "You need to set IDB_PASS environment variable to run this script"
   exit 1
 fi
+GHA2DB_LOCAL=1 GHA2DB_PROCESS_REPOS=1 ./get_repos
 ./kubernetes/reinit_all.sh || exit 1
 ./prometheus/reinit.sh || exit 2
 ./opentracing/reinit.sh || exit 3

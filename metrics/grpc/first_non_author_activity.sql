@@ -20,18 +20,19 @@ where
 
 create temp table tdiffs as
 select extract(epoch from i2.updated_at - i.created_at) / 3600 as diff,
-  r.repo_group
+  coalesce(ecf.repo_group, r.repo_group) as repo_group
 from
   issues i,
-  gha_issues i2,
-  gha_repos r
+  gha_repos r,
+  gha_issues i2
+left join
+  gha_events_commits_files ecf
+on
+  ecf.event_id = i2.event_id
 where
   i.id = i2.id
   and r.name = i2.dup_repo_name
-  and i2.dup_actor_login not in ('googlebot')
-  and i2.dup_actor_login not like 'k8s-%'
-  and i2.dup_actor_login not like '%-bot'
-  and i2.dup_actor_login not like '%-robot'
+  and (i2.dup_actor_login {{exclude_bots}})
   and i2.event_id in (
     select event_id
     from
@@ -45,18 +46,19 @@ where
     limit 1
   )
 union select extract(epoch from p2.updated_at - p.created_at) / 3600 as diff,
-  r.repo_group
+  coalesce(ecf.repo_group, r.repo_group) as repo_group
 from
   prs p,
-  gha_pull_requests p2,
-  gha_repos r
+  gha_repos r,
+  gha_pull_requests p2
+left join
+  gha_events_commits_files ecf
+on
+  ecf.event_id = p2.event_id
 where
   p.id = p2.id
   and r.name = p2.dup_repo_name
-  and p2.dup_actor_login not in ('googlebot')
-  and p2.dup_actor_login not like 'k8s-%'
-  and p2.dup_actor_login not like '%-bot'
-  and p2.dup_actor_login not like '%-robot'
+  and (p2.dup_actor_login {{exclude_bots}})
   and p2.event_id in (
     select event_id
     from

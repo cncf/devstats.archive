@@ -9,10 +9,7 @@ where
   and pl.comment_id is not null
   and pr.created_at >= '{{from}}'
   and pr.created_at < '{{to}}'
-  and pr.dup_actor_login not in ('googlebot')
-  and pr.dup_actor_login not like 'k8s-%'
-  and pr.dup_actor_login not like '%-bot'
-  and pr.dup_actor_login not like '%-robot'
+  and (pr.dup_actor_login {{exclude_bots}})
 group by
   pl.pull_request_id;
 

@@ -19,10 +19,7 @@ from (
       from
         gha_texts
       where
-        actor_login not in ('googlebot')
-        and actor_login not like 'k8s-%'
-        and actor_login not like '%-bot'
-        and actor_login not like '%-robot'
+        actor_login {{exclude_bots}}
     ) sel
   where
     sel.cmd is not null

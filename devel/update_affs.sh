@@ -9,6 +9,7 @@ then
   echo "You need to set IDB_PASS environment variable to run this script"
   exit 1
 fi
+GHA2DB_LOCAL=1 GHA2DB_PROCESS_REPOS=1 ./get_repos
 ./kubernetes/update_affs.sh || exit 1
 ./prometheus/update_affs.sh || exit 2
 ./opentracing/update_affs.sh || exit 3
@@ -17,4 +18,4 @@ fi
 ./grpc/update_affs.sh || exit 6
 ./coredns/update_affs.sh || exit 7
 ./containerd/update_affs.sh || exit 8
-./cncf/update_affs.sh || exit 9
+# ./cncf/update_affs.sh || exit 9
