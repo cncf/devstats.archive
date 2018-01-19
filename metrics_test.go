@@ -359,6 +359,13 @@ func executeMetric(c *sql.DB, ctx *lib.Ctx, metric string, from, to time.Time, p
 	sqlQuery = strings.Replace(sqlQuery, "{{to}}", lib.ToYMDHMSDate(to), -1)
 	sqlQuery = strings.Replace(sqlQuery, "{{period}}", period, -1)
 	sqlQuery = strings.Replace(sqlQuery, "{{n}}", strconv.Itoa(n)+".0", -1)
+	sqlQuery = strings.Replace(
+		sqlQuery,
+		"{{exclude_bots}}",
+		"not like all(array['googlebot', 'coveralls', 'k8s-%', '%-bot', '%-robot', "+
+			"'bot-%', 'robot-%', '%[bot]%', '%-jenkins', '%-ci%bot', '%-testing', 'codecov-%'])",
+		-1,
+	)
 	for _, replace := range replaces {
 		if len(replace) != 2 {
 			err = fmt.Errorf("replace(s) should have length 2, invalid: %+v", replace)
