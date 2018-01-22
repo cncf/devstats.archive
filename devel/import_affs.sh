@@ -17,7 +17,8 @@ fi
 ./grpc/import_affs.sh || exit 8
 ./coredns/import_affs.sh || exit 9
 ./containerd/import_affs.sh || exit 10
-# ./cncf/import_affs.sh || exit 11
+./rkt/import_affs.sh || exit 11
+# ./cncf/import_affs.sh || exit 12
 ./kubernetes/top_n_companies.sh 70 >> ./metrics/kubernetes/gaps.yaml
 ./prometheus/top_n_companies.sh 70 >> ./metrics/prometheus/gaps.yaml
 ./opentracing/top_n_companies.sh 70 >> ./metrics/opentracing/gaps.yaml
@@ -26,5 +27,6 @@ fi
 ./grpc/top_n_companies.sh 70 >> ./metrics/grpc/gaps.yaml
 ./coredns/top_n_companies.sh 70 >> ./metrics/coredns/gaps.yaml
 ./containerd/top_n_companies.sh 70 >> ./metrics/containerd/gaps.yaml
+./rkt/top_n_companies.sh 70 >> ./metrics/rkt/gaps.yaml
 # ./cncf/top_n_companies.sh 70 >> ./metrics/cncf/gaps.yaml
 echo 'OK'

@@ -18,4 +18,5 @@ GHA2DB_LOCAL=1 GHA2DB_PROCESS_REPOS=1 ./get_repos
 ./grpc/update_affs.sh || exit 6
 ./coredns/update_affs.sh || exit 7
 ./containerd/update_affs.sh || exit 8
-# ./cncf/update_affs.sh || exit 9
+./rkt/update_affs.sh || exit 9
+# ./cncf/update_affs.sh || exit 10

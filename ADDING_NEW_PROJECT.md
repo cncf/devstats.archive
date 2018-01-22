@@ -5,6 +5,7 @@ To add new project follow instructions:
 - Add project entry to `projects.yaml` file. Find projects orgs, repos, select start date, eventually add test coverage for complex regular expression in `regexp_test.go`.
 - Set project databases (Influx and Postgres).
 - Set it to `disabled: true` for now.
+- CNCF join dates are listed here: https://github.com/cncf/toc#projects
 - If not using `devstats` cron job then add project entry in `crontab.entry` but do not install new cron yet (that will be the last step).
 - Update `./cron/cron_db_backup_all.sh`, `./devel/reinit.sh`, `./devel/import_affs.sh`, `./devel/update_affs.sh`, `./devel/add_single_metric_all.sh`, `grafana/copy_grafana_dbs.sh` but do not install yet.
 - Add new domain for the project: `projectname.cncftest.io`. If using wildcard domain like *.devstats.cncf.io - this step is not needed.

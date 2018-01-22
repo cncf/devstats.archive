@@ -32,8 +32,12 @@ cp ~/dev/cncf/artwork/containerd/icon/white/containerd-icon-white.svg /usr/share
 cp ~/dev/cncf/artwork/containerd/icon/white/containerd-icon-white.svg /usr/share/grafana.containerd/public/img/grafana_com_auth_icon.svg || exit 30
 cp ~/dev/cncf/artwork/containerd/icon/white/containerd-icon-white.svg /usr/share/grafana.containerd/public/img/grafana_net_logo.svg || exit 31
 cp ~/dev/cncf/artwork/containerd/icon/white/containerd-icon-white.svg /usr/share/grafana.containerd/public/img/grafana_mask_icon.svg || exit 32
-# cp ~/dev/cncf/artwork/cncf/icon/color/cncf-icon-color.svg /usr/share/grafana.cncf/public/img/grafana_icon.svg || exit 33
-# cp ~/dev/cncf/artwork/cncf/icon/color/cncf-icon-color.svg /usr/share/grafana.cncf/public/img/grafana_com_auth_icon.svg || exit 34
-# cp ~/dev/cncf/artwork/cncf/icon/color/cncf-icon-color.svg /usr/share/grafana.cncf/public/img/grafana_net_logo.svg || exit 35
-# cp ~/dev/cncf/artwork/cncf/icon/color/cncf-icon-color.svg /usr/share/grafana.cncf/public/img/grafana_mask_icon.svg || exit 36
+cp ~/dev/cncf/artwork/rkt/icon/color/rkt-icon-color.svg /usr/share/grafana.rkt/public/img/grafana_icon.svg || exit 33
+cp ~/dev/cncf/artwork/rkt/icon/color/rkt-icon-color.svg /usr/share/grafana.rkt/public/img/grafana_com_auth_icon.svg || exit 34
+cp ~/dev/cncf/artwork/rkt/icon/color/rkt-icon-color.svg /usr/share/grafana.rkt/public/img/grafana_net_logo.svg || exit 35
+cp ~/dev/cncf/artwork/rkt/icon/color/rkt-icon-color.svg /usr/share/grafana.rkt/public/img/grafana_mask_icon.svg || exit 36
+# cp ~/dev/cncf/artwork/cncf/icon/color/cncf-icon-color.svg /usr/share/grafana.cncf/public/img/grafana_icon.svg || exit 37
+# cp ~/dev/cncf/artwork/cncf/icon/color/cncf-icon-color.svg /usr/share/grafana.cncf/public/img/grafana_com_auth_icon.svg || exit 38
+# cp ~/dev/cncf/artwork/cncf/icon/color/cncf-icon-color.svg /usr/share/grafana.cncf/public/img/grafana_net_logo.svg || exit 39
+# cp ~/dev/cncf/artwork/cncf/icon/color/cncf-icon-color.svg /usr/share/grafana.cncf/public/img/grafana_mask_icon.svg || exit 40
 echo 'OK'
