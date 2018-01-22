@@ -35,11 +35,12 @@ To add new project follow instructions:
 - Run regenerate all InfluxData script `./projectname/reinit.sh`.
 - `cp -Rv grafana/oldproject/ grafana/projectname/` and then update files. Usually `%s/oldproject/newproject/g|w|next`.
 - `cp -Rv grafana/dashboards/oldproject/ grafana/dashboards/projectname/` and then update files. Usually `%s/"oldproj"/"newproj"/g|%s/DS_OLDPROJ/DS_NEWPROJ/g|%s/OldProj/NewProj/g|w|next`.
+- Be careful with `dashboards.json` because it contains list of all projects so you shouldn't replace oldproj with newproj - but add new entry instead.
 - Update: `grafana/copy_artwork_icons.sh`, `apache/www/copy_icons.sh`, `grafana/create_images.sh`.
 - Update `projects.yaml` remove `disabled: true` for new project.
 - `make install` to install all changed stuff.
 - Copy directories `/etc/grafana`, `/usr/share/grafana`, `/var/lib/grafana` from standard unmodified installation adding .projectname to their names.
-- Update `./grafana/cncf/change_title_and_icons.sh` to use right names. Run it with `GRAFANA_DATA=/usr/share/grafana.projectname/ ./grafana/projectsname/change_title_and_icons.sh`.
+- Update `./grafana/proj/change_title_and_icons.sh` to use right names. Run it with `GRAFANA_DATA=/usr/share/grafana.projectname/ ./grafana/projectsname/change_title_and_icons.sh`.
 - Update `/etc/grafana.projectname/grafana.ini` - set all config options from `GRAFANA.md`, `MULTIPROJECT.md`.
 - Follow `Grafana sessions in Postgres` from MULTIPROJECT.md
 - You now need Apache proxy and SSL, please follow instructions from APACHE.md and SSL.md
@@ -50,6 +51,7 @@ To add new project follow instructions:
 - Issue new SSL certificate as described in `SSL.md` (test server): `sudo certbot --apache -d 'cncftest.io,k8s.cncftest.io,prometheus.cncftest.io,opentracing.cncftest.io,fluentd.cncftest.io,linkerd.cncftest.io,grpc.cncftest.io,coredns.cncftest.io,containerd.cncftest.io,newproj.cncftest.io,cncf.cncftest.io'`.
 - Or (prod server): `sudo certbot --apache -d 'devstats.k8s.io,devstats.cncf.io,k8s.devstats.cncf.io,prometheus.devstats.cncf.io,opentracing.devstats.cncf.io,fluentd.devstats.cncf.io,linkerd.devstats.cncf.io,grpc.devstats.cncf.io,coredns.devstats.cncf.io,containerd.devstats.cncf.io,newproject.devstats.cncf.io'`.
 - Open `newproject.cncftest.io` login with admin/admin, change the default password and follow instructions from `GRAFANA.md`.
-- Add new project to `/var/www/html/index.html` and `grafana/dashboards/all_cncf_projects.json`.
+- Add new project to `/var/www/html/index.html`.
+- Update and import `grafana/dashboards/{{proj}}/dashboards.json` dashboard on all remaining projects.
 - Finally: `cp /var/lib/grafana.projectname/grafana.db /var/www/html/grafana.projectname.db` and/or `grafana/copy_grafana_dbs.sh`
 - `crontab -e` and turn on `devstats` and/or `gha2db_sync`.
