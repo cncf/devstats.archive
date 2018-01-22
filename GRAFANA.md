@@ -9,7 +9,7 @@
 - All dashboards are here: [kubernetes](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/), [prometheus](https://github.com/cncf/devstats/blob/master/grafana/dashboards/prometheus/), [opentracing](https://github.com/cncf/devstats/blob/master/grafana/dashboards/opentracing/).
 - Do the same for all defined dashboards. Use specific project tag, for example `kubernetes`, `prometheus` or `opentracing`.
 - Import main home for example [kubernetes dahsboard](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/dashboards.json).
-- set some dashboard(s) as "favorite" - star icon, You can choose home dashboard only from favorite ones.
+- Set some dashboard(s) as "favorite" - star icon, You can choose home dashboard only from favorite ones.
 - Choose Admin -> Preferences, name Your organization (for example set it to `XYZ`), same with Admin -> profile.
 - Set You home dashboard to just imported "Dashboards".
 - You can also **try** to use current [grafana.db](https://devstats.cncf.io/grafana.db.k8s) to import everything at once, but be careful, because this is file is version specific.

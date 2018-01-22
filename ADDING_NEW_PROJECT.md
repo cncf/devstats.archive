@@ -27,7 +27,8 @@ To add new project follow instructions:
 - `grant all privileges on database "projectname" to gha_admin;`
 - If running on the test server: generate Postgres data: `PG_PASS=... IDB_PASS=... IDB_HOST=172.17.0.1 ./projectname/projectname.sh`
 - If running on the production server: `wget https://cncftest.io/projectname.sql.xz`, `xz -d projectname.sql.xz`, `sudo -u postgres psql projectname < projectname.sql`.
-- When data is imported into Postgres: projectname, You need to update `metrics/projectname/gaps.yaml`.
+- `PG_DB=newproj PG_PASS=... ./newproj/setup_scripts.sh`.
+- When data is imported into Postgres: projectname, you need to update `metrics/projectname/gaps.yaml`.
 - Using `./metrics/projectname/companies_tags.sql`,  `./projectname/top_n_companies.sh`.
 - And `./projectname/top_n_repos_groups.sh`. Usually no repo groups are set up on new projects, currently only Kubernetes uses this.
 - There are two kinds of repo group names: direct from query, but also with special characters replaced with "_"
@@ -51,6 +52,7 @@ To add new project follow instructions:
 - Update Apache config to proxy https to new Grafana instance: `vim /etc/apache2/sites-enabled/000-default-le-ssl.conf`, `service apache2 restart`
 - Issue new SSL certificate as described in `SSL.md` (test server): `sudo certbot --apache -d 'cncftest.io,k8s.cncftest.io,prometheus.cncftest.io,opentracing.cncftest.io,fluentd.cncftest.io,linkerd.cncftest.io,grpc.cncftest.io,coredns.cncftest.io,containerd.cncftest.io,newproj.cncftest.io,cncf.cncftest.io'`.
 - Or (prod server): `sudo certbot --apache -d 'devstats.k8s.io,devstats.cncf.io,k8s.devstats.cncf.io,prometheus.devstats.cncf.io,opentracing.devstats.cncf.io,fluentd.devstats.cncf.io,linkerd.devstats.cncf.io,grpc.devstats.cncf.io,coredns.devstats.cncf.io,containerd.devstats.cncf.io,newproject.devstats.cncf.io'`.
+- Or with standalone authenticator: `sudo certbot --apache -d 'cncftest.io,k8s.cncftest.io,prometheus.cncftest.io,opentracing.cncftest.io,fluentd.cncftest.io,linkerd.cncftest.io,grpc.cncftest.io,coredns.cncftest.io,containerd.cncftest.io,rkt.cncftest.io,cncf.cncftest.io' --authenticator standalone --installer apache --pre-hook 'service apache2 stop' --post-hook 'service apache2 start'`
 - Open `newproject.cncftest.io` login with admin/admin, change the default password and follow instructions from `GRAFANA.md`.
 - Add new project to `/var/www/html/index.html`.
 - Update and import `grafana/dashboards/{{proj}}/dashboards.json` dashboard on all remaining projects.
