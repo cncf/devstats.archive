@@ -8,5 +8,6 @@ convert ~/dev/cncf/artwork/linkerd/icon/color/linkerd-icon-color.png -resize 80x
 convert ~/dev/cncf/artwork/grpc/icon/color/grpc-icon-color.png -resize 80x80  /var/www/html/img/grpc-icon-color.png || exit 6
 convert ~/dev/cncf/artwork/coredns/icon/color/core-dns-icon-color.png -resize 80x80  /var/www/html/img/core-dns-icon-color.png || exit 7
 convert ~/dev/cncf/artwork/containerd/icon/white/containerd-icon-white.png -resize 80x80  /var/www/html/img/containerd-icon-color.png || exit 8
-# convert ~/dev/cncf/artwork/cncf/icon/color/cncf-icon-color.png -resize 80x80 /var/www/html/img/cncf-icon-color.png || exit 9
+convert ~/dev/cncf/artwork/rkt/icon/color/rkt-icon-color.png -resize 80x80  /var/www/html/img/rkt-icon-color.png || exit 9
+# convert ~/dev/cncf/artwork/cncf/icon/color/cncf-icon-color.png -resize 80x80 /var/www/html/img/cncf-icon-color.png || exit 10
 echo 'OK'
