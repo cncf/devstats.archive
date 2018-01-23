@@ -42,7 +42,8 @@ To add new project follow instructions:
 - Update `projects.yaml` remove `disabled: true` for new project.
 - `make install` to install all changed stuff.
 - Copy directories `/etc/grafana`, `/usr/share/grafana`, `/var/lib/grafana` from standard unmodified installation adding .projectname to their names.
-- Update `./grafana/proj/change_title_and_icons.sh` to use right names. Run it with `GRAFANA_DATA=/usr/share/grafana.projectname/ ./grafana/projectsname/change_title_and_icons.sh`.
+- You can use `grafana/etc/grafana.ini.example` as a base config file (but note that some options are redacted in this example file).
+- Update `./grafana/proj/change_title_and_icons.sh` to use right names. Run it with `GRAFANA_DATA=/usr/share/grafana.projectname/ ./grafana/projectname/change_title_and_icons.sh`.
 - Update `/etc/grafana.projectname/grafana.ini` - set all config options from `GRAFANA.md`, `MULTIPROJECT.md`.
 - Follow `Grafana sessions in Postgres` from MULTIPROJECT.md:
 - `sudo -u postgres psql`
@@ -54,9 +55,10 @@ To add new project follow instructions:
 - SSL part is to issue certificate for new domain and setup proxy.
 - Start new grafana: `./grafana/projectname/grafana_start.sh &` or `killall grafana-server`, `./grafana/start_all_grafanas.sh`, `ps -aux | grep grafana-server`.
 - Update Apache config to proxy https to new Grafana instance: `vim /etc/apache2/sites-enabled/000-default-le-ssl.conf`, `service apache2 restart`
-- Issue new SSL certificate as described in `SSL.md` (test server): `sudo certbot --apache -d 'cncftest.io,k8s.cncftest.io,prometheus.cncftest.io,opentracing.cncftest.io,fluentd.cncftest.io,linkerd.cncftest.io,grpc.cncftest.io,coredns.cncftest.io,containerd.cncftest.io,newproj.cncftest.io,cncf.cncftest.io'`.
-- Or (prod server): `sudo certbot --apache -d 'devstats.k8s.io,devstats.cncf.io,k8s.devstats.cncf.io,prometheus.devstats.cncf.io,opentracing.devstats.cncf.io,fluentd.devstats.cncf.io,linkerd.devstats.cncf.io,grpc.devstats.cncf.io,coredns.devstats.cncf.io,containerd.devstats.cncf.io,newproject.devstats.cncf.io'`.
-- Or with standalone authenticator: `sudo certbot -d 'devstats.k8s.io,devstats.cncf.io,k8s.devstats.cncf.io,prometheus.devstats.cncf.io,opentracing.devstats.cncf.io,fluentd.devstats.cncf.io,linkerd.devstats.cncf.io,grpc.devstats.cncf.io,coredns.devstats.cncf.io,containerd.devstats.cncf.io,rkt.devstats.cncf.io' --authenticator standalone --installer apache --pre-hook 'service apache2 stop' --post-hook 'service apache2 start'`
+- Issue new SSL certificate as described in `SSL.md` (test server): `sudo certbot --apache -d 'cncftest.io,k8s.cncftest.io,prometheus.cncftest.io,opentracing.cncftest.io,fluentd.cncftest.io,linkerd.cncftest.io,grpc.cncftest.io,coredns.cncftest.io,containerd.cncftest.io,rkt.cncftest.io,cni.cncftest.io,cncf.cncftest.io'`.
+- Or (prod server): `sudo certbot --apache -d 'devstats.k8s.io,devstats.cncf.io,k8s.devstats.cncf.io,prometheus.devstats.cncf.io,opentracing.devstats.cncf.io,fluentd.devstats.cncf.io,linkerd.devstats.cncf.io,grpc.devstats.cncf.io,coredns.devstats.cncf.io,containerd.devstats.cncf.io,rkt.devstats.cncf.io,cni.devstats.cncf.io'`.
+- Or with standalone authenticator (test server): `sudo certbot -d 'cncftest.io,k8s.cncftest.io,prometheus.cncftest.io,opentracing.cncftest.io,fluentd.cncftest.io,linkerd.cncftest.io,grpc.cncftest.io,coredns.cncftest.io,containerd.cncftest.io,rkt.cncftest.io,cni.cncftest.io,cncf.cncftest.io' --authenticator standalone --installer apache --pre-hook 'service apache2 stop' --post-hook 'service apache2 start'`
+- Or with standalone authenticator (prod server): `sudo certbot -d 'devstats.k8s.io,devstats.cncf.io,k8s.devstats.cncf.io,prometheus.devstats.cncf.io,opentracing.devstats.cncf.io,fluentd.devstats.cncf.io,linkerd.devstats.cncf.io,grpc.devstats.cncf.io,coredns.devstats.cncf.io,containerd.devstats.cncf.io,rkt.devstats.cncf.io,cni.devstats.cncf.io' --authenticator standalone --installer apache --pre-hook 'service apache2 stop' --post-hook 'service apache2 start'`
 - Open `newproject.cncftest.io` login with admin/admin, change the default password and follow instructions from `GRAFANA.md`.
 - Add new project to `/var/www/html/index.html`.
 - Update and import `grafana/dashboards/{{proj}}/dashboards.json` dashboard on all remaining projects.
