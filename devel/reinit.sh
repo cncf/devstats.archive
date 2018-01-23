@@ -20,4 +20,5 @@ GHA2DB_LOCAL=1 GHA2DB_PROCESS_REPOS=1 ./get_repos
 ./containerd/reinit.sh || exit 8
 ./rkt/reinit.sh || exit 9
 ./cni/reinit.sh || exit 10
-# ./cncf/reinit.sh || exit 11
+./envoy/reinit.sh || exit 11
+# ./cncf/reinit.sh || exit 12

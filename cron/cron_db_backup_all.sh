@@ -9,5 +9,6 @@ cron_db_backup.sh coredns 2>> /tmp/gha2db_backup_coredns.err 1>> /tmp/gha2db_bac
 cron_db_backup.sh containerd 2>> /tmp/gha2db_backup_containerd.err 1>> /tmp/gha2db_backup_containerd.log
 cron_db_backup.sh rkt 2>> /tmp/gha2db_backup_rkt.err 1>> /tmp/gha2db_backup_rkt.log
 cron_db_backup.sh cni 2>> /tmp/gha2db_backup_cni.err 1>> /tmp/gha2db_backup_cni.log
+cron_db_backup.sh envoy 2>> /tmp/gha2db_backup_envoy.err 1>> /tmp/gha2db_backup_envoy.log
 # cron_db_backup.sh cncf 2>> /tmp/gha2db_backup_cncf.err 1>> /tmp/gha2db_backup_cncf.log
 cron_db_backup.sh devstats 2>> /tmp/gha2db_backup_devstats.err 1>> /tmp/gha2db_backup_devstats.log
