@@ -12,4 +12,5 @@ GHA2DB_PROJECT=containerd IDB_DB=containerd PG_DB=containerd GHA2DB_LOCAL=1 GHA2
 ./containerd/setup_repo_groups.sh 2>>errors.txt | tee -a run.log || exit 6
 ./containerd/import_affs.sh 2>>errors.txt | tee -a run.log || exit 7
 ./containerd/setup_scripts.sh 2>>errors.txt | tee -a run.log || exit 8
+./containerd/get_repos.sh 2>>errors.txt | tee -a run.log || exit 9
 echo "All done. You should run ./containerd/reinit.sh script now."

@@ -11,4 +11,5 @@ GHA2DB_PROJECT=linkerd IDB_DB=linkerd PG_DB=linkerd GHA2DB_LOCAL=1 GHA2DB_MGETC=
 ./linkerd/setup_repo_groups.sh 2>>errors.txt | tee -a run.log || exit 6
 ./linkerd/import_affs.sh 2>>errors.txt | tee -a run.log || exit 7
 ./linkerd/setup_scripts.sh 2>>errors.txt | tee -a run.log || exit 8
+./linkerd/get_repos.sh 2>>errors.txt | tee -a run.log || exit 9
 echo "All done. You should run ./linkerd/reinit.sh script now."

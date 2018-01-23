@@ -14,4 +14,5 @@ GHA2DB_LOCAL=1 GHA2DB_MGETC=y GHA2DB_SKIPTABLE=1 GHA2DB_INDEX=1 ./structure 2>>e
 GHA2DB_LOCAL=1 ./import_affs github_users.json 2>>errors.txt | tee -a run.log || exit 6
 ./kubernetes/setup_repo_groups.sh 2>>errors.txt | tee -a run.log || exit 7
 ./kubernetes/setup_scripts.sh 2>>errors.txt | tee -a run.log || exit 8
+./kubernetes/get_repos.sh 2>>errors.txt | tee -a run.log || exit 9
 echo "All done. You should run ./kubernetes/reinit_all_full.sh script now."
