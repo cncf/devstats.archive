@@ -28,8 +28,7 @@ To add new project follow instructions:
 - `grant all privileges on database "projectname" to gha_admin;`
 - If running on the test server: generate Postgres data: `PG_PASS=... IDB_PASS=... IDB_HOST=172.17.0.1 ./projectname/projectname.sh`
 - If running on the production server: `wget https://cncftest.io/projectname.sql.xz`, `xz -d projectname.sql.xz`, `sudo -u postgres psql projectname < projectname.sql`.
-- `PG_DB=newproj PG_PASS=... ./newproj/setup_scripts.sh` (if not restored from a backup).
-- When data is imported into Postgres: projectname, you need to update `metrics/projectname/gaps.yaml`.
+- When data is imported into Postgres: projectname, you need to update `metrics/projectname/gaps.yaml` and `metrics/projectname/gaps_affs.yaml` (with top companies & repo groups).
 - Using `./metrics/projectname/companies_tags.sql`,  `./projectname/top_n_companies.sh`.
 - And `./projectname/top_n_repos_groups.sh`. Usually no repo groups are set up on new projects, currently only Kubernetes uses this.
 - There are two kinds of repo group names: direct from query, but also with special characters replaced with "_"
