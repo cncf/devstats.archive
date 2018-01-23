@@ -17,6 +17,7 @@ To add new project follow instructions:
 - SVG can be taken from cncf/artwork (should be color & square): `cp ~/dev/cncf/artwork/projectname/icon/color/projectname-icon-color.svg grafana/img/projectname.svg`.
 - PNG should be 32bit RGBA 32x32 PNG. You can use `apt-get install imagemagick` and then: `convert ~/dev/cncf/artwork/projectname/icon/color/projectname-icon-color.png -resize 32x32 grafana/img/projectname32.png`.
 - And/Or update `grafana/copy_artwork_icons.sh`, `apache/www/copy_icons.sh`, `grafana/create_images.sh`.
+- Especially do new project's part of `apache/www/copy_icons.sh` on the prod server, to have new icon available on the test server (icon path is from the prod server).
 - Update `grafana/change_title_and_icons_all.sh`.
 - Copy setup scripts and then adjust them:
 - `cp -R oldproject/ projectname/`, `mv projectname/oldproject.sh projectname/projectname.sh`, `vim projectname/*`.
@@ -30,7 +31,7 @@ To add new project follow instructions:
 - If running on the production server: `wget https://cncftest.io/projectname.sql.xz`, `xz -d projectname.sql.xz`, `sudo -u postgres psql projectname < projectname.sql`.
 - When data is imported into Postgres: projectname, you need to update `metrics/projectname/gaps.yaml` and `metrics/projectname/gaps_affs.yaml` (with top companies & repo groups).
 - Using `./metrics/projectname/companies_tags.sql`,  `./projectname/top_n_companies.sh`.
-- And `./projectname/top_n_repos_groups.sh`. Usually no repo groups are set up on new projects, currently only Kubernetes uses this.
+- And `./projectname/top_n_repos_groups.sh`.
 - There are two kinds of repo group names: direct from query, but also with special characters replaced with "_"
 - You should copy those from query, put there where needed and do VIM replace: `:'<,'>s/[-/.: `]/_/g`, `:'<,'>s/[A-Z]/\L&/g`.
 - You should remove `disabled: true` from `projects.yaml` and run `GHA2DB_LOCAL=1 GHA2DB_PROCESS_REPOS=1 ./get_repos` to process new projects commits (fetch new repos, pull, commits files etc).
