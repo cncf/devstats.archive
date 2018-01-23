@@ -12,6 +12,7 @@ To add new project follow instructions:
 - Add google analytics for the new domain and update /etc/grafana.projectname/grafana.ini with its `UA-...`.
 - Search for all files defined for some existing project, for example `find . -iname "*oldproject*"`.
 - Copy standard grafana distro for new project: `cp -R /usr/share/grafana /usr/share/grafana.projectname/`.
+- Make sure that you pull newest cncf/artwork: `cd ~/dev/cncf/artwork; git pull`.
 - Generate icons for new project: `./grafana/img/projectname32.png`, `./grafana/img/projectname.svg`: update & run `./grafana/create_images.sh`.
 - SVG can be taken from cncf/artwork (should be color & square): `cp ~/dev/cncf/artwork/projectname/icon/color/projectname-icon-color.svg grafana/img/projectname.svg`.
 - PNG should be 32bit RGBA 32x32 PNG. You can use `apt-get install imagemagick` and then: `convert ~/dev/cncf/artwork/projectname/icon/color/projectname-icon-color.png -resize 32x32 grafana/img/projectname32.png`.

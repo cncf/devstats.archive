@@ -1,9 +1,9 @@
 #!/bin/sh
 # This script assumes that You have cncf/artwork cloned in ~/dev/cncf/artwork 
-cp ~/dev/cncf/artwork/kubernetes/icon/color/kubernetes-icon-noborder-color.svg /usr/share/grafana.k8s/public/img/grafana_icon.svg || exit 1
-cp ~/dev/cncf/artwork/kubernetes/icon/color/kubernetes-icon-noborder-color.svg /usr/share/grafana.k8s/public/img/grafana_com_auth_icon.svg || exit 2
-cp ~/dev/cncf/artwork/kubernetes/icon/color/kubernetes-icon-noborder-color.svg /usr/share/grafana.k8s/public/img/grafana_net_logo.svg || exit 3
-cp ~/dev/cncf/artwork/kubernetes/icon/color/kubernetes-icon-noborder-color.svg /usr/share/grafana.k8s/public/img/grafana_mask_icon.svg || exit 4
+cp ~/dev/cncf/artwork/kubernetes/icon/color/kubernetes-icon-color.svg /usr/share/grafana.k8s/public/img/grafana_icon.svg || exit 1
+cp ~/dev/cncf/artwork/kubernetes/icon/color/kubernetes-icon-color.svg /usr/share/grafana.k8s/public/img/grafana_com_auth_icon.svg || exit 2
+cp ~/dev/cncf/artwork/kubernetes/icon/color/kubernetes-icon-color.svg /usr/share/grafana.k8s/public/img/grafana_net_logo.svg || exit 3
+cp ~/dev/cncf/artwork/kubernetes/icon/color/kubernetes-icon-color.svg /usr/share/grafana.k8s/public/img/grafana_mask_icon.svg || exit 4
 cp ~/dev/cncf/artwork/prometheus/icon/color/prometheus-icon-color.svg /usr/share/grafana.prometheus/public/img/grafana_icon.svg || exit 5
 cp ~/dev/cncf/artwork/prometheus/icon/color/prometheus-icon-color.svg /usr/share/grafana.prometheus/public/img/grafana_com_auth_icon.svg || exit 6
 cp ~/dev/cncf/artwork/prometheus/icon/color/prometheus-icon-color.svg /usr/share/grafana.prometheus/public/img/grafana_net_logo.svg || exit 7
@@ -36,8 +36,12 @@ cp ~/dev/cncf/artwork/rkt/icon/color/rkt-icon-color.svg /usr/share/grafana.rkt/p
 cp ~/dev/cncf/artwork/rkt/icon/color/rkt-icon-color.svg /usr/share/grafana.rkt/public/img/grafana_com_auth_icon.svg || exit 34
 cp ~/dev/cncf/artwork/rkt/icon/color/rkt-icon-color.svg /usr/share/grafana.rkt/public/img/grafana_net_logo.svg || exit 35
 cp ~/dev/cncf/artwork/rkt/icon/color/rkt-icon-color.svg /usr/share/grafana.rkt/public/img/grafana_mask_icon.svg || exit 36
-# cp ~/dev/cncf/artwork/cncf/icon/color/cncf-icon-color.svg /usr/share/grafana.cncf/public/img/grafana_icon.svg || exit 37
-# cp ~/dev/cncf/artwork/cncf/icon/color/cncf-icon-color.svg /usr/share/grafana.cncf/public/img/grafana_com_auth_icon.svg || exit 38
-# cp ~/dev/cncf/artwork/cncf/icon/color/cncf-icon-color.svg /usr/share/grafana.cncf/public/img/grafana_net_logo.svg || exit 39
-# cp ~/dev/cncf/artwork/cncf/icon/color/cncf-icon-color.svg /usr/share/grafana.cncf/public/img/grafana_mask_icon.svg || exit 40
+cp ~/dev/cncf/artwork/cni/icon/color/cni-icon-color.svg /usr/share/grafana.cni/public/img/grafana_icon.svg || exit 37
+cp ~/dev/cncf/artwork/cni/icon/color/cni-icon-color.svg /usr/share/grafana.cni/public/img/grafana_com_auth_icon.svg || exit 38
+cp ~/dev/cncf/artwork/cni/icon/color/cni-icon-color.svg /usr/share/grafana.cni/public/img/grafana_net_logo.svg || exit 39
+cp ~/dev/cncf/artwork/cni/icon/color/cni-icon-color.svg /usr/share/grafana.cni/public/img/grafana_mask_icon.svg || exit 40
+# cp ~/dev/cncf/artwork/cncf/icon/color/cncf-icon-color.svg /usr/share/grafana.cncf/public/img/grafana_icon.svg || exit 41
+# cp ~/dev/cncf/artwork/cncf/icon/color/cncf-icon-color.svg /usr/share/grafana.cncf/public/img/grafana_com_auth_icon.svg || exit 42
+# cp ~/dev/cncf/artwork/cncf/icon/color/cncf-icon-color.svg /usr/share/grafana.cncf/public/img/grafana_net_logo.svg || exit 43
+# cp ~/dev/cncf/artwork/cncf/icon/color/cncf-icon-color.svg /usr/share/grafana.cncf/public/img/grafana_mask_icon.svg || exit 44
 echo 'OK'

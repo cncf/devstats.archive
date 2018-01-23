@@ -1,6 +1,6 @@
 #!/bin/sh
-# for proj in kubernetes prometheus opentracing fluentd linkerd grpc coredns containerd rkt cncf
-for proj in kubernetes prometheus opentracing fluentd linkerd grpc coredns containerd rkt
+# for proj in kubernetes prometheus opentracing fluentd linkerd grpc coredns containerd rkt cni cncf
+for proj in kubernetes prometheus opentracing fluentd linkerd grpc coredns containerd rkt cni
 do
     echo $proj
     suff=$proj
