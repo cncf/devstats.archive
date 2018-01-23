@@ -362,7 +362,7 @@ func executeMetric(c *sql.DB, ctx *lib.Ctx, metric string, from, to time.Time, p
 	sqlQuery = strings.Replace(
 		sqlQuery,
 		"{{exclude_bots}}",
-		"not like all(array['googlebot', 'coveralls', 'k8s-%', '%-bot', '%-robot', "+
+		"not like all(array['googlebot', 'rktbot', 'coveralls', 'k8s-%', '%-bot', '%-robot', "+
 			"'bot-%', 'robot-%', '%[bot]%', '%-jenkins', '%-ci%bot', '%-testing', 'codecov-%'])",
 		-1,
 	)
