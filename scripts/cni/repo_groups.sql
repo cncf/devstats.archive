@@ -4,7 +4,7 @@ update gha_repos set repo_group = name;
 update gha_repos set alias = name;
 
 update gha_repos
-set repo_group = 'cni', alias = 'cni'
+set repo_group = 'CNI', alias = 'CNI'
 where name in (
   'containernetworking/cni',
   'appc/cni'
