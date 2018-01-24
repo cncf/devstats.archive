@@ -4,7 +4,7 @@ update gha_repos set repo_group = name;
 
 update gha_repos set alias = name;
 
-update gha_repos set repo_group = 'linkerd', alias = 'linkerd' where name in ('linkerd/linkerd', 'BuoyantIO/linkerd');
+update gha_repos set repo_group = 'Linkerd', alias = 'Linkerd' where name in ('linkerd/linkerd', 'BuoyantIO/linkerd');
 
 select
   repo_group,
