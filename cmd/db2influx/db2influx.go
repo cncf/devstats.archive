@@ -40,7 +40,7 @@ func multiRowMultiColumn(expr, period string, multivalue, escapeValueName bool) 
 	ary := strings.Split(expr, ";")
 	pref := ary[0]
 	if pref == "" {
-		lib.Printf("multiRowMultiColumn: WARNING: prefix '%v' (ary=%+v,expr=%+v,mv=%+v) skipping\n", pref, ary, expr, multivalue)
+		//lib.Printf("multiRowMultiColumn: WARNING: prefix '%v' (ary=%+v,expr=%+v,mv=%+v) skipping\n", pref, ary, expr, multivalue)
 		return
 	}
 	splitColumns := strings.Split(ary[2], ",")

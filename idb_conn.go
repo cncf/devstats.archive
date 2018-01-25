@@ -41,7 +41,7 @@ func IDBWritePointsN(ctx *Ctx, con *client.Client, points *IDBBatchPointsN) (err
 		if ctx.Debug > 0 {
 			Printf("Batch #%d: writing %d points\n", idx+1, ctx.IDBMaxBatchPoints)
 		}
-		for i := 1; i <= 5; i++ {
+		for i := 1; i <= 10; i++ {
 			err = (*con).Write(*bp)
 			if err == nil {
 				break
@@ -54,7 +54,7 @@ func IDBWritePointsN(ctx *Ctx, con *client.Client, points *IDBBatchPointsN) (err
 			time.Sleep(time.Duration(i) * time.Second)
 		}
 		if err != nil {
-			Printf("5 batch trials failed.\n")
+			Printf("10 batch trials failed.\n")
 			return err
 		}
 	}
@@ -74,7 +74,7 @@ func IDBWritePointsN(ctx *Ctx, con *client.Client, points *IDBBatchPointsN) (err
 		time.Sleep(time.Duration(i) * time.Second)
 	}
 	if err != nil {
-		Printf("5 trials failed\n.")
+		Printf("10 trials failed\n.")
 		return err
 	}
 	return nil
@@ -127,10 +127,28 @@ func QueryIDB(con client.Client, ctx *Ctx, query string) []client.Result {
 		Command:  query,
 		Database: ctx.IDBDB,
 	}
-	response, err := con.Query(q)
-	FatalOnError(err)
-	FatalOnError(response.Error())
-	return response.Results
+	var err error
+	for i := 1; i <= 10; i++ {
+		response, err := con.Query(q)
+		if err != nil && err.Error() != EngineIsClosedError {
+			FatalOnError(err)
+		}
+		err = response.Error()
+		if err != nil && err.Error() != EngineIsClosedError {
+			FatalOnError(err)
+		}
+		if err == nil {
+			return response.Results
+		}
+		Printf("Query trial #%d: error: %s\n", i, err.Error())
+		Printf("Retrying...")
+		time.Sleep(time.Duration(i) * time.Second)
+	}
+	if err != nil {
+		Printf("10 query trials failed\n.")
+		FatalOnError(err)
+	}
+	return []client.Result{}
 }
 
 // QueryIDBWithDB - do InfluxDB query
