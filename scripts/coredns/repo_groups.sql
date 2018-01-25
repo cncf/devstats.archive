@@ -3,6 +3,13 @@ update gha_repos set repo_group = name;
 
 update gha_repos set alias = name;
 
+update gha_repos
+set repo_group = 'CoreDNS', alias = 'CoreDNS'
+where name in (
+  'coredns/coredns',
+  'miekg/coredns'
+);
+
 select
   repo_group,
   count(*) as number_of_repos
