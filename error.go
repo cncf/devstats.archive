@@ -12,8 +12,8 @@ import (
 func FatalOnError(err error) string {
 	if err != nil {
 		tm := time.Now()
-		Printf("Error(time=%+v):\n%v\nStacktrace:\n", tm, err)
-		fmt.Fprintf(os.Stderr, "Error(time=%+v):\n%v\nStacktrace:\n", tm, err)
+		Printf("Error(time=%+v):\n%v\nError: '%s'\nStacktrace:\n", tm, err, err.Error())
+		fmt.Fprintf(os.Stderr, "Error(time=%+v):\n%v\nError: '%s'\nStacktrace:\n", tm, err, err.Error())
 		switch e := err.(type) {
 		case *pq.Error:
 			errName := e.Code.Name()
