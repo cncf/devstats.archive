@@ -40,7 +40,7 @@ func multiRowMultiColumn(expr, period string, multivalue, escapeValueName bool) 
 	ary := strings.Split(expr, ";")
 	pref := ary[0]
 	if pref == "" {
-		//lib.Printf("multiRowMultiColumn: WARNING: prefix '%v' (ary=%+v,expr=%+v,mv=%+v) skipping\n", pref, ary, expr, multivalue)
+		lib.Printf("multiRowMultiColumn: Info: prefix '%v' (ary=%+v,expr=%+v,mv=%+v) skipping\n", pref, ary, expr, multivalue)
 		return
 	}
 	splitColumns := strings.Split(ary[2], ",")
@@ -64,7 +64,7 @@ func multiRowMultiColumn(expr, period string, multivalue, escapeValueName bool) 
 	}
 	rowName := lib.NormalizeName(ary[1])
 	if rowName == "" {
-		lib.Printf("multiRowMultiColumn: WARNING: rowName '%v' (%+v) maps to empty string, skipping\n", ary[1], ary)
+		lib.Printf("multiRowMultiColumn: Info: rowName '%v' (%+v) maps to empty string, skipping\n", ary[1], ary)
 		return
 	}
 	for _, series := range splitColumns {
@@ -94,7 +94,7 @@ func multiRowSingleColumn(col, period string, multivalue, escapeValueName bool) 
 	ary := strings.Split(col, ",")
 	pref := ary[0]
 	if pref == "" {
-		lib.Printf("multiRowSingleColumn: WARNING: prefix '%v' (ary=%+v,col=%+v,mv=%+v) skipping\n", pref, ary, col, multivalue)
+		lib.Printf("multiRowSingleColumn: Info: prefix '%v' (ary=%+v,col=%+v,mv=%+v) skipping\n", pref, ary, col, multivalue)
 		return
 	}
 	if multivalue {
@@ -111,7 +111,7 @@ func multiRowSingleColumn(col, period string, multivalue, escapeValueName bool) 
 	}
 	rowName := lib.NormalizeName(ary[1])
 	if rowName == "" {
-		lib.Printf("multiRowSingleColumn: WARNING: rowName '%v' (%+v) maps to empty string, skipping\n", ary[1], ary)
+		lib.Printf("multiRowSingleColumn: Info: rowName '%v' (%+v) maps to empty string, skipping\n", ary[1], ary)
 		return
 	}
 	return []string{fmt.Sprintf("%s_%s_%s", pref, rowName, period)}
