@@ -40,8 +40,12 @@ cp ~/dev/cncf/artwork/cni/icon/color/cni-icon-color.svg /usr/share/grafana.cni/p
 cp ~/dev/cncf/artwork/cni/icon/color/cni-icon-color.svg /usr/share/grafana.cni/public/img/grafana_com_auth_icon.svg || exit 38
 cp ~/dev/cncf/artwork/cni/icon/color/cni-icon-color.svg /usr/share/grafana.cni/public/img/grafana_net_logo.svg || exit 39
 cp ~/dev/cncf/artwork/cni/icon/color/cni-icon-color.svg /usr/share/grafana.cni/public/img/grafana_mask_icon.svg || exit 40
-# cp ~/dev/cncf/artwork/cncf/icon/color/cncf-icon-color.svg /usr/share/grafana.cncf/public/img/grafana_icon.svg || exit 41
-# cp ~/dev/cncf/artwork/cncf/icon/color/cncf-icon-color.svg /usr/share/grafana.cncf/public/img/grafana_com_auth_icon.svg || exit 42
-# cp ~/dev/cncf/artwork/cncf/icon/color/cncf-icon-color.svg /usr/share/grafana.cncf/public/img/grafana_net_logo.svg || exit 43
-# cp ~/dev/cncf/artwork/cncf/icon/color/cncf-icon-color.svg /usr/share/grafana.cncf/public/img/grafana_mask_icon.svg || exit 44
+cp ~/dev/cncf/artwork/envoy/icon/color/envoy-icon-color.svg /usr/share/grafana.envoy/public/img/grafana_icon.svg || exit 41
+cp ~/dev/cncf/artwork/envoy/icon/color/envoy-icon-color.svg /usr/share/grafana.envoy/public/img/grafana_com_auth_icon.svg || exit 42
+cp ~/dev/cncf/artwork/envoy/icon/color/envoy-icon-color.svg /usr/share/grafana.envoy/public/img/grafana_net_logo.svg || exit 43
+cp ~/dev/cncf/artwork/envoy/icon/color/envoy-icon-color.svg /usr/share/grafana.envoy/public/img/grafana_mask_icon.svg || exit 44
+# cp ~/dev/cncf/artwork/cncf/icon/color/cncf-icon-color.svg /usr/share/grafana.cncf/public/img/grafana_icon.svg || exit 45
+# cp ~/dev/cncf/artwork/cncf/icon/color/cncf-icon-color.svg /usr/share/grafana.cncf/public/img/grafana_com_auth_icon.svg || exit 46
+# cp ~/dev/cncf/artwork/cncf/icon/color/cncf-icon-color.svg /usr/share/grafana.cncf/public/img/grafana_net_logo.svg || exit 47
+# cp ~/dev/cncf/artwork/cncf/icon/color/cncf-icon-color.svg /usr/share/grafana.cncf/public/img/grafana_mask_icon.svg || exit 48
 echo 'OK'
