@@ -48,8 +48,16 @@ cp ~/dev/cncf/artwork/jaeger/icon/reverse-color/jaeger-icon-reverse-color.svg /u
 cp ~/dev/cncf/artwork/jaeger/icon/reverse-color/jaeger-icon-reverse-color.svg /usr/share/grafana.jaeger/public/img/grafana_com_auth_icon.svg || exit 46
 cp ~/dev/cncf/artwork/jaeger/icon/reverse-color/jaeger-icon-reverse-color.svg /usr/share/grafana.jaeger/public/img/grafana_net_logo.svg || exit 47
 cp ~/dev/cncf/artwork/jaeger/icon/reverse-color/jaeger-icon-reverse-color.svg /usr/share/grafana.jaeger/public/img/grafana_mask_icon.svg || exit 48
-# cp ~/dev/cncf/artwork/cncf/icon/color/cncf-icon-color.svg /usr/share/grafana.cncf/public/img/grafana_icon.svg || exit 49
-# cp ~/dev/cncf/artwork/cncf/icon/color/cncf-icon-color.svg /usr/share/grafana.cncf/public/img/grafana_com_auth_icon.svg || exit 50
-# cp ~/dev/cncf/artwork/cncf/icon/color/cncf-icon-color.svg /usr/share/grafana.cncf/public/img/grafana_net_logo.svg || exit 51
-# cp ~/dev/cncf/artwork/cncf/icon/color/cncf-icon-color.svg /usr/share/grafana.cncf/public/img/grafana_mask_icon.svg || exit 52
+cp ~/dev/cncf/artwork/notary/icon/color/notary-icon-color.svg /usr/share/grafana.notary/public/img/grafana_icon.svg || exit 49
+cp ~/dev/cncf/artwork/notary/icon/color/notary-icon-color.svg /usr/share/grafana.notary/public/img/grafana_com_auth_icon.svg || exit 50
+cp ~/dev/cncf/artwork/notary/icon/color/notary-icon-color.svg /usr/share/grafana.notary/public/img/grafana_net_logo.svg || exit 51
+cp ~/dev/cncf/artwork/notary/icon/color/notary-icon-color.svg /usr/share/grafana.notary/public/img/grafana_mask_icon.svg || exit 52
+cp ~/dev/cncf/artwork/tuf/icon/color/tuf-icon-color.svg /usr/share/grafana.tuf/public/img/grafana_icon.svg || exit 53
+cp ~/dev/cncf/artwork/tuf/icon/color/tuf-icon-color.svg /usr/share/grafana.tuf/public/img/grafana_com_auth_icon.svg || exit 54
+cp ~/dev/cncf/artwork/tuf/icon/color/tuf-icon-color.svg /usr/share/grafana.tuf/public/img/grafana_net_logo.svg || exit 55
+cp ~/dev/cncf/artwork/tuf/icon/color/tuf-icon-color.svg /usr/share/grafana.tuf/public/img/grafana_mask_icon.svg || exit 56
+# cp ~/dev/cncf/artwork/cncf/icon/color/cncf-icon-color.svg /usr/share/grafana.cncf/public/img/grafana_icon.svg || exit 57
+# cp ~/dev/cncf/artwork/cncf/icon/color/cncf-icon-color.svg /usr/share/grafana.cncf/public/img/grafana_com_auth_icon.svg || exit 58
+# cp ~/dev/cncf/artwork/cncf/icon/color/cncf-icon-color.svg /usr/share/grafana.cncf/public/img/grafana_net_logo.svg || exit 59
+# cp ~/dev/cncf/artwork/cncf/icon/color/cncf-icon-color.svg /usr/share/grafana.cncf/public/img/grafana_mask_icon.svg || exit 60
 echo 'OK'
