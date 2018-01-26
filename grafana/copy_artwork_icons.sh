@@ -44,8 +44,12 @@ cp ~/dev/cncf/artwork/envoy/icon/color/envoy-icon-color.svg /usr/share/grafana.e
 cp ~/dev/cncf/artwork/envoy/icon/color/envoy-icon-color.svg /usr/share/grafana.envoy/public/img/grafana_com_auth_icon.svg || exit 42
 cp ~/dev/cncf/artwork/envoy/icon/color/envoy-icon-color.svg /usr/share/grafana.envoy/public/img/grafana_net_logo.svg || exit 43
 cp ~/dev/cncf/artwork/envoy/icon/color/envoy-icon-color.svg /usr/share/grafana.envoy/public/img/grafana_mask_icon.svg || exit 44
-# cp ~/dev/cncf/artwork/cncf/icon/color/cncf-icon-color.svg /usr/share/grafana.cncf/public/img/grafana_icon.svg || exit 45
-# cp ~/dev/cncf/artwork/cncf/icon/color/cncf-icon-color.svg /usr/share/grafana.cncf/public/img/grafana_com_auth_icon.svg || exit 46
-# cp ~/dev/cncf/artwork/cncf/icon/color/cncf-icon-color.svg /usr/share/grafana.cncf/public/img/grafana_net_logo.svg || exit 47
-# cp ~/dev/cncf/artwork/cncf/icon/color/cncf-icon-color.svg /usr/share/grafana.cncf/public/img/grafana_mask_icon.svg || exit 48
+cp ~/dev/cncf/artwork/jaeger/icon/color/jaeger-icon-color.svg /usr/share/grafana.jaeger/public/img/grafana_icon.svg || exit 45
+cp ~/dev/cncf/artwork/jaeger/icon/color/jaeger-icon-color.svg /usr/share/grafana.jaeger/public/img/grafana_com_auth_icon.svg || exit 46
+cp ~/dev/cncf/artwork/jaeger/icon/color/jaeger-icon-color.svg /usr/share/grafana.jaeger/public/img/grafana_net_logo.svg || exit 47
+cp ~/dev/cncf/artwork/jaeger/icon/color/jaeger-icon-color.svg /usr/share/grafana.jaeger/public/img/grafana_mask_icon.svg || exit 48
+# cp ~/dev/cncf/artwork/cncf/icon/color/cncf-icon-color.svg /usr/share/grafana.cncf/public/img/grafana_icon.svg || exit 49
+# cp ~/dev/cncf/artwork/cncf/icon/color/cncf-icon-color.svg /usr/share/grafana.cncf/public/img/grafana_com_auth_icon.svg || exit 50
+# cp ~/dev/cncf/artwork/cncf/icon/color/cncf-icon-color.svg /usr/share/grafana.cncf/public/img/grafana_net_logo.svg || exit 51
+# cp ~/dev/cncf/artwork/cncf/icon/color/cncf-icon-color.svg /usr/share/grafana.cncf/public/img/grafana_mask_icon.svg || exit 52
 echo 'OK'

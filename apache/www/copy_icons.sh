@@ -12,5 +12,6 @@ convert ~/dev/cncf/artwork/containerd/icon/white/containerd-icon-white.png -resi
 convert ~/dev/cncf/artwork/rkt/icon/color/rkt-icon-color.png -resize 80x80  /var/www/html/img/rkt-icon-color.png || exit 9
 convert ~/dev/cncf/artwork/cni/icon/color/cni-icon-color.png -resize 80x80  /var/www/html/img/cni-icon-color.png || exit 10
 convert ~/dev/cncf/artwork/envoy/icon/color/envoy-icon-color.png -resize 80x80  /var/www/html/img/envoy-icon-color.png || exit 11
-# convert ~/dev/cncf/artwork/cncf/icon/color/cncf-icon-color.png -resize 80x80 /var/www/html/img/cncf-icon-color.png || exit 12
+convert ~/dev/cncf/artwork/jaeger/icon/color/jaeger-icon-color.png -resize 80x80  /var/www/html/img/jaeger-icon-color.png || exit 12
+# convert ~/dev/cncf/artwork/cncf/icon/color/cncf-icon-color.png -resize 80x80 /var/www/html/img/cncf-icon-color.png || exit 13
 echo 'OK'

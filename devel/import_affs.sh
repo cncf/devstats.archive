@@ -20,7 +20,8 @@ fi
 ./rkt/import_affs.sh || exit 11
 ./cni/import_affs.sh || exit 12
 ./envoy/import_affs.sh || exit 13
-# ./cncf/import_affs.sh || exit 14
+./jaeger/import_affs.sh || exit 14
+# ./cncf/import_affs.sh || exit 15
 ./kubernetes/top_n_companies.sh 70 >> ./metrics/kubernetes/gaps.yaml
 ./prometheus/top_n_companies.sh 70 >> ./metrics/prometheus/gaps.yaml
 ./opentracing/top_n_companies.sh 70 >> ./metrics/opentracing/gaps.yaml
@@ -32,5 +33,6 @@ fi
 ./rkt/top_n_companies.sh 70 >> ./metrics/rkt/gaps.yaml
 ./cni/top_n_companies.sh 70 >> ./metrics/cni/gaps.yaml
 ./envoy/top_n_companies.sh 70 >> ./metrics/envoy/gaps.yaml
+./jaeger/top_n_companies.sh 70 >> ./metrics/jaeger/gaps.yaml
 # ./cncf/top_n_companies.sh 70 >> ./metrics/cncf/gaps.yaml
 echo 'OK'

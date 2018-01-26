@@ -10,5 +10,6 @@ GHA2DB_PROJECT=containerd PG_DB=containerd IDB_DB=containerd ./devel/add_single_
 GHA2DB_PROJECT=rkt PG_DB=rkt IDB_DB=rkt ./devel/add_single_metric.sh || exit 9
 GHA2DB_PROJECT=cni PG_DB=cni IDB_DB=cni ./devel/add_single_metric.sh || exit 10
 GHA2DB_PROJECT=envoy PG_DB=envoy IDB_DB=envoy ./devel/add_single_metric.sh || exit 11
-# GHA2DB_PROJECT=cncf PG_DB=cncf IDB_DB=cncf ./devel/add_single_metric.sh || exit 12
+GHA2DB_PROJECT=jaeger PG_DB=jaeger IDB_DB=jaeger ./devel/add_single_metric.sh || exit 12
+# GHA2DB_PROJECT=cncf PG_DB=cncf IDB_DB=cncf ./devel/add_single_metric.sh || exit 13
 echo 'OK'
