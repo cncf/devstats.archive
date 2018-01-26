@@ -11,5 +11,7 @@ cron_db_backup.sh rkt 2>> /tmp/gha2db_backup_rkt.err 1>> /tmp/gha2db_backup_rkt.
 cron_db_backup.sh cni 2>> /tmp/gha2db_backup_cni.err 1>> /tmp/gha2db_backup_cni.log
 cron_db_backup.sh envoy 2>> /tmp/gha2db_backup_envoy.err 1>> /tmp/gha2db_backup_envoy.log
 cron_db_backup.sh jaeger 2>> /tmp/gha2db_backup_jaeger.err 1>> /tmp/gha2db_backup_jaeger.log
+cron_db_backup.sh notary 2>> /tmp/gha2db_backup_notary.err 1>> /tmp/gha2db_backup_notary.log
+cron_db_backup.sh tuf 2>> /tmp/gha2db_backup_tuf.err 1>> /tmp/gha2db_backup_tuf.log
 # cron_db_backup.sh cncf 2>> /tmp/gha2db_backup_cncf.err 1>> /tmp/gha2db_backup_cncf.log
 cron_db_backup.sh devstats 2>> /tmp/gha2db_backup_devstats.err 1>> /tmp/gha2db_backup_devstats.log
