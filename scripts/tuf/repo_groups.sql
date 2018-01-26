@@ -7,7 +7,8 @@ update gha_repos
 set repo_group = 'TUF', alias = 'TUF'
 where name in (
   'theupdateframework/tuf',
-  'theupdateframework'
+  'theupdateframework',
+  'tuf'
 );
 
 select

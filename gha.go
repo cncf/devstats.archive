@@ -1,6 +1,7 @@
 package devstats
 
 import (
+	"fmt"
 	"strings"
 	"time"
 )
@@ -337,6 +338,7 @@ type Team struct {
 }
 
 // IsProjectDisabled - checks if project is disabled or not:
+// fullName comes from makeOldRepoName for pre-2015 data!
 // yamlDisabled (this is from projects.yaml - can be true or false)
 // it also checks context (which can override `disabled: true` from projects.yaml)
 // +pro1,-pro2 creates map {"pro1":true, "pro2":false}
@@ -348,6 +350,14 @@ func IsProjectDisabled(ctx *Ctx, proj string, yamlDisabled bool) bool {
 	}
 	// If project override present then true means NOT disabled, and false means disabled
 	return !override
+}
+
+// MakeOldRepoName - before 2015 repository name should be Organization/Name (if Organization present) or just Name
+func MakeOldRepoName(repo *ForkeeOld) string {
+	if repo.Organization == nil || *repo.Organization == "" {
+		return repo.Name
+	}
+	return fmt.Sprintf("%s/%s", *repo.Organization, repo.Name)
 }
 
 // RepoHit - are we interested in this org/repo ?
