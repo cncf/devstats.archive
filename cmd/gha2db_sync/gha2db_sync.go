@@ -488,7 +488,6 @@ func sync(ctx *lib.Ctx, args []string) {
 						lib.Printf("Skipping recalculating period \"%s%s\" for date to %v\n", period, aggrSuffix, to)
 						continue
 					}
-					lib.Printf("Calculate metric %v, period %v, histogram: %v, desc: '%v', aggregate: '%v' ...\n", metric.Name, period, metric.Histogram, metric.Desc, aggrSuffix)
 					seriesNameOrFunc := metric.SeriesNameOrFunc
 					if metric.AddPeriodToName {
 						seriesNameOrFunc += "_" + periodAggr
@@ -497,6 +496,7 @@ func sync(ctx *lib.Ctx, args []string) {
 					// Implement multi threading inside "db2influx" call fro them
 					// So we're creating array of such metrics to be executed at the end - each in a separate go routine
 					if metric.Histogram {
+						lib.Printf("Scheduled histogram metric %v, period %v, desc: '%v', aggregate: '%v' ...\n", metric.Name, period, metric.Desc, aggrSuffix)
 						hists = append(
 							hists,
 							[]string{
@@ -510,6 +510,7 @@ func sync(ctx *lib.Ctx, args []string) {
 							},
 						)
 					} else {
+						lib.Printf("Calculate metric %v, period %v, desc: '%v', aggregate: '%v' ...\n", metric.Name, period, metric.Desc, aggrSuffix)
 						_, err = lib.ExecCommand(
 							ctx,
 							[]string{
@@ -563,6 +564,15 @@ func calcHistogram(ch chan bool, ctx *lib.Ctx, hist []string) {
 	if len(hist) != 7 {
 		lib.FatalOnError(fmt.Errorf("calcHistogram, expected 7 strings, got: %d\n%v\n", len(hist), hist))
 	}
+	lib.Printf(
+		"Calculate histogram %s,%s,%s,%s,%s,%s ...\n",
+		hist[1],
+		hist[2],
+		hist[3],
+		hist[4],
+		hist[5],
+		hist[6],
+	)
 	// Execute "db2influx"
 	_, err := lib.ExecCommand(
 		ctx,
