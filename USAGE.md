@@ -122,6 +122,7 @@ You can tweak `devstats` tools by environment variables:
 - Set `GHA2DB_PROJECTS_YAML`, many tool, set main projects file, default is "projects.yaml", for example `devel/cncf.sh` uses this/
 - Set `GHA2DB_EXTERNAL_INFO`, `get_repos` tool to enable displaying external info needed by cncf/gitdm.
 - Set `GHA2DB_PROJECTS_OVERRIDE`, `get_repos`, `devstats` tools - for example "-pro1,+pro2" means never sync pro1 and always sync pro2 (even if disabled in `projects.yaml`).
+- Set `GHA2DB_EXCLUDE_REPOS`, `gha2db` tool, default "" - comma separated list of repos to exclude, example: "theupdateframework/notary,theupdateframework/other".
 - Set `IDB_MAXBATCHPOINTS`, all Influx tools - set maximum batch size, default 10240.
 
 All environment context details are defined in [context.go](https://github.com/cncf/devstats/blob/master/context.go), please see that file for details (You can also see how it works in [context_test.go](https://github.com/cncf/devstats/blob/master/context_test.go)).
