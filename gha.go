@@ -12,16 +12,17 @@ type AllProjects struct {
 
 // Project contain mapping from project name to its command line used to sync it
 type Project struct {
-	CommandLine      string     `yaml:"command_line"`
-	StartDate        *time.Time `yaml:"start_date"`
-	PDB              string     `yaml:"psql_db"`
-	IDB              string     `yaml:"influx_db"`
-	Disabled         bool       `yaml:"disabled"`
-	MainRepo         string     `yaml:"main_repo"`
-	AnnotationRegexp string     `yaml:"annotation_regexp"`
-	Order            int        `yaml:"order"`
-	JoinDate         *time.Time `yaml:"join_date"`
-	FilesSkipPattern string     `yaml:"files_skip_pattern"`
+	CommandLine      []string          `yaml:"command_line"`
+	StartDate        *time.Time        `yaml:"start_date"`
+	PDB              string            `yaml:"psql_db"`
+	IDB              string            `yaml:"influx_db"`
+	Disabled         bool              `yaml:"disabled"`
+	MainRepo         string            `yaml:"main_repo"`
+	AnnotationRegexp string            `yaml:"annotation_regexp"`
+	Order            int               `yaml:"order"`
+	JoinDate         *time.Time        `yaml:"join_date"`
+	FilesSkipPattern string            `yaml:"files_skip_pattern"`
+	Env              map[string]string `yaml:"env"`
 }
 
 // AnyArray - holds array of interface{} - just a shortcut
@@ -355,6 +356,11 @@ func RepoHit(ctx *Ctx, fullName string, forg, frepo map[string]struct{}) bool {
 	if fullName == "" {
 		return false
 	}
+	// If given repo full name is in the exclude list, signal no hit
+	_, ok := ctx.ExcludeRepos[fullName]
+	if ok {
+		return false
+	}
 	exact := ctx.Exact
 	// If repo name in old format (no org name) then assume org = ""
 	res := strings.Split(fullName, "/")
@@ -364,7 +370,7 @@ func RepoHit(ctx *Ctx, fullName string, forg, frepo map[string]struct{}) bool {
 		org, repo = res[0], res[1]
 	}
 	// Now check for full name hit in org (one can provide full repo name org/repo)
-	_, ok := forg[fullName]
+	_, ok = forg[fullName]
 	// If we hit then we can have two cases
 	// We hit a full name with "/" - this is a direct hit, return true
 	// We hit old repo name format but special flag GHA2DB_EXACT is used
