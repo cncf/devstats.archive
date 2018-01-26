@@ -433,6 +433,9 @@ func sync(ctx *lib.Ctx, args []string) {
 		var allMetrics metrics
 		lib.FatalOnError(yaml.Unmarshal(data, &allMetrics))
 
+		// Keep all histograms here
+		var hists [][]string
+
 		// Iterate all metrics
 		for _, metric := range allMetrics.Metrics {
 			extraParams := []string{}
@@ -490,25 +493,95 @@ func sync(ctx *lib.Ctx, args []string) {
 					if metric.AddPeriodToName {
 						seriesNameOrFunc += "_" + periodAggr
 					}
-					_, err = lib.ExecCommand(
-						ctx,
-						[]string{
-							cmdPrefix + "db2influx",
-							seriesNameOrFunc,
-							fmt.Sprintf("%s/%s.sql", metricsDir, metric.MetricSQL),
-							lib.ToYMDHDate(from),
-							lib.ToYMDHDate(to),
-							periodAggr,
-							strings.Join(extraParams, ","),
-						},
-						nil,
-					)
-					lib.FatalOnError(err)
+					// Histogram metrics usualy take long time, but executes single query, so there is no way to
+					// Implement multi threading inside "db2influx" call fro them
+					// So we're creating array of such metrics to be executed at the end - each in a separate go routine
+					if metric.Histogram {
+						hists = append(
+							hists,
+							[]string{
+								cmdPrefix + "db2influx",
+								seriesNameOrFunc,
+								fmt.Sprintf("%s/%s.sql", metricsDir, metric.MetricSQL),
+								lib.ToYMDHDate(from),
+								lib.ToYMDHDate(to),
+								periodAggr,
+								strings.Join(extraParams, ","),
+							},
+						)
+					} else {
+						_, err = lib.ExecCommand(
+							ctx,
+							[]string{
+								cmdPrefix + "db2influx",
+								seriesNameOrFunc,
+								fmt.Sprintf("%s/%s.sql", metricsDir, metric.MetricSQL),
+								lib.ToYMDHDate(from),
+								lib.ToYMDHDate(to),
+								periodAggr,
+								strings.Join(extraParams, ","),
+							},
+							nil,
+						)
+						lib.FatalOnError(err)
+					}
 				}
+			}
+		}
+		// Process histograms (possibly MT)
+		// Get number of CPUs available
+		thrN := lib.GetThreadsNum(ctx)
+		if thrN > 1 {
+			lib.Printf("Now processing %d histograms using MT%d version\n", len(hists), thrN)
+			chanPool := []chan bool{}
+			for _, hist := range hists {
+				ch := make(chan bool)
+				chanPool = append(chanPool, ch)
+				go calcHistogram(ch, ctx, hist)
+				if len(chanPool) == thrN {
+					ch = chanPool[0]
+					<-ch
+					chanPool = chanPool[1:]
+				}
+			}
+			lib.Printf("Final threads join\n")
+			for _, ch := range chanPool {
+				<-ch
+			}
+		} else {
+			lib.Printf("Now processing %d histograms using ST version\n", len(hists))
+			for _, hist := range hists {
+				calcHistogram(nil, ctx, hist)
 			}
 		}
 	}
 	lib.Printf("Sync success\n")
+}
+
+// calcHistogram - calculate single histogram by calling "db2influx" program with parameters from "hist"
+func calcHistogram(ch chan bool, ctx *lib.Ctx, hist []string) {
+	if len(hist) != 7 {
+		lib.FatalOnError(fmt.Errorf("calcHistogram, expected 7 strings, got: %d\n%v\n", len(hist), hist))
+	}
+	// Execute "db2influx"
+	_, err := lib.ExecCommand(
+		ctx,
+		[]string{
+			hist[0],
+			hist[1],
+			hist[2],
+			hist[3],
+			hist[4],
+			hist[5],
+			hist[6],
+		},
+		nil,
+	)
+	lib.FatalOnError(err)
+	// Synchronize go routine
+	if ch != nil {
+		ch <- true
+	}
 }
 
 // Return per project args (if no args given) or get args from command line (if given)
