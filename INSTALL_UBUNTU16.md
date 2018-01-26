@@ -2,15 +2,19 @@
 
 Prerequisites:
 - Ubuntu 16.04 LTS (quite old, but longest support).
-- [golang](https://golang.org), this tutorial uses Go 1.6
-    - `apt-get update`
-    - `apt-get install golang git psmisc jsonlint yamllint gcc`
-    - `mkdir /data; mkdir /data/dev`
+- Some of the operations below can be CPU/RAM intensive. It is recommended to use a minimum of 8 cores and 30GB RAM or higher.
+- Make sure you have enough disk space for both databases - postgresql and influxdb. This tutorial used 50GB. 
+- [golang](https://golang.org), this tutorial uses Go 1.9 - [link](https://github.com/golang/go/wiki/Ubuntu)
+    - `sudo apt-get update`
+    - `sudo apt-get install golang-1.9-go git psmisc jsonlint yamllint gcc`
+    - `sudo ln -s /usr/lib/go-1.9 /usr/lib/go`
+    - `mkdir $HOME/data; mkdir $HOME/data/dev`
 1. Configure Go:
     - For example add to `~/.bash_profile` and/or `~/.profile`:
      ```
+     GOROOT=/usr/lib/go; export GOROOT
      GOPATH=$HOME/data/dev; export GOPATH
-     PATH=$PATH:$GOPATH/bin; export PATH
+     PATH=$PATH:$GOROOT/bin:$GOPATH/bin; export PATH
      ```
     - Logout and login again.
     - [golint](https://github.com/golang/lint): `go get -u github.com/golang/lint/golint`
@@ -27,25 +31,30 @@ Prerequisites:
 
 2. Go to $GOPATH/src/ and clone devstats there:
     - `git clone https://github.com/cncf/devstats.git`
-    - Set reuse TCP connections (Golang InfluxDB may need this under heavy load): `./scripts/net_tcp_config.sh`
-3. If you want to make changes and PRs, please clone `devstats` from GitHub UI, and clone your forked version instead, like this:
-    - `git clone https://github.com/your_github_username/devstats.git`
-6. Go to devstats directory, so you are in `~/dev/go/src/devstats` directory and compile binaries:
+    - If you want to make changes and PRs, please clone `devstats` from GitHub UI, and clone your forked version instead, like this: `git clone https://github.com/your_github_username/devstats.git`
+
+3. Go to devstats directory, so you are in `$GOPATH/src/devstats` directory and compile binaries:
     - `make`
-7. If compiled sucessfully then execute test coverage that doesn't need databases:
+
+4. If compiled sucessfully then execute test coverage that doesn't need databases:
     - `make test`
     - Tests should pass.
-8. Install binaries & metrics:
-    - `sudo make install`
 
-9. Install Postgres database ([link](https://gist.github.com/sgnl/609557ebacd3378f3b72)):
+5. Install binaries & metrics:
+    - `sudo make install`
+    - If go is not installed for root, run the following:
+      - `sudo mkdir /etc/gha2db`
+      - `sudo chmod 777 /etc/gha2db`
+      - `make install`
+
+6. Install Postgres database ([link](https://gist.github.com/sgnl/609557ebacd3378f3b72)):
     - apt-get install postgresql 
     - sudo -i -u postgres
     - psql
     - Postgres only allows local connections by default so it is secure, we don't need to disable external connections:
     - Instructions to enable external connections (not recommended): `http://www.thegeekstuff.com/2014/02/enable-remote-postgresql-connection/?utm_source=tuicool`
 
-10. Inside psql client shell:
+7. Inside psql client shell:
     - `create database gha;`
     - `create database devstats;`
     - `create user gha_admin with password 'your_password_here';`
@@ -54,12 +63,12 @@ Prerequisites:
     - `alter user gha_admin createdb;`
     - Leave the shell and create logs table for devstats: `sudo -u postgres psql devstats < util_sql/devstats_log_table.sql`.
 
-11. Leave `psql` shell, and get newest Kubernetes database dump:
+8. Leave `psql` shell, and get newest Kubernetes database dump:
     - `wget https://devstats.cncf.io/gha.sql.xz` (it is about 400Mb).
     - `xz -d gha.sql.xz` (uncompressed dump is more than 7Gb).
     - `sudo -u postgres psql gha < gha.sql` (restore DB dump)
 
-12. Install InfluxDB time-series database ([link](https://docs.influxdata.com/influxdb/v0.9/introduction/installation/)):
+9. Install InfluxDB time-series database ([link](https://docs.influxdata.com/influxdb/v0.9/introduction/installation/)):
     - Ubuntu 16 contains very old `influxdb` when installed by default `apt-get install influxdb`, so:
     - `curl -sL https://repos.influxdata.com/influxdb.key | sudo apt-key add -`
     - `source /etc/lsb-release`
@@ -72,20 +81,22 @@ Prerequisites:
     - If You want to disable external InfluxDB access (for any external IP, only localhost) follow those instructions [SECURE_INFLUXDB.md](https://github.com/cncf/devstats/blob/master/SECURE_INFLUXDB.md).
     - `sudo service influxdb restart`
 
-13. Databases installed, you need to test if all works fine, use database test coverage:
+10. Databases installed, you need to test if all works fine, use database test coverage:
     - `GHA2DB_PROJECT=kubernetes IDB_DB=dbtest IDB_HOST="172.17.0.1" IDB_PASS=your_influx_pwd PG_DB=dbtest PG_PASS=your_postgres_pwd make dbtest`
     - Tests should pass.
 
-14. We have both databases running and Go tools installed, let's try to sync database dump from k8s.devstats.cncf.io manually:
+11. We have both databases running and Go tools installed, let's try to sync database dump from k8s.devstats.cncf.io manually:
+    - Set reuse TCP connections (Golang InfluxDB may need this under heavy load): `sudo ./scripts/net_tcp_config.sh`
+    - On some VMs `tcp_tw_recycle` will be unavailable, ignore the warning.
     - We need to prefix call with GHA2DB_LOCAL to enable using tools from "./" directory
-    - You need to have GitHub OAuth token, either put this token in `/etc/github/aoauth` file or specify token value via GHA2DB_GITHUB_OAUTH=deadbeef654...10a0 (here You token value)
+    - You need to have GitHub OAuth token, either put this token in `/etc/github/oauth` file or specify token value via GHA2DB_GITHUB_OAUTH=deadbeef654...10a0 (here You token value)
     - If You really don't want to use GitHub OAuth2 token, specify GHA2DB_GITHUB_OAUTH=- - this will force tokenless operation (via public API), it is a lot more rate limited than OAuth2 which gives 5000 API points/h
     - To import data for the first time (Influx database is empty and postgres database is at the state when Kubernetes SQL dump was made on [k8s.devstats.cncf.io](https://k8s.devstats.cncf.io)):
     - `IDB_HOST="172.17.0.1" IDB_PASS=pwd PG_PASS=pwd ./kubernetes/reinit_all.sh`
     - This can take a while (depending how old is psql dump `gha.sql.xz` on [k8s.devstats.cncf.io](https://k8s.devstats.cncf.io). It is generated daily at 3:00 AM UTC.
     - Command should be successfull.
 
-15. We need to setup cron job that will call sync every hour (10 minutes after 1:00, 2:00, ...)
+12. We need to setup cron job that will call sync every hour (10 minutes after 1:00, 2:00, ...)
     - You need to open `crontab.entry` file, it looks like this for single project setup:
     ```
     8 * * * * PATH=$PATH:/path/to/your/GOPATH/bin GHA2DB_CMDDEBUG=1 GHA2DB_PROJECT=kubernetes IDB_HOST="172.17.0.1" IDB_PASS='...' PG_PASS='...' gha2db_sync 2>> /tmp/gha2db_sync.err 1>> /tmp/gha2db_sync.log
@@ -109,7 +120,7 @@ Prerequisites:
     - Check database values and logs about 15 minutes after full hours, like 14:15:
     - Check max event created date: `select max(created_at) from gha_events` and logs `select * from gha_logs order by dt desc limit 20`.
 
-16. Install [Grafana](http://docs.grafana.org/installation/mac/) or use Docker to enable multiple Grafana instances, see [MULTIPROJECT.md](https://github.com/cncf/devstats/blob/master/MULTIPROJECT.md).
+13. Install [Grafana](http://docs.grafana.org/installation/mac/) or use Docker to enable multiple Grafana instances, see [MULTIPROJECT.md](https://github.com/cncf/devstats/blob/master/MULTIPROJECT.md).
     - Follow: http://docs.grafana.org/installation/debian/
     - `wget https://s3-us-west-2.amazonaws.com/grafana-releases/release/grafana_4.5.1_amd64.deb`
     - `sudo apt-get install -y adduser libfontconfig`
@@ -121,7 +132,7 @@ Prerequisites:
     - Install Apache as described [here](https://github.com/cncf/devstats/blob/master/APACHE.md).
     - You can also enable SSL, to do so you need to follow SSL instruction in [SSL](https://github.com/cncf/devstats/blob/master/SSL.md) (that requires domain name).
 
-17. To change all Grafana page titles (starting with "Grafana - ") and icons use this script:
+14. To change all Grafana page titles (starting with "Grafana - ") and icons use this script:
     - `GRAFANA_DATA=/usr/share/grafana/ ./grafana/{{project}}/change_title_and_icons.sh`.
     - `GRAFANA_DATA` can also be `/usr/share/grafana.prometheus/` for example, see [MULTIPROJECT.md](https://github.com/cncf/devstats/blob/master/MULTIPROJECT.md).
     - Replace `GRAFANA_DATA` with your Grafana data directory.
@@ -129,10 +140,10 @@ Prerequisites:
     - In some cases browser and/or Grafana cache old settings in this case temporarily move Grafana's `settings.js` file:
     - `mv /usr/share/grafana/public/app/core/settings.js /usr/share/grafana/public/app/core/settings.js.old`, restart grafana server and restore file.
 
-18. To enable Continuous deployment using Travis, please follow instructions [here](https://github.com/cncf/devstats/blob/master/CONTINUOUS_DEPLOYMENT.md).
+15. To enable Continuous deployment using Travis, please follow instructions [here](https://github.com/cncf/devstats/blob/master/CONTINUOUS_DEPLOYMENT.md).
 
-19. You can create new metrics (as SQL files and YAML definitions) and dashboards in Grafana (export as JSON).
-20. PRs and suggestions are welcome, please create PRs and Issues on the [GitHub](https://github.com/cncf/devstats).
+16. You can create new metrics (as SQL files and YAML definitions) and dashboards in Grafana (export as JSON).
+17. PRs and suggestions are welcome, please create PRs and Issues on the [GitHub](https://github.com/cncf/devstats).
 
 # More details
 - [Local Development](https://github.com/cncf/devstats/blob/master/DEVELOPMENT.md).
