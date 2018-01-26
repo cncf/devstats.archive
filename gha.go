@@ -335,6 +335,20 @@ type Team struct {
 	Permission string `json:"permission"`
 }
 
+// IsProjectDisabled - checks if project is disabled or not:
+// yamlDisabled (this is from projects.yaml - can be true or false)
+// it also checks context (which can override `disabled: true` from projects.yaml)
+// +pro1,-pro2 creates map {"pro1":true, "pro2":false}
+func IsProjectDisabled(ctx *Ctx, proj string, yamlDisabled bool) bool {
+	override, ok := ctx.ProjectsOverride[proj]
+	// No override for this project - just return YAML property value
+	if !ok {
+		return yamlDisabled
+	}
+	// If project override present then true means NOT disabled, and false means disabled
+	return !override
+}
+
 // RepoHit - are we interested in this org/repo ?
 func RepoHit(exact bool, fullName string, forg, frepo map[string]struct{}) bool {
 	// Return false if no repo name

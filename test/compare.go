@@ -107,3 +107,29 @@ func CompareSets(s1 map[string]struct{}, s2 map[string]struct{}) bool {
 	}
 	return true
 }
+
+// MakeComparableMap - transforms input map { k1: v1, k2: v2, ..., kn: vn }
+// into map with single key being its string representation, works on map[string]bool type
+// Example: { "b": true, "a": false, "c": true } --> { "a:false,b:true,c:true,": true }
+// We cannot compare such maps directly because order of keys is not guaranteed
+func MakeComparableMap(m *map[string]bool) {
+	// Get maps keys
+	keyAry := make([]string, len(*m))
+	index := 0
+	for key := range *m {
+		keyAry[index] = key
+		index++
+	}
+	// Map keys aren't sorted
+	sort.Strings(keyAry)
+
+	// Create string with k:v sorted
+	outStr := ""
+	for _, key := range keyAry {
+		outStr += fmt.Sprintf("%s:%v,", key, (*m)[key])
+	}
+	// Replace original map
+	newMap := make(map[string]bool)
+	newMap[outStr] = true
+	*m = newMap
+}

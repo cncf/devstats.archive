@@ -54,7 +54,7 @@ func syncAllProjects() bool {
 	orders := []int{}
 	projectsMap := make(map[int]string)
 	for name, proj := range projects.Projects {
-		if proj.Disabled {
+		if lib.IsProjectDisabled(&ctx, name, proj.Disabled) {
 			continue
 		}
 		orders = append(orders, proj.Order)
