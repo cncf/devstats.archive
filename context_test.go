@@ -77,6 +77,7 @@ func copyContext(in *lib.Ctx) *lib.Ctx {
 		ProjectsCommits:   in.ProjectsCommits,
 		ProjectsYaml:      in.ProjectsYaml,
 		ProjectsOverride:  in.ProjectsOverride,
+		ExcludeRepos:      in.ExcludeRepos,
 	}
 	return &out
 }
@@ -233,6 +234,7 @@ func TestInit(t *testing.T) {
 		ProjectsCommits:   "",
 		ProjectsYaml:      "projects.yaml",
 		ProjectsOverride:  map[string]bool{},
+		ExcludeRepos:      map[string]bool{},
 	}
 
 	// Test cases
@@ -792,6 +794,20 @@ func TestInit(t *testing.T) {
 				},
 			),
 		},
+		{
+			"Setting exclude repos",
+			map[string]string{"GHA2DB_EXCLUDE_REPOS": "repo1,org1/repo2,,abc"},
+			dynamicSetFields(
+				t,
+				copyContext(&defaultContext),
+				map[string]interface{}{"ExcludeRepos": map[string]bool{
+					"repo1":      true,
+					"org1/repo2": true,
+					"abc":        true,
+				},
+				},
+			),
+		},
 	}
 
 	// Context Init() is verbose when called with CtxDebug
@@ -843,6 +859,8 @@ func TestInit(t *testing.T) {
 		// Maps are not directly compareable (due to unknown key order) - need to transorm them
 		testlib.MakeComparableMap(&gotContext.ProjectsOverride)
 		testlib.MakeComparableMap(&test.expectedContext.ProjectsOverride)
+		testlib.MakeComparableMap(&gotContext.ExcludeRepos)
+		testlib.MakeComparableMap(&test.expectedContext.ExcludeRepos)
 
 		// Check if we got expected context
 		got := fmt.Sprintf("%+v", gotContext)

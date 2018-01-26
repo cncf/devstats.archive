@@ -1358,7 +1358,7 @@ func parseJSON(con *sql.DB, ctx *lib.Ctx, jsonStr []byte, dt time.Time, forg, fr
 	} else {
 		fullName = h.Repo.Name
 	}
-	if lib.RepoHit(ctx.Exact, fullName, forg, frepo) {
+	if lib.RepoHit(ctx, fullName, forg, frepo) {
 		if ctx.OldFormat {
 			eid = fmt.Sprintf("%v", lib.HashStrings([]string{hOld.Type, hOld.Actor, hOld.Repository.Name, lib.ToYMDHMSDate(hOld.CreatedAt)}))
 		} else {

@@ -350,11 +350,12 @@ func IsProjectDisabled(ctx *Ctx, proj string, yamlDisabled bool) bool {
 }
 
 // RepoHit - are we interested in this org/repo ?
-func RepoHit(exact bool, fullName string, forg, frepo map[string]struct{}) bool {
+func RepoHit(ctx *Ctx, fullName string, forg, frepo map[string]struct{}) bool {
 	// Return false if no repo name
 	if fullName == "" {
 		return false
 	}
+	exact := ctx.Exact
 	// If repo name in old format (no org name) then assume org = ""
 	res := strings.Split(fullName, "/")
 	org, repo := "", res[0]

@@ -73,6 +73,7 @@ type Ctx struct {
 	ProjectsCommits   string          // From GHA2DB_PROJECTS_COMMITS ./get_repos tool, set list of projects for commits analysis instead of analysing all, default "" - means all
 	ProjectsYaml      string          // From GHA2DB_PROJECTS_YAML, many tools - set main projects file, default "projects.yaml"
 	ProjectsOverride  map[string]bool // From GHA2DB_PROJECTS_OVERRIDE, ./get_repos and ./devstats tools - for example "-pro1,+pro2" means never sync pro1 and always sync pro2 (even if disabled in `projects.yaml`).
+	ExcludeRepos      map[string]bool // From GHA2DB_EXCLUDE_REPOS, ./gha2db tool, default "" - comma separated list of repos to exclude, example: "theupdateframework/notary,theupdateframework/other"
 }
 
 // Init - get context from environment variables
@@ -325,6 +326,18 @@ func (ctx *Ctx) Init() {
 				ctx.ProjectsOverride[project] = false
 			} else if mode == "+" {
 				ctx.ProjectsOverride[project] = true
+			}
+		}
+	}
+
+	// Exclude repos
+	excludes := os.Getenv("GHA2DB_EXCLUDE_REPOS")
+	ctx.ExcludeRepos = make(map[string]bool)
+	if excludes != "" {
+		excludeArray := strings.Split(excludes, ",")
+		for _, exclude := range excludeArray {
+			if exclude != "" {
+				ctx.ExcludeRepos[exclude] = true
 			}
 		}
 	}

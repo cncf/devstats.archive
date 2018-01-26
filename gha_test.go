@@ -68,7 +68,9 @@ func TestIsProjectDisabled(t *testing.T) {
 
 func TestRepoHit(t *testing.T) {
 	// Test cases
+	var ctx lib.Ctx
 	var testCases = []struct {
+		excludes map[string]bool
 		exact    bool
 		fullName string
 		forg     map[string]struct{}
@@ -210,11 +212,41 @@ func TestRepoHit(t *testing.T) {
 			frepo:    map[string]struct{}{"l": {}, "klm": {}},
 			hit:      true,
 		},
+		{
+			fullName: "abc/def",
+			forg:     map[string]struct{}{"abc": {}},
+			frepo:    map[string]struct{}{"def": {}},
+			excludes: map[string]bool{"abc/def": true},
+			hit:      false,
+		},
+		{
+			fullName: "abc/def",
+			forg:     map[string]struct{}{"abc": {}},
+			frepo:    map[string]struct{}{"def": {}},
+			excludes: map[string]bool{"abc/ghi": true},
+			hit:      true,
+		},
+		{
+			fullName: "abc/def",
+			forg:     map[string]struct{}{"abc": {}},
+			frepo:    map[string]struct{}{},
+			excludes: map[string]bool{"abc/def": true},
+			hit:      false,
+		},
+		{
+			fullName: "abc/ghi",
+			forg:     map[string]struct{}{"abc": {}},
+			frepo:    map[string]struct{}{},
+			excludes: map[string]bool{"abc/def": true},
+			hit:      true,
+		},
 	}
 	// Execute test cases
 	for index, test := range testCases {
 		expected := test.hit
-		got := lib.RepoHit(test.exact, test.fullName, test.forg, test.frepo)
+		ctx.ExcludeRepos = test.excludes
+		ctx.Exact = test.exact
+		got := lib.RepoHit(&ctx, test.fullName, test.forg, test.frepo)
 		if got != expected {
 			t.Errorf(
 				"test number %d, expected '%v', got '%v', test case: %+v",
