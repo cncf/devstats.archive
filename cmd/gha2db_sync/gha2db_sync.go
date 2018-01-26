@@ -562,7 +562,7 @@ func sync(ctx *lib.Ctx, args []string) {
 // calcHistogram - calculate single histogram by calling "db2influx" program with parameters from "hist"
 func calcHistogram(ch chan bool, ctx *lib.Ctx, hist []string) {
 	if len(hist) != 7 {
-		lib.FatalOnError(fmt.Errorf("calcHistogram, expected 7 strings, got: %d\n%v\n", len(hist), hist))
+		lib.FatalOnError(fmt.Errorf("calcHistogram, expected 7 strings, got: %d: %v", len(hist), hist))
 	}
 	lib.Printf(
 		"Calculate histogram %s,%s,%s,%s,%s,%s ...\n",
