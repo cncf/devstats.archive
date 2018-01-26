@@ -91,6 +91,15 @@ func syncAllProjects() bool {
 	for _, order := range orders {
 		name := projectsMap[order]
 		proj := projects.Projects[name]
+		projEnv := map[string]string{
+			"GHA2DB_PROJECT": name,
+			"PG_DB":          proj.PDB,
+			"IDB_DB":         proj.IDB,
+		}
+		// Apply eventual per project specific environment
+		for envName, envValue := range proj.Env {
+			projEnv[envName] = envValue
+		}
 		lib.Printf("Syncing #%d %s\n", order, name)
 		dtStart := time.Now()
 		_, res := lib.ExecCommand(
@@ -98,11 +107,7 @@ func syncAllProjects() bool {
 			[]string{
 				cmdPrefix + "gha2db_sync",
 			},
-			map[string]string{
-				"GHA2DB_PROJECT": name,
-				"PG_DB":          proj.PDB,
-				"IDB_DB":         proj.IDB,
-			},
+			projEnv,
 		)
 		dtEnd := time.Now()
 		if res != nil {

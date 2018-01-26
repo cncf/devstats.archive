@@ -545,7 +545,7 @@ func getSyncArgs(ctx *lib.Ctx, osArgs []string) []string {
 		if proj.StartDate != nil {
 			ctx.DefaultStartDate = *proj.StartDate
 		}
-		return []string{proj.CommandLine}
+		return proj.CommandLine
 	}
 	// No user commandline and project not found
 	lib.FatalOnError(
