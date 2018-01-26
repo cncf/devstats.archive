@@ -1323,14 +1323,6 @@ func writeToDB(db *sql.DB, ctx *lib.Ctx, ev *lib.Event) int {
 	return 1
 }
 
-// Before 2015 rpository name should be Organization/Name (if Organization present) or just Name
-func makeOldRepoName(repo *lib.ForkeeOld) string {
-	if repo.Organization == nil || *repo.Organization == "" {
-		return repo.Name
-	}
-	return fmt.Sprintf("%s/%s", *repo.Organization, repo.Name)
-}
-
 // parseJSON - parse signle GHA JSON event
 func parseJSON(con *sql.DB, ctx *lib.Ctx, jsonStr []byte, dt time.Time, forg, frepo map[string]struct{}) (f int, e int) {
 	var (
@@ -1354,7 +1346,7 @@ func parseJSON(con *sql.DB, ctx *lib.Ctx, jsonStr []byte, dt time.Time, forg, fr
 	}
 	lib.FatalOnError(err)
 	if ctx.OldFormat {
-		fullName = makeOldRepoName(&hOld.Repository)
+		fullName = lib.MakeOldRepoName(&hOld.Repository)
 	} else {
 		fullName = h.Repo.Name
 	}
