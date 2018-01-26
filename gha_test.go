@@ -6,6 +6,66 @@ import (
 	lib "devstats"
 )
 
+func TestIsProjectDisabled(t *testing.T) {
+	var ctx lib.Ctx
+	var testCases = []struct {
+		overrides    map[string]bool
+		proj         string
+		yamlDisabled bool
+		expected     bool
+	}{
+		{
+			proj:         "pro1",
+			overrides:    map[string]bool{},
+			yamlDisabled: false,
+			expected:     false,
+		},
+		{
+			proj:         "pro1",
+			overrides:    map[string]bool{},
+			yamlDisabled: true,
+			expected:     true,
+		},
+		{
+			proj:         "pro1",
+			overrides:    map[string]bool{"pro1": true},
+			yamlDisabled: true,
+			expected:     false,
+		},
+		{
+			proj:         "pro1",
+			overrides:    map[string]bool{"pro1": false},
+			yamlDisabled: true,
+			expected:     true,
+		},
+		{
+			proj:         "pro1",
+			overrides:    map[string]bool{"pro1": true},
+			yamlDisabled: false,
+			expected:     false,
+		},
+		{
+			proj:         "pro1",
+			overrides:    map[string]bool{"pro1": false},
+			yamlDisabled: false,
+			expected:     true,
+		},
+	}
+	//func IsProjectDisabled(ctx *Ctx, proj string, yamlDisabled bool) bool {
+	// Execute test cases
+	for index, test := range testCases {
+		expected := test.expected
+		ctx.ProjectsOverride = test.overrides
+		got := lib.IsProjectDisabled(&ctx, test.proj, test.yamlDisabled)
+		if got != expected {
+			t.Errorf(
+				"test number %d, expected '%v', got '%v', test case: %+v",
+				index+1, expected, got, test,
+			)
+		}
+	}
+}
+
 func TestRepoHit(t *testing.T) {
 	// Test cases
 	var testCases = []struct {

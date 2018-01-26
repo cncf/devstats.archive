@@ -69,7 +69,7 @@ func getRepos(ctx *lib.Ctx) (map[string]string, map[string][]string) {
 	lib.FatalOnError(yaml.Unmarshal(data, &projects))
 	dbs := make(map[string]string)
 	for name, proj := range projects.Projects {
-		if proj.Disabled || (selectedProjects && !onlyProjects[name]) {
+		if lib.IsProjectDisabled(ctx, name, proj.Disabled) || (selectedProjects && !onlyProjects[name]) {
 			continue
 		}
 		dbs[proj.PDB] = proj.FilesSkipPattern

@@ -8,6 +8,7 @@ import (
 	"time"
 
 	lib "devstats"
+	testlib "devstats/test"
 )
 
 // Copies Ctx structure
@@ -75,6 +76,7 @@ func copyContext(in *lib.Ctx) *lib.Ctx {
 		ExternalInfo:      in.ExternalInfo,
 		ProjectsCommits:   in.ProjectsCommits,
 		ProjectsYaml:      in.ProjectsYaml,
+		ProjectsOverride:  in.ProjectsOverride,
 	}
 	return &out
 }
@@ -143,6 +145,14 @@ func dynamicSetFields(t *testing.T, ctx *lib.Ctx, fields map[string]interface{})
 			// Check if types match
 			fieldType := field.Type()
 			if fieldType != reflect.TypeOf([]string{}) {
+				t.Errorf("trying to set value %v, type %T for field \"%s\", type %v", interfaceValue, interfaceValue, fieldName, fieldKind)
+				return ctx
+			}
+			field.Set(reflect.ValueOf(fieldValue))
+		case map[string]bool:
+			// Check if types match
+			fieldType := field.Type()
+			if fieldType != reflect.TypeOf(map[string]bool{}) {
 				t.Errorf("trying to set value %v, type %T for field \"%s\", type %v", interfaceValue, interfaceValue, fieldName, fieldKind)
 				return ctx
 			}
@@ -222,6 +232,7 @@ func TestInit(t *testing.T) {
 		ExternalInfo:      false,
 		ProjectsCommits:   "",
 		ProjectsYaml:      "projects.yaml",
+		ProjectsOverride:  map[string]bool{},
 	}
 
 	// Test cases
@@ -724,6 +735,63 @@ func TestInit(t *testing.T) {
 				},
 			),
 		},
+		{
+			"Setting projects override",
+			map[string]string{
+				"GHA2DB_PROJECTS_OVERRIDE": "a,,c,-,+,,",
+			},
+			dynamicSetFields(
+				t,
+				copyContext(&defaultContext),
+				map[string]interface{}{
+					"ProjectsOverride": map[string]bool{},
+				},
+			),
+		},
+		{
+			"Setting projects override",
+			map[string]string{
+				"GHA2DB_PROJECTS_OVERRIDE": "nothing",
+			},
+			dynamicSetFields(
+				t,
+				copyContext(&defaultContext),
+				map[string]interface{}{
+					"ProjectsOverride": map[string]bool{},
+				},
+			),
+		},
+		{
+			"Setting projects override",
+			map[string]string{
+				"GHA2DB_PROJECTS_OVERRIDE": "+pro1",
+			},
+			dynamicSetFields(
+				t,
+				copyContext(&defaultContext),
+				map[string]interface{}{
+					"ProjectsOverride": map[string]bool{"pro1": true},
+				},
+			),
+		},
+		{
+			"Setting projects override",
+			map[string]string{
+				"GHA2DB_PROJECTS_OVERRIDE": ",+pro1,-pro2,,pro3,,+-pro4,-+pro5,",
+			},
+			dynamicSetFields(
+				t,
+				copyContext(&defaultContext),
+				map[string]interface{}{
+					"ProjectsOverride": map[string]bool{
+						"pro1":  true,
+						"pro2":  false,
+						"-pro4": true,
+						"+pro5": false,
+					},
+				},
+			),
+		},
 	}
 
 	// Context Init() is verbose when called with CtxDebug
@@ -771,6 +839,10 @@ func TestInit(t *testing.T) {
 				t.Errorf(err.Error())
 			}
 		}
+
+		// Maps are not directly compareable (due to unknown key order) - need to transorm them
+		testlib.MakeComparableMap(&gotContext.ProjectsOverride)
+		testlib.MakeComparableMap(&test.expectedContext.ProjectsOverride)
 
 		// Check if we got expected context
 		got := fmt.Sprintf("%+v", gotContext)
