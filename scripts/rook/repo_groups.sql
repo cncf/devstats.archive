@@ -6,7 +6,7 @@ update gha_repos set alias = name;
 update gha_repos
 set repo_group = 'Rook', alias = 'Rook'
 where name in (
-  'rook/rook',
+  'rook/rook'
 );
 
 select
