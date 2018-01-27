@@ -23,7 +23,8 @@ fi
 ./jaeger/import_affs.sh || exit 14
 ./notary/import_affs.sh || exit 15
 ./tuf/import_affs.sh || exit 16
-# ./cncf/import_affs.sh || exit 17
+./rook/import_affs.sh || exit 17
+# ./cncf/import_affs.sh || exit 18
 ./kubernetes/top_n_companies.sh 70 >> ./metrics/kubernetes/gaps.yaml
 ./prometheus/top_n_companies.sh 70 >> ./metrics/prometheus/gaps.yaml
 ./opentracing/top_n_companies.sh 70 >> ./metrics/opentracing/gaps.yaml
@@ -38,5 +39,6 @@ fi
 ./jaeger/top_n_companies.sh 70 >> ./metrics/jaeger/gaps.yaml
 ./notary/top_n_companies.sh 70 >> ./metrics/notary/gaps.yaml
 ./tuf/top_n_companies.sh 70 >> ./metrics/tuf/gaps.yaml
+./rook/top_n_companies.sh 70 >> ./metrics/rook/gaps.yaml
 # ./cncf/top_n_companies.sh 70 >> ./metrics/cncf/gaps.yaml
 echo 'OK'

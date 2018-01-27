@@ -24,4 +24,5 @@ GHA2DB_LOCAL=1 GHA2DB_PROCESS_REPOS=1 ./get_repos
 ./jaeger/update_affs.sh || exit 12
 ./notary/update_affs.sh || exit 13
 ./tuf/update_affs.sh || exit 14
-# ./cncf/update_affs.sh || exit 15
+./rook/update_affs.sh || exit 15
+# ./cncf/update_affs.sh || exit 16
