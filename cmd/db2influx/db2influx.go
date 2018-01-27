@@ -360,6 +360,8 @@ func db2influxHistogram(ctx *lib.Ctx, seriesNameOrFunc, sqlFile, sqlQuery, exclu
 	pts.NPoints = 0
 	pts.Points = &bp
 
+	lib.Printf("db2influx.go: Histogram running interval '%v,%v' n %d anno %v past %v\n", interval, intervalAbbr, nIntervals, annotationsRanges, skipPast)
+
 	// If using annotations ranges, then get their values
 	var qrFrom *string
 	if annotationsRanges {

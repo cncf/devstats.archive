@@ -3,6 +3,7 @@ package devstats
 import (
 	"fmt"
 	"os"
+	"runtime/debug"
 	"time"
 
 	"github.com/lib/pq"
@@ -12,15 +13,16 @@ import (
 func FatalOnError(err error) string {
 	if err != nil {
 		tm := time.Now()
-		Printf("Error(time=%+v):\n%v\nError: '%s'\nStacktrace:\n", tm, err, err.Error())
-		fmt.Fprintf(os.Stderr, "Error(time=%+v):\n%v\nError: '%s'\nStacktrace:\n", tm, err, err.Error())
 		switch e := err.(type) {
 		case *pq.Error:
 			errName := e.Code.Name()
 			if errName == "too_many_connections" {
+				Printf("Too many postgres connections: %+v: '%s'\n", tm, err.Error())
 				return Retry
 			}
 		}
+		Printf("Error(time=%+v):\nError: '%s'\nStacktrace:\n%s\n", tm, err.Error(), string(debug.Stack()))
+		fmt.Fprintf(os.Stderr, "Error(time=%+v):\nError: '%s'\nStacktrace:\n", tm, err.Error())
 		panic("stacktrace")
 	}
 	return "ok"
