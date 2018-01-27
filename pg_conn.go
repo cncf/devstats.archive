@@ -49,7 +49,7 @@ func CreateTable(tdef string) string {
 
 // Outputs query info
 func queryOut(query string, args ...interface{}) {
-	// use fmt.Printf not lib.Printf here
+	// Use fmt.Printf not lib.Printf here
 	// If we use lib.Printf (that logs to DB) while ouputting some query's parameters
 	// We would have infinite recurence
 	if len(args) > 0 {
@@ -91,9 +91,9 @@ func QuerySQLWithErr(con *sql.DB, ctx *Ctx, query string, args ...interface{}) *
 		if status == "ok" {
 			break
 		}
-		fmt.Printf("Will retry after %d seconds...\n", try)
+		Printf("Will retry after %d seconds...\n", try)
 		time.Sleep(time.Duration(try) * time.Second)
-		fmt.Printf("%d seconds passed, retrying...\n", try)
+		Printf("%d seconds passed, retrying...\n", try)
 	}
 	if status == Retry {
 		FatalOnError(fmt.Errorf("too many connections used, tried %d times", len(ctx.Trials)))
@@ -128,9 +128,9 @@ func QuerySQLTxWithErr(con *sql.Tx, ctx *Ctx, query string, args ...interface{})
 		if status == "ok" {
 			break
 		}
-		fmt.Printf("Will retry after %d seconds...\n", try)
+		Printf("Will retry after %d seconds...\n", try)
 		time.Sleep(time.Duration(try) * time.Second)
-		fmt.Printf("%d seconds passed, retrying...\n", try)
+		Printf("%d seconds passed, retrying...\n", try)
 	}
 	if status == Retry {
 		FatalOnError(fmt.Errorf("too many connections used, tried %d times", len(ctx.Trials)))
@@ -163,9 +163,9 @@ func ExecSQLWithErr(con *sql.DB, ctx *Ctx, query string, args ...interface{}) sq
 		if status == "ok" {
 			break
 		}
-		fmt.Printf("Will retry after %d seconds...\n", try)
+		Printf("Will retry after %d seconds...\n", try)
 		time.Sleep(time.Duration(try) * time.Second)
-		fmt.Printf("%d seconds passed, retrying...\n", try)
+		Printf("%d seconds passed, retrying...\n", try)
 	}
 	if status == Retry {
 		FatalOnError(fmt.Errorf("too many connections used, tried %d times", len(ctx.Trials)))
@@ -200,9 +200,9 @@ func ExecSQLTxWithErr(con *sql.Tx, ctx *Ctx, query string, args ...interface{}) 
 		if status == "ok" {
 			break
 		}
-		fmt.Printf("Will retry after %d seconds...\n", try)
+		Printf("Will retry after %d seconds...\n", try)
 		time.Sleep(time.Duration(try) * time.Second)
-		fmt.Printf("%d seconds passed, retrying...\n", try)
+		Printf("%d seconds passed, retrying...\n", try)
 	}
 	if status == Retry {
 		FatalOnError(fmt.Errorf("too many connections used, tried %d times", len(ctx.Trials)))
