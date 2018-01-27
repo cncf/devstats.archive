@@ -13,5 +13,6 @@ GHA2DB_PROJECT=envoy PG_DB=envoy IDB_DB=envoy ./devel/add_single_metric.sh || ex
 GHA2DB_PROJECT=jaeger PG_DB=jaeger IDB_DB=jaeger ./devel/add_single_metric.sh || exit 12
 GHA2DB_PROJECT=notary PG_DB=notary IDB_DB=notary ./devel/add_single_metric.sh || exit 13
 GHA2DB_PROJECT=tuf PG_DB=tuf IDB_DB=tuf ./devel/add_single_metric.sh || exit 14
-# GHA2DB_PROJECT=cncf PG_DB=cncf IDB_DB=cncf ./devel/add_single_metric.sh || exit 15
+GHA2DB_PROJECT=rook PG_DB=rook IDB_DB=rook ./devel/add_single_metric.sh || exit 15
+# GHA2DB_PROJECT=cncf PG_DB=cncf IDB_DB=cncf ./devel/add_single_metric.sh || exit 16
 echo 'OK'
