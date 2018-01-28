@@ -12,6 +12,12 @@ Prerequisites:
      GOPATH=$HOME/dev/go; export GOPATH
      PATH=$PATH:$GOPATH/bin; export PATH
      ```
+    - Update your '~/.netrc':
+    ```
+    machine github.com
+      login <user>
+      password <password>
+    ```
     - Logout and login again.
     - [golint](https://github.com/golang/lint): `go get -u github.com/golang/lint/golint`
     - [goimports](https://godoc.org/golang.org/x/tools/cmd/goimports): `go get golang.org/x/tools/cmd/goimports`
