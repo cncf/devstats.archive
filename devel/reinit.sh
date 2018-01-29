@@ -25,5 +25,9 @@ GHA2DB_LOCAL=1 GHA2DB_PROCESS_REPOS=1 ./get_repos
 ./notary/reinit.sh || exit 13
 ./tuf/reinit.sh || exit 14
 ./rook/reinit.sh || exit 15
-# ./cncf/reinit.sh || exit 16
-# ./all/reinit.sh || exit 17
+host=`hostname`
+if [ $host = "cncftest.io" ]
+then
+  ./cncf/reinit.sh || exit 16
+  ./all/reinit.sh || exit 17
+fi

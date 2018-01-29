@@ -24,8 +24,12 @@ fi
 ./notary/import_affs.sh || exit 15
 ./tuf/import_affs.sh || exit 16
 ./rook/import_affs.sh || exit 17
-# ./all/import_affs.sh || exit 18
-# ./cncf/import_affs.sh || exit 19
+host=`hostname`
+if [ $host = "cncftest.io" ]
+then
+  ./all/import_affs.sh || exit 18
+  ./cncf/import_affs.sh || exit 19
+fi
 ./kubernetes/top_n_companies.sh 70 >> ./metrics/kubernetes/gaps.yaml
 ./prometheus/top_n_companies.sh 70 >> ./metrics/prometheus/gaps.yaml
 ./opentracing/top_n_companies.sh 70 >> ./metrics/opentracing/gaps.yaml
@@ -41,6 +45,10 @@ fi
 ./notary/top_n_companies.sh 70 >> ./metrics/notary/gaps.yaml
 ./tuf/top_n_companies.sh 70 >> ./metrics/tuf/gaps.yaml
 ./rook/top_n_companies.sh 70 >> ./metrics/rook/gaps.yaml
-# ./all/top_n_companies.sh 70 >> ./metrics/all/gaps.yaml
-# ./cncf/top_n_companies.sh 70 >> ./metrics/cncf/gaps.yaml
+host=`hostname`
+if [ $host = "cncftest.io" ]
+then
+  ./all/top_n_companies.sh 70 >> ./metrics/all/gaps.yaml
+  ./cncf/top_n_companies.sh 70 >> ./metrics/cncf/gaps.yaml
+fi
 echo 'OK'
