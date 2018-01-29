@@ -14,6 +14,11 @@ cron_db_backup.sh jaeger 2>> /tmp/gha2db_backup_jaeger.err 1>> /tmp/gha2db_backu
 cron_db_backup.sh notary 2>> /tmp/gha2db_backup_notary.err 1>> /tmp/gha2db_backup_notary.log
 cron_db_backup.sh tuf 2>> /tmp/gha2db_backup_tuf.err 1>> /tmp/gha2db_backup_tuf.log
 cron_db_backup.sh rook 2>> /tmp/gha2db_backup_rook.err 1>> /tmp/gha2db_backup_rook.log
-# cron_db_backup.sh allprj 2>> /tmp/gha2db_backup_all.err 1>> /tmp/gha2db_backup_all.log
-# cron_db_backup.sh cncf 2>> /tmp/gha2db_backup_cncf.err 1>> /tmp/gha2db_backup_cncf.log
 cron_db_backup.sh devstats 2>> /tmp/gha2db_backup_devstats.err 1>> /tmp/gha2db_backup_devstats.log
+
+host=`hostname`
+if [ $host = "cncftest.io" ]
+then
+  cron_db_backup.sh allprj 2>> /tmp/gha2db_backup_all.err 1>> /tmp/gha2db_backup_all.log
+  cron_db_backup.sh cncf 2>> /tmp/gha2db_backup_cncf.err 1>> /tmp/gha2db_backup_cncf.log
+fi
