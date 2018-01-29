@@ -15,20 +15,18 @@ To add new project follow instructions:
 - Copy standard grafana distro for new project: `cp -R /usr/share/grafana /usr/share/grafana.projectname/`.
 - Make sure that you pull newest cncf/artwork: `cd ~/dev/cncf/artwork; git pull; cd ~/dev/go/src/devstats`.
 - Generate icons for new project: `./grafana/img/projectname32.png`, `./grafana/img/projectname.svg`: update & run `./grafana/create_images.sh`.
-- SVG can be taken from cncf/artwork (should be color & square): `cp ~/dev/cncf/artwork/projectname/icon/color/projectname-icon-color.svg grafana/img/projectname.svg`.
-- PNG should be 32bit RGBA 32x32 PNG. You can use `apt-get install imagemagick` and then: `convert ~/dev/cncf/artwork/projectname/icon/color/projectname-icon-color.png -resize 32x32 grafana/img/projectname32.png`.
-- And/Or update `grafana/copy_artwork_icons.sh`, `apache/www/copy_icons.sh`, `grafana/create_images.sh`.
+- Update `grafana/copy_artwork_icons.sh`, `apache/www/copy_icons.sh`, `grafana/create_images.sh`.
 - Especially do new project's part of `apache/www/copy_icons.sh` on the prod server, to have new icon available on the test server (icon path is from the prod server).
 - Update `grafana/change_title_and_icons_all.sh`.
 - Copy setup scripts and then adjust them:
-- `cp -R oldproject/ projectname/`, `mv projectname/oldproject.sh projectname/projectname.sh`, `vim projectname/*`.
+- `cp -R oldproject/ projectname/`, `vim projectname/*`.
 - You need to set correct project main GitHub repository and annotations match regexp in `projects.yaml` to have working annotations and quick ranges.
 - Copy `metrics/oldproject` to `metrics/projectname`, those files will need tweaks too. Specially `./metrics/projectname/gaps.yaml`.
 - `cp -Rv scripts/oldproject/ scripts/projectname`, `vim scripts/projectname/*`.
 - Create Postgres database for new project: `sudo -u postgres psql`
 - `create database projectname;`
 - `grant all privileges on database "projectname" to gha_admin;`
-- If running on the test server: generate Postgres data: `PG_PASS=... IDB_PASS=... IDB_HOST=172.17.0.1 ./projectname/projectname.sh`.
+- If running on the test server: generate Postgres data: `PG_PASS=... IDB_PASS=... IDB_HOST=172.17.0.1 ./projectname/psql.sh`.
 - If running on the production server: `wget https://cncftest.io/projectname.sql.xz`, `xz -d projectname.sql.xz`, `sudo -u postgres psql projectname < projectname.sql`.
 - When data is imported into Postgres: projectname, you need to update `metrics/projectname/gaps.yaml` and `metrics/projectname/gaps_affs.yaml` (with top companies & repo groups).
 - Using `./metrics/projectname/companies_tags.sql`,  `./projectname/top_n_companies.sh`.

@@ -1,5 +1,4 @@
 #!/bin/bash
-# Run this script from the repository top level: ./linkerd/linkerd.sh
 set -o pipefail
 > errors.txt
 > run.log

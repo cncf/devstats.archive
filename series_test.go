@@ -129,7 +129,7 @@ func TestProcessAnnotations(t *testing.T) {
 				},
 			},
 			expectedAnnotations: [][]interface{}{
-				{"2014-01-01T00:00:00Z", "2014-01-01 - joined CNCF", "CNCF join Date"},
+				{"2014-01-01T00:00:00Z", "2014-01-01 - joined CNCF", "CNCF join date"},
 				{"2017-02-01T00:00:00Z", "desc 0.0.0", "release 0.0.0"},
 			},
 			expectedQuickRanges: [][]interface{}{
@@ -156,7 +156,7 @@ func TestProcessAnnotations(t *testing.T) {
 			},
 			expectedAnnotations: [][]interface{}{
 				{"2017-02-01T00:00:00Z", "desc 0.0.0", "release 0.0.0"},
-				{"2018-01-01T00:00:00Z", "2018-01-01 - joined CNCF", "CNCF join Date"},
+				{"2018-01-01T00:00:00Z", "2018-01-01 - joined CNCF", "CNCF join date"},
 			},
 			expectedQuickRanges: [][]interface{}{
 				{"d;1 day;;", "Last day", "d"},

@@ -344,8 +344,8 @@ And finally before 2015-01-01 GitHub used different JSONs format. To process the
 For example June 2017:
 - `time PG_PASS=pwd ./gha2db 2017-06-01 0 2017-07-01 0 'kubernetes,kubernetes-incubator,kubernetes-client,kubernetes-helm'`
 
-To process kubernetes all time just use `kubernetes/kubernetes.sh` script. Like this:
-- `time PG_PASS=pwd ./kubernetes/kubernetes.sh`.
+To process kubernetes all time just use `kubernetes/psql.sh` script. Like this:
+- `time PG_PASS=pwd ./kubernetes/psql.sh`.
 
 # Check erros
 
@@ -428,7 +428,7 @@ Repository group is defined on `gha_repos` table using `repo_group` value.
 To setup default repository groups:
 - `PG_PASS=pwd ./kubernetes/setup_repo_groups.sh`.
 
-This is a part of `kubernetes/kubernetes.sh` script and [kubernetes psql dump](https://devstats.cncf.io/gha.sql.xz) already has groups configured.
+This is a part of `kubernetes/psql.sh` script and [kubernetes psql dump](https://devstats.cncf.io/gha.sql.xz) already has groups configured.
 
 # Grafana output
 

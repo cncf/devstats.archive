@@ -1,10 +1,54 @@
 package devstats
 
 import (
+	"reflect"
 	"testing"
 
 	lib "devstats"
 )
+
+func TestMakeUniqueSort(t *testing.T) {
+	var testCases = []struct {
+		input    []string
+		expected []string
+	}{
+		{
+			input:    []string{},
+			expected: []string{},
+		},
+		{
+			input:    []string{"a", "b", "cde"},
+			expected: []string{"a", "b", "cde"},
+		},
+		{
+			input:    []string{"cde", "a", "b"},
+			expected: []string{"a", "b", "cde"},
+		},
+		{
+			input:    []string{"a", "a", "b", "cde"},
+			expected: []string{"a", "b", "cde"},
+		},
+		{
+			input:    []string{"a", "b", "b", "a", "cde", "a", "cde", "b"},
+			expected: []string{"a", "b", "cde"},
+		},
+		{
+			input:    []string{"a", "a", "b", "b", "b", "cde", "cde"},
+			expected: []string{"a", "b", "cde"},
+		},
+	}
+	// Execute test cases
+	for index, test := range testCases {
+		expected := test.expected
+		got := lib.MakeUniqueSort(test.input)
+		if (len(got) > 0 || len(expected) > 0) && !reflect.DeepEqual(got, expected) {
+			t.Errorf(
+				"test number %d, expected '%v', got '%v', test case: %+v",
+				index+1, expected, got, test,
+			)
+		}
+	}
+}
 
 func TestIsProjectDisabled(t *testing.T) {
 	var ctx lib.Ctx
@@ -51,7 +95,6 @@ func TestIsProjectDisabled(t *testing.T) {
 			expected:     true,
 		},
 	}
-	//func IsProjectDisabled(ctx *Ctx, proj string, yamlDisabled bool) bool {
 	// Execute test cases
 	for index, test := range testCases {
 		expected := test.expected

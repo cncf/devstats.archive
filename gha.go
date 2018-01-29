@@ -2,6 +2,7 @@ package devstats
 
 import (
 	"fmt"
+	"sort"
 	"strings"
 	"time"
 )
@@ -335,6 +336,19 @@ type Team struct {
 	Name       string `json:"name"`
 	Slug       string `json:"slug"`
 	Permission string `json:"permission"`
+}
+
+// MakeUniqueSort - make string array unique & sorted
+func MakeUniqueSort(ary []string) (outAry []string) {
+	vals := make(map[string]struct{})
+	for _, val := range ary {
+		vals[val] = struct{}{}
+	}
+	for val := range vals {
+		outAry = append(outAry, val)
+	}
+	sort.Strings(outAry)
+	return
 }
 
 // IsProjectDisabled - checks if project is disabled or not:
