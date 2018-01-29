@@ -74,6 +74,8 @@ type Ctx struct {
 	ProjectsYaml      string          // From GHA2DB_PROJECTS_YAML, many tools - set main projects file, default "projects.yaml"
 	ProjectsOverride  map[string]bool // From GHA2DB_PROJECTS_OVERRIDE, ./get_repos and ./devstats tools - for example "-pro1,+pro2" means never sync pro1 and always sync pro2 (even if disabled in `projects.yaml`).
 	ExcludeRepos      map[string]bool // From GHA2DB_EXCLUDE_REPOS, ./gha2db tool, default "" - comma separated list of repos to exclude, example: "theupdateframework/notary,theupdateframework/other"
+	InputDBs          []string        // From GHA2DB_INPUT_DBS, ./merge_pdbs tool - list of input databases to merge, order matters - first one will insert on a clean DB, next will do insert ignore (to avoid constraints failure due to common data)
+	OutputDB          string          // From GHA2DB_OUTPUT_DB, ./merge_pdbs tool - output database to merge into
 }
 
 // Init - get context from environment variables
@@ -386,6 +388,13 @@ func (ctx *Ctx) Init() {
 	ctx.ProcessCommits = os.Getenv("GHA2DB_PROCESS_COMMITS") != ""
 	ctx.ExternalInfo = os.Getenv("GHA2DB_EXTERNAL_INFO") != ""
 	ctx.ProjectsCommits = os.Getenv("GHA2DB_PROJECTS_COMMITS")
+
+	// `merge_pdbs` tool - input DBs and output DB
+	dbs := os.Getenv("GHA2DB_INPUT_DBS")
+	if dbs != "" {
+		ctx.InputDBs = strings.Split(dbs, ",")
+	}
+	ctx.OutputDB = os.Getenv("GHA2DB_OUTPUT_DB")
 
 	// Context out if requested
 	if ctx.CtxOut {

@@ -78,6 +78,8 @@ func copyContext(in *lib.Ctx) *lib.Ctx {
 		ProjectsYaml:      in.ProjectsYaml,
 		ProjectsOverride:  in.ProjectsOverride,
 		ExcludeRepos:      in.ExcludeRepos,
+		InputDBs:          in.InputDBs,
+		OutputDB:          in.OutputDB,
 	}
 	return &out
 }
@@ -235,6 +237,8 @@ func TestInit(t *testing.T) {
 		ProjectsYaml:      "projects.yaml",
 		ProjectsOverride:  map[string]bool{},
 		ExcludeRepos:      map[string]bool{},
+		InputDBs:          []string{},
+		OutputDB:          "",
 	}
 
 	// Test cases
@@ -805,6 +809,21 @@ func TestInit(t *testing.T) {
 					"org1/repo2": true,
 					"abc":        true,
 				},
+				},
+			),
+		},
+		{
+			"Setting input & output DBs for 'merge_pdbs' tool",
+			map[string]string{
+				"GHA2DB_INPUT_DBS": "db1,db2,db3",
+				"GHA2DB_OUTPUT_DB": "db4",
+			},
+			dynamicSetFields(
+				t,
+				copyContext(&defaultContext),
+				map[string]interface{}{
+					"InputDBs": []string{"db1", "db2", "db3"},
+					"OutputDB": "db4",
 				},
 			),
 		},

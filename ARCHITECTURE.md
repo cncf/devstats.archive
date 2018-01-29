@@ -111,6 +111,8 @@ We're getting all possible GitHub data for all objects, and all objects historic
 - [webhook](https://github.com/cncf/devstats/blob/master/cmd/webhook/webhook.go)
 - `webhook` is used to react to Travis CI webhooks and trigger deploy if status, branch and type match defined values, more details [here](https://github.com/cncf/devstats/blob/master/CONTINUOUS_DEPLOYMENT.md).
 - There are few shell scripts for example: running sync every N seconds, setup InfluxDB etc.
+- [merge_pdbs](https://github.com/cncf/devstats/blob/master/cmd/merge_pdbs/merge_pdbs.go)
+- `merge_pdbs` is used to generate Postgres database that contains data from other multiple databases.
 
 # Database structure details
 
