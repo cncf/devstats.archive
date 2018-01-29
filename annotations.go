@@ -38,6 +38,30 @@ func (a AnnotationsByDate) Less(i, j int) bool {
 	return a[i].Date.Before(a[j].Date)
 }
 
+// GetFakeAnnotations - returns 'startDate - joinDate' and 'joinDate - now' annotations
+func GetFakeAnnotations(startDate, joinDate time.Time) (annotations Annotations) {
+	if !joinDate.After(startDate) {
+		return
+	}
+	annotations.Annotations = append(
+		annotations.Annotations,
+		Annotation{
+			Name:        "Project start",
+			Description: ToYMDDate(startDate) + " - project starts",
+			Date:        startDate,
+		},
+	)
+	annotations.Annotations = append(
+		annotations.Annotations,
+		Annotation{
+			Name:        "CNCF join date",
+			Description: ToYMDDate(joinDate) + " - joined CNCF",
+			Date:        joinDate,
+		},
+	)
+	return
+}
+
 // GetAnnotations queries GitHub `orgRepo` via GitHub API (using ctx.GitHubOAuth)
 // for all tags and returns those matching `annoRegexp`
 func GetAnnotations(ctx *Ctx, orgRepo, annoRegexp string) (annotations Annotations) {
@@ -163,7 +187,7 @@ func ProcessAnnotations(ctx *Ctx, annotations *Annotations, joinDate *time.Time)
 	// Join CNCF (additional annotation not used in quick ranges)
 	if joinDate != nil {
 		fields := map[string]interface{}{
-			"title":       "CNCF join Date",
+			"title":       "CNCF join date",
 			"description": ToYMDDate(*joinDate) + " - joined CNCF",
 		}
 		// Add batch point
