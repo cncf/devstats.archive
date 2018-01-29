@@ -41,11 +41,14 @@ func makeAnnotations() {
 		lib.FatalOnError(fmt.Errorf("project '%s' not found in '%s'", ctx.Project, ctx.ProjectsYaml))
 	}
 
-	// Get annotations using GitHub API
-	annotations := lib.GetAnnotations(&ctx, proj.MainRepo, proj.AnnotationRegexp)
-
-	// Add annotations and quick ranges to InfluxDB
-	lib.ProcessAnnotations(&ctx, &annotations, proj.JoinDate)
+	// Get annotations using GitHub API and add annotations and quick ranges to InfluxDB
+	if proj.MainRepo != "" {
+		annotations := lib.GetAnnotations(&ctx, proj.MainRepo, proj.AnnotationRegexp)
+		lib.ProcessAnnotations(&ctx, &annotations, proj.JoinDate)
+	} else if proj.StartDate != nil && proj.JoinDate != nil {
+		annotations := lib.GetFakeAnnotations(*proj.StartDate, *proj.JoinDate)
+		lib.ProcessAnnotations(&ctx, &annotations, nil)
+	}
 }
 
 func main() {

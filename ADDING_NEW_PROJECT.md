@@ -1,9 +1,10 @@
 # Adding new project
   
 To add new project follow instructions:
-- `crontab -e` and turn off `devstats` and/or `gha2db_sync`.
+- `crontab -e` and turn off `devstats`, `gha2db_sync` and `webhook`. Kill running `webhook` instance: `killall webhook` (to avoid auto deploying wip states).
 - Add project entry to `projects.yaml` file. Find projects orgs, repos, select start date, eventually add test coverage for complex regular expression in `regexp_test.go`.
 - To identify repo name changes, date ranges for entrire projest use `util_sql/repo_name_changes_bigquery.sql` replacing repo.name with your project's main GitHub repo name.
+- Main repo can be empty `''` - in this case only two annotations will be added: 'start date - CNCF join date' and 'CNCF join date - now".
 - Set project databases (Influx and Postgres).
 - Set it to `disabled: true` for now.
 - CNCF join dates are listed here: https://github.com/cncf/toc#projects
