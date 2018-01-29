@@ -26,3 +26,4 @@ GHA2DB_LOCAL=1 GHA2DB_PROCESS_REPOS=1 ./get_repos
 ./tuf/reinit.sh || exit 14
 ./rook/reinit.sh || exit 15
 # ./cncf/reinit.sh || exit 16
+# ./all/reinit.sh || exit 17
