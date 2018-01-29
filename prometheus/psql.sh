@@ -1,5 +1,4 @@
 #!/bin/bash
-# Run this script from the repository top level: ./prometheus/prometheus.sh
 set -o pipefail
 > errors.txt
 > run.log

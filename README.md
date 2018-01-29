@@ -50,7 +50,7 @@ They are defined in [scripts/kubernetes/repo_groups.sql](https://github.com/cncf
 To setup default repository groups:
 - `PG_PASS=pwd ./kubernetes/setup_repo_groups.sh`.
 
-This is a part of `kubernetes/kubernetes.sh` script and [kubernetes psql dump](https://devstats.cncf.io/gha.sql.xz) already has groups configured.
+This is a part of `kubernetes/psql.sh` script and [kubernetes psql dump](https://devstats.cncf.io/gha.sql.xz) already has groups configured.
 
 # Company Affiliations
 

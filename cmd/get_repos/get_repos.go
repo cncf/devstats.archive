@@ -6,7 +6,6 @@ import (
 	"io/ioutil"
 	"os"
 	"regexp"
-	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -217,6 +216,8 @@ func processRepos(ctx *lib.Ctx, allRepos map[string][]string) {
 	for _, repos := range allRepos {
 		allN += len(repos)
 	}
+	// Process each repo only once
+	seen := make(map[string]bool)
 	// Iterate orgs
 	for org, repos := range allRepos {
 		// Go to current 'org' subdirectory
@@ -234,6 +235,12 @@ func processRepos(ctx *lib.Ctx, allRepos map[string][]string) {
 		}
 		// Iterate org's repositories
 		for _, orgRepo := range repos {
+			// Check if we already processed that repo
+			_, ok := seen[orgRepo]
+			if ok {
+				continue
+			}
+			seen[orgRepo] = true
 			ch := make(chan string)
 			chanPool = append(chanPool, ch)
 			// repository's working dir (if present we only need to do git reset --hard; git pull)
@@ -266,8 +273,8 @@ func processRepos(ctx *lib.Ctx, allRepos map[string][]string) {
 	// Only output when GHA2DB_EXTERNAL_INFO env variable is set
 	// Only output to stdout - not standard logs via lib.Printf(...)
 	if ctx.ExternalInfo {
-		// Sort list of repos
-		sort.Strings(allOkRepos)
+		// Sort list of repos and made them unique
+		allOkRepos = lib.MakeUniqueSort(allOkRepos)
 
 		// Create Ruby-like string with all repos array
 		allOkReposStr := "[\n"
@@ -282,8 +289,8 @@ func processRepos(ctx *lib.Ctx, allRepos map[string][]string) {
 			orgs = append(orgs, org)
 		}
 
-		// Sort orgs
-		sort.Strings(orgs)
+		// Sort orgs and made them unique
+		orgs = lib.MakeUniqueSort(orgs)
 
 		// Output shell command sorted
 		finalCmd := "./all_repos_log.sh "
@@ -299,7 +306,7 @@ func processRepos(ctx *lib.Ctx, allRepos map[string][]string) {
 }
 
 // processCommitsDB creates/updates mapping between commits and list of files they refer to on databse 'db'
-// using 'query' to get liist of unprocessed commits
+// using 'query' to get the list of unprocessed commits
 func processCommitsDB(ch chan dbCommits, ctx *lib.Ctx, db, filesSkipPattern, query string) {
 	// Result struct to be passed by the channel
 	var commits dbCommits
