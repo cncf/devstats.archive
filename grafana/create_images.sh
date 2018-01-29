@@ -12,8 +12,8 @@ cp ~/dev/cncf/artwork/rkt/icon/color/rkt-icon-color.svg grafana/img/rkt.svg || e
 cp ~/dev/cncf/artwork/cni/icon/color/cni-icon-color.svg grafana/img/cni.svg || exit 10
 cp ~/dev/cncf/artwork/envoy/icon/color/envoy-icon-color.svg grafana/img/envoy.svg || exit 11
 cp ~/dev/cncf/artwork/jaeger/icon/reverse-color/jaeger-icon-reverse-color.svg grafana/img/jaeger.svg || exit 12
-cp ~/dev/cncf/artwork/notary/icon/color/notary-icon-color.svg grafana/img/notary.svg || exit 13
-cp ~/dev/cncf/artwork/tuf/icon/color/tuf-icon-color.svg grafana/img/tuf.svg || exit 14
+cp ~/dev/cncf/artwork/notary/icon/white/notary-icon-white.svg grafana/img/notary.svg || exit 13
+cp ~/dev/cncf/artwork/tuf/icon/white/tuf-icon-white.svg grafana/img/tuf.svg || exit 14
 cp ~/dev/cncf/artwork/rook/icon/color/rook-icon-color.svg grafana/img/rook.svg || exit 15
 # cp ~/dev/cncf/artwork/cncf/icon/color/cncf-icon-color.svg grafana/img/all.svg || exit 16
 # cp ~/dev/cncf/artwork/cncf/icon/color/cncf-icon-color.svg grafana/img/cncf.svg || exit 17
@@ -29,8 +29,8 @@ convert ~/dev/cncf/artwork/rkt/icon/color/rkt-icon-color.png -resize 32x32 grafa
 convert ~/dev/cncf/artwork/cni/icon/color/cni-icon-color.png -resize 32x32 grafana/img/cni32.png || exit 27
 convert ~/dev/cncf/artwork/envoy/icon/color/envoy-icon-color.png -resize 32x32 grafana/img/envoy32.png || exit 28
 convert ~/dev/cncf/artwork/jaeger/icon/reverse-color/jaeger-icon-reverse-color.png -resize 32x32 grafana/img/jaeger32.png || exit 29
-convert ~/dev/cncf/artwork/notary/icon/color/notary-icon-color.png -resize 32x32 grafana/img/notary32.png || exit 30
-convert ~/dev/cncf/artwork/tuf/icon/color/tuf-icon-color.png -resize 32x32 grafana/img/tuf32.png || exit 31
+convert ~/dev/cncf/artwork/notary/icon/white/notary-icon-white.png -resize 32x32 grafana/img/notary32.png || exit 30
+convert ~/dev/cncf/artwork/tuf/icon/white/tuf-icon-white.png -resize 32x32 grafana/img/tuf32.png || exit 31
 convert ~/dev/cncf/artwork/rook/icon/color/rook-icon-color.png -resize 32x32 grafana/img/rook32.png || exit 32
 # convert ~/dev/cncf/artwork/cncf/icon/color/cncf-icon-color.png -resize 32x32 grafana/img/all32.png || exit 33
 # convert ~/dev/cncf/artwork/cncf/icon/color/cncf-icon-color.png -resize 32x32 grafana/img/cncf32.png || exit 34
