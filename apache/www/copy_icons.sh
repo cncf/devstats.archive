@@ -13,8 +13,8 @@ convert ~/dev/cncf/artwork/rkt/icon/color/rkt-icon-color.png -resize 80x80  /var
 convert ~/dev/cncf/artwork/cni/icon/color/cni-icon-color.png -resize 80x80  /var/www/html/img/cni-icon-color.png || exit 10
 convert ~/dev/cncf/artwork/envoy/icon/color/envoy-icon-color.png -resize 80x80  /var/www/html/img/envoy-icon-color.png || exit 11
 convert ~/dev/cncf/artwork/jaeger/icon/reverse-color/jaeger-icon-reverse-color.png -resize 80x80  /var/www/html/img/jaeger-icon-color.png || exit 12
-convert ~/dev/cncf/artwork/notary/icon/color/notary-icon-color.png -resize 80x80  /var/www/html/img/notary-icon-color.png || exit 13
-convert ~/dev/cncf/artwork/tuf/icon/color/tuf-icon-color.png -resize 80x80  /var/www/html/img/tuf-icon-color.png || exit 14
+convert ~/dev/cncf/artwork/notary/icon/white/notary-icon-white.png -resize 80x80  /var/www/html/img/notary-icon-color.png || exit 13
+convert ~/dev/cncf/artwork/tuf/icon/white/tuf-icon-white.png -resize 80x80  /var/www/html/img/tuf-icon-color.png || exit 14
 convert ~/dev/cncf/artwork/rook/icon/color/rook-icon-color.png -resize 80x80  /var/www/html/img/rook-icon-color.png || exit 15
 # convert ~/dev/cncf/artwork/cncf/icon/color/cncf-icon-color.png -resize 80x80 /var/www/html/img/all-icon-color.png || exit 16
 # convert ~/dev/cncf/artwork/cncf/icon/color/cncf-icon-color.png -resize 80x80 /var/www/html/img/cncf-icon-color.png || exit 17
