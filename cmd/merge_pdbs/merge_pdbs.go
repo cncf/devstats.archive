@@ -14,12 +14,12 @@ func mergePDBs() {
 	var ctx lib.Ctx
 	ctx.Init()
 
-	if len(ctx.InputDBs) < 2 {
-		lib.FatalOnError(fmt.Errorf("required at least 2 input databases, got %d: %+v", len(ctx.InputDBs), ctx.InputDBs))
+	if len(ctx.InputDBs) < 1 {
+		lib.FatalOnError(fmt.Errorf("required at least 1 input database, got %d: %+v", len(ctx.InputDBs), ctx.InputDBs))
 		return
 	}
 	if ctx.OutputDB == "" {
-		lib.FatalOnError(fmt.Errorf("required at least output database"))
+		lib.FatalOnError(fmt.Errorf("output database required"))
 		return
 	}
 
