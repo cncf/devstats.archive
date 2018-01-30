@@ -31,8 +31,8 @@ func TestGetFakeAnnotations(t *testing.T) {
 						Date:        startDate[0],
 					},
 					{
-						Name:        "CNCF join date",
-						Description: lib.ToYMDDate(joinDate[0]) + " - joined CNCF",
+						Name:        "First CNCF project join date",
+						Description: lib.ToYMDDate(joinDate[0]),
 						Date:        joinDate[0],
 					},
 				},
