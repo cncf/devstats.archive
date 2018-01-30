@@ -54,8 +54,8 @@ func GetFakeAnnotations(startDate, joinDate time.Time) (annotations Annotations)
 	annotations.Annotations = append(
 		annotations.Annotations,
 		Annotation{
-			Name:        "CNCF join date",
-			Description: ToYMDDate(joinDate) + " - joined CNCF",
+			Name:        "First CNCF project join date",
+			Description: ToYMDDate(joinDate),
 			Date:        joinDate,
 		},
 	)
