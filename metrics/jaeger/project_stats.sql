@@ -1,5 +1,37 @@
 select
   sub.repo_group,
+  'Contributors (issue creators, PR creators, committers)' as name,
+  count(distinct sub.actor) as value
+from (
+  select 'project_stats,' || coalesce(ecf.repo_group, r.repo_group) as repo_group,
+    e.dup_actor_login as actor
+  from
+    gha_repos r,
+    gha_events e
+  left join
+    gha_events_commits_files ecf
+  on
+    ecf.event_id = e.id
+  where
+    {{period:e.created_at}}
+    and e.repo_id = r.id
+    and (e.dup_actor_login {{exclude_bots}})
+    and e.type in ('PushEvent', 'PullRequestEvent', 'IssuesEvent')
+  ) sub
+where
+  sub.repo_group is not null
+group by
+  sub.repo_group
+union select 'project_stats,All' as repo_group,
+  'Contributors (issue creators, PR creators, committers)' as name,
+  count(distinct dup_actor_login) as value
+from
+  gha_events
+where
+  {{period:created_at}}
+  and (dup_actor_login {{exclude_bots}})
+  and type in ('PushEvent', 'PullRequestEvent', 'IssuesEvent')
+union select sub.repo_group,
   'Commits' as name,
   count(distinct sub.sha) as value
 from (
