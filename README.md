@@ -91,3 +91,8 @@ Please see [exporting](https://github.com/cncf/devstats/blob/master/EXPORT.md).
 # Servers
 
 The servers to run `devstats` are generously provided by [Packet](https://www.packet.net/) bare metal hosting as part of CNCF's [Community Infrastructure Lab](https://github.com/cncf/cluster).
+
+# One line run all projects
+
+- Use `GHA2DB_PROJECTS_OVERRIDE="+cncf,+all" IDB_HOST="172.17.0.1" IDB_PASS=pwd PG_PASS=pwd devstats`.
+- Or add this command using `crontab -e` to run every hour HH:10.
