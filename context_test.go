@@ -80,6 +80,7 @@ func copyContext(in *lib.Ctx) *lib.Ctx {
 		ExcludeRepos:      in.ExcludeRepos,
 		InputDBs:          in.InputDBs,
 		OutputDB:          in.OutputDB,
+		TmOffset:          in.TmOffset,
 	}
 	return &out
 }
@@ -239,6 +240,7 @@ func TestInit(t *testing.T) {
 		ExcludeRepos:      map[string]bool{},
 		InputDBs:          []string{},
 		OutputDB:          "",
+		TmOffset:          0,
 	}
 
 	// Test cases
@@ -295,6 +297,15 @@ func TestInit(t *testing.T) {
 				t,
 				copyContext(&defaultContext),
 				map[string]interface{}{"ST": true, "NCPUs": 1},
+			),
+		},
+		{
+			"Setting TmOffset",
+			map[string]string{"GHA2DB_TMOFFSET": "5"},
+			dynamicSetFields(
+				t,
+				copyContext(&defaultContext),
+				map[string]interface{}{"TmOffset": 5},
 			),
 		},
 		{

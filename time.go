@@ -41,8 +41,9 @@ func ProgressInfo(i, n int, start time.Time, last *time.Time, period time.Durati
 // for past ranges only once (calculation is marked as computed) at 2 AM
 // weekly ranges are calculated at hours: 0, 4, 8, 12, 16, 20
 // monthly, quarterly, yearly ranges are calculated at midnight
-func ComputePeriodAtThisDate(period string, to time.Time) bool {
-	to = HourStart(to)
+func ComputePeriodAtThisDate(ctx *Ctx, period string, dt time.Time) bool {
+	dt = HourStart(dt)
+	h := (dt.Hour() + ctx.TmOffset) % 24
 	periodStart := period[0:1]
 	if periodStart == "h" {
 		return true
@@ -50,18 +51,18 @@ func ComputePeriodAtThisDate(period string, to time.Time) bool {
 		if len(period) == 1 {
 			return true
 		}
-		return to.Hour()%4 == 1
+		return h%4 == 1
 	} else if periodStart == "a" {
 		periodLen := len(period)
 		periodEnd := period[periodLen-3:]
 		if periodEnd == "now" {
-			return to.Hour()%2 == 0
+			return h%2 == 0
 		}
-		return to.Hour() == 2
+		return h == 2
 	} else if periodStart == "w" {
-		return to.Hour()%4 == 0
+		return h%4 == 0
 	} else if periodStart == "m" || periodStart == "q" || periodStart == "y" {
-		return to.Hour() == 0
+		return h == 0
 	}
 	FatalOnError(fmt.Errorf("computePeriodAtThisDate: unknown period: '%s'", period))
 	return false

@@ -21,6 +21,7 @@ func TestComputePeriodAtThisDate(t *testing.T) {
 	// monthly, quarterly, yearly ranges are calculated at midnight
 	ft := testlib.YMDHMS
 	var testCases = []struct {
+		tmOffset int
 		period   string
 		dt       time.Time
 		expected bool
@@ -64,12 +65,95 @@ func TestComputePeriodAtThisDate(t *testing.T) {
 		{period: "m2", dt: ft(2017, 12, 19, 4), expected: false},
 		{period: "q3", dt: ft(2017, 12, 19, 5), expected: false},
 		{period: "y10", dt: ft(2017, 12, 19, 5), expected: false},
+		{tmOffset: 5, period: "h", dt: ft(2017, 12, 19, 19), expected: true},
+		{tmOffset: 5, period: "h", dt: ft(2017, 12, 19, 22), expected: true},
+		{tmOffset: 5, period: "h", dt: ft(2017, 12, 19, 0, 45, 17), expected: true},
+		{tmOffset: 5, period: "h2", dt: ft(2017, 12, 19, 19), expected: true},
+		{tmOffset: 5, period: "h12", dt: ft(2017, 12, 19, 22), expected: true},
+		{tmOffset: 5, period: "h240", dt: ft(2017, 12, 19, 2, 45, 17), expected: true},
+		{tmOffset: 5, period: "d", dt: ft(2017, 12, 19, 19), expected: true},
+		{tmOffset: 5, period: "d", dt: ft(2017, 12, 19, 22), expected: true},
+		{tmOffset: 5, period: "d", dt: ft(2017, 12, 19, 0, 45, 17), expected: true},
+		{tmOffset: 5, period: "d2", dt: ft(2017, 12, 19, 19), expected: false},
+		{tmOffset: 5, period: "d3", dt: ft(2017, 12, 19, 22), expected: false},
+		{tmOffset: 5, period: "d7", dt: ft(2017, 12, 19, 0, 45, 17), expected: true},
+		{tmOffset: 5, period: "d14", dt: ft(2017, 12, 19, 8, 45, 17), expected: true},
+		{tmOffset: 5, period: "d14", dt: ft(2017, 12, 19, 7, 45, 17), expected: false},
+		{tmOffset: 5, period: "anno_13_now", dt: ft(2017, 12, 19, 19), expected: true},
+		{tmOffset: 5, period: "anno_13_now", dt: ft(2017, 12, 19, 20), expected: false},
+		{tmOffset: 5, period: "anno_13_now", dt: ft(2017, 12, 19, 21, 11), expected: true},
+		{tmOffset: 5, period: "anno_13_now", dt: ft(2017, 12, 19, 23, 11), expected: true},
+		{tmOffset: 5, period: "anno_12_13", dt: ft(2017, 12, 19, 19), expected: false},
+		{tmOffset: 5, period: "anno_0_1", dt: ft(2017, 12, 19, 20), expected: false},
+		{tmOffset: 5, period: "anno_10_11", dt: ft(2017, 12, 19, 21, 11), expected: true},
+		{tmOffset: 5, period: "anno_10_11", dt: ft(2017, 12, 19, 23, 11), expected: false},
+		{tmOffset: 5, period: "w", dt: ft(2017, 12, 19, 19), expected: true},
+		{tmOffset: 5, period: "w", dt: ft(2017, 12, 19, 20), expected: false},
+		{tmOffset: 5, period: "w", dt: ft(2017, 12, 19, 15, 13), expected: true},
+		{tmOffset: 5, period: "w3", dt: ft(2017, 12, 19, 15, 13), expected: true},
+		{tmOffset: 5, period: "w3", dt: ft(2017, 12, 19, 16, 13), expected: false},
+		{tmOffset: 5, period: "m", dt: ft(2017, 12, 19, 19), expected: true},
+		{tmOffset: 5, period: "q", dt: ft(2017, 12, 19, 19), expected: true},
+		{tmOffset: 5, period: "y", dt: ft(2017, 12, 19, 19), expected: true},
+		{tmOffset: 5, period: "m2", dt: ft(2017, 12, 19, 19), expected: true},
+		{tmOffset: 5, period: "q3", dt: ft(2017, 12, 19, 19), expected: true},
+		{tmOffset: 5, period: "y10", dt: ft(2017, 12, 19, 19), expected: true},
+		{tmOffset: 5, period: "m", dt: ft(2017, 12, 19, 20), expected: false},
+		{tmOffset: 5, period: "q", dt: ft(2017, 12, 19, 21), expected: false},
+		{tmOffset: 5, period: "y", dt: ft(2017, 12, 19, 22), expected: false},
+		{tmOffset: 5, period: "m2", dt: ft(2017, 12, 19, 23), expected: false},
+		{tmOffset: 5, period: "q3", dt: ft(2017, 12, 19), expected: false},
+		{tmOffset: 5, period: "y10", dt: ft(2017, 12, 19), expected: false},
+		{tmOffset: -10, period: "h", dt: ft(2017, 12, 19, 10), expected: true},
+		{tmOffset: -10, period: "h", dt: ft(2017, 12, 19, 13), expected: true},
+		{tmOffset: -10, period: "h", dt: ft(2017, 12, 19, 15, 45, 17), expected: true},
+		{tmOffset: -10, period: "h2", dt: ft(2017, 12, 19, 10), expected: true},
+		{tmOffset: -10, period: "h12", dt: ft(2017, 12, 19, 3), expected: true},
+		{tmOffset: -10, period: "h240", dt: ft(2017, 12, 19, 15, 45, 17), expected: true},
+		{tmOffset: -10, period: "d", dt: ft(2017, 12, 19, 10), expected: true},
+		{tmOffset: -10, period: "d", dt: ft(2017, 12, 19, 13), expected: true},
+		{tmOffset: -10, period: "d", dt: ft(2017, 12, 19, 15, 45, 17), expected: true},
+		{tmOffset: -10, period: "d2", dt: ft(2017, 12, 19, 10), expected: false},
+		{tmOffset: -10, period: "d3", dt: ft(2017, 12, 19, 13), expected: false},
+		{tmOffset: -10, period: "d7", dt: ft(2017, 12, 19, 15, 45, 17), expected: true},
+		{tmOffset: -10, period: "d14", dt: ft(2017, 12, 19, 23, 45, 17), expected: true},
+		{tmOffset: -10, period: "d14", dt: ft(2017, 12, 19, 22, 45, 17), expected: false},
+		{tmOffset: -10, period: "anno_13_now", dt: ft(2017, 12, 19, 10), expected: true},
+		{tmOffset: -10, period: "anno_13_now", dt: ft(2017, 12, 19, 11), expected: false},
+		{tmOffset: -10, period: "anno_13_now", dt: ft(2017, 12, 19, 12, 11), expected: true},
+		{tmOffset: -10, period: "anno_13_now", dt: ft(2017, 12, 19, 14, 11), expected: true},
+		{tmOffset: -10, period: "anno_12_13", dt: ft(2017, 12, 19, 10), expected: false},
+		{tmOffset: -10, period: "anno_0_1", dt: ft(2017, 12, 19, 11), expected: false},
+		{tmOffset: -10, period: "anno_10_11", dt: ft(2017, 12, 19, 12, 11), expected: true},
+		{tmOffset: -10, period: "anno_10_11", dt: ft(2017, 12, 19, 14, 11), expected: false},
+		{tmOffset: -10, period: "w", dt: ft(2017, 12, 19, 10), expected: true},
+		{tmOffset: -10, period: "w", dt: ft(2017, 12, 19, 11), expected: false},
+		{tmOffset: -10, period: "w", dt: ft(2017, 12, 19, 6, 13), expected: true},
+		{tmOffset: -10, period: "w3", dt: ft(2017, 12, 19, 6, 13), expected: true},
+		{tmOffset: -10, period: "w3", dt: ft(2017, 12, 19, 7, 13), expected: false},
+		{tmOffset: -10, period: "m", dt: ft(2017, 12, 19, 10), expected: true},
+		{tmOffset: -10, period: "q", dt: ft(2017, 12, 19, 10), expected: true},
+		{tmOffset: -10, period: "y", dt: ft(2017, 12, 19, 10), expected: true},
+		{tmOffset: -10, period: "m2", dt: ft(2017, 12, 19, 10), expected: true},
+		{tmOffset: -10, period: "q3", dt: ft(2017, 12, 19, 10), expected: true},
+		{tmOffset: -10, period: "y10", dt: ft(2017, 12, 19, 10), expected: true},
+		{tmOffset: -10, period: "m", dt: ft(2017, 12, 19, 11), expected: false},
+		{tmOffset: -10, period: "q", dt: ft(2017, 12, 19, 12), expected: false},
+		{tmOffset: -10, period: "y", dt: ft(2017, 12, 19, 13), expected: false},
+		{tmOffset: -10, period: "m2", dt: ft(2017, 12, 19, 14), expected: false},
+		{tmOffset: -10, period: "q3", dt: ft(2017, 12, 19, 15), expected: false},
+		{tmOffset: -10, period: "y10", dt: ft(2017, 12, 19, 15), expected: false},
 	}
+
+	// Environment context parse
+	var ctx lib.Ctx
+	ctx.Init()
 
 	// Execute test cases
 	for index, test := range testCases {
 		expected := test.expected
-		got := lib.ComputePeriodAtThisDate(test.period, test.dt)
+		ctx.TmOffset = test.tmOffset
+		got := lib.ComputePeriodAtThisDate(&ctx, test.period, test.dt)
 		if got != expected {
 			t.Errorf(
 				"test number %d, expected '%v' from period '%v' for date '%v', got '%v'",
