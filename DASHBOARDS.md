@@ -1,6 +1,6 @@
 # Grafana dashboards
 
-This is for Kubernetes project:
+This is a list of dashboards for Kubernetes project only:
 
 Each dashboard is defined by its metrics SQL, saved Grafana JSON export and link to dashboard running on <https://k8s.devstats.cncf.io>  
 
@@ -48,9 +48,9 @@ They are defined here: [repo_groups.sql](https://github.com/cncf/devstats/blob/m
 39) Developers summary dashboard [project_developer_stats.sql](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/project_developer_stats.sql), [developers_summary.json](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/developers_summary.json), [view](https://k8s.devstats.cncf.io/dashboard/db/developers-summary?orgId=1).
 
 # Index dashboard showing all projects
-1) All CNCF projects dashboard [all_cncf_projects.json](https://github.com/cncf/devstats/blob/master/grafana/dashboards/all_cncf_projects.json), [view](https://k8s.devstats.cncf.io/dashboard/db/all-projects?orgId=1).
+1) All CNCF projects dashboard [dashboards.json](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/dashboards.json), [view](https://k8s.devstats.cncf.io/dashboard/db/dashboards?refresh=15m&orgId=1).
 
-All of them works live on [k8s.devstats.cncf.io](https://k8s.devstats.cncf.io) with auto `gha2db_sync` tool running.
+All of them works live on [k8s.devstats.cncf.io](https://k8s.devstats.cncf.io) with auto `devstats` tool running.
 
 Dashboard definitions are read from YAML file:  [metrics/kubernetes/metrics.yaml](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/metrics.yaml)
 
@@ -58,10 +58,11 @@ If dashboard needs an additional preprocessing (filling gaps with zeros), then i
 
 See [adding new metrics](https://github.com/cncf/devstats/blob/master/METRICS.md) for details.
 
-Similar set of metrics is defined for Prometheus, OpenTracing:
+Similar set of metrics is defined for Prometheus, OpenTracing, ..., Rook (All CNCF Projects):
 
 - SQL metris in `metrics/prometheus/` directory, Influx templates/tags `metrics/prometheus/*tags*.sql` files. Prometheus dashboards: `grafana/dashboards/prometheus/` directory.
 - SQL metris in `metrics/opentracing/` directory, Influx templates/tags `metrics/opentracing/*tags*.sql` files. OpenTracing dashboards: `grafana/dashboards/opentracing/` directory.
+- And so on...
 
 # Adding new project
 

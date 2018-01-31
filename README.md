@@ -11,30 +11,29 @@ Gha2db stands for **G**it**H**ub **A**rchives to **D**ash**B**oards.
 
 # Goal
 
-We want to create a toolset for visualizing various metrics for the Kubernetes community.
+We want to create a toolset for visualizing various metrics for the Kubernetes community (and also for all CNCF projects).
 
 Everything is open source so that it can be used by other CNCF and non-CNCF open source projects.
-
-This tool can also be used for Prometheus and other communities as well.
 
 The only requirement is that project must be hosted on a public GitHub repository/repositories.
 
 # Forking and installing locally
 
-This toolset uses only Open Source tools: GitHub archives, git, Postgres databases, InfluxDB time-series databases and multiple Grafana dashboards running in Docker conatiners.
+This toolset uses only Open Source tools: GitHub archives, git, Postgres databases, InfluxDB time-series databases and multiple Grafana instances.
 It is written in Go, and can be forked and installed by anyone.
 
 Contributions and PRs are welcome.
-If You see a bug or want to add a new metric please create an [issue](https://github.com/cncf/devstats/issues) and/or [PR](https://github.com/cncf/devstats/pulls).
+If you see a bug or want to add a new metric please create an [issue](https://github.com/cncf/devstats/issues) and/or [PR](https://github.com/cncf/devstats/pulls).
 
 To work on this project locally please fork the original [repository](https://github.com/cncf/devstats), and:
 - [Compiling and running on macOS](./INSTALL_MAC.md).
 - [Compiling and running on Linux Ubuntu 16 LTS](./INSTALL_UBUNTU16.md).
 - [Compiling and running on Linux Ubuntu 17](./INSTALL_UBUNTU17.md).
+- [Compiling and running on FreeBSD (work in progress)](./INSTALL_FREEBSD.md).
 
 Please see [Development](https://github.com/cncf/devstats/blob/master/DEVELOPMENT.md) for local development guide.
 
-For more detailed description of all environment variables, tools, switches etc, please see [usage](https://github.com/cncf/devstats/blob/master/USAGE.md).
+For more detailed description of all environment variables, tools, switches etc, please see [Usage](https://github.com/cncf/devstats/blob/master/USAGE.md).
 
 # Metrics
 
@@ -51,6 +50,8 @@ To setup default repository groups:
 - `PG_PASS=pwd ./kubernetes/setup_repo_groups.sh`.
 
 This is a part of `kubernetes/psql.sh` script and [kubernetes psql dump](https://devstats.cncf.io/gha.sql.xz) already has groups configured.
+
+In an 'All' project (https://all.cncftest.io) repository groups are mapped to individual CNCF projects [scripts/all/repo_groups.sql](https://github.com/cncf/devstats/blob/master/scripts/all/repo_groups.sql):
 
 # Company Affiliations
 

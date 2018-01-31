@@ -2,7 +2,7 @@
 
 Author: Łukasz Gryglicki <lukaszgryglick@o2.pl>
 
-# Implemented in two languages (history)
+# Implemented in two languages (historcally)
 
 This toolset was first implemented in Ruby with Postgres database.
 
@@ -27,8 +27,8 @@ It also clones all git repos to analyse all commits files.
 # Compilation
 
 Uses GNU `Makefile`:
-- `make check` - to apply gofmt, goimports, golint, go vet.
-- `make` to compile static binaries: `structure`, `gha2db`, `db2influx`, `gha2db_sync`, `runq`, `z2influx`, `import_affs`, `annotations`.
+- `make check` - to apply gofmt, goimports, golint, errcheck, usedexports, go vet and possibly other tools.
+- `make` to compile static binaries: `structure`, `runq`, `gha2db`, `db2influx`, `z2influx`, `gha2db_sync`, `import_affs`, `annotations`, `idb_tags`, `idb_backup`, `webhook`, `devstats`, `get_repos`, `merge_pdbs`.
 - `make install` - to install binaries, this is needed for cron job.
 - `make clean` - to clean binaries
 - `make test` - to execute non-DB tests
@@ -50,7 +50,6 @@ Installed:
 - `sudo make install`
 - `ENV_VARIABLES gha2db YYYY-MM-DD HH YYYY-MM-DD HH [org [repo]]`.
 
-
 You can use already populated Postgres dump: [Kubernetes Psql dump](https://devstats.cncf.io/gha.sql.xz) (more than 380 Mb, more than 7,5Gb uncompressed)
 
 There is also a dump for `cncf` org: [CNCF Psql dump](https://cncftest.io/cncf.sql.xz) (less than 900 kb, about 8,5 Mb uncompressed, data from 2017-03-01)
@@ -69,7 +68,7 @@ Both next two parameters are optional:
 
 Org/Repo filtering:
 - You can filter only by org by passing for example 'kubernetes' for org and '' for repo or skipping repo.
-- You can filter only by repo, You need to pass '' as org and then repo name.
+- You can filter only by repo, you need to pass '' as org and then repo name.
 - You can return all JSONs by skipping both params.
 - You can provide both to observe only events from given org/repo.
 - You can list exact full repository names to run on: use `GHA2DB_EXACT=1` to process only repositories listed as "orgs" parameter, by their full names, like for example 3 repos: "GoogleCloudPlatform/kubernetes,kubernetes,kubernetes/kubernetes".
@@ -111,7 +110,7 @@ You can tweak `devstats` tools by environment variables:
 - Set `GHA2DB_DEPLOY_STATUSES`, webhook tool, default "Passed,Fixed", comma separated list, use to set which branches should be deployed.
 - Set `GHA2DB_DEPLOY_RESULTS`, webhook tool, default "0", comma separated list, use to set which travis ci results should be deployed.
 - Set `GHA2DB_DEPLOY_TYPES`, webhook tool, default "push", comma separated list, use to set which event types should be deployed.
-- Set `GHA2DB_PROJECT_ROOT`, webhook tool, no default - You have to set it to where the project repository is cloned (usually $GOPATH:/src/devstats).
+- Set `GHA2DB_PROJECT_ROOT`, webhook tool, no default - you have to set it to where the project repository is cloned (usually $GOPATH:/src/devstats).
 - Set `GHA2DB_PROJECT`, `gha2db_sync` tool to get per project arguments automaticlly and to set all other config files directory prefixes (for example `metrics/prometheus/`), it reads data from `projects.yaml`.
 - Set `GHA2DB_RESETRANGES`, `gha2db_sync` tool to regenerate past variables of quick range values, this is useful when you add new annotations.
 - Set `GHA2DB_REPOS_DIR`, `get_repos` tool to specify where to clone/pull all devstats projects repositories.
@@ -128,7 +127,7 @@ You can tweak `devstats` tools by environment variables:
 - Set `IDB_MAXBATCHPOINTS`, all Influx tools - set maximum batch size, default 10240.
 - Set `GHA2DB_TMOFFSET`, ./gha2db_sync tool - uses time offset to decide when to calculate various metrics, default offset is 0 which means UTC, good offset for USA is -6, and for Poland is 1 or 2
 
-All environment context details are defined in [context.go](https://github.com/cncf/devstats/blob/master/context.go), please see that file for details (You can also see how it works in [context_test.go](https://github.com/cncf/devstats/blob/master/context_test.go)).
+All environment context details are defined in [context.go](https://github.com/cncf/devstats/blob/master/context.go), please see that file for details (you can also see how it works in [context_test.go](https://github.com/cncf/devstats/blob/master/context_test.go)).
 
 Examples in this shell script (some commented out, some not):
 
@@ -153,7 +152,7 @@ We download this gzipped JSON, process it on the fly, creating the array of JSON
 - N - given GitHub archive''s JSON hour as UNIX timestamp.
 - ID - GitHub event ID.
 
-Once saved, You can review those JSONs manually (they're pretty printed).
+Once saved, you can review those JSONs manually (they're pretty printed).
 
 # Multithreading
 
@@ -191,8 +190,6 @@ Taking all events from a single day is 5 minutes 50 seconds (2017-07-28):
 - Generates 1194599 JSON files (1.2M)
 - Takes 7 Gb of disc space
 
-There is a big file containing all Kubernetes events JSONs from Aug 2017 concatenated and xzipped: [K8s August 2017](https://cncftest.io/k8s_201708.json.xz).
-
 Please note that this is not a correct JSON, it contains files separated by line `JSON: jsons/filename.json` - that says what was the original JSON filename. This file is 16.7M xzipped, but 1.07G uncompressed.
 
 Please also note that JSON for 2016-10-21 18:00 is broken, so running this command will produce no data. The code will output error to logs and continue. Always examine `errors.txt` from `kubernetes/kubernetes*.sh` script.
@@ -212,6 +209,7 @@ Detailed setup instructions are here (they use already populated postgres dump):
 - [Mac >= 10.12](https://github.com/cncf/devstats/blob/master/INSTALL_MAC.md)
 - [Linux Ubuntu 16 LTS](https://github.com/cncf/devstats/blob/master/INSTALL_UBUNTU16.md)
 - [Linux Ubuntu 17](https://github.com/cncf/devstats/blob/master/INSTALL_UBUNTU17.md)
+- [FreeBSD 11 (work in progress)](https://github.com/cncf/devstats/blob/master/INSTALL_FREEBSD.md)
 
 In short for Ubuntu like Linux:
 
@@ -236,9 +234,9 @@ Defaults are:
 - Database user: PG_USER or 'gha_admin'
 - Database password: PG_PASS || 'password'
 - Database SSL: PG_SSL || 'disable'
-- If You want it to generate database indexes set `GHA2DB_INDEX` environment variable
-- If You want to skip table creations set `GHA2DB_SKIPTABLE` environment variable (when `GHA2DB_INDEX` also set, it will create indexes on already existing table structure, possibly already populated)
-- If You want to skip creating DB tools (like views and functions), use `GHA2DB_SKIPTOOLS` environment variable.
+- If you want it to generate database indexes set `GHA2DB_INDEX` environment variable
+- If you want to skip table creations set `GHA2DB_SKIPTABLE` environment variable (when `GHA2DB_INDEX` also set, it will create indexes on already existing table structure, possibly already populated)
+- If you want to skip creating DB tools (like views and functions), use `GHA2DB_SKIPTOOLS` environment variable.
 
 It is recommended to create structure without indexes first (the default), then get data from GHA and populate array, and finally add indexes. To do do:
 - `time PG_PASS=your_password ./structure`
@@ -282,6 +280,7 @@ List of tables:
 - `gha_orgs`: const, orgs
 - `gha_pages`: variable, pages
 - `gha_payloads`: const, event payloads
+- `gha_postprocess_scripts`: const, contains list of SQL scripts to run on database after each data sync
 - `gha_pull_requests`: variable, pull requests
 - `gha_pull_requests_assignees`: variable pull request assignees
 - `gha_pull_requests_requested_reviewers`: variable, pull request requested reviewers
@@ -338,11 +337,11 @@ Both those tools require Ruby. This tool was originally in Ruby, and there is no
 
 # Running on Kubernetes
 
-Kubernetes consists of 4 different orgs (from 2014-06-01), so to gather data for Kubernetes You need to provide them comma separated.
+Kubernetes consists of 4 different orgs (from 2014-06-01), so to gather data for Kubernetes you need to provide them comma separated.
 
-Before 2015-08-06 Kubernetes is in `GoogleCloudPlatform/kubernetes` or just few kubernetes repos without org. To process them You need to use special list mode `GHA2DB_EXACT`.
+Before 2015-08-06 Kubernetes is in `GoogleCloudPlatform/kubernetes` or just few kubernetes repos without org. To process them you need to use special list mode `GHA2DB_EXACT`.
 
-And finally before 2015-01-01 GitHub used different JSONs format. To process them You have to use `GHA2DB_OLDFMT` mode. It is usable for GH events starting from 2012-07-01.
+And finally before 2015-01-01 GitHub used different JSONs format. To process them you have to use `GHA2DB_OLDFMT` mode. It is usable for GH events starting from 2012-07-01.
 
 For example June 2017:
 - `time PG_PASS=pwd ./gha2db 2017-06-01 0 2017-07-01 0 'kubernetes,kubernetes-incubator,kubernetes-client,kubernetes-helm'`
@@ -387,10 +386,10 @@ You can also change any other value, just note that parameters after SQL file na
 
 # Sync tool
 
-When You have imported all data You need - it needs to be updated periodically.
+When you have imported all data you need - it needs to be updated periodically.
 GitHub archive generates new file every hour.
 
-Use `gha2db_sync` tool to update all Your data.
+Use `gha2db_sync` tool to update all your data.
 
 Example call:
 - `GHA2DB_PROJECT=kubernetes PG_PASS='pwd' IDB_HOST="172.17.0.1" IDB_PASS='pwd' ./gha2db_sync`
@@ -415,6 +414,7 @@ To install cron job please check "cron" section:
 - [Mac](https://github.com/cncf/devstats/blob/master/INSTALL_MAC.md)
 - [Linux Ubuntu 16 LTS](https://github.com/cncf/devstats/blob/master/INSTALL_UBUNTU16.md)
 - [Linux Ubuntu 17](https://github.com/cncf/devstats/blob/master/INSTALL_UBUNTU17.md)
+- [FreeBSD 11 (work in progress)](https://github.com/cncf/devstats/blob/master/INSTALL_FREEBSD.md)
 
 # Developers affiliations
 
@@ -438,6 +438,8 @@ To setup default repository groups:
 
 This is a part of `kubernetes/psql.sh` script and [kubernetes psql dump](https://devstats.cncf.io/gha.sql.xz) already has groups configured.
 
+In an 'All' project (https://all.cncftest.io) repository groups are mapped to individual CNCF projects [scripts/all/repo_groups.sql](https://github.com/cncf/devstats/blob/master/scripts/all/repo_groups.sql):
+
 # Grafana output
 
 You can visualise data using Grafana, see [grafana/](https://github.com/cncf/devstats/blob/master/grafana/) directory:
@@ -446,6 +448,7 @@ Grafana install instruction are here:
 - [Mac](https://github.com/cncf/devstats/blob/master/INSTALL_MAC.md)
 - [Linux Ubuntu 16 LTS](https://github.com/cncf/devstats/blob/master/INSTALL_UBUNTU16.md)
 - [Linux Ubuntu 17](https://github.com/cncf/devstats/blob/master/INSTALL_UBUNTU17.md)
+- [FreeBSD 11 (work in progress)](https://github.com/cncf/devstats/blob/master/INSTALL_FREEBSD.md)
 
 # To drop & recreate InfluxDB:
 - `IDB_HOST="172.17.0.1" IDB_PASS='idb_password' ./grafana/influxdb_recreate.sh`
@@ -460,7 +463,7 @@ Note that this is an old solution that worked, but wasn't tested recently.
 
 - Start Grafana using `GRAFANA_PASS='password' grafana/grafana_start.sh` to install Grafana & InfluxDB as docker containers (this requires Docker).
 - Start InfluxDB using `IDB_HOST="172.17.0.1" IDB_PASS='password' ./grafana/influxdb_setup.sh gha`, this requires Docker & previous command succesfully executed.
-- To cleanup Docker Grafana image and start from scratch use `./grafana/docker_cleanup.sh`. This will not delete Your grafana config because it is stored in local volume `/var/lib/grafana`.
+- To cleanup Docker Grafana image and start from scratch use `./grafana/docker_cleanup.sh`. This will not delete your grafana config because it is stored in local volume `/var/lib/grafana`.
 
 # Manually feeding InfluxDB & Grafana:
 

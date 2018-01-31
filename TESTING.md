@@ -1,6 +1,6 @@
 # Testing
 1. To execute tests that don't require database, just run `make test`, do not set any environment variables for them, one of tests is to check default environment!
-2. For tests that require database You will have to set environment variables to enable DB connection, to do it:
+2. For tests that require database you will have to set environment variables to enable DB connection, to do it:
 - See [USAGE](https://github.com/cncf/devstats/blob/master/USAGE.md) for variables starting with `PG_` and `IDB_`.
 - ALWAYS set `PG_DB` & `IFB_DB` - default values are "gha" for both database. They cannot be used as test databases, `make dbtest` will refuse to run when Postgres and/or Influx DB is not set (or set to "gha").
 - Test cases are defined in `tests.yaml` file.
