@@ -380,6 +380,11 @@ To run this in `runq` use:
 
 You can also change any other value, just note that parameters after SQL file name are pairs: (`value_to_replace`, `replacement`).
 
+# Checking projects activity
+
+- Use: `PG_PASS=... PG_DB=allprj ./devel/activity.sh 100000`.
+- Example results [here](https://cncftest.io/all.txt).
+
 # Sync tool
 
 When You have imported all data You need - it needs to be updated periodically.
