@@ -126,6 +126,7 @@ You can tweak `devstats` tools by environment variables:
 - Set `GHA2DB_INPUT_DBS`, `./merge_pdbs` tool - list of input databases to merge, order matters - first one will insert on a clean DB, next will do insert ignore (to avoid constraints failure due to common data).
 - Set `GHA2DB_OUTPUT_DB`, `./merge_pdbs` tool - output database to merge into.
 - Set `IDB_MAXBATCHPOINTS`, all Influx tools - set maximum batch size, default 10240.
+- Set `GHA2DB_TMOFFSET`, ./gha2db_sync tool - uses time offset to decide when to calculate various metrics, default offset is 0 which means UTC, good offset for USA is -6, and for Poland is 1 or 2
 
 All environment context details are defined in [context.go](https://github.com/cncf/devstats/blob/master/context.go), please see that file for details (You can also see how it works in [context_test.go](https://github.com/cncf/devstats/blob/master/context_test.go)).
 

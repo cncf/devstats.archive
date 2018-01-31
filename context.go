@@ -76,6 +76,7 @@ type Ctx struct {
 	ExcludeRepos      map[string]bool // From GHA2DB_EXCLUDE_REPOS, ./gha2db tool, default "" - comma separated list of repos to exclude, example: "theupdateframework/notary,theupdateframework/other"
 	InputDBs          []string        // From GHA2DB_INPUT_DBS, ./merge_pdbs tool - list of input databases to merge, order matters - first one will insert on a clean DB, next will do insert ignore (to avoid constraints failure due to common data)
 	OutputDB          string          // From GHA2DB_OUTPUT_DB, ./merge_pdbs tool - output database to merge into
+	TmOffset          int             // From GHA2DB_TMOFFSET, ./gha2db_sync tool - uses time offset to decide when to calculate various metrics, default offset is 0 which means UTC, good offset for USA is -6, and for Poland is 1 or 2
 }
 
 // Init - get context from environment variables
@@ -195,6 +196,15 @@ func (ctx *Ctx) Init() {
 
 	// Log Time
 	ctx.LogTime = os.Getenv("GHA2DB_SKIPTIME") == ""
+
+	// Time offset for gha2db_sync
+	if os.Getenv("GHA2DB_TMOFFSET") == "" {
+		ctx.TmOffset = 0
+	} else {
+		off, err := strconv.Atoi(os.Getenv("GHA2DB_TMOFFSET"))
+		FatalOnError(err)
+		ctx.TmOffset = off
+	}
 
 	// Default start date
 	if os.Getenv("GHA2DB_STARTDT") != "" {

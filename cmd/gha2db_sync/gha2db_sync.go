@@ -238,7 +238,7 @@ func fillGapsInSeries(ctx *lib.Ctx, from, to time.Time) {
 					lib.Printf("Skipped filling gaps on period %s\n", periodAggr)
 					continue
 				}
-				if !ctx.ResetIDB && !lib.ComputePeriodAtThisDate(period, to) {
+				if !ctx.ResetIDB && !lib.ComputePeriodAtThisDate(ctx, period, to) {
 					lib.Printf("Skipping filling gaps for period \"%s\" for date %v\n", periodAggr, to)
 					continue
 				}
@@ -484,7 +484,7 @@ func sync(ctx *lib.Ctx, args []string) {
 						lib.Printf("Skipped period %s\n", periodAggr)
 						continue
 					}
-					if !ctx.ResetIDB && !lib.ComputePeriodAtThisDate(period, to) {
+					if !ctx.ResetIDB && !lib.ComputePeriodAtThisDate(ctx, period, to) {
 						lib.Printf("Skipping recalculating period \"%s%s\" for date to %v\n", period, aggrSuffix, to)
 						continue
 					}
