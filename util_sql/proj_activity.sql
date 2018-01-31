@@ -1,5 +1,5 @@
 select
-  f.dt,
+  e.created_at as dt,
   e.type as event_type,
   e.dup_actor_login as actor,
   f.size,
@@ -12,7 +12,8 @@ from
   gha_events e
 where
   e.id = f.event_id
+  and {{period:e.created_at}}
+  and (e.dup_actor_login {{exclude_bots}})
 order by
-  f.dt desc
-limit {{lim}}
+  e.created_at desc
 ;
