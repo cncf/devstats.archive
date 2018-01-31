@@ -86,7 +86,7 @@ func idbTags() {
 		excludeBots := string(bytes)
 
 		// Transform SQL
-		sqlQuery = strings.Replace(sqlQuery, "{{lim}}", "39", -1)
+		sqlQuery = strings.Replace(sqlQuery, "{{lim}}", "69", -1)
 		sqlQuery = strings.Replace(sqlQuery, "{{exclude_bots}}", excludeBots, -1)
 
 		// Execute SQL
