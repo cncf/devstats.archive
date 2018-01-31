@@ -383,7 +383,7 @@ You can also change any other value, just note that parameters after SQL file na
 # Checking projects activity
 
 - Use: `PG_PASS=... PG_DB=allprj ./devel/activity.sh '1 month,,' > all.txt`.
-- Example results [here](https://cncftest.io/all.txt) - all CNCF project activity during January 2018, excluding bots:
+- Example results [here](https://cncftest.io/all.txt) - all CNCF project activity during January 2018, excluding bots.
 
 # Sync tool
 
