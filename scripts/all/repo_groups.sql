@@ -176,5 +176,5 @@ set
   repo_group = 'CNCF',
   alias = 'CNCF'
 where
-  org_login = 'cncf'
+  org_login in ('cncf', 'crosscloudci')
 ;
