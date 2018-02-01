@@ -64,6 +64,8 @@ Similar set of metrics is defined for Prometheus, OpenTracing, ..., Rook (All CN
 - SQL metris in `metrics/opentracing/` directory, Influx templates/tags `metrics/opentracing/*tags*.sql` files. OpenTracing dashboards: `grafana/dashboards/opentracing/` directory.
 - And so on...
 
+There is also an 'All' [Project](https://all.cncftest.io) on the test server that contains all CNCF projects data combined. Each CNCF projects is a repository group there.
+
 # Adding new project
 
 To add new project follow [adding new project](https://github.com/cncf/devstats/blob/master/ADDING_NEW_PROJECT.md) instructions.
