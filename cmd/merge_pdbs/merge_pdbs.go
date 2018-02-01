@@ -194,4 +194,5 @@ func main() {
 	mergePDBs()
 	dtEnd := time.Now()
 	lib.Printf("Time: %v\n", dtEnd.Sub(dtStart))
+	fmt.Printf("Consider running './devel/remove_db_dups.sh' if you merged into existing database.\n")
 }

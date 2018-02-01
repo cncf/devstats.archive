@@ -106,7 +106,7 @@ func idbBackup(from, to string) {
 	dtStart := time.Now()
 	lastTime := dtStart
 	checked := 0
-	lib.Printf("Processing %d series", nSeries)
+	lib.Printf("Processing %d series\n", nSeries)
 
 	// Copy series
 	if thrN > 1 {
