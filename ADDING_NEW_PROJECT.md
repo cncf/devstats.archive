@@ -3,11 +3,11 @@
 To add new project follow instructions:
 - `crontab -e` and turn off `devstats`, `gha2db_sync` and `webhook`. Kill running `webhook` instance: `killall webhook` (to avoid auto deploying wip states).
 - Add project entry to `projects.yaml` file. Find projects orgs, repos, select start date, eventually add test coverage for complex regular expression in `regexp_test.go`.
-- To identify repo name changes, date ranges for entrire projest use `util_sql/repo_name_changes_bigquery.sql` replacing repo.name with your project's main GitHub repo name.
+- To identify repo and/or org name changes, date ranges for entrire projest use `util_sql/(repo|org)_name_changes_bigquery.sql` replacing name there.
 - Main repo can be empty `''` - in this case only two annotations will be added: 'start date - CNCF join date' and 'CNCF join date - now".
 - Set project databases (Influx and Postgres).
-- Set it to `disabled: true` for now.
-- CNCF join dates are listed here: https://github.com/cncf/toc#projects
+- Set it to `disabled: true` for now, or turn of webhook to skip automatic deploys while in wip state (`crontab -e` to disable `webhook` + `killall webhook`).
+- CNCF join dates are listed here: https://github.com/cncf/toc#projects.
 - Add this new project config to 'All' project in `projects.yaml all/psql.sh grafana/dashboards/all/dashboards.json scripts/all/repo_groups.sql`. Add entire new project as a new repo group in 'All' project.
 - Update `cron/cron_db_backup_all.sh devel/reinit.sh devel/import_affs.sh devel/update_affs.sh devel/add_single_metric_all.sh grafana/copy_grafana_dbs.sh devel/get_grafana_dbs.sh devel/add_single_metric_all_custom_gaps.sh devel/tags.sh devel/get_all_databases.sh` but do not install yet.
 - Add new domain for the project: `projectname.cncftest.io`. If using wildcard domain like *.devstats.cncf.io - this step is not needed.
@@ -38,7 +38,7 @@ To add new project follow instructions:
 - `cp -Rv grafana/dashboards/oldproject/ grafana/dashboards/projectname/` and then update files. Usually `%s/"oldproj"/"newproj"/g|%s/DS_OLDPROJ/DS_NEWPROJ/g|%s/OldProj/NewProj/g|w|next`.
 - Be careful with `dashboards.json` because it contains list of all projects so you shouldn't replace oldproj with newproj - but add new entry instead.
 - Update: `grafana/copy_artwork_icons.sh`, `apache/www/copy_icons.sh`, `grafana/create_images.sh`.
-- Update `projects.yaml` remove `disabled: true` for new project.
+- Update `projects.yaml` remove `disabled: true` for new project (if needed).
 - `make install` to install all changed stuff.
 - Copy directories `/etc/grafana`, `/usr/share/grafana`, `/var/lib/grafana` from standard unmodified installation adding .projectname to their names.
 - You can use `grafana/etc/grafana.ini.example` as a base config file (but note that some options are redacted in this example file).
@@ -62,4 +62,4 @@ To add new project follow instructions:
 - Add new project to `/var/www/html/index.html`.
 - Update and import `grafana/dashboards/{{proj}}/dashboards.json` dashboard on all remaining projects.
 - Finally: `cp /var/lib/grafana.projectname/grafana.db /var/www/html/grafana.projectname.db` and/or `grafana/copy_grafana_dbs.sh`
-- `crontab -e` and turn on `devstats` and/or `gha2db_sync`.
+- `crontab -e` and turn on `devstats` and eventually `webhook` (if was disabled).
