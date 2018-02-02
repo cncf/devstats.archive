@@ -27,17 +27,13 @@ To add new project follow instructions:
 - `grant all privileges on database "projectname" to gha_admin;`
 - If running on the test server: generate Postgres data: `PG_PASS=... IDB_PASS=... IDB_HOST=172.17.0.1 ./projectname/psql.sh`.
 - If running on the production server: `wget https://cncftest.io/projectname.sql.xz`, `xz -d projectname.sql.xz`, `sudo -u postgres psql projectname < projectname.sql`.
-- When data is imported into Postgres: projectname, you need to update `metrics/projectname/gaps.yaml` and `metrics/projectname/gaps_affs.yaml` (with top companies & repo groups).
-- Using `./metrics/projectname/companies_tags.sql`,  `./projectname/top_n_companies.sh`.
-- And `./projectname/top_n_repos_groups.sh`.
+- When data is imported into Postgres: projectname, you need to update `metrics/projectname/gaps*.yaml` (with top companies & repo groups).
+- Using `./projectname/top_n_companies.sh ./projectname/top_n_repos_groups.sh`.
 - There are two kinds of repo group names: direct from query, but also with special characters replaced with "_"
 - You should copy those from query, put there where needed and do VIM replace: `:'<,'>s/[-/.: `]/_/g`, `:'<,'>s/[A-Z]/\L&/g`.
 - Run regenerate all InfluxData script `./projectname/reinit.sh`.
-- Merge new database into 'All' project database: `PG_PASS=pwd IDB_PASS=pwd IDB_HOST=x.y.z.v GHA2DB_INPUT_DBS="newproj" GHA2DB_OUTPUT_DB="allprj" ./merge_pdbs`.
-- Remove duplicates: `PG_PASS=pwd ./devel/remove_db_dups.sh`. Rerun `all/setup_repo_groups.sh all/top_n_repos_groups.sh all/top_n_comoanies`.
-- Update `metrics/all/gaps*.yaml` with new companies & repo groups data.
+- Merge new project into 'All' project using `all/add_project.sh`.
 - Run regenerate 'All' project InfluxData script `./all/reinit.sh`.
-- Run `GHA2DB_PROJECTS_OVERRIDE="+projecname" GHA2DB_LOCAL=1 GHA2DB_PROCESS_REPOS=1 ./get_repos` to process new projects commits (fetch new repos, pull, commits files etc).
 - `cp -Rv grafana/oldproject/ grafana/projectname/` and then update files. Usually `%s/oldproject/newproject/g|w|next`.
 - `cp -Rv grafana/dashboards/oldproject/ grafana/dashboards/projectname/` and then update files. Usually `%s/"oldproj"/"newproj"/g|%s/DS_OLDPROJ/DS_NEWPROJ/g|%s/OldProj/NewProj/g|w|next`.
 - Be careful with `dashboards.json` because it contains list of all projects so you shouldn't replace oldproj with newproj - but add new entry instead.
