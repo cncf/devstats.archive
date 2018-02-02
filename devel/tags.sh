@@ -24,9 +24,10 @@ fi
 ./notary/tags.sh || exit 13
 ./tuf/tags.sh || exit 14
 ./rook/tags.sh || exit 15
+./vitess/tags.sh || exit 16
 host=`hostname`
 if [ $host = "cncftest.io" ]
 then
-  ./all/tags.sh || exit 16
-  ./cncf/tags.sh || exit 17
+  ./all/tags.sh || exit 17
+  ./cncf/tags.sh || exit 18
 fi

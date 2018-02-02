@@ -24,11 +24,12 @@ fi
 ./notary/import_affs.sh || exit 15
 ./tuf/import_affs.sh || exit 16
 ./rook/import_affs.sh || exit 17
+./vitess/import_affs.sh || exit 18
 host=`hostname`
 if [ $host = "cncftest.io" ]
 then
-  ./all/import_affs.sh || exit 18
-  ./cncf/import_affs.sh || exit 19
+  ./all/import_affs.sh || exit 19
+  ./cncf/import_affs.sh || exit 20
 fi
 ./kubernetes/top_n_companies.sh 70 >> ./metrics/kubernetes/gaps.yaml
 ./prometheus/top_n_companies.sh 70 >> ./metrics/prometheus/gaps.yaml
@@ -45,6 +46,7 @@ fi
 ./notary/top_n_companies.sh 70 >> ./metrics/notary/gaps.yaml
 ./tuf/top_n_companies.sh 70 >> ./metrics/tuf/gaps.yaml
 ./rook/top_n_companies.sh 70 >> ./metrics/rook/gaps.yaml
+./vitess/top_n_companies.sh 70 >> ./metrics/vitess/gaps.yaml
 host=`hostname`
 if [ $host = "cncftest.io" ]
 then
