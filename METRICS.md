@@ -5,6 +5,7 @@ To add new metric (replace `{{project}}` with kubernetes, prometheus or any othe
 1) Define parameterized SQL (with `{{from}}`, `{{to}}`  and `{{n}}` params) that returns this metric data. For histogram metrics define `{{period}}` instead.
 - {{n}} is only used in aggregate periods mode and it will get value from `Number of periods` drop-down. For example for 7 days MA (moving average) it will be 7.
 - Use {{period:alias.date_column}} for quick ranges based metrics, to test such metric use `PG_PASS=... ./runq ./metrics/project/filename.sql qr '1 week,,'`.
+- Use (actor_col {{exclude_bots}}) to skip bot activity.
 - This SQL will be automatically called on different periods by `gha2db_sync` tool.
 2) Define this metric in [metrics/{{project}}/metrics.yaml](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/metrics.yaml) (file used by `gha2db_sync` tool).
 - You can define this metric in `devel/test_metric.yaml` first (and eventually in `devel/test_gaps.yaml`, `devel/test_tags.yaml`) and run `devel/test_metric_sync.sh`
@@ -35,7 +36,7 @@ To add new metric (replace `{{project}}` with kubernetes, prometheus or any othe
 - If Metric returns multiple values in a single series and creates data gaps, then you have to list values to clear via `values: ` property, you can use series formula format to do so.
 4) Add test coverage in [metrics_test.go](https://github.com/cncf/devstats/blob/master/metrics_test.go).
 5) You need to either regenerate all InfluxDB data (it takes about 10-15 minutes) using `PG_PASS=... IDB_PASS=... ./reinit_all.sh` or use `PG_PASS=... IDB_PASS=... ./devel/add_single_metric,sh`. If you choose to use add single metric, you need to create 4 files: `test_gaps.yaml` (if empty copy from metrics/{{project}}empty.yaml), `test_metrics.yaml` and `test_tags.yaml`. Those YAML files should contain only new metric related data.
-6) To test new metric on non-production InfluxDB "test", use: `GHA2DB_PROJECT={{project_}} ./devel/test_metric_sync.sh` script. You can chekc field types via: `influx; use test; show field keys`.
+6) To test new metric on non-production InfluxDB "test", use: `GHA2DB_PROJECT={{project}} ./devel/test_metric_sync.sh` script. You can chekc field types via: `influx; use test; show field keys`.
 7) Add Grafana dashboard or row that displays this metric.
 8) Export new Grafana dashboard to JSON.
 9) Create PR for the new metric.
