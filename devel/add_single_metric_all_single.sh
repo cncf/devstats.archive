@@ -14,6 +14,10 @@ do
   then
     db="gha"
   fi
+  if [ $db = "all" ]
+  then
+    db="allprj"
+  fi
   GHA2DB_CMDDEBUG=1 GHA2DB_RESETIDB=1 GHA2DB_METRICS_YAML=devel/test_metrics.yaml GHA2DB_GAPS_YAML=metrics/$proj/gaps_single.yaml GHA2DB_TAGS_YAML=devel/test_tags.yaml GHA2DB_LOCAL=1 GHA2DB_PROJECT=$proj PG_DB=$db IDB_DB=$db ./gha2db_sync || exit 1
 done
 echo 'OK'
