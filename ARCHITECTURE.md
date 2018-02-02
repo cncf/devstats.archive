@@ -113,6 +113,7 @@ We're getting all possible GitHub data for all objects, and all objects historic
 - There are few shell scripts for example: running sync every N seconds, setup InfluxDB etc.
 - [merge_pdbs](https://github.com/cncf/devstats/blob/master/cmd/merge_pdbs/merge_pdbs.go)
 - `merge_pdbs` is used to generate Postgres database that contains data from other multiple databases.
+- You can use `merge_pdbs` to add new projects to a existing database, but please consider running './devel/remove_db_dups.sh' then or use: './all/add_project.sh' script.
 
 # Database structure details
 

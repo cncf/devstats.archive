@@ -32,7 +32,7 @@ To add new project follow instructions:
 - There are two kinds of repo group names: direct from query, but also with special characters replaced with "_"
 - You should copy those from query, put there where needed and do VIM replace: `:'<,'>s/[-/.: `]/_/g`, `:'<,'>s/[A-Z]/\L&/g`.
 - Run regenerate all InfluxData script `./projectname/reinit.sh`.
-- Merge new project into 'All' project using `all/add_project.sh`.
+- Merge new project into 'All' project using `PG_PASS=pwd ./all/add_project.sh projname`.
 - Run regenerate 'All' project InfluxData script `./all/reinit.sh`.
 - `cp -Rv grafana/oldproject/ grafana/projectname/` and then update files. Usually `%s/oldproject/newproject/g|w|next`.
 - `cp -Rv grafana/dashboards/oldproject/ grafana/dashboards/projectname/` and then update files. Usually `%s/"oldproj"/"newproj"/g|%s/DS_OLDPROJ/DS_NEWPROJ/g|%s/OldProj/NewProj/g|w|next`.
