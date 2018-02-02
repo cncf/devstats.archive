@@ -15,7 +15,7 @@ To add new project follow instructions:
 - Copy standard grafana distro for new project: `cp -R /usr/share/grafana /usr/share/grafana.projectname/`.
 - Make sure that you pull newest cncf/artwork: `cd ~/dev/cncf/artwork; git pull; cd ~/dev/go/src/devstats`.
 - Generate icons for new project: `./grafana/img/projectname32.png`, `./grafana/img/projectname.svg`: update & run `./grafana/create_images.sh`.
-- Update `grafana/copy_artwork_icons.sh`, `apache/www/copy_icons.sh`, `grafana/create_images.sh`.
+- Update `grafana/copy_artwork_icons.sh apache/www/copy_icons.sh grafana/create_images.sh`.
 - Especially do new project's part of `apache/www/copy_icons.sh` on the prod server, to have new icon available on the test server (icon path is from the prod server).
 - Update `grafana/change_title_and_icons_all.sh`.
 - Copy setup scripts and then adjust them:
