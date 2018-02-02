@@ -1,6 +1,6 @@
 select
   sub.repo_group,
-  round(count(sub.id) / {{n}}, 2) as activity
+  round(count(distinct sub.id) / {{n}}, 2) as activity
 from (
   select 'repo_group_activity,' || coalesce(ecf.repo_group, r.repo_group) as repo_group,
     ev.id
