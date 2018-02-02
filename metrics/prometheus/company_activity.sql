@@ -1,5 +1,5 @@
 select
-  concat('company;', sub.company, '`', sub.repo_group, ';activity,authors,issues,prs,commits,review_comments,issue_comments,commit_comments,comments,contributions'),
+  concat('company;', sub.company, '`', sub.repo_group, ';activity,authors,issues,prs,commits,review_comments,issue_comments,commit_comments,comments,contributions,contributors'),
   round(sub.activity / {{n}}, 2) as activity,
   sub.authors,
   round(sub.issues / {{n}}, 2) as issues,
@@ -9,12 +9,14 @@ select
   round(sub.issue_comments / {{n}}, 2) as issue_comments,
   round(sub.commit_comments / {{n}}, 2) as commit_comments,
   round((sub.review_comments + sub.issue_comments + sub.commit_comments) / {{n}}, 2) as comments,
-  round((sub.commits + sub.issues + sub.prs) / {{n}}, 2) as contributions
+  round((sub.commits + sub.issues + sub.prs) / {{n}}, 2) as contributions,
+  sub.contributors
 from (
   select affs.company_name as company,
     'all' as repo_group,
     count(distinct ev.id) as activity,
     count(distinct ev.actor_id) as authors,
+    count(distinct ev.actor_id) filter (where ev.type in ('IssuesEvent', 'PullRequestEvent', 'PushEvent')) as contributors,
     sum(case ev.type when 'IssuesEvent' then 1 else 0 end) as issues,
     sum(case ev.type when 'PullRequestEvent' then 1 else 0 end) as prs,
     sum(case ev.type when 'PushEvent' then 1 else 0 end) as commits,
@@ -41,6 +43,7 @@ from (
     coalesce(ecf.repo_group, r.repo_group) as repo_group,
     count(distinct ev.id) as activity,
     count(distinct ev.actor_id) as authors,
+    count(distinct ev.actor_id) filter (where ev.type in ('IssuesEvent', 'PullRequestEvent', 'PushEvent')) as contributors,
     sum(case ev.type when 'IssuesEvent' then 1 else 0 end) as issues,
     sum(case ev.type when 'PullRequestEvent' then 1 else 0 end) as prs,
     sum(case ev.type when 'PushEvent' then 1 else 0 end) as commits,
@@ -74,6 +77,7 @@ from (
     'all' as repo_group,
     count(distinct ev.id) as activity,
     count(distinct ev.actor_id) as authors,
+    count(distinct ev.actor_id) filter (where ev.type in ('IssuesEvent', 'PullRequestEvent', 'PushEvent')) as contributors,
     sum(case ev.type when 'IssuesEvent' then 1 else 0 end) as issues,
     sum(case ev.type when 'PullRequestEvent' then 1 else 0 end) as prs,
     sum(case ev.type when 'PushEvent' then 1 else 0 end) as commits,
@@ -94,6 +98,7 @@ from (
     coalesce(ecf.repo_group, r.repo_group) as repo_group,
     count(distinct ev.id) as activity,
     count(distinct ev.actor_id) as authors,
+    count(distinct ev.actor_id) filter (where ev.type in ('IssuesEvent', 'PullRequestEvent', 'PushEvent')) as contributors,
     sum(case ev.type when 'IssuesEvent' then 1 else 0 end) as issues,
     sum(case ev.type when 'PullRequestEvent' then 1 else 0 end) as prs,
     sum(case ev.type when 'PushEvent' then 1 else 0 end) as commits,
