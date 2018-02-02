@@ -24,10 +24,10 @@ cp ~/dev/cncf/artwork/grpc/icon/color/grpc-icon-color.svg /usr/share/grafana.grp
 cp ~/dev/cncf/artwork/grpc/icon/color/grpc-icon-color.svg /usr/share/grafana.grpc/public/img/grafana_com_auth_icon.svg || exit 22
 cp ~/dev/cncf/artwork/grpc/icon/color/grpc-icon-color.svg /usr/share/grafana.grpc/public/img/grafana_net_logo.svg || exit 23
 cp ~/dev/cncf/artwork/grpc/icon/color/grpc-icon-color.svg /usr/share/grafana.grpc/public/img/grafana_mask_icon.svg || exit 24
-cp ~/dev/cncf/artwork/coredns/icon/color/core-dns-icon-color.svg /usr/share/grafana.coredns/public/img/grafana_icon.svg || exit 25
-cp ~/dev/cncf/artwork/coredns/icon/color/core-dns-icon-color.svg /usr/share/grafana.coredns/public/img/grafana_com_auth_icon.svg || exit 26
-cp ~/dev/cncf/artwork/coredns/icon/color/core-dns-icon-color.svg /usr/share/grafana.coredns/public/img/grafana_net_logo.svg || exit 27
-cp ~/dev/cncf/artwork/coredns/icon/color/core-dns-icon-color.svg /usr/share/grafana.coredns/public/img/grafana_mask_icon.svg || exit 28
+cp ~/dev/cncf/artwork/coredns/icon/color/coredns-icon-color.svg /usr/share/grafana.coredns/public/img/grafana_icon.svg || exit 25
+cp ~/dev/cncf/artwork/coredns/icon/color/coredns-icon-color.svg /usr/share/grafana.coredns/public/img/grafana_com_auth_icon.svg || exit 26
+cp ~/dev/cncf/artwork/coredns/icon/color/coredns-icon-color.svg /usr/share/grafana.coredns/public/img/grafana_net_logo.svg || exit 27
+cp ~/dev/cncf/artwork/coredns/icon/color/coredns-icon-color.svg /usr/share/grafana.coredns/public/img/grafana_mask_icon.svg || exit 28
 cp ~/dev/cncf/artwork/containerd/icon/white/containerd-icon-white.svg /usr/share/grafana.containerd/public/img/grafana_icon.svg || exit 29
 cp ~/dev/cncf/artwork/containerd/icon/white/containerd-icon-white.svg /usr/share/grafana.containerd/public/img/grafana_com_auth_icon.svg || exit 30
 cp ~/dev/cncf/artwork/containerd/icon/white/containerd-icon-white.svg /usr/share/grafana.containerd/public/img/grafana_net_logo.svg || exit 31
@@ -60,16 +60,20 @@ cp ~/dev/cncf/artwork/rook/icon/color/rook-icon-color.svg /usr/share/grafana.roo
 cp ~/dev/cncf/artwork/rook/icon/color/rook-icon-color.svg /usr/share/grafana.rook/public/img/grafana_com_auth_icon.svg || exit 58
 cp ~/dev/cncf/artwork/rook/icon/color/rook-icon-color.svg /usr/share/grafana.rook/public/img/grafana_net_logo.svg || exit 59
 cp ~/dev/cncf/artwork/rook/icon/color/rook-icon-color.svg /usr/share/grafana.rook/public/img/grafana_mask_icon.svg || exit 60
+cp ~/dev/cncf/artwork/vitess/icon/color/vitess-icon-color.svg /usr/share/grafana.vitess/public/img/grafana_icon.svg || exit 61
+cp ~/dev/cncf/artwork/vitess/icon/color/vitess-icon-color.svg /usr/share/grafana.vitess/public/img/grafana_com_auth_icon.svg || exit 62
+cp ~/dev/cncf/artwork/vitess/icon/color/vitess-icon-color.svg /usr/share/grafana.vitess/public/img/grafana_net_logo.svg || exit 63
+cp ~/dev/cncf/artwork/vitess/icon/color/vitess-icon-color.svg /usr/share/grafana.vitess/public/img/grafana_mask_icon.svg || exit 64
 host=`hostname`
 if [ $host = "cncftest.io" ]
 then
-  cp ~/dev/cncf/artwork/cncf/icon/color/cncf-icon-color.svg /usr/share/grafana.all/public/img/grafana_icon.svg || exit 61
-  cp ~/dev/cncf/artwork/cncf/icon/color/cncf-icon-color.svg /usr/share/grafana.all/public/img/grafana_com_auth_icon.svg || exit 62
-  cp ~/dev/cncf/artwork/cncf/icon/color/cncf-icon-color.svg /usr/share/grafana.all/public/img/grafana_net_logo.svg || exit 63
-  cp ~/dev/cncf/artwork/cncf/icon/color/cncf-icon-color.svg /usr/share/grafana.all/public/img/grafana_mask_icon.svg || exit 64
-  cp ~/dev/cncf/artwork/cncf/icon/color/cncf-icon-color.svg /usr/share/grafana.cncf/public/img/grafana_icon.svg || exit 65
-  cp ~/dev/cncf/artwork/cncf/icon/color/cncf-icon-color.svg /usr/share/grafana.cncf/public/img/grafana_com_auth_icon.svg || exit 66
-  cp ~/dev/cncf/artwork/cncf/icon/color/cncf-icon-color.svg /usr/share/grafana.cncf/public/img/grafana_net_logo.svg || exit 67
-  cp ~/dev/cncf/artwork/cncf/icon/color/cncf-icon-color.svg /usr/share/grafana.cncf/public/img/grafana_mask_icon.svg || exit 68
+  cp ~/dev/cncf/artwork/cncf/icon/color/cncf-icon-color.svg /usr/share/grafana.all/public/img/grafana_icon.svg || exit 65
+  cp ~/dev/cncf/artwork/cncf/icon/color/cncf-icon-color.svg /usr/share/grafana.all/public/img/grafana_com_auth_icon.svg || exit 66
+  cp ~/dev/cncf/artwork/cncf/icon/color/cncf-icon-color.svg /usr/share/grafana.all/public/img/grafana_net_logo.svg || exit 67
+  cp ~/dev/cncf/artwork/cncf/icon/color/cncf-icon-color.svg /usr/share/grafana.all/public/img/grafana_mask_icon.svg || exit 68
+  cp ~/dev/cncf/artwork/cncf/icon/color/cncf-icon-color.svg /usr/share/grafana.cncf/public/img/grafana_icon.svg || exit 69
+  cp ~/dev/cncf/artwork/cncf/icon/color/cncf-icon-color.svg /usr/share/grafana.cncf/public/img/grafana_com_auth_icon.svg || exit 70
+  cp ~/dev/cncf/artwork/cncf/icon/color/cncf-icon-color.svg /usr/share/grafana.cncf/public/img/grafana_net_logo.svg || exit 71
+  cp ~/dev/cncf/artwork/cncf/icon/color/cncf-icon-color.svg /usr/share/grafana.cncf/public/img/grafana_mask_icon.svg || exit 72
 fi
 echo 'OK'
