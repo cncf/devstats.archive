@@ -169,6 +169,17 @@ where
   org_login = 'rook'
 ;
 
+-- Vitess
+update
+  gha_repos
+set
+  repo_group = 'Vitess',
+  alias = 'Vitess'
+where
+  org_login = 'vitess'
+  or name in ('youtube/vitess', 'vitess')
+;
+
 -- CNCF
 update
   gha_repos

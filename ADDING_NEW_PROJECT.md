@@ -8,6 +8,7 @@ To add new project follow instructions:
 - Set project databases (Influx and Postgres).
 - Set it to `disabled: true` for now.
 - CNCF join dates are listed here: https://github.com/cncf/toc#projects
+- Add this new project config to 'All' project in `projects.yaml all/psql.sh grafana/dashboards/all/dashboards.json scripts/all/repo_groups.sql`. Add entire new project as a new repo group in 'All' project.
 - Update `cron/cron_db_backup_all.sh devel/reinit.sh devel/import_affs.sh devel/update_affs.sh devel/add_single_metric_all.sh grafana/copy_grafana_dbs.sh devel/get_grafana_dbs.sh devel/add_single_metric_all_custom_gaps.sh devel/tags.sh devel/get_all_databases.sh` but do not install yet.
 - Add new domain for the project: `projectname.cncftest.io`. If using wildcard domain like *.devstats.cncf.io - this step is not needed.
 - Add google analytics for the new domain and update /etc/grafana.projectname/grafana.ini with its `UA-...`.
@@ -15,13 +16,11 @@ To add new project follow instructions:
 - Copy standard grafana distro for new project: `cp -R /usr/share/grafana /usr/share/grafana.projectname/`.
 - Make sure that you pull newest cncf/artwork: `cd ~/dev/cncf/artwork; git pull; cd ~/dev/go/src/devstats`.
 - Generate icons for new project: `./grafana/img/projectname32.png`, `./grafana/img/projectname.svg`: update & run `./grafana/create_images.sh`.
-- Update `grafana/copy_artwork_icons.sh apache/www/copy_icons.sh grafana/create_images.sh`.
-- Especially do new project's part of `apache/www/copy_icons.sh` on the prod server, to have new icon available on the test server (icon path is from the prod server).
-- Update `grafana/change_title_and_icons_all.sh`.
+- Update `grafana/copy_artwork_icons.sh apache/www/copy_icons.sh grafana/create_images.sh grafana/change_title_and_icons_all.sh`.
 - Copy setup scripts and then adjust them:
 - `cp -R oldproject/ projectname/`, `vim projectname/*`.
 - You need to set correct project main GitHub repository and annotations match regexp in `projects.yaml` to have working annotations and quick ranges.
-- Copy `metrics/oldproject` to `metrics/projectname`, those files will need tweaks too. Specially `./metrics/projectname/gaps.yaml`.
+- Copy `metrics/oldproject` to `metrics/projectname`, those files will need tweaks too. Specially `./metrics/projectname/gaps*.yaml` files.
 - `cp -Rv scripts/oldproject/ scripts/projectname`, `vim scripts/projectname/*`.
 - Create Postgres database for new project: `sudo -u postgres psql`
 - `create database projectname;`
@@ -33,8 +32,12 @@ To add new project follow instructions:
 - And `./projectname/top_n_repos_groups.sh`.
 - There are two kinds of repo group names: direct from query, but also with special characters replaced with "_"
 - You should copy those from query, put there where needed and do VIM replace: `:'<,'>s/[-/.: `]/_/g`, `:'<,'>s/[A-Z]/\L&/g`.
-- You should remove `disabled: true` from `projects.yaml` and run `GHA2DB_LOCAL=1 GHA2DB_PROCESS_REPOS=1 ./get_repos` to process new projects commits (fetch new repos, pull, commits files etc).
-- Run regenerate all InfluxData script `./projectname/reinit.sh`. You can now disable this project again in `projects.yaml`.
+- Run regenerate all InfluxData script `./projectname/reinit.sh`.
+- Merge new database into 'All' project database: `PG_PASS=pwd IDB_PASS=pwd IDB_HOST=x.y.z.v GHA2DB_INPUT_DBS="newproj" GHA2DB_OUTPUT_DB="allprj" ./merge_pdbs`.
+- Remove duplicates: `PG_PASS=pwd ./devel/remove_db_dups.sh`. Rerun `all/setup_repo_groups.sh all/top_n_repos_groups.sh all/top_n_comoanies`.
+- Update `metrics/all/gaps*.yaml` with new companies & repo groups data.
+- Run regenerate 'All' project InfluxData script `./all/reinit.sh`.
+- Run `GHA2DB_PROJECTS_OVERRIDE="+projecname" GHA2DB_LOCAL=1 GHA2DB_PROCESS_REPOS=1 ./get_repos` to process new projects commits (fetch new repos, pull, commits files etc).
 - `cp -Rv grafana/oldproject/ grafana/projectname/` and then update files. Usually `%s/oldproject/newproject/g|w|next`.
 - `cp -Rv grafana/dashboards/oldproject/ grafana/dashboards/projectname/` and then update files. Usually `%s/"oldproj"/"newproj"/g|%s/DS_OLDPROJ/DS_NEWPROJ/g|%s/OldProj/NewProj/g|w|next`.
 - Be careful with `dashboards.json` because it contains list of all projects so you shouldn't replace oldproj with newproj - but add new entry instead.
