@@ -37,7 +37,7 @@ To add new project follow instructions:
 - `cp -Rv grafana/oldproject/ grafana/projectname/` and then update files. Usually `%s/oldproject/newproject/g|w|next`.
 - `cp -Rv grafana/dashboards/oldproject/ grafana/dashboards/projectname/` and then update files. Usually `%s/"oldproj"/"newproj"/g|%s/DS_OLDPROJ/DS_NEWPROJ/g|%s/OldProj/NewProj/g|w|next`.
 - Be careful with `dashboards.json` because it contains list of all projects so you shouldn't replace oldproj with newproj - but add new entry instead.
-- Update: `grafana/copy_artwork_icons.sh`, `apache/www/copy_icons.sh`, `grafana/create_images.sh`.
+- Update: `grafana/copy_artwork_icons.sh apache/www/copy_icons.sh grafana/create_images.sh`.
 - Update `projects.yaml` remove `disabled: true` for new project (if needed).
 - `make install` to install all changed stuff.
 - Copy directories `/etc/grafana`, `/usr/share/grafana`, `/var/lib/grafana` from standard unmodified installation adding .projectname to their names.
@@ -50,7 +50,7 @@ To add new project follow instructions:
 - `grant all privileges on database "projectname_grafana_sessions" to gha_admin;`
 - Quit `psql` and run: `sudo -u postgres psql projectname_grafana_sessions < util_sql/grafana_session_table.sql`.
 - You now need Apache proxy and SSL, please follow instructions from APACHE.md and SSL.md
-- Apache part is to update `/var/www/html/index.html` file, `apache/www/index_*` files and, `/etc/apache2/sites-enabled/*` files, `apache/sites-enabled/*` files
+- Apache part is to update `/var/www/html/index.html apache/www/index_* /etc/apache2/sites-enabled/* apache/sites-enabled/*` files.
 - SSL part is to issue certificate for new domain and setup proxy.
 - Start new grafana: `./grafana/projectname/grafana_start.sh &` or `killall grafana-server`, `./grafana/start_all_grafanas.sh`, `ps -aux | grep grafana-server`.
 - Update Apache config to proxy https to new Grafana instance: `vim /etc/apache2/sites-enabled/000-default-le-ssl.conf`, `service apache2 restart`
