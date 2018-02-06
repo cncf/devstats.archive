@@ -6,7 +6,7 @@ To add new metric (replace `{{project}}` with kubernetes, prometheus or any othe
 - {{n}} is only used in aggregate periods mode and it will get value from `Number of periods` drop-down. For example for 7 days MA (moving average) it will be 7.
 - Use {{period:alias.date_column}} for quick ranges based metrics, to test such metric use `PG_PASS=... ./runq ./metrics/project/filename.sql qr '1 week,,'`.
 - Use (actor_col {{exclude_bots}}) to skip bot activity.
-- This SQL will be automatically called on different periods by `gha2db_sync` tool.
+- This SQL will be automatically called on different periods by `gha2db_sync` and/or `devstats` tool.
 2) Define this metric in [metrics/{{project}}/metrics.yaml](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/metrics.yaml) (file used by `gha2db_sync` tool).
 - You can define this metric in `devel/test_metric.yaml` first (and eventually in `devel/test_gaps.yaml`, `devel/test_tags.yaml`) and run `devel/test_metric_sync.sh`
 - Then call `influx -username gha_admin -password ...` floowed by `use test`, `precision rfc3339`, `show series`, 'select * from series_name` to see the results.
@@ -29,19 +29,18 @@ To add new metric (replace `{{project}}` with kubernetes, prometheus or any othe
 - You need to define a series list to fill gaps on them. Use `series: ` to set them. It expects a list of series (YAML list).
 - You need to define the same `aggregate` and `skip` values for gaps too.
 - You should at least gap fill series visible on any Grafana dashboard, without doing so data display will be disturbed. If you only show subset of metrics series, you can gap fill only this subset.
-- Each entry can be either a full series name, like `- my_series_d` or...
+- Each entry can be either a full series name, like `- my_series_d` or ...
 - It can also be a series formula to create series list in this format: `"- =prefix;suffix;join_string;list1item1,list1item2,...;list2item1,list2item2,...;..."`
 - Series formula allows writing a lot of series name in a shorter way. Say we have series in this form prefix_{x}_{y}_{z}_suffix and {x} can be a,b,c,d, {y} can be 1,2,3, z can be yes,no. Instead of listing all combinations prefix_a_1_yes_suffix, ..., prefix_d_3_no_suffix, which is 4 * 3 * 2 = 24 items, you can write series formula: `- =prefix;suffix;_;a,b,c,d;1,2,3;yes,no`. In this case you can see join character is _ `...;_;...`.
 - If metrics uses string descriptions (like `desc: time_diff_as_string`), add `desc: true` in gaps file to clear descriptions too.
 - If Metric returns multiple values in a single series and creates data gaps, then you have to list values to clear via `values: ` property, you can use series formula format to do so.
-4) Add test coverage in [metrics_test.go](https://github.com/cncf/devstats/blob/master/metrics_test.go).
-5) You need to either regenerate all InfluxDB data (it takes about 10-15 minutes) using `PG_PASS=... IDB_PASS=... ./reinit_all.sh` or use `PG_PASS=... IDB_PASS=... ./devel/add_single_metric,sh`. If you choose to use add single metric, you need to create 4 files: `test_gaps.yaml` (if empty copy from metrics/{{project}}empty.yaml), `test_metrics.yaml` and `test_tags.yaml`. Those YAML files should contain only new metric related data.
+4) Add test coverage in [metrics_test.go](https://github.com/cncf/devstats/blob/master/metrics_test.go) and [tests.yaml](https://github.com/cncf/devstats/blob/master/tests.yaml).
+5) You need to either regenerate all InfluxDB data, using `PG_PASS=... IDB_PASS=... ./reinit_all.sh` or use `PG_PASS=... IDB_PASS=... ./devel/add_single_metric,sh`. If you choose to use add single metric, you need to create 3 files: `test_gaps.yaml` (if empty copy from metrics/{{project}}empty.yaml), `test_metrics.yaml` and `test_tags.yaml`. Those YAML files should contain only new metric related data.
 6) To test new metric on non-production InfluxDB "test", use: `GHA2DB_PROJECT={{project}} ./devel/test_metric_sync.sh` script. You can chekc field types via: `influx; use test; show field keys`.
 7) Add Grafana dashboard or row that displays this metric.
 8) Export new Grafana dashboard to JSON.
 9) Create PR for the new metric.
-10) Explain how metrics SQLs works in USAGE.md (currently this is pending for all metrics defined so far).
-11) Add metrics dashboard decription in this [file](https://github.com/cncf/devstats/blob/master/DASHBOARDS.md).
+10) Add metrics dashboard decription in this [file](https://github.com/cncf/devstats/blob/master/DASHBOARDS.md).
 
 # Tags
 
