@@ -35,7 +35,7 @@ from (
   group by
     e.type,
     a.login
-  union select 'Contributions (issues, PRs, git pushes)' as metric,
+  union select 'Contributions' as metric,
     a.login as author,
     count(distinct e.id) as value
   from
@@ -123,7 +123,7 @@ where
     'Commit comments',
     'Commits',
     'GitHub pushes',
-    'Contributions (issues, PRs, git pushes)'
+    'Contributions'
   )
 )
 order by

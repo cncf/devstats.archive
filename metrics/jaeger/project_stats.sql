@@ -1,6 +1,6 @@
 select
   sub.repo_group,
-  'Contributors (issue creators, PR creators, committers)' as name,
+  'Contributors' as name,
   count(distinct sub.actor) as value
 from (
   select 'project_stats,' || coalesce(ecf.repo_group, r.repo_group) as repo_group,
@@ -23,7 +23,7 @@ where
 group by
   sub.repo_group
 union select 'project_stats,All' as repo_group,
-  'Contributors (issue creators, PR creators, committers)' as name,
+  'Contributors' as name,
   count(distinct dup_actor_login) as value
 from
   gha_events
