@@ -35,6 +35,19 @@ from (
   group by
     e.type,
     a.login
+  union select 'Contributions (issues, PRs, git pushes)' as metric,
+    a.login as author,
+    count(distinct e.id) as value
+  from
+    gha_events e,
+    gha_actors a
+  where
+    e.actor_id = a.id
+    and e.type in ('PushEvent', 'PullRequestEvent', 'IssuesEvent')
+    and {{period:e.created_at}}
+    and (e.dup_actor_login {{exclude_bots}})
+  group by
+    a.login
   union select 'Active repositories' as metric,
     a.login as author,
     count(distinct e.repo_id) as value
@@ -106,7 +119,12 @@ where
   or (sub.metric = 'Review comments' and sub.value > 1)
   or (sub.metric = 'PRs' and sub.value > 1)
   or (sub.metric = 'Active repositories' and sub.value > 1)
-  or (sub.metric in ('Commit comments', 'Commits', 'GitHub pushes')
+  or (sub.metric in (
+    'Commit comments',
+    'Commits',
+    'GitHub pushes',
+    'Contributions (issues, PRs, git pushes)'
+  )
 )
 order by
   metric asc,
