@@ -9,7 +9,7 @@ To add new project follow instructions:
 - Set it to `disabled: true` for now, or turn of webhook to skip automatic deploys while in wip state (`crontab -e` to disable `webhook` + `killall webhook`).
 - CNCF join dates are listed here: https://github.com/cncf/toc#projects.
 - Add this new project config to 'All' project in `projects.yaml all/psql.sh grafana/dashboards/all/dashboards.json scripts/all/repo_groups.sql devel/calculate_hours.sh`. Add entire new project as a new repo group in 'All' project.
-- Update `cron/cron_db_backup_all.sh devel/reinit.sh devel/import_affs.sh devel/update_affs.sh devel/add_single_metric_all.sh grafana/copy_grafana_dbs.sh devel/get_grafana_dbs.sh devel/add_single_metric_*.sh devel/tags.sh devel/get_all_databases.sh` but do not install yet.
+- Update `cron/cron_db_backup_all.sh devel/reinit.sh devel/import_affs.sh devel/update_affs.sh devel/add_single_metric_all.sh grafana/copy_grafana_dbs.sh devel/get_grafana_dbs.sh devel/add_single_metric_*.sh devel/tags.sh devel/get_all_databases.sh devel/update_grafanas.sh devel/copy_grafanas.sh` but do not install yet.
 - Add new domain for the project: `projectname.cncftest.io`. If using wildcard domain like *.devstats.cncf.io - this step is not needed.
 - Add google analytics for the new domain and update /etc/grafana.projectname/grafana.ini with its `UA-...`.
 - Search for all files defined for some existing project, for example `find . -iname "*oldproject*"`.
