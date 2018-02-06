@@ -87,6 +87,7 @@ from (
     and af.dt_from <= e.created_at
     and af.dt_to > e.created_at
     and {{period:e.created_at}}
+    and (e.dup_actor_login {{exclude_bots}})
   group by
     af.company_name
   union select 'Comments' as metric,
@@ -218,6 +219,7 @@ from (
     gha_events e
   where
     {{period:e.created_at}}
+    and (e.dup_actor_login {{exclude_bots}})
   union select 'Comments' as metric,
     'All' as company,
     count(distinct c.id) as value
