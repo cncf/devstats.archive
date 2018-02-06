@@ -41,6 +41,8 @@ func TestNormalizeName(t *testing.T) {
 		{str: "gżegżółką", expected: "gzegzoka"},
 		{str: "net_ease_网易有态", expected: "net_ease_"},
 		{str: " see;hello-world/k8s.io, said: HE`MAN ", expected: "see_hello_world_k8s_io__said__he_man"},
+		{str: "Contributions (issues, PRs, git pushes)", expected: "contributions__issues__prs__git_pushes_"},
+		{str: "Exclude (ro[bot]nik)", expected: "exclude__ro_bot_nik_"},
 	}
 	// Execute test cases
 	for index, test := range testCases {
