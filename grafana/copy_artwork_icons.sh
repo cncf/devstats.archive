@@ -60,10 +60,10 @@ cp ~/dev/cncf/artwork/rook/icon/color/rook-icon-color.svg /usr/share/grafana.roo
 cp ~/dev/cncf/artwork/rook/icon/color/rook-icon-color.svg /usr/share/grafana.rook/public/img/grafana_com_auth_icon.svg || exit 58
 cp ~/dev/cncf/artwork/rook/icon/color/rook-icon-color.svg /usr/share/grafana.rook/public/img/grafana_net_logo.svg || exit 59
 cp ~/dev/cncf/artwork/rook/icon/color/rook-icon-color.svg /usr/share/grafana.rook/public/img/grafana_mask_icon.svg || exit 60
-cp ~/dev/cncf/artwork/vitess/icon/color/vitess-icon-color.svg /usr/share/grafana.vitess/public/img/grafana_icon.svg || exit 61
-cp ~/dev/cncf/artwork/vitess/icon/color/vitess-icon-color.svg /usr/share/grafana.vitess/public/img/grafana_com_auth_icon.svg || exit 62
-cp ~/dev/cncf/artwork/vitess/icon/color/vitess-icon-color.svg /usr/share/grafana.vitess/public/img/grafana_net_logo.svg || exit 63
-cp ~/dev/cncf/artwork/vitess/icon/color/vitess-icon-color.svg /usr/share/grafana.vitess/public/img/grafana_mask_icon.svg || exit 64
+cp ~/dev/cncf/artwork/vitesse/icon/color/vitesse-icon-color.svg /usr/share/grafana.vitess/public/img/grafana_icon.svg || exit 61
+cp ~/dev/cncf/artwork/vitesse/icon/color/vitesse-icon-color.svg /usr/share/grafana.vitess/public/img/grafana_com_auth_icon.svg || exit 62
+cp ~/dev/cncf/artwork/vitesse/icon/color/vitesse-icon-color.svg /usr/share/grafana.vitess/public/img/grafana_net_logo.svg || exit 63
+cp ~/dev/cncf/artwork/vitesse/icon/color/vitesse-icon-color.svg /usr/share/grafana.vitess/public/img/grafana_mask_icon.svg || exit 64
 host=`hostname`
 if [ $host = "cncftest.io" ]
 then
