@@ -46,6 +46,36 @@ from (
   group by
     e.type,
     af.company_name
+  union select 'Contributors (issue creators, PR creators, committers)' as metric,
+    af.company_name as company,
+    count(distinct e.actor_id) as value
+  from
+    gha_events e,
+    gha_actors_affiliations af
+  where
+    e.actor_id = af.actor_id
+    and af.dt_from <= e.created_at
+    and af.dt_to > e.created_at
+    and e.type in ('PushEvent', 'PullRequestEvent', 'IssuesEvent')
+    and {{period:e.created_at}}
+    and (e.dup_actor_login {{exclude_bots}})
+  group by
+    af.company_name
+  union select 'Contributions (issues, PRs, git pushes)' as metric,
+    af.company_name as company,
+    count(distinct e.id) as value
+  from
+    gha_events e,
+    gha_actors_affiliations af
+  where
+    e.actor_id = af.actor_id
+    and af.dt_from <= e.created_at
+    and af.dt_to > e.created_at
+    and e.type in ('PushEvent', 'PullRequestEvent', 'IssuesEvent')
+    and {{period:e.created_at}}
+    and (e.dup_actor_login {{exclude_bots}})
+  group by
+    af.company_name
   union select 'Repositories' as metric,
     af.company_name as company,
     count(distinct e.repo_id) as value
@@ -163,6 +193,24 @@ from (
     and (e.dup_actor_login {{exclude_bots}})
   group by
     e.type
+  union select 'Contributors (issue creators, PR creators, committers)' as metric,
+    'All' as company,
+    count(distinct e.actor_id) as value
+  from
+    gha_events e
+  where
+    e.type in ('PushEvent', 'PullRequestEvent', 'IssuesEvent')
+    and {{period:e.created_at}}
+    and (e.dup_actor_login {{exclude_bots}})
+  union select 'Contributions (issues, PRs, git pushes)' as metric,
+    'All' as company,
+    count(distinct e.id) as value
+  from
+    gha_events e
+  where
+    e.type in ('PushEvent', 'PullRequestEvent', 'IssuesEvent')
+    and {{period:e.created_at}}
+    and (e.dup_actor_login {{exclude_bots}})
   union select 'Repositories' as metric,
     'All' as company,
     count(distinct e.repo_id) as value
@@ -226,7 +274,14 @@ where
   or (sub.metric = 'PRs' and sub.value > 1)
   or (sub.metric = 'Repositories' and sub.value > 1)
   or (sub.metric = 'Watchers' and sub.value > 2)
-  or (sub.metric in ('Commit commenters', 'Commits', 'Committers'))
+  or (sub.metric in (
+    'Commit commenters',
+    'Commits',
+    'Committers',
+    'Contributors (issue creators, PR creators, committers)',
+    'Contributions (issues, PRs, git pushes)'
+    )
+  )
 order by
   metric asc,
   value desc,
