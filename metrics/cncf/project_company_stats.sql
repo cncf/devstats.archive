@@ -46,7 +46,7 @@ from (
   group by
     e.type,
     af.company_name
-  union select 'Contributors (issue creators, PR creators, committers)' as metric,
+  union select 'Contributors' as metric,
     af.company_name as company,
     count(distinct e.actor_id) as value
   from
@@ -61,7 +61,7 @@ from (
     and (e.dup_actor_login {{exclude_bots}})
   group by
     af.company_name
-  union select 'Contributions (issues, PRs, git pushes)' as metric,
+  union select 'Contributions' as metric,
     af.company_name as company,
     count(distinct e.id) as value
   from
@@ -194,7 +194,7 @@ from (
     and (e.dup_actor_login {{exclude_bots}})
   group by
     e.type
-  union select 'Contributors (issue creators, PR creators, committers)' as metric,
+  union select 'Contributors' as metric,
     'All' as company,
     count(distinct e.actor_id) as value
   from
@@ -203,7 +203,7 @@ from (
     e.type in ('PushEvent', 'PullRequestEvent', 'IssuesEvent')
     and {{period:e.created_at}}
     and (e.dup_actor_login {{exclude_bots}})
-  union select 'Contributions (issues, PRs, git pushes)' as metric,
+  union select 'Contributions' as metric,
     'All' as company,
     count(distinct e.id) as value
   from
@@ -280,8 +280,8 @@ where
     'Commit commenters',
     'Commits',
     'Committers',
-    'Contributors (issue creators, PR creators, committers)',
-    'Contributions (issues, PRs, git pushes)'
+    'Contributors',
+    'Contributions'
     )
   )
 order by
