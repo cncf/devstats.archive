@@ -15,7 +15,7 @@ cp ~/dev/cncf/artwork/jaeger/icon/reverse-color/jaeger-icon-reverse-color.svg gr
 cp ~/dev/cncf/artwork/notary/icon/white/notary-icon-white.svg grafana/img/notary.svg || exit 13
 cp ~/dev/cncf/artwork/tuf/icon/white/tuf-icon-white.svg grafana/img/tuf.svg || exit 14
 cp ~/dev/cncf/artwork/rook/icon/color/rook-icon-color.svg grafana/img/rook.svg || exit 15
-cp ~/dev/cncf/artwork/vitesse/icon/color/vitesse-icon-color.svg grafana/img/vitess.svg || exit 16
+cp ~/dev/cncf/artwork/vitess/icon/color/vitess-icon-color.svg grafana/img/vitess.svg || exit 16
 cp ~/dev/cncf/artwork/cncf/icon/color/cncf-icon-color.svg grafana/img/all.svg || exit 17
 cp ~/dev/cncf/artwork/cncf/icon/color/cncf-icon-color.svg grafana/img/cncf.svg || exit 18
 convert ~/dev/cncf/artwork/kubernetes/icon/color/kubernetes-icon-color.png -resize 32x32 grafana/img/k8s32.png || exit 19
@@ -33,7 +33,7 @@ convert ~/dev/cncf/artwork/jaeger/icon/reverse-color/jaeger-icon-reverse-color.p
 convert ~/dev/cncf/artwork/notary/icon/white/notary-icon-white.png -resize 32x32 grafana/img/notary32.png || exit 31
 convert ~/dev/cncf/artwork/tuf/icon/white/tuf-icon-white.png -resize 32x32 grafana/img/tuf32.png || exit 32
 convert ~/dev/cncf/artwork/rook/icon/color/rook-icon-color.png -resize 32x32 grafana/img/rook32.png || exit 33
-convert ~/dev/cncf/artwork/vitesse/icon/color/vitesse-icon-color.png -resize 32x32 grafana/img/vitess32.png || exit 34
+convert ~/dev/cncf/artwork/vitess/icon/color/vitess-icon-color.png -resize 32x32 grafana/img/vitess32.png || exit 34
 convert ~/dev/cncf/artwork/cncf/icon/color/cncf-icon-color.png -resize 32x32 grafana/img/all32.png || exit 35
 convert ~/dev/cncf/artwork/cncf/icon/color/cncf-icon-color.png -resize 32x32 grafana/img/cncf32.png || exit 36
 echo 'OK'
