@@ -16,7 +16,7 @@ convert ~/dev/cncf/artwork/jaeger/icon/reverse-color/jaeger-icon-reverse-color.p
 convert ~/dev/cncf/artwork/notary/icon/white/notary-icon-white.png -resize 80x80  /var/www/html/img/notary-icon-color.png || exit 13
 convert ~/dev/cncf/artwork/tuf/icon/white/tuf-icon-white.png -resize 80x80  /var/www/html/img/tuf-icon-color.png || exit 14
 convert ~/dev/cncf/artwork/rook/icon/color/rook-icon-color.png -resize 80x80  /var/www/html/img/rook-icon-color.png || exit 15
-convert ~/dev/cncf/artwork/vitess/icon/color/vitess-icon-color.png -resize 80x80  /var/www/html/img/vitess-icon-color.png || exit 16
+convert ~/dev/cncf/artwork/vitesse/icon/color/vitesse-icon-color.png -resize 80x80  /var/www/html/img/vitess-icon-color.png || exit 16
 convert ~/dev/cncf/artwork/cncf/icon/color/cncf-icon-color.png -resize 80x80 /var/www/html/img/all-icon-color.png || exit 17
 convert ~/dev/cncf/artwork/cncf/icon/color/cncf-icon-color.png -resize 80x80 /var/www/html/img/cncf-icon-color.png || exit 18
 echo 'OK'
