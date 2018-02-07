@@ -206,7 +206,8 @@ func processRepos(ctx *lib.Ctx, allRepos map[string][]string) {
 
 	// Process all orgs & repos
 	thrN := lib.GetThreadsNum(ctx)
-	chanPool := []chan string{}
+	ch := make(chan string)
+	nThreads := 0
 	allOkRepos := []string{}
 	// Count all data
 	checked := 0
@@ -241,17 +242,15 @@ func processRepos(ctx *lib.Ctx, allRepos map[string][]string) {
 				continue
 			}
 			seen[orgRepo] = true
-			ch := make(chan string)
-			chanPool = append(chanPool, ch)
 			// repository's working dir (if present we only need to do git reset --hard; git pull)
 			ary := strings.Split(orgRepo, "/")
 			repo := ary[1]
 			rwd := owd + "/" + repo
 			go processRepo(ch, ctx, orgRepo, rwd)
-			if len(chanPool) == thrN {
-				ch = chanPool[0]
+			nThreads++
+			if nThreads == thrN {
 				res := <-ch
-				chanPool = chanPool[1:]
+				nThreads--
 				if res != "" {
 					allOkRepos = append(allOkRepos, res)
 				}
@@ -260,8 +259,9 @@ func processRepos(ctx *lib.Ctx, allRepos map[string][]string) {
 			}
 		}
 	}
-	for _, ch := range chanPool {
+	for nThreads > 0 {
 		res := <-ch
+		nThreads--
 		if res != "" {
 			allOkRepos = append(allOkRepos, res)
 		}
@@ -474,21 +474,21 @@ func processCommits(ctx *lib.Ctx, dbs map[string]string) {
 	// Process all DBs in a separate threads to get all commits
 	dtStart := time.Now()
 	thrN := lib.GetThreadsNum(ctx)
-	chanPool := []chan dbCommits{}
+	chC := make(chan dbCommits)
+	nThreads := 0
 	allCommits := []dbCommits{}
 	for db, filesSkipPattern := range dbs {
-		ch := make(chan dbCommits)
-		chanPool = append(chanPool, ch)
-		go processCommitsDB(ch, ctx, db, filesSkipPattern, sqlQuery)
-		if len(chanPool) == thrN {
-			ch = chanPool[0]
-			commits := <-ch
+		go processCommitsDB(chC, ctx, db, filesSkipPattern, sqlQuery)
+		nThreads++
+		if nThreads == thrN {
+			commits := <-chC
+			nThreads--
 			allCommits = append(allCommits, commits)
-			chanPool = chanPool[1:]
 		}
 	}
-	for _, ch := range chanPool {
-		commits := <-ch
+	for nThreads > 0 {
+		commits := <-chC
+		nThreads--
 		allCommits = append(allCommits, commits)
 	}
 	dtEnd := time.Now()
@@ -505,7 +505,6 @@ func processCommits(ctx *lib.Ctx, dbs map[string]string) {
 	// Create final 'commits - file list' associations
 	dtStart = time.Now()
 	lastTime := dtStart
-	chPool := []chan int{}
 	statuses := make(map[int]int)
 	// statuses:
 	// -1: error
@@ -521,6 +520,8 @@ func processCommits(ctx *lib.Ctx, dbs map[string]string) {
 		allN += len(commits.shas)
 	}
 	// process all commits
+	ch := make(chan int)
+	nThreads = 0
 	for _, commits := range allCommits {
 		con := commits.con
 		filesSkipPattern := commits.filesSkipPattern
@@ -530,20 +531,19 @@ func processCommits(ctx *lib.Ctx, dbs map[string]string) {
 		}
 		for i, sha := range commits.shas {
 			repo := commits.repos[i]
-			ch := make(chan int)
-			chPool = append(chPool, ch)
 			go getCommitFiles(ch, ctx, con, re, repo, sha)
-			if len(chPool) == thrN {
-				ch = chPool[0]
+			nThreads++
+			if nThreads == thrN {
 				statuses[<-ch]++
-				chPool = chPool[1:]
+				nThreads--
 				checked++
 				lib.ProgressInfo(checked, allN, dtStart, &lastTime, time.Duration(10)*time.Second, repo)
 			}
 		}
 	}
-	for _, ch := range chPool {
+	for nThreads > 0 {
 		statuses[<-ch]++
+		nThreads--
 		checked++
 		lib.ProgressInfo(checked, allN, dtStart, &lastTime, time.Duration(10)*time.Second, "final join...")
 	}
@@ -573,20 +573,20 @@ func processCommits(ctx *lib.Ctx, dbs map[string]string) {
 	)
 	lib.FatalOnError(err)
 	sqlQuery = string(bytes)
-	chPool = []chan int{}
+	ch = make(chan int)
+	nThreads = 0
 	for _, commits := range allCommits {
 		con := commits.con
-		ch := make(chan int)
-		chPool = append(chPool, ch)
 		go postprocessCommitsDB(ch, ctx, con, sqlQuery)
-		if len(chPool) == thrN {
-			ch = chPool[0]
+		nThreads++
+		if nThreads == thrN {
 			<-ch
-			chPool = chPool[1:]
+			nThreads--
 		}
 	}
-	for _, ch := range chPool {
+	for nThreads > 0 {
 		<-ch
+		nThreads--
 	}
 	dtEnd = time.Now()
 	lib.Printf("Postprocessed all new commits, took %v\n", dtEnd.Sub(dtStart))
