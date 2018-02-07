@@ -110,22 +110,22 @@ func idbBackup(from, to string) {
 
 	// Copy series
 	if thrN > 1 {
-		chanPool := []chan bool{}
+		ch := make(chan bool)
+		nThreads := 0
 		for i := 0; i < nSeries; i++ {
-			ch := make(chan bool)
-			chanPool = append(chanPool, ch)
 			go copySeries(ch, &ctx, from, to, series[i])
-			if len(chanPool) == thrN {
-				ch = chanPool[0]
+			nThreads++
+			if nThreads == thrN {
 				<-ch
-				chanPool = chanPool[1:]
+				nThreads--
 				checked++
 				lib.ProgressInfo(checked, nSeries, dtStart, &lastTime, time.Duration(10)*time.Second, "")
 			}
 		}
 		lib.Printf("Final threads join\n")
-		for _, ch := range chanPool {
+		for nThreads > 0 {
 			<-ch
+			nThreads--
 			checked++
 			lib.ProgressInfo(checked, nSeries, dtStart, &lastTime, time.Duration(10)*time.Second, "final join...")
 		}

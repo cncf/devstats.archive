@@ -590,10 +590,9 @@ func db2influx(seriesNameOrFunc, sqlFile, from, to, intervalAbbr string, hist, m
 	dt := dFrom
 	var pDt time.Time
 	if thrN > 1 {
-		chanPool := []chan bool{}
+		ch := make(chan bool)
+		nThreads := 0
 		for dt.Before(dTo) {
-			ch := make(chan bool)
-			chanPool = append(chanPool, ch)
 			nDt := nextIntervalStart(dt)
 			if nIntervals <= 1 {
 				pDt = dt
@@ -616,15 +615,16 @@ func db2influx(seriesNameOrFunc, sqlFile, from, to, intervalAbbr string, hist, m
 				nDt,
 			)
 			dt = nDt
-			if len(chanPool) == thrN {
-				ch = chanPool[0]
+			nThreads++
+			if nThreads == thrN {
 				<-ch
-				chanPool = chanPool[1:]
+				nThreads--
 			}
 		}
 		lib.Printf("Final threads join\n")
-		for _, ch := range chanPool {
+		for nThreads > 0 {
 			<-ch
+			nThreads--
 		}
 	} else {
 		lib.Printf("Using single threaded version\n")

@@ -1532,21 +1532,21 @@ func gha2db(args []string) {
 
 	dt := dFrom
 	if thrN > 1 {
-		chanPool := []chan bool{}
+		ch := make(chan bool)
+		nThreads := 0
 		for dt.Before(dTo) || dt.Equal(dTo) {
-			ch := make(chan bool)
-			chanPool = append(chanPool, ch)
 			go getGHAJSON(ch, &ctx, dt, org, repo)
 			dt = dt.Add(time.Hour)
-			if len(chanPool) == thrN {
-				ch = chanPool[0]
+			nThreads++
+			if nThreads == thrN {
 				<-ch
-				chanPool = chanPool[1:]
+				nThreads--
 			}
 		}
 		lib.Printf("Final threads join\n")
-		for _, ch := range chanPool {
+		for nThreads > 0 {
 			<-ch
+			nThreads--
 		}
 	} else {
 		lib.Printf("Using single threaded version\n")

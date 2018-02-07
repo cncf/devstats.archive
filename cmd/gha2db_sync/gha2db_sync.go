@@ -534,20 +534,20 @@ func sync(ctx *lib.Ctx, args []string) {
 		thrN := lib.GetThreadsNum(ctx)
 		if thrN > 1 {
 			lib.Printf("Now processing %d histograms using MT%d version\n", len(hists), thrN)
-			chanPool := []chan bool{}
+			ch := make(chan bool)
+			nThreads := 0
 			for _, hist := range hists {
-				ch := make(chan bool)
-				chanPool = append(chanPool, ch)
 				go calcHistogram(ch, ctx, hist)
-				if len(chanPool) == thrN {
-					ch = chanPool[0]
+				nThreads++
+				if nThreads == thrN {
 					<-ch
-					chanPool = chanPool[1:]
+					nThreads--
 				}
 			}
 			lib.Printf("Final threads join\n")
-			for _, ch := range chanPool {
+			for nThreads > 0 {
 				<-ch
+				nThreads--
 			}
 		} else {
 			lib.Printf("Now processing %d histograms using ST version\n", len(hists))
