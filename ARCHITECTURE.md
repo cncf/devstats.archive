@@ -74,7 +74,7 @@ We're getting all possible GitHub data for all objects, and all objects historic
 - It will update new commits files list using `get_repos` program.
 - Then it will call `db2influx` for all defined SQL metrics and update Influx database as well.
 - You need to set `GHA2DB_PROJECT=project_name` currently it can be either kubernetes, prometheus or opentracing. Projects are defined in `projects.yaml` file.
-- It reads a list of metrics from YAML file: `metrics/{{project}}/metrics.yaml`, some metrics require to fill gaps in their data. Those metrics are defined in another YAML file `metrics/{{project}}/gaps.yaml`.
+- It reads a list of metrics from YAML file: `metrics/{{project}}/metrics.yaml`, some metrics require to fill gaps in their data. Those metrics are defined in another YAML file `metrics/{{project}}/gaps.yaml`. Please try to use Grafana's "nulls as zero" instead of using gaps filling.
 - This tool also supports initial computing of All InfluxDB data (instead of default update since the last run).
 - It can be called by cron job on 1:10, 2:10, ... and so on - GitHub archive publishes new file every hour, so we're off by at most 1 hour.
 - It can also be called automatically by `devstats` tool
@@ -101,6 +101,7 @@ We're getting all possible GitHub data for all objects, and all objects historic
 - This tools imports GitHub usernames (in addition to logins from GHA) and creates developers - companies affiliations (that can be used by [Companies stats](https://k8s.devstats.cncf.io/dashboard/db/companies-stats?orgId=1) metric)
 - [z2influx](https://github.com/cncf/devstats/blob/master/cmd/z2influx/z2influx.go)
 - `z2influx` is used to fill gaps that can occur for metrics that returns multiple columns and rows, but the number of rows depends on date range, it uses [gaps.yaml](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/gaps.yaml) file to define which metrics should be zero filled.
+- Please use Grafana's "null as zero" instead of using manuall filling gaps. This simplifies metrics a lot.
 - [annotations](https://github.com/cncf/devstats/blob/master/cmd/annotations/annotations.go)
 - `annotations` is used to add annotations on charts. It uses GitHub API to fetch tags from project main repository defined in `projects.yaml`, it only includes tags matching annotation regexp also defined in `projects.yaml`.
 - [idb_tags](https://github.com/cncf/devstats/blob/master/cmd/idb_tags/idb_tags.go)

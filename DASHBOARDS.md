@@ -56,6 +56,7 @@ All of them works live on [k8s.devstats.cncf.io](https://k8s.devstats.cncf.io) w
 Dashboard definitions are read from YAML file:  [metrics/kubernetes/metrics.yaml](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/metrics.yaml)
 
 If dashboard needs an additional preprocessing (filling gaps with zeros), then it must be listed in this YAML file:  [metrics/kubernetes/gaps.yaml](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/gaps.yaml).
+Please use Grafana's "null as zero" instead of using manuall filling gaps. This simplifies metrics a lot.
 
 See [adding new metrics](https://github.com/cncf/devstats/blob/master/METRICS.md) for details.
 

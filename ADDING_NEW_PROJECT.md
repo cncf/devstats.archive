@@ -10,7 +10,7 @@ To add new project follow instructions:
 - CNCF join dates are listed here: https://github.com/cncf/toc#projects.
 - Add this new project config to 'All' project in `projects.yaml all/psql.sh grafana/dashboards/all/dashboards.json scripts/all/repo_groups.sql devel/calculate_hours.sh`. Add entire new project as a new repo group in 'All' project.
 - Update `cron/cron_db_backup_all.sh devel/reinit.sh devel/import_affs.sh devel/update_affs.sh devel/add_single_metric_all.sh grafana/copy_grafana_dbs.sh devel/get_grafana_dbs.sh devel/add_single_metric_*.sh devel/tags.sh devel/get_all_databases.sh devel/update_grafanas.sh devel/copy_grafanas.sh` but do not install yet.
-- Add new domain for the project: `projectname.cncftest.io`. If using wildcard domain like *.devstats.cncf.io - this step is not needed.
+- Add new domain for the project: `projectname.cncftest.io`. If using wildcard domain like `*.devstats.cncf.io` - this step is not needed.
 - Add google analytics for the new domain and update /etc/grafana.projectname/grafana.ini with its `UA-...`.
 - Search for all files defined for some existing project, for example `find . -iname "*oldproject*"`.
 - Copy standard grafana distro for new project: `cp -R /usr/share/grafana /usr/share/grafana.projectname/`.
@@ -20,14 +20,14 @@ To add new project follow instructions:
 - Copy setup scripts and then adjust them:
 - `cp -R oldproject/ projectname/`, `vim projectname/*`.
 - You need to set correct project main GitHub repository and annotations match regexp in `projects.yaml` to have working annotations and quick ranges.
-- Copy `metrics/oldproject` to `metrics/projectname`, those files will need tweaks too. Specially `./metrics/projectname/gaps*.yaml` files.
+- Copy `metrics/oldproject` to `metrics/projectname`, those files will need tweaks too. Specially `./metrics/projectname/gaps*.yaml` files. Please use Grafana's "null as zero" instead of using manuall filling gaps. This simplifies metrics a lot.
 - `cp -Rv scripts/oldproject/ scripts/projectname`, `vim scripts/projectname/*`.
 - Create Postgres database for new project: `sudo -u postgres psql`
 - `create database projectname;`
 - `grant all privileges on database "projectname" to gha_admin;`
 - If running on the test server: generate Postgres data: `PG_PASS=... IDB_PASS=... IDB_HOST=172.17.0.1 ./projectname/psql.sh`.
 - If running on the production server: `wget https://cncftest.io/projectname.sql.xz`, `xz -d projectname.sql.xz`, `sudo -u postgres psql projectname < projectname.sql`.
-- When data is imported into Postgres: projectname, you need to update `metrics/projectname/gaps*.yaml` (with top companies & repo groups).
+- When data is imported into Postgres: projectname, you need to update `metrics/projectname/gaps*.yaml` (with top companies & repo groups). This is only needed when you're using gaps (which you shouldn't).
 - Using `./projectname/top_n_companies.sh ./projectname/top_n_repos_groups.sh`.
 - There are two kinds of repo group names: direct from query, but also with special characters replaced with "_"
 - You should copy those from query, put there where needed and do VIM replace: `:'<,'>s/[-/.: `]/_/g`, `:'<,'>s/[A-Z]/\L&/g`.

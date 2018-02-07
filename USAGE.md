@@ -97,7 +97,7 @@ You can tweak `devstats` tools by environment variables:
 - Set `GHA2DB_SKIPLOG` for any tool to skip logging output to `gha_logs` table in `devstats` database.
 - Set `GHA2DB_LOCAL` for `gha2db_sync` tool to make it prefix call to other tools with "./" (so it will use other tools binaries from the current working directory instead of `/usr/bin/`). Local mode uses "./metrics/{{project}}/" to search for metrics files. Otherwise "/etc/gha2db/metrics/{{project}}/" is used.
 - Set `GHA2DB_METRICS_YAML` for `gha2db_sync` tool, set name of metrics yaml file, default is "metrics/{{project}}/metrics.yaml".
-- Set `GHA2DB_GAPS_YAML` for `gha2db_sync` tool, set name of gaps yaml file, default is "metrics/{{project}}/gaps.yaml".
+- Set `GHA2DB_GAPS_YAML` for `gha2db_sync` tool, set name of gaps yaml file, default is "metrics/{{project}}/gaps.yaml". Please use Grafana's "null as zero" instead of using manuall filling gaps. This simplifies metrics a lot.
 - Set `GHA2DB_GITHUB_OAUTH` for `annotations` tool, if not set reads from `/etc/github/oauth` file. Set to "-" to force public access.
 - Set `GHA2DB_MAXLOGAGE` for `gha2db_sync` tool, maximum age of DB logs stored in `devstats`.`gha_logs` table, default "1 week" (logs are cleared in `gha2db_sync` job).
 - Set `GHA2DB_TRIALS` for tools that use Postgres DB, set retry periods when "too many connection open" psql error appears, default is "10,30,60,120,300,600" (so 30s, 1min, 2min, 5min, 10min).
@@ -397,7 +397,9 @@ Example call:
 - Add `GHA2DB_SKIPIDB` environment variable to skip syncing InfluxDB (so it will only sync Postgres DB)
 - Add `GHA2DB_SKIPPDB` environment variable to skip syncing Postgres (so it will only sync Influx DB)
 
-Sync tool uses [gaps.yaml](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/gaps.yaml), to prefill some series with zeros. This is needed for metrics (like SIG mentions or PRs merged) that return multiple rows, depending on data range.
+Sync tool uses [gaps.yaml](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/gaps.yaml), to prefill some series with zeros.
+This is needed for metrics (like SIG mentions or PRs merged) that return multiple rows, depending on data range.
+Please use Grafana's "null as zero" instead of using manuall filling gaps. This simplifies metrics a lot.
 Sync tool read project definition from [projects.yaml](https://github.com/cncf/devstats/blob/master/projects.yaml)
 
 You can also use `devstats` tool that calls `gha2db_sync` for all defined projects and also updates local copy of all git repos using `get_repos`.
