@@ -25,9 +25,10 @@ fi
 ./tuf/tags.sh || exit 14
 ./rook/tags.sh || exit 15
 ./vitess/tags.sh || exit 16
+./opencontainers/tags.sh || exit 17
 host=`hostname`
 if [ $host = "cncftest.io" ]
 then
-  ./all/tags.sh || exit 17
-  ./cncf/tags.sh || exit 18
+  ./all/tags.sh || exit 18
+  ./cncf/tags.sh || exit 19
 fi

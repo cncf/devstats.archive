@@ -15,10 +15,11 @@ GHA2DB_PROJECT=notary PG_DB=notary IDB_DB=notary ./devel/add_single_metric.sh ||
 GHA2DB_PROJECT=tuf PG_DB=tuf IDB_DB=tuf ./devel/add_single_metric.sh || exit 14
 GHA2DB_PROJECT=rook PG_DB=rook IDB_DB=rook ./devel/add_single_metric.sh || exit 15
 GHA2DB_PROJECT=vitess PG_DB=vitess IDB_DB=vitess ./devel/add_single_metric.sh || exit 16
+GHA2DB_PROJECT=opencontainers PG_DB=opencontainers IDB_DB=opencontainers ./devel/add_single_metric.sh || exit 17
 host=`hostname`
 if [ $host = "cncftest.io" ]
 then
-  GHA2DB_PROJECT=all PG_DB=allprj IDB_DB=allprj ./devel/add_single_metric.sh || exit 17
-  GHA2DB_PROJECT=cncf PG_DB=cncf IDB_DB=cncf ./devel/add_single_metric.sh || exit 18
+  GHA2DB_PROJECT=all PG_DB=allprj IDB_DB=allprj ./devel/add_single_metric.sh || exit 18
+  GHA2DB_PROJECT=cncf PG_DB=cncf IDB_DB=cncf ./devel/add_single_metric.sh || exit 19
 fi
 echo 'OK'
