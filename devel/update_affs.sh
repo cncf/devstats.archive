@@ -26,9 +26,10 @@ GHA2DB_LOCAL=1 GHA2DB_PROCESS_REPOS=1 ./get_repos
 ./tuf/update_affs.sh || exit 14
 ./rook/update_affs.sh || exit 15
 ./vitess/update_affs.sh || exit 16
+./opencontainers/update_affs.sh || exit 17
 host=`hostname`
 if [ $host = "cncftest.io" ]
 then
-  ./all/update_affs.sh || exit 17
-  ./cncf/update_affs.sh || exit 18
+  ./all/update_affs.sh || exit 18
+  ./cncf/update_affs.sh || exit 19
 fi

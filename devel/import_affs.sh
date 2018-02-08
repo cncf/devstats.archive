@@ -25,32 +25,11 @@ fi
 ./tuf/import_affs.sh || exit 16
 ./rook/import_affs.sh || exit 17
 ./vitess/import_affs.sh || exit 18
+./opencontainers/import_affs.sh || exit 19
 host=`hostname`
 if [ $host = "cncftest.io" ]
 then
-  ./all/import_affs.sh || exit 19
-  ./cncf/import_affs.sh || exit 20
-fi
-./kubernetes/top_n_companies.sh 70 >> ./metrics/kubernetes/gaps.yaml
-./prometheus/top_n_companies.sh 70 >> ./metrics/prometheus/gaps.yaml
-./opentracing/top_n_companies.sh 70 >> ./metrics/opentracing/gaps.yaml
-./fluentd/top_n_companies.sh 70 >> ./metrics/fluentd/gaps.yaml
-./linkerd/top_n_companies.sh 70 >> ./metrics/linkerd/gaps.yaml
-./grpc/top_n_companies.sh 70 >> ./metrics/grpc/gaps.yaml
-./coredns/top_n_companies.sh 70 >> ./metrics/coredns/gaps.yaml
-./containerd/top_n_companies.sh 70 >> ./metrics/containerd/gaps.yaml
-./rkt/top_n_companies.sh 70 >> ./metrics/rkt/gaps.yaml
-./cni/top_n_companies.sh 70 >> ./metrics/cni/gaps.yaml
-./envoy/top_n_companies.sh 70 >> ./metrics/envoy/gaps.yaml
-./jaeger/top_n_companies.sh 70 >> ./metrics/jaeger/gaps.yaml
-./notary/top_n_companies.sh 70 >> ./metrics/notary/gaps.yaml
-./tuf/top_n_companies.sh 70 >> ./metrics/tuf/gaps.yaml
-./rook/top_n_companies.sh 70 >> ./metrics/rook/gaps.yaml
-./vitess/top_n_companies.sh 70 >> ./metrics/vitess/gaps.yaml
-host=`hostname`
-if [ $host = "cncftest.io" ]
-then
-  ./all/top_n_companies.sh 70 >> ./metrics/all/gaps.yaml
-  ./cncf/top_n_companies.sh 70 >> ./metrics/cncf/gaps.yaml
+  ./all/import_affs.sh || exit 20
+  ./cncf/import_affs.sh || exit 21
 fi
 echo 'OK'
