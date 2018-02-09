@@ -211,7 +211,7 @@ func (ctx *Ctx) Init() {
 	if os.Getenv("GHA2DB_STARTDT") != "" {
 		ctx.DefaultStartDate = TimeParseAny(os.Getenv("GHA2DB_STARTDT"))
 	} else {
-		ctx.DefaultStartDate = time.Date(2014, 6, 1, 0, 0, 0, 0, time.UTC)
+		ctx.DefaultStartDate = time.Date(2014, 1, 1, 0, 0, 0, 0, time.UTC)
 	}
 
 	// Last InfluxDB series

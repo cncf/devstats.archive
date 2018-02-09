@@ -198,7 +198,7 @@ func TestInit(t *testing.T) {
 		IDBMaxBatchPoints: 10240,
 		QOut:              false,
 		CtxOut:            false,
-		DefaultStartDate:  time.Date(2014, 6, 1, 0, 0, 0, 0, time.UTC),
+		DefaultStartDate:  time.Date(2014, 1, 1, 0, 0, 0, 0, time.UTC),
 		LastSeries:        "events_h",
 		SkipIDB:           false,
 		SkipPDB:           false,
