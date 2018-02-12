@@ -15,7 +15,7 @@ To add new project follow instructions:
 - Copy standard grafana distro for new project: `cp -R /usr/share/grafana /usr/share/grafana.projectname/`.
 - Make sure that you pull newest cncf/artwork: `cd ~/dev/cncf/artwork; git pull; cd ~/dev/go/src/devstats`.
 - Generate icons for new project: `./grafana/img/projectname32.png`, `./grafana/img/projectname.svg`: update & run `./grafana/create_images.sh`.
-- Update `grafana/copy_artwork_icons.sh apache/www/copy_icons.sh grafana/create_images.sh grafana/change_title_and_icons_all.sh`.
+- Update `images/OCI.sh grafana/copy_artwork_icons.sh apache/www/copy_icons.sh grafana/create_images.sh grafana/change_title_and_icons_all.sh`.
 - Copy setup scripts and then adjust them:
 - `cp -R oldproject/ projectname/`, `vim projectname/*`.
 - You need to set correct project main GitHub repository and annotations match regexp in `projects.yaml` to have working annotations and quick ranges.
