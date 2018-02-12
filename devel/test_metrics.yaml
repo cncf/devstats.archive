@@ -1,23 +1,29 @@
 ---
 metrics:
-  - name: Company summaries
-    sql: project_company_stats
-    series_name_or_func: multi_row_single_column
-    histogram: true
-    annotations_ranges: true
-  - name: Developer summaries
-    sql: project_developer_stats
-    series_name_or_func: multi_row_single_column
-    histogram: true
-    annotations_ranges: true
-  - name: Project stats
-    histogram: true
-    annotations_ranges: true
-    series_name_or_func: multi_row_single_column
-    sql: project_stats
-  - name: Companies stats & velocity
+  - name: PRs approved and awaiting approval
     series_name_or_func: multi_row_multi_column
-    sql: company_activity
+    sql: prs_state
+    periods: d,w,m,q,y
+    aggregate: 1,7
+    skip: d,w7,m7,q7,y7
+    multi_value: true
+  - name: Issues opened broken down by repo group
+    series_name_or_func: multi_row_single_column
+    sql: issues_opened
+    periods: d,w,m,q,y
+    aggregate: 1,7
+    skip: w7,m7,q7,y7
+    multi_value: true
+  - name: SIG KIND mentions using labels
+    series_name_or_func: multi_row_single_column
+    sql: labels_sig_kind
+    periods: d,w,m,q,y
+    aggregate: 1,7
+    skip: w7,m7,q7,y7
+    multi_value: true
+  - name: Issues closed broken down by SIG and kind
+    series_name_or_func: multi_row_single_column
+    sql: labels_sig_kind_closed
     periods: d,w,m,q,y
     aggregate: 1,7
     skip: w7,m7,q7,y7

@@ -19,7 +19,8 @@ To add new project follow instructions:
 - Copy setup scripts and then adjust them:
 - `cp -R oldproject/ projectname/`, `vim projectname/*`.
 - You need to set correct project main GitHub repository and annotations match regexp in `projects.yaml` to have working annotations and quick ranges.
-- Copy `metrics/oldproject` to `metrics/projectname`, those files will need tweaks too. Specially `./metrics/projectname/gaps*.yaml` files. Please use Grafana's "null as zero" instead of using manuall filling gaps. This simplifies metrics a lot.
+- Copy `metrics/oldproject` to `metrics/projectname`, those files will need tweaks too. Specially `./metrics/projectname/gaps*.yaml` files.
+- Please use Grafana's "null as zero" instead of using manuall filling gaps. This simplifies metrics a lot. Gaps filling is only needed when using data from > 1 Influx series.
 - `cp -Rv scripts/oldproject/ scripts/projectname`, `vim scripts/projectname/*`.
 - Create Postgres database for new project: `sudo -u postgres psql`
 - `create database projectname;`
