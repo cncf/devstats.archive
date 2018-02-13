@@ -20,7 +20,7 @@ union select sub.name,
   round(count(distinct sub.user_id) / {{n}}, 2) as contributors,
   round(count(distinct sub.id) / {{n}}, 2) as prs
 from (
-    select 'new_contributors,' || coalesce(ecf.repo_group, r.repo_group) || ';contributors,prs' as name,
+    select 'new_contributors;' || coalesce(ecf.repo_group, r.repo_group) || ';contributors,prs' as name,
     pr.user_id,
     pr.id
   from
