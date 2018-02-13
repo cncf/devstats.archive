@@ -18,7 +18,7 @@ group by
 ;
 
 select
-  'new_contributors;All;contributors,prs' as name,
+  'episodic_contributors;All;contributors,prs' as name,
   round(count(distinct pr.user_id) / {{n}}, 2) as contributors,
   round(count(distinct pr.id) / {{n}}, 2) as prs
 from
@@ -36,7 +36,7 @@ union select sub.name,
   round(count(distinct sub.user_id) / {{n}}, 2) as contributors,
   round(count(distinct sub.id) / {{n}}, 2) as prs
 from (
-    select 'new_contributors,' || coalesce(ecf.repo_group, r.repo_group) || ';contributors,prs' as name,
+    select 'episodic_contributors,' || coalesce(ecf.repo_group, r.repo_group) || ';contributors,prs' as name,
     pr.user_id,
     pr.id
   from

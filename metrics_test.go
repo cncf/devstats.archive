@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"io/ioutil"
+	"os"
 	"reflect"
 	"strconv"
 	"strings"
@@ -87,8 +88,26 @@ func TestMetrics(t *testing.T) {
 		t.Errorf("no tests defined for '%s' project", ctx.Project)
 	}
 
+	// Only selected metrics?
+	testMetrics := os.Getenv("TEST_METRICS")
+	selected := false
+	selectedMetrics := make(map[string]struct{})
+	if testMetrics != "" {
+		selected = true
+		ary := strings.Split(testMetrics, ",")
+		for _, m := range ary {
+			selectedMetrics[m] = struct{}{}
+		}
+	}
+
 	// Execute test cases
 	for index, test := range testCases {
+		if selected {
+			_, ok := selectedMetrics[test.Metric]
+			if !ok {
+				continue
+			}
+		}
 		prepareMetricTestCase(&test)
 		got, err := executeMetricTestCase(&test, &tests, &ctx)
 		if err != nil {

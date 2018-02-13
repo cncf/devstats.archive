@@ -6,6 +6,7 @@
 - Test cases are defined in `tests.yaml` file.
 - Run tests like this: `GHA2DB_PROJECT=kubernetes IDB_HOST="172.17.0.1" IDB_DB=dbtest IDB_PASS=idbpwd PG_DB=dbtest PG_PASS=pgpwd make dbtest`.
 - Or use script shortcut: `GHA2DB_PROJECT=kubernetes PG_PASS=pwd IDB_HOST="172.17.0.1" IDB_PASS=pwd ./dbtest.sh`.
+- To test only selected SQL metric(s): `GHA2DB_PROJECT=kubernetes PG_PASS=... PG_DB=dbtest TEST_METRICS='new_contributors,episodic_contributors' go test metrics_test.go
 - To test single file that requires database: `GHA2DB_PROJECT=kubernetes PG_PASS=pwd IDB_HOST="172.17.0.1" IDB_PASS=pwd go test file_name.go`.
 3. To check all sources using multiple go tools (like fmt, lint, imports, vet, goconst, usedexports), run `make check`.
 4. To check Travis CI payloads use `PG_PASS=pwd ./webhook.sh` and then `./test_webhook.sh`.
