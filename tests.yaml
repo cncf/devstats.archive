@@ -1229,6 +1229,28 @@ projects:
           - ['repo_group_commits,Group2', '1.00']
           - ['repo_group_commits,Overruled', '1.00']
         data: KubernetesCommitsRepoGroupsMetric
+      - metric: new_contributors
+        from: 2018-02-01T00:00:00Z
+        to: 2018-03-01T00:00:00Z
+        n: 1
+        expected:
+          - ['new_contributors;All;contributors,prs', '2.00', '5.00']
+          - ['new_contributors,Group1;contributors,prs', '1.00', '2.00']
+          - ['new_contributors,Group2;contributors,prs', '1.00', '1.00']
+          - ['new_contributors,Overruled;contributors,prs', '1.00', '1.00']
+        data: KubernetesEpisodicContributorsMetric
+      - metric: episodic_contributors
+        from: 2018-02-01T00:00:00Z
+        to: 2018-03-01T00:00:00Z
+        n: 1
+        replaces:
+          - [' <= 12', ' <= 3']
+        expected:
+          - ['episodic_contributors;All;contributors,prs', '3.00', '6.00']
+          - ['episodic_contributors,Group1;contributors,prs', '2.00', '3.00']
+          - ['episodic_contributors,Group2;contributors,prs', '1.00', '1.00']
+          - ['episodic_contributors,Overruled;contributors,prs', '1.00', '1.00']
+        data: KubernetesEpisodicContributorsMetric
       - metric: hist_reviewers
         additional_setup_funcs:
           - SetDates
@@ -1329,6 +1351,35 @@ projects:
           - ["top_commenters,Group 1", A2, 2]
         data: KubernetesTopCommentersMetric
 data:
+  KubernetesEpisodicContributorsMetric:
+    # id, name, org_id, org_login, repo_group
+    repos:
+      - [1, R1, null, null, Group1]
+      - [2, R2, null, null, Group1]
+      - [3, R3, null, null, Group2]
+      - [4, R4, null, null, null]
+    # prid, eid, uid, merged_id, assignee_id, num, state, title, body,
+    # created_at, closed_at, merged_at, merged
+    # repo_id, repo_name, actor_id, actor_login, updated_at
+    prs:
+      - [ 1, 1, 1, 0, 0, 1, open, PR1, BodyPR1, '2018-02-01T12:00:00Z', null, null, true, 1, R1, 1, A1, '2018-02-01T12:00:00Z']
+      - [ 2, 2, 1, 0, 0, 2, open, PR2, BodyPR2, '2018-02-02T12:00:00Z', null, null, true, 2, R2, 1, A1, '2018-02-02T12:00:00Z']
+      - [ 3, 3, 1, 0, 0, 3, open, PR3, BodyPR3, '2018-02-03T12:00:00Z', null, null, true, 3, R3, 1, A1, '2018-02-03T12:00:00Z']
+      - [ 4, 4, 1, 0, 0, 4, open, PR4, BodyPR4, '2018-02-04T12:00:00Z', null, null, true, 4, R4, 1, A1, '2018-02-04T12:00:00Z']
+      - [ 5, 5, 2, 0, 0, 5, open, PR5, BodyPR5, '2018-02-05T12:00:00Z', null, null, true, 1, R1, 2, A2, '2018-02-05T12:00:00Z']
+      - [ 6, 6, 3, 0, 0, 6, open, PR6, BodyPR6, '2018-02-06T12:00:00Z', null, null, true, 1, R1, 3, A3, '2018-02-06T12:00:00Z']
+      - [ 7, 7, 4, 0, 0, 7, open, PR7, BodyPR7, '2018-02-07T12:00:00Z', null, null, true, 1, R1, 4, A4, '2018-02-07T12:00:00Z']
+      - [ 8, 8, 5, 0, 0, 8, open, PR8, BodyPR8, '2018-02-08T12:00:00Z', null, null, true, 1, R1, 5, A5, '2018-02-08T12:00:00Z']
+      - [ 9, 9, 3, 0, 0, 9, open, PR9, BodyPR9, '2018-01-21T12:00:00Z', null, null, true, 1, R1, 3, A3, '2018-01-21T12:00:00Z']
+      - [ 10, 10, 4, 0, 0, 10, open, PR10, BodyPR10, '2017-07-21T12:00:00Z', null, null, true, 1, R1, 4, A4, '2017-07-21T12:00:00Z']
+      - [ 11, 11, 5, 0, 0, 11, open, PR11, BodyPR11, '2017-08-01T12:00:00Z', null, null, true, 1, R1, 5, A5, '2017-08-01T12:00:00Z']
+      - [ 12, 12, 5, 0, 0, 12, open, PR12, BodyPR12, '2017-08-02T12:00:00Z', null, null, true, 1, R1, 5, A5, '2017-08-02T12:00:00Z']
+      - [ 13, 13, 5, 0, 0, 13, open, PR13, BodyPR13, '2017-08-03T12:00:00Z', null, null, true, 1, R1, 5, A5, '2017-08-03T12:00:00Z']
+      - [ 14, 14, 5, 0, 0, 14, open, PR14, BodyPR14, '2017-08-04T12:00:00Z', null, null, true, 1, R1, 5, A5, '2017-08-04T12:00:00Z']
+    # sha, eid, path, size, dt, repo_group,
+    # dup_repo_id, dup_repo_name, dup_type, dup_created_at
+    events_commits_files:
+      - [1234567890abcdef, 5, R1/file.txt, 1024, '2018-02-05T00:00:00Z', Overruled, 1, R1, PushEvent, '2018-02-05T00:00:00Z']
   KubernetesCommitsRepoGroupsMetric:
     # id, name, org_id, org_login, repo_group
     repos:
