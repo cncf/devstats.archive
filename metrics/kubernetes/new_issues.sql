@@ -13,7 +13,8 @@ select
 from
   gha_issues
 where
-  created_at >= '{{from}}'
+  is_pull_request = false
+  and created_at >= '{{from}}'
   and created_at < '{{to}}'
   and user_id not in (select user_id from prev)
 union select sub.name,
@@ -32,6 +33,7 @@ from (
     ecf.event_id = i.event_id
   where
     i.dup_repo_id = r.id
+    and i.is_pull_request = false
     and i.created_at >= '{{from}}'
     and i.created_at < '{{to}}'
     and i.user_id not in (select user_id from prev)

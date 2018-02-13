@@ -1251,6 +1251,28 @@ projects:
           - ['episodic_contributors;Group2;contributors,prs', '1.00', '1.00']
           - ['episodic_contributors;Overruled;contributors,prs', '1.00', '1.00']
         data: KubernetesEpisodicContributorsMetric
+      - metric: new_issues
+        from: 2018-02-01T00:00:00Z
+        to: 2018-03-01T00:00:00Z
+        n: 1
+        expected:
+          - ['new_issues;All;contributors,issues', '2.00', '5.00']
+          - ['new_issues;Group1;contributors,issues', '1.00', '2.00']
+          - ['new_issues;Group2;contributors,issues', '1.00', '1.00']
+          - ['new_issues;Overruled;contributors,issues', '1.00', '1.00']
+        data: KubernetesEpisodicIssuesMetric
+      - metric: episodic_issues
+        from: 2018-02-01T00:00:00Z
+        to: 2018-03-01T00:00:00Z
+        n: 1
+        replaces:
+          - [' <= 12', ' <= 3']
+        expected:
+          - ['episodic_issues;All;contributors,issues', '3.00', '6.00']
+          - ['episodic_issues;Group1;contributors,issues', '2.00', '3.00']
+          - ['episodic_issues;Group2;contributors,issues', '1.00', '1.00']
+          - ['episodic_issues;Overruled;contributors,issues', '1.00', '1.00']
+        data: KubernetesEpisodicIssuesMetric
       - metric: hist_reviewers
         additional_setup_funcs:
           - SetDates
@@ -1351,6 +1373,36 @@ projects:
           - ["top_commenters,Group 1", A2, 2]
         data: KubernetesTopCommentersMetric
 data:
+  KubernetesEpisodicIssuesMetric:
+    # id, name, org_id, org_login, repo_group
+    repos:
+      - [1, R1, null, null, Group1]
+      - [2, R2, null, null, Group1]
+      - [3, R3, null, null, Group2]
+      - [4, R4, null, null, null]
+    # sha, eid, path, size, dt, repo_group,
+    # dup_repo_id, dup_repo_name, dup_type, dup_created_at
+    events_commits_files:
+      - [1234567890abcdef, 5, R1/file.txt, 1024, '2018-02-05T00:00:00Z', Overruled, 1, R1, PushEvent, '2018-02-05T00:00:00Z']
+    # id, event_id, assignee_id, body, closed_at, created_at, number, state,
+    # title, updated_at, user_id, dup_actor_id, dup_actor_login, dup_repo_id,
+    # dup_repo_name, dup_type, is_pull_request
+    issues:
+        - [1, 1, 0, Body1, null, '2018-02-01T12:00:00Z', 1, open, Issue1, '2018-02-01T12:00:00Z', 1, 1, A1, 1, R1, IssuesEvent, false]
+        - [2, 2, 0, Body2, null, '2018-02-02T12:00:00Z', 2, open, Issue2, '2018-02-02T12:00:00Z', 1, 1, A1, 2, R2, IssuesEvent, false]
+        - [3, 3, 0, Body3, null, '2018-02-03T12:00:00Z', 3, open, Issue3, '2018-02-03T12:00:00Z', 1, 1, A1, 3, R3, IssuesEvent, false]
+        - [4, 4, 0, Body4, null, '2018-02-04T12:00:00Z', 4, open, Issue4, '2018-02-04T12:00:00Z', 1, 1, A1, 4, R4, IssuesEvent, false]
+        - [5, 5, 0, Body5, null, '2018-02-05T12:00:00Z', 5, open, Issue5, '2018-02-05T12:00:00Z', 2, 2, A2, 1, R1, IssuesEvent, false]
+        - [6, 6, 0, Body6, null, '2018-02-06T12:00:00Z', 6, open, Issue6, '2018-02-06T12:00:00Z', 3, 3, A3, 1, R1, IssuesEvent, false]
+        - [7, 7, 0, Body7, null, '2018-02-07T12:00:00Z', 7, open, Issue7, '2018-02-07T12:00:00Z', 4, 4, A4, 1, R1, IssuesEvent, false]
+        - [8, 8, 0, Body8, null, '2018-02-08T12:00:00Z', 8, open, Issue8, '2018-02-08T12:00:00Z', 5, 5, A5, 1, R1, IssuesEvent, false]
+        - [9, 9, 0, Body9, null, '2018-01-21T12:00:00Z', 9, open, Issue9, '2018-01-21T12:00:00Z', 3, 3, A3, 1, R1, IssuesEvent, false]
+        - [10, 10, 0, Body10, null, '2017-07-21T12:00:00Z', 10, open, Issue10, '2017-07-21T12:00:00Z', 4, 4, A4, 1, R1, IssuesEvent, false]
+        - [11, 11, 0, Body11, null, '2017-08-01T12:00:00Z', 11, open, Issue11, '2017-08-01T12:00:00Z', 5, 5, A5, 1, R1, IssuesEvent, false]
+        - [12, 12, 0, Body12, null, '2017-08-02T12:00:00Z', 12, open, Issue12, '2017-08-02T12:00:00Z', 5, 5, A5, 1, R1, IssuesEvent, false]
+        - [13, 13, 0, Body13, null, '2017-08-03T12:00:00Z', 13, open, Issue13, '2017-08-03T12:00:00Z', 5, 5, A5, 1, R1, IssuesEvent, false]
+        - [14, 14, 0, Body14, null, '2017-08-04T12:00:00Z', 14, open, Issue14, '2017-08-04T12:00:00Z', 5, 5, A5, 1, R1, IssuesEvent, false]
+        - [15, 15, 0, Body15, null, '2018-02-15T12:00:00Z', 1, open, PR1, '2018-02-15T12:00:00Z', 1, 1, A1, 1, R1, PullRequestEvent, true]
   KubernetesEpisodicContributorsMetric:
     # id, name, org_id, org_login, repo_group
     repos:
