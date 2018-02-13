@@ -57,9 +57,8 @@ Prerequisites:
     - Leave the shell and create logs table for devstats: `sudo -u postgres psql devstats < util_sql/devstats_log_table.sql`.
 
 11. Leave `psql` shell, and get newest Kubernetes database dump:
-    - `wget https://devstats.cncf.io/gha.sql.xz` (it is about 400Mb).
-    - `xz -d gha.sql.xz` (uncompressed dump is more than 7Gb).
-    - `sudo -u postgres psql gha < gha.sql` (restore DB dump)
+    - `wget https://devstats.cncf.io/gha.dump`.
+    - `sudo -u postgres pg_restore gha.dump` (restore DB dump)
 
 12. Install InfluxDB time-series database ([link](https://docs.influxdata.com/influxdb/v0.9/introduction/installation/)):
     - Ubuntu 17 contains an old `influxdb` when installed by default `apt-get install influxdb`, so:
