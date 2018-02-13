@@ -65,7 +65,7 @@ Prerequisites:
 
 8. Leave `psql` shell, and get newest Kubernetes database dump:
     - `wget https://devstats.cncf.io/gha.dump`.
-    - `sudo -u postgres pg_restore gha.dump` (restore DB dump)
+    - `sudo -u postgres pg_restore -d gha gha.dump` (restore DB dump)
 
 9. Install InfluxDB time-series database ([link](https://docs.influxdata.com/influxdb/v0.9/introduction/installation/)):
     - Ubuntu 16 contains very old `influxdb` when installed by default `apt-get install influxdb`, so:
