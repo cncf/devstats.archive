@@ -5,6 +5,7 @@ from
 where
   created_at >= date '{{from}}' - '3 months'::interval
   and created_at < '{{from}}'
+  and is_pull_request = false
 ;
 
 create temp table prev_cnt as
@@ -13,6 +14,7 @@ from
   gha_issues
 where
   created_at < '{{from}}'
+  and is_pull_request = false
 group by
   user_id
 ;
