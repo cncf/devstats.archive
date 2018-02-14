@@ -4,6 +4,7 @@ from
   gha_issues
 where
   created_at < '{{from}}'
+  and is_pull_request = false
 ;
 
 select
