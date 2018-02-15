@@ -183,7 +183,7 @@ func importAffs(jsonFN string) {
 	for login, names := range loginNames {
 		if len(names) > 1 {
 			lib.Printf("Warning: login has multiple names: %v: %+v\n", login, names)
-			//lib.FatalOnError(fmt.Errorf("login has multiple names: %v: %+v", login, names))
+			//lib.Fatalf("login has multiple names: %v: %+v", login, names)
 		}
 		name := firstKey(names)
 		// Try to find actor by login

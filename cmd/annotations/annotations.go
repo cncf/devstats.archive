@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"io/ioutil"
 	"time"
 
@@ -18,9 +17,7 @@ func makeAnnotations() {
 
 	// Needs GHA2DB_PROJECT variable set
 	if ctx.Project == "" {
-		lib.FatalOnError(
-			fmt.Errorf("you have to set project via GHA2DB_PROJECT environment variable"),
-		)
+		lib.Fatalf("you have to set project via GHA2DB_PROJECT environment variable")
 	}
 
 	// Local or cron mode?
@@ -38,7 +35,7 @@ func makeAnnotations() {
 	// Get current project's main repo and annotation regexp
 	proj, ok := projects.Projects[ctx.Project]
 	if !ok {
-		lib.FatalOnError(fmt.Errorf("project '%s' not found in '%s'", ctx.Project, ctx.ProjectsYaml))
+		lib.Fatalf("project '%s' not found in '%s'", ctx.Project, ctx.ProjectsYaml)
 	}
 
 	// Get annotations using GitHub API and add annotations and quick ranges to InfluxDB

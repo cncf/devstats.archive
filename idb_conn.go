@@ -66,10 +66,10 @@ func IDBWritePointsN(ctx *Ctx, con *client.Client, points *IDBBatchPointsN) (err
 		if err == nil {
 			break
 		}
-		Printf("Trial #%d: error: %s\n", i, err.Error())
 		if err.Error() != TimeoutError {
 			return err
 		}
+		Printf("Trial #%d: error: %s\n", i, err.Error())
 		Printf("Retrying...")
 		time.Sleep(time.Duration(i) * time.Second)
 	}
@@ -113,6 +113,7 @@ func IDBBatchPointsWithDB(ctx *Ctx, con *client.Client, db string) client.BatchP
 
 // IDBNewPointWithErr - return InfluxDB Point, on error exit
 func IDBNewPointWithErr(name string, tags map[string]string, fields map[string]interface{}, dt time.Time) *client.Point {
+	// fmt.Printf("[name=%+v tags=%+v fields=%+v dt=%+v]\n", name, tags, fields, dt)
 	pt, err := client.NewPoint(name, tags, fields, dt)
 	FatalOnError(err)
 	return pt

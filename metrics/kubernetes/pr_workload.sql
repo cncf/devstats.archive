@@ -31,7 +31,8 @@ where
 ;
 
 select
-  sig.sig,
+  'pr_workload;sig:s,issues:i,absolute_workload:f;sigs' as metric,
+  sig.sig as sig,
   count(distinct sig.issue_id) as issues,
   sum(
     case coalesce(siz.size, 'nil')

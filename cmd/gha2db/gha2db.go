@@ -898,11 +898,11 @@ func writeToDBOldFmt(db *sql.DB, ctx *lib.Ctx, eventID string, ev *lib.EventOld)
 		for _, comm := range commits {
 			commit, ok := comm.([]interface{})
 			if !ok {
-				lib.FatalOnError(fmt.Errorf("comm is not []interface{}: %+v", comm))
+				lib.Fatalf("comm is not []interface{}: %+v", comm)
 			}
 			sha, ok := commit[0].(string)
 			if !ok {
-				lib.FatalOnError(fmt.Errorf("commit[0] is not string: %+v", commit[0]))
+				lib.Fatalf("commit[0] is not string: %+v", commit[0])
 			}
 			lib.ExecSQLTxWithErr(
 				con,

@@ -96,7 +96,7 @@ func QuerySQLWithErr(con *sql.DB, ctx *Ctx, query string, args ...interface{}) *
 		Printf("%d seconds passed, retrying...\n", try)
 	}
 	if status == Retry {
-		FatalOnError(fmt.Errorf("too many connections used, tried %d times", len(ctx.Trials)))
+		Fatalf("too many connections used, tried %d times", len(ctx.Trials))
 	}
 	return res
 }
@@ -133,7 +133,7 @@ func QuerySQLTxWithErr(con *sql.Tx, ctx *Ctx, query string, args ...interface{})
 		Printf("%d seconds passed, retrying...\n", try)
 	}
 	if status == Retry {
-		FatalOnError(fmt.Errorf("too many connections used, tried %d times", len(ctx.Trials)))
+		Fatalf("too many connections used, tried %d times", len(ctx.Trials))
 	}
 	return res
 }
@@ -168,7 +168,7 @@ func ExecSQLWithErr(con *sql.DB, ctx *Ctx, query string, args ...interface{}) sq
 		Printf("%d seconds passed, retrying...\n", try)
 	}
 	if status == Retry {
-		FatalOnError(fmt.Errorf("too many connections used, tried %d times", len(ctx.Trials)))
+		Fatalf("too many connections used, tried %d times", len(ctx.Trials))
 	}
 	return res
 }
@@ -205,7 +205,7 @@ func ExecSQLTxWithErr(con *sql.Tx, ctx *Ctx, query string, args ...interface{}) 
 		Printf("%d seconds passed, retrying...\n", try)
 	}
 	if status == Retry {
-		FatalOnError(fmt.Errorf("too many connections used, tried %d times", len(ctx.Trials)))
+		Fatalf("too many connections used, tried %d times", len(ctx.Trials))
 	}
 	return res
 }

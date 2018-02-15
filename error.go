@@ -27,3 +27,8 @@ func FatalOnError(err error) string {
 	}
 	return "ok"
 }
+
+// Fatalf - it will call FatalOnError using fmt.Errorf with args provided
+func Fatalf(f string, a ...interface{}) {
+	FatalOnError(fmt.Errorf(f, a))
+}

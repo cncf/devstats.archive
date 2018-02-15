@@ -43,7 +43,7 @@ func copySeries(ch chan bool, ctx *lib.Ctx, from, to, seriesName string) {
 					case string:
 						fields[column] = interfaceValue
 					default:
-						lib.FatalOnError(fmt.Errorf("unknown type %T/%+v for field \"%s\"", interfaceValue, interfaceValue, column))
+						lib.Fatalf("unknown type %T/%+v for field \"%s\"", interfaceValue, interfaceValue, column)
 					}
 				}
 			}

@@ -64,7 +64,7 @@ func ComputePeriodAtThisDate(ctx *Ctx, period string, dt time.Time) bool {
 	} else if periodStart == "m" || periodStart == "q" || periodStart == "y" {
 		return h == 0
 	}
-	FatalOnError(fmt.Errorf("computePeriodAtThisDate: unknown period: '%s'", period))
+	Fatalf("computePeriodAtThisDate: unknown period: '%s'", period)
 	return false
 }
 
