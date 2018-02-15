@@ -134,11 +134,11 @@ func joinedCartesian(mat [][]string, prefix, join, suffix string) (result []stri
 func createSeriesFromFormula(def string) (result []string) {
 	ary := strings.Split(def[1:], ";")
 	if len(ary) < 4 {
-		lib.FatalOnError(fmt.Errorf(
+		lib.Fatalf(
 			"series formula must have at least 4 paramaters: "+
 				"prefix, suffix, join, list, %v",
 			def,
-		))
+		)
 	}
 
 	// prefix, join value (how to connect strings from different arrays), suffix
@@ -562,7 +562,7 @@ func sync(ctx *lib.Ctx, args []string) {
 // calcHistogram - calculate single histogram by calling "db2influx" program with parameters from "hist"
 func calcHistogram(ch chan bool, ctx *lib.Ctx, hist []string) {
 	if len(hist) != 7 {
-		lib.FatalOnError(fmt.Errorf("calcHistogram, expected 7 strings, got: %d: %v", len(hist), hist))
+		lib.Fatalf("calcHistogram, expected 7 strings, got: %d: %v", len(hist), hist)
 	}
 	lib.Printf(
 		"Calculate histogram %s,%s,%s,%s,%s,%s ...\n",
@@ -604,9 +604,8 @@ func getSyncArgs(ctx *lib.Ctx, osArgs []string) []string {
 
 	// No user commandline, get args specific to project GHA2DB_PROJECT
 	if ctx.Project == "" {
-		lib.FatalOnError(fmt.Errorf(
+		lib.Fatalf(
 			"you have to set project via GHA2DB_PROJECT environment variable if you provide no commandline arguments",
-		),
 		)
 	}
 	// Local or cron mode?
@@ -631,12 +630,10 @@ func getSyncArgs(ctx *lib.Ctx, osArgs []string) []string {
 		return proj.CommandLine
 	}
 	// No user commandline and project not found
-	lib.FatalOnError(
-		fmt.Errorf(
-			"project '%s' is not defined in '%s'",
-			ctx.Project,
-			ctx.ProjectsYaml,
-		),
+	lib.Fatalf(
+		"project '%s' is not defined in '%s'",
+		ctx.Project,
+		ctx.ProjectsYaml,
 	)
 	return []string{}
 }

@@ -98,7 +98,7 @@ func getRepos(ctx *lib.Ctx) (map[string]string, map[string][]string) {
 		for _, repo := range repos {
 			ary := strings.Split(repo, "/")
 			if len(ary) != 2 {
-				lib.FatalOnError(fmt.Errorf("invalid repo name: %s", repo))
+				lib.Fatalf("invalid repo name: %s", repo)
 			}
 			org := ary[0]
 			_, ok := allRepos[org]
@@ -200,7 +200,7 @@ func processRepos(ctx *lib.Ctx, allRepos map[string][]string) {
 		exists, err = dirExists(wd)
 		lib.FatalOnError(err)
 		if !exists {
-			lib.FatalOnError(fmt.Errorf("failed to create directory: %s", wd))
+			lib.Fatalf("failed to create directory: %s", wd)
 		}
 	}
 
@@ -231,7 +231,7 @@ func processRepos(ctx *lib.Ctx, allRepos map[string][]string) {
 			exists, err = dirExists(owd)
 			lib.FatalOnError(err)
 			if !exists {
-				lib.FatalOnError(fmt.Errorf("failed to create directory: %s", owd))
+				lib.Fatalf("failed to create directory: %s", owd)
 			}
 		}
 		// Iterate org's repositories
@@ -398,7 +398,7 @@ func getCommitFiles(ch chan int, ctx *lib.Ctx, con *sql.DB, filesSkipPattern *re
 		// Use '♂♀' separator to avoid any character that can appear inside file name
 		fileDataAry := strings.Split(fileData, "♂♀")
 		if len(fileDataAry) != 2 {
-			lib.FatalOnError(fmt.Errorf("invalid fileData returned for repo: %s, sha: %s: '%s'", repo, sha, fileData))
+			lib.Fatalf("invalid fileData returned for repo: %s, sha: %s: '%s'", repo, sha, fileData)
 		}
 		fileName := fileDataAry[0]
 		// If file matches exclude pattern, skip it

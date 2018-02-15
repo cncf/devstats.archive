@@ -68,7 +68,7 @@ func GetAnnotations(ctx *Ctx, orgRepo, annoRegexp string) (annotations Annotatio
 	// Get org and repo from orgRepo
 	ary := strings.Split(orgRepo, "/")
 	if len(ary) != 2 {
-		FatalOnError(fmt.Errorf("main repository format must be 'org/repo', found '%s'", orgRepo))
+		Fatalf("main repository format must be 'org/repo', found '%s'", orgRepo)
 	}
 	org := ary[0]
 	repo := ary[1]

@@ -345,7 +345,7 @@ func setAlreadyComputed(ic client.Client, ctx *lib.Ctx, pts *lib.IDBBatchPointsN
 	}
 }
 
-func db2influxHistogram(ctx *lib.Ctx, seriesNameOrFunc, sqlFile, sqlQuery, excludeBots, interval, intervalAbbr string, nIntervals int, annotationsRanges, skipPast bool) {
+func db2influxHistogram(ctx *lib.Ctx, seriesNameOrFunc, sqlFile, sqlQuery, excludeBots, interval, intervalAbbr string, nIntervals int, annotationsRanges, skipPast, multivalue bool) {
 	// Connect to Postgres DB
 	sqlc := lib.PgConn(ctx)
 	defer func() { lib.FatalOnError(sqlc.Close()) }()
@@ -360,7 +360,7 @@ func db2influxHistogram(ctx *lib.Ctx, seriesNameOrFunc, sqlFile, sqlQuery, exclu
 	pts.NPoints = 0
 	pts.Points = &bp
 
-	lib.Printf("db2influx.go: Histogram running interval '%v,%v' n %d anno %v past %v\n", interval, intervalAbbr, nIntervals, annotationsRanges, skipPast)
+	lib.Printf("db2influx.go: Histogram running interval '%v,%v' n:%d anno:%v past:%v multi:%v\n", interval, intervalAbbr, nIntervals, annotationsRanges, skipPast, multivalue)
 
 	// If using annotations ranges, then get their values
 	var qrFrom *string
@@ -402,7 +402,7 @@ func db2influxHistogram(ctx *lib.Ctx, seriesNameOrFunc, sqlFile, sqlQuery, exclu
 			}
 		}
 		if !found {
-			lib.FatalOnError(fmt.Errorf("quick range not found: '%s' known quick ranges: %+v", intervalAbbr, quickRanges))
+			lib.Fatalf("quick range not found: '%s' known quick ranges: %+v", intervalAbbr, quickRanges)
 		}
 	} else {
 		// Prepare SQL query
@@ -474,38 +474,94 @@ func db2influxHistogram(ctx *lib.Ctx, seriesNameOrFunc, sqlFile, sqlQuery, exclu
 			// Get row values
 			lib.FatalOnError(rows.Scan(pValues...))
 			name := string(*pValues[0].(*sql.RawBytes))
-			names := nameForMetricsRow(seriesNameOrFunc, name, intervalAbbr, false, false)
+			names := nameForMetricsRow(seriesNameOrFunc, name, intervalAbbr, multivalue, false)
+			// multivalue will return names as [ser_name1;a,b,c]
+			valueNames := []string{}
+			if multivalue {
+				if len(names) > 1 {
+					lib.Fatalf("should return only one series name when using multi value, got: %+v", names)
+				}
+				namesAry := strings.Split(names[0], ";")
+				names = []string{namesAry[0]}
+				if len(namesAry) > 1 {
+					valueNames = strings.Split(namesAry[1], ",")
+				}
+			}
 			nNames := len(names)
-			if nNames > 0 {
-				for i := 0; i < nNames; i++ {
-					pName := pValues[2*i+1]
-					if pName != nil {
-						sValue = string(*pName.(*sql.RawBytes))
+			if multivalue {
+				fields := map[string]interface{}{}
+				name = names[0]
+				for i, valueData := range valueNames {
+					va := strings.Split(valueData, ":")
+					valueName := va[0]
+					valueType := va[1]
+					if pValues[i+1] == nil {
+						fields[valueName] = nil
+						lib.Fatalf("nulls are unsupported, name: %+vi, i: %d, valueData: %s", name, i, valueData)
 					} else {
-						sValue = "(nil)"
+						switch valueType {
+						case "s":
+							v := string(*pValues[i+1].(*sql.RawBytes))
+							fields[valueName] = v
+						case "f":
+							v, e := strconv.ParseFloat(string(*pValues[i+1].(*sql.RawBytes)), 64)
+							lib.FatalOnError(e)
+							fields[valueName] = v
+						case "i":
+							v, e := strconv.ParseInt(string(*pValues[i+1].(*sql.RawBytes)), 10, 64)
+							lib.FatalOnError(e)
+							fields[valueName] = v
+						default:
+							lib.Fatalf("unknown data type: %v (%v), i: %d, valuedata: %s", valueType, valueData, i, valueData)
+						}
 					}
-					pVal := pValues[2*i+2]
-					if pVal != nil {
-						fValue, _ = strconv.ParseFloat(string(*pVal.(*sql.RawBytes)), 64)
-					} else {
-						fValue = 0.0
+				}
+				tm, ok := seriesToClear[name]
+				if ok {
+					tm = tm.Add(-time.Hour)
+					seriesToClear[name] = tm
+				} else {
+					tm = time.Now()
+					seriesToClear[name] = tm
+				}
+				if ctx.Debug > 0 {
+					//lib.Printf("hist %v, %v %v -> %+v\n", name, nIntervals, interval, fields)
+				}
+				// Add batch point
+				pt := lib.IDBNewPointWithErr(name, nil, fields, tm)
+				lib.IDBAddPointN(ctx, &ic, &pts, pt)
+			} else {
+				if nNames > 0 {
+					for i := 0; i < nNames; i++ {
+						pName := pValues[2*i+1]
+						if pName != nil {
+							sValue = string(*pName.(*sql.RawBytes))
+						} else {
+							sValue = "(nil)"
+						}
+						pVal := pValues[2*i+2]
+						if pVal != nil {
+							fValue, _ = strconv.ParseFloat(string(*pVal.(*sql.RawBytes)), 64)
+						} else {
+							fValue = 0.0
+						}
+						name = names[i]
+						if ctx.Debug > 0 {
+							lib.Printf("hist %v, %v %v -> %v, %v\n", name, nIntervals, interval, sValue, fValue)
+						}
+						tm, ok := seriesToClear[name]
+						if ok {
+							tm = tm.Add(-time.Hour)
+							seriesToClear[name] = tm
+						} else {
+							tm = time.Now()
+							seriesToClear[name] = tm
+						}
+						// Add batch point
+						fields := map[string]interface{}{"name": sValue, "value": fValue}
+						pt := lib.IDBNewPointWithErr(name, nil, fields, tm)
+						lib.IDBAddPointN(ctx, &ic, &pts, pt)
 					}
-					name = names[i]
-					if ctx.Debug > 0 {
-						lib.Printf("hist %v, %v %v -> %v, %v\n", name, nIntervals, interval, sValue, fValue)
-					}
-					tm, ok := seriesToClear[name]
-					if ok {
-						tm = tm.Add(-time.Hour)
-						seriesToClear[name] = tm
-					} else {
-						tm = time.Now()
-						seriesToClear[name] = tm
-					}
-					// Add batch point
-					fields := map[string]interface{}{"name": sValue, "value": fValue}
-					pt := lib.IDBNewPointWithErr(name, nil, fields, tm)
-					lib.IDBAddPointN(ctx, &ic, &pts, pt)
 				}
 			}
 		}
@@ -570,6 +626,7 @@ func db2influx(seriesNameOrFunc, sqlFile, from, to, intervalAbbr string, hist, m
 			nIntervals,
 			annotationsRanges,
 			skipPast,
+			multivalue,
 		)
 		return
 	}
