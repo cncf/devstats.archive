@@ -51,7 +51,7 @@ Prerequisites:
     - sudo -i -u postgres
     - psql
     - Postgres only allows local connections by default so it is secure, we don't need to disable external connections:
-    - Config file is: `/etc/postgresql/9.6/main/pg_hba.conf`, instructions to enable external connections (not recommended): `http://www.thegeekstuff.com/2014/02/enable-remote-postgresql-connection/?utm_source=tuicool`
+    - Config file is: `/usr/local/share/postgresql/pg_hba.conf`, instructions to enable external connections (not recommended): `http://www.thegeekstuff.com/2014/02/enable-remote-postgresql-connection/?utm_source=tuicool`
 10. Inside psql client shell (sudo -u postgres psql):
     - `create database gha;`
     - `create database devstats;`
