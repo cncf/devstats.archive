@@ -1273,6 +1273,21 @@ projects:
           - ['episodic_issues;Group2;contributors,issues', '1.00', '1.00']
           - ['episodic_issues;Overruled;contributors,issues', '1.00', '1.00']
         data: KubernetesEpisodicIssuesMetric
+      - metric: pr_workload_table
+        additional_setup_funcs:
+          - SetDates
+        additional_setup_args:
+          - "gha_issues_labels;dup_created_at;now()-'1h'::interval"
+        n: 1
+        period: 1 week
+        expected:
+          - ['pr_workload;sig:s,issues:i,absolute_workload:f;sigs', sig5, 2, '9.0']
+          - ['pr_workload;sig:s,issues:i,absolute_workload:f;sigs', sig4, 2, '6.0']
+          - ['pr_workload;sig:s,issues:i,absolute_workload:f;sigs', sig3, 2, '3.0']
+          - ['pr_workload;sig:s,issues:i,absolute_workload:f;sigs', sig2, 2, '1.5']
+          - ['pr_workload;sig:s,issues:i,absolute_workload:f;sigs', sig6, 1, '1.0']
+          - ['pr_workload;sig:s,issues:i,absolute_workload:f;sigs', sig1, 2, '0.75']
+        data: KubernetesPRWorkloadMetric
       - metric: hist_reviewers
         additional_setup_funcs:
           - SetDates
@@ -1373,6 +1388,31 @@ projects:
           - ["top_commenters,Group 1", A2, 2]
         data: KubernetesTopCommentersMetric
 data:
+  KubernetesPRWorkloadMetric:
+    # iid, eid, lid, actor_id, actor_login, repo_id, repo_name,
+    # ev_type, ev_created_at, issue_number, label_name
+    issues_labels:
+      - [1, 1, 0, 0, '', 0, '', '', '1980-01-01T12:00:00Z', 0, sig/sig1]
+      - [1, 2, 0, 0, '', 0, '', '', '1980-01-01T12:00:00Z', 0, size/xs]
+      - [2, 3, 0, 0, '', 0, '', '', '1980-01-01T12:00:00Z', 0, sig/sig1]
+      - [2, 4, 0, 0, '', 0, '', '', '1980-01-01T12:00:00Z', 0, size/s]
+      - [3, 5, 0, 0, '', 0, '', '', '1980-01-01T12:00:00Z', 0, sig/sig2]
+      - [3, 6, 0, 0, '', 0, '', '', '1980-01-01T12:00:00Z', 0, size/small]
+      - [4, 7, 0, 0, '', 0, '', '', '1980-01-01T12:00:00Z', 0, sig/sig2]
+      - [4, 8, 0, 0, '', 0, '', '', '1980-01-01T12:00:00Z', 0, size/m]
+      - [5, 9, 0, 0, '', 0, '', '', '1980-01-01T12:00:00Z', 0, sig/sig3]
+      - [5, 10, 0, 0, '', 0, '', '', '1980-01-01T12:00:00Z', 0, size/medium]
+      - [6, 11, 0, 0, '', 0, '', '', '1980-01-01T12:00:00Z', 0, sig/sig3]
+      - [6, 12, 0, 0, '', 0, '', '', '1980-01-01T12:00:00Z', 0, size/l]
+      - [7, 13, 0, 0, '', 0, '', '', '1980-01-01T12:00:00Z', 0, sig/sig4]
+      - [7, 14, 0, 0, '', 0, '', '', '1980-01-01T12:00:00Z', 0, size/large]
+      - [8, 15, 0, 0, '', 0, '', '', '1980-01-01T12:00:00Z', 0, sig/sig4]
+      - [8, 16, 0, 0, '', 0, '', '', '1980-01-01T12:00:00Z', 0, size/xl]
+      - [9, 17, 0, 0, '', 0, '', '', '1980-01-01T12:00:00Z', 0, sig/sig5]
+      - [9, 18, 0, 0, '', 0, '', '', '1980-01-01T12:00:00Z', 0, size/xxl]
+      - [10, 19, 0, 0, '', 0, '', '', '1980-01-01T12:00:00Z', 0, sig/sig5]
+      - [10, 20, 0, 0, '', 0, '', '', '1980-01-01T12:00:00Z', 0, size/other]
+      - [11, 21, 0, 0, '', 0, '', '', '1980-01-01T12:00:00Z', 0, sig/sig6]
   KubernetesEpisodicIssuesMetric:
     # id, name, org_id, org_login, repo_group
     repos:
