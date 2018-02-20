@@ -11,79 +11,50 @@ Links:
 
 - We're quering `gha_texts` table. It contains all 'texts' from all Kubernetes repositories.
 - For more information about `gha_texts` table please check: [docs/tables/gha_texts.md](https://github.com/cncf/devstats/blob/master/docs/tables/gha_texts.md).
+- We're creating temporary table 'matching' which contains all event IDs that contain `/lgtm` or `/approve` (no case sensitive) in a separate line (there can be more lines before and/or after this line).
+- The exact psql regexp is: `(?i)(?:^|\n|\r)\s*/(?:lgtm|approve)\s*(?:\n|\r|$)`.
+- We're only looking for texts created between `{{from}}` and `{{to}}` dates. Values for `from` and `to` will be replaced with final periods described later.
+- Then we're creating 'reviews' temporary table that contains all event IDs that belong to GitHub event type: `PullRequestReviewCommentEvent`.
+- Then comes the final select which returns multiple rows (one for All repository groups combined and then one for each repository group).
+- Each row returns single value, so the metric type is: `multi_row_single_column`.
+- Each row is in the format column 1: `reviewers,RepoGroupName`, column 2: `NumberOfReviewersInThisRepoGroup`. Number of rows is N+1, where N=numbe rof repo groups. One additional row for `reviewers,All` that contains number of repo groups for all repo groups.
+- Value for each repository group is calculated as a number of distinct actor logins who:
+- Are not bots (see [excluding bots](xxx).)
+- Added `lgtm` or `approve` label in a given period.
+- Added text matching given regexp.
+- Added PR review comment (event type `PullRequestReviewCommentEvent`).
+- Event belong to a given repository group (in repo group part of the SQL, this is not checked for 'All' repo group that conatins data from all repository groups).
+- Finally temp tables are dropped.
+- For repository group definition check: [repository groups](xxx).
 
-create temp table matching as
-select event_id
-from gha_texts
-where
-  created_at >= '{{from}}' and created_at < '{{to}}'
-  and substring(body from '(?i)(?:^|\n|\r)\s*/(?:lgtm|approve)\s*(?:\n|\r|$)') is not null;
+# Periods and Influx series
 
-create temp table reviews as
-select id as event_id
-from
-  gha_events
-where
-  created_at >= '{{from}}' and created_at < '{{to}}'
-  and type in ('PullRequestReviewCommentEvent');
-
-select
-  'reviewers,All' as repo_group,
-  count(distinct dup_actor_login) as result
-from
-  gha_events
-where
-  (dup_actor_login {{exclude_bots}})
-  and id in (
-    select min(event_id)
-    from
-      gha_issues_events_labels
-    where
-      created_at >= '{{from}}'
-      and created_at < '{{to}}'
-      and label_name in ('lgtm', 'approved')
-    group by
-      issue_id
-    union select event_id from matching
-    union select event_id from reviews
-  )
-union select sub.repo_group,
-  count(distinct sub.actor) as result
-from (
-  select 'reviewers,' || coalesce(ecf.repo_group, r.repo_group) as repo_group,
-    e.dup_actor_login as actor
-  from
-    gha_repos r,
-    gha_events e
-  left join
-    gha_events_commits_files ecf
-  on
-    ecf.event_id = e.id
-  where
-    e.repo_id = r.id
-    and (e.dup_actor_login {{exclude_bots}})
-    and e.id in (
-      select min(event_id)
-      from
-        gha_issues_events_labels
-      where
-        created_at >= '{{from}}'
-        and created_at < '{{to}}'
-        and label_name in ('lgtm', 'approved')
-      group by
-        issue_id
-      union select event_id from matching
-      union select event_id from reviews
-    )
-  ) sub
-where
-  sub.repo_group is not null
-group by
-  sub.repo_group
-order by
-  result desc,
-  repo_group asc
-;
-
-drop table reviews;
-drop table matching;
+Metric usage is defined in metric.yaml as follows:
+```
+series_name_or_func: multi_row_single_column
+sql: reviewers
+periods: d,w,m,q,y
+aggregate: 1,7
+skip: w7,m7,q7,y7
+```
+- It means that we should call Postgres metric [reviewers.sql](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/reviewers.sql).
+- We should expect multiple rows each with 2 columns: 1st defines output Influx series name, 2nd defines value.
+- Periods are: d,w,m,q,y which means we should calculate this SQL for every day, week, month, quarter and year since start of Kubernetes projects. That means about 1400+ days ranges, 210 weeks, 48 months, 12 quarter, 4 years.
+- `{{from}}` and `{{to}}` will be replaced with those daily, weekly, .., yearly ranges.
+- Aggregate 1,7 means that we should calculate moving averages for 1 and 7.
+- Aggregate 1 means nothing - just calculate value
+- Aggregate 7 means that we should calculate d7, w7, m7, q7 and y7 periods. d7 means that we're calculate period with 7 days length, but iterating 1 day each time. For example 1-8 May, then 2-9 May, then 3-10 May and so on.
+- Skip: w7, m7, q7, y7 means that we should exclude those periods, so we will only have d7 left. That means we're calculating d,w,m,q,y,d7 periods. d7 is very useful, becasue it contains all 7 week days (so values are similar) but we're progressing one day instead of 7 days.
+- d7 = '7 Days MA' = '7 days moving average'.
+- The final InfluxDB series name would be: `reviewers_[[repogroup]]_[[period]]`. Where [[period]] will be from d,w,m,q,y,d7 and [[repogroup]] will be from 'all,apps,contrib,kubernetes,...', see [repository groups](xxx) for details.
+- Repo group name returned by Postgres SQL is normalized (downcased, removed special charrs etc.) to be usable as a Influx series name [here](https://github.com/cncf/devstats/blob/master/cmd/db2influx/db2influx.go#L112) using [this](https://github.com/cncf/devstats/blob/master/unicode.go#L23).
+- Final query is here: [reviewers.json](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/reviewers.json#L116).
+- Finally you can use series in Grafana via `SELECT "value" FROM "autogen"."reviewers_[[repogroup]]_[[period]]" WHERE $timeFilter`.
+- `$timeFiler` value comes from Grafana date range selector. It is handled by Grafana internally.
+- `[[period]]` comes from Variable definition in dashboard JSON: [reviewers.json](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/reviewers.json#L188-L234).
+- `[[repogroup]]` comes from Grafana variable that uses influx tags values: [reviewers.json](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/reviewers.json#L236-L274).
+- You are selecting `repogroup_name` from Grafana UI (this drop-down is visible), values are: All,Apps,Cluster lifecycle, ...
+- Then Grafana uses `repogroup` which is a hidden variable that normalizes this name using other tag value that matches `repogroup_name`.
+- To see more details about repository group tags, and all other tags check [tags.md](xxx).
+- Releases comes from Grafana annotations: [reviewers.json](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/reviewers.json#L43-L55).
+- For more details about annotations check [here](xxx).
