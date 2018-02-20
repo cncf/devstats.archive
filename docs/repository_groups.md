@@ -31,3 +31,8 @@ where
 ```
 - It updates `gha_events_commits_files` table (see table info [here](https://github.com/cncf/devstats/blob/master/docs/tables/gha_events_commits_files.md)) setting the same repo group as given file's repository repo group when file's repoository's repository group is defined and when file's repository group is not yet defined.
 - Important part is to update only where repo group [is not yet set](https://github.com/cncf/devstats/blob/master/util_sql/postprocess_repo_groups_from_repos.sql#L10) and only when file's repository has [repo group set](https://github.com/cncf/devstats/blob/master/util_sql/postprocess_repo_groups_from_repos.sql#L11).
+
+# Other projects
+- Non Kubernetes projects are not setting `util_sql/repo_groups_postprocess_script.sql`, for example Prometheus uses [this](https://github.com/cncf/devstats/blob/master/prometheus/setup_scripts.sh).
+- It only adds [util_sql/repo_groups_postprocess_script_from_repos.sql](https://github.com/cncf/devstats/blob/master/util_sql/repo_groups_postprocess_script_from_repos.sql), which executes [util_sql/postprocess_repo_groups_from_repos.sql](https://github.com/cncf/devstats/blob/master/util_sql/postprocess_repo_groups_from_repos.sql).
+- So it only updates `gha_events_commits_file` table with repository group as defined by commit's file's repository (if defined).
