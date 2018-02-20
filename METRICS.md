@@ -33,6 +33,7 @@ To add new metric (replace `{{project}}` with kubernetes, prometheus or any othe
 8) Export new Grafana dashboard to JSON.
 9) Create PR for the new metric.
 10) Add metrics dashboard decription in this [file](https://github.com/cncf/devstats/blob/master/DASHBOARDS.md).
+11) Add more detailed documentation in [dashboards documentation](https://github.com/cncf/devstats/blob/master/docs/dashboards/).
 
 # Tags
 
