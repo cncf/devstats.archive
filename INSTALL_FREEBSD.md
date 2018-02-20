@@ -1,4 +1,4 @@
-# devstats installation on Ubuntu
+# DevStats installation on FreeBSD
 
 Prerequisites:
 - FreeBSD (tested on FreeBSD 11.1 amd64)
