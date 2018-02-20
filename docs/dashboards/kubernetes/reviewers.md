@@ -20,7 +20,7 @@ Links:
 - Each row returns single value, so the metric type is: `multi_row_single_column`.
 - Each row is in the format column 1: `reviewers,RepoGroupName`, column 2: `NumberOfReviewersInThisRepoGroup`. Number of rows is N+1, where N=numbe rof repo groups. One additional row for `reviewers,All` that contains number of repo groups for all repo groups.
 - Value for each repository group is calculated as a number of distinct actor logins who:
-- Are not bots (see [excluding bots](https://github.com/cncf/devstats/blob/master/docs/excluding_bots.sql).)
+- Are not bots (see [excluding bots](https://github.com/cncf/devstats/blob/master/docs/excluding_bots.md).)
 - Added `lgtm` or `approve` label in a given period (`gha_events_labels` table)
 - For more information about `gha_events_labels` table please check: [docs/tables/gha_events_labels.md](https://github.com/cncf/devstats/blob/master/docs/tables/gha_events.md).
 - Added text matching given regexp.
@@ -49,7 +49,7 @@ skip: w7,m7,q7,y7
 - Aggregate 7 means that we should calculate d7, w7, m7, q7 and y7 periods. d7 means that we're calculate period with 7 days length, but iterating 1 day each time. For example 1-8 May, then 2-9 May, then 3-10 May and so on.
 - Skip: w7, m7, q7, y7 means that we should exclude those periods, so we will only have d7 left. That means we're calculating d,w,m,q,y,d7 periods. d7 is very useful, becasue it contains all 7 week days (so values are similar) but we're progressing one day instead of 7 days.
 - d7 = '7 Days MA' = '7 days moving average'.
-- The final InfluxDB series name would be: `reviewers_[[repogroup]]_[[period]]`. Where [[period]] will be from d,w,m,q,y,d7 and [[repogroup]] will be from 'all,apps,contrib,kubernetes,...', see [repository groups](xxx) for details.
+- The final InfluxDB series name would be: `reviewers_[[repogroup]]_[[period]]`. Where [[period]] will be from d,w,m,q,y,d7 and [[repogroup]] will be from 'all,apps,contrib,kubernetes,...', see [repository groups](https://github.com/cncf/devstats/blob/master/docs/repository_groups.md) for details.
 - Repo group name returned by Postgres SQL is normalized (downcased, removed special charrs etc.) to be usable as a Influx series name [here](https://github.com/cncf/devstats/blob/master/cmd/db2influx/db2influx.go#L112) using [this](https://github.com/cncf/devstats/blob/master/unicode.go#L23).
 - Final query is here: [reviewers.json](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/reviewers.json#L116).
 - Finally you can use series in Grafana via `SELECT "value" FROM "autogen"."reviewers_[[repogroup]]_[[period]]" WHERE $timeFilter`.
@@ -58,6 +58,6 @@ skip: w7,m7,q7,y7
 - `[[repogroup]]` comes from Grafana variable that uses influx tags values: [reviewers.json](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/reviewers.json#L236-L274).
 - You are selecting `repogroup_name` from Grafana UI (this drop-down is visible), values are: All,Apps,Cluster lifecycle, ...
 - Then Grafana uses `repogroup` which is a hidden variable that normalizes this name using other tag value that matches `repogroup_name`.
-- To see more details about repository group tags, and all other tags check [tags.md](xxx).
+- To see more details about repository group tags, and all other tags check [tags.md](https://github.com/cncf/devstats/blob/master/docs/tags.md).
 - Releases comes from Grafana annotations: [reviewers.json](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/reviewers.json#L43-L55).
-- For more details about annotations check [here](xxx).
+- For more details about annotations check [here](https://github.com/cncf/devstats/blob/master/docs/annotations.md).
