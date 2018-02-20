@@ -32,6 +32,7 @@ where
 - It updates `gha_events_commits_files` table (see table info [here](https://github.com/cncf/devstats/blob/master/docs/tables/gha_events_commits_files.md)) setting the same repo group as given file's repository's repo group when file's repoository's repo group is defined and when file's repo group is not yet defined.
 - Important part is to update only where commit's file's repo group [is not yet set](https://github.com/cncf/devstats/blob/master/util_sql/postprocess_repo_groups_from_repos.sql#L11) and only when commit's file's repository has [repo group set](https://github.com/cncf/devstats/blob/master/util_sql/postprocess_repo_groups_from_repos.sql#L10).
 - Generally all postprocess scripts that run every hour are defined in the table `gha_postprocess_scripts` (see table info [here](https://github.com/cncf/devstats/blob/master/docs/tables/gha_postprocess_scripts.md)), currently: repo groups, labels, texts, PRs, issues.
+- More info about `gha_repos` table [here](https://github.com/cncf/devstats/blob/master/docs/tables/gha_repos.md).
 
 # Other projects
 - Non Kubernetes projects are not setting `util_sql/repo_groups_postprocess_script.sql`, for example Prometheus uses [this](https://github.com/cncf/devstats/blob/master/prometheus/setup_scripts.sh). Note missing [util_sql/postprocess_repo_groups.sql](https://github.com/cncf/devstats/blob/master/util_sql/postprocess_repo_groups.sql) part.

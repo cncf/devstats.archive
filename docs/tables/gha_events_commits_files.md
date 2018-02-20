@@ -1,10 +1,7 @@
 # `gha_events_commits_file` table
 
 - This table holds commit's files connected with GitHub event additional data.
-- We're listing all yet unprocessed commits using [util_sql/list_unprocessed_commits.sql](https://github.com/cncf/devstats/blob/master/util_sql/list_unprocessed_commits.sql) [here](https://github.com/cncf/devstats/blob/master/cmd/get_repos/get_repos.go#L468-L495).
-- Commit's files are created by `git` datasource using [git_files.sh](https://github.com/cncf/devstats/blob/master/git/git_files.sh) [here](https://github.com/cncf/devstats/blob/master/cmd/get_repos/get_repos.go#L356-L441).
-- This generates data for `gha_commit_files` table, see info [here](https://github.com/cncf/devstats/blob/master/docs/tables/gha_commits_files.md).
-- Some commits has no files modifed, they're marked as `skip commits` and their SHAs are put in `gha_skip_commits` table, info [here](https://github.com/cncf/devstats/blob/master/docs/tables/gha_skip_commits.md).
+- It uses `gha_skip_commits` table, info [here](https://github.com/cncf/devstats/blob/master/docs/tables/gha_skip_commits.md) as an input.
 - Events commits files are generated using [util_sql/create_events_commits.sql](https://github.com/cncf/devstats/blob/master/util_sql/create_events_commits.sql) [here](https://github.com/cncf/devstats/blob/master/cmd/get_repos/get_repos.go#L566-L592).
 - It adds new event's commit's files every hour, creating full files paths that include repository name.
 - This is a special table, not created by any GitHub archive (GHA) event. Its purpose is to hold all commits' files connected with events data.
