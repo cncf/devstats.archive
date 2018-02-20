@@ -14,18 +14,21 @@ Links:
 - We're creating temporary table 'matching' which contains all event IDs that contain `/lgtm` or `/approve` (no case sensitive) in a separate line (there can be more lines before and/or after this line).
 - The exact psql regexp is: `(?i)(?:^|\n|\r)\s*/(?:lgtm|approve)\s*(?:\n|\r|$)`.
 - We're only looking for texts created between `{{from}}` and `{{to}}` dates. Values for `from` and `to` will be replaced with final periods described later.
-- Then we're creating 'reviews' temporary table that contains all event IDs that belong to GitHub event type: `PullRequestReviewCommentEvent`.
+- Then we're creating 'reviews' temporary table that contains all event IDs (`gha_events`) that belong to GitHub event type: `PullRequestReviewCommentEvent`.
+- For more information about `gha_events` table please check: [docs/tables/gha_event.md](https://github.com/cncf/devstats/blob/master/docs/tables/gha_events.md).
 - Then comes the final select which returns multiple rows (one for All repository groups combined and then one for each repository group).
 - Each row returns single value, so the metric type is: `multi_row_single_column`.
 - Each row is in the format column 1: `reviewers,RepoGroupName`, column 2: `NumberOfReviewersInThisRepoGroup`. Number of rows is N+1, where N=numbe rof repo groups. One additional row for `reviewers,All` that contains number of repo groups for all repo groups.
 - Value for each repository group is calculated as a number of distinct actor logins who:
-- Are not bots (see [excluding bots](xxx).)
-- Added `lgtm` or `approve` label in a given period.
+- Are not bots (see [excluding bots](https://github.com/cncf/devstats/blob/master/docs/excluding_bots.sql).)
+- Added `lgtm` or `approve` label in a given period (`gha_events_labels` table)
+- For more information about `gha_events_labels` table please check: [docs/tables/gha_events_labels.md](https://github.com/cncf/devstats/blob/master/docs/tables/gha_events.md).
 - Added text matching given regexp.
 - Added PR review comment (event type `PullRequestReviewCommentEvent`).
 - Event belong to a given repository group (in repo group part of the SQL, this is not checked for 'All' repo group that conatins data from all repository groups).
 - Finally temp tables are dropped.
-- For repository group definition check: [repository groups](xxx).
+- For repository group definition check: [repository groups](https://github.com/cncf/devstats/blob/master/docs/repository_groups.md) (table `gha_events` and commit files for file level granularity repo groups).
+- For more information about `gha_repos` table please check: [docs/tables/gha_repos.md](https://github.com/cncf/devstats/blob/master/docs/tables/gha_repos.md).
 
 # Periods and Influx series
 
