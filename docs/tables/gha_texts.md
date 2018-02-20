@@ -15,6 +15,7 @@
 - Informations about creating project that is a merge of other multiple projects can be found in [adding new project](https://github.com/cncf/devstats/blob/master/ADDING_NEW_PROJECT.md).
 
 # Columns
+
 - `event_id`: GitHub event ID. This ID is artificially generated for pre-2015 events.
 - `body`: text, can be very long.
 - `created_at`: date of the corresponding GitHub event.
