@@ -22,7 +22,7 @@ Links:
 - Value for each repository group is calculated as a number of distinct actor logins who:
 - Are not bots (see [excluding bots](https://github.com/cncf/devstats/blob/master/docs/excluding_bots.md).)
 - Added `lgtm` or `approve` label in a given period (`gha_events_labels` table)
-- For more information about `gha_events_labels` table please check: [docs/tables/gha_events_labels.md](https://github.com/cncf/devstats/blob/master/docs/tables/gha_events.md).
+- For more information about `gha_events_labels` table please check: [docs/tables/gha_events_labels.md](https://github.com/cncf/devstats/blob/master/docs/tables/gha_events_labels.md).
 - Added text matching given regexp.
 - Added PR review comment (event type `PullRequestReviewCommentEvent`).
 - Event belong to a given repository group (in repo group part of the SQL, this is not checked for 'All' repo group that conatins data from all repository groups).
