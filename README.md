@@ -29,7 +29,7 @@ To work on this project locally please fork the original [repository](https://gi
 - [Compiling and running on macOS](./INSTALL_MAC.md).
 - [Compiling and running on Linux Ubuntu 16 LTS](./INSTALL_UBUNTU16.md).
 - [Compiling and running on Linux Ubuntu 17](./INSTALL_UBUNTU17.md).
-- [Compiling and running on FreeBSD (work in progress)](./INSTALL_FREEBSD.md).
+- [Compiling and running on FreeBSD](./INSTALL_FREEBSD.md).
 
 Please see [Development](https://github.com/cncf/devstats/blob/master/DEVELOPMENT.md) for local development guide.
 
