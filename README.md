@@ -7,7 +7,7 @@ Author: Łukasz Gryglicki <lukaszgryglick@o2.pl>
 
 This is a toolset to visualize GitHub [archives](https://www.githubarchive.org/) using Grafana dashboards.
 
-Gha2db stands for **G**it**H**ub **A**rchives to **D**ash**B**oards.
+GHA2DB stands for **G**it**H**ub **A**rchives to **D**ash**B**oards.
 
 # Goal
 
@@ -59,7 +59,7 @@ We also want to have per company statistics. To implement such metrics we need a
 
 There is a project that attempts to create such mapping [cncf/gitdm](https://github.com/cncf/gitdm).
 
-Gha2db has an import tool that fetches company affiliations from `cncf/gitdm` and allows to create per company metrics/statistics.
+DevStats has an import tool that fetches company affiliations from `cncf/gitdm` and allows to create per company metrics/statistics.
 
 If you see errors in the company affiliations, please open a pull request on [cncf/gitdm](https://github.com/cncf/gitdm) and the updates will be reflected on [https://k8s.devstats.cncf.io](https://k8s.devstats.cncf.io) a couple days after the PR has been accepted. Note that gitdm supports mapping based on dates, to account for developers moving between companies.
 
