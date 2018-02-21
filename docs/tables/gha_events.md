@@ -15,26 +15,13 @@
 
 # Columns
 
-- `id`: 
-- `event_id`: 
-- `assignee_id`: 
-- `body`: 
-- `closed_at`: 
-- `comments`: 
-- `created_at`: 
-- `locked`: 
-- `milestone_id`: 
-- `number`: 
-- `state`: 
-- `title`: 
-- `updated_at`: 
-- `user_id`: 
-- `is_pull_request`: 
-- `dup_actor_id`: 
-- `dup_actor_login`: 
-- `dup_repo_id`: 
-- `dup_repo_name`: 
-- `dup_type`: 
-- `dup_created_at`: 
-- `dupn_assignee_login`: 
-- `dup_user_login`: 
+- `id`: GitHub event ID.
+- `type`: GitHub event type, can be: PullRequestReviewCommentEvent, MemberEvent, PushEvent, ReleaseEvent, CreateEvent, GollumEvent, TeamAddEvent, DeleteEvent, PublicEvent, ForkEvent, PullRequestEvent, IssuesEvent, WatchEvent, IssueCommentEvent, CommitCommentEvent.
+- `actor_id`: GitHub actor ID (actor who created this event).
+- `repo_id`: GitHub repository ID.
+- `public`: Is this event public? Always `true` because private events are not gathered by GHA (GitHub Archives).
+- `created_at`: Event creation date.
+- `org_id`: GitHub organization ID. Can be null.
+- `forkee_id`: This is a old repository ID (for per-2015 events, for current format it is nulli).
+- `dup_actor_login`: Duplicated GitHub actor login (from [gha_actors](https://github.com/cncf/devstats/blob/master/docs/tables/gha_actors.md) table).
+- `dup_repo_name`: Duplicated GitHub repository name (note that repository name can change in time, but repository ID remains the same, see [gha_repos](https://github.com/cncf/devstats/blob/master/docs/tables/gha_repos.md) table).
