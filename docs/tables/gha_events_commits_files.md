@@ -1,4 +1,4 @@
-# `gha_events_commits_file` table
+# `gha_events_commits_files` table
 
 - This table holds commit's files connected with GitHub event additional data.
 - It uses `gha_skip_commits` table, info [here](https://github.com/cncf/devstats/blob/master/docs/tables/gha_skip_commits.md) as an input.

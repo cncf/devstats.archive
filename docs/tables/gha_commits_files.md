@@ -1,4 +1,4 @@
-# `gha_commits_file` table
+# `gha_commits_files` table
 
 - This table holds commit's files (added, removed, modified etc.)
 - We're listing all yet unprocessed commits using [util_sql/list_unprocessed_commits.sql](https://github.com/cncf/devstats/blob/master/util_sql/list_unprocessed_commits.sql) [here](https://github.com/cncf/devstats/blob/master/cmd/get_repos/get_repos.go#L468-L495).
