@@ -7,7 +7,7 @@
 - Some commits has no files modifed, they're marked as `skip commits` and their SHAs are put in `gha_skip_commits` table, info [here](https://github.com/cncf/devstats/blob/master/docs/tables/gha_skip_commits.md).
 - It adds new commit's files every hour by running [get_repos tool](https://github.com/cncf/devstats/blob/master/cmd/get_repos/get_repos.go).
 - This is a special table, not created by any GitHub archive (GHA) event. Its purpose is to hold all commits' files.
-- This is a const table, meaning that commit files are not changing in time, once given commit gets its file list it is saved here and not modified anymore.
+- This is a const table, values are inserted once and doesn't change, see [const table](https://github.com/cncf/devstats/blob/master/docs/tables/const_table.md).
 - It contains about 534K records as of Feb 2018.
 - It is created here: [structure.go](https://github.com/cncf/devstats/blob/master/structure.go#L965-L978).
 - You can see its SQL structure here: [structure.sql](https://github.com/cncf/devstats/blob/master/structure.sql#L180-L185).

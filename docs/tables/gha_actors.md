@@ -1,11 +1,10 @@
 # `gha_actors` table
 
-- This table holds  all GitHub actors (actor can be contributor, forker, commenter etc.)
-- This is a const table, meaning that actor added once does not change.
+- This table holds all GitHub actors (actor can be contributor, forker, commenter etc.)
+- This is a const table, values are inserted once and doesn't change, see [const table](https://github.com/cncf/devstats/blob/master/docs/tables/const_table.md).
 - Actors are created during standard GitHub archives import from JSON [here](https://github.com/cncf/devstats/blob/master/cmd/gha2db/gha2db.go#L20-L31).
 - Actors imported from GHA have no name (only id and login), name can be updated by import affiliations tool.
 - They can also be added by import affiliation tool [here](https://github.com/cncf/devstats/blob/master/cmd/import_affs/import_affs.go#L101-L108) or updated [here](https://github.com/cncf/devstats/blob/master/cmd/import_affs/import_affs.go#L199-L201).
-- This is a const table, meaning that commit files are not changing in time, once given commit gets its file list it is saved here and not modified anymore.
 - It contains about 77K records as of Feb 2018.
 - It is created here: [structure.go](https://github.com/cncf/devstats/blob/master/structure.go#L60-L76).
 - You can see its SQL structure here: [structure.sql](https://github.com/cncf/devstats/blob/master/structure.sql#L41-L45).
