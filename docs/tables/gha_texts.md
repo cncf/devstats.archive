@@ -6,6 +6,7 @@
 - You can see its SQL structure here: [structure.sql](https://github.com/cncf/devstats/blob/master/structure.sql#L726-L735).
 - This table is updated every hour via [util_sql/postprocess_texts.sql](https://github.com/cncf/devstats/blob/master/util_sql/postprocess_texts.sql).
 - It adds all new comments, commit messages, issue titles, issue texts, PR titles, PR texts since last hour.
+- See documentation for [issues](https://github.com/cncf/devstats/blob/master/docs/tables/gha_issues.md), [PRs](https://github.com/cncf/devstats/blob/master/docs/tables/gha_pull_requests.md) and [commits](https://github.com/cncf/devstats/blob/master/docs/tables/gha_commits.md) tables.
 - Its primary key isn't `event_id`, because it adds both title and body of issues and commits.
 - This SQL script is scheduled to run every hour by: [util_sql/default_postprocess_scripts.sql](https://github.com/cncf/devstats/blob/master/util_sql/default_postprocess_scripts.sql#L1).
 - Default postprocess scripts are defined by [kubernetes/setup_scripts.sh](https://github.com/cncf/devstats/blob/master/kubernetes/setup_scripts.sh#L4). This is `{{projectname}}/setup_scripts.sh` for other projects.
