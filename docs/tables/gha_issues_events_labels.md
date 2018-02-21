@@ -21,8 +21,8 @@
 - `label_name`: Label name duplicate from [gha_labels](https://github.com/cncf/devstats/blob/master/docs/tables/gha_gha_labels.md) table.
 - `created_at`: Event creation date, comes from [gha_events](https://github.com/cncf/devstats/blob/master/docs/tables/gha_events.md).
 - `actor_id`: Event's actor name.
-- `actor_login`: Event's actor login (this comes from [gha_issue_labels](https://github.com/cncf/devstats/blob/master/docs/tables/gha_issue_labels.md) <- [gha_events](https://github.com/cncf/devstats/blob/master/docs/tables/gha_events.md) <- [gha_actors](https://github.com/cncf/devstats/blob/master/docs/tables/gha_actors.md).
-- `repo_id`: GitHub repository ID (from [gha_events](https://github.com/cncf/devstats/blob/master/docs/tables/gha_events.md).
+- `actor_login`: Event's actor login (this comes from [gha_issues_labels](https://github.com/cncf/devstats/blob/master/docs/tables/gha_issues_labels.md) <- [gha_events](https://github.com/cncf/devstats/blob/master/docs/tables/gha_events.md) <- [gha_actors](https://github.com/cncf/devstats/blob/master/docs/tables/gha_actors.md).
+- `repo_id`: GitHub repository ID (from [gha_events](https://github.com/cncf/devstats/blob/master/docs/tables/gha_events.md)).
 - `repo_name`: GitHub repository name (note that repository name can change in time, while repository ID cannot).
 - `type`: GitHub event type - see [gha_events](https://github.com/cncf/devstats/blob/master/docs/tables/gha_events.md) for details.
 - `issue_number`: Issue number (this is usually a small number that is unique withing given repository).
