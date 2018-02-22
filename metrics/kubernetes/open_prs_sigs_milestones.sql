@@ -35,7 +35,7 @@ group by
 
 create temp table prs_sigs as
 select sub.issue_id,
-  sub.sig_label
+  sub.sig_label as sig
 from (
   select
     sig.issue_id,
@@ -52,7 +52,52 @@ where
   sub.sig_label is not null
 ;
 
+create temp table milestones as
+select pr.issue_id,
+  max(i.event_id) as event_id
+from
+  prs pr,
+  gha_issues i
+where
+  i.id = pr.issue_id
+  and i.dup_created_at < '{{to}}'
+  and i.milestone_id is not null
+group by
+  pr.issue_id
+;
 
+create temp table prs_milestones as
+select
+  pr.issue_id,
+  ml.title as milestone
+from
+  milestones pr,
+  gha_issues i,
+  gha_milestones ml
+where
+  pr.issue_id = i.id
+  and pr.event_id = i.event_id
+  and i.milestone_id = ml.id
+  and pr.event_id = ml.event_id
+;
+
+select
+  concat('open_prs_sigs_milestones,', s.sig, '-', m.milestone) as sig_milestone,
+  count(distinct s.issue_id) as cnt
+from
+  prs_milestones m,
+  prs_sigs s
+where
+  m.issue_id = s.issue_id
+group by
+  s.sig,
+  m.milestone
+order by
+  cnt desc
+;
+
+drop table prs_milestones;
+drop table milestones;
 drop table prs_sigs;
 drop table sigs;
 drop table prs;
