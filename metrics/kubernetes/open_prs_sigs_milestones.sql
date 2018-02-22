@@ -81,19 +81,39 @@ where
   and pr.event_id = ml.event_id
 ;
 
-select
-  concat('open_prs_sigs_milestones,', s.sig, '-', m.milestone) as sig_milestone,
-  count(distinct s.issue_id) as cnt
-from
-  prs_milestones m,
-  prs_sigs s
-where
-  m.issue_id = s.issue_id
-group by
-  s.sig,
-  m.milestone
+select 
+  sub.sig_milestone,
+  sub.cnt
+from (
+  select concat('open_prs_sigs_milestones,', s.sig, '-', m.milestone) as sig_milestone,
+    count(distinct s.issue_id) as cnt
+  from
+    prs_milestones m,
+    prs_sigs s
+  where
+    m.issue_id = s.issue_id
+  group by
+    s.sig,
+    m.milestone
+  union select concat('open_prs_sigs_milestones,', 'All-', m.milestone) as sig_milestone,
+    count(distinct m.issue_id) as cnt
+  from
+    prs_milestones m
+  group by
+    m.milestone
+  union select concat('open_prs_sigs_milestones,', s.sig, '-All') as sig_milestone,
+    count(distinct s.issue_id) as cnt
+  from
+    prs_sigs s
+  group by
+    s.sig
+  union select 'open_prs_sigs_milestones,All-All' as sig_milestone,
+    count(distinct pr.issue_id) as cnt
+  from
+    prs pr
+  ) sub
 order by
-  cnt desc
+  sub.cnt desc
 ;
 
 drop table prs_milestones;
