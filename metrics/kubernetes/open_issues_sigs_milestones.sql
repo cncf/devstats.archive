@@ -1,39 +1,38 @@
-create temp table prs as
+create temp table issues as
 select sub.issue_id
 from (
   select
-    ipr.issue_id as issue_id,
-    min(pr.created_at) as opened_at,
-    max(pr.closed_at) as closed_at
+    i.id as issue_id,
+    min(i.created_at) as opened_at,
+    max(i.closed_at) as closed_at
   from
-    gha_issues_pull_requests ipr,
-    gha_pull_requests pr
+    gha_issues i
   where
-    ipr.pull_request_id = pr.id
-    and pr.created_at < '{{to}}'
-    and pr.dup_repo_name = 'kubernetes/kubernetes'
+    i.is_pull_request = false
+    and i.created_at < '{{to}}'
+    and i.dup_repo_name = 'kubernetes/kubernetes'
   group by
-    ipr.issue_id
+    i.id
   ) sub
 where
   sub.closed_at is null or sub.closed_at >= '{{to}}'
 ;
 
 create temp table sigs as
-select pr.issue_id,
+select i.issue_id,
   max(il.event_id) as event_id
 from
-  prs pr,
+  issues i,
   gha_issues_labels il
 where
-  il.issue_id = pr.issue_id
+  il.issue_id = i.issue_id
   and il.dup_created_at < '{{to}}'
   and lower(substring(il.dup_label_name from '(?i)sig/(.*)')) is not null
 group by
-  pr.issue_id
+  i.issue_id
 ;
 
-create temp table prs_sigs as
+create temp table issues_sigs as
 select sub.issue_id,
   sub.sig_label as sig
 from (
@@ -53,71 +52,71 @@ where
 ;
 
 create temp table milestones as
-select pr.issue_id,
+select ci.issue_id,
   max(i.event_id) as event_id
 from
-  prs pr,
+  issues ci,
   gha_issues i
 where
-  i.id = pr.issue_id
+  i.id = ci.issue_id
   and i.dup_created_at < '{{to}}'
   and i.milestone_id is not null
 group by
-  pr.issue_id
+  ci.issue_id
 ;
 
-create temp table prs_milestones as
+create temp table issues_milestones as
 select
-  pr.issue_id,
+  mi.issue_id,
   ml.title as milestone
 from
-  milestones pr,
+  milestones mi,
   gha_issues i,
   gha_milestones ml
 where
-  pr.issue_id = i.id
-  and pr.event_id = i.event_id
+  mi.issue_id = i.id
+  and mi.event_id = i.event_id
   and i.milestone_id = ml.id
-  and pr.event_id = ml.event_id
+  and mi.event_id = ml.event_id
 ;
 
 select 
   sub.sig_milestone,
   sub.cnt
 from (
-  select concat('open_prs_sigs_milestones,', s.sig, '-', m.milestone) as sig_milestone,
+  select concat('open_issues_sigs_milestones,', s.sig, '-', m.milestone) as sig_milestone,
     count(s.issue_id) as cnt
   from
-    prs_milestones m,
-    prs_sigs s
+    issues_milestones m,
+    issues_sigs s
   where
     m.issue_id = s.issue_id
   group by
     s.sig,
     m.milestone
-  union select concat('open_prs_sigs_milestones,', 'All-', m.milestone) as sig_milestone,
+  union select concat('open_issues_sigs_milestones,', 'All-', m.milestone) as sig_milestone,
     count(m.issue_id) as cnt
   from
-    prs_milestones m
+    issues_milestones m
   group by
     m.milestone
-  union select concat('open_prs_sigs_milestones,', s.sig, '-All') as sig_milestone,
+  union select concat('open_issues_sigs_milestones,', s.sig, '-All') as sig_milestone,
     count(s.issue_id) as cnt
   from
-    prs_sigs s
+    issues_sigs s
   group by
     s.sig
-  union select 'open_prs_sigs_milestones,All-All' as sig_milestone,
-    count(pr.issue_id) as cnt
+  union select 'open_issues_sigs_milestones,All-All' as sig_milestone,
+    count(i.issue_id) as cnt
   from
-    prs pr
+    issues i
   ) sub
 order by
   sub.cnt desc
 ;
 
-drop table prs_milestones;
+drop table issues_milestones;
 drop table milestones;
-drop table prs_sigs;
+drop table issues_sigs;
 drop table sigs;
-drop table prs;
+drop table issues;
