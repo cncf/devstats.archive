@@ -4,7 +4,7 @@ if [ $host = "cncftest.io" ]
 then
   all="k8s prometheus opentracing fluentd linkerd grpc coredns containerd rkt cni envoy jaeger notary tuf rook vitess opnecontainers all cncf"
 else
-  all="k8s prometheus opentracing fluentd linkerd grpc coredns containerd rkt cni envoy jaeger notary tuf rook vitess opencontainers"
+  all="k8s prometheus opentracing fluentd linkerd grpc coredns containerd rkt cni envoy jaeger notary tuf rook vitess opencontainers all"
 fi
 killall grafana-server
 for proj in $all

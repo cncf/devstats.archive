@@ -17,10 +17,10 @@ cron_db_backup.sh rook 2>> /tmp/gha2db_backup_rook.err 1>> /tmp/gha2db_backup_ro
 cron_db_backup.sh vitess 2>> /tmp/gha2db_backup_vitess.err 1>> /tmp/gha2db_backup_vitess.log
 cron_db_backup.sh opencontainers 2>> /tmp/gha2db_backup_opencontainers.err 1>> /tmp/gha2db_backup_opencontainers.log
 cron_db_backup.sh devstats 2>> /tmp/gha2db_backup_devstats.err 1>> /tmp/gha2db_backup_devstats.log
+cron_db_backup.sh allprj 2>> /tmp/gha2db_backup_all.err 1>> /tmp/gha2db_backup_all.log
 
 host=`hostname`
 if [ $host = "cncftest.io" ]
 then
-  cron_db_backup.sh allprj 2>> /tmp/gha2db_backup_all.err 1>> /tmp/gha2db_backup_all.log
   cron_db_backup.sh cncf 2>> /tmp/gha2db_backup_cncf.err 1>> /tmp/gha2db_backup_cncf.log
 fi
