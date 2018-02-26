@@ -25,11 +25,11 @@ fi
 ./tuf/import_affs.sh || exit 16
 ./rook/import_affs.sh || exit 17
 ./vitess/import_affs.sh || exit 18
-./opencontainers/import_affs.sh || exit 19
+./all/import_affs.sh || exit 19
+./opencontainers/import_affs.sh || exit 20
 host=`hostname`
 if [ $host = "cncftest.io" ]
 then
-  ./all/import_affs.sh || exit 20
   ./cncf/import_affs.sh || exit 21
 fi
 echo 'OK'
