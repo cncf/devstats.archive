@@ -2,7 +2,6 @@ package main
 
 import (
 	"io/ioutil"
-	"os"
 	"strings"
 	"time"
 
@@ -46,7 +45,7 @@ func idbTags() {
 	pts.Points = &bp
 
 	// Local or cron mode?
-	dataPrefix := "/etc/gha2db/"
+	dataPrefix := lib.DataDir
 	if ctx.Local {
 		dataPrefix = "./"
 	}
@@ -66,27 +65,10 @@ func idbTags() {
 	strVal := ""
 
 	// Per project directory for SQL files
-	dir := "metrics/"
+	dir := lib.Metrics
 	if ctx.Project != "" {
 		dir += ctx.Project + "/"
 	}
-
-	// Add hostname
-	hostname, err := os.Hostname()
-	if err != nil {
-		hostname = ctx.DefaultHostname
-	}
-	lib.IDBAddPointN(
-		&ctx,
-		&ic,
-		&pts,
-		lib.IDBNewPointWithErr(
-			"os",
-			map[string]string{"os_hostname": hostname},
-			fields,
-			lib.TimeParseAny("2014"),
-		),
-	)
 
 	// Iterate tags
 	for _, tag := range allTags.Tags {

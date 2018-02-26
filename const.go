@@ -38,3 +38,6 @@ const EngineIsClosedError string = "engine is closed"
 
 // LocalGitScripts - common constant string
 const LocalGitScripts string = "./git/"
+
+// Metrics - common constant string
+const Metrics string = "metrics/"
