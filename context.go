@@ -49,6 +49,7 @@ type Ctx struct {
 	MetricsYaml       string          // From GHA2DB_METRICS_YAML gha2db_sync tool, set other metrics.yaml file, default is "metrics/{{project}}metrics.yaml"
 	GapsYaml          string          // From GHA2DB_GAPS_YAML gha2db_sync tool, set other gaps.yaml file, default is "metrics/{{project}}/gaps.yaml"
 	TagsYaml          string          // From GHA2DB_TAGS_YAML idb_tags tool, set other idb_tags.yaml file, default is "metrics/{{project}}/idb_tags.yaml"
+	VarsYaml          string          // From GHA2DB_VARS_YAML idb_vars tool, set other idb_vars.yaml file, default is "metrics/{{project}}/idb_vars.yaml"
 	GitHubOAuth       string          // From GHA2DB_GITHUB_OAUTH annotations tool, if not set reads from /etc/github/oauth file, set to "-" to force public access.
 	ClearDBPeriod     string          // From GHA2DB_MAXLOGAGE gha2db_sync tool, maximum age of devstats.gha_logs entries, default "1 week"
 	Trials            []int           // From GHA2DB_TRIALS, all Postgres related tools, retry periods for "too many connections open" error
@@ -254,6 +255,7 @@ func (ctx *Ctx) Init() {
 	ctx.MetricsYaml = os.Getenv("GHA2DB_METRICS_YAML")
 	ctx.GapsYaml = os.Getenv("GHA2DB_GAPS_YAML")
 	ctx.TagsYaml = os.Getenv("GHA2DB_TAGS_YAML")
+	ctx.VarsYaml = os.Getenv("GHA2DB_VARS_YAML")
 	if ctx.MetricsYaml == "" {
 		ctx.MetricsYaml = "metrics/" + proj + "metrics.yaml"
 	}
@@ -262,6 +264,9 @@ func (ctx *Ctx) Init() {
 	}
 	if ctx.TagsYaml == "" {
 		ctx.TagsYaml = "metrics/" + proj + "idb_tags.yaml"
+	}
+	if ctx.VarsYaml == "" {
+		ctx.VarsYaml = "metrics/" + proj + "idb_vars.yaml"
 	}
 
 	// GitHub OAuth
