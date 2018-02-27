@@ -1,8 +1,10 @@
 create temp table issues as
-select sub.issue_id
+select sub.issue_id,
+  sub.repo
 from (
   select
     i.id as issue_id,
+    i.dup_repo_name as repo,
     min(i.created_at) as opened_at,
     max(i.closed_at) as closed_at
   from
@@ -10,9 +12,9 @@ from (
   where
     i.is_pull_request = false
     and i.created_at < '{{to}}'
-    and i.dup_repo_name = 'kubernetes/kubernetes'
   group by
-    i.id
+    i.id,
+    i.dup_repo_name
   ) sub
 where
   sub.closed_at is null or sub.closed_at >= '{{to}}'
@@ -20,6 +22,7 @@ where
 
 create temp table sigs as
 select i.issue_id,
+  i.repo,
   max(il.event_id) as event_id
 from
   issues i,
@@ -29,15 +32,18 @@ where
   and il.dup_created_at < '{{to}}'
   and lower(substring(il.dup_label_name from '(?i)sig/(.*)')) is not null
 group by
-  i.issue_id
+  i.issue_id,
+  i.repo
 ;
 
 create temp table issues_sigs as
 select sub.issue_id,
+  sub.repo,
   sub.sig_label as sig
 from (
   select
     sig.issue_id,
+    sig.repo,
     sig.event_id,
     lower(substring(il.dup_label_name from '(?i)sig/(.*)')) as sig_label
   from
@@ -53,6 +59,7 @@ where
 
 create temp table milestones as
 select ci.issue_id,
+  ci.repo,
   max(i.event_id) as event_id
 from
   issues ci,
@@ -62,12 +69,14 @@ where
   and i.dup_created_at < '{{to}}'
   and i.milestone_id is not null
 group by
-  ci.issue_id
+  ci.issue_id,
+  ci.repo
 ;
 
 create temp table issues_milestones as
 select
   mi.issue_id,
+  mi.repo,
   ml.title as milestone
 from
   milestones mi,
@@ -84,7 +93,38 @@ select
   sub.sig_milestone,
   sub.cnt
 from (
-  select concat('open_issues_sigs_milestones,', s.sig, '-', m.milestone) as sig_milestone,
+  select concat('open_issues_sigs_milestones,', s.sig, '-', m.milestone, '-', s.repo) as sig_milestone,
+    count(s.issue_id) as cnt
+  from
+    issues_milestones m,
+    issues_sigs s
+  where
+    m.issue_id = s.issue_id
+  group by
+    s.sig,
+    m.milestone,
+    s.repo
+  union select concat('open_issues_sigs_milestones,', 'All-', m.milestone, '-', m.repo) as sig_milestone,
+    count(m.issue_id) as cnt
+  from
+    issues_milestones m
+  group by
+    m.milestone,
+    m.repo
+  union select concat('open_issues_sigs_milestones,', s.sig, '-All-', s.repo) as sig_milestone,
+    count(s.issue_id) as cnt
+  from
+    issues_sigs s
+  group by
+    s.sig,
+    s.repo
+  union select concat('open_issues_sigs_milestones,All-All-', i.repo) as sig_milestone,
+    count(i.issue_id) as cnt
+  from
+    issues i
+  group by
+    i.repo
+  union select concat('open_issues_sigs_milestones,', s.sig, '-', m.milestone, '-All') as sig_milestone,
     count(s.issue_id) as cnt
   from
     issues_milestones m,
@@ -94,19 +134,19 @@ from (
   group by
     s.sig,
     m.milestone
-  union select concat('open_issues_sigs_milestones,', 'All-', m.milestone) as sig_milestone,
+  union select concat('open_issues_sigs_milestones,', 'All-', m.milestone, '-All') as sig_milestone,
     count(m.issue_id) as cnt
   from
     issues_milestones m
   group by
     m.milestone
-  union select concat('open_issues_sigs_milestones,', s.sig, '-All') as sig_milestone,
+  union select concat('open_issues_sigs_milestones,', s.sig, '-All-All') as sig_milestone,
     count(s.issue_id) as cnt
   from
     issues_sigs s
   group by
     s.sig
-  union select 'open_issues_sigs_milestones,All-All' as sig_milestone,
+  union select 'open_issues_sigs_milestones,All-All-All' as sig_milestone,
     count(i.issue_id) as cnt
   from
     issues i
