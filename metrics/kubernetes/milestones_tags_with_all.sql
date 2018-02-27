@@ -8,6 +8,7 @@ from (
     gha_issues
   where
     milestone_id is not null
+    and dup_repo_name = 'kubernetes/kubernetes'
     and created_at > now() - '2 years'::interval
   group by
     milestone_id
