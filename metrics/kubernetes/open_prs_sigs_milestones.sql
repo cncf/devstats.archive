@@ -105,7 +105,7 @@ from (
     s.sig,
     m.milestone,
     s.repo
-  union select concat('open_prs_sigs_milestones,', 'All-', m.milestone, '-', m.milestone) as sig_milestone,
+  union select concat('open_prs_sigs_milestones,', 'All-', m.milestone, '-', m.repo) as sig_milestone,
     count(m.issue_id) as cnt
   from
     prs_milestones m
