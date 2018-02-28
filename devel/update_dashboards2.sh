@@ -1,10 +1,11 @@
 #!/bin/sh
-#for f in `ls grafana/dashboards/{cncf,cni,containerd,coredns,envoy,fluentd,grpc,jaeger,linkerd,notary,opencontainers,opentracing,rkt,rook,tuf,vitess}/*`
-#do
-#  MODE=rs0 FROM='(?m)^.*"uid": "\w+",\n' TO='-' ./replacer $f
-#done
+for f in `ls grafana/dashboards/{all,cncf,cni,containerd,coredns,envoy,fluentd,grpc,jaeger,linkerd,kubernetes,notary,opencontainers,opentracing,prometheus,rkt,rook,tuf,vitess}/*`
+do
+  MODE=rs0 FROM='(?m)^.*"uid": "\w+",\n' TO='-' ./replacer $f
+done
+
 repl='  "timezone": "",'
-all="cncf cni containerd coredns envoy fluentd grpc jaeger linkerd notary opencontainers opentracing rkt rook tuf vitess"
+all="all cncf cni containerd coredns envoy fluentd grpc jaeger linkerd kubernetes notary opencontainers opentracing prometheus rkt rook tuf vitess"
 for proj in $all
 do
   uid=0
