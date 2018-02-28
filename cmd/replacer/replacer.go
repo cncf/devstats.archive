@@ -14,6 +14,12 @@ import (
 // rs, rs0: regexp to string (so you cannot use $1, $2 ... matchings from FROM in the TO pattern)
 // ss, ss0: string to string, ususally both string are big and read from file, like MODE=ss FROM=`cat in` TO=`cat out` FILES=`find ...` ./devel/mass_replace.sh
 func replacer(from, to, fn, mode string) {
+	if from == "-" {
+		from = ""
+	}
+	if to == "-" {
+		to = ""
+	}
 	bytes, err := ioutil.ReadFile(fn)
 	if err != nil {
 		fmt.Printf("Error: %v\n", err)
