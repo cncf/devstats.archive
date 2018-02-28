@@ -11,7 +11,8 @@ import (
 // replacer - replace regexp or string with regesp or string
 // possible modes:
 // rr, rr0: regexp to regexp, trailing 0 means that we're allowing no hits
-// rs, rs0: regexp to string (so in the TO patter you cannot use $1, $2 ... matchings from FROM)
+// rs, rs0: regexp to string (so you cannot use $1, $2 ... matchings from FROM in the TO pattern)
+// ss, ss0: string to string, ususally both string are big and read from file, like MODE=ss FROM=`cat in` TO=`cat out` FILES=`find ...` ./devel/mass_replace.sh
 func replacer(from, to, fn, mode string) {
 	bytes, err := ioutil.ReadFile(fn)
 	if err != nil {
@@ -30,7 +31,7 @@ func replacer(from, to, fn, mode string) {
 		}
 		if contents == newContents {
 			fmt.Printf("Noting replaced in: %s\n", fn)
-			if mode == "re" {
+			if mode == "rr" || mode == "rs" {
 				os.Exit(1)
 			}
 			return
@@ -39,7 +40,7 @@ func replacer(from, to, fn, mode string) {
 		newContents = strings.Replace(contents, from, to, -1)
 		if contents == newContents {
 			fmt.Printf("Noting replaced in: %s\n", fn)
-			if mode == "re" {
+			if mode == "ss" {
 				os.Exit(1)
 			}
 			return
