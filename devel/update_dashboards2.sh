@@ -11,8 +11,8 @@ do
   for f in `ls grafana/dashboards/${proj}/*.json`
   do
     uid=$((uid+1))
-    echo $repl > out
+    echo "$repl" > out
     echo "  \"uid\": \"$uid\"," >> out
-    MODE=ss FROM='  "timezone": "",' TO=`cat out` ./replacer $f
+    MODE=ss FROM=$repl TO=`cat out` ./replacer $f
   done
 done
