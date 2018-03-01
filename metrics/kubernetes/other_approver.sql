@@ -15,7 +15,7 @@ where
   and i.event_id = pl.event_id
   and i.created_at >= '{{from}}'
   and i.created_at < '{{to}}'
-  and c.dup_actor_login = 'k8s-merge-robot'
+  and c.dup_actor_login in ('k8s-merge-robot', 'k8s-ci-robot')
   and c.body like '%APPROVALNOTIFIER%'
   and substring(
     c.body from '(?i)META={"approvers":\["([^"]+)"\]}'
