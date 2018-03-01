@@ -21,10 +21,11 @@ where
   sub.closed_at is null or sub.closed_at >= '{{to}}'
 ;
 
-create temp table sigs as
+create temp table final_sigs as
 select pr.issue_id,
   pr.repo,
-  max(il.event_id) as event_id
+  max(il.event_id) as event_id,
+  max(il.dup_created_at) as sig_dt
 from
   prs pr,
   gha_issues_labels il
@@ -35,6 +36,32 @@ where
 group by
   pr.issue_id,
   pr.repo
+;
+
+create temp table removed_sigs as
+select distinct il.issue_id,
+  il.dup_repo_name as repo
+from
+  gha_issues_labels il,
+  final_sigs s
+where
+  s.issue_id = il.issue_id
+  and il.dup_created_at > s.sig_dt
+  and il.dup_created_at < '{{to}}'
+;
+
+create temp table sigs as
+select s.issue_id,
+  s.repo,
+  s.event_id
+from
+  final_sigs s
+left join
+  removed_sigs rs
+on
+  s.issue_id = rs.issue_id
+where
+  rs.issue_id is null
 ;
 
 create temp table prs_sigs as
@@ -58,10 +85,11 @@ where
   sub.sig_label is not null
 ;
 
-create temp table milestones as
+create temp table final_milestones as
 select pr.issue_id,
   pr.repo,
-  max(i.event_id) as event_id
+  max(i.event_id) as event_id,
+  max(i.dup_created_at) as milestone_dt
 from
   prs pr,
   gha_issues i
@@ -72,6 +100,50 @@ where
 group by
   pr.issue_id,
   pr.repo
+;
+
+create temp table removed_milestones as
+select distinct sub.issue_id,
+  sub.repo
+from (
+  select distinct i.id as issue_id,
+    i.dup_repo_name as repo
+  from
+    gha_issues i,
+    final_milestones m
+  where
+    i.milestone_id is null
+    and m.issue_id = i.id
+    and i.dup_created_at > m.milestone_dt
+    and i.dup_created_at < '{{to}}'
+  union distinct select il.issue_id,
+    il.dup_repo_name as repo
+  from
+    gha_issues_labels il,
+    final_milestones m
+  where
+    m.issue_id = il.issue_id
+    and il.dup_created_at >= m.milestone_dt
+    and il.dup_created_at < '{{to}}'
+    and lower(il.dup_label_name) = 'milestone/removed'
+  ) sub
+group by
+  sub.issue_id,
+  sub.repo
+;
+
+create temp table milestones as
+select m.issue_id,
+  m.repo,
+  (select coalesce(min(pl.event_id), m.event_id) from gha_payloads pl where pl.issue_id = m.issue_id and pl.event_id > m.event_id) as event_id
+from
+  final_milestones m
+left join
+  removed_milestones rm
+on
+  m.issue_id = rm.issue_id
+where
+  rm.issue_id is null
 ;
 
 create temp table prs_milestones as
@@ -158,6 +230,10 @@ order by
 
 drop table prs_milestones;
 drop table milestones;
+drop table removed_milestones;
+drop table final_milestones;
 drop table prs_sigs;
 drop table sigs;
+drop table removed_sigs;
+drop table final_sigs;
 drop table prs;
