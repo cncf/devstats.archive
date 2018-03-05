@@ -44,6 +44,7 @@ union select sub.repo_group_user,
   count(distinct sub.event_id) as result
 from (
   select 'reviews_per_user,' || concat(e.dup_actor_login, '`', coalesce(ecf.repo_group, r.repo_group)) as repo_group_user,
+    coalesce(ecf.repo_group, r.repo_group) as repo_group,
     e.id as event_id
   from
     gha_repos r,
@@ -60,13 +61,14 @@ from (
     and e.created_at < '{{to}}'
   ) sub
 where
-  sub.repo_group_user is not null
+  sub.repo_group is not null
 group by
   sub.repo_group_user
 union select sub.repo_group_user,
   count(distinct sub.event_id) as result
 from (
   select 'lgtms_per_user,' || concat(e.dup_actor_login, '`', coalesce(ecf.repo_group, r.repo_group)) as repo_group_user,
+    coalesce(ecf.repo_group, r.repo_group) as repo_group,
     e.id as event_id
   from
     gha_repos r,
@@ -92,7 +94,7 @@ from (
     )
   ) sub
 where
-  sub.repo_group_user is not null
+  sub.repo_group is not null
 group by
   sub.repo_group_user
 order by
