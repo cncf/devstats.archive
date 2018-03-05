@@ -38,12 +38,6 @@ func idbTags() {
 	ic := lib.IDBConn(&ctx)
 	defer func() { lib.FatalOnError(ic.Close()) }()
 
-	// Get BatchPoints
-	var pts lib.IDBBatchPointsN
-	bp := lib.IDBBatchPoints(&ctx, &ic)
-	pts.NPoints = 0
-	pts.Points = &bp
-
 	// Local or cron mode?
 	dataPrefix := lib.DataDir
 	if ctx.Local {
@@ -70,57 +64,89 @@ func idbTags() {
 		dir += ctx.Project + "/"
 	}
 
+	thrN := lib.GetThreadsNum(&ctx)
 	// Iterate tags
-	for _, tag := range allTags.Tags {
-		if ctx.Debug > 0 {
-			lib.Printf("Tag '%s' --> '%s'\n", tag.Name, tag.SeriesName)
-		}
-		// Read SQL file
-		bytes, err := ioutil.ReadFile(dataPrefix + dir + tag.SQLFile + ".sql")
-		lib.FatalOnError(err)
-		sqlQuery := string(bytes)
-
-		// Handle excluding bots
-		bytes, err = ioutil.ReadFile(dataPrefix + "util_sql/exclude_bots.sql")
-		lib.FatalOnError(err)
-		excludeBots := string(bytes)
-
-		// Transform SQL
-		sqlQuery = strings.Replace(sqlQuery, "{{lim}}", "69", -1)
-		sqlQuery = strings.Replace(sqlQuery, "{{exclude_bots}}", excludeBots, -1)
-
-		// Execute SQL
-		rows := lib.QuerySQLWithErr(con, &ctx, sqlQuery)
-		defer func() { lib.FatalOnError(rows.Close()) }()
-
-		// Drop current tags
-		lib.QueryIDB(ic, &ctx, "drop series from "+tag.SeriesName)
-
-		// Iterate tag values
-		tags := make(map[string]string)
-		for rows.Next() {
-			lib.FatalOnError(rows.Scan(&strVal))
+	ch := make(chan bool)
+	nThreads := 0
+	// Use integer index to pass to go rountine
+	for i := range allTags.Tags {
+		go func(ch chan bool, idx int) {
+			// Refer to current tag using index passed to anonymous function
+			tg := &allTags.Tags[idx]
 			if ctx.Debug > 0 {
-				lib.Printf("'%s': %v\n", tag.SeriesName, strVal)
+				lib.Printf("Tag '%s' --> '%s'\n", tg.Name, tg.SeriesName)
 			}
-			if tag.NameTag != "" {
-				tags[tag.NameTag] = strVal
-			}
-			if tag.ValueTag != "" {
-				tags[tag.ValueTag] = lib.NormalizeName(strVal)
-			}
-			// Add batch point
-			pt := lib.IDBNewPointWithErr(tag.SeriesName, tags, fields, time.Now())
-			lib.IDBAddPointN(&ctx, &ic, &pts, pt)
-		}
-		lib.FatalOnError(rows.Err())
-	}
 
-	// Write the batch
-	if !ctx.SkipIDB {
-		lib.FatalOnError(lib.IDBWritePointsN(&ctx, &ic, &pts))
-	} else if ctx.Debug > 0 {
-		lib.Printf("Skipping tags series write\n")
+			// Get BatchPoints
+			var pts lib.IDBBatchPointsN
+			bp := lib.IDBBatchPoints(&ctx, &ic)
+			pts.NPoints = 0
+			pts.Points = &bp
+
+			// Read SQL file
+			bytes, err := ioutil.ReadFile(dataPrefix + dir + tg.SQLFile + ".sql")
+			lib.FatalOnError(err)
+			sqlQuery := string(bytes)
+
+			// Handle excluding bots
+			bytes, err = ioutil.ReadFile(dataPrefix + "util_sql/exclude_bots.sql")
+			lib.FatalOnError(err)
+			excludeBots := string(bytes)
+
+			// Transform SQL
+			sqlQuery = strings.Replace(sqlQuery, "{{lim}}", "69", -1)
+			sqlQuery = strings.Replace(sqlQuery, "{{exclude_bots}}", excludeBots, -1)
+
+			// Execute SQL
+			rows := lib.QuerySQLWithErr(con, &ctx, sqlQuery)
+			defer func() { lib.FatalOnError(rows.Close()) }()
+
+			// Drop current tags
+			lib.QueryIDB(ic, &ctx, "drop series from "+tg.SeriesName)
+
+			// Iterate tag values
+			tags := make(map[string]string)
+			for rows.Next() {
+				lib.FatalOnError(rows.Scan(&strVal))
+				if ctx.Debug > 0 {
+					lib.Printf("'%s': %v\n", tg.SeriesName, strVal)
+				}
+				if tg.NameTag != "" {
+					tags[tg.NameTag] = strVal
+				}
+				if tg.ValueTag != "" {
+					tags[tg.ValueTag] = lib.NormalizeName(strVal)
+				}
+				// Add batch point
+				pt := lib.IDBNewPointWithErr(tg.SeriesName, tags, fields, time.Now())
+				lib.IDBAddPointN(&ctx, &ic, &pts, pt)
+			}
+			lib.FatalOnError(rows.Err())
+
+			// Write the batch
+			if !ctx.SkipIDB {
+				lib.FatalOnError(lib.IDBWritePointsN(&ctx, &ic, &pts))
+			} else if ctx.Debug > 0 {
+				lib.Printf("Skipping tags series write\n")
+			}
+
+			// Synchronize go routine
+			if ch != nil {
+				ch <- true
+			}
+		}(ch, i)
+		// go routine called with 'ch' channel to sync and tag index
+		nThreads++
+		if nThreads == thrN {
+			<-ch
+			nThreads--
+		}
+	}
+	// Usually all work happens on '<-ch'
+	lib.Printf("Final threads join\n")
+	for nThreads > 0 {
+		<-ch
+		nThreads--
 	}
 }
 
