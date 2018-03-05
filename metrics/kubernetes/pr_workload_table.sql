@@ -107,7 +107,7 @@ group by
 
 select
   'pr_workload;sig:s,issues:i,absolute_workload:f,reviewers:i,relative_workload:f;sigs' as metric,
-  sug.sig,
+  sub.sig,
   sub.issues,
   sub.absolute_workload,
   coalesce(sr.reviewers, 0) as reviewers,
