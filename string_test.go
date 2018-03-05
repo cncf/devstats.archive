@@ -99,6 +99,20 @@ func TestPrepareQuickRangeQuery(t *testing.T) {
 			to:       "2017-12-01",
 			expected: "and ( (a.b.c >= '1982-07-16' and a.b.c < '2017-12-01')  and x is null) or  (c.d.e >= '1982-07-16' and c.d.e < '2017-12-01') ",
 		},
+		{
+			sql:      "and ({{period:a.b.c}} and x is null) or {{period:c.d.e}} and {{from}} - {{to}}",
+			period:   "",
+			from:     "1982-07-16",
+			to:       "2017-12-01",
+			expected: "and ( (a.b.c >= '1982-07-16' and a.b.c < '2017-12-01')  and x is null) or  (c.d.e >= '1982-07-16' and c.d.e < '2017-12-01')  and (1982-07-16) - (2017-12-01)",
+		},
+		{
+			sql:      "and ({{period:a.b.c}} and x is null) or {{period:c.d.e}} and {{from}} or {{to}}",
+			period:   "3 months",
+			from:     "",
+			to:       "",
+			expected: "and ( (a.b.c >= now() - '3 months'::interval)  and x is null) or  (c.d.e >= now() - '3 months'::interval)  and (now() -3 months::interval) or (now())",
+		},
 	}
 	// Execute test cases
 	for index, test := range testCases {
