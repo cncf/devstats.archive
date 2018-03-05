@@ -10,7 +10,7 @@ where
 
 select
   concat('lgtms_per_user,', dup_actor_login, '`All') as repo_user,
-  count(id) as result
+  round(count(id) / {{n}}, 2) as result
 from
   gha_events
 where
@@ -30,7 +30,7 @@ where
 group by
   dup_actor_login
 union select concat('reviews_per_user,', dup_actor_login, '`All') as repo_user,
-  count(id) as result
+  round(count(id) / {{n}}, 2) as result
 from
   gha_events
 where
@@ -41,7 +41,7 @@ where
 group by
   dup_actor_login
 union select 'reviews_per_user,' || concat(dup_actor_login, '`', dup_repo_name) as repo_user,
-  count(id) as result
+  round(count(id) / {{n}}, 2) as result
 from
   gha_events
 where
@@ -52,7 +52,7 @@ where
 group by
   repo_user
 union select 'lgtms_per_user,' || concat(dup_actor_login, '`', dup_repo_name) as repo_user,
-  count(id) as result
+  round(count(id) / {{n}}, 2) as result
 from
   gha_events
 where
