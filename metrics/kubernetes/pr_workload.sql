@@ -61,7 +61,7 @@ from
   gha_payloads pl
 where
   t.created_at < '{{to}}'
-  and t.created_at >= '{{to}}'::date - '2 month'::interval
+  and t.created_at >= '{{to}}'::date - '1 month'::interval
   and t.event_id = pl.event_id
   and substring(t.body from '(?i)(?:^|\n|\r)\s*/(?:lgtm|approve)\s*(?:\n|\r|$)') is not null
   and (t.actor_login {{exclude_bots}})
@@ -78,7 +78,7 @@ from (
   where
     label_name in ('lgtm', 'approved')
     and created_at < '{{to}}'
-    and created_at >= '{{to}}'::date - '2 month'::interval
+    and created_at >= '{{to}}'::date - '1 month'::interval
     and (actor_login {{exclude_bots}})
   group by
     issue_id
