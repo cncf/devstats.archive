@@ -40,11 +40,11 @@ func PrepareQuickRangeQuery(sql, period, from, to string) string {
 	}
 	res += sql[start:lenSQL]
 	if periodMode {
-		res = strings.Replace(res, "{{from}}", "(now() -"+period+"::interval)", -1)
+		res = strings.Replace(res, "{{from}}", "(now() -'"+period+"'::interval)", -1)
 		res = strings.Replace(res, "{{to}}", "(now())", -1)
 	} else {
-		res = strings.Replace(res, "{{from}}", "("+from+")", -1)
-		res = strings.Replace(res, "{{to}}", "("+to+")", -1)
+		res = strings.Replace(res, "{{from}}", "'"+from+"'", -1)
+		res = strings.Replace(res, "{{to}}", "'"+to+"'", -1)
 	}
 	return res
 }
