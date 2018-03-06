@@ -74,12 +74,12 @@ from (
   select min(event_id) as event_id,
     issue_id
   from
-    gha_issues_events_labels
+    gha_issues_labels
   where
-    label_name in ('lgtm', 'approved')
-    and created_at < '{{to}}'
-    and created_at >= '{{to}}'::date - '1 month'::interval
-    and (actor_login {{exclude_bots}})
+    dup_label_name in ('lgtm', 'approved')
+    and dup_created_at < '{{to}}'
+    and dup_created_at >= '{{to}}'::date - '1 month'::interval
+    and (dup_actor_login {{exclude_bots}})
   group by
     issue_id
   union select event_id, issue_id from reviewers_text
