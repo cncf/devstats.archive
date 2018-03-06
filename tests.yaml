@@ -1282,12 +1282,15 @@ projects:
         to: 2018-03-01T00:00:00Z
         n: 1
         expected:
-          - ['sig_pr_workload;sig5;issues,absolute_workload', 2, '9.0']
-          - ['sig_pr_workload;sig4;issues,absolute_workload', 2, '6.0']
-          - ['sig_pr_workload;sig3;issues,absolute_workload', 2, '3.0']
-          - ['sig_pr_workload;sig2;issues,absolute_workload', 2, '1.5']
-          - ['sig_pr_workload;sig6;issues,absolute_workload', 1, '1.0']
-          - ['sig_pr_workload;sig1;issues,absolute_workload', 2, '0.75']
+          - ['sig_pr_workload;sig4;issues,absolute_workload,reviewers,relative_workload', 2, '6.0', 1, '6.00']
+          - ['sig_pr_workload;sig5;issues,absolute_workload,reviewers,relative_workload', 2, '9.0', 2, '4.50']
+          - ['sig_pr_workload;sig3;issues,absolute_workload,reviewers,relative_workload', 2, '3.0', 1, '3.00']
+          - ['sig_pr_workload;sig6;issues,absolute_workload,reviewers,relative_workload', 1, '1.0', 1, '1.00']
+          - ['sig_pr_workload;sig1;issues,absolute_workload,reviewers,relative_workload', 2, '0.75', 1, '0.75']
+          - ['sig_pr_workload;sig2;issues,absolute_workload,reviewers,relative_workload', 2, '1.5', 2, '0.75']
+          - ['sig_pr_workload;sig7;issues,absolute_workload,reviewers,relative_workload', 1, '8.0', 0, 0]
+        replaces:
+            - ['sub.absolute_workload / sr.reviewers', 'round(sub.absolute_workload / sr.reviewers, 2)']
         data: KubernetesPRWorkloadMetric
       - metric: pr_workload_table
         additional_setup_funcs:
@@ -1303,7 +1306,7 @@ projects:
           - ['pr_workload;sig:s,issues:i,absolute_workload:f;sigs', sig2, 2, '1.5']
           - ['pr_workload;sig:s,issues:i,absolute_workload:f;sigs', sig6, 1, '1.0']
           - ['pr_workload;sig:s,issues:i,absolute_workload:f;sigs', sig1, 2, '0.75']
-        data: KubernetesPRWorkloadTableMetric
+        data: KubernetesPRWorkloadMetric
       - metric: hist_reviewers
         additional_setup_funcs:
           - SetDates
@@ -1405,6 +1408,50 @@ projects:
         data: KubernetesTopCommentersMetric
 data:
   KubernetesPRWorkloadMetric:
+    # eid, etype, aid, rid, public, created_at, aname, rname, orgid
+    events:
+      - [1, IssuesEvent, 0, 0, true, '2018-02-01T12:00:00Z', '', '', null]
+      - [3, IssuesEvent, 0, 0, true, '2018-02-02T12:00:00Z', '', '', null]
+      - [5, IssuesEvent, 0, 0, true, '2018-02-03T12:00:00Z', '', '', null]
+      - [7, IssuesEvent, 0, 0, true, '2018-02-04T12:00:00Z', '', '', null]
+      - [9, IssuesEvent, 0, 0, true, '2018-02-05T12:00:00Z', '', '', null]
+      - [11, IssuesEvent, 0, 0, true, '2018-02-06T12:00:00Z', '', '', null]
+      - [13, IssuesEvent, 0, 0, true, '2018-02-07T12:00:00Z', '', '', null]
+      - [15, IssuesEvent, 0, 0, true, '2018-02-08T12:00:00Z', '', '', null]
+      - [17, IssuesEvent, 0, 0, true, '2018-02-09T12:00:00Z', '', '', null]
+      - [19, IssuesEvent, 0, 0, true, '2018-02-10T12:00:00Z', '', '', null]
+      - [21, IssuesEvent, 0, 0, true, '2018-02-11T12:00:00Z', '', '', null]
+      - [22, IssueCommentEvent, 1, 0, true, '2018-02-02T12:00:00Z', 'Rev1', '', null]
+      - [23, IssueCommentEvent, 1, 0, true, '2018-02-03T12:00:00Z', 'Rev1', '', null]
+      - [24, IssueCommentEvent, 1, 0, true, '2018-02-04T12:00:00Z', 'Rev1', '', null]
+      - [25, IssueCommentEvent, 2, 0, true, '2018-02-05T12:00:00Z', 'Rev2', '', null]
+      - [26, IssueCommentEvent, 2, 0, true, '2018-02-06T12:00:00Z', 'Rev2', '', null]
+      - [27, IssueCommentEvent, 2, 0, true, '2018-02-07T12:00:00Z', 'Rev2', '', null]
+      - [28, IssueCommentEvent, 3, 0, true, '2018-02-08T12:00:00Z', 'Rev3', '', null]
+      - [29, IssueCommentEvent, 3, 0, true, '2018-02-09T12:00:00Z', 'Rev3', '', null]
+      - [30, IssueCommentEvent, 4, 0, true, '2018-02-10T12:00:00Z', 'Rev4', '', null]
+      - [31, IssueCommentEvent, 5, 0, true, '2018-02-11T12:00:00Z', 'Rev5', '', null]
+      - [32, IssueCommentEvent, 6, 0, true, '2018-02-12T12:00:00Z', 'Rev6', '', null]
+      - [33, IssuesEvent, 0, 0, true, '2018-02-12T12:00:00Z', '', '', null]
+    # append to all rows in "texts"
+    texts_append:
+      - [0, '', 0, '', D]
+    # eid, body, created_at
+    texts:
+      - [28, '/lgtm', '2018-02-08T12:00:00Z']
+      - [29, '/APPROVE', '2018-02-09T12:00:00Z']
+      - [30, '/LGtm', '2018-02-10T12:00:00Z']
+      - [31, "\t/AppROve\n", '2018-02-11T12:00:00Z']
+      - [32, "/lGtM \nadditional text", '2018-02-12T12:00:00Z']
+    # event_id, issue_id, pull_request_id, comment_id, number, forkee_id,
+    # release_id, member_id, actor_id, actor_login, repo_id, repo_name,
+    # event_type, event_created_at
+    payloads:
+      - [28, 7, 7, 0, 0, 0, 0, 0, 3, Rev3, 0, '', IssueCommentEvent, '2018-02-08T00:00:00Z']
+      - [29, 8, 8, 0, 0, 0, 0, 0, 3, Rev3, 0, '', IssueCommentEvent, '2018-02-09T00:00:00Z']
+      - [30, 9, 9, 0, 0, 0, 0, 0, 4, Rev4, 0, '', IssueCommentEvent, '2018-02-10T00:00:00Z']
+      - [31, 10, 10, 0, 0, 0, 0, 0, 5, Rev5, 0, '', IssueCommentEvent, '2018-02-11T00:00:00Z']
+      - [32, 11, 11, 0, 0, 0, 0, 0, 6, Rev6, 0, '', IssueCommentEvent, '2018-02-12T00:00:00Z']
     # iid, eid, lid, actor_id, actor_login, repo_id, repo_name,
     # ev_type, ev_created_at, issue_number, label_name
     issues_labels:
@@ -1429,6 +1476,14 @@ data:
       - [10, 19, 0, 0, '', 0, '', '', '2018-02-10T00:00:00Z', 0, sig/sig5]
       - [10, 20, 0, 0, '', 0, '', '', '2018-02-10T00:00:00Z', 0, size/other]
       - [11, 21, 0, 0, '', 0, '', '', '2018-02-11T00:00:00Z', 0, sig/sig6]
+      - [1, 22, 0, 0, '', 0, '', '', '2018-02-02T00:00:00Z', 0, lgtm]
+      - [2, 23, 0, 0, '', 0, '', '', '2018-02-03T00:00:00Z', 0, approved]
+      - [3, 24, 0, 0, '', 0, '', '', '2018-02-04T00:00:00Z', 0, lgtm]
+      - [4, 25, 0, 0, '', 0, '', '', '2018-02-05T00:00:00Z', 0, approved]
+      - [5, 26, 0, 0, '', 0, '', '', '2018-02-06T00:00:00Z', 0, lgtm]
+      - [6, 27, 0, 0, '', 0, '', '', '2018-02-07T00:00:00Z', 0, approved]
+      - [12, 33, 0, 0, '', 0, '', '', '2018-02-12T00:00:00Z', 0, sig/sig7]
+      - [12, 34, 0, 0, '', 0, '', '', '2018-02-12T00:00:00Z', 0, size/xxl]
     # id, event_id, assignee_id, body, closed_at, created_at, number, state,
     # title, updated_at, user_id, dup_actor_id, dup_actor_login, dup_repo_id,
     # dup_repo_name, dup_type, is_pull_request
@@ -1444,21 +1499,23 @@ data:
         - [9, 17, 0, Body9, null, '2018-02-09T12:00:00Z', 2, open, PR9, '2018-02-02T12:00:00Z', 0, 0, '', 0, '', IssuesEvent, true]
         - [10, 19, 0, Body10, null, '2018-02-10T12:00:00Z', 2, open, PR10, '2018-02-02T12:00:00Z', 0, 0, '', 0, '', IssuesEvent, true]
         - [11, 21, 0, Body11, '2018-05-05T00:00:00Z', '2018-02-11T12:00:00Z', 2, closed, PR11, '2018-02-02T12:00:00Z', 0, 0, '', 0, '', IssuesEvent, true]
+        - [12, 33, 0, Body12, '2018-06-06T00:00:00Z', '2018-02-12T12:00:00Z', 2, closed, PR12, '2018-02-02T12:00:00Z', 0, 0, '', 0, '', IssuesEvent, true]
     # prid, eid, uid, merged_id, assignee_id, num, state, title, body,
     # created_at, closed_at, merged_at, merged
     # repo_id, repo_name, actor_id, actor_login, updated_at
     prs:
       - [1, 1, 0, 0, 0, 1, open, PR1, PR1, '2018-02-01T12:00:00Z', null, null, false, 0, '', 0, '', '2018-02-01T12:00:00Z']
       - [2, 3, 0, 0, 0, 2, open, PR2, PR2, '2018-02-02T12:00:00Z', null, null, false, 0, '', 0, '', '2018-02-02T12:00:00Z']
-      - [3, 5, 0, 0, 0, 2, closed, PR3, PR3, '2018-02-03T12:00:00Z', '2018-03-03T00:00:00Z', null, false, 0, '', 0, '', '2018-02-03T12:00:00Z']
-      - [4, 7, 0, 0, 0, 2, open, PR4, PR4, '2018-02-04T12:00:00Z', null, null, false, 0, '', 0, '', '2018-02-04T12:00:00Z']
-      - [5, 9, 0, 0, 0, 2, open, PR5, PR5, '2018-02-05T12:00:00Z', null, null, false, 0, '', 0, '', '2018-02-05T12:00:00Z']
-      - [6, 11, 0, 0, 0, 2, open, PR6, PR6, '2018-02-06T12:00:00Z', null, null, false, 0, '', 0, '', '2018-02-06T12:00:00Z']
-      - [7, 13, 0, 0, 0, 2, merged, PR7, PR7, '2018-02-07T12:00:00Z', '2018-04-04T00:00:00Z', '2018-04-04T00:00:00Z', true, 0, '', 0, '', '2018-02-07T12:00:00Z']
-      - [8, 15, 0, 0, 0, 2, open, PR8, PR8, '2018-02-08T12:00:00Z', null, null, false, 0, '', 0, '', '2018-02-08T12:00:00Z']
-      - [9, 17, 0, 0, 0, 2, open, PR9, PR9, '2018-02-09T12:00:00Z', null, null, false, 0, '', 0, '', '2018-02-09T12:00:00Z']
-      - [10, 19, 0, 0, 0, 2, open, PR10, PR10, '2018-02-10T12:00:00Z', null, null, false, 0, '', 0, '', '2018-02-10T12:00:00Z']
-      - [11, 21, 0, 0, 0, 2, closed, PR11, PR11, '2018-02-11T12:00:00Z', '2018-05-05T00:00:00Z', null, false, 0, '', 0, '', '2018-02-11T12:00:00Z']
+      - [3, 5, 0, 0, 0, 3, closed, PR3, PR3, '2018-02-03T12:00:00Z', '2018-03-03T00:00:00Z', null, false, 0, '', 0, '', '2018-02-03T12:00:00Z']
+      - [4, 7, 0, 0, 0, 4, open, PR4, PR4, '2018-02-04T12:00:00Z', null, null, false, 0, '', 0, '', '2018-02-04T12:00:00Z']
+      - [5, 9, 0, 0, 0, 5, open, PR5, PR5, '2018-02-05T12:00:00Z', null, null, false, 0, '', 0, '', '2018-02-05T12:00:00Z']
+      - [6, 11, 0, 0, 0, 6, open, PR6, PR6, '2018-02-06T12:00:00Z', null, null, false, 0, '', 0, '', '2018-02-06T12:00:00Z']
+      - [7, 13, 0, 0, 0, 7, merged, PR7, PR7, '2018-02-07T12:00:00Z', '2018-04-04T00:00:00Z', '2018-04-04T00:00:00Z', true, 0, '', 0, '', '2018-02-07T12:00:00Z']
+      - [8, 15, 0, 0, 0, 8, open, PR8, PR8, '2018-02-08T12:00:00Z', null, null, false, 0, '', 0, '', '2018-02-08T12:00:00Z']
+      - [9, 17, 0, 0, 0, 9, open, PR9, PR9, '2018-02-09T12:00:00Z', null, null, false, 0, '', 0, '', '2018-02-09T12:00:00Z']
+      - [10, 19, 0, 0, 0, 10, open, PR10, PR10, '2018-02-10T12:00:00Z', null, null, false, 0, '', 0, '', '2018-02-10T12:00:00Z']
+      - [11, 21, 0, 0, 0, 11, closed, PR11, PR11, '2018-02-11T12:00:00Z', '2018-05-05T00:00:00Z', null, false, 0, '', 0, '', '2018-02-11T12:00:00Z']
+      - [12, 33, 0, 0, 0, 12, closed, PR11, PR11, '2018-02-12T12:00:00Z', '2018-06-06T00:00:00Z', null, false, 0, '', 0, '', '2018-02-11T12:00:00Z']
     # issue_id, pr_id, number, repo_id, repo_name, created_at
     issues_prs:
       - [1, 1, 1, 0, '', '2018-02-01T00:00:00Z']
@@ -1472,6 +1529,7 @@ data:
       - [9, 9, 9, 0, '', '2018-02-09T00:00:00Z']
       - [10, 10, 10, 0, '', '2018-02-10T00:00:00Z']
       - [11, 11, 11, 0, '', '2018-02-11T00:00:00Z']
+      - [12, 12, 12, 0, '', '2018-02-12T00:00:00Z']
   KubernetesEpisodicIssuesMetric:
     # id, name, org_id, org_login, repo_group
     repos:
