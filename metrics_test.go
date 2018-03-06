@@ -374,8 +374,12 @@ func executeMetric(c *sql.DB, ctx *lib.Ctx, metric string, from, to time.Time, p
 		return
 	}
 	sqlQuery := string(bytes)
-	sqlQuery = strings.Replace(sqlQuery, "{{from}}", lib.ToYMDHMSDate(from), -1)
-	sqlQuery = strings.Replace(sqlQuery, "{{to}}", lib.ToYMDHMSDate(to), -1)
+	if from.Year() >= 1980 {
+	  sqlQuery = strings.Replace(sqlQuery, "{{from}}", lib.ToYMDHMSDate(from), -1)
+  }
+	if to.Year() >= 1980 {
+	  sqlQuery = strings.Replace(sqlQuery, "{{to}}", lib.ToYMDHMSDate(to), -1)
+  }
 	sqlQuery = strings.Replace(sqlQuery, "{{period}}", period, -1)
 	sqlQuery = strings.Replace(sqlQuery, "{{n}}", strconv.Itoa(n)+".0", -1)
 	sqlQuery = strings.Replace(
