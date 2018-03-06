@@ -1,6 +1,6 @@
 #!/bin/sh
 # Examples:
-# MODE=rr FROM=`cat input` TO=`cat output` FILES=`find abc/ -type f -not -iname 'something.txt'` ./devel/mass_replace.sh"
+# MODE=rr FROM=`cat input` TO=`cat output` FILES=`find abc/ -type f -not -iname 'something.txt'` ./devel/mass_replace.sh
 # MODE=ss FROM=`cat input` TO=`cat output` FILES=`ls grafana/dashboards/{all,cncf,cni,containerd,coredns,envoy,fluentd,grpc,jaeger,linkerd,kubernetes,notary,opencontainers,opentracing,prometheus,rkt,rook,tuf,vitess}/*` ./devel/mass_replace.sh
 # MODE=ss0 FROM=CNCF TO='[[full_name]]' FILES=`find grafana/dashboards/cncf/ -type f -not -iname dashboards.json` ./devel/mass_replace.sh
 # MODE=ss FROM='      "title": "' TO='      "title": "[[full_name]] ' FILES=`find grafana/dashboards/cncf/ -name "top_commenters.json" -or -name "project_statistics.json" -or -name "companies_summary.json" -or -name "prs_authors_companies_histogram.json" -or -name "developers_summary.json" -or -name "prs_authors_histogram.json"` ./devel/mass_replace.sh
