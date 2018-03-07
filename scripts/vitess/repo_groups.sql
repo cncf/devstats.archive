@@ -6,7 +6,7 @@ update gha_repos set alias = name;
 update gha_repos
 set repo_group = 'Vitess', alias = 'Vitess'
 where name in (
-  'vitess/vitess',
+  'vitessio/vitess',
   'youtube/vitess',
   'vitess'
 );
