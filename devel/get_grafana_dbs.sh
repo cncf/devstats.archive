@@ -6,6 +6,7 @@ then
 else
   all="k8s prometheus opentracing fluentd linkerd grpc coredns containerd rkt cni envoy jaeger notary tuf rook vitess opencontainers all"
 fi
+killall grafana-server
 for proj in $all
 do
     echo "wget grafana.$proj.db"
@@ -14,5 +15,8 @@ do
     ls -l grafana.$proj.db
     cp grafana.$proj.db /var/lib/grafana.$proj/grafana.db || exit 2
 done
+./grafana/start_all_grafanas.sh || exit 3
+sleep 5
+ps -aux | grep 'grafana-server'
 echo 'OK'
 
