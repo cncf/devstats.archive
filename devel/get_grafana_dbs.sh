@@ -13,7 +13,7 @@ do
     rm -f grafana.$proj.db 2>/dev/null
     wget https://cncftest.io/grafana.$proj.db || exit 1
     ls -l grafana.$proj.db
-    cp grafana.$proj.db /var/lib/grafana.$proj/grafana.db || exit 2
+    mv grafana.$proj.db /var/lib/grafana.$proj/grafana.db || exit 2
 done
 ./grafana/start_all_grafanas.sh || exit 3
 sleep 5
