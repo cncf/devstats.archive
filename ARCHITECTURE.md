@@ -111,10 +111,13 @@ We're getting all possible GitHub data for all objects, and all objects historic
 - `idb_backup` is used to backup/restore InfluxDB. Full renenerate of InfluxDB takes about 12 minutes. To avoid downtime when we need to rebuild InfluDB - we can generate new InfluxDB on `test` database and then if succeeded, restore it on `gha`. Downtime will be about 2 minutes.
 - [webhook](https://github.com/cncf/devstats/blob/master/cmd/webhook/webhook.go)
 - `webhook` is used to react to Travis CI webhooks and trigger deploy if status, branch and type match defined values, more details [here](https://github.com/cncf/devstats/blob/master/CONTINUOUS_DEPLOYMENT.md).
+- Add `[no deploy]` to the commit message, to skip deploying. Add `[ci skip]` to skip entire Travis CI build.
 - There are few shell scripts for example: running sync every N seconds, setup InfluxDB etc.
 - [merge_pdbs](https://github.com/cncf/devstats/blob/master/cmd/merge_pdbs/merge_pdbs.go)
 - `merge_pdbs` is used to generate Postgres database that contains data from other multiple databases.
 - You can use `merge_pdbs` to add new projects to a existing database, but please consider running './devel/remove_db_dups.sh' then or use: './all/add_project.sh' script.
+- [replacer](https://github.com/cncf/devstats/blob/master/cmd/replacer/replacer.go)
+- `replacer` is used to mass replace data in text files. It has regexp modes, string modes, terminate on no match etc.
 
 # Database structure details
 

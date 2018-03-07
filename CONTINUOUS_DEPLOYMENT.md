@@ -19,3 +19,5 @@
 - You *MUST* set `GHA2DB_PROJECT_ROOT=/path/to/repo` for webhook tool, this is needed to decide where to run `make install` on successful build.
 - You should list only production branch via `GHA2DB_DEPLOY_BRANCHES=production` for production server, and you can list any number of branches for test servers: devstats.cncf.io is a production server, while cncftest.io is a test server.
 - If you changed `webhook` tool and deploy was successful - you need to kill old running instance via `killall webhook` then wait for cron to fire it again, to se if it works use `ps -aux | grep webhook`.
+- If you add `[ci skip]` to the commit message, Travis CI build will be skipped.
+- If you add `[no deploy]` to the commit message, Travis CI build will run, but `webhook` tool will not deploy this build.

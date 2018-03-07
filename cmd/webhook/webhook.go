@@ -15,6 +15,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"strings"
 	"time"
 )
 
@@ -33,6 +34,7 @@ type payload struct {
 	Type          string     `json:"type"`
 	AuthorEmail   string     `json:"author_email"`
 	AuthorName    string     `json:"author_name"`
+	Message       string     `json:"message"`
 	Repo          repository `json:"repository"`
 }
 
@@ -146,6 +148,9 @@ func successPayload(ctx *lib.Ctx, pl payload) bool {
 	if pl.Repo.Name != lib.Devstats || pl.Repo.OwnerName != "cncf" {
 		return false
 	}
+	if strings.Contains(pl.Message, "[no deploy]") {
+		return false
+	}
 	ok := false
 	for _, status := range ctx.DeployStatuses {
 		if pl.ResultMessage == status {
@@ -241,8 +246,9 @@ func webhookHandler(w http.ResponseWriter, r *http.Request) {
 	lib.Printf("WebHook: type: %s, allowed types: %v\n", payload.Type, ctx.DeployTypes)
 	lib.Printf("WebHook: result: %d, allowed results: %v\n", payload.Result, ctx.DeployResults)
 	lib.Printf("WebHook: author: name: %s, email: %s\n", payload.AuthorName, payload.AuthorEmail)
+	lib.Printf("WebHook: message: %s\n", payload.Message)
 	if !successPayload(&ctx, payload) {
-		checkError(false, w, errors.New("webhook: skipping deploy due to wrong status, result, branch and/or type"))
+		checkError(false, w, errors.New("webhook: skipping deploy due to wrong status, result, branch, message and/or type"))
 		return
 	}
 	err = os.Chdir(ctx.ProjectRoot)
