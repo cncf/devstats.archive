@@ -1,5 +1,5 @@
 #!/bin/sh
-#GHA2DB_PROJECT=kubernetes PG_DB=gha IDB_DB=gha ./devel/add_single_metric.sh || exit 1
+GHA2DB_PROJECT=kubernetes PG_DB=gha IDB_DB=gha ./devel/add_single_metric.sh || exit 1
 GHA2DB_PROJECT=prometheus PG_DB=prometheus IDB_DB=prometheus ./devel/add_single_metric.sh || exit 2
 GHA2DB_PROJECT=opentracing PG_DB=opentracing IDB_DB=opentracing ./devel/add_single_metric.sh || exit 3
 GHA2DB_PROJECT=fluentd PG_DB=fluentd IDB_DB=fluentd ./devel/add_single_metric.sh || exit 4
