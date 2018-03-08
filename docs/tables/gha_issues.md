@@ -1,1 +1,21 @@
-TODO
+# `gha_issues` table
+
+- This is a table that holds GitHub issue state at a given point in time (`event_id` refers to [gha_events](https://github.com/cncf/devstats/blob/master/docs/tables/gha_events.md)).
+- This is a variable table, for details check [variable table](https://github.com/cncf/devstats/blob/master/docs/tables/variable_table.md).
+- It contains about 1.2M records but only 115K distinct issue IDs (Mar 2018 state) - this means that there are about 10 events per issue on average.
+- Its primary key is `(event_id, id)`.
+
+# Columns
+
+Most important columns are:
+- `id`: GitHub Issue ID.
+- `event_id`: GitHub event ID, see [gha_issues](https://github.com/cncf/devstats/blob/master/docs/tables/gha_issues.md).
+- `body`: issue text.
+- `created_at`: Issue creation date.
+- `closed_at`: Issue close date. Note that this table holds Issue state in time, so for some event this date will be null, for some other it will be set. If issue was closed/opened multiple times - all historical close dates will be stored here.
+- `milestone_id`: Milestone ID, see [gha_milestones](https://github.com/cncf/devstats/blob/master/docs/tables/gha_milestone.md).
+- `number`: Issue number - this is an unique number within single repository.
+- `state`: `open` or `closed` at given GitHub event `event_id` date.
+- `title`: Issue title.
+- `user_id`: GitHub user ID performing action on the issue.
+- `is_pull_request`: true - this is a PR, false - this is an Issue. PRs are stored on this table too, but they have an additional record in [gha_pull_requests](https://github.com/cncf/devstats/blob/master/docs/tables/gha_pull_requests.md).
