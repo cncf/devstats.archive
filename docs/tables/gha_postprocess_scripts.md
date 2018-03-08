@@ -2,8 +2,8 @@
 
 - This is a special table, not created by any GitHub archive (GHA) event.
 - It contains informations about which scripts should be executed every hour after data from GitHub archives is fetched for the next hour.
-- Records in this table are inserted once, as a part of `{{project_name}}/psql.sh` (for Kubernetes it is [kubernetes/psql.sh](https://github.com/cncf/devstats/blob/master/kubernetes/psql.sh#L14).
-- For every project `{{project_name}}/setup_scripts.sh` is used to add records to this table (for Kubernetes it is [kubernetes/setup_scripts.sh](https://github.com/cncf/devstats/blob/master/kubernetes/setup_scripts.sh).
+- Records in this table are inserted once, as a part of `{{project_name}}/psql.sh` (for Kubernetes it is [kubernetes/psql.sh](https://github.com/cncf/devstats/blob/master/kubernetes/psql.sh#L14)).
+- For every project `{{project_name}}/setup_scripts.sh` is used to add records to this table (for Kubernetes it is [kubernetes/setup_scripts.sh](https://github.com/cncf/devstats/blob/master/kubernetes/setup_scripts.sh)).
 - It contains just few records (5 for Kubernetes, 4 for other projects).
 - It is created here: [structure.go](https://github.com/cncf/devstats/blob/master/structure.go#L1031-L1043).
 - You can see its SQL structure here: [structure.sql](https://github.com/cncf/devstats/blob/master/structure.sql#L538-L541).
