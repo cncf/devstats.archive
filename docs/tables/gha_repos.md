@@ -8,7 +8,7 @@
 - `repo_group` is used in many dashboards to grroup similar repositories under some special name. Repository groups are setup once by `{{project_name}}/setup_repo_groups.sh`.
 - For Kubernetes it is: [kubernetes/psql.sh](https://github.com/cncf/devstats/blob/master/kubernetes/psql.sh#L13)). It calls [kubernetes/setup_repo_groups.sh](https://github.com/cncf/devstats/blob/master/kubernetes/setup_repo_groups.sh)
 - This in turn executes SQL script: [scripts/kubernetes/repo_groups.sql](https://github.com/cncf/devstats/blob/master/scripts/kubernetes/repo_groups.sql). Each project can have its own project-specific aliases/repo groups definitions.
-- It contains about 135 records as of Mar 2018.
+- It contains 135 records as of Mar 2018.
 - It is created here: [structure.go](https://github.com/cncf/devstats/blob/master/structure.go#L137-L157).
 - You can see its SQL structure here: [structure.sql](https://github.com/cncf/devstats/blob/master/structure.sql#L665-L672).
 - Its primary key is `(id, name)`.
