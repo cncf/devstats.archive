@@ -12,8 +12,8 @@
 # Columns
 
 Columns starting with `dup_` are duplicated from other tables, to speedup processing and allow saving joins.
-- `issue_id`: Issue ID, see [gha_events](https://github.com/cncf/devstats/blob/master/docs/tables/gha_events.md).
-- `event_id`: GitHub event ID, see [gha_issues](https://github.com/cncf/devstats/blob/master/docs/tables/gha_issues.md).
+- `issue_id`: Issue ID, see [gha_issues](https://github.com/cncf/devstats/blob/master/docs/tables/gha_issues.md).
+- `event_id`: GitHub event ID, see [gha_events](https://github.com/cncf/devstats/blob/master/docs/tables/gha_events.md).
 - `label_id`: Label ID, see [gha_labels](https://github.com/cncf/devstats/blob/master/docs/tables/gha_labels.md).
 - `dup_actor_id`: GitHub actor ID (GitHub event creator - usually issue comment creator, not necesarilly someone who addded/removed label), see [gha_actors](https://github.com/cncf/devstats/blob/master/docs/tables/gha_actors.md).
 - `dup_actor_login`: Duplicated GitHub actor login (from [gha_actors](https://github.com/cncf/devstats/blob/master/docs/tables/gha_actors.md) table).

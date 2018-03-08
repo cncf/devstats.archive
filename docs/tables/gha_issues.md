@@ -4,12 +4,13 @@
 - This is a variable table, for details check [variable table](https://github.com/cncf/devstats/blob/master/docs/tables/variable_table.md).
 - It contains about 1.2M records but only 115K distinct issue IDs (Mar 2018 state) - this means that there are about 10 events per issue on average.
 - Its primary key is `(event_id, id)`.
+- There is a special [compute table](https://github.com/cncf/devstats/blob/master/docs/tables/gha_issues_pull_requests.md) that connects Issues with PRs.
 
 # Columns
 
 Most important columns are:
 - `id`: GitHub Issue ID.
-- `event_id`: GitHub event ID, see [gha_issues](https://github.com/cncf/devstats/blob/master/docs/tables/gha_issues.md).
+- `event_id`: GitHub event ID, see [gha_events](https://github.com/cncf/devstats/blob/master/docs/tables/gha_events.md).
 - `body`: issue text.
 - `created_at`: Issue creation date.
 - `closed_at`: Issue close date. Note that this table holds Issue state in time, so for some event this date will be null, for some other it will be set. If issue was closed/opened multiple times - all historical close dates will be stored here.
