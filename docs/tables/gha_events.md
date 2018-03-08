@@ -12,6 +12,7 @@
 - You can see its SQL structure here: [structure.sql](https://github.com/cncf/devstats/blob/master/structure.sql#L205-L216).
 - Its primary key is `id`.
 - Values from this table are often duplicated in other tables (to speedup processing) as `dup_type`, `dup_created_at`.
+- Each GitHub event have single (1:1) entry in [gha_payloads](https://github.com/cncf/devstats/blob/master/docs/tables/gha_payloads.md) table.
 
 # Columns
 
