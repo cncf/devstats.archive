@@ -1,9 +1,7 @@
-/*
 drop table if exists gha_commits_files;
 drop table if exists gha_events_commits_files;
 drop table if exists gha_skip_commits;
 drop table if exists gha_postprocess_scripts;
-*/
 
 CREATE TABLE gha_commits_files (
     sha character varying(40) NOT NULL,
