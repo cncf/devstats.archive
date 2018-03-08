@@ -60,4 +60,7 @@ skip: w7,m7,q7,y7
 - Then Grafana uses `repogroup` which is a hidden variable that normalizes this name using other tag value that matches `repogroup_name`.
 - To see more details about repository group tags, and all other tags check [tags.md](https://github.com/cncf/devstats/blob/master/docs/tags.md).
 - Releases comes from Grafana annotations: [reviewers.json](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/reviewers.json#L43-L55).
+- Project name is customized per project, it uses `[[full_name]]` template variable [definition](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/reviewers.json#L275-L293) and [used as project name](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/reviewers.json#L78).
+- Per project variables can be defined [here](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/idb_vars.yaml), they use `idb_vars` [tool](https://github.com/cncf/devstats/blob/master/cmd/idb_vars/idb_vars.go), called [here](https://github.com/cncf/devstats/blob/master/kubernetes/reinit_all.sh#L4).
+- `idb_vars` can also be used for defining per project variables using OS commands results.
 - For more details about annotations check [here](https://github.com/cncf/devstats/blob/master/docs/annotations.md).
