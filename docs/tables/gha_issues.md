@@ -19,4 +19,5 @@ Most important columns are:
 - `state`: `open` or `closed` at given GitHub event `event_id` date.
 - `title`: Issue title.
 - `user_id`: GitHub user ID performing action on the issue.
+- `assignee_id`: Assigned GitHub user, can be null.
 - `is_pull_request`: true - this is a PR, false - this is an Issue. PRs are stored on this table too, but they have an additional record in [gha_pull_requests](https://github.com/cncf/devstats/blob/master/docs/tables/gha_pull_requests.md).
