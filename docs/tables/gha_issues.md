@@ -14,7 +14,7 @@ Most important columns are:
 - `body`: issue text.
 - `created_at`: Issue creation date.
 - `closed_at`: Issue close date. Note that this table holds Issue state in time, so for some event this date will be null, for some other it will be set. If issue was closed/opened multiple times - all historical close dates will be stored here.
-- `milestone_id`: Milestone ID, see [gha_milestones](https://github.com/cncf/devstats/blob/master/docs/tables/gha_milestone.md).
+- `milestone_id`: Milestone ID, see [gha_milestones](https://github.com/cncf/devstats/blob/master/docs/tables/gha_milestones.md).
 - `number`: Issue number - this is an unique number within single repository.
 - `state`: `open` or `closed` at given GitHub event `event_id` date.
 - `title`: Issue title.

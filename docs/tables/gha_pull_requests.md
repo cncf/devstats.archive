@@ -16,7 +16,7 @@ Most important columns are:
 - `closed_at`: PR close date. Note that this table holds PR state in time, so for some event this date will be null, for some other it will be set.
 - `merged_at`: PR merge date (can be null for all events). Note that this table holds PR state in time, so for some event this date will be null, for some other it will be set.
 - `user_id`: GitHub user ID performing action on the issue.
-- `milestone_id`: Milestone ID, see [gha_milestones](https://github.com/cncf/devstats/blob/master/docs/tables/gha_milestone.md).
+- `milestone_id`: Milestone ID, see [gha_milestones](https://github.com/cncf/devstats/blob/master/docs/tables/gha_milestones.md).
 - `number`: PR number - this is an unique number within single repository. There will be an entry in [gha_issues_pull_requests](https://github.com/cncf/devstats/blob/master/docs/tables/gha_issues_pull_requests.md) and [gha_issues](https://github.com/cncf/devstats/blob/master/docs/tables/gha_issues.md) with the same `number` and `repo_id` - PRs are stored on that tables too.
 - `state`: `open` or `closed` at given GitHub event `event_id` date.
 - `merged`: PR merged state at given `event_id` time, can be true (merged) or false, null (not merged).
