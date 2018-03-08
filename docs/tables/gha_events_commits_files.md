@@ -5,7 +5,7 @@
 - Events commits files are generated using [util_sql/create_events_commits.sql](https://github.com/cncf/devstats/blob/master/util_sql/create_events_commits.sql) [here](https://github.com/cncf/devstats/blob/master/cmd/get_repos/get_repos.go#L566-L592).
 - It adds new event's commit's files every hour, creating full files paths that include repository name.
 - It needs postprocessing that is defined in a standard project's setup script. It is updated in postprocess every hour.
-- Setup scripts is called by main Postgres init script, for Kubernetes it is: [kubernetes/psql.sh](https://github.com/cncf/devstats/blob/master/kubernetes/psql.sh#L14).
+- Setup scripts is called by main Postgres init script, for Kubernetes it is: [kubernetes/psql.sh](https://github.com/cncf/devstats/blob/master/kubernetes/psql.sh#L14)).
 - It runs [kubernetes/setup_scripts.sh](https://github.com/cncf/devstats/blob/master/kubernetes/setup_scripts.sh#L6-L8). This is `{{projectname}}/setup_scripts.sh` for other projects.
 - SQL script [util_sql/postprocess_repo_groups.sql](https://github.com/cncf/devstats/blob/master/util_sql/postprocess_repo_groups.sql) is scheduled to run every hour by: [util_sql/repo_groups_postprocess_script.sql](https://github.com/cncf/devstats/blob/master/util_sql/repo_groups_postprocess_script.sql).
 - SQL script [util_sql/postprocess_repo_groups_from_repos.sql](https://github.com/cncf/devstats/blob/master/util_sql/postprocess_repo_groups_from_repos.sql) is scheduled to run every hour by: [util_sql/repo_groups_postprocess_script_from_repos.sql](https://github.com/cncf/devstats/blob/master/util_sql/repo_groups_postprocess_script_from_repos.sql).
