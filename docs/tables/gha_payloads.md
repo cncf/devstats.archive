@@ -3,7 +3,7 @@
 - This is the main GHA (GitHub archives), every GitHub event contain payload. This event ID is this table's primary key `event_id`.
 - This table serves to connect various payload structures for different event types - like connect Issue with Comment for Issue Comment event etc.
 - This is a const table, values are inserted once and doesn't change, see [const table](https://github.com/cncf/devstats/blob/master/docs/tables/const_table.md).
-- Payloads are created during standard GitHub archives import from JSON [here (pre-2015 format)](https://github.com/cncf/devstats/blob/master/cmd/gha2db/gha2db.go#L839) or [here (current format](https://github.com/cncf/devstats/blob/master/cmd/gha2db/gha2db.go#L1105).
+- Payloads are created during standard GitHub archives import from JSON [here (pre-2015 format)](https://github.com/cncf/devstats/blob/master/cmd/gha2db/gha2db.go#L839) or [here (current format)](https://github.com/cncf/devstats/blob/master/cmd/gha2db/gha2db.go#L1105).
 - Old (pre-20150 GitHub events have no ID, it is generated artificially [here](https://github.com/cncf/devstats/blob/master/cmd/gha2db/gha2db.go#L1355), old format ID are < 0.
 - It contains about 1.8M records as of Feb 2018.
 - It is created here: [structure.go](https://github.com/cncf/devstats/blob/master/structure.go#L188-L236).
