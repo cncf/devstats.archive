@@ -16,7 +16,7 @@
 
 # Columns
 
-- `id`: GitHub repository ID
+- `id`: GitHub repository ID.
 - `name`: GitHub repository name, can change in time, but ID remains the same then.
 - `org_id`: GitHub organization ID (can be null) see [gha_orgs](https://github.com/cncf/devstats/blob/master/docs/tables/gha_orgs.md).
 - `org_login`: GitHub organization name duplicated from `gha_orgs` table (can be null). This can be organization name or GitHub username.
