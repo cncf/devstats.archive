@@ -2,7 +2,8 @@ package main
 
 import (
 	"io/ioutil"
-	"os"
+	"os/exec"
+	"strings"
 	"time"
 
 	lib "devstats"
@@ -17,8 +18,10 @@ type vars struct {
 
 // tag contain each InfluxDB tag data
 type tag struct {
-	Name  string `yaml:"name"`
-	Value string `yaml:"value"`
+	Tag     string `yaml:"tag"`
+	Name    string `yaml:"name"`
+	Value   string `yaml:"value"`
+	Command string `yaml:"command"`
 }
 
 // Insert InfluxDB vars
@@ -55,30 +58,31 @@ func idbVars() {
 	// No fields value needed
 	fields := map[string]interface{}{"value": 0.0}
 
-	// Add hostname
-	hostname, err := os.Hostname()
-	if err != nil {
-		hostname = ctx.DefaultHostname
-	}
-	lib.IDBAddPointN(
-		&ctx,
-		&ic,
-		&pts,
-		lib.IDBNewPointWithErr(
-			"os",
-			map[string]string{"os_hostname": hostname},
-			fields,
-			lib.TimeParseAny("2014"),
-		),
-	)
-
 	// Iterate vars
 	for _, tag := range allVars.Vars {
 		if ctx.Debug > 0 {
-			lib.Printf("Name '%s' --> Value '%s'\n", tag.Name, tag.Value)
+			lib.Printf("Tag '%s', Name '%s', Value '%s', Command '%s'\n", tag.Tag, tag.Name, tag.Value, tag.Command)
+		}
+		if tag.Tag == "" || tag.Name == "" || (tag.Value == "" && tag.Command == "") {
+			continue
 		}
 		// Drop current vars
-		//lib.QueryIDB(ic, &ctx, "drop series from "+tag.SeriesName)
+		//lib.QueryIDB(ic, &ctx, "drop series from "+tag.Tag
+
+		if tag.Command != "" {
+			cmdBytes, err := exec.Command(tag.Command).CombinedOutput()
+			if err != nil {
+				lib.FatalOnError(err)
+				return
+			}
+			outString := strings.TrimSpace(string(cmdBytes))
+			if outString != "" {
+				tag.Value = outString
+				if ctx.Debug > 0 {
+					lib.Printf("Tag '%s', Name '%s', New Value '%s'\n", tag.Tag, tag.Name, tag.Value)
+				}
+			}
+		}
 
 		// Insert tag name/value
 		lib.IDBAddPointN(
@@ -86,7 +90,7 @@ func idbVars() {
 			&ic,
 			&pts,
 			lib.IDBNewPointWithErr(
-				"vars",
+				tag.Tag,
 				map[string]string{tag.Name: tag.Value},
 				fields,
 				lib.TimeParseAny("2014"),
