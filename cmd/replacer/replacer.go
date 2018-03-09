@@ -36,7 +36,7 @@ func replacer(from, to, fn, mode string) {
 			newContents = re.ReplaceAllString(contents, to)
 		}
 		if contents == newContents {
-			fmt.Printf("Noting replaced in: %s\n", fn)
+			fmt.Printf("Nothing replaced in: %s\n", fn)
 			if mode == "rr" || mode == "rs" {
 				os.Exit(1)
 			}
@@ -45,7 +45,7 @@ func replacer(from, to, fn, mode string) {
 	case "ss", "ss0":
 		newContents = strings.Replace(contents, from, to, -1)
 		if contents == newContents {
-			fmt.Printf("Noting replaced in: %s\n", fn)
+			fmt.Printf("Nothing replaced in: %s\n", fn)
 			if mode == "ss" {
 				os.Exit(1)
 			}
