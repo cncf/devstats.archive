@@ -8,10 +8,10 @@ fi
 crontab -l > /tmp/crontab.tmp
 if [ "$2" = "off" ]
 then
-  MODE=rr0 FROM="(?m)^([^#].*\s+$1\s+.*)$" TO='#$1' replacer /tmp/crontab.tmp
+  MODE=rr0 FROM="(?m)^([^#].*\s+$1\s+.*)$" TO='#$1' replacer /tmp/crontab.tmp > /dev/null
 elif [ "$2" = "on" ]
 then
-  MODE=rr0 FROM="(?m)^#(.*\s+$1\s+.*)$" TO='$1' replacer /tmp/crontab.tmp
+  MODE=rr0 FROM="(?m)^#(.*\s+$1\s+.*)$" TO='$1' replacer /tmp/crontab.tmp > /dev/null
 else
   echo "Usage $0 command on|off"
   rm -f /tmp/crontab.tmp
