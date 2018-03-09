@@ -261,7 +261,7 @@ func webhookHandler(w http.ResponseWriter, r *http.Request) {
 	pid := os.Getpid()
 	pidFile := "/tmp/webhook.pid"
 	trials := 0
-	maxTrials := 3600
+	maxTrials := 3800
 	for {
 		f, err := os.OpenFile(pidFile, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0700)
 		if err != nil {
