@@ -36,7 +36,6 @@ To add new project follow instructions:
 - `cp -Rv grafana/oldproject/ grafana/projectname/` and then update files. Usually `%s/oldproject/newproject/g|w|next`.
 - `cp -Rv grafana/dashboards/oldproject/ grafana/dashboards/projectname/` and then update files. Usually `%s/"oldproj"/"newproj"/g|%s/DS_OLDPROJ/DS_NEWPROJ/g|%s/OldProj/NewProj/g|w|next`.
 - Be careful with `dashboards.json` because it contains list of all projects so you shouldn't replace oldproj with newproj - but add new entry instead.
-- Update: `grafana/copy_artwork_icons.sh apache/www/copy_icons.sh grafana/create_images.sh`.
 - Update `projects.yaml` remove `disabled: true` for new project (if needed).
 - `make install` to install all changed stuff.
 - Copy directories `/etc/grafana`, `/usr/share/grafana`, `/var/lib/grafana` from standard unmodified installation adding .projectname to their names.
