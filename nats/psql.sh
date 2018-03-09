@@ -1,10 +1,10 @@
 #!/bin/bash
+set -o pipefail
 function finish {
     sync_unlock.sh
 }
 trap finish EXIT
 sync_lock.sh || exit -1
-set -o pipefail
 > errors.txt
 > run.log
 GHA2DB_PROJECT=nats IDB_DB=nats PG_DB=nats GHA2DB_LOCAL=1 ./structure 2>>errors.txt | tee -a run.log || exit 1
