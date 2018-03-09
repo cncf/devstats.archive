@@ -2,8 +2,12 @@
 function finish {
     sync_unlock.sh
 }
-trap finish EXIT
-sync_lock.sh || exit -1
+if [ -z "$TRAP" ]
+then
+  sync_lock.sh || exit -1
+  trap finish EXIT
+  export TRAP=1
+fi
 GHA2DB_PROJECT=kubernetes PG_DB=gha IDB_DB=gha ./devel/add_single_metric_gaps.sh || exit 1
 GHA2DB_PROJECT=prometheus PG_DB=prometheus IDB_DB=prometheus ./devel/add_single_metric_gaps.sh || exit 2
 GHA2DB_PROJECT=opentracing PG_DB=opentracing IDB_DB=opentracing ./devel/add_single_metric_gaps.sh || exit 3

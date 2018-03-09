@@ -13,8 +13,12 @@ fi
 function finish {
     sync_unlock.sh
 }
-trap finish EXIT
-sync_lock.sh || exit -1
+if [ -z "$TRAP" ]
+then
+  sync_lock.sh || exit -1
+  trap finish EXIT
+  export TRAP=1
+fi
 GHA2DB_INPUT_DBS="$1" GHA2DB_OUTPUT_DB="allprj" ./merge_pdbs || exit 3
 PG_DB="allprj" ./devel/remove_db_dups.sh || exit 4
 ./all/get_repos.sh || exit 5
