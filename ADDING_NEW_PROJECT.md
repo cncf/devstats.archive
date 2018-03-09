@@ -18,15 +18,18 @@ To add new project follow instructions:
 - Copy `metrics/oldproject` to `metrics/projectname`, those files will need tweaks too. Specially `./metrics/projectname/gaps.yaml` and `./metrics/projectname/idb_vars.yaml` files.
 - Please use Grafana's "null as zero" instead of using manuall filling gaps. This simplifies metrics a lot. Gaps filling is only needed when using data from > 1 Influx series.
 - `cp -Rv scripts/oldproject/ scripts/projectname`, `vim scripts/projectname/*`.
-- Create Postgres database for new project: `sudo -u postgres psql`
-- TODO: ./nats/setup_grafana.sh, nats/create_postgres.sh.
+- Update project's main database creation script: `./projectname/create_databases.sh`.
+- Run the postgres part of this script: `PDB=1 ./projectname/create_databases.sh`
 - When data is imported into Postgres: projectname, you need to update `metrics/projectname/gaps*.yaml` (with top companies & repo groups). This is only needed when you're using gaps (which you shouldn't).
-- Using `./projectname/top_n_companies.sh ./projectname/top_n_repos_groups.sh`.
+- To see top companies, repo groups use `./projectname/top_n_companies.sh ./projectname/top_n_repos_groups.sh`.
 - There are two kinds of repo group names: direct from query, but also with special characters replaced with "_"
 - You should copy those from query, put there where needed and do VIM replace: `:'<,'>s/[-/.: `]/_/g`, `:'<,'>s/[A-Z]/\L&/g`.
-- Run regenerate all InfluxData script `./projectname/reinit.sh`.
+- Now run the InfluxDB part: `IDB=1 IDROP=1 ./projectname/create_databases.sh`. The reason to run the separately is that you need to check repository groups defined in PSQL part, update gaps yaml files and only then run InfluxDB part.
+- On the production server (where you will already have correct gaps config) - run `PDB=1 GET=1 IDB=1 IDROP=1 ./projectname/create_databases.sh` to create both databases, `GET=1` means that Postgres database will be fetched from bthe backup on the test server.
+
 - Merge new project into 'All' project using `PG_PASS=pwd ./all/add_project.sh projname`.
 - Run regenerate 'All' project InfluxData script `./all/reinit.sh`.
+- TODO: `./projectname/create_grafana.sh`.
 - `cp -Rv grafana/oldproject/ grafana/projectname/` and then update files. Usually `%s/oldproject/newproject/g|w|next`.
 - `cp -Rv grafana/dashboards/oldproject/ grafana/dashboards/projectname/` and then update files. Usually `%s/"oldproj"/"newproj"/g|%s/DS_OLDPROJ/DS_NEWPROJ/g|%s/OldProj/NewProj/g|w|next`.
 - Be careful with `dashboards.json` because it contains list of all projects so you shouldn't replace oldproj with newproj - but add new entry instead.
