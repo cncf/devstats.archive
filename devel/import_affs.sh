@@ -9,6 +9,11 @@ then
   echo "You need to set IDB_PASS environment variable to run this script"
   exit 2
 fi
+function finish {
+    sync_unlock.sh
+}
+trap finish EXIT
+sync_lock.sh || exit -1
 ./kubernetes/import_affs.sh || exit 3
 ./prometheus/import_affs.sh || exit 4
 ./opentracing/import_affs.sh || exit 5
@@ -25,11 +30,12 @@ fi
 ./tuf/import_affs.sh || exit 16
 ./rook/import_affs.sh || exit 17
 ./vitess/import_affs.sh || exit 18
-./all/import_affs.sh || exit 19
-./opencontainers/import_affs.sh || exit 20
+./nats/import_affs.sh || exit 19
+./all/import_affs.sh || exit 20
+./opencontainers/import_affs.sh || exit 21
 host=`hostname`
 if [ $host = "cncftest.io" ]
 then
-  ./cncf/import_affs.sh || exit 21
+  ./cncf/import_affs.sh || exit 22
 fi
 echo 'OK'
