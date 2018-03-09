@@ -255,6 +255,44 @@ func webhookHandler(w http.ResponseWriter, r *http.Request) {
 	if checkError(true, w, err) {
 		return
 	}
+
+	// Create PID file (if not exists)
+	// If PID file exists, exit
+	pid := os.Getpid()
+	pidFile := "/tmp/webhook.pid"
+	trials := 0
+	maxTrials := 3600
+	for {
+		f, err := os.OpenFile(pidFile, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0700)
+		if err != nil {
+			switch err.(type) {
+			case *os.PathError:
+				time.Sleep(time.Second)
+				if trials == 0 {
+					lib.Printf("Another `webhook` instance is running, PID file '%s' exists, waiting\n", pidFile)
+				}
+				trials++
+				if trials >= maxTrials {
+					lib.Printf("Another `webhook` instance is running, PID file '%s' exists, tried %d times, exiting\n", pidFile, trials)
+					return
+				}
+			default:
+				fmt.Printf("WebHook: error: %v, exiting\n", err)
+				return
+			}
+			continue
+		}
+		fmt.Fprintf(f, "%d", pid)
+		lib.FatalOnError(f.Close())
+		break
+	}
+	if trials > 0 {
+		lib.Printf("Another `webhook` instance was running, waited %d seconds\n", trials)
+	}
+
+	// Schedule remove PID file when finished
+	defer func() { lib.FatalOnError(os.Remove(pidFile)) }()
+
 	// Do deployment
 	lib.Printf("WebHook: deploying via `%s`\n", "make install")
 	ctx.ExecFatal = false
