@@ -1,6 +1,7 @@
 #!/bin/bash
 # DROP=1 (will drop DB)
 # GET=1 (will use DB backup if available)
+# IDB=1 (will regenerate Influx database too)
 set -o pipefail
 if ( [ -z "$PG_PASS" ] || [ -z "$IDB_PASS" ] || [ -z "$IDB_HOST" ] )
 then
@@ -33,7 +34,16 @@ then
     rm -f nats.dump || exit 8
   else
     echo 'generating database'
+    GHA2DB_MGETC=y ./nats/psql.sh || exit 9
+  fi
+  if [ ! -z "$IDB" ]
+  then
+    ./grafana/influxdb_recreate.sh nats || exit 10
+    ./nats/reinit.sh || exit 11
+  else
+    echo 'influxdb generation skipped'
   fi
 else
   echo 'nats database already exists'
 fi
+echo 'OK'
