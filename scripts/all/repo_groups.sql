@@ -176,8 +176,19 @@ set
   repo_group = 'Vitess',
   alias = 'Vitess'
 where
-  org_login = 'vitess'
+  org_login = 'vitessio'
   or name in ('youtube/vitess', 'vitess')
+;
+
+-- NATS
+update
+  gha_repos
+set
+  repo_group = 'NATS',
+  alias = 'NATS'
+where
+  org_login = 'nats-io'
+  or name in ('apcera/gnatsd', 'gnatsd', 'apcera/nats', 'nats')
 ;
 
 -- CNCF
