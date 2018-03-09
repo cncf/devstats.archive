@@ -1,4 +1,9 @@
 #!/bin/bash
+function finish {
+    sync_unlock.sh
+}
+trap finish EXIT
+sync_lock.sh
 set -o pipefail
 > errors.txt
 > run.log

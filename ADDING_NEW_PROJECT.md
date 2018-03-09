@@ -1,7 +1,7 @@
 # Adding new project
   
 To add new project follow instructions:
-- `crontab -e` and turn off `devstats`, `gha2db_sync` and `webhook`. Kill running `webhook` instance: `killall webhook` (to avoid auto deploying wip states).
+- `sync_lock.sh` to disable `devstats` and `webhook` cron jobs and wait for `devstats` to finish.
 - Add project entry to `projects.yaml` file. Find projects orgs, repos, select start date, eventually add test coverage for complex regular expression in `regexp_test.go`.
 - To identify repo and/or org name changes, date ranges for entrire projest use `util_sql/(repo|org)_name_changes_bigquery.sql` replacing name there.
 - Main repo can be empty `''` - in this case only two annotations will be added: 'start date - CNCF join date' and 'CNCF join date - now".
