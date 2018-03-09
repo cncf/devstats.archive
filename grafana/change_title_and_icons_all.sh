@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 host=`hostname`
 if [ $host = "cncftest.io" ]
 then

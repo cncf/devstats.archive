@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # This script assumes that You have cncf/artwork cloned in ~/dev/cncf/artwork and imagemagick installed
 convert ~/dev/cncf/artwork/kubernetes/icon/color/kubernetes-icon-color.png -resize 80x80  /var/www/html/img/kubernetes-icon-color.png || exit 1
 convert ~/dev/cncf/artwork/prometheus/icon/color/prometheus-icon-color.png -resize 80x80  /var/www/html/img/prometheus-icon-color.png || exit 2

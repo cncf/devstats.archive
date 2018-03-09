@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 MODE=ss FROM='CNI release' TO='[[full_name]] release' ./replacer ./grafana/dashboards/cni/dashboards.json
 MODE=ss FROM='CNI activity' TO='[[full_name]] activity' ./replacer ./grafana/dashboards/cni/dashboards.json
 MODE=ss FROM='CNI Dashboards' TO='[[full_name]] Dashboards' ./replacer ./grafana/dashboards/cni/dashboards.json

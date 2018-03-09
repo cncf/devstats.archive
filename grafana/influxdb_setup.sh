@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # Call this script with IDB_PASS='pwd_here' ./influxdb_setup.sh
 # This should be called before enabling authenticating via `[http] auth-enabled = true` in the config file.
 echo "Initialize InfluxDB $1"

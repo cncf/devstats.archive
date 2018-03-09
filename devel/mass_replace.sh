@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # Examples:
 # MODE=rr FROM=`cat input` TO=`cat output` FILES=`find abc/ -type f -not -iname 'something.txt'` ./devel/mass_replace.sh
 # MODE=ss FROM=`cat input` TO=`cat output` FILES=`ls grafana/dashboards/{all,cncf,cni,containerd,coredns,envoy,fluentd,grpc,jaeger,linkerd,kubernetes,notary,opencontainers,opentracing,prometheus,rkt,rook,tuf,vitess}/*` ./devel/mass_replace.sh

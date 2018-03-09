@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # Run this script from the repository top level: ./scripts/gha2db.sh
 # ./gha2db 2017-07-24 00 2017-07-31 00 kubernetes
 # ./gha2db 2017-07-28 00 2017-07-29 00 lukaszgryglicki dn

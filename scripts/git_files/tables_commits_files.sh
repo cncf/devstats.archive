@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 sudo -u postgres psql gha < util_sql/tables_commits_files.sql
 sudo -u postgres psql prometheus < util_sql/tables_commits_files.sql
 sudo -u postgres psql opentracing < util_sql/tables_commits_files.sql

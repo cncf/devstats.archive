@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # This script assumes that You have cncf/artwork cloned in ~/dev/cncf/artwork 
 cp ~/dev/cncf/artwork/kubernetes/icon/color/kubernetes-icon-color.svg /usr/share/grafana.k8s/public/img/grafana_icon.svg || exit 1
 cp ~/dev/cncf/artwork/kubernetes/icon/color/kubernetes-icon-color.svg /usr/share/grafana.k8s/public/img/grafana_com_auth_icon.svg || exit 2

@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # Run this script from the repository top level.
 echo "Setting up default postprocess scripts"
 PG_DB=allprj ./runq util_sql/default_postprocess_scripts.sql

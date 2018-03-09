@@ -8,7 +8,7 @@ then
   echo "You need to set PG_PASS environment variable to run this script"
   exit 2
 fi
-#!/bin/sh
+#!/bin/bash
 GHA2DB_INPUT_DBS="$1" GHA2DB_OUTPUT_DB="allprj" ./merge_pdbs || exit 3
 PG_DB="allprj" ./devel/remove_db_dups.sh || exit 4
 ./all/get_repos.sh || exit 5

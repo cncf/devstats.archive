@@ -1,2 +1,2 @@
-#!/bin/sh
+#!/bin/bash
 docker rm all_grafana

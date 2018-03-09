@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 PG_DB=gha ./kubernetes/setup_scripts.sh
 PG_DB=prometheus ./prometheus/setup_scripts.sh
 PG_DB=opentracing ./opentracing/setup_scripts.sh

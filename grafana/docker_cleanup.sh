@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 echo "Killing all containers"
 service docker stop
 service docker start

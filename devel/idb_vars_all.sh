@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 if [ -z "${IDB_PASS}" ]
 then
   echo "You need to set IDB_PASS environment variable to run this script"

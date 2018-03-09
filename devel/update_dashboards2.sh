@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 for f in `ls grafana/dashboards/{all,cncf,cni,containerd,coredns,envoy,fluentd,grpc,jaeger,linkerd,kubernetes,notary,opencontainers,opentracing,prometheus,rkt,rook,tuf,vitess}/*`
 do
   MODE=rs0 FROM='(?m)^.*"uid": "\w+",\n' TO='-' ./replacer $f

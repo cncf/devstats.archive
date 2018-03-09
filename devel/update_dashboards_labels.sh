@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 if [ -z "${FROM}" ]
 then
   echo "You need to set FROM, example FROM=abc FILES='f1 f2' $0"

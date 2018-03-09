@@ -1,2 +1,2 @@
-#!/bin/sh
+#!/bin/bash
 docker start jaeger_grafana

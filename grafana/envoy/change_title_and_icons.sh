@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # GRAFANA_DATA=/usr/share/grafana.envoy/
 if [ -z "${GRAFANA_DATA}" ]
 then
