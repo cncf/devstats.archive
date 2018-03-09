@@ -7,7 +7,7 @@
 set -o pipefail
 if ( [ -z "$PG_PASS" ] || [ -z "$IDB_PASS" ] || [ -z "$IDB_HOST" ] )
 then
-  echo "You need to set PG_PASS, IDB_PASS, IDB_HOST environment variables to run this script"
+  echo "$0: You need to set PG_PASS, IDB_PASS, IDB_HOST environment variables to run this script"
   exit 1
 fi
 proj=nats
