@@ -2,7 +2,7 @@
 set -o pipefail
 pid=/tmp/devstats.pid
 trials=0
-maxTrials=5
+maxTrials=3600
 while true
 do
   if [ -e $pid ]
@@ -17,12 +17,14 @@ do
     then
       echo "DevStats is still running: $pid exists, waited $maxTrials seconds, exiting"
       exit 1
-  fi
+    fi
   else
     break
   fi
 done
-if [ "$trials" -gt "0"]
+if [ "$trials" -gt "0" ]
 then
-  echo "DevStats was running waited $trails seconds"
+  echo "DevStats was running waited $trials seconds"
+else
+  echo "DevStats was not running"
 fi
