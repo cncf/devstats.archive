@@ -9,6 +9,11 @@ then
   echo "You need to set IDB_PASS environment variable to run this script"
   exit 1
 fi
+function finish {
+    sync_unlock.sh
+}
+trap finish EXIT
+sync_lock.sh || exit -1
 ./kubernetes/tags.sh || exit 1
 ./prometheus/tags.sh || exit 2
 ./opentracing/tags.sh || exit 3
@@ -25,10 +30,11 @@ fi
 ./tuf/tags.sh || exit 14
 ./rook/tags.sh || exit 15
 ./vitess/tags.sh || exit 16
-./all/tags.sh || exit 17
-./opencontainers/tags.sh || exit 18
+./nats/tags.sh || exit 17
+./all/tags.sh || exit 18
+./opencontainers/tags.sh || exit 19
 host=`hostname`
 if [ $host = "cncftest.io" ]
 then
-  ./cncf/tags.sh || exit 19
+  ./cncf/tags.sh || exit 20
 fi
