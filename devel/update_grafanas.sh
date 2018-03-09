@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 if [ -z "$1" ]
 then
   echo "You need to provide grafana file name (for example 'grafana_5.0.0-12001beta5_amd64.deb')"

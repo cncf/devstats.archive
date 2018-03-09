@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 if [ -z "${PG_DB}" ]
 then
   echo "You need to set PG_DB environment variable to run this script"

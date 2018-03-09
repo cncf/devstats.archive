@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 cron_db_backup.sh gha 2>> /tmp/gha2db_backup_kubernetes.err 1>> /tmp/gha2db_backup_kubernetes.log
 cron_db_backup.sh prometheus 2>> /tmp/gha2db_backup_prometheus.err 1>> /tmp/gha2db_backup_prometheus.log
 cron_db_backup.sh opentracing 2>> /tmp/gha2db_backup_opentracing.err 1>> /tmp/gha2db_backup_opentracing.log

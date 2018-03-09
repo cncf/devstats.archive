@@ -3,7 +3,7 @@ function finish {
     sync_unlock.sh
 }
 trap finish EXIT
-sync_lock.sh
+sync_lock.sh || exit -1
 set -o pipefail
 > errors.txt
 > run.log

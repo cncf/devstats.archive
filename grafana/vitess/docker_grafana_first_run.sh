@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 if [ -z "${GRAFANA_PASS}" ]
 then
   echo "You need to set GRAFANA_PASS environment variable to run this script"

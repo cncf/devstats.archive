@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # GRAFANA_DATA=/usr/share/grafana.cncf/
 for f in `find ${GRAFANA_DATA} -type f -exec grep -l "'Grafana - '" "{}" \; | sort | uniq`
 do

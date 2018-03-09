@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 if [ -z "$1" ]
 then
   echo "You need to provide docker conatiner name as agrument"

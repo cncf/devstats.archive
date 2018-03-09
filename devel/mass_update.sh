@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # Example `FROM=DS_PROMETHEUS TO=DS_GHA ./devel/mass_update.sh grafana/dashboards/prometheus/*.json`
 if [ -z "${FROM}" ]
 then

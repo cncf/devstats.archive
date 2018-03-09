@@ -1,2 +1,2 @@
-#!/bin/sh
+#!/bin/bash
 docker start notary_grafana

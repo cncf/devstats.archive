@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # This script assumes that You have cncf/artwork cloned in ~/dev/cncf/artwork 
 cp ~/dev/cncf/artwork/kubernetes/icon/color/kubernetes-icon-color.svg grafana/img/k8s.svg || exit 1
 cp ~/dev/cncf/artwork/prometheus/icon/color/prometheus-icon-color.svg grafana/img/prometheus.svg || exit 2

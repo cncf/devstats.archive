@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 echo "You need to have example set of JSONs from < 2015 in jsons/ directory"
 # To generate them, use for example:
 # GHA2DB_OLDFMT=1 GHA2DB_JSON=1 GHA2DB_NODB=1 ./gha2db 2014-06-10 17 2014-06-10 19

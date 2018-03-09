@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # CALL this script with GRAFANA_PASS='pwd_here' ./grafana_start.sh
 echo "Setup Grafana & InfluxDB"
 if [ -z "${GRAFANA_PASS}" ]

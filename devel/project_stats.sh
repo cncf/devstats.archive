@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 if [ -z "$1" ]
 then
   echo "You need to set period in format 'period,from,to' - either specify period or from,to pair."

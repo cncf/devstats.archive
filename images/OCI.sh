@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 rm -f oci-icon-white.png oci-icon-white.svg
 wget https://raw.githubusercontent.com/opencontainers/artwork/master/oci/icon/white/oci-icon-white.png
 wget https://raw.githubusercontent.com/opencontainers/artwork/master/oci/icon/white/oci-icon-white.svg

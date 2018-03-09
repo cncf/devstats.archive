@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 rm -f ~/all.go ~/all.sh ~/all.sql ~/all.yaml ~/all.md ~/all.json
 for f in `find . -type f -iname "*.go"`; do echo "// File: $f" >> ~/all.go; cat $f >> ~/all.go; done
 for f in `find . -type f -iname "*.sh"`; do echo "# File: $f" >> ~/all.sh; cat $f >> ~/all.sh; done
