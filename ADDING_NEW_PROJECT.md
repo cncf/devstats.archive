@@ -24,10 +24,9 @@ To add new project follow instructions:
 - To see top companies, repo groups use `./projectname/top_n_companies.sh ./projectname/top_n_repos_groups.sh`.
 - There are two kinds of repo group names: direct from query, but also with special characters replaced with "_"
 - You should copy those from query, put there where needed and do VIM replace: `:'<,'>s/[-/.: `]/_/g`, `:'<,'>s/[A-Z]/\L&/g`.
-- Now run the InfluxDB part: `IDB=1 IDROP=1 ./projectname/create_databases.sh`. The reason to run the separately is that you need to check repository groups defined in PSQL part, update gaps yaml files and only then run InfluxDB part.
-- On the production server (where you will already have correct gaps config) - run `PDB=1 GET=1 IDB=1 IDROP=1 ./projectname/create_databases.sh` to create both databases.
+- Now run the InfluxDB part: `IDB=1 ./projectname/create_databases.sh`. The reason to run the separately is that you need to check repository groups defined in PSQL part, update gaps yaml files and only then run InfluxDB part.
+- On the production server (where you will already have correct gaps config) - run `PDB=1 GET=1 IDB=1 ./projectname/create_databases.sh` to create both databases.
 - `GET=1` means that Postgres database will be fetched from the backup on the test server.
-- `IDROP=1` means that Influx database must be created (this executes drop & create).
 - Merge new project into 'All' project using `PG_PASS=pwd IDB_PASS=pwd IDB_HOST=172.17.0.1 ./all/add_project.sh projname`.
 - Run regenerate 'All' project InfluxData script `./all/reinit.sh`.
 - On production (where you already have correct gaps config for `All CNCF` project, just run: `IDB=1 PG_PASS=pwd IDB_PASS=pwd IDB_HOST=172.17.0.1 ./all/add_project.sh projname`.

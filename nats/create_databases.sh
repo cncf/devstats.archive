@@ -37,8 +37,6 @@ then
       wget "https://cncftest.io/$proj.dump" || exit 6
       sudo -u postgres pg_restore -d "$proj" "$proj.dump" || exit 7
       rm -f "$proj.dump" || exit 8
-      echo "updating postgres database $proj received from backup"
-      ./$proj/sync.sh || exit 9
     else
       echo "generating postgres database $proj"
       GHA2DB_MGETC=y ./$proj/psql.sh || exit 10

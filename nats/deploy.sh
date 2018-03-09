@@ -11,7 +11,7 @@ function finish {
 trap finish EXIT
 sync_lock.sh || exit -1
 proj=nats
-PDB=1 GET=1 IDB=1 IDROP=1 ./$proj/create_databases.sh || exit 1
+PDB=1 GET=1 IDB=1 ./$proj/create_databases.sh || exit 1
 IDB=1 ./all/add_project.sh "$proj" || exit 2
 ./$proj/create_grafana.sh || exit 3
 echo 'OK'
