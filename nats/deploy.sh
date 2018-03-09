@@ -8,8 +8,12 @@ fi
 function finish {
     sync_unlock.sh
 }
-trap finish EXIT
-sync_lock.sh || exit -1
+if [ -z "$TRAP" ]
+then
+  sync_lock.sh || exit -1
+  trap finish EXIT
+  export TRAP=1
+fi
 proj=nats
 PDB=1 GET=1 IDB=1 ./$proj/create_databases.sh || exit 1
 IDB=1 ./all/add_project.sh "$proj" || exit 2

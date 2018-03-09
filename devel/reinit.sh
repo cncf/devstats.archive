@@ -12,8 +12,12 @@ fi
 function finish {
     sync_unlock.sh
 }
-trap finish EXIT
-sync_lock.sh || exit -1
+if [ -z "$TRAP" ]
+then
+  sync_lock.sh || exit -1
+  trap finish EXIT
+  export TRAP=1
+fi
 GHA2DB_LOCAL=1 GHA2DB_PROCESS_REPOS=1 ./get_repos
 ./kubernetes/reinit_all.sh || exit 1
 ./prometheus/reinit.sh || exit 2

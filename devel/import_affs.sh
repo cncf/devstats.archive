@@ -12,8 +12,12 @@ fi
 function finish {
     sync_unlock.sh
 }
-trap finish EXIT
-sync_lock.sh || exit -1
+if [ -z "$TRAP" ]
+then
+  sync_lock.sh || exit -1
+  trap finish EXIT
+  export TRAP=1
+fi
 ./kubernetes/import_affs.sh || exit 3
 ./prometheus/import_affs.sh || exit 4
 ./opentracing/import_affs.sh || exit 5

@@ -2,8 +2,12 @@
 function finish {
     sync_unlock.sh
 }
-trap finish EXIT
-sync_lock.sh || exit -1
+if [ -z "$TRAP" ]
+then
+  sync_lock.sh || exit -1
+  trap finish EXIT
+  export TRAP=1
+fi
 ./grafana/influxdb_recreate.sh jaeger_temp || exit 1
 GHA2DB_CMDDEBUG=1 GHA2DB_RESETIDB=1 GHA2DB_LOCAL=1 GHA2DB_PROJECT=jaeger PG_DB=jaeger IDB_DB=jaeger_temp ./gha2db_sync || exit 2
 GHA2DB_LOCAL=1 GHA2DB_PROJECT=jaeger IDB_DB=jaeger_temp ./idb_vars || exit 3

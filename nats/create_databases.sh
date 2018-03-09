@@ -15,8 +15,12 @@ function finish {
     rm -rf "$proj.dump" >/dev/null 2>&1
     sync_unlock.sh
 }
-trap finish EXIT
-sync_lock.sh || exit -1
+if [ -z "$TRAP" ]
+then
+  sync_lock.sh || exit -1
+  trap finish EXIT
+  export TRAP=1
+fi
 if [ ! -z "$PDB" ]
 then
   exists=`sudo -u postgres psql -tAc "select 1 from pg_database WHERE datname = '$proj'"` || exit 1
