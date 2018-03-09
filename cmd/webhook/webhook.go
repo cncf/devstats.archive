@@ -267,10 +267,10 @@ func webhookHandler(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			switch err.(type) {
 			case *os.PathError:
-				time.Sleep(time.Second)
 				if trials == 0 {
 					lib.Printf("Another `webhook` instance is running, PID file '%s' exists, waiting\n", pidFile)
 				}
+				time.Sleep(time.Second)
 				trials++
 				if trials >= maxTrials {
 					lib.Printf("Another `webhook` instance is running, PID file '%s' exists, tried %d times, exiting\n", pidFile, trials)
