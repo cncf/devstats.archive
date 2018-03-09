@@ -13,8 +13,7 @@ To add new project follow instructions:
 - Add new domain for the project: `projectname.cncftest.io`. If using wildcard domain like `*.devstats.cncf.io` - this step is not needed.
 - Add google analytics for the new domain and update /etc/grafana.projectname/grafana.ini with its `UA-...`.
 - Update `images/OCI.sh grafana/copy_artwork_icons.sh apache/www/copy_icons.sh grafana/create_images.sh grafana/change_title_and_icons_all.sh`.
-- Copy setup scripts and then adjust them:
-- `cp -R oldproject/ projectname/`, `vim projectname/*`.
+- Copy setup scripts and then adjust them: `cp -R oldproject/ projectname/`, `vim projectname/*`.
 - You need to set correct project main GitHub repository and annotations match regexp in `projects.yaml` to have working annotations and quick ranges.
 - Copy `metrics/oldproject` to `metrics/projectname`, those files will need tweaks too. Specially `./metrics/projectname/gaps*.yaml` files.
 - Please use Grafana's "null as zero" instead of using manuall filling gaps. This simplifies metrics a lot. Gaps filling is only needed when using data from > 1 Influx series.

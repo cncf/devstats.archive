@@ -3,7 +3,10 @@ PWD=`pwd`
 cd ~/dev/cncf/artwork || exit 1
 git pull || exit 2
 cd $PWD || exit 3
-cp -R ~/grafana.v5/usr.share.grafana /usr/share/grafana.nats/ || exit 4
+if [ ! -d "/usr/share/grafana.nats/" ]
+then
+  cp -R ~/grafana.v5/usr.share.grafana /usr/share/grafana.nats/ || exit 4
+fi
 icon=cncf
 # TODO: when CNCF updates artwork to include NATS icon
 #icon=nats
