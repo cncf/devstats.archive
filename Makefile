@@ -21,7 +21,7 @@ GO_ERRCHECK=errcheck -asserts -ignore '[FS]?[Pp]rint*'
 GO_TEST=go test
 BINARIES=structure runq gha2db db2influx z2influx gha2db_sync import_affs annotations idb_tags idb_backup webhook devstats get_repos merge_pdbs idb_vars replacer
 CRON_SCRIPTS=cron/cron_db_backup.sh cron/cron_db_backup_all.sh scripts/net_tcp_config.sh
-UTIL_SCRIPTS=devel/wait_for_devstats.sh devel/devstats_cron.sh
+UTIL_SCRIPTS=devel/wait_for_command.sh devel/cronctl.sh
 GIT_SCRIPTS=git/git_reset_pull.sh git/git_files.sh
 STRIP=strip
 
@@ -113,7 +113,7 @@ data:
 
 install: check ${BINARIES} data
 	cp -v ${UTIL_SCRIPTS} ${GOPATH}/bin
-	wait_for_devstats.sh
+	wait_for_command.sh devstats 3600
 	${GO_INSTALL} ${GO_BIN_CMDS}
 	cp -v ${CRON_SCRIPTS} ${GOPATH}/bin
 	cp -v ${GIT_SCRIPTS} ${GOPATH}/bin
