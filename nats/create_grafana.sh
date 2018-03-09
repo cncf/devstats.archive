@@ -29,11 +29,13 @@ convert "$HOME/dev/cncf/artwork/$icon/icon/color/$icon-icon-color.png" -resize 8
 if [ ! -d "/usr/share/grafana.$proj/" ]
 then
   cp -R ~/grafana.v5/usr.share.grafana "/usr/share/grafana.$proj"/ || exit 9
+  # TODO: branding new Grafana here
 fi
 
 if [ ! -d "/var/lib/grafana.$proj/" ]
 then
   cp -R ~/grafana.v5/var.lib.grafana "/var/lib/grafana.$proj"/ || exit 1
+  # TODO: copy test grafana.db into prod here (so the only chnage needed will be passwords)
 fi
 
 if [ ! -d "/etc/grafana.$proj/" ]
