@@ -11,8 +11,9 @@ then
   exit 1
 fi
 proj=nats
+projdb=nats
 function finish {
-    rm -rf "$proj.dump" >/dev/null 2>&1
+    rm -rf "$projdb.dump" >/dev/null 2>&1
     sync_unlock.sh
 }
 if [ -z "$TRAP" ]
@@ -23,44 +24,44 @@ then
 fi
 if [ ! -z "$PDB" ]
 then
-  exists=`sudo -u postgres psql -tAc "select 1 from pg_database WHERE datname = '$proj'"` || exit 1
+  exists=`sudo -u postgres psql -tAc "select 1 from pg_database WHERE datname = '$projdb'"` || exit 1
   if ( [ ! -z "$PDROP" ] && [ "$exists" = "1" ] )
   then
-    echo "dropping postgres database $proj"
-    sudo -u postgres psql -c "drop database $proj" || exit 2
+    echo "dropping postgres database $projdb"
+    sudo -u postgres psql -c "drop database $projdb" || exit 2
   fi
-  exists=`sudo -u postgres psql -tAc "select 1 from pg_database WHERE datname = '$proj'"` || exit 3
+  exists=`sudo -u postgres psql -tAc "select 1 from pg_database WHERE datname = '$projdb'"` || exit 3
   if [ ! "$exists" = "1" ]
   then
-    echo "creating postgres database $proj"
-    sudo -u postgres psql -c "create database $proj" || exit 4
-    sudo -u postgres psql -c "grant all privileges on database \"$proj\" to gha_admin" || exit 5
+    echo "creating postgres database $projdb"
+    sudo -u postgres psql -c "create database $projdb" || exit 4
+    sudo -u postgres psql -c "grant all privileges on database \"$projdb\" to gha_admin" || exit 5
     if [ ! -z "$GET" ]
     then
-      echo "attempt to fetch postgres database $proj from backup"
-      wget "https://cncftest.io/$proj.dump" || exit 6
-      sudo -u postgres pg_restore -d "$proj" "$proj.dump" || exit 7
+      echo "attempt to fetch postgres database $projdb from backup"
+      wget "https://cncftest.io/$projdb.dump" || exit 6
+      sudo -u postgres pg_restore -d "$projdb" "$projdb.dump" || exit 7
       rm -f "$proj.dump" || exit 8
     else
-      echo "generating postgres database $proj"
+      echo "generating postgres database $projdb"
       GHA2DB_MGETC=y ./$proj/psql.sh || exit 10
     fi
   else
-    echo "postgres database $proj already exists"
+    echo "postgres database $projdb already exists"
   fi
 else
-  echo "postgres database $proj generation skipped"
+  echo "postgres database $projdb generation skipped"
 fi
 if [ ! -z "$IDB" ]
 then
   if [ ! -z "$IDROP" ]
   then
-    echo "recreating influx database $proj"
-    ./grafana/influxdb_recreate.sh "$proj" || exit 10
+    echo "recreating influx database $projdb"
+    ./grafana/influxdb_recreate.sh "$projdb" || exit 10
   fi
-  echo "regenerating influx database $proj"
+  echo "regenerating influx database $projdb"
   ./$proj/reinit.sh || exit 11
 else
-  echo "influxdb database $proj generation skipped"
+  echo "influxdb database $projdb generation skipped"
 fi
 echo 'finished'
