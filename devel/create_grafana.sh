@@ -5,13 +5,13 @@
 set -o pipefail
 host=`hostname`
 ga="google_analytics_ua_id = $GA"
-if ( [ -z "$PG_PASS" ] || [ -z "$PORT" ] || [ -z "$GA" ] || [ -z "$ICON" ] || [ -z "$ORGNAME" ] || [ -z "$PROJ" ] || [ -z "$PROJDB" ] )
+if ( [ -z "$PG_PASS" ] || [ -z "$PORT" ] || [ -z "$GA" ] || [ -z "$ICON" ] || [ -z "$ORGNAME" ] || [ -z "$PROJ" ] || [ -z "$PROJDB" ] || [ -z "$GRAFSUFF" ] )
 then
-  echo "$0: You need to set PG_PASS, PROJ, PROJDB, PORT, GA, ICON, ORGNAME environment variable to run this script"
+  echo "$0: You need to set PG_PASS, PROJ, PROJDB, PORT, GA, ICON, ORGNAME, GRAFSUFF environment variable to run this script"
   exit 1
 fi
 
-pid=`ps -axu | grep grafana-server | grep $PROJ | awk '{print $2}'`
+pid=`ps -axu | grep grafana-server | grep $GRAFSUFF | awk '{print $2}'`
 if [ ! -z "$STOP" ]
 then
   echo "stopping $PROJ grafana server instance"
@@ -24,7 +24,7 @@ then
   fi
 fi
 
-pid=`ps -axu | grep grafana-server | grep $PROJ | awk '{print $2}'`
+pid=`ps -axu | grep grafana-server | grep $GRAFSUFF | awk '{print $2}'`
 if [ ! -z "$pid" ]
 then
   echo "$PROJ grafana-server is running, exiting"
@@ -36,34 +36,34 @@ cd ~/dev/cncf/artwork || exit 2
 git pull || exit 3
 cd $wd || exit 4
 
-if [ ! -d "/usr/share/grafana.$PROJ/" ]
+if [ ! -d "/usr/share/grafana.$GRAFSUFF/" ]
 then
-  cp -R ~/grafana.v5/usr.share.grafana "/usr/share/grafana.$PROJ"/ || exit 10
-  cp "$HOME/dev/cncf/artwork/$ICON/icon/color/$ICON-icon-color.svg" "/usr/share/grafana.$PROJ/public/img/grafana_icon.svg" || exit 5
-  cp "$HOME/dev/cncf/artwork/$ICON/icon/color/$ICON-icon-color.svg" "/usr/share/grafana.$PROJ/public/img/grafana_com_auth_icon.svg" || exit 6
-  cp "$HOME/dev/cncf/artwork/$ICON/icon/color/$ICON-icon-color.svg" "/usr/share/grafana.$PROJ/public/img/grafana_net_logo.svg" || exit 7
-  cp "$HOME/dev/cncf/artwork/$ICON/icon/color/$ICON-icon-color.svg" "/usr/share/grafana.$PROJ/public/img/grafana_mask_icon.svg" || exit 8
+  cp -R ~/grafana.v5/usr.share.grafana "/usr/share/grafana.$GRAFSUFF"/ || exit 10
+  cp "$HOME/dev/cncf/artwork/$ICON/icon/color/$ICON-icon-color.svg" "/usr/share/grafana.$GRAFSUFF/public/img/grafana_icon.svg" || exit 5
+  cp "$HOME/dev/cncf/artwork/$ICON/icon/color/$ICON-icon-color.svg" "/usr/share/grafana.$GRAFSUFF/public/img/grafana_com_auth_icon.svg" || exit 6
+  cp "$HOME/dev/cncf/artwork/$ICON/icon/color/$ICON-icon-color.svg" "/usr/share/grafana.$GRAFSUFF/public/img/grafana_net_logo.svg" || exit 7
+  cp "$HOME/dev/cncf/artwork/$ICON/icon/color/$ICON-icon-color.svg" "/usr/share/grafana.$GRAFSUFF/public/img/grafana_mask_icon.svg" || exit 8
   convert "$HOME/dev/cncf/artwork/$ICON/icon/color/$ICON-icon-color.png" -resize 80x80  "/var/www/html/img/$PROJ-icon-color.png" || exit 9
-  GRAFANA_DATA="/usr/share/grafana.$PROJ/" ./grafana/$PROJ/change_title_and_icons.sh || exit 11
+  GRAFANA_DATA="/usr/share/grafana.$GRAFSUFF/" ./grafana/$PROJ/change_title_and_icons.sh || exit 11
 fi
 
-if [ ! -d "/var/lib/grafana.$PROJ/" ]
+if [ ! -d "/var/lib/grafana.$GRAFSUFF/" ]
 then
-  cp -R ~/grafana.v5/var.lib.grafana "/var/lib/grafana.$PROJ"/ || exit 12
-  rm -f "/var/lib/grafana.$PROJ/grafana.db" || exit 13
+  cp -R ~/grafana.v5/var.lib.grafana "/var/lib/grafana.$GRAFSUFF"/ || exit 12
+  rm -f "/var/lib/grafana.$GRAFSUFF/grafana.db" || exit 13
 fi
   
-if ( [ ! -f "/var/lib/grafana.$PROJ/grafana.db" ] && [ ! -z "$GET" ] )
+if ( [ ! -f "/var/lib/grafana.$GRAFSUFF/grafana.db" ] && [ ! -z "$GET" ] )
 then
-  echo "attempt to fetch grafana database $PROJDB from the test server"
-  wget "https://cncftest.io/grafana.$PROJDB.db" || exit 14
-  mv "grafana.$PROJDB.db" "/var/lib/grafana.$PROJ/grafana.db" || exit 15
+  echo "attempt to fetch grafana database $GRAFSUFF from the test server"
+  wget "https://cncftest.io/grafana.$GRAFSUFF.db" || exit 14
+  mv "grafana.$GRAFSUFF.db" "/var/lib/grafana.$GRAFSUFF/grafana.db" || exit 15
 fi
 
-if [ ! -d "/etc/grafana.$PROJ/" ]
+if [ ! -d "/etc/grafana.$GRAFSUFF/" ]
 then
-  cp -R ~/grafana.v5/etc.grafana "/etc/grafana.$PROJ"/ || exit 16
-  cfile="/etc/grafana.$PROJ/grafana.ini"
+  cp -R ~/grafana.v5/etc.grafana "/etc/grafana.$GRAFSUFF"/ || exit 16
+  cfile="/etc/grafana.$GRAFSUFF/grafana.ini"
   cp ./grafana/etc/grafana.ini.example "$cfile" || exit 17
   MODE=ss FROM='{{project}}' TO="$PROJ" replacer "$cfile" || exit 18
   MODE=ss FROM='{{url}}' TO="$host" replacer "$cfile" || exit 19
@@ -114,7 +114,7 @@ then
   fi
 fi
 
-pid=`ps -axu | grep grafana-server | grep $PROJ | awk '{print $2}'`
+pid=`ps -axu | grep grafana-server | grep $GRAFSUFF | awk '{print $2}'`
 if [ -z "$pid" ]
 then
   echo "starting $PROJ grafana-server"

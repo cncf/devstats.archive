@@ -5,9 +5,9 @@ then
   echo "$0: You need to set PG_PASS, IDB_PASS, IDB_HOST environment variables to run this script"
   exit 1
 fi
-if ( [ -z "$PROJ" ] || [ -z "$PROJDB" ] || [ -z "$PROJORG" ] || [ -z "$PORT" ] || [ -z "$GA" ] || [ -z "$ICON" ] || [ -z "$ORGNAME" ] )
+if ( [ -z "$PROJ" ] || [ -z "$PROJDB" ] || [ -z "$PROJORG" ] || [ -z "$PORT" ] || [ -z "$GA" ] || [ -z "$ICON" ] || [ -z "$ORGNAME" ] || [ -z "$GRAFSUFF" ] )
 then
-  echo "$0: You need to set PROJ, PROJDB, PROJORG, PORT, GA, ICON, ORGNAME environment variables to run this script"
+  echo "$0: You need to set PROJ, PROJDB, PROJORG, PORT, GA, ICON, ORGNAME, GRAFSUFF environment variables to run this script"
   exit 2
 fi
 function finish {
