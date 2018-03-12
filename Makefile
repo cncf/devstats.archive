@@ -113,7 +113,8 @@ data:
 
 install: check ${BINARIES} data
 	cp -v ${UTIL_SCRIPTS} ${GOPATH}/bin
-	wait_for_command.sh devstats 3600
+	[ ! -f /tmp/deploy.wip ] || exit 5
+	wait_for_command.sh devstats 3600 || exit 6
 	${GO_INSTALL} ${GO_BIN_CMDS}
 	cp -v ${CRON_SCRIPTS} ${GOPATH}/bin
 	cp -v ${GIT_SCRIPTS} ${GOPATH}/bin

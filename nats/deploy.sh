@@ -11,6 +11,7 @@ then
   exit 1
 fi
 function finish {
+    rm -f /tmp/deploy.wip 2>/dev/null
     sync_unlock.sh
 }
 if [ -z "$TRAP" ]
@@ -18,6 +19,7 @@ then
   sync_lock.sh || exit -1
   trap finish EXIT
   export TRAP=1
+  > /tmp/deploy.wip
 fi
 PDB=1 GET=1 IDB=1 ./$proj/create_databases.sh || exit 2
 IDB=1 ./all/add_project.sh "$projdb" "$projorg" || exit 3
