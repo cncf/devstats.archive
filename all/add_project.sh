@@ -18,7 +18,7 @@ then
   echo "All CNCF Project database doesn't exist"
   exit 0
 fi
-added=`sudo -u postgres psql allprj -tAc "select login from gha_orgs where login = '$2'"` || exit 4
+added=`sudo -u postgres psql allprj -tAc "select name from gha_repos where name = '$2'"` || exit 4
 if [ "$added" = "$2" ]
 then
   echo "Project '$1' is already present in 'All CNCF', org '$2' exists"
