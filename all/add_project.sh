@@ -10,6 +10,12 @@ then
   echo "$0: You need to set PG_PASS, IDB_PASS, IDB_HOST environment variables to run this script"
   exit 2
 fi
+exists=`sudo -u postgres psql -tAc "select 1 from pg_database WHERE datname = 'allprj'"` || exit 1
+if [ ! "$exists" = "1" ]
+then
+  echo "All CNCF Project database doesn't exist"
+  exit 0
+fi
 function finish {
     sync_unlock.sh
 }

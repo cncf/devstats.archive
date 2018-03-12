@@ -3,7 +3,7 @@
 # PDROP=1 (will drop & create Postgres DB)
 # GET=1 (will use Postgres DB backup if available)
 # IDB=1 (will generate Influx DB)
-# IDROP=1 (will drop & create Influx DB - this is also needed to create Influx DB for the first time)
+# IDROP=1 (will drop & create Influx DB)
 set -o pipefail
 if ( [ -z "$PG_PASS" ] || [ -z "$IDB_PASS" ] || [ -z "$IDB_HOST" ] )
 then
@@ -54,13 +54,21 @@ else
 fi
 if [ ! -z "$IDB" ]
 then
-  if [ ! -z "$IDROP" ]
+  exists=`echo 'show databases' | influx -host $IDB_HOST -username gha_admin -password $IDB_PASS | grep $projdb` || exit 1
+  if ( [ ! -z "$IDROP" ] && [ "$exists" = "$projdb" ] )
   then
-    echo "recreating influx database $projdb"
-    ./grafana/influxdb_recreate.sh "$projdb" || exit 10
+    echo "dropping influx database $projdb"
+    ./grafana/influxdb_drop.sh "$projdb" || exit 1
   fi
-  echo "regenerating influx database $projdb"
-  ./$proj/reinit.sh || exit 11
+  exists=`echo 'show databases' | influx -host $IDB_HOST -username gha_admin -password $IDB_PASS | grep $projdb` || exit 1
+  if [ ! "$exists" = "$projdb" ]
+  then
+    echo "generating influx database $projdb"
+    ./grafana/influxdb_recreate.sh "$projdb" || exit 10
+    ./$proj/reinit.sh || exit 11
+  else
+    echo "influx database $projdb already exists"
+  fi
 else
   echo "influxdb database $projdb generation skipped"
 fi
