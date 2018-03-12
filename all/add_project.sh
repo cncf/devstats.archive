@@ -1,8 +1,8 @@
 #!/bin/bash
 # IDB=1 (will update InfluxDB tool)
-if [ -z "$1" ]
+if ( [ -z "$1" ] || [ -z "$2" ] )
 then
-  echo "$0: You need to provide project name as argument"
+  echo "$0: You need to provide project name and org name as arguments"
   exit 1
 fi
 if ( [ -z "$PG_PASS" ] || [ -z "$IDB_PASS" ] || [ -z "$IDB_HOST" ] )
@@ -14,6 +14,12 @@ exists=`sudo -u postgres psql -tAc "select 1 from pg_database WHERE datname = 'a
 if [ ! "$exists" = "1" ]
 then
   echo "All CNCF Project database doesn't exist"
+  exit 0
+fi
+added=`sudo -u postgres psql allprj -tAc "select login from gha_orgs where login = '$2'"` || exit 1
+if [ "$added" = "$2" ]
+then
+  echo "Project '$1' is already present in 'All CNCF', org '$2' exists"
   exit 0
 fi
 function finish {
@@ -34,7 +40,7 @@ then
   ./all/top_n_repos_groups.sh 70 > out
   ./all/top_n_companies 70 >> out
   cat out
-  echo 'Please update ./metrics/all/gaps*.yaml with new companies & repo groups datai (also dont forget repo groups).'
+  echo 'Please update ./metrics/all/gaps*.yaml with new companies & repo groups data (also dont forget repo groups).'
   echo 'Then run ./all/reinit.sh.'
   echo 'Top 70 repo groups & companies are saved in "out" file.'
 else

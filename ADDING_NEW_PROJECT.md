@@ -27,9 +27,9 @@ To add new project follow instructions:
 - Now run the InfluxDB part: `IDB=1 ./projectname/create_databases.sh`. The reason to run the separately is that you need to check repository groups defined in PSQL part, update gaps yaml files and only then run InfluxDB part.
 - On the production server (where you will already have correct gaps config) - run `PDB=1 GET=1 IDB=1 ./projectname/create_databases.sh` to create both databases.
 - `GET=1` means that Postgres database will be fetched from the backup on the test server.
-- Merge new project into 'All' project using `PG_PASS=pwd IDB_PASS=pwd IDB_HOST=172.17.0.1 ./all/add_project.sh projname`.
+- Merge new project into 'All' project using `PG_PASS=pwd IDB_PASS=pwd IDB_HOST=172.17.0.1 ./all/add_project.sh projname org_name`.
 - Run regenerate 'All' project InfluxData script `./all/reinit.sh`.
-- On production (where you already have correct gaps config for `All CNCF` project, just run: `IDB=1 PG_PASS=pwd IDB_PASS=pwd IDB_HOST=172.17.0.1 ./all/add_project.sh projname`.
+- On production (where you already have correct gaps config for `All CNCF` project, just run: `IDB=1 PG_PASS=pwd IDB_PASS=pwd IDB_HOST=172.17.0.1 ./all/add_project.sh projname org_name`.
 
 - TODO: `./projectname/create_grafana.sh`.
 - TODO: final deploy script is: `./projectname/deploy.sh`.
