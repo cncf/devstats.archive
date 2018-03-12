@@ -1,12 +1,17 @@
 # Adding new project
-  
-To add new project follow instructions:
-- `sync_lock.sh` to disable `devstats` and `webhook` cron jobs and wait for `devstats` to finish.
+
+This file describes how to add new project on the test server.
+
+To add new project on the production (when already added on the test), you should use automatic deploy script:
+- Run `./projectname/deploy.sh` script.
+- Go to `https://newproject.devstats.cncf.io` and change Grafana and InfluxDB passwords (default deploy copies database from the test server, so it has test server credentials initially).
+
+To add a new project on the test server follow instructions:
+- Run `sync_lock.sh`.
 - Add project entry to `projects.yaml` file. Find projects orgs, repos, select start date, eventually add test coverage for complex regular expression in `regexp_test.go`.
 - To identify repo and/or org name changes, date ranges for entrire projest use `util_sql/(repo|org)_name_changes_bigquery.sql` replacing name there.
 - Main repo can be empty `''` - in this case only two annotations will be added: 'start date - CNCF join date' and 'CNCF join date - now".
 - Set project databases (Influx and Postgres).
-- You can set it to `disabled: true` for now. Not needed when running in 'sync_lock.sh' mode.
 - CNCF join dates are listed here: https://github.com/cncf/toc#projects.
 - Add this new project config to 'All' project in `projects.yaml all/psql.sh grafana/dashboards/all/dashboards.json scripts/all/repo_groups.sql devel/calculate_hours.sh`. Add entire new project as a new repo group in 'All' project.
 - Update `cron/cron_db_backup_all.sh devel/reinit.sh devel/import_affs.sh devel/update_affs.sh devel/add_single_metric_all.sh grafana/copy_grafana_dbs.sh devel/get_grafana_dbs.sh devel/tags.sh devel/get_all_databases.sh devel/update_grafanas.sh devel/copy_grafanas.sh` but do not install yet.
@@ -18,34 +23,15 @@ To add new project follow instructions:
 - Copy `metrics/oldproject` to `metrics/projectname`, those files will need tweaks too. Specially `./metrics/projectname/gaps.yaml` and `./metrics/projectname/idb_vars.yaml` files.
 - Please use Grafana's "null as zero" instead of using manuall filling gaps. This simplifies metrics a lot. Gaps filling is only needed when using data from > 1 Influx series.
 - `cp -Rv scripts/oldproject/ scripts/projectname`, `vim scripts/projectname/*`.
-- Run the postgres part of this script: `PDB=1 ./projectname/create_databases.sh`
-- When data is imported into Postgres: projectname, you need to update `metrics/projectname/gaps*.yaml` (with top companies & repo groups). This is only needed when you're using gaps (which you shouldn't).
-- To see top companies, repo groups use `./projectname/top_n_companies.sh ./projectname/top_n_repos_groups.sh`.
-- There are two kinds of repo group names: direct from query, but also with special characters replaced with "_"
-- You should copy those from query, put there where needed and do VIM replace: `:'<,'>s/[-/.: `]/_/g`, `:'<,'>s/[A-Z]/\L&/g`.
-- Now run the InfluxDB part: `IDB=1 ./projectname/create_databases.sh`. The reason to run the separately is that you need to check repository groups defined in PSQL part, update gaps yaml files and only then run InfluxDB part.
-- On the production server (where you will already have correct gaps config) - run `PDB=1 GET=1 IDB=1 ./projectname/create_databases.sh` to create both databases.
-- `GET=1` means that Postgres database will be fetched from the backup on the test server.
+- Run databases creation script: `PDB=1 IDB=1 GAPS=1 ./projectname/create_databases.sh`.
 - Merge new project into 'All' project using `PG_PASS=pwd IDB_PASS=pwd IDB_HOST=172.17.0.1 ./all/add_project.sh projname org_name`.
-- Run regenerate 'All' project InfluxData script `./all/reinit.sh`.
-- On production (where you already have correct gaps config for `All CNCF` project, just run: `IDB=1 PG_PASS=pwd IDB_PASS=pwd IDB_HOST=172.17.0.1 ./all/add_project.sh projname org_name`.
+- Run regenerate 'All CNCF' project InfluxData script `./all/reinit.sh`.
 - `cp -Rv grafana/oldproject/ grafana/projectname/` and then update files. Usually `%s/oldproject/newproject/g|w|next`.
-- `cp -Rv grafana/dashboards/oldproject/ grafana/dashboards/projectname/` and then update files. Usually `%s/"oldproj"/"newproj"/g|%s/DS_OLDPROJ/DS_NEWPROJ/g|%s/OldProj/NewProj/g|w|next`.
-- Be careful with `dashboards.json` because it contains list of all projects so you shouldn't replace oldproj with newproj - but add new entry instead.
+- `cp -Rv grafana/dashboards/oldproject/ grafana/dashboards/projectname/` and then update files.  Use `devel/mass_replace.sh` script, it contains some examples in the comments.
 - You can use something like this: `MODE=ss0 FROM=`cat from` TO=`cat to` FILES=`find ./grafana/dashboards -type f -iname 'dashboards.json'` ./devel/mass_replace.sh`, files `from` and `to` should contain from -> to replacements.
 - For other dashboards you can use: "MODE=ss0 FROM='"vitess"' TO='"nats"' FILES=`find ./grafana/dashboards/nats -type f -iname '*.json'` ./devel/mass_replace.sh".
-- Update `projects.yaml` remove `disabled: true` for new project (if needed).
 - `make install` to install all changed stuff.
 - Update `./projectname/create_grafana.sh` script to make it create correct Grafana installation.
-- Copy directories `/etc/grafana`, `/usr/share/grafana`, `/var/lib/grafana` from standard unmodified installation adding .projectname to their names.
-- You can use `grafana/etc/grafana.ini.example` as a base config file, values specific for new projects use templating `{{var}}`, this is supposed to be changed by `./projectname/create_grafana.sh` script.
-- Update `./grafana/proj/change_title_and_icons.sh` to use right names. Run it with `GRAFANA_DATA=/usr/share/grafana.projectname/ ./grafana/projectname/change_title_and_icons.sh`.
-- Update `/etc/grafana.projectname/grafana.ini` - set all config options from `GRAFANA.md`, `MULTIPROJECT.md`.
-- Follow `Grafana sessions in Postgres` from MULTIPROJECT.md:
-- `sudo -u postgres psql`
-- `create database projectname_grafana_sessions;`
-- `grant all privileges on database "projectname_grafana_sessions" to gha_admin;`
-- Quit `psql` and run: `sudo -u postgres psql projectname_grafana_sessions < util_sql/grafana_session_table.sql`.
 - You now need Apache proxy and SSL, please follow instructions from APACHE.md and SSL.md
 - Apache part is to update `apache/www/index_* apache/test/sites-enabled/* apache/prod/sites-enabled/*` files.
 - SSL part is to issue certificate for new domain and setup proxy.
@@ -56,9 +42,9 @@ To add new project follow instructions:
 - Or (prod server): 'sudo certbot --apache -d -n --expand `cat apache/prod/sites.txt`'.
 - Or with standalone authenticator (test server): "sudo certbot -d -n --expand `cat apache/test/sites.txt` --authenticator standalone --installer apache --pre-hook 'service apache2 stop' --post-hook 'service apache2 start'".
 - Or with standalone authenticator (prod server): "sudo certbot -d -n --expand `cat apache/prod/sites.txt` --authenticator standalone --installer apache --pre-hook 'service apache2 stop' --post-hook 'service apache2 start'".
-- Open `newproject.cncftest.io` login with admin/admin, change the default password and follow instructions from `GRAFANA.md`. If `./newproj/reinit.sh` is still running You can use `newproj_temp` as InfluxDB temporarity to speedup work. But finally change to `newproj`.
+- Open `newproject.cncftest.io` login with admin/admin, change the default password and follow instructions from `GRAFANA.md`.
 - Add new project to `/var/www/html/index.html`.
 - Update and import `grafana/dashboards/{{proj}}/dashboards.json` dashboard on all remaining projects.
 - Finally: `cp /var/lib/grafana.projectname/grafana.db /var/www/html/grafana.projectname.db` and/or `grafana/copy_grafana_dbs.sh`
-- `crontab -e` and turn on `devstats` and eventually `webhook` (if was disabled).
-- Final deploy script is: `./projectname/deploy.sh`. It should do all deployment automatically on the prod server.
+- `sync_unlock.sh`.
+- Final deploy script is: `./projectname/deploy.sh`. It should do all deployment automatically on the prod server. Follow all code from this script (eventually run some parts manually, the final version should do full deploy OOTB).
