@@ -2,10 +2,12 @@
 # PDB=1 (will generate Postgres DB)
 # PDROP=1 (will drop & create Postgres DB)
 # GET=1 (will use Postgres DB backup if available)
+# GAPS=1 (will update metrics/projectname/gaps.yaml with Top repo groups from PSQL database)
 # IDB=1 (will generate Influx DB)
 # IDROP=1 (will drop & create Influx DB)
 proj=nats
 projdb=nats
+lim=70
 set -o pipefail
 if ( [ -z "$PG_PASS" ] || [ -z "$IDB_PASS" ] || [ -z "$IDB_HOST" ] )
 then
@@ -52,20 +54,26 @@ then
 else
   echo "postgres database $projdb generation skipped"
 fi
+if [ ! -z "$GAPS" ]
+then
+  sql=`sed -e "s/{{lim}}/$lim/g" ./util_sql/top_repo_groups.sql`
+  repo_groups=`sudo -u postgres psql $projdb -tAc "$sql"`
+  MODE=rs FROM=';;;(.*) # {{repo_groups}}' TO=";;;$repo_groups # {{repo_groups}}" ./replacer ./metrics/$proj/gaps.yaml || exit 11
+fi
 if [ ! -z "$IDB" ]
 then
   exists=`echo 'show databases' | influx -host $IDB_HOST -username gha_admin -password $IDB_PASS | grep $projdb`
   if ( [ ! -z "$IDROP" ] && [ "$exists" = "$projdb" ] )
   then
     echo "dropping influx database $projdb"
-    ./grafana/influxdb_drop.sh "$projdb" || exit 11
+    ./grafana/influxdb_drop.sh "$projdb" || exit 12
   fi
   exists=`echo 'show databases' | influx -host $IDB_HOST -username gha_admin -password $IDB_PASS | grep $projdb`
   if [ ! "$exists" = "$projdb" ]
   then
     echo "generating influx database $projdb"
-    ./grafana/influxdb_recreate.sh "$projdb" || exit 12
-    ./$proj/reinit.sh || exit 13
+    ./grafana/influxdb_recreate.sh "$projdb" || exit 13
+    ./$proj/reinit.sh || exit 14
   else
     echo "influx database $projdb already exists"
   fi

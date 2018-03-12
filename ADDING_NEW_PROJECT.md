@@ -18,7 +18,6 @@ To add new project follow instructions:
 - Copy `metrics/oldproject` to `metrics/projectname`, those files will need tweaks too. Specially `./metrics/projectname/gaps.yaml` and `./metrics/projectname/idb_vars.yaml` files.
 - Please use Grafana's "null as zero" instead of using manuall filling gaps. This simplifies metrics a lot. Gaps filling is only needed when using data from > 1 Influx series.
 - `cp -Rv scripts/oldproject/ scripts/projectname`, `vim scripts/projectname/*`.
-- Update project's main database creation script: `./projectname/create_databases.sh`.
 - Run the postgres part of this script: `PDB=1 ./projectname/create_databases.sh`
 - When data is imported into Postgres: projectname, you need to update `metrics/projectname/gaps*.yaml` (with top companies & repo groups). This is only needed when you're using gaps (which you shouldn't).
 - To see top companies, repo groups use `./projectname/top_n_companies.sh ./projectname/top_n_repos_groups.sh`.
