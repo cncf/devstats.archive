@@ -4,7 +4,7 @@
 set -o pipefail
 if ( [ -z "$1" ] || [ -z "$2" ] )
 then
-  echo "$0: You need to provide project name and org name as arguments"
+  echo "$0: You need to provide project name and repo name as arguments"
   exit 1
 fi
 if ( [ -z "$PG_PASS" ] || [ -z "$IDB_PASS" ] || [ -z "$IDB_HOST" ] )
@@ -13,15 +13,15 @@ then
   exit 2
 fi
 exists=`sudo -u postgres psql -tAc "select 1 from pg_database WHERE datname = 'allprj'"` || exit 3
-if [ ! "$exists" = "1" ]
+if [ -z "$exists" ]
 then
   echo "All CNCF Project database doesn't exist"
   exit 0
 fi
 added=`sudo -u postgres psql allprj -tAc "select name from gha_repos where name = '$2'"` || exit 4
-if [ "$added" = "$2" ]
+if [ ! -z "$added" ]
 then
-  echo "Project '$1' is already present in 'All CNCF', org '$2' exists"
+  echo "Project '$1' is already present in 'All CNCF', repo '$2' exists"
   exit 0
 fi
 function finish {
@@ -41,6 +41,7 @@ then
   rm -f allprj.dump || exit 7
   echo "allprj backup restored"
 else
+  echo "merging $1 into allprj"
   GHA2DB_INPUT_DBS="$1" GHA2DB_OUTPUT_DB="allprj" ./merge_pdbs || exit 8
   PG_DB="allprj" ./devel/remove_db_dups.sh || exit 9
   ./all/get_repos.sh || exit 10
@@ -55,6 +56,7 @@ then
   echo 'Then run ./all/reinit.sh.'
   echo 'Top 70 repo groups & companies are saved in "out" file.'
 else
+  echo "regenerating allprj influx database"
   ./all/reinit.sh || exit 14
 fi
-echo 'OK'
+echo "$0: $1 finished"
