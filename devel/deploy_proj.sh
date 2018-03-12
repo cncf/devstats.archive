@@ -5,9 +5,9 @@ then
   echo "$0: You need to set PG_PASS, IDB_PASS, IDB_HOST environment variables to run this script"
   exit 1
 fi
-if ( [ -z "$PROJ" ] || [ -z "$PROJDB" ] || [ -z "$PROJORG" ] || [ -z "$PORT" ] || [ -z "$GA" ] || [ -z "$ICON" ] || [ -z "$ORGNAME" ] || [ -z "$GRAFSUFF" ] )
+if ( [ -z "$PROJ" ] || [ -z "$PROJDB" ] || [ -z "$PROJREPO" ] || [ -z "$PORT" ] || [ -z "$GA" ] || [ -z "$ICON" ] || [ -z "$ORGNAME" ] || [ -z "$GRAFSUFF" ] )
 then
-  echo "$0: You need to set PROJ, PROJDB, PROJORG, PORT, GA, ICON, ORGNAME, GRAFSUFF environment variables to run this script"
+  echo "$0: You need to set PROJ, PROJDB, PROJREPO, PORT, GA, ICON, ORGNAME, GRAFSUFF environment variables to run this script"
   exit 2
 fi
 function finish {
@@ -24,7 +24,8 @@ fi
 PDB=1 GET=1 IDB=1 ./devel/create_databases.sh || exit 3
 if [ ! "$PROJ" = "all" ]
 then
-  IDB=1 ./all/add_project.sh "$PROJDB" "$PROJORG" || exit 4
+  IDB=1 ./all/add_project.sh "$PROJDB" "$PROJREPO" || exit 4
 fi
 GET=1 CERT=1 ./devel/create_grafana.sh || exit 5
+./devel/create_www.sh || exit 6
 echo "$PROJ deploy finished"
