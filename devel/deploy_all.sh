@@ -14,10 +14,10 @@ function finish {
 }
 if [ -z "$TRAP" ]
 then
-  > /tmp/deploy.wip
   sync_lock.sh || exit -1
   trap finish EXIT
   export TRAP=1
+  > /tmp/deploy.wip
 fi
 
 # k8s prometheus opentracing fluentd linkerd grpc coredns containerd rkt cni envoy jaeger notary tuf rook vitess nats opencontainers all cncf
@@ -28,5 +28,5 @@ PROJ=nats PROJDB=nats PROJORG=nats-io ORGNAME=NATS PORT=3016 ICON=cncf GRAFSUFF=
 PROJ=all PROJDB=allprj PROJORG=not_used ORGNAME="All CNCF" PORT=3254 ICON=cncf GRAFSUFF=all GA="UA-108085315-20" ./devel/deploy_proj.sh || exit 2
 if [ "$host" = "cncftest.io" ]
 then
-  PROJ=cncf PROJDB=cncf PROJORG=cncf ORGNAME=CNCF PORT=3255 ICON=cncf GRAFSUFF=cncf "GA=UA-108085315-8" ./devel/deploy_proj.sh || exit 2
+  PROJ=cncf PROJDB=cncf PROJORG=cncf ORGNAME=CNCF PORT=3255 ICON=cncf GRAFSUFF=cncf GA="UA-108085315-8" ./devel/deploy_proj.sh || exit 2
 fi
