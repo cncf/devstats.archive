@@ -1,5 +1,6 @@
 #!/bin/bash
-# IDB=1 (will update InfluxDB tool)
+# IDB=1 (will update InfluxDB)
+set -o pipefail
 if ( [ -z "$1" ] || [ -z "$2" ] )
 then
   echo "$0: You need to provide project name and org name as arguments"

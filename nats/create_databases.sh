@@ -4,14 +4,14 @@
 # GET=1 (will use Postgres DB backup if available)
 # IDB=1 (will generate Influx DB)
 # IDROP=1 (will drop & create Influx DB)
+proj=nats
+projdb=nats
 set -o pipefail
 if ( [ -z "$PG_PASS" ] || [ -z "$IDB_PASS" ] || [ -z "$IDB_HOST" ] )
 then
   echo "$0: You need to set PG_PASS, IDB_PASS, IDB_HOST environment variables to run this script"
   exit 1
 fi
-proj=nats
-projdb=nats
 function finish {
     rm -rf "$projdb.dump" >/dev/null 2>&1
     sync_unlock.sh
