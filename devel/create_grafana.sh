@@ -37,6 +37,7 @@ cd $wd || exit 4
 
 if [ ! -d "/usr/share/grafana.$GRAFSUFF/" ]
 then
+  echo "copying /usr/share/grafana.$GRAFSUFF/"
   cp -R ~/grafana.v5/usr.share.grafana "/usr/share/grafana.$GRAFSUFF"/ || exit 5
   if [ ! "$ICON" = "-" ]
   then
@@ -52,6 +53,7 @@ fi
 
 if [ ! -d "/var/lib/grafana.$GRAFSUFF/" ]
 then
+  echo "copying /var/lib/grafana.$GRAFSUFF/"
   cp -R ~/grafana.v5/var.lib.grafana "/var/lib/grafana.$GRAFSUFF"/ || exit 13
   rm -f "/var/lib/grafana.$GRAFSUFF/grafana.db" || exit 14
 fi
@@ -65,6 +67,7 @@ fi
 
 if [ ! -d "/etc/grafana.$GRAFSUFF/" ]
 then
+  echo "copying /etc/grafana.$GRAFSUFF/"
   cp -R ~/grafana.v5/etc.grafana "/etc/grafana.$GRAFSUFF"/ || exit 17
   cfile="/etc/grafana.$GRAFSUFF/grafana.ini"
   cp ./grafana/etc/grafana.ini.example "$cfile" || exit 18
@@ -84,15 +87,15 @@ then
   MODE=ss FROM='{{org}}' TO="$ORGNAME" replacer "$cfile" || exit 28
 fi
 
-exists=`sudo -u postgres psql -tAc "select 1 from pg_database WHERE datname = '${PROJDB}_grafana_sessions'"` || exit 29
+exists=`sudo -u postgres psql -tAc "select 1 from pg_database WHERE datname = '${GRAFSUFF}_grafana_sessions'"` || exit 29
 if [ ! "$exists" = "1" ]
 then
-  echo "creating grafana sessions database ${PROJDB}_grafana_sessions"
-  sudo -u postgres psql -c "create database ${PROJDB}_grafana_sessions" || exit 30
-  sudo -u postgres psql -c "grant all privileges on database \"${PROJDB}_grafana_sessions\" to gha_admin" || exit 31
-  sudo -u postgres psql "${PROJDB}_grafana_sessions" < util_sql/grafana_session_table.sql || exit 32
+  echo "creating grafana sessions database ${GRAFSUFF}_grafana_sessions"
+  sudo -u postgres psql -c "create database ${GRAFSUFF}_grafana_sessions" || exit 30
+  sudo -u postgres psql -c "grant all privileges on database \"${GRAFSUFF}_grafana_sessions\" to gha_admin" || exit 31
+  sudo -u postgres psql "${GRAFSUFF}_grafana_sessions" < util_sql/grafana_session_table.sql || exit 32
 else
-  echo "grafana sessions database ${PROJDB}_grafana_sessions already exists"
+  echo "grafana sessions database ${GRAFSUFF}_grafana_sessions already exists"
 fi
 
 pid=`ps -axu | grep grafana-server | grep $GRAFSUFF | awk '{print $2}'`
@@ -102,3 +105,4 @@ then
   ./grafana/$PROJ/grafana_start.sh &
   echo "started"
 fi
+echo "$0: $PROJ finished"

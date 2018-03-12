@@ -83,4 +83,4 @@ then
 else
   echo "influxdb database $PROJDB generation skipped"
 fi
-echo 'finished'
+echo "$0: $PROJ finished"

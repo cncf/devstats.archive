@@ -21,11 +21,12 @@ then
   export TRAP=1
   > /tmp/deploy.wip
 fi
+echo "$0: $PROJ deploy started"
 PDB=1 GET=1 IDB=1 ./devel/create_databases.sh || exit 3
-if [ ! "$PROJ" = "all" ]
+if ( [ ! "$PROJ" = "all" ] && [ ! "$PROJ" = "opencontainers" ] )
 then
   IDB=1 ./all/add_project.sh "$PROJDB" "$PROJREPO" || exit 4
 fi
 GET=1 CERT=1 ./devel/create_grafana.sh || exit 5
 ./devel/create_www.sh || exit 6
-echo "$PROJ deploy finished"
+echo "$0: $PROJ deploy finished"
