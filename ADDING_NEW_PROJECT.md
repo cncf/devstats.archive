@@ -3,7 +3,7 @@
 This file describes how to add new project on the test server.
 
 To add new project on the production (when already added on the test), you should use automatic deploy script:
-- Run `./projectname/deploy.sh` script.
+- Run `./devel/deploy_proj.sh` script with correct env variables or run deploy for all projects `devel/deploy_all.sh`.
 - Go to `https://newproject.devstats.cncf.io` and change Grafana and InfluxDB passwords (default deploy copies database from the test server, so it has test server credentials initially).
 - Reimport Home dashboard (which now contains link to a new project) on all existing projects.
 
@@ -19,7 +19,7 @@ To add a new project on the test server follow instructions:
 - Add new domain for the project: `projectname.cncftest.io`. If using wildcard domain like `*.devstats.cncf.io` - this step is not needed.
 - Add Google Analytics (GA) for the new domain and update /etc/grafana.projectname/grafana.ini with its `UA-...`.
 - Update `images/OCI.sh grafana/copy_artwork_icons.sh apache/www/copy_icons.sh grafana/create_images.sh grafana/change_title_and_icons_all.sh`.
-- Copy setup scripts and then adjust them: `cp -R oldproject/ projectname/`, `vim projectname/*`. Update all automatic deploy scripts: `./projectname/deploy.sh ./projectname/create_*.sh`.
+- Copy setup scripts and then adjust them: `cp -R oldproject/ projectname/`, `vim projectname/*`. Update automatic deploy script: `./devel/deploy_all.sh`.
 - You need to set correct project main GitHub repository and annotations match regexp in `projects.yaml` to have working annotations and quick ranges.
 - Copy `metrics/oldproject` to `metrics/projectname`, those files will need tweaks too. Specially `./metrics/projectname/gaps.yaml` and `./metrics/projectname/idb_vars.yaml` files.
 - Please use Grafana's "null as zero" instead of using manuall filling gaps. This simplifies metrics a lot. Gaps filling is only needed when using data from > 1 Influx series.
@@ -48,4 +48,4 @@ To add a new project on the test server follow instructions:
 - Update and import `grafana/dashboards/{{proj}}/dashboards.json` dashboard on all remaining projects.
 - Finally: `cp /var/lib/grafana.projectname/grafana.db /var/www/html/grafana.projectname.db` and/or `grafana/copy_grafana_dbs.sh`
 - `sync_unlock.sh`.
-- Final deploy script is: `./projectname/deploy.sh`. It should do all deployment automatically on the prod server. Follow all code from this script (eventually run some parts manually, the final version should do full deploy OOTB).
+- Final deploy script is: `./devel/deploy_all.sh`. It should do all deployment automatically on the prod server. Follow all code from this script (eventually run some parts manually, the final version should do full deploy OOTB).
