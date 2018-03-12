@@ -1,5 +1,6 @@
 #!/bin/bash
 # GET=1 (Get grafana.db from the test server)
+# STOP=1 (Stops running grafana-server instance)
 set -o pipefail
 if [ -z "$PG_PASS" ]
 then
@@ -65,4 +66,41 @@ then
     MODE=ss FROM='{{test}}' TO="_test" replacer "$cfile" || exit 1
   fi
   MODE=ss FROM='{{org}}' TO="$org" replacer "$cfile" || exit 1
+fi
+
+exists=`sudo -u postgres psql -tAc "select 1 from pg_database WHERE datname = '${projdb}_grafana_sessions'"` || exit 4
+if [ ! "$exists" = "1" ]
+then
+  echo "creating grafana sessions database ${projdb}_grafana_sessions"
+  sudo -u postgres psql -c "create database ${projdb}_grafana_sessions" || exit 5
+  sudo -u postgres psql -c "grant all privileges on database \"${projdb}_grafana_sessions\" to gha_admin" || exit 6
+  sudo -u postgres psql "${projdb}_grafana_sessions" < util_sql/grafana_session_table.sql || exit 7
+else
+  echo "grafana sessions database ${projdb}_grafana_sessions already exists"
+fi
+
+if [ "$hostname" = "cncftest.io" ]
+then
+  cp apache/www/index_test.html /var/www/html/index.html || exit 1
+else
+  cp apache/www/index_prod.html /var/www/html/index.html || exit 1
+fi
+
+if [ ! -z "$STOP" ]
+then
+  echo 'stopping $proj grafana server instance'
+  pid=`ps -axu | grep grafana-server | grep $proj | awk '{print $2}'`
+  if [ ! -z "$pid" ]
+  then
+    echo "Stopping pid $pid"
+    kill $pid
+  else
+    echo "grafana-server $proj not running"
+  fi
+fi
+pid=`ps -axu | grep grafana-server | grep $proj | awk '{print $2}'`
+if [ -z "$pid" ]
+then
+  echo "starting $proj grafana-server"
+  ./grafana/$proj/grafana_start.sh &
 fi
