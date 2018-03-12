@@ -1,4 +1,5 @@
 #!/bin/bash
+# GET=1 (Get grafana.db from the test server)
 set -o pipefail
 if [ -z "$PG_PASS" ]
 then
@@ -29,14 +30,20 @@ convert "$HOME/dev/cncf/artwork/$icon/icon/color/$icon-icon-color.png" -resize 8
 if [ ! -d "/usr/share/grafana.$proj/" ]
 then
   cp -R ~/grafana.v5/usr.share.grafana "/usr/share/grafana.$proj"/ || exit 9
-  # TODO: branding new Grafana here
   GRAFANA_DATA=/usr/share/grafana.nats/ ./grafana/nats/change_title_and_icons.sh
 fi
 
 if [ ! -d "/var/lib/grafana.$proj/" ]
 then
   cp -R ~/grafana.v5/var.lib.grafana "/var/lib/grafana.$proj"/ || exit 1
-  # TODO: copy test grafana.db into prod here (so the only chnage needed will be passwords)
+  rm -f "/var/lib/grafana.$proj/grafana.db" || exit 1
+fi
+  
+if ( [ ! -f "/var/lib/grafana.$proj/grafana.db" ] && [ ! -z "$GET" ] )
+then
+  echo "attempt to fetch grafana database $projdb from the test server"
+  wget "https://cncftest.io/grafana.$projdb.db" || exit 7
+  mv "grafana.$projdb.db" "/var/lib/grafana.$proj/grafana.db" || exit 1
 fi
 
 if [ ! -d "/etc/grafana.$proj/" ]
