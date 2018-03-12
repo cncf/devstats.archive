@@ -16,10 +16,10 @@ function finish {
 }
 if [ -z "$TRAP" ]
 then
-  > /tmp/deploy.wip
   sync_lock.sh || exit -1
   trap finish EXIT
   export TRAP=1
+  > /tmp/deploy.wip
 fi
 PDB=1 GET=1 IDB=1 ./devel/create_databases.sh || exit 3
 if [ ! "$PROJ" = "all" ]
