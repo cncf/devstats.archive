@@ -30,14 +30,15 @@ To add new project follow instructions:
 - Merge new project into 'All' project using `PG_PASS=pwd IDB_PASS=pwd IDB_HOST=172.17.0.1 ./all/add_project.sh projname org_name`.
 - Run regenerate 'All' project InfluxData script `./all/reinit.sh`.
 - On production (where you already have correct gaps config for `All CNCF` project, just run: `IDB=1 PG_PASS=pwd IDB_PASS=pwd IDB_HOST=172.17.0.1 ./all/add_project.sh projname org_name`.
-
-- TODO: `./projectname/create_grafana.sh`.
-- TODO: final deploy script is: `./projectname/deploy.sh`.
 - `cp -Rv grafana/oldproject/ grafana/projectname/` and then update files. Usually `%s/oldproject/newproject/g|w|next`.
 - `cp -Rv grafana/dashboards/oldproject/ grafana/dashboards/projectname/` and then update files. Usually `%s/"oldproj"/"newproj"/g|%s/DS_OLDPROJ/DS_NEWPROJ/g|%s/OldProj/NewProj/g|w|next`.
 - Be careful with `dashboards.json` because it contains list of all projects so you shouldn't replace oldproj with newproj - but add new entry instead.
+- You can use something like this: `MODE=ss0 FROM=`cat from` TO=`cat to` FILES=`find ./grafana/dashboards -type f -iname 'dashboards.json'` ./devel/mass_replace.sh`, files `from` and `to` should contain from -> to replacements.
 - Update `projects.yaml` remove `disabled: true` for new project (if needed).
 - `make install` to install all changed stuff.
+- TODO: `./projectname/create_grafana.sh`.
+- TODO: final deploy script is: `./projectname/deploy.sh`.
+
 - Copy directories `/etc/grafana`, `/usr/share/grafana`, `/var/lib/grafana` from standard unmodified installation adding .projectname to their names.
 - You can use `grafana/etc/grafana.ini.example` as a base config file (but note that some options are redacted in this example file).
 - Update `./grafana/proj/change_title_and_icons.sh` to use right names. Run it with `GRAFANA_DATA=/usr/share/grafana.projectname/ ./grafana/projectname/change_title_and_icons.sh`.
