@@ -53,13 +53,13 @@ To add new project follow instructions:
 - Start new grafana: `./grafana/projectname/grafana_start.sh &` or `killall grafana-server`, `./grafana/start_all_grafanas.sh`, `ps -aux | grep grafana-server`.
 - Update Apache config to proxy https to new Grafana instance: `vim /etc/apache2/sites-enabled/000-default-le-ssl.conf`, `service apache2 restart`
 - List of test SSL sites is in `./apache/test/sites.txt` and for prod `./apache/prod/sites.txt`.
-- Issue new SSL certificate as described in `SSL.md` (test server): 'sudo certbot --apache -d `cat apache/test/sites.txt`'.
-- Or (prod server): 'sudo certbot --apache -d `cat apache/prod/sites.txt`'.
-- Or with standalone authenticator (test server): "sudo certbot -d `cat apache/test/sites.txt` --authenticator standalone --installer apache --pre-hook 'service apache2 stop' --post-hook 'service apache2 start'".
-- Or with standalone authenticator (prod server): "sudo certbot -d `cat apache/prod/sites.txt` --authenticator standalone --installer apache --pre-hook 'service apache2 stop' --post-hook 'service apache2 start'".
+- Issue new SSL certificate as described in `SSL.md` (test server): 'sudo certbot --apache -n --expand -d `cat apache/test/sites.txt`'.
+- Or (prod server): 'sudo certbot --apache -d -n --expand `cat apache/prod/sites.txt`'.
+- Or with standalone authenticator (test server): "sudo certbot -d -n --expand `cat apache/test/sites.txt` --authenticator standalone --installer apache --pre-hook 'service apache2 stop' --post-hook 'service apache2 start'".
+- Or with standalone authenticator (prod server): "sudo certbot -d -n --expand `cat apache/prod/sites.txt` --authenticator standalone --installer apache --pre-hook 'service apache2 stop' --post-hook 'service apache2 start'".
 - Open `newproject.cncftest.io` login with admin/admin, change the default password and follow instructions from `GRAFANA.md`. If `./newproj/reinit.sh` is still running You can use `newproj_temp` as InfluxDB temporarity to speedup work. But finally change to `newproj`.
 - Add new project to `/var/www/html/index.html`.
 - Update and import `grafana/dashboards/{{proj}}/dashboards.json` dashboard on all remaining projects.
 - Finally: `cp /var/lib/grafana.projectname/grafana.db /var/www/html/grafana.projectname.db` and/or `grafana/copy_grafana_dbs.sh`
 - `crontab -e` and turn on `devstats` and eventually `webhook` (if was disabled).
-- TODO: final deploy script is: `./projectname/deploy.sh`.
+- Final deploy script is: `./projectname/deploy.sh`. It should do all deployment automatically on the prod server.
