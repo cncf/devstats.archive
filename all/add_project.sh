@@ -1,5 +1,6 @@
 #!/bin/bash
 # IDB=1 (will update InfluxDB)
+# GET=1 (will fetch allprj database from backup - not recommended because local merge is faster)
 set -o pipefail
 if ( [ -z "$1" ] || [ -z "$2" ] )
 then
@@ -32,19 +33,28 @@ then
   trap finish EXIT
   export TRAP=1
 fi
-GHA2DB_INPUT_DBS="$1" GHA2DB_OUTPUT_DB="allprj" ./merge_pdbs || exit 5
-PG_DB="allprj" ./devel/remove_db_dups.sh || exit 6
-./all/get_repos.sh || exit 7
-./all/setup_repo_groups.sh || exit 8
+if [ ! -z "$GET" ]
+then
+  echo "attempt to fetch postgres database allprj from backup"
+  wget "https://cncftest.io/allprj.dump" || exit 5
+  sudo -u postgres pg_restore -d allprj allprj.dump || exit 6
+  rm -f allprj.dump || exit 7
+  echo "allprj backup restored"
+else
+  GHA2DB_INPUT_DBS="$1" GHA2DB_OUTPUT_DB="allprj" ./merge_pdbs || exit 8
+  PG_DB="allprj" ./devel/remove_db_dups.sh || exit 9
+  ./all/get_repos.sh || exit 10
+  ./all/setup_repo_groups.sh || exit 11
+fi
 if [ -z "$IDB" ]
 then
-  ./all/top_n_repos_groups.sh 70 > out || exit 9
-  ./all/top_n_companies 70 >> out || exit 10
+  ./all/top_n_repos_groups.sh 70 > out || exit 12
+  ./all/top_n_companies 70 >> out || exit 13
   cat out
   echo 'Please update ./metrics/all/gaps*.yaml with new companies & repo groups data (also dont forget repo groups).'
   echo 'Then run ./all/reinit.sh.'
   echo 'Top 70 repo groups & companies are saved in "out" file.'
 else
-  ./all/reinit.sh || exit 11
+  ./all/reinit.sh || exit 14
 fi
 echo 'OK'
