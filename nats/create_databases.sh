@@ -24,24 +24,24 @@ then
 fi
 if [ ! -z "$PDB" ]
 then
-  exists=`sudo -u postgres psql -tAc "select 1 from pg_database WHERE datname = '$projdb'"` || exit 1
+  exists=`sudo -u postgres psql -tAc "select 1 from pg_database WHERE datname = '$projdb'"` || exit 2
   if ( [ ! -z "$PDROP" ] && [ "$exists" = "1" ] )
   then
     echo "dropping postgres database $projdb"
-    sudo -u postgres psql -c "drop database $projdb" || exit 2
+    sudo -u postgres psql -c "drop database $projdb" || exit 3
   fi
-  exists=`sudo -u postgres psql -tAc "select 1 from pg_database WHERE datname = '$projdb'"` || exit 3
+  exists=`sudo -u postgres psql -tAc "select 1 from pg_database WHERE datname = '$projdb'"` || exit 4
   if [ ! "$exists" = "1" ]
   then
     echo "creating postgres database $projdb"
-    sudo -u postgres psql -c "create database $projdb" || exit 4
-    sudo -u postgres psql -c "grant all privileges on database \"$projdb\" to gha_admin" || exit 5
+    sudo -u postgres psql -c "create database $projdb" || exit 5
+    sudo -u postgres psql -c "grant all privileges on database \"$projdb\" to gha_admin" || exit 6
     if [ ! -z "$GET" ]
     then
       echo "attempt to fetch postgres database $projdb from backup"
-      wget "https://cncftest.io/$projdb.dump" || exit 6
-      sudo -u postgres pg_restore -d "$projdb" "$projdb.dump" || exit 7
-      rm -f "$proj.dump" || exit 8
+      wget "https://cncftest.io/$projdb.dump" || exit 7
+      sudo -u postgres pg_restore -d "$projdb" "$projdb.dump" || exit 8
+      rm -f "$proj.dump" || exit 9
     else
       echo "generating postgres database $projdb"
       GHA2DB_MGETC=y ./$proj/psql.sh || exit 10
@@ -54,18 +54,18 @@ else
 fi
 if [ ! -z "$IDB" ]
 then
-  exists=`echo 'show databases' | influx -host $IDB_HOST -username gha_admin -password $IDB_PASS | grep $projdb` || exit 1
+  exists=`echo 'show databases' | influx -host $IDB_HOST -username gha_admin -password $IDB_PASS | grep $projdb` || exit 11
   if ( [ ! -z "$IDROP" ] && [ "$exists" = "$projdb" ] )
   then
     echo "dropping influx database $projdb"
-    ./grafana/influxdb_drop.sh "$projdb" || exit 1
+    ./grafana/influxdb_drop.sh "$projdb" || exit 12
   fi
-  exists=`echo 'show databases' | influx -host $IDB_HOST -username gha_admin -password $IDB_PASS | grep $projdb` || exit 1
+  exists=`echo 'show databases' | influx -host $IDB_HOST -username gha_admin -password $IDB_PASS | grep $projdb` || exit 13
   if [ ! "$exists" = "$projdb" ]
   then
     echo "generating influx database $projdb"
-    ./grafana/influxdb_recreate.sh "$projdb" || exit 10
-    ./$proj/reinit.sh || exit 11
+    ./grafana/influxdb_recreate.sh "$projdb" || exit 14
+    ./$proj/reinit.sh || exit 15
   else
     echo "influx database $projdb already exists"
   fi

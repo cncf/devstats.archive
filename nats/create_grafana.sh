@@ -30,6 +30,7 @@ if [ ! -d "/usr/share/grafana.$proj/" ]
 then
   cp -R ~/grafana.v5/usr.share.grafana "/usr/share/grafana.$proj"/ || exit 9
   # TODO: branding new Grafana here
+  GRAFANA_DATA=/usr/share/grafana.nats/ ./grafana/nats/change_title_and_icons.sh
 fi
 
 if [ ! -d "/var/lib/grafana.$proj/" ]
