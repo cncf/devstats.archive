@@ -6,6 +6,7 @@
 # MODE=ss FROM='      "title": "' TO='      "title": "[[full_name]] ' FILES=`find grafana/dashboards/cncf/ -name "top_commenters.json" -or -name "project_statistics.json" -or -name "companies_summary.json" -or -name "prs_authors_companies_histogram.json" -or -name "developers_summary.json" -or -name "prs_authors_histogram.json"` ./devel/mass_replace.sh
 # MODE=rs0 FROM='(?m)^.*"uid": "\w+",\n' TO='-' ./replacer input.json
 # MODE=rr0 FROM='(?m)(^.*)"uid": "(\w+)",' TO='$1"uid": "placeholder",' ./replacer input.json
+# MODE=rr FROM='(?m);;;(.*)$' TO=';;;$1 # {{repo_groups}}' FILES=`find metrics/ -iname "gaps.yaml"` ./devel/mass_replace.sh
 if [ -z "${FROM}" ]
 then
   echo "You need to set FROM, example FROM=abc TO=xyz FILES='f1 f2' $0"
