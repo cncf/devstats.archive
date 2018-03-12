@@ -16,7 +16,8 @@ then
 fi
 proj=nats
 projdb=nats
+projorg=nats-io
 PDB=1 GET=1 IDB=1 ./$proj/create_databases.sh || exit 1
-IDB=1 ./all/add_project.sh "$projdb" || exit 2
+IDB=1 ./all/add_project.sh "$projdb" "$projorg" || exit 2
 ./$proj/create_grafana.sh || exit 3
 echo 'OK'
