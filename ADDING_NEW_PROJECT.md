@@ -34,13 +34,13 @@ To add new project follow instructions:
 - `cp -Rv grafana/dashboards/oldproject/ grafana/dashboards/projectname/` and then update files. Usually `%s/"oldproj"/"newproj"/g|%s/DS_OLDPROJ/DS_NEWPROJ/g|%s/OldProj/NewProj/g|w|next`.
 - Be careful with `dashboards.json` because it contains list of all projects so you shouldn't replace oldproj with newproj - but add new entry instead.
 - You can use something like this: `MODE=ss0 FROM=`cat from` TO=`cat to` FILES=`find ./grafana/dashboards -type f -iname 'dashboards.json'` ./devel/mass_replace.sh`, files `from` and `to` should contain from -> to replacements.
+- For other dashboards you can use: "MODE=ss0 FROM='"vitess"' TO='"nats"' FILES=`find ./grafana/dashboards/nats -type f -iname '*.json'` ./devel/mass_replace.sh".
 - Update `projects.yaml` remove `disabled: true` for new project (if needed).
 - `make install` to install all changed stuff.
-- TODO: `./projectname/create_grafana.sh`.
 - TODO: final deploy script is: `./projectname/deploy.sh`.
-
+- Update `./projectname/create_grafana.sh` script to make it create correct Grafana installation.
 - Copy directories `/etc/grafana`, `/usr/share/grafana`, `/var/lib/grafana` from standard unmodified installation adding .projectname to their names.
-- You can use `grafana/etc/grafana.ini.example` as a base config file (but note that some options are redacted in this example file).
+- You can use `grafana/etc/grafana.ini.example` as a base config file, values specific for new projects use templating `{{var}}`, this is supposed to be changed by `./projectname/create_grafana.sh` script.
 - Update `./grafana/proj/change_title_and_icons.sh` to use right names. Run it with `GRAFANA_DATA=/usr/share/grafana.projectname/ ./grafana/projectname/change_title_and_icons.sh`.
 - Update `/etc/grafana.projectname/grafana.ini` - set all config options from `GRAFANA.md`, `MULTIPROJECT.md`.
 - Follow `Grafana sessions in Postgres` from MULTIPROJECT.md:
