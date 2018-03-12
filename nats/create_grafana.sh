@@ -1,16 +1,13 @@
 #!/bin/bash
 # GET=1 (Get grafana.db from the test server)
 # STOP=1 (Stops running grafana-server instance)
+# CERT=1 (Obtain SSL certs)
 set -o pipefail
 if [ -z "$PG_PASS" ]
 then
   echo "$0: You need to set PG_PASS environment variable to run this script"
   exit 1
 fi
-WD=`pwd`
-cd ~/dev/cncf/artwork || exit 1
-git pull || exit 2
-cd $WD || exit 3
 
 host=`hostname`
 proj=nats
@@ -21,6 +18,31 @@ org=NATS
 # TODO: when CNCF updates artwork to include NATS icon
 #icon=nats
 icon=cncf
+
+pid=`ps -axu | grep grafana-server | grep $proj | awk '{print $2}'`
+if [ ! -z "$STOP" ]
+then
+  echo 'stopping $proj grafana server instance'
+  if [ ! -z "$pid" ]
+  then
+    echo "Stopping pid $pid"
+    kill $pid
+  else
+    echo "grafana-server $proj not running"
+  fi
+fi
+
+pid=`ps -axu | grep grafana-server | grep $proj | awk '{print $2}'`
+if [ ! -z "$pid" ]
+then
+  echo "$proj grafana-server is running, exiting"
+  exit 0
+fi
+
+WD=`pwd`
+cd ~/dev/cncf/artwork || exit 1
+git pull || exit 2
+cd $WD || exit 3
 
 cp "$HOME/dev/cncf/artwork/$icon/icon/color/$icon-icon-color.svg" "/usr/share/grafana.$icon/public/img/grafana_icon.svg" || exit 4
 cp "$HOME/dev/cncf/artwork/$icon/icon/color/$icon-icon-color.svg" "/usr/share/grafana.$icon/public/img/grafana_com_auth_icon.svg" || exit 5
@@ -79,29 +101,28 @@ else
   echo "grafana sessions database ${projdb}_grafana_sessions already exists"
 fi
 
-if [ "$hostname" = "cncftest.io" ]
+if [ "$host" = "devstats.cncf.io" ]
 then
-  cp apache/www/index_test.html /var/www/html/index.html || exit 1
-  cp apache/test/sites-enabled/000-default-le-ssl.conf /etc/apache2/sites-enabled/ || exit 1
-  cp apache/test/sites-enabled/000-default.conf /etc/apache2/sites-enabled/ || exit 1
-else
   cp apache/www/index_prod.html /var/www/html/index.html || exit 1
   cp apache/prod/sites-enabled/000-default-le-ssl.conf /etc/apache2/sites-enabled/ || exit 1
   cp apache/prod/sites-enabled/000-default.conf /etc/apache2/sites-enabled/ || exit 1
+else
+  cp apache/www/index_test.html /var/www/html/index.html || exit 1
+  cp apache/test/sites-enabled/000-default-le-ssl.conf /etc/apache2/sites-enabled/ || exit 1
+  cp apache/test/sites-enabled/000-default.conf /etc/apache2/sites-enabled/ || exit 1
 fi
 
-if [ ! -z "$STOP" ]
+if [ ! -z "$CERT" ]
 then
-  echo 'stopping $proj grafana server instance'
-  pid=`ps -axu | grep grafana-server | grep $proj | awk '{print $2}'`
-  if [ ! -z "$pid" ]
+  echo 'obtaining SSL certs'
+  if [ "$host" = "devstats.cncf.io" ]
   then
-    echo "Stopping pid $pid"
-    kill $pid
+    sudo certbot -d `cat apache/prod/sites.txt` -n --expand --authenticator standalone --installer apache --pre-hook 'service apache2 stop' --post-hook 'service apache2 start'
   else
-    echo "grafana-server $proj not running"
+    sudo certbot -d `cat apache/test/sites.txt` -n --expand --authenticator standalone --installer apache --pre-hook 'service apache2 stop' --post-hook 'service apache2 start'
   fi
 fi
+
 pid=`ps -axu | grep grafana-server | grep $proj | awk '{print $2}'`
 if [ -z "$pid" ]
 then
