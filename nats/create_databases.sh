@@ -54,18 +54,18 @@ else
 fi
 if [ ! -z "$IDB" ]
 then
-  exists=`echo 'show databases' | influx -host $IDB_HOST -username gha_admin -password $IDB_PASS | grep $projdb` || exit 11
+  exists=`echo 'show databases' | influx -host $IDB_HOST -username gha_admin -password $IDB_PASS | grep $projdb`
   if ( [ ! -z "$IDROP" ] && [ "$exists" = "$projdb" ] )
   then
     echo "dropping influx database $projdb"
-    ./grafana/influxdb_drop.sh "$projdb" || exit 12
+    ./grafana/influxdb_drop.sh "$projdb" || exit 11
   fi
-  exists=`echo 'show databases' | influx -host $IDB_HOST -username gha_admin -password $IDB_PASS | grep $projdb` || exit 13
+  exists=`echo 'show databases' | influx -host $IDB_HOST -username gha_admin -password $IDB_PASS | grep $projdb`
   if [ ! "$exists" = "$projdb" ]
   then
     echo "generating influx database $projdb"
-    ./grafana/influxdb_recreate.sh "$projdb" || exit 14
-    ./$proj/reinit.sh || exit 15
+    ./grafana/influxdb_recreate.sh "$projdb" || exit 12
+    ./$proj/reinit.sh || exit 13
   else
     echo "influx database $projdb already exists"
   fi
