@@ -82,8 +82,12 @@ fi
 if [ "$hostname" = "cncftest.io" ]
 then
   cp apache/www/index_test.html /var/www/html/index.html || exit 1
+  cp apache/test/sites-enabled/000-default-le-ssl.conf /etc/apache2/sites-enabled/ || exit 1
+  cp apache/test/sites-enabled/000-default.conf /etc/apache2/sites-enabled/ || exit 1
 else
   cp apache/www/index_prod.html /var/www/html/index.html || exit 1
+  cp apache/prod/sites-enabled/000-default-le-ssl.conf /etc/apache2/sites-enabled/ || exit 1
+  cp apache/prod/sites-enabled/000-default.conf /etc/apache2/sites-enabled/ || exit 1
 fi
 
 if [ ! -z "$STOP" ]
