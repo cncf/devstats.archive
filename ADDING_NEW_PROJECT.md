@@ -37,7 +37,6 @@ To add new project follow instructions:
 - For other dashboards you can use: "MODE=ss0 FROM='"vitess"' TO='"nats"' FILES=`find ./grafana/dashboards/nats -type f -iname '*.json'` ./devel/mass_replace.sh".
 - Update `projects.yaml` remove `disabled: true` for new project (if needed).
 - `make install` to install all changed stuff.
-- TODO: final deploy script is: `./projectname/deploy.sh`.
 - Update `./projectname/create_grafana.sh` script to make it create correct Grafana installation.
 - Copy directories `/etc/grafana`, `/usr/share/grafana`, `/var/lib/grafana` from standard unmodified installation adding .projectname to their names.
 - You can use `grafana/etc/grafana.ini.example` as a base config file, values specific for new projects use templating `{{var}}`, this is supposed to be changed by `./projectname/create_grafana.sh` script.
@@ -49,16 +48,18 @@ To add new project follow instructions:
 - `grant all privileges on database "projectname_grafana_sessions" to gha_admin;`
 - Quit `psql` and run: `sudo -u postgres psql projectname_grafana_sessions < util_sql/grafana_session_table.sql`.
 - You now need Apache proxy and SSL, please follow instructions from APACHE.md and SSL.md
-- Apache part is to update `/var/www/html/index.html apache/www/index_* /etc/apache2/sites-enabled/* apache/sites-enabled/*` files.
+- Apache part is to update `apache/www/index_* apache/test/sites-enabled/* apache/prod/sites-enabled/*` files.
 - SSL part is to issue certificate for new domain and setup proxy.
 - Start new grafana: `./grafana/projectname/grafana_start.sh &` or `killall grafana-server`, `./grafana/start_all_grafanas.sh`, `ps -aux | grep grafana-server`.
 - Update Apache config to proxy https to new Grafana instance: `vim /etc/apache2/sites-enabled/000-default-le-ssl.conf`, `service apache2 restart`
-- Issue new SSL certificate as described in `SSL.md` (test server): `sudo certbot --apache -d 'cncftest.io,k8s.cncftest.io,prometheus.cncftest.io,opentracing.cncftest.io,fluentd.cncftest.io,linkerd.cncftest.io,grpc.cncftest.io,coredns.cncftest.io,containerd.cncftest.io,rkt.cncftest.io,cni.cncftest.io,envoy.cncftest.io,jaeger.cncftest.io,notary.cncftest.io,tuf.cncftest.io,rook.cncftest.io,vitess.cncftest.io,opencontainers.cncftest.io,all.cncftest.io,cncf.cncftest.io'`.
-- Or (prod server): `sudo certbot --apache -d 'devstats.k8s.io,devstats.cncf.io,k8s.devstats.cncf.io,prometheus.devstats.cncf.io,opentracing.devstats.cncf.io,fluentd.devstats.cncf.io,linkerd.devstats.cncf.io,grpc.devstats.cncf.io,coredns.devstats.cncf.io,containerd.devstats.cncf.io,rkt.devstats.cncf.io,cni.devstats.cncf.io,envoy.devstats.cncf.io,jaeger.devstats.cncf.io,notary.devstats.cncf.io,tuf.devstats.cncf.io,rook.devstats.cncf.io,vitess.devstats.cncf.io,all.devstats.cncf.io,devstats.opencontainers.org,all.devstats.opencontainers.org'`.
-- Or with standalone authenticator (test server): `sudo certbot -d 'cncftest.io,k8s.cncftest.io,prometheus.cncftest.io,opentracing.cncftest.io,fluentd.cncftest.io,linkerd.cncftest.io,grpc.cncftest.io,coredns.cncftest.io,containerd.cncftest.io,rkt.cncftest.io,cni.cncftest.io,envoy.cncftest.io,jaeger.cncftest.io,notary.cncftest.io,tuf.cncftest.io,rook.cncftest.io,vitess.cncftest.io,opencontainers.cncftest.io,all.cncftest.io,cncf.cncftest.io' --authenticator standalone --installer apache --pre-hook 'service apache2 stop' --post-hook 'service apache2 start'`
-- Or with standalone authenticator (prod server): `sudo certbot -d 'devstats.k8s.io,devstats.cncf.io,k8s.devstats.cncf.io,prometheus.devstats.cncf.io,opentracing.devstats.cncf.io,fluentd.devstats.cncf.io,linkerd.devstats.cncf.io,grpc.devstats.cncf.io,coredns.devstats.cncf.io,containerd.devstats.cncf.io,rkt.devstats.cncf.io,cni.devstats.cncf.io,envoy.devstats.cncf.io,jaeger.devstats.cncf.io,notary.devstats.cncf.io,tuf.devstats.cncf.io,rook.devstats.cncf.io,vitess.devstats.cncf.io,all.devstats.cncf.io,devstats.opencontainers.org,all.devstats.opencontainers.org' --authenticator standalone --installer apache --pre-hook 'service apache2 stop' --post-hook 'service apache2 start'`
+- List of test SSL sites is in `./apache/test/sites.txt` and for prod `./apache/prod/sites.txt`.
+- Issue new SSL certificate as described in `SSL.md` (test server): 'sudo certbot --apache -d `cat apache/test/sites.txt`'.
+- Or (prod server): 'sudo certbot --apache -d `cat apache/prod/sites.txt`'.
+- Or with standalone authenticator (test server): "sudo certbot -d `cat apache/test/sites.txt` --authenticator standalone --installer apache --pre-hook 'service apache2 stop' --post-hook 'service apache2 start'".
+- Or with standalone authenticator (prod server): "sudo certbot -d `cat apache/prod/sites.txt` --authenticator standalone --installer apache --pre-hook 'service apache2 stop' --post-hook 'service apache2 start'".
 - Open `newproject.cncftest.io` login with admin/admin, change the default password and follow instructions from `GRAFANA.md`. If `./newproj/reinit.sh` is still running You can use `newproj_temp` as InfluxDB temporarity to speedup work. But finally change to `newproj`.
 - Add new project to `/var/www/html/index.html`.
 - Update and import `grafana/dashboards/{{proj}}/dashboards.json` dashboard on all remaining projects.
 - Finally: `cp /var/lib/grafana.projectname/grafana.db /var/www/html/grafana.projectname.db` and/or `grafana/copy_grafana_dbs.sh`
 - `crontab -e` and turn on `devstats` and eventually `webhook` (if was disabled).
+- TODO: final deploy script is: `./projectname/deploy.sh`.
