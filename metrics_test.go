@@ -178,9 +178,9 @@ func dataForMetricTestCase(con *sql.DB, ctx *lib.Ctx, testMetric *metricTestCase
 		texts, ok := data["texts"]
 		if ok {
 			textsAppend, okAppend := data["texts_append"]
-			for _, text := range texts {
+			for idx, text := range texts {
 				if okAppend {
-					text = append(text, textsAppend[0]...)
+					text = append(text, textsAppend[idx%len(textsAppend)]...)
 				}
 				err = addText(con, ctx, text...)
 				if err != nil {
@@ -191,9 +191,9 @@ func dataForMetricTestCase(con *sql.DB, ctx *lib.Ctx, testMetric *metricTestCase
 		prs, ok := data["prs"]
 		if ok {
 			prsAppend, okAppend := data["prs_append"]
-			for _, pr := range prs {
+			for idx, pr := range prs {
 				if okAppend {
-					pr = append(pr, prsAppend[0]...)
+					pr = append(pr, prsAppend[idx%len(prsAppend)]...)
 				}
 				err = addPR(con, ctx, pr...)
 				if err != nil {
@@ -212,7 +212,11 @@ func dataForMetricTestCase(con *sql.DB, ctx *lib.Ctx, testMetric *metricTestCase
 		}
 		issues, ok := data["issues"]
 		if ok {
-			for _, issue := range issues {
+			issuesAppend, okAppend := data["issues_append"]
+			for idx, issue := range issues {
+				if okAppend {
+					issue = append(issue, issuesAppend[idx%len(issuesAppend)]...)
+				}
 				err = addIssue(con, ctx, issue...)
 				if err != nil {
 					return
@@ -286,6 +290,15 @@ func dataForMetricTestCase(con *sql.DB, ctx *lib.Ctx, testMetric *metricTestCase
 		if ok {
 			for _, ecf := range ecfs {
 				err = addEventCommitFile(con, ctx, ecf...)
+				if err != nil {
+					return
+				}
+			}
+		}
+		milestones, ok := data["milestones"]
+		if ok {
+			for _, milestone := range milestones {
+				err = addMilestone(con, ctx, milestone...)
 				if err != nil {
 					return
 				}
@@ -868,10 +881,11 @@ func addIssuePR(con *sql.DB, ctx *lib.Ctx, args ...interface{}) (err error) {
 
 // Add Issue
 // id, event_id, assignee_id, body, closed_at, created_at, number, state, title, updated_at
-// user_id, dup_actor_id, dup_actor_login, dup_repo_id, dup_repo_name, dup_type, is_pull_request
+// user_id, dup_actor_id, dup_actor_login, dup_repo_id, dup_repo_name, dup_type,
+// is_pull_request, milestone_id, dup_created_at
 func addIssue(con *sql.DB, ctx *lib.Ctx, args ...interface{}) (err error) {
-	if len(args) != 17 {
-		err = fmt.Errorf("addIssue: expects 17 variadic parameters, got %v", len(args))
+	if len(args) != 19 {
+		err = fmt.Errorf("addIssue: expects 19 variadic parameters, got %v", len(args))
 		return
 	}
 	newArgs := lib.AnyArray{
@@ -883,7 +897,7 @@ func addIssue(con *sql.DB, ctx *lib.Ctx, args ...interface{}) (err error) {
 		0,        // comments
 		args[5],  // created_at
 		false,    // locked
-		nil,      // milestone_id
+		args[17], // milestone_id
 		args[6],  // number
 		args[7],  // state
 		args[8],  // title
@@ -894,7 +908,7 @@ func addIssue(con *sql.DB, ctx *lib.Ctx, args ...interface{}) (err error) {
 		args[13], // dup_repo_id
 		args[14], // dup_repo_name
 		args[15], // dup_type
-		args[5],  // dup_created_at
+		args[18], // dup_created_at
 		"",       // dup_user_login
 		"",       // dup_assignee_login
 		args[16], // is_pull_request
@@ -907,6 +921,49 @@ func addIssue(con *sql.DB, ctx *lib.Ctx, args ...interface{}) (err error) {
 			"locked, milestone_id, number, state, title, updated_at, user_id, "+
 			"dup_actor_id, dup_actor_login, dup_repo_id, dup_repo_name, dup_type, dup_created_at, "+
 			"dup_user_login, dupn_assignee_login, is_pull_request) "+lib.NValues(23),
+		newArgs...,
+	)
+	return
+}
+
+// Add Milestone
+// id, event_id, closed_at, created_at, actor_id, due_on, number, state, title, updated_at
+// dup_actor_id, dup_actor_login, dup_repo_id, dup_repo_name, dup_type, dup_created_at
+func addMilestone(con *sql.DB, ctx *lib.Ctx, args ...interface{}) (err error) {
+	if len(args) != 16 {
+		err = fmt.Errorf("addMilestone: expects 16 variadic parameters, got %v", len(args))
+		return
+	}
+	newArgs := lib.AnyArray{
+		args[0],  // id
+		args[1],  // event_id
+		args[2],  // closed_at
+		0,        // closed issues
+		args[3],  // created_at
+		args[4],  // actor_id
+		"",       // description
+		args[5],  // due_on
+		args[6],  // number
+		0,        // open issues
+		args[7],  // state
+		args[8],  // title
+		args[9],  // updated_at
+		args[10], // dup_actor_id
+		args[11], // dup_actor_login
+		args[12], // dup_repo_id
+		args[13], // dup_repo_name
+		args[14], // dup_type
+		args[15], // dup_created_at
+		"",       // dup_creator_login
+	}
+	_, err = lib.ExecSQL(
+		con,
+		ctx,
+		"insert into gha_milestones("+
+			"id, event_id, closed_at, closed_issues, created_at, creator_id, "+
+			"description, due_on, number, open_issues, state, title, updated_at, "+
+			"dup_actor_id, dup_actor_login, dup_repo_id, dup_repo_name, dup_type, dup_created_at, "+
+			"dupn_creator_login) "+lib.NValues(20),
 		newArgs...,
 	)
 	return
