@@ -1324,6 +1324,43 @@ projects:
           - ['reviews_per_user,Rev7`All', '1.00']
           - ['reviews_per_user,Rev7`R1', '1.00']
         data: KubernetesReviewsPerUserMetric
+      - metric: open_issues_sigs_milestones
+        n: 1
+        from: 2018-03-01T00:00:00Z
+        to: 2018-04-01T00:00:00Z
+        expected:
+          - ['open_issues_sigs_milestones,All-All-All', 8]
+          - ['open_issues_sigs_milestones,sig1-All-All', 4]
+          - ['open_issues_sigs_milestones,All-All-R1', 2]
+          - ['open_issues_sigs_milestones,All-All-R2', 2]
+          - ['open_issues_sigs_milestones,All-All-R3', 2]
+          - ['open_issues_sigs_milestones,All-All-R4', 2]
+          - ['open_issues_sigs_milestones,All-M2-All', 2]
+          - ['open_issues_sigs_milestones,sig1-All-R3', 2]
+          - ['open_issues_sigs_milestones,sig2-All-All', 2]
+          - ['open_issues_sigs_milestones,All-M1-All', 1]
+          - ['open_issues_sigs_milestones,All-M1-R4', 1]
+          - ['open_issues_sigs_milestones,All-M2-R2', 1]
+          - ['open_issues_sigs_milestones,All-M2-R4', 1]
+          - ['open_issues_sigs_milestones,All-M3-All', 1]
+          - ['open_issues_sigs_milestones,All-M3-R3', 1]
+          - ['open_issues_sigs_milestones,All-M4-All', 1]
+          - ['open_issues_sigs_milestones,All-M4-R1', 1]
+          - ['open_issues_sigs_milestones,sig1-All-R1', 1]
+          - ['open_issues_sigs_milestones,sig1-All-R2', 1]
+          - ['open_issues_sigs_milestones,sig1-M3-All', 1]
+          - ['open_issues_sigs_milestones,sig1-M3-R3', 1]
+          - ['open_issues_sigs_milestones,sig1-M4-All', 1]
+          - ['open_issues_sigs_milestones,sig1-M4-R1', 1]
+          - ['open_issues_sigs_milestones,sig2-All-R3', 1]
+          - ['open_issues_sigs_milestones,sig2-All-R4', 1]
+          - ['open_issues_sigs_milestones,sig2-M2-All', 1]
+          - ['open_issues_sigs_milestones,sig2-M2-R4', 1]
+          - ['open_issues_sigs_milestones,sig2-M3-All', 1]
+          - ['open_issues_sigs_milestones,sig2-M3-R3', 1]
+          - ['open_issues_sigs_milestones,sig3-All-All', 1]
+          - ['open_issues_sigs_milestones,sig3-All-R1', 1]
+        data: KubernetesIssuesMilestonesMetric
       - metric: hist_reviewers
         additional_setup_funcs:
           - SetDates
@@ -1424,6 +1461,57 @@ projects:
           - ["top_commenters,Group 1", A2, 2]
         data: KubernetesTopCommentersMetric
 data:
+  KubernetesIssuesMilestonesMetric:
+    # id, event_id, assignee_id, body, closed_at, created_at, number, state,
+    # title, updated_at, user_id, dup_actor_id, dup_actor_login, dup_repo_id,
+    # dup_repo_name, dup_type, is_pull_request, milestone_id, dup_created_at
+    issues:
+      - [1, 1, 0, Body1, null,                   '2018-02-10T00:00:00Z', 1, open, Issue1, '2018-02-10T00:00:00Z', 0, 0, '', 1, 'R1', IssuesEvent, false, 1, '2018-02-10T00:00:00Z']
+      - [1, 14, 0, Body1, null,                  '2018-02-10T00:00:00Z', 1, open, Issue1, '2018-04-10T00:00:00Z', 0, 0, '', 1, 'R1', IssueCommentEvent, false, 4, '2018-04-10T00:00:00Z'] # milestone changed M1 -> M4, after date to
+      - [2, 2, 0, Body2, '2018-04-10T00:00:00Z', '2018-02-20T00:00:00Z', 2, closed, Issue2, '2018-02-20T00:00:00Z', 0, 0, '', 2, 'R2', IssuesEvent, false, 2, '2018-02-20T00:00:00Z']
+      - [3, 3, 0, Body3, null,                   '2018-03-01T00:00:00Z', 3, open, Issue3, '2018-03-01T00:00:00Z', 0, 0, '', 3, 'R3', IssuesEvent, false, 3, '2018-03-01T00:00:00Z']
+      - [4, 4, 0, Body4, '2018-03-10T00:00:00Z', '2018-03-10T00:00:00Z', 4, closed, Issue4, '2018-03-10T00:00:00Z', 0, 0, '', 4, 'R4', IssuesEvent, false, 1, '2018-03-10T00:00:00Z'] # closed < to
+      - [5, 5, 0, Body5, null,                   '2018-04-10T00:00:00Z', 5, open, Issue5, '2018-04-10T00:00:00Z', 0, 0, '', 1, 'R1', IssuesEvent, false, 2, '2018-04-10T00:00:00Z']   # opened > to
+      - [6, 6, 0, Body6, null,                   '2018-03-02T00:00:00Z', 6, open, PR6, '2018-03-02T00:00:00Z', 0, 0, '', 2, 'R2', IssuesEvent, true, 3, '2018-03-02T00:00:00Z']       # is PR
+      - [7, 7, 0, Body7, null,                   '2018-02-15T00:00:00Z', 7, open, Issue7, '2018-02-15T00:00:00Z', 0, 0, '', 3, 'R3', IssuesEvent, false, 1, '2018-02-15T00:00:00Z']
+      - [8, 8, 0, Body8, '2018-04-12T00:00:00Z', '2018-02-25T00:00:00Z', 8, closed, Issue8, '2018-02-25T00:00:00Z', 0, 0, '', 4, 'R4', IssuesEvent, false, 2, '2018-02-25T00:00:00Z']
+      - [9, 9, 0, Body9, null,                   '2018-03-06T00:00:00Z', 9, open, Issue9, '2018-03-06T00:00:00Z', 0, 0, '', 1, 'R1', IssuesEvent, false, 3, '2018-03-06T00:00:00Z']
+      - [9, 13, 0, Body9, null,                  '2018-03-06T00:00:00Z', 9, open, Issue9, '2018-03-06T16:00:00Z', 0, 0, '', 1, 'R1', IssuesEvent, false, null, '2018-03-06T16:00:00Z'] # new state: milestone removed
+      - [10, 10, 0, Body10, null,                 '2018-03-26T00:00:00Z', 10, open, Issue10, '2018-03-26T00:00:00Z', 0, 0, '', 2, 'R2', IssuesEvent, false, null, '2018-03-26T00:00:00Z']
+      - [11, 12, 0, Body11, null,                 '2018-02-26T00:00:00Z', 11, open, Issue11, '2018-02-26T00:00:00Z', 0, 0, '', 3, 'R4', IssuesEvent, false, 1, '2018-02-26T00:00:00Z']
+    # iid, eid, lid, actor_id, actor_login, repo_id, repo_name,
+    # ev_type, ev_created_at, issue_number, label_name
+    issues_labels:
+      - [1, 1, 1, 0, '', 1, 'R1', 'T', '2018-02-10T00:00:00Z', 1, first-no-sig]       # first label set without sig
+      - [1, 4, 2, 0, '', 1, 'R1', 'T', '2018-02-11T00:00:00Z', 1, sig/sig1]           # but final label set has sig1
+      - [2, 2, 3, 0, '', 2, 'R2', 'T', '2018-02-20T00:00:00Z', 2, sig/sig-to-remove]  # assigned sig
+      - [2, 5, 4, 0, '', 2, 'R2', 'T', '2018-02-21T00:00:00Z', 2, removing-sig]       # but future labels set without sig, so it is removed
+      - [3, 3, 2, 0, '', 3, 'R3', 'T', '2018-03-02T00:00:00Z', 3, sig/sig1]           # final label set for 2018-03-02
+      - [3, 3, 5, 0, '', 3, 'R3', 'T', '2018-03-02T00:00:00Z', 3, sig/sig2]           # sig1 and sig2
+      - [7, 7, 2, 0, '', 3, 'R3', 'T', '2018-02-16T00:00:00Z', 7, sig/sig1]           # sig1
+      - [7, 14, 8, 0, '', 3, 'R3', 'T', '2018-02-16T00:00:00Z', 7, milestone/removed] # removes milestone
+      - [8, 8, 5, 0, '', 4, 'R4', 'T', '2018-02-26T00:00:00Z', 8, sig/sig2]           # sig2
+      - [9, 9, 6, 0, '', 1, 'R1', 'T', '2018-03-07T00:00:00Z', 9, sig/sig3]           # sig3
+      - [10, 10, 2, 0, '', 2, 'R2', 'T', '2018-03-27T00:00:00Z', 10, sig/sig1]        # sig1
+      - [10, 11, 7, 0, '', 2, 'R2', 'T', '2018-03-27T00:00:00Z', 10, other-label]
+      - [11, 12, 7, 0, '', 3, 'R3', 'T', '2018-02-27T00:00:00Z', 11, other-label]
+    # id, event_id, closed_at, created_at, actor_id, due_on, number, state, title, updated_at
+    # dup_actor_id, dup_actor_login, dup_repo_id, dup_repo_name, dup_type, dup_created_at
+    milestones:
+      - [1, 1, null, '2018-01-01T00:00:00Z', 0, null, 1, open, "M1", '2018-02-10T00:00:00Z', 0, "", 1, "R1", "T", '2018-02-10T00:00:00Z']
+      - [2, 2, null, '2018-01-02T00:00:00Z', 0, null, 2, open, "M2", '2018-02-20T00:00:00Z', 0, "", 2, "R2", "T", '2018-02-20T00:00:00Z']
+      - [3, 3, null, '2018-01-03T00:00:00Z', 0, null, 3, open, "M3", '2018-03-01T00:00:00Z', 0, "", 3, "R3", "T", '2018-03-01T00:00:00Z']
+      - [1, 7, null, '2018-01-02T00:00:00Z', 0, null, 1, open, "M1", '2018-02-15T00:00:00Z', 0, "", 1, "R1", "T", '2018-02-15T00:00:00Z']
+      - [2, 8, null, '2018-01-02T00:00:00Z', 0, null, 2, open, "M2", '2018-02-15T00:00:00Z', 0, "", 2, "R2", "T", '2018-02-25T00:00:00Z']
+      - [3, 9, null, '2018-01-03T00:00:00Z', 0, null, 3, open, "M3", '2018-03-06T00:00:00Z', 0, "", 3, "R3", "T", '2018-03-06T00:00:00Z']
+      - [1, 12, null, '2018-01-01T00:00:00Z', 0, null, 1, open, "M1", '2018-02-26T00:00:00Z', 0, "", 3, "R3", "T", '2018-02-26T00:00:00Z']
+      - [4, 14, null, '2018-01-01T00:00:00Z', 0, null, 4, open, "M4", '2018-04-10T00:00:00Z', 0, "", 1, "R1", "T", '2018-04-10T00:00:00Z']
+    # event_id, issue_id, pull_request_id, comment_id, number, forkee_id,
+    # release_id, member_id, actor_id, actor_login, repo_id, repo_name,
+    # event_type, event_created_at
+    payloads:
+      - [1, 1, 0, 0, 1, 0, 0, 0, 0, '', 1, 'R1', IssuesEvent, '2018-02-10T00:00:00Z']
+      - [14, 1, 0, 0, 1, 0, 0, 0, 0, '', 1, 'R1', IssueCommentEvent, '2018-04-10T00:00:00Z']  # milestone change to detect from next payload
   KubernetesReviewsPerUserMetric:
     # append to all rows in "texts"
     texts_append:
@@ -1546,6 +1634,8 @@ data:
       - [6, 27, 0, 0, '', 0, '', '', '2018-02-07T00:00:00Z', 0, approved]
       - [12, 33, 0, 0, '', 0, '', '', '2018-02-12T00:00:00Z', 0, sig/sig7]
       - [12, 34, 0, 0, '', 0, '', '', '2018-02-12T00:00:00Z', 0, size/xxl]
+    # append milestone_id=null to all rows in "issues"
+    issues_append: [[null, '2017-01-01T12:00:00Z']]
     # id, event_id, assignee_id, body, closed_at, created_at, number, state,
     # title, updated_at, user_id, dup_actor_id, dup_actor_login, dup_repo_id,
     # dup_repo_name, dup_type, is_pull_request
@@ -1603,6 +1693,8 @@ data:
     # dup_repo_id, dup_repo_name, dup_type, dup_created_at
     events_commits_files:
       - [1234567890abcdef, 5, R1/file.txt, 1024, '2018-02-05T00:00:00Z', Overruled, 1, R1, PushEvent, '2018-02-05T00:00:00Z']
+    # append milestone_id=null to all rows in "issues"
+    issues_append: [[null, '2017-01-01T12:00:00Z']]
     # id, event_id, assignee_id, body, closed_at, created_at, number, state,
     # title, updated_at, user_id, dup_actor_id, dup_actor_login, dup_repo_id,
     # dup_repo_name, dup_type, is_pull_request
@@ -1729,6 +1821,8 @@ data:
       - [1, 4, Com1, '1980-01-01T12:00:00Z', 4, 1, R1, 4, A4, PullRequestReviewCommentEvent]
       - [2, 5, Com2, '1980-01-01T12:00:00Z', 3, 2, R2, 3, A3, IssueCommentEvent]
       - [3, 6, Com3, '1980-01-01T12:00:00Z', 2, 3, R3, 2, A2, CommitCommentEvent]
+    # append milestone_id=null to all rows in "issues"
+    issues_append: [[null, '2017-01-01T12:00:00Z']]
     # id, event_id, assignee_id, body, closed_at, created_at, number, state,
     # title, updated_at, user_id, dup_actor_id, dup_actor_login, dup_repo_id,
     # dup_repo_name, dup_type, is_pull_request
@@ -2224,6 +2318,8 @@ data:
       - [2, Repo 2, 1, Org 1, G2]
       - [3, Repo 3, null, null, G1]
       - [4, Repo 4, null, null, null]
+    # append milestone_id=null to all rows in "issues"
+    issues_append: [[null, '2017-01-01T12:00:00Z']]
     # id, event_id, assignee_id, body, closed_at, created_at, number, state,
     # title, updated_at, user_id, dup_actor_id, dup_actor_login, dup_repo_id,
     # dup_repo_name, dup_type, is_pull_request
@@ -2698,6 +2794,8 @@ data:
         - R2
         - 0
         - ""
+    # append milestone_id=null to all rows in "issues"
+    issues_append: [[null, '2017-01-01T12:00:00Z']]
     # id, event_id, assignee_id, body, closed_at, created_at, number, state,
     # title, updated_at, user_id, dup_actor_id, dup_actor_login, dup_repo_id,
     # dup_repo_name, dup_type, is_pull_request
@@ -3077,6 +3175,8 @@ data:
         - R2
         - 0
         - ""
+    # append milestone_id=null to all rows in "issues"
+    issues_append: [[null, '2017-01-01T12:00:00Z']]
     # id, event_id, assignee_id, body, closed_at, created_at, number, state,
     # title, updated_at, user_id, dup_actor_id, dup_actor_login, dup_repo_id,
     # dup_repo_name, dup_type, is_pull_request
@@ -3326,6 +3426,8 @@ data:
       - [2, Repo 2, 1, Org 1, G2]
       - [3, Repo 3, null, null, G1]
       - [4, Repo 4, null, null, null]
+    # append milestone_id=null to all rows in "issues"
+    issues_append: [[null, '2017-01-01T12:00:00Z']]
     # id, event_id, assignee_id, body, closed_at, created_at, number, state,
     # title, updated_at, user_id, dup_actor_id, dup_actor_login, dup_repo_id,
     # dup_repo_name, dup_type, is_pull_request
@@ -4203,6 +4305,8 @@ data:
       - [6, 6, 0, 0, 0, 6, open, PR6, BodyPR6, '2017-10-05T00:00:00Z', null, null, false, 2, R2, 0, '']
       - [7, 7, 0, 0, 0, 7, closed, PR7, BodyPR7, '2017-10-06T00:00:00Z', '2017-11-07T00:00:00Z', '2017-11-07T00:00:00Z', false, 3, R3, 0, '']
       - [8, 8, 0, 0, 0, 8, closed, PR8, BodyPR8, '2017-10-07T00:00:00Z', '2017-11-08T00:00:00Z', '2017-11-08T00:00:00Z', false, 4, R4, 0, '']
+    # append milestone_id=null to all rows in "issues"
+    issues_append: [[null, '2017-01-01T12:00:00Z']]
     # id, event_id, assignee_id, body, closed_at, created_at, number, state,
     # title, updated_at, user_id, dup_actor_id, dup_actor_login, dup_repo_id,
     # dup_repo_name, dup_type, is_pull_request
@@ -4361,6 +4465,8 @@ data:
       - [2, R2, 1, O1, Group]
       - [3, R3, 2, O2, Mono-group]
       - [4, R4, 2, O2, null]
+    # append milestone_id=null to all rows in "issues"
+    issues_append: [[null, '2017-01-01T12:00:00Z']]
     # id, event_id, assignee_id, body, closed_at, created_at, number, state,
     # title, updated_at, user_id, dup_actor_id, dup_actor_login, dup_repo_id,
     # dup_repo_name, dup_type, is_pull_request
@@ -4988,6 +5094,8 @@ data:
         - 3
         - Actor 3
   KubernetesSigMentionsLabelMetric:
+    # append milestone_id=null to all rows in "issues"
+    issues_append: [[null, '2017-01-01T12:00:00Z']]
     # id, event_id, assignee_id, body, closed_at, created_at, number, state,
     # title, updated_at, user_id, dup_actor_id, dup_actor_login, dup_repo_id,
     # dup_repo_name, dup_type, is_pull_request
