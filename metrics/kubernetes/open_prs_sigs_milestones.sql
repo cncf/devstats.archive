@@ -225,7 +225,8 @@ from (
     prs pr
   ) sub
 order by
-  sub.cnt desc
+  sub.cnt desc,
+  sub.sig_milestone asc
 ;
 
 drop table prs_milestones;
