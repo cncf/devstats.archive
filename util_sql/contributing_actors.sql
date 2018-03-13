@@ -1,5 +1,6 @@
 select
-  string_agg(sub.actor, ',')
+  -- string_agg(sub.actor, ',')
+  sub.actor
 from (
   select distinct a.login as actor
   from
