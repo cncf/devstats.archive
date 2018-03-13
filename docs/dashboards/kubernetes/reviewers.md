@@ -18,7 +18,7 @@ Links:
 - For more information about `gha_events` table please check: [docs/tables/gha_event.md](https://github.com/cncf/devstats/blob/master/docs/tables/gha_events.md).
 - Then comes the final select which returns multiple rows (one for All repository groups combined and then one for each repository group).
 - Each row returns single value, so the metric type is: `multi_row_single_column`.
-- Each row is in the format column 1: `reviewers,RepoGroupName`, column 2: `NumberOfReviewersInThisRepoGroup`. Number of rows is N+1, where N=numbe rof repo groups. One additional row for `reviewers,All` that contains number of repo groups for all repo groups.
+- Each row is in the format column 1: `reviewers,RepoGroupName`, column 2: `NumberOfReviewersInThisRepoGroup`. Number of rows is N+1, where N=number of repo groups. One additional row for `reviewers,All` that contains number of repo groups for all repo groups.
 - Value for each repository group is calculated as a number of distinct actor logins who:
 - Are not bots (see [excluding bots](https://github.com/cncf/devstats/blob/master/docs/excluding_bots.md).)
 - Added `lgtm` or `approve` label in a given period (`gha_issues_events_labels` table)
@@ -42,17 +42,10 @@ skip: w7,m7,q7,y7
 ```
 - It means that we should call Postgres metric [reviewers.sql](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/reviewers.sql).
 - We should expect multiple rows each with 2 columns: 1st defines output Influx series name, 2nd defines value.
-- Periods are: d,w,m,q,y which means we should calculate this SQL for every day, week, month, quarter and year since start of Kubernetes projects. That means about 1400+ days ranges, 210 weeks, 48 months, 12 quarter, 4 years.
-- `{{from}}` and `{{to}}` will be replaced with those daily, weekly, .., yearly ranges.
-- Aggregate 1,7 means that we should calculate moving averages for 1 and 7.
-- Aggregate 1 means nothing - just calculate value
-- Aggregate 7 means that we should calculate d7, w7, m7, q7 and y7 periods. d7 means that we're calculate period with 7 days length, but iterating 1 day each time. For example 1-8 May, then 2-9 May, then 3-10 May and so on.
-- Skip: w7, m7, q7, y7 means that we should exclude those periods, so we will only have d7 left. That means we're calculating d,w,m,q,y,d7 periods. d7 is very useful, becasue it contains all 7 week days (so values are similar) but we're progressing one day instead of 7 days.
-- d7 = '7 Days MA' = '7 days moving average'.
+- See [here](https://github.com/cncf/devstats/blob/master/docs/periods.md) for periods definitions.
 - The final InfluxDB series name would be: `reviewers_[[repogroup]]_[[period]]`. Where [[period]] will be from d,w,m,q,y,d7 and [[repogroup]] will be from 'all,apps,contrib,kubernetes,...', see [repository groups](https://github.com/cncf/devstats/blob/master/docs/repository_groups.md) for details.
-- Repo group name returned by Postgres SQL is normalized (downcased, removed special charrs etc.) to be usable as a Influx series name [here](https://github.com/cncf/devstats/blob/master/cmd/db2influx/db2influx.go#L112) using [this](https://github.com/cncf/devstats/blob/master/unicode.go#L23).
-- Final query is here: [reviewers.json](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/reviewers.json#L116).
-- Finally you can use series in Grafana via `SELECT "value" FROM "autogen"."reviewers_[[repogroup]]_[[period]]" WHERE $timeFilter`.
+- Repo group name returned by Postgres SQL is normalized (downcased, removed special chars etc.) to be usable as a Influx series name [here](https://github.com/cncf/devstats/blob/master/cmd/db2influx/db2influx.go#L112) using [this](https://github.com/cncf/devstats/blob/master/unicode.go#L23).
+- Final query is here: [reviewers.json](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/reviewers.json#L116): `SELECT "value" FROM "autogen"."reviewers_[[repogroup]]_[[period]]" WHERE $timeFilter`.
 - `$timeFiler` value comes from Grafana date range selector. It is handled by Grafana internally.
 - `[[period]]` comes from Variable definition in dashboard JSON: [reviewers.json](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/reviewers.json#L188-L234).
 - `[[repogroup]]` comes from Grafana variable that uses influx tags values: [reviewers.json](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/reviewers.json#L236-L274).
