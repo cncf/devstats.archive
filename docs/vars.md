@@ -11,7 +11,7 @@
 
 # Postgres variables
 
-- Results are saved to `gha_vars` table.
+- Results are saved to [gha_vars](https://github.com/cncf/devstats/blob/master/docs/tables/gha_vars.md) table.
 - Key is `name`, values are various columns starting with `value_` - different types are supported.
 - Per project variables can be defined [here](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/pdb_vars.yaml) (kubernetes example).
 - This is `metrics/{{project_name}}/pdb_vars.yaml` for other projects.
