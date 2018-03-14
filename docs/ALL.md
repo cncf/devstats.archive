@@ -1,4 +1,4 @@
-## [CONTRIBUTING.md](https://github.com/cncf/devstats/blob/master/CONTRIBUTING.md)
+### [CONTRIBUTING](https://github.com/cncf/devstats/blob/master/CONTRIBUTING.md)
 # Contributing to devstats
 If You see any error, or if You have suggestion please create [issue and/or PR](https://github.com/cncf/devstats).
 
@@ -21,7 +21,7 @@ Please use GitHub [issues](https://github.com/cncf/devstats/issues) to report an
 
 # Adding new project
 To add new project follow [adding new project](https://github.com/cncf/devstats/blob/master/ADDING_NEW_PROJECT.md) instructions.
-## [ADDING_NEW_PROJECT.md](https://github.com/cncf/devstats/blob/master/ADDING_NEW_PROJECT.md)
+### [ADDING_NEW_PROJECT](https://github.com/cncf/devstats/blob/master/ADDING_NEW_PROJECT.md)
 # Adding new project
 
 This file describes how to add new project on the test server.
@@ -74,9 +74,9 @@ To add a new project on the test server follow instructions:
 - Finally: `cp /var/lib/grafana.projectname/grafana.db /var/www/html/grafana.projectname.db` and/or `grafana/copy_grafana_dbs.sh`
 - `sync_unlock.sh`.
 - Final deploy script is: `./devel/deploy_all.sh`. It should do all deployment automatically on the prod server. Follow all code from this script (eventually run some parts manually, the final version should do full deploy OOTB).
-## [ISSUE_TEMPLATE.md](https://github.com/cncf/devstats/blob/master/ISSUE_TEMPLATE.md)
+### [ISSUE_TEMPLATE](https://github.com/cncf/devstats/blob/master/ISSUE_TEMPLATE.md)
 Please make sure that You follow instructions from [CONTRIBUTING](https://github.com/cncf/devstats/blob/master/CONTRIBUTING.md)
-## [BENCHMARK.md](https://github.com/cncf/devstats/blob/master/BENCHMARK.md)
+### [BENCHMARK](https://github.com/cncf/devstats/blob/master/BENCHMARK.md)
 # Benchmarks
 
 Please note that those benchmark informations are very old.
@@ -198,7 +198,7 @@ Generating index takes < 3 minutes.
 
 In a typical case it will only add new time-series since last run + eventually process single new GHA hour (since last run). It usually takes less than minute in both languages.
 
-## [USAGE.md](https://github.com/cncf/devstats/blob/master/USAGE.md)
+### [USAGE](https://github.com/cncf/devstats/blob/master/USAGE.md)
 # GitHub Archives to Postgres, InfluxDB, Grafana
 
 Author: Łukasz Gryglicki <lukaszgryglick@o2.pl>
@@ -735,7 +735,7 @@ Please see [Historical benchmarks](https://github.com/cncf/devstats/blob/master/
 
 Please see [Tests](https://github.com/cncf/devstats/blob/master/TESTING.md)
 
-## [DEVELOPMENT.md](https://github.com/cncf/devstats/blob/master/DEVELOPMENT.md)
+### [DEVELOPMENT](https://github.com/cncf/devstats/blob/master/DEVELOPMENT.md)
 # Developing locally
 
 - Clone the repo.
@@ -746,7 +746,7 @@ Please see [Tests](https://github.com/cncf/devstats/blob/master/TESTING.md)
 - You don't need domain names, you can install locally and just test using "http://127.0.0.1:3001" etc.
 - You need to have GitHub OAuth token, either put this token in `/etc/github/oauth` file or specify token value via GHA2DB_GITHUB_OAUTH=deadbeef654...10a0 (here your token value).
 - If you really don't want to use GitHub OAuth2 token, specify GHA2DB_GITHUB_OAUTH=- - this will force tokenless operation (via public API), it is a lot more rate limited (60 API points/h) than OAuth2 which gives 5000 API points/h.
-## [TESTING.md](https://github.com/cncf/devstats/blob/master/TESTING.md)
+### [TESTING](https://github.com/cncf/devstats/blob/master/TESTING.md)
 # Testing
 1. To execute tests that don't require database, just run `make test`, do not set any environment variables for them, one of tests is to check default environment!
 2. For tests that require database you will have to set environment variables to enable DB connection, to do it:
@@ -760,7 +760,7 @@ Please see [Tests](https://github.com/cncf/devstats/blob/master/TESTING.md)
 3. To check all sources using multiple go tools (like fmt, lint, imports, vet, goconst, usedexports), run `make check`.
 4. To check Travis CI payloads use `PG_PASS=pwd ./webhook.sh` and then `./test_webhook.sh`.
 5. Continuous deployment instructions are [here](https://github.com/cncf/devstats/blob/master/CONTINUOUS_DEPLOYMENT.md).
-## [PULL_REQUEST_TEMPLATE.md](https://github.com/cncf/devstats/blob/master/PULL_REQUEST_TEMPLATE.md)
+### [PULL_REQUEST_TEMPLATE](https://github.com/cncf/devstats/blob/master/PULL_REQUEST_TEMPLATE.md)
 Please make sure that you follow instructions from [CONTRIBUTING](https://github.com/cncf/devstats/blob/master/CONTRIBUTING.md)
 
 Specially:
@@ -768,7 +768,7 @@ Specially:
 - Make sure you've added test coverage for new features/metrics.
 - Make sure you have updated documentation.
 - If you added a new metric, please make sure you have been following instructions about [adding new metric](https://github.com/cncf/devstats/blob/master/METRICS.md).
-## [MULTIPROJECT.md](https://github.com/cncf/devstats/blob/master/MULTIPROJECT.md)
+### [MULTIPROJECT](https://github.com/cncf/devstats/blob/master/MULTIPROJECT.md)
 # Multiple Grafanas
 
 You can run multiple Grafana instances using grafana/*/grafana_start.sh
@@ -858,7 +858,7 @@ provider_config = user=gha_admin host=127.0.0.1 port=5432 dbname=projectname_gra
 - You also need to add: `listen_addresses = '*'` to `/etc/postgresql/X.Y/main/postgresql.conf`.
 - You shaould also add: `max_connections = 200` to `/etc/postgresql/X.Y/main/postgresql.conf`. Default is 100.
 - `service postgresql restart`
-## [CONTINUOUS_DEPLOYMENT.md](https://github.com/cncf/devstats/blob/master/CONTINUOUS_DEPLOYMENT.md)
+### [CONTINUOUS_DEPLOYMENT](https://github.com/cncf/devstats/blob/master/CONTINUOUS_DEPLOYMENT.md)
 # Continuous deployment (CD) using Travis
 
 - Every commit triggers Travis CI tests.
@@ -882,7 +882,7 @@ provider_config = user=gha_admin host=127.0.0.1 port=5432 dbname=projectname_gra
 - If you changed `webhook` tool and deploy was successful - you need to kill old running instance via `killall webhook` then wait for cron to fire it again, to se if it works use `ps -aux | grep webhook`.
 - If you add `[ci skip]` to the commit message, Travis CI build will be skipped.
 - If you add `[no deploy]` to the commit message, Travis CI build will run, but `webhook` tool will not deploy this build.
-## [APACHE.md](https://github.com/cncf/devstats/blob/master/APACHE.md)
+### [APACHE](https://github.com/cncf/devstats/blob/master/APACHE.md)
 # Apache installation
 
 - Install apache: `apt-get install apache2`
@@ -895,7 +895,7 @@ provider_config = user=gha_admin host=127.0.0.1 port=5432 dbname=projectname_gra
 - `ln /etc/apache2/mods-available/rewrite.load /etc/apache2/mods-enabled/`
 - You can enable SSL, to do so You need to follow SSL instruction in [SSL](https://github.com/cncf/devstats/blob/master/SSL.md) (that requires domain name).
 - `service apache2 restart`
-## [INSTALL_MAC.md](https://github.com/cncf/devstats/blob/master/INSTALL_MAC.md)
+### [INSTALL_MAC](https://github.com/cncf/devstats/blob/master/INSTALL_MAC.md)
 # devstats installation on Mac
 
 Prerequisites:
@@ -1040,7 +1040,7 @@ Prerequisites:
 - [Local Development](https://github.com/cncf/devstats/blob/master/DEVELOPMENT.md).
 - [README](https://github.com/cncf/devstats/blob/master/README.md)
 - [USAGE](https://github.com/cncf/devstats/blob/master/USAGE.md)
-## [EXPORT.md](https://github.com/cncf/devstats/blob/master/EXPORT.md)
+### [EXPORT](https://github.com/cncf/devstats/blob/master/EXPORT.md)
 # Exporting data
 
 Every dashboard can be exported to CSV.
@@ -1050,7 +1050,7 @@ Every dashboard can be exported to CSV.
 - You can select "series as rows" or "series as columns" for chart dashboards.
 - You can specify date format and choose exel dialect.
 
-## [INSTALL_FREEBSD.md](https://github.com/cncf/devstats/blob/master/INSTALL_FREEBSD.md)
+### [INSTALL_FREEBSD](https://github.com/cncf/devstats/blob/master/INSTALL_FREEBSD.md)
 # DevStats installation on FreeBSD
 
 Prerequisites:
@@ -1184,7 +1184,7 @@ Prerequisites:
 - [Local Development](https://github.com/cncf/devstats/blob/master/DEVELOPMENT.md).
 - [README](https://github.com/cncf/devstats/blob/master/README.md)
 - [USAGE](https://github.com/cncf/devstats/blob/master/USAGE.md)
-## [README.md](https://github.com/cncf/devstats/blob/master/README.md)
+### [README](https://github.com/cncf/devstats/blob/master/README.md)
 [![Build Status](https://travis-ci.org/cncf/devstats.svg?branch=master)](https://travis-ci.org/cncf/devstats)
 [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/1357/badge)](https://bestpractices.coreinfrastructure.org/projects/1357)
 
@@ -1289,7 +1289,7 @@ The servers to run `devstats` are generously provided by [Packet](https://www.pa
 
 - Use: `PG_PASS=... PG_DB=allprj ./devel/activity.sh '1 month,,' > all.txt`.
 - Example results [here](https://cncftest.io/all.txt) - all CNCF project activity during January 2018, excluding bots.
-## [METRICS.md](https://github.com/cncf/devstats/blob/master/METRICS.md)
+### [METRICS](https://github.com/cncf/devstats/blob/master/METRICS.md)
 # Adding new metrics
 
 To add new metric (replace `{{project}}` with kubernetes, prometheus or any other project defined in `projects.yaml`):
@@ -1330,7 +1330,7 @@ To add new metric (replace `{{project}}` with kubernetes, prometheus or any othe
 # Tags
 
 You can define tags in [metrics/{{project}}/idb_tags.yaml](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/idb_tags.yaml)
-## [CODE_OF_CONDUCT.md](https://github.com/cncf/devstats/blob/master/CODE_OF_CONDUCT.md)
+### [CODE_OF_CONDUCT](https://github.com/cncf/devstats/blob/master/CODE_OF_CONDUCT.md)
 # Contributor Covenant Code of Conduct
 
 ## Our Pledge
@@ -1377,7 +1377,7 @@ This Code of Conduct is adapted from the [Contributor Covenant][homepage], versi
 
 [homepage]: http://contributor-covenant.org
 [version]: http://contributor-covenant.org/version/1/4/
-## [GAPS.md](https://github.com/cncf/devstats/blob/master/GAPS.md)
+### [GAPS](https://github.com/cncf/devstats/blob/master/GAPS.md)
 # Filling data gaps (outdated)
 
 If metrics create data gaps (for example returns multiple rows with different counts depending on data range), you have to add automatic filling gaps in [metrics/{{project}}gaps.yaml](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/gaps.yaml) (file is used by `z2influx` tool):
@@ -1391,14 +1391,14 @@ If metrics create data gaps (for example returns multiple rows with different co
 - Series formula allows writing a lot of series name in a shorter way. Say we have series in this form prefix_{x}_{y}_{z}_suffix and {x} can be a,b,c,d, {y} can be 1,2,3, z can be yes,no. Instead of listing all combinations prefix_a_1_yes_suffix, ..., prefix_d_3_no_suffix, which is 4 * 3 * 2 = 24 items, you can write series formula: `- =prefix;suffix;_;a,b,c,d;1,2,3;yes,no`. In this case you can see join character is _ `...;_;...`.
 - If metrics uses string descriptions (like `desc: time_diff_as_string`), add `desc: true` in gaps file to clear descriptions too.
 - If Metric returns multiple values in a single series and creates data gaps, then you have to list values to clear via `values: ` property, you can use series formula format to do so.
-## [SECURE_INFLUXDB.md](https://github.com/cncf/devstats/blob/master/SECURE_INFLUXDB.md)
+### [SECURE_INFLUXDB](https://github.com/cncf/devstats/blob/master/SECURE_INFLUXDB.md)
 # Securing InfluxDB
 
 - Edit config file `vim /etc/influxdb/influxdb.conf` and change section [http] and change:
 - If you use native Grafana: `bind-address = "127.0.0.1:8086"`. Address 0.0.0.0:8086 allows connecting from any external IP, while 127.0.0.1 only allows local connections.
 - If you use Dockerized Grafana: bind-address = "{docker_gateway_ip}:8086" (for example `172.17.0.1`), obtain docker gateway IP using `grafana/get_gateway_ip.sh` while connected to the docker container via: `./grafana/{project}/docker_grafana_shell.sh`.
 - Note that if using docker gateway ip default connection to influxDB will no longer work, so you will have to use `IDB_HOST="http://172.17.0.1"` everywhere when connecting to InfluxDB.
-## [SSL.md](https://github.com/cncf/devstats/blob/master/SSL.md)
+### [SSL](https://github.com/cncf/devstats/blob/master/SSL.md)
 # Enable SSL/https Grafana (Ubuntu 17 using certbot)
 
 To install Let's encrypt via certbot:
@@ -1422,7 +1422,7 @@ To install Let's encrypt via certbot:
 - You can configure multiple domains for a single server:
 - `sudo certbot --apache -d 'cncftest.io,k8s.cncftest.io,prometheus.cncftest.io,opentracing.cncftest.io,fluentd.cncftest.io,linkerd.cncftest.io,grpc.cncftest.io,coredns.cncftest.io,cncf.cncftest.io'`
 - Most up to date commands to request SSL cers are at the botom of [this](https://github.com/cncf/devstats/blob/master/ADDING_NEW_PROJECT.md) file.
-## [DASHBOARDS.md](https://github.com/cncf/devstats/blob/master/DASHBOARDS.md)
+### [DASHBOARDS](https://github.com/cncf/devstats/blob/master/DASHBOARDS.md)
 # Grafana dashboards
 
 This is a list of dashboards for Kubernetes project only:
@@ -1499,7 +1499,7 @@ There is also an 'All' [Project](https://all.cncftest.io) on the test server tha
 # Adding new project
 
 To add new project follow [adding new project](https://github.com/cncf/devstats/blob/master/ADDING_NEW_PROJECT.md) instructions.
-## [GRAFANA.md](https://github.com/cncf/devstats/blob/master/GRAFANA.md)
+### [GRAFANA](https://github.com/cncf/devstats/blob/master/GRAFANA.md)
 # Grafana configuration
 
 - Go to Grafana UI: `http://localhost:3000`
@@ -1550,7 +1550,7 @@ To disallow access to docker containers from outside world you have to specify p
 - To run multiple Grafana instances (for example to have multiple projects on the same host), you need to use Docker.
 - Instructions here [MULTIPROJECT.md](https://github.com/cncf/devstats/blob/master/MULTIPROJECT.md).
 - If want to secure InfluxDB and use Docker at the same time please see: [SECURE_INFLUXDB.md](https://github.com/cncf/devstats/blob/master/SECURE_INFLUXDB.md).
-## [INSTALL_UBUNTU16.md](https://github.com/cncf/devstats/blob/master/INSTALL_UBUNTU16.md)
+### [INSTALL_UBUNTU16](https://github.com/cncf/devstats/blob/master/INSTALL_UBUNTU16.md)
 # devstats installation on Ubuntu
 
 Prerequisites:
@@ -1702,7 +1702,7 @@ Prerequisites:
 - [Local Development](https://github.com/cncf/devstats/blob/master/DEVELOPMENT.md).
 - [README](https://github.com/cncf/devstats/blob/master/README.md)
 - [USAGE](https://github.com/cncf/devstats/blob/master/USAGE.md)
-## [docs/repository_groups.md](https://github.com/cncf/devstats/blob/master/docs/repository_groups.md)
+### [docs/repository_groups](https://github.com/cncf/devstats/blob/master/docs/repository_groups.md)
 # Repository groups
 
 - Most project use 'repository groups' to group data under them.
@@ -1743,7 +1743,7 @@ where
 - Non Kubernetes projects are not setting `util_sql/repo_groups_postprocess_script.sql`, for example Prometheus uses [this](https://github.com/cncf/devstats/blob/master/prometheus/setup_scripts.sh). Note missing [util_sql/postprocess_repo_groups.sql](https://github.com/cncf/devstats/blob/master/util_sql/postprocess_repo_groups.sql) part.
 - It only adds [util_sql/repo_groups_postprocess_script_from_repos.sql](https://github.com/cncf/devstats/blob/master/util_sql/repo_groups_postprocess_script_from_repos.sql), which executes [util_sql/postprocess_repo_groups_from_repos.sql](https://github.com/cncf/devstats/blob/master/util_sql/postprocess_repo_groups_from_repos.sql).
 - So it only updates `gha_events_commits_file` table with repository group as defined by commit's file's repository (if defined).
-## [docs/vars.md](https://github.com/cncf/devstats/blob/master/docs/vars.md)
+### [docs/vars](https://github.com/cncf/devstats/blob/master/docs/vars.md)
 # InfluxDB and PostgreSQL vars
 
 # Influx variables
@@ -1764,7 +1764,7 @@ where
 - They use `pdb_vars` [tool](https://github.com/cncf/devstats/blob/master/cmd/pdb_vars/pdb_vars.go), called [here](https://github.com/cncf/devstats/blob/master/kubernetes/psql.sh#L26) (Kubernetes) or [here](https://github.com/cncf/devstats/blob/master/prometheus/psql.sh#L22) (Prometheus).
 - `pdb_vars` can also be used for defining per project variables using OS commands results.
 - To use command result just provide `command: [your_command, arg1, ..., argN]` in `pdb_vars.yaml` file. It will overwrite value if command result is non-empty.
-## [docs/tags.md](https://github.com/cncf/devstats/blob/master/docs/tags.md)
+### [docs/tags](https://github.com/cncf/devstats/blob/master/docs/tags.md)
 # InfluxDB tags
 
 - You can use InfluxDB tags to define drop-down values (variables) in Grafana dashboards.
@@ -1781,7 +1781,7 @@ where
 - There is also a special `os_hostname` tag that evaluates to current machine's hostname, it is calculated [here](https://github.com/cncf/devstats/blob/master/cmd/idb_tags/idb_tags.go#L74-L89).
 - It can be used to generate links to current host name (production or test), you can use [Grafana variable that uses InfluxDB tag](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/dashboards.json#L421-L438) to use it as link basename, like [here](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/dashboards.json#L84).
 - Hostname tag is always available on all projects.
-## [docs/annotations.md](https://github.com/cncf/devstats/blob/master/docs/annotations.md)
+### [docs/annotations](https://github.com/cncf/devstats/blob/master/docs/annotations.md)
 # Annotations
 
 - Most dashboards use Grafana's annotations query.
@@ -1904,7 +1904,7 @@ time                 computed_from       computed_key                           
 - Period calculation (this is also for charts not only histograms) is determined [here](https://github.com/cncf/devstats/blob/master/time.go#L44). Possible period values are: `h,d,w,m,q,y,hN,dN,wN,mN,qN,yN,anno_x_y,anno_x_now`: h..y -mean hour..year, hN, N > 1, means some aggregation of h..y, anno_x_y (x >= 0, y > x) mean past quick range, anno_x_now (x >=0) mean last quick range.
 - You can use: `influx -host 172.17.0.1 -username gha_admin -password pwd -database gha` to access Kubernetes InfluxDB to see those values: `precision rfc3339`, `select * from {{seriesname}}`, `{{seriesname}}` being: `quick_ranges`, `computed`, `annotations`.
 - `main_repo` and `annotation_regexp` can be empty (like for 'All' project [here](https://github.com/cncf/devstats/blob/master/projects.yaml#L202-L207). Depending on CNCF join date presence you will see single annotation or none then.
-## [docs/tables/gha_postprocess_scripts.md](https://github.com/cncf/devstats/blob/master/docs/tables/gha_postprocess_scripts.md)
+### [docs/tables/gha_postprocess_scripts](https://github.com/cncf/devstats/blob/master/docs/tables/gha_postprocess_scripts.md)
 # `gha_postprocess_scripts` table
 
 - This is a special table, not created by any GitHub archive (GHA) event.
@@ -1923,7 +1923,7 @@ time                 computed_from       computed_key                           
 
 - `ord`: Ordinal number used to decide order of scripts to run.
 - `path`: Script path, for example `util_sql/postprocess_repo_groups.sql`.
-## [docs/tables/gha_issues_labels.md](https://github.com/cncf/devstats/blob/master/docs/tables/gha_issues_labels.md)
+### [docs/tables/gha_issues_labels](https://github.com/cncf/devstats/blob/master/docs/tables/gha_issues_labels.md)
 # `gha_issues_labels` table
 
 - This is a table that holds labels set on an issue/PR in a given moment in time.
@@ -1949,7 +1949,7 @@ Columns starting with `dup_` are duplicated from other tables, to speedup proces
 - `dup_created_at`: Event creation date.
 - `dup_issue_number`: Issue number, see [gha_issues](https://github.com/cncf/devstats/blob/master/docs/tables/gha_issues.md).
 - `dup_label_name`: Label name, see [gha_labels](https://github.com/cncf/devstats/blob/master/docs/tables/gha_labels.md).
-## [docs/tables/gha_pull_requests.md](https://github.com/cncf/devstats/blob/master/docs/tables/gha_pull_requests.md)
+### [docs/tables/gha_pull_requests](https://github.com/cncf/devstats/blob/master/docs/tables/gha_pull_requests.md)
 # `gha_pull_requests` table
 
 - This is a table that holds GitHub PR state at a given point in time (`event_id` refers to [gha_events](https://github.com/cncf/devstats/blob/master/docs/tables/gha_events.md)).
@@ -1978,13 +1978,13 @@ Most important columns are:
 - `assignee_id`: Assigned GitHub user, can be null.
 - `base_sha`: PRs base branch SHA, see [gha_commits](https://github.com/cncf/devstats/blob/master/docs/tables/gha_commits.md).
 - `head_sha`: PRs SHA, see [gha_commits](https://github.com/cncf/devstats/blob/master/docs/tables/gha_commits.md).
-## [docs/tables/const_table.md](https://github.com/cncf/devstats/blob/master/docs/tables/const_table.md)
+### [docs/tables/const_table](https://github.com/cncf/devstats/blob/master/docs/tables/const_table.md)
 # Const table
 
 - Tables marked as `const` are not changing in time.
 - Their values are inserted once and are not updated anymore.
 - Such tables does not contain reference to GitHub event.
-## [docs/tables/gha_milestones.md](https://github.com/cncf/devstats/blob/master/docs/tables/gha_milestones.md)
+### [docs/tables/gha_milestones](https://github.com/cncf/devstats/blob/master/docs/tables/gha_milestones.md)
 # `gha_milestones` table
 
 - This is a table that holds GitHub milestone state at a given point in time (`event_id` refers to [gha_events](https://github.com/cncf/devstats/blob/master/docs/tables/gha_events.md)).
@@ -2007,7 +2007,7 @@ Most important columns are:
 - `creator_id`: GitHub user ID who created this milestone.
 - `closed_issues`: number of issues closed for this milestone at given point of time `event_id`.
 - `open_issues`: number of open issues for this milestone at given point of time `event_id`.
-## [docs/tables/gha_repos.md](https://github.com/cncf/devstats/blob/master/docs/tables/gha_repos.md)
+### [docs/tables/gha_repos](https://github.com/cncf/devstats/blob/master/docs/tables/gha_repos.md)
 # `gha_repos` table
 
 - This table holds GitHub repositories.
@@ -2032,7 +2032,7 @@ Most important columns are:
 - `org_login`: GitHub organization name duplicated from `gha_orgs` table (can be null). This can be organization name or GitHub username.
 - `repo_group`: Artificial column, updated by specific per-project scripts.
 - `alias`: Artificial column, updated by specific per-project scripts. Usually used to keep the same name for the same repo, for entire repo name change history.
-## [docs/tables/gha_commits.md](https://github.com/cncf/devstats/blob/master/docs/tables/gha_commits.md)
+### [docs/tables/gha_commits](https://github.com/cncf/devstats/blob/master/docs/tables/gha_commits.md)
 # `gha_commits` table
 
 - This table contains commits data.
@@ -2063,7 +2063,7 @@ Those columns duplicate value from a GitHub event refering to this column `event
 - `dup_repo_name`: event's GitHub's repository name (note that repository name can change in thime, while repository ID is not changing).
 - `dup_type`: event's type like PushEvent, PullRequestEvent, ...
 - `dup_created_at`: event's creation date.
-## [docs/tables/gha_orgs.md](https://github.com/cncf/devstats/blob/master/docs/tables/gha_orgs.md)
+### [docs/tables/gha_orgs](https://github.com/cncf/devstats/blob/master/docs/tables/gha_orgs.md)
 # `gha_orgs` table
 
 - This table holds GitHub organizations.
@@ -2079,7 +2079,7 @@ Those columns duplicate value from a GitHub event refering to this column `event
 
 - `id`: GitHub organization ID.
 - `login`: GitHub organization login: it can be organization name (like `kubernetes`) or GitHub user name.
-## [docs/tables/gha_issues_events_labels.md](https://github.com/cncf/devstats/blob/master/docs/tables/gha_issues_events_labels.md)
+### [docs/tables/gha_issues_events_labels](https://github.com/cncf/devstats/blob/master/docs/tables/gha_issues_events_labels.md)
 # `gha_issues_events_labels` table
 
 - This is a compute table, that contains shortcuts to issues labels connected with events (for metrics speedup).
@@ -2108,7 +2108,7 @@ Those columns duplicate value from a GitHub event refering to this column `event
 - `repo_name`: GitHub repository name (note that repository name can change in time, while repository ID cannot).
 - `type`: GitHub event type - see [gha_events](https://github.com/cncf/devstats/blob/master/docs/tables/gha_events.md) for details.
 - `issue_number`: Issue number (this is usually a small number that is unique withing given repository).
-## [docs/tables/gha_vars.md](https://github.com/cncf/devstats/blob/master/docs/tables/gha_vars.md)
+### [docs/tables/gha_vars](https://github.com/cncf/devstats/blob/master/docs/tables/gha_vars.md)
 # `gha_vars` table
 
 - This is a special table that holds PostgreS variables defined by [pdb_vars](https://github.com/cncf/devstats/blob/master/cmd/prb_vars/pdb_vars.go) tool.
@@ -2124,7 +2124,7 @@ Those columns duplicate value from a GitHub event refering to this column `event
 - `value_f`: Float value. Double precision.
 - `value_s`: String value. Unlimited length.
 - `value_dt`: Datetime value. 
-## [docs/tables/gha_texts.md](https://github.com/cncf/devstats/blob/master/docs/tables/gha_texts.md)
+### [docs/tables/gha_texts](https://github.com/cncf/devstats/blob/master/docs/tables/gha_texts.md)
 # `gha_texts` table
 
 - This is a special table, not created by any GitHub archive (GHA) event. Its purpose is to hold all texts entered by all actors on all Kubernetes repos.
@@ -2153,7 +2153,7 @@ Those columns duplicate value from a GitHub event refering to this column `event
 - `repo_id`: GitHub repository ID where this text was added. Refers to [gha_repos](https://github.com/cncf/devstats/blob/master/docs/tables/gha_repos.md) table.
 - `repo_name`: GitHub repository name where this text was added. please not that repository names can change in time, but ID remains the same.
 - `type`: GitHub event type, can be: PullRequestReviewCommentEvent, MemberEvent, PushEvent, ReleaseEvent, CreateEvent, GollumEvent, TeamAddEvent, DeleteEvent, PublicEvent, ForkEvent, PullRequestEvent, IssuesEvent, WatchEvent, IssueCommentEvent, CommitCommentEvent.
-## [docs/tables/gha_issues_pull_requests.md](https://github.com/cncf/devstats/blob/master/docs/tables/gha_issues_pull_requests.md)
+### [docs/tables/gha_issues_pull_requests](https://github.com/cncf/devstats/blob/master/docs/tables/gha_issues_pull_requests.md)
 # `gha_issues_pull_requests` table
 
 - This is a compute table, that contains data to connect issues with PRs.
@@ -2179,7 +2179,7 @@ Those columns duplicate value from a GitHub event refering to this column `event
 - `repo_id`: GitHub repository ID (from [gha_events](https://github.com/cncf/devstats/blob/master/docs/tables/gha_events.md)).
 - `repo_name`: GitHub repository name (note that repository name can change in time, while repository ID cannot).
 - `created_at`: Event creation date, comes from [gha_events](https://github.com/cncf/devstats/blob/master/docs/tables/gha_events.md).
-## [docs/tables/gha_issues.md](https://github.com/cncf/devstats/blob/master/docs/tables/gha_issues.md)
+### [docs/tables/gha_issues](https://github.com/cncf/devstats/blob/master/docs/tables/gha_issues.md)
 # `gha_issues` table
 
 - This is a table that holds GitHub issue state at a given point in time (`event_id` refers to [gha_events](https://github.com/cncf/devstats/blob/master/docs/tables/gha_events.md)).
@@ -2203,7 +2203,7 @@ Most important columns are:
 - `user_id`: GitHub user ID performing action on the issue.
 - `assignee_id`: Assigned GitHub user, can be null.
 - `is_pull_request`: true - this is a PR, false - this is an Issue. PRs are stored on this table too, but they have an additional record in [gha_pull_requests](https://github.com/cncf/devstats/blob/master/docs/tables/gha_pull_requests.md).
-## [docs/tables/gha_skip_commits.md](https://github.com/cncf/devstats/blob/master/docs/tables/gha_skip_commits.md)
+### [docs/tables/gha_skip_commits](https://github.com/cncf/devstats/blob/master/docs/tables/gha_skip_commits.md)
 # `gha_skip_commits` table
 
 - Table is used to store invalid SHAs, to skip processing them again.
@@ -2224,7 +2224,7 @@ Most important columns are:
 # Columns
 
 - `sha`: commit SHA.
-## [docs/tables/gha_comments.md](https://github.com/cncf/devstats/blob/master/docs/tables/gha_comments.md)
+### [docs/tables/gha_comments](https://github.com/cncf/devstats/blob/master/docs/tables/gha_comments.md)
 # `gha_comments` table
 
 - This is a table that holds GitHub comments state at a given point in time (`event_id` refers to [gha_events](https://github.com/cncf/devstats/blob/master/docs/tables/gha_events.md)).
@@ -2245,7 +2245,7 @@ Most important columns are:
 - `commit_id`: If this is a commit comment, this contains commit SHA, see [gha_commits](https://github.com/cncf/devstats/blob/master/docs/tables/gha_commits.md).
 - `position`: Position in file, can be null.
 - `path`: File path if this is a commit comment, can be null.
-## [docs/tables/gha_labels.md](https://github.com/cncf/devstats/blob/master/docs/tables/gha_labels.md)
+### [docs/tables/gha_labels](https://github.com/cncf/devstats/blob/master/docs/tables/gha_labels.md)
 # `gha_labels` table
 
 - This table holds GitHub labels.
@@ -2265,7 +2265,7 @@ Most important columns are:
 - `name`: GitHub label name.
 - `color`: Color as 6 hex digits: RRGGBB, R,G,B from {0, 1, 2, .., 9, a, b, c, d, f}.
 - `is_default`: Not used, can be null. True - label is default, False/null - label is not default.
-## [docs/tables/gha_payloads.md](https://github.com/cncf/devstats/blob/master/docs/tables/gha_payloads.md)
+### [docs/tables/gha_payloads](https://github.com/cncf/devstats/blob/master/docs/tables/gha_payloads.md)
 # `gha_payloads` table
 
 - This is the main GHA (GitHub archives), every GitHub event contain payload. This event ID is this table's primary key `event_id`.
@@ -2298,7 +2298,7 @@ Most important columns are (most of them are only filled for a specific event ty
 - `dup_repo_id`: GitHub repository ID.
 - `dup_repo_name`: Duplicated GitHub repository name (note that repository name can change in time, but repository ID remains the same, see [gha_repos](https://github.com/cncf/devstats/blob/master/docs/tables/gha_repos.md) table).
 - `dup_created_at`: Event creation date.
-## [docs/tables/gha_actors.md](https://github.com/cncf/devstats/blob/master/docs/tables/gha_actors.md)
+### [docs/tables/gha_actors](https://github.com/cncf/devstats/blob/master/docs/tables/gha_actors.md)
 # `gha_actors` table
 
 - This table holds all GitHub actors (actor can be contributor, forker, commenter etc.)
@@ -2317,7 +2317,7 @@ Most important columns are (most of them are only filled for a specific event ty
 - `id`: actor ID, if > 0 then it comes from GitHub, if < 0 - created artificially (pre-2015 GitHub actors had no ID).
 - `login`: actor's GitHub login (you can access profile via `https://github.com/login`).
 - `name`: actors name, there is no `name` defined in GitHub archives JSONs, if this value is set - it means it was updated by the affiliations import tool (or entire actor entry comes from affiliations import tool).
-## [docs/tables/gha_commits_files.md](https://github.com/cncf/devstats/blob/master/docs/tables/gha_commits_files.md)
+### [docs/tables/gha_commits_files](https://github.com/cncf/devstats/blob/master/docs/tables/gha_commits_files.md)
 # `gha_commits_files` table
 
 - This table holds commit's files (added, removed, modified etc.)
@@ -2339,7 +2339,7 @@ Most important columns are (most of them are only filled for a specific event ty
 - `path`: file path, it doesn't include repo name, so can be something like `dir/file.ext`.
 - `size`: file size at commit's date.
 - `dt`: commit's date.
-## [docs/tables/gha_events_commits_files.md](https://github.com/cncf/devstats/blob/master/docs/tables/gha_events_commits_files.md)
+### [docs/tables/gha_events_commits_files](https://github.com/cncf/devstats/blob/master/docs/tables/gha_events_commits_files.md)
 # `gha_events_commits_files` table
 
 - This table holds commit's files connected with GitHub event additional data.
@@ -2372,7 +2372,7 @@ Most important columns are (most of them are only filled for a specific event ty
 - `dup_type`: GitHub event type, can be: PullRequestReviewCommentEvent, MemberEvent, PushEvent, ReleaseEvent, CreateEvent, GollumEvent, TeamAddEvent, DeleteEvent, PublicEvent, ForkEvent, PullRequestEvent, IssuesEvent, WatchEvent, IssueCommentEvent, CommitCommentEvent.
 - `dup_created_at`: GitHub event's creation date.
 - Columns starting with `dup_` are copied from `gha_events` table entry, info [here](https://github.com/cncf/devstats/blob/master/docs/tables/gha_events.md).
-## [docs/tables/gha_events.md](https://github.com/cncf/devstats/blob/master/docs/tables/gha_events.md)
+### [docs/tables/gha_events](https://github.com/cncf/devstats/blob/master/docs/tables/gha_events.md)
 # `gha_events` table
 
 - This is the main GHA (GitHub archives) table. It represents single event.
@@ -2401,13 +2401,13 @@ Most important columns are (most of them are only filled for a specific event ty
 - `forkee_id`: This is a old repository ID (for per-2015 events, for current format it is null).
 - `dup_actor_login`: Duplicated GitHub actor login (from [gha_actors](https://github.com/cncf/devstats/blob/master/docs/tables/gha_actors.md) table).
 - `dup_repo_name`: Duplicated GitHub repository name (note that repository name can change in time, but repository ID remains the same, see [gha_repos](https://github.com/cncf/devstats/blob/master/docs/tables/gha_repos.md) table).
-## [docs/tables/variable_table.md](https://github.com/cncf/devstats/blob/master/docs/tables/variable_table.md)
+### [docs/tables/variable_table](https://github.com/cncf/devstats/blob/master/docs/tables/variable_table.md)
 # Variable table
 
 - Data in those tables can change between GitHub events, and `event_id` is a part of this tables primary key.
 - They represent different state of a given object at the time of a given GitHub event `event_id`.
 - For example PRs/Issues can change labels, be closed/merged/reopened, repositories can have different numbers of stars, forks, watchers etc.
-## [docs/dashboards/kubernetes/sig_mentions.md](https://github.com/cncf/devstats/blob/master/docs/dashboards/kubernetes/sig_mentions.md)
+### [docs/dashboards/kubernetes/sig_mentions](https://github.com/cncf/devstats/blob/master/docs/dashboards/kubernetes/sig_mentions.md)
 <h1 id="kubernetes-sig-mentions-dashboard">Kubernetes SIG mentions dashboard</h1>
 <p>Links:</p>
 <ul>
@@ -2433,7 +2433,7 @@ Most important columns are (most of them are only filled for a specific event ty
 <li>We&#39;re also excluding bots activity, see <a href="https://github.com/cncf/devstats/blob/master/docs/excluding_bots.md" target="_blank">excluding bots</a>.</li>
 </ul>
 
-## [docs/dashboards/kubernetes/reviewers.md](https://github.com/cncf/devstats/blob/master/docs/dashboards/kubernetes/reviewers.md)
+### [docs/dashboards/kubernetes/reviewers](https://github.com/cncf/devstats/blob/master/docs/dashboards/kubernetes/reviewers.md)
 <h1 id="kubernetes-reviewers-dashboard">Kubernetes reviewers dashboard</h1>
 <p>Links:</p>
 <ul>
@@ -2453,7 +2453,7 @@ Most important columns are (most of them are only filled for a specific event ty
 <li>We are skipping bots when calculating number of reviewers, see <a href="https://github.com/cncf/devstats/blob/master/docs/excluding_bots.md" target="_blank">excluding bots</a> for details.</li>
 </ul>
 
-## [docs/dashboards/kubernetes/reviewers_devel.md](https://github.com/cncf/devstats/blob/master/docs/dashboards/kubernetes/reviewers_devel.md)
+### [docs/dashboards/kubernetes/reviewers_devel](https://github.com/cncf/devstats/blob/master/docs/dashboards/kubernetes/reviewers_devel.md)
 # Kubernetes reviewers dashboard
 
 Links:
@@ -2513,7 +2513,7 @@ skip: w7,m7,q7,y7
 - For more details about annotations check [here](https://github.com/cncf/devstats/blob/master/docs/annotations.md).
 - Project name is customized per project, it uses `[[full_name]]` template variable [definition](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/reviewers.json#L275-L293) and is [used as project name](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/reviewers.json#L78).
 - Per project variables are defined using `idb_vars`, `pdb_vars` tools, more info [here](https://github.com/cncf/devstats/blob/master/docs/vars.md).
-## [docs/dashboards/kubernetes/sig_mentions_devel.md](https://github.com/cncf/devstats/blob/master/docs/dashboards/kubernetes/sig_mentions_devel.md)
+### [docs/dashboards/kubernetes/sig_mentions_devel](https://github.com/cncf/devstats/blob/master/docs/dashboards/kubernetes/sig_mentions_devel.md)
 # SIG mentions dashboard
 
 Links:
@@ -2565,7 +2565,7 @@ multi_value: true
 - For more details about annotations check [here](https://github.com/cncf/devstats/blob/master/docs/annotations.md).
 - Project name is customized per project, it uses `[[full_name]]` template variable [definition](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/sig_mentions.json#L251-L268) and is [used as project name](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/sig_mentions.json#L54).
 - Per project variables are defined using `idb_vars`, `pdb_vars` tools, more info [here](https://github.com/cncf/devstats/blob/master/docs/vars.md).
-## [docs/periods.md](https://github.com/cncf/devstats/blob/master/docs/periods.md)
+### [docs/periods](https://github.com/cncf/devstats/blob/master/docs/periods.md)
 # DevStats metrics periods definitions
 
 - Periods can be: h,d,w,m,q,y which means we should calculate this SQL for every hour, day, week, month, quarter and year since start of a given project.
@@ -2577,7 +2577,7 @@ multi_value: true
 - Skip: w7, m7, q7, y7 means that we should exclude those periods, so we will only have d7 left. That means we're calculating d,w,m,q,y,d7 periods. d7 is very useful, becasue it contains all 7 week days (so values are similar) but we're progressing one day instead of 7 days.
 - d7 = '7 Days MA' = '7 days moving average'.
 - h24 = '24 Hours MA' = '24 hours moving avegage'.
-## [docs/excluding_bots.md](https://github.com/cncf/devstats/blob/master/docs/excluding_bots.md)
+### [docs/excluding_bots](https://github.com/cncf/devstats/blob/master/docs/excluding_bots.md)
 # Excluding bots
 
 - You can put excluding bots partial `{{exclude_bots}}` anywhere in the metric SQL.
@@ -2585,7 +2585,7 @@ multi_value: true
 - `{{exclude_bots}}` will be replaced with the contents of the [util_sql/exclude_bots.sql](https://github.com/cncf/devstats/blob/master/util_sql/exclude_bots.sql).
 - Currently is is defined as: `not like all(array['googlebot', 'coveralls', 'rktbot', 'coreosbot', 'web-flow', 'k8s-%', '%-bot', '%-robot', 'bot-%', 'robot-%', '%[bot]%', '%-jenkins', '%-ci%bot', '%-testing', 'codecov-%'])`.
 - Most actor related metrics use this.
-## [DOCKER.md](https://github.com/cncf/devstats/blob/master/DOCKER.md)
+### [DOCKER](https://github.com/cncf/devstats/blob/master/DOCKER.md)
 # Install docker
 
 Please note that I wa sunsble to run multiple Grafanas in separate docker instances.
@@ -2608,7 +2608,7 @@ Docker can have problems with storage driver, you can select `aufs` storage opti
 } 
 ```
 - If want to secure InfluxDB and use Docker at the same time please see: [SECURE_INFLUXDB.md](https://github.com/cncf/devstats/blob/master/SECURE_INFLUXDB.md).
-## [INSTALL_UBUNTU17.md](https://github.com/cncf/devstats/blob/master/INSTALL_UBUNTU17.md)
+### [INSTALL_UBUNTU17](https://github.com/cncf/devstats/blob/master/INSTALL_UBUNTU17.md)
 # devstats installation on Ubuntu
 
 Prerequisites:
@@ -2752,7 +2752,7 @@ Prerequisites:
 - [Local Development](https://github.com/cncf/devstats/blob/master/DEVELOPMENT.md).
 - [README](https://github.com/cncf/devstats/blob/master/README.md)
 - [USAGE](https://github.com/cncf/devstats/blob/master/USAGE.md)
-## [ARCHITECTURE.md](https://github.com/cncf/devstats/blob/master/ARCHITECTURE.md)
+### [ARCHITECTURE](https://github.com/cncf/devstats/blob/master/ARCHITECTURE.md)
 # GitHub Archives
 
 Project uses use GitHub archives and local copy of all git repositories. The possible alternatives are:
