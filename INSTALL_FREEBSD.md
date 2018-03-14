@@ -63,6 +63,7 @@ Prerequisites:
 11. Leave `psql` shell, and get newest Kubernetes database dump:
     - `wget https://devstats.cncf.io/gha.dump`.
     - `sudo -u postgres pg_restore -d gha gha.dump` (restore DB dump)
+    - Create `ro_user` via `PG_PASS=... ./devel/create_ro_user.sh`
 12. Install InfluxDB time-series database ([link](https://docs.influxdata.com/influxdb/v0.9/introduction/installation/)):
     - `sudo pkg install influxdb`
     - `sudo service influxd start`

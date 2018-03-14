@@ -225,6 +225,7 @@ In short for Ubuntu like Linux:
 - go get github.com/lib/pq
 - PG_PASS='pwd' ./structure
 - psql gha
+- Create `ro_user` via `PG_PASS=... ./devel/create_ro_user.sh`
 
 `structure` script is used to create Postgres database schema.
 It gets connection details from environmental variables and falls back to some defaults.

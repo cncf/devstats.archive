@@ -36,6 +36,7 @@ To add a new project on the test server follow instructions:
 - You now need Apache proxy and SSL, please follow instructions from APACHE.md and SSL.md
 - Apache part is to update `apache/www/index_* apache/test/sites-enabled/* apache/prod/sites-enabled/*` files.
 - SSL part is to issue certificate for new domain and setup proxy.
+- Make sure to run `./devel/ro_user_grants.sh projname` to add `ro_user's` select grants for all psql tables in projectname.
 - Start new grafana: `./grafana/projectname/grafana_start.sh &` or `killall grafana-server`, `./grafana/start_all_grafanas.sh`, `ps -aux | grep grafana-server`.
 - Update Apache config to proxy https to new Grafana instance: `vim /etc/apache2/sites-enabled/000-default-le-ssl.conf`, `service apache2 restart`
 - List of test SSL sites is in `./apache/test/sites.txt` and for prod `./apache/prod/sites.txt`.
