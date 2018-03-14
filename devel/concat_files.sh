@@ -11,7 +11,7 @@ do
   if [ ! "$f" = "./docs/ALL.md" ]
   then
     rel=`echo $f | cut -c 3-`
-    echo "# File: [$f](https://github.com/cncf/devstats/blob/master/$rel)" >> ~/all.md
+    echo "## [$rel](https://github.com/cncf/devstats/blob/master/$rel)" >> ~/all.md
     cat $f >> ~/all.md
   fi
 done
