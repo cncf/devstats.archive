@@ -738,6 +738,21 @@ CREATE TABLE gha_texts (
 ALTER TABLE gha_texts OWNER TO gha_admin;
 
 --
+-- Name: gha_vars; Type: TABLE; Schema: public; Owner: gha_admin
+--
+
+CREATE TABLE gha_vars (
+    name character varying(100) NOT NULL,
+    value_i bigint,
+    value_f double precision,
+    value_s text,
+    value_dt timestamp without time zone
+);
+
+
+ALTER TABLE gha_vars OWNER TO gha_admin;
+
+--
 -- Name: gha_logs id; Type: DEFAULT; Schema: public; Owner: gha_admin
 --
 
@@ -990,6 +1005,14 @@ ALTER TABLE ONLY gha_teams
 
 ALTER TABLE ONLY gha_teams_repositories
     ADD CONSTRAINT gha_teams_repositories_pkey PRIMARY KEY (team_id, event_id, repository_id);
+
+
+--
+-- Name: gha_vars gha_vars_pkey; Type: CONSTRAINT; Schema: public; Owner: gha_admin
+--
+
+ALTER TABLE ONLY gha_vars
+    ADD CONSTRAINT gha_vars_pkey PRIMARY KEY (name);
 
 
 --
@@ -2502,6 +2525,13 @@ CREATE INDEX texts_repo_name_idx ON gha_texts USING btree (repo_name);
 --
 
 CREATE INDEX texts_type_idx ON gha_texts USING btree (type);
+
+
+--
+-- Name: vars_name_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX vars_name_idx ON gha_vars USING btree (name);
 
 
 --
