@@ -6,3 +6,4 @@ for f in `find . -type f -iname "*.sql"`; do echo "-- File: $f" >> ~/all.sql; ca
 for f in `find . -type f -iname "*.yaml"`; do echo "# File: $f" >> ~/all.yaml; cat $f >> ~/all.yaml; done
 for f in `find . -type f -iname "*.md"`; do echo "# File: $f" >> ~/all.md; cat $f >> ~/all.md; done
 for f in `find . -type f -iname "*.json"`; do echo "/* File: $f*/" >> ~/all.json; cat $f >> ~/all.json; done
+for f in `find . -type f -iname "*.html"`; do echo "<!-- File: $f -->" >> ~/all.html; cat $f >> ~/all.html; done
