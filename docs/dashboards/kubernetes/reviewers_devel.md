@@ -4,7 +4,7 @@ Links:
 - Postgres SQL file: [reviewers.sql](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/reviewers.sql).
 - InfluxDB series definition: [metrics.yaml](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/metrics.yaml#L157-L162).
 - Grafana dashboard JSON: [reviewers.json](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/reviewers.json).
-- User documentation: [reviewers.html](https://github.com/cncf/devstats/blob/master/docs/dashboards/kubernetes/reviewers.html).
+- User documentation: [reviewers.md](https://github.com/cncf/devstats/blob/master/docs/dashboards/kubernetes/reviewers.md).
 - Production version: [view](https://k8s.devstats.cncf.io/d/38/reviewers?orgId=1).
 - Test version: [view](https://k8s.cncftest.io/d/38/reviewers?orgId=1).
 

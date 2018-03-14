@@ -4,7 +4,7 @@ Links:
 - Postgres SQL file: [sig_mentions.sql](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/sig_mentions.sql).
 - InfluxDB series definition: [metrics.yaml](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/metrics.yaml#L246-L252).
 - Grafana dashboard JSON: [sig_mentions.json](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/sig_mentions.json).
-- User documentation: [sig_mentions.html](https://github.com/cncf/devstats/blob/master/docs/dashboards/kubernetes/sig_mentions.html).
+- User documentation: [sig_mentions.md](https://github.com/cncf/devstats/blob/master/docs/dashboards/kubernetes/sig_mentions.md).
 - Production version: [view](https://k8s.devstats.cncf.io/d/41/sig-mentions?orgId=1).
 - Test version: [view](https://k8s.cncftest.io/d/41/sig-mentions?orgId=1).
 
