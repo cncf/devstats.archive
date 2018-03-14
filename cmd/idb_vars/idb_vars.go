@@ -18,10 +18,10 @@ type vars struct {
 
 // tag contain each InfluxDB tag data
 type tag struct {
-	Tag     string `yaml:"tag"`
-	Name    string `yaml:"name"`
-	Value   string `yaml:"value"`
-	Command string `yaml:"command"`
+	Tag     string   `yaml:"tag"`
+	Name    string   `yaml:"name"`
+	Value   string   `yaml:"value"`
+	Command []string `yaml:"command"`
 }
 
 // Insert InfluxDB vars
@@ -61,17 +61,21 @@ func idbVars() {
 	// Iterate vars
 	for _, tag := range allVars.Vars {
 		if ctx.Debug > 0 {
-			lib.Printf("Tag '%s', Name '%s', Value '%s', Command '%s'\n", tag.Tag, tag.Name, tag.Value, tag.Command)
+			lib.Printf("Tag '%s', Name '%s', Value '%s', Command %v\n", tag.Tag, tag.Name, tag.Value, tag.Command)
 		}
-		if tag.Tag == "" || tag.Name == "" || (tag.Value == "" && tag.Command == "") {
+		if tag.Tag == "" || tag.Name == "" || (tag.Value == "" && len(tag.Command) == 0) {
 			continue
 		}
 		// Drop current vars
 		//lib.QueryIDB(ic, &ctx, "drop series from "+tag.Tag
 
-		if tag.Command != "" {
-			cmdBytes, err := exec.Command(tag.Command).CombinedOutput()
+		if len(tag.Command) > 0 {
+			for i := range tag.Command {
+				tag.Command[i] = strings.Replace(tag.Command[i], "{{datadir}}", dataPrefix, -1)
+			}
+			cmdBytes, err := exec.Command(tag.Command[0], tag.Command[1:]...).CombinedOutput()
 			if err != nil {
+				lib.Printf("Failed command: %s %v\n", tag.Command[0], tag.Command[1:])
 				lib.FatalOnError(err)
 				return
 			}
