@@ -118,6 +118,10 @@ We're getting all possible GitHub data for all objects, and all objects historic
 - You can use `merge_pdbs` to add new projects to a existing database, but please consider running './devel/remove_db_dups.sh' then or use: './all/add_project.sh' script.
 - [replacer](https://github.com/cncf/devstats/blob/master/cmd/replacer/replacer.go)
 - `replacer` is used to mass replace data in text files. It has regexp modes, string modes, terminate on no match etc.
+- [idb_vars](https://github.com/cncf/devstats/blob/master/cmd/idb_vars/idb_vars.go)
+- `idb_vars` is used to add special variables (tags) to Influx database, see [here](https://github.com/cncf/devstats/blob/master/docs/vars.md) for more info.
+- [pdb_vars](https://github.com/cncf/devstats/blob/master/cmd/pdb_vars/pdb_vars.go)
+- `pdb_vars` is used to add special variables (tags) to Influx database, see [here](https://github.com/cncf/devstats/blob/master/docs/vars.md) for more info.
 
 # Database structure details
 

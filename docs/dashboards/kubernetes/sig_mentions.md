@@ -47,4 +47,4 @@ multi_value: true
 - Releases comes from Grafana annotations: [sig_mentions.json](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/sig_mentions.json#L43-L55).
 - For more details about annotations check [here](https://github.com/cncf/devstats/blob/master/docs/annotations.md).
 - Project name is customized per project, it uses `[[full_name]]` template variable [definition](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/sig_mentions.json#L251-L268) and is [used as project name](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/sig_mentions.json#L54).
-- Per project variables are defined using `idb_vars` tool, more info [here](https://github.com/cncf/devstats/blob/master/docs/vars.md).
+- Per project variables are defined using `idb_vars`, `pdb_vars` tools, more info [here](https://github.com/cncf/devstats/blob/master/docs/vars.md).

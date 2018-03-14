@@ -56,4 +56,4 @@ skip: w7,m7,q7,y7
 - Releases comes from Grafana annotations: [reviewers.json](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/reviewers.json#L43-L55).
 - For more details about annotations check [here](https://github.com/cncf/devstats/blob/master/docs/annotations.md).
 - Project name is customized per project, it uses `[[full_name]]` template variable [definition](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/reviewers.json#L275-L293) and is [used as project name](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/reviewers.json#L78).
-- Per project variables are defined using `idb_vars` tool, more info [here](https://github.com/cncf/devstats/blob/master/docs/vars.md).
+- Per project variables are defined using `idb_vars`, `pdb_vars` tools, more info [here](https://github.com/cncf/devstats/blob/master/docs/vars.md).
