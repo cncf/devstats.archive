@@ -47,7 +47,7 @@ func idbVars() {
 	}
 
 	// Read vars to generate
-	data, err := ioutil.ReadFile(dataPrefix + ctx.VarsYaml)
+	data, err := ioutil.ReadFile(dataPrefix + ctx.IVarsYaml)
 	if err != nil {
 		lib.FatalOnError(err)
 		return
@@ -64,6 +64,7 @@ func idbVars() {
 			lib.Printf("Tag '%s', Name '%s', Value '%s', Command %v\n", tag.Tag, tag.Name, tag.Value, tag.Command)
 		}
 		if tag.Tag == "" || tag.Name == "" || (tag.Value == "" && len(tag.Command) == 0) {
+			lib.Printf("Incorrect variable configuration, skipping\n")
 			continue
 		}
 		// Drop current vars
