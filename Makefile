@@ -112,12 +112,13 @@ data:
 	rm -fr /etc/gha2db/* || exit 1
 	cp -R metrics/ /etc/gha2db/metrics/ || exit 2
 	cp -R util_sql/ /etc/gha2db/util_sql/ || exit 3
-	cp cncf.yaml projects.yaml /etc/gha2db/ || exit 4
+	cp -R docs/ /etc/gha2db/docs/ || exit 4
+	cp cncf.yaml projects.yaml /etc/gha2db/ || exit 5
 
 install: check ${BINARIES} data
 	cp -v ${UTIL_SCRIPTS} ${GOPATH}/bin
-	[ ! -f /tmp/deploy.wip ] || exit 5
-	wait_for_command.sh devstats 3600 || exit 6
+	[ ! -f /tmp/deploy.wip ] || exit 6
+	wait_for_command.sh devstats 3600 || exit 7
 	${GO_INSTALL} ${GO_BIN_CMDS}
 	cp -v ${CRON_SCRIPTS} ${GOPATH}/bin
 	cp -v ${GIT_SCRIPTS} ${GOPATH}/bin
