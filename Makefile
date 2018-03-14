@@ -108,6 +108,9 @@ dbtest:
 check: fmt lint imports vet const usedexports errcheck
 
 data:
+	cp -v ${UTIL_SCRIPTS} ${GOPATH}/bin
+	[ ! -f /tmp/deploy.wip ] || exit 6
+	wait_for_command.sh devstats 3600 || exit 7
 	mkdir /etc/gha2db 2>/dev/null || echo "..."
 	rm -fr /etc/gha2db/* || exit 1
 	cp -R metrics/ /etc/gha2db/metrics/ || exit 2
@@ -116,9 +119,6 @@ data:
 	cp cncf.yaml projects.yaml /etc/gha2db/ || exit 5
 
 install: check ${BINARIES} data
-	cp -v ${UTIL_SCRIPTS} ${GOPATH}/bin
-	[ ! -f /tmp/deploy.wip ] || exit 6
-	wait_for_command.sh devstats 3600 || exit 7
 	${GO_INSTALL} ${GO_BIN_CMDS}
 	cp -v ${CRON_SCRIPTS} ${GOPATH}/bin
 	cp -v ${GIT_SCRIPTS} ${GOPATH}/bin
