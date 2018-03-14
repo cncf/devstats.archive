@@ -30,5 +30,5 @@ func FatalOnError(err error) string {
 
 // Fatalf - it will call FatalOnError using fmt.Errorf with args provided
 func Fatalf(f string, a ...interface{}) {
-	FatalOnError(fmt.Errorf(f, a))
+	FatalOnError(fmt.Errorf(f, a...))
 }

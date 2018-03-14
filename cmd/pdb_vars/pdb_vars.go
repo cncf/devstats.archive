@@ -19,10 +19,11 @@ type pvars struct {
 
 // pvar contain each Postgres data
 type pvar struct {
-	Name    string   `yaml:"name"`
-	Type    string   `yaml:"type"`
-	Value   string   `yaml:"value"`
-	Command []string `yaml:"command"`
+	Name     string     `yaml:"name"`
+	Type     string     `yaml:"type"`
+	Value    string     `yaml:"value"`
+	Command  []string   `yaml:"command"`
+	Replaces [][]string `yaml:"replaces"`
 }
 
 // Insert Postgres vars
@@ -50,10 +51,13 @@ func pdbVars() {
 	var allVars pvars
 	lib.FatalOnError(yaml.Unmarshal(data, &allVars))
 
+	// All key name - values are stored in map
+	// So next keys can replace strings using previous key values
+	replaces := make(map[string]string)
 	// Iterate vars
 	for _, va := range allVars.Vars {
 		if ctx.Debug > 0 {
-			lib.Printf("Variable Name '%s', Value '%s', Type '%s', Command %v\n", va.Name, va.Value, va.Type, va.Command)
+			lib.Printf("Variable Name '%s', Value '%s', Type '%s', Command %v, Replaces %v\n", va.Name, va.Value, va.Type, va.Command, va.Replaces)
 		}
 		if va.Type == "" || va.Name == "" || (va.Value == "" && len(va.Command) == 0) {
 			lib.Printf("Incorrect variable configuration, skipping\n")
@@ -72,12 +76,24 @@ func pdbVars() {
 			}
 			outString := strings.TrimSpace(string(cmdBytes))
 			if outString != "" {
+				// Handle replacements using variables defined so far
+				for _, repl := range va.Replaces {
+					if len(repl) != 2 {
+						lib.Fatalf("Replacement definition should be array with 2 elements, got: %v", repl)
+					}
+					replTo, ok := replaces[repl[1]]
+					if !ok {
+						lib.Fatalf("Variable '%s' requests replacing '%s', but not such variable is defined, defined: %v", va.Name, repl[1], replaces)
+					}
+					outString = strings.Replace(outString, "[["+repl[0]+"]]", replTo, -1)
+				}
 				va.Value = outString
 				if ctx.Debug > 0 {
 					lib.Printf("Name '%s', New Value '%s', Type '%s'\n", va.Name, va.Value, va.Type)
 				}
 			}
 		}
+		replaces[va.Name] = va.Value
 
 		if !ctx.SkipPDB {
 			// Start transaction
