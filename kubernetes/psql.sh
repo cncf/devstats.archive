@@ -23,4 +23,5 @@ GHA2DB_PROJECT=kubernetes PG_DB=gha IDB_DB=gha GHA2DB_LOCAL=1 GHA2DB_MGETC=y GHA
 # This imports affiliations from cncf/gitdm:github_users.json
 ./import_affs github_users.json 2>>errors.txt | tee -a run.log || exit 6
 ./kubernetes/get_repos.sh 2>>errors.txt | tee -a run.log || exit 9
+GHA2DB_PROJECT=kubernetes PG_DB=gha GHA2DB_LOCAL=1 ./pdb_vars || exit 10
 echo "All done. You should run ./kubernetes/reinit.sh script now."

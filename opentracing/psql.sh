@@ -18,4 +18,5 @@ GHA2DB_PROJECT=opentracing IDB_DB=opentracing PG_DB=opentracing GHA2DB_LOCAL=1 G
 ./opentracing/import_affs.sh 2>>errors.txt | tee -a run.log || exit 5
 ./opentracing/setup_scripts.sh 2>>errors.txt | tee -a run.log || exit 6
 ./opentracing/get_repos.sh 2>>errors.txt | tee -a run.log || exit 7
+GHA2DB_PROJECT=opentracing PG_DB=opentracing GHA2DB_LOCAL=1 ./pdb_vars || exit 8
 echo "All done. You should run ./opentracing/reinit.sh script now."
