@@ -3,8 +3,12 @@
 - Go to Grafana UI: `http://localhost:3000`
 - Login as "admin"/"admin" (you can change passwords later).
 - Choose add data source, then Add Influx DB with those settings:
-- Name "yourname" and type "InfluxDB", url default "http://localhost:8086"/"http://172.17.0.1:8086", access: "proxy", database "gha", user "gha_admin", password "your_influx_pwd", min time interval "1h"
+- Name "gha" and type "InfluxDB", url default "http://localhost:8086"/"http://172.17.0.1:8086", access: "proxy", database "projname", user "gha_admin", password "your_influx_pwd", min time interval "1h"
 - Test & save datasource, then proceed to dashboards.
+- Choose add data source, then add PostgreSQL with those settings:
+- Name "psql", Type "PostgreSQL", host "127.0.0.1:5432", database "projname", user "ro_user" (this is the select-only user for psql), password "your-psql-password", ssl-mode "disabled".
+- Make sure to run `./devel/ro_user_grants.sh projname` to add `ro_user's` select grants for all psql tables in projectname.
+- If doing this for the first time also create `ro_user` via `devel/create_ro_user.sh`.
 - Click Home, Import dashboard, Upload JSON file, choose dashboards saved as JSONs in `grafana/dashboards/{{project}}dashboard_name.json`, data source "InfluxDB" and save.
 - All dashboards are here: [kubernetes](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/), [prometheus](https://github.com/cncf/devstats/blob/master/grafana/dashboards/prometheus/), [opentracing](https://github.com/cncf/devstats/blob/master/grafana/dashboards/opentracing/).
 - Do the same for all defined dashboards. Use specific project tag, for example `kubernetes`, `prometheus` or `opentracing`.

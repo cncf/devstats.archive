@@ -26,11 +26,6 @@ sudo -u postgres psql -c "create user ro_user with password '$PG_PASS'" || exit 
 
 for proj in $all
 do
-  tables=`sudo -u postgres psql $proj -qAntc '\dt' | cut -d\| -f2`
-  for table in $tables
-  do
-    echo -n "$proj: $table "
-    sudo -u postgres psql $proj -c "grant select on $table to ro_user" || exit 4
-  done
+  ./devel/ro_user_grants.sh "$proj" || exit 4
 done
 echo 'OK'
