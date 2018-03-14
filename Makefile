@@ -116,7 +116,8 @@ data:
 	cp -R metrics/ /etc/gha2db/metrics/ || exit 2
 	cp -R util_sql/ /etc/gha2db/util_sql/ || exit 3
 	cp -R docs/ /etc/gha2db/docs/ || exit 4
-	cp cncf.yaml projects.yaml /etc/gha2db/ || exit 5
+	cp -R partials/ /etc/gha2db/partials/ || exit 5
+	cp cncf.yaml projects.yaml /etc/gha2db/ || exit 6
 
 install: check ${BINARIES} data
 	${GO_INSTALL} ${GO_BIN_CMDS}
