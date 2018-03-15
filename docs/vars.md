@@ -25,5 +25,3 @@
   - Direct string value `toN` if used special syntax `:toN`.
 - Any replacement `f` -> `t` made creates additional variable `f` with value `t` that can be used in next replacements or next variables.
 - All those options are used [here](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/pdb_vars.yaml).
-- It also replaces `[[proj_name]]` with contents of environment variable `GHA2DB_PROJECT`, using `$GHA2DB_PROJECT` syntax.
-- It also replaces `[[url_prefix]]` with direct string `k8s`, using syntax `:k8s`.
