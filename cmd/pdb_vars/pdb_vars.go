@@ -101,9 +101,9 @@ func pdbVars() {
 							lib.Fatalf("Variable '%s' requests replacing '%s', but not such variable is defined, defined: %v", va.Name, repl[1], replaces)
 						}
 					}
-					// If 'replace from' starts with '!' then do not use [[ and ]] when replacing.
+					// If 'replace from' starts with ':' then do not use [[ and ]] when replacing.
 					// That means you can replace non-template parts
-					if len(repl[0]) > 1 && repl[0][0:1] == "!" {
+					if len(repl[0]) > 1 && repl[0][0:1] == ":" {
 						outString = strings.Replace(outString, repl[0][1:], replTo, -1)
 					} else {
 						outString = strings.Replace(outString, "[["+repl[0]+"]]", replTo, -1)

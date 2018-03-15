@@ -23,6 +23,6 @@
   - Already defined variable contents `toN` if no special charactes before variable name are used.
   - Environment variable `toN` if used special syntax `$toN`.
   - Direct string value `toN` if used special syntax `:toN`.
-- If `from` starts with `!` - `!from` - then it will replace `from` directly, instead of `[[from]]`. This allows replace any text, not only template variables.
+- If `from` starts with `:`, `:from` - then it will replace `from` directly, instead of `[[from]]`. This allows replace any text, not only template variables.
 - Any replacement `f` -> `t` made creates additional variable `f` with value `t` that can be used in next replacements or next variables.
-- All those options are used [here](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/pdb_vars.yaml) or [there](https://github.com/cncf/devstats/blob/master/metrics/opencontainers/pdb_vars.yaml).
+- All those options are used [here](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/pdb_vars.yaml), [here](https://github.com/cncf/devstats/blob/master/metrics/prometheus/pdb_vars.yaml) or [there](https://github.com/cncf/devstats/blob/master/metrics/opencontainers/pdb_vars.yaml).
