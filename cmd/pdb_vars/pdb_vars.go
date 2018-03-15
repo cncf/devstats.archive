@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"io/ioutil"
+	"os"
 	"os/exec"
 	"strings"
 	"time"
@@ -54,6 +55,11 @@ func pdbVars() {
 	// All key name - values are stored in map
 	// So next keys can replace strings using previous key values
 	replaces := make(map[string]string)
+	// Also make environemnt variables available too
+	for _, e := range os.Environ() {
+		pair := strings.Split(e, "=")
+		replaces["$"+pair[0]] = pair[1]
+	}
 	// Iterate vars
 	for _, va := range allVars.Vars {
 		if ctx.Debug > 0 {
