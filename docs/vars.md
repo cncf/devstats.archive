@@ -18,3 +18,12 @@
 - They use `pdb_vars` [tool](https://github.com/cncf/devstats/blob/master/cmd/pdb_vars/pdb_vars.go), called [here](https://github.com/cncf/devstats/blob/master/kubernetes/psql.sh#L26) (Kubernetes) or [here](https://github.com/cncf/devstats/blob/master/prometheus/psql.sh#L22) (Prometheus).
 - `pdb_vars` can also be used for defining per project variables using OS commands results.
 - To use command result just provide `command: [your_command, arg1, ..., argN]` in `pdb_vars.yaml` file. It will overwrite value if command result is non-empty.
+- It can use previous variables by defining `replaces: [[from1, to1], .., [fromN, toN]].
+- If `from` is `fromN` and `to` is `toN` - then it will replace `[[fromN]]` with:
+  - Already defined variable contents `toN` if no special charactes before variable name are used.
+  - Environment variable `toN` if used special syntax `$toN`.
+  - Direct string value `toN` if used special syntax `:toN`.
+- Any replacement `f` -> `t` made creates additional variable `f` with value `t` that can be used in next replacements or next variables.
+- All those options are used [here](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/pdb_vars.yaml).
+- It also replaces `[[proj_name]]` with contents of environment variable `GHA2DB_PROJECT`, using `$GHA2DB_PROJECT` syntax.
+- It also replaces `[[url_prefix]]` with direct string `k8s`, using syntax `:k8s`.
