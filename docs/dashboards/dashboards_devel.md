@@ -1,4 +1,4 @@
-# SIG mentions dashboard
+# Home dashboard
 
 Links:
 - Postgres SQL file: [events.sql](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/events.sql).
