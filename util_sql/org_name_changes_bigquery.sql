@@ -5,7 +5,7 @@ select
   min(created_at) as date_from,
   max(created_at) as date_to
 from
-  [githubarchive:month.2018012],
+  [githubarchive:month.201802],
   [githubarchive:month.201801],
   [githubarchive:year.2017],
   [githubarchive:year.2016],
