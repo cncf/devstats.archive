@@ -20,7 +20,6 @@ then
   > /tmp/deploy.wip
 fi
 
-# TODO: ICON=nats - when CNCF updates artwork to include NATS icon.
 # OCI has no icon in cncf/artwork at all, so use "-" here
 PROJ=kubernetes     PROJDB=gha            PROJREPO="kubernetes/kubernetes"      ORGNAME=Kubernetes  PORT=2999 ICON=kubernetes  GRAFSUFF=k8s            GA="UA-108085315-1"  ./devel/deploy_proj.sh || exit 2
 PROJ=prometheus     PROJDB=prometheus     PROJREPO="prometheus/prometheus"      ORGNAME=Prometheus  PORT=3001 ICON=prometheus  GRAFSUFF=prometheus     GA="UA-108085315-3"  ./devel/deploy_proj.sh || exit 3
@@ -38,7 +37,7 @@ PROJ=notary         PROJDB=notary         PROJREPO="theupdateframework/notary"  
 PROJ=tuf            PROJDB=tuf            PROJREPO="theupdateframework/tuf"     ORGNAME=TUF         PORT=3013 ICON=tuf         GRAFSUFF=tuf            GA="UA-108085315-16" ./devel/deploy_proj.sh || exit 15
 PROJ=rook           PROJDB=rook           PROJREPO="rook/rook"                  ORGNAME=Rook        PORT=3014 ICON=rook        GRAFSUFF=rook           GA="UA-108085315-17" ./devel/deploy_proj.sh || exit 16
 PROJ=vitess         PROJDB=vitess         PROJREPO="vitessio/vitess"            ORGNAME=Vitess      PORT=3015 ICON=vitess      GRAFSUFF=vitess         GA="UA-108085315-18" ./devel/deploy_proj.sh || exit 17
-PROJ=nats           PROJDB=nats           PROJREPO="nats-io/gnatsd"             ORGNAME=NATS        PORT=3016 ICON="-"         GRAFSUFF=nats           GA="UA-108085315-21" ./devel/deploy_proj.sh || exit 18
+PROJ=nats           PROJDB=nats           PROJREPO="nats-io/gnatsd"             ORGNAME=NATS        PORT=3016 ICON=nats        GRAFSUFF=nats           GA="UA-108085315-21" ./devel/deploy_proj.sh || exit 18
 PROJ=opencontainers PROJDB=opencontainers PROJREPO="opencontainers/runc"        ORGNAME=OCI         PORT=3100 ICON="-"         GRAFSUFF=opencontainers GA="UA-108085315-19" ./devel/deploy_proj.sh || exit 19
 PROJ=all            PROJDB=allprj         PROJREPO="not/used"                   ORGNAME="All CNCF"  PORT=3254 ICON=cncf        GRAFSUFF=all            GA="UA-108085315-20" ./devel/deploy_proj.sh || exit 20
 if [ "$host" = "cncftest.io" ]
