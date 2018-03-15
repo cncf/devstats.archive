@@ -91,6 +91,7 @@ func pdbVars() {
 						ok     bool
 						replTo string
 					)
+					// Handle direct string replacements
 					if len(repl[1]) > 1 && repl[1][0:1] == ":" {
 						ok = true
 						replTo = repl[1][1:]
@@ -100,10 +101,16 @@ func pdbVars() {
 							lib.Fatalf("Variable '%s' requests replacing '%s', but not such variable is defined, defined: %v", va.Name, repl[1], replaces)
 						}
 					}
-					outString = strings.Replace(outString, "[["+repl[0]+"]]", replTo, -1)
-					// Make replacements results available as variables too
-					if repl[0] != repl[1] {
-						replaces[repl[0]] = replTo
+					// If 'replace from' starts with '!' then do not use [[ and ]] when replacing.
+					// That means you can replace non-template parts
+					if len(repl[0]) > 1 && repl[0][0:1] == "!" {
+						outString = strings.Replace(outString, repl[0][1:], replTo, -1)
+					} else {
+						outString = strings.Replace(outString, "[["+repl[0]+"]]", replTo, -1)
+						// Make replacements results available as variables too
+						if repl[0] != repl[1] {
+							replaces[repl[0]] = replTo
+						}
 					}
 				}
 				va.Value = outString
