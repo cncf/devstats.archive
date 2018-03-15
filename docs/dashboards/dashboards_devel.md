@@ -37,10 +37,10 @@ periods: h
 - Releases comes from Grafana annotations: [dashboards.json](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/dashboards.json#L63-L76).
 - For more details about annotations check [here](https://github.com/cncf/devstats/blob/master/docs/annotations.md).
 - Project name is customized per project, it uses `[[full_name]]` template variable [definition](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/dashboards.json#L508-L527) and is [used as project name](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/dashboards.json#L338).
-- Dashboard's CNCF projects list with icons and links comes from `[[projects]]` Postgres template variable defined [here](#L448-#L467).
+- Dashboard's CNCF projects list with icons and links comes from `[[projects]]` Postgres template variable defined [here](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/dashboards.json#L448-#L467).
 - Its definition is [here](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/pdb_vars.yaml#L9-L15).
 - It uses this [HTML partial](https://github.com/cncf/devstats/blob/master/partials/projects.html) replacing `[[hostname]]` with then current host name.
-- Dashboard's documentation comes from `[[docs]]` Postgres template variable defined [here](#L468-#L487).
-- Its definition is [here](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/pdb_vars.yaml#L26-L33).
+- Dashboard's documentation comes from `[[docs]]` Postgres template variable defined [here](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/dashboards.json#L468-#L487).
+- Its definition is [here](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/pdb_vars.yaml#L16-L25).
 - It uses this [HTML](https://github.com/cncf/devstats/blob/master/docs/dashboards/dashboards.md) replacing `[[hostname]]` with then current host name and `[[full_name]]` with Kubernetes.
 - Per project variables are defined using `idb_vars`, `pdb_vars` tools, more info [here](https://github.com/cncf/devstats/blob/master/docs/vars.md).

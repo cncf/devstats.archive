@@ -87,11 +87,24 @@ func pdbVars() {
 					if len(repl) != 2 {
 						lib.Fatalf("Replacement definition should be array with 2 elements, got: %v", repl)
 					}
-					replTo, ok := replaces[repl[1]]
-					if !ok {
-						lib.Fatalf("Variable '%s' requests replacing '%s', but not such variable is defined, defined: %v", va.Name, repl[1], replaces)
+					var (
+						ok     bool
+						replTo string
+					)
+					if len(repl[1]) > 1 && repl[1][0:1] == ":" {
+						ok = true
+						replTo = repl[1][1:]
+					} else {
+						replTo, ok = replaces[repl[1]]
+						if !ok {
+							lib.Fatalf("Variable '%s' requests replacing '%s', but not such variable is defined, defined: %v", va.Name, repl[1], replaces)
+						}
 					}
 					outString = strings.Replace(outString, "[["+repl[0]+"]]", replTo, -1)
+					// Make replacements results available as variables too
+					if repl[0] != repl[1] {
+						replaces[repl[0]] = replTo
+					}
 				}
 				va.Value = outString
 				if ctx.Debug > 0 {
