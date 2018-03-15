@@ -52,7 +52,7 @@ They are defined here: [repo_groups.sql](https://github.com/cncf/devstats/blob/m
 43) User reviews dashboard [reviews_per_user.sql](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/reviews_per_user.sql), [user_reviews.json](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/user_reviews.json), [view](https://k8s.devstats.cncf.io/d/46/user-reviews?orgId=1).
 
 # Index dashboard showing all projects
-1) All CNCF projects dashboard [dashboards.json](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/dashboards.json), [view](https://k8s.devstats.cncf.io/dashboard/db/dashboards?refresh=15m&orgId=1).
+1) All CNCF projects dashboard [user documentation](https://github.com/cncf/devstats/blob/master/docs/dashboards/dashboards.md), [developer documentation](https://github.com/cncf/devstats/blob/master/docs/dashboards/dashboards_devel.md), [dashboards.json](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/dashboards.json), [view](https://k8s.devstats.cncf.io/dashboard/db/dashboards?refresh=15m&orgId=1).
 
 All of them works live on [k8s.devstats.cncf.io](https://k8s.devstats.cncf.io) with auto `devstats` tool running.
 
