@@ -5,7 +5,7 @@
 <li>InfluxDB <a href="https://github.com/cncf/devstats/blob/master/metrics/[[proj_name]]/metrics.yaml" target="_blank">series definition</a> (search for <code>name: GitHub activity</code>).</li>
 <li>Grafana dashboard <a href="https://github.com/cncf/devstats/blob/master/grafana/dashboards/[[proj_name]]/dashboards.json" target="_blank">JSON</a>.</li>
 <li>Developer <a href="https://github.com/cncf/devstats/blob/master/docs/dashboards/dashboards_devel.md" target="_blank">documentation</a>.</li>
-<li>Direct <a href="https://k8s.[[hostname]]/d/12/dashboards?refresh=15m&amp;orgId=1" target="_blank">link</a>.</li>
+<li>Direct <a href="https://[[url_prefix]].[[hostname]]" target="_blank">link</a>.</li>
 </ul>
 <h1 id="description">Description</h1>
 <ul>
