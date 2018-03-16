@@ -45,7 +45,7 @@ then
     cp "$HOME/dev/cncf/artwork/$ICON/icon/color/$ICON-icon-color.svg" "/usr/share/grafana.$GRAFSUFF/public/img/grafana_com_auth_icon.svg" || exit 7
     cp "$HOME/dev/cncf/artwork/$ICON/icon/color/$ICON-icon-color.svg" "/usr/share/grafana.$GRAFSUFF/public/img/grafana_net_logo.svg" || exit 8
     cp "$HOME/dev/cncf/artwork/$ICON/icon/color/$ICON-icon-color.svg" "/usr/share/grafana.$GRAFSUFF/public/img/grafana_mask_icon.svg" || exit 9
-    convert "$HOME/dev/cncf/artwork/$ICON/icon/color/$ICON-icon-color.png" -resize 80x80"/var/www/html/img/$PROJ-icon-color.png" || exit 10
+    convert "$HOME/dev/cncf/artwork/$ICON/icon/color/$ICON-icon-color.png" -resize 80x80 "/var/www/html/img/$PROJ-icon-color.png" || exit 10
     cp "$HOME/dev/cncf/artwork/$ICON/icon/color/$ICON-icon-color.svg" "/var/www/html/img/$PROJ-icon-color.svg" || exit 11
     if [ ! -f "grafana/img/$GRAFSUFF.svg" ]
     then
