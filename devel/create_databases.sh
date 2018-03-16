@@ -52,13 +52,14 @@ then
       echo "generating postgres database $PROJDB"
       GHA2DB_MGETC=y ./$PROJ/psql.sh || exit 12
     fi
+    dbcreated=1
   else
     echo "postgres database $PROJDB already exists"
   fi
 else
   echo "postgres database $PROJDB generation skipped"
 fi
-if [ ! -z "$GAPS" ]
+if ( [ ! -z "$GAPS" ] && [ ! -` "$dbcreated" ] )
 then
   sql=`sed -e "s/{{lim}}/$lim/g" ./util_sql/top_repo_groups.sql`
   repo_groups=`sudo -u postgres psql "$PROJDB" -tAc "$sql"`
