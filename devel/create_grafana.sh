@@ -47,6 +47,14 @@ then
     cp "$HOME/dev/cncf/artwork/$ICON/icon/color/$ICON-icon-color.svg" "/usr/share/grafana.$GRAFSUFF/public/img/grafana_mask_icon.svg" || exit 9
     convert "$HOME/dev/cncf/artwork/$ICON/icon/color/$ICON-icon-color.png" -resize 80x80"/var/www/html/img/$PROJ-icon-color.png" || exit 10
     cp "$HOME/dev/cncf/artwork/$ICON/icon/color/$ICON-icon-color.svg" "/var/www/html/img/$PROJ-icon-color.svg" || exit 11
+    if [ ! -f "grafana/img/$GRAFSUFF.svg" ]
+    then
+      cp "$HOME/dev/cncf/artwork/$ICON/icon/color/$ICON-icon-color.svg" "grafana/img/$GRAFSUFF.svg" || exit 1
+    fi
+    if [ ! -f "grafana/img/${GRAFSUFF}32.png" ]
+    then
+      convert "$HOME/dev/cncf/artwork/$ICON/icon/color/$ICON-icon-color.png" -resize 32x32 "grafana/img/${GRAFSUFF}32.png" || exit 2
+    fi
   fi
   GRAFANA_DATA="/usr/share/grafana.$GRAFSUFF/" ./grafana/$PROJ/change_title_and_icons.sh || exit 12
 fi
