@@ -26,23 +26,13 @@ To add a new project on the test server follow instructions:
 - `cp -Rv grafana/oldproject/ grafana/projectname/` and then update files. Usually `%s/oldproject/newproject/g|w|next`.
 - `cp -Rv grafana/dashboards/oldproject/ grafana/dashboards/projectname/` and then update files.  Use `devel/mass_replace.sh` script, it contains some examples in the comments.
 - Something like this: "MODE=ss0 FROM='"oldproject"' TO='"newproject"' FILES=`find ./grafana/dashboards/newproject -type f -iname '*.json'` ./devel/mass_replace.sh".
+- Update `grafana/dashboards/proj/dashboards.json` for all already existing projects, add new project using `devel/mass_replace.sh` or `devel/replace.sh`.
+- Update `partials/projects.html`.
+- Update Apache proxy and SSL files `apache/www/index_* apache/*/sites-enabled/* apache/*/sites.txt` files.
+- Run deply all script with optional GAPS generating environment variable: `GAPS=1 ./devel/deploy_all.sh`.
 - `make install` to install all changed stuff.
-- Update `./projectname/create_grafana.sh` script to make it create correct Grafana installation.
-- You now need Apache proxy and SSL, please follow instructions from APACHE.md and SSL.md
-- Apache part is to update `apache/www/index_* apache/test/sites-enabled/* apache/prod/sites-enabled/*` files.
-- SSL part is to issue certificate for new domain and setup proxy.
-- Make sure to run `./devel/ro_user_grants.sh projname` to add `ro_user's` select grants for all psql tables in projectname.
-- Start new grafana: `./grafana/projectname/grafana_start.sh &` or `killall grafana-server`, `./grafana/start_all_grafanas.sh`, `ps -aux | grep grafana-server`.
-- Update Apache config to proxy https to new Grafana instance: `vim /etc/apache2/sites-enabled/000-default-le-ssl.conf`, `service apache2 restart`
-- List of test SSL sites is in `./apache/test/sites.txt` and for prod `./apache/prod/sites.txt`.
-- Issue new SSL certificate as described in `SSL.md` (test server): 'sudo certbot --apache -n --expand -d `cat apache/test/sites.txt`'.
-- Or (prod server): 'sudo certbot --apache -d -n --expand `cat apache/prod/sites.txt`'.
-- Or with standalone authenticator (test server): "sudo certbot -d -n --expand `cat apache/test/sites.txt` --authenticator standalone --installer apache --pre-hook 'service apache2 stop' --post-hook 'service apache2 start'".
-- Or with standalone authenticator (prod server): "sudo certbot -d -n --expand `cat apache/prod/sites.txt` --authenticator standalone --installer apache --pre-hook 'service apache2 stop' --post-hook 'service apache2 start'".
-- Run databases creation script: `GAPS=1 ./devel/deploy_all.sh`.
 - Open `newproject.cncftest.io` login with admin/admin, change the default password and follow instructions from `GRAFANA.md`.
-- Add new project to `/var/www/html/index.html`.
-- Update and import `grafana/dashboards/{{proj}}/dashboards.json` dashboard on all remaining projects.
-- Finally: `cp /var/lib/grafana.projectname/grafana.db /var/www/html/grafana.projectname.db` and/or `grafana/copy_grafana_dbs.sh`
+- Import `grafana/dashboards/proj/dashboards.json` dashboard on all remaining projects.
+- Import all new projects dashboards from `grafana/dashboards/newproject/*.json`, then finally: `grafana/copy_grafana_dbs.sh`
 - `sync_unlock.sh`.
 - Final deploy script is: `./devel/deploy_all.sh`. It should do all deployment automatically on the prod server. Follow all code from this script (eventually run some parts manually, the final version should do full deploy OOTB).
