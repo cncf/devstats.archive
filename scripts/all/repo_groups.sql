@@ -191,6 +191,16 @@ where
   or name in ('apcera/gnatsd', 'gnatsd', 'apcera/nats', 'nats')
 ;
 
+-- OPA
+update
+  gha_repos
+set
+  repo_group = 'OPA',
+  alias = 'OPA'
+where
+  org_login = 'open-policy-agent'
+;
+
 -- CNCF
 update
   gha_repos
