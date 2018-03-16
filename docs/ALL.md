@@ -27,8 +27,8 @@ To add new project follow [adding new project](https://github.com/cncf/devstats/
 This file describes how to add new project on the test server.
 
 To add new project on the production (when already added on the test), you should use automatic deploy script:
-- Run `./devel/deploy_proj.sh` script with correct env variables or run deploy for all projects `devel/deploy_all.sh`.
-- Go to `https://newproject.devstats.cncf.io` and change Grafana and InfluxDB passwords (default deploy copies database from the test server, so it has test server credentials initially).
+- Run `GET=1 ./devel/deploy_proj.sh` script with correct env variables or run deploy for all projects `GET=1 devel/deploy_all.sh`.
+- Go to `https://newproject.devstats.cncf.io` and change Grafana, InfluxDB and PostgreSQL passwords (default deploy copies database from the test server, so it has test server credentials initially).
 - Reimport Home dashboard (which now contains link to a new project) on all existing projects.
 
 To add a new project on the test server follow instructions:
@@ -38,40 +38,26 @@ To add a new project on the test server follow instructions:
 - Main repo can be empty `''` - in this case only two annotations will be added: 'start date - CNCF join date' and 'CNCF join date - now".
 - Set project databases (Influx and Postgres).
 - CNCF join dates are listed here: https://github.com/cncf/toc#projects.
+- Update projects list files: `devel/all_prod_dbs.txt devel/all_prod_projects.txt devel/all_test_dbs.txt devel/all_test_projects.txt`.
 - Add this new project config to 'All' project in `projects.yaml all/psql.sh grafana/dashboards/all/dashboards.json scripts/all/repo_groups.sql devel/calculate_hours.sh`. Add entire new project as a new repo group in 'All' project.
-- Update `cron/cron_db_backup_all.sh devel/reinit.sh devel/all_affs.sh devel/import_affs.sh devel/update_affs.sh devel/add_single_metric_all.sh grafana/copy_grafana_dbs.sh devel/get_grafana_dbs.sh devel/tags.sh devel/get_all_databases.sh devel/update_grafanas.sh devel/copy_grafanas.sh devel/idb_vars_all.sh devel/pdb_vars_all.sh devel/top_repo_groups_all.sh devel/update_dashboards_labels.sh grafana/start_all_grafanas.sh` but do not install yet.
 - Add new domain for the project: `projectname.cncftest.io`. If using wildcard domain like `*.devstats.cncf.io` - this step is not needed.
 - Add Google Analytics (GA) for the new domain and update /etc/grafana.projectname/grafana.ini with its `UA-...`.
-- Update `images/OCI.sh grafana/copy_artwork_icons.sh apache/www/copy_icons.sh grafana/create_images.sh grafana/change_title_and_icons_all.sh`.
+- Review `grafana/copy_artwork_icons.sh apache/www/copy_icons.sh grafana/create_images.sh grafana/change_title_and_icons_all.sh` - maybe you need to add special case.
 - Copy setup scripts and then adjust them: `cp -R oldproject/ projectname/`, `vim projectname/*`. Update automatic deploy script: `./devel/deploy_all.sh`.
-- You need to set correct project main GitHub repository and annotations match regexp in `projects.yaml` to have working annotations and quick ranges.
-- Copy `metrics/oldproject` to `metrics/projectname`, those files will need tweaks too. Specially `./metrics/projectname/gaps.yaml`, `./metrics/projectname/idb_vars.yaml` and `./metrics/projectname/pdb_vars.yaml` files.
+- Copy `metrics/oldproject` to `metrics/projectname`. Update `./metrics/projectname/idb_vars.yaml` and `./metrics/projectname/pdb_vars.yaml` files.
 - Please use Grafana's "null as zero" instead of using manuall filling gaps. This simplifies metrics a lot. Gaps filling is only needed when using data from > 1 Influx series.
 - `cp -Rv scripts/oldproject/ scripts/projectname`, `vim scripts/projectname/*`.
-- Run databases creation script: `PDB=1 IDB=1 GAPS=1 ./projectname/create_databases.sh`.
-- Merge new project into 'All' project using `PG_PASS=pwd IDB_PASS=pwd IDB_HOST=172.17.0.1 ./all/add_project.sh projname org_name`.
-- Run regenerate 'All CNCF' project InfluxData script `./all/reinit.sh`.
 - `cp -Rv grafana/oldproject/ grafana/projectname/` and then update files. Usually `%s/oldproject/newproject/g|w|next`.
 - `cp -Rv grafana/dashboards/oldproject/ grafana/dashboards/projectname/` and then update files.  Use `devel/mass_replace.sh` script, it contains some examples in the comments.
-- You can use something like this: `MODE=ss0 FROM=`cat from` TO=`cat to` FILES=`find ./grafana/dashboards -type f -iname 'dashboards.json'` ./devel/mass_replace.sh`, files `from` and `to` should contain from -> to replacements.
-- For other dashboards you can use: "MODE=ss0 FROM='"vitess"' TO='"nats"' FILES=`find ./grafana/dashboards/nats -type f -iname '*.json'` ./devel/mass_replace.sh".
+- Something like this: "MODE=ss0 FROM='"oldproject"' TO='"newproject"' FILES=`find ./grafana/dashboards/newproject -type f -iname '*.json'` ./devel/mass_replace.sh".
+- Update `grafana/dashboards/proj/dashboards.json` for all already existing projects, add new project using `devel/mass_replace.sh` or `devel/replace.sh`.
+- Update `partials/projects.html`.
+- Update Apache proxy and SSL files `apache/www/index_* apache/*/sites-enabled/* apache/*/sites.txt` files.
+- Run deply all script with optional GAPS generating environment variable: `PG_PASS=... IDB_PASS=... IDB_HOST=... GAPS=1 ./devel/deploy_all.sh`.
 - `make install` to install all changed stuff.
-- Update `./projectname/create_grafana.sh` script to make it create correct Grafana installation.
-- You now need Apache proxy and SSL, please follow instructions from APACHE.md and SSL.md
-- Apache part is to update `apache/www/index_* apache/test/sites-enabled/* apache/prod/sites-enabled/*` files.
-- SSL part is to issue certificate for new domain and setup proxy.
-- Make sure to run `./devel/ro_user_grants.sh projname` to add `ro_user's` select grants for all psql tables in projectname.
-- Start new grafana: `./grafana/projectname/grafana_start.sh &` or `killall grafana-server`, `./grafana/start_all_grafanas.sh`, `ps -aux | grep grafana-server`.
-- Update Apache config to proxy https to new Grafana instance: `vim /etc/apache2/sites-enabled/000-default-le-ssl.conf`, `service apache2 restart`
-- List of test SSL sites is in `./apache/test/sites.txt` and for prod `./apache/prod/sites.txt`.
-- Issue new SSL certificate as described in `SSL.md` (test server): 'sudo certbot --apache -n --expand -d `cat apache/test/sites.txt`'.
-- Or (prod server): 'sudo certbot --apache -d -n --expand `cat apache/prod/sites.txt`'.
-- Or with standalone authenticator (test server): "sudo certbot -d -n --expand `cat apache/test/sites.txt` --authenticator standalone --installer apache --pre-hook 'service apache2 stop' --post-hook 'service apache2 start'".
-- Or with standalone authenticator (prod server): "sudo certbot -d -n --expand `cat apache/prod/sites.txt` --authenticator standalone --installer apache --pre-hook 'service apache2 stop' --post-hook 'service apache2 start'".
 - Open `newproject.cncftest.io` login with admin/admin, change the default password and follow instructions from `GRAFANA.md`.
-- Add new project to `/var/www/html/index.html`.
-- Update and import `grafana/dashboards/{{proj}}/dashboards.json` dashboard on all remaining projects.
-- Finally: `cp /var/lib/grafana.projectname/grafana.db /var/www/html/grafana.projectname.db` and/or `grafana/copy_grafana_dbs.sh`
+- Import `grafana/dashboards/proj/dashboards.json` dashboard on all remaining projects.
+- Import all new projects dashboards from `grafana/dashboards/newproject/*.json`, then finally: `grafana/copy_grafana_dbs.sh`
 - `sync_unlock.sh`.
 - Final deploy script is: `./devel/deploy_all.sh`. It should do all deployment automatically on the prod server. Follow all code from this script (eventually run some parts manually, the final version should do full deploy OOTB).
 ### [ISSUE_TEMPLATE](https://github.com/cncf/devstats/blob/master/ISSUE_TEMPLATE.md)
@@ -1477,7 +1463,7 @@ They are defined here: [repo_groups.sql](https://github.com/cncf/devstats/blob/m
 43) User reviews dashboard [reviews_per_user.sql](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/reviews_per_user.sql), [user_reviews.json](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/user_reviews.json), [view](https://k8s.devstats.cncf.io/d/46/user-reviews?orgId=1).
 
 # Index dashboard showing all projects
-1) All CNCF projects dashboard [dashboards.json](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/dashboards.json), [view](https://k8s.devstats.cncf.io/dashboard/db/dashboards?refresh=15m&orgId=1).
+1) All CNCF projects dashboard [user documentation](https://github.com/cncf/devstats/blob/master/docs/dashboards/dashboards.md), [developer documentation](https://github.com/cncf/devstats/blob/master/docs/dashboards/dashboards_devel.md), [dashboards.json](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/dashboards.json), [view](https://k8s.devstats.cncf.io/dashboard/db/dashboards?refresh=15m&orgId=1).
 
 All of them works live on [k8s.devstats.cncf.io](https://k8s.devstats.cncf.io) with auto `devstats` tool running.
 
@@ -1764,6 +1750,14 @@ where
 - They use `pdb_vars` [tool](https://github.com/cncf/devstats/blob/master/cmd/pdb_vars/pdb_vars.go), called [here](https://github.com/cncf/devstats/blob/master/kubernetes/psql.sh#L26) (Kubernetes) or [here](https://github.com/cncf/devstats/blob/master/prometheus/psql.sh#L22) (Prometheus).
 - `pdb_vars` can also be used for defining per project variables using OS commands results.
 - To use command result just provide `command: [your_command, arg1, ..., argN]` in `pdb_vars.yaml` file. It will overwrite value if command result is non-empty.
+- It can use previous variables by defining `replaces: [[from1, to1], .., [fromN, toN]]`.
+- If `from` is `fromN` and `to` is `toN` - then it will replace `[[fromN]]` with:
+  - Already defined variable contents `toN` if no special charactes before variable name are used.
+  - Environment variable `toN` if used special syntax `$toN`.
+  - Direct string value `toN` if used special syntax `:toN`.
+- If `from` starts with `:`, `:from` - then it will replace `from` directly, instead of `[[from]]`. This allows replace any text, not only template variables.
+- Any replacement `f` -> `t` made creates additional variable `f` with value `t` that can be used in next replacements or next variables.
+- All those options are used [here](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/pdb_vars.yaml), [here](https://github.com/cncf/devstats/blob/master/metrics/prometheus/pdb_vars.yaml) or [there](https://github.com/cncf/devstats/blob/master/metrics/opencontainers/pdb_vars.yaml).
 ### [docs/tags](https://github.com/cncf/devstats/blob/master/docs/tags.md)
 # InfluxDB tags
 
@@ -2565,6 +2559,74 @@ multi_value: true
 - For more details about annotations check [here](https://github.com/cncf/devstats/blob/master/docs/annotations.md).
 - Project name is customized per project, it uses `[[full_name]]` template variable [definition](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/sig_mentions.json#L251-L268) and is [used as project name](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/sig_mentions.json#L54).
 - Per project variables are defined using `idb_vars`, `pdb_vars` tools, more info [here](https://github.com/cncf/devstats/blob/master/docs/vars.md).
+### [docs/dashboards/dashboards_devel](https://github.com/cncf/devstats/blob/master/docs/dashboards/dashboards_devel.md)
+# Home dashboard
+
+Links:
+- Postgres SQL file: [events.sql](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/events.sql).
+- InfluxDB series definition: [metrics.yaml](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/metrics.yaml#L319-L322).
+- Grafana dashboard JSON: [dashboards.json](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/dashboards.json).
+- User documentation: [dashboards.md](https://github.com/cncf/devstats/blob/master/docs/dashboards/dashboards.md).
+- Production version: [view](https://k8s.devstats.cncf.io/d/12/dashboards?refresh=15m&orgId=1).
+- Test version: [view](https://k8s.cncftest.io/d/12/dashboards?refresh=15m&orgId=1).
+
+# Description
+
+- First we're displaying links to all CNCF projects defined. Links are defined [here](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/dashboards.json#L91-L270).
+- Next we're showing current project's hourly activity:
+  - We're quering `gha_events` table to get the total number of GitHub events.
+  - For more information about `gha_events` table please check: [gha_events.md](https://github.com/cncf/devstats/blob/master/docs/tables/gha_events.md).
+  - We're summing events hourly.
+  - This is a small project activity chart, we're not excluding bots activity here (most other dashboards excludes bot activity).
+  - Each row returns single value, we're only groupoing hourly here, so InfluxDB series name is given directly [here](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/metrics.yaml#L319-L322) as `events_h`.
+- Next we're showing HTML panel that shows all CNCF projects icons and links. Its contents comes from Postgres `[[projects]]` variable
+- Next there is a dashboard that shows a list of all dashboards defined for the current project (Kubernetes in this case).
+- Next we're showing dashboard docuemntaion. Its contents comes from Postgres `[[docs]]` variable
+
+# Influx series
+
+Metric usage is defined in metric.yaml as follows:
+```
+series_name_or_func: events_h
+sql: events
+periods: h
+```
+- It means that we should call Postgres metric [events.sql](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/events.sql).
+- We will save to InfluxDB series name `events_h`, query returns just single value for a given hour.
+- Grafana query is here: [dashboards.json](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/dashboards.json#L324): `SELECT \"value\" FROM \"events_h\" WHERE $timeFilter`.
+- `$timeFiler` value comes from Grafana date range selector. It is handled by Grafana internally.
+- This InfluxDB series is always calculated [last](https://github.com/cncf/devstats/blob/master/context.go#L222), and it is [queried](https://github.com/cncf/devstats/blob/master/cmd/gha2db_sync/gha2db_sync.go#L314) to see last hour calculated when doing a hourly sync.
+- Releases comes from Grafana annotations: [dashboards.json](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/dashboards.json#L69-L82).
+- For more details about annotations check [here](https://github.com/cncf/devstats/blob/master/docs/annotations.md).
+- Project name is customized per project, it uses `[[full_name]]` template variable [definition](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/dashboards.json#L528-L547) and is [used as project name](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/dashboards.json#L344).
+- Dashboard's CNCF projects list with icons and links comes from `[[projects]]` Postgres template variable defined [here](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/dashboards.json#L468-#L487).
+- Its definition is [here](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/pdb_vars.yaml#L9-L15).
+- It uses this [HTML partial](https://github.com/cncf/devstats/blob/master/partials/projects.html) replacing `[[hostname]]` with then current host name.
+- Dashboard's documentation comes from `[[docs]]` Postgres template variable defined [here](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/dashboards.json#L488-#L507).
+- Its definition is [here](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/pdb_vars.yaml#L16-L25).
+- It uses this [HTML](https://github.com/cncf/devstats/blob/master/docs/dashboards/dashboards.md) replacing `[[hostname]]` with then current host name and `[[full_name]]` with Kubernetes.
+- It also replaces `[[proj_name]]` with contents of environment variable `GHA2DB_PROJECT`, using `$GHA2DB_PROJECT` syntax.
+- It also replaces `[[url_prefix]]` with direct string `k8s`, using syntax `:k8s`.
+- Per project variables are defined using `idb_vars`, `pdb_vars` tools, more info [here](https://github.com/cncf/devstats/blob/master/docs/vars.md).
+### [docs/dashboards/dashboards](https://github.com/cncf/devstats/blob/master/docs/dashboards/dashboards.md)
+<h1 id="-full_name-home-dashboard">[[full_name]] Home dashboard</h1>
+<p>Links:</p>
+<ul>
+<li>Postgres <a href="https://github.com/cncf/devstats/blob/master/metrics/[[proj_name]]/events.sql" target="_blank">SQL file</a>.</li>
+<li>InfluxDB <a href="https://github.com/cncf/devstats/blob/master/metrics/[[proj_name]]/metrics.yaml" target="_blank">series definition</a> (search for <code>name: GitHub activity</code>).</li>
+<li>Grafana dashboard <a href="https://github.com/cncf/devstats/blob/master/grafana/dashboards/[[proj_name]]/dashboards.json" target="_blank">JSON</a>.</li>
+<li>Developer <a href="https://github.com/cncf/devstats/blob/master/docs/dashboards/dashboards_devel.md" target="_blank">documentation</a>.</li>
+<li>Direct <a href="https://[[url_prefix]].[[hostname]]" target="_blank">link</a>.</li>
+</ul>
+<h1 id="description">Description</h1>
+<ul>
+<li>First we&#39;re displaying links to all CNCF projects defined.</li>
+<li>Next we&#39;re showing current project&#39;s hourly activity - this is the number of all GitHub events that happened for [[full_name]] project hourly.</li>
+<li>This also includes bots activity (most other dashboards skip bot activity).</li>
+<li>Next we&#39;re showing HTML panel that shows all CNCF projects icons and links.</li>
+<li>Next there is a dashboard that shows a list of all dashboards defined for [[full_name]] project.</li>
+</ul>
+
 ### [docs/periods](https://github.com/cncf/devstats/blob/master/docs/periods.md)
 # DevStats metrics periods definitions
 
