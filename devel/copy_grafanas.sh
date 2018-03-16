@@ -1,10 +1,16 @@
 #!/bin/bash
-host=`hostname`
-if [ $host = "cncftest.io" ]
+if [ -z "$ONLY" ]
 then
-  all="k8s prometheus opentracing fluentd linkerd grpc coredns containerd rkt cni envoy jaeger notary tuf rook vitess nats opnecontainers all cncf"
+  host=`hostname`
+  if [ $host = "cncftest.io" ]
+  then
+    all=`cat ./devel/all_test_projects.txt`
+  else
+    all=`cat ./devel/all_prod_projects.txt`
+  fi
+  all=${all/kubernetes/k8s}
 else
-  all="k8s prometheus opentracing fluentd linkerd grpc coredns containerd rkt cni envoy jaeger notary tuf rook vitess nats opencontainers all"
+  all=$ONLY
 fi
 killall grafana-server
 for proj in $all

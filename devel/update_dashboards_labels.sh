@@ -9,12 +9,17 @@ then
   echo "You need to set FILES, example FROM=abc FILES='f1 f2' $0"
   exit 3
 fi
-host=`hostname`
-if [ $host = "cncftest.io" ]
+if [ -z "$ONLY" ]
 then
-  all="kubernetes prometheus opentracing fluentd linkerd grpc coredns containerd rkt cni envoy jaeger notary tuf rook vitess nats opencontainers all cncf"
+  host=`hostname`
+  if [ $host = "cncftest.io" ]
+  then
+    all=`cat ./devel/all_test_projects.txt`
+  else
+    all=`cat ./devel/all_prod_projects.txt`
+  fi
 else
-  all="kubernetes prometheus opentracing fluentd linkerd grpc coredns containerd rkt cni envoy jaeger notary tuf rook vitess nats opencontainers all"
+  all=$ONLY
 fi
 FROM="    \"$FROM\""
 for proj in $all
