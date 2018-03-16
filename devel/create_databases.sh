@@ -41,15 +41,16 @@ then
     echo "creating postgres database $PROJDB"
     sudo -u postgres psql -c "create database $PROJDB" || exit 6
     sudo -u postgres psql -c "grant all privileges on database \"$PROJDB\" to gha_admin" || exit 7
+    ./devel/ro_user_grants.sh "$PROJDB" || exit 8
     if [ ! -z "$GET" ]
     then
       echo "attempt to fetch postgres database $PROJDB from backup"
-      wget "https://cncftest.io/$PROJDB.dump" || exit 8
-      sudo -u postgres pg_restore -d "$PROJDB" "$PROJDB.dump" || exit 9
-      rm -f "$PROJ.dump" || exit 10
+      wget "https://cncftest.io/$PROJDB.dump" || exit 9
+      sudo -u postgres pg_restore -d "$PROJDB" "$PROJDB.dump" || exit 10
+      rm -f "$PROJ.dump" || exit 11
     else
       echo "generating postgres database $PROJDB"
-      GHA2DB_MGETC=y ./$PROJ/psql.sh || exit 11
+      GHA2DB_MGETC=y ./$PROJ/psql.sh || exit 12
     fi
   else
     echo "postgres database $PROJDB already exists"
@@ -61,7 +62,7 @@ if [ ! -z "$GAPS" ]
 then
   sql=`sed -e "s/{{lim}}/$lim/g" ./util_sql/top_repo_groups.sql`
   repo_groups=`sudo -u postgres psql "$PROJDB" -tAc "$sql"`
-  MODE=rs FROM=';;;(.*) # {{repo_groups}}' TO=";;;$repo_groups # {{repo_groups}}" ./replacer ./metrics/$PROJ/gaps.yaml || exit 12
+  MODE=rs FROM=';;;(.*) # {{repo_groups}}' TO=";;;$repo_groups # {{repo_groups}}" ./replacer ./metrics/$PROJ/gaps.yaml || exit 13
 fi
 if [ ! -z "$IDB" ]
 then
@@ -69,14 +70,14 @@ then
   if ( [ ! -z "$IDROP" ] && [ ! -z "$exists" ] )
   then
     echo "dropping influx database $PROJDB"
-    ./grafana/influxdb_drop.sh "$PROJDB" || exit 13
+    ./grafana/influxdb_drop.sh "$PROJDB" || exit 14
   fi
   exists=`echo 'show databases' | influx -host $IDB_HOST -username gha_admin -password $IDB_PASS | grep $PROJDB`
   if [ -z "$exists" ]
   then
     echo "generating influx database $PROJDB"
-    ./grafana/influxdb_recreate.sh "$PROJDB" || exit 14
-    ./$PROJ/reinit.sh || exit 15
+    ./grafana/influxdb_recreate.sh "$PROJDB" || exit 15
+    ./$PROJ/reinit.sh || exit 16
   else
     echo "influx database $PROJDB already exists"
   fi
