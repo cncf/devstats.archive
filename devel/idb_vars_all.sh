@@ -4,12 +4,17 @@ then
   echo "You need to set IDB_PASS environment variable to run this script"
   exit 1
 fi
-host=`hostname`
-if [ $host = "cncftest.io" ]
+if [ -z "$ONLY" ]
 then
-  all="kubernetes prometheus opentracing fluentd linkerd grpc coredns containerd rkt cni envoy jaeger notary tuf rook vitess nats opencontainers all cncf"
+  host=`hostname`
+  if [ $host = "cncftest.io" ]
+  then
+    all=`cat ./devel/all_test_projects.txt`
+  else
+    all=`cat ./devel/all_prod_projects.txt`
+  fi
 else
-  all="kubernetes prometheus opentracing fluentd linkerd grpc coredns containerd rkt cni envoy jaeger notary tuf rook vitess nats opencontainers all"
+  all=$ONLY
 fi
 for f in $all
 do
@@ -22,6 +27,6 @@ do
       db="allprj"
     fi
     echo "Project: $f, IDB: $db"
-    GHA2DB_LOCAL=1 GHA2DB_PROJECT=$f IDB_DB=$db ./idb_vars
+    GHA2DB_LOCAL=1 GHA2DB_PROJECT=$f IDB_DB=$db ./idb_vars || exit 1
 done
 echo 'OK'
