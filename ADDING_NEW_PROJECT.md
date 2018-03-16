@@ -25,8 +25,7 @@ To add a new project on the test server follow instructions:
 - `cp -Rv scripts/oldproject/ scripts/projectname`, `vim scripts/projectname/*`.
 - `cp -Rv grafana/oldproject/ grafana/projectname/` and then update files. Usually `%s/oldproject/newproject/g|w|next`.
 - `cp -Rv grafana/dashboards/oldproject/ grafana/dashboards/projectname/` and then update files.  Use `devel/mass_replace.sh` script, it contains some examples in the comments.
-- You can use something like this: `MODE=ss0 FROM=`cat from` TO=`cat to` FILES=`find ./grafana/dashboards -type f -iname 'dashboards.json'` ./devel/mass_replace.sh`, files `from` and `to` should contain from -> to replacements.
-- For other dashboards you can use: "MODE=ss0 FROM='"vitess"' TO='"nats"' FILES=`find ./grafana/dashboards/nats -type f -iname '*.json'` ./devel/mass_replace.sh".
+- Something like this: "MODE=ss0 FROM='"oldproject"' TO='"newproject"' FILES=`find ./grafana/dashboards/newproject -type f -iname '*.json'` ./devel/mass_replace.sh".
 - `make install` to install all changed stuff.
 - Update `./projectname/create_grafana.sh` script to make it create correct Grafana installation.
 - You now need Apache proxy and SSL, please follow instructions from APACHE.md and SSL.md
