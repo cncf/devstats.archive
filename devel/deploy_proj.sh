@@ -1,4 +1,5 @@
 #!/bin/bash
+# GET=1 (attempt to fetch Postgres database and Grafana database from the test server)
 set -o pipefail
 if ( [ -z "$PG_PASS" ] || [ -z "$IDB_PASS" ] || [ -z "$IDB_HOST" ] )
 then
@@ -22,11 +23,11 @@ then
   > /tmp/deploy.wip
 fi
 echo "$0: $PROJ deploy started"
-PDB=1 GET=1 IDB=1 ./devel/create_databases.sh || exit 3
+PDB=1 IDB=1 ./devel/create_databases.sh || exit 3
 if ( [ ! "$PROJ" = "all" ] && [ ! "$PROJ" = "opencontainers" ] )
 then
   IDB=1 ./all/add_project.sh "$PROJDB" "$PROJREPO" || exit 4
 fi
-GET=1 CERT=1 ./devel/create_grafana.sh || exit 5
+CERT=1 ./devel/create_grafana.sh || exit 5
 ./devel/create_www.sh || exit 6
 echo "$0: $PROJ deploy finished"

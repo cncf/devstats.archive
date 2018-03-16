@@ -1,7 +1,7 @@
 #!/bin/bash
 # PDB=1 (will generate Postgres DB)
 # PDROP=1 (will drop & create Postgres DB)
-# GET=1 (will use Postgres DB backup if available)
+# GET=1 (will use Postgres DB backup)
 # GAPS=1 (will update metrics/$PROJ/gaps.yaml with Top repo groups from PSQL database)
 # IDB=1 (will generate Influx DB)
 # IDROP=1 (will drop & create Influx DB)

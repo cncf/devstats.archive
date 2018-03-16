@@ -1,4 +1,5 @@
 #!/bin/bash
+# GET=1 (attempt to fetch Postgres database and Grafana database from the test server)
 set -o pipefail
 exec > >(tee run.log)
 exec 2> >(tee errors.txt)
