@@ -24,7 +24,7 @@ group by
   sub.repo_group,
   sub.actor
 having
-  count(distinct sub.id) >= 3
+  count(distinct id) >= 1
 union select 'hist_pr_authors,All' as repo_group,
   dup_actor_login as actor,
   count(distinct id) as prs
@@ -36,7 +36,7 @@ where
 group by
   dup_actor_login
 having
-  count(distinct id) >= 5
+  count(distinct id) >= 1
 order by
   prs desc,
   repo_group asc,
