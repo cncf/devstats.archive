@@ -23,9 +23,6 @@ To add a new project on the test server follow instructions:
 - Copy `metrics/oldproject` to `metrics/projectname`. Update `./metrics/projectname/idb_vars.yaml` and `./metrics/projectname/pdb_vars.yaml` files.
 - Please use Grafana's "null as zero" instead of using manuall filling gaps. This simplifies metrics a lot. Gaps filling is only needed when using data from > 1 Influx series.
 - `cp -Rv scripts/oldproject/ scripts/projectname`, `vim scripts/projectname/*`.
-- Run databases creation script: `PDB=1 IDB=1 GAPS=1 ./projectname/create_databases.sh`.
-- Merge new project into 'All' project using `PG_PASS=pwd IDB_PASS=pwd IDB_HOST=172.17.0.1 ./all/add_project.sh projname org_name`.
-- Run regenerate 'All CNCF' project InfluxData script `./all/reinit.sh`.
 - `cp -Rv grafana/oldproject/ grafana/projectname/` and then update files. Usually `%s/oldproject/newproject/g|w|next`.
 - `cp -Rv grafana/dashboards/oldproject/ grafana/dashboards/projectname/` and then update files.  Use `devel/mass_replace.sh` script, it contains some examples in the comments.
 - You can use something like this: `MODE=ss0 FROM=`cat from` TO=`cat to` FILES=`find ./grafana/dashboards -type f -iname 'dashboards.json'` ./devel/mass_replace.sh`, files `from` and `to` should contain from -> to replacements.
@@ -43,6 +40,7 @@ To add a new project on the test server follow instructions:
 - Or (prod server): 'sudo certbot --apache -d -n --expand `cat apache/prod/sites.txt`'.
 - Or with standalone authenticator (test server): "sudo certbot -d -n --expand `cat apache/test/sites.txt` --authenticator standalone --installer apache --pre-hook 'service apache2 stop' --post-hook 'service apache2 start'".
 - Or with standalone authenticator (prod server): "sudo certbot -d -n --expand `cat apache/prod/sites.txt` --authenticator standalone --installer apache --pre-hook 'service apache2 stop' --post-hook 'service apache2 start'".
+- Run databases creation script: `GAPS=1 ./devel/deploy_all.sh`.
 - Open `newproject.cncftest.io` login with admin/admin, change the default password and follow instructions from `GRAFANA.md`.
 - Add new project to `/var/www/html/index.html`.
 - Update and import `grafana/dashboards/{{proj}}/dashboards.json` dashboard on all remaining projects.
