@@ -13,12 +13,18 @@ sudo dpkg -i $1
 mv /usr/share/grafana ~/grafana.v5/usr.share.grafana
 mv /var/lib/grafana ~/grafana.v5/var.lib.grafana
 mv /etc/grafana ~/grafana.v5/etc.grafana
-host=`hostname`
-if [ $host = "cncftest.io" ]
+if [ -z "$ONLY" ]
 then
-  all="k8s prometheus opentracing fluentd linkerd grpc coredns containerd rkt cni envoy jaeger notary tuf rook vitess nats opencontainers all cncf"
+  host=`hostname`
+  if [ $host = "cncftest.io" ]
+  then
+    all=`cat ./devel/all_test_projects.txt`
+  else
+    all=`cat ./devel/all_prod_projects.txt`
+  fi
+  all=${all/kubernetes/k8s}
 else
-  all="k8s prometheus opentracing fluentd linkerd grpc coredns containerd rkt cni envoy jaeger notary tuf rook vitess nats opencontainers all"
+  all=$ONLY
 fi
 for proj in $all
 do

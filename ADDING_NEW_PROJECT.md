@@ -14,6 +14,8 @@ To add a new project on the test server follow instructions:
 - Main repo can be empty `''` - in this case only two annotations will be added: 'start date - CNCF join date' and 'CNCF join date - now".
 - Set project databases (Influx and Postgres).
 - CNCF join dates are listed here: https://github.com/cncf/toc#projects.
+- Update projects list files: `devel/all_prod_dbs.txt devel/all_prod_projects.txt devel/all_test_dbs.txt devel/all_test_projects.txt`.
+
 - Add this new project config to 'All' project in `projects.yaml all/psql.sh grafana/dashboards/all/dashboards.json scripts/all/repo_groups.sql devel/calculate_hours.sh`. Add entire new project as a new repo group in 'All' project.
 - Update `cron/cron_db_backup_all.sh devel/reinit.sh devel/all_affs.sh devel/import_affs.sh devel/update_affs.sh devel/add_single_metric_all.sh grafana/copy_grafana_dbs.sh devel/get_grafana_dbs.sh devel/tags.sh devel/get_all_databases.sh devel/update_grafanas.sh devel/copy_grafanas.sh devel/idb_vars_all.sh devel/pdb_vars_all.sh devel/top_repo_groups_all.sh devel/update_dashboards_labels.sh grafana/start_all_grafanas.sh` but do not install yet.
 - Add new domain for the project: `projectname.cncftest.io`. If using wildcard domain like `*.devstats.cncf.io` - this step is not needed.

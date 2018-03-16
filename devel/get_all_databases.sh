@@ -1,10 +1,16 @@
 #!/bin/bash
 host=`hostname`
-if [ $host = "cncftest.io" ]
+if [ -z "$ONLY" ]
 then
-  all="gha prometheus opentracing fluentd linkerd grpc coredns containerd rkt cni envoy jaeger notary tuf rook vitess nats opencontainers allprj cncf"
+  host=`hostname`
+  if [ $host = "cncftest.io" ]
+  then
+    all=`cat ./devel/all_test_dbs.txt`
+  else
+    all=`cat ./devel/all_prod_dbs.txt`
+  fi
 else
-  all="gha prometheus opentracing fluentd linkerd grpc coredns containerd rkt cni envoy jaeger notary tuf rook vitess nats opencontainers allprj"
+  all=$ONLY
 fi
 for proj in $all
 do
