@@ -3,7 +3,7 @@
 This file describes how to add new project on the test server.
 
 To add new project on the production (when already added on the test), you should use automatic deploy script:
-- Run `./devel/deploy_proj.sh` script with correct env variables or run deploy for all projects `devel/deploy_all.sh`.
+- Run `GET=1 ./devel/deploy_proj.sh` script with correct env variables or run deploy for all projects `GET=1 devel/deploy_all.sh`.
 - Go to `https://newproject.devstats.cncf.io` and change Grafana, InfluxDB and PostgreSQL passwords (default deploy copies database from the test server, so it has test server credentials initially).
 - Reimport Home dashboard (which now contains link to a new project) on all existing projects.
 
