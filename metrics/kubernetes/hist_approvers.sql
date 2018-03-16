@@ -36,7 +36,7 @@ group by
   sub.repo_group,
   sub.actor
 having
-  count(distinct sub.id) >= 2
+  count(distinct sub.id) >= 1
 union select 'approvers_hist,All' as repo_group,
   dup_actor_login as actor,
   count(distinct id) as approves
@@ -52,7 +52,7 @@ where
 group by
   dup_actor_login
 having
-  count(distinct id) >= 3
+  count(distinct id) >= 1
 order by
   approves desc,
   repo_group asc,
