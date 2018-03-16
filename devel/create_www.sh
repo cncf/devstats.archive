@@ -7,13 +7,13 @@ then
   host=`hostname`
   if [ "$host" = "devstats.cncf.io" ]
   then
-    cp apache/www/index_prod.html /var/www/html/index.html || exit 32
-    cp apache/prod/sites-enabled/000-default-le-ssl.conf /etc/apache2/sites-enabled/ || exit 34
-    cp apache/prod/sites-enabled/000-default.conf /etc/apache2/sites-enabled/ || exit 35
+    cp apache/www/index_prod.html /var/www/html/index.html || exit 1
+    cp apache/prod/sites-enabled/000-default-le-ssl.conf /etc/apache2/sites-enabled/ || exit 2
+    cp apache/prod/sites-enabled/000-default.conf /etc/apache2/sites-enabled/ || exit 3
   else
-    cp apache/www/index_test.html /var/www/html/index.html || exit 36
-    cp apache/test/sites-enabled/000-default-le-ssl.conf /etc/apache2/sites-enabled/ || exit 37
-    cp apache/test/sites-enabled/000-default.conf /etc/apache2/sites-enabled/ || exit 38
+    cp apache/www/index_test.html /var/www/html/index.html || exit 4
+    cp apache/test/sites-enabled/000-default-le-ssl.conf /etc/apache2/sites-enabled/ || exit 5
+    cp apache/test/sites-enabled/000-default.conf /etc/apache2/sites-enabled/ || exit 6
   fi
 fi
 
@@ -22,8 +22,8 @@ then
   echo 'obtaining SSL certs'
   if [ "$host" = "devstats.cncf.io" ]
   then
-    sudo certbot -d `cat apache/prod/sites.txt` -n --expand --authenticator standalone --installer apache --pre-hook 'service apache2 stop' --post-hook 'service apache2 start' || exit 39
+    sudo certbot -d `cat apache/prod/sites.txt` -n --expand --authenticator standalone --installer apache --pre-hook 'service apache2 stop' --post-hook 'service apache2 start' || exit 7
   else
-    sudo certbot -d `cat apache/test/sites.txt` -n --expand --authenticator standalone --installer apache --pre-hook 'service apache2 stop' --post-hook 'service apache2 start' || exit 40
+    sudo certbot -d `cat apache/test/sites.txt` -n --expand --authenticator standalone --installer apache --pre-hook 'service apache2 stop' --post-hook 'service apache2 start' || exit 8
   fi
 fi
