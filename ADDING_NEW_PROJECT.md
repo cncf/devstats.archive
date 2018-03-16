@@ -29,7 +29,7 @@ To add a new project on the test server follow instructions:
 - Update `grafana/dashboards/proj/dashboards.json` for all already existing projects, add new project using `devel/mass_replace.sh` or `devel/replace.sh`.
 - Update `partials/projects.html`.
 - Update Apache proxy and SSL files `apache/www/index_* apache/*/sites-enabled/* apache/*/sites.txt` files.
-- Run deply all script with optional GAPS generating environment variable: `GAPS=1 ./devel/deploy_all.sh`.
+- Run deply all script with optional GAPS generating environment variable: `PG_PASS=... IDB_PASS=... IDB_HOST=... GAPS=1 ./devel/deploy_all.sh`.
 - `make install` to install all changed stuff.
 - Open `newproject.cncftest.io` login with admin/admin, change the default password and follow instructions from `GRAFANA.md`.
 - Import `grafana/dashboards/proj/dashboards.json` dashboard on all remaining projects.
