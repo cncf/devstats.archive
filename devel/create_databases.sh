@@ -59,7 +59,7 @@ then
 else
   echo "postgres database $PROJDB generation skipped"
 fi
-if ( [ ! -z "$GAPS" ] && [ ! -` "$dbcreated" ] )
+if ( [ ! -z "$GAPS" ] && [ ! -z "$dbcreated" ] )
 then
   sql=`sed -e "s/{{lim}}/$lim/g" ./util_sql/top_repo_groups.sql`
   repo_groups=`sudo -u postgres psql "$PROJDB" -tAc "$sql"`
