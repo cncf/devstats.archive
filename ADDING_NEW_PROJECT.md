@@ -18,7 +18,7 @@ To add a new project on the test server follow instructions:
 - Add this new project config to 'All' project in `projects.yaml all/psql.sh grafana/dashboards/all/dashboards.json scripts/all/repo_groups.sql devel/calculate_hours.sh`. Add entire new project as a new repo group in 'All' project.
 - Add new domain for the project: `projectname.cncftest.io`. If using wildcard domain like `*.devstats.cncf.io` - this step is not needed.
 - Add Google Analytics (GA) for the new domain and update /etc/grafana.projectname/grafana.ini with its `UA-...`.
-- Update `images/OCI.sh grafana/copy_artwork_icons.sh apache/www/copy_icons.sh grafana/create_images.sh grafana/change_title_and_icons_all.sh`.
+- Review `grafana/copy_artwork_icons.sh apache/www/copy_icons.sh grafana/create_images.sh grafana/change_title_and_icons_all.sh` - maybe you need to add special case.
 - Copy setup scripts and then adjust them: `cp -R oldproject/ projectname/`, `vim projectname/*`. Update automatic deploy script: `./devel/deploy_all.sh`.
 - You need to set correct project main GitHub repository and annotations match regexp in `projects.yaml` to have working annotations and quick ranges.
 - Copy `metrics/oldproject` to `metrics/projectname`, those files will need tweaks too. Specially `./metrics/projectname/gaps.yaml`, `./metrics/projectname/idb_vars.yaml` and `./metrics/projectname/pdb_vars.yaml` files.
