@@ -27,12 +27,13 @@ do
     # TODO: update remove cncf/artwork contains OPA icon.
     icon="cncf"
   fi
-  convert "$HOME/dev/cncf/artwork/$icon/icon/color/$icon-icon-color.png" -resize 80x80 "/var/www/html/img/$proj-icon-color.png" || exit 1
-  cp "$HOME/dev/cncf/artwork/$icon/icon/color/$icon-icon-color.svg" "/var/www/html/img/$proj-icon-color.svg" || exit 2
+  icontype=`./devel/get_icon_type.sh "$proj"` || exit 1
+  convert "$HOME/dev/cncf/artwork/$icon/icon/$icontype/$icon-icon-$icontype.png" -resize 80x80 "/var/www/html/img/$proj-icon-color.png" || exit 2
+  cp "$HOME/dev/cncf/artwork/$icon/icon/$icontype/$icon-icon-$icontype.svg" "/var/www/html/img/$proj-icon-color.svg" || exit 3
 done
 
 # Special OCI case (not a CNCF project)
-convert ./images/OCI.png -resize 80x80 /var/www/html/img/opencontainers-icon-color.png || exit 3
-cp ./images/OCI.svg /var/www/html/img/opencontainers-icon-color.svg || exit 4
+convert ./images/OCI.png -resize 80x80 /var/www/html/img/opencontainers-icon-color.png || exit 4
+cp ./images/OCI.svg /var/www/html/img/opencontainers-icon-color.svg || exit 5
 
 echo 'OK'
