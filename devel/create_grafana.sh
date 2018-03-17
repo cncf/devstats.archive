@@ -41,67 +41,68 @@ then
   cp -R ~/grafana.v5/usr.share.grafana "/usr/share/grafana.$GRAFSUFF"/ || exit 5
   if [ ! "$ICON" = "-" ]
   then
-    cp "$HOME/dev/cncf/artwork/$ICON/icon/color/$ICON-icon-color.svg" "/usr/share/grafana.$GRAFSUFF/public/img/grafana_icon.svg" || exit 6
-    cp "$HOME/dev/cncf/artwork/$ICON/icon/color/$ICON-icon-color.svg" "/usr/share/grafana.$GRAFSUFF/public/img/grafana_com_auth_icon.svg" || exit 7
-    cp "$HOME/dev/cncf/artwork/$ICON/icon/color/$ICON-icon-color.svg" "/usr/share/grafana.$GRAFSUFF/public/img/grafana_net_logo.svg" || exit 8
-    cp "$HOME/dev/cncf/artwork/$ICON/icon/color/$ICON-icon-color.svg" "/usr/share/grafana.$GRAFSUFF/public/img/grafana_mask_icon.svg" || exit 9
-    convert "$HOME/dev/cncf/artwork/$ICON/icon/color/$ICON-icon-color.png" -resize 80x80 "/var/www/html/img/$PROJ-icon-color.png" || exit 10
-    cp "$HOME/dev/cncf/artwork/$ICON/icon/color/$ICON-icon-color.svg" "/var/www/html/img/$PROJ-icon-color.svg" || exit 11
+    icontype=`./devel/get_icon_type.sh "$PROJ"` || exit 6
+    cp "$HOME/dev/cncf/artwork/$ICON/icon/$icontype/$ICON-icon-$icontype.svg" "/usr/share/grafana.$GRAFSUFF/public/img/grafana_icon.svg" || exit 7
+    cp "$HOME/dev/cncf/artwork/$ICON/icon/$icontype/$ICON-icon-$icontype.svg" "/usr/share/grafana.$GRAFSUFF/public/img/grafana_com_auth_icon.svg" || exit 8
+    cp "$HOME/dev/cncf/artwork/$ICON/icon/$icontype/$ICON-icon-$icontype.svg" "/usr/share/grafana.$GRAFSUFF/public/img/grafana_net_logo.svg" || exit 9
+    cp "$HOME/dev/cncf/artwork/$ICON/icon/$icontype/$ICON-icon-$icontype.svg" "/usr/share/grafana.$GRAFSUFF/public/img/grafana_mask_icon.svg" || exit 10
+    convert "$HOME/dev/cncf/artwork/$ICON/icon/$icontype/$ICON-icon-$icontype.png" -resize 80x80 "/var/www/html/img/$PROJ-icon-color.png" || exit 11
+    cp "$HOME/dev/cncf/artwork/$ICON/icon/$icontype/$ICON-icon-$icontype.svg" "/var/www/html/img/$PROJ-icon-color.svg" || exit 12
     if [ ! -f "grafana/img/$GRAFSUFF.svg" ]
     then
-      cp "$HOME/dev/cncf/artwork/$ICON/icon/color/$ICON-icon-color.svg" "grafana/img/$GRAFSUFF.svg" || exit 1
+      cp "$HOME/dev/cncf/artwork/$ICON/icon/$icontype/$ICON-icon-$icontype.svg" "grafana/img/$GRAFSUFF.svg" || exit 13
     fi
     if [ ! -f "grafana/img/${GRAFSUFF}32.png" ]
     then
-      convert "$HOME/dev/cncf/artwork/$ICON/icon/color/$ICON-icon-color.png" -resize 32x32 "grafana/img/${GRAFSUFF}32.png" || exit 2
+      convert "$HOME/dev/cncf/artwork/$ICON/icon/$icontype/$ICON-icon-$icontype.png" -resize 32x32 "grafana/img/${GRAFSUFF}32.png" || exit 14
     fi
   fi
-  GRAFANA_DATA="/usr/share/grafana.$GRAFSUFF/" ./grafana/$PROJ/change_title_and_icons.sh || exit 12
+  GRAFANA_DATA="/usr/share/grafana.$GRAFSUFF/" ./grafana/$PROJ/change_title_and_icons.sh || exit 15
 fi
 
 if [ ! -d "/var/lib/grafana.$GRAFSUFF/" ]
 then
   echo "copying /var/lib/grafana.$GRAFSUFF/"
-  cp -R ~/grafana.v5/var.lib.grafana "/var/lib/grafana.$GRAFSUFF"/ || exit 13
-  rm -f "/var/lib/grafana.$GRAFSUFF/grafana.db" || exit 14
+  cp -R ~/grafana.v5/var.lib.grafana "/var/lib/grafana.$GRAFSUFF"/ || exit 16
+  rm -f "/var/lib/grafana.$GRAFSUFF/grafana.db" || exit 17
 fi
   
 if ( [ ! -f "/var/lib/grafana.$GRAFSUFF/grafana.db" ] && [ ! -z "$GET" ] )
 then
   echo "attempt to fetch grafana database $GRAFSUFF from the test server"
-  wget "https://cncftest.io/grafana.$GRAFSUFF.db" || exit 15
-  mv "grafana.$GRAFSUFF.db" "/var/lib/grafana.$GRAFSUFF/grafana.db" || exit 16
+  wget "https://cncftest.io/grafana.$GRAFSUFF.db" || exit 18
+  mv "grafana.$GRAFSUFF.db" "/var/lib/grafana.$GRAFSUFF/grafana.db" || exit 19
 fi
 
 if [ ! -d "/etc/grafana.$GRAFSUFF/" ]
 then
   echo "copying /etc/grafana.$GRAFSUFF/"
-  cp -R ~/grafana.v5/etc.grafana "/etc/grafana.$GRAFSUFF"/ || exit 17
+  cp -R ~/grafana.v5/etc.grafana "/etc/grafana.$GRAFSUFF"/ || exit 20
   cfile="/etc/grafana.$GRAFSUFF/grafana.ini"
-  cp ./grafana/etc/grafana.ini.example "$cfile" || exit 18
-  MODE=ss FROM='{{project}}' TO="$PROJ" replacer "$cfile" || exit 19
-  MODE=ss FROM='{{url}}' TO="$host" replacer "$cfile" || exit 20
-  MODE=ss FROM='{{port}}' TO="$PORT" replacer "$cfile" || exit 21
-  MODE=ss FROM='{{pwd}}' TO="$PG_PASS" replacer "$cfile" || exit 22
-  MODE=ss FROM=';google_analytics_ua_id =' TO="-" replacer "$cfile" || exit 23
+  cp ./grafana/etc/grafana.ini.example "$cfile" || exit 21
+  MODE=ss FROM='{{project}}' TO="$PROJ" replacer "$cfile" || exit 22
+  MODE=ss FROM='{{url}}' TO="$host" replacer "$cfile" || exit 23
+  MODE=ss FROM='{{port}}' TO="$PORT" replacer "$cfile" || exit 24
+  MODE=ss FROM='{{pwd}}' TO="$PG_PASS" replacer "$cfile" || exit 25
+  MODE=ss FROM=';google_analytics_ua_id =' TO="-" replacer "$cfile" || exit 26
   if [ $host = "devstats.cncf.io" ]
   then
-    MODE=ss FROM='{{ga}}' TO="$ga" replacer "$cfile" || exit 24
-    MODE=ss FROM='{{test}}' TO="-" replacer "$cfile" || exit 25
+    MODE=ss FROM='{{ga}}' TO="$ga" replacer "$cfile" || exit 27
+    MODE=ss FROM='{{test}}' TO="-" replacer "$cfile" || exit 28
   else
-    MODE=ss FROM='{{ga}}' TO=";$ga" replacer "$cfile" || exit 26
-    MODE=ss FROM='{{test}}' TO="_test" replacer "$cfile" || exit 27
+    MODE=ss FROM='{{ga}}' TO=";$ga" replacer "$cfile" || exit 29
+    MODE=ss FROM='{{test}}' TO="_test" replacer "$cfile" || exit 30
   fi
-  MODE=ss FROM='{{org}}' TO="$ORGNAME" replacer "$cfile" || exit 28
+  MODE=ss FROM='{{org}}' TO="$ORGNAME" replacer "$cfile" || exit 31
 fi
 
-exists=`sudo -u postgres psql -tAc "select 1 from pg_database WHERE datname = '${GRAFSUFF}_grafana_sessions'"` || exit 29
+exists=`sudo -u postgres psql -tAc "select 1 from pg_database WHERE datname = '${GRAFSUFF}_grafana_sessions'"` || exit 32
 if [ ! "$exists" = "1" ]
 then
   echo "creating grafana sessions database ${GRAFSUFF}_grafana_sessions"
-  sudo -u postgres psql -c "create database ${GRAFSUFF}_grafana_sessions" || exit 30
-  sudo -u postgres psql -c "grant all privileges on database \"${GRAFSUFF}_grafana_sessions\" to gha_admin" || exit 31
-  sudo -u postgres psql "${GRAFSUFF}_grafana_sessions" < util_sql/grafana_session_table.sql || exit 32
+  sudo -u postgres psql -c "create database ${GRAFSUFF}_grafana_sessions" || exit 33
+  sudo -u postgres psql -c "grant all privileges on database \"${GRAFSUFF}_grafana_sessions\" to gha_admin" || exit 34
+  sudo -u postgres psql "${GRAFSUFF}_grafana_sessions" < util_sql/grafana_session_table.sql || exit 35
 else
   echo "grafana sessions database ${GRAFSUFF}_grafana_sessions already exists"
 fi

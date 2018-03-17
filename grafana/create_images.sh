@@ -32,12 +32,13 @@ do
     # TODO: update remove cncf/artwork contains OPA icon.
     icon="cncf"
   fi
-  cp "$HOME/dev/cncf/artwork/$icon/icon/color/$icon-icon-color.svg" "grafana/img/$suff.svg" || exit 1
-  convert "$HOME/dev/cncf/artwork/$icon/icon/color/$icon-icon-color.png" -resize 32x32 "grafana/img/${suff}32.png" || exit 2
+  icontype=`./devel/get_icon_type.sh "$proj"` || exit 1
+  cp "$HOME/dev/cncf/artwork/$icon/icon/$icontype/$icon-icon-$icontype.svg" "grafana/img/$suff.svg" || exit 2
+  convert "$HOME/dev/cncf/artwork/$icon/icon/$icontype/$icon-icon-$icontype.png" -resize 32x32 "grafana/img/${suff}32.png" || exit 3
 done
 
 # Special OCI case (not a CNCF project)
-cp images/OCI.svg grafana/img/opencontainers.svg || exit 3
-convert images/OCI.png -resize 32x32 grafana/img/opencontainers32.png || exit 4
+cp images/OCI.svg grafana/img/opencontainers.svg || exit 4
+convert images/OCI.png -resize 32x32 grafana/img/opencontainers32.png || exit 5
 
 echo 'OK'
