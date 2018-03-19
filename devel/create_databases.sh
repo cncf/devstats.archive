@@ -2,6 +2,7 @@
 # PDB=1 (will generate Postgres DB)
 # PDROP=1 (will drop & create Postgres DB)
 # GET=1 (will use Postgres DB backup)
+# IGET=1 (will use Influx DB backup)
 # GAPS=1 (will update metrics/$PROJ/gaps.yaml with Top repo groups from PSQL database)
 # IDB=1 (will generate Influx DB)
 # IDROP=1 (will drop & create Influx DB)
@@ -10,6 +11,11 @@ set -o pipefail
 if ( [ -z "$PG_PASS" ] || [ -z "$IDB_PASS" ] || [ -z "$IDB_HOST" ] )
 then
   echo "$0: You need to set PG_PASS, IDB_PASS, IDB_HOST environment variables to run this script"
+  exit 1
+fi
+if ( [ ! -z "$IGET" ] && [ -z "$IDB_PASS_SRC" ] )
+then
+  echo "$0: You need to set IDB_PASS_SRC environment variable when using IGET"
   exit 1
 fi
 if ( [ -z "$PROJ" ] || [ -z "$PROJDB" ] )
@@ -76,9 +82,21 @@ then
   exists=`echo 'show databases' | influx -host $IDB_HOST -username gha_admin -password $IDB_PASS | grep $PROJDB`
   if [ -z "$exists" ]
   then
-    echo "generating influx database $PROJDB"
-    ./grafana/influxdb_recreate.sh "$PROJDB" || exit 15
-    ./$PROJ/reinit.sh || exit 16
+    if [ -z "$IGET" ]
+    then
+      echo "generating influx database $PROJDB"
+      ./grafana/influxdb_recreate.sh "$PROJDB" || exit 15
+      ./$PROJ/reinit.sh || exit 16
+    else
+      echo "fetching $PROJDB database from cncftest.io (into ${PROJDB}_temp database)"
+      ./grafana/influxdb_recreate.sh "${PROJDB}_temp" || exit 17
+      IDB_HOST_SRC=cncftest.io IDB_USER_SRC=ro_user IDB_DB_SRC="$PROJDB" IDB_DB_DST="${PROJDB}_temp" ./idb_backup || exit 18
+      echo "copying ${PROJDB}_temp database to $PROJDB"
+      ./grafana/influxdb_recreate.sh "$PROJDB" || exit 19
+      unset IDB_PASS_SRC
+      IDB_DB_SRC="${PROJDB}_temp" IDB_DB_DST="$PROJDB" ./idb_backup || exit 20
+      ./grafana/influxdb_drop.sh "${PROJDB}_temp" || exit 21
+    fi
   else
     echo "influx database $PROJDB already exists"
   fi

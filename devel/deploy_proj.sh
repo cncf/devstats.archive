@@ -1,10 +1,16 @@
 #!/bin/bash
 # GET=1 (attempt to fetch Postgres database and Grafana database from the test server)
+# IGET=1 (attempt to fetch Influx database from the test server)
 # AGET=1 (attempt to fetch 'All CNCF' Postgres database from the test server)
 set -o pipefail
 if ( [ -z "$PG_PASS" ] || [ -z "$IDB_PASS" ] || [ -z "$IDB_HOST" ] )
 then
   echo "$0: You need to set PG_PASS, IDB_PASS, IDB_HOST environment variables to run this script"
+  exit 1
+fi
+if ( [ ! -z "$IGET" ] && [ -z "$IDB_PASS_SRC" ] )
+then
+  echo "$0: You need to set IDB_PASS_SRC environment variable when using IGET"
   exit 1
 fi
 if ( [ -z "$PROJ" ] || [ -z "$PROJDB" ] || [ -z "$PROJREPO" ] || [ -z "$PORT" ] || [ -z "$GA" ] || [ -z "$ICON" ] || [ -z "$ORGNAME" ] || [ -z "$GRAFSUFF" ] )
