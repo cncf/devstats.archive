@@ -23,7 +23,11 @@ then
   if [ "$host" = "devstats.cncf.io" ]
   then
     sudo certbot -d `cat apache/prod/sites.txt` -n --expand --authenticator standalone --installer apache --pre-hook 'service apache2 stop' --post-hook 'service apache2 start' || exit 7
+    cp apache/prod/sites-enabled/000-default-le-ssl.conf /etc/apache2/sites-enabled/ || exit 2
+    cp apache/prod/sites-enabled/000-default.conf /etc/apache2/sites-enabled/ || exit 3
   else
     sudo certbot -d `cat apache/test/sites.txt` -n --expand --authenticator standalone --installer apache --pre-hook 'service apache2 stop' --post-hook 'service apache2 start' || exit 8
+    cp apache/test/sites-enabled/000-default-le-ssl.conf /etc/apache2/sites-enabled/ || exit 5
+    cp apache/test/sites-enabled/000-default.conf /etc/apache2/sites-enabled/ || exit 6
   fi
 fi
