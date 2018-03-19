@@ -1,5 +1,6 @@
 #!/bin/bash
 # GET=1 (attempt to fetch Postgres database and Grafana database from the test server)
+# AGET=1 (attempt to fetch 'All CNCF' Postgres database from the test server)
 set -o pipefail
 if ( [ -z "$PG_PASS" ] || [ -z "$IDB_PASS" ] || [ -z "$IDB_HOST" ] )
 then

@@ -1,6 +1,6 @@
 #!/bin/bash
 # IDB=1 (will update InfluxDB)
-# GET=1 (will fetch allprj database from backup - not recommended because local merge is faster)
+# AGET=1 (will fetch allprj database from backup - not recommended because local merge is faster)
 set -o pipefail
 if ( [ -z "$1" ] || [ -z "$2" ] )
 then
@@ -33,7 +33,7 @@ then
   trap finish EXIT
   export TRAP=1
 fi
-if [ ! -z "$GET" ]
+if [ ! -z "$AGET" ]
 then
   echo "attempt to fetch postgres database allprj from backup"
   wget "https://cncftest.io/allprj.dump" || exit 5
