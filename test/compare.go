@@ -133,3 +133,29 @@ func MakeComparableMap(m *map[string]bool) {
 	newMap[outStr] = true
 	*m = newMap
 }
+
+// MakeComparableMapStr - transforms input map { k1: v1, k2: v2, ..., kn: vn }
+// into map with single key being its string representation, works on map[string]string type
+// Example: { "b": "x", "a": "y", "c": "z" } --> { "a:y,b:x,c:z,": true }
+// We cannot compare such maps directly because order of keys is not guaranteed
+func MakeComparableMapStr(m *map[string]string) {
+	// Get maps keys
+	keyAry := make([]string, len(*m))
+	index := 0
+	for key := range *m {
+		keyAry[index] = key
+		index++
+	}
+	// Map keys aren't sorted
+	sort.Strings(keyAry)
+
+	// Create string with k:v sorted
+	outStr := ""
+	for _, key := range keyAry {
+		outStr += fmt.Sprintf("%s:%s,", key, (*m)[key])
+	}
+	// Replace original map
+	newMap := make(map[string]string)
+	newMap[outStr] = ""
+	*m = newMap
+}
