@@ -41,7 +41,6 @@ then
     echo "creating postgres database $PROJDB"
     sudo -u postgres psql -c "create database $PROJDB" || exit 6
     sudo -u postgres psql -c "grant all privileges on database \"$PROJDB\" to gha_admin" || exit 7
-    ./devel/ro_user_grants.sh "$PROJDB" || exit 8
     if [ ! -z "$GET" ]
     then
       echo "attempt to fetch postgres database $PROJDB from backup"
@@ -52,6 +51,7 @@ then
       echo "generating postgres database $PROJDB"
       GHA2DB_MGETC=y ./$PROJ/psql.sh || exit 12
     fi
+    ./devel/ro_user_grants.sh "$PROJDB" || exit 8
     dbcreated=1
   else
     echo "postgres database $PROJDB already exists"
