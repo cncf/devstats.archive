@@ -41,3 +41,6 @@ const LocalGitScripts string = "./git/"
 
 // Metrics - common constant string
 const Metrics string = "metrics/"
+
+// Unset - common constant string
+const Unset string = "{{unset}}"

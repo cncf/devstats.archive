@@ -17,6 +17,7 @@ func TestEnv(t *testing.T) {
 		environment  map[string]string
 		prefix       string
 		suffix       string
+		newEnvs      []string
 		expectedSave map[string]string
 		expectedEnv  map[string]string
 	}{
@@ -25,6 +26,7 @@ func TestEnv(t *testing.T) {
 			map[string]string{},
 			"",
 			"",
+			[]string{},
 			map[string]string{},
 			map[string]string{},
 		},
@@ -33,6 +35,7 @@ func TestEnv(t *testing.T) {
 			map[string]string{"a": "A", "c": "C", "b": "B"},
 			"",
 			"",
+			[]string{},
 			map[string]string{},
 			map[string]string{"a": "A", "c": "C", "b": "B"},
 		},
@@ -41,6 +44,7 @@ func TestEnv(t *testing.T) {
 			map[string]string{"pref_a": "A", "pref_c": "C", "pref_b": "B"},
 			"pref_",
 			"",
+			[]string{},
 			map[string]string{},
 			map[string]string{"pref_a": "A", "pref_c": "C", "pref_b": "B"},
 		},
@@ -49,6 +53,7 @@ func TestEnv(t *testing.T) {
 			map[string]string{"pref_a": "A", "pref_c": "C", "pref_b": "B"},
 			"",
 			"_suff",
+			[]string{},
 			map[string]string{},
 			map[string]string{"pref_a": "A", "pref_c": "C", "pref_b": "B"},
 		},
@@ -57,6 +62,7 @@ func TestEnv(t *testing.T) {
 			map[string]string{"pref_a": "A", "pref_c": "C", "pref_b": "B", "pref_a_suff": "D"},
 			"",
 			"_suff",
+			[]string{},
 			map[string]string{"pref_a": "A"},
 			map[string]string{"pref_a": "D", "pref_c": "C", "pref_b": "B", "pref_a_suff": "D"},
 		},
@@ -65,6 +71,7 @@ func TestEnv(t *testing.T) {
 			map[string]string{"pref_a": "A", "pref_c": "C", "pref_b": "B", "pref_a_suff": "D", "a": "A", "a_suff": "D"},
 			"pref_",
 			"_suff",
+			[]string{},
 			map[string]string{"pref_a": "A"},
 			map[string]string{"pref_a": "D", "pref_c": "C", "pref_b": "B", "pref_a_suff": "D", "a": "A", "a_suff": "D"},
 		},
@@ -73,7 +80,8 @@ func TestEnv(t *testing.T) {
 			map[string]string{"a1": "1", "a2": "2", "b1": "3", "b2": "4", "a12": "5", "a22": "6", "b12": "7", "b22": "8"},
 			"a",
 			"2",
-			map[string]string{"a1": "1", "a2": "2"},
+			[]string{},
+			map[string]string{"a": "{{unset}}", "a1": "1", "a2": "2"},
 			map[string]string{"a1": "5", "a2": "6", "b1": "3", "b2": "4", "a12": "5", "a22": "6", "b12": "7", "b22": "8"},
 		},
 		{
@@ -81,16 +89,27 @@ func TestEnv(t *testing.T) {
 			map[string]string{"a": "", "b": "B", "c": "", "a2": "1", "b2": "2", "c2": "3"},
 			"",
 			"2",
+			[]string{},
 			map[string]string{"a": "", "b": "B", "c": ""},
 			map[string]string{"a": "1", "b": "2", "c": "3", "a2": "1", "b2": "2", "c2": "3"},
+		},
+		{
+			"Replace nonexisting var",
+			map[string]string{"pref_a_suff": "new_value"},
+			"pref_",
+			"_suff",
+			[]string{"pref_a"},
+			map[string]string{"pref_a": "{{unset}}"},
+			map[string]string{"pref_a": "new_value", "pref_a_suff": "new_value"},
 		},
 		{
 			"Crazy",
 			map[string]string{"aa": "2", "a": "1", "aaaa": "4", "aaa": "3"},
 			"a",
 			"a",
+			[]string{},
 			map[string]string{"a": "1", "aa": "2", "aaa": "3"},
-			map[string]string{"a": "3", "aa": "3", "aaa": "4", "aaaa": "4"},
+			map[string]string{"a": "2", "aa": "3", "aaa": "4", "aaaa": "4"},
 		},
 	}
 
@@ -116,6 +135,9 @@ func TestEnv(t *testing.T) {
 		// Get replaced environment
 		replacedEnv := make(map[string]string)
 		for key := range test.environment {
+			replacedEnv[key] = os.Getenv(key)
+		}
+		for _, key := range test.newEnvs {
 			replacedEnv[key] = os.Getenv(key)
 		}
 
