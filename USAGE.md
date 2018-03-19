@@ -28,7 +28,7 @@ It also clones all git repos to analyse all commits files.
 
 Uses GNU `Makefile`:
 - `make check` - to apply gofmt, goimports, golint, errcheck, usedexports, go vet and possibly other tools.
-- `make` to compile static binaries: `structure`, `runq`, `gha2db`, `db2influx`, `z2influx`, `gha2db_sync`, `import_affs`, `annotations`, `idb_tags`, `idb_backup`, `webhook`, `devstats`, `get_repos`, `merge_pdbs`.
+- `make` to compile static binaries: `structure`, `runq`, `gha2db`, `db2influx`, `z2influx`, `gha2db_sync`, `import_affs`, `annotations`, `idb_tags`, `idb_backup`, `webhook`, `devstats`, `get_repos`, `merge_pdbs`, `idb_vars`, `pdb_vars`, `replacer`.
 - `make install` - to install binaries, this is needed for cron job.
 - `make clean` - to clean binaries
 - `make test` - to execute non-DB tests
@@ -486,6 +486,7 @@ Feed InfluxDB using:
 - `idb_tags` tool used to add InfluxDB tags on some specified series. Those tags are used to populate Grafana template drop-down values and names. This is used to auto-populate Repository groups drop down, so when somebody adds new repository group - it will automatically appear in the drop-down.
 - `idb_tags` uses [idb_tags.yaml](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/idb_tags.yaml) file to configure InfluxDB tags generation.
 - `idb_backup` is used to backup/restore InfluxDB. Full renenerate of InfluxDB takes about 12 minutes. To avoid downtime when we need to rebuild InfluxDB - we can generate new InfluxDB on `test` database and then if succeeded, restore it on `gha`. Downtime will be about 2 minutes.
+- You can use all defined environments variables, but add `_SRC` suffic for source database and `_DST` suffix for destination database.
 
 # To check results in the InfluxDB:
 - influx (or just influx -database gha -username gha_admin -password your_pwd)

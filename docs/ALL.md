@@ -215,7 +215,7 @@ It also clones all git repos to analyse all commits files.
 
 Uses GNU `Makefile`:
 - `make check` - to apply gofmt, goimports, golint, errcheck, usedexports, go vet and possibly other tools.
-- `make` to compile static binaries: `structure`, `runq`, `gha2db`, `db2influx`, `z2influx`, `gha2db_sync`, `import_affs`, `annotations`, `idb_tags`, `idb_backup`, `webhook`, `devstats`, `get_repos`, `merge_pdbs`.
+- `make` to compile static binaries: `structure`, `runq`, `gha2db`, `db2influx`, `z2influx`, `gha2db_sync`, `import_affs`, `annotations`, `idb_tags`, `idb_backup`, `webhook`, `devstats`, `get_repos`, `merge_pdbs`, `idb_vars`, `pdb_vars`, `replacer`.
 - `make install` - to install binaries, this is needed for cron job.
 - `make clean` - to clean binaries
 - `make test` - to execute non-DB tests
@@ -673,6 +673,7 @@ Feed InfluxDB using:
 - `idb_tags` tool used to add InfluxDB tags on some specified series. Those tags are used to populate Grafana template drop-down values and names. This is used to auto-populate Repository groups drop down, so when somebody adds new repository group - it will automatically appear in the drop-down.
 - `idb_tags` uses [idb_tags.yaml](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/idb_tags.yaml) file to configure InfluxDB tags generation.
 - `idb_backup` is used to backup/restore InfluxDB. Full renenerate of InfluxDB takes about 12 minutes. To avoid downtime when we need to rebuild InfluxDB - we can generate new InfluxDB on `test` database and then if succeeded, restore it on `gha`. Downtime will be about 2 minutes.
+- You can use all defined environments variables, but add `_SRC` suffic for source database and `_DST` suffix for destination database.
 
 # To check results in the InfluxDB:
 - influx (or just influx -database gha -username gha_admin -password your_pwd)
@@ -1491,7 +1492,7 @@ To add new project follow [adding new project](https://github.com/cncf/devstats/
 - Go to Grafana UI: `http://localhost:3000`
 - Login as "admin"/"admin" (you can change passwords later).
 - Choose add data source, then Add Influx DB with those settings:
-- Name "gha" and type "InfluxDB", url default "http://localhost:8086"/"http://127.0.0.1:8086", access: "proxy", database "projname", user "gha_admin", password "your_influx_pwd", min time interval "1h"
+- Name "gha" and type "InfluxDB", url default "http://localhost:8086"/"http://127.0.0.1:8086", access: "proxy", database "projname", user "ro_user", password "influx_pwd", min time interval "1h"
 - Test & save datasource, then proceed to dashboards.
 - Choose add data source, then add PostgreSQL with those settings:
 - Name "psql", Type "PostgreSQL", host "127.0.0.1:5432", database "projname", user "ro_user" (this is the select-only user for psql), password "your-psql-password", ssl-mode "disabled".
@@ -2926,6 +2927,7 @@ We're getting all possible GitHub data for all objects, and all objects historic
 - `idb_tags` uses [idb_tags.yaml](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/idb_tags.yaml) file to configure InfluxDB tags generation.
 - [idb_backup](https://github.com/cncf/devstats/blob/master/cmd/idb_backup/idb_backup.go)
 - `idb_backup` is used to backup/restore InfluxDB. Full renenerate of InfluxDB takes about 12 minutes. To avoid downtime when we need to rebuild InfluDB - we can generate new InfluxDB on `test` database and then if succeeded, restore it on `gha`. Downtime will be about 2 minutes.
+- You can use all defined environments variables, but add `_SRC` suffic for source database and `_DST` suffix for destination database.
 - [webhook](https://github.com/cncf/devstats/blob/master/cmd/webhook/webhook.go)
 - `webhook` is used to react to Travis CI webhooks and trigger deploy if status, branch and type match defined values, more details [here](https://github.com/cncf/devstats/blob/master/CONTINUOUS_DEPLOYMENT.md).
 - Add `[no deploy]` to the commit message, to skip deploying. Add `[ci skip]` to skip entire Travis CI build.

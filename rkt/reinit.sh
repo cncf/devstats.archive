@@ -12,5 +12,5 @@ fi
 GHA2DB_CMDDEBUG=1 GHA2DB_RESETIDB=1 GHA2DB_LOCAL=1 GHA2DB_PROJECT=rkt PG_DB=rkt IDB_DB=rkt_temp ./gha2db_sync || exit 2
 GHA2DB_LOCAL=1 GHA2DB_PROJECT=rkt IDB_DB=rkt_temp ./idb_vars || exit 3
 ./grafana/influxdb_recreate.sh rkt || exit 4
-./idb_backup rkt_temp rkt || exit 5
+IDB_DB_SRC=rkt_temp IDB_DB_DST=rkt ./idb_backup || exit 5
 ./grafana/influxdb_drop.sh rkt_temp
