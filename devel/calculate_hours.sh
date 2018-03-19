@@ -23,7 +23,7 @@ fi
 # To also sync 'gha2db' manually (if hours missing):
 # PG_DB="allprj" PG_PASS=... ./gha2db 2018-02-02 6 2018-02-02 9 'kubernetes,kubernetes-client,kubernetes-incubator,kubernetes-helm,prometheus,opentracing,fluent,linkerd,grpc,coredns,containerd,rkt,containernetworking,envoyproxy,jaegertracing,theupdateframework,rook,cncf,crosscloudci,vitessio,youtube,nats-io,apcera,open-policy-agent'
 
-# PG_DB=gha IDB_DB=gha PG_PASS=... IDB_PASS=... IDB_HOST=172.17.0.1 GHA2DB_DEBUG=1 ./devel/calculate_hours.sh '2017-12-20 11' '2017-12-20 13'
+# PG_DB=gha IDB_DB=gha PG_PASS=... IDB_PASS=... IDB_HOST=localhost GHA2DB_DEBUG=1 ./devel/calculate_hours.sh '2017-12-20 11' '2017-12-20 13'
 ./db2influx events_h metrics/kubernetes/events.sql "$1" "$2" h
 periods="h d w m q y h24"
 for period in $periods

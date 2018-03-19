@@ -32,7 +32,7 @@ Uses GNU `Makefile`:
 - `make install` - to install binaries, this is needed for cron job.
 - `make clean` - to clean binaries
 - `make test` - to execute non-DB tests
-- `GHA2DB_PROJECT=kubernetes PG_DB=dbtest PG_PASS=pwd IDB_HOST="172.17.0.1" IDB_DB=dbtest IDB_PASS=pwd make dbtest` - to execute DB tests.
+- `GHA2DB_PROJECT=kubernetes PG_DB=dbtest PG_PASS=pwd IDB_HOST="localhost" IDB_DB=dbtest IDB_PASS=pwd make dbtest` - to execute DB tests.
 
 All `*.go` files in project root directory are common library `gha2db` for all go executables.
 All `*_test.go` and `test/*.go` are Go test files, that are used only for testing.
@@ -395,7 +395,7 @@ GitHub archive generates new file every hour.
 Use `gha2db_sync` tool to update all your data.
 
 Example call:
-- `GHA2DB_PROJECT=kubernetes PG_PASS='pwd' IDB_HOST="172.17.0.1" IDB_PASS='pwd' ./gha2db_sync`
+- `GHA2DB_PROJECT=kubernetes PG_PASS='pwd' IDB_HOST="localhost" IDB_PASS='pwd' ./gha2db_sync`
 - Add `GHA2DB_RESETIDB` environment variable to rebuild InfluxDB stats instead of update since the last run
 - Add `GHA2DB_SKIPIDB` environment variable to skip syncing InfluxDB (so it will only sync Postgres DB)
 - Add `GHA2DB_SKIPPDB` environment variable to skip syncing Postgres (so it will only sync Influx DB)
@@ -456,24 +456,24 @@ Grafana install instruction are here:
 - [FreeBSD 11 (work in progress)](https://github.com/cncf/devstats/blob/master/INSTALL_FREEBSD.md)
 
 # To drop & recreate InfluxDB:
-- `IDB_HOST="172.17.0.1" IDB_PASS='idb_password' ./grafana/influxdb_recreate.sh`
-- `GHA2DB_PROJECT=kubernetes GHA2DB_RESETIDB=1 PG_PASS='pwd' IDB_HOST="172.17.0.1" IDB_PASS='pwd' ./gha2db_sync`
+- `IDB_HOST="localhost" IDB_PASS='idb_password' ./grafana/influxdb_recreate.sh`
+- `GHA2DB_PROJECT=kubernetes GHA2DB_RESETIDB=1 PG_PASS='pwd' IDB_HOST="localhost" IDB_PASS='pwd' ./gha2db_sync`
 
 Or automatically: drop & create Influx DB, update Postgres DB since the last run, full populate InfluxDB, start syncer every 30 minutes:
-- `IDB_HOST="172.17.0.1" IDB_PASS=pwd PG_PASS=pwd ./kubernetes/reinit_all.sh`
+- `IDB_HOST="localhost" IDB_PASS=pwd PG_PASS=pwd ./kubernetes/reinit_all.sh`
 
 # Alternate solution with Docker:
 
 Note that this is an old solution that worked, but wasn't tested recently.
 
 - Start Grafana using `GRAFANA_PASS='password' grafana/grafana_start.sh` to install Grafana & InfluxDB as docker containers (this requires Docker).
-- Start InfluxDB using `IDB_HOST="172.17.0.1" IDB_PASS='password' ./grafana/influxdb_setup.sh gha`, this requires Docker & previous command succesfully executed.
+- Start InfluxDB using `IDB_HOST="localhost" IDB_PASS='password' IDB_PASS_RO='password' ./grafana/influxdb_setup.sh gha`, this requires Docker & previous command succesfully executed.
 - To cleanup Docker Grafana image and start from scratch use `./grafana/docker_cleanup.sh`. This will not delete your grafana config because it is stored in local volume `/var/lib/grafana`.
 
 # Manually feeding InfluxDB & Grafana:
 
 Feed InfluxDB using:
-- `PG_PASS='psql_pwd' IDB_HOST="172.17.0.1" IDB_PASS='influxdb_pwd' ./db2influx sig_metions_data metrics/kubernetes/sig_mentions.sql '2017-08-14' '2017-08-21' d`
+- `PG_PASS='psql_pwd' IDB_HOST="localhost" IDB_PASS='influxdb_pwd' ./db2influx sig_metions_data metrics/kubernetes/sig_mentions.sql '2017-08-14' '2017-08-21' d`
 - The first parameter is used as exact series name when metrics query returns single row with single column value.
 - First parameter is used as function name when metrics query return mutiple rows, each with >= 2 columns. This function receives data row and the period name and should return series name and value(s).
 - The second parameter is a metrics SQL file, it should contain time conditions defined as `'{{from}}'` and `'{{to}}'`.

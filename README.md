@@ -95,7 +95,7 @@ The servers to run `devstats` are generously provided by [Packet](https://www.pa
 
 # One line run all projects
 
-- Use `GHA2DB_PROJECTS_OVERRIDE="+cncf,+all" IDB_HOST="172.17.0.1" IDB_PASS=pwd PG_PASS=pwd devstats`.
+- Use `GHA2DB_PROJECTS_OVERRIDE="+cncf,+all" IDB_HOST="localhost" IDB_PASS=pwd PG_PASS=pwd devstats`.
 - Or add this command using `crontab -e` to run every hour HH:10.
 
 # Checking projects activity
