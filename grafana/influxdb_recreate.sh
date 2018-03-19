@@ -18,4 +18,5 @@ echo "Recreate InfluxDB $1"
 echo "drop database $1" | influx -host "${IDB_HOST}" -username gha_admin -password "$IDB_PASS" || exit 1
 echo "create database $1" | influx -host "${IDB_HOST}" -username gha_admin -password "$IDB_PASS" || exit 1
 echo "grant all privileges on $1 to gha_admin" | influx -host "${IDB_HOST}" -username gha_admin -password "$IDB_PASS" || exit 1
+echo "grant read privileges on $1 to ro_user" | influx -host "${IDB_HOST}" -username gha_admin -password "$IDB_PASS" || exit 1
 echo "$1: all OK" && exit 0

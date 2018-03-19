@@ -7,7 +7,7 @@ If You see any error, or if You have suggestion please create [issue and/or PR](
 - This is checked during the `make` step which calls the following static analysis/lint tools: `fmt lint imports vet const usedexports`.
 - When adding new functionality please add test coverage please that will be executed by `make test`.
 - If adding new database functionality and/or new metrics, please add new test covergage that will be executed by:
-- `GHA2DB_PROJECT=kubernetes IDB_HOST="172.17.0.1" PG_PASS='...' IDB_PASS='...' ./dbtest.sh`.
+- `GHA2DB_PROJECT=kubernetes IDB_HOST='...' PG_PASS='...' IDB_PASS='...' ./dbtest.sh`.
 - New metrics test coverage should be added in `metrics_test.go`.
 
 # Working locally
@@ -219,7 +219,7 @@ Uses GNU `Makefile`:
 - `make install` - to install binaries, this is needed for cron job.
 - `make clean` - to clean binaries
 - `make test` - to execute non-DB tests
-- `GHA2DB_PROJECT=kubernetes PG_DB=dbtest PG_PASS=pwd IDB_HOST="172.17.0.1" IDB_DB=dbtest IDB_PASS=pwd make dbtest` - to execute DB tests.
+- `GHA2DB_PROJECT=kubernetes PG_DB=dbtest PG_PASS=pwd IDB_HOST="localhost" IDB_DB=dbtest IDB_PASS=pwd make dbtest` - to execute DB tests.
 
 All `*.go` files in project root directory are common library `gha2db` for all go executables.
 All `*_test.go` and `test/*.go` are Go test files, that are used only for testing.
@@ -582,7 +582,7 @@ GitHub archive generates new file every hour.
 Use `gha2db_sync` tool to update all your data.
 
 Example call:
-- `GHA2DB_PROJECT=kubernetes PG_PASS='pwd' IDB_HOST="172.17.0.1" IDB_PASS='pwd' ./gha2db_sync`
+- `GHA2DB_PROJECT=kubernetes PG_PASS='pwd' IDB_HOST="localhost" IDB_PASS='pwd' ./gha2db_sync`
 - Add `GHA2DB_RESETIDB` environment variable to rebuild InfluxDB stats instead of update since the last run
 - Add `GHA2DB_SKIPIDB` environment variable to skip syncing InfluxDB (so it will only sync Postgres DB)
 - Add `GHA2DB_SKIPPDB` environment variable to skip syncing Postgres (so it will only sync Influx DB)
@@ -643,24 +643,24 @@ Grafana install instruction are here:
 - [FreeBSD 11 (work in progress)](https://github.com/cncf/devstats/blob/master/INSTALL_FREEBSD.md)
 
 # To drop & recreate InfluxDB:
-- `IDB_HOST="172.17.0.1" IDB_PASS='idb_password' ./grafana/influxdb_recreate.sh`
-- `GHA2DB_PROJECT=kubernetes GHA2DB_RESETIDB=1 PG_PASS='pwd' IDB_HOST="172.17.0.1" IDB_PASS='pwd' ./gha2db_sync`
+- `IDB_HOST="localhost" IDB_PASS='idb_password' ./grafana/influxdb_recreate.sh`
+- `GHA2DB_PROJECT=kubernetes GHA2DB_RESETIDB=1 PG_PASS='pwd' IDB_HOST="localhost" IDB_PASS='pwd' ./gha2db_sync`
 
 Or automatically: drop & create Influx DB, update Postgres DB since the last run, full populate InfluxDB, start syncer every 30 minutes:
-- `IDB_HOST="172.17.0.1" IDB_PASS=pwd PG_PASS=pwd ./kubernetes/reinit_all.sh`
+- `IDB_HOST="localhost" IDB_PASS=pwd PG_PASS=pwd ./kubernetes/reinit_all.sh`
 
 # Alternate solution with Docker:
 
 Note that this is an old solution that worked, but wasn't tested recently.
 
 - Start Grafana using `GRAFANA_PASS='password' grafana/grafana_start.sh` to install Grafana & InfluxDB as docker containers (this requires Docker).
-- Start InfluxDB using `IDB_HOST="172.17.0.1" IDB_PASS='password' ./grafana/influxdb_setup.sh gha`, this requires Docker & previous command succesfully executed.
+- Start InfluxDB using `IDB_HOST="localhost" IDB_PASS='password' IDB_PASS_RO='password' ./grafana/influxdb_setup.sh gha`, this requires Docker & previous command succesfully executed.
 - To cleanup Docker Grafana image and start from scratch use `./grafana/docker_cleanup.sh`. This will not delete your grafana config because it is stored in local volume `/var/lib/grafana`.
 
 # Manually feeding InfluxDB & Grafana:
 
 Feed InfluxDB using:
-- `PG_PASS='psql_pwd' IDB_HOST="172.17.0.1" IDB_PASS='influxdb_pwd' ./db2influx sig_metions_data metrics/kubernetes/sig_mentions.sql '2017-08-14' '2017-08-21' d`
+- `PG_PASS='psql_pwd' IDB_HOST="localhost" IDB_PASS='influxdb_pwd' ./db2influx sig_metions_data metrics/kubernetes/sig_mentions.sql '2017-08-14' '2017-08-21' d`
 - The first parameter is used as exact series name when metrics query returns single row with single column value.
 - First parameter is used as function name when metrics query return mutiple rows, each with >= 2 columns. This function receives data row and the period name and should return series name and value(s).
 - The second parameter is a metrics SQL file, it should contain time conditions defined as `'{{from}}'` and `'{{to}}'`.
@@ -739,10 +739,10 @@ Please see [Tests](https://github.com/cncf/devstats/blob/master/TESTING.md)
 - See [USAGE](https://github.com/cncf/devstats/blob/master/USAGE.md) for variables starting with `PG_` and `IDB_`.
 - ALWAYS set `PG_DB` & `IFB_DB` - default values are "gha" for both database. They cannot be used as test databases, `make dbtest` will refuse to run when Postgres and/or Influx DB is not set (or set to "gha").
 - Test cases are defined in `tests.yaml` file.
-- Run tests like this: `GHA2DB_PROJECT=kubernetes IDB_HOST="172.17.0.1" IDB_DB=dbtest IDB_PASS=idbpwd PG_DB=dbtest PG_PASS=pgpwd make dbtest`.
-- Or use script shortcut: `GHA2DB_PROJECT=kubernetes PG_PASS=pwd IDB_HOST="172.17.0.1" IDB_PASS=pwd ./dbtest.sh`.
+- Run tests like this: `GHA2DB_PROJECT=kubernetes IDB_HOST="localhost" IDB_DB=dbtest IDB_PASS=idbpwd PG_DB=dbtest PG_PASS=pgpwd make dbtest`.
+- Or use script shortcut: `GHA2DB_PROJECT=kubernetes PG_PASS=pwd IDB_HOST="localhost" IDB_PASS=pwd ./dbtest.sh`.
 - To test only selected SQL metric(s): `GHA2DB_PROJECT=kubernetes PG_PASS=... PG_DB=dbtest TEST_METRICS='new_contributors,episodic_contributors' go test metrics_test.go
-- To test single file that requires database: `GHA2DB_PROJECT=kubernetes PG_PASS=pwd IDB_HOST="172.17.0.1" IDB_PASS=pwd go test file_name.go`.
+- To test single file that requires database: `GHA2DB_PROJECT=kubernetes PG_PASS=pwd IDB_HOST="localhost" IDB_PASS=pwd go test file_name.go`.
 3. To check all sources using multiple go tools (like fmt, lint, imports, vet, goconst, usedexports), run `make check`.
 4. To check Travis CI payloads use `PG_PASS=pwd ./webhook.sh` and then `./test_webhook.sh`.
 5. Continuous deployment instructions are [here](https://github.com/cncf/devstats/blob/master/CONTINUOUS_DEPLOYMENT.md).
@@ -955,14 +955,14 @@ Prerequisites:
     - `brew install influxdb`
     - `ln -sfv /usr/local/opt/influxdb/*.plist ~/Library/LaunchAgents`
     - `launchctl load ~/Library/LaunchAgents/homebrew.mxcl.influxdb.plist`
-    - Create InfluxDB user, database: `IDB_HOST="172.17.0.1" IDB_PASS='your_password_here' ./grafana/influxdb_setup.sh gha`
+    - Create InfluxDB user, database: `IDB_HOST="localhost" IDB_PASS='your_password_here' IDB_PASS_RO='ro_user_password' ./grafana/influxdb_setup.sh gha`
     - InfluxDB has authentication disabled by default.
     - Edit config file and change section [http], `auth-enabled = true`
     - If you want to disable external InfluxDB access (for any external IP, only localhost) follow those instructions [SECURE_INFLUXDB.md](https://github.com/cncf/devstats/blob/master/SECURE_INFLUXDB.md).
     - `sudo service influxdb restart`
 
 11. Databases installed, you need to test if all works fine, use database test coverage:
-    - `GHA2DB_PROJECT=kubernetes IDB_HOST="172.17.0.1" IDB_DB=dbtest IDB_PASS=your_influx_pwd PG_DB=dbtest PG_PASS=your_postgres_pwd make dbtest`
+    - `GHA2DB_PROJECT=kubernetes IDB_HOST="localhost" IDB_DB=dbtest IDB_PASS=your_influx_pwd PG_DB=dbtest PG_PASS=your_postgres_pwd make dbtest`
     - Tests should pass.
 
 12. We have both databases running and Go tools installed, let's try to sync database dump from `k8s.devstats.cncf.io` manually:
@@ -970,20 +970,20 @@ Prerequisites:
     - You need to have GitHub OAuth token, either put this token in `/etc/github/aoauth` file or specify token value via GHA2DB_GITHUB_OAUTH=deadbeef654...10a0 (here you token value)
     - If you really don't want to use GitHub OAuth2 token, specify GHA2DB_GITHUB_OAUTH=- - this will force tokenless operation (via public API), it is a lot more rate limited than OAuth2 which gives 5000 API points/h
     - To import data for the first time (Influx database is empty and postgres database is at the state when Kubernetes SQL dump was made on [k8s.devstats.cncf.io](https://k8s.devstats.cncf.io)):
-    - `IDB_HOST="172.17.0.1" IDB_PASS=pwd PG_PASS=pwd ./kubernetes/reinit_all.sh`
+    - `IDB_HOST="localhost" IDB_PASS=pwd PG_PASS=pwd ./kubernetes/reinit_all.sh`
     - This can take a while (depending how old is psql dump `gha.sql.xz` on [k8s.devstats.cncf.io](https://k8s.devstats.cncf.io). It is generated daily at 3:00 AM UTC.
     - Command should be successfull.
 
 13. We need to setup cron job that will call sync every hour (10 minutes after 1:00, 2:00, ...)
     - You need to open `crontab.entry` file, it looks like this for single project setup (this is obsolete, please use `devstats` mode instead):
     ```
-    8 * * * * PATH=$PATH:/path/to/your/GOPATH/bin GHA2DB_CMDDEBUG=1 GHA2DB_PROJECT=kubernetes IDB_HOST="172.17.0.1" IDB_PASS='...' PG_PASS='...' gha2db_sync 2>> /tmp/gha2db_sync.err 1>> /tmp/gha2db_sync.log
+    8 * * * * PATH=$PATH:/path/to/your/GOPATH/bin GHA2DB_CMDDEBUG=1 GHA2DB_PROJECT=kubernetes IDB_HOST="localhost" IDB_PASS='...' PG_PASS='...' gha2db_sync 2>> /tmp/gha2db_sync.err 1>> /tmp/gha2db_sync.log
     30 3 * * * PATH=$PATH:/path/to/your/GOPATH/bin cron_db_backup.sh gha 2>> /tmp/gha2db_backup.err 1>> /tmp/gha2db_backup.log
     */5 * * * * PATH=$PATH:/path/to/your/GOPATH/bin GOPATH=/your/gopath GHA2DB_CMDDEBUG=1 GHA2DB_PROJECT_ROOT=/path/to/repo PG_PASS="..." webhook 2>> /tmp/gha2db_webhook.err 1>> /tmp/gha2db_webhook.log
     ```
     - For multiple projects you can use `devstats` instead of `gha2db_sync` and `cron/cron_db_backup_all.sh` instead of `cron/cron_db_backup.sh`.
     ```
-    7 * * * * PATH=$PATH:/path/to/GOPATH/bin IDB_HOST="172.17.0.1" IDB_PASS="..." PG_PASS="..." devstats 2>> /tmp/gha2db_sync.err 1>> /tmp/gha2db_sync.log
+    7 * * * * PATH=$PATH:/path/to/GOPATH/bin IDB_HOST="localhost" IDB_PASS="..." PG_PASS="..." devstats 2>> /tmp/gha2db_sync.err 1>> /tmp/gha2db_sync.log
     30 3 * * * PATH=$PATH:/path/to/GOPATH/bin cron_db_backup_all.sh 2>> /tmp/gha2db_backup.err 1>> /tmp/gha2db_backup.log
     */5 * * * * PATH=$PATH:/path/to/GOPATH/bin GOPATH=/go/path GHA2DB_CMDDEBUG=1 GHA2DB_PROJECT_ROOT=/path/to/repo GHA2DB_DEPLOY_BRANCHES="production,master" PG_PASS=... webhook 2>> /tmp/gha2db_webhook.err 1>> /tmp/gha2db_webhook.log
     ```
@@ -1107,32 +1107,32 @@ Prerequisites:
     - `sudo pkg install influxdb`
     - `sudo service influxd start`
     - Add 'influxd_enable="YES"' to /etc/rc.conf
-    - Create InfluxDB user, database: `IDB_HOST="172.17.0.1" IDB_PASS='your_password_here' ./grafana/influxdb_setup.sh gha`
+    - Create InfluxDB user, database: `IDB_HOST="localhost" IDB_PASS='your_password_here' IDB_PASS_RO='ro_user_password' ./grafana/influxdb_setup.sh gha`
     - InfluxDB has authentication disabled by default.
     - Edit config file `vim /usr/local/etc/influxdb.conf` and change section `[http]`, `auth-enabled = true` and `[subscriber]` `http-timeout = "300s"`
     - If you want to disable external InfluxDB access (for any external IP, only localhost) follow those instructions [SECURE_INFLUXDB.md](https://github.com/cncf/devstats/blob/master/SECURE_INFLUXDB.md).
     - `sudo service influxdb restart`
 13. Databases installed, you need to test if all works fine, use database test coverage:
-    - `GHA2DB_PROJECT=kubernetes IDB_DB=dbtest IDB_HOST="172.17.0.1" IDB_PASS=your_influx_pwd PG_DB=dbtest PG_PASS=your_postgres_pwd make dbtest`
+    - `GHA2DB_PROJECT=kubernetes IDB_DB=dbtest IDB_HOST="localhost" IDB_PASS=your_influx_pwd PG_DB=dbtest PG_PASS=your_postgres_pwd make dbtest`
     - Tests should pass.
 14. We have both databases running and Go tools installed, let's try to sync database dump from k8s.devstats.cncf.io manually:
     - We need to prefix call with GHA2DB_LOCAL to enable using tools from "./" directory
     - To import data for the first time (Influx database is empty and postgres database is at the state when Kubernetes SQL dump was made on [k8s.devstats.cncf.io](https://k8s.devstats.cncf.io)):
     - You need to have GitHub OAuth token, either put this token in `/etc/github/oauth` file or specify token value via GHA2DB_GITHUB_OAUTH=deadbeef654...10a0 (here you token value)
     - If you really don't want to use GitHub OAuth2 token, specify GHA2DB_GITHUB_OAUTH=- - this will force tokenless operation (via public API), it is a lot more rate limited than OAuth2 which gives 5000 API points/h
-    - `IDB_HOST="172.17.0.1" IDB_PASS=pwd PG_PASS=pwd ./kubernetes/reinit_all.sh`
+    - `IDB_HOST="localhost" IDB_PASS=pwd PG_PASS=pwd ./kubernetes/reinit_all.sh`
     - This can take a while (depending how old is psql dump `gha.sql.xz` on [k8s.devstats.cncf.io](https://k8s.devstats.cncf.io). It is generated daily at 3:00 AM UTC.
     - Command should be successfull.
 15. We need to setup cron job that will call sync every hour (10 minutes after 1:00, 2:00, ...)
     - You need to open `crontab.entry` file, it looks like this for single project setup (this is obsolete, please use `devstats` mode instead):
     ```
-    8 * * * * PATH=$PATH:/path/to/your/GOPATH/bin GHA2DB_CMDDEBUG=1 GHA2DB_PROJECT=kubernetes IDB_HOST="172.17.0.1" IDB_PASS='...' PG_PASS='...' gha2db_sync 2>> /tmp/gha2db_sync.err 1>> /tmp/gha2db_sync.log
+    8 * * * * PATH=$PATH:/path/to/your/GOPATH/bin GHA2DB_CMDDEBUG=1 GHA2DB_PROJECT=kubernetes IDB_HOST="localhost" IDB_PASS='...' PG_PASS='...' gha2db_sync 2>> /tmp/gha2db_sync.err 1>> /tmp/gha2db_sync.log
     20 3 * * * PATH=$PATH:/path/to/your/GOPATH/bin cron_db_backup.sh gha 2>> /tmp/gha2db_backup.err 1>> /tmp/gha2db_backup.log
     */5 * * * * PATH=$PATH:/path/to/your/GOPATH/bin GOPATH=/your/gopath GHA2DB_CMDDEBUG=1 GHA2DB_PROJECT_ROOT=/path/to/repo PG_PASS="..." webhook 2>> /tmp/gha2db_webhook.err 1>> /tmp/gha2db_webhook.log
     ```
     - For multiple projects you can use `devstats` instead of `gha2db_sync` and `cron/cron_db_backup_all.sh` instead of `cron/cron_db_backup.sh`.
     ```
-    7 * * * * PATH=$PATH:/path/to/GOPATH/bin IDB_HOST="172.17.0.1" IDB_PASS="..." PG_PASS="..." devstats 2>> /tmp/gha2db_sync.err 1>> /tmp/gha2db_sync.log
+    7 * * * * PATH=$PATH:/path/to/GOPATH/bin IDB_HOST="localhost" IDB_PASS="..." PG_PASS="..." devstats 2>> /tmp/gha2db_sync.err 1>> /tmp/gha2db_sync.log
     30 3 * * * PATH=$PATH:/path/to/GOPATH/bin cron_db_backup_all.sh 2>> /tmp/gha2db_backup.err 1>> /tmp/gha2db_backup.log
     */5 * * * * PATH=$PATH:/path/to/GOPATH/bin GOPATH=/go/path GHA2DB_CMDDEBUG=1 GHA2DB_PROJECT_ROOT=/path/to/repo GHA2DB_DEPLOY_BRANCHES="production,master" PG_PASS=... webhook 2>> /tmp/gha2db_webhook.err 1>> /tmp/gha2db_webhook.log
     ```
@@ -1268,7 +1268,7 @@ The servers to run `devstats` are generously provided by [Packet](https://www.pa
 
 # One line run all projects
 
-- Use `GHA2DB_PROJECTS_OVERRIDE="+cncf,+all" IDB_HOST="172.17.0.1" IDB_PASS=pwd PG_PASS=pwd devstats`.
+- Use `GHA2DB_PROJECTS_OVERRIDE="+cncf,+all" IDB_HOST="localhost" IDB_PASS=pwd PG_PASS=pwd devstats`.
 - Or add this command using `crontab -e` to run every hour HH:10.
 
 # Checking projects activity
@@ -1491,7 +1491,7 @@ To add new project follow [adding new project](https://github.com/cncf/devstats/
 - Go to Grafana UI: `http://localhost:3000`
 - Login as "admin"/"admin" (you can change passwords later).
 - Choose add data source, then Add Influx DB with those settings:
-- Name "gha" and type "InfluxDB", url default "http://localhost:8086"/"http://172.17.0.1:8086", access: "proxy", database "projname", user "gha_admin", password "your_influx_pwd", min time interval "1h"
+- Name "gha" and type "InfluxDB", url default "http://localhost:8086"/"http://127.0.0.1:8086", access: "proxy", database "projname", user "gha_admin", password "your_influx_pwd", min time interval "1h"
 - Test & save datasource, then proceed to dashboards.
 - Choose add data source, then add PostgreSQL with those settings:
 - Name "psql", Type "PostgreSQL", host "127.0.0.1:5432", database "projname", user "ro_user" (this is the select-only user for psql), password "your-psql-password", ssl-mode "disabled".
@@ -1614,14 +1614,14 @@ Prerequisites:
     - `echo "deb https://repos.influxdata.com/${DISTRIB_ID,,} ${DISTRIB_CODENAME} stable" | sudo tee /etc/apt/sources.list.d/influxdb.list`
     - `sudo apt-get update && sudo apt-get install influxdb`
     - `sudo service influxdb start`
-    - Create InfluxDB user, database: `IDB_HOST="172.17.0.1" IDB_PASS='your_password_here' ./grafana/influxdb_setup.sh gha`
+    - Create InfluxDB user, database: `IDB_HOST="localhost" IDB_PASS='your_password_here' IDB_PASS_RO='ro_user_password' ./grafana/influxdb_setup.sh gha`
     - InfluxDB has authentication disabled by default.
     - Edit config file `vim /etc/influxdb/influxdb.conf` and change section `[http]`, `auth-enabled = true` and `[subscriber]` `http-timeout = "300s"`
     - If you want to disable external InfluxDB access (for any external IP, only localhost) follow those instructions [SECURE_INFLUXDB.md](https://github.com/cncf/devstats/blob/master/SECURE_INFLUXDB.md).
     - `sudo service influxdb restart`
 
 10. Databases installed, you need to test if all works fine, use database test coverage:
-    - `GHA2DB_PROJECT=kubernetes IDB_DB=dbtest IDB_HOST="172.17.0.1" IDB_PASS=your_influx_pwd PG_DB=dbtest PG_PASS=your_postgres_pwd make dbtest`
+    - `GHA2DB_PROJECT=kubernetes IDB_DB=dbtest IDB_HOST="localhost" IDB_PASS=your_influx_pwd PG_DB=dbtest PG_PASS=your_postgres_pwd make dbtest`
     - Tests should pass.
 
 11. We have both databases running and Go tools installed, let's try to sync database dump from k8s.devstats.cncf.io manually:
@@ -1631,20 +1631,20 @@ Prerequisites:
     - You need to have GitHub OAuth token, either put this token in `/etc/github/oauth` file or specify token value via GHA2DB_GITHUB_OAUTH=deadbeef654...10a0 (here you token value)
     - If you really don't want to use GitHub OAuth2 token, specify GHA2DB_GITHUB_OAUTH=- - this will force tokenless operation (via public API), it is a lot more rate limited than OAuth2 which gives 5000 API points/h
     - To import data for the first time (Influx database is empty and postgres database is at the state when Kubernetes SQL dump was made on [k8s.devstats.cncf.io](https://k8s.devstats.cncf.io)):
-    - `IDB_HOST="172.17.0.1" IDB_PASS=pwd PG_PASS=pwd ./kubernetes/reinit_all.sh`
+    - `IDB_HOST="localhost" IDB_PASS=pwd PG_PASS=pwd ./kubernetes/reinit_all.sh`
     - This can take a while (depending how old is psql dump `gha.sql.xz` on [k8s.devstats.cncf.io](https://k8s.devstats.cncf.io). It is generated daily at 3:00 AM UTC.
     - Command should be successfull.
 
 12. We need to setup cron job that will call sync every hour (10 minutes after 1:00, 2:00, ...)
     - You need to open `crontab.entry` file, it looks like this for single project setup (this is obsolete, please use `devstats` mode instead):
     ```
-    8 * * * * PATH=$PATH:/path/to/your/GOPATH/bin GHA2DB_CMDDEBUG=1 GHA2DB_PROJECT=kubernetes IDB_HOST="172.17.0.1" IDB_PASS='...' PG_PASS='...' gha2db_sync 2>> /tmp/gha2db_sync.err 1>> /tmp/gha2db_sync.log
+    8 * * * * PATH=$PATH:/path/to/your/GOPATH/bin GHA2DB_CMDDEBUG=1 GHA2DB_PROJECT=kubernetes IDB_HOST="localhost" IDB_PASS='...' PG_PASS='...' gha2db_sync 2>> /tmp/gha2db_sync.err 1>> /tmp/gha2db_sync.log
     20 3 * * * PATH=$PATH:/path/to/your/GOPATH/bin cron_db_backup.sh gha 2>> /tmp/gha2db_backup.err 1>> /tmp/gha2db_backup.log
     */5 * * * * PATH=$PATH:/path/to/your/GOPATH/bin GOPATH=/your/gopath GHA2DB_CMDDEBUG=1 GHA2DB_PROJECT_ROOT=/path/to/repo PG_PASS="..." webhook 2>> /tmp/gha2db_webhook.err 1>> /tmp/gha2db_webhook.log
     ```
     - For multiple projects you can use `devstats` instead of `gha2db_sync` and `cron/cron_db_backup_all.sh` instead of `cron/cron_db_backup.sh`.
     ```
-    7 * * * * PATH=$PATH:/path/to/GOPATH/bin IDB_HOST="172.17.0.1" IDB_PASS="..." PG_PASS="..." devstats 2>> /tmp/gha2db_sync.err 1>> /tmp/gha2db_sync.log
+    7 * * * * PATH=$PATH:/path/to/GOPATH/bin IDB_HOST="localhost" IDB_PASS="..." PG_PASS="..." devstats 2>> /tmp/gha2db_sync.err 1>> /tmp/gha2db_sync.log
     30 3 * * * PATH=$PATH:/path/to/GOPATH/bin cron_db_backup_all.sh 2>> /tmp/gha2db_backup.err 1>> /tmp/gha2db_backup.log
     */5 * * * * PATH=$PATH:/path/to/GOPATH/bin GOPATH=/go/path GHA2DB_CMDDEBUG=1 GHA2DB_PROJECT_ROOT=/path/to/repo GHA2DB_DEPLOY_BRANCHES="production,master" PG_PASS=... webhook 2>> /tmp/gha2db_webhook.err 1>> /tmp/gha2db_webhook.log
     ```
@@ -1896,7 +1896,7 @@ time                 computed_from       computed_key                           
 - Key is `computed_key` - metric file name and `computed_from` that holds `date from` for calculated period. Checking and setting `computed` state happens [here](https://github.com/cncf/devstats/blob/master/cmd/db2influx/db2influx.go#L310-L346).
 - Logic to decide when we can skip calculations is [here](https://github.com/cncf/devstats/blob/master/cmd/db2influx/db2influx.go#L387), [here](https://github.com/cncf/devstats/blob/master/cmd/db2influx/db2influx.go#L398) and [here](https://github.com/cncf/devstats/blob/master/cmd/db2influx/db2influx.go#L585).
 - Period calculation (this is also for charts not only histograms) is determined [here](https://github.com/cncf/devstats/blob/master/time.go#L44). Possible period values are: `h,d,w,m,q,y,hN,dN,wN,mN,qN,yN,anno_x_y,anno_x_now`: h..y -mean hour..year, hN, N > 1, means some aggregation of h..y, anno_x_y (x >= 0, y > x) mean past quick range, anno_x_now (x >=0) mean last quick range.
-- You can use: `influx -host 172.17.0.1 -username gha_admin -password pwd -database gha` to access Kubernetes InfluxDB to see those values: `precision rfc3339`, `select * from {{seriesname}}`, `{{seriesname}}` being: `quick_ranges`, `computed`, `annotations`.
+- You can use: `influx -host localhost -username gha_admin -password pwd -database gha` to access Kubernetes InfluxDB to see those values: `precision rfc3339`, `select * from {{seriesname}}`, `{{seriesname}}` being: `quick_ranges`, `computed`, `annotations`.
 - `main_repo` and `annotation_regexp` can be empty (like for 'All' project [here](https://github.com/cncf/devstats/blob/master/projects.yaml#L202-L207). Depending on CNCF join date presence you will see single annotation or none then.
 ### [docs/tables/gha_postprocess_scripts](https://github.com/cncf/devstats/blob/master/docs/tables/gha_postprocess_scripts.md)
 # `gha_postprocess_scripts` table
@@ -2742,14 +2742,14 @@ Prerequisites:
     - `apt-get install apt-transport-https`
     - `sudo apt-get update && sudo apt-get install influxdb`
     - `sudo service influxdb start`
-    - Create InfluxDB user, database: `IDB_HOST="172.17.0.1" IDB_PASS='your_password_here' ./grafana/influxdb_setup.sh gha`
+    - Create InfluxDB user, database: `IDB_HOST="localhost" IDB_PASS='your_password_here' IDB_PASS_RO='ro_user_password' ./grafana/influxdb_setup.sh gha`
     - InfluxDB has authentication disabled by default.
     - Edit config file `vim /etc/influxdb/influxdb.conf` and change section `[http]`, `auth-enabled = true` and `[subscriber]` `http-timeout = "300s"`
     - If you want to disable external InfluxDB access (for any external IP, only localhost) follow those instructions [SECURE_INFLUXDB.md](https://github.com/cncf/devstats/blob/master/SECURE_INFLUXDB.md).
     - `sudo service influxdb restart`
 
 13. Databases installed, you need to test if all works fine, use database test coverage:
-    - `GHA2DB_PROJECT=kubernetes IDB_DB=dbtest IDB_HOST="172.17.0.1" IDB_PASS=your_influx_pwd PG_DB=dbtest PG_PASS=your_postgres_pwd make dbtest`
+    - `GHA2DB_PROJECT=kubernetes IDB_DB=dbtest IDB_HOST="localhost" IDB_PASS=your_influx_pwd PG_DB=dbtest PG_PASS=your_postgres_pwd make dbtest`
     - Tests should pass.
 
 14. We have both databases running and Go tools installed, let's try to sync database dump from k8s.devstats.cncf.io manually:
@@ -2757,20 +2757,20 @@ Prerequisites:
     - To import data for the first time (Influx database is empty and postgres database is at the state when Kubernetes SQL dump was made on [k8s.devstats.cncf.io](https://k8s.devstats.cncf.io)):
     - You need to have GitHub OAuth token, either put this token in `/etc/github/oauth` file or specify token value via GHA2DB_GITHUB_OAUTH=deadbeef654...10a0 (here you token value)
     - If you really don't want to use GitHub OAuth2 token, specify GHA2DB_GITHUB_OAUTH=- - this will force tokenless operation (via public API), it is a lot more rate limited than OAuth2 which gives 5000 API points/h
-    - `IDB_HOST="172.17.0.1" IDB_PASS=pwd PG_PASS=pwd ./kubernetes/reinit_all.sh`
+    - `IDB_HOST="localhost" IDB_PASS=pwd PG_PASS=pwd ./kubernetes/reinit_all.sh`
     - This can take a while (depending how old is psql dump `gha.sql.xz` on [k8s.devstats.cncf.io](https://k8s.devstats.cncf.io). It is generated daily at 3:00 AM UTC.
     - Command should be successfull.
 
 15. We need to setup cron job that will call sync every hour (10 minutes after 1:00, 2:00, ...)
     - You need to open `crontab.entry` file, it looks like this for single project setup (this is obsolete, please use `devstats` mode instead):
     ```
-    8 * * * * PATH=$PATH:/path/to/your/GOPATH/bin GHA2DB_CMDDEBUG=1 GHA2DB_PROJECT=kubernetes IDB_HOST="172.17.0.1" IDB_PASS='...' PG_PASS='...' gha2db_sync 2>> /tmp/gha2db_sync.err 1>> /tmp/gha2db_sync.log
+    8 * * * * PATH=$PATH:/path/to/your/GOPATH/bin GHA2DB_CMDDEBUG=1 GHA2DB_PROJECT=kubernetes IDB_HOST="localhost" IDB_PASS='...' PG_PASS='...' gha2db_sync 2>> /tmp/gha2db_sync.err 1>> /tmp/gha2db_sync.log
     20 3 * * * PATH=$PATH:/path/to/your/GOPATH/bin cron_db_backup.sh gha 2>> /tmp/gha2db_backup.err 1>> /tmp/gha2db_backup.log
     */5 * * * * PATH=$PATH:/path/to/your/GOPATH/bin GOPATH=/your/gopath GHA2DB_CMDDEBUG=1 GHA2DB_PROJECT_ROOT=/path/to/repo PG_PASS="..." webhook 2>> /tmp/gha2db_webhook.err 1>> /tmp/gha2db_webhook.log
     ```
     - For multiple projects you can use `devstats` instead of `gha2db_sync` and `cron/cron_db_backup_all.sh` instead of `cron/cron_db_backup.sh`.
     ```
-    7 * * * * PATH=$PATH:/path/to/GOPATH/bin IDB_HOST="172.17.0.1" IDB_PASS="..." PG_PASS="..." devstats 2>> /tmp/gha2db_sync.err 1>> /tmp/gha2db_sync.log
+    7 * * * * PATH=$PATH:/path/to/GOPATH/bin IDB_HOST="localhost" IDB_PASS="..." PG_PASS="..." devstats 2>> /tmp/gha2db_sync.err 1>> /tmp/gha2db_sync.log
     30 3 * * * PATH=$PATH:/path/to/GOPATH/bin cron_db_backup_all.sh 2>> /tmp/gha2db_backup.err 1>> /tmp/gha2db_backup.log
     */5 * * * * PATH=$PATH:/path/to/GOPATH/bin GOPATH=/go/path GHA2DB_CMDDEBUG=1 GHA2DB_PROJECT_ROOT=/path/to/repo GHA2DB_DEPLOY_BRANCHES="production,master" PG_PASS=... webhook 2>> /tmp/gha2db_webhook.err 1>> /tmp/gha2db_webhook.log
     ```

@@ -3,7 +3,7 @@
 - Go to Grafana UI: `http://localhost:3000`
 - Login as "admin"/"admin" (you can change passwords later).
 - Choose add data source, then Add Influx DB with those settings:
-- Name "gha" and type "InfluxDB", url default "http://localhost:8086"/"http://172.17.0.1:8086", access: "proxy", database "projname", user "gha_admin", password "your_influx_pwd", min time interval "1h"
+- Name "gha" and type "InfluxDB", url default "http://localhost:8086"/"http://127.0.0.1:8086", access: "proxy", database "projname", user "ro_user", password "influx_pwd", min time interval "1h"
 - Test & save datasource, then proceed to dashboards.
 - Choose add data source, then add PostgreSQL with those settings:
 - Name "psql", Type "PostgreSQL", host "127.0.0.1:5432", database "projname", user "ro_user" (this is the select-only user for psql), password "your-psql-password", ssl-mode "disabled".
