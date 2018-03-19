@@ -4,24 +4,27 @@ import (
 	lib "devstats"
 	"encoding/json"
 	"fmt"
-	"os"
 	"strings"
 	"time"
 )
 
-func copySeries(ch chan bool, ctx *lib.Ctx, from, to, seriesName string) {
-	// Connect to InfluxDB
-	ic := lib.IDBConn(ctx)
-	defer func() { lib.FatalOnError(ic.Close()) }()
+func copySeries(ch chan bool, ctxI, ctxO *lib.Ctx, seriesName string) {
+	// Connect to InfluxDB databases
+	icI := lib.IDBConn(ctxI)
+	icO := lib.IDBConn(ctxO)
+	defer func() {
+		lib.FatalOnError(icI.Close())
+		lib.FatalOnError(icO.Close())
+	}()
 
 	// Get BatchPoints
 	var pts lib.IDBBatchPointsN
-	bp := lib.IDBBatchPointsWithDB(ctx, &ic, to)
+	bp := lib.IDBBatchPoints(ctxO, &icO)
 	pts.NPoints = 0
 	pts.Points = &bp
 
 	// Get values from series
-	res := lib.QueryIDBWithDB(ic, ctx, "select * from "+seriesName+" group by *", from)
+	res := lib.QueryIDB(icI, ctxI, "select * from "+seriesName+" group by *")
 	allSeries := res[0].Series
 	for _, series := range allSeries {
 		// Add batch point(s)
@@ -47,17 +50,17 @@ func copySeries(ch chan bool, ctx *lib.Ctx, from, to, seriesName string) {
 					}
 				}
 			}
-			if ctx.Debug > 0 {
+			if ctxI.Debug > 0 || ctxO.Debug > 0 {
 				fmt.Printf("%s: tags=%+v, fields=%+v, dt=%v\n", series.Name, tags, fields, dt)
 			}
 			pt := lib.IDBNewPointWithErr(series.Name, tags, fields, dt)
-			lib.IDBAddPointNWithDB(ctx, &ic, &pts, pt, to)
+			lib.IDBAddPointN(ctxO, &icO, &pts, pt)
 		}
 	}
 	// Write the batch
-	if !ctx.SkipIDB {
-		lib.FatalOnError(lib.IDBWritePointsN(ctx, &ic, &pts))
-	} else if ctx.Debug > 0 {
+	if !ctxO.SkipIDB {
+		lib.FatalOnError(lib.IDBWritePointsN(ctxO, &icO, &pts))
+	} else if ctxI.Debug > 0 || ctxO.Debug > 0 {
 		lib.Printf("Skipping tags series write\n")
 	}
 	if ch != nil {
@@ -66,20 +69,34 @@ func copySeries(ch chan bool, ctx *lib.Ctx, from, to, seriesName string) {
 }
 
 // Backup all series "from" --> "to"
-func idbBackup(from, to string) {
+func idbBackup() {
 	// Environment context parse
-	var ctx lib.Ctx
-	ctx.Init()
+	var (
+		ctxI lib.Ctx
+		ctxO lib.Ctx
+	)
+
+	// Replace all environment variables starting with "IDB_"
+	// with contents of variables with "_SRC" added - if defined
+	// So if there is "IDB_HOST_SRC" variable defined - it will replace "IDB_HOST" and so on
+	env := lib.EnvReplace("IDB_", "_SRC")
+	ctxI.Init()
+	lib.EnvRestore(env)
+
+	// Same for output config
+	env = lib.EnvReplace("IDB_", "_DST")
+	ctxO.Init()
+	lib.EnvRestore(env)
 
 	// Get number of CPUs available
-	thrN := lib.GetThreadsNum(&ctx)
+	thrN := lib.GetThreadsNum(&ctxI)
 	lib.Printf("idb_backup.go: Running (%v CPUs)\n", thrN)
 
 	// Connect to InfluxDB
-	ic := lib.IDBConn(&ctx)
+	ic := lib.IDBConn(&ctxI)
 
 	// Get all series names from input database
-	res := lib.QueryIDBWithDB(ic, &ctx, "show series", from)
+	res := lib.QueryIDB(ic, &ctxI, "show series")
 	if len(res[0].Series) < 1 {
 		lib.Printf("Nothing to copy\n")
 		return
@@ -113,7 +130,7 @@ func idbBackup(from, to string) {
 		ch := make(chan bool)
 		nThreads := 0
 		for i := 0; i < nSeries; i++ {
-			go copySeries(ch, &ctx, from, to, series[i])
+			go copySeries(ch, &ctxI, &ctxO, series[i])
 			nThreads++
 			if nThreads == thrN {
 				<-ch
@@ -132,7 +149,7 @@ func idbBackup(from, to string) {
 	} else {
 		lib.Printf("Using single threaded version\n")
 		for i := 0; i < nSeries; i++ {
-			copySeries(nil, &ctx, from, to, series[i])
+			copySeries(nil, &ctxI, &ctxO, series[i])
 			lib.ProgressInfo(i, nSeries, dtStart, &lastTime, time.Duration(10)*time.Second, "")
 		}
 	}
@@ -142,14 +159,10 @@ func idbBackup(from, to string) {
 
 func main() {
 	dtStart := time.Now()
-	if len(os.Args) < 3 {
-		lib.Printf("%s: Required args: source_database destination_database\n", os.Args[0])
-		os.Exit(1)
-	}
 	fmt.Printf(
 		"Consider fresh restart of `influxd` service, this program temporarily doubles influxd memory usage.\n",
 	)
-	idbBackup(os.Args[1], os.Args[2])
+	idbBackup()
 	dtEnd := time.Now()
 	lib.Printf("Time: %v\n", dtEnd.Sub(dtStart))
 }
