@@ -109,6 +109,7 @@ We're getting all possible GitHub data for all objects, and all objects historic
 - `idb_tags` uses [idb_tags.yaml](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/idb_tags.yaml) file to configure InfluxDB tags generation.
 - [idb_backup](https://github.com/cncf/devstats/blob/master/cmd/idb_backup/idb_backup.go)
 - `idb_backup` is used to backup/restore InfluxDB. Full renenerate of InfluxDB takes about 12 minutes. To avoid downtime when we need to rebuild InfluDB - we can generate new InfluxDB on `test` database and then if succeeded, restore it on `gha`. Downtime will be about 2 minutes.
+- You can use all defined environments variables, but add `_SRC` suffic for source database and `_DST` suffix for destination database.
 - [webhook](https://github.com/cncf/devstats/blob/master/cmd/webhook/webhook.go)
 - `webhook` is used to react to Travis CI webhooks and trigger deploy if status, branch and type match defined values, more details [here](https://github.com/cncf/devstats/blob/master/CONTINUOUS_DEPLOYMENT.md).
 - Add `[no deploy]` to the commit message, to skip deploying. Add `[ci skip]` to skip entire Travis CI build.

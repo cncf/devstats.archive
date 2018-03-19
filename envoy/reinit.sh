@@ -12,5 +12,5 @@ fi
 GHA2DB_CMDDEBUG=1 GHA2DB_RESETIDB=1 GHA2DB_LOCAL=1 GHA2DB_PROJECT=envoy PG_DB=envoy IDB_DB=envoy_temp ./gha2db_sync || exit 2
 GHA2DB_LOCAL=1 GHA2DB_PROJECT=envoy IDB_DB=envoy_temp ./idb_vars || exit 3
 ./grafana/influxdb_recreate.sh envoy || exit 4
-./idb_backup envoy_temp envoy || exit 5
+IDB_DB_SRC=envoy_temp IDB_DB_DST=envoy ./idb_backup || exit 5
 ./grafana/influxdb_drop.sh envoy_temp
