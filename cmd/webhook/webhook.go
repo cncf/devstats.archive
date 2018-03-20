@@ -341,19 +341,25 @@ func webhookHandler(w http.ResponseWriter, r *http.Request) {
 	if checkError(true, w, err) {
 		return
 	}
-	if strings.Contains(payload.Message, "[deploy]") {
+	deployedBy := "'make install'"
+	if ctx.FullDeploy && strings.Contains(payload.Message, "[deploy]") {
 		if checkDeployEnvError(w) {
 			return
 		}
 		lib.Printf("WebHook: %s\n", "./devel/deploy_all.sh")
-		_, err = lib.ExecCommand(&ctx, []string{"./devel/deploy_all.sh"}, nil)
+		_, err = lib.ExecCommand(
+			&ctx,
+			[]string{"./devel/deploy_all.sh"},
+			map[string]string{"FROM_WEBHOOK": "1"},
+		)
 		if checkError(true, w, err) {
 			return
 		}
 		lib.Printf("WebHook: %s succeeded\n", "./devel/deploy_all.sh")
+		deployedBy += " './devel/deploy_all.sh'"
 	}
 	dtEnd := time.Now()
-	lib.Printf("WebHook: deployed via `make install` in %v\n", dtEnd.Sub(dtStart))
+	lib.Printf("WebHook: deployed via %s in %v\n", deployedBy, dtEnd.Sub(dtStart))
 	respondWithSuccess(w, "ok")
 }
 

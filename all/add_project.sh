@@ -46,6 +46,7 @@ then
   sudo -u postgres pg_restore -d allprj allprj.dump || exit 7
   rm -f allprj.dump || exit 8
   echo "allprj backup restored"
+  AGOT=1
 else
   echo "merging $1 into allprj"
   GHA2DB_INPUT_DBS="$1" GHA2DB_OUTPUT_DB="allprj" ./merge_pdbs || exit 9
@@ -75,6 +76,10 @@ else
     unset IDB_PASS_SRC
     IDB_DB_SRC=allprj_temp IDB_DB_DST=allprj ./idb_backup || exit 19
     ./grafana/influxdb_drop.sh allprj_temp || exit 20
+  fi
+  if [ ! -z "$AGOT" ]
+  then
+    GHA2DB_PROJECT=all PG_DB=allprj IDB_DB=allprj ./gha2db_sync || exit 21
   fi
 fi
 echo "$0: $1 finished"

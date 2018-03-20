@@ -53,6 +53,7 @@ then
       wget "https://cncftest.io/$PROJDB.dump" || exit 9
       sudo -u postgres pg_restore -d "$PROJDB" "$PROJDB.dump" || exit 10
       rm -f "$PROJ.dump" || exit 11
+      GOT=1
     else
       echo "generating postgres database $PROJDB"
       GHA2DB_MGETC=y ./$PROJ/psql.sh || exit 12
@@ -96,6 +97,10 @@ then
       unset IDB_PASS_SRC
       IDB_DB_SRC="${PROJDB}_temp" IDB_DB_DST="$PROJDB" ./idb_backup || exit 20
       ./grafana/influxdb_drop.sh "${PROJDB}_temp" || exit 21
+    fi
+    if [ ! -z "$GOT" ]
+    then
+      GHA2DB_PROJECT="$PROJ" PG_DB="$PROJDB" IDB_DB="$PROJDB" ./gha2db_sync || exit 22
     fi
   else
     echo "influx database $PROJDB already exists"
