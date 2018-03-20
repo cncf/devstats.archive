@@ -1,5 +1,4 @@
 #!/bin/bash
-host=`hostname`
 if [ -z "$ONLY" ]
 then
   host=`hostname`
