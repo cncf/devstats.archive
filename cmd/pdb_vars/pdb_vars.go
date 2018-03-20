@@ -92,7 +92,7 @@ func pdbVars() {
 						replTo string
 					)
 					// Handle direct string replacements
-					if len(repl[1]) > 1 && repl[1][0:1] == ":" {
+					if len(repl[1]) > 0 && repl[1][0:1] == ":" {
 						ok = true
 						replTo = repl[1][1:]
 					} else {
