@@ -106,6 +106,7 @@ You can tweak `devstats` tools by environment variables:
 - Set `GHA2DB_WHPORT`, for webhook tool, default ":1982", (note that webhook listens at 1982, but we are using https via apache proxy, apache listens on https port 2892 and proxy request to http 1982).
 - Set `GHA2DB_WHHOST`, for webhook tool, default "127.0.0.1", this is the IP of webhook socket (set to 0.0.0.0 to allow connection from any IP, 127.0.0.1 only allows connections from localhost - this is secure, we use Apache to enable https and proxy requests to webhook tool).
 - Set `GHA2DB_SKIP_VERIFY_PAYLOAD`, webhook tool, default true, use to skip payload checking and allow manual testing `GHA2DB_SKIP_VERIFY_PAYLOAD=1 ./webhook`.
+- Set `GHA2DB_SKIP_FULL_DEPLOY`, webhook tool, default true, use `GHA2DB_SKIP_FULL_DEPLOY=1` to skip full deploy when commit message contains `[deploy]` - useful for the test server.
 - Set `GHA2DB_DEPLOY_BRANCHES`, webhook tool, default "master", comma separated list, use to set which branches should be deployed.
 - Set `GHA2DB_DEPLOY_STATUSES`, webhook tool, default "Passed,Fixed", comma separated list, use to set which branches should be deployed.
 - Set `GHA2DB_DEPLOY_RESULTS`, webhook tool, default "0", comma separated list, use to set which travis ci results should be deployed.
@@ -523,6 +524,9 @@ Please see instructions [here](https://github.com/cncf/devstats/blob/master/GRAF
 # Continuous deployment
 
 There is a tool [webhook](https://github.com/cncf/devstats/blob/master/metrics/cmd/webhook/webhook.go) that is used to make deployments on successful build webhooks sent by Travis CI.
+If commit message contains `[no deploy]` then `webhook` is not performing any action on given branch.
+If commit message contains `[ci skip]` then Travis CI skips build, so no webhook is called at all.
+If commit message contains `[deploy]` then `webhook` attempts full deploy using `./devel/deploy_all.sh` script. It requires setting more environment variables for `webhook` command in the cron.
 
 Details [here](https://github.com/cncf/devstats/blob/master/metrics/CONTINUOUS_DEPLOYMENT.md).
 

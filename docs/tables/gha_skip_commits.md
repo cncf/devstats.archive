@@ -18,3 +18,4 @@
 # Columns
 
 - `sha`: commit SHA.
+- `dt`: date when this commit was marked as skipped.

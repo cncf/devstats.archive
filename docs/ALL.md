@@ -27,7 +27,7 @@ To add new project follow [adding new project](https://github.com/cncf/devstats/
 This file describes how to add new project on the test server.
 
 To add new project on the production (when already added on the test), you should use automatic deploy script:
-- Run `GET=1 ./devel/deploy_proj.sh` script with correct env variables or run deploy for all projects `GET=1 devel/deploy_all.sh`.
+- Run `IGET=1 GET=1 ./devel/deploy_proj.sh` script with correct env variables or run deploy for all projects `IGET=1 GET=1 devel/deploy_all.sh`.
 - Go to `https://newproject.devstats.cncf.io` and change Grafana, InfluxDB and PostgreSQL passwords (default deploy copies database from the test server, so it has test server credentials initially).
 - Reimport Home dashboard (which now contains link to a new project) on all existing projects.
 
@@ -293,6 +293,7 @@ You can tweak `devstats` tools by environment variables:
 - Set `GHA2DB_WHPORT`, for webhook tool, default ":1982", (note that webhook listens at 1982, but we are using https via apache proxy, apache listens on https port 2892 and proxy request to http 1982).
 - Set `GHA2DB_WHHOST`, for webhook tool, default "127.0.0.1", this is the IP of webhook socket (set to 0.0.0.0 to allow connection from any IP, 127.0.0.1 only allows connections from localhost - this is secure, we use Apache to enable https and proxy requests to webhook tool).
 - Set `GHA2DB_SKIP_VERIFY_PAYLOAD`, webhook tool, default true, use to skip payload checking and allow manual testing `GHA2DB_SKIP_VERIFY_PAYLOAD=1 ./webhook`.
+- Set `GHA2DB_SKIP_FULL_DEPLOY`, webhook tool, default true, use `GHA2DB_SKIP_FULL_DEPLOY=1` to skip full deploy when commit message contains `[deploy]` - useful for the test server.
 - Set `GHA2DB_DEPLOY_BRANCHES`, webhook tool, default "master", comma separated list, use to set which branches should be deployed.
 - Set `GHA2DB_DEPLOY_STATUSES`, webhook tool, default "Passed,Fixed", comma separated list, use to set which branches should be deployed.
 - Set `GHA2DB_DEPLOY_RESULTS`, webhook tool, default "0", comma separated list, use to set which travis ci results should be deployed.
@@ -710,6 +711,9 @@ Please see instructions [here](https://github.com/cncf/devstats/blob/master/GRAF
 # Continuous deployment
 
 There is a tool [webhook](https://github.com/cncf/devstats/blob/master/metrics/cmd/webhook/webhook.go) that is used to make deployments on successful build webhooks sent by Travis CI.
+If commit message contains `[no deploy]` then `webhook` is not performing any action on given branch.
+If commit message contains `[ci skip]` then Travis CI skips build, so no webhook is called at all.
+If commit message contains `[deploy]` then `webhook` attempts full deploy using `./devel/deploy_all.sh` script. It requires setting more environment variables for `webhook` command in the cron.
 
 Details [here](https://github.com/cncf/devstats/blob/master/metrics/CONTINUOUS_DEPLOYMENT.md).
 
@@ -745,7 +749,7 @@ Please see [Tests](https://github.com/cncf/devstats/blob/master/TESTING.md)
 - To test only selected SQL metric(s): `GHA2DB_PROJECT=kubernetes PG_PASS=... PG_DB=dbtest TEST_METRICS='new_contributors,episodic_contributors' go test metrics_test.go
 - To test single file that requires database: `GHA2DB_PROJECT=kubernetes PG_PASS=pwd IDB_HOST="localhost" IDB_PASS=pwd go test file_name.go`.
 3. To check all sources using multiple go tools (like fmt, lint, imports, vet, goconst, usedexports), run `make check`.
-4. To check Travis CI payloads use `PG_PASS=pwd ./webhook.sh` and then `./test_webhook.sh`.
+4. To check Travis CI payloads use `PG_PASS=pwd IDB_PASS=pwd IDB_HOST=localhost IDB_PASS_SRC=pwd IGET=1 GET=1 ./webhook.sh` and then `./test_webhook.sh`.
 5. Continuous deployment instructions are [here](https://github.com/cncf/devstats/blob/master/CONTINUOUS_DEPLOYMENT.md).
 ### [PULL_REQUEST_TEMPLATE](https://github.com/cncf/devstats/blob/master/PULL_REQUEST_TEMPLATE.md)
 Please make sure that you follow instructions from [CONTRIBUTING](https://github.com/cncf/devstats/blob/master/CONTRIBUTING.md)
@@ -856,7 +860,8 @@ provider_config = user=gha_admin host=127.0.0.1 port=5432 dbname=projectname_gra
 - To configure Apache we use those config files [ports.conf](https://github.com/cncf/devstats/blob/master/apache/ports.conf) and [000-default-le-ssl.conf](https://github.com/cncf/devstats/blob/master/apache/sites-available/000-default-le-ssl.conf).
 - You can change `webhook`'s port via `GHA2DB_WHPORT` environment variable (default is 1982), `webhook`'s root via `GHA2DB_WHROOT` (default is `hook`) and `webhook`'s host via `GHA2DB_WHHOST` (default is 127.0.0.1).
 - Please see [Usage](https://github.com/cncf/devstats/blob/master/USAGE.md) for details.
-- By default `webhook` tool verifies payloads to determine if they are original Travis CI payloads. To enable testing locally you can start tool via `GOPATH=/path GHA2DB_PROJECT_ROOT=/path/to/repo PG_PASS=... GHA2DB_SKIP_VERIFY_PAYLOAD=1 ./webhook` or use ready script `webhook.sh` and then use `./test_webhook.sh` script for testing.
+- By default `webhook` tool verifies payloads to determine if they are original Travis CI payloads.
+- To enable testing locally you can start tool via `GOPATH=/path GHA2DB_PROJECT_ROOT=/path/to/repo PG_PASS=... GHA2DB_SKIP_VERIFY_PAYLOAD=1 ./webhook` or use ready script `webhook.sh` and then use `./test_webhook.sh` script for testing.
 - You need to set both `GOPATH` and `GHA2DB_PROJECT_ROOT` because cron job environment have no environment variables set at all, you also have to set `PG_PASS` (this is to allow `webhook` to log into database in addition to `/tmp/gha2db_*` files).
 - Webook must be run via cron job (it can be called every 5 minutes because every next instance will either start or do nothing due to port being used by previous instance).
 - See [crontab.entry](https://github.com/cncf/devstats/blob/master/crontab.entry) for details, you need to tweak it a little and install via `crontab -e`.
@@ -867,8 +872,19 @@ provider_config = user=gha_admin host=127.0.0.1 port=5432 dbname=projectname_gra
 - You *MUST* set `GHA2DB_PROJECT_ROOT=/path/to/repo` for webhook tool, this is needed to decide where to run `make install` on successful build.
 - You should list only production branch via `GHA2DB_DEPLOY_BRANCHES=production` for production server, and you can list any number of branches for test servers: devstats.cncf.io is a production server, while cncftest.io is a test server.
 - If you changed `webhook` tool and deploy was successful - you need to kill old running instance via `killall webhook` then wait for cron to fire it again, to se if it works use `ps -aux | grep webhook`.
-- If you add `[ci skip]` to the commit message, Travis CI build will be skipped.
+- If you add `[ci skip]` to the commit message, Travis CI build will be skipped, so `webhook` tool won't be called at all (this skips tests).
 - If you add `[no deploy]` to the commit message, Travis CI build will run, but `webhook` tool will not deploy this build.
+- If you add `[deploy]` to the commit message, `webhook` will attempt to run full deploy script `./devel/deploy_all.sh`:
+  - This script will deploy all missing projects (it creates databases, grafanas, certificates, basical creates any missing project from scratch).
+  - You can use `GHA2DB_SKIP_FULL_DEPLOY=1` to disable this, this is a good idea on the test server, where you usually add all stuff manually, and even if not - you can manually call `./devel/deploy_all.sh` to see results.
+  - To make full deploy work, you may want to configure additional environment variables.
+  - You need to set standard Influx DB access variables (they're not needed when full deplopy script is not called): `IDB_HOST` and `IDB_PASS`.
+  - Use `IGET=1` to allow deploy script to fetch Influx database from the test server instead of generating it locally from scratch (this is 100x faster for 'All CNCF' project case - this project must be updated everytime new CNCF project is added, so **this** is the recommended way).
+  - `IGET=1` requires setting `IDB_PASS_SRC` - password for the test machine Influx to copy series from.
+  - Use `GET=1` to allow deploy script to fetch Postgres database from the test server instead of generating it locally (also orders of magnitude faster than generating locally).
+  - This fetches datbase dump which is available via WWW, so no additional password variables are needed.
+  - Finally take a look at the example [crontab](https://github.com/cncf/devstats/blob/master/crontab.entry) file, it has comments about what to put in the test environment and what in the production.
+- To check `webhook` tool locally use `PG_PASS=pwd IDB_PASS=pwd IDB_HOST=localhost IDB_PASS_SRC=pwd IGET=1 GET=1 ./webhook.sh` and then `./test_webhook.sh` from another terminal.
 ### [APACHE](https://github.com/cncf/devstats/blob/master/APACHE.md)
 # Apache installation
 
@@ -980,13 +996,13 @@ Prerequisites:
     ```
     8 * * * * PATH=$PATH:/path/to/your/GOPATH/bin GHA2DB_CMDDEBUG=1 GHA2DB_PROJECT=kubernetes IDB_HOST="localhost" IDB_PASS='...' PG_PASS='...' gha2db_sync 2>> /tmp/gha2db_sync.err 1>> /tmp/gha2db_sync.log
     30 3 * * * PATH=$PATH:/path/to/your/GOPATH/bin cron_db_backup.sh gha 2>> /tmp/gha2db_backup.err 1>> /tmp/gha2db_backup.log
-    */5 * * * * PATH=$PATH:/path/to/your/GOPATH/bin GOPATH=/your/gopath GHA2DB_CMDDEBUG=1 GHA2DB_PROJECT_ROOT=/path/to/repo PG_PASS="..." webhook 2>> /tmp/gha2db_webhook.err 1>> /tmp/gha2db_webhook.log
+    */5 * * * * PATH=$PATH:/path/to/your/GOPATH/bin GOPATH=/your/gopath GHA2DB_CMDDEBUG=1 GHA2DB_PROJECT_ROOT=/path/to/repo PG_PASS="..." GHA2DB_SKIP_FULL_DEPLOY=1 webhook 2>> /tmp/gha2db_webhook.err 1>> /tmp/gha2db_webhook.log
     ```
     - For multiple projects you can use `devstats` instead of `gha2db_sync` and `cron/cron_db_backup_all.sh` instead of `cron/cron_db_backup.sh`.
     ```
     7 * * * * PATH=$PATH:/path/to/GOPATH/bin IDB_HOST="localhost" IDB_PASS="..." PG_PASS="..." devstats 2>> /tmp/gha2db_sync.err 1>> /tmp/gha2db_sync.log
     30 3 * * * PATH=$PATH:/path/to/GOPATH/bin cron_db_backup_all.sh 2>> /tmp/gha2db_backup.err 1>> /tmp/gha2db_backup.log
-    */5 * * * * PATH=$PATH:/path/to/GOPATH/bin GOPATH=/go/path GHA2DB_CMDDEBUG=1 GHA2DB_PROJECT_ROOT=/path/to/repo GHA2DB_DEPLOY_BRANCHES="production,master" PG_PASS=... webhook 2>> /tmp/gha2db_webhook.err 1>> /tmp/gha2db_webhook.log
+    */5 * * * * PATH=$PATH:/path/to/GOPATH/bin GOPATH=/go/path GHA2DB_CMDDEBUG=1 GHA2DB_PROJECT_ROOT=/path/to/repo GHA2DB_DEPLOY_BRANCHES="production,master" PG_PASS=... GHA2DB_SKIP_FULL_DEPLOY=1 webhook 2>> /tmp/gha2db_webhook.err 1>> /tmp/gha2db_webhook.log
     ```
     - First crontab entry is for automatic GHA sync.
     - Second crontab entry is for automatic daily backup of GHA database.
@@ -1129,13 +1145,13 @@ Prerequisites:
     ```
     8 * * * * PATH=$PATH:/path/to/your/GOPATH/bin GHA2DB_CMDDEBUG=1 GHA2DB_PROJECT=kubernetes IDB_HOST="localhost" IDB_PASS='...' PG_PASS='...' gha2db_sync 2>> /tmp/gha2db_sync.err 1>> /tmp/gha2db_sync.log
     20 3 * * * PATH=$PATH:/path/to/your/GOPATH/bin cron_db_backup.sh gha 2>> /tmp/gha2db_backup.err 1>> /tmp/gha2db_backup.log
-    */5 * * * * PATH=$PATH:/path/to/your/GOPATH/bin GOPATH=/your/gopath GHA2DB_CMDDEBUG=1 GHA2DB_PROJECT_ROOT=/path/to/repo PG_PASS="..." webhook 2>> /tmp/gha2db_webhook.err 1>> /tmp/gha2db_webhook.log
+    */5 * * * * PATH=$PATH:/path/to/your/GOPATH/bin GOPATH=/your/gopath GHA2DB_CMDDEBUG=1 GHA2DB_PROJECT_ROOT=/path/to/repo PG_PASS="..." GHA2DB_SKIP_FULL_DEPLOY=1 webhook 2>> /tmp/gha2db_webhook.err 1>> /tmp/gha2db_webhook.log
     ```
     - For multiple projects you can use `devstats` instead of `gha2db_sync` and `cron/cron_db_backup_all.sh` instead of `cron/cron_db_backup.sh`.
     ```
     7 * * * * PATH=$PATH:/path/to/GOPATH/bin IDB_HOST="localhost" IDB_PASS="..." PG_PASS="..." devstats 2>> /tmp/gha2db_sync.err 1>> /tmp/gha2db_sync.log
     30 3 * * * PATH=$PATH:/path/to/GOPATH/bin cron_db_backup_all.sh 2>> /tmp/gha2db_backup.err 1>> /tmp/gha2db_backup.log
-    */5 * * * * PATH=$PATH:/path/to/GOPATH/bin GOPATH=/go/path GHA2DB_CMDDEBUG=1 GHA2DB_PROJECT_ROOT=/path/to/repo GHA2DB_DEPLOY_BRANCHES="production,master" PG_PASS=... webhook 2>> /tmp/gha2db_webhook.err 1>> /tmp/gha2db_webhook.log
+    */5 * * * * PATH=$PATH:/path/to/GOPATH/bin GOPATH=/go/path GHA2DB_CMDDEBUG=1 GHA2DB_PROJECT_ROOT=/path/to/repo GHA2DB_DEPLOY_BRANCHES="production,master" PG_PASS=... GHA2DB_SKIP_FULL_DEPLOY=1 webhook 2>> /tmp/gha2db_webhook.err 1>> /tmp/gha2db_webhook.log
     ```
     - First crontab entry is for automatic GHA sync.
     - Second crontab entry is for automatic daily backup of GHA database.
@@ -1641,13 +1657,13 @@ Prerequisites:
     ```
     8 * * * * PATH=$PATH:/path/to/your/GOPATH/bin GHA2DB_CMDDEBUG=1 GHA2DB_PROJECT=kubernetes IDB_HOST="localhost" IDB_PASS='...' PG_PASS='...' gha2db_sync 2>> /tmp/gha2db_sync.err 1>> /tmp/gha2db_sync.log
     20 3 * * * PATH=$PATH:/path/to/your/GOPATH/bin cron_db_backup.sh gha 2>> /tmp/gha2db_backup.err 1>> /tmp/gha2db_backup.log
-    */5 * * * * PATH=$PATH:/path/to/your/GOPATH/bin GOPATH=/your/gopath GHA2DB_CMDDEBUG=1 GHA2DB_PROJECT_ROOT=/path/to/repo PG_PASS="..." webhook 2>> /tmp/gha2db_webhook.err 1>> /tmp/gha2db_webhook.log
+    */5 * * * * PATH=$PATH:/path/to/your/GOPATH/bin GOPATH=/your/gopath GHA2DB_CMDDEBUG=1 GHA2DB_PROJECT_ROOT=/path/to/repo PG_PASS="..." GHA2DB_SKIP_FULL_DEPLOY=1 webhook 2>> /tmp/gha2db_webhook.err 1>> /tmp/gha2db_webhook.log
     ```
     - For multiple projects you can use `devstats` instead of `gha2db_sync` and `cron/cron_db_backup_all.sh` instead of `cron/cron_db_backup.sh`.
     ```
     7 * * * * PATH=$PATH:/path/to/GOPATH/bin IDB_HOST="localhost" IDB_PASS="..." PG_PASS="..." devstats 2>> /tmp/gha2db_sync.err 1>> /tmp/gha2db_sync.log
     30 3 * * * PATH=$PATH:/path/to/GOPATH/bin cron_db_backup_all.sh 2>> /tmp/gha2db_backup.err 1>> /tmp/gha2db_backup.log
-    */5 * * * * PATH=$PATH:/path/to/GOPATH/bin GOPATH=/go/path GHA2DB_CMDDEBUG=1 GHA2DB_PROJECT_ROOT=/path/to/repo GHA2DB_DEPLOY_BRANCHES="production,master" PG_PASS=... webhook 2>> /tmp/gha2db_webhook.err 1>> /tmp/gha2db_webhook.log
+    */5 * * * * PATH=$PATH:/path/to/GOPATH/bin GOPATH=/go/path GHA2DB_CMDDEBUG=1 GHA2DB_PROJECT_ROOT=/path/to/repo GHA2DB_DEPLOY_BRANCHES="production,master" PG_PASS=... GHA2DB_SKIP_FULL_DEPLOY=1 webhook 2>> /tmp/gha2db_webhook.err 1>> /tmp/gha2db_webhook.log
     ```
     - First crontab entry is for automatic GHA sync.
     - Second crontab entry is for automatic daily backup of GHA database.
@@ -2219,6 +2235,7 @@ Most important columns are:
 # Columns
 
 - `sha`: commit SHA.
+- `dt`: date when this commit was marked as skipped.
 ### [docs/tables/gha_comments](https://github.com/cncf/devstats/blob/master/docs/tables/gha_comments.md)
 # `gha_comments` table
 
@@ -2767,13 +2784,13 @@ Prerequisites:
     ```
     8 * * * * PATH=$PATH:/path/to/your/GOPATH/bin GHA2DB_CMDDEBUG=1 GHA2DB_PROJECT=kubernetes IDB_HOST="localhost" IDB_PASS='...' PG_PASS='...' gha2db_sync 2>> /tmp/gha2db_sync.err 1>> /tmp/gha2db_sync.log
     20 3 * * * PATH=$PATH:/path/to/your/GOPATH/bin cron_db_backup.sh gha 2>> /tmp/gha2db_backup.err 1>> /tmp/gha2db_backup.log
-    */5 * * * * PATH=$PATH:/path/to/your/GOPATH/bin GOPATH=/your/gopath GHA2DB_CMDDEBUG=1 GHA2DB_PROJECT_ROOT=/path/to/repo PG_PASS="..." webhook 2>> /tmp/gha2db_webhook.err 1>> /tmp/gha2db_webhook.log
+    */5 * * * * PATH=$PATH:/path/to/your/GOPATH/bin GOPATH=/your/gopath GHA2DB_CMDDEBUG=1 GHA2DB_PROJECT_ROOT=/path/to/repo PG_PASS="..." GHA2DB_SKIP_FULL_DEPLOY=1 webhook 2>> /tmp/gha2db_webhook.err 1>> /tmp/gha2db_webhook.log
     ```
     - For multiple projects you can use `devstats` instead of `gha2db_sync` and `cron/cron_db_backup_all.sh` instead of `cron/cron_db_backup.sh`.
     ```
     7 * * * * PATH=$PATH:/path/to/GOPATH/bin IDB_HOST="localhost" IDB_PASS="..." PG_PASS="..." devstats 2>> /tmp/gha2db_sync.err 1>> /tmp/gha2db_sync.log
     30 3 * * * PATH=$PATH:/path/to/GOPATH/bin cron_db_backup_all.sh 2>> /tmp/gha2db_backup.err 1>> /tmp/gha2db_backup.log
-    */5 * * * * PATH=$PATH:/path/to/GOPATH/bin GOPATH=/go/path GHA2DB_CMDDEBUG=1 GHA2DB_PROJECT_ROOT=/path/to/repo GHA2DB_DEPLOY_BRANCHES="production,master" PG_PASS=... webhook 2>> /tmp/gha2db_webhook.err 1>> /tmp/gha2db_webhook.log
+    */5 * * * * PATH=$PATH:/path/to/GOPATH/bin GOPATH=/go/path GHA2DB_CMDDEBUG=1 GHA2DB_PROJECT_ROOT=/path/to/repo GHA2DB_DEPLOY_BRANCHES="production,master" PG_PASS=... GHA2DB_SKIP_FULL_DEPLOY=1 webhook 2>> /tmp/gha2db_webhook.err 1>> /tmp/gha2db_webhook.log
     ```
     - First crontab entry is for automatic GHA sync.
     - Second crontab entry is for automatic daily backup of GHA database.
@@ -2930,7 +2947,9 @@ We're getting all possible GitHub data for all objects, and all objects historic
 - You can use all defined environments variables, but add `_SRC` suffic for source database and `_DST` suffix for destination database.
 - [webhook](https://github.com/cncf/devstats/blob/master/cmd/webhook/webhook.go)
 - `webhook` is used to react to Travis CI webhooks and trigger deploy if status, branch and type match defined values, more details [here](https://github.com/cncf/devstats/blob/master/CONTINUOUS_DEPLOYMENT.md).
-- Add `[no deploy]` to the commit message, to skip deploying. Add `[ci skip]` to skip entire Travis CI build.
+- Add `[no deploy]` to the commit message, to skip deploying.
+- Add `[ci skip]` to skip testing (will not spawn Travis CI build).
+- Add `[deploy]` to do a full deploy using `./devel/deploy_all.sh` script, this needs more environment variables to be set, see [here](https://github.com/cncf/devstats/blob/master/CONTINUOUS_DEPLOYMENT.md).
 - There are few shell scripts for example: running sync every N seconds, setup InfluxDB etc.
 - [merge_pdbs](https://github.com/cncf/devstats/blob/master/cmd/merge_pdbs/merge_pdbs.go)
 - `merge_pdbs` is used to generate Postgres database that contains data from other multiple databases.
