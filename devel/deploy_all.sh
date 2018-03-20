@@ -56,4 +56,6 @@ then
 fi
 
 CERT=1 WWW=1 ./devel/create_www.sh || exit 23
+./devel/pdb_vars_all.sh || exit 24
+./devel/idb_vars_all.sh || exit 25
 echo "$0: All deployments finished"
