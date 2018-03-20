@@ -144,6 +144,30 @@ func checkError(isError bool, w http.ResponseWriter, err error) bool {
 	return false
 }
 
+// checkDeployEnvError - checks if env variables needed for deploy mode are set.
+func checkDeployEnvError(w http.ResponseWriter) bool {
+	var errMsg string
+	if os.Getenv("PG_PASS") == "" {
+		errMsg += "Environment variable 'PG_PASS' must be set in [deploy] mode\n"
+	}
+	if os.Getenv("IDB_PASS") == "" {
+		errMsg += "Environment variable 'IDB_PASS' must be set in [deploy] mode\n"
+	}
+	if os.Getenv("IDB_HOST") == "" {
+		errMsg += "Environment variable 'IDB_HOST' must be set in [deploy] mode\n"
+	}
+	if os.Getenv("IGET") != "" && os.Getenv("IDB_PASS_SRC") == "" {
+		errMsg += "Environment variable 'IDB_PASS_SRC' must be set when variable 'IGET' is used (in [deploy] mode)\n"
+	}
+	if errMsg != "" {
+		lib.Printf("webhook: error: %s\n", errMsg)
+		fmt.Fprintf(os.Stderr, "webhook: error: %s\n", errMsg)
+		respondWithError(w, "webhook: "+errMsg)
+		return true
+	}
+	return false
+}
+
 // successPayload: is this a success payload?
 func successPayload(ctx *lib.Ctx, pl payload) bool {
 	if pl.Repo.Name != lib.Devstats || pl.Repo.OwnerName != "cncf" {
@@ -318,6 +342,9 @@ func webhookHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if strings.Contains(payload.Message, "[deploy]") {
+		if checkDeployEnvError(w) {
+			return
+		}
 		lib.Printf("WebHook: %s\n", "./devel/deploy_all.sh")
 		_, err = lib.ExecCommand(&ctx, []string{"./devel/deploy_all.sh"}, nil)
 		if checkError(true, w, err) {
