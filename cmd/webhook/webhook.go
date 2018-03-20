@@ -356,7 +356,7 @@ func webhookHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		lib.Printf("WebHook: %s succeeded\n", "./devel/deploy_all.sh")
-		deployedBy += " './devel/deploy_all.sh'"
+		deployedBy += ", './devel/deploy_all.sh'"
 	}
 	dtEnd := time.Now()
 	lib.Printf("WebHook: deployed via %s in %v\n", deployedBy, dtEnd.Sub(dtStart))
