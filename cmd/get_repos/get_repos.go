@@ -367,8 +367,8 @@ func getCommitFiles(ch chan int, ctx *lib.Ctx, con *sql.DB, filesSkipPattern *re
 		lib.ExecSQLWithErr(
 			con,
 			ctx,
-			lib.InsertIgnore("into gha_skip_commits(sha) "+lib.NValues(1)),
-			lib.AnyArray{sha}...,
+			lib.InsertIgnore("into gha_skip_commits(sha, dt) "+lib.NValues(2)),
+			lib.AnyArray{sha, time.Now()}...,
 		)
 		ch <- -1
 		return
@@ -429,8 +429,8 @@ func getCommitFiles(ch chan int, ctx *lib.Ctx, con *sql.DB, filesSkipPattern *re
 		lib.ExecSQLTxWithErr(
 			tx,
 			ctx,
-			lib.InsertIgnore("into gha_skip_commits(sha) "+lib.NValues(1)),
-			lib.AnyArray{sha}...,
+			lib.InsertIgnore("into gha_skip_commits(sha, dt) "+lib.NValues(2)),
+			lib.AnyArray{sha, time.Now()}...,
 		)
 		// Commit transaction
 		lib.FatalOnError(tx.Commit())

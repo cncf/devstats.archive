@@ -1003,6 +1003,7 @@ func Structure(ctx *Ctx) {
 			CreateTable(
 				"gha_skip_commits("+
 					"sha varchar(40) not null, "+
+					"dt {{ts}} not null, "+
 					"primary key(sha)"+
 					")",
 			),

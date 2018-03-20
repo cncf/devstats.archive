@@ -679,7 +679,8 @@ ALTER TABLE gha_repos OWNER TO gha_admin;
 --
 
 CREATE TABLE gha_skip_commits (
-    sha character varying(40) NOT NULL
+    sha character varying(40) NOT NULL,
+    dt timestamp without time zone NOT NULL
 );
 
 
