@@ -58,6 +58,7 @@ type Ctx struct {
 	WebHookPort       string          // From GHA2DB_WHPORT, webhook tool, default ":1982", note that webhook listens using http:1982, but we use apache on https:2982 (to enable https protocol and proxy requests to http:1982)
 	WebHookHost       string          // From GHA2DB_WHHOST, webhook tool, default "127.0.0.1" (this can be localhost to disable access by IP, we use Apache proxy to enable https and then apache only need 127.0.0.1)
 	CheckPayload      bool            // From GHA2DB_SKIP_VERIFY_PAYLOAD, webhook tool, default true, use GHA2DB_SKIP_VERIFY_PAYLOAD=1 to manually test payloads
+	FullDeploy        bool            // From GHA2DB_SKIP_FULL_DEPLOY, webhook tool, default true, use GHA2DB_SKIP_FULL_DEPLOY=1 to ignore "[deploy]" requests that call `./devel/deploy_all.sh`.
 	DeployBranches    []string        // From GHA2DB_DEPLOY_BRANCHES, webhook tool, default "master" - comma separated list
 	DeployStatuses    []string        // From GHA2DB_DEPLOY_STATUSES, webhook tool, default "Passed,Fixed", - comma separated list
 	DeployResults     []int           // From GHA2DB_DEPLOY_RESULTS, webhook tool, default "0", - comma separated list
@@ -383,6 +384,7 @@ func (ctx *Ctx) Init() {
 		ctx.WebHookRoot = "/hook"
 	}
 	ctx.CheckPayload = os.Getenv("GHA2DB_SKIP_VERIFY_PAYLOAD") == ""
+	ctx.FullDeploy = os.Getenv("GHA2DB_SKIP_FULL_DEPLOY") == ""
 
 	// Tests
 	ctx.TestsYaml = os.Getenv("GHA2DB_TESTS_YAML")

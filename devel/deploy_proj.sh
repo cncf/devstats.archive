@@ -31,17 +31,9 @@ then
 fi
 echo "$0: $PROJ deploy started"
 PDB=1 IDB=1 ./devel/create_databases.sh || exit 3
-if [ ! -z "$GET" ]
-then
-  GHA2DB_PROJECT="$PROJ" PG_DB="$PROJDB" IDB_DB="$PROJDB" ./gha2db_sync || exit 4
-fi
 if ( [ ! "$PROJ" = "all" ] && [ ! "$PROJ" = "opencontainers" ] )
 then
-  IDB=1 ./all/add_project.sh "$PROJDB" "$PROJREPO" || exit 5
-  if [ ! -z "$AGET" ]
-  then
-    GHA2DB_PROJECT=all PG_DB=allprj IDB_DB=allprj ./gha2db_sync || exit 6
-  fi
+  IDB=1 ./all/add_project.sh "$PROJDB" "$PROJREPO" || exit 4
 fi
-./devel/create_grafana.sh || exit 7
+./devel/create_grafana.sh || exit 5
 echo "$0: $PROJ deploy finished"

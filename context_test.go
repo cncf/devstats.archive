@@ -62,6 +62,7 @@ func copyContext(in *lib.Ctx) *lib.Ctx {
 		WebHookPort:       in.WebHookPort,
 		WebHookHost:       in.WebHookHost,
 		CheckPayload:      in.CheckPayload,
+		FullDeploy:        in.FullDeploy,
 		DeployBranches:    in.DeployBranches,
 		DeployStatuses:    in.DeployStatuses,
 		DeployResults:     in.DeployResults,
@@ -224,6 +225,7 @@ func TestInit(t *testing.T) {
 		WebHookPort:       ":1982",
 		WebHookHost:       "127.0.0.1",
 		CheckPayload:      true,
+		FullDeploy:        true,
 		DeployBranches:    []string{"master"},
 		DeployStatuses:    []string{"Passed", "Fixed"},
 		DeployResults:     []int{0},
@@ -604,6 +606,15 @@ func TestInit(t *testing.T) {
 				t,
 				copyContext(&defaultContext),
 				map[string]interface{}{"CheckPayload": false},
+			),
+		},
+		{
+			"Setting skip full deploy",
+			map[string]string{"GHA2DB_SKIP_FULL_DEPLOY": "1"},
+			dynamicSetFields(
+				t,
+				copyContext(&defaultContext),
+				map[string]interface{}{"FullDeploy": false},
 			),
 		},
 		{
