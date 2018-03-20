@@ -8,7 +8,8 @@
 - To configure Apache we use those config files [ports.conf](https://github.com/cncf/devstats/blob/master/apache/ports.conf) and [000-default-le-ssl.conf](https://github.com/cncf/devstats/blob/master/apache/sites-available/000-default-le-ssl.conf).
 - You can change `webhook`'s port via `GHA2DB_WHPORT` environment variable (default is 1982), `webhook`'s root via `GHA2DB_WHROOT` (default is `hook`) and `webhook`'s host via `GHA2DB_WHHOST` (default is 127.0.0.1).
 - Please see [Usage](https://github.com/cncf/devstats/blob/master/USAGE.md) for details.
-- By default `webhook` tool verifies payloads to determine if they are original Travis CI payloads. To enable testing locally you can start tool via `GOPATH=/path GHA2DB_PROJECT_ROOT=/path/to/repo PG_PASS=... GHA2DB_SKIP_VERIFY_PAYLOAD=1 ./webhook` or use ready script `webhook.sh` and then use `./test_webhook.sh` script for testing.
+- By default `webhook` tool verifies payloads to determine if they are original Travis CI payloads.
+- To enable testing locally you can start tool via `GOPATH=/path GHA2DB_PROJECT_ROOT=/path/to/repo PG_PASS=... GHA2DB_SKIP_VERIFY_PAYLOAD=1 ./webhook` or use ready script `webhook.sh` and then use `./test_webhook.sh` script for testing.
 - You need to set both `GOPATH` and `GHA2DB_PROJECT_ROOT` because cron job environment have no environment variables set at all, you also have to set `PG_PASS` (this is to allow `webhook` to log into database in addition to `/tmp/gha2db_*` files).
 - Webook must be run via cron job (it can be called every 5 minutes because every next instance will either start or do nothing due to port being used by previous instance).
 - See [crontab.entry](https://github.com/cncf/devstats/blob/master/crontab.entry) for details, you need to tweak it a little and install via `crontab -e`.
@@ -19,5 +20,16 @@
 - You *MUST* set `GHA2DB_PROJECT_ROOT=/path/to/repo` for webhook tool, this is needed to decide where to run `make install` on successful build.
 - You should list only production branch via `GHA2DB_DEPLOY_BRANCHES=production` for production server, and you can list any number of branches for test servers: devstats.cncf.io is a production server, while cncftest.io is a test server.
 - If you changed `webhook` tool and deploy was successful - you need to kill old running instance via `killall webhook` then wait for cron to fire it again, to se if it works use `ps -aux | grep webhook`.
-- If you add `[ci skip]` to the commit message, Travis CI build will be skipped.
+- If you add `[ci skip]` to the commit message, Travis CI build will be skipped, so `webhook` tool won't be called at all (this skips tests).
 - If you add `[no deploy]` to the commit message, Travis CI build will run, but `webhook` tool will not deploy this build.
+- If you add `[deploy]` to the commit message, `webhook` will attempt to run full deploy script `./devel/deploy_all.sh`:
+  - This script will deploy all missing projects (it creates databases, grafanas, certificates, basical creates any missing project from scratch).
+  - You can use `GHA2DB_SKIP_FULL_DEPLOY=1` to disable this, this is a good idea on the test server, where you usually add all stuff manually, and even if not - you can manually call `./devel/deploy_all.sh` to see results.
+  - To make full deploy work, you may want to configure additional environment variables.
+  - You need to set standard Influx DB access variables (they're not needed when full deplopy script is not called): `IDB_HOST` and `IDB_PASS`.
+  - Use `IGET=1` to allow deploy script to fetch Influx database from the test server instead of generating it locally from scratch (this is 100x faster for 'All CNCF' project case - this project must be updated everytime new CNCF project is added, so **this** is the recommended way).
+  - `IGET=1` requires setting `IDB_PASS_SRC` - password for the test machine Influx to copy series from.
+  - Use `GET=1` to allow deploy script to fetch Postgres database from the test server instead of generating it locally (also orders of magnitude faster than generating locally).
+  - This fetches datbase dump which is available via WWW, so no additional password variables are needed.
+  - Finally take a look at the example [crontab](https://github.com/cncf/devstats/blob/master/crontab.entry) file, it has comments about what to put in the test environment and what in the production.
+- To check `webhook` tool locally use `PG_PASS=pwd IDB_PASS=pwd IDB_HOST=localhost IDB_PASS_SRC=pwd IGET=1 GET=1 ./webhook.sh` and then `./test_webhook.sh` from another terminal.

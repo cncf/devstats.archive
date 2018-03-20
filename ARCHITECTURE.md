@@ -112,7 +112,9 @@ We're getting all possible GitHub data for all objects, and all objects historic
 - You can use all defined environments variables, but add `_SRC` suffic for source database and `_DST` suffix for destination database.
 - [webhook](https://github.com/cncf/devstats/blob/master/cmd/webhook/webhook.go)
 - `webhook` is used to react to Travis CI webhooks and trigger deploy if status, branch and type match defined values, more details [here](https://github.com/cncf/devstats/blob/master/CONTINUOUS_DEPLOYMENT.md).
-- Add `[no deploy]` to the commit message, to skip deploying. Add `[ci skip]` to skip entire Travis CI build.
+- Add `[no deploy]` to the commit message, to skip deploying.
+- Add `[ci skip]` to skip testing (will not spawn Travis CI build).
+- Add `[deploy]` to do a full deploy using `./devel/deploy_all.sh` script, this needs more environment variables to be set, see [here](https://github.com/cncf/devstats/blob/master/CONTINUOUS_DEPLOYMENT.md).
 - There are few shell scripts for example: running sync every N seconds, setup InfluxDB etc.
 - [merge_pdbs](https://github.com/cncf/devstats/blob/master/cmd/merge_pdbs/merge_pdbs.go)
 - `merge_pdbs` is used to generate Postgres database that contains data from other multiple databases.
