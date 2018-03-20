@@ -133,6 +133,7 @@ func checkError(isError bool, w http.ResponseWriter, err error) bool {
 	if err != nil {
 		if isError {
 			lib.Printf("webhook: error: %v\n", err)
+			fmt.Fprintf(os.Stderr, "webhook: error: %v\n", err)
 		} else {
 			lib.Printf("webhook: warning: %v\n", err)
 		}
@@ -315,6 +316,14 @@ func webhookHandler(w http.ResponseWriter, r *http.Request) {
 	_, err = lib.ExecCommand(&ctx, []string{"make", "install"}, nil)
 	if checkError(true, w, err) {
 		return
+	}
+	if strings.Contains(payload.Message, "[deploy]") {
+		lib.Printf("WebHook: %s\n", "./devel/deploy_all.sh")
+		_, err = lib.ExecCommand(&ctx, []string{"./devel/deploy_all.sh"}, nil)
+		if checkError(true, w, err) {
+			return
+		}
+		lib.Printf("WebHook: %s succeeded\n", "./devel/deploy_all.sh")
 	}
 	dtEnd := time.Now()
 	lib.Printf("WebHook: deployed via `make install` in %v\n", dtEnd.Sub(dtStart))
