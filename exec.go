@@ -63,10 +63,12 @@ func ExecCommand(ctx *Ctx, cmdAndArgs []string, env map[string]string) (string, 
 
 	// Capture STDOUT (non buffered - all at once when command finishes), only used on error and when no buffered/piped version used
 	// Which means it is used on error when CmdDebug <= 1
+	// In CmdDebug > 1 mode, we're displaying STDOUT during execution, and storing results to 'outputStr'
 	// Capture STDERR (non buffered - all at once when command finishes)
 	var (
-		stdOut bytes.Buffer
-		stdErr bytes.Buffer
+		stdOut    bytes.Buffer
+		stdErr    bytes.Buffer
+		outputStr string
 	)
 	cmd.Stderr = &stdErr
 	if ctx.CmdDebug <= 1 {
@@ -98,6 +100,7 @@ func ExecCommand(ctx *Ctx, cmdAndArgs []string, env map[string]string) (string, 
 		nBytes, e := stdOutPipe.Read(buffer)
 		for e == nil && nBytes > 0 {
 			Printf("%s", buffer[:nBytes])
+			outputStr += string(buffer[:nBytes])
 			nBytes, e = stdOutPipe.Read(buffer)
 		}
 		if e != io.EOF {
@@ -162,7 +165,11 @@ func ExecCommand(ctx *Ctx, cmdAndArgs []string, env map[string]string) (string, 
 	}
 	outStr := ""
 	if ctx.ExecOutput {
-		outStr = stdOut.String()
+		if ctx.CmdDebug <= 1 {
+			outStr = stdOut.String()
+		} else {
+			outStr = outputStr
+		}
 	}
 	return outStr, nil
 }
