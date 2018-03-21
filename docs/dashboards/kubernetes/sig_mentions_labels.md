@@ -17,9 +17,10 @@
 <li>To mark issue as belonging to some `SIGNAME` SIG - it must have `sig/SIGNAME` label.</li>
 <li>To mark issue as belonging to some `CAT` category/kind - it must have `kind/CAT` label.</li>
 <li>SIG list comes from all possible values of `SIG/sig` labels, category list contains all possible values of `kind/kind` labels.</li>
-<li>You can filter by SIG and categories. You must select exactly one SIG and one or more (or `All`) categories.</li>
+<li>You can filter by SIG and categories.</li>
+<li>You must select exactly one SIG.</li>
 <li>You can select multiple categories to display, or select special value <em>All</em> to display all categories.</li>
-<li>Selecting period (for example week) means that dahsboard will count issues in these periods. 7 Day MA will cont issues in 7 day window and divide result by 7 (so it will be 7 days MA value)</li>
+<li>Selecting period (for example week) means that dahsboard will count issues in these periods. 7 Day MA will count issues in 7 day window and divide result by 7 (so it will be 7 days MA value)</li>
 <li>See <a href="https://github.com/cncf/devstats/blob/master/docs/periods.md" target="_blank">here</a> for more informations about periods.</li>
 </ul>
 
