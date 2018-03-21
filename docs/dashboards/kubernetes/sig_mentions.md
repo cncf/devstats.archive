@@ -16,7 +16,7 @@
 <li>There can be other texts before and after the SIG, so <code>Hi there @kubernetes/sig-apps-feature-request, I want to ...</code> will evaluate to <code>apps</code>.</li>
 <li>For exact <code>regexp</code> used, please check developer <a href="https://github.com/cncf/devstats/blob/master/docs/dashboards/kubernetes/sig_mentions_devel.md" target="_blank">documentation</a>.</li>
 <li><strong>Texts</strong> means comments, commit messages, issue titles, issue texts, PR titles, PR texts, PR review texts.</li>
-<li>You can filter by repository group and period.</li>
+<li>You can filter by period and SIG(s).</li>
 <li>Selecting period (for example week) means that dahsboard will count SIG mentions in these periods.</li>
 <li>See <a href="https://github.com/cncf/devstats/blob/master/docs/periods.md" target="_blank">here</a> for more informations about periods.</li>
 <li>This dashboard allows to select multiple SIG, it contains special &#39;All&#39; value to display all SIGs.</li>
