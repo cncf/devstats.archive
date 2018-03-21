@@ -1,8 +1,8 @@
 <h1 id="kubernetes-sig-mentions-categories-dashboard">Kubernetes SIG mentions categories dashboard</h1>
 <p>Links:</p>
 <ul>
-<li>First Postgres <a href="https://github.com/cncf/devstats/blob/master/metrics/kubernetes/sig_mentions_cats.sql" target="_blank">SQL file</a>.</li>
-<li>Second Postgres <a href="https://github.com/cncf/devstats/blob/master/metrics/kubernetes/sig_mentions_breakdown.sql" target="_blank">SQL file</a>.</li>
+<li>First panel Postgres <a href="https://github.com/cncf/devstats/blob/master/metrics/kubernetes/sig_mentions_cats.sql" target="_blank">SQL file</a>.</li>
+<li>Second panel Postgres <a href="https://github.com/cncf/devstats/blob/master/metrics/kubernetes/sig_mentions_breakdown.sql" target="_blank">SQL file</a>.</li>
 <li>InfluxDB <a href="https://github.com/cncf/devstats/blob/master/metrics/kubernetes/metrics.yaml" target="_blank">series definition</a>. Search for <code>sig_mentions_cats</code> and <code>sig_mentions_breakdown</code></li>
 <li>Grafana dashboard <a href="https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/sig_mentions_categories.json" target="_blank">JSON</a>.</li>
 <li>Developer <a href="https://github.com/cncf/devstats/blob/master/docs/dashboards/kubernetes/sig_mentions_cats_devel.md" target="_blank">documentation</a>.</li>

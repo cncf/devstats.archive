@@ -1,4 +1,4 @@
-# SIG mentions categories dashboard
+# SIG mentions using labels dashboard
 
 Links:
 - Postgres SQL files: [sig_mentions_cats.sql](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/sig_mentions_cats.sql) and [sig_mentions_breakdown.sql](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/sig_mentions_breakdown.sql).

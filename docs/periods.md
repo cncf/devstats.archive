@@ -9,3 +9,4 @@
 - Skip: w7, m7, q7, y7 means that we should exclude those periods, so we will only have d7 left. That means we're calculating d,w,m,q,y,d7 periods. d7 is very useful, becasue it contains all 7 week days (so values are similar) but we're progressing one day instead of 7 days.
 - d7 = '7 Days MA' = '7 days moving average'.
 - h24 = '24 Hours MA' = '24 hours moving avegage'.
+- Note that moving averages can give non-intuitive values, for example let's say there were 10 issues in 7 days. 7 Days MA will give you value 10/7 = 1.42857... which doesnt look like a correct Issue number. But this means avg 1.49 issue/day in 7 Days moving average period.

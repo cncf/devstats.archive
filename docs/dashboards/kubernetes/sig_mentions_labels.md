@@ -1,28 +1,25 @@
-<h1 id="kubernetes-sig-mentions-categories-dashboard">Kubernetes SIG mentions categories dashboard</h1>
+<h1 id="kubernetes-sig-mentions-labels-dashboard">Kubernetes SIG mentions using labels dashboard</h1>
 <p>Links:</p>
 <ul>
-<li>First Postgres <a href="https://github.com/cncf/devstats/blob/master/metrics/kubernetes/sig_mentions_cats.sql" target="_blank">SQL file</a>.</li>
-<li>Second Postgres <a href="https://github.com/cncf/devstats/blob/master/metrics/kubernetes/sig_mentions_breakdown.sql" target="_blank">SQL file</a>.</li>
-<li>InfluxDB <a href="https://github.com/cncf/devstats/blob/master/metrics/kubernetes/metrics.yaml" target="_blank">series definition</a>. Search for <code>sig_mentions_cats</code> and <code>sig_mentions_breakdown</code></li>
-<li>Grafana dashboard <a href="https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/sig_mentions_categories.json" target="_blank">JSON</a>.</li>
-<li>Developer <a href="https://github.com/cncf/devstats/blob/master/docs/dashboards/kubernetes/sig_mentions_cats_devel.md" target="_blank">documentation</a>.</li>
+<li>First panel Postgres <a href="https://github.com/cncf/devstats/blob/master/metrics/kubernetes/labels_sig_kind.sql" target="_blank">SQL file</a>.</li>
+<li>Second panel Postgres <a href="https://github.com/cncf/devstats/blob/master/metrics/kubernetes/labels_kind.sql" target="_blank">SQL file</a>.</li>
+<li>Third panel Postgres <a href="https://github.com/cncf/devstats/blob/master/metrics/kubernetes/labels_sig.sql" target="_blank">SQL file</a>.</li>
+<li>InfluxDB <a href="https://github.com/cncf/devstats/blob/master/metrics/kubernetes/metrics.yaml" target="_blank">series definition</a>. Search for <code>labels_sig_kind</code>, <code>labels_sig</code> and <code>labels_kind</code></li>
+<li>Grafana dashboard <a href="https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/sig_mentions_using_labels.json" target="_blank">JSON</a>.</li>
+<li>Developer <a href="https://github.com/cncf/devstats/blob/master/docs/dashboards/kubernetes/sig_mentions_labels_devel.md" target="_blank">documentation</a>.</li>
 </ul>
 <h1 id="description">Description</h1>
 <ul>
-<li>This dashboard shows stacked number of various SIG categories mentions.</li>
-<li>It shows stacked chart of each category mentions for all SIGs in one panel and stacked chart of each category mentions for a SIG selected from the drop down in another panel.</li>
-<li>First panel uses first Postgres query, second panel uses second query.</li>
-<li>There are following categories defined: <strong>bug, feature-request, pr-review, api-review, misc, proposal, design-proposal, test-failure</strong></li>
-<li>We are getting SIG mentions from all <strong>texts</strong>.</li>
-<li>To find a SIG we&#39;re looking for texts like this <code>@kubernetes/sig-SIG-category</code>.</li>
-<li>For example <code>@kubernetes/sig-cluster-lifecycle-pr-review</code> will evaluate SIG to <code>cluster-lifecycle</code> and category to <code>pr-review</code>.</li>
-<li>There can be other texts before and after the SIG, so <code>Hi there @kubernetes/sig-apps-feature-request, I want to ...</code> will evaluate to SIG: <code>apps</code>, category: <code>feature-request</code>.</li>
-<li>For exact <code>regexp</code> used, please check developer <a href="https://github.com/cncf/devstats/blob/master/docs/dashboards/kubernetes/sig_mentions_cats_devel.md" target="_blank">documentation</a>.</li>
-<li><strong>Texts</strong> means comments, commit messages, issue titles, issue texts, PR titles, PR texts, PR review texts.</li>
-<li>You can filter by SIG and categories. You must select one SIG to display its categories stacked on the second panel. First panel aggregates category data for all SIGs.</li>
+<li>This dashboard shows stacked number of issues that belongs to given SIGs and categories/kinds (by using issue labels)</li>
+<li>First panel shows stacked chart of number of issues belonging to selected categories for a selected SIG. It stacks different categories/kinds. It uses first SQL.</li>
+<li>Second panel shows stacked chart of number of issues belonging to selected categories (no matter which SIG, even no SIG at all). It stacks different categories/kinds. It uses second SQL.</li>
+<li>Third panel shows stacked chart of number of issues belonging to a given SIGs. It stacks by SIG and displays all possible SIGs found. It uses third SQL.</li>
+<li>To mark issue as belonging to some `SIGNAME` SIG - it must have `sig/SIGNAME` label.</li>
+<li>To mark issue as belonging to some `CAT` category/kind - it must have `kind/CAT` label.</li>
+<li>SIG list comes from all possible values of `SIG/sig` labels, category list contains all possible values of `kind/kind` labels.</li>
+<li>You can filter by SIG and categories. You must select exactly one SIG and one or more (or `All`) categories.</li>
 <li>You can select multiple categories to display, or select special value <em>All</em> to display all categories.</li>
-<li>Selecting period (for example week) means that dahsboard will count SIG mentions in these periods.</li>
+<li>Selecting period (for example week) means that dahsboard will count issues in these periods. 7 Day MA will cont issues in 7 day window and divide result by 7 (so it will be 7 days MA value)</li>
 <li>See <a href="https://github.com/cncf/devstats/blob/master/docs/periods.md" target="_blank">here</a> for more informations about periods.</li>
-<li>We&#39;re also excluding bots activity, see <a href="https://github.com/cncf/devstats/blob/master/docs/excluding_bots.md" target="_blank">excluding bots</a>.</li>
 </ul>
 
