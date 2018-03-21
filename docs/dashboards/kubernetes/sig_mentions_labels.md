@@ -14,9 +14,9 @@
 <li>First panel shows stacked chart of number of issues belonging to selected categories for a selected SIG. It stacks different categories/kinds. It uses first SQL.</li>
 <li>Second panel shows stacked chart of number of issues belonging to selected categories (no matter which SIG, even no SIG at all). It stacks different categories/kinds. It uses second SQL.</li>
 <li>Third panel shows stacked chart of number of issues belonging to a given SIGs. It stacks by SIG and displays all possible SIGs found. It uses third SQL.</li>
-<li>To mark issue as belonging to some `SIGNAME` SIG - it must have `sig/SIGNAME` label.</li>
-<li>To mark issue as belonging to some `CAT` category/kind - it must have `kind/CAT` label.</li>
-<li>SIG list comes from all possible values of `SIG/sig` labels, category list contains all possible values of `kind/kind` labels.</li>
+<li>To mark issue as belonging to some <code>SIGNAME</code> SIG - it must have <code>sig/SIGNAME</code> label.</li>
+<li>To mark issue as belonging to some <code>CAT</code> category/kind - it must have <code>kind/CAT</code> label.</li>
+<li>SIG list comes from all possible values of <code>SIG/sig</code> labels, category list contains all possible values of <code>kind/kind</code> labels.</li>
 <li>You can filter by SIG and categories.</li>
 <li>You must select exactly one SIG.</li>
 <li>You can select multiple categories to display, or select special value <em>All</em> to display all categories.</li>
