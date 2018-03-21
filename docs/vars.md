@@ -42,8 +42,8 @@
 - Assume we already have `os_hostname` variable which contains current hostname.
 - In first line we replace all `[[hostname]]` with current host name.
 - Second line is commented out, but here we're replacing `[[hostname]]` with hardcoded value. We can comment out 1st line and uncomment 2nd to test how it would work on a specific hostname.
-- We can use 'test server' markers: `testsrv=[[hostname]] ` and ` [[hostname]]=testsrv` to mark beginning and end of content that will only be inserted when `hostname = 'cncftest.io`.
-- We can use 'production server' markers: `prodsrv=[[hostname]] ` and ` [[hostname]]=prodsrv` to mark beginning and end of content that will only be inserted when `hostname = 'devstats.cncf.io`.
+- We can use 'test server' markers: `testsrv=[[hostname]] ` and ` [[hostname]]=testsrv` to mark beginning and end of content that will only be inserted when `hostname = 'cncftest.io'`.
+- We can use 'production server' markers: `prodsrv=[[hostname]] ` and ` [[hostname]]=prodsrv` to mark beginning and end of content that will only be inserted when `hostname = 'devstats.cncf.io'`.
 - See home dashboard projects [panel](https://github.com/cncf/devstats/blob/master/partials/projects.html) for example usage.
 - This works like this:
   - Text `testsrv=[[hostname]]` is first replaced with the current hostname, for example: `testsrv=cncftest.io` on the test server.
