@@ -20,13 +20,13 @@ Links:
 - First panel shows stacked chart of number of issues belonging to selected categories for a selected SIG. It stacks different categories/kinds. It uses first SQL.
 - Second panel shows stacked chart of number of issues belonging to selected categories (no matter which SIG, even no SIG at all). It stacks different categories/kinds. It uses second SQL.
 - Third panel shows stacked chart of number of issues belonging to a given SIGs. It stacks by SIG and displays all possible SIGs found. It uses third SQL.
-- SIG list comes from all possible values of `SIG/sig` labels, category list contains all possible values of `kind/kind` labels.
+- SIG list comes from values of `sig/SIG` labels, category list contains values of `kind/kind` labels.
 - We're only looking for labels that have been created on the issue between `{{from}}` and `{{to}}` dates.
 - Values for `from` and `to` will be replaced with final periods described later.
 - Each row returns single value, so the metric type is: `multi_row_single_column`.
 - First panel/first Postgres query: each row is in the format column 1: `sig_mentions_labels_sig_kind,SIG-kind`, column 2: `NumberOfSIGCategoryIssues`.
-- Second panel/first Postgres query: each row is in the format column 1: `sig_mentions_labels_kind,kind`, column 2: `NumberOfCategoryIssues`.
-- Thirs panel/first Postgres query: each row is in the format column 1: `sig_mentions_labels_sig,SIG`, column 2: `NumberOfSIGIssues`.
+- Second panel/second Postgres query: each row is in the format column 1: `sig_mentions_labels_kind,kind`, column 2: `NumberOfCategoryIssues`.
+- Thirs panel/third Postgres query: each row is in the format column 1: `sig_mentions_labels_sig,SIG`, column 2: `NumberOfSIGIssues`.
 - All metrics use `multi_value: true`, so values are saved under different column name in a Influx DB series.
 
 # Periods and Influx series
