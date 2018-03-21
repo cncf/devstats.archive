@@ -20,7 +20,7 @@ Links:
 - We're also excluding bots activity (see [excluding bots](https://github.com/cncf/devstats/blob/master/docs/excluding_bots.md).)
 - Each row returns single value, so the metric type is: `multi_row_single_column`.
 - Each row is in the format column 1: `sig_mentions_texts,SIGName`, column 2: `NumberOfSIGMentions`.
-- This metric uses `multi_value: true`, so each SIG is saved under different column name in a Influx DB serie.
+- This metric uses `multi_value: true`, so each SIG is saved under different column name in a Influx DB series.
 
 # Periods and Influx series
 
@@ -36,7 +36,7 @@ multi_value: true
 - It means that we should call Postgres metric [sig_mentions.sql](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/sig_mentions.sql).
 - We should expect multiple rows each with 2 columns: 1st defines output Influx series name, 2nd defines value.
 - See [here](https://github.com/cncf/devstats/blob/master/docs/periods.md) for periods definitions.
-- The final InfluxDB series name would be: `sig_mentions_texts_[[period]]`. Where [[period]] will be from d,w,m,q,y,d7.
+- The final InfluxDB series name would be: `sig_mentions_texts_[[period]]`. Where `[[period]]` will be from d,w,m,q,y,d7.
 - Each of those series (for example `sig_mentions_texts_d7`) will contain multiple columns (each column represent single SIG) with time series data.
 - Final query is here: [sig_mentions.json](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/sig_mentions.json#L117): `SELECT /^[[sigs]]$/ FROM \"sig_mentions_texts_[[period]]\" WHERE $timeFilter`.
 - `$timeFiler` value comes from Grafana date range selector. It is handled by Grafana internally.
