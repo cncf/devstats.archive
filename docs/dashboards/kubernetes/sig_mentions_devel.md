@@ -17,7 +17,7 @@ Links:
 - Regexp to match SIG is: `(?i)(?:^|\s)+(@kubernetes/sig-[\w\d-]+)(?:-bug|-feature-request|-pr-review|-api-review|-misc|-proposal|-design-proposal|-test-failure)s?(?:$|[^\w\d-]+)` with `(?i)(?:^|\s)+(@kubernetes/sig-[\w\d-]*[\w\d]+)(?:$|[^\w\d-]+)` fallback.
 - Example sig mentions: `@kubernetes/sig-node-bug`, `@Kubernetes/sig-apps`.
 - We're only looking for texts created between `{{from}}` and `{{to}}` dates. Values for `from` and `to` will be replaced with final periods described later.
-- We're also excluding bots activity (see [excluding bots](https://github.com/cncf/devstats/blob/master/docs/excluding_bots.md).)
+- We're also excluding bots activity (see [excluding bots](https://github.com/cncf/devstats/blob/master/docs/excluding_bots.md))
 - Each row returns single value, so the metric type is: `multi_row_single_column`.
 - Each row is in the format column 1: `sig_mentions_texts,SIGName`, column 2: `NumberOfSIGMentions`.
 - This metric uses `multi_value: true`, so each SIG is saved under different column name in a Influx DB series.

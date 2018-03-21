@@ -1,4 +1,4 @@
-# SIG mentions dashboard
+# SIG mentions categories dashboard
 
 Links:
 - Postgres SQL files: [sig_mentions_cats.sql](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/sig_mentions_cats.sql) and [sig_mentions_breakdown.sql](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/sig_mentions_breakdown.sql).
@@ -13,13 +13,13 @@ Links:
 - We're quering `gha_texts` table. It contains all 'texts' from all Kubernetes repositories.
 - For more information about `gha_texts` table please check: [docs/tables/gha_texts.md](https://github.com/cncf/devstats/blob/master/docs/tables/gha_texts.md).
 - We're counting distinct GitHub events (text related events: issue/PR/commit comments, PR reviews, issue/PR body texts, titles) that contain any SIG reference.
-- On first panel we're groupping by category using first postgres sql.
-- On second panel we're groupping SIG and category using second postgres sql.
+- On first panel we're groupping by category using first Postgres sql.
+- On second panel we're groupping SIG and category using second Postgres sql.
 - Regexp to match category is: `(?i)(?:^|\s)+(?:@kubernetes/sig-[\w\d-]+)(-bug|-feature-request|-pr-review|-api-review|-misc|-proposal|-design-proposal|-test-failure)s?(?:$|[^\w\d-]+)`.
 - Regexp to match SIG and category is: `(?i)(?:^|\s)+((?:@kubernetes/sig-[\w\d-]+)(?:-bug|-feature-request|-pr-review|-api-review|-misc|-proposal|-design-proposal|-test-failure))s?(?:$|[^\w\d-]+)`.
 - Example sig mentions: `@kubernetes/sig-node-bug`, `@Kubernetes/sig-apps-proposal`.
 - We're only looking for texts created between `{{from}}` and `{{to}}` dates. Values for `from` and `to` will be replaced with final periods described later.
-- We're also excluding bots activity (see [excluding bots](https://github.com/cncf/devstats/blob/master/docs/excluding_bots.md).)
+- We're also excluding bots activity (see [excluding bots](https://github.com/cncf/devstats/blob/master/docs/excluding_bots.md))
 - Each row returns single value, so the metric type is: `multi_row_single_column`.
 - First panel/first Postgres query: each row is in the format column 1: `sig_mentions_texts_cat,CatName`, column 2: `NumberOfCategoryMentions`.
 - Second panel/first Postgres query: each row is in the format column 1: `sig_mentions_texts_bd,SIGName-CatName`, column 2: `NumberOfSIGCategoryMentions`.
@@ -49,8 +49,8 @@ multi_value: true
 - We should expect multiple rows each with 2 columns: 1st defines output Influx series name, 2nd defines value.
 - See [here](https://github.com/cncf/devstats/blob/master/docs/periods.md) for periods definitions.
 - The final InfluxDB series name would be: `sig_mentions_texts_cat_[[period]]` or `sig_mentions_texts_bd_[[period]]`. Where `[[period]]` will be from d,w,m,q,y,d7.
-- First panel: each of those series (for example `sig_mentions_texts_bd_d7`) will contain multiple columns (each column represent single SIG-category) with time series data.
-- Second panel: each of those series (for example `sig_mentions_texts_cat_d7`) will contain multiple columns (each column represent single category) with time series data.
+- First panel: each of those series (for example `sig_mentions_texts_cat_d7`) will contain multiple columns (each column represent single category) with time series data.
+- Second panel: each of those series (for example `sig_mentions_texts_bd_d7`) will contain multiple columns (each column represent single SIG-category) with time series data.
 - Final querys is here: [sig_mentions_categories.json](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/sig_mentions_categories.json):
   - First panel: `SELECT /^[[sigcats]]$/ FROM \"sig_mentions_texts_cat_[[period]]\" WHERE $timeFilter`.
   - Second panel: `SELECT /^[[sig]]-[[sigcats]]$/ FROM \"sig_mentions_texts_bd_[[period]]\" WHERE $timeFilter`.
