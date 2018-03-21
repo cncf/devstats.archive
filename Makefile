@@ -129,6 +129,6 @@ strip: ${BINARIES}
 	${STRIP} ${BINARIES}
 
 clean:
-	rm -f structure runq gha2db db2influx z2influx gha2db_sync devstats import_affs annotations idb_tags idb_backup webhook get_repos merge_pdbs idb_vars replacer pdb_vars
+	rm -f ${BINARIES}
 
 .PHONY: test
