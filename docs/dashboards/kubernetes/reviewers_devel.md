@@ -21,7 +21,7 @@ Links:
 - Each row returns single value, so the metric type is: `multi_row_single_column`.
 - Each row is in the format column 1: `reviewers,RepoGroupName`, column 2: `NumberOfReviewersInThisRepoGroup`. Number of rows is N+1, where N=number of repo groups. One additional row for `reviewers,All` that contains number of repo groups for all repo groups.
 - Value for each repository group is calculated as a number of distinct actor logins who:
-- Are not bots (see [excluding bots](https://github.com/cncf/devstats/blob/master/docs/excluding_bots.md).)
+- Are not bots (see [excluding bots](https://github.com/cncf/devstats/blob/master/docs/excluding_bots.md))
 - Added `lgtm` or `approve` label in a given period (`gha_issues_events_labels` table)
 - For more information about `gha_issues_events_labels` table please check: [docs/tables/gha_issues_events_labels.md](https://github.com/cncf/devstats/blob/master/docs/tables/gha_issues_events_labels.md).
 - Added text matching given regexp.
