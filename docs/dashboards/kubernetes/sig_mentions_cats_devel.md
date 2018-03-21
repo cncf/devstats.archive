@@ -13,8 +13,8 @@ Links:
 - We're quering `gha_texts` table. It contains all 'texts' from all Kubernetes repositories.
 - For more information about `gha_texts` table please check: [docs/tables/gha_texts.md](https://github.com/cncf/devstats/blob/master/docs/tables/gha_texts.md).
 - We're counting distinct GitHub events (text related events: issue/PR/commit comments, PR reviews, issue/PR body texts, titles) that contain any SIG reference.
-- On first panel we're groupping by category using first Postgres sql.
-- On second panel we're groupping SIG and category using second Postgres sql.
+- On first panel we're groupping by category using first Postgres SQL.
+- On second panel we're groupping SIG and category using second Postgres SQL.
 - Regexp to match category is: `(?i)(?:^|\s)+(?:@kubernetes/sig-[\w\d-]+)(-bug|-feature-request|-pr-review|-api-review|-misc|-proposal|-design-proposal|-test-failure)s?(?:$|[^\w\d-]+)`.
 - Regexp to match SIG and category is: `(?i)(?:^|\s)+((?:@kubernetes/sig-[\w\d-]+)(?:-bug|-feature-request|-pr-review|-api-review|-misc|-proposal|-design-proposal|-test-failure))s?(?:$|[^\w\d-]+)`.
 - Example sig mentions: `@kubernetes/sig-node-bug`, `@Kubernetes/sig-apps-proposal`.
@@ -22,7 +22,7 @@ Links:
 - We're also excluding bots activity (see [excluding bots](https://github.com/cncf/devstats/blob/master/docs/excluding_bots.md))
 - Each row returns single value, so the metric type is: `multi_row_single_column`.
 - First panel/first Postgres query: each row is in the format column 1: `sig_mentions_texts_cat,CatName`, column 2: `NumberOfCategoryMentions`.
-- Second panel/first Postgres query: each row is in the format column 1: `sig_mentions_texts_bd,SIGName-CatName`, column 2: `NumberOfSIGCategoryMentions`.
+- Second panel/second Postgres query: each row is in the format column 1: `sig_mentions_texts_bd,SIGName-CatName`, column 2: `NumberOfSIGCategoryMentions`.
 - Both metrics use `multi_value: true`, so values are saved under different column name in a Influx DB series.
 
 # Periods and Influx series
