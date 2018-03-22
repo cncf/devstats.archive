@@ -10,4 +10,9 @@ then
 fi
 GHA2DB_LOCAL=1 GHA2DB_PROJECT=grpc PG_DB=grpc IDB_DB=grpc ./runq scripts/clean_affiliations.sql
 GHA2DB_LOCAL=1 GHA2DB_PROJECT=grpc PG_DB=grpc IDB_DB=grpc ./import_affs github_users.json || exit 1
+exists=`echo 'show databases' | influx -host $IDB_HOST -username gha_admin -password $IDB_PASS | grep grpc`
+if [ -z "$exists" ]
+then
+  ./grafana/influxdb_recreate.sh grpc || exit 2
+fi
 GHA2DB_LOCAL=1 GHA2DB_PROJECT=grpc PG_DB=grpc IDB_DB=grpc ./idb_tags
