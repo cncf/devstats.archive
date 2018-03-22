@@ -1,18 +1,21 @@
 #!/bin/bash
 if [ -z "$1" ]
 then
-  echo "You need to provide grafana file name (for example 'grafana_5.0.0-12001beta5_amd64.deb')"
+  echo "You need to provide grafana file url (for example 'https://s3-us-west-2.amazonaws.com/grafana-releases/release/grafana_5.0.3_amd64.deb')"
   exit 1
 fi
-wget https://s3-us-west-2.amazonaws.com/grafana-releases/master/$1
-rm -rf ~/grafana.v5.old
-mv ~/grafana.v5 ~/grafana.v5.old
-mkdir ~/grafana.v5
-killall grafana-server
-sudo dpkg -i $1
-mv /usr/share/grafana ~/grafana.v5/usr.share.grafana
-mv /var/lib/grafana ~/grafana.v5/var.lib.grafana
-mv /etc/grafana ~/grafana.v5/etc.grafana
+wget "$1" || exit 2
+rm -rf ~/grafana.v5.old 2>/dev/null
+mv ~/grafana.v5 ~/grafana.v5.old 2>/dev/null
+mkdir ~/grafana.v5 || exit 3
+if [ -z "$ONLY" ]
+then
+  killall grafana-server 2>/dev/null
+fi
+sudo dpkg -i `basename "$1"` || exit 4
+mv /usr/share/grafana ~/grafana.v5/usr.share.grafana || exit 5
+mv /var/lib/grafana ~/grafana.v5/var.lib.grafana || exit 6
+mv /etc/grafana ~/grafana.v5/etc.grafana || exit 7
 if [ -z "$ONLY" ]
 then
   host=`hostname`
@@ -29,11 +32,14 @@ fi
 for proj in $all
 do
     echo $proj
-    rm -rf /usr/share/grafana.$proj
-    cp -R ~/grafana.v5/usr.share.grafana/ /usr/share/grafana.$proj || exit 1
+    if [ ! -z "$ONLY" ]
+    then
+      kill `ps -aux | grep grafana-server | grep $proj | awk '{print $2}'`
+    fi
+    rm -rf /usr/share/grafana.$proj 2>/dev/null
+    cp -R ~/grafana.v5/usr.share.grafana/ /usr/share/grafana.$proj || exit 8
 done
-echo 'OK'
-./grafana/change_title_and_icons_all.sh || exit 3
-./grafana/start_all_grafanas.sh || exit 5
+./grafana/change_title_and_icons_all.sh || exit 9
+./grafana/start_all_grafanas.sh || exit 10
 sleep 5
 ps -aux | grep 'grafana-server'
