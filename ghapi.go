@@ -4,7 +4,7 @@ import (
 	"context"
 	"io/ioutil"
 	"strings"
-  "time"
+	"time"
 
 	"github.com/google/go-github/github"
 	"golang.org/x/oauth2"
@@ -13,16 +13,15 @@ import (
 // GetRateLimits - returns all and remaining API points and duration to wait for reset
 // when core=true - returns Core limits, when core=flase returns Search limits
 func GetRateLimits(gctx context.Context, gc *github.Client, core bool) (int, int, time.Duration) {
-  rl, _, err := gc.RateLimits(gctx)
-  FatalOnError(err)
-  // rl: {Core:github.Rate{Limit:5000, Remaining:4997, Reset:github.Timestamp{2018-03-22 10:46:38 +0000 UTC}},
-  //     {Search:github.Rate{Limit:30, Remaining:30, Reset:github.Timestamp{2018-03-22 10:28:32 +0000 UTC}}
-  // }
-  if core {
-    return rl.Core.Limit, rl.Core.Remaining, rl.Core.Reset.Time.Sub(time.Now()) + time.Duration(1) * time.Second
-  } else {
-    return rl.Search.Limit, rl.Search.Remaining, rl.Search.Reset.Time.Sub(time.Now()) + time.Duration(1) * time.Second
-  }
+	rl, _, err := gc.RateLimits(gctx)
+	FatalOnError(err)
+	// rl: {Core:github.Rate{Limit:5000, Remaining:4997, Reset:github.Timestamp{2018-03-22 10:46:38 +0000 UTC}},
+	//     {Search:github.Rate{Limit:30, Remaining:30, Reset:github.Timestamp{2018-03-22 10:28:32 +0000 UTC}}
+	// }
+	if core {
+		return rl.Core.Limit, rl.Core.Remaining, rl.Core.Reset.Time.Sub(time.Now()) + time.Duration(1)*time.Second
+	}
+	return rl.Search.Limit, rl.Search.Remaining, rl.Search.Reset.Time.Sub(time.Now()) + time.Duration(1)*time.Second
 }
 
 // GHClient - get GitHub client
