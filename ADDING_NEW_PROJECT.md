@@ -3,7 +3,8 @@
 This file describes how to add new project on the test server.
 
 To add new project on the production (when already added on the test), you should use automatic deploy script:
-- Run `IGET=1 GET=1 ./devel/deploy_proj.sh` script with correct env variables or run deploy for all projects `IGET=1 GET=1 devel/deploy_all.sh`.
+- Commit to `production` branch with `[deploy]` in the commit message. Automatic deploy will happen.
+- Or manually run `PG_PASS=... IDB_PASS=... IDB_PASS_SRC=... IDB_HOST=... IGET=1 GET=1 ./devel/deploy_all.sh` script with correct env variables.
 - Go to `https://newproject.devstats.cncf.io` and change Grafana, InfluxDB and PostgreSQL passwords (default deploy copies database from the test server, so it has test server credentials initially).
 - Reimport Home dashboard (which now contains link to a new project) on all existing projects.
 
@@ -29,8 +30,8 @@ To add a new project on the test server follow instructions:
 - For example: `MODE=ss0 FROM=`cat FROM` TO=`cat TO` FILES=`find ./grafana/dashboards/ -type f -iname 'dashboards.json'` ./devel/mass_replace.sh` with `FROM` containing old links and `TO` containing new links.
 - Update `partials/projects.html`.
 - Update Apache proxy and SSL files `apache/www/index_* apache/*/sites-enabled/* apache/*/sites.txt` files.
-- Run deply all script with optional GAPS generating environment variable: `PG_PASS=... IDB_PASS=... IDB_HOST=... GAPS=1 ./devel/deploy_all.sh`.
-- `make install` to install all changed stuff.
+- Run deply all script with optional GAPS generating environment variable: `PG_PASS=... IDB_PASS=... IDB_HOST=... GAPS=1 ./devel/deploy_all.sh`. If succeeded `make install`.
+- You can also deploy automatically from webhook (even on the test server), but it takes very long time and is harder to debug, see [continuous deployment](https://github.com/cncf/devstats/blob/master/CONTINUOUS_DEPLOYMENT.md).
 - Open `newproject.cncftest.io` login with admin/admin, change the default password and follow instructions from `GRAFANA.md`.
 - Import `grafana/dashboards/proj/dashboards.json` dashboard on all remaining projects.
 - Import all new projects dashboards from `grafana/dashboards/newproject/*.json`, then finally: `grafana/copy_grafana_dbs.sh`
