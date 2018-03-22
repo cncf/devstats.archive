@@ -27,6 +27,7 @@ do
       db="allprj"
     fi
     echo "Project: $f, IDB: $db"
-    GHA2DB_LOCAL=1 GHA2DB_PROJECT=$f IDB_DB=$db ./idb_vars || exit 1
+    echo "drop series from vars" | influx -username gha_admin -password "$IDB_PASS" -database "$db" || exit 1
+    GHA2DB_LOCAL=1 GHA2DB_PROJECT=$f IDB_DB=$db ./idb_vars || exit 2
 done
 echo 'OK'
