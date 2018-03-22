@@ -24,6 +24,7 @@ icontypes=(
   ["vitess"]="color"
   ["nats"]="color"
   ["opa"]="color"
+  ["spiffe"]="color"
   ["all"]="color"
   ["cncf"]="color"
 )
