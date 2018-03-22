@@ -22,7 +22,7 @@ func ghapi() {
 
 	// Get RateLimits info
 	all, rem, wait := lib.GetRateLimits(gctx, gc, true)
-	fmt.Printf("all=%d, rem=%d, wait=%v\n", all, rem, wait)
+	fmt.Printf("Rate limits info: all=%d, rem=%d, wait=%v\n", all, rem, wait)
 }
 
 func main() {
