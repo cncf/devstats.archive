@@ -201,6 +201,16 @@ where
   org_login = 'open-policy-agent'
 ;
 
+-- SPIFFE
+update
+  gha_repos
+set
+  repo_group = 'SPIFFE',
+  alias = 'SPIFFE'
+where
+  org_login = 'spiffe'
+;
+
 -- CNCF
 update
   gha_repos

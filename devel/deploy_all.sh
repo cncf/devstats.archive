@@ -1,4 +1,5 @@
 #!/bin/bash
+# ARTWORK
 # GET=1 (attempt to fetch Postgres database and Grafana database from the test server)
 # IGET=1 (attempt to fetch Influx database from the test server)
 # AGET=1 (attempt to fetch 'All CNCF' Postgres database from the test server)
@@ -29,7 +30,7 @@ then
 fi
 
 # OCI has no icon in cncf/artwork at all, so use "-" here
-# TODO: update OPA icon once it is present in cncf/artwork
+# TODO: update OPA, SPIFFE icon once it is present in cncf/artwork
 PROJ=kubernetes     PROJDB=gha            PROJREPO="kubernetes/kubernetes"      ORGNAME=Kubernetes  PORT=2999 ICON=kubernetes  GRAFSUFF=k8s            GA="UA-108085315-1"  ./devel/deploy_proj.sh || exit 2
 PROJ=prometheus     PROJDB=prometheus     PROJREPO="prometheus/prometheus"      ORGNAME=Prometheus  PORT=3001 ICON=prometheus  GRAFSUFF=prometheus     GA="UA-108085315-3"  ./devel/deploy_proj.sh || exit 3
 PROJ=opentracing    PROJDB=opentracing    PROJREPO="opentracing/opentracing-go" ORGNAME=OpenTracing PORT=3002 ICON=opentracing GRAFSUFF=opentracing    GA="UA-108085315-4"  ./devel/deploy_proj.sh || exit 4
@@ -48,14 +49,15 @@ PROJ=rook           PROJDB=rook           PROJREPO="rook/rook"                  
 PROJ=vitess         PROJDB=vitess         PROJREPO="vitessio/vitess"            ORGNAME=Vitess      PORT=3015 ICON=vitess      GRAFSUFF=vitess         GA="UA-108085315-18" ./devel/deploy_proj.sh || exit 17
 PROJ=nats           PROJDB=nats           PROJREPO="nats-io/gnatsd"             ORGNAME=NATS        PORT=3016 ICON=nats        GRAFSUFF=nats           GA="UA-108085315-21" ./devel/deploy_proj.sh || exit 18
 PROJ=opa            PROJDB=opa            PROJREPO="open-policy-agent/opa"      ORGNAME=OPA         PORT=3017 ICON=cncf        GRAFSUFF=opa            GA="UA-108085315-22" ./devel/deploy_proj.sh || exit 19
-PROJ=opencontainers PROJDB=opencontainers PROJREPO="opencontainers/runc"        ORGNAME=OCI         PORT=3100 ICON="-"         GRAFSUFF=opencontainers GA="UA-108085315-19" ./devel/deploy_proj.sh || exit 20
-PROJ=all            PROJDB=allprj         PROJREPO="not/used"                   ORGNAME="All CNCF"  PORT=3254 ICON=cncf        GRAFSUFF=all            GA="UA-108085315-20" ./devel/deploy_proj.sh || exit 21
+PROJ=spiffe         PROJDB=spiffe         PROJREPO="spiffe/spire"               ORGNAME=SPIFFE      PORT=3018 ICON=cncf        GRAFSUFF=spiffe         GA="UA-108085315-23" ./devel/deploy_proj.sh || exit 20
+PROJ=opencontainers PROJDB=opencontainers PROJREPO="opencontainers/runc"        ORGNAME=OCI         PORT=3100 ICON="-"         GRAFSUFF=opencontainers GA="UA-108085315-19" ./devel/deploy_proj.sh || exit 21
+PROJ=all            PROJDB=allprj         PROJREPO="not/used"                   ORGNAME="All CNCF"  PORT=3254 ICON=cncf        GRAFSUFF=all            GA="UA-108085315-20" ./devel/deploy_proj.sh || exit 22
 if [ "$host" = "cncftest.io" ]
 then
-  PROJ=cncf         PROJDB=cncf           PROJREPO="cncf/landscape"             ORGNAME=CNCF        PORT=3255 ICON=cncf        GRAFSUFF=cncf           GA="UA-108085315-8" ./devel/deploy_proj.sh || exit 22
+  PROJ=cncf         PROJDB=cncf           PROJREPO="cncf/landscape"             ORGNAME=CNCF        PORT=3255 ICON=cncf        GRAFSUFF=cncf           GA="UA-108085315-8" ./devel/deploy_proj.sh || exit 23
 fi
 
-CERT=1 WWW=1 ./devel/create_www.sh || exit 23
-./devel/pdb_vars_all.sh || exit 24
-./devel/idb_vars_all.sh || exit 25
+CERT=1 WWW=1 ./devel/create_www.sh || exit 24
+./devel/pdb_vars_all.sh || exit 25
+./devel/idb_vars_all.sh || exit 26
 echo "$0: All deployments finished"

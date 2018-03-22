@@ -1,4 +1,5 @@
 #!/bin/bash
+# ARTWORK
 # This script assumes that You have cncf/artwork cloned in ~/dev/cncf/artwork 
 if [ -z "$ONLY" ]
 then
@@ -27,9 +28,9 @@ do
   if [ "$icon" = "all" ]
   then
     icon="cncf"
-  elif [ "$icon" = "opa" ]
+  elif ( [ "$icon" = "opa" ] || [ "$icon" = "spiffe" ] )
   then
-    # TODO: update remove cncf/artwork contains OPA icon.
+    # TODO: update remove cncf/artwork contains OPA, SPIFFE icons.
     icon="cncf"
   fi
   icontype=`./devel/get_icon_type.sh "$proj"` || exit 1
