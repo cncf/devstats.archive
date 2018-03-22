@@ -45,6 +45,9 @@ then
   wget "https://cncftest.io/allprj.dump" || exit 6
   sudo -u postgres pg_restore -d allprj allprj.dump || exit 7
   rm -f allprj.dump || exit 8
+  echo 'dropping and recreating postgres variables'
+  sudo -u postgres psql allprj -c "delete from gha_vars" || exit 24
+  GHA2DB_PROJECT=all PG_DB=allprj GHA2DB_LOCAL=1 ./pdb_vars || exit 25
   echo "allprj backup restored"
   AGOT=1
 else
@@ -71,6 +74,10 @@ else
     echo 'fetching allprj database from cncftest.io (into allprj_temp database)'
     ./grafana/influxdb_recreate.sh allprj_temp || exit 16
     IDB_HOST_SRC=cncftest.io IDB_USER_SRC=ro_user IDB_DB_SRC=allprj IDB_DB_DST=allprj_temp ./idb_backup || exit 17
+    echo 'removing influx variables received from the backup'
+    echo "drop series from vars" | influx -host "${IDB_HOST}" -username gha_admin -password "$IDB_PASS" -database allprj_temp || exit 22
+    echo 'regenerating influx variables'
+    GHA2DB_LOCAL=1 GHA2DB_PROJECT=all IDB_DB=allprj_temp ./idb_vars || exit 23
     echo 'copying allprj_temp database to allprj'
     ./grafana/influxdb_recreate.sh allprj || exit 18
     unset IDB_PASS_SRC

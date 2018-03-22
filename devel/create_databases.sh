@@ -53,6 +53,9 @@ then
       wget "https://cncftest.io/$PROJDB.dump" || exit 9
       sudo -u postgres pg_restore -d "$PROJDB" "$PROJDB.dump" || exit 10
       rm -f "$PROJ.dump" || exit 11
+      echo 'dropping and recreating postgres variables'
+      sudo -u postgres psql "$PROJDB" -c "delete from gha_vars" || exit 26
+      GHA2DB_PROJECT="$PROJ" PG_DB="$PROJDB" GHA2DB_LOCAL=1 ./pdb_vars || exit 27
       GOT=1
     else
       echo "generating postgres database $PROJDB"
@@ -93,6 +96,10 @@ then
       echo "fetching $PROJDB database from cncftest.io (into ${PROJDB}_temp database)"
       ./grafana/influxdb_recreate.sh "${PROJDB}_temp" || exit 17
       IDB_HOST_SRC=cncftest.io IDB_USER_SRC=ro_user IDB_DB_SRC="$PROJDB" IDB_DB_DST="${PROJDB}_temp" ./idb_backup || exit 18
+      echo 'removing influx variables received from the backup'
+      echo "drop series from vars" | influx -host "${IDB_HOST}" -username gha_admin -password "$IDB_PASS" -database "${PROJDB}_temp" || exit 24
+      echo 'regenerating influx variables'
+      GHA2DB_LOCAL=1 GHA2DB_PROJECT="$PROJ" IDB_DB="${PROJDB}_temp" ./idb_vars || exit 25
       echo "copying ${PROJDB}_temp database to $PROJDB"
       ./grafana/influxdb_recreate.sh "$PROJDB" || exit 19
       unset IDB_PASS_SRC
