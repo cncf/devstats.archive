@@ -26,39 +26,42 @@ To add new project follow [adding new project](https://github.com/cncf/devstats/
 
 This file describes how to add new project on the test server.
 
-To add new project on the production (when already added on the test), you should use automatic deploy script:
-- Run `IGET=1 GET=1 ./devel/deploy_proj.sh` script with correct env variables or run deploy for all projects `IGET=1 GET=1 devel/deploy_all.sh`.
+## To add new project on the production (when already added on the test), you should use automatic deploy script:
+
+- Make sure that you have Postgres database backup generated on the test server and Grafana DBs available on the test server by running `./grafana/copy_grafana_dbs.sh`.
+- Commit to `production` branch with `[deploy]` in the commit message. Automatic deploy will happen.
+- Or manually run `PG_PASS=... IDB_PASS=... IDB_PASS_SRC=... IDB_HOST=... IGET=1 GET=1 ./devel/deploy_all.sh` script with correct env variables.
 - Go to `https://newproject.devstats.cncf.io` and change Grafana, InfluxDB and PostgreSQL passwords (default deploy copies database from the test server, so it has test server credentials initially).
 - Reimport Home dashboard (which now contains link to a new project) on all existing projects.
 
-To add a new project on the test server follow instructions:
-- Run `sync_lock.sh`.
+## To add a new project on the test server follow instructions:
+
+- Do not commit changes until all is ready, or commit with `[no deploy]` in the commit message.
 - Add project entry to `projects.yaml` file. Find projects orgs, repos, select start date, eventually add test coverage for complex regular expression in `regexp_test.go`.
 - To identify repo and/or org name changes, date ranges for entrire projest use `util_sql/(repo|org)_name_changes_bigquery.sql` replacing name there.
 - Main repo can be empty `''` - in this case only two annotations will be added: 'start date - CNCF join date' and 'CNCF join date - now".
-- Set project databases (Influx and Postgres).
 - CNCF join dates are listed here: https://github.com/cncf/toc#projects.
 - Update projects list files: `devel/all_prod_dbs.txt devel/all_prod_projects.txt devel/all_test_dbs.txt devel/all_test_projects.txt` and project icon type `devel/get_icon_type.sh`.
-- Add this new project config to 'All' project in `projects.yaml all/psql.sh grafana/dashboards/all/dashboards.json scripts/all/repo_groups.sql devel/calculate_hours.sh`. Add entire new project as a new repo group in 'All' project.
+- Add this new project config to 'All' project in `projects.yaml all/psql.sh grafana/dashboards/all/dashboards.json scripts/all/repo_groups.sql devel/calculate_hours.sh`.
+- Add entire new project as a new repo group in 'All' project.
 - Add new domain for the project: `projectname.cncftest.io`. If using wildcard domain like `*.devstats.cncf.io` - this step is not needed.
 - Add Google Analytics (GA) for the new domain and update /etc/grafana.projectname/grafana.ini with its `UA-...`.
-- Review `grafana/copy_artwork_icons.sh apache/www/copy_icons.sh grafana/create_images.sh grafana/change_title_and_icons_all.sh` - maybe you need to add special case.
+- Review `grafana/copy_artwork_icons.sh apache/www/copy_icons.sh grafana/create_images.sh grafana/change_title_and_icons_all.sh` - maybe you need to add special case. Icon related scripts are marked 'ARTWORK'.
 - Copy setup scripts and then adjust them: `cp -R oldproject/ projectname/`, `vim projectname/*`. Update automatic deploy script: `./devel/deploy_all.sh`.
-- Copy `metrics/oldproject` to `metrics/projectname`. Update `./metrics/projectname/idb_vars.yaml` and `./metrics/projectname/pdb_vars.yaml` files.
-- Please use Grafana's "null as zero" instead of using manuall filling gaps. This simplifies metrics a lot. Gaps filling is only needed when using data from > 1 Influx series.
+- Copy `metrics/oldproject` to `metrics/projectname`. Update `./metrics/projectname/*_vars.yaml` files.
 - `cp -Rv scripts/oldproject/ scripts/projectname`, `vim scripts/projectname/*`.
-- `cp -Rv grafana/oldproject/ grafana/projectname/` and then update files. Usually `%s/oldproject/newproject/g|w|next`.
+- `cp -Rv grafana/oldproject/ grafana/projectname/` and then update files. Usually `%s/oldproject/newproject/g|w|next`. Exception is the new projects Grafana port number.
 - `cp -Rv grafana/dashboards/oldproject/ grafana/dashboards/projectname/` and then update files.  Use `devel/mass_replace.sh` script, it contains some examples in the comments.
 - Something like this: "MODE=ss0 FROM='"oldproject"' TO='"newproject"' FILES=`find ./grafana/dashboards/newproject -type f -iname '*.json'` ./devel/mass_replace.sh".
 - Update `grafana/dashboards/proj/dashboards.json` for all already existing projects, add new project using `devel/mass_replace.sh` or `devel/replace.sh`.
+- For example: `MODE=ss0 FROM=`cat FROM` TO=`cat TO` FILES=`find ./grafana/dashboards/ -type f -iname 'dashboards.json'` ./devel/mass_replace.sh` with `FROM` containing old links and `TO` containing new links.
 - Update `partials/projects.html`.
 - Update Apache proxy and SSL files `apache/www/index_* apache/*/sites-enabled/* apache/*/sites.txt` files.
-- Run deply all script with optional GAPS generating environment variable: `PG_PASS=... IDB_PASS=... IDB_HOST=... GAPS=1 ./devel/deploy_all.sh`.
-- `make install` to install all changed stuff.
+- Run deply all script with optional GAPS generating environment variable: `PG_PASS=... IDB_PASS=... IDB_HOST=... GAPS=1 ./devel/deploy_all.sh`. If succeeded `make install`.
+- You can also deploy automatically from webhook (even on the test server), but it takes very long time and is harder to debug, see [continuous deployment](https://github.com/cncf/devstats/blob/master/CONTINUOUS_DEPLOYMENT.md).
 - Open `newproject.cncftest.io` login with admin/admin, change the default password and follow instructions from `GRAFANA.md`.
 - Import `grafana/dashboards/proj/dashboards.json` dashboard on all remaining projects.
 - Import all new projects dashboards from `grafana/dashboards/newproject/*.json`, then finally: `grafana/copy_grafana_dbs.sh`
-- `sync_unlock.sh`.
 - Final deploy script is: `./devel/deploy_all.sh`. It should do all deployment automatically on the prod server. Follow all code from this script (eventually run some parts manually, the final version should do full deploy OOTB).
 ### [ISSUE_TEMPLATE](https://github.com/cncf/devstats/blob/master/ISSUE_TEMPLATE.md)
 Please make sure that You follow instructions from [CONTRIBUTING](https://github.com/cncf/devstats/blob/master/CONTRIBUTING.md)
@@ -883,6 +886,7 @@ provider_config = user=gha_admin host=127.0.0.1 port=5432 dbname=projectname_gra
   - `IGET=1` requires setting `IDB_PASS_SRC` - password for the test machine Influx to copy series from.
   - Use `GET=1` to allow deploy script to fetch Postgres database from the test server instead of generating it locally (also orders of magnitude faster than generating locally).
   - This fetches datbase dump which is available via WWW, so no additional password variables are needed.
+  - You can deploy from webhook on the test server, but it would have to generate all data from scratch, so it will take a very long time and will be harder to debug becaus eit runs from the cron job.
   - Finally take a look at the example [crontab](https://github.com/cncf/devstats/blob/master/crontab.entry) file, it has comments about what to put in the test environment and what in the production.
 - To check `webhook` tool locally use `PG_PASS=pwd IDB_PASS=pwd IDB_HOST=localhost IDB_PASS_SRC=pwd IGET=1 GET=1 ./webhook.sh` and then `./test_webhook.sh` from another terminal.
 ### [APACHE](https://github.com/cncf/devstats/blob/master/APACHE.md)
@@ -1437,8 +1441,8 @@ They are defined here: [repo_groups.sql](https://github.com/cncf/devstats/blob/m
 
 1) Reviewers dashboard: [user documentation](https://github.com/cncf/devstats/blob/master/docs/dashboards/kubernetes/reviewers.md), [developer documentation](https://github.com/cncf/devstats/blob/master/docs/dashboards/kubernetes/reviewers_devel.md), [reviewers.sql](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/reviewers.sql), [reviewers.json](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/reviewers.json), [view](https://k8s.devstats.cncf.io/dashboard/db/reviewers?orgId=1).
 2) SIG mentions dashboard: [user documentation](https://github.com/cncf/devstats/blob/master/docs/dashboards/kubernetes/sig_mentions.md), [developer documentation](https://github.com/cncf/devstats/blob/master/docs/dashboards/kubernetes/sig_mentions_devel.md), [sig_mentions.sql](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/sig_mentions.sql), [sig_mentions.json](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/sig_mentions.json), [view](https://k8s.devstats.cncf.io/dashboard/db/sig-mentions?orgId=1).
-3) SIG mentions breakdown by categories dashboard: [sig_mentions_cats.sql](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/sig_mentions_cats.sql), [sig_mentions_breakdown.sql](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/sig_mentions_breakdown.sql), [sig_mentions_categories.json](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/sig_mentions_categories.json), [view](https://k8s.devstats.cncf.io/dashboard/db/sig-mentions-categories?orgId=1).
-4) SIG mentions using labels dashboard: [labels_sig.sql](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/labels_sig.sql), [labels_kind.sql](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/labels_kind.sql), [labels_sig_kind.sql](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/labels_sig_kind.sql), [sig_mentions_using_labels.json](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/sig_mentions_using_labels.json), [view](https://k8s.devstats.cncf.io/dashboard/db/sig-mentions-using-labels?orgId=1).
+3) SIG mentions breakdown by categories dashboard: [user documentation](https://github.com/cncf/devstats/blob/master/docs/dashboards/kubernetes/sig_mentions_cats.md), [developer documentation](https://github.com/cncf/devstats/blob/master/docs/dashboards/kubernetes/sig_mentions_cats_devel.md), [sig_mentions_cats.sql](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/sig_mentions_cats.sql), [sig_mentions_breakdown.sql](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/sig_mentions_breakdown.sql), [sig_mentions_categories.json](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/sig_mentions_categories.json), [view](https://k8s.devstats.cncf.io/dashboard/db/sig-mentions-categories?orgId=1).
+4) SIG mentions using labels dashboard: [user documentation](https://github.com/cncf/devstats/blob/master/docs/dashboards/kubernetes/sig_mentions_labels.md), [developer documentation](https://github.com/cncf/devstats/blob/master/docs/dashboards/kubernetes/sig_mentions_labels_devel.md),  [labels_sig.sql](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/labels_sig.sql), [labels_kind.sql](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/labels_kind.sql), [labels_sig_kind.sql](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/labels_sig_kind.sql), [sig_mentions_using_labels.json](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/sig_mentions_using_labels.json), [view](https://k8s.devstats.cncf.io/dashboard/db/sig-mentions-using-labels?orgId=1).
 5) The Number of PRs merged per repository dashboard [prs_merged.sql](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/prs_merged.sql), [prs_merged.json](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/prs_merged.json), [view](https://k8s.devstats.cncf.io/dashboard/db/prs-merged?orgId=1).
 6) PRs from opened to merged, from 2014-06 dashboard [opened_to_merged.sql](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/opened_to_merged.sql), [opened_to_merged.json](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/opened_to_merged.json), [view](https://k8s.devstats.cncf.io/dashboard/db/opened-to-merged?orgId=1).
 7) PRs from opened to LGTMed, approved and merged dashboard [time_metrics.sql](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/time_metrics.sql), [time_metrics.json](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/time_metrics.json), [view](https://k8s.devstats.cncf.io/dashboard/db/time-metrics?orgId=1).
@@ -1775,6 +1779,39 @@ where
 - If `from` starts with `:`, `:from` - then it will replace `from` directly, instead of `[[from]]`. This allows replace any text, not only template variables.
 - Any replacement `f` -> `t` made creates additional variable `f` with value `t` that can be used in next replacements or next variables.
 - All those options are used [here](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/pdb_vars.yaml), [here](https://github.com/cncf/devstats/blob/master/metrics/prometheus/pdb_vars.yaml) or [there](https://github.com/cncf/devstats/blob/master/metrics/opencontainers/pdb_vars.yaml).
+- We can even create conditional partial (conditional on variable name, in this case `hostname`). See this:
+```
+  - [hostname, os_hostname]
+  #- [hostname, ':devstats.cncf.io']
+  - [':testsrv=cncftest.io ', ':']
+  - [': cncftest.io=testsrv', ':']
+  - [':testsrv=', ':<!-- ']
+  - [':=testsrv', ': -->']
+  - [':prodsrv=devstats.cncf.io ', ':']
+  - [': devstats.cncf.io=prodsrv', ':']
+  - [':prodsrv=', ':<!-- ']
+  - [':=prodsrv', ': -->']
+```
+- Assume we already have `os_hostname` variable which contains current hostname.
+- In first line we replace all `[[hostname]]` with current host name.
+- Second line is commented out, but here we're replacing `[[hostname]]` with hardcoded value. We can comment out 1st line and uncomment 2nd to test how it would work on a specific hostname.
+- We can use 'test server' markers: `testsrv=[[hostname]] ` and ` [[hostname]]=testsrv` to mark beginning and end of content that will only be inserted when `hostname = 'cncftest.io'`.
+- We can use 'production server' markers: `prodsrv=[[hostname]] ` and ` [[hostname]]=prodsrv` to mark beginning and end of content that will only be inserted when `hostname = 'devstats.cncf.io'`.
+- See home dashboard projects [panel](https://github.com/cncf/devstats/blob/master/partials/projects.html) for example usage.
+- This works like this:
+  - Text `testsrv=[[hostname]]` is first replaced with the current hostname, for example: `testsrv=cncftest.io` on the test server.
+  - Then we have a direct replacement (marek by replacements starting with `:`) 'testsrv=cncftest.io ' -> '', so finally entire `testsrv=[[hostname]]` is cleared.
+  - Similar story happens with `[[hostname]]=testsrv`.
+  - That makes content between those markers directly available.
+  - Now let's assume we are on the production server, so `hostname=devstats.cncf.io`.
+  - Text `testsrv=[[hostname]]` is first replaced with the current hostname, for example: `testsrv=devstats.cncf.io` on the test server.
+  - There is no direct replacement for `:testsrv=devstats.cncf.io` (there only is `:prodsrv=devstats.cncf.io` with this hostname).
+  - But there is replacement for nonmatching `testsrv` part: `':testsrv=', ':<!-- '`, so finally `testsrv=[[hostname]]` -> `testsrv=devstats.cncf.io` -> `<!-- devstats.cncf.io`.
+  - Similar: `[[hostname]]=testsrv` -> `devstats.cncf.io=testsrv` -> `devstats.cncf.io -->`, using `':=testsrv', ': -->'`.
+- So finally `testsrv=[[hostname]]` is cleared on the test server and evaluates to `<!-- devstats.cncf.io` on the production.
+- `[[hostname]]=testsrv` is cleared on the test server and evaluates to `devstats.cncf.io -->` on the production.
+- `prodsrv=[[hostname]]` is cleared on the production server and evaluates to `<!-- cncftest.io` on the test.
+- `[[hostname]]=prodsrv` is cleared on the production server and evaluates to `cncftest.io -->` on the test.
 ### [docs/tags](https://github.com/cncf/devstats/blob/master/docs/tags.md)
 # InfluxDB tags
 
@@ -2419,6 +2456,91 @@ Most important columns are (most of them are only filled for a specific event ty
 - Data in those tables can change between GitHub events, and `event_id` is a part of this tables primary key.
 - They represent different state of a given object at the time of a given GitHub event `event_id`.
 - For example PRs/Issues can change labels, be closed/merged/reopened, repositories can have different numbers of stars, forks, watchers etc.
+### [docs/dashboards/kubernetes/sig_mentions_labels_devel](https://github.com/cncf/devstats/blob/master/docs/dashboards/kubernetes/sig_mentions_labels_devel.md)
+# SIG mentions using labels dashboard
+
+Links:
+- Postgres SQL files: [labels_sig_kind.sql](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/labels_sig_kind.sql), [labels_kind.sql](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/labels_kind.sql) and [labels_sig.sql](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/labels_sig.sql).
+- InfluxDB series definition: [metrics.yaml](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/metrics.yaml). Search for `labels_sig_kind`, `labels_sig` and `labels_kind`.
+- Grafana dashboard JSON: [sig_mentions_using_labels.json](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/sig_mentions_using_labels.json).
+- User documentation: [sig_mentions_labels.md](https://github.com/cncf/devstats/blob/master/docs/dashboards/kubernetes/sig_mentions_labels.md).
+- Production version: [view](https://k8s.devstats.cncf.io/d/42/sig-mentions-using-labels?orgId=1).
+- Test version: [view](https://k8s.cncftest.io/d/42/sig-mentions-using-labels?orgId=1).
+
+# Description
+
+- We're quering `gha_issues_labels` and `gha_issues` tables.  Those tables contains issues and their labels.
+- For more information about `gha_issues_labels` table please check: [docs/tables/gha_issues_labels.md](https://github.com/cncf/devstats/blob/master/docs/tables/gha_issues_labels.md).
+- For more information about `gha_issues` table please check: [docs/tables/gha_issues.md](https://github.com/cncf/devstats/blob/master/docs/tables/gha_issues.md).
+- We're counting distinct issues that contain specific labels for SIGs and categories/kinds.
+- Issue belnogs to some `SIGNAME` SIG - when it has `sig/SIGNAME` label.
+- Issue belongs to some `CAT` category/kind - when it has `kind/CAT` label.
+- This dashboard shows stacked number of issues that belongs to given SIGs and categories/kinds (by using issue labels).
+- First panel shows stacked chart of number of issues belonging to selected categories for a selected SIG. It stacks different categories/kinds. It uses first SQL.
+- Second panel shows stacked chart of number of issues belonging to selected categories (no matter which SIG, even no SIG at all). It stacks different categories/kinds. It uses second SQL.
+- Third panel shows stacked chart of number of issues belonging to a given SIGs. It stacks by SIG and displays all possible SIGs found. It uses third SQL.
+- SIG list comes from values of `sig/SIG` labels, category list contains values of `kind/kind` labels.
+- We're only looking for labels that have been created on the issue between `{{from}}` and `{{to}}` dates.
+- Values for `from` and `to` will be replaced with final periods described later.
+- Each row returns single value, so the metric type is: `multi_row_single_column`.
+- First panel/first Postgres query: each row is in the format column 1: `sig_mentions_labels_sig_kind,SIG-kind`, column 2: `NumberOfSIGCategoryIssues`.
+- Second panel/second Postgres query: each row is in the format column 1: `sig_mentions_labels_kind,kind`, column 2: `NumberOfCategoryIssues`.
+- Thirs panel/third Postgres query: each row is in the format column 1: `sig_mentions_labels_sig,SIG`, column 2: `NumberOfSIGIssues`.
+- All metrics use `multi_value: true`, so values are saved under different column name in a Influx DB series.
+
+# Periods and Influx series
+
+Metric usage is defined in metric.yaml as follows:
+```
+series_name_or_func: multi_row_single_column
+sql: labels_sig
+periods: d,w,m,q,y
+aggregate: 1,7
+skip: w7,m7,q7,y7
+multi_value: true
+
+(...)
+
+series_name_or_func: multi_row_single_column
+sql: labels_kind
+periods: d,w,m,q,y
+aggregate: 1,7
+skip: w7,m7,q7,y7
+multi_value: true
+
+(...)
+
+series_name_or_func: multi_row_single_column
+sql: labels_sig_kind
+periods: d,w,m,q,y
+aggregate: 1,7
+skip: w7,m7,q7,y7
+multi_value: true
+```
+- It means that we should call Postgres metrics [labels_sig_kind.sql](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/labels_sig_kind.sql), [labels_kind.sql](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/labels_kind.sql) and [labels_sig.sql](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/labels_sig.sql).
+- We should expect multiple rows each with 2 columns: 1st defines output Influx series name, 2nd defines value.
+- See [here](https://github.com/cncf/devstats/blob/master/docs/periods.md) for periods definitions.
+- The final InfluxDB series name would be: `sig_mentions_labels_sig_kind_[[period]]` or `sig_mentions_labels_kind_[[period]]` or `sig_mentions_labels_sig_[[period]]`. Where `[[period]]` will be from d,w,m,q,y,d7.
+- First panel: each of those series (for example `sig_mentions_labels_sig_kind_q`) will contain multiple columns (each column represent single SIG-category) with quarterly time series data.
+- Second panel: each of those series (for example `sig_mentions_labels_kind_w`) will contain multiple columns (each column represent single category) with weekly time series data.
+- Third panel: each of those series (for example `sig_mentions_labels_sig_d7`) will contain multiple columns (each column represent single SIG) with moving average 7 days time series data.
+- Final querys is here: [sig_mentions_using_labels.json](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/sig_mentions_using_labels.json):
+  - First panel: `SELECT /^[[sig]]-[[kinds]]$/ FROM \"sig_mentions_labels_sig_kind_[[period]]\" WHERE $timeFilter`.
+  - Second panel: `SELECT /^[[kinds]]$/ FROM \"sig_mentions_labels_kind_[[period]]\" WHERE $timeFilter`.
+  - Third panel: `SELECT * FROM \"sig_mentions_labels_sig_[[period]]\" WHERE $timeFilter`.
+  - Third panel: We're selecting all columns, because we can only select single SIG from drop down, and there is no sense to show only one SIG on this panel.
+- `$timeFiler` value comes from Grafana date range selector. It is handled by Grafana internally.
+- `[[period]]` comes from Variable definition in dashboard JSON: [sig_mentions_using_labels.json](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/sig_mentions_using_labels.json). Search for `"period"`.
+- `[[sig]]` comes from Variable definition in dashboard JSON: [sig_mentions_using_labels.json](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/sig_mentions_using_labels.json). Search for `"sig"`. You have to select exactly one SIG, it is used on the first panel.
+- `[[kinds]]` comes from Variable definition in dashboard JSON: [sig_mentions_using_labels.json](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/sig_mentions_using_labels.json). Search for `"kinds"`.
+- Note that `[[kinds]]` is a multi value select and reqexp part `/^[[kinds]]$/` means that we want to see all values currently selected from the drop-down. `/^[[sig]]-[[kinds]]$/` will select all currently selected categories values for a selected SIG.
+- SIGs come from the InfluxDB tags: `SHOW TAG VALUES WITH KEY = sig_mentions_labels_name`, this tag is defined here: [idb_tags.yaml](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/idb_tags.yaml#L52).
+- Categories come from the InfluxDB tags: `SHOW TAG VALUES WITH KEY = sig_mentions_labels_kind_name`, this tag is defined here: [idb_tags.yaml](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/idb_tags.yaml#L56).
+- For more informations about tags check [here](https://github.com/cncf/devstats/blob/master/docs/tags.md).
+- Releases comes from Grafana annotations: [sig_mentions_using_labels.json](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/sig_mentions_using_labels.json). Search for `"annotations"`.
+- For more details about annotations check [here](https://github.com/cncf/devstats/blob/master/docs/annotations.md).
+- Project name is customized per project, it uses `[[full_name]]` template variable [definition](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/sig_mentions_using_labels.json). Search for `full_name`.
+- Per project variables are defined using `idb_vars`, `pdb_vars` tools, more info [here](https://github.com/cncf/devstats/blob/master/docs/vars.md).
 ### [docs/dashboards/kubernetes/sig_mentions](https://github.com/cncf/devstats/blob/master/docs/dashboards/kubernetes/sig_mentions.md)
 <h1 id="kubernetes-sig-mentions-dashboard">Kubernetes SIG mentions dashboard</h1>
 <p>Links:</p>
@@ -2438,7 +2560,7 @@ Most important columns are (most of them are only filled for a specific event ty
 <li>There can be other texts before and after the SIG, so <code>Hi there @kubernetes/sig-apps-feature-request, I want to ...</code> will evaluate to <code>apps</code>.</li>
 <li>For exact <code>regexp</code> used, please check developer <a href="https://github.com/cncf/devstats/blob/master/docs/dashboards/kubernetes/sig_mentions_devel.md" target="_blank">documentation</a>.</li>
 <li><strong>Texts</strong> means comments, commit messages, issue titles, issue texts, PR titles, PR texts, PR review texts.</li>
-<li>You can filter by repository group and period.</li>
+<li>You can filter by period and SIG(s).</li>
 <li>Selecting period (for example week) means that dahsboard will count SIG mentions in these periods.</li>
 <li>See <a href="https://github.com/cncf/devstats/blob/master/docs/periods.md" target="_blank">here</a> for more informations about periods.</li>
 <li>This dashboard allows to select multiple SIG, it contains special &#39;All&#39; value to display all SIGs.</li>
@@ -2465,6 +2587,131 @@ Most important columns are (most of them are only filled for a specific event ty
 <li>We are skipping bots when calculating number of reviewers, see <a href="https://github.com/cncf/devstats/blob/master/docs/excluding_bots.md" target="_blank">excluding bots</a> for details.</li>
 </ul>
 
+### [docs/dashboards/kubernetes/sig_mentions_labels](https://github.com/cncf/devstats/blob/master/docs/dashboards/kubernetes/sig_mentions_labels.md)
+<h1 id="kubernetes-sig-mentions-labels-dashboard">Kubernetes SIG mentions using labels dashboard</h1>
+<p>Links:</p>
+<ul>
+<li>First panel Postgres <a href="https://github.com/cncf/devstats/blob/master/metrics/kubernetes/labels_sig_kind.sql" target="_blank">SQL file</a>.</li>
+<li>Second panel Postgres <a href="https://github.com/cncf/devstats/blob/master/metrics/kubernetes/labels_kind.sql" target="_blank">SQL file</a>.</li>
+<li>Third panel Postgres <a href="https://github.com/cncf/devstats/blob/master/metrics/kubernetes/labels_sig.sql" target="_blank">SQL file</a>.</li>
+<li>InfluxDB <a href="https://github.com/cncf/devstats/blob/master/metrics/kubernetes/metrics.yaml" target="_blank">series definition</a>. Search for <code>labels_sig_kind</code>, <code>labels_sig</code> and <code>labels_kind</code></li>
+<li>Grafana dashboard <a href="https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/sig_mentions_using_labels.json" target="_blank">JSON</a>.</li>
+<li>Developer <a href="https://github.com/cncf/devstats/blob/master/docs/dashboards/kubernetes/sig_mentions_labels_devel.md" target="_blank">documentation</a>.</li>
+</ul>
+<h1 id="description">Description</h1>
+<ul>
+<li>This dashboard shows stacked number of issues that belongs to given SIGs and categories/kinds (by using issue labels)</li>
+<li>First panel shows stacked chart of number of issues belonging to selected categories for a selected SIG. It stacks different categories/kinds. It uses first SQL.</li>
+<li>Second panel shows stacked chart of number of issues belonging to selected categories (no matter which SIG, even no SIG at all). It stacks different categories/kinds. It uses second SQL.</li>
+<li>Third panel shows stacked chart of number of issues belonging to a given SIGs. It stacks by SIG and displays all possible SIGs found. It uses third SQL.</li>
+<li>To mark issue as belonging to some <code>SIGNAME</code> SIG - it must have <code>sig/SIGNAME</code> label.</li>
+<li>To mark issue as belonging to some <code>CAT</code> category/kind - it must have <code>kind/CAT</code> label.</li>
+<li>SIG list comes from values of <code>sig/SIG</code> labels, category list contains values of <code>kind/kind</code> labels.</li>
+<li>You can filter by SIG and categories.</li>
+<li>You must select exactly one SIG.</li>
+<li>You can select multiple categories to display, or select special value <em>All</em> to display all categories.</li>
+<li>Selecting period (for example week) means that dahsboard will count issues in these periods. 7 Day MA will count issues in 7 day window and divide result by 7 (so it will be 7 days MA value)</li>
+<li>See <a href="https://github.com/cncf/devstats/blob/master/docs/periods.md" target="_blank">here</a> for more informations about periods.</li>
+</ul>
+
+### [docs/dashboards/kubernetes/sig_mentions_cats](https://github.com/cncf/devstats/blob/master/docs/dashboards/kubernetes/sig_mentions_cats.md)
+<h1 id="kubernetes-sig-mentions-categories-dashboard">Kubernetes SIG mentions categories dashboard</h1>
+<p>Links:</p>
+<ul>
+<li>First panel Postgres <a href="https://github.com/cncf/devstats/blob/master/metrics/kubernetes/sig_mentions_cats.sql" target="_blank">SQL file</a>.</li>
+<li>Second panel Postgres <a href="https://github.com/cncf/devstats/blob/master/metrics/kubernetes/sig_mentions_breakdown.sql" target="_blank">SQL file</a>.</li>
+<li>InfluxDB <a href="https://github.com/cncf/devstats/blob/master/metrics/kubernetes/metrics.yaml" target="_blank">series definition</a>. Search for <code>sig_mentions_cats</code> and <code>sig_mentions_breakdown</code></li>
+<li>Grafana dashboard <a href="https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/sig_mentions_categories.json" target="_blank">JSON</a>.</li>
+<li>Developer <a href="https://github.com/cncf/devstats/blob/master/docs/dashboards/kubernetes/sig_mentions_cats_devel.md" target="_blank">documentation</a>.</li>
+</ul>
+<h1 id="description">Description</h1>
+<ul>
+<li>This dashboard shows stacked number of various SIG categories mentions.</li>
+<li>It shows stacked chart of each category mentions for all SIGs in one panel and stacked chart of each category mentions for a SIG selected from the drop down in another panel.</li>
+<li>First panel uses first Postgres query, second panel uses second query.</li>
+<li>There are following categories defined: <strong>bug, feature-request, pr-review, api-review, misc, proposal, design-proposal, test-failure</strong></li>
+<li>We are getting SIG mentions from all <strong>texts</strong>.</li>
+<li>To find a SIG we&#39;re looking for texts like this <code>@kubernetes/sig-SIG-category</code>.</li>
+<li>For example <code>@kubernetes/sig-cluster-lifecycle-pr-review</code> will evaluate SIG to <code>cluster-lifecycle</code> and category to <code>pr-review</code>.</li>
+<li>There can be other texts before and after the SIG, so <code>Hi there @kubernetes/sig-apps-feature-request, I want to ...</code> will evaluate to SIG: <code>apps</code>, category: <code>feature-request</code>.</li>
+<li>For exact <code>regexp</code> used, please check developer <a href="https://github.com/cncf/devstats/blob/master/docs/dashboards/kubernetes/sig_mentions_cats_devel.md" target="_blank">documentation</a>.</li>
+<li><strong>Texts</strong> means comments, commit messages, issue titles, issue texts, PR titles, PR texts, PR review texts.</li>
+<li>You can filter by SIG and categories. You must select one SIG to display its categories stacked on the second panel. First panel aggregates category data for all SIGs.</li>
+<li>You can select multiple categories to display, or select special value <em>All</em> to display all categories.</li>
+<li>Selecting period (for example week) means that dahsboard will count SIG mentions in these periods.</li>
+<li>See <a href="https://github.com/cncf/devstats/blob/master/docs/periods.md" target="_blank">here</a> for more informations about periods.</li>
+<li>We&#39;re also excluding bots activity, see <a href="https://github.com/cncf/devstats/blob/master/docs/excluding_bots.md" target="_blank">excluding bots</a>.</li>
+</ul>
+
+### [docs/dashboards/kubernetes/sig_mentions_cats_devel](https://github.com/cncf/devstats/blob/master/docs/dashboards/kubernetes/sig_mentions_cats_devel.md)
+# SIG mentions categories dashboard
+
+Links:
+- Postgres SQL files: [sig_mentions_cats.sql](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/sig_mentions_cats.sql) and [sig_mentions_breakdown.sql](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/sig_mentions_breakdown.sql).
+- InfluxDB series definition: [metrics.yaml](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/metrics.yaml). Search for `sig_mentions_cats` and `sig_mentions_breakdown`.
+- Grafana dashboard JSON: [sig_mentions_categories.json](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/sig_mentions_categories.json).
+- User documentation: [sig_mentions_cats.md](https://github.com/cncf/devstats/blob/master/docs/dashboards/kubernetes/sig_mentions_cats.md).
+- Production version: [view](https://k8s.devstats.cncf.io/d/40/sig-mentions-categories?orgId=1).
+- Test version: [view](https://k8s.cncftest.io/d/40/sig-mentions-categories?orgId=1).
+
+# Description
+
+- We're quering `gha_texts` table. It contains all 'texts' from all Kubernetes repositories.
+- For more information about `gha_texts` table please check: [docs/tables/gha_texts.md](https://github.com/cncf/devstats/blob/master/docs/tables/gha_texts.md).
+- We're counting distinct GitHub events (text related events: issue/PR/commit comments, PR reviews, issue/PR body texts, titles) that contain any SIG reference.
+- On first panel we're groupping by category using first Postgres SQL.
+- On second panel we're groupping SIG and category using second Postgres SQL.
+- Regexp to match category is: `(?i)(?:^|\s)+(?:@kubernetes/sig-[\w\d-]+)(-bug|-feature-request|-pr-review|-api-review|-misc|-proposal|-design-proposal|-test-failure)s?(?:$|[^\w\d-]+)`.
+- Regexp to match SIG and category is: `(?i)(?:^|\s)+((?:@kubernetes/sig-[\w\d-]+)(?:-bug|-feature-request|-pr-review|-api-review|-misc|-proposal|-design-proposal|-test-failure))s?(?:$|[^\w\d-]+)`.
+- Example sig mentions: `@kubernetes/sig-node-bug`, `@Kubernetes/sig-apps-proposal`.
+- We're only looking for texts created between `{{from}}` and `{{to}}` dates. Values for `from` and `to` will be replaced with final periods described later.
+- We're also excluding bots activity (see [excluding bots](https://github.com/cncf/devstats/blob/master/docs/excluding_bots.md))
+- Each row returns single value, so the metric type is: `multi_row_single_column`.
+- First panel/first Postgres query: each row is in the format column 1: `sig_mentions_texts_cat,CatName`, column 2: `NumberOfCategoryMentions`.
+- Second panel/second Postgres query: each row is in the format column 1: `sig_mentions_texts_bd,SIGName-CatName`, column 2: `NumberOfSIGCategoryMentions`.
+- Both metrics use `multi_value: true`, so values are saved under different column name in a Influx DB series.
+
+# Periods and Influx series
+
+Metric usage is defined in metric.yaml as follows:
+```
+series_name_or_func: multi_row_single_column
+sql: sig_mentions_cats
+periods: d,w,m,q,y
+aggregate: 1,7
+skip: w7,m7,q7,y7
+multi_value: true
+
+(...)
+
+series_name_or_func: multi_row_single_column
+sql: sig_mentions_breakdown
+periods: d,w,m,q,y
+aggregate: 1,7
+skip: w7,m7,q7,y7
+multi_value: true
+```
+- It means that we should call Postgres metrics [sig_mentions_cats.sql](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/sig_mentions_cats.sql) or [sig_mentions_breakdown.sql](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/sig_mentions_breakdown.sql).
+- We should expect multiple rows each with 2 columns: 1st defines output Influx series name, 2nd defines value.
+- See [here](https://github.com/cncf/devstats/blob/master/docs/periods.md) for periods definitions.
+- The final InfluxDB series name would be: `sig_mentions_texts_cat_[[period]]` or `sig_mentions_texts_bd_[[period]]`. Where `[[period]]` will be from d,w,m,q,y,d7.
+- First panel: each of those series (for example `sig_mentions_texts_cat_d7`) will contain multiple columns (each column represent single category) with time series data.
+- Second panel: each of those series (for example `sig_mentions_texts_bd_d7`) will contain multiple columns (each column represent single SIG-category) with time series data.
+- Final querys is here: [sig_mentions_categories.json](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/sig_mentions_categories.json):
+  - First panel: `SELECT /^[[sigcats]]$/ FROM \"sig_mentions_texts_cat_[[period]]\" WHERE $timeFilter`.
+  - Second panel: `SELECT /^[[sig]]-[[sigcats]]$/ FROM \"sig_mentions_texts_bd_[[period]]\" WHERE $timeFilter`.
+- `$timeFiler` value comes from Grafana date range selector. It is handled by Grafana internally.
+- `[[period]]` comes from Variable definition in dashboard JSON: [sig_mentions_categories.json](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/sig_mentions_categories.json). Search for `"period"`.
+- `[[sig]]` comes from Variable definition in dashboard JSON: [sig_mentions_categories.json](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/sig_mentions_categories.json). Search for `"sig"`. You have to select exactly one SIG, it is used on the second panel.
+- `[[sigcats]]` comes from Variable definition in dashboard JSON: [sig_mentions_categories.json](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/sig_mentions_categories.json). Search for `"sigcats"`.
+- Note that `[[sigcats]]` is a multi value select and reqexp part `/^[[sigcats]]$/` means that we want to see all values currently selected from the drop-down. `/^[[sig]]-[[sigcats]]$/` will select all currently selected categories values for a selected SIG.
+- SIGs come from the InfluxDB tags: `SHOW TAG VALUES WITH KEY = sig_mentions_texts_name`, this tag is defined here: [idb_tags.yaml](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/idb_tags.yaml#L44).
+- Categories come from the InfluxDB tags: `SHOW TAG VALUES WITH KEY = sig_mentions_texts_cat_name`, this tag is defined here: [idb_tags.yaml](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/idb_tags.yaml#L48).
+- For more informations about tags check [here](https://github.com/cncf/devstats/blob/master/docs/tags.md).
+- Releases comes from Grafana annotations: [sig_mentions_categories.json](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/sig_mentions_categories.json). Search for `"annotations"`.
+- For more details about annotations check [here](https://github.com/cncf/devstats/blob/master/docs/annotations.md).
+- Project name is customized per project, it uses `[[full_name]]` template variable [definition](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/sig_mentions_categories.json). Search for `full_name`.
+- Per project variables are defined using `idb_vars`, `pdb_vars` tools, more info [here](https://github.com/cncf/devstats/blob/master/docs/vars.md).
 ### [docs/dashboards/kubernetes/reviewers_devel](https://github.com/cncf/devstats/blob/master/docs/dashboards/kubernetes/reviewers_devel.md)
 # Kubernetes reviewers dashboard
 
@@ -2489,7 +2736,7 @@ Links:
 - Each row returns single value, so the metric type is: `multi_row_single_column`.
 - Each row is in the format column 1: `reviewers,RepoGroupName`, column 2: `NumberOfReviewersInThisRepoGroup`. Number of rows is N+1, where N=number of repo groups. One additional row for `reviewers,All` that contains number of repo groups for all repo groups.
 - Value for each repository group is calculated as a number of distinct actor logins who:
-- Are not bots (see [excluding bots](https://github.com/cncf/devstats/blob/master/docs/excluding_bots.md).)
+- Are not bots (see [excluding bots](https://github.com/cncf/devstats/blob/master/docs/excluding_bots.md))
 - Added `lgtm` or `approve` label in a given period (`gha_issues_events_labels` table)
 - For more information about `gha_issues_events_labels` table please check: [docs/tables/gha_issues_events_labels.md](https://github.com/cncf/devstats/blob/master/docs/tables/gha_issues_events_labels.md).
 - Added text matching given regexp.
@@ -2545,10 +2792,10 @@ Links:
 - Regexp to match SIG is: `(?i)(?:^|\s)+(@kubernetes/sig-[\w\d-]+)(?:-bug|-feature-request|-pr-review|-api-review|-misc|-proposal|-design-proposal|-test-failure)s?(?:$|[^\w\d-]+)` with `(?i)(?:^|\s)+(@kubernetes/sig-[\w\d-]*[\w\d]+)(?:$|[^\w\d-]+)` fallback.
 - Example sig mentions: `@kubernetes/sig-node-bug`, `@Kubernetes/sig-apps`.
 - We're only looking for texts created between `{{from}}` and `{{to}}` dates. Values for `from` and `to` will be replaced with final periods described later.
-- We're also excluding bots activity (see [excluding bots](https://github.com/cncf/devstats/blob/master/docs/excluding_bots.md).)
+- We're also excluding bots activity (see [excluding bots](https://github.com/cncf/devstats/blob/master/docs/excluding_bots.md))
 - Each row returns single value, so the metric type is: `multi_row_single_column`.
 - Each row is in the format column 1: `sig_mentions_texts,SIGName`, column 2: `NumberOfSIGMentions`.
-- This metric uses `multi_value: true`, so each SIG is saved under different column name in a Influx DB serie.
+- This metric uses `multi_value: true`, so each SIG is saved under different column name in a Influx DB series.
 
 # Periods and Influx series
 
@@ -2564,7 +2811,7 @@ multi_value: true
 - It means that we should call Postgres metric [sig_mentions.sql](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/sig_mentions.sql).
 - We should expect multiple rows each with 2 columns: 1st defines output Influx series name, 2nd defines value.
 - See [here](https://github.com/cncf/devstats/blob/master/docs/periods.md) for periods definitions.
-- The final InfluxDB series name would be: `sig_mentions_texts_[[period]]`. Where [[period]] will be from d,w,m,q,y,d7.
+- The final InfluxDB series name would be: `sig_mentions_texts_[[period]]`. Where `[[period]]` will be from d,w,m,q,y,d7.
 - Each of those series (for example `sig_mentions_texts_d7`) will contain multiple columns (each column represent single SIG) with time series data.
 - Final query is here: [sig_mentions.json](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/sig_mentions.json#L117): `SELECT /^[[sigs]]$/ FROM \"sig_mentions_texts_[[period]]\" WHERE $timeFilter`.
 - `$timeFiler` value comes from Grafana date range selector. It is handled by Grafana internally.
@@ -2657,6 +2904,7 @@ periods: h
 - Skip: w7, m7, q7, y7 means that we should exclude those periods, so we will only have d7 left. That means we're calculating d,w,m,q,y,d7 periods. d7 is very useful, becasue it contains all 7 week days (so values are similar) but we're progressing one day instead of 7 days.
 - d7 = '7 Days MA' = '7 days moving average'.
 - h24 = '24 Hours MA' = '24 hours moving avegage'.
+- Note that moving averages can give non-intuitive values, for example let's say there were 10 issues in 7 days. 7 Days MA will give you value 10/7 = 1.42857... which doesnt look like a correct Issue number. But this means avg 1.49 issue/day in 7 Days moving average period.
 ### [docs/excluding_bots](https://github.com/cncf/devstats/blob/master/docs/excluding_bots.md)
 # Excluding bots
 
