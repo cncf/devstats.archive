@@ -13,6 +13,7 @@ from (
     gha_issues i
   where
     i.is_pull_request = false
+    and i.updated_at >= now() - '{{period}}'::interval
   group by
     1, 2, 3, 4
   union select
@@ -26,14 +27,12 @@ from (
     gha_pull_requests pr
   where
     ipr.pull_request_id = pr.id
+    and pr.updated_at >= now() - '{{period}}'::interval
   group by
     1, 2, 3, 4
   ) sub
 where
   sub.closed_at is null
 order by
-  sub.issue_id,
-  sub.repo,
-  sub.number,
-  sub.pr
+  sub.issue_id desc
 ;

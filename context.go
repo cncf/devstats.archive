@@ -81,6 +81,7 @@ type Ctx struct {
 	OutputDB          string          // From GHA2DB_OUTPUT_DB, ./merge_pdbs tool - output database to merge into
 	TmOffset          int             // From GHA2DB_TMOFFSET, ./gha2db_sync tool - uses time offset to decide when to calculate various metrics, default offset is 0 which means UTC, good offset for USA is -6, and for Poland is 1 or 2
 	DefaultHostname   string          // "devstats.cncf.io"
+	RecentRange       string          // From GHA2DB_RECENT_RANGE, ./ghapi2db tool, default '3 days'.
 }
 
 // Init - get context from environment variables
@@ -418,6 +419,12 @@ func (ctx *Ctx) Init() {
 		ctx.InputDBs = strings.Split(dbs, ",")
 	}
 	ctx.OutputDB = os.Getenv("GHA2DB_OUTPUT_DB")
+
+	// RecentRange - ghapi2db will check issues from now() - this range to now()
+	ctx.RecentRange = os.Getenv("GHA2DB_RECENT_RANGE")
+	if ctx.RecentRange == "" {
+		ctx.RecentRange = "3 days"
+	}
 
 	// Context out if requested
 	if ctx.CtxOut {
