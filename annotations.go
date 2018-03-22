@@ -1,16 +1,12 @@
 package devstats
 
 import (
-	"context"
 	"fmt"
-	"io/ioutil"
 	"regexp"
 	"sort"
+	"strconv"
 	"strings"
 	"time"
-
-	"github.com/google/go-github/github"
-	"golang.org/x/oauth2"
 )
 
 // Annotations contain list of annotations
@@ -62,7 +58,7 @@ func GetFakeAnnotations(startDate, joinDate time.Time) (annotations Annotations)
 	return
 }
 
-// GetAnnotations queries GitHub `orgRepo` via GitHub API (using ctx.GitHubOAuth)
+// GetAnnotations queries uses `git` to get `orgRepo` all tags list
 // for all tags and returns those matching `annoRegexp`
 func GetAnnotations(ctx *Ctx, orgRepo, annoRegexp string) (annotations Annotations) {
 	// Get org and repo from orgRepo
@@ -70,8 +66,6 @@ func GetAnnotations(ctx *Ctx, orgRepo, annoRegexp string) (annotations Annotatio
 	if len(ary) != 2 {
 		Fatalf("main repository format must be 'org/repo', found '%s'", orgRepo)
 	}
-	org := ary[0]
-	repo := ary[1]
 
 	// Compile annotation regexp if present, if no regexp then return all tags
 	var re *regexp.Regexp
@@ -79,71 +73,74 @@ func GetAnnotations(ctx *Ctx, orgRepo, annoRegexp string) (annotations Annotatio
 		re = regexp.MustCompile(annoRegexp)
 	}
 
-	// Get GitHub OAuth from env or from file
-	oAuth := ctx.GitHubOAuth
-	if strings.Contains(ctx.GitHubOAuth, "/") {
-		bytes, err := ioutil.ReadFile(ctx.GitHubOAuth)
-		FatalOnError(err)
-		oAuth = strings.TrimSpace(string(bytes))
+	// Local or cron mode?
+	cmdPrefix := ""
+	if ctx.Local {
+		cmdPrefix = LocalGitScripts
 	}
 
-	// GitHub authentication or use public access
-	ghCtx := context.Background()
-	var client *github.Client
-	if oAuth == "-" {
-		client = github.NewClient(nil)
-	} else {
-		ts := oauth2.StaticTokenSource(
-			&oauth2.Token{AccessToken: oAuth},
+	// We need this to capture 'git_tags.sh' output.
+	ctx.ExecOutput = true
+
+	// Get tags is using shell script that does 'chdir'
+	// We cannot chdir because this is a multithreaded app
+	// And all threads share CWD (current working directory)
+	if ctx.Debug > 0 {
+		Printf("Getting tags for repo %s\n", orgRepo)
+	}
+	dtStart := time.Now()
+	rwd := ctx.ReposDir + orgRepo
+	tagsStr, err := ExecCommand(
+		ctx,
+		[]string{cmdPrefix + "git_tags.sh", rwd},
+		map[string]string{"GIT_TERMINAL_PROMPT": "0"},
+	)
+	dtEnd := time.Now()
+	FatalOnError(err)
+
+	tags := strings.Split(tagsStr, "\n")
+	nTags := 0
+
+	for _, tagData := range tags {
+		data := strings.TrimSpace(tagData)
+		if data == "" {
+			continue
+		}
+		// Use '♂♀' separator to avoid any character that can appear inside tag name or description
+		tagDataAry := strings.Split(data, "♂♀")
+		if len(tagDataAry) != 3 {
+			Fatalf("invalid tagData returned for repo: %s: '%s'", orgRepo, data)
+		}
+		tagName := tagDataAry[0]
+		if re != nil && !re.MatchString(tagName) {
+			continue
+		}
+		unixTimeStamp, err := strconv.ParseInt(tagDataAry[1], 10, 64)
+		if err != nil {
+			Printf("Invalid time returned for repo: %s, tag: %s: '%s'\n", orgRepo, tagName, data)
+		}
+		FatalOnError(err)
+		creatorDate := time.Unix(unixTimeStamp, 0)
+		message := tagDataAry[2]
+		if len(message) > 40 {
+			message = message[0:40]
+		}
+		replacer := strings.NewReplacer("\n", " ", "\r", " ", "\t", " ")
+		message = replacer.Replace(message)
+
+		annotations.Annotations = append(
+			annotations.Annotations,
+			Annotation{
+				Name:        tagName,
+				Description: message,
+				Date:        creatorDate,
+			},
 		)
-		tc := oauth2.NewClient(ghCtx, ts)
-		client = github.NewClient(tc)
+		nTags++
 	}
 
-	// Get Tags list
-	opt := &github.ListOptions{PerPage: 1000}
-	//var allTags []*github.RepositoryTag
-	for {
-		tags, resp, err := client.Repositories.ListTags(ghCtx, org, repo, opt)
-		if _, ok := err.(*github.RateLimitError); ok {
-			Printf("Hit rate limit on ListTags for  %s '%s'\n", orgRepo, annoRegexp)
-		}
-		FatalOnError(err)
-		allTags := len(tags)
-		dtStart := time.Now()
-		lastTime := dtStart
-		for i, tag := range tags {
-			tagName := *tag.Name
-			ProgressInfo(i, allTags, dtStart, &lastTime, time.Duration(10)*time.Second, tagName)
-			if re != nil && !re.MatchString(tagName) {
-				continue
-			}
-			sha := *tag.Commit.SHA
-			commit, _, err := client.Repositories.GetCommit(ghCtx, org, repo, sha)
-			if _, ok := err.(*github.RateLimitError); ok {
-				Printf("hit rate limit on GetCommit for %s '%s'\n", orgRepo, annoRegexp)
-			}
-			FatalOnError(err)
-			date := *commit.Commit.Committer.Date
-			message := *commit.Commit.Message
-			if len(message) > 40 {
-				message = message[0:40]
-			}
-			replacer := strings.NewReplacer("\n", " ", "\r", " ", "\t", " ")
-			message = replacer.Replace(message)
-			annotations.Annotations = append(
-				annotations.Annotations,
-				Annotation{
-					Name:        tagName,
-					Description: message,
-					Date:        date,
-				},
-			)
-		}
-		if resp.NextPage == 0 {
-			break
-		}
-		opt.Page = resp.NextPage
+	if ctx.Debug > 0 {
+		Printf("Got %d tags for %s, took %v\n", nTags, orgRepo, dtEnd.Sub(dtStart))
 	}
 
 	return

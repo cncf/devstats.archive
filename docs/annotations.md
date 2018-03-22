@@ -4,15 +4,15 @@
 - For example [here](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/reviewers.json#L32-L58).
 - It uses InfluxDB data from `annotations` series: `SELECT title, description from annotations WHERE $timeFilter order by time asc`
 - `$timeFilter` is managed by Grafana internally and evaluates to current dashboard date range.
-- Each project's annotations are computed using data from [projects.yaml](https://github.com/cncf/devstats/blob/master/projects.yaml#L11-L12)
-- `main_repo` defines GitHub repository (project can have and usually have multiple GitHub repos) to get annotations from
+- Each project's annotations are computed using data from [projects.yaml](https://github.com/cncf/devstats/blob/master/projects.yaml#L11-L12).
+- `main_repo` defines GitHub repository (project can have and usually have multiple GitHub repos) to get annotations from.
 - `annotation_regexp` defines RegExp patter to fetch annotations.
 - Final annotation list will be a list of tags from `main_repo` that matches `annotation_regexp`.
-- Tags are processed by using GitHub API on a given reposiory.
-- You need to have `/etc/github/oauth` file create don your server, this file shoudl contain OAuth token. Without this file you are limited to 60 API calls, see [GitHub info](https://developer.github.com/v3/#rate-limiting).
-- You can force using unauthorized acces by setting environment variable `GHA2DB_GITHUB_OAUTH` to `-` - this is not recommended.
+- Tags are processed by using [git_tags.sh](https://github.com/cncf/devstats/blob/master/git/git_tags.sh) script on a given reposiory.
 - Annotations are automatically created using [annotations tool](https://github.com/cncf/devstats/blob/master/cmd/annotations/annotations.go).
 - You can force regenerate annotations using `{{projectname}}/annotations.sh` script. For Kubernetes it will be [kubernetes/annotations.sh](https://github.com/cncf/devstats/blob/master/kubernetes/annotations.sh).
+- You can also clear all annotations using [devel/clear_all_annotations.sh](https://github.com/cncf/devstats/blob/master/devel/clear_all_annotations.sh) script and generate all annotations using [devel/add_all_annotations.sh](https://github.com/cncf/devstats/blob/master/devel/add_all_annotations.sh) script.
+- Pass `ONLY='proj1 proj2'` to limit to the selected list of projects.
 - When computing annotations some special InfluxDB series are created:
 - `annotations` it conatins all tag names & dates matching `main_repo` and `annotation_regexp` + CNCF join date (if set, check [here](https://github.com/cncf/devstats/blob/master/projects.yaml#L8))
 - Example values (for Kubernetes):

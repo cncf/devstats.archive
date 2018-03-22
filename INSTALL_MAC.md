@@ -84,7 +84,7 @@ Prerequisites:
 12. We have both databases running and Go tools installed, let's try to sync database dump from `k8s.devstats.cncf.io` manually:
     - We need to prefix call with GHA2DB_LOCAL to enable using tools from "./" directory
     - You need to have GitHub OAuth token, either put this token in `/etc/github/aoauth` file or specify token value via GHA2DB_GITHUB_OAUTH=deadbeef654...10a0 (here you token value)
-    - If you really don't want to use GitHub OAuth2 token, specify GHA2DB_GITHUB_OAUTH=- - this will force tokenless operation (via public API), it is a lot more rate limited than OAuth2 which gives 5000 API points/h
+    - If you really don't want to use GitHub OAuth2 token, specify `GHA2DB_GITHUB_OAUTH=-` - this will force tokenless operation (via public API), it is a lot more rate limited than OAuth2 which gives 5000 API points/h
     - To import data for the first time (Influx database is empty and postgres database is at the state when Kubernetes SQL dump was made on [k8s.devstats.cncf.io](https://k8s.devstats.cncf.io)):
     - `IDB_HOST="localhost" IDB_PASS=pwd PG_PASS=pwd ./kubernetes/reinit_all.sh`
     - This can take a while (depending how old is psql dump `gha.sql.xz` on [k8s.devstats.cncf.io](https://k8s.devstats.cncf.io). It is generated daily at 3:00 AM UTC.

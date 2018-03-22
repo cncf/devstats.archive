@@ -288,7 +288,7 @@ You can tweak `devstats` tools by environment variables:
 - Set `GHA2DB_LOCAL` for `gha2db_sync` tool to make it prefix call to other tools with "./" (so it will use other tools binaries from the current working directory instead of `/usr/bin/`). Local mode uses "./metrics/{{project}}/" to search for metrics files. Otherwise "/etc/gha2db/metrics/{{project}}/" is used.
 - Set `GHA2DB_METRICS_YAML` for `gha2db_sync` tool, set name of metrics yaml file, default is "metrics/{{project}}/metrics.yaml".
 - Set `GHA2DB_GAPS_YAML` for `gha2db_sync` tool, set name of gaps yaml file, default is "metrics/{{project}}/gaps.yaml". Please use Grafana's "null as zero" instead of using manuall filling gaps. This simplifies metrics a lot.
-- Set `GHA2DB_GITHUB_OAUTH` for `annotations` tool, if not set reads from `/etc/github/oauth` file. Set to "-" to force public access.
+- Set `GHA2DB_GITHUB_OAUTH` for `annotations` tool, if not set reads from `/etc/github/oauth` file. Set to "-" to force public access. **annotations tool is not using GitHub API anymore, it uses `git_tags.sh` script instead.**
 - Set `GHA2DB_MAXLOGAGE` for `gha2db_sync` tool, maximum age of DB logs stored in `devstats`.`gha_logs` table, default "1 week" (logs are cleared in `gha2db_sync` job).
 - Set `GHA2DB_TRIALS` for tools that use Postgres DB, set retry periods when "too many connection open" psql error appears, default is "10,30,60,120,300,600" (so 30s, 1min, 2min, 5min, 10min).
 - Set `GHA2DB_SKIPTIME` for all tools to skip time output in program outputs (default is to show time).
@@ -738,6 +738,8 @@ Please see [Tests](https://github.com/cncf/devstats/blob/master/TESTING.md)
 - Follow install instructions for your platform.
 - You don't need to have certbot SSL's, Apache proxy (it is only used to provide SSL and proxy to http Grafanas).
 - You don't need domain names, you can install locally and just test using "http://127.0.0.1:3001" etc.
+
+-  **annotations tool is not using GitHub API anymore, it uses `git_tags.sh` script instead.**, so this is historical (but there will be a new tool to get data from GHAPI so leaving this info here):
 - You need to have GitHub OAuth token, either put this token in `/etc/github/oauth` file or specify token value via GHA2DB_GITHUB_OAUTH=deadbeef654...10a0 (here your token value).
 - If you really don't want to use GitHub OAuth2 token, specify GHA2DB_GITHUB_OAUTH=- - this will force tokenless operation (via public API), it is a lot more rate limited (60 API points/h) than OAuth2 which gives 5000 API points/h.
 ### [TESTING](https://github.com/cncf/devstats/blob/master/TESTING.md)
@@ -989,7 +991,7 @@ Prerequisites:
 12. We have both databases running and Go tools installed, let's try to sync database dump from `k8s.devstats.cncf.io` manually:
     - We need to prefix call with GHA2DB_LOCAL to enable using tools from "./" directory
     - You need to have GitHub OAuth token, either put this token in `/etc/github/aoauth` file or specify token value via GHA2DB_GITHUB_OAUTH=deadbeef654...10a0 (here you token value)
-    - If you really don't want to use GitHub OAuth2 token, specify GHA2DB_GITHUB_OAUTH=- - this will force tokenless operation (via public API), it is a lot more rate limited than OAuth2 which gives 5000 API points/h
+    - If you really don't want to use GitHub OAuth2 token, specify `GHA2DB_GITHUB_OAUTH=-` - this will force tokenless operation (via public API), it is a lot more rate limited than OAuth2 which gives 5000 API points/h
     - To import data for the first time (Influx database is empty and postgres database is at the state when Kubernetes SQL dump was made on [k8s.devstats.cncf.io](https://k8s.devstats.cncf.io)):
     - `IDB_HOST="localhost" IDB_PASS=pwd PG_PASS=pwd ./kubernetes/reinit_all.sh`
     - This can take a while (depending how old is psql dump `gha.sql.xz` on [k8s.devstats.cncf.io](https://k8s.devstats.cncf.io). It is generated daily at 3:00 AM UTC.
@@ -1140,7 +1142,7 @@ Prerequisites:
     - We need to prefix call with GHA2DB_LOCAL to enable using tools from "./" directory
     - To import data for the first time (Influx database is empty and postgres database is at the state when Kubernetes SQL dump was made on [k8s.devstats.cncf.io](https://k8s.devstats.cncf.io)):
     - You need to have GitHub OAuth token, either put this token in `/etc/github/oauth` file or specify token value via GHA2DB_GITHUB_OAUTH=deadbeef654...10a0 (here you token value)
-    - If you really don't want to use GitHub OAuth2 token, specify GHA2DB_GITHUB_OAUTH=- - this will force tokenless operation (via public API), it is a lot more rate limited than OAuth2 which gives 5000 API points/h
+    - If you really don't want to use GitHub OAuth2 token, specify `GHA2DB_GITHUB_OAUTH=-` - this will force tokenless operation (via public API), it is a lot more rate limited than OAuth2 which gives 5000 API points/h
     - `IDB_HOST="localhost" IDB_PASS=pwd PG_PASS=pwd ./kubernetes/reinit_all.sh`
     - This can take a while (depending how old is psql dump `gha.sql.xz` on [k8s.devstats.cncf.io](https://k8s.devstats.cncf.io). It is generated daily at 3:00 AM UTC.
     - Command should be successfull.
@@ -1650,7 +1652,7 @@ Prerequisites:
     - On some VMs `tcp_tw_recycle` will be unavailable, ignore the warning.
     - We need to prefix call with GHA2DB_LOCAL to enable using tools from "./" directory
     - You need to have GitHub OAuth token, either put this token in `/etc/github/oauth` file or specify token value via GHA2DB_GITHUB_OAUTH=deadbeef654...10a0 (here you token value)
-    - If you really don't want to use GitHub OAuth2 token, specify GHA2DB_GITHUB_OAUTH=- - this will force tokenless operation (via public API), it is a lot more rate limited than OAuth2 which gives 5000 API points/h
+    - If you really don't want to use GitHub OAuth2 token, specify `GHA2DB_GITHUB_OAUTH=-` - this will force tokenless operation (via public API), it is a lot more rate limited than OAuth2 which gives 5000 API points/h
     - To import data for the first time (Influx database is empty and postgres database is at the state when Kubernetes SQL dump was made on [k8s.devstats.cncf.io](https://k8s.devstats.cncf.io)):
     - `IDB_HOST="localhost" IDB_PASS=pwd PG_PASS=pwd ./kubernetes/reinit_all.sh`
     - This can take a while (depending how old is psql dump `gha.sql.xz` on [k8s.devstats.cncf.io](https://k8s.devstats.cncf.io). It is generated daily at 3:00 AM UTC.
@@ -1836,15 +1838,15 @@ where
 - For example [here](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/reviewers.json#L32-L58).
 - It uses InfluxDB data from `annotations` series: `SELECT title, description from annotations WHERE $timeFilter order by time asc`
 - `$timeFilter` is managed by Grafana internally and evaluates to current dashboard date range.
-- Each project's annotations are computed using data from [projects.yaml](https://github.com/cncf/devstats/blob/master/projects.yaml#L11-L12)
-- `main_repo` defines GitHub repository (project can have and usually have multiple GitHub repos) to get annotations from
+- Each project's annotations are computed using data from [projects.yaml](https://github.com/cncf/devstats/blob/master/projects.yaml#L11-L12).
+- `main_repo` defines GitHub repository (project can have and usually have multiple GitHub repos) to get annotations from.
 - `annotation_regexp` defines RegExp patter to fetch annotations.
 - Final annotation list will be a list of tags from `main_repo` that matches `annotation_regexp`.
-- Tags are processed by using GitHub API on a given reposiory.
-- You need to have `/etc/github/oauth` file create don your server, this file shoudl contain OAuth token. Without this file you are limited to 60 API calls, see [GitHub info](https://developer.github.com/v3/#rate-limiting).
-- You can force using unauthorized acces by setting environment variable `GHA2DB_GITHUB_OAUTH` to `-` - this is not recommended.
+- Tags are processed by using [git_tags.sh](https://github.com/cncf/devstats/blob/master/git/git_tags.sh) script on a given reposiory.
 - Annotations are automatically created using [annotations tool](https://github.com/cncf/devstats/blob/master/cmd/annotations/annotations.go).
 - You can force regenerate annotations using `{{projectname}}/annotations.sh` script. For Kubernetes it will be [kubernetes/annotations.sh](https://github.com/cncf/devstats/blob/master/kubernetes/annotations.sh).
+- You can also clear all annotations using [devel/clear_all_annotations.sh](https://github.com/cncf/devstats/blob/master/devel/clear_all_annotations.sh) script and generate all annotations using [devel/add_all_annotations.sh](https://github.com/cncf/devstats/blob/master/devel/add_all_annotations.sh) script.
+- Pass `ONLY='proj1 proj2'` to limit to the selected list of projects.
 - When computing annotations some special InfluxDB series are created:
 - `annotations` it conatins all tag names & dates matching `main_repo` and `annotation_regexp` + CNCF join date (if set, check [here](https://github.com/cncf/devstats/blob/master/projects.yaml#L8))
 - Example values (for Kubernetes):
@@ -2913,6 +2915,12 @@ periods: h
 - `{{exclude_bots}}` will be replaced with the contents of the [util_sql/exclude_bots.sql](https://github.com/cncf/devstats/blob/master/util_sql/exclude_bots.sql).
 - Currently is is defined as: `not like all(array['googlebot', 'coveralls', 'rktbot', 'coreosbot', 'web-flow', 'k8s-%', '%-bot', '%-robot', 'bot-%', 'robot-%', '%[bot]%', '%-jenkins', '%-ci%bot', '%-testing', 'codecov-%'])`.
 - Most actor related metrics use this.
+### [docs/github](https://github.com/cncf/devstats/blob/master/docs/github.md)
+# GitHub (GHAPI) datasource details
+
+- You need to have `/etc/github/oauth` file created on your server, this file should contain OAuth token.
+- Without this file you are limited to 60 API calls, see [GitHub info](https://developer.github.com/v3/#rate-limiting).
+- You can force using unauthorized acces by setting environment variable `GHA2DB_GITHUB_OAUTH` to `-` - this is not recommended.
 ### [DOCKER](https://github.com/cncf/devstats/blob/master/DOCKER.md)
 # Install docker
 
@@ -3022,7 +3030,7 @@ Prerequisites:
     - We need to prefix call with GHA2DB_LOCAL to enable using tools from "./" directory
     - To import data for the first time (Influx database is empty and postgres database is at the state when Kubernetes SQL dump was made on [k8s.devstats.cncf.io](https://k8s.devstats.cncf.io)):
     - You need to have GitHub OAuth token, either put this token in `/etc/github/oauth` file or specify token value via GHA2DB_GITHUB_OAUTH=deadbeef654...10a0 (here you token value)
-    - If you really don't want to use GitHub OAuth2 token, specify GHA2DB_GITHUB_OAUTH=- - this will force tokenless operation (via public API), it is a lot more rate limited than OAuth2 which gives 5000 API points/h
+    - If you really don't want to use GitHub OAuth2 token, specify `GHA2DB_GITHUB_OAUTH=-` - this will force tokenless operation (via public API), it is a lot more rate limited than OAuth2 which gives 5000 API points/h
     - `IDB_HOST="localhost" IDB_PASS=pwd PG_PASS=pwd ./kubernetes/reinit_all.sh`
     - This can take a while (depending how old is psql dump `gha.sql.xz` on [k8s.devstats.cncf.io](https://k8s.devstats.cncf.io). It is generated daily at 3:00 AM UTC.
     - Command should be successfull.

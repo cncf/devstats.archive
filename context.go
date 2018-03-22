@@ -51,7 +51,7 @@ type Ctx struct {
 	TagsYaml          string          // From GHA2DB_TAGS_YAML idb_tags tool, set other idb_tags.yaml file, default is "metrics/{{project}}/idb_tags.yaml"
 	IVarsYaml         string          // From GHA2DB_IVARS_YAML idb_vars tool, set other idb_vars.yaml file, default is "metrics/{{project}}/idb_vars.yaml"
 	PVarsYaml         string          // From GHA2DB_PVARS_YAML pdb_vars tool, set other pdb_vars.yaml file, default is "metrics/{{project}}/pdb_vars.yaml"
-	GitHubOAuth       string          // From GHA2DB_GITHUB_OAUTH annotations tool, if not set reads from /etc/github/oauth file, set to "-" to force public access.
+	GitHubOAuth       string          // From GHA2DB_GITHUB_OAUTH annotations tool (no more using GitHub as of 2018-03-22 - uses 'git_tags.sh' script instead), if not set reads from /etc/github/oauth file, set to "-" to force public access.
 	ClearDBPeriod     string          // From GHA2DB_MAXLOGAGE gha2db_sync tool, maximum age of devstats.gha_logs entries, default "1 week"
 	Trials            []int           // From GHA2DB_TRIALS, all Postgres related tools, retry periods for "too many connections open" error
 	WebHookRoot       string          // From GHA2DB_WHROOT, webhook tool, default "/hook", must match .travis.yml notifications webhooks
