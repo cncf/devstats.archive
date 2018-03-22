@@ -27,6 +27,7 @@ do
       db="allprj"
     fi
     echo "Project: $f, PDB: $db"
-    GHA2DB_LOCAL=1 GHA2DB_PROJECT=$f PG_DB=$db ./pdb_vars || exit 1
+    sudo -u postgres psql "$db" -c "delete from gha_vars" || exit 1
+    GHA2DB_LOCAL=1 GHA2DB_PROJECT=$f PG_DB=$db ./pdb_vars || exit 2
 done
 echo 'OK'
