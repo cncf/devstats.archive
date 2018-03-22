@@ -16,7 +16,7 @@ type issueConfig struct {
 	number      int
 	issueID     int
 	pr          bool
-	milestoneID *int
+	milestoneID *int64
 }
 
 // Insert Postgres vars
@@ -166,7 +166,7 @@ func ghapi() {
 				lib.Printf("GHA Issue ID '%d' --> '%v'\n", iid, cfg)
 			}
 			var (
-				ghaMilestoneID *int
+				ghaMilestoneID *int64
 				ghaEventID     int
 			)
 			apiMilestoneID := cfg.milestoneID
