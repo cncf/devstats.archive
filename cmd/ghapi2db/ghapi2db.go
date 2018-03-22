@@ -20,9 +20,9 @@ func ghapi() {
 	// Connect to GitHub API
 	gctx, gc := lib.GHClient(&ctx)
 
-  // Get RateLimits info
-  all, rem, wait := lib.GetRateLimits(gctx, gc, true)
-  fmt.Printf("all=%d, rem=%d, wait=%v\n", all, rem, wait)
+	// Get RateLimits info
+	all, rem, wait := lib.GetRateLimits(gctx, gc, true)
+	fmt.Printf("all=%d, rem=%d, wait=%v\n", all, rem, wait)
 }
 
 func main() {

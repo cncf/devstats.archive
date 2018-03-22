@@ -11,8 +11,7 @@ fi
 GHA2DB_LOCAL=1 GHA2DB_PROJECT=linkerd PG_DB=linkerd IDB_DB=linkerd ./runq scripts/clean_affiliations.sql
 GHA2DB_LOCAL=1 GHA2DB_PROJECT=linkerd PG_DB=linkerd IDB_DB=linkerd ./import_affs github_users.json || exit 1
 exists=`echo 'show databases' | influx -host $IDB_HOST -username gha_admin -password $IDB_PASS | grep linkerd`
-if [ -z "$exists" ]
+if [ ! -z "$exists" ]
 then
-  ./grafana/influxdb_recreate.sh linkerd || exit 2
+  GHA2DB_LOCAL=1 GHA2DB_PROJECT=linkerd PG_DB=linkerd IDB_DB=linkerd ./idb_tags
 fi
-GHA2DB_LOCAL=1 GHA2DB_PROJECT=linkerd PG_DB=linkerd IDB_DB=linkerd ./idb_tags
