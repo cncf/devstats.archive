@@ -10,4 +10,9 @@ then
 fi
 GHA2DB_LOCAL=1 GHA2DB_PROJECT=jaeger PG_DB=jaeger IDB_DB=jaeger ./runq scripts/clean_affiliations.sql
 GHA2DB_LOCAL=1 GHA2DB_PROJECT=jaeger PG_DB=jaeger IDB_DB=jaeger ./import_affs github_users.json || exit 1
+exists=`echo 'show databases' | influx -host $IDB_HOST -username gha_admin -password $IDB_PASS | grep jaeger`
+if [ -z "$exists" ]
+then
+  ./grafana/influxdb_recreate.sh jaeger || exit 2
+fi
 GHA2DB_LOCAL=1 GHA2DB_PROJECT=jaeger PG_DB=jaeger IDB_DB=jaeger ./idb_tags
