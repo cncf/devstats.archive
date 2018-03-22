@@ -26,6 +26,7 @@ To add a new project on the test server follow instructions:
 - `cp -Rv grafana/dashboards/oldproject/ grafana/dashboards/projectname/` and then update files.  Use `devel/mass_replace.sh` script, it contains some examples in the comments.
 - Something like this: "MODE=ss0 FROM='"oldproject"' TO='"newproject"' FILES=`find ./grafana/dashboards/newproject -type f -iname '*.json'` ./devel/mass_replace.sh".
 - Update `grafana/dashboards/proj/dashboards.json` for all already existing projects, add new project using `devel/mass_replace.sh` or `devel/replace.sh`.
+- For example: `MODE=ss0 FROM=`cat FROM` TO=`cat TO` FILES=`find ./grafana/dashboards/ -type f -iname 'dashboards.json'` ./devel/mass_replace.sh` with `FROM` containing old links and `TO` containing new links.
 - Update `partials/projects.html`.
 - Update Apache proxy and SSL files `apache/www/index_* apache/*/sites-enabled/* apache/*/sites.txt` files.
 - Run deply all script with optional GAPS generating environment variable: `PG_PASS=... IDB_PASS=... IDB_HOST=... GAPS=1 ./devel/deploy_all.sh`.
