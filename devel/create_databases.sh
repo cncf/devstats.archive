@@ -57,9 +57,10 @@ then
     else
       echo "generating postgres database $PROJDB"
       GHA2DB_MGETC=y ./$PROJ/psql.sh || exit 12
+      ./devel/ro_user_grants.sh "$PROJDB" || exit 8
+      dbcreated=1
+      cron_db_backup.sh "$PROJDB" || exit 23
     fi
-    ./devel/ro_user_grants.sh "$PROJDB" || exit 8
-    dbcreated=1
   else
     echo "postgres database $PROJDB already exists"
   fi

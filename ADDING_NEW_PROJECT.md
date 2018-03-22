@@ -4,7 +4,8 @@ This file describes how to add new project on the test server.
 
 ## To add new project on the production (when already added on the test), you should use automatic deploy script:
 
-- Make sure that you have Postgres database backup generated on the test server and Grafana DBs available on the test server by running `./grafana/copy_grafana_dbs.sh`.
+- Make sure that you have Postgres database backup generated on the test server (this happens automatically on full deploy and nightly).
+- Make sure you have Grafana DB dumps available on the test server by running `./grafana/copy_grafana_dbs.sh`.
 - Commit to `production` branch with `[deploy]` in the commit message. Automatic deploy will happen.
 - Or manually run `PG_PASS=... IDB_PASS=... IDB_PASS_SRC=... IDB_HOST=... IGET=1 GET=1 ./devel/deploy_all.sh` script with correct env variables.
 - Go to `https://newproject.devstats.cncf.io` and change Grafana, InfluxDB and PostgreSQL passwords (default deploy copies database from the test server, so it has test server credentials initially).
