@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"time"
 
 	lib "devstats"
@@ -21,8 +20,12 @@ func ghapi() {
 	gctx, gc := lib.GHClient(&ctx)
 
 	// Get RateLimits info
-	all, rem, wait := lib.GetRateLimits(gctx, gc, true)
-	fmt.Printf("Rate limits info: all=%d, rem=%d, wait=%v\n", all, rem, wait)
+	_, rem, wait := lib.GetRateLimits(gctx, gc, true)
+
+	// Get number of CPUs available
+	thrN := lib.GetThreadsNum(&ctx)
+
+	lib.Printf("ghapi2db.go: Running (on %d CPUs): %d API points available, resets in %v\n", thrN, rem, wait)
 }
 
 func main() {
