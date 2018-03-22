@@ -8,11 +8,10 @@ To add new project on the production (when already added on the test), you shoul
 - Reimport Home dashboard (which now contains link to a new project) on all existing projects.
 
 To add a new project on the test server follow instructions:
-- Run `sync_lock.sh`.
+- Do not commit changes until all is ready, or commit with `[no deploy]` in the commit message.
 - Add project entry to `projects.yaml` file. Find projects orgs, repos, select start date, eventually add test coverage for complex regular expression in `regexp_test.go`.
 - To identify repo and/or org name changes, date ranges for entrire projest use `util_sql/(repo|org)_name_changes_bigquery.sql` replacing name there.
 - Main repo can be empty `''` - in this case only two annotations will be added: 'start date - CNCF join date' and 'CNCF join date - now".
-- Set project databases (Influx and Postgres).
 - CNCF join dates are listed here: https://github.com/cncf/toc#projects.
 - Update projects list files: `devel/all_prod_dbs.txt devel/all_prod_projects.txt devel/all_test_dbs.txt devel/all_test_projects.txt` and project icon type `devel/get_icon_type.sh`.
 - Add this new project config to 'All' project in `projects.yaml all/psql.sh grafana/dashboards/all/dashboards.json scripts/all/repo_groups.sql devel/calculate_hours.sh`. Add entire new project as a new repo group in 'All' project.
@@ -34,5 +33,4 @@ To add a new project on the test server follow instructions:
 - Open `newproject.cncftest.io` login with admin/admin, change the default password and follow instructions from `GRAFANA.md`.
 - Import `grafana/dashboards/proj/dashboards.json` dashboard on all remaining projects.
 - Import all new projects dashboards from `grafana/dashboards/newproject/*.json`, then finally: `grafana/copy_grafana_dbs.sh`
-- `sync_unlock.sh`.
 - Final deploy script is: `./devel/deploy_all.sh`. It should do all deployment automatically on the prod server. Follow all code from this script (eventually run some parts manually, the final version should do full deploy OOTB).
