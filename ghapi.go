@@ -71,21 +71,6 @@ func GHClient(ctx *Ctx) (ghCtx context.Context, client *github.Client) {
 					Printf("hit rate limit on GetCommit for %s '%s'\n", orgRepo, annoRegexp)
 				}
 				FatalOnError(err)
-				date := *commit.Commit.Committer.Date
-				message := *commit.Commit.Message
-				if len(message) > 40 {
-					message = message[0:40]
-				}
-				replacer := strings.NewReplacer("\n", " ", "\r", " ", "\t", " ")
-				message = replacer.Replace(message)
-				annotations.Annotations = append(
-					annotations.Annotations,
-					Annotation{
-						Name:        tagName,
-						Description: message,
-						Date:        date,
-					},
-				)
 			}
 			if resp.NextPage == 0 {
 				break
