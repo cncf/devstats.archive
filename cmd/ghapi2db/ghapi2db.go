@@ -21,7 +21,7 @@ type issueConfig struct {
 	pr          bool
 	milestoneID *int64
 	labels      string
-	labelsAry   []int64
+	labelsMap   map[int64]string
 }
 
 // handlePossibleError - TODO: do something more accurate here
@@ -38,7 +38,7 @@ func handlePossibleError(err error, cfg *issueConfig, info string) {
 
 // milestonesEvent - create artificial 'ArtificialEvent'
 // creates new issue state, artificial event and its payload
-func artificialEvent(c *sql.DB, ctx *lib.Ctx, iid, eid int64, milestone string, labels []int64, labelsChanged bool) (err error) {
+func artificialEvent(c *sql.DB, ctx *lib.Ctx, iid, eid int64, milestone string, labels map[int64]string, labelsChanged bool) (err error) {
 	// Create artificial event, add 2^48 to eid
 	eventID := 281474976710656 + eid
 	now := time.Now()
@@ -133,9 +133,43 @@ func artificialEvent(c *sql.DB, ctx *lib.Ctx, iid, eid int64, milestone string, 
 		}...,
 	)
 
-	// TODO: Final commit
-	//lib.FatalOnError(tc.Commit())
-	lib.FatalOnError(tc.Rollback())
+	// Add issue labels
+	for label, labelName := range labels {
+		lib.ExecSQLTxWithErr(
+			tc,
+			ctx,
+			fmt.Sprintf(
+				"insert into gha_issues_labels(issue_id, event_id, label_id, "+
+					"dup_actor_id, dup_actor_login, dup_repo_id, dup_repo_name, "+
+					"dup_type, dup_created_at, dup_issue_number, dup_label_name) "+
+					"select %s, %s, %s, "+
+					"0, 'devstats-bot', repo_id, dup_repo_name, "+
+					"'ArtificialEvent', %s, "+
+					"(select number from gha_issues where id = %s limit 1), %s "+
+					"from gha_events where id = %s",
+				lib.NValue(1),
+				lib.NValue(2),
+				lib.NValue(3),
+				lib.NValue(4),
+				lib.NValue(5),
+				lib.NValue(6),
+				lib.NValue(7),
+			),
+			lib.AnyArray{
+				iid,
+				eventID,
+				label,
+				now,
+				iid,
+				labelName,
+				eid,
+			}...,
+		)
+	}
+
+	// Final commit
+	lib.FatalOnError(tc.Commit())
+	//lib.FatalOnError(tc.Rollback())
 	return
 }
 
@@ -207,15 +241,17 @@ func ghapi() {
 	}
 	lib.FatalOnError(rows.Err())
 
-	// TODO: debug on single issue to save GitHub API points.
+  // TODO: Uncomment to debug on a single issue to save GitHub API points.
+  /*
 	issues = make(map[int64]issueConfig)
 	nIssues = 1
-	issues[266575325] = issueConfig{
-		repo:    "kubernetes/kubernetes",
-		number:  54161,
-		issueID: 266575325,
+	issues[290976619] = issueConfig{
+		repo:    "kubernetes-incubator/bootkube",
+		number:  857,
+		issueID: 290976619,
 		pr:      false,
 	}
+  */
 
 	// GitHub paging config
 	opt := &github.ListOptions{PerPage: 1000}
@@ -257,12 +293,12 @@ func ghapi() {
 			}
 
 			// Use GitHub API to get labels info
-			labelsMap := make(map[int64]struct{})
+			cfg.labelsMap = make(map[int64]string)
 			for {
 				labels, resp, err := gc.Issues.ListLabelsByIssue(gctx, ary[0], ary[1], cfg.number, opt)
 				handlePossibleError(err, &cfg, "Issues.ListLabelsByIssue")
 				for _, label := range labels {
-					labelsMap[*label.ID] = struct{}{}
+					cfg.labelsMap[*label.ID] = *label.Name
 				}
 
 				// Handle eventual paging (shoudl not happen for labels)
@@ -272,11 +308,10 @@ func ghapi() {
 				opt.Page = resp.NextPage
 			}
 			labelsAry := lib.Int64Ary{}
-			for label := range labelsMap {
+			for label := range cfg.labelsMap {
 				labelsAry = append(labelsAry, label)
 			}
 			sort.Sort(labelsAry)
-			cfg.labelsAry = []int64(labelsAry)
 			l := len(labelsAry)
 			for i, label := range labelsAry {
 				if i == l-1 {
@@ -394,11 +429,11 @@ func ghapi() {
 
 			// Do the update if needed: wrong milestone or label set
 			if newMilestone != "" || ghaLabels != cfg.labels {
-				eid := ghaEventID1
+				eid := ghaEventID2
 				if eid == 0 {
-					eid = ghaEventID2
+					eid = ghaEventID1
 				}
-				lib.FatalOnError(artificialEvent(c, &ctx, cfg.issueID, eid, newMilestone, cfg.labelsAry, ghaLabels != cfg.labels))
+				lib.FatalOnError(artificialEvent(c, &ctx, cfg.issueID, eid, newMilestone, cfg.labelsMap, ghaLabels != cfg.labels))
 				updates++
 			}
 
