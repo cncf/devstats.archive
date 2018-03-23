@@ -10,11 +10,19 @@ import (
 	"golang.org/x/oauth2"
 )
 
+// I know global variables are bad, but sometimes GitHub is not returning it
+// Bit error instead (when 0 API points are available), we can use last known value then
+var globalRL *github.RateLimits
+
 // GetRateLimits - returns all and remaining API points and duration to wait for reset
 // when core=true - returns Core limits, when core=false returns Search limits
 func GetRateLimits(gctx context.Context, gc *github.Client, core bool) (int, int, time.Duration) {
 	rl, _, err := gc.RateLimits(gctx)
-	FatalOnError(err)
+	if err != nil {
+		rl = globalRL
+	} else {
+		globalRL = rl
+	}
 	if core {
 		return rl.Core.Limit, rl.Core.Remaining, rl.Core.Reset.Time.Sub(time.Now()) + time.Duration(1)*time.Second
 	}
