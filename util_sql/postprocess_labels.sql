@@ -5,13 +5,13 @@ select
 from
   gha_issues_events_labels
 where
-  type not in ('LabelsEvent', 'MilestonesEvent')
+  type != 'ArtificialEvent'
 union select coalesce(max(event_id), 281474976710657) as max_event_id,
   false as gh
 from
   gha_issues_events_labels
 where
-  type in ('LabelsEvent', 'MilestonesEvent')
+  type = 'ArtificialEvent'
 ;
 
 insert into gha_issues_events_labels(
