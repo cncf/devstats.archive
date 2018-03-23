@@ -4,7 +4,9 @@ import (
 	"database/sql"
 	"fmt"
 	"io/ioutil"
+	"sort"
 	"strings"
+	"sync"
 	"time"
 
 	lib "devstats"
@@ -18,7 +20,7 @@ type issueConfig struct {
 	issueID     int64
 	pr          bool
 	milestoneID *int64
-	labels      map[int64]struct{}
+	labels      string
 }
 
 // handlePossibleError - TODO: do something more accurate here
@@ -170,7 +172,8 @@ func ghapi() {
 
 	// Get issues/PRs to check
 	// repo, number, issueID, is_pr
-	m := make(map[int64]issueConfig)
+	var issuesMutex = &sync.Mutex{}
+	issues := make(map[int64]issueConfig)
 	var (
 		repo    string
 		number  int
@@ -185,29 +188,27 @@ func ghapi() {
 			number:  number,
 			issueID: issueID,
 			pr:      pr,
-			labels:  make(map[int64]struct{}),
 		}
-		v, ok := m[issueID]
+		v, ok := issues[issueID]
 		if ok {
 			if ctx.Debug > 0 {
 				lib.Printf("Warning: we already have issue config for id=%d: %v, skipped new config: %v\n", issueID, v, cfg)
 			}
 			continue
 		}
-		m[issueID] = cfg
+		issues[issueID] = cfg
 		nIssues++
 	}
 	lib.FatalOnError(rows.Err())
 
 	// TODO: debug on single issue to save GitHub API points.
-	m = make(map[int64]issueConfig)
+	issues = make(map[int64]issueConfig)
 	nIssues = 1
-	m[307893875] = issueConfig{
+	issues[307893875] = issueConfig{
 		repo:    "kubernetes/kubernetes",
 		number:  61579,
 		issueID: 307893875,
 		pr:      false,
-		labels:  make(map[int64]struct{}),
 	}
 
 	// GitHub paging config
@@ -227,10 +228,10 @@ func ghapi() {
 	lastTime := dtStart
 	checked := 0
 	lib.Printf("ghapi2db.go: Processing %d issues - GHAPI part\n", nIssues)
-	for key := range m {
+	for key := range issues {
 		go func(ch chan bool, iid int64) {
 			// Refer to current tag using index passed to anonymous function
-			cfg := m[iid]
+			cfg := issues[iid]
 			if ctx.Debug > 0 {
 				lib.Printf("GitHub Issue ID '%d' --> '%v'\n", iid, cfg)
 			}
@@ -250,18 +251,33 @@ func ghapi() {
 			}
 
 			// Use GitHub API to get labels info
+			labelsMap := make(map[int64]struct{})
 			for {
 				labels, resp, err := gc.Issues.ListLabelsByIssue(gctx, ary[0], ary[1], cfg.number, opt)
 				handlePossibleError(err, &cfg, "Issues.ListLabelsByIssue")
 				for _, label := range labels {
-					cfg.labels[*label.ID] = struct{}{}
+					labelsMap[*label.ID] = struct{}{}
 				}
 
+				// Handle eventual paging (shoudl not happen for labels)
 				if resp.NextPage == 0 {
 					break
 				}
 				opt.Page = resp.NextPage
 			}
+			labelsAry := lib.Int64Ary{}
+			for label := range labelsMap {
+				labelsAry = append(labelsAry, label)
+			}
+			sort.Sort(labelsAry)
+			for _, label := range labelsAry {
+				cfg.labels += fmt.Sprintf("%d,", label)
+			}
+
+			// Finally update issues map, this must be protected by the mutex
+			issuesMutex.Lock()
+			issues[iid] = cfg
+			issuesMutex.Unlock()
 
 			// Synchronize go routine
 			if ch != nil {
@@ -300,10 +316,10 @@ func ghapi() {
 	updates := 0
 	lib.Printf("ghapi2db.go: Processing %d issues - GHA part\n", nIssues)
 	// Use map key to pass to the closure
-	for key := range m {
+	for key := range issues {
 		go func(ch chan bool, iid int64) {
 			// Refer to current tag using index passed to anonymous function
-			cfg := m[iid]
+			cfg := issues[iid]
 			if ctx.Debug > 0 {
 				lib.Printf("GHA Issue ID '%d' --> '%v'\n", iid, cfg)
 			}

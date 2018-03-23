@@ -7,6 +7,13 @@ import (
 	"time"
 )
 
+// Int64Ary - sortable Int64 array
+type Int64Ary []int64
+
+func (a Int64Ary) Len() int           { return len(a) }
+func (a Int64Ary) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
+func (a Int64Ary) Less(i, j int) bool { return a[i] < a[j] }
+
 // AllProjects contain all projects data
 type AllProjects struct {
 	Projects map[string]Project `yaml:"projects"`
