@@ -6,7 +6,7 @@ from
   gha_issues_events_labels
 where
   type not in ('LabelsEvent', 'MilestonesEvent')
-union select coalesce(max(event_id), 1152921504606846977) as max_event_id,
+union select coalesce(max(event_id), 281474976710657) as max_event_id,
   false as gh
 from
   gha_issues_events_labels
@@ -32,7 +32,7 @@ where
       il.event_id > (
         select max_event_id from var where gh = true
       )
-      and il.event_id < 1152921504606846977
+      and il.event_id < 281474976710657
     )
   )
 ;
