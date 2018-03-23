@@ -18,8 +18,23 @@ type issueConfig struct {
 	issueID     int64
 	pr          bool
 	milestoneID *int64
+	labels      map[int64]struct{}
 }
 
+// handlePossibleError - TODO: do something more accurate here
+func handlePossibleError(err error, cfg *issueConfig, info string) {
+	if err != nil {
+		_, rate := err.(*github.RateLimitError)
+		_, abuse := err.(*github.AbuseRateLimitError)
+		if abuse || rate {
+			lib.Printf("Hit rate limit (%s) for %v\n", info, cfg)
+		}
+		lib.FatalOnError(err)
+	}
+}
+
+// milestoneEvent - create artificial 'MilestonesEvent'
+// creates new issue state, artificial event and its payload
 func milestoneEvent(c *sql.DB, ctx *lib.Ctx, milestone string, iid, eid int64) (err error) {
 	// Create artificial event, add 2^48 to eid
 	eventID := 281474976710656 + eid
@@ -110,7 +125,7 @@ func milestoneEvent(c *sql.DB, ctx *lib.Ctx, milestone string, iid, eid int64) (
 		}...,
 	)
 
-  // TODO: Final commit
+	// TODO: Final commit
 	lib.FatalOnError(tc.Commit())
 	//lib.FatalOnError(tc.Rollback())
 	return
@@ -156,11 +171,22 @@ func ghapi() {
 	// Get issues/PRs to check
 	// repo, number, issueID, is_pr
 	m := make(map[int64]issueConfig)
-	repo, number, issueID, pr := "", 0, int64(0), false
+	var (
+		repo    string
+		number  int
+		issueID int64
+		pr      bool
+	)
 	nIssues := 0
 	for rows.Next() {
 		lib.FatalOnError(rows.Scan(&repo, &number, &issueID, &pr))
-		cfg := issueConfig{repo: repo, number: number, issueID: issueID, pr: pr}
+		cfg := issueConfig{
+			repo:    repo,
+			number:  number,
+			issueID: issueID,
+			pr:      pr,
+			labels:  make(map[int64]struct{}),
+		}
 		v, ok := m[issueID]
 		if ok {
 			if ctx.Debug > 0 {
@@ -172,10 +198,20 @@ func ghapi() {
 		nIssues++
 	}
 	lib.FatalOnError(rows.Err())
-	//m = make(map[int64]issueConfig)
-	//nIssues := 1
-	//m[307893875] = issueConfig{repo: "kubernetes/kubernetes", number: 61579, issueID: 307893875, pr: false}
 
+	// TODO: debug on single issue to save GitHub API points.
+	m = make(map[int64]issueConfig)
+	nIssues = 1
+	m[307893875] = issueConfig{
+		repo:    "kubernetes/kubernetes",
+		number:  61579,
+		issueID: 307893875,
+		pr:      false,
+		labels:  make(map[int64]struct{}),
+	}
+
+	// GitHub paging config
+	opt := &github.ListOptions{PerPage: 1000}
 	// GitHub don't like MT quering - they say that:
 	// 403 You have triggered an abuse detection mechanism. Please wait a few minutes before you try again
 	// So let's get all GitHub stuff one-after-another (ugly and slow) and then spawn threads to speedup
@@ -208,17 +244,23 @@ func ghapi() {
 			}
 			// Use Github API to get issue info
 			issue, _, err := gc.Issues.Get(gctx, ary[0], ary[1], cfg.number)
-			if err != nil {
-				_, rate := err.(*github.RateLimitError)
-				_, abuse := err.(*github.AbuseRateLimitError)
-				if abuse || rate {
-					// TODO: do something more accurate here
-					lib.Printf("Hit rate limit on Issues.Get for %s #%d (id=%d)\n", cfg.repo, cfg.number, cfg.issueID)
-				}
-				lib.FatalOnError(err)
-			}
+			handlePossibleError(err, &cfg, "Issues.Get")
 			if issue.Milestone != nil {
 				cfg.milestoneID = issue.Milestone.ID
+			}
+
+			// Use GitHub API to get labels info
+			for {
+				labels, resp, err := gc.Issues.ListLabelsByIssue(gctx, ary[0], ary[1], cfg.number, opt)
+				handlePossibleError(err, &cfg, "Issues.ListLabelsByIssue")
+				for _, label := range labels {
+					cfg.labels[*label.ID] = struct{}{}
+				}
+
+				if resp.NextPage == 0 {
+					break
+				}
+				opt.Page = resp.NextPage
 			}
 
 			// Synchronize go routine
