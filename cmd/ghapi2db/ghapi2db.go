@@ -24,7 +24,7 @@ type issueConfig struct {
 	labelsMap   map[int64]string
 }
 
-// handlePossibleError - TODO: do something more accurate here
+// handlePossibleError - display error specific message, detect rate limit and abuse
 func handlePossibleError(err error, cfg *issueConfig, info string) {
 	if err != nil {
 		_, rate := err.(*github.RateLimitError)
@@ -241,17 +241,17 @@ func ghapi() {
 	}
 	lib.FatalOnError(rows.Err())
 
-  // TODO: Uncomment to debug on a single issue to save GitHub API points.
-  /*
-	issues = make(map[int64]issueConfig)
-	nIssues = 1
-	issues[290976619] = issueConfig{
-		repo:    "kubernetes-incubator/bootkube",
-		number:  857,
-		issueID: 290976619,
-		pr:      false,
-	}
-  */
+	// TODO: Uncomment to debug on a single issue to save GitHub API points.
+	/*
+		issues = make(map[int64]issueConfig)
+		nIssues = 1
+		issues[283845216] = issueConfig{
+			repo:    "kubernetes/kops",
+			number:  4128,
+			issueID: 283845216,
+			pr:      false,
+		}
+	*/
 
 	// GitHub paging config
 	opt := &github.ListOptions{PerPage: 1000}
@@ -286,19 +286,53 @@ func ghapi() {
 				return
 			}
 			// Use Github API to get issue info
-			issue, _, err := gc.Issues.Get(gctx, ary[0], ary[1], cfg.number)
-			handlePossibleError(err, &cfg, "Issues.Get")
-			if issue.Milestone != nil {
-				cfg.milestoneID = issue.Milestone.ID
+			for {
+				_, rem, waitPeriod := lib.GetRateLimits(gctx, gc, true)
+				if rem <= ctx.MinGHAPIPoints {
+					if waitPeriod.Seconds() <= float64(ctx.MaxGHAPIWaitSeconds) {
+						lib.Printf("API limit reached while getting issue data, waiting %v\n", waitPeriod)
+						time.Sleep(time.Duration(1) * time.Second)
+						time.Sleep(waitPeriod)
+						continue
+					} else {
+						lib.Fatalf("API limit reached while getting issue data, aborting, don't want to wait %v\n", waitPeriod)
+						return
+					}
+				}
+				issue, _, err := gc.Issues.Get(gctx, ary[0], ary[1], cfg.number)
+				handlePossibleError(err, &cfg, "Issues.Get")
+				if issue.Milestone != nil {
+					cfg.milestoneID = issue.Milestone.ID
+				}
+				break
 			}
 
 			// Use GitHub API to get labels info
 			cfg.labelsMap = make(map[int64]string)
+			var (
+				resp   *github.Response
+				labels []*github.Label
+			)
 			for {
-				labels, resp, err := gc.Issues.ListLabelsByIssue(gctx, ary[0], ary[1], cfg.number, opt)
-				handlePossibleError(err, &cfg, "Issues.ListLabelsByIssue")
-				for _, label := range labels {
-					cfg.labelsMap[*label.ID] = *label.Name
+				for {
+					_, rem, waitPeriod := lib.GetRateLimits(gctx, gc, true)
+					if rem <= ctx.MinGHAPIPoints {
+						if waitPeriod.Seconds() <= float64(ctx.MaxGHAPIWaitSeconds) {
+							lib.Printf("API limit reached while getting issue labels, waiting %v\n", waitPeriod)
+							time.Sleep(time.Duration(1) * time.Second)
+							time.Sleep(waitPeriod)
+							continue
+						} else {
+							lib.Fatalf("API limit reached while getting issue labels, aborting, don't want to wait %v\n", waitPeriod)
+							return
+						}
+					}
+					labels, resp, err = gc.Issues.ListLabelsByIssue(gctx, ary[0], ary[1], cfg.number, opt)
+					handlePossibleError(err, &cfg, "Issues.ListLabelsByIssue")
+					for _, label := range labels {
+						cfg.labelsMap[*label.ID] = *label.Name
+					}
+					break
 				}
 
 				// Handle eventual paging (shoudl not happen for labels)
@@ -354,13 +388,6 @@ func ghapi() {
 		lib.ProgressInfo(checked, nIssues, dtStart, &lastTime, time.Duration(10)*time.Second, fmt.Sprintf("API points: %d, resets in: %v", rem, wait))
 	}
 
-	// Get issues labels query
-	bytes, err = ioutil.ReadFile(
-		dataPrefix + "util_sql/fmt_issue_labels.sql",
-	)
-	lib.FatalOnError(err)
-	issueLabelsSQL := string(bytes)
-
 	// Now iterate all issues/PR in MT mode
 	ch = make(chan bool)
 	nThreads = 0
@@ -379,8 +406,7 @@ func ghapi() {
 			}
 			var (
 				ghaMilestoneID *int64
-				ghaEventID1    int64
-				ghaEventID2    int64
+				ghaEventID     int64
 			)
 
 			// Process current milestone
@@ -393,7 +419,7 @@ func ghapi() {
 			)
 			defer func() { lib.FatalOnError(rowsM.Close()) }()
 			for rowsM.Next() {
-				lib.FatalOnError(rowsM.Scan(&ghaMilestoneID, &ghaEventID1))
+				lib.FatalOnError(rowsM.Scan(&ghaMilestoneID, &ghaEventID))
 			}
 			lib.FatalOnError(rowsM.Err())
 
@@ -402,38 +428,42 @@ func ghapi() {
 			if apiMilestoneID == nil && ghaMilestoneID != nil {
 				newMilestone = "null"
 				if ctx.Debug > 0 {
-					lib.Printf("Updating issue '%v' milestone to null, it was %d (event_id %d)\n", cfg, *ghaMilestoneID, ghaEventID1)
+					lib.Printf("Updating issue '%v' milestone to null, it was %d (event_id %d)\n", cfg, *ghaMilestoneID, ghaEventID)
 				}
 			}
 			if apiMilestoneID != nil && (ghaMilestoneID == nil || *apiMilestoneID != *ghaMilestoneID) {
 				newMilestone = fmt.Sprintf("%d", *apiMilestoneID)
 				if ctx.Debug > 0 {
 					if ghaMilestoneID != nil {
-						lib.Printf("Updating issue '%v' milestone to %d, it was %d (event_id %d)\n", cfg, *apiMilestoneID, *ghaMilestoneID, ghaEventID1)
+						lib.Printf("Updating issue '%v' milestone to %d, it was %d (event_id %d)\n", cfg, *apiMilestoneID, *ghaMilestoneID, ghaEventID)
 					} else {
-						lib.Printf("Updating issue '%v' milestone to %d, it was null (event_id %d)\n", cfg, *apiMilestoneID, ghaEventID1)
+						lib.Printf("Updating issue '%v' milestone to %d, it was null (event_id %d)\n", cfg, *apiMilestoneID, ghaEventID)
 					}
 				}
 			}
 			// Process current labels
-			rowsL := lib.QuerySQLWithErr(c, &ctx, fmt.Sprintf(issueLabelsSQL, lib.NValue(1)), cfg.issueID)
+			rowsL := lib.QuerySQLWithErr(
+				c,
+				&ctx,
+				fmt.Sprintf(
+					"select coalesce(string_agg(label_id::text, ','), '') from gha_issues_labels where event_id = %s",
+					lib.NValue(1),
+				),
+				ghaEventID,
+			)
 			defer func() { lib.FatalOnError(rowsL.Close()) }()
 			ghaLabels := ""
 			for rowsL.Next() {
-				lib.FatalOnError(rowsL.Scan(&ghaLabels, &ghaEventID2))
+				lib.FatalOnError(rowsL.Scan(&ghaLabels))
 			}
 			lib.FatalOnError(rowsL.Err())
 			if ctx.Debug > 0 && ghaLabels != cfg.labels {
-				lib.Printf("Updating issue '%v' labels to %s, they were: %s (event_id %d)\n", cfg, cfg.labels, ghaLabels, ghaEventID2)
+				lib.Printf("Updating issue '%v' labels to %s, they were: %s (event_id %d)\n", cfg, cfg.labels, ghaLabels, ghaEventID)
 			}
 
 			// Do the update if needed: wrong milestone or label set
 			if newMilestone != "" || ghaLabels != cfg.labels {
-				eid := ghaEventID2
-				if eid == 0 {
-					eid = ghaEventID1
-				}
-				lib.FatalOnError(artificialEvent(c, &ctx, cfg.issueID, eid, newMilestone, cfg.labelsMap, ghaLabels != cfg.labels))
+				lib.FatalOnError(artificialEvent(c, &ctx, cfg.issueID, ghaEventID, newMilestone, cfg.labelsMap, ghaLabels != cfg.labels))
 				updates++
 			}
 

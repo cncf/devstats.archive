@@ -12,7 +12,7 @@ from (
     from
       gha_issues_labels
     where
-      issue_id = %s
+      issue_id = {{iid}}
     order by
       dup_created_at desc
     limit 1
