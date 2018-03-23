@@ -1,8 +1,17 @@
 create temp table var as
 select
-  coalesce(max(event_id), -9223372036854775808) as max_event_id
+  coalesce(max(event_id), -9223372036854775808) as max_event_id,
+  true as gh
 from
   gha_issues_events_labels
+where
+  type not in ('LabelsEvent', 'MilestonesEvent')
+union select coalesce(max(event_id), 1152921504606846977) as max_event_id,
+  false as gh
+from
+  gha_issues_events_labels
+where
+  type in ('LabelsEvent', 'MilestonesEvent')
 ;
 
 insert into gha_issues_events_labels(
@@ -17,8 +26,14 @@ from
   gha_labels lb
 where
   il.label_id = lb.id
-  and il.event_id > (
-    select max_event_id from var
+  and (
+    il.event_id > (select max_event_id from var where gh = false)
+    or (
+      il.event_id > (
+        select max_event_id from var where gh = true
+      )
+      and il.event_id < 1152921504606846977
+    )
   )
 ;
 
