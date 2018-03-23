@@ -21,8 +21,8 @@ type issueConfig struct {
 }
 
 func milestoneEvent(c *sql.DB, ctx *lib.Ctx, milestone string, iid, eid int64) (err error) {
-	// Create artificial event, add 2^60 to eid
-	eventID := 1152921504606846976 + eid
+	// Create artificial event, add 2^48 to eid
+	eventID := 281474976710656 + eid
 	now := time.Now()
 
 	// Start transaction
@@ -110,8 +110,9 @@ func milestoneEvent(c *sql.DB, ctx *lib.Ctx, milestone string, iid, eid int64) (
 		}...,
 	)
 
-	// Final commit
+  // TODO: Final commit
 	lib.FatalOnError(tc.Commit())
+	//lib.FatalOnError(tc.Rollback())
 	return
 }
 
@@ -154,28 +155,26 @@ func ghapi() {
 
 	// Get issues/PRs to check
 	// repo, number, issueID, is_pr
-	m := make(map[int]issueConfig)
-	// TODO:
-	/*
-		repo, number, issueID, pr := "", 0, 0, false
-		nIssues := 0
-		for rows.Next() {
-			lib.FatalOnError(rows.Scan(&repo, &number, &issueID, &pr))
-			cfg := issueConfig{repo: repo, number: number, issueID: issueID, pr: pr}
-			v, ok := m[issueID]
-			if ok {
-				if ctx.Debug > 0 {
-					lib.Printf("Warning: we already have issue config for id=%d: %v, skipped new config: %v\n", issueID, v, cfg)
-				}
-				continue
+	m := make(map[int64]issueConfig)
+	repo, number, issueID, pr := "", 0, int64(0), false
+	nIssues := 0
+	for rows.Next() {
+		lib.FatalOnError(rows.Scan(&repo, &number, &issueID, &pr))
+		cfg := issueConfig{repo: repo, number: number, issueID: issueID, pr: pr}
+		v, ok := m[issueID]
+		if ok {
+			if ctx.Debug > 0 {
+				lib.Printf("Warning: we already have issue config for id=%d: %v, skipped new config: %v\n", issueID, v, cfg)
 			}
-			m[issueID] = cfg
-			nIssues++
+			continue
 		}
-		lib.FatalOnError(rows.Err())
-	*/
-	nIssues := 1
-	m[307893875] = issueConfig{repo: "kubernetes/kubernetes", number: 61579, issueID: 307893875, pr: false}
+		m[issueID] = cfg
+		nIssues++
+	}
+	lib.FatalOnError(rows.Err())
+	//m = make(map[int64]issueConfig)
+	//nIssues := 1
+	//m[307893875] = issueConfig{repo: "kubernetes/kubernetes", number: 61579, issueID: 307893875, pr: false}
 
 	// GitHub don't like MT quering - they say that:
 	// 403 You have triggered an abuse detection mechanism. Please wait a few minutes before you try again
@@ -193,7 +192,7 @@ func ghapi() {
 	checked := 0
 	lib.Printf("ghapi2db.go: Processing %d issues - GHAPI part\n", nIssues)
 	for key := range m {
-		go func(ch chan bool, iid int) {
+		go func(ch chan bool, iid int64) {
 			// Refer to current tag using index passed to anonymous function
 			cfg := m[iid]
 			if ctx.Debug > 0 {
@@ -260,7 +259,7 @@ func ghapi() {
 	lib.Printf("ghapi2db.go: Processing %d issues - GHA part\n", nIssues)
 	// Use map key to pass to the closure
 	for key := range m {
-		go func(ch chan bool, iid int) {
+		go func(ch chan bool, iid int64) {
 			// Refer to current tag using index passed to anonymous function
 			cfg := m[iid]
 			if ctx.Debug > 0 {
