@@ -252,7 +252,7 @@ func TestInit(t *testing.T) {
 		InputDBs:            []string{},
 		OutputDB:            "",
 		TmOffset:            0,
-		RecentRange:         "2 days",
+		RecentRange:         "2 hours",
 	}
 
 	// Test cases

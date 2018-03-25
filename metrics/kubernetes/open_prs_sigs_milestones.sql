@@ -135,7 +135,8 @@ group by
 create temp table milestones as
 select m.issue_id,
   m.repo,
-  (select coalesce(min(pl.event_id), m.event_id) from gha_payloads pl where pl.issue_id = m.issue_id and pl.event_id > m.event_id) as event_id
+  -- (select coalesce(min(pl.event_id), m.event_id) from gha_payloads pl where pl.issue_id = m.issue_id and pl.event_id > m.event_id) as event_id
+  event_id
 from
   final_milestones m
 left join

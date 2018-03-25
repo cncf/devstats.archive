@@ -365,6 +365,19 @@ func sync(ctx *lib.Ctx, args []string) {
 		)
 		lib.FatalOnError(err)
 
+		// GitHub API calls to get open issues state
+		// It updates milestone and/or label(s) when different sice last comment state
+		lib.Printf("Update data from GitHub API\n")
+		// Recompute views and DB summaries
+		_, err = lib.ExecCommand(
+			ctx,
+			[]string{
+				cmdPrefix + "ghapi2db",
+			},
+			nil,
+		)
+		lib.FatalOnError(err)
+
 		// Eventual postprocess SQL's from 'structure' call
 		lib.Printf("Update structure\n")
 		// Recompute views and DB summaries
