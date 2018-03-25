@@ -443,7 +443,7 @@ func (ctx *Ctx) Init() {
 	// RecentRange - ghapi2db will check issues from now() - this range to now()
 	ctx.RecentRange = os.Getenv("GHA2DB_RECENT_RANGE")
 	if ctx.RecentRange == "" {
-		ctx.RecentRange = "2 days"
+		ctx.RecentRange = "2 hours"
 	}
 
 	// Context out if requested
