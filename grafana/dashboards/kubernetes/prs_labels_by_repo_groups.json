@@ -7,14 +7,6 @@
       "type": "datasource",
       "pluginId": "influxdb",
       "pluginName": "InfluxDB"
-    },
-    {
-      "name": "DS_PSQL",
-      "label": "psql",
-      "description": "",
-      "type": "datasource",
-      "pluginId": "postgres",
-      "pluginName": "PostgreSQL"
     }
   ],
   "__requires": [
@@ -22,25 +14,25 @@
       "type": "grafana",
       "id": "grafana",
       "name": "Grafana",
-      "version": "5.0.0-beta1"
+      "version": "5.0.3"
     },
     {
       "type": "panel",
       "id": "graph",
       "name": "Graph",
-      "version": ""
+      "version": "5.0.0"
     },
     {
       "type": "datasource",
       "id": "influxdb",
       "name": "InfluxDB",
-      "version": "1.0.0"
+      "version": "5.0.0"
     },
     {
       "type": "panel",
       "id": "singlestat",
       "name": "Singlestat",
-      "version": ""
+      "version": "5.0.0"
     }
   ],
   "annotations": {
@@ -76,13 +68,13 @@
   "gnetId": null,
   "graphTooltip": 0,
   "id": null,
-  "iteration": 1517987907333,
+  "iteration": 1522057024693,
   "links": [],
   "panels": [
     {
       "cacheTimeout": null,
       "colorBackground": false,
-      "colorValue": false,
+      "colorValue": true,
       "colors": [
         "#299c46",
         "rgba(237, 129, 40, 0.89)",
@@ -90,7 +82,7 @@
       ],
       "datasource": "${DS_GHA}",
       "decimals": null,
-      "description": "Current number of open PRs that needs rebase",
+      "description": "",
       "format": "none",
       "gauge": {
         "maxValue": 100,
@@ -120,11 +112,12 @@
         }
       ],
       "maxDataPoints": 100,
+      "minSpan": null,
       "nullPointMode": "connected",
       "nullText": null,
       "postfix": "",
       "postfixFontSize": "50%",
-      "prefix": "PRs that need rebase now: ",
+      "prefix": "Currently: ",
       "prefixFontSize": "50%",
       "rangeMaps": [
         {
@@ -133,15 +126,18 @@
           "to": "null"
         }
       ],
+      "repeat": null,
+      "repeatDirection": "h",
       "sparkline": {
         "fillColor": "rgba(31, 118, 189, 0.18)",
-        "full": false,
+        "full": true,
         "lineColor": "rgb(31, 120, 193)",
-        "show": false
+        "show": true
       },
-      "tableColumn": "",
+      "tableColumn": "Kubernetes-All",
       "targets": [
         {
+          "alias": "$col",
           "dsType": "influxdb",
           "groupBy": [
             {
@@ -159,7 +155,7 @@
           ],
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "SELECT * FROM \"all_prs_rebase_d\" WHERE $timeFilter",
+          "query": "select /^[[repogroups]]: [[labels]]$/ FROM \"prs_labelled_d\" WHERE $timeFilter",
           "rawQuery": true,
           "refId": "A",
           "resultFormat": "time_series",
@@ -180,14 +176,15 @@
           "tags": []
         }
       ],
-      "thresholds": "",
-      "title": "",
+      "thresholds": "10,100",
+      "title": "PRs from [[repogroups]] repo group with [[labels]]",
+      "transparent": true,
       "type": "singlestat",
       "valueFontSize": "80%",
       "valueMaps": [
         {
           "op": "=",
-          "text": "N/A",
+          "text": "select single label and repository group",
           "value": "null"
         }
       ],
@@ -196,7 +193,7 @@
     {
       "cacheTimeout": null,
       "colorBackground": false,
-      "colorValue": false,
+      "colorValue": true,
       "colors": [
         "#299c46",
         "rgba(237, 129, 40, 0.89)",
@@ -204,7 +201,7 @@
       ],
       "datasource": "${DS_GHA}",
       "decimals": null,
-      "description": "Maximum number of open PRs that needed rebase",
+      "description": "",
       "format": "none",
       "gauge": {
         "maxValue": 100,
@@ -238,7 +235,7 @@
       "nullText": null,
       "postfix": "",
       "postfixFontSize": "50%",
-      "prefix": "Maximum number of PRs that needed rebase: ",
+      "prefix": "Maximum:",
       "prefixFontSize": "50%",
       "rangeMaps": [
         {
@@ -249,13 +246,14 @@
       ],
       "sparkline": {
         "fillColor": "rgba(31, 118, 189, 0.18)",
-        "full": false,
+        "full": true,
         "lineColor": "rgb(31, 120, 193)",
-        "show": false
+        "show": true
       },
       "tableColumn": "",
       "targets": [
         {
+          "alias": "$col",
           "dsType": "influxdb",
           "groupBy": [
             {
@@ -273,7 +271,7 @@
           ],
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "SELECT * FROM \"all_prs_rebase_d\" WHERE $timeFilter",
+          "query": "select /^[[repogroups]]: [[labels]]$/ FROM \"prs_labelled_d\" WHERE $timeFilter",
           "rawQuery": true,
           "refId": "A",
           "resultFormat": "time_series",
@@ -294,14 +292,15 @@
           "tags": []
         }
       ],
-      "thresholds": "",
-      "title": "",
+      "thresholds": "10,100",
+      "title": "PRs from [[repogroups]] repo group with [[labels]]",
+      "transparent": true,
       "type": "singlestat",
       "valueFontSize": "80%",
       "valueMaps": [
         {
           "op": "=",
-          "text": "N/A",
+          "text": "select single label and repository group",
           "value": "null"
         }
       ],
@@ -314,7 +313,7 @@
       "dashes": false,
       "datasource": "${DS_GHA}",
       "decimals": 0,
-      "description": "Number of PRs that needs rebase in given repository group",
+      "description": "",
       "fill": 5,
       "gridPos": {
         "h": 13,
@@ -331,7 +330,7 @@
         "min": true,
         "rightSide": true,
         "show": true,
-        "sort": "current",
+        "sort": "avg",
         "sortDesc": true,
         "total": false,
         "values": true
@@ -356,7 +355,7 @@
           "measurement": "prs_kubernetes_kubernetes_d",
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "SELECT /^[[repogroups]]$/ FROM \"pr_needs_rebase_d\" WHERE $timeFilter",
+          "query": "select /^[[repogroups]]: [[labels]]$/ FROM \"prs_labelled_d\" WHERE $timeFilter",
           "rawQuery": true,
           "refId": "A",
           "resultFormat": "time_series",
@@ -376,12 +375,13 @@
       "thresholds": [],
       "timeFrom": null,
       "timeShift": null,
-      "title": "Need Rebase PRs per repository groups ([[repogroups]])",
+      "title": "PRs from [[repogroups]] repo group with [[labels]]",
       "tooltip": {
         "shared": true,
         "sort": 2,
         "value_type": "individual"
       },
+      "transparent": true,
       "type": "graph",
       "xaxis": {
         "buckets": null,
@@ -392,8 +392,9 @@
       },
       "yaxes": [
         {
+          "decimals": null,
           "format": "short",
-          "label": "Need rebase PRs",
+          "label": "PRs",
           "logBase": 1,
           "max": null,
           "min": "0",
@@ -416,7 +417,7 @@
       "dashes": false,
       "datasource": "${DS_GHA}",
       "decimals": 0,
-      "description": "Number of PRs that needs rebase in repositories",
+      "description": "",
       "fill": 2,
       "gridPos": {
         "h": 13,
@@ -433,8 +434,8 @@
         "min": true,
         "rightSide": true,
         "show": true,
-        "sort": null,
-        "sortDesc": null,
+        "sort": "avg",
+        "sortDesc": true,
         "total": false,
         "values": true
       },
@@ -448,17 +449,17 @@
       "renderer": "flot",
       "seriesOverrides": [],
       "spaceLength": 10,
-      "stack": false,
+      "stack": true,
       "steppedLine": false,
       "targets": [
         {
-          "alias": "All need rebase PRs",
+          "alias": "$col",
           "dsType": "influxdb",
           "groupBy": [],
           "measurement": "prs_kubernetes_kubernetes_d",
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "SELECT * FROM \"all_prs_rebase_d\" WHERE $timeFilter",
+          "query": "select /: [[labels]]$/ FROM \"prs_labelled_d\" WHERE $timeFilter",
           "rawQuery": true,
           "refId": "A",
           "resultFormat": "time_series",
@@ -478,12 +479,13 @@
       "thresholds": [],
       "timeFrom": null,
       "timeShift": null,
-      "title": "Need Rebase PRs in all repositories",
+      "title": "PRs with [[labels]] labels from all repos",
       "tooltip": {
         "shared": true,
         "sort": 2,
         "value_type": "individual"
       },
+      "transparent": true,
       "type": "graph",
       "xaxis": {
         "buckets": null,
@@ -495,7 +497,7 @@
       "yaxes": [
         {
           "format": "short",
-          "label": "Need rebase PRs",
+          "label": "PRs",
           "logBase": 1,
           "max": null,
           "min": "0",
@@ -518,13 +520,116 @@
       "dashes": false,
       "datasource": "${DS_GHA}",
       "decimals": 0,
-      "description": "Number of PRs that needs rebase in given repository group",
+      "description": "",
+      "fill": 2,
+      "gridPos": {
+        "h": 13,
+        "w": 24,
+        "x": 0,
+        "y": 29
+      },
+      "id": 7,
+      "legend": {
+        "alignAsTable": true,
+        "avg": true,
+        "current": true,
+        "max": true,
+        "min": true,
+        "rightSide": true,
+        "show": true,
+        "sort": "avg",
+        "sortDesc": true,
+        "total": false,
+        "values": true
+      },
+      "lines": true,
+      "linewidth": 1,
+      "links": [],
+      "nullPointMode": "null as zero",
+      "percentage": false,
+      "pointradius": 5,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": true,
+      "steppedLine": false,
+      "targets": [
+        {
+          "alias": "$col",
+          "dsType": "influxdb",
+          "groupBy": [],
+          "measurement": "prs_kubernetes_kubernetes_d",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "select /^[[repogroups]]: / FROM \"prs_labelled_d\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "A",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              }
+            ]
+          ],
+          "tags": []
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "PRs from [[repogroups]] repo group (having at least one of specified labels)",
+      "tooltip": {
+        "shared": true,
+        "sort": 2,
+        "value_type": "individual"
+      },
+      "transparent": true,
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "format": "short",
+          "label": "PRs",
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": "",
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true
+        }
+      ]
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "${DS_GHA}",
+      "decimals": 0,
+      "description": "",
       "fill": 8,
       "gridPos": {
         "h": 12,
         "w": 24,
         "x": 0,
-        "y": 29
+        "y": 42
       },
       "id": 5,
       "legend": {
@@ -535,7 +640,7 @@
         "min": true,
         "rightSide": true,
         "show": true,
-        "sort": "current",
+        "sort": "avg",
         "sortDesc": true,
         "total": false,
         "values": true
@@ -560,7 +665,7 @@
           "measurement": "prs_kubernetes_kubernetes_d",
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "SELECT /^[[repogroups]]$/ FROM \"pr_needs_rebase_d\" WHERE $timeFilter",
+          "query": "select /^[[repogroups]]: [[labels]]$/ FROM \"prs_labelled_d\" WHERE $timeFilter",
           "rawQuery": true,
           "refId": "A",
           "resultFormat": "time_series",
@@ -580,12 +685,13 @@
       "thresholds": [],
       "timeFrom": null,
       "timeShift": null,
-      "title": "Need Rebase PRs per repository groups ([[repogroups]])",
+      "title": "Percent PRs from [[repogroups]] repo group with [[labels]]",
       "tooltip": {
         "shared": true,
         "sort": 2,
         "value_type": "individual"
       },
+      "transparent": true,
       "type": "graph",
       "xaxis": {
         "buckets": null,
@@ -597,9 +703,9 @@
       "yaxes": [
         {
           "format": "short",
-          "label": "Need rebase PRs",
+          "label": "PRs",
           "logBase": 1,
-          "max": null,
+          "max": "100",
           "min": "0",
           "show": true
         },
@@ -608,7 +714,213 @@
           "label": "",
           "logBase": 1,
           "max": null,
+          "min": null,
+          "show": true
+        }
+      ]
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "${DS_GHA}",
+      "decimals": 0,
+      "description": "",
+      "fill": 2,
+      "gridPos": {
+        "h": 13,
+        "w": 24,
+        "x": 0,
+        "y": 54
+      },
+      "id": 6,
+      "legend": {
+        "alignAsTable": true,
+        "avg": true,
+        "current": true,
+        "max": true,
+        "min": true,
+        "rightSide": true,
+        "show": true,
+        "sort": "avg",
+        "sortDesc": true,
+        "total": false,
+        "values": true
+      },
+      "lines": true,
+      "linewidth": 1,
+      "links": [],
+      "nullPointMode": "null as zero",
+      "percentage": true,
+      "pointradius": 5,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": true,
+      "steppedLine": false,
+      "targets": [
+        {
+          "alias": "$col",
+          "dsType": "influxdb",
+          "groupBy": [],
+          "measurement": "prs_kubernetes_kubernetes_d",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "select /: [[labels]]$/ FROM \"prs_labelled_d\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "A",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              }
+            ]
+          ],
+          "tags": []
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Percent PRs with [[labels]] labels from all repos",
+      "tooltip": {
+        "shared": true,
+        "sort": 2,
+        "value_type": "individual"
+      },
+      "transparent": true,
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "format": "short",
+          "label": "PRs",
+          "logBase": 1,
+          "max": "100",
           "min": "0",
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": "",
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ]
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "${DS_GHA}",
+      "decimals": 0,
+      "description": "",
+      "fill": 2,
+      "gridPos": {
+        "h": 13,
+        "w": 24,
+        "x": 0,
+        "y": 67
+      },
+      "id": 8,
+      "legend": {
+        "alignAsTable": true,
+        "avg": true,
+        "current": true,
+        "max": true,
+        "min": true,
+        "rightSide": true,
+        "show": true,
+        "sort": "avg",
+        "sortDesc": true,
+        "total": false,
+        "values": true
+      },
+      "lines": true,
+      "linewidth": 1,
+      "links": [],
+      "nullPointMode": "null as zero",
+      "percentage": true,
+      "pointradius": 5,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": true,
+      "steppedLine": false,
+      "targets": [
+        {
+          "alias": "$col",
+          "dsType": "influxdb",
+          "groupBy": [],
+          "measurement": "prs_kubernetes_kubernetes_d",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "select /^[[repogroups]]: / FROM \"prs_labelled_d\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "A",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              }
+            ]
+          ],
+          "tags": []
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Percent PRs from [[repogroups]] repo group (having at least one of specified labels)",
+      "tooltip": {
+        "shared": true,
+        "sort": 2,
+        "value_type": "individual"
+      },
+      "transparent": true,
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "format": "short",
+          "label": "PRs",
+          "logBase": 1,
+          "max": "100",
+          "min": "0",
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": "",
+          "logBase": 1,
+          "max": null,
+          "min": null,
           "show": true
         }
       ]
@@ -634,7 +946,7 @@
         "multi": true,
         "name": "repogroups",
         "options": [],
-        "query": "SHOW TAG VALUES WITH KEY = repo_group_name",
+        "query": "SHOW TAG VALUES WITH KEY = all_combined_repo_group_name",
         "refresh": 1,
         "regex": "",
         "sort": 0,
@@ -663,6 +975,61 @@
         "tagsQuery": "",
         "type": "query",
         "useTags": false
+      },
+      {
+        "allValue": "",
+        "current": {
+          "selected": true,
+          "tags": [],
+          "text": "needs-rebase",
+          "value": [
+            "needs-rebase"
+          ]
+        },
+        "hide": 0,
+        "includeAll": true,
+        "label": "Label",
+        "multi": true,
+        "name": "labels",
+        "options": [
+          {
+            "selected": false,
+            "text": "All",
+            "value": "$__all"
+          },
+          {
+            "selected": false,
+            "text": "All labels combined",
+            "value": "All labels combined"
+          },
+          {
+            "selected": true,
+            "text": "needs-rebase",
+            "value": "needs-rebase"
+          },
+          {
+            "selected": false,
+            "text": "needs-ok-to-test",
+            "value": "needs-ok-to-test"
+          },
+          {
+            "selected": false,
+            "text": "do-not-merge",
+            "value": "do-not-merge"
+          },
+          {
+            "selected": false,
+            "text": "cla: no",
+            "value": "cla: no"
+          },
+          {
+            "selected": false,
+            "text": "release-note-label-needed",
+            "value": "release-note-label-needed"
+          }
+        ],
+        "query": "All labels combined,needs-rebase,needs-ok-to-test,do-not-merge,cla: no,release-note-label-needed",
+        "type": "custom"
       }
     ]
   },
@@ -696,7 +1063,7 @@
     ]
   },
   "timezone": "",
-  "title": "Need Rebase PRs",
-  "uid": "17",
-  "version": 15
+  "title": "PRs labels by repository groups",
+  "uid": "47",
+  "version": 18
 }
