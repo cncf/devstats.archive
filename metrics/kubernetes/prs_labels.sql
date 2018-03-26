@@ -149,7 +149,8 @@ where
 group by
   sub.name
 order by
-  label_count desc
+  label_count desc,
+  name asc
 ;
 
 drop table removed_labels;

@@ -626,7 +626,7 @@ projects:
           - - bot_commands,approve cancel`Mono-group
             - '0.50'
         data: KubernetesBotCommandsMetric
-      - metric: prs_rebase
+      - metric: prs_labels
         additional_setup_funcs:
           - SetDates
         additional_setup_args:
@@ -635,22 +635,20 @@ projects:
         to: 2017-11-01T00:00:00Z
         n: 1
         expected:
-          - - pr_needs_rebase,G1
-            - 3
-          - - pr_needs_rebase,G2
-            - 2
-        data: KubernetesNeedRebasePRsMetric
-      - metric: all_prs_rebase
-        additional_setup_funcs:
-          - SetDates
-        additional_setup_args:
-          - gha_issues;updated_at;now()
-        from: 2017-10-01T00:00:00Z
-        to: 2017-11-01T00:00:00Z
-        n: 1
-        expected:
-          [[7]]
-        data: KubernetesNeedRebasePRsMetric
+          - ['prs_labelled,All repos combined: All labels combined', 7]
+          - ['prs_labelled,All repos combined: needs-rebase', 3]
+          - ['prs_labelled,G1: All labels combined', 3]
+          - ['prs_labelled,All repos combined: needs-ok-to-test', 2]
+          - ['prs_labelled,G1: needs-rebase', 2]
+          - ['prs_labelled,G2: All labels combined', 2]
+          - ['prs_labelled,All repos combined: cla: no', 1]
+          - ['prs_labelled,All repos combined: do-not-merge', 1]
+          - ['prs_labelled,All repos combined: release-note-label-needed', 1]
+          - ['prs_labelled,G1: do-not-merge', 1]
+          - ['prs_labelled,G1: needs-ok-to-test', 1]
+          - ['prs_labelled,G2: needs-ok-to-test', 1]
+          - ['prs_labelled,G2: needs-rebase', 1]
+        data: KubernetesPRsLabelsMetric
       - metric: opened_to_merged
         additional_setup_funcs:
           - SetDates
@@ -4332,7 +4330,7 @@ data:
       - [1, Actor 1, Name 1]
       - [2, Actor 2, Name 2]
       - [3, Actor 3, Name 3]
-  KubernetesNeedRebasePRsMetric:
+  KubernetesPRsLabelsMetric:
     # id, name, org_id, org_login, repo_group
     repos:
       - [1, R1, 1, O1, G1]
@@ -4354,7 +4352,7 @@ data:
       - [6, 6, 0, 0, 0, 6, open, PR6, BodyPR6, '2017-10-05T00:00:00Z', null, null, false, 2, R2, 0, '']
       - [7, 7, 0, 0, 0, 7, closed, PR7, BodyPR7, '2017-10-06T00:00:00Z', '2017-11-07T00:00:00Z', '2017-11-07T00:00:00Z', false, 3, R3, 0, '']
       - [8, 8, 0, 0, 0, 8, closed, PR8, BodyPR8, '2017-10-07T00:00:00Z', '2017-11-08T00:00:00Z', '2017-11-08T00:00:00Z', false, 4, R4, 0, '']
-    # append milestone_id=null to all rows in "issues"
+    # append milestone_id=null, updated_at=... to all rows in "issues"
     issues_append: [[null, '2017-01-01T12:00:00Z']]
     # id, event_id, assignee_id, body, closed_at, created_at, number, state,
     # title, updated_at, user_id, dup_actor_id, dup_actor_login, dup_repo_id,
@@ -4372,16 +4370,17 @@ data:
     # ev_type, ev_created_at, issue_number, label_name
     issues_labels:
       - [1, 1, 0, 0, '', 1, R1, '', '2017-10-11T00:00:00Z', 1, needs-rebase]
-      - [2, 2, 0, 0, '', 2, R2, '', '2017-10-12T00:00:00Z', 2, needs-rebase]
-      - [3, 3, 0, 0, '', 3, R3, '', '2017-10-13T00:00:00Z', 3, needs-rebase]
-      - [4, 4, 0, 0, '', 4, R4, '', '2017-10-14T00:00:00Z', 4, needs-rebase]
+      - [2, 2, 0, 0, '', 2, R2, '', '2017-10-12T00:00:00Z', 2, needs-ok-to-test]
+      - [3, 3, 0, 0, '', 3, R3, '', '2017-10-13T00:00:00Z', 3, do-not-merge]
+      - [4, 4, 0, 0, '', 4, R4, '', '2017-10-14T00:00:00Z', 4, 'cla: no']
       - [5, 5, 0, 0, '', 1, R1, '', '2017-10-15T00:00:00Z', 5, needs-rebase]
       - [6, 6, 0, 0, '', 2, R2, '', '2017-10-16T00:00:00Z', 6, needs-rebase]
       - [7, 7, 0, 0, '', 3, R3, '', '2017-10-17T00:00:00Z', 7, needs-rebase]
-      - [8, 8, 0, 0, '', 4, R4, '', '2017-10-18T00:00:00Z', 8, needs-rebase]
+      - [8, 8, 0, 0, '', 4, R4, '', '2017-10-18T00:00:00Z', 8, release-note-label-needed]
       - [5, 9, 0, 0, '', 1, R1, '', '2017-10-16T00:00:00Z', 5, other-label]   # added after need-rebase (so it means needs-rebase was removed, and final state is 'other-label')
       - [6, 10, 0, 0, '', 2, R2, '', '2017-10-10T00:00:00Z', 6, other-label]   # added before needs-rebase (so final state is 'needs-rebase')
       - [7, 11, 0, 0, '', 3, R3, '', '2017-10-17T00:00:00Z', 7, other-label]   # added with needs-rebase, so final state is 'needs-rebase' and 'other-label'
+      - [7, 12, 0, 0, '', 3, R3, '', '2017-10-17T00:00:00Z', 7, needs-ok-to-test]   # added with needs-rebase, so final state is 'needs-rebase', 'other-label' and 'needs-ok-to-test'
     # issue_id, pr_id, number, repo_id, repo_name, created_at
     issues_prs:
       - [1, 1, 1, 1, R1, '2017-10-01T00:00:00Z']
