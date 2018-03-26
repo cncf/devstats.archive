@@ -81,7 +81,7 @@ type Ctx struct {
 	OutputDB            string          // From GHA2DB_OUTPUT_DB, ./merge_pdbs tool - output database to merge into
 	TmOffset            int             // From GHA2DB_TMOFFSET, ./gha2db_sync tool - uses time offset to decide when to calculate various metrics, default offset is 0 which means UTC, good offset for USA is -6, and for Poland is 1 or 2
 	DefaultHostname     string          // "devstats.cncf.io"
-  RecentRange         string          // From GHA2DB_RECENT_RANGE, ./ghapi2db tool, default '2 hours'. This is a recent period to check open issues/PR to fix their labels and milestones.
+	RecentRange         string          // From GHA2DB_RECENT_RANGE, ./ghapi2db tool, default '2 hours'. This is a recent period to check open issues/PR to fix their labels and milestones.
 	MinGHAPIPoints      int             // From GHA2DB_MIN_GHAPI_POINTS, ./ghapi2db tool, minimum GitHub API points, before waiting for reset.
 	MaxGHAPIWaitSeconds int             // FROM GHA2DB_MAX_GHAPI_WAIT, ./ghapi2db tool, maximum wait time for GitHub API points reset (in seconds).
 }
