@@ -39,6 +39,12 @@ func handlePossibleError(err error, cfg *issueConfig, info string) {
 // milestonesEvent - create artificial 'ArtificialEvent'
 // creates new issue state, artificial event and its payload
 func artificialEvent(c *sql.DB, ctx *lib.Ctx, iid, eid int64, milestone string, labels map[int64]string, labelsChanged bool) (err error) {
+	if ctx.SkipPDB {
+		if ctx.Debug > 0 {
+			lib.Printf("Skipping write for issue_id: %d, event_id: %d, milestone_id: %s, labels(%v): %v\n", iid, eid, milestone, labelsChanged, labels)
+		}
+		return nil
+	}
 	// Create artificial event, add 2^48 to eid
 	eventID := 281474976710656 + eid
 	now := time.Now()
@@ -145,7 +151,7 @@ func artificialEvent(c *sql.DB, ctx *lib.Ctx, iid, eid int64, milestone string, 
 					"select %s, %s, %s, "+
 					"0, 'devstats-bot', repo_id, dup_repo_name, "+
 					"'ArtificialEvent', %s, "+
-					"(select number from gha_issues where id = %s limit 1), %s "+
+					"(select number from gha_issues where id = %s and event_id = %s limit 1), %s "+
 					"from gha_events where id = %s",
 				lib.NValue(1),
 				lib.NValue(2),
@@ -154,6 +160,7 @@ func artificialEvent(c *sql.DB, ctx *lib.Ctx, iid, eid int64, milestone string, 
 				lib.NValue(5),
 				lib.NValue(6),
 				lib.NValue(7),
+				lib.NValue(8),
 			),
 			lib.AnyArray{
 				iid,
@@ -161,6 +168,7 @@ func artificialEvent(c *sql.DB, ctx *lib.Ctx, iid, eid int64, milestone string, 
 				label,
 				now,
 				iid,
+				eid,
 				labelName,
 				eid,
 			}...,
@@ -174,7 +182,7 @@ func artificialEvent(c *sql.DB, ctx *lib.Ctx, iid, eid int64, milestone string, 
 }
 
 // Insert Postgres vars
-func ghapi() {
+func ghapi2db() {
 	// Environment context parse
 	var ctx lib.Ctx
 	ctx.Init()
@@ -446,7 +454,9 @@ func ghapi() {
 				c,
 				&ctx,
 				fmt.Sprintf(
-					"select coalesce(string_agg(label_id::text, ','), '') from gha_issues_labels where event_id = %s",
+					"select coalesce(string_agg(sub.label_id::text, ','), '') from "+
+						"(select label_id from gha_issues_labels where event_id = %s "+
+						"order by label_id) sub",
 					lib.NValue(1),
 				),
 				ghaEventID,
@@ -500,7 +510,7 @@ func ghapi() {
 
 func main() {
 	dtStart := time.Now()
-	ghapi()
+	ghapi2db()
 	dtEnd := time.Now()
 	lib.Printf("Time: %v\n", dtEnd.Sub(dtStart))
 }
