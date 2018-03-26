@@ -13,3 +13,4 @@ GHA2DB_PROJECT=kubernetes IDB_DB=gha_temp GHA2DB_LOCAL=1 GHA2DB_CMDDEBUG=1 GHA2D
 GHA2DB_LOCAL=1 GHA2DB_PROJECT=kubernetes IDB_DB=gha_temp ./idb_vars || exit 3
 ./grafana/influxdb_recreate.sh gha || exit 4
 IDB_DB_SRC=gha_temp IDB_DB_DST=gha ./idb_backup || exit 5
+./grafana/influxdb_drop.sh gha_temp
