@@ -12,6 +12,8 @@
 - You can see its SQL structure here: [structure.sql](https://github.com/cncf/devstats/blob/master/structure.sql#L205-L216).
 - Its primary key is `id`.
 - Values from this table are often duplicated in other tables (to speedup processing) as `dup_type`, `dup_created_at`.
+- [ghaapi2db](https://github.com/cncf/devstats/tree/master/cmd/ghapi2db/ghapi2db.go) tool is creating events of type `ArtificialEvent` when it detects that some issue/PR has wrong labels set or wrong milestone.
+- It happens when somebody changes label and/or milestone without commenting on the issue, or after commenting. Change label/milestone is not creating any GitHub event, so the final issue/PR state can be wrong.
 - Each GitHub event have single (1:1) entry in [gha_payloads](https://github.com/cncf/devstats/blob/master/docs/tables/gha_payloads.md) table.
 
 # Columns

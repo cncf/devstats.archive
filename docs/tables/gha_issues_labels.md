@@ -5,6 +5,8 @@
 - When next event (like issue comment) on that issue happens (which can happen a month later) this table will contain new labels set.
 - This is a variable table, for details check [variable table](https://github.com/cncf/devstats/blob/master/docs/tables/variable_table.md).
 - It contains about 3.7M records as of Mar 2018.
+- [ghaapi2db](https://github.com/cncf/devstats/tree/master/cmd/ghapi2db/ghapi2db.go) tool is creating new labels set entries when it detects that some issue/PR has wrong labels set or wrong milestone.
+- It happens when somebody changes label and/or milestone without commenting on the issue, or after commenting. Change label/milestone is not creating any GitHub event, so the final issue/PR state can be wrong.
 - It is created here: [structure.go](https://github.com/cncf/devstats/blob/master/structure.go#L533-L554).
 - You can see its SQL structure here: [structure.sql](https://github.com/cncf/devstats/blob/master/structure.sql#L354-L366).
 - Its primary key is `(event_id, issue_id, label_id)`.
