@@ -20,4 +20,5 @@ GHA2DB_PROJECT=prometheus IDB_DB=prometheus PG_DB=prometheus GHA2DB_LOCAL=1 GHA2
 ./prometheus/import_affs.sh 2>>errors.txt | tee -a run.log || exit 7
 ./prometheus/get_repos.sh 2>>errors.txt | tee -a run.log || exit 8
 GHA2DB_PROJECT=prometheus PG_DB=prometheus GHA2DB_LOCAL=1 ./pdb_vars || exit 9
+./devel/ro_user_grants.sh prometheus || exit 10
 echo "All done. You should run ./prometheus/reinit.sh script now."

@@ -19,4 +19,5 @@ GHA2DB_PROJECT=jaeger IDB_DB=jaeger PG_DB=jaeger GHA2DB_LOCAL=1 GHA2DB_MGETC=y G
 ./jaeger/setup_scripts.sh 2>>errors.txt | tee -a run.log || exit 6
 ./jaeger/get_repos.sh 2>>errors.txt | tee -a run.log || exit 7
 GHA2DB_PROJECT=jaeger PG_DB=jaeger GHA2DB_LOCAL=1 ./pdb_vars || exit 8
+./devel/ro_user_grants.sh jaeger || exit 9
 echo "All done. You should run ./jaeger/reinit.sh script now."

@@ -19,4 +19,5 @@ GHA2DB_PROJECT=coredns IDB_DB=coredns PG_DB=coredns GHA2DB_LOCAL=1 GHA2DB_MGETC=
 ./coredns/setup_scripts.sh 2>>errors.txt | tee -a run.log || exit 6
 ./coredns/get_repos.sh 2>>errors.txt | tee -a run.log || exit 7
 GHA2DB_PROJECT=coredns PG_DB=coredns GHA2DB_LOCAL=1 ./pdb_vars || exit 8
+./devel/ro_user_grants.sh coredns || exit 9
 echo "All done. You should run ./coredns/reinit.sh script now."

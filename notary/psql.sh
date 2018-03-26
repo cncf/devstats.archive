@@ -19,4 +19,5 @@ GHA2DB_PROJECT=notary IDB_DB=notary PG_DB=notary GHA2DB_LOCAL=1 GHA2DB_MGETC=y G
 ./notary/setup_scripts.sh 2>>errors.txt | tee -a run.log || exit 6
 ./notary/get_repos.sh 2>>errors.txt | tee -a run.log || exit 7
 GHA2DB_PROJECT=notary PG_DB=notary GHA2DB_LOCAL=1 ./pdb_vars || exit 8
+./devel/ro_user_grants.sh notary || exit 9
 echo "All done. You should run ./notary/reinit.sh script now."
