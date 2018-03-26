@@ -8,6 +8,9 @@
 - It contains about 1.8M records as of Feb 2018.
 - It is created here: [structure.go](https://github.com/cncf/devstats/blob/master/structure.go#L188-L236).
 - You can see its SQL structure here: [structure.sql](https://github.com/cncf/devstats/blob/master/structure.sql#L504-L529).
+- [ghaapi2db](https://github.com/cncf/devstats/tree/master/cmd/ghapi2db/ghapi2db.go) tool is creating events of type `ArtificialEvent` when it detects that some issue/PR has wrong labels set or wrong milestone.
+- It happens when somebody changes label and/or milestone without commenting on the issue, or after commenting. Change label/milestone is not creating any GitHub event, so the final issue/PR state can be wrong.
+- Artificial event's payloads are created too.
 - Its primary key is GitHub event ID `event_id`.
 - Each payload have single (1:1) entry in [gha_events](https://github.com/cncf/devstats/blob/master/docs/tables/gha_events.md) table.
 

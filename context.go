@@ -51,7 +51,7 @@ type Ctx struct {
 	TagsYaml            string          // From GHA2DB_TAGS_YAML idb_tags tool, set other idb_tags.yaml file, default is "metrics/{{project}}/idb_tags.yaml"
 	IVarsYaml           string          // From GHA2DB_IVARS_YAML idb_vars tool, set other idb_vars.yaml file, default is "metrics/{{project}}/idb_vars.yaml"
 	PVarsYaml           string          // From GHA2DB_PVARS_YAML pdb_vars tool, set other pdb_vars.yaml file, default is "metrics/{{project}}/pdb_vars.yaml"
-	GitHubOAuth         string          // From GHA2DB_GITHUB_OAUTH annotations tool (no more using GitHub as of 2018-03-22 - uses 'git_tags.sh' script instead), if not set reads from /etc/github/oauth file, set to "-" to force public access.
+	GitHubOAuth         string          // From GHA2DB_GITHUB_OAUTH ghapi2db tool, if not set reads from /etc/github/oauth file, set to "-" to force public access.
 	ClearDBPeriod       string          // From GHA2DB_MAXLOGAGE gha2db_sync tool, maximum age of devstats.gha_logs entries, default "1 week"
 	Trials              []int           // From GHA2DB_TRIALS, all Postgres related tools, retry periods for "too many connections open" error
 	WebHookRoot         string          // From GHA2DB_WHROOT, webhook tool, default "/hook", must match .travis.yml notifications webhooks
@@ -81,7 +81,7 @@ type Ctx struct {
 	OutputDB            string          // From GHA2DB_OUTPUT_DB, ./merge_pdbs tool - output database to merge into
 	TmOffset            int             // From GHA2DB_TMOFFSET, ./gha2db_sync tool - uses time offset to decide when to calculate various metrics, default offset is 0 which means UTC, good offset for USA is -6, and for Poland is 1 or 2
 	DefaultHostname     string          // "devstats.cncf.io"
-	RecentRange         string          // From GHA2DB_RECENT_RANGE, ./ghapi2db tool, default '2 days'.
+  RecentRange         string          // From GHA2DB_RECENT_RANGE, ./ghapi2db tool, default '2 hours'. This is a recent period to check open issues/PR to fix their labels and milestones.
 	MinGHAPIPoints      int             // From GHA2DB_MIN_GHAPI_POINTS, ./ghapi2db tool, minimum GitHub API points, before waiting for reset.
 	MaxGHAPIWaitSeconds int             // FROM GHA2DB_MAX_GHAPI_WAIT, ./ghapi2db tool, maximum wait time for GitHub API points reset (in seconds).
 }

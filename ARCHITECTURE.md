@@ -79,7 +79,7 @@ We're getting all possible GitHub data for all objects, and all objects historic
 - It can be called by cron job on 1:10, 2:10, ... and so on - GitHub archive publishes new file every hour, so we're off by at most 1 hour.
 - It can also be called automatically by `devstats` tool
 
-5) `devstats` (Calls `gha2db_sync` for all defined projects)
+5) `devstats` (calls `gha2db_sync` for all defined projects)
 - [devstats](https://github.com/cncf/devstats/blob/master/cmd/devstats/devstats.go)
 - This program will read `projects.yaml` call `get_repos` to update all projects git repos, then call `gha2db_sync` for all defined projects that are not disabled by `disabled: true`.
 - It uses own database just to store logs from running project syncers, this is a Postgres database "devstats".
@@ -93,7 +93,15 @@ We're getting all possible GitHub data for all objects, and all objects historic
 - It can also be used to return list of all distinct repos and their locations - this can be used by `cncf/gitdm` to create concatenated `git.log` from all repositories for affiliations analysis.
 - This tool is also used to create/update mapping between commits and list of files that given commit refers to, it also keep file sizes info at the commit time.
 
-6) Additional stuff, most important being `runq`  and `import_affs` tools.
+7) `ghapi2db`: it uses GitHub API to get labels and milestones information for all open issues and PRs from last 2 hours.
+- [ghapi2db](https://github.com/cncf/devstats/blob/master/cmd/ghapi2db/ghapi2db.go).
+- Issues/PRs contain labels/milestones information from the last GitHub event on those issues/PR. This is a state from last issue comment.
+- Sometimes labels and/or milestone information is changed after the last commit. New issue labels/milestone will only be visible after the next issue comment.
+- This tool queries all open issues/PRs from last 2 hours to check their label set and milestone. If it detects difference it creates artificial events with the new state.
+- This is used by 'Open issues/PRs by milestone' dashboard to make sure that we have correct informations.
+- GitHub API points are limited to 5000/hour, use `GHA2DB_GITHUB_OAUTH` env variable to set GitHub OAUth token path. Default is `/etc/github/oauth`. You can set to "-" to force public acces, but you will be limited to 60 API calls/hour.
+
+8) Additional stuff, most important being `runq`  and `import_affs` tools.
 - [runq](https://github.com/cncf/devstats/blob/master/cmd/runq/runq.go)
 - `runq` gets SQL file name and parameter values and allows to run metric manually from the command line (this is for local development)
 - [import_affs](https://github.com/cncf/devstats/blob/master/cmd/import_affs/import_affs.go)

@@ -219,7 +219,7 @@ It also clones all git repos to analyse all commits files.
 
 Uses GNU `Makefile`:
 - `make check` - to apply gofmt, goimports, golint, errcheck, usedexports, go vet and possibly other tools.
-- `make` to compile static binaries: `structure`, `runq`, `gha2db`, `db2influx`, `z2influx`, `gha2db_sync`, `import_affs`, `annotations`, `idb_tags`, `idb_backup`, `webhook`, `devstats`, `get_repos`, `merge_pdbs`, `idb_vars`, `pdb_vars`, `replacer`.
+- `make` to compile static binaries: `structure`, `runq`, `gha2db`, `db2influx`, `z2influx`, `gha2db_sync`, `import_affs`, `annotations`, `idb_tags`, `idb_backup`, `webhook`, `devstats`, `get_repos`, `merge_pdbs`, `idb_vars`, `pdb_vars`, `replacer`, `ghapi2db`.
 - `make install` - to install binaries, this is needed for cron job.
 - `make clean` - to clean binaries
 - `make test` - to execute non-DB tests
@@ -320,6 +320,9 @@ You can tweak `devstats` tools by environment variables:
 - Set `GHA2DB_TMOFFSET`, `gha2db_sync` tool - uses time offset to decide when to calculate various metrics, default offset is 0 which means UTC, good offset for USA is -6, and for Poland is 1 or 2
 - Set `GHA2DB_IVARS_YAML`, `idb_vars` tool - to set nonstandard `idb_vars.yaml` file.
 - Set `GHA2DB_PVARS_YAML`, `pdb_vars` tool - to set nonstandard `pdb_vars.yaml` file.
+- Set `GHA2DB_RECENT_RANGE`, `ghapi2db` tool, default '2 hours'. This is a recent period to check open issues/PR to fix their labels and milestones.
+- Set `GHA2DB_MIN_GHAPI_POINTS`, `ghapi2db` tool, minimum GitHub API points, before waiting for reset. Default 1 (API point).
+- Set `GHA2DB_MAX_GHAPI_WAIT`, `ghapi2db` tool, maximum wait time for GitHub API points reset (in seconds). Default 1s.
 
 All environment context details are defined in [context.go](https://github.com/cncf/devstats/blob/master/context.go), please see that file for details (you can also see how it works in [context_test.go](https://github.com/cncf/devstats/blob/master/context_test.go)).
 
@@ -752,7 +755,7 @@ Please see [Tests](https://github.com/cncf/devstats/blob/master/TESTING.md)
 - Test cases are defined in `tests.yaml` file.
 - Run tests like this: `GHA2DB_PROJECT=kubernetes IDB_HOST="localhost" IDB_DB=dbtest IDB_PASS=idbpwd PG_DB=dbtest PG_PASS=pgpwd make dbtest`.
 - Or use script shortcut: `GHA2DB_PROJECT=kubernetes PG_PASS=pwd IDB_HOST="localhost" IDB_PASS=pwd ./dbtest.sh`.
-- To test only selected SQL metric(s): `GHA2DB_PROJECT=kubernetes PG_PASS=... PG_DB=dbtest TEST_METRICS='new_contributors,episodic_contributors' go test metrics_test.go
+- To test only selected SQL metric(s): `GHA2DB_PROJECT=kubernetes PG_PASS=... PG_DB=dbtest TEST_METRICS='new_contributors,episodic_contributors' go test metrics_test.go`.
 - To test single file that requires database: `GHA2DB_PROJECT=kubernetes PG_PASS=pwd IDB_HOST="localhost" IDB_PASS=pwd go test file_name.go`.
 3. To check all sources using multiple go tools (like fmt, lint, imports, vet, goconst, usedexports), run `make check`.
 4. To check Travis CI payloads use `PG_PASS=pwd IDB_PASS=pwd IDB_HOST=localhost IDB_PASS_SRC=pwd IGET=1 GET=1 ./webhook.sh` and then `./test_webhook.sh`.
@@ -1982,6 +1985,8 @@ time                 computed_from       computed_key                           
 - When next event (like issue comment) on that issue happens (which can happen a month later) this table will contain new labels set.
 - This is a variable table, for details check [variable table](https://github.com/cncf/devstats/blob/master/docs/tables/variable_table.md).
 - It contains about 3.7M records as of Mar 2018.
+- [ghaapi2db](https://github.com/cncf/devstats/tree/master/cmd/ghapi2db/ghapi2db.go) tool is creating new labels set entries when it detects that some issue/PR has wrong labels set or wrong milestone.
+- It happens when somebody changes label and/or milestone without commenting on the issue, or after commenting. Change label/milestone is not creating any GitHub event, so the final issue/PR state can be wrong.
 - It is created here: [structure.go](https://github.com/cncf/devstats/blob/master/structure.go#L533-L554).
 - You can see its SQL structure here: [structure.sql](https://github.com/cncf/devstats/blob/master/structure.sql#L354-L366).
 - Its primary key is `(event_id, issue_id, label_id)`.
@@ -2235,6 +2240,8 @@ Those columns duplicate value from a GitHub event refering to this column `event
 
 - This is a table that holds GitHub issue state at a given point in time (`event_id` refers to [gha_events](https://github.com/cncf/devstats/blob/master/docs/tables/gha_events.md)).
 - This is a variable table, for details check [variable table](https://github.com/cncf/devstats/blob/master/docs/tables/variable_table.md).
+- [ghaapi2db](https://github.com/cncf/devstats/tree/master/cmd/ghapi2db/ghapi2db.go) tool is creating new issue state entries (artificial) when it detects that some issue/PR has wrong labels set or wrong milestone.
+- It happens when somebody changes label and/or milestone without commenting on the issue, or after commenting. Change label/milestone is not creating any GitHub event, so the final issue/PR state can be wrong.
 - It contains about 1.2M records but only 115K distinct issue IDs (Mar 2018 state) - this means that there are about 10 events per issue on average.
 - Its primary key is `(event_id, id)`.
 - There is a special [compute table](https://github.com/cncf/devstats/blob/master/docs/tables/gha_issues_pull_requests.md) that connects Issues with PRs.
@@ -2328,6 +2335,9 @@ Most important columns are:
 - It contains about 1.8M records as of Feb 2018.
 - It is created here: [structure.go](https://github.com/cncf/devstats/blob/master/structure.go#L188-L236).
 - You can see its SQL structure here: [structure.sql](https://github.com/cncf/devstats/blob/master/structure.sql#L504-L529).
+- [ghaapi2db](https://github.com/cncf/devstats/tree/master/cmd/ghapi2db/ghapi2db.go) tool is creating events of type `ArtificialEvent` when it detects that some issue/PR has wrong labels set or wrong milestone.
+- It happens when somebody changes label and/or milestone without commenting on the issue, or after commenting. Change label/milestone is not creating any GitHub event, so the final issue/PR state can be wrong.
+- Artificial event's payloads are created too.
 - Its primary key is GitHub event ID `event_id`.
 - Each payload have single (1:1) entry in [gha_events](https://github.com/cncf/devstats/blob/master/docs/tables/gha_events.md) table.
 
@@ -2439,6 +2449,8 @@ Most important columns are (most of them are only filled for a specific event ty
 - You can see its SQL structure here: [structure.sql](https://github.com/cncf/devstats/blob/master/structure.sql#L205-L216).
 - Its primary key is `id`.
 - Values from this table are often duplicated in other tables (to speedup processing) as `dup_type`, `dup_created_at`.
+- [ghaapi2db](https://github.com/cncf/devstats/tree/master/cmd/ghapi2db/ghapi2db.go) tool is creating events of type `ArtificialEvent` when it detects that some issue/PR has wrong labels set or wrong milestone.
+- It happens when somebody changes label and/or milestone without commenting on the issue, or after commenting. Change label/milestone is not creating any GitHub event, so the final issue/PR state can be wrong.
 - Each GitHub event have single (1:1) entry in [gha_payloads](https://github.com/cncf/devstats/blob/master/docs/tables/gha_payloads.md) table.
 
 # Columns
@@ -3171,7 +3183,7 @@ We're getting all possible GitHub data for all objects, and all objects historic
 - It can be called by cron job on 1:10, 2:10, ... and so on - GitHub archive publishes new file every hour, so we're off by at most 1 hour.
 - It can also be called automatically by `devstats` tool
 
-5) `devstats` (Calls `gha2db_sync` for all defined projects)
+5) `devstats` (calls `gha2db_sync` for all defined projects)
 - [devstats](https://github.com/cncf/devstats/blob/master/cmd/devstats/devstats.go)
 - This program will read `projects.yaml` call `get_repos` to update all projects git repos, then call `gha2db_sync` for all defined projects that are not disabled by `disabled: true`.
 - It uses own database just to store logs from running project syncers, this is a Postgres database "devstats".
@@ -3185,7 +3197,15 @@ We're getting all possible GitHub data for all objects, and all objects historic
 - It can also be used to return list of all distinct repos and their locations - this can be used by `cncf/gitdm` to create concatenated `git.log` from all repositories for affiliations analysis.
 - This tool is also used to create/update mapping between commits and list of files that given commit refers to, it also keep file sizes info at the commit time.
 
-6) Additional stuff, most important being `runq`  and `import_affs` tools.
+7) `ghapi2db`: it uses GitHub API to get labels and milestones information for all open issues and PRs from last 2 hours.
+- [ghapi2db](https://github.com/cncf/devstats/blob/master/cmd/ghapi2db/ghapi2db.go).
+- Issues/PRs contain labels/milestones information from the last GitHub event on those issues/PR. This is a state from last issue comment.
+- Sometimes labels and/or milestone information is changed after the last commit. New issue labels/milestone will only be visible after the next issue comment.
+- This tool queries all open issues/PRs from last 2 hours to check their label set and milestone. If it detects difference it creates artificial events with the new state.
+- This is used by 'Open issues/PRs by milestone' dashboard to make sure that we have correct informations.
+- GitHub API points are limited to 5000/hour, use `GHA2DB_GITHUB_OAUTH` env variable to set GitHub OAUth token path. Default is `/etc/github/oauth`. You can set to "-" to force public acces, but you will be limited to 60 API calls/hour.
+
+8) Additional stuff, most important being `runq`  and `import_affs` tools.
 - [runq](https://github.com/cncf/devstats/blob/master/cmd/runq/runq.go)
 - `runq` gets SQL file name and parameter values and allows to run metric manually from the command line (this is for local development)
 - [import_affs](https://github.com/cncf/devstats/blob/master/cmd/import_affs/import_affs.go)

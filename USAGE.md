@@ -28,7 +28,7 @@ It also clones all git repos to analyse all commits files.
 
 Uses GNU `Makefile`:
 - `make check` - to apply gofmt, goimports, golint, errcheck, usedexports, go vet and possibly other tools.
-- `make` to compile static binaries: `structure`, `runq`, `gha2db`, `db2influx`, `z2influx`, `gha2db_sync`, `import_affs`, `annotations`, `idb_tags`, `idb_backup`, `webhook`, `devstats`, `get_repos`, `merge_pdbs`, `idb_vars`, `pdb_vars`, `replacer`.
+- `make` to compile static binaries: `structure`, `runq`, `gha2db`, `db2influx`, `z2influx`, `gha2db_sync`, `import_affs`, `annotations`, `idb_tags`, `idb_backup`, `webhook`, `devstats`, `get_repos`, `merge_pdbs`, `idb_vars`, `pdb_vars`, `replacer`, `ghapi2db`.
 - `make install` - to install binaries, this is needed for cron job.
 - `make clean` - to clean binaries
 - `make test` - to execute non-DB tests
@@ -129,6 +129,9 @@ You can tweak `devstats` tools by environment variables:
 - Set `GHA2DB_TMOFFSET`, `gha2db_sync` tool - uses time offset to decide when to calculate various metrics, default offset is 0 which means UTC, good offset for USA is -6, and for Poland is 1 or 2
 - Set `GHA2DB_IVARS_YAML`, `idb_vars` tool - to set nonstandard `idb_vars.yaml` file.
 - Set `GHA2DB_PVARS_YAML`, `pdb_vars` tool - to set nonstandard `pdb_vars.yaml` file.
+- Set `GHA2DB_RECENT_RANGE`, `ghapi2db` tool, default '2 hours'. This is a recent period to check open issues/PR to fix their labels and milestones.
+- Set `GHA2DB_MIN_GHAPI_POINTS`, `ghapi2db` tool, minimum GitHub API points, before waiting for reset. Default 1 (API point).
+- Set `GHA2DB_MAX_GHAPI_WAIT`, `ghapi2db` tool, maximum wait time for GitHub API points reset (in seconds). Default 1s.
 
 All environment context details are defined in [context.go](https://github.com/cncf/devstats/blob/master/context.go), please see that file for details (you can also see how it works in [context_test.go](https://github.com/cncf/devstats/blob/master/context_test.go)).
 
