@@ -24,7 +24,8 @@ func copySeries(ch chan bool, ctxI, ctxO *lib.Ctx, seriesName string) {
 	pts.Points = &bp
 
 	// Get values from series
-	res := lib.QueryIDB(icI, ctxI, "select * from "+seriesName+" group by *")
+	//lib.Printf("seriesName: '%s'\n", seriesName)
+	res := lib.QueryIDB(icI, ctxI, "select * from \""+seriesName+"\" group by *")
 	allSeries := res[0].Series
 	for _, series := range allSeries {
 		// Add batch point(s)
