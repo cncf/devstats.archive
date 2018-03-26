@@ -21,4 +21,5 @@ GHA2DB_PROJECT=rkt IDB_DB=rkt PG_DB=rkt GHA2DB_LOCAL=1 GHA2DB_MGETC=y GHA2DB_SKI
 ./rkt/setup_scripts.sh 2>>errors.txt | tee -a run.log || exit 8
 ./rkt/get_repos.sh 2>>errors.txt | tee -a run.log || exit 9
 GHA2DB_PROJECT=rkt PG_DB=rkt GHA2DB_LOCAL=1 ./pdb_vars || exit 10
+./devel/ro_user_grants.sh rkt || exit 11
 echo "All done. You should run ./rkt/reinit.sh script now."

@@ -19,4 +19,5 @@ GHA2DB_PROJECT=cncf IDB_DB=cncf PG_DB=cncf GHA2DB_LOCAL=1 GHA2DB_MGETC=y GHA2DB_
 ./cncf/import_affs.sh 2>>errors.txt | tee -a run.log || exit 6
 ./cncf/get_repos.sh 2>>errors.txt | tee -a run.log || exit 7
 GHA2DB_PROJECT=cncf PG_DB=cncf GHA2DB_LOCAL=1 ./pdb_vars || exit 8
+./devel/ro_user_grants.sh cncf || exit 9
 echo "All done. You should run ./cncf/reinit.sh script now."

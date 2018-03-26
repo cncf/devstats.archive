@@ -19,4 +19,5 @@ GHA2DB_PROJECT=opencontainers IDB_DB=opencontainers PG_DB=opencontainers GHA2DB_
 ./opencontainers/setup_scripts.sh 2>>errors.txt | tee -a run.log || exit 6
 ./opencontainers/get_repos.sh 2>>errors.txt | tee -a run.log || exit 7
 GHA2DB_PROJECT=opencontainers PG_DB=opencontainers GHA2DB_LOCAL=1 ./pdb_vars || exit 8
+./devel/ro_user_grants.sh opencontainers || exit 9
 echo "All done. You should run ./opencontainers/reinit.sh script now."
