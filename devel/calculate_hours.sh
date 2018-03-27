@@ -21,9 +21,11 @@ then
 fi
 
 # To also sync 'gha2db' manually (if hours missing):
-# PG_DB="allprj" PG_PASS=... ./gha2db 2018-02-02 6 2018-02-02 9 'kubernetes,kubernetes-client,kubernetes-incubator,kubernetes-helm,prometheus,opentracing,fluent,linkerd,grpc,coredns,containerd,rkt,containernetworking,envoyproxy,jaegertracing,theupdateframework,rook,cncf,crosscloudci,vitessio,youtube,nats-io,apcera,open-policy-agent,spiffe'
+# PG_PASS=... GHA2DB_PROJECT=all PG_DB=allprj GHA2DB_LOCAL=1 GHA2DB_EXCLUDE_REPOS='kubernetes/api,kubernetes/apiextensions-apiserver,kubernetes/apimachinery,kubernetes/apiserver,kubernetes/client-go,kubernetes/code-generator,kubernetes/kube-aggregator,kubernetes/metrics,kubernetes/sample-apiserver,kubernetes/sample-controller' ./gha2db 2018-02-02 6 2018-02-02 9 'kubernetes,kubernetes-client,kubernetes-incubator,kubernetes-helm,prometheus,opentracing,fluent,linkerd,grpc,coredns,containerd,rkt,containernetworking,envoyproxy,jaegertracing,theupdateframework,rook,cncf,crosscloudci,vitessio,youtube,nats-io,apcera,open-policy-agent,spiffe'
+# PG_PASS=... GHA2DB_PROJECT=kubernetes PG_DB=gha GHA2DB_LOCAL=1 GHA2DB_EXCLUDE_REPOS='kubernetes/api,kubernetes/apiextensions-apiserver,kubernetes/apimachinery,kubernetes/apiserver,kubernetes/client-go,kubernetes/code-generator,kubernetes/kube-aggregator,kubernetes/metrics,kubernetes/sample-apiserver,kubernetes/sample-controller' ./gha2db 2018-03-27 15 2018-03-27 18 'kubernetes,kubernetes-client,kubernetes-incubator,kubernetes-helm'
+# PG_PASS=... GHA2DB_PROJECT=fluentd PG_DB=fluentd GHA2DB_LOCAL=1 ./gha2db 2018-03-27 15 2018-03-27 18 'fluent'
 
-# PG_DB=gha IDB_DB=gha PG_PASS=... IDB_PASS=... IDB_HOST=localhost GHA2DB_DEBUG=1 ./devel/calculate_hours.sh '2017-12-20 11' '2017-12-20 13'
+# PG_PASS=... IDB_PASS=... IDB_HOST=localhost PG_DB=gha IDB_DB=gha GHA2DB_DEBUG=1 ./devel/calculate_hours.sh '2017-12-20 11' '2017-12-20 13'
 ./db2influx events_h metrics/kubernetes/events.sql "$1" "$2" h
 periods="h d w m q y h24"
 for period in $periods
