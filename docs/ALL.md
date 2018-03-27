@@ -753,10 +753,10 @@ Please see [Tests](https://github.com/cncf/devstats/blob/master/TESTING.md)
 - See [USAGE](https://github.com/cncf/devstats/blob/master/USAGE.md) for variables starting with `PG_` and `IDB_`.
 - ALWAYS set `PG_DB` & `IFB_DB` - default values are "gha" for both database. They cannot be used as test databases, `make dbtest` will refuse to run when Postgres and/or Influx DB is not set (or set to "gha").
 - Test cases are defined in `tests.yaml` file.
-- Run tests like this: `GHA2DB_PROJECT=kubernetes IDB_HOST="localhost" IDB_DB=dbtest IDB_PASS=idbpwd PG_DB=dbtest PG_PASS=pgpwd make dbtest`.
-- Or use script shortcut: `GHA2DB_PROJECT=kubernetes PG_PASS=pwd IDB_HOST="localhost" IDB_PASS=pwd ./dbtest.sh`.
-- To test only selected SQL metric(s): `GHA2DB_PROJECT=kubernetes PG_PASS=... PG_DB=dbtest TEST_METRICS='new_contributors,episodic_contributors' go test metrics_test.go`.
-- To test single file that requires database: `GHA2DB_PROJECT=kubernetes PG_PASS=pwd IDB_HOST="localhost" IDB_PASS=pwd go test file_name.go`.
+- Run tests like this: `PG_PASS=... IDB_PASS=.. GHA2DB_PROJECT=kubernetes IDB_HOST="localhost" IDB_DB=dbtest PG_DB=dbtest make dbtest`.
+- Or use script shortcut: `PG_PASS=... IDB_PASS=... GHA2DB_PROJECT=kubernetes IDB_HOST="localhost" ./dbtest.sh`.
+- To test only selected SQL metric(s): `PG_PASS=... GHA2DB_PROJECT=kubernetes PG_DB=dbtest TEST_METRICS='new_contributors,episodic_contributors' go test metrics_test.go`.
+- To test single file that requires database: `PG_PASS=... IDB_PASS=... GHA2DB_PROJECT=kubernetes IDB_HOST="localhost" go test file_name.go`.
 3. To check all sources using multiple go tools (like fmt, lint, imports, vet, goconst, usedexports), run `make check`.
 4. To check Travis CI payloads use `PG_PASS=pwd IDB_PASS=pwd IDB_HOST=localhost IDB_PASS_SRC=pwd IGET=1 GET=1 ./webhook.sh` and then `./test_webhook.sh`.
 5. Continuous deployment instructions are [here](https://github.com/cncf/devstats/blob/master/CONTINUOUS_DEPLOYMENT.md).
@@ -984,7 +984,7 @@ Prerequisites:
     - `launchctl load ~/Library/LaunchAgents/homebrew.mxcl.influxdb.plist`
     - Create InfluxDB user, database: `IDB_HOST="localhost" IDB_PASS='your_password_here' IDB_PASS_RO='ro_user_password' ./grafana/influxdb_setup.sh gha`
     - InfluxDB has authentication disabled by default.
-    - Edit config file and change section [http], `auth-enabled = true`
+    - Edit config file and change section `[http]`, `auth-enabled = true`, `[subscriber]` `http-timeout = "300s"` and `[http]]` `max-body-size = 0`
     - If you want to disable external InfluxDB access (for any external IP, only localhost) follow those instructions [SECURE_INFLUXDB.md](https://github.com/cncf/devstats/blob/master/SECURE_INFLUXDB.md).
     - `sudo service influxdb restart`
 
@@ -1136,7 +1136,7 @@ Prerequisites:
     - Add 'influxd_enable="YES"' to /etc/rc.conf
     - Create InfluxDB user, database: `IDB_HOST="localhost" IDB_PASS='your_password_here' IDB_PASS_RO='ro_user_password' ./grafana/influxdb_setup.sh gha`
     - InfluxDB has authentication disabled by default.
-    - Edit config file `vim /usr/local/etc/influxdb.conf` and change section `[http]`, `auth-enabled = true` and `[subscriber]` `http-timeout = "300s"`
+    - Edit config file `vim /usr/local/etc/influxdb.conf` and change section `[http]`, `auth-enabled = true`, `[subscriber]` `http-timeout = "300s"` and `[http]]` `max-body-size = 0`
     - If you want to disable external InfluxDB access (for any external IP, only localhost) follow those instructions [SECURE_INFLUXDB.md](https://github.com/cncf/devstats/blob/master/SECURE_INFLUXDB.md).
     - `sudo service influxdb restart`
 13. Databases installed, you need to test if all works fine, use database test coverage:
@@ -1643,7 +1643,7 @@ Prerequisites:
     - `sudo service influxdb start`
     - Create InfluxDB user, database: `IDB_HOST="localhost" IDB_PASS='your_password_here' IDB_PASS_RO='ro_user_password' ./grafana/influxdb_setup.sh gha`
     - InfluxDB has authentication disabled by default.
-    - Edit config file `vim /etc/influxdb/influxdb.conf` and change section `[http]`, `auth-enabled = true` and `[subscriber]` `http-timeout = "300s"`
+    - Edit config file `vim /usr/local/etc/influxdb.conf` and change section `[http]`, `auth-enabled = true`, `[subscriber]` `http-timeout = "300s"` and `[http]]` `max-body-size = 0`
     - If you want to disable external InfluxDB access (for any external IP, only localhost) follow those instructions [SECURE_INFLUXDB.md](https://github.com/cncf/devstats/blob/master/SECURE_INFLUXDB.md).
     - `sudo service influxdb restart`
 
@@ -3031,7 +3031,7 @@ Prerequisites:
     - `sudo service influxdb start`
     - Create InfluxDB user, database: `IDB_HOST="localhost" IDB_PASS='your_password_here' IDB_PASS_RO='ro_user_password' ./grafana/influxdb_setup.sh gha`
     - InfluxDB has authentication disabled by default.
-    - Edit config file `vim /etc/influxdb/influxdb.conf` and change section `[http]`, `auth-enabled = true` and `[subscriber]` `http-timeout = "300s"`
+    - Edit config file `vim /usr/local/etc/influxdb.conf` and change section `[http]`, `auth-enabled = true`, `[subscriber]` `http-timeout = "300s"` and `[http]]` `max-body-size = 0`
     - If you want to disable external InfluxDB access (for any external IP, only localhost) follow those instructions [SECURE_INFLUXDB.md](https://github.com/cncf/devstats/blob/master/SECURE_INFLUXDB.md).
     - `sudo service influxdb restart`
 
