@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"sort"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -246,20 +247,61 @@ func ghapi2db() {
 		}
 		issues[issueID] = cfg
 		nIssues++
+		if ctx.Debug > 0 {
+			lib.Printf("Open Issue ID '%d' --> '%v'\n", issueID, cfg)
+		}
 	}
 	lib.FatalOnError(rows.Err())
+	if ctx.Debug > 0 {
+		lib.Printf("Got %d open issues for period %s\n", nIssues, ctx.RecentRange)
+	}
 
-	// TODO: Uncomment to debug on a single issue to save GitHub API points.
-	/*
-		issues = make(map[int64]issueConfig)
-		nIssues = 1
-		issues[283845216] = issueConfig{
-			repo:    "kubernetes/kops",
-			number:  4128,
-			issueID: 283845216,
-			pr:      false,
+	if len(ctx.OnlyIssues) > 0 {
+		ary := []string{}
+		for _, issue := range ctx.OnlyIssues {
+			ary = append(ary, strconv.FormatInt(issue, 10))
 		}
-	*/
+		onlyIssues := make(map[int64]issueConfig)
+		nOnlyIssues := 0
+		lib.Printf("Processing only selected %d %v issues for debugging\n", len(ctx.OnlyIssues), ctx.OnlyIssues)
+		irows := lib.QuerySQLWithErr(
+			c,
+			&ctx,
+			fmt.Sprintf(
+				"select distinct dup_repo_name, number, id, is_pull_request from gha_issues where id in (%s)",
+			  strings.Join(ary, ","),
+			),
+		)
+		defer func() { lib.FatalOnError(irows.Close()) }()
+		for irows.Next() {
+			lib.FatalOnError(irows.Scan(&repo, &number, &issueID, &pr))
+			cfg := issueConfig{
+				repo:    repo,
+				number:  number,
+				issueID: issueID,
+				pr:      pr,
+			}
+			v, ok := onlyIssues[issueID]
+			if ok {
+				if ctx.Debug > 0 {
+					lib.Printf("Warning: we already have issue config for id=%d: %v, skipped new config: %v\n", issueID, v, cfg)
+				}
+				continue
+			}
+			onlyIssues[issueID] = cfg
+			nOnlyIssues++
+			_, ok = issues[issueID]
+			if ok {
+				lib.Printf("Issue %d(%v) would also be processed by the default workflow\n", issueID, cfg)
+			} else {
+				lib.Printf("Issue %d(%v) would not be processed by the default workflow\n", issueID, cfg)
+			}
+		}
+		lib.FatalOnError(irows.Err())
+		lib.Printf("Processing %d/%d user provided issues\n", nOnlyIssues, len(ctx.OnlyIssues))
+		issues = onlyIssues
+    nIssues = nOnlyIssues
+	}
 
 	// GitHub paging config
 	opt := &github.ListOptions{PerPage: 1000}
@@ -283,13 +325,13 @@ func ghapi2db() {
 			// Refer to current tag using index passed to anonymous function
 			cfg := issues[iid]
 			if ctx.Debug > 0 {
-				lib.Printf("GitHub Issue ID '%d' --> '%v'\n", iid, cfg)
+				lib.Printf("GitHub Issue ID (before) '%d' --> '%v'\n", iid, cfg)
 			}
 			// Get separate org and repo
 			ary := strings.Split(cfg.repo, "/")
 			if len(ary) != 2 {
 				if ctx.Debug > 0 {
-					lib.Printf("warning: wrong repository name: %s\n", cfg.repo)
+					lib.Printf("Warning: wrong repository name: %s\n", cfg.repo)
 				}
 				return
 			}
@@ -362,6 +404,9 @@ func ghapi2db() {
 					cfg.labels += fmt.Sprintf("%d,", label)
 				}
 			}
+			if ctx.Debug > 0 {
+				lib.Printf("GitHub Issue ID (after) '%d' --> '%v'\n", iid, cfg)
+			}
 
 			// Finally update issues map, this must be protected by the mutex
 			issuesMutex.Lock()
@@ -422,7 +467,7 @@ func ghapi2db() {
 			rowsM := lib.QuerySQLWithErr(
 				c,
 				&ctx,
-				fmt.Sprintf("select milestone_id, event_id from gha_issues where id = %s order by updated_at desc limit 1", lib.NValue(1)),
+				fmt.Sprintf("select milestone_id, event_id from gha_issues where id = %s order by updated_at desc, event_id desc limit 1", lib.NValue(1)),
 				cfg.issueID,
 			)
 			defer func() { lib.FatalOnError(rowsM.Close()) }()
@@ -468,7 +513,7 @@ func ghapi2db() {
 			}
 			lib.FatalOnError(rowsL.Err())
 			if ctx.Debug > 0 && ghaLabels != cfg.labels {
-				lib.Printf("Updating issue '%v' labels to %s, they were: %s (event_id %d)\n", cfg, cfg.labels, ghaLabels, ghaEventID)
+				lib.Printf("Updating issue '%v' labels to '%s', they were: '%s' (event_id %d)\n", cfg, cfg.labels, ghaLabels, ghaEventID)
 			}
 
 			// Do the update if needed: wrong milestone or label set

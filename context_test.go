@@ -87,6 +87,7 @@ func copyContext(in *lib.Ctx) *lib.Ctx {
 		OutputDB:            in.OutputDB,
 		TmOffset:            in.TmOffset,
 		RecentRange:         in.RecentRange,
+		OnlyIssues:          in.OnlyIssues,
 	}
 	return &out
 }
@@ -147,6 +148,14 @@ func dynamicSetFields(t *testing.T, ctx *lib.Ctx, fields map[string]interface{})
 			// Check if types match
 			fieldType := field.Type()
 			if fieldType != reflect.TypeOf([]int{}) {
+				t.Errorf("trying to set value %v, type %T for field \"%s\", type %v", interfaceValue, interfaceValue, fieldName, fieldKind)
+				return ctx
+			}
+			field.Set(reflect.ValueOf(fieldValue))
+		case []int64:
+			// Check if types match
+			fieldType := field.Type()
+			if fieldType != reflect.TypeOf([]int64{}) {
 				t.Errorf("trying to set value %v, type %T for field \"%s\", type %v", interfaceValue, interfaceValue, fieldName, fieldKind)
 				return ctx
 			}
@@ -253,6 +262,7 @@ func TestInit(t *testing.T) {
 		OutputDB:            "",
 		TmOffset:            0,
 		RecentRange:         "2 hours",
+		OnlyIssues:          []int64{},
 	}
 
 	// Test cases
@@ -931,6 +941,26 @@ func TestInit(t *testing.T) {
 				map[string]interface{}{
 					"InputDBs": []string{"db1", "db2", "db3"},
 					"OutputDB": "db4",
+				},
+			),
+		},
+		{
+			"Setting debug issues mode on ghapi2db",
+			map[string]string{
+				"GHA2DB_ONLY_ISSUES": "1,2000,3000000,4000000000,5000000000000,6000000000000000",
+			},
+			dynamicSetFields(
+				t,
+				copyContext(&defaultContext),
+				map[string]interface{}{
+					"OnlyIssues": []int64{
+						1,
+						2000,
+						3000000,
+						4000000000,
+						5000000000000,
+						6000000000000000,
+					},
 				},
 			),
 		},

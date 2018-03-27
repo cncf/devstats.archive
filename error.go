@@ -32,3 +32,13 @@ func FatalOnError(err error) string {
 func Fatalf(f string, a ...interface{}) {
 	FatalOnError(fmt.Errorf(f, a...))
 }
+
+// FatalNoLog displays error message (if error present) and exits program, should be used for very early init state
+func FatalNoLog(err error) string {
+	if err != nil {
+		tm := time.Now()
+		fmt.Fprintf(os.Stderr, "Error(time=%+v):\nError: '%s'\nStacktrace:\n", tm, err.Error())
+		panic("stacktrace")
+	}
+	return "ok"
+}
