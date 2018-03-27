@@ -102,7 +102,10 @@ func idbTags() {
 			defer func() { lib.FatalOnError(rows.Close()) }()
 
 			// Drop current tags
-			lib.QueryIDB(ic, &ctx, "drop series from "+tg.SeriesName)
+			if ctx.IDBDrop {
+				lib.QueryIDB(ic, &ctx, "delete from \""+tg.SeriesName+"\"")
+			}
+			tm := lib.TimeParseAny("2014-01-01")
 
 			// Iterate tag values
 			tags := make(map[string]string)
@@ -118,7 +121,7 @@ func idbTags() {
 					tags[tg.ValueTag] = lib.NormalizeName(strVal)
 				}
 				// Add batch point
-				pt := lib.IDBNewPointWithErr(&ctx, tg.SeriesName, tags, fields, time.Now())
+				pt := lib.IDBNewPointWithErr(&ctx, tg.SeriesName, tags, fields, tm)
 				lib.IDBAddPointN(&ctx, &ic, &pts, pt)
 			}
 			lib.FatalOnError(rows.Err())

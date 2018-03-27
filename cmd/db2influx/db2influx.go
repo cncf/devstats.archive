@@ -432,14 +432,16 @@ func db2influxHistogram(ctx *lib.Ctx, seriesNameOrFunc, sqlFile, sqlQuery, exclu
 	if nColumns == 2 {
 		if !ctx.SkipIDB {
 			// Drop existing data
-			lib.QueryIDB(ic, ctx, "drop measurement "+seriesNameOrFunc)
+			if ctx.IDBDrop {
+				lib.QueryIDB(ic, ctx, "delete from \""+seriesNameOrFunc+"\"")
+			}
 			if ctx.Debug > 0 {
 				lib.Printf("Dropped measurement %s\n", seriesNameOrFunc)
 			}
 		}
 
 		// Add new data
-		tm := time.Now()
+		tm := lib.TimeParseAny("2014-01-01")
 		rowCount := 0
 		for rows.Next() {
 			lib.FatalOnError(rows.Scan(&name, &value))
@@ -521,7 +523,7 @@ func db2influxHistogram(ctx *lib.Ctx, seriesNameOrFunc, sqlFile, sqlQuery, exclu
 					tm = tm.Add(-time.Hour)
 					seriesToClear[name] = tm
 				} else {
-					tm = time.Now()
+					tm = lib.TimeParseAny("2014-01-01")
 					seriesToClear[name] = tm
 				}
 				if ctx.Debug > 0 {
@@ -554,7 +556,7 @@ func db2influxHistogram(ctx *lib.Ctx, seriesNameOrFunc, sqlFile, sqlQuery, exclu
 							tm = tm.Add(-time.Hour)
 							seriesToClear[name] = tm
 						} else {
-							tm = time.Now()
+							tm = lib.TimeParseAny("2014-01-01")
 							seriesToClear[name] = tm
 						}
 						// Add batch point
@@ -566,15 +568,12 @@ func db2influxHistogram(ctx *lib.Ctx, seriesNameOrFunc, sqlFile, sqlQuery, exclu
 			}
 		}
 		lib.FatalOnError(rows.Err())
-		if len(seriesToClear) > 0 && !ctx.SkipIDB {
-			allSeries := "/^("
+		if len(seriesToClear) > 0 && !ctx.SkipIDB && ctx.IDBDrop {
 			for series := range seriesToClear {
-				allSeries += series + "|"
-			}
-			allSeries = allSeries[0:len(allSeries)-1] + ")$/"
-			lib.QueryIDB(ic, ctx, "drop series from "+allSeries)
-			if ctx.Debug > 0 {
-				lib.Printf("Dropped series regexp: %s\n", allSeries)
+				lib.QueryIDB(ic, ctx, "delete from \""+series+"\"")
+				if ctx.Debug > 0 {
+					lib.Printf("Dropped series: %s\n", series)
+				}
 			}
 		}
 	}
