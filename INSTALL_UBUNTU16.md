@@ -77,7 +77,7 @@ Prerequisites:
     - `sudo service influxdb start`
     - Create InfluxDB user, database: `IDB_HOST="localhost" IDB_PASS='your_password_here' IDB_PASS_RO='ro_user_password' ./grafana/influxdb_setup.sh gha`
     - InfluxDB has authentication disabled by default.
-    - Edit config file `vim /etc/influxdb/influxdb.conf` and change section `[http]`, `auth-enabled = true` and `[subscriber]` `http-timeout = "300s"`
+    - Edit config file `vim /usr/local/etc/influxdb.conf` and change section `[http]`, `auth-enabled = true`, `[subscriber]` `http-timeout = "300s"` and `[http]]` `max-body-size = 0`
     - If you want to disable external InfluxDB access (for any external IP, only localhost) follow those instructions [SECURE_INFLUXDB.md](https://github.com/cncf/devstats/blob/master/SECURE_INFLUXDB.md).
     - `sudo service influxdb restart`
 
