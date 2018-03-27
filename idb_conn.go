@@ -83,9 +83,10 @@ func IDBWritePointsN(ctx *Ctx, con *client.Client, points *IDBBatchPointsN) (err
 // IDBConn Connects to InfluxDB database
 func IDBConn(ctx *Ctx) client.Client {
 	con, err := client.NewHTTPClient(client.HTTPConfig{
-		Addr:     fmt.Sprintf("%s:%s", ctx.IDBHost, ctx.IDBPort),
-		Username: ctx.IDBUser,
-		Password: ctx.IDBPass,
+		Addr:               fmt.Sprintf("%s:%s", ctx.IDBHost, ctx.IDBPort),
+		Username:           ctx.IDBUser,
+		Password:           ctx.IDBPass,
+		InsecureSkipVerify: true,
 	})
 	FatalOnError(err)
 	return con
