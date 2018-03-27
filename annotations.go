@@ -224,7 +224,7 @@ func ProcessAnnotations(ctx *Ctx, annotations *Annotations, joinDate *time.Time)
 
 	// Add special periods
 	tagName := "quick_ranges"
-	tm := time.Now()
+	tm := TimeParseAny("2014-01-01")
 
 	// Last "..." periods
 	for _, period := range periods {
@@ -285,7 +285,9 @@ func ProcessAnnotations(ctx *Ctx, annotations *Annotations, joinDate *time.Time)
 
 	// Write the batch
 	if !ctx.SkipIDB {
-		QueryIDB(ic, ctx, "drop series from quick_ranges")
+		if ctx.IDBDrop {
+			QueryIDB(ic, ctx, "delete from \"quick_ranges\"")
+		}
 		FatalOnError(IDBWritePointsN(ctx, &ic, &pts))
 	} else if ctx.Debug > 0 {
 		Printf("Skipping annotations series write\n")

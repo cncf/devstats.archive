@@ -51,6 +51,7 @@ func copyContext(in *lib.Ctx) *lib.Ctx {
 		Exact:               in.Exact,
 		LogToDB:             in.LogToDB,
 		Local:               in.Local,
+		IDBDrop:             in.IDBDrop,
 		MetricsYaml:         in.MetricsYaml,
 		GapsYaml:            in.GapsYaml,
 		TagsYaml:            in.TagsYaml,
@@ -226,6 +227,7 @@ func TestInit(t *testing.T) {
 		Exact:               false,
 		LogToDB:             true,
 		Local:               false,
+		IDBDrop:             false,
 		MetricsYaml:         "metrics/metrics.yaml",
 		GapsYaml:            "metrics/gaps.yaml",
 		TagsYaml:            "metrics/idb_tags.yaml",
@@ -585,6 +587,15 @@ func TestInit(t *testing.T) {
 				t,
 				copyContext(&defaultContext),
 				map[string]interface{}{"Local": true},
+			),
+		},
+		{
+			"Setting IDB drop series mode",
+			map[string]string{"GHA2DB_IDB_DROP_SERIES": "1"},
+			dynamicSetFields(
+				t,
+				copyContext(&defaultContext),
+				map[string]interface{}{"IDBDrop": true},
 			),
 		},
 		{

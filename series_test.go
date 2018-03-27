@@ -308,7 +308,7 @@ func TestProcessAnnotations(t *testing.T) {
 			)
 		}
 		// Clean up for next test
-		lib.QueryIDB(con, &ctx, "drop series from annotations")
+		lib.QueryIDB(con, &ctx, "delete from \"annotations\"")
 
 		// Check Quick Ranges created
 		// Results contains some time values depending on current time ..Filtered func handles this
@@ -320,6 +320,6 @@ func TestProcessAnnotations(t *testing.T) {
 			)
 		}
 		// Clean up for next test
-		lib.QueryIDB(con, &ctx, "drop series from quick_ranges")
+		lib.QueryIDB(con, &ctx, "delete from \"quick_ranges\"")
 	}
 }

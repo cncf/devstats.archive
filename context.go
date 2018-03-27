@@ -69,22 +69,23 @@ type Ctx struct {
 	ExecOutput          bool            // default false, set to true to capture commands STDOUT
 	Project             string          // From GHA2DB_PROJECT, gha2db_sync default "", You should set it to something like "kubernetes", "prometheus" etc.
 	TestsYaml           string          // From GHA2DB_TESTS_YAML ./dbtest.sh tool, set other tests.yaml file, default is "tests.yaml"
-	ReposDir            string          // From GHA2DB_REPOS_DIR ./get_repos tool, default "~/devstats_repos/"
-	ProcessRepos        bool            // From GHA2DB_PROCESS_REPOS ./get_repos tool, enable processing (cloning/pulling) all devstats repos, default false
-	ProcessCommits      bool            // From GHA2DB_PROCESS_COMMITS ./get_repos tool, enable update/create mapping table: commit - list of file that commit refers to, default false
-	ExternalInfo        bool            // From GHA2DB_EXTERNAL_INFO ./get_repos tool, enable outputing data needed by external tools (cncf/gitdm), default false
-	ProjectsCommits     string          // From GHA2DB_PROJECTS_COMMITS ./get_repos tool, set list of projects for commits analysis instead of analysing all, default "" - means all
+	ReposDir            string          // From GHA2DB_REPOS_DIR get_repos tool, default "~/devstats_repos/"
+	ProcessRepos        bool            // From GHA2DB_PROCESS_REPOS get_repos tool, enable processing (cloning/pulling) all devstats repos, default false
+	ProcessCommits      bool            // From GHA2DB_PROCESS_COMMITS get_repos tool, enable update/create mapping table: commit - list of file that commit refers to, default false
+	ExternalInfo        bool            // From GHA2DB_EXTERNAL_INFO get_repos tool, enable outputing data needed by external tools (cncf/gitdm), default false
+	ProjectsCommits     string          // From GHA2DB_PROJECTS_COMMITS get_repos tool, set list of projects for commits analysis instead of analysing all, default "" - means all
 	ProjectsYaml        string          // From GHA2DB_PROJECTS_YAML, many tools - set main projects file, default "projects.yaml"
-	ProjectsOverride    map[string]bool // From GHA2DB_PROJECTS_OVERRIDE, ./get_repos and ./devstats tools - for example "-pro1,+pro2" means never sync pro1 and always sync pro2 (even if disabled in `projects.yaml`).
-	ExcludeRepos        map[string]bool // From GHA2DB_EXCLUDE_REPOS, ./gha2db tool, default "" - comma separated list of repos to exclude, example: "theupdateframework/notary,theupdateframework/other"
-	InputDBs            []string        // From GHA2DB_INPUT_DBS, ./merge_pdbs tool - list of input databases to merge, order matters - first one will insert on a clean DB, next will do insert ignore (to avoid constraints failure due to common data)
-	OutputDB            string          // From GHA2DB_OUTPUT_DB, ./merge_pdbs tool - output database to merge into
-	TmOffset            int             // From GHA2DB_TMOFFSET, ./gha2db_sync tool - uses time offset to decide when to calculate various metrics, default offset is 0 which means UTC, good offset for USA is -6, and for Poland is 1 or 2
+	ProjectsOverride    map[string]bool // From GHA2DB_PROJECTS_OVERRIDE, get_repos and ./devstats tools - for example "-pro1,+pro2" means never sync pro1 and always sync pro2 (even if disabled in `projects.yaml`).
+	ExcludeRepos        map[string]bool // From GHA2DB_EXCLUDE_REPOS, gha2db tool, default "" - comma separated list of repos to exclude, example: "theupdateframework/notary,theupdateframework/other"
+	InputDBs            []string        // From GHA2DB_INPUT_DBS, merge_pdbs tool - list of input databases to merge, order matters - first one will insert on a clean DB, next will do insert ignore (to avoid constraints failure due to common data)
+	OutputDB            string          // From GHA2DB_OUTPUT_DB, merge_pdbs tool - output database to merge into
+	TmOffset            int             // From GHA2DB_TMOFFSET, gha2db_sync tool - uses time offset to decide when to calculate various metrics, default offset is 0 which means UTC, good offset for USA is -6, and for Poland is 1 or 2
 	DefaultHostname     string          // "devstats.cncf.io"
-	RecentRange         string          // From GHA2DB_RECENT_RANGE, ./ghapi2db tool, default '2 hours'. This is a recent period to check open issues/PR to fix their labels and milestones.
-	MinGHAPIPoints      int             // From GHA2DB_MIN_GHAPI_POINTS, ./ghapi2db tool, minimum GitHub API points, before waiting for reset.
-	MaxGHAPIWaitSeconds int             // From GHA2DB_MAX_GHAPI_WAIT, ./ghapi2db tool, maximum wait time for GitHub API points reset (in seconds).
-	OnlyIssues          []int64         // From GHA2DB_ONLY_ISSUES, ./ghapi2db tool, process a user provided list of issues "issue_id1,issue_id2,...,issue_idN", default "". This is for debugging.
+	RecentRange         string          // From GHA2DB_RECENT_RANGE, ghapi2db tool, default '2 hours'. This is a recent period to check open issues/PR to fix their labels and milestones.
+	MinGHAPIPoints      int             // From GHA2DB_MIN_GHAPI_POINTS, ghapi2db tool, minimum GitHub API points, before waiting for reset.
+	MaxGHAPIWaitSeconds int             // From GHA2DB_MAX_GHAPI_WAIT, ghapi2db tool, maximum wait time for GitHub API points reset (in seconds).
+	OnlyIssues          []int64         // From GHA2DB_ONLY_ISSUES, ghapi2db tool, process a user provided list of issues "issue_id1,issue_id2,...,issue_idN", default "". This is for debugging.
+	IDBDrop             bool            // From GHA2DB_IDB_DROP_SERIES all Influx related tools, if set "drop " series statement will be executed before adding new data, it is sometimes very very very slow on Influx v1.5.1
 }
 
 // Init - get context from environment variables
@@ -267,6 +268,9 @@ func (ctx *Ctx) Init() {
 
 	// Local mode
 	ctx.Local = os.Getenv("GHA2DB_LOCAL") != ""
+
+	// IDB drop mode
+	ctx.IDBDrop = os.Getenv("GHA2DB_IDB_DROP_SERIES") != ""
 
 	// Project
 	ctx.Project = os.Getenv("GHA2DB_PROJECT")

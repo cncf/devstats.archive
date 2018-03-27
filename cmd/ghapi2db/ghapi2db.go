@@ -269,7 +269,7 @@ func ghapi2db() {
 			&ctx,
 			fmt.Sprintf(
 				"select distinct dup_repo_name, number, id, is_pull_request from gha_issues where id in (%s)",
-			  strings.Join(ary, ","),
+				strings.Join(ary, ","),
 			),
 		)
 		defer func() { lib.FatalOnError(irows.Close()) }()
@@ -300,7 +300,7 @@ func ghapi2db() {
 		lib.FatalOnError(irows.Err())
 		lib.Printf("Processing %d/%d user provided issues\n", nOnlyIssues, len(ctx.OnlyIssues))
 		issues = onlyIssues
-    nIssues = nOnlyIssues
+		nIssues = nOnlyIssues
 	}
 
 	// GitHub paging config
