@@ -509,10 +509,6 @@ func db2influxHistogram(ctx *lib.Ctx, seriesNameOrFunc, sqlFile, sqlQuery, exclu
 							v, e := strconv.ParseFloat(string(*pValues[i+1].(*sql.RawBytes)), 64)
 							lib.FatalOnError(e)
 							fields[valueName] = v
-						case "i":
-							v, e := strconv.ParseInt(string(*pValues[i+1].(*sql.RawBytes)), 10, 64)
-							lib.FatalOnError(e)
-							fields[valueName] = v
 						default:
 							lib.Fatalf("unknown data type: %v (%v), i: %d, valuedata: %s", valueType, valueData, i, valueData)
 						}
