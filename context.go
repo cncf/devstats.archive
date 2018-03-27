@@ -83,7 +83,8 @@ type Ctx struct {
 	DefaultHostname     string          // "devstats.cncf.io"
 	RecentRange         string          // From GHA2DB_RECENT_RANGE, ./ghapi2db tool, default '2 hours'. This is a recent period to check open issues/PR to fix their labels and milestones.
 	MinGHAPIPoints      int             // From GHA2DB_MIN_GHAPI_POINTS, ./ghapi2db tool, minimum GitHub API points, before waiting for reset.
-	MaxGHAPIWaitSeconds int             // FROM GHA2DB_MAX_GHAPI_WAIT, ./ghapi2db tool, maximum wait time for GitHub API points reset (in seconds).
+	MaxGHAPIWaitSeconds int             // From GHA2DB_MAX_GHAPI_WAIT, ./ghapi2db tool, maximum wait time for GitHub API points reset (in seconds).
+	OnlyIssues          []int64         // From GHA2DB_ONLY_ISSUES, ./ghapi2db tool, process a user provided list of issues "issue_id1,issue_id2,...,issue_idN", default "". This is for debugging.
 }
 
 // Init - get context from environment variables
@@ -100,7 +101,7 @@ func (ctx *Ctx) Init() {
 	ctx.MinGHAPIPoints = 1
 	if os.Getenv("GHA2DB_MIN_GHAPI_POINTS") != "" {
 		pts, err := strconv.Atoi(os.Getenv("GHA2DB_MIN_GHAPI_POINTS"))
-		FatalOnError(err)
+		FatalNoLog(err)
 		if pts >= 0 {
 			ctx.MinGHAPIPoints = pts
 		}
@@ -108,7 +109,7 @@ func (ctx *Ctx) Init() {
 	ctx.MaxGHAPIWaitSeconds = 1
 	if os.Getenv("GHA2DB_MAX_GHAPI_WAIT") != "" {
 		secs, err := strconv.Atoi(os.Getenv("GHA2DB_MAX_GHAPI_WAIT"))
-		FatalOnError(err)
+		FatalNoLog(err)
 		if secs >= 0 {
 			ctx.MaxGHAPIWaitSeconds = secs
 		}
@@ -119,7 +120,7 @@ func (ctx *Ctx) Init() {
 		ctx.Debug = 0
 	} else {
 		debugLevel, err := strconv.Atoi(os.Getenv("GHA2DB_DEBUG"))
-		FatalOnError(err)
+		FatalNoLog(err)
 		if debugLevel != 0 {
 			ctx.Debug = debugLevel
 		}
@@ -129,7 +130,7 @@ func (ctx *Ctx) Init() {
 		ctx.CmdDebug = 0
 	} else {
 		debugLevel, err := strconv.Atoi(os.Getenv("GHA2DB_CMDDEBUG"))
-		FatalOnError(err)
+		FatalNoLog(err)
 		ctx.CmdDebug = debugLevel
 	}
 	ctx.QOut = os.Getenv("GHA2DB_QOUT") != ""
@@ -142,7 +143,7 @@ func (ctx *Ctx) Init() {
 		ctx.NCPUs = 0
 	} else {
 		nCPUs, err := strconv.Atoi(os.Getenv("GHA2DB_NCPUS"))
-		FatalOnError(err)
+		FatalNoLog(err)
 		if nCPUs > 0 {
 			ctx.NCPUs = nCPUs
 		}
@@ -204,7 +205,7 @@ func (ctx *Ctx) Init() {
 		ctx.IDBMaxBatchPoints = 10240
 	} else {
 		maxBatchPoints, err := strconv.Atoi(os.Getenv("IDB_MAXBATCHPOINTS"))
-		FatalOnError(err)
+		FatalNoLog(err)
 		if maxBatchPoints > 0 {
 			ctx.IDBMaxBatchPoints = maxBatchPoints
 		}
@@ -227,7 +228,7 @@ func (ctx *Ctx) Init() {
 		ctx.TmOffset = 0
 	} else {
 		off, err := strconv.Atoi(os.Getenv("GHA2DB_TMOFFSET"))
-		FatalOnError(err)
+		FatalNoLog(err)
 		ctx.TmOffset = off
 	}
 
@@ -316,7 +317,7 @@ func (ctx *Ctx) Init() {
 		trialsArr := strings.Split(trials, ",")
 		for _, try := range trialsArr {
 			iTry, err := strconv.Atoi(try)
-			FatalOnError(err)
+			FatalNoLog(err)
 			ctx.Trials = append(ctx.Trials, iTry)
 		}
 	}
@@ -347,7 +348,7 @@ func (ctx *Ctx) Init() {
 		resultsArr := strings.Split(results, ",")
 		for _, result := range resultsArr {
 			iResult, err := strconv.Atoi(result)
-			FatalOnError(err)
+			FatalNoLog(err)
 			ctx.DeployResults = append(ctx.DeployResults, iResult)
 		}
 	}
@@ -444,6 +445,18 @@ func (ctx *Ctx) Init() {
 	ctx.RecentRange = os.Getenv("GHA2DB_RECENT_RANGE")
 	if ctx.RecentRange == "" {
 		ctx.RecentRange = "2 hours"
+	}
+
+	issues := os.Getenv("GHA2DB_ONLY_ISSUES")
+	if issues == "" {
+		ctx.OnlyIssues = []int64{}
+	} else {
+		issuesArr := strings.Split(issues, ",")
+		for _, issue := range issuesArr {
+			iIssue, err := strconv.ParseInt(issue, 10, 64)
+			FatalNoLog(err)
+			ctx.OnlyIssues = append(ctx.OnlyIssues, iIssue)
+		}
 	}
 
 	// Context out if requested

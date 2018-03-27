@@ -1150,6 +1150,13 @@ CREATE INDEX assets_state_idx ON gha_assets USING btree (state);
 
 
 --
+-- Name: assets_updated_at_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX assets_updated_at_idx ON gha_assets USING btree (updated_at);
+
+
+--
 -- Name: assets_uploader_id_idx; Type: INDEX; Schema: public; Owner: gha_admin
 --
 
@@ -1280,6 +1287,13 @@ CREATE INDEX comments_event_id_idx ON gha_comments USING btree (event_id);
 --
 
 CREATE INDEX comments_pull_request_review_id_idx ON gha_comments USING btree (pull_request_review_id);
+
+
+--
+-- Name: comments_updated_at_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX comments_updated_at_idx ON gha_comments USING btree (updated_at);
 
 
 --
@@ -1577,6 +1591,13 @@ CREATE INDEX forkees_owner_id_idx ON gha_forkees USING btree (owner_id);
 
 
 --
+-- Name: forkees_updated_at_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX forkees_updated_at_idx ON gha_forkees USING btree (updated_at);
+
+
+--
 -- Name: issues_assignee_id_idx; Type: INDEX; Schema: public; Owner: gha_admin
 --
 
@@ -1857,6 +1878,13 @@ CREATE INDEX issues_state_idx ON gha_issues USING btree (state);
 
 
 --
+-- Name: issues_updated_at_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX issues_updated_at_idx ON gha_issues USING btree (updated_at);
+
+
+--
 -- Name: issues_user_id_idx; Type: INDEX; Schema: public; Owner: gha_admin
 --
 
@@ -1980,6 +2008,13 @@ CREATE INDEX milestones_event_id_idx ON gha_milestones USING btree (event_id);
 --
 
 CREATE INDEX milestones_state_idx ON gha_milestones USING btree (state);
+
+
+--
+-- Name: milestones_updated_at_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX milestones_updated_at_idx ON gha_milestones USING btree (updated_at);
 
 
 --
@@ -2291,6 +2326,13 @@ CREATE INDEX pull_requests_state_idx ON gha_pull_requests USING btree (state);
 
 
 --
+-- Name: pull_requests_updated_at_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX pull_requests_updated_at_idx ON gha_pull_requests USING btree (updated_at);
+
+
+--
 -- Name: pull_requests_user_id_idx; Type: INDEX; Schema: public; Owner: gha_admin
 --
 
@@ -2533,6 +2575,251 @@ CREATE INDEX texts_type_idx ON gha_texts USING btree (type);
 --
 
 CREATE INDEX vars_name_idx ON gha_vars USING btree (name);
+
+
+--
+-- Name: gha_actors; Type: ACL; Schema: public; Owner: gha_admin
+--
+
+GRANT SELECT ON TABLE gha_actors TO ro_user;
+
+
+--
+-- Name: gha_actors_affiliations; Type: ACL; Schema: public; Owner: gha_admin
+--
+
+GRANT SELECT ON TABLE gha_actors_affiliations TO ro_user;
+
+
+--
+-- Name: gha_actors_emails; Type: ACL; Schema: public; Owner: gha_admin
+--
+
+GRANT SELECT ON TABLE gha_actors_emails TO ro_user;
+
+
+--
+-- Name: gha_assets; Type: ACL; Schema: public; Owner: gha_admin
+--
+
+GRANT SELECT ON TABLE gha_assets TO ro_user;
+
+
+--
+-- Name: gha_branches; Type: ACL; Schema: public; Owner: gha_admin
+--
+
+GRANT SELECT ON TABLE gha_branches TO ro_user;
+
+
+--
+-- Name: gha_comments; Type: ACL; Schema: public; Owner: gha_admin
+--
+
+GRANT SELECT ON TABLE gha_comments TO ro_user;
+
+
+--
+-- Name: gha_commits; Type: ACL; Schema: public; Owner: gha_admin
+--
+
+GRANT SELECT ON TABLE gha_commits TO ro_user;
+
+
+--
+-- Name: gha_commits_files; Type: ACL; Schema: public; Owner: gha_admin
+--
+
+GRANT SELECT ON TABLE gha_commits_files TO ro_user;
+
+
+--
+-- Name: gha_companies; Type: ACL; Schema: public; Owner: gha_admin
+--
+
+GRANT SELECT ON TABLE gha_companies TO ro_user;
+
+
+--
+-- Name: gha_events; Type: ACL; Schema: public; Owner: gha_admin
+--
+
+GRANT SELECT ON TABLE gha_events TO ro_user;
+
+
+--
+-- Name: gha_events_commits_files; Type: ACL; Schema: public; Owner: gha_admin
+--
+
+GRANT SELECT ON TABLE gha_events_commits_files TO ro_user;
+
+
+--
+-- Name: gha_forkees; Type: ACL; Schema: public; Owner: gha_admin
+--
+
+GRANT SELECT ON TABLE gha_forkees TO ro_user;
+
+
+--
+-- Name: gha_issues; Type: ACL; Schema: public; Owner: gha_admin
+--
+
+GRANT SELECT ON TABLE gha_issues TO ro_user;
+
+
+--
+-- Name: gha_issues_assignees; Type: ACL; Schema: public; Owner: gha_admin
+--
+
+GRANT SELECT ON TABLE gha_issues_assignees TO ro_user;
+
+
+--
+-- Name: gha_issues_events_labels; Type: ACL; Schema: public; Owner: gha_admin
+--
+
+GRANT SELECT ON TABLE gha_issues_events_labels TO ro_user;
+
+
+--
+-- Name: gha_issues_labels; Type: ACL; Schema: public; Owner: gha_admin
+--
+
+GRANT SELECT ON TABLE gha_issues_labels TO ro_user;
+
+
+--
+-- Name: gha_issues_pull_requests; Type: ACL; Schema: public; Owner: gha_admin
+--
+
+GRANT SELECT ON TABLE gha_issues_pull_requests TO ro_user;
+
+
+--
+-- Name: gha_labels; Type: ACL; Schema: public; Owner: gha_admin
+--
+
+GRANT SELECT ON TABLE gha_labels TO ro_user;
+
+
+--
+-- Name: gha_logs; Type: ACL; Schema: public; Owner: gha_admin
+--
+
+GRANT SELECT ON TABLE gha_logs TO ro_user;
+
+
+--
+-- Name: gha_milestones; Type: ACL; Schema: public; Owner: gha_admin
+--
+
+GRANT SELECT ON TABLE gha_milestones TO ro_user;
+
+
+--
+-- Name: gha_orgs; Type: ACL; Schema: public; Owner: gha_admin
+--
+
+GRANT SELECT ON TABLE gha_orgs TO ro_user;
+
+
+--
+-- Name: gha_pages; Type: ACL; Schema: public; Owner: gha_admin
+--
+
+GRANT SELECT ON TABLE gha_pages TO ro_user;
+
+
+--
+-- Name: gha_payloads; Type: ACL; Schema: public; Owner: gha_admin
+--
+
+GRANT SELECT ON TABLE gha_payloads TO ro_user;
+
+
+--
+-- Name: gha_postprocess_scripts; Type: ACL; Schema: public; Owner: gha_admin
+--
+
+GRANT SELECT ON TABLE gha_postprocess_scripts TO ro_user;
+
+
+--
+-- Name: gha_pull_requests; Type: ACL; Schema: public; Owner: gha_admin
+--
+
+GRANT SELECT ON TABLE gha_pull_requests TO ro_user;
+
+
+--
+-- Name: gha_pull_requests_assignees; Type: ACL; Schema: public; Owner: gha_admin
+--
+
+GRANT SELECT ON TABLE gha_pull_requests_assignees TO ro_user;
+
+
+--
+-- Name: gha_pull_requests_requested_reviewers; Type: ACL; Schema: public; Owner: gha_admin
+--
+
+GRANT SELECT ON TABLE gha_pull_requests_requested_reviewers TO ro_user;
+
+
+--
+-- Name: gha_releases; Type: ACL; Schema: public; Owner: gha_admin
+--
+
+GRANT SELECT ON TABLE gha_releases TO ro_user;
+
+
+--
+-- Name: gha_releases_assets; Type: ACL; Schema: public; Owner: gha_admin
+--
+
+GRANT SELECT ON TABLE gha_releases_assets TO ro_user;
+
+
+--
+-- Name: gha_repos; Type: ACL; Schema: public; Owner: gha_admin
+--
+
+GRANT SELECT ON TABLE gha_repos TO ro_user;
+
+
+--
+-- Name: gha_skip_commits; Type: ACL; Schema: public; Owner: gha_admin
+--
+
+GRANT SELECT ON TABLE gha_skip_commits TO ro_user;
+
+
+--
+-- Name: gha_teams; Type: ACL; Schema: public; Owner: gha_admin
+--
+
+GRANT SELECT ON TABLE gha_teams TO ro_user;
+
+
+--
+-- Name: gha_teams_repositories; Type: ACL; Schema: public; Owner: gha_admin
+--
+
+GRANT SELECT ON TABLE gha_teams_repositories TO ro_user;
+
+
+--
+-- Name: gha_texts; Type: ACL; Schema: public; Owner: gha_admin
+--
+
+GRANT SELECT ON TABLE gha_texts TO ro_user;
+
+
+--
+-- Name: gha_vars; Type: ACL; Schema: public; Owner: gha_admin
+--
+
+GRANT SELECT ON TABLE gha_vars TO ro_user;
 
 
 --
