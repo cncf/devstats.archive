@@ -112,8 +112,10 @@ func IDBBatchPointsWithDB(ctx *Ctx, con *client.Client, db string) client.BatchP
 }
 
 // IDBNewPointWithErr - return InfluxDB Point, on error exit
-func IDBNewPointWithErr(name string, tags map[string]string, fields map[string]interface{}, dt time.Time) *client.Point {
-	// fmt.Printf("[name=%+v tags=%+v fields=%+v dt=%+v]\n", name, tags, fields, dt)
+func IDBNewPointWithErr(ctx *Ctx, name string, tags map[string]string, fields map[string]interface{}, dt time.Time) *client.Point {
+	if ctx.Debug > 1 {
+		Printf("NewPoint: [name=%+v tags=%+v fields=%+v dt=%+v]\n", name, tags, fields, dt)
+	}
 	pt, err := client.NewPoint(name, tags, fields, dt)
 	FatalOnError(err)
 	return pt
@@ -155,7 +157,7 @@ func QueryIDB(con client.Client, ctx *Ctx, query string) []client.Result {
 // QueryIDBWithDB - do InfluxDB query
 func QueryIDBWithDB(con client.Client, ctx *Ctx, query, db string) []client.Result {
 	if ctx.QOut {
-		Printf("%s\n", query)
+		Printf("db=%s: %s\n", db, query)
 	}
 	q := client.Query{
 		Command:  query,

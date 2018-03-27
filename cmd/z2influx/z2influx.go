@@ -34,7 +34,7 @@ func workerThread(ch chan bool, ctx *lib.Ctx, seriesSet map[string]struct{}, per
 		}
 
 		// Add batch point
-		pt := lib.IDBNewPointWithErr(series, nil, fields, from)
+		pt := lib.IDBNewPointWithErr(ctx, series, nil, fields, from)
 		lib.IDBAddPointN(ctx, &ic, &pts, pt)
 	}
 

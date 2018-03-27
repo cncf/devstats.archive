@@ -216,7 +216,7 @@ func workerThread(ch chan bool, ctx *lib.Ctx, seriesNameOrFunc, sqlQuery, exclud
 		if useDesc {
 			fields["descr"] = valueDescription(desc, value)
 		}
-		pt := lib.IDBNewPointWithErr(name, nil, fields, dt)
+		pt := lib.IDBNewPointWithErr(ctx, name, nil, fields, dt)
 		lib.IDBAddPointN(ctx, &ic, &pts, pt)
 	} else if nColumns >= 2 {
 		// Multiple rows, each with (series name, value(s))
@@ -267,7 +267,7 @@ func workerThread(ch chan bool, ctx *lib.Ctx, seriesNameOrFunc, sqlQuery, exclud
 						if useDesc {
 							fields["descr"] = valueDescription(desc, value)
 						}
-						pt := lib.IDBNewPointWithErr(name, nil, fields, dt)
+						pt := lib.IDBNewPointWithErr(ctx, name, nil, fields, dt)
 						lib.IDBAddPointN(ctx, &ic, &pts, pt)
 					}
 				}
@@ -275,7 +275,7 @@ func workerThread(ch chan bool, ctx *lib.Ctx, seriesNameOrFunc, sqlQuery, exclud
 		}
 		// Multivalue series if any
 		for seriesName, seriesValues := range allFields {
-			pt := lib.IDBNewPointWithErr(seriesName, nil, seriesValues, dt)
+			pt := lib.IDBNewPointWithErr(ctx, seriesName, nil, seriesValues, dt)
 			lib.IDBAddPointN(ctx, &ic, &pts, pt)
 		}
 		lib.FatalOnError(rows.Err())
@@ -338,7 +338,7 @@ func setAlreadyComputed(ic client.Client, ctx *lib.Ctx, pts *lib.IDBBatchPointsN
 	dtFrom := lib.TimeParseAny(from)
 
 	// Add batch point
-	pt := lib.IDBNewPointWithErr("computed", tags, fields, dtFrom)
+	pt := lib.IDBNewPointWithErr(ctx, "computed", tags, fields, dtFrom)
 	lib.IDBAddPointN(ctx, &ic, pts, pt)
 	if ctx.Debug > 0 {
 		lib.Printf("Period '%s: %s' marked as computed\n", key, from)
@@ -448,7 +448,7 @@ func db2influxHistogram(ctx *lib.Ctx, seriesNameOrFunc, sqlFile, sqlQuery, exclu
 			}
 			// Add batch point
 			fields := map[string]interface{}{"name": name, "value": value}
-			pt := lib.IDBNewPointWithErr(seriesNameOrFunc, nil, fields, tm)
+			pt := lib.IDBNewPointWithErr(ctx, seriesNameOrFunc, nil, fields, tm)
 			lib.IDBAddPointN(ctx, &ic, &pts, pt)
 			rowCount++
 			tm = tm.Add(-time.Hour)
@@ -497,7 +497,7 @@ func db2influxHistogram(ctx *lib.Ctx, seriesNameOrFunc, sqlFile, sqlQuery, exclu
 					valueType := va[1]
 					if pValues[i+1] == nil {
 						fields[valueName] = nil
-						lib.Fatalf("nulls are unsupported, name: %+vi, i: %d, valueData: %s", name, i, valueData)
+						lib.Fatalf("nulls are unsupported, name: %+v, i: %d, valueData: %s", name, i, valueData)
 					} else {
 						switch valueType {
 						case "s":
@@ -528,7 +528,7 @@ func db2influxHistogram(ctx *lib.Ctx, seriesNameOrFunc, sqlFile, sqlQuery, exclu
 					//lib.Printf("hist %v, %v %v -> %+v\n", name, nIntervals, interval, fields)
 				}
 				// Add batch point
-				pt := lib.IDBNewPointWithErr(name, nil, fields, tm)
+				pt := lib.IDBNewPointWithErr(ctx, name, nil, fields, tm)
 				lib.IDBAddPointN(ctx, &ic, &pts, pt)
 			} else {
 				if nNames > 0 {
@@ -559,7 +559,7 @@ func db2influxHistogram(ctx *lib.Ctx, seriesNameOrFunc, sqlFile, sqlQuery, exclu
 						}
 						// Add batch point
 						fields := map[string]interface{}{"name": sValue, "value": fValue}
-						pt := lib.IDBNewPointWithErr(name, nil, fields, tm)
+						pt := lib.IDBNewPointWithErr(ctx, name, nil, fields, tm)
 						lib.IDBAddPointN(ctx, &ic, &pts, pt)
 					}
 				}
