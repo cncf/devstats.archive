@@ -106,7 +106,7 @@ group by
 
 
 select
-  'pr_workload;sig:s,issues:i,absolute_workload:f,reviewers:i,relative_workload:f;sigs' as metric,
+  'pr_workload;sig:s,issues:f,absolute_workload:f,reviewers:f,relative_workload:f;sigs' as metric,
   sub.sig,
   sub.issues,
   sub.absolute_workload,
