@@ -95,6 +95,7 @@ func idbVars() {
 			&ic,
 			&pts,
 			lib.IDBNewPointWithErr(
+				&ctx,
 				tag.Tag,
 				map[string]string{tag.Name: tag.Value},
 				fields,

@@ -118,7 +118,7 @@ func idbTags() {
 					tags[tg.ValueTag] = lib.NormalizeName(strVal)
 				}
 				// Add batch point
-				pt := lib.IDBNewPointWithErr(tg.SeriesName, tags, fields, time.Now())
+				pt := lib.IDBNewPointWithErr(&ctx, tg.SeriesName, tags, fields, time.Now())
 				lib.IDBAddPointN(&ctx, &ic, &pts, pt)
 			}
 			lib.FatalOnError(rows.Err())

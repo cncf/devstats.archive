@@ -43,9 +43,9 @@ func TestInfluxDB(t *testing.T) {
 	// Add batch points
 	hourAgo := lib.HourStart(time.Now().Add(-time.Hour))
 	hourFromNow := lib.HourStart(time.Now().Add(time.Hour))
-	pt := lib.IDBNewPointWithErr("test", nil, map[string]interface{}{"value": 2}, hourFromNow)
+	pt := lib.IDBNewPointWithErr(&ctx, "test", nil, map[string]interface{}{"value": 2}, hourFromNow)
 	bp.AddPoint(pt)
-	pt = lib.IDBNewPointWithErr("test", nil, map[string]interface{}{"value": 1}, hourAgo)
+	pt = lib.IDBNewPointWithErr(&ctx, "test", nil, map[string]interface{}{"value": 1}, hourAgo)
 	bp.AddPoint(pt)
 
 	// Write the batch

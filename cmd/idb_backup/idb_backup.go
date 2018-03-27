@@ -54,7 +54,7 @@ func copySeries(ch chan bool, ctxI, ctxO *lib.Ctx, seriesName string) {
 			if ctxI.Debug > 0 || ctxO.Debug > 0 {
 				fmt.Printf("%s: tags=%+v, fields=%+v, dt=%v\n", series.Name, tags, fields, dt)
 			}
-			pt := lib.IDBNewPointWithErr(series.Name, tags, fields, dt)
+			pt := lib.IDBNewPointWithErr(ctxO, series.Name, tags, fields, dt)
 			lib.IDBAddPointN(ctxO, &icO, &pts, pt)
 		}
 	}

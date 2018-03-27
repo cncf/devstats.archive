@@ -177,7 +177,7 @@ func ProcessAnnotations(ctx *Ctx, annotations *Annotations, joinDate *time.Time)
 				annotation.Description,
 			)
 		}
-		pt := IDBNewPointWithErr("annotations", nil, fields, annotation.Date)
+		pt := IDBNewPointWithErr(ctx, "annotations", nil, fields, annotation.Date)
 		IDBAddPointN(ctx, &ic, &pts, pt)
 	}
 
@@ -196,7 +196,7 @@ func ProcessAnnotations(ctx *Ctx, annotations *Annotations, joinDate *time.Time)
 				fields["description"],
 			)
 		}
-		pt := IDBNewPointWithErr("annotations", nil, fields, *joinDate)
+		pt := IDBNewPointWithErr(ctx, "annotations", nil, fields, *joinDate)
 		IDBAddPointN(ctx, &ic, &pts, pt)
 	}
 
@@ -239,7 +239,7 @@ func ProcessAnnotations(ctx *Ctx, annotations *Annotations, joinDate *time.Time)
 			)
 		}
 		// Add batch point
-		pt := IDBNewPointWithErr(tagName, tags, fields, tm)
+		pt := IDBNewPointWithErr(ctx, tagName, tags, fields, tm)
 		IDBAddPointN(ctx, &ic, &pts, pt)
 		tm = tm.Add(time.Hour)
 	}
@@ -260,7 +260,7 @@ func ProcessAnnotations(ctx *Ctx, annotations *Annotations, joinDate *time.Time)
 				)
 			}
 			// Add batch point
-			pt := IDBNewPointWithErr(tagName, tags, fields, tm)
+			pt := IDBNewPointWithErr(ctx, tagName, tags, fields, tm)
 			IDBAddPointN(ctx, &ic, &pts, pt)
 			tm = tm.Add(time.Hour)
 			break
@@ -278,7 +278,7 @@ func ProcessAnnotations(ctx *Ctx, annotations *Annotations, joinDate *time.Time)
 			)
 		}
 		// Add batch point
-		pt := IDBNewPointWithErr(tagName, tags, fields, tm)
+		pt := IDBNewPointWithErr(ctx, tagName, tags, fields, tm)
 		IDBAddPointN(ctx, &ic, &pts, pt)
 		tm = tm.Add(time.Hour)
 	}
