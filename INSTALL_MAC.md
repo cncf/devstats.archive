@@ -73,7 +73,7 @@ Prerequisites:
     - `launchctl load ~/Library/LaunchAgents/homebrew.mxcl.influxdb.plist`
     - Create InfluxDB user, database: `IDB_HOST="localhost" IDB_PASS='your_password_here' IDB_PASS_RO='ro_user_password' ./grafana/influxdb_setup.sh gha`
     - InfluxDB has authentication disabled by default.
-    - Edit config file and change section `[http]`, `auth-enabled = true`, `[subscriber]` `http-timeout = "300s"` and `[http]]` `max-body-size = 0`
+    - Edit config file and change section `[http]`: `auth-enabled = true`, `max-body-size = 0`, `[subscriber]`: `http-timeout = "300s"`, `write-concurrency = 96`, `[coordinator]`: `write-timeout = "60s"`.
     - If you want to disable external InfluxDB access (for any external IP, only localhost) follow those instructions [SECURE_INFLUXDB.md](https://github.com/cncf/devstats/blob/master/SECURE_INFLUXDB.md).
     - `sudo service influxdb restart`
 
