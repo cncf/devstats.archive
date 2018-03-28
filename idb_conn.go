@@ -42,14 +42,17 @@ func IDBWritePointsN(ctx *Ctx, con *client.Client, points *IDBBatchPointsN) (err
 			Printf("Batch #%d: writing %d points\n", idx+1, ctx.IDBMaxBatchPoints)
 		}
 		for i := 1; i <= 10; i++ {
+			dtStart := time.Now()
 			err = (*con).Write(*bp)
 			if err == nil {
 				break
 			}
-			Printf("Batch trial #%d: error: %s\n", i, err.Error())
 			if err.Error() != TimeoutError {
 				return err
 			}
+			dtEnd := time.Now()
+			tDiff := dtEnd.Sub(dtStart)
+			Printf("Batch trial #%d (%d points): error: %s, took: %v\n", i, points.NPoints, err.Error(), tDiff)
 			Printf("Retrying batch...")
 			time.Sleep(time.Duration(i) * time.Second)
 		}
@@ -62,6 +65,7 @@ func IDBWritePointsN(ctx *Ctx, con *client.Client, points *IDBBatchPointsN) (err
 		Printf("Writing %d points\n", points.NPoints)
 	}
 	for i := 1; i <= 10; i++ {
+		dtStart := time.Now()
 		err = (*con).Write(*(points.Points))
 		if err == nil {
 			break
@@ -69,7 +73,9 @@ func IDBWritePointsN(ctx *Ctx, con *client.Client, points *IDBBatchPointsN) (err
 		if err.Error() != TimeoutError {
 			return err
 		}
-		Printf("Trial #%d: error: %s\n", i, err.Error())
+		dtEnd := time.Now()
+		tDiff := dtEnd.Sub(dtStart)
+		Printf("Trial #%d (%d points): error: %s, took: %v\n", i, points.NPoints, err.Error(), tDiff)
 		Printf("Retrying...")
 		time.Sleep(time.Duration(i) * time.Second)
 	}

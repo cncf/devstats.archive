@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"math/rand"
 	"os"
 	"strconv"
 	"time"
@@ -13,6 +14,9 @@ func idbTest(db string, nSeries, nVals, nTags, nDts int) {
 	var ctx lib.Ctx
 	ctx.Init()
 	lib.Printf("Running on %s database, %d series, %d values, %d tags, %d dates\n", db, nSeries, nVals, nTags, nDts)
+
+	rSrc := rand.NewSource(time.Now().UnixNano())
+	rnd := rand.New(rSrc)
 
 	// Get number of CPUs available
 	thrN := lib.GetThreadsNum(&ctx)
@@ -35,7 +39,9 @@ func idbTest(db string, nSeries, nVals, nTags, nDts int) {
 	for i := 0; i < nSeries; i++ {
 		go func(c chan bool, idx int) {
 			serName := fmt.Sprintf("series%d", idx)
-			lib.Printf("Processing %s series\n", serName)
+			if ctx.Debug > 0 {
+				lib.Printf("Processing %s series\n", serName)
+			}
 
 			// Get BatchPoints
 			var pts lib.IDBBatchPointsN
@@ -43,16 +49,20 @@ func idbTest(db string, nSeries, nVals, nTags, nDts int) {
 			pts.NPoints = 0
 			pts.Points = &bp
 
+			nDtsR := 1 + rnd.Intn(nDts)
+
 			tm := lib.HourStart(time.Now())
-			for d := 0; d < nDts; d++ {
+			for d := 0; d < nDtsR; d++ {
+				nValsR := 1 + rnd.Intn(nDts)
+				nTagsR := 1 + rnd.Intn(nDts)
 				tags := make(map[string]string)
 				fields := make(map[string]interface{})
-				for v := 0; v < nVals; v++ {
+				for v := 0; v < nValsR; v++ {
 					valName := fmt.Sprintf("valueName%d", v)
 					valValue := float64((v + 1) * (d + 1) * (idx + 1))
 					fields[valName] = valValue
 				}
-				for t := 0; t < nTags; t++ {
+				for t := 0; t < nTagsR; t++ {
 					tagName := fmt.Sprintf("tagName%d", t)
 					tagValue := fmt.Sprintf("tagValue%d_%d_%d", t, d, idx)
 					tags[tagName] = tagValue
@@ -73,7 +83,7 @@ func idbTest(db string, nSeries, nVals, nTags, nDts int) {
 			<-ch
 			nThreads--
 			processed++
-			lib.ProgressInfo(processed, nSeries, dtStart, &lastTime, time.Duration(10)*time.Second, "")
+			lib.ProgressInfo(processed, nSeries, dtStart, &lastTime, time.Duration(1)*time.Second, "")
 		}
 	}
 	lib.Printf("Final threads join\n")
@@ -81,7 +91,7 @@ func idbTest(db string, nSeries, nVals, nTags, nDts int) {
 		<-ch
 		nThreads--
 		processed++
-		lib.ProgressInfo(processed, nSeries, dtStart, &lastTime, time.Duration(10)*time.Second, "")
+		lib.ProgressInfo(processed, nSeries, dtStart, &lastTime, time.Duration(1)*time.Second, "")
 	}
 }
 
