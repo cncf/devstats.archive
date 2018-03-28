@@ -30,7 +30,6 @@ then
 fi
 
 # OCI has no icon in cncf/artwork at all, so use "-" here
-# TODO: update OPA, SPIFFE icon once it is present in cncf/artwork
 PROJ=kubernetes     PROJDB=gha            PROJREPO="kubernetes/kubernetes"      ORGNAME=Kubernetes  PORT=2999 ICON=kubernetes  GRAFSUFF=k8s            GA="UA-108085315-1"  ./devel/deploy_proj.sh || exit 2
 PROJ=prometheus     PROJDB=prometheus     PROJREPO="prometheus/prometheus"      ORGNAME=Prometheus  PORT=3001 ICON=prometheus  GRAFSUFF=prometheus     GA="UA-108085315-3"  ./devel/deploy_proj.sh || exit 3
 PROJ=opentracing    PROJDB=opentracing    PROJREPO="opentracing/opentracing-go" ORGNAME=OpenTracing PORT=3002 ICON=opentracing GRAFSUFF=opentracing    GA="UA-108085315-4"  ./devel/deploy_proj.sh || exit 4
@@ -48,8 +47,8 @@ PROJ=tuf            PROJDB=tuf            PROJREPO="theupdateframework/tuf"     
 PROJ=rook           PROJDB=rook           PROJREPO="rook/rook"                  ORGNAME=Rook        PORT=3014 ICON=rook        GRAFSUFF=rook           GA="UA-108085315-17" ./devel/deploy_proj.sh || exit 16
 PROJ=vitess         PROJDB=vitess         PROJREPO="vitessio/vitess"            ORGNAME=Vitess      PORT=3015 ICON=vitess      GRAFSUFF=vitess         GA="UA-108085315-18" ./devel/deploy_proj.sh || exit 17
 PROJ=nats           PROJDB=nats           PROJREPO="nats-io/gnatsd"             ORGNAME=NATS        PORT=3016 ICON=nats        GRAFSUFF=nats           GA="UA-108085315-21" ./devel/deploy_proj.sh || exit 18
-PROJ=opa            PROJDB=opa            PROJREPO="open-policy-agent/opa"      ORGNAME=OPA         PORT=3017 ICON=cncf        GRAFSUFF=opa            GA="UA-108085315-22" ./devel/deploy_proj.sh || exit 19
-PROJ=spiffe         PROJDB=spiffe         PROJREPO="spiffe/spire"               ORGNAME=SPIFFE      PORT=3018 ICON=cncf        GRAFSUFF=spiffe         GA="UA-108085315-23" ./devel/deploy_proj.sh || exit 20
+PROJ=opa            PROJDB=opa            PROJREPO="open-policy-agent/opa"      ORGNAME=OPA         PORT=3017 ICON=opa         GRAFSUFF=opa            GA="UA-108085315-22" ./devel/deploy_proj.sh || exit 19
+PROJ=spiffe         PROJDB=spiffe         PROJREPO="spiffe/spire"               ORGNAME=SPIFFE      PORT=3018 ICON=spiffe      GRAFSUFF=spiffe         GA="UA-108085315-23" ./devel/deploy_proj.sh || exit 20
 PROJ=opencontainers PROJDB=opencontainers PROJREPO="opencontainers/runc"        ORGNAME=OCI         PORT=3100 ICON="-"         GRAFSUFF=opencontainers GA="UA-108085315-19" ./devel/deploy_proj.sh || exit 21
 if [ "$host" = "cncftest.io" ]
 then
