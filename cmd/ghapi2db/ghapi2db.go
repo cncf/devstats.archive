@@ -23,6 +23,7 @@ type issueConfig struct {
 	milestoneID *int64
 	labels      string
 	labelsMap   map[int64]string
+	ghIssue     *github.Issue
 }
 
 // handlePossibleError - display error specific message, detect rate limit and abuse
@@ -39,7 +40,15 @@ func handlePossibleError(err error, cfg *issueConfig, info string) {
 
 // milestonesEvent - create artificial 'ArtificialEvent'
 // creates new issue state, artificial event and its payload
-func artificialEvent(c *sql.DB, ctx *lib.Ctx, iid, eid int64, milestone string, labels map[int64]string, labelsChanged bool) (err error) {
+func artificialEvent(
+	c *sql.DB,
+	ctx *lib.Ctx,
+	iid, eid int64,
+	milestone string,
+	labels map[int64]string,
+	labelsChanged bool,
+	ghIssue *github.Issue,
+) (err error) {
 	if ctx.SkipPDB {
 		if ctx.Debug > 0 {
 			lib.Printf("Skipping write for issue_id: %d, event_id: %d, milestone_id: %s, labels(%v): %v\n", iid, eid, milestone, labelsChanged, labels)
@@ -69,20 +78,28 @@ func artificialEvent(c *sql.DB, ctx *lib.Ctx, iid, eid int64, milestone string, 
 				"locked, milestone_id, number, state, title, updated_at, user_id, "+
 				"dup_actor_id, dup_actor_login, dup_repo_id, dup_repo_name, dup_type, dup_created_at, "+
 				"dup_user_login, dupn_assignee_login, is_pull_request) "+
-				"select id, %s, assignee_id, body, closed_at, comments, created_at, "+
-				"locked, %s, number, state, title, %s, 0, "+
+				"select id, %s, assignee_id, body, %s, %s, created_at, "+
+				"%s, %s, number, %s, title, %s, 0, "+
 				"0, 'devstats-bot', dup_repo_id, dup_repo_name, 'ArtificialEvent', %s, "+
 				"'devstats-bot', dupn_assignee_login, is_pull_request "+
 				"from gha_issues where id = %s and event_id = %s",
 			lib.NValue(1),
-			milestone,
 			lib.NValue(2),
 			lib.NValue(3),
 			lib.NValue(4),
+			milestone,
 			lib.NValue(5),
+			lib.NValue(6),
+			lib.NValue(7),
+			lib.NValue(8),
+			lib.NValue(9),
 		),
 		lib.AnyArray{
 			eventID,
+			lib.TimeOrNil(ghIssue.ClosedAt),
+			lib.IntOrNil(ghIssue.Comments),
+			lib.BoolOrNil(ghIssue.Locked),
+			lib.StringOrNil(ghIssue.State),
 			now,
 			now,
 			iid,
@@ -354,6 +371,7 @@ func ghapi2db() {
 				if issue.Milestone != nil {
 					cfg.milestoneID = issue.Milestone.ID
 				}
+				cfg.ghIssue = issue
 				break
 			}
 
@@ -518,7 +536,18 @@ func ghapi2db() {
 
 			// Do the update if needed: wrong milestone or label set
 			if newMilestone != "" || ghaLabels != cfg.labels {
-				lib.FatalOnError(artificialEvent(c, &ctx, cfg.issueID, ghaEventID, newMilestone, cfg.labelsMap, ghaLabels != cfg.labels))
+				lib.FatalOnError(
+					artificialEvent(
+						c,
+						&ctx,
+						cfg.issueID,
+						ghaEventID,
+						newMilestone,
+						cfg.labelsMap,
+						ghaLabels != cfg.labels,
+						cfg.ghIssue,
+					),
+				)
 				updates++
 			}
 
