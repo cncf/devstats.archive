@@ -28,10 +28,6 @@ do
   if [ "$icon" = "all" ]
   then
     icon="cncf"
-  elif ( [ "$icon" = "opa" ] || [ "$icon" = "spiffe" ] )
-  then
-    # TODO: update remove cncf/artwork contains OPA, SPIFFE icons.
-    icon="cncf"
   fi
   icontype=`./devel/get_icon_type.sh "$proj"` || exit 1
   cp "$HOME/dev/cncf/artwork/$icon/icon/$icontype/$icon-icon-$icontype.svg" "/usr/share/grafana.$suff/public/img/grafana_icon.svg" || exit 2

@@ -23,10 +23,6 @@ do
   if [ "$icon" = "all" ]
   then
     icon="cncf"
-  elif ( [ "$icon" = "opa" ] || [ "$icon" = "spiffe" ] )
-  then
-    # TODO: update remove cncf/artwork contains OPA, SPIFFE icons.
-    icon="cncf"
   fi
   icontype=`./devel/get_icon_type.sh "$proj"` || exit 1
   convert "$HOME/dev/cncf/artwork/$icon/icon/$icontype/$icon-icon-$icontype.png" -resize 80x80 "/var/www/html/img/$proj-icon-color.png" || exit 2
