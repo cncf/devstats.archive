@@ -137,7 +137,7 @@ func idbBackup() {
 				<-ch
 				nThreads--
 				checked++
-				lib.ProgressInfo(checked, nSeries, dtStart, &lastTime, time.Duration(10)*time.Second, "")
+				lib.ProgressInfo(checked, nSeries, dtStart, &lastTime, time.Duration(1)*time.Second, "")
 			}
 		}
 		lib.Printf("Final threads join\n")
@@ -145,13 +145,13 @@ func idbBackup() {
 			<-ch
 			nThreads--
 			checked++
-			lib.ProgressInfo(checked, nSeries, dtStart, &lastTime, time.Duration(10)*time.Second, "final join...")
+			lib.ProgressInfo(checked, nSeries, dtStart, &lastTime, time.Duration(1)*time.Second, "final join...")
 		}
 	} else {
 		lib.Printf("Using single threaded version\n")
 		for i := 0; i < nSeries; i++ {
 			copySeries(nil, &ctxI, &ctxO, series[i])
-			lib.ProgressInfo(i, nSeries, dtStart, &lastTime, time.Duration(10)*time.Second, "")
+			lib.ProgressInfo(i, nSeries, dtStart, &lastTime, time.Duration(1)*time.Second, "")
 		}
 	}
 	// Finished
