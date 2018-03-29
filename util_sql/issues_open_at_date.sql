@@ -1,36 +1,31 @@
-create temp table issues as
-select i.id as issue_id,
-  i.event_id as last_event_id,
-  i.updated_at as last_updated
-from
-  gha_issues i
+select
+  sub.issue_id,
+  sub.last_event_id,
+  sub.last_updated
+from (
+  select distinct
+    id as issue_id,
+    last_value(closed_at) over issues_ordered_by_update as closed_at,
+    last_value(event_id) over issues_ordered_by_update as last_event_id,
+    last_value(updated_at) over issues_ordered_by_update as last_updated
+  from
+    gha_issues
+  where
+    created_at < '{{date}}'
+    and updated_at < '{{date}}'
+    and id > 0
+    and event_id > 0
+    and is_pull_request = false
+  window
+    issues_ordered_by_update as (
+      partition by id
+      order by updated_at asc
+      range between current row
+      and unbounded following
+    )
+  ) sub
 where
-  i.is_pull_request = false
-  and i.id > 0
-  and i.event_id > 0
-  and i.closed_at is null
-  and i.created_at < '{{date}}'
-  and i.event_id = (
-    select inn.event_id
-    from
-      gha_issues inn
-    where
-      inn.id = i.id
-      and inn.id > 0
-      and inn.event_id > 0
-      and inn.created_at < '{{date}}'
-      and inn.is_pull_request = false
-      and inn.updated_at < '{{date}}'
-    order by
-      inn.updated_at desc,
-      inn.event_id desc
-    limit
-      1
-  )
+  sub.closed_at is null
 order by
-  i.updated_at desc
+  sub.last_updated desc
 ;
-
-select * from issues;
-
-drop table issues;
