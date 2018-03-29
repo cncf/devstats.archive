@@ -1,6 +1,5 @@
 create temp table issues as
-select
-  i.id as issue_id,
+select i.id as issue_id,
   i.event_id,
   i.milestone_id,
   i.dup_repo_name as repo
@@ -8,6 +7,8 @@ from
   gha_issues i
 where
   i.is_pull_request = false
+  and i.id > 0
+  and i.event_id > 0
   and i.closed_at is null
   and i.created_at < '{{to}}'
   and i.event_id = (
@@ -16,6 +17,8 @@ where
       gha_issues inn
     where
       inn.id = i.id
+      and inn.id > 0
+      and inn.event_id > 0
       and inn.created_at < '{{to}}'
       and inn.is_pull_request = false
       and inn.updated_at < '{{to}}'
@@ -41,8 +44,7 @@ where
 ;
 
 create temp table issues_milestones as
-select
-  i.issue_id,
+select i.issue_id,
   i.repo,
   ml.title as milestone
 from
