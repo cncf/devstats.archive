@@ -13,13 +13,13 @@ from (
   where
     created_at < '{{date}}'
     and updated_at < '{{date}}'
-    and id > 0
-    and event_id > 0
     and is_pull_request = false
   window
     issues_ordered_by_update as (
       partition by id
-      order by updated_at asc
+      order by
+        updated_at asc,
+        event_id asc
       range between current row
       and unbounded following
     )
