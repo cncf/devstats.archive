@@ -8,6 +8,26 @@ import (
 	lib "devstats"
 )
 
+// getMatchingSeries returns series name that matches given regexp
+func getMatchingSeries(ctx *lib.Ctx, seriesRegExp string) (seriesSet map[string]struct{}) {
+	// Connect to InfluxDB
+	ic := lib.IDBConn(ctx)
+	defer func() { lib.FatalOnError(ic.Close()) }()
+
+	// Create result map
+	seriesSet = make(map[string]struct{})
+
+	// Get series that match given regexp by selecting their last value
+	lib.Printf("Fetching series names matching %s\n", seriesRegExp)
+	res := lib.QueryIDB(ic, ctx, "select last(*) from "+seriesRegExp)
+	allSeries := res[0].Series
+	for _, series := range allSeries {
+		seriesSet[series.Name] = struct{}{}
+	}
+	lib.Printf("Found %d series matching %s\n", len(allSeries), seriesRegExp)
+	return
+}
+
 func workerThread(ch chan bool, ctx *lib.Ctx, seriesSet map[string]struct{}, period string, desc bool, values []string, from, to time.Time) {
 	// Connect to InfluxDB
 	ic := lib.IDBConn(ctx)
@@ -61,10 +81,14 @@ func z2influx(series, from, to, intervalAbbr string, desc bool, values []string)
 
 	// Stripping whitespace from series names
 	var seriesSet map[string]struct{}
-	seriesSet = lib.StringsMapToSet(
-		stripFunc,
-		strings.Split(series, ","),
-	)
+	if len(series) > 0 && series[0] == '/' {
+		seriesSet = getMatchingSeries(&ctx, series)
+	} else {
+		seriesSet = lib.StringsMapToSet(
+			stripFunc,
+			strings.Split(series, ","),
+		)
+	}
 
 	// Parse input dates
 	dFrom := lib.TimeParseAny(from)
@@ -122,7 +146,8 @@ func main() {
 	dtStart := time.Now()
 	if len(os.Args) < 5 {
 		lib.Printf("%s: Required args: 'series1,series2,..' from to period\n"+
-			"Example: 's1,s2,s3' 2015-08-03 2017-08-2' h|d|w|m|q|y [desc,values:value1;value2;...;valueN]\n",
+			"Example: 's1,s2,s3' 2015-08-03 2017-08-04' h|d|w|m|q|y [desc,values:value1;value2;...;valueN]\n"+
+			"Example: '/^open_(issues|prs)_sigs_milestones/' 2015-08-03 2017-08-04' h|d|w|m|q|y [desc,values:value1;value2;...;valueN]\n",
 			os.Args[0],
 		)
 		os.Exit(1)
