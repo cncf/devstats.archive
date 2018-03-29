@@ -1,60 +1,55 @@
-create temp table issues as
-select i.id as issue_id,
-  i.event_id,
-  i.milestone_id,
-  i.dup_repo_name as repo
-from
-  gha_issues i
-where
-  i.is_pull_request = false
-  and i.id > 0
-  and i.event_id > 0
-  and i.closed_at is null
-  and i.created_at < '{{to}}'
-  and i.event_id = (
-    select inn.event_id
+with issues as (
+  select sub.issue_id,
+    sub.event_id,
+    sub.milestone_id,
+    sub.repo
+  from (
+    select distinct
+      id as issue_id,
+      dup_repo_name as repo,
+      last_value(closed_at) over issues_ordered_by_update as closed_at,
+      last_value(event_id) over issues_ordered_by_update as event_id,
+      last_value(milestone_id) over issues_ordered_by_update as milestone_id
     from
-      gha_issues inn
+      gha_issues
     where
-      inn.id = i.id
-      and inn.id > 0
-      and inn.event_id > 0
-      and inn.created_at < '{{to}}'
-      and inn.is_pull_request = false
-      and inn.updated_at < '{{to}}'
-    order by
-      inn.updated_at desc,
-      inn.event_id desc
-    limit
-      1
-  )
-;
-
-create temp table issues_sigs as
-select i.issue_id,
-  i.repo,
-  lower(substring(il.dup_label_name from '(?i)sig/(.*)')) as sig
-from
-  issues i,
-  gha_issues_labels il
-where
-  i.event_id = il.event_id
-  and i.issue_id = il.issue_id
-  and lower(substring(il.dup_label_name from '(?i)sig/(.*)')) is not null
-;
-
-create temp table issues_milestones as
-select i.issue_id,
-  i.repo,
-  ml.title as milestone
-from
-  issues i,
-  gha_milestones ml
-where
-  i.milestone_id = ml.id
-  and i.event_id = ml.event_id
-;
-
+      created_at < '{{to}}'
+      and updated_at < '{{to}}'
+      and is_pull_request = false
+    window
+      issues_ordered_by_update as (
+        partition by id
+        order by
+          updated_at asc,
+          event_id asc
+        range between current row
+        and unbounded following
+      )
+    ) sub
+  where
+    sub.closed_at is null
+), issues_sigs as (
+  select i.issue_id,
+    i.repo,
+    lower(substring(il.dup_label_name from '(?i)sig/(.*)')) as sig
+  from
+    issues i,
+    gha_issues_labels il
+  where
+    i.event_id = il.event_id
+    and i.issue_id = il.issue_id
+    and lower(substring(il.dup_label_name from '(?i)sig/(.*)')) is not null
+), issues_milestones as (
+  select i.issue_id,
+    i.repo,
+    ml.title as milestone
+  from
+    issues i,
+    gha_milestones ml
+  where
+    i.milestone_id = ml.id
+    and i.event_id = ml.event_id
+)
 select 
   sub.sig_milestone,
   sub.cnt
@@ -121,7 +116,3 @@ order by
   sub.cnt desc,
   sub.sig_milestone asc
 ;
-
-drop table issues_milestones;
-drop table issues_sigs;
-drop table issues;
