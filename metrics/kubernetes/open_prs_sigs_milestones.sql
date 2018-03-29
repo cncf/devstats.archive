@@ -1,95 +1,87 @@
-create temp table issues as
-select i.id as issue_id,
-  i.event_id,
-  i.milestone_id,
-  i.dup_repo_name as repo
-from
-  gha_issues i
-where
-  i.is_pull_request = true
-  and i.id > 0
-  and i.event_id > 0
-  and i.closed_at is null
-  and i.created_at < '{{to}}'
-  and i.event_id = (
-    select inn.event_id
+with issues as (
+  select sub.issue_id,
+    sub.event_id,
+    sub.milestone_id,
+    sub.repo
+  from (
+    select distinct
+      id as issue_id,
+      dup_repo_name as repo,
+      last_value(event_id) over issues_ordered_by_update as event_id,
+      last_value(closed_at) over issues_ordered_by_update as closed_at,
+      last_value(milestone_id) over issues_ordered_by_update as milestone_id
     from
-      gha_issues inn
+      gha_issues
     where
-      inn.id = i.id
-      and inn.id > 0
-      and inn.event_id > 0
-      and inn.created_at < '{{to}}'
-      and inn.is_pull_request = true
-      and inn.updated_at < '{{to}}'
-    order by
-      inn.updated_at desc,
-      inn.event_id desc
-    limit
-      1
-  )
-;
-
-create temp table prs as
-select i.issue_id,
-  i.event_id,
-  i.milestone_id,
-  i.repo
-from
-  issues i,
-  gha_issues_pull_requests ipr,
-  gha_pull_requests pr
-where
-  ipr.issue_id = i.issue_id
-  and ipr.pull_request_id = pr.id
-  and pr.id > 0
-  and pr.event_id > 0
-  and pr.closed_at is null
-  and pr.merged_at is null
-  and pr.created_at < '{{to}}'
-  and pr.event_id = (
-    select inn.event_id
+      created_at < '{{to}}'
+      and updated_at < '{{to}}'
+      and is_pull_request = true
+    window
+      issues_ordered_by_update as (
+        partition by id
+        order by
+          updated_at asc,
+          event_id asc
+        range between current row
+        and unbounded following
+      )
+    ) sub
+  where
+    sub.closed_at is null
+), prs as (
+  select i.issue_id,
+    i.event_id,
+    i.milestone_id,
+    i.repo
+  from (
+    select distinct id as pr_id,
+      last_value(closed_at) over prs_ordered_by_update as closed_at,
+      last_value(merged_at) over prs_ordered_by_update as merged_at
     from
-      gha_pull_requests inn
+      gha_pull_requests
     where
-      inn.id = pr.id
-      and inn.id > 0
-      and inn.event_id > 0
-      and inn.created_at < '{{to}}'
-      and inn.updated_at < '{{to}}'
-    order by
-      inn.updated_at desc,
-      inn.event_id desc
-    limit
-      1
-  )
-;
-
-create temp table prs_sigs as
-select pr.issue_id,
-  pr.repo,
-  lower(substring(il.dup_label_name from '(?i)sig/(.*)')) as sig
-from
-  prs pr,
-  gha_issues_labels il
-where
-  pr.event_id = il.event_id
-  and pr.issue_id = il.issue_id
-  and lower(substring(il.dup_label_name from '(?i)sig/(.*)')) is not null
-;
-
-create temp table prs_milestones as
-select pr.issue_id,
-  pr.repo,
-  ml.title as milestone
-from
-  prs pr,
-  gha_milestones ml
-where
-  pr.milestone_id = ml.id
-  and pr.event_id = ml.event_id
-;
-
+      created_at < '{{to}}'
+      and updated_at < '{{to}}'
+      and event_id > 0
+    window
+      prs_ordered_by_update as (
+        partition by id
+        order by
+          updated_at asc,
+          event_id asc
+        range between current row
+        and unbounded following
+      )
+    ) pr,
+    issues i,
+    gha_issues_pull_requests ipr
+  where
+    ipr.issue_id = i.issue_id
+    and ipr.pull_request_id = pr.pr_id
+    and pr.closed_at is null
+    and pr.merged_at is null
+), prs_sigs as (
+  select pr.issue_id,
+    pr.repo,
+    lower(substring(il.dup_label_name from '(?i)sig/(.*)')) as sig
+  from
+    prs pr,
+    gha_issues_labels il
+  where
+    pr.event_id = il.event_id
+    and pr.issue_id = il.issue_id
+    and lower(substring(il.dup_label_name from '(?i)sig/(.*)')) is not null
+), prs_milestones as (
+  select pr.issue_id,
+    pr.repo,
+    ml.title as milestone
+  from
+    prs pr,
+    gha_milestones ml
+  where
+    pr.milestone_id = ml.id
+    and pr.event_id = ml.event_id
+)
 select 
   sub.sig_milestone,
   sub.cnt
@@ -156,8 +148,3 @@ order by
   sub.cnt desc,
   sub.sig_milestone asc
 ;
-
-drop table prs_milestones;
-drop table prs_sigs;
-drop table prs;
-drop table issues;
