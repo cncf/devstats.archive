@@ -244,6 +244,11 @@ func ToGHADate(dt time.Time) string {
 	return fmt.Sprintf("%04d-%02d-%02d-%d", dt.Year(), dt.Month(), dt.Day(), dt.Hour())
 }
 
+// ToIDBDate - return time formatted as YYYY-MM-DDTHH:MI:SSZ
+func ToIDBDate(dt time.Time) string {
+	return fmt.Sprintf("%04d-%02d-%02dT%02d:%02d:%02dZ", dt.Year(), dt.Month(), dt.Day(), dt.Hour(), dt.Minute(), dt.Second())
+}
+
 // ToYMDDate - return time formatted as YYYY-MM-DD
 func ToYMDDate(dt time.Time) string {
 	return fmt.Sprintf("%04d-%02d-%02d", dt.Year(), dt.Month(), dt.Day())
