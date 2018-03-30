@@ -1,17 +1,14 @@
-create temp table issue as
-select
-  coalesce(max(issue_id), -9223372036854775808) as max_id
-from
-  gha_issues_pull_requests
-;
-
-create temp table pr as
-select
-  coalesce(max(pull_request_id), -9223372036854775808) as max_id
-from
-  gha_issues_pull_requests
-;
-
+with issue as (
+  select
+    coalesce(max(issue_id), -9223372036854775808) as max_id
+  from
+    gha_issues_pull_requests
+), pr as (
+  select
+    coalesce(max(pull_request_id), -9223372036854775808) as max_id
+  from
+    gha_issues_pull_requests
+)
 insert into gha_issues_pull_requests(
   issue_id, pull_request_id, number, repo_id, repo_name, created_at
 )
@@ -30,6 +27,3 @@ where
     select max_id from pr
   )
 ;
-
-drop table pr;
-drop table issue;

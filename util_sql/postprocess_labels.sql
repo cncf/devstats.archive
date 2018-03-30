@@ -1,19 +1,18 @@
-create temp table var as
-select
-  coalesce(max(event_id), -9223372036854775808) as max_event_id,
-  true as gh
-from
-  gha_issues_events_labels
-where
-  type != 'ArtificialEvent'
-union select coalesce(max(event_id), 281474976710657) as max_event_id,
-  false as gh
-from
-  gha_issues_events_labels
-where
-  type = 'ArtificialEvent'
-;
-
+with var as (
+  select
+    coalesce(max(event_id), -9223372036854775808) as max_event_id,
+    true as gh
+  from
+    gha_issues_events_labels
+  where
+    type != 'ArtificialEvent'
+  union select coalesce(max(event_id), 281474976710657) as max_event_id,
+    false as gh
+  from
+    gha_issues_events_labels
+  where
+    type = 'ArtificialEvent'
+)
 insert into gha_issues_events_labels(
   issue_id, event_id, label_id, label_name, created_at,
   repo_id, repo_name, actor_id, actor_login, type, issue_number
@@ -36,5 +35,3 @@ where
     )
   )
 ;
-
-drop table var;

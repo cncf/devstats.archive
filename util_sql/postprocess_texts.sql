@@ -1,10 +1,9 @@
-create temp table var as
-select
-  coalesce(max(event_id), -9223372036854775808) as max_event_id
-from
-  gha_texts
-;
-
+with var as (
+  select
+    coalesce(max(event_id), -9223372036854775808) as max_event_id
+  from
+    gha_texts
+)
 insert into gha_texts(
   event_id, body, created_at, repo_id, repo_name, actor_id, actor_login, type
 ) 
@@ -53,5 +52,3 @@ where
   body != ''
   and event_id > (select max_event_id from var)
 ;
-
-drop table var;
