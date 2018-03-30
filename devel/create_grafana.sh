@@ -16,7 +16,7 @@ then
   echo "stopping $PROJ grafana server instance"
   if [ ! -z "$pid" ]
   then
-    echo "Stopping pid $pid"
+    echo "stopping pid $pid"
     kill $pid
   else
     echo "grafana-server $PROJ not running"
