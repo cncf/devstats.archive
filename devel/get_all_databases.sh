@@ -11,22 +11,31 @@ then
 else
   all=$ONLY
 fi
-for proj in $all
+for db in $all
 do
-    echo "wget $proj.sql.xz"
-    rm -f $proj.sql.xz 2>/dev/null
-    rm -f $proj.sql 2>/dev/null
-    wget https://cncftest.io/$proj.sql.xz || exit 1
-    ls -l $proj.sql.xz
-    echo "xz -d $proj.sql"
-    xz -d $proj.sql.xz || exit 2
-    echo "restore $proj"
-    ls -l $proj.sql
-    sudo -u postgres psql -c "drop database $proj" 2> /dev/null
-    sudo -u postgres psql -c "create database $proj" || exit 3
-    sudo -u postgres psql $proj < $proj.sql || exit 4
-    echo "rm -f $proj"
-    rm -f $proj.sql || exit 5
+    echo "wget $db.sql.xz"
+    rm -f $db.sql.xz 2>/dev/null
+    rm -f $db.sql 2>/dev/null
+    wget https://cncftest.io/$db.sql.xz || exit 1
+    ls -l $db.sql.xz
+    echo "xz -d $db.sql"
+    xz -d $db.sql.xz || exit 2
+    echo "restore $db"
+    ls -l $db.sql
+    sudo -u postgres psql -c "drop database $db" 2> /dev/null
+    sudo -u postgres psql -c "create database $db" || exit 3
+    sudo -u postgres psql $db < $db.sql || exit 4
+    echo "rm -f $db"
+    rm -f $proj.db || exit 5
+    proj=$db
+    if [ "$db" = "gha" ]
+    then
+      proj="kubernetes"
+    elif [ "$db" = "allprj" ]
+    then
+      proj="all"
+    fi
+    echo "Project: $proj, PDB: $db"
+    GHA2DB_PROJECT="$proj" PG_DB="$db" GHA2DB_LOCAL=1 ./pdb_vars || exit 6
 done
 echo 'OK'
-
