@@ -48,9 +48,34 @@ func workerThread(ch chan bool, ctx *lib.Ctx, seriesSet map[string]struct{}, per
 		fields["descr"] = ""
 	}
 
+	// YYYY-MM-DDTHH:MI:SSZ
+	idbFrom := lib.ToIDBDate(from)
+
 	for series := range seriesSet {
 		if ctx.Debug > 0 {
 			lib.Printf("%+v %v - %v %v\n", series, from, to, period)
+		}
+
+		// Support overwite all
+		if values[0] == "*" {
+			res := lib.QueryIDB(ic, ctx, "select * from \""+series+"\" where time = '"+idbFrom+"'")
+			allSeries := res[0].Series
+			if len(allSeries) == 0 {
+				continue
+			}
+			series := allSeries[0]
+			columns := series.Columns
+			n := 0
+			for _, column := range columns {
+				if column == lib.TimeCol {
+					continue
+				}
+				fields[column] = 0.0
+				n++
+			}
+			if n == 0 {
+				continue
+			}
 		}
 
 		// Add batch point
@@ -147,7 +172,7 @@ func main() {
 	if len(os.Args) < 5 {
 		lib.Printf("%s: Required args: 'series1,series2,..' from to period\n"+
 			"Example: 's1,s2,s3' 2015-08-03 2017-08-04' h|d|w|m|q|y [desc,values:value1;value2;...;valueN]\n"+
-			"Example: '/^open_(issues|prs)_sigs_milestones/' 2015-08-03 2017-08-04' h|d|w|m|q|y [desc,values:value1;value2;...;valueN]\n",
+			"Example: '/^open_(issues|prs)_sigs_milestones/' 2015-08-03 2017-08-04' h|d|w|m|q|y 'values:*'\n",
 			os.Args[0],
 		)
 		os.Exit(1)

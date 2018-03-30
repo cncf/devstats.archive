@@ -44,3 +44,6 @@ const Metrics string = "metrics/"
 
 // Unset - common constant string
 const Unset string = "{{unset}}"
+
+// TimeCol - common constant string
+const TimeCol string = "time"

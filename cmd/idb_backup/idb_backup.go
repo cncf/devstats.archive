@@ -36,7 +36,7 @@ func copySeries(ch chan bool, ctxI, ctxO *lib.Ctx, seriesName string) {
 		for _, value := range values {
 			fields := make(map[string]interface{})
 			for i, column := range columns {
-				if column == "time" {
+				if column == lib.TimeCol {
 					dt = lib.TimeParseIDB(value[i].(string))
 				} else if value[i] != nil {
 					switch interfaceValue := value[i].(type) {
