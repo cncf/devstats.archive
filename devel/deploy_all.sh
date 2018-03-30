@@ -58,4 +58,5 @@ fi
 PROJ=all            PROJDB=allprj         PROJREPO="not/used"                   ORGNAME="All CNCF"  PORT=3254 ICON=cncf        GRAFSUFF=all            GA="UA-108085315-20" ./devel/deploy_proj.sh || exit 24
 
 CERT=1 WWW=1 ./devel/create_www.sh || exit 25
+./devel/pdb_vars_all.sh || exit 26
 echo "$0: All deployments finished"
