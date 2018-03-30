@@ -24,7 +24,7 @@ func getMatchingSeries(ctx *lib.Ctx, seriesRegExp string) (seriesSet map[string]
 	for _, series := range allSeries {
 		seriesSet[series.Name] = struct{}{}
 	}
-	lib.Printf("Found %d series matching %s\n", len(allSeries), seriesRegExp)
+	lib.Printf("Found %d series matching %s: %v\n", len(allSeries), seriesRegExp, seriesSet)
 	return
 }
 
