@@ -199,6 +199,7 @@ set
   alias = 'OPA'
 where
   org_login = 'open-policy-agent'
+  or name = 'open-policy-agent/opa'
 ;
 
 -- SPIFFE
@@ -209,6 +210,17 @@ set
   alias = 'SPIFFE'
 where
   org_login = 'spiffe'
+  and name != 'spiffe/spire'
+;
+
+-- SPIRE
+update
+  gha_repos
+set
+  repo_group = 'SPIRE',
+  alias = 'SPIRE'
+where
+  name = 'spiffe/spire'
 ;
 
 -- CNCF

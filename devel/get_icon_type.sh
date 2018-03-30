@@ -25,6 +25,7 @@ icontypes=(
   ["nats"]="color"
   ["opa"]="color"
   ["spiffe"]="color"
+  ["spire"]="color"
   ["all"]="color"
   ["cncf"]="color"
 )
