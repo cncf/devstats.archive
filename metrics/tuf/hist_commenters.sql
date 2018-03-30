@@ -24,7 +24,7 @@ group by
   sub.actor,
   sub.repo_group
 having
-  count(distinct sub.id) >= 10
+  count(distinct sub.id) >= 1
 union select 'top_commenters,All' as repo_group,
   dup_actor_login as actor,
   count(distinct id) as comments
@@ -36,7 +36,7 @@ where
 group by
   dup_actor_login
 having
-  count(distinct id) >= 10
+  count(distinct id) >= 1
 order by
   comments desc,
   repo_group asc,
