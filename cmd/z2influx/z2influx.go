@@ -65,6 +65,9 @@ func workerThread(ch chan bool, ctx *lib.Ctx, seriesSet map[string]struct{}, per
 			}
 			series := allSeries[0]
 			columns := series.Columns
+			if ctx.Debug > 0 {
+				lib.Printf("%v %s: * -> %v\n", series, idbFrom, columns)
+			}
 			n := 0
 			for _, column := range columns {
 				if column == lib.TimeCol {
