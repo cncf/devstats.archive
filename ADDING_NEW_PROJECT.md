@@ -34,7 +34,7 @@ This file describes how to add new project on the test server.
 - For example: `MODE=ss0 FROM=`cat FROM` TO=`cat TO` FILES=`find ./grafana/dashboards/ -type f -iname 'dashboards.json'` ./devel/mass_replace.sh` with `FROM` containing old links and `TO` containing new links.
 - Update `partials/projects.html`.
 - Update Apache proxy and SSL files `apache/www/index_* apache/*/sites-enabled/* apache/*/sites.txt` files.
-- Run deply all script with optional GAPS generating environment variable: `PG_PASS=... IDB_PASS=... IDB_HOST=... GAPS=1 ./devel/deploy_all.sh`. If succeeded `make install`.
+- Run deply all script: `PG_PASS=... IDB_PASS=... IDB_HOST=... ./devel/deploy_all.sh`. If succeeded `make install`.
 - You can also deploy automatically from webhook (even on the test server), but it takes very long time and is harder to debug, see [continuous deployment](https://github.com/cncf/devstats/blob/master/CONTINUOUS_DEPLOYMENT.md).
 - Open `newproject.cncftest.io` login with admin/admin, change the default password and follow instructions from `GRAFANA.md`.
 - Import `grafana/dashboards/proj/dashboards.json` dashboard on all remaining projects.
