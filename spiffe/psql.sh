@@ -17,7 +17,7 @@ GHA2DB_PROJECT=spiffe IDB_DB=spiffe PG_DB=spiffe GHA2DB_LOCAL=1 GHA2DB_MGETC=y G
 ./spiffe/setup_repo_groups.sh 2>>errors.txt | tee -a run.log || exit 4
 ./spiffe/import_affs.sh 2>>errors.txt | tee -a run.log || exit 5
 ./spiffe/setup_scripts.sh 2>>errors.txt | tee -a run.log || exit 6
-./spiffe/get_repos.sh 2>>errors.txt | tee -a run.log || exit 7
+GHA2DB_PROJECT=spiffe PG_DB=spiffe ./shared/get_repos.sh 2>>errors.txt | tee -a run.log || exit 7
 GHA2DB_PROJECT=spiffe PG_DB=spiffe GHA2DB_LOCAL=1 ./pdb_vars || exit 8
 ./devel/ro_user_grants.sh spiffe || exit 9
 echo "All done. You should run ./spiffe/reinit.sh script now."

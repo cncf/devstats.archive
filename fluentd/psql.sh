@@ -18,7 +18,7 @@ GHA2DB_PROJECT=fluentd IDB_DB=fluentd PG_DB=fluentd GHA2DB_LOCAL=1 GHA2DB_MGETC=
 ./fluentd/setup_repo_groups.sh 2>>errors.txt | tee -a run.log || exit 5
 ./fluentd/setup_scripts.sh 2>>errors.txt | tee -a run.log || exit 6
 ./fluentd/import_affs.sh 2>>errors.txt | tee -a run.log || exit 7
-./fluentd/get_repos.sh 2>>errors.txt | tee -a run.log || exit 8
+GHA2DB_PROJECT=fluentd PG_DB=fluentd ./shared/get_repos.sh 2>>errors.txt | tee -a run.log || exit 8
 GHA2DB_PROJECT=fluentd PG_DB=fluentd GHA2DB_LOCAL=1 ./pdb_vars || exit 9
 ./devel/ro_user_grants.sh fluentd || exit 10
 echo "All done. You should run ./fluentd/reinit.sh script now."

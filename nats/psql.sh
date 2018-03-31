@@ -19,7 +19,7 @@ GHA2DB_PROJECT=nats IDB_DB=nats PG_DB=nats GHA2DB_LOCAL=1 GHA2DB_MGETC=y GHA2DB_
 ./nats/setup_repo_groups.sh 2>>errors.txt | tee -a run.log || exit 5
 ./nats/import_affs.sh 2>>errors.txt | tee -a run.log || exit 6
 ./nats/setup_scripts.sh 2>>errors.txt | tee -a run.log || exit 7
-./nats/get_repos.sh 2>>errors.txt | tee -a run.log || exit 8
+GHA2DB_PROJECT=nats PG_DB=nats ./shared/get_repos.sh 2>>errors.txt | tee -a run.log || exit 8
 GHA2DB_PROJECT=nats PG_DB=nats GHA2DB_LOCAL=1 ./pdb_vars || exit 9
 ./devel/ro_user_grants.sh nats || exit 10
 echo "All done. You should run ./nats/reinit.sh script now."

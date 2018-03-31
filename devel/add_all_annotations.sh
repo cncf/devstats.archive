@@ -32,7 +32,7 @@ do
     ./$proj/annotations.sh
   else
     echo "Adding annotations data for project: $proj, db: $db (using shared script)"
-    PROJ=$proj PROJDB=$db ./shared/annotations.sh
+    GHA2DB_PROJECT=$proj IDB_DB=$db ./shared/annotations.sh
   fi
 done
 echo 'OK'
