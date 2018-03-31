@@ -16,18 +16,18 @@ then
 else
   all=$ONLY
 fi
-for f in $all
+for proj in $all
 do
-    db=$f
-    if [ $f = "kubernetes" ]
+    db=$proj
+    if [ "$proj" = "kubernetes" ]
     then
       db="gha"
-    elif [ $f = "all" ]
+    elif [ "$proj" = "all" ]
     then
       db="allprj"
     fi
-    echo "Project: $f, IDB: $db"
+    echo "Project: $proj, IDB: $db"
     echo "drop series from vars" | influx -username gha_admin -password "$IDB_PASS" -database "$db" || exit 1
-    GHA2DB_LOCAL=1 GHA2DB_PROJECT=$f IDB_DB=$db ./idb_vars || exit 2
+    GHA2DB_LOCAL=1 GHA2DB_PROJECT=$proj IDB_DB=$db ./idb_vars || exit 2
 done
 echo 'OK'
