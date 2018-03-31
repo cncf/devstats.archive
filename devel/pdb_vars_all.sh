@@ -16,18 +16,18 @@ then
 else
   all=$ONLY
 fi
-for f in $all
+for proj in $all
 do
-    db=$f
-    if [ $f = "kubernetes" ]
+    db=$proj
+    if [ "$proj" = "kubernetes" ]
     then
       db="gha"
-    elif [ $f = "all" ]
+    elif [ "$proj" = "all" ]
     then
       db="allprj"
     fi
-    echo "Project: $f, PDB: $db"
+    echo "Project: $proj, PDB: $db"
     sudo -u postgres psql "$db" -c "delete from gha_vars" || exit 1
-    GHA2DB_LOCAL=1 GHA2DB_PROJECT=$f PG_DB=$db ./pdb_vars || exit 2
+    GHA2DB_LOCAL=1 GHA2DB_PROJECT=$proj PG_DB=$db ./pdb_vars || exit 2
 done
 echo 'OK'

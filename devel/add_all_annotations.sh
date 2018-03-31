@@ -18,7 +18,21 @@ else
 fi
 for proj in $all
 do
-  echo "Adding annotations data for $proj"
-  ./$proj/annotations.sh
+  db=$proj
+  if [ "$proj" = "kubernetes" ]
+  then
+    db="gha"
+  elif [ "$proj" = "all" ]
+  then
+    db="allprj"
+  fi
+  if [ -f "./$proj/annotations.sh" ]
+  then
+    echo "Adding annotations data for project: $proj, db: $db (using project specific script)"
+    ./$proj/annotations.sh
+  else
+    echo "Adding annotations data for project: $proj, db: $db (using shared script)"
+    PROJ=$proj PROJDB=$db ./shared/annotations.sh
+  fi
 done
 echo 'OK'
