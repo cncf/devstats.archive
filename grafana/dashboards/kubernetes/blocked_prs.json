@@ -1,42 +1,4 @@
 {
-  "__inputs": [
-    {
-      "name": "DS_GHA",
-      "label": "gha",
-      "description": "",
-      "type": "datasource",
-      "pluginId": "influxdb",
-      "pluginName": "InfluxDB"
-    },
-    {
-      "name": "DS_PSQL",
-      "label": "psql",
-      "description": "",
-      "type": "datasource",
-      "pluginId": "postgres",
-      "pluginName": "PostgreSQL"
-    }
-  ],
-  "__requires": [
-    {
-      "type": "grafana",
-      "id": "grafana",
-      "name": "Grafana",
-      "version": "4.7.0-pre1"
-    },
-    {
-      "type": "panel",
-      "id": "graph",
-      "name": "Graph",
-      "version": ""
-    },
-    {
-      "type": "datasource",
-      "id": "influxdb",
-      "name": "InfluxDB",
-      "version": "1.0.0"
-    }
-  ],
   "annotations": {
     "list": [
       {
@@ -45,11 +7,11 @@
         "enable": true,
         "hide": true,
         "iconColor": "rgba(0, 211, 255, 1)",
-        "name": "Annotations & Alerts",
+        "name": "Annotations \u0026 Alerts",
         "type": "dashboard"
       },
       {
-        "datasource": "${DS_GHA}",
+        "datasource": "gha",
         "enable": true,
         "hide": false,
         "iconColor": "rgba(255, 96, 96, 1)",
@@ -67,237 +29,230 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "hideControls": false,
-  "id": null,
+  "id": 130,
+  "iteration": 1.519735163855e+12,
   "links": [],
-  "refresh": false,
-  "rows": [
+  "panels": [
     {
-      "collapse": false,
-      "height": 849,
-      "panels": [
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "gha",
+      "decimals": 2,
+      "description": "Number of open PRs blocked in given repository group (open in the given time)",
+      "fill": 2,
+      "gridPos": {
+        "h": 22,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 2,
+      "legend": {
+        "alignAsTable": true,
+        "avg": true,
+        "current": true,
+        "max": true,
+        "min": true,
+        "rightSide": false,
+        "show": true,
+        "sort": "avg",
+        "sortDesc": true,
+        "total": false,
+        "values": true
+      },
+      "lines": true,
+      "linewidth": 1,
+      "links": [],
+      "nullPointMode": "null",
+      "percentage": false,
+      "pointradius": 5,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
         {
-          "aliasColors": {},
-          "bars": false,
-          "dashLength": 10,
-          "dashes": false,
-          "datasource": "${DS_GHA}",
-          "decimals": 2,
-          "description": "Number of open PRs blocked in given repository group (open in the given time)",
-          "fill": 2,
-          "id": 2,
-          "legend": {
-            "alignAsTable": true,
-            "avg": true,
-            "current": true,
-            "max": true,
-            "min": true,
-            "rightSide": false,
-            "show": true,
-            "sort": "avg",
-            "sortDesc": true,
-            "total": false,
-            "values": true
-          },
-          "lines": true,
-          "linewidth": 1,
-          "links": [],
-          "nullPointMode": "null",
-          "percentage": false,
-          "pointradius": 5,
-          "points": false,
-          "renderer": "flot",
-          "seriesOverrides": [],
-          "spaceLength": 10,
-          "span": 12,
-          "stack": false,
-          "steppedLine": false,
-          "targets": [
-            {
-              "alias": "All open PRs at that time",
-              "dsType": "influxdb",
-              "groupBy": [],
-              "measurement": "prs_kubernetes_kubernetes_d",
-              "orderByTime": "ASC",
-              "policy": "default",
-              "query": "SELECT /^[[repogroup]]$/ FROM \"prs_blocked_all_prs_[[period]]\" WHERE $timeFilter",
-              "rawQuery": true,
-              "refId": "A",
-              "resultFormat": "time_series",
-              "select": [
-                [
-                  {
-                    "params": [
-                      "value"
-                    ],
-                    "type": "field"
-                  }
-                ]
-              ],
-              "tags": []
-            },
-            {
-              "alias": "Needs OK to test",
-              "dsType": "influxdb",
-              "groupBy": [],
-              "measurement": "prs_kubernetes_kubernetes_d",
-              "orderByTime": "ASC",
-              "policy": "default",
-              "query": "SELECT /^[[repogroup]]$/ FROM \"prs_blocked_needs_ok_to_test_[[period]]\" WHERE $timeFilter",
-              "rawQuery": true,
-              "refId": "B",
-              "resultFormat": "time_series",
-              "select": [
-                [
-                  {
-                    "params": [
-                      "value"
-                    ],
-                    "type": "field"
-                  }
-                ]
-              ],
-              "tags": []
-            },
-            {
-              "alias": "Release note label needed",
-              "dsType": "influxdb",
-              "groupBy": [],
-              "measurement": "prs_kubernetes_kubernetes_d",
-              "orderByTime": "ASC",
-              "policy": "default",
-              "query": "SELECT /^[[repogroup]]$/ FROM \"prs_blocked_release_note_label_needed_[[period]]\" WHERE $timeFilter",
-              "rawQuery": true,
-              "refId": "C",
-              "resultFormat": "time_series",
-              "select": [
-                [
-                  {
-                    "params": [
-                      "value"
-                    ],
-                    "type": "field"
-                  }
-                ]
-              ],
-              "tags": []
-            },
-            {
-              "alias": "No LGTM label",
-              "dsType": "influxdb",
-              "groupBy": [],
-              "measurement": "prs_kubernetes_kubernetes_d",
-              "orderByTime": "ASC",
-              "policy": "default",
-              "query": "SELECT /^[[repogroup]]$/ FROM \"prs_blocked_no_lgtm_[[period]]\" WHERE $timeFilter",
-              "rawQuery": true,
-              "refId": "D",
-              "resultFormat": "time_series",
-              "select": [
-                [
-                  {
-                    "params": [
-                      "value"
-                    ],
-                    "type": "field"
-                  }
-                ]
-              ],
-              "tags": []
-            },
-            {
-              "alias": "No approved label",
-              "dsType": "influxdb",
-              "groupBy": [],
-              "measurement": "prs_kubernetes_kubernetes_d",
-              "orderByTime": "ASC",
-              "policy": "default",
-              "query": "SELECT /^[[repogroup]]$/ FROM \"prs_blocked_release_no_approve_[[period]]\" WHERE $timeFilter",
-              "rawQuery": true,
-              "refId": "E",
-              "resultFormat": "time_series",
-              "select": [
-                [
-                  {
-                    "params": [
-                      "value"
-                    ],
-                    "type": "field"
-                  }
-                ]
-              ],
-              "tags": []
-            },
-            {
-              "alias": "Do not merge label(s)",
-              "dsType": "influxdb",
-              "groupBy": [],
-              "measurement": "prs_kubernetes_kubernetes_d",
-              "orderByTime": "ASC",
-              "policy": "default",
-              "query": "SELECT /^[[repogroup]]$/ FROM \"prs_blocked_do_not_merge_[[period]]\" WHERE $timeFilter",
-              "rawQuery": true,
-              "refId": "F",
-              "resultFormat": "time_series",
-              "select": [
-                [
-                  {
-                    "params": [
-                      "value"
-                    ],
-                    "type": "field"
-                  }
-                ]
-              ],
-              "tags": []
-            }
+          "alias": "All open PRs at that time",
+          "dsType": "influxdb",
+          "groupBy": [],
+          "measurement": "prs_kubernetes_kubernetes_d",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "SELECT /^[[repogroup]]$/ FROM \"prs_blocked_all_prs_[[period]]\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "A",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              }
+            ]
           ],
-          "thresholds": [],
-          "timeFrom": null,
-          "timeShift": null,
-          "title": "Open PRs blocked (Repository group [[repogroup]], [[period]])",
-          "tooltip": {
-            "shared": true,
-            "sort": 2,
-            "value_type": "individual"
-          },
-          "type": "graph",
-          "xaxis": {
-            "buckets": null,
-            "mode": "time",
-            "name": null,
-            "show": true,
-            "values": []
-          },
-          "yaxes": [
-            {
-              "format": "short",
-              "label": "Pull requests",
-              "logBase": 1,
-              "max": null,
-              "min": "0",
-              "show": true
-            },
-            {
-              "format": "short",
-              "label": "",
-              "logBase": 1,
-              "max": null,
-              "min": "0",
-              "show": true
-            }
-          ]
+          "tags": []
+        },
+        {
+          "alias": "Needs OK to test",
+          "dsType": "influxdb",
+          "groupBy": [],
+          "measurement": "prs_kubernetes_kubernetes_d",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "SELECT /^[[repogroup]]$/ FROM \"prs_blocked_needs_ok_to_test_[[period]]\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "B",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "Release note label needed",
+          "dsType": "influxdb",
+          "groupBy": [],
+          "measurement": "prs_kubernetes_kubernetes_d",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "SELECT /^[[repogroup]]$/ FROM \"prs_blocked_release_note_label_needed_[[period]]\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "C",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "No LGTM label",
+          "dsType": "influxdb",
+          "groupBy": [],
+          "measurement": "prs_kubernetes_kubernetes_d",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "SELECT /^[[repogroup]]$/ FROM \"prs_blocked_no_lgtm_[[period]]\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "D",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "No approved label",
+          "dsType": "influxdb",
+          "groupBy": [],
+          "measurement": "prs_kubernetes_kubernetes_d",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "SELECT /^[[repogroup]]$/ FROM \"prs_blocked_release_no_approve_[[period]]\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "E",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "Do not merge label(s)",
+          "dsType": "influxdb",
+          "groupBy": [],
+          "measurement": "prs_kubernetes_kubernetes_d",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "SELECT /^[[repogroup]]$/ FROM \"prs_blocked_do_not_merge_[[period]]\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "F",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              }
+            ]
+          ],
+          "tags": []
         }
       ],
-      "repeat": null,
-      "repeatIteration": null,
-      "repeatRowId": null,
-      "showTitle": false,
-      "title": "Dashboard Row",
-      "titleSize": "h6"
+      "thresholds": [],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Open PRs blocked (Repository group [[repogroup]], [[period]])",
+      "tooltip": {
+        "shared": true,
+        "sort": 2,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "format": "short",
+          "label": "Pull requests",
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": "",
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true
+        }
+      ]
     }
   ],
-  "schemaVersion": 14,
+  "refresh": false,
+  "schemaVersion": 16,
   "style": "dark",
   "tags": [
     "dashboard",
@@ -349,8 +304,12 @@
       },
       {
         "allValue": "",
-        "current": {},
-        "datasource": "${DS_GHA}",
+        "current": {
+          "tags": [],
+          "text": "All",
+          "value": "All"
+        },
+        "datasource": "gha",
         "hide": 0,
         "includeAll": false,
         "label": "Repository group",
@@ -369,8 +328,11 @@
       },
       {
         "allValue": null,
-        "current": {},
-        "datasource": "${DS_GHA}",
+        "current": {
+          "text": "Kubernetes",
+          "value": "Kubernetes"
+        },
+        "datasource": "gha",
         "hide": 2,
         "includeAll": false,
         "label": null,
@@ -421,5 +383,5 @@
   "timezone": "",
   "title": "Blocked PRs",
   "uid": "4",
-  "version": 4
+  "version": 2
 }
