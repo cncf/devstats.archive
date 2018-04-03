@@ -20,4 +20,3 @@ GHA2DB_PROJECT=envoy IDB_DB=envoy PG_DB=envoy ./shared/import_affs.sh 2>>errors.
 GHA2DB_PROJECT=envoy PG_DB=envoy ./shared/get_repos.sh 2>>errors.txt | tee -a run.log || exit 7
 GHA2DB_PROJECT=envoy PG_DB=envoy GHA2DB_LOCAL=1 ./pdb_vars || exit 8
 ./devel/ro_user_grants.sh envoy || exit 9
-echo "All done. You should run ./envoy/reinit.sh script now."

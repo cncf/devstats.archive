@@ -50,15 +50,15 @@ do
   fi
   if [ -f "./$proj/import_affs.sh" ]
   then
-    ./$proj/import_affs.sh || exit 2
+    ./$proj/import_affs.sh || exit 1
   else
-    GHA2DB_PROJECT=$proj IDB_DB=$db PG_DB=$db ./shared/import_affs.sh || exit 1
+    GHA2DB_PROJECT=$proj IDB_DB=$db PG_DB=$db ./shared/import_affs.sh || exit 2
   fi
   if [ -f "./$proj/update_affs.sh" ]
   then
     ./$proj/update_affs.sh || exit 3
   else
-    GHA2DB_PROJECT=$proj IDB_DB=$db PG_DB=$db ./shared/update_affs.sh || exit 1
+    GHA2DB_PROJECT=$proj IDB_DB=$db PG_DB=$db ./shared/update_affs.sh || exit 4
   fi
 done
 echo 'All affiliations updated'

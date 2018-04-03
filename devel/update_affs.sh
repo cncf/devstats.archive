@@ -48,7 +48,7 @@ do
   then
     ./$proj/update_affs.sh || exit 1
   else
-    GHA2DB_PROJECT=$proj IDB_DB=$db PG_DB=$db ./shared/update_affs.sh || exit 1
+    GHA2DB_PROJECT=$proj IDB_DB=$db PG_DB=$db ./shared/update_affs.sh || exit 2
   fi
 done
 

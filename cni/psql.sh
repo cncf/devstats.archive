@@ -21,4 +21,3 @@ GHA2DB_PROJECT=cni IDB_DB=cni PG_DB=cni ./shared/import_affs.sh 2>>errors.txt | 
 GHA2DB_PROJECT=cni PG_DB=cni ./shared/get_repos.sh 2>>errors.txt | tee -a run.log || exit 8
 GHA2DB_PROJECT=cni PG_DB=cni GHA2DB_LOCAL=1 ./pdb_vars || exit 9
 ./devel/ro_user_grants.sh cni || exit 10
-echo "All done. You should run ./cni/reinit.sh script now."

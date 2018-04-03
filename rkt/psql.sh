@@ -22,4 +22,3 @@ GHA2DB_PROJECT=rkt IDB_DB=rkt PG_DB=rkt ./shared/import_affs.sh 2>>errors.txt | 
 GHA2DB_PROJECT=rkt PG_DB=rkt ./shared/get_repos.sh 2>>errors.txt | tee -a run.log || exit 9
 GHA2DB_PROJECT=rkt PG_DB=rkt GHA2DB_LOCAL=1 ./pdb_vars || exit 10
 ./devel/ro_user_grants.sh rkt || exit 11
-echo "All done. You should run ./rkt/reinit.sh script now."

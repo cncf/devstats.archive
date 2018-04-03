@@ -45,7 +45,7 @@ do
   then
     ./$proj/import_affs.sh || exit 1
   else
-    GHA2DB_PROJECT=$proj IDB_DB=$db PG_DB=$db ./shared/import_affs.sh || exit 1
+    GHA2DB_PROJECT=$proj IDB_DB=$db PG_DB=$db ./shared/import_affs.sh || exit 2
   fi
 done
 echo 'OK'

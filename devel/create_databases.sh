@@ -93,7 +93,12 @@ then
     then
       echo "generating influx database $PROJDB"
       ./grafana/influxdb_recreate.sh "$PROJDB" || exit 15
-      ./$PROJ/reinit.sh || exit 16
+      if [ -f "./$proj/reinit.sh" ]
+      then
+        ./$PROJ/reinit.sh || exit 16
+      else
+        GHA2DB_PROJECT=$PROJ IDB_DB=$PROJDB PG_DB=$PROJDB ./shared/reinit.sh || exit 32
+      fi
     else
       if [ -z "$SKIPTEMP" ]
       then
