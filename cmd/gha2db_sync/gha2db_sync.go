@@ -303,17 +303,21 @@ func sync(ctx *lib.Ctx, args []string) {
 	// Get max event date from Postgres database
 	var maxDtPtr *time.Time
 	maxDtPg := ctx.DefaultStartDate
-	lib.FatalOnError(lib.QueryRowSQL(con, ctx, "select max(created_at) from gha_events").Scan(&maxDtPtr))
-	if maxDtPtr != nil {
-		maxDtPg = *maxDtPtr
+	if !ctx.ForceStartDate {
+		lib.FatalOnError(lib.QueryRowSQL(con, ctx, "select max(created_at) from gha_events").Scan(&maxDtPtr))
+		if maxDtPtr != nil {
+			maxDtPg = *maxDtPtr
+		}
 	}
 
 	// Get max series date from Influx database
 	maxDtIDB := ctx.DefaultStartDate
-	res := lib.QueryIDB(ic, ctx, "select last(value) from "+ctx.LastSeries)
-	series := res[0].Series
-	if len(series) > 0 {
-		maxDtIDB = lib.TimeParseIDB(series[0].Values[0][0].(string))
+	if !ctx.ForceStartDate {
+		res := lib.QueryIDB(ic, ctx, "select last(value) from "+ctx.LastSeries)
+		series := res[0].Series
+		if len(series) > 0 {
+			maxDtIDB = lib.TimeParseIDB(series[0].Values[0][0].(string))
+		}
 	}
 
 	// Create date range
@@ -636,7 +640,7 @@ func getSyncArgs(ctx *lib.Ctx, osArgs []string) []string {
 	lib.FatalOnError(yaml.Unmarshal(data, &projects))
 	proj, ok := projects.Projects[ctx.Project]
 	if ok {
-		if proj.StartDate != nil {
+		if proj.StartDate != nil && !ctx.ForceStartDate {
 			ctx.DefaultStartDate = *proj.StartDate
 		}
 		return proj.CommandLine
