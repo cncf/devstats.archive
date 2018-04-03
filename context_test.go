@@ -41,6 +41,7 @@ func copyContext(in *lib.Ctx) *lib.Ctx {
 		QOut:                in.QOut,
 		CtxOut:              in.CtxOut,
 		DefaultStartDate:    in.DefaultStartDate,
+		ForceStartDate:      in.ForceStartDate,
 		LastSeries:          in.LastSeries,
 		SkipIDB:             in.SkipIDB,
 		SkipPDB:             in.SkipPDB,
@@ -217,6 +218,7 @@ func TestInit(t *testing.T) {
 		QOut:                false,
 		CtxOut:              false,
 		DefaultStartDate:    time.Date(2014, 1, 1, 0, 0, 0, 0, time.UTC),
+		ForceStartDate:      false,
 		LastSeries:          "events_h",
 		SkipIDB:             false,
 		SkipPDB:             false,
@@ -550,6 +552,17 @@ func TestInit(t *testing.T) {
 				copyContext(&defaultContext),
 				map[string]interface{}{
 					"DefaultStartDate": time.Date(1982, 7, 16, 10, 15, 45, 0, time.UTC),
+				},
+			),
+		},
+		{
+			"Setting force start date",
+			map[string]string{"GHA2DB_STARTDT_FORCE": "1"},
+			dynamicSetFields(
+				t,
+				copyContext(&defaultContext),
+				map[string]interface{}{
+					"ForceStartDate": true,
 				},
 			),
 		},

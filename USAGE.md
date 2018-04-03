@@ -89,6 +89,7 @@ You can tweak `devstats` tools by environment variables:
 - Set `GHA2DB_CTXOUT` to display full environment context.
 - Set `GHA2DB_NCPUS` to positive numeric value, to override the number of CPUs to run, this overwrites `GHA2DB_ST`.
 - Set `GHA2DB_STARTDT`, to use start date for processing events (when syncing data with an empty database), default `2015-08-06 22:00 UTC`, expects format "YYYY-MM-DD HH:MI:SS".
+- Set `GHA2DB_STARTDT_FORCE`, to use start date as a last value present in the databases (overrides last values found on the DB).
 - Set `GHA2DB_LASTSERIES`, to specify which InfluxDB series use to determine newest data (it will be used to query the newest timestamp), default `'events_h'`.
 - Set `GHA2DB_CMDDEBUG` set to 1 to see commands executed, set to 2 to see commands executed and their output, set to 3 to see full exec environment.
 - Set `GHA2DB_EXPLAIN` for `runq` tool, it will prefix query select(s) with "explain " to display query plan instead of executing the real query. Because metric can have multiple selects, and only main select should be replaced with "explain select" - we're replacing only downcased "select" statement followed by newline ("select\n" --> "explain select\n")
