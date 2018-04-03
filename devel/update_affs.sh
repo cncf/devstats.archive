@@ -36,7 +36,20 @@ else
 fi
 for proj in $all
 do
-  ./$proj/update_affs.sh || exit 1
+  db=$proj
+  if [ "$proj" = "kubernetes" ]
+  then
+    db="gha"
+  elif [ "$proj" = "all" ]
+  then
+    db="allprj"
+  fi
+  if [ -f "./$proj/update_affs.sh" ]
+  then
+    ./$proj/update_affs.sh || exit 1
+  else
+    GHA2DB_PROJECT=$proj IDB_DB=$db PG_DB=$db ./shared/update_affs.sh || exit 1
+  fi
 done
 
 echo 'OK'

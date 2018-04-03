@@ -40,7 +40,25 @@ fi
 
 for proj in $all
 do
-  ./$proj/import_affs.sh || exit 2
-  ./$proj/update_affs.sh || exit 3
+  db=$proj
+  if [ "$proj" = "kubernetes" ]
+  then
+    db="gha"
+  elif [ "$proj" = "all" ]
+  then
+    db="allprj"
+  fi
+  if [ -f "./$proj/import_affs.sh" ]
+  then
+    ./$proj/import_affs.sh || exit 2
+  else
+    GHA2DB_PROJECT=$proj IDB_DB=$db PG_DB=$db ./shared/import_affs.sh || exit 1
+  fi
+  if [ -f "./$proj/update_affs.sh" ]
+  then
+    ./$proj/update_affs.sh || exit 3
+  else
+    GHA2DB_PROJECT=$proj IDB_DB=$db PG_DB=$db ./shared/update_affs.sh || exit 1
+  fi
 done
 echo 'All affiliations updated'
