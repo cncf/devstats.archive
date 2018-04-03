@@ -27,6 +27,11 @@ do
       db="allprj"
     fi
     echo "$f -> $db"
-    ./$f/top_n_repos_groups.sh 70 >> ./metrics/$f/gaps.yaml || exit 1
+    if [ -f "./$f/top_n_repos_groups.sh" ]
+    then
+      ./$f/top_n_repos_groups.sh 70 >> ./metrics/$f/gaps.yaml || exit 1
+    else
+      GHA2DB_PROJECT=$f PG_DB=$db ./shared/top_n_repos_groups.sh 70 >> ./metrics/$f/gaps.yaml || exit 1
+    fi
 done
 echo 'OK'
