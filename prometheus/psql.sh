@@ -17,7 +17,7 @@ GHA2DB_PROJECT=prometheus IDB_DB=prometheus PG_DB=prometheus GHA2DB_LOCAL=1 GHA2
 GHA2DB_PROJECT=prometheus IDB_DB=prometheus PG_DB=prometheus GHA2DB_LOCAL=1 GHA2DB_MGETC=y GHA2DB_SKIPTABLE=1 GHA2DB_INDEX=1 ./structure 2>>errors.txt | tee -a run.log || exit 4
 ./prometheus/setup_repo_groups.sh 2>>errors.txt | tee -a run.log || exit 5
 ./prometheus/setup_scripts.sh 2>>errors.txt | tee -a run.log || exit 6
-./prometheus/import_affs.sh 2>>errors.txt | tee -a run.log || exit 7
+GHA2DB_PROJECT=prometheus IDB_DB=prometheus PG_DB=prometheus ./shared/import_affs.sh 2>>errors.txt | tee -a run.log || exit 7
 GHA2DB_PROJECT=prometheus PG_DB=prometheus ./shared/get_repos.sh 2>>errors.txt | tee -a run.log || exit 8
 GHA2DB_PROJECT=prometheus PG_DB=prometheus GHA2DB_LOCAL=1 ./pdb_vars || exit 9
 ./devel/ro_user_grants.sh prometheus || exit 10
