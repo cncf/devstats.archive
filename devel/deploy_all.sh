@@ -30,12 +30,12 @@ then
 fi
 
 # OCI has no icon in cncf/artwork at all, so use "-" here
-PROJ=kubernetes     PROJDB=gha            PROJREPO="kubernetes/kubernetes"      ORGNAME=Kubernetes  PORT=2999 ICON=kubernetes  GRAFSUFF=k8s            GA="UA-108085315-1"  ./devel/deploy_proj.sh || exit 2
-PROJ=prometheus     PROJDB=prometheus     PROJREPO="prometheus/prometheus"      ORGNAME=Prometheus  PORT=3001 ICON=prometheus  GRAFSUFF=prometheus     GA="UA-108085315-3"  ./devel/deploy_proj.sh || exit 3
+PROJ=kubernetes     PROJDB=gha            PROJREPO="kubernetes/kubernetes"      ORGNAME=Kubernetes  PORT=2999 ICON=kubernetes  GRAFSUFF=k8s            GA="UA-108085315-1"  SKIPTEMP=1 IGEN=1 ./devel/deploy_proj.sh || exit 2
+PROJ=prometheus     PROJDB=prometheus     PROJREPO="prometheus/prometheus"      ORGNAME=Prometheus  PORT=3001 ICON=prometheus  GRAFSUFF=prometheus     GA="UA-108085315-3"  SKIPTEMP=1 ./devel/deploy_proj.sh || exit 3
 PROJ=opentracing    PROJDB=opentracing    PROJREPO="opentracing/opentracing-go" ORGNAME=OpenTracing PORT=3002 ICON=opentracing GRAFSUFF=opentracing    GA="UA-108085315-4"  ./devel/deploy_proj.sh || exit 4
 PROJ=fluentd        PROJDB=fluentd        PROJREPO="fluent/fluentd"             ORGNAME=Fluentd     PORT=3003 ICON=fluentd     GRAFSUFF=fluentd        GA="UA-108085315-5"  ./devel/deploy_proj.sh || exit 5
 PROJ=linkerd        PROJDB=linkerd        PROJREPO="linkerd/linkerd"            ORGNAME=Linkerd     PORT=3004 ICON=linkerd     GRAFSUFF=linkerd        GA="UA-108085315-6"  ./devel/deploy_proj.sh || exit 6
-PROJ=grpc           PROJDB=grpc           PROJREPO="grpc/grpc"                  ORGNAME=gRPC        PORT=3005 ICON=grpc        GRAFSUFF=grpc           GA="UA-108085315-7"  ./devel/deploy_proj.sh || exit 7
+PROJ=grpc           PROJDB=grpc           PROJREPO="grpc/grpc"                  ORGNAME=gRPC        PORT=3005 ICON=grpc        GRAFSUFF=grpc           GA="UA-108085315-7"  SKIPTEMP=1 ./devel/deploy_proj.sh || exit 7
 PROJ=coredns        PROJDB=coredns        PROJREPO="coredns/coredns"            ORGNAME=CoreDNS     PORT=3006 ICON=coredns     GRAFSUFF=coredns        GA="UA-108085315-9"  ./devel/deploy_proj.sh || exit 8
 PROJ=containerd     PROJDB=containerd     PROJREPO="containerd/containerd"      ORGNAME=containerd  PORT=3007 ICON=containerd  GRAFSUFF=containerd     GA="UA-108085315-10" ./devel/deploy_proj.sh || exit 9
 PROJ=rkt            PROJDB=rkt            PROJREPO="rkt/rkt"                    ORGNAME=rkt         PORT=3008 ICON=rkt         GRAFSUFF=rkt            GA="UA-108085315-11" ./devel/deploy_proj.sh || exit 10
@@ -55,7 +55,7 @@ if [ "$host" = "cncftest.io" ]
 then
   PROJ=cncf         PROJDB=cncf           PROJREPO="cncf/landscape"             ORGNAME=CNCF        PORT=3255 ICON=cncf        GRAFSUFF=cncf           GA="UA-108085315-8" ./devel/deploy_proj.sh || exit 23
 fi
-PROJ=all            PROJDB=allprj         PROJREPO="not/used"                   ORGNAME="All CNCF"  PORT=3254 ICON=cncf        GRAFSUFF=all            GA="UA-108085315-20" ./devel/deploy_proj.sh || exit 24
+PROJ=all            PROJDB=allprj         PROJREPO="not/used"                   ORGNAME="All CNCF"  PORT=3254 ICON=cncf        GRAFSUFF=all            GA="UA-108085315-20" SKIPTEMP=1 ./devel/deploy_proj.sh || exit 24
 
 CERT=1 WWW=1 ./devel/create_www.sh || exit 25
 ./devel/pdb_vars_all.sh || exit 26

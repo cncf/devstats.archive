@@ -6,6 +6,8 @@
 # GAPS=1 (will update metrics/$PROJ/gaps.yaml with Top repo groups from PSQL database)
 # IDB=1 (will generate Influx DB)
 # IDROP=1 (will drop & create Influx DB)
+# SKIPTEMP=1 will skip optional step (local:dbname_temp) when copying IDB backup remote:dbname ->local:dbname_temp -> local:dbname
+# IGEN=1 (will force Influx DB generation, even if IGET=1 is set, actually this is used to reverse IGET=1 for K8s for which regenerate is faster than copy)
 lim=70
 set -o pipefail
 if ( [ -z "$PG_PASS" ] || [ -z "$IDB_PASS" ] || [ -z "$IDB_HOST" ] )
@@ -87,24 +89,35 @@ then
   exists=`echo 'show databases' | influx -host $IDB_HOST -username gha_admin -password $IDB_PASS | grep $PROJDB`
   if [ -z "$exists" ]
   then
-    if [ -z "$IGET" ]
+    if ( [ -z "$IGET" ] || [ ! -z "IGEN" ] )
     then
       echo "generating influx database $PROJDB"
       ./grafana/influxdb_recreate.sh "$PROJDB" || exit 15
       ./$PROJ/reinit.sh || exit 16
     else
-      echo "fetching $PROJDB database from cncftest.io (into ${PROJDB}_temp database)"
-      ./grafana/influxdb_recreate.sh "${PROJDB}_temp" || exit 17
-      IDB_HOST_SRC=cncftest.io IDB_USER_SRC=ro_user IDB_DB_SRC="$PROJDB" IDB_DB_DST="${PROJDB}_temp" ./idb_backup || exit 18
-      echo 'removing influx variables received from the backup'
-      echo "drop series from vars" | influx -host "${IDB_HOST}" -username gha_admin -password "$IDB_PASS" -database "${PROJDB}_temp" || exit 24
-      echo 'regenerating influx variables'
-      GHA2DB_LOCAL=1 GHA2DB_PROJECT="$PROJ" IDB_DB="${PROJDB}_temp" ./idb_vars || exit 25
-      echo "copying ${PROJDB}_temp database to $PROJDB"
-      ./grafana/influxdb_recreate.sh "$PROJDB" || exit 19
-      unset IDB_PASS_SRC
-      IDB_DB_SRC="${PROJDB}_temp" IDB_DB_DST="$PROJDB" ./idb_backup || exit 20
-      ./grafana/influxdb_drop.sh "${PROJDB}_temp" || exit 21
+      if [ -z "$SKIPTEMP" ]
+      then
+        echo "fetching $PROJDB database from cncftest.io (into ${PROJDB}_temp database)"
+        ./grafana/influxdb_recreate.sh "${PROJDB}_temp" || exit 17
+        IDB_HOST_SRC=cncftest.io IDB_USER_SRC=ro_user IDB_DB_SRC="$PROJDB" IDB_DB_DST="${PROJDB}_temp" ./idb_backup || exit 18
+        echo 'removing influx variables received from the backup'
+        echo "drop series from vars" | influx -host "${IDB_HOST}" -username gha_admin -password "$IDB_PASS" -database "${PROJDB}_temp" || exit 24
+        echo 'regenerating influx variables'
+        GHA2DB_LOCAL=1 GHA2DB_PROJECT="$PROJ" IDB_DB="${PROJDB}_temp" ./idb_vars || exit 25
+        echo "copying ${PROJDB}_temp database to $PROJDB"
+        ./grafana/influxdb_recreate.sh "$PROJDB" || exit 19
+        unset IDB_PASS_SRC
+        IDB_DB_SRC="${PROJDB}_temp" IDB_DB_DST="$PROJDB" ./idb_backup || exit 20
+        ./grafana/influxdb_drop.sh "${PROJDB}_temp" || exit 21
+      else
+        echo "fetching $PROJDB database from cncftest.io"
+        ./grafana/influxdb_recreate.sh "$PROJDB" || exit 28
+        IDB_HOST_SRC=cncftest.io IDB_USER_SRC=ro_user IDB_DB_SRC="$PROJDB" IDB_DB_DST="$PROJDB" ./idb_backup || exit 29
+        echo 'removing influx variables received from the backup'
+        echo "drop series from vars" | influx -host "$IDB_HOST" -username gha_admin -password "$IDB_PASS" -database "$PROJDB" || exit 30
+        echo 'regenerating influx variables'
+        GHA2DB_LOCAL=1 GHA2DB_PROJECT="$PROJ" IDB_DB="$PROJDB" ./idb_vars || exit 31
+      fi
     fi
     if [ ! -z "$GOT" ]
     then
