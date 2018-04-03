@@ -34,7 +34,20 @@ else
 fi
 for proj in $all
 do
-  ./$proj/tags.sh || exit 2
+  db=$proj
+  if [ "$proj" = "kubernetes" ]
+  then
+    db="gha"
+  elif [ "$proj" = "all" ]
+  then
+    db="allprj"
+  fi
+  if [ -f "./$proj/tags.sh" ]
+  then
+    ./$proj/tags.sh || exit 1
+  else
+    GHA2DB_PROJECT=$proj IDB_DB=$db PG_DB=$db ./shared/tags.sh || exit 2
+  fi
 done
 
 echo 'OK'
