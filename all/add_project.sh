@@ -70,8 +70,18 @@ else
 fi
 if [ -z "$IDB" ]
 then
-  ./all/top_n_repos_groups.sh 70 > out || exit 13
-  ./all/top_n_companies 70 >> out || exit 14
+  if [ -f "./all/top_n_repos_groups.sh" ]
+  then
+    ./all/top_n_repos_groups.sh 70 > out || exit 13
+  else
+    GHA2DB_PROJECT=all PG_DB=allprj ./shared/top_n_repos_groups.sh 70 > out || exit 18
+  fi
+  if [ -f "./all/top_n_companies.sh" ]
+  then
+    ./all/top_n_companies.sh 70 > out || exit 29
+  else
+    GHA2DB_PROJECT=all PG_DB=allprj ./shared/top_n_companies.sh 70 >> out || exit 30
+  fi
   cat out
   echo 'Please update ./metrics/all/gaps*.yaml with new companies & repo groups data (also dont forget repo groups).'
   echo 'Then run reinit.sh.'
