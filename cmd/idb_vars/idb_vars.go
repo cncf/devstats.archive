@@ -1,7 +1,6 @@
 package main
 
 import (
-	"io/ioutil"
 	"os/exec"
 	"strings"
 	"time"
@@ -47,7 +46,7 @@ func idbVars() {
 	}
 
 	// Read vars to generate
-	data, err := ioutil.ReadFile(dataPrefix + ctx.IVarsYaml)
+	data, err := lib.ReadFile(&ctx, dataPrefix+ctx.IVarsYaml)
 	if err != nil {
 		lib.FatalOnError(err)
 		return

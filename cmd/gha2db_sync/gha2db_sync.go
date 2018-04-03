@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"strconv"
 	"strings"
@@ -170,7 +169,7 @@ func fillGapsInSeries(ctx *lib.Ctx, from, to time.Time) {
 		dataPrefix = "./"
 	}
 
-	data, err := ioutil.ReadFile(dataPrefix + ctx.GapsYaml)
+	data, err := lib.ReadFile(ctx, dataPrefix+ctx.GapsYaml)
 	if err != nil {
 		lib.FatalOnError(err)
 		return
@@ -438,7 +437,7 @@ func sync(ctx *lib.Ctx, args []string) {
 		fillGapsInSeries(ctx, from, to)
 
 		// Read metrics configuration
-		data, err := ioutil.ReadFile(dataPrefix + ctx.MetricsYaml)
+		data, err := lib.ReadFile(ctx, dataPrefix+ctx.MetricsYaml)
 		if err != nil {
 			lib.FatalOnError(err)
 			return
@@ -628,7 +627,7 @@ func getSyncArgs(ctx *lib.Ctx, osArgs []string) []string {
 	}
 
 	// Read defined projects
-	data, err := ioutil.ReadFile(dataPrefix + ctx.ProjectsYaml)
+	data, err := lib.ReadFile(ctx, dataPrefix+ctx.ProjectsYaml)
 	if err != nil {
 		lib.FatalOnError(err)
 		return []string{}

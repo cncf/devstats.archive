@@ -2,7 +2,6 @@ package devstats
 
 import (
 	"context"
-	"io/ioutil"
 	"strings"
 	"time"
 
@@ -34,7 +33,7 @@ func GHClient(ctx *Ctx) (ghCtx context.Context, client *github.Client) {
 	// Get GitHub OAuth from env or from file
 	oAuth := ctx.GitHubOAuth
 	if strings.Contains(ctx.GitHubOAuth, "/") {
-		bytes, err := ioutil.ReadFile(ctx.GitHubOAuth)
+		bytes, err := ReadFile(ctx, ctx.GitHubOAuth)
 		FatalOnError(err)
 		oAuth = strings.TrimSpace(string(bytes))
 	}

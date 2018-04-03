@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"strconv"
 	"strings"
@@ -36,7 +35,7 @@ func runq(sqlFile string, params []string) {
 	}
 
 	// Read and eventually transform SQL file.
-	bytes, err := ioutil.ReadFile(sqlFile)
+	bytes, err := lib.ReadFile(&ctx, sqlFile)
 	lib.FatalOnError(err)
 	sqlQuery := string(bytes)
 	qrPeriod := ""

@@ -69,7 +69,7 @@ func TestMetrics(t *testing.T) {
 
 	// Load test cases
 	var tests metricTests
-	data, err := ioutil.ReadFile(ctx.TestsYaml)
+	data, err := ReadFile(&ctx, ctx.TestsYaml)
 	if err != nil {
 		lib.FatalOnError(err)
 		return
@@ -382,7 +382,7 @@ func executeMetric(c *sql.DB, ctx *lib.Ctx, metric string, from, to time.Time, p
 	sqlFile := fmt.Sprintf("metrics/%s/%s.sql", ctx.Project, metric)
 
 	// Read and transform SQL file.
-	bytes, err := ioutil.ReadFile(sqlFile)
+	bytes, err := ReadFile(ctx, sqlFile)
 	if err != nil {
 		return
 	}
