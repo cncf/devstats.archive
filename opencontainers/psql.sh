@@ -16,7 +16,7 @@ GHA2DB_PROJECT=opencontainers IDB_DB=opencontainers PG_DB=opencontainers GHA2DB_
 GHA2DB_PROJECT=opencontainers IDB_DB=opencontainers PG_DB=opencontainers GHA2DB_LOCAL=1 GHA2DB_MGETC=y GHA2DB_SKIPTABLE=1 GHA2DB_INDEX=1 ./structure 2>>errors.txt | tee -a run.log || exit 3
 GHA2DB_PROJECT=opencontainers PG_DB=opencontainers ./shared/setup_repo_groups.sh 2>>errors.txt | tee -a run.log || exit 4
 GHA2DB_PROJECT=opencontainers IDB_DB=opencontainers PG_DB=opencontainers ./shared/import_affs.sh 2>>errors.txt | tee -a run.log || exit 5
-./opencontainers/setup_scripts.sh 2>>errors.txt | tee -a run.log || exit 6
+GHA2DB_PROJECT=opencontainers PG_DB=opencontainers ./shared/setup_scripts.sh 2>>errors.txt | tee -a run.log || exit 6
 GHA2DB_PROJECT=opencontainers PG_DB=opencontainers ./shared/get_repos.sh 2>>errors.txt | tee -a run.log || exit 7
 GHA2DB_PROJECT=opencontainers PG_DB=opencontainers GHA2DB_LOCAL=1 ./pdb_vars || exit 8
 ./devel/ro_user_grants.sh opencontainers || exit 9

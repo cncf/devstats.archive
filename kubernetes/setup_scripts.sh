@@ -1,5 +1,4 @@
 #!/bin/bash
-# Run this script from the repository top level.
 echo "Setting up repository groups sync script"
 sudo -u postgres psql gha -c "insert into gha_postprocess_scripts(ord, path) select 0, 'scripts/kubernetes/repo_groups.sql' on conflict do nothing"
 echo "Setting up default postprocess scripts"
