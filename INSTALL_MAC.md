@@ -23,6 +23,7 @@ Prerequisites:
     - Go YAML parser library: install with: `go get gopkg.in/yaml.v2`
     - Go GitHub API client: `go get github.com/google/go-github/github`
     - Go OAuth2 client: `go get golang.org/x/oauth2`
+    - Go SQLite3 client: `go get github.com/mattn/go-sqlite3`
     - Wget: install with: `brew install wget`
 
 2. Go to $GOPATH/src/ and clone devstats there:

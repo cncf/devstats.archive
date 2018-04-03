@@ -937,6 +937,7 @@ Prerequisites:
     - Go YAML parser library: install with: `go get gopkg.in/yaml.v2`
     - Go GitHub API client: `go get github.com/google/go-github/github`
     - Go OAuth2 client: `go get golang.org/x/oauth2`
+    - Go SQLite3 client: `go get github.com/mattn/go-sqlite3`
     - Wget: install with: `brew install wget`
 
 2. Go to $GOPATH/src/ and clone devstats there:
@@ -1099,6 +1100,7 @@ Prerequisites:
     - Go YAML parser library: install with: `go get gopkg.in/yaml.v2`
     - Go GitHub API client: `go get github.com/google/go-github/github`
     - Go OAuth2 client: `go get golang.org/x/oauth2`
+    - Go SQLite3 client: `go get github.com/mattn/go-sqlite3`
 2. Go to $GOPATH/src/ and clone devstats there:
     - `git clone https://github.com/cncf/devstats.git`, cd `devstats`
 3. If you want to make changes and PRs, please clone `devstats` from GitHub UI, and clone your forked version instead, like this:
@@ -1597,6 +1599,7 @@ Prerequisites:
     - Go YAML parser library: install with: `go get gopkg.in/yaml.v2`
     - Go GitHub API client: `go get github.com/google/go-github/github`
     - Go OAuth2 client: `go get golang.org/x/oauth2`
+    - Go SQLite3 client: `go get github.com/mattn/go-sqlite3`
 
 2. Go to $GOPATH/src/ and clone devstats there:
     - `git clone https://github.com/cncf/devstats.git`
@@ -2987,6 +2990,7 @@ Prerequisites:
     - Go YAML parser library: install with: `go get gopkg.in/yaml.v2`
     - Go GitHub API client: `go get github.com/google/go-github/github`
     - Go OAuth2 client: `go get golang.org/x/oauth2`
+    - Go SQLite3 client: `go get github.com/mattn/go-sqlite3`
 2. Go to $GOPATH/src/ and clone devstats there:
     - `git clone https://github.com/cncf/devstats.git`, cd `devstats`
     - Set reuse TCP connections (Golang InfluxDB may need this under heavy load): `./scripts/net_tcp_config.sh`
