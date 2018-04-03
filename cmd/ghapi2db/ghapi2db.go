@@ -3,7 +3,6 @@ package main
 import (
 	"database/sql"
 	"fmt"
-	"io/ioutil"
 	"sort"
 	"strconv"
 	"strings"
@@ -225,8 +224,9 @@ func ghapi2db() {
 		dataPrefix = "./"
 	}
 	// Get recently modified opened issues/PRs
-	bytes, err := ioutil.ReadFile(
-		dataPrefix + "util_sql/open_issues_and_prs.sql",
+	bytes, err := lib.ReadFile(
+		&ctx,
+		dataPrefix+"util_sql/open_issues_and_prs.sql",
 	)
 	lib.FatalOnError(err)
 	sqlQuery := string(bytes)

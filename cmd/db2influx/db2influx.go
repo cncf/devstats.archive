@@ -3,7 +3,6 @@ package main
 import (
 	"database/sql"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"strconv"
 	"strings"
@@ -597,12 +596,12 @@ func db2influx(seriesNameOrFunc, sqlFile, from, to, intervalAbbr string, hist, m
 	}
 
 	// Read SQL file.
-	bytes, err := ioutil.ReadFile(sqlFile)
+	bytes, err := lib.ReadFile(&ctx, sqlFile)
 	lib.FatalOnError(err)
 	sqlQuery := string(bytes)
 
 	// Read bots exclusion partial SQL
-	bytes, err = ioutil.ReadFile(dataPrefix + "util_sql/exclude_bots.sql")
+	bytes, err = lib.ReadFile(&ctx, dataPrefix+"util_sql/exclude_bots.sql")
 	lib.FatalOnError(err)
 	excludeBots := string(bytes)
 

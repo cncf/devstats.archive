@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"os/exec"
 	"strings"
@@ -44,7 +43,7 @@ func pdbVars() {
 	}
 
 	// Read vars to generate
-	data, err := ioutil.ReadFile(dataPrefix + ctx.PVarsYaml)
+	data, err := lib.ReadFile(&ctx, dataPrefix+ctx.PVarsYaml)
 	if err != nil {
 		lib.FatalOnError(err)
 		return
