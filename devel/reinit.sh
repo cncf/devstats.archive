@@ -36,5 +36,18 @@ else
 fi
 for proj in $all
 do
-  ./$proj/reinit.sh || exit 1
+  db=$proj
+  if [ "$proj" = "kubernetes" ]
+  then
+    db="gha"
+  elif [ "$proj" = "all" ]
+  then
+    db="allprj"
+  fi
+  if [ -f "./$proj/reinit.sh" ]
+  then
+    ./$proj/reinit.sh || exit 1
+  else
+    GHA2DB_PROJECT=$proj IDB_DB=$db PG_DB=$db ./shared/reinit.sh || exit 2
+  fi
 done

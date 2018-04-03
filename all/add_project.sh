@@ -63,13 +63,18 @@ then
   ./all/top_n_companies 70 >> out || exit 14
   cat out
   echo 'Please update ./metrics/all/gaps*.yaml with new companies & repo groups data (also dont forget repo groups).'
-  echo 'Then run ./all/reinit.sh.'
+  echo 'Then run reinit.sh.'
   echo 'Top 70 repo groups & companies are saved in "out" file.'
 else
   if [ -z "$IGET" ]
   then
     echo "regenerating allprj influx database"
-    ./all/reinit.sh || exit 15
+    if [ -f "./all/reinit.sh" ]
+    then
+      ./all/reinit.sh || exit 15
+    else
+      GHA2DB_PROJECT=all PG_DB=allprj IDB_DB=allprj ./shared/reinit.sh || exit 24
+    fi
   else
     echo 'fetching allprj database from cncftest.io (into allprj_temp database)'
     ./grafana/influxdb_recreate.sh allprj_temp || exit 16

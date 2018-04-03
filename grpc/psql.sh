@@ -20,4 +20,3 @@ GHA2DB_PROJECT=grpc IDB_DB=grpc PG_DB=grpc ./shared/import_affs.sh 2>>errors.txt
 GHA2DB_PROJECT=grpc PG_DB=grpc ./shared/get_repos.sh 2>>errors.txt | tee -a run.log || exit 7
 GHA2DB_PROJECT=grpc PG_DB=grpc GHA2DB_LOCAL=1 ./pdb_vars || exit 8
 ./devel/ro_user_grants.sh grpc || exit 9
-echo "All done. You should run ./grpc/reinit.sh script now."

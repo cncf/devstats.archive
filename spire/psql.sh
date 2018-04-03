@@ -20,4 +20,3 @@ GHA2DB_PROJECT=spire IDB_DB=spire PG_DB=spire ./shared/import_affs.sh 2>>errors.
 GHA2DB_PROJECT=spire PG_DB=spire ./shared/get_repos.sh 2>>errors.txt | tee -a run.log || exit 7
 GHA2DB_PROJECT=spire PG_DB=spire GHA2DB_LOCAL=1 ./pdb_vars || exit 8
 ./devel/ro_user_grants.sh spire || exit 9
-echo "All done. You should run ./spire/reinit.sh script now."
