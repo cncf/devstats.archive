@@ -16,7 +16,7 @@ GHA2DB_PROJECT=opentracing IDB_DB=opentracing PG_DB=opentracing GHA2DB_LOCAL=1 .
 GHA2DB_PROJECT=opentracing IDB_DB=opentracing PG_DB=opentracing GHA2DB_LOCAL=1 GHA2DB_MGETC=y GHA2DB_SKIPTABLE=1 GHA2DB_INDEX=1 ./structure 2>>errors.txt | tee -a run.log || exit 3
 GHA2DB_PROJECT=opentracing PG_DB=opentracing ./shared/setup_repo_groups.sh 2>>errors.txt | tee -a run.log || exit 4
 GHA2DB_PROJECT=opentracing IDB_DB=opentracing PG_DB=opentracing ./shared/import_affs.sh 2>>errors.txt | tee -a run.log || exit 5
-./opentracing/setup_scripts.sh 2>>errors.txt | tee -a run.log || exit 6
+GHA2DB_PROJECT=opentracing PG_DB=opentracing ./shared/setup_scripts.sh 2>>errors.txt | tee -a run.log || exit 6
 GHA2DB_PROJECT=opentracing PG_DB=opentracing ./shared/get_repos.sh 2>>errors.txt | tee -a run.log || exit 7
 GHA2DB_PROJECT=opentracing PG_DB=opentracing GHA2DB_LOCAL=1 ./pdb_vars || exit 8
 ./devel/ro_user_grants.sh opentracing || exit 9

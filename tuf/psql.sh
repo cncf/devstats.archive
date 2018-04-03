@@ -17,7 +17,7 @@ GHA2DB_PROJECT=tuf IDB_DB=tuf PG_DB=tuf GHA2DB_LOCAL=1 GHA2DB_EXACT=1 GHA2DB_OLD
 GHA2DB_PROJECT=tuf IDB_DB=tuf PG_DB=tuf GHA2DB_LOCAL=1 GHA2DB_MGETC=y GHA2DB_SKIPTABLE=1 GHA2DB_INDEX=1 ./structure 2>>errors.txt | tee -a run.log || exit 4
 GHA2DB_PROJECT=tuf PG_DB=tuf ./shared/setup_repo_groups.sh 2>>errors.txt | tee -a run.log || exit 5
 GHA2DB_PROJECT=tuf IDB_DB=tuf PG_DB=tuf ./shared/import_affs.sh 2>>errors.txt | tee -a run.log || exit 6
-./tuf/setup_scripts.sh 2>>errors.txt | tee -a run.log || exit 7
+GHA2DB_PROJECT=tuf PG_DB=tuf ./shared/setup_scripts.sh 2>>errors.txt | tee -a run.log || exit 7
 GHA2DB_PROJECT=tuf PG_DB=tuf ./shared/get_repos.sh 2>>errors.txt | tee -a run.log || exit 8
 GHA2DB_PROJECT=tuf PG_DB=tuf GHA2DB_LOCAL=1 ./pdb_vars || exit 9
 ./devel/ro_user_grants.sh tuf || exit 10
