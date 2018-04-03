@@ -59,4 +59,5 @@ PROJ=all            PROJDB=allprj         PROJREPO="not/used"                   
 
 CERT=1 WWW=1 ./devel/create_www.sh || exit 25
 ./devel/pdb_vars_all.sh || exit 26
+./devel/idb_vars_all.sh || exit 27
 echo "$0: All deployments finished"
