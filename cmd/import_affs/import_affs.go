@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"regexp"
 	"strings"
@@ -119,7 +118,7 @@ func importAffs(jsonFN string) {
 
 	// Parse github_users.json
 	var users gitHubUsers
-	data, err := ioutil.ReadFile(jsonFN)
+	data, err := lib.ReadFile(&ctx, jsonFN)
 	if err != nil {
 		lib.FatalOnError(err)
 		return

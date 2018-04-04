@@ -20,4 +20,6 @@ echo "github..."
 go get github.com/google/go-github/github
 echo "oauth..."
 go get golang.org/x/oauth2
+echo "sqlite3..."
+go get github.com/mattn/go-sqlite3
 echo "Done"

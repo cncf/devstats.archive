@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"strconv"
 	"strings"
@@ -170,7 +169,7 @@ func fillGapsInSeries(ctx *lib.Ctx, from, to time.Time) {
 		dataPrefix = "./"
 	}
 
-	data, err := ioutil.ReadFile(dataPrefix + ctx.GapsYaml)
+	data, err := lib.ReadFile(ctx, dataPrefix+ctx.GapsYaml)
 	if err != nil {
 		lib.FatalOnError(err)
 		return
@@ -304,17 +303,21 @@ func sync(ctx *lib.Ctx, args []string) {
 	// Get max event date from Postgres database
 	var maxDtPtr *time.Time
 	maxDtPg := ctx.DefaultStartDate
-	lib.FatalOnError(lib.QueryRowSQL(con, ctx, "select max(created_at) from gha_events").Scan(&maxDtPtr))
-	if maxDtPtr != nil {
-		maxDtPg = *maxDtPtr
+	if !ctx.ForceStartDate {
+		lib.FatalOnError(lib.QueryRowSQL(con, ctx, "select max(created_at) from gha_events").Scan(&maxDtPtr))
+		if maxDtPtr != nil {
+			maxDtPg = *maxDtPtr
+		}
 	}
 
 	// Get max series date from Influx database
 	maxDtIDB := ctx.DefaultStartDate
-	res := lib.QueryIDB(ic, ctx, "select last(value) from "+ctx.LastSeries)
-	series := res[0].Series
-	if len(series) > 0 {
-		maxDtIDB = lib.TimeParseIDB(series[0].Values[0][0].(string))
+	if !ctx.ForceStartDate {
+		res := lib.QueryIDB(ic, ctx, "select last(value) from "+ctx.LastSeries)
+		series := res[0].Series
+		if len(series) > 0 {
+			maxDtIDB = lib.TimeParseIDB(series[0].Values[0][0].(string))
+		}
 	}
 
 	// Create date range
@@ -438,7 +441,7 @@ func sync(ctx *lib.Ctx, args []string) {
 		fillGapsInSeries(ctx, from, to)
 
 		// Read metrics configuration
-		data, err := ioutil.ReadFile(dataPrefix + ctx.MetricsYaml)
+		data, err := lib.ReadFile(ctx, dataPrefix+ctx.MetricsYaml)
 		if err != nil {
 			lib.FatalOnError(err)
 			return
@@ -628,7 +631,7 @@ func getSyncArgs(ctx *lib.Ctx, osArgs []string) []string {
 	}
 
 	// Read defined projects
-	data, err := ioutil.ReadFile(dataPrefix + ctx.ProjectsYaml)
+	data, err := lib.ReadFile(ctx, dataPrefix+ctx.ProjectsYaml)
 	if err != nil {
 		lib.FatalOnError(err)
 		return []string{}
@@ -637,7 +640,7 @@ func getSyncArgs(ctx *lib.Ctx, osArgs []string) []string {
 	lib.FatalOnError(yaml.Unmarshal(data, &projects))
 	proj, ok := projects.Projects[ctx.Project]
 	if ok {
-		if proj.StartDate != nil {
+		if proj.StartDate != nil && !ctx.ForceStartDate {
 			ctx.DefaultStartDate = *proj.StartDate
 		}
 		return proj.CommandLine

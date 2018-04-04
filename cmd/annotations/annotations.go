@@ -1,7 +1,6 @@
 package main
 
 import (
-	"io/ioutil"
 	"time"
 
 	lib "devstats"
@@ -27,7 +26,7 @@ func makeAnnotations() {
 	}
 
 	// Read defined projects
-	data, err := ioutil.ReadFile(dataPrefix + ctx.ProjectsYaml)
+	data, err := lib.ReadFile(&ctx, dataPrefix+ctx.ProjectsYaml)
 	lib.FatalOnError(err)
 	var projects lib.AllProjects
 	lib.FatalOnError(yaml.Unmarshal(data, &projects))

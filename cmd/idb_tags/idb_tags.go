@@ -1,7 +1,6 @@
 package main
 
 import (
-	"io/ioutil"
 	"strings"
 	"time"
 
@@ -45,7 +44,7 @@ func idbTags() {
 	}
 
 	// Read tags to generate
-	data, err := ioutil.ReadFile(dataPrefix + ctx.TagsYaml)
+	data, err := lib.ReadFile(&ctx, dataPrefix+ctx.TagsYaml)
 	if err != nil {
 		lib.FatalOnError(err)
 		return
@@ -84,12 +83,12 @@ func idbTags() {
 			pts.Points = &bp
 
 			// Read SQL file
-			bytes, err := ioutil.ReadFile(dataPrefix + dir + tg.SQLFile + ".sql")
+			bytes, err := lib.ReadFile(&ctx, dataPrefix+dir+tg.SQLFile+".sql")
 			lib.FatalOnError(err)
 			sqlQuery := string(bytes)
 
 			// Handle excluding bots
-			bytes, err = ioutil.ReadFile(dataPrefix + "util_sql/exclude_bots.sql")
+			bytes, err = lib.ReadFile(&ctx, dataPrefix+"util_sql/exclude_bots.sql")
 			lib.FatalOnError(err)
 			excludeBots := string(bytes)
 

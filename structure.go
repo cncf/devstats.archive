@@ -1,7 +1,6 @@
 package devstats
 
 import (
-	"io/ioutil"
 	"time"
 )
 
@@ -1202,7 +1201,7 @@ func Structure(ctx *Ctx) {
 		for rows.Next() {
 			dtStart := time.Now()
 			FatalOnError(rows.Scan(&script))
-			bytes, err := ioutil.ReadFile(dataPrefix + script)
+			bytes, err := ReadFile(ctx, dataPrefix+script)
 			FatalOnError(err)
 			sql := string(bytes)
 			ExecSQLWithErr(c, ctx, sql)

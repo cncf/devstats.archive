@@ -26,7 +26,7 @@ func importJsons(sqlFile string, jsons []string) {
 	ctx.Init()
 
 	// Make DB backup:
-	contents, err := ioutil.ReadFile(sqlFile)
+	contents, err := lib.ReadFile(&ctx, sqlFile)
 	lib.FatalOnError(err)
 	lib.FatalOnError(ioutil.WriteFile(
 		fmt.Sprintf("%s.%v", sqlFile, time.Now().UnixNano()),
@@ -49,7 +49,7 @@ func importJsons(sqlFile string, jsons []string) {
 	for i, j := range jsons {
 		lib.Printf("Importing %d json: %s\n", i+1, j)
 		// Read JSON
-		bytes, err := ioutil.ReadFile(j)
+		bytes, err := lib.ReadFile(&ctx, j)
 		lib.FatalOnError(err)
 		sBytes := string(bytes)
 		// Get title & uid
