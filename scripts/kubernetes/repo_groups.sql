@@ -1,4 +1,5 @@
 -- Add repository groups
+
 update gha_repos set repo_group = 'Kubernetes' where name in (
   'kubernetes/kubernetes',
   'GoogleCloudPlatform/kubernetes',
