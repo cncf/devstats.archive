@@ -204,6 +204,10 @@ func ghapi2db() {
 	var ctx lib.Ctx
 	ctx.Init()
 
+	if ctx.SkipGHAPI {
+		return
+	}
+
 	// Connect to Postgres DB
 	c := lib.PgConn(&ctx)
 	defer func() { lib.FatalOnError(c.Close()) }()
