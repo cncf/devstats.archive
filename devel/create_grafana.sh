@@ -28,6 +28,8 @@ then
     rm -rf "/usr/share/grafana.$GRAFSUFF/" 2>/dev/null
     rm -rf "/var/lib/grafana.$GRAFSUFF/" 2>/dev/null
     rm -rf "/etc/grafana.$GRAFSUFF/" 2>/dev/null
+    sudo -u postgres psql -c "select pg_terminate_backend(pid) from pg_stat_activity where datname = '${GRAFSUFF}_grafana_sessions'" || exit 36
+    sudo -u postgres psql -c "drop database ${GRAFSUFF}_grafana_sessions" || exit 37
   fi
 fi
 
