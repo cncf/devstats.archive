@@ -55,7 +55,7 @@ then
       echo "attempt to fetch postgres database $PROJDB from backup"
       wget "https://cncftest.io/$PROJDB.dump" || exit 9
       sudo -u postgres pg_restore -d "$PROJDB" "$PROJDB.dump" || exit 10
-      rm -f "$PROJ.dump" || exit 11
+      rm -f "$PROJDB.dump" || exit 11
       echo 'dropping and recreating postgres variables'
       sudo -u postgres psql "$PROJDB" -c "delete from gha_vars" || exit 26
       GHA2DB_PROJECT="$PROJ" PG_DB="$PROJDB" GHA2DB_LOCAL=1 ./pdb_vars || exit 27
