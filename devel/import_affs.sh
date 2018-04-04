@@ -9,7 +9,6 @@ then
   echo "You need to set IDB_PASS environment variable to run this script"
   exit 2
 fi
-
 function finish {
     sync_unlock.sh
 }
@@ -34,7 +33,19 @@ else
 fi
 for proj in $all
 do
-  ./$proj/import_affs.sh || exit 1
+  db=$proj
+  if [ "$proj" = "kubernetes" ]
+  then
+    db="gha"
+  elif [ "$proj" = "all" ]
+  then
+    db="allprj"
+  fi
+  if [ -f "./$proj/import_affs.sh" ]
+  then
+    ./$proj/import_affs.sh || exit 1
+  else
+    GHA2DB_PROJECT=$proj IDB_DB=$db PG_DB=$db ./shared/import_affs.sh || exit 2
+  fi
 done
-
 echo 'OK'

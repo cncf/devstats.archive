@@ -36,6 +36,7 @@ type Ctx struct {
 	CtxOut              bool            // from GHA2DB_CTXOUT output all context data (this struct), default false
 	LogTime             bool            // from GHA2DB_SKIPTIME, output time with all lib.Printf(...) calls, default true, use GHA2DB_SKIPTIME to disable
 	DefaultStartDate    time.Time       // from GHA2DB_STARTDT, default `2014-01-01 00:00 UTC`, expects format "YYYY-MM-DD HH:MI:SS", can be set in `projects.yaml` via `start_date:`, value from projects.yaml (if set) has the highest priority.
+	ForceStartDate      bool            // from GHA2DB_STARTDT_FORCE, default false
 	LastSeries          string          // from GHA2DB_LASTSERIES, use this InfluxDB series to determine last timestamp date, default "events_h"
 	SkipIDB             bool            // from GHA2DB_SKIPIDB gha2db_sync tool, skip Influx DB processing? for db2influx it skips final series write, default false
 	SkipPDB             bool            // from GHA2DB_SKIPPDB gha2db_sync tool, skip Postgres DB processing? default false
@@ -238,6 +239,10 @@ func (ctx *Ctx) Init() {
 		ctx.DefaultStartDate = TimeParseAny(os.Getenv("GHA2DB_STARTDT"))
 	} else {
 		ctx.DefaultStartDate = time.Date(2014, 1, 1, 0, 0, 0, 0, time.UTC)
+	}
+	ctx.ForceStartDate = false
+	if os.Getenv("GHA2DB_STARTDT_FORCE") != "" {
+		ctx.ForceStartDate = true
 	}
 
 	// Last InfluxDB series

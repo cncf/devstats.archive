@@ -2,6 +2,7 @@
 # IDB=1 (will update InfluxDB)
 # IGET=1 (attempt to fetch Influx database from the test server)
 # AGET=1 (will fetch allprj database from backup - not recommended because local merge is faster)
+# SKIPTEMP=1 will skip optional step (local:allprj_temp) when copying IDB backup remote:allprj ->local:allprj_temp -> local:allprj
 set -o pipefail
 if ( [ -z "$1" ] || [ -z "$2" ] )
 then
@@ -54,35 +55,70 @@ else
   echo "merging $1 into allprj"
   GHA2DB_INPUT_DBS="$1" GHA2DB_OUTPUT_DB="allprj" ./merge_pdbs || exit 9
   PG_DB="allprj" ./devel/remove_db_dups.sh || exit 10
-  ./all/get_repos.sh || exit 11
-  ./all/setup_repo_groups.sh || exit 12
+  if [ -f "./all/get_repos.sh" ]
+  then
+    ./all/get_repos.sh || exit 11
+  else
+    GHA2DB_PROJECT=all PG_DB=allprj ./shared/get_repos.sh || exit 26
+  fi
+  if [ -f "./all/setup_repo_groups.sh" ]
+  then
+    ./all/setup_repo_groups.sh || exit 12
+  else
+    GHA2DB_PROJECT=all PG_DB=allprj ./shared/setup_repo_groups.sh || exit 27
+  fi
 fi
 if [ -z "$IDB" ]
 then
-  ./all/top_n_repos_groups.sh 70 > out || exit 13
-  ./all/top_n_companies 70 >> out || exit 14
+  if [ -f "./all/top_n_repos_groups.sh" ]
+  then
+    ./all/top_n_repos_groups.sh 70 > out || exit 13
+  else
+    GHA2DB_PROJECT=all PG_DB=allprj ./shared/top_n_repos_groups.sh 70 > out || exit 18
+  fi
+  if [ -f "./all/top_n_companies.sh" ]
+  then
+    ./all/top_n_companies.sh 70 > out || exit 29
+  else
+    GHA2DB_PROJECT=all PG_DB=allprj ./shared/top_n_companies.sh 70 >> out || exit 30
+  fi
   cat out
   echo 'Please update ./metrics/all/gaps*.yaml with new companies & repo groups data (also dont forget repo groups).'
-  echo 'Then run ./all/reinit.sh.'
+  echo 'Then run reinit.sh.'
   echo 'Top 70 repo groups & companies are saved in "out" file.'
 else
   if [ -z "$IGET" ]
   then
     echo "regenerating allprj influx database"
-    ./all/reinit.sh || exit 15
+    if [ -f "./all/reinit.sh" ]
+    then
+      ./all/reinit.sh || exit 15
+    else
+      GHA2DB_PROJECT=all PG_DB=allprj IDB_DB=allprj ./shared/reinit.sh || exit 24
+    fi
   else
     echo 'fetching allprj database from cncftest.io (into allprj_temp database)'
-    ./grafana/influxdb_recreate.sh allprj_temp || exit 16
-    IDB_HOST_SRC=cncftest.io IDB_USER_SRC=ro_user IDB_DB_SRC=allprj IDB_DB_DST=allprj_temp ./idb_backup || exit 17
-    echo 'removing influx variables received from the backup'
-    echo "drop series from vars" | influx -host "${IDB_HOST}" -username gha_admin -password "$IDB_PASS" -database allprj_temp || exit 22
-    echo 'regenerating influx variables'
-    GHA2DB_LOCAL=1 GHA2DB_PROJECT=all IDB_DB=allprj_temp ./idb_vars || exit 23
-    echo 'copying allprj_temp database to allprj'
-    ./grafana/influxdb_recreate.sh allprj || exit 18
-    unset IDB_PASS_SRC
-    IDB_DB_SRC=allprj_temp IDB_DB_DST=allprj ./idb_backup || exit 19
-    ./grafana/influxdb_drop.sh allprj_temp || exit 20
+    if [ -z "$SKIPTEMP" ]
+    then
+      ./grafana/influxdb_recreate.sh allprj_temp || exit 16
+      IDB_HOST_SRC=cncftest.io IDB_USER_SRC=ro_user IDB_DB_SRC=allprj IDB_DB_DST=allprj_temp ./idb_backup || exit 17
+      echo 'removing influx variables received from the backup'
+      echo "drop series from vars" | influx -host "${IDB_HOST}" -username gha_admin -password "$IDB_PASS" -database allprj_temp || exit 22
+      echo 'regenerating influx variables'
+      GHA2DB_LOCAL=1 GHA2DB_PROJECT=all IDB_DB=allprj_temp ./idb_vars || exit 23
+      echo 'copying allprj_temp database to allprj'
+      ./grafana/influxdb_recreate.sh allprj || exit 18
+      unset IDB_PASS_SRC
+      IDB_DB_SRC=allprj_temp IDB_DB_DST=allprj ./idb_backup || exit 19
+      ./grafana/influxdb_drop.sh allprj_temp || exit 20
+    else
+      ./grafana/influxdb_recreate.sh allprj || exit 27
+      IDB_HOST_SRC=cncftest.io IDB_USER_SRC=ro_user IDB_DB_SRC=allprj IDB_DB_DST=allprj ./idb_backup || exit 28
+      echo 'removing influx variables received from the backup'
+      echo "drop series from vars" | influx -host "${IDB_HOST}" -username gha_admin -password "$IDB_PASS" -database allprj || exit 29
+      echo 'regenerating influx variables'
+      GHA2DB_LOCAL=1 GHA2DB_PROJECT=all IDB_DB=allprj ./idb_vars || exit 30
+    fi
   fi
   if [ ! -z "$AGOT" ]
   then

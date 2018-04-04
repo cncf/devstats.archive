@@ -3,7 +3,6 @@ package main
 import (
 	"database/sql"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"regexp"
 	"strconv"
@@ -61,7 +60,7 @@ func getRepos(ctx *lib.Ctx) (map[string]string, map[string][]string) {
 	}
 
 	// Read defined projects
-	data, err := ioutil.ReadFile(dataPrefix + ctx.ProjectsYaml)
+	data, err := lib.ReadFile(ctx, dataPrefix+ctx.ProjectsYaml)
 	lib.FatalOnError(err)
 
 	var projects lib.AllProjects
@@ -465,8 +464,9 @@ func processCommits(ctx *lib.Ctx, dbs map[string]string) {
 	if ctx.Local {
 		dataPrefix = "./"
 	}
-	bytes, err := ioutil.ReadFile(
-		dataPrefix + "util_sql/list_unprocessed_commits.sql",
+	bytes, err := lib.ReadFile(
+		ctx,
+		dataPrefix+"util_sql/list_unprocessed_commits.sql",
 	)
 	lib.FatalOnError(err)
 	sqlQuery := string(bytes)
@@ -568,8 +568,9 @@ func processCommits(ctx *lib.Ctx, dbs map[string]string) {
 	// holds connections between commits SHA and events that refer to it
 	// So we can query for files modified in the given events (via commits)
 	dtStart = time.Now()
-	bytes, err = ioutil.ReadFile(
-		dataPrefix + "util_sql/create_events_commits.sql",
+	bytes, err = lib.ReadFile(
+		ctx,
+		dataPrefix+"util_sql/create_events_commits.sql",
 	)
 	lib.FatalOnError(err)
 	sqlQuery = string(bytes)

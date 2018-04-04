@@ -30,6 +30,7 @@ Prerequisites:
     - Go YAML parser library: install with: `go get gopkg.in/yaml.v2`
     - Go GitHub API client: `go get github.com/google/go-github/github`
     - Go OAuth2 client: `go get golang.org/x/oauth2`
+    - Go SQLite3 client: `go get github.com/mattn/go-sqlite3`
 2. Go to $GOPATH/src/ and clone devstats there:
     - `git clone https://github.com/cncf/devstats.git`, cd `devstats`
 3. If you want to make changes and PRs, please clone `devstats` from GitHub UI, and clone your forked version instead, like this:
