@@ -45,6 +45,8 @@ func copyContext(in *lib.Ctx) *lib.Ctx {
 		LastSeries:          in.LastSeries,
 		SkipIDB:             in.SkipIDB,
 		SkipPDB:             in.SkipPDB,
+		SkipGHAPI:           in.SkipGHAPI,
+		SkipGetRepos:        in.SkipGetRepos,
 		ResetIDB:            in.ResetIDB,
 		ResetRanges:         in.ResetRanges,
 		Explain:             in.Explain,
@@ -222,6 +224,8 @@ func TestInit(t *testing.T) {
 		LastSeries:          "events_h",
 		SkipIDB:             false,
 		SkipPDB:             false,
+		SkipGHAPI:           false,
+		SkipGetRepos:        false,
 		ResetIDB:            false,
 		ResetRanges:         false,
 		Explain:             false,
@@ -513,6 +517,21 @@ func TestInit(t *testing.T) {
 				t,
 				copyContext(&defaultContext),
 				map[string]interface{}{"SkipPDB": true},
+			),
+		},
+		{
+			"Setting skip GHAPI and GetRepos",
+			map[string]string{
+				"GHA2DB_GETREPOSSKIP": "1",
+				"GHA2DB_GHAPISKIP":    "1",
+			},
+			dynamicSetFields(
+				t,
+				copyContext(&defaultContext),
+				map[string]interface{}{
+					"SkipGHAPI":    true,
+					"SkipGetRepos": true,
+				},
 			),
 		},
 		{

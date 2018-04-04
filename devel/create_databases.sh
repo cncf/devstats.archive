@@ -41,6 +41,7 @@ then
   if ( [ ! -z "$PDROP" ] && [ "$exists" = "1" ] )
   then
     echo "dropping postgres database $PROJDB"
+    sudo -u postgres psql -c "select pg_terminate_backend(pid) from pg_stat_activity where datname = '$PROJDB'" || exit 33
     sudo -u postgres psql -c "drop database $PROJDB" || exit 4
   fi
   exists=`sudo -u postgres psql -tAc "select 1 from pg_database WHERE datname = '$PROJDB'"` || exit 5

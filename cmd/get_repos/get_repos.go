@@ -598,12 +598,14 @@ func main() {
 	// Environment context parse
 	var ctx lib.Ctx
 	ctx.Init()
-	dbs, repos := getRepos(&ctx)
-	if ctx.ProcessRepos {
-		processRepos(&ctx, repos)
-	}
-	if ctx.ProcessCommits {
-		processCommits(&ctx, dbs)
+	if !ctx.SkipGetRepos {
+		dbs, repos := getRepos(&ctx)
+		if ctx.ProcessRepos {
+			processRepos(&ctx, repos)
+		}
+		if ctx.ProcessCommits {
+			processCommits(&ctx, dbs)
+		}
 	}
 	dtEnd := time.Now()
 	lib.Printf("All repos processed in: %v\n", dtEnd.Sub(dtStart))
