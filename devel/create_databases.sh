@@ -86,6 +86,7 @@ then
   then
     echo "dropping influx database $PROJDB"
     ./grafana/influxdb_drop.sh "$PROJDB" || exit 14
+    ./grafana/influxdb_drop.sh "${PROJDB}_temp" || exit 34
   fi
   exists=`echo 'show databases' | influx -host $IDB_HOST -username gha_admin -password $IDB_PASS | grep $PROJDB`
   if [ -z "$exists" ]

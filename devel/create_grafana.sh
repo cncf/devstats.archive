@@ -1,6 +1,7 @@
 #!/bin/bash
 # GET=1 (Get grafana.db from the test server)
 # STOP=1 (Stops running grafana-server instance)
+# RM=1 (only with STOP, get rid of all grafana data before proceeding)
 set -o pipefail
 host=`hostname`
 ga="google_analytics_ua_id = $GA"
@@ -20,6 +21,13 @@ then
     kill $pid
   else
     echo "grafana-server $PROJ not running"
+  fi
+  if [ ! -z "$RM" ]
+  then
+    echo "shreding $PROJ grafana"
+    rm -rf "/usr/share/grafana.$GRAFSUFF/" 2>/dev/null
+    rm -rf "/var/lib/grafana.$GRAFSUFF/" 2>/dev/null
+    rm -rf "/etc/grafana.$GRAFSUFF/" 2>/dev/null
   fi
 fi
 
