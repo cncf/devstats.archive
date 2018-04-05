@@ -498,7 +498,7 @@ func cleanArtificialEvents(ctx *lib.Ctx) {
 		}
 	}
 	// Usually all work happens on '<-ch'
-	lib.Printf("Final GHAPI clean threads join\n")
+	lib.Printf("Final artificial events clean threads join\n")
 	for nThreads > 0 {
 		<-ch
 		nRows++

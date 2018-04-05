@@ -27,6 +27,6 @@ do
     db="allprj"
   fi
   echo "Project: $proj, DB: $db"
-  GHA2DB_GHAPISKIP=1 ./ghapi2db || exit 1
+  GHA2DB_GHAPISKIP=1 PG_DB=$db ./ghapi2db || exit 1
 done
 echo 'OK'
