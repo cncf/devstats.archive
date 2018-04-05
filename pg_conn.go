@@ -53,7 +53,7 @@ func queryOut(query string, args ...interface{}) {
 	// If we use lib.Printf (that logs to DB) while ouputting some query's parameters
 	// We would have infinite recurence
 	if len(args) > 0 {
-		fmt.Printf("%v\n", args)
+		fmt.Printf("%+v\n", args)
 	}
 	fmt.Printf("%s\n", query)
 }

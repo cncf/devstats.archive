@@ -86,7 +86,7 @@ type Ctx struct {
 	MinGHAPIPoints      int             // From GHA2DB_MIN_GHAPI_POINTS, ghapi2db tool, minimum GitHub API points, before waiting for reset.
 	MaxGHAPIWaitSeconds int             // From GHA2DB_MAX_GHAPI_WAIT, ghapi2db tool, maximum wait time for GitHub API points reset (in seconds).
 	SkipGHAPI           bool            // From GHA2DB_GHAPISKIP, ghapi2db tool, if set then tool is not creating artificial events using GitHub API
-	SkipArtificailClean bool            // From GHA2DB_AECLEANSKIP, ghapi tool, if set then tool is not attempting to clean unneeded artificial events
+	SkipArtificailClean bool            // From GHA2DB_AECLEANSKIP, ghapi2db tool, if set then tool is not attempting to clean unneeded artificial events
 	SkipGetRepos        bool            // From GHA2DB_GETREPOSSKIP, get_repos tool, if set then tool does nothing
 	OnlyIssues          []int64         // From GHA2DB_ONLY_ISSUES, ghapi2db tool, process a user provided list of issues "issue_id1,issue_id2,...,issue_idN", default "". This is for debugging.
 	IDBDrop             bool            // From GHA2DB_IDB_DROP_SERIES all Influx related tools, if set "drop " series statement will be executed before adding new data, it is sometimes very very very slow on Influx v1.5.1

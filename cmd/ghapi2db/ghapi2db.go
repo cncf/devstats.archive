@@ -207,6 +207,129 @@ func artificialEvent(
 // Function detects such events from past, and remove them.
 // Event is marked as "not needed" when previous or next event on the same issue has the same milestone and label set.
 func cleanArtificialEvents(ctx *lib.Ctx) {
+	// Connect to Postgres DB
+	c := lib.PgConn(ctx)
+	defer func() { lib.FatalOnError(c.Close()) }()
+
+	// Get number of CPUs available
+	thrN := lib.GetThreadsNum(ctx)
+	lib.Printf("ghapi2db.go: Running cleanup artificial events (on %d CPUs)\n", thrN)
+
+	// Get all artificial events in the recent range
+	minEventID := 281474976710656
+	rows := lib.QuerySQLWithErr(
+		c,
+		ctx,
+		fmt.Sprintf(
+			"select id, event_id, milestone_id, updated_at from gha_issues "+
+				"where event_id > %s and updated_at > now() - %s::interval",
+			lib.NValue(1),
+			lib.NValue(2),
+		),
+		minEventID,
+		ctx.RecentRange,
+	)
+	defer func() { lib.FatalOnError(rows.Close()) }()
+	var (
+		issueID     int64
+		eventID     int64
+		milestoneID *int64
+		updatedAt   time.Time
+	)
+	ch := make(chan bool)
+	nThreads := 0
+	for rows.Next() {
+		lib.FatalOnError(rows.Scan(&issueID, &eventID, &milestoneID, &updatedAt))
+		go func(ch chan bool, iid int64, eid int64, mid *int64, updated time.Time) {
+			// Process current labels
+			rowsL := lib.QuerySQLWithErr(
+				c,
+				ctx,
+				fmt.Sprintf(
+					"select coalesce(string_agg(sub.label_id::text, ','), '') from "+
+						"(select label_id from gha_issues_labels where event_id = %s "+
+						"order by label_id) sub",
+					lib.NValue(1),
+				),
+				eid,
+			)
+			defer func() { lib.FatalOnError(rowsL.Close()) }()
+			labels := ""
+			for rowsL.Next() {
+				lib.FatalOnError(rowsL.Scan(&labels))
+			}
+			lib.FatalOnError(rowsL.Err())
+
+			// Get last event before this artificial event
+			// Process current labels
+			rowsP := lib.QuerySQLWithErr(
+				c,
+				ctx,
+				fmt.Sprintf(
+					"select id, event_id, milestone_id, updated_at from gha_issues "+
+						"where id = %s and updated_at < %s order by updated_at desc limit 1",
+					lib.NValue(1),
+					lib.NValue(2),
+				),
+				iid,
+				updated,
+			)
+			defer func() { lib.FatalOnError(rowsP.Close()) }()
+			var (
+				piid     int64
+				peid     int64
+				pmid     *int64
+				pupdated time.Time
+			)
+			for rowsP.Next() {
+				lib.FatalOnError(rowsP.Scan(&piid, &peid, &pmid, &pupdated))
+			}
+			lib.FatalOnError(rowsP.Err())
+
+			// Process previous labels
+			rowsLP := lib.QuerySQLWithErr(
+				c,
+				ctx,
+				fmt.Sprintf(
+					"select coalesce(string_agg(sub.label_id::text, ','), '') from "+
+						"(select label_id from gha_issues_labels where event_id = %s "+
+						"order by label_id) sub",
+					lib.NValue(1),
+				),
+				peid,
+			)
+			defer func() { lib.FatalOnError(rowsLP.Close()) }()
+			plabels := ""
+			for rowsLP.Next() {
+				lib.FatalOnError(rowsLP.Scan(&plabels))
+			}
+			lib.FatalOnError(rowsLP.Err())
+
+			fmt.Printf(
+				"iid=%d eid=%d mid=%v labels=%s updated=%v --- iid=%d eid=%d mid=%v labels=%s updated=%v\n",
+				iid, eid, mid, labels, updated,
+				piid, peid, pmid, plabels, pupdated,
+			)
+
+			// Synchronize go routine
+			if ch != nil {
+				ch <- true
+			}
+		}(ch, issueID, eventID, milestoneID, updatedAt)
+
+		nThreads++
+		if nThreads == thrN {
+			<-ch
+			nThreads--
+		}
+	}
+	// Usually all work happens on '<-ch'
+	lib.Printf("Final GHAPI clean threads join\n")
+	for nThreads > 0 {
+		<-ch
+		nThreads--
+	}
+	lib.FatalOnError(rows.Err())
 }
 
 // Insert Postgres vars
