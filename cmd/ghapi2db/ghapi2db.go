@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"os"
 	"sort"
 	"strconv"
 	"strings"
@@ -33,7 +34,9 @@ func handlePossibleError(err error, cfg *issueConfig, info string) {
 		if abuse || rate {
 			lib.Printf("Hit rate limit (%s) for %v\n", info, cfg)
 		}
-		lib.FatalOnError(err)
+		//lib.FatalOnError(err)
+		lib.Printf("%s error: %v, non fatal, exiting 0 status\n", os.Args[0], err)
+		os.Exit(0)
 	}
 }
 
