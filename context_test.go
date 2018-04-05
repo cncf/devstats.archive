@@ -46,6 +46,7 @@ func copyContext(in *lib.Ctx) *lib.Ctx {
 		SkipIDB:             in.SkipIDB,
 		SkipPDB:             in.SkipPDB,
 		SkipGHAPI:           in.SkipGHAPI,
+		SkipArtificailClean: in.SkipArtificailClean,
 		SkipGetRepos:        in.SkipGetRepos,
 		ResetIDB:            in.ResetIDB,
 		ResetRanges:         in.ResetRanges,
@@ -225,6 +226,7 @@ func TestInit(t *testing.T) {
 		SkipIDB:             false,
 		SkipPDB:             false,
 		SkipGHAPI:           false,
+		SkipArtificailClean: false,
 		SkipGetRepos:        false,
 		ResetIDB:            false,
 		ResetRanges:         false,
@@ -524,13 +526,15 @@ func TestInit(t *testing.T) {
 			map[string]string{
 				"GHA2DB_GETREPOSSKIP": "1",
 				"GHA2DB_GHAPISKIP":    "1",
+				"GHA2DB_AECLEANSKIP":  "1",
 			},
 			dynamicSetFields(
 				t,
 				copyContext(&defaultContext),
 				map[string]interface{}{
-					"SkipGHAPI":    true,
-					"SkipGetRepos": true,
+					"SkipGHAPI":           true,
+					"SkipGetRepos":        true,
+					"SkipArtificailClean": true,
 				},
 			),
 		},
