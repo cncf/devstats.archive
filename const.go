@@ -47,3 +47,6 @@ const Unset string = "{{unset}}"
 
 // TimeCol - common constant string
 const TimeCol string = "time"
+
+// Null - common constant string
+const Null string = "null"

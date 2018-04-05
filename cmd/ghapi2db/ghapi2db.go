@@ -40,7 +40,32 @@ func handlePossibleError(err error, cfg *issueConfig, info string) {
 	}
 }
 
-// milestonesEvent - create artificial 'ArtificialEvent'
+// deleteArtificialEvent - deletes artificial event from all tables
+func deleteArtificialEvent(c *sql.DB, ctx *lib.Ctx, eid int64) (err error) {
+	if ctx.SkipPDB {
+		if ctx.Debug > 0 {
+			lib.Printf("Skipping delete artificial event: %d\n", eid)
+		}
+		return nil
+	}
+
+	// Start transaction
+	tc, err := c.Begin()
+	lib.FatalOnError(err)
+
+	// Delete from gha_events, gha_issues, gha_payloads, gha_issues_labels
+	lib.ExecSQLTxWithErr(tc, ctx, fmt.Sprintf("delete from gha_events where id = %s", lib.NValue(1)), eid)
+	lib.ExecSQLTxWithErr(tc, ctx, fmt.Sprintf("delete from gha_issues where event_id = %s", lib.NValue(1)), eid)
+	lib.ExecSQLTxWithErr(tc, ctx, fmt.Sprintf("delete from gha_payloads where event_id = %s", lib.NValue(1)), eid)
+	lib.ExecSQLTxWithErr(tc, ctx, fmt.Sprintf("delete from gha_issues_labels where event_id = %s", lib.NValue(1)), eid)
+
+	// Final commit
+	lib.FatalOnError(tc.Commit())
+	//lib.FatalOnError(tc.Rollback())
+	return
+}
+
+// artificialEvent - create artificial 'ArtificialEvent'
 // creates new issue state, artificial event and its payload
 func artificialEvent(
 	c *sql.DB,
@@ -215,20 +240,39 @@ func cleanArtificialEvents(ctx *lib.Ctx) {
 	thrN := lib.GetThreadsNum(ctx)
 	lib.Printf("ghapi2db.go: Running cleanup artificial events (on %d CPUs)\n", thrN)
 
-	// Get all artificial events in the recent range
+	var rows *sql.Rows
 	minEventID := 281474976710656
-	rows := lib.QuerySQLWithErr(
-		c,
-		ctx,
-		fmt.Sprintf(
-			"select id, event_id, milestone_id, updated_at from gha_issues "+
-				"where event_id > %s and updated_at > now() - %s::interval",
-			lib.NValue(1),
-			lib.NValue(2),
-		),
-		minEventID,
-		ctx.RecentRange,
-	)
+	if len(ctx.OnlyEvents) > 0 {
+		ary := []string{}
+		for _, event := range ctx.OnlyEvents {
+			ary = append(ary, strconv.FormatInt(event, 10))
+		}
+		lib.Printf("Processing only selected %d %v events for debugging\n", len(ctx.OnlyEvents), ctx.OnlyEvents)
+		rows = lib.QuerySQLWithErr(
+			c,
+			ctx,
+			fmt.Sprintf(
+				"select id, event_id, milestone_id, updated_at from gha_issues where "+
+					"event_id > %d and event_id in (%s)",
+				minEventID,
+				strings.Join(ary, ","),
+			),
+		)
+	} else {
+		// Get all artificial events in the recent range
+		rows = lib.QuerySQLWithErr(
+			c,
+			ctx,
+			fmt.Sprintf(
+				"select id, event_id, milestone_id, updated_at from gha_issues "+
+					"where event_id > %s and updated_at > now() - %s::interval",
+				lib.NValue(1),
+				lib.NValue(2),
+			),
+			minEventID,
+			ctx.RecentRange,
+		)
+	}
 	defer func() { lib.FatalOnError(rows.Close()) }()
 	var (
 		issueID     int64
@@ -238,9 +282,58 @@ func cleanArtificialEvents(ctx *lib.Ctx) {
 	)
 	ch := make(chan bool)
 	nThreads := 0
+	nRows := 0
+	var counterMutex = &sync.Mutex{}
+	deleted := 0
 	for rows.Next() {
 		lib.FatalOnError(rows.Scan(&issueID, &eventID, &milestoneID, &updatedAt))
 		go func(ch chan bool, iid int64, eid int64, mid *int64, updated time.Time) {
+			// Synchronize go routine
+			defer func(c chan bool) { c <- true }(ch)
+
+			// Get last event before this artificial event
+			rowsP := lib.QuerySQLWithErr(
+				c,
+				ctx,
+				fmt.Sprintf(
+					"select event_id, milestone_id, updated_at from gha_issues "+
+						"where id = %s and updated_at < %s order by updated_at desc limit 1",
+					lib.NValue(1),
+					lib.NValue(2),
+				),
+				iid,
+				updated,
+			)
+			defer func() { lib.FatalOnError(rowsP.Close()) }()
+			var (
+				peid     int64
+				pmid     *int64
+				pupdated time.Time
+			)
+			for rowsP.Next() {
+				lib.FatalOnError(rowsP.Scan(&peid, &pmid, &pupdated))
+			}
+			lib.FatalOnError(rowsP.Err())
+
+			// Check if they differ by milestone, if so, then we are done
+			smid := lib.Null
+			spmid := lib.Null
+			if mid != nil {
+				smid = strconv.FormatInt(*mid, 10)
+			}
+			if pmid != nil {
+				spmid = strconv.FormatInt(*pmid, 10)
+			}
+			if smid != spmid {
+				if ctx.Debug > 0 {
+					lib.Printf(
+						"Issue %d, Event (%d, %d), Dates(%v, %v): milestone difference artificial: %s != previus: %s\n",
+						iid, eid, peid, lib.ToYMDHMSDate(updated), lib.ToYMDHMSDate(pupdated), smid, spmid,
+					)
+				}
+				return
+			}
+
 			// Process current labels
 			rowsL := lib.QuerySQLWithErr(
 				c,
@@ -259,32 +352,6 @@ func cleanArtificialEvents(ctx *lib.Ctx) {
 				lib.FatalOnError(rowsL.Scan(&labels))
 			}
 			lib.FatalOnError(rowsL.Err())
-
-			// Get last event before this artificial event
-			// Process current labels
-			rowsP := lib.QuerySQLWithErr(
-				c,
-				ctx,
-				fmt.Sprintf(
-					"select id, event_id, milestone_id, updated_at from gha_issues "+
-						"where id = %s and updated_at < %s order by updated_at desc limit 1",
-					lib.NValue(1),
-					lib.NValue(2),
-				),
-				iid,
-				updated,
-			)
-			defer func() { lib.FatalOnError(rowsP.Close()) }()
-			var (
-				piid     int64
-				peid     int64
-				pmid     *int64
-				pupdated time.Time
-			)
-			for rowsP.Next() {
-				lib.FatalOnError(rowsP.Scan(&piid, &peid, &pmid, &pupdated))
-			}
-			lib.FatalOnError(rowsP.Err())
 
 			// Process previous labels
 			rowsLP := lib.QuerySQLWithErr(
@@ -305,21 +372,128 @@ func cleanArtificialEvents(ctx *lib.Ctx) {
 			}
 			lib.FatalOnError(rowsLP.Err())
 
-			fmt.Printf(
-				"iid=%d eid=%d mid=%v labels=%s updated=%v --- iid=%d eid=%d mid=%v labels=%s updated=%v\n",
-				iid, eid, mid, labels, updated,
-				piid, peid, pmid, plabels, pupdated,
-			)
-
-			// Synchronize go routine
-			if ch != nil {
-				ch <- true
+			// Check if they differ by labels, if so, then we are done
+			if labels != plabels {
+				if ctx.Debug > 0 {
+					lib.Printf(
+						"Issue %d, Event (%d, %d), Dates(%v, %v): label set difference artificial: '%s' != previus: '%s'\n",
+						iid, eid, peid, lib.ToYMDHMSDate(updated), lib.ToYMDHMSDate(pupdated), labels, plabels,
+					)
+				}
+				return
 			}
+
+			// Get first event after this artificial event, not newer than 2 hours
+			updated2h := lib.HourStart(updated).Add(2 * time.Hour)
+			rowsN := lib.QuerySQLWithErr(
+				c,
+				ctx,
+				fmt.Sprintf(
+					"select event_id, milestone_id, updated_at from gha_issues "+
+						"where id = %s and updated_at > %s and updated_at < %s "+
+						"order by updated_at asc limit 1",
+					lib.NValue(1),
+					lib.NValue(2),
+					lib.NValue(3),
+				),
+				iid,
+				updated,
+				updated2h,
+			)
+			defer func() { lib.FatalOnError(rowsN.Close()) }()
+			var (
+				neid     int64
+				nmid     *int64
+				nupdated time.Time
+			)
+			ngot := false
+			for rowsN.Next() {
+				lib.FatalOnError(rowsN.Scan(&neid, &nmid, &nupdated))
+				ngot = true
+			}
+			lib.FatalOnError(rowsN.Err())
+
+			// If there is no new event yet, keep artificial event
+			if !ngot {
+				if ctx.Debug > 0 {
+					lib.Printf(
+						"Issue %d, Event (%d, -), Dates(%v, -): there is no next event in the next 2 hours\n",
+						iid, eid, lib.ToYMDHMSDate(updated),
+					)
+				}
+				return
+			}
+
+			// Check if they differ by milestone, if so, then we are done
+			snmid := lib.Null
+			if nmid != nil {
+				snmid = strconv.FormatInt(*nmid, 10)
+			}
+			if smid != snmid {
+				if ctx.Debug > 0 {
+					lib.Printf(
+						"Issue %d, Event (%d, %d), Dates(%v, %v): milestone difference artificial: %s != next: %s\n",
+						iid, eid, neid, lib.ToYMDHMSDate(updated), lib.ToYMDHMSDate(nupdated), smid, snmid,
+					)
+				}
+				return
+			}
+
+			// Process previous labels
+			rowsLN := lib.QuerySQLWithErr(
+				c,
+				ctx,
+				fmt.Sprintf(
+					"select coalesce(string_agg(sub.label_id::text, ','), '') from "+
+						"(select label_id from gha_issues_labels where event_id = %s "+
+						"order by label_id) sub",
+					lib.NValue(1),
+				),
+				neid,
+			)
+			defer func() { lib.FatalOnError(rowsLN.Close()) }()
+			nlabels := ""
+			for rowsLN.Next() {
+				lib.FatalOnError(rowsLN.Scan(&nlabels))
+			}
+			lib.FatalOnError(rowsLN.Err())
+
+			// Check if they differ by labels, if so, then we are done
+			if labels != nlabels {
+				if ctx.Debug > 0 {
+					lib.Printf(
+						"Issue %d, Event (%d, %d), Dates(%v, %v): label set difference artificial: '%s' != next: '%s'\n",
+						iid, eid, neid, lib.ToYMDHMSDate(updated), lib.ToYMDHMSDate(nupdated), labels, nlabels,
+					)
+				}
+				return
+			}
+
+			// Now we can delete this event
+			if ctx.Debug > 0 {
+				lib.Printf(
+					"Removing artificial event:\n"+
+						"iid=%d  eid=%d  mid=%v  labels=%s  updated=%v\n"+
+						"iid=%d peid=%d      pmid=%v plabels=%s pupdated=%v\n"+
+						"iid=%d neid=%d      nmid=%v nlabels=%s nupdated=%v\n\n",
+					iid, eid, mid, labels, lib.ToYMDHMSDate(updated),
+					iid, peid, pmid, plabels, lib.ToYMDHMSDate(pupdated),
+					iid, neid, nmid, nlabels, lib.ToYMDHMSDate(nupdated),
+				)
+			}
+			// Delete artificial event
+			lib.FatalOnError(deleteArtificialEvent(c, ctx, eid))
+
+			// Safe increase counter
+			counterMutex.Lock()
+			deleted++
+			counterMutex.Unlock()
 		}(ch, issueID, eventID, milestoneID, updatedAt)
 
 		nThreads++
 		if nThreads == thrN {
 			<-ch
+			nRows++
 			nThreads--
 		}
 	}
@@ -327,9 +501,11 @@ func cleanArtificialEvents(ctx *lib.Ctx) {
 	lib.Printf("Final GHAPI clean threads join\n")
 	for nThreads > 0 {
 		<-ch
+		nRows++
 		nThreads--
 	}
 	lib.FatalOnError(rows.Err())
+	lib.Printf("Processed %d artificial events, deleted %d\n", nRows, deleted)
 }
 
 // Insert Postgres vars
@@ -627,7 +803,7 @@ func ghapi2db(ctx *lib.Ctx) {
 			// newMilestone will be non-empty when we detect that something needs to be updated
 			newMilestone := ""
 			if apiMilestoneID == nil && ghaMilestoneID != nil {
-				newMilestone = "null"
+				newMilestone = lib.Null
 				if ctx.Debug > 0 {
 					lib.Printf("Updating issue '%v' milestone to null, it was %d (event_id %d)\n", cfg, *ghaMilestoneID, ghaEventID)
 				}
@@ -718,11 +894,14 @@ func main() {
 	ctx.Init()
 
 	dtStart := time.Now()
-	if !ctx.SkipGHAPI {
-		ghapi2db(&ctx)
-	}
+	// Clean unneeded events
 	if !ctx.SkipArtificailClean {
 		cleanArtificialEvents(&ctx)
+	}
+
+	// Create artificial events
+	if !ctx.SkipGHAPI {
+		ghapi2db(&ctx)
 	}
 	dtEnd := time.Now()
 	lib.Printf("Time: %v\n", dtEnd.Sub(dtStart))
