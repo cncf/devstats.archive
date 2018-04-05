@@ -88,7 +88,8 @@ type Ctx struct {
 	SkipGHAPI           bool            // From GHA2DB_GHAPISKIP, ghapi2db tool, if set then tool is not creating artificial events using GitHub API
 	SkipArtificailClean bool            // From GHA2DB_AECLEANSKIP, ghapi2db tool, if set then tool is not attempting to clean unneeded artificial events
 	SkipGetRepos        bool            // From GHA2DB_GETREPOSSKIP, get_repos tool, if set then tool does nothing
-	OnlyIssues          []int64         // From GHA2DB_ONLY_ISSUES, ghapi2db tool, process a user provided list of issues "issue_id1,issue_id2,...,issue_idN", default "". This is for debugging.
+	OnlyIssues          []int64         // From GHA2DB_ONLY_ISSUES, ghapi2db tool, process a user provided list of issues "issue_id1,issue_id2,...,issue_idN", default "". This is for GH API debugging.
+	OnlyEvents          []int64         // From GHA2DB_ONLY_EVENTS, ghapi2db tool, process a user provided list of events "event_id1,event_id2,...,event_idN", default "". This is for artificial events cleanup debugging.
 	IDBDrop             bool            // From GHA2DB_IDB_DROP_SERIES all Influx related tools, if set "drop " series statement will be executed before adding new data, it is sometimes very very very slow on Influx v1.5.1
 }
 
@@ -473,6 +474,17 @@ func (ctx *Ctx) Init() {
 			iIssue, err := strconv.ParseInt(issue, 10, 64)
 			FatalNoLog(err)
 			ctx.OnlyIssues = append(ctx.OnlyIssues, iIssue)
+		}
+	}
+	events := os.Getenv("GHA2DB_ONLY_EVENTS")
+	if events == "" {
+		ctx.OnlyEvents = []int64{}
+	} else {
+		eventsArr := strings.Split(events, ",")
+		for _, event := range eventsArr {
+			iEvent, err := strconv.ParseInt(event, 10, 64)
+			FatalNoLog(err)
+			ctx.OnlyEvents = append(ctx.OnlyEvents, iEvent)
 		}
 	}
 
