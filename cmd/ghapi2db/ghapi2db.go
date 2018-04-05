@@ -201,28 +201,28 @@ func artificialEvent(
 	return
 }
 
+// cleanArtificialEvents sometimes we're adding artificial event when syncing at hh:8
+// while somebody else already added new comment that made up-to-date milestone and/or label list available to GHA
+// but we will have that data next hour and unneeded artificial event is created.
+// Function detects such events from past, and remove them.
+// Event is marked as "not needed" when previous or next event on the same issue has the same milestone and label set.
+func cleanArtificialEvents(ctx *lib.Ctx) {
+}
+
 // Insert Postgres vars
-func ghapi2db() {
-	// Environment context parse
-	var ctx lib.Ctx
-	ctx.Init()
-
-	if ctx.SkipGHAPI {
-		return
-	}
-
+func ghapi2db(ctx *lib.Ctx) {
 	// Connect to Postgres DB
-	c := lib.PgConn(&ctx)
+	c := lib.PgConn(ctx)
 	defer func() { lib.FatalOnError(c.Close()) }()
 
 	// Connect to GitHub API
-	gctx, gc := lib.GHClient(&ctx)
+	gctx, gc := lib.GHClient(ctx)
 
 	// Get RateLimits info
 	_, rem, wait := lib.GetRateLimits(gctx, gc, true)
 
 	// Get number of CPUs available
-	thrN := lib.GetThreadsNum(&ctx)
+	thrN := lib.GetThreadsNum(ctx)
 	lib.Printf("ghapi2db.go: Running (on %d CPUs): %d API points available, resets in %v\n", thrN, rem, wait)
 
 	// Local or cron mode?
@@ -232,7 +232,7 @@ func ghapi2db() {
 	}
 	// Get recently modified opened issues/PRs
 	bytes, err := lib.ReadFile(
-		&ctx,
+		ctx,
 		dataPrefix+"util_sql/open_issues_and_prs.sql",
 	)
 	lib.FatalOnError(err)
@@ -240,7 +240,7 @@ func ghapi2db() {
 
 	// Set range from a context
 	sqlQuery = strings.Replace(sqlQuery, "{{period}}", ctx.RecentRange, -1)
-	rows := lib.QuerySQLWithErr(c, &ctx, sqlQuery)
+	rows := lib.QuerySQLWithErr(c, ctx, sqlQuery)
 	defer func() { lib.FatalOnError(rows.Close()) }()
 
 	// Get issues/PRs to check
@@ -290,7 +290,7 @@ func ghapi2db() {
 		lib.Printf("Processing only selected %d %v issues for debugging\n", len(ctx.OnlyIssues), ctx.OnlyIssues)
 		irows := lib.QuerySQLWithErr(
 			c,
-			&ctx,
+			ctx,
 			fmt.Sprintf(
 				"select distinct dup_repo_name, number, id, is_pull_request from gha_issues where id in (%s)",
 				strings.Join(ary, ","),
@@ -491,7 +491,7 @@ func ghapi2db() {
 			apiMilestoneID := cfg.milestoneID
 			rowsM := lib.QuerySQLWithErr(
 				c,
-				&ctx,
+				ctx,
 				fmt.Sprintf("select milestone_id, event_id from gha_issues where id = %s order by updated_at desc, event_id desc limit 1", lib.NValue(1)),
 				cfg.issueID,
 			)
@@ -522,7 +522,7 @@ func ghapi2db() {
 			// Process current labels
 			rowsL := lib.QuerySQLWithErr(
 				c,
-				&ctx,
+				ctx,
 				fmt.Sprintf(
 					"select coalesce(string_agg(sub.label_id::text, ','), '') from "+
 						"(select label_id from gha_issues_labels where event_id = %s "+
@@ -546,7 +546,7 @@ func ghapi2db() {
 				lib.FatalOnError(
 					artificialEvent(
 						c,
-						&ctx,
+						ctx,
 						cfg.issueID,
 						ghaEventID,
 						newMilestone,
@@ -590,8 +590,17 @@ func ghapi2db() {
 }
 
 func main() {
+	// Environment context parse
+	var ctx lib.Ctx
+	ctx.Init()
+
 	dtStart := time.Now()
-	ghapi2db()
+	if !ctx.SkipGHAPI {
+		ghapi2db(&ctx)
+	}
+	if !ctx.SkipArtificailClean {
+		cleanArtificialEvents(&ctx)
+	}
 	dtEnd := time.Now()
 	lib.Printf("Time: %v\n", dtEnd.Sub(dtStart))
 }
