@@ -670,7 +670,7 @@ func ghapi2db(ctx *lib.Ctx) {
 						time.Sleep(waitPeriod)
 						continue
 					} else {
-						lib.Fatalf("API limit reached while getting issue data, aborting, don't want to wait %v\n", waitPeriod)
+						lib.Fatalf("API limit reached while getting issue data, aborting, don't want to wait %v", waitPeriod)
 						return
 					}
 				}
@@ -699,7 +699,7 @@ func ghapi2db(ctx *lib.Ctx) {
 							time.Sleep(waitPeriod)
 							continue
 						} else {
-							lib.Fatalf("API limit reached while getting issue labels, aborting, don't want to wait %v\n", waitPeriod)
+							lib.Fatalf("API limit reached while getting issue labels, aborting, don't want to wait %v", waitPeriod)
 							return
 						}
 					}
