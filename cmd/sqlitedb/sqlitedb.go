@@ -30,6 +30,14 @@ type dashboardData struct {
 	fn    string
 }
 
+// String for dashboardData - skip displaying long JSON data
+func (dd dashboardData) String() string {
+	return fmt.Sprintf(
+		"{dash:'%+v', id:%d, title:'%s', slug:'%s', data:len:%d, fn:'%s'}",
+		dd.dash, dd.id, dd.title, dd.slug, len(dd.data), dd.fn,
+	)
+}
+
 // exportJsons uses dbFile database to dump all dashboards as JSONs
 func exportJsons(ictx *lib.Ctx, dbFile string) {
 	// Connect to SQLite3
@@ -123,6 +131,9 @@ func importJsonsByUID(ctx *lib.Ctx, dbFile string, jsons []string) {
 	// Now do updates
 	for uid, dd := range jsonMap {
 		ddWas := dbMap[uid]
+		if ctx.Debug > 1 {
+			lib.Printf("\n%+v\n%+v\n\n", dd.String(), ddWas.String())
+		}
 		// Check if we actually need to update anything
 		if ddWas.dash.Title == dd.dash.Title && ddWas.slug == dd.slug && ddWas.data == dd.data {
 			continue
@@ -137,8 +148,8 @@ func importJsonsByUID(ctx *lib.Ctx, dbFile string, jsons []string) {
 		// Info
 		if ctx.Debug > 0 {
 			lib.Printf(
-				"%s: updated uid: %s (title: '%s' -> '%s', slug: '%s' -> '%s'):\n%s\nTo:\n%s\n",
-				dd.fn, uid, ddWas.dash.Title, dd.dash.Title, ddWas.slug, dd.slug, ddWas.data, dd.data,
+				"%s: updated uid: %s:\nnew: %+v\nold: %+v\n",
+				dd.fn, uid, dd, ddWas,
 			)
 		} else {
 			lib.Printf(

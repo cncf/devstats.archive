@@ -52,9 +52,7 @@ func PrepareQuickRangeQuery(sql, period, from, to string) string {
 
 // Slugify replace all whitespace with "-", remove all non-word letters downcase
 func Slugify(arg string) string {
-	re1 := regexp.MustCompile(`\s+`)
-	re2 := regexp.MustCompile(`[^\w\s-]`)
-	arg = re1.ReplaceAllLiteralString(arg, "-")
-	arg = re2.ReplaceAllLiteralString(arg, "")
+	re := regexp.MustCompile(`[^\w-]+`)
+	arg = re.ReplaceAllLiteralString(arg, "-")
 	return strings.ToLower(arg)
 }
