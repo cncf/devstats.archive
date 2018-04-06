@@ -347,7 +347,7 @@ func importAffs(jsonFN string) {
 func main() {
 	dtStart := time.Now()
 	if len(os.Args) < 2 {
-		lib.Printf("%s: required argument: filename.json\n", os.Args[0])
+		lib.Printf("Required argument: filename.json\n")
 		os.Exit(1)
 	}
 	importAffs(os.Args[1])
