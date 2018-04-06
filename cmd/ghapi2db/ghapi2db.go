@@ -643,7 +643,12 @@ func ghapi2db(ctx *lib.Ctx) {
 	lastTime := dtStart
 	checked := 0
 	lib.Printf("ghapi2db.go: Processing %d issues - GHAPI part\n", nIssues)
+	// Create keys array to avoid accessing shared issues map concurently
+	keys := []int64{}
 	for key := range issues {
+		keys = append(keys, key)
+	}
+	for _, key := range keys {
 		go func(ch chan bool, iid int64) {
 			// Refer to current tag using index passed to anonymous function
 			issuesMutex.Lock()
@@ -703,8 +708,9 @@ func ghapi2db(ctx *lib.Ctx) {
 							return
 						}
 					}
-					labels, resp, err = gc.Issues.ListLabelsByIssue(gctx, ary[0], ary[1], cfg.number, opt)
-					handlePossibleError(err, &cfg, "Issues.ListLabelsByIssue")
+					var errIn error
+					labels, resp, errIn = gc.Issues.ListLabelsByIssue(gctx, ary[0], ary[1], cfg.number, opt)
+					handlePossibleError(errIn, &cfg, "Issues.ListLabelsByIssue")
 					for _, label := range labels {
 						cfg.labelsMap[*label.ID] = *label.Name
 					}
@@ -773,6 +779,7 @@ func ghapi2db(ctx *lib.Ctx) {
 	dtStart = time.Now()
 	lastTime = dtStart
 	checked = 0
+	var updatesMutex = &sync.Mutex{}
 	updates := 0
 	lib.Printf("ghapi2db.go: Processing %d issues - GHA part\n", nIssues)
 	// Use map key to pass to the closure
@@ -858,7 +865,9 @@ func ghapi2db(ctx *lib.Ctx) {
 						cfg.ghIssue,
 					),
 				)
+				updatesMutex.Lock()
 				updates++
+				updatesMutex.Unlock()
 			}
 
 			// Synchronize go routine
