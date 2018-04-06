@@ -94,6 +94,7 @@ func copyContext(in *lib.Ctx) *lib.Ctx {
 		RecentRange:         in.RecentRange,
 		OnlyIssues:          in.OnlyIssues,
 		OnlyEvents:          in.OnlyEvents,
+		UIDMode:             in.UIDMode,
 	}
 	return &out
 }
@@ -275,6 +276,7 @@ func TestInit(t *testing.T) {
 		RecentRange:         "2 hours",
 		OnlyIssues:          []int64{},
 		OnlyEvents:          []int64{},
+		UIDMode:             false,
 	}
 
 	// Test cases
@@ -891,6 +893,19 @@ func TestInit(t *testing.T) {
 				copyContext(&defaultContext),
 				map[string]interface{}{
 					"ExternalInfo": true,
+				},
+			),
+		},
+		{
+			"Set sqlitedb uid import mode",
+			map[string]string{
+				"GHA2DB_UIDMODE": "1",
+			},
+			dynamicSetFields(
+				t,
+				copyContext(&defaultContext),
+				map[string]interface{}{
+					"UIDMode": true,
 				},
 			),
 		},

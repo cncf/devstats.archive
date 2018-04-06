@@ -99,7 +99,7 @@ func idbTest(db string, nSeries, nVals, nTags, nDts int) {
 func main() {
 	dtStart := time.Now()
 	if len(os.Args) < 6 {
-		lib.Printf("%s: Required args: dbname n-series n-values n-tags n-datetimes\n", os.Args[0])
+		lib.Printf("Required args: dbname n-series n-values n-tags n-datetimes\n")
 		os.Exit(1)
 	}
 	nSeries, err := strconv.Atoi(os.Args[2])

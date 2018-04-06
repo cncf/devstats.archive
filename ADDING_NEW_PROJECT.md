@@ -33,12 +33,12 @@ This file describes how to add new project on the test server.
 - Something like this: "MODE=ss0 FROM='"oldproject"' TO='"newproject"' FILES=`find ./grafana/dashboards/newproject -type f -iname '*.json'` ./devel/mass_replace.sh".
 - Update `grafana/dashboards/proj/dashboards.json` for all already existing projects, add new project using `devel/mass_replace.sh` or `devel/replace.sh`.
 - For example: `MODE=ss0 FROM=`cat FROM` TO=`cat TO` FILES=`find ./grafana/dashboards/ -type f -iname 'dashboards.json'` ./devel/mass_replace.sh` with `FROM` containing old links and `TO` containing new links.
-- You can mass update Grafana dashboards using `import_json` tool: `./devel/grafana_stop.sh proj`, `./import_json /var/lib/grafana.proj/grafana.db grafana/dashboards/proj/*`, `./devel/grafana_start.sh proj`.
+- You can mass update Grafana dashboards using `sqlitedb` tool: `./devel/grafana_stop.sh proj`, `./sqlitedb /var/lib/grafana.proj/grafana.db grafana/dashboards/proj/*`, `./devel/grafana_start.sh proj`.
 - Update `partials/projects.html`.
 - Update Apache proxy and SSL files `apache/www/index_* apache/*/sites-enabled/* apache/*/sites.txt` files.
 - Run deply all script: `PG_PASS=... IDB_PASS=... IDB_HOST=... ./devel/deploy_all.sh`. If succeeded `make install`.
 - You can also deploy automatically from webhook (even on the test server), but it takes very long time and is harder to debug, see [continuous deployment](https://github.com/cncf/devstats/blob/master/CONTINUOUS_DEPLOYMENT.md).
 - Open `newproject.cncftest.io` login with admin/admin, change the default password and follow instructions from `GRAFANA.md`.
-- Import `grafana/dashboards/proj/dashboards.json` dashboard on all remaining projects manually or use `import_json` tool.
+- Import `grafana/dashboards/proj/dashboards.json` dashboard on all remaining projects manually or use `sqlitedb` tool.
 - Import all new projects dashboards from `grafana/dashboards/newproject/*.json`, then finally: `grafana/copy_grafana_dbs.sh`
 - Final deploy script is: `./devel/deploy_all.sh`. It should do all deployment automatically on the prod server. Follow all code from this script (eventually run some parts manually, the final version should do full deploy OOTB).

@@ -91,6 +91,7 @@ type Ctx struct {
 	OnlyIssues          []int64         // From GHA2DB_ONLY_ISSUES, ghapi2db tool, process a user provided list of issues "issue_id1,issue_id2,...,issue_idN", default "". This is for GH API debugging.
 	OnlyEvents          []int64         // From GHA2DB_ONLY_EVENTS, ghapi2db tool, process a user provided list of events "event_id1,event_id2,...,event_idN", default "". This is for artificial events cleanup debugging.
 	IDBDrop             bool            // From GHA2DB_IDB_DROP_SERIES all Influx related tools, if set "drop " series statement will be executed before adding new data, it is sometimes very very very slow on Influx v1.5.1
+	UIDMode             bool            // From GHA2DB_UIDMODE, sqlitedb tool, if set it will import JSONS using uids, else it will use titles or slugs. Uid import is slower, but a lot more flexinble. Default false
 }
 
 // Init - get context from environment variables
@@ -451,6 +452,9 @@ func (ctx *Ctx) Init() {
 	ctx.ProcessCommits = os.Getenv("GHA2DB_PROCESS_COMMITS") != ""
 	ctx.ExternalInfo = os.Getenv("GHA2DB_EXTERNAL_INFO") != ""
 	ctx.ProjectsCommits = os.Getenv("GHA2DB_PROJECTS_COMMITS")
+
+	// `sqlitedb` enable uid mode
+	ctx.UIDMode = os.Getenv("GHA2DB_UIDMODE") != ""
 
 	// `merge_pdbs` tool - input DBs and output DB
 	dbs := os.Getenv("GHA2DB_INPUT_DBS")

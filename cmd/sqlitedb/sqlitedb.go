@@ -20,12 +20,8 @@ type dashboard struct {
 	UID   string `json:"uid"`
 }
 
-// outputJsons uses dbFile database to dump all dashboards as JSONs
-func outputJsons(dbFile string) {
-	// Environment context parse
-	var ctx lib.Ctx
-	ctx.Init()
-
+// exportJsons uses dbFile database to dump all dashboards as JSONs
+func exportJsons(ictx *lib.Ctx, dbFile string) {
 	// Connect to SQLite3
 	db, err := sql.Open("sqlite3", dbFile)
 	lib.FatalOnError(err)
@@ -42,17 +38,64 @@ func outputJsons(dbFile string) {
 	)
 	// Save all of them as sqlite/slug[i].json for i=0..n
 	for rows.Next() {
-		err = rows.Scan(&slug, &title, &data)
-		lib.FatalOnError(err)
+		lib.FatalOnError(rows.Scan(&slug, &title, &data))
 		fn := "sqlite/" + slug + ".json"
 		lib.FatalOnError(ioutil.WriteFile(fn, lib.PrettyPrintJSON([]byte(data)), 0644))
 		lib.Printf("Written '%s' to %s\n", title, fn)
 	}
-	err = rows.Err()
-	lib.FatalOnError(err)
+	lib.FatalOnError(rows.Err())
 }
 
-// importJsons uses dbFile database to update list of JSONs
+// importJsonsByUID uses dbFile database to update list of JSONs
+// It first loads all dashboards titles, slugs, ids and JSONs
+// Then it parses all JSONs to get each dashboards UID
+// Then it processes all JSONs provided, parses them, and gets each JSONs uid and title
+// Each uid from JSON list must be unique
+// Then for all JSON titles it creates slugs 'Name of Dashboard' -> 'name-of-dashboard'
+// Finally it attempts to update SQLite database's data, tile, slug values by matching using UID
+func importJsonsByUID(ctx *lib.Ctx, dbFile string, jsons []string) {
+	// DB backup func, executed when anything is updated
+	backedUp := true
+	contents, err := lib.ReadFile(ctx, dbFile)
+	lib.FatalOnError(err)
+	backupFunc := func() {
+		bfn := fmt.Sprintf("%s.%v", dbFile, time.Now().UnixNano())
+		lib.FatalOnError(ioutil.WriteFile(bfn, contents, 0644))
+		lib.Printf("Original db file backed up as' %s'\n", bfn)
+	}
+
+	// Connect to SQLite3
+	db, err := sql.Open("sqlite3", dbFile)
+	lib.FatalOnError(err)
+	defer func() { lib.FatalOnError(db.Close()) }()
+
+	// Load and parse all dashboards JSONs
+	var (
+		dash  dashboard
+		id    int
+		data  string
+		title string
+		slug  string
+	)
+	rows, err := db.Query("select id, data, title, slug from dashboard")
+	lib.FatalOnError(err)
+	defer func() { lib.FatalOnError(rows.Close()) }()
+	for rows.Next() {
+		lib.FatalOnError(rows.Scan(&id, &data, &title, &slug))
+		lib.FatalOnError(json.Unmarshal([]byte(data), &dash))
+		if title != dash.Title {
+			lib.Fatalf("SQLite internal inconsistency: %s != %s", title, dash.Title)
+		}
+	}
+	lib.FatalOnError(rows.Err())
+
+	if !backedUp {
+		backupFunc()
+		backedUp = true
+	}
+}
+
+// importJsonsByTitle uses dbFile database to update list of JSONs
 // each json can be either:
 // 1) "filename.json"
 // a) it will search for a SQLite dashboard with "title" the same as JSON's "title" property
@@ -65,14 +108,10 @@ func outputJsons(dbFile string) {
 // c) it will udpate SQLite's "data" with new JSON
 // d) it will update SQLite's dashboard "title" with "title" property from filename.json
 // e) it will update SQLite's dashboard "slug" = "new slug"
-func importJsons(dbFile string, jsons []string) {
-	// Environment context parse
-	var ctx lib.Ctx
-	ctx.Init()
-
+func importJsonsByTitle(ctx *lib.Ctx, dbFile string, jsons []string) {
 	// DB backup func, executed when anything is updated
 	backedUp := false
-	contents, err := lib.ReadFile(&ctx, dbFile)
+	contents, err := lib.ReadFile(ctx, dbFile)
 	lib.FatalOnError(err)
 	backupFunc := func() {
 		bfn := fmt.Sprintf("%s.%v", dbFile, time.Now().UnixNano())
@@ -104,11 +143,10 @@ func importJsons(dbFile string, jsons []string) {
 
 		// Read JSON: get title & uid
 		lib.Printf("Importing #%d json: %s (%v)\n", i+1, j, ary)
-		bytes, err := lib.ReadFile(&ctx, j)
+		bytes, err := lib.ReadFile(ctx, j)
 		lib.FatalOnError(err)
 		sBytes := string(bytes)
-		err = json.Unmarshal(bytes, &dash)
-		lib.FatalOnError(err)
+		lib.FatalOnError(json.Unmarshal(bytes, &dash))
 
 		// Either use dashboard title from JSON or use "old title" provided from command line
 		dashTitle := dash.Title
@@ -122,12 +160,10 @@ func importJsons(dbFile string, jsons []string) {
 		defer func() { lib.FatalOnError(rows.Close()) }()
 		got := false
 		for rows.Next() {
-			err = rows.Scan(&id, &data, &slug)
-			lib.FatalOnError(err)
+			lib.FatalOnError(rows.Scan(&id, &data, &slug))
 			got = true
 		}
-		err = rows.Err()
-		lib.FatalOnError(err)
+		lib.FatalOnError(rows.Err())
 		if !got {
 			lib.Fatalf("dashboard titled: '%s' not found", dashTitle)
 		}
@@ -136,8 +172,7 @@ func importJsons(dbFile string, jsons []string) {
 		lib.FatalOnError(ioutil.WriteFile(j+".was", lib.PrettyPrintJSON([]byte(data)), 0644))
 
 		// Check UIDs
-		err = json.Unmarshal([]byte(data), &dash2)
-		lib.FatalOnError(err)
+		lib.FatalOnError(json.Unmarshal([]byte(data), &dash2))
 		if dash.UID != dash2.UID {
 			lib.Printf("UID mismatch, json value: %s, database value: %s, skipping\n", dash.UID, dash2.UID)
 			continue
@@ -169,16 +204,25 @@ func importJsons(dbFile string, jsons []string) {
 
 func main() {
 	dtStart := time.Now()
+	// Environment context parse
+	var ctx lib.Ctx
+	ctx.Init()
+
 	if len(os.Args) < 2 {
-		lib.Printf("%s: required args: grafana.db file name and list(*) of jsons to import.\n", os.Args[0])
-		lib.Printf("%s: if only db file name given, it will output all dashboards to jsons\n", os.Args[0])
-		lib.Printf("%s: each list item can be either filename.json name or 'fn.json;old title;new slug'\n", os.Args[0])
+		lib.Printf("Required args: grafana.db file name and list(*) of jsons to import.\n")
+		lib.Printf("If only db file name given, it will output all dashboards to jsons\n")
+		lib.Printf("Each list item can be either filename.json name or 'fn.json;old title;new slug'\n")
+		lib.Printf("If special GHA2DB_UIDMODE is set, it will import JSONs by matching their internal uid with SQLite database\n")
 		os.Exit(1)
 	}
 	if len(os.Args) > 2 {
-		importJsons(os.Args[1], os.Args[2:])
+		if ctx.UIDMode {
+			importJsonsByUID(&ctx, os.Args[1], os.Args[2:])
+		} else {
+			importJsonsByTitle(&ctx, os.Args[1], os.Args[2:])
+		}
 	} else {
-		outputJsons(os.Args[1])
+		exportJsons(&ctx, os.Args[1])
 	}
 	dtEnd := time.Now()
 	lib.Printf("Time: %v\n", dtEnd.Sub(dtStart))

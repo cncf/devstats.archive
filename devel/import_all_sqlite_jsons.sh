@@ -21,5 +21,5 @@ do
     then
       suff="k8s"
     fi
-    ./import_json ./grafana.$suff.db ./grafana/dashboards/$proj/*.json
+    ./sqlitedb ./grafana.$suff.db ./grafana/dashboards/$proj/*.json
 done
