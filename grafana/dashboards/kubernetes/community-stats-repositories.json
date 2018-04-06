@@ -29,162 +29,124 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 101,
-  "iteration": 1.523004456996e+12,
+  "id": 127,
+  "iteration": 1.523003351211e+12,
   "links": [],
   "panels": [
     {
       "aliasColors": {},
-      "bars": true,
+      "bars": false,
       "dashLength": 10,
       "dashes": false,
       "datasource": "gha",
       "decimals": 0,
-      "description": "Number of PRs merged in given repository group",
-      "fill": 3,
+      "description": "Community stats ([[repo_name]], [[period]])",
+      "fill": 0,
       "gridPos": {
-        "h": 15,
+        "h": 22,
         "w": 24,
         "x": 0,
         "y": 0
       },
-      "id": 2,
+      "id": 1,
       "legend": {
-        "alignAsTable": true,
+        "alignAsTable": false,
         "avg": true,
         "current": true,
+        "hideEmpty": false,
+        "hideZero": false,
         "max": true,
         "min": true,
-        "rightSide": true,
+        "rightSide": false,
         "show": true,
-        "sort": "avg",
-        "sortDesc": true,
-        "total": true,
+        "total": false,
         "values": true
       },
-      "lines": false,
-      "linewidth": 0,
-      "links": [],
-      "nullPointMode": "null as zero",
-      "percentage": false,
-      "pointradius": 5,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [],
-      "spaceLength": 10,
-      "stack": true,
-      "steppedLine": true,
-      "targets": [
-        {
-          "alias": "$col",
-          "dsType": "influxdb",
-          "groupBy": [],
-          "measurement": "prs_kubernetes_kubernetes_d",
-          "orderByTime": "ASC",
-          "policy": "default",
-          "query": "SELECT /^[[repogroups]]$/ FROM \"group_prs_merged_[[period]]\" WHERE $timeFilter",
-          "rawQuery": true,
-          "refId": "A",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              }
-            ]
-          ],
-          "tags": []
-        }
-      ],
-      "thresholds": [],
-      "timeFrom": null,
-      "timeShift": null,
-      "title": "PRs merged per repository groups ([[repogroups]], [[period]])",
-      "tooltip": {
-        "shared": true,
-        "sort": 2,
-        "value_type": "individual"
-      },
-      "type": "graph",
-      "xaxis": {
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true,
-        "values": []
-      },
-      "yaxes": [
-        {
-          "format": "short",
-          "label": "Pull requests merged",
-          "logBase": 1,
-          "max": null,
-          "min": "0",
-          "show": true
-        },
-        {
-          "format": "short",
-          "label": "",
-          "logBase": 1,
-          "max": null,
-          "min": "0",
-          "show": true
-        }
-      ]
-    },
-    {
-      "aliasColors": {},
-      "bars": true,
-      "dashLength": 10,
-      "dashes": false,
-      "datasource": "gha",
-      "decimals": 0,
-      "description": "PRs merged in all [[full_name]] repositories",
-      "fill": 5,
-      "gridPos": {
-        "h": 12,
-        "w": 24,
-        "x": 0,
-        "y": 15
-      },
-      "id": 3,
-      "legend": {
-        "alignAsTable": true,
-        "avg": true,
-        "current": true,
-        "max": true,
-        "min": true,
-        "rightSide": true,
-        "show": true,
-        "total": true,
-        "values": true
-      },
-      "lines": false,
+      "lines": true,
       "linewidth": 1,
       "links": [],
-      "nullPointMode": "null as zero",
+      "nullPointMode": "null",
       "percentage": false,
-      "pointradius": 5,
+      "pointradius": 1,
       "points": false,
       "renderer": "flot",
-      "seriesOverrides": [],
+      "seriesOverrides": [
+        {
+          "alias": "Stargazers",
+          "yaxis": 1
+        },
+        {
+          "alias": "Forks",
+          "yaxis": 2
+        },
+        {
+          "alias": "Open issues",
+          "yaxis": 2
+        }
+      ],
       "spaceLength": 10,
       "stack": false,
       "steppedLine": false,
       "targets": [
         {
-          "alias": "PRs merged",
+          "alias": "Stargazers",
           "dsType": "influxdb",
           "groupBy": [],
-          "measurement": "all_prs_merged_h",
+          "hide": false,
+          "measurement": "reviewers_d",
           "orderByTime": "ASC",
-          "policy": "default",
-          "query": "SELECT \"value\" FROM \"all_prs_merged_[[period]]\" WHERE $timeFilter",
+          "policy": "autogen",
+          "query": "SELECT \"value\" FROM \"autogen\".\"contrib_[[repo]]_watchers_[[period]]\" WHERE $timeFilter",
           "rawQuery": true,
           "refId": "A",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "Forks",
+          "dsType": "influxdb",
+          "groupBy": [],
+          "hide": false,
+          "measurement": "reviewers_d",
+          "orderByTime": "ASC",
+          "policy": "autogen",
+          "query": "SELECT \"value\" FROM \"autogen\".\"contrib_[[repo]]_forks_[[period]]\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "B",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "Open issues",
+          "dsType": "influxdb",
+          "groupBy": [],
+          "hide": false,
+          "measurement": "reviewers_d",
+          "orderByTime": "ASC",
+          "policy": "autogen",
+          "query": "SELECT \"value\" FROM \"autogen\".\"contrib_[[repo]]_open_issues_[[period]]\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "C",
           "resultFormat": "time_series",
           "select": [
             [
@@ -202,32 +164,35 @@
       "thresholds": [],
       "timeFrom": null,
       "timeShift": null,
-      "title": "PRs merged in all [[full_name]] repositories ([[period]])",
+      "title": "Community stats ([[repo_name]], [[period]])",
       "tooltip": {
         "shared": true,
-        "sort": 0,
+        "sort": 2,
         "value_type": "individual"
       },
+      "transparent": true,
       "type": "graph",
       "xaxis": {
         "buckets": null,
         "mode": "time",
         "name": null,
         "show": true,
-        "values": []
+        "values": [
+          "total"
+        ]
       },
       "yaxes": [
         {
-          "format": "short",
-          "label": "PRs merged",
+          "format": "none",
+          "label": "Stargazers",
           "logBase": 1,
           "max": null,
           "min": "0",
           "show": true
         },
         {
-          "format": "short",
-          "label": "",
+          "format": "none",
+          "label": "Forks, Open issues",
           "logBase": 1,
           "max": null,
           "min": "0",
@@ -242,8 +207,7 @@
   "tags": [
     "dashboard",
     "kubernetes",
-    "repogroups",
-    "PRs"
+    "repos"
   ],
   "templating": {
     "list": [
@@ -295,19 +259,42 @@
         "type": "custom"
       },
       {
-        "allValue": "",
+        "allValue": null,
         "current": {
-          "text": "All",
-          "value": "$__all"
+          "text": "kubernetes/kubernetes",
+          "value": "kubernetes/kubernetes"
         },
         "datasource": "gha",
         "hide": 0,
-        "includeAll": true,
-        "label": "Repository group",
-        "multi": true,
-        "name": "repogroups",
+        "includeAll": false,
+        "label": "Repository",
+        "multi": false,
+        "name": "repo_name",
         "options": [],
-        "query": "SHOW TAG VALUES WITH KEY = repo_group_name",
+        "query": "SHOW TAG VALUES WITH KEY = top_repo_names_name",
+        "refresh": 1,
+        "regex": "",
+        "sort": 1,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "text": "kubernetes_kubernetes",
+          "value": "kubernetes_kubernetes"
+        },
+        "datasource": "gha",
+        "hide": 2,
+        "includeAll": false,
+        "label": "",
+        "multi": false,
+        "name": "repo",
+        "options": [],
+        "query": "SHOW TAG VALUES WITH KEY = top_repo_names_value where top_repo_names_name =~ /^[[repo_name]]$/",
         "refresh": 1,
         "regex": "",
         "sort": 0,
@@ -343,7 +330,7 @@
     ]
   },
   "time": {
-    "from": "now-40M",
+    "from": "now-2y",
     "to": "now"
   },
   "timepicker": {
@@ -372,7 +359,7 @@
     ]
   },
   "timezone": "",
-  "title": "PRs merged repository groups",
-  "uid": "32",
-  "version": 3
+  "title": "Community stats repositories",
+  "uid": "7",
+  "version": 5
 }

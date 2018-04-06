@@ -7,7 +7,9 @@
         "enable": true,
         "hide": true,
         "iconColor": "rgba(0, 211, 255, 1)",
+        "limit": 100,
         "name": "Annotations \u0026 Alerts",
+        "showIn": 0,
         "type": "dashboard"
       },
       {
@@ -29,8 +31,8 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 101,
-  "iteration": 1.523004456996e+12,
+  "id": 132,
+  "iteration": 1.523003137699e+12,
   "links": [],
   "panels": [
     {
@@ -40,7 +42,7 @@
       "dashes": false,
       "datasource": "gha",
       "decimals": 0,
-      "description": "Number of PRs merged in given repository group",
+      "description": "Number of approvers in given repository group",
       "fill": 3,
       "gridPos": {
         "h": 15,
@@ -59,7 +61,7 @@
         "show": true,
         "sort": "avg",
         "sortDesc": true,
-        "total": true,
+        "total": false,
         "values": true
       },
       "lines": false,
@@ -82,7 +84,7 @@
           "measurement": "prs_kubernetes_kubernetes_d",
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "SELECT /^[[repogroups]]$/ FROM \"group_prs_merged_[[period]]\" WHERE $timeFilter",
+          "query": "SELECT /^[[repogroups]]$/ FROM \"approvers_[[period]]\" WHERE $timeFilter",
           "rawQuery": true,
           "refId": "A",
           "resultFormat": "time_series",
@@ -102,7 +104,7 @@
       "thresholds": [],
       "timeFrom": null,
       "timeShift": null,
-      "title": "PRs merged per repository groups ([[repogroups]], [[period]])",
+      "title": "Approvers repository groups ([[repogroups]], [[period]])",
       "tooltip": {
         "shared": true,
         "sort": 2,
@@ -119,7 +121,7 @@
       "yaxes": [
         {
           "format": "short",
-          "label": "Pull requests merged",
+          "label": "Number of distinct approvers",
           "logBase": 1,
           "max": null,
           "min": "0",
@@ -137,33 +139,29 @@
     },
     {
       "aliasColors": {},
-      "bars": true,
+      "bars": false,
       "dashLength": 10,
       "dashes": false,
       "datasource": "gha",
-      "decimals": 0,
-      "description": "PRs merged in all [[full_name]] repositories",
-      "fill": 5,
+      "fill": 0,
       "gridPos": {
-        "h": 12,
+        "h": 9,
         "w": 24,
         "x": 0,
         "y": 15
       },
       "id": 3,
       "legend": {
-        "alignAsTable": true,
-        "avg": true,
+        "avg": false,
         "current": true,
-        "max": true,
+        "max": false,
         "min": true,
-        "rightSide": true,
         "show": true,
-        "total": true,
+        "total": false,
         "values": true
       },
-      "lines": false,
-      "linewidth": 1,
+      "lines": true,
+      "linewidth": 2,
       "links": [],
       "nullPointMode": "null as zero",
       "percentage": false,
@@ -173,16 +171,27 @@
       "seriesOverrides": [],
       "spaceLength": 10,
       "stack": false,
-      "steppedLine": false,
+      "steppedLine": true,
       "targets": [
         {
-          "alias": "PRs merged",
           "dsType": "influxdb",
-          "groupBy": [],
-          "measurement": "all_prs_merged_h",
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "SELECT \"value\" FROM \"all_prs_merged_[[period]]\" WHERE $timeFilter",
+          "query": "SELECT \"value\" FROM \"owners_d\" WHERE $timeFilter",
           "rawQuery": true,
           "refId": "A",
           "resultFormat": "time_series",
@@ -193,6 +202,10 @@
                   "value"
                 ],
                 "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
               }
             ]
           ],
@@ -202,7 +215,7 @@
       "thresholds": [],
       "timeFrom": null,
       "timeShift": null,
-      "title": "PRs merged in all [[full_name]] repositories ([[period]])",
+      "title": "OWNERS file growth",
       "tooltip": {
         "shared": true,
         "sort": 0,
@@ -219,18 +232,18 @@
       "yaxes": [
         {
           "format": "short",
-          "label": "PRs merged",
+          "label": null,
           "logBase": 1,
           "max": null,
-          "min": "0",
+          "min": null,
           "show": true
         },
         {
           "format": "short",
-          "label": "",
+          "label": null,
           "logBase": 1,
           "max": null,
-          "min": "0",
+          "min": null,
           "show": true
         }
       ]
@@ -242,15 +255,15 @@
   "tags": [
     "dashboard",
     "kubernetes",
-    "repogroups",
-    "PRs"
+    "approving",
+    "repogroups"
   ],
   "templating": {
     "list": [
       {
         "allValue": null,
         "current": {
-          "tags": [],
+          "selected": true,
           "text": "7 Days MA",
           "value": "d7"
         },
@@ -343,7 +356,7 @@
     ]
   },
   "time": {
-    "from": "now-40M",
+    "from": "now-1y",
     "to": "now"
   },
   "timepicker": {
@@ -372,7 +385,7 @@
     ]
   },
   "timezone": "",
-  "title": "PRs merged repository groups",
-  "uid": "32",
-  "version": 3
+  "title": "Approvers repository groups",
+  "uid": "3",
+  "version": 2
 }
