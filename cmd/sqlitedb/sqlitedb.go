@@ -41,7 +41,7 @@ func (dd dashboardData) String() string {
 }
 
 // updateTags make JSON and SQLite tags match each other
-func updateTags(db *sql.DB, ctx *lib.Ctx, did int, jsonTags []string) bool {
+func updateTags(db *sql.DB, ctx *lib.Ctx, did int, jsonTags []string, info string) bool {
 	// Get SQLite DB tags
 	rows, err := db.Query(
 		"select term from dashboard_tag where dashboard_id = ? order by term asc",
@@ -90,8 +90,8 @@ func updateTags(db *sql.DB, ctx *lib.Ctx, did int, jsonTags []string) bool {
 			lib.FatalOnError(err)
 			if ctx.Debug > 0 {
 				lib.Printf(
-					"Updating dashboard id: %d, '%v' -> '%v', inserted '%s' tag\n",
-					did, sDBTags, sJSONTags, tag,
+					"Updating dashboard '%s' id: %d, '%v' -> '%v', inserted '%s' tag\n",
+					info, did, sDBTags, sJSONTags, tag,
 				)
 			}
 		}
@@ -104,8 +104,8 @@ func updateTags(db *sql.DB, ctx *lib.Ctx, did int, jsonTags []string) bool {
 			lib.FatalOnError(err)
 			if ctx.Debug > 0 {
 				lib.Printf(
-					"Updating dashboard id: %d, '%v' -> '%v', deleted '%s' tag\n",
-					did, sDBTags, sJSONTags, tag,
+					"Updating dashboard '%s' id: %d, '%v' -> '%v', deleted '%s' tag\n",
+					info, did, sDBTags, sJSONTags, tag,
 				)
 			}
 		}
@@ -213,7 +213,7 @@ func importJsonsByUID(ctx *lib.Ctx, dbFile string, jsons []string) {
 			lib.Printf("\n%+v\n%+v\n\n", dd.String(), ddWas.String())
 		}
 		// Update/check tags
-		updated := updateTags(db, ctx, dd.id, dd.dash.Tags)
+		updated := updateTags(db, ctx, dd.id, dd.dash.Tags, dd.dash.UID+" "+dd.dash.Title)
 
 		// Check if we actually need to update anything
 		if ddWas.dash.Title == dd.dash.Title && ddWas.slug == dd.slug && ddWas.data == dd.data {
@@ -347,7 +347,7 @@ func importJsonsByTitle(ctx *lib.Ctx, dbFile string, jsons []string) {
 			dash.Title, dashSlug, sBytes, id,
 		)
 		lib.FatalOnError(err)
-		updated := updateTags(db, ctx, id, dash.Tags)
+		updated := updateTags(db, ctx, id, dash.Tags, dash.UID+" "+dash.Title)
 
 		if ctx.Debug > 0 {
 			lib.Printf(
