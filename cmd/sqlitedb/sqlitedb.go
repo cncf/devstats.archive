@@ -14,10 +14,20 @@ import (
 	lib "devstats"
 )
 
-// Dashboard stores main dashoard keys title and uid
+// dashboard stores main dashoard keys title and uid
 type dashboard struct {
 	Title string `json:"title"`
 	UID   string `json:"uid"`
+}
+
+// dashboardData keeps all dashboard data & metadata
+type dashboardData struct {
+	dash  dashboard
+	id    int
+	title string
+	slug  string
+	data  string
+	fn    string
 }
 
 // exportJsons uses dbFile database to dump all dashboards as JSONs
@@ -55,7 +65,7 @@ func exportJsons(ictx *lib.Ctx, dbFile string) {
 // Finally it attempts to update SQLite database's data, tile, slug values by matching using UID
 func importJsonsByUID(ctx *lib.Ctx, dbFile string, jsons []string) {
 	// DB backup func, executed when anything is updated
-	backedUp := true
+	backedUp := false
 	contents, err := lib.ReadFile(ctx, dbFile)
 	lib.FatalOnError(err)
 	backupFunc := func() {
@@ -70,28 +80,81 @@ func importJsonsByUID(ctx *lib.Ctx, dbFile string, jsons []string) {
 	defer func() { lib.FatalOnError(db.Close()) }()
 
 	// Load and parse all dashboards JSONs
-	var (
-		dash  dashboard
-		id    int
-		data  string
-		title string
-		slug  string
-	)
+	var dd dashboardData
+	// Will keep uid --> sqlite dashboard data map
+	dbMap := make(map[string]dashboardData)
 	rows, err := db.Query("select id, data, title, slug from dashboard")
 	lib.FatalOnError(err)
 	defer func() { lib.FatalOnError(rows.Close()) }()
 	for rows.Next() {
-		lib.FatalOnError(rows.Scan(&id, &data, &title, &slug))
-		lib.FatalOnError(json.Unmarshal([]byte(data), &dash))
-		if title != dash.Title {
-			lib.Fatalf("SQLite internal inconsistency: %s != %s", title, dash.Title)
+		lib.FatalOnError(rows.Scan(&dd.id, &dd.data, &dd.title, &dd.slug))
+		lib.FatalOnError(json.Unmarshal([]byte(dd.data), &dd.dash))
+		if dd.title != dd.dash.Title {
+			lib.Fatalf("SQLite internal inconsistency: %s != %s", dd.title, dd.dash.Title)
 		}
+		dd.data = string(lib.PrettyPrintJSON([]byte(dd.data)))
+		dd.fn = "*" + dd.slug + ".json*"
+		dbMap[dd.dash.UID] = dd
 	}
 	lib.FatalOnError(rows.Err())
 
-	if !backedUp {
-		backupFunc()
-		backedUp = true
+	// Now load & parse JSON arguments
+	jsonMap := make(map[string]dashboardData)
+	for _, j := range jsons {
+		bytes, err := lib.ReadFile(ctx, j)
+		lib.FatalOnError(err)
+		lib.FatalOnError(json.Unmarshal(bytes, &dd.dash))
+		dbDash, ok := dbMap[dd.dash.UID]
+		if !ok {
+			lib.Fatalf("%s: uid=%s not found in SQLite, attempted to import '%s'", j, dd.dash.UID, dd.dash.Title)
+		}
+		jsonDash, ok := jsonMap[dd.dash.UID]
+		if ok {
+			lib.Fatalf("%s: duplicate json uid, attempt to import %v, collision with %v", j, dd.dash, jsonDash.dash)
+		}
+		dd.data = string(lib.PrettyPrintJSON(bytes))
+		dd.id = dbDash.id
+		dd.title = dd.dash.Title
+		dd.slug = lib.Slugify(dd.title)
+		dd.fn = j
+		jsonMap[dd.dash.UID] = dd
+	}
+
+	// Now do updates
+	for uid, dd := range jsonMap {
+		ddWas := dbMap[uid]
+		// Check if we actually need to update anything
+		if ddWas.dash.Title == dd.dash.Title && ddWas.slug == dd.slug && ddWas.data == dd.data {
+			continue
+		}
+		// Update JSON inside database
+		_, err = db.Exec(
+			"update dashboard set title = ?, slug = ?, data = ? where id = ?",
+			dd.dash.Title, dd.slug, dd.data, dd.id,
+		)
+		lib.FatalOnError(err)
+
+		// Info
+		if ctx.Debug > 0 {
+			lib.Printf(
+				"%s: updated uid: %s (title: '%s' -> '%s', slug: '%s' -> '%s'):\n%s\nTo:\n%s\n",
+				dd.fn, uid, ddWas.dash.Title, dd.dash.Title, ddWas.slug, dd.slug, ddWas.data, dd.data,
+			)
+		} else {
+			lib.Printf(
+				"%s: updated dashboard: uid: %s title: '%s' -> '%s', slug: '%s' -> '%s' (data %d -> %d bytes)\n",
+				dd.fn, uid, ddWas.dash.Title, dd.dash.Title, ddWas.slug, dd.slug, len(ddWas.data), len(dd.data),
+			)
+		}
+
+		// And save JSON from DB
+		lib.FatalOnError(ioutil.WriteFile(dd.fn+".was", []byte(ddWas.data), 0644))
+
+		// Something changed, backup original db file
+		if !backedUp {
+			backupFunc()
+			backedUp = true
+		}
 	}
 }
 
@@ -168,9 +231,6 @@ func importJsonsByTitle(ctx *lib.Ctx, dbFile string, jsons []string) {
 			lib.Fatalf("dashboard titled: '%s' not found", dashTitle)
 		}
 
-		// And save JSON from DB
-		lib.FatalOnError(ioutil.WriteFile(j+".was", lib.PrettyPrintJSON([]byte(data)), 0644))
-
 		// Check UIDs
 		lib.FatalOnError(json.Unmarshal([]byte(data), &dash2))
 		if dash.UID != dash2.UID {
@@ -193,6 +253,9 @@ func importJsonsByTitle(ctx *lib.Ctx, dbFile string, jsons []string) {
 		} else {
 			lib.Printf("Updated dashboard: title: '%s' -> '%s', slug: '%s' -> '%s'\n", dashTitle, dash.Title, slug, dashSlug)
 		}
+
+		// And save JSON from DB
+		lib.FatalOnError(ioutil.WriteFile(j+".was", lib.PrettyPrintJSON([]byte(data)), 0644))
 
 		//Something changed, backup original db file
 		if !backedUp {
