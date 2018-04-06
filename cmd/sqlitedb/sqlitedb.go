@@ -78,6 +78,8 @@ func updateTags(db *sql.DB, ctx *lib.Ctx, did int, jsonTags []string, info strin
 		dbMap[tag] = struct{}{}
 		allMap[tag] = struct{}{}
 	}
+	nI := 0
+	nD := 0
 	for tag := range allMap {
 		_, j := jsonMap[tag]
 		_, d := dbMap[tag]
@@ -94,6 +96,7 @@ func updateTags(db *sql.DB, ctx *lib.Ctx, did int, jsonTags []string, info strin
 					info, did, sDBTags, sJSONTags, tag,
 				)
 			}
+			nI++
 		}
 		// We have it in DB but not in JSON, delete
 		if !j && d {
@@ -108,8 +111,13 @@ func updateTags(db *sql.DB, ctx *lib.Ctx, did int, jsonTags []string, info strin
 					info, did, sDBTags, sJSONTags, tag,
 				)
 			}
+			nD++
 		}
 	}
+	lib.Printf(
+		"Updated dashboard '%s' id: %d, '%v' -> '%v', added: %d, removed: %d\n",
+		info, did, sDBTags, sJSONTags, nI, nD,
+	)
 	return true
 }
 
@@ -163,13 +171,13 @@ func importJsonsByUID(ctx *lib.Ctx, dbFile string, jsons []string) {
 	defer func() { lib.FatalOnError(db.Close()) }()
 
 	// Load and parse all dashboards JSONs
-	var dd dashboardData
 	// Will keep uid --> sqlite dashboard data map
 	dbMap := make(map[string]dashboardData)
 	rows, err := db.Query("select id, data, title, slug from dashboard")
 	lib.FatalOnError(err)
 	defer func() { lib.FatalOnError(rows.Close()) }()
 	for rows.Next() {
+		var dd dashboardData
 		lib.FatalOnError(rows.Scan(&dd.id, &dd.data, &dd.title, &dd.slug))
 		lib.FatalOnError(json.Unmarshal([]byte(dd.data), &dd.dash))
 		if dd.title != dd.dash.Title {
@@ -185,6 +193,7 @@ func importJsonsByUID(ctx *lib.Ctx, dbFile string, jsons []string) {
 	// Now load & parse JSON arguments
 	jsonMap := make(map[string]dashboardData)
 	for _, j := range jsons {
+		var dd dashboardData
 		bytes, err := lib.ReadFile(ctx, j)
 		lib.FatalOnError(err)
 		lib.FatalOnError(json.Unmarshal(bytes, &dd.dash))
@@ -218,6 +227,10 @@ func importJsonsByUID(ctx *lib.Ctx, dbFile string, jsons []string) {
 		// Check if we actually need to update anything
 		if ddWas.dash.Title == dd.dash.Title && ddWas.slug == dd.slug && ddWas.data == dd.data {
 			if updated {
+				if !backedUp {
+					backupFunc()
+					backedUp = true
+				}
 				nImp++
 			}
 			continue
