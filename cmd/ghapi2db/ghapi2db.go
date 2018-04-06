@@ -646,7 +646,9 @@ func ghapi2db(ctx *lib.Ctx) {
 	for key := range issues {
 		go func(ch chan bool, iid int64) {
 			// Refer to current tag using index passed to anonymous function
+			issuesMutex.Lock()
 			cfg := issues[iid]
+			issuesMutex.Unlock()
 			if ctx.Debug > 0 {
 				lib.Printf("GitHub Issue ID (before) '%d' --> '%v'\n", iid, cfg)
 			}
@@ -777,7 +779,9 @@ func ghapi2db(ctx *lib.Ctx) {
 	for key := range issues {
 		go func(ch chan bool, iid int64) {
 			// Refer to current tag using index passed to anonymous function
+			issuesMutex.Lock()
 			cfg := issues[iid]
+			issuesMutex.Unlock()
 			if ctx.Debug > 0 {
 				lib.Printf("GHA Issue ID '%d' --> '%v'\n", iid, cfg)
 			}
