@@ -6,6 +6,37 @@ import (
 	lib "devstats"
 )
 
+func TestSlugify(t *testing.T) {
+	// Test cases
+	var testCases = []struct {
+		before string
+		after  string
+	}{
+		{
+			before: "A b C",
+			after:  "a-b-c",
+		},
+		{
+			before: "Hello, world\t   bye!",
+			after:  "hello-world-bye",
+		},
+		{
+			before: "Activity Repo Groups",
+			after:  "activity-repo-groups",
+		},
+	}
+	// Execute test cases
+	for index, test := range testCases {
+		after := lib.Slugify(test.before)
+		if after != test.after {
+			t.Errorf(
+				"test number %d, expected '%v', got '%v'",
+				index+1, test.after, after,
+			)
+		}
+	}
+}
+
 func TestPrepareQuickRangeQuery(t *testing.T) {
 	// Test cases
 	var testCases = []struct {
