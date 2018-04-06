@@ -29,8 +29,8 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 101,
-  "iteration": 1.523004456996e+12,
+  "id": 135,
+  "iteration": 1.523004849409e+12,
   "links": [],
   "panels": [
     {
@@ -39,31 +39,35 @@
       "dashLength": 10,
       "dashes": false,
       "datasource": "gha",
-      "decimals": 0,
-      "description": "Number of PRs merged in given repository group",
-      "fill": 3,
+      "decimals": null,
+      "description": "Shows review counts for given users and repository.",
+      "fill": 1,
       "gridPos": {
-        "h": 15,
+        "h": 22,
         "w": 24,
         "x": 0,
         "y": 0
       },
-      "id": 2,
+      "hideTimeOverride": false,
+      "id": 1,
       "legend": {
         "alignAsTable": true,
         "avg": true,
         "current": true,
+        "hideEmpty": false,
+        "hideZero": false,
         "max": true,
         "min": true,
         "rightSide": true,
         "show": true,
+        "sideWidth": null,
         "sort": "avg",
         "sortDesc": true,
         "total": true,
         "values": true
       },
       "lines": false,
-      "linewidth": 0,
+      "linewidth": 1,
       "links": [],
       "nullPointMode": "null as zero",
       "percentage": false,
@@ -73,16 +77,16 @@
       "seriesOverrides": [],
       "spaceLength": 10,
       "stack": true,
-      "steppedLine": true,
+      "steppedLine": false,
       "targets": [
         {
           "alias": "$col",
           "dsType": "influxdb",
           "groupBy": [],
-          "measurement": "prs_kubernetes_kubernetes_d",
+          "measurement": "sig_federation_d",
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "SELECT /^[[repogroups]]$/ FROM \"group_prs_merged_[[period]]\" WHERE $timeFilter",
+          "query": "SELECT /^[[reviewers]]$/ FROM \"reviews_per_user_[[repo]]_[[period]]\" WHERE $timeFilter",
           "rawQuery": true,
           "refId": "A",
           "resultFormat": "time_series",
@@ -102,24 +106,27 @@
       "thresholds": [],
       "timeFrom": null,
       "timeShift": null,
-      "title": "PRs merged per repository groups ([[repogroups]], [[period]])",
+      "title": "Reviews per user/repo ([[repo_name]], [[period]])",
       "tooltip": {
         "shared": true,
         "sort": 2,
         "value_type": "individual"
       },
+      "transparent": true,
       "type": "graph",
       "xaxis": {
         "buckets": null,
         "mode": "time",
         "name": null,
         "show": true,
-        "values": []
+        "values": [
+          "total"
+        ]
       },
       "yaxes": [
         {
           "format": "short",
-          "label": "Pull requests merged",
+          "label": "Number of PR review comments",
           "logBase": 1,
           "max": null,
           "min": "0",
@@ -141,24 +148,30 @@
       "dashLength": 10,
       "dashes": false,
       "datasource": "gha",
-      "decimals": 0,
-      "description": "PRs merged in all [[full_name]] repositories",
-      "fill": 5,
+      "decimals": null,
+      "description": "Shows LGTM counts for given users and repository.",
+      "fill": 1,
       "gridPos": {
-        "h": 12,
+        "h": 22,
         "w": 24,
         "x": 0,
-        "y": 15
+        "y": 22
       },
-      "id": 3,
+      "hideTimeOverride": false,
+      "id": 2,
       "legend": {
         "alignAsTable": true,
         "avg": true,
         "current": true,
+        "hideEmpty": false,
+        "hideZero": false,
         "max": true,
         "min": true,
         "rightSide": true,
         "show": true,
+        "sideWidth": null,
+        "sort": "avg",
+        "sortDesc": true,
         "total": true,
         "values": true
       },
@@ -172,17 +185,17 @@
       "renderer": "flot",
       "seriesOverrides": [],
       "spaceLength": 10,
-      "stack": false,
+      "stack": true,
       "steppedLine": false,
       "targets": [
         {
-          "alias": "PRs merged",
+          "alias": "$col",
           "dsType": "influxdb",
           "groupBy": [],
-          "measurement": "all_prs_merged_h",
+          "measurement": "sig_federation_d",
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "SELECT \"value\" FROM \"all_prs_merged_[[period]]\" WHERE $timeFilter",
+          "query": "SELECT /^[[reviewers]]$/ FROM \"lgtms_per_user_[[repo]]_[[period]]\" WHERE $timeFilter",
           "rawQuery": true,
           "refId": "A",
           "resultFormat": "time_series",
@@ -202,24 +215,27 @@
       "thresholds": [],
       "timeFrom": null,
       "timeShift": null,
-      "title": "PRs merged in all [[full_name]] repositories ([[period]])",
+      "title": "LGTMs per user/repo ([[repo_name]], [[period]])",
       "tooltip": {
         "shared": true,
-        "sort": 0,
+        "sort": 2,
         "value_type": "individual"
       },
+      "transparent": true,
       "type": "graph",
       "xaxis": {
         "buckets": null,
         "mode": "time",
         "name": null,
         "show": true,
-        "values": []
+        "values": [
+          "total"
+        ]
       },
       "yaxes": [
         {
           "format": "short",
-          "label": "PRs merged",
+          "label": "Number of LGTMs",
           "logBase": 1,
           "max": null,
           "min": "0",
@@ -236,14 +252,13 @@
       ]
     }
   ],
-  "refresh": false,
   "schemaVersion": 16,
   "style": "dark",
   "tags": [
     "dashboard",
     "kubernetes",
-    "repogroups",
-    "PRs"
+    "reviewing",
+    "repogroups"
   ],
   "templating": {
     "list": [
@@ -266,14 +281,14 @@
             "value": "d"
           },
           {
-            "selected": true,
-            "text": "7 Days MA",
-            "value": "d7"
-          },
-          {
             "selected": false,
             "text": "Week",
             "value": "w"
+          },
+          {
+            "selected": true,
+            "text": "7 Days MA",
+            "value": "d7"
           },
           {
             "selected": false,
@@ -291,23 +306,71 @@
             "value": "y"
           }
         ],
-        "query": "d,w,m,q,y",
+        "query": "d,w,d7,m,q,y",
         "type": "custom"
+      },
+      {
+        "allValue": null,
+        "current": {
+          "text": "All",
+          "value": "All"
+        },
+        "datasource": "gha",
+        "hide": 0,
+        "includeAll": false,
+        "label": "Repository",
+        "multi": false,
+        "name": "repo_name",
+        "options": [],
+        "query": "SHOW TAG VALUES WITH KEY = top_repos_name_with_all",
+        "refresh": 1,
+        "regex": "",
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "text": "all",
+          "value": "all"
+        },
+        "datasource": "gha",
+        "hide": 2,
+        "includeAll": false,
+        "label": "",
+        "multi": false,
+        "name": "repo",
+        "options": [],
+        "query": "SHOW TAG VALUES WITH KEY = top_repos_value_with_all where top_repos_name_with_all =~ /^[[repo_name]]$/",
+        "refresh": 1,
+        "regex": "",
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
       },
       {
         "allValue": "",
         "current": {
-          "text": "All",
-          "value": "$__all"
+          "text": "liggitt",
+          "value": [
+            "liggitt"
+          ]
         },
         "datasource": "gha",
         "hide": 0,
-        "includeAll": true,
-        "label": "Repository group",
+        "includeAll": false,
+        "label": "Reviewer",
         "multi": true,
-        "name": "repogroups",
+        "name": "reviewers",
         "options": [],
-        "query": "SHOW TAG VALUES WITH KEY = repo_group_name",
+        "query": "SHOW TAG VALUES WITH KEY = reviewers_name",
         "refresh": 1,
         "regex": "",
         "sort": 0,
@@ -343,7 +406,7 @@
     ]
   },
   "time": {
-    "from": "now-40M",
+    "from": "now-2y",
     "to": "now"
   },
   "timepicker": {
@@ -372,7 +435,7 @@
     ]
   },
   "timezone": "",
-  "title": "PRs merged repository groups",
-  "uid": "32",
-  "version": 3
+  "title": "User reviews repository groups",
+  "uid": "46",
+  "version": 11
 }

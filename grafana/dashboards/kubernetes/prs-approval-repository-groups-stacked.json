@@ -29,21 +29,21 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 101,
-  "iteration": 1.523004456996e+12,
+  "id": 106,
+  "iteration": 1.5230040829e+12,
   "links": [],
   "panels": [
     {
       "aliasColors": {},
-      "bars": true,
+      "bars": false,
       "dashLength": 10,
       "dashes": false,
       "datasource": "gha",
-      "decimals": 0,
-      "description": "Number of PRs merged in given repository group",
-      "fill": 3,
+      "decimals": 2,
+      "description": "Number of PRs approved broken down by repository groups",
+      "fill": 5,
       "gridPos": {
-        "h": 15,
+        "h": 16,
         "w": 24,
         "x": 0,
         "y": 0
@@ -62,7 +62,7 @@
         "total": true,
         "values": true
       },
-      "lines": false,
+      "lines": true,
       "linewidth": 0,
       "links": [],
       "nullPointMode": "null as zero",
@@ -82,7 +82,7 @@
           "measurement": "prs_kubernetes_kubernetes_d",
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "SELECT /^[[repogroups]]$/ FROM \"group_prs_merged_[[period]]\" WHERE $timeFilter",
+          "query": "SELECT /^[[repogroups]]$/ FROM \"prs_approve_state_approved_[[period]]\" WHERE $timeFilter",
           "rawQuery": true,
           "refId": "A",
           "resultFormat": "time_series",
@@ -102,7 +102,7 @@
       "thresholds": [],
       "timeFrom": null,
       "timeShift": null,
-      "title": "PRs merged per repository groups ([[repogroups]], [[period]])",
+      "title": "PRs approved ([[repogroups]], [[period]])",
       "tooltip": {
         "shared": true,
         "sort": 2,
@@ -119,7 +119,7 @@
       "yaxes": [
         {
           "format": "short",
-          "label": "Pull requests merged",
+          "label": "Pull requests approved",
           "logBase": 1,
           "max": null,
           "min": "0",
@@ -137,18 +137,18 @@
     },
     {
       "aliasColors": {},
-      "bars": true,
+      "bars": false,
       "dashLength": 10,
       "dashes": false,
       "datasource": "gha",
-      "decimals": 0,
-      "description": "PRs merged in all [[full_name]] repositories",
+      "decimals": 2,
+      "description": "Number of PRs awaiting approval broken down by repository groups",
       "fill": 5,
       "gridPos": {
-        "h": 12,
+        "h": 16,
         "w": 24,
         "x": 0,
-        "y": 15
+        "y": 16
       },
       "id": 3,
       "legend": {
@@ -159,11 +159,13 @@
         "min": true,
         "rightSide": true,
         "show": true,
+        "sort": "avg",
+        "sortDesc": true,
         "total": true,
         "values": true
       },
-      "lines": false,
-      "linewidth": 1,
+      "lines": true,
+      "linewidth": 0,
       "links": [],
       "nullPointMode": "null as zero",
       "percentage": false,
@@ -172,17 +174,17 @@
       "renderer": "flot",
       "seriesOverrides": [],
       "spaceLength": 10,
-      "stack": false,
-      "steppedLine": false,
+      "stack": true,
+      "steppedLine": true,
       "targets": [
         {
-          "alias": "PRs merged",
+          "alias": "$col",
           "dsType": "influxdb",
           "groupBy": [],
-          "measurement": "all_prs_merged_h",
+          "measurement": "prs_kubernetes_kubernetes_d",
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "SELECT \"value\" FROM \"all_prs_merged_[[period]]\" WHERE $timeFilter",
+          "query": "SELECT /^[[repogroups]]$/ FROM \"prs_approve_state_awaiting_[[period]]\" WHERE $timeFilter",
           "rawQuery": true,
           "refId": "A",
           "resultFormat": "time_series",
@@ -202,10 +204,10 @@
       "thresholds": [],
       "timeFrom": null,
       "timeShift": null,
-      "title": "PRs merged in all [[full_name]] repositories ([[period]])",
+      "title": "PRs awaiting approval ([[repogroups]], [[period]])",
       "tooltip": {
         "shared": true,
-        "sort": 0,
+        "sort": 2,
         "value_type": "individual"
       },
       "type": "graph",
@@ -219,7 +221,7 @@
       "yaxes": [
         {
           "format": "short",
-          "label": "PRs merged",
+          "label": "Pull requests awaiting approval",
           "logBase": 1,
           "max": null,
           "min": "0",
@@ -242,8 +244,9 @@
   "tags": [
     "dashboard",
     "kubernetes",
-    "repogroups",
-    "PRs"
+    "PRs",
+    "approving",
+    "repogroups"
   ],
   "templating": {
     "list": [
@@ -260,11 +263,6 @@
         "multi": false,
         "name": "period",
         "options": [
-          {
-            "selected": false,
-            "text": "Day",
-            "value": "d"
-          },
           {
             "selected": true,
             "text": "7 Days MA",
@@ -372,7 +370,7 @@
     ]
   },
   "timezone": "",
-  "title": "PRs merged repository groups",
-  "uid": "32",
-  "version": 3
+  "title": "PRs approval repository groups stacked",
+  "uid": "27",
+  "version": 2
 }

@@ -29,162 +29,92 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 101,
-  "iteration": 1.523004456996e+12,
+  "id": 123,
+  "iteration": 1.523003558726e+12,
   "links": [],
   "panels": [
     {
       "aliasColors": {},
-      "bars": true,
+      "bars": false,
       "dashLength": 10,
       "dashes": false,
       "datasource": "gha",
       "decimals": 0,
-      "description": "Number of PRs merged in given repository group",
-      "fill": 3,
+      "description": "",
+      "fill": 1,
       "gridPos": {
-        "h": 15,
+        "h": 22,
         "w": 24,
         "x": 0,
         "y": 0
       },
-      "id": 2,
+      "id": 1,
       "legend": {
         "alignAsTable": true,
         "avg": true,
         "current": true,
+        "hideEmpty": false,
+        "hideZero": false,
         "max": true,
         "min": true,
-        "rightSide": true,
+        "rightSide": false,
         "show": true,
-        "sort": "avg",
-        "sortDesc": true,
-        "total": true,
+        "total": false,
         "values": true
       },
-      "lines": false,
-      "linewidth": 0,
-      "links": [],
-      "nullPointMode": "null as zero",
-      "percentage": false,
-      "pointradius": 5,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [],
-      "spaceLength": 10,
-      "stack": true,
-      "steppedLine": true,
-      "targets": [
-        {
-          "alias": "$col",
-          "dsType": "influxdb",
-          "groupBy": [],
-          "measurement": "prs_kubernetes_kubernetes_d",
-          "orderByTime": "ASC",
-          "policy": "default",
-          "query": "SELECT /^[[repogroups]]$/ FROM \"group_prs_merged_[[period]]\" WHERE $timeFilter",
-          "rawQuery": true,
-          "refId": "A",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              }
-            ]
-          ],
-          "tags": []
-        }
-      ],
-      "thresholds": [],
-      "timeFrom": null,
-      "timeShift": null,
-      "title": "PRs merged per repository groups ([[repogroups]], [[period]])",
-      "tooltip": {
-        "shared": true,
-        "sort": 2,
-        "value_type": "individual"
-      },
-      "type": "graph",
-      "xaxis": {
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true,
-        "values": []
-      },
-      "yaxes": [
-        {
-          "format": "short",
-          "label": "Pull requests merged",
-          "logBase": 1,
-          "max": null,
-          "min": "0",
-          "show": true
-        },
-        {
-          "format": "short",
-          "label": "",
-          "logBase": 1,
-          "max": null,
-          "min": "0",
-          "show": true
-        }
-      ]
-    },
-    {
-      "aliasColors": {},
-      "bars": true,
-      "dashLength": 10,
-      "dashes": false,
-      "datasource": "gha",
-      "decimals": 0,
-      "description": "PRs merged in all [[full_name]] repositories",
-      "fill": 5,
-      "gridPos": {
-        "h": 12,
-        "w": 24,
-        "x": 0,
-        "y": 15
-      },
-      "id": 3,
-      "legend": {
-        "alignAsTable": true,
-        "avg": true,
-        "current": true,
-        "max": true,
-        "min": true,
-        "rightSide": true,
-        "show": true,
-        "total": true,
-        "values": true
-      },
-      "lines": false,
+      "lines": true,
       "linewidth": 1,
       "links": [],
-      "nullPointMode": "null as zero",
+      "nullPointMode": "null",
       "percentage": false,
-      "pointradius": 5,
+      "pointradius": 1,
       "points": false,
       "renderer": "flot",
-      "seriesOverrides": [],
+      "seriesOverrides": [
+        {
+          "alias": "Number of contributing developers",
+          "yaxis": 2
+        }
+      ],
       "spaceLength": 10,
       "stack": false,
       "steppedLine": false,
       "targets": [
         {
-          "alias": "PRs merged",
+          "alias": "Number of contributing companies",
           "dsType": "influxdb",
           "groupBy": [],
-          "measurement": "all_prs_merged_h",
+          "hide": false,
+          "measurement": "reviewers_d",
           "orderByTime": "ASC",
-          "policy": "default",
-          "query": "SELECT \"value\" FROM \"all_prs_merged_[[period]]\" WHERE $timeFilter",
+          "policy": "autogen",
+          "query": "SELECT \"value\" FROM \"autogen\".\"num_stats_[[repogroup]]_companies_[[period]]\" WHERE $timeFilter",
           "rawQuery": true,
           "refId": "A",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "Number of contributing developers",
+          "dsType": "influxdb",
+          "groupBy": [],
+          "hide": false,
+          "measurement": "reviewers_d",
+          "orderByTime": "ASC",
+          "policy": "autogen",
+          "query": "SELECT \"value\" FROM \"autogen\".\"num_stats_[[repogroup]]_developers_[[period]]\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "B",
           "resultFormat": "time_series",
           "select": [
             [
@@ -202,32 +132,35 @@
       "thresholds": [],
       "timeFrom": null,
       "timeShift": null,
-      "title": "PRs merged in all [[full_name]] repositories ([[period]])",
+      "title": "Contributing companies and developers ([[repogroup_name]], [[period]])",
       "tooltip": {
         "shared": true,
         "sort": 0,
         "value_type": "individual"
       },
+      "transparent": true,
       "type": "graph",
       "xaxis": {
         "buckets": null,
         "mode": "time",
         "name": null,
         "show": true,
-        "values": []
+        "values": [
+          "total"
+        ]
       },
       "yaxes": [
         {
-          "format": "short",
-          "label": "PRs merged",
+          "format": "none",
+          "label": "Companies",
           "logBase": 1,
           "max": null,
           "min": "0",
           "show": true
         },
         {
-          "format": "short",
-          "label": "",
+          "format": "none",
+          "label": "Developers",
           "logBase": 1,
           "max": null,
           "min": "0",
@@ -242,8 +175,7 @@
   "tags": [
     "dashboard",
     "kubernetes",
-    "repogroups",
-    "PRs"
+    "repogroups"
   ],
   "templating": {
     "list": [
@@ -251,8 +183,8 @@
         "allValue": null,
         "current": {
           "tags": [],
-          "text": "7 Days MA",
-          "value": "d7"
+          "text": "14 Days MA",
+          "value": "d14"
         },
         "hide": 0,
         "includeAll": false,
@@ -262,52 +194,80 @@
         "options": [
           {
             "selected": false,
-            "text": "Day",
-            "value": "d"
-          },
-          {
-            "selected": true,
             "text": "7 Days MA",
             "value": "d7"
           },
           {
-            "selected": false,
-            "text": "Week",
-            "value": "w"
+            "selected": true,
+            "text": "14 Days MA",
+            "value": "d14"
           },
           {
             "selected": false,
-            "text": "Month",
-            "value": "m"
+            "text": "4 Weeks MA",
+            "value": "w4"
           },
           {
             "selected": false,
-            "text": "Quarter",
-            "value": "q"
+            "text": "3 Months MA",
+            "value": "m3"
           },
           {
             "selected": false,
-            "text": "Year",
-            "value": "y"
+            "text": "4 Months MA",
+            "value": "m4"
+          },
+          {
+            "selected": false,
+            "text": "6 Months MA",
+            "value": "m6"
+          },
+          {
+            "selected": false,
+            "text": "4 Quarters MA",
+            "value": "q4"
           }
         ],
-        "query": "d,w,m,q,y",
+        "query": "d7,d14,w4,m3,m4,m6,q4",
         "type": "custom"
       },
       {
-        "allValue": "",
+        "allValue": null,
         "current": {
           "text": "All",
-          "value": "$__all"
+          "value": "All"
         },
         "datasource": "gha",
         "hide": 0,
-        "includeAll": true,
+        "includeAll": false,
         "label": "Repository group",
-        "multi": true,
-        "name": "repogroups",
+        "multi": false,
+        "name": "repogroup_name",
         "options": [],
-        "query": "SHOW TAG VALUES WITH KEY = repo_group_name",
+        "query": "SHOW TAG VALUES WITH KEY = all_repo_group_name",
+        "refresh": 1,
+        "regex": "",
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "text": "all",
+          "value": "all"
+        },
+        "datasource": "gha",
+        "hide": 2,
+        "includeAll": false,
+        "label": "",
+        "multi": false,
+        "name": "repogroup",
+        "options": [],
+        "query": "SHOW TAG VALUES WITH KEY = all_repo_group_value where all_repo_group_name =~ /^[[repogroup_name]]$/",
         "refresh": 1,
         "regex": "",
         "sort": 0,
@@ -372,7 +332,7 @@
     ]
   },
   "timezone": "",
-  "title": "PRs merged repository groups",
-  "uid": "32",
+  "title": "Companies contributing in repository groups",
+  "uid": "11",
   "version": 3
 }
