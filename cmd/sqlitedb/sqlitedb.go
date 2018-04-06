@@ -105,6 +105,7 @@ func importJsonsByUID(ctx *lib.Ctx, dbFile string, jsons []string) {
 		dbMap[dd.dash.UID] = dd
 	}
 	lib.FatalOnError(rows.Err())
+	nDbMap := len(dbMap)
 
 	// Now load & parse JSON arguments
 	jsonMap := make(map[string]dashboardData)
@@ -127,8 +128,10 @@ func importJsonsByUID(ctx *lib.Ctx, dbFile string, jsons []string) {
 		dd.fn = j
 		jsonMap[dd.dash.UID] = dd
 	}
+	nJSONMap := len(jsonMap)
 
 	// Now do updates
+	nImp := 0
 	for uid, dd := range jsonMap {
 		ddWas := dbMap[uid]
 		if ctx.Debug > 1 {
@@ -166,7 +169,11 @@ func importJsonsByUID(ctx *lib.Ctx, dbFile string, jsons []string) {
 			backupFunc()
 			backedUp = true
 		}
+		nImp++
 	}
+	lib.Printf(
+		"SQLite DB has %d dashboards, there were %d JSONs to import, imported %d\n",
+		nDbMap, nJSONMap, nImp)
 }
 
 // importJsonsByTitle uses dbFile database to update list of JSONs
