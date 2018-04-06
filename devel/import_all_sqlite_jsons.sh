@@ -12,7 +12,6 @@ else
   all=$ONLY
 fi
 ./grafana/copy_grafana_dbs.sh
-cp /var/www/html/grafana.*.db .
 for proj in $all
 do
     echo $proj
@@ -21,5 +20,6 @@ do
     then
       suff="k8s"
     fi
-    ./sqlitedb ./grafana.$suff.db ./grafana/dashboards/$proj/*.json
+    cp /var/www/html/grafana.$suff.db . || exit 1
+    GHA2DB_UIDMODE=1 ./sqlitedb ./grafana.$suff.db ./grafana/dashboards/$proj/*.json || exit 2
 done

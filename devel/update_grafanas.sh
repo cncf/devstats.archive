@@ -26,10 +26,10 @@ then
   else
     all=`cat ./devel/all_prod_projects.txt`
   fi
-  all=${all/kubernetes/k8s}
 else
   all=$ONLY
 fi
+all=${all/kubernetes/k8s}
 for proj in $all
 do
     echo $proj

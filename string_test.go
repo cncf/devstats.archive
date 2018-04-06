@@ -17,12 +17,16 @@ func TestSlugify(t *testing.T) {
 			after:  "a-b-c",
 		},
 		{
-			before: "Hello, world\t   bye!",
+			before: "Hello, world\t   bye",
 			after:  "hello-world-bye",
 		},
 		{
 			before: "Activity Repo Groups",
 			after:  "activity-repo-groups",
+		},
+		{
+			before: "Open issues/PRs",
+			after:  "open-issues-prs",
 		},
 	}
 	// Execute test cases
