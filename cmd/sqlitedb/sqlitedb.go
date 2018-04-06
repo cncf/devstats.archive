@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"sort"
 	"strings"
 	"time"
 
@@ -16,8 +17,9 @@ import (
 
 // dashboard stores main dashoard keys title and uid
 type dashboard struct {
-	Title string `json:"title"`
-	UID   string `json:"uid"`
+	Title string   `json:"title"`
+	UID   string   `json:"uid"`
+	Tags  []string `json:"tags"`
 }
 
 // dashboardData keeps all dashboard data & metadata
@@ -36,6 +38,79 @@ func (dd dashboardData) String() string {
 		"{dash:'%+v', id:%d, title:'%s', slug:'%s', data:len:%d, fn:'%s'}",
 		dd.dash, dd.id, dd.title, dd.slug, len(dd.data), dd.fn,
 	)
+}
+
+// updateTags make JSON and SQLite tags match each other
+func updateTags(db *sql.DB, ctx *lib.Ctx, did int, jsonTags []string) bool {
+	// Get SQLite DB tags
+	rows, err := db.Query(
+		"select term from dashboard_tag where dashboard_id = ? order by term asc",
+		did,
+	)
+	lib.FatalOnError(err)
+	defer func() { lib.FatalOnError(rows.Close()) }()
+	tag := ""
+	dbTags := []string{}
+	for rows.Next() {
+		lib.FatalOnError(rows.Scan(&tag))
+		dbTags = append(dbTags, tag)
+	}
+	lib.FatalOnError(rows.Err())
+
+	// Sort jsonTags
+	sort.Strings(jsonTags)
+	sJSONTags := strings.Join(jsonTags, ",")
+	sDBTags := strings.Join(dbTags, ",")
+	// If the same tag set, return false - meaning no update was needed
+	if sJSONTags == sDBTags {
+		return false
+	}
+
+	// Now sync tags
+	allMap := make(map[string]struct{})
+	dbMap := make(map[string]struct{})
+	jsonMap := make(map[string]struct{})
+	for _, tag := range jsonTags {
+		jsonMap[tag] = struct{}{}
+		allMap[tag] = struct{}{}
+	}
+	for _, tag := range dbTags {
+		dbMap[tag] = struct{}{}
+		allMap[tag] = struct{}{}
+	}
+	for tag := range allMap {
+		_, j := jsonMap[tag]
+		_, d := dbMap[tag]
+		// We have it in JSOn but not in DB, insert
+		if j && !d {
+			_, err = db.Exec(
+				"insert into dashboard_tag(dashboard_id, term) values(?, ?)",
+				did, tag,
+			)
+			lib.FatalOnError(err)
+			if ctx.Debug > 0 {
+				lib.Printf(
+					"Updating dashboard id: %d, '%v' -> '%v', inserted '%s' tag\n",
+					did, sDBTags, sJSONTags, tag,
+				)
+			}
+		}
+		// We have it in DB but not in JSON, delete
+		if !j && d {
+			_, err = db.Exec(
+				"delete from dashboard_tag where dashboard_id = ? and term = ?",
+				did, tag,
+			)
+			lib.FatalOnError(err)
+			if ctx.Debug > 0 {
+				lib.Printf(
+					"Updating dashboard id: %d, '%v' -> '%v', deleted '%s' tag\n",
+					did, sDBTags, sJSONTags, tag,
+				)
+			}
+		}
+	}
+	return true
 }
 
 // exportJsons uses dbFile database to dump all dashboards as JSONs
@@ -137,8 +212,14 @@ func importJsonsByUID(ctx *lib.Ctx, dbFile string, jsons []string) {
 		if ctx.Debug > 1 {
 			lib.Printf("\n%+v\n%+v\n\n", dd.String(), ddWas.String())
 		}
+		// Update/check tags
+		updated := updateTags(db, ctx, dd.id, dd.dash.Tags)
+
 		// Check if we actually need to update anything
 		if ddWas.dash.Title == dd.dash.Title && ddWas.slug == dd.slug && ddWas.data == dd.data {
+			if updated {
+				nImp++
+			}
 			continue
 		}
 		// Update JSON inside database
@@ -151,13 +232,13 @@ func importJsonsByUID(ctx *lib.Ctx, dbFile string, jsons []string) {
 		// Info
 		if ctx.Debug > 0 {
 			lib.Printf(
-				"%s: updated uid: %s:\nnew: %+v\nold: %+v\n",
-				dd.fn, uid, dd, ddWas,
+				"%s: updated uid: %s: tags updated: %v\nnew: %+v\nold: %+v\n",
+				dd.fn, uid, updated, dd, ddWas,
 			)
 		} else {
 			lib.Printf(
-				"%s: updated dashboard: uid: %s title: '%s' -> '%s', slug: '%s' -> '%s' (data %d -> %d bytes)\n",
-				dd.fn, uid, ddWas.dash.Title, dd.dash.Title, ddWas.slug, dd.slug, len(ddWas.data), len(dd.data),
+				"%s: updated dashboard: uid: %s title: '%s' -> '%s', slug: '%s' -> '%s', tags: %v:%v (data %d -> %d bytes)\n",
+				dd.fn, uid, ddWas.dash.Title, dd.dash.Title, ddWas.slug, dd.slug, updated, dd.dash.Tags, len(ddWas.data), len(dd.data),
 			)
 		}
 
@@ -266,10 +347,18 @@ func importJsonsByTitle(ctx *lib.Ctx, dbFile string, jsons []string) {
 			dash.Title, dashSlug, sBytes, id,
 		)
 		lib.FatalOnError(err)
+		updated := updateTags(db, ctx, id, dash.Tags)
+
 		if ctx.Debug > 0 {
-			lib.Printf("Updated (title: '%s' -> '%s', slug: '%s' -> '%s'):\n%s\nTo:\n%s\n", dashTitle, dash.Title, slug, dashSlug, data, sBytes)
+			lib.Printf(
+				"Updated (title: '%s' -> '%s', slug: '%s' -> '%s', tags: %v:%v):\n%s\nTo:\n%s\n",
+				dashTitle, dash.Title, slug, dashSlug, updated, dash.Tags, data, sBytes,
+			)
 		} else {
-			lib.Printf("Updated dashboard: title: '%s' -> '%s', slug: '%s' -> '%s'\n", dashTitle, dash.Title, slug, dashSlug)
+			lib.Printf(
+				"Updated dashboard: title: '%s' -> '%s', slug: '%s' -> '%s', tags: %v:%v\n",
+				dashTitle, dash.Title, slug, dashSlug, updated, dash.Tags,
+			)
 		}
 
 		// And save JSON from DB
