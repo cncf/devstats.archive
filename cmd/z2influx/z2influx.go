@@ -42,6 +42,9 @@ func workerThread(ch chan bool, ctx *lib.Ctx, seriesSet map[string]struct{}, per
 	// Zero
 	fields := make(map[string]interface{})
 	for _, value := range values {
+		if value == "*" {
+			continue
+		}
 		fields[value] = 0.0
 	}
 	if desc {
