@@ -108,6 +108,7 @@ from (
     e.actor_id = a.id
     and {{period:e.created_at}}
     and (e.dup_actor_login {{exclude_bots}})
+    and e.type != 'ArtificialEvent'
   group by
     a.login
   ) sub
