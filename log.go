@@ -46,6 +46,8 @@ func newLogContext() *logContext {
 
 // logToDB writes message to database
 func logToDB(format string, args ...interface{}) (err error) {
+	logCtxMutex.Lock()
+	defer func() { logCtxMutex.Unlock() }()
 	if logCtx.ctx.LogToDB == false {
 		return
 	}
@@ -75,9 +77,15 @@ func Printf(format string, args ...interface{}) (n int, err error) {
 	// Avoid query out on adding to logs itself
 	// it would print any text with its particular logs DB insert which
 	// would result in stdout mess
+	logCtxMutex.Lock()
 	qOut := logCtx.ctx.QOut
 	logCtx.ctx.QOut = false
-	defer func() { logCtx.ctx.QOut = qOut }()
+	logCtxMutex.Unlock()
+	defer func() {
+		logCtxMutex.Lock()
+		logCtx.ctx.QOut = qOut
+		logCtxMutex.Unlock()
+	}()
 
 	// Actual logging to stdout & DB
 	if logCtx.ctx.LogTime {
