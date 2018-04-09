@@ -15,9 +15,6 @@ func idbTest(db string, nSeries, nVals, nTags, nDts int) {
 	ctx.Init()
 	lib.Printf("Running on %s database, %d series, %d values, %d tags, %d dates\n", db, nSeries, nVals, nTags, nDts)
 
-	rSrc := rand.NewSource(time.Now().UnixNano())
-	rnd := rand.New(rSrc)
-
 	// Get number of CPUs available
 	thrN := lib.GetThreadsNum(&ctx)
 	lib.Printf("idb_tst.go: Running (%v CPUs)\n", thrN)
@@ -38,6 +35,9 @@ func idbTest(db string, nSeries, nVals, nTags, nDts int) {
 	processed := 0
 	for i := 0; i < nSeries; i++ {
 		go func(c chan bool, idx int) {
+			// Random number generator
+			rSrc := rand.NewSource(time.Now().UnixNano())
+			rnd := rand.New(rSrc)
 			serName := fmt.Sprintf("series%d", idx)
 			if ctx.Debug > 0 {
 				lib.Printf("Processing %s series\n", serName)
