@@ -92,6 +92,7 @@ type Ctx struct {
 	OnlyEvents          []int64         // From GHA2DB_ONLY_EVENTS, ghapi2db tool, process a user provided list of events "event_id1,event_id2,...,event_idN", default "". This is for artificial events cleanup debugging.
 	IDBDrop             bool            // From GHA2DB_IDB_DROP_SERIES all Influx related tools, if set "drop " series statement will be executed before adding new data, it is sometimes very very very slow on Influx v1.5.1
 	UIDMode             bool            // From GHA2DB_UIDMODE, sqlitedb tool, if set it will import JSONS using uids, else it will use titles or slugs. Uid import is slower, but a lot more flexinble. Default false
+	CSVFile             string          // From GHA2DB_CSVOUT, runq tool, if set, saves result in this file
 }
 
 // Init - get context from environment variables
@@ -468,6 +469,8 @@ func (ctx *Ctx) Init() {
 	if ctx.RecentRange == "" {
 		ctx.RecentRange = "2 hours"
 	}
+
+	ctx.CSVFile = os.Getenv("GHA2DB_CSVOUT")
 
 	issues := os.Getenv("GHA2DB_ONLY_ISSUES")
 	if issues == "" {

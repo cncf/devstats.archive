@@ -95,6 +95,7 @@ func copyContext(in *lib.Ctx) *lib.Ctx {
 		OnlyIssues:          in.OnlyIssues,
 		OnlyEvents:          in.OnlyEvents,
 		UIDMode:             in.UIDMode,
+		CSVFile:             in.CSVFile,
 	}
 	return &out
 }
@@ -277,6 +278,7 @@ func TestInit(t *testing.T) {
 		OnlyIssues:          []int64{},
 		OnlyEvents:          []int64{},
 		UIDMode:             false,
+		CSVFile:             "",
 	}
 
 	// Test cases
@@ -865,6 +867,19 @@ func TestInit(t *testing.T) {
 				copyContext(&defaultContext),
 				map[string]interface{}{
 					"RecentRange": "1 year",
+				},
+			),
+		},
+		{
+			"Setting CSV output",
+			map[string]string{
+				"GHA2DB_CSVOUT": "report.csv",
+			},
+			dynamicSetFields(
+				t,
+				copyContext(&defaultContext),
+				map[string]interface{}{
+					"CSVFile": "report.csv",
 				},
 			),
 		},

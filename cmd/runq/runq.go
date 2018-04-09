@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/csv"
 	"fmt"
 	"os"
 	"strconv"
@@ -121,6 +122,16 @@ func runq(sqlFile string, params []string) {
 		columnLengths[column] = maxLen
 	}
 
+	var writer *csv.Writer
+	if ctx.CSVFile != "" {
+		// Write output CSV
+		oFile, err := os.Create(ctx.CSVFile)
+		lib.FatalOnError(err)
+		defer func() { _ = oFile.Close() }()
+		writer = csv.NewWriter(oFile)
+		defer writer.Flush()
+	}
+
 	// Upper frame of the header row
 	output := "/"
 	for _, column := range columns {
@@ -134,15 +145,20 @@ func runq(sqlFile string, params []string) {
 	// Header row
 	output = "|"
 	indexLen = 1
+	hdr := []string{}
 	for index, column := range columns {
 		if index == 10 {
 			indexLen++
 		}
 		strFormat := fmt.Sprintf("%%-%ds", columnLengths[column])
 		output += fmt.Sprintf(strFormat, column[:len(column)-indexLen]) + "|"
+		hdr = append(hdr, column)
 	}
 	output += "\n"
 	lib.Printf(output)
+	if writer != nil {
+		err = writer.Write(hdr)
+	}
 
 	// Frame between header row and data rows
 	output = "+"
@@ -158,10 +174,15 @@ func runq(sqlFile string, params []string) {
 	for _, row := range results {
 		// data row
 		output = "|"
+		vals := []string{}
 		for _, column := range columns {
 			value := row[column]
 			strFormat := fmt.Sprintf("%%-%ds", columnLengths[column])
 			output += fmt.Sprintf(strFormat, value) + "|"
+			vals = append(vals, value)
+		}
+		if writer != nil {
+			err = writer.Write(vals)
 		}
 		output = output[:len(output)-1] + "|\n"
 		lib.Printf(output)
@@ -178,6 +199,9 @@ func runq(sqlFile string, params []string) {
 	lib.Printf(output)
 
 	lib.Printf("Rows: %v\n", rowCount)
+	if writer != nil {
+		lib.Printf("%s written\n", ctx.CSVFile)
+	}
 }
 
 func main() {
