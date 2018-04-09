@@ -55,7 +55,6 @@ func idbTags() {
 	// No fields value needed
 	fields := map[string]interface{}{"value": 0.0}
 	// String value to read tags into
-	strVal := ""
 
 	// Per project directory for SQL files
 	dir := lib.Metrics
@@ -108,6 +107,7 @@ func idbTags() {
 
 			// Iterate tag values
 			tags := make(map[string]string)
+			strVal := ""
 			for rows.Next() {
 				lib.FatalOnError(rows.Scan(&strVal))
 				if ctx.Debug > 0 {
