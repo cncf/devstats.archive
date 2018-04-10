@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"math/rand"
 	"os"
 	"strconv"
 	"strings"
@@ -580,6 +581,12 @@ func calcHistogram(ch chan bool, ctx *lib.Ctx, hist []string) {
 	if len(hist) != 7 {
 		lib.Fatalf("calcHistogram, expected 7 strings, got: %d: %v", len(hist), hist)
 	}
+	envMap := make(map[string]string)
+	rSrc := rand.NewSource(time.Now().UnixNano())
+	rnd := rand.New(rSrc)
+	if rnd.Intn(30) == 1 {
+		envMap["GHA2DB_IDB_DROP_SERIES"] = "1"
+	}
 	lib.Printf(
 		"Calculate histogram %s,%s,%s,%s,%s,%s ...\n",
 		hist[1],
@@ -601,7 +608,7 @@ func calcHistogram(ch chan bool, ctx *lib.Ctx, hist []string) {
 			hist[5],
 			hist[6],
 		},
-		nil,
+		envMap,
 	)
 	lib.FatalOnError(err)
 	// Synchronize go routine
