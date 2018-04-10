@@ -152,7 +152,7 @@ func runq(sqlFile string, params []string) {
 		}
 		strFormat := fmt.Sprintf("%%-%ds", columnLengths[column])
 		output += fmt.Sprintf(strFormat, column[:len(column)-indexLen]) + "|"
-		hdr = append(hdr, column)
+		hdr = append(hdr, column[:len(column)-indexLen])
 	}
 	output += "\n"
 	lib.Printf(output)
