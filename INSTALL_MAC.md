@@ -60,12 +60,12 @@ Prerequisites:
     - `grant all privileges on database "gha" to gha_admin;`
     - `grant all privileges on database "devstats" to gha_admin;`
     - `alter user gha_admin createdb;`
-    - Leave the shell and create logs table for devstats: `sudo -u postgres psql devstats < util_sql/devstats_log_table.sql`.
+    - Leave the shell and create logs table for devstats: `psql devstats < util_sql/devstats_log_table.sql`.
 
 9. Leave `psql` shell, and get newest Kubernetes database dump:
     - `wget https://devstats.cncf.io/gha.dump`.
-    - `sudo -u postgres pg_restore -d gha gha.dump` (restore DB dump)
-    - Create `ro_user` via `PG_PASS=... ./devel/create_ro_user.sh`
+    - `pg_restore -d gha gha.dump` (restore DB dump)
+    - Create `ro_user` via `PG_PASS=your_password_here ./devel/create_ro_user.sh`
 
 10. Install InfluxDB time-series database ([link](https://docs.influxdata.com/influxdb/v0.9/introduction/installation/)):
     - `brew update`
