@@ -42,7 +42,7 @@ Prerequisites:
 6. Install binaries & metrics:
     - `sudo mkdir /etc/gha2db`
     - `sudo chmod 777 /etc/gha2db`
-    - `sudo make install`
+    - `sudo -E make install`
 
 7. Install Postgres database ([link](https://gist.github.com/sgnl/609557ebacd3378f3b72)):
     - `brew doctor`
