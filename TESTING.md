@@ -7,7 +7,7 @@
 - Run tests like this: `PG_PASS=... IDB_PASS=.. GHA2DB_PROJECT=kubernetes IDB_HOST="localhost" IDB_DB=dbtest PG_DB=dbtest make dbtest`.
 - Or use script shortcut: `PG_PASS=... IDB_PASS=... GHA2DB_PROJECT=kubernetes IDB_HOST="localhost" ./dbtest.sh`.
 - To test only selected SQL metric(s): `PG_PASS=... GHA2DB_PROJECT=kubernetes PG_DB=dbtest TEST_METRICS='new_contributors,episodic_contributors' go test metrics_test.go`.
-- To test single file that requires database: `PG_PASS=... IDB_PASS=... GHA2DB_PROJECT=kubernetes IDB_HOST="localhost" go test file_name.go`.
+- To test single file that requires database: `PG_PASS=... IDB_PASS=... GHA2DB_PROJECT=kubernetes IDB_HOST=localhost IDB_DB=dbtest PG_DB=dbtest go test file_name.go`.
 3. To check all sources using multiple go tools (like fmt, lint, imports, vet, goconst, usedexports), run `make check`.
 4. To check Travis CI payloads use `PG_PASS=pwd IDB_PASS=pwd IDB_HOST=localhost IDB_PASS_SRC=pwd IGET=1 GET=1 ./webhook.sh` and then `./test_webhook.sh`.
 5. Continuous deployment instructions are [here](https://github.com/cncf/devstats/blob/master/CONTINUOUS_DEPLOYMENT.md).

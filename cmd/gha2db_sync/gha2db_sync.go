@@ -584,7 +584,7 @@ func calcHistogram(ch chan bool, ctx *lib.Ctx, hist []string) {
 	envMap := make(map[string]string)
 	rSrc := rand.NewSource(time.Now().UnixNano())
 	rnd := rand.New(rSrc)
-	if rnd.Intn(30) == 1 {
+	if rnd.Intn(15) == 1 {
 		envMap["GHA2DB_IDB_DROP_SERIES"] = "1"
 	}
 	lib.Printf(

@@ -147,7 +147,7 @@ func GetAnnotations(ctx *Ctx, orgRepo, annoRegexp string) (annotations Annotatio
 }
 
 // ProcessAnnotations Creates IfluxDB annotations and quick_series
-func ProcessAnnotations(ctx *Ctx, annotations *Annotations, joinDate *time.Time) {
+func ProcessAnnotations(ctx *Ctx, annotations *Annotations, startDate, joinDate *time.Time) {
 	// Connect to InfluxDB
 	ic := IDBConn(ctx)
 	defer func() { FatalOnError(ic.Close()) }()
@@ -181,23 +181,45 @@ func ProcessAnnotations(ctx *Ctx, annotations *Annotations, joinDate *time.Time)
 		IDBAddPointN(ctx, &ic, &pts, pt)
 	}
 
-	// Join CNCF (additional annotation not used in quick ranges)
-	if joinDate != nil {
-		fields := map[string]interface{}{
-			"title":       "CNCF join date",
-			"description": ToYMDDate(*joinDate) + " - joined CNCF",
+	// If both start and join dates are present then join date must be after start date
+	if startDate == nil || joinDate == nil || (startDate != nil && joinDate != nil && joinDate.After(*startDate)) {
+		// Project start date (additional annotation not used in quick ranges)
+		if startDate != nil {
+			fields := map[string]interface{}{
+				"title":       "Project start date",
+				"description": ToYMDDate(*startDate) + " - project starts",
+			}
+			// Add batch point
+			if ctx.Debug > 0 {
+				Printf(
+					"Project start date: %v: '%v', '%v'\n",
+					ToYMDDate(*startDate),
+					fields["title"],
+					fields["description"],
+				)
+			}
+			pt := IDBNewPointWithErr(ctx, "annotations", nil, fields, *startDate)
+			IDBAddPointN(ctx, &ic, &pts, pt)
 		}
-		// Add batch point
-		if ctx.Debug > 0 {
-			Printf(
-				"CNCF join date: %v: '%v', '%v'\n",
-				ToYMDDate(*joinDate),
-				fields["title"],
-				fields["description"],
-			)
+
+		// Join CNCF (additional annotation not used in quick ranges)
+		if joinDate != nil {
+			fields := map[string]interface{}{
+				"title":       "CNCF join date",
+				"description": ToYMDDate(*joinDate) + " - joined CNCF",
+			}
+			// Add batch point
+			if ctx.Debug > 0 {
+				Printf(
+					"CNCF join date: %v: '%v', '%v'\n",
+					ToYMDDate(*joinDate),
+					fields["title"],
+					fields["description"],
+				)
+			}
+			pt := IDBNewPointWithErr(ctx, "annotations", nil, fields, *joinDate)
+			IDBAddPointN(ctx, &ic, &pts, pt)
 		}
-		pt := IDBNewPointWithErr(ctx, "annotations", nil, fields, *joinDate)
-		IDBAddPointN(ctx, &ic, &pts, pt)
 	}
 
 	// Special ranges
@@ -283,10 +305,47 @@ func ProcessAnnotations(ctx *Ctx, annotations *Annotations, joinDate *time.Time)
 		tm = tm.Add(time.Hour)
 	}
 
+	// 2 special periods: before and after joining CNCF
+	if startDate != nil && joinDate != nil && joinDate.After(*startDate) {
+		// From project start to CNCF join date
+		sfx := "cncf_before"
+		tags[tagName+"_suffix"] = sfx
+		tags[tagName+"_name"] = "Before joining CNCF"
+		tags[tagName+"_data"] = fmt.Sprintf("%s;;%s;%s", sfx, ToYMDHMSDate(*startDate), ToYMDHMSDate(*joinDate))
+		if ctx.Debug > 0 {
+			Printf(
+				"Series: %v: %+v\n",
+				tagName,
+				tags,
+			)
+		}
+		// Add batch point
+		pt := IDBNewPointWithErr(ctx, tagName, tags, fields, tm)
+		IDBAddPointN(ctx, &ic, &pts, pt)
+		tm = tm.Add(time.Hour)
+
+		// From CNCF join date till now
+		sfx = "cncf_now"
+		tags[tagName+"_suffix"] = sfx
+		tags[tagName+"_name"] = "Since joining CNCF"
+		tags[tagName+"_data"] = fmt.Sprintf("%s;;%s;%s", sfx, ToYMDHMSDate(*joinDate), ToYMDHMSDate(NextDayStart(time.Now())))
+		if ctx.Debug > 0 {
+			Printf(
+				"Series: %v: %+v\n",
+				tagName,
+				tags,
+			)
+		}
+		// Add batch point
+		pt = IDBNewPointWithErr(ctx, tagName, tags, fields, tm)
+		IDBAddPointN(ctx, &ic, &pts, pt)
+		tm = tm.Add(time.Hour)
+	}
+
 	// Write the batch
 	if !ctx.SkipIDB {
 		//if ctx.IDBDrop
-		QueryIDB(ic, ctx, fmt.Sprintf("delete from \"quick_ranges\" where quick_ranges_suffix = \"anno_%d_now\"", lastIndex))
+		QueryIDB(ic, ctx, fmt.Sprintf(`delete from "quick_ranges" where quick_ranges_suffix =~ /anno_%d_now/`, lastIndex))
 		FatalOnError(IDBWritePointsN(ctx, &ic, &pts))
 	} else if ctx.Debug > 0 {
 		Printf("Skipping annotations series write\n")
