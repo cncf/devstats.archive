@@ -93,6 +93,7 @@ type Ctx struct {
 	IDBDrop             bool            // From GHA2DB_IDB_DROP_SERIES all Influx related tools, if set "drop " series statement will be executed before adding new data, it is sometimes very very very slow on Influx v1.5.1
 	UIDMode             bool            // From GHA2DB_UIDMODE, sqlitedb tool, if set it will import JSONS using uids, else it will use titles or slugs. Uid import is slower, but a lot more flexinble. Default false
 	CSVFile             string          // From GHA2DB_CSVOUT, runq tool, if set, saves result in this file
+	ComputeAll          bool            // FROM GHA2DB_COMPUTE_ALL, all tools, if set then no period decisions are taken based on time, but all possible periods are recalculated
 }
 
 // Init - get context from environment variables
@@ -456,6 +457,9 @@ func (ctx *Ctx) Init() {
 
 	// `sqlitedb` enable uid mode
 	ctx.UIDMode = os.Getenv("GHA2DB_UIDMODE") != ""
+
+	// Calculate all periods?
+	ctx.ComputeAll = os.Getenv("GHA2DB_COMPUTE_ALL") != ""
 
 	// `merge_pdbs` tool - input DBs and output DB
 	dbs := os.Getenv("GHA2DB_INPUT_DBS")
