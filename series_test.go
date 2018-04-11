@@ -26,16 +26,17 @@ func getIDBResult(res []client.Result) (ret [][]interface{}) {
 
 // Return array of arrays of any values from IDB result
 // And postprocess special time values (like now or 1st column from
-// quick ranges which has cuurent hours etc) - used for quick ranges
-func getIDBResultFiltered(res []client.Result) (ret [][]interface{}) {
+// quick ranges which has current hours etc) - used for quick ranges
+// skipI means that also index "skipI" should skip time now() value (only if additionalSkip is true)
+func getIDBResultFiltered(res []client.Result, additionalSkip bool, skipI int) (ret [][]interface{}) {
 	if len(res) < 1 || len(res[0].Series) < 1 {
 		return
 	}
 	lastI := len(res[0].Series[0].Values) - 1
-	lastPeriod := false
 	for i, val := range res[0].Series[0].Values {
-		if i == lastI {
-			lastPeriod = true
+		skipPeriod := false
+		if i == lastI || (additionalSkip && i == skipI) {
+			skipPeriod = true
 		}
 		row := []interface{}{}
 		lastJ := len(val) - 1
@@ -43,9 +44,10 @@ func getIDBResultFiltered(res []client.Result) (ret [][]interface{}) {
 			// This is a time column, unused, but varies every call
 			// j == 0: first unused time col (related to `now`)
 			// j == lastJ: last usused value, always 0
-			// j == 1 && lastPeriod (last row `version - now`): `now` varies with time
+			// j == 1 && skipPeriod (last row `version - now`): `now` varies with time
+			// or row specified by additionalSkip + skipI
 			// Last row's date to is now which also varies every time
-			if j == 0 || j == lastJ || (j == 1 && lastPeriod) {
+			if j == 0 || j == lastJ || (j == 1 && skipPeriod) {
 				continue
 			}
 			row = append(row, col)
@@ -86,13 +88,127 @@ func TestProcessAnnotations(t *testing.T) {
 	// Test cases (they will create and close new connection inside ProcessAnnotations)
 	ft := testlib.YMDHMS
 	earlyDate := ft(2014)
+	middleDate := ft(2016)
 	lateDate := ft(2018)
 	var testCases = []struct {
 		annotations         lib.Annotations
+		startDate           *time.Time
 		joinDate            *time.Time
 		expectedAnnotations [][]interface{}
 		expectedQuickRanges [][]interface{}
+		additionalSkip      bool
+		skipI               int
 	}{
+		{
+			annotations: lib.Annotations{
+				[]lib.Annotation{
+					{
+						Name:        "release 0.0.0",
+						Description: "desc 0.0.0",
+						Date:        ft(2017, 2),
+					},
+				},
+			},
+			startDate: &earlyDate,
+			joinDate:  &middleDate,
+			expectedAnnotations: [][]interface{}{
+				{"2014-01-01T00:00:00Z", "2014-01-01 - project starts", "Project start date"},
+				{"2016-01-01T00:00:00Z", "2016-01-01 - joined CNCF", "CNCF join date"},
+				{"2017-02-01T00:00:00Z", "desc 0.0.0", "release 0.0.0"},
+			},
+			expectedQuickRanges: [][]interface{}{
+				{"d;1 day;;", "Last day", "d"},
+				{"w;1 week;;", "Last week", "w"},
+				{"d10;10 days;;", "Last 10 days", "d10"},
+				{"m;1 month;;", "Last month", "m"},
+				{"q;3 months;;", "Last quarter", "q"},
+				{"y;1 year;;", "Last year", "y"},
+				{"y10;10 years;;", "Last decade", "y10"},
+				{"release 0.0.0 - now", "anno_0_now"},
+				{"cncf_before;;2014-01-01 00:00:00;2016-01-01 00:00:00", "Before joining CNCF", "cncf_before"},
+				{"Since joining CNCF", "cncf_now"},
+			},
+			additionalSkip: true,
+			skipI:          7,
+		},
+		{
+			annotations: lib.Annotations{
+				[]lib.Annotation{
+					{
+						Name:        "release 0.0.0",
+						Description: "desc 0.0.0",
+						Date:        ft(2017, 2),
+					},
+				},
+			},
+			startDate: &earlyDate,
+			joinDate:  &earlyDate,
+			expectedAnnotations: [][]interface{}{
+				{"2017-02-01T00:00:00Z", "desc 0.0.0", "release 0.0.0"},
+			},
+			expectedQuickRanges: [][]interface{}{
+				{"d;1 day;;", "Last day", "d"},
+				{"w;1 week;;", "Last week", "w"},
+				{"d10;10 days;;", "Last 10 days", "d10"},
+				{"m;1 month;;", "Last month", "m"},
+				{"q;3 months;;", "Last quarter", "q"},
+				{"y;1 year;;", "Last year", "y"},
+				{"y10;10 years;;", "Last decade", "y10"},
+				{"release 0.0.0 - now", "anno_0_now"},
+			},
+		},
+		{
+			annotations: lib.Annotations{
+				[]lib.Annotation{
+					{
+						Name:        "release 0.0.0",
+						Description: "desc 0.0.0",
+						Date:        ft(2017, 2),
+					},
+				},
+			},
+			startDate: &middleDate,
+			joinDate:  &earlyDate,
+			expectedAnnotations: [][]interface{}{
+				{"2017-02-01T00:00:00Z", "desc 0.0.0", "release 0.0.0"},
+			},
+			expectedQuickRanges: [][]interface{}{
+				{"d;1 day;;", "Last day", "d"},
+				{"w;1 week;;", "Last week", "w"},
+				{"d10;10 days;;", "Last 10 days", "d10"},
+				{"m;1 month;;", "Last month", "m"},
+				{"q;3 months;;", "Last quarter", "q"},
+				{"y;1 year;;", "Last year", "y"},
+				{"y10;10 years;;", "Last decade", "y10"},
+				{"release 0.0.0 - now", "anno_0_now"},
+			},
+		},
+		{
+			annotations: lib.Annotations{
+				[]lib.Annotation{
+					{
+						Name:        "release 0.0.0",
+						Description: "desc 0.0.0",
+						Date:        ft(2017, 2),
+					},
+				},
+			},
+			startDate: &middleDate,
+			expectedAnnotations: [][]interface{}{
+				{"2016-01-01T00:00:00Z", "2016-01-01 - project starts", "Project start date"},
+				{"2017-02-01T00:00:00Z", "desc 0.0.0", "release 0.0.0"},
+			},
+			expectedQuickRanges: [][]interface{}{
+				{"d;1 day;;", "Last day", "d"},
+				{"w;1 week;;", "Last week", "w"},
+				{"d10;10 days;;", "Last 10 days", "d10"},
+				{"m;1 month;;", "Last month", "m"},
+				{"q;3 months;;", "Last quarter", "q"},
+				{"y;1 year;;", "Last year", "y"},
+				{"y10;10 years;;", "Last decade", "y10"},
+				{"release 0.0.0 - now", "anno_0_now"},
+			},
+		},
 		{
 			annotations: lib.Annotations{
 				[]lib.Annotation{
@@ -297,7 +413,7 @@ func TestProcessAnnotations(t *testing.T) {
 	// Execute test cases
 	for index, test := range testCases {
 		// Execute annotations & quick ranges call
-		lib.ProcessAnnotations(&ctx, &test.annotations, test.joinDate)
+		lib.ProcessAnnotations(&ctx, &test.annotations, test.startDate, test.joinDate)
 
 		// Check annotations created
 		gotAnnotations := getIDBResult(lib.QueryIDB(con, &ctx, "select * from annotations"))
@@ -312,7 +428,7 @@ func TestProcessAnnotations(t *testing.T) {
 
 		// Check Quick Ranges created
 		// Results contains some time values depending on current time ..Filtered func handles this
-		gotQuickRanges := getIDBResultFiltered(lib.QueryIDB(con, &ctx, "select * from quick_ranges"))
+		gotQuickRanges := getIDBResultFiltered(lib.QueryIDB(con, &ctx, "select * from quick_ranges"), test.additionalSkip, test.skipI)
 		if !testlib.CompareSlices2D(test.expectedQuickRanges, gotQuickRanges) {
 			t.Errorf(
 				"test number %d: join date: %+v\nannotations: %+v\nExpected quick ranges:\n%+v\n%+v\ngot",

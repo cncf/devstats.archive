@@ -56,15 +56,18 @@ func ComputePeriodAtThisDate(ctx *Ctx, period string, dt time.Time) bool {
 		periodLen := len(period)
 		periodEnd := period[periodLen-3:]
 		if periodEnd == "now" {
-			return h%2 == 0
+			return h%6 == 1
 		}
 		return h == 2
+	} else if periodStart == "c" {
+		//return h == 3
+		return true
 	} else if periodStart == "w" {
-		return h%4 == 0
+		return h%6 == 0
 	} else if periodStart == "m" || periodStart == "q" || periodStart == "y" {
 		return h == 0
 	}
-	Fatalf("computePeriodAtThisDate: unknown period: '%s'", period)
+	Fatalf("ComputePeriodAtThisDate: unknown period: '%s'", period)
 	return false
 }
 
