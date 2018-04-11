@@ -136,6 +136,7 @@ You can tweak `devstats` tools by environment variables:
 - Set `GHA2DB_GHAPISKIP`, ghapi2db tool, if set then tool is not creating artificial events using GitHub API.
 - Set `GHA2DB_AECLEANSKIP`, ghapi2db tool, if set then tool is not attempting to clean unneeded artificial events.
 - Set `GHA2DB_GETREPOSSKIP`, get_repos tool, if set then tool does nothing.
+- Set `GHA2DB_COMPUTE_ALL`, all tools, this forces computing all possible periods (weekly, daily, yearly, since last release to now, since CNCF join date to now etc.) instead of making decision based on current time.
 
 All environment context details are defined in [context.go](https://github.com/cncf/devstats/blob/master/context.go), please see that file for details (you can also see how it works in [context_test.go](https://github.com/cncf/devstats/blob/master/context_test.go)).
 
