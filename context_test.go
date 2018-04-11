@@ -96,6 +96,7 @@ func copyContext(in *lib.Ctx) *lib.Ctx {
 		OnlyEvents:          in.OnlyEvents,
 		UIDMode:             in.UIDMode,
 		CSVFile:             in.CSVFile,
+		ComputeAll:          in.ComputeAll,
 	}
 	return &out
 }
@@ -279,6 +280,7 @@ func TestInit(t *testing.T) {
 		OnlyEvents:          []int64{},
 		UIDMode:             false,
 		CSVFile:             "",
+		ComputeAll:          false,
 	}
 
 	// Test cases
@@ -921,6 +923,19 @@ func TestInit(t *testing.T) {
 				copyContext(&defaultContext),
 				map[string]interface{}{
 					"UIDMode": true,
+				},
+			),
+		},
+		{
+			"Set compute all periods mode",
+			map[string]string{
+				"GHA2DB_COMPUTE_ALL": "1",
+			},
+			dynamicSetFields(
+				t,
+				copyContext(&defaultContext),
+				map[string]interface{}{
+					"ComputeAll": true,
 				},
 			),
 		},

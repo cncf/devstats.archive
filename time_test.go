@@ -13,18 +13,20 @@ func TestComputePeriodAtThisDate(t *testing.T) {
 	// Test cases
 	// hourly period is always calculated
 	// daily period is always calculated
-	// multiple days period are calculaded at hours: 1, 5, 9, 13, 17, 21 (UTC)
+	// multiple days period are calculaded at hours: 1, 5, 9, 13, 17, 21
 	// annotation ranges are calculated:
-	// from last release to now - every 2 hours
+	// from last release to now: 1, 7, 13, 19
 	// for past ranges only once (calculation is marked as computed) at 2 AM
-	// weekly ranges are calculated at hours: 0, 4, 8, 12, 16, 20
+	// CNCF before and after join periods: 3 AM
+	// weekly ranges are calculated at hours: 0, 6, 12, 18
 	// monthly, quarterly, yearly ranges are calculated at midnight
 	ft := testlib.YMDHMS
 	var testCases = []struct {
-		tmOffset int
-		period   string
-		dt       time.Time
-		expected bool
+		tmOffset   int
+		period     string
+		dt         time.Time
+		expected   bool
+		computeAll bool
 	}{
 		{period: "h", dt: ft(2017, 12, 19), expected: true},
 		{period: "h", dt: ft(2017, 12, 19, 3), expected: true},
@@ -40,19 +42,19 @@ func TestComputePeriodAtThisDate(t *testing.T) {
 		{period: "d7", dt: ft(2017, 12, 19, 5, 45, 17), expected: true},
 		{period: "d14", dt: ft(2017, 12, 19, 13, 45, 17), expected: true},
 		{period: "d14", dt: ft(2017, 12, 19, 12, 45, 17), expected: false},
-		{period: "anno_13_now", dt: ft(2017, 12, 19), expected: true},
-		{period: "anno_13_now", dt: ft(2017, 12, 19, 1), expected: false},
-		{period: "anno_13_now", dt: ft(2017, 12, 19, 2, 11), expected: true},
-		{period: "anno_13_now", dt: ft(2017, 12, 19, 4, 11), expected: true},
+		{period: "anno_13_now", dt: ft(2017, 12, 19), expected: false},
+		{period: "anno_13_now", dt: ft(2017, 12, 19, 1), expected: true},
+		{period: "anno_13_now", dt: ft(2017, 12, 19, 2, 11), expected: false},
+		{period: "anno_13_now", dt: ft(2017, 12, 19, 4, 11), expected: false},
 		{period: "anno_12_13", dt: ft(2017, 12, 19), expected: false},
 		{period: "anno_0_1", dt: ft(2017, 12, 19, 1), expected: false},
 		{period: "anno_10_11", dt: ft(2017, 12, 19, 2, 11), expected: true},
 		{period: "anno_10_11", dt: ft(2017, 12, 19, 4, 11), expected: false},
 		{period: "w", dt: ft(2017, 12, 19), expected: true},
 		{period: "w", dt: ft(2017, 12, 19, 1), expected: false},
-		{period: "w", dt: ft(2017, 12, 19, 20, 13), expected: true},
-		{period: "w3", dt: ft(2017, 12, 19, 20, 13), expected: true},
-		{period: "w3", dt: ft(2017, 12, 19, 21, 13), expected: false},
+		{period: "w", dt: ft(2017, 12, 19, 20, 13), expected: false},
+		{period: "w3", dt: ft(2017, 12, 19, 20, 13), expected: false},
+		{period: "w3", dt: ft(2017, 12, 19, 18, 13), expected: true},
 		{period: "m", dt: ft(2017, 12, 19), expected: true},
 		{period: "q", dt: ft(2017, 12, 19), expected: true},
 		{period: "y", dt: ft(2017, 12, 19), expected: true},
@@ -79,19 +81,19 @@ func TestComputePeriodAtThisDate(t *testing.T) {
 		{tmOffset: 5, period: "d7", dt: ft(2017, 12, 19, 0, 45, 17), expected: true},
 		{tmOffset: 5, period: "d14", dt: ft(2017, 12, 19, 8, 45, 17), expected: true},
 		{tmOffset: 5, period: "d14", dt: ft(2017, 12, 19, 7, 45, 17), expected: false},
-		{tmOffset: 5, period: "anno_13_now", dt: ft(2017, 12, 19, 19), expected: true},
-		{tmOffset: 5, period: "anno_13_now", dt: ft(2017, 12, 19, 20), expected: false},
-		{tmOffset: 5, period: "anno_13_now", dt: ft(2017, 12, 19, 21, 11), expected: true},
-		{tmOffset: 5, period: "anno_13_now", dt: ft(2017, 12, 19, 23, 11), expected: true},
+		{tmOffset: 5, period: "anno_13_now", dt: ft(2017, 12, 19, 19), expected: false},
+		{tmOffset: 5, period: "anno_13_now", dt: ft(2017, 12, 19, 20), expected: true},
+		{tmOffset: 5, period: "anno_13_now", dt: ft(2017, 12, 19, 21, 11), expected: false},
+		{tmOffset: 5, period: "anno_13_now", dt: ft(2017, 12, 19, 23, 11), expected: false},
 		{tmOffset: 5, period: "anno_12_13", dt: ft(2017, 12, 19, 19), expected: false},
 		{tmOffset: 5, period: "anno_0_1", dt: ft(2017, 12, 19, 20), expected: false},
 		{tmOffset: 5, period: "anno_10_11", dt: ft(2017, 12, 19, 21, 11), expected: true},
 		{tmOffset: 5, period: "anno_10_11", dt: ft(2017, 12, 19, 23, 11), expected: false},
 		{tmOffset: 5, period: "w", dt: ft(2017, 12, 19, 19), expected: true},
 		{tmOffset: 5, period: "w", dt: ft(2017, 12, 19, 20), expected: false},
-		{tmOffset: 5, period: "w", dt: ft(2017, 12, 19, 15, 13), expected: true},
-		{tmOffset: 5, period: "w3", dt: ft(2017, 12, 19, 15, 13), expected: true},
-		{tmOffset: 5, period: "w3", dt: ft(2017, 12, 19, 16, 13), expected: false},
+		{tmOffset: 5, period: "w", dt: ft(2017, 12, 19, 15, 13), expected: false},
+		{tmOffset: 5, period: "w3", dt: ft(2017, 12, 19, 15, 13), expected: false},
+		{tmOffset: 5, period: "w3", dt: ft(2017, 12, 19, 13, 13), expected: true},
 		{tmOffset: 5, period: "m", dt: ft(2017, 12, 19, 19), expected: true},
 		{tmOffset: 5, period: "q", dt: ft(2017, 12, 19, 19), expected: true},
 		{tmOffset: 5, period: "y", dt: ft(2017, 12, 19, 19), expected: true},
@@ -118,18 +120,18 @@ func TestComputePeriodAtThisDate(t *testing.T) {
 		{tmOffset: -10, period: "d7", dt: ft(2017, 12, 19, 15, 45, 17), expected: true},
 		{tmOffset: -10, period: "d14", dt: ft(2017, 12, 19, 23, 45, 17), expected: true},
 		{tmOffset: -10, period: "d14", dt: ft(2017, 12, 19, 22, 45, 17), expected: false},
-		{tmOffset: -10, period: "anno_13_now", dt: ft(2017, 12, 19, 10), expected: true},
-		{tmOffset: -10, period: "anno_13_now", dt: ft(2017, 12, 19, 11), expected: false},
-		{tmOffset: -10, period: "anno_13_now", dt: ft(2017, 12, 19, 12, 11), expected: true},
-		{tmOffset: -10, period: "anno_13_now", dt: ft(2017, 12, 19, 14, 11), expected: true},
+		{tmOffset: -10, period: "anno_13_now", dt: ft(2017, 12, 19, 10), expected: false},
+		{tmOffset: -10, period: "anno_13_now", dt: ft(2017, 12, 19, 11), expected: true},
+		{tmOffset: -10, period: "anno_13_now", dt: ft(2017, 12, 19, 12, 11), expected: false},
+		{tmOffset: -10, period: "anno_13_now", dt: ft(2017, 12, 19, 14, 11), expected: false},
 		{tmOffset: -10, period: "anno_12_13", dt: ft(2017, 12, 19, 10), expected: false},
 		{tmOffset: -10, period: "anno_0_1", dt: ft(2017, 12, 19, 11), expected: false},
 		{tmOffset: -10, period: "anno_10_11", dt: ft(2017, 12, 19, 12, 11), expected: true},
 		{tmOffset: -10, period: "anno_10_11", dt: ft(2017, 12, 19, 14, 11), expected: false},
 		{tmOffset: -10, period: "w", dt: ft(2017, 12, 19, 10), expected: true},
 		{tmOffset: -10, period: "w", dt: ft(2017, 12, 19, 11), expected: false},
-		{tmOffset: -10, period: "w", dt: ft(2017, 12, 19, 6, 13), expected: true},
-		{tmOffset: -10, period: "w3", dt: ft(2017, 12, 19, 6, 13), expected: true},
+		{tmOffset: -10, period: "w", dt: ft(2017, 12, 19, 6, 13), expected: false},
+		{tmOffset: -10, period: "w3", dt: ft(2017, 12, 19, 6, 13), expected: false},
 		{tmOffset: -10, period: "w3", dt: ft(2017, 12, 19, 7, 13), expected: false},
 		{tmOffset: -10, period: "m", dt: ft(2017, 12, 19, 10), expected: true},
 		{tmOffset: -10, period: "q", dt: ft(2017, 12, 19, 10), expected: true},
@@ -143,6 +145,7 @@ func TestComputePeriodAtThisDate(t *testing.T) {
 		{tmOffset: -10, period: "m2", dt: ft(2017, 12, 19, 14), expected: false},
 		{tmOffset: -10, period: "q3", dt: ft(2017, 12, 19, 15), expected: false},
 		{tmOffset: -10, period: "y10", dt: ft(2017, 12, 19, 15), expected: false},
+		{period: "y10", dt: ft(2017, 12, 19, 11, 12, 13), computeAll: true, expected: true},
 	}
 
 	// Environment context parse
@@ -153,6 +156,7 @@ func TestComputePeriodAtThisDate(t *testing.T) {
 	for index, test := range testCases {
 		expected := test.expected
 		ctx.TmOffset = test.tmOffset
+		ctx.ComputeAll = test.computeAll
 		got := lib.ComputePeriodAtThisDate(&ctx, test.period, test.dt)
 		if got != expected {
 			t.Errorf(

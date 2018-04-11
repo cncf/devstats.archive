@@ -42,6 +42,9 @@ func ProgressInfo(i, n int, start time.Time, last *time.Time, period time.Durati
 // weekly ranges are calculated at hours: 0, 4, 8, 12, 16, 20
 // monthly, quarterly, yearly ranges are calculated at midnight
 func ComputePeriodAtThisDate(ctx *Ctx, period string, dt time.Time) bool {
+	if ctx.ComputeAll {
+		return true
+	}
 	dt = HourStart(dt)
 	h := (dt.Hour() + ctx.TmOffset) % 24
 	periodStart := period[0:1]
@@ -60,8 +63,7 @@ func ComputePeriodAtThisDate(ctx *Ctx, period string, dt time.Time) bool {
 		}
 		return h == 2
 	} else if periodStart == "c" {
-		//return h == 3
-		return true
+		return h == 3
 	} else if periodStart == "w" {
 		return h%6 == 0
 	} else if periodStart == "m" || periodStart == "q" || periodStart == "y" {
