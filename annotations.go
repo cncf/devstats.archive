@@ -345,7 +345,7 @@ func ProcessAnnotations(ctx *Ctx, annotations *Annotations, startDate, joinDate 
 	// Write the batch
 	if !ctx.SkipIDB {
 		//if ctx.IDBDrop
-		QueryIDB(ic, ctx, fmt.Sprintf(`delete from "quick_ranges" where quick_ranges_suffix =~ /anno_%d_now/`, lastIndex))
+		QueryIDB(ic, ctx, fmt.Sprintf(`delete from "quick_ranges" where quick_ranges_suffix =~ /_now$/`, lastIndex))
 		FatalOnError(IDBWritePointsN(ctx, &ic, &pts))
 	} else if ctx.Debug > 0 {
 		Printf("Skipping annotations series write\n")
