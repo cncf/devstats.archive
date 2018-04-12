@@ -73,7 +73,7 @@ with issues as (
       'cncf-cla: no',
       'do-not-merge',
       'do-not-merge/blocked-paths',
-      'do-not-merge/cherrypick-not-approved',
+      'do-not-merge/cherry-pick-not-approved',
       'do-not-merge/hold',
       'do-not-merge/release-note-label-needed',
       'do-not-merge/work-in-progress',
