@@ -11,8 +11,9 @@ then
 fi
 ./grafana/copy_grafana_dbs.sh || exit 3
 cp /var/lib/grafana.$GRAFANA/grafana.db ./grafana.$GRAFANA.db || exit 4
-GHA2DB_UIDMODE=1 ./sqlitedb ./grafana.$suff.db $* || exit 5
-./devel/grafana_stop $GRAFANA || exit 6
+GHA2DB_UIDMODE=1 ./sqlitedb ./grafana.$GRAFANA.db $* || exit 5
+./devel/grafana_stop.sh $GRAFANA || exit 6
 cp ./grafana.$GRAFANA.db /var/lib/grafana.$GRAFANA/grafana.db || exit 7
-ls -l "./grafana.$GRAFANA.db.*"
-echo "Run ./devel/grafana_start.sh $GRAFANA now."
+ls -l ./grafana.$GRAFANA.db.*
+./devel/grafana_start.sh $GRAFANA || exit 8
+echo "OK, if all is fine delete grafana.$GRAFANA.db.* db backup files and *.was json backup files".
