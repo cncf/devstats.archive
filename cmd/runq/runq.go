@@ -30,6 +30,16 @@ func runq(sqlFile string, params []string) {
 			replaces[param] = ""
 			paramName = param
 		} else {
+			// Support special "readfile:replacement.dat" mode
+			if len(param) >= 10 && param[:9] == "readfile:" {
+				fn := param[9:]
+				if ctx.Debug > 0 {
+					lib.Printf("Reading file: %s\n", fn)
+				}
+				bytes, err := lib.ReadFile(&ctx, fn)
+				lib.FatalOnError(err)
+				param = string(bytes)
+			}
 			replaces[paramName] = param
 			paramName = ""
 		}
