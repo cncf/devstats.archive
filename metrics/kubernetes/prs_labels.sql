@@ -69,10 +69,16 @@ with issues as (
     il.issue_id = pr.issue_id
     and il.event_id = pr.event_id
     and il.dup_label_name in (
-      'needs-rebase',
-      'needs-ok-to-test',
-      'do-not-merge',
       'cla: no',
+      'cncf-cla: no',
+      'do-not-merge',
+      'do-not-merge/blocked-paths',
+      'do-not-merge/cherrypick-not-approved',
+      'do-not-merge/hold',
+      'do-not-merge/release-note-label-needed',
+      'do-not-merge/work-in-progress',
+      'needs-ok-to-test',
+      'needs-rebase',
       'release-note-label-needed'
     )
 )
