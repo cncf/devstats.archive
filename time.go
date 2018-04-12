@@ -47,6 +47,9 @@ func ComputePeriodAtThisDate(ctx *Ctx, period string, dt time.Time) bool {
 	}
 	dt = HourStart(dt)
 	h := (dt.Hour() + ctx.TmOffset) % 24
+	if h < 0 {
+		h += 24
+	}
 	periodStart := period[0:1]
 	if periodStart == "h" {
 		return true
@@ -67,7 +70,7 @@ func ComputePeriodAtThisDate(ctx *Ctx, period string, dt time.Time) bool {
 	} else if periodStart == "w" {
 		return h%6 == 0
 	} else if periodStart == "m" || periodStart == "q" || periodStart == "y" {
-		return h == 0
+		return h == 23
 	}
 	Fatalf("ComputePeriodAtThisDate: unknown period: '%s'", period)
 	return false
