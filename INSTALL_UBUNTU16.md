@@ -9,6 +9,11 @@ Prerequisites:
     - `sudo apt-get install golang-1.9-go git psmisc jsonlint yamllint gcc`
     - `sudo ln -s /usr/lib/go-1.9 /usr/lib/go`
     - `mkdir $HOME/data; mkdir $HOME/data/dev`
+- Update git to version 2.11.0 or above :
+    - `sudo add-apt-repository ppa:git-core/ppa -y`
+    - `sudo apt-get update`
+    - `sudo apt-get install git -y`
+    - `git --version`
 1. Configure Go:
     - For example add to `~/.bash_profile` and/or `~/.profile`:
      ```
