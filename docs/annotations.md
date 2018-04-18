@@ -4,7 +4,7 @@
 - For example search for `"annotations": {` [here](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/reviewers-repository-groups.json).
 - It uses InfluxDB data from `annotations` series: `SELECT title, description from annotations WHERE $timeFilter order by time asc`
 - `$timeFilter` is managed by Grafana internally and evaluates to current dashboard date range.
-- Each project's annotations are computed using data from annotation_regexp [definition](https://github.com/cncf/devstats/blob/master/projects.yaml) (search for `annotation_regexp:`).
+- Each project's annotations are computed using data from *annotation_regexp* [definition](https://github.com/cncf/devstats/blob/master/projects.yaml) (search for `annotation_regexp:`).
 - `main_repo` defines GitHub repository (project can have and usually have multiple GitHub repos) to get annotations from.
 - `annotation_regexp` defines RegExp patter to fetch annotations.
 - Final annotation list will be a list of tags from `main_repo` that matches `annotation_regexp`.
@@ -14,7 +14,7 @@
 - You can also clear all annotations using [devel/clear_all_annotations.sh](https://github.com/cncf/devstats/blob/master/devel/clear_all_annotations.sh) script and generate all annotations using [devel/add_all_annotations.sh](https://github.com/cncf/devstats/blob/master/devel/add_all_annotations.sh) script.
 - Pass `ONLY='proj1 proj2'` to limit to the selected list of projects.
 - When computing annotations some special InfluxDB series are created:
-- `annotations` it conatins all tag names & dates matching `main_repo` and `annotation_regexp` + CNCF join date (if set, check [here](https://github.com/cncf/devstats/blob/master/projects.yaml#L8))
+- `annotations` it conatins all tag names & dates matching `main_repo` and `annotation_regexp` + CNCF join date (if set, search for `join_date:` [here](https://github.com/cncf/devstats/blob/master/projects.yaml))
 - Example values (for Kubernetes):
 ```
 > precision rfc3339
@@ -58,7 +58,7 @@ time                 description                              title
 - So if you have 10 annotations it will create `anno_0_1`, `anno_1_2`, `anno_2_3`, .., `anno_8_9`, `anno_9_now`.
 - It will also create special periods: last day, last week, last month, last quarter, last year, last 10 days, last decade (10 years).
 - Some of those period have fixed length, not changing in time (all of then not ending now - past ones), those periods will only be calculated once and special marker will be set in the `computed` series to avoid calculating them multiple times.
-- This flag (skip past calculation) is the default flag, unless we're full regenerating data, see [this](https://github.com/cncf/devstats/blob/master/cmd/gha2db_sync/gha2db_sync.go#L470-L472).
+- This flag (skip past calculation) is the default flag, unless we're full regenerating data, search for `ctx.ResetIDB` [here](https://github.com/cncf/devstats/blob/master/cmd/gha2db_sync/gha2db_sync.go).
 - Example quick ranges (for Kubernetes):
 ```
 > select * from quick_ranges
@@ -115,8 +115,7 @@ time                 computed_from       computed_key                           
 2014-09-08T23:00:00Z 2014-09-08 23:21:36 kubernetes/project_company_stats.sql   0
 2014-09-08T23:00:00Z 2014-09-08 23:21:36 kubernetes/pr_workload_table.sql       0
 ```
-- Key is `computed_key` - metric file name and `computed_from` that holds `date from` for calculated period. Checking and setting `computed` state happens [here](https://github.com/cncf/devstats/blob/master/cmd/db2influx/db2influx.go#L310-L346).
-- Logic to decide when we can skip calculations is [here](https://github.com/cncf/devstats/blob/master/cmd/db2influx/db2influx.go#L387), [here](https://github.com/cncf/devstats/blob/master/cmd/db2influx/db2influx.go#L398) and [here](https://github.com/cncf/devstats/blob/master/cmd/db2influx/db2influx.go#L585).
-- Period calculation (this is also for charts not only histograms) is determined [here](https://github.com/cncf/devstats/blob/master/time.go#L44). Possible period values are: `h,d,w,m,q,y,hN,dN,wN,mN,qN,yN,anno_x_y,anno_x_now`: h..y -mean hour..year, hN, N > 1, means some aggregation of h..y, anno_x_y (x >= 0, y > x) mean past quick range, anno_x_now (x >=0) mean last quick range.
+- Key is `computed_key` - metric file name and `computed_from` that holds `date from` for calculated period. Checking and setting `computed` state happens [here](https://github.com/cncf/devstats/blob/master/cmd/db2influx/db2influx.go), search for `isAlreadyComputed`, `setAlreadyComputed`.
+- Period calculation (this is also for charts not only histograms) is determined [here](https://github.com/cncf/devstats/blob/master/time.go), search for `ComputePeriodAtThisDate`. Possible period values are: `h,d,w,m,q,y,hN,dN,wN,mN,qN,yN,anno_x_y,anno_x_now,cncf_before,cncf_now`: h..y -mean hour..year, hN, N > 1, means some aggregation of h..y, anno_x_y (x >= 0, y > x) mean past quick range, anno_x_now (x >=0) mean last quick range.
 - You can use: `influx -host localhost -username gha_admin -password pwd -database gha` to access Kubernetes InfluxDB to see those values: `precision rfc3339`, `select * from {{seriesname}}`, `{{seriesname}}` being: `quick_ranges`, `computed`, `annotations`.
-- `main_repo` and `annotation_regexp` can be empty (like for 'All' project [here](https://github.com/cncf/devstats/blob/master/projects.yaml#L202-L207). Depending on CNCF join date presence you will see single annotation or none then.
+- `main_repo` and `annotation_regexp` can be empty (like for 'All' project [here](https://github.com/cncf/devstats/blob/master/projects.yaml). Depending on CNCF join date presence you will see single annotation or none then.
