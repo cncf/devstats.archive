@@ -2,6 +2,9 @@
 # GET=1 (attempt to fetch Postgres database and Grafana database from the test server)
 # IGET=1 (attempt to fetch Influx database from the test server)
 # AGET=1 (attempt to fetch 'All CNCF' Postgres database from the test server)
+# SKIPDBS=1 (entirely skip project's databases operations: Influx and Postgres)
+# SKIPADDALL=1 (skip adding/merging to allprj)
+# SKIPGRAFANA=1 (skip all grafana related stuff)
 set -o pipefail
 if ( [ -z "$PG_PASS" ] || [ -z "$IDB_PASS" ] || [ -z "$IDB_HOST" ] )
 then
@@ -30,10 +33,16 @@ then
   > /tmp/deploy.wip
 fi
 echo "$0: $PROJ deploy started"
-PDB=1 IDB=1 ./devel/create_databases.sh || exit 3
-if ( [ ! "$PROJ" = "all" ] && [ ! "$PROJ" = "opencontainers" ] )
+if [ -z "$SKIPDBS" ]
+then
+  PDB=1 IDB=1 ./devel/create_databases.sh || exit 3
+fi
+if ( [ -z "$SKIPADDALL"] && [ ! "$PROJ" = "all" ] && [ ! "$PROJ" = "opencontainers" ] )
 then
   IDB=1 ./all/add_project.sh "$PROJDB" "$PROJREPO" || exit 4
 fi
-./devel/create_grafana.sh || exit 5
+if [ -z "$SKIPGRAFANA" ]
+then
+  ./devel/create_grafana.sh || exit 5
+fi
 echo "$0: $PROJ deploy finished"
