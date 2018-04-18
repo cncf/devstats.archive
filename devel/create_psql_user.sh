@@ -20,9 +20,13 @@ then
   else
     all=`cat ./devel/all_prod_dbs.txt`
   fi
+  all="$all devstats"
 else
   all=$ONLY
 fi
+
+echo "'$all'"
+exit 1
 
 cp ./util_sql/drop_psql_user.sql /tmp/drop_user.sql || exit 1
 FROM="{{user}}" TO="devstats_team" MODE=ss ./replacer /tmp/drop_user.sql || exit 1
