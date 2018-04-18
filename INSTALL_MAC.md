@@ -61,11 +61,15 @@ Prerequisites:
     - `grant all privileges on database "devstats" to gha_admin;`
     - `alter user gha_admin createdb;`
     - Leave the shell and create logs table for devstats: `psql devstats < util_sql/devstats_log_table.sql`.
+    - `PG_PASS=... ONLY="devstats gha" ./devel/create_ro_user.sh`.
+    - `PG_PASS=... ONLY="devstats gha" ./devel/create_psql_user.sh devstats_team`.
+    - In case of problems both scripts (`create_ro_user.sh` and `create_psql_user.sh`) support `DROP=1`, `NOCREATE=1` env variables.
 
 9. Leave `psql` shell, and get newest Kubernetes database dump:
     - `wget https://devstats.cncf.io/gha.dump`.
-    - `pg_restore -d gha gha.dump` (restore DB dump)
-    - Create `ro_user` via `PG_PASS=your_password_here ./devel/create_ro_user.sh`
+    - `mv gha.dump /tmp`.
+    - `sudo -u postgres pg_restore -d gha /tmp/gha.dump` (restore DB dump)
+    - `rm /tmp/gha.dump`
 
 10. Install InfluxDB time-series database ([link](https://docs.influxdata.com/influxdb/v0.9/introduction/installation/)):
     - `brew update`
@@ -83,8 +87,8 @@ Prerequisites:
     - Tests should pass.
 
 12. We have both databases running and Go tools installed, let's try to sync database dump from `k8s.devstats.cncf.io` manually:
-    - We need to prefix call with GHA2DB_LOCAL to enable using tools from "./" directory
-    - You need to have GitHub OAuth token, either put this token in `/etc/github/aoauth` file or specify token value via GHA2DB_GITHUB_OAUTH=deadbeef654...10a0 (here you token value)
+    - We need to prefix call with `GHA2DB_LOCAL=1` to enable using tools from "./" directory
+    - You need to have GitHub OAuth token, either put this token in `/etc/github/aoauth` file or specify token value via `GHA2DB_GITHUB_OAUTH=deadbeef654...10a0` (here you token value)
     - If you really don't want to use GitHub OAuth2 token, specify `GHA2DB_GITHUB_OAUTH=-` - this will force tokenless operation (via public API), it is a lot more rate limited than OAuth2 which gives 5000 API points/h
     - To import data for the first time (Influx database is empty and postgres database is at the state when Kubernetes SQL dump was made on [k8s.devstats.cncf.io](https://k8s.devstats.cncf.io)):
     - `IDB_HOST="localhost" IDB_PASS=pwd PG_PASS=pwd ./kubernetes/reinit_all.sh`

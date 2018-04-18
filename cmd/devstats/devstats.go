@@ -68,24 +68,26 @@ func syncAllProjects() bool {
 	// So here we get repo files to the newest state
 	// And the gha2db_sync takes Postgres DB commits to the newest state
 	// after this it need to update commit files
-	lib.Printf("Updating git repos for all projects\n")
-	dtStart := time.Now()
-	_, res := lib.ExecCommand(
-		&ctx,
-		[]string{
-			cmdPrefix + "get_repos",
-		},
-		map[string]string{
-			"GHA2DB_PROCESS_REPOS": "1",
-		},
-	)
-	dtEnd := time.Now()
-	if res != nil {
-		lib.Printf("Error updating git repos (took %v): %+v\n", dtEnd.Sub(dtStart), res)
-		fmt.Fprintf(os.Stderr, "%v: Error updating git repos (took %v): %+v\n", dtEnd, dtEnd.Sub(dtStart), res)
-		return false
+	if !ctx.SkipGetRepos {
+		lib.Printf("Updating git repos for all projects\n")
+		dtStart := time.Now()
+		_, res := lib.ExecCommand(
+			&ctx,
+			[]string{
+				cmdPrefix + "get_repos",
+			},
+			map[string]string{
+				"GHA2DB_PROCESS_REPOS": "1",
+			},
+		)
+		dtEnd := time.Now()
+		if res != nil {
+			lib.Printf("Error updating git repos (took %v): %+v\n", dtEnd.Sub(dtStart), res)
+			fmt.Fprintf(os.Stderr, "%v: Error updating git repos (took %v): %+v\n", dtEnd, dtEnd.Sub(dtStart), res)
+			return false
+		}
+		lib.Printf("Updated git repos, took: %v\n", dtEnd.Sub(dtStart))
 	}
-	lib.Printf("Updated git repos, took: %v\n", dtEnd.Sub(dtStart))
 
 	// Sync all projects
 	for _, order := range orders {
