@@ -1,10 +1,10 @@
 # Annotations
 
 - Most dashboards use Grafana's annotations query.
-- For example search for "annotations" [here](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/reviewers-repository-groups.json).
+- For example search for `"annotations": {` [here](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/reviewers-repository-groups.json).
 - It uses InfluxDB data from `annotations` series: `SELECT title, description from annotations WHERE $timeFilter order by time asc`
 - `$timeFilter` is managed by Grafana internally and evaluates to current dashboard date range.
-- Each project's annotations are computed using data from [projects.yaml](https://github.com/cncf/devstats/blob/master/projects.yaml#L11-L12).
+- Each project's annotations are computed using data from annotation_regexp [definition](https://github.com/cncf/devstats/blob/master/projects.yaml) (search for `annotation_regexp:`).
 - `main_repo` defines GitHub repository (project can have and usually have multiple GitHub repos) to get annotations from.
 - `annotation_regexp` defines RegExp patter to fetch annotations.
 - Final annotation list will be a list of tags from `main_repo` that matches `annotation_regexp`.
