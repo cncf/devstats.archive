@@ -1,7 +1,7 @@
 # Annotations
 
 - Most dashboards use Grafana's annotations query.
-- For example [here](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/reviewers.json#L32-L58).
+- For example search for "annotations" [here](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/reviewers-repository-groups.json).
 - It uses InfluxDB data from `annotations` series: `SELECT title, description from annotations WHERE $timeFilter order by time asc`
 - `$timeFilter` is managed by Grafana internally and evaluates to current dashboard date range.
 - Each project's annotations are computed using data from [projects.yaml](https://github.com/cncf/devstats/blob/master/projects.yaml#L11-L12).

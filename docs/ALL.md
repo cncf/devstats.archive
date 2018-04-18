@@ -329,6 +329,7 @@ You can tweak `devstats` tools by environment variables:
 - Set `GHA2DB_GHAPISKIP`, ghapi2db tool, if set then tool is not creating artificial events using GitHub API.
 - Set `GHA2DB_AECLEANSKIP`, ghapi2db tool, if set then tool is not attempting to clean unneeded artificial events.
 - Set `GHA2DB_GETREPOSSKIP`, get_repos tool, if set then tool does nothing.
+- Set `GHA2DB_COMPUTE_ALL`, all tools, this forces computing all possible periods (weekly, daily, yearly, since last release to now, since CNCF join date to now etc.) instead of making decision based on current time.
 
 All environment context details are defined in [context.go](https://github.com/cncf/devstats/blob/master/context.go), please see that file for details (you can also see how it works in [context_test.go](https://github.com/cncf/devstats/blob/master/context_test.go)).
 
@@ -762,7 +763,7 @@ Please see [Tests](https://github.com/cncf/devstats/blob/master/TESTING.md)
 - Run tests like this: `PG_PASS=... IDB_PASS=.. GHA2DB_PROJECT=kubernetes IDB_HOST="localhost" IDB_DB=dbtest PG_DB=dbtest make dbtest`.
 - Or use script shortcut: `PG_PASS=... IDB_PASS=... GHA2DB_PROJECT=kubernetes IDB_HOST="localhost" ./dbtest.sh`.
 - To test only selected SQL metric(s): `PG_PASS=... GHA2DB_PROJECT=kubernetes PG_DB=dbtest TEST_METRICS='new_contributors,episodic_contributors' go test metrics_test.go`.
-- To test single file that requires database: `PG_PASS=... IDB_PASS=... GHA2DB_PROJECT=kubernetes IDB_HOST="localhost" go test file_name.go`.
+- To test single file that requires database: `PG_PASS=... IDB_PASS=... GHA2DB_PROJECT=kubernetes IDB_HOST=localhost IDB_DB=dbtest PG_DB=dbtest go test file_name.go`.
 3. To check all sources using multiple go tools (like fmt, lint, imports, vet, goconst, usedexports), run `make check`.
 4. To check Travis CI payloads use `PG_PASS=pwd IDB_PASS=pwd IDB_HOST=localhost IDB_PASS_SRC=pwd IGET=1 GET=1 ./webhook.sh` and then `./test_webhook.sh`.
 5. Continuous deployment instructions are [here](https://github.com/cncf/devstats/blob/master/CONTINUOUS_DEPLOYMENT.md).
@@ -959,7 +960,7 @@ Prerequisites:
 6. Install binaries & metrics:
     - `sudo mkdir /etc/gha2db`
     - `sudo chmod 777 /etc/gha2db`
-    - `sudo make install`
+    - `sudo -E make install`
 
 7. Install Postgres database ([link](https://gist.github.com/sgnl/609557ebacd3378f3b72)):
     - `brew doctor`
@@ -977,12 +978,16 @@ Prerequisites:
     - `grant all privileges on database "gha" to gha_admin;`
     - `grant all privileges on database "devstats" to gha_admin;`
     - `alter user gha_admin createdb;`
-    - Leave the shell and create logs table for devstats: `sudo -u postgres psql devstats < util_sql/devstats_log_table.sql`.
+    - Leave the shell and create logs table for devstats: `psql devstats < util_sql/devstats_log_table.sql`.
+    - `PG_PASS=... ONLY="devstats gha" ./devel/create_ro_user.sh`.
+    - `PG_PASS=... ONLY="devstats gha" ./devel/create_psql_user.sh devstats_team`.
+    - In case of problems both scripts (`create_ro_user.sh` and `create_psql_user.sh`) support `DROP=1`, `NOCREATE=1` env variables.
 
 9. Leave `psql` shell, and get newest Kubernetes database dump:
     - `wget https://devstats.cncf.io/gha.dump`.
-    - `sudo -u postgres pg_restore -d gha gha.dump` (restore DB dump)
-    - Create `ro_user` via `PG_PASS=... ./devel/create_ro_user.sh`
+    - `mv gha.dump /tmp`.
+    - `sudo -u postgres pg_restore -d gha /tmp/gha.dump` (restore DB dump)
+    - `rm /tmp/gha.dump`
 
 10. Install InfluxDB time-series database ([link](https://docs.influxdata.com/influxdb/v0.9/introduction/installation/)):
     - `brew update`
@@ -1000,8 +1005,8 @@ Prerequisites:
     - Tests should pass.
 
 12. We have both databases running and Go tools installed, let's try to sync database dump from `k8s.devstats.cncf.io` manually:
-    - We need to prefix call with GHA2DB_LOCAL to enable using tools from "./" directory
-    - You need to have GitHub OAuth token, either put this token in `/etc/github/aoauth` file or specify token value via GHA2DB_GITHUB_OAUTH=deadbeef654...10a0 (here you token value)
+    - We need to prefix call with `GHA2DB_LOCAL=1` to enable using tools from "./" directory
+    - You need to have GitHub OAuth token, either put this token in `/etc/github/aoauth` file or specify token value via `GHA2DB_GITHUB_OAUTH=deadbeef654...10a0` (here you token value)
     - If you really don't want to use GitHub OAuth2 token, specify `GHA2DB_GITHUB_OAUTH=-` - this will force tokenless operation (via public API), it is a lot more rate limited than OAuth2 which gives 5000 API points/h
     - To import data for the first time (Influx database is empty and postgres database is at the state when Kubernetes SQL dump was made on [k8s.devstats.cncf.io](https://k8s.devstats.cncf.io)):
     - `IDB_HOST="localhost" IDB_PASS=pwd PG_PASS=pwd ./kubernetes/reinit_all.sh`
@@ -1134,10 +1139,14 @@ Prerequisites:
     - `grant all privileges on database "devstats" to gha_admin;`
     - `alter user gha_admin createdb;`
     - Leave the shell and create logs table for devstats: `sudo -u postgres psql devstats < util_sql/devstats_log_table.sql`.
+    - `PG_PASS=... ONLY="devstats gha" ./devel/create_ro_user.sh`.
+    - `PG_PASS=... ONLY="devstats gha" ./devel/create_psql_user.sh devstats_team`.
+    - In case of problems both scripts (`create_ro_user.sh` and `create_psql_user.sh`) support `DROP=1`, `NOCREATE=1` env variables.
 11. Leave `psql` shell, and get newest Kubernetes database dump:
     - `wget https://devstats.cncf.io/gha.dump`.
-    - `sudo -u postgres pg_restore -d gha gha.dump` (restore DB dump)
-    - Create `ro_user` via `PG_PASS=... ./devel/create_ro_user.sh`
+    - `mv gha.dump /tmp`.
+    - `sudo -u postgres pg_restore -d gha /tmp/gha.dump` (restore DB dump)
+    - `rm /tmp/gha.dump`
 12. Install InfluxDB time-series database ([link](https://docs.influxdata.com/influxdb/v0.9/introduction/installation/)):
     - `sudo pkg install influxdb`
     - `sudo service influxd start`
@@ -1151,9 +1160,9 @@ Prerequisites:
     - `GHA2DB_PROJECT=kubernetes IDB_DB=dbtest IDB_HOST="localhost" IDB_PASS=your_influx_pwd PG_DB=dbtest PG_PASS=your_postgres_pwd make dbtest`
     - Tests should pass.
 14. We have both databases running and Go tools installed, let's try to sync database dump from k8s.devstats.cncf.io manually:
-    - We need to prefix call with GHA2DB_LOCAL to enable using tools from "./" directory
+    - We need to prefix call with `GHA2DB_LOCAL=1` to enable using tools from "./" directory
     - To import data for the first time (Influx database is empty and postgres database is at the state when Kubernetes SQL dump was made on [k8s.devstats.cncf.io](https://k8s.devstats.cncf.io)):
-    - You need to have GitHub OAuth token, either put this token in `/etc/github/oauth` file or specify token value via GHA2DB_GITHUB_OAUTH=deadbeef654...10a0 (here you token value)
+    - You need to have GitHub OAuth token, either put this token in `/etc/github/oauth` file or specify token value via `GHA2DB_GITHUB_OAUTH=deadbeef654...10a0` (here you token value)
     - If you really don't want to use GitHub OAuth2 token, specify `GHA2DB_GITHUB_OAUTH=-` - this will force tokenless operation (via public API), it is a lot more rate limited than OAuth2 which gives 5000 API points/h
     - `IDB_HOST="localhost" IDB_PASS=pwd PG_PASS=pwd ./kubernetes/reinit_all.sh`
     - This can take a while (depending how old is psql dump `gha.sql.xz` on [k8s.devstats.cncf.io](https://k8s.devstats.cncf.io). It is generated daily at 3:00 AM UTC.
@@ -1583,6 +1592,11 @@ Prerequisites:
     - `sudo apt-get install golang-1.9-go git psmisc jsonlint yamllint gcc`
     - `sudo ln -s /usr/lib/go-1.9 /usr/lib/go`
     - `mkdir $HOME/data; mkdir $HOME/data/dev`
+- Update git to version 2.11.0 or above :
+    - `sudo add-apt-repository ppa:git-core/ppa -y`
+    - `sudo apt-get update`
+    - `sudo apt-get install git -y`
+    - `git --version`
 1. Configure Go:
     - For example add to `~/.bash_profile` and/or `~/.profile`:
      ```
@@ -1637,11 +1651,15 @@ Prerequisites:
     - `grant all privileges on database "devstats" to gha_admin;`
     - `alter user gha_admin createdb;`
     - Leave the shell and create logs table for devstats: `sudo -u postgres psql devstats < util_sql/devstats_log_table.sql`.
+    - `PG_PASS=... ONLY="devstats gha" ./devel/create_ro_user.sh`.
+    - `PG_PASS=... ONLY="devstats gha" ./devel/create_psql_user.sh devstats_team`.
+    - In case of problems both scripts (`create_ro_user.sh` and `create_psql_user.sh`) support `DROP=1`, `NOCREATE=1` env variables.
 
 8. Leave `psql` shell, and get newest Kubernetes database dump:
     - `wget https://devstats.cncf.io/gha.dump`.
-    - `sudo -u postgres pg_restore -d gha gha.dump` (restore DB dump)
-    - Create `ro_user` via `PG_PASS=... ./devel/create_ro_user.sh`
+    - `mv gha.dump /tmp`.
+    - `sudo -u postgres pg_restore -d gha /tmp/gha.dump` (restore DB dump)
+    - `rm /tmp/gha.dump`
 
 9. Install InfluxDB time-series database ([link](https://docs.influxdata.com/influxdb/v0.9/introduction/installation/)):
     - Ubuntu 16 contains very old `influxdb` when installed by default `apt-get install influxdb`, so:
@@ -1663,8 +1681,8 @@ Prerequisites:
 11. We have both databases running and Go tools installed, let's try to sync database dump from k8s.devstats.cncf.io manually:
     - Set reuse TCP connections (Golang InfluxDB may need this under heavy load): `sudo ./scripts/net_tcp_config.sh`
     - On some VMs `tcp_tw_recycle` will be unavailable, ignore the warning.
-    - We need to prefix call with GHA2DB_LOCAL to enable using tools from "./" directory
-    - You need to have GitHub OAuth token, either put this token in `/etc/github/oauth` file or specify token value via GHA2DB_GITHUB_OAUTH=deadbeef654...10a0 (here you token value)
+    - We need to prefix call with `GHA2DB_LOCAL=1` to enable using tools from "./" directory
+    - You need to have GitHub OAuth token, either put this token in `/etc/github/oauth` file or specify token value via `GHA2DB_GITHUB_OAUTH=deadbeef654...10a0` (here you token value)
     - If you really don't want to use GitHub OAuth2 token, specify `GHA2DB_GITHUB_OAUTH=-` - this will force tokenless operation (via public API), it is a lot more rate limited than OAuth2 which gives 5000 API points/h
     - To import data for the first time (Influx database is empty and postgres database is at the state when Kubernetes SQL dump was made on [k8s.devstats.cncf.io](https://k8s.devstats.cncf.io)):
     - `IDB_HOST="localhost" IDB_PASS=pwd PG_PASS=pwd ./kubernetes/reinit_all.sh`
@@ -2970,7 +2988,7 @@ Docker can have problems with storage driver, you can select `aufs` storage opti
 # devstats installation on Ubuntu
 
 Prerequisites:
-- Ubuntu 17.04.
+- Ubuntu 17.04. You can even use Go 1.10 on ARMv8 (for example on the bare metal packet servers).
 - [golang](https://golang.org), this tutorial uses Go 1.6
     - `apt-get update`
     - `apt-get install golang git psmisc jsonlint yamllint gcc`
@@ -3025,11 +3043,15 @@ Prerequisites:
     - `grant all privileges on database "devstats" to gha_admin;`
     - `alter user gha_admin createdb;`
     - Leave the shell and create logs table for devstats: `sudo -u postgres psql devstats < util_sql/devstats_log_table.sql`.
+    - `PG_PASS=... ONLY="devstats gha" ./devel/create_ro_user.sh`.
+    - `PG_PASS=... ONLY="devstats gha" ./devel/create_psql_user.sh devstats_team`.
+    - In case of problems both scripts (`create_ro_user.sh` and `create_psql_user.sh`) support `DROP=1`, `NOCREATE=1` env variables.
 
 11. Leave `psql` shell, and get newest Kubernetes database dump:
     - `wget https://devstats.cncf.io/gha.dump`.
-    - `sudo -u postgres pg_restore -d gha gha.dump` (restore DB dump)
-    - Create `ro_user` via `PG_PASS=... ./devel/create_ro_user.sh`
+    - `mv gha.dump /tmp`.
+    - `sudo -u postgres pg_restore -d gha /tmp/gha.dump` (restore DB dump)
+    - `rm /tmp/gha.dump`
 
 12. Install InfluxDB time-series database ([link](https://docs.influxdata.com/influxdb/v0.9/introduction/installation/)):
     - Ubuntu 17 contains an old `influxdb` when installed by default `apt-get install influxdb`, so:
@@ -3050,9 +3072,9 @@ Prerequisites:
     - Tests should pass.
 
 14. We have both databases running and Go tools installed, let's try to sync database dump from k8s.devstats.cncf.io manually:
-    - We need to prefix call with GHA2DB_LOCAL to enable using tools from "./" directory
+    - We need to prefix call with `GHA2DB_LOCAL=1` to enable using tools from "./" directory
     - To import data for the first time (Influx database is empty and postgres database is at the state when Kubernetes SQL dump was made on [k8s.devstats.cncf.io](https://k8s.devstats.cncf.io)):
-    - You need to have GitHub OAuth token, either put this token in `/etc/github/oauth` file or specify token value via GHA2DB_GITHUB_OAUTH=deadbeef654...10a0 (here you token value)
+    - You need to have GitHub OAuth token, either put this token in `/etc/github/oauth` file or specify token value via `GHA2DB_GITHUB_OAUTH=deadbeef654...10a0` (here you token value)
     - If you really don't want to use GitHub OAuth2 token, specify `GHA2DB_GITHUB_OAUTH=-` - this will force tokenless operation (via public API), it is a lot more rate limited than OAuth2 which gives 5000 API points/h
     - `IDB_HOST="localhost" IDB_PASS=pwd PG_PASS=pwd ./kubernetes/reinit_all.sh`
     - This can take a while (depending how old is psql dump `gha.sql.xz` on [k8s.devstats.cncf.io](https://k8s.devstats.cncf.io). It is generated daily at 3:00 AM UTC.
