@@ -64,6 +64,7 @@ then
       echo "generating postgres database $PROJDB"
       GHA2DB_MGETC=y ./$PROJ/psql.sh || exit 12
       ./devel/ro_user_grants.sh "$PROJDB" || exit 8
+      ./devel/psql_user_grants.sh "devstats_team" "$PROJDB" || exit 35
       dbcreated=1
       cron_db_backup.sh "$PROJDB" || exit 23
     fi
@@ -91,7 +92,7 @@ then
   exists=`echo 'show databases' | influx -host $IDB_HOST -username gha_admin -password $IDB_PASS | grep $PROJDB`
   if [ -z "$exists" ]
   then
-    if ( [ -z "$IGET" ] || [ ! -z "IGEN" ] )
+    if ( [ -z "$IGET" ] || [ ! -z "$IGEN" ] )
     then
       echo "generating influx database $PROJDB"
       ./grafana/influxdb_recreate.sh "$PROJDB" || exit 15
