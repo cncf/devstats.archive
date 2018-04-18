@@ -56,6 +56,7 @@ func copyContext(in *lib.Ctx) *lib.Ctx {
 		LogToDB:             in.LogToDB,
 		Local:               in.Local,
 		IDBDrop:             in.IDBDrop,
+		IDBDropProbN:        in.IDBDropProbN,
 		MetricsYaml:         in.MetricsYaml,
 		GapsYaml:            in.GapsYaml,
 		TagsYaml:            in.TagsYaml,
@@ -240,6 +241,7 @@ func TestInit(t *testing.T) {
 		LogToDB:             true,
 		Local:               false,
 		IDBDrop:             false,
+		IDBDropProbN:        20,
 		MetricsYaml:         "metrics/metrics.yaml",
 		GapsYaml:            "metrics/gaps.yaml",
 		TagsYaml:            "metrics/idb_tags.yaml",
@@ -640,6 +642,33 @@ func TestInit(t *testing.T) {
 				t,
 				copyContext(&defaultContext),
 				map[string]interface{}{"IDBDrop": true},
+			),
+		},
+		{
+			"Setting IDB drop series prob n 0",
+			map[string]string{"GHA2DB_IDB_DROP_PROB_N": "0"},
+			dynamicSetFields(
+				t,
+				copyContext(&defaultContext),
+				map[string]interface{}{"IDBDropProbN": 0},
+			),
+		},
+		{
+			"Setting IDB drop series prob n -10",
+			map[string]string{"GHA2DB_IDB_DROP_PROB_N": "-10"},
+			dynamicSetFields(
+				t,
+				copyContext(&defaultContext),
+				map[string]interface{}{"IDBDropProbN": 0},
+			),
+		},
+		{
+			"Setting IDB drop series prob n 100",
+			map[string]string{"GHA2DB_IDB_DROP_PROB_N": "100"},
+			dynamicSetFields(
+				t,
+				copyContext(&defaultContext),
+				map[string]interface{}{"IDBDropProbN": 100},
 			),
 		},
 		{

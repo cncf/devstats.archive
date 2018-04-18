@@ -91,6 +91,7 @@ type Ctx struct {
 	OnlyIssues          []int64         // From GHA2DB_ONLY_ISSUES, ghapi2db tool, process a user provided list of issues "issue_id1,issue_id2,...,issue_idN", default "". This is for GH API debugging.
 	OnlyEvents          []int64         // From GHA2DB_ONLY_EVENTS, ghapi2db tool, process a user provided list of events "event_id1,event_id2,...,event_idN", default "". This is for artificial events cleanup debugging.
 	IDBDrop             bool            // From GHA2DB_IDB_DROP_SERIES all Influx related tools, if set "drop " series statement will be executed before adding new data, it is sometimes very very very slow on Influx v1.5.1
+	IDBDropProbN        int             // From GHA2DB_IDB_DROP_PROB_N, 1/N chance to drop sries, if <= 0 then never drop, default 20
 	UIDMode             bool            // From GHA2DB_UIDMODE, sqlitedb tool, if set it will import JSONS using uids, else it will use titles or slugs. Uid import is slower, but a lot more flexinble. Default false
 	CSVFile             string          // From GHA2DB_CSVOUT, runq tool, if set, saves result in this file
 	ComputeAll          bool            // FROM GHA2DB_COMPUTE_ALL, all tools, if set then no period decisions are taken based on time, but all possible periods are recalculated
@@ -105,6 +106,18 @@ func (ctx *Ctx) Init() {
 	// Outputs
 	ctx.JSONOut = os.Getenv("GHA2DB_JSON") != ""
 	ctx.DBOut = os.Getenv("GHA2DB_NODB") == ""
+
+	// gha2db_sync drop series probablity
+	ctx.IDBDropProbN = 20
+	if os.Getenv("GHA2DB_IDB_DROP_PROB_N") != "" {
+		dropn, err := strconv.Atoi(os.Getenv("GHA2DB_IDB_DROP_PROB_N"))
+		FatalNoLog(err)
+		if dropn > 0 {
+			ctx.IDBDropProbN = dropn
+		} else {
+			ctx.IDBDropProbN = 0
+		}
+	}
 
 	// GitHub API points and waiting for reset
 	ctx.MinGHAPIPoints = 1
