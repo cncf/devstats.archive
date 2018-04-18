@@ -96,7 +96,7 @@ lint: ${GO_BIN_FILES} ${GO_LIB_FILES} ${GO_TEST_FILES} ${GO_DBTEST_FILES} ${GO_L
 	./for_each_go_file.sh "${GO_LINT}"
 
 vet: ${GO_BIN_FILES} ${GO_LIB_FILES} ${GO_TEST_FILES} ${GO_DBTEST_FILES} ${GO_LIBTEST_FILES}
-	./for_each_go_file.sh "${GO_VET}"
+	./vet_files.sh "${GO_VET}"
 
 imports: ${GO_BIN_FILES} ${GO_LIB_FILES} ${GO_TEST_FILES} ${GO_DBTEST_FILES} ${GO_LIBTEST_FILES}
 	./for_each_go_file.sh "${GO_IMPORTS}"
