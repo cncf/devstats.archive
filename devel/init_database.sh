@@ -51,9 +51,10 @@ then
   sudo -u postgres psql -c "create user ro_user with password '$PG_PASS_RO'" || exit 7
   sudo -u postgres psql -c "create user devstats_team with password '$PG_PASS_TEAM'" || exit 8
   sudo -u postgres psql -c "grant all privileges on database \"devstats\" to gha_admin" || exit 9
+  sudo -u postgres psql -c "alter user gha_admin createdb" || exit 10
   sudo -u postgres psql devstats < ./util_sql/devstats_log_table.sql
-  ./devel/ro_user_grants.sh devstats || exit 10
-  ./devel/psql_user_grants.sh "devstats_team" "devstats" || exit 11
+  ./devel/ro_user_grants.sh devstats || exit 11
+  ./devel/psql_user_grants.sh "devstats_team" "devstats" || exit 12
 else
   echo "postgres database devstats (logs) already exists"
 fi
