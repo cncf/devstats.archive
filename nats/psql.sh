@@ -22,3 +22,4 @@ GHA2DB_PROJECT=nats PG_DB=nats ./shared/setup_scripts.sh 2>>errors.txt | tee -a 
 GHA2DB_PROJECT=nats PG_DB=nats ./shared/get_repos.sh 2>>errors.txt | tee -a run.log || exit 8
 GHA2DB_PROJECT=nats PG_DB=nats GHA2DB_LOCAL=1 ./pdb_vars || exit 9
 ./devel/ro_user_grants.sh nats || exit 10
+./devel/psql_user_grants.sh devstats_team nats || exit 11

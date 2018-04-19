@@ -21,3 +21,4 @@ GHA2DB_PROJECT=linkerd PG_DB=linkerd ./shared/setup_scripts.sh 2>>errors.txt | t
 GHA2DB_PROJECT=linkerd PG_DB=linkerd ./shared/get_repos.sh 2>>errors.txt | tee -a run.log || exit 8
 GHA2DB_PROJECT=linkerd PG_DB=linkerd GHA2DB_LOCAL=1 ./pdb_vars || exit 9
 ./devel/ro_user_grants.sh linkerd || exit 10
+./devel/psql_user_grants.sh devstats_team linkerd || exit 11

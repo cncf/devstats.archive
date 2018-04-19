@@ -20,3 +20,4 @@ GHA2DB_PROJECT=opa PG_DB=opa ./shared/setup_scripts.sh 2>>errors.txt | tee -a ru
 GHA2DB_PROJECT=opa PG_DB=opa ./shared/get_repos.sh 2>>errors.txt | tee -a run.log || exit 7
 GHA2DB_PROJECT=opa PG_DB=opa GHA2DB_LOCAL=1 ./pdb_vars || exit 8
 ./devel/ro_user_grants.sh opa || exit 9
+./devel/psql_user_grants.sh devstats_team opa || exit 10

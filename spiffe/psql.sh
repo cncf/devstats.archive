@@ -20,3 +20,4 @@ GHA2DB_PROJECT=spiffe PG_DB=spiffe ./shared/setup_scripts.sh 2>>errors.txt | tee
 GHA2DB_PROJECT=spiffe PG_DB=spiffe ./shared/get_repos.sh 2>>errors.txt | tee -a run.log || exit 7
 GHA2DB_PROJECT=spiffe PG_DB=spiffe GHA2DB_LOCAL=1 ./pdb_vars || exit 8
 ./devel/ro_user_grants.sh spiffe || exit 9
+./devel/psql_user_grants.sh devstats_team spiffe || exit 10
