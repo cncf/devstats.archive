@@ -39,7 +39,6 @@ Prerequisites:
     - Tests should pass.
 8. Install binaries & metrics:
     - `sudo make install`
-
 9. Install Postgres database ([link](https://gist.github.com/sgnl/609557ebacd3378f3b72)):
     - apt install postgresql (you can use specific version, for example `postgresql-9.6`)
     - sudo -i -u postgres
@@ -73,17 +72,16 @@ Prerequisites:
     - `wget https://dl.influxdata.com/influxdb/releases/influxdb_1.5.2_amd64.deb`
     - `sudo dpkg -i influxdb_1.5.2_amd64.deb`
     - `sudo service influxdb start`
-/*
-    - Create InfluxDB user, database: `IDB_HOST="localhost" IDB_PASS='your_password_here' IDB_PASS_RO='ro_user_password' ./grafana/influxdb_setup.sh gha`
-    - InfluxDB has authentication disabled by default.
-    - Edit config file `vim /usr/local/etc/influxdb.conf` and change section `[http]`: `auth-enabled = true`, `max-body-size = 0`, `[subscriber]`: `http-timeout = "300s"`, `write-concurrency = 96`, `[coordinator]`: `write-timeout = "60s"`.
+    - Create InfluxDB users: `IDB_HOST="localhost" IDB_PASS='admin_password_here' IDB_PASS_RO='ro_user_password' ./grafana/influxdb_init.sh`.
+    - InfluxDB has authentication disabled by default: edit config file `vim /etc/influxdb/influxdb.conf` and change section `[http]`: `auth-enabled = true`, `max-body-size = 0`, `[subscriber]`: `http-timeout = "300s"`, `write-concurrency = 96`, `[coordinator]`: `write-timeout = "60s"`.
     - If you want to disable external InfluxDB access (for any external IP, only localhost) follow those instructions [SECURE_INFLUXDB.md](https://github.com/cncf/devstats/blob/master/SECURE_INFLUXDB.md).
     - `sudo service influxdb restart`
-*/
-
+    - Try it: `influx -host localhost -username gha_admin -password adminpwd`: `show databases`, `show users`.
 13. Databases installed, you need to test if all works fine, use database test coverage:
+/*
     - `GHA2DB_PROJECT=kubernetes IDB_DB=dbtest IDB_HOST="localhost" IDB_PASS=your_influx_pwd PG_DB=dbtest PG_PASS=your_postgres_pwd make dbtest`
     - Tests should pass.
+*/
 
 14. We have both databases running and Go tools installed, let's try to sync database dump from k8s.devstats.cncf.io manually:
     - We need to prefix call with `GHA2DB_LOCAL=1` to enable using tools from "./" directory
