@@ -41,6 +41,7 @@ Prerequisites:
     - `sudo make install`
 9. Install Postgres database ([link](https://gist.github.com/sgnl/609557ebacd3378f3b72)):
     - apt install postgresql (you can use specific version, for example `postgresql-9.6`)
+    - `devstats` repo directory must be available for postgres user. Use `chmod`/`chown` to make it accessible for `postgres` user.
     - sudo -i -u postgres
     - psql
     - Postgres only allows local connections by default so it is secure, we don't need to disable external connections:
@@ -63,7 +64,7 @@ Prerequisites:
     - You must use `INIT=1` when running for the first time, this creates shared logs database and postgres users.
     - This will generate all data, without fetching anything from backups: `INIT=1 ONLY=projectname PG_PASS=... PG_PASS_RO=... PG_PASS_TEAM=... IDB_PASS=... IDB_HOST=localhost ./devel/deploy_all.sh`
     - To deploy other project and using Influx backup from production specify `IGET=1` (get influx data form backup on `cncftest.io`). Specify GET=1 to get Postgres backup from `cncftest.io` too.
-    - When fetching InfluxDb data from a remote server, you need to provide password for that server (cncftest.io) in this case by `IDB_PASS_SRC=...`. Default host is `cncftest.io` you can specify other via `IDB_HOST_SRC=other.host.org`.
+    - When fetching InfluxDb data from a remote server, you need to provide password for that server (cncftest.io) in this case by `IDB_PASS_SRC=...`. Default host is `cncftest.io` you can specify other via `HOST_SRC=other.host.org`.
     - `ONLY=otherproject IGET=1 GET=1 PG_PASS=... IDB_PASS=... IDB_PASS_SRC=... IDB_HOST=localhost ./devel/deploy_all.sh`.
     - If you do not specify `ONLY="project1 project2 ... projectN"` it will deploy all projects defined in `projects.yaml`.
     - Use `SKIPWWW=1` to skip Apache/SSL config (which requires DNS name for a server), the final result will be Grafana via HTTP on port 30xx on accessible by server IP or name.
@@ -75,10 +76,11 @@ Prerequisites:
     - You need to have GitHub OAuth token, either put this token in `/etc/github/oauth` file or specify token value via `GHA2DB_GITHUB_OAUTH=deadbeef654...10a0` (here you token value)
     - If you really don't want to use GitHub OAuth2 token, specify `GHA2DB_GITHUB_OAUTH=-` - this will force tokenless operation (via public API), it is a lot more rate limited than OAuth2 which gives 5000 API points/h
     - If you set `GHA2DB_GHAPISKIP=1` all GitHub API calls will be skipped. You can set `GHA2DB_GHAPISKIP=1` then, because artificial events cleanup is not needed when GitHub API is not needed. If both those variables are set, `ghapi2db` won't be called at all.
-    - Example: `SKIPWWW=1 GHA2DB_GITHUB_OAUTH=- GHA2DB_GHAPISKIP=1 GHA2DB_GHAPISKIP=1 IGET=1 GET=1 ONLY=someproj PG_PASS=... IDB_PASS=... IDB_HOST=localhost IDB_PASS_SRC=... ./devel/deploy_all.sh`
+    - Example: `SKIPWWW=1 GHA2DB_GITHUB_OAUTH=- GHA2DB_GHAPISKIP=1 GHA2DB_AECLEANSKIP=1 IGET=1 GET=1 ONLY=someproj PG_PASS=... IDB_PASS=... IDB_HOST=localhost IDB_PASS_SRC=... ./devel/deploy_all.sh`
     - If your project(s) use icons (some of them has value other than `ICON="-"`, then you need to clone CNCF artwork repo into `~/dev/cncf/artwork`: `cd ~/dev/cncf/`, `git clone https://github.com/cncf/artwork.git`.
     - You can have artwork elsewhere, then you must use `ARTWORK=/path/to/artwork/repo`. If all projects use `ICON="-"` artwork is not needed.
     - You also need ImageMagick's convert utility: `apt install imagemagick`.
+    - You need to have `/var/www/html/img` directory available for deploy user.
 12. Install Grafana.
     - Go to: `https://grafana.com/grafana/download`.
     - `wget https://s3-us-west-2.amazonaws.com/grafana-releases/release/grafana_5.x.x_amd64.deb`.

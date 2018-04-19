@@ -4,9 +4,9 @@ then
   echo "$0: You need to set PROJDB environment variables to run this script"
   exit 1
 fi
-if [ -z "$IDB_HOST_SRC" ]
+if [ -z "$HOST_SRC" ]
 then
-  IDB_HOST_SRC=cncftest.io
+  HOST_SRC=cncftest.io
 fi
 function finish {
     sync_unlock.sh
@@ -19,7 +19,7 @@ then
 fi
 echo "fetching $PROJDB database from cncftest.io (into ${PROJDB}_temp database)"
 ./grafana/influxdb_recreate.sh "${PROJDB}_temp" || exit 2
-IDB_USER_SRC=ro_user IDB_DB_SRC="$PROJDB" IDB_DB_DST="${PROJDB}_temp" ./idb_backup || exit 3
+IDB_HOST_SRC=$HOST_SRC IDB_USER_SRC=ro_user IDB_DB_SRC="$PROJDB" IDB_DB_DST="${PROJDB}_temp" ./idb_backup || exit 3
 echo "copying ${PROJDB}_temp database to $PROJDB"
 ./grafana/influxdb_recreate.sh temp || exit 4
 unset IDB_PASS_SRC
