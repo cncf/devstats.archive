@@ -21,3 +21,4 @@ GHA2DB_PROJECT=tuf PG_DB=tuf ./shared/setup_scripts.sh 2>>errors.txt | tee -a ru
 GHA2DB_PROJECT=tuf PG_DB=tuf ./shared/get_repos.sh 2>>errors.txt | tee -a run.log || exit 8
 GHA2DB_PROJECT=tuf PG_DB=tuf GHA2DB_LOCAL=1 ./pdb_vars || exit 9
 ./devel/ro_user_grants.sh tuf || exit 10
+./devel/psql_user_grants.sh devstats_team tuf || exit 11

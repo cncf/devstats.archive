@@ -3,6 +3,7 @@
 # GET=1 (attempt to fetch Postgres database and Grafana database from the test server)
 # IGET=1 (attempt to fetch Influx database from the test server)
 # AGET=1 (attempt to fetch 'All CNCF' Postgres database from the test server)
+# INIT=1 (needs PG_PASS_RO, PG_PASS_TEAM, initialize from no postgres database state, creates postgres logs database and users)
 set -o pipefail
 exec > >(tee run.log)
 exec 2> >(tee errors.txt)
@@ -16,6 +17,12 @@ then
   echo "$0: You need to set IDB_PASS_SRC environment variable when using IGET"
   exit 1
 fi
+if ( [ ! -z "$INIT" ] && ( [ -z "$PG_PASS_RO" ] || [ -z "$PG_PASS_TEAM" ] ) )
+then
+  echo "$0: You need to set PG_PASS_RO, PG_PASS_TEAM when using INIT"
+  exit 1
+fi
+
 host=`hostname`
 function finish {
     sync_unlock.sh
@@ -40,6 +47,11 @@ then
   fi
 else
   all=$ONLY
+fi
+
+if [ ! -z "$INIT" ]
+then
+  ./devel/init_database.sh || exit 1
 fi
 
 # OCI has no icon in cncf/artwork at all, so use "-" here

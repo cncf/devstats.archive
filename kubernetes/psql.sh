@@ -25,3 +25,4 @@ GHA2DB_PROJECT=kubernetes PG_DB=gha IDB_DB=gha ./shared/import_affs.sh 2>>errors
 GHA2DB_PROJECT=kubernetes PG_DB=gha ./shared/get_repos.sh 2>>errors.txt | tee -a run.log || exit 9
 GHA2DB_PROJECT=kubernetes PG_DB=gha GHA2DB_LOCAL=1 ./pdb_vars || exit 10
 ./devel/ro_user_grants.sh gha || exit 11
+./devel/psql_user_grants.sh devstats_team gha || exit 12

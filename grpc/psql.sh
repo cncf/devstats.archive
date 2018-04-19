@@ -20,3 +20,4 @@ GHA2DB_PROJECT=grpc PG_DB=grpc ./shared/setup_scripts.sh 2>>errors.txt | tee -a 
 GHA2DB_PROJECT=grpc PG_DB=grpc ./shared/get_repos.sh 2>>errors.txt | tee -a run.log || exit 7
 GHA2DB_PROJECT=grpc PG_DB=grpc GHA2DB_LOCAL=1 ./pdb_vars || exit 8
 ./devel/ro_user_grants.sh grpc || exit 9
+./devel/psql_user_grants.sh devstats_team grpc || exit 10

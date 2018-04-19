@@ -36,7 +36,7 @@ This file describes how to add new project on the test server.
 - You can mass update Grafana dashboards using `sqlitedb` tool: `./devel/grafana_stop.sh proj`, `./sqlitedb /var/lib/grafana.proj/grafana.db grafana/dashboards/proj/*`, `./devel/grafana_start.sh proj`.
 - Update `partials/projects.html`.
 - Update Apache proxy and SSL files `apache/www/index_* apache/*/sites-enabled/* apache/*/sites.txt` files.
-- Run deply all script: `PG_PASS=... IDB_PASS=... IDB_HOST=... ./devel/deploy_all.sh`. If succeeded `make install`.
+- Run deploy all script: `PG_PASS=... IDB_PASS=... IDB_HOST=... ./devel/deploy_all.sh`. If succeeded `make install`.
 - You can also deploy automatically from webhook (even on the test server), but it takes very long time and is harder to debug, see [continuous deployment](https://github.com/cncf/devstats/blob/master/CONTINUOUS_DEPLOYMENT.md).
 - Open `newproject.cncftest.io` login with admin/admin, change the default password and follow instructions from `GRAFANA.md`.
 - Import `grafana/dashboards/proj/dashboards.json` dashboard on all remaining projects manually or use `sqlitedb` tool.

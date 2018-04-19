@@ -20,3 +20,4 @@ GHA2DB_PROJECT=all IDB_DB=allprj PG_DB=allprj ./shared/import_affs.sh 2>>errors.
 GHA2DB_PROJECT=all PG_DB=allprj ./shared/get_repos.sh 2>>errors.txt | tee -a run.log || exit 7
 GHA2DB_PROJECT=all PG_DB=allprj GHA2DB_LOCAL=1 ./pdb_vars || exit 8
 ./devel/ro_user_grants.sh allprj || exit 10
+./devel/psql_user_grants.sh devstats_team allprj || exit 11

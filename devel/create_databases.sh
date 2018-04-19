@@ -26,6 +26,10 @@ then
   echo "$0: You need to set PROJ, PROJDB environment variables to run this script"
   exit 2
 fi
+if [ -z "$IDB_HOST_SRC" ]
+then
+  IDB_HOST_SRC=cncftest.io
+fi
 function finish {
     rm -rf "$PROJDB.dump" >/dev/null 2>&1
     sync_unlock.sh
@@ -113,7 +117,7 @@ then
       then
         echo "fetching $PROJDB database from cncftest.io (into ${PROJDB}_temp database)"
         ./grafana/influxdb_recreate.sh "${PROJDB}_temp" || exit 17
-        IDB_HOST_SRC=cncftest.io IDB_USER_SRC=ro_user IDB_DB_SRC="$PROJDB" IDB_DB_DST="${PROJDB}_temp" ./idb_backup || exit 18
+        IDB_USER_SRC=ro_user IDB_DB_SRC="$PROJDB" IDB_DB_DST="${PROJDB}_temp" ./idb_backup || exit 18
         echo 'removing influx variables received from the backup'
         echo "drop series from vars" | influx -host "${IDB_HOST}" -username gha_admin -password "$IDB_PASS" -database "${PROJDB}_temp" || exit 24
         echo 'regenerating influx variables'
@@ -126,7 +130,7 @@ then
       else
         echo "fetching $PROJDB database from cncftest.io"
         ./grafana/influxdb_recreate.sh "$PROJDB" || exit 28
-        IDB_HOST_SRC=cncftest.io IDB_USER_SRC=ro_user IDB_DB_SRC="$PROJDB" IDB_DB_DST="$PROJDB" ./idb_backup || exit 29
+        IDB_USER_SRC=ro_user IDB_DB_SRC="$PROJDB" IDB_DB_DST="$PROJDB" ./idb_backup || exit 29
         echo 'removing influx variables received from the backup'
         echo "drop series from vars" | influx -host "$IDB_HOST" -username gha_admin -password "$IDB_PASS" -database "$PROJDB" || exit 30
         echo 'regenerating influx variables'

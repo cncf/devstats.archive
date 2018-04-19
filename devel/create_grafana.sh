@@ -3,14 +3,23 @@
 # STOP=1 (Stops running grafana-server instance)
 # RM=1 (only with STOP, get rid of all grafana data before proceeding)
 set -o pipefail
-host=`hostname`
-ga="google_analytics_ua_id = $GA"
 if ( [ -z "$PG_PASS" ] || [ -z "$PORT" ] || [ -z "$GA" ] || [ -z "$ICON" ] || [ -z "$ORGNAME" ] || [ -z "$PROJ" ] || [ -z "$PROJDB" ] || [ -z "$GRAFSUFF" ] )
 then
   echo "$0: You need to set PG_PASS, PROJ, PROJDB, PORT, GA, ICON, ORGNAME, GRAFSUFF environment variable to run this script"
   exit 1
 fi
+function finish {
+    sync_unlock.sh
+}
+if [ -z "$TRAP" ]
+then
+  sync_lock.sh || exit -1
+  trap finish EXIT
+  export TRAP=1
+fi
 
+host=`hostname`
+ga="google_analytics_ua_id = $GA"
 pid=`ps -axu | grep grafana-server | grep $GRAFSUFF | awk '{print $2}'`
 if [ ! -z "$STOP" ]
 then

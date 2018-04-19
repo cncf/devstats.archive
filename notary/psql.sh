@@ -20,3 +20,4 @@ GHA2DB_PROJECT=notary PG_DB=notary ./shared/setup_scripts.sh 2>>errors.txt | tee
 GHA2DB_PROJECT=notary PG_DB=notary ./shared/get_repos.sh 2>>errors.txt | tee -a run.log || exit 7
 GHA2DB_PROJECT=notary PG_DB=notary GHA2DB_LOCAL=1 ./pdb_vars || exit 8
 ./devel/ro_user_grants.sh notary || exit 9
+./devel/psql_user_grants.sh devstats_team notary || exit 10

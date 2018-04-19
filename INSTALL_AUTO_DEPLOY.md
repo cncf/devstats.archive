@@ -47,25 +47,18 @@ Prerequisites:
     - Config file is: `/etc/postgresql/10/main/pg_hba.conf`, instructions to enable external connections (not recommended): `http://www.thegeekstuff.com/2014/02/enable-remote-postgresql-connection/?utm_source=tuicool`
     - Set bigger maximum number of connections, at least 200 or more: `/etc/postgresql/X.Y/main/postgresql.conf`. Default is 100. `max_connections = 300`.
     - `service postgresql restart`
-/*
-10. Inside psql client shell:
-    - `create database gha;`
-    - `create database devstats;`
-    - `create user gha_admin with password 'your_password_here';`
-    - `grant all privileges on database "gha" to gha_admin;`
-    - `grant all privileges on database "devstats" to gha_admin;`
-    - `alter user gha_admin createdb;`
-    - Leave the shell and create logs table for devstats: `sudo -u postgres psql devstats < util_sql/devstats_log_table.sql`.
-    - `PG_PASS=... ONLY="devstats gha" ./devel/create_ro_user.sh`.
-    - `PG_PASS=... ONLY="devstats gha" ./devel/create_psql_user.sh devstats_team`.
-    - In case of problems both scripts (`create_ro_user.sh` and `create_psql_user.sh`) support `DROP=1`, `NOCREATE=1` env variables.
 
-11. Leave `psql` shell, and get newest Kubernetes database dump:
-    - `wget https://devstats.cncf.io/gha.dump`.
-    - `mv gha.dump /tmp`.
-    - `sudo -u postgres pg_restore -d gha /tmp/gha.dump` (restore DB dump)
-    - `rm /tmp/gha.dump`
-*/
+66. Automatic deploy of first database (few examples)
+    - Top deploy one of CNCF projects see `projects.yaml` chose one `projectname` and specify to deploy only this project: `ONLY=projectname`.
+    - Use `INIT=1` to specify that you want to initialize logs database `devstats`, you need to provide passowrd for admin `PG_PASS`, `ro_user` (`PG_PASS_RO` used by Grafana for read-only access) and `devstats_team` (`PG_PASS_TEAM` - this is just another role to allow readonly access from the bastion ssh server).
+    - You must use `INIT=1` when running for the first time, this creates shared logs database and postgres users.
+    - This will generate all data, without fetching anything from backups: `INIT=1 ONLY=projectname PG_PASS=... PG_PASS_RO=... PG_PASS_TEAM=... IDB_PASS=... IDB_HOST=localhost ./devel/deploy_all.sh`
+    - To deploy other project and using Influx backup from production specify `IGET=1` (get influx data form backup on `cncftest.io`). Specify GET=1 to get Postgres backup from `cncftest.io` too.
+    - When fetching InfluxDb data from a remote server, you need to provide password for that server (cncftest.io) in this case by `IDB_PASS_SRC=...`
+    - `ONLY=otherproject IGET=1 GET=1 PG_PASS=... IDB_PASS=... IDB_PASS_SRC=... IDB_HOST=localhost ./devel/deploy_all.sh`.
+    - If you do not specify `ONLY="project1 project2 ... projectN"` it will deploy all projects defined in `projects.yaml`.
+    - Other possible env variables used for automatic deploy are in the comments section in a first lines of deploy files: `devel/deploy_all.sh devel/deploy_proj.sh devel/create_databases.sh devel/init_database.sh devel/create_grafana.sh all/add_project.sh`.
+    - You can also take a look at `ADDING_NEW_PROJECT.md` file for more info about setting up new projects.
 
 12. Install InfluxDB time-series database ([link](https://docs.influxdata.com/influxdb/v0.9/introduction/installation/)):
     - Ubuntu 18 contains an old `influxdb` when installed by default `apt install influxdb`, so:

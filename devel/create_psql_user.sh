@@ -25,11 +25,8 @@ else
   all=$ONLY
 fi
 
-echo "'$all'"
-exit 1
-
 cp ./util_sql/drop_psql_user.sql /tmp/drop_user.sql || exit 1
-FROM="{{user}}" TO="devstats_team" MODE=ss ./replacer /tmp/drop_user.sql || exit 1
+FROM="{{user}}" TO="$1" MODE=ss ./replacer /tmp/drop_user.sql || exit 1
 
 if [ ! -z "$DROP" ]
 then
