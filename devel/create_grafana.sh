@@ -19,7 +19,18 @@ then
 fi
 
 host=`hostname`
-ga="google_analytics_ua_id = $GA"
+if [ "$GA" = "-" ]
+then
+  ga=";"
+else
+  ga="google_analytics_ua_id = $GA"
+fi
+
+if [ -z "$ARTWORK" ]
+then
+  ARTWORK="$HOME/dev/cncf/artwork"
+fi
+
 pid=`ps -axu | grep grafana-server | grep $GRAFSUFF | awk '{print $2}'`
 if [ ! -z "$STOP" ]
 then
@@ -49,31 +60,30 @@ then
   exit 0
 fi
 
-wd=`pwd`
-cd ~/dev/cncf/artwork || exit 2
-git pull || exit 3
-cd $wd || exit 4
-
-if [ ! -d "/usr/share/grafana.$GRAFSUFF/" ]
+if [ ! -d "$GRAF_USRSHARE.$GRAFSUFF/" ]
 then
   echo "copying /usr/share/grafana.$GRAFSUFF/"
-  cp -R ~/grafana.v5/usr.share.grafana "/usr/share/grafana.$GRAFSUFF"/ || exit 5
+  cp -R "$GRAF_USRSHARE" "/usr/share/grafana.$GRAFSUFF/" || exit 5
   if [ ! "$ICON" = "-" ]
   then
+    wd=`pwd`
+    cd "$ARTWORK" || exit 2
+    git pull || exit 3
+    cd $wd || exit 4
     icontype=`./devel/get_icon_type.sh "$PROJ"` || exit 6
-    cp "$HOME/dev/cncf/artwork/$ICON/icon/$icontype/$ICON-icon-$icontype.svg" "/usr/share/grafana.$GRAFSUFF/public/img/grafana_icon.svg" || exit 7
-    cp "$HOME/dev/cncf/artwork/$ICON/icon/$icontype/$ICON-icon-$icontype.svg" "/usr/share/grafana.$GRAFSUFF/public/img/grafana_com_auth_icon.svg" || exit 8
-    cp "$HOME/dev/cncf/artwork/$ICON/icon/$icontype/$ICON-icon-$icontype.svg" "/usr/share/grafana.$GRAFSUFF/public/img/grafana_net_logo.svg" || exit 9
-    cp "$HOME/dev/cncf/artwork/$ICON/icon/$icontype/$ICON-icon-$icontype.svg" "/usr/share/grafana.$GRAFSUFF/public/img/grafana_mask_icon.svg" || exit 10
-    convert "$HOME/dev/cncf/artwork/$ICON/icon/$icontype/$ICON-icon-$icontype.png" -resize 80x80 "/var/www/html/img/$PROJ-icon-color.png" || exit 11
-    cp "$HOME/dev/cncf/artwork/$ICON/icon/$icontype/$ICON-icon-$icontype.svg" "/var/www/html/img/$PROJ-icon-color.svg" || exit 12
+    cp "$ARTWORK/$ICON/icon/$icontype/$ICON-icon-$icontype.svg" "/usr/share/grafana.$GRAFSUFF/public/img/grafana_icon.svg" || exit 7
+    cp "$ARTWORK/$ICON/icon/$icontype/$ICON-icon-$icontype.svg" "/usr/share/grafana.$GRAFSUFF/public/img/grafana_com_auth_icon.svg" || exit 8
+    cp "$ARTWORK/$ICON/icon/$icontype/$ICON-icon-$icontype.svg" "/usr/share/grafana.$GRAFSUFF/public/img/grafana_net_logo.svg" || exit 9
+    cp "$ARTWORK/$ICON/icon/$icontype/$ICON-icon-$icontype.svg" "/usr/share/grafana.$GRAFSUFF/public/img/grafana_mask_icon.svg" || exit 10
+    convert "$ARTWORK/$ICON/icon/$icontype/$ICON-icon-$icontype.png" -resize 80x80 "/var/www/html/img/$PROJ-icon-color.png" || exit 11
+    cp "$ARTWORK/$ICON/icon/$icontype/$ICON-icon-$icontype.svg" "/var/www/html/img/$PROJ-icon-color.svg" || exit 12
     if [ ! -f "grafana/img/$GRAFSUFF.svg" ]
     then
-      cp "$HOME/dev/cncf/artwork/$ICON/icon/$icontype/$ICON-icon-$icontype.svg" "grafana/img/$GRAFSUFF.svg" || exit 13
+      cp "$ARTWORK/$ICON/icon/$icontype/$ICON-icon-$icontype.svg" "grafana/img/$GRAFSUFF.svg" || exit 13
     fi
     if [ ! -f "grafana/img/${GRAFSUFF}32.png" ]
     then
-      convert "$HOME/dev/cncf/artwork/$ICON/icon/$icontype/$ICON-icon-$icontype.png" -resize 32x32 "grafana/img/${GRAFSUFF}32.png" || exit 14
+      convert "$ARTWORK/$ICON/icon/$icontype/$ICON-icon-$icontype.png" -resize 32x32 "grafana/img/${GRAFSUFF}32.png" || exit 14
     fi
   fi
   GRAFANA_DATA="/usr/share/grafana.$GRAFSUFF/" ./grafana/$PROJ/change_title_and_icons.sh || exit 15
@@ -82,7 +92,7 @@ fi
 if [ ! -d "/var/lib/grafana.$GRAFSUFF/" ]
 then
   echo "copying /var/lib/grafana.$GRAFSUFF/"
-  cp -R ~/grafana.v5/var.lib.grafana "/var/lib/grafana.$GRAFSUFF"/ || exit 16
+  cp -R "$GRAF_VARLIB" "/var/lib/grafana.$GRAFSUFF/" || exit 16
   rm -f "/var/lib/grafana.$GRAFSUFF/grafana.db" || exit 17
 fi
   
@@ -96,7 +106,7 @@ fi
 if [ ! -d "/etc/grafana.$GRAFSUFF/" ]
 then
   echo "copying /etc/grafana.$GRAFSUFF/"
-  cp -R ~/grafana.v5/etc.grafana "/etc/grafana.$GRAFSUFF"/ || exit 20
+  cp -R "$GRAF_ETC" "/etc/grafana.$GRAFSUFF"/ || exit 20
   cfile="/etc/grafana.$GRAFSUFF/grafana.ini"
   cp ./grafana/etc/grafana.ini.example "$cfile" || exit 21
   MODE=ss FROM='{{project}}' TO="$PROJ" replacer "$cfile" || exit 22
