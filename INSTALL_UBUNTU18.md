@@ -1,10 +1,11 @@
 # devstats installation on Ubuntu
 
 Prerequisites:
-- Ubuntu 17.04. You can even use Go 1.10 on ARMv8 (for example on the bare metal packet servers).
-- [golang](https://golang.org), this tutorial uses Go 1.6
+- Ubuntu 18.04.
+- [golang](https://golang.org).
     - `apt-get update`
-    - `apt-get install golang git psmisc jsonlint yamllint gcc`
+    - `apt install golang` - this installs Go 1.10.
+    - `apt install git psmisc jsonlint yamllint gcc`
     - `mkdir /data; mkdir /data/dev`
 1. Configure Go:
     - For example add to `~/.bash_profile` and/or `~/.profile`:
@@ -25,7 +26,7 @@ Prerequisites:
     - Go GitHub API client: `go get github.com/google/go-github/github`
     - Go OAuth2 client: `go get golang.org/x/oauth2`
     - Go SQLite3 client: `go get github.com/mattn/go-sqlite3`
-2. Go to $GOPATH/src/ and clone devstats there:
+2. Go to `$GOPATH/src/` and clone devstats there:
     - `git clone https://github.com/cncf/devstats.git`, cd `devstats`
     - Set reuse TCP connections (Golang InfluxDB may need this under heavy load): `./scripts/net_tcp_config.sh`
     - This variable can be unavailable on your system, ignore the warining if this is the case.
@@ -37,17 +38,16 @@ Prerequisites:
     - `make test`
     - Tests should pass.
 8. Install binaries & metrics:
-    - `sudo mkdir /etc/gha2db`
-    - `sudo chmod 777 /etc/gha2db`
     - `sudo make install`
 
 9. Install Postgres database ([link](https://gist.github.com/sgnl/609557ebacd3378f3b72)):
-    - apt-get install postgresql (you can use specific version, for example `postgresql-9.6`)
+    - apt install postgresql (you can use specific version, for example `postgresql-9.6`)
     - sudo -i -u postgres
     - psql
     - Postgres only allows local connections by default so it is secure, we don't need to disable external connections:
-    - Config file is: `/etc/postgresql/9.6/main/pg_hba.conf`, instructions to enable external connections (not recommended): `http://www.thegeekstuff.com/2014/02/enable-remote-postgresql-connection/?utm_source=tuicool`
+    - Config file is: `/etc/postgresql/10/main/pg_hba.conf`, instructions to enable external connections (not recommended): `http://www.thegeekstuff.com/2014/02/enable-remote-postgresql-connection/?utm_source=tuicool`
     - Set bigger maximum number of connections, at least 200 or more: `/etc/postgresql/X.Y/main/postgresql.conf`. Default is 100. `max_connections = 300`.
+    - `service postgresql restart`
 
 10. Inside psql client shell:
     - `create database gha;`

@@ -133,9 +133,9 @@ Prerequisites:
 
 13. Install [Grafana](http://docs.grafana.org/installation/mac/) or use Docker to enable multiple Grafana instances, see [MULTIPROJECT.md](https://github.com/cncf/devstats/blob/master/MULTIPROJECT.md).
     - Follow: http://docs.grafana.org/installation/debian/
-    - `wget https://s3-us-west-2.amazonaws.com/grafana-releases/release/grafana_4.5.1_amd64.deb`
+    - `wget https://s3-us-west-2.amazonaws.com/grafana-releases/release/grafana_5.x.x_amd64.deb`
     - `sudo apt-get install -y adduser libfontconfig`
-    - `sudo dpkg -i grafana_4.5.1_amd64.deb`
+    - `sudo dpkg -i grafana_5.x.x_amd64.deb`
     - `sudo service grafana-server start`
     - Configure Grafana, as described [here](https://github.com/cncf/devstats/blob/master/GRAFANA.md).
     - `service grafana-server restart`
