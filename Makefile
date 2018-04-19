@@ -16,10 +16,10 @@ GO_INSTALL=go install -ldflags '-s'
 GO_FMT=gofmt -s -w
 GO_LINT=golint -set_exit_status
 GO_VET=go vet
-GO_CONST=goconst
+GO_CONST=goconst -ignore 'vendor'
 GO_IMPORTS=goimports -w
-GO_USEDEXPORTS=usedexports -ignore 'sqlitedb.go'
-GO_ERRCHECK=errcheck -asserts -ignore '[FS]?[Pp]rint*'
+GO_USEDEXPORTS=usedexports -ignore 'sqlitedb.go|vendor'
+GO_ERRCHECK=errcheck -asserts -ignore '[FS]?[Pp]rint*' -ignoretests
 GO_TEST=go test
 BINARIES=structure runq gha2db db2influx z2influx gha2db_sync import_affs annotations idb_tags idb_backup webhook devstats get_repos merge_pdbs idb_vars replacer pdb_vars ghapi2db idb_tst sqlitedb
 CRON_SCRIPTS=cron/cron_db_backup.sh cron/cron_db_backup_all.sh scripts/net_tcp_config.sh
@@ -108,7 +108,7 @@ usedexports: ${GO_BIN_FILES} ${GO_LIB_FILES} ${GO_TEST_FILES} ${GO_DBTEST_FILES}
 	${GO_USEDEXPORTS} ./...
 
 errcheck: ${GO_BIN_FILES} ${GO_LIB_FILES} ${GO_TEST_FILES} ${GO_DBTEST_FILES} ${GO_LIBTEST_FILES}
-	${GO_ERRCHECK} ./...
+	${GO_ERRCHECK} $(go list ./... | grep -v /vendor/)
 
 test:
 	${GO_TEST} ${GO_TEST_FILES}
