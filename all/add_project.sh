@@ -19,9 +19,9 @@ then
   echo "$0: You need to set IDB_PASS_SRC environment variable when using IGET"
   exit 3
 fi
-if [ -z "$IDB_HOST_SRC" ]
+if [ -z "$HOST_SRC" ]
 then
-  IDB_HOST_SRC=cncftest.io
+  HOST_SRC=cncftest.io
 fi
 exists=`sudo -u postgres psql -tAc "select 1 from pg_database WHERE datname = 'allprj'"` || exit 4
 if [ -z "$exists" ]
@@ -105,7 +105,7 @@ else
     if [ -z "$SKIPTEMP" ]
     then
       ./grafana/influxdb_recreate.sh allprj_temp || exit 16
-      IDB_USER_SRC=ro_user IDB_DB_SRC=allprj IDB_DB_DST=allprj_temp ./idb_backup || exit 17
+      IDB_HOST_SRC=$HOST_SRC IDB_USER_SRC=ro_user IDB_DB_SRC=allprj IDB_DB_DST=allprj_temp ./idb_backup || exit 17
       echo 'removing influx variables received from the backup'
       echo "drop series from vars" | influx -host "${IDB_HOST}" -username gha_admin -password "$IDB_PASS" -database allprj_temp || exit 22
       echo 'regenerating influx variables'
@@ -117,7 +117,7 @@ else
       ./grafana/influxdb_drop.sh allprj_temp || exit 20
     else
       ./grafana/influxdb_recreate.sh allprj || exit 27
-      IDB_USER_SRC=ro_user IDB_DB_SRC=allprj IDB_DB_DST=allprj ./idb_backup || exit 28
+      IDB_HOST_SRC=$HOST_SRC IDB_USER_SRC=ro_user IDB_DB_SRC=allprj IDB_DB_DST=allprj ./idb_backup || exit 28
       echo 'removing influx variables received from the backup'
       echo "drop series from vars" | influx -host "${IDB_HOST}" -username gha_admin -password "$IDB_PASS" -database allprj || exit 29
       echo 'regenerating influx variables'
