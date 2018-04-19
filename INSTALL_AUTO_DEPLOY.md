@@ -54,12 +54,13 @@ Prerequisites:
     - You must use `INIT=1` when running for the first time, this creates shared logs database and postgres users.
     - This will generate all data, without fetching anything from backups: `INIT=1 ONLY=projectname PG_PASS=... PG_PASS_RO=... PG_PASS_TEAM=... IDB_PASS=... IDB_HOST=localhost ./devel/deploy_all.sh`
     - To deploy other project and using Influx backup from production specify `IGET=1` (get influx data form backup on `cncftest.io`). Specify GET=1 to get Postgres backup from `cncftest.io` too.
-    - When fetching InfluxDb data from a remote server, you need to provide password for that server (cncftest.io) in this case by `IDB_PASS_SRC=...`
+    - When fetching InfluxDb data from a remote server, you need to provide password for that server (cncftest.io) in this case by `IDB_PASS_SRC=...`. Default host is `cncftest.io` you can specify other via `IDB_HOST_SRC=other.host.org`.
     - `ONLY=otherproject IGET=1 GET=1 PG_PASS=... IDB_PASS=... IDB_PASS_SRC=... IDB_HOST=localhost ./devel/deploy_all.sh`.
     - If you do not specify `ONLY="project1 project2 ... projectN"` it will deploy all projects defined in `projects.yaml`.
     - Other possible env variables used for automatic deploy are in the comments section in a first lines of deploy files: `devel/deploy_all.sh devel/deploy_proj.sh devel/create_databases.sh devel/init_database.sh devel/create_grafana.sh all/add_project.sh`.
     - You can also take a look at `ADDING_NEW_PROJECT.md` file for more info about setting up new projects.
-
+    - Now when postgres users are created, you test all stuff that require databases: `GHA2DB_PROJECT=kubernetes IDB_DB=dbtest IDB_HOST="localhost" IDB_PASS=your_influx_pwd PG_DB=dbtest PG_PASS=your_postgres_pwd make dbtest`
+    - Tests should pass.
 12. Install InfluxDB time-series database ([link](https://docs.influxdata.com/influxdb/v0.9/introduction/installation/)):
     - Ubuntu 18 contains an old `influxdb` when installed by default `apt install influxdb`, so:
     - `wget https://dl.influxdata.com/influxdb/releases/influxdb_1.5.2_amd64.deb`
@@ -70,11 +71,6 @@ Prerequisites:
     - If you want to disable external InfluxDB access (for any external IP, only localhost) follow those instructions [SECURE_INFLUXDB.md](https://github.com/cncf/devstats/blob/master/SECURE_INFLUXDB.md).
     - `sudo service influxdb restart`
     - Try it: `influx -host localhost -username gha_admin -password adminpwd`: `show databases`, `show users`.
-13. Databases installed, you need to test if all works fine, use database test coverage:
-/*
-    - `GHA2DB_PROJECT=kubernetes IDB_DB=dbtest IDB_HOST="localhost" IDB_PASS=your_influx_pwd PG_DB=dbtest PG_PASS=your_postgres_pwd make dbtest`
-    - Tests should pass.
-*/
 
 14. We have both databases running and Go tools installed, let's try to sync database dump from k8s.devstats.cncf.io manually:
     - We need to prefix call with `GHA2DB_LOCAL=1` to enable using tools from "./" directory
