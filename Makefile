@@ -130,7 +130,7 @@ data:
 	cp -R docs/ /etc/gha2db/docs/ || exit 4
 	cp -R partials/ /etc/gha2db/partials/ || exit 5
 	cp -R scripts/ /etc/gha2db/scripts/ || exit 6
-	cp cncf.yaml projects.yaml /etc/gha2db/ || exit 7
+	cp cncf.yaml kubernetes.yaml projects.yaml /etc/gha2db/ || exit 7
 	cp devel/*.txt /etc/gha2db/ || exit 8
 
 install: check ${BINARIES} data
