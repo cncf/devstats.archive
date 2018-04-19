@@ -48,7 +48,7 @@ Prerequisites:
     - Config file is: `/etc/postgresql/10/main/pg_hba.conf`, instructions to enable external connections (not recommended): `http://www.thegeekstuff.com/2014/02/enable-remote-postgresql-connection/?utm_source=tuicool`
     - Set bigger maximum number of connections, at least 200 or more: `/etc/postgresql/X.Y/main/postgresql.conf`. Default is 100. `max_connections = 300`.
     - `service postgresql restart`
-
+/*
 10. Inside psql client shell:
     - `create database gha;`
     - `create database devstats;`
@@ -66,20 +66,20 @@ Prerequisites:
     - `mv gha.dump /tmp`.
     - `sudo -u postgres pg_restore -d gha /tmp/gha.dump` (restore DB dump)
     - `rm /tmp/gha.dump`
+*/
 
 12. Install InfluxDB time-series database ([link](https://docs.influxdata.com/influxdb/v0.9/introduction/installation/)):
-    - Ubuntu 17 contains an old `influxdb` when installed by default `apt-get install influxdb`, so:
-    - `curl -sL https://repos.influxdata.com/influxdb.key | sudo apt-key add -`
-    - `source /etc/lsb-release`
-    - `echo "deb https://repos.influxdata.com/${DISTRIB_ID,,} ${DISTRIB_CODENAME} stable" | sudo tee /etc/apt/sources.list.d/influxdb.list`
-    - `apt-get install apt-transport-https`
-    - `sudo apt-get update && sudo apt-get install influxdb`
+    - Ubuntu 18 contains an old `influxdb` when installed by default `apt install influxdb`, so:
+    - `wget https://dl.influxdata.com/influxdb/releases/influxdb_1.5.2_amd64.deb`
+    - `sudo dpkg -i influxdb_1.5.2_amd64.deb`
     - `sudo service influxdb start`
+/*
     - Create InfluxDB user, database: `IDB_HOST="localhost" IDB_PASS='your_password_here' IDB_PASS_RO='ro_user_password' ./grafana/influxdb_setup.sh gha`
     - InfluxDB has authentication disabled by default.
     - Edit config file `vim /usr/local/etc/influxdb.conf` and change section `[http]`: `auth-enabled = true`, `max-body-size = 0`, `[subscriber]`: `http-timeout = "300s"`, `write-concurrency = 96`, `[coordinator]`: `write-timeout = "60s"`.
     - If you want to disable external InfluxDB access (for any external IP, only localhost) follow those instructions [SECURE_INFLUXDB.md](https://github.com/cncf/devstats/blob/master/SECURE_INFLUXDB.md).
     - `sudo service influxdb restart`
+*/
 
 13. Databases installed, you need to test if all works fine, use database test coverage:
     - `GHA2DB_PROJECT=kubernetes IDB_DB=dbtest IDB_HOST="localhost" IDB_PASS=your_influx_pwd PG_DB=dbtest PG_PASS=your_postgres_pwd make dbtest`
