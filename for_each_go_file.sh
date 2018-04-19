@@ -1,5 +1,5 @@
 #!/bin/bash
-for f in `find . -type f -iname "*.go"`
+for f in `find . -type f -iname "*.go" -not -path "./vendor/*"`
 do
 	$1 "$f" || exit 1
 done
