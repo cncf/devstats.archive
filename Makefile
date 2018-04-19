@@ -123,6 +123,7 @@ data:
 	[ ! -f /tmp/deploy.wip ] || exit 6
 	wait_for_command.sh devstats 3600 || exit 7
 	mkdir /etc/gha2db 2>/dev/null || echo "..."
+	chmod 777 /etc/gha2db 2>/dev/null || echo "..."
 	rm -fr /etc/gha2db/* || exit 1
 	cp -R metrics/ /etc/gha2db/metrics/ || exit 2
 	cp -R util_sql/ /etc/gha2db/util_sql/ || exit 3
