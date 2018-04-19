@@ -4,6 +4,9 @@
 # IGET=1 (attempt to fetch Influx database from the test server)
 # AGET=1 (attempt to fetch 'All CNCF' Postgres database from the test server)
 # INIT=1 (needs PG_PASS_RO, PG_PASS_TEAM, initialize from no postgres database state, creates postgres logs database and users)
+# SKIPWWW=1 (skips Apache and SSL cert configuration, final result will be Grafana exposed on the server on its port (for example 3010) via HTTP)
+# SKIPVARS=1 (if set it will skip final Postgres/Influx vars regeneration)
+# CUSTGRAFPATH=1 (set this to use non-standard grafana instalation from ~/grafana.v5/)
 set -o pipefail
 exec > >(tee run.log)
 exec 2> >(tee errors.txt)
@@ -22,6 +25,29 @@ then
   echo "$0: You need to set PG_PASS_RO, PG_PASS_TEAM when using INIT"
   exit 1
 fi
+
+if [ ! -z "$CUSTGRAFPATH" ]
+then
+  GRAF_USRSHARE="$HOME/grafana.v5/usr.share.grafana"
+  GRAF_VARLIB="$HOME/grafana.v5/var.lib.grafana"
+  GRAF_ETC="$HOME/grafana.v5/etc.grafana"
+fi
+
+if [ -z "$GRAF_USRSHARE" ]
+then
+  GRAF_USRSHARE="/usr/share/grafana"
+fi
+if [ -z "$GRAF_VARLIB" ]
+then
+  GRAF_VARLIB="/var/lib/grafana"
+fi
+if [ -z "$GRAF_ETC" ]
+then
+  GRAF_ETC="/etc/grafana"
+fi
+export GRAF_USRSHARE
+export GRAF_VARLIB
+export GRAF_ETC
 
 host=`hostname`
 function finish {
@@ -55,6 +81,8 @@ then
 fi
 
 # OCI has no icon in cncf/artwork at all, so use "-" here
+# Use GA="-" to skip GA (google analytics) code
+# Use ICON="-" to skip project ICON
 for proj in $all
 do
   db=$proj
@@ -133,7 +161,13 @@ do
   fi
 done
 
-CERT=1 WWW=1 ./devel/create_www.sh || exit 25
-./devel/pdb_vars_all.sh || exit 26
-./devel/idb_vars_all.sh || exit 27
+if [ -z "$SKIPWWW" ]
+then
+  CERT=1 WWW=1 ./devel/create_www.sh || exit 25
+fi
+if [ -z "$SKIPVARS" ]
+then
+  ./devel/pdb_vars_all.sh || exit 26
+  ./devel/idb_vars_all.sh || exit 27
+fi
 echo "$0: All deployments finished"

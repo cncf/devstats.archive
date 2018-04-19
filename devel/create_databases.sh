@@ -8,7 +8,6 @@
 # IDROP=1 (will drop & create Influx DB)
 # SKIPTEMP=1 will skip optional step (local:dbname_temp) when copying IDB backup remote:dbname ->local:dbname_temp -> local:dbname
 # IGEN=1 (will force Influx DB generation, even if IGET=1 is set, actually this is used to reverse IGET=1 for K8s for which regenerate is faster than copy)
-# CREATEUSERS=1 will attempt to create postgres users: ro_user and devstats_team
 lim=70
 set -o pipefail
 if ( [ -z "$PG_PASS" ] || [ -z "$IDB_PASS" ] || [ -z "$IDB_HOST" ] )
@@ -55,11 +54,6 @@ then
     echo "creating postgres database $PROJDB"
     sudo -u postgres psql -c "create database $PROJDB" || exit 6
     sudo -u postgres psql -c "grant all privileges on database \"$PROJDB\" to gha_admin" || exit 7
-    if [ ! -z "$CREATEUSERS" ]
-    then
-      sudo -u postgres psql -c "create user ro_user with password '$PG_PASS'" 1>/dev/null 2>/dev/null
-      sudo -u postgres psql -c "create user devstats_team with password '$PG_PASS'" 1>/dev/null 2>/dev/null
-    fi
     if [ ! -z "$GET" ]
     then
       echo "attempt to fetch postgres database $PROJDB from backup"
