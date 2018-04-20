@@ -43,10 +43,10 @@ func (dd dashboardData) String() string {
 
 // updateTags make JSON and SQLite tags match each other
 func updateTags(db *sql.DB, ctx *lib.Ctx, did int, jsonTags []string, info string) bool {
-	// Get SQLite DB tags
+	// Get SQLite DB dashboard tags
 	rows, err := lib.SqliteQuery(
-    db,
-    ctx,
+		db,
+		ctx,
 		"select term from dashboard_tag where dashboard_id = ? order by term asc",
 		did,
 	)
@@ -89,8 +89,8 @@ func updateTags(db *sql.DB, ctx *lib.Ctx, did int, jsonTags []string, info strin
 		// We have it in JSOn but not in DB, insert
 		if j && !d {
 			_, err = lib.SqliteExec(
-        db,
-        ctx,
+				db,
+				ctx,
 				"insert into dashboard_tag(dashboard_id, term) values(?, ?)",
 				did, tag,
 			)
@@ -106,8 +106,8 @@ func updateTags(db *sql.DB, ctx *lib.Ctx, did int, jsonTags []string, info strin
 		// We have it in DB but not in JSON, delete
 		if !j && d {
 			_, err = lib.SqliteExec(
-        db,
-        ctx,
+				db,
+				ctx,
 				"delete from dashboard_tag where dashboard_id = ? and term = ?",
 				did, tag,
 			)
@@ -154,14 +154,21 @@ func exportJsons(ctx *lib.Ctx, dbFile string) {
 	lib.FatalOnError(rows.Err())
 }
 
-// importJsonsByUID uses dbFile database to update list of JSONs
+// insertDashboard inserts new dashboard into SQLite database
+func insertDashboard(db *sql.DB, ctx *lib.Ctx, dash *dashboard) {
+	fmt.Printf("Creating: %+v\n", dash)
+
+	os.Exit(1)
+}
+
+// importJsons uses dbFile database to update list of JSONs
 // It first loads all dashboards titles, slugs, ids and JSONs
 // Then it parses all JSONs to get each dashboards UID
 // Then it processes all JSONs provided, parses them, and gets each JSONs uid and title
 // Each uid from JSON list must be unique
 // Then for all JSON titles it creates slugs 'Name of Dashboard' -> 'name-of-dashboard'
 // Finally it attempts to update SQLite database's data, tile, slug values by matching using UID
-func importJsonsByUID(ctx *lib.Ctx, dbFile string, jsons []string) {
+func importJsons(ctx *lib.Ctx, dbFile string, jsons []string) {
 	// DB backup func, executed when anything is updated
 	backedUp := false
 	contents, err := lib.ReadFile(ctx, dbFile)
@@ -202,6 +209,7 @@ func importJsonsByUID(ctx *lib.Ctx, dbFile string, jsons []string) {
 
 	// Now load & parse JSON arguments
 	jsonMap := make(map[string]dashboardData)
+	nIns := 0
 	for _, j := range jsons {
 		var dd dashboardData
 		bytes, err := lib.ReadFile(ctx, j)
@@ -209,7 +217,13 @@ func importJsonsByUID(ctx *lib.Ctx, dbFile string, jsons []string) {
 		lib.FatalOnError(json.Unmarshal(bytes, &dd.dash))
 		dbDash, ok := dbMap[dd.dash.UID]
 		if !ok {
-			lib.Fatalf("%s: uid=%s not found in SQLite, attempted to import '%s'", j, dd.dash.UID, dd.dash.Title)
+			insertDashboard(db, ctx, &dd.dash)
+			if !backedUp {
+				backupFunc()
+				backedUp = true
+			}
+			nIns++
+			continue
 		}
 		jsonDash, ok := jsonMap[dd.dash.UID]
 		if ok {
@@ -217,6 +231,7 @@ func importJsonsByUID(ctx *lib.Ctx, dbFile string, jsons []string) {
 		}
 		dd.data = string(lib.PrettyPrintJSON(bytes))
 		dd.id = dbDash.id
+		dd.uid = dd.dash.UID
 		dd.title = dd.dash.Title
 		dd.slug = lib.Slugify(dd.title)
 		dd.fn = j
@@ -247,8 +262,8 @@ func importJsonsByUID(ctx *lib.Ctx, dbFile string, jsons []string) {
 		}
 		// Update JSON inside database
 		_, err = lib.SqliteExec(
-      db,
-      ctx,
+			db,
+			ctx,
 			"update dashboard set title = ?, slug = ?, data = ? where id = ?",
 			dd.dash.Title, dd.slug, dd.data, dd.id,
 		)
@@ -278,8 +293,8 @@ func importJsonsByUID(ctx *lib.Ctx, dbFile string, jsons []string) {
 		nImp++
 	}
 	lib.Printf(
-		"SQLite DB has %d dashboards, there were %d JSONs to import, imported %d\n",
-		nDbMap, nJSONMap, nImp)
+		"SQLite DB has %d dashboards, there were %d JSONs to import, updated %d, created %d\n",
+		nDbMap, nJSONMap, nImp, nIns)
 }
 
 // importJsonsByTitle uses dbFile database to update list of JSONs
@@ -368,8 +383,8 @@ func importJsonsByTitle(ctx *lib.Ctx, dbFile string, jsons []string) {
 			dashSlug = ary[2]
 		}
 		_, err = lib.SqliteExec(
-      db,
-      ctx,
+			db,
+			ctx,
 			"update dashboard set title = ?, slug = ?, data = ? where id = ?",
 			dash.Title, dashSlug, sBytes, id,
 		)
@@ -408,16 +423,11 @@ func main() {
 	if len(os.Args) < 2 {
 		lib.Printf("Required args: grafana.db file name and list(*) of jsons to import.\n")
 		lib.Printf("If only db file name given, it will output all dashboards to jsons\n")
-		lib.Printf("Each list item can be either filename.json name or 'fn.json;old title;new slug'\n")
-		lib.Printf("If special GHA2DB_UIDMODE is set, it will import JSONs by matching their internal uid with SQLite database\n")
+		lib.Printf("It will import JSONs by matching their internal uid with SQLite database\n")
 		os.Exit(1)
 	}
 	if len(os.Args) > 2 {
-		if ctx.UIDMode {
-			importJsonsByUID(&ctx, os.Args[1], os.Args[2:])
-		} else {
-			importJsonsByTitle(&ctx, os.Args[1], os.Args[2:])
-		}
+		importJsons(&ctx, os.Args[1], os.Args[2:])
 	} else {
 		exportJsons(&ctx, os.Args[1])
 	}
