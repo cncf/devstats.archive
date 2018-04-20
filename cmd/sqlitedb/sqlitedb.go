@@ -159,8 +159,27 @@ func insertDashboard(db *sql.DB, ctx *lib.Ctx, dd *dashboardData) {
 	dd.uid = dd.dash.UID
 	dd.title = dd.dash.Title
 	dd.slug = lib.Slugify(dd.title)
-	fmt.Printf("Creating: %+v\n", dd)
 
+	// Insert new dashboard
+  _, err := lib.SqliteExec(
+		db,
+		ctx,
+		"insert into dashboard(version, slug, title, data, "+
+			"org_id, created, updated, created_by, updated_by, "+
+			"gnet_id, plugin_id, folder_id, is_folder, has_acl, uid) "+
+			"values(1, ?, ?, ?, 1, ?, ?, 1, 1, 0, '', 0, 0, 0, ?)",
+		dd.slug, dd.title, dd.data, time.Now(), time.Now(), dd.uid,
+	)
+	lib.FatalOnError(err)
+	rows, err := lib.SqliteQuery(db, ctx, "select max(id) from dashboard")
+	lib.FatalOnError(err)
+	defer func() { lib.FatalOnError(rows.Close()) }()
+  maxId := 0
+	for rows.Next() {
+		lib.FatalOnError(rows.Scan(&maxId))
+	}
+	lib.FatalOnError(rows.Err())
+  fmt.Printf("Inserted %d\n", maxId)
 	os.Exit(1)
 }
 
