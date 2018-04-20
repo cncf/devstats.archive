@@ -41,10 +41,34 @@ func (dd dashboardData) String() string {
 	)
 }
 
+// sqliteQueryOut outputs SQLite query info
+func sqliteQueryOut(query string, args ...interface{}) {
+	if len(args) > 0 {
+		lib.Printf("%+v\n", args)
+	}
+	lib.Printf("%s\n", query)
+}
+
+// sqliteQuery execute SQLite query with eventual logging output
+func sqliteQuery(db *sql.DB, ctx *lib.Ctx, query string, args ...interface{}) (*sql.Rows, error) {
+	if ctx.QOut {
+		sqliteQueryOut(query, args...)
+	}
+	return db.Query(query, args...)
+}
+
+// sqliteExec SQLite exec call with eventual logging output
+func sqliteExec(db *sql.DB, ctx *lib.Ctx, exec string, args ...interface{}) (sql.Result, error) {
+	if ctx.QOut {
+		sqliteQueryOut(exec, args...)
+	}
+	return db.Exec(exec, args...)
+}
+
 // updateTags make JSON and SQLite tags match each other
 func updateTags(db *sql.DB, ctx *lib.Ctx, did int, jsonTags []string, info string) bool {
 	// Get SQLite DB dashboard tags
-	rows, err := lib.SqliteQuery(
+	rows, err := sqliteQuery(
 		db,
 		ctx,
 		"select term from dashboard_tag where dashboard_id = ? order by term asc",
@@ -88,7 +112,7 @@ func updateTags(db *sql.DB, ctx *lib.Ctx, did int, jsonTags []string, info strin
 		_, d := dbMap[tag]
 		// We have it in JSOn but not in DB, insert
 		if j && !d {
-			_, err = lib.SqliteExec(
+			_, err = sqliteExec(
 				db,
 				ctx,
 				"insert into dashboard_tag(dashboard_id, term) values(?, ?)",
@@ -105,7 +129,7 @@ func updateTags(db *sql.DB, ctx *lib.Ctx, did int, jsonTags []string, info strin
 		}
 		// We have it in DB but not in JSON, delete
 		if !j && d {
-			_, err = lib.SqliteExec(
+			_, err = sqliteExec(
 				db,
 				ctx,
 				"delete from dashboard_tag where dashboard_id = ? and term = ?",
@@ -122,7 +146,7 @@ func updateTags(db *sql.DB, ctx *lib.Ctx, did int, jsonTags []string, info strin
 		}
 	}
 	lib.Printf(
-		"Updated dashboard '%s' id: %d, '%v' -> '%v', added: %d, removed: %d\n",
+		"Updated dashboard tags '%s' id: %d, '%v' -> '%v', added: %d, removed: %d\n",
 		info, did, sDBTags, sJSONTags, nI, nD,
 	)
 	return true
@@ -136,7 +160,7 @@ func exportJsons(ctx *lib.Ctx, dbFile string) {
 	defer func() { lib.FatalOnError(db.Close()) }()
 
 	// Get all dashboards
-	rows, err := lib.SqliteQuery(db, ctx, "select slug, title, data from dashboard")
+	rows, err := sqliteQuery(db, ctx, "select slug, title, data from dashboard")
 	lib.FatalOnError(err)
 	defer func() { lib.FatalOnError(rows.Close()) }()
 	var (
@@ -161,7 +185,7 @@ func insertDashboard(db *sql.DB, ctx *lib.Ctx, dd *dashboardData) {
 	dd.slug = lib.Slugify(dd.title)
 
 	// Insert new dashboard
-  _, err := lib.SqliteExec(
+	_, err := sqliteExec(
 		db,
 		ctx,
 		"insert into dashboard(version, slug, title, data, "+
@@ -171,16 +195,18 @@ func insertDashboard(db *sql.DB, ctx *lib.Ctx, dd *dashboardData) {
 		dd.slug, dd.title, dd.data, time.Now(), time.Now(), dd.uid,
 	)
 	lib.FatalOnError(err)
-	rows, err := lib.SqliteQuery(db, ctx, "select max(id) from dashboard")
+	rows, err := sqliteQuery(db, ctx, "select max(id) from dashboard")
 	lib.FatalOnError(err)
 	defer func() { lib.FatalOnError(rows.Close()) }()
-  maxId := 0
 	for rows.Next() {
-		lib.FatalOnError(rows.Scan(&maxId))
+		lib.FatalOnError(rows.Scan(&dd.id))
 	}
 	lib.FatalOnError(rows.Err())
-  fmt.Printf("Inserted %d\n", maxId)
-	os.Exit(1)
+	lib.Printf("Inserted dashboard: id=%d (uid=%s, title=%s, slug=%s)\n", dd.id, dd.uid, dd.title, dd.slug)
+	updated := updateTags(db, ctx, dd.id, dd.dash.Tags, dd.dash.UID+" "+dd.dash.Title)
+	if !updated {
+		lib.Fatalf("should add new tags for %+v", dd)
+	}
 }
 
 // importJsons uses dbFile database to update list of JSONs
@@ -209,7 +235,7 @@ func importJsons(ctx *lib.Ctx, dbFile string, jsons []string) {
 	// Load and parse all dashboards JSONs
 	// Will keep uid --> sqlite dashboard data map
 	dbMap := make(map[string]dashboardData)
-	rows, err := lib.SqliteQuery(db, ctx, "select id, data, title, slug, uid from dashboard")
+	rows, err := sqliteQuery(db, ctx, "select id, data, title, slug, uid from dashboard")
 	lib.FatalOnError(err)
 	defer func() { lib.FatalOnError(rows.Close()) }()
 	for rows.Next() {
@@ -285,7 +311,7 @@ func importJsons(ctx *lib.Ctx, dbFile string, jsons []string) {
 			continue
 		}
 		// Update JSON inside database
-		_, err = lib.SqliteExec(
+		_, err = sqliteExec(
 			db,
 			ctx,
 			"update dashboard set title = ?, slug = ?, data = ? where id = ?",
@@ -318,7 +344,7 @@ func importJsons(ctx *lib.Ctx, dbFile string, jsons []string) {
 	}
 	lib.Printf(
 		"SQLite DB has %d dashboards, there were %d JSONs to import, updated %d, created %d\n",
-		nDbMap, nJSONMap, nImp, nIns)
+		nDbMap, nJSONMap+nIns, nImp, nIns)
 }
 
 // importJsonsByTitle uses dbFile database to update list of JSONs
@@ -381,7 +407,7 @@ func importJsonsByTitle(ctx *lib.Ctx, dbFile string, jsons []string) {
 		}
 
 		// Get original id, JSON, slug
-		rows, err := lib.SqliteQuery(db, ctx, "select id, data, slug from dashboard where title = ?", dashTitle)
+		rows, err := sqliteQuery(db, ctx, "select id, data, slug from dashboard where title = ?", dashTitle)
 		lib.FatalOnError(err)
 		defer func() { lib.FatalOnError(rows.Close()) }()
 		got := false
@@ -406,7 +432,7 @@ func importJsonsByTitle(ctx *lib.Ctx, dbFile string, jsons []string) {
 		if len(ary) > 2 {
 			dashSlug = ary[2]
 		}
-		_, err = lib.SqliteExec(
+		_, err = sqliteExec(
 			db,
 			ctx,
 			"update dashboard set title = ?, slug = ?, data = ? where id = ?",
