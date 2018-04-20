@@ -11,7 +11,7 @@ then
 fi
 ./grafana/copy_grafana_dbs.sh || exit 3
 cp /var/lib/grafana.$GRAFANA/grafana.db ./grafana.$GRAFANA.db || exit 4
-GHA2DB_UIDMODE=1 ./sqlitedb ./grafana.$GRAFANA.db $* || exit 5
+./sqlitedb ./grafana.$GRAFANA.db $* || exit 5
 ./devel/grafana_stop.sh $GRAFANA || exit 6
 cp ./grafana.$GRAFANA.db /var/lib/grafana.$GRAFANA/grafana.db || exit 7
 ls -l ./grafana.$GRAFANA.db.*

@@ -21,5 +21,5 @@ do
       suff="k8s"
     fi
     cp /var/www/html/grafana.$suff.db . || exit 1
-    GHA2DB_UIDMODE=1 ./sqlitedb ./grafana.$suff.db ./grafana/dashboards/$proj/*.json || exit 2
+    ./sqlitedb ./grafana.$suff.db ./grafana/dashboards/$proj/*.json || exit 2
 done
