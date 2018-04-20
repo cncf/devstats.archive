@@ -30,6 +30,7 @@ type dashboardData struct {
 	slug  string
 	data  string
 	fn    string
+	uid   string
 }
 
 // String for dashboardData - skip displaying long JSON data
@@ -43,7 +44,9 @@ func (dd dashboardData) String() string {
 // updateTags make JSON and SQLite tags match each other
 func updateTags(db *sql.DB, ctx *lib.Ctx, did int, jsonTags []string, info string) bool {
 	// Get SQLite DB tags
-	rows, err := db.Query(
+	rows, err := lib.SqliteQuery(
+    db,
+    ctx,
 		"select term from dashboard_tag where dashboard_id = ? order by term asc",
 		did,
 	)
@@ -85,7 +88,9 @@ func updateTags(db *sql.DB, ctx *lib.Ctx, did int, jsonTags []string, info strin
 		_, d := dbMap[tag]
 		// We have it in JSOn but not in DB, insert
 		if j && !d {
-			_, err = db.Exec(
+			_, err = lib.SqliteExec(
+        db,
+        ctx,
 				"insert into dashboard_tag(dashboard_id, term) values(?, ?)",
 				did, tag,
 			)
@@ -100,7 +105,9 @@ func updateTags(db *sql.DB, ctx *lib.Ctx, did int, jsonTags []string, info strin
 		}
 		// We have it in DB but not in JSON, delete
 		if !j && d {
-			_, err = db.Exec(
+			_, err = lib.SqliteExec(
+        db,
+        ctx,
 				"delete from dashboard_tag where dashboard_id = ? and term = ?",
 				did, tag,
 			)
@@ -122,14 +129,14 @@ func updateTags(db *sql.DB, ctx *lib.Ctx, did int, jsonTags []string, info strin
 }
 
 // exportJsons uses dbFile database to dump all dashboards as JSONs
-func exportJsons(ictx *lib.Ctx, dbFile string) {
+func exportJsons(ctx *lib.Ctx, dbFile string) {
 	// Connect to SQLite3
 	db, err := sql.Open("sqlite3", dbFile)
 	lib.FatalOnError(err)
 	defer func() { lib.FatalOnError(db.Close()) }()
 
 	// Get all dashboards
-	rows, err := db.Query("select slug, title, data from dashboard")
+	rows, err := lib.SqliteQuery(db, ctx, "select slug, title, data from dashboard")
 	lib.FatalOnError(err)
 	defer func() { lib.FatalOnError(rows.Close()) }()
 	var (
@@ -173,15 +180,18 @@ func importJsonsByUID(ctx *lib.Ctx, dbFile string, jsons []string) {
 	// Load and parse all dashboards JSONs
 	// Will keep uid --> sqlite dashboard data map
 	dbMap := make(map[string]dashboardData)
-	rows, err := db.Query("select id, data, title, slug from dashboard")
+	rows, err := lib.SqliteQuery(db, ctx, "select id, data, title, slug, uid from dashboard")
 	lib.FatalOnError(err)
 	defer func() { lib.FatalOnError(rows.Close()) }()
 	for rows.Next() {
 		var dd dashboardData
-		lib.FatalOnError(rows.Scan(&dd.id, &dd.data, &dd.title, &dd.slug))
+		lib.FatalOnError(rows.Scan(&dd.id, &dd.data, &dd.title, &dd.slug, &dd.uid))
 		lib.FatalOnError(json.Unmarshal([]byte(dd.data), &dd.dash))
 		if dd.title != dd.dash.Title {
-			lib.Fatalf("SQLite internal inconsistency: %s != %s", dd.title, dd.dash.Title)
+			lib.Fatalf("SQLite internal inconsistency (title): %s != %s: %+v", dd.title, dd.dash.Title, dd)
+		}
+		if dd.uid != dd.dash.UID {
+			lib.Fatalf("SQLite internal inconsistency (uid): %s != %s: %+v", dd.uid, dd.dash.UID, dd)
 		}
 		dd.data = string(lib.PrettyPrintJSON([]byte(dd.data)))
 		dd.fn = "*" + dd.slug + ".json*"
@@ -236,7 +246,9 @@ func importJsonsByUID(ctx *lib.Ctx, dbFile string, jsons []string) {
 			continue
 		}
 		// Update JSON inside database
-		_, err = db.Exec(
+		_, err = lib.SqliteExec(
+      db,
+      ctx,
 			"update dashboard set title = ?, slug = ?, data = ? where id = ?",
 			dd.dash.Title, dd.slug, dd.data, dd.id,
 		)
@@ -330,7 +342,7 @@ func importJsonsByTitle(ctx *lib.Ctx, dbFile string, jsons []string) {
 		}
 
 		// Get original id, JSON, slug
-		rows, err := db.Query("select id, data, slug from dashboard where title = ?", dashTitle)
+		rows, err := lib.SqliteQuery(db, ctx, "select id, data, slug from dashboard where title = ?", dashTitle)
 		lib.FatalOnError(err)
 		defer func() { lib.FatalOnError(rows.Close()) }()
 		got := false
@@ -355,7 +367,9 @@ func importJsonsByTitle(ctx *lib.Ctx, dbFile string, jsons []string) {
 		if len(ary) > 2 {
 			dashSlug = ary[2]
 		}
-		_, err = db.Exec(
+		_, err = lib.SqliteExec(
+      db,
+      ctx,
 			"update dashboard set title = ?, slug = ?, data = ? where id = ?",
 			dash.Title, dashSlug, sBytes, id,
 		)
