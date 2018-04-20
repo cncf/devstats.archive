@@ -155,8 +155,11 @@ func exportJsons(ctx *lib.Ctx, dbFile string) {
 }
 
 // insertDashboard inserts new dashboard into SQLite database
-func insertDashboard(db *sql.DB, ctx *lib.Ctx, dash *dashboard) {
-	fmt.Printf("Creating: %+v\n", dash)
+func insertDashboard(db *sql.DB, ctx *lib.Ctx, dd *dashboardData) {
+	dd.uid = dd.dash.UID
+	dd.title = dd.dash.Title
+	dd.slug = lib.Slugify(dd.title)
+	fmt.Printf("Creating: %+v\n", dd)
 
 	os.Exit(1)
 }
@@ -217,7 +220,9 @@ func importJsons(ctx *lib.Ctx, dbFile string, jsons []string) {
 		lib.FatalOnError(json.Unmarshal(bytes, &dd.dash))
 		dbDash, ok := dbMap[dd.dash.UID]
 		if !ok {
-			insertDashboard(db, ctx, &dd.dash)
+			dd.data = string(lib.PrettyPrintJSON(bytes))
+			dd.fn = j
+			insertDashboard(db, ctx, &dd)
 			if !backedUp {
 				backupFunc()
 				backedUp = true
