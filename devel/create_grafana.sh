@@ -2,6 +2,7 @@
 # GET=1 (Get grafana.db from the test server)
 # STOP=1 (Stops running grafana-server instance)
 # RM=1 (only with STOP, get rid of all grafana data before proceeding)
+# NOJSONS=1 (will skip importing all jsons defined for given project using sqlitedb tool)
 set -o pipefail
 if ( [ -z "$PG_PASS" ] || [ -z "$PORT" ] || [ -z "$GA" ] || [ -z "$ICON" ] || [ -z "$ORGNAME" ] || [ -z "$PROJ" ] || [ -z "$PROJDB" ] || [ -z "$GRAFSUFF" ] )
 then
@@ -142,5 +143,10 @@ then
   echo "starting $PROJ grafana-server"
   ./grafana/$PROJ/grafana_start.sh &
   echo "started"
+fi
+
+if [ -z "$NOJSONS" ]
+then
+  GRAFANA=$GRAFSUFF ./devel/import_jsons_to_sqlite.sh ./grafana/dashboards/$PROJ/* || exit 38
 fi
 echo "$0: $PROJ finished"
