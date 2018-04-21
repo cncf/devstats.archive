@@ -1,5 +1,5 @@
 #!/bin/bash
-# GET=1 (Get grafana.db from the test server)
+# GGET=1 (Get grafana.db from the test server)
 # STOP=1 (Stops running grafana-server instance)
 # RM=1 (only with STOP, get rid of all grafana data before proceeding)
 # NOJSONS=1 (will skip importing all jsons defined for given project using sqlitedb tool)
@@ -97,7 +97,7 @@ then
   rm -f "/var/lib/grafana.$GRAFSUFF/grafana.db" || exit 17
 fi
   
-if ( [ ! -f "/var/lib/grafana.$GRAFSUFF/grafana.db" ] && [ ! -z "$GET" ] )
+if ( [ ! -f "/var/lib/grafana.$GRAFSUFF/grafana.db" ] && [ ! -z "$GGET" ] )
 then
   echo "attempt to fetch grafana database $GRAFSUFF from the test server"
   wget "https://cncftest.io/grafana.$GRAFSUFF.db" || exit 18
