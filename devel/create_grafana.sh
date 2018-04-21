@@ -3,6 +3,7 @@
 # STOP=1 (Stops running grafana-server instance)
 # RM=1 (only with STOP, get rid of all grafana data before proceeding)
 # NOJSONS=1 (will skip importing all jsons defined for given project using sqlitedb tool)
+# EXTERNAL=1 (will expose Grafana to outside world: will bind to 0.0.0.0 instead of 127.0.0.1, useful when no Apache proxy + SSL is enabled)
 set -o pipefail
 if ( [ -z "$PG_PASS" ] || [ -z "$PORT" ] || [ -z "$GA" ] || [ -z "$ICON" ] || [ -z "$ORGNAME" ] || [ -z "$PROJ" ] || [ -z "$PROJDB" ] || [ -z "$GRAFSUFF" ] )
 then
@@ -25,6 +26,13 @@ then
   ga=";"
 else
   ga="google_analytics_ua_id = $GA"
+fi
+
+if [ ! -z "$EXTERNAL" ]
+then
+  bind="0.0.0.0"
+else
+  bind="127.0.0.1"
 fi
 
 if [ -z "$ARTWORK" ]
@@ -112,6 +120,7 @@ then
   cp ./grafana/etc/grafana.ini.example "$cfile" || exit 21
   MODE=ss FROM='{{project}}' TO="$PROJ" replacer "$cfile" || exit 22
   MODE=ss FROM='{{url}}' TO="$host" replacer "$cfile" || exit 23
+  MODE=ss FROM='{{bind}}' TO="$bind" replacer "$cfile" || exit 39
   MODE=ss FROM='{{port}}' TO="$PORT" replacer "$cfile" || exit 24
   MODE=ss FROM='{{pwd}}' TO="$PG_PASS" replacer "$cfile" || exit 25
   MODE=ss FROM=';google_analytics_ua_id =' TO="-" replacer "$cfile" || exit 26
