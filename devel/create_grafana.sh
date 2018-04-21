@@ -2,7 +2,7 @@
 # GGET=1 (Get grafana.db from the test server)
 # STOP=1 (Stops running grafana-server instance)
 # RM=1 (only with STOP, get rid of all grafana data before proceeding)
-# NOJSONS=1 (will skip importing all jsons defined for given project using sqlitedb tool)
+# IMPJSONS=1 (will import all jsons defined for given project using sqlitedb tool), if used with GGET - it will first fetch from server and then import
 # EXTERNAL=1 (will expose Grafana to outside world: will bind to 0.0.0.0 instead of 127.0.0.1, useful when no Apache proxy + SSL is enabled)
 set -o pipefail
 if ( [ -z "$PG_PASS" ] || [ -z "$PORT" ] || [ -z "$GA" ] || [ -z "$ICON" ] || [ -z "$ORGNAME" ] || [ -z "$PROJ" ] || [ -z "$PROJDB" ] || [ -z "$GRAFSUFF" ] )
@@ -102,7 +102,6 @@ if [ ! -d "/var/lib/grafana.$GRAFSUFF/" ]
 then
   echo "copying /var/lib/grafana.$GRAFSUFF/"
   cp -R "$GRAF_VARLIB" "/var/lib/grafana.$GRAFSUFF/" || exit 16
-  rm -f "/var/lib/grafana.$GRAFSUFF/grafana.db" || exit 17
 fi
   
 if ( [ ! -f "/var/lib/grafana.$GRAFSUFF/grafana.db" ] && [ ! -z "$GGET" ] )
@@ -120,7 +119,7 @@ then
   cp ./grafana/etc/grafana.ini.example "$cfile" || exit 21
   MODE=ss FROM='{{project}}' TO="$PROJ" replacer "$cfile" || exit 22
   MODE=ss FROM='{{url}}' TO="$host" replacer "$cfile" || exit 23
-  MODE=ss FROM='{{bind}}' TO="$bind" replacer "$cfile" || exit 39
+  MODE=ss FROM='{{bind}}' TO="$bind" replacer "$cfile" || exit 17
   MODE=ss FROM='{{port}}' TO="$PORT" replacer "$cfile" || exit 24
   MODE=ss FROM='{{pwd}}' TO="$PG_PASS" replacer "$cfile" || exit 25
   MODE=ss FROM=';google_analytics_ua_id =' TO="-" replacer "$cfile" || exit 26
@@ -154,8 +153,14 @@ then
   echo "started"
 fi
 
-if [ -z "$NOJSONS" ]
+if [ ! -z "$IMPJSONS" ]
 then
-  GRAFANA=$GRAFSUFF ./devel/import_jsons_to_sqlite.sh ./grafana/dashboards/$PROJ/* || exit 38
+  while [ ! -f "/var/lib/grafana.$PROJ/grafana.db" ]
+  do
+    echo "Waiting for /var/lib/grafana.$PROJ/grafana.db to be created"
+    sleep 1
+  done
+  sleep 1
+  GRAFANA=$GRAFSUFF NOCOPY=1 ./devel/import_jsons_to_sqlite.sh ./grafana/dashboards/$PROJ/* || exit 38
 fi
 echo "$0: $PROJ finished"

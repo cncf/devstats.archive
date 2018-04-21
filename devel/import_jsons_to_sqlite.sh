@@ -9,7 +9,10 @@ then
   echo "$0: you need to provide at least one json to import"
   exit 2
 fi
-./grafana/copy_grafana_dbs.sh || exit 3
+if [ -z "$NOCOPY" ]
+then
+  ./grafana/copy_grafana_dbs.sh || exit 3
+fi
 cp /var/lib/grafana.$GRAFANA/grafana.db ./grafana.$GRAFANA.db || exit 4
 ./sqlitedb ./grafana.$GRAFANA.db $* || exit 5
 ./devel/grafana_stop.sh $GRAFANA || exit 6
