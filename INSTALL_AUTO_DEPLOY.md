@@ -73,6 +73,7 @@ Prerequisites:
     - `ln /etc/apache2/mods-available/rewrite.load /etc/apache2/mods-enabled/`
     - You can enable SSL, to do so You need to follow SSL instruction in [SSL](https://github.com/cncf/devstats/blob/master/SSL.md) (that requires domain name).
     - `service apache2 restart`
+    - If you don't use Apache/SSL proxy, you should add EXTERNAL=1 when deploying - this will expose grafana to outside world by binding to `0.0.0.0` instead of local only `127.0.0.1`.
 14. Automatic deploy of first database (few examples)
     - Top deploy one of CNCF projects see `projects.yaml` chose one `projectname` and specify to deploy only this project: `ONLY=projectname`.
     - Use `INIT=1` to specify that you want to initialize logs database `devstats`, you need to provide passowrd for admin `PG_PASS`, `ro_user` (`PG_PASS_RO` used by Grafana for read-only access) and `devstats_team` (`PG_PASS_TEAM` - this is just another role to allow readonly access from the bastion ssh server).
@@ -85,7 +86,7 @@ Prerequisites:
     - Use `SKIPWWW=1` to skip Apache/SSL config (which requires DNS name for a server), the final result will be Grafana via HTTP on port 3xxx on accessible by server IP or name.
     - Example with skipping GitHub API and custom ARTWORK: `ARTWORK=/data/artwork SKIPWWW=1 GHA2DB_GITHUB_OAUTH=- GHA2DB_GHAPISKIP=1 GHA2DB_AECLEANSKIP=1 IGET=1 GET=1 ONLY=someproj PG_PASS=... IDB_PASS=... IDB_HOST=localhost IDB_PASS_SRC=... ./devel/deploy_all.sh`
     - Other possible env variables used for automatic deploy are in the comments section in a first lines of deploy files: `devel/deploy_all.sh devel/deploy_proj.sh devel/create_databases.sh devel/init_database.sh devel/create_grafana.sh devel/create_www.sh all/add_project.sh`.
-    - Example command that worked on a clean Ubuntu 18 without domain name: `SKIPTEMP=1 ARTWORK=/data/artwork INIT=1 PG_PASS=p PG_PASS_RO=p PG_PASS_TEAM=p ONLY=cncf IDB_PASS=p IDB_HOST=localhost IGET=1 GET=1 IDB_PASS_SRC=p SKIPWWW=1 GHA2DB_GITHUB_OAUTH=- GHA2DB_GHAPISKIP=1 GHA2DB_AECLEANSKIP=1 ./devel/deploy_all.sh`.
+    - Example command that worked on a clean Ubuntu 18 without domain name: `EXTERNAL=1 SKIPTEMP=1 ARTWORK=/data/artwork INIT=1 PG_PASS=p PG_PASS_RO=p PG_PASS_TEAM=p ONLY=cncf IDB_PASS=p IDB_HOST=localhost IGET=1 GET=1 IDB_PASS_SRC=p SKIPWWW=1 GHA2DB_GITHUB_OAUTH=- GHA2DB_GHAPISKIP=1 GHA2DB_AECLEANSKIP=1 ./devel/deploy_all.sh`.
     - You can also take a look at `ADDING_NEW_PROJECT.md` file for more info about setting up new projects.
     - Now when postgres users are created, you test all stuff that require databases: `GHA2DB_PROJECT=kubernetes IDB_DB=dbtest IDB_HOST="localhost" IDB_PASS=your_influx_pwd PG_DB=dbtest PG_PASS=your_postgres_pwd make dbtest`
     - Tests should pass.
