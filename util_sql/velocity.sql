@@ -4,7 +4,7 @@ with days as (
 )
 select
   e.dup_repo_name as repo,
-  count(e.id) / d.days as commits_per_day
+  count(e.id) / d.days as metric_per_day
 from
   gha_events e,
   days d
@@ -17,7 +17,7 @@ group by
   e.dup_repo_name,
   d.days
 union select 'All' as repo,
-  count(e.id) / d.days as commits_per_day
+  count(e.id) / d.days as metric_per_day
 from
   gha_events e,
   days d
@@ -29,6 +29,6 @@ where
 group by
   d.days
 order by
-  commits_per_day desc,
+  metric_per_day desc,
   repo asc
 ;
