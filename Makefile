@@ -8,7 +8,7 @@ GO_BIN_CMDS=devstats/cmd/structure devstats/cmd/runq devstats/cmd/gha2db devstat
 GO_ENV=CGO_ENABLED=0
 # -ldflags '-s -w': create release binary - without debug info
 #GO_BUILD=go build
-O_BUILD=go build -ldflags '-s -w' -race
+#GO_BUILD=go build -ldflags '-s -w' -race
 GO_BUILD=go build -ldflags '-s -w'
 #  -ldflags '-s': instal stripped binary
 #GO_INSTALL=go install
@@ -120,20 +120,21 @@ check: fmt lint imports vet const usedexports errcheck
 
 data:
 	cp -v ${UTIL_SCRIPTS} ${GOPATH}/bin
-	[ ! -f /tmp/deploy.wip ] || exit 6
-	wait_for_command.sh devstats 3600 || exit 7
+	[ ! -f /tmp/deploy.wip ] || exit 1
+	wait_for_command.sh devstats 3600 || exit 2
 	mkdir /etc/gha2db 2>/dev/null || echo "..."
 	chmod 777 /etc/gha2db 2>/dev/null || echo "..."
-	rm -fr /etc/gha2db/* || exit 1
-	cp -R metrics/ /etc/gha2db/metrics/ || exit 2
-	cp -R util_sql/ /etc/gha2db/util_sql/ || exit 3
-	cp -R docs/ /etc/gha2db/docs/ || exit 4
-	cp -R partials/ /etc/gha2db/partials/ || exit 5
-	cp -R scripts/ /etc/gha2db/scripts/ || exit 6
-	cp cncf.yaml kubernetes.yaml projects.yaml /etc/gha2db/ || exit 7
-	cp devel/*.txt /etc/gha2db/ || exit 8
+	rm -fr /etc/gha2db/* || exit 3
+	cp -R metrics/ /etc/gha2db/metrics/ || exit 4
+	cp -R util_sql/ /etc/gha2db/util_sql/ || exit 5
+	cp -R util_sh/ /etc/gha2db/util_sh/ || exit 6
+	cp -R docs/ /etc/gha2db/docs/ || exit 7
+	cp -R partials/ /etc/gha2db/partials/ || exit 8
+	cp -R scripts/ /etc/gha2db/scripts/ || exit 9
+	cp cncf.yaml kubernetes.yaml projects.yaml /etc/gha2db/ || exit 10
+	cp devel/*.txt /etc/gha2db/ || exit 11
 
-install: check ${BINARIES} data
+install: ${BINARIES} data
 	${GO_INSTALL} ${GO_BIN_CMDS}
 	cp -v ${CRON_SCRIPTS} ${GOPATH}/bin
 	cp -v ${GIT_SCRIPTS} ${GOPATH}/bin

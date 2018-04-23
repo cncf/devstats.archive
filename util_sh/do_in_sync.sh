@@ -1,4 +1,4 @@
-
+#!/bin/bash
 function finish {
     sync_unlock.sh
 }
