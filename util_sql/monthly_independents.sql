@@ -18,12 +18,16 @@ select
   count(distinct e.actor_id) as contributors
 from
   dates d,
-  gha_events e
+  gha_events e,
+  gha_actors_affiliations aa
 where
-  e.created_at >= d.f
-  and e.created_at < d.t
+  e.created_at < d.t
   and e.type in ('PushEvent', 'IssuesEvent', 'PullRequestEvent')
   and (e.dup_actor_login {{exclude_bots}})
+  and e.actor_id = aa.actor_id
+  and aa.company_name = 'Independent'
+  and aa.dt_from <= e.created_at
+  and aa.dt_to > e.created_at
 group by
   d.rel,
   d.f,
