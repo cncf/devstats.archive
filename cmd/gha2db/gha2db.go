@@ -1326,11 +1326,12 @@ func writeToDB(db *sql.DB, ctx *lib.Ctx, ev *lib.Event) int {
 // parseJSON - parse signle GHA JSON event
 func parseJSON(con *sql.DB, ctx *lib.Ctx, jsonStr []byte, dt time.Time, forg, frepo map[string]struct{}) (f int, e int) {
 	var (
-		h        lib.Event
-		hOld     lib.EventOld
-		err      error
-		fullName string
-		eid      string
+		h         lib.Event
+		hOld      lib.EventOld
+		err       error
+		fullName  string
+		eid       string
+		actorName string
 	)
 	if ctx.OldFormat {
 		err = json.Unmarshal(jsonStr, &hOld)
@@ -1347,10 +1348,12 @@ func parseJSON(con *sql.DB, ctx *lib.Ctx, jsonStr []byte, dt time.Time, forg, fr
 	lib.FatalOnError(err)
 	if ctx.OldFormat {
 		fullName = lib.MakeOldRepoName(&hOld.Repository)
+		actorName = hOld.Actor
 	} else {
 		fullName = h.Repo.Name
+		actorName = h.Actor.Login
 	}
-	if lib.RepoHit(ctx, fullName, forg, frepo) {
+	if lib.RepoHit(ctx, fullName, forg, frepo) && lib.ActorHit(ctx, actorName) {
 		if ctx.OldFormat {
 			eid = fmt.Sprintf("%v", lib.HashStrings([]string{hOld.Type, hOld.Actor, hOld.Repository.Name, lib.ToYMDHMSDate(hOld.CreatedAt)}))
 		} else {

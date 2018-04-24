@@ -2,6 +2,7 @@ package devstats
 
 import (
 	"reflect"
+	"regexp"
 	"testing"
 
 	lib "devstats"
@@ -100,6 +101,123 @@ func TestIsProjectDisabled(t *testing.T) {
 		expected := test.expected
 		ctx.ProjectsOverride = test.overrides
 		got := lib.IsProjectDisabled(&ctx, test.proj, test.yamlDisabled)
+		if got != expected {
+			t.Errorf(
+				"test number %d, expected '%v', got '%v', test case: %+v",
+				index+1, expected, got, test,
+			)
+		}
+	}
+}
+
+func TestActorHit(t *testing.T) {
+	// Variables
+	var (
+		ctx       lib.Ctx
+		nilRegexp *regexp.Regexp
+	)
+
+	// Test cases
+	var testCases = []struct {
+		actorsFilter bool
+		actorsAllow  *regexp.Regexp
+		actorsForbid *regexp.Regexp
+		actorName    string
+		hit          bool
+	}{
+		{
+			actorsFilter: false,
+			actorsAllow:  nilRegexp,
+			actorsForbid: nilRegexp,
+			actorName:    "actor",
+			hit:          true,
+		},
+		{
+			actorsFilter: false,
+			actorsAllow:  regexp.MustCompile(`^a`),
+			actorsForbid: regexp.MustCompile(`z$`),
+			actorName:    "actor",
+			hit:          true,
+		},
+		{
+			actorsFilter: true,
+			actorsAllow:  nilRegexp,
+			actorsForbid: nilRegexp,
+			actorName:    "",
+			hit:          true,
+		},
+		{
+			actorsFilter: true,
+			actorsAllow:  nilRegexp,
+			actorsForbid: nilRegexp,
+			actorName:    "arbuz",
+			hit:          true,
+		},
+		{
+			actorsFilter: true,
+			actorsAllow:  regexp.MustCompile(`^a`),
+			actorsForbid: nilRegexp,
+			actorName:    "arbuz",
+			hit:          true,
+		},
+		{
+			actorsFilter: true,
+			actorsAllow:  regexp.MustCompile(`^a`),
+			actorsForbid: nilRegexp,
+			actorName:    "rbuz",
+			hit:          false,
+		},
+		{
+			actorsFilter: true,
+			actorsAllow:  nilRegexp,
+			actorsForbid: regexp.MustCompile(`z$`),
+			actorName:    "arbuz",
+			hit:          false,
+		},
+		{
+			actorsFilter: true,
+			actorsAllow:  nilRegexp,
+			actorsForbid: regexp.MustCompile(`z$`),
+			actorName:    "arbu",
+			hit:          true,
+		},
+		{
+			actorsFilter: true,
+			actorsAllow:  regexp.MustCompile(`^a`),
+			actorsForbid: regexp.MustCompile(`z$`),
+			actorName:    "arbuz",
+			hit:          false,
+		},
+		{
+			actorsFilter: true,
+			actorsAllow:  regexp.MustCompile(`^a`),
+			actorsForbid: regexp.MustCompile(`z$`),
+			actorName:    "rbuz",
+			hit:          false,
+		},
+		{
+			actorsFilter: true,
+			actorsAllow:  regexp.MustCompile(`^a`),
+			actorsForbid: regexp.MustCompile(`z$`),
+			actorName:    "arbu",
+			hit:          true,
+		},
+		{
+			actorsFilter: true,
+			actorsAllow:  regexp.MustCompile(`^a`),
+			actorsForbid: regexp.MustCompile(`z$`),
+			actorName:    "rbu",
+			hit:          false,
+		},
+	}
+
+	// Execute test cases
+	for index, test := range testCases {
+		expected := test.hit
+		ctx.ActorsFilter = test.actorsFilter
+		ctx.ActorsAllow = test.actorsAllow
+		ctx.ActorsForbid = test.actorsForbid
+		got := lib.ActorHit(&ctx, test.actorName)
 		if got != expected {
 			t.Errorf(
 				"test number %d, expected '%v', got '%v', test case: %+v",
@@ -284,6 +402,7 @@ func TestRepoHit(t *testing.T) {
 			hit:      true,
 		},
 	}
+
 	// Execute test cases
 	for index, test := range testCases {
 		expected := test.hit

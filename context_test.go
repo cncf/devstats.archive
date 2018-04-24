@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"reflect"
+	"regexp"
 	"testing"
 	"time"
 
@@ -97,6 +98,9 @@ func copyContext(in *lib.Ctx) *lib.Ctx {
 		OnlyEvents:          in.OnlyEvents,
 		CSVFile:             in.CSVFile,
 		ComputeAll:          in.ComputeAll,
+		ActorsFilter:        in.ActorsFilter,
+		ActorsAllow:         in.ActorsAllow,
+		ActorsForbid:        in.ActorsForbid,
 	}
 	return &out
 }
@@ -181,6 +185,14 @@ func dynamicSetFields(t *testing.T, ctx *lib.Ctx, fields map[string]interface{})
 			// Check if types match
 			fieldType := field.Type()
 			if fieldType != reflect.TypeOf(map[string]bool{}) {
+				t.Errorf("trying to set value %v, type %T for field \"%s\", type %v", interfaceValue, interfaceValue, fieldName, fieldKind)
+				return ctx
+			}
+			field.Set(reflect.ValueOf(fieldValue))
+		case *regexp.Regexp:
+			// Check if types match
+			fieldType := field.Type()
+			if fieldType != reflect.TypeOf(regexp.MustCompile("a")) {
 				t.Errorf("trying to set value %v, type %T for field \"%s\", type %v", interfaceValue, interfaceValue, fieldName, fieldKind)
 				return ctx
 			}
@@ -281,7 +293,12 @@ func TestInit(t *testing.T) {
 		OnlyEvents:          []int64{},
 		CSVFile:             "",
 		ComputeAll:          false,
+		ActorsFilter:        false,
+		ActorsAllow:         nil,
+		ActorsForbid:        nil,
 	}
+
+	var nilRegexp *regexp.Regexp
 
 	// Test cases
 	var testCases = []struct {
@@ -950,6 +967,72 @@ func TestInit(t *testing.T) {
 				copyContext(&defaultContext),
 				map[string]interface{}{
 					"ComputeAll": true,
+				},
+			),
+		},
+		{
+			"Set actors filter",
+			map[string]string{
+				"GHA2DB_ACTORS_FILTER": "1",
+				"GHA2DB_ACTORS_ALLOW":  `lukasz\s+gryglicki`,
+				"GHA2DB_ACTORS_FORBID": `linus`,
+			},
+			dynamicSetFields(
+				t,
+				copyContext(&defaultContext),
+				map[string]interface{}{
+					"ActorsFilter": true,
+					"ActorsAllow":  regexp.MustCompile(`lukasz\s+gryglicki`),
+					"ActorsForbid": regexp.MustCompile(`linus`),
+				},
+			),
+		},
+		{
+			"Incorrectly set actors filter",
+			map[string]string{
+				"GHA2DB_ACTORS_FILTER": "",
+				"GHA2DB_ACTORS_ALLOW":  `lukasz\s+gryglicki`,
+				"GHA2DB_ACTORS_FORBID": `linus`,
+			},
+			dynamicSetFields(
+				t,
+				copyContext(&defaultContext),
+				map[string]interface{}{
+					"ActorsFilter": false,
+					"ActorsAllow":  nilRegexp,
+					"ActorsForbid": nilRegexp,
+				},
+			),
+		},
+		{
+			"Set actors filter allow",
+			map[string]string{
+				"GHA2DB_ACTORS_FILTER": "1",
+				"GHA2DB_ACTORS_ALLOW":  `lukasz\s+gryglicki`,
+			},
+			dynamicSetFields(
+				t,
+				copyContext(&defaultContext),
+				map[string]interface{}{
+					"ActorsFilter": true,
+					"ActorsAllow":  regexp.MustCompile(`lukasz\s+gryglicki`),
+					"ActorsForbid": nilRegexp,
+				},
+			),
+		},
+		{
+			"Set actors filter forbid",
+			map[string]string{
+				"GHA2DB_ACTORS_FILTER": "yes",
+				"GHA2DB_ACTORS_FORBID": `lukasz\s+gryglicki`,
+			},
+			dynamicSetFields(
+				t,
+				copyContext(&defaultContext),
+				map[string]interface{}{
+					"ActorsFilter": true,
+					"ActorsAllow":  nilRegexp,
+					"ActorsForbid": regexp.MustCompile(`lukasz\s+gryglicki`),
 				},
 			),
 		},

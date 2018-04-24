@@ -381,6 +381,18 @@ func MakeOldRepoName(repo *ForkeeOld) string {
 	return fmt.Sprintf("%s/%s", *repo.Organization, repo.Name)
 }
 
+// ActorHit - are we intereste din this actor?
+func ActorHit(ctx *Ctx, actorName string) bool {
+	if !ctx.ActorsFilter {
+		return true
+	}
+	if (ctx.ActorsAllow == nil || (ctx.ActorsAllow != nil && ctx.ActorsAllow.MatchString(actorName))) &&
+		(ctx.ActorsForbid == nil || (ctx.ActorsForbid != nil && !ctx.ActorsForbid.MatchString(actorName))) {
+		return true
+	}
+	return false
+}
+
 // RepoHit - are we interested in this org/repo ?
 func RepoHit(ctx *Ctx, fullName string, forg, frepo map[string]struct{}) bool {
 	// Return false if no repo name
