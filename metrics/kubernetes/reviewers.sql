@@ -1,18 +1,20 @@
-create temp table matching as
-select event_id
-from gha_texts
-where
-  created_at >= '{{from}}' and created_at < '{{to}}'
-  and substring(body from '(?i)(?:^|\n|\r)\s*/(?:lgtm|approve)\s*(?:\n|\r|$)') is not null;
-
-create temp table reviews as
-select id as event_id
-from
-  gha_events
-where
-  created_at >= '{{from}}' and created_at < '{{to}}'
-  and type in ('PullRequestReviewCommentEvent');
-
+with matching as (
+  select event_id
+  from
+    gha_texts
+  where
+    created_at >= '{{from}}'
+    and created_at < '{{to}}'
+    and substring(body from '(?i)(?:^|\n|\r)\s*/(?:lgtm|approve)\s*(?:\n|\r|$)') is not null
+), reviews as (
+  select id as event_id
+  from
+    gha_events
+  where
+    created_at >= '{{from}}'
+    and created_at < '{{to}}'
+    and type in ('PullRequestReviewCommentEvent')
+)
 select
   'reviewers,All' as repo_group,
   count(distinct dup_actor_login) as result
@@ -70,6 +72,3 @@ order by
   result desc,
   repo_group asc
 ;
-
-drop table reviews;
-drop table matching;
