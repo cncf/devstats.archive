@@ -3,6 +3,7 @@ package devstats
 import (
 	"fmt"
 	"os"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -10,40 +11,40 @@ import (
 
 // Ctx - environment context packed in structure
 type Ctx struct {
-	Debug               int             // from GHA2DB_DEBUG Debug level: 0-no, 1-info, 2-verbose, including SQLs, default 0
-	CmdDebug            int             // from GHA2DB_CMDDEBUG Commands execution Debug level: 0-no, 1-only output commands, 2-output commands and their output, 3-output full environment as well, default 0
-	JSONOut             bool            // from GHA2DB_JSON gha2db: write JSON files? default false
-	DBOut               bool            // from GHA2DB_NODB gha2db: write to SQL database, default true
-	ST                  bool            // from GHA2DB_ST true: use single threaded version, false: use multi threaded version, default false
-	NCPUs               int             // from GHA2DB_NCPUS, set to override number of CPUs to run, this overwrites GHA2DB_ST, default 0 (which means do not use it)
-	PgHost              string          // from PG_HOST, default "localhost"
-	PgPort              string          // from PG_PORT, default "5432"
-	PgDB                string          // from PG_DB, default "gha"
-	PgUser              string          // from PG_USER, default "gha_admin"
-	PgPass              string          // from PG_PASS, default "password"
-	PgSSL               string          // from PG_SSL, default "disable"
-	Index               bool            // from GHA2DB_INDEX Create DB index? default false
-	Table               bool            // from GHA2DB_SKIPTABLE Create table structure? default true
-	Tools               bool            // from GHA2DB_SKIPTOOLS Create DB tools (like views, summary tables, materialized views etc)? default true
-	Mgetc               string          // from GHA2DB_MGETC Character returned by mgetc (if non empty), default ""
-	IDBHost             string          // from IDB_HOST, default "http://localhost"
+	Debug               int             // From GHA2DB_DEBUG Debug level: 0-no, 1-info, 2-verbose, including SQLs, default 0
+	CmdDebug            int             // From GHA2DB_CMDDEBUG Commands execution Debug level: 0-no, 1-only output commands, 2-output commands and their output, 3-output full environment as well, default 0
+	JSONOut             bool            // From GHA2DB_JSON gha2db: write JSON files? default false
+	DBOut               bool            // From GHA2DB_NODB gha2db: write to SQL database, default true
+	ST                  bool            // From GHA2DB_ST true: use single threaded version, false: use multi threaded version, default false
+	NCPUs               int             // From GHA2DB_NCPUS, set to override number of CPUs to run, this overwrites GHA2DB_ST, default 0 (which means do not use it)
+	PgHost              string          // From PG_HOST, default "localhost"
+	PgPort              string          // From PG_PORT, default "5432"
+	PgDB                string          // From PG_DB, default "gha"
+	PgUser              string          // From PG_USER, default "gha_admin"
+	PgPass              string          // From PG_PASS, default "password"
+	PgSSL               string          // From PG_SSL, default "disable"
+	Index               bool            // From GHA2DB_INDEX Create DB index? default false
+	Table               bool            // From GHA2DB_SKIPTABLE Create table structure? default true
+	Tools               bool            // From GHA2DB_SKIPTOOLS Create DB tools (like views, summary tables, materialized views etc)? default true
+	Mgetc               string          // From GHA2DB_MGETC Character returned by mgetc (if non empty), default ""
+	IDBHost             string          // From IDB_HOST, default "http://localhost"
 	IDBPort             string          // form IDB_PORT, default 8086
-	IDBDB               string          // from IDB_DB, default "gha"
-	IDBUser             string          // from IDB_USER, default "gha_admin"
-	IDBPass             string          // from IDB_PASS, default "password"
-	IDBMaxBatchPoints   int             // from IDB_MAXBATCHPONTS, all Influx related tools, default 10240 (10k)
-	QOut                bool            // from GHA2DB_QOUT output all SQL queries?, default false
-	CtxOut              bool            // from GHA2DB_CTXOUT output all context data (this struct), default false
-	LogTime             bool            // from GHA2DB_SKIPTIME, output time with all lib.Printf(...) calls, default true, use GHA2DB_SKIPTIME to disable
-	DefaultStartDate    time.Time       // from GHA2DB_STARTDT, default `2014-01-01 00:00 UTC`, expects format "YYYY-MM-DD HH:MI:SS", can be set in `projects.yaml` via `start_date:`, value from projects.yaml (if set) has the highest priority.
-	ForceStartDate      bool            // from GHA2DB_STARTDT_FORCE, default false
-	LastSeries          string          // from GHA2DB_LASTSERIES, use this InfluxDB series to determine last timestamp date, default "events_h"
-	SkipIDB             bool            // from GHA2DB_SKIPIDB gha2db_sync tool, skip Influx DB processing? for db2influx it skips final series write, default false
-	SkipPDB             bool            // from GHA2DB_SKIPPDB gha2db_sync tool, skip Postgres DB processing? default false
-	ResetIDB            bool            // from GHA2DB_RESETIDB sync tool, regenerate all InfluxDB points? default false
-	ResetRanges         bool            // from GHA2DB_RESETRANGES sync tool, regenerate all past quick ranges? default false
-	Explain             bool            // from GHA2DB_EXPLAIN runq tool, prefix query with "explain " - it will display query plan instead of executing real query, default false
-	OldFormat           bool            // from GHA2DB_OLDFMT gha2db tool, if set then use pre 2015 GHA JSONs format
+	IDBDB               string          // From IDB_DB, default "gha"
+	IDBUser             string          // From IDB_USER, default "gha_admin"
+	IDBPass             string          // From IDB_PASS, default "password"
+	IDBMaxBatchPoints   int             // From IDB_MAXBATCHPONTS, all Influx related tools, default 10240 (10k)
+	QOut                bool            // From GHA2DB_QOUT output all SQL queries?, default false
+	CtxOut              bool            // From GHA2DB_CTXOUT output all context data (this struct), default false
+	LogTime             bool            // From GHA2DB_SKIPTIME, output time with all lib.Printf(...) calls, default true, use GHA2DB_SKIPTIME to disable
+	DefaultStartDate    time.Time       // From GHA2DB_STARTDT, default `2014-01-01 00:00 UTC`, expects format "YYYY-MM-DD HH:MI:SS", can be set in `projects.yaml` via `start_date:`, value from projects.yaml (if set) has the highest priority.
+	ForceStartDate      bool            // From GHA2DB_STARTDT_FORCE, default false
+	LastSeries          string          // From GHA2DB_LASTSERIES, use this InfluxDB series to determine last timestamp date, default "events_h"
+	SkipIDB             bool            // From GHA2DB_SKIPIDB gha2db_sync tool, skip Influx DB processing? for db2influx it skips final series write, default false
+	SkipPDB             bool            // From GHA2DB_SKIPPDB gha2db_sync tool, skip Postgres DB processing? default false
+	ResetIDB            bool            // From GHA2DB_RESETIDB sync tool, regenerate all InfluxDB points? default false
+	ResetRanges         bool            // From GHA2DB_RESETRANGES sync tool, regenerate all past quick ranges? default false
+	Explain             bool            // From GHA2DB_EXPLAIN runq tool, prefix query with "explain " - it will display query plan instead of executing real query, default false
+	OldFormat           bool            // From GHA2DB_OLDFMT gha2db tool, if set then use pre 2015 GHA JSONs format
 	Exact               bool            // From GHA2DB_EXACT gha2db tool, if set then orgs list provided from commandline is used as a list of exact repository full names, like "a/b,c/d,e", if not only full names "a/b,x/y" can be treated like this, names without "/" are either orgs or repos.
 	LogToDB             bool            // From GHA2DB_SKIPLOG all tools, if set, DB logging into Postgres table `gha_logs` in `devstats` database will be disabled
 	Local               bool            // From GHA2DB_LOCAL gha2db_sync tool, if set, gha2_db will call other tools prefixed with "./" to use local compile ones. Otherwise it will call binaries without prefix (so it will use thos ein /usr/bin/).
@@ -93,7 +94,10 @@ type Ctx struct {
 	IDBDrop             bool            // From GHA2DB_IDB_DROP_SERIES all Influx related tools, if set "drop " series statement will be executed before adding new data, it is sometimes very very very slow on Influx v1.5.1
 	IDBDropProbN        int             // From GHA2DB_IDB_DROP_PROB_N, 1/N chance to drop sries, if <= 0 then never drop, default 20
 	CSVFile             string          // From GHA2DB_CSVOUT, runq tool, if set, saves result in this file
-	ComputeAll          bool            // FROM GHA2DB_COMPUTE_ALL, all tools, if set then no period decisions are taken based on time, but all possible periods are recalculated
+	ComputeAll          bool            // From GHA2DB_COMPUTE_ALL, all tools, if set then no period decisions are taken based on time, but all possible periods are recalculated
+	ActorsFilter        bool            // From GHA2DB_ACTORS_FILTER gha2db tool, if enabled then actor filterning will be added, default false
+	ActorsAllow         *regexp.Regexp  // From GHA2DB_ACTORS_ALLOW, gha2db tool, process JSON if actor matches this regexp, default ""
+	ActorsForbid        *regexp.Regexp  // From GHA2DB_ACTORS_FORBID, gha2db tool, process JSON if actor matches this regexp, default ""
 }
 
 // Init - get context from environment variables
@@ -469,6 +473,19 @@ func (ctx *Ctx) Init() {
 
 	// Calculate all periods?
 	ctx.ComputeAll = os.Getenv("GHA2DB_COMPUTE_ALL") != ""
+
+	// Actor filtering?
+	ctx.ActorsFilter = os.Getenv("GHA2DB_ACTORS_FILTER") != ""
+	if ctx.ActorsFilter {
+		actorsAllow := os.Getenv("GHA2DB_ACTORS_ALLOW")
+		if actorsAllow != "" {
+			ctx.ActorsAllow = regexp.MustCompile(actorsAllow)
+		}
+		actorsForbid := os.Getenv("GHA2DB_ACTORS_FORBID")
+		if actorsForbid != "" {
+			ctx.ActorsForbid = regexp.MustCompile(actorsForbid)
+		}
+	}
 
 	// `merge_pdbs` tool - input DBs and output DB
 	dbs := os.Getenv("GHA2DB_INPUT_DBS")
