@@ -143,7 +143,7 @@ where
 group by
   r.repo_group
 union select 'gh_stats_repo_groups_pr_commenters,' || r.repo_group as repo_group,
-  round(count(distinct i.dup_actor_id) / {{n}}, 2) as metric
+  count(distinct i.dup_actor_id) as metric
 from
   gha_issues i,
   gha_repos r
@@ -173,7 +173,7 @@ where
 group by
   r.repo_group
 union select 'gh_stats_repo_groups_issue_commenters,' || r.repo_group as repo_group,
-  round(count(distinct i.dup_actor_id) / {{n}}, 2) as metric
+  count(distinct i.dup_actor_id) as metric
 from
   gha_issues i,
   gha_repos r
