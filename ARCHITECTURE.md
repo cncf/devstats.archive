@@ -133,6 +133,8 @@ We're getting all possible GitHub data for all objects, and all objects historic
 - `idb_vars` is used to add special variables (tags) to Influx database, see [here](https://github.com/cncf/devstats/blob/master/docs/vars.md) for more info.
 - [pdb_vars](https://github.com/cncf/devstats/blob/master/cmd/pdb_vars/pdb_vars.go)
 - `pdb_vars` is used to add special variables (tags) to Influx database, see [here](https://github.com/cncf/devstats/blob/master/docs/vars.md) for more info.
+- [sqlitedb](https://github.com/cncf/devstats/blob/master/cmd/sqlitedb/sqlitedb.go)
+- `sqlitedb` is used to manipulate Grafana's SQLite database, see [here](https://github.com/cncf/devstats/blob/master/SQLITE.md) for more info.
 
 # Database structure details
 

@@ -11,6 +11,7 @@ then
 else
   all=$ONLY
 fi
+mkdir sqlite 1>/dev/null 2>/dev/null
 for proj in $all
 do
     db=$proj
