@@ -600,6 +600,12 @@ func main() {
 	ctx.Init()
 	if !ctx.SkipGetRepos {
 		dbs, repos := getRepos(&ctx)
+		if len(dbs) == 0 {
+			lib.Fatalf("No databases to process")
+		}
+		if len(repos) == 0 {
+			lib.Fatalf("No repos to process")
+		}
 		if ctx.ProcessRepos {
 			processRepos(&ctx, repos)
 		}
