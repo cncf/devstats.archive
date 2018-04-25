@@ -1,24 +1,4 @@
 {
-  "__requires": [
-    {
-      "id": "grafana",
-      "name": "Grafana",
-      "type": "grafana",
-      "version": "5.0.0-beta1"
-    },
-    {
-      "id": "graph",
-      "name": "Graph",
-      "type": "panel",
-      "version": ""
-    },
-    {
-      "id": "influxdb",
-      "name": "InfluxDB",
-      "type": "datasource",
-      "version": "1.0.0"
-    }
-  ],
   "annotations": {
     "list": [
       {
@@ -27,7 +7,9 @@
         "enable": true,
         "hide": true,
         "iconColor": "rgba(0, 211, 255, 1)",
+        "limit": 100,
         "name": "Annotations \u0026 Alerts",
+        "showIn": 0,
         "type": "dashboard"
       },
       {
@@ -49,26 +31,26 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": null,
-  "iteration": 1.517988107676e+12,
+  "id": 126,
+  "iteration": 1523003418675,
   "links": [],
   "panels": [
     {
       "aliasColors": {},
-      "bars": true,
+      "bars": false,
       "dashLength": 10,
       "dashes": false,
       "datasource": "gha",
       "decimals": 2,
-      "description": "Show Issues opened/closed for given SIG and Kind",
-      "fill": 1,
+      "description": "Measures company [[metric]]. Independent means developers working on their own.",
+      "fill": 6,
       "gridPos": {
-        "h": 18,
+        "h": 17,
         "w": 24,
         "x": 0,
         "y": 0
       },
-      "id": 3,
+      "id": 1,
       "legend": {
         "alignAsTable": true,
         "avg": true,
@@ -77,57 +59,45 @@
         "hideZero": false,
         "max": true,
         "min": true,
-        "rightSide": false,
+        "rightSide": true,
         "show": true,
+        "sideWidth": null,
         "sort": "avg",
         "sortDesc": true,
-        "total": true,
+        "total": false,
         "values": true
       },
-      "lines": false,
-      "linewidth": 1,
+      "lines": true,
+      "linewidth": 0,
       "links": [],
       "nullPointMode": "null as zero",
       "percentage": false,
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
-      "seriesOverrides": [],
+      "seriesOverrides": [
+        {
+          "alias": "All",
+          "bars": false,
+          "fill": 0,
+          "lines": true,
+          "linewidth": 1,
+          "stack": false,
+          "yaxis": 2
+        }
+      ],
       "spaceLength": 10,
       "stack": true,
       "steppedLine": false,
       "targets": [
         {
-          "alias": "Issues opened",
+          "alias": "$col",
           "dsType": "influxdb",
           "groupBy": [],
           "measurement": "sig_federation_d",
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "SELECT /^[[sig]]-[[kind]]$/ FROM \"sig_mentions_labels_sig_kind_[[period]]\" WHERE $timeFilter",
-          "rawQuery": true,
-          "refId": "A",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              }
-            ]
-          ],
-          "tags": []
-        },
-        {
-          "alias": "Issues closed",
-          "dsType": "influxdb",
-          "groupBy": [],
-          "measurement": "sig_federation_d",
-          "orderByTime": "ASC",
-          "policy": "default",
-          "query": "SELECT /^[[sig]]-[[kind]]$/ FROM \"issues_closed_labels_sig_kind_[[period]]\" WHERE $timeFilter",
+          "query": "SELECT /^[[companies]]$/ FROM \"company_[[repogroup]]_[[metric]]_[[period]]\" WHERE $timeFilter",
           "rawQuery": true,
           "refId": "B",
           "resultFormat": "time_series",
@@ -147,7 +117,7 @@
       "thresholds": [],
       "timeFrom": null,
       "timeShift": null,
-      "title": "Issues SIG: [[sig]] Kind: [[kind]] ([[period]])",
+      "title": "Companies [[metric]] metric ([[repogroup_name]], [[period]])",
       "tooltip": {
         "shared": true,
         "sort": 2,
@@ -160,38 +130,143 @@
         "mode": "time",
         "name": null,
         "show": true,
-        "values": [
-          "total"
-        ]
+        "values": []
       },
       "yaxes": [
         {
           "format": "short",
-          "label": "Issues",
+          "label": "Per company",
           "logBase": 1,
           "max": null,
           "min": "0",
           "show": true
         },
         {
+          "decimals": null,
           "format": "short",
-          "label": "",
+          "label": "All",
           "logBase": 1,
           "max": null,
           "min": "0",
           "show": true
         }
       ]
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "gha",
+      "decimals": 2,
+      "description": "Measures company [[metric]]. Independent means developers working on their own.",
+      "fill": 6,
+      "gridPos": {
+        "h": 16,
+        "w": 24,
+        "x": 0,
+        "y": 17
+      },
+      "id": 2,
+      "legend": {
+        "alignAsTable": true,
+        "avg": true,
+        "current": true,
+        "hideEmpty": false,
+        "hideZero": false,
+        "max": true,
+        "min": true,
+        "rightSide": true,
+        "show": true,
+        "sideWidth": null,
+        "sort": "avg",
+        "sortDesc": true,
+        "total": false,
+        "values": true
+      },
+      "lines": true,
+      "linewidth": 0,
+      "links": [],
+      "nullPointMode": "null as zero",
+      "percentage": true,
+      "pointradius": 5,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": true,
+      "steppedLine": false,
+      "targets": [
+        {
+          "alias": "$col",
+          "dsType": "influxdb",
+          "groupBy": [],
+          "measurement": "sig_federation_d",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "SELECT /^[[companies]]$/ FROM \"company_[[repogroup]]_[[metric]]_[[period]]\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "B",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              }
+            ]
+          ],
+          "tags": []
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Companies [[metric]] metric ([[repogroup_name]], [[period]])",
+      "tooltip": {
+        "shared": true,
+        "sort": 2,
+        "value_type": "individual"
+      },
+      "transparent": true,
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "format": "short",
+          "label": "",
+          "logBase": 1,
+          "max": "100",
+          "min": "0",
+          "show": true
+        },
+        {
+          "decimals": null,
+          "format": "short",
+          "label": "",
+          "logBase": 1,
+          "max": "100",
+          "min": "0",
+          "show": true
+        }
+      ]
     }
   ],
-  "refresh": false,
   "schemaVersion": 16,
   "style": "dark",
   "tags": [
+    "companies",
     "dashboard",
     "kubernetes",
-    "issues",
-    "SIGs"
+    "repogroups"
   ],
   "templating": {
     "list": [
@@ -243,36 +318,76 @@
         "type": "custom"
       },
       {
-        "allValue": "",
-        "current": {},
-        "datasource": "gha",
+        "allValue": null,
+        "current": {
+          "tags": [],
+          "text": "All activity",
+          "value": "activity"
+        },
         "hide": 0,
         "includeAll": false,
-        "label": "SIG",
+        "label": "Metric",
         "multi": false,
-        "name": "sig",
-        "options": [],
-        "query": "SHOW TAG VALUES WITH KEY = sig_mentions_labels_name_with_all",
-        "refresh": 1,
-        "regex": "",
-        "sort": 0,
-        "tagValuesQuery": "",
-        "tags": [],
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false
+        "name": "metric",
+        "options": [
+          {
+            "selected": true,
+            "text": "All activity",
+            "value": "activity"
+          },
+          {
+            "selected": false,
+            "text": "Active authors",
+            "value": "authors"
+          },
+          {
+            "selected": false,
+            "text": "Issues created",
+            "value": "issues"
+          },
+          {
+            "selected": false,
+            "text": "Pull requests created",
+            "value": "prs"
+          },
+          {
+            "selected": false,
+            "text": "Commits made",
+            "value": "commits"
+          },
+          {
+            "selected": false,
+            "text": "Contributions",
+            "value": "contributions"
+          },
+          {
+            "selected": false,
+            "text": "Contributors",
+            "value": "contributors"
+          },
+          {
+            "selected": false,
+            "text": "Added comments",
+            "value": "comments"
+          }
+        ],
+        "query": "activity,authors,issues,prs,commits,comments",
+        "type": "custom"
       },
       {
-        "allValue": "",
-        "current": {},
+        "allValue": null,
+        "current": {
+          "text": "All",
+          "value": "All"
+        },
         "datasource": "gha",
         "hide": 0,
         "includeAll": false,
-        "label": "Kind",
+        "label": "Repository group",
         "multi": false,
-        "name": "kind",
+        "name": "repogroup_name",
         "options": [],
-        "query": "SHOW TAG VALUES WITH KEY = sig_mentions_labels_kind_name_with_all",
+        "query": "SHOW TAG VALUES WITH KEY = all_repo_group_name",
         "refresh": 1,
         "regex": "",
         "sort": 0,
@@ -284,7 +399,56 @@
       },
       {
         "allValue": null,
-        "current": {},
+        "current": {
+          "text": "all",
+          "value": "all"
+        },
+        "datasource": "gha",
+        "hide": 2,
+        "includeAll": false,
+        "label": "",
+        "multi": false,
+        "name": "repogroup",
+        "options": [],
+        "query": "SHOW TAG VALUES WITH KEY = all_repo_group_value where all_repo_group_name =~ /^[[repogroup_name]]$/",
+        "refresh": 1,
+        "regex": "",
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": "",
+        "current": {
+          "text": "All",
+          "value": "$__all"
+        },
+        "datasource": "gha",
+        "hide": 0,
+        "includeAll": true,
+        "label": "Companies",
+        "multi": true,
+        "name": "companies",
+        "options": [],
+        "query": "SHOW TAG VALUES WITH KEY = companies_name",
+        "refresh": 1,
+        "regex": "",
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "text": "Kubernetes",
+          "value": "Kubernetes"
+        },
         "datasource": "gha",
         "hide": 2,
         "includeAll": false,
@@ -305,7 +469,7 @@
     ]
   },
   "time": {
-    "from": "now-3y",
+    "from": "now-2y",
     "to": "now"
   },
   "timepicker": {
@@ -334,7 +498,7 @@
     ]
   },
   "timezone": "",
-  "title": "Issues Opened/Closed by SIG",
-  "uid": "39",
-  "version": 1
+  "title": "Company Statistics by Repository Group",
+  "uid": "8",
+  "version": 3
 }

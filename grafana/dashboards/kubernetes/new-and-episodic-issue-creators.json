@@ -29,8 +29,8 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 113,
-  "iteration": 1.523003843011e+12,
+  "id": 116,
+  "iteration": 1523003772282,
   "links": [],
   "panels": [
     {
@@ -39,20 +39,22 @@
       "dashLength": 10,
       "dashes": false,
       "datasource": "gha",
-      "decimals": 2,
-      "description": "Median, 15th and 85th percentile of number of hours from open to merging for PR",
-      "fill": 0,
+      "decimals": 0,
+      "description": "Displays the number of new/episodic issues and the number of new/episodic issues authors.\nThe episodic author is defined as someone who hasn't created issue in the last 3 months and no more than 12 issues overall.",
+      "fill": 1,
       "gridPos": {
-        "h": 13,
+        "h": 22,
         "w": 24,
         "x": 0,
         "y": 0
       },
-      "id": 2,
+      "id": 1,
       "legend": {
-        "alignAsTable": true,
+        "alignAsTable": false,
         "avg": true,
         "current": true,
+        "hideEmpty": false,
+        "hideZero": false,
         "max": true,
         "min": true,
         "rightSide": false,
@@ -65,12 +67,16 @@
       "links": [],
       "nullPointMode": "null",
       "percentage": false,
-      "pointradius": 5,
+      "pointradius": 1,
       "points": false,
       "renderer": "flot",
       "seriesOverrides": [
         {
-          "alias": "15th percentile time opened to merged (in hours)",
+          "alias": "New issue creators",
+          "yaxis": 2
+        },
+        {
+          "alias": "Episodic issue creators",
           "yaxis": 2
         }
       ],
@@ -79,12 +85,14 @@
       "steppedLine": false,
       "targets": [
         {
-          "alias": "85th percentile time opened to merged (in hours)",
+          "alias": "Number of issues from new contributors",
           "dsType": "influxdb",
           "groupBy": [],
+          "hide": false,
+          "measurement": "reviewers_d",
           "orderByTime": "ASC",
-          "policy": "default",
-          "query": "SELECT \"value\" FROM \"opened_to_merged_[[repogroup]]_percentile_85_[[period]]\" WHERE $timeFilter",
+          "policy": "autogen",
+          "query": "SELECT \"value\" FROM \"new_issues_[[repogroup]]_issues_[[period]]\" WHERE $timeFilter",
           "rawQuery": true,
           "refId": "A",
           "resultFormat": "time_series",
@@ -101,12 +109,14 @@
           "tags": []
         },
         {
-          "alias": "Median time opened to merged (in hours)",
+          "alias": "New issue creators",
           "dsType": "influxdb",
           "groupBy": [],
+          "hide": false,
+          "measurement": "reviewers_d",
           "orderByTime": "ASC",
-          "policy": "default",
-          "query": "SELECT \"value\" FROM \"opened_to_merged_[[repogroup]]_median_[[period]]\" WHERE $timeFilter",
+          "policy": "autogen",
+          "query": "SELECT \"value\" FROM \"new_issues_[[repogroup]]_contributors_[[period]]\" WHERE $timeFilter",
           "rawQuery": true,
           "refId": "B",
           "resultFormat": "time_series",
@@ -123,14 +133,40 @@
           "tags": []
         },
         {
-          "alias": "15th percentile time opened to merged (in hours)",
+          "alias": "Number of issues from episodic contributors",
           "dsType": "influxdb",
           "groupBy": [],
+          "hide": false,
+          "measurement": "reviewers_d",
           "orderByTime": "ASC",
-          "policy": "default",
-          "query": "SELECT \"value\" FROM \"opened_to_merged_[[repogroup]]_percentile_15_[[period]]\" WHERE $timeFilter",
+          "policy": "autogen",
+          "query": "SELECT \"value\" FROM \"episodic_issues_[[repogroup]]_issues_[[period]]\" WHERE $timeFilter",
           "rawQuery": true,
           "refId": "C",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "Episodic issue creators",
+          "dsType": "influxdb",
+          "groupBy": [],
+          "hide": false,
+          "measurement": "reviewers_d",
+          "orderByTime": "ASC",
+          "policy": "autogen",
+          "query": "SELECT \"value\" FROM \"episodic_issues_[[repogroup]]_contributors_[[period]]\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "D",
           "resultFormat": "time_series",
           "select": [
             [
@@ -148,210 +184,50 @@
       "thresholds": [],
       "timeFrom": null,
       "timeShift": null,
-      "title": "Time from open to merge ([[repogroup_name]], [[period]])",
+      "title": "New/episodic issues ([[repogroup_name]], [[period]])",
       "tooltip": {
         "shared": true,
         "sort": 0,
         "value_type": "individual"
       },
+      "transparent": true,
       "type": "graph",
       "xaxis": {
         "buckets": null,
         "mode": "time",
         "name": null,
         "show": true,
-        "values": []
+        "values": [
+          "total"
+        ]
       },
       "yaxes": [
         {
-          "format": "h",
-          "label": "Opened to merged (median \u0026 85th percentile)",
+          "format": "none",
+          "label": "Issues",
           "logBase": 1,
           "max": null,
           "min": "0",
           "show": true
         },
         {
-          "format": "short",
-          "label": "Opened to merged (15th percentile)",
+          "format": "none",
+          "label": "Issue creators",
           "logBase": 1,
           "max": null,
           "min": "0",
           "show": true
         }
       ]
-    },
-    {
-      "columns": [],
-      "datasource": "gha",
-      "description": "Time PRs from open to merge",
-      "fontSize": "90%",
-      "gridPos": {
-        "h": 11,
-        "w": 24,
-        "x": 0,
-        "y": 13
-      },
-      "id": 3,
-      "links": [],
-      "pageSize": 10,
-      "scroll": true,
-      "showHeader": true,
-      "sort": {
-        "col": 0,
-        "desc": true
-      },
-      "styles": [
-        {
-          "alias": "Time",
-          "dateFormat": "MM/DD/YYYY",
-          "pattern": "Time",
-          "type": "date"
-        },
-        {
-          "alias": "",
-          "colorMode": null,
-          "colors": [
-            "rgba(245, 54, 54, 0.9)",
-            "rgba(237, 129, 40, 0.89)",
-            "rgba(50, 172, 45, 0.97)"
-          ],
-          "decimals": 2,
-          "pattern": "/.*/",
-          "thresholds": [],
-          "type": "number",
-          "unit": "short"
-        }
-      ],
-      "targets": [
-        {
-          "alias": "15th percentile",
-          "dsType": "influxdb",
-          "groupBy": [
-            {
-              "params": [
-                "$__interval"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
-          "orderByTime": "ASC",
-          "policy": "default",
-          "query": "SELECT \"descr\" FROM \"opened_to_merged_[[repogroup]]_percentile_15_[[period]]\" WHERE $timeFilter",
-          "rawQuery": true,
-          "refId": "A",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": []
-        },
-        {
-          "alias": "Median",
-          "dsType": "influxdb",
-          "groupBy": [
-            {
-              "params": [
-                "$__interval"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
-          "orderByTime": "ASC",
-          "policy": "default",
-          "query": "SELECT \"descr\" FROM \"opened_to_merged_[[repogroup]]_median_[[period]]\" WHERE $timeFilter",
-          "rawQuery": true,
-          "refId": "B",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": []
-        },
-        {
-          "alias": "85th percentile",
-          "dsType": "influxdb",
-          "groupBy": [
-            {
-              "params": [
-                "$__interval"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
-          "orderByTime": "ASC",
-          "policy": "default",
-          "query": "SELECT \"descr\" FROM \"opened_to_merged_[[repogroup]]_percentile_85_[[period]]\" WHERE $timeFilter",
-          "rawQuery": true,
-          "refId": "C",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": []
-        }
-      ],
-      "title": "Time from open to merge ([[repogroup_name]], [[period]])",
-      "transform": "timeseries_to_columns",
-      "type": "table"
     }
   ],
+  "refresh": false,
   "schemaVersion": 16,
   "style": "dark",
   "tags": [
     "dashboard",
     "kubernetes",
+    "issues",
     "repogroups"
   ],
   "templating": {
@@ -360,8 +236,8 @@
         "allValue": null,
         "current": {
           "tags": [],
-          "text": "Week",
-          "value": "w"
+          "text": "Month",
+          "value": "m"
         },
         "hide": 0,
         "includeAll": false,
@@ -370,12 +246,17 @@
         "name": "period",
         "options": [
           {
-            "selected": true,
+            "selected": false,
+            "text": "Day",
+            "value": "d"
+          },
+          {
+            "selected": false,
             "text": "Week",
             "value": "w"
           },
           {
-            "selected": false,
+            "selected": true,
             "text": "Month",
             "value": "m"
           },
@@ -390,14 +271,14 @@
             "value": "y"
           }
         ],
-        "query": "w,m,q,y",
+        "query": "d,w,m,q,y",
         "type": "custom"
       },
       {
         "allValue": null,
         "current": {
-          "text": "Kubernetes",
-          "value": "Kubernetes"
+          "text": "All",
+          "value": "All"
         },
         "datasource": "gha",
         "hide": 0,
@@ -409,7 +290,7 @@
         "query": "SHOW TAG VALUES WITH KEY = all_repo_group_name",
         "refresh": 1,
         "regex": "",
-        "sort": 0,
+        "sort": 1,
         "tagValuesQuery": "",
         "tags": [],
         "tagsQuery": "",
@@ -419,13 +300,13 @@
       {
         "allValue": null,
         "current": {
-          "text": "kubernetes",
-          "value": "kubernetes"
+          "text": "all",
+          "value": "all"
         },
         "datasource": "gha",
         "hide": 2,
         "includeAll": false,
-        "label": "",
+        "label": null,
         "multi": false,
         "name": "repogroup",
         "options": [],
@@ -465,8 +346,8 @@
     ]
   },
   "time": {
-    "from": "now-4y",
-    "to": "now"
+    "from": "now-3y",
+    "to": "now-1M"
   },
   "timepicker": {
     "refresh_intervals": [
@@ -494,7 +375,7 @@
     ]
   },
   "timezone": "",
-  "title": "PR Time to merge",
-  "uid": "21",
-  "version": 3
+  "title": "New And Episodic Issue Creators",
+  "uid": "19",
+  "version": 4
 }

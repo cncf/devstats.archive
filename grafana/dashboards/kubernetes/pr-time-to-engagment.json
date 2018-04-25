@@ -29,8 +29,8 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 117,
-  "iteration": 1.523003740869e+12,
+  "id": 121,
+  "iteration": 1523003619422,
   "links": [],
   "panels": [
     {
@@ -39,22 +39,20 @@
       "dashLength": 10,
       "dashes": false,
       "datasource": "gha",
-      "decimals": 0,
-      "description": "Displays number of new/episodic PRs and number of new/episodic PRs authors.\nThe episodic author is defined as someone who hasn't created PRs in the last 3 months and no more than 12 PRs overall.",
-      "fill": 1,
+      "decimals": 2,
+      "description": "Time before any comments or activities from someone other than the author",
+      "fill": 0,
       "gridPos": {
-        "h": 22,
+        "h": 13,
         "w": 24,
         "x": 0,
         "y": 0
       },
-      "id": 1,
+      "id": 2,
       "legend": {
-        "alignAsTable": false,
+        "alignAsTable": true,
         "avg": true,
         "current": true,
-        "hideEmpty": false,
-        "hideZero": false,
         "max": true,
         "min": true,
         "rightSide": false,
@@ -67,17 +65,12 @@
       "links": [],
       "nullPointMode": "null",
       "percentage": false,
-      "pointradius": 1,
+      "pointradius": 5,
       "points": false,
       "renderer": "flot",
       "seriesOverrides": [
         {
-          "alias": "New contributors",
-          "yaxis": 2
-        },
-        {
-          "alias": "Episodic contributors",
-          "yaxis": 2
+          "alias": "15th percentile time opened to merged (in hours)"
         }
       ],
       "spaceLength": 10,
@@ -85,14 +78,12 @@
       "steppedLine": false,
       "targets": [
         {
-          "alias": "Number of PRs from new contributors",
+          "alias": "85th percentile time",
           "dsType": "influxdb",
           "groupBy": [],
-          "hide": false,
-          "measurement": "reviewers_d",
           "orderByTime": "ASC",
-          "policy": "autogen",
-          "query": "SELECT \"value\" FROM \"new_contributors_[[repogroup]]_prs_[[period]]\" WHERE $timeFilter",
+          "policy": "default",
+          "query": "SELECT \"value\" FROM \"non_author_[[repogroup]]_percentile_85_[[period]]\" WHERE $timeFilter",
           "rawQuery": true,
           "refId": "A",
           "resultFormat": "time_series",
@@ -109,14 +100,12 @@
           "tags": []
         },
         {
-          "alias": "New contributors",
+          "alias": "Median time",
           "dsType": "influxdb",
           "groupBy": [],
-          "hide": false,
-          "measurement": "reviewers_d",
           "orderByTime": "ASC",
-          "policy": "autogen",
-          "query": "SELECT \"value\" FROM \"new_contributors_[[repogroup]]_contributors_[[period]]\" WHERE $timeFilter",
+          "policy": "default",
+          "query": "SELECT \"value\" FROM \"non_author_[[repogroup]]_median_[[period]]\" WHERE $timeFilter",
           "rawQuery": true,
           "refId": "B",
           "resultFormat": "time_series",
@@ -133,40 +122,14 @@
           "tags": []
         },
         {
-          "alias": "Number of PRs from episodic contributors",
+          "alias": "15th percentile",
           "dsType": "influxdb",
           "groupBy": [],
-          "hide": false,
-          "measurement": "reviewers_d",
           "orderByTime": "ASC",
-          "policy": "autogen",
-          "query": "SELECT \"value\" FROM \"episodic_contributors_[[repogroup]]_prs_[[period]]\" WHERE $timeFilter",
+          "policy": "default",
+          "query": "SELECT \"value\" FROM \"non_author_[[repogroup]]_percentile_15_[[period]]\" WHERE $timeFilter",
           "rawQuery": true,
           "refId": "C",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              }
-            ]
-          ],
-          "tags": []
-        },
-        {
-          "alias": "Episodic contributors",
-          "dsType": "influxdb",
-          "groupBy": [],
-          "hide": false,
-          "measurement": "reviewers_d",
-          "orderByTime": "ASC",
-          "policy": "autogen",
-          "query": "SELECT \"value\" FROM \"episodic_contributors_[[repogroup]]_contributors_[[period]]\" WHERE $timeFilter",
-          "rawQuery": true,
-          "refId": "D",
           "resultFormat": "time_series",
           "select": [
             [
@@ -184,50 +147,210 @@
       "thresholds": [],
       "timeFrom": null,
       "timeShift": null,
-      "title": "New/episodic contributors/contributions ([[repogroup_name]], [[period]])",
+      "title": "Time before any comments or activities from someone other than the author ([[repogroup_name]], [[period]])",
       "tooltip": {
         "shared": true,
         "sort": 0,
         "value_type": "individual"
       },
-      "transparent": true,
       "type": "graph",
       "xaxis": {
         "buckets": null,
         "mode": "time",
         "name": null,
         "show": true,
-        "values": [
-          "total"
-        ]
+        "values": []
       },
       "yaxes": [
         {
-          "format": "none",
-          "label": "PRs",
-          "logBase": 1,
+          "format": "h",
+          "label": "",
+          "logBase": 2,
           "max": null,
           "min": "0",
           "show": true
         },
         {
-          "format": "none",
-          "label": "PR authors",
+          "format": "short",
+          "label": "",
           "logBase": 1,
           "max": null,
           "min": "0",
           "show": true
         }
       ]
+    },
+    {
+      "columns": [],
+      "datasource": "gha",
+      "description": "Time to first non-author activity",
+      "fontSize": "90%",
+      "gridPos": {
+        "h": 11,
+        "w": 24,
+        "x": 0,
+        "y": 13
+      },
+      "id": 3,
+      "links": [],
+      "pageSize": 10,
+      "scroll": true,
+      "showHeader": true,
+      "sort": {
+        "col": 0,
+        "desc": true
+      },
+      "styles": [
+        {
+          "alias": "Time",
+          "dateFormat": "MM/DD/YYYY",
+          "pattern": "Time",
+          "type": "date"
+        },
+        {
+          "alias": "",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "decimals": 2,
+          "pattern": "/.*/",
+          "thresholds": [],
+          "type": "number",
+          "unit": "short"
+        }
+      ],
+      "targets": [
+        {
+          "alias": "15th percentile",
+          "dsType": "influxdb",
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "SELECT \"descr\" FROM \"non_author_[[repogroup]]_percentile_15_[[period]]\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "A",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "Median",
+          "dsType": "influxdb",
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "SELECT \"descr\" FROM \"non_author_[[repogroup]]_median_[[period]]\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "B",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "85th percentile",
+          "dsType": "influxdb",
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "SELECT \"descr\" FROM \"non_author_[[repogroup]]_percentile_85_[[period]]\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "C",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        }
+      ],
+      "title": "Time to first non-author activity ([[repogroup]], [[period]])",
+      "transform": "timeseries_to_columns",
+      "type": "table"
     }
   ],
-  "refresh": false,
   "schemaVersion": 16,
   "style": "dark",
   "tags": [
     "dashboard",
     "kubernetes",
-    "PRs",
     "repogroups"
   ],
   "templating": {
@@ -236,8 +359,8 @@
         "allValue": null,
         "current": {
           "tags": [],
-          "text": "Month",
-          "value": "m"
+          "text": "Week",
+          "value": "w"
         },
         "hide": 0,
         "includeAll": false,
@@ -246,17 +369,12 @@
         "name": "period",
         "options": [
           {
-            "selected": false,
-            "text": "Day",
-            "value": "d"
-          },
-          {
-            "selected": false,
+            "selected": true,
             "text": "Week",
             "value": "w"
           },
           {
-            "selected": true,
+            "selected": false,
             "text": "Month",
             "value": "m"
           },
@@ -271,7 +389,7 @@
             "value": "y"
           }
         ],
-        "query": "d,w,m,q,y",
+        "query": "w,m,q,y",
         "type": "custom"
       },
       {
@@ -290,7 +408,7 @@
         "query": "SHOW TAG VALUES WITH KEY = all_repo_group_name",
         "refresh": 1,
         "regex": "",
-        "sort": 1,
+        "sort": 0,
         "tagValuesQuery": "",
         "tags": [],
         "tagsQuery": "",
@@ -306,7 +424,7 @@
         "datasource": "gha",
         "hide": 2,
         "includeAll": false,
-        "label": null,
+        "label": "",
         "multi": false,
         "name": "repogroup",
         "options": [],
@@ -346,8 +464,8 @@
     ]
   },
   "time": {
-    "from": "now-3y",
-    "to": "now-1M"
+    "from": "now-2y",
+    "to": "now-2w"
   },
   "timepicker": {
     "refresh_intervals": [
@@ -375,7 +493,7 @@
     ]
   },
   "timezone": "",
-  "title": "New and Episodic PR Contributors",
-  "uid": "18",
+  "title": "PR Time to Engagment",
+  "uid": "14",
   "version": 3
 }

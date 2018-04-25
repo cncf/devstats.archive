@@ -15,15 +15,15 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 110,
-  "iteration": 1.523003907003e+12,
+  "id": 109,
+  "iteration": 1523003940178,
   "links": [],
   "panels": [
     {
       "columns": [],
       "datasource": "gha",
-      "description": "PR workloads (Range: [[period_name]])",
-      "fontSize": "80%",
+      "description": "",
+      "fontSize": "90%",
       "gridPos": {
         "h": 22,
         "w": 24,
@@ -33,11 +33,11 @@
       "hideTimeOverride": true,
       "id": 1,
       "links": [],
-      "pageSize": 1000,
+      "pageSize": 20,
       "scroll": true,
       "showHeader": true,
       "sort": {
-        "col": 5,
+        "col": 0,
         "desc": true
       },
       "styles": [
@@ -49,63 +49,24 @@
           "type": "hidden"
         },
         {
-          "alias": "",
-          "colorMode": "value",
+          "alias": "Metric name",
+          "colorMode": null,
           "colors": [
-            "rgba(50, 172, 45, 0.97)",
+            "rgba(245, 54, 54, 0.9)",
             "rgba(237, 129, 40, 0.89)",
-            "rgba(245, 54, 54, 0.9)"
-          ],
-          "dateFormat": "YYYY-MM-DD HH:mm:ss",
-          "decimals": 0,
-          "pattern": "Number of PRs",
-          "preserveFormat": false,
-          "thresholds": [
-            "10",
-            "100"
-          ],
-          "type": "number",
-          "unit": "none"
-        },
-        {
-          "alias": "",
-          "colorMode": "value",
-          "colors": [
-            "rgba(50, 172, 45, 0.97)",
-            "rgba(237, 129, 40, 0.89)",
-            "rgba(245, 54, 54, 0.9)"
-          ],
-          "dateFormat": "YYYY-MM-DD HH:mm:ss",
-          "decimals": 0,
-          "pattern": "Absolute PR workload",
-          "thresholds": [
-            "10",
-            "100"
-          ],
-          "type": "number",
-          "unit": "none"
-        },
-        {
-          "alias": "",
-          "colorMode": "value",
-          "colors": [
-            "rgba(50, 172, 45, 0.97)",
-            "rgba(237, 129, 40, 0.89)",
-            "rgba(245, 54, 54, 0.9)"
+            "rgba(50, 172, 45, 0.97)"
           ],
           "dateFormat": "YYYY-MM-DD HH:mm:ss",
           "decimals": 2,
-          "pattern": "Relative PR workload",
-          "thresholds": [
-            "5",
-            "10"
-          ],
-          "type": "number",
-          "unit": "none"
+          "pattern": "name",
+          "preserveFormat": false,
+          "thresholds": [],
+          "type": "string",
+          "unit": "short"
         },
         {
-          "alias": "",
-          "colorMode": "value",
+          "alias": "Metric value",
+          "colorMode": null,
           "colors": [
             "rgba(245, 54, 54, 0.9)",
             "rgba(237, 129, 40, 0.89)",
@@ -113,11 +74,8 @@
           ],
           "dateFormat": "YYYY-MM-DD HH:mm:ss",
           "decimals": 0,
-          "pattern": "Number of Reviewers",
-          "thresholds": [
-            "10",
-            "30"
-          ],
+          "pattern": "value",
+          "thresholds": [],
           "type": "number",
           "unit": "none"
         },
@@ -155,7 +113,7 @@
           ],
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select \"sig\" as SIG, \"issues\" as \"Number of PRs\", \"reviewers\" as \"Number of Reviewers\", \"absolute_workload\" as \"Absolute PR workload\", \"relative_workload\" as \"Relative PR workload\" FROM \"pr_workload_sigs_[[period]]\" WHERE $timeFilter",
+          "query": "SELECT \"name\", \"value\" FROM \"project_stats_[[repogroup]]_[[period]]\" WHERE $timeFilter",
           "rawQuery": true,
           "refId": "A",
           "resultFormat": "table",
@@ -176,7 +134,7 @@
           "tags": []
         }
       ],
-      "title": "PR workloads (Range: [[period_name]])",
+      "title": "[[full_name]] Project statistics (Repository group [[repogroup_name]], Range: [[period_name]]), bots excluded",
       "transform": "table",
       "transparent": false,
       "type": "table"
@@ -188,17 +146,15 @@
   "tags": [
     "dashboard",
     "kubernetes",
-    "table",
-    "PRs",
-    "SIGs"
+    "table"
   ],
   "templating": {
     "list": [
       {
         "allValue": null,
         "current": {
-          "text": "Last month",
-          "value": "Last month"
+          "text": "Last decade",
+          "value": "Last decade"
         },
         "datasource": "gha",
         "hide": 0,
@@ -220,8 +176,8 @@
       {
         "allValue": null,
         "current": {
-          "text": "m",
-          "value": "m"
+          "text": "y10",
+          "value": "y10"
         },
         "datasource": "gha",
         "hide": 2,
@@ -231,6 +187,75 @@
         "name": "period",
         "options": [],
         "query": "SHOW TAG VALUES WITH KEY = quick_ranges_suffix where quick_ranges_name =~ /^[[period_name]]$/",
+        "refresh": 1,
+        "regex": "",
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "text": "All",
+          "value": "All"
+        },
+        "datasource": "gha",
+        "hide": 0,
+        "includeAll": false,
+        "label": "Repository group",
+        "multi": false,
+        "name": "repogroup_name",
+        "options": [],
+        "query": "SHOW TAG VALUES WITH KEY = all_repo_group_name",
+        "refresh": 1,
+        "regex": "",
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "text": "all",
+          "value": "all"
+        },
+        "datasource": "gha",
+        "hide": 2,
+        "includeAll": false,
+        "label": "",
+        "multi": false,
+        "name": "repogroup",
+        "options": [],
+        "query": "SHOW TAG VALUES WITH KEY = all_repo_group_value where all_repo_group_name =~ /^[[repogroup_name]]$/",
+        "refresh": 1,
+        "regex": "",
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "text": "Kubernetes",
+          "value": "Kubernetes"
+        },
+        "datasource": "gha",
+        "hide": 2,
+        "includeAll": false,
+        "label": null,
+        "multi": false,
+        "name": "full_name",
+        "options": [],
+        "query": "SHOW TAG VALUES WITH KEY = full_name",
         "refresh": 1,
         "regex": "",
         "sort": 0,
@@ -273,7 +298,7 @@
     ]
   },
   "timezone": "",
-  "title": "PR Workload per SIG Table",
-  "uid": "34",
-  "version": 8
+  "title": "Overall Project Statistics",
+  "uid": "24",
+  "version": 3
 }
