@@ -1,4 +1,24 @@
 {
+  "__requires": [
+    {
+      "id": "grafana",
+      "name": "Grafana",
+      "type": "grafana",
+      "version": "5.0.0-beta1"
+    },
+    {
+      "id": "graph",
+      "name": "Graph",
+      "type": "panel",
+      "version": ""
+    },
+    {
+      "id": "influxdb",
+      "name": "InfluxDB",
+      "type": "datasource",
+      "version": "1.0.0"
+    }
+  ],
   "annotations": {
     "list": [
       {
@@ -29,8 +49,8 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 135,
-  "iteration": 1.523004849409e+12,
+  "id": null,
+  "iteration": 1517988107676,
   "links": [],
   "panels": [
     {
@@ -39,17 +59,16 @@
       "dashLength": 10,
       "dashes": false,
       "datasource": "gha",
-      "decimals": null,
-      "description": "Shows review counts for given users and repository.",
+      "decimals": 2,
+      "description": "Show Issues opened/closed for given SIG and Kind",
       "fill": 1,
       "gridPos": {
-        "h": 22,
+        "h": 18,
         "w": 24,
         "x": 0,
         "y": 0
       },
-      "hideTimeOverride": false,
-      "id": 1,
+      "id": 3,
       "legend": {
         "alignAsTable": true,
         "avg": true,
@@ -58,9 +77,8 @@
         "hideZero": false,
         "max": true,
         "min": true,
-        "rightSide": true,
+        "rightSide": false,
         "show": true,
-        "sideWidth": null,
         "sort": "avg",
         "sortDesc": true,
         "total": true,
@@ -80,13 +98,13 @@
       "steppedLine": false,
       "targets": [
         {
-          "alias": "$col",
+          "alias": "Issues opened",
           "dsType": "influxdb",
           "groupBy": [],
           "measurement": "sig_federation_d",
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "SELECT /^[[reviewers]]$/ FROM \"reviews_per_user_[[repo]]_[[period]]\" WHERE $timeFilter",
+          "query": "SELECT /^[[sig]]-[[kind]]$/ FROM \"sig_mentions_labels_sig_kind_[[period]]\" WHERE $timeFilter",
           "rawQuery": true,
           "refId": "A",
           "resultFormat": "time_series",
@@ -101,103 +119,17 @@
             ]
           ],
           "tags": []
-        }
-      ],
-      "thresholds": [],
-      "timeFrom": null,
-      "timeShift": null,
-      "title": "Reviews per user/repo ([[repo_name]], [[period]])",
-      "tooltip": {
-        "shared": true,
-        "sort": 2,
-        "value_type": "individual"
-      },
-      "transparent": true,
-      "type": "graph",
-      "xaxis": {
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true,
-        "values": [
-          "total"
-        ]
-      },
-      "yaxes": [
-        {
-          "format": "short",
-          "label": "Number of PR review comments",
-          "logBase": 1,
-          "max": null,
-          "min": "0",
-          "show": true
         },
         {
-          "format": "short",
-          "label": "",
-          "logBase": 1,
-          "max": null,
-          "min": "0",
-          "show": true
-        }
-      ]
-    },
-    {
-      "aliasColors": {},
-      "bars": true,
-      "dashLength": 10,
-      "dashes": false,
-      "datasource": "gha",
-      "decimals": null,
-      "description": "Shows LGTM counts for given users and repository.",
-      "fill": 1,
-      "gridPos": {
-        "h": 22,
-        "w": 24,
-        "x": 0,
-        "y": 22
-      },
-      "hideTimeOverride": false,
-      "id": 2,
-      "legend": {
-        "alignAsTable": true,
-        "avg": true,
-        "current": true,
-        "hideEmpty": false,
-        "hideZero": false,
-        "max": true,
-        "min": true,
-        "rightSide": true,
-        "show": true,
-        "sideWidth": null,
-        "sort": "avg",
-        "sortDesc": true,
-        "total": true,
-        "values": true
-      },
-      "lines": false,
-      "linewidth": 1,
-      "links": [],
-      "nullPointMode": "null as zero",
-      "percentage": false,
-      "pointradius": 5,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [],
-      "spaceLength": 10,
-      "stack": true,
-      "steppedLine": false,
-      "targets": [
-        {
-          "alias": "$col",
+          "alias": "Issues closed",
           "dsType": "influxdb",
           "groupBy": [],
           "measurement": "sig_federation_d",
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "SELECT /^[[reviewers]]$/ FROM \"lgtms_per_user_[[repo]]_[[period]]\" WHERE $timeFilter",
+          "query": "SELECT /^[[sig]]-[[kind]]$/ FROM \"issues_closed_labels_sig_kind_[[period]]\" WHERE $timeFilter",
           "rawQuery": true,
-          "refId": "A",
+          "refId": "B",
           "resultFormat": "time_series",
           "select": [
             [
@@ -215,7 +147,7 @@
       "thresholds": [],
       "timeFrom": null,
       "timeShift": null,
-      "title": "LGTMs per user/repo ([[repo_name]], [[period]])",
+      "title": "Issues SIG: [[sig]] Kind: [[kind]] ([[period]])",
       "tooltip": {
         "shared": true,
         "sort": 2,
@@ -235,7 +167,7 @@
       "yaxes": [
         {
           "format": "short",
-          "label": "Number of LGTMs",
+          "label": "Issues",
           "logBase": 1,
           "max": null,
           "min": "0",
@@ -252,13 +184,14 @@
       ]
     }
   ],
+  "refresh": false,
   "schemaVersion": 16,
   "style": "dark",
   "tags": [
     "dashboard",
     "kubernetes",
-    "reviewing",
-    "repogroups"
+    "issues",
+    "SIGs"
   ],
   "templating": {
     "list": [
@@ -281,14 +214,14 @@
             "value": "d"
           },
           {
-            "selected": false,
-            "text": "Week",
-            "value": "w"
-          },
-          {
             "selected": true,
             "text": "7 Days MA",
             "value": "d7"
+          },
+          {
+            "selected": false,
+            "text": "Week",
+            "value": "w"
           },
           {
             "selected": false,
@@ -306,46 +239,20 @@
             "value": "y"
           }
         ],
-        "query": "d,w,d7,m,q,y",
+        "query": "d,w,m,q,y",
         "type": "custom"
       },
       {
-        "allValue": null,
-        "current": {
-          "text": "All",
-          "value": "All"
-        },
+        "allValue": "",
+        "current": {},
         "datasource": "gha",
         "hide": 0,
         "includeAll": false,
-        "label": "Repository",
+        "label": "SIG",
         "multi": false,
-        "name": "repo_name",
+        "name": "sig",
         "options": [],
-        "query": "SHOW TAG VALUES WITH KEY = top_repos_name_with_all",
-        "refresh": 1,
-        "regex": "",
-        "sort": 0,
-        "tagValuesQuery": "",
-        "tags": [],
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false
-      },
-      {
-        "allValue": null,
-        "current": {
-          "text": "all",
-          "value": "all"
-        },
-        "datasource": "gha",
-        "hide": 2,
-        "includeAll": false,
-        "label": "",
-        "multi": false,
-        "name": "repo",
-        "options": [],
-        "query": "SHOW TAG VALUES WITH KEY = top_repos_value_with_all where top_repos_name_with_all =~ /^[[repo_name]]$/",
+        "query": "SHOW TAG VALUES WITH KEY = sig_mentions_labels_name_with_all",
         "refresh": 1,
         "regex": "",
         "sort": 0,
@@ -357,20 +264,15 @@
       },
       {
         "allValue": "",
-        "current": {
-          "text": "liggitt",
-          "value": [
-            "liggitt"
-          ]
-        },
+        "current": {},
         "datasource": "gha",
         "hide": 0,
         "includeAll": false,
-        "label": "Reviewer",
-        "multi": true,
-        "name": "reviewers",
+        "label": "Kind",
+        "multi": false,
+        "name": "kind",
         "options": [],
-        "query": "SHOW TAG VALUES WITH KEY = reviewers_name",
+        "query": "SHOW TAG VALUES WITH KEY = sig_mentions_labels_kind_name_with_all",
         "refresh": 1,
         "regex": "",
         "sort": 0,
@@ -382,10 +284,7 @@
       },
       {
         "allValue": null,
-        "current": {
-          "text": "Kubernetes",
-          "value": "Kubernetes"
-        },
+        "current": {},
         "datasource": "gha",
         "hide": 2,
         "includeAll": false,
@@ -406,7 +305,7 @@
     ]
   },
   "time": {
-    "from": "now-2y",
+    "from": "now-3y",
     "to": "now"
   },
   "timepicker": {
@@ -435,7 +334,7 @@
     ]
   },
   "timezone": "",
-  "title": "PR Reviews by Contributor",
-  "uid": "46",
-  "version": 11
+  "title": "Issues Opened/Closed by SIG",
+  "uid": "39",
+  "version": 1
 }

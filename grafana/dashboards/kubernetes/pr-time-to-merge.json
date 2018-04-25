@@ -29,8 +29,8 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 127,
-  "iteration": 1.523003351211e+12,
+  "id": 113,
+  "iteration": 1523003843011,
   "links": [],
   "panels": [
     {
@@ -39,22 +39,20 @@
       "dashLength": 10,
       "dashes": false,
       "datasource": "gha",
-      "decimals": 0,
-      "description": "Community stats ([[repo_name]], [[period]])",
+      "decimals": 2,
+      "description": "Median, 15th and 85th percentile of number of hours from open to merging for PR",
       "fill": 0,
       "gridPos": {
-        "h": 22,
+        "h": 13,
         "w": 24,
         "x": 0,
         "y": 0
       },
-      "id": 1,
+      "id": 2,
       "legend": {
-        "alignAsTable": false,
+        "alignAsTable": true,
         "avg": true,
         "current": true,
-        "hideEmpty": false,
-        "hideZero": false,
         "max": true,
         "min": true,
         "rightSide": false,
@@ -67,20 +65,12 @@
       "links": [],
       "nullPointMode": "null",
       "percentage": false,
-      "pointradius": 1,
+      "pointradius": 5,
       "points": false,
       "renderer": "flot",
       "seriesOverrides": [
         {
-          "alias": "Stargazers",
-          "yaxis": 1
-        },
-        {
-          "alias": "Forks",
-          "yaxis": 2
-        },
-        {
-          "alias": "Open issues",
+          "alias": "15th percentile time opened to merged (in hours)",
           "yaxis": 2
         }
       ],
@@ -89,14 +79,12 @@
       "steppedLine": false,
       "targets": [
         {
-          "alias": "Stargazers",
+          "alias": "85th percentile time opened to merged (in hours)",
           "dsType": "influxdb",
           "groupBy": [],
-          "hide": false,
-          "measurement": "reviewers_d",
           "orderByTime": "ASC",
-          "policy": "autogen",
-          "query": "SELECT \"value\" FROM \"autogen\".\"contrib_[[repo]]_watchers_[[period]]\" WHERE $timeFilter",
+          "policy": "default",
+          "query": "SELECT \"value\" FROM \"opened_to_merged_[[repogroup]]_percentile_85_[[period]]\" WHERE $timeFilter",
           "rawQuery": true,
           "refId": "A",
           "resultFormat": "time_series",
@@ -113,14 +101,12 @@
           "tags": []
         },
         {
-          "alias": "Forks",
+          "alias": "Median time opened to merged (in hours)",
           "dsType": "influxdb",
           "groupBy": [],
-          "hide": false,
-          "measurement": "reviewers_d",
           "orderByTime": "ASC",
-          "policy": "autogen",
-          "query": "SELECT \"value\" FROM \"autogen\".\"contrib_[[repo]]_forks_[[period]]\" WHERE $timeFilter",
+          "policy": "default",
+          "query": "SELECT \"value\" FROM \"opened_to_merged_[[repogroup]]_median_[[period]]\" WHERE $timeFilter",
           "rawQuery": true,
           "refId": "B",
           "resultFormat": "time_series",
@@ -137,14 +123,12 @@
           "tags": []
         },
         {
-          "alias": "Open issues",
+          "alias": "15th percentile time opened to merged (in hours)",
           "dsType": "influxdb",
           "groupBy": [],
-          "hide": false,
-          "measurement": "reviewers_d",
           "orderByTime": "ASC",
-          "policy": "autogen",
-          "query": "SELECT \"value\" FROM \"autogen\".\"contrib_[[repo]]_open_issues_[[period]]\" WHERE $timeFilter",
+          "policy": "default",
+          "query": "SELECT \"value\" FROM \"opened_to_merged_[[repogroup]]_percentile_15_[[period]]\" WHERE $timeFilter",
           "rawQuery": true,
           "refId": "C",
           "resultFormat": "time_series",
@@ -164,50 +148,211 @@
       "thresholds": [],
       "timeFrom": null,
       "timeShift": null,
-      "title": "Community stats ([[repo_name]], [[period]])",
+      "title": "Time from open to merge ([[repogroup_name]], [[period]])",
       "tooltip": {
         "shared": true,
-        "sort": 2,
+        "sort": 0,
         "value_type": "individual"
       },
-      "transparent": true,
       "type": "graph",
       "xaxis": {
         "buckets": null,
         "mode": "time",
         "name": null,
         "show": true,
-        "values": [
-          "total"
-        ]
+        "values": []
       },
       "yaxes": [
         {
-          "format": "none",
-          "label": "Stargazers",
+          "format": "h",
+          "label": "Opened to merged (median \u0026 85th percentile)",
           "logBase": 1,
           "max": null,
           "min": "0",
           "show": true
         },
         {
-          "format": "none",
-          "label": "Forks, Open issues",
+          "format": "short",
+          "label": "Opened to merged (15th percentile)",
           "logBase": 1,
           "max": null,
           "min": "0",
           "show": true
         }
       ]
+    },
+    {
+      "columns": [],
+      "datasource": "gha",
+      "description": "Time PRs from open to merge",
+      "fontSize": "90%",
+      "gridPos": {
+        "h": 11,
+        "w": 24,
+        "x": 0,
+        "y": 13
+      },
+      "id": 3,
+      "links": [],
+      "pageSize": 10,
+      "scroll": true,
+      "showHeader": true,
+      "sort": {
+        "col": 0,
+        "desc": true
+      },
+      "styles": [
+        {
+          "alias": "Time",
+          "dateFormat": "MM/DD/YYYY",
+          "pattern": "Time",
+          "type": "date"
+        },
+        {
+          "alias": "",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "decimals": 2,
+          "pattern": "/.*/",
+          "thresholds": [],
+          "type": "number",
+          "unit": "short"
+        }
+      ],
+      "targets": [
+        {
+          "alias": "15th percentile",
+          "dsType": "influxdb",
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "SELECT \"descr\" FROM \"opened_to_merged_[[repogroup]]_percentile_15_[[period]]\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "A",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "Median",
+          "dsType": "influxdb",
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "SELECT \"descr\" FROM \"opened_to_merged_[[repogroup]]_median_[[period]]\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "B",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "85th percentile",
+          "dsType": "influxdb",
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "SELECT \"descr\" FROM \"opened_to_merged_[[repogroup]]_percentile_85_[[period]]\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "C",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        }
+      ],
+      "title": "Time from open to merge ([[repogroup_name]], [[period]])",
+      "transform": "timeseries_to_columns",
+      "type": "table"
     }
   ],
-  "refresh": false,
   "schemaVersion": 16,
   "style": "dark",
   "tags": [
     "dashboard",
     "kubernetes",
-    "repos"
+    "repogroups"
   ],
   "templating": {
     "list": [
@@ -215,8 +360,8 @@
         "allValue": null,
         "current": {
           "tags": [],
-          "text": "7 Days MA",
-          "value": "d7"
+          "text": "Week",
+          "value": "w"
         },
         "hide": 0,
         "includeAll": false,
@@ -225,17 +370,7 @@
         "name": "period",
         "options": [
           {
-            "selected": false,
-            "text": "Day",
-            "value": "d"
-          },
-          {
             "selected": true,
-            "text": "7 Days MA",
-            "value": "d7"
-          },
-          {
-            "selected": false,
             "text": "Week",
             "value": "w"
           },
@@ -255,26 +390,26 @@
             "value": "y"
           }
         ],
-        "query": "d,w,m,q,y",
+        "query": "w,m,q,y",
         "type": "custom"
       },
       {
         "allValue": null,
         "current": {
-          "text": "kubernetes/kubernetes",
-          "value": "kubernetes/kubernetes"
+          "text": "Kubernetes",
+          "value": "Kubernetes"
         },
         "datasource": "gha",
         "hide": 0,
         "includeAll": false,
-        "label": "Repository",
+        "label": "Repository group",
         "multi": false,
-        "name": "repo_name",
+        "name": "repogroup_name",
         "options": [],
-        "query": "SHOW TAG VALUES WITH KEY = top_repo_names_name",
+        "query": "SHOW TAG VALUES WITH KEY = all_repo_group_name",
         "refresh": 1,
         "regex": "",
-        "sort": 1,
+        "sort": 0,
         "tagValuesQuery": "",
         "tags": [],
         "tagsQuery": "",
@@ -284,17 +419,17 @@
       {
         "allValue": null,
         "current": {
-          "text": "kubernetes_kubernetes",
-          "value": "kubernetes_kubernetes"
+          "text": "kubernetes",
+          "value": "kubernetes"
         },
         "datasource": "gha",
         "hide": 2,
         "includeAll": false,
         "label": "",
         "multi": false,
-        "name": "repo",
+        "name": "repogroup",
         "options": [],
-        "query": "SHOW TAG VALUES WITH KEY = top_repo_names_value where top_repo_names_name =~ /^[[repo_name]]$/",
+        "query": "SHOW TAG VALUES WITH KEY = all_repo_group_value where all_repo_group_name =~ /^[[repogroup_name]]$/",
         "refresh": 1,
         "regex": "",
         "sort": 0,
@@ -330,7 +465,7 @@
     ]
   },
   "time": {
-    "from": "now-2y",
+    "from": "now-4y",
     "to": "now"
   },
   "timepicker": {
@@ -359,7 +494,7 @@
     ]
   },
   "timezone": "",
-  "title": "Stars and Forks by Repository",
-  "uid": "7",
-  "version": 5
+  "title": "PR Time to merge",
+  "uid": "21",
+  "version": 3
 }

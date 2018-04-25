@@ -7,9 +7,7 @@
         "enable": true,
         "hide": true,
         "iconColor": "rgba(0, 211, 255, 1)",
-        "limit": 100,
         "name": "Annotations \u0026 Alerts",
-        "showIn": 0,
         "type": "dashboard"
       },
       {
@@ -31,25 +29,26 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 126,
-  "iteration": 1.523003418675e+12,
+  "id": 135,
+  "iteration": 1523004849409,
   "links": [],
   "panels": [
     {
       "aliasColors": {},
-      "bars": false,
+      "bars": true,
       "dashLength": 10,
       "dashes": false,
       "datasource": "gha",
-      "decimals": 2,
-      "description": "Measures company [[metric]]. Independent means developers working on their own.",
-      "fill": 6,
+      "decimals": null,
+      "description": "Shows review counts for given users and repository.",
+      "fill": 1,
       "gridPos": {
-        "h": 17,
+        "h": 22,
         "w": 24,
         "x": 0,
         "y": 0
       },
+      "hideTimeOverride": false,
       "id": 1,
       "legend": {
         "alignAsTable": true,
@@ -64,131 +63,14 @@
         "sideWidth": null,
         "sort": "avg",
         "sortDesc": true,
-        "total": false,
+        "total": true,
         "values": true
       },
-      "lines": true,
-      "linewidth": 0,
+      "lines": false,
+      "linewidth": 1,
       "links": [],
       "nullPointMode": "null as zero",
       "percentage": false,
-      "pointradius": 5,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [
-        {
-          "alias": "All",
-          "bars": false,
-          "fill": 0,
-          "lines": true,
-          "linewidth": 1,
-          "stack": false,
-          "yaxis": 2
-        }
-      ],
-      "spaceLength": 10,
-      "stack": true,
-      "steppedLine": false,
-      "targets": [
-        {
-          "alias": "$col",
-          "dsType": "influxdb",
-          "groupBy": [],
-          "measurement": "sig_federation_d",
-          "orderByTime": "ASC",
-          "policy": "default",
-          "query": "SELECT /^[[companies]]$/ FROM \"company_[[repogroup]]_[[metric]]_[[period]]\" WHERE $timeFilter",
-          "rawQuery": true,
-          "refId": "B",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              }
-            ]
-          ],
-          "tags": []
-        }
-      ],
-      "thresholds": [],
-      "timeFrom": null,
-      "timeShift": null,
-      "title": "Companies [[metric]] metric ([[repogroup_name]], [[period]])",
-      "tooltip": {
-        "shared": true,
-        "sort": 2,
-        "value_type": "individual"
-      },
-      "transparent": true,
-      "type": "graph",
-      "xaxis": {
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true,
-        "values": []
-      },
-      "yaxes": [
-        {
-          "format": "short",
-          "label": "Per company",
-          "logBase": 1,
-          "max": null,
-          "min": "0",
-          "show": true
-        },
-        {
-          "decimals": null,
-          "format": "short",
-          "label": "All",
-          "logBase": 1,
-          "max": null,
-          "min": "0",
-          "show": true
-        }
-      ]
-    },
-    {
-      "aliasColors": {},
-      "bars": false,
-      "dashLength": 10,
-      "dashes": false,
-      "datasource": "gha",
-      "decimals": 2,
-      "description": "Measures company [[metric]]. Independent means developers working on their own.",
-      "fill": 6,
-      "gridPos": {
-        "h": 16,
-        "w": 24,
-        "x": 0,
-        "y": 17
-      },
-      "id": 2,
-      "legend": {
-        "alignAsTable": true,
-        "avg": true,
-        "current": true,
-        "hideEmpty": false,
-        "hideZero": false,
-        "max": true,
-        "min": true,
-        "rightSide": true,
-        "show": true,
-        "sideWidth": null,
-        "sort": "avg",
-        "sortDesc": true,
-        "total": false,
-        "values": true
-      },
-      "lines": true,
-      "linewidth": 0,
-      "links": [],
-      "nullPointMode": "null as zero",
-      "percentage": true,
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
@@ -204,9 +86,9 @@
           "measurement": "sig_federation_d",
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "SELECT /^[[companies]]$/ FROM \"company_[[repogroup]]_[[metric]]_[[period]]\" WHERE $timeFilter",
+          "query": "SELECT /^[[reviewers]]$/ FROM \"reviews_per_user_[[repo]]_[[period]]\" WHERE $timeFilter",
           "rawQuery": true,
-          "refId": "B",
+          "refId": "A",
           "resultFormat": "time_series",
           "select": [
             [
@@ -224,7 +106,7 @@
       "thresholds": [],
       "timeFrom": null,
       "timeShift": null,
-      "title": "Companies [[metric]] metric ([[repogroup_name]], [[period]])",
+      "title": "Reviews per user/repo ([[repo_name]], [[period]])",
       "tooltip": {
         "shared": true,
         "sort": 2,
@@ -237,23 +119,133 @@
         "mode": "time",
         "name": null,
         "show": true,
-        "values": []
+        "values": [
+          "total"
+        ]
       },
       "yaxes": [
         {
           "format": "short",
-          "label": "",
+          "label": "Number of PR review comments",
           "logBase": 1,
-          "max": "100",
+          "max": null,
           "min": "0",
           "show": true
         },
         {
-          "decimals": null,
           "format": "short",
           "label": "",
           "logBase": 1,
-          "max": "100",
+          "max": null,
+          "min": "0",
+          "show": true
+        }
+      ]
+    },
+    {
+      "aliasColors": {},
+      "bars": true,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "gha",
+      "decimals": null,
+      "description": "Shows LGTM counts for given users and repository.",
+      "fill": 1,
+      "gridPos": {
+        "h": 22,
+        "w": 24,
+        "x": 0,
+        "y": 22
+      },
+      "hideTimeOverride": false,
+      "id": 2,
+      "legend": {
+        "alignAsTable": true,
+        "avg": true,
+        "current": true,
+        "hideEmpty": false,
+        "hideZero": false,
+        "max": true,
+        "min": true,
+        "rightSide": true,
+        "show": true,
+        "sideWidth": null,
+        "sort": "avg",
+        "sortDesc": true,
+        "total": true,
+        "values": true
+      },
+      "lines": false,
+      "linewidth": 1,
+      "links": [],
+      "nullPointMode": "null as zero",
+      "percentage": false,
+      "pointradius": 5,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": true,
+      "steppedLine": false,
+      "targets": [
+        {
+          "alias": "$col",
+          "dsType": "influxdb",
+          "groupBy": [],
+          "measurement": "sig_federation_d",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "SELECT /^[[reviewers]]$/ FROM \"lgtms_per_user_[[repo]]_[[period]]\" WHERE $timeFilter",
+          "rawQuery": true,
+          "refId": "A",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              }
+            ]
+          ],
+          "tags": []
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "LGTMs per user/repo ([[repo_name]], [[period]])",
+      "tooltip": {
+        "shared": true,
+        "sort": 2,
+        "value_type": "individual"
+      },
+      "transparent": true,
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": [
+          "total"
+        ]
+      },
+      "yaxes": [
+        {
+          "format": "short",
+          "label": "Number of LGTMs",
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": "",
+          "logBase": 1,
+          "max": null,
           "min": "0",
           "show": true
         }
@@ -263,9 +255,9 @@
   "schemaVersion": 16,
   "style": "dark",
   "tags": [
-    "companies",
     "dashboard",
     "kubernetes",
+    "reviewing",
     "repogroups"
   ],
   "templating": {
@@ -289,14 +281,14 @@
             "value": "d"
           },
           {
-            "selected": true,
-            "text": "7 Days MA",
-            "value": "d7"
-          },
-          {
             "selected": false,
             "text": "Week",
             "value": "w"
+          },
+          {
+            "selected": true,
+            "text": "7 Days MA",
+            "value": "d7"
           },
           {
             "selected": false,
@@ -314,64 +306,7 @@
             "value": "y"
           }
         ],
-        "query": "d,w,m,q,y",
-        "type": "custom"
-      },
-      {
-        "allValue": null,
-        "current": {
-          "tags": [],
-          "text": "All activity",
-          "value": "activity"
-        },
-        "hide": 0,
-        "includeAll": false,
-        "label": "Metric",
-        "multi": false,
-        "name": "metric",
-        "options": [
-          {
-            "selected": true,
-            "text": "All activity",
-            "value": "activity"
-          },
-          {
-            "selected": false,
-            "text": "Active authors",
-            "value": "authors"
-          },
-          {
-            "selected": false,
-            "text": "Issues created",
-            "value": "issues"
-          },
-          {
-            "selected": false,
-            "text": "Pull requests created",
-            "value": "prs"
-          },
-          {
-            "selected": false,
-            "text": "Commits made",
-            "value": "commits"
-          },
-          {
-            "selected": false,
-            "text": "Contributions",
-            "value": "contributions"
-          },
-          {
-            "selected": false,
-            "text": "Contributors",
-            "value": "contributors"
-          },
-          {
-            "selected": false,
-            "text": "Added comments",
-            "value": "comments"
-          }
-        ],
-        "query": "activity,authors,issues,prs,commits,comments",
+        "query": "d,w,d7,m,q,y",
         "type": "custom"
       },
       {
@@ -383,11 +318,11 @@
         "datasource": "gha",
         "hide": 0,
         "includeAll": false,
-        "label": "Repository group",
+        "label": "Repository",
         "multi": false,
-        "name": "repogroup_name",
+        "name": "repo_name",
         "options": [],
-        "query": "SHOW TAG VALUES WITH KEY = all_repo_group_name",
+        "query": "SHOW TAG VALUES WITH KEY = top_repos_name_with_all",
         "refresh": 1,
         "regex": "",
         "sort": 0,
@@ -408,9 +343,9 @@
         "includeAll": false,
         "label": "",
         "multi": false,
-        "name": "repogroup",
+        "name": "repo",
         "options": [],
-        "query": "SHOW TAG VALUES WITH KEY = all_repo_group_value where all_repo_group_name =~ /^[[repogroup_name]]$/",
+        "query": "SHOW TAG VALUES WITH KEY = top_repos_value_with_all where top_repos_name_with_all =~ /^[[repo_name]]$/",
         "refresh": 1,
         "regex": "",
         "sort": 0,
@@ -423,17 +358,19 @@
       {
         "allValue": "",
         "current": {
-          "text": "All",
-          "value": "$__all"
+          "text": "liggitt",
+          "value": [
+            "liggitt"
+          ]
         },
         "datasource": "gha",
         "hide": 0,
-        "includeAll": true,
-        "label": "Companies",
+        "includeAll": false,
+        "label": "Reviewer",
         "multi": true,
-        "name": "companies",
+        "name": "reviewers",
         "options": [],
-        "query": "SHOW TAG VALUES WITH KEY = companies_name",
+        "query": "SHOW TAG VALUES WITH KEY = reviewers_name",
         "refresh": 1,
         "regex": "",
         "sort": 0,
@@ -498,7 +435,7 @@
     ]
   },
   "timezone": "",
-  "title": "Company Statistics by Repository Group",
-  "uid": "8",
-  "version": 3
+  "title": "PR Reviews by Contributor",
+  "uid": "46",
+  "version": 11
 }
