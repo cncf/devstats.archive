@@ -21,4 +21,4 @@ GRAFANA=k8s devel/import_jsons_to_sqlite.sh `find grafana/dashboards/kubernetes/
 - Restore original home dashboard: `git checkout grafana/dashboards/kubernetes/dashboards.json`.
 - `git status` - You will see deleted files and new untracked files when you renamed any dashbord. This is exactly what you want - json names changed.
 - Do `git diff` to make sure all is OK and then `git add .`, `git status`, `git diff HEAD^`.
-
+- Finally `git commit -sm "..."`, `git push`.
