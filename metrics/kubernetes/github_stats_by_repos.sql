@@ -85,78 +85,67 @@ where
   and pr.closed_at < '{{to}}'
 group by
   r.alias
-/*union select 'gh_stats_repos_pr_comments,' || r.repo_group as repo_group,
+union select 'gh_stats_repos_pr_comments,' || r.alias as repo,
   round(count(distinct i.event_id) / {{n}}, 2) as metric
 from
   gha_issues i,
   gha_repos r
 where
   i.dup_repo_id = r.id
-  and r.repo_group is not null
   and i.dup_created_at >= '{{from}}'
   and i.dup_created_at < '{{to}}'
   and i.dup_type = 'IssueCommentEvent'
   and i.is_pull_request = false
   and (i.dup_actor_login {{exclude_bots}})
 group by
-  r.repo_group
-union select 'gh_stats_repos_pr_commenters,' || r.repo_group as repo_group,
+  r.alias
+union select 'gh_stats_repos_pr_commenters,' || r.alias as repo,
   count(distinct i.dup_actor_id) as metric
 from
   gha_issues i,
   gha_repos r
 where
   i.dup_repo_id = r.id
-  and r.repo_group is not null
   and i.dup_created_at >= '{{from}}'
   and i.dup_created_at < '{{to}}'
   and i.dup_type = 'IssueCommentEvent'
   and i.is_pull_request = false
   and (i.dup_actor_login {{exclude_bots}})
 group by
-  r.repo_group
-union select 'gh_stats_repos_issue_comments,' || r.repo_group as repo_group,
+  r.alias
+union select 'gh_stats_repos_issue_comments,' || r.alias as repo,
   round(count(distinct i.event_id) / {{n}}, 2) as metric
 from
   gha_issues i,
   gha_repos r
 where
   i.dup_repo_id = r.id
-  and r.repo_group is not null
   and i.dup_created_at >= '{{from}}'
   and i.dup_created_at < '{{to}}'
   and i.dup_type = 'IssueCommentEvent'
   and i.is_pull_request = true
   and (i.dup_actor_login {{exclude_bots}})
 group by
-  r.repo_group
-union select 'gh_stats_repos_issue_commenters,' || r.repo_group as repo_group,
+  r.alias
+union select 'gh_stats_repos_issue_commenters,' || r.alias as repo,
   count(distinct i.dup_actor_id) as metric
 from
   gha_issues i,
   gha_repos r
 where
   i.dup_repo_id = r.id
-  and r.repo_group is not null
   and i.dup_created_at >= '{{from}}'
   and i.dup_created_at < '{{to}}'
   and i.dup_type = 'IssueCommentEvent'
   and i.is_pull_request = true
   and (i.dup_actor_login {{exclude_bots}})
 group by
-  r.repo_group
-union select sub.repo_group,
-  count(distinct sub.actor) as metric
-from (
-  select 'gh_stats_repos_reviewers,' || coalesce(ecf.repo_group, r.repo_group) as repo_group,
-    e.dup_actor_login as actor
+  r.alias
+union select 'gh_stats_repos_reviewers,' || r.alias as repo,
+    count(distinct e.dup_actor_login) as metric
   from
     gha_repos r,
     gha_events e
-  left join
-    gha_events_commits_files ecf
-  on
-    ecf.event_id = e.id
   where
     e.repo_id = r.id
     and (e.dup_actor_login {{exclude_bots}})
@@ -173,12 +162,8 @@ from (
       union select event_id from matching
       union select event_id from reviews
     )
-  ) sub
-where
-  sub.repo_group is not null
 group by
-  sub.repo
-*/
+  r.alias
 order by
   repo asc
 ;
