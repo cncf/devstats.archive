@@ -774,5 +774,5 @@ func main() {
 		desc,
 	)
 	dtEnd := time.Now()
-	lib.Printf("Time: %v\n", dtEnd.Sub(dtStart))
+	lib.Printf("Time(%s): %v\n", os.Args[2], dtEnd.Sub(dtStart))
 }
