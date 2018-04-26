@@ -243,10 +243,12 @@ func importJsons(ctx *lib.Ctx, dbFile string, jsons []string) {
 		lib.FatalOnError(rows.Scan(&dd.id, &dd.data, &dd.title, &dd.slug, &dd.uid))
 		lib.FatalOnError(json.Unmarshal([]byte(dd.data), &dd.dash))
 		if dd.title != dd.dash.Title {
-			lib.Fatalf("SQLite internal inconsistency (title): %s != %s: %+v", dd.title, dd.dash.Title, dd)
+			lib.Printf("SQLite internal inconsistency (title): %s != %s: %+v, using value from dashboard table, not from JSON\n", dd.title, dd.dash.Title, dd)
+			dd.dash.Title = dd.title
 		}
 		if dd.uid != dd.dash.UID {
-			lib.Fatalf("SQLite internal inconsistency (uid): %s != %s: %+v", dd.uid, dd.dash.UID, dd)
+			lib.Printf("SQLite internal inconsistency (uid): %s != %s: %+v, using value from dashboard table, not from JSON\n", dd.uid, dd.dash.UID, dd)
+			dd.dash.UID = dd.uid
 		}
 		dd.data = string(lib.PrettyPrintJSON([]byte(dd.data)))
 		dd.fn = "*" + dd.slug + ".json*"
