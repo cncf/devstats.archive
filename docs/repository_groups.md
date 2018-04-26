@@ -6,7 +6,7 @@
 - Only Kubernetes project uses 'file level granularity' repository groups definitions.
 - For Kubernetes they are defined in main postgres script: [kubernetes/psql.sh](https://github.com/cncf/devstats/blob/master/kubernetes/psql.sh#L13).
 - It uses [kubernetes/setup_repo_groups.sh](https://github.com/cncf/devstats/blob/master/kubernetes/setup_repo_groups.sh).
-- It finally eecutes this SQL script: [scripts/kubernetes/repo_groups.sql](https://github.com/cncf/devstats/blob/master/scripts/kubernetes/repo_groups.sql).
+- It finally executes this SQL script: [scripts/kubernetes/repo_groups.sql](https://github.com/cncf/devstats/blob/master/scripts/kubernetes/repo_groups.sql).
 - It defines repository groups for given repository names.
 - The file level granularity part is: [kubernetes/psql.sh](https://github.com/cncf/devstats/blob/master/kubernetes/psql.sh#L14).
 - This setup postprocessing scripts:

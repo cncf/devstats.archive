@@ -145,7 +145,22 @@ update gha_repos set repo_group = 'Helm' where org_login in (
   'kubernetes/charts'
 );
 
-update gha_repos set alias = name;
+update
+  gha_repos r
+set
+  alias = coalesce((
+    select i.name
+    from
+      gha_repos i,
+      gha_events e
+    where
+      i.id = r.id
+      and e.repo_id = r.id
+    order by
+      e.created_at desc
+    limit 1
+  ), name)
+;
 
 update gha_repos set alias = 'kubernetes/kubernetes' where name like '%kubernetes' or name = 'kubernetes/';
 

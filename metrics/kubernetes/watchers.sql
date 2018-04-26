@@ -1,5 +1,5 @@
 select
-  'contrib;' || r.repo_group || ';watchers,forks,open_issues' as name,
+  'contrib;' || r.alias || ';watchers,forks,open_issues' as name,
   max(f.watchers) as watchers,
   max(f.forks) as forks,
   max(f.open_issues) as open_issues
@@ -10,9 +10,8 @@ where
   r.name = f.full_name
   and f.updated_at >= '{{from}}'
   and f.updated_at < '{{to}}'
-  and r.repo_group is not null
 group by
-  r.repo_group
+  r.alias
 order by
   watchers desc,
   forks desc,
