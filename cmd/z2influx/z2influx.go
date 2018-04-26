@@ -208,6 +208,7 @@ func main() {
 	if len(values) == 0 {
 		values = []string{"value"}
 	}
+	lib.Printf("%s...\n", os.Args[1])
 	z2influx(os.Args[1], os.Args[2], os.Args[3], os.Args[4], desc, values)
 	dtEnd := time.Now()
 	lib.Printf("Time(%s): %v\n", os.Args[1], dtEnd.Sub(dtStart))
