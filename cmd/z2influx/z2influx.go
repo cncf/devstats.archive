@@ -177,8 +177,8 @@ func main() {
 	dtStart := time.Now()
 	if len(os.Args) < 5 {
 		lib.Printf("%s: Required args: 'series1,series2,..' from to period\n"+
-			"Example: 's1,s2,s3' 2015-08-03 2017-08-04' h|d|w|m|q|y [desc,values:value1;value2;...;valueN]\n"+
-			"Example: '/^open_(issues|prs)_sigs_milestones/' 2015-08-03 2017-08-04' h|d|w|m|q|y 'values:*'\n",
+			"Example: 's1,s2,s3' 2015-08-03 2017-08-04 h|d|w|m|q|y [desc,values:value1;value2;...;valueN]\n"+
+			"Example: '/^open_(issues|prs)_sigs_milestones/' 2015-08-03 2017-08-04 h|d|w|m|q|y 'values:*'\n",
 			os.Args[0],
 		)
 		os.Exit(1)
@@ -210,5 +210,5 @@ func main() {
 	}
 	z2influx(os.Args[1], os.Args[2], os.Args[3], os.Args[4], desc, values)
 	dtEnd := time.Now()
-	lib.Printf("Time: %v\n", dtEnd.Sub(dtStart))
+	lib.Printf("Time(%s): %v\n", os.Args[1], dtEnd.Sub(dtStart))
 }

@@ -812,6 +812,15 @@ func TestGetIntervalFunctions(t *testing.T) {
 			expectedNextStart: nil,
 			expectedPrevStart: nil,
 		},
+		{
+			allowUnknown:      true,
+			periodAbbr:        "cncf_now",
+			expectedPeriod:    "",
+			expectedN:         1,
+			expectedStart:     nil,
+			expectedNextStart: nil,
+			expectedPrevStart: nil,
+		},
 	}
 	// Execute test cases
 	for index, test := range testCases {
