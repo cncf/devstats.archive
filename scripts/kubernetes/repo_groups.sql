@@ -147,7 +147,7 @@ update gha_repos set repo_group = 'Helm' where org_login in (
 
 update gha_repos set alias = name;
 
-update gha_repos set alias = 'kubernetes/kubernetes' where name like '%kubernetes';
+update gha_repos set alias = 'kubernetes/kubernetes' where name like '%kubernetes' or name = 'kubernetes/';
 
 select
   repo_group,
