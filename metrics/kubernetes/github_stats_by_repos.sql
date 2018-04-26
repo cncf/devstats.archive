@@ -27,7 +27,6 @@ where
   and (c.dup_actor_login {{exclude_bots}})
 group by
   r.alias
-
 union select 'gh_stats_repos_issues_closed,' || r.alias as repo,
   round(count(distinct i.id) / {{n}}, 2) as metric
 from

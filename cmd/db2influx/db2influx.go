@@ -760,6 +760,7 @@ func main() {
 			desc = d
 		}
 	}
+	lib.Printf("%s...\n", os.Args[2])
 	db2influx(
 		os.Args[1],
 		os.Args[2],

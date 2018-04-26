@@ -5,7 +5,7 @@ from
   gha_pull_requests pr,
   gha_repos r
 where
-  r.name = pr.dup_repo_name
+  r.id = pr.dup_repo_id
   and pr.merged_at is not null
   and pr.merged_at >= '{{from}}'
   and pr.merged_at < '{{to}}'
