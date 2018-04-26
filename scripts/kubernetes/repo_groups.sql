@@ -145,6 +145,7 @@ update gha_repos set repo_group = 'Helm' where org_login in (
   'kubernetes/charts'
 );
 
+-- By default alias is the newest repo name for given repo ID
 update
   gha_repos r
 set
