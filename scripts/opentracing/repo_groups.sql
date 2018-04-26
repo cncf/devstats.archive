@@ -1,8 +1,21 @@
 -- Add repository groups
--- This is a stub, repo_group = repo name in Prometheus
-update gha_repos set repo_group = name;
-
-update gha_repos set alias = name;
+update
+  gha_repos r
+set
+  alias = coalesce((
+    select i.name
+    from
+      gha_repos i,
+      gha_events e
+    where
+      i.id = r.id
+      and e.repo_id = r.id
+    order by
+      e.created_at desc
+    limit 1
+  ), name)
+;
+update gha_repos set repo_group = alias;
 
 select
   repo_group,

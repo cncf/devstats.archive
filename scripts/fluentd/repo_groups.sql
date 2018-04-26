@@ -1,6 +1,22 @@
 -- Add repository groups
 -- This is a stub, repo_group = repo name in Prometheus
-update gha_repos set repo_group = name;
+update
+  gha_repos r
+set
+  alias = coalesce((
+    select i.name
+    from
+      gha_repos i,
+      gha_events e
+    where
+      i.id = r.id
+      and e.repo_id = r.id
+    order by
+      e.created_at desc
+    limit 1
+  ), name)
+;
+update gha_repos set repo_group = alias;
 
 update gha_repos set repo_group = 'fluentd' where name in ('fluentd', 'fluent/fluentd');
 update gha_repos set repo_group = 'fluent-logger-ruby' where name in ('fluent-logger-ruby', 'fluent/fluent-logger-ruby');
@@ -29,8 +45,6 @@ update gha_repos set repo_group = 'fluent-logger-ocaml' where name in ('fluent-l
 update gha_repos set repo_group = 'fluentd-ui' where name in ('fluentd-ui', 'fluent/fluentd-ui');
 update gha_repos set repo_group = 'NLog.Targets.Fluentd' where name in ('NLog.Targets.Fluentd', 'fluent/NLog.Targets.Fluentd');
 update gha_repos set repo_group = 'fluentd-forwarder' where name in ('fluentd-forwarder', 'fluent/fluentd-forwarder');
-
-update gha_repos set alias = repo_group;
 
 select
   repo_group,
