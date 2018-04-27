@@ -26,6 +26,7 @@ import (
 type metricTestCase struct {
 	Setups     []reflect.Value
 	Metric     string          `yaml:"metric"`
+	SQL        string          `yaml:"sql"`    // When empty or not specified, 'Metric' is used as SQL name (default)
 	From       time.Time       `yaml:"from"`   // used by non-histogram metrics
 	To         time.Time       `yaml:"to"`     // used by non-histogram metrics
 	Period     string          `yaml:"period"` // used by histogram metrics
@@ -365,6 +366,7 @@ func executeMetricTestCase(testMetric *metricTestCase, tests *metricTests, ctx *
 		c,
 		ctx,
 		testMetric.Metric,
+		testMetric.SQL,
 		testMetric.From,
 		testMetric.To,
 		testMetric.Period,
@@ -377,9 +379,12 @@ func executeMetricTestCase(testMetric *metricTestCase, tests *metricTests, ctx *
 
 // execute metric metrics/{{metric}}.sql with {{from}} and {{to}} replaced by from/YMDHMS, to/YMDHMS
 // end result slice of slices of any type
-func executeMetric(c *sql.DB, ctx *lib.Ctx, metric string, from, to time.Time, period string, n int, replaces [][]string) (result [][]interface{}, err error) {
+func executeMetric(c *sql.DB, ctx *lib.Ctx, metric, msql string, from, to time.Time, period string, n int, replaces [][]string) (result [][]interface{}, err error) {
 	// Metric file name
-	sqlFile := fmt.Sprintf("metrics/%s/%s.sql", ctx.Project, metric)
+	if msql == "" {
+		msql = metric
+	}
+	sqlFile := fmt.Sprintf("metrics/%s/%s.sql", ctx.Project, msql)
 
 	// Read and transform SQL file.
 	bytes, err := lib.ReadFile(ctx, sqlFile)

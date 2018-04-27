@@ -303,12 +303,12 @@ func (ctx *Ctx) Init() {
 	ctx.Local = os.Getenv("GHA2DB_LOCAL") != ""
 
 	// IDB drop mode
-  if ctx.ResetIDB {
-    ctx.IDBDrop = false
-    ctx.IDBDropProbN = 0
-  } else {
-	  ctx.IDBDrop = os.Getenv("GHA2DB_IDB_DROP_SERIES") != ""
-  }
+	if ctx.ResetIDB {
+		ctx.IDBDrop = false
+		ctx.IDBDropProbN = 0
+	} else {
+		ctx.IDBDrop = os.Getenv("GHA2DB_IDB_DROP_SERIES") != ""
+	}
 
 	// Project
 	ctx.Project = os.Getenv("GHA2DB_PROJECT")
