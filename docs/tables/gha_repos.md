@@ -5,7 +5,7 @@
 - Repos are created during standard GitHub archives import from JSON [here](https://github.com/cncf/devstats/blob/master/cmd/gha2db/gha2db.go#L34-L44).
 - Repo can change name in time, but repo ID remains the same in this case.
 - Repositories have special groupping columns: `alias` and `repo_group`. Alias can be used to group the same repo (different names in time but the same ID) under the same `alias`.
-- Usually alias refers to most recent repo name + eventually some special names for multiple repositories, but usually all of repos from the same alias has the same `id`.
+- Usually alias refers to most recent repo name plus eventually some special names for multiple repositories (can be defined per project), but usually all of repos from the same alias has the same `id`.
 - See [example](https://github.com/cncf/devstats/blob/master/scripts/prometheus/repo_groups.sql#L1-L20) to see typical repository aliases definition.
 - `repo_group` is used in many dashboards to grroup similar repositories under some special name. Repository groups are setup once by `{{project_name}}/setup_repo_groups.sh`.
 - For Kubernetes it is: [kubernetes/psql.sh](https://github.com/cncf/devstats/blob/master/kubernetes/psql.sh#L13)). It calls [kubernetes/setup_repo_groups.sh](https://github.com/cncf/devstats/blob/master/kubernetes/setup_repo_groups.sh)
