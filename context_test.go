@@ -534,6 +534,8 @@ func TestInit(t *testing.T) {
 					"SkipIDB":     true,
 					"ResetIDB":    true,
 					"ResetRanges": true,
+          "IDBDrop":    false,
+          "IDBDropProbN": 0,
 				},
 			),
 		},
