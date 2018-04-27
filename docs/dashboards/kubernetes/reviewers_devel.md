@@ -25,11 +25,11 @@ Links:
 - Each row is in the format column 1: `gh_stats_repo_groups_reviewers,RepoGroupName`, column 2: `NumberOfReviewersInThisRepoGroup`. This is for repo groups version.
 - Each row is in the format column 1: `gh_stats_repos_reviewers,RepoName`, column 2: `NumberOfReviewersInThisRepo`. This is for repos version.
 - There are other rows with data for other stats. For example `gh_stats_repo_groups_commits,RepoGroupName` etc.
-- Value for each repository group or repository is calculated as a number of distinct actor logins who:
+- Value for each repository group or repository is calculated as a number of distinct actor logins.
 - We are checking that author is not a bot (see [excluding bots](https://github.com/cncf/devstats/blob/master/docs/excluding_bots.md))
 - We are counting actors who added `lgtm` or `approve` label in a given period (`gha_issues_events_labels` table).
 - For more information about `gha_issues_events_labels` table please check: [docs/tables/gha_issues_events_labels.md](https://github.com/cncf/devstats/blob/master/docs/tables/gha_issues_events_labels.md).
-- We are counting actors who Added PR review comment (event type `PullRequestReviewCommentEvent`).
+- We are counting actors who added PR review comment (event type `PullRequestReviewCommentEvent`).
 - Event belong to a given repository group or repository.
 - For repository group definition check: [repository groups](https://github.com/cncf/devstats/blob/master/docs/repository_groups.md) (table `gha_events` and commit files for file level granularity repo groups).
 - For more information about `gha_repos` table please check: [docs/tables/gha_repos.md](https://github.com/cncf/devstats/blob/master/docs/tables/gha_repos.md).
@@ -59,10 +59,11 @@ Metric usage is defined in metric.yaml as follows:
 - For example 1st column: `'gh_stats_repo_groups_reviewers,Kubernetes'`, 2nd column: `20.0` will create series named `gh_stats_repo_groups_reviewers` with column `Kubernetes` with value `20.0`.
 - This SQLs calculate many metrics in addition to reviewers, general series name will be `gh_stats_repo_groups_{{stat}}` and `gh_stats_repos_{{stat}}`, we're only describing `{{stat}} = reviewers` case in this documentation.
 - See [here](https://github.com/cncf/devstats/blob/master/docs/periods.md) for periods definitions.
-- The final InfluxDB series name would be (for repo groups version): `gh_stats_repo_groups_[[stat]]_[[period]]` and columns from `[[repogroup]]`. `[[period]]` will be from d,w,m,q,y,d7 and `[[repogroup]]` will be from 'all,apps,contrib,kubernetes,...', see [repository groups](https://github.com/cncf/devstats/blob/master/docs/repository_groups.md) for details.
-- The final InfluxDB series name would be (for repos version): `gh_stats_repos_[[stat]]_[[period]]` and columns from`[[repo]]` that will be from one of the kubernetes projects repo name (with special characters changed to `_`, for example `kubernetes_kubernetes`).
+- The final InfluxDB series name would be (for repo groups version): `gh_stats_repo_groups_[[stat]]_[[period]]` and names columns from `[[repogroup]]`.
+- Value of `[[period]]` will be from d,w,m,q,y,d7 and `[[repogroup]]` will be from 'all,apps,contrib,kubernetes,...', see [repository groups](https://github.com/cncf/devstats/blob/master/docs/repository_groups.md) for details.
+- The final InfluxDB series name would be (for repos version): `gh_stats_repos_[[stat]]_[[period]]` and names columns from`[[repo]]` that will be from one of the Kubernetes projects repo name (with special characters changed to `_`, for example `kubernetes_kubernetes`).
 - Repo group name and repo name returned by Postgres SQL is normalized (downcased, removed special chars etc.) to be usable as a Influx series name [here](https://github.com/cncf/devstats/blob/master/cmd/db2influx/db2influx.go#L112) using [this](https://github.com/cncf/devstats/blob/master/unicode.go#L23).
-- Final query is [here]((https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/github-stats-by-repository.json) or [there]((https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/github-stats-by-repository-group.json), search for `gh_stats_repo`.
+- Final query is [here](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/github-stats-by-repository.json) or [there]((https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/github-stats-by-repository-group.json), search for `gh_stats_repo`.
 - `$timeFiler` value comes from Grafana date range selector. It is handled by Grafana internally.
 - `[[period]]` comes from variable definition in dashboard JSON, search for `"period"`.
 - `[[repogroup]]` comes from Grafana variable that uses influx tags values, search for `repos` or `repogroups`.
