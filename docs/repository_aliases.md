@@ -5,7 +5,7 @@
 - Usually alias refers to most recent repo name plus eventually some special names for multiple repositories (can be defined per project), but usually all of repos from the same alias has the same `id`.
 - See [example](https://github.com/cncf/devstats/blob/master/scripts/prometheus/repo_groups.sql#L1-L20) to see typical repository aliases definition.
 - More info about `gha_repos` table [here](https://github.com/cncf/devstats/blob/master/docs/tables/gha_repos.md).
-- This is the query that updates repository aliases every hours (most projects use this to keep repository alias pointing to most up-to-date repo name):
+- This is the query that updates repository aliases every hour (most projects use this to keep repository alias pointing to most up-to-date repo name):
 ```
 update
   gha_repos r
