@@ -12,7 +12,7 @@
 <ul>
 <li>This documentations only refers to <code>Reviewers</code> statistic.
 <li>This dashboard shows the number of reviewers for a selected repository or repository group.</li>
-<li>You can select multiple repositories or groups to stack them.</li>
+<li>You can select multiple repositories or repository groups to stack them.</li>
 <li>Reviewer is defined as someone who added pull request review comment(s) or added <code>/lgtm</code> or <code>/approve</code> text or added <code>lgtm</code> or <code>approve</code> label.</li>
 <li>You can filter by repository or repository group and period.</li>
 <li>Selecting period (for example week) means that dahsboard will count distinct users who made a review in these periods.</li>
