@@ -22,6 +22,7 @@ do
     fi
     echo "Project: $proj, GrafanaDB: $db"
     rm -f sqlite/* 2>/dev/null
+    touch sqlite/touch
     ./sqlitedb /var/lib/grafana.$db/grafana.db || exit 1
     rm -f grafana/dashboards/$proj/*.json || exit 2
     mv sqlite/*.json grafana/dashboards/$proj/ || exit 3
