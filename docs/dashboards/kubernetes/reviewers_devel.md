@@ -67,7 +67,7 @@ Metric usage is defined in metric.yaml as follows:
 - `$timeFiler` value comes from Grafana date range selector. It is handled by Grafana internally.
 - `[[period]]` comes from variable definition in dashboard JSON, search for `"period"`.
 - `[[repogroup]]` or `[[repo]]` comes from Grafana variable that uses influx tags values, search for `repos` or `repogroups`.
-- For repos we're using repo [aliases](https://github.com/cncf/devstats/blob/master/docs/repo_aliases.md) to avoid duplicating renamed repositories.
+- For repos we're using repo [aliases](https://github.com/cncf/devstats/blob/master/docs/repository_aliases.md) to avoid duplicating renamed repositories.
 - To see more details about repository group tags, and all other tags check [tags.md](https://github.com/cncf/devstats/blob/master/docs/tags.md).
 - Releases comes from Grafana annotations: search for `annotations` in the dashboard JSON.
 - For more details about annotations check [here](https://github.com/cncf/devstats/blob/master/docs/annotations.md).
