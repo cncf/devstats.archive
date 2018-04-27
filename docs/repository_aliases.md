@@ -1,8 +1,8 @@
 # DevStats repository aliases
 
-- Repository alias is defined usually defined as the most recent name of a given repository.
+- Repository alias is usually defined as the most recent name of a given repository.
 - GitHub identifies repositories by `id`. Sometimes repositories are renamed. In those cases we will have multiple repos with the same `id` but different name.
-- Usually alias refers to most recent repo name + eventually some special names for multiple repositories, but usually all of repos from the same alias has the same `id`.
+- Usually alias refers to most recent repo name plus eventually some special names for multiple repositories (can be defined per project), but usually all of repos from the same alias has the same `id`.
 - See [example](https://github.com/cncf/devstats/blob/master/scripts/prometheus/repo_groups.sql#L1-L20) to see typical repository aliases definition.
 - More info about `gha_repos` table [here](https://github.com/cncf/devstats/blob/master/docs/tables/gha_repos.md).
 - This is the query that updates repository aliases every hours (most projects use this to keep repository alias pointing to most up-to-date repo name):
