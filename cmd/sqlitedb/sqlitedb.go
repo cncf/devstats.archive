@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"os"
 	"sort"
+	"strconv"
 	"strings"
 	"time"
 
@@ -150,6 +151,34 @@ func updateTags(db *sql.DB, ctx *lib.Ctx, did int, jsonTags []string, info strin
 		info, did, sDBTags, sJSONTags, nI, nD,
 	)
 	return true
+}
+
+// deleteUids uses dbFile database to dump all dashboards as JSONs
+func deleteUids(ctx *lib.Ctx, dbFile string, uids []int) {
+	// Connect to SQLite3
+	db, err := sql.Open("sqlite3", dbFile)
+	lib.FatalOnError(err)
+	defer func() { lib.FatalOnError(db.Close()) }()
+
+	// Iterate uids
+	for _, uid := range uids {
+		rows, err := sqliteQuery(db, ctx, "select id from dashboard where uid = ?", uid)
+		lib.FatalOnError(err)
+		defer func() { lib.FatalOnError(rows.Close()) }()
+		id := -1
+		for rows.Next() {
+			lib.FatalOnError(rows.Scan(&id))
+		}
+		lib.FatalOnError(rows.Err())
+		if id < 0 {
+			lib.Printf("Dashboard with uid=%d not found, skipping\n", uid)
+			continue
+		}
+		_, err = sqliteExec(db, ctx, "delete from dashboard_tag where dashboard_id = ?", id)
+		lib.FatalOnError(err)
+		_, err = sqliteExec(db, ctx, "delete from dashboard where id = ?", id)
+		lib.FatalOnError(err)
+	}
 }
 
 // exportJsons uses dbFile database to dump all dashboards as JSONs
@@ -476,12 +505,34 @@ func main() {
 		lib.Printf("Required args: grafana.db file name and list(*) of jsons to import.\n")
 		lib.Printf("If only db file name given, it will output all dashboards to jsons\n")
 		lib.Printf("It will import JSONs by matching their internal uid with SQLite database\n")
+		lib.Printf("If DB name given and single argument with comman separated uids - dashboards with those uids will be removed\n")
 		os.Exit(1)
 	}
-	if len(os.Args) > 2 {
-		importJsons(&ctx, os.Args[1], os.Args[2:])
+	del := false
+	uids := []int{}
+	if len(os.Args) == 3 {
+		ary := strings.Split(os.Args[2], ",")
+		brk := false
+		for _, item := range ary {
+			uid, err := strconv.Atoi(item)
+			if err != nil {
+				brk = true
+				break
+			}
+			uids = append(uids, uid)
+		}
+		if !brk {
+			del = true
+		}
+	}
+	if del {
+		deleteUids(&ctx, os.Args[1], uids)
 	} else {
-		exportJsons(&ctx, os.Args[1])
+		if len(os.Args) > 2 {
+			importJsons(&ctx, os.Args[1], os.Args[2:])
+		} else {
+			exportJsons(&ctx, os.Args[1])
+		}
 	}
 	dtEnd := time.Now()
 	lib.Printf("Time: %v\n", dtEnd.Sub(dtStart))
