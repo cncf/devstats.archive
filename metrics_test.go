@@ -226,7 +226,11 @@ func dataForMetricTestCase(con *sql.DB, ctx *lib.Ctx, testMetric *metricTestCase
 		}
 		comments, ok := data["comments"]
 		if ok {
-			for _, comment := range comments {
+			commentsAppend, okAppend := data["comments_append"]
+			for idx, comment := range comments {
+				if okAppend {
+					comment = append(comment, commentsAppend[idx%len(commentsAppend)]...)
+				}
 				err = addComment(con, ctx, comment...)
 				if err != nil {
 					return
@@ -709,10 +713,10 @@ func addCommit(con *sql.DB, ctx *lib.Ctx, args ...interface{}) (err error) {
 }
 
 // Add comment
-// id, event_id, body, created_at, user_id, repo_id, repo_name, actor_id, actor_login, type
+// id, event_id, body, created_at, user_id, repo_id, repo_name, actor_id, actor_login, type, user_login
 func addComment(con *sql.DB, ctx *lib.Ctx, args ...interface{}) (err error) {
-	if len(args) != 10 {
-		err = fmt.Errorf("addComment: expects 10 variadic parameters")
+	if len(args) != 11 {
+		err = fmt.Errorf("addComment: expects 11 variadic parameters")
 		return
 	}
 
@@ -738,7 +742,7 @@ func addComment(con *sql.DB, ctx *lib.Ctx, args ...interface{}) (err error) {
 		args[6],    // repo_name
 		args[9],    // type
 		args[3],    // dup_created_at
-		args[6],    // dup_user_login
+		args[10],    // dup_user_login
 	}
 	_, err = lib.ExecSQL(
 		con,
@@ -847,7 +851,7 @@ func addPR(con *sql.DB, ctx *lib.Ctx, args ...interface{}) (err error) {
 		args[14],   // ev.Repo.Name
 		"T",        // ev.Type
 		time.Now(), // ev.CreatedAt
-		"",         // PR.User.Login
+		args[16],   // PR.User.Login
 		nil,        // PR.Assignee.Login
 		nil,        // PR.MergedBy.Login
 	}
@@ -914,7 +918,7 @@ func addIssue(con *sql.DB, ctx *lib.Ctx, args ...interface{}) (err error) {
 		args[14], // dup_repo_name
 		args[15], // dup_type
 		args[18], // dup_created_at
-		"",       // dup_user_login
+		args[12], // dup_user_login
 		"",       // dup_assignee_login
 		args[16], // is_pull_request
 	}
