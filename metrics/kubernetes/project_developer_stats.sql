@@ -177,71 +177,138 @@ from (
     sub.repo_group,
     sub.type,
     sub.author
-  /*union select 'contributions' as metric,
-    dup_actor_login as author,
-    count(id) as value
-  from
-    gha_events
+  union select 'contributions' as metric,
+    sub.repo_group,
+    sub.author,
+    count(sub.id) as value
+  from (
+    select coalesce(ecf.repo_group, r.repo_group) as repo_group,
+      e.dup_actor_login as author,
+      e.id
+    from
+      gha_repos r,
+      gha_events e
+    left join
+      gha_events_commits_files ecf
+    on
+      ecf.event_id = e.id
+    where
+      r.name = e.dup_repo_name
+      and e.type in ('PushEvent', 'PullRequestEvent', 'IssuesEvent')
+      and {{period:e.created_at}}
+      and (e.dup_actor_login {{exclude_bots}})
+  ) sub
   where
-    type in ('PushEvent', 'PullRequestEvent', 'IssuesEvent')
-    and {{period:created_at}}
-    and (dup_actor_login {{exclude_bots}})
+    sub.repo_group is not null
   group by
-    dup_actor_login
+    sub.repo_group,
+    sub.author
   union select 'active_repos' as metric,
-    dup_actor_login as author,
-    count(distinct repo_id) as value
-  from
-    gha_events
+    sub.repo_group,
+    sub.author,
+    count(distinct sub.repo_id) as value
+  from (
+    select coalesce(ecf.repo_group, r.repo_group) as repo_group,
+      e.dup_actor_login as author,
+      e.repo_id
+    from
+      gha_repos r,
+      gha_events e
+    left join
+      gha_events_commits_files ecf
+    on
+      ecf.event_id = e.id
+    where
+      r.name = e.dup_repo_name
+      and {{period:e.created_at}}
+      and (e.dup_actor_login {{exclude_bots}})
+  ) sub
   where
-    {{period:created_at}}
-    and (dup_actor_login {{exclude_bots}})
+    sub.repo_group is not null
   group by
-    dup_actor_login
+    sub.repo_group,
+    sub.author
   union select 'comments' as metric,
-    dup_user_login as author,
-    count(distinct id) as value
-  from
-    gha_comments
+    sub.repo_group,
+    sub.author,
+    count(distinct sub.id) as value
+  from (
+    select coalesce(ecf.repo_group, r.repo_group) as repo_group,
+      c.dup_actor_login as author,
+      c.id
+    from
+      gha_repos r,
+      gha_comments c
+    left join
+      gha_events_commits_files ecf
+    on
+      ecf.event_id = c.event_id
+    where
+      c.dup_repo_name = r.name
+      and {{period:c.created_at}}
+      and (c.dup_actor_login {{exclude_bots}})
+  ) sub
   where
-    {{period:created_at}}
-    and (dup_user_login {{exclude_bots}})
+    sub.repo_group is not null
   group by
-    dup_user_login
-  union select 'issues' as metric,
-    dup_user_login as author,
-    count(distinct id) as value
-  from
-    gha_issues
+    sub.author,
+    sub.repo_group
+  union select case sub.is_pull_request
+      when true then 'prs'
+      else 'issues'
+    end as metric,
+    sub.repo_group,
+    sub.author,
+    count(distinct sub.id) as value
+  from (
+    select coalesce(ecf.repo_group, r.repo_group) as repo_group,
+      i.dup_user_login as author,
+      i.id,
+      i.is_pull_request
+    from
+      gha_repos r,
+      gha_issues i
+    left join
+      gha_events_commits_files ecf
+    on
+      ecf.event_id = i.event_id
+    where
+    i.dup_repo_name = r.name
+    and {{period:i.created_at}}
+    and (i.dup_user_login {{exclude_bots}})
+  ) sub
   where
-    {{period:created_at}}
-    and is_pull_request = false
-    and (dup_user_login {{exclude_bots}})
+    sub.repo_group is not null
   group by
-    dup_user_login
-  union select 'prs' as metric,
-    dup_user_login as author,
-    count(distinct id) as value
-  from
-    gha_issues
-  where
-    {{period:created_at}}
-    and is_pull_request = true
-    and (dup_user_login {{exclude_bots}})
-  group by
-    dup_user_login
+    sub.repo_group,
+    sub.is_pull_request,
+    sub.author
   union select 'events' as metric,
-    dup_actor_login as author,
-    count(id) as value
-  from
-    gha_events
+    sub.repo_group,
+    sub.author,
+    count(distinct sub.id) as value
+  from (
+    select coalesce(ecf.repo_group, r.repo_group) as repo_group,
+      e.dup_actor_login as author,
+      e.id
+    from
+      gha_repos r,
+      gha_events e
+    left join
+      gha_events_commits_files ecf
+    on
+      ecf.event_id = e.id
+    where
+      r.name = e.dup_repo_name
+      and {{period:e.created_at}}
+      and (e.dup_actor_login {{exclude_bots}})
+      and e.type != 'ArtificialEvent'
+  ) sub
   where
-    {{period:created_at}}
-    and (dup_actor_login {{exclude_bots}})
-    and type != 'ArtificialEvent'
+    sub.repo_group is not null
   group by
-    dup_actor_login
-  */
+    sub.repo_group,
+    sub.author
   ) sub
 where
   (sub.metric = 'events' and sub.value >= 100)
