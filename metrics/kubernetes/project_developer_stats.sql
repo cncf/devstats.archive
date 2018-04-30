@@ -311,7 +311,7 @@ from (
     sub.author
   ) sub
 where
-  (sub.metric = 'events' and sub.value >= 100)
+  (sub.metric = 'events' and sub.value >= 30)
   or (sub.metric = 'active_repos' and sub.value > 1)
   or (sub.metric in (
     'commit_comments',
