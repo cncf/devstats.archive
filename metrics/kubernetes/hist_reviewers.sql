@@ -1,25 +1,24 @@
-create temp table matching as
-select event_id
-from
-  gha_texts
-where
-  {{period:created_at}}
-  and substring(body from '(?i)(?:^|\n|\r)\s*/(?:lgtm|approve)\s*(?:\n|\r|$)') is not null;
-
-create temp table reviews as
-select id as event_id
-from
-  gha_events
-where
-  {{period:created_at}}
-  and type in ('PullRequestReviewCommentEvent');
-
+with matching as (
+  select event_id
+  from
+    gha_texts
+  where
+    {{period:created_at}}
+    and substring(body from '(?i)(?:^|\n|\r)\s*/(?:lgtm|approve)\s*(?:\n|\r|$)') is not null
+), reviews as (
+  select id as event_id
+  from
+    gha_events
+  where
+    {{period:created_at}}
+    and type in ('PullRequestReviewCommentEvent')
+)
 select
   sub.repo_group,
   sub.actor,
   count(distinct sub.id) as reviews
 from (
-  select 'reviewers_hist,' || coalesce(ecf.repo_group, r.repo_group) as repo_group,
+  select 'developers_hist_reviewers,' || coalesce(ecf.repo_group, r.repo_group) as repo_group,
     e.dup_actor_login as actor,
     e.id
   from
@@ -52,7 +51,7 @@ group by
   sub.actor
 having
   count(distinct sub.id) >= 1
-union select 'reviewers_hist,All' as repo_group,
+union select 'developers_hist_reviewers,All' as repo_group,
   dup_actor_login as actor,
   count(distinct id) as reviews
 from
@@ -80,6 +79,3 @@ order by
   repo_group asc,
   actor asc
 ;
-
-drop table reviews;
-drop table matching;
