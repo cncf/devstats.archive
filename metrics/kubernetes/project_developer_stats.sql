@@ -4,15 +4,15 @@ select
   sub.value as value
 from (
   select 'commits' as metric,
-    c.dup_actor_login as author,
-    count(distinct c.sha) as value
+    dup_actor_login as author,
+    count(distinct sha) as value
   from
-    gha_commits c
+    gha_commits
   where
-    {{period:c.dup_created_at}}
-    and (c.dup_actor_login {{exclude_bots}})
+    {{period:dup_created_at}}
+    and (dup_actor_login {{exclude_bots}})
   group by
-    c.dup_actor_login
+    dup_actor_login
   union select case type
       when 'PushEvent' then 'pushes'
       when 'PullRequestReviewCommentEvent' then 'review_comments'
@@ -234,7 +234,7 @@ from (
     count(distinct sub.id) as value
   from (
     select coalesce(ecf.repo_group, r.repo_group) as repo_group,
-      c.dup_actor_login as author,
+      c.dup_user_login as author,
       c.id
     from
       gha_repos r,
@@ -246,7 +246,7 @@ from (
     where
       c.dup_repo_name = r.name
       and {{period:c.created_at}}
-      and (c.dup_actor_login {{exclude_bots}})
+      and (c.dup_user_login {{exclude_bots}})
   ) sub
   where
     sub.repo_group is not null
