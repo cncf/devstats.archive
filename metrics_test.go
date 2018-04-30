@@ -742,7 +742,7 @@ func addComment(con *sql.DB, ctx *lib.Ctx, args ...interface{}) (err error) {
 		args[6],    // repo_name
 		args[9],    // type
 		args[3],    // dup_created_at
-		args[10],    // dup_user_login
+		args[10],   // dup_user_login
 	}
 	_, err = lib.ExecSQL(
 		con,

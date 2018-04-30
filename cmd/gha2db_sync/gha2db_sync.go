@@ -456,9 +456,19 @@ func sync(ctx *lib.Ctx, args []string) {
 
 		// Keep all histograms here
 		var hists [][]string
+		onlyMetrics := false
+		if len(ctx.OnlyMetrics) > 0 {
+			onlyMetrics = true
+		}
 
 		// Iterate all metrics
 		for _, metric := range allMetrics.Metrics {
+			if onlyMetrics {
+				_, ok := ctx.OnlyMetrics[metric.MetricSQL]
+				if !ok {
+					continue
+				}
+			}
 			extraParams := []string{}
 			if metric.Histogram {
 				extraParams = append(extraParams, "hist")
