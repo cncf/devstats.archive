@@ -101,6 +101,7 @@ func copyContext(in *lib.Ctx) *lib.Ctx {
 		ActorsFilter:        in.ActorsFilter,
 		ActorsAllow:         in.ActorsAllow,
 		ActorsForbid:        in.ActorsForbid,
+		OnlyMetrics:         in.OnlyMetrics,
 	}
 	return &out
 }
@@ -296,6 +297,7 @@ func TestInit(t *testing.T) {
 		ActorsFilter:        false,
 		ActorsAllow:         nil,
 		ActorsForbid:        nil,
+		OnlyMetrics:         map[string]bool{},
 	}
 
 	var nilRegexp *regexp.Regexp
@@ -1118,6 +1120,20 @@ func TestInit(t *testing.T) {
 					"repo1":      true,
 					"org1/repo2": true,
 					"abc":        true,
+				},
+				},
+			),
+		},
+		{
+			"Setting only metrics mode",
+			map[string]string{"GHA2DB_ONLY_METRICS": "metric1,metric2,,metric3"},
+			dynamicSetFields(
+				t,
+				copyContext(&defaultContext),
+				map[string]interface{}{"OnlyMetrics": map[string]bool{
+					"metric1": true,
+					"metric2": true,
+					"metric3": true,
 				},
 				},
 			),

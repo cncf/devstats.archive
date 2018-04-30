@@ -98,6 +98,7 @@ type Ctx struct {
 	ActorsFilter        bool            // From GHA2DB_ACTORS_FILTER gha2db tool, if enabled then actor filterning will be added, default false
 	ActorsAllow         *regexp.Regexp  // From GHA2DB_ACTORS_ALLOW, gha2db tool, process JSON if actor matches this regexp, default ""
 	ActorsForbid        *regexp.Regexp  // From GHA2DB_ACTORS_FORBID, gha2db tool, process JSON if actor matches this regexp, default ""
+	OnlyMetrics         map[string]bool // From GHA2DB_ONLY_METRICS, gha2db_sync tool, default "" - comma separated list of metrics to process, as fiven my "sql: name" in the "metrics.yaml" file. Only those metrics will be calculated.
 }
 
 // Init - get context from environment variables
@@ -426,6 +427,18 @@ func (ctx *Ctx) Init() {
 		for _, exclude := range excludeArray {
 			if exclude != "" {
 				ctx.ExcludeRepos[exclude] = true
+			}
+		}
+	}
+
+	// Only metrics
+	onlyMetrics := os.Getenv("GHA2DB_ONLY_METRICS")
+	ctx.OnlyMetrics = make(map[string]bool)
+	if onlyMetrics != "" {
+		ary := strings.Split(onlyMetrics, ",")
+		for _, metric := range ary {
+			if metric != "" {
+				ctx.OnlyMetrics[metric] = true
 			}
 		}
 	}
