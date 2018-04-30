@@ -171,7 +171,7 @@ func deleteUids(ctx *lib.Ctx, dbFile string, uids []string) {
 		}
 		lib.FatalOnError(rows.Err())
 		if id < 0 {
-			lib.Printf("Dashboard with uid=%d not found, skipping\n", uid)
+			lib.Printf("Dashboard with uid=%s not found, skipping\n", uid)
 			continue
 		}
 		_, err = sqliteExec(db, ctx, "delete from dashboard_tag where dashboard_id = ?", id)
