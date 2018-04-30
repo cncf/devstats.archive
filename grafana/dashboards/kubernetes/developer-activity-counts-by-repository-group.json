@@ -15,14 +15,14 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 103,
-  "iteration": 1523004229941,
+  "id": 122,
+  "iteration": 1523003601440,
   "links": [],
   "panels": [
     {
       "columns": [],
       "datasource": "gha",
-      "description": "Shows PRs authors",
+      "description": "",
       "fontSize": "90%",
       "gridPos": {
         "h": 22,
@@ -49,7 +49,7 @@
           "type": "hidden"
         },
         {
-          "alias": "Developer",
+          "alias": "GitHub login",
           "colorMode": null,
           "colors": [
             "rgba(245, 54, 54, 0.9)",
@@ -65,7 +65,7 @@
           "unit": "short"
         },
         {
-          "alias": "Opened PRs",
+          "alias": "Number",
           "colorMode": null,
           "colors": [
             "rgba(245, 54, 54, 0.9)",
@@ -87,7 +87,7 @@
             "rgba(237, 129, 40, 0.89)",
             "rgba(50, 172, 45, 0.97)"
           ],
-          "decimals": 2,
+          "decimals": 0,
           "pattern": "/.*/",
           "thresholds": [],
           "type": "number",
@@ -113,7 +113,7 @@
           ],
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "SELECT \"name\", \"value\" FROM \"hist_pr_authors_[[repogroup]]_[[period]]\" WHERE $timeFilter",
+          "query": "SELECT \"name\", \"value\" FROM \"developers_hist_[[metric]]_[[repogroup]]_[[period]]\" WHERE $timeFilter",
           "rawQuery": true,
           "refId": "A",
           "resultFormat": "table",
@@ -134,7 +134,7 @@
           "tags": []
         }
       ],
-      "title": "[[full_name]] PRs authors (Repository group: [[repogroup_name]], Range: [[period_name]])",
+      "title": "[[full_name]] Developers statistics ([[metric]], Range: [[period_name]], Repository group: [[repogroup_name]]), bots excluded",
       "transform": "table",
       "transparent": false,
       "type": "table"
@@ -146,9 +146,8 @@
   "tags": [
     "dashboard",
     "kubernetes",
-    "PRs",
-    "table",
-    "repogroups"
+    "repogroups",
+    "table"
   ],
   "templating": {
     "list": [
@@ -178,6 +177,89 @@
       {
         "allValue": null,
         "current": {
+          "selected": true,
+          "tags": [],
+          "text": "Contributions",
+          "value": "contributions"
+        },
+        "hide": 0,
+        "includeAll": false,
+        "label": "Metric",
+        "multi": false,
+        "name": "metric",
+        "options": [
+          {
+            "selected": false,
+            "text": "Approves",
+            "value": "approvers"
+          },
+          {
+            "selected": false,
+            "text": "Reviews",
+            "value": "reviewers"
+          },
+          {
+            "selected": false,
+            "text": "Comments",
+            "value": "comments"
+          },
+          {
+            "selected": false,
+            "text": "Commit comments",
+            "value": "commit_comments"
+          },
+          {
+            "selected": false,
+            "text": "Commits",
+            "value": "commits"
+          },
+          {
+            "selected": false,
+            "text": "GitHub events",
+            "value": "events"
+          },
+          {
+            "selected": false,
+            "text": "GitHub pushes",
+            "value": "pushes"
+          },
+          {
+            "selected": false,
+            "text": "Issue comments",
+            "value": "issue_comments"
+          },
+          {
+            "selected": false,
+            "text": "Issues",
+            "value": "issues"
+          },
+          {
+            "selected": false,
+            "text": "PRs",
+            "value": "prs"
+          },
+          {
+            "selected": false,
+            "text": "Review comments",
+            "value": "review_comments"
+          },
+          {
+            "selected": true,
+            "text": "Contributions",
+            "value": "contributions"
+          },
+          {
+            "selected": false,
+            "text": "Active repositories",
+            "value": "active_repos"
+          }
+        ],
+        "query": "approvers,reviewers,comments,commit_comments,commits,events,pushes,contributions,issue_comments,issues,prs,review_comments,active_repos",
+        "type": "custom"
+      },
+      {
+        "allValue": null,
+        "current": {
           "text": "y10",
           "value": "y10"
         },
@@ -189,6 +271,29 @@
         "name": "period",
         "options": [],
         "query": "SHOW TAG VALUES WITH KEY = quick_ranges_suffix where quick_ranges_name =~ /^[[period_name]]$/",
+        "refresh": 1,
+        "regex": "",
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "text": "Kubernetes",
+          "value": "Kubernetes"
+        },
+        "datasource": "gha",
+        "hide": 2,
+        "includeAll": false,
+        "label": null,
+        "multi": false,
+        "name": "full_name",
+        "options": [],
+        "query": "SHOW TAG VALUES WITH KEY = full_name",
         "refresh": 1,
         "regex": "",
         "sort": 0,
@@ -243,29 +348,6 @@
         "tagsQuery": "",
         "type": "query",
         "useTags": false
-      },
-      {
-        "allValue": null,
-        "current": {
-          "text": "Kubernetes",
-          "value": "Kubernetes"
-        },
-        "datasource": "gha",
-        "hide": 2,
-        "includeAll": false,
-        "label": null,
-        "multi": false,
-        "name": "full_name",
-        "options": [],
-        "query": "SHOW TAG VALUES WITH KEY = full_name",
-        "refresh": 1,
-        "regex": "",
-        "sort": 0,
-        "tagValuesQuery": "",
-        "tags": [],
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false
       }
     ]
   },
@@ -300,7 +382,7 @@
     ]
   },
   "timezone": "",
-  "title": "PRs authors repository groups table",
-  "uid": "29",
-  "version": 4
+  "title": "Developer Activity Counts by Repository Group",
+  "uid": "13",
+  "version": 3
 }
