@@ -378,7 +378,7 @@ func MakeOldRepoName(repo *ForkeeOld) string {
 	if repo.Organization == nil || *repo.Organization == "" {
 		return repo.Name
 	}
-  // FIXME: what if repo.NAME == "" --> "kubernetes/"
+	// FIXME: what if repo.NAME == "" --> "kubernetes/"
 	return fmt.Sprintf("%s/%s", *repo.Organization, repo.Name)
 }
 

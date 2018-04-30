@@ -154,7 +154,7 @@ func updateTags(db *sql.DB, ctx *lib.Ctx, did int, jsonTags []string, info strin
 }
 
 // deleteUids uses dbFile database to dump all dashboards as JSONs
-func deleteUids(ctx *lib.Ctx, dbFile string, uids []int) {
+func deleteUids(ctx *lib.Ctx, dbFile string, uids []string) {
 	// Connect to SQLite3
 	db, err := sql.Open("sqlite3", dbFile)
 	lib.FatalOnError(err)
@@ -178,6 +178,7 @@ func deleteUids(ctx *lib.Ctx, dbFile string, uids []int) {
 		lib.FatalOnError(err)
 		_, err = sqliteExec(db, ctx, "delete from dashboard where id = ?", id)
 		lib.FatalOnError(err)
+		lib.Printf("Deleted dashboard with uid %s\n", uid)
 	}
 }
 
@@ -509,17 +510,17 @@ func main() {
 		os.Exit(1)
 	}
 	del := false
-	uids := []int{}
+	uids := []string{}
 	if len(os.Args) == 3 {
 		ary := strings.Split(os.Args[2], ",")
 		brk := false
 		for _, item := range ary {
-			uid, err := strconv.Atoi(item)
+			_, err := strconv.Atoi(item)
 			if err != nil {
 				brk = true
 				break
 			}
-			uids = append(uids, uid)
+			uids = append(uids, item)
 		}
 		if !brk {
 			del = true

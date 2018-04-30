@@ -113,7 +113,7 @@
           ],
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "SELECT \"name\", \"value\" FROM \"project_developer_stats_[[metric]]_[[period]]\" WHERE $timeFilter",
+          "query": "SELECT \"name\", \"value\" FROM \"developers_hist_[[metric]]_[[repogroup]]_[[period]]\" WHERE $timeFilter",
           "rawQuery": true,
           "refId": "A",
           "resultFormat": "table",
@@ -134,7 +134,7 @@
           "tags": []
         }
       ],
-      "title": "[[full_name]] Developers statistics ([[metric]], Range: [[period_name]]), bots excluded",
+      "title": "[[full_name]] Developers statistics ([[metric]], Range: [[period_name]], Repository group: [[repogroup_name]]), bots excluded",
       "transform": "table",
       "transparent": false,
       "type": "table"
@@ -146,6 +146,7 @@
   "tags": [
     "dashboard",
     "kubernetes",
+    "repogroups",
     "table"
   ],
   "templating": {
@@ -189,6 +190,16 @@
         "options": [
           {
             "selected": false,
+            "text": "Approvers",
+            "value": "approvers"
+          },
+          {
+            "selected": false,
+            "text": "Reviewers",
+            "value": "reviewers"
+          },
+          {
+            "selected": false,
             "text": "Comments",
             "value": "comments"
           },
@@ -205,12 +216,12 @@
           {
             "selected": false,
             "text": "GitHub events",
-            "value": "github_events"
+            "value": "events"
           },
           {
             "selected": false,
             "text": "GitHub pushes",
-            "value": "github_pushes"
+            "value": "pushes"
           },
           {
             "selected": false,
@@ -240,10 +251,10 @@
           {
             "selected": false,
             "text": "Active repositories",
-            "value": "active_repositories"
+            "value": "active_repos"
           }
         ],
-        "query": "comments,commit_comments,commits,github_events,github_pushes,issue_comments,issues,prs,review_comments,active_repositories",
+        "query": "approvers,reviewers,comments,commit_comments,commits,events,pushes,contributions,issue_comments,issues,prs,review_comments,active_repos",
         "type": "custom"
       },
       {
@@ -283,6 +294,52 @@
         "name": "full_name",
         "options": [],
         "query": "SHOW TAG VALUES WITH KEY = full_name",
+        "refresh": 1,
+        "regex": "",
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "text": "All",
+          "value": "All"
+        },
+        "datasource": "gha",
+        "hide": 0,
+        "includeAll": false,
+        "label": "Repository group",
+        "multi": false,
+        "name": "repogroup_name",
+        "options": [],
+        "query": "SHOW TAG VALUES WITH KEY = all_repo_group_name",
+        "refresh": 1,
+        "regex": "",
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "text": "all",
+          "value": "all"
+        },
+        "datasource": "gha",
+        "hide": 2,
+        "includeAll": false,
+        "label": "",
+        "multi": false,
+        "name": "repogroup",
+        "options": [],
+        "query": "SHOW TAG VALUES WITH KEY = all_repo_group_value where all_repo_group_name =~ /^[[repogroup_name]]$/",
         "refresh": 1,
         "regex": "",
         "sort": 0,
