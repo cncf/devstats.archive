@@ -1,8 +1,8 @@
 # Home dashboard
 
 Links:
-- Postgres SQL file: [events.sql](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/events.sql).
-- InfluxDB series definition: [metrics.yaml](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/metrics.yaml#L319-L322).
+- Postgres SQL file: [events.sql](https://github.com/cncf/devstats/blob/master/metrics/shared/events.sql).
+- InfluxDB series definition: [metrics.yaml](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/metrics.yaml) (search for `sql: events`).
 - Grafana dashboard JSON: [dashboards.json](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/dashboards.json).
 - User documentation: [dashboards.md](https://github.com/cncf/devstats/blob/master/docs/dashboards/dashboards.md).
 - Production version: [view](https://k8s.devstats.cncf.io/d/12/dashboards?refresh=15m&orgId=1).
@@ -16,7 +16,7 @@ Links:
   - For more information about `gha_events` table please check: [gha_events.md](https://github.com/cncf/devstats/blob/master/docs/tables/gha_events.md).
   - We're summing events hourly.
   - This is a small project activity chart, we're not excluding bots activity here (most other dashboards excludes bot activity).
-  - Each row returns single value, we're only groupoing hourly here, so InfluxDB series name is given directly [here](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/metrics.yaml#L319-L322) as `events_h`.
+  - Each row returns single value, we're only groupoing hourly here, so InfluxDB series name is given [directly](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/metrics.yaml) as `events_h`.
 - Next we're showing HTML panel that shows all CNCF projects icons and links. Its contents comes from Postgres `[[projects]]` variable
 - Next there is a dashboard that shows a list of all dashboards defined for the current project (Kubernetes in this case).
 - Next we're showing dashboard docuemntaion. Its contents comes from Postgres `[[docs]]` variable
@@ -29,7 +29,7 @@ series_name_or_func: events_h
 sql: events
 periods: h
 ```
-- It means that we should call Postgres metric [events.sql](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/events.sql).
+- It means that we should call Postgres metric [events.sql](https://github.com/cncf/devstats/blob/master/metrics/shared/events.sql).
 - We will save to InfluxDB series name `events_h`, query returns just single value for a given hour.
 - Grafana query is here: [dashboards.json](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/dashboards.json#L324): `SELECT \"value\" FROM \"events_h\" WHERE $timeFilter`.
 - `$timeFiler` value comes from Grafana date range selector. It is handled by Grafana internally.
