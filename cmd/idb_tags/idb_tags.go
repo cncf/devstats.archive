@@ -100,9 +100,7 @@ func idbTags() {
 			defer func() { lib.FatalOnError(rows.Close()) }()
 
 			// Drop current tags
-			if ctx.IDBDrop {
-				lib.QueryIDB(ic, &ctx, "delete from \""+tg.SeriesName+"\"")
-			}
+			lib.QueryIDB(ic, &ctx, "delete from \""+tg.SeriesName+"\"")
 			tm := lib.TimeParseAny("2014-01-01")
 
 			// Iterate tag values

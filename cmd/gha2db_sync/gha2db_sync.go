@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"math/rand"
 	"os"
 	"strconv"
 	"strings"
@@ -439,7 +438,7 @@ func sync(ctx *lib.Ctx, args []string) {
 		}
 
 		// Get Quick Ranges from IDB (it is filled by annotations command)
-		quickRanges := lib.GetTagValues(ic, ctx, "quick_ranges_suffix")
+		quickRanges := lib.GetTagValues(con, ctx, "quick_ranges", "quick_ranges_suffix")
 		lib.Printf("Quick ranges: %+v\n", quickRanges)
 
 		// Fill gaps in series
@@ -596,11 +595,6 @@ func calcHistogram(ch chan bool, ctx *lib.Ctx, hist []string) {
 		lib.Fatalf("calcHistogram, expected 7 strings, got: %d: %v", len(hist), hist)
 	}
 	envMap := make(map[string]string)
-	rSrc := rand.NewSource(time.Now().UnixNano())
-	rnd := rand.New(rSrc)
-	if ctx.IDBDropProbN > 0 && rnd.Intn(ctx.IDBDropProbN) == 1 {
-		envMap["GHA2DB_IDB_DROP_SERIES"] = "1"
-	}
 	lib.Printf(
 		"Calculate histogram %s,%s,%s,%s,%s,%s ...\n",
 		hist[1],

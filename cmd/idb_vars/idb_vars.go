@@ -67,9 +67,7 @@ func idbVars() {
 			continue
 		}
 		// Drop current vars
-		if ctx.IDBDrop {
-			lib.QueryIDB(ic, &ctx, "drop series from \""+tag.Tag+"\"")
-		}
+		lib.QueryIDB(ic, &ctx, "drop series from \""+tag.Tag+"\"")
 
 		if len(tag.Command) > 0 {
 			for i := range tag.Command {
