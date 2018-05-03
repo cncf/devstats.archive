@@ -13,6 +13,7 @@ func getMatchingSeries(ctx *lib.Ctx, seriesRegExp string) (seriesSet map[string]
 	// Connect to InfluxDB
 	ic := lib.IDBConn(ctx)
 	defer func() { lib.FatalOnError(ic.Close()) }()
+	lib.Fatalf("not implemented")
 
 	// Create result map
 	seriesSet = make(map[string]struct{})
@@ -30,14 +31,11 @@ func getMatchingSeries(ctx *lib.Ctx, seriesRegExp string) (seriesSet map[string]
 
 func workerThread(ch chan bool, ctx *lib.Ctx, seriesSet map[string]struct{}, period string, desc bool, values []string, from, to time.Time) {
 	// Connect to InfluxDB
-	ic := lib.IDBConn(ctx)
-	defer func() { lib.FatalOnError(ic.Close()) }()
+	con := lib.PgConn(ctx)
+	defer func() { lib.FatalOnError(con.Close()) }()
 
 	// Get BatchPoints
-	var pts lib.IDBBatchPointsN
-	bp := lib.IDBBatchPoints(ctx, &ic)
-	pts.NPoints = 0
-	pts.Points = &bp
+	var pts lib.TSPoints
 
 	// Zero
 	fields := make(map[string]interface{})
@@ -61,37 +59,41 @@ func workerThread(ch chan bool, ctx *lib.Ctx, seriesSet map[string]struct{}, per
 
 		// Support overwite all
 		if values[0] == "*" {
-			res := lib.QueryIDB(ic, ctx, "select * from \""+series+"\" where time = '"+idbFrom+"'")
-			allSeries := res[0].Series
-			if len(allSeries) == 0 {
-				continue
-			}
-			series := allSeries[0]
-			columns := series.Columns
-			if ctx.Debug > 0 {
-				lib.Printf("%v %s: * -> %v\n", series, idbFrom, columns)
-			}
-			n := 0
-			for _, column := range columns {
-				if column == lib.TimeCol {
+			lib.Printf("idbFrom: %v\n", idbFrom)
+			/*
+				res := lib.QueryIDB(ic, ctx, "select * from \""+series+"\" where time = '"+idbFrom+"'")
+				allSeries := res[0].Series
+				if len(allSeries) == 0 {
 					continue
 				}
-				fields[column] = 0.0
-				n++
-			}
-			if n == 0 {
-				continue
-			}
+				series := allSeries[0]
+				columns := series.Columns
+				if ctx.Debug > 0 {
+					lib.Printf("%v %s: * -> %v\n", series, idbFrom, columns)
+				}
+				n := 0
+				for _, column := range columns {
+					if column == lib.TimeCol {
+						continue
+					}
+					fields[column] = 0.0
+					n++
+				}
+				if n == 0 {
+					continue
+				}
+			*/
 		}
 
 		// Add batch point
-		pt := lib.IDBNewPointWithErr(ctx, series, nil, fields, from)
-		lib.IDBAddPointN(ctx, &ic, &pts, pt)
+		pt := lib.NewTSPoint(ctx, series, nil, fields, from)
+		lib.AddTSPoint(ctx, &pts, pt)
 	}
 
 	// Write the batch
 	if !ctx.SkipIDB {
-		lib.FatalOnError(lib.IDBWritePointsN(ctx, &ic, &pts))
+		// FIXME: mutex needed there?
+		lib.WriteTSPoints(ctx, con, &pts, nil)
 	} else if ctx.Debug > 0 {
 		lib.Printf("Skipping series write\n")
 	}

@@ -6,6 +6,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	lib "devstats"
@@ -139,7 +140,7 @@ func roundF2I(val float64) int {
 	return int(val + 0.5)
 }
 
-func workerThread(ch chan bool, ctx *lib.Ctx, seriesNameOrFunc, sqlQuery, excludeBots, period, desc string, multivalue, escapeValueName bool, nIntervals int, dt, from, to time.Time) {
+func workerThread(ch chan bool, ctx *lib.Ctx, seriesNameOrFunc, sqlQuery, excludeBots, period, desc string, multivalue, escapeValueName bool, nIntervals int, dt, from, to time.Time, mut *sync.Mutex) {
 	// Connect to Postgres DB
 	sqlc := lib.PgConn(ctx)
 	defer func() { lib.FatalOnError(sqlc.Close()) }()
@@ -272,7 +273,7 @@ func workerThread(ch chan bool, ctx *lib.Ctx, seriesNameOrFunc, sqlQuery, exclud
 	}
 	// Write the batch
 	if !ctx.SkipIDB {
-		lib.WriteTSPoints(ctx, sqlc, &pts)
+		lib.WriteTSPoints(ctx, sqlc, &pts, mut)
 	} else if ctx.Debug > 0 {
 		lib.Printf("Skipping series write\n")
 	}
@@ -563,7 +564,7 @@ func db2influxHistogram(ctx *lib.Ctx, seriesNameOrFunc, sqlFile, sqlQuery, exclu
 	// Write the batch
 	if !ctx.SkipIDB {
 		// Mark this metric & period as already computed if this is a QR period
-		lib.WriteTSPoints(ctx, sqlc, &pts)
+		lib.WriteTSPoints(ctx, sqlc, &pts, nil)
 		if qrFrom != nil {
 			setAlreadyComputed(sqlc, ctx, &pts, sqlFile, *qrFrom)
 		}
@@ -629,6 +630,7 @@ func db2influx(seriesNameOrFunc, sqlFile, from, to, intervalAbbr string, hist, m
 	dt := dFrom
 	var pDt time.Time
 	if thrN > 1 {
+		mut := &sync.Mutex{}
 		ch := make(chan bool)
 		nThreads := 0
 		for dt.Before(dTo) {
@@ -652,6 +654,7 @@ func db2influx(seriesNameOrFunc, sqlFile, from, to, intervalAbbr string, hist, m
 				dt,
 				pDt,
 				nDt,
+				mut,
 			)
 			dt = nDt
 			nThreads++
@@ -688,6 +691,7 @@ func db2influx(seriesNameOrFunc, sqlFile, from, to, intervalAbbr string, hist, m
 				dt,
 				pDt,
 				nDt,
+				nil,
 			)
 			dt = nDt
 		}
