@@ -9,8 +9,6 @@ import (
 	"time"
 
 	lib "devstats"
-
-	client "github.com/influxdata/influxdb/client/v2"
 )
 
 // valueDescription - return string description for given float value
@@ -145,10 +143,6 @@ func workerThread(ch chan bool, ctx *lib.Ctx, seriesNameOrFunc, sqlQuery, exclud
 	// Connect to Postgres DB
 	sqlc := lib.PgConn(ctx)
 	defer func() { lib.FatalOnError(sqlc.Close()) }()
-
-	// Connect to InfluxDB
-	ic := lib.IDBConn(ctx)
-	defer func() { lib.FatalOnError(ic.Close()) }()
 
 	// Get BatchPoints
 	var pts lib.IDBBatchPointsN
@@ -348,10 +342,6 @@ func db2influxHistogram(ctx *lib.Ctx, seriesNameOrFunc, sqlFile, sqlQuery, exclu
 	// Connect to Postgres DB
 	sqlc := lib.PgConn(ctx)
 	defer func() { lib.FatalOnError(sqlc.Close()) }()
-
-	// Connect to InfluxDB
-	ic := lib.IDBConn(ctx)
-	defer func() { lib.FatalOnError(ic.Close()) }()
 
 	// Get BatchPoints
 	var pts lib.IDBBatchPointsN
