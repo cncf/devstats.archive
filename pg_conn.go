@@ -84,10 +84,15 @@ func AddTSPoint(ctx *Ctx, pts *TSPoints, pt TSPoint) {
 }
 
 // WriteTSPoints write batch of points to postgresql
+// FIXME: Giant LOCK
 func WriteTSPoints(ctx *Ctx, con *sql.DB, pts *TSPoints, mut *sync.Mutex) {
+	npts := len(*pts)
 	if ctx.Debug > 0 {
 		Printf("WriteTSPoints: writing %d points\n", len(*pts))
 		Printf("Points:\n%+v\n", pts.Str())
+	}
+	if npts == 0 {
+		return
 	}
 	tags := make(map[string]map[string]struct{})
 	fields := make(map[string]map[string]int)
@@ -140,11 +145,11 @@ func WriteTSPoints(ctx *Ctx, con *sql.DB, pts *TSPoints, mut *sync.Mutex) {
 	}
 	sqls := []string{}
 	pk := "time timestamp primary key, "
-	tx, err := con.Begin()
-	FatalOnError(err)
 	if mut != nil {
 		mut.Lock()
 	}
+	tx, err := con.Begin()
+	FatalOnError(err)
 	for name, data := range tags {
 		if len(data) == 0 {
 			continue
@@ -217,9 +222,6 @@ func WriteTSPoints(ctx *Ctx, con *sql.DB, pts *TSPoints, mut *sync.Mutex) {
 	}
 	for _, q := range sqls {
 		ExecSQLTxWithErr(tx, ctx, q)
-	}
-	if mut != nil {
-		mut.Unlock()
 	}
 	for _, p := range *pts {
 		if p.tags != nil {
@@ -294,6 +296,9 @@ func WriteTSPoints(ctx *Ctx, con *sql.DB, pts *TSPoints, mut *sync.Mutex) {
 		}
 	}
 	FatalOnError(tx.Commit())
+	if mut != nil {
+		mut.Unlock()
+	}
 }
 
 // MakePsqlName makes sure the identifier is shorter than 64
