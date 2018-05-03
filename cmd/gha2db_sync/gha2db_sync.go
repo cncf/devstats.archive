@@ -296,10 +296,6 @@ func sync(ctx *lib.Ctx, args []string) {
 	con := lib.PgConn(ctx)
 	defer func() { lib.FatalOnError(con.Close()) }()
 
-	// Connect to InfluxDB
-	ic := lib.IDBConn(ctx)
-	defer func() { lib.FatalOnError(ic.Close()) }()
-
 	// Get max event date from Postgres database
 	var maxDtPtr *time.Time
 	maxDtPg := ctx.DefaultStartDate
@@ -313,10 +309,9 @@ func sync(ctx *lib.Ctx, args []string) {
 	// Get max series date from Influx database
 	maxDtIDB := ctx.DefaultStartDate
 	if !ctx.ForceStartDate {
-		res := lib.QueryIDB(ic, ctx, "select last(value) from "+ctx.LastSeries)
-		series := res[0].Series
-		if len(series) > 0 {
-			maxDtIDB = lib.TimeParseIDB(series[0].Values[0][0].(string))
+		lib.FatalOnError(lib.QueryRowSQL(con, ctx, "select max(time) from s"+ctx.LastSeries).Scan(&maxDtPtr))
+		if maxDtPtr != nil {
+			maxDtIDB = *maxDtPtr
 		}
 	}
 

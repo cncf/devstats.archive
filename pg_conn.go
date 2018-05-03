@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	_ "github.com/lib/pq" // As suggested by lib/pq driver
@@ -65,7 +66,7 @@ func NewTSPoint(ctx *Ctx, name string, tags map[string]string, fields map[string
 		tags:   otags,
 		fields: ofields,
 	}
-	if ctx.Debug >= 0 {
+	if ctx.Debug > 0 {
 		Printf("NewTSPoint: %s\n", p.Str())
 	}
 	return p
@@ -83,7 +84,7 @@ func AddTSPoint(ctx *Ctx, pts *TSPoints, pt TSPoint) {
 }
 
 // WriteTSPoints write batch of points to postgresql
-func WriteTSPoints(ctx *Ctx, con *sql.DB, pts *TSPoints) {
+func WriteTSPoints(ctx *Ctx, con *sql.DB, pts *TSPoints, mut *sync.Mutex) {
 	if ctx.Debug > 0 {
 		Printf("WriteTSPoints: writing %d points\n", len(*pts))
 		Printf("Points:\n%+v\n", pts.Str())
@@ -140,6 +141,10 @@ func WriteTSPoints(ctx *Ctx, con *sql.DB, pts *TSPoints) {
 	sqls := []string{}
 	pk := "time timestamp primary key, "
 	tx, err := con.Begin()
+	if mut != nil {
+		mut.Lock()
+		defer func() { mut.Unlock() }()
+	}
 	FatalOnError(err)
 	for name, data := range tags {
 		if len(data) == 0 {
@@ -208,11 +213,12 @@ func WriteTSPoints(ctx *Ctx, con *sql.DB, pts *TSPoints) {
 			}
 		}
 	}
+	if ctx.Debug > 0 {
+		Printf("sqls:\n%s\n", strings.Join(sqls, "\n"))
+	}
 	for _, q := range sqls {
 		ExecSQLTxWithErr(tx, ctx, q)
 	}
-	tx.Commit()
-	tx, err = con.Begin()
 	FatalOnError(err)
 	for _, p := range *pts {
 		if p.tags != nil {
@@ -286,7 +292,7 @@ func WriteTSPoints(ctx *Ctx, con *sql.DB, pts *TSPoints) {
 			ExecSQLTxWithErr(tx, ctx, q, vals...)
 		}
 	}
-	tx.Commit()
+	FatalOnError(tx.Commit())
 }
 
 // MakePsqlName makes sure the identifier is shorter than 64
@@ -321,88 +327,56 @@ func GetTagValues(con *sql.DB, ctx *Ctx, name, key string) (ret []string) {
 // TableExistsTx - checks if a given table exists
 func TableExistsTx(tx *sql.Tx, ctx *Ctx, tableName string) bool {
 	//ExecSQLTx(tx, ctx, "drop table " + tableName)
-	rows := QuerySQLTxWithErr(
-		tx,
-		ctx,
-		fmt.Sprintf(
-			"select to_regclass(%s)",
-			NValue(1),
-		),
-		tableName,
-	)
-	defer func() { FatalOnError(rows.Close()) }()
 	var s *string
-	for rows.Next() {
-		FatalOnError(rows.Scan(&s))
-	}
-	FatalOnError(rows.Err())
+	FatalOnError(QueryRowSQLTx(tx, ctx, fmt.Sprintf("select to_regclass(%s)", NValue(1)), tableName).Scan(&s))
 	return s != nil
 }
 
 // TableColumnExistsTx - checks if a given table's has a given column
 func TableColumnExistsTx(tx *sql.Tx, ctx *Ctx, tableName, columnName string) bool {
-	rows := QuerySQLTxWithErr(
-		tx,
-		ctx,
-		fmt.Sprintf(
-			"select column_name from information_schema.columns "+
-				"where table_name=%s and column_name=%s",
-			NValue(1),
-			NValue(2),
-		),
-		tableName,
-		columnName,
-	)
-	defer func() { FatalOnError(rows.Close()) }()
 	var s *string
-	for rows.Next() {
-		FatalOnError(rows.Scan(&s))
-	}
-	FatalOnError(rows.Err())
+	FatalOnError(
+		QueryRowSQLTx(
+			tx,
+			ctx,
+			fmt.Sprintf(
+				"select column_name from information_schema.columns "+
+					"where table_name=%s and column_name=%s",
+				NValue(1),
+				NValue(2),
+			),
+			tableName,
+			columnName,
+		).Scan(&s),
+	)
 	return s != nil
 }
 
 // TableExists - checks if a given table exists
 func TableExists(con *sql.DB, ctx *Ctx, tableName string) bool {
 	//ExecSQL(con, ctx, "drop table " + tableName)
-	rows := QuerySQLWithErr(
-		con,
-		ctx,
-		fmt.Sprintf(
-			"select to_regclass(%s)",
-			NValue(1),
-		),
-		tableName,
-	)
-	defer func() { FatalOnError(rows.Close()) }()
 	var s *string
-	for rows.Next() {
-		FatalOnError(rows.Scan(&s))
-	}
-	FatalOnError(rows.Err())
+	FatalOnError(QueryRowSQL(con, ctx, fmt.Sprintf("select to_regclass(%s)", NValue(1)), tableName).Scan(&s))
 	return s != nil
 }
 
 // TableColumnExists - checks if a given table's has a given column
 func TableColumnExists(con *sql.DB, ctx *Ctx, tableName, columnName string) bool {
-	rows := QuerySQLWithErr(
-		con,
-		ctx,
-		fmt.Sprintf(
-			"select column_name from information_schema.columns "+
-				"where table_name=%s and column_name=%s",
-			NValue(1),
-			NValue(2),
-		),
-		tableName,
-		columnName,
-	)
-	defer func() { FatalOnError(rows.Close()) }()
 	var s *string
-	for rows.Next() {
-		FatalOnError(rows.Scan(&s))
-	}
-	FatalOnError(rows.Err())
+	FatalOnError(
+		QueryRowSQL(
+			con,
+			ctx,
+			fmt.Sprintf(
+				"select column_name from information_schema.columns "+
+					"where table_name=%s and column_name=%s",
+				NValue(1),
+				NValue(2),
+			),
+			tableName,
+			columnName,
+		).Scan(&s),
+	)
 	return s != nil
 }
 
@@ -460,6 +434,14 @@ func QueryRowSQL(con *sql.DB, ctx *Ctx, query string, args ...interface{}) *sql.
 		queryOut(query, args...)
 	}
 	return con.QueryRow(query, args...)
+}
+
+// QueryRowSQLTx executes given SQL on Postgres DB (and returns single row)
+func QueryRowSQLTx(tx *sql.Tx, ctx *Ctx, query string, args ...interface{}) *sql.Row {
+	if ctx.QOut {
+		queryOut(query, args...)
+	}
+	return tx.QueryRow(query, args...)
 }
 
 // QuerySQL executes given SQL on Postgres DB (and returns rowset that needs to be closed)
