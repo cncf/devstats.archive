@@ -272,7 +272,7 @@ func workerThread(ch chan bool, ctx *lib.Ctx, seriesNameOrFunc, sqlQuery, exclud
 	}
 	// Write the batch
 	if !ctx.SkipIDB {
-		lib.FatalOnError(lib.WriteTSPoints(ctx, sqlc, &pts))
+		lib.WriteTSPoints(ctx, sqlc, &pts)
 	} else if ctx.Debug > 0 {
 		lib.Printf("Skipping series write\n")
 	}
@@ -299,44 +299,40 @@ func getPathIndependentKey(key string) string {
 // It will skip past period marked as compued unless special flags are passed
 func isAlreadyComputed(con *sql.DB, ctx *lib.Ctx, key, from string) bool {
 	key = getPathIndependentKey(key)
+	dtFrom := lib.TimeParseAny(from)
 	rows := lib.QuerySQLWithErr(
 		con,
 		ctx,
 		fmt.Sprintf(
-			"select count(*) from tags_computed where "+
-				"computed_key = %s and computed_from = %s",
+			"select 1 from gha_computed where "+
+				"metric = %s and dt = %s",
 			lib.NValue(1),
 			lib.NValue(2),
 		),
 		key,
-		from,
+		dtFrom,
 	)
 	defer func() { lib.FatalOnError(rows.Close()) }()
-	cnt := 0
+	i := 0
 	for rows.Next() {
-		lib.FatalOnError(rows.Scan(&cnt))
+		lib.FatalOnError(rows.Scan(&i))
 	}
 	lib.FatalOnError(rows.Err())
-	return cnt > 0
+	return i > 0
 }
 
 // setAlreadyComputed marks given quick range period as computed
 // Should be called inside: if !ctx.SkipIDB { ... }
-func setAlreadyComputed(ctx *lib.Ctx, pts *lib.TSPoints, key, from string) {
+func setAlreadyComputed(con *sql.DB, ctx *lib.Ctx, pts *lib.TSPoints, key, from string) {
 	key = getPathIndependentKey(key)
-
-	// Tags to insert
-	tags := make(map[string]string)
-	tags["computed_from"] = from
-	tags["computed_key"] = key
 	dtFrom := lib.TimeParseAny(from)
-
-	// Add batch point
-	pt := lib.NewTSPoint(ctx, "computed", tags, nil, dtFrom)
-	lib.AddTSPoint(ctx, pts, pt)
-	if ctx.Debug > 0 {
-		lib.Printf("Period '%s: %s' marked as computed\n", key, from)
-	}
+	lib.ExecSQLWithErr(
+		con,
+		ctx,
+		lib.InsertIgnore("into gha_computed(metric, dt) "+lib.NValues(2)),
+		key,
+		dtFrom,
+	)
 }
 
 func db2influxHistogram(ctx *lib.Ctx, seriesNameOrFunc, sqlFile, sqlQuery, excludeBots, interval, intervalAbbr string, nIntervals int, annotationsRanges, skipPast, multivalue bool) {
@@ -419,9 +415,9 @@ func db2influxHistogram(ctx *lib.Ctx, seriesNameOrFunc, sqlFile, sqlQuery, exclu
 	if nColumns == 2 {
 		if !ctx.SkipIDB {
 			// Drop existing data
-			table := "ts_" + seriesNameOrFunc
+			table := "s" + seriesNameOrFunc
 			if lib.TableExists(sqlc, ctx, table) {
-				lib.ExecSQLWithErr(sqlc, ctx, "truncate " + table)
+				lib.ExecSQLWithErr(sqlc, ctx, "truncate "+table)
 				if ctx.Debug > 0 {
 					lib.Printf("Dropped measurement %s\n", seriesNameOrFunc)
 				}
@@ -554,9 +550,9 @@ func db2influxHistogram(ctx *lib.Ctx, seriesNameOrFunc, sqlFile, sqlQuery, exclu
 		lib.FatalOnError(rows.Err())
 		if len(seriesToClear) > 0 && !ctx.SkipIDB {
 			for series := range seriesToClear {
-				table := "ts_" + series
+				table := "s" + series
 				if lib.TableExists(sqlc, ctx, table) {
-					lib.ExecSQLWithErr(sqlc, ctx, "truncate " + table)
+					lib.ExecSQLWithErr(sqlc, ctx, "truncate "+table)
 					if ctx.Debug > 0 {
 						lib.Printf("Dropped series: %s\n", series)
 					}
@@ -567,10 +563,10 @@ func db2influxHistogram(ctx *lib.Ctx, seriesNameOrFunc, sqlFile, sqlQuery, exclu
 	// Write the batch
 	if !ctx.SkipIDB {
 		// Mark this metric & period as already computed if this is a QR period
+		lib.WriteTSPoints(ctx, sqlc, &pts)
 		if qrFrom != nil {
-			setAlreadyComputed(ctx, &pts, sqlFile, *qrFrom)
+			setAlreadyComputed(sqlc, ctx, &pts, sqlFile, *qrFrom)
 		}
-		lib.FatalOnError(lib.WriteTSPoints(ctx, sqlc, &pts))
 	} else if ctx.Debug > 0 {
 		lib.Printf("Skipping series write\n")
 	}

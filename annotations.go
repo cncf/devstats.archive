@@ -265,7 +265,7 @@ func ProcessAnnotations(ctx *Ctx, annotations *Annotations, startDate, joinDate 
 	lastIndex := len(annotations.Annotations) - 1
 	for index, annotation := range annotations.Annotations {
 		if index == lastIndex {
-			sfx := fmt.Sprintf("anno_%d_now", index)
+			sfx := fmt.Sprintf("a_%d_n", index)
 			tags[tagName+"_suffix"] = sfx
 			tags[tagName+"_name"] = fmt.Sprintf("%s - now", annotation.Name)
 			tags[tagName+"_data"] = fmt.Sprintf("%s;;%s;%s", sfx, ToYMDHMSDate(annotation.Date), ToYMDHMSDate(NextDayStart(time.Now())))
@@ -283,7 +283,7 @@ func ProcessAnnotations(ctx *Ctx, annotations *Annotations, startDate, joinDate 
 			break
 		}
 		nextAnnotation := annotations.Annotations[index+1]
-		sfx := fmt.Sprintf("anno_%d_%d", index, index+1)
+		sfx := fmt.Sprintf("a_%d_%d", index, index+1)
 		tags[tagName+"_suffix"] = sfx
 		tags[tagName+"_name"] = fmt.Sprintf("%s - %s", annotation.Name, nextAnnotation.Name)
 		tags[tagName+"_data"] = fmt.Sprintf("%s;;%s;%s", sfx, ToYMDHMSDate(annotation.Date), ToYMDHMSDate(nextAnnotation.Date))
@@ -303,7 +303,7 @@ func ProcessAnnotations(ctx *Ctx, annotations *Annotations, startDate, joinDate 
 	// 2 special periods: before and after joining CNCF
 	if startDate != nil && joinDate != nil && joinDate.After(*startDate) {
 		// From project start to CNCF join date
-		sfx := "cncf_before"
+		sfx := "c_b"
 		tags[tagName+"_suffix"] = sfx
 		tags[tagName+"_name"] = "Before joining CNCF"
 		tags[tagName+"_data"] = fmt.Sprintf("%s;;%s;%s", sfx, ToYMDHMSDate(*startDate), ToYMDHMSDate(*joinDate))
@@ -320,7 +320,7 @@ func ProcessAnnotations(ctx *Ctx, annotations *Annotations, startDate, joinDate 
 		tm = tm.Add(time.Hour)
 
 		// From CNCF join date till now
-		sfx = "cncf_now"
+		sfx = "c_n"
 		tags[tagName+"_suffix"] = sfx
 		tags[tagName+"_name"] = "Since joining CNCF"
 		tags[tagName+"_data"] = fmt.Sprintf("%s;;%s;%s", sfx, ToYMDHMSDate(*joinDate), ToYMDHMSDate(NextDayStart(time.Now())))
@@ -339,12 +339,12 @@ func ProcessAnnotations(ctx *Ctx, annotations *Annotations, startDate, joinDate 
 
 	// Write the batch
 	if !ctx.SkipIDB {
-		table := "tags_quick_ranges"
+		table := "tquick_ranges"
 		column := "quick_ranges_suffix"
 		if TableExists(ic, ctx, table) && TableColumnExists(ic, ctx, table, column) {
-			ExecSQLWithErr(ic, ctx, fmt.Sprintf("delete from %s where %s like '%%_now'", table, column))
+			ExecSQLWithErr(ic, ctx, fmt.Sprintf("delete from %s where %s like '%%_n'", table, column))
 		}
-		FatalOnError(WriteTSPoints(ctx, ic, &pts))
+		WriteTSPoints(ctx, ic, &pts)
 	} else if ctx.Debug > 0 {
 		Printf("Skipping annotations series write\n")
 	}
