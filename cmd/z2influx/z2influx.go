@@ -1,8 +1,10 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"strings"
+	"sync"
 	"time"
 
 	lib "devstats"
@@ -11,28 +13,51 @@ import (
 // getMatchingSeries returns series name that matches given regexp
 func getMatchingSeries(ctx *lib.Ctx, seriesRegExp string) (seriesSet map[string]struct{}) {
 	// Connect to InfluxDB
-	ic := lib.IDBConn(ctx)
-	defer func() { lib.FatalOnError(ic.Close()) }()
-	lib.Fatalf("not implemented")
+	con := lib.PgConn(ctx)
+	defer func() { lib.FatalOnError(con.Close()) }()
+
+	// Get actual regexp
+	l := len(seriesRegExp)
+	if seriesRegExp[l-1] != '/' {
+		lib.Fatalf("series regexp must end with '/'")
+	}
+	rexp := seriesRegExp[1 : l-1]
 
 	// Create result map
 	seriesSet = make(map[string]struct{})
 
 	// Get series that match given regexp by selecting their last value
-	lib.Printf("Fetching series names matching %s\n", seriesRegExp)
-	res := lib.QueryIDB(ic, ctx, "select last(*) from "+seriesRegExp)
-	allSeries := res[0].Series
-	for _, series := range allSeries {
-		seriesSet[series.Name] = struct{}{}
+	lib.Printf("Fetching series names matching %s\n", rexp)
+	rows := lib.QuerySQLWithErr(
+		con,
+		ctx,
+		fmt.Sprintf(
+			"select table_name from information_schema.tables where table_schema = 'public' "+
+				"and substring(table_name from %s) is not null",
+			lib.NValue(1),
+		),
+		rexp,
+	)
+	defer func() { lib.FatalOnError(rows.Close()) }()
+	ser := ""
+	for rows.Next() {
+		lib.FatalOnError(rows.Scan(&ser))
+		// You can only zero series starting with "s" - other tables can be used by GHA engine
+		if len(ser) > 1 && ser[0] == 's' {
+			seriesSet[ser] = struct{}{}
+		}
 	}
-	lib.Printf("Found %d series matching %s: %v\n", len(allSeries), seriesRegExp, seriesSet)
+	lib.FatalOnError(rows.Err())
+	lib.Printf("Found %d series matching %s: %v\n", len(seriesSet), seriesRegExp, seriesSet)
 	return
 }
 
-func workerThread(ch chan bool, ctx *lib.Ctx, seriesSet map[string]struct{}, period string, desc bool, values []string, from, to time.Time) {
+func workerThread(ch chan bool, ctx *lib.Ctx, seriesSet map[string]struct{}, period string, desc bool, values []string, from, to time.Time, mut *sync.Mutex) {
 	// Connect to InfluxDB
 	con := lib.PgConn(ctx)
-	defer func() { lib.FatalOnError(con.Close()) }()
+	defer func() {
+		lib.FatalOnError(con.Close())
+	}()
 
 	// Get BatchPoints
 	var pts lib.TSPoints
@@ -49,40 +74,34 @@ func workerThread(ch chan bool, ctx *lib.Ctx, seriesSet map[string]struct{}, per
 		fields["descr"] = ""
 	}
 
-	// YYYY-MM-DDTHH:MI:SSZ
-	idbFrom := lib.ToIDBDate(from)
-
-	for series := range seriesSet {
+	//dtFrom := lib.TimeParseAny(from)
+	for iseries := range seriesSet {
+		if len(iseries) < 2 {
+			continue
+		}
+		if iseries[0] != 's' {
+			continue
+		}
+		series := iseries[1:]
 		if ctx.Debug > 0 {
 			lib.Printf("%+v %v - %v %v\n", series, from, to, period)
 		}
 
 		// Support overwite all
 		if values[0] == "*" {
-			lib.Printf("idbFrom: %v\n", idbFrom)
-			/*
-				res := lib.QueryIDB(ic, ctx, "select * from \""+series+"\" where time = '"+idbFrom+"'")
-				allSeries := res[0].Series
-				if len(allSeries) == 0 {
+			rows := lib.QuerySQLWithErr(con, ctx, "select * from "+iseries+" limit 1")
+			columns, err := rows.Columns()
+			lib.FatalOnError(err)
+			lib.FatalOnError(rows.Close())
+			if ctx.Debug > 0 {
+				lib.Printf("%v: * -> %v\n", series, columns)
+			}
+			for _, column := range columns {
+				if column == lib.TimeCol {
 					continue
 				}
-				series := allSeries[0]
-				columns := series.Columns
-				if ctx.Debug > 0 {
-					lib.Printf("%v %s: * -> %v\n", series, idbFrom, columns)
-				}
-				n := 0
-				for _, column := range columns {
-					if column == lib.TimeCol {
-						continue
-					}
-					fields[column] = 0.0
-					n++
-				}
-				if n == 0 {
-					continue
-				}
-			*/
+				fields[column] = 0.0
+			}
 		}
 
 		// Add batch point
@@ -92,8 +111,7 @@ func workerThread(ch chan bool, ctx *lib.Ctx, seriesSet map[string]struct{}, per
 
 	// Write the batch
 	if !ctx.SkipIDB {
-		// FIXME: mutex needed there?
-		lib.WriteTSPoints(ctx, con, &pts, nil)
+		lib.WriteTSPoints(ctx, con, &pts, mut)
 	} else if ctx.Debug > 0 {
 		lib.Printf("Skipping series write\n")
 	}
@@ -146,11 +164,13 @@ func z2influx(series, from, to, intervalAbbr string, desc bool, values []string)
 	}
 	dt := dFrom
 	if thrN > 1 {
+		mut := &sync.Mutex{}
+		//var mut *sync.Mutex
 		ch := make(chan bool)
 		nThreads := 0
 		for dt.Before(dTo) {
 			nDt := nextIntervalStart(dt)
-			go workerThread(ch, &ctx, seriesSet, intervalAbbr, desc, values, dt, nDt)
+			go workerThread(ch, &ctx, seriesSet, intervalAbbr, desc, values, dt, nDt, mut)
 			dt = nDt
 			nThreads++
 			if nThreads == thrN {
@@ -167,7 +187,7 @@ func z2influx(series, from, to, intervalAbbr string, desc bool, values []string)
 		lib.Printf("Using single threaded version\n")
 		for dt.Before(dTo) {
 			nDt := nextIntervalStart(dt)
-			workerThread(nil, &ctx, seriesSet, intervalAbbr, desc, values, dt, nDt)
+			workerThread(nil, &ctx, seriesSet, intervalAbbr, desc, values, dt, nDt, nil)
 			dt = nDt
 		}
 	}

@@ -141,11 +141,10 @@ func WriteTSPoints(ctx *Ctx, con *sql.DB, pts *TSPoints, mut *sync.Mutex) {
 	sqls := []string{}
 	pk := "time timestamp primary key, "
 	tx, err := con.Begin()
+	FatalOnError(err)
 	if mut != nil {
 		mut.Lock()
-		defer func() { mut.Unlock() }()
 	}
-	FatalOnError(err)
 	for name, data := range tags {
 		if len(data) == 0 {
 			continue
@@ -219,7 +218,9 @@ func WriteTSPoints(ctx *Ctx, con *sql.DB, pts *TSPoints, mut *sync.Mutex) {
 	for _, q := range sqls {
 		ExecSQLTxWithErr(tx, ctx, q)
 	}
-	FatalOnError(err)
+	if mut != nil {
+		mut.Unlock()
+	}
 	for _, p := range *pts {
 		if p.tags != nil {
 			name := MakePsqlName("t" + p.name)
@@ -341,7 +342,8 @@ func TableColumnExistsTx(tx *sql.Tx, ctx *Ctx, tableName, columnName string) boo
 			ctx,
 			fmt.Sprintf(
 				"select column_name from information_schema.columns "+
-					"where table_name=%s and column_name=%s",
+					"where table_name=%s and column_name=%s "+
+					"union select null limit 1",
 				NValue(1),
 				NValue(2),
 			),
@@ -369,7 +371,8 @@ func TableColumnExists(con *sql.DB, ctx *Ctx, tableName, columnName string) bool
 			ctx,
 			fmt.Sprintf(
 				"select column_name from information_schema.columns "+
-					"where table_name=%s and column_name=%s",
+					"where table_name=%s and column_name=%s "+
+					"union select null limit 1",
 				NValue(1),
 				NValue(2),
 			),
