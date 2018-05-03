@@ -300,8 +300,9 @@ func getPathIndependentKey(key string) string {
 
 // isAlreadyComputed check if given quick range period was already computed
 // It will skip past period marked as compued unless special flags are passed
-func isAlreadyComputed(ic client.Client, ctx *lib.Ctx, key, from string) bool {
+func isAlreadyComputed(ic *sql.DB, ctx *lib.Ctx, key, from string) bool {
 	key = getPathIndependentKey(key)
+  /*
 	query := fmt.Sprintf(
 		"select count(*) "+
 			"from computed where computed_key = '%s' "+
@@ -314,6 +315,8 @@ func isAlreadyComputed(ic client.Client, ctx *lib.Ctx, key, from string) bool {
 	if ctx.Debug > 0 {
 		lib.Printf("Period '%s: %s' compute status: %v\n", key, from, computed)
 	}
+  */
+  lib.Fatalf("not implemented")
 	return computed
 }
 
