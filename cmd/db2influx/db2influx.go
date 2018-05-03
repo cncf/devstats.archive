@@ -145,10 +145,7 @@ func workerThread(ch chan bool, ctx *lib.Ctx, seriesNameOrFunc, sqlQuery, exclud
 	defer func() { lib.FatalOnError(sqlc.Close()) }()
 
 	// Get BatchPoints
-	var pts lib.IDBBatchPointsN
-	bp := lib.IDBBatchPoints(ctx, &ic)
-	pts.NPoints = 0
-	pts.Points = &bp
+	var pts lib.TSPoints
 
 	// Prepare SQL query
 	sFrom := lib.ToYMDHMSDate(from)
@@ -209,8 +206,8 @@ func workerThread(ch chan bool, ctx *lib.Ctx, seriesNameOrFunc, sqlQuery, exclud
 		if useDesc {
 			fields["descr"] = valueDescription(desc, value)
 		}
-		pt := lib.IDBNewPointWithErr(ctx, name, nil, fields, dt)
-		lib.IDBAddPointN(ctx, &ic, &pts, pt)
+		pt := lib.NewTSPoint(ctx, name, nil, fields, dt)
+		lib.AddTSPoint(ctx, &pts, pt)
 	} else if nColumns >= 2 {
 		// Multiple rows, each with (series name, value(s))
 		// Number of columns
@@ -260,22 +257,22 @@ func workerThread(ch chan bool, ctx *lib.Ctx, seriesNameOrFunc, sqlQuery, exclud
 						if useDesc {
 							fields["descr"] = valueDescription(desc, value)
 						}
-						pt := lib.IDBNewPointWithErr(ctx, name, nil, fields, dt)
-						lib.IDBAddPointN(ctx, &ic, &pts, pt)
+						pt := lib.NewTSPoint(ctx, name, nil, fields, dt)
+						lib.AddTSPoint(ctx, &pts, pt)
 					}
 				}
 			}
 		}
 		// Multivalue series if any
 		for seriesName, seriesValues := range allFields {
-			pt := lib.IDBNewPointWithErr(ctx, seriesName, nil, seriesValues, dt)
-			lib.IDBAddPointN(ctx, &ic, &pts, pt)
+			pt := lib.NewTSPoint(ctx, seriesName, nil, seriesValues, dt)
+			lib.AddTSPoint(ctx, &pts, pt)
 		}
 		lib.FatalOnError(rows.Err())
 	}
 	// Write the batch
 	if !ctx.SkipIDB {
-		lib.FatalOnError(lib.IDBWritePointsN(ctx, &ic, &pts))
+		lib.FatalOnError(lib.WriteTSPoints(ctx, sqlc, &pts))
 	} else if ctx.Debug > 0 {
 		lib.Printf("Skipping series write\n")
 	}
@@ -300,32 +297,33 @@ func getPathIndependentKey(key string) string {
 
 // isAlreadyComputed check if given quick range period was already computed
 // It will skip past period marked as compued unless special flags are passed
-func isAlreadyComputed(ic *sql.DB, ctx *lib.Ctx, key, from string) bool {
+func isAlreadyComputed(con *sql.DB, ctx *lib.Ctx, key, from string) bool {
 	key = getPathIndependentKey(key)
-  /*
-	query := fmt.Sprintf(
-		"select count(*) "+
-			"from computed where computed_key = '%s' "+
-			"and computed_from = '%s'",
+	rows := lib.QuerySQLWithErr(
+		con,
+		ctx,
+		fmt.Sprintf(
+			"select count(*) from tags_computed where "+
+				"computed_key = %s and computed_from = %s",
+			lib.NValue(1),
+			lib.NValue(2),
+		),
 		key,
 		from,
 	)
-	res := lib.QueryIDB(ic, ctx, query)
-	computed := len(res[0].Series) > 0
-	if ctx.Debug > 0 {
-		lib.Printf("Period '%s: %s' compute status: %v\n", key, from, computed)
+	defer func() { lib.FatalOnError(rows.Close()) }()
+	cnt := 0
+	for rows.Next() {
+		lib.FatalOnError(rows.Scan(&cnt))
 	}
-  */
-  lib.Fatalf("not implemented")
-	return computed
+	lib.FatalOnError(rows.Err())
+	return cnt > 0
 }
 
 // setAlreadyComputed marks given quick range period as computed
 // Should be called inside: if !ctx.SkipIDB { ... }
-func setAlreadyComputed(ic client.Client, ctx *lib.Ctx, pts *lib.IDBBatchPointsN, key, from string) {
+func setAlreadyComputed(ctx *lib.Ctx, pts *lib.TSPoints, key, from string) {
 	key = getPathIndependentKey(key)
-	// No fields value needed
-	fields := map[string]interface{}{"value": 0.0}
 
 	// Tags to insert
 	tags := make(map[string]string)
@@ -334,8 +332,8 @@ func setAlreadyComputed(ic client.Client, ctx *lib.Ctx, pts *lib.IDBBatchPointsN
 	dtFrom := lib.TimeParseAny(from)
 
 	// Add batch point
-	pt := lib.IDBNewPointWithErr(ctx, "computed", tags, fields, dtFrom)
-	lib.IDBAddPointN(ctx, &ic, pts, pt)
+	pt := lib.NewTSPoint(ctx, "computed", tags, nil, dtFrom)
+	lib.AddTSPoint(ctx, pts, pt)
 	if ctx.Debug > 0 {
 		lib.Printf("Period '%s: %s' marked as computed\n", key, from)
 	}
@@ -347,10 +345,7 @@ func db2influxHistogram(ctx *lib.Ctx, seriesNameOrFunc, sqlFile, sqlQuery, exclu
 	defer func() { lib.FatalOnError(sqlc.Close()) }()
 
 	// Get BatchPoints
-	var pts lib.IDBBatchPointsN
-	bp := lib.IDBBatchPoints(ctx, &ic)
-	pts.NPoints = 0
-	pts.Points = &bp
+	var pts lib.TSPoints
 
 	lib.Printf("db2influx.go: Histogram running interval '%v,%v' n:%d anno:%v past:%v multi:%v\n", interval, intervalAbbr, nIntervals, annotationsRanges, skipPast, multivalue)
 
@@ -358,7 +353,7 @@ func db2influxHistogram(ctx *lib.Ctx, seriesNameOrFunc, sqlFile, sqlQuery, exclu
 	var qrFrom *string
 	if annotationsRanges {
 		// Get Quick Ranges from IDB (it is filled by annotations command)
-		quickRanges := lib.GetTagValues(ic, ctx, "quick_ranges_data")
+		quickRanges := lib.GetTagValues(sqlc, ctx, "quick_ranges", "quick_ranges_data")
 		if ctx.Debug > 0 {
 			lib.Printf("Quick ranges: %+v\n", quickRanges)
 		}
@@ -376,7 +371,7 @@ func db2influxHistogram(ctx *lib.Ctx, seriesNameOrFunc, sqlFile, sqlQuery, exclu
 				if skipPast && period == "" {
 					dtTo := lib.TimeParseAny(to)
 					prevHour := lib.PrevHourStart(time.Now())
-					if dtTo.Before(prevHour) && isAlreadyComputed(ic, ctx, sqlFile, from) {
+					if dtTo.Before(prevHour) && isAlreadyComputed(sqlc, ctx, sqlFile, from) {
 						lib.Printf("Skipping past quick range: %v (already computed)\n", from)
 						return
 					}
@@ -424,11 +419,12 @@ func db2influxHistogram(ctx *lib.Ctx, seriesNameOrFunc, sqlFile, sqlQuery, exclu
 	if nColumns == 2 {
 		if !ctx.SkipIDB {
 			// Drop existing data
-			if ctx.IDBDrop {
-				lib.QueryIDB(ic, ctx, "delete from \""+seriesNameOrFunc+"\"")
-			}
-			if ctx.Debug > 0 {
-				lib.Printf("Dropped measurement %s\n", seriesNameOrFunc)
+			table := "ts_" + seriesNameOrFunc
+			if lib.TableExists(sqlc, ctx, table) {
+				lib.ExecSQLWithErr(sqlc, ctx, "truncate " + table)
+				if ctx.Debug > 0 {
+					lib.Printf("Dropped measurement %s\n", seriesNameOrFunc)
+				}
 			}
 		}
 
@@ -442,8 +438,8 @@ func db2influxHistogram(ctx *lib.Ctx, seriesNameOrFunc, sqlFile, sqlQuery, exclu
 			}
 			// Add batch point
 			fields := map[string]interface{}{"name": name, "value": value}
-			pt := lib.IDBNewPointWithErr(ctx, seriesNameOrFunc, nil, fields, tm)
-			lib.IDBAddPointN(ctx, &ic, &pts, pt)
+			pt := lib.NewTSPoint(ctx, seriesNameOrFunc, nil, fields, tm)
+			lib.AddTSPoint(ctx, &pts, pt)
 			rowCount++
 			tm = tm.Add(-time.Hour)
 		}
@@ -518,8 +514,8 @@ func db2influxHistogram(ctx *lib.Ctx, seriesNameOrFunc, sqlFile, sqlQuery, exclu
 					//lib.Printf("hist %v, %v %v -> %+v\n", name, nIntervals, interval, fields)
 				}
 				// Add batch point
-				pt := lib.IDBNewPointWithErr(ctx, name, nil, fields, tm)
-				lib.IDBAddPointN(ctx, &ic, &pts, pt)
+				pt := lib.NewTSPoint(ctx, name, nil, fields, tm)
+				lib.AddTSPoint(ctx, &pts, pt)
 			} else {
 				if nNames > 0 {
 					for i := 0; i < nNames; i++ {
@@ -549,18 +545,21 @@ func db2influxHistogram(ctx *lib.Ctx, seriesNameOrFunc, sqlFile, sqlQuery, exclu
 						}
 						// Add batch point
 						fields := map[string]interface{}{"name": sValue, "value": fValue}
-						pt := lib.IDBNewPointWithErr(ctx, name, nil, fields, tm)
-						lib.IDBAddPointN(ctx, &ic, &pts, pt)
+						pt := lib.NewTSPoint(ctx, name, nil, fields, tm)
+						lib.AddTSPoint(ctx, &pts, pt)
 					}
 				}
 			}
 		}
 		lib.FatalOnError(rows.Err())
-		if len(seriesToClear) > 0 && !ctx.SkipIDB && ctx.IDBDrop {
+		if len(seriesToClear) > 0 && !ctx.SkipIDB {
 			for series := range seriesToClear {
-				lib.QueryIDB(ic, ctx, "delete from \""+series+"\"")
-				if ctx.Debug > 0 {
-					lib.Printf("Dropped series: %s\n", series)
+				table := "ts_" + series
+				if lib.TableExists(sqlc, ctx, table) {
+					lib.ExecSQLWithErr(sqlc, ctx, "truncate " + table)
+					if ctx.Debug > 0 {
+						lib.Printf("Dropped series: %s\n", series)
+					}
 				}
 			}
 		}
@@ -569,9 +568,9 @@ func db2influxHistogram(ctx *lib.Ctx, seriesNameOrFunc, sqlFile, sqlQuery, exclu
 	if !ctx.SkipIDB {
 		// Mark this metric & period as already computed if this is a QR period
 		if qrFrom != nil {
-			setAlreadyComputed(ic, ctx, &pts, sqlFile, *qrFrom)
+			setAlreadyComputed(ctx, &pts, sqlFile, *qrFrom)
 		}
-		lib.FatalOnError(lib.IDBWritePointsN(ctx, &ic, &pts))
+		lib.FatalOnError(lib.WriteTSPoints(ctx, sqlc, &pts))
 	} else if ctx.Debug > 0 {
 		lib.Printf("Skipping series write\n")
 	}
@@ -706,7 +705,7 @@ func main() {
 	if len(os.Args) < 6 {
 		lib.Printf(
 			"Required series name, SQL file name, from, to, period " +
-				"[series_name_or_func some.sql '2015-08-03' '2017-08-21' h|d|w|m|q|y [hist,desc:time_diff_as_string]]\n",
+				"[series_name_or_func some.sql '2015-08-03' '2017-08-21' h|d|w|m|q|y [hist,desc:time_diff_as_string,multivalue,escape_value_name,annotations_ranges,skip_past]]\n",
 		)
 		lib.Printf(
 			"Series name (series_name_or_func) will become exact series name if " +

@@ -10,6 +10,342 @@ import (
 	_ "github.com/lib/pq" // As suggested by lib/pq driver
 )
 
+// TSPoint keeps single time series point
+type TSPoint struct {
+	t      time.Time
+	name   string
+	tags   map[string]string
+	fields map[string]interface{}
+}
+
+// TSPoints keeps batch of TSPoint values to write
+type TSPoints []TSPoint
+
+// Str - string pretty print
+func (p *TSPoint) Str() string {
+	return fmt.Sprintf(
+		"%3s %s tags: %+v fields: %+v",
+		ToYMDHDate(p.t),
+		p.name,
+		p.tags,
+		p.fields,
+	)
+}
+
+// Str - string pretty print
+func (ps *TSPoints) Str() string {
+	s := ""
+	for i, p := range *ps {
+		s += fmt.Sprintf("#%d %s\n", i+1, p.Str())
+	}
+	return s
+}
+
+// NewTSPoint returns new point as specified by args
+func NewTSPoint(ctx *Ctx, name string, tags map[string]string, fields map[string]interface{}, t time.Time) TSPoint {
+	var (
+		otags   map[string]string
+		ofields map[string]interface{}
+	)
+	if tags != nil {
+		otags = make(map[string]string)
+		for k, v := range tags {
+			otags[k] = v
+		}
+	}
+	if fields != nil {
+		ofields = make(map[string]interface{})
+		for k, v := range fields {
+			ofields[k] = v
+		}
+	}
+	p := TSPoint{
+		t:      HourStart(t),
+		name:   name,
+		tags:   otags,
+		fields: ofields,
+	}
+	if ctx.Debug >= 0 {
+		Printf("NewTSPoint: %s\n", p.Str())
+	}
+	return p
+}
+
+// AddTSPoint add single point to the batch
+func AddTSPoint(ctx *Ctx, pts *TSPoints, pt TSPoint) {
+	if ctx.Debug > 0 {
+		Printf("AddTSPoint: %s\n", pt.Str())
+	}
+	*pts = append(*pts, pt)
+	if ctx.Debug > 0 {
+		Printf("AddTSPoint: point added, now %d points\n", len(*pts))
+	}
+}
+
+// WriteTSPoints write batch of points to postgresql
+func WriteTSPoints(ctx *Ctx, con *sql.DB, pts *TSPoints) error {
+	if ctx.Debug > 0 {
+		Printf("WriteTSPoints: writing %d points\n", len(*pts))
+		Printf("Points:\n%+v\n", pts.Str())
+	}
+	tags := make(map[string]map[string]struct{})
+	fields := make(map[string]map[string]int)
+	for _, p := range *pts {
+		if tags != nil {
+			name := "tags_" + p.name
+			_, ok := tags[name]
+			if !ok {
+				tags[name] = make(map[string]struct{})
+			}
+			for tagName := range p.tags {
+				tags[name][tagName] = struct{}{}
+			}
+		}
+		if fields != nil {
+			name := "ts_" + p.name
+			_, ok := fields[name]
+			if !ok {
+				fields[name] = make(map[string]int)
+			}
+			for fieldName, fieldValue := range p.fields {
+				t, ok := fields[name][fieldName]
+				if !ok {
+					t = -1
+				}
+				ty := -1
+				switch fieldValue.(type) {
+				case float64:
+					ty = 0
+				case string:
+					ty = 1
+				default:
+					Fatalf("usupported metric value type: %+v,%T (field %s)", fieldValue, fieldValue, fieldName)
+				}
+				if t >= 0 && t != ty {
+					Fatalf(
+						"Field %s has a value %+v,%T, previous values were different type %d != %d",
+						fieldName, fieldValue, fieldValue, ty, t,
+					)
+				}
+				fields[name][fieldName] = ty
+			}
+		}
+	}
+	if ctx.Debug > 0 {
+		Printf("tags:\n%+v\n", tags)
+		Printf("fields:\n%+v\n", fields)
+	}
+	sqls := []string{}
+	pk := "time timestamp primary key, "
+	for name, data := range tags {
+		if len(data) == 0 {
+			continue
+		}
+		exists := TableExists(con, ctx, name)
+		if !exists {
+			sq := "create table " + name + "(" + pk
+			indices := []string{}
+			for col := range data {
+				sq += col + " text, "
+				indices = append(indices, "create index idx_"+name+"_"+col+" on "+name+"("+col+")")
+			}
+			l := len(sq)
+			sq = sq[:l-2] + ")"
+			sqls = append(sqls, sq)
+			sqls = append(sqls, indices...)
+			sqls = append(sqls, "grant select on "+name+" to ro_user")
+			sqls = append(sqls, "grant select on "+name+" to devstats_team")
+			continue
+		}
+		for col := range data {
+			colExists := TableColumnExists(con, ctx, name, col)
+			if !colExists {
+				sq := "alter table " + name + " add " + col + " text"
+				sqls = append(sqls, sq)
+				sqls = append(sqls, "create index idx_"+name+"_"+col+" on "+name+"("+col+")")
+			}
+		}
+	}
+	for name, data := range fields {
+		if len(data) == 0 {
+			continue
+		}
+		exists := TableExists(con, ctx, name)
+		if !exists {
+			sq := "create table " + name + "(" + pk
+			indices := []string{}
+			for col, ty := range data {
+				if ty == 0 {
+					sq += col + " double precision, "
+				} else {
+					sq += col + " text, "
+				}
+				indices = append(indices, "create index idx_"+name+"_"+col+" on "+name+"("+col+")")
+			}
+			l := len(sq)
+			sq = sq[:l-2] + ")"
+			sqls = append(sqls, sq)
+			sqls = append(sqls, indices...)
+			sqls = append(sqls, "grant select on "+name+" to ro_user")
+			sqls = append(sqls, "grant select on "+name+" to devstats_team")
+			continue
+		}
+		for col, ty := range data {
+			colExists := TableColumnExists(con, ctx, name, col)
+			if !colExists {
+				sq := ""
+				if ty == 0 {
+					sq = "alter table " + name + " add " + col + " double precision"
+				} else {
+					sq = "alter table " + name + " add " + col + " text"
+				}
+				sqls = append(sqls, sq)
+				sqls = append(sqls, "create index idx_"+name+"_"+col+" on "+name+"("+col+")")
+			}
+		}
+	}
+	for _, q := range sqls {
+		ExecSQLWithErr(con, ctx, q)
+	}
+	for _, p := range *pts {
+		if p.tags != nil {
+			name := "tags_" + p.name
+			namesI := []string{"time"}
+			argsI := []string{"$1"}
+			vals := []interface{}{p.t}
+			i := 2
+			for tagName, tagValue := range p.tags {
+				namesI = append(namesI, tagName)
+				argsI = append(argsI, "$"+strconv.Itoa(i))
+				vals = append(vals, tagValue)
+				i++
+			}
+			namesIA := strings.Join(namesI, ", ")
+			argsIA := strings.Join(argsI, ", ")
+			namesU := []string{}
+			argsU := []string{}
+			for tagName, tagValue := range p.tags {
+				namesU = append(namesU, tagName)
+				argsU = append(argsU, "$"+strconv.Itoa(i))
+				vals = append(vals, tagValue)
+				i++
+			}
+			namesUA := strings.Join(namesU, ", ")
+			argsUA := strings.Join(argsU, ", ")
+			argT := "$" + strconv.Itoa(i)
+			vals = append(vals, p.t)
+			q := fmt.Sprintf(
+				"insert into %s("+namesIA+") values("+argsIA+") "+
+					"on conflict(time) do update set ("+namesUA+") = ("+argsUA+") "+
+					"where %s.time = "+argT,
+				name,
+				name,
+			)
+			ExecSQLWithErr(con, ctx, q, vals...)
+		}
+		if p.fields != nil {
+			name := "ts_" + p.name
+			namesI := []string{"time"}
+			argsI := []string{"$1"}
+			vals := []interface{}{p.t}
+			i := 2
+			for tagName, tagValue := range p.fields {
+				namesI = append(namesI, tagName)
+				argsI = append(argsI, "$"+strconv.Itoa(i))
+				vals = append(vals, tagValue)
+				i++
+			}
+			namesIA := strings.Join(namesI, ", ")
+			argsIA := strings.Join(argsI, ", ")
+			namesU := []string{}
+			argsU := []string{}
+			for tagName, tagValue := range p.fields {
+				namesU = append(namesU, tagName)
+				argsU = append(argsU, "$"+strconv.Itoa(i))
+				vals = append(vals, tagValue)
+				i++
+			}
+			namesUA := strings.Join(namesU, ", ")
+			argsUA := strings.Join(argsU, ", ")
+			argT := "$" + strconv.Itoa(i)
+			vals = append(vals, p.t)
+			q := fmt.Sprintf(
+				"insert into %s("+namesIA+") values("+argsIA+") "+
+					"on conflict(time) do update set ("+namesUA+") = ("+argsUA+") "+
+					"where %s.time = "+argT,
+				name,
+				name,
+			)
+			ExecSQLWithErr(con, ctx, q, vals...)
+		}
+	}
+	return nil
+}
+
+// GetTagValues returns tag values for a given key
+func GetTagValues(con *sql.DB, ctx *Ctx, name, key string) (ret []string) {
+	rows := QuerySQLWithErr(
+		con,
+		ctx,
+		fmt.Sprintf(
+			"select %s from tags_%s order by time asc",
+			key,
+			name,
+		),
+	)
+	defer func() { FatalOnError(rows.Close()) }()
+	s := ""
+	for rows.Next() {
+		FatalOnError(rows.Scan(&s))
+		ret = append(ret, s)
+	}
+	FatalOnError(rows.Err())
+	return
+}
+
+// TableExists - checks if a given table exists
+func TableExists(con *sql.DB, ctx *Ctx, tableName string) bool {
+	rows := QuerySQLWithErr(
+		con,
+		ctx,
+		fmt.Sprintf(
+			"select to_regclass(%s)",
+			NValue(1),
+		),
+		tableName,
+	)
+	defer func() { FatalOnError(rows.Close()) }()
+	var s *string
+	for rows.Next() {
+		FatalOnError(rows.Scan(&s))
+	}
+	FatalOnError(rows.Err())
+	return s != nil
+}
+
+// TableColumnExists - checks if a given table's has a given column
+func TableColumnExists(con *sql.DB, ctx *Ctx, tableName, columnName string) bool {
+	rows := QuerySQLWithErr(
+		con,
+		ctx,
+		fmt.Sprintf(
+			"select column_name from information_schema.columns "+
+				"where table_name=%s and column_name=%s",
+			NValue(1),
+			NValue(2),
+		),
+		tableName,
+		columnName,
+	)
+	defer func() { FatalOnError(rows.Close()) }()
+	var s *string
+	for rows.Next() {
+		FatalOnError(rows.Scan(&s))
+	}
+	FatalOnError(rows.Err())
+	return s != nil
+}
+
 // PgConn Connects to Postgres database
 func PgConn(ctx *Ctx) *sql.DB {
 	connectionString := "client_encoding=UTF8 sslmode='" + ctx.PgSSL + "' host='" + ctx.PgHost + "' port=" + ctx.PgPort + " dbname='" + ctx.PgDB + "' user='" + ctx.PgUser + "' password='" + ctx.PgPass + "'"
