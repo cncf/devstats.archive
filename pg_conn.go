@@ -151,25 +151,25 @@ func WriteTSPoints(ctx *Ctx, con *sql.DB, pts *TSPoints, mut *sync.Mutex) {
 		}
 		exists := TableExistsTx(tx, ctx, name)
 		if !exists {
-			sq := "create table " + name + "(" + pk
+			sq := "create table \"" + name + "\"(" + pk
 			indices := []string{}
 			for col := range data {
-				sq += col + " text, "
-				indices = append(indices, "create index on "+name+"("+col+")")
+				sq += "\"" + col + "\" text, "
+				indices = append(indices, "create index on \""+name+"\"(\""+col+"\")")
 			}
 			l := len(sq)
 			sq = sq[:l-2] + ")"
 			sqls = append(sqls, sq)
 			sqls = append(sqls, indices...)
-			sqls = append(sqls, "grant select on "+name+" to ro_user")
-			sqls = append(sqls, "grant select on "+name+" to devstats_team")
+			sqls = append(sqls, "grant select on \""+name+"\" to ro_user")
+			sqls = append(sqls, "grant select on \""+name+"\" to devstats_team")
 		} else {
 			for col := range data {
 				colExists := TableColumnExistsTx(tx, ctx, name, col)
 				if !colExists {
-					sq := "alter table " + name + " add " + col + " text"
+					sq := "alter table \"" + name + "\" add \"" + col + "\" text"
 					sqls = append(sqls, sq)
-					sqls = append(sqls, "create index on "+name+"("+col+")")
+					sqls = append(sqls, "create index on \""+name+"\"(\""+col+"\")")
 				}
 			}
 		}
@@ -180,34 +180,34 @@ func WriteTSPoints(ctx *Ctx, con *sql.DB, pts *TSPoints, mut *sync.Mutex) {
 		}
 		exists := TableExistsTx(tx, ctx, name)
 		if !exists {
-			sq := "create table " + name + "(" + pk
+			sq := "create table \"" + name + "\"(" + pk
 			indices := []string{}
 			for col, ty := range data {
 				if ty == 0 {
-					sq += col + " double precision, "
+					sq += "\"" + col + "\" double precision, "
 				} else {
-					sq += col + " text, "
+					sq += "\"" + col + "\" text, "
 				}
-				indices = append(indices, "create index on "+name+"("+col+")")
+				indices = append(indices, "create index on \""+name+"\"(\""+col+"\")")
 			}
 			l := len(sq)
 			sq = sq[:l-2] + ")"
 			sqls = append(sqls, sq)
 			sqls = append(sqls, indices...)
-			sqls = append(sqls, "grant select on "+name+" to ro_user")
-			sqls = append(sqls, "grant select on "+name+" to devstats_team")
+			sqls = append(sqls, "grant select on \""+name+"\" to ro_user")
+			sqls = append(sqls, "grant select on \""+name+"\" to devstats_team")
 		} else {
 			for col, ty := range data {
 				colExists := TableColumnExistsTx(tx, ctx, name, col)
 				if !colExists {
 					sq := ""
 					if ty == 0 {
-						sq = "alter table " + name + " add " + col + " double precision"
+						sq = "alter table \"" + name + "\" add \"" + col + "\" double precision"
 					} else {
-						sq = "alter table " + name + " add " + col + " text"
+						sq = "alter table \"" + name + "\" add \"" + col + "\" text"
 					}
 					sqls = append(sqls, sq)
-					sqls = append(sqls, "create index on "+name+"("+col+")")
+					sqls = append(sqls, "create index on \""+name+"\"(\""+col+"\")")
 				}
 			}
 		}
@@ -229,7 +229,7 @@ func WriteTSPoints(ctx *Ctx, con *sql.DB, pts *TSPoints, mut *sync.Mutex) {
 			vals := []interface{}{p.t}
 			i := 2
 			for tagName, tagValue := range p.tags {
-				namesI = append(namesI, MakePsqlName(tagName))
+				namesI = append(namesI, "\""+MakePsqlName(tagName)+"\"")
 				argsI = append(argsI, "$"+strconv.Itoa(i))
 				vals = append(vals, tagValue)
 				i++
@@ -239,7 +239,7 @@ func WriteTSPoints(ctx *Ctx, con *sql.DB, pts *TSPoints, mut *sync.Mutex) {
 			namesU := []string{}
 			argsU := []string{}
 			for tagName, tagValue := range p.tags {
-				namesU = append(namesU, MakePsqlName(tagName))
+				namesU = append(namesU, "\""+MakePsqlName(tagName)+"\"")
 				argsU = append(argsU, "$"+strconv.Itoa(i))
 				vals = append(vals, tagValue)
 				i++
@@ -249,7 +249,7 @@ func WriteTSPoints(ctx *Ctx, con *sql.DB, pts *TSPoints, mut *sync.Mutex) {
 			argT := "$" + strconv.Itoa(i)
 			vals = append(vals, p.t)
 			q := fmt.Sprintf(
-				"insert into %s("+namesIA+") values("+argsIA+") "+
+				"insert into \"%s\"("+namesIA+") values("+argsIA+") "+
 					"on conflict(time) do update set ("+namesUA+") = ("+argsUA+") "+
 					"where %s.time = "+argT,
 				name,
@@ -264,7 +264,7 @@ func WriteTSPoints(ctx *Ctx, con *sql.DB, pts *TSPoints, mut *sync.Mutex) {
 			vals := []interface{}{p.t}
 			i := 2
 			for tagName, tagValue := range p.fields {
-				namesI = append(namesI, MakePsqlName(tagName))
+				namesI = append(namesI, "\""+MakePsqlName(tagName)+"\"")
 				argsI = append(argsI, "$"+strconv.Itoa(i))
 				vals = append(vals, tagValue)
 				i++
@@ -274,7 +274,7 @@ func WriteTSPoints(ctx *Ctx, con *sql.DB, pts *TSPoints, mut *sync.Mutex) {
 			namesU := []string{}
 			argsU := []string{}
 			for tagName, tagValue := range p.fields {
-				namesU = append(namesU, MakePsqlName(tagName))
+				namesU = append(namesU, "\""+MakePsqlName(tagName)+"\"")
 				argsU = append(argsU, "$"+strconv.Itoa(i))
 				vals = append(vals, tagValue)
 				i++

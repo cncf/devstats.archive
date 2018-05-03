@@ -309,9 +309,12 @@ func sync(ctx *lib.Ctx, args []string) {
 	// Get max series date from Influx database
 	maxDtIDB := ctx.DefaultStartDate
 	if !ctx.ForceStartDate {
-		lib.FatalOnError(lib.QueryRowSQL(con, ctx, "select max(time) from s"+ctx.LastSeries).Scan(&maxDtPtr))
-		if maxDtPtr != nil {
-			maxDtIDB = *maxDtPtr
+		table := "s" + ctx.LastSeries
+		if lib.TableExists(con, ctx, table) {
+			lib.FatalOnError(lib.QueryRowSQL(con, ctx, "select max(time) from "+table).Scan(&maxDtPtr))
+			if maxDtPtr != nil {
+				maxDtIDB = *maxDtPtr
+			}
 		}
 	}
 
