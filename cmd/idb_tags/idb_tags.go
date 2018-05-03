@@ -33,10 +33,6 @@ func idbTags() {
 	con := lib.PgConn(&ctx)
 	defer func() { lib.FatalOnError(con.Close()) }()
 
-	// Connect to InfluxDB
-	ic := lib.IDBConn(&ctx)
-	defer func() { lib.FatalOnError(ic.Close()) }()
-
 	// Local or cron mode?
 	dataPrefix := lib.DataDir
 	if ctx.Local {
@@ -51,10 +47,6 @@ func idbTags() {
 	}
 	var allTags tags
 	lib.FatalOnError(yaml.Unmarshal(data, &allTags))
-
-	// No fields value needed
-	fields := map[string]interface{}{"value": 0.0}
-	// String value to read tags into
 
 	// Per project directory for SQL files
 	dir := lib.Metrics
@@ -76,10 +68,7 @@ func idbTags() {
 			}
 
 			// Get BatchPoints
-			var pts lib.IDBBatchPointsN
-			bp := lib.IDBBatchPoints(&ctx, &ic)
-			pts.NPoints = 0
-			pts.Points = &bp
+			var pts lib.TSPoints
 
 			// Read SQL file
 			bytes, err := lib.ReadFile(&ctx, dataPrefix+dir+tg.SQLFile+".sql")
@@ -100,7 +89,10 @@ func idbTags() {
 			defer func() { lib.FatalOnError(rows.Close()) }()
 
 			// Drop current tags
-			lib.QueryIDB(ic, &ctx, "delete from \""+tg.SeriesName+"\"")
+			table := "t" + tg.SeriesName
+			if lib.TableExists(con, &ctx, table) {
+				lib.ExecSQLWithErr(con, &ctx, "truncate "+table)
+			}
 			tm := lib.TimeParseAny("2014-01-01")
 
 			// Iterate tag values
@@ -118,14 +110,15 @@ func idbTags() {
 					tags[tg.ValueTag] = lib.NormalizeName(strVal)
 				}
 				// Add batch point
-				pt := lib.IDBNewPointWithErr(&ctx, tg.SeriesName, tags, fields, tm)
-				lib.IDBAddPointN(&ctx, &ic, &pts, pt)
+				pt := lib.NewTSPoint(&ctx, tg.SeriesName, tags, nil, tm)
+				lib.AddTSPoint(&ctx, &pts, pt)
+				tm = tm.Add(time.Hour)
 			}
 			lib.FatalOnError(rows.Err())
 
 			// Write the batch
 			if !ctx.SkipIDB {
-				lib.FatalOnError(lib.IDBWritePointsN(&ctx, &ic, &pts))
+				lib.WriteTSPoints(&ctx, con, &pts)
 			} else if ctx.Debug > 0 {
 				lib.Printf("Skipping tags series write\n")
 			}

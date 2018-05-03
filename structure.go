@@ -1184,6 +1184,25 @@ func Structure(ctx *Ctx) {
 	if ctx.Index {
 		ExecSQLWithErr(c, ctx, "create index vars_name_idx on gha_vars(name)")
 	}
+	// This is to determine if a given metric is computed for some period or not
+	if ctx.Table {
+		ExecSQLWithErr(c, ctx, "drop table if exists gha_computed")
+		ExecSQLWithErr(
+			c,
+			ctx,
+			CreateTable(
+				"gha_computed("+
+					"metric text not null, "+
+					"dt {{ts}} not null, "+
+					"primary key(metric, dt)"+
+					")",
+			),
+		)
+	}
+	if ctx.Index {
+		ExecSQLWithErr(c, ctx, "create index computed_metric_idx on gha_computed(metric)")
+		ExecSQLWithErr(c, ctx, "create index computed_dt_idx on gha_computed(dt)")
+	}
 	// Foreign keys are not needed - they slow down processing a lot
 
 	// Tools (like views and functions needed for generating metrics)
