@@ -140,13 +140,15 @@ func roundF2I(val float64) int {
 	return int(val + 0.5)
 }
 
-func workerThread(ch chan bool, ctx *lib.Ctx, seriesNameOrFunc, sqlQuery, excludeBots, period, desc string, multivalue, escapeValueName bool, nIntervals int, dtAry, fromAry, toAry []time.Time, mut *sync.Mutex) {
+func workerThread(ch chan bool, ctx *lib.Ctx, seriesNameOrFunc, sqlQueryOrig, excludeBots, period, desc string, multivalue, escapeValueName bool, nIntervals int, dtAry, fromAry, toAry []time.Time, mut *sync.Mutex) {
 	// Connect to Postgres DB
 	sqlc := lib.PgConn(ctx)
 	defer func() { lib.FatalOnError(sqlc.Close()) }()
 
 	// Get BatchPoints
 	var pts lib.TSPoints
+	sqlQueryOrig = strings.Replace(sqlQueryOrig, "{{n}}", strconv.Itoa(nIntervals)+".0", -1)
+	sqlQueryOrig = strings.Replace(sqlQueryOrig, "{{exclude_bots}}", excludeBots, -1)
 	for idx, dt := range dtAry {
 		from := fromAry[idx]
 		to := toAry[idx]
@@ -154,10 +156,8 @@ func workerThread(ch chan bool, ctx *lib.Ctx, seriesNameOrFunc, sqlQuery, exclud
 		// Prepare SQL query
 		sFrom := lib.ToYMDHMSDate(from)
 		sTo := lib.ToYMDHMSDate(to)
-		sqlQuery = strings.Replace(sqlQuery, "{{from}}", sFrom, -1)
+		sqlQuery := strings.Replace(sqlQueryOrig, "{{from}}", sFrom, -1)
 		sqlQuery = strings.Replace(sqlQuery, "{{to}}", sTo, -1)
-		sqlQuery = strings.Replace(sqlQuery, "{{n}}", strconv.Itoa(nIntervals)+".0", -1)
-		sqlQuery = strings.Replace(sqlQuery, "{{exclude_bots}}", excludeBots, -1)
 
 		// Execute SQL query
 		rows := lib.QuerySQLWithErr(sqlc, ctx, sqlQuery)
@@ -217,10 +217,6 @@ func workerThread(ch chan bool, ctx *lib.Ctx, seriesNameOrFunc, sqlQuery, exclud
 			)
 		} else if nColumns >= 2 {
 			// Multiple rows, each with (series name, value(s))
-			// Number of columns
-			columns, err := rows.Columns()
-			lib.FatalOnError(err)
-			nColumns := len(columns)
 			// Alocate nColumns numeric values (first is series name)
 			pValues := make([]interface{}, nColumns)
 			for i := range columns {
