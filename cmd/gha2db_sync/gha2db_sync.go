@@ -317,6 +317,9 @@ func sync(ctx *lib.Ctx, args []string) {
 			}
 		}
 	}
+	if ctx.Debug > 0 {
+		lib.Printf("Using start dates: %v, %v\n", maxDtPg, maxDtIDB)
+	}
 
 	// Create date range
 	// Just to get into next GHA hour
