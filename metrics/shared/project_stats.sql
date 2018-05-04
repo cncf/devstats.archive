@@ -3,7 +3,7 @@ select
   'Contributors' as name,
   count(distinct sub.actor) as value
 from (
-  select 'project_stats,' || coalesce(ecf.repo_group, r.repo_group) as repo_group,
+  select 'hproj,' || coalesce(ecf.repo_group, r.repo_group) as repo_group,
     e.dup_actor_login as actor
   from
     gha_repos r,
@@ -22,7 +22,7 @@ where
   sub.repo_group is not null
 group by
   sub.repo_group
-union select 'project_stats,All' as repo_group,
+union select 'pstat,All' as repo_group,
   'Contributors' as name,
   count(distinct dup_actor_login) as value
 from
@@ -35,7 +35,7 @@ union select sub.repo_group,
   'Commits' as name,
   count(distinct sub.sha) as value
 from (
-  select 'project_stats,' || coalesce(ecf.repo_group, r.repo_group) as repo_group,
+  select 'pstat,' || coalesce(ecf.repo_group, r.repo_group) as repo_group,
     c.sha
   from
     gha_repos r,
@@ -53,7 +53,7 @@ where
   sub.repo_group is not null
 group by
   sub.repo_group
-union select 'project_stats,All' as repo_group,
+union select 'pstat,All' as repo_group,
   'Commits' as name,
   count(distinct sha) as value
 from
@@ -74,7 +74,7 @@ union select sub.repo_group,
   end as name,
   count(distinct sub.actor_id) as value
 from (
-  select 'project_stats,' || coalesce(ecf.repo_group, r.repo_group) as repo_group,
+  select 'pstat,' || coalesce(ecf.repo_group, r.repo_group) as repo_group,
     e.type,
     e.actor_id
   from
@@ -99,7 +99,7 @@ where
 group by
   sub.repo_group,
   sub.type
-union select 'project_stats,All' as repo_group,
+union select 'pstat,All' as repo_group,
   case type 
     when 'IssuesEvent' then 'Issue creators'
     when 'PullRequestEvent' then 'PR creators'
@@ -123,7 +123,7 @@ where
   and (dup_actor_login {{exclude_bots}})
 group by
   type
-union select 'project_stats,' || r.repo_group as repo_group,
+union select 'pstat,' || r.repo_group as repo_group,
   'Repositories' as name,
   count(distinct e.repo_id) as value
 from
@@ -135,7 +135,7 @@ where
   and r.repo_group is not null
 group by
   r.repo_group
-union select 'project_stats,All' as repo_group,
+union select 'pstat,All' as repo_group,
   'Repositories' as name,
   count(distinct repo_id) as value
 from
@@ -146,7 +146,7 @@ union select sub.repo_group,
   'Comments' as name,
   count(distinct sub.id) as value
 from (
-  select 'project_stats,' || coalesce(ecf.repo_group, r.repo_group) as repo_group,
+  select 'pstat,' || coalesce(ecf.repo_group, r.repo_group) as repo_group,
     c.id
   from
     gha_repos r,
@@ -164,7 +164,7 @@ where
   sub.repo_group is not null
 group by
   sub.repo_group
-union select 'project_stats,All' as repo_group,
+union select 'pstat,All' as repo_group,
   'Comments' as name,
   count(distinct id) as value
 from
@@ -176,7 +176,7 @@ union select sub.repo_group,
   'Commenters' as name,
   count(distinct sub.user_id) as value
 from (
-  select 'project_stats,' || coalesce(ecf.repo_group, r.repo_group) as repo_group,
+  select 'pstat,' || coalesce(ecf.repo_group, r.repo_group) as repo_group,
     c.user_id
   from
     gha_repos r,
@@ -194,7 +194,7 @@ where
   sub.repo_group is not null
 group by
   sub.repo_group
-union select 'project_stats,All' as repo_group,
+union select 'pstat,All' as repo_group,
   'Commenters' as name,
   count(distinct user_id) as value
 from
@@ -206,7 +206,7 @@ union select sub.repo_group,
   'Issues' as name,
   count(distinct sub.id) as value
 from (
-  select 'project_stats,' || coalesce(ecf.repo_group, r.repo_group) as repo_group,
+  select 'pstat,' || coalesce(ecf.repo_group, r.repo_group) as repo_group,
     i.id
   from
     gha_repos r,
@@ -225,7 +225,7 @@ where
   sub.repo_group is not null
 group by
   sub.repo_group
-union select 'project_stats,All' as repo_group,
+union select 'pstat,All' as repo_group,
   'Issues' as name,
   count(distinct id) as value
 from
@@ -238,7 +238,7 @@ union select sub.repo_group,
   'PRs' as name,
   count(distinct sub.id) as value
 from (
-  select 'project_stats,' || coalesce(ecf.repo_group, r.repo_group) as repo_group,
+  select 'pstat,' || coalesce(ecf.repo_group, r.repo_group) as repo_group,
     i.id
   from
     gha_repos r,
@@ -257,7 +257,7 @@ where
   sub.repo_group is not null
 group by
   sub.repo_group
-union select 'project_stats,All' as repo_group,
+union select 'pstat,All' as repo_group,
   'PRs' as name,
   count(distinct id) as value
 from
@@ -270,7 +270,7 @@ union select sub.repo_group,
   'Events' as name,
   count(sub.id) as value
 from (
-  select 'project_stats,' || coalesce(ecf.repo_group, r.repo_group) as repo_group,
+  select 'pstat,' || coalesce(ecf.repo_group, r.repo_group) as repo_group,
     e.id
   from
     gha_repos r,
@@ -289,7 +289,7 @@ where
   sub.repo_group is not null
 group by
   sub.repo_group
-union select 'project_stats,All' as repo_group,
+union select 'pstat,All' as repo_group,
   'Events' as name,
   count(id) as value
 from

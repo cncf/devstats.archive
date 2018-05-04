@@ -15,7 +15,7 @@ from (
         '\s+',
         ' ',
         'g'
-      ) as cmd
+        ) as cmd
       from
         gha_texts
       where

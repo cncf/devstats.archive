@@ -2,7 +2,7 @@ select
   sub.repo_group,
   round(count(distinct sub.id) / {{n}}, 2) as merge_count
 from (
-  select 'group_prs_merged,' || coalesce(ecf.repo_group, r.repo_group) as repo_group,
+  select 'grp_pr_merg,' || coalesce(ecf.repo_group, r.repo_group) as repo_group,
     pr.id
   from
     gha_repos r,

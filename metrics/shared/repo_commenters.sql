@@ -1,5 +1,5 @@
 select
-  'repo_commenters,All' as repo_group,
+  'rcommenters,All' as repo_group,
   round(count(distinct actor_login) / {{n}}, 2) as result
 from
   gha_texts
@@ -10,7 +10,7 @@ where
 union select sub.repo_group,
   round(count(distinct sub.actor_login) / {{n}}, 2) as result
 from (
-  select 'repo_commenters,' || coalesce(ecf.repo_group, r.repo_group) as repo_group,
+  select 'rcommenters,' || coalesce(ecf.repo_group, r.repo_group) as repo_group,
     t.actor_login
   from
     gha_repos r,

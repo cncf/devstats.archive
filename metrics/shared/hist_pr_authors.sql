@@ -3,7 +3,7 @@ select
   sub.actor,
   count(distinct sub.id) as prs
 from (
-  select 'hist_pr_authors,' || coalesce(ecf.repo_group, r.repo_group) as repo_group,
+  select 'hpr_auth,' || coalesce(ecf.repo_group, r.repo_group) as repo_group,
     pr.dup_actor_login as actor,
     pr.id
   from
@@ -25,7 +25,7 @@ group by
   sub.actor
 having
   count(distinct sub.id) >= 1
-union select 'hist_pr_authors,All' as repo_group,
+union select 'hpr_auth,All' as repo_group,
   dup_actor_login as actor,
   count(distinct id) as prs
 from

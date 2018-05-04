@@ -1,5 +1,5 @@
 select
-  'sig_mentions_texts,' || substring(sig from 17) as sig,
+  'sigm_txt,' || substring(sig from 17) as sig,
   round(count(distinct eid) / {{n}}, 2) as count_value
 from
   (

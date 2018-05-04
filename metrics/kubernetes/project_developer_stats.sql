@@ -1,5 +1,5 @@
 select 
-  'developers_hist_' || sub.metric || ',All' as metric,
+  'hdev_' || sub.metric || ',All' as metric,
   sub.author as name,
   sub.value as value
 from (
@@ -112,7 +112,7 @@ where
     'prs'
   )
 )
-union select 'developers_hist_' || sub.metric || ',' || sub.repo_group as metric,
+union select 'hdev_' || sub.metric || ',' || sub.repo_group as metric,
   sub.author as name,
   sub.value as value
 from (

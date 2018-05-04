@@ -3,7 +3,7 @@ select
   sub.company,
   count(distinct sub.id) as prs
 from (
-  select 'hist_pr_companies,' || coalesce(ecf.repo_group, r.repo_group) as repo_group,
+  select 'hpr_comps,' || coalesce(ecf.repo_group, r.repo_group) as repo_group,
     a.company_name as company,
     pr.id
   from
@@ -29,7 +29,7 @@ group by
   sub.company
 having
   count(distinct sub.id) >= 1
-union select 'hist_pr_companies,All' as repo_group,
+union select 'hpr_comps,All' as repo_group,
   a.company_name as company,
   count(distinct pr.id) as prs
 from

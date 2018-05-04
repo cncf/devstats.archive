@@ -1,5 +1,5 @@
 select
-  'prs_authors,All' as repo_group,
+  'pr_auth,All' as repo_group,
   round(count(distinct dup_actor_login) / {{n}}, 2) as authors
 from
   gha_pull_requests
@@ -10,7 +10,7 @@ where
 union select sub.repo_group,
   round(count(distinct sub.actor) / {{n}}, 2) as authors
 from (
-  select 'prs_authors,' || coalesce(ecf.repo_group, r.repo_group) as repo_group,
+  select 'pr_auth,' || coalesce(ecf.repo_group, r.repo_group) as repo_group,
     pr.dup_actor_login as actor
   from
     gha_repos r,

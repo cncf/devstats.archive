@@ -1,5 +1,5 @@
 select
-  concat('reviews_per_user,', dup_actor_login, '`All') as repo_user,
+  concat('rev_per_usr,', dup_actor_login, '`All') as repo_user,
   round(count(id) / {{n}}, 2) as result
 from
   gha_events
@@ -10,7 +10,7 @@ where
   and (dup_actor_login {{exclude_bots}})
 group by
   dup_actor_login
-union select 'reviews_per_user,' || concat(dup_actor_login, '`', dup_repo_name) as repo_user,
+union select 'rev_per_usr,' || concat(dup_actor_login, '`', dup_repo_name) as repo_user,
   round(count(id) / {{n}}, 2) as result
 from
   gha_events

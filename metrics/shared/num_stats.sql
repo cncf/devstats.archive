@@ -1,5 +1,5 @@
 select
-  'num_stats;All;companies,developers,unknowns' as name,
+  'nstats;All;comps,devs,unks' as name,
   count(distinct affs.company_name) as n_companies,
   count(distinct ev.actor_id) as n_authors,
   count(distinct ev.actor_id) filter (where affs.company_name is null) as n_unknown_authors
@@ -18,7 +18,7 @@ where
     'PullRequestReviewCommentEvent', 'PushEvent', 'PullRequestEvent',
     'IssuesEvent', 'IssueCommentEvent', 'CommitCommentEvent'
   )
-union select 'num_stats;' || r.repo_group || ';companies,developers,unknowns' as name,
+union select 'nstats;' || r.repo_group || ';comps,devs,unks' as name,
   count(distinct affs.company_name) as n_companies,
   count(distinct ev.actor_id) as n_authors,
   count(distinct ev.actor_id) filter (where affs.company_name is null) as n_unknown_authors

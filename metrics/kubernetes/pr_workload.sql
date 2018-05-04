@@ -115,7 +115,7 @@ with issues as (
     ) sub
 ), sig_reviewers as (
   select sub.sig,
-    count(distinct e.dup_actor_login) as reviewers
+    count(distinct e.dup_actor_login) as rev
   from (
     select distinct issue_id,
       lower(substring(dup_label_name from '(?i)sig/(.*)')) as sig
@@ -132,17 +132,17 @@ with issues as (
     sub.sig
 )
 select
-  'sig_pr_workload;' || sub.sig || ';issues,absolute_workload,reviewers,relative_workload',
-  sub.issues,
-  sub.absolute_workload,
-  coalesce(sr.reviewers, 0) as reviewers,
-  case coalesce(sr.reviewers, 0)
+  'sig_pr_wl;' || sub.sig || ';iss,abs,rev,rel',
+  sub.iss,
+  sub.abs,
+  coalesce(sr.rev, 0) as rev,
+  case coalesce(sr.rev, 0)
     when 0 then 0
-    else sub.absolute_workload / sr.reviewers
-  end as relative_workload
+    else sub.abs / sr.rev
+  end as rel
 from (
   select sig.sig,
-    count(distinct sig.issue_id) as issues,
+    count(distinct sig.issue_id) as iss,
     sum(
       case coalesce(siz.size, 'nil')
         when 'xs' then 0.25
@@ -157,7 +157,7 @@ from (
         when 'xxl' then 8.0
         else 1.0
       end
-    ) as absolute_workload
+    ) as abs
   from
     pr_sigs sig
   left join
