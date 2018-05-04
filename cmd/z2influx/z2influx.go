@@ -52,7 +52,7 @@ func getMatchingSeries(ctx *lib.Ctx, seriesRegExp string) (seriesSet map[string]
 	return
 }
 
-func workerThread(ch chan bool, ctx *lib.Ctx, seriesSet map[string]struct{}, period string, desc bool, values []string, from, to time.Time, mut *sync.Mutex) {
+func workerThread(ch chan bool, ctx *lib.Ctx, seriesSet map[string]struct{}, period string, desc bool, values []string, fromAry []time.Time, mut *sync.Mutex) {
 	// Connect to InfluxDB
 	con := lib.PgConn(ctx)
 	defer func() {
@@ -74,7 +74,6 @@ func workerThread(ch chan bool, ctx *lib.Ctx, seriesSet map[string]struct{}, per
 		fields["descr"] = ""
 	}
 
-	//dtFrom := lib.TimeParseAny(from)
 	for iseries := range seriesSet {
 		if len(iseries) < 2 {
 			continue
@@ -84,7 +83,7 @@ func workerThread(ch chan bool, ctx *lib.Ctx, seriesSet map[string]struct{}, per
 		}
 		series := iseries[1:]
 		if ctx.Debug > 0 {
-			lib.Printf("%+v %v - %v %v\n", series, from, to, period)
+			lib.Printf("%+v %v %v\n", series, fromAry, period)
 		}
 
 		// Support overwite all
@@ -105,8 +104,13 @@ func workerThread(ch chan bool, ctx *lib.Ctx, seriesSet map[string]struct{}, per
 		}
 
 		// Add batch point
-		pt := lib.NewTSPoint(ctx, series, nil, fields, from)
-		lib.AddTSPoint(ctx, &pts, pt)
+		for _, from := range fromAry {
+			lib.AddTSPoint(
+				ctx,
+				&pts,
+				lib.NewTSPoint(ctx, series, nil, fields, from),
+			)
+		}
 	}
 
 	// Write the batch
@@ -163,33 +167,33 @@ func z2influx(series, from, to, intervalAbbr string, desc bool, values []string)
 		lib.Printf("z2influx.go: Running (on %d CPUs): %v - %v with interval %s, descriptions %v, nValues: %d\n", thrN, dFrom, dTo, interval, desc, nValues)
 	}
 	dt := dFrom
+	dta := [][]time.Time{}
+	i := 0
+	for dt.Before(dTo) {
+		nDt := nextIntervalStart(dt)
+		t := i % thrN
+		if len(dta) < t+1 {
+			dta = append(dta, []time.Time{})
+		}
+		dta[t] = append(dta[t], dt)
+		dt = nDt
+		i++
+	}
 	if thrN > 1 {
 		mut := &sync.Mutex{}
 		//var mut *sync.Mutex
 		ch := make(chan bool)
-		nThreads := 0
-		for dt.Before(dTo) {
-			nDt := nextIntervalStart(dt)
-			go workerThread(ch, &ctx, seriesSet, intervalAbbr, desc, values, dt, nDt, mut)
-			dt = nDt
-			nThreads++
-			if nThreads == thrN {
-				<-ch
-				nThreads--
-			}
+		for i := 0; i < thrN; i++ {
+			go workerThread(ch, &ctx, seriesSet, intervalAbbr, desc, values, dta[i], mut)
 		}
-		lib.Printf("Final threads join\n")
+		nThreads := thrN
 		for nThreads > 0 {
 			<-ch
 			nThreads--
 		}
 	} else {
 		lib.Printf("Using single threaded version\n")
-		for dt.Before(dTo) {
-			nDt := nextIntervalStart(dt)
-			workerThread(nil, &ctx, seriesSet, intervalAbbr, desc, values, dt, nDt, nil)
-			dt = nDt
-		}
+		workerThread(nil, &ctx, seriesSet, intervalAbbr, desc, values, dta[0], nil)
 	}
 	// Finished
 	lib.Printf("All done.\n")

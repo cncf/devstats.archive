@@ -140,136 +140,150 @@ func roundF2I(val float64) int {
 	return int(val + 0.5)
 }
 
-func workerThread(ch chan bool, ctx *lib.Ctx, seriesNameOrFunc, sqlQuery, excludeBots, period, desc string, multivalue, escapeValueName bool, nIntervals int, dt, from, to time.Time, mut *sync.Mutex) {
+func workerThread(ch chan bool, ctx *lib.Ctx, seriesNameOrFunc, sqlQuery, excludeBots, period, desc string, multivalue, escapeValueName bool, nIntervals int, dtAry, fromAry, toAry []time.Time, mut *sync.Mutex) {
 	// Connect to Postgres DB
 	sqlc := lib.PgConn(ctx)
 	defer func() { lib.FatalOnError(sqlc.Close()) }()
 
 	// Get BatchPoints
 	var pts lib.TSPoints
+	for idx, dt := range dtAry {
+		from := fromAry[idx]
+		to := toAry[idx]
 
-	// Prepare SQL query
-	sFrom := lib.ToYMDHMSDate(from)
-	sTo := lib.ToYMDHMSDate(to)
-	sqlQuery = strings.Replace(sqlQuery, "{{from}}", sFrom, -1)
-	sqlQuery = strings.Replace(sqlQuery, "{{to}}", sTo, -1)
-	sqlQuery = strings.Replace(sqlQuery, "{{n}}", strconv.Itoa(nIntervals)+".0", -1)
-	sqlQuery = strings.Replace(sqlQuery, "{{exclude_bots}}", excludeBots, -1)
+		// Prepare SQL query
+		sFrom := lib.ToYMDHMSDate(from)
+		sTo := lib.ToYMDHMSDate(to)
+		sqlQuery = strings.Replace(sqlQuery, "{{from}}", sFrom, -1)
+		sqlQuery = strings.Replace(sqlQuery, "{{to}}", sTo, -1)
+		sqlQuery = strings.Replace(sqlQuery, "{{n}}", strconv.Itoa(nIntervals)+".0", -1)
+		sqlQuery = strings.Replace(sqlQuery, "{{exclude_bots}}", excludeBots, -1)
 
-	// Execute SQL query
-	rows := lib.QuerySQLWithErr(sqlc, ctx, sqlQuery)
-	defer func() { lib.FatalOnError(rows.Close()) }()
+		// Execute SQL query
+		rows := lib.QuerySQLWithErr(sqlc, ctx, sqlQuery)
 
-	// Get Number of columns
-	// We support either query returnign single row with single numeric value
-	// Or multiple rows, each containing string (series name) and its numeric value(s)
-	columns, err := rows.Columns()
-	lib.FatalOnError(err)
-	nColumns := len(columns)
-
-	// Use value descriptions?
-	useDesc := desc != ""
-
-	// Metric Results, assume they're floats
-	var (
-		pValue *float64
-		value  float64
-		name   string
-	)
-	// Single row & single column result
-	if nColumns == 1 {
-		rowCount := 0
-		for rows.Next() {
-			lib.FatalOnError(rows.Scan(&pValue))
-			rowCount++
-		}
-		lib.FatalOnError(rows.Err())
-		if rowCount != 1 {
-			lib.Printf(
-				"Error:\nQuery should return either single value or "+
-					"multiple rows, each containing string and numbers\n"+
-					"Got %d rows, each containing single number\nQuery:%s\n",
-				rowCount, sqlQuery,
-			)
-		}
-		// Handle nulls
-		if pValue != nil {
-			value = *pValue
-		}
-		// In this simplest case 1 row, 1 column - series name is taken directly from YAML (metrics.yaml)
-		// It usually uses `add_period_to_name: true` to have _period suffix, period{=h,d,w,m,q,y}
-		name = seriesNameOrFunc
-		if ctx.Debug > 0 {
-			lib.Printf("%v - %v -> %v, %v\n", from, to, name, value)
-		}
-		// Add batch point
-		fields := map[string]interface{}{"value": value}
-		if useDesc {
-			fields["descr"] = valueDescription(desc, value)
-		}
-		pt := lib.NewTSPoint(ctx, name, nil, fields, dt)
-		lib.AddTSPoint(ctx, &pts, pt)
-	} else if nColumns >= 2 {
-		// Multiple rows, each with (series name, value(s))
-		// Number of columns
+		// Get Number of columns
+		// We support either query returnign single row with single numeric value
+		// Or multiple rows, each containing string (series name) and its numeric value(s)
 		columns, err := rows.Columns()
 		lib.FatalOnError(err)
 		nColumns := len(columns)
-		// Alocate nColumns numeric values (first is series name)
-		pValues := make([]interface{}, nColumns)
-		for i := range columns {
-			pValues[i] = new(sql.RawBytes)
-		}
-		allFields := make(map[string]map[string]interface{})
-		for rows.Next() {
-			// Get row values
-			lib.FatalOnError(rows.Scan(pValues...))
-			// Get first column name, and using it all series names
-			// First column should contain nColumns - 1 names separated by ","
-			name := string(*pValues[0].(*sql.RawBytes))
-			names := nameForMetricsRow(seriesNameOrFunc, name, period, multivalue, escapeValueName)
-			if len(names) > 0 {
-				// Iterate values
-				pFloats := pValues[1:]
-				for idx, pVal := range pFloats {
-					if pVal != nil {
-						value, _ = strconv.ParseFloat(string(*pVal.(*sql.RawBytes)), 64)
-					} else {
-						value = 0.0
-					}
-					if multivalue {
-						nameArr := strings.Split(names[idx], ";")
-						seriesName := nameArr[0]
-						seriesValueName := nameArr[1]
-						if ctx.Debug > 0 {
-							lib.Printf("%v - %v -> %v: %v[%v], %v\n", from, to, idx, seriesName, seriesValueName, value)
+
+		// Use value descriptions?
+		useDesc := desc != ""
+
+		// Metric Results, assume they're floats
+		var (
+			pValue *float64
+			value  float64
+			name   string
+		)
+		// Single row & single column result
+		if nColumns == 1 {
+			rowCount := 0
+			for rows.Next() {
+				lib.FatalOnError(rows.Scan(&pValue))
+				rowCount++
+			}
+			lib.FatalOnError(rows.Err())
+			lib.FatalOnError(rows.Close())
+			if rowCount != 1 {
+				lib.Printf(
+					"Error:\nQuery should return either single value or "+
+						"multiple rows, each containing string and numbers\n"+
+						"Got %d rows, each containing single number\nQuery:%s\n",
+					rowCount, sqlQuery,
+				)
+			}
+			// Handle nulls
+			if pValue != nil {
+				value = *pValue
+			}
+			// In this simplest case 1 row, 1 column - series name is taken directly from YAML (metrics.yaml)
+			// It usually uses `add_period_to_name: true` to have _period suffix, period{=h,d,w,m,q,y}
+			name = seriesNameOrFunc
+			if ctx.Debug > 0 {
+				lib.Printf("%v - %v -> %v, %v\n", from, to, name, value)
+			}
+			// Add batch point
+			fields := map[string]interface{}{"value": value}
+			if useDesc {
+				fields["descr"] = valueDescription(desc, value)
+			}
+			lib.AddTSPoint(
+				ctx,
+				&pts,
+				lib.NewTSPoint(ctx, name, nil, fields, dt),
+			)
+		} else if nColumns >= 2 {
+			// Multiple rows, each with (series name, value(s))
+			// Number of columns
+			columns, err := rows.Columns()
+			lib.FatalOnError(err)
+			nColumns := len(columns)
+			// Alocate nColumns numeric values (first is series name)
+			pValues := make([]interface{}, nColumns)
+			for i := range columns {
+				pValues[i] = new(sql.RawBytes)
+			}
+			allFields := make(map[string]map[string]interface{})
+			for rows.Next() {
+				// Get row values
+				lib.FatalOnError(rows.Scan(pValues...))
+				// Get first column name, and using it all series names
+				// First column should contain nColumns - 1 names separated by ","
+				name := string(*pValues[0].(*sql.RawBytes))
+				names := nameForMetricsRow(seriesNameOrFunc, name, period, multivalue, escapeValueName)
+				if len(names) > 0 {
+					// Iterate values
+					pFloats := pValues[1:]
+					for idx, pVal := range pFloats {
+						if pVal != nil {
+							value, _ = strconv.ParseFloat(string(*pVal.(*sql.RawBytes)), 64)
+						} else {
+							value = 0.0
 						}
-						if _, ok := allFields[seriesName]; !ok {
-							allFields[seriesName] = make(map[string]interface{})
+						if multivalue {
+							nameArr := strings.Split(names[idx], ";")
+							seriesName := nameArr[0]
+							seriesValueName := nameArr[1]
+							if ctx.Debug > 0 {
+								lib.Printf("%v - %v -> %v: %v[%v], %v\n", from, to, idx, seriesName, seriesValueName, value)
+							}
+							if _, ok := allFields[seriesName]; !ok {
+								allFields[seriesName] = make(map[string]interface{})
+							}
+							allFields[seriesName][seriesValueName] = value
+						} else {
+							name = names[idx]
+							if ctx.Debug > 0 {
+								lib.Printf("%v - %v -> %v: %v, %v\n", from, to, idx, name, value)
+							}
+							// Add batch point
+							fields := map[string]interface{}{"value": value}
+							if useDesc {
+								fields["descr"] = valueDescription(desc, value)
+							}
+							lib.AddTSPoint(
+								ctx,
+								&pts,
+								lib.NewTSPoint(ctx, name, nil, fields, dt),
+							)
 						}
-						allFields[seriesName][seriesValueName] = value
-					} else {
-						name = names[idx]
-						if ctx.Debug > 0 {
-							lib.Printf("%v - %v -> %v: %v, %v\n", from, to, idx, name, value)
-						}
-						// Add batch point
-						fields := map[string]interface{}{"value": value}
-						if useDesc {
-							fields["descr"] = valueDescription(desc, value)
-						}
-						pt := lib.NewTSPoint(ctx, name, nil, fields, dt)
-						lib.AddTSPoint(ctx, &pts, pt)
 					}
 				}
 			}
+			// Multivalue series if any
+			for seriesName, seriesValues := range allFields {
+				lib.AddTSPoint(
+					ctx,
+					&pts,
+					lib.NewTSPoint(ctx, seriesName, nil, seriesValues, dt),
+				)
+			}
+			lib.FatalOnError(rows.Err())
+			lib.FatalOnError(rows.Close())
 		}
-		// Multivalue series if any
-		for seriesName, seriesValues := range allFields {
-			pt := lib.NewTSPoint(ctx, seriesName, nil, seriesValues, dt)
-			lib.AddTSPoint(ctx, &pts, pt)
-		}
-		lib.FatalOnError(rows.Err())
 	}
 	// Write the batch
 	if !ctx.SkipIDB {
@@ -324,7 +338,7 @@ func isAlreadyComputed(con *sql.DB, ctx *lib.Ctx, key, from string) bool {
 
 // setAlreadyComputed marks given quick range period as computed
 // Should be called inside: if !ctx.SkipIDB { ... }
-func setAlreadyComputed(con *sql.DB, ctx *lib.Ctx, pts *lib.TSPoints, key, from string) {
+func setAlreadyComputed(con *sql.DB, ctx *lib.Ctx, key, from string) {
 	key = getPathIndependentKey(key)
 	dtFrom := lib.TimeParseAny(from)
 	lib.ExecSQLWithErr(
@@ -435,8 +449,11 @@ func db2influxHistogram(ctx *lib.Ctx, seriesNameOrFunc, sqlFile, sqlQuery, exclu
 			}
 			// Add batch point
 			fields := map[string]interface{}{"name": name, "value": value}
-			pt := lib.NewTSPoint(ctx, seriesNameOrFunc, nil, fields, tm)
-			lib.AddTSPoint(ctx, &pts, pt)
+			lib.AddTSPoint(
+				ctx,
+				&pts,
+				lib.NewTSPoint(ctx, seriesNameOrFunc, nil, fields, tm),
+			)
 			rowCount++
 			tm = tm.Add(-time.Hour)
 		}
@@ -511,8 +528,11 @@ func db2influxHistogram(ctx *lib.Ctx, seriesNameOrFunc, sqlFile, sqlQuery, exclu
 					//lib.Printf("hist %v, %v %v -> %+v\n", name, nIntervals, interval, fields)
 				}
 				// Add batch point
-				pt := lib.NewTSPoint(ctx, name, nil, fields, tm)
-				lib.AddTSPoint(ctx, &pts, pt)
+				lib.AddTSPoint(
+					ctx,
+					&pts,
+					lib.NewTSPoint(ctx, name, nil, fields, tm),
+				)
 			} else {
 				if nNames > 0 {
 					for i := 0; i < nNames; i++ {
@@ -542,8 +562,11 @@ func db2influxHistogram(ctx *lib.Ctx, seriesNameOrFunc, sqlFile, sqlQuery, exclu
 						}
 						// Add batch point
 						fields := map[string]interface{}{"name": sValue, "value": fValue}
-						pt := lib.NewTSPoint(ctx, name, nil, fields, tm)
-						lib.AddTSPoint(ctx, &pts, pt)
+						lib.AddTSPoint(
+							ctx,
+							&pts,
+							lib.NewTSPoint(ctx, name, nil, fields, tm),
+						)
 					}
 				}
 			}
@@ -566,7 +589,7 @@ func db2influxHistogram(ctx *lib.Ctx, seriesNameOrFunc, sqlFile, sqlQuery, exclu
 		// Mark this metric & period as already computed if this is a QR period
 		lib.WriteTSPoints(ctx, sqlc, &pts, nil)
 		if qrFrom != nil {
-			setAlreadyComputed(sqlc, ctx, &pts, sqlFile, *qrFrom)
+			setAlreadyComputed(sqlc, ctx, sqlFile, *qrFrom)
 		}
 	} else if ctx.Debug > 0 {
 		lib.Printf("Skipping series write\n")
@@ -628,18 +651,38 @@ func db2influx(seriesNameOrFunc, sqlFile, from, to, intervalAbbr string, hist, m
 	// Run
 	lib.Printf("db2influx.go: Running (on %d CPUs): %v - %v with interval %s, descriptions '%s', multivalue: %v, escape_value_name: %v\n", thrN, dFrom, dTo, interval, desc, multivalue, escapeValueName)
 	dt := dFrom
+	dta := [][]time.Time{}
+	ndta := [][]time.Time{}
+	pdta := [][]time.Time{}
+	i := 0
 	var pDt time.Time
+	for dt.Before(dTo) {
+		nDt := nextIntervalStart(dt)
+		if nIntervals <= 1 {
+			pDt = dt
+		} else {
+			pDt = lib.AddNIntervals(dt, 1-nIntervals, nextIntervalStart, prevIntervalStart)
+		}
+		t := i % thrN
+		if len(dta) < t+1 {
+			dta = append(dta, []time.Time{})
+		}
+		if len(ndta) < t+1 {
+			ndta = append(ndta, []time.Time{})
+		}
+		if len(pdta) < t+1 {
+			pdta = append(pdta, []time.Time{})
+		}
+		dta[t] = append(dta[t], dt)
+		ndta[t] = append(ndta[t], nDt)
+		pdta[t] = append(pdta[t], pDt)
+		dt = nDt
+		i++
+	}
 	if thrN > 1 {
 		mut := &sync.Mutex{}
 		ch := make(chan bool)
-		nThreads := 0
-		for dt.Before(dTo) {
-			nDt := nextIntervalStart(dt)
-			if nIntervals <= 1 {
-				pDt = dt
-			} else {
-				pDt = lib.AddNIntervals(dt, 1-nIntervals, nextIntervalStart, prevIntervalStart)
-			}
+		for i := 0; i < thrN; i++ {
 			go workerThread(
 				ch,
 				&ctx,
@@ -651,32 +694,20 @@ func db2influx(seriesNameOrFunc, sqlFile, from, to, intervalAbbr string, hist, m
 				multivalue,
 				escapeValueName,
 				nIntervals,
-				dt,
-				pDt,
-				nDt,
+				dta[i],
+				pdta[i],
+				ndta[i],
 				mut,
 			)
-			dt = nDt
-			nThreads++
-			if nThreads == thrN {
-				<-ch
-				nThreads--
-			}
 		}
-		lib.Printf("Final threads join\n")
+		nThreads := thrN
 		for nThreads > 0 {
 			<-ch
 			nThreads--
 		}
 	} else {
 		lib.Printf("Using single threaded version\n")
-		for dt.Before(dTo) {
-			nDt := nextIntervalStart(dt)
-			if nIntervals <= 1 {
-				pDt = dt
-			} else {
-				pDt = lib.AddNIntervals(dt, 1-nIntervals, nextIntervalStart, prevIntervalStart)
-			}
+		for i := 0; i < thrN; i++ {
 			workerThread(
 				nil,
 				&ctx,
@@ -688,12 +719,11 @@ func db2influx(seriesNameOrFunc, sqlFile, from, to, intervalAbbr string, hist, m
 				multivalue,
 				escapeValueName,
 				nIntervals,
-				dt,
-				pDt,
-				nDt,
+				dta[0],
+				pdta[0],
+				ndta[0],
 				nil,
 			)
-			dt = nDt
 		}
 	}
 	// Finished
