@@ -179,14 +179,18 @@ func z2influx(series, from, to, intervalAbbr string, desc bool, values []string)
 		dt = nDt
 		i++
 	}
+	ldt := len(dta)
 	if thrN > 1 {
 		mut := &sync.Mutex{}
 		//var mut *sync.Mutex
 		ch := make(chan bool)
 		for i := 0; i < thrN; i++ {
+			if i == ldt {
+				break
+			}
 			go workerThread(ch, &ctx, seriesSet, intervalAbbr, desc, values, dta[i], mut)
 		}
-		nThreads := thrN
+		nThreads := ldt
 		for nThreads > 0 {
 			<-ch
 			nThreads--
