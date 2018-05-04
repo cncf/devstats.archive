@@ -679,10 +679,14 @@ func db2influx(seriesNameOrFunc, sqlFile, from, to, intervalAbbr string, hist, m
 		dt = nDt
 		i++
 	}
+	ldt := len(dta)
 	if thrN > 1 {
 		mut := &sync.Mutex{}
 		ch := make(chan bool)
 		for i := 0; i < thrN; i++ {
+			if i == ldt {
+				break
+			}
 			go workerThread(
 				ch,
 				&ctx,
@@ -700,7 +704,7 @@ func db2influx(seriesNameOrFunc, sqlFile, from, to, intervalAbbr string, hist, m
 				mut,
 			)
 		}
-		nThreads := thrN
+		nThreads := ldt
 		for nThreads > 0 {
 			<-ch
 			nThreads--
