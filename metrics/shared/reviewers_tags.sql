@@ -1,11 +1,11 @@
-create temp table lgtm_texts as
-select event_id
-from gha_texts
-where
-  substring(body from '(?i)(?:^|\n|\r)\s*/(?:lgtm)\s*(?:\n|\r|$)') is not null
-  and (actor_login {{exclude_bots}})
-;
-
+with lgtm_texts as (
+  select event_id
+  from
+    gha_texts
+  where
+    substring(body from '(?i)(?:^|\n|\r)\s*/(?:lgtm)\s*(?:\n|\r|$)') is not null
+    and (actor_login {{exclude_bots}})
+)
 select
   distinct dup_actor_login
 from
@@ -26,5 +26,3 @@ where
     )
   )
 ;
-
-drop table lgtm_texts;

@@ -1,5 +1,5 @@
 select 
-  'project_developer_stats,' || sub.metric as metric,
+  'hdev,' || sub.metric as metric,
   sub.author as name,
   sub.value as value
 from (

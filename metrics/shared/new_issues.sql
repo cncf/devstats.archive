@@ -1,14 +1,13 @@
-create temp table prev as
-select distinct user_id
-from
-  gha_issues
-where
-  created_at < '{{from}}'
-  and is_pull_request = false
-;
-
+with prev as (
+  select distinct user_id
+  from
+    gha_issues
+  where
+    created_at < '{{from}}'
+    and is_pull_request = false
+)
 select
-  'new_issues;All;contributors,issues' as name,
+  'new_iss;All;contrib,iss' as name,
   round(count(distinct user_id) / {{n}}, 2) as contributors,
   round(count(distinct id) / {{n}}, 2) as issues
 from
@@ -22,7 +21,7 @@ union select sub.name,
   round(count(distinct sub.user_id) / {{n}}, 2) as contributors,
   round(count(distinct sub.id) / {{n}}, 2) as issues
 from (
-    select 'new_issues;' || coalesce(ecf.repo_group, r.repo_group) || ';contributors,issues' as name,
+    select 'new_iss;' || coalesce(ecf.repo_group, r.repo_group) || ';contrib,iss' as name,
     i.user_id,
     i.id
   from
@@ -47,5 +46,3 @@ order by
   issues desc,
   name asc
 ;
-
-drop table prev;

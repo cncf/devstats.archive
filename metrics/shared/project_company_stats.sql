@@ -1,5 +1,5 @@
 select 
-  'project_company_stats,' || sub.metric as metric,
+  'hcom,' || sub.metric as metric,
   sub.company as name,
   sub.value as value
 from (

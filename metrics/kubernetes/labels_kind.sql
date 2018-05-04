@@ -1,5 +1,5 @@
 select
-  'sig_mentions_labels_kind,' || sel.kind as kind,
+  'sigm_lk,' || sel.kind as kind,
   round(count(distinct issue_id) / {{n}}, 2) as cnt
 from (
   select distinct issue_id,

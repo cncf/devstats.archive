@@ -2,7 +2,7 @@ select
   sub.repo_group,
   round(count(distinct sub.sha) / {{n}}, 2) as commits
 from (
-  select 'repo_group_commits,' || coalesce(ecf.repo_group, r.repo_group) as repo_group,
+  select 'commits,' || coalesce(ecf.repo_group, r.repo_group) as repo_group,
     c.sha
   from
     gha_repos r,

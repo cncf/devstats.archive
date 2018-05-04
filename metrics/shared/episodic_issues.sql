@@ -1,26 +1,23 @@
-create temp table prev as
-select distinct user_id
-from
-  gha_issues
-where
-  created_at >= date '{{from}}' - '3 months'::interval
-  and created_at < '{{from}}'
-  and is_pull_request = false
-;
-
-create temp table prev_cnt as
-select user_id, count(distinct id) as cnt
-from
-  gha_issues
-where
-  created_at < '{{from}}'
-  and is_pull_request = false
-group by
-  user_id
-;
-
+with prev as (
+  select distinct user_id
+  from
+    gha_issues
+  where
+    created_at >= date '{{from}}' - '3 months'::interval
+    and created_at < '{{from}}'
+    and is_pull_request = false
+), prev_cnt as (
+  select user_id, count(distinct id) as cnt
+  from
+    gha_issues
+  where
+    created_at < '{{from}}'
+    and is_pull_request = false
+  group by
+    user_id
+)
 select
-  'episodic_issues;All;contributors,issues' as name,
+  'epis_iss;All;contrib,iss' as name,
   round(count(distinct i.user_id) / {{n}}, 2) as contributors,
   round(count(distinct i.id) / {{n}}, 2) as issues
 from
@@ -39,7 +36,7 @@ union select sub.name,
   round(count(distinct sub.user_id) / {{n}}, 2) as contributors,
   round(count(distinct sub.id) / {{n}}, 2) as issues
 from (
-    select 'episodic_issues;' || coalesce(ecf.repo_group, r.repo_group) || ';contributors,issues' as name,
+    select 'epis_iss;' || coalesce(ecf.repo_group, r.repo_group) || ';contrib,iss' as name,
     i.user_id,
     i.id
   from
@@ -69,6 +66,3 @@ order by
   issues desc,
   name asc
 ;
-
-drop table prev_cnt;
-drop table prev;

@@ -1,17 +1,17 @@
-create temp table matching as
-select event_id
-from
-  gha_texts
-where
-  created_at >= '{{from}}'
-  and created_at < '{{to}}'
-  and substring(body from '(?i)(?:^|\n|\r)\s*/approve\s*(?:\n|\r|$)') is not null;
-
+with matching as (
+  select event_id
+  from
+    gha_texts
+  where
+    created_at >= '{{from}}'
+    and created_at < '{{to}}'
+    and substring(body from '(?i)(?:^|\n|\r)\s*/approve\s*(?:\n|\r|$)') is not null
+)
 select
   sub.repo_group,
   count(distinct sub.actor) as result
 from (
-  select 'approvers,' || coalesce(ecf.repo_group, r.repo_group) as repo_group,
+  select 'appr,' || coalesce(ecf.repo_group, r.repo_group) as repo_group,
     e.dup_actor_login as actor
   from
     gha_repos r,
@@ -37,5 +37,3 @@ order by
   result desc,
   repo_group asc
 ;
-
-drop table matching;

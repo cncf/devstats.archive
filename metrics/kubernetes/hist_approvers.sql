@@ -11,7 +11,7 @@ select
   sub.actor,
   count(distinct sub.id) as approves
 from (
-  select 'developers_hist_approvers,' || coalesce(ecf.repo_group, r.repo_group) as repo_group,
+  select 'hdev_approves,' || coalesce(ecf.repo_group, r.repo_group) as repo_group,
     e.dup_actor_login as actor,
     e.id
   from
@@ -37,7 +37,7 @@ group by
   sub.actor
 having
   count(distinct sub.id) >= 1
-union select 'developers_hist_approvers,All' as repo_group,
+union select 'hdev_approves,All' as repo_group,
   dup_actor_login as actor,
   count(distinct id) as approves
 from

@@ -1,15 +1,14 @@
-create temp table lgtm_texts as
-select event_id
-from gha_texts
-where
-  created_at >= '{{from}}'
-  and created_at < '{{to}}'
-  and substring(body from '(?i)(?:^|\n|\r)\s*/(?:lgtm)\s*(?:\n|\r|$)') is not null
-  and (actor_login {{exclude_bots}})
-;
-
+with lgtm_texts as (
+  select event_id
+  from gha_texts
+  where
+    created_at >= '{{from}}'
+    and created_at < '{{to}}'
+    and substring(body from '(?i)(?:^|\n|\r)\s*/(?:lgtm)\s*(?:\n|\r|$)') is not null
+    and (actor_login {{exclude_bots}})
+)
 select
-  concat('lgtms_per_user,', dup_actor_login, '`All') as repo_user,
+  concat('ulgtms,', dup_actor_login, '`All') as repo_user,
   round(count(id) / {{n}}, 2) as result
 from
   gha_events
@@ -51,7 +50,7 @@ where
   and created_at < '{{to}}'
 group by
   repo_user
-union select 'lgtms_per_user,' || concat(dup_actor_login, '`', dup_repo_name) as repo_user,
+union select 'ulgtms,' || concat(dup_actor_login, '`', dup_repo_name) as repo_user,
   round(count(id) / {{n}}, 2) as result
 from
   gha_events
@@ -75,5 +74,3 @@ order by
   result desc,
   repo_user asc
 ;
-
-drop table lgtm_texts;
