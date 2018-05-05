@@ -97,7 +97,7 @@ func WriteTSPoints(ctx *Ctx, con *sql.DB, pts *TSPoints, mut *sync.Mutex) {
 	tags := make(map[string]map[string]struct{})
 	fields := make(map[string]map[string]int)
 	for _, p := range *pts {
-		if tags != nil {
+		if p.tags != nil {
 			name := MakePsqlName("t" + p.name)
 			_, ok := tags[name]
 			if !ok {
@@ -108,7 +108,7 @@ func WriteTSPoints(ctx *Ctx, con *sql.DB, pts *TSPoints, mut *sync.Mutex) {
 				tags[name][tName] = struct{}{}
 			}
 		}
-		if fields != nil {
+		if p.fields != nil {
 			name := MakePsqlName("s" + p.name)
 			_, ok := fields[name]
 			if !ok {
@@ -140,8 +140,8 @@ func WriteTSPoints(ctx *Ctx, con *sql.DB, pts *TSPoints, mut *sync.Mutex) {
 		}
 	}
 	if ctx.Debug > 0 {
-		Printf("tags:\n%+v\n", tags)
-		Printf("fields:\n%+v\n", fields)
+		Printf("%d tags:\n%+v\n", len(tags), tags)
+		Printf("%d fields:\n%+v\n", len(fields), fields)
 	}
 	sqls := []string{}
 	pk := "time timestamp primary key, "
@@ -217,9 +217,10 @@ func WriteTSPoints(ctx *Ctx, con *sql.DB, pts *TSPoints, mut *sync.Mutex) {
 			}
 		}
 	}
-	if ctx.Debug > 0 {
-		Printf("sqls:\n%s\n", strings.Join(sqls, "\n"))
+	if ctx.Debug > 0 && len(sqls) > 0 {
+		Printf("structural sqls:\n%s\n", strings.Join(sqls, "\n"))
 	}
+	ns := 0
 	for _, q := range sqls {
 		ExecSQLTxWithErr(tx, ctx, q)
 	}
@@ -258,6 +259,7 @@ func WriteTSPoints(ctx *Ctx, con *sql.DB, pts *TSPoints, mut *sync.Mutex) {
 				name,
 			)
 			ExecSQLTxWithErr(tx, ctx, q, vals...)
+			ns++
 		}
 		if p.fields != nil {
 			name := MakePsqlName("s" + p.name)
@@ -293,18 +295,25 @@ func WriteTSPoints(ctx *Ctx, con *sql.DB, pts *TSPoints, mut *sync.Mutex) {
 				name,
 			)
 			ExecSQLTxWithErr(tx, ctx, q, vals...)
+			ns++
 		}
 	}
 	FatalOnError(tx.Commit())
 	if mut != nil {
 		mut.Unlock()
 	}
+	if ctx.Debug > 0 {
+		Printf("upserts: %d\n", ns)
+	}
 }
 
 // MakePsqlName makes sure the identifier is shorter than 64
 func MakePsqlName(name string) string {
-	if len(name) > 63 {
-		Fatalf("postgresql identifier name too long %d: %s", len(name), name)
+	l := len(name)
+	if l > 63 {
+		newName := name[:32] + name[l-31:]
+		Printf("WARNING: postgresql identifier name too long (%d, %s) --> (%s, %d)\n", l, name, newName, len(newName))
+		return newName
 	}
 	return name
 }
