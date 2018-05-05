@@ -172,6 +172,6 @@ left join
 on
   sub.sig = sr.sig
 order by
-  relative_workload desc,
+  rel desc,
   sub.sig asc
 ;
