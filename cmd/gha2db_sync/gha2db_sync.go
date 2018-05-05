@@ -12,31 +12,6 @@ import (
 	yaml "gopkg.in/yaml.v2"
 )
 
-// gaps contain list of metrics to fill gaps
-type gaps struct {
-	Metrics []metricGap `yaml:"metrics"`
-}
-
-// metricGap conain list of series names and periods to fill gaps
-// Series formula allows writing a lot of series name in a shorter way
-// Say we have series in this form prefix_{x}_{y}_{z}_suffix
-// and {x} can be a,b,c,d, {y} can be 1,2,3, z can be yes,no
-// Instead of listing all combinations prefix_a_1_yes_suffix, ..., prefix_d_3_no_suffix
-// Which is 4 * 3 * 2 = 24 items, You can write series formula:
-// "=prefix;suffix;_;a,b,c,d;1,2,3;yes,no"
-// format is "=prefix;suffix;join;list1item1,list1item2,...;list2item1,list2item2,...;..."
-// Values can be set the same way as Series, it is the array of series properties to clear
-// If not specified, ["value"] is assumed - it is used for multi-value series
-type metricGap struct {
-	Name      string   `yaml:"name"`
-	Series    []string `yaml:"series"`
-	Periods   string   `yaml:"periods"`
-	Aggregate string   `yaml:"aggregate"`
-	Skip      string   `yaml:"skip"`
-	Desc      bool     `yaml:"desc"`
-	Values    []string `yaml:"values"`
-}
-
 // metrics contain list of metrics to evaluate
 type metrics struct {
 	Metrics []metric `yaml:"metrics"`
@@ -153,118 +128,6 @@ func createSeriesFromFormula(def string) (result []string) {
 	// Create cartesian result with all possible combinations
 	result = joinedCartesian(matrix, prefix, join, suffix)
 	return
-}
-
-// fills series gaps
-// Reads config from YAML (which series, for which periods)
-func fillGapsInSeries(ctx *lib.Ctx, from, to time.Time) {
-	lib.Printf("Fill gaps in series\n")
-	var gaps gaps
-
-	// Local or cron mode?
-	cmdPrefix := ""
-	dataPrefix := lib.DataDir
-	if ctx.Local {
-		cmdPrefix = "./"
-		dataPrefix = "./"
-	}
-
-	data, err := lib.ReadFile(ctx, dataPrefix+ctx.GapsYaml)
-	if err != nil {
-		lib.FatalOnError(err)
-		return
-	}
-	lib.FatalOnError(yaml.Unmarshal(data, &gaps))
-
-	// Iterate metrics and periods
-	bSize := 1000
-	for _, metric := range gaps.Metrics {
-		extraParams := []string{}
-		if metric.Desc {
-			extraParams = append(extraParams, "desc")
-		}
-		// Parse multi values
-		values := []string{}
-		for _, value := range metric.Values {
-			if value[0:1] == "=" {
-				valuesArr := createSeriesFromFormula(value)
-				values = append(values, valuesArr...)
-			} else {
-				values = append(values, value)
-			}
-		}
-		if len(values) == 0 {
-			values = append(values, "value")
-		}
-		extraParams = append(extraParams, "values:"+strings.Join(values, ";"))
-		// Parse series
-		series := []string{}
-		for _, ser := range metric.Series {
-			if ser[0:1] == "=" {
-				formulaSeries := createSeriesFromFormula(ser)
-				series = append(series, formulaSeries...)
-			} else {
-				series = append(series, ser)
-			}
-		}
-		nSeries := len(series)
-		nBuckets := nSeries / bSize
-		if nSeries%bSize > 0 {
-			nBuckets++
-		}
-		periods := strings.Split(metric.Periods, ",")
-		aggregate := metric.Aggregate
-		if aggregate == "" {
-			aggregate = "1"
-		}
-		aggregateArr := strings.Split(aggregate, ",")
-		skips := strings.Split(metric.Skip, ",")
-		skipMap := make(map[string]struct{})
-		for _, skip := range skips {
-			skipMap[skip] = struct{}{}
-		}
-		for _, aggrStr := range aggregateArr {
-			_, err := strconv.Atoi(aggrStr)
-			lib.FatalOnError(err)
-			aggrSuffix := aggrStr
-			if aggrSuffix == "1" {
-				aggrSuffix = ""
-			}
-			for _, period := range periods {
-				periodAggr := period + aggrSuffix
-				_, found := skipMap[periodAggr]
-				if found {
-					lib.Printf("Skipped filling gaps on period %s\n", periodAggr)
-					continue
-				}
-				if !ctx.ResetIDB && !lib.ComputePeriodAtThisDate(ctx, period, to) {
-					lib.Printf("Skipping filling gaps for period \"%s\" for date %v\n", periodAggr, to)
-					continue
-				}
-				for i := 0; i < nBuckets; i++ {
-					bFrom := i * bSize
-					bTo := bFrom + bSize
-					if bTo > nSeries {
-						bTo = nSeries
-					}
-					lib.Printf("Filling metric gaps %v, descriptions %v, period: %s, %d series (%d - %d)...\n", metric.Name, metric.Desc, periodAggr, nSeries, bFrom, bTo)
-					_, err := lib.ExecCommand(
-						ctx,
-						[]string{
-							cmdPrefix + "z2influx",
-							strings.Join(addPeriodSuffix(series[bFrom:bTo], periodAggr), ","),
-							lib.ToYMDHDate(from),
-							lib.ToYMDHDate(to),
-							periodAggr,
-							strings.Join(extraParams, ","),
-						},
-						nil,
-					)
-					lib.FatalOnError(err)
-				}
-			}
-		}
-	}
 }
 
 func sync(ctx *lib.Ctx, args []string) {
@@ -441,9 +304,6 @@ func sync(ctx *lib.Ctx, args []string) {
 		// Get Quick Ranges from IDB (it is filled by annotations command)
 		quickRanges := lib.GetTagValues(con, ctx, "quick_ranges", "quick_ranges_suffix")
 		lib.Printf("Quick ranges: %+v\n", quickRanges)
-
-		// Fill gaps in series
-		fillGapsInSeries(ctx, from, to)
 
 		// Read metrics configuration
 		data, err := lib.ReadFile(ctx, dataPrefix+ctx.MetricsYaml)
