@@ -189,9 +189,9 @@ func WriteTSPoints(ctx *Ctx, con *sql.DB, pts *TSPoints, mut *sync.Mutex) {
 			indices := []string{}
 			for col, ty := range data {
 				if ty == 0 {
-					sq += "\"" + col + "\" double precision, "
+					sq += "\"" + col + "\" double precision not null default 0.0, "
 				} else {
-					sq += "\"" + col + "\" text, "
+					sq += "\"" + col + "\" text not null default '', "
 				}
 				indices = append(indices, "create index on \""+name+"\"(\""+col+"\")")
 			}
@@ -207,9 +207,9 @@ func WriteTSPoints(ctx *Ctx, con *sql.DB, pts *TSPoints, mut *sync.Mutex) {
 				if !colExists {
 					sq := ""
 					if ty == 0 {
-						sq = "alter table \"" + name + "\" add \"" + col + "\" double precision"
+						sq = "alter table \"" + name + "\" add \"" + col + "\" double precision not null default 0.0"
 					} else {
-						sq = "alter table \"" + name + "\" add \"" + col + "\" text"
+						sq = "alter table \"" + name + "\" add \"" + col + "\" text not null default ''"
 					}
 					sqls = append(sqls, sq)
 					sqls = append(sqls, "create index on \""+name+"\"(\""+col+"\")")
