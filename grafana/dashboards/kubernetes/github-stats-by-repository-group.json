@@ -31,7 +31,7 @@
   "gnetId": null,
   "graphTooltip": 0,
   "id": 139,
-  "iteration": 1525688366390,
+  "iteration": 1525689500736,
   "links": [],
   "panels": [
     {
@@ -149,7 +149,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "gha",
+      "datasource": "psql",
       "decimals": null,
       "description": "[[full_name]] [[stat]] in given repository group",
       "fill": 3,
@@ -187,14 +187,16 @@
       "steppedLine": false,
       "targets": [
         {
-          "alias": "$col",
+          "alias": "",
           "dsType": "influxdb",
+          "format": "time_series",
           "groupBy": [],
           "measurement": "notused",
           "orderByTime": "ASC",
           "policy": "default",
           "query": "SELECT /^[[repogroups]]$/ FROM \"gh_stats_repo_groups_[[stat]]_[[period]]\" WHERE $timeFilter",
           "rawQuery": true,
+          "rawSql": "select\n  $__time(time),\n  ${repogroups:csv}\nfrom\n  sgstat_rgrp_[[stat]]\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\norder by\n  time",
           "refId": "A",
           "resultFormat": "time_series",
           "select": [
@@ -257,7 +259,7 @@
       "bars": true,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "gha",
+      "datasource": "psql",
       "decimals": null,
       "description": "[[full_name]] [[stat]] in given repository group",
       "fill": 3,
@@ -295,14 +297,16 @@
       "steppedLine": true,
       "targets": [
         {
-          "alias": "$col",
+          "alias": "",
           "dsType": "influxdb",
+          "format": "time_series",
           "groupBy": [],
           "measurement": "notused",
           "orderByTime": "ASC",
           "policy": "default",
           "query": "SELECT /^[[repogroups]]$/ FROM \"gh_stats_repo_groups_[[stat]]_[[period]]\" WHERE $timeFilter",
           "rawQuery": true,
+          "rawSql": "select\n  $__time(time),\n  ${repogroups:csv}\nfrom\n  sgstat_rgrp_[[stat]]\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\norder by\n  time",
           "refId": "A",
           "resultFormat": "time_series",
           "select": [
@@ -338,10 +342,11 @@
       },
       "yaxes": [
         {
+          "decimals": null,
           "format": "short",
           "label": "Statistic",
           "logBase": 1,
-          "max": null,
+          "max": "100",
           "min": "0",
           "show": true
         },
@@ -633,5 +638,5 @@
   "timezone": "",
   "title": "Github Stats by Repository Group",
   "uid": "48",
-  "version": 16
+  "version": 18
 }
