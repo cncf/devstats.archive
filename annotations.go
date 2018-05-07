@@ -174,7 +174,7 @@ func ProcessAnnotations(ctx *Ctx, annotations *Annotations, startDate, joinDate 
 				annotation.Description,
 			)
 		}
-		pt := NewTSPoint(ctx, "annotations", nil, fields, annotation.Date)
+		pt := NewTSPoint(ctx, "annotations", "", nil, fields, annotation.Date)
 		AddTSPoint(ctx, &pts, pt)
 	}
 
@@ -195,7 +195,7 @@ func ProcessAnnotations(ctx *Ctx, annotations *Annotations, startDate, joinDate 
 					fields["description"],
 				)
 			}
-			pt := NewTSPoint(ctx, "annotations", nil, fields, *startDate)
+			pt := NewTSPoint(ctx, "annotations", "", nil, fields, *startDate)
 			AddTSPoint(ctx, &pts, pt)
 		}
 
@@ -214,7 +214,7 @@ func ProcessAnnotations(ctx *Ctx, annotations *Annotations, startDate, joinDate 
 					fields["description"],
 				)
 			}
-			pt := NewTSPoint(ctx, "annotations", nil, fields, *joinDate)
+			pt := NewTSPoint(ctx, "annotations", "", nil, fields, *joinDate)
 			AddTSPoint(ctx, &pts, pt)
 		}
 	}
@@ -256,7 +256,7 @@ func ProcessAnnotations(ctx *Ctx, annotations *Annotations, startDate, joinDate 
 			)
 		}
 		// Add batch point
-		pt := NewTSPoint(ctx, tagName, tags, nil, tm)
+		pt := NewTSPoint(ctx, tagName, "", tags, nil, tm)
 		AddTSPoint(ctx, &pts, pt)
 		tm = tm.Add(time.Hour)
 	}
@@ -277,7 +277,7 @@ func ProcessAnnotations(ctx *Ctx, annotations *Annotations, startDate, joinDate 
 				)
 			}
 			// Add batch point
-			pt := NewTSPoint(ctx, tagName, tags, nil, tm)
+			pt := NewTSPoint(ctx, tagName, "", tags, nil, tm)
 			AddTSPoint(ctx, &pts, pt)
 			tm = tm.Add(time.Hour)
 			break
@@ -295,7 +295,7 @@ func ProcessAnnotations(ctx *Ctx, annotations *Annotations, startDate, joinDate 
 			)
 		}
 		// Add batch point
-		pt := NewTSPoint(ctx, tagName, tags, nil, tm)
+		pt := NewTSPoint(ctx, tagName, "", tags, nil, tm)
 		AddTSPoint(ctx, &pts, pt)
 		tm = tm.Add(time.Hour)
 	}
@@ -315,7 +315,7 @@ func ProcessAnnotations(ctx *Ctx, annotations *Annotations, startDate, joinDate 
 			)
 		}
 		// Add batch point
-		pt := NewTSPoint(ctx, tagName, tags, nil, tm)
+		pt := NewTSPoint(ctx, tagName, "", tags, nil, tm)
 		AddTSPoint(ctx, &pts, pt)
 		tm = tm.Add(time.Hour)
 
@@ -332,7 +332,7 @@ func ProcessAnnotations(ctx *Ctx, annotations *Annotations, startDate, joinDate 
 			)
 		}
 		// Add batch point
-		pt = NewTSPoint(ctx, tagName, tags, nil, tm)
+		pt = NewTSPoint(ctx, tagName, "", tags, nil, tm)
 		AddTSPoint(ctx, &pts, pt)
 		tm = tm.Add(time.Hour)
 	}

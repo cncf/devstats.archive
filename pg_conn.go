@@ -14,6 +14,7 @@ import (
 // TSPoint keeps single time series point
 type TSPoint struct {
 	t      time.Time
+	period string
 	name   string
 	tags   map[string]string
 	fields map[string]interface{}
@@ -25,9 +26,10 @@ type TSPoints []TSPoint
 // Str - string pretty print
 func (p *TSPoint) Str() string {
 	return fmt.Sprintf(
-		"%3s %s tags: %+v fields: %+v",
+		"%s %s period: %s tags: %+v fields: %+v",
 		ToYMDHDate(p.t),
 		p.name,
+		p.period,
 		p.tags,
 		p.fields,
 	)
@@ -43,7 +45,7 @@ func (ps *TSPoints) Str() string {
 }
 
 // NewTSPoint returns new point as specified by args
-func NewTSPoint(ctx *Ctx, name string, tags map[string]string, fields map[string]interface{}, t time.Time) TSPoint {
+func NewTSPoint(ctx *Ctx, name, period string, tags map[string]string, fields map[string]interface{}, t time.Time) TSPoint {
 	var (
 		otags   map[string]string
 		ofields map[string]interface{}
@@ -63,6 +65,7 @@ func NewTSPoint(ctx *Ctx, name string, tags map[string]string, fields map[string
 	p := TSPoint{
 		t:      HourStart(t),
 		name:   name,
+		period: period,
 		tags:   otags,
 		fields: ofields,
 	}
@@ -84,7 +87,6 @@ func AddTSPoint(ctx *Ctx, pts *TSPoints, pt TSPoint) {
 }
 
 // WriteTSPoints write batch of points to postgresql
-// FIXME: Giant LOCK
 func WriteTSPoints(ctx *Ctx, con *sql.DB, pts *TSPoints, mut *sync.Mutex) {
 	npts := len(*pts)
 	if ctx.Debug > 0 {
@@ -144,7 +146,6 @@ func WriteTSPoints(ctx *Ctx, con *sql.DB, pts *TSPoints, mut *sync.Mutex) {
 		Printf("%d fields:\n%+v\n", len(fields), fields)
 	}
 	sqls := []string{}
-	pk := "time timestamp primary key, "
 	if mut != nil {
 		mut.Lock()
 	}
@@ -156,7 +157,8 @@ func WriteTSPoints(ctx *Ctx, con *sql.DB, pts *TSPoints, mut *sync.Mutex) {
 		}
 		exists := TableExistsTx(tx, ctx, name)
 		if !exists {
-			sq := "create table \"" + name + "\"(" + pk
+			sq := "create table \"" + name + "\"("
+			sq += "time timestamp primary key, "
 			indices := []string{}
 			for col := range data {
 				sq += "\"" + col + "\" text, "
@@ -185,8 +187,12 @@ func WriteTSPoints(ctx *Ctx, con *sql.DB, pts *TSPoints, mut *sync.Mutex) {
 		}
 		exists := TableExistsTx(tx, ctx, name)
 		if !exists {
-			sq := "create table \"" + name + "\"(" + pk
-			indices := []string{}
+			sq := "create table \"" + name + "\"("
+			sq += "time timestamp not null, period text not null default '', "
+			indices := []string{
+				"create index on \"" + name + "\"(time)",
+				"create index on \"" + name + "\"(period)",
+			}
 			for col, ty := range data {
 				if ty == 0 {
 					sq += "\"" + col + "\" double precision not null default 0.0, "
@@ -195,8 +201,7 @@ func WriteTSPoints(ctx *Ctx, con *sql.DB, pts *TSPoints, mut *sync.Mutex) {
 				}
 				indices = append(indices, "create index on \""+name+"\"(\""+col+"\")")
 			}
-			l := len(sq)
-			sq = sq[:l-2] + ")"
+			sq += "primary key(time, period))"
 			sqls = append(sqls, sq)
 			sqls = append(sqls, indices...)
 			sqls = append(sqls, "grant select on \""+name+"\" to ro_user")
@@ -252,10 +257,9 @@ func WriteTSPoints(ctx *Ctx, con *sql.DB, pts *TSPoints, mut *sync.Mutex) {
 			argT := "$" + strconv.Itoa(i)
 			vals = append(vals, p.t)
 			q := fmt.Sprintf(
-				"insert into \"%s\"("+namesIA+") values("+argsIA+") "+
+				"insert into \"%[1]s\"("+namesIA+") values("+argsIA+") "+
 					"on conflict(time) do update set ("+namesUA+") = ("+argsUA+") "+
-					"where %s.time = "+argT,
-				name,
+					"where \"%[1]s\".time = "+argT,
 				name,
 			)
 			ExecSQLTxWithErr(tx, ctx, q, vals...)
@@ -263,10 +267,10 @@ func WriteTSPoints(ctx *Ctx, con *sql.DB, pts *TSPoints, mut *sync.Mutex) {
 		}
 		if p.fields != nil {
 			name := MakePsqlName("s" + p.name)
-			namesI := []string{"time"}
-			argsI := []string{"$1"}
-			vals := []interface{}{p.t}
-			i := 2
+			namesI := []string{"time", "period"}
+			argsI := []string{"$1", "$2"}
+			vals := []interface{}{p.t, p.period}
+			i := 3
 			for tagName, tagValue := range p.fields {
 				namesI = append(namesI, "\""+MakePsqlName(tagName)+"\"")
 				argsI = append(argsI, "$"+strconv.Itoa(i))
@@ -286,12 +290,13 @@ func WriteTSPoints(ctx *Ctx, con *sql.DB, pts *TSPoints, mut *sync.Mutex) {
 			namesUA := strings.Join(namesU, ", ")
 			argsUA := strings.Join(argsU, ", ")
 			argT := "$" + strconv.Itoa(i)
+			argP := "$" + strconv.Itoa(i+1)
 			vals = append(vals, p.t)
+			vals = append(vals, p.period)
 			q := fmt.Sprintf(
-				"insert into %s("+namesIA+") values("+argsIA+") "+
-					"on conflict(time) do update set ("+namesUA+") = ("+argsUA+") "+
-					"where %s.time = "+argT,
-				name,
+				"insert into \"%[1]s\"("+namesIA+") values("+argsIA+") "+
+					"on conflict(time, period) do update set ("+namesUA+") = ("+argsUA+") "+
+					"where \"%[1]s\".time = "+argT+" and \"%[1]s\".period = "+argP,
 				name,
 			)
 			ExecSQLTxWithErr(tx, ctx, q, vals...)
@@ -341,7 +346,6 @@ func GetTagValues(con *sql.DB, ctx *Ctx, name, key string) (ret []string) {
 
 // TableExistsTx - checks if a given table exists
 func TableExistsTx(tx *sql.Tx, ctx *Ctx, tableName string) bool {
-	//ExecSQLTx(tx, ctx, "drop table " + tableName)
 	var s *string
 	FatalOnError(QueryRowSQLTx(tx, ctx, fmt.Sprintf("select to_regclass(%s)", NValue(1)), tableName).Scan(&s))
 	return s != nil
@@ -370,7 +374,6 @@ func TableColumnExistsTx(tx *sql.Tx, ctx *Ctx, tableName, columnName string) boo
 
 // TableExists - checks if a given table exists
 func TableExists(con *sql.DB, ctx *Ctx, tableName string) bool {
-	//ExecSQL(con, ctx, "drop table " + tableName)
 	var s *string
 	FatalOnError(QueryRowSQL(con, ctx, fmt.Sprintf("select to_regclass(%s)", NValue(1)), tableName).Scan(&s))
 	return s != nil

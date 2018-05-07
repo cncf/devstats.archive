@@ -110,7 +110,7 @@ func idbTags() {
 					tags[tg.ValueTag] = lib.NormalizeName(strVal)
 				}
 				// Add batch point
-				pt := lib.NewTSPoint(&ctx, tg.SeriesName, tags, nil, tm)
+				pt := lib.NewTSPoint(&ctx, tg.SeriesName, "", tags, nil, tm)
 				lib.AddTSPoint(&ctx, &pts, pt)
 				tm = tm.Add(time.Hour)
 			}
