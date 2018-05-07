@@ -265,7 +265,7 @@ func sync(ctx *lib.Ctx, args []string) {
 		lib.FatalOnError(err)
 	}
 
-	// DB2Influx
+	// Calc metric
 	if !ctx.SkipIDB {
 		metricsDir := dataPrefix + "metrics"
 		if ctx.Project != "" {
@@ -281,10 +281,10 @@ func sync(ctx *lib.Ctx, args []string) {
 
 		// InfluxDB tags (repo groups template variable currently)
 		if ctx.ResetIDB || time.Now().Hour() == 0 {
-			_, err := lib.ExecCommand(ctx, []string{cmdPrefix + "idb_tags"}, nil)
+			_, err := lib.ExecCommand(ctx, []string{cmdPrefix + "tags"}, nil)
 			lib.FatalOnError(err)
 		} else {
-			lib.Printf("Skipping `idb_tags` recalculation, it is only computed once per day\n")
+			lib.Printf("Skipping `tags` recalculation, it is only computed once per day\n")
 		}
 
 		// Annotations
@@ -384,14 +384,14 @@ func sync(ctx *lib.Ctx, args []string) {
 						seriesNameOrFunc += "_" + periodAggr
 					}
 					// Histogram metrics usualy take long time, but executes single query, so there is no way to
-					// Implement multi threading inside "db2influx" call fro them
+					// Implement multi threading inside "calc_metric" call fro them
 					// So we're creating array of such metrics to be executed at the end - each in a separate go routine
 					if metric.Histogram {
 						lib.Printf("Scheduled histogram metric %v, period %v, desc: '%v', aggregate: '%v' ...\n", metric.Name, period, metric.Desc, aggrSuffix)
 						hists = append(
 							hists,
 							[]string{
-								cmdPrefix + "db2influx",
+								cmdPrefix + "calc_metric",
 								seriesNameOrFunc,
 								fmt.Sprintf("%s/%s.sql", metricsDir, metric.MetricSQL),
 								lib.ToYMDHDate(from),
@@ -405,7 +405,7 @@ func sync(ctx *lib.Ctx, args []string) {
 						_, err = lib.ExecCommand(
 							ctx,
 							[]string{
-								cmdPrefix + "db2influx",
+								cmdPrefix + "calc_metric",
 								seriesNameOrFunc,
 								fmt.Sprintf("%s/%s.sql", metricsDir, metric.MetricSQL),
 								lib.ToYMDHDate(from),
@@ -450,7 +450,7 @@ func sync(ctx *lib.Ctx, args []string) {
 	lib.Printf("Sync success\n")
 }
 
-// calcHistogram - calculate single histogram by calling "db2influx" program with parameters from "hist"
+// calcHistogram - calculate single histogram by calling "calc_metric" program with parameters from "hist"
 func calcHistogram(ch chan bool, ctx *lib.Ctx, hist []string) {
 	if len(hist) != 7 {
 		lib.Fatalf("calcHistogram, expected 7 strings, got: %d: %v", len(hist), hist)
@@ -465,7 +465,7 @@ func calcHistogram(ch chan bool, ctx *lib.Ctx, hist []string) {
 		hist[5],
 		hist[6],
 	)
-	// Execute "db2influx"
+	// Execute "calc_metric"
 	_, err := lib.ExecCommand(
 		ctx,
 		[]string{

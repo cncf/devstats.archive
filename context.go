@@ -39,7 +39,7 @@ type Ctx struct {
 	DefaultStartDate    time.Time       // From GHA2DB_STARTDT, default `2014-01-01 00:00 UTC`, expects format "YYYY-MM-DD HH:MI:SS", can be set in `projects.yaml` via `start_date:`, value from projects.yaml (if set) has the highest priority.
 	ForceStartDate      bool            // From GHA2DB_STARTDT_FORCE, default false
 	LastSeries          string          // From GHA2DB_LASTSERIES, use this InfluxDB series to determine last timestamp date, default "events_h"
-	SkipIDB             bool            // From GHA2DB_SKIPIDB gha2db_sync tool, skip Influx DB processing? for db2influx it skips final series write, default false
+	SkipIDB             bool            // From GHA2DB_SKIPIDB gha2db_sync tool, skip Influx DB processing? for calc_metric it skips final series write, default false
 	SkipPDB             bool            // From GHA2DB_SKIPPDB gha2db_sync tool, skip Postgres DB processing? default false
 	ResetIDB            bool            // From GHA2DB_RESETIDB sync tool, regenerate all InfluxDB points? default false
 	ResetRanges         bool            // From GHA2DB_RESETRANGES sync tool, regenerate all past quick ranges? default false
@@ -50,9 +50,9 @@ type Ctx struct {
 	Local               bool            // From GHA2DB_LOCAL gha2db_sync tool, if set, gha2_db will call other tools prefixed with "./" to use local compile ones. Otherwise it will call binaries without prefix (so it will use thos ein /usr/bin/).
 	MetricsYaml         string          // From GHA2DB_METRICS_YAML gha2db_sync tool, set other metrics.yaml file, default is "metrics/{{project}}metrics.yaml"
 	GapsYaml            string          // From GHA2DB_GAPS_YAML gha2db_sync tool, set other gaps.yaml file, default is "metrics/{{project}}/gaps.yaml"
-	TagsYaml            string          // From GHA2DB_TAGS_YAML idb_tags tool, set other idb_tags.yaml file, default is "metrics/{{project}}/idb_tags.yaml"
+	TagsYaml            string          // From GHA2DB_TAGS_YAML tags tool, set other tags.yaml file, default is "metrics/{{project}}/tags.yaml"
 	IVarsYaml           string          // From GHA2DB_IVARS_YAML idb_vars tool, set other idb_vars.yaml file, default is "metrics/{{project}}/idb_vars.yaml"
-	PVarsYaml           string          // From GHA2DB_PVARS_YAML pdb_vars tool, set other pdb_vars.yaml file, default is "metrics/{{project}}/pdb_vars.yaml"
+	PVarsYaml           string          // From GHA2DB_PVARS_YAML db_vars tool, set other vars.yaml file, default is "metrics/{{project}}/vars.yaml"
 	GitHubOAuth         string          // From GHA2DB_GITHUB_OAUTH ghapi2db tool, if not set reads from /etc/github/oauth file, set to "-" to force public access.
 	ClearDBPeriod       string          // From GHA2DB_MAXLOGAGE gha2db_sync tool, maximum age of devstats.gha_logs entries, default "1 week"
 	Trials              []int           // From GHA2DB_TRIALS, all Postgres related tools, retry periods for "too many connections open" error
@@ -79,8 +79,8 @@ type Ctx struct {
 	ProjectsYaml        string          // From GHA2DB_PROJECTS_YAML, many tools - set main projects file, default "projects.yaml"
 	ProjectsOverride    map[string]bool // From GHA2DB_PROJECTS_OVERRIDE, get_repos and ./devstats tools - for example "-pro1,+pro2" means never sync pro1 and always sync pro2 (even if disabled in `projects.yaml`).
 	ExcludeRepos        map[string]bool // From GHA2DB_EXCLUDE_REPOS, gha2db tool, default "" - comma separated list of repos to exclude, example: "theupdateframework/notary,theupdateframework/other"
-	InputDBs            []string        // From GHA2DB_INPUT_DBS, merge_pdbs tool - list of input databases to merge, order matters - first one will insert on a clean DB, next will do insert ignore (to avoid constraints failure due to common data)
-	OutputDB            string          // From GHA2DB_OUTPUT_DB, merge_pdbs tool - output database to merge into
+	InputDBs            []string        // From GHA2DB_INPUT_DBS, merge_dbs tool - list of input databases to merge, order matters - first one will insert on a clean DB, next will do insert ignore (to avoid constraints failure due to common data)
+	OutputDB            string          // From GHA2DB_OUTPUT_DB, merge_dbs tool - output database to merge into
 	TmOffset            int             // From GHA2DB_TMOFFSET, gha2db_sync tool - uses time offset to decide when to calculate various metrics, default offset is 0 which means UTC, good offset for USA is -6, and for Poland is 1 or 2
 	DefaultHostname     string          // "devstats.cncf.io"
 	RecentRange         string          // From GHA2DB_RECENT_RANGE, ghapi2db tool, default '2 hours'. This is a recent period to check open issues/PR to fix their labels and milestones.
@@ -309,13 +309,13 @@ func (ctx *Ctx) Init() {
 		ctx.GapsYaml = "metrics/" + proj + "gaps.yaml"
 	}
 	if ctx.TagsYaml == "" {
-		ctx.TagsYaml = "metrics/" + proj + "idb_tags.yaml"
+		ctx.TagsYaml = "metrics/" + proj + "tags.yaml"
 	}
 	if ctx.IVarsYaml == "" {
 		ctx.IVarsYaml = "metrics/" + proj + "idb_vars.yaml"
 	}
 	if ctx.PVarsYaml == "" {
-		ctx.PVarsYaml = "metrics/" + proj + "pdb_vars.yaml"
+		ctx.PVarsYaml = "metrics/" + proj + "vars.yaml"
 	}
 
 	// GitHub OAuth
@@ -483,7 +483,7 @@ func (ctx *Ctx) Init() {
 		}
 	}
 
-	// `merge_pdbs` tool - input DBs and output DB
+	// `merge_dbs` tool - input DBs and output DB
 	dbs := os.Getenv("GHA2DB_INPUT_DBS")
 	if dbs != "" {
 		ctx.InputDBs = strings.Split(dbs, ",")

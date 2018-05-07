@@ -167,7 +167,6 @@ then
 fi
 if [ -z "$SKIPVARS" ]
 then
-  ./devel/pdb_vars_all.sh || exit 26
-  ./devel/idb_vars_all.sh || exit 27
+  ./devel/vars_all.sh || exit 26
 fi
 echo "$0: All deployments finished"

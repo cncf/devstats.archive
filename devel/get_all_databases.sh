@@ -36,6 +36,6 @@ do
       proj="all"
     fi
     echo "Project: $proj, PDB: $db"
-    GHA2DB_PROJECT="$proj" PG_DB="$db" GHA2DB_LOCAL=1 ./pdb_vars || exit 6
+    GHA2DB_PROJECT="$proj" PG_DB="$db" GHA2DB_LOCAL=1 ./vars || exit 6
 done
 echo 'OK'

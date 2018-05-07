@@ -62,7 +62,7 @@ then
       rm -f "$PROJDB.dump" || exit 11
       echo 'dropping and recreating postgres variables'
       sudo -u postgres psql "$PROJDB" -c "delete from gha_vars" || exit 26
-      GHA2DB_PROJECT="$PROJ" PG_DB="$PROJDB" GHA2DB_LOCAL=1 ./pdb_vars || exit 27
+      GHA2DB_PROJECT="$PROJ" PG_DB="$PROJDB" GHA2DB_LOCAL=1 ./vars || exit 27
       GOT=1
     else
       echo "generating postgres database $PROJDB"
