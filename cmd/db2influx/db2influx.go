@@ -34,7 +34,7 @@ func valueDescription(descFunc string, value float64) (result string) {
 // if multivalue is true then rowName is not used for generating series name
 // Series name is independent from rowName, and metric returns "series_name;rowName"
 // Multivalue series can even have partialy multivalue row: "this_comes_to_multivalues`this_comes_to_series_name", separator is `
-func multiRowMultiColumn(expr, period string, multivalue, escapeValueName bool) (result []string) {
+func multiRowMultiColumn(expr string, multivalue, escapeValueName bool) (result []string) {
 	ary := strings.Split(expr, ";")
 	pref := ary[0]
 	if pref == "" {
@@ -51,12 +51,12 @@ func multiRowMultiColumn(expr, period string, multivalue, escapeValueName bool) 
 		if len(rowNameAry) > 1 {
 			rowNameNonMulti := lib.NormalizeName(rowNameAry[1])
 			for _, series := range splitColumns {
-				result = append(result, fmt.Sprintf("%s_%s_%s_%s;%s", pref, rowNameNonMulti, series, period, rowName))
+				result = append(result, fmt.Sprintf("%s%s%s;%s", pref, rowNameNonMulti, series, rowName))
 			}
 			return
 		}
 		for _, series := range splitColumns {
-			result = append(result, fmt.Sprintf("%s_%s_%s;%s", pref, series, period, rowName))
+			result = append(result, fmt.Sprintf("%s%s;%s", pref, series, rowName))
 		}
 		return
 	}
@@ -66,18 +66,7 @@ func multiRowMultiColumn(expr, period string, multivalue, escapeValueName bool) 
 		return
 	}
 	for _, series := range splitColumns {
-		result = append(result, fmt.Sprintf("%s_%s_%s_%s", pref, rowName, series, period))
-	}
-	return
-}
-
-// Return default series names from multi column single row result
-// It takes name "a,b,c,d,...,z" and period for example "q"
-// and returns array [a_q, b_q, c_q, .., z_q]
-func singleRowMultiColumn(columns, period string) (result []string) {
-	splitColumns := strings.Split(columns, ",")
-	for _, column := range splitColumns {
-		result = append(result, column+"_"+period)
+		result = append(result, fmt.Sprintf("%s%s%s", pref, rowName, series))
 	}
 	return
 }
@@ -88,7 +77,7 @@ func singleRowMultiColumn(columns, period string) (result []string) {
 // if multivalue is true then rowName is not used for generating series name
 // Series name is independent from rowName, and metric returns "series_name;rowName"
 // Multivalue series can even have partialy multivalue row: "this_comes_to_multivalues`this_comes_to_series_name", separator is `
-func multiRowSingleColumn(col, period string, multivalue, escapeValueName bool) (result []string) {
+func multiRowSingleColumn(col string, multivalue, escapeValueName bool) (result []string) {
 	ary := strings.Split(col, ",")
 	pref := ary[0]
 	if pref == "" {
@@ -103,27 +92,27 @@ func multiRowSingleColumn(col, period string, multivalue, escapeValueName bool) 
 		}
 		if len(rowNameAry) > 1 {
 			rowNameNonMulti := lib.NormalizeName(rowNameAry[1])
-			return []string{fmt.Sprintf("%s_%s_%s;%s", pref, rowNameNonMulti, period, rowName)}
+			return []string{fmt.Sprintf("%s%s;%s", pref, rowNameNonMulti, rowName)}
 		}
-		return []string{fmt.Sprintf("%s_%s;%s", pref, period, rowName)}
+		return []string{fmt.Sprintf("%s;%s", pref, rowName)}
 	}
 	rowName := lib.NormalizeName(ary[1])
 	if rowName == "" {
 		lib.Printf("multiRowSingleColumn: Info: rowName '%v' (%+v) maps to empty string, skipping\n", ary[1], ary)
 		return
 	}
-	return []string{fmt.Sprintf("%s_%s_%s", pref, rowName, period)}
+	return []string{fmt.Sprintf("%s%s", pref, rowName)}
 }
 
 // Generate name for given series row and period
-func nameForMetricsRow(metric, name, period string, multivalue, escapeValueName bool) []string {
+func nameForMetricsRow(metric, name string, multivalue, escapeValueName bool) []string {
 	switch metric {
 	case "single_row_multi_column":
-		return singleRowMultiColumn(name, period)
+		return strings.Split(name, ",")
 	case "multi_row_single_column":
-		return multiRowSingleColumn(name, period, multivalue, escapeValueName)
+		return multiRowSingleColumn(name, multivalue, escapeValueName)
 	case "multi_row_multi_column":
-		return multiRowMultiColumn(name, period, multivalue, escapeValueName)
+		return multiRowMultiColumn(name, multivalue, escapeValueName)
 	default:
 		lib.Printf("Error\nUnknown metric '%v'\n", metric)
 		fmt.Fprintf(os.Stdout, "Error\nUnknown metric '%v'\n", metric)
@@ -213,7 +202,7 @@ func workerThread(ch chan bool, ctx *lib.Ctx, seriesNameOrFunc, sqlQueryOrig, ex
 			lib.AddTSPoint(
 				ctx,
 				&pts,
-				lib.NewTSPoint(ctx, name, nil, fields, dt),
+				lib.NewTSPoint(ctx, name, period, nil, fields, dt),
 			)
 		} else if nColumns >= 2 {
 			// Multiple rows, each with (series name, value(s))
@@ -229,7 +218,7 @@ func workerThread(ch chan bool, ctx *lib.Ctx, seriesNameOrFunc, sqlQueryOrig, ex
 				// Get first column name, and using it all series names
 				// First column should contain nColumns - 1 names separated by ","
 				name := string(*pValues[0].(*sql.RawBytes))
-				names := nameForMetricsRow(seriesNameOrFunc, name, period, multivalue, escapeValueName)
+				names := nameForMetricsRow(seriesNameOrFunc, name, multivalue, escapeValueName)
 				if len(names) > 0 {
 					// Iterate values
 					pFloats := pValues[1:]
@@ -263,7 +252,7 @@ func workerThread(ch chan bool, ctx *lib.Ctx, seriesNameOrFunc, sqlQueryOrig, ex
 							lib.AddTSPoint(
 								ctx,
 								&pts,
-								lib.NewTSPoint(ctx, name, nil, fields, dt),
+								lib.NewTSPoint(ctx, name, period, nil, fields, dt),
 							)
 						}
 					}
@@ -274,7 +263,7 @@ func workerThread(ch chan bool, ctx *lib.Ctx, seriesNameOrFunc, sqlQueryOrig, ex
 				lib.AddTSPoint(
 					ctx,
 					&pts,
-					lib.NewTSPoint(ctx, seriesName, nil, seriesValues, dt),
+					lib.NewTSPoint(ctx, seriesName, period, nil, seriesValues, dt),
 				)
 			}
 			lib.FatalOnError(rows.Err())
@@ -428,7 +417,7 @@ func db2influxHistogram(ctx *lib.Ctx, seriesNameOrFunc, sqlFile, sqlQuery, exclu
 			// Drop existing data
 			table := "s" + seriesNameOrFunc
 			if lib.TableExists(sqlc, ctx, table) {
-				lib.ExecSQLWithErr(sqlc, ctx, "truncate "+table)
+				lib.ExecSQLWithErr(sqlc, ctx, fmt.Sprintf("delete from "+table+" where period = %s", lib.NValue(1)), intervalAbbr)
 				if ctx.Debug > 0 {
 					lib.Printf("Dropped measurement %s\n", seriesNameOrFunc)
 				}
@@ -448,7 +437,7 @@ func db2influxHistogram(ctx *lib.Ctx, seriesNameOrFunc, sqlFile, sqlQuery, exclu
 			lib.AddTSPoint(
 				ctx,
 				&pts,
-				lib.NewTSPoint(ctx, seriesNameOrFunc, nil, fields, tm),
+				lib.NewTSPoint(ctx, seriesNameOrFunc, intervalAbbr, nil, fields, tm),
 			)
 			rowCount++
 			tm = tm.Add(-time.Hour)
@@ -474,7 +463,7 @@ func db2influxHistogram(ctx *lib.Ctx, seriesNameOrFunc, sqlFile, sqlQuery, exclu
 			// Get row values
 			lib.FatalOnError(rows.Scan(pValues...))
 			name := string(*pValues[0].(*sql.RawBytes))
-			names := nameForMetricsRow(seriesNameOrFunc, name, intervalAbbr, multivalue, false)
+			names := nameForMetricsRow(seriesNameOrFunc, name, multivalue, false)
 			// multivalue will return names as [ser_name1;a,b,c]
 			valueNames := []string{}
 			if multivalue {
@@ -527,7 +516,7 @@ func db2influxHistogram(ctx *lib.Ctx, seriesNameOrFunc, sqlFile, sqlQuery, exclu
 				lib.AddTSPoint(
 					ctx,
 					&pts,
-					lib.NewTSPoint(ctx, name, nil, fields, tm),
+					lib.NewTSPoint(ctx, name, intervalAbbr, nil, fields, tm),
 				)
 			} else {
 				if nNames > 0 {
@@ -561,7 +550,7 @@ func db2influxHistogram(ctx *lib.Ctx, seriesNameOrFunc, sqlFile, sqlQuery, exclu
 						lib.AddTSPoint(
 							ctx,
 							&pts,
-							lib.NewTSPoint(ctx, name, nil, fields, tm),
+							lib.NewTSPoint(ctx, name, intervalAbbr, nil, fields, tm),
 						)
 					}
 				}
@@ -572,7 +561,7 @@ func db2influxHistogram(ctx *lib.Ctx, seriesNameOrFunc, sqlFile, sqlQuery, exclu
 			for series := range seriesToClear {
 				table := "s" + series
 				if lib.TableExists(sqlc, ctx, table) {
-					lib.ExecSQLWithErr(sqlc, ctx, "truncate "+table)
+					lib.ExecSQLWithErr(sqlc, ctx, fmt.Sprintf("delete from "+table+" where period = %s", lib.NValue(1)), intervalAbbr)
 					if ctx.Debug > 0 {
 						lib.Printf("Dropped series: %s\n", series)
 					}
