@@ -23,5 +23,5 @@ else
 fi
 if [ ! -z "$exists" ]
 then
-  GHA2DB_LOCAL=1 ./idb_tags
+  GHA2DB_LOCAL=1 ./tags
 fi

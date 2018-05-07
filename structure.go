@@ -1163,7 +1163,7 @@ func Structure(ctx *Ctx) {
 		ExecSQLWithErr(c, ctx, "create index issues_pull_requests_created_at_idx on gha_issues_pull_requests(created_at)")
 	}
 
-	// This table holds Postgres variables defined by `pdb_vars` tool.
+	// This table holds Postgres variables defined by `vars` tool.
 	if ctx.Table {
 		ExecSQLWithErr(c, ctx, "drop table if exists gha_vars")
 		ExecSQLWithErr(

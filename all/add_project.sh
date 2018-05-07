@@ -52,12 +52,12 @@ then
   rm -f allprj.dump || exit 8
   echo 'dropping and recreating postgres variables'
   sudo -u postgres psql allprj -c "delete from gha_vars" || exit 24
-  GHA2DB_PROJECT=all PG_DB=allprj GHA2DB_LOCAL=1 ./pdb_vars || exit 25
+  GHA2DB_PROJECT=all PG_DB=allprj GHA2DB_LOCAL=1 ./vars || exit 25
   echo "allprj backup restored"
   AGOT=1
 else
   echo "merging $1 into allprj"
-  GHA2DB_INPUT_DBS="$1" GHA2DB_OUTPUT_DB="allprj" ./merge_pdbs || exit 9
+  GHA2DB_INPUT_DBS="$1" GHA2DB_OUTPUT_DB="allprj" ./merge_dbs || exit 9
   PG_DB="allprj" ./devel/remove_db_dups.sh || exit 10
   if [ -f "./all/get_repos.sh" ]
   then
