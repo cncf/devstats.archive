@@ -212,10 +212,10 @@ func WriteTSPoints(ctx *Ctx, con *sql.DB, pts *TSPoints, mergeSeries string, mut
 					for col, ty := range data {
 						if ty == 0 {
 							sq += "\"" + col + "\" double precision not null default 0.0, "
+							indices = append(indices, "create index on \""+mergeS+"\"(\""+col+"\")")
 						} else {
 							sq += "\"" + col + "\" text not null default '', "
 						}
-						// indices = append(indices, "create index on \""+mergeS+"\"(\""+col+"\")")
 						colMap[col] = struct{}{}
 					}
 					sq += "primary key(time, series, period))"
@@ -235,11 +235,11 @@ func WriteTSPoints(ctx *Ctx, con *sql.DB, pts *TSPoints, mergeSeries string, mut
 						sq := ""
 						if ty == 0 {
 							sq = "alter table \"" + mergeS + "\" add \"" + col + "\" double precision not null default 0.0"
+							sqls = append(sqls, "create index on \""+mergeS+"\"(\""+col+"\")")
 						} else {
 							sq = "alter table \"" + mergeS + "\" add \"" + col + "\" text not null default ''"
 						}
 						sqls = append(sqls, sq)
-						// sqls = append(sqls, "create index on \""+mergeS+"\"(\""+col+"\")")
 					}
 				}
 			}
@@ -260,10 +260,10 @@ func WriteTSPoints(ctx *Ctx, con *sql.DB, pts *TSPoints, mergeSeries string, mut
 				for col, ty := range data {
 					if ty == 0 {
 						sq += "\"" + col + "\" double precision not null default 0.0, "
+						indices = append(indices, "create index on \""+name+"\"(\""+col+"\")")
 					} else {
 						sq += "\"" + col + "\" text not null default '', "
 					}
-					// indices = append(indices, "create index on \""+name+"\"(\""+col+"\")")
 				}
 				sq += "primary key(time, period))"
 				sqls = append(sqls, sq)
@@ -277,11 +277,11 @@ func WriteTSPoints(ctx *Ctx, con *sql.DB, pts *TSPoints, mergeSeries string, mut
 						sq := ""
 						if ty == 0 {
 							sq = "alter table \"" + name + "\" add \"" + col + "\" double precision not null default 0.0"
+							sqls = append(sqls, "create index on \""+name+"\"(\""+col+"\")")
 						} else {
 							sq = "alter table \"" + name + "\" add \"" + col + "\" text not null default ''"
 						}
 						sqls = append(sqls, sq)
-						// sqls = append(sqls, "create index on \""+name+"\"(\""+col+"\")")
 					}
 				}
 			}
