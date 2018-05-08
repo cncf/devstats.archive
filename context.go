@@ -27,21 +27,15 @@ type Ctx struct {
 	Table               bool            // From GHA2DB_SKIPTABLE Create table structure? default true
 	Tools               bool            // From GHA2DB_SKIPTOOLS Create DB tools (like views, summary tables, materialized views etc)? default true
 	Mgetc               string          // From GHA2DB_MGETC Character returned by mgetc (if non empty), default ""
-	IDBHost             string          // From IDB_HOST, default "http://localhost"
-	IDBPort             string          // form IDB_PORT, default 8086
-	IDBDB               string          // From IDB_DB, default "gha"
-	IDBUser             string          // From IDB_USER, default "gha_admin"
-	IDBPass             string          // From IDB_PASS, default "password"
-	IDBMaxBatchPoints   int             // From IDB_MAXBATCHPONTS, all Influx related tools, default 10240 (10k)
 	QOut                bool            // From GHA2DB_QOUT output all SQL queries?, default false
 	CtxOut              bool            // From GHA2DB_CTXOUT output all context data (this struct), default false
 	LogTime             bool            // From GHA2DB_SKIPTIME, output time with all lib.Printf(...) calls, default true, use GHA2DB_SKIPTIME to disable
 	DefaultStartDate    time.Time       // From GHA2DB_STARTDT, default `2014-01-01 00:00 UTC`, expects format "YYYY-MM-DD HH:MI:SS", can be set in `projects.yaml` via `start_date:`, value from projects.yaml (if set) has the highest priority.
 	ForceStartDate      bool            // From GHA2DB_STARTDT_FORCE, default false
-	LastSeries          string          // From GHA2DB_LASTSERIES, use this InfluxDB series to determine last timestamp date, default "events_h"
-	SkipIDB             bool            // From GHA2DB_SKIPIDB gha2db_sync tool, skip Influx DB processing? for calc_metric it skips final series write, default false
+	LastSeries          string          // From GHA2DB_LASTSERIES, use this TSDB series to determine last timestamp date, default "events_h"
+	SkipTSDB            bool            // From GHA2DB_SKIPTSDB gha2db_sync tool, skip TS DB processing? for calc_metric it skips final series write, default false
 	SkipPDB             bool            // From GHA2DB_SKIPPDB gha2db_sync tool, skip Postgres DB processing? default false
-	ResetIDB            bool            // From GHA2DB_RESETIDB sync tool, regenerate all InfluxDB points? default false
+	ResetTSDB           bool            // From GHA2DB_RESETTSDB sync tool, regenerate all TS points? default false
 	ResetRanges         bool            // From GHA2DB_RESETRANGES sync tool, regenerate all past quick ranges? default false
 	Explain             bool            // From GHA2DB_EXPLAIN runq tool, prefix query with "explain " - it will display query plan instead of executing real query, default false
 	OldFormat           bool            // From GHA2DB_OLDFMT gha2db tool, if set then use pre 2015 GHA JSONs format
@@ -49,9 +43,7 @@ type Ctx struct {
 	LogToDB             bool            // From GHA2DB_SKIPLOG all tools, if set, DB logging into Postgres table `gha_logs` in `devstats` database will be disabled
 	Local               bool            // From GHA2DB_LOCAL gha2db_sync tool, if set, gha2_db will call other tools prefixed with "./" to use local compile ones. Otherwise it will call binaries without prefix (so it will use thos ein /usr/bin/).
 	MetricsYaml         string          // From GHA2DB_METRICS_YAML gha2db_sync tool, set other metrics.yaml file, default is "metrics/{{project}}metrics.yaml"
-	GapsYaml            string          // From GHA2DB_GAPS_YAML gha2db_sync tool, set other gaps.yaml file, default is "metrics/{{project}}/gaps.yaml"
 	TagsYaml            string          // From GHA2DB_TAGS_YAML tags tool, set other tags.yaml file, default is "metrics/{{project}}/tags.yaml"
-	IVarsYaml           string          // From GHA2DB_IVARS_YAML idb_vars tool, set other idb_vars.yaml file, default is "metrics/{{project}}/idb_vars.yaml"
 	PVarsYaml           string          // From GHA2DB_PVARS_YAML db_vars tool, set other vars.yaml file, default is "metrics/{{project}}/vars.yaml"
 	GitHubOAuth         string          // From GHA2DB_GITHUB_OAUTH ghapi2db tool, if not set reads from /etc/github/oauth file, set to "-" to force public access.
 	ClearDBPeriod       string          // From GHA2DB_MAXLOGAGE gha2db_sync tool, maximum age of devstats.gha_logs entries, default "1 week"
@@ -187,42 +179,6 @@ func (ctx *Ctx) Init() {
 		ctx.PgSSL = "disable"
 	}
 
-	// Influx DB
-	ctx.IDBHost = os.Getenv("IDB_HOST")
-	ctx.IDBPort = os.Getenv("IDB_PORT")
-	ctx.IDBDB = os.Getenv("IDB_DB")
-	ctx.IDBUser = os.Getenv("IDB_USER")
-	ctx.IDBPass = os.Getenv("IDB_PASS")
-	if ctx.IDBHost == "" {
-		ctx.IDBHost = Localhost
-	}
-	if !strings.HasPrefix(ctx.IDBHost, "http://") {
-		ctx.IDBHost = "http://" + ctx.IDBHost
-	}
-	if ctx.IDBPort == "" {
-		ctx.IDBPort = "8086"
-	}
-	if ctx.IDBDB == "" {
-		ctx.IDBDB = GHA
-	}
-	if ctx.IDBUser == "" {
-		ctx.IDBUser = GHAAdmin
-	}
-	if ctx.IDBPass == "" {
-		ctx.IDBPass = Password
-	}
-
-	// IDBMaxBatchPoints
-	if os.Getenv("IDB_MAXBATCHPOINTS") == "" {
-		ctx.IDBMaxBatchPoints = 10240
-	} else {
-		maxBatchPoints, err := strconv.Atoi(os.Getenv("IDB_MAXBATCHPOINTS"))
-		FatalNoLog(err)
-		if maxBatchPoints > 0 {
-			ctx.IDBMaxBatchPoints = maxBatchPoints
-		}
-	}
-
 	// Environment controlling index creation, table & tools
 	ctx.Index = os.Getenv("GHA2DB_INDEX") != ""
 	ctx.Table = os.Getenv("GHA2DB_SKIPTABLE") == ""
@@ -260,15 +216,15 @@ func (ctx *Ctx) Init() {
 	ctx.SkipGHAPI = os.Getenv("GHA2DB_GHAPISKIP") != ""
 	ctx.SkipArtificailClean = os.Getenv("GHA2DB_AECLEANSKIP") != ""
 
-	// Last InfluxDB series
+	// Last TS series
 	ctx.LastSeries = os.Getenv("GHA2DB_LASTSERIES")
 	if ctx.LastSeries == "" {
 		ctx.LastSeries = "events_h"
 	}
 
-	// InfluxDB variables
-	ctx.SkipIDB = os.Getenv("GHA2DB_SKIPIDB") != ""
-	ctx.ResetIDB = os.Getenv("GHA2DB_RESETIDB") != ""
+	// TS variables
+	ctx.SkipTSDB = os.Getenv("GHA2DB_SKIPTSDB") != ""
+	ctx.ResetTSDB = os.Getenv("GHA2DB_RESETTSDB") != ""
 	ctx.ResetRanges = os.Getenv("GHA2DB_RESETRANGES") != ""
 
 	// Postgres DB variables
@@ -298,21 +254,13 @@ func (ctx *Ctx) Init() {
 
 	// YAML config files
 	ctx.MetricsYaml = os.Getenv("GHA2DB_METRICS_YAML")
-	ctx.GapsYaml = os.Getenv("GHA2DB_GAPS_YAML")
 	ctx.TagsYaml = os.Getenv("GHA2DB_TAGS_YAML")
-	ctx.IVarsYaml = os.Getenv("GHA2DB_IVARS_YAML")
 	ctx.PVarsYaml = os.Getenv("GHA2DB_PVARS_YAML")
 	if ctx.MetricsYaml == "" {
 		ctx.MetricsYaml = "metrics/" + proj + "metrics.yaml"
 	}
-	if ctx.GapsYaml == "" {
-		ctx.GapsYaml = "metrics/" + proj + "gaps.yaml"
-	}
 	if ctx.TagsYaml == "" {
 		ctx.TagsYaml = "metrics/" + proj + "tags.yaml"
-	}
-	if ctx.IVarsYaml == "" {
-		ctx.IVarsYaml = "metrics/" + proj + "idb_vars.yaml"
 	}
 	if ctx.PVarsYaml == "" {
 		ctx.PVarsYaml = "metrics/" + proj + "vars.yaml"

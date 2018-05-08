@@ -231,7 +231,7 @@ func ProcessAnnotations(ctx *Ctx, annotations *Annotations, startDate, joinDate 
 	}
 
 	// tags:
-	// suffix: will be used as InfluxDB series name suffix and Grafana drop-down value (non-dsplayed)
+	// suffix: will be used as TS series name suffix and Grafana drop-down value (non-dsplayed)
 	// name: will be used as Grafana drop-down value name
 	// data: is suffix;period;from;to
 	// period: only for special values listed here, last ... week, day, quarter, devade etc - will be passed to Postgres
@@ -338,7 +338,7 @@ func ProcessAnnotations(ctx *Ctx, annotations *Annotations, startDate, joinDate 
 	}
 
 	// Write the batch
-	if !ctx.SkipIDB {
+	if !ctx.SkipTSDB {
 		table := "tquick_ranges"
 		column := "quick_ranges_suffix"
 		if TableExists(ic, ctx, table) && TableColumnExists(ic, ctx, table, column) {

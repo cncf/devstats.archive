@@ -212,7 +212,7 @@ func WriteTSPoints(ctx *Ctx, con *sql.DB, pts *TSPoints, mergeSeries string, mut
 					for col, ty := range data {
 						if ty == 0 {
 							sq += "\"" + col + "\" double precision not null default 0.0, "
-							indices = append(indices, "create index on \""+mergeS+"\"(\""+col+"\")")
+							//indices = append(indices, "create index on \""+mergeS+"\"(\""+col+"\")")
 						} else {
 							sq += "\"" + col + "\" text not null default '', "
 						}
@@ -234,7 +234,7 @@ func WriteTSPoints(ctx *Ctx, con *sql.DB, pts *TSPoints, mergeSeries string, mut
 					if !colExists {
 						if ty == 0 {
 							sqls = append(sqls, "alter table \""+mergeS+"\" add \""+col+"\" double precision not null default 0.0")
-							sqls = append(sqls, "create index on \""+mergeS+"\"(\""+col+"\")")
+							//sqls = append(sqls, "create index on \""+mergeS+"\"(\""+col+"\")")
 						} else {
 							sqls = append(sqls, "alter table \""+mergeS+"\" add \""+col+"\" text not null default ''")
 						}
@@ -258,7 +258,7 @@ func WriteTSPoints(ctx *Ctx, con *sql.DB, pts *TSPoints, mergeSeries string, mut
 				for col, ty := range data {
 					if ty == 0 {
 						sq += "\"" + col + "\" double precision not null default 0.0, "
-						indices = append(indices, "create index on \""+name+"\"(\""+col+"\")")
+						//indices = append(indices, "create index on \""+name+"\"(\""+col+"\")")
 					} else {
 						sq += "\"" + col + "\" text not null default '', "
 					}
@@ -274,7 +274,7 @@ func WriteTSPoints(ctx *Ctx, con *sql.DB, pts *TSPoints, mergeSeries string, mut
 					if !colExists {
 						if ty == 0 {
 							sqls = append(sqls, "alter table \""+name+"\" add \""+col+"\" double precision not null default 0.0")
-							sqls = append(sqls, "create index on \""+name+"\"(\""+col+"\")")
+							//sqls = append(sqls, "create index on \""+name+"\"(\""+col+"\")")
 						} else {
 							sqls = append(sqls, "alter table \""+name+"\" add \""+col+"\" text not null default ''")
 						}

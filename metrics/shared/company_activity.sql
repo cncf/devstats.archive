@@ -36,7 +36,8 @@ from (
       'PullRequestReviewCommentEvent', 'PushEvent', 'PullRequestEvent',
       'IssuesEvent', 'IssueCommentEvent', 'CommitCommentEvent'
     )
-    and (dup_actor_login {{exclude_bots}})
+    and (ev.dup_actor_login {{exclude_bots}})
+    and affs.company_name in (select companies_name from tcompanies)
   group by
     affs.company_name
   union select affs.company_name as company,
@@ -70,6 +71,7 @@ from (
       'IssuesEvent', 'IssueCommentEvent', 'CommitCommentEvent'
     )
     and (dup_actor_login {{exclude_bots}})
+    and affs.company_name in (select companies_name from tcompanies)
   group by
     affs.company_name,
     coalesce(ecf.repo_group, r.repo_group)

@@ -5,7 +5,7 @@ with lgtm_texts as (
     created_at >= '{{from}}'
     and created_at < '{{to}}'
     and substring(body from '(?i)(?:^|\n|\r)\s*/(?:lgtm)\s*(?:\n|\r|$)') is not null
-    and (actor_login {{exclude_bots}})
+    and actor_login in (select reviewers_name from treviewers)
 )
 select
   concat('ulgtms,', dup_actor_login, '`All') as repo_user,
@@ -13,7 +13,7 @@ select
 from
   gha_events
 where
-  (dup_actor_login {{exclude_bots}})
+  dup_actor_login in (select reviewers_name from treviewers)
   and id in (
     select min(event_id)
     from
@@ -36,7 +36,7 @@ where
   created_at >= '{{from}}'
   and created_at < '{{to}}'
   and type in ('PullRequestReviewCommentEvent')
-  and (dup_actor_login {{exclude_bots}})
+  and dup_actor_login in (select reviewers_name from treviewers)
 group by
   dup_actor_login
 union select 'reviews_per_user,' || concat(dup_actor_login, '`', dup_repo_name) as repo_user,
@@ -44,7 +44,7 @@ union select 'reviews_per_user,' || concat(dup_actor_login, '`', dup_repo_name) 
 from
   gha_events
 where
-  (dup_actor_login {{exclude_bots}})
+  dup_actor_login in (select reviewers_name from treviewers)
   and type in ('PullRequestReviewCommentEvent')
   and created_at >= '{{from}}'
   and created_at < '{{to}}'
@@ -55,7 +55,7 @@ union select 'ulgtms,' || concat(dup_actor_login, '`', dup_repo_name) as repo_us
 from
   gha_events
 where
-  (dup_actor_login {{exclude_bots}})
+  dup_actor_login in (select reviewers_name from treviewers)
   and id in (
     select min(event_id)
     from

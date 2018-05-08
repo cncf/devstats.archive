@@ -279,7 +279,7 @@ func workerThread(
 		}
 	}
 	// Write the batch
-	if !ctx.SkipIDB {
+	if !ctx.SkipTSDB {
 		lib.WriteTSPoints(ctx, sqlc, &pts, mergeSeries, mut)
 	} else if ctx.Debug > 0 {
 		lib.Printf("Skipping series write\n")
@@ -330,7 +330,7 @@ func isAlreadyComputed(con *sql.DB, ctx *lib.Ctx, key, from string) bool {
 }
 
 // setAlreadyComputed marks given quick range period as computed
-// Should be called inside: if !ctx.SkipIDB { ... }
+// Should be called inside: if !ctx.SkipTSDB { ... }
 func setAlreadyComputed(con *sql.DB, ctx *lib.Ctx, key, from string) {
 	key = getPathIndependentKey(key)
 	dtFrom := lib.TimeParseAny(from)
@@ -362,7 +362,7 @@ func db2influxHistogram(
 	// If using annotations ranges, then get their values
 	var qrFrom *string
 	if annotationsRanges {
-		// Get Quick Ranges from IDB (it is filled by annotations command)
+		// Get Quick Ranges from TSDB (it is filled by annotations command)
 		quickRanges := lib.GetTagValues(sqlc, ctx, "quick_ranges", "quick_ranges_data")
 		if ctx.Debug > 0 {
 			lib.Printf("Quick ranges: %+v\n", quickRanges)
@@ -427,7 +427,7 @@ func db2influxHistogram(
 		name  string
 	)
 	if nColumns == 2 {
-		if !ctx.SkipIDB {
+		if !ctx.SkipTSDB {
 			// Drop existing data
 			table := "s" + seriesNameOrFunc
 			if lib.TableExists(sqlc, ctx, table) {
@@ -571,7 +571,7 @@ func db2influxHistogram(
 			}
 		}
 		lib.FatalOnError(rows.Err())
-		if len(seriesToClear) > 0 && !ctx.SkipIDB {
+		if len(seriesToClear) > 0 && !ctx.SkipTSDB {
 			for series := range seriesToClear {
 				table := "s" + series
 				if lib.TableExists(sqlc, ctx, table) {
@@ -584,7 +584,7 @@ func db2influxHistogram(
 		}
 	}
 	// Write the batch
-	if !ctx.SkipIDB {
+	if !ctx.SkipTSDB {
 		// Mark this metric & period as already computed if this is a QR period
 		lib.WriteTSPoints(ctx, sqlc, &pts, mergeSeries, nil)
 		if qrFrom != nil {

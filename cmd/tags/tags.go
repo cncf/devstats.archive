@@ -117,7 +117,7 @@ func idbTags() {
 			lib.FatalOnError(rows.Err())
 
 			// Write the batch
-			if !ctx.SkipIDB {
+			if !ctx.SkipTSDB {
 				lib.WriteTSPoints(&ctx, con, &pts, "", nil)
 			} else if ctx.Debug > 0 {
 				lib.Printf("Skipping tags series write\n")
