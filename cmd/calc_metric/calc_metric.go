@@ -343,7 +343,7 @@ func setAlreadyComputed(con *sql.DB, ctx *lib.Ctx, key, from string) {
 	)
 }
 
-func db2influxHistogram(
+func calcHistogram(
 	ctx *lib.Ctx,
 	seriesNameOrFunc, sqlFile, sqlQuery, excludeBots, interval, intervalAbbr string,
 	nIntervals int,
@@ -357,7 +357,7 @@ func db2influxHistogram(
 	// Get BatchPoints
 	var pts lib.TSPoints
 
-	lib.Printf("db2influx.go: Histogram running interval '%v,%v' n:%d anno:%v past:%v multi:%v\n", interval, intervalAbbr, nIntervals, annotationsRanges, skipPast, multivalue)
+	lib.Printf("calc_metric.go: Histogram running interval '%v,%v' n:%d anno:%v past:%v multi:%v\n", interval, intervalAbbr, nIntervals, annotationsRanges, skipPast, multivalue)
 
 	// If using annotations ranges, then get their values
 	var qrFrom *string
@@ -595,11 +595,14 @@ func db2influxHistogram(
 	}
 }
 
-func db2influx(
+func calcMetric(
 	seriesNameOrFunc, sqlFile, from, to, intervalAbbr string,
 	hist, multivalue, escapeValueName, annotationsRanges, skipPast bool,
 	desc, mergeSeries string,
 ) {
+	if intervalAbbr == "" {
+		lib.Fatalf("you need to define period")
+	}
 	// Environment context parse
 	var ctx lib.Ctx
 	ctx.Init()
@@ -624,7 +627,7 @@ func db2influx(
 	interval, nIntervals, intervalStart, nextIntervalStart, prevIntervalStart := lib.GetIntervalFunctions(intervalAbbr, annotationsRanges)
 
 	if hist {
-		db2influxHistogram(
+		calcHistogram(
 			&ctx,
 			seriesNameOrFunc,
 			sqlFile,
@@ -653,7 +656,7 @@ func db2influx(
 	thrN := lib.GetThreadsNum(&ctx)
 
 	// Run
-	lib.Printf("db2influx.go: Running (on %d CPUs): %v - %v with interval %s, descriptions '%s', multivalue: %v, escape_value_name: %v\n", thrN, dFrom, dTo, interval, desc, multivalue, escapeValueName)
+	lib.Printf("calc_metric.go: Running (on %d CPUs): %v - %v with interval %s, descriptions '%s', multivalue: %v, escape_value_name: %v\n", thrN, dFrom, dTo, interval, desc, multivalue, escapeValueName)
 	dt := dFrom
 	dta := [][]time.Time{}
 	ndta := [][]time.Time{}
@@ -797,7 +800,7 @@ func main() {
 		}
 	}
 	lib.Printf("%s...\n", os.Args[2])
-	db2influx(
+	calcMetric(
 		os.Args[1],
 		os.Args[2],
 		os.Args[3],
