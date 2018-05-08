@@ -149,13 +149,11 @@ func WriteTSPoints(ctx *Ctx, con *sql.DB, pts *TSPoints, mut *sync.Mutex) {
 	if mut != nil {
 		mut.Lock()
 	}
-	tx, err := con.Begin()
-	FatalOnError(err)
 	for name, data := range tags {
 		if len(data) == 0 {
 			continue
 		}
-		exists := TableExistsTx(tx, ctx, name)
+		exists := TableExists(con, ctx, name)
 		if !exists {
 			sq := "create table \"" + name + "\"("
 			sq += "time timestamp primary key, "
@@ -172,7 +170,7 @@ func WriteTSPoints(ctx *Ctx, con *sql.DB, pts *TSPoints, mut *sync.Mutex) {
 			sqls = append(sqls, "grant select on \""+name+"\" to devstats_team")
 		} else {
 			for col := range data {
-				colExists := TableColumnExistsTx(tx, ctx, name, col)
+				colExists := TableColumnExists(con, ctx, name, col)
 				if !colExists {
 					sq := "alter table \"" + name + "\" add \"" + col + "\" text"
 					sqls = append(sqls, sq)
@@ -185,7 +183,7 @@ func WriteTSPoints(ctx *Ctx, con *sql.DB, pts *TSPoints, mut *sync.Mutex) {
 		if len(data) == 0 {
 			continue
 		}
-		exists := TableExistsTx(tx, ctx, name)
+		exists := TableExists(con, ctx, name)
 		if !exists {
 			sq := "create table \"" + name + "\"("
 			sq += "time timestamp not null, period text not null default '', "
@@ -199,7 +197,7 @@ func WriteTSPoints(ctx *Ctx, con *sql.DB, pts *TSPoints, mut *sync.Mutex) {
 				} else {
 					sq += "\"" + col + "\" text not null default '', "
 				}
-				indices = append(indices, "create index on \""+name+"\"(\""+col+"\")")
+				// indices = append(indices, "create index on \""+name+"\"(\""+col+"\")")
 			}
 			sq += "primary key(time, period))"
 			sqls = append(sqls, sq)
@@ -208,7 +206,7 @@ func WriteTSPoints(ctx *Ctx, con *sql.DB, pts *TSPoints, mut *sync.Mutex) {
 			sqls = append(sqls, "grant select on \""+name+"\" to devstats_team")
 		} else {
 			for col, ty := range data {
-				colExists := TableColumnExistsTx(tx, ctx, name, col)
+				colExists := TableColumnExists(con, ctx, name, col)
 				if !colExists {
 					sq := ""
 					if ty == 0 {
@@ -217,7 +215,7 @@ func WriteTSPoints(ctx *Ctx, con *sql.DB, pts *TSPoints, mut *sync.Mutex) {
 						sq = "alter table \"" + name + "\" add \"" + col + "\" text not null default ''"
 					}
 					sqls = append(sqls, sq)
-					sqls = append(sqls, "create index on \""+name+"\"(\""+col+"\")")
+					// sqls = append(sqls, "create index on \""+name+"\"(\""+col+"\")")
 				}
 			}
 		}
@@ -227,7 +225,10 @@ func WriteTSPoints(ctx *Ctx, con *sql.DB, pts *TSPoints, mut *sync.Mutex) {
 	}
 	ns := 0
 	for _, q := range sqls {
-		ExecSQLTxWithErr(tx, ctx, q)
+		ExecSQLWithErr(con, ctx, q)
+	}
+	if mut != nil {
+		mut.Unlock()
 	}
 	for _, p := range *pts {
 		if p.tags != nil {
@@ -262,7 +263,7 @@ func WriteTSPoints(ctx *Ctx, con *sql.DB, pts *TSPoints, mut *sync.Mutex) {
 					"where \"%[1]s\".time = "+argT,
 				name,
 			)
-			ExecSQLTxWithErr(tx, ctx, q, vals...)
+			ExecSQLWithErr(con, ctx, q, vals...)
 			ns++
 		}
 		if p.fields != nil {
@@ -299,13 +300,9 @@ func WriteTSPoints(ctx *Ctx, con *sql.DB, pts *TSPoints, mut *sync.Mutex) {
 					"where \"%[1]s\".time = "+argT+" and \"%[1]s\".period = "+argP,
 				name,
 			)
-			ExecSQLTxWithErr(tx, ctx, q, vals...)
+			ExecSQLWithErr(con, ctx, q, vals...)
 			ns++
 		}
-	}
-	FatalOnError(tx.Commit())
-	if mut != nil {
-		mut.Unlock()
 	}
 	if ctx.Debug > 0 {
 		Printf("upserts: %d\n", ns)
@@ -317,7 +314,8 @@ func MakePsqlName(name string) string {
 	l := len(name)
 	if l > 63 {
 		newName := name[:32] + name[l-31:]
-		Printf("WARNING: postgresql identifier name too long (%d, %s) --> (%s, %d)\n", l, name, newName, len(newName))
+		//Fatalf("Error: postgresql identifier name too long (%d, %s) --> (%s, %d)\n", l, name, newName, len(newName))
+		Printf("Error: postgresql identifier name too long (%d, %s) --> (%s, %d)\n", l, name, newName, len(newName))
 		return newName
 	}
 	return name
@@ -353,13 +351,13 @@ func TableExistsTx(tx *sql.Tx, ctx *Ctx, tableName string) bool {
 
 // TableColumnExistsTx - checks if a given table's has a given column
 func TableColumnExistsTx(tx *sql.Tx, ctx *Ctx, tableName, columnName string) bool {
-	var s *string
+	var exists *int
 	FatalOnError(
 		QueryRowSQLTx(
 			tx,
 			ctx,
 			fmt.Sprintf(
-				"select column_name from information_schema.columns "+
+				"select 1 from information_schema.columns "+
 					"where table_name=%s and column_name=%s "+
 					"union select null limit 1",
 				NValue(1),
@@ -367,9 +365,9 @@ func TableColumnExistsTx(tx *sql.Tx, ctx *Ctx, tableName, columnName string) boo
 			),
 			tableName,
 			columnName,
-		).Scan(&s),
+		).Scan(&exists),
 	)
-	return s != nil
+	return exists != nil
 }
 
 // TableExists - checks if a given table exists
