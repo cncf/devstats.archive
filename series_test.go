@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-// Return array of arrays of any values from IDB result
+// Return array of arrays of any values from TSDB result
 func getTSDBResult(rows *sql.Rows) (ret [][]interface{}) {
 	columns, err := rows.Columns()
 	lib.FatalOnError(err)
@@ -35,7 +35,7 @@ func getTSDBResult(rows *sql.Rows) (ret [][]interface{}) {
 	return
 }
 
-// Return array of arrays of any values from IDB result
+// Return array of arrays of any values from TSDB result
 // And postprocess special time values (like now or 1st column from
 // quick ranges which has current hours etc) - used for quick ranges
 // skipI means that also index "skipI" should skip time now() value (only if additionalSkip is true)

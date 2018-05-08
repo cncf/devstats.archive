@@ -150,15 +150,6 @@ func checkDeployEnvError(w http.ResponseWriter) bool {
 	if os.Getenv("PG_PASS") == "" {
 		errMsg += "Environment variable 'PG_PASS' must be set in [deploy] mode\n"
 	}
-	if os.Getenv("IDB_PASS") == "" {
-		errMsg += "Environment variable 'IDB_PASS' must be set in [deploy] mode\n"
-	}
-	if os.Getenv("IDB_HOST") == "" {
-		errMsg += "Environment variable 'IDB_HOST' must be set in [deploy] mode\n"
-	}
-	if os.Getenv("IGET") != "" && os.Getenv("IDB_PASS_SRC") == "" {
-		errMsg += "Environment variable 'IDB_PASS_SRC' must be set when variable 'IGET' is used (in [deploy] mode)\n"
-	}
 	if errMsg != "" {
 		lib.Printf("webhook: error: %s\n", errMsg)
 		fmt.Fprintf(os.Stderr, "webhook: error: %s\n", errMsg)

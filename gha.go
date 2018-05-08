@@ -24,7 +24,6 @@ type Project struct {
 	CommandLine      []string          `yaml:"command_line"`
 	StartDate        *time.Time        `yaml:"start_date"`
 	PDB              string            `yaml:"psql_db"`
-	IDB              string            `yaml:"influx_db"`
 	Disabled         bool              `yaml:"disabled"`
 	MainRepo         string            `yaml:"main_repo"`
 	AnnotationRegexp string            `yaml:"annotation_regexp"`

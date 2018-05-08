@@ -24,7 +24,7 @@ type tag struct {
 }
 
 // Insert InfluxDB tags
-func idbTags() {
+func calcTags() {
 	// Environment context parse
 	var ctx lib.Ctx
 	ctx.Init()
@@ -145,7 +145,7 @@ func idbTags() {
 
 func main() {
 	dtStart := time.Now()
-	idbTags()
+	calcTags()
 	dtEnd := time.Now()
 	lib.Printf("Time: %v\n", dtEnd.Sub(dtStart))
 }
