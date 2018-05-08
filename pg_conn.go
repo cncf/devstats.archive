@@ -87,7 +87,7 @@ func AddTSPoint(ctx *Ctx, pts *TSPoints, pt TSPoint) {
 }
 
 // WriteTSPoints write batch of points to postgresql
-func WriteTSPoints(ctx *Ctx, con *sql.DB, pts *TSPoints, mut *sync.Mutex) {
+func WriteTSPoints(ctx *Ctx, con *sql.DB, pts *TSPoints, mergeSeries string, mut *sync.Mutex) {
 	npts := len(*pts)
 	if ctx.Debug > 0 {
 		Printf("WriteTSPoints: writing %d points\n", len(*pts))
@@ -96,11 +96,20 @@ func WriteTSPoints(ctx *Ctx, con *sql.DB, pts *TSPoints, mut *sync.Mutex) {
 	if npts == 0 {
 		return
 	}
+	merge := false
+	mergeS := ""
+	if mergeSeries != "" {
+		mergeS = MakePsqlName("s" + mergeSeries)
+		merge = true
+	}
 	tags := make(map[string]map[string]struct{})
 	fields := make(map[string]map[string]int)
 	for _, p := range *pts {
 		if p.tags != nil {
-			name := MakePsqlName("t" + p.name)
+			name := p.name
+			if !merge {
+				name = MakePsqlName("t" + p.name)
+			}
 			_, ok := tags[name]
 			if !ok {
 				tags[name] = make(map[string]struct{})
@@ -111,7 +120,10 @@ func WriteTSPoints(ctx *Ctx, con *sql.DB, pts *TSPoints, mut *sync.Mutex) {
 			}
 		}
 		if p.fields != nil {
-			name := MakePsqlName("s" + p.name)
+			name := p.name
+			if !merge {
+				name = MakePsqlName("s" + p.name)
+			}
 			_, ok := fields[name]
 			if !ok {
 				fields[name] = make(map[string]int)
@@ -142,6 +154,7 @@ func WriteTSPoints(ctx *Ctx, con *sql.DB, pts *TSPoints, mut *sync.Mutex) {
 		}
 	}
 	if ctx.Debug > 0 {
+		Printf("Merge: %v,%s\n", merge, mergeSeries)
 		Printf("%d tags:\n%+v\n", len(tags), tags)
 		Printf("%d fields:\n%+v\n", len(fields), fields)
 	}
@@ -179,43 +192,97 @@ func WriteTSPoints(ctx *Ctx, con *sql.DB, pts *TSPoints, mut *sync.Mutex) {
 			}
 		}
 	}
-	for name, data := range fields {
-		if len(data) == 0 {
-			continue
-		}
-		exists := TableExists(con, ctx, name)
-		if !exists {
-			sq := "create table \"" + name + "\"("
-			sq += "time timestamp not null, period text not null default '', "
-			indices := []string{
-				"create index on \"" + name + "\"(time)",
-				"create index on \"" + name + "\"(period)",
+	if merge {
+		bTable := false
+		colMap := make(map[string]struct{})
+		for _, data := range fields {
+			if len(data) == 0 {
+				continue
 			}
-			for col, ty := range data {
-				if ty == 0 {
-					sq += "\"" + col + "\" double precision not null default 0.0, "
-				} else {
-					sq += "\"" + col + "\" text not null default '', "
-				}
-				// indices = append(indices, "create index on \""+name+"\"(\""+col+"\")")
-			}
-			sq += "primary key(time, period))"
-			sqls = append(sqls, sq)
-			sqls = append(sqls, indices...)
-			sqls = append(sqls, "grant select on \""+name+"\" to ro_user")
-			sqls = append(sqls, "grant select on \""+name+"\" to devstats_team")
-		} else {
-			for col, ty := range data {
-				colExists := TableColumnExists(con, ctx, name, col)
-				if !colExists {
-					sq := ""
-					if ty == 0 {
-						sq = "alter table \"" + name + "\" add \"" + col + "\" double precision not null default 0.0"
-					} else {
-						sq = "alter table \"" + name + "\" add \"" + col + "\" text not null default ''"
+			if !bTable {
+				exists := TableExists(con, ctx, mergeS)
+				if !exists {
+					sq := "create table \"" + mergeS + "\"("
+					sq += "time timestamp not null, series text not null, period text not null default '', "
+					indices := []string{
+						"create index on \"" + mergeS + "\"(time)",
+						"create index on \"" + mergeS + "\"(series)",
+						"create index on \"" + mergeS + "\"(period)",
 					}
+					for col, ty := range data {
+						if ty == 0 {
+							sq += "\"" + col + "\" double precision not null default 0.0, "
+						} else {
+							sq += "\"" + col + "\" text not null default '', "
+						}
+						// indices = append(indices, "create index on \""+mergeS+"\"(\""+col+"\")")
+						colMap[col] = struct{}{}
+					}
+					sq += "primary key(time, series, period))"
 					sqls = append(sqls, sq)
-					// sqls = append(sqls, "create index on \""+name+"\"(\""+col+"\")")
+					sqls = append(sqls, indices...)
+					sqls = append(sqls, "grant select on \""+mergeS+"\" to ro_user")
+					sqls = append(sqls, "grant select on \""+mergeS+"\" to devstats_team")
+				}
+				bTable = true
+			}
+			for col, ty := range data {
+				_, ok := colMap[col]
+				if !ok {
+					colExists := TableColumnExists(con, ctx, mergeS, col)
+					colMap[col] = struct{}{}
+					if !colExists {
+						sq := ""
+						if ty == 0 {
+							sq = "alter table \"" + mergeS + "\" add \"" + col + "\" double precision not null default 0.0"
+						} else {
+							sq = "alter table \"" + mergeS + "\" add \"" + col + "\" text not null default ''"
+						}
+						sqls = append(sqls, sq)
+						// sqls = append(sqls, "create index on \""+mergeS+"\"(\""+col+"\")")
+					}
+				}
+			}
+		}
+	} else {
+		for name, data := range fields {
+			if len(data) == 0 {
+				continue
+			}
+			exists := TableExists(con, ctx, name)
+			if !exists {
+				sq := "create table \"" + name + "\"("
+				sq += "time timestamp not null, period text not null default '', "
+				indices := []string{
+					"create index on \"" + name + "\"(time)",
+					"create index on \"" + name + "\"(period)",
+				}
+				for col, ty := range data {
+					if ty == 0 {
+						sq += "\"" + col + "\" double precision not null default 0.0, "
+					} else {
+						sq += "\"" + col + "\" text not null default '', "
+					}
+					// indices = append(indices, "create index on \""+name+"\"(\""+col+"\")")
+				}
+				sq += "primary key(time, period))"
+				sqls = append(sqls, sq)
+				sqls = append(sqls, indices...)
+				sqls = append(sqls, "grant select on \""+name+"\" to ro_user")
+				sqls = append(sqls, "grant select on \""+name+"\" to devstats_team")
+			} else {
+				for col, ty := range data {
+					colExists := TableColumnExists(con, ctx, name, col)
+					if !colExists {
+						sq := ""
+						if ty == 0 {
+							sq = "alter table \"" + name + "\" add \"" + col + "\" double precision not null default 0.0"
+						} else {
+							sq = "alter table \"" + name + "\" add \"" + col + "\" text not null default ''"
+						}
+						sqls = append(sqls, sq)
+						// sqls = append(sqls, "create index on \""+name+"\"(\""+col+"\")")
+					}
 				}
 			}
 		}
@@ -266,26 +333,26 @@ func WriteTSPoints(ctx *Ctx, con *sql.DB, pts *TSPoints, mut *sync.Mutex) {
 			ExecSQLWithErr(con, ctx, q, vals...)
 			ns++
 		}
-		if p.fields != nil {
+		if p.fields != nil && !merge {
 			name := MakePsqlName("s" + p.name)
 			namesI := []string{"time", "period"}
 			argsI := []string{"$1", "$2"}
 			vals := []interface{}{p.t, p.period}
 			i := 3
-			for tagName, tagValue := range p.fields {
-				namesI = append(namesI, "\""+MakePsqlName(tagName)+"\"")
+			for fieldName, fieldValue := range p.fields {
+				namesI = append(namesI, "\""+MakePsqlName(fieldName)+"\"")
 				argsI = append(argsI, "$"+strconv.Itoa(i))
-				vals = append(vals, tagValue)
+				vals = append(vals, fieldValue)
 				i++
 			}
 			namesIA := strings.Join(namesI, ", ")
 			argsIA := strings.Join(argsI, ", ")
 			namesU := []string{}
 			argsU := []string{}
-			for tagName, tagValue := range p.fields {
-				namesU = append(namesU, "\""+MakePsqlName(tagName)+"\"")
+			for fieldName, fieldValue := range p.fields {
+				namesU = append(namesU, "\""+MakePsqlName(fieldName)+"\"")
 				argsU = append(argsU, "$"+strconv.Itoa(i))
-				vals = append(vals, tagValue)
+				vals = append(vals, fieldValue)
 				i++
 			}
 			namesUA := strings.Join(namesU, ", ")
@@ -303,6 +370,44 @@ func WriteTSPoints(ctx *Ctx, con *sql.DB, pts *TSPoints, mut *sync.Mutex) {
 			ExecSQLWithErr(con, ctx, q, vals...)
 			ns++
 		}
+		if p.fields != nil && merge {
+			namesI := []string{"time", "period", "series"}
+			argsI := []string{"$1", "$2", "$3"}
+			vals := []interface{}{p.t, p.period, p.name}
+			i := 4
+			for fieldName, fieldValue := range p.fields {
+				namesI = append(namesI, "\""+MakePsqlName(fieldName)+"\"")
+				argsI = append(argsI, "$"+strconv.Itoa(i))
+				vals = append(vals, fieldValue)
+				i++
+			}
+			namesIA := strings.Join(namesI, ", ")
+			argsIA := strings.Join(argsI, ", ")
+			namesU := []string{}
+			argsU := []string{}
+			for fieldName, fieldValue := range p.fields {
+				namesU = append(namesU, "\""+MakePsqlName(fieldName)+"\"")
+				argsU = append(argsU, "$"+strconv.Itoa(i))
+				vals = append(vals, fieldValue)
+				i++
+			}
+			namesUA := strings.Join(namesU, ", ")
+			argsUA := strings.Join(argsU, ", ")
+			argT := "$" + strconv.Itoa(i)
+			argP := "$" + strconv.Itoa(i+1)
+			argS := "$" + strconv.Itoa(i+2)
+			vals = append(vals, p.t)
+			vals = append(vals, p.period)
+			vals = append(vals, p.name)
+			q := fmt.Sprintf(
+				"insert into \"%[1]s\"("+namesIA+") values("+argsIA+") "+
+					"on conflict(time, series, period) do update set ("+namesUA+") = ("+argsUA+") "+
+					"where \"%[1]s\".time = "+argT+" and \"%[1]s\".period = "+argP+" and \"%[1]s\".series = "+argS,
+				mergeS,
+			)
+			ExecSQLWithErr(con, ctx, q, vals...)
+			ns++
+		}
 	}
 	if ctx.Debug > 0 {
 		Printf("upserts: %d\n", ns)
@@ -314,8 +419,7 @@ func MakePsqlName(name string) string {
 	l := len(name)
 	if l > 63 {
 		newName := name[:32] + name[l-31:]
-		//Fatalf("Error: postgresql identifier name too long (%d, %s) --> (%s, %d)\n", l, name, newName, len(newName))
-		Printf("Error: postgresql identifier name too long (%d, %s) --> (%s, %d)\n", l, name, newName, len(newName))
+		Fatalf("postgresql identifier name too long (%d, %s) --> (%s, %d)\n", l, name, newName, len(newName))
 		return newName
 	}
 	return name

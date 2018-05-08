@@ -129,7 +129,15 @@ func roundF2I(val float64) int {
 	return int(val + 0.5)
 }
 
-func workerThread(ch chan bool, ctx *lib.Ctx, seriesNameOrFunc, sqlQueryOrig, excludeBots, period, desc string, multivalue, escapeValueName bool, nIntervals int, dtAry, fromAry, toAry []time.Time, mut *sync.Mutex) {
+func workerThread(
+	ch chan bool,
+	ctx *lib.Ctx,
+	seriesNameOrFunc, sqlQueryOrig, excludeBots, period, desc, mergeSeries string,
+	multivalue, escapeValueName bool,
+	nIntervals int,
+	dtAry, fromAry, toAry []time.Time,
+	mut *sync.Mutex,
+) {
 	// Connect to Postgres DB
 	sqlc := lib.PgConn(ctx)
 	defer func() { lib.FatalOnError(sqlc.Close()) }()
@@ -272,7 +280,7 @@ func workerThread(ch chan bool, ctx *lib.Ctx, seriesNameOrFunc, sqlQueryOrig, ex
 	}
 	// Write the batch
 	if !ctx.SkipIDB {
-		lib.WriteTSPoints(ctx, sqlc, &pts, mut)
+		lib.WriteTSPoints(ctx, sqlc, &pts, mergeSeries, mut)
 	} else if ctx.Debug > 0 {
 		lib.Printf("Skipping series write\n")
 	}
@@ -335,7 +343,13 @@ func setAlreadyComputed(con *sql.DB, ctx *lib.Ctx, key, from string) {
 	)
 }
 
-func db2influxHistogram(ctx *lib.Ctx, seriesNameOrFunc, sqlFile, sqlQuery, excludeBots, interval, intervalAbbr string, nIntervals int, annotationsRanges, skipPast, multivalue bool) {
+func db2influxHistogram(
+	ctx *lib.Ctx,
+	seriesNameOrFunc, sqlFile, sqlQuery, excludeBots, interval, intervalAbbr string,
+	nIntervals int,
+	annotationsRanges, skipPast, multivalue bool,
+	mergeSeries string,
+) {
 	// Connect to Postgres DB
 	sqlc := lib.PgConn(ctx)
 	defer func() { lib.FatalOnError(sqlc.Close()) }()
@@ -572,7 +586,7 @@ func db2influxHistogram(ctx *lib.Ctx, seriesNameOrFunc, sqlFile, sqlQuery, exclu
 	// Write the batch
 	if !ctx.SkipIDB {
 		// Mark this metric & period as already computed if this is a QR period
-		lib.WriteTSPoints(ctx, sqlc, &pts, nil)
+		lib.WriteTSPoints(ctx, sqlc, &pts, mergeSeries, nil)
 		if qrFrom != nil {
 			setAlreadyComputed(sqlc, ctx, sqlFile, *qrFrom)
 		}
@@ -581,7 +595,11 @@ func db2influxHistogram(ctx *lib.Ctx, seriesNameOrFunc, sqlFile, sqlQuery, exclu
 	}
 }
 
-func db2influx(seriesNameOrFunc, sqlFile, from, to, intervalAbbr string, hist, multivalue, escapeValueName, annotationsRanges, skipPast bool, desc string) {
+func db2influx(
+	seriesNameOrFunc, sqlFile, from, to, intervalAbbr string,
+	hist, multivalue, escapeValueName, annotationsRanges, skipPast bool,
+	desc, mergeSeries string,
+) {
 	// Environment context parse
 	var ctx lib.Ctx
 	ctx.Init()
@@ -618,6 +636,7 @@ func db2influx(seriesNameOrFunc, sqlFile, from, to, intervalAbbr string, hist, m
 			annotationsRanges,
 			skipPast,
 			multivalue,
+			mergeSeries,
 		)
 		return
 	}
@@ -680,6 +699,7 @@ func db2influx(seriesNameOrFunc, sqlFile, from, to, intervalAbbr string, hist, m
 				excludeBots,
 				intervalAbbr,
 				desc,
+				mergeSeries,
 				multivalue,
 				escapeValueName,
 				nIntervals,
@@ -705,6 +725,7 @@ func db2influx(seriesNameOrFunc, sqlFile, from, to, intervalAbbr string, hist, m
 				excludeBots,
 				intervalAbbr,
 				desc,
+				mergeSeries,
 				multivalue,
 				escapeValueName,
 				nIntervals,
@@ -740,6 +761,7 @@ func main() {
 	annotationsRanges := false
 	skipPast := false
 	desc := ""
+	mergeSeries := ""
 	if len(os.Args) > 6 {
 		opts := strings.Split(os.Args[6], ",")
 		optMap := make(map[string]string)
@@ -770,6 +792,9 @@ func main() {
 		if d, ok := optMap["desc"]; ok {
 			desc = d
 		}
+		if ms, ok := optMap["merge_series"]; ok {
+			mergeSeries = ms
+		}
 	}
 	lib.Printf("%s...\n", os.Args[2])
 	db2influx(
@@ -784,6 +809,7 @@ func main() {
 		annotationsRanges,
 		skipPast,
 		desc,
+		mergeSeries,
 	)
 	dtEnd := time.Now()
 	lib.Printf("Time(%s): %v\n", os.Args[2], dtEnd.Sub(dtStart))
