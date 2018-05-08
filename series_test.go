@@ -1,25 +1,37 @@
 package devstats
 
 import (
+	"database/sql"
 	lib "devstats"
 	testlib "devstats/test"
 	"testing"
 	"time"
 )
 
-/*
 // Return array of arrays of any values from IDB result
-func getIDBResult(res []client.Result) (ret [][]interface{}) {
-	if len(res) < 1 || len(res[0].Series) < 1 {
-		return
+func getTSDBResult(rows *sql.Rows) (ret [][]interface{}) {
+	columns, err := rows.Columns()
+	lib.FatalOnError(err)
+
+	// Vals to hold any type as []interface{}
+	vals := make([]interface{}, len(columns))
+	for i := range columns {
+		vals[i] = new([]byte)
 	}
-	for _, val := range res[0].Series[0].Values {
+
+	for rows.Next() {
+		lib.FatalOnError(rows.Scan(vals...))
 		row := []interface{}{}
-		for _, col := range val {
-			row = append(row, col)
+		for _, val := range vals {
+			value := ""
+			if val != nil {
+				value = string(*val.(*[]byte))
+			}
+			row = append(row, value)
 		}
 		ret = append(ret, row)
 	}
+	lib.FatalOnError(rows.Err())
 	return
 }
 
@@ -27,18 +39,19 @@ func getIDBResult(res []client.Result) (ret [][]interface{}) {
 // And postprocess special time values (like now or 1st column from
 // quick ranges which has current hours etc) - used for quick ranges
 // skipI means that also index "skipI" should skip time now() value (only if additionalSkip is true)
-func getIDBResultFiltered(res []client.Result, additionalSkip bool, skipI int) (ret [][]interface{}) {
-	if len(res) < 1 || len(res[0].Series) < 1 {
+func getTSDBResultFiltered(rows *sql.Rows, additionalSkip bool, skipI int) (ret [][]interface{}) {
+	res := getTSDBResult(rows)
+	if len(res) < 1 || len(res[0]) < 1 {
 		return
 	}
-	lastI := len(res[0].Series[0].Values) - 1
-	for i, val := range res[0].Series[0].Values {
+	lastI := len(res) - 1
+	lastJ := len(res[0]) - 1
+	for i, val := range res {
 		skipPeriod := false
 		if i == lastI || (additionalSkip && i == skipI) {
 			skipPeriod = true
 		}
 		row := []interface{}{}
-		lastJ := len(val) - 1
 		for j, col := range val {
 			// This is a time column, unused, but varies every call
 			// j == 0: first unused time col (related to `now`)
@@ -55,9 +68,7 @@ func getIDBResultFiltered(res []client.Result, additionalSkip bool, skipI int) (
 	}
 	return
 }
-*/
 
-// FIXME: now PSQL is used as a TSDB
 func TestProcessAnnotations(t *testing.T) {
 	// Environment context parse
 	var ctx lib.Ctx
@@ -77,15 +88,15 @@ func TestProcessAnnotations(t *testing.T) {
 		t.Errorf("failed to create database \"%s\"", ctx.PgDB)
 	}
 
+	// Connect to Postgres DB
+	c := lib.PgConn(&ctx)
+
 	// Drop database after tests
 	defer func() {
+		lib.FatalOnError(c.Close())
 		// Drop database after tests
 		lib.DropDatabaseIfExists(&ctx)
 	}()
-
-	// Connect to Postgres DB
-	c := lib.PgConn(&ctx)
-	defer func() { lib.FatalOnError(c.Close()) }()
 
 	// Test cases (they will create and close new connection inside ProcessAnnotations)
 	ft := testlib.YMDHMS
@@ -413,33 +424,36 @@ func TestProcessAnnotations(t *testing.T) {
 		},
 	}
 	// Execute test cases
-	for _, test := range testCases {
+	for index, test := range testCases {
 		// Execute annotations & quick ranges call
 		lib.ProcessAnnotations(&ctx, &test.annotations, test.startDate, test.joinDate)
 
 		// Check annotations created
-		/*
-			gotAnnotations := getIDBResult(lib.QueryIDB(con, &ctx, "select * from annotations"))
-			if !testlib.CompareSlices2D(test.expectedAnnotations, gotAnnotations) {
-				t.Errorf(
-					"test number %d: join date: %+v\nannotations: %+v\nExpected annotations:\n%+v\n%+v\ngot.",
-					index+1, test.joinDate, test.annotations, test.expectedAnnotations, gotAnnotations,
-				)
-			}
-			// Clean up for next test
-			lib.QueryIDB(con, &ctx, "delete from \"annotations\"")
+		rows := lib.QuerySQLWithErr(c, &ctx, "select time, description, title from \"sannotations\" order by time asc")
+		gotAnnotations := getTSDBResult(rows)
+		lib.FatalOnError(rows.Close())
+		if !testlib.CompareSlices2D(test.expectedAnnotations, gotAnnotations) {
+			t.Errorf(
+				"test number %d: join date: %+v\nannotations: %+v\nExpected annotations:\n%+v\n%+v\ngot.",
+				index+1, test.joinDate, test.annotations, test.expectedAnnotations, gotAnnotations,
+			)
+		}
 
-			// Check Quick Ranges created
-			// Results contains some time values depending on current time ..Filtered func handles this
-			gotQuickRanges := getIDBResultFiltered(lib.QueryIDB(con, &ctx, "select * from quick_ranges"), test.additionalSkip, test.skipI)
-			if !testlib.CompareSlices2D(test.expectedQuickRanges, gotQuickRanges) {
-				t.Errorf(
-					"test number %d: join date: %+v\nannotations: %+v\nExpected quick ranges:\n%+v\n%+v\ngot",
-					index+1, test.joinDate, test.annotations, test.expectedQuickRanges, gotQuickRanges,
-				)
-			}
-			// Clean up for next test
-			lib.QueryIDB(con, &ctx, "delete from \"quick_ranges\"")
-		*/
+		// Clean up for next test
+		lib.ExecSQLWithErr(c, &ctx, "delete from \"sannotations\"")
+
+		// Check Quick Ranges created
+		// Results contains some time values depending on current time ..Filtered func handles this
+		rows = lib.QuerySQLWithErr(c, &ctx, "select time, quick_ranges_data, quick_ranges_name, quick_ranges_suffix, 0 from \"tquick_ranges\" order by time asc")
+		gotQuickRanges := getTSDBResultFiltered(rows, test.additionalSkip, test.skipI)
+		lib.FatalOnError(rows.Close())
+		if !testlib.CompareSlices2D(test.expectedQuickRanges, gotQuickRanges) {
+			t.Errorf(
+				"test number %d: join date: %+v\nannotations: %+v\nExpected quick ranges:\n%+v\n%+v\ngot",
+				index+1, test.joinDate, test.annotations, test.expectedQuickRanges, gotQuickRanges,
+			)
+		}
+		// Clean up for next test
+		lib.ExecSQLWithErr(c, &ctx, "delete from \"tquick_ranges\"")
 	}
 }
