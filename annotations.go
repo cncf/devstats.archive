@@ -344,7 +344,7 @@ func ProcessAnnotations(ctx *Ctx, annotations *Annotations, startDate, joinDate 
 		if TableExists(ic, ctx, table) && TableColumnExists(ic, ctx, table, column) {
 			ExecSQLWithErr(ic, ctx, fmt.Sprintf("delete from %s where %s like '%%_n'", table, column))
 		}
-		WriteTSPoints(ctx, ic, &pts, nil)
+		WriteTSPoints(ctx, ic, &pts, "", nil)
 	} else if ctx.Debug > 0 {
 		Printf("Skipping annotations series write\n")
 	}

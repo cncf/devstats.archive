@@ -118,7 +118,7 @@ func idbTags() {
 
 			// Write the batch
 			if !ctx.SkipIDB {
-				lib.WriteTSPoints(&ctx, con, &pts, nil)
+				lib.WriteTSPoints(&ctx, con, &pts, "", nil)
 			} else if ctx.Debug > 0 {
 				lib.Printf("Skipping tags series write\n")
 			}

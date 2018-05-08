@@ -31,6 +31,7 @@ type metric struct {
 	MultiValue        bool   `yaml:"multi_value"`
 	EscapeValueName   bool   `yaml:"escape_value_name"`
 	AnnotationsRanges bool   `yaml:"annotations_ranges"`
+	MergeSeries       string `yaml:"merge_series"`
 }
 
 // Add _period to all array items
@@ -341,6 +342,9 @@ func sync(ctx *lib.Ctx, args []string) {
 			}
 			if metric.Desc != "" {
 				extraParams = append(extraParams, "desc:"+metric.Desc)
+			}
+			if metric.MergeSeries != "" {
+				extraParams = append(extraParams, "merge_series:"+metric.MergeSeries)
 			}
 			periods := strings.Split(metric.Periods, ",")
 			aggregate := metric.Aggregate
