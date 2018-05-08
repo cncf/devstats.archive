@@ -20,6 +20,7 @@ metrics:
     aggregate: 1,7,24
     skip: h7,w7,m7,q7,y7,d24,w24,m24,q24,y24
     multi_value: true
+    merge_series: gh_stats_rgrp
   - name: Github Stats by Repository
     series_name_or_func: multi_row_single_column
     sql: github_stats_by_repos
@@ -27,6 +28,7 @@ metrics:
     aggregate: 1,7,24
     skip: h7,w7,m7,q7,y7,d24,w24,m24,q24,y24
     multi_value: true
+    merge_series: gh_stats_r
   - name: SIG mentions breakdown by categories using text
     series_name_or_func: multi_row_single_column
     sql: sig_mentions_breakdown
@@ -65,6 +67,7 @@ metrics:
     sql: first_non_author_activity
     periods: w,m,q,y
     desc: time_diff_as_string
+    merge_series: first_non_author
   - name: Opened PRs age and count
     series_name_or_func: multi_row_multi_column
     sql: prs_age
@@ -72,6 +75,7 @@ metrics:
     aggregate: 1,7
     skip: w7,m7,q7,y7
     desc: time_diff_as_string
+    merge_series: prs_age
   - name: Closed Issues age and count
     series_name_or_func: multi_row_multi_column
     sql: issues_age
@@ -101,6 +105,7 @@ metrics:
     series_name_or_func: multi_row_multi_column
     sql: episodic_contributors
     periods: d,w,m,q,y
+    merge_series: episodic_contributors
   - name: New issues
     series_name_or_func: multi_row_multi_column
     sql: new_issues
@@ -109,6 +114,7 @@ metrics:
     series_name_or_func: multi_row_multi_column
     sql: episodic_issues
     periods: d,w,m,q,y
+    merge_series: episodic_issues
   - name: SIG mentions using labels
     series_name_or_func: multi_row_single_column
     sql: labels_sig
@@ -130,6 +136,7 @@ metrics:
     aggregate: 1,7
     skip: w7,m7,q7,y7
     multi_value: true
+    merge_series: sig_mentions_sig_kind
   - name: Issues closed broken down by SIG and kind
     series_name_or_func: multi_row_single_column
     sql: labels_sig_kind_closed
@@ -137,6 +144,7 @@ metrics:
     aggregate: 1,7
     skip: w7,m7,q7,y7
     multi_value: true
+    merge_series: issues_closed_sig_kind
   - name: Bot commands usage
     series_name_or_func: multi_row_single_column
     sql: bot_commands
@@ -144,11 +152,7 @@ metrics:
     aggregate: 1,7
     skip: w7,m7,q7,y7
     multi_value: true
-  - name: Reviewers histogram
-    histogram: true
-    annotations_ranges: true
-    series_name_or_func: multi_row_single_column
-    sql: hist_reviewers
+    merge_series: bot_commands
   - name: Open issues by milestone
     series_name_or_func: multi_row_single_column
     sql: open_issues_sigs_milestones
@@ -159,6 +163,11 @@ metrics:
     sql: open_prs_sigs_milestones
     periods: d
     merge_series: prs_milestones
+  - name: Reviewers histogram
+    histogram: true
+    annotations_ranges: true
+    series_name_or_func: multi_row_single_column
+    sql: hist_reviewers
   - name: Approvers histogram
     histogram: true
     annotations_ranges: true
@@ -243,6 +252,7 @@ metrics:
     periods: d,w,m,q
     aggregate: 1,7
     skip: w7,m7,q7
+    merge_series: num_stats
   - name: Approvers in repository groups
     series_name_or_func: multi_row_single_column
     sql: approvers
