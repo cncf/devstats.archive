@@ -232,14 +232,12 @@ func WriteTSPoints(ctx *Ctx, con *sql.DB, pts *TSPoints, mergeSeries string, mut
 					colExists := TableColumnExists(con, ctx, mergeS, col)
 					colMap[col] = struct{}{}
 					if !colExists {
-						sq := ""
 						if ty == 0 {
-							sq = "alter table \"" + mergeS + "\" add \"" + col + "\" double precision not null default 0.0"
+							sqls = append(sqls, "alter table \""+mergeS+"\" add \""+col+"\" double precision not null default 0.0")
 							sqls = append(sqls, "create index on \""+mergeS+"\"(\""+col+"\")")
 						} else {
-							sq = "alter table \"" + mergeS + "\" add \"" + col + "\" text not null default ''"
+							sqls = append(sqls, "alter table \""+mergeS+"\" add \""+col+"\" text not null default ''")
 						}
-						sqls = append(sqls, sq)
 					}
 				}
 			}
@@ -274,14 +272,12 @@ func WriteTSPoints(ctx *Ctx, con *sql.DB, pts *TSPoints, mergeSeries string, mut
 				for col, ty := range data {
 					colExists := TableColumnExists(con, ctx, name, col)
 					if !colExists {
-						sq := ""
 						if ty == 0 {
-							sq = "alter table \"" + name + "\" add \"" + col + "\" double precision not null default 0.0"
+							sqls = append(sqls, "alter table \""+name+"\" add \""+col+"\" double precision not null default 0.0")
 							sqls = append(sqls, "create index on \""+name+"\"(\""+col+"\")")
 						} else {
-							sq = "alter table \"" + name + "\" add \"" + col + "\" text not null default ''"
+							sqls = append(sqls, "alter table \""+name+"\" add \""+col+"\" text not null default ''")
 						}
-						sqls = append(sqls, sq)
 					}
 				}
 			}
