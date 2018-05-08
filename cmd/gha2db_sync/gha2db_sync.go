@@ -171,18 +171,18 @@ func sync(ctx *lib.Ctx, args []string) {
 	}
 
 	// Get max series date from Influx database
-	maxDtIDB := ctx.DefaultStartDate
+	maxDtTSDB := ctx.DefaultStartDate
 	if !ctx.ForceStartDate {
 		table := "s" + ctx.LastSeries
 		if lib.TableExists(con, ctx, table) {
 			lib.FatalOnError(lib.QueryRowSQL(con, ctx, "select max(time) from "+table).Scan(&maxDtPtr))
 			if maxDtPtr != nil {
-				maxDtIDB = *maxDtPtr
+				maxDtTSDB = *maxDtPtr
 			}
 		}
 	}
 	if ctx.Debug > 0 {
-		lib.Printf("Using start dates: %v, %v\n", maxDtPg, maxDtIDB)
+		lib.Printf("Using start dates: %v, %v\n", maxDtPg, maxDtTSDB)
 	}
 
 	// Create date range
@@ -267,21 +267,21 @@ func sync(ctx *lib.Ctx, args []string) {
 	}
 
 	// Calc metric
-	if !ctx.SkipIDB {
+	if !ctx.SkipTSDB {
 		metricsDir := dataPrefix + "metrics"
 		if ctx.Project != "" {
 			metricsDir += "/" + ctx.Project
 		}
 		// Regenerate points from this date
-		if ctx.ResetIDB {
+		if ctx.ResetTSDB {
 			from = ctx.DefaultStartDate
 		} else {
-			from = maxDtIDB
+			from = maxDtTSDB
 		}
 		lib.Printf("Influx range: %s - %s\n", lib.ToYMDHDate(from), lib.ToYMDHDate(to))
 
 		// InfluxDB tags (repo groups template variable currently)
-		if ctx.ResetIDB || time.Now().Hour() == 0 {
+		if ctx.ResetTSDB || time.Now().Hour() == 0 {
 			_, err := lib.ExecCommand(ctx, []string{cmdPrefix + "tags"}, nil)
 			lib.FatalOnError(err)
 		} else {
@@ -289,7 +289,7 @@ func sync(ctx *lib.Ctx, args []string) {
 		}
 
 		// Annotations
-		if ctx.Project != "" && (ctx.ResetIDB || time.Now().Hour() == 0) {
+		if ctx.Project != "" && (ctx.ResetTSDB || time.Now().Hour() == 0) {
 			_, err := lib.ExecCommand(
 				ctx,
 				[]string{
@@ -302,7 +302,7 @@ func sync(ctx *lib.Ctx, args []string) {
 			lib.Printf("Skipping `annotations` recalculation, it is only computed once per day\n")
 		}
 
-		// Get Quick Ranges from IDB (it is filled by annotations command)
+		// Get Quick Ranges from TSDB (it is filled by annotations command)
 		quickRanges := lib.GetTagValues(con, ctx, "quick_ranges", "quick_ranges_suffix")
 		lib.Printf("Quick ranges: %+v\n", quickRanges)
 
@@ -362,7 +362,7 @@ func sync(ctx *lib.Ctx, args []string) {
 			for _, skip := range skips {
 				skipMap[skip] = struct{}{}
 			}
-			if !ctx.ResetIDB && !ctx.ResetRanges {
+			if !ctx.ResetTSDB && !ctx.ResetRanges {
 				extraParams = append(extraParams, "skip_past")
 			}
 			for _, aggrStr := range aggregateArr {
@@ -379,7 +379,7 @@ func sync(ctx *lib.Ctx, args []string) {
 						lib.Printf("Skipped period %s\n", periodAggr)
 						continue
 					}
-					if !ctx.ResetIDB && !lib.ComputePeriodAtThisDate(ctx, period, to) {
+					if !ctx.ResetTSDB && !lib.ComputePeriodAtThisDate(ctx, period, to) {
 						lib.Printf("Skipping recalculating period \"%s%s\" for date to %v\n", period, aggrSuffix, to)
 						continue
 					}
