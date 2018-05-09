@@ -151,16 +151,16 @@ do
     PROJ=all            PROJDB=allprj         PROJREPO="not/used"                   ORGNAME="All CNCF"  PORT=3254 ICON=cncf        GRAFSUFF=all            GA="UA-108085315-20" ./devel/deploy_proj.sh || exit 24
   else
     echo "Unknown project: $proj"
-    exit 28
+    exit 25
   fi
 done
 
 if [ -z "$SKIPWWW" ]
 then
-  CERT=1 WWW=1 ./devel/create_www.sh || exit 25
+  CERT=1 WWW=1 ./devel/create_www.sh || exit 26
 fi
 if [ -z "$SKIPVARS" ]
 then
-  ./devel/vars_all.sh || exit 26
+  ./devel/vars_all.sh || exit 27
 fi
 echo "$0: All deployments finished"

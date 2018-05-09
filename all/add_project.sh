@@ -43,7 +43,7 @@ then
   sudo -u postgres psql allprj -c "delete from gha_vars" || exit 8
   GHA2DB_PROJECT=all PG_DB=allprj GHA2DB_LOCAL=1 ./vars || exit 9
   echo "allprj backup restored"
-  GHA2DB_PROJECT=all PG_DB=allprj IDB_DB=allprj ./gha2db_sync || exit 10
+  GHA2DB_PROJECT=all PG_DB=allprj ./gha2db_sync || exit 10
   exit 0
 else
   echo "merging $1 into allprj"
@@ -64,13 +64,12 @@ else
 fi
 if [ ! -z "$TSDB" ]
 then
-  echo "regenerating allprj influx database"
-  # FIXME: reinit must clean TSDB data first
+  echo "regenerating allprj TS database"
   if [ -f "./all/reinit.sh" ]
   then
     ./all/reinit.sh || exit 17
   else
-    GHA2DB_PROJECT=all PG_DB=allprj IDB_DB=allprj ./shared/reinit.sh || exit 18
+    GHA2DB_PROJECT=all PG_DB=allprj ./shared/reinit.sh || exit 18
   fi
 fi
 echo "$0: $1 finished"
