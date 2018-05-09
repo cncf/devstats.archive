@@ -510,6 +510,9 @@ func getSyncArgs(ctx *lib.Ctx, osArgs []string) []string {
 		dataPrefix = "./"
 	}
 
+	// Are we running from "devstats" which already sets ENV from projects.yaml?
+	envSet := os.Getenv("ENV_SET") != ""
+
 	// Read defined projects
 	data, err := lib.ReadFile(ctx, dataPrefix+ctx.ProjectsYaml)
 	if err != nil {
@@ -522,6 +525,28 @@ func getSyncArgs(ctx *lib.Ctx, osArgs []string) []string {
 	if ok {
 		if proj.StartDate != nil && !ctx.ForceStartDate {
 			ctx.DefaultStartDate = *proj.StartDate
+		}
+		if !envSet && proj.Env != nil {
+			for envK, envV := range proj.Env {
+				if envK == "GHA2DB_EXCLUDE_REPOS" {
+					if envV != "" {
+						ctx.ExcludeRepos = make(map[string]bool)
+						excludeArray := strings.Split(envV, ",")
+						for _, exclude := range excludeArray {
+							if exclude != "" {
+								ctx.ExcludeRepos[exclude] = true
+							}
+						}
+						if ctx.Debug > 0 {
+							lib.Printf("Exclude repos config from env: %+v\n", ctx.ExcludeRepos)
+						}
+					} else {
+						lib.Fatalf("empty '%s', do not specify at all instead", envK)
+					}
+				} else {
+					lib.Fatalf("don't know how to apply env: '%s' = '%s'", envK, envV)
+				}
+			}
 		}
 		return proj.CommandLine
 	}
