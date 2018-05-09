@@ -10,8 +10,8 @@ import (
 	"golang.org/x/oauth2"
 )
 
-// I know global variables are bad, but sometimes GitHub is not returning it
-// Bit error instead (when 0 API points are available), we can use last known value then
+// I know global variables are bad, but sometimes GitHub is not returning rate limits
+// butt error instead (when 0 API points are available), we can use last known value then
 var globalRL *github.RateLimits
 var globalRLMutex = &sync.Mutex{}
 

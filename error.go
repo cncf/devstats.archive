@@ -17,7 +17,7 @@ func FatalOnError(err error) string {
 		case *pq.Error:
 			errName := e.Code.Name()
 			if errName == "too_many_connections" {
-				Printf("Too many postgres connections: %+v: '%s'\n", tm, err.Error())
+				Printf("Warning: too many postgres connections: %+v: '%s'\n", tm, err.Error())
 				return Retry
 			}
 		}
