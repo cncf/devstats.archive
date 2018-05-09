@@ -16,11 +16,12 @@ type tags struct {
 
 // tag contain each TSDB tag data
 type tag struct {
-	Name       string `yaml:"name"`
-	SQLFile    string `yaml:"sql"`
-	SeriesName string `yaml:"series_name"`
-	NameTag    string `yaml:"name_tag"`
-	ValueTag   string `yaml:"value_tag"`
+	Name       string            `yaml:"name"`
+	SQLFile    string            `yaml:"sql"`
+	SeriesName string            `yaml:"series_name"`
+	NameTag    string            `yaml:"name_tag"`
+	ValueTag   string            `yaml:"value_tag"`
+	OtherTags  map[string]string `yaml:"other_tags"`
 }
 
 // Insert TSDB tags
@@ -95,19 +96,49 @@ func calcTags() {
 			}
 			tm := lib.TimeParseAny("2014-01-01")
 
+			// Columns
+			columns, err := rows.Columns()
+			lib.FatalOnError(err)
+			colIdx := make(map[string]int)
+			for i, column := range columns {
+				colIdx[column] = i
+			}
+
 			// Iterate tag values
 			tags := make(map[string]string)
-			strVal := ""
+			iVals := make([]interface{}, len(columns))
+			for i := range columns {
+				iVals[i] = new([]byte)
+			}
 			for rows.Next() {
-				lib.FatalOnError(rows.Scan(&strVal))
-				if ctx.Debug > 0 {
-					lib.Printf("'%s': %v\n", tg.SeriesName, strVal)
+				lib.FatalOnError(rows.Scan(iVals...))
+				sVals := []string{}
+				for _, iVal := range iVals {
+					sVal := ""
+					if iVal != nil {
+						sVal = string(*iVal.(*[]byte))
+					}
+					sVals = append(sVals, sVal)
 				}
+				strVal := sVals[0]
 				if tg.NameTag != "" {
 					tags[tg.NameTag] = strVal
 				}
 				if tg.ValueTag != "" {
 					tags[tg.ValueTag] = lib.NormalizeName(strVal)
+				}
+				if tg.OtherTags != nil {
+					for tName, tValue := range tg.OtherTags {
+						cIdx, ok := colIdx[tValue]
+						if !ok {
+							lib.Fatalf("other tag: name: %s: column %s not found", tName, tValue)
+						}
+						tags[tName] = sVals[cIdx]
+						tags[tName+"_norm"] = lib.NormalizeName(sVals[cIdx])
+					}
+				}
+				if ctx.Debug > 0 {
+					lib.Printf("'%s': %+v\n", tg.SeriesName, tags)
 				}
 				// Add batch point
 				pt := lib.NewTSPoint(&ctx, tg.SeriesName, "", tags, nil, tm)
