@@ -8,7 +8,7 @@ import (
 	yaml "gopkg.in/yaml.v2"
 )
 
-// makeAnnotations: Insert InfluxDB annotations starting after `dt`
+// makeAnnotations: Insert TSDB annotations starting after `dt`
 func makeAnnotations() {
 	// Environment context parse
 	var ctx lib.Ctx
@@ -37,7 +37,7 @@ func makeAnnotations() {
 		lib.Fatalf("project '%s' not found in '%s'", ctx.Project, ctx.ProjectsYaml)
 	}
 
-	// Get annotations using GitHub API and add annotations and quick ranges to InfluxDB
+	// Get annotations using GitHub API and add annotations and quick ranges to TSDB
 	if proj.MainRepo != "" {
 		annotations := lib.GetAnnotations(&ctx, proj.MainRepo, proj.AnnotationRegexp)
 		lib.ProcessAnnotations(&ctx, &annotations, proj.StartDate, proj.JoinDate)

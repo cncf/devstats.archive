@@ -9,12 +9,12 @@ import (
 	yaml "gopkg.in/yaml.v2"
 )
 
-// tags contain list of InfluxDB tags
+// tags contain list of TSDB tags
 type tags struct {
 	Tags []tag `yaml:"tags"`
 }
 
-// tag contain each InfluxDB tag data
+// tag contain each TSDB tag data
 type tag struct {
 	Name       string `yaml:"name"`
 	SQLFile    string `yaml:"sql"`
@@ -23,7 +23,7 @@ type tag struct {
 	ValueTag   string `yaml:"value_tag"`
 }
 
-// Insert InfluxDB tags
+// Insert TSDB tags
 func calcTags() {
 	// Environment context parse
 	var ctx lib.Ctx

@@ -60,6 +60,7 @@ func mergePDBs() {
 		{"gha_commits", "", "-"},
 		{"gha_commits_files", "", "-"},
 		//{"gha_companies", "", "-"},
+		//{"gha_computed", "", "-"},
 		{"gha_events", "id > 0", "id <= 0"},
 		//{"gha_events_commits_files", "", "-"},
 		{"gha_forkees", "", "-"},

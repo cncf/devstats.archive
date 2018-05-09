@@ -170,7 +170,7 @@ func sync(ctx *lib.Ctx, args []string) {
 		}
 	}
 
-	// Get max series date from Influx database
+	// Get max series date from TS database
 	maxDtTSDB := ctx.DefaultStartDate
 	if !ctx.ForceStartDate {
 		table := "s" + ctx.LastSeries
@@ -278,9 +278,9 @@ func sync(ctx *lib.Ctx, args []string) {
 		} else {
 			from = maxDtTSDB
 		}
-		lib.Printf("Influx range: %s - %s\n", lib.ToYMDHDate(from), lib.ToYMDHDate(to))
+		lib.Printf("TS range: %s - %s\n", lib.ToYMDHDate(from), lib.ToYMDHDate(to))
 
-		// InfluxDB tags (repo groups template variable currently)
+		// TSDB tags (repo groups template variable currently)
 		if ctx.ResetTSDB || time.Now().Hour() == 0 {
 			_, err := lib.ExecCommand(ctx, []string{cmdPrefix + "tags"}, nil)
 			lib.FatalOnError(err)
