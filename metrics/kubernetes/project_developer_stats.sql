@@ -108,6 +108,7 @@ where
     'contributions',
     'comments',
     'issues',
+    'issue_comments',
     'review_comments',
     'prs'
   )
@@ -320,6 +321,7 @@ where
     'contributions',
     'comments',
     'issues',
+    'issue_comments',
     'review_comments',
     'prs'
   )
