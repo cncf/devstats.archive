@@ -18,8 +18,6 @@ then
   trap finish EXIT
   export TRAP=1
 fi
-echo "restarting influxdb"
-service influxdb restart || exit 2
 echo "restarting postgresql"
 service postgresql restart || exit 3
 echo -n "waiting for postgres to respond..."
@@ -27,18 +25,6 @@ while true
 do
   exists=`sudo -u postgres psql -tAc "select 1 from pg_database WHERE datname = 'devstats'"`
   if [ "$exists" = "1" ]
-  then
-    break
-  fi
-  sleep 1
-  echo -n "."
-done
-echo "ok"
-echo -n "waiting for influxdb to respond..."
-while true
-do
-  exists=`echo 'show databases' | influx -host $IDB_HOST -username gha_admin -password $IDB_PASS 2>/dev/null`
-  if [ ! -z "$exists" ]
   then
     break
   fi
