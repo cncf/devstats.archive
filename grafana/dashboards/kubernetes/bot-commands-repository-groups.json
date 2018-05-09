@@ -31,7 +31,7 @@
   "gnetId": null,
   "graphTooltip": 0,
   "id": 129,
-  "iteration": 1523003304512,
+  "iteration": 1525860347997,
   "links": [],
   "panels": [
     {
@@ -79,14 +79,16 @@
       "steppedLine": false,
       "targets": [
         {
-          "alias": "/$col",
+          "alias": "",
           "dsType": "influxdb",
+          "format": "time_series",
           "groupBy": [],
           "measurement": "sig_federation_d",
           "orderByTime": "ASC",
           "policy": "default",
           "query": "SELECT /^[[commands]]$/ FROM \"bot_commands_[[repogroup]]_[[period]]\" WHERE $timeFilter",
           "rawQuery": true,
+          "rawSql": "select\n  $__time(time),\n  ${commands:csv}\nfrom\n  sbot_commands\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'bot_cmds[[repogroup]]'\norder by\n  time",
           "refId": "A",
           "resultFormat": "time_series",
           "select": [
@@ -118,9 +120,7 @@
         "mode": "time",
         "name": null,
         "show": true,
-        "values": [
-          "total"
-        ]
+        "values": []
       },
       "yaxes": [
         {
@@ -139,7 +139,11 @@
           "min": "0",
           "show": true
         }
-      ]
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
     }
   ],
   "schemaVersion": 16,
@@ -201,6 +205,7 @@
       {
         "allValue": null,
         "current": {
+          "tags": [],
           "text": "All",
           "value": "All"
         },
@@ -211,7 +216,7 @@
         "multi": false,
         "name": "repogroup_name",
         "options": [],
-        "query": "SHOW TAG VALUES WITH KEY = all_repo_group_name",
+        "query": "select all_repo_group_name from tall_repo_groups order by 1;",
         "refresh": 1,
         "regex": "",
         "sort": 0,
@@ -234,7 +239,7 @@
         "multi": false,
         "name": "repogroup",
         "options": [],
-        "query": "SHOW TAG VALUES WITH KEY = all_repo_group_value where all_repo_group_name =~ /^[[repogroup_name]]$/",
+        "query": "select all_repo_group_value from tall_repo_groups where all_repo_group_name = '[[repogroup_name]]';",
         "refresh": 1,
         "regex": "",
         "sort": 0,
@@ -247,8 +252,11 @@
       {
         "allValue": "",
         "current": {
+          "tags": [],
           "text": "All",
-          "value": "$__all"
+          "value": [
+            "$__all"
+          ]
         },
         "datasource": "psql",
         "hide": 0,
@@ -257,7 +265,7 @@
         "multi": true,
         "name": "commands",
         "options": [],
-        "query": "SHOW TAG VALUES WITH KEY = bot_command_name",
+        "query": "select '\"' || bot_command_name || '\"' || ' as ' || '\"' || alias || '\"' from tbot_commands",
         "refresh": 1,
         "regex": "",
         "sort": 0,
@@ -280,7 +288,7 @@
         "multi": false,
         "name": "full_name",
         "options": [],
-        "query": "SHOW TAG VALUES WITH KEY = full_name",
+        "query": "select value_s from gha_vars where name = 'full_name'",
         "refresh": 1,
         "regex": "",
         "sort": 0,
@@ -324,5 +332,5 @@
   "timezone": "",
   "title": "Bot commands repository groups",
   "uid": "5",
-  "version": 3
+  "version": 10
 }
