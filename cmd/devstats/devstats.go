@@ -96,6 +96,7 @@ func syncAllProjects() bool {
 		projEnv := map[string]string{
 			"GHA2DB_PROJECT": name,
 			"PG_DB":          proj.PDB,
+			"ENV_SET":        "1",
 		}
 		// Apply eventual per project specific environment
 		for envName, envValue := range proj.Env {
