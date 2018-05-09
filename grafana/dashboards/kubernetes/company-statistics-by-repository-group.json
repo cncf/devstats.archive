@@ -33,7 +33,7 @@
   "gnetId": null,
   "graphTooltip": 0,
   "id": 126,
-  "iteration": 1523003418675,
+  "iteration": 1525866107468,
   "links": [],
   "panels": [
     {
@@ -92,14 +92,16 @@
       "steppedLine": false,
       "targets": [
         {
-          "alias": "$col",
+          "alias": "",
           "dsType": "influxdb",
+          "format": "time_series",
           "groupBy": [],
           "measurement": "sig_federation_d",
           "orderByTime": "ASC",
           "policy": "default",
           "query": "SELECT /^[[companies]]$/ FROM \"company_[[repogroup]]_[[metric]]_[[period]]\" WHERE $timeFilter",
           "rawQuery": true,
+          "rawSql": "select\n  $__time(time),\n  ${companies:csv}\nfrom\n  scompany_activity\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'company[[repogroup]][[metric]]'\norder by\n  time",
           "refId": "B",
           "resultFormat": "time_series",
           "select": [
@@ -151,7 +153,11 @@
           "min": "0",
           "show": true
         }
-      ]
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
     },
     {
       "aliasColors": {},
@@ -199,14 +205,16 @@
       "steppedLine": false,
       "targets": [
         {
-          "alias": "$col",
+          "alias": "",
           "dsType": "influxdb",
+          "format": "time_series",
           "groupBy": [],
           "measurement": "sig_federation_d",
           "orderByTime": "ASC",
           "policy": "default",
           "query": "SELECT /^[[companies]]$/ FROM \"company_[[repogroup]]_[[metric]]_[[period]]\" WHERE $timeFilter",
           "rawQuery": true,
+          "rawSql": "select\n  $__time(time),\n  ${companies:csv}\nfrom\n  scompany_activity\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'company[[repogroup]][[metric]]'\norder by\n  time",
           "refId": "B",
           "resultFormat": "time_series",
           "select": [
@@ -258,7 +266,11 @@
           "min": "0",
           "show": true
         }
-      ]
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
     }
   ],
   "schemaVersion": 16,
@@ -378,6 +390,7 @@
       {
         "allValue": null,
         "current": {
+          "tags": [],
           "text": "All",
           "value": "All"
         },
@@ -388,7 +401,7 @@
         "multi": false,
         "name": "repogroup_name",
         "options": [],
-        "query": "SHOW TAG VALUES WITH KEY = all_repo_group_name",
+        "query": "select all_repo_group_name from tall_repo_groups order by 1",
         "refresh": 1,
         "regex": "",
         "sort": 0,
@@ -411,7 +424,7 @@
         "multi": false,
         "name": "repogroup",
         "options": [],
-        "query": "SHOW TAG VALUES WITH KEY = all_repo_group_value where all_repo_group_name =~ /^[[repogroup_name]]$/",
+        "query": "select all_repo_group_value from tall_repo_groups where all_repo_group_name = '[[repogroup_name]]'",
         "refresh": 1,
         "regex": "",
         "sort": 0,
@@ -424,8 +437,11 @@
       {
         "allValue": "",
         "current": {
+          "tags": [],
           "text": "All",
-          "value": "$__all"
+          "value": [
+            "$__all"
+          ]
         },
         "datasource": "psql",
         "hide": 0,
@@ -434,7 +450,7 @@
         "multi": true,
         "name": "companies",
         "options": [],
-        "query": "SHOW TAG VALUES WITH KEY = companies_name",
+        "query": "select '\"' || companies_name || '\"' from tcompanies ;",
         "refresh": 1,
         "regex": "",
         "sort": 0,
@@ -457,7 +473,7 @@
         "multi": false,
         "name": "full_name",
         "options": [],
-        "query": "SHOW TAG VALUES WITH KEY = full_name",
+        "query": "select value_s from gha_vars where name = 'full_name'",
         "refresh": 1,
         "regex": "",
         "sort": 0,
@@ -501,5 +517,5 @@
   "timezone": "",
   "title": "Company Statistics by Repository Group",
   "uid": "8",
-  "version": 3
+  "version": 8
 }
