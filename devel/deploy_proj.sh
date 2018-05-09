@@ -1,19 +1,13 @@
 #!/bin/bash
 # GET=1 (attempt to fetch Postgres database and Grafana database from the test server)
-# IGET=1 (attempt to fetch Influx database from the test server)
 # AGET=1 (attempt to fetch 'All CNCF' Postgres database from the test server)
-# SKIPDBS=1 (entirely skip project's databases operations: Influx and Postgres)
+# SKIPDBS=1 (entirely skip project's database operations)
 # SKIPADDALL=1 (skip adding/merging to allprj)
 # SKIPGRAFANA=1 (skip all grafana related stuff)
 set -o pipefail
-if ( [ -z "$PG_PASS" ] || [ -z "$IDB_PASS" ] || [ -z "$IDB_HOST" ] )
+if [ -z "$PG_PASS" ]
 then
-  echo "$0: You need to set PG_PASS, IDB_PASS, IDB_HOST environment variables to run this script"
-  exit 1
-fi
-if ( [ ! -z "$IGET" ] && [ -z "$IDB_PASS_SRC" ] )
-then
-  echo "$0: You need to set IDB_PASS_SRC environment variable when using IGET"
+  echo "$0: You need to set PG_PASS environment variable to run this script"
   exit 1
 fi
 if ( [ -z "$PROJ" ] || [ -z "$PROJDB" ] || [ -z "$PROJREPO" ] || [ -z "$PORT" ] || [ -z "$GA" ] || [ -z "$ICON" ] || [ -z "$ORGNAME" ] || [ -z "$GRAFSUFF" ] )
@@ -35,11 +29,11 @@ fi
 echo "$0: $PROJ deploy started"
 if [ -z "$SKIPDBS" ]
 then
-  PDB=1 IDB=1 ./devel/create_databases.sh || exit 3
+  PDB=1 ./devel/create_databases.sh || exit 3
 fi
 if ( [ -z "$SKIPADDALL"] && [ ! "$PROJ" = "all" ] && [ ! "$PROJ" = "opencontainers" ] )
 then
-  IDB=1 ./all/add_project.sh "$PROJDB" "$PROJREPO" || exit 4
+  ./all/add_project.sh "$PROJDB" "$PROJREPO" || exit 4
 fi
 if [ -z "$SKIPGRAFANA" ]
 then
