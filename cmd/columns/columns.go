@@ -98,7 +98,7 @@ func ensureColumns() {
 			)
 			defer func() { lib.FatalOnError(rows.Close()) }()
 			table := ""
-			i = 0
+			numTables := 0
 			for rows.Next() {
 				lib.FatalOnError(rows.Scan(&table))
 				for _, colName := range colNames {
@@ -111,10 +111,10 @@ func ensureColumns() {
 						lib.Printf("Added column \"%s\" to \"%s\" table\n", colName, table)
 					}
 				}
-				i++
+				numTables++
 			}
 			lib.FatalOnError(rows.Err())
-			if i == 0 {
+			if numTables == 0 {
 				lib.Fatalf("wrong config: %+v, no table hits", col)
 			}
 			// Synchronize go routine
