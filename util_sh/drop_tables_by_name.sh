@@ -7,7 +7,6 @@ fi
 proj=$1
 len=${#2}
 tables=`sudo -u postgres psql $proj -qAntc '\dt' | cut -d\| -f2`
-echo "$proj $len"
 for table in $tables
 do
   base=${table:0:$len}
