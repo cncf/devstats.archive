@@ -24,7 +24,8 @@ type logContext struct {
 // to avoid initializing it from multiple go routines
 var (
 	logCtx      *logContext
-	logCtxMutex sync.Mutex
+	logCtxMutex sync.RWMutex
+	logOnce     sync.Once
 )
 
 // Returns new context when not yet created
@@ -46,8 +47,8 @@ func newLogContext() *logContext {
 
 // logToDB writes message to database
 func logToDB(format string, args ...interface{}) (err error) {
-	logCtxMutex.Lock()
-	defer func() { logCtxMutex.Unlock() }()
+	logCtxMutex.RLock()
+	defer func() { logCtxMutex.RUnlock() }()
 	if logCtx.ctx.LogToDB == false {
 		return
 	}
@@ -67,13 +68,7 @@ func logToDB(format string, args ...interface{}) (err error) {
 // Printf is a wrapper around Printf(...) that supports logging.
 func Printf(format string, args ...interface{}) (n int, err error) {
 	// Initialize context once
-	if logCtx == nil {
-		logCtxMutex.Lock()
-		if logCtx == nil {
-			logCtx = newLogContext()
-		}
-		logCtxMutex.Unlock()
-	}
+	logOnce.Do(func() { logCtx = newLogContext() })
 	// Avoid query out on adding to logs itself
 	// it would print any text with its particular logs DB insert which
 	// would result in stdout mess
