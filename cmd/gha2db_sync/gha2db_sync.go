@@ -450,6 +450,14 @@ func sync(ctx *lib.Ctx, args []string) {
 				calcHistogram(nil, ctx, hist)
 			}
 		}
+
+		// TSDB ensure that calculated metric have all columns from tags
+		if ctx.ResetTSDB || time.Now().Hour() == 0 {
+			_, err := lib.ExecCommand(ctx, []string{cmdPrefix + "columns"}, nil)
+			lib.FatalOnError(err)
+		} else {
+			lib.Printf("Skipping `columns` recalculation, it is only computed once per day\n")
+		}
 	}
 	lib.Printf("Sync success\n")
 }
