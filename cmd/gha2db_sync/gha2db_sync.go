@@ -164,9 +164,9 @@ func sync(ctx *lib.Ctx, args []string) {
 	var maxDtPtr *time.Time
 	maxDtPg := ctx.DefaultStartDate
 	if !ctx.ForceStartDate {
-		lib.FatalOnError(lib.QueryRowSQL(con, ctx, "select max(created_at) from gha_events").Scan(&maxDtPtr))
+		lib.FatalOnError(lib.QueryRowSQL(con, ctx, "select max(dt) from gha_parsed").Scan(&maxDtPtr))
 		if maxDtPtr != nil {
-			maxDtPg = *maxDtPtr
+			maxDtPg = maxDtPtr.Add(1 * time.Hour)
 		}
 	}
 
@@ -187,7 +187,7 @@ func sync(ctx *lib.Ctx, args []string) {
 
 	// Create date range
 	// Just to get into next GHA hour
-	from := maxDtPg.Add(5 * time.Minute)
+	from := maxDtPg
 	to := time.Now()
 	fromDate := lib.ToYMDDate(from)
 	fromHour := strconv.Itoa(from.Hour())

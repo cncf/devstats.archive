@@ -1203,6 +1203,22 @@ func Structure(ctx *Ctx) {
 		ExecSQLWithErr(c, ctx, "create index computed_metric_idx on gha_computed(metric)")
 		ExecSQLWithErr(c, ctx, "create index computed_dt_idx on gha_computed(dt)")
 	}
+	if ctx.Table {
+		ExecSQLWithErr(c, ctx, "drop table if exists gha_parsed")
+		ExecSQLWithErr(
+			c,
+			ctx,
+			CreateTable(
+				"gha_parsed("+
+					"dt {{ts}} not null, "+
+					"primary key(dt)"+
+					")",
+			),
+		)
+	}
+	if ctx.Index {
+		ExecSQLWithErr(c, ctx, "create index parsed_dt_idx on gha_parsed(dt)")
+	}
 	// Foreign keys are not needed - they slow down processing a lot
 
 	// Tools (like views and functions needed for generating metrics)

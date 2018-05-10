@@ -1380,6 +1380,16 @@ func parseJSON(con *sql.DB, ctx *lib.Ctx, jsonStr []byte, dt time.Time, forg, fr
 	return
 }
 
+// markAsProcessed mark maximum processed date
+func markAsProcessed(con *sql.DB, ctx *lib.Ctx, dt time.Time) {
+	lib.ExecSQLWithErr(
+		con,
+		ctx,
+		lib.InsertIgnore("into gha_parsed(dt) values("+lib.NValue(1)+")"),
+		dt,
+	)
+}
+
 // getGHAJSON - This is a work for single go routine - 1 hour of GHA data
 // Usually such JSON conatin about 15000 - 60000 singe GHA events
 // Boolean channel `ch` is used to synchronize go routines
@@ -1446,6 +1456,8 @@ func getGHAJSON(ch chan bool, ctx *lib.Ctx, dt time.Time, forg map[string]struct
 		"Parsed: %s: %d JSONs, found %d matching, events %d\n",
 		fn, n, f, e,
 	)
+	// Mark date as computed, to skip fetching this JSON again when it contains no events for a current project
+	markAsProcessed(con, ctx, dt)
 	if ch != nil {
 		ch <- true
 	}
