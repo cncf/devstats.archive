@@ -43,7 +43,7 @@ func pdbVars() {
 	}
 
 	// Read vars to generate
-	data, err := lib.ReadFile(&ctx, dataPrefix+ctx.PVarsYaml)
+	data, err := lib.ReadFile(&ctx, dataPrefix+ctx.VarsYaml)
 	if err != nil {
 		lib.FatalOnError(err)
 		return

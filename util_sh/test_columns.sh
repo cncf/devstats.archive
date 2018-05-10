@@ -1,0 +1,2 @@
+#!/bin/bash
+GHA2DB_COLUMNS_YAML=devel/test_columns.yaml GHA2DB_LOCAL=1 GHA2DB_DEBUG=2 GHA2DB_SKIPTIME=1 GHA2DB_SKIPLOG=1 GHA2DB_PROJECT=kubernetes ./columns

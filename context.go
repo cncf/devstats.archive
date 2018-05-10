@@ -44,7 +44,8 @@ type Ctx struct {
 	Local               bool            // From GHA2DB_LOCAL gha2db_sync tool, if set, gha2_db will call other tools prefixed with "./" to use local compile ones. Otherwise it will call binaries without prefix (so it will use thos ein /usr/bin/).
 	MetricsYaml         string          // From GHA2DB_METRICS_YAML gha2db_sync tool, set other metrics.yaml file, default is "metrics/{{project}}metrics.yaml"
 	TagsYaml            string          // From GHA2DB_TAGS_YAML tags tool, set other tags.yaml file, default is "metrics/{{project}}/tags.yaml"
-	PVarsYaml           string          // From GHA2DB_PVARS_YAML db_vars tool, set other vars.yaml file, default is "metrics/{{project}}/vars.yaml"
+	ColumnsYaml         string          // From GHA2DB_COLUMNS_YAML tags tool, set other columns.yaml file, default is "metrics/{{project}}/columns.yaml"
+	VarsYaml            string          // From GHA2DB_VARS_YAML db_vars tool, set other vars.yaml file, default is "metrics/{{project}}/vars.yaml"
 	GitHubOAuth         string          // From GHA2DB_GITHUB_OAUTH ghapi2db tool, if not set reads from /etc/github/oauth file, set to "-" to force public access.
 	ClearDBPeriod       string          // From GHA2DB_MAXLOGAGE gha2db_sync tool, maximum age of devstats.gha_logs entries, default "1 week"
 	Trials              []int           // From GHA2DB_TRIALS, all Postgres related tools, retry periods for "too many connections open" error
@@ -255,15 +256,19 @@ func (ctx *Ctx) Init() {
 	// YAML config files
 	ctx.MetricsYaml = os.Getenv("GHA2DB_METRICS_YAML")
 	ctx.TagsYaml = os.Getenv("GHA2DB_TAGS_YAML")
-	ctx.PVarsYaml = os.Getenv("GHA2DB_PVARS_YAML")
+	ctx.ColumnsYaml = os.Getenv("GHA2DB_COLUMNS_YAML")
+	ctx.VarsYaml = os.Getenv("GHA2DB_VARS_YAML")
 	if ctx.MetricsYaml == "" {
 		ctx.MetricsYaml = "metrics/" + proj + "metrics.yaml"
 	}
 	if ctx.TagsYaml == "" {
 		ctx.TagsYaml = "metrics/" + proj + "tags.yaml"
 	}
-	if ctx.PVarsYaml == "" {
-		ctx.PVarsYaml = "metrics/" + proj + "vars.yaml"
+	if ctx.ColumnsYaml == "" {
+		ctx.ColumnsYaml = "metrics/" + proj + "columns.yaml"
+	}
+	if ctx.VarsYaml == "" {
+		ctx.VarsYaml = "metrics/" + proj + "vars.yaml"
 	}
 
 	// GitHub OAuth
