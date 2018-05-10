@@ -1,24 +1,4 @@
 {
-  "__requires": [
-    {
-      "id": "grafana",
-      "name": "Grafana",
-      "type": "grafana",
-      "version": "5.0.0-beta1"
-    },
-    {
-      "id": "graph",
-      "name": "Graph",
-      "type": "panel",
-      "version": ""
-    },
-    {
-      "id": "influxdb",
-      "name": "InfluxDB",
-      "type": "datasource",
-      "version": "1.0.0"
-    }
-  ],
   "annotations": {
     "list": [
       {
@@ -50,8 +30,8 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": null,
-  "iteration": 1517988107676,
+  "id": 96,
+  "iteration": 1525933585955,
   "links": [],
   "panels": [
     {
@@ -99,14 +79,16 @@
       "steppedLine": false,
       "targets": [
         {
-          "alias": "Issues opened",
+          "alias": "",
           "dsType": "influxdb",
+          "format": "time_series",
           "groupBy": [],
           "measurement": "sig_federation_d",
           "orderByTime": "ASC",
           "policy": "default",
           "query": "SELECT /^[[sig]]-[[kind]]$/ FROM \"sig_mentions_labels_sig_kind_[[period]]\" WHERE $timeFilter",
           "rawQuery": true,
+          "rawSql": "select\n  time,\n  \"[[sig]]-[[kind]]\" as \"Issues opened\"\nfrom\n  ssigm_lsk\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\norder by\n  time",
           "refId": "A",
           "resultFormat": "time_series",
           "select": [
@@ -122,14 +104,16 @@
           "tags": []
         },
         {
-          "alias": "Issues closed",
+          "alias": "",
           "dsType": "influxdb",
+          "format": "time_series",
           "groupBy": [],
           "measurement": "sig_federation_d",
           "orderByTime": "ASC",
           "policy": "default",
           "query": "SELECT /^[[sig]]-[[kind]]$/ FROM \"issues_closed_labels_sig_kind_[[period]]\" WHERE $timeFilter",
           "rawQuery": true,
+          "rawSql": "select\n  time,\n  \"[[sig]]-[[kind]]\" as \"Issues closed\"\nfrom\n  siclosed_lsk\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\norder by\n  time",
           "refId": "B",
           "resultFormat": "time_series",
           "select": [
@@ -182,7 +166,11 @@
           "min": "0",
           "show": true
         }
-      ]
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
     }
   ],
   "refresh": false,
@@ -245,7 +233,10 @@
       },
       {
         "allValue": "",
-        "current": {},
+        "current": {
+          "text": "All",
+          "value": "All"
+        },
         "datasource": "psql",
         "hide": 0,
         "includeAll": false,
@@ -253,7 +244,7 @@
         "multi": false,
         "name": "sig",
         "options": [],
-        "query": "SHOW TAG VALUES WITH KEY = sig_mentions_labels_name_with_all",
+        "query": "select sig_mentions_labels_name_with_all from tsig_mentions_labels_with_all order by 1",
         "refresh": 1,
         "regex": "",
         "sort": 0,
@@ -265,7 +256,10 @@
       },
       {
         "allValue": "",
-        "current": {},
+        "current": {
+          "text": "All",
+          "value": "All"
+        },
         "datasource": "psql",
         "hide": 0,
         "includeAll": false,
@@ -273,7 +267,7 @@
         "multi": false,
         "name": "kind",
         "options": [],
-        "query": "SHOW TAG VALUES WITH KEY = sig_mentions_labels_kind_name_with_all",
+        "query": "select sig_mentions_labels_kind_name_with_all from tsig_mentions_labels_kinds_with_all order by 1",
         "refresh": 1,
         "regex": "",
         "sort": 0,
@@ -285,7 +279,10 @@
       },
       {
         "allValue": null,
-        "current": {},
+        "current": {
+          "text": "Kubernetes",
+          "value": "Kubernetes"
+        },
         "datasource": "psql",
         "hide": 2,
         "includeAll": false,
@@ -293,7 +290,7 @@
         "multi": false,
         "name": "full_name",
         "options": [],
-        "query": "SHOW TAG VALUES WITH KEY = full_name",
+        "query": "select value_s from gha_vars where name = 'full_name'",
         "refresh": 1,
         "regex": "",
         "sort": 0,
@@ -337,5 +334,5 @@
   "timezone": "",
   "title": "Issues Opened/Closed by SIG",
   "uid": "39",
-  "version": 1
+  "version": 5
 }
