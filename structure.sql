@@ -199,6 +199,18 @@ CREATE TABLE gha_companies (
 ALTER TABLE gha_companies OWNER TO gha_admin;
 
 --
+-- Name: gha_computed; Type: TABLE; Schema: public; Owner: gha_admin
+--
+
+CREATE TABLE gha_computed (
+    metric text NOT NULL,
+    dt timestamp without time zone NOT NULL
+);
+
+
+ALTER TABLE gha_computed OWNER TO gha_admin;
+
+--
 -- Name: gha_events; Type: TABLE; Schema: public; Owner: gha_admin
 --
 
@@ -496,6 +508,17 @@ CREATE TABLE gha_pages (
 
 
 ALTER TABLE gha_pages OWNER TO gha_admin;
+
+--
+-- Name: gha_parsed; Type: TABLE; Schema: public; Owner: gha_admin
+--
+
+CREATE TABLE gha_parsed (
+    dt timestamp without time zone NOT NULL
+);
+
+
+ALTER TABLE gha_parsed OWNER TO gha_admin;
 
 --
 -- Name: gha_payloads; Type: TABLE; Schema: public; Owner: gha_admin
@@ -833,6 +856,14 @@ ALTER TABLE ONLY gha_companies
 
 
 --
+-- Name: gha_computed gha_computed_pkey; Type: CONSTRAINT; Schema: public; Owner: gha_admin
+--
+
+ALTER TABLE ONLY gha_computed
+    ADD CONSTRAINT gha_computed_pkey PRIMARY KEY (metric, dt);
+
+
+--
 -- Name: gha_events_commits_files gha_events_commits_files_pkey; Type: CONSTRAINT; Schema: public; Owner: gha_admin
 --
 
@@ -918,6 +949,14 @@ ALTER TABLE ONLY gha_orgs
 
 ALTER TABLE ONLY gha_pages
     ADD CONSTRAINT gha_pages_pkey PRIMARY KEY (sha, event_id, action, title);
+
+
+--
+-- Name: gha_parsed gha_parsed_pkey; Type: CONSTRAINT; Schema: public; Owner: gha_admin
+--
+
+ALTER TABLE ONLY gha_parsed
+    ADD CONSTRAINT gha_parsed_pkey PRIMARY KEY (dt);
 
 
 --
@@ -1378,6 +1417,20 @@ CREATE INDEX commits_files_sha_idx ON gha_commits_files USING btree (sha);
 --
 
 CREATE INDEX commits_files_size_idx ON gha_commits_files USING btree (size);
+
+
+--
+-- Name: computed_dt_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX computed_dt_idx ON gha_computed USING btree (dt);
+
+
+--
+-- Name: computed_metric_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX computed_metric_idx ON gha_computed USING btree (metric);
 
 
 --
@@ -2582,6 +2635,7 @@ CREATE INDEX vars_name_idx ON gha_vars USING btree (name);
 --
 
 GRANT SELECT ON TABLE gha_actors TO ro_user;
+GRANT SELECT ON TABLE gha_actors TO devstats_team;
 
 
 --
@@ -2589,6 +2643,7 @@ GRANT SELECT ON TABLE gha_actors TO ro_user;
 --
 
 GRANT SELECT ON TABLE gha_actors_affiliations TO ro_user;
+GRANT SELECT ON TABLE gha_actors_affiliations TO devstats_team;
 
 
 --
@@ -2596,6 +2651,7 @@ GRANT SELECT ON TABLE gha_actors_affiliations TO ro_user;
 --
 
 GRANT SELECT ON TABLE gha_actors_emails TO ro_user;
+GRANT SELECT ON TABLE gha_actors_emails TO devstats_team;
 
 
 --
@@ -2603,6 +2659,7 @@ GRANT SELECT ON TABLE gha_actors_emails TO ro_user;
 --
 
 GRANT SELECT ON TABLE gha_assets TO ro_user;
+GRANT SELECT ON TABLE gha_assets TO devstats_team;
 
 
 --
@@ -2610,6 +2667,7 @@ GRANT SELECT ON TABLE gha_assets TO ro_user;
 --
 
 GRANT SELECT ON TABLE gha_branches TO ro_user;
+GRANT SELECT ON TABLE gha_branches TO devstats_team;
 
 
 --
@@ -2617,6 +2675,7 @@ GRANT SELECT ON TABLE gha_branches TO ro_user;
 --
 
 GRANT SELECT ON TABLE gha_comments TO ro_user;
+GRANT SELECT ON TABLE gha_comments TO devstats_team;
 
 
 --
@@ -2624,6 +2683,7 @@ GRANT SELECT ON TABLE gha_comments TO ro_user;
 --
 
 GRANT SELECT ON TABLE gha_commits TO ro_user;
+GRANT SELECT ON TABLE gha_commits TO devstats_team;
 
 
 --
@@ -2631,6 +2691,7 @@ GRANT SELECT ON TABLE gha_commits TO ro_user;
 --
 
 GRANT SELECT ON TABLE gha_commits_files TO ro_user;
+GRANT SELECT ON TABLE gha_commits_files TO devstats_team;
 
 
 --
@@ -2638,6 +2699,7 @@ GRANT SELECT ON TABLE gha_commits_files TO ro_user;
 --
 
 GRANT SELECT ON TABLE gha_companies TO ro_user;
+GRANT SELECT ON TABLE gha_companies TO devstats_team;
 
 
 --
@@ -2645,6 +2707,7 @@ GRANT SELECT ON TABLE gha_companies TO ro_user;
 --
 
 GRANT SELECT ON TABLE gha_events TO ro_user;
+GRANT SELECT ON TABLE gha_events TO devstats_team;
 
 
 --
@@ -2652,6 +2715,7 @@ GRANT SELECT ON TABLE gha_events TO ro_user;
 --
 
 GRANT SELECT ON TABLE gha_events_commits_files TO ro_user;
+GRANT SELECT ON TABLE gha_events_commits_files TO devstats_team;
 
 
 --
@@ -2659,6 +2723,7 @@ GRANT SELECT ON TABLE gha_events_commits_files TO ro_user;
 --
 
 GRANT SELECT ON TABLE gha_forkees TO ro_user;
+GRANT SELECT ON TABLE gha_forkees TO devstats_team;
 
 
 --
@@ -2666,6 +2731,7 @@ GRANT SELECT ON TABLE gha_forkees TO ro_user;
 --
 
 GRANT SELECT ON TABLE gha_issues TO ro_user;
+GRANT SELECT ON TABLE gha_issues TO devstats_team;
 
 
 --
@@ -2673,6 +2739,7 @@ GRANT SELECT ON TABLE gha_issues TO ro_user;
 --
 
 GRANT SELECT ON TABLE gha_issues_assignees TO ro_user;
+GRANT SELECT ON TABLE gha_issues_assignees TO devstats_team;
 
 
 --
@@ -2680,6 +2747,7 @@ GRANT SELECT ON TABLE gha_issues_assignees TO ro_user;
 --
 
 GRANT SELECT ON TABLE gha_issues_events_labels TO ro_user;
+GRANT SELECT ON TABLE gha_issues_events_labels TO devstats_team;
 
 
 --
@@ -2687,6 +2755,7 @@ GRANT SELECT ON TABLE gha_issues_events_labels TO ro_user;
 --
 
 GRANT SELECT ON TABLE gha_issues_labels TO ro_user;
+GRANT SELECT ON TABLE gha_issues_labels TO devstats_team;
 
 
 --
@@ -2694,6 +2763,7 @@ GRANT SELECT ON TABLE gha_issues_labels TO ro_user;
 --
 
 GRANT SELECT ON TABLE gha_issues_pull_requests TO ro_user;
+GRANT SELECT ON TABLE gha_issues_pull_requests TO devstats_team;
 
 
 --
@@ -2701,6 +2771,7 @@ GRANT SELECT ON TABLE gha_issues_pull_requests TO ro_user;
 --
 
 GRANT SELECT ON TABLE gha_labels TO ro_user;
+GRANT SELECT ON TABLE gha_labels TO devstats_team;
 
 
 --
@@ -2708,6 +2779,7 @@ GRANT SELECT ON TABLE gha_labels TO ro_user;
 --
 
 GRANT SELECT ON TABLE gha_logs TO ro_user;
+GRANT SELECT ON TABLE gha_logs TO devstats_team;
 
 
 --
@@ -2715,6 +2787,7 @@ GRANT SELECT ON TABLE gha_logs TO ro_user;
 --
 
 GRANT SELECT ON TABLE gha_milestones TO ro_user;
+GRANT SELECT ON TABLE gha_milestones TO devstats_team;
 
 
 --
@@ -2722,6 +2795,7 @@ GRANT SELECT ON TABLE gha_milestones TO ro_user;
 --
 
 GRANT SELECT ON TABLE gha_orgs TO ro_user;
+GRANT SELECT ON TABLE gha_orgs TO devstats_team;
 
 
 --
@@ -2729,6 +2803,7 @@ GRANT SELECT ON TABLE gha_orgs TO ro_user;
 --
 
 GRANT SELECT ON TABLE gha_pages TO ro_user;
+GRANT SELECT ON TABLE gha_pages TO devstats_team;
 
 
 --
@@ -2736,6 +2811,7 @@ GRANT SELECT ON TABLE gha_pages TO ro_user;
 --
 
 GRANT SELECT ON TABLE gha_payloads TO ro_user;
+GRANT SELECT ON TABLE gha_payloads TO devstats_team;
 
 
 --
@@ -2743,6 +2819,7 @@ GRANT SELECT ON TABLE gha_payloads TO ro_user;
 --
 
 GRANT SELECT ON TABLE gha_postprocess_scripts TO ro_user;
+GRANT SELECT ON TABLE gha_postprocess_scripts TO devstats_team;
 
 
 --
@@ -2750,6 +2827,7 @@ GRANT SELECT ON TABLE gha_postprocess_scripts TO ro_user;
 --
 
 GRANT SELECT ON TABLE gha_pull_requests TO ro_user;
+GRANT SELECT ON TABLE gha_pull_requests TO devstats_team;
 
 
 --
@@ -2757,6 +2835,7 @@ GRANT SELECT ON TABLE gha_pull_requests TO ro_user;
 --
 
 GRANT SELECT ON TABLE gha_pull_requests_assignees TO ro_user;
+GRANT SELECT ON TABLE gha_pull_requests_assignees TO devstats_team;
 
 
 --
@@ -2764,6 +2843,7 @@ GRANT SELECT ON TABLE gha_pull_requests_assignees TO ro_user;
 --
 
 GRANT SELECT ON TABLE gha_pull_requests_requested_reviewers TO ro_user;
+GRANT SELECT ON TABLE gha_pull_requests_requested_reviewers TO devstats_team;
 
 
 --
@@ -2771,6 +2851,7 @@ GRANT SELECT ON TABLE gha_pull_requests_requested_reviewers TO ro_user;
 --
 
 GRANT SELECT ON TABLE gha_releases TO ro_user;
+GRANT SELECT ON TABLE gha_releases TO devstats_team;
 
 
 --
@@ -2778,6 +2859,7 @@ GRANT SELECT ON TABLE gha_releases TO ro_user;
 --
 
 GRANT SELECT ON TABLE gha_releases_assets TO ro_user;
+GRANT SELECT ON TABLE gha_releases_assets TO devstats_team;
 
 
 --
@@ -2785,6 +2867,7 @@ GRANT SELECT ON TABLE gha_releases_assets TO ro_user;
 --
 
 GRANT SELECT ON TABLE gha_repos TO ro_user;
+GRANT SELECT ON TABLE gha_repos TO devstats_team;
 
 
 --
@@ -2792,6 +2875,7 @@ GRANT SELECT ON TABLE gha_repos TO ro_user;
 --
 
 GRANT SELECT ON TABLE gha_skip_commits TO ro_user;
+GRANT SELECT ON TABLE gha_skip_commits TO devstats_team;
 
 
 --
@@ -2799,6 +2883,7 @@ GRANT SELECT ON TABLE gha_skip_commits TO ro_user;
 --
 
 GRANT SELECT ON TABLE gha_teams TO ro_user;
+GRANT SELECT ON TABLE gha_teams TO devstats_team;
 
 
 --
@@ -2806,6 +2891,7 @@ GRANT SELECT ON TABLE gha_teams TO ro_user;
 --
 
 GRANT SELECT ON TABLE gha_teams_repositories TO ro_user;
+GRANT SELECT ON TABLE gha_teams_repositories TO devstats_team;
 
 
 --
@@ -2813,6 +2899,7 @@ GRANT SELECT ON TABLE gha_teams_repositories TO ro_user;
 --
 
 GRANT SELECT ON TABLE gha_texts TO ro_user;
+GRANT SELECT ON TABLE gha_texts TO devstats_team;
 
 
 --
@@ -2820,6 +2907,7 @@ GRANT SELECT ON TABLE gha_texts TO ro_user;
 --
 
 GRANT SELECT ON TABLE gha_vars TO ro_user;
+GRANT SELECT ON TABLE gha_vars TO devstats_team;
 
 
 --
