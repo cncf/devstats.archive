@@ -31,7 +31,7 @@
   "gnetId": null,
   "graphTooltip": 0,
   "id": 135,
-  "iteration": 1523004849409,
+  "iteration": 1525944198667,
   "links": [],
   "panels": [
     {
@@ -81,14 +81,16 @@
       "steppedLine": false,
       "targets": [
         {
-          "alias": "$col",
+          "alias": "",
           "dsType": "influxdb",
+          "format": "time_series",
           "groupBy": [],
           "measurement": "sig_federation_d",
           "orderByTime": "ASC",
           "policy": "default",
           "query": "SELECT /^[[reviewers]]$/ FROM \"reviews_per_user_[[repo]]_[[period]]\" WHERE $timeFilter",
           "rawQuery": true,
+          "rawSql": "select\n  time,\n  ${reviewers:csv}\nfrom\n  suser_reviews\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'reviews_per_user[[repo]]'\norder by\n  time",
           "refId": "A",
           "resultFormat": "time_series",
           "select": [
@@ -141,7 +143,11 @@
           "min": "0",
           "show": true
         }
-      ]
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
     },
     {
       "aliasColors": {},
@@ -190,14 +196,16 @@
       "steppedLine": false,
       "targets": [
         {
-          "alias": "$col",
+          "alias": "",
           "dsType": "influxdb",
+          "format": "time_series",
           "groupBy": [],
           "measurement": "sig_federation_d",
           "orderByTime": "ASC",
           "policy": "default",
           "query": "SELECT /^[[reviewers]]$/ FROM \"lgtms_per_user_[[repo]]_[[period]]\" WHERE $timeFilter",
           "rawQuery": true,
+          "rawSql": "select\n  time,\n  ${reviewers:csv}\nfrom\n  suser_reviews\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'ulgtms[[repo]]'\norder by\n  time",
           "refId": "A",
           "resultFormat": "time_series",
           "select": [
@@ -250,7 +258,11 @@
           "min": "0",
           "show": true
         }
-      ]
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
     }
   ],
   "schemaVersion": 16,
@@ -313,6 +325,7 @@
       {
         "allValue": null,
         "current": {
+          "tags": [],
           "text": "All",
           "value": "All"
         },
@@ -323,7 +336,7 @@
         "multi": false,
         "name": "repo_name",
         "options": [],
-        "query": "SHOW TAG VALUES WITH KEY = top_repos_name_with_all",
+        "query": "select top_repos_name_with_all from ttop_repos_with_all order by 1",
         "refresh": 1,
         "regex": "",
         "sort": 0,
@@ -346,7 +359,7 @@
         "multi": false,
         "name": "repo",
         "options": [],
-        "query": "SHOW TAG VALUES WITH KEY = top_repos_value_with_all where top_repos_name_with_all =~ /^[[repo_name]]$/",
+        "query": "select top_repos_value_with_all from ttop_repos_with_all where top_repos_name_with_all = '[[repo_name]]'",
         "refresh": 1,
         "regex": "",
         "sort": 0,
@@ -359,19 +372,29 @@
       {
         "allValue": "",
         "current": {
-          "text": "liggitt",
+          "tags": [],
+          "text": "\"unguiculus\" + \"liggitt\" + \"sttts\" + \"msau42\" + \"krzyzacy\" + \"BenTheElder\" + \"deads2k\" + \"stevekuznetsov\" + \"timstoop\" + \"heckj\"",
           "value": [
-            "liggitt"
+            "\"unguiculus\"",
+            "\"liggitt\"",
+            "\"sttts\"",
+            "\"msau42\"",
+            "\"krzyzacy\"",
+            "\"BenTheElder\"",
+            "\"deads2k\"",
+            "\"stevekuznetsov\"",
+            "\"timstoop\"",
+            "\"heckj\""
           ]
         },
         "datasource": "psql",
         "hide": 0,
-        "includeAll": false,
+        "includeAll": true,
         "label": "Reviewer",
         "multi": true,
         "name": "reviewers",
         "options": [],
-        "query": "SHOW TAG VALUES WITH KEY = reviewers_name",
+        "query": "select '\"' || reviewers_name || '\"' from treviewers",
         "refresh": 1,
         "regex": "",
         "sort": 0,
@@ -438,5 +461,5 @@
   "timezone": "",
   "title": "PR Reviews by Contributor",
   "uid": "46",
-  "version": 11
+  "version": 13
 }
