@@ -87,8 +87,10 @@ func AddTSPoint(ctx *Ctx, pts *TSPoints, pt TSPoint) {
 }
 
 // WriteTSPoints write batch of points to postgresql
-// use mergeSeries = "name" to put all series in "name" table, and create "series" column that conatins all point names
+// use mergeSeries = "name" to put all series in "name" table, and create "series" column that conatins all point names.
+//   without merge, alee names will create separate tables.
 // use non-null mut when you are using this function from multiple threads that write to the same series name at the same time
+//   use non-null mut only then.
 // No more giant lock approach here, but it is up to user to spcify call context, especially 2 last parameters!
 func WriteTSPoints(ctx *Ctx, con *sql.DB, pts *TSPoints, mergeSeries string, mut *sync.Mutex) {
 	npts := len(*pts)
@@ -162,6 +164,7 @@ func WriteTSPoints(ctx *Ctx, con *sql.DB, pts *TSPoints, mergeSeries string, mut
 		Printf("%d fields:\n%+v\n", len(fields), fields)
 	}
 	sqls := []string{}
+	// Only used when multiple threads are writing the same series
 	if mut != nil {
 		mut.Lock()
 	}
@@ -296,11 +299,17 @@ func WriteTSPoints(ctx *Ctx, con *sql.DB, pts *TSPoints, mergeSeries string, mut
 		Printf("structural sqls:\n%s\n", strings.Join(sqls, "\n"))
 	}
 	for _, q := range sqls {
+		// Notice: This **may** fail, when using multiple processes (not threads) to create structures (tables, columns and indices)
+		// But each operation can only fail when some other process already executed it succesfully
+		// So **ALL** those failures are *OK*.
+		// We can avoid thenm by using transaction, but it is much slower then, effect is the same and all we want **IS THE SPEED**
+		// So this is done for purpose!
 		_, err := ExecSQL(con, ctx, q)
 		if err != nil {
 			Printf("Ignored %s\n", q)
 		}
 	}
+	// Only used when multiple threads are writing the same series
 	if mut != nil {
 		mut.Unlock()
 	}
@@ -423,6 +432,11 @@ func WriteTSPoints(ctx *Ctx, con *sql.DB, pts *TSPoints, mergeSeries string, mut
 }
 
 // makePsqlName makes sure the identifier is shorter than 64
+// fatal: when used to create table or column
+// non-fatal: only when used for create index if not exists
+// to use `create index if not exists` we must give it a name
+// (so postgres can detect if index exists), name is created from table and column names
+// so if this is too long, just amke it shorter - hence non-fatal
 func makePsqlName(name string, fatal bool) string {
 	l := len(name)
 	if l > 63 {
