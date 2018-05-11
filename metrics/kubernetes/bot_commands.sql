@@ -1,5 +1,7 @@
 with matching as (
-  select cmd, eid, repo_group
+  select cmd,
+    eid,
+    repo_group
   from (
     select regexp_replace(
       lower(
@@ -31,13 +33,13 @@ with matching as (
     and sub.cmd is not null
 )
 select
-  'bot_cmds,' || substring(cmd from 2) || '`All' as command,
+  'bot_cmds,' || substring(cmd from 1) || '`All' as command,
   round(count(distinct eid) / {{n}}, 2) as count_value
 from
   matching
 group by
   cmd
-union select 'bot_cmds,' || substring(cmd from 2) || '`' || repo_group as command,
+union select 'bot_cmds,' || substring(cmd from 1) || '`' || repo_group as command,
   round(count(distinct eid) / {{n}}, 2) as count_value
 from
   matching
