@@ -31,7 +31,7 @@
   "gnetId": null,
   "graphTooltip": 0,
   "id": 106,
-  "iteration": 1523004082900,
+  "iteration": 1526018495631,
   "links": [],
   "panels": [
     {
@@ -77,14 +77,16 @@
       "steppedLine": true,
       "targets": [
         {
-          "alias": "$col",
+          "alias": "",
           "dsType": "influxdb",
+          "format": "time_series",
           "groupBy": [],
           "measurement": "prs_kubernetes_kubernetes_d",
           "orderByTime": "ASC",
           "policy": "default",
           "query": "SELECT /^[[repogroups]]$/ FROM \"prs_approve_state_approved_[[period]]\" WHERE $timeFilter",
           "rawQuery": true,
+          "rawSql": "select\n  time,\n  ${repogroups:csv}\nfrom\n  spr_apprappr\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\norder by\n  time",
           "refId": "A",
           "resultFormat": "time_series",
           "select": [
@@ -134,7 +136,11 @@
           "min": "0",
           "show": true
         }
-      ]
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
     },
     {
       "aliasColors": {},
@@ -179,14 +185,16 @@
       "steppedLine": true,
       "targets": [
         {
-          "alias": "$col",
+          "alias": "",
           "dsType": "influxdb",
+          "format": "time_series",
           "groupBy": [],
           "measurement": "prs_kubernetes_kubernetes_d",
           "orderByTime": "ASC",
           "policy": "default",
           "query": "SELECT /^[[repogroups]]$/ FROM \"prs_approve_state_awaiting_[[period]]\" WHERE $timeFilter",
           "rawQuery": true,
+          "rawSql": "select\n  time,\n  ${repogroups:csv}\nfrom\n  spr_apprwait\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\norder by\n  time",
           "refId": "A",
           "resultFormat": "time_series",
           "select": [
@@ -236,7 +244,11 @@
           "min": "0",
           "show": true
         }
-      ]
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
     }
   ],
   "refresh": false,
@@ -306,7 +318,7 @@
         "multi": true,
         "name": "repogroups",
         "options": [],
-        "query": "SHOW TAG VALUES WITH KEY = repo_group_name",
+        "query": "select '\"' || repo_group_name || '\"' from trepo_groups order by 1",
         "refresh": 1,
         "regex": "",
         "sort": 0,
@@ -373,5 +385,5 @@
   "timezone": "",
   "title": "PRs approval repository groups stacked",
   "uid": "27",
-  "version": 2
+  "version": 4
 }
