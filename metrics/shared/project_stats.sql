@@ -3,7 +3,7 @@ select
   'Contributors' as name,
   count(distinct sub.actor) as value
 from (
-  select 'hproj,' || coalesce(ecf.repo_group, r.repo_group) as repo_group,
+  select 'pstat,' || coalesce(ecf.repo_group, r.repo_group) as repo_group,
     e.dup_actor_login as actor
   from
     gha_repos r,
