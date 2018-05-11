@@ -33,7 +33,7 @@
   "gnetId": null,
   "graphTooltip": 0,
   "id": 138,
-  "iteration": 1523004197110,
+  "iteration": 1526024637127,
   "links": [],
   "panels": [
     {
@@ -102,8 +102,9 @@
       "tableColumn": "Kubernetes-All",
       "targets": [
         {
-          "alias": "$col",
+          "alias": "",
           "dsType": "influxdb",
+          "format": "time_series",
           "groupBy": [
             {
               "params": [
@@ -122,6 +123,7 @@
           "policy": "default",
           "query": "select /^[[repogroups]]: [[labels]]$/ FROM \"prs_labelled_d\" WHERE $timeFilter",
           "rawQuery": true,
+          "rawSql": "select\n  time,\n  value\nfrom\n  sprs_labels\nwhere\n  $__timeFilter(time)\n  and series = 'prlbl[[repogroup]][[label]]'\norder by\n  time",
           "refId": "A",
           "resultFormat": "time_series",
           "select": [
@@ -142,7 +144,7 @@
         }
       ],
       "thresholds": "10,100",
-      "title": "PRs from [[repogroups]] repo group with [[labels]]",
+      "title": "PRs from [[repogroup_name]] repo group with [[label_name]]",
       "transparent": true,
       "type": "singlestat",
       "valueFontSize": "80%",
@@ -218,8 +220,9 @@
       "tableColumn": "",
       "targets": [
         {
-          "alias": "$col",
+          "alias": "",
           "dsType": "influxdb",
+          "format": "time_series",
           "groupBy": [
             {
               "params": [
@@ -238,6 +241,7 @@
           "policy": "default",
           "query": "select /^[[repogroups]]: [[labels]]$/ FROM \"prs_labelled_d\" WHERE $timeFilter",
           "rawQuery": true,
+          "rawSql": "select\n  time,\n  value\nfrom\n  sprs_labels\nwhere\n  $__timeFilter(time)\n  and series = 'prlbl[[repogroup]][[label]]'\norder by\n  time",
           "refId": "A",
           "resultFormat": "time_series",
           "select": [
@@ -258,7 +262,7 @@
         }
       ],
       "thresholds": "10,100",
-      "title": "PRs from [[repogroups]] repo group with [[labels]]",
+      "title": "PRs from [[repogroup_name]] repo group with [[label_name]]",
       "transparent": true,
       "type": "singlestat",
       "valueFontSize": "80%",
@@ -314,14 +318,16 @@
       "steppedLine": false,
       "targets": [
         {
-          "alias": "$col",
+          "alias": "",
           "dsType": "influxdb",
+          "format": "time_series",
           "groupBy": [],
           "measurement": "prs_kubernetes_kubernetes_d",
           "orderByTime": "ASC",
           "policy": "default",
           "query": "select /^[[repogroups]]: [[labels]]$/ FROM \"prs_labelled_d\" WHERE $timeFilter",
           "rawQuery": true,
+          "rawSql": "select\n  time,\n  value as \"[[repogroup_name]]: [[label_name]]\"\nfrom\n  sprs_labels\nwhere\n  $__timeFilter(time)\n  and series = 'prlbl[[repogroup]][[label]]'\norder by\n  time",
           "refId": "A",
           "resultFormat": "time_series",
           "select": [
@@ -340,7 +346,7 @@
       "thresholds": [],
       "timeFrom": null,
       "timeShift": null,
-      "title": "PRs from [[repogroups]] repo group with [[labels]]",
+      "title": "PRs from [[repogroup_name]] repo group with [[label_name]]",
       "tooltip": {
         "shared": true,
         "sort": 2,
@@ -373,7 +379,11 @@
           "min": "0",
           "show": true
         }
-      ]
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
     },
     {
       "aliasColors": {},
@@ -418,14 +428,16 @@
       "steppedLine": false,
       "targets": [
         {
-          "alias": "$col",
+          "alias": "",
           "dsType": "influxdb",
+          "format": "time_series",
           "groupBy": [],
           "measurement": "prs_kubernetes_kubernetes_d",
           "orderByTime": "ASC",
           "policy": "default",
           "query": "select /: [[labels]]$/ FROM \"prs_labelled_d\" WHERE $timeFilter",
           "rawQuery": true,
+          "rawSql": "select\n  $__time(l.time),\n  l.value as value,\n  r.all_combined_repo_group_name as metric\nfrom\n  sprs_labels l,\n  tall_combined_repo_groups r\nwhere\n  l.series = 'prlbl' || r.all_combined_repo_group_value || '[[label]]'\n  and r.all_combined_repo_group_name != 'All repos combined'\norder by l.time;",
           "refId": "A",
           "resultFormat": "time_series",
           "select": [
@@ -444,7 +456,7 @@
       "thresholds": [],
       "timeFrom": null,
       "timeShift": null,
-      "title": "PRs with [[labels]] labels from all repos",
+      "title": "PRs with [[label_name]] labels from all repos",
       "tooltip": {
         "shared": true,
         "sort": 2,
@@ -476,7 +488,11 @@
           "min": "0",
           "show": true
         }
-      ]
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
     },
     {
       "aliasColors": {},
@@ -521,14 +537,16 @@
       "steppedLine": false,
       "targets": [
         {
-          "alias": "$col",
+          "alias": "",
           "dsType": "influxdb",
+          "format": "time_series",
           "groupBy": [],
           "measurement": "prs_kubernetes_kubernetes_d",
           "orderByTime": "ASC",
           "policy": "default",
           "query": "select /^[[repogroups]]: / FROM \"prs_labelled_d\" WHERE $timeFilter",
           "rawQuery": true,
+          "rawSql": "select\n  $__time(l.time),\n  l.value as value,\n  lt.pr_labels_tags_name as metric\nfrom\n  sprs_labels l,\n  tpr_labels_tags lt\nwhere\n  l.series = 'prlbl[[repogroup]]' || lt.pr_labels_tags_value\n  and lt.pr_labels_tags_name != 'All labels combined'\norder by l.time;",
           "refId": "A",
           "resultFormat": "time_series",
           "select": [
@@ -547,7 +565,7 @@
       "thresholds": [],
       "timeFrom": null,
       "timeShift": null,
-      "title": "PRs from [[repogroups]] repo group (having at least one of specified labels)",
+      "title": "PRs from [[repogroup_name]] repo group (having at least one of specified labels)",
       "tooltip": {
         "shared": true,
         "sort": 2,
@@ -579,110 +597,11 @@
           "min": "0",
           "show": true
         }
-      ]
-    },
-    {
-      "aliasColors": {},
-      "bars": false,
-      "dashLength": 10,
-      "dashes": false,
-      "datasource": "psql",
-      "decimals": 0,
-      "description": "",
-      "fill": 8,
-      "gridPos": {
-        "h": 12,
-        "w": 24,
-        "x": 0,
-        "y": 42
-      },
-      "id": 5,
-      "legend": {
-        "alignAsTable": true,
-        "avg": true,
-        "current": true,
-        "max": true,
-        "min": true,
-        "rightSide": true,
-        "show": true,
-        "sort": "avg",
-        "sortDesc": true,
-        "total": false,
-        "values": true
-      },
-      "lines": true,
-      "linewidth": 0,
-      "links": [],
-      "nullPointMode": "null as zero",
-      "percentage": true,
-      "pointradius": 5,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [],
-      "spaceLength": 10,
-      "stack": true,
-      "steppedLine": false,
-      "targets": [
-        {
-          "alias": "$col",
-          "dsType": "influxdb",
-          "groupBy": [],
-          "measurement": "prs_kubernetes_kubernetes_d",
-          "orderByTime": "ASC",
-          "policy": "default",
-          "query": "select /^[[repogroups]]: [[labels]]$/ FROM \"prs_labelled_d\" WHERE $timeFilter",
-          "rawQuery": true,
-          "refId": "A",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              }
-            ]
-          ],
-          "tags": []
-        }
       ],
-      "thresholds": [],
-      "timeFrom": null,
-      "timeShift": null,
-      "title": "Percent PRs from [[repogroups]] repo group with [[labels]]",
-      "tooltip": {
-        "shared": true,
-        "sort": 2,
-        "value_type": "individual"
-      },
-      "transparent": true,
-      "type": "graph",
-      "xaxis": {
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true,
-        "values": []
-      },
-      "yaxes": [
-        {
-          "format": "short",
-          "label": "PRs",
-          "logBase": 1,
-          "max": "100",
-          "min": "0",
-          "show": true
-        },
-        {
-          "format": "short",
-          "label": "",
-          "logBase": 1,
-          "max": null,
-          "min": null,
-          "show": true
-        }
-      ]
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
     },
     {
       "aliasColors": {},
@@ -697,7 +616,7 @@
         "h": 13,
         "w": 24,
         "x": 0,
-        "y": 54
+        "y": 42
       },
       "id": 6,
       "legend": {
@@ -727,14 +646,16 @@
       "steppedLine": false,
       "targets": [
         {
-          "alias": "$col",
+          "alias": "",
           "dsType": "influxdb",
+          "format": "time_series",
           "groupBy": [],
           "measurement": "prs_kubernetes_kubernetes_d",
           "orderByTime": "ASC",
           "policy": "default",
           "query": "select /: [[labels]]$/ FROM \"prs_labelled_d\" WHERE $timeFilter",
           "rawQuery": true,
+          "rawSql": "select\n  $__time(l.time),\n  l.value as value,\n  r.all_combined_repo_group_name as metric\nfrom\n  sprs_labels l,\n  tall_combined_repo_groups r\nwhere\n  l.series = 'prlbl' || r.all_combined_repo_group_value || '[[label]]'\n  and r.all_combined_repo_group_name != 'All repos combined'\norder by l.time;",
           "refId": "A",
           "resultFormat": "time_series",
           "select": [
@@ -753,7 +674,7 @@
       "thresholds": [],
       "timeFrom": null,
       "timeShift": null,
-      "title": "Percent PRs with [[labels]] labels from all repos",
+      "title": "Percent PRs with [[label_name]] labels from all repos",
       "tooltip": {
         "shared": true,
         "sort": 2,
@@ -785,7 +706,11 @@
           "min": null,
           "show": true
         }
-      ]
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
     },
     {
       "aliasColors": {},
@@ -800,7 +725,7 @@
         "h": 13,
         "w": 24,
         "x": 0,
-        "y": 67
+        "y": 55
       },
       "id": 8,
       "legend": {
@@ -830,14 +755,16 @@
       "steppedLine": false,
       "targets": [
         {
-          "alias": "$col",
+          "alias": "",
           "dsType": "influxdb",
+          "format": "time_series",
           "groupBy": [],
           "measurement": "prs_kubernetes_kubernetes_d",
           "orderByTime": "ASC",
           "policy": "default",
           "query": "select /^[[repogroups]]: / FROM \"prs_labelled_d\" WHERE $timeFilter",
           "rawQuery": true,
+          "rawSql": "select\n  $__time(l.time),\n  l.value as value,\n  lt.pr_labels_tags_name as metric\nfrom\n  sprs_labels l,\n  tpr_labels_tags lt\nwhere\n  l.series = 'prlbl[[repogroup]]' || lt.pr_labels_tags_value\n  and lt.pr_labels_tags_name != 'All labels combined'\norder by l.time;",
           "refId": "A",
           "resultFormat": "time_series",
           "select": [
@@ -856,7 +783,7 @@
       "thresholds": [],
       "timeFrom": null,
       "timeShift": null,
-      "title": "Percent PRs from [[repogroups]] repo group (having at least one of specified labels)",
+      "title": "Percent PRs from [[repogroup_name]] repo group (having at least one of specified labels)",
       "tooltip": {
         "shared": true,
         "sort": 2,
@@ -888,7 +815,11 @@
           "min": null,
           "show": true
         }
-      ]
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
     }
   ],
   "refresh": false,
@@ -905,19 +836,18 @@
       {
         "allValue": "",
         "current": {
+          "tags": [],
           "text": "Kubernetes",
-          "value": [
-            "Kubernetes"
-          ]
+          "value": "Kubernetes"
         },
         "datasource": "psql",
         "hide": 0,
-        "includeAll": true,
+        "includeAll": false,
         "label": "Repository group",
-        "multi": true,
-        "name": "repogroups",
+        "multi": false,
+        "name": "repogroup_name",
         "options": [],
-        "query": "SHOW TAG VALUES WITH KEY = all_combined_repo_group_name",
+        "query": "select all_combined_repo_group_name from tall_combined_repo_groups order by 1",
         "refresh": 1,
         "regex": "",
         "sort": 0,
@@ -951,89 +881,74 @@
         "useTags": false
       },
       {
-        "allValue": "",
+        "allValue": null,
         "current": {
-          "selected": true,
           "tags": [],
           "text": "needs-rebase",
-          "value": [
-            "needs-rebase"
-          ]
+          "value": "needs-rebase"
         },
+        "datasource": "psql",
         "hide": 0,
-        "includeAll": true,
+        "includeAll": false,
         "label": "Label",
-        "multi": true,
-        "name": "labels",
-        "options": [
-          {
-            "selected": false,
-            "text": "All",
-            "value": "$__all"
-          },
-          {
-            "selected": false,
-            "text": "All labels combined",
-            "value": "All labels combined"
-          },
-          {
-            "selected": false,
-            "text": "cla: no",
-            "value": "cla: no"
-          },
-          {
-            "selected": false,
-            "text": "cncf-cla: no",
-            "value": "cncf-cla: no"
-          },
-          {
-            "selected": false,
-            "text": "do-not-merge",
-            "value": "do-not-merge"
-          },
-          {
-            "selected": false,
-            "text": "do-not-merge/blocked-paths",
-            "value": "do-not-merge/blocked-paths"
-          },
-          {
-            "selected": false,
-            "text": "do-not-merge/cherry-pick-not-approved",
-            "value": "do-not-merge/cherry-pick-not-approved"
-          },
-          {
-            "selected": false,
-            "text": "do-not-merge/hold",
-            "value": "do-not-merge/hold"
-          },
-          {
-            "selected": false,
-            "text": "do-not-merge/release-note-label-needed",
-            "value": "do-not-merge/release-note-label-needed"
-          },
-          {
-            "selected": false,
-            "text": "do-not-merge/work-in-progress",
-            "value": "do-not-merge/work-in-progress"
-          },
-          {
-            "selected": false,
-            "text": "needs-ok-to-test",
-            "value": "needs-ok-to-test"
-          },
-          {
-            "selected": true,
-            "text": "needs-rebase",
-            "value": "needs-rebase"
-          },
-          {
-            "selected": false,
-            "text": "release-note-label-needed",
-            "value": "release-note-label-needed"
-          }
-        ],
-        "query": "All labels combined,cla: no,cncf-cla: no,do-not-merge,do-not-merge/blocked-paths,do-not-merge/cherry-pick-not-approved,do-not-merge/hold,do-not-merge/release-note-label-needed,do-not-merge/work-in-progress,needs-ok-to-test,needs-rebase,release-note-label-needed",
-        "type": "custom"
+        "multi": false,
+        "name": "label_name",
+        "options": [],
+        "query": "select pr_labels_tags_name from tpr_labels_tags order by 1",
+        "refresh": 1,
+        "regex": "",
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": "",
+        "current": {
+          "text": "kubernetes",
+          "value": "kubernetes"
+        },
+        "datasource": "psql",
+        "hide": 2,
+        "includeAll": false,
+        "label": "",
+        "multi": false,
+        "name": "repogroup",
+        "options": [],
+        "query": "select all_combined_repo_group_value from tall_combined_repo_groups where all_combined_repo_group_name = '[[repogroup_name]]'",
+        "refresh": 1,
+        "regex": "",
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "text": "needsrebase",
+          "value": "needsrebase"
+        },
+        "datasource": "psql",
+        "hide": 2,
+        "includeAll": false,
+        "label": "",
+        "multi": false,
+        "name": "label",
+        "options": [],
+        "query": "select pr_labels_tags_value from tpr_labels_tags where pr_labels_tags_name = '[[label_name]]'",
+        "refresh": 1,
+        "regex": "",
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
       }
     ]
   },
@@ -1069,5 +984,5 @@
   "timezone": "",
   "title": "PRs labels repository groups",
   "uid": "47",
-  "version": 3
+  "version": 6
 }
