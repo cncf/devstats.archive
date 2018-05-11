@@ -107,7 +107,7 @@ func ensureColumns() {
 						&ctx,
 						"alter table \""+table+"\" add column \""+colName+"\" double precision not null default 0.0",
 					)
-					if err == nil && ctx.Debug > 0 {
+					if err == nil {
 						lib.Printf("Added column \"%s\" to \"%s\" table\n", colName, table)
 					}
 				}

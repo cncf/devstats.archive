@@ -1,10 +1,8 @@
 select
   -- string_agg(sub.command, ',')
-  sub.command,
-  sub.full_command
+  sub.command
 from (
-  select substring(cmd from 1) as full_command,
-    substring(cmd from 2) as command,
+  select substring(cmd from 1) as command,
     count(*) as count_value
   from
     (
