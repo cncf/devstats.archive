@@ -33,7 +33,7 @@
   "gnetId": null,
   "graphTooltip": 0,
   "id": 94,
-  "iteration": 1526036072652,
+  "iteration": 1526220290863,
   "links": [],
   "panels": [
     {
@@ -148,7 +148,7 @@
     },
     {
       "aliasColors": {},
-      "bars": false,
+      "bars": true,
       "dashLength": 10,
       "dashes": false,
       "datasource": "psql",
@@ -175,7 +175,7 @@
         "total": true,
         "values": true
       },
-      "lines": true,
+      "lines": false,
       "linewidth": 1,
       "links": [],
       "nullPointMode": "null as zero",
@@ -185,7 +185,7 @@
       "renderer": "flot",
       "seriesOverrides": [],
       "spaceLength": 10,
-      "stack": false,
+      "stack": true,
       "steppedLine": false,
       "targets": [
         {
@@ -198,7 +198,7 @@
           "policy": "default",
           "query": "SELECT /^[[sig]]-[[sigcats]]$/ FROM \"sig_mentions_texts_bd_[[period]]\" WHERE $timeFilter",
           "rawQuery": true,
-          "rawSql": "select\n  $__time(bd.time),\n  bd.value as value,\n  tc.sig_mentions_texts_cat_name as metric\nfrom\n  ssigm_txt_bd bd,\n  tsig_mentions_texts_cats tc\nwhere\n  $__timeFilter(bd.time)\n  and bd.series = 'sigm_txt_bd[[sig]]' || tc.sig_mentions_texts_cat_value\n  and period = '[[period]]'\norder by\n  bd.time;",
+          "rawSql": "with series as (\n  select distinct bd.time,\n    tc.sig_mentions_texts_cat_name as metric_name,\n    tc.sig_mentions_texts_cat_value as metric_value\n  from\n    ssigm_txt_bd bd,\n    tsig_mentions_texts_cats tc\n  where\n    $__timeFilter(bd.time)\n    and bd.period = '[[period]]'\n)\nselect\n  s.time as time,\n  s.metric_name as metric,\n  coalesce(bd.value, 0) as value\nfrom\n  series s\nleft join\n  ssigm_txt_bd bd\non\n  bd.series = 'sigm_txt_bd[[sig]]' || s.metric_value\n  and bd.time = s.time\n  and bd.period = '[[period]]'\norder by\n  s.time",
           "refId": "A",
           "resultFormat": "time_series",
           "select": [
@@ -331,8 +331,8 @@
         "allValue": "",
         "current": {
           "tags": [],
-          "text": "apps",
-          "value": "apps"
+          "text": "node",
+          "value": "node"
         },
         "datasource": "psql",
         "hide": 0,
@@ -354,7 +354,6 @@
       {
         "allValue": "",
         "current": {
-          "tags": [],
           "text": "All",
           "value": [
             "$__all"
@@ -426,8 +425,8 @@
       {
         "allValue": "",
         "current": {
-          "text": "apps",
-          "value": "apps"
+          "text": "node",
+          "value": "node"
         },
         "datasource": "psql",
         "hide": 2,
@@ -480,5 +479,5 @@
   "timezone": "",
   "title": "SIG mentions categories",
   "uid": "40",
-  "version": 11
+  "version": 12
 }
