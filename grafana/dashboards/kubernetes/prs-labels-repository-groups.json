@@ -33,7 +33,7 @@
   "gnetId": null,
   "graphTooltip": 0,
   "id": 138,
-  "iteration": 1526035035941,
+  "iteration": 1526220357019,
   "links": [],
   "panels": [
     {
@@ -437,7 +437,7 @@
           "policy": "default",
           "query": "select /: [[labels]]$/ FROM \"prs_labelled_d\" WHERE $timeFilter",
           "rawQuery": true,
-          "rawSql": "select\n  $__time(l.time),\n  l.value as value,\n  r.all_combined_repo_group_name as metric\nfrom\n  sprs_labels l,\n  tall_combined_repo_groups r\nwhere\n  $__timeFilter(l.time)\n  and l.series = 'prlbl' || r.all_combined_repo_group_value || '[[label]]'\n  and r.all_combined_repo_group_name != 'All repos combined'\norder by l.time;",
+          "rawSql": "with series as (\n  select distinct l.time as time,\n    r.all_combined_repo_group_name as metric_name,\n    r.all_combined_repo_group_value as metric_value\n  from\n    sprs_labels l,\n    tall_combined_repo_groups r\n  where\n    $__timeFilter(l.time)\n    and r.all_combined_repo_group_name != 'All repos combined'\n)\nselect\n  s.time as time,\n  s.metric_name as metric,\n  coalesce(l.value, 0) as value\nfrom\n  series s\nleft join\n  sprs_labels l\non\n  l.series = 'prlbl' || s.metric_value || '[[label]]'                     \n  and l.time = s.time\norder by\n  time",
           "refId": "A",
           "resultFormat": "time_series",
           "select": [
@@ -546,7 +546,7 @@
           "policy": "default",
           "query": "select /^[[repogroups]]: / FROM \"prs_labelled_d\" WHERE $timeFilter",
           "rawQuery": true,
-          "rawSql": "select\n  $__time(l.time),\n  l.value as value,\n  lt.pr_labels_tags_name as metric\nfrom\n  sprs_labels l,\n  tpr_labels_tags lt\nwhere\n  $__timeFilter(l.time)\n  and l.series = 'prlbl[[repogroup]]' || lt.pr_labels_tags_value\n  and lt.pr_labels_tags_name != 'All labels combined'\norder by l.time;",
+          "rawSql": "with series as (\n  select distinct l.time as time,\n    lt.pr_labels_tags_name as metric_name,\n    lt.pr_labels_tags_value as metric_value\n  from\n    sprs_labels l,\n    tpr_labels_tags lt\n  where\n    $__timeFilter(l.time)\n    and lt.pr_labels_tags_name != 'All labels combined'\n)\nselect\n  s.time as time,\n  s.metric_name as metric,\n  coalesce(l.value, 0) as value\nfrom\n  series s\nleft join\n  sprs_labels l\non\n  l.series = 'prlbl[[repogroup]]' || s.metric_value           \n  and l.time = s.time\norder by\n  time",
           "refId": "A",
           "resultFormat": "time_series",
           "select": [
@@ -655,7 +655,7 @@
           "policy": "default",
           "query": "select /: [[labels]]$/ FROM \"prs_labelled_d\" WHERE $timeFilter",
           "rawQuery": true,
-          "rawSql": "select\n  $__time(l.time),\n  l.value as value,\n  r.all_combined_repo_group_name as metric\nfrom\n  sprs_labels l,\n  tall_combined_repo_groups r\nwhere\n  $__timeFilter(l.time)\n  and l.series = 'prlbl' || r.all_combined_repo_group_value || '[[label]]'\n  and r.all_combined_repo_group_name != 'All repos combined'\norder by l.time;",
+          "rawSql": "with series as (\n  select distinct l.time as time,\n    r.all_combined_repo_group_name as metric_name,\n    r.all_combined_repo_group_value as metric_value\n  from\n    sprs_labels l,\n    tall_combined_repo_groups r\n  where\n    $__timeFilter(l.time)\n    and r.all_combined_repo_group_name != 'All repos combined'\n)\nselect\n  s.time as time,\n  s.metric_name as metric,\n  coalesce(l.value, 0) as value\nfrom\n  series s\nleft join\n  sprs_labels l\non\n  l.series = 'prlbl' || s.metric_value || '[[label]]'                     \n  and l.time = s.time\norder by\n  time",
           "refId": "A",
           "resultFormat": "time_series",
           "select": [
@@ -764,7 +764,7 @@
           "policy": "default",
           "query": "select /^[[repogroups]]: / FROM \"prs_labelled_d\" WHERE $timeFilter",
           "rawQuery": true,
-          "rawSql": "select\n  $__time(l.time),\n  l.value as value,\n  lt.pr_labels_tags_name as metric\nfrom\n  sprs_labels l,\n  tpr_labels_tags lt\nwhere\n  $__timeFilter(l.time)\n  and l.series = 'prlbl[[repogroup]]' || lt.pr_labels_tags_value\n  and lt.pr_labels_tags_name != 'All labels combined'\norder by l.time;",
+          "rawSql": "with series as (\n  select distinct l.time as time,\n    lt.pr_labels_tags_name as metric_name,\n    lt.pr_labels_tags_value as metric_value\n  from\n    sprs_labels l,\n    tpr_labels_tags lt\n  where\n    $__timeFilter(l.time)\n    and lt.pr_labels_tags_name != 'All labels combined'\n)\nselect\n  s.time as time,\n  s.metric_name as metric,\n  coalesce(l.value, 0) as value\nfrom\n  series s\nleft join\n  sprs_labels l\non\n  l.series = 'prlbl[[repogroup]]' || s.metric_value           \n  and l.time = s.time\norder by\n  time",
           "refId": "A",
           "resultFormat": "time_series",
           "select": [
@@ -836,6 +836,7 @@
       {
         "allValue": "",
         "current": {
+          "tags": [],
           "text": "Kubernetes",
           "value": "Kubernetes"
         },
@@ -882,6 +883,7 @@
       {
         "allValue": null,
         "current": {
+          "tags": [],
           "text": "needs-rebase",
           "value": "needs-rebase"
         },
@@ -951,7 +953,7 @@
     ]
   },
   "time": {
-    "from": "now-30M",
+    "from": "now-1y",
     "to": "now"
   },
   "timepicker": {
@@ -982,5 +984,5 @@
   "timezone": "",
   "title": "PRs labels repository groups",
   "uid": "47",
-  "version": 9
+  "version": 11
 }
