@@ -31,7 +31,7 @@
   "gnetId": null,
   "graphTooltip": 0,
   "id": 96,
-  "iteration": 1525933585955,
+  "iteration": 1526300794632,
   "links": [],
   "panels": [
     {
@@ -88,7 +88,7 @@
           "policy": "default",
           "query": "SELECT /^[[sig]]-[[kind]]$/ FROM \"sig_mentions_labels_sig_kind_[[period]]\" WHERE $timeFilter",
           "rawQuery": true,
-          "rawSql": "select\n  time,\n  \"[[sig]]-[[kind]]\" as \"Issues opened\"\nfrom\n  ssigm_lsk\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\norder by\n  time",
+          "rawSql": "select\n  time,\n  value as \"Issues opened\"\nfrom\n  ssigm_lsk\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'sigm_lsk[[sig]][[kind]]'\norder by\n  time",
           "refId": "A",
           "resultFormat": "time_series",
           "select": [
@@ -113,7 +113,7 @@
           "policy": "default",
           "query": "SELECT /^[[sig]]-[[kind]]$/ FROM \"issues_closed_labels_sig_kind_[[period]]\" WHERE $timeFilter",
           "rawQuery": true,
-          "rawSql": "select\n  time,\n  \"[[sig]]-[[kind]]\" as \"Issues closed\"\nfrom\n  siclosed_lsk\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\norder by\n  time",
+          "rawSql": "select\n  time,\n  \"[[sig_name]]-[[kind_name]]\" as \"Issues closed\"\nfrom\n  siclosed_lsk\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\norder by\n  time",
           "refId": "B",
           "resultFormat": "time_series",
           "select": [
@@ -132,7 +132,7 @@
       "thresholds": [],
       "timeFrom": null,
       "timeShift": null,
-      "title": "Issues SIG: [[sig]] Kind: [[kind]] ([[period]])",
+      "title": "Issues SIG: [[sig_name]] Kind: [[kind_name]] ([[period]])",
       "tooltip": {
         "shared": true,
         "sort": 2,
@@ -242,7 +242,7 @@
         "includeAll": false,
         "label": "SIG",
         "multi": false,
-        "name": "sig",
+        "name": "sig_name",
         "options": [],
         "query": "select sig_mentions_labels_name_with_all from tsig_mentions_labels_with_all order by 1",
         "refresh": 1,
@@ -265,7 +265,7 @@
         "includeAll": false,
         "label": "Kind",
         "multi": false,
-        "name": "kind",
+        "name": "kind_name",
         "options": [],
         "query": "select sig_mentions_labels_kind_name_with_all from tsig_mentions_labels_kinds_with_all order by 1",
         "refresh": 1,
@@ -291,6 +291,52 @@
         "name": "full_name",
         "options": [],
         "query": "select value_s from gha_vars where name = 'full_name'",
+        "refresh": 1,
+        "regex": "",
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": "",
+        "current": {
+          "text": "all",
+          "value": "all"
+        },
+        "datasource": "psql",
+        "hide": 2,
+        "includeAll": false,
+        "label": "",
+        "multi": false,
+        "name": "sig",
+        "options": [],
+        "query": "select sig_mentions_labels_value_with_all from tsig_mentions_labels_with_all where sig_mentions_labels_name_with_all = '[[sig_name]]'",
+        "refresh": 1,
+        "regex": "",
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": "",
+        "current": {
+          "text": "all",
+          "value": "all"
+        },
+        "datasource": "psql",
+        "hide": 2,
+        "includeAll": false,
+        "label": "",
+        "multi": false,
+        "name": "kind",
+        "options": [],
+        "query": "select sig_mentions_labels_kind_value_with_all from tsig_mentions_labels_kinds_with_all where sig_mentions_labels_kind_name_with_all = '[[kind_name]]'",
         "refresh": 1,
         "regex": "",
         "sort": 0,
@@ -334,5 +380,5 @@
   "timezone": "",
   "title": "Issues Opened/Closed by SIG",
   "uid": "39",
-  "version": 5
+  "version": 6
 }
