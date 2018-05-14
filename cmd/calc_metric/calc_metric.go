@@ -227,6 +227,9 @@ func workerThread(
 				// First column should contain nColumns - 1 names separated by ","
 				name := string(*pValues[0].(*sql.RawBytes))
 				names := nameForMetricsRow(seriesNameOrFunc, name, multivalue, escapeValueName)
+				if ctx.Debug > 0 {
+					lib.Printf("nameForMetricsRow: %s -> %v\n", name, names)
+				}
 				if len(names) > 0 {
 					// Iterate values
 					pFloats := pValues[1:]
@@ -478,6 +481,9 @@ func calcHistogram(
 			lib.FatalOnError(rows.Scan(pValues...))
 			name := string(*pValues[0].(*sql.RawBytes))
 			names := nameForMetricsRow(seriesNameOrFunc, name, multivalue, false)
+			if ctx.Debug > 0 {
+				lib.Printf("nameForMetricsRow: %s -> %v\n", name, names)
+			}
 			// multivalue will return names as [ser_name1;a,b,c]
 			valueNames := []string{}
 			if multivalue {
