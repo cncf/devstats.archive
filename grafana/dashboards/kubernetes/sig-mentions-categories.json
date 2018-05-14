@@ -33,7 +33,7 @@
   "gnetId": null,
   "graphTooltip": 0,
   "id": 94,
-  "iteration": 1526220290863,
+  "iteration": 1526274367246,
   "links": [],
   "panels": [
     {
@@ -198,7 +198,7 @@
           "policy": "default",
           "query": "SELECT /^[[sig]]-[[sigcats]]$/ FROM \"sig_mentions_texts_bd_[[period]]\" WHERE $timeFilter",
           "rawQuery": true,
-          "rawSql": "with series as (\n  select distinct bd.time,\n    tc.sig_mentions_texts_cat_name as metric_name,\n    tc.sig_mentions_texts_cat_value as metric_value\n  from\n    ssigm_txt_bd bd,\n    tsig_mentions_texts_cats tc\n  where\n    $__timeFilter(bd.time)\n    and bd.period = '[[period]]'\n)\nselect\n  s.time as time,\n  s.metric_name as metric,\n  coalesce(bd.value, 0) as value\nfrom\n  series s\nleft join\n  ssigm_txt_bd bd\non\n  bd.series = 'sigm_txt_bd[[sig]]' || s.metric_value\n  and bd.time = s.time\n  and bd.period = '[[period]]'\norder by\n  s.time",
+          "rawSql": "with series as (\n  select distinct bd.time,\n    tc.sig_mentions_texts_cat_name as metric_name,\n    tc.sig_mentions_texts_cat_value as metric_value\n  from\n    ssigm_txt_bd bd,\n    tsig_mentions_texts_cats tc\n  join (\n    select trim(both '\"' from unnest(string_to_array('${sigcats:csv}', ','))) as cat\n  ) cats\n  on\n    cats.cat = tc.sig_mentions_texts_cat_name\n  where\n    $__timeFilter(bd.time)\n    and bd.period = '[[period]]'\n)\nselect\n  s.time as time,\n  s.metric_name as metric,\n  coalesce(bd.value, 0) as value\nfrom\n  series s\nleft join\n  ssigm_txt_bd bd\non\n  bd.series = 'sigm_txt_bd[[sig]]' || s.metric_value\n  and bd.time = s.time\n  and bd.period = '[[period]]'\norder by\n  s.time",
           "refId": "A",
           "resultFormat": "time_series",
           "select": [
@@ -330,7 +330,6 @@
       {
         "allValue": "",
         "current": {
-          "tags": [],
           "text": "node",
           "value": "node"
         },
@@ -354,6 +353,7 @@
       {
         "allValue": "",
         "current": {
+          "tags": [],
           "text": "All",
           "value": [
             "$__all"
@@ -479,5 +479,5 @@
   "timezone": "",
   "title": "SIG mentions categories",
   "uid": "40",
-  "version": 12
+  "version": 14
 }
