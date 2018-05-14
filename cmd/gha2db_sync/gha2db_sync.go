@@ -545,9 +545,7 @@ func getSyncArgs(ctx *lib.Ctx, osArgs []string) []string {
 								ctx.ExcludeRepos[exclude] = true
 							}
 						}
-						if ctx.Debug > 0 {
-							lib.Printf("Exclude repos config from env: %+v\n", ctx.ExcludeRepos)
-						}
+						lib.Printf("Exclude repos config from env: %+v\n", ctx.ExcludeRepos)
 					} else {
 						lib.Fatalf("empty '%s', do not specify at all instead", envK)
 					}
