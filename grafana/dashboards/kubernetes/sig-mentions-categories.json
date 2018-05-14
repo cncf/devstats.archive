@@ -33,7 +33,7 @@
   "gnetId": null,
   "graphTooltip": 0,
   "id": 94,
-  "iteration": 1526274367246,
+  "iteration": 1526278396091,
   "links": [],
   "panels": [
     {
@@ -153,7 +153,7 @@
       "dashes": false,
       "datasource": "psql",
       "decimals": 2,
-      "description": "SIG [[sig]] mentions breakdown by category.",
+      "description": "SIG [[sig_name]] mentions breakdown by category.",
       "fill": 1,
       "gridPos": {
         "h": 15,
@@ -198,7 +198,7 @@
           "policy": "default",
           "query": "SELECT /^[[sig]]-[[sigcats]]$/ FROM \"sig_mentions_texts_bd_[[period]]\" WHERE $timeFilter",
           "rawQuery": true,
-          "rawSql": "with series as (\n  select distinct bd.time,\n    tc.sig_mentions_texts_cat_name as metric_name,\n    tc.sig_mentions_texts_cat_value as metric_value\n  from\n    ssigm_txt_bd bd,\n    tsig_mentions_texts_cats tc\n  join (\n    select trim(both '\"' from unnest(string_to_array('${sigcats:csv}', ','))) as cat\n  ) cats\n  on\n    cats.cat = tc.sig_mentions_texts_cat_name\n  where\n    $__timeFilter(bd.time)\n    and bd.period = '[[period]]'\n)\nselect\n  s.time as time,\n  s.metric_name as metric,\n  coalesce(bd.value, 0) as value\nfrom\n  series s\nleft join\n  ssigm_txt_bd bd\non\n  bd.series = 'sigm_txt_bd[[sig]]' || s.metric_value\n  and bd.time = s.time\n  and bd.period = '[[period]]'\norder by\n  s.time",
+          "rawSql": "with series as (\n  select distinct bd.time,\n    tc.sig_mentions_texts_cat_name as metric_name,\n    tc.sig_mentions_texts_cat_value as metric_value\n  from\n    ssigm_txt_bd bd,\n    tsig_mentions_texts_cats tc\n  join (\n    select trim(both '\"' from unnest(string_to_array('${sigcats:csv}', ','))) as cat\n  ) cats\n  on\n    cats.cat = tc.sig_mentions_texts_cat_name\n  where\n    $__timeFilter(bd.time)\n    and bd.period = '[[period]]'\n)\nselect\n  s.time as time,\n  '[[sig]]-' || s.metric_name as metric,\n  coalesce(bd.value, 0) as value\nfrom\n  series s\nleft join\n  ssigm_txt_bd bd\non\n  bd.series = 'sigm_txt_bd[[sig]]' || s.metric_value\n  and bd.time = s.time\n  and bd.period = '[[period]]'\norder by\n  s.time",
           "refId": "A",
           "resultFormat": "time_series",
           "select": [
@@ -217,7 +217,7 @@
       "thresholds": [],
       "timeFrom": null,
       "timeShift": null,
-      "title": "SIG [[sig]] mentions (using text, [[period]])",
+      "title": "SIG [[sig_name]] mentions (using text, [[period]])",
       "tooltip": {
         "shared": true,
         "sort": 2,
@@ -330,8 +330,9 @@
       {
         "allValue": "",
         "current": {
-          "text": "node",
-          "value": "node"
+          "tags": [],
+          "text": "apps",
+          "value": "apps"
         },
         "datasource": "psql",
         "hide": 0,
@@ -353,7 +354,6 @@
       {
         "allValue": "",
         "current": {
-          "tags": [],
           "text": "All",
           "value": [
             "$__all"
@@ -425,8 +425,8 @@
       {
         "allValue": "",
         "current": {
-          "text": "node",
-          "value": "node"
+          "text": "apps",
+          "value": "apps"
         },
         "datasource": "psql",
         "hide": 2,
@@ -479,5 +479,5 @@
   "timezone": "",
   "title": "SIG mentions categories",
   "uid": "40",
-  "version": 14
+  "version": 17
 }
