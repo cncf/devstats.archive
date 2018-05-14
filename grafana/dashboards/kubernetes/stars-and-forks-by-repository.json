@@ -31,7 +31,7 @@
   "gnetId": null,
   "graphTooltip": 0,
   "id": 127,
-  "iteration": 1523003351211,
+  "iteration": 1526278939423,
   "links": [],
   "panels": [
     {
@@ -90,8 +90,9 @@
       "steppedLine": false,
       "targets": [
         {
-          "alias": "Stargazers",
+          "alias": "",
           "dsType": "influxdb",
+          "format": "time_series",
           "groupBy": [],
           "hide": false,
           "measurement": "reviewers_d",
@@ -99,6 +100,7 @@
           "policy": "autogen",
           "query": "SELECT \"value\" FROM \"autogen\".\"contrib_[[repo]]_watchers_[[period]]\" WHERE $timeFilter",
           "rawQuery": true,
+          "rawSql": "select\n  time,\n  value as \"Stargazers\"\nfrom\n  swatchers\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'watch[[repo]]watch'\norder by\n  time",
           "refId": "A",
           "resultFormat": "time_series",
           "select": [
@@ -114,8 +116,9 @@
           "tags": []
         },
         {
-          "alias": "Forks",
+          "alias": "",
           "dsType": "influxdb",
+          "format": "time_series",
           "groupBy": [],
           "hide": false,
           "measurement": "reviewers_d",
@@ -123,6 +126,7 @@
           "policy": "autogen",
           "query": "SELECT \"value\" FROM \"autogen\".\"contrib_[[repo]]_forks_[[period]]\" WHERE $timeFilter",
           "rawQuery": true,
+          "rawSql": "select\n  time,\n  value as \"Forks\"\nfrom\n  swatchers\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'watch[[repo]]forks'\norder by\n  time",
           "refId": "B",
           "resultFormat": "time_series",
           "select": [
@@ -138,8 +142,9 @@
           "tags": []
         },
         {
-          "alias": "Open issues",
+          "alias": "",
           "dsType": "influxdb",
+          "format": "time_series",
           "groupBy": [],
           "hide": false,
           "measurement": "reviewers_d",
@@ -147,6 +152,7 @@
           "policy": "autogen",
           "query": "SELECT \"value\" FROM \"autogen\".\"contrib_[[repo]]_open_issues_[[period]]\" WHERE $timeFilter",
           "rawQuery": true,
+          "rawSql": "select\n  time,\n  value as \"Open issues\"\nfrom\n  swatchers\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'watch[[repo]]opiss'\norder by\n  time",
           "refId": "C",
           "resultFormat": "time_series",
           "select": [
@@ -199,7 +205,11 @@
           "min": "0",
           "show": true
         }
-      ]
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
     }
   ],
   "refresh": false,
@@ -262,6 +272,7 @@
       {
         "allValue": null,
         "current": {
+          "tags": [],
           "text": "kubernetes/kubernetes",
           "value": "kubernetes/kubernetes"
         },
@@ -272,7 +283,7 @@
         "multi": false,
         "name": "repo_name",
         "options": [],
-        "query": "SHOW TAG VALUES WITH KEY = top_repo_names_name",
+        "query": "select top_repo_names_name from ttop_repo_names order by 1",
         "refresh": 1,
         "regex": "",
         "sort": 1,
@@ -285,8 +296,8 @@
       {
         "allValue": null,
         "current": {
-          "text": "kubernetes_kubernetes",
-          "value": "kubernetes_kubernetes"
+          "text": "kuberneteskubernetes",
+          "value": "kuberneteskubernetes"
         },
         "datasource": "psql",
         "hide": 2,
@@ -295,7 +306,7 @@
         "multi": false,
         "name": "repo",
         "options": [],
-        "query": "SHOW TAG VALUES WITH KEY = top_repo_names_value where top_repo_names_name =~ /^[[repo_name]]$/",
+        "query": "select top_repo_names_value from ttop_repo_names where top_repo_names_name = '[[repo_name]]'",
         "refresh": 1,
         "regex": "",
         "sort": 0,
@@ -362,5 +373,5 @@
   "timezone": "",
   "title": "Stars and Forks by Repository",
   "uid": "7",
-  "version": 5
+  "version": 6
 }
