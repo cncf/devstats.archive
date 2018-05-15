@@ -464,8 +464,9 @@
       ],
       "targets": [
         {
-          "alias": "Median time to close issue",
+          "alias": "",
           "dsType": "influxdb",
+          "format": "table",
           "groupBy": [
             {
               "params": [
@@ -482,8 +483,9 @@
           ],
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "SELECT \"descr\" FROM \"autogen\".\"issues_age_[[repogroup]]_median_[[period]]\" WHERE $timeFilter",
+          "query": "SELECT \"descr\" FROM \"autogen\".\"issues_age_[[repogroup]]_[[prio]]_median_[[period]]\" WHERE $timeFilter",
           "rawQuery": true,
+          "rawSql": "select\n  time as \"Time\",\n  descr as \"Median time to close issue\"\nfrom\n  sissues_age\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'iage[[repogroup]][[prio]]m'\norder by\n  time",
           "refId": "A",
           "resultFormat": "time_series",
           "select": [
@@ -503,8 +505,9 @@
           "tags": []
         },
         {
-          "alias": "Average number of issues opened",
+          "alias": "",
           "dsType": "influxdb",
+          "format": "table",
           "groupBy": [
             {
               "params": [
@@ -521,8 +524,9 @@
           ],
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "SELECT \"value\" FROM \"autogen\".\"issues_age_[[repogroup]]_number_[[period]]\" WHERE $timeFilter",
+          "query": "SELECT \"value\" FROM \"autogen\".\"issues_age_[[repogroup]]_[[prio]]_number_[[period]]\" WHERE $timeFilter",
           "rawQuery": true,
+          "rawSql": "select\n  time as \"Time\",\n  value as \"Average number of issues opened\"\nfrom\n  sissues_age\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'iage[[repogroup]][[prio]]n'\norder by\n  time",
           "refId": "B",
           "resultFormat": "time_series",
           "select": [
@@ -542,6 +546,12 @@
           "tags": []
         }
       ],
+      "title": "Number/Median time to close of Issues in [[repogroup_name]] repository group ([[period]]), Priority: [[prio_name]]",
+      "transform": "table",
+      "transparent": false,
+      "type": "table"
+    }
+  ],
       "title": "Number/Median time to close of Issues in [[repogroup_name]] repository group ([[period]])",
       "transform": "timeseries_to_columns",
       "transparent": false,
