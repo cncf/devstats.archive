@@ -110,8 +110,9 @@
       "steppedLine": false,
       "targets": [
         {
-          "alias": "Stargazers",
+          "alias": "",
           "dsType": "influxdb",
+          "format": "time_series",
           "groupBy": [],
           "hide": false,
           "measurement": "reviewers_d",
@@ -119,6 +120,7 @@
           "policy": "autogen",
           "query": "SELECT \"value\" FROM \"autogen\".\"contrib_[[repogroup]]_watchers_[[period]]\" WHERE $timeFilter",
           "rawQuery": true,
+          "rawSql": "select\n  time,\n  value as \"Stargazers\"\nfrom\n  swatchers\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'watch[[repogroup]]watch'\norder by\n  time",
           "refId": "A",
           "resultFormat": "time_series",
           "select": [
@@ -134,8 +136,9 @@
           "tags": []
         },
         {
-          "alias": "Forks",
+          "alias": "",
           "dsType": "influxdb",
+          "format": "time_series",
           "groupBy": [],
           "hide": false,
           "measurement": "reviewers_d",
@@ -143,6 +146,7 @@
           "policy": "autogen",
           "query": "SELECT \"value\" FROM \"autogen\".\"contrib_[[repogroup]]_forks_[[period]]\" WHERE $timeFilter",
           "rawQuery": true,
+          "rawSql": "select\n  time,\n  value as \"Forks\"\nfrom\n  swatchers\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'watch[[repogroup]]forks'\norder by\n  time",
           "refId": "B",
           "resultFormat": "time_series",
           "select": [
@@ -158,8 +162,9 @@
           "tags": []
         },
         {
-          "alias": "Open issues",
+          "alias": "",
           "dsType": "influxdb",
+          "format": "time_series",
           "groupBy": [],
           "hide": false,
           "measurement": "reviewers_d",
@@ -167,6 +172,7 @@
           "policy": "autogen",
           "query": "SELECT \"value\" FROM \"autogen\".\"contrib_[[repogroup]]_open_issues_[[period]]\" WHERE $timeFilter",
           "rawQuery": true,
+          "rawSql": "select\n  time,\n  value as \"Open issues\"\nfrom\n  swatchers\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'watch[[repogroup]]opiss'\norder by\n  time",
           "refId": "C",
           "resultFormat": "time_series",
           "select": [
@@ -308,7 +314,7 @@
         "multi": false,
         "name": "repogroup_name",
         "options": [],
-        "query": "select '\"' || repo_group_name || '\"' from trepo_groups order by 1",
+        "query": "select top_repo_names_name from ttop_repo_names order by 1",
         "refresh": 1,
         "regex": "",
         "sort": 1,
@@ -328,7 +334,7 @@
         "multi": false,
         "name": "repogroup",
         "options": [],
-        "query": "SHOW TAG VALUES WITH KEY = repo_group_value where repo_group_name =~ /^[[repogroup_name]]$/",
+        "query": "select top_repo_names_value from ttop_repo_names where top_repo_names_name = '[[repogroup_name]]'",
         "refresh": 1,
         "regex": "",
         "sort": 0,
