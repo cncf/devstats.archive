@@ -13,7 +13,7 @@ else
 fi
 if [ -z "$NOCOPY" ]
 then
-  ./grafana/copy_grafana_dbs.sh || exit 3
+  ./grafana/copy_grafana_dbs.sh || exit 1
 fi
 for proj in $all
 do
@@ -22,6 +22,7 @@ do
     then
       suff="k8s"
     fi
-    NOCOPY=1 GRAFANA=$suff devel/import_jsons_to_sqlite.sh grafana/dashboards/$proj/*.json
+    echo "Project: $proj"
+    NOCOPY=1 GRAFANA=$suff devel/import_jsons_to_sqlite.sh grafana/dashboards/$proj/*.json || exit 2
 done
 echo 'OK'
