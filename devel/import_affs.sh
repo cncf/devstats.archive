@@ -4,11 +4,6 @@ then
   echo "You need to set PG_PASS environment variable to run this script"
   exit 1
 fi
-if [ -z "${IDB_PASS}" ]
-then
-  echo "You need to set IDB_PASS environment variable to run this script"
-  exit 2
-fi
 function finish {
     sync_unlock.sh
 }
@@ -45,7 +40,7 @@ do
   then
     ./$proj/import_affs.sh || exit 1
   else
-    GHA2DB_PROJECT=$proj IDB_DB=$db PG_DB=$db ./shared/import_affs.sh || exit 2
+    GHA2DB_PROJECT=$proj PG_DB=$db ./shared/import_affs.sh || exit 2
   fi
 done
 echo 'OK'

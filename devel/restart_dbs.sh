@@ -1,16 +1,7 @@
 #!/bin/bash
-if [ -z "$IDB_HOST" ]
-then
-  IDB_HOST=localhost
-fi
-if [ -z "$IDB_PASS" ]
-then
-  echo "$0: you need to set IDB_PASS ebvironment variable"
-  exit 1
-fi
 function finish {
-    rm -rf "$PROJDB.dump" >/dev/null 2>&1
-    sync_unlock.sh
+  rm -rf "$PROJDB.dump" >/dev/null 2>&1
+  sync_unlock.sh
 }
 if [ -z "$TRAP" ]
 then

@@ -5,12 +5,6 @@ then
   exit 1
 fi
 
-if [ -z "${IDB_PASS}" ]
-then
-  echo "You need to set IDB_PASS environment variable to run this script"
-  exit 1
-fi
-
 function finish {
     sync_unlock.sh
     rm -f /tmp/deploy.wip 2>/dev/null
@@ -52,13 +46,13 @@ do
   then
     ./$proj/import_affs.sh || exit 1
   else
-    GHA2DB_PROJECT=$proj IDB_DB=$db PG_DB=$db ./shared/import_affs.sh || exit 2
+    GHA2DB_PROJECT=$proj PG_DB=$db ./shared/import_affs.sh || exit 2
   fi
   if [ -f "./$proj/update_affs.sh" ]
   then
     ./$proj/update_affs.sh || exit 3
   else
-    GHA2DB_PROJECT=$proj IDB_DB=$db PG_DB=$db ./shared/update_affs.sh || exit 4
+    GHA2DB_PROJECT=$proj PG_DB=$db ./shared/update_affs.sh || exit 4
   fi
 done
 echo 'All affiliations updated'
