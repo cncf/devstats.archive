@@ -1,24 +1,4 @@
 {
-  "__requires": [
-    {
-      "id": "grafana",
-      "name": "Grafana",
-      "type": "grafana",
-      "version": "5.0.0-beta1"
-    },
-    {
-      "id": "graph",
-      "name": "Graph",
-      "type": "panel",
-      "version": ""
-    },
-    {
-      "id": "influxdb",
-      "name": "InfluxDB",
-      "type": "datasource",
-      "version": "1.0.0"
-    }
-  ],
   "annotations": {
     "list": [
       {
@@ -50,8 +30,8 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": null,
-  "iteration": 1517989772815,
+  "id": 39,
+  "iteration": 1526466583365,
   "links": [],
   "panels": [
     {
@@ -97,14 +77,16 @@
       "steppedLine": true,
       "targets": [
         {
-          "alias": "$col",
+          "alias": "",
           "dsType": "influxdb",
+          "format": "time_series",
           "groupBy": [],
           "measurement": "notused",
           "orderByTime": "ASC",
           "policy": "default",
           "query": "SELECT /^[[repogroups]]$/ FROM \"group_prs_merged_[[period]]\" WHERE $timeFilter",
           "rawQuery": true,
+          "rawSql": "select\n  time,\n  ${repogroups:csv}\nfrom\n  sgrp_pr_merg\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\norder by\n  time",
           "refId": "A",
           "resultFormat": "time_series",
           "select": [
@@ -154,7 +136,11 @@
           "min": "0",
           "show": true
         }
-      ]
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
     },
     {
       "aliasColors": {},
@@ -197,14 +183,16 @@
       "steppedLine": false,
       "targets": [
         {
-          "alias": "PRs merged",
+          "alias": "",
           "dsType": "influxdb",
+          "format": "time_series",
           "groupBy": [],
           "measurement": "all_prs_merged_h",
           "orderByTime": "ASC",
           "policy": "default",
           "query": "SELECT \"value\" FROM \"all_prs_merged_[[period]]\" WHERE $timeFilter",
           "rawQuery": true,
+          "rawSql": "select\n  time,\n  \"value\" as \"All PRs merged\"\nfrom\n  sall_prs_merged\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\norder by\n  time",
           "refId": "A",
           "resultFormat": "time_series",
           "select": [
@@ -254,7 +242,11 @@
           "min": "0",
           "show": true
         }
-      ]
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
     }
   ],
   "refresh": false,
@@ -270,8 +262,8 @@
         "allValue": null,
         "current": {
           "tags": [],
-          "text": "Week",
-          "value": "w"
+          "text": "7 Days MA",
+          "value": "d7"
         },
         "hide": 0,
         "includeAll": false,
@@ -285,12 +277,12 @@
             "value": "d"
           },
           {
-            "selected": false,
+            "selected": true,
             "text": "7 Days MA",
             "value": "d7"
           },
           {
-            "selected": true,
+            "selected": false,
             "text": "Week",
             "value": "w"
           },
@@ -315,7 +307,10 @@
       },
       {
         "allValue": "",
-        "current": {},
+        "current": {
+          "text": "All",
+          "value": "$__all"
+        },
         "datasource": "psql",
         "hide": 0,
         "includeAll": true,
@@ -335,7 +330,10 @@
       },
       {
         "allValue": null,
-        "current": {},
+        "current": {
+          "text": "Prometheus",
+          "value": "Prometheus"
+        },
         "datasource": "psql",
         "hide": 2,
         "includeAll": false,
@@ -387,5 +385,5 @@
   "timezone": "",
   "title": "PRs merged repository groups",
   "uid": "24",
-  "version": 1
+  "version": 2
 }
