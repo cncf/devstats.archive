@@ -2,6 +2,7 @@
 
 - To dump SQLite database to check structure use: `./devel/sqlite_dump.sh suffix`, it will produce `grafana_suffix.sql` file.
 - To import JSONs into Grafana SQLite database use: `GRAFANA=suffix devel/import_jsons_to_sqlite.sh path/to/jsons/*.json`. This will temporarily stop given Grafana instance.
+- To mass import all projects all dashboards use: `./devel/put_all_charts.sh`, then check if everything is OK, and then eventually: `./devel/put_all_charts_cleanup.sh`.
 - To delete grafana dashboards by their uid(s) use: `GRAFANA=suffix devel/import_jsons_to_sqlite.sh 'uid1,uid2,..,uidN'`. This will temporarily stop given Grafana instance.
 - To get all dashboards from SQLite and save them as JSONs use: `ONLY=projectname devel/get_all_sqlite_jsons.sh`. Skip `ONLY=...` to process all projects. This removes current dashboards JSONs and replaces them JSONs from the database.
 - To get some JSONs from SQLite use `GRAFANA=suffix devel/get_from_sqlite.sh path/to/jsons/*.json`. This will overwrite JSONs given as arguments if they differ from those from the database.
