@@ -1,7 +1,7 @@
 #!/bin/bash
-if [ -z "$IDB_PASS" ]
+if [ -z "$PG_PASS" ]
 then
-  echo "$0: IDB_PASS environment variable must be set"
+  echo "$0: PG_PASS environment variable must be set"
   exit 1
 fi
 if [ -z "$ONLY" ]
@@ -32,7 +32,7 @@ do
     ./$proj/annotations.sh
   else
     echo "Adding annotations data for project: $proj, db: $db (using shared script)"
-    GHA2DB_PROJECT=$proj IDB_DB=$db ./shared/annotations.sh
+    GHA2DB_PROJECT=$proj PG_DB=$db ./shared/annotations.sh
   fi
 done
 echo 'OK'
