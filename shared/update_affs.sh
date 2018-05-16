@@ -1,7 +1,7 @@
 #!/bin/bash
-if ( [ -z "$GHA2DB_PROJECT" ] || [ -z "$IDB_DB" ] || [ -z "$IDB_PASS" ] || [ -z "$PG_DB" ] || [ -z "$PG_PASS" ] )
+if ( [ -z "$GHA2DB_PROJECT" ] || [ -z "$PG_DB" ] || [ -z "$PG_PASS" ] )
 then
-  echo "$0: you need to set GHA2DB_PROJECT, IDB_DB, IDB_PASS, PG_DB, PG_PASS env variables to use this script"
+  echo "$0: you need to set GHA2DB_PROJECT, PG_DB, PG_PASS env variables to use this script"
   exit 1
 fi
 function finish {
@@ -14,4 +14,4 @@ then
   export TRAP=1
 fi
 proj=$GHA2DB_PROJECT
-GHA2DB_CMDDEBUG=1 GHA2DB_LOCAL=1 GHA2DB_RESETIDB=1 GHA2DB_METRICS_YAML=./metrics/$proj/metrics_affs.yaml GHA2DB_GAPS_YAML=./metrics/$proj/gaps_affs.yaml GHA2DB_TAGS_YAML=./metrics/$proj/tags_affs.yaml ./gha2db_sync
+GHA2DB_CMDDEBUG=1 GHA2DB_LOCAL=1 GHA2DB_RESETTSDB=1 GHA2DB_METRICS_YAML=./metrics/$proj/metrics_affs.yaml GHA2DB_GAPS_YAML=./metrics/$proj/gaps_affs.yaml GHA2DB_TAGS_YAML=./metrics/$proj/tags_affs.yaml ./gha2db_sync
