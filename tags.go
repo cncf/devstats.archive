@@ -2,6 +2,7 @@ package devstats
 
 import (
 	"database/sql"
+	"fmt"
 	"strings"
 	"time"
 )
@@ -22,7 +23,7 @@ type Tag struct {
 }
 
 // ProcessTag - insert given Tag into Postgres TSDB
-func ProcessTag(con *sql.DB, ctx *Ctx, tg *Tag) {
+func ProcessTag(con *sql.DB, ctx *Ctx, tg *Tag, replaces [][]string) {
 	// Batch TS points
 	var pts TSPoints
 
@@ -51,6 +52,14 @@ func ProcessTag(con *sql.DB, ctx *Ctx, tg *Tag) {
 	// Transform SQL
 	sqlQuery = strings.Replace(sqlQuery, "{{lim}}", "69", -1)
 	sqlQuery = strings.Replace(sqlQuery, "{{exclude_bots}}", excludeBots, -1)
+
+	// Replaces
+	for _, replace := range replaces {
+		if len(replace) != 2 {
+			FatalOnError(fmt.Errorf("replace(s) should have length 2, invalid: %+v", replace))
+		}
+		sqlQuery = strings.Replace(sqlQuery, replace[0], replace[1], -1)
+	}
 
 	// Execute SQL
 	rows := QuerySQLWithErr(con, ctx, sqlQuery)

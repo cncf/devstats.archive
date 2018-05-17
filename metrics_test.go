@@ -364,7 +364,7 @@ func executeMetricTestCase(testMetric *metricTestCase, tests *metricTests, ctx *
 		if index < lenArgs {
 			setupArgs = testMetric.SetupArgs[index]
 		}
-		args := []reflect.Value{reflect.ValueOf(c), reflect.ValueOf(ctx), reflect.ValueOf(setupArgs)}
+		args := []reflect.Value{reflect.ValueOf(c), reflect.ValueOf(ctx), reflect.ValueOf(setupArgs), reflect.ValueOf(testMetric.Replaces)}
 		switch ret := setup.Call(args)[0].Interface().(type) {
 		case error:
 			err = ret
@@ -1013,7 +1013,7 @@ func interfaceToYaml(fn string, i *[][]interface{}) (err error) {
 }
 
 // Set dynamic dates after loaded static YAML data
-func (metricTestCase) SetDates(con *sql.DB, ctx *lib.Ctx, arg string) (err error) {
+func (metricTestCase) SetDates(con *sql.DB, ctx *lib.Ctx, arg string, replaces [][]string) (err error) {
 	//err = fmt.Errorf("got '%s'", arg)
 	//return
 	updates := strings.Split(arg, ",")
@@ -1041,14 +1041,14 @@ func (metricTestCase) SetDates(con *sql.DB, ctx *lib.Ctx, arg string) (err error
 }
 
 // Sets Repo alias to be the same as Name on all repos
-func (metricTestCase) UpdateRepoAliasFromName(con *sql.DB, ctx *lib.Ctx, arg string) (err error) {
+func (metricTestCase) UpdateRepoAliasFromName(con *sql.DB, ctx *lib.Ctx, arg string, replaces [][]string) (err error) {
 	_, err = lib.ExecSQL(con, ctx, "update gha_repos set alias = name")
 	lib.FatalOnError(err)
 	return
 }
 
 // Create dynamic data for affiliations metric after loaded static YAML data
-func (metricTestCase) RunTags(con *sql.DB, ctx *lib.Ctx, arg string) (err error) {
+func (metricTestCase) RunTags(con *sql.DB, ctx *lib.Ctx, arg string, replaces [][]string) (err error) {
 	if arg == "" {
 		return fmt.Errorf("empty tags definition")
 	}
@@ -1077,7 +1077,7 @@ func (metricTestCase) RunTags(con *sql.DB, ctx *lib.Ctx, arg string) (err error)
 		name := tag.Name
 		found, ok := tagMap[name]
 		if ok && !found {
-			lib.ProcessTag(con, ctx, &tag)
+			lib.ProcessTag(con, ctx, &tag, replaces)
 			tagMap[name] = true
 		}
 	}
@@ -1090,7 +1090,7 @@ func (metricTestCase) RunTags(con *sql.DB, ctx *lib.Ctx, arg string) (err error)
 }
 
 // Create dynamic data for affiliations metric after loaded static YAML data
-func (metricTestCase) AffiliationsTestHelper(con *sql.DB, ctx *lib.Ctx, arg string) (err error) {
+func (metricTestCase) AffiliationsTestHelper(con *sql.DB, ctx *lib.Ctx, arg string, replaces [][]string) (err error) {
 	ft := testlib.YMDHMS
 
 	// Activities counted
