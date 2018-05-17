@@ -8,6 +8,8 @@ You need to install Grafana and then create separate directories for all project
 
 # Configuration for running multiple projects on single host using Docker
 
+This info is a bit outdated and not used anymore.
+
 - You need to install docker (see instruction for your Linux distro). This example uses `prometheus`, you can do the same for other projects by changing `prometheus` to other project (like `opentracing` for example).
 - Docker instructions [here](https://github.com/cncf/devstats/blob/master/DOCKER.md).
 - Start Grafana in a docker containser via `GRAFANA_PASS=... ./grafana/prometheus/docker_grafana_first_run.sh` (this is for first start when there are no `/etc/grafana.prometheus` and `/usr/share/grafana.prometheus` `directories yet).
@@ -31,11 +33,6 @@ b415070c6aa8        grafana/grafana:master   "/run.sh"           19 minutes ago 
 - Stop temporary instance via `docker stop 62e71b9d33d6`.
 - Start instance that uses freshly copied `/etc/grafana.prometheus` and `/usr/share/grafana.prometheus`: `./grafana/prometheus/docker_grafana_run.sh` and then `./grafana/prometheus/docker_grafana_start.sh`.
 - Configure Grafana using `http://{{your_domain}}:3001` as described in [GRAFANA.md](https://github.com/cncf/devstats/blob/master/GRAFANA.md), note changes specific to docker listed below:
-- InfluxDB name should point to 2nd, 3rd ... project Influx database, for example "prometheus".
-- You won't be able to access InfluxDB running on localhost, you need to get host's virtual address from within docker container:
-- `./grafana/prometheus/docker_grafana_shell.sh` and execute: `ip route | awk '/default/ { print $3 }'` to get container's gateway address (our host), for example `172.17.0.1`.
-- This is also saved as `grafana/get_gateway_ip.sh`.
-- Use http://{{gateway_ip}}:8086 as InfluxDB url.
 - To edit `grafana.ini` config file (to allow anonymous access), you need to edit `/etc/grafana.prometheus/grafana.ini`.
 - Instead of restarting the service via `service grafana-server restart` you need to restart docker conatiner via: `./grafana/prometheus/docker_grafana_restart.sh`.
 - All standard Grafana folders are mapped into grafana.prometheus equivalents accessible on host to configure grafana inside docker container.
