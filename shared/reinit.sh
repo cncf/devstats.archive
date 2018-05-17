@@ -14,5 +14,6 @@ then
   export TRAP=1
 fi
 ./devel/drop_ts_tables.sh "$PG_DB" || exit 2
-GHA2DB_LOCAL=1 ./vars || exit 3
-GHA2DB_CMDDEBUG=1 GHA2DB_RESETTSDB=1 GHA2DB_LOCAL=1 ./gha2db_sync || exit 4
+sudo -u postgres psql "$PG_DB" -c "delete from gha_vars" || exit 3
+GHA2DB_LOCAL=1 ./vars || exit 4
+GHA2DB_CMDDEBUG=1 GHA2DB_RESETTSDB=1 GHA2DB_LOCAL=1 ./gha2db_sync || exit 5
