@@ -53,7 +53,7 @@ func calcTags() {
 			}
 
 			// Process tag
-			lib.ProcessTag(con, &ctx, tg)
+			lib.ProcessTag(con, &ctx, tg, [][]string{})
 
 			// Synchronize go routine
 			if ch != nil {

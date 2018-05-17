@@ -15,9 +15,9 @@ projects:
         to: 2017-07-25T00:00:00Z
         n: 1
         expected:
-          - ['gh_stats_repo_groups_reviewers,Group', 4]
-          - ['gh_stats_repo_groups_reviewers,Mono-group', 2]
-          - ['gh_stats_repo_groups_reviewers,Overruled', 2]
+          - ['gstat_rgrp_reviewers,Group', 4]
+          - ['gstat_rgrp_reviewers,Mono-group', 2]
+          - ['gstat_rgrp_reviewers,Overruled', 2]
         data: KubernetesReviewersMetric
       - metric: sig_mentions
         from: 2017-07-01T00:00:00Z
@@ -540,6 +540,8 @@ projects:
             - '48.00'
             - '48.00'
             - 2
+        replaces:
+          - ["e.created_at > now() - '3 years'::interval", true]
         data: KubernetesAffiliationsMetric
       - metric: company_activity
         additional_setup_funcs:
@@ -622,6 +624,8 @@ projects:
             - '24.00'
             - '24.00'
             - 2
+        replaces:
+          - ["e.created_at > now() - '3 years'::interval", true]
         data: KubernetesAffiliationsMetric
       - metric: bot_commands
         from: 2017-10-01T00:00:00Z
@@ -1381,18 +1385,24 @@ projects:
             - ['{{period:dup_created_at}}', 'true']
         data: KubernetesPRWorkloadMetric
       - metric: reviews_per_user
+        additional_setup_funcs:
+          - RunTags
+        additional_setup_args:
+          - Reviewers
         n: 1
         from: 2018-03-01T00:00:00Z
         to: 2018-04-01T00:00:00Z
         expected:
-          - ['lgtms_per_user,Rev2`All', '2.00']
-          - ['lgtms_per_user,Rev2`R2', '2.00']
-          - ['lgtms_per_user,Rev1`All', '1.00']
-          - ['lgtms_per_user,Rev1`R1', '1.00']
-          - ['lgtms_per_user,Rev4`All', '1.00']
-          - ['lgtms_per_user,Rev4`R4', '1.00']
+          - ['ulgtms,Rev2`All', '2.00']
+          - ['ulgtms,Rev2`R2', '2.00']
           - ['reviews_per_user,Rev7`All', '1.00']
           - ['reviews_per_user,Rev7`R1', '1.00']
+          - ['ulgtms,Rev1`All', '1.00']
+          - ['ulgtms,Rev1`R1', '1.00']
+          - ['ulgtms,Rev4`All', '1.00']
+          - ['ulgtms,Rev4`R4', '1.00']
+        replaces:
+          - ["created_at > now() - '3 months'::interval", true]
         data: KubernetesReviewsPerUserMetric
       - metric: open_issues_sigs_milestones
         n: 1
@@ -1674,16 +1684,14 @@ data:
       - [1, 35, null, '2018-01-01T00:00:00Z', 0, null, 1, open, "M1", '2018-03-20T00:00:00Z', 0, "", 3, "R3", "T", '2018-03-20T00:00:00Z']
       - [4, 31, null, '2018-01-01T00:00:00Z', 0, null, 4, open, "M4", '2018-04-10T00:00:00Z', 0, "", 1, "R1", "T", '2018-04-10T00:00:00Z']
   KubernetesReviewsPerUserMetric:
-    # append to all rows in "texts"
-    texts_append:
-      - [0, '', 0, '', D]
     # eid, body, created_at
+    # repo_id, repo_name, actor_id, actor_login, type
     texts:
-      - [19, '/lgtm', '2018-03-01T12:00:00Z']
-      - [20, '/LGtm', '2018-03-02T12:00:00Z']
-      - [21, "/lGtM additional text", '2018-03-03T12:00:00Z'] # no match lgtm text
-      - [22, '/lgtm', '2018-04-04T12:00:00Z']                 # out of date range
-      - [23, '/lgtm', '2018-03-03T12:00:00Z']                 # bot
+      - [19, '/lgtm', '2018-03-01T12:00:00Z', 0, '', 0, 'Rev1', D]
+      - [20, '/LGtm', '2018-03-02T12:00:00Z', 0, '', 0, 'Rev2', D]
+      - [21, "/lGtM additional text", '2018-03-03T12:00:00Z', 0, '', 0, 'Rev3', D] # no match lgtm text
+      - [22, '/lgtm', '2018-04-04T12:00:00Z', 0, '', 0, 'rev4', D]                 # out of date range
+      - [23, '/lgtm', '2018-03-03T12:00:00Z', 0, '', 0, 'rktbot', D]                 # bot
     # eid, etype, aid, rid, public, created_at, aname, rname, orgid
     events:
       - [1, IssuesEvent, 10, 1, true, '2018-03-01T12:00:00Z', Creator, R1, null]
