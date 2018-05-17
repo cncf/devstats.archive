@@ -2,7 +2,7 @@
 <p>Links:</p>
 <ul>
 <li>Postgres <a href="https://github.com/cncf/devstats/blob/master/metrics/shared/events.sql" target="_blank">SQL file</a>.</li>
-<li>InfluxDB <a href="https://github.com/cncf/devstats/blob/master/metrics/[[proj_name]]/metrics.yaml" target="_blank">series definition</a> (search for <code>name: GitHub activity</code>).</li>
+<li>TSDB <a href="https://github.com/cncf/devstats/blob/master/metrics/[[proj_name]]/metrics.yaml" target="_blank">series definition</a> (search for <code>name: GitHub activity</code>).</li>
 <li>Grafana dashboard <a href="https://github.com/cncf/devstats/blob/master/grafana/dashboards/[[proj_name]]/dashboards.json" target="_blank">JSON</a>.</li>
 <li>Developer <a href="https://github.com/cncf/devstats/blob/master/docs/dashboards/dashboards_devel.md" target="_blank">documentation</a>.</li>
 <li>Direct <a href="https://[[url_prefix]].[[hostname]]" target="_blank">link</a>.</li>
