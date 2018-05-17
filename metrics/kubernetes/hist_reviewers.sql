@@ -30,7 +30,7 @@ from (
     ecf.event_id = e.id
   where
     e.repo_id = r.id
-    and (e.dup_actor_login {{exclude_bots}})
+    and (lower(e.dup_actor_login) {{exclude_bots}})
     and e.id in (
       select min(event_id)
       from
@@ -69,7 +69,7 @@ where
     union select event_id from matching
     union select event_id from reviews
   )
-  and (dup_actor_login {{exclude_bots}})
+  and (lower(dup_actor_login) {{exclude_bots}})
 group by
   dup_actor_login
 having

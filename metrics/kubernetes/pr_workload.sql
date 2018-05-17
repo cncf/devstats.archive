@@ -95,7 +95,7 @@ with issues as (
     and t.created_at >= '{{to}}'::date - '1 month'::interval
     and t.event_id = pl.event_id
     and substring(t.body from '(?i)(?:^|\n|\r)\s*/(?:lgtm|approve)\s*(?:\n|\r|$)') is not null
-    and (t.actor_login {{exclude_bots}})
+    and (lower(t.actor_login) {{exclude_bots}})
 ), issue_events as (
   select distinct sub.event_id,
     sub.issue_id
@@ -108,7 +108,7 @@ with issues as (
       dup_label_name in ('lgtm', 'approved')
       and dup_created_at < '{{to}}'
       and dup_created_at >= '{{to}}'::date - '1 month'::interval
-      and (dup_actor_login {{exclude_bots}})
+      and (lower(dup_actor_login) {{exclude_bots}})
     group by
       issue_id
     union select event_id, issue_id from reviewers_text

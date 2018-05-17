@@ -18,7 +18,7 @@ where
     'PullRequestReviewCommentEvent', 'PushEvent', 'PullRequestEvent',
     'IssuesEvent', 'IssueCommentEvent', 'CommitCommentEvent'
   )
-  and (ev.dup_actor_login {{exclude_bots}})
+  and (lower(ev.dup_actor_login) {{exclude_bots}})
 union select sub.name,
   count(distinct sub.company_name) as n_companies,
   count(distinct sub.actor_id) as n_authors,
@@ -49,7 +49,7 @@ from (
       'IssuesEvent', 'IssueCommentEvent', 'CommitCommentEvent'
       'PushEvent'
     )
-    and (ev.dup_actor_login {{exclude_bots}})
+    and (lower(ev.dup_actor_login) {{exclude_bots}})
   ) sub
 where
   sub.name is not null

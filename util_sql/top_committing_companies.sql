@@ -15,7 +15,7 @@ select
     )
     and e.type = 'PushEvent'
     and e.created_at > now() - '3 years'::interval
-    and (e.dup_actor_login {{exclude_bots}})
+    and (lower(e.dup_actor_login) {{exclude_bots}})
   group by
     c.name
   order by

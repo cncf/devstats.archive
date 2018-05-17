@@ -78,7 +78,7 @@ from (
   where
     e.created_at >= d.f
     and e.created_at < d.t
-    and (e.dup_actor_login {{exclude_bots}})
+    and (lower(e.dup_actor_login) {{exclude_bots}})
     and e.type in (
       'PushEvent', 'PullRequestEvent', 'IssuesEvent'
     )
@@ -123,7 +123,7 @@ from (
     and af.company_name != 'Independent'
     and e.created_at >= d.f
     and e.created_at < d.t
-    and (e.dup_actor_login {{exclude_bots}})
+    and (lower(e.dup_actor_login) {{exclude_bots}})
     and e.type in (
       'PushEvent', 'PullRequestEvent', 'IssuesEvent'
     )
@@ -171,7 +171,7 @@ from (
   where
     e.created_at >= d.f
     and e.created_at < d.t
-    and (e.dup_actor_login {{exclude_bots}})
+    and (lower(e.dup_actor_login) {{exclude_bots}})
     and e.type = 'PushEvent'
   group by
     d.f,
@@ -214,7 +214,7 @@ from (
     and af.company_name != 'Independent'
     and e.created_at >= d.f
     and e.created_at < d.t
-    and (e.dup_actor_login {{exclude_bots}})
+    and (lower(e.dup_actor_login) {{exclude_bots}})
     and e.type = 'PushEvent'
   group by
     d.f,
@@ -260,7 +260,7 @@ from (
   where
     e.created_at >= d.f
     and e.created_at < d.t
-    and (e.dup_actor_login {{exclude_bots}})
+    and (lower(e.dup_actor_login) {{exclude_bots}})
     and e.type = 'IssuesEvent'
   group by
     d.f,
@@ -303,7 +303,7 @@ from (
     and af.company_name != 'Independent'
     and e.created_at >= d.f
     and e.created_at < d.t
-    and (e.dup_actor_login {{exclude_bots}})
+    and (lower(e.dup_actor_login) {{exclude_bots}})
     and e.type = 'IssuesEvent'
   group by
     d.f,
@@ -349,7 +349,7 @@ from (
   where
     e.created_at >= d.f
     and e.created_at < d.t
-    and (e.dup_actor_login {{exclude_bots}})
+    and (lower(e.dup_actor_login) {{exclude_bots}})
     and e.type = 'PullRequestEvent'
   group by
     d.f,
@@ -392,7 +392,7 @@ from (
     and af.company_name != 'Independent'
     and e.created_at >= d.f
     and e.created_at < d.t
-    and (e.dup_actor_login {{exclude_bots}})
+    and (lower(e.dup_actor_login) {{exclude_bots}})
     and e.type = 'PullRequestEvent'
   group by
     d.f,
@@ -438,7 +438,7 @@ from (
   where
     e.created_at >= d.f
     and e.created_at < d.t
-    and (e.dup_actor_login {{exclude_bots}})
+    and (lower(e.dup_actor_login) {{exclude_bots}})
     and e.type = 'PullRequestReviewCommentEvent'
   group by
     d.f,
@@ -481,7 +481,7 @@ from (
     and af.company_name != 'Independent'
     and e.created_at >= d.f
     and e.created_at < d.t
-    and (e.dup_actor_login {{exclude_bots}})
+    and (lower(e.dup_actor_login) {{exclude_bots}})
     and e.type = 'PullRequestReviewCommentEvent'
   group by
     d.f,
@@ -527,7 +527,7 @@ from (
   where
     e.created_at >= d.f
     and e.created_at < d.t
-    and (e.dup_actor_login {{exclude_bots}})
+    and (lower(e.dup_actor_login) {{exclude_bots}})
     and e.type in ('CommitCommentEvent', 'IssueCommentEvent')
   group by
     d.f,
@@ -570,7 +570,7 @@ from (
     and af.company_name != 'Independent'
     and e.created_at >= d.f
     and e.created_at < d.t
-    and (e.dup_actor_login {{exclude_bots}})
+    and (lower(e.dup_actor_login) {{exclude_bots}})
     and e.type in ('CommitCommentEvent', 'IssueCommentEvent')
   group by
     d.f,
@@ -850,7 +850,7 @@ from (
   where
     e.created_at >= d.f
     and e.created_at < d.t
-    and (e.dup_actor_login {{exclude_bots}})
+    and (lower(e.dup_actor_login) {{exclude_bots}})
     and e.type in (
       'PushEvent', 'PullRequestEvent', 'IssuesEvent',
       'PullRequestReviewCommentEvent',

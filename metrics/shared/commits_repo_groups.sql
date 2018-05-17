@@ -15,7 +15,7 @@ from (
     r.name = c.dup_repo_name
     and c.dup_created_at >= '{{from}}'
     and c.dup_created_at < '{{to}}'
-    and (c.dup_actor_login {{exclude_bots}})
+    and (lower(c.dup_actor_login) {{exclude_bots}})
   ) sub
 where
   sub.repo_group is not null

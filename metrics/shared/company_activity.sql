@@ -36,7 +36,7 @@ from (
       'PullRequestReviewCommentEvent', 'PushEvent', 'PullRequestEvent',
       'IssuesEvent', 'IssueCommentEvent', 'CommitCommentEvent'
     )
-    and (ev.dup_actor_login {{exclude_bots}})
+    and (lower(ev.dup_actor_login) {{exclude_bots}})
     and affs.company_name in (select companies_name from tcompanies)
   group by
     affs.company_name
@@ -70,7 +70,7 @@ from (
       'PullRequestReviewCommentEvent', 'PushEvent', 'PullRequestEvent',
       'IssuesEvent', 'IssueCommentEvent', 'CommitCommentEvent'
     )
-    and (dup_actor_login {{exclude_bots}})
+    and (lower(dup_actor_login) {{exclude_bots}})
     and affs.company_name in (select companies_name from tcompanies)
   group by
     affs.company_name,
@@ -95,7 +95,7 @@ from (
       'PullRequestReviewCommentEvent', 'PushEvent', 'PullRequestEvent',
       'IssuesEvent', 'IssueCommentEvent', 'CommitCommentEvent'
     )
-    and (dup_actor_login {{exclude_bots}})
+    and (lower(dup_actor_login) {{exclude_bots}})
   union select 'All' as company,
     coalesce(ecf.repo_group, r.repo_group) as repo_group,
     count(distinct ev.id) as activity,
@@ -122,7 +122,7 @@ from (
       'PullRequestReviewCommentEvent', 'PushEvent', 'PullRequestEvent',
       'IssuesEvent', 'IssueCommentEvent', 'CommitCommentEvent'
     )
-    and (dup_actor_login {{exclude_bots}})
+    and (lower(dup_actor_login) {{exclude_bots}})
   group by
     coalesce(ecf.repo_group, r.repo_group)
   order by

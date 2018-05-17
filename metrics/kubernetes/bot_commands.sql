@@ -26,7 +26,7 @@ with matching as (
       r.id = t.repo_id
       and t.created_at >= '{{from}}'
       and t.created_at < '{{to}}'
-      and (t.actor_login {{exclude_bots}})
+      and (lower(t.actor_login) {{exclude_bots}})
     ) sub
   where
     sub.repo_group is not null

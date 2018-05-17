@@ -17,7 +17,7 @@ from
     where
       created_at >= '{{from}}'
       and created_at < '{{to}}'
-      and (actor_login {{exclude_bots}})
+      and (lower(actor_login) {{exclude_bots}})
   ) sel
 where
   sel.sig is not null
