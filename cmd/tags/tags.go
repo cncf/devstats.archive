@@ -1,28 +1,12 @@
 package main
 
 import (
-	"strings"
 	"time"
 
 	lib "devstats"
 
 	yaml "gopkg.in/yaml.v2"
 )
-
-// tags contain list of TSDB tags
-type tags struct {
-	Tags []tag `yaml:"tags"`
-}
-
-// tag contain each TSDB tag data
-type tag struct {
-	Name       string            `yaml:"name"`
-	SQLFile    string            `yaml:"sql"`
-	SeriesName string            `yaml:"series_name"`
-	NameTag    string            `yaml:"name_tag"`
-	ValueTag   string            `yaml:"value_tag"`
-	OtherTags  map[string]string `yaml:"other_tags"`
-}
 
 // Insert TSDB tags
 func calcTags() {
@@ -46,7 +30,7 @@ func calcTags() {
 		lib.FatalOnError(err)
 		return
 	}
-	var allTags tags
+	var allTags lib.Tags
 	lib.FatalOnError(yaml.Unmarshal(data, &allTags))
 
 	// Per project directory for SQL files
@@ -68,91 +52,8 @@ func calcTags() {
 				lib.Printf("Tag '%s' --> '%s'\n", tg.Name, tg.SeriesName)
 			}
 
-			// Get BatchPoints
-			var pts lib.TSPoints
-
-			// Read SQL file
-			bytes, err := lib.ReadFile(&ctx, dataPrefix+dir+tg.SQLFile+".sql")
-			lib.FatalOnError(err)
-			sqlQuery := string(bytes)
-
-			// Handle excluding bots
-			bytes, err = lib.ReadFile(&ctx, dataPrefix+"util_sql/exclude_bots.sql")
-			lib.FatalOnError(err)
-			excludeBots := string(bytes)
-
-			// Transform SQL
-			sqlQuery = strings.Replace(sqlQuery, "{{lim}}", "69", -1)
-			sqlQuery = strings.Replace(sqlQuery, "{{exclude_bots}}", excludeBots, -1)
-
-			// Execute SQL
-			rows := lib.QuerySQLWithErr(con, &ctx, sqlQuery)
-			defer func() { lib.FatalOnError(rows.Close()) }()
-
-			// Drop current tags
-			table := "t" + tg.SeriesName
-			if lib.TableExists(con, &ctx, table) {
-				lib.ExecSQLWithErr(con, &ctx, "truncate "+table)
-			}
-			tm := lib.TimeParseAny("2014-01-01")
-
-			// Columns
-			columns, err := rows.Columns()
-			lib.FatalOnError(err)
-			colIdx := make(map[string]int)
-			for i, column := range columns {
-				colIdx[column] = i
-			}
-
-			// Iterate tag values
-			tags := make(map[string]string)
-			iVals := make([]interface{}, len(columns))
-			for i := range columns {
-				iVals[i] = new([]byte)
-			}
-			for rows.Next() {
-				lib.FatalOnError(rows.Scan(iVals...))
-				sVals := []string{}
-				for _, iVal := range iVals {
-					sVal := ""
-					if iVal != nil {
-						sVal = string(*iVal.(*[]byte))
-					}
-					sVals = append(sVals, sVal)
-				}
-				strVal := sVals[0]
-				if tg.NameTag != "" {
-					tags[tg.NameTag] = strVal
-				}
-				if tg.ValueTag != "" {
-					tags[tg.ValueTag] = lib.NormalizeName(strVal)
-				}
-				if tg.OtherTags != nil {
-					for tName, tValue := range tg.OtherTags {
-						cIdx, ok := colIdx[tValue]
-						if !ok {
-							lib.Fatalf("other tag: name: %s: column %s not found", tName, tValue)
-						}
-						tags[tName] = sVals[cIdx]
-						tags[tName+"_norm"] = lib.NormalizeName(sVals[cIdx])
-					}
-				}
-				if ctx.Debug > 0 {
-					lib.Printf("'%s': %+v\n", tg.SeriesName, tags)
-				}
-				// Add batch point
-				pt := lib.NewTSPoint(&ctx, tg.SeriesName, "", tags, nil, tm)
-				lib.AddTSPoint(&ctx, &pts, pt)
-				tm = tm.Add(time.Hour)
-			}
-			lib.FatalOnError(rows.Err())
-
-			// Write the batch
-			if !ctx.SkipTSDB {
-				lib.WriteTSPoints(&ctx, con, &pts, "", nil)
-			} else if ctx.Debug > 0 {
-				lib.Printf("Skipping tags series write\n")
-			}
+			// Process tag
+			lib.ProcessTag(con, &ctx, tg)
 
 			// Synchronize go routine
 			if ch != nil {
