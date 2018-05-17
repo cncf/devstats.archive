@@ -23,7 +23,7 @@ where
   e.created_at >= d.f
   and e.created_at < d.t
   and e.type in ('PushEvent', 'IssuesEvent', 'PullRequestEvent')
-  and (e.dup_actor_login {{exclude_bots}})
+  and (lower(e.dup_actor_login) {{exclude_bots}})
 group by
   d.rel,
   d.f,

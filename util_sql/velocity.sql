@@ -10,7 +10,7 @@ from
   days d
 where
   e.type in ({{types}})
-  and (e.dup_actor_login {{exclude_bots}})
+  and (lower(e.dup_actor_login) {{exclude_bots}})
   and e.created_at >= '{{date_from}}'
   and e.created_at < '{{date_to}}'
 group by
@@ -23,7 +23,7 @@ from
   days d
 where
   e.type in ({{types}})
-  and (e.dup_actor_login {{exclude_bots}})
+  and (lower(e.dup_actor_login) {{exclude_bots}})
   and e.created_at >= '{{date_from}}'
   and e.created_at < '{{date_to}}'
 group by

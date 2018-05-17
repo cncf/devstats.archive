@@ -16,7 +16,7 @@ from (
   where
     {{period:t.created_at}}
     and t.dup_repo_id = r.id
-    and (t.dup_actor_login {{exclude_bots}})
+    and (lower(t.dup_actor_login) {{exclude_bots}})
   ) sub
 where
   sub.repo_group is not null
@@ -32,7 +32,7 @@ from
   gha_comments
 where
   {{period:created_at}}
-  and (dup_actor_login {{exclude_bots}})
+  and (lower(dup_actor_login) {{exclude_bots}})
 group by
   dup_actor_login
 having

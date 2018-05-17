@@ -6,7 +6,7 @@ from
 where
   created_at >= '{{from}}'
   and created_at < '{{to}}'
-  and (dup_actor_login {{exclude_bots}})
+  and (lower(dup_actor_login) {{exclude_bots}})
 union select sub.repo_group,
   round(count(distinct sub.id) / {{n}}, 2) as result
 from (
@@ -23,7 +23,7 @@ from (
     r.id = t.dup_repo_id
     and t.created_at >= '{{from}}'
     and t.created_at < '{{to}}'
-    and (t.dup_actor_login {{exclude_bots}})
+    and (lower(t.dup_actor_login) {{exclude_bots}})
   ) sub
 where
   sub.repo_group is not null

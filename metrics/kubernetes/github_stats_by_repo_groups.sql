@@ -32,7 +32,7 @@ from (
     r.name = c.dup_repo_name
     and c.dup_created_at >= '{{from}}'
     and c.dup_created_at < '{{to}}'
-    and (c.dup_actor_login {{exclude_bots}})
+    and (lower(c.dup_actor_login) {{exclude_bots}})
   ) sub
 where
   sub.repo_group is not null
@@ -139,7 +139,7 @@ where
   and i.dup_created_at < '{{to}}'
   and i.dup_type = 'IssueCommentEvent'
   and i.is_pull_request = false
-  and (i.dup_actor_login {{exclude_bots}})
+  and (lower(i.dup_actor_login) {{exclude_bots}})
 group by
   r.repo_group
 union select 'gstat_rgrp_prcommenters,' || r.repo_group as repo_group,
@@ -154,7 +154,7 @@ where
   and i.dup_created_at < '{{to}}'
   and i.dup_type = 'IssueCommentEvent'
   and i.is_pull_request = false
-  and (i.dup_actor_login {{exclude_bots}})
+  and (lower(i.dup_actor_login) {{exclude_bots}})
 group by
   r.repo_group
 union select 'gstat_rgrp_icomments,' || r.repo_group as repo_group,
@@ -169,7 +169,7 @@ where
   and i.dup_created_at < '{{to}}'
   and i.dup_type = 'IssueCommentEvent'
   and i.is_pull_request = true
-  and (i.dup_actor_login {{exclude_bots}})
+  and (lower(i.dup_actor_login) {{exclude_bots}})
 group by
   r.repo_group
 union select 'gstat_rgrp_icommenters,' || r.repo_group as repo_group,
@@ -184,7 +184,7 @@ where
   and i.dup_created_at < '{{to}}'
   and i.dup_type = 'IssueCommentEvent'
   and i.is_pull_request = true
-  and (i.dup_actor_login {{exclude_bots}})
+  and (lower(i.dup_actor_login) {{exclude_bots}})
 group by
   r.repo_group
 union select sub.repo_group,
@@ -201,7 +201,7 @@ from (
     ecf.event_id = e.id
   where
     e.repo_id = r.id
-    and (e.dup_actor_login {{exclude_bots}})
+    and (lower(e.dup_actor_login) {{exclude_bots}})
     and e.id in (
       select min(event_id)
       from

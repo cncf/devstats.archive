@@ -24,7 +24,7 @@ where
   e.type in ({{types}})
   and ({{skipfrom}} or e.created_at >= d.f)
   and ({{skipto}} or e.created_at < d.t)
-  and ({{bots}} or (e.dup_actor_login {{exclude_bots}}))
+  and (lower({{bots}} or (e.dup_actor_login) {{exclude_bots}}))
   and e.actor_id = aa.actor_id
   and aa.company_name in ({{companies}})
   and aa.dt_from <= e.created_at

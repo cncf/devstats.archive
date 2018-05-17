@@ -13,7 +13,7 @@ from
 where
   e.id = f.event_id
   and {{period:e.created_at}}
-  and (e.dup_actor_login {{exclude_bots}})
+  and (lower(e.dup_actor_login) {{exclude_bots}})
 order by
   e.created_at desc
 ;

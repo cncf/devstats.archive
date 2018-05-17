@@ -19,7 +19,7 @@ from (
       from
         gha_texts
       where
-        (actor_login {{exclude_bots}})
+        (lower(actor_login) {{exclude_bots}})
         and created_at >= now() - '6 months'::interval
     ) sel
   where

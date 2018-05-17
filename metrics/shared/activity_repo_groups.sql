@@ -15,7 +15,7 @@ from (
     r.name = ev.dup_repo_name
     and ev.created_at >= '{{from}}'
     and ev.created_at < '{{to}}'
-    and (ev.dup_actor_login {{exclude_bots}})
+    and (lower(ev.dup_actor_login) {{exclude_bots}})
     and ev.type not in ('WatchEvent', 'ForkEvent', 'ArtificialEvent')
   ) sub
 where

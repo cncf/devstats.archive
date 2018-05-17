@@ -23,7 +23,7 @@ from
 where
   e.created_at < d.t
   and e.type in ('PushEvent', 'IssuesEvent', 'PullRequestEvent')
-  and (e.dup_actor_login {{exclude_bots}})
+  and (lower(e.dup_actor_login) {{exclude_bots}})
   and e.actor_id = aa.actor_id
   and aa.company_name = 'Independent'
   and aa.dt_from <= e.created_at

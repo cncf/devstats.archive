@@ -24,7 +24,7 @@ where
   r.name = c.dup_repo_name
   and c.dup_created_at >= '{{from}}'
   and c.dup_created_at < '{{to}}'
-  and (c.dup_actor_login {{exclude_bots}})
+  and (lower(c.dup_actor_login) {{exclude_bots}})
 group by
   r.alias
 union select 'gstat_r_iclosed,' || r.alias as repo,
@@ -95,7 +95,7 @@ where
   and i.dup_created_at < '{{to}}'
   and i.dup_type = 'IssueCommentEvent'
   and i.is_pull_request = false
-  and (i.dup_actor_login {{exclude_bots}})
+  and (lower(i.dup_actor_login) {{exclude_bots}})
 group by
   r.alias
 union select 'gstat_r_prcommenters,' || r.alias as repo,
@@ -109,7 +109,7 @@ where
   and i.dup_created_at < '{{to}}'
   and i.dup_type = 'IssueCommentEvent'
   and i.is_pull_request = false
-  and (i.dup_actor_login {{exclude_bots}})
+  and (lower(i.dup_actor_login) {{exclude_bots}})
 group by
   r.alias
 union select 'gstat_r_icomments,' || r.alias as repo,
@@ -123,7 +123,7 @@ where
   and i.dup_created_at < '{{to}}'
   and i.dup_type = 'IssueCommentEvent'
   and i.is_pull_request = true
-  and (i.dup_actor_login {{exclude_bots}})
+  and (lower(i.dup_actor_login) {{exclude_bots}})
 group by
   r.alias
 union select 'gstat_r_icommenters,' || r.alias as repo,
@@ -137,7 +137,7 @@ where
   and i.dup_created_at < '{{to}}'
   and i.dup_type = 'IssueCommentEvent'
   and i.is_pull_request = true
-  and (i.dup_actor_login {{exclude_bots}})
+  and (lower(i.dup_actor_login) {{exclude_bots}})
 group by
   r.alias
 union select 'gstat_r_reviewers,' || r.alias as repo,
@@ -147,7 +147,7 @@ union select 'gstat_r_reviewers,' || r.alias as repo,
     gha_events e
   where
     e.repo_id = r.id
-    and (e.dup_actor_login {{exclude_bots}})
+    and (lower(e.dup_actor_login) {{exclude_bots}})
     and e.id in (
       select min(event_id)
       from
