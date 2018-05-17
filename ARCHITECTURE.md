@@ -57,25 +57,25 @@ We're getting all possible GitHub data for all objects, and all objects historic
 - Table structure, `const` and `variable` description can be found in [USAGE](https://github.com/cncf/devstats/blob/master/USAGE.md)
 - The program can be parallelized very easy (events are distinct in different hours, so each hour can be processed by other CPU), uses 48 CPUs on our test machine.
 
-3) `db2influx` (computes metrics given as SQL files to be run on Postgres and saves time series output to InfluxDB)
-- [db2influx](https://github.com/cncf/devstats/blob/master/cmd/db2influx/db2influx.go)
-- This separates metrics complex logic in SQL files, `db2influx` executes parameterized SQL files and write final time-series to InfluxDB.
+3) `calc_metric` (computes metrics given as SQL files to be run on Postgres and saves time series output to time series)
+- [calc_metric](https://github.com/cncf/devstats/blob/master/cmd/calc_metric/calc_metric.go)
+- This separates metrics complex logic in SQL files, `calc_metric` executes parameterized SQL files and write final data as a time-series (also on Postgres).
 - Parameters are `'{{from}}'`, `'{{to}}'` to allow computing the given metric for any date period.
-- For histogram metrics there is a single parameter `'{{period}}'` instead. To run `db2influx` in histogram mode add "h" as last parameter after all other params. `gha2db_sync` already handles this.
-- This means that InfluxDB will only hold multiple time-series (very simple data). InfluxDB is extremely good at manipulating such kind of data - this is what it was created for.
-- Grafana will read from InfluxDB by default and will use its power to generate all possible aggregates, minimums, maximums, averages, medians, percentiles, charts etc.
+- For histogram metrics there is a single parameter `'{{period}}'` instead. To run `calc_metric` in histogram mode add "h" as last parameter after all other params. `gha2db_sync` already handles this.
+- This means that time series tables will only hold multiple time-series (very simple data).
+- Grafana will read from Postgres time series.
 - Adding new metric will mean add Postgres SQL that will compute this metric.
 
-4) `gha2db_sync` (synchronizes GitHub archive data and Postgres, InfluxDB databases)
+4) `gha2db_sync` (synchronizes data sources and Postgres databases)
 - [gha2db_sync](https://github.com/cncf/devstats/blob/master/cmd/gha2db_sync/gha2db_sync.go)
 - This program figures out what is the most recent data in Postgres database then queries GitHub archive from this date to current date.
 - It will add data to Postgres database (since the last run)
 - It will update summary tables and/or (materialized) views on Postgres DB.
 - It will update new commits files list using `get_repos` program.
-- Then it will call `db2influx` for all defined SQL metrics and update Influx database as well.
+- Then it will call `calc_metric` for all defined SQL metrics and update time series data database as well.
 - You need to set `GHA2DB_PROJECT=project_name` currently it can be either kubernetes, prometheus or opentracing. Projects are defined in `projects.yaml` file.
 - It reads a list of metrics from YAML file: `metrics/{{project}}/metrics.yaml`, some metrics require to fill gaps in their data. Those metrics are defined in another YAML file `metrics/{{project}}/gaps.yaml`. Please try to use Grafana's "nulls as zero" instead of using gaps filling.
-- This tool also supports initial computing of All InfluxDB data (instead of default update since the last run).
+- This tool also supports initial computing of all time series data (instead of default update since the last run).
 - It can be called by cron job on 1:10, 2:10, ... and so on - GitHub archive publishes new file every hour, so we're off by at most 1 hour.
 - It can also be called automatically by `devstats` tool
 
@@ -107,32 +107,28 @@ We're getting all possible GitHub data for all objects, and all objects historic
 - [import_affs](https://github.com/cncf/devstats/blob/master/cmd/import_affs/import_affs.go)
 - `import_affs` takes one parameter - JSON file name (this is a file from [cncf/gitdm](https://github.com/cncf/gitdm): [github_users.json](https://raw.githubusercontent.com/cncf/gitdm/master/github_users.json)
 - This tools imports GitHub usernames (in addition to logins from GHA) and creates developers - companies affiliations (that can be used by [Companies stats](https://k8s.devstats.cncf.io/dashboard/db/companies-stats?orgId=1) metric)
-- [z2influx](https://github.com/cncf/devstats/blob/master/cmd/z2influx/z2influx.go)
-- `z2influx` is used to fill gaps that can occur for metrics that returns multiple columns and rows, but the number of rows depends on date range, it uses [gaps.yaml](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/gaps.yaml) file to define which metrics should be zero filled.
-- Please use Grafana's "null as zero" instead of using manuall filling gaps. This simplifies metrics a lot.
 - [annotations](https://github.com/cncf/devstats/blob/master/cmd/annotations/annotations.go)
 - `annotations` is used to add annotations on charts. It uses GitHub API to fetch tags from project main repository defined in `projects.yaml`, it only includes tags matching annotation regexp also defined in `projects.yaml`.
-- [idb_tags](https://github.com/cncf/devstats/blob/master/cmd/idb_tags/idb_tags.go)
-- `idb_tags` is used to add InfluxDB tags on some specified series. Those tags are used to populate Grafana template drop-down values and names. This is used to auto-populate Repository groups drop down, so when somebody adds new repository group - it will automatically appear in the drop-down.
-- `idb_tags` uses [idb_tags.yaml](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/idb_tags.yaml) file to configure InfluxDB tags generation.
-- [idb_backup](https://github.com/cncf/devstats/blob/master/cmd/idb_backup/idb_backup.go)
-- `idb_backup` is used to backup/restore InfluxDB. Full renenerate of InfluxDB takes about 12 minutes. To avoid downtime when we need to rebuild InfluDB - we can generate new InfluxDB on `test` database and then if succeeded, restore it on `gha`. Downtime will be about 2 minutes.
+- [tags](https://github.com/cncf/devstats/blob/master/cmd/tags/tags.go)
+- `tags` is used to add tags. Those tags are used to populate Grafana template drop-down values and names. This is used to auto-populate Repository groups drop down, so when somebody adds new repository group - it will automatically appear in the drop-down.
+- `tags` uses [tags.yaml](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/tags.yaml) file to configure tags generation.
+- [columns](https://github.com/cncf/devstats/blob/master/cmd/columns/columns.go)
+- `columns` is used to specify which columns are mandatory on which time series tables (because missing column is an error in Postgres). You can define table9s) by regexp and then specify which columns are mandatory by specifying tags table and column. 
+- `columns` uses [columns.yaml](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/columns.yaml) file to configure mandatory columns.
 - You can use all defined environments variables, but add `_SRC` suffic for source database and `_DST` suffix for destination database.
 - [webhook](https://github.com/cncf/devstats/blob/master/cmd/webhook/webhook.go)
 - `webhook` is used to react to Travis CI webhooks and trigger deploy if status, branch and type match defined values, more details [here](https://github.com/cncf/devstats/blob/master/CONTINUOUS_DEPLOYMENT.md).
 - Add `[no deploy]` to the commit message, to skip deploying.
 - Add `[ci skip]` to skip testing (will not spawn Travis CI build).
 - Add `[deploy]` to do a full deploy using `./devel/deploy_all.sh` script, this needs more environment variables to be set, see [here](https://github.com/cncf/devstats/blob/master/CONTINUOUS_DEPLOYMENT.md).
-- There are few shell scripts for example: running sync every N seconds, setup InfluxDB etc.
-- [merge_pdbs](https://github.com/cncf/devstats/blob/master/cmd/merge_pdbs/merge_pdbs.go)
-- `merge_pdbs` is used to generate Postgres database that contains data from other multiple databases.
-- You can use `merge_pdbs` to add new projects to a existing database, but please consider running './devel/remove_db_dups.sh' then or use: './all/add_project.sh' script.
+- There are few shell scripts for example: running sync every N seconds, setup time series data etc.
+- [merge_dbs](https://github.com/cncf/devstats/blob/master/cmd/merge_dbs/merge_dbs.go)
+- `merge_dbs` is used to generate Postgres database that contains data from other multiple databases.
+- You can use `merge_dbs` to add new projects to a existing database, but please consider running './devel/remove_db_dups.sh' then or use: './all/add_project.sh' script.
 - [replacer](https://github.com/cncf/devstats/blob/master/cmd/replacer/replacer.go)
 - `replacer` is used to mass replace data in text files. It has regexp modes, string modes, terminate on no match etc.
-- [idb_vars](https://github.com/cncf/devstats/blob/master/cmd/idb_vars/idb_vars.go)
-- `idb_vars` is used to add special variables (tags) to Influx database, see [here](https://github.com/cncf/devstats/blob/master/docs/vars.md) for more info.
-- [pdb_vars](https://github.com/cncf/devstats/blob/master/cmd/pdb_vars/pdb_vars.go)
-- `pdb_vars` is used to add special variables (tags) to Influx database, see [here](https://github.com/cncf/devstats/blob/master/docs/vars.md) for more info.
+- [vars](https://github.com/cncf/devstats/blob/master/cmd/vars/vars.go)
+- `vars` is used to add special variables (tags) to the database, see [here](https://github.com/cncf/devstats/blob/master/docs/vars.md) for more info.
 - [sqlitedb](https://github.com/cncf/devstats/blob/master/cmd/sqlitedb/sqlitedb.go)
 - `sqlitedb` is used to manipulate Grafana's SQLite database, see [here](https://github.com/cncf/devstats/blob/master/SQLITE.md) for more info.
 

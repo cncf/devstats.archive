@@ -6,6 +6,8 @@ Please note that Ruby version was removed. It was slower, and Kubernetes communi
 
 Postgresql was faster than MySQL, so it was only supported in a dropped Ruby version. Go version uses Postgres.
 
+Please not that recently (May 2018) influxDB was removed as well, Postgres is faster even when using it as a time-series database.
+
 Here are historical results of benchmarks Go & Ruby tools:
 
 # gha2db tool benchmarks
