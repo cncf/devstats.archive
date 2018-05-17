@@ -30,8 +30,8 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 57,
-  "iteration": 1520428617464,
+  "id": 62,
+  "iteration": 1526539801632,
   "links": [],
   "panels": [
     {
@@ -81,14 +81,16 @@
       "steppedLine": false,
       "targets": [
         {
-          "alias": "$col",
+          "alias": "",
           "dsType": "influxdb",
+          "format": "time_series",
           "groupBy": [],
           "measurement": "sig_federation_d",
           "orderByTime": "ASC",
           "policy": "default",
           "query": "SELECT /^[[reviewers]]$/ FROM \"reviews_per_user_[[repo]]_[[period]]\" WHERE $timeFilter",
           "rawQuery": true,
+          "rawSql": "select\n  time,\n  ${reviewers:csv}\nfrom\n  suser_reviews\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'rev_per_usr[[repo]]'\norder by\n  time",
           "refId": "A",
           "resultFormat": "time_series",
           "select": [
@@ -141,7 +143,11 @@
           "min": "0",
           "show": true
         }
-      ]
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
     }
   ],
   "schemaVersion": 16,
@@ -212,7 +218,7 @@
         "multi": false,
         "name": "repo_name",
         "options": [],
-        "query": "SHOW TAG VALUES WITH KEY = top_repos_name_with_all",
+        "query": "select top_repos_name_with_all from ttop_repos_with_all order by 1",
         "refresh": 1,
         "regex": "",
         "sort": 0,
@@ -235,7 +241,7 @@
         "multi": false,
         "name": "repo",
         "options": [],
-        "query": "SHOW TAG VALUES WITH KEY = top_repos_value_with_all where top_repos_name_with_all =~ /^[[repo_name]]$/",
+        "query": "select top_repos_value_with_all from ttop_repos_with_all where top_repos_name_with_all = '[[repo_name]]'",
         "refresh": 1,
         "regex": "",
         "sort": 0,
@@ -249,9 +255,9 @@
         "allValue": "",
         "current": {
           "tags": [],
-          "text": "lukpueh",
+          "text": "\"brian-brazil\"",
           "value": [
-            "lukpueh"
+            "\"brian-brazil\""
           ]
         },
         "datasource": "psql",
@@ -261,7 +267,7 @@
         "multi": true,
         "name": "reviewers",
         "options": [],
-        "query": "SHOW TAG VALUES WITH KEY = reviewers_name",
+        "query": "select '\"' || reviewers_name || '\"' from treviewers",
         "refresh": 1,
         "regex": "",
         "sort": 0,
@@ -274,8 +280,8 @@
       {
         "allValue": null,
         "current": {
-          "text": "TUF",
-          "value": "TUF"
+          "text": "Prometheus",
+          "value": "Prometheus"
         },
         "datasource": "psql",
         "hide": 2,
@@ -328,5 +334,5 @@
   "timezone": "",
   "title": "User reviews",
   "uid": "46",
-  "version": 2
+  "version": 6
 }
