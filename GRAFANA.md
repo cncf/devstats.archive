@@ -2,14 +2,11 @@
 
 - Go to Grafana UI: `http://localhost:3000`
 - Login as "admin"/"admin" (you can change passwords later).
-- Choose add data source, then Add Influx DB with those settings:
-- Name "gha" and type "InfluxDB", url default "http://localhost:8086"/"http://127.0.0.1:8086", access: "proxy", database "projname", user "ro_user", password "influx_pwd", min time interval "1h"
-- Test & save datasource, then proceed to dashboards.
-- Choose add data source, then add PostgreSQL with those settings:
+- Choose add data source, then Add PostgreSQL DB with those settings:
 - Name "psql", Type "PostgreSQL", host "127.0.0.1:5432", database "projname", user "ro_user" (this is the select-only user for psql), password "your-psql-password", ssl-mode "disabled".
 - Make sure to run `./devel/ro_user_grants.sh projname` to add `ro_user's` select grants for all psql tables in projectname.
 - If doing this for the first time also create `ro_user` via `devel/create_ro_user.sh`.
-- Click Home, Import dashboard, Upload JSON file, choose dashboards saved as JSONs in `grafana/dashboards/{{project}}dashboard_name.json`, data source "InfluxDB" and save.
+- Click Home, Import dashboard, Upload JSON file, choose dashboards saved as JSONs in `grafana/dashboards/{{project}}dashboard_name.json`, data source "PostgreSQL" and save.
 - All dashboards are here: [kubernetes](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/), [prometheus](https://github.com/cncf/devstats/blob/master/grafana/dashboards/prometheus/), [opentracing](https://github.com/cncf/devstats/blob/master/grafana/dashboards/opentracing/).
 - Do the same for all defined dashboards. Use specific project tag, for example `kubernetes`, `prometheus` or `opentracing`.
 - Import main home for example [kubernetes dahsboard](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/dashboards.json).
@@ -47,4 +44,3 @@ To disallow access to docker containers from outside world you have to specify p
 
 - To run multiple Grafana instances (for example to have multiple projects on the same host), you need to use Docker.
 - Instructions here [MULTIPROJECT.md](https://github.com/cncf/devstats/blob/master/MULTIPROJECT.md).
-- If want to secure InfluxDB and use Docker at the same time please see: [SECURE_INFLUXDB.md](https://github.com/cncf/devstats/blob/master/SECURE_INFLUXDB.md).
