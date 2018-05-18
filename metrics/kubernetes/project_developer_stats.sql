@@ -1,5 +1,5 @@
 select 
-  'developers_hist_' || sub.metric || ',All' as metric,
+  'hdev_' || sub.metric || ',All' as metric,
   sub.author as name,
   sub.value as value
 from (
@@ -10,7 +10,7 @@ from (
     gha_commits
   where
     {{period:dup_created_at}}
-    and (dup_actor_login {{exclude_bots}})
+    and (lower(dup_actor_login) {{exclude_bots}})
   group by
     dup_actor_login
   union select case type
@@ -29,7 +29,7 @@ from (
       'IssueCommentEvent', 'CommitCommentEvent'
     )
     and {{period:created_at}}
-    and (dup_actor_login {{exclude_bots}})
+    and (lower(dup_actor_login) {{exclude_bots}})
   group by
     type,
     dup_actor_login
@@ -41,7 +41,7 @@ from (
   where
     type in ('PushEvent', 'PullRequestEvent', 'IssuesEvent')
     and {{period:created_at}}
-    and (dup_actor_login {{exclude_bots}})
+    and (lower(dup_actor_login) {{exclude_bots}})
   group by
     dup_actor_login
   union select 'active_repos' as metric,
@@ -51,7 +51,7 @@ from (
     gha_events
   where
     {{period:created_at}}
-    and (dup_actor_login {{exclude_bots}})
+    and (lower(dup_actor_login) {{exclude_bots}})
   group by
     dup_actor_login
   union select 'comments' as metric,
@@ -61,7 +61,7 @@ from (
     gha_comments
   where
     {{period:created_at}}
-    and (dup_user_login {{exclude_bots}})
+    and (lower(dup_user_login) {{exclude_bots}})
   group by
     dup_user_login
   union select 'issues' as metric,
@@ -72,7 +72,7 @@ from (
   where
     {{period:created_at}}
     and is_pull_request = false
-    and (dup_user_login {{exclude_bots}})
+    and (lower(dup_user_login) {{exclude_bots}})
   group by
     dup_user_login
   union select 'prs' as metric,
@@ -83,7 +83,7 @@ from (
   where
     {{period:created_at}}
     and is_pull_request = true
-    and (dup_user_login {{exclude_bots}})
+    and (lower(dup_user_login) {{exclude_bots}})
   group by
     dup_user_login
   union select 'events' as metric,
@@ -93,7 +93,7 @@ from (
     gha_events
   where
     {{period:created_at}}
-    and (dup_actor_login {{exclude_bots}})
+    and (lower(dup_actor_login) {{exclude_bots}})
     and type != 'ArtificialEvent'
   group by
     dup_actor_login
@@ -108,11 +108,12 @@ where
     'contributions',
     'comments',
     'issues',
+    'issue_comments',
     'review_comments',
     'prs'
   )
 )
-union select 'developers_hist_' || sub.metric || ',' || sub.repo_group as metric,
+union select 'hdev_' || sub.metric || ',' || sub.repo_group as metric,
   sub.author as name,
   sub.value as value
 from (
@@ -134,7 +135,7 @@ from (
     where
       r.name = c.dup_repo_name
       and {{period:c.dup_created_at}}
-      and (c.dup_actor_login {{exclude_bots}})
+      and (lower(c.dup_actor_login) {{exclude_bots}})
     ) sub
   where
     sub.repo_group is not null
@@ -169,7 +170,7 @@ from (
         'IssueCommentEvent', 'CommitCommentEvent'
       )
       and {{period:e.created_at}}
-      and (e.dup_actor_login {{exclude_bots}})
+      and (lower(e.dup_actor_login) {{exclude_bots}})
   ) sub
   where
     sub.repo_group is not null
@@ -196,7 +197,7 @@ from (
       r.name = e.dup_repo_name
       and e.type in ('PushEvent', 'PullRequestEvent', 'IssuesEvent')
       and {{period:e.created_at}}
-      and (e.dup_actor_login {{exclude_bots}})
+      and (lower(e.dup_actor_login) {{exclude_bots}})
   ) sub
   where
     sub.repo_group is not null
@@ -221,7 +222,7 @@ from (
     where
       r.name = e.dup_repo_name
       and {{period:e.created_at}}
-      and (e.dup_actor_login {{exclude_bots}})
+      and (lower(e.dup_actor_login) {{exclude_bots}})
   ) sub
   where
     sub.repo_group is not null
@@ -246,7 +247,7 @@ from (
     where
       c.dup_repo_name = r.name
       and {{period:c.created_at}}
-      and (c.dup_user_login {{exclude_bots}})
+      and (lower(c.dup_user_login) {{exclude_bots}})
   ) sub
   where
     sub.repo_group is not null
@@ -275,7 +276,7 @@ from (
     where
     i.dup_repo_name = r.name
     and {{period:i.created_at}}
-    and (i.dup_user_login {{exclude_bots}})
+    and (lower(i.dup_user_login) {{exclude_bots}})
   ) sub
   where
     sub.repo_group is not null
@@ -301,7 +302,7 @@ from (
     where
       r.name = e.dup_repo_name
       and {{period:e.created_at}}
-      and (e.dup_actor_login {{exclude_bots}})
+      and (lower(e.dup_actor_login) {{exclude_bots}})
       and e.type != 'ArtificialEvent'
   ) sub
   where
@@ -320,6 +321,7 @@ where
     'contributions',
     'comments',
     'issues',
+    'issue_comments',
     'review_comments',
     'prs'
   )

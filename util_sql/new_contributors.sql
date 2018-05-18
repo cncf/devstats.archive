@@ -6,7 +6,7 @@ from
 where
   type in ('PushEvent', 'IssuesEvent', 'PullRequestEvent')
   and created_at > '{{date}}'
-  and (dup_actor_login {{exclude_bots}})
+  and (lower(dup_actor_login) {{exclude_bots}})
   and dup_actor_login not in(
   select
     distinct dup_actor_login
@@ -14,7 +14,7 @@ where
     gha_events
   where
     type in ('PushEvent', 'IssuesEvent', 'PullRequestEvent')
-    and (dup_actor_login {{exclude_bots}})
+    and (lower(dup_actor_login) {{exclude_bots}})
     and created_at < '{{date}}'
   )
 group by

@@ -42,6 +42,7 @@ func replacer(from, to, fn, mode string) {
 			}
 			return
 		}
+		fmt.Printf("Hits: %s\n", fn)
 	case "ss", "ss0":
 		newContents = strings.Replace(contents, from, to, -1)
 		if contents == newContents {
@@ -51,6 +52,7 @@ func replacer(from, to, fn, mode string) {
 			}
 			return
 		}
+		fmt.Printf("Hits: %s\n", fn)
 	default:
 		fmt.Printf("Unknown mode '%s'\n", mode)
 		os.Exit(1)

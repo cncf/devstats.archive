@@ -16,12 +16,12 @@
   "gnetId": null,
   "graphTooltip": 0,
   "id": 41,
-  "iteration": 1.520408367272e+12,
+  "iteration": 1520408367272,
   "links": [],
   "panels": [
     {
       "columns": [],
-      "datasource": "gha",
+      "datasource": "psql",
       "description": "Shows PRs authors companies",
       "fontSize": "90%",
       "gridPos": {
@@ -37,7 +37,7 @@
       "scroll": true,
       "showHeader": true,
       "sort": {
-        "col": 0,
+        "col": 1,
         "desc": true
       },
       "styles": [
@@ -96,7 +96,9 @@
       ],
       "targets": [
         {
+          "alias": "",
           "dsType": "influxdb",
+          "format": "table",
           "groupBy": [
             {
               "params": [
@@ -115,6 +117,7 @@
           "policy": "default",
           "query": "SELECT \"name\", \"value\" FROM \"hist_pr_companies_[[repogroup]]_[[period]]\" WHERE $timeFilter",
           "rawQuery": true,
+          "rawSql": "select name, value from \"shpr_comps[[repogroup]]\" where period = '[[period]]'",
           "refId": "A",
           "resultFormat": "table",
           "select": [
@@ -156,14 +159,14 @@
           "text": "CoreDNS",
           "value": "CoreDNS"
         },
-        "datasource": "gha",
+        "datasource": "psql",
         "hide": 2,
         "includeAll": false,
         "label": null,
         "multi": false,
         "name": "full_name",
         "options": [],
-        "query": "SHOW TAG VALUES WITH KEY = full_name",
+        "query": "select value_s from gha_vars where name = 'full_name'",
         "refresh": 1,
         "regex": "",
         "sort": 0,
@@ -180,14 +183,14 @@
           "text": "Last decade",
           "value": "Last decade"
         },
-        "datasource": "gha",
+        "datasource": "psql",
         "hide": 0,
         "includeAll": false,
         "label": "Range",
         "multi": false,
         "name": "period_name",
         "options": [],
-        "query": "show tag values with key = quick_ranges_name",
+        "query": "select quick_ranges_name from tquick_ranges order by time",
         "refresh": 1,
         "regex": "",
         "sort": 0,
@@ -203,14 +206,14 @@
           "text": "y10",
           "value": "y10"
         },
-        "datasource": "gha",
+        "datasource": "psql",
         "hide": 2,
         "includeAll": false,
         "label": null,
         "multi": false,
         "name": "period",
         "options": [],
-        "query": "SHOW TAG VALUES WITH KEY = quick_ranges_suffix where quick_ranges_name =~ /^[[period_name]]$/",
+        "query": "select quick_ranges_suffix from tquick_ranges where quick_ranges_name = '[[period_name]]'",
         "refresh": 1,
         "regex": "",
         "sort": 0,
@@ -226,14 +229,14 @@
           "text": "All",
           "value": "All"
         },
-        "datasource": "gha",
+        "datasource": "psql",
         "hide": 0,
         "includeAll": false,
         "label": "Repository group",
         "multi": false,
         "name": "repogroup_name",
         "options": [],
-        "query": "SHOW TAG VALUES WITH KEY = all_repo_group_name",
+        "query": "select all_repo_group_name from tall_repo_groups order by 1",
         "refresh": 1,
         "regex": "",
         "sort": 0,
@@ -249,14 +252,14 @@
           "text": "all",
           "value": "all"
         },
-        "datasource": "gha",
+        "datasource": "psql",
         "hide": 2,
         "includeAll": false,
         "label": "",
         "multi": false,
         "name": "repogroup",
         "options": [],
-        "query": "SHOW TAG VALUES WITH KEY = all_repo_group_value where all_repo_group_name =~ /^[[repogroup_name]]$/",
+        "query": "select all_repo_group_value from tall_repo_groups where all_repo_group_name = '[[repogroup_name]]'",
         "refresh": 1,
         "regex": "",
         "sort": 0,

@@ -3,7 +3,7 @@ select
   sub.actor,
   count(distinct sub.id) as comments
 from (
-  select 'top_commenters,' || coalesce(ecf.repo_group, r.repo_group) as repo_group,
+  select 'htop_commenters,' || coalesce(ecf.repo_group, r.repo_group) as repo_group,
     t.dup_actor_login as actor,
     t.id
   from
@@ -16,7 +16,7 @@ from (
   where
     {{period:t.created_at}}
     and t.dup_repo_id = r.id
-    and (t.dup_actor_login {{exclude_bots}})
+    and (lower(t.dup_actor_login) {{exclude_bots}})
   ) sub
 where
   sub.repo_group is not null
@@ -25,14 +25,14 @@ group by
   sub.repo_group
 having
   count(distinct sub.id) >= 1
-union select 'top_commenters,All' as repo_group,
+union select 'htop_commenters,All' as repo_group,
   dup_actor_login as actor,
   count(distinct id) as comments
 from
   gha_comments
 where
   {{period:created_at}}
-  and (dup_actor_login {{exclude_bots}})
+  and (lower(dup_actor_login) {{exclude_bots}})
 group by
   dup_actor_login
 having

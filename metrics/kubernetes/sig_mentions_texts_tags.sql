@@ -18,7 +18,7 @@ from (
       from
         gha_texts
       where
-        actor_login {{exclude_bots}}
+        (lower(actor_login) {{exclude_bots}})
     ) sel
   where
     sel.sig is not null

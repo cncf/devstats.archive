@@ -4,11 +4,6 @@ then
   echo "You need to set PG_DB environment variable to run this script"
   exit 1
 fi
-if [ -z "${IDB_DB}" ]
-then
-  echo "You need to set IDB_DB environment variable to run this script"
-  exit 1
-fi
 function finish {
     sync_unlock.sh
 }

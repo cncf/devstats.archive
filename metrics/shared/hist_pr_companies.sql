@@ -3,7 +3,7 @@ select
   sub.company,
   count(distinct sub.id) as prs
 from (
-  select 'hist_pr_companies,' || coalesce(ecf.repo_group, r.repo_group) as repo_group,
+  select 'hpr_comps,' || coalesce(ecf.repo_group, r.repo_group) as repo_group,
     a.company_name as company,
     pr.id
   from
@@ -20,7 +20,7 @@ from (
     and a.dt_to > pr.created_at
     and {{period:pr.created_at}}
     and pr.dup_repo_id = r.id
-    and (pr.dup_actor_login {{exclude_bots}})
+    and (lower(pr.dup_actor_login) {{exclude_bots}})
   ) sub
 where
   sub.repo_group is not null
@@ -29,7 +29,7 @@ group by
   sub.company
 having
   count(distinct sub.id) >= 1
-union select 'hist_pr_companies,All' as repo_group,
+union select 'hpr_comps,All' as repo_group,
   a.company_name as company,
   count(distinct pr.id) as prs
 from
@@ -40,7 +40,7 @@ where
   and a.dt_from <= pr.created_at
   and a.dt_to > pr.created_at
   and {{period:pr.created_at}}
-  and (pr.dup_actor_login {{exclude_bots}})
+  and (lower(pr.dup_actor_login) {{exclude_bots}})
 group by
   a.company_name
 having

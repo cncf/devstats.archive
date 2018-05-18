@@ -11,13 +11,14 @@
         "type": "dashboard"
       },
       {
-        "datasource": "gha",
+        "datasource": "psql",
         "enable": true,
         "hide": false,
         "iconColor": "rgba(255, 96, 96, 1)",
         "limit": 100,
         "name": "Releases",
         "query": "SELECT title, description from annotations WHERE $timeFilter order by time asc",
+        "rawQuery": "select extract(epoch from time) AS time, title as text, description as tags from sannotations where $__timeFilter(time)",
         "showIn": 0,
         "tagsColumn": "title,description",
         "textColumn": "",
@@ -30,7 +31,7 @@
   "gnetId": null,
   "graphTooltip": 0,
   "id": 62,
-  "iteration": 1.520427885522e+12,
+  "iteration": 1526540449344,
   "links": [],
   "panels": [
     {
@@ -38,7 +39,7 @@
       "bars": true,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "gha",
+      "datasource": "psql",
       "decimals": null,
       "description": "Shows review counts for given users and repository.",
       "fill": 1,
@@ -80,14 +81,16 @@
       "steppedLine": false,
       "targets": [
         {
-          "alias": "$col",
+          "alias": "",
           "dsType": "influxdb",
+          "format": "time_series",
           "groupBy": [],
           "measurement": "sig_federation_d",
           "orderByTime": "ASC",
           "policy": "default",
           "query": "SELECT /^[[reviewers]]$/ FROM \"reviews_per_user_[[repo]]_[[period]]\" WHERE $timeFilter",
           "rawQuery": true,
+          "rawSql": "select\n  time,\n  ${reviewers:csv}\nfrom\n  suser_reviews\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'rev_per_usr[[repo]]'\norder by\n  time",
           "refId": "A",
           "resultFormat": "time_series",
           "select": [
@@ -140,7 +143,11 @@
           "min": "0",
           "show": true
         }
-      ]
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
     }
   ],
   "schemaVersion": 16,
@@ -204,14 +211,14 @@
           "text": "All",
           "value": "All"
         },
-        "datasource": "gha",
+        "datasource": "psql",
         "hide": 0,
         "includeAll": false,
         "label": "Repository",
         "multi": false,
         "name": "repo_name",
         "options": [],
-        "query": "SHOW TAG VALUES WITH KEY = top_repos_name_with_all",
+        "query": "select top_repos_name_with_all from ttop_repos_with_all order by 1",
         "refresh": 1,
         "regex": "",
         "sort": 0,
@@ -227,14 +234,14 @@
           "text": "all",
           "value": "all"
         },
-        "datasource": "gha",
+        "datasource": "psql",
         "hide": 2,
         "includeAll": false,
         "label": "",
         "multi": false,
         "name": "repo",
         "options": [],
-        "query": "SHOW TAG VALUES WITH KEY = top_repos_value_with_all where top_repos_name_with_all =~ /^[[repo_name]]$/",
+        "query": "select top_repos_value_with_all from ttop_repos_with_all where top_repos_name_with_all = '[[repo_name]]'",
         "refresh": 1,
         "regex": "",
         "sort": 0,
@@ -248,19 +255,28 @@
         "allValue": "",
         "current": {
           "tags": [],
-          "text": "brian-brazil",
+          "text": "\"brian-brazil\" + \"simonpasquier\" + \"krasi-georgiev\" + \"SuperQ\" + \"stuartnelson3\" + \"beorn7\" + \"juliusv\" + \"grobie\" + \"Bplotka\" + \"free\"",
           "value": [
-            "brian-brazil"
+            "\"brian-brazil\"",
+            "\"simonpasquier\"",
+            "\"krasi-georgiev\"",
+            "\"SuperQ\"",
+            "\"stuartnelson3\"",
+            "\"beorn7\"",
+            "\"juliusv\"",
+            "\"grobie\"",
+            "\"Bplotka\"",
+            "\"free\""
           ]
         },
-        "datasource": "gha",
+        "datasource": "psql",
         "hide": 0,
         "includeAll": false,
         "label": "Reviewer",
         "multi": true,
         "name": "reviewers",
         "options": [],
-        "query": "SHOW TAG VALUES WITH KEY = reviewers_name",
+        "query": "select '\"' || reviewers_name || '\"' from treviewers",
         "refresh": 1,
         "regex": "",
         "sort": 0,
@@ -276,14 +292,14 @@
           "text": "Prometheus",
           "value": "Prometheus"
         },
-        "datasource": "gha",
+        "datasource": "psql",
         "hide": 2,
         "includeAll": false,
         "label": null,
         "multi": false,
         "name": "full_name",
         "options": [],
-        "query": "SHOW TAG VALUES WITH KEY = full_name",
+        "query": "select value_s from gha_vars where name = 'full_name'",
         "refresh": 1,
         "regex": "",
         "sort": 0,
@@ -327,5 +343,5 @@
   "timezone": "",
   "title": "User reviews",
   "uid": "46",
-  "version": 4
+  "version": 7
 }

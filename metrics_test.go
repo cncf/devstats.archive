@@ -264,6 +264,15 @@ func dataForMetricTestCase(con *sql.DB, ctx *lib.Ctx, testMetric *metricTestCase
 				}
 			}
 		}
+		companies, ok := data["companies"]
+		if ok {
+			for _, company := range companies {
+				err = addCompany(con, ctx, company...)
+				if err != nil {
+					return
+				}
+			}
+		}
 		iprs, ok := data["issues_prs"]
 		if ok {
 			for _, ipr := range iprs {
@@ -355,7 +364,7 @@ func executeMetricTestCase(testMetric *metricTestCase, tests *metricTests, ctx *
 		if index < lenArgs {
 			setupArgs = testMetric.SetupArgs[index]
 		}
-		args := []reflect.Value{reflect.ValueOf(c), reflect.ValueOf(ctx), reflect.ValueOf(setupArgs)}
+		args := []reflect.Value{reflect.ValueOf(c), reflect.ValueOf(ctx), reflect.ValueOf(setupArgs), reflect.ValueOf(testMetric.Replaces)}
 		switch ret := setup.Call(args)[0].Interface().(type) {
 		case error:
 			err = ret
@@ -562,6 +571,22 @@ func addForkee(con *sql.DB, ctx *lib.Ctx, args ...interface{}) (err error) {
 			"dup_actor_id, dup_actor_login, dup_repo_id, dup_repo_name, dup_type, dup_created_at, "+
 			"dup_owner_login) "+lib.NValues(32),
 		newArgs...,
+	)
+	return
+}
+
+// Add company
+// name
+func addCompany(con *sql.DB, ctx *lib.Ctx, args ...interface{}) (err error) {
+	if len(args) != 1 {
+		err = fmt.Errorf("addCompany: expects 1 variadic parameter")
+		return
+	}
+	_, err = lib.ExecSQL(
+		con,
+		ctx,
+		"insert into gha_companies(name) "+lib.NValues(1),
+		args...,
 	)
 	return
 }
@@ -988,7 +1013,7 @@ func interfaceToYaml(fn string, i *[][]interface{}) (err error) {
 }
 
 // Set dynamic dates after loaded static YAML data
-func (metricTestCase) SetDates(con *sql.DB, ctx *lib.Ctx, arg string) (err error) {
+func (metricTestCase) SetDates(con *sql.DB, ctx *lib.Ctx, arg string, replaces [][]string) (err error) {
 	//err = fmt.Errorf("got '%s'", arg)
 	//return
 	updates := strings.Split(arg, ",")
@@ -1016,14 +1041,56 @@ func (metricTestCase) SetDates(con *sql.DB, ctx *lib.Ctx, arg string) (err error
 }
 
 // Sets Repo alias to be the same as Name on all repos
-func (metricTestCase) UpdateRepoAliasFromName(con *sql.DB, ctx *lib.Ctx, arg string) (err error) {
+func (metricTestCase) UpdateRepoAliasFromName(con *sql.DB, ctx *lib.Ctx, arg string, replaces [][]string) (err error) {
 	_, err = lib.ExecSQL(con, ctx, "update gha_repos set alias = name")
 	lib.FatalOnError(err)
 	return
 }
 
 // Create dynamic data for affiliations metric after loaded static YAML data
-func (metricTestCase) AffiliationsTestHelper(con *sql.DB, ctx *lib.Ctx, arg string) (err error) {
+func (metricTestCase) RunTags(con *sql.DB, ctx *lib.Ctx, arg string, replaces [][]string) (err error) {
+	if arg == "" {
+		return fmt.Errorf("empty tags definition")
+	}
+
+	dataPrefix := lib.DataDir
+	if ctx.Local {
+		dataPrefix = "./"
+	}
+
+	// Read tags to generate
+	data, err := lib.ReadFile(ctx, dataPrefix+ctx.TagsYaml)
+	if err != nil {
+		return err
+	}
+	var allTags lib.Tags
+	err = yaml.Unmarshal(data, &allTags)
+	if err != nil {
+		return err
+	}
+	tagsAry := strings.Split(arg, ",")
+	tagMap := make(map[string]bool)
+	for _, tag := range tagsAry {
+		tagMap[tag] = false
+	}
+	for _, tag := range allTags.Tags {
+		name := tag.Name
+		found, ok := tagMap[name]
+		if ok && !found {
+			lib.ProcessTag(con, ctx, &tag, replaces)
+			tagMap[name] = true
+		}
+	}
+	for tag, found := range tagMap {
+		if !found {
+			return fmt.Errorf("tag: %s not found", tag)
+		}
+	}
+	return
+}
+
+// Create dynamic data for affiliations metric after loaded static YAML data
+func (metricTestCase) AffiliationsTestHelper(con *sql.DB, ctx *lib.Ctx, arg string, replaces [][]string) (err error) {
 	ft := testlib.YMDHMS
 
 	// Activities counted

@@ -15,7 +15,7 @@ with matching as (
     and created_at < '{{to}}'
     and type in ('PullRequestReviewCommentEvent')
 )
-select 'gh_stats_repos_commits,' || r.alias as repo,
+select 'gstat_r_commits,' || r.alias as repo,
   round(count(distinct c.sha) / {{n}}, 2) as metric
 from
   gha_repos r,
@@ -24,10 +24,10 @@ where
   r.name = c.dup_repo_name
   and c.dup_created_at >= '{{from}}'
   and c.dup_created_at < '{{to}}'
-  and (c.dup_actor_login {{exclude_bots}})
+  and (lower(c.dup_actor_login) {{exclude_bots}})
 group by
   r.alias
-union select 'gh_stats_repos_issues_closed,' || r.alias as repo,
+union select 'gstat_r_iclosed,' || r.alias as repo,
   round(count(distinct i.id) / {{n}}, 2) as metric
 from
   gha_issues i,
@@ -38,7 +38,7 @@ where
   and i.closed_at < '{{to}}'
 group by
   r.alias
-union select 'gh_stats_repos_issues_opened,' || r.alias as repo,
+union select 'gstat_r_iopened,' || r.alias as repo,
   round(count(distinct i.id) / {{n}}, 2) as metric
 from
   gha_issues i,
@@ -49,7 +49,7 @@ where
   and i.created_at < '{{to}}'
 group by
   r.alias
-union select 'gh_stats_repos_new_prs,' || r.alias as repo,
+union select 'gstat_r_propened,' || r.alias as repo,
   round(count(distinct pr.id) / {{n}}, 2) as metric
 from
   gha_repos r,
@@ -60,7 +60,7 @@ where
   and pr.created_at < '{{to}}'
 group by
   r.alias
-union select 'gh_stats_repos_prs_merged,' || r.alias as repo,
+union select 'gstat_r_prmerged,' || r.alias as repo,
   round(count(distinct pr.id) / {{n}}, 2) as metric
 from
   gha_pull_requests pr,
@@ -72,7 +72,7 @@ where
   and pr.merged_at < '{{to}}'
 group by
   r.alias
-union select 'gh_stats_repos_prs_closed,' || r.alias as repo,
+union select 'gstat_r_prclosed,' || r.alias as repo,
   round(count(distinct pr.id) / {{n}}, 2) as metric
 from
   gha_repos r,
@@ -84,7 +84,7 @@ where
   and pr.closed_at < '{{to}}'
 group by
   r.alias
-union select 'gh_stats_repos_pr_comments,' || r.alias as repo,
+union select 'gstat_r_prcomments,' || r.alias as repo,
   round(count(distinct i.event_id) / {{n}}, 2) as metric
 from
   gha_issues i,
@@ -95,10 +95,10 @@ where
   and i.dup_created_at < '{{to}}'
   and i.dup_type = 'IssueCommentEvent'
   and i.is_pull_request = false
-  and (i.dup_actor_login {{exclude_bots}})
+  and (lower(i.dup_actor_login) {{exclude_bots}})
 group by
   r.alias
-union select 'gh_stats_repos_pr_commenters,' || r.alias as repo,
+union select 'gstat_r_prcommenters,' || r.alias as repo,
   count(distinct i.dup_actor_id) as metric
 from
   gha_issues i,
@@ -109,10 +109,10 @@ where
   and i.dup_created_at < '{{to}}'
   and i.dup_type = 'IssueCommentEvent'
   and i.is_pull_request = false
-  and (i.dup_actor_login {{exclude_bots}})
+  and (lower(i.dup_actor_login) {{exclude_bots}})
 group by
   r.alias
-union select 'gh_stats_repos_issue_comments,' || r.alias as repo,
+union select 'gstat_r_icomments,' || r.alias as repo,
   round(count(distinct i.event_id) / {{n}}, 2) as metric
 from
   gha_issues i,
@@ -123,10 +123,10 @@ where
   and i.dup_created_at < '{{to}}'
   and i.dup_type = 'IssueCommentEvent'
   and i.is_pull_request = true
-  and (i.dup_actor_login {{exclude_bots}})
+  and (lower(i.dup_actor_login) {{exclude_bots}})
 group by
   r.alias
-union select 'gh_stats_repos_issue_commenters,' || r.alias as repo,
+union select 'gstat_r_icommenters,' || r.alias as repo,
   count(distinct i.dup_actor_id) as metric
 from
   gha_issues i,
@@ -137,17 +137,17 @@ where
   and i.dup_created_at < '{{to}}'
   and i.dup_type = 'IssueCommentEvent'
   and i.is_pull_request = true
-  and (i.dup_actor_login {{exclude_bots}})
+  and (lower(i.dup_actor_login) {{exclude_bots}})
 group by
   r.alias
-union select 'gh_stats_repos_reviewers,' || r.alias as repo,
+union select 'gstat_r_reviewers,' || r.alias as repo,
     count(distinct e.dup_actor_login) as metric
   from
     gha_repos r,
     gha_events e
   where
     e.repo_id = r.id
-    and (e.dup_actor_login {{exclude_bots}})
+    and (lower(e.dup_actor_login) {{exclude_bots}})
     and e.id in (
       select min(event_id)
       from

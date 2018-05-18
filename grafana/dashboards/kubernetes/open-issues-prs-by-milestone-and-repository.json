@@ -11,13 +11,14 @@
         "type": "dashboard"
       },
       {
-        "datasource": "gha",
+        "datasource": "psql",
         "enable": true,
         "hide": false,
         "iconColor": "rgba(255, 96, 96, 1)",
         "limit": 100,
         "name": "Releases",
         "query": "SELECT title, description from annotations WHERE $timeFilter order by time asc",
+        "rawQuery": "select extract(epoch from time) AS time, title as text, description as tags from sannotations where $__timeFilter(time)",
         "showIn": 0,
         "tagsColumn": "title,description",
         "textColumn": "",
@@ -30,7 +31,7 @@
   "gnetId": null,
   "graphTooltip": 0,
   "id": 114,
-  "iteration": 1523003170812,
+  "iteration": 1526301326799,
   "links": [],
   "panels": [
     {
@@ -38,7 +39,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "gha",
+      "datasource": "psql",
       "decimals": 0,
       "description": "Number of open PRs and Issues for a given SIG: [[sig_name]] and Milestone: [[milestone_name]]",
       "fill": 2,
@@ -82,8 +83,9 @@
       "steppedLine": true,
       "targets": [
         {
-          "alias": "Open Issues",
+          "alias": "",
           "dsType": "influxdb",
+          "format": "time_series",
           "groupBy": [],
           "hide": false,
           "measurement": "reviewers_d",
@@ -91,6 +93,7 @@
           "policy": "autogen",
           "query": "SELECT \"value\" FROM \"open_issues_sigs_milestones_[[sig]]_[[milestone]]_[[repo]]_d\" WHERE $timeFilter",
           "rawQuery": true,
+          "rawSql": "select\n  time,\n  value as \"Open issues\"\nfrom\n  sissues_milestones\nwhere\n  $__timeFilter(time)\n  and series = 'isigml[[sig]][[milestone]][[repo]]'\norder by\n  time",
           "refId": "A",
           "resultFormat": "time_series",
           "select": [
@@ -106,8 +109,9 @@
           "tags": []
         },
         {
-          "alias": "Open PRs",
+          "alias": "",
           "dsType": "influxdb",
+          "format": "time_series",
           "groupBy": [],
           "hide": false,
           "measurement": "reviewers_d",
@@ -115,6 +119,7 @@
           "policy": "autogen",
           "query": "SELECT \"value\" FROM \"open_prs_sigs_milestones_[[sig]]_[[milestone]]_[[repo]]_d\" WHERE $timeFilter",
           "rawQuery": true,
+          "rawSql": "select\n  time,\n  value as \"Open PRs\"\nfrom\n  sprs_milestones\nwhere\n  $__timeFilter(time)\n  and series = 'prsigml[[sig]][[milestone]][[repo]]'\norder by\n  time",
           "refId": "B",
           "resultFormat": "time_series",
           "select": [
@@ -169,7 +174,11 @@
           "min": "0",
           "show": true
         }
-      ]
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
     }
   ],
   "refresh": false,
@@ -190,14 +199,14 @@
           "text": "All",
           "value": "All"
         },
-        "datasource": "gha",
+        "datasource": "psql",
         "hide": 0,
         "includeAll": false,
         "label": "SIG",
         "multi": false,
         "name": "sig_name",
         "options": [],
-        "query": "SHOW TAG VALUES WITH KEY = sig_mentions_labels_name_with_all",
+        "query": "select sig_mentions_labels_name_with_all from tsig_mentions_labels_with_all order by 1",
         "refresh": 1,
         "regex": "",
         "sort": 0,
@@ -213,14 +222,14 @@
           "text": "all",
           "value": "all"
         },
-        "datasource": "gha",
+        "datasource": "psql",
         "hide": 2,
         "includeAll": false,
         "label": "",
         "multi": false,
         "name": "sig",
         "options": [],
-        "query": "SHOW TAG VALUES WITH KEY = sig_mentions_labels_value_with_all where sig_mentions_labels_name_with_all =~ /^[[sig_name]]$/",
+        "query": "select sig_mentions_labels_value_with_all from tsig_mentions_labels_with_all where sig_mentions_labels_name_with_all = '[[sig_name]]'",
         "refresh": 1,
         "regex": "",
         "sort": 0,
@@ -236,14 +245,14 @@
           "text": "All",
           "value": "All"
         },
-        "datasource": "gha",
+        "datasource": "psql",
         "hide": 0,
         "includeAll": false,
         "label": "Milestone",
         "multi": false,
         "name": "milestone_name",
         "options": [],
-        "query": "SHOW TAG VALUES WITH KEY = all_milestones_name",
+        "query": "select all_milestones_name from tall_milestones order by all_milestones_value",
         "refresh": 1,
         "regex": "",
         "sort": 0,
@@ -259,14 +268,14 @@
           "text": "all",
           "value": "all"
         },
-        "datasource": "gha",
+        "datasource": "psql",
         "hide": 2,
         "includeAll": false,
         "label": "",
         "multi": false,
         "name": "milestone",
         "options": [],
-        "query": "SHOW TAG VALUES WITH KEY = all_milestones_value where all_milestones_name =~ /^[[milestone_name]]$/",
+        "query": "select all_milestones_value from tall_milestones where all_milestones_name = '[[milestone_name]]'",
         "refresh": 1,
         "regex": "",
         "sort": 0,
@@ -282,14 +291,14 @@
           "text": "kubernetes/kubernetes",
           "value": "kubernetes/kubernetes"
         },
-        "datasource": "gha",
+        "datasource": "psql",
         "hide": 0,
         "includeAll": false,
         "label": "Repository",
         "multi": false,
         "name": "repo_name",
         "options": [],
-        "query": "SHOW TAG VALUES WITH KEY = top_repos_name_with_all",
+        "query": "select top_repo_names_name_with_all from ttop_repo_names_with_all order by 1",
         "refresh": 1,
         "regex": "",
         "sort": 1,
@@ -302,17 +311,17 @@
       {
         "allValue": null,
         "current": {
-          "text": "kubernetes_kubernetes",
-          "value": "kubernetes_kubernetes"
+          "text": "kuberneteskubernetes",
+          "value": "kuberneteskubernetes"
         },
-        "datasource": "gha",
+        "datasource": "psql",
         "hide": 2,
         "includeAll": false,
         "label": "",
         "multi": false,
         "name": "repo",
         "options": [],
-        "query": "SHOW TAG VALUES WITH KEY = top_repos_value_with_all where top_repos_name_with_all =~ /^[[repo_name]]$/",
+        "query": "select top_repo_names_value_with_all from ttop_repo_names_with_all where top_repo_names_name_with_all = '[[repo_name]]'",
         "refresh": 1,
         "regex": "",
         "sort": 0,
@@ -328,14 +337,14 @@
           "text": "Kubernetes",
           "value": "Kubernetes"
         },
-        "datasource": "gha",
+        "datasource": "psql",
         "hide": 2,
         "includeAll": false,
         "label": null,
         "multi": false,
         "name": "full_name",
         "options": [],
-        "query": "SHOW TAG VALUES WITH KEY = full_name",
+        "query": "select value_s from gha_vars where name = 'full_name'",
         "refresh": 1,
         "regex": "",
         "sort": 0,
@@ -348,7 +357,7 @@
     ]
   },
   "time": {
-    "from": "now-3y",
+    "from": "now-2y",
     "to": "now"
   },
   "timepicker": {
@@ -379,5 +388,5 @@
   "timezone": "",
   "title": "Open issues/PRs by milestone and repository",
   "uid": "22",
-  "version": 3
+  "version": 10
 }

@@ -26,11 +26,8 @@
   - This script will deploy all missing projects (it creates databases, grafanas, certificates, basical creates any missing project from scratch).
   - You can use `GHA2DB_SKIP_FULL_DEPLOY=1` to disable this, this is a good idea on the test server, where you usually add all stuff manually, and even if not - you can manually call `./devel/deploy_all.sh` to see results.
   - To make full deploy work, you may want to configure additional environment variables.
-  - You need to set standard Influx DB access variables (they're not needed when full deplopy script is not called): `IDB_HOST` and `IDB_PASS`.
-  - Use `IGET=1` to allow deploy script to fetch Influx database from the test server instead of generating it locally from scratch (this is 100x faster for 'All CNCF' project case - this project must be updated everytime new CNCF project is added, so **this** is the recommended way).
-  - `IGET=1` requires setting `IDB_PASS_SRC` - password for the test machine Influx to copy series from.
   - Use `GET=1` to allow deploy script to fetch Postgres database from the test server instead of generating it locally (also orders of magnitude faster than generating locally).
   - This fetches datbase dump which is available via WWW, so no additional password variables are needed.
   - You can deploy from webhook on the test server, but it would have to generate all data from scratch, so it will take a very long time and will be harder to debug becaus eit runs from the cron job.
   - Finally take a look at the example [crontab](https://github.com/cncf/devstats/blob/master/crontab.entry) file, it has comments about what to put in the test environment and what in the production.
-- To check `webhook` tool locally use `PG_PASS=pwd IDB_PASS=pwd IDB_HOST=localhost IDB_PASS_SRC=pwd IGET=1 GET=1 ./webhook.sh` and then `./test_webhook.sh` from another terminal.
+- To check `webhook` tool locally use `PG_PASS=pwd GET=1 ./webhook.sh` and then `./test_webhook.sh` from another terminal.

@@ -1,3 +1,2 @@
 #!/bin/bash
-./grafana/influxdb_recreate.sh test
-GHA2DB_TAGS_YAML=devel/test_tags.yaml GHA2DB_LOCAL=1 IDB_DB=test ./idb_tags
+GHA2DB_TAGS_YAML=devel/test_tags.yaml GHA2DB_LOCAL=1 PG_DB=test ./tags

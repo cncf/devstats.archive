@@ -2,7 +2,7 @@
 
 Links:
 - Postgres SQL file: [sig_mentions.sql](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/sig_mentions.sql).
-- InfluxDB series definition: [metrics.yaml](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/metrics.yaml#L246-L252).
+- Series definition: [metrics.yaml](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/metrics.yaml#L246-L252).
 - Grafana dashboard JSON: [sig_mentions.json](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/sig_mentions.json).
 - User documentation: [sig_mentions.md](https://github.com/cncf/devstats/blob/master/docs/dashboards/kubernetes/sig_mentions.md).
 - Production version: [view](https://k8s.devstats.cncf.io/d/41/sig-mentions?orgId=1).
@@ -20,9 +20,9 @@ Links:
 - We're also excluding bots activity (see [excluding bots](https://github.com/cncf/devstats/blob/master/docs/excluding_bots.md))
 - Each row returns single value, so the metric type is: `multi_row_single_column`.
 - Each row is in the format column 1: `sig_mentions_texts,SIGName`, column 2: `NumberOfSIGMentions`.
-- This metric uses `multi_value: true`, so each SIG is saved under different column name in a Influx DB series.
+- This metric uses `multi_value: true`, so each SIG is saved under different column name in a TSDB series.
 
-# Periods and Influx series
+# Periods and time series
 
 Metric usage is defined in metric.yaml as follows:
 ```
@@ -34,18 +34,18 @@ skip: w7,m7,q7,y7
 multi_value: true
 ```
 - It means that we should call Postgres metric [sig_mentions.sql](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/sig_mentions.sql).
-- We should expect multiple rows each with 2 columns: 1st defines output Influx series name, 2nd defines value.
+- We should expect multiple rows each with 2 columns: 1st defines output series name, 2nd defines value.
 - See [here](https://github.com/cncf/devstats/blob/master/docs/periods.md) for periods definitions.
-- The final InfluxDB series name would be: `sig_mentions_texts_[[period]]`. Where `[[period]]` will be from d,w,m,q,y,d7.
+- The final series name would be: `sig_mentions_texts_[[period]]`. Where `[[period]]` will be from d,w,m,q,y,d7.
 - Each of those series (for example `sig_mentions_texts_d7`) will contain multiple columns (each column represent single SIG) with time series data.
 - Final query is here: [sig_mentions.json](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/sig_mentions.json#L117): `SELECT /^[[sigs]]$/ FROM \"sig_mentions_texts_[[period]]\" WHERE $timeFilter`.
 - `$timeFiler` value comes from Grafana date range selector. It is handled by Grafana internally.
 - `[[period]]` comes from Variable definition in dashboard JSON: [sig_mentions.json](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/sig_mentions.json#L184-L225).
 - `[[sigs]]` comes from Variable definition in dashboard JSON: [sig_mentions.json](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/sig_mentions.json#L230-L248).
 - Note that this is a multi value select and reqexp part `/^[[sigs]]$/` means that we want to see all values currently selected from the drop-down.
-- SIGs come from the InfluxDB tags: `SHOW TAG VALUES WITH KEY = sig_mentions_texts_name`, this tag is defined here: [idb_tags.yaml](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/idb_tags.yaml#L44).
+- SIGs come from the tags: `SHOW TAG VALUES WITH KEY = sig_mentions_texts_name`, this tag is defined here: [tags.yaml](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/tags.yaml#L44).
 - For more informations about tags check [here](https://github.com/cncf/devstats/blob/master/docs/tags.md).
 - Releases comes from Grafana annotations: [sig_mentions.json](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/sig_mentions.json#L43-L55).
 - For more details about annotations check [here](https://github.com/cncf/devstats/blob/master/docs/annotations.md).
 - Project name is customized per project, it uses `[[full_name]]` template variable [definition](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/sig_mentions.json#L251-L268) and is [used as project name](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/sig_mentions.json#L54).
-- Per project variables are defined using `idb_vars`, `pdb_vars` tools, more info [here](https://github.com/cncf/devstats/blob/master/docs/vars.md).
+- Per project variables are defined using `vars` tools, more info [here](https://github.com/cncf/devstats/blob/master/docs/vars.md).

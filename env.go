@@ -8,8 +8,8 @@ import (
 
 // EnvReplace - replace all environment variables starting with "prefix"
 // with contents of variables with "suffix" added - if defined
-// If prexis is "IDB_" and suffix is "_SRC" then:
-// So if there is "IDB_HOST_SRC" variable defined - it will replace "IDB_HOST" and so on
+// If prefix is "DB_" and suffix is "_SRC" then:
+// So if there is "DB_HOST_SRC" variable defined - it will replace "DB_HOST" and so on
 func EnvReplace(prefix, suffix string) map[string]string {
 	if suffix == "" {
 		return map[string]string{}

@@ -8,22 +8,27 @@ before_install:
   - go get github.com/jgautheron/goconst/cmd/goconst
   - go get github.com/jgautheron/usedexports
   - go get github.com/kisielk/errcheck
+#  - go get github.com/google/go-github/github
+#  - go get github.com/lib/pq
+#  - go get golang.org/x/oauth2
+#  - go get golang.org/x/text/transform
+#  - go get golang.org/x/text/unicode/norm
+#  - go get gopkg.in/yaml.v2
+#  - go get github.com/mattn/go-sqlite3
   - sudo -u postgres createdb gha
-  - sudo -u postgres psql gha -c "create user gha_admin with password 'pwd';"
-  - sudo -u postgres psql gha -c 'grant all privileges on database "gha" to gha_admin;'
-  - sudo -u postgres psql gha -c "alter user gha_admin createdb;"
-  - curl -sL https://repos.influxdata.com/influxdb.key | sudo apt-key add -
-  - source /etc/lsb-release
-  - echo "deb https://repos.influxdata.com/${DISTRIB_ID,,} ${DISTRIB_CODENAME} stable" | sudo tee /etc/apt/sources.list.d/influxdb.list
-  - sudo apt-get update
-  - sudo apt-get install influxdb
-  - sudo service influxdb start
+  - sudo -u postgres psql gha -c "create user gha_admin with password 'pwd'"
+  - sudo -u postgres psql gha -c 'grant all privileges on database "gha" to gha_admin'
+  - sudo -u postgres psql gha -c "alter user gha_admin createdb"
+  - sudo -u postgres psql gha -c "create user ro_user with password 'pwd'"
+  - sudo -u postgres psql gha -c 'grant all privileges on database "gha" to ro_user'
+  - sudo -u postgres psql gha -c "create user devstats_team with password 'pwd'"
+  - sudo -u postgres psql gha -c 'grant all privileges on database "gha" to devstats_team'
 script:
   - mv /home/travis/gopath/src/github.com/cncf/devstats /home/travis/gopath/src/devstats
   - cd /home/travis/gopath/src/devstats
   - make
   - make test
-  - GHA2DB_PROJECT=kubernetes PG_PASS=pwd ./dbtest.sh
+  - GHA2DB_PROJECT=kubernetes GHA2DB_LOCAL=1 PG_PASS=pwd ./dbtest.sh
 services:
   - postgresql
 addons:

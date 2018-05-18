@@ -544,7 +544,7 @@ func ghapi2db(ctx *lib.Ctx) {
 
 	// Get issues/PRs to check
 	// repo, number, issueID, is_pr
-	var issuesMutex = &sync.Mutex{}
+	var issuesMutex = &sync.RWMutex{}
 	issues := make(map[int64]issueConfig)
 	var (
 		repo    string
@@ -651,9 +651,9 @@ func ghapi2db(ctx *lib.Ctx) {
 	for _, key := range keys {
 		go func(ch chan bool, iid int64) {
 			// Refer to current tag using index passed to anonymous function
-			issuesMutex.Lock()
+			issuesMutex.RLock()
 			cfg := issues[iid]
-			issuesMutex.Unlock()
+			issuesMutex.RUnlock()
 			if ctx.Debug > 0 {
 				lib.Printf("GitHub Issue ID (before) '%d' --> '%v'\n", iid, cfg)
 			}
@@ -786,9 +786,9 @@ func ghapi2db(ctx *lib.Ctx) {
 	for key := range issues {
 		go func(ch chan bool, iid int64) {
 			// Refer to current tag using index passed to anonymous function
-			issuesMutex.Lock()
+			issuesMutex.RLock()
 			cfg := issues[iid]
-			issuesMutex.Unlock()
+			issuesMutex.RUnlock()
 			if ctx.Debug > 0 {
 				lib.Printf("GHA Issue ID '%d' --> '%v'\n", iid, cfg)
 			}

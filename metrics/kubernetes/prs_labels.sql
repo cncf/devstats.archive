@@ -86,7 +86,7 @@ select
   sub.name,
   count(distinct sub.issue_id) as label_count
 from (
-  select 'prs_labelled,' || coalesce(ecf.repo_group, re.repo_group) || ': All labels combined' as name,
+  select 'prlbl,' || coalesce(ecf.repo_group, re.repo_group) || ': All labels combined' as name,
     r.issue_id
   from
     labels r
@@ -98,7 +98,7 @@ from (
     gha_events_commits_files ecf
   on
     ecf.event_id = r.event_id
-  union select 'prs_labelled,' || coalesce(ecf.repo_group, re.repo_group) || ': ' || r.label as name,
+  union select 'prlbl,' || coalesce(ecf.repo_group, re.repo_group) || ': ' || r.label as name,
     r.issue_id
   from
     labels r
@@ -110,11 +110,11 @@ from (
     gha_events_commits_files ecf
   on
     ecf.event_id = r.event_id
-union select 'prs_labelled,All repos combined: All labels combined' as name,
+union select 'prlbl,All repos combined: All labels combined' as name,
   r.issue_id
 from
   labels r
-union select 'prs_labelled,All repos combined: ' || r.label as name,
+union select 'prlbl,All repos combined: ' || r.label as name,
   r.issue_id
 from
   labels r

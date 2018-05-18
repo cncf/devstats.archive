@@ -11,13 +11,14 @@
         "type": "dashboard"
       },
       {
-        "datasource": "gha",
+        "datasource": "psql",
         "enable": true,
         "hide": false,
         "iconColor": "rgba(255, 96, 96, 1)",
         "limit": 100,
         "name": "Releases",
         "query": "SELECT title, description from annotations WHERE $timeFilter order by time asc",
+        "rawQuery": "select extract(epoch from time) AS time, title as text, description as tags from sannotations where $__timeFilter(time)",
         "showIn": 0,
         "tagsColumn": "title,description",
         "textColumn": "",
@@ -29,8 +30,8 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 5,
-  "iteration": 1.522395496929e+12,
+  "id": 37,
+  "iteration": 1526468870704,
   "links": [],
   "panels": [
     {
@@ -38,7 +39,7 @@
       "bars": true,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "gha",
+      "datasource": "psql",
       "decimals": 0,
       "description": "Number of comments for [[repogroup]] repository group.",
       "fill": 1,
@@ -76,8 +77,9 @@
       "steppedLine": false,
       "targets": [
         {
-          "alias": "Comments",
+          "alias": "",
           "dsType": "influxdb",
+          "format": "time_series",
           "groupBy": [],
           "hide": false,
           "measurement": "reviewers_d",
@@ -85,6 +87,7 @@
           "policy": "autogen",
           "query": "SELECT \"value\" FROM \"autogen\".\"repo_comments_[[repogroup]]_[[period]][[aggregate]]\" WHERE $timeFilter",
           "rawQuery": true,
+          "rawSql": "select\n  time,\n  value as \"Comments\"\nfrom\n  srcomments[[repogroup]]\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\norder by\n  time",
           "refId": "A",
           "resultFormat": "time_series",
           "select": [
@@ -103,7 +106,7 @@
       "thresholds": [],
       "timeFrom": null,
       "timeShift": null,
-      "title": "[[repogroup_name]] comments ([[aggregate]] [[period]])",
+      "title": "[[repogroup_name]] comments ([[period]])",
       "tooltip": {
         "shared": false,
         "sort": 0,
@@ -137,7 +140,11 @@
           "min": "0",
           "show": true
         }
-      ]
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
     }
   ],
   "refresh": false,
@@ -152,32 +159,9 @@
       {
         "allValue": null,
         "current": {
-          "text": "SPIRE",
-          "value": "SPIRE"
-        },
-        "datasource": "gha",
-        "hide": 2,
-        "includeAll": false,
-        "label": null,
-        "multi": false,
-        "name": "full_name",
-        "options": [],
-        "query": "SHOW TAG VALUES WITH KEY = full_name",
-        "refresh": 1,
-        "regex": "",
-        "sort": 0,
-        "tagValuesQuery": "",
-        "tags": [],
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false
-      },
-      {
-        "allValue": null,
-        "current": {
-          "selected": true,
-          "text": "Day",
-          "value": "d"
+          "tags": [],
+          "text": "7 Days MA",
+          "value": "d7"
         },
         "hide": 0,
         "includeAll": false,
@@ -186,9 +170,14 @@
         "name": "period",
         "options": [
           {
-            "selected": true,
+            "selected": false,
             "text": "Day",
             "value": "d"
+          },
+          {
+            "selected": true,
+            "text": "7 Days MA",
+            "value": "d7"
           },
           {
             "selected": false,
@@ -211,56 +200,23 @@
             "value": "y"
           }
         ],
-        "query": "d,w,m,q,y",
+        "query": "d,d7,w,m,q,y",
         "type": "custom"
       },
       {
         "allValue": null,
         "current": {
-          "selected": true,
-          "text": "Moving average 7",
-          "value": "7"
-        },
-        "hide": 0,
-        "includeAll": false,
-        "label": "Aggregate",
-        "multi": false,
-        "name": "aggregate",
-        "options": [
-          {
-            "selected": false,
-            "text": "Single",
-            "value": ""
-          },
-          {
-            "selected": false,
-            "text": "Moving average 3",
-            "value": "3"
-          },
-          {
-            "selected": true,
-            "text": "Moving average 7",
-            "value": "7"
-          }
-        ],
-        "query": ",2,3,4,7,12",
-        "type": "custom"
-      },
-      {
-        "allValue": null,
-        "current": {
-          "tags": [],
           "text": "All",
           "value": "All"
         },
-        "datasource": "gha",
+        "datasource": "psql",
         "hide": 0,
         "includeAll": false,
         "label": "Repository group",
         "multi": false,
         "name": "repogroup_name",
         "options": [],
-        "query": "SHOW TAG VALUES WITH KEY = all_repo_group_name",
+        "query": "select all_repo_group_name from tall_repo_groups order by 1",
         "refresh": 1,
         "regex": "",
         "sort": 0,
@@ -276,14 +232,37 @@
           "text": "all",
           "value": "all"
         },
-        "datasource": "gha",
+        "datasource": "psql",
         "hide": 2,
         "includeAll": false,
         "label": "",
         "multi": false,
         "name": "repogroup",
         "options": [],
-        "query": "SHOW TAG VALUES WITH KEY = all_repo_group_value where all_repo_group_name =~ /^[[repogroup_name]]$/",
+        "query": "select all_repo_group_value from tall_repo_groups where all_repo_group_name = '[[repogroup_name]]'",
+        "refresh": 1,
+        "regex": "",
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "text": "Prometheus",
+          "value": "Prometheus"
+        },
+        "datasource": "psql",
+        "hide": 2,
+        "includeAll": false,
+        "label": null,
+        "multi": false,
+        "name": "full_name",
+        "options": [],
+        "query": "select value_s from gha_vars where name = 'full_name'",
         "refresh": 1,
         "regex": "",
         "sort": 0,
@@ -296,7 +275,7 @@
     ]
   },
   "time": {
-    "from": "now-1y",
+    "from": "now-2y",
     "to": "now"
   },
   "timepicker": {

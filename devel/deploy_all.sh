@@ -1,23 +1,17 @@
 #!/bin/bash
 # ARTWORK
 # GET=1 (attempt to fetch Postgres database and Grafana database from the test server)
-# IGET=1 (attempt to fetch Influx database from the test server)
 # AGET=1 (attempt to fetch 'All CNCF' Postgres database from the test server)
 # INIT=1 (needs PG_PASS_RO, PG_PASS_TEAM, initialize from no postgres database state, creates postgres logs database and users)
 # SKIPWWW=1 (skips Apache and SSL cert configuration, final result will be Grafana exposed on the server on its port (for example 3010) via HTTP)
-# SKIPVARS=1 (if set it will skip final Postgres/Influx vars regeneration)
+# SKIPVARS=1 (if set it will skip final Postgres vars regeneration)
 # CUSTGRAFPATH=1 (set this to use non-standard grafana instalation from ~/grafana.v5/)
 set -o pipefail
 exec > >(tee run.log)
 exec 2> >(tee errors.txt)
-if ( [ -z "$PG_PASS" ] || [ -z "$IDB_PASS" ] || [ -z "$IDB_HOST" ] )
+if [ -z "$PG_PASS" ]
 then
-  echo "$0: You need to set PG_PASS, IDB_PASS, IDB_HOST environment variables to run this script"
-  exit 1
-fi
-if ( [ ! -z "$IGET" ] && [ -z "$IDB_PASS_SRC" ] )
-then
-  echo "$0: You need to set IDB_PASS_SRC environment variable when using IGET"
+  echo "$0: You need to set PG_PASS environment variable to run this script"
   exit 1
 fi
 if ( [ ! -z "$INIT" ] && ( [ -z "$PG_PASS_RO" ] || [ -z "$PG_PASS_TEAM" ] ) )
@@ -88,10 +82,10 @@ do
   db=$proj
   if [ "$proj" = "kubernetes" ]
   then
-    PROJ=kubernetes     PROJDB=gha            PROJREPO="kubernetes/kubernetes"      ORGNAME=Kubernetes  PORT=2999 ICON=kubernetes  GRAFSUFF=k8s            GA="UA-108085315-1"  SKIPTEMP=1 IGEN=1 ./devel/deploy_proj.sh || exit 2
+    PROJ=kubernetes     PROJDB=gha            PROJREPO="kubernetes/kubernetes"      ORGNAME=Kubernetes  PORT=2999 ICON=kubernetes  GRAFSUFF=k8s            GA="UA-108085315-1"  ./devel/deploy_proj.sh || exit 2
   elif [ "$proj" = "prometheus" ]
   then
-    PROJ=prometheus     PROJDB=prometheus     PROJREPO="prometheus/prometheus"      ORGNAME=Prometheus  PORT=3001 ICON=prometheus  GRAFSUFF=prometheus     GA="UA-108085315-3"  SKIPTEMP=1 ./devel/deploy_proj.sh || exit 3
+    PROJ=prometheus     PROJDB=prometheus     PROJREPO="prometheus/prometheus"      ORGNAME=Prometheus  PORT=3001 ICON=prometheus  GRAFSUFF=prometheus     GA="UA-108085315-3"  ./devel/deploy_proj.sh || exit 3
   elif [ "$proj" = "opentracing" ]
   then
     PROJ=opentracing    PROJDB=opentracing    PROJREPO="opentracing/opentracing-go" ORGNAME=OpenTracing PORT=3002 ICON=opentracing GRAFSUFF=opentracing    GA="UA-108085315-4"  ./devel/deploy_proj.sh || exit 4
@@ -103,7 +97,7 @@ do
     PROJ=linkerd        PROJDB=linkerd        PROJREPO="linkerd/linkerd"            ORGNAME=Linkerd     PORT=3004 ICON=linkerd     GRAFSUFF=linkerd        GA="UA-108085315-6"  ./devel/deploy_proj.sh || exit 6
   elif [ "$proj" = "grpc" ]
   then
-    PROJ=grpc           PROJDB=grpc           PROJREPO="grpc/grpc"                  ORGNAME=gRPC        PORT=3005 ICON=grpc        GRAFSUFF=grpc           GA="UA-108085315-7"  SKIPTEMP=1 ./devel/deploy_proj.sh || exit 7
+    PROJ=grpc           PROJDB=grpc           PROJREPO="grpc/grpc"                  ORGNAME=gRPC        PORT=3005 ICON=grpc        GRAFSUFF=grpc           GA="UA-108085315-7"  ./devel/deploy_proj.sh || exit 7
   elif [ "$proj" = "coredns" ]
   then
     PROJ=coredns        PROJDB=coredns        PROJREPO="coredns/coredns"            ORGNAME=CoreDNS     PORT=3006 ICON=coredns     GRAFSUFF=coredns        GA="UA-108085315-9"  ./devel/deploy_proj.sh || exit 8
@@ -154,20 +148,19 @@ do
     PROJ=cncf           PROJDB=cncf           PROJREPO="cncf/landscape"             ORGNAME=CNCF        PORT=3255 ICON=cncf        GRAFSUFF=cncf           GA="UA-108085315-8" ./devel/deploy_proj.sh || exit 23
   elif [ "$proj" = "all" ]
   then
-    PROJ=all            PROJDB=allprj         PROJREPO="not/used"                   ORGNAME="All CNCF"  PORT=3254 ICON=cncf        GRAFSUFF=all            GA="UA-108085315-20" SKIPTEMP=1 ./devel/deploy_proj.sh || exit 24
+    PROJ=all            PROJDB=allprj         PROJREPO="not/used"                   ORGNAME="All CNCF"  PORT=3254 ICON=cncf        GRAFSUFF=all            GA="UA-108085315-20" ./devel/deploy_proj.sh || exit 24
   else
     echo "Unknown project: $proj"
-    exit 28
+    exit 25
   fi
 done
 
 if [ -z "$SKIPWWW" ]
 then
-  CERT=1 WWW=1 ./devel/create_www.sh || exit 25
+  CERT=1 WWW=1 ./devel/create_www.sh || exit 26
 fi
 if [ -z "$SKIPVARS" ]
 then
-  ./devel/pdb_vars_all.sh || exit 26
-  ./devel/idb_vars_all.sh || exit 27
+  ./devel/vars_all.sh || exit 27
 fi
 echo "$0: All deployments finished"

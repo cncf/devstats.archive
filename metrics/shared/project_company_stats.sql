@@ -1,5 +1,5 @@
 select 
-  'project_company_stats,' || sub.metric as metric,
+  'hcom,' || sub.metric as metric,
   sub.company as name,
   sub.value as value
 from (
@@ -14,7 +14,7 @@ from (
     and af.dt_from <= c.dup_created_at
     and af.dt_to > c.dup_created_at
     and {{period:c.dup_created_at}}
-    and (c.dup_actor_login {{exclude_bots}})
+    and (lower(c.dup_actor_login) {{exclude_bots}})
   group by
     af.company_name
   union select case e.type
@@ -42,7 +42,7 @@ from (
       'CommitCommentEvent', 'ForkEvent', 'WatchEvent'
     )
     and {{period:e.created_at}}
-    and (e.dup_actor_login {{exclude_bots}})
+    and (lower(e.dup_actor_login) {{exclude_bots}})
   group by
     e.type,
     af.company_name
@@ -58,7 +58,7 @@ from (
     and af.dt_to > e.created_at
     and e.type in ('PushEvent', 'PullRequestEvent', 'IssuesEvent')
     and {{period:e.created_at}}
-    and (e.dup_actor_login {{exclude_bots}})
+    and (lower(e.dup_actor_login) {{exclude_bots}})
   group by
     af.company_name
   union select 'Contributions' as metric,
@@ -73,7 +73,7 @@ from (
     and af.dt_to > e.created_at
     and e.type in ('PushEvent', 'PullRequestEvent', 'IssuesEvent')
     and {{period:e.created_at}}
-    and (e.dup_actor_login {{exclude_bots}})
+    and (lower(e.dup_actor_login) {{exclude_bots}})
   group by
     af.company_name
   union select 'Repositories' as metric,
@@ -87,7 +87,7 @@ from (
     and af.dt_from <= e.created_at
     and af.dt_to > e.created_at
     and {{period:e.created_at}}
-    and (e.dup_actor_login {{exclude_bots}})
+    and (lower(e.dup_actor_login) {{exclude_bots}})
   group by
     af.company_name
   union select 'Comments' as metric,
@@ -101,7 +101,7 @@ from (
     and af.dt_from <= c.created_at
     and af.dt_to > c.created_at
     and {{period:c.created_at}}
-    and (c.dup_user_login {{exclude_bots}})
+    and (lower(c.dup_user_login) {{exclude_bots}})
   group by
     af.company_name
   union select 'Commenters' as metric,
@@ -115,7 +115,7 @@ from (
     and af.dt_from <= c.created_at
     and af.dt_to > c.created_at
     and {{period:c.created_at}}
-    and (c.dup_user_login {{exclude_bots}})
+    and (lower(c.dup_user_login) {{exclude_bots}})
   group by
     af.company_name
   union select 'Issues' as metric,
@@ -130,7 +130,7 @@ from (
     and af.dt_to > i.created_at
     and {{period:i.created_at}}
     and i.is_pull_request = false
-    and (i.dup_user_login {{exclude_bots}})
+    and (lower(i.dup_user_login) {{exclude_bots}})
   group by
     af.company_name
   union select 'PRs' as metric,
@@ -145,7 +145,7 @@ from (
     and af.dt_to > i.created_at
     and {{period:i.created_at}}
     and i.is_pull_request = true
-    and (i.dup_user_login {{exclude_bots}})
+    and (lower(i.dup_user_login) {{exclude_bots}})
   group by
     af.company_name
   union select 'Events' as metric,
@@ -159,7 +159,7 @@ from (
     and af.dt_from <= e.created_at
     and af.dt_to > e.created_at
     and {{period:e.created_at}}
-    and (e.dup_actor_login {{exclude_bots}})
+    and (lower(e.dup_actor_login) {{exclude_bots}})
     and e.type != 'ArtificialEvent'
   group by
     af.company_name
@@ -170,7 +170,7 @@ from (
     gha_commits c
   where
     {{period:c.dup_created_at}}
-    and (c.dup_actor_login {{exclude_bots}})
+    and (lower(c.dup_actor_login) {{exclude_bots}})
   union select case e.type
       when 'IssuesEvent' then 'Issue creators'
       when 'PullRequestEvent' then 'PR creators'
@@ -192,7 +192,7 @@ from (
       'CommitCommentEvent', 'ForkEvent', 'WatchEvent'
     )
     and {{period:e.created_at}}
-    and (e.dup_actor_login {{exclude_bots}})
+    and (lower(e.dup_actor_login) {{exclude_bots}})
   group by
     e.type
   union select 'Contributors' as metric,
@@ -203,7 +203,7 @@ from (
   where
     e.type in ('PushEvent', 'PullRequestEvent', 'IssuesEvent')
     and {{period:e.created_at}}
-    and (e.dup_actor_login {{exclude_bots}})
+    and (lower(e.dup_actor_login) {{exclude_bots}})
   union select 'Contributions' as metric,
     'All' as company,
     count(distinct e.id) as value
@@ -212,7 +212,7 @@ from (
   where
     e.type in ('PushEvent', 'PullRequestEvent', 'IssuesEvent')
     and {{period:e.created_at}}
-    and (e.dup_actor_login {{exclude_bots}})
+    and (lower(e.dup_actor_login) {{exclude_bots}})
   union select 'Repositories' as metric,
     'All' as company,
     count(distinct e.repo_id) as value
@@ -220,7 +220,7 @@ from (
     gha_events e
   where
     {{period:e.created_at}}
-    and (e.dup_actor_login {{exclude_bots}})
+    and (lower(e.dup_actor_login) {{exclude_bots}})
   union select 'Comments' as metric,
     'All' as company,
     count(distinct c.id) as value
@@ -228,7 +228,7 @@ from (
     gha_comments c
   where
     {{period:c.created_at}}
-    and (c.dup_user_login {{exclude_bots}})
+    and (lower(c.dup_user_login) {{exclude_bots}})
   union select 'Commenters' as metric,
     'All' as company,
     count(distinct c.user_id) as value
@@ -236,7 +236,7 @@ from (
     gha_comments c
   where
     {{period:c.created_at}}
-    and (c.dup_user_login {{exclude_bots}})
+    and (lower(c.dup_user_login) {{exclude_bots}})
   union select 'Issues' as metric,
     'All' as company,
     count(distinct i.id) as value
@@ -245,7 +245,7 @@ from (
   where
     {{period:i.created_at}}
     and i.is_pull_request = false
-    and (i.dup_user_login {{exclude_bots}})
+    and (lower(i.dup_user_login) {{exclude_bots}})
   union select 'PRs' as metric,
     'All' as company,
     count(distinct i.id) as value
@@ -254,7 +254,7 @@ from (
   where
     {{period:i.created_at}}
     and i.is_pull_request = true
-    and (i.dup_user_login {{exclude_bots}})
+    and (lower(i.dup_user_login) {{exclude_bots}})
   union select 'Events' as metric,
     'All' as company,
     count(e.id) as value
@@ -262,7 +262,7 @@ from (
     gha_events e
   where
     {{period:e.created_at}}
-    and (e.dup_actor_login {{exclude_bots}})
+    and (lower(e.dup_actor_login) {{exclude_bots}})
     and e.type != 'ArtificialEvent'
   ) sub
 where

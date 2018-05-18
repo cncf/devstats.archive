@@ -11,13 +11,14 @@
         "type": "dashboard"
       },
       {
-        "datasource": "gha",
+        "datasource": "psql",
         "enable": true,
         "hide": false,
         "iconColor": "rgba(255, 96, 96, 1)",
         "limit": 100,
         "name": "Releases",
         "query": "SELECT title, description from annotations WHERE $timeFilter order by time asc",
+        "rawQuery": "select extract(epoch from time) AS time, title as text, description as tags from sannotations where $__timeFilter(time)",
         "showIn": 0,
         "tagsColumn": "title,description",
         "textColumn": "",
@@ -30,7 +31,7 @@
   "gnetId": null,
   "graphTooltip": 0,
   "id": 140,
-  "iteration": 1524821116006,
+  "iteration": 1525933453193,
   "links": [],
   "panels": [
     {
@@ -38,7 +39,7 @@
       "bars": true,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "gha",
+      "datasource": "psql",
       "decimals": null,
       "description": "[[full_name]] [[stat]] in given repositories",
       "fill": 3,
@@ -76,14 +77,16 @@
       "steppedLine": true,
       "targets": [
         {
-          "alias": "$col",
+          "alias": "",
           "dsType": "influxdb",
+          "format": "time_series",
           "groupBy": [],
           "measurement": "notused",
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "SELECT /^[[repos]]$/ FROM \"gh_stats_repos_[[stat]]_[[period]]\" WHERE $timeFilter",
+          "query": "",
           "rawQuery": true,
+          "rawSql": "select\n  time,\n  ${repos:csv}\nfrom\n  sgh_stats_r\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'gstat_r_[[stat]]'\norder by\n  time",
           "refId": "A",
           "resultFormat": "time_series",
           "select": [
@@ -135,14 +138,18 @@
           "min": "0",
           "show": true
         }
-      ]
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
     },
     {
       "aliasColors": {},
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "gha",
+      "datasource": "psql",
       "decimals": null,
       "description": "[[full_name]] [[stat]] in given reposities",
       "fill": 3,
@@ -180,14 +187,16 @@
       "steppedLine": false,
       "targets": [
         {
-          "alias": "$col",
+          "alias": "",
           "dsType": "influxdb",
+          "format": "time_series",
           "groupBy": [],
           "measurement": "notused",
           "orderByTime": "ASC",
           "policy": "default",
           "query": "SELECT /^[[repos]]$/ FROM \"gh_stats_repos_[[stat]]_[[period]]\" WHERE $timeFilter",
           "rawQuery": true,
+          "rawSql": "select\n  time,\n  ${repos:csv}\nfrom\n  sgh_stats_r\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'gstat_r_[[stat]]'\norder by\n  time",
           "refId": "A",
           "resultFormat": "time_series",
           "select": [
@@ -239,14 +248,18 @@
           "min": "0",
           "show": false
         }
-      ]
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
     },
     {
       "aliasColors": {},
       "bars": true,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "gha",
+      "datasource": "psql",
       "decimals": null,
       "description": "[[full_name]] [[stat]] in given repositories",
       "fill": 3,
@@ -284,14 +297,16 @@
       "steppedLine": true,
       "targets": [
         {
-          "alias": "$col",
+          "alias": "",
           "dsType": "influxdb",
+          "format": "time_series",
           "groupBy": [],
           "measurement": "notused",
           "orderByTime": "ASC",
           "policy": "default",
           "query": "SELECT /^[[repos]]$/ FROM \"gh_stats_repos_[[stat]]_[[period]]\" WHERE $timeFilter",
           "rawQuery": true,
+          "rawSql": "select\n  time,\n  ${repos:csv}\nfrom\n  sgh_stats_r\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'gstat_r_[[stat]]'\norder by\n  time",
           "refId": "A",
           "resultFormat": "time_series",
           "select": [
@@ -342,7 +357,11 @@
           "min": "0",
           "show": true
         }
-      ]
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
     },
     {
       "content": "[[docs]]",
@@ -409,23 +428,8 @@
           },
           {
             "selected": false,
-            "text": "4 Weeks MA",
-            "value": "w4"
-          },
-          {
-            "selected": false,
             "text": "Month",
             "value": "m"
-          },
-          {
-            "selected": false,
-            "text": "3 Months MA",
-            "value": "m3"
-          },
-          {
-            "selected": false,
-            "text": "4 Months MA",
-            "value": "m4"
           },
           {
             "selected": false,
@@ -434,32 +438,29 @@
           },
           {
             "selected": false,
-            "text": "4 Quarters MA",
-            "value": "q4"
-          },
-          {
-            "selected": false,
             "text": "Year",
             "value": "y"
           }
         ],
-        "query": "h,h24,d,d7,w,w4,m,m3,m4,q,q4,y",
+        "query": "h,h24,d,d7,w,m,q,y",
         "type": "custom"
       },
       {
         "allValue": "",
         "current": {
           "text": "All",
-          "value": "$__all"
+          "value": [
+            "$__all"
+          ]
         },
-        "datasource": "gha",
+        "datasource": "psql",
         "hide": 0,
         "includeAll": true,
         "label": "Repository",
         "multi": true,
         "name": "repos",
         "options": [],
-        "query": "SHOW TAG VALUES WITH KEY = top_repo_names_name",
+        "query": "select '\"' || top_repo_names_name || '\"' from ttop_repo_names order by 1",
         "refresh": 1,
         "regex": "",
         "sort": 0,
@@ -475,14 +476,14 @@
           "text": "Kubernetes",
           "value": "Kubernetes"
         },
-        "datasource": "gha",
+        "datasource": "psql",
         "hide": 2,
         "includeAll": false,
         "label": null,
         "multi": false,
         "name": "full_name",
         "options": [],
-        "query": "SHOW TAG VALUES WITH KEY = full_name",
+        "query": "select value_s from gha_vars where name = 'full_name'",
         "refresh": 1,
         "regex": "",
         "sort": 0,
@@ -494,7 +495,10 @@
       },
       {
         "allValue": null,
-        "current": {},
+        "current": {
+          "text": "\u003ch1 id=\"kubernetes-reviewers-dashboard\"\u003eKubernetes reviewers dashboard (part of GitHub stats dashboard)\u003c/h1\u003e\n\u003cp\u003eLinks:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003eRepository groups version metric \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/github_stats_by_repo_groups.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eRepositories version metric \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/github_stats_by_repos.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eInfluxDB \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/metrics.yaml\" target=\"_blank\"\u003eseries definition\u003c/a\u003e. Search for \u003ccode\u003egithub_stats_by_repo\u003c/code\u003e\u003c/li\u003e\n\u003cli\u003eGrafana dashboard \u003ca href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/github-stats-by-repository-group.json\" target=\"_blank\"\u003eJSON\u003c/a\u003e (repository groups version).\u003c/li\u003e\n\u003cli\u003eGrafana dashboard \u003ca href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/github-stats-by-repository.json\" target=\"_blank\"\u003eJSON\u003c/a\u003e (repositories version).\u003c/li\u003e\n\u003cli\u003eDeveloper \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/dashboards/kubernetes/reviewers_devel.md\" target=\"_blank\"\u003edocumentation\u003c/a\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch1 id=\"description\"\u003eDescription\u003c/h1\u003e\n\u003cul\u003e\n\u003cli\u003eThis documentations only refers to \u003ccode\u003eReviewers\u003c/code\u003e statistic.\n\u003cli\u003eThis dashboard shows the number of reviewers for a selected repository or repository group.\u003c/li\u003e\n\u003cli\u003eYou can select multiple repositories or repository groups to stack them.\u003c/li\u003e\n\u003cli\u003eReviewer is defined as someone who added pull request review comment(s) or added \u003ccode\u003e/lgtm\u003c/code\u003e or \u003ccode\u003e/approve\u003c/code\u003e text or added \u003ccode\u003elgtm\u003c/code\u003e or \u003ccode\u003eapprove\u003c/code\u003e label.\u003c/li\u003e\n\u003cli\u003eYou can filter by repository or repository group and period.\u003c/li\u003e\n\u003cli\u003eSelecting period (for example week) means that dahsboard will count distinct users who made a review in these periods.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/periods.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about periods.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/repository_groups.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about repository groups.\u003c/li\u003e\n\u003cli\u003eWe are skipping bots when calculating number of reviewers, see \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/excluding_bots.md\" target=\"_blank\"\u003eexcluding bots\u003c/a\u003e for details.\u003c/li\u003e\n\u003c/ul\u003e",
+          "value": "\u003ch1 id=\"kubernetes-reviewers-dashboard\"\u003eKubernetes reviewers dashboard (part of GitHub stats dashboard)\u003c/h1\u003e\n\u003cp\u003eLinks:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003eRepository groups version metric \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/github_stats_by_repo_groups.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eRepositories version metric \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/github_stats_by_repos.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eInfluxDB \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/metrics.yaml\" target=\"_blank\"\u003eseries definition\u003c/a\u003e. Search for \u003ccode\u003egithub_stats_by_repo\u003c/code\u003e\u003c/li\u003e\n\u003cli\u003eGrafana dashboard \u003ca href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/github-stats-by-repository-group.json\" target=\"_blank\"\u003eJSON\u003c/a\u003e (repository groups version).\u003c/li\u003e\n\u003cli\u003eGrafana dashboard \u003ca href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/github-stats-by-repository.json\" target=\"_blank\"\u003eJSON\u003c/a\u003e (repositories version).\u003c/li\u003e\n\u003cli\u003eDeveloper \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/dashboards/kubernetes/reviewers_devel.md\" target=\"_blank\"\u003edocumentation\u003c/a\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch1 id=\"description\"\u003eDescription\u003c/h1\u003e\n\u003cul\u003e\n\u003cli\u003eThis documentations only refers to \u003ccode\u003eReviewers\u003c/code\u003e statistic.\n\u003cli\u003eThis dashboard shows the number of reviewers for a selected repository or repository group.\u003c/li\u003e\n\u003cli\u003eYou can select multiple repositories or repository groups to stack them.\u003c/li\u003e\n\u003cli\u003eReviewer is defined as someone who added pull request review comment(s) or added \u003ccode\u003e/lgtm\u003c/code\u003e or \u003ccode\u003e/approve\u003c/code\u003e text or added \u003ccode\u003elgtm\u003c/code\u003e or \u003ccode\u003eapprove\u003c/code\u003e label.\u003c/li\u003e\n\u003cli\u003eYou can filter by repository or repository group and period.\u003c/li\u003e\n\u003cli\u003eSelecting period (for example week) means that dahsboard will count distinct users who made a review in these periods.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/periods.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about periods.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/repository_groups.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about repository groups.\u003c/li\u003e\n\u003cli\u003eWe are skipping bots when calculating number of reviewers, see \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/excluding_bots.md\" target=\"_blank\"\u003eexcluding bots\u003c/a\u003e for details.\u003c/li\u003e\n\u003c/ul\u003e"
+        },
         "datasource": "psql",
         "hide": 2,
         "includeAll": false,
@@ -533,47 +537,47 @@
           {
             "selected": false,
             "text": "Issues closed",
-            "value": "issues_closed"
+            "value": "iclosed"
           },
           {
             "selected": false,
             "text": "Issues opened",
-            "value": "issues_opened"
+            "value": "iopened"
           },
           {
             "selected": false,
             "text": "PRs opened",
-            "value": "new_prs"
+            "value": "propened"
           },
           {
             "selected": false,
             "text": "PRs merged",
-            "value": "prs_merged"
+            "value": "prmerged"
           },
           {
             "selected": false,
             "text": "PRs closed (but not merged)",
-            "value": "prs_closed"
+            "value": "prclosed"
           },
           {
             "selected": false,
             "text": "PR comments",
-            "value": "pr_comments"
+            "value": "prcomments"
           },
           {
             "selected": false,
             "text": "PR commenters",
-            "value": "pr_commenters"
+            "value": "prcommenters"
           },
           {
             "selected": false,
             "text": "Issue comments",
-            "value": "issue_comments"
+            "value": "icomments"
           },
           {
             "selected": false,
             "text": "Issue commenters",
-            "value": "issue_commenters"
+            "value": "icommenters"
           },
           {
             "selected": true,
@@ -581,7 +585,7 @@
             "value": "reviewers"
           }
         ],
-        "query": "commits,issues_closed,issues_opened,new_prs,prs_merged,prs_closed,pr_comments,pr_commenters,issue_comments,issue_commenters,reviewers",
+        "query": "commits,iclosed,iopened,propened,prmerged,prclosed,prcomments,prcommenters,icomments,icommenters,reviewers",
         "type": "custom"
       }
     ]
@@ -618,5 +622,5 @@
   "timezone": "",
   "title": "Github Stats by Repository",
   "uid": "49",
-  "version": 3
+  "version": 12
 }

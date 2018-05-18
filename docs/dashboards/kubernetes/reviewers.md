@@ -3,7 +3,7 @@
 <ul>
 <li>Repository groups version metric <a href="https://github.com/cncf/devstats/blob/master/metrics/kubernetes/github_stats_by_repo_groups.sql" target="_blank">SQL file</a>.</li>
 <li>Repositories version metric <a href="https://github.com/cncf/devstats/blob/master/metrics/kubernetes/github_stats_by_repos.sql" target="_blank">SQL file</a>.</li>
-<li>InfluxDB <a href="https://github.com/cncf/devstats/blob/master/metrics/kubernetes/metrics.yaml" target="_blank">series definition</a>. Search for <code>github_stats_by_repo</code></li>
+<li>TSDB <a href="https://github.com/cncf/devstats/blob/master/metrics/kubernetes/metrics.yaml" target="_blank">series definition</a>. Search for <code>github_stats_by_repo</code></li>
 <li>Grafana dashboard <a href="https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/github-stats-by-repository-group.json" target="_blank">JSON</a> (repository groups version).</li>
 <li>Grafana dashboard <a href="https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/github-stats-by-repository.json" target="_blank">JSON</a> (repositories version).</li>
 <li>Developer <a href="https://github.com/cncf/devstats/blob/master/docs/dashboards/kubernetes/reviewers_devel.md" target="_blank">documentation</a>.</li>

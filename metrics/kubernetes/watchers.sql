@@ -1,5 +1,5 @@
 select
-  'contrib;' || r.alias || ';watchers,forks,open_issues' as name,
+  'watch;' || r.alias || ';watch,forks,opiss' as name,
   max(f.watchers) as watchers,
   max(f.forks) as forks,
   max(f.open_issues) as open_issues

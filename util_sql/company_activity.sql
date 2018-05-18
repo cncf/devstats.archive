@@ -35,7 +35,7 @@ from (
       'PullRequestReviewCommentEvent', 'PushEvent', 'PullRequestEvent',
       'IssuesEvent', 'IssueCommentEvent', 'CommitCommentEvent'
     )
-    and (ev.dup_actor_login {{exclude_bots}})
+    and (lower(ev.dup_actor_login) {{exclude_bots}})
   group by
     affs.company_name
   order by

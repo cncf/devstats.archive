@@ -13,7 +13,7 @@
 - You can see its SQL structure here: [structure.sql](https://github.com/cncf/devstats/blob/master/structure.sql#L375-L382).
 - It has no primary kay, it only connects Issues with PRs.
 - It contains data from [issues](https://github.com/cncf/devstats/blob/master/docs/tables/gha_issues.md), [PRs](https://github.com/cncf/devstats/blob/master/docs/tables/gha_pull_requests.md) tables.
-- When adding a project to an existing database that contains merge result from multiple projects, you need to manually remove eventual duplicates using: [./devel/remove_db_dups.sh](https://github.com/cncf/devstats/blob/master/devel/remove_db_dups.sh), as suggested by [cmd/merge_pdbs/merge_pdbs.go](https://github.com/cncf/devstats/blob/master/cmd/merge_pdbs/merge_pdbs.go#L197).
+- When adding a project to an existing database that contains merge result from multiple projects, you need to manually remove eventual duplicates using: [./devel/remove_db_dups.sh](https://github.com/cncf/devstats/blob/master/devel/remove_db_dups.sh), as suggested by [cmd/merge_dbs/merge_dbs.go](https://github.com/cncf/devstats/blob/master/cmd/merge_dbs/merge_dbs.go#L197).
 
 # Columns
 

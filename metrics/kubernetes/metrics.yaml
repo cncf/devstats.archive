@@ -1,262 +1,230 @@
 ---
 metrics:
-  - name: Activity repo groups
-    series_name_or_func: multi_row_single_column
-    sql: activity_repo_groups
-    periods: h,d,w,m,q,y
-    aggregate: 1,7,24
-    skip: h7,w7,m7,q7,y7,d24,w24,m24,q24,y24
-    multi_value: true
-  - name: All PRs merged
-    add_period_to_name: true
-    series_name_or_func: all_prs_merged
-    sql: all_prs_merged
-    periods: h,d,w,m,q,y
-    aggregate: 1,2,3,4,7,12
-    skip: w7,w12,m7,q4,q7,q12,y4,y7,y12
   - name: Github Stats by Repository Group
     series_name_or_func: multi_row_single_column
     sql: github_stats_by_repo_groups
     periods: h,d,w,m,q,y
-    aggregate: 1,3,4,7,24
-    skip: h7,w7,m7,q7,y7,h3,d3,w3,q3,y3,h4,d4,y4,d24,w24,m24,q24,y24
+    aggregate: 1,7,24
+    skip: h7,w7,m7,q7,y7,d24,w24,m24,q24,y24
     multi_value: true
+    merge_series: gh_stats_rgrp
   - name: Github Stats by Repository
     series_name_or_func: multi_row_single_column
     sql: github_stats_by_repos
     periods: h,d,w,m,q,y
-    aggregate: 1,3,4,7,24
-    skip: h7,w7,m7,q7,y7,h3,d3,w3,q3,y3,h4,d4,y4,d24,w24,m24,q24,y24
+    aggregate: 1,7,24
+    skip: h7,w7,m7,q7,y7,d24,w24,m24,q24,y24
     multi_value: true
-  - name: SIG mentions breakdown by categories using text
-    series_name_or_func: multi_row_single_column
-    sql: sig_mentions_breakdown
-    periods: d,w,m,q,y
-    aggregate: 1,7
-    skip: w7,m7,q7,y7
-    multi_value: true
-  - name: PRs labels by repository groups
+    merge_series: gh_stats_r
+  - name: PR labels repository groups
     series_name_or_func: multi_row_single_column
     sql: prs_labels
     periods: d
-    multi_value: true
-  - name: Time opened to merged (number of hours)
+    merge_series: prs_labels
+  - name: PR time to merge
     series_name_or_func: multi_row_multi_column
     sql: opened_to_merged
     periods: d,w,m,q,y
+    aggregate: 1,7
+    skip: d,w7,m7,q7,y7
     desc: time_diff_as_string
-  - name: PRs opened -> lgtmed -> approved -> merged (numer of hours)
+    merge_series: opened_to_merged
+  - name: Time metrics by repository groups
     series_name_or_func: multi_row_multi_column
     sql: time_metrics
     periods: d,w,m,q,y
     aggregate: 1,7
     skip: w7,m7,q7,y7
     desc: time_diff_as_string
-  - name: Suggested PR reviewers
-    series_name_or_func: multi_row_multi_column
-    sql: other_approver
-    periods: d,w,m,q,y
-    aggregate: 1,7
-    skip: w7,m7,q7,y7
-  - name:
-      "Time before any comments or activities from someone other \
-       than the author"
+    merge_series: time_metrics
+  - name: PR time to engagement
     series_name_or_func: multi_row_multi_column
     sql: first_non_author_activity
-    periods: w,m,q,y
+    periods: d,w,m,q,y
+    aggregate: 1,7
+    skip: d,w7,m7,q7,y7
     desc: time_diff_as_string
-  - name: Opened PRs age and count
+    merge_series: first_non_author
+  - name: Opened PRs age by repository group
     series_name_or_func: multi_row_multi_column
     sql: prs_age
     periods: d,w,m,q,y
-    aggregate: 1,3,7
-    skip: m7,q3,q7,y3,y7
+    aggregate: 1,7
+    skip: w7,m7,q7,y7
     desc: time_diff_as_string
-  - name: Closed Issues age and count
+    merge_series: prs_age
+  - name: Issues age by SIG and repository group
     series_name_or_func: multi_row_multi_column
     sql: issues_age
     periods: d,w,m,q,y
     aggregate: 1,7
     skip: w7,m7,q7,y7
     desc: time_diff_as_string
-  - name: PR comments percentiles
+    merge_series: issues_age
+  - name: PR comments
     series_name_or_func: single_row_multi_column
     sql: pr_comments
     periods: d,w,m,q,y
     aggregate: 1,7
     skip: w7,m7,q7,y7
-  - name: Stargazers, watchers, forks
+  - name: Stars and forks by repository
     series_name_or_func: multi_row_multi_column
     sql: watchers
     periods: d,w,m,q,y
     aggregate: 1,7
     skip: w7,m7,q7,y7
-  - name: New contributors
+    merge_series: watchers
+  - name: New and episodic PR contributors
     series_name_or_func: multi_row_multi_column
     sql: new_contributors
     periods: d,w,m,q,y
-  - name: Episodic contributors
+    aggregate: 1,28
+    skip: d,w28,m28,q28,y28
+    merge_series: new_contributors
+  - name: New and episodic PR contributors
     series_name_or_func: multi_row_multi_column
     sql: episodic_contributors
     periods: d,w,m,q,y
-  - name: New issues
+    aggregate: 1,28
+    skip: d,w28,m28,q28,y28
+    merge_series: episodic_contributors
+  - name: New and episodic issue creators
     series_name_or_func: multi_row_multi_column
     sql: new_issues
     periods: d,w,m,q,y
-  - name: Episodic issues
+    aggregate: 1,28
+    skip: d,w28,m28,q28,y28
+    merge_series: new_issues
+  - name: New and episodic issue creators
     series_name_or_func: multi_row_multi_column
     sql: episodic_issues
     periods: d,w,m,q,y
-  - name: SIG mentions using labels
-    series_name_or_func: multi_row_single_column
-    sql: labels_sig
-    periods: d,w,m,q,y
-    aggregate: 1,7
-    skip: w7,m7,q7,y7
-    multi_value: true
-  - name: KIND mentions using labels
-    series_name_or_func: multi_row_single_column
-    sql: labels_kind
-    periods: d,w,m,q,y
-    aggregate: 1,7
-    skip: w7,m7,q7,y7
-    multi_value: true
-  - name: SIG KIND mentions using labels
+    aggregate: 1,28
+    skip: d,w28,m28,q28,y28
+    merge_series: episodic_issues
+  - name: Issues opened/closed by SIG
     series_name_or_func: multi_row_single_column
     sql: labels_sig_kind
     periods: d,w,m,q,y
     aggregate: 1,7
     skip: w7,m7,q7,y7
-    multi_value: true
-  - name: Issues closed broken down by SIG and kind
+    merge_series: sigm_lsk
+  - name: Issues opened/closed by SIG
     series_name_or_func: multi_row_single_column
     sql: labels_sig_kind_closed
     periods: d,w,m,q,y
     aggregate: 1,7
     skip: w7,m7,q7,y7
-    multi_value: true
-  - name: Bot commands usage
+    merge_series: iclosed_lsk
+  - name: Bot commands repository groups
     series_name_or_func: multi_row_single_column
     sql: bot_commands
     periods: d,w,m,q,y
     aggregate: 1,7
     skip: w7,m7,q7,y7
     multi_value: true
-  - name: Reviewers histogram
+    merge_series: bot_commands
+  - name: Open issues/PRs by milestone and repository
+    series_name_or_func: multi_row_single_column
+    sql: open_issues_sigs_milestones
+    periods: d
+    merge_series: issues_milestones
+  - name: Open issues/PRs by milestone and repository
+    series_name_or_func: multi_row_single_column
+    sql: open_prs_sigs_milestones
+    periods: d
+    merge_series: prs_milestones
+  - name: Developer activity counts by repositroy group
     histogram: true
     annotations_ranges: true
     series_name_or_func: multi_row_single_column
     sql: hist_reviewers
-  - name: Open issues by milestone
-    series_name_or_func: multi_row_single_column
-    sql: open_issues_sigs_milestones
-    periods: d
-  - name: Open PRs by milestone
-    series_name_or_func: multi_row_single_column
-    sql: open_prs_sigs_milestones
-    periods: d
-  - name: Approvers histogram
+  - name: Developer activity counts by repositroy group
     histogram: true
     annotations_ranges: true
     series_name_or_func: multi_row_single_column
     sql: hist_approvers
-  - name: PR authors companies histogram
-    histogram: true
-    annotations_ranges: true
-    series_name_or_func: multi_row_single_column
-    sql: hist_pr_companies
-  - name: Project stats
+  - name: Overall project statistics
     histogram: true
     annotations_ranges: true
     series_name_or_func: multi_row_single_column
     sql: project_stats
-  - name: Company summaries
+  - name: Companies table
     sql: project_company_stats
     series_name_or_func: multi_row_single_column
     histogram: true
     annotations_ranges: true
-  - name: Developer summaries
+  - name: Developer activity counts by repository groups
     sql: project_developer_stats
     series_name_or_func: multi_row_single_column
     histogram: true
     annotations_ranges: true
-  - name: PR workload tabular
+  - name: PR workload per SIG table
     sql: pr_workload_table
     series_name_or_func: multi_row_multi_column
     histogram: true
     annotations_ranges: true
     multi_value: true
-  - name: PR workload chart
+  - name: PR workload per SIG chart
     series_name_or_func: multi_row_multi_column
     sql: pr_workload
     periods: d
     multi_value: true
-  - name: Pull requests unique authors per repository
+  - name: PR authors repository group
     series_name_or_func: multi_row_single_column
     sql: prs_authors
     periods: d,w,m,q,y
-    aggregate: 1,3,7
-    skip: m7,q3,q7,y3,y7
-  - name: SIG mentions using texts
+    aggregate: 1,7
+    skip: w7,m7,q7,y7
+  - name: SIG mentions
     series_name_or_func: multi_row_single_column
     sql: sig_mentions
     periods: d,w,m,q,y
     aggregate: 1,7
     skip: w7,m7,q7,y7
     multi_value: true
-  - name: SIG mentions categories using texts
-    series_name_or_func: multi_row_single_column
-    sql: sig_mentions_cats
-    periods: d,w,m,q,y
-    aggregate: 1,7
-    skip: w7,m7,q7,y7
-    multi_value: true
-  - name: PRs approved and awaiting approval
+  - name: PRs approval repository groups
     series_name_or_func: multi_row_multi_column
     sql: prs_state
     periods: d,w,m,q,y
     aggregate: 1,7
     skip: d,w7,m7,q7,y7
     multi_value: true
-  - name: PRs blocked for various reasons
+  - name: Blocked PRs repository groups
     series_name_or_func: multi_row_multi_column
     sql: prs_blocked
     periods: d,w,m,q,y
     aggregate: 1,7
     skip: d,w7,m7,q7,y7
     multi_value: true
-  - name: Companies stats & velocity
+  - name: Company statistics by repository groups
     series_name_or_func: multi_row_multi_column
     sql: company_activity
     periods: d,w,m,q,y
     aggregate: 1,7
     skip: w7,m7,q7,y7
     multi_value: true
-  - name: Number of companies and developers contributing
+    merge_series: company_activity
+  - name: Companies contributing in repository groups
     series_name_or_func: multi_row_multi_column
     sql: num_stats
     periods: d,w,m,q
-    aggregate: 3,4,6,7,14
-    skip: d3,d4,d6,w3,w6,w7,w14,m7,m14,q3,q6,q7,q14
-  - name: Approvers in repository groups
-    series_name_or_func: multi_row_single_column
-    sql: approvers
-    periods: d,w,m,q,y
-    aggregate: 1,7
-    skip: w7,m7,q7,y7
-    multi_value: true
-  - name: User reviews
+    aggregate: 1,7,28
+    skip: d,w7,m7,q7,w28,m28,q28
+    merge_series: num_stats
+  - name: PR reviews by contributor
     series_name_or_func: multi_row_single_column
     sql: reviews_per_user
     periods: d,w,m,q,y
     aggregate: 1,7
     skip: w7,m7,q7,y7
     multi_value: true
-  - name: OWNERS file
+    merge_series: user_reviews
+  - name: PR reviews by contributor
     series_name_or_func: owners_d
     sql: owners
     periods: d
-  - name: GitHub activity
+  - name: Home dashboard (must be listed last)
     series_name_or_func: events_h
     sql: events
     periods: h

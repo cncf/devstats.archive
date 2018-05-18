@@ -1,42 +1,4 @@
 {
-  "__requires": [
-    {
-      "id": "postgres",
-      "name": "PostgreSQL",
-      "type": "datasource",
-      "version": "5.0.0"
-    },
-    {
-      "id": "dashlist",
-      "name": "Dashboard list",
-      "type": "panel",
-      "version": ""
-    },
-    {
-      "id": "grafana",
-      "name": "Grafana",
-      "type": "grafana",
-      "version": "5.0.0-pre1"
-    },
-    {
-      "id": "graph",
-      "name": "Graph",
-      "type": "panel",
-      "version": ""
-    },
-    {
-      "id": "influxdb",
-      "name": "InfluxDB",
-      "type": "datasource",
-      "version": "1.0.0"
-    },
-    {
-      "id": "text",
-      "name": "Text",
-      "type": "panel",
-      "version": ""
-    }
-  ],
   "annotations": {
     "list": [
       {
@@ -49,13 +11,14 @@
         "type": "dashboard"
       },
       {
-        "datasource": "gha",
+        "datasource": "psql",
         "enable": true,
         "hide": false,
         "iconColor": "rgba(255, 96, 96, 1)",
         "limit": 100,
         "name": "Releases",
         "query": "SELECT title, description from annotations WHERE $timeFilter order by time asc",
+        "rawQuery": "select extract(epoch from time) AS time, title as text, description as tags from sannotations where $__timeFilter(time)",
         "showIn": 0,
         "tagsColumn": "title,description",
         "textColumn": "",
@@ -69,7 +32,7 @@
   "gnetId": null,
   "graphTooltip": 0,
   "id": 29,
-  "iteration": 1.517474171376e+12,
+  "iteration": 1526540845635,
   "links": [
     {
       "icon": "dashboard",
@@ -288,7 +251,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "gha",
+      "datasource": "psql",
       "decimals": 0,
       "description": "Numbers of GitHub events in all repositories hourly",
       "fill": 5,
@@ -330,13 +293,15 @@
       "steppedLine": true,
       "targets": [
         {
-          "alias": "Number of GitHub events hourly",
+          "alias": "",
           "dsType": "influxdb",
+          "format": "time_series",
           "groupBy": [],
           "orderByTime": "ASC",
           "policy": "default",
           "query": "SELECT \"value\" FROM \"events_h\" WHERE $timeFilter",
           "rawQuery": true,
+          "rawSql": "select\n  time,\n  value as \"Number of GitHub events hourly\"\nfrom\n  sevents_h\nwhere\n  $__timeFilter(time)\norder by\n  time",
           "refId": "A",
           "resultFormat": "time_series",
           "select": [
@@ -389,7 +354,11 @@
           "min": "0",
           "show": true
         }
-      ]
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
     },
     {
       "content": "\u003chead\u003e\n\u003c/head\u003e\nPlease report any bugs by opening an issue on \u003ca href=\"https://github.com/cncf/devstats\"\u003ehttps://github.com/cncf/devstats\u003c/a\u003e",
@@ -412,7 +381,7 @@
       "content": "[[projects]]",
       "description": "List of all projects.",
       "gridPos": {
-        "h": 14,
+        "h": 15,
         "w": 24,
         "x": 0,
         "y": 6
@@ -427,10 +396,10 @@
       "description": "https://github.com/cncf/devstats",
       "folderId": 0,
       "gridPos": {
-        "h": 27,
+        "h": 26,
         "w": 24,
         "x": 0,
-        "y": 20
+        "y": 21
       },
       "headings": false,
       "id": 4,
@@ -460,7 +429,7 @@
         "h": 9,
         "w": 24,
         "x": 0,
-        "y": 58
+        "y": 47
       },
       "id": 6,
       "links": [],
@@ -481,7 +450,10 @@
     "list": [
       {
         "allValue": null,
-        "current": {},
+        "current": {
+          "text": "\u003chead\u003e\n\u003cstyle\u003e\ntable, tr, td {\n  border: none !important;\n}\ntd, th {\n  text-align: center;\n}\nimg.cncf-proj {\n  min-width: 80px;\n}\ntd.cncf-sep {\n  border-right: 1px solid white !important;\n  border-left: 1px solid white !important;\n  border-top: 1px solid white !important;\n  font-weight: bold;\n}\ntd.cncf-br {\n  border-right: 1px solid white !important;\n}\ntd.cncf-bl {\n  border-left: 1px solid white !important;\n}\ntd.cncf-bt {\n  border-top: 1px solid white !important;\n}\ntd.cncf-bb {\n  border-bottom: 1px solid white !important;\n}\n\u003c/style\u003e\n\u003c/head\u003e\n\u003ch2\u003eDevStats projects:\u003c/h2\u003e\n\u003ctable\u003e\n    \u003ctr\u003e\n        \u003ctd class=\"cncf-sep\"\u003eGraduated\u003c/td\u003e\n        \u003ctd colspan=\"9\" class=\"cncf-sep\"\u003eIncubating\u003c/td\u003e\n    \u003c/tr\u003e\n    \u003ctr\u003e\n        \u003ctd class=\"cncf-bl cncf-br\"\u003e\u003ca href=\"https://k8s.cncftest.io\" target=\"_blank\"\u003eKubernetes\u003c/a\u003e\u003c/td\u003e\n        \u003ctd class=\"cncf-bl\"\u003e\u003ca href=\"https://prometheus.cncftest.io\" target=\"_blank\"\u003ePrometheus\u003c/a\u003e\u003c/td\u003e\n        \u003ctd\u003e\u003ca href=\"https://opentracing.cncftest.io\" target=\"_blank\"\u003eOpenTracing\u003c/a\u003e\u003c/td\u003e\n        \u003ctd\u003e\u003ca href=\"https://fluentd.cncftest.io\" target=\"_blank\"\u003eFluentd\u003c/a\u003e\u003c/td\u003e\n        \u003ctd\u003e\u003ca href=\"https://grpc.cncftest.io\" target=\"_blank\"\u003egRPC\u003c/a\u003e\u003c/td\u003e\n        \u003ctd\u003e\u003ca href=\"https://containerd.cncftest.io\" target=\"_blank\"\u003econtainerd\u003c/a\u003e\u003c/td\u003e\n        \u003ctd\u003e\u003ca href=\"https://rkt.cncftest.io\" target=\"_blank\"\u003erkt\u003c/a\u003e\u003c/td\u003e\n        \u003ctd\u003e\u003ca href=\"https://cni.cncftest.io\" target=\"_blank\"\u003eCNI\u003c/a\u003e\u003c/td\u003e\n        \u003ctd\u003e\u003ca href=\"https://envoy.cncftest.io\" target=\"_blank\"\u003eEnvoy\u003c/a\u003e\u003c/td\u003e\n        \u003ctd class=\"cncf-br\"\u003e\u003ca href=\"https://jaeger.cncftest.io\" target=\"_blank\"\u003eJaeger\u003c/a\u003e\u003c/td\u003e\n    \u003c/tr\u003e\n    \u003ctr\u003e\n        \u003ctd class=\"cncf-bb cncf-bl cncf-br\"\u003e\u003ca href=\"https://k8s.cncftest.io\" target=\"_blank\"\u003e\u003cimg class=\"cncf-proj\" src=\"https://cncftest.io/img/kubernetes-icon-color.svg\" alt=\"Kubernetes\" height=\"80\" width=\"80\" /\u003e\u003c/a\u003e\u003c/td\u003e\n        \u003ctd class=\"cncf-bb cncf-bl\"d\u003e\u003ca href=\"https://prometheus.cncftest.io\" target=\"_blank\"\u003e\u003cimg class=\"cncf-proj\" src=\"https://cncftest.io/img/prometheus-icon-color.svg\" alt=\"Prometheus\" height=\"80\" width=\"80\" /\u003e\u003c/a\u003e\u003c/td\u003e\n        \u003ctd class=\"cncf-bb\"\u003e\u003ca href=\"https://opentracing.cncftest.io\" target=\"_blank\"\u003e\u003cimg class=\"cncf-proj\" src=\"https://cncftest.io/img/opentracing-icon-color.svg\" alt=\"OpenTracing\" height=\"80\" width=\"80\" /\u003e\u003c/a\u003e\u003c/td\u003e\n        \u003ctd class=\"cncf-bb\"\u003e\u003ca href=\"https://fluentd.cncftest.io\" target=\"_blank\"\u003e\u003cimg class=\"cncf-proj\" src=\"https://cncftest.io/img/fluentd-icon-color.svg\" alt=\"Fluentd\" height=\"80\" width=\"80\" /\u003e\u003c/a\u003e\u003c/td\u003e\n        \u003ctd class=\"cncf-bb\"\u003e\u003ca href=\"https://grpc.cncftest.io\" target=\"_blank\"\u003e\u003cimg class=\"cncf-proj\" src=\"https://cncftest.io/img/grpc-icon-color.svg\" alt=\"gRPC\" height=\"80\" width=\"80\" /\u003e\u003c/a\u003e\u003c/td\u003e\n        \u003ctd class=\"cncf-bb\"\u003e\u003ca href=\"https://containerd.cncftest.io\" target=\"_blank\"\u003e\u003cimg class=\"cncf-proj\" src=\"https://cncftest.io/img/containerd-icon-color.svg\" alt=\"containerd\" height=\"80\" width=\"80\" /\u003e\u003c/a\u003e\u003c/td\u003e\n        \u003ctd class=\"cncf-bb\"\u003e\u003ca href=\"https://rkt.cncftest.io\" target=\"_blank\"\u003e\u003cimg class=\"cncf-proj\" src=\"https://cncftest.io/img/rkt-icon-color.svg\" alt=\"rkt\" height=\"80\" width=\"80\" /\u003e\u003c/a\u003e\u003c/td\u003e\n        \u003ctd class=\"cncf-bb\"\u003e\u003ca href=\"https://cni.cncftest.io\" target=\"_blank\"\u003e\u003cimg class=\"cncf-proj\" src=\"https://cncftest.io/img/cni-icon-color.svg\" alt=\"CNI\" height=\"80\" width=\"80\" /\u003e\u003c/a\u003e\u003c/td\u003e\n        \u003ctd class=\"cncf-bb\"\u003e\u003ca href=\"https://envoy.cncftest.io\" target=\"_blank\"\u003e\u003cimg class=\"cncf-proj\" src=\"https://cncftest.io/img/envoy-icon-color.svg\" alt=\"Envoy\" height=\"80\" width=\"80\" /\u003e\u003c/a\u003e\u003c/td\u003e\n        \u003ctd class=\"cncf-bb cncf-br\"\u003e\u003ca href=\"https://jaeger.cncftest.io\" target=\"_blank\"\u003e\u003cimg class=\"cncf-proj\" src=\"https://cncftest.io/img/jaeger-icon-color.svg\" alt=\"Jaeger\" height=\"80\" width=\"80\" /\u003e\u003c/a\u003e\u003c/td\u003e\n    \u003c/tr\u003e\n    \u003ctr\u003e\n        \u003ctd colspan=\"6\" class=\"cncf-sep\"\u003eIncubating\u003c/td\u003e\n        \u003ctd colspan=\"4\" class=\"cncf-sep\"\u003eSandbox\u003c/td\u003e\n    \u003c/tr\u003e\n    \u003ctr\u003e\n        \u003ctd class=\"cncf-bl\"\u003e\u003ca href=\"https://notary.cncftest.io\" target=\"_blank\"\u003eNotary\u003c/a\u003e\u003c/td\u003e\n        \u003ctd\u003e\u003ca href=\"https://tuf.cncftest.io\" target=\"_blank\"\u003eTUF\u003c/a\u003e\u003c/td\u003e\n        \u003ctd\u003e\u003ca href=\"https://vitess.cncftest.io\" target=\"_blank\"\u003eVitess\u003c/a\u003e\u003c/td\u003e\n        \u003ctd\u003e\u003ca href=\"https://coredns.cncftest.io\" target=\"_blank\"\u003eCoreDNS\u003c/a\u003e\u003c/td\u003e\n        \u003ctd\u003e\u003ca href=\"https://nats.cncftest.io\" target=\"_blank\"\u003eNATS\u003c/a\u003e\u003c/td\u003e\n        \u003ctd class=\"cncf-br\"\u003e\u003ca href=\"https://linkerd.cncftest.io\" target=\"_blank\"\u003eLinkerd\u003c/a\u003e\u003c/td\u003e\n        \u003ctd\u003e\u003ca href=\"https://rook.cncftest.io\" target=\"_blank\"\u003eRook\u003c/a\u003e\u003c/td\u003e\n        \u003ctd\u003e\u003ca href=\"https://opa.cncftest.io\" target=\"_blank\"\u003eOPA\u003c/a\u003e\u003c/td\u003e\n        \u003ctd\u003e\u003ca href=\"https://spiffe.cncftest.io\" target=\"_blank\"\u003eSPIFFE\u003c/a\u003e\u003c/td\u003e\n        \u003ctd class=\"cncf-br\"\u003e\u003ca href=\"https://spire.cncftest.io\" target=\"_blank\"\u003eSPIRE\u003c/a\u003e\u003c/td\u003e\n    \u003c/tr\u003e\n    \u003ctr\u003e\n        \u003ctd class=\"cncf-bl\"\u003e\u003ca href=\"https://notary.cncftest.io\" target=\"_blank\"\u003e\u003cimg class=\"cncf-proj\" src=\"https://cncftest.io/img/notary-icon-color.svg\" alt=\"Notary\" height=\"80\" width=\"80\" /\u003e\u003c/a\u003e\u003c/td\u003e\n        \u003ctd class=\"cncf-bb\"\u003e\u003ca href=\"https://tuf.cncftest.io\" target=\"_blank\"\u003e\u003cimg class=\"cncf-proj\" src=\"https://cncftest.io/img/tuf-icon-color.svg\" alt=\"TUF\" height=\"80\" width=\"80\" /\u003e\u003c/a\u003e\u003c/td\u003e\n        \u003ctd class=\"cncf-bb\"\u003e\u003ca href=\"https://vitess.cncftest.io\" target=\"_blank\"\u003e\u003cimg class=\"cncf-proj\" src=\"https://cncftest.io/img/vitess-icon-color.svg\" alt=\"Vitess\" height=\"80\" width=\"80\" /\u003e\u003c/a\u003e\u003c/td\u003e\n        \u003ctd class=\"cncf-bb\"\u003e\u003ca href=\"https://coredns.cncftest.io\" target=\"_blank\"\u003e\u003cimg class=\"cncf-proj\" src=\"https://cncftest.io/img/core-dns-icon-color.svg\" alt=\"CoreDNS\" height=\"80\" width=\"80\" /\u003e\u003c/a\u003e\u003c/td\u003e\n        \u003ctd class=\"cncf-bb\"\u003e\u003ca href=\"https://nats.cncftest.io\" target=\"_blank\"\u003e\u003cimg class=\"cncf-proj\" src=\"https://cncftest.io/img/nats-icon-color.svg\" alt=\"NATS\" height=\"80\" width=\"80\" /\u003e\u003c/a\u003e\u003c/td\u003e\n        \u003ctd class=\"cncf-bb cncf-br\"\u003e\u003ca href=\"https://linkerd.cncftest.io\" target=\"_blank\"\u003e\u003cimg class=\"cncf-proj\" src=\"https://cncftest.io/img/linkerd-icon-color.svg\" alt=\"Linkerd\" height=\"80\" width=\"80\" /\u003e\u003c/a\u003e\u003c/td\u003e\n        \u003ctd class=\"cncf-bb\"\u003e\u003ca href=\"https://rook.cncftest.io\" target=\"_blank\"\u003e\u003cimg class=\"cncf-proj\" src=\"https://cncftest.io/img/rook-icon-color.svg\" alt=\"Rook\" height=\"80\" width=\"80\" /\u003e\u003c/a\u003e\u003c/td\u003e\n        \u003ctd class=\"cncf-bb\"\u003e\u003ca href=\"https://opa.cncftest.io\" target=\"_blank\"\u003e\u003cimg class=\"cncf-proj\" src=\"https://cncftest.io/img/opa-icon-color.svg\" alt=\"OPA\" height=\"80\" width=\"80\" /\u003e\u003c/a\u003e\u003c/td\u003e\n        \u003ctd class=\"cncf-bb\"\u003e\u003ca href=\"https://spiffe.cncftest.io\" target=\"_blank\"\u003e\u003cimg class=\"cncf-proj\" src=\"https://cncftest.io/img/spiffe-icon-color.svg\" alt=\"SPIFFE\" height=\"80\" width=\"80\" /\u003e\u003c/a\u003e\u003c/td\u003e\n        \u003ctd class=\"cncf-bb cncf-br\"\u003e\u003ca href=\"https://spire.cncftest.io\" target=\"_blank\"\u003e\u003cimg class=\"cncf-proj\" src=\"https://cncftest.io/img/spire-icon-color.svg\" alt=\"SPIRE\" height=\"80\" width=\"80\" /\u003e\u003c/a\u003e\u003c/td\u003e\n    \u003c/tr\u003e\n    \u003ctr\u003e\n        \u003ctd colspan=\"2\" class=\"cncf-sep\"\u003eCNCF\u003c/td\u003e\n        \u003ctd colspan=\"1\" class=\"cncf-sep\"\u003eOther\u003c/td\u003e\n        \u003c!-- cncftest.io \u003ctd colspan=\"1\" class=\"cncf-sep\"\u003eCNCF\u003c/td\u003e cncftest.io --\u003e\n    \u003c/tr\u003e\n    \u003ctr\u003e\n        \u003ctd class=\"cncf-bl\"\u003e\u003ca href=\"https://all.cncftest.io\" target=\"_blank\"\u003eAll CNCF\u003c/a\u003e\u003c/td\u003e\n        \u003ctd class=\"cncf-br\"\u003e\u003ca href=\"https://cncf.cncftest.io\" target=\"_blank\"\u003eCNCF\u003c/a\u003e\u003c/td\u003e\n        \u003ctd class=\"cncf-br\"\u003e\u003ca href=\"https://opencontainers.cncftest.io\" target=\"_blank\"\u003eOCI\u003c/a\u003e\u003c/td\u003e\n        \u003c!-- cncftest.io \u003ctd class=\"cncf-bl cncf-br\"\u003e\u003ca href=\"https://all.cncftest.io\" target=\"_blank\"\u003eAll CNCF\u003c/a\u003e\u003c/td\u003e cncftest.io --\u003e\n    \u003c/tr\u003e\n    \u003ctr\u003e\n        \u003ctd class=\"cncf-bb cncf-bl\"\u003e\u003ca href=\"https://all.cncftest.io\" target=\"_blank\"\u003e\u003cimg class=\"cncf-proj\" src=\"https://cncftest.io/img/all-icon-color.svg\" alt=\"All\" height=\"80\" width=\"80\" /\u003e\u003c/a\u003e\u003c/td\u003e\n        \u003ctd class=\"cncf-bb cncf-br\"\u003e\u003ca href=\"https://cncf.cncftest.io\" target=\"_blank\"\u003e\u003cimg class=\"cncf-proj\" src=\"https://cncftest.io/img/cncf-icon-color.svg\" alt=\"All\" height=\"80\" width=\"80\" /\u003e\u003c/a\u003e\u003c/td\u003e\n        \u003ctd class=\"cncf-bb cncf-br\"\u003e\u003ca href=\"https://opencontainers.cncftest.io\" target=\"_blank\"\u003e\u003cimg class=\"cncf-proj\" src=\"https://cncftest.io/img/opencontainers-icon-color.svg\" alt=\"All\" height=\"80\" width=\"80\" /\u003e\u003c/a\u003e\u003c/td\u003e\n        \u003c!-- cncftest.io \u003ctd class=\"cncf-bb cncf-bl cncf-br\"\u003e\u003ca href=\"https://all.cncftest.io\" target=\"_blank\"\u003e\u003cimg class=\"cncf-proj\" src=\"https://cncftest.io/img/all-icon-color.svg\" alt=\"All\" height=\"80\" width=\"80\" /\u003e\u003c/a\u003e\u003c/td\u003e cncftest.io --\u003e\n    \u003c/tr\u003e\n\u003c/table\u003e",
+          "value": "\u003chead\u003e\n\u003cstyle\u003e\ntable, tr, td {\n  border: none !important;\n}\ntd, th {\n  text-align: center;\n}\nimg.cncf-proj {\n  min-width: 80px;\n}\ntd.cncf-sep {\n  border-right: 1px solid white !important;\n  border-left: 1px solid white !important;\n  border-top: 1px solid white !important;\n  font-weight: bold;\n}\ntd.cncf-br {\n  border-right: 1px solid white !important;\n}\ntd.cncf-bl {\n  border-left: 1px solid white !important;\n}\ntd.cncf-bt {\n  border-top: 1px solid white !important;\n}\ntd.cncf-bb {\n  border-bottom: 1px solid white !important;\n}\n\u003c/style\u003e\n\u003c/head\u003e\n\u003ch2\u003eDevStats projects:\u003c/h2\u003e\n\u003ctable\u003e\n    \u003ctr\u003e\n        \u003ctd class=\"cncf-sep\"\u003eGraduated\u003c/td\u003e\n        \u003ctd colspan=\"9\" class=\"cncf-sep\"\u003eIncubating\u003c/td\u003e\n    \u003c/tr\u003e\n    \u003ctr\u003e\n        \u003ctd class=\"cncf-bl cncf-br\"\u003e\u003ca href=\"https://k8s.cncftest.io\" target=\"_blank\"\u003eKubernetes\u003c/a\u003e\u003c/td\u003e\n        \u003ctd class=\"cncf-bl\"\u003e\u003ca href=\"https://prometheus.cncftest.io\" target=\"_blank\"\u003ePrometheus\u003c/a\u003e\u003c/td\u003e\n        \u003ctd\u003e\u003ca href=\"https://opentracing.cncftest.io\" target=\"_blank\"\u003eOpenTracing\u003c/a\u003e\u003c/td\u003e\n        \u003ctd\u003e\u003ca href=\"https://fluentd.cncftest.io\" target=\"_blank\"\u003eFluentd\u003c/a\u003e\u003c/td\u003e\n        \u003ctd\u003e\u003ca href=\"https://grpc.cncftest.io\" target=\"_blank\"\u003egRPC\u003c/a\u003e\u003c/td\u003e\n        \u003ctd\u003e\u003ca href=\"https://containerd.cncftest.io\" target=\"_blank\"\u003econtainerd\u003c/a\u003e\u003c/td\u003e\n        \u003ctd\u003e\u003ca href=\"https://rkt.cncftest.io\" target=\"_blank\"\u003erkt\u003c/a\u003e\u003c/td\u003e\n        \u003ctd\u003e\u003ca href=\"https://cni.cncftest.io\" target=\"_blank\"\u003eCNI\u003c/a\u003e\u003c/td\u003e\n        \u003ctd\u003e\u003ca href=\"https://envoy.cncftest.io\" target=\"_blank\"\u003eEnvoy\u003c/a\u003e\u003c/td\u003e\n        \u003ctd class=\"cncf-br\"\u003e\u003ca href=\"https://jaeger.cncftest.io\" target=\"_blank\"\u003eJaeger\u003c/a\u003e\u003c/td\u003e\n    \u003c/tr\u003e\n    \u003ctr\u003e\n        \u003ctd class=\"cncf-bb cncf-bl cncf-br\"\u003e\u003ca href=\"https://k8s.cncftest.io\" target=\"_blank\"\u003e\u003cimg class=\"cncf-proj\" src=\"https://cncftest.io/img/kubernetes-icon-color.svg\" alt=\"Kubernetes\" height=\"80\" width=\"80\" /\u003e\u003c/a\u003e\u003c/td\u003e\n        \u003ctd class=\"cncf-bb cncf-bl\"d\u003e\u003ca href=\"https://prometheus.cncftest.io\" target=\"_blank\"\u003e\u003cimg class=\"cncf-proj\" src=\"https://cncftest.io/img/prometheus-icon-color.svg\" alt=\"Prometheus\" height=\"80\" width=\"80\" /\u003e\u003c/a\u003e\u003c/td\u003e\n        \u003ctd class=\"cncf-bb\"\u003e\u003ca href=\"https://opentracing.cncftest.io\" target=\"_blank\"\u003e\u003cimg class=\"cncf-proj\" src=\"https://cncftest.io/img/opentracing-icon-color.svg\" alt=\"OpenTracing\" height=\"80\" width=\"80\" /\u003e\u003c/a\u003e\u003c/td\u003e\n        \u003ctd class=\"cncf-bb\"\u003e\u003ca href=\"https://fluentd.cncftest.io\" target=\"_blank\"\u003e\u003cimg class=\"cncf-proj\" src=\"https://cncftest.io/img/fluentd-icon-color.svg\" alt=\"Fluentd\" height=\"80\" width=\"80\" /\u003e\u003c/a\u003e\u003c/td\u003e\n        \u003ctd class=\"cncf-bb\"\u003e\u003ca href=\"https://grpc.cncftest.io\" target=\"_blank\"\u003e\u003cimg class=\"cncf-proj\" src=\"https://cncftest.io/img/grpc-icon-color.svg\" alt=\"gRPC\" height=\"80\" width=\"80\" /\u003e\u003c/a\u003e\u003c/td\u003e\n        \u003ctd class=\"cncf-bb\"\u003e\u003ca href=\"https://containerd.cncftest.io\" target=\"_blank\"\u003e\u003cimg class=\"cncf-proj\" src=\"https://cncftest.io/img/containerd-icon-color.svg\" alt=\"containerd\" height=\"80\" width=\"80\" /\u003e\u003c/a\u003e\u003c/td\u003e\n        \u003ctd class=\"cncf-bb\"\u003e\u003ca href=\"https://rkt.cncftest.io\" target=\"_blank\"\u003e\u003cimg class=\"cncf-proj\" src=\"https://cncftest.io/img/rkt-icon-color.svg\" alt=\"rkt\" height=\"80\" width=\"80\" /\u003e\u003c/a\u003e\u003c/td\u003e\n        \u003ctd class=\"cncf-bb\"\u003e\u003ca href=\"https://cni.cncftest.io\" target=\"_blank\"\u003e\u003cimg class=\"cncf-proj\" src=\"https://cncftest.io/img/cni-icon-color.svg\" alt=\"CNI\" height=\"80\" width=\"80\" /\u003e\u003c/a\u003e\u003c/td\u003e\n        \u003ctd class=\"cncf-bb\"\u003e\u003ca href=\"https://envoy.cncftest.io\" target=\"_blank\"\u003e\u003cimg class=\"cncf-proj\" src=\"https://cncftest.io/img/envoy-icon-color.svg\" alt=\"Envoy\" height=\"80\" width=\"80\" /\u003e\u003c/a\u003e\u003c/td\u003e\n        \u003ctd class=\"cncf-bb cncf-br\"\u003e\u003ca href=\"https://jaeger.cncftest.io\" target=\"_blank\"\u003e\u003cimg class=\"cncf-proj\" src=\"https://cncftest.io/img/jaeger-icon-color.svg\" alt=\"Jaeger\" height=\"80\" width=\"80\" /\u003e\u003c/a\u003e\u003c/td\u003e\n    \u003c/tr\u003e\n    \u003ctr\u003e\n        \u003ctd colspan=\"6\" class=\"cncf-sep\"\u003eIncubating\u003c/td\u003e\n        \u003ctd colspan=\"4\" class=\"cncf-sep\"\u003eSandbox\u003c/td\u003e\n    \u003c/tr\u003e\n    \u003ctr\u003e\n        \u003ctd class=\"cncf-bl\"\u003e\u003ca href=\"https://notary.cncftest.io\" target=\"_blank\"\u003eNotary\u003c/a\u003e\u003c/td\u003e\n        \u003ctd\u003e\u003ca href=\"https://tuf.cncftest.io\" target=\"_blank\"\u003eTUF\u003c/a\u003e\u003c/td\u003e\n        \u003ctd\u003e\u003ca href=\"https://vitess.cncftest.io\" target=\"_blank\"\u003eVitess\u003c/a\u003e\u003c/td\u003e\n        \u003ctd\u003e\u003ca href=\"https://coredns.cncftest.io\" target=\"_blank\"\u003eCoreDNS\u003c/a\u003e\u003c/td\u003e\n        \u003ctd\u003e\u003ca href=\"https://nats.cncftest.io\" target=\"_blank\"\u003eNATS\u003c/a\u003e\u003c/td\u003e\n        \u003ctd class=\"cncf-br\"\u003e\u003ca href=\"https://linkerd.cncftest.io\" target=\"_blank\"\u003eLinkerd\u003c/a\u003e\u003c/td\u003e\n        \u003ctd\u003e\u003ca href=\"https://rook.cncftest.io\" target=\"_blank\"\u003eRook\u003c/a\u003e\u003c/td\u003e\n        \u003ctd\u003e\u003ca href=\"https://opa.cncftest.io\" target=\"_blank\"\u003eOPA\u003c/a\u003e\u003c/td\u003e\n        \u003ctd\u003e\u003ca href=\"https://spiffe.cncftest.io\" target=\"_blank\"\u003eSPIFFE\u003c/a\u003e\u003c/td\u003e\n        \u003ctd class=\"cncf-br\"\u003e\u003ca href=\"https://spire.cncftest.io\" target=\"_blank\"\u003eSPIRE\u003c/a\u003e\u003c/td\u003e\n    \u003c/tr\u003e\n    \u003ctr\u003e\n        \u003ctd class=\"cncf-bl\"\u003e\u003ca href=\"https://notary.cncftest.io\" target=\"_blank\"\u003e\u003cimg class=\"cncf-proj\" src=\"https://cncftest.io/img/notary-icon-color.svg\" alt=\"Notary\" height=\"80\" width=\"80\" /\u003e\u003c/a\u003e\u003c/td\u003e\n        \u003ctd class=\"cncf-bb\"\u003e\u003ca href=\"https://tuf.cncftest.io\" target=\"_blank\"\u003e\u003cimg class=\"cncf-proj\" src=\"https://cncftest.io/img/tuf-icon-color.svg\" alt=\"TUF\" height=\"80\" width=\"80\" /\u003e\u003c/a\u003e\u003c/td\u003e\n        \u003ctd class=\"cncf-bb\"\u003e\u003ca href=\"https://vitess.cncftest.io\" target=\"_blank\"\u003e\u003cimg class=\"cncf-proj\" src=\"https://cncftest.io/img/vitess-icon-color.svg\" alt=\"Vitess\" height=\"80\" width=\"80\" /\u003e\u003c/a\u003e\u003c/td\u003e\n        \u003ctd class=\"cncf-bb\"\u003e\u003ca href=\"https://coredns.cncftest.io\" target=\"_blank\"\u003e\u003cimg class=\"cncf-proj\" src=\"https://cncftest.io/img/core-dns-icon-color.svg\" alt=\"CoreDNS\" height=\"80\" width=\"80\" /\u003e\u003c/a\u003e\u003c/td\u003e\n        \u003ctd class=\"cncf-bb\"\u003e\u003ca href=\"https://nats.cncftest.io\" target=\"_blank\"\u003e\u003cimg class=\"cncf-proj\" src=\"https://cncftest.io/img/nats-icon-color.svg\" alt=\"NATS\" height=\"80\" width=\"80\" /\u003e\u003c/a\u003e\u003c/td\u003e\n        \u003ctd class=\"cncf-bb cncf-br\"\u003e\u003ca href=\"https://linkerd.cncftest.io\" target=\"_blank\"\u003e\u003cimg class=\"cncf-proj\" src=\"https://cncftest.io/img/linkerd-icon-color.svg\" alt=\"Linkerd\" height=\"80\" width=\"80\" /\u003e\u003c/a\u003e\u003c/td\u003e\n        \u003ctd class=\"cncf-bb\"\u003e\u003ca href=\"https://rook.cncftest.io\" target=\"_blank\"\u003e\u003cimg class=\"cncf-proj\" src=\"https://cncftest.io/img/rook-icon-color.svg\" alt=\"Rook\" height=\"80\" width=\"80\" /\u003e\u003c/a\u003e\u003c/td\u003e\n        \u003ctd class=\"cncf-bb\"\u003e\u003ca href=\"https://opa.cncftest.io\" target=\"_blank\"\u003e\u003cimg class=\"cncf-proj\" src=\"https://cncftest.io/img/opa-icon-color.svg\" alt=\"OPA\" height=\"80\" width=\"80\" /\u003e\u003c/a\u003e\u003c/td\u003e\n        \u003ctd class=\"cncf-bb\"\u003e\u003ca href=\"https://spiffe.cncftest.io\" target=\"_blank\"\u003e\u003cimg class=\"cncf-proj\" src=\"https://cncftest.io/img/spiffe-icon-color.svg\" alt=\"SPIFFE\" height=\"80\" width=\"80\" /\u003e\u003c/a\u003e\u003c/td\u003e\n        \u003ctd class=\"cncf-bb cncf-br\"\u003e\u003ca href=\"https://spire.cncftest.io\" target=\"_blank\"\u003e\u003cimg class=\"cncf-proj\" src=\"https://cncftest.io/img/spire-icon-color.svg\" alt=\"SPIRE\" height=\"80\" width=\"80\" /\u003e\u003c/a\u003e\u003c/td\u003e\n    \u003c/tr\u003e\n    \u003ctr\u003e\n        \u003ctd colspan=\"2\" class=\"cncf-sep\"\u003eCNCF\u003c/td\u003e\n        \u003ctd colspan=\"1\" class=\"cncf-sep\"\u003eOther\u003c/td\u003e\n        \u003c!-- cncftest.io \u003ctd colspan=\"1\" class=\"cncf-sep\"\u003eCNCF\u003c/td\u003e cncftest.io --\u003e\n    \u003c/tr\u003e\n    \u003ctr\u003e\n        \u003ctd class=\"cncf-bl\"\u003e\u003ca href=\"https://all.cncftest.io\" target=\"_blank\"\u003eAll CNCF\u003c/a\u003e\u003c/td\u003e\n        \u003ctd class=\"cncf-br\"\u003e\u003ca href=\"https://cncf.cncftest.io\" target=\"_blank\"\u003eCNCF\u003c/a\u003e\u003c/td\u003e\n        \u003ctd class=\"cncf-br\"\u003e\u003ca href=\"https://opencontainers.cncftest.io\" target=\"_blank\"\u003eOCI\u003c/a\u003e\u003c/td\u003e\n        \u003c!-- cncftest.io \u003ctd class=\"cncf-bl cncf-br\"\u003e\u003ca href=\"https://all.cncftest.io\" target=\"_blank\"\u003eAll CNCF\u003c/a\u003e\u003c/td\u003e cncftest.io --\u003e\n    \u003c/tr\u003e\n    \u003ctr\u003e\n        \u003ctd class=\"cncf-bb cncf-bl\"\u003e\u003ca href=\"https://all.cncftest.io\" target=\"_blank\"\u003e\u003cimg class=\"cncf-proj\" src=\"https://cncftest.io/img/all-icon-color.svg\" alt=\"All\" height=\"80\" width=\"80\" /\u003e\u003c/a\u003e\u003c/td\u003e\n        \u003ctd class=\"cncf-bb cncf-br\"\u003e\u003ca href=\"https://cncf.cncftest.io\" target=\"_blank\"\u003e\u003cimg class=\"cncf-proj\" src=\"https://cncftest.io/img/cncf-icon-color.svg\" alt=\"All\" height=\"80\" width=\"80\" /\u003e\u003c/a\u003e\u003c/td\u003e\n        \u003ctd class=\"cncf-bb cncf-br\"\u003e\u003ca href=\"https://opencontainers.cncftest.io\" target=\"_blank\"\u003e\u003cimg class=\"cncf-proj\" src=\"https://cncftest.io/img/opencontainers-icon-color.svg\" alt=\"All\" height=\"80\" width=\"80\" /\u003e\u003c/a\u003e\u003c/td\u003e\n        \u003c!-- cncftest.io \u003ctd class=\"cncf-bb cncf-bl cncf-br\"\u003e\u003ca href=\"https://all.cncftest.io\" target=\"_blank\"\u003e\u003cimg class=\"cncf-proj\" src=\"https://cncftest.io/img/all-icon-color.svg\" alt=\"All\" height=\"80\" width=\"80\" /\u003e\u003c/a\u003e\u003c/td\u003e cncftest.io --\u003e\n    \u003c/tr\u003e\n\u003c/table\u003e"
+        },
         "datasource": "psql",
         "hide": 2,
         "includeAll": false,
@@ -501,7 +473,10 @@
       },
       {
         "allValue": null,
-        "current": {},
+        "current": {
+          "text": "\u003ch1 id=\"-full_name-home-dashboard\"\u003eNotary Home dashboard\u003c/h1\u003e\n\u003cp\u003eLinks:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003ePostgres \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/events.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eInfluxDB \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/notary/metrics.yaml\" target=\"_blank\"\u003eseries definition\u003c/a\u003e (search for \u003ccode\u003ename: GitHub activity\u003c/code\u003e).\u003c/li\u003e\n\u003cli\u003eGrafana dashboard \u003ca href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/notary/dashboards.json\" target=\"_blank\"\u003eJSON\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eDeveloper \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/dashboards/dashboards_devel.md\" target=\"_blank\"\u003edocumentation\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eDirect \u003ca href=\"https://notary.cncftest.io\" target=\"_blank\"\u003elink\u003c/a\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch1 id=\"description\"\u003eDescription\u003c/h1\u003e\n\u003cul\u003e\n\u003cli\u003eFirst we\u0026#39;re displaying links to all CNCF projects defined.\u003c/li\u003e\n\u003cli\u003eNext we\u0026#39;re showing current project\u0026#39;s hourly activity - this is the number of all GitHub events that happened for Notary project hourly.\u003c/li\u003e\n\u003cli\u003eThis also includes bots activity (most other dashboards skip bot activity).\u003c/li\u003e\n\u003cli\u003eNext we\u0026#39;re showing HTML panel that shows all CNCF projects icons and links.\u003c/li\u003e\n\u003cli\u003eNext there is a dashboard that shows a list of all dashboards defined for Notary project.\u003c/li\u003e\n\u003c/ul\u003e",
+          "value": "\u003ch1 id=\"-full_name-home-dashboard\"\u003eNotary Home dashboard\u003c/h1\u003e\n\u003cp\u003eLinks:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003ePostgres \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/events.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eInfluxDB \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/notary/metrics.yaml\" target=\"_blank\"\u003eseries definition\u003c/a\u003e (search for \u003ccode\u003ename: GitHub activity\u003c/code\u003e).\u003c/li\u003e\n\u003cli\u003eGrafana dashboard \u003ca href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/notary/dashboards.json\" target=\"_blank\"\u003eJSON\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eDeveloper \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/dashboards/dashboards_devel.md\" target=\"_blank\"\u003edocumentation\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eDirect \u003ca href=\"https://notary.cncftest.io\" target=\"_blank\"\u003elink\u003c/a\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch1 id=\"description\"\u003eDescription\u003c/h1\u003e\n\u003cul\u003e\n\u003cli\u003eFirst we\u0026#39;re displaying links to all CNCF projects defined.\u003c/li\u003e\n\u003cli\u003eNext we\u0026#39;re showing current project\u0026#39;s hourly activity - this is the number of all GitHub events that happened for Notary project hourly.\u003c/li\u003e\n\u003cli\u003eThis also includes bots activity (most other dashboards skip bot activity).\u003c/li\u003e\n\u003cli\u003eNext we\u0026#39;re showing HTML panel that shows all CNCF projects icons and links.\u003c/li\u003e\n\u003cli\u003eNext there is a dashboard that shows a list of all dashboards defined for Notary project.\u003c/li\u003e\n\u003c/ul\u003e"
+        },
         "datasource": "psql",
         "hide": 2,
         "includeAll": false,
@@ -521,15 +496,18 @@
       },
       {
         "allValue": null,
-        "current": {},
-        "datasource": "gha",
+        "current": {
+          "text": "Notary",
+          "value": "Notary"
+        },
+        "datasource": "psql",
         "hide": 2,
         "includeAll": false,
         "label": null,
         "multi": false,
         "name": "full_name",
         "options": [],
-        "query": "SHOW TAG VALUES WITH KEY = full_name",
+        "query": "select value_s from gha_vars where name = 'full_name'",
         "refresh": 1,
         "regex": "",
         "sort": 0,
@@ -541,15 +519,18 @@
       },
       {
         "allValue": null,
-        "current": {},
-        "datasource": "gha",
+        "current": {
+          "text": "cncftest.io",
+          "value": "cncftest.io"
+        },
+        "datasource": "psql",
         "hide": 2,
         "includeAll": false,
         "label": null,
         "multi": false,
         "name": "hostname",
         "options": [],
-        "query": "SHOW TAG VALUES WITH KEY = os_hostname",
+        "query": "select value_s from gha_vars where name = 'os_hostname'",
         "refresh": 1,
         "regex": "",
         "sort": 0,
@@ -594,5 +575,5 @@
   "timezone": "",
   "title": "Dashboards",
   "uid": "8",
-  "version": 9
+  "version": 12
 }

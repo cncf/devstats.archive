@@ -2,7 +2,7 @@ select
   sub.repo_group,
   round(count(distinct sub.id) / {{n}}, 2) as activity
 from (
-  select 'repo_group_activity,' || coalesce(ecf.repo_group, r.repo_group) as repo_group,
+  select 'act,' || coalesce(ecf.repo_group, r.repo_group) as repo_group,
     ev.id
   from
     gha_repos r,
@@ -15,7 +15,7 @@ from (
     r.name = ev.dup_repo_name
     and ev.created_at >= '{{from}}'
     and ev.created_at < '{{to}}'
-    and (ev.dup_actor_login {{exclude_bots}})
+    and (lower(ev.dup_actor_login) {{exclude_bots}})
     and ev.type not in ('WatchEvent', 'ForkEvent', 'ArtificialEvent')
   ) sub
 where

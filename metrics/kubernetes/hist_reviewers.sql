@@ -18,7 +18,7 @@ select
   sub.actor,
   count(distinct sub.id) as reviews
 from (
-  select 'developers_hist_reviewers,' || coalesce(ecf.repo_group, r.repo_group) as repo_group,
+  select 'hdev_reviews,' || coalesce(ecf.repo_group, r.repo_group) as repo_group,
     e.dup_actor_login as actor,
     e.id
   from
@@ -30,7 +30,7 @@ from (
     ecf.event_id = e.id
   where
     e.repo_id = r.id
-    and (e.dup_actor_login {{exclude_bots}})
+    and (lower(e.dup_actor_login) {{exclude_bots}})
     and e.id in (
       select min(event_id)
       from
@@ -51,7 +51,7 @@ group by
   sub.actor
 having
   count(distinct sub.id) >= 1
-union select 'developers_hist_reviewers,All' as repo_group,
+union select 'hdev_reviews,All' as repo_group,
   dup_actor_login as actor,
   count(distinct id) as reviews
 from
@@ -69,7 +69,7 @@ where
     union select event_id from matching
     union select event_id from reviews
   )
-  and (dup_actor_login {{exclude_bots}})
+  and (lower(dup_actor_login) {{exclude_bots}})
 group by
   dup_actor_login
 having

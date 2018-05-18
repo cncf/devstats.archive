@@ -11,13 +11,14 @@
         "type": "dashboard"
       },
       {
-        "datasource": "gha",
+        "datasource": "psql",
         "enable": true,
         "hide": false,
         "iconColor": "rgba(255, 96, 96, 1)",
         "limit": 100,
         "name": "Releases",
         "query": "SELECT title, description from annotations WHERE $timeFilter order by time asc",
+        "rawQuery": "select extract(epoch from time) AS time, title as text, description as tags from sannotations where $__timeFilter(time)",
         "showIn": 0,
         "tagsColumn": "title,description",
         "textColumn": "",
@@ -30,7 +31,7 @@
   "gnetId": null,
   "graphTooltip": 0,
   "id": 23,
-  "iteration": 1.521220132434e+12,
+  "iteration": 1521220132434,
   "links": [],
   "panels": [
     {
@@ -38,7 +39,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "gha",
+      "datasource": "psql",
       "decimals": 0,
       "description": "",
       "fill": 1,
@@ -90,6 +91,7 @@
           "policy": "autogen",
           "query": "SELECT \"value\" FROM \"autogen\".\"num_stats_[[repogroup]]_companies_[[period]]\" WHERE $timeFilter",
           "rawQuery": true,
+          "rawSql": "select\n  time,\n  value as \"Number of contributing companies\"\nfrom\n  snum_stats\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'nstats[[repogroup]]comps'\norder by\n  time",
           "refId": "A",
           "resultFormat": "time_series",
           "select": [
@@ -114,6 +116,7 @@
           "policy": "autogen",
           "query": "SELECT \"value\" FROM \"autogen\".\"num_stats_[[repogroup]]_developers_[[period]]\" WHERE $timeFilter",
           "rawQuery": true,
+          "rawSql": "select\n  time,\n  value as \"Number of contributing developers\"\nfrom\n  snum_stats\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'nstats[[repogroup]]devs'\norder by\n  time",
           "refId": "B",
           "resultFormat": "time_series",
           "select": [
@@ -184,14 +187,14 @@
           "text": "OPA",
           "value": "OPA"
         },
-        "datasource": "gha",
+        "datasource": "psql",
         "hide": 2,
         "includeAll": false,
         "label": null,
         "multi": false,
         "name": "full_name",
         "options": [],
-        "query": "SHOW TAG VALUES WITH KEY = full_name",
+        "query": "select value_s from gha_vars where name = 'full_name'",
         "refresh": 1,
         "regex": "",
         "sort": 0,
@@ -205,8 +208,8 @@
         "allValue": null,
         "current": {
           "tags": [],
-          "text": "14 Days MA",
-          "value": "d14"
+          "text": "28 Days MA",
+          "value": "d28"
         },
         "hide": 0,
         "includeAll": false,
@@ -221,36 +224,26 @@
           },
           {
             "selected": true,
-            "text": "14 Days MA",
-            "value": "d14"
+            "text": "28 Days MA",
+            "value": "d28"
           },
           {
             "selected": false,
-            "text": "4 Weeks MA",
-            "value": "w4"
+            "text": "Week",
+            "value": "w"
           },
           {
             "selected": false,
-            "text": "3 Months MA",
-            "value": "m3"
+            "text": "Month",
+            "value": "m"
           },
           {
             "selected": false,
-            "text": "4 Months MA",
-            "value": "m4"
-          },
-          {
-            "selected": false,
-            "text": "6 Months MA",
-            "value": "m6"
-          },
-          {
-            "selected": false,
-            "text": "4 Quarters MA",
-            "value": "q4"
+            "text": "Quarter",
+            "value": "q"
           }
         ],
-        "query": "d7,d14,w4,m3,m4,m6,q4",
+        "query": "d7,d28,w,m,q",
         "type": "custom"
       },
       {
@@ -259,14 +252,14 @@
           "text": "All",
           "value": "All"
         },
-        "datasource": "gha",
+        "datasource": "psql",
         "hide": 0,
         "includeAll": false,
         "label": "Repository group",
         "multi": false,
         "name": "repogroup_name",
         "options": [],
-        "query": "SHOW TAG VALUES WITH KEY = all_repo_group_name",
+        "query": "select all_repo_group_name from tall_repo_groups order by 1",
         "refresh": 1,
         "regex": "",
         "sort": 0,
@@ -282,14 +275,14 @@
           "text": "all",
           "value": "all"
         },
-        "datasource": "gha",
+        "datasource": "psql",
         "hide": 2,
         "includeAll": false,
         "label": "",
         "multi": false,
         "name": "repogroup",
         "options": [],
-        "query": "SHOW TAG VALUES WITH KEY = all_repo_group_value where all_repo_group_name =~ /^[[repogroup_name]]$/",
+        "query": "select all_repo_group_value from tall_repo_groups where all_repo_group_name = '[[repogroup_name]]'",
         "refresh": 1,
         "regex": "",
         "sort": 0,

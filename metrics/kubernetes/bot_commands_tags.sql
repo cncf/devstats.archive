@@ -2,7 +2,7 @@ select
   -- string_agg(sub.command, ',')
   sub.command
 from (
-  select substring(cmd from 2) as command,
+  select substring(cmd from 1) as command,
     count(*) as count_value
   from
     (
@@ -15,11 +15,12 @@ from (
         '\s+',
         ' ',
         'g'
-      ) as cmd
+        ) as cmd
       from
         gha_texts
       where
-        actor_login {{exclude_bots}}
+        (lower(actor_login) {{exclude_bots}})
+        and created_at >= now() - '6 months'::interval
     ) sel
   where
     sel.cmd is not null

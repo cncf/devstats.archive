@@ -11,13 +11,14 @@
         "type": "dashboard"
       },
       {
-        "datasource": "gha",
+        "datasource": "psql",
         "enable": true,
         "hide": false,
         "iconColor": "rgba(255, 96, 96, 1)",
         "limit": 100,
         "name": "Releases",
         "query": "SELECT title, description from annotations WHERE $timeFilter order by time asc",
+        "rawQuery": "select extract(epoch from time) AS time, title as text, description as tags from sannotations where $__timeFilter(time)",
         "showIn": 0,
         "tagsColumn": "title,description",
         "textColumn": "",
@@ -30,7 +31,7 @@
   "gnetId": null,
   "graphTooltip": 0,
   "id": 59,
-  "iteration": 1.521188705128e+12,
+  "iteration": 1521188705128,
   "links": [],
   "panels": [
     {
@@ -38,7 +39,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "gha",
+      "datasource": "psql",
       "decimals": 0,
       "description": "Community stats ([[repogroup_name]], [[period]])",
       "fill": 0,
@@ -89,8 +90,9 @@
       "steppedLine": false,
       "targets": [
         {
-          "alias": "Stargazers",
+          "alias": "",
           "dsType": "influxdb",
+          "format": "time_series",
           "groupBy": [],
           "hide": false,
           "measurement": "reviewers_d",
@@ -98,6 +100,7 @@
           "policy": "autogen",
           "query": "SELECT \"value\" FROM \"autogen\".\"contrib_[[repogroup]]_watchers_[[period]]\" WHERE $timeFilter",
           "rawQuery": true,
+          "rawSql": "select\n  time,\n  value as \"Stargazers\"\nfrom\n  swatchers\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'watch[[repogroup]]watch'\norder by\n  time",
           "refId": "A",
           "resultFormat": "time_series",
           "select": [
@@ -113,8 +116,9 @@
           "tags": []
         },
         {
-          "alias": "Forks",
+          "alias": "",
           "dsType": "influxdb",
+          "format": "time_series",
           "groupBy": [],
           "hide": false,
           "measurement": "reviewers_d",
@@ -122,6 +126,7 @@
           "policy": "autogen",
           "query": "SELECT \"value\" FROM \"autogen\".\"contrib_[[repogroup]]_forks_[[period]]\" WHERE $timeFilter",
           "rawQuery": true,
+          "rawSql": "select\n  time,\n  value as \"Forks\"\nfrom\n  swatchers\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'watch[[repogroup]]forks'\norder by\n  time",
           "refId": "B",
           "resultFormat": "time_series",
           "select": [
@@ -137,8 +142,9 @@
           "tags": []
         },
         {
-          "alias": "Open issues",
+          "alias": "",
           "dsType": "influxdb",
+          "format": "time_series",
           "groupBy": [],
           "hide": false,
           "measurement": "reviewers_d",
@@ -146,6 +152,7 @@
           "policy": "autogen",
           "query": "SELECT \"value\" FROM \"autogen\".\"contrib_[[repogroup]]_open_issues_[[period]]\" WHERE $timeFilter",
           "rawQuery": true,
+          "rawSql": "select\n  time,\n  value as \"Open issues\"\nfrom\n  swatchers\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'watch[[repogroup]]opiss'\norder by\n  time",
           "refId": "C",
           "resultFormat": "time_series",
           "select": [
@@ -216,14 +223,14 @@
           "text": "CNCF",
           "value": "CNCF"
         },
-        "datasource": "gha",
+        "datasource": "psql",
         "hide": 2,
         "includeAll": false,
         "label": null,
         "multi": false,
         "name": "full_name",
         "options": [],
-        "query": "SHOW TAG VALUES WITH KEY = full_name",
+        "query": "select value_s from gha_vars where name = 'full_name'",
         "refresh": 1,
         "regex": "",
         "sort": 0,
@@ -287,14 +294,14 @@
           "text": "cncf/landscape",
           "value": "cncf/landscape"
         },
-        "datasource": "gha",
+        "datasource": "psql",
         "hide": 0,
         "includeAll": false,
         "label": "Repository group",
         "multi": false,
         "name": "repogroup_name",
         "options": [],
-        "query": "SHOW TAG VALUES WITH KEY = repo_group_name",
+        "query": "select top_repo_names_name from ttop_repo_names order by 1",
         "refresh": 1,
         "regex": "",
         "sort": 1,
@@ -310,14 +317,14 @@
           "text": "cncf_landscape",
           "value": "cncf_landscape"
         },
-        "datasource": "gha",
+        "datasource": "psql",
         "hide": 2,
         "includeAll": false,
         "label": "",
         "multi": false,
         "name": "repogroup",
         "options": [],
-        "query": "SHOW TAG VALUES WITH KEY = repo_group_value where repo_group_name =~ /^[[repogroup_name]]$/",
+        "query": "select top_repo_names_value from ttop_repo_names where top_repo_names_name = '[[repogroup_name]]'",
         "refresh": 1,
         "regex": "",
         "sort": 0,

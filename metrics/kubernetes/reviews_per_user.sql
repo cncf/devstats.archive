@@ -1,20 +1,19 @@
-create temp table lgtm_texts as
-select event_id
-from gha_texts
-where
-  created_at >= '{{from}}'
-  and created_at < '{{to}}'
-  and substring(body from '(?i)(?:^|\n|\r)\s*/(?:lgtm)\s*(?:\n|\r|$)') is not null
-  and (actor_login {{exclude_bots}})
-;
-
+with lgtm_texts as (
+  select event_id
+  from gha_texts
+  where
+    created_at >= '{{from}}'
+    and created_at < '{{to}}'
+    and substring(body from '(?i)(?:^|\n|\r)\s*/(?:lgtm)\s*(?:\n|\r|$)') is not null
+    and actor_login in (select reviewers_name from treviewers)
+)
 select
-  concat('lgtms_per_user,', dup_actor_login, '`All') as repo_user,
+  concat('ulgtms,', dup_actor_login, '`All') as repo_user,
   round(count(id) / {{n}}, 2) as result
 from
   gha_events
 where
-  (dup_actor_login {{exclude_bots}})
+  dup_actor_login in (select reviewers_name from treviewers)
   and id in (
     select min(event_id)
     from
@@ -37,7 +36,7 @@ where
   created_at >= '{{from}}'
   and created_at < '{{to}}'
   and type in ('PullRequestReviewCommentEvent')
-  and (dup_actor_login {{exclude_bots}})
+  and dup_actor_login in (select reviewers_name from treviewers)
 group by
   dup_actor_login
 union select 'reviews_per_user,' || concat(dup_actor_login, '`', dup_repo_name) as repo_user,
@@ -45,18 +44,18 @@ union select 'reviews_per_user,' || concat(dup_actor_login, '`', dup_repo_name) 
 from
   gha_events
 where
-  (dup_actor_login {{exclude_bots}})
+  dup_actor_login in (select reviewers_name from treviewers)
   and type in ('PullRequestReviewCommentEvent')
   and created_at >= '{{from}}'
   and created_at < '{{to}}'
 group by
   repo_user
-union select 'lgtms_per_user,' || concat(dup_actor_login, '`', dup_repo_name) as repo_user,
+union select 'ulgtms,' || concat(dup_actor_login, '`', dup_repo_name) as repo_user,
   round(count(id) / {{n}}, 2) as result
 from
   gha_events
 where
-  (dup_actor_login {{exclude_bots}})
+  dup_actor_login in (select reviewers_name from treviewers)
   and id in (
     select min(event_id)
     from
@@ -75,5 +74,3 @@ order by
   result desc,
   repo_user asc
 ;
-
-drop table lgtm_texts;

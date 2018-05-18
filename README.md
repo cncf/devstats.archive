@@ -19,7 +19,7 @@ The only requirement is that project must be hosted on a public GitHub repositor
 
 # Forking and installing locally
 
-This toolset uses only Open Source tools: GitHub archives, git, Postgres databases, InfluxDB time-series databases and multiple Grafana instances.
+This toolset uses only Open Source tools: GitHub archives, GitHub API, git, Postgres databases and multiple Grafana instances.
 It is written in Go, and can be forked and installed by anyone.
 
 Contributions and PRs are welcome.
@@ -95,8 +95,8 @@ The servers to run `devstats` are generously provided by [Packet](https://www.pa
 
 # One line run all projects
 
-- Use `GHA2DB_PROJECTS_OVERRIDE="+cncf,+all" IDB_HOST="localhost" IDB_PASS=pwd PG_PASS=pwd devstats`.
-- Or add this command using `crontab -e` to run every hour HH:10.
+- Use `GHA2DB_PROJECTS_OVERRIDE="+cncf,+all" PG_PASS=pwd devstats`.
+- Or add this command using `crontab -e` to run every hour HH:08.
 
 # Checking projects activity
 

@@ -18,7 +18,7 @@ func GetThreadsNum(ctx *Ctx) int {
 		return 1
 	}
 	thrN := runtime.NumCPU()
-	thrN = (thrN * 19) / 20
+	// thrN = (thrN * 19) / 20
 	runtime.GOMAXPROCS(thrN)
 	//http.DefaultTransport.(*http.Transport).MaxIdleConnsPerHost = 2 * thrN
 	return thrN

@@ -6,8 +6,6 @@ echo "usedexports..."
 go get github.com/jgautheron/usedexports
 echo "errcheck..."
 go get github.com/kisielk/errcheck
-echo "influxdb..."
-go get github.com/influxdata/influxdb/client/v2
 echo "pq..."
 go get github.com/lib/pq
 echo "transform..."

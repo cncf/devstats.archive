@@ -16,12 +16,12 @@
   "gnetId": null,
   "graphTooltip": 0,
   "id": 55,
-  "iteration": 1.520409104979e+12,
+  "iteration": 1520409104979,
   "links": [],
   "panels": [
     {
       "columns": [],
-      "datasource": "gha",
+      "datasource": "psql",
       "description": "",
       "fontSize": "90%",
       "gridPos": {
@@ -37,7 +37,7 @@
       "scroll": true,
       "showHeader": true,
       "sort": {
-        "col": 0,
+        "col": 1,
         "desc": true
       },
       "styles": [
@@ -96,7 +96,9 @@
       ],
       "targets": [
         {
+          "alias": "",
           "dsType": "influxdb",
+          "format": "table",
           "groupBy": [
             {
               "params": [
@@ -115,6 +117,7 @@
           "policy": "default",
           "query": "SELECT \"name\", \"value\" FROM \"project_developer_stats_[[metric]]_[[period]]\" WHERE $timeFilter",
           "rawQuery": true,
+          "rawSql": "select name, value from \"shdev[[metric]]\" where period = '[[period]]'",
           "refId": "A",
           "resultFormat": "table",
           "select": [
@@ -156,14 +159,14 @@
           "text": "Linkerd",
           "value": "Linkerd"
         },
-        "datasource": "gha",
+        "datasource": "psql",
         "hide": 2,
         "includeAll": false,
         "label": null,
         "multi": false,
         "name": "full_name",
         "options": [],
-        "query": "SHOW TAG VALUES WITH KEY = full_name",
+        "query": "select value_s from gha_vars where name = 'full_name'",
         "refresh": 1,
         "regex": "",
         "sort": 0,
@@ -180,14 +183,14 @@
           "text": "Last decade",
           "value": "Last decade"
         },
-        "datasource": "gha",
+        "datasource": "psql",
         "hide": 0,
         "includeAll": false,
         "label": "Range",
         "multi": false,
         "name": "period_name",
         "options": [],
-        "query": "show tag values with key = quick_ranges_name",
+        "query": "select quick_ranges_name from tquick_ranges order by time",
         "refresh": 1,
         "regex": "",
         "sort": 0,
@@ -200,9 +203,9 @@
       {
         "allValue": null,
         "current": {
-          "selected": true,
-          "text": "GitHub events",
-          "value": "github_events"
+          "tags": [],
+          "text": "Contributions",
+          "value": "contributions"
         },
         "hide": 0,
         "includeAll": false,
@@ -218,7 +221,7 @@
           {
             "selected": false,
             "text": "Commit comments",
-            "value": "commit_comments"
+            "value": "commitcomments"
           },
           {
             "selected": false,
@@ -226,19 +229,19 @@
             "value": "commits"
           },
           {
-            "selected": true,
+            "selected": false,
             "text": "GitHub events",
-            "value": "github_events"
+            "value": "githubevents"
           },
           {
             "selected": false,
             "text": "GitHub pushes",
-            "value": "github_pushes"
+            "value": "githubpushes"
           },
           {
             "selected": false,
             "text": "Issue comments",
-            "value": "issue_comments"
+            "value": "issuecomments"
           },
           {
             "selected": false,
@@ -253,20 +256,20 @@
           {
             "selected": false,
             "text": "Review comments",
-            "value": "review_comments"
+            "value": "reviewcomments"
           },
           {
-            "selected": false,
+            "selected": true,
             "text": "Contributions",
             "value": "contributions"
           },
           {
             "selected": false,
             "text": "Active repositories",
-            "value": "active_repositories"
+            "value": "activerepositories"
           }
         ],
-        "query": "comments,commit_comments,commits,github_events,github_pushes,issue_comments,issues,prs,review_comments,active_repositories",
+        "query": "comments,commitcomments,commits,githubevents,githubpushes,issuecomments,issues,prs,reviewcomments,activerepositories",
         "type": "custom"
       },
       {
@@ -275,14 +278,14 @@
           "text": "y10",
           "value": "y10"
         },
-        "datasource": "gha",
+        "datasource": "psql",
         "hide": 2,
         "includeAll": false,
         "label": null,
         "multi": false,
         "name": "period",
         "options": [],
-        "query": "SHOW TAG VALUES WITH KEY = quick_ranges_suffix where quick_ranges_name =~ /^[[period_name]]$/",
+        "query": "select quick_ranges_suffix from tquick_ranges where quick_ranges_name = '[[period_name]]'",
         "refresh": 1,
         "regex": "",
         "sort": 0,

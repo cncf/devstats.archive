@@ -11,13 +11,14 @@
         "type": "dashboard"
       },
       {
-        "datasource": "gha",
+        "datasource": "psql",
         "enable": true,
         "hide": false,
         "iconColor": "rgba(255, 96, 96, 1)",
         "limit": 100,
         "name": "Releases",
         "query": "SELECT title, description from annotations WHERE $timeFilter order by time asc",
+        "rawQuery": "select extract(epoch from time) AS time, title as text, description as tags from sannotations where $__timeFilter(time)",
         "showIn": 0,
         "tagsColumn": "title,description",
         "textColumn": "",
@@ -30,7 +31,7 @@
   "gnetId": null,
   "graphTooltip": 0,
   "id": 14,
-  "iteration": 1.521219479443e+12,
+  "iteration": 1521219479443,
   "links": [],
   "panels": [
     {
@@ -38,7 +39,7 @@
       "bars": true,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "gha",
+      "datasource": "psql",
       "decimals": 0,
       "description": "Median and 85th, 95th percentile of comments for PRs created in given period",
       "fill": 1,
@@ -74,13 +75,15 @@
       "steppedLine": false,
       "targets": [
         {
-          "alias": "95th percentile for number of comments on PRs",
+          "alias": "",
           "dsType": "influxdb",
+          "format": "time_series",
           "groupBy": [],
           "orderByTime": "ASC",
           "policy": "default",
           "query": "SELECT \"value\" FROM \"pr_comments_percentile_95_[[period]]\" WHERE $timeFilter",
           "rawQuery": true,
+          "rawSql": "select\n  time,\n  value as \"95th percentile for number of comments on PRs\"\nfrom\n  spr_comms_p95\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\norder by\n  time",
           "refId": "A",
           "resultFormat": "time_series",
           "select": [
@@ -96,13 +99,15 @@
           "tags": []
         },
         {
-          "alias": "85th percentile for number of comments on PRs",
+          "alias": "",
           "dsType": "influxdb",
+          "format": "time_series",
           "groupBy": [],
           "orderByTime": "ASC",
           "policy": "default",
           "query": "SELECT \"value\" FROM \"pr_comments_percentile_85_[[period]]\" WHERE $timeFilter",
           "rawQuery": true,
+          "rawSql": "select\n  time,\n  value as \"85th percentile for number of comments on PRs\"\nfrom\n  spr_comms_p85\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\norder by\n  time",
           "refId": "B",
           "resultFormat": "time_series",
           "select": [
@@ -118,13 +123,15 @@
           "tags": []
         },
         {
-          "alias": "Median for number of comments on PRs",
+          "alias": "",
           "dsType": "influxdb",
+          "format": "time_series",
           "groupBy": [],
           "orderByTime": "ASC",
           "policy": "default",
           "query": "SELECT \"value\" FROM \"pr_comments_median_[[period]]\" WHERE $timeFilter",
           "rawQuery": true,
+          "rawSql": "select\n  time,\n  value as \"Median for number of comments on PRs\"\nfrom\n  spr_comms_med\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\norder by\n  time",
           "refId": "C",
           "resultFormat": "time_series",
           "select": [
@@ -193,14 +200,14 @@
           "text": "OPA",
           "value": "OPA"
         },
-        "datasource": "gha",
+        "datasource": "psql",
         "hide": 2,
         "includeAll": false,
         "label": null,
         "multi": false,
         "name": "full_name",
         "options": [],
-        "query": "SHOW TAG VALUES WITH KEY = full_name",
+        "query": "select value_s from gha_vars where name = 'full_name'",
         "refresh": 1,
         "regex": "",
         "sort": 0,

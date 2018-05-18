@@ -1,16 +1,16 @@
 select
-  'repo_commenters,All' as repo_group,
+  'rcommenters,All' as repo_group,
   round(count(distinct actor_login) / {{n}}, 2) as result
 from
   gha_texts
 where
   created_at >= '{{from}}'
   and created_at < '{{to}}'
-  and (actor_login {{exclude_bots}})
+  and (lower(actor_login) {{exclude_bots}})
 union select sub.repo_group,
   round(count(distinct sub.actor_login) / {{n}}, 2) as result
 from (
-  select 'repo_commenters,' || coalesce(ecf.repo_group, r.repo_group) as repo_group,
+  select 'rcommenters,' || coalesce(ecf.repo_group, r.repo_group) as repo_group,
     t.actor_login
   from
     gha_repos r,
@@ -23,7 +23,7 @@ from (
     r.id = t.repo_id
     and t.created_at >= '{{from}}'
     and t.created_at < '{{to}}'
-    and (t.actor_login {{exclude_bots}})
+    and (lower(t.actor_login) {{exclude_bots}})
   ) sub
 where
   sub.repo_group is not null

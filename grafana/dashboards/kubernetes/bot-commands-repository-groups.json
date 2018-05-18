@@ -11,13 +11,14 @@
         "type": "dashboard"
       },
       {
-        "datasource": "gha",
+        "datasource": "psql",
         "enable": true,
         "hide": false,
         "iconColor": "rgba(255, 96, 96, 1)",
         "limit": 100,
         "name": "Releases",
         "query": "SELECT title, description from annotations WHERE $timeFilter order by time asc",
+        "rawQuery": "select extract(epoch from time) AS time, title as text, description as tags from sannotations where $__timeFilter(time)",
         "showIn": 0,
         "tagsColumn": "title,description",
         "textColumn": "",
@@ -30,7 +31,7 @@
   "gnetId": null,
   "graphTooltip": 0,
   "id": 129,
-  "iteration": 1523003304512,
+  "iteration": 1526023277522,
   "links": [],
   "panels": [
     {
@@ -38,7 +39,7 @@
       "bars": true,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "gha",
+      "datasource": "psql",
       "decimals": 0,
       "description": "Shows how often various bot commands are used in [[repogroup_name]] repository group.",
       "fill": 1,
@@ -78,14 +79,16 @@
       "steppedLine": false,
       "targets": [
         {
-          "alias": "/$col",
+          "alias": "",
           "dsType": "influxdb",
+          "format": "time_series",
           "groupBy": [],
           "measurement": "sig_federation_d",
           "orderByTime": "ASC",
           "policy": "default",
           "query": "SELECT /^[[commands]]$/ FROM \"bot_commands_[[repogroup]]_[[period]]\" WHERE $timeFilter",
           "rawQuery": true,
+          "rawSql": "select\n  time,\n  ${commands:csv}\nfrom\n  sbot_commands\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'bot_cmds[[repogroup]]'\norder by\n  time",
           "refId": "A",
           "resultFormat": "time_series",
           "select": [
@@ -117,9 +120,7 @@
         "mode": "time",
         "name": null,
         "show": true,
-        "values": [
-          "total"
-        ]
+        "values": []
       },
       "yaxes": [
         {
@@ -138,7 +139,11 @@
           "min": "0",
           "show": true
         }
-      ]
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
     }
   ],
   "schemaVersion": 16,
@@ -153,6 +158,7 @@
       {
         "allValue": null,
         "current": {
+          "selected": false,
           "tags": [],
           "text": "7 days MA",
           "value": "d7"
@@ -203,14 +209,14 @@
           "text": "All",
           "value": "All"
         },
-        "datasource": "gha",
+        "datasource": "psql",
         "hide": 0,
         "includeAll": false,
         "label": "Repository group",
         "multi": false,
         "name": "repogroup_name",
         "options": [],
-        "query": "SHOW TAG VALUES WITH KEY = all_repo_group_name",
+        "query": "select all_repo_group_name from tall_repo_groups order by 1",
         "refresh": 1,
         "regex": "",
         "sort": 0,
@@ -226,14 +232,14 @@
           "text": "all",
           "value": "all"
         },
-        "datasource": "gha",
+        "datasource": "psql",
         "hide": 2,
         "includeAll": false,
         "label": "",
         "multi": false,
         "name": "repogroup",
         "options": [],
-        "query": "SHOW TAG VALUES WITH KEY = all_repo_group_value where all_repo_group_name =~ /^[[repogroup_name]]$/",
+        "query": "select all_repo_group_value from tall_repo_groups where all_repo_group_name = '[[repogroup_name]]'",
         "refresh": 1,
         "regex": "",
         "sort": 0,
@@ -246,17 +252,20 @@
       {
         "allValue": "",
         "current": {
+          "tags": [],
           "text": "All",
-          "value": "$__all"
+          "value": [
+            "$__all"
+          ]
         },
-        "datasource": "gha",
+        "datasource": "psql",
         "hide": 0,
         "includeAll": true,
         "label": "Commands",
         "multi": true,
         "name": "commands",
         "options": [],
-        "query": "SHOW TAG VALUES WITH KEY = bot_command_name",
+        "query": "select '\"' || bot_command_name || '\"' from tbot_commands order by 1",
         "refresh": 1,
         "regex": "",
         "sort": 0,
@@ -272,14 +281,14 @@
           "text": "Kubernetes",
           "value": "Kubernetes"
         },
-        "datasource": "gha",
+        "datasource": "psql",
         "hide": 2,
         "includeAll": false,
         "label": null,
         "multi": false,
         "name": "full_name",
         "options": [],
-        "query": "SHOW TAG VALUES WITH KEY = full_name",
+        "query": "select value_s from gha_vars where name = 'full_name'",
         "refresh": 1,
         "regex": "",
         "sort": 0,
@@ -323,5 +332,5 @@
   "timezone": "",
   "title": "Bot commands repository groups",
   "uid": "5",
-  "version": 3
+  "version": 17
 }
