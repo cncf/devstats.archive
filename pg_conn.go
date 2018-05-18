@@ -339,11 +339,15 @@ func WriteTSPoints(ctx *Ctx, con *sql.DB, pts *TSPoints, mergeSeries string, mut
 			}
 			namesUA := strings.Join(namesU, ", ")
 			argsUA := strings.Join(argsU, ", ")
+			if len(namesU) > 1 {
+				namesUA = "(" + namesUA + ")"
+				argsUA = "(" + argsUA + ")"
+			}
 			argT := "$" + strconv.Itoa(i)
 			vals = append(vals, p.t)
 			q := fmt.Sprintf(
 				"insert into \"%[1]s\"("+namesIA+") values("+argsIA+") "+
-					"on conflict(time) do update set ("+namesUA+") = ("+argsUA+") "+
+					"on conflict(time) do update set "+namesUA+" = "+argsUA+" "+
 					"where \"%[1]s\".time = "+argT,
 				name,
 			)
@@ -374,13 +378,17 @@ func WriteTSPoints(ctx *Ctx, con *sql.DB, pts *TSPoints, mergeSeries string, mut
 			}
 			namesUA := strings.Join(namesU, ", ")
 			argsUA := strings.Join(argsU, ", ")
+			if len(namesU) > 1 {
+				namesUA = "(" + namesUA + ")"
+				argsUA = "(" + argsUA + ")"
+			}
 			argT := "$" + strconv.Itoa(i)
 			argP := "$" + strconv.Itoa(i+1)
 			vals = append(vals, p.t)
 			vals = append(vals, p.period)
 			q := fmt.Sprintf(
 				"insert into \"%[1]s\"("+namesIA+") values("+argsIA+") "+
-					"on conflict(time, period) do update set ("+namesUA+") = ("+argsUA+") "+
+					"on conflict(time, period) do update set "+namesUA+" = "+argsUA+" "+
 					"where \"%[1]s\".time = "+argT+" and \"%[1]s\".period = "+argP,
 				name,
 			)
@@ -410,6 +418,10 @@ func WriteTSPoints(ctx *Ctx, con *sql.DB, pts *TSPoints, mergeSeries string, mut
 			}
 			namesUA := strings.Join(namesU, ", ")
 			argsUA := strings.Join(argsU, ", ")
+			if len(namesU) > 1 {
+				namesUA = "(" + namesUA + ")"
+				argsUA = "(" + argsUA + ")"
+			}
 			argT := "$" + strconv.Itoa(i)
 			argP := "$" + strconv.Itoa(i+1)
 			argS := "$" + strconv.Itoa(i+2)
@@ -418,7 +430,7 @@ func WriteTSPoints(ctx *Ctx, con *sql.DB, pts *TSPoints, mergeSeries string, mut
 			vals = append(vals, p.name)
 			q := fmt.Sprintf(
 				"insert into \"%[1]s\"("+namesIA+") values("+argsIA+") "+
-					"on conflict(time, series, period) do update set ("+namesUA+") = ("+argsUA+") "+
+					"on conflict(time, series, period) do update set "+namesUA+" = "+argsUA+" "+
 					"where \"%[1]s\".time = "+argT+" and \"%[1]s\".period = "+argP+" and \"%[1]s\".series = "+argS,
 				mergeS,
 			)
