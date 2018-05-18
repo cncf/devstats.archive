@@ -86,7 +86,7 @@ select
   sub.sig_milestone,
   sub.cnt
 from (
-  select concat('open_prs_sigs_milestones,', s.sig, '-', m.milestone, '-', s.repo) as sig_milestone,
+  select concat('prsigml,', s.sig, '-', m.milestone, '-', s.repo) as sig_milestone,
     count(s.issue_id) as cnt
   from
     prs_milestones m,
@@ -97,27 +97,27 @@ from (
     s.sig,
     m.milestone,
     s.repo
-  union select concat('open_prs_sigs_milestones,', 'All-', m.milestone, '-', m.repo) as sig_milestone,
+  union select concat('prsigml,', 'All-', m.milestone, '-', m.repo) as sig_milestone,
     count(m.issue_id) as cnt
   from
     prs_milestones m
   group by
     m.milestone,
     m.repo
-  union select concat('open_prs_sigs_milestones,', s.sig, '-All-', s.repo) as sig_milestone,
+  union select concat('prsigml,', s.sig, '-All-', s.repo) as sig_milestone,
     count(s.issue_id) as cnt
   from
     prs_sigs s
   group by
     s.sig,
     s.repo
-  union select concat('open_prs_sigs_milestones,All-All-', pr.repo) as sig_milestone,
+  union select concat('prsigml,All-All-', pr.repo) as sig_milestone,
     count(pr.issue_id) as cnt
   from
     prs pr
   group by
     pr.repo
-  union select concat('open_prs_sigs_milestones,', s.sig, '-', m.milestone, '-All') as sig_milestone,
+  union select concat('prsigml,', s.sig, '-', m.milestone, '-All') as sig_milestone,
     count(s.issue_id) as cnt
   from
     prs_milestones m,
@@ -127,19 +127,19 @@ from (
   group by
     s.sig,
     m.milestone
-  union select concat('open_prs_sigs_milestones,', 'All-', m.milestone, '-All') as sig_milestone,
+  union select concat('prsigml,', 'All-', m.milestone, '-All') as sig_milestone,
     count(m.issue_id) as cnt
   from
     prs_milestones m
   group by
     m.milestone
-  union select concat('open_prs_sigs_milestones,', s.sig, '-All-All') as sig_milestone,
+  union select concat('prsigml,', s.sig, '-All-All') as sig_milestone,
     count(s.issue_id) as cnt
   from
     prs_sigs s
   group by
     s.sig
-  union select 'open_prs_sigs_milestones,All-All-All' as sig_milestone,
+  union select 'prsigml,All-All-All' as sig_milestone,
     count(pr.issue_id) as cnt
   from
     prs pr

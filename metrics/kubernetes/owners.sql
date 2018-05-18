@@ -1,8 +1,15 @@
 select
-  coalesce(max(size), 0) as size
-from
-  gha_events_commits_files
-where
-  path = 'kubernetes/kubernetes/OWNERS'
-  and dt < '{{to}}'
+  sum(sub.size)
+from (
+  select path,
+    max(size) as size
+  from
+    gha_events_commits_files
+  where
+    path like 'kubernetes/kubernetes/%/OWNERS'
+    and dt < '{{to}}'
+    and size > 0
+  group by
+    path
+) sub
 ;

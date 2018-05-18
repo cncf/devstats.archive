@@ -240,21 +240,9 @@ func TimeParseAny(dtStr string) time.Time {
 	return time.Now()
 }
 
-// TimeParseIDB - parse InfluxDB time output string into time.Time
-func TimeParseIDB(dtStr string) time.Time {
-	t, err := time.Parse(time.RFC3339, dtStr)
-	FatalOnError(err)
-	return t
-}
-
 // ToGHADate - return time formatted as YYYY-MM-DD-H
 func ToGHADate(dt time.Time) string {
 	return fmt.Sprintf("%04d-%02d-%02d-%d", dt.Year(), dt.Month(), dt.Day(), dt.Hour())
-}
-
-// ToIDBDate - return time formatted as YYYY-MM-DDTHH:MI:SSZ
-func ToIDBDate(dt time.Time) string {
-	return fmt.Sprintf("%04d-%02d-%02dT%02d:%02d:%02dZ", dt.Year(), dt.Month(), dt.Day(), dt.Hour(), dt.Minute(), dt.Second())
 }
 
 // ToYMDDate - return time formatted as YYYY-MM-DD

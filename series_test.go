@@ -1,45 +1,57 @@
 package devstats
 
 import (
+	"database/sql"
 	lib "devstats"
 	testlib "devstats/test"
 	"testing"
 	"time"
-
-	client "github.com/influxdata/influxdb/client/v2"
 )
 
-// Return array of arrays of any values from IDB result
-func getIDBResult(res []client.Result) (ret [][]interface{}) {
-	if len(res) < 1 || len(res[0].Series) < 1 {
-		return
+// Return array of arrays of any values from TSDB result
+func getTSDBResult(rows *sql.Rows) (ret [][]interface{}) {
+	columns, err := rows.Columns()
+	lib.FatalOnError(err)
+
+	// Vals to hold any type as []interface{}
+	vals := make([]interface{}, len(columns))
+	for i := range columns {
+		vals[i] = new([]byte)
 	}
-	for _, val := range res[0].Series[0].Values {
+
+	for rows.Next() {
+		lib.FatalOnError(rows.Scan(vals...))
 		row := []interface{}{}
-		for _, col := range val {
-			row = append(row, col)
+		for _, val := range vals {
+			value := ""
+			if val != nil {
+				value = string(*val.(*[]byte))
+			}
+			row = append(row, value)
 		}
 		ret = append(ret, row)
 	}
+	lib.FatalOnError(rows.Err())
 	return
 }
 
-// Return array of arrays of any values from IDB result
+// Return array of arrays of any values from TSDB result
 // And postprocess special time values (like now or 1st column from
 // quick ranges which has current hours etc) - used for quick ranges
 // skipI means that also index "skipI" should skip time now() value (only if additionalSkip is true)
-func getIDBResultFiltered(res []client.Result, additionalSkip bool, skipI int) (ret [][]interface{}) {
-	if len(res) < 1 || len(res[0].Series) < 1 {
+func getTSDBResultFiltered(rows *sql.Rows, additionalSkip bool, skipI int) (ret [][]interface{}) {
+	res := getTSDBResult(rows)
+	if len(res) < 1 || len(res[0]) < 1 {
 		return
 	}
-	lastI := len(res[0].Series[0].Values) - 1
-	for i, val := range res[0].Series[0].Values {
+	lastI := len(res) - 1
+	lastJ := len(res[0]) - 1
+	for i, val := range res {
 		skipPeriod := false
 		if i == lastI || (additionalSkip && i == skipI) {
 			skipPeriod = true
 		}
 		row := []interface{}{}
-		lastJ := len(val) - 1
 		for j, col := range val {
 			// This is a time column, unused, but varies every call
 			// j == 0: first unused time col (related to `now`)
@@ -63,26 +75,27 @@ func TestProcessAnnotations(t *testing.T) {
 	ctx.Init()
 
 	// Do not allow to run tests in "gha" database
-	if ctx.IDBDB != "dbtest" {
+	if ctx.PgDB != "dbtest" {
 		t.Errorf("tests can only be run on \"dbtest\" database")
 		return
 	}
+	// Drop database if exists
+	lib.DropDatabaseIfExists(&ctx)
 
-	// Connect to InfluxDB
-	con := lib.IDBConn(&ctx)
+	// Create database if needed
+	createdDatabase := lib.CreateDatabaseIfNeeded(&ctx)
+	if !createdDatabase {
+		t.Errorf("failed to create database \"%s\"", ctx.PgDB)
+	}
 
-	// Drop & create DB, ignore errors (we start with fresh DB)
-	// On fatal errors, lib.QueryIDB calls os.Exit, so test will fail too
-	lib.QueryIDB(con, &ctx, "drop database "+ctx.IDBDB)
-	lib.QueryIDB(con, &ctx, "create database "+ctx.IDBDB)
+	// Connect to Postgres DB
+	c := lib.PgConn(&ctx)
 
-	// Drop database and close connection at the end
+	// Drop database after tests
 	defer func() {
-		// Drop database at the end of test
-		lib.QueryIDB(con, &ctx, "drop database "+ctx.IDBDB)
-
-		// Close IDB connection
-		lib.FatalOnError(con.Close())
+		lib.FatalOnError(c.Close())
+		// Drop database after tests
+		lib.DropDatabaseIfExists(&ctx)
 	}()
 
 	// Test cases (they will create and close new connection inside ProcessAnnotations)
@@ -124,9 +137,9 @@ func TestProcessAnnotations(t *testing.T) {
 				{"q;3 months;;", "Last quarter", "q"},
 				{"y;1 year;;", "Last year", "y"},
 				{"y10;10 years;;", "Last decade", "y10"},
-				{"release 0.0.0 - now", "anno_0_now"},
-				{"cncf_before;;2014-01-01 00:00:00;2016-01-01 00:00:00", "Before joining CNCF", "cncf_before"},
-				{"Since joining CNCF", "cncf_now"},
+				{"release 0.0.0 - now", "a_0_n"},
+				{"c_b;;2014-01-01 00:00:00;2016-01-01 00:00:00", "Before joining CNCF", "c_b"},
+				{"Since joining CNCF", "c_n"},
 			},
 			additionalSkip: true,
 			skipI:          7,
@@ -154,7 +167,7 @@ func TestProcessAnnotations(t *testing.T) {
 				{"q;3 months;;", "Last quarter", "q"},
 				{"y;1 year;;", "Last year", "y"},
 				{"y10;10 years;;", "Last decade", "y10"},
-				{"release 0.0.0 - now", "anno_0_now"},
+				{"release 0.0.0 - now", "a_0_n"},
 			},
 		},
 		{
@@ -180,7 +193,7 @@ func TestProcessAnnotations(t *testing.T) {
 				{"q;3 months;;", "Last quarter", "q"},
 				{"y;1 year;;", "Last year", "y"},
 				{"y10;10 years;;", "Last decade", "y10"},
-				{"release 0.0.0 - now", "anno_0_now"},
+				{"release 0.0.0 - now", "a_0_n"},
 			},
 		},
 		{
@@ -206,7 +219,7 @@ func TestProcessAnnotations(t *testing.T) {
 				{"q;3 months;;", "Last quarter", "q"},
 				{"y;1 year;;", "Last year", "y"},
 				{"y10;10 years;;", "Last decade", "y10"},
-				{"release 0.0.0 - now", "anno_0_now"},
+				{"release 0.0.0 - now", "a_0_n"},
 			},
 		},
 		{
@@ -230,7 +243,7 @@ func TestProcessAnnotations(t *testing.T) {
 				{"q;3 months;;", "Last quarter", "q"},
 				{"y;1 year;;", "Last year", "y"},
 				{"y10;10 years;;", "Last decade", "y10"},
-				{"release 0.0.0 - now", "anno_0_now"},
+				{"release 0.0.0 - now", "a_0_n"},
 			},
 		},
 		{
@@ -256,7 +269,7 @@ func TestProcessAnnotations(t *testing.T) {
 				{"q;3 months;;", "Last quarter", "q"},
 				{"y;1 year;;", "Last year", "y"},
 				{"y10;10 years;;", "Last decade", "y10"},
-				{"release 0.0.0 - now", "anno_0_now"},
+				{"release 0.0.0 - now", "a_0_n"},
 			},
 		},
 		{
@@ -282,7 +295,7 @@ func TestProcessAnnotations(t *testing.T) {
 				{"q;3 months;;", "Last quarter", "q"},
 				{"y;1 year;;", "Last year", "y"},
 				{"y10;10 years;;", "Last decade", "y10"},
-				{"release 0.0.0 - now", "anno_0_now"},
+				{"release 0.0.0 - now", "a_0_n"},
 			},
 		},
 		{
@@ -343,11 +356,11 @@ func TestProcessAnnotations(t *testing.T) {
 				{"q;3 months;;", "Last quarter", "q"},
 				{"y;1 year;;", "Last year", "y"},
 				{"y10;10 years;;", "Last decade", "y10"},
-				{"anno_0_1;;2017-01-01 00:00:00;2017-02-01 00:00:00", "release 0.0.0 - release 1.0.0", "anno_0_1"},
-				{"anno_1_2;;2017-02-01 00:00:00;2017-03-01 00:00:00", "release 1.0.0 - release 2.0.0", "anno_1_2"},
-				{"anno_2_3;;2017-03-01 00:00:00;2017-04-01 00:00:00", "release 2.0.0 - release 3.0.0", "anno_2_3"},
-				{"anno_3_4;;2017-04-01 00:00:00;2017-05-01 00:00:00", "release 3.0.0 - release 4.0.0", "anno_3_4"},
-				{"release 4.0.0 - now", "anno_4_now"},
+				{"a_0_1;;2017-01-01 00:00:00;2017-02-01 00:00:00", "release 0.0.0 - release 1.0.0", "a_0_1"},
+				{"a_1_2;;2017-02-01 00:00:00;2017-03-01 00:00:00", "release 1.0.0 - release 2.0.0", "a_1_2"},
+				{"a_2_3;;2017-03-01 00:00:00;2017-04-01 00:00:00", "release 2.0.0 - release 3.0.0", "a_2_3"},
+				{"a_3_4;;2017-04-01 00:00:00;2017-05-01 00:00:00", "release 3.0.0 - release 4.0.0", "a_3_4"},
+				{"release 4.0.0 - now", "a_4_n"},
 			},
 		},
 		{
@@ -401,12 +414,12 @@ func TestProcessAnnotations(t *testing.T) {
 				{"q;3 months;;", "Last quarter", "q"},
 				{"y;1 year;;", "Last year", "y"},
 				{"y10;10 years;;", "Last decade", "y10"},
-				{"anno_0_1;;2016-01-01 00:00:00;2016-02-01 00:00:00", "v1.0 - v2.0", "anno_0_1"},
-				{"anno_1_2;;2016-02-01 00:00:00;2016-03-01 00:00:00", "v2.0 - v3.0", "anno_1_2"},
-				{"anno_2_3;;2016-03-01 00:00:00;2016-04-01 00:00:00", "v3.0 - v4.0", "anno_2_3"},
-				{"anno_3_4;;2016-04-01 00:00:00;2016-05-01 00:00:00", "v4.0 - v5.0", "anno_3_4"},
-				{"anno_4_5;;2016-05-01 00:00:00;2016-06-01 00:00:00", "v5.0 - v6.0", "anno_4_5"},
-				{"v6.0 - now", "anno_5_now"},
+				{"a_0_1;;2016-01-01 00:00:00;2016-02-01 00:00:00", "v1.0 - v2.0", "a_0_1"},
+				{"a_1_2;;2016-02-01 00:00:00;2016-03-01 00:00:00", "v2.0 - v3.0", "a_1_2"},
+				{"a_2_3;;2016-03-01 00:00:00;2016-04-01 00:00:00", "v3.0 - v4.0", "a_2_3"},
+				{"a_3_4;;2016-04-01 00:00:00;2016-05-01 00:00:00", "v4.0 - v5.0", "a_3_4"},
+				{"a_4_5;;2016-05-01 00:00:00;2016-06-01 00:00:00", "v5.0 - v6.0", "a_4_5"},
+				{"v6.0 - now", "a_5_n"},
 			},
 		},
 	}
@@ -416,19 +429,24 @@ func TestProcessAnnotations(t *testing.T) {
 		lib.ProcessAnnotations(&ctx, &test.annotations, test.startDate, test.joinDate)
 
 		// Check annotations created
-		gotAnnotations := getIDBResult(lib.QueryIDB(con, &ctx, "select * from annotations"))
+		rows := lib.QuerySQLWithErr(c, &ctx, "select time, description, title from \"sannotations\" order by time asc")
+		gotAnnotations := getTSDBResult(rows)
+		lib.FatalOnError(rows.Close())
 		if !testlib.CompareSlices2D(test.expectedAnnotations, gotAnnotations) {
 			t.Errorf(
 				"test number %d: join date: %+v\nannotations: %+v\nExpected annotations:\n%+v\n%+v\ngot.",
 				index+1, test.joinDate, test.annotations, test.expectedAnnotations, gotAnnotations,
 			)
 		}
+
 		// Clean up for next test
-		lib.QueryIDB(con, &ctx, "delete from \"annotations\"")
+		lib.ExecSQLWithErr(c, &ctx, "delete from \"sannotations\"")
 
 		// Check Quick Ranges created
 		// Results contains some time values depending on current time ..Filtered func handles this
-		gotQuickRanges := getIDBResultFiltered(lib.QueryIDB(con, &ctx, "select * from quick_ranges"), test.additionalSkip, test.skipI)
+		rows = lib.QuerySQLWithErr(c, &ctx, "select time, quick_ranges_data, quick_ranges_name, quick_ranges_suffix, 0 from \"tquick_ranges\" order by time asc")
+		gotQuickRanges := getTSDBResultFiltered(rows, test.additionalSkip, test.skipI)
+		lib.FatalOnError(rows.Close())
 		if !testlib.CompareSlices2D(test.expectedQuickRanges, gotQuickRanges) {
 			t.Errorf(
 				"test number %d: join date: %+v\nannotations: %+v\nExpected quick ranges:\n%+v\n%+v\ngot",
@@ -436,6 +454,6 @@ func TestProcessAnnotations(t *testing.T) {
 			)
 		}
 		// Clean up for next test
-		lib.QueryIDB(con, &ctx, "delete from \"quick_ranges\"")
+		lib.ExecSQLWithErr(c, &ctx, "delete from \"tquick_ranges\"")
 	}
 }

@@ -1,42 +1,4 @@
 {
-  "__requires": [
-    {
-      "id": "postgres",
-      "name": "PostgreSQL",
-      "type": "datasource",
-      "version": "5.0.0"
-    },
-    {
-      "id": "dashlist",
-      "name": "Dashboard list",
-      "type": "panel",
-      "version": ""
-    },
-    {
-      "id": "grafana",
-      "name": "Grafana",
-      "type": "grafana",
-      "version": "5.0.0-beta1"
-    },
-    {
-      "id": "graph",
-      "name": "Graph",
-      "type": "panel",
-      "version": ""
-    },
-    {
-      "id": "influxdb",
-      "name": "InfluxDB",
-      "type": "datasource",
-      "version": "1.0.0"
-    },
-    {
-      "id": "text",
-      "name": "Text",
-      "type": "panel",
-      "version": ""
-    }
-  ],
   "annotations": {
     "list": [
       {
@@ -49,13 +11,14 @@
         "type": "dashboard"
       },
       {
-        "datasource": "gha",
+        "datasource": "psql",
         "enable": true,
         "hide": false,
         "iconColor": "rgba(255, 96, 96, 1)",
         "limit": 100,
         "name": "Releases",
         "query": "SELECT title, description from annotations WHERE $timeFilter order by time asc",
+        "rawQuery": "select extract(epoch from time) AS time, title as text, description as tags from sannotations where $__timeFilter(time)",
         "showIn": 0,
         "tagsColumn": "title,description",
         "textColumn": "",
@@ -69,7 +32,7 @@
   "gnetId": null,
   "graphTooltip": 0,
   "id": 29,
-  "iteration": 1.519631906254e+12,
+  "iteration": 1526303465867,
   "links": [],
   "panels": [
     {
@@ -77,7 +40,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "gha",
+      "datasource": "psql",
       "decimals": 0,
       "description": "Numbers of GitHub events in all repositories hourly",
       "fill": 5,
@@ -119,13 +82,15 @@
       "steppedLine": true,
       "targets": [
         {
-          "alias": "Number of GitHub events hourly",
+          "alias": "",
           "dsType": "influxdb",
+          "format": "time_series",
           "groupBy": [],
           "orderByTime": "ASC",
           "policy": "default",
           "query": "SELECT \"value\" FROM \"events_h\" WHERE $timeFilter",
           "rawQuery": true,
+          "rawSql": "select\n  time,\n  value as \"Number of GitHub events hourly\"\nfrom\n  sevents_h\nwhere\n  $__timeFilter(time)\norder by\n  time",
           "refId": "A",
           "resultFormat": "time_series",
           "select": [
@@ -178,7 +143,11 @@
           "min": "0",
           "show": true
         }
-      ]
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
     },
     {
       "content": "\u003chead\u003e\n\u003c/head\u003e\nPlease report any bugs by opening an issue on \u003ca href=\"https://github.com/cncf/devstats\"\u003ehttps://github.com/cncf/devstats\u003c/a\u003e",
@@ -201,7 +170,7 @@
       "description": "https://github.com/cncf/devstats",
       "folderId": 0,
       "gridPos": {
-        "h": 27,
+        "h": 26,
         "w": 24,
         "x": 0,
         "y": 6
@@ -234,7 +203,7 @@
         "h": 9,
         "w": 24,
         "x": 0,
-        "y": 60
+        "y": 32
       },
       "id": 6,
       "links": [],
@@ -255,7 +224,10 @@
     "list": [
       {
         "allValue": null,
-        "current": {},
+        "current": {
+          "text": "\u003ch1 id=\"-full_name-home-dashboard\"\u003eOCI Home dashboard\u003c/h1\u003e\n\u003cp\u003eLinks:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003ePostgres \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/events.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eInfluxDB \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/opencontainers/metrics.yaml\" target=\"_blank\"\u003eseries definition\u003c/a\u003e (search for \u003ccode\u003ename: GitHub activity\u003c/code\u003e).\u003c/li\u003e\n\u003cli\u003eGrafana dashboard \u003ca href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/opencontainers/dashboards.json\" target=\"_blank\"\u003eJSON\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eDeveloper \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/dashboards/dashboards_devel.md\" target=\"_blank\"\u003edocumentation\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eDirect \u003ca href=\"https://opencontainers.cncftest.io\" target=\"_blank\"\u003elink\u003c/a\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch1 id=\"description\"\u003eDescription\u003c/h1\u003e\n\u003cul\u003e\n\u003cli\u003eFirst we\u0026#39;re displaying links to all CNCF projects defined.\u003c/li\u003e\n\u003cli\u003eNext we\u0026#39;re showing current project\u0026#39;s hourly activity - this is the number of all GitHub events that happened for OCI project hourly.\u003c/li\u003e\n\u003cli\u003eThis also includes bots activity (most other dashboards skip bot activity).\u003c/li\u003e\n\u003cli\u003eNext we\u0026#39;re showing HTML panel that shows all CNCF projects icons and links.\u003c/li\u003e\n\u003cli\u003eNext there is a dashboard that shows a list of all dashboards defined for OCI project.\u003c/li\u003e\n\u003c/ul\u003e",
+          "value": "\u003ch1 id=\"-full_name-home-dashboard\"\u003eOCI Home dashboard\u003c/h1\u003e\n\u003cp\u003eLinks:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003ePostgres \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/events.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eInfluxDB \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/opencontainers/metrics.yaml\" target=\"_blank\"\u003eseries definition\u003c/a\u003e (search for \u003ccode\u003ename: GitHub activity\u003c/code\u003e).\u003c/li\u003e\n\u003cli\u003eGrafana dashboard \u003ca href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/opencontainers/dashboards.json\" target=\"_blank\"\u003eJSON\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eDeveloper \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/dashboards/dashboards_devel.md\" target=\"_blank\"\u003edocumentation\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eDirect \u003ca href=\"https://opencontainers.cncftest.io\" target=\"_blank\"\u003elink\u003c/a\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch1 id=\"description\"\u003eDescription\u003c/h1\u003e\n\u003cul\u003e\n\u003cli\u003eFirst we\u0026#39;re displaying links to all CNCF projects defined.\u003c/li\u003e\n\u003cli\u003eNext we\u0026#39;re showing current project\u0026#39;s hourly activity - this is the number of all GitHub events that happened for OCI project hourly.\u003c/li\u003e\n\u003cli\u003eThis also includes bots activity (most other dashboards skip bot activity).\u003c/li\u003e\n\u003cli\u003eNext we\u0026#39;re showing HTML panel that shows all CNCF projects icons and links.\u003c/li\u003e\n\u003cli\u003eNext there is a dashboard that shows a list of all dashboards defined for OCI project.\u003c/li\u003e\n\u003c/ul\u003e"
+        },
         "datasource": "psql",
         "hide": 2,
         "includeAll": false,
@@ -276,14 +248,14 @@
       {
         "allValue": null,
         "current": {},
-        "datasource": "gha",
+        "datasource": "psql",
         "hide": 2,
         "includeAll": false,
         "label": null,
         "multi": false,
         "name": "full_name",
         "options": [],
-        "query": "SHOW TAG VALUES WITH KEY = full_name",
+        "query": "select value_s from gha_vars where name = 'full_name'",
         "refresh": 1,
         "regex": "",
         "sort": 0,
@@ -296,14 +268,14 @@
       {
         "allValue": null,
         "current": {},
-        "datasource": "gha",
+        "datasource": "psql",
         "hide": 2,
         "includeAll": false,
         "label": null,
         "multi": false,
         "name": "hostname",
         "options": [],
-        "query": "SHOW TAG VALUES WITH KEY = os_hostname",
+        "query": "select value_s from gha_vars where name = 'os_hostname'",
         "refresh": 1,
         "regex": "",
         "sort": 0,
@@ -348,5 +320,5 @@
   "timezone": "",
   "title": "Dashboards",
   "uid": "8",
-  "version": 8
+  "version": 9
 }

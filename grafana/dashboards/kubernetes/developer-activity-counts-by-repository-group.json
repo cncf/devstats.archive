@@ -15,13 +15,13 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 122,
-  "iteration": 1523003601440,
+  "id": 141,
+  "iteration": 1525933402837,
   "links": [],
   "panels": [
     {
       "columns": [],
-      "datasource": "gha",
+      "datasource": "psql",
       "description": "",
       "fontSize": "90%",
       "gridPos": {
@@ -37,7 +37,7 @@
       "scroll": true,
       "showHeader": true,
       "sort": {
-        "col": 0,
+        "col": 1,
         "desc": true
       },
       "styles": [
@@ -96,7 +96,9 @@
       ],
       "targets": [
         {
+          "alias": "",
           "dsType": "influxdb",
+          "format": "table",
           "groupBy": [
             {
               "params": [
@@ -115,6 +117,7 @@
           "policy": "default",
           "query": "SELECT \"name\", \"value\" FROM \"developers_hist_[[metric]]_[[repogroup]]_[[period]]\" WHERE $timeFilter",
           "rawQuery": true,
+          "rawSql": "select name, value from \"shdev_[[metric]][[repogroup]]\" where period = '[[period]]'",
           "refId": "A",
           "resultFormat": "table",
           "select": [
@@ -157,14 +160,14 @@
           "text": "Last decade",
           "value": "Last decade"
         },
-        "datasource": "gha",
+        "datasource": "psql",
         "hide": 0,
         "includeAll": false,
         "label": "Range",
         "multi": false,
         "name": "period_name",
         "options": [],
-        "query": "show tag values with key = quick_ranges_name",
+        "query": "select quick_ranges_name from tquick_ranges order by time",
         "refresh": 1,
         "regex": "",
         "sort": 0,
@@ -177,7 +180,7 @@
       {
         "allValue": null,
         "current": {
-          "selected": true,
+          "selected": false,
           "tags": [],
           "text": "Contributions",
           "value": "contributions"
@@ -191,12 +194,12 @@
           {
             "selected": false,
             "text": "Approves",
-            "value": "approvers"
+            "value": "approves"
           },
           {
             "selected": false,
             "text": "Reviews",
-            "value": "reviewers"
+            "value": "reviews"
           },
           {
             "selected": false,
@@ -254,7 +257,7 @@
             "value": "active_repos"
           }
         ],
-        "query": "approvers,reviewers,comments,commit_comments,commits,events,pushes,contributions,issue_comments,issues,prs,review_comments,active_repos",
+        "query": "approves,reviews,comments,commit_comments,commits,events,pushes,contributions,issue_comments,issues,prs,review_comments,active_repos",
         "type": "custom"
       },
       {
@@ -263,14 +266,14 @@
           "text": "y10",
           "value": "y10"
         },
-        "datasource": "gha",
+        "datasource": "psql",
         "hide": 2,
         "includeAll": false,
         "label": null,
         "multi": false,
         "name": "period",
         "options": [],
-        "query": "SHOW TAG VALUES WITH KEY = quick_ranges_suffix where quick_ranges_name =~ /^[[period_name]]$/",
+        "query": "select quick_ranges_suffix from tquick_ranges where quick_ranges_name = '[[period_name]]'",
         "refresh": 1,
         "regex": "",
         "sort": 0,
@@ -286,14 +289,14 @@
           "text": "Kubernetes",
           "value": "Kubernetes"
         },
-        "datasource": "gha",
+        "datasource": "psql",
         "hide": 2,
         "includeAll": false,
         "label": null,
         "multi": false,
         "name": "full_name",
         "options": [],
-        "query": "SHOW TAG VALUES WITH KEY = full_name",
+        "query": "select value_s from gha_vars where name = 'full_name'",
         "refresh": 1,
         "regex": "",
         "sort": 0,
@@ -309,14 +312,14 @@
           "text": "All",
           "value": "All"
         },
-        "datasource": "gha",
+        "datasource": "psql",
         "hide": 0,
         "includeAll": false,
         "label": "Repository group",
         "multi": false,
         "name": "repogroup_name",
         "options": [],
-        "query": "SHOW TAG VALUES WITH KEY = all_repo_group_name",
+        "query": "select all_repo_group_name from tall_repo_groups order by 1",
         "refresh": 1,
         "regex": "",
         "sort": 0,
@@ -332,14 +335,14 @@
           "text": "all",
           "value": "all"
         },
-        "datasource": "gha",
+        "datasource": "psql",
         "hide": 2,
         "includeAll": false,
         "label": "",
         "multi": false,
         "name": "repogroup",
         "options": [],
-        "query": "SHOW TAG VALUES WITH KEY = all_repo_group_value where all_repo_group_name =~ /^[[repogroup_name]]$/",
+        "query": "select all_repo_group_value from tall_repo_groups where all_repo_group_name = '[[repogroup_name]]'",
         "refresh": 1,
         "regex": "",
         "sort": 0,
@@ -384,5 +387,5 @@
   "timezone": "",
   "title": "Developer Activity Counts by Repository Group",
   "uid": "13",
-  "version": 3
+  "version": 4
 }

@@ -3,7 +3,7 @@
 Links:
 - Postgres SQL file: [github_stats_by_repos.sql](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/github_stats_by_repos.sql).
 - Postgres SQL file: [github_stats_by_repo_groups.sql](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/github_stats_by_repo_groups.sql).
-- InfluxDB series definition: [metrics.yaml](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/metrics.yaml) (search for `github_stats_by_repo`).
+- Time series definition: [metrics.yaml](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/metrics.yaml) (search for `github_stats_by_repo`).
 - Grafana dashboard JSON: [github-stats-by-repository.json](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/github-stats-by-repository.json).
 - Grafana dashboard JSON: [github-stats-by-repository-group.json](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/github-stats-by-repository-group.json).
 - User documentation: [reviewers.md](https://github.com/cncf/devstats/blob/master/docs/dashboards/kubernetes/reviewers.md).
@@ -34,7 +34,7 @@ Links:
 - For repository group definition check: [repository groups](https://github.com/cncf/devstats/blob/master/docs/repository_groups.md) (table `gha_events` and commit files for file level granularity repo groups).
 - For more information about `gha_repos` table please check: [docs/tables/gha_repos.md](https://github.com/cncf/devstats/blob/master/docs/tables/gha_repos.md).
 
-# Periods and Influx series
+# Periods and time series
 
 Metric usage is defined in metric.yaml as follows:
 ```
@@ -54,23 +54,23 @@ Metric usage is defined in metric.yaml as follows:
   multi_value: true
 ```
 - It means that we should call Postgres metric [github_stats_by_repo_groups.sql](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/github_stats_by_repo_groups.sql) and [github_stats_by_repos.sql](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/github_stats_by_repos.sql).
-- We should expect multiple rows each with 2 columns: 1st defines output Influx series name, 2nd defines value.
-- We're using `multivalue: true` which means first column will contain multivalued series definition. It is comma `,` separated. Influx series name comes first, and then series value name.
+- We should expect multiple rows each with 2 columns: 1st defines output series name, 2nd defines value.
+- We're using `multivalue: true` which means first column will contain multivalued series definition. It is comma `,` separated. Series name comes first, and then series value name.
 - For example 1st column: `'gh_stats_repo_groups_reviewers,Kubernetes'`, 2nd column: `20.0` will create series named `gh_stats_repo_groups_reviewers` with column `Kubernetes` with value `20.0`.
 - This SQLs calculate many metrics in addition to reviewers, general series name will be `gh_stats_repo_groups_{{stat}}` and `gh_stats_repos_{{stat}}`, we're only describing `{{stat}} = reviewers` case in this documentation.
 - See [here](https://github.com/cncf/devstats/blob/master/docs/periods.md) for periods definitions.
-- The final InfluxDB series name would be (for repo groups version): `gh_stats_repo_groups_[[stat]]_[[period]]` and column anmes from `[[repogroup]]`.
+- The final series name would be (for repo groups version): `gh_stats_repo_groups_[[stat]]_[[period]]` and column anmes from `[[repogroup]]`.
 - Value of `[[period]]` will be from d,w,m,q,y,d7 and `[[repogroup]]` will be from 'all,apps,contrib,kubernetes,...', see [repository groups](https://github.com/cncf/devstats/blob/master/docs/repository_groups.md) for details.
-- The final InfluxDB series name would be (for repos version): `gh_stats_repos_[[stat]]_[[period]]` and column names from`[[repo]]` that will be from one of the Kubernetes projects repo name (with special characters changed to `_`, for example `kubernetes_kubernetes`).
-- Repo group name and repo name returned by Postgres SQL is normalized (downcased, removed special chars etc.) to be usable as a Influx series name [here](https://github.com/cncf/devstats/blob/master/cmd/db2influx/db2influx.go#L112) using [this](https://github.com/cncf/devstats/blob/master/unicode.go#L23).
+- The final series name would be (for repos version): `gh_stats_repos_[[stat]]_[[period]]` and column names from`[[repo]]` that will be from one of the Kubernetes projects repo name (with special characters changed to `_`, for example `kubernetes_kubernetes`).
+- Repo group name and repo name returned by Postgres SQL is normalized (downcased, removed special chars etc.) to be usable as a series name [here](https://github.com/cncf/devstats/blob/master/cmd/calc_metric/calc_metric.go#L112) using [this](https://github.com/cncf/devstats/blob/master/unicode.go#L23).
 - Final query is [here](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/github-stats-by-repository.json) or [there](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/github-stats-by-repository-group.json), search for `gh_stats_repo`.
 - `$timeFiler` value comes from Grafana date range selector. It is handled by Grafana internally.
 - `[[period]]` comes from variable definition in dashboard JSON, search for `"period"`.
-- `[[repogroup]]` or `[[repo]]` comes from Grafana variable that uses influx tags values, search for `repos` or `repogroups`.
+- `[[repogroup]]` or `[[repo]]` comes from Grafana variable that uses tags values, search for `repos` or `repogroups`.
 - For repos we're using repo [aliases](https://github.com/cncf/devstats/blob/master/docs/repository_aliases.md) to avoid duplicating renamed repositories.
 - To see more details about repository group tags, and all other tags check [tags.md](https://github.com/cncf/devstats/blob/master/docs/tags.md).
 - Releases comes from Grafana annotations: search for `annotations` in the dashboard JSON.
 - For more details about annotations check [here](https://github.com/cncf/devstats/blob/master/docs/annotations.md).
 - Project name is customized per project, it uses `[[full_name]]` template variable.
-- Per project variables are defined using `idb_vars`, `pdb_vars` tools, more info [here](https://github.com/cncf/devstats/blob/master/docs/vars.md).
+- Per project variables are defined using `vars` tools, more info [here](https://github.com/cncf/devstats/blob/master/docs/vars.md).
 - Grafana documentation for this dashboard depends on `Statistic` selection, variable `[[stat]]` is used to display documentation for a given statistic.

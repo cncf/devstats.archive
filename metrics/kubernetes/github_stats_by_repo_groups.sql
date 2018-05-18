@@ -19,7 +19,7 @@ select
   sub.repo_group,
   round(count(distinct sub.sha) / {{n}}, 2) as metric
 from (
-  select 'gh_stats_repo_groups_commits,' || coalesce(ecf.repo_group, r.repo_group) as repo_group,
+  select 'gstat_rgrp_commits,' || coalesce(ecf.repo_group, r.repo_group) as repo_group,
     c.sha
   from
     gha_repos r,
@@ -32,13 +32,13 @@ from (
     r.name = c.dup_repo_name
     and c.dup_created_at >= '{{from}}'
     and c.dup_created_at < '{{to}}'
-    and (c.dup_actor_login {{exclude_bots}})
+    and (lower(c.dup_actor_login) {{exclude_bots}})
   ) sub
 where
   sub.repo_group is not null
 group by
   sub.repo_group
-union select 'gh_stats_repo_groups_issues_closed,' || r.repo_group as repo_group,
+union select 'gstat_rgrp_iclosed,' || r.repo_group as repo_group,
   round(count(distinct i.id) / {{n}}, 2) as metric
 from
   gha_issues i,
@@ -50,7 +50,7 @@ where
   and i.closed_at < '{{to}}'
 group by
   r.repo_group
-union select 'gh_stats_repo_groups_issues_opened,' || r.repo_group as repo_group,
+union select 'gstat_rgrp_iopened,' || r.repo_group as repo_group,
   round(count(distinct i.id) / {{n}}, 2) as metric
 from
   gha_issues i,
@@ -65,7 +65,7 @@ group by
 union select sub.repo_group,
   round(count(distinct sub.id) / {{n}}, 2) as metric
 from (
-    select 'gh_stats_repo_groups_new_prs,' || coalesce(ecf.repo_group, r.repo_group) as repo_group,
+    select 'gstat_rgrp_propened,' || coalesce(ecf.repo_group, r.repo_group) as repo_group,
     pr.id
   from
     gha_repos r,
@@ -86,7 +86,7 @@ group by
 union select sub.repo_group,
   round(count(distinct sub.id) / {{n}}, 2) as metric
 from (
-  select 'gh_stats_repo_groups_prs_merged,' || coalesce(ecf.repo_group, r.repo_group) as repo_group,
+  select 'gstat_rgrp_prmerged,' || coalesce(ecf.repo_group, r.repo_group) as repo_group,
     pr.id
   from
     gha_repos r,
@@ -108,7 +108,7 @@ group by
 union select sub.repo_group,
   round(count(distinct sub.id) / {{n}}, 2) as metric
 from (
-  select 'gh_stats_repo_groups_prs_closed,' || coalesce(ecf.repo_group, r.repo_group) as repo_group,
+  select 'gstat_rgrp_prclosed,' || coalesce(ecf.repo_group, r.repo_group) as repo_group,
     pr.id
   from
     gha_repos r,
@@ -127,7 +127,7 @@ where
   sub.repo_group is not null
 group by
   sub.repo_group
-union select 'gh_stats_repo_groups_pr_comments,' || r.repo_group as repo_group,
+union select 'gstat_rgrp_prcomments,' || r.repo_group as repo_group,
   round(count(distinct i.event_id) / {{n}}, 2) as metric
 from
   gha_issues i,
@@ -139,10 +139,10 @@ where
   and i.dup_created_at < '{{to}}'
   and i.dup_type = 'IssueCommentEvent'
   and i.is_pull_request = false
-  and (i.dup_actor_login {{exclude_bots}})
+  and (lower(i.dup_actor_login) {{exclude_bots}})
 group by
   r.repo_group
-union select 'gh_stats_repo_groups_pr_commenters,' || r.repo_group as repo_group,
+union select 'gstat_rgrp_prcommenters,' || r.repo_group as repo_group,
   count(distinct i.dup_actor_id) as metric
 from
   gha_issues i,
@@ -154,10 +154,10 @@ where
   and i.dup_created_at < '{{to}}'
   and i.dup_type = 'IssueCommentEvent'
   and i.is_pull_request = false
-  and (i.dup_actor_login {{exclude_bots}})
+  and (lower(i.dup_actor_login) {{exclude_bots}})
 group by
   r.repo_group
-union select 'gh_stats_repo_groups_issue_comments,' || r.repo_group as repo_group,
+union select 'gstat_rgrp_icomments,' || r.repo_group as repo_group,
   round(count(distinct i.event_id) / {{n}}, 2) as metric
 from
   gha_issues i,
@@ -169,10 +169,10 @@ where
   and i.dup_created_at < '{{to}}'
   and i.dup_type = 'IssueCommentEvent'
   and i.is_pull_request = true
-  and (i.dup_actor_login {{exclude_bots}})
+  and (lower(i.dup_actor_login) {{exclude_bots}})
 group by
   r.repo_group
-union select 'gh_stats_repo_groups_issue_commenters,' || r.repo_group as repo_group,
+union select 'gstat_rgrp_icommenters,' || r.repo_group as repo_group,
   count(distinct i.dup_actor_id) as metric
 from
   gha_issues i,
@@ -184,13 +184,13 @@ where
   and i.dup_created_at < '{{to}}'
   and i.dup_type = 'IssueCommentEvent'
   and i.is_pull_request = true
-  and (i.dup_actor_login {{exclude_bots}})
+  and (lower(i.dup_actor_login) {{exclude_bots}})
 group by
   r.repo_group
 union select sub.repo_group,
   count(distinct sub.actor) as metric
 from (
-  select 'gh_stats_repo_groups_reviewers,' || coalesce(ecf.repo_group, r.repo_group) as repo_group,
+  select 'gstat_rgrp_reviewers,' || coalesce(ecf.repo_group, r.repo_group) as repo_group,
     e.dup_actor_login as actor
   from
     gha_repos r,
@@ -201,7 +201,7 @@ from (
     ecf.event_id = e.id
   where
     e.repo_id = r.id
-    and (e.dup_actor_login {{exclude_bots}})
+    and (lower(e.dup_actor_login) {{exclude_bots}})
     and e.id in (
       select min(event_id)
       from

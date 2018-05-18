@@ -2,13 +2,14 @@
   "annotations": {
     "list": [
       {
-        "datasource": "gha",
+        "datasource": "psql",
         "enable": true,
         "hide": false,
         "iconColor": "rgba(255, 96, 96, 1)",
         "limit": 100,
         "name": "Releases",
         "query": "SELECT title, description from annotations WHERE $timeFilter order by time asc",
+        "rawQuery": "select extract(epoch from time) AS time, title as text, description as tags from sannotations where $__timeFilter(time)",
         "showIn": 0,
         "tagsColumn": "title,description",
         "textColumn": "",
@@ -32,7 +33,7 @@
   "gnetId": null,
   "graphTooltip": 0,
   "id": 120,
-  "iteration": 1523003677445,
+  "iteration": 1526294867192,
   "links": [],
   "panels": [
     {
@@ -44,7 +45,7 @@
         "rgba(237, 129, 40, 0.89)",
         "rgba(50, 172, 45, 0.97)"
       ],
-      "datasource": "gha",
+      "datasource": "psql",
       "description": "Current median closing time for recent issues.",
       "format": "none",
       "gauge": {
@@ -60,6 +61,7 @@
         "x": 0,
         "y": 0
       },
+      "hideTimeOverride": false,
       "id": 2,
       "interval": null,
       "links": [],
@@ -97,7 +99,9 @@
       "tableColumn": "descr",
       "targets": [
         {
+          "alias": "",
           "dsType": "influxdb",
+          "format": "table",
           "groupBy": [
             {
               "params": [
@@ -116,6 +120,7 @@
           "policy": "default",
           "query": "SELECT \"descr\" FROM \"autogen\".\"issues_age_[[repogroup]]_[[sig]]_[[kind]]_[[prio]]_median_[[period]]\" WHERE $timeFilter",
           "rawQuery": true,
+          "rawSql": "select\n  descr\nfrom\n  sissues_age\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'iage[[repogroup]][[sig]][[kind]][[prio]]m'\norder by\n  time desc\nlimit 1",
           "refId": "A",
           "resultFormat": "time_series",
           "select": [
@@ -157,7 +162,8 @@
         "rgba(237, 129, 40, 0.89)",
         "rgba(50, 172, 45, 0.97)"
       ],
-      "datasource": "gha",
+      "datasource": "psql",
+      "decimals": null,
       "description": "Number of closed issues opened recently",
       "format": "none",
       "gauge": {
@@ -210,7 +216,9 @@
       "tableColumn": "descr",
       "targets": [
         {
+          "alias": "",
           "dsType": "influxdb",
+          "format": "time_series",
           "groupBy": [
             {
               "params": [
@@ -229,6 +237,7 @@
           "policy": "default",
           "query": "SELECT \"value\" FROM \"autogen\".\"issues_age_[[repogroup]]_[[sig]]_[[kind]]_[[prio]]_number_[[period]]\" WHERE $timeFilter",
           "rawQuery": true,
+          "rawSql": "select\n  time, value\nfrom\n  sissues_age\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'iage[[repogroup]][[sig]][[kind]][[prio]]n'\norder by\n  time desc\nlimit 1",
           "refId": "A",
           "resultFormat": "time_series",
           "select": [
@@ -266,7 +275,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "gha",
+      "datasource": "psql",
       "decimals": 2,
       "description": "Median time to close and number of issues created in [[repogroup]] repository group.",
       "fill": 3,
@@ -320,8 +329,9 @@
       "steppedLine": false,
       "targets": [
         {
-          "alias": "Average number of issues opened",
+          "alias": "",
           "dsType": "influxdb",
+          "format": "time_series",
           "groupBy": [],
           "hide": false,
           "measurement": "reviewers_d",
@@ -329,6 +339,7 @@
           "policy": "autogen",
           "query": "SELECT \"value\" FROM \"autogen\".\"issues_age_[[repogroup]]_[[sig]]_[[kind]]_[[prio]]_number_[[period]]\" WHERE $timeFilter",
           "rawQuery": true,
+          "rawSql": "select\n  time,\n  value as \"Average number of issues opened\"\nfrom\n  sissues_age\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'iage[[repogroup]][[sig]][[kind]][[prio]]n'\norder by\n  time",
           "refId": "A",
           "resultFormat": "time_series",
           "select": [
@@ -344,8 +355,9 @@
           "tags": []
         },
         {
-          "alias": "Median time to close issue",
+          "alias": "",
           "dsType": "influxdb",
+          "format": "time_series",
           "groupBy": [],
           "hide": false,
           "measurement": "reviewers_d",
@@ -353,6 +365,7 @@
           "policy": "autogen",
           "query": "SELECT \"value\" FROM \"autogen\".\"issues_age_[[repogroup]]_[[sig]]_[[kind]]_[[prio]]_median_[[period]]\" WHERE $timeFilter",
           "rawQuery": true,
+          "rawSql": "select\n  time,\n  value as \"Median time to close issue\"\nfrom\n  sissues_age\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'iage[[repogroup]][[sig]][[kind]][[prio]]m'\norder by\n  time",
           "refId": "B",
           "resultFormat": "time_series",
           "select": [
@@ -407,11 +420,15 @@
           "min": "0",
           "show": true
         }
-      ]
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
     },
     {
       "columns": [],
-      "datasource": "gha",
+      "datasource": "psql",
       "description": "Median time to close and number of issues created in [[repogroup]] repository group.",
       "fontSize": "90%",
       "gridPos": {
@@ -453,8 +470,9 @@
       ],
       "targets": [
         {
-          "alias": "Median time to close issue",
+          "alias": "",
           "dsType": "influxdb",
+          "format": "table",
           "groupBy": [
             {
               "params": [
@@ -473,6 +491,7 @@
           "policy": "default",
           "query": "SELECT \"descr\" FROM \"autogen\".\"issues_age_[[repogroup]]_[[sig]]_[[kind]]_[[prio]]_median_[[period]]\" WHERE $timeFilter",
           "rawQuery": true,
+          "rawSql": "select\n  time as \"Time\",\n  descr as \"Median time to close issue\"\nfrom\n  sissues_age\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'iage[[repogroup]][[sig]][[kind]][[prio]]m'\norder by\n  time",
           "refId": "A",
           "resultFormat": "time_series",
           "select": [
@@ -492,8 +511,9 @@
           "tags": []
         },
         {
-          "alias": "Average number of issues opened",
+          "alias": "",
           "dsType": "influxdb",
+          "format": "table",
           "groupBy": [
             {
               "params": [
@@ -512,6 +532,7 @@
           "policy": "default",
           "query": "SELECT \"value\" FROM \"autogen\".\"issues_age_[[repogroup]]_[[sig]]_[[kind]]_[[prio]]_number_[[period]]\" WHERE $timeFilter",
           "rawQuery": true,
+          "rawSql": "select\n  time as \"Time\",\n  value as \"Average number of issues opened\"\nfrom\n  sissues_age\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'iage[[repogroup]][[sig]][[kind]][[prio]]n'\norder by\n  time",
           "refId": "B",
           "resultFormat": "time_series",
           "select": [
@@ -532,7 +553,7 @@
         }
       ],
       "title": "Number/Median time to close of Issues in [[repogroup_name]] repository group ([[period]]), SIG: [[sig_name]], Kind: [[kind_name]], Priority: [[prio_name]]",
-      "transform": "timeseries_to_columns",
+      "transform": "table",
       "transparent": false,
       "type": "table"
     }
@@ -602,14 +623,14 @@
           "text": "Kubernetes",
           "value": "Kubernetes"
         },
-        "datasource": "gha",
+        "datasource": "psql",
         "hide": 0,
         "includeAll": false,
         "label": "Repository group",
         "multi": false,
         "name": "repogroup_name",
         "options": [],
-        "query": "SHOW TAG VALUES WITH KEY = all_repo_group_name",
+        "query": "select all_repo_group_name from tall_repo_groups order by 1",
         "refresh": 1,
         "regex": "",
         "sort": 0,
@@ -625,14 +646,14 @@
           "text": "kubernetes",
           "value": "kubernetes"
         },
-        "datasource": "gha",
+        "datasource": "psql",
         "hide": 2,
         "includeAll": false,
         "label": "",
         "multi": false,
         "name": "repogroup",
         "options": [],
-        "query": "SHOW TAG VALUES WITH KEY = all_repo_group_value where all_repo_group_name =~ /^[[repogroup_name]]$/",
+        "query": "select all_repo_group_value from tall_repo_groups where all_repo_group_name = '[[repogroup_name]]'",
         "refresh": 1,
         "regex": "",
         "sort": 0,
@@ -648,14 +669,14 @@
           "text": "All",
           "value": "All"
         },
-        "datasource": "gha",
+        "datasource": "psql",
         "hide": 0,
         "includeAll": false,
         "label": "SIG",
         "multi": false,
         "name": "sig_name",
         "options": [],
-        "query": "SHOW TAG VALUES WITH KEY = sig_mentions_labels_name_with_all",
+        "query": "select sig_mentions_labels_name_with_all from tsig_mentions_labels_with_all order by 1",
         "refresh": 1,
         "regex": "",
         "sort": 0,
@@ -671,14 +692,14 @@
           "text": "All",
           "value": "All"
         },
-        "datasource": "gha",
+        "datasource": "psql",
         "hide": 0,
         "includeAll": false,
         "label": "Kind",
         "multi": false,
         "name": "kind_name",
         "options": [],
-        "query": "SHOW TAG VALUES WITH KEY = sig_mentions_labels_kind_name_with_all",
+        "query": "select sigm_lbl_kind_name_with_all from tsigm_lbl_kinds_with_all order by 1",
         "refresh": 1,
         "regex": "",
         "sort": 0,
@@ -694,14 +715,14 @@
           "text": "All",
           "value": "All"
         },
-        "datasource": "gha",
+        "datasource": "psql",
         "hide": 0,
         "includeAll": false,
         "label": "Priority",
         "multi": false,
         "name": "prio_name",
         "options": [],
-        "query": "SHOW TAG VALUES WITH KEY = priority_labels_name_with_all",
+        "query": "select priority_labels_name_with_all from tpriority_labels_with_all order by 1",
         "refresh": 1,
         "regex": "",
         "sort": 0,
@@ -717,14 +738,14 @@
           "text": "all",
           "value": "all"
         },
-        "datasource": "gha",
+        "datasource": "psql",
         "hide": 2,
         "includeAll": false,
         "label": "SIG",
         "multi": false,
         "name": "sig",
         "options": [],
-        "query": "SHOW TAG VALUES WITH KEY = sig_mentions_labels_value_with_all where sig_mentions_labels_name_with_all =~ /^[[sig_name]]$/",
+        "query": "select sig_mentions_labels_value_with_all from tsig_mentions_labels_with_all where sig_mentions_labels_name_with_all = '[[sig_name]]'",
         "refresh": 1,
         "regex": "",
         "sort": 0,
@@ -740,14 +761,14 @@
           "text": "all",
           "value": "all"
         },
-        "datasource": "gha",
+        "datasource": "psql",
         "hide": 2,
         "includeAll": false,
         "label": "Kind",
         "multi": false,
         "name": "kind",
         "options": [],
-        "query": "SHOW TAG VALUES WITH KEY = sig_mentions_labels_kind_value_with_all where sig_mentions_labels_kind_name_with_all =~ /^[[kind_name]]$/",
+        "query": "select sigm_lbl_kind_value_with_all from tsigm_lbl_kinds_with_all where sigm_lbl_kind_name_with_all = '[[kind_name]]'",
         "refresh": 1,
         "regex": "",
         "sort": 0,
@@ -763,14 +784,14 @@
           "text": "all",
           "value": "all"
         },
-        "datasource": "gha",
+        "datasource": "psql",
         "hide": 2,
         "includeAll": false,
         "label": "Priority",
         "multi": false,
         "name": "prio",
         "options": [],
-        "query": "SHOW TAG VALUES WITH KEY = priority_labels_value_with_all where priority_labels_name_with_all =~ /^[[prio_name]]$/",
+        "query": "select priority_labels_value_with_all from tpriority_labels_with_all where priority_labels_name_with_all = '[[prio_name]]'",
         "refresh": 1,
         "regex": "",
         "sort": 0,
@@ -786,14 +807,14 @@
           "text": "Kubernetes",
           "value": "Kubernetes"
         },
-        "datasource": "gha",
+        "datasource": "psql",
         "hide": 2,
         "includeAll": false,
         "label": null,
         "multi": false,
         "name": "full_name",
         "options": [],
-        "query": "SHOW TAG VALUES WITH KEY = full_name",
+        "query": "select value_s from gha_vars where name = 'full_name'",
         "refresh": 1,
         "regex": "",
         "sort": 0,
@@ -806,7 +827,7 @@
     ]
   },
   "time": {
-    "from": "now-2y",
+    "from": "now-1y",
     "to": "now-1w"
   },
   "timepicker": {
@@ -837,5 +858,5 @@
   "timezone": "",
   "title": "Issues age by SIG and repository groups",
   "uid": "15",
-  "version": 4
+  "version": 9
 }

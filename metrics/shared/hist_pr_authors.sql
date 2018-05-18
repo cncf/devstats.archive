@@ -3,7 +3,7 @@ select
   sub.actor,
   count(distinct sub.id) as prs
 from (
-  select 'hist_pr_authors,' || coalesce(ecf.repo_group, r.repo_group) as repo_group,
+  select 'hpr_auth,' || coalesce(ecf.repo_group, r.repo_group) as repo_group,
     pr.dup_actor_login as actor,
     pr.id
   from
@@ -16,7 +16,7 @@ from (
   where
     {{period:pr.created_at}}
     and pr.dup_repo_id = r.id
-    and (pr.dup_actor_login {{exclude_bots}})
+    and (lower(pr.dup_actor_login) {{exclude_bots}})
   ) sub
 where
   sub.repo_group is not null
@@ -25,14 +25,14 @@ group by
   sub.actor
 having
   count(distinct sub.id) >= 1
-union select 'hist_pr_authors,All' as repo_group,
+union select 'hpr_auth,All' as repo_group,
   dup_actor_login as actor,
   count(distinct id) as prs
 from
   gha_pull_requests
 where
   {{period:created_at}}
-  and (dup_actor_login {{exclude_bots}})
+  and (lower(dup_actor_login) {{exclude_bots}})
 group by
   dup_actor_login
 having

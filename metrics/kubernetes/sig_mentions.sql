@@ -1,5 +1,5 @@
 select
-  'sig_mentions_texts,' || substring(sig from 17) as sig,
+  'sigm_txt,' || substring(sig from 17) as sig,
   round(count(distinct eid) / {{n}}, 2) as count_value
 from
   (
@@ -17,7 +17,7 @@ from
     where
       created_at >= '{{from}}'
       and created_at < '{{to}}'
-      and (actor_login {{exclude_bots}})
+      and (lower(actor_login) {{exclude_bots}})
   ) sel
 where
   sel.sig is not null

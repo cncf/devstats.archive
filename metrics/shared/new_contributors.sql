@@ -1,13 +1,12 @@
-create temp table prev as
-select distinct user_id
-from
-  gha_pull_requests
-where
-  created_at < '{{from}}'
-;
-
+with prev as (
+  select distinct user_id
+  from
+    gha_pull_requests
+  where
+    created_at < '{{from}}'
+)
 select
-  'new_contributors;All;contributors,prs' as name,
+  'new_contrib;All;contrib,prs' as name,
   round(count(distinct user_id) / {{n}}, 2) as contributors,
   round(count(distinct id) / {{n}}, 2) as prs
 from
@@ -20,7 +19,7 @@ union select sub.name,
   round(count(distinct sub.user_id) / {{n}}, 2) as contributors,
   round(count(distinct sub.id) / {{n}}, 2) as prs
 from (
-    select 'new_contributors;' || coalesce(ecf.repo_group, r.repo_group) || ';contributors,prs' as name,
+    select 'new_contrib;' || coalesce(ecf.repo_group, r.repo_group) || ';contrib,prs' as name,
     pr.user_id,
     pr.id
   from
@@ -44,5 +43,3 @@ order by
   prs desc,
   name asc
 ;
-
-drop table prev;

@@ -7,8 +7,8 @@ This file describes how to add new project on the test server.
 - Make sure that you have Postgres database backup generated on the test server (this happens automatically on full deploy and nightly).
 - Make sure you have Grafana DB dumps available on the test server by running `./grafana/copy_grafana_dbs.sh`.
 - Commit to `production` branch with `[deploy]` in the commit message. Automatic deploy will happen. After successful deploy start Grafana `./grafana/newproj/grafana_start.sh &`.
-- Or manually run `CUSTGRAFPATH=1 PG_PASS=... IDB_PASS=... IDB_PASS_SRC=... IDB_HOST=... IGET=1 GET=1 GGET=1 IMPJSONS=1 ./devel/deploy_all.sh` script with correct env variables.
-- Go to `https://newproject.devstats.cncf.io` and change Grafana, InfluxDB and PostgreSQL passwords (default deploy copies database from the test server, so it has test server credentials initially).
+- Or manually run `CUSTGRAFPATH=1 PG_PASS=... GET=1 GGET=1 IMPJSONS=1 ./devel/deploy_all.sh` script with correct env variables.
+- Go to `https://newproject.devstats.cncf.io` and change Grafana and PostgreSQL passwords (default deploy copies database from the test server, so it has test server credentials initially).
 - Reimport Home dashboard (which now contains link to a new project) on all existing projects.
 
 ## To add a new project on the test server follow instructions:
@@ -36,7 +36,7 @@ This file describes how to add new project on the test server.
 - You can mass update Grafana dashboards using `sqlitedb` tool: `./devel/grafana_stop.sh proj`, `./sqlitedb /var/lib/grafana.proj/grafana.db grafana/dashboards/proj/*`, `./devel/grafana_start.sh proj`.
 - Update `partials/projects.html`.
 - Update Apache proxy and SSL files `apache/www/index_* apache/*/sites-enabled/* apache/*/sites.txt` files.
-- Run deploy all script: `CUSTGRAFPATH=1 PG_PASS=... IDB_PASS=... IDB_HOST=... ./devel/deploy_all.sh`. If succeeded `make install`.
+- Run deploy all script: `CUSTGRAFPATH=1 PG_PASS=... ./devel/deploy_all.sh`. If succeeded `make install`.
 - You can also deploy automatically from webhook (even on the test server), but it takes very long time and is harder to debug, see [continuous deployment](https://github.com/cncf/devstats/blob/master/CONTINUOUS_DEPLOYMENT.md).
 - Open `newproject.cncftest.io` login with admin/admin, change the default password and follow instructions from `GRAFANA.md`.
 - Import `grafana/dashboards/proj/dashboards.json` dashboard on all remaining projects manually or use `sqlitedb` tool.

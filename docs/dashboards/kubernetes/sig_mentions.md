@@ -2,7 +2,7 @@
 <p>Links:</p>
 <ul>
 <li>Postgres <a href="https://github.com/cncf/devstats/blob/master/metrics/kubernetes/sig_mentions.sql" target="_blank">SQL file</a>.</li>
-<li>InfluxDB <a href="https://github.com/cncf/devstats/blob/master/metrics/kubernetes/metrics.yaml#L246-L252" target="_blank">series definition</a>.</li>
+<li>TSDB <a href="https://github.com/cncf/devstats/blob/master/metrics/kubernetes/metrics.yaml#L246-L252" target="_blank">series definition</a>.</li>
 <li>Grafana dashboard <a href="https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/sig_mentions.json" target="_blank">JSON</a>.</li>
 <li>Developer <a href="https://github.com/cncf/devstats/blob/master/docs/dashboards/kubernetes/sig_mentions_devel.md" target="_blank">documentation</a>.</li>
 </ul>

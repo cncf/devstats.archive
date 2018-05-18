@@ -95,7 +95,7 @@ with issues as (
     and t.created_at >= '{{to}}'::date - '1 month'::interval
     and t.event_id = pl.event_id
     and substring(t.body from '(?i)(?:^|\n|\r)\s*/(?:lgtm|approve)\s*(?:\n|\r|$)') is not null
-    and (t.actor_login {{exclude_bots}})
+    and (lower(t.actor_login) {{exclude_bots}})
 ), issue_events as (
   select distinct sub.event_id,
     sub.issue_id
@@ -108,14 +108,14 @@ with issues as (
       dup_label_name in ('lgtm', 'approved')
       and dup_created_at < '{{to}}'
       and dup_created_at >= '{{to}}'::date - '1 month'::interval
-      and (dup_actor_login {{exclude_bots}})
+      and (lower(dup_actor_login) {{exclude_bots}})
     group by
       issue_id
     union select event_id, issue_id from reviewers_text
     ) sub
 ), sig_reviewers as (
   select sub.sig,
-    count(distinct e.dup_actor_login) as reviewers
+    count(distinct e.dup_actor_login) as rev
   from (
     select distinct issue_id,
       lower(substring(dup_label_name from '(?i)sig/(.*)')) as sig
@@ -132,17 +132,17 @@ with issues as (
     sub.sig
 )
 select
-  'sig_pr_workload;' || sub.sig || ';issues,absolute_workload,reviewers,relative_workload',
-  sub.issues,
-  sub.absolute_workload,
-  coalesce(sr.reviewers, 0) as reviewers,
-  case coalesce(sr.reviewers, 0)
+  'sig_pr_wl;' || sub.sig || ';iss,abs,rev,rel',
+  sub.iss,
+  sub.abs,
+  coalesce(sr.rev, 0) as rev,
+  case coalesce(sr.rev, 0)
     when 0 then 0
-    else sub.absolute_workload / sr.reviewers
-  end as relative_workload
+    else sub.abs / sr.rev
+  end as rel
 from (
   select sig.sig,
-    count(distinct sig.issue_id) as issues,
+    count(distinct sig.issue_id) as iss,
     sum(
       case coalesce(siz.size, 'nil')
         when 'xs' then 0.25
@@ -157,7 +157,7 @@ from (
         when 'xxl' then 8.0
         else 1.0
       end
-    ) as absolute_workload
+    ) as abs
   from
     pr_sigs sig
   left join
@@ -172,6 +172,6 @@ left join
 on
   sub.sig = sr.sig
 order by
-  relative_workload desc,
+  rel desc,
   sub.sig asc
 ;

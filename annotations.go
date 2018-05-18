@@ -148,15 +148,12 @@ func GetAnnotations(ctx *Ctx, orgRepo, annoRegexp string) (annotations Annotatio
 
 // ProcessAnnotations Creates IfluxDB annotations and quick_series
 func ProcessAnnotations(ctx *Ctx, annotations *Annotations, startDate, joinDate *time.Time) {
-	// Connect to InfluxDB
-	ic := IDBConn(ctx)
+	// Connect to Postgres
+	ic := PgConn(ctx)
 	defer func() { FatalOnError(ic.Close()) }()
 
 	// Get BatchPoints
-	var pts IDBBatchPointsN
-	bp := IDBBatchPoints(ctx, &ic)
-	pts.NPoints = 0
-	pts.Points = &bp
+	var pts TSPoints
 
 	// Annotations must be sorted to create quick ranges
 	sort.Sort(AnnotationsByDate(annotations.Annotations))
@@ -177,8 +174,8 @@ func ProcessAnnotations(ctx *Ctx, annotations *Annotations, startDate, joinDate 
 				annotation.Description,
 			)
 		}
-		pt := IDBNewPointWithErr(ctx, "annotations", nil, fields, annotation.Date)
-		IDBAddPointN(ctx, &ic, &pts, pt)
+		pt := NewTSPoint(ctx, "annotations", "", nil, fields, annotation.Date)
+		AddTSPoint(ctx, &pts, pt)
 	}
 
 	// If both start and join dates are present then join date must be after start date
@@ -198,8 +195,8 @@ func ProcessAnnotations(ctx *Ctx, annotations *Annotations, startDate, joinDate 
 					fields["description"],
 				)
 			}
-			pt := IDBNewPointWithErr(ctx, "annotations", nil, fields, *startDate)
-			IDBAddPointN(ctx, &ic, &pts, pt)
+			pt := NewTSPoint(ctx, "annotations", "", nil, fields, *startDate)
+			AddTSPoint(ctx, &pts, pt)
 		}
 
 		// Join CNCF (additional annotation not used in quick ranges)
@@ -217,8 +214,8 @@ func ProcessAnnotations(ctx *Ctx, annotations *Annotations, startDate, joinDate 
 					fields["description"],
 				)
 			}
-			pt := IDBNewPointWithErr(ctx, "annotations", nil, fields, *joinDate)
-			IDBAddPointN(ctx, &ic, &pts, pt)
+			pt := NewTSPoint(ctx, "annotations", "", nil, fields, *joinDate)
+			AddTSPoint(ctx, &pts, pt)
 		}
 	}
 
@@ -234,15 +231,13 @@ func ProcessAnnotations(ctx *Ctx, annotations *Annotations, startDate, joinDate 
 	}
 
 	// tags:
-	// suffix: will be used as InfluxDB series name suffix and Grafana drop-down value (non-dsplayed)
+	// suffix: will be used as TS series name suffix and Grafana drop-down value (non-dsplayed)
 	// name: will be used as Grafana drop-down value name
 	// data: is suffix;period;from;to
 	// period: only for special values listed here, last ... week, day, quarter, devade etc - will be passed to Postgres
 	// from: only filled when using annotations range - exact date from
 	// to: only filled when using annotations range - exact date to
 	tags := make(map[string]string)
-	// No fields value needed
-	fields := map[string]interface{}{"value": 0.0}
 
 	// Add special periods
 	tagName := "quick_ranges"
@@ -261,8 +256,8 @@ func ProcessAnnotations(ctx *Ctx, annotations *Annotations, startDate, joinDate 
 			)
 		}
 		// Add batch point
-		pt := IDBNewPointWithErr(ctx, tagName, tags, fields, tm)
-		IDBAddPointN(ctx, &ic, &pts, pt)
+		pt := NewTSPoint(ctx, tagName, "", tags, nil, tm)
+		AddTSPoint(ctx, &pts, pt)
 		tm = tm.Add(time.Hour)
 	}
 
@@ -270,7 +265,7 @@ func ProcessAnnotations(ctx *Ctx, annotations *Annotations, startDate, joinDate 
 	lastIndex := len(annotations.Annotations) - 1
 	for index, annotation := range annotations.Annotations {
 		if index == lastIndex {
-			sfx := fmt.Sprintf("anno_%d_now", index)
+			sfx := fmt.Sprintf("a_%d_n", index)
 			tags[tagName+"_suffix"] = sfx
 			tags[tagName+"_name"] = fmt.Sprintf("%s - now", annotation.Name)
 			tags[tagName+"_data"] = fmt.Sprintf("%s;;%s;%s", sfx, ToYMDHMSDate(annotation.Date), ToYMDHMSDate(NextDayStart(time.Now())))
@@ -282,13 +277,13 @@ func ProcessAnnotations(ctx *Ctx, annotations *Annotations, startDate, joinDate 
 				)
 			}
 			// Add batch point
-			pt := IDBNewPointWithErr(ctx, tagName, tags, fields, tm)
-			IDBAddPointN(ctx, &ic, &pts, pt)
+			pt := NewTSPoint(ctx, tagName, "", tags, nil, tm)
+			AddTSPoint(ctx, &pts, pt)
 			tm = tm.Add(time.Hour)
 			break
 		}
 		nextAnnotation := annotations.Annotations[index+1]
-		sfx := fmt.Sprintf("anno_%d_%d", index, index+1)
+		sfx := fmt.Sprintf("a_%d_%d", index, index+1)
 		tags[tagName+"_suffix"] = sfx
 		tags[tagName+"_name"] = fmt.Sprintf("%s - %s", annotation.Name, nextAnnotation.Name)
 		tags[tagName+"_data"] = fmt.Sprintf("%s;;%s;%s", sfx, ToYMDHMSDate(annotation.Date), ToYMDHMSDate(nextAnnotation.Date))
@@ -300,15 +295,15 @@ func ProcessAnnotations(ctx *Ctx, annotations *Annotations, startDate, joinDate 
 			)
 		}
 		// Add batch point
-		pt := IDBNewPointWithErr(ctx, tagName, tags, fields, tm)
-		IDBAddPointN(ctx, &ic, &pts, pt)
+		pt := NewTSPoint(ctx, tagName, "", tags, nil, tm)
+		AddTSPoint(ctx, &pts, pt)
 		tm = tm.Add(time.Hour)
 	}
 
 	// 2 special periods: before and after joining CNCF
 	if startDate != nil && joinDate != nil && joinDate.After(*startDate) {
 		// From project start to CNCF join date
-		sfx := "cncf_before"
+		sfx := "c_b"
 		tags[tagName+"_suffix"] = sfx
 		tags[tagName+"_name"] = "Before joining CNCF"
 		tags[tagName+"_data"] = fmt.Sprintf("%s;;%s;%s", sfx, ToYMDHMSDate(*startDate), ToYMDHMSDate(*joinDate))
@@ -320,12 +315,12 @@ func ProcessAnnotations(ctx *Ctx, annotations *Annotations, startDate, joinDate 
 			)
 		}
 		// Add batch point
-		pt := IDBNewPointWithErr(ctx, tagName, tags, fields, tm)
-		IDBAddPointN(ctx, &ic, &pts, pt)
+		pt := NewTSPoint(ctx, tagName, "", tags, nil, tm)
+		AddTSPoint(ctx, &pts, pt)
 		tm = tm.Add(time.Hour)
 
 		// From CNCF join date till now
-		sfx = "cncf_now"
+		sfx = "c_n"
 		tags[tagName+"_suffix"] = sfx
 		tags[tagName+"_name"] = "Since joining CNCF"
 		tags[tagName+"_data"] = fmt.Sprintf("%s;;%s;%s", sfx, ToYMDHMSDate(*joinDate), ToYMDHMSDate(NextDayStart(time.Now())))
@@ -337,16 +332,19 @@ func ProcessAnnotations(ctx *Ctx, annotations *Annotations, startDate, joinDate 
 			)
 		}
 		// Add batch point
-		pt = IDBNewPointWithErr(ctx, tagName, tags, fields, tm)
-		IDBAddPointN(ctx, &ic, &pts, pt)
+		pt = NewTSPoint(ctx, tagName, "", tags, nil, tm)
+		AddTSPoint(ctx, &pts, pt)
 		tm = tm.Add(time.Hour)
 	}
 
 	// Write the batch
-	if !ctx.SkipIDB {
-		//if ctx.IDBDrop
-		QueryIDB(ic, ctx, `delete from "quick_ranges" where quick_ranges_suffix =~ /_now$/`)
-		FatalOnError(IDBWritePointsN(ctx, &ic, &pts))
+	if !ctx.SkipTSDB {
+		table := "tquick_ranges"
+		column := "quick_ranges_suffix"
+		if TableExists(ic, ctx, table) && TableColumnExists(ic, ctx, table, column) {
+			ExecSQLWithErr(ic, ctx, fmt.Sprintf("delete from %s where %s like '%%_n'", table, column))
+		}
+		WriteTSPoints(ctx, ic, &pts, "", nil)
 	} else if ctx.Debug > 0 {
 		Printf("Skipping annotations series write\n")
 	}

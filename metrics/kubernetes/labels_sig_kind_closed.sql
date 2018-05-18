@@ -1,5 +1,5 @@
 select
-  concat('issues_closed_labels_sig_kind,', sel1.sig, '-', sel2.kind) as sig_kind,
+  concat('iclosed_lsk,', sel1.sig, '-', sel2.kind) as sig_kind,
   round(count(distinct sel1.id) / {{n}}, 2) as cnt
 from (
   select distinct i.id,

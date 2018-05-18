@@ -22,7 +22,7 @@ func StripUnicode(str string) string {
 // Normalize Unicode characters
 func NormalizeName(str string) string {
 	r := strings.NewReplacer(
-		"-", "_", "/", "_", ".", "_", " ", "_", ",", "_", ";", "_", ":", "_", "`", "_", "(", "_", ")", "_", "[", "_", "]", "_", "<", "_", ">", "_",
+		"-", "", "/", "", ".", "", " ", "", ",", "", ";", "", ":", "", "`", "", "(", "", ")", "", "[", "", "]", "", "<", "", ">", "", "_", "",
 	)
 	return r.Replace(strings.ToLower(strings.TrimSpace(StripUnicode(str))))
 }

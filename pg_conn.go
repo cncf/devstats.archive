@@ -5,10 +5,500 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	_ "github.com/lib/pq" // As suggested by lib/pq driver
 )
+
+// TSPoint keeps single time series point
+type TSPoint struct {
+	t      time.Time
+	period string
+	name   string
+	tags   map[string]string
+	fields map[string]interface{}
+}
+
+// TSPoints keeps batch of TSPoint values to write
+type TSPoints []TSPoint
+
+// Str - string pretty print
+func (p *TSPoint) Str() string {
+	return fmt.Sprintf(
+		"%s %s period: %s tags: %+v fields: %+v",
+		ToYMDHDate(p.t),
+		p.name,
+		p.period,
+		p.tags,
+		p.fields,
+	)
+}
+
+// Str - string pretty print
+func (ps *TSPoints) Str() string {
+	s := ""
+	for i, p := range *ps {
+		s += fmt.Sprintf("#%d %s\n", i+1, p.Str())
+	}
+	return s
+}
+
+// NewTSPoint returns new point as specified by args
+func NewTSPoint(ctx *Ctx, name, period string, tags map[string]string, fields map[string]interface{}, t time.Time) TSPoint {
+	var (
+		otags   map[string]string
+		ofields map[string]interface{}
+	)
+	if tags != nil {
+		otags = make(map[string]string)
+		for k, v := range tags {
+			otags[k] = v
+		}
+	}
+	if fields != nil {
+		ofields = make(map[string]interface{})
+		for k, v := range fields {
+			ofields[k] = v
+		}
+	}
+	p := TSPoint{
+		t:      HourStart(t),
+		name:   name,
+		period: period,
+		tags:   otags,
+		fields: ofields,
+	}
+	if ctx.Debug > 0 {
+		Printf("NewTSPoint: %s\n", p.Str())
+	}
+	return p
+}
+
+// AddTSPoint add single point to the batch
+func AddTSPoint(ctx *Ctx, pts *TSPoints, pt TSPoint) {
+	if ctx.Debug > 0 {
+		Printf("AddTSPoint: %s\n", pt.Str())
+	}
+	*pts = append(*pts, pt)
+	if ctx.Debug > 0 {
+		Printf("AddTSPoint: point added, now %d points\n", len(*pts))
+	}
+}
+
+// WriteTSPoints write batch of points to postgresql
+// use mergeSeries = "name" to put all series in "name" table, and create "series" column that conatins all point names.
+//   without merge, alee names will create separate tables.
+// use non-null mut when you are using this function from multiple threads that write to the same series name at the same time
+//   use non-null mut only then.
+// No more giant lock approach here, but it is up to user to spcify call context, especially 2 last parameters!
+func WriteTSPoints(ctx *Ctx, con *sql.DB, pts *TSPoints, mergeSeries string, mut *sync.Mutex) {
+	npts := len(*pts)
+	if ctx.Debug > 0 {
+		Printf("WriteTSPoints: writing %d points\n", len(*pts))
+		Printf("Points:\n%+v\n", pts.Str())
+	}
+	if npts == 0 {
+		return
+	}
+	merge := false
+	mergeS := ""
+	if mergeSeries != "" {
+		mergeS = makePsqlName("s"+mergeSeries, true)
+		merge = true
+	}
+	tags := make(map[string]map[string]struct{})
+	fields := make(map[string]map[string]int)
+	for _, p := range *pts {
+		if p.tags != nil {
+			name := p.name
+			if !merge {
+				name = makePsqlName("t"+p.name, true)
+			}
+			_, ok := tags[name]
+			if !ok {
+				tags[name] = make(map[string]struct{})
+			}
+			for tagName := range p.tags {
+				tName := makePsqlName(tagName, true)
+				tags[name][tName] = struct{}{}
+			}
+		}
+		if p.fields != nil {
+			name := p.name
+			if !merge {
+				name = makePsqlName("s"+p.name, true)
+			}
+			_, ok := fields[name]
+			if !ok {
+				fields[name] = make(map[string]int)
+			}
+			for fieldName, fieldValue := range p.fields {
+				fName := makePsqlName(fieldName, true)
+				t, ok := fields[name][fName]
+				if !ok {
+					t = -1
+				}
+				ty := -1
+				switch fieldValue.(type) {
+				case float64:
+					ty = 0
+				case string:
+					ty = 1
+				default:
+					Fatalf("usupported metric value type: %+v,%T (field %s)", fieldValue, fieldValue, fieldName)
+				}
+				if t >= 0 && t != ty {
+					Fatalf(
+						"Field %s has a value %+v,%T, previous values were different type %d != %d",
+						fieldName, fieldValue, fieldValue, ty, t,
+					)
+				}
+				fields[name][fName] = ty
+			}
+		}
+	}
+	if ctx.Debug > 0 {
+		Printf("Merge: %v,%s\n", merge, mergeSeries)
+		Printf("%d tags:\n%+v\n", len(tags), tags)
+		Printf("%d fields:\n%+v\n", len(fields), fields)
+	}
+	sqls := []string{}
+	// Only used when multiple threads are writing the same series
+	if mut != nil {
+		mut.Lock()
+	}
+	var (
+		exists    bool
+		colExists bool
+	)
+	for name, data := range tags {
+		if len(data) == 0 {
+			continue
+		}
+		exists = TableExists(con, ctx, name)
+		if !exists {
+			sq := "create table if not exists \"" + name + "\"("
+			sq += "time timestamp primary key, "
+			indices := []string{}
+			for col := range data {
+				sq += "\"" + col + "\" text, "
+				iname := makePsqlName("i"+name[1:]+col, false)
+				indices = append(indices, "create index if not exists \""+iname+"\" on \""+name+"\"(\""+col+"\")")
+			}
+			l := len(sq)
+			sq = sq[:l-2] + ")"
+			sqls = append(sqls, sq)
+			sqls = append(sqls, indices...)
+			sqls = append(sqls, "grant select on \""+name+"\" to ro_user")
+			sqls = append(sqls, "grant select on \""+name+"\" to devstats_team")
+		} else {
+			for col := range data {
+				colExists = TableColumnExists(con, ctx, name, col)
+				if !colExists {
+					sq := "alter table \"" + name + "\" add column if not exists \"" + col + "\" text"
+					sqls = append(sqls, sq)
+					iname := makePsqlName("i"+name[1:]+col, false)
+					sqls = append(sqls, "create index if not exists \""+iname+"\" on \""+name+"\"(\""+col+"\")")
+				}
+			}
+		}
+	}
+	if merge {
+		bTable := false
+		colMap := make(map[string]struct{})
+		for _, data := range fields {
+			if len(data) == 0 {
+				continue
+			}
+			if !bTable {
+				exists = TableExists(con, ctx, mergeS)
+				if !exists {
+					sq := "create table if not exists \"" + mergeS + "\"("
+					sq += "time timestamp not null, series text not null, period text not null default '', "
+					indices := []string{
+						"create index if not exists \"" + makePsqlName("i"+mergeS[1:]+"t", false) + "\" on \"" + mergeS + "\"(time)",
+						"create index if not exists \"" + makePsqlName("i"+mergeS[1:]+"s", false) + "\" on \"" + mergeS + "\"(series)",
+						"create index if not exists \"" + makePsqlName("i"+mergeS[1:]+"p", false) + "\" on \"" + mergeS + "\"(period)",
+					}
+					for col, ty := range data {
+						if ty == 0 {
+							sq += "\"" + col + "\" double precision not null default 0.0, "
+							//indices = append(indices, "create index if not exists \""+makePsqlName("i"+mergeS[1:]+col, false)+"\" on \""+mergeS+"\"(\""+col+"\")")
+						} else {
+							sq += "\"" + col + "\" text not null default '', "
+						}
+						colMap[col] = struct{}{}
+					}
+					sq += "primary key(time, series, period))"
+					sqls = append(sqls, sq)
+					sqls = append(sqls, indices...)
+					sqls = append(sqls, "grant select on \""+mergeS+"\" to ro_user")
+					sqls = append(sqls, "grant select on \""+mergeS+"\" to devstats_team")
+				}
+				bTable = true
+			}
+			for col, ty := range data {
+				_, ok := colMap[col]
+				if !ok {
+					colExists = TableColumnExists(con, ctx, mergeS, col)
+					colMap[col] = struct{}{}
+					if !colExists {
+						if ty == 0 {
+							sqls = append(sqls, "alter table \""+mergeS+"\" add column if not exists \""+col+"\" double precision not null default 0.0")
+							//sqls = append(sqls, "create index if not exists \""+makePsqlName("i"+mergeS[1:]+col, false)+"\" on \""+mergeS+"\"(\""+col+"\")")
+						} else {
+							sqls = append(sqls, "alter table \""+mergeS+"\" add column if not exists \""+col+"\" text not null default ''")
+						}
+					}
+				}
+			}
+		}
+	} else {
+		for name, data := range fields {
+			if len(data) == 0 {
+				continue
+			}
+			exists = TableExists(con, ctx, name)
+			if !exists {
+				sq := "create table if not exists \"" + name + "\"("
+				sq += "time timestamp not null, period text not null default '', "
+				indices := []string{
+					"create index if not exists \"" + makePsqlName("i"+name[1:]+"t", false) + "\" on \"" + name + "\"(time)",
+					"create index if not exists \"" + makePsqlName("i"+name[1:]+"p", false) + "\" on \"" + name + "\"(period)",
+				}
+				for col, ty := range data {
+					if ty == 0 {
+						sq += "\"" + col + "\" double precision not null default 0.0, "
+						//indices = append(indices, "create index if not exists \""+makePsqlName("i"+name[1:]+col, false)+"\" on \""+name+"\"(\""+col+"\")")
+					} else {
+						sq += "\"" + col + "\" text not null default '', "
+					}
+				}
+				sq += "primary key(time, period))"
+				sqls = append(sqls, sq)
+				sqls = append(sqls, indices...)
+				sqls = append(sqls, "grant select on \""+name+"\" to ro_user")
+				sqls = append(sqls, "grant select on \""+name+"\" to devstats_team")
+			} else {
+				for col, ty := range data {
+					colExists = TableColumnExists(con, ctx, name, col)
+					if !colExists {
+						if ty == 0 {
+							sqls = append(sqls, "alter table \""+name+"\" add column if not exists \""+col+"\" double precision not null default 0.0")
+							//sqls = append(sqls, "create index if not exists \""+makePsqlName("i"+name[1:]+col, false)+"\" on \""+name+"\"(\""+col+"\")")
+						} else {
+							sqls = append(sqls, "alter table \""+name+"\" add column if not exists \""+col+"\" text not null default ''")
+						}
+					}
+				}
+			}
+		}
+	}
+	if ctx.Debug > 0 && len(sqls) > 0 {
+		Printf("structural sqls:\n%s\n", strings.Join(sqls, "\n"))
+	}
+	for _, q := range sqls {
+		// Notice: This **may** fail, when using multiple processes (not threads) to create structures (tables, columns and indices)
+		// But each operation can only fail when some other process already executed it succesfully
+		// So **ALL** those failures are *OK*.
+		// We can avoid thenm by using transaction, but it is much slower then, effect is the same and all we want **IS THE SPEED**
+		// So this is done for purpose!
+		_, err := ExecSQL(con, ctx, q)
+		if err != nil {
+			Printf("Ignored %s\n", q)
+		}
+	}
+	// Only used when multiple threads are writing the same series
+	if mut != nil {
+		mut.Unlock()
+	}
+	ns := 0
+	for _, p := range *pts {
+		if p.tags != nil {
+			name := makePsqlName("t"+p.name, true)
+			namesI := []string{"time"}
+			argsI := []string{"$1"}
+			vals := []interface{}{p.t}
+			i := 2
+			for tagName, tagValue := range p.tags {
+				namesI = append(namesI, "\""+makePsqlName(tagName, true)+"\"")
+				argsI = append(argsI, "$"+strconv.Itoa(i))
+				vals = append(vals, tagValue)
+				i++
+			}
+			namesIA := strings.Join(namesI, ", ")
+			argsIA := strings.Join(argsI, ", ")
+			namesU := []string{}
+			argsU := []string{}
+			for tagName, tagValue := range p.tags {
+				namesU = append(namesU, "\""+makePsqlName(tagName, true)+"\"")
+				argsU = append(argsU, "$"+strconv.Itoa(i))
+				vals = append(vals, tagValue)
+				i++
+			}
+			namesUA := strings.Join(namesU, ", ")
+			argsUA := strings.Join(argsU, ", ")
+			argT := "$" + strconv.Itoa(i)
+			vals = append(vals, p.t)
+			q := fmt.Sprintf(
+				"insert into \"%[1]s\"("+namesIA+") values("+argsIA+") "+
+					"on conflict(time) do update set ("+namesUA+") = ("+argsUA+") "+
+					"where \"%[1]s\".time = "+argT,
+				name,
+			)
+			ExecSQLWithErr(con, ctx, q, vals...)
+			ns++
+		}
+		if p.fields != nil && !merge {
+			name := makePsqlName("s"+p.name, true)
+			namesI := []string{"time", "period"}
+			argsI := []string{"$1", "$2"}
+			vals := []interface{}{p.t, p.period}
+			i := 3
+			for fieldName, fieldValue := range p.fields {
+				namesI = append(namesI, "\""+makePsqlName(fieldName, true)+"\"")
+				argsI = append(argsI, "$"+strconv.Itoa(i))
+				vals = append(vals, fieldValue)
+				i++
+			}
+			namesIA := strings.Join(namesI, ", ")
+			argsIA := strings.Join(argsI, ", ")
+			namesU := []string{}
+			argsU := []string{}
+			for fieldName, fieldValue := range p.fields {
+				namesU = append(namesU, "\""+makePsqlName(fieldName, true)+"\"")
+				argsU = append(argsU, "$"+strconv.Itoa(i))
+				vals = append(vals, fieldValue)
+				i++
+			}
+			namesUA := strings.Join(namesU, ", ")
+			argsUA := strings.Join(argsU, ", ")
+			argT := "$" + strconv.Itoa(i)
+			argP := "$" + strconv.Itoa(i+1)
+			vals = append(vals, p.t)
+			vals = append(vals, p.period)
+			q := fmt.Sprintf(
+				"insert into \"%[1]s\"("+namesIA+") values("+argsIA+") "+
+					"on conflict(time, period) do update set ("+namesUA+") = ("+argsUA+") "+
+					"where \"%[1]s\".time = "+argT+" and \"%[1]s\".period = "+argP,
+				name,
+			)
+			ExecSQLWithErr(con, ctx, q, vals...)
+			ns++
+		}
+		if p.fields != nil && merge {
+			namesI := []string{"time", "period", "series"}
+			argsI := []string{"$1", "$2", "$3"}
+			vals := []interface{}{p.t, p.period, p.name}
+			i := 4
+			for fieldName, fieldValue := range p.fields {
+				namesI = append(namesI, "\""+makePsqlName(fieldName, true)+"\"")
+				argsI = append(argsI, "$"+strconv.Itoa(i))
+				vals = append(vals, fieldValue)
+				i++
+			}
+			namesIA := strings.Join(namesI, ", ")
+			argsIA := strings.Join(argsI, ", ")
+			namesU := []string{}
+			argsU := []string{}
+			for fieldName, fieldValue := range p.fields {
+				namesU = append(namesU, "\""+makePsqlName(fieldName, true)+"\"")
+				argsU = append(argsU, "$"+strconv.Itoa(i))
+				vals = append(vals, fieldValue)
+				i++
+			}
+			namesUA := strings.Join(namesU, ", ")
+			argsUA := strings.Join(argsU, ", ")
+			argT := "$" + strconv.Itoa(i)
+			argP := "$" + strconv.Itoa(i+1)
+			argS := "$" + strconv.Itoa(i+2)
+			vals = append(vals, p.t)
+			vals = append(vals, p.period)
+			vals = append(vals, p.name)
+			q := fmt.Sprintf(
+				"insert into \"%[1]s\"("+namesIA+") values("+argsIA+") "+
+					"on conflict(time, series, period) do update set ("+namesUA+") = ("+argsUA+") "+
+					"where \"%[1]s\".time = "+argT+" and \"%[1]s\".period = "+argP+" and \"%[1]s\".series = "+argS,
+				mergeS,
+			)
+			ExecSQLWithErr(con, ctx, q, vals...)
+			ns++
+		}
+	}
+	if ctx.Debug > 0 {
+		Printf("upserts: %d\n", ns)
+	}
+}
+
+// makePsqlName makes sure the identifier is shorter than 64
+// fatal: when used to create table or column
+// non-fatal: only when used for create index if not exists
+// to use `create index if not exists` we must give it a name
+// (so postgres can detect if index exists), name is created from table and column names
+// so if this is too long, just amke it shorter - hence non-fatal
+func makePsqlName(name string, fatal bool) string {
+	l := len(name)
+	if l > 63 {
+		if fatal {
+			Fatalf("postgresql identifier name too long (%d, %s)", l, name)
+			return name
+		}
+		Printf("Notice: postgresql identifier name too long (%d, %s)", l, name)
+		newName := name[:32] + name[l-31:]
+		return newName
+	}
+	return name
+}
+
+// GetTagValues returns tag values for a given key
+func GetTagValues(con *sql.DB, ctx *Ctx, name, key string) (ret []string) {
+	rows := QuerySQLWithErr(
+		con,
+		ctx,
+		fmt.Sprintf(
+			"select %s from t%s order by time asc",
+			key,
+			name,
+		),
+	)
+	defer func() { FatalOnError(rows.Close()) }()
+	s := ""
+	for rows.Next() {
+		FatalOnError(rows.Scan(&s))
+		ret = append(ret, s)
+	}
+	FatalOnError(rows.Err())
+	return
+}
+
+// TableExists - checks if a given table exists
+func TableExists(con *sql.DB, ctx *Ctx, tableName string) bool {
+	var s *string
+	FatalOnError(QueryRowSQL(con, ctx, fmt.Sprintf("select to_regclass(%s)", NValue(1)), tableName).Scan(&s))
+	return s != nil
+}
+
+// TableColumnExists - checks if a given table's has a given column
+func TableColumnExists(con *sql.DB, ctx *Ctx, tableName, columnName string) bool {
+	var s *string
+	FatalOnError(
+		QueryRowSQL(
+			con,
+			ctx,
+			fmt.Sprintf(
+				"select column_name from information_schema.columns "+
+					"where table_name=%s and column_name=%s "+
+					"union select null limit 1",
+				NValue(1),
+				NValue(2),
+			),
+			tableName,
+			columnName,
+		).Scan(&s),
+	)
+	return s != nil
+}
 
 // PgConn Connects to Postgres database
 func PgConn(ctx *Ctx) *sql.DB {
@@ -64,6 +554,14 @@ func QueryRowSQL(con *sql.DB, ctx *Ctx, query string, args ...interface{}) *sql.
 		queryOut(query, args...)
 	}
 	return con.QueryRow(query, args...)
+}
+
+// QueryRowSQLTx executes given SQL on Postgres DB (and returns single row)
+func QueryRowSQLTx(tx *sql.Tx, ctx *Ctx, query string, args ...interface{}) *sql.Row {
+	if ctx.QOut {
+		queryOut(query, args...)
+	}
+	return tx.QueryRow(query, args...)
 }
 
 // QuerySQL executes given SQL on Postgres DB (and returns rowset that needs to be closed)

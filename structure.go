@@ -1163,7 +1163,7 @@ func Structure(ctx *Ctx) {
 		ExecSQLWithErr(c, ctx, "create index issues_pull_requests_created_at_idx on gha_issues_pull_requests(created_at)")
 	}
 
-	// This table holds Postgres variables defined by `pdb_vars` tool.
+	// This table holds Postgres variables defined by `vars` tool.
 	if ctx.Table {
 		ExecSQLWithErr(c, ctx, "drop table if exists gha_vars")
 		ExecSQLWithErr(
@@ -1183,6 +1183,41 @@ func Structure(ctx *Ctx) {
 	}
 	if ctx.Index {
 		ExecSQLWithErr(c, ctx, "create index vars_name_idx on gha_vars(name)")
+	}
+	// This is to determine if a given metric is computed for some period or not
+	if ctx.Table {
+		ExecSQLWithErr(c, ctx, "drop table if exists gha_computed")
+		ExecSQLWithErr(
+			c,
+			ctx,
+			CreateTable(
+				"gha_computed("+
+					"metric text not null, "+
+					"dt {{ts}} not null, "+
+					"primary key(metric, dt)"+
+					")",
+			),
+		)
+	}
+	if ctx.Index {
+		ExecSQLWithErr(c, ctx, "create index computed_metric_idx on gha_computed(metric)")
+		ExecSQLWithErr(c, ctx, "create index computed_dt_idx on gha_computed(dt)")
+	}
+	if ctx.Table {
+		ExecSQLWithErr(c, ctx, "drop table if exists gha_parsed")
+		ExecSQLWithErr(
+			c,
+			ctx,
+			CreateTable(
+				"gha_parsed("+
+					"dt {{ts}} not null, "+
+					"primary key(dt)"+
+					")",
+			),
+		)
+	}
+	if ctx.Index {
+		ExecSQLWithErr(c, ctx, "create index parsed_dt_idx on gha_parsed(dt)")
 	}
 	// Foreign keys are not needed - they slow down processing a lot
 

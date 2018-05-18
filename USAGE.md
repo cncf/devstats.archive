@@ -16,9 +16,13 @@ Go version only support Postgres, it proved to be a lot faster than Ruby version
 
 Finally, Ruby version was dropped.
 
+Influx DB was used as a time series database. Then it was dropped and replaced with Postgres.
+
+Postgres is faster as a time series database than a dedicated time series database InfluxDB.
+
 This tools filter GitHub archive for given date period and given organization, repository and save results in a Postgres database.
 It can also save results into JSON files.
-It displays results using Grafana and InfluxDB time series database.
+It displays results using Grafana and Postgres as a time series database.
 
 It can import developers affiliations from [cncf/gitdm](https://github.com/cncf/gitdm).
 
@@ -28,11 +32,11 @@ It also clones all git repos to analyse all commits files.
 
 Uses GNU `Makefile`:
 - `make check` - to apply gofmt, goimports, golint, errcheck, usedexports, go vet and possibly other tools.
-- `make` to compile static binaries: `structure`, `runq`, `gha2db`, `db2influx`, `z2influx`, `gha2db_sync`, `import_affs`, `annotations`, `idb_tags`, `idb_backup`, `webhook`, `devstats`, `get_repos`, `merge_pdbs`, `idb_vars`, `pdb_vars`, `replacer`, `ghapi2db`.
+- `make` to compile static binaries: `structure`, `runq`, `gha2db`, `calc_metric`, `gha2db_sync`, `import_affs`, `annotations`, `tags`, `columns`, `webhook`, `devstats`, `get_repos`, `merge_dbs`, `vars`, `replacer`, `ghapi2db`.
 - `make install` - to install binaries, this is needed for cron job.
 - `make clean` - to clean binaries
 - `make test` - to execute non-DB tests
-- `GHA2DB_PROJECT=kubernetes PG_DB=dbtest PG_PASS=pwd IDB_HOST="localhost" IDB_DB=dbtest IDB_PASS=pwd make dbtest` - to execute DB tests.
+- `GHA2DB_PROJECT=kubernetes PG_DB=dbtest PG_PASS=pwd make dbtest` - to execute DB tests.
 
 All `*.go` files in project root directory are common library `gha2db` for all go executables.
 All `*_test.go` and `test/*.go` are Go test files, that are used only for testing.
@@ -90,7 +94,7 @@ You can tweak `devstats` tools by environment variables:
 - Set `GHA2DB_NCPUS` to positive numeric value, to override the number of CPUs to run, this overwrites `GHA2DB_ST`.
 - Set `GHA2DB_STARTDT`, to use start date for processing events (when syncing data with an empty database), default `2015-08-06 22:00 UTC`, expects format "YYYY-MM-DD HH:MI:SS".
 - Set `GHA2DB_STARTDT_FORCE`, to use start date as a last value present in the databases (overrides last values found on the DB).
-- Set `GHA2DB_LASTSERIES`, to specify which InfluxDB series use to determine newest data (it will be used to query the newest timestamp), default `'events_h'`.
+- Set `GHA2DB_LASTSERIES`, to specify which series name use to determine newest data (it will be used to query the newest timestamp), default `'events_h'`.
 - Set `GHA2DB_CMDDEBUG` set to 1 to see commands executed, set to 2 to see commands executed and their output, set to 3 to see full exec environment.
 - Set `GHA2DB_EXPLAIN` for `runq` tool, it will prefix query select(s) with "explain " to display query plan instead of executing the real query. Because metric can have multiple selects, and only main select should be replaced with "explain select" - we're replacing only downcased "select" statement followed by newline ("select\n" --> "explain select\n")
 - Set `GHA2DB_OLDFMT` for `gha2db` tool to make it use old pre-2015 GHA JSONs format (instead of a new one used by GitHub Archives from 2015-01-01). It is usable for GH events starting from 2012-07-01.
@@ -124,12 +128,10 @@ You can tweak `devstats` tools by environment variables:
 - Set `GHA2DB_EXTERNAL_INFO`, `get_repos` tool to enable displaying external info needed by cncf/gitdm.
 - Set `GHA2DB_PROJECTS_OVERRIDE`, `get_repos`, `devstats` tools - for example "-pro1,+pro2" means never sync pro1 and always sync pro2 (even if disabled in `projects.yaml`).
 - Set `GHA2DB_EXCLUDE_REPOS`, `gha2db` tool, default "" - comma separated list of repos to exclude, example: "theupdateframework/notary,theupdateframework/other".
-- Set `GHA2DB_INPUT_DBS`, `merge_pdbs` tool - list of input databases to merge, order matters - first one will insert on a clean DB, next will do insert ignore (to avoid constraints failure due to common data).
-- Set `GHA2DB_OUTPUT_DB`, `merge_pdbs` tool - output database to merge into.
-- Set `IDB_MAXBATCHPOINTS`, all Influx tools - set maximum batch size, default 10240.
+- Set `GHA2DB_INPUT_DBS`, `merge_dbs` tool - list of input databases to merge, order matters - first one will insert on a clean DB, next will do insert ignore (to avoid constraints failure due to common data).
+- Set `GHA2DB_OUTPUT_DB`, `merge_dbs` tool - output database to merge into.
 - Set `GHA2DB_TMOFFSET`, `gha2db_sync` tool - uses time offset to decide when to calculate various metrics, default offset is 0 which means UTC, good offset for USA is -6, and for Poland is 1 or 2
-- Set `GHA2DB_IVARS_YAML`, `idb_vars` tool - to set nonstandard `idb_vars.yaml` file.
-- Set `GHA2DB_PVARS_YAML`, `pdb_vars` tool - to set nonstandard `pdb_vars.yaml` file.
+- Set `GHA2DB_VARS_YAML`, `vars` tool - to set nonstandard `vars.yaml` file.
 - Set `GHA2DB_RECENT_RANGE`, `ghapi2db` tool, default '2 hours'. This is a recent period to check open issues/PR to fix their labels and milestones.
 - Set `GHA2DB_MIN_GHAPI_POINTS`, `ghapi2db` tool, minimum GitHub API points, before waiting for reset. Default 1 (API point).
 - Set `GHA2DB_MAX_GHAPI_WAIT`, `ghapi2db` tool, maximum wait time for GitHub API points reset (in seconds). Default 1s.
@@ -305,6 +307,8 @@ List of tables:
 - `gha_texts`: this is a compute table, that contains texts from comments, commits, issues and pull requests, updated by `gha2db_sync` and structure tools
 - `gha_issues_pull_requests`: this is a compute table that contains PRs and issues connections, updated by `gha2db_sync` and structure tools
 - `gha_issues_events_labels`: this is a compute table, that contains shortcuts to issues labels (for metrics speedup), updated by `gha2db_sync` and structure tools
+- `gha_computed` - keeps record of historical histograms that were already calculated.
+- `gha_parsed` - keeps GHA archive datetimes (hours) that were already parsed and processed.
 
 Table `gha_logs` is special, recently all logs were moved to a separate database `devstats` that contains only this single table `gha_logs`.
 This table is still present on all gha databases, it may be used for some legacy actions.
@@ -316,7 +320,7 @@ Such columns are prefixed by "dup_". They're usually not null columns, but there
 There is a standard duplicate event structure consisting of (dup_type, dup_actor_id, dup_actor_login, dup_repo_id, dup_repo_name, dup_created_at), I'll call it `eventd`
 
 Duplicated columns:
-- dup_actor_login, dup_repo_name in `gha_events` are taken from `gha_actors` and `gha_repos` to save joins.
+- `dup_actor_login`, `dup_repo_name` in `gha_events` are taken from `gha_actors` and `gha_repos` to save joins.
 - `eventd` on `gha_payloads`
 - Just take a look at "dup_" and "dupn_" fields on all tables.
 
@@ -404,10 +408,10 @@ GitHub archive generates new file every hour.
 Use `gha2db_sync` tool to update all your data.
 
 Example call:
-- `GHA2DB_PROJECT=kubernetes PG_PASS='pwd' IDB_HOST="localhost" IDB_PASS='pwd' ./gha2db_sync`
-- Add `GHA2DB_RESETIDB` environment variable to rebuild InfluxDB stats instead of update since the last run
-- Add `GHA2DB_SKIPIDB` environment variable to skip syncing InfluxDB (so it will only sync Postgres DB)
-- Add `GHA2DB_SKIPPDB` environment variable to skip syncing Postgres (so it will only sync Influx DB)
+- `GHA2DB_PROJECT=kubernetes PG_PASS='pwd' ./gha2db_sync`
+- Add `GHA2DB_RESETTSDB` environment variable to rebuild time series instead of update since the last run
+- Add `GHA2DB_SKIPTSDB` environment variable to skip syncing time series (so it will only sync GHA data)
+- Add `GHA2DB_SKIPPDB` environment variable to skip syncing GHA data (so it will only sync time series)
 
 Sync tool uses [gaps.yaml](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/gaps.yaml), to prefill some series with zeros.
 This is needed for metrics (like SIG mentions or PRs merged) that return multiple rows, depending on data range.
@@ -428,7 +432,7 @@ To install cron job please check "cron" section:
 - [Mac](https://github.com/cncf/devstats/blob/master/INSTALL_MAC.md)
 - [Linux Ubuntu 16 LTS](https://github.com/cncf/devstats/blob/master/INSTALL_UBUNTU16.md)
 - [Linux Ubuntu 17](https://github.com/cncf/devstats/blob/master/INSTALL_UBUNTU17.md)
-- [FreeBSD 11 (work in progress)](https://github.com/cncf/devstats/blob/master/INSTALL_FREEBSD.md)
+- [FreeBSD 11](https://github.com/cncf/devstats/blob/master/INSTALL_FREEBSD.md)
 
 # Developers affiliations
 
@@ -464,53 +468,21 @@ Grafana install instruction are here:
 - [Linux Ubuntu 17](https://github.com/cncf/devstats/blob/master/INSTALL_UBUNTU17.md)
 - [FreeBSD 11 (work in progress)](https://github.com/cncf/devstats/blob/master/INSTALL_FREEBSD.md)
 
-# To drop & recreate InfluxDB:
-- `IDB_HOST="localhost" IDB_PASS='idb_password' ./grafana/influxdb_recreate.sh`
-- `GHA2DB_PROJECT=kubernetes GHA2DB_RESETIDB=1 PG_PASS='pwd' IDB_HOST="localhost" IDB_PASS='pwd' ./gha2db_sync`
+# To drop & recreate time series data:
+- `./devel/drop_ts_tables.sh dbname`
+- `GHA2DB_PROJECT=kubernetes PG_PASS=... GHA2DB_RESETTSDB=1 GHA2DB_LOCAL=1 ./gha2db_sync || exit 6
 
-Or automatically: drop & create Influx DB, update Postgres DB since the last run, full populate InfluxDB, start syncer every 30 minutes:
-- `IDB_HOST="localhost" IDB_PASS=pwd PG_PASS=pwd ./kubernetes/reinit_all.sh`
+Or:
+- `PG_PASS=pwd ONLY=kubernetes ./devel/reinit.sh`
 
-# Alternate solution with Docker:
+# Manually creating time series data Grafana
 
-Note that this is an old solution that worked, but wasn't tested recently.
-
-- Start Grafana using `GRAFANA_PASS='password' grafana/grafana_start.sh` to install Grafana & InfluxDB as docker containers (this requires Docker).
-- Start InfluxDB using `IDB_HOST="localhost" IDB_PASS='password' IDB_PASS_RO='password' ./grafana/influxdb_setup.sh gha`, this requires Docker & previous command succesfully executed.
-- To cleanup Docker Grafana image and start from scratch use `./grafana/docker_cleanup.sh`. This will not delete your grafana config because it is stored in local volume `/var/lib/grafana`.
-
-# Manually feeding InfluxDB & Grafana:
-
-Feed InfluxDB using:
-- `PG_PASS='psql_pwd' IDB_HOST="localhost" IDB_PASS='influxdb_pwd' ./db2influx sig_metions_data metrics/kubernetes/sig_mentions.sql '2017-08-14' '2017-08-21' d`
+- `PG_PASS='psql_pwd' ./calc_metric sig_metions_data metrics/kubernetes/sig_mentions.sql '2017-08-14' '2017-08-21' d`
 - The first parameter is used as exact series name when metrics query returns single row with single column value.
 - First parameter is used as function name when metrics query return mutiple rows, each with >= 2 columns. This function receives data row and the period name and should return series name and value(s).
 - The second parameter is a metrics SQL file, it should contain time conditions defined as `'{{from}}'` and `'{{to}}'`.
 - Next two parameters are date ranges.
 - The last parameter can be h, d, w, m, q, y (hour, day, week, month, quarter, year).
-- This tool uses environmental variables starting with `IDB_`, please see `context.go`, `idb_conn.go` and `cmd/db2influx/db2influx.go` for details.
-- `IDB_` variables are exactly the same as `PG_` to set host, database, user name, password.
-- There is also `z2influx` tool. It is used to fill given series with zeros. Typical usage: `./z2influx 'series1,series2' 2017-01-01 2018-01-01 w` - will fill all weeks from 2017 with zeros for series1 and series2.
-- `annotations` tool adds variuos data annotations that can be used in Grafana charts. It uses GitHub API to fetch tags from project main repository defined in `projects.yaml`, it only includes tags matching annotation regexp also defined in `projects.yaml`.
-- `idb_tags` tool used to add InfluxDB tags on some specified series. Those tags are used to populate Grafana template drop-down values and names. This is used to auto-populate Repository groups drop down, so when somebody adds new repository group - it will automatically appear in the drop-down.
-- `idb_tags` uses [idb_tags.yaml](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/idb_tags.yaml) file to configure InfluxDB tags generation.
-- `idb_backup` is used to backup/restore InfluxDB. Full renenerate of InfluxDB takes about 12 minutes. To avoid downtime when we need to rebuild InfluxDB - we can generate new InfluxDB on `test` database and then if succeeded, restore it on `gha`. Downtime will be about 2 minutes.
-- You can use all defined environments variables, but add `_SRC` suffic for source database and `_DST` suffix for destination database.
-
-# To check results in the InfluxDB:
-- influx (or just influx -database gha -username gha_admin -password your_pwd)
-- auth (gha_admin/influxdb_pwd)
-- use gha
-- precision rfc3339
-- select * from reviewers
-- select count(*) from reviewers
-- show tag keys
-- show field keys
-- show series
-
-# To drop data from InfluxDB:
-- drop measurement reviewers
-- drop series from reviewers
 
 # Grafana dashboards
 Grafana allows saving dashboards to JSON files.

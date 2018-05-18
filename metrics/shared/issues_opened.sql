@@ -1,12 +1,12 @@
 select
-  'issues_opened,All' as name,
+  'iopened,All' as name,
   round(count(distinct id) / {{n}}, 2) as cnt
 from
   gha_issues
 where
   created_at >= '{{from}}'
   and created_at < '{{to}}'
-union select 'issues_opened,' || r.repo_group as name,
+union select 'iopened,' || r.repo_group as name,
   round(count(distinct i.id) / {{n}}, 2) as cnt
 from
   gha_issues i,

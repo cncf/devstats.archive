@@ -54,7 +54,7 @@ select
   sub.sig_milestone,
   sub.cnt
 from (
-  select concat('open_issues_sigs_milestones,', s.sig, '-', m.milestone, '-', s.repo) as sig_milestone,
+  select concat('isigml,', s.sig, '-', m.milestone, '-', s.repo) as sig_milestone,
     count(s.issue_id) as cnt
   from
     issues_milestones m,
@@ -65,27 +65,27 @@ from (
     s.sig,
     m.milestone,
     s.repo
-  union select concat('open_issues_sigs_milestones,', 'All-', m.milestone, '-', m.repo) as sig_milestone,
+  union select concat('isigml,', 'All-', m.milestone, '-', m.repo) as sig_milestone,
     count(m.issue_id) as cnt
   from
     issues_milestones m
   group by
     m.milestone,
     m.repo
-  union select concat('open_issues_sigs_milestones,', s.sig, '-All-', s.repo) as sig_milestone,
+  union select concat('isigml,', s.sig, '-All-', s.repo) as sig_milestone,
     count(s.issue_id) as cnt
   from
     issues_sigs s
   group by
     s.sig,
     s.repo
-  union select concat('open_issues_sigs_milestones,All-All-', i.repo) as sig_milestone,
+  union select concat('isigml,All-All-', i.repo) as sig_milestone,
     count(i.issue_id) as cnt
   from
     issues i
   group by
     i.repo
-  union select concat('open_issues_sigs_milestones,', s.sig, '-', m.milestone, '-All') as sig_milestone,
+  union select concat('isigml,', s.sig, '-', m.milestone, '-All') as sig_milestone,
     count(s.issue_id) as cnt
   from
     issues_milestones m,
@@ -95,19 +95,19 @@ from (
   group by
     s.sig,
     m.milestone
-  union select concat('open_issues_sigs_milestones,', 'All-', m.milestone, '-All') as sig_milestone,
+  union select concat('isigml,', 'All-', m.milestone, '-All') as sig_milestone,
     count(m.issue_id) as cnt
   from
     issues_milestones m
   group by
     m.milestone
-  union select concat('open_issues_sigs_milestones,', s.sig, '-All-All') as sig_milestone,
+  union select concat('isigml,', s.sig, '-All-All') as sig_milestone,
     count(s.issue_id) as cnt
   from
     issues_sigs s
   group by
     s.sig
-  union select 'open_issues_sigs_milestones,All-All-All' as sig_milestone,
+  union select 'isigml,All-All-All' as sig_milestone,
     count(i.issue_id) as cnt
   from
     issues i

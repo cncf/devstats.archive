@@ -7,6 +7,7 @@ metrics:
     aggregate: 1,7
     skip: w7,m7,q7,y7
     multi_value: true
+    merge_series: user_reviews
   - name: Activity repo groups
     series_name_or_func: multi_row_single_column
     sql: activity_repo_groups
@@ -22,17 +23,19 @@ metrics:
     skip: h7,w7,m7,q7,y7,d24,w24,m24,q24,y24
     multi_value: true
   - name: All PRs merged
-    add_period_to_name: true
     series_name_or_func: all_prs_merged
     sql: all_prs_merged
     periods: h,d,w,m,q,y
-    aggregate: 1,2,3,4,7,12
-    skip: w7,w12,m7,q4,q7,q12,y4,y7,y12
+    aggregate: 1,7,24
+    skip: h7,w7,m7,q7,y7,d24,w24,m24,q24,y24
   - name: Time opened to merged (number of hours)
     series_name_or_func: multi_row_multi_column
     sql: opened_to_merged
     periods: d,w,m,q,y
+    aggregate: 1,7
+    skip: d,w7,m7,q7,y7
     desc: time_diff_as_string
+    merge_series: opened_to_merged
   - name: PRs opened -> lgtmed -> approved -> merged (numer of hours)
     series_name_or_func: multi_row_multi_column
     sql: time_metrics
@@ -40,20 +43,23 @@ metrics:
     aggregate: 1,7
     skip: w7,m7,q7,y7
     desc: time_diff_as_string
-  - name:
-      "Time before any comments or activities from someone other \
-       than the author"
+    merge_series: time_metrics
+  - name: PR time to engagement
     series_name_or_func: multi_row_multi_column
     sql: first_non_author_activity
-    periods: w,m,q,y
+    periods: d,w,m,q,y
+    aggregate: 1,7
+    skip: d,w7,m7,q7,y7
     desc: time_diff_as_string
+    merge_series: first_non_author
   - name: Opened PRs age and count
     series_name_or_func: multi_row_multi_column
     sql: prs_age
     periods: d,w,m,q,y
-    aggregate: 1,3,7
-    skip: m7,q3,q7,y3,y7
+    aggregate: 1,7
+    skip: w7,m7,q7,y7
     desc: time_diff_as_string
+    merge_series: prs_age
   - name: Closed Issues age and count
     series_name_or_func: multi_row_multi_column
     sql: issues_age
@@ -61,6 +67,7 @@ metrics:
     aggregate: 1,7
     skip: w7,m7,q7,y7
     desc: time_diff_as_string
+    merge_series: issues_age
   - name: PR comments percentiles
     series_name_or_func: single_row_multi_column
     sql: pr_comments
@@ -73,6 +80,7 @@ metrics:
     periods: d,w,m,q,y
     aggregate: 1,7
     skip: w7,m7,q7,y7
+    merge_series: watchers
   - name: Issues opened broken down by repo group
     series_name_or_func: multi_row_single_column
     sql: issues_opened
@@ -123,26 +131,26 @@ metrics:
     series_name_or_func: multi_row_single_column
     sql: repo_comments
     periods: d,w,m,q,y
-    aggregate: 1,3,7
-    skip: m7,q3,q7,y3,y7
+    aggregate: 1,7
+    skip: w7,m7,q7,y7
   - name: Repository commenters
     series_name_or_func: multi_row_single_column
     sql: repo_commenters
     periods: d,w,m,q,y
-    aggregate: 1,3,7
-    skip: m7,q3,q7,y3,y7
+    aggregate: 1,7
+    skip: w7,m7,q7,y7
   - name: New pull requests opened per repository
     series_name_or_func: multi_row_single_column
     sql: new_prs
     periods: d,w,m,q,y
-    aggregate: 1,3,7
-    skip: m7,q3,q7,y3,y7
+    aggregate: 1,7
+    skip: w7,m7,q7,y7
   - name: Pull requests unique authors per repository
     series_name_or_func: multi_row_single_column
     sql: prs_authors
     periods: d,w,m,q,y
-    aggregate: 1,3,7
-    skip: m7,q3,q7,y3,y7
+    aggregate: 1,7
+    skip: w7,m7,q7,y7
   - name: PRs merged per repo groups
     series_name_or_func: multi_row_single_column
     sql: prs_merged_groups
@@ -165,28 +173,42 @@ metrics:
     aggregate: 1,7
     skip: w7,m7,q7,y7
     multi_value: true
+    merge_series: company_activity
   - name: Number of companies and developers contributing
     series_name_or_func: multi_row_multi_column
     sql: num_stats
     periods: d,w,m,q
-    aggregate: 3,4,6,7,14
-    skip: d3,d4,d6,w3,w6,w7,w14,m7,m14,q3,q6,q7,q14
+    aggregate: 1,7,28
+    skip: d,w7,m7,q7,w28,m28,q28
+    merge_series: num_stats
   - name: New contributors
     series_name_or_func: multi_row_multi_column
     sql: new_contributors
     periods: d,w,m,q,y
+    aggregate: 1,28
+    skip: d,w28,m28,q28,y28
+    merge_series: new_contributors
   - name: Episodic contributors
     series_name_or_func: multi_row_multi_column
     sql: episodic_contributors
     periods: d,w,m,q,y
+    aggregate: 1,28
+    skip: d,w28,m28,q28,y28
+    merge_series: episodic_contributors
   - name: New issues
     series_name_or_func: multi_row_multi_column
     sql: new_issues
     periods: d,w,m,q,y
+    aggregate: 1,28
+    skip: d,w28,m28,q28,y28
+    merge_series: new_issues
   - name: Episodic issues
     series_name_or_func: multi_row_multi_column
     sql: episodic_issues
     periods: d,w,m,q,y
+    aggregate: 1,28
+    skip: d,w28,m28,q28,y28
+    merge_series: episodic_issues
   - name: GitHub activity
     series_name_or_func: events_h
     sql: events

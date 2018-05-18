@@ -1,36 +1,4 @@
 {
-  "__requires": [
-    {
-      "id": "grafana",
-      "name": "Grafana",
-      "type": "grafana",
-      "version": "5.0.0-pre1"
-    },
-    {
-      "id": "graph",
-      "name": "Graph",
-      "type": "panel",
-      "version": ""
-    },
-    {
-      "id": "influxdb",
-      "name": "InfluxDB",
-      "type": "datasource",
-      "version": "1.0.0"
-    },
-    {
-      "id": "singlestat",
-      "name": "Singlestat",
-      "type": "panel",
-      "version": ""
-    },
-    {
-      "id": "table",
-      "name": "Table",
-      "type": "panel",
-      "version": ""
-    }
-  ],
   "annotations": {
     "list": [
       {
@@ -43,13 +11,14 @@
         "type": "dashboard"
       },
       {
-        "datasource": "gha",
+        "datasource": "psql",
         "enable": true,
         "hide": false,
         "iconColor": "rgba(255, 96, 96, 1)",
         "limit": 100,
         "name": "Releases",
         "query": "SELECT title, description from annotations WHERE $timeFilter order by time asc",
+        "rawQuery": "select extract(epoch from time) AS time, title as text, description as tags from sannotations where $__timeFilter(time)",
         "showIn": 0,
         "tagsColumn": "title,description",
         "textColumn": "",
@@ -61,8 +30,8 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": null,
-  "iteration": 1.51688217907e+12,
+  "id": 44,
+  "iteration": 1526458148653,
   "links": [],
   "panels": [
     {
@@ -74,7 +43,7 @@
         "rgba(237, 129, 40, 0.89)",
         "rgba(50, 172, 45, 0.97)"
       ],
-      "datasource": "gha",
+      "datasource": "psql",
       "description": "Current median age of opened PRs.",
       "format": "none",
       "gauge": {
@@ -127,7 +96,9 @@
       "tableColumn": "descr",
       "targets": [
         {
+          "alias": "",
           "dsType": "influxdb",
+          "format": "table",
           "groupBy": [
             {
               "params": [
@@ -146,6 +117,7 @@
           "policy": "default",
           "query": "SELECT \"descr\" FROM \"autogen\".\"prs_age_[[repogroup]]_median_[[period]][[aggregate]]\" WHERE $timeFilter",
           "rawQuery": true,
+          "rawSql": "select\n  descr\nfrom\n  sprs_age\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'prs_age[[repogroup]]m'\norder by\n  time desc\nlimit 1",
           "refId": "A",
           "resultFormat": "time_series",
           "select": [
@@ -166,7 +138,7 @@
         }
       ],
       "thresholds": "",
-      "title": "Current median age of opened PRs in [[repogroup_name]] repository group ([[aggregate]] [[period]])",
+      "title": "Current median age of opened PRs in [[repogroup_name]] repository group ([[period]])",
       "type": "singlestat",
       "valueFontSize": "50%",
       "valueMaps": [
@@ -187,7 +159,7 @@
         "rgba(237, 129, 40, 0.89)",
         "rgba(50, 172, 45, 0.97)"
       ],
-      "datasource": "gha",
+      "datasource": "psql",
       "description": "Current average number of opened PRs.",
       "format": "none",
       "gauge": {
@@ -240,7 +212,9 @@
       "tableColumn": "descr",
       "targets": [
         {
+          "alias": "",
           "dsType": "influxdb",
+          "format": "time_series",
           "groupBy": [
             {
               "params": [
@@ -259,6 +233,7 @@
           "policy": "default",
           "query": "SELECT \"value\" FROM \"autogen\".\"prs_age_[[repogroup]]_number_[[period]][[aggregate]]\" WHERE $timeFilter",
           "rawQuery": true,
+          "rawSql": "select\n  time, value\nfrom\n  sprs_age\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'prs_age[[repogroup]]n'\norder by\n  time desc\nlimit 1",
           "refId": "A",
           "resultFormat": "time_series",
           "select": [
@@ -279,7 +254,7 @@
         }
       ],
       "thresholds": "",
-      "title": "Current average number of opened PRs in [[repogroup_name]] repository group ([[aggregate]] [[period]])",
+      "title": "Current average number of opened PRs in [[repogroup_name]] repository group ([[period]])",
       "type": "singlestat",
       "valueFontSize": "50%",
       "valueMaps": [
@@ -296,7 +271,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "gha",
+      "datasource": "psql",
       "decimals": 2,
       "description": "Median age and number of pull requests created in [[repogroup]] repository group.",
       "fill": 3,
@@ -350,8 +325,9 @@
       "steppedLine": false,
       "targets": [
         {
-          "alias": "Average number of PRs opened",
+          "alias": "",
           "dsType": "influxdb",
+          "format": "time_series",
           "groupBy": [],
           "hide": false,
           "measurement": "reviewers_d",
@@ -359,6 +335,7 @@
           "policy": "autogen",
           "query": "SELECT \"value\" FROM \"autogen\".\"prs_age_[[repogroup]]_number_[[period]][[aggregate]]\" WHERE $timeFilter",
           "rawQuery": true,
+          "rawSql": "select\n  time,\n  value as \"Average number of PRs opened\"\nfrom\n  sprs_age\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'prs_age[[repogroup]]n'\norder by\n  time",
           "refId": "A",
           "resultFormat": "time_series",
           "select": [
@@ -374,8 +351,9 @@
           "tags": []
         },
         {
-          "alias": "Median age of opened PRs",
+          "alias": "",
           "dsType": "influxdb",
+          "format": "time_series",
           "groupBy": [],
           "hide": false,
           "measurement": "reviewers_d",
@@ -383,6 +361,7 @@
           "policy": "autogen",
           "query": "SELECT \"value\" FROM \"autogen\".\"prs_age_[[repogroup]]_median_[[period]][[aggregate]]\" WHERE $timeFilter",
           "rawQuery": true,
+          "rawSql": "select\n  time,\n  value as \"Median age of opened PRs\"\nfrom\n  sprs_age\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'prs_age[[repogroup]]m'\norder by\n  time",
           "refId": "B",
           "resultFormat": "time_series",
           "select": [
@@ -401,7 +380,7 @@
       "thresholds": [],
       "timeFrom": null,
       "timeShift": null,
-      "title": "Number/Age of Pull requests in [[repogroup_name]] repository group ([[aggregate]] [[period]])",
+      "title": "Number/Age of Pull requests in [[repogroup_name]] repository group ([[period]])",
       "tooltip": {
         "shared": true,
         "sort": 0,
@@ -435,11 +414,15 @@
           "min": "0",
           "show": true
         }
-      ]
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
     },
     {
       "columns": [],
-      "datasource": "gha",
+      "datasource": "psql",
       "description": "Median age and number of pull requests created in [[repogroup]] repository group.",
       "fontSize": "90%",
       "gridPos": {
@@ -481,8 +464,9 @@
       ],
       "targets": [
         {
-          "alias": "Median opened PRs age",
+          "alias": "",
           "dsType": "influxdb",
+          "format": "table",
           "groupBy": [
             {
               "params": [
@@ -501,6 +485,7 @@
           "policy": "default",
           "query": "SELECT \"descr\" FROM \"autogen\".\"prs_age_[[repogroup]]_median_[[period]][[aggregate]]\" WHERE $timeFilter",
           "rawQuery": true,
+          "rawSql": "select\n  time as \"Time\",\n  descr as \"Median opened PRs age\"\nfrom\n  sprs_age\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'prs_age[[repogroup]]m'\norder by\n  time",
           "refId": "A",
           "resultFormat": "time_series",
           "select": [
@@ -520,8 +505,9 @@
           "tags": []
         },
         {
-          "alias": "Average number of opened PRs",
+          "alias": "",
           "dsType": "influxdb",
+          "format": "table",
           "groupBy": [
             {
               "params": [
@@ -540,6 +526,7 @@
           "policy": "default",
           "query": "SELECT \"value\" FROM \"autogen\".\"prs_age_[[repogroup]]_number_[[period]][[aggregate]]\" WHERE $timeFilter",
           "rawQuery": true,
+          "rawSql": "select\n  time as \"Time\",\n  value as \"Average number of opened PRs\"\nfrom\n  sprs_age\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'prs_age[[repogroup]]n'\norder by\n  time",
           "refId": "B",
           "resultFormat": "time_series",
           "select": [
@@ -559,8 +546,8 @@
           "tags": []
         }
       ],
-      "title": "Number/Age of Pull requests in [[repogroup_name]] repository group ([[aggregate]] [[period]])",
-      "transform": "timeseries_to_columns",
+      "title": "Number/Age of Pull requests in [[repogroup_name]] repository group ([[period]])",
+      "transform": "table",
       "transparent": false,
       "type": "table"
     }
@@ -576,30 +563,10 @@
     "list": [
       {
         "allValue": null,
-        "current": {},
-        "datasource": "gha",
-        "hide": 2,
-        "includeAll": false,
-        "label": null,
-        "multi": false,
-        "name": "full_name",
-        "options": [],
-        "query": "SHOW TAG VALUES WITH KEY = full_name",
-        "refresh": 1,
-        "regex": "",
-        "sort": 0,
-        "tagValuesQuery": "",
-        "tags": [],
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false
-      },
-      {
-        "allValue": null,
         "current": {
           "tags": [],
-          "text": "Day",
-          "value": "d"
+          "text": "7 Days MA",
+          "value": "d7"
         },
         "hide": 0,
         "includeAll": false,
@@ -608,9 +575,14 @@
         "name": "period",
         "options": [
           {
-            "selected": true,
+            "selected": false,
             "text": "Day",
             "value": "d"
+          },
+          {
+            "selected": true,
+            "text": "7 Days MA",
+            "value": "d7"
           },
           {
             "selected": false,
@@ -633,52 +605,46 @@
             "value": "y"
           }
         ],
-        "query": "d,w,m,q,y",
+        "query": "d,d7,w,m,q,y",
         "type": "custom"
       },
       {
         "allValue": null,
         "current": {
-          "tags": [],
-          "text": "Moving average 7",
-          "value": "7"
+          "text": "All",
+          "value": "All"
         },
-        "hide": 0,
-        "includeAll": false,
-        "label": "Aggregate",
-        "multi": false,
-        "name": "aggregate",
-        "options": [
-          {
-            "selected": false,
-            "text": "Single",
-            "value": ""
-          },
-          {
-            "selected": false,
-            "text": "Moving average 3",
-            "value": "3"
-          },
-          {
-            "selected": true,
-            "text": "Moving average 7",
-            "value": "7"
-          }
-        ],
-        "query": ",2,3,4,7,12",
-        "type": "custom"
-      },
-      {
-        "allValue": null,
-        "current": {},
-        "datasource": "gha",
+        "datasource": "psql",
         "hide": 0,
         "includeAll": false,
         "label": "Repository group",
         "multi": false,
         "name": "repogroup_name",
         "options": [],
-        "query": "SHOW TAG VALUES WITH KEY = all_repo_group_name",
+        "query": "select all_repo_group_name from tall_repo_groups order by 1",
+        "refresh": 1,
+        "regex": "",
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "text": "all",
+          "value": "all"
+        },
+        "datasource": "psql",
+        "hide": 2,
+        "includeAll": false,
+        "label": "",
+        "multi": false,
+        "name": "repogroup",
+        "options": [],
+        "query": "select all_repo_group_value from tall_repo_groups where all_repo_group_name = '[[repogroup_name]]'",
         "refresh": 1,
         "regex": "",
         "sort": 0,
@@ -691,14 +657,14 @@
       {
         "allValue": null,
         "current": {},
-        "datasource": "gha",
+        "datasource": "psql",
         "hide": 2,
         "includeAll": false,
-        "label": "",
+        "label": null,
         "multi": false,
-        "name": "repogroup",
+        "name": "full_name",
         "options": [],
-        "query": "SHOW TAG VALUES WITH KEY = all_repo_group_value where all_repo_group_name =~ /^[[repogroup_name]]$/",
+        "query": "select value_s from gha_vars where name = 'full_name'",
         "refresh": 1,
         "regex": "",
         "sort": 0,
@@ -712,7 +678,7 @@
   },
   "time": {
     "from": "now-1y",
-    "to": "now"
+    "to": "now-1w"
   },
   "timepicker": {
     "refresh_intervals": [
@@ -742,5 +708,5 @@
   "timezone": "",
   "title": "PRs age",
   "uid": "19",
-  "version": 1
+  "version": 3
 }

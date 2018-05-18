@@ -1,5 +1,5 @@
 select
-  'num_stats;All;companies,developers,unknowns' as name,
+  'nstats;All;comps,devs,unks' as name,
   count(distinct affs.company_name) as n_companies,
   count(distinct ev.actor_id) as n_authors,
   count(distinct ev.actor_id) filter (where affs.company_name is null) as n_unknown_authors
@@ -18,13 +18,13 @@ where
     'PullRequestReviewCommentEvent', 'PushEvent', 'PullRequestEvent',
     'IssuesEvent', 'IssueCommentEvent', 'CommitCommentEvent'
   )
-  and (ev.dup_actor_login {{exclude_bots}})
+  and (lower(ev.dup_actor_login) {{exclude_bots}})
 union select sub.name,
   count(distinct sub.company_name) as n_companies,
   count(distinct sub.actor_id) as n_authors,
   count(distinct sub.actor_id) filter (where sub.company_name is null) as n_unknown_authors
 from (
-    select 'num_stats;' || coalesce(ecf.repo_group, r.repo_group) || ';companies,developers,unknowns' as name,
+    select 'nstats;' || coalesce(ecf.repo_group, r.repo_group) || ';comps,devs,unks' as name,
     affs.company_name,
     ev.actor_id
   from
@@ -49,7 +49,7 @@ from (
       'IssuesEvent', 'IssueCommentEvent', 'CommitCommentEvent'
       'PushEvent'
     )
-    and (ev.dup_actor_login {{exclude_bots}})
+    and (lower(ev.dup_actor_login) {{exclude_bots}})
   ) sub
 where
   sub.name is not null
