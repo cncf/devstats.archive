@@ -969,9 +969,9 @@ projects:
         to: 2017-11-01T00:00:00Z
         n: 1
         expected:
-          - ["prs_approve_state;All;approved,awaiting", '3.00', '1.00']
-          - ["prs_approve_state;G1;approved,awaiting", '2.00', '1.00']
-          - ["prs_approve_state;G2;approved,awaiting", '1.00', '0.00']
+          - ["pr_appr;All;appr,wait", '3.00', '1.00']
+          - ["pr_appr;G1;appr,wait", '2.00', '1.00']
+          - ["pr_appr;G2;appr,wait", '1.00', '0.00']
         data: KubernetesPRsStateMetric
       - metric: prs_blocked
         additional_setup_funcs:
@@ -982,7 +982,7 @@ projects:
         to: 2017-11-01T00:00:00Z
         n: 1
         expected:
-          - - "prs_blocked;All;all_prs,needs_ok_to_test,\
+          - - "prblck;All;all,needs_ok_to_test,\
                release_note_label_needed,no_lgtm,no_approve,do_not_merge"
             - '4.00'
             - '1.00'
@@ -990,7 +990,7 @@ projects:
             - '4.00'
             - '3.00'
             - '1.00'
-          - - "prs_blocked;G1;all_prs,needs_ok_to_test,\
+          - - "prblck;G1;all,needs_ok_to_test,\
                release_note_label_needed,no_lgtm,no_approve,do_not_merge"
             - '2.00'
             - '1.00'
@@ -998,7 +998,7 @@ projects:
             - '2.00'
             - '1.00'
             - '0.00'
-          - - "prs_blocked;G2;all_prs,needs_ok_to_test,\
+          - - "prblck;G2;all,needs_ok_to_test,\
                release_note_label_needed,no_lgtm,no_approve,do_not_merge"
             - '2.00'
             - '0.00'
@@ -1016,40 +1016,8 @@ projects:
         to: 2017-09-01T00:00:00Z
         n: 1
         expected:
-          - - "pr_comments_median,pr_comments_percentile_85,\
-               pr_comments_percentile_95"
-            - 2
-            - 5
-            - 5
+          - ["pr_comms_med,pr_comms_p85,pr_comms_p95", 2, 5, 5]
         data: KubernetesPRCommentsMetric
-      - metric: other_approver
-        additional_setup_funcs:
-          - SetDates
-        additional_setup_args:
-          - gha_issues;updated_at;now()
-        from: 2017-10-01T00:00:00Z
-        to: 2017-11-01T00:00:00Z
-        n: 1
-        expected:
-          - - "other_approvers;All;all_suggested_approvers,no_approver,\
-               other_approver,suggested_approver"
-            - '4.00'
-            - '1.00'
-            - '2.00'
-            - '1.00'
-          - - "other_approvers;G1;all_suggested_approvers,no_approver,\
-               other_approver,suggested_approver"
-            - '2.00'
-            - '1.00'
-            - '0.00'
-            - '1.00'
-          - - "other_approvers;G2;all_suggested_approvers,no_approver,\
-               other_approver,suggested_approver"
-            - '1.00'
-            - '0.00'
-            - '1.00'
-            - '0.00'
-        data: KubernetesPRApproversMetric
       - metric: watchers
         additional_setup_funcs:
           - UpdateRepoAliasFromName
@@ -1062,26 +1030,14 @@ projects:
           - ["contrib;Org1/Repo2;watchers,forks,open_issues", 13, 12, 11]
           - ["contrib;Org1/Repo1;watchers,forks,open_issues", 11, 12, 13]
         data: KubernetesCommunityStatsMetric
-      - metric: approvers
-        from: 2017-07-01T00:00:00Z
-        to: 2017-08-01T00:00:00Z
-        n: 1
-        expected:
-          - - approvers,Group
-            - 2
-          - - approvers,Mono-group
-            - 1
-          - - approvers,Overruled
-            - 1
-        data: KubernetesApproversMetric
       - metric: first_non_author_activity
         from: 2017-09-01T00:00:00Z
         to: 2017-10-01T00:00:00Z
         n: 1
         expected:
-          - ["non_author;Group2;percentile_15,median,percentile_85", 72, 72, 72]
-          - ["non_author;All;percentile_15,median,percentile_85", 24, 48, 96]
-          - ["non_author;Group1;percentile_15,median,percentile_85", 24, 24, 48]
+          - ["non_auth;Group2;p15,med,p85", 72, 72, 72]
+          - ["non_auth;All;p15,med,p85", 24, 48, 96]
+          - ["non_auth;Group1;p15,med,p85", 24, 24, 48]
         data: KubernetesFirstNonAuthorActivityMetric
       - metric: project_stats
         additional_setup_funcs:
@@ -2195,104 +2151,6 @@ data:
         - 3
         - A3
         - 2017-09-08T00:00:00Z
-  KubernetesApproversMetric:
-    # id, name, org_id, org_login, repo_group
-    repos:
-      - [1, Repo 1, 1, Org 1, Group]
-      - [2, Repo 2, 1, Org 1, Group]
-      - [3, Repo 3, 2, Org 2, Mono-group]
-      - [4, Repo 4, 2, Org 2, null]
-      - [5, Repo 5, null, null, null]
-    # sha, eid, path, size, dt, repo_group,
-    # dup_repo_id, dup_repo_name, dup_type, dup_created_at
-    events_commits_files:
-      - [deadbeef666, 3, Repo 1/file.txt, 1024, '2017-07-12T00:00:00Z', Overruled, 1, Repo 1, T, '2017-07-12T00:00:00Z']
-    # eid, etype, aid, rid, public, created_at, aname, rname, orgid
-    events:
-      - - 3
-        - T
-        - 3
-        - 1
-        - true
-        - 2017-07-12T00:00:00Z
-        - Actor 3
-        - Repo 1
-        - 1
-      - - 4
-        - T
-        - 4
-        - 3
-        - true
-        - 2017-07-13T00:00:00Z
-        - Actor 4
-        - Repo 3
-        - 2
-      - - 7
-        - T
-        - 3
-        - 2
-        - true
-        - 2017-07-16T00:00:00Z
-        - Actor 5
-        - Repo 2
-        - 1
-      - - 8
-        - T
-        - 6
-        - 4
-        - true
-        - 2017-07-17T00:00:00Z
-        - Actor 6
-        - Repo 4
-        - 2
-      - - 11
-        - T
-        - 9
-        - 5
-        - true
-        - 2017-07-20T00:00:00Z
-        - Actor 9
-        - Repo 5
-        - null
-      - - 13
-        - T
-        - 10
-        - 1
-        - true
-        - 2017-07-21T00:00:00Z
-        - Actor Y
-        - Repo 1
-        - 1
-    # append to all rows in "texts"
-    texts_append:
-      - - 0
-        - ""
-        - 0
-        - ""
-        - D
-    # eid, body, created_at
-    texts:
-      - - 3
-        - /approve
-        - 2017-07-12T00:00:00Z
-      - - 4
-        - ' /APPROVE '
-        - 2017-07-13T00:00:00Z
-      - - 7
-        - ' /APprove '
-        - 2017-07-16T00:00:00Z
-      - - 8
-        - "\t/appROVE\n"
-        - 2017-07-17T00:00:00Z
-      - - 11
-        - /aApProVE with additional text
-        - 2017-07-20T00:00:00Z
-      - - 13
-        - |-
-          Line 1
-          /Approve
-          Line 2
-        - 2017-07-21T00:00:00Z
   KubernetesCommunityStatsMetric:
     # id, name, org_id, org_login, repo_group
     repos:
@@ -2508,53 +2366,6 @@ data:
         - Repo4
         - T
         - A1
-  KubernetesPRApproversMetric:
-    # id, name, org_id, org_login, repo_group
-    repos:
-      - [1, Repo 1, 1, Org 1, G1]
-      - [2, Repo 2, 1, Org 1, G2]
-      - [3, Repo 3, null, null, G1]
-      - [4, Repo 4, null, null, null]
-    # append milestone_id=null to all rows in "issues"
-    issues_append: [[null, '2017-01-01T12:00:00Z']]
-    # id, event_id, assignee_id, body, closed_at, created_at, number, state,
-    # title, updated_at, user_id, dup_actor_id, dup_actor_login, dup_repo_id,
-    # dup_repo_name, dup_type, is_pull_request
-    issues:
-      - [1, 1, 0, '', null, '2017-10-01T00:00:00Z', 1, open, '', '1980-01-01T12:00:00Z', 0, 1, A1, 1, Repo 1, '', true]
-      - [2, 2, 0, '', null, '2017-10-02T00:00:00Z', 1, open, '', '1980-01-01T12:00:00Z', 0, 2, A2, 2, Repo 2, '', true]
-      - [3, 3, 0, '', null, '2017-10-03T00:00:00Z', 1, open, '', '1980-01-01T12:00:00Z', 0, 3, A3, 3, Repo 3, '', true]
-      - [4, 4, 0, '', null, '2017-10-04T00:00:00Z', 1, open, '', '1980-01-01T12:00:00Z', 0, 4, A4, 4, Repo 4, '', true]
-      - [1, 5, 0, '', null, '2017-10-01T00:00:00Z', 1, open, '', '1980-01-01T12:00:00Z', 0, 1, A1, 1, Repo 1, '', true]
-      - [2, 6, 0, '', null, '2017-10-02T00:00:00Z', 1, open, '', '1980-01-01T12:00:00Z', 0, 2, A2, 2, Repo 2, '', true]
-      - [3, 7, 0, '', null, '2017-10-03T00:00:00Z', 1, open, '', '1980-01-01T12:00:00Z', 0, 3, A3, 3, Repo 3, '', true]
-      - [4, 8, 0, '', null, '2017-10-04T00:00:00Z', 1, open, '', '1980-01-01T12:00:00Z', 0, 4, A4, 4, Repo 4, '', true]
-    # append comment's user logins
-    comments_append:
-      - - not_important
-    # id, event_id, body, created_at, user_id, repo_id, repo_name, actor_id,
-    # actor_login, type
-    comments:
-      - [1, 1, '[APPROVALNOTIFIER] META={"approvers":["approver1"]}', '2017-10-02T00:00:00Z', 0, 1, Repo 1, 100, k8s-merge-robot, robot]
-      - [2, 2, '[APPROVALNOTIFIER] META={"approvers":["approver2"]}', '2017-10-03T00:00:00Z', 0, 2, Repo 2, 101, k8s-ci-robot, robot]
-      - [3, 3, '[APPROVALNOTIFIER] META={"approvers":["approver3"]}', '2017-10-04T00:00:00Z', 0, 3, Repo 3, 100, k8s-merge-robot, robot]
-      - [4, 4, '[APPROVALNOTIFIER] META={"approvers":["approver4"]}', '2017-10-05T00:00:00Z', 0, 4, Repo 4, 101, k8s-ci-robot, robot]
-      - [5, 5, '/approve', '2017-10-06T00:00:00Z', 0, 1, Repo 1, 5, approver1, comment]
-      - [6, 6, '/approve', '2017-10-07T00:00:00Z', 0, 2, Repo 2, 1, A1, comment]
-      - [7, 7, '/lgtm', '2017-10-08T00:00:00Z', 0, 3, Repo 3, 7, approver3, comment]
-      - [8, 8, '/approve', '2017-10-09T00:00:00Z', 0, 4, Repo 4, 6, approver2, comment]
-    # event_id, issue_id, pull_request_id, comment_id, number, forkee_id,
-    # release_id, member_id, actor_id, actor_login, repo_id, repo_name,
-    # event_type, event_created_at
-    payloads:
-      - [1, 1, 0, 1, 1, 0, 0, 0, 100, k8s-merge-robot, 1, Repo 1, E, '2017-10-02T00:00:00Z']
-      - [2, 2, 0, 2, 2, 0, 0, 0, 101, k8s-ci-robot, 2, Repo 2, E, '2017-10-03T00:00:00Z']
-      - [3, 3, 0, 3, 3, 0, 0, 0, 100, k8s-merge-robot, 3, Repo 3, E, '2017-10-04T00:00:00Z']
-      - [4, 4, 0, 4, 4, 0, 0, 0, 101, k8s-ci-robot, 4, Repo 4, E, '2017-10-05T00:00:00Z']
-      - [5, 1, 0, 5, 1, 0, 0, 0, 5, approver1, 1, Repo 1, E, '2017-10-06T00:00:00Z']
-      - [6, 1, 0, 6, 1, 0, 0, 0, 1, A1, 2, Repo 2, E, '2017-10-07T00:00:00Z']
-      - [7, 3, 0, 7, 3, 0, 0, 0, 7, approver3, 3, Repo 3, E, '2017-10-08T00:00:00Z']
-      - [8, 4, 0, 8, 4, 0, 0, 0, 6, approver2, 4, Repo 4, E, '2017-10-09T00:00:00Z']
   KubernetesPRCommentsMetric:
     # append to all rows in "prs"
     prs_append:
