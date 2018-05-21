@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"os"
 	"sort"
+	"strings"
 	"time"
 
 	yaml "gopkg.in/yaml.v2"
@@ -89,9 +90,30 @@ func syncAllProjects() bool {
 		lib.Printf("Updated git repos, took: %v\n", dtEnd.Sub(dtStart))
 	}
 
+	// Support ONLY="proj1 proj2 ... projN"
+	only := make(map[string]struct{})
+	onlyS := os.Getenv("ONLY")
+	bOnly := false
+	if onlyS != "" {
+		onlyA := strings.Split(onlyS, " ")
+		for _, item := range onlyA {
+			if item == "" {
+				continue
+			}
+			only[item] = struct{}{}
+		}
+		bOnly = true
+	}
+
 	// Sync all projects
 	for _, order := range orders {
 		name := projectsMap[order]
+		if bOnly {
+			_, ok := only[name]
+			if !ok {
+				continue
+			}
+		}
 		proj := projects.Projects[name]
 		projEnv := map[string]string{
 			"GHA2DB_PROJECT": name,
