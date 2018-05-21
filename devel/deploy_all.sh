@@ -146,7 +146,7 @@ do
     PROJ=cloudevents    PROJDB=cloudevents    PROJREPO="cloudevents/spec"           ORGNAME=CloudEvents  PORT=3020 ICON=cncf        GRAFSUFF=cloudevents    GA="UA-108085315-25" ./devel/deploy_proj.sh || exit 22
   elif [ "$proj" = "telepresence" ]
   then
-    PROJ=telepresence   PROJDB=telepresence   PROJREPO="datawire/telepresence"      ORGNAME=telepresence PORT=3021 ICON=cncf        GRAFSUFF=telepresence   GA="UA-108085315-26" ./devel/deploy_proj.sh || exit 23
+    PROJ=telepresence   PROJDB=telepresence   PROJREPO="datawire/telepresence"      ORGNAME=Telepresence PORT=3021 ICON=cncf        GRAFSUFF=telepresence   GA="UA-108085315-26" ./devel/deploy_proj.sh || exit 23
   elif [ "$proj" = "opencontainers" ]
   then
     PROJ=opencontainers PROJDB=opencontainers PROJREPO="opencontainers/runc"        ORGNAME=OCI          PORT=3100 ICON="-"         GRAFSUFF=opencontainers GA="UA-108085315-19" ./devel/deploy_proj.sh || exit 24
