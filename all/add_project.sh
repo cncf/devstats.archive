@@ -37,7 +37,7 @@ if [ ! -z "$AGET" ]
 then
   echo "attempt to fetch postgres database allprj from backup"
   wget "https://cncftest.io/allprj.dump" || exit 5
-  sudo -u postgres pg_restore -d allprj allprj.dump || exit 6
+  ./devel/restore_db.sh allprj || exit 6
   rm -f allprj.dump || exit 7
   echo 'dropping and recreating postgres variables'
   sudo -u postgres psql allprj -c "delete from gha_vars" || exit 8
