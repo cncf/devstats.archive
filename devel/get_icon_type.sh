@@ -26,8 +26,10 @@ icontypes=(
   ["opa"]="color"
   ["spiffe"]="color"
   ["spire"]="color"
-  ["all"]="color"
   ["cncf"]="color"
+  ["cloudevents"]="color"
+  ["telepresence"]="color"
+  ["all"]="color"
 )
 icontype=${icontypes[$1]}
 if [ -z "$icontype" ]
