@@ -1,0 +1,34 @@
+---
+vars:
+  - name: os_hostname
+    type: s
+    command: [hostname]
+  - name: full_name
+    type: s
+    value: Telepresence
+  - name: projects_partial_html
+    type: s
+    command:
+      - cat
+      - '{{datadir}}partials/projects.html'
+    replaces:
+      - [hostname, os_hostname]
+      #- [hostname, ':devstats.cncf.io']
+      - [':testsrv=cncftest.io ', ':']
+      - [': cncftest.io=testsrv', ':']
+      - [':testsrv=', ':<!-- ']
+      - [':=testsrv', ': -->']
+      - [':prodsrv=devstats.cncf.io ', ':']
+      - [': devstats.cncf.io=prodsrv', ':']
+      - [':prodsrv=', ':<!-- ']
+      - [':=prodsrv', ': -->']
+  - name: dashboards_docs_html
+    type: s
+    command:
+      - cat
+      - '{{datadir}}docs/dashboards/dashboards.md'
+    replaces:
+      - [hostname, os_hostname]
+      - [full_name, full_name]
+      - [proj_name, $GHA2DB_PROJECT]
+      - [url_prefix, proj_name]
