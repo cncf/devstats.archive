@@ -88,10 +88,10 @@ then
     else
       GHA2DB_PROJECT=$PROJ PG_DB=$PROJDB ./shared/reinit.sh || exit 19
     fi
-    if [ ! -z "$GOT" ]
-    then
-      GHA2DB_PROJECT="$PROJ" PG_DB="$PROJDB" ./gha2db_sync || exit 20
-    fi
+  fi
+  if [ ! -z "$GOT" ]
+  then
+    GHA2DB_PROJECT="$PROJ" PG_DB="$PROJDB" ./gha2db_sync || exit 20
   fi
 else
   echo "TS database $PROJDB generation skipped"
