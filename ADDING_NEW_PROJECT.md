@@ -33,7 +33,7 @@ This file describes how to add new project on the test server.
 - Something like this: "MODE=ss0 FROM='"oldproject"' TO='"newproject"' FILES=`find ./grafana/dashboards/newproject -type f -iname '*.json'` ./devel/mass_replace.sh".
 - Update `grafana/dashboards/proj/dashboards.json` for all already existing projects, add new project using `devel/mass_replace.sh` or `devel/replace.sh`.
 - For example: `MODE=ss0 FROM=`cat FROM` TO=`cat TO` FILES=`find ./grafana/dashboards/ -type f -iname 'dashboards.json'` ./devel/mass_replace.sh` with `FROM` containing old links and `TO` containing new links.
-- You can mass update Grafana dashboards using `sqlitedb` tool: `./devel/grafana_stop.sh proj`, `./sqlitedb /var/lib/grafana.proj/grafana.db grafana/dashboards/proj/*`, `./devel/grafana_start.sh proj`.
+- You can mass update Grafana dashboards using `sqlitedb` tool: `ONLY=newproj ./devel/put_all_charts.sh`, then `devel/put_all_charts_cleanup.sh`.
 - Update `partials/projects.html`.
 - Update Apache proxy and SSL files `apache/www/index_* apache/*/sites-enabled/* apache/*/sites.txt` files.
 - Run deploy all script: `CUSTGRAFPATH=1 PG_PASS=... ./devel/deploy_all.sh`. If succeeded `make install`.
