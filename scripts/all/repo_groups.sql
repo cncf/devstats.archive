@@ -1,4 +1,6 @@
 -- Clear current repo groups (taken from merge of all other projects)
+-- This script is executed every hour
+
 update
   gha_repos
 set
@@ -221,6 +223,26 @@ set
   alias = 'SPIRE'
 where
   name = 'spiffe/spire'
+;
+
+-- CloudEvents
+update
+  gha_repos
+set
+  repo_group = 'CloudEvents',
+  alias = 'CloudEvents'
+where
+  org_login = 'cloudevents'
+;
+
+-- Telepresence
+update
+  gha_repos
+set
+  repo_group = 'Telepresence',
+  alias = 'telepresence'
+where
+  org_login in ('datawire', 'telepresenceio')
 ;
 
 -- CNCF
