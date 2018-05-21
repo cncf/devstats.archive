@@ -29,7 +29,7 @@ fi
 echo "$0: $PROJ deploy started"
 if [ -z "$SKIPDBS" ]
 then
-  PDB=1 ./devel/create_databases.sh || exit 3
+  PDB=1 TSDB=1 ./devel/create_databases.sh || exit 3
 fi
 if ( [ -z "$SKIPADDALL"] && [ ! "$PROJ" = "all" ] && [ ! "$PROJ" = "opencontainers" ] )
 then

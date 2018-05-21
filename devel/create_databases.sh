@@ -70,16 +70,28 @@ else
 fi
 if [ ! -z "$TSDB" ]
 then
-  echo "generating TSDB database $PROJDB"
-  if [ -f "./$proj/reinit.sh" ]
+  exists=`sudo -u postgres psql -tAc "select 1 from pg_database WHERE datname = '$PROJDB'"` || exit 3
+  if [ ! "$exists" = "1" ]
   then
-    ./$PROJ/reinit.sh || exit 18
-  else
-    GHA2DB_PROJECT=$PROJ PG_DB=$PROJDB ./shared/reinit.sh || exit 19
+    echo "$0: '$PROJDB' must exist to initialize TSDB"
+    exit 21
   fi
-  if [ ! -z "$GOT" ]
+  exists=`sudo -u postgres psql "$PROJDB" -tAc "select to_regclass('sevents_h')"` || exit 22
+  if [ "$exists" = "sevents_h" ]
   then
-    GHA2DB_PROJECT="$PROJ" PG_DB="$PROJDB" ./gha2db_sync || exit 20
+    echo "Time series data already exists in $PROJDB"
+  else
+    echo "generating TSDB database $PROJDB"
+    if [ -f "./$proj/reinit.sh" ]
+    then
+      ./$PROJ/reinit.sh || exit 18
+    else
+      GHA2DB_PROJECT=$PROJ PG_DB=$PROJDB ./shared/reinit.sh || exit 19
+    fi
+    if [ ! -z "$GOT" ]
+    then
+      GHA2DB_PROJECT="$PROJ" PG_DB="$PROJDB" ./gha2db_sync || exit 20
+    fi
   fi
 else
   echo "TS database $PROJDB generation skipped"
