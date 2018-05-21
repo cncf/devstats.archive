@@ -17,4 +17,5 @@ fi
 sudo -u postgres psql "$PG_DB" -c "delete from gha_vars" || exit 3
 sudo -u postgres psql "$PG_DB" -c "delete from gha_computed" || exit 4
 GHA2DB_LOCAL=1 ./vars || exit 5
+GHA2DB_LOCAL=1 ./tags || exit 5
 GHA2DB_CMDDEBUG=1 GHA2DB_RESETTSDB=1 GHA2DB_LOCAL=1 ./gha2db_sync || exit 6
