@@ -24,11 +24,10 @@ do
   then
     icon="cncf"
   fi
-  # TODO: missing cloudevents and telepresence
-  if ( [ "$icon" = "cloudevents" ] || [ "$icon" = "telepresence" ] )
-  then
-    icon="cncf"
-  fi
+  # if [ "$icon" = "something" ]
+  # then
+  #   icon="cncf"
+  # fi
   icontype=`./devel/get_icon_type.sh "$proj"` || exit 1
   convert "$HOME/dev/cncf/artwork/$icon/icon/$icontype/$icon-icon-$icontype.png" -resize 80x80 "/var/www/html/img/$proj-icon-color.png" || exit 2
   cp "$HOME/dev/cncf/artwork/$icon/icon/$icontype/$icon-icon-$icontype.svg" "/var/www/html/img/$proj-icon-color.svg" || exit 3
