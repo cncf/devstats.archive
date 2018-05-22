@@ -9,7 +9,7 @@ This file describes how to add new project on the test server.
 - Commit to `production` branch with `[deploy]` in the commit message. Automatic deploy will happen. After successful deploy start Grafana `./grafana/newproj/grafana_start.sh &`.
 - Or manually run `CUSTGRAFPATH=1 PG_PASS=... GET=1 AGET=1 GGET=1 ./devel/deploy_all.sh` script with correct env variables.
 - Go to `https://newproject.devstats.cncf.io` and change Grafana and PostgreSQL passwords (default deploy copies database from the test server, so it has test server credentials initially).
-- Reimport Home dashboard (which now contains link to a new project) on all existing projects. Follow SQLITE.md instructions to import multiple JSONs.
+- `./devel/put_all_charts.sh` then `./devel/put_all_charts_cleanup.sh`.
 
 ## To add a new project on the test server follow instructions:
 
