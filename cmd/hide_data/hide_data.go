@@ -12,7 +12,7 @@ import (
 )
 
 func hideData(args []string) {
-	configFile := "hide.csv"
+	configFile := "hide/hide.csv"
 	shaMap := make(map[string]string)
 	shaN := 0
 	f, err := os.Open(configFile)
@@ -27,46 +27,43 @@ func hideData(args []string) {
 				lib.FatalOnError(err)
 			}
 			sha := row[0]
-			if sha == "sha" {
+			if sha == "sha1" {
 				continue
 			}
 			shaN++
 			shaMap[sha] = fmt.Sprintf("anon-%d", shaN)
 		}
 	}
+	added := false
 	for _, argo := range args {
 		arg := strings.TrimSpace(argo)
 		hash := sha1.New()
 		hash.Write([]byte(arg))
 		sha := hex.EncodeToString(hash.Sum(nil))
-		fmt.Printf("%s -> %s\n", arg, sha)
+		_, ok := shaMap[sha]
+		if ok {
+			lib.Printf("Skipping '%s', SHA1 '%s' - already added\n", arg, sha)
+			continue
+		}
+		shaN++
+		shaMap[sha] = fmt.Sprintf("anon-%d", shaN)
+		added = true
 	}
-	/*
-	  # Process new forbidden list
-	  sha256 = Digest::SHA256.new
-	  added = false
-	  args.each do |argo|
-	    arg = argo.strip
-	    sha = sha256.hexdigest arg
-	    if shas.key? sha
-	      puts "This is already forbidden value: '#{arg}' --> SHA: '#{sha}', skipping"
-	      next
-	    end
-	    puts "Adding value '#{arg}' --> SHA: '#{sha}' to forbidden list"
-	    shas[sha] = true
-	    added = true
-	  end
-	  return unless added
-
-	  # Save new forbidden file (we added something)
-	  hdr = %w(sha)
-	  CSV.open(config_file, 'w', headers: hdr) do |csv|
-	    csv << hdr
-	    shas.keys.sort.each do |sha|
-	      csv << [sha]
-	    end
-	  end
-	*/
+	if !added {
+		return
+	}
+	var writer *csv.Writer
+	oFile, err := os.Create(configFile)
+	lib.FatalOnError(err)
+	defer func() { _ = oFile.Close() }()
+	writer = csv.NewWriter(oFile)
+	defer writer.Flush()
+	err = writer.Write([]string{"sha1"})
+	lib.FatalOnError(err)
+	for sha := range shaMap {
+		err = writer.Write([]string{sha})
+		lib.FatalOnError(err)
+	}
 }
 
 func main() {
@@ -77,5 +74,5 @@ func main() {
 		lib.Printf("%s: Argument(s) required\n", os.Args[0])
 		return
 	}
-	hideData(os.Args)
+	hideData(os.Args[1:])
 }
