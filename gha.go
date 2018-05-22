@@ -528,11 +528,11 @@ func ActorIDOrNil(actPtr *Actor) interface{} {
 }
 
 // ActorLoginOrNil - return Actor Login from pointer or nil
-func ActorLoginOrNil(actPtr *Actor) interface{} {
+func ActorLoginOrNil(actPtr *Actor, maybeHide func(string) string) interface{} {
 	if actPtr == nil {
 		return nil
 	}
-	return actPtr.Login
+	return maybeHide(actPtr.Login)
 }
 
 // ReleaseIDOrNil - return Release ID from pointer or nil
