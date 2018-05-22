@@ -48,7 +48,8 @@ func emailDecode(line string) string {
 
 // Search for given actor using his/her login
 // Returns first author found with maximum ID or sets ok=false when not found
-func findActor(db *sql.DB, ctx *lib.Ctx, login string) (actor lib.Actor, ok bool) {
+func findActor(db *sql.DB, ctx *lib.Ctx, login string, maybeHide func(string) string) (actor lib.Actor, ok bool) {
+	login = maybeHide(login)
 	rows := lib.QuerySQLWithErr(
 		db,
 		ctx,
@@ -71,7 +72,8 @@ func findActor(db *sql.DB, ctx *lib.Ctx, login string) (actor lib.Actor, ok bool
 
 // Search for given actor ID(s) using His/Her login
 // Return list of actor IDs with that login
-func findActorIDs(db *sql.DB, ctx *lib.Ctx, login string) (actIDs []int) {
+func findActorIDs(db *sql.DB, ctx *lib.Ctx, login string, maybeHide func(string) string) (actIDs []int) {
+	login = maybeHide(login)
 	rows := lib.QuerySQLWithErr(
 		db,
 		ctx,
@@ -97,11 +99,13 @@ func firstKey(strMap stringSet) string {
 }
 
 // Adds non-existing actor
-func addActor(con *sql.DB, ctx *lib.Ctx, login, name string) int {
+func addActor(con *sql.DB, ctx *lib.Ctx, login, name string, maybeHide func(string) string) int {
+	hlogin := maybeHide(login)
+	name = maybeHide(name)
 	aid := lib.HashStrings([]string{login})
 	lib.ExecSQLWithErr(con, ctx,
 		"insert into gha_actors(id, login, name) "+lib.NValues(3),
-		lib.AnyArray{aid, login, name}...,
+		lib.AnyArray{aid, hlogin, name}...,
 	)
 	return aid
 }
@@ -115,6 +119,9 @@ func importAffs(jsonFN string) {
 	// Connect to Postgres DB
 	con := lib.PgConn(&ctx)
 	defer func() { lib.FatalOnError(con.Close()) }()
+
+	// To handle GDPR
+	maybeHide := lib.MaybeHideFunc(lib.GetHidden(lib.HideCfgFile))
 
 	// Parse github_users.json
 	var users gitHubUsers
@@ -186,10 +193,10 @@ func importAffs(jsonFN string) {
 		}
 		name := firstKey(names)
 		// Try to find actor by login
-		actor, ok := findActor(con, &ctx, login)
+		actor, ok := findActor(con, &ctx, login, maybeHide)
 		if !ok {
 			// If no such actor, add with artificial ID (just like data from pre-2015)
-			addActor(con, &ctx, login, name)
+			addActor(con, &ctx, login, name, maybeHide)
 			added++
 		} else if name != actor.Name {
 			// If actor found, but with different name (actually with name == "" after standard GHA import), update name
@@ -197,7 +204,7 @@ func importAffs(jsonFN string) {
 			// for all records with this login
 			lib.ExecSQLWithErr(con, &ctx,
 				"update gha_actors set name="+lib.NValue(1)+" where login="+lib.NValue(2),
-				lib.AnyArray{name, login}...,
+				lib.AnyArray{maybeHide(name), maybeHide(login)}...,
 			)
 			updated++
 		}
@@ -208,11 +215,11 @@ func importAffs(jsonFN string) {
 	cacheActIDs := make(mapIntArray)
 	added, allEmails := 0, 0
 	for login, emails := range loginEmails {
-		actIDs := findActorIDs(con, &ctx, login)
+		actIDs := findActorIDs(con, &ctx, login, maybeHide)
 		if len(actIDs) < 1 {
 			// Can happen if user have github login but name = "" or null
 			// In that case previous loop by loginName didn't add such user
-			actIDs = append(actIDs, addActor(con, &ctx, login, ""))
+			actIDs = append(actIDs, addActor(con, &ctx, login, "", maybeHide))
 			added++
 		}
 		// Store given login's actor IDs in the case
@@ -226,7 +233,7 @@ func importAffs(jsonFN string) {
 			for _, aid := range actIDs {
 				lib.ExecSQLWithErr(con, &ctx,
 					lib.InsertIgnore("into gha_actors_emails(actor_id, email) "+lib.NValues(2)),
-					lib.AnyArray{aid, email}...,
+					lib.AnyArray{aid, maybeHide(email)}...,
 				)
 				allEmails++
 			}
@@ -303,7 +310,7 @@ func importAffs(jsonFN string) {
 	for company := range companies {
 		lib.ExecSQLWithErr(con, &ctx,
 			lib.InsertIgnore("into gha_companies(name) "+lib.NValues(1)),
-			lib.AnyArray{company}...,
+			lib.AnyArray{maybeHide(company)}...,
 		)
 	}
 	lib.Printf("Processed %d companies\n", len(companies))
@@ -315,11 +322,11 @@ func importAffs(jsonFN string) {
 		// Check if we have that actor IDs cached
 		actIDs, ok := cacheActIDs[login]
 		if !ok {
-			actIDs = findActorIDs(con, &ctx, login)
+			actIDs = findActorIDs(con, &ctx, login, maybeHide)
 			if len(actIDs) < 1 {
 				// Can happen if user have github login but email = "" or null
 				// In that case previous loop by loginEmail didn't add such user
-				actIDs = append(actIDs, addActor(con, &ctx, login, ""))
+				actIDs = append(actIDs, addActor(con, &ctx, login, "", maybeHide))
 				added++
 			}
 			cacheActIDs[login] = actIDs
@@ -334,7 +341,7 @@ func importAffs(jsonFN string) {
 			lib.ExecSQLWithErr(con, &ctx,
 				lib.InsertIgnore(
 					"into gha_actors_affiliations(actor_id, company_name, dt_from, dt_to) "+lib.NValues(4)),
-				lib.AnyArray{aid, company, dtFrom, dtTo}...,
+				lib.AnyArray{aid, maybeHide(company), dtFrom, dtTo}...,
 			)
 		}
 	}

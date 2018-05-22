@@ -17,7 +17,7 @@ import (
 )
 
 // Inserts single GHA Actor
-func ghaActor(con *sql.Tx, ctx *lib.Ctx, actor *lib.Actor) {
+func ghaActor(con *sql.Tx, ctx *lib.Ctx, actor *lib.Actor, maybeHide func(string) string) {
 	// gha_actors
 	// {"id:Fixnum"=>48592, "login:String"=>48592, "display_login:String"=>48592,
 	// "gravatar_id:String"=>48592, "url:String"=>48592, "avatar_url:String"=>48592}
@@ -26,7 +26,7 @@ func ghaActor(con *sql.Tx, ctx *lib.Ctx, actor *lib.Actor) {
 		con,
 		ctx,
 		lib.InsertIgnore("into gha_actors(id, login, name) "+lib.NValues(3)),
-		lib.AnyArray{actor.ID, actor.Login, ""}...,
+		lib.AnyArray{actor.ID, maybeHide(actor.Login), ""}...,
 	)
 }
 
@@ -60,10 +60,10 @@ func ghaOrg(db *sql.DB, ctx *lib.Ctx, org *lib.Org) {
 }
 
 // Inserts single GHA Milestone
-func ghaMilestone(con *sql.Tx, ctx *lib.Ctx, eid string, milestone *lib.Milestone, ev *lib.Event) {
+func ghaMilestone(con *sql.Tx, ctx *lib.Ctx, eid string, milestone *lib.Milestone, ev *lib.Event, maybeHide func(string) string) {
 	// creator
 	if milestone.Creator != nil {
-		ghaActor(con, ctx, milestone.Creator)
+		ghaActor(con, ctx, milestone.Creator, maybeHide)
 	}
 
 	// gha_milestones
@@ -90,25 +90,25 @@ func ghaMilestone(con *sql.Tx, ctx *lib.Ctx, eid string, milestone *lib.Mileston
 			lib.TruncToBytes(milestone.Title, 200),
 			milestone.UpdatedAt,
 			ev.Actor.ID,
-			ev.Actor.Login,
+			maybeHide(ev.Actor.Login),
 			ev.Repo.ID,
 			ev.Repo.Name,
 			ev.Type,
 			ev.CreatedAt,
-			lib.ActorLoginOrNil(milestone.Creator),
+			lib.ActorLoginOrNil(milestone.Creator, maybeHide),
 		}...,
 	)
 }
 
 // Inserts single GHA Forkee (old format < 2015)
-func ghaForkeeOld(con *sql.Tx, ctx *lib.Ctx, eid string, forkee *lib.ForkeeOld, actor *lib.Actor, repo *lib.Repo, ev *lib.EventOld) {
+func ghaForkeeOld(con *sql.Tx, ctx *lib.Ctx, eid string, forkee *lib.ForkeeOld, actor *lib.Actor, repo *lib.Repo, ev *lib.EventOld, maybeHide func(string) string) {
 
 	// Lookup author by GitHub login
-	aid := lookupActorTx(con, ctx, forkee.Owner)
+	aid := lookupActorTx(con, ctx, forkee.Owner, maybeHide)
 
 	// Owner
 	owner := lib.Actor{ID: aid, Login: forkee.Owner}
-	ghaActor(con, ctx, &owner)
+	ghaActor(con, ctx, &owner, maybeHide)
 
 	// gha_forkees
 	// Table details and analysis in `analysis/analysis.txt` and `analysis/forkee_*.json`
@@ -149,20 +149,20 @@ func ghaForkeeOld(con *sql.Tx, ctx *lib.Ctx, eid string, forkee *lib.ForkeeOld, 
 			forkee.Watchers,
 			lib.NegatedBoolOrNil(forkee.Private),
 			actor.ID,
-			actor.Login,
+			maybeHide(actor.Login),
 			repo.ID,
 			repo.Name,
 			ev.Type,
 			ev.CreatedAt,
-			owner.Login,
+			maybeHide(owner.Login),
 		}...,
 	)
 }
 
 // Inserts single GHA Forkee
-func ghaForkee(con *sql.Tx, ctx *lib.Ctx, eid string, forkee *lib.Forkee, ev *lib.Event) {
+func ghaForkee(con *sql.Tx, ctx *lib.Ctx, eid string, forkee *lib.Forkee, ev *lib.Event, maybeHide func(string) string) {
 	// owner
-	ghaActor(con, ctx, &forkee.Owner)
+	ghaActor(con, ctx, &forkee.Owner, maybeHide)
 
 	// gha_forkees
 	// Table details and analysis in `analysis/analysis.txt` and `analysis/forkee_*.json`
@@ -203,21 +203,21 @@ func ghaForkee(con *sql.Tx, ctx *lib.Ctx, eid string, forkee *lib.Forkee, ev *li
 			forkee.Watchers,
 			lib.BoolOrNil(forkee.Public),
 			ev.Actor.ID,
-			ev.Actor.Login,
+			maybeHide(ev.Actor.Login),
 			ev.Repo.ID,
 			ev.Repo.Name,
 			ev.Type,
 			ev.CreatedAt,
-			forkee.Owner.Login,
+			maybeHide(forkee.Owner.Login),
 		}...,
 	)
 }
 
 // Inserts single GHA Branch
-func ghaBranch(con *sql.Tx, ctx *lib.Ctx, eid string, branch *lib.Branch, ev *lib.Event, skipIDs []int) {
+func ghaBranch(con *sql.Tx, ctx *lib.Ctx, eid string, branch *lib.Branch, ev *lib.Event, skipIDs []int, maybeHide func(string) string) {
 	// user
 	if branch.User != nil {
-		ghaActor(con, ctx, branch.User)
+		ghaActor(con, ctx, branch.User, maybeHide)
 	}
 
 	// repo
@@ -231,7 +231,7 @@ func ghaBranch(con *sql.Tx, ctx *lib.Ctx, eid string, branch *lib.Branch, ev *li
 			}
 		}
 		if insert {
-			ghaForkee(con, ctx, eid, branch.Repo, ev)
+			ghaForkee(con, ctx, eid, branch.Repo, ev, maybeHide)
 		}
 	}
 
@@ -252,7 +252,7 @@ func ghaBranch(con *sql.Tx, ctx *lib.Ctx, eid string, branch *lib.Branch, ev *li
 			lib.TruncToBytes(branch.Ref, 200),
 			ev.Type,
 			ev.CreatedAt,
-			lib.ActorLoginOrNil(branch.User),
+			lib.ActorLoginOrNil(branch.User, maybeHide),
 			lib.ForkeeNameOrNil(branch.Repo),
 		}...,
 	)
@@ -286,12 +286,13 @@ func lookupLabel(con *sql.Tx, ctx *lib.Ctx, name string, color string) int {
 
 // Search for given actor using his/her login
 // If not found, return hash as its ID
-func lookupActor(db *sql.DB, ctx *lib.Ctx, login string) int {
+func lookupActor(db *sql.DB, ctx *lib.Ctx, login string, maybeHide func(string) string) int {
+	hlogin := maybeHide(login)
 	rows := lib.QuerySQLWithErr(
 		db,
 		ctx,
 		fmt.Sprintf("select id from gha_actors where login=%s", lib.NValue(1)),
-		login,
+		hlogin,
 	)
 	defer func() { lib.FatalOnError(rows.Close()) }()
 	aid := 0
@@ -307,12 +308,13 @@ func lookupActor(db *sql.DB, ctx *lib.Ctx, login string) int {
 
 // Search for given actor using his/her login
 // If not found, return hash as its ID
-func lookupActorTx(con *sql.Tx, ctx *lib.Ctx, login string) int {
+func lookupActorTx(con *sql.Tx, ctx *lib.Ctx, login string, maybeHide func(string) string) int {
+	hlogin := maybeHide(login)
 	rows := lib.QuerySQLTxWithErr(
 		con,
 		ctx,
 		fmt.Sprintf("select id from gha_actors where login=%s", lib.NValue(1)),
-		login,
+		hlogin,
 	)
 	defer func() { lib.FatalOnError(rows.Close()) }()
 	aid := 0
@@ -404,7 +406,7 @@ func eventExists(db *sql.DB, ctx *lib.Ctx, eventID string) bool {
 // "action:String"=>370, "sha:String"=>370, "html_url:String"=>370}
 // {"page_name"=>65, "title"=>65, "summary"=>0, "action"=>7, "sha"=>40, "html_url"=>130}
 // 370
-func ghaPages(con *sql.Tx, ctx *lib.Ctx, payloadPages *[]lib.Page, eventID string, actor *lib.Actor, repo *lib.Repo, eType string, eCreatedAt time.Time) {
+func ghaPages(con *sql.Tx, ctx *lib.Ctx, payloadPages *[]lib.Page, eventID string, actor *lib.Actor, repo *lib.Repo, eType string, eCreatedAt time.Time, maybeHide func(string) string) {
 	pages := []lib.Page{}
 	if payloadPages != nil {
 		pages = *payloadPages
@@ -424,7 +426,7 @@ func ghaPages(con *sql.Tx, ctx *lib.Ctx, payloadPages *[]lib.Page, eventID strin
 				page.Action,
 				lib.TruncToBytes(page.Title, 300),
 				actor.ID,
-				actor.Login,
+				maybeHide(actor.Login),
 				repo.ID,
 				repo.Name,
 				eType,
@@ -436,14 +438,14 @@ func ghaPages(con *sql.Tx, ctx *lib.Ctx, payloadPages *[]lib.Page, eventID strin
 
 // gha_comments
 // Table details and analysis in `analysis/analysis.txt` and `analysis/comment_*.json`
-func ghaComment(con *sql.Tx, ctx *lib.Ctx, payloadComment *lib.Comment, eventID string, actor *lib.Actor, repo *lib.Repo, eType string, eCreatedAt time.Time) {
+func ghaComment(con *sql.Tx, ctx *lib.Ctx, payloadComment *lib.Comment, eventID string, actor *lib.Actor, repo *lib.Repo, eType string, eCreatedAt time.Time, maybeHide func(string) string) {
 	if payloadComment == nil {
 		return
 	}
 	comment := *payloadComment
 
 	// user
-	ghaActor(con, ctx, &comment.User)
+	ghaActor(con, ctx, &comment.User, maybeHide)
 
 	// comment
 	cid := comment.ID
@@ -474,26 +476,26 @@ func ghaComment(con *sql.Tx, ctx *lib.Ctx, payloadComment *lib.Comment, eventID 
 			lib.IntOrNil(comment.PullRequestReviewID),
 			lib.IntOrNil(comment.Line),
 			actor.ID,
-			actor.Login,
+			maybeHide(actor.Login),
 			repo.ID,
 			repo.Name,
 			eType,
 			eCreatedAt,
-			comment.User.Login,
+			maybeHide(comment.User.Login),
 		}...,
 	)
 }
 
 // gha_releases
 // Table details and analysis in `analysis/analysis.txt` and `analysis/release_*.json`
-func ghaRelease(con *sql.Tx, ctx *lib.Ctx, payloadRelease *lib.Release, eventID string, actor *lib.Actor, repo *lib.Repo, eType string, eCreatedAt time.Time) {
+func ghaRelease(con *sql.Tx, ctx *lib.Ctx, payloadRelease *lib.Release, eventID string, actor *lib.Actor, repo *lib.Repo, eType string, eCreatedAt time.Time, maybeHide func(string) string) {
 	if payloadRelease == nil {
 		return
 	}
 	release := *payloadRelease
 
 	// author
-	ghaActor(con, ctx, &release.Author)
+	ghaActor(con, ctx, &release.Author, maybeHide)
 
 	// release
 	rid := release.ID
@@ -518,19 +520,19 @@ func ghaRelease(con *sql.Tx, ctx *lib.Ctx, payloadRelease *lib.Release, eventID 
 			lib.TimeOrNil(release.PublishedAt),
 			lib.TruncStringOrNil(release.Body, 0xffff),
 			actor.ID,
-			actor.Login,
+			maybeHide(actor.Login),
 			repo.ID,
 			repo.Name,
 			eType,
 			eCreatedAt,
-			release.Author.Login,
+			maybeHide(release.Author.Login),
 		}...,
 	)
 
 	// Assets
 	for _, asset := range release.Assets {
 		// uploader
-		ghaActor(con, ctx, &asset.Uploader)
+		ghaActor(con, ctx, &asset.Uploader, maybeHide)
 
 		// asset
 		aid := asset.ID
@@ -555,12 +557,12 @@ func ghaRelease(con *sql.Tx, ctx *lib.Ctx, payloadRelease *lib.Release, eventID 
 				asset.CreatedAt,
 				asset.UpdatedAt,
 				actor.ID,
-				actor.Login,
+				maybeHide(actor.Login),
 				repo.ID,
 				repo.Name,
 				eType,
 				eCreatedAt,
-				asset.Uploader.Login,
+				maybeHide(asset.Uploader.Login),
 			}...,
 		)
 
@@ -576,7 +578,7 @@ func ghaRelease(con *sql.Tx, ctx *lib.Ctx, payloadRelease *lib.Release, eventID 
 
 // gha_pull_requests
 // Table details and analysis in `analysis/analysis.txt` and `analysis/pull_request_*.json`
-func ghaPullRequest(con *sql.Tx, ctx *lib.Ctx, payloadPullRequest *lib.PullRequest, eventID string, actor *lib.Actor, repo *lib.Repo, eType string, eCreatedAt time.Time, forkeeIDsToSkip []int) {
+func ghaPullRequest(con *sql.Tx, ctx *lib.Ctx, payloadPullRequest *lib.PullRequest, eventID string, actor *lib.Actor, repo *lib.Repo, eType string, eCreatedAt time.Time, forkeeIDsToSkip []int, maybeHide func(string) string) {
 	if payloadPullRequest == nil {
 		return
 	}
@@ -585,7 +587,7 @@ func ghaPullRequest(con *sql.Tx, ctx *lib.Ctx, payloadPullRequest *lib.PullReque
 	pr := *payloadPullRequest
 
 	// user
-	ghaActor(con, ctx, &pr.User)
+	ghaActor(con, ctx, &pr.User, maybeHide)
 
 	baseSHA := pr.Base.SHA
 	headSHA := pr.Head.SHA
@@ -595,29 +597,29 @@ func ghaPullRequest(con *sql.Tx, ctx *lib.Ctx, payloadPullRequest *lib.PullReque
 	ev := lib.Event{Actor: *actor, Repo: *repo, Type: eType, CreatedAt: eCreatedAt}
 
 	// base
-	ghaBranch(con, ctx, eventID, &pr.Base, &ev, forkeeIDsToSkip)
+	ghaBranch(con, ctx, eventID, &pr.Base, &ev, forkeeIDsToSkip, maybeHide)
 
 	// head (if different, and skip its repo if defined and the same as base repo)
 	if baseSHA != headSHA {
 		if baseRepoID != nil {
 			forkeeIDsToSkip = append(forkeeIDsToSkip, baseRepoID.(int))
 		}
-		ghaBranch(con, ctx, eventID, &pr.Head, &ev, forkeeIDsToSkip)
+		ghaBranch(con, ctx, eventID, &pr.Head, &ev, forkeeIDsToSkip, maybeHide)
 	}
 
 	// merged_by
 	if pr.MergedBy != nil {
-		ghaActor(con, ctx, pr.MergedBy)
+		ghaActor(con, ctx, pr.MergedBy, maybeHide)
 	}
 
 	// assignee
 	if pr.Assignee != nil {
-		ghaActor(con, ctx, pr.Assignee)
+		ghaActor(con, ctx, pr.Assignee, maybeHide)
 	}
 
 	// milestone
 	if pr.Milestone != nil {
-		ghaMilestone(con, ctx, eventID, pr.Milestone, &ev)
+		ghaMilestone(con, ctx, eventID, pr.Milestone, &ev, maybeHide)
 	}
 
 	// pull_request
@@ -663,14 +665,14 @@ func ghaPullRequest(con *sql.Tx, ctx *lib.Ctx, payloadPullRequest *lib.PullReque
 			lib.IntOrNil(pr.Deletions),
 			lib.IntOrNil(pr.ChangedFiles),
 			actor.ID,
-			actor.Login,
+			maybeHide(actor.Login),
 			repo.ID,
 			repo.Name,
 			eType,
 			eCreatedAt,
-			pr.User.Login,
-			lib.ActorLoginOrNil(pr.Assignee),
-			lib.ActorLoginOrNil(pr.MergedBy),
+			maybeHide(pr.User.Login),
+			lib.ActorLoginOrNil(pr.Assignee, maybeHide),
+			lib.ActorLoginOrNil(pr.MergedBy, maybeHide),
 		}...,
 	)
 
@@ -695,7 +697,7 @@ func ghaPullRequest(con *sql.Tx, ctx *lib.Ctx, payloadPullRequest *lib.PullReque
 
 	for _, assignee := range assignees {
 		// assignee
-		ghaActor(con, ctx, &assignee)
+		ghaActor(con, ctx, &assignee, maybeHide)
 
 		// pull_request-assignee connection
 		lib.ExecSQLTxWithErr(
@@ -710,7 +712,7 @@ func ghaPullRequest(con *sql.Tx, ctx *lib.Ctx, payloadPullRequest *lib.PullReque
 	if pr.RequestedReviewers != nil {
 		for _, reviewer := range *pr.RequestedReviewers {
 			// reviewer
-			ghaActor(con, ctx, &reviewer)
+			ghaActor(con, ctx, &reviewer, maybeHide)
 
 			// pull_request-requested_reviewer connection
 			lib.ExecSQLTxWithErr(
@@ -724,7 +726,7 @@ func ghaPullRequest(con *sql.Tx, ctx *lib.Ctx, payloadPullRequest *lib.PullReque
 }
 
 // gha_teams
-func ghaTeam(con *sql.Tx, ctx *lib.Ctx, payloadTeam *lib.Team, payloadRepo *lib.Forkee, eventID string, actor *lib.Actor, repo *lib.Repo, eType string, eCreatedAt time.Time) {
+func ghaTeam(con *sql.Tx, ctx *lib.Ctx, payloadTeam *lib.Team, payloadRepo *lib.Forkee, eventID string, actor *lib.Actor, repo *lib.Repo, eType string, eCreatedAt time.Time, maybeHide func(string) string) {
 	if payloadTeam == nil {
 		return
 	}
@@ -746,7 +748,7 @@ func ghaTeam(con *sql.Tx, ctx *lib.Ctx, payloadTeam *lib.Team, payloadRepo *lib.
 			lib.TruncToBytes(team.Slug, 100),
 			lib.TruncToBytes(team.Permission, 20),
 			actor.ID,
-			actor.Login,
+			maybeHide(actor.Login),
 			repo.ID,
 			repo.Name,
 			eType,
@@ -766,13 +768,16 @@ func ghaTeam(con *sql.Tx, ctx *lib.Ctx, payloadTeam *lib.Team, payloadRepo *lib.
 }
 
 // Write GHA entire event (in old pre 2015 format) into Postgres DB
-func writeToDBOldFmt(db *sql.DB, ctx *lib.Ctx, eventID string, ev *lib.EventOld) int {
+func writeToDBOldFmt(db *sql.DB, ctx *lib.Ctx, eventID string, ev *lib.EventOld, shas map[string]string) int {
 	if eventExists(db, ctx, eventID) {
 		return 0
 	}
 
+	// To handle GDPR
+	maybeHide := lib.MaybeHideFunc(shas)
+
 	// Lookup author by GitHub login
-	aid := lookupActor(db, ctx, ev.Actor)
+	aid := lookupActor(db, ctx, ev.Actor, maybeHide)
 	actor := lib.Actor{ID: aid, Login: ev.Actor}
 
 	// Repository
@@ -801,7 +806,7 @@ func writeToDBOldFmt(db *sql.DB, ctx *lib.Ctx, eventID string, ev *lib.EventOld)
 			rid,
 			ev.Public,
 			ev.CreatedAt,
-			ev.Actor,
+			maybeHide(ev.Actor),
 			ev.Repository.Name,
 			oid,
 			ev.Repository.ID,
@@ -862,7 +867,7 @@ func writeToDBOldFmt(db *sql.DB, ctx *lib.Ctx, eventID string, ev *lib.EventOld)
 			lib.ReleaseIDOrNil(pl.Release),
 			lib.ActorIDOrNil(pl.Member),
 			actor.ID,
-			actor.Login,
+			maybeHide(actor.Login),
 			repo.ID,
 			repo.Name,
 			ev.Type,
@@ -875,7 +880,7 @@ func writeToDBOldFmt(db *sql.DB, ctx *lib.Ctx, eventID string, ev *lib.EventOld)
 	lib.FatalOnError(err)
 
 	// gha_actors
-	ghaActor(con, ctx, &actor)
+	ghaActor(con, ctx, &actor, maybeHide)
 
 	// Payload's Forkee (it uses new structure, so I'm giving it precedence over
 	// Event's Forkee (which uses older structure)
@@ -884,12 +889,12 @@ func writeToDBOldFmt(db *sql.DB, ctx *lib.Ctx, eventID string, ev *lib.EventOld)
 		// Artificial event is only used to allow duplicating EventOld's data
 		// (passed as Event to avoid code duplication)
 		artificialEv := lib.Event{Actor: actor, Repo: repo, Type: ev.Type, CreatedAt: ev.CreatedAt}
-		ghaForkee(con, ctx, eventID, pl.Repository, &artificialEv)
+		ghaForkee(con, ctx, eventID, pl.Repository, &artificialEv, maybeHide)
 	}
 
 	// Add Forkee in old mode if we didn't added it from payload or if it is a different Forkee
 	if pl.Repository == nil || pl.Repository.ID != ev.Repository.ID {
-		ghaForkeeOld(con, ctx, eventID, &ev.Repository, &actor, &repo, ev)
+		ghaForkeeOld(con, ctx, eventID, &ev.Repository, &actor, &repo, ev, maybeHide)
 	}
 
 	// SHAs - commits
@@ -914,11 +919,11 @@ func writeToDBOldFmt(db *sql.DB, ctx *lib.Ctx, eventID string, ev *lib.EventOld)
 				lib.AnyArray{
 					sha,
 					eventID,
-					lib.TruncToBytes(commit[3].(string), 160),
+					maybeHide(lib.TruncToBytes(commit[3].(string), 160)),
 					lib.TruncToBytes(commit[2].(string), 0xffff),
 					commit[4].(bool),
 					actor.ID,
-					actor.Login,
+					maybeHide(actor.Login),
 					repo.ID,
 					repo.Name,
 					ev.Type,
@@ -929,28 +934,28 @@ func writeToDBOldFmt(db *sql.DB, ctx *lib.Ctx, eventID string, ev *lib.EventOld)
 	}
 
 	// Pages
-	ghaPages(con, ctx, pl.Pages, eventID, &actor, &repo, ev.Type, ev.CreatedAt)
+	ghaPages(con, ctx, pl.Pages, eventID, &actor, &repo, ev.Type, ev.CreatedAt, maybeHide)
 
 	// Member
 	if pl.Member != nil {
-		ghaActor(con, ctx, pl.Member)
+		ghaActor(con, ctx, pl.Member, maybeHide)
 	}
 
 	// Comment
-	ghaComment(con, ctx, pl.Comment, eventID, &actor, &repo, ev.Type, ev.CreatedAt)
+	ghaComment(con, ctx, pl.Comment, eventID, &actor, &repo, ev.Type, ev.CreatedAt, maybeHide)
 
 	// Release & assets
-	ghaRelease(con, ctx, pl.Release, eventID, &actor, &repo, ev.Type, ev.CreatedAt)
+	ghaRelease(con, ctx, pl.Release, eventID, &actor, &repo, ev.Type, ev.CreatedAt, maybeHide)
 
 	// Team & Repo connection
-	ghaTeam(con, ctx, pl.Team, pl.Repository, eventID, &actor, &repo, ev.Type, ev.CreatedAt)
+	ghaTeam(con, ctx, pl.Team, pl.Repository, eventID, &actor, &repo, ev.Type, ev.CreatedAt, maybeHide)
 
 	// Pull Request
 	forkeeIDsToSkip := []int{ev.Repository.ID}
 	if pl.Repository != nil {
 		forkeeIDsToSkip = append(forkeeIDsToSkip, pl.Repository.ID)
 	}
-	ghaPullRequest(con, ctx, pl.PullRequest, eventID, &actor, &repo, ev.Type, ev.CreatedAt, forkeeIDsToSkip)
+	ghaPullRequest(con, ctx, pl.PullRequest, eventID, &actor, &repo, ev.Type, ev.CreatedAt, forkeeIDsToSkip, maybeHide)
 
 	// We need artificial issue
 	// gha_issues
@@ -993,13 +998,13 @@ func writeToDBOldFmt(db *sql.DB, ctx *lib.Ctx, eventID string, ev *lib.EventOld)
 				pr.UpdatedAt,
 				pr.User.ID,
 				actor.ID,
-				actor.Login,
+				maybeHide(actor.Login),
 				repo.ID,
 				repo.Name,
 				ev.Type,
 				ev.CreatedAt,
-				pr.User.Login,
-				lib.ActorLoginOrNil(pr.Assignee),
+				maybeHide(pr.User.Login),
+				lib.ActorLoginOrNil(pr.Assignee, maybeHide),
 				isPR,
 			}...,
 		)
@@ -1038,11 +1043,14 @@ func writeToDBOldFmt(db *sql.DB, ctx *lib.Ctx, eventID string, ev *lib.EventOld)
 }
 
 // Write entire GHA event (in a new 2015+ format) into Postgres DB
-func writeToDB(db *sql.DB, ctx *lib.Ctx, ev *lib.Event) int {
+func writeToDB(db *sql.DB, ctx *lib.Ctx, ev *lib.Event, shas map[string]string) int {
 	eventID := ev.ID
 	if eventExists(db, ctx, eventID) {
 		return 0
 	}
+
+	// To handle GDPR
+	maybeHide := lib.MaybeHideFunc(shas)
 
 	// We defer transaction create until we're inserting data that can be shared between different events
 	// gha_events
@@ -1066,7 +1074,7 @@ func writeToDB(db *sql.DB, ctx *lib.Ctx, ev *lib.Event) int {
 			ev.Repo.ID,
 			ev.Public,
 			ev.CreatedAt,
-			ev.Actor.Login,
+			maybeHide(ev.Actor.Login),
 			ev.Repo.Name,
 			lib.OrgIDOrNil(ev.Org),
 			nil,
@@ -1128,7 +1136,7 @@ func writeToDB(db *sql.DB, ctx *lib.Ctx, ev *lib.Event) int {
 			lib.ReleaseIDOrNil(pl.Release),
 			lib.ActorIDOrNil(pl.Member),
 			ev.Actor.ID,
-			ev.Actor.Login,
+			maybeHide(ev.Actor.Login),
 			ev.Repo.ID,
 			ev.Repo.Name,
 			ev.Type,
@@ -1141,7 +1149,7 @@ func writeToDB(db *sql.DB, ctx *lib.Ctx, ev *lib.Event) int {
 	lib.FatalOnError(err)
 
 	// gha_actors
-	ghaActor(con, ctx, &ev.Actor)
+	ghaActor(con, ctx, &ev.Actor, maybeHide)
 
 	// gha_commits
 	// {"sha:String"=>23265, "author:Hash"=>23265, "message:String"=>23265,
@@ -1166,11 +1174,11 @@ func writeToDB(db *sql.DB, ctx *lib.Ctx, ev *lib.Event) int {
 			lib.AnyArray{
 				sha,
 				eventID,
-				lib.TruncToBytes(commit.Author.Name, 160),
+				maybeHide(lib.TruncToBytes(commit.Author.Name, 160)),
 				lib.TruncToBytes(commit.Message, 0xffff),
 				commit.Distinct,
 				ev.Actor.ID,
-				ev.Actor.Login,
+				maybeHide(ev.Actor.Login),
 				ev.Repo.ID,
 				ev.Repo.Name,
 				ev.Type,
@@ -1180,15 +1188,15 @@ func writeToDB(db *sql.DB, ctx *lib.Ctx, ev *lib.Event) int {
 	}
 
 	// Pages
-	ghaPages(con, ctx, pl.Pages, eventID, &ev.Actor, &ev.Repo, ev.Type, ev.CreatedAt)
+	ghaPages(con, ctx, pl.Pages, eventID, &ev.Actor, &ev.Repo, ev.Type, ev.CreatedAt, maybeHide)
 
 	// Member
 	if pl.Member != nil {
-		ghaActor(con, ctx, pl.Member)
+		ghaActor(con, ctx, pl.Member, maybeHide)
 	}
 
 	// Comment
-	ghaComment(con, ctx, pl.Comment, eventID, &ev.Actor, &ev.Repo, ev.Type, ev.CreatedAt)
+	ghaComment(con, ctx, pl.Comment, eventID, &ev.Actor, &ev.Repo, ev.Type, ev.CreatedAt, maybeHide)
 
 	// gha_issues
 	// Table details and analysis in `analysis/analysis.txt` and `analysis/issue_*.json`
@@ -1196,9 +1204,9 @@ func writeToDB(db *sql.DB, ctx *lib.Ctx, ev *lib.Event) int {
 		issue := *pl.Issue
 
 		// user, assignee
-		ghaActor(con, ctx, &issue.User)
+		ghaActor(con, ctx, &issue.User, maybeHide)
 		if issue.Assignee != nil {
-			ghaActor(con, ctx, issue.Assignee)
+			ghaActor(con, ctx, issue.Assignee, maybeHide)
 		}
 
 		// issue
@@ -1231,20 +1239,20 @@ func writeToDB(db *sql.DB, ctx *lib.Ctx, ev *lib.Event) int {
 				issue.UpdatedAt,
 				issue.User.ID,
 				ev.Actor.ID,
-				ev.Actor.Login,
+				maybeHide(ev.Actor.Login),
 				ev.Repo.ID,
 				ev.Repo.Name,
 				ev.Type,
 				ev.CreatedAt,
-				issue.User.Login,
-				lib.ActorLoginOrNil(issue.Assignee),
+				maybeHide(issue.User.Login),
+				lib.ActorLoginOrNil(issue.Assignee, maybeHide),
 				isPR,
 			}...,
 		)
 
 		// milestone
 		if issue.Milestone != nil {
-			ghaMilestone(con, ctx, eventID, issue.Milestone, ev)
+			ghaMilestone(con, ctx, eventID, issue.Milestone, ev, maybeHide)
 		}
 
 		pAid := lib.ActorIDOrNil(issue.Assignee)
@@ -1255,7 +1263,7 @@ func writeToDB(db *sql.DB, ctx *lib.Ctx, ev *lib.Event) int {
 			}
 
 			// assignee
-			ghaActor(con, ctx, &assignee)
+			ghaActor(con, ctx, &assignee, maybeHide)
 
 			// issue-assignee connection
 			lib.ExecSQLTxWithErr(
@@ -1295,7 +1303,7 @@ func writeToDB(db *sql.DB, ctx *lib.Ctx, ev *lib.Event) int {
 					eventID,
 					lid,
 					ev.Actor.ID,
-					ev.Actor.Login,
+					maybeHide(ev.Actor.Login),
 					ev.Repo.ID,
 					ev.Repo.Name,
 					ev.Type,
@@ -1309,14 +1317,14 @@ func writeToDB(db *sql.DB, ctx *lib.Ctx, ev *lib.Event) int {
 
 	// gha_forkees
 	if pl.Forkee != nil {
-		ghaForkee(con, ctx, eventID, pl.Forkee, ev)
+		ghaForkee(con, ctx, eventID, pl.Forkee, ev, maybeHide)
 	}
 
 	// Release & assets
-	ghaRelease(con, ctx, pl.Release, eventID, &ev.Actor, &ev.Repo, ev.Type, ev.CreatedAt)
+	ghaRelease(con, ctx, pl.Release, eventID, &ev.Actor, &ev.Repo, ev.Type, ev.CreatedAt, maybeHide)
 
 	// Pull Request
-	ghaPullRequest(con, ctx, pl.PullRequest, eventID, &ev.Actor, &ev.Repo, ev.Type, ev.CreatedAt, []int{})
+	ghaPullRequest(con, ctx, pl.PullRequest, eventID, &ev.Actor, &ev.Repo, ev.Type, ev.CreatedAt, []int{}, maybeHide)
 
 	// Final commit
 	lib.FatalOnError(con.Commit())
@@ -1324,7 +1332,7 @@ func writeToDB(db *sql.DB, ctx *lib.Ctx, ev *lib.Event) int {
 }
 
 // parseJSON - parse signle GHA JSON event
-func parseJSON(con *sql.DB, ctx *lib.Ctx, jsonStr []byte, dt time.Time, forg, frepo map[string]struct{}) (f int, e int) {
+func parseJSON(con *sql.DB, ctx *lib.Ctx, jsonStr []byte, dt time.Time, forg, frepo map[string]struct{}, shas map[string]string) (f int, e int) {
 	var (
 		h         lib.Event
 		hOld      lib.EventOld
@@ -1367,9 +1375,9 @@ func parseJSON(con *sql.DB, ctx *lib.Ctx, jsonStr []byte, dt time.Time, forg, fr
 		}
 		if ctx.DBOut {
 			if ctx.OldFormat {
-				e = writeToDBOldFmt(con, ctx, eid, &hOld)
+				e = writeToDBOldFmt(con, ctx, eid, &hOld, shas)
 			} else {
-				e = writeToDB(con, ctx, &h)
+				e = writeToDB(con, ctx, &h, shas)
 			}
 		}
 		if ctx.Debug >= 1 {
@@ -1382,6 +1390,9 @@ func parseJSON(con *sql.DB, ctx *lib.Ctx, jsonStr []byte, dt time.Time, forg, fr
 
 // markAsProcessed mark maximum processed date
 func markAsProcessed(con *sql.DB, ctx *lib.Ctx, dt time.Time) {
+	if !ctx.DBOut {
+		return
+	}
 	lib.ExecSQLWithErr(
 		con,
 		ctx,
@@ -1393,7 +1404,7 @@ func markAsProcessed(con *sql.DB, ctx *lib.Ctx, dt time.Time) {
 // getGHAJSON - This is a work for single go routine - 1 hour of GHA data
 // Usually such JSON conatin about 15000 - 60000 singe GHA events
 // Boolean channel `ch` is used to synchronize go routines
-func getGHAJSON(ch chan bool, ctx *lib.Ctx, dt time.Time, forg map[string]struct{}, frepo map[string]struct{}) {
+func getGHAJSON(ch chan bool, ctx *lib.Ctx, dt time.Time, forg map[string]struct{}, frepo map[string]struct{}, shas map[string]string) {
 	lib.Printf("Working on %v\n", dt)
 
 	// Connect to Postgres DB
@@ -1447,7 +1458,7 @@ func getGHAJSON(ch chan bool, ctx *lib.Ctx, dt time.Time, forg map[string]struct
 		if len(json) < 1 {
 			continue
 		}
-		fi, ei := parseJSON(con, ctx, json, dt, forg, frepo)
+		fi, ei := parseJSON(con, ctx, json, dt, forg, frepo, shas)
 		n++
 		f += fi
 		e += ei
@@ -1545,12 +1556,15 @@ func gha2db(args []string) {
 		strings.Join(lib.StringsSetKeys(repo), "+"),
 	)
 
+	// GDPR data hiding
+	shaMap := lib.GetHidden(lib.HideCfgFile)
+
 	dt := dFrom
 	if thrN > 1 {
 		ch := make(chan bool)
 		nThreads := 0
 		for dt.Before(dTo) || dt.Equal(dTo) {
-			go getGHAJSON(ch, &ctx, dt, org, repo)
+			go getGHAJSON(ch, &ctx, dt, org, repo, shaMap)
 			dt = dt.Add(time.Hour)
 			nThreads++
 			if nThreads == thrN {
@@ -1566,7 +1580,7 @@ func gha2db(args []string) {
 	} else {
 		lib.Printf("Using single threaded version\n")
 		for dt.Before(dTo) || dt.Equal(dTo) {
-			getGHAJSON(nil, &ctx, dt, org, repo)
+			getGHAJSON(nil, &ctx, dt, org, repo, shaMap)
 			dt = dt.Add(time.Hour)
 		}
 	}

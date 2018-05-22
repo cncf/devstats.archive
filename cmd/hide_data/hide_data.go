@@ -6,7 +6,6 @@ import (
 	"encoding/csv"
 	"encoding/hex"
 	"fmt"
-	"io"
 	"io/ioutil"
 	"os"
 	"sort"
@@ -19,29 +18,6 @@ import (
 type replaceConfig struct {
 	table  string
 	column string
-}
-
-func getHidden(configFile string) map[string]string {
-	shaMap := make(map[string]string)
-	f, err := os.Open(configFile)
-	if err == nil {
-		defer f.Close()
-		reader := csv.NewReader(f)
-		for {
-			row, err := reader.Read()
-			if err == io.EOF {
-				break
-			} else if err != nil {
-				lib.FatalOnError(err)
-			}
-			sha := row[0]
-			if sha == "sha1" {
-				continue
-			}
-			shaMap[sha] = "anon-" + sha
-		}
-	}
-	return shaMap
 }
 
 func processHidden(ctx *lib.Ctx) {
@@ -172,7 +148,7 @@ func processHidden(ctx *lib.Ctx) {
 		},
 	}
 	configFile := lib.HideCfgFile
-	shaMap := getHidden(configFile)
+	shaMap := lib.GetHidden(configFile)
 
 	dataPrefix := lib.DataDir
 	if ctx.Local {
@@ -271,8 +247,7 @@ func processHidden(ctx *lib.Ctx) {
 }
 
 func hideData(args []string) {
-	configFile := lib.HideCfgFile
-	shaMap := getHidden(configFile)
+	shaMap := lib.GetHidden(lib.HideCfgFile)
 	added := false
 	for _, argo := range args {
 		arg := strings.TrimSpace(argo)
@@ -291,7 +266,7 @@ func hideData(args []string) {
 		return
 	}
 	var writer *csv.Writer
-	oFile, err := os.Create(configFile)
+	oFile, err := os.Create(lib.HideCfgFile)
 	lib.FatalOnError(err)
 	defer func() { _ = oFile.Close() }()
 	writer = csv.NewWriter(oFile)

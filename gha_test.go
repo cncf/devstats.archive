@@ -531,14 +531,20 @@ func TestActorIDOrNil(t *testing.T) {
 }
 
 func TestActorLoginOrNil(t *testing.T) {
-	result := lib.ActorLoginOrNil(nil)
+	result := lib.ActorLoginOrNil(nil, func(a string) string { return a })
 	if result != nil {
 		t.Errorf("test nil case: expected <nil>, got %v", result)
 	}
 	expected := "lukaszgryglicki"
-	result = lib.ActorLoginOrNil(&lib.Actor{Login: expected})
+	result = lib.ActorLoginOrNil(&lib.Actor{Login: expected}, func(a string) string { return a })
 	if result != expected {
 		t.Errorf("test Login=%s case: expected %s, got %v", expected, expected, result)
+	}
+	login := "forbidden"
+	expected = "anon-1"
+	result = lib.ActorLoginOrNil(&lib.Actor{Login: login}, func(a string) string { return "anon-1" })
+	if result != expected {
+		t.Errorf("test Login=%s case: expected %s, got %v", login, expected, result)
 	}
 }
 

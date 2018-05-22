@@ -1,6 +1,11 @@
 package devstats
 
 import (
+	"crypto/sha1"
+	"encoding/csv"
+	"encoding/hex"
+	"io"
+	"os"
 	"regexp"
 	"strings"
 )
@@ -55,4 +60,49 @@ func Slugify(arg string) string {
 	re := regexp.MustCompile(`[^\w-]+`)
 	arg = re.ReplaceAllLiteralString(arg, "-")
 	return strings.ToLower(arg)
+}
+
+// GetHidden - return list of shas to replace
+func GetHidden(configFile string) map[string]string {
+	shaMap := make(map[string]string)
+	f, err := os.Open(configFile)
+	if err == nil {
+		defer func() { _ = f.Close() }()
+		reader := csv.NewReader(f)
+		for {
+			row, err := reader.Read()
+			if err == io.EOF {
+				break
+			} else if err != nil {
+				FatalOnError(err)
+			}
+			sha := row[0]
+			if sha == "sha1" {
+				continue
+			}
+			shaMap[sha] = "anon-" + sha
+		}
+	}
+	return shaMap
+}
+
+// MaybeHideFunc - use closure as a data storage
+func MaybeHideFunc(shas map[string]string) func(string) string {
+	cache := make(map[string]string)
+	return func(arg string) string {
+		var sha string
+		sha, ok := cache[arg]
+		if !ok {
+			hash := sha1.New()
+			_, err := hash.Write([]byte(arg))
+			FatalOnError(err)
+			sha = hex.EncodeToString(hash.Sum(nil))
+			cache[arg] = sha
+		}
+		anon, ok := shas[sha]
+		if ok {
+			return anon
+		}
+		return arg
+	}
 }
