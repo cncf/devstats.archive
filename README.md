@@ -19,7 +19,7 @@ The only requirement is that project must be hosted on a public GitHub repositor
 
 # Data hiding
 
-If you don't want to hide your data (replace with anon-#) please follow instructions [here](https://github.com/cncf/devstats/blob/master/HIDE_DATA.md).
+If you want to hide your data (replace with anon-#) please follow instructions [here](https://github.com/cncf/devstats/blob/master/HIDE_DATA.md).
 
 # Forking and installing locally
 
