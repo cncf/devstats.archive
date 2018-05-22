@@ -50,3 +50,6 @@ const TimeCol string = "time"
 
 // Null - common constant string
 const Null string = "null"
+
+// HideCfgFile - common constant string
+const HideCfgFile string = "hide/hide.csv"

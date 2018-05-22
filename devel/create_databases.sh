@@ -44,6 +44,7 @@ then
     echo "creating postgres database $PROJDB"
     sudo -u postgres psql -c "create database $PROJDB" || exit 7
     sudo -u postgres psql -c "grant all privileges on database \"$PROJDB\" to gha_admin" || exit 8
+    sudo -u postgres psql "$PROJDB" -c "create extension if not exists pgcrypto" || exit 23
     if [ ! -z "$GET" ]
     then
       echo "attempt to fetch postgres database $PROJDB from backup"
