@@ -12,6 +12,7 @@ set -o pipefail
 > errors.txt
 > run.log
 GHA2DB_PROJECT=rkt PG_DB=rkt GHA2DB_LOCAL=1 ./structure 2>>errors.txt | tee -a run.log || exit 1
+sudo -u postgres psql rkt -c "create extension if not exists pgcrypto" || exit 1
 GHA2DB_PROJECT=rkt PG_DB=rkt GHA2DB_LOCAL=1 ./gha2db 2017-04-04 0 today now 'rkt' 2>>errors.txt | tee -a run.log || exit 2
 GHA2DB_PROJECT=rkt PG_DB=rkt GHA2DB_LOCAL=1 GHA2DB_EXACT=1 ./gha2db 2015-01-01 0 2017-04-07 0 'coreos/rkt,coreos/rocket,rktproject/rkt' 2>>errors.txt | tee -a run.log || exit 3
 GHA2DB_PROJECT=rkt PG_DB=rkt GHA2DB_LOCAL=1 GHA2DB_EXACT=1 GHA2DB_OLDFMT=1 ./gha2db 2014-11-26 0 2014-12-31 23 'rocket' 2>>errors.txt | tee -a run.log || exit 4

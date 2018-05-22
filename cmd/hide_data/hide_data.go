@@ -202,6 +202,7 @@ func processHidden(ctx *lib.Ctx) {
 		}
 		dbs = append(dbs, proj.PDB)
 	}
+	lib.Printf("Processing databases: %+v\n", dbs)
 	thrN := lib.GetThreadsNum(ctx)
 	ch := make(chan bool)
 	nThreads := 0
