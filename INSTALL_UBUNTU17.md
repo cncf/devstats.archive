@@ -55,6 +55,7 @@ Prerequisites:
     - `grant all privileges on database "gha" to gha_admin;`
     - `grant all privileges on database "devstats" to gha_admin;`
     - `alter user gha_admin createdb;`
+    - `create extension if not exists pgcrypto;`
     - Leave the shell and create logs table for devstats: `sudo -u postgres psql devstats < util_sql/devstats_log_table.sql`.
     - `PG_PASS=... ONLY="devstats gha" ./devel/create_ro_user.sh`.
     - `PG_PASS=... ONLY="devstats gha" ./devel/create_psql_user.sh devstats_team`.
