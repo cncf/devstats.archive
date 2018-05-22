@@ -17,6 +17,10 @@ Everything is open source so that it can be used by other CNCF and non-CNCF open
 
 The only requirement is that project must be hosted on a public GitHub repository/repositories.
 
+# Data hiding
+
+If you don't want to hide your data (replace with anon-#) please follow instructions [here](https://github.com/cncf/devstats/blob/master/HIDE_DATA.md).
+
 # Forking and installing locally
 
 This toolset uses only Open Source tools: GitHub archives, GitHub API, git, Postgres databases and multiple Grafana instances.
