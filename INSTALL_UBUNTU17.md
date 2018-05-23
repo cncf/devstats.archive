@@ -47,6 +47,7 @@ Prerequisites:
     - Postgres only allows local connections by default so it is secure, we don't need to disable external connections:
     - Config file is: `/etc/postgresql/9.6/main/pg_hba.conf`, instructions to enable external connections (not recommended): `http://www.thegeekstuff.com/2014/02/enable-remote-postgresql-connection/?utm_source=tuicool`
     - Set bigger maximum number of connections, at least 200 or more: `/etc/postgresql/X.Y/main/postgresql.conf`. Default is 100. `max_connections = 300`.
+    - You can also set `shared_buffers = ...` to something like 25% of your RAM. This is optional.
 
 10. Inside psql client shell:
     - `create database gha;`
