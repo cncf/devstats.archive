@@ -666,11 +666,12 @@ func ghapi2db(ctx *lib.Ctx) {
 				return
 			}
 			// Use Github API to get issue info
-			for {
+			got := false
+			for tr := 1; tr <= ctx.MaxGHAPIRetry; tr++ {
 				_, rem, waitPeriod := lib.GetRateLimits(gctx, gc, true)
 				if rem <= ctx.MinGHAPIPoints {
 					if waitPeriod.Seconds() <= float64(ctx.MaxGHAPIWaitSeconds) {
-						lib.Printf("API limit reached while getting issue data, waiting %v\n", waitPeriod)
+						lib.Printf("API limit reached while getting issue data, waiting %v (%d)\n", waitPeriod, tr)
 						time.Sleep(time.Duration(1) * time.Second)
 						time.Sleep(waitPeriod)
 						continue
@@ -685,7 +686,12 @@ func ghapi2db(ctx *lib.Ctx) {
 					cfg.milestoneID = issue.Milestone.ID
 				}
 				cfg.ghIssue = issue
+				got = true
 				break
+			}
+			if !got {
+				lib.Fatalf("GetRateLimit call failed %d times while getting issue data, aboorting", ctx.MaxGHAPIRetry)
+				return
 			}
 
 			// Use GitHub API to get labels info
@@ -695,11 +701,12 @@ func ghapi2db(ctx *lib.Ctx) {
 				labels []*github.Label
 			)
 			for {
-				for {
+				got := false
+				for tr := 1; tr <= ctx.MaxGHAPIRetry; tr++ {
 					_, rem, waitPeriod := lib.GetRateLimits(gctx, gc, true)
 					if rem <= ctx.MinGHAPIPoints {
 						if waitPeriod.Seconds() <= float64(ctx.MaxGHAPIWaitSeconds) {
-							lib.Printf("API limit reached while getting issue labels, waiting %v\n", waitPeriod)
+							lib.Printf("API limit reached while getting issue labels, waiting %v (%d)\n", waitPeriod, tr)
 							time.Sleep(time.Duration(1) * time.Second)
 							time.Sleep(waitPeriod)
 							continue
@@ -714,7 +721,12 @@ func ghapi2db(ctx *lib.Ctx) {
 					for _, label := range labels {
 						cfg.labelsMap[*label.ID] = *label.Name
 					}
+					got = true
 					break
+				}
+				if !got {
+					lib.Fatalf("GetRateLimit call failed %d times while getting issue labels, aboorting", ctx.MaxGHAPIRetry)
+					return
 				}
 
 				// Handle eventual paging (shoudl not happen for labels)

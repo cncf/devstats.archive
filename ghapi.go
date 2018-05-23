@@ -3,28 +3,18 @@ package devstats
 import (
 	"context"
 	"strings"
-	"sync"
 	"time"
 
 	"github.com/google/go-github/github"
 	"golang.org/x/oauth2"
 )
 
-// I know global variables are bad, but sometimes GitHub is not returning rate limits
-// but error instead (when 0 API points are available), we can use last known value then
-var globalRL *github.RateLimits
-var globalRLMutex = &sync.Mutex{}
-
 // GetRateLimits - returns all and remaining API points and duration to wait for reset
 // when core=true - returns Core limits, when core=false returns Search limits
 func GetRateLimits(gctx context.Context, gc *github.Client, core bool) (int, int, time.Duration) {
 	rl, _, err := gc.RateLimits(gctx)
 	if err != nil {
-		rl = globalRL
-	} else {
-		globalRLMutex.Lock()
-		globalRL = rl
-		globalRLMutex.Unlock()
+		Printf("GetRateLimit: %v\n", err)
 	}
 	if rl == nil {
 		return -1, -1, time.Duration(5) * time.Second
