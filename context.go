@@ -79,6 +79,7 @@ type Ctx struct {
 	RecentRange         string          // From GHA2DB_RECENT_RANGE, ghapi2db tool, default '2 hours'. This is a recent period to check open issues/PR to fix their labels and milestones.
 	MinGHAPIPoints      int             // From GHA2DB_MIN_GHAPI_POINTS, ghapi2db tool, minimum GitHub API points, before waiting for reset.
 	MaxGHAPIWaitSeconds int             // From GHA2DB_MAX_GHAPI_WAIT, ghapi2db tool, maximum wait time for GitHub API points reset (in seconds).
+	MaxGHAPIRetry       int             // From GHA2DB_MAX_GHAPI_RETRY, ghapi2db tool, maximum wait retries
 	SkipGHAPI           bool            // From GHA2DB_GHAPISKIP, ghapi2db tool, if set then tool is not creating artificial events using GitHub API
 	SkipArtificailClean bool            // From GHA2DB_AECLEANSKIP, ghapi2db tool, if set then tool is not attempting to clean unneeded artificial events
 	SkipGetRepos        bool            // From GHA2DB_GETREPOSSKIP, get_repos tool, if set then tool does nothing
@@ -117,6 +118,14 @@ func (ctx *Ctx) Init() {
 		FatalNoLog(err)
 		if secs >= 0 {
 			ctx.MaxGHAPIWaitSeconds = secs
+		}
+	}
+	ctx.MaxGHAPIRetry = 3
+	if os.Getenv("GHA2DB_MAX_GHAPI_RETRY") != "" {
+		tr, err := strconv.Atoi(os.Getenv("GHA2DB_MAX_GHAPI_RETRY"))
+		FatalNoLog(err)
+		if tr >= 1 {
+			ctx.MaxGHAPIRetry = tr
 		}
 	}
 

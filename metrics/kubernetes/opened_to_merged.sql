@@ -1,5 +1,6 @@
 with prs as (
-  select pr.created_at, pr.merged_at
+  select pr.created_at,
+    pr.merged_at
   from
     gha_pull_requests pr
   where

@@ -19,6 +19,7 @@ func copyContext(in *lib.Ctx) *lib.Ctx {
 		CmdDebug:            in.CmdDebug,
 		MinGHAPIPoints:      in.MinGHAPIPoints,
 		MaxGHAPIWaitSeconds: in.MaxGHAPIWaitSeconds,
+		MaxGHAPIRetry:       in.MaxGHAPIRetry,
 		JSONOut:             in.JSONOut,
 		DBOut:               in.DBOut,
 		ST:                  in.ST,
@@ -206,6 +207,7 @@ func TestInit(t *testing.T) {
 		CmdDebug:            0,
 		MinGHAPIPoints:      1,
 		MaxGHAPIWaitSeconds: 5,
+		MaxGHAPIRetry:       3,
 		JSONOut:             false,
 		DBOut:               true,
 		ST:                  false,
@@ -374,6 +376,33 @@ func TestInit(t *testing.T) {
 				t,
 				copyContext(&defaultContext),
 				map[string]interface{}{"MaxGHAPIWaitSeconds": 1000},
+			),
+		},
+		{
+			"Setting GitHub API Retry 0",
+			map[string]string{"GHA2DB_MAX_GHAPI_RETRY": "0"},
+			dynamicSetFields(
+				t,
+				copyContext(&defaultContext),
+				map[string]interface{}{"MaxGHAPIRetry": 3},
+			),
+		},
+		{
+			"Setting GitHub API Retry 1",
+			map[string]string{"GHA2DB_MAX_GHAPI_RETRY": "1"},
+			dynamicSetFields(
+				t,
+				copyContext(&defaultContext),
+				map[string]interface{}{"MaxGHAPIRetry": 1},
+			),
+		},
+		{
+			"Setting GitHub API Retry 5",
+			map[string]string{"GHA2DB_MAX_GHAPI_RETRY": "5"},
+			dynamicSetFields(
+				t,
+				copyContext(&defaultContext),
+				map[string]interface{}{"MaxGHAPIRetry": 5},
 			),
 		},
 		{
