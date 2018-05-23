@@ -94,6 +94,7 @@ then
   then
     GHA2DB_PROJECT="$PROJ" PG_DB="$PROJDB" ./gha2db_sync || exit 20
   fi
+  cron_db_backup.sh "$PROJDB" || exit 24
 else
   echo "TS database $PROJDB generation skipped"
 fi
