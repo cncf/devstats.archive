@@ -205,7 +205,7 @@ func TestInit(t *testing.T) {
 		Debug:               0,
 		CmdDebug:            0,
 		MinGHAPIPoints:      1,
-		MaxGHAPIWaitSeconds: 1,
+		MaxGHAPIWaitSeconds: 5,
 		JSONOut:             false,
 		DBOut:               true,
 		ST:                  false,
@@ -350,7 +350,7 @@ func TestInit(t *testing.T) {
 			),
 		},
 		{
-			"Setting GitHub API Wait 1",
+			"Setting GitHub API Wait 0",
 			map[string]string{"GHA2DB_MAX_GHAPI_WAIT": "0"},
 			dynamicSetFields(
 				t,
@@ -359,16 +359,16 @@ func TestInit(t *testing.T) {
 			),
 		},
 		{
-			"Setting GitHub API Wait 2",
+			"Setting GitHub API Wait -1",
 			map[string]string{"GHA2DB_MAX_GHAPI_WAIT": "-1"},
 			dynamicSetFields(
 				t,
 				copyContext(&defaultContext),
-				map[string]interface{}{"MaxGHAPIWaitSeconds": 1},
+				map[string]interface{}{"MaxGHAPIWaitSeconds": 5},
 			),
 		},
 		{
-			"Setting GitHub API Wait 3",
+			"Setting GitHub API Wait 1000",
 			map[string]string{"GHA2DB_MAX_GHAPI_WAIT": "1000"},
 			dynamicSetFields(
 				t,

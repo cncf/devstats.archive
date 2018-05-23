@@ -11,7 +11,7 @@ import (
 )
 
 // I know global variables are bad, but sometimes GitHub is not returning rate limits
-// butt error instead (when 0 API points are available), we can use last known value then
+// but error instead (when 0 API points are available), we can use last known value then
 var globalRL *github.RateLimits
 var globalRLMutex = &sync.Mutex{}
 
@@ -25,6 +25,9 @@ func GetRateLimits(gctx context.Context, gc *github.Client, core bool) (int, int
 		globalRLMutex.Lock()
 		globalRL = rl
 		globalRLMutex.Unlock()
+	}
+	if rl == nil {
+		return -1, -1, time.Duration(5) * time.Second
 	}
 	if core {
 		return rl.Core.Limit, rl.Core.Remaining, rl.Core.Reset.Time.Sub(time.Now()) + time.Duration(1)*time.Second
