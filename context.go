@@ -111,7 +111,7 @@ func (ctx *Ctx) Init() {
 			ctx.MinGHAPIPoints = pts
 		}
 	}
-	ctx.MaxGHAPIWaitSeconds = 1
+	ctx.MaxGHAPIWaitSeconds = 5
 	if os.Getenv("GHA2DB_MAX_GHAPI_WAIT") != "" {
 		secs, err := strconv.Atoi(os.Getenv("GHA2DB_MAX_GHAPI_WAIT"))
 		FatalNoLog(err)
