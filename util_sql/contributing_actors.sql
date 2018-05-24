@@ -1,27 +1,18 @@
 select
   -- string_agg(sub.actor, ',')
-  sub.id,
-  coalesce(sub.name, '-') as name,
-  coalesce(sub.email, '-') as email
+  sub.actor
 from (
-  select distinct a.login as id,
-    a.name,
-    ae.email
+  select distinct a.login as actor
   from
     gha_events e,
     gha_actors a
-  left join
-    gha_actors_emails ae
-  on
-    ae.actor_id = a.id
   where
     (e.actor_id = a.id or e.dup_actor_login = a.login)
     and type in (
-      'PushEvent', 'PullRequestEvent', 'IssuesEvent'
+      'PullRequestReviewCommentEvent', 'PushEvent', 'PullRequestEvent',
+      'IssuesEvent', 'IssueCommentEvent', 'CommitCommentEvent'
     )
   order by
-    id asc,
-    name asc,
-    email asc
+    actor asc
   ) sub
 ;
