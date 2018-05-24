@@ -39,7 +39,9 @@ do
 done
 
 # Special OCI case (not a CNCF project)
-cp images/OCI.svg grafana/img/opencontainers.svg || exit 4
-convert images/OCI.png -resize 32x32 grafana/img/opencontainers32.png || exit 5
-
+if [[ $all = *"opencontainers"* ]]
+then
+  cp images/OCI.svg grafana/img/opencontainers.svg || exit 4
+  convert images/OCI.png -resize 32x32 grafana/img/opencontainers32.png || exit 5
+fi
 echo 'OK'

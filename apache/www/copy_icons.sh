@@ -34,7 +34,9 @@ do
 done
 
 # Special OCI case (not a CNCF project)
-convert ./images/OCI.png -resize 80x80 /var/www/html/img/opencontainers-icon-color.png || exit 4
-cp ./images/OCI.svg /var/www/html/img/opencontainers-icon-color.svg || exit 5
-
+if [[ $all = *"opencontainers"* ]]
+then
+  convert ./images/OCI.png -resize 80x80 /var/www/html/img/opencontainers-icon-color.png || exit 4
+  cp ./images/OCI.svg /var/www/html/img/opencontainers-icon-color.svg || exit 5
+fi
 echo 'OK'
