@@ -164,7 +164,7 @@ func successPayload(ctx *lib.Ctx, pl payload) bool {
 	if pl.Repo.Name != lib.Devstats || pl.Repo.OwnerName != "cncf" {
 		return false
 	}
-	if strings.Contains(pl.Message, "[no deploy]") {
+	if strings.Contains(pl.Message, "[no deploy]") || strings.Contains(pl.Message, "[wip]") {
 		return false
 	}
 	ok := false
