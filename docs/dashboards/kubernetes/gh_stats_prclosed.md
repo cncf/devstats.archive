@@ -10,7 +10,7 @@
 </ul>
 <h1 id="description">Description</h1>
 <ul>
-<li>This documentations only refers to <code>PRs closed</code> statistic.
+<li>This documentations only refers to <code>PRs closed</code> statistic.</li>
 <li>This dashboard shows the number of PRs closed for a selected repository or repository group.</li>
 <li>You can select multiple repositories or repository groups to stack them.</li>
 <li>You can filter by repository or repository group and period.</li>
