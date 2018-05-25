@@ -1,4 +1,4 @@
-# Kubernetes reviewers dashboard (part of GitHub stats dashboard)
+# Kubernetes GitHub stats dashboard
 
 Links:
 - Postgres SQL file: [github_stats_by_repos.sql](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/github_stats_by_repos.sql).
@@ -6,15 +6,20 @@ Links:
 - Time series definition: [metrics.yaml](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/metrics.yaml) (search for `github_stats_by_repo`).
 - Grafana dashboard JSON: [github-stats-by-repository.json](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/github-stats-by-repository.json).
 - Grafana dashboard JSON: [github-stats-by-repository-group.json](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/github-stats-by-repository-group.json).
-- User documentation: [reviewers.md](https://github.com/cncf/devstats/blob/master/docs/dashboards/kubernetes/reviewers.md).
 - Production version: [view stats by repos](https://k8s.devstats.cncf.io/d/49/github-stats-by-repository?orgId=1), [view stats by repo groups](https://k8s.devstats.cncf.io/d/48/github-stats-by-repository-group?orgId=1).
 - Test version: [view stats by repos](https://k8s.cncftest.io/d/49/github-stats-by-repository?orgId=1), [view stats by repo groups](https://k8s.cncftest.io/d/48/github-stats-by-repository-group?orgId=1).
 
 # Description
 
-- We're quering `gha_texts` table. It contains all 'texts' from all Kubernetes repositories.
+- This metric calculates various stats: Commits, Issues closed, Issues opened, PRs opened, PRs merged, PRs closed, PR comments, PR commenters, Issue comments, Issue commenters, Reviewers
+- For commits we're counting distinct SHAs from `gha_commits table. See [docs/tables/gha_commits.md](https://github.com/cncf/devstats/blob/master/docs/tables/gha_commits.md).
+- For issues opened and closed we're counding distinct issue ids from `gha_issues` table opened or closed in a gived date range. See [docs/tables/gha_issues.md](https://github.com/cncf/devstats/blob/master/docs/tables/gha_issues.md).
+- For PRs opened, merged closed we're counding distinct PR ids from `gha_pull_requests` table opened or closed in a gived date range. See [docs/tables/gha_pull_requests.md](https://github.com/cncf/devstats/blob/master/docs/tables/gha_pull_requests.md).
+- For PRs comments and commenters we're counting comments or distict comments authors. They happen on `gha_issues` table with `is_pull_request = true` filter.
+- For issues comments and commenters we're counting comments or distict comments authors. They happen on `gha_issues` table with `is_pull_request = false` filter.
+- For reviewers metric we're quering `gha_texts` table. It contains all 'texts' from all Kubernetes repositories.
 - For more information about `gha_texts` table please check: [docs/tables/gha_texts.md](https://github.com/cncf/devstats/blob/master/docs/tables/gha_texts.md).
-- We're creating temporary table 'matching' which contains all event IDs that contain `/lgtm` or `/approve` (no case sensitive) in a separate line (there can be more lines before and/or after this line).
+- We're using 'matching' which contains all event IDs that contain `/lgtm` or `/approve` (no case sensitive) in a separate line (there can be more lines before and/or after this line).
 - The exact psql regexp is: `(?i)(?:^|\n|\r)\s*/(?:lgtm|approve)\s*(?:\n|\r|$)`.
 - We're only looking for texts created between `{{from}}` and `{{to}}` dates. Values for `from` and `to` will be replaced with final periods described later.
 - We are counting actors who added text matching given regexp.
@@ -38,34 +43,36 @@ Links:
 
 Metric usage is defined in metric.yaml as follows:
 ```
-- name: Github Stats by Repository Group
-  series_name_or_func: multi_row_single_column
-  sql: github_stats_by_repo_groups
-  periods: h,d,w,m,q,y
-  aggregate: 1,3,4,7,24
-  skip: h7,w7,m7,q7,y7,h3,d3,w3,q3,y3,h4,d4,y4,d24,w24,m24,q24,y24
-  multi_value: true
-- name: Github Stats by Repository
-  series_name_or_func: multi_row_single_column
-  sql: github_stats_by_repos
-  periods: h,d,w,m,q,y
-  aggregate: 1,3,4,7,24
-  skip: h7,w7,m7,q7,y7,h3,d3,w3,q3,y3,h4,d4,y4,d24,w24,m24,q24,y24
-  multi_value: true
+  - name: Github Stats by Repository Group
+    series_name_or_func: multi_row_single_column
+    sql: github_stats_by_repo_groups
+    periods: h,d,w,m,q,y
+    aggregate: 1,7,24
+    skip: h7,w7,m7,q7,y7,d24,w24,m24,q24,y24
+    multi_value: true
+    merge_series: gh_stats_rgrp
+  - name: Github Stats by Repository
+    series_name_or_func: multi_row_single_column
+    sql: github_stats_by_repos
+    periods: h,d,w,m,q,y
+    aggregate: 1,7,24
+    skip: h7,w7,m7,q7,y7,d24,w24,m24,q24,y24
+    multi_value: true
+    merge_series: gh_stats_r
 ```
 - It means that we should call Postgres metric [github_stats_by_repo_groups.sql](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/github_stats_by_repo_groups.sql) and [github_stats_by_repos.sql](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/github_stats_by_repos.sql).
 - We should expect multiple rows each with 2 columns: 1st defines output series name, 2nd defines value.
-- We're using `multivalue: true` which means first column will contain multivalued series definition. It is comma `,` separated. Series name comes first, and then series value name.
-- For example 1st column: `'gh_stats_repo_groups_reviewers,Kubernetes'`, 2nd column: `20.0` will create series named `gh_stats_repo_groups_reviewers` with column `Kubernetes` with value `20.0`.
-- This SQLs calculate many metrics in addition to reviewers, general series name will be `gh_stats_repo_groups_{{stat}}` and `gh_stats_repos_{{stat}}`, we're only describing `{{stat}} = reviewers` case in this documentation.
+- We're using `merge_series: name` which means first column will contain multivalued series definition. It is comma `,` separated. Series name comes first, and then series value name. Series name will come to `series` column in TSDB.
+- For example 1st column: `'gh_stats_repo_groups_reviewers,Kubernetes'`, 2nd column: `20.0` will create series named `gh_stats_rgrp_reviewers` with column `Kubernetes` with value `20.0`.
+- This SQLs calculate many metrics in addition to reviewers, general series name will be `gh_stats_rgrp_{{stat}}` and `gh_stats_r_{{stat}}`, we're only describing `{{stat}} = reviewers` case in this documentation.
 - See [here](https://github.com/cncf/devstats/blob/master/docs/periods.md) for periods definitions.
-- The final series name would be (for repo groups version): `gh_stats_repo_groups_[[stat]]_[[period]]` and column anmes from `[[repogroup]]`.
-- Value of `[[period]]` will be from d,w,m,q,y,d7 and `[[repogroup]]` will be from 'all,apps,contrib,kubernetes,...', see [repository groups](https://github.com/cncf/devstats/blob/master/docs/repository_groups.md) for details.
-- The final series name would be (for repos version): `gh_stats_repos_[[stat]]_[[period]]` and column names from`[[repo]]` that will be from one of the Kubernetes projects repo name (with special characters changed to `_`, for example `kubernetes_kubernetes`).
+- The final series name would be (for repo groups version): `gh_stats_rgrp_[[stat]]` and column names from `[[repogroup]]`.
+- Value of `period` column will be from d,w,m,q,y,d7 and `[[repogroup]]` will be from 'all,apps,contrib,kubernetes,...', see [repository groups](https://github.com/cncf/devstats/blob/master/docs/repository_groups.md) for details.
+- The final series name would be (for repos version): `gh_stats_r_[[stat]]`, and column names from `[[repo]]` that will be from one of the Kubernetes projects repo name (with special characters changed to `_`, for example `kubernetes_kubernetes`).
 - Repo group name and repo name returned by Postgres SQL is normalized (downcased, removed special chars etc.) to be usable as a series name [here](https://github.com/cncf/devstats/blob/master/cmd/calc_metric/calc_metric.go#L112) using [this](https://github.com/cncf/devstats/blob/master/unicode.go#L23).
 - Final query is [here](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/github-stats-by-repository.json) or [there](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/github-stats-by-repository-group.json), search for `gh_stats_repo`.
 - `$timeFiler` value comes from Grafana date range selector. It is handled by Grafana internally.
-- `[[period]]` comes from variable definition in dashboard JSON, search for `"period"`.
+- `[[period]]` comes from variable definition in dashboard JSON, search for `"period"`. It is saved in `period` column for each series.
 - `[[repogroup]]` or `[[repo]]` comes from Grafana variable that uses tags values, search for `repos` or `repogroups`.
 - For repos we're using repo [aliases](https://github.com/cncf/devstats/blob/master/docs/repository_aliases.md) to avoid duplicating renamed repositories.
 - To see more details about repository group tags, and all other tags check [tags.md](https://github.com/cncf/devstats/blob/master/docs/tags.md).

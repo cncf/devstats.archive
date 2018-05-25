@@ -6,7 +6,7 @@
 <li>TSDB <a href="https://github.com/cncf/devstats/blob/master/metrics/kubernetes/metrics.yaml" target="_blank">series definition</a>. Search for <code>github_stats_by_repo</code></li>
 <li>Grafana dashboard <a href="https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/github-stats-by-repository-group.json" target="_blank">JSON</a> (repository groups version).</li>
 <li>Grafana dashboard <a href="https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/github-stats-by-repository.json" target="_blank">JSON</a> (repositories version).</li>
-<li>Developer <a href="https://github.com/cncf/devstats/blob/master/docs/dashboards/kubernetes/reviewers_devel.md" target="_blank">documentation</a>.</li>
+<li>Developer <a href="https://github.com/cncf/devstats/blob/master/docs/dashboards/kubernetes/ghstats_devel.md" target="_blank">documentation</a>.</li>
 </ul>
 <h1 id="description">Description</h1>
 <ul>
