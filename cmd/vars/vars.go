@@ -24,6 +24,7 @@ type pvar struct {
 	Value    string     `yaml:"value"`
 	Command  []string   `yaml:"command"`
 	Replaces [][]string `yaml:"replaces"`
+	Disabled bool       `yaml:"disabled"`
 }
 
 // Insert Postgres vars
@@ -62,7 +63,10 @@ func pdbVars() {
 	// Iterate vars
 	for _, va := range allVars.Vars {
 		if ctx.Debug > 0 {
-			lib.Printf("Variable Name '%s', Value '%s', Type '%s', Command %v, Replaces %v\n", va.Name, va.Value, va.Type, va.Command, va.Replaces)
+			lib.Printf("Variable Name '%s', Value '%s', Type '%s', Command %v, Replaces %v, Disabled: %v\n", va.Name, va.Value, va.Type, va.Command, va.Replaces, va.Disabled)
+		}
+		if va.Disabled {
+			continue
 		}
 		if va.Type == "" || va.Name == "" || (va.Value == "" && len(va.Command) == 0) {
 			lib.Printf("Incorrect variable configuration, skipping\n")
