@@ -1,4 +1,4 @@
-<h1 id="kubernetes-sig-mentions-dashboard">Kubernetes SIG mentions dashboard</h1>
+<h1 id="kubernetes-sig-mentions-dashboard">[[full_name]] SIG mentions dashboard</h1>
 <p>Links:</p>
 <ul>
 <li>Postgres <a href="https://github.com/cncf/devstats/blob/master/metrics/kubernetes/sig_mentions.sql" target="_blank">SQL file</a>.</li>

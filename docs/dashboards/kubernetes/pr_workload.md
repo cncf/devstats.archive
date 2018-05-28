@@ -1,4 +1,4 @@
-<h1 id="kubernetes-dashboard">Kubernetes PR Workload per SIG dashboards (chart and table)</h1>
+<h1 id="kubernetes-dashboard">[[full_name]] PR Workload per SIG dashboards (chart and table)</h1>
 <p>Links:</p>
 <ul>
 <li>Chart version metric <a href="https://github.com/cncf/devstats/blob/master/metrics/kubernetes/pr_workload.sql" target="_blank">SQL file</a>.</li>

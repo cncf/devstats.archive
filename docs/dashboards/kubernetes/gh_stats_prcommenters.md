@@ -1,4 +1,4 @@
-<h1 id="kubernetes-ghstats-dashboard">Kubernetes GitHub stats dashboard (PR commenters)</h1>
+<h1 id="kubernetes-ghstats-dashboard">[[full_name]] GitHub stats dashboard (PR commenters)</h1>
 <p>Links:</p>
 <ul>
 <li>Repository groups version metric <a href="https://github.com/cncf/devstats/blob/master/metrics/kubernetes/github_stats_by_repo_groups.sql" target="_blank">SQL file</a>.</li>
