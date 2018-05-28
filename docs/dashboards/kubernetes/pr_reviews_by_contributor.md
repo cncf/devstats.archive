@@ -1,4 +1,4 @@
-<h1 id="kubernetes-dashboard">Kubernetes PR Reviews by Contributor dashboard</h1>
+<h1 id="kubernetes-dashboard">[[full_name]] PR Reviews by Contributor dashboard</h1>
 <p>Links:</p>
 <ul>
 <li>Metric <a href="https://github.com/cncf/devstats/blob/master/metrics/kubernetes/reviews_per_user.sql" target="_blank">SQL file</a>.</li>

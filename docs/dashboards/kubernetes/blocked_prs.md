@@ -1,4 +1,4 @@
-<h1 id="kubernetes-dashboard">Kubernetes Blocked PRs by repository group dashboard</h1>
+<h1 id="kubernetes-dashboard">[[full_name]] Blocked PRs by repository group dashboard</h1>
 <p>Links:</p>
 <ul>
 <li>Metric <a href="https://github.com/cncf/devstats/blob/master/metrics/kubernetes/prs_blocked.sql" target="_blank">SQL file</a>.</li>

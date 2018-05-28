@@ -1,4 +1,4 @@
-<h1 id="kubernetes-dashboard">Kubernetes Bot commands repository group dashboard</h1>
+<h1 id="kubernetes-dashboard">[[full_name]] Bot commands repository group dashboard</h1>
 <p>Links:</p>
 <ul>
 <li>Metric <a href="https://github.com/cncf/devstats/blob/master/metrics/kubernetes/bot_commands.sql" target="_blank">SQL file</a>.</li>

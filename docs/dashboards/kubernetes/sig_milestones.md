@@ -1,4 +1,4 @@
-<h1 id="kubernetes-dashboard">Kubernetes open issues/PRs by milestone and repository dashboard</h1>
+<h1 id="kubernetes-dashboard">[[full_name]] open issues/PRs by milestone and repository dashboard</h1>
 <p>Links:</p>
 <ul>
 <li>Open issues metric <a href="https://github.com/cncf/devstats/blob/master/metrics/kubernetes/open_issues_sigs_milestones.sql" target="_blank">SQL file</a>.</li>
