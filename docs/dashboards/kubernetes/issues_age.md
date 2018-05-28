@@ -7,7 +7,7 @@
 </ul>
 <h1 id="description">Description</h1>
 <ul>
-<li>This dashboard shows how many issues were open at given point in time and what was the median open to close time.</li>
+<li>This dashboard shows the chart of how many issues were open in selected periods and what was the median issue open to close time.</li>
 <li>Issue SIG is determined by <code>sig/*</code> labels. You can also select summary for all issues by choosing <code>All</code> SIG.</li>
 <li>Issue kind is determined by <code>kind/*</code> labels. You can also select summary for all issues by choosing <code>All</code> kind.</li>
 <li>Issue priority is determined by <code>priority/*</code> labels. You can also select summary for all issues by choosing <code>All</code> priority.</li>
