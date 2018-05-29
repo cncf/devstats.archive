@@ -146,6 +146,10 @@ Examples in this shell script (some commented out, some not):
 
 `time PG_PASS=your_pass ./scripts/gha2db.sh`
 
+# Postgres tuning
+
+You can use [this](https://pgtune.leopard.in.ua/#/) website to generate tuned values for `postgresql.conf` file.
+
 # Informations
 
 GitHub archives keep data as Gzipped JSONs for each hour (24 gzipped JSONs per day).
