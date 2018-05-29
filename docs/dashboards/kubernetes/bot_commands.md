@@ -7,7 +7,7 @@
 </ul>
 <h1 id="description">Description</h1>
 <ul>
-<li>This dashboard shows how many times given bot commands were used</li>
+<li>This dashboard shows how many times given bot commands were used.</li>
 <li>Bot commands set is defined (hardcoded) in the metric sql, they start with <code>/</code>.</li>
 <li>Drop-down commands values come from <a href="https://github.com/cncf/devstats/blob/master/metrics/kubernetes/bot_commands_tags.sql" target="_blank">this</a> file. You can select either all or a subset of all commands to display.</li>
 <li>You can select single repository group or summary for all of them.</li>
