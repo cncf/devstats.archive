@@ -11,7 +11,7 @@
 <li>Non-closed PR is a PR that is either open or merged.</li>
 <li>Approved PR is a PR that is either merged or open and have <code>approved</code> or <code>lgtm</code> label.</li>
 <li>You can select single repository group or summary for all of them.</li>
-<li>Selecting period (for example week) means that dashboard will data for PRs modified in those periods.</li>
+<li>Selecting period (for example week) means that dashboard will show data for PRs modified in those periods.</li>
 <li>See <a href="https://github.com/cncf/devstats/blob/master/docs/periods.md" target="_blank">here</a> for more informations about periods.</li>
 <li>See <a href="https://github.com/cncf/devstats/blob/master/docs/repository_groups.md" target="_blank">here</a> for more informations about repository groups.</li>
 </ul>
