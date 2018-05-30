@@ -10,5 +10,5 @@
 <li>This dashboard shows median, 85th and 95th percentices of number of comments on PRs created in given periods.</li>
 <li>Selecting period (for example week) means that dashboard will show number of comments created in those periods.</li>
 <li>See <a href="https://github.com/cncf/devstats/blob/master/docs/periods.md" target="_blank">here</a> for more informations about periods.</li>
-<li>We are skipping bots when displaying bots commands usage, see <a href="https://github.com/cncf/devstats/blob/master/docs/excluding_bots.md" target="_blank">excluding bots</a> for details.</li>
+<li>We are skipping bots activity, see <a href="https://github.com/cncf/devstats/blob/master/docs/excluding_bots.md" target="_blank">excluding bots</a> for details.</li>
 </ul>
