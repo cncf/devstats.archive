@@ -1,9 +1,9 @@
-<h1 id="kubernetes-dashboard">[[full_name]] PR comments dashboard</h1>
+<h1 id="kubernetes-dashboard">[[full_name]] PR Time to Approve and Merge dashboard</h1>
 <p>Links:</p>
 <ul>
-<li>Metric <a href="https://github.com/cncf/devstats/blob/master/metrics/shared/pr_comments.sql" target="_blank">SQL file</a>.</li>
-<li>TSDB <a href="https://github.com/cncf/devstats/blob/master/metrics/kubernetes/metrics.yaml" target="_blank">series definition</a>. Search for <code>pr_comments</code></li>
-<li>Grafana dashboard <a href="https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/pr-comments.json" target="_blank">JSON</a>.</li>
+<li>Metric <a href="https://github.com/cncf/devstats/blob/master/metrics/shared/time_metrics.sql" target="_blank">SQL file</a>.</li>
+<li>TSDB <a href="https://github.com/cncf/devstats/blob/master/metrics/kubernetes/metrics.yaml" target="_blank">series definition</a>. Search for <code>time_metrics</code></li>
+<li>Grafana dashboard <a href="https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/pr-time-to-approve-and-merge.json" target="_blank">JSON</a>.</li>
 </ul>
 <h1 id="description">Description</h1>
 <ul>
