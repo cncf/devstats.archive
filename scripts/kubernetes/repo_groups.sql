@@ -138,13 +138,6 @@ update gha_repos set repo_group = 'Docs' where name in (
   'kubernetes/md-format'
 );
 
-update gha_repos set repo_group = 'Helm' where org_login in (
-  'kubernetes-helm'
-) or name in (
-  'kubernetes/helm',
-  'kubernetes/charts'
-);
-
 -- By default alias is the newest repo name for given repo ID
 update
   gha_repos r
