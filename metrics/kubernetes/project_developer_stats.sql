@@ -39,7 +39,10 @@ from (
   from
     gha_events
   where
-    type in ('PushEvent', 'PullRequestEvent', 'IssuesEvent')
+    type in (
+      'PushEvent', 'PullRequestEvent', 'IssuesEvent',
+      'CommitCommentEvent', 'IssueCommentEvent', 'PullRequestReviewCommentEvent'
+    )
     and {{period:created_at}}
     and (lower(dup_actor_login) {{exclude_bots}})
   group by
@@ -195,7 +198,10 @@ from (
       ecf.event_id = e.id
     where
       r.name = e.dup_repo_name
-      and e.type in ('PushEvent', 'PullRequestEvent', 'IssuesEvent')
+      e.type in (
+        'PushEvent', 'PullRequestEvent', 'IssuesEvent',
+        'CommitCommentEvent', 'IssueCommentEvent', 'PullRequestReviewCommentEvent'
+      )
       and {{period:e.created_at}}
       and (lower(e.dup_actor_login) {{exclude_bots}})
   ) sub
