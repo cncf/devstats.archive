@@ -15,12 +15,14 @@ set
   repo_group = 'Kubernetes',
   alias = 'Kubernetes'
 where
-  org_login in (
-    'kubernetes', 'kubernetes-client', 'kubernetes-incubator', 'kubernetes-helm'
-  )
-  or name in (
-    'GoogleCloudPlatform/kubernetes', 'kubernetes' , 'kubernetes-client'
- )
+  (
+    org_login in (
+      'kubernetes', 'kubernetes-client', 'kubernetes-incubator'
+    )
+    or name in (
+      'GoogleCloudPlatform/kubernetes', 'kubernetes' , 'kubernetes-client'
+    )
+  ) and name not in ('kubernetes/helm', 'kubernetes/deployment-manager', 'kubernetes/charts')
 ;
 
 -- Prometheus
@@ -240,9 +242,20 @@ update
   gha_repos
 set
   repo_group = 'Telepresence',
-  alias = 'telepresence'
+  alias = 'Telepresence'
 where
   org_login in ('datawire', 'telepresenceio')
+;
+
+-- Helm
+update
+  gha_repos
+set
+  repo_group = 'Helm',
+  alias = 'Helm'
+where
+  org_login in ('kubernetes-helm', 'helm')
+  or name in ('kubernetes/helm', 'kubernetes/deployment-manager', 'kubernetes/charts')
 ;
 
 -- CNCF

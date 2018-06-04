@@ -29,6 +29,7 @@ icontypes=(
   ["cncf"]="color"
   ["cloudevents"]="color"
   ["telepresence"]="color"
+  ["helm"]="color"
   ["all"]="color"
 )
 icontype=${icontypes[$1]}
