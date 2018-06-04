@@ -5,6 +5,9 @@ select
   min(created_at) as date_from,
   max(created_at) as date_to
 from
+  [githubarchive:month.201805],
+  [githubarchive:month.201804],
+  [githubarchive:month.201803],
   [githubarchive:month.201802],
   [githubarchive:month.201801],
   [githubarchive:year.2017],
@@ -16,7 +19,7 @@ where
     select
       org.login
     from
-      [githubarchive:month.201802]
+      [githubarchive:month.201805]
     where
       org.login = 'your_org_name'
     group by
