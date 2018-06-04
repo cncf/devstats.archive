@@ -80,7 +80,7 @@ then
   exists=`sudo -u postgres psql "$PROJDB" -tAc "select to_regclass('sevents_h')"` || exit 22
   if [ "$exists" = "sevents_h" ]
   then
-    echo "Time series data already exists in $PROJDB"
+    echo "time series data already exists in $PROJDB"
   else
     echo "generating TSDB database $PROJDB"
     if [ -f "./$proj/reinit.sh" ]
@@ -89,12 +89,16 @@ then
     else
       GHA2DB_PROJECT=$PROJ PG_DB=$PROJDB ./shared/reinit.sh || exit 19
     fi
+    REINIT=1
   fi
   if [ ! -z "$GOT" ]
   then
     GHA2DB_PROJECT="$PROJ" PG_DB="$PROJDB" ./gha2db_sync || exit 20
   fi
-  cron_db_backup.sh "$PROJDB" || exit 24
+  if [ ! -z "$REINIT" ]
+  then
+    cron_db_backup.sh "$PROJDB" || exit 24
+  fi
 else
   echo "TS database $PROJDB generation skipped"
 fi
