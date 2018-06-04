@@ -198,7 +198,7 @@ from (
       ecf.event_id = e.id
     where
       r.name = e.dup_repo_name
-      e.type in (
+      and e.type in (
         'PushEvent', 'PullRequestEvent', 'IssuesEvent',
         'CommitCommentEvent', 'IssueCommentEvent', 'PullRequestReviewCommentEvent'
       )
