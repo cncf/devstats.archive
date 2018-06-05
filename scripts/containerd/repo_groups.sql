@@ -3,13 +3,11 @@ update
   gha_repos r
 set
   alias = coalesce((
-    select i.name
+    select e.dup_repo_name
     from
-      gha_repos i,
       gha_events e
     where
-      i.id = r.id
-      and e.repo_id = r.id
+      e.repo_id = r.id
     order by
       e.created_at desc
     limit 1
