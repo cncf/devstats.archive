@@ -16,7 +16,10 @@ from (
     {{period:e.created_at}}
     and e.repo_id = r.id
     and (lower(e.dup_actor_login) {{exclude_bots}})
-    and e.type in ('PushEvent', 'PullRequestEvent', 'IssuesEvent')
+    and e.type in (
+      'PushEvent', 'PullRequestEvent', 'IssuesEvent',
+      'CommitCommentEvent', 'IssueCommentEvent', 'PullRequestReviewCommentEvent'
+    )
   ) sub
 where
   sub.repo_group is not null
@@ -30,7 +33,10 @@ from
 where
   {{period:created_at}}
   and (lower(dup_actor_login) {{exclude_bots}})
-  and type in ('PushEvent', 'PullRequestEvent', 'IssuesEvent')
+  and type in (
+    'PushEvent', 'PullRequestEvent', 'IssuesEvent',
+    'CommitCommentEvent', 'IssueCommentEvent', 'PullRequestReviewCommentEvent'
+  )
 union select sub.repo_group,
   'Commits' as name,
   count(distinct sub.sha) as value
