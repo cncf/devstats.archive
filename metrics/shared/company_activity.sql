@@ -16,7 +16,7 @@ from (
     'all' as repo_group,
     count(distinct ev.id) as activity,
     count(distinct ev.actor_id) as authors,
-    count(distinct ev.actor_id) filter (where ev.type in ('IssuesEvent', 'PullRequestEvent', 'PushEvent')) as contributors,
+    count(distinct ev.actor_id) filter (where ev.type in ('IssuesEvent', 'PullRequestEvent', 'PushEvent', 'CommitCommentEvent', 'IssueCommentEvent', 'PullRequestReviewCommentEvent')) as contributors,
     sum(case ev.type when 'IssuesEvent' then 1 else 0 end) as issues,
     sum(case ev.type when 'PullRequestEvent' then 1 else 0 end) as prs,
     sum(case ev.type when 'PushEvent' then 1 else 0 end) as commits,
@@ -34,7 +34,8 @@ from (
     and ev.created_at < '{{to}}'
     and ev.type in (
       'PullRequestReviewCommentEvent', 'PushEvent', 'PullRequestEvent',
-      'IssuesEvent', 'IssueCommentEvent', 'CommitCommentEvent'
+      'IssuesEvent', 'IssueCommentEvent', 'CommitCommentEvent',
+      'ReleaseEvent', 'DeleteEvent', 'CreateEvent', 'GollumEvent'
     )
     and (lower(ev.dup_actor_login) {{exclude_bots}})
     and affs.company_name in (select companies_name from tcompanies)
@@ -44,7 +45,7 @@ from (
     coalesce(ecf.repo_group, r.repo_group) as repo_group,
     count(distinct ev.id) as activity,
     count(distinct ev.actor_id) as authors,
-    count(distinct ev.actor_id) filter (where ev.type in ('IssuesEvent', 'PullRequestEvent', 'PushEvent')) as contributors,
+    count(distinct ev.actor_id) filter (where ev.type in ('IssuesEvent', 'PullRequestEvent', 'PushEvent', 'CommitCommentEvent', 'IssueCommentEvent', 'PullRequestReviewCommentEvent')) as contributors,
     sum(case ev.type when 'IssuesEvent' then 1 else 0 end) as issues,
     sum(case ev.type when 'PullRequestEvent' then 1 else 0 end) as prs,
     sum(case ev.type when 'PushEvent' then 1 else 0 end) as commits,
@@ -68,7 +69,8 @@ from (
     and ev.created_at < '{{to}}'
     and ev.type in (
       'PullRequestReviewCommentEvent', 'PushEvent', 'PullRequestEvent',
-      'IssuesEvent', 'IssueCommentEvent', 'CommitCommentEvent'
+      'IssuesEvent', 'IssueCommentEvent', 'CommitCommentEvent',
+      'ReleaseEvent', 'DeleteEvent', 'CreateEvent', 'GollumEvent'
     )
     and (lower(dup_actor_login) {{exclude_bots}})
     and affs.company_name in (select companies_name from tcompanies)
@@ -79,7 +81,7 @@ from (
     'all' as repo_group,
     count(distinct ev.id) as activity,
     count(distinct ev.actor_id) as authors,
-    count(distinct ev.actor_id) filter (where ev.type in ('IssuesEvent', 'PullRequestEvent', 'PushEvent')) as contributors,
+    count(distinct ev.actor_id) filter (where ev.type in ('IssuesEvent', 'PullRequestEvent', 'PushEvent', 'CommitCommentEvent', 'IssueCommentEvent', 'PullRequestReviewCommentEvent')) as contributors,
     sum(case ev.type when 'IssuesEvent' then 1 else 0 end) as issues,
     sum(case ev.type when 'PullRequestEvent' then 1 else 0 end) as prs,
     sum(case ev.type when 'PushEvent' then 1 else 0 end) as commits,
@@ -93,14 +95,15 @@ from (
     and ev.created_at < '{{to}}'
     and ev.type in (
       'PullRequestReviewCommentEvent', 'PushEvent', 'PullRequestEvent',
-      'IssuesEvent', 'IssueCommentEvent', 'CommitCommentEvent'
+      'IssuesEvent', 'IssueCommentEvent', 'CommitCommentEvent',
+      'ReleaseEvent', 'DeleteEvent', 'CreateEvent', 'GollumEvent'
     )
     and (lower(dup_actor_login) {{exclude_bots}})
   union select 'All' as company,
     coalesce(ecf.repo_group, r.repo_group) as repo_group,
     count(distinct ev.id) as activity,
     count(distinct ev.actor_id) as authors,
-    count(distinct ev.actor_id) filter (where ev.type in ('IssuesEvent', 'PullRequestEvent', 'PushEvent')) as contributors,
+    count(distinct ev.actor_id) filter (where ev.type in ('IssuesEvent', 'PullRequestEvent', 'PushEvent', 'CommitCommentEvent', 'IssueCommentEvent', 'PullRequestReviewCommentEvent')) as contributors,
     sum(case ev.type when 'IssuesEvent' then 1 else 0 end) as issues,
     sum(case ev.type when 'PullRequestEvent' then 1 else 0 end) as prs,
     sum(case ev.type when 'PushEvent' then 1 else 0 end) as commits,
@@ -120,7 +123,8 @@ from (
     and ev.created_at < '{{to}}'
     and ev.type in (
       'PullRequestReviewCommentEvent', 'PushEvent', 'PullRequestEvent',
-      'IssuesEvent', 'IssueCommentEvent', 'CommitCommentEvent'
+      'IssuesEvent', 'IssueCommentEvent', 'CommitCommentEvent',
+      'ReleaseEvent', 'DeleteEvent', 'CreateEvent', 'GollumEvent'
     )
     and (lower(dup_actor_login) {{exclude_bots}})
   group by

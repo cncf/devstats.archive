@@ -56,7 +56,10 @@ from (
     e.actor_id = af.actor_id
     and af.dt_from <= e.created_at
     and af.dt_to > e.created_at
-    and e.type in ('PushEvent', 'PullRequestEvent', 'IssuesEvent')
+    and e.type in (
+      'PushEvent', 'PullRequestEvent', 'IssuesEvent',
+      'CommitCommentEvent', 'IssueCommentEvent', 'PullRequestReviewCommentEvent'
+    )
     and {{period:e.created_at}}
     and (lower(e.dup_actor_login) {{exclude_bots}})
   group by
@@ -71,7 +74,10 @@ from (
     e.actor_id = af.actor_id
     and af.dt_from <= e.created_at
     and af.dt_to > e.created_at
-    and e.type in ('PushEvent', 'PullRequestEvent', 'IssuesEvent')
+    and e.type in (
+      'PushEvent', 'PullRequestEvent', 'IssuesEvent',
+      'CommitCommentEvent', 'IssueCommentEvent', 'PullRequestReviewCommentEvent'
+    )
     and {{period:e.created_at}}
     and (lower(e.dup_actor_login) {{exclude_bots}})
   group by
@@ -201,7 +207,10 @@ from (
   from
     gha_events e
   where
-    e.type in ('PushEvent', 'PullRequestEvent', 'IssuesEvent')
+    e.type in (
+      'PushEvent', 'PullRequestEvent', 'IssuesEvent',
+      'CommitCommentEvent', 'IssueCommentEvent', 'PullRequestReviewCommentEvent'
+    )
     and {{period:e.created_at}}
     and (lower(e.dup_actor_login) {{exclude_bots}})
   union select 'Contributions' as metric,
@@ -210,7 +219,10 @@ from (
   from
     gha_events e
   where
-    e.type in ('PushEvent', 'PullRequestEvent', 'IssuesEvent')
+    e.type in (
+      'PushEvent', 'PullRequestEvent', 'IssuesEvent',
+      'CommitCommentEvent', 'IssueCommentEvent', 'PullRequestReviewCommentEvent'
+    )
     and {{period:e.created_at}}
     and (lower(e.dup_actor_login) {{exclude_bots}})
   union select 'Repositories' as metric,

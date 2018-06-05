@@ -43,7 +43,10 @@ from (
     gha_actors a
   where
     e.actor_id = a.id
-    and e.type in ('PushEvent', 'PullRequestEvent', 'IssuesEvent')
+    and e.type in (
+      'PushEvent', 'PullRequestEvent', 'IssuesEvent',
+      'CommitCommentEvent', 'IssueCommentEvent', 'PullRequestReviewCommentEvent'
+    )
     and {{period:e.created_at}}
     and (lower(e.dup_actor_login) {{exclude_bots}})
   group by
