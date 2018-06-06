@@ -10,6 +10,7 @@ then
   else
     all=`cat ./devel/all_prod_projects.txt`
   fi
+  all="${all} devstats"
 else
   all=$ONLY
 fi
@@ -29,8 +30,13 @@ do
   #   icon="cncf"
   # fi
   icontype=`./devel/get_icon_type.sh "$proj"` || exit 1
-  convert "$HOME/dev/cncf/artwork/$icon/icon/$icontype/$icon-icon-$icontype.png" -resize 80x80 "/var/www/html/img/$proj-icon-color.png" || exit 2
-  cp "$HOME/dev/cncf/artwork/$icon/icon/$icontype/$icon-icon-$icontype.svg" "/var/www/html/img/$proj-icon-color.svg" || exit 3
+  path=$icon
+  if [ "$path" = "devstats" ]
+  then
+    path="other/$icon"
+  fi
+  convert "$HOME/dev/cncf/artwork/$path/icon/$icontype/$icon-icon-$icontype.png" -resize 80x80 "/var/www/html/img/$proj-icon-color.png" || exit 2
+  cp "$HOME/dev/cncf/artwork/$path/icon/$icontype/$icon-icon-$icontype.svg" "/var/www/html/img/$proj-icon-color.svg" || exit 3
 done
 
 # Special OCI case (not a CNCF project)

@@ -31,6 +31,7 @@ icontypes=(
   ["telepresence"]="color"
   ["helm"]="color"
   ["all"]="color"
+  ["devstats"]="color"
 )
 icontype=${icontypes[$1]}
 if [ -z "$icontype" ]
