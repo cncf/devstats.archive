@@ -8,6 +8,7 @@ then
   else
     all=`cat /etc/gha2db/all_prod_dbs.txt`
   fi
+  all="${all} devstats"
 else
   all=$ONLY
 fi
