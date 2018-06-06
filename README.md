@@ -5,7 +5,7 @@
 
 Author: Łukasz Gryglicki <lgryglicki@cncf.io>
 
-This is a toolset to visualize GitHub [archives](https://www.githubarchive.org/) using Grafana dashboards.
+This is a toolset to visualize GitHub [archives](https://www.gharchive.org) using Grafana dashboards.
 
 GHA2DB stands for **G**it**H**ub **A**rchives to **D**ash**B**oards.
 
