@@ -3,39 +3,25 @@ package main
 import (
 	lib "devstats"
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
+	"os"
 	"time"
 
 	yaml "gopkg.in/yaml.v2"
 )
 
-/*
-type AllProjects struct {
-	Projects map[string]Project `yaml:"projects"`
-}
-
-// Project contain mapping from project name to its command line used to sync it
-type Project struct {
-	CommandLine      []string          `yaml:"command_line"`
-	StartDate        *time.Time        `yaml:"start_date"`
-	PDB              string            `yaml:"psql_db"`
-	Disabled         bool              `yaml:"disabled"`
-	MainRepo         string            `yaml:"main_repo"`
-	AnnotationRegexp string            `yaml:"annotation_regexp"`
-	Order            int               `yaml:"order"`
-	JoinDate         *time.Time        `yaml:"join_date"`
-	FilesSkipPattern string            `yaml:"files_skip_pattern"`
-	Env              map[string]string `yaml:"env"`
-}
-*/
-
 type allProjects struct {
 	Projects []project `json:"projects"`
+	Summary  string    `json:"summary"`
 }
 
 type project struct {
-	Title string `json:"title"`
+	Name         string `json:"name"`
+	Title        string `json:"title"`
+	Status       string `json:"status"`
+	Repo         string `json:"repo"`
+	DashboardURL string `json:"dashboardUrl"`
+	DBDumpURL    string `json:"dbDumpUrl"`
 }
 
 func generateWebsiteData() {
@@ -49,6 +35,12 @@ func generateWebsiteData() {
 		dataPrefix = "./"
 	}
 
+	// Get hostname
+	hostname, err := os.Hostname()
+	lib.FatalOnError(err)
+	proto := "https://"
+	prefix := proto + hostname + "/"
+
 	// Read defined projects
 	data, err := ioutil.ReadFile(dataPrefix + ctx.ProjectsYaml)
 	lib.FatalOnError(err)
@@ -61,12 +53,21 @@ func generateWebsiteData() {
 	names, projs := lib.GetProjectsList(&ctx, &projects)
 	for i, name := range names {
 		proj := projs[i]
+		dashURL := proto + name + "." + hostname
+		if name == "kubernetes" {
+			dashURL = proto + "k8s." + hostname
+		}
 		jproj := project{
-			Title: name,
+			Name:         name,
+			Title:        proj.FullName,
+			Status:       proj.Status,
+			Repo:         proj.MainRepo,
+			DashboardURL: dashURL,
+			DBDumpURL:    prefix + proj.PDB + ".dump",
 		}
 		jprojs.Projects = append(jprojs.Projects, jproj)
-		fmt.Printf("%s: %v\n", name, proj)
 	}
+	jprojs.Summary = "all"
 
 	// Marshal JSON
 	jsonBytes, err := json.Marshal(jprojs)
