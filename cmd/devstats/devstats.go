@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
-	"sort"
-	"strings"
 	"time"
 
 	yaml "gopkg.in/yaml.v2"
@@ -20,21 +18,6 @@ func syncAllProjects() bool {
 
 	// Set non-fatal exec mode, we want to run sync for next project(s) if current fails
 	ctx.ExecFatal = false
-
-	// Local or cron mode?
-	cmdPrefix := ""
-	dataPrefix := lib.DataDir
-	if ctx.Local {
-		cmdPrefix = "./"
-		dataPrefix = "./"
-	}
-
-	// Read defined projects
-	data, err := ioutil.ReadFile(dataPrefix + ctx.ProjectsYaml)
-	lib.FatalOnError(err)
-
-	var projects lib.AllProjects
-	lib.FatalOnError(yaml.Unmarshal(data, &projects))
 
 	// Create PID file (if not exists)
 	// If PID file exists, exit
@@ -51,17 +34,13 @@ func syncAllProjects() bool {
 	// Schedule remove PID file when finished
 	defer func() { lib.FatalOnError(os.Remove(pidFile)) }()
 
-	// Sort projects by "order"
-	orders := []int{}
-	projectsMap := make(map[int]string)
-	for name, proj := range projects.Projects {
-		if lib.IsProjectDisabled(&ctx, name, proj.Disabled) {
-			continue
-		}
-		orders = append(orders, proj.Order)
-		projectsMap[proj.Order] = name
+	// Local or cron mode?
+	cmdPrefix := ""
+	dataPrefix := lib.DataDir
+	if ctx.Local {
+		cmdPrefix = "./"
+		dataPrefix = "./"
 	}
-	sort.Ints(orders)
 
 	// Only run clone/pull part here
 	// Remaining commit analysis in"gha2db_sync"
@@ -90,31 +69,17 @@ func syncAllProjects() bool {
 		lib.Printf("Updated git repos, took: %v\n", dtEnd.Sub(dtStart))
 	}
 
-	// Support ONLY="proj1 proj2 ... projN"
-	only := make(map[string]struct{})
-	onlyS := os.Getenv("ONLY")
-	bOnly := false
-	if onlyS != "" {
-		onlyA := strings.Split(onlyS, " ")
-		for _, item := range onlyA {
-			if item == "" {
-				continue
-			}
-			only[item] = struct{}{}
-		}
-		bOnly = true
-	}
+	// Read defined projects
+	data, err := ioutil.ReadFile(dataPrefix + ctx.ProjectsYaml)
+	lib.FatalOnError(err)
 
-	// Sync all projects
-	for _, order := range orders {
-		name := projectsMap[order]
-		if bOnly {
-			_, ok := only[name]
-			if !ok {
-				continue
-			}
-		}
-		proj := projects.Projects[name]
+	var projects lib.AllProjects
+	lib.FatalOnError(yaml.Unmarshal(data, &projects))
+
+	// Get ordered & filtered projects
+	names, projs := lib.GetProjectsList(&ctx, &projects)
+	for i, name := range names {
+		proj := projs[i]
 		projEnv := map[string]string{
 			"GHA2DB_PROJECT": name,
 			"PG_DB":          proj.PDB,
@@ -124,7 +89,7 @@ func syncAllProjects() bool {
 		for envName, envValue := range proj.Env {
 			projEnv[envName] = envValue
 		}
-		lib.Printf("Syncing #%d %s\n", order, name)
+		lib.Printf("Syncing #%d %s\n", proj.Order, name)
 		dtStart := time.Now()
 		_, res := lib.ExecCommand(
 			&ctx,

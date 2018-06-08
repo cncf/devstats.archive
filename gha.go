@@ -2,6 +2,7 @@ package devstats
 
 import (
 	"fmt"
+	"os"
 	"sort"
 	"strings"
 	"time"
@@ -354,6 +355,59 @@ func MakeUniqueSort(ary []string) (outAry []string) {
 		outAry = append(outAry, val)
 	}
 	sort.Strings(outAry)
+	return
+}
+
+// GetProjectsList return list of projects to process
+// It sorts them according to projects.yaml order
+// Handles disabled/enabled projects
+// Handles ONLY="project1 project2 ... projectN" env
+func GetProjectsList(ctx *Ctx, projects *AllProjects) (names []string, projs []Project) {
+	if projects == nil {
+		Fatalf("GetProjectsList: projects is nil")
+	}
+	// Order projects
+	orders := []int{}
+	projectsMap := make(map[int]string)
+
+	// Handle disabled/enabled
+	for name, proj := range projects.Projects {
+		if IsProjectDisabled(ctx, name, proj.Disabled) {
+			continue
+		}
+		orders = append(orders, proj.Order)
+		projectsMap[proj.Order] = name
+	}
+	sort.Ints(orders)
+
+	// Support ONLY="proj1 proj2 ... projN"
+	only := make(map[string]struct{})
+	onlyS := os.Getenv("ONLY")
+	bOnly := false
+	if onlyS != "" {
+		onlyA := strings.Split(onlyS, " ")
+		for _, item := range onlyA {
+			if item == "" {
+				continue
+			}
+			only[item] = struct{}{}
+		}
+		bOnly = true
+	}
+
+	// Order + ONLY
+	for _, order := range orders {
+		name := projectsMap[order]
+		if bOnly {
+			_, ok := only[name]
+			if !ok {
+				continue
+			}
+		}
+		proj := projects.Projects[name]
+		names = append(names, name)
+		projs = append(projs, proj)
+	}
 	return
 }
 
