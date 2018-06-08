@@ -24,6 +24,33 @@ type project struct {
 	DBDumpURL    string `json:"dbDumpUrl"`
 }
 
+type projectStats struct {
+	Totals           activityTotals `json:"activityTotals"`
+	LatestVersion    string         `json:"latestVersion"`
+	OpenIssues       int            `json:"openIssues"`
+	RecentDiscussion int            `json:"recentDiscussion"`
+	Stars            int            `json:"stars"`
+	CommitGraph      commitGraph    `json:"commitGraph"`
+}
+
+type commitGraph struct {
+	Day   [24][2]int `json:"day"`
+	Week  [7][2]int  `json:"week"`
+	Month [4][2]int  `json:"month"`
+}
+
+type activityTotals struct {
+	Day   activityTotal `json:"day"`
+	Week  activityTotal `json:"week"`
+	Month activityTotal `json:"month"`
+}
+
+type activityTotal struct {
+	Commits    int `json:"commits"`
+	Discussion int `json:"discussion"`
+	Stars      int `json:"stars"`
+}
+
 func generateWebsiteData() {
 	// Environment context parse
 	var ctx lib.Ctx
@@ -50,6 +77,7 @@ func generateWebsiteData() {
 
 	// Get ordered & filtered projects
 	var jprojs allProjects
+	pstats := make(map[string]projectStats)
 	names, projs := lib.GetProjectsList(&ctx, &projects)
 	for i, name := range names {
 		proj := projs[i]
@@ -66,6 +94,7 @@ func generateWebsiteData() {
 			DBDumpURL:    prefix + proj.PDB + ".dump",
 		}
 		jprojs.Projects = append(jprojs.Projects, jproj)
+		pstats[name] = projectStats{}
 	}
 	jprojs.Summary = "all"
 
@@ -75,6 +104,15 @@ func generateWebsiteData() {
 	pretty := lib.PrettyPrintJSON(jsonBytes)
 	fn := ctx.JSONsDir + "projects.json"
 	lib.FatalOnError(ioutil.WriteFile(fn, pretty, 0644))
+
+	for name, stats := range pstats {
+		// TODO: calculate stats here
+		jsonBytes, err := json.Marshal(stats)
+		lib.FatalOnError(err)
+		pretty := lib.PrettyPrintJSON(jsonBytes)
+		fn := ctx.JSONsDir + name + ".json"
+		lib.FatalOnError(ioutil.WriteFile(fn, pretty, 0644))
+	}
 }
 
 func main() {
