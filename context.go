@@ -92,6 +92,7 @@ type Ctx struct {
 	ActorsForbid        *regexp.Regexp  // From GHA2DB_ACTORS_FORBID, gha2db tool, process JSON if actor matches this regexp, default ""
 	OnlyMetrics         map[string]bool // From GHA2DB_ONLY_METRICS, gha2db_sync tool, default "" - comma separated list of metrics to process, as fiven my "sql: name" in the "metrics.yaml" file. Only those metrics will be calculated.
 	AllowBrokenJSON     bool            // From GHA2DB_ALLOW_BROKEN_JSON, gha2db tool, default false. If set then gha2db skips broken jsons and saves them as jsons/error_YYYY-MM-DD-h-n-m.json (n is the JSON number (1-m) of m JSONS array)
+	JSONsDir            string          // From GHA2DB_JSONS_DIR website_data tool, default "./jsons/"
 }
 
 // Init - get context from environment variables
@@ -432,6 +433,15 @@ func (ctx *Ctx) Init() {
 	ctx.ProcessCommits = os.Getenv("GHA2DB_PROCESS_COMMITS") != ""
 	ctx.ExternalInfo = os.Getenv("GHA2DB_EXTERNAL_INFO") != ""
 	ctx.ProjectsCommits = os.Getenv("GHA2DB_PROJECTS_COMMITS")
+
+	// `website_data` JSONs dir
+	ctx.JSONsDir = os.Getenv("GHA2DB_JSONS_DIR")
+	if ctx.JSONsDir == "" {
+		ctx.JSONsDir = "./jsons/"
+	}
+	if ctx.JSONsDir[len(ctx.JSONsDir)-1:] != "/" {
+		ctx.JSONsDir += "/"
+	}
 
 	// Calculate all periods?
 	ctx.ComputeAll = os.Getenv("GHA2DB_COMPUTE_ALL") != ""

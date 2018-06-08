@@ -2,6 +2,7 @@ package main
 
 import (
 	lib "devstats"
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"time"
@@ -56,11 +57,23 @@ func generateWebsiteData() {
 	lib.FatalOnError(yaml.Unmarshal(data, &projects))
 
 	// Get ordered & filtered projects
+	var jprojs allProjects
 	names, projs := lib.GetProjectsList(&ctx, &projects)
 	for i, name := range names {
 		proj := projs[i]
+		jproj := project{
+			Title: name,
+		}
+		jprojs.Projects = append(jprojs.Projects, jproj)
 		fmt.Printf("%s: %v\n", name, proj)
 	}
+
+	// Marshal JSON
+	jsonBytes, err := json.Marshal(jprojs)
+	lib.FatalOnError(err)
+	pretty := lib.PrettyPrintJSON(jsonBytes)
+	fn := ctx.JSONsDir + "projects.json"
+	lib.FatalOnError(ioutil.WriteFile(fn, pretty, 0644))
 }
 
 func main() {
