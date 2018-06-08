@@ -73,6 +73,7 @@ func copyContext(in *lib.Ctx) *lib.Ctx {
 		Project:             in.Project,
 		TestsYaml:           in.TestsYaml,
 		ReposDir:            in.ReposDir,
+		JSONsDir:            in.JSONsDir,
 		ExecFatal:           in.ExecFatal,
 		ExecQuiet:           in.ExecQuiet,
 		ExecOutput:          in.ExecOutput,
@@ -262,6 +263,7 @@ func TestInit(t *testing.T) {
 		Project:             "",
 		TestsYaml:           "tests.yaml",
 		ReposDir:            os.Getenv("HOME") + "/devstats_repos/",
+		JSONsDir:            "./jsons/",
 		ExecFatal:           true,
 		ExecQuiet:           false,
 		ExecOutput:          false,
@@ -857,6 +859,32 @@ func TestInit(t *testing.T) {
 				copyContext(&defaultContext),
 				map[string]interface{}{
 					"ReposDir": "~/temp/",
+				},
+			),
+		},
+		{
+			"Setting JSONs dir without ending '/'",
+			map[string]string{
+				"GHA2DB_JSONS_DIR": "/abc",
+			},
+			dynamicSetFields(
+				t,
+				copyContext(&defaultContext),
+				map[string]interface{}{
+					"JSONsDir": "/abc/",
+				},
+			),
+		},
+		{
+			"Setting JSONs dir with ending '/'",
+			map[string]string{
+				"GHA2DB_JSONS_DIR": "/def/ghi/",
+			},
+			dynamicSetFields(
+				t,
+				copyContext(&defaultContext),
+				map[string]interface{}{
+					"JSONsDir": "/def/ghi/",
 				},
 			),
 		},
