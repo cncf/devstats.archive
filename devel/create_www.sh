@@ -15,6 +15,7 @@ then
     cp apache/test/sites-enabled/000-default-le-ssl.conf /etc/apache2/sites-enabled/ || exit 5
     cp apache/test/sites-enabled/000-default.conf /etc/apache2/sites-enabled/ || exit 6
   fi
+  cp apache/www/favicon.ico /var/www/html/favicon.ico || exit 13
 fi
 
 if [ ! -z "$CERT" ]
