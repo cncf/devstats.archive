@@ -91,6 +91,7 @@ type Ctx struct {
 	ActorsAllow         *regexp.Regexp  // From GHA2DB_ACTORS_ALLOW, gha2db tool, process JSON if actor matches this regexp, default ""
 	ActorsForbid        *regexp.Regexp  // From GHA2DB_ACTORS_FORBID, gha2db tool, process JSON if actor matches this regexp, default ""
 	OnlyMetrics         map[string]bool // From GHA2DB_ONLY_METRICS, gha2db_sync tool, default "" - comma separated list of metrics to process, as fiven my "sql: name" in the "metrics.yaml" file. Only those metrics will be calculated.
+	AllowBrokenJSON     bool            // From GHA2DB_ALLOW_BROKEN_JSON, gha2db tool, default false. If set then gha2db skips broken jsons and saves them as jsons/error_YYYY-MM-DD-h-n-m.json (n is the JSON number (1-m) of m JSONS array)
 }
 
 // Init - get context from environment variables
@@ -236,6 +237,9 @@ func (ctx *Ctx) Init() {
 	ctx.SkipTSDB = os.Getenv("GHA2DB_SKIPTSDB") != ""
 	ctx.ResetTSDB = os.Getenv("GHA2DB_RESETTSDB") != ""
 	ctx.ResetRanges = os.Getenv("GHA2DB_RESETRANGES") != ""
+
+	// Allow broken JSON
+	ctx.AllowBrokenJSON = os.Getenv("GHA2DB_ALLOW_BROKEN_JSON") != ""
 
 	// Postgres DB variables
 	ctx.SkipPDB = os.Getenv("GHA2DB_SKIPPDB") != ""

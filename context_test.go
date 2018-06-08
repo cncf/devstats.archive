@@ -42,6 +42,7 @@ func copyContext(in *lib.Ctx) *lib.Ctx {
 		SkipTSDB:            in.SkipTSDB,
 		SkipPDB:             in.SkipPDB,
 		SkipGHAPI:           in.SkipGHAPI,
+		AllowBrokenJSON:     in.AllowBrokenJSON,
 		SkipArtificailClean: in.SkipArtificailClean,
 		SkipGetRepos:        in.SkipGetRepos,
 		ResetTSDB:           in.ResetTSDB,
@@ -230,6 +231,7 @@ func TestInit(t *testing.T) {
 		SkipTSDB:            false,
 		SkipPDB:             false,
 		SkipGHAPI:           false,
+		AllowBrokenJSON:     false,
 		SkipArtificailClean: false,
 		SkipGetRepos:        false,
 		ResetTSDB:           false,
@@ -543,6 +545,19 @@ func TestInit(t *testing.T) {
 					"SkipGHAPI":           true,
 					"SkipGetRepos":        true,
 					"SkipArtificailClean": true,
+				},
+			),
+		},
+		{
+			"Allow broken JSON",
+			map[string]string{
+				"GHA2DB_ALLOW_BROKEN_JSON": "1",
+			},
+			dynamicSetFields(
+				t,
+				copyContext(&defaultContext),
+				map[string]interface{}{
+					"AllowBrokenJSON": true,
 				},
 			),
 		},

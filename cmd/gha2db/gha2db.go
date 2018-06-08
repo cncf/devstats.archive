@@ -1332,7 +1332,7 @@ func writeToDB(db *sql.DB, ctx *lib.Ctx, ev *lib.Event, shas map[string]string) 
 }
 
 // parseJSON - parse signle GHA JSON event
-func parseJSON(con *sql.DB, ctx *lib.Ctx, jsonStr []byte, dt time.Time, forg, frepo map[string]struct{}, shas map[string]string) (f int, e int) {
+func parseJSON(con *sql.DB, ctx *lib.Ctx, idx, njsons int, jsonStr []byte, dt time.Time, forg, frepo map[string]struct{}, shas map[string]string) (f int, e int) {
 	var (
 		h         lib.Event
 		hOld      lib.EventOld
@@ -1346,9 +1346,15 @@ func parseJSON(con *sql.DB, ctx *lib.Ctx, jsonStr []byte, dt time.Time, forg, fr
 	} else {
 		err = json.Unmarshal(jsonStr, &h)
 	}
+	// jsonStr = bytes.Replace(jsonStr, []byte("\x00"), []byte(""), -1)
 	if err != nil {
+		ofn := fmt.Sprintf("jsons/error_%v-%d-%d.json", lib.ToGHADate(dt), idx+1, njsons)
+		lib.FatalOnError(ioutil.WriteFile(ofn, jsonStr, 0644))
 		lib.Printf("%v: Cannot unmarshal:\n%s\n%v\n", dt, string(jsonStr), err)
 		fmt.Fprintf(os.Stderr, "%v: Cannot unmarshal:\n%s\n%v\n", dt, string(jsonStr), err)
+		if ctx.AllowBrokenJSON {
+			return
+		}
 		pretty := lib.PrettyPrintJSON(jsonStr)
 		lib.Printf("%v: JSON Unmarshal failed for:\n'%v'\n", dt, string(pretty))
 		fmt.Fprintf(os.Stderr, "%v: JSON Unmarshal failed for:\n'%v'\n", dt, string(pretty))
@@ -1454,11 +1460,12 @@ func getGHAJSON(ch chan bool, ctx *lib.Ctx, dt time.Time, forg map[string]struct
 
 	// Process JSONs one by one
 	n, f, e := 0, 0, 0
-	for _, json := range jsonsArray {
+	njsons := len(jsonsArray)
+	for i, json := range jsonsArray {
 		if len(json) < 1 {
 			continue
 		}
-		fi, ei := parseJSON(con, ctx, json, dt, forg, frepo, shas)
+		fi, ei := parseJSON(con, ctx, i, njsons, json, dt, forg, frepo, shas)
 		n++
 		f += fi
 		e += ei
