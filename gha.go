@@ -32,6 +32,8 @@ type Project struct {
 	JoinDate         *time.Time        `yaml:"join_date"`
 	FilesSkipPattern string            `yaml:"files_skip_pattern"`
 	Env              map[string]string `yaml:"env"`
+	FullName         string            `yaml:"name"`
+	Status           string            `yaml:"status"`
 }
 
 // AnyArray - holds array of interface{} - just a shortcut
