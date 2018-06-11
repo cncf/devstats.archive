@@ -51,6 +51,12 @@ type activityTotal struct {
 	Stars      int `json:"stars"`
 }
 
+func generateJSONData(ctx *lib.Ctx, name string, stats *projectStats) {
+	// Connect to Postgres DB
+	con := lib.PgConnDB(ctx, name)
+	defer func() { lib.FatalOnError(con.Close()) }()
+}
+
 func generateWebsiteData() {
 	// Environment context parse
 	var ctx lib.Ctx
@@ -105,13 +111,43 @@ func generateWebsiteData() {
 	fn := ctx.JSONsDir + "projects.json"
 	lib.FatalOnError(ioutil.WriteFile(fn, pretty, 0644))
 
-	for name, stats := range pstats {
-		// TODO: calculate stats here
-		jsonBytes, err := json.Marshal(stats)
-		lib.FatalOnError(err)
-		pretty := lib.PrettyPrintJSON(jsonBytes)
-		fn := ctx.JSONsDir + name + ".json"
-		lib.FatalOnError(ioutil.WriteFile(fn, pretty, 0644))
+	// Get number of CPUs available
+	thrN := lib.GetThreadsNum(&ctx)
+
+	if thrN > 1 {
+		ch := make(chan struct{})
+		nThreads := 0
+		for name, stats := range pstats {
+			go func(ch chan struct{}, name string, stats projectStats) {
+				generateJSONData(&ctx, name, &stats)
+				jsonBytes, err := json.Marshal(stats)
+				lib.FatalOnError(err)
+				pretty := lib.PrettyPrintJSON(jsonBytes)
+				fn := ctx.JSONsDir + name + ".json"
+				lib.FatalOnError(ioutil.WriteFile(fn, pretty, 0644))
+				ch <- struct{}{}
+			}(ch, name, stats)
+			nThreads++
+			if nThreads == thrN {
+				<-ch
+				nThreads--
+			}
+		}
+		lib.Printf("Final threads join\n")
+		for nThreads > 0 {
+			<-ch
+			nThreads--
+		}
+	} else {
+		lib.Printf("Using single threaded version\n")
+		for name, stats := range pstats {
+			generateJSONData(&ctx, name, &stats)
+			jsonBytes, err := json.Marshal(stats)
+			lib.FatalOnError(err)
+			pretty := lib.PrettyPrintJSON(jsonBytes)
+			fn := ctx.JSONsDir + name + ".json"
+			lib.FatalOnError(ioutil.WriteFile(fn, pretty, 0644))
+		}
 	}
 }
 
