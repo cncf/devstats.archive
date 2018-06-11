@@ -202,6 +202,16 @@ func generateJSONData(ctx *lib.Ctx, name, excludeBots string, stats *projectStat
 			"and dup_created_at >= now() - '3 months'::interval "+
 			"group by dup_repo_name) sub",
 	)
+	stats.OpenIssues = getIntValue(
+		con,
+		ctx,
+		"select count(sub.id) from (select distinct id, "+
+			"last_value(closed_at) over update_date as closed_at "+
+			"from gha_issues where is_pull_request = false "+
+			"window update_date as (partition by id order by "+
+			"updated_at asc, event_id asc range between current row "+
+			"and unbounded following)) sub where sub.closed_at is null",
+	)
 }
 
 func generateWebsiteData() {
