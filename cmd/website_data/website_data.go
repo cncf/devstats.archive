@@ -1,8 +1,10 @@
 package main
 
 import (
+	"database/sql"
 	lib "devstats"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"time"
@@ -51,10 +53,42 @@ type activityTotal struct {
 	Stars      int `json:"stars"`
 }
 
-func generateJSONData(ctx *lib.Ctx, name string, stats *projectStats) {
+func getIntValue(con *sql.DB, ctx *lib.Ctx, sql string) (ival int) {
+	rows := lib.QuerySQLWithErr(con, ctx, sql)
+	defer func() { lib.FatalOnError(rows.Close()) }()
+	for rows.Next() {
+		lib.FatalOnError(rows.Scan(&ival))
+	}
+	lib.FatalOnError(rows.Err())
+	return
+}
+
+func generateJSONData(ctx *lib.Ctx, name, excludeBots string, stats *projectStats) {
+	if name == "kubernetes" {
+		name = "gha"
+	} else if name == "all" {
+		name = "allprj"
+	}
 	// Connect to Postgres DB
 	con := lib.PgConnDB(ctx, name)
 	defer func() { lib.FatalOnError(con.Close()) }()
+	for i := 0; i < 24; i++ {
+		hTo := 24 - i
+		hFrom := hTo + 1
+		commits := getIntValue(
+			con,
+			ctx,
+			fmt.Sprintf(
+				"select count(distinct sha) from gha_commits "+
+					"where dup_created_at >= now() - '%d hours'::interval "+
+					"and dup_created_at < now() - '%d hours'::interval ",
+				hFrom,
+				hTo,
+			)+"and (lower(dup_actor_login) "+excludeBots+")",
+		)
+		stats.CommitGraph.Day[i][0] = i
+		stats.CommitGraph.Day[i][1] = commits
+	}
 }
 
 func generateWebsiteData() {
@@ -111,6 +145,11 @@ func generateWebsiteData() {
 	fn := ctx.JSONsDir + "projects.json"
 	lib.FatalOnError(ioutil.WriteFile(fn, pretty, 0644))
 
+	// Read bots exclusion partial SQL
+	bytes, err := lib.ReadFile(&ctx, dataPrefix+"util_sql/exclude_bots.sql")
+	lib.FatalOnError(err)
+	excludeBots := string(bytes)
+
 	// Get number of CPUs available
 	thrN := lib.GetThreadsNum(&ctx)
 
@@ -119,7 +158,7 @@ func generateWebsiteData() {
 		nThreads := 0
 		for name, stats := range pstats {
 			go func(ch chan struct{}, name string, stats projectStats) {
-				generateJSONData(&ctx, name, &stats)
+				generateJSONData(&ctx, name, excludeBots, &stats)
 				jsonBytes, err := json.Marshal(stats)
 				lib.FatalOnError(err)
 				pretty := lib.PrettyPrintJSON(jsonBytes)
@@ -141,7 +180,7 @@ func generateWebsiteData() {
 	} else {
 		lib.Printf("Using single threaded version\n")
 		for name, stats := range pstats {
-			generateJSONData(&ctx, name, &stats)
+			generateJSONData(&ctx, name, excludeBots, &stats)
 			jsonBytes, err := json.Marshal(stats)
 			lib.FatalOnError(err)
 			pretty := lib.PrettyPrintJSON(jsonBytes)
