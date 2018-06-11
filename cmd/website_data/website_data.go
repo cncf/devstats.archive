@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"strings"
 	"time"
 
 	yaml "gopkg.in/yaml.v2"
@@ -63,7 +64,7 @@ func getIntValue(con *sql.DB, ctx *lib.Ctx, sql string) (ival int) {
 	return
 }
 
-func generateJSONData(ctx *lib.Ctx, name, excludeBots string, stats *projectStats) {
+func generateJSONData(ctx *lib.Ctx, name, excludeBots, lastTagCmd, repo string, stats *projectStats) {
 	if name == "kubernetes" {
 		name = "gha"
 	} else if name == "all" {
@@ -212,6 +213,20 @@ func generateJSONData(ctx *lib.Ctx, name, excludeBots string, stats *projectStat
 			"updated_at asc, event_id asc range between current row "+
 			"and unbounded following)) sub where sub.closed_at is null",
 	)
+	tag := "-"
+	if repo != "" {
+		var err error
+		rwd := ctx.ReposDir + repo
+		tag, err = lib.ExecCommand(
+			ctx,
+			[]string{lastTagCmd, rwd},
+			map[string]string{"GIT_TERMINAL_PROMPT": "0"},
+		)
+		if err == nil {
+			tag = strings.TrimSpace(tag)
+		}
+	}
+	stats.LatestVersion = tag
 }
 
 func generateWebsiteData() {
@@ -219,11 +234,18 @@ func generateWebsiteData() {
 	var ctx lib.Ctx
 	ctx.Init()
 
+	// We need this to capture 'last_tag.sh' output.
+	ctx.ExecOutput = true
+	ctx.ExecFatal = false
+
 	// Local or cron mode?
 	dataPrefix := lib.DataDir
+	cmdPrefix := ""
 	if ctx.Local {
 		dataPrefix = "./"
+		cmdPrefix = lib.LocalGitScripts
 	}
+	lastTagCmd := cmdPrefix + "last_tag.sh"
 
 	// Get hostname
 	hostname, err := os.Hostname()
@@ -281,7 +303,7 @@ func generateWebsiteData() {
 		nThreads := 0
 		for name, stats := range pstats {
 			go func(ch chan struct{}, name string, stats projectStats) {
-				generateJSONData(&ctx, name, excludeBots, &stats)
+				generateJSONData(&ctx, name, excludeBots, lastTagCmd, projects.Projects[name].MainRepo, &stats)
 				jsonBytes, err := json.Marshal(stats)
 				lib.FatalOnError(err)
 				pretty := lib.PrettyPrintJSON(jsonBytes)
@@ -303,7 +325,7 @@ func generateWebsiteData() {
 	} else {
 		lib.Printf("Using single threaded version\n")
 		for name, stats := range pstats {
-			generateJSONData(&ctx, name, excludeBots, &stats)
+			generateJSONData(&ctx, name, excludeBots, lastTagCmd, projects.Projects[name].MainRepo, &stats)
 			jsonBytes, err := json.Marshal(stats)
 			lib.FatalOnError(err)
 			pretty := lib.PrettyPrintJSON(jsonBytes)
