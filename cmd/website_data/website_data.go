@@ -73,8 +73,8 @@ func generateJSONData(ctx *lib.Ctx, name, excludeBots string, stats *projectStat
 	con := lib.PgConnDB(ctx, name)
 	defer func() { lib.FatalOnError(con.Close()) }()
 	for i := 0; i < 24; i++ {
-		hTo := 24 - i
-		hFrom := hTo + 1
+		to := 23 - i
+		from := to + 1
 		commits := getIntValue(
 			con,
 			ctx,
@@ -82,12 +82,46 @@ func generateJSONData(ctx *lib.Ctx, name, excludeBots string, stats *projectStat
 				"select count(distinct sha) from gha_commits "+
 					"where dup_created_at >= now() - '%d hours'::interval "+
 					"and dup_created_at < now() - '%d hours'::interval ",
-				hFrom,
-				hTo,
+				from,
+				to,
 			)+"and (lower(dup_actor_login) "+excludeBots+")",
 		)
 		stats.CommitGraph.Day[i][0] = i
 		stats.CommitGraph.Day[i][1] = commits
+	}
+	for i := 0; i < 7; i++ {
+		to := 6 - i
+		from := to + 1
+		commits := getIntValue(
+			con,
+			ctx,
+			fmt.Sprintf(
+				"select count(distinct sha) from gha_commits "+
+					"where dup_created_at >= now() - '%d days'::interval "+
+					"and dup_created_at < now() - '%d days'::interval ",
+				from,
+				to,
+			)+"and (lower(dup_actor_login) "+excludeBots+")",
+		)
+		stats.CommitGraph.Week[i][0] = i
+		stats.CommitGraph.Week[i][1] = commits
+	}
+	for i := 0; i < 4; i++ {
+		to := 3 - i
+		from := to + 1
+		commits := getIntValue(
+			con,
+			ctx,
+			fmt.Sprintf(
+				"select count(distinct sha) from gha_commits "+
+					"where dup_created_at >= now() - '%d weeks'::interval "+
+					"and dup_created_at < now() - '%d weeks'::interval ",
+				from,
+				to,
+			)+"and (lower(dup_actor_login) "+excludeBots+")",
+		)
+		stats.CommitGraph.Month[i][0] = i
+		stats.CommitGraph.Month[i][1] = commits
 	}
 }
 
