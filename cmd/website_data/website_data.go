@@ -123,6 +123,85 @@ func generateJSONData(ctx *lib.Ctx, name, excludeBots string, stats *projectStat
 		stats.CommitGraph.Month[i][0] = i
 		stats.CommitGraph.Month[i][1] = commits
 	}
+	stats.Totals.Day.Commits = stats.CommitGraph.Week[6][1]
+	stats.Totals.Week.Commits = stats.CommitGraph.Month[3][1]
+	stats.Totals.Month.Commits = getIntValue(
+		con,
+		ctx,
+		"select count(distinct sha) from gha_commits "+
+			"where dup_created_at >= now() - '1 month'::interval "+
+			"and (lower(dup_actor_login) "+excludeBots+")",
+	)
+	stats.Totals.Day.Discussion = getIntValue(
+		con,
+		ctx,
+		"select count(distinct event_id) from gha_texts "+
+			"where created_at >= now() - '1 day'::interval "+
+			"and (lower(actor_login) "+excludeBots+")",
+	)
+	stats.Totals.Week.Discussion = getIntValue(
+		con,
+		ctx,
+		"select count(distinct event_id) from gha_texts "+
+			"where created_at >= now() - '1 week'::interval "+
+			"and (lower(actor_login) "+excludeBots+")",
+	)
+	stats.Totals.Month.Discussion = getIntValue(
+		con,
+		ctx,
+		"select count(distinct event_id) from gha_texts "+
+			"where created_at >= now() - '1 month'::interval "+
+			"and (lower(actor_login) "+excludeBots+")",
+	)
+	stats.RecentDiscussion = stats.Totals.Month.Discussion
+	stats.Totals.Day.Stars = getIntValue(
+		con,
+		ctx,
+		"select coalesce(sum(sub.diff), 0) "+
+			"from (select min(stargazers_count) as fmin, "+
+			"max(stargazers_count) - min(stargazers_count) as diff "+
+			"from gha_forkees where dup_repo_name = full_name and "+
+			"dup_created_at >= now() - '1 day'::interval "+
+			"group by dup_repo_name) sub where fmin > 0 and diff > 0",
+	)
+	stats.Totals.Week.Stars = getIntValue(
+		con,
+		ctx,
+		"select coalesce(sum(sub.diff), 0) "+
+			"from (select min(stargazers_count) as fmin, "+
+			"max(stargazers_count) - min(stargazers_count) as diff "+
+			"from gha_forkees where dup_repo_name = full_name and "+
+			"dup_created_at >= now() - '1 week'::interval "+
+			"group by dup_repo_name) sub where fmin > 0 and diff > 0",
+	)
+	stats.Totals.Month.Stars = getIntValue(
+		con,
+		ctx,
+		"select coalesce(sum(sub.diff), 0) "+
+			"from (select min(stargazers_count) as fmin, "+
+			"max(stargazers_count) - min(stargazers_count) as diff "+
+			"from gha_forkees where dup_repo_name = full_name and "+
+			"dup_created_at >= now() - '1 month'::interval "+
+			"group by dup_repo_name) sub where fmin > 0 and diff > 0",
+	)
+	stats.Totals.Month.Stars = getIntValue(
+		con,
+		ctx,
+		"select coalesce(sum(sub.diff), 0) "+
+			"from (select min(stargazers_count) as fmin, "+
+			"max(stargazers_count) - min(stargazers_count) as diff "+
+			"from gha_forkees where dup_repo_name = full_name and "+
+			"dup_created_at >= now() - '1 month'::interval "+
+			"group by dup_repo_name) sub where fmin > 0 and diff > 0",
+	)
+	stats.Stars = getIntValue(
+		con,
+		ctx,
+		"select sum(fmax) from (select max(stargazers_count) as fmax "+
+			"from gha_forkees where dup_repo_name = full_name "+
+			"and dup_created_at >= now() - '3 months'::interval "+
+			"group by dup_repo_name) sub",
+	)
 }
 
 func generateWebsiteData() {
