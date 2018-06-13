@@ -1,0 +1,278 @@
+From 7a1e4515a58e49bd22a218711a448bd438960716 Mon Sep 17 00:00:00 2001
+From: Lukasz Gryglicki <lukaszgryglicki@o2.pl>
+Date: Wed, 13 Jun 2018 12:08:02 +0000
+Subject: [PATCH] Fix typo
+
+Signed-off-by: Lukasz Gryglicki <lukaszgryglicki@o2.pl>
+---
+ .../app/features/templating/adhoc_variable.ts |  2 +
+ .../features/templating/constant_variable.ts  |  2 +
+ .../features/templating/custom_variable.ts    |  2 +
+ .../templating/datasource_variable.ts         |  2 +
+ public/app/features/templating/editor_ctrl.ts |  2 +
+ .../features/templating/interval_variable.ts  |  2 +
+ .../features/templating/partials/editor.html  |  8 +++
+ .../app/features/templating/query_variable.ts |  2 +
+ .../templating/specs/template_srv.jest.ts     | 59 +++++++++++++++++++
+ .../app/features/templating/template_srv.ts   |  8 ++-
+ 10 files changed, 87 insertions(+), 2 deletions(-)
+
+diff --git a/public/app/features/templating/adhoc_variable.ts b/public/app/features/templating/adhoc_variable.ts
+index babeaf1f3..daae5e98c 100644
+--- a/public/app/features/templating/adhoc_variable.ts
++++ b/public/app/features/templating/adhoc_variable.ts
+@@ -3,6 +3,7 @@ import { Variable, assignModelProperties, variableTypes } from './variable';
+ 
+ export class AdhocVariable implements Variable {
+   filters: any[];
++  removeFromUrl: number;
+ 
+   defaults = {
+     type: 'adhoc',
+@@ -11,6 +12,7 @@ export class AdhocVariable implements Variable {
+     hide: 0,
+     datasource: null,
+     filters: [],
++    removeFromUrl: 0,
+   };
+ 
+   /** @ngInject **/
+diff --git a/public/app/features/templating/constant_variable.ts b/public/app/features/templating/constant_variable.ts
+index f2fb42945..29143d0b9 100644
+--- a/public/app/features/templating/constant_variable.ts
++++ b/public/app/features/templating/constant_variable.ts
+@@ -4,6 +4,7 @@ export class ConstantVariable implements Variable {
+   query: string;
+   options: any[];
+   current: any;
++  removeFromUrl: number;
+ 
+   defaults = {
+     type: 'constant',
+@@ -13,6 +14,7 @@ export class ConstantVariable implements Variable {
+     query: '',
+     current: {},
+     options: [],
++    removeFromUrl: 1,
+   };
+ 
+   /** @ngInject **/
+diff --git a/public/app/features/templating/custom_variable.ts b/public/app/features/templating/custom_variable.ts
+index c15178f66..4c6e54977 100644
+--- a/public/app/features/templating/custom_variable.ts
++++ b/public/app/features/templating/custom_variable.ts
+@@ -7,6 +7,7 @@ export class CustomVariable implements Variable {
+   includeAll: boolean;
+   multi: boolean;
+   current: any;
++  removeFromUrl: number;
+ 
+   defaults = {
+     type: 'custom',
+@@ -19,6 +20,7 @@ export class CustomVariable implements Variable {
+     includeAll: false,
+     multi: false,
+     allValue: null,
++    removeFromUrl: 0,
+   };
+ 
+   /** @ngInject **/
+diff --git a/public/app/features/templating/datasource_variable.ts b/public/app/features/templating/datasource_variable.ts
+index 4c326a94e..f8d44aec8 100644
+--- a/public/app/features/templating/datasource_variable.ts
++++ b/public/app/features/templating/datasource_variable.ts
+@@ -7,6 +7,7 @@ export class DatasourceVariable implements Variable {
+   options: any;
+   current: any;
+   refresh: any;
++  removeFromUrl: number;
+ 
+   defaults = {
+     type: 'datasource',
+@@ -18,6 +19,7 @@ export class DatasourceVariable implements Variable {
+     options: [],
+     query: '',
+     refresh: 1,
++    removeFromUrl: 0,
+   };
+ 
+   /** @ngInject **/
+diff --git a/public/app/features/templating/editor_ctrl.ts b/public/app/features/templating/editor_ctrl.ts
+index 75a84cca2..76591a545 100644
+--- a/public/app/features/templating/editor_ctrl.ts
++++ b/public/app/features/templating/editor_ctrl.ts
+@@ -29,6 +29,7 @@ export class VariableEditorCtrl {
+     ];
+ 
+     $scope.hideOptions = [{ value: 0, text: '' }, { value: 1, text: 'Label' }, { value: 2, text: 'Variable' }];
++    $scope.removeFromUrlOptions = [{ value: 1, text: 'Yes' }, { value: 0, text: 'No' }];
+ 
+     $scope.init = function() {
+       $scope.mode = 'list';
+@@ -155,6 +156,7 @@ export class VariableEditorCtrl {
+       $scope.current.name = old.name;
+       $scope.current.hide = old.hide;
+       $scope.current.label = old.label;
++      $scope.current.removeFromUrl = old.removeFromUrl;
+ 
+       var oldIndex = _.indexOf(this.variables, old);
+       if (oldIndex !== -1) {
+diff --git a/public/app/features/templating/interval_variable.ts b/public/app/features/templating/interval_variable.ts
+index 3faac316f..0681a39db 100644
+--- a/public/app/features/templating/interval_variable.ts
++++ b/public/app/features/templating/interval_variable.ts
+@@ -11,6 +11,7 @@ export class IntervalVariable implements Variable {
+   query: string;
+   refresh: number;
+   current: any;
++  removeFromUrl: number;
+ 
+   defaults = {
+     type: 'interval',
+@@ -24,6 +25,7 @@ export class IntervalVariable implements Variable {
+     auto: false,
+     auto_min: '10s',
+     auto_count: 30,
++    removeFromUrl: 0,
+   };
+ 
+   /** @ngInject **/
+diff --git a/public/app/features/templating/partials/editor.html b/public/app/features/templating/partials/editor.html
+index 0d8b0ace3..a7b2e0bd9 100644
+--- a/public/app/features/templating/partials/editor.html
++++ b/public/app/features/templating/partials/editor.html
+@@ -108,6 +108,14 @@
+ 					</div>
+ 				</div>
+ 			</div>
++			<div ng-if="current.hide === 2" class="gf-form-inline">
++				<div class="gf-form max-width-19">
++					<span class="gf-form-label width-9">Remove from URL</span>
++					<div class="gf-form-select-wrapper max-width-12">
++						<select class="gf-form-input" ng-model="current.removeFromUrl" ng-options="f.value as f.text for f in removeFromUrlOptions"></select>
++					</div>
++				</div>
++			</div>
+ 		</div>
+ 
+ 		<div ng-if="current.type === 'interval'" class="gf-form-group">
+diff --git a/public/app/features/templating/query_variable.ts b/public/app/features/templating/query_variable.ts
+index 54bd7bb66..9a63b80cb 100644
+--- a/public/app/features/templating/query_variable.ts
++++ b/public/app/features/templating/query_variable.ts
+@@ -22,6 +22,7 @@ export class QueryVariable implements Variable {
+   tagsQuery: string;
+   tagValuesQuery: string;
+   tags: any[];
++  removeFromUrl: number;
+ 
+   defaults = {
+     type: 'query',
+@@ -42,6 +43,7 @@ export class QueryVariable implements Variable {
+     useTags: false,
+     tagsQuery: '',
+     tagValuesQuery: '',
++    removeFromUrl: 0,
+   };
+ 
+   /** @ngInject **/
+diff --git a/public/app/features/templating/specs/template_srv.jest.ts b/public/app/features/templating/specs/template_srv.jest.ts
+index 59915776b..b106c10e5 100644
+--- a/public/app/features/templating/specs/template_srv.jest.ts
++++ b/public/app/features/templating/specs/template_srv.jest.ts
+@@ -345,6 +345,51 @@ describe('templateSrv', function() {
+     });
+   });
+ 
++  describe('fillVariableValuesForUrl with hidden URL', function() {
++    beforeEach(function() {
++      initTemplateSrv([
++        {
++          name: 'test',
++          hide: 2,
++          removeFromUrl: 1,
++          current: { value: 'value' },
++          getValueForUrl: function() {
++            return this.current.value;
++          },
++        },
++      ]);
++    });
++
++    it('should not include template variable value in url', function() {
++      var params = {};
++      _templateSrv.fillVariableValuesForUrl(params);
++      expect(params['var-test']).toBe(undefined);
++    });
++  });
++
++  describe('fillVariableValuesForUrl with multi value with hidden URL', function() {
++    beforeEach(function() {
++      initTemplateSrv([
++        {
++          type: 'query',
++          name: 'test',
++          hide: 2,
++          removeFromUrl: 1,
++          current: { value: ['val1', 'val2'] },
++          getValueForUrl: function() {
++            return this.current.value;
++          },
++        },
++      ]);
++    });
++
++    it('should not include template variable value in url', function() {
++      var params = {};
++      _templateSrv.fillVariableValuesForUrl(params);
++      expect(params['var-test']).toBe(undefined);
++    });
++  });
++
+   describe('fillVariableValuesForUrl with multi value and scopedVars', function() {
+     beforeEach(function() {
+       initTemplateSrv([{ type: 'query', name: 'test', current: { value: ['val1', 'val2'] } }]);
+@@ -359,6 +404,20 @@ describe('templateSrv', function() {
+     });
+   });
+ 
++  describe('fillVariableValuesForUrl with multi value, scopedVars and hidden URL', function() {
++    beforeEach(function() {
++      initTemplateSrv([{ type: 'query', name: 'test', current: { value: ['val1', 'val2'] } }]);
++    });
++
++    it('should set scoped value as url params', function() {
++      var params = {};
++      _templateSrv.fillVariableValuesForUrl(params, {
++        test: { name: 'test', value: 'val1', hide: 2, removeFromUrl: 1 },
++      });
++      expect(params['var-test']).toBe(undefined);
++    });
++  });
++
+   describe('replaceWithText', function() {
+     beforeEach(function() {
+       initTemplateSrv([
+diff --git a/public/app/features/templating/template_srv.ts b/public/app/features/templating/template_srv.ts
+index cdabe577f..29e5fc6d2 100644
+--- a/public/app/features/templating/template_srv.ts
++++ b/public/app/features/templating/template_srv.ts
+@@ -250,9 +250,13 @@ export class TemplateSrv {
+   fillVariableValuesForUrl(params, scopedVars) {
+     _.each(this.variables, function(variable) {
+       if (scopedVars && scopedVars[variable.name] !== void 0) {
+-        params['var-' + variable.name] = scopedVars[variable.name].value;
++        if (scopedVars[variable.name].removeFromUrl !== 1) {
++          params['var-' + variable.name] = scopedVars[variable.name].value;
++        }
+       } else {
+-        params['var-' + variable.name] = variable.getValueForUrl();
++        if (variable.removeFromUrl !== 1) {
++          params['var-' + variable.name] = variable.getValueForUrl();
++        }
+       }
+     });
+   }
+-- 
+2.17.1
+
