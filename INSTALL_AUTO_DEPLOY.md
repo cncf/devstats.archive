@@ -61,6 +61,7 @@ Prerequisites:
     - `ln /etc/apache2/mods-available/proxy.conf /etc/apache2/mods-enabled/`
     - `ln /etc/apache2/mods-available/proxy_http.load /etc/apache2/mods-enabled/`
     - `ln /etc/apache2/mods-available/rewrite.load /etc/apache2/mods-enabled/`
+    - `ln /etc/apache2/mods-available/headers.load /etc/apache2/mods-enabled/`
     - You can enable SSL, to do so You need to follow SSL instruction in [SSL](https://github.com/cncf/devstats/blob/master/SSL.md) (that requires domain name).
     - `service apache2 restart`
     - If you don't use Apache/SSL proxy, you should add EXTERNAL=1 when deploying - this will expose grafana to outside world by binding to `0.0.0.0` instead of local only `127.0.0.1`.
