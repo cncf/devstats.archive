@@ -4,7 +4,11 @@ then
   echo "You need to provide grafana file url (for example 'https://s3-us-west-2.amazonaws.com/grafana-releases/release/grafana_5.0.3_amd64.deb')"
   exit 1
 fi
-wget "$1" || exit 2
+bname=`basename "$1"`
+if [ ! "$1" = "$bname" ]
+then
+  wget "$1" || exit 2
+fi
 rm -rf ~/grafana.v5.old 2>/dev/null
 mv ~/grafana.v5 ~/grafana.v5.old 2>/dev/null
 mkdir ~/grafana.v5 || exit 3
