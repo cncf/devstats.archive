@@ -30,9 +30,10 @@ Contributions and PRs are welcome.
 If you see a bug or want to add a new metric please create an [issue](https://github.com/cncf/devstats/issues) and/or [PR](https://github.com/cncf/devstats/pulls).
 
 To work on this project locally please fork the original [repository](https://github.com/cncf/devstats), and:
-- [Compiling and running on macOS](./INSTALL_MAC.md).
-- [Compiling and running on Linux Ubuntu 16 LTS](./INSTALL_UBUNTU16.md).
+- [Compiling and running on Linux Ubuntu 18 LTS](./INSTALL_UBUNTU18.md).
 - [Compiling and running on Linux Ubuntu 17](./INSTALL_UBUNTU17.md).
+- [Compiling and running on Linux Ubuntu 16 LTS](./INSTALL_UBUNTU16.md).
+- [Compiling and running on macOS](./INSTALL_MAC.md).
 - [Compiling and running on FreeBSD](./INSTALL_FREEBSD.md).
 
 Please see [Development](https://github.com/cncf/devstats/blob/master/DEVELOPMENT.md) for local development guide.
