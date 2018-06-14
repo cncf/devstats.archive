@@ -53,3 +53,9 @@ const Null string = "null"
 
 // HideCfgFile - common constant string
 const HideCfgFile string = "hide/hide.csv"
+
+// All - common constant string
+const All string = "all"
+
+// Kubernetes - common constant string
+const Kubernetes string = "kubernetes"

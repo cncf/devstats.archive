@@ -67,9 +67,9 @@ func getIntValue(con *sql.DB, ctx *lib.Ctx, sql string) (ival int) {
 }
 
 func generateJSONData(ctx *lib.Ctx, name, excludeBots, lastTagCmd, repo string, stats *projectStats) {
-	if name == "kubernetes" {
+	if name == lib.Kubernetes {
 		name = "gha"
-	} else if name == "all" {
+	} else if name == lib.All {
 		name = "allprj"
 	}
 	// Connect to Postgres DB
@@ -269,7 +269,7 @@ func generateWebsiteData() {
 	for i, name := range names {
 		proj := projs[i]
 		dashURL := proto + name + "." + hostname
-		if name == "kubernetes" {
+		if name == lib.Kubernetes {
 			dashURL = proto + "k8s." + hostname
 		}
 		jproj := project{
@@ -283,7 +283,7 @@ func generateWebsiteData() {
 		jprojs.Projects = append(jprojs.Projects, jproj)
 		pstats[name] = projectStats{}
 	}
-	jprojs.Summary = "all"
+	jprojs.Summary = lib.All
 
 	// Marshal JSON
 	jprojs.Timestamp = time.Now()
