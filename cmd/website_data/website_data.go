@@ -14,8 +14,9 @@ import (
 )
 
 type allProjects struct {
-	Projects []project `json:"projects"`
-	Summary  string    `json:"summary"`
+	Projects  []project `json:"projects"`
+	Summary   string    `json:"summary"`
+	Timestamp time.Time `json:"timestamp"`
 }
 
 type project struct {
@@ -34,6 +35,7 @@ type projectStats struct {
 	RecentDiscussion int            `json:"recentDiscussion"`
 	Stars            int            `json:"stars"`
 	CommitGraph      commitGraph    `json:"commitGraph"`
+	Timestamp        time.Time      `json:"timestamp"`
 }
 
 type commitGraph struct {
@@ -284,6 +286,7 @@ func generateWebsiteData() {
 	jprojs.Summary = "all"
 
 	// Marshal JSON
+	jprojs.Timestamp = time.Now()
 	jsonBytes, err := json.Marshal(jprojs)
 	lib.FatalOnError(err)
 	pretty := lib.PrettyPrintJSON(jsonBytes)
@@ -304,6 +307,7 @@ func generateWebsiteData() {
 		for name, stats := range pstats {
 			go func(ch chan struct{}, name string, stats projectStats) {
 				generateJSONData(&ctx, name, excludeBots, lastTagCmd, projects.Projects[name].MainRepo, &stats)
+				stats.Timestamp = time.Now()
 				jsonBytes, err := json.Marshal(stats)
 				lib.FatalOnError(err)
 				pretty := lib.PrettyPrintJSON(jsonBytes)
