@@ -49,6 +49,7 @@ Similar set of metrics is defined for Prometheus, OpenTracing, ..., Rook (All CN
 - SQL metrics in `metrics/prometheus/` directory, tags `metrics/prometheus/*tags*.sql` files. Prometheus dashboards: `grafana/dashboards/prometheus/` directory.
 - SQL metrics in `metrics/opentracing/` directory, tags `metrics/opentracing/*tags*.sql` files. OpenTracing dashboards: `grafana/dashboards/opentracing/` directory.
 - And so on...
+- You can autogenerate list of dashboards using [vim script](https://github.com/cncf/devstats/blob/master/util_sh/auto_gen_dashboards_info.vim).
 
 # Prometheus dashboards
 
