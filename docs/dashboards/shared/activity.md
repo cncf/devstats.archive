@@ -10,7 +10,7 @@
 <li>This dashboard shows GitHub activity for a given repository group or for entire project.</li>
 <li>It skips fork and watch events.</li>
 <li>You can select single repository group or summary for all of them.</li>
-<li>Selecting period (for example week) means that dashboard will activity in those periods.</li>
+<li>Selecting period (for example week) means that dashboard will count activity in those periods.</li>
 <li>See <a href="https://github.com/cncf/devstats/blob/master/docs/periods.md" target="_blank">here</a> for more informations about periods.</li>
 <li>See <a href="https://github.com/cncf/devstats/blob/master/docs/repository_groups.md" target="_blank">here</a> for more informations about repository groups.</li>
 <li>We are skipping bots when calculating activity, see <a href="https://github.com/cncf/devstats/blob/master/docs/excluding_bots.md" target="_blank">excluding bots</a> for details.</li>
