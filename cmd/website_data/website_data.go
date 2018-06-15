@@ -321,7 +321,6 @@ func generateWebsiteData() {
 				nThreads--
 			}
 		}
-		lib.Printf("Final threads join\n")
 		for nThreads > 0 {
 			<-ch
 			nThreads--

@@ -106,6 +106,24 @@ func syncAllProjects() bool {
 		}
 		lib.Printf("Synced %s, took: %v\n", name, dtEnd.Sub(dtStart))
 	}
+	if ctx.WebsiteData {
+		lib.Printf("Generating website data for all projects\n")
+		dtStart := time.Now()
+		_, res := lib.ExecCommand(
+			&ctx,
+			[]string{
+				cmdPrefix + "website_data",
+			},
+			nil,
+		)
+		dtEnd := time.Now()
+		if res != nil {
+			lib.Printf("Error generating website data (took %v): %+v\n", dtEnd.Sub(dtStart), res)
+			fmt.Fprintf(os.Stderr, "%v: Error generating website (took %v): %+v\n", dtEnd, dtEnd.Sub(dtStart), res)
+			return false
+		}
+		lib.Printf("Generated website data, took: %v\n", dtEnd.Sub(dtStart))
+	}
 	return true
 }
 
