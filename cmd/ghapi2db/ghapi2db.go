@@ -3,7 +3,6 @@ package main
 import (
 	"database/sql"
 	"fmt"
-	"os"
 	"sort"
 	"strconv"
 	"strings"
@@ -14,31 +13,6 @@ import (
 
 	"github.com/google/go-github/github"
 )
-
-type issueConfig struct {
-	repo        string
-	number      int
-	issueID     int64
-	pr          bool
-	milestoneID *int64
-	labels      string
-	labelsMap   map[int64]string
-	ghIssue     *github.Issue
-}
-
-// handlePossibleError - display error specific message, detect rate limit and abuse
-func handlePossibleError(err error, cfg *issueConfig, info string) {
-	if err != nil {
-		_, rate := err.(*github.RateLimitError)
-		_, abuse := err.(*github.AbuseRateLimitError)
-		if abuse || rate {
-			lib.Printf("Hit rate limit (%s) for %v\n", info, cfg)
-		}
-		//lib.FatalOnError(err)
-		lib.Printf("%s error: %v, non fatal, exiting 0 status\n", os.Args[0], err)
-		os.Exit(0)
-	}
-}
 
 // deleteArtificialEvent - deletes artificial event from all tables
 func deleteArtificialEvent(c *sql.DB, ctx *lib.Ctx, eid int64) (err error) {
@@ -545,7 +519,7 @@ func ghapi2db(ctx *lib.Ctx) {
 	// Get issues/PRs to check
 	// repo, number, issueID, is_pr
 	var issuesMutex = &sync.RWMutex{}
-	issues := make(map[int64]issueConfig)
+	issues := make(map[int64]lib.IssueConfig)
 	var (
 		repo    string
 		number  int
@@ -555,11 +529,11 @@ func ghapi2db(ctx *lib.Ctx) {
 	nIssues := 0
 	for rows.Next() {
 		lib.FatalOnError(rows.Scan(&repo, &number, &issueID, &pr))
-		cfg := issueConfig{
-			repo:    repo,
-			number:  number,
-			issueID: issueID,
-			pr:      pr,
+		cfg := lib.IssueConfig{
+			Repo:    repo,
+			Number:  number,
+			IssueID: issueID,
+			Pr:      pr,
 		}
 		v, ok := issues[issueID]
 		if ok {
@@ -584,7 +558,7 @@ func ghapi2db(ctx *lib.Ctx) {
 		for _, issue := range ctx.OnlyIssues {
 			ary = append(ary, strconv.FormatInt(issue, 10))
 		}
-		onlyIssues := make(map[int64]issueConfig)
+		onlyIssues := make(map[int64]lib.IssueConfig)
 		nOnlyIssues := 0
 		lib.Printf("Processing only selected %d %v issues for debugging\n", len(ctx.OnlyIssues), ctx.OnlyIssues)
 		irows := lib.QuerySQLWithErr(
@@ -598,11 +572,11 @@ func ghapi2db(ctx *lib.Ctx) {
 		defer func() { lib.FatalOnError(irows.Close()) }()
 		for irows.Next() {
 			lib.FatalOnError(irows.Scan(&repo, &number, &issueID, &pr))
-			cfg := issueConfig{
-				repo:    repo,
-				number:  number,
-				issueID: issueID,
-				pr:      pr,
+			cfg := lib.IssueConfig{
+				Repo:    repo,
+				Number:  number,
+				IssueID: issueID,
+				Pr:      pr,
 			}
 			v, ok := onlyIssues[issueID]
 			if ok {
@@ -658,10 +632,10 @@ func ghapi2db(ctx *lib.Ctx) {
 				lib.Printf("GitHub Issue ID (before) '%d' --> '%v'\n", iid, cfg)
 			}
 			// Get separate org and repo
-			ary := strings.Split(cfg.repo, "/")
+			ary := strings.Split(cfg.Repo, "/")
 			if len(ary) != 2 {
 				if ctx.Debug > 0 {
-					lib.Printf("Warning: wrong repository name: %s\n", cfg.repo)
+					lib.Printf("Warning: wrong repository name: %s\n", cfg.Repo)
 				}
 				return
 			}
@@ -680,12 +654,12 @@ func ghapi2db(ctx *lib.Ctx) {
 						return
 					}
 				}
-				issue, _, err := gc.Issues.Get(gctx, ary[0], ary[1], cfg.number)
-				handlePossibleError(err, &cfg, "Issues.Get")
+				issue, _, err := gc.Issues.Get(gctx, ary[0], ary[1], cfg.Number)
+				lib.HandlePossibleError(err, &cfg, "Issues.Get")
 				if issue.Milestone != nil {
-					cfg.milestoneID = issue.Milestone.ID
+					cfg.MilestoneID = issue.Milestone.ID
 				}
-				cfg.ghIssue = issue
+				cfg.GhIssue = issue
 				got = true
 				break
 			}
@@ -695,7 +669,7 @@ func ghapi2db(ctx *lib.Ctx) {
 			}
 
 			// Use GitHub API to get labels info
-			cfg.labelsMap = make(map[int64]string)
+			cfg.LabelsMap = make(map[int64]string)
 			var (
 				resp   *github.Response
 				labels []*github.Label
@@ -716,10 +690,10 @@ func ghapi2db(ctx *lib.Ctx) {
 						}
 					}
 					var errIn error
-					labels, resp, errIn = gc.Issues.ListLabelsByIssue(gctx, ary[0], ary[1], cfg.number, opt)
-					handlePossibleError(errIn, &cfg, "Issues.ListLabelsByIssue")
+					labels, resp, errIn = gc.Issues.ListLabelsByIssue(gctx, ary[0], ary[1], cfg.Number, opt)
+					lib.HandlePossibleError(errIn, &cfg, "Issues.ListLabelsByIssue")
 					for _, label := range labels {
-						cfg.labelsMap[*label.ID] = *label.Name
+						cfg.LabelsMap[*label.ID] = *label.Name
 					}
 					got = true
 					break
@@ -729,23 +703,23 @@ func ghapi2db(ctx *lib.Ctx) {
 					return
 				}
 
-				// Handle eventual paging (shoudl not happen for labels)
+				// Handle eventual paging (should not happen for labels)
 				if resp.NextPage == 0 {
 					break
 				}
 				opt.Page = resp.NextPage
 			}
 			labelsAry := lib.Int64Ary{}
-			for label := range cfg.labelsMap {
+			for label := range cfg.LabelsMap {
 				labelsAry = append(labelsAry, label)
 			}
 			sort.Sort(labelsAry)
 			l := len(labelsAry)
 			for i, label := range labelsAry {
 				if i == l-1 {
-					cfg.labels += fmt.Sprintf("%d", label)
+					cfg.Labels += fmt.Sprintf("%d", label)
 				} else {
-					cfg.labels += fmt.Sprintf("%d,", label)
+					cfg.Labels += fmt.Sprintf("%d,", label)
 				}
 			}
 			if ctx.Debug > 0 {
@@ -810,12 +784,12 @@ func ghapi2db(ctx *lib.Ctx) {
 			)
 
 			// Process current milestone
-			apiMilestoneID := cfg.milestoneID
+			apiMilestoneID := cfg.MilestoneID
 			rowsM := lib.QuerySQLWithErr(
 				c,
 				ctx,
 				fmt.Sprintf("select milestone_id, event_id from gha_issues where id = %s order by updated_at desc, event_id desc limit 1", lib.NValue(1)),
-				cfg.issueID,
+				cfg.IssueID,
 			)
 			defer func() { lib.FatalOnError(rowsM.Close()) }()
 			for rowsM.Next() {
@@ -859,22 +833,22 @@ func ghapi2db(ctx *lib.Ctx) {
 				lib.FatalOnError(rowsL.Scan(&ghaLabels))
 			}
 			lib.FatalOnError(rowsL.Err())
-			if ctx.Debug > 0 && ghaLabels != cfg.labels {
-				lib.Printf("Updating issue '%v' labels to '%s', they were: '%s' (event_id %d)\n", cfg, cfg.labels, ghaLabels, ghaEventID)
+			if ctx.Debug > 0 && ghaLabels != cfg.Labels {
+				lib.Printf("Updating issue '%v' labels to '%s', they were: '%s' (event_id %d)\n", cfg, cfg.Labels, ghaLabels, ghaEventID)
 			}
 
 			// Do the update if needed: wrong milestone or label set
-			if newMilestone != "" || ghaLabels != cfg.labels {
+			if newMilestone != "" || ghaLabels != cfg.Labels {
 				lib.FatalOnError(
 					artificialEvent(
 						c,
 						ctx,
-						cfg.issueID,
+						cfg.IssueID,
 						ghaEventID,
 						newMilestone,
-						cfg.labelsMap,
-						ghaLabels != cfg.labels,
-						cfg.ghIssue,
+						cfg.LabelsMap,
+						ghaLabels != cfg.Labels,
+						cfg.GhIssue,
 					),
 				)
 				updatesMutex.Lock()
