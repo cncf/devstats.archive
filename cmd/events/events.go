@@ -17,7 +17,8 @@ func syncEvents(ctx *lib.Ctx) {
 	// Connect to GitHub API
 	gctx, gc := lib.GHClient(ctx)
 
-	opt := &github.ListOptions{}
+	//opt := &github.ListOptions{}
+	opt := &github.ListOptions{PerPage: 1000}
 	issues := make(map[int64]lib.IssueConfigAry)
 	org := lib.Kubernetes
 	repo := lib.Kubernetes
@@ -29,6 +30,7 @@ func syncEvents(ctx *lib.Ctx) {
 		events   []*github.IssueEvent
 		response *github.Response
 	)
+	nPages := 0
 	for {
 		got := false
 		for tr := 1; tr <= ctx.MaxGHAPIRetry; tr++ {
@@ -39,7 +41,11 @@ func syncEvents(ctx *lib.Ctx) {
 				time.Sleep(waitPeriod)
 				continue
 			}
-			events, response, err = gc.Issues.ListRepositoryEvents(gctx, "kubernetes", "kubernetes", opt)
+			nPages++
+			if ctx.Debug > 0 {
+				lib.Printf("API call for %s (%d)\n", gcfg.Repo, nPages)
+			}
+			events, response, err = gc.Issues.ListRepositoryEvents(gctx, org, repo, opt)
 			lib.HandlePossibleError(err, &gcfg, "Issues.ListRepositoryEvents")
 			got = true
 			break
@@ -82,19 +88,24 @@ func syncEvents(ctx *lib.Ctx) {
 			} else {
 				issues[cfg.IssueID] = []lib.IssueConfig{cfg}
 			}
+			if ctx.Debug > 0 {
+				lib.Printf("%v\n", cfg)
+			}
 		}
 		// Handle paging
 		if response.NextPage == 0 {
 			break
 		}
 		opt.Page = response.NextPage
-		// TODO: for testing
-		break
 	}
 	for issueID := range issues {
 		sort.Sort(issues[issueID])
 	}
-	fmt.Printf("%+v\n", issues)
+
+	// Connect to Postgres DB
+	c := lib.PgConn(ctx)
+	defer func() { lib.FatalOnError(c.Close()) }()
+	lib.SyncIssuesState(gctx, gc, ctx, c, issues)
 }
 
 func main() {
