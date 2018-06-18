@@ -1,0 +1,78 @@
+{
+  "actor": {
+    "avatar_url": "https://avatars2.githubusercontent.com/u/30942296?v=4",
+    "events_url": "https://api.github.com/users/psaini79/events{/privacy}",
+    "followers_url": "https://api.github.com/users/psaini79/followers",
+    "following_url": "https://api.github.com/users/psaini79/following{/other_user}",
+    "gists_url": "https://api.github.com/users/psaini79/gists{/gist_id}",
+    "gravatar_id": "",
+    "html_url": "https://github.com/psaini79",
+    "id": 30942296,
+    "login": "psaini79",
+    "organizations_url": "https://api.github.com/users/psaini79/orgs",
+    "received_events_url": "https://api.github.com/users/psaini79/received_events",
+    "repos_url": "https://api.github.com/users/psaini79/repos",
+    "site_admin": false,
+    "starred_url": "https://api.github.com/users/psaini79/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/psaini79/subscriptions",
+    "type": "User",
+    "url": "https://api.github.com/users/psaini79"
+  },
+  "created_at": "2018-06-18T08:41:10Z",
+  "event": "subscribed",
+  "id": 1685625624,
+  "issue": {
+    "body": "I am using volumeMode: Block to access iscsi block device inside the pod but it is throwing following error:\r\n\r\nJun 17 06:53:35 k8worker1 kubelet: E0617 06:53:35.041066   11617 reconciler.go:258] operationExecutor.MountVolume failed (controllerAttachDetachEnabled true) for volume \"block-pv\" (UniqueName: \"kubernetes.io/iscsi/192.168.16.3:3260:iqn.2015-12.com.oracleiaas:bf104865-8dba-4f99-b63e-2c701b0735b5:1\") pod \"ol76\" (UID: \"0afac5a4-71fb-11e8-a8bb-000017010f24\") : MapVolume.FindMapperPluginBySpec failed to find BlockVolumeMapper plugin. Volume plugin is nil. for volume \"block-pv\" (UniqueName: \"kubernetes.io/iscsi/192.168.16.3:3260:iqn.2015-12.com.oracleiaas:bf104865-8dba-4f99-b63e-2c701b0735b5:1\") pod \"ol76\" (UID: \"0afac5a4-71fb-11e8-a8bb-000017010f24\")\r\n\r\nFollowing are the steps to reproduce the same:\r\nblock-pv.yaml\r\n===========\r\napiVersion: v1\r\nkind: PersistentVolume\r\nmetadata:\r\n  name: block-pv\r\nspec:\r\n  capacity:\r\n    storage: 100Gi\r\n  accessModes:\r\n    - ReadWriteOnce\r\n  volumeMode: Block\r\n  persistentVolumeReclaimPolicy: Retain\r\n  iscsi:\r\n     targetPortal: 192.168.16.3:3260\r\n     portals: ['192.168.16.3.3:3260']\r\n     iqn: iqn.2015-12.com.oracleiaas:bf104865-8dba-4f99-b63e-2c701b0735b5\r\n     lun: 1\r\n     readOnly: false\r\n\r\nBlock-pvc.yaml\r\n===========\r\napiVersion: v1\r\nkind: PersistentVolumeClaim\r\nmetadata:\r\n  name: block-pvc\r\nspec:\r\n  accessModes:\r\n    - ReadWriteOnce\r\n  volumeMode: Block\r\n  resources:\r\n    requests:\r\n      storage: 80Gi\r\n\r\nbash-4.2# kubectl describe pv block-pv\r\nName:            block-pv\r\nLabels:          \u003cnone\u003e\r\nAnnotations:     pv.kubernetes.io/bound-by-controller=yes\r\nStorageClass:\r\nStatus:          Bound\r\nClaim:           default/block-pvc\r\nReclaim Policy:  Retain\r\nAccess Modes:    RWO\r\nVolumeMode:      Block\r\nCapacity:        100Gi\r\nMessage:\r\nSource:\r\n    Type:               ISCSI (an ISCSI Disk resource that is attached to a kubelet's host machine and then exposed to the pod)\r\n    TargetPortal:       192.168.16.3:3260\r\n    IQN:                iqn.2015-12.com.oracleiaas:bf104865-8dba-4f99-b63e-2c701b0735b5\r\n    Lun:                1\r\n    ISCSIInterface      default\r\n    FSType:\r\n    ReadOnly:           false\r\n    Portals:            [192.168.16.3:3260]\r\n    DiscoveryCHAPAuth:  false\r\n    SessionCHAPAuth:    false\r\n    SecretRef:          \u003cnil\u003e\r\n    InitiatorName:      \u003cnone\u003e\r\nEvents:                 \u003cnone\u003e\r\n\r\nbash-4.2# kubectl describe pvc block-pvc\r\nName:          block-pvc\r\nNamespace:     default\r\nStorageClass:\r\nStatus:        Bound\r\nVolume:        block-pv\r\nLabels:        \u003cnone\u003e\r\nAnnotations:   pv.kubernetes.io/bind-completed=yes\r\n               pv.kubernetes.io/bound-by-controller=yes\r\nFinalizers:    []\r\nCapacity:      100Gi\r\nAccess Modes:  RWO\r\nVolumeMode:    Block\r\nEvents:        \u003cnone\u003e\r\n\r\nPOD Specification file : ol76.yaml\r\n========================\r\napiVersion: v1\r\nkind: Pod\r\nmetadata:\r\n  name: ol76\r\n  labels:\r\n    name: ol76\r\nspec:\r\n  hostname: ol76\r\n  volumes:\r\n      - name: data\r\n      persistentVolumeClaim:\r\n        claimName: block-pvc\r\n  containers:\r\n    - name: ol76\r\n      image: oraclelinux:latest\r\n      resources:\r\n       limits:\r\n         memory: \"200Mi\"\r\n         cpu: \"1.5\"\r\n       requests:\r\n         memory: \"200Mi\"\r\n         cpu: \"1.5\"\r\n      securityContext:\r\n       capabilities:\r\n         add: [\"NET_ADMIN\", \"SYS_NICE\", \"SYS_RESOURCE\"]\r\n       volumeDevices:\r\n        - name: data\r\n          devicePath: /dev/xvda",
+    "comments": 4,
+    "comments_url": "https://api.github.com/repos/kubernetes/kubernetes/issues/65166/comments",
+    "created_at": "2018-06-17T17:09:39Z",
+    "events_url": "https://api.github.com/repos/kubernetes/kubernetes/issues/65166/events",
+    "html_url": "https://github.com/kubernetes/kubernetes/issues/65166",
+    "id": 333077455,
+    "labels": [
+      {
+        "color": "e11d21",
+        "id": 105146071,
+        "name": "kind/bug",
+        "node_id": "MDU6TGFiZWwxMDUxNDYwNzE=",
+        "url": "https://api.github.com/repos/kubernetes/kubernetes/labels/kind/bug"
+      },
+      {
+        "color": "d2b48c",
+        "id": 169428334,
+        "name": "sig/storage",
+        "node_id": "MDU6TGFiZWwxNjk0MjgzMzQ=",
+        "url": "https://api.github.com/repos/kubernetes/kubernetes/labels/sig/storage"
+      }
+    ],
+    "labels_url": "https://api.github.com/repos/kubernetes/kubernetes/issues/65166/labels{/name}",
+    "locked": false,
+    "node_id": "MDU6SXNzdWUzMzMwNzc0NTU=",
+    "number": 65166,
+    "repository_url": "https://api.github.com/repos/kubernetes/kubernetes",
+    "state": "open",
+    "title": "iSCSI disk does not appear as Block Device inside the pod",
+    "updated_at": "2018-06-18T08:41:10Z",
+    "url": "https://api.github.com/repos/kubernetes/kubernetes/issues/65166",
+    "user": {
+      "avatar_url": "https://avatars2.githubusercontent.com/u/30942296?v=4",
+      "events_url": "https://api.github.com/users/psaini79/events{/privacy}",
+      "followers_url": "https://api.github.com/users/psaini79/followers",
+      "following_url": "https://api.github.com/users/psaini79/following{/other_user}",
+      "gists_url": "https://api.github.com/users/psaini79/gists{/gist_id}",
+      "gravatar_id": "",
+      "html_url": "https://github.com/psaini79",
+      "id": 30942296,
+      "login": "psaini79",
+      "organizations_url": "https://api.github.com/users/psaini79/orgs",
+      "received_events_url": "https://api.github.com/users/psaini79/received_events",
+      "repos_url": "https://api.github.com/users/psaini79/repos",
+      "site_admin": false,
+      "starred_url": "https://api.github.com/users/psaini79/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/psaini79/subscriptions",
+      "type": "User",
+      "url": "https://api.github.com/users/psaini79"
+    }
+  },
+  "url": "https://api.github.com/repos/kubernetes/kubernetes/issues/events/1685625624"
+}

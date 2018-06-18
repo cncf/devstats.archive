@@ -19,11 +19,14 @@ func syncEvents(ctx *lib.Ctx) {
 	// Repo events
 	for {
 		fmt.Printf("API call...\n")
-		events, response, err := gc.Issues.ListRepositoryEvents(gctx, "kubernetes", "kubernetes", opt)
-		fmt.Printf("events: %v\n", events)
+		//events, response, err := gc.Activity.ListEvents(gctx, opt)
+		//issueEvents, response, err := gc.Activity.ListIssueEventsForRepository(gctx, "kubernetes", "kubernetes", opt)
+    issueEvents, response, err := gc.Issues.ListRepositoryEvents(gctx, "kubernetes", "kubernetes", opt)
+    //issueEvents, response, err := gc.Issues.ListIssueEvents(gctx, "kubernetes", "kubernetes", 65168, opt)
+		fmt.Printf("events: %v\n", issueEvents)
 		fmt.Printf("response: %v\n", response)
 		fmt.Printf("err: %v\n", err)
-		for i, event := range events {
+		for i, event := range issueEvents {
 			fmt.Printf("event %d: %+v\n", i, *event)
 			jsonBytes, err := json.Marshal(event)
 			lib.FatalOnError(err)
@@ -31,7 +34,7 @@ func syncEvents(ctx *lib.Ctx) {
 			fn := fmt.Sprintf("%v.json", *(event.ID))
 			lib.FatalOnError(ioutil.WriteFile(fn, pretty, 0644))
 		}
-		// Handle eventual paging (shoudl not happen for labels)
+		// Handle eventual paging (should not happen for labels)
 		if response.NextPage == 0 {
 			break
 		}
