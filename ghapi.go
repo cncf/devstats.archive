@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 	"os"
+	"sort"
 	"strings"
 	"sync"
 	"time"
@@ -87,7 +88,7 @@ func ghMilestoneIDOrNil(milPtr *github.Milestone) interface{} {
 
 // ArtificialEvent - create artificial 'ArtificialEvent'
 // creates new issue state, artificial event and its payload
-func ArtificialEvent(c *sql.DB, ctx *Ctx, cfg *IssueConfig) (err error) {
+func ArtificialEvent(c *sql.DB, ctx *Ctx, cfg *IssueConfig, eeid int64) (err error) {
 	if ctx.SkipPDB {
 		if ctx.Debug > 0 {
 			Printf("Skipping write for '%v'\n", *cfg)
@@ -263,6 +264,28 @@ func ArtificialEvent(c *sql.DB, ctx *Ctx, cfg *IssueConfig) (err error) {
 
 // SyncIssuesState synchonizes issues states
 func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.DB, issues map[int64]IssueConfigAry) {
+	// Make sure we only have single event per single second - final state
+	nIssuesBefore := 0
+	for _, issueConfig := range issues {
+		nIssuesBefore += len(issueConfig)
+	}
+	for iid, issueConfigAry := range issues {
+		mp := make(map[string]IssueConfig)
+		for _, issue := range issueConfigAry {
+			sdt := ToYMDHMSDate(issue.CreatedAt)
+			mp[sdt] = issue
+		}
+		sdts := []string{}
+		for sdt := range mp {
+			sdts = append(sdts, sdt)
+		}
+		sort.Strings(sdts)
+		issues[iid] = []IssueConfig{}
+		for _, sdt := range sdts {
+			issues[iid] = append(issues[iid], mp[sdt])
+		}
+	}
+
 	// Get number of CPUs available
 	thrN := GetThreadsNum(ctx)
 
@@ -280,7 +303,7 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 		nIssues += len(issueConfig)
 	}
 
-	Printf("ghapi2db.go: Processing %d issues - GHA part\n", nIssues)
+	Printf("ghapi2db.go: Processing %d issues (%d with date collisions) - GHA part\n", nIssues, nIssuesBefore)
 	// Use map key to pass to the closure
 	for key, issueConfig := range issues {
 		for idx := range issueConfig {
@@ -332,6 +355,7 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 							c,
 							ctx,
 							&cfg,
+							0,
 						),
 					)
 					updatesMutex.Lock()
@@ -412,6 +436,7 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 							c,
 							ctx,
 							&cfg,
+							ghaEventID,
 						),
 					)
 					updatesMutex.Lock()
