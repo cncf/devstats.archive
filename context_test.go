@@ -209,7 +209,7 @@ func TestInit(t *testing.T) {
 		CmdDebug:            0,
 		MinGHAPIPoints:      1,
 		MaxGHAPIWaitSeconds: 10,
-		MaxGHAPIRetry:       5,
+		MaxGHAPIRetry:       6,
 		JSONOut:             false,
 		DBOut:               true,
 		ST:                  false,
@@ -388,7 +388,7 @@ func TestInit(t *testing.T) {
 			dynamicSetFields(
 				t,
 				copyContext(&defaultContext),
-				map[string]interface{}{"MaxGHAPIRetry": 5},
+				map[string]interface{}{"MaxGHAPIRetry": 6},
 			),
 		},
 		{

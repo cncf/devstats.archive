@@ -122,7 +122,7 @@ func (ctx *Ctx) Init() {
 			ctx.MaxGHAPIWaitSeconds = secs
 		}
 	}
-	ctx.MaxGHAPIRetry = 5
+	ctx.MaxGHAPIRetry = 6
 	if os.Getenv("GHA2DB_MAX_GHAPI_RETRY") != "" {
 		tr, err := strconv.Atoi(os.Getenv("GHA2DB_MAX_GHAPI_RETRY"))
 		FatalNoLog(err)
