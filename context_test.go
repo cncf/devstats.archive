@@ -89,7 +89,6 @@ func copyContext(in *lib.Ctx) *lib.Ctx {
 		OutputDB:            in.OutputDB,
 		TmOffset:            in.TmOffset,
 		RecentRange:         in.RecentRange,
-		OnlyIssues:          in.OnlyIssues,
 		OnlyEvents:          in.OnlyEvents,
 		CSVFile:             in.CSVFile,
 		ComputeAll:          in.ComputeAll,
@@ -280,7 +279,6 @@ func TestInit(t *testing.T) {
 		OutputDB:            "",
 		TmOffset:            0,
 		RecentRange:         "2 hours",
-		OnlyIssues:          []int64{},
 		OnlyEvents:          []int64{},
 		CSVFile:             "",
 		ComputeAll:          false,
@@ -1146,26 +1144,6 @@ func TestInit(t *testing.T) {
 				map[string]interface{}{
 					"InputDBs": []string{"db1", "db2", "db3"},
 					"OutputDB": "db4",
-				},
-			),
-		},
-		{
-			"Setting debug issues mode on ghapi2db",
-			map[string]string{
-				"GHA2DB_ONLY_ISSUES": "1,2000,3000000,4000000000,5000000000000,6000000000000000",
-			},
-			dynamicSetFields(
-				t,
-				copyContext(&defaultContext),
-				map[string]interface{}{
-					"OnlyIssues": []int64{
-						1,
-						2000,
-						3000000,
-						4000000000,
-						5000000000000,
-						6000000000000000,
-					},
 				},
 			),
 		},

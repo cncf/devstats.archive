@@ -83,7 +83,6 @@ type Ctx struct {
 	SkipGHAPI           bool            // From GHA2DB_GHAPISKIP, ghapi2db tool, if set then tool is not creating artificial events using GitHub API
 	SkipArtificailClean bool            // From GHA2DB_AECLEANSKIP, ghapi2db tool, if set then tool is not attempting to clean unneeded artificial events
 	SkipGetRepos        bool            // From GHA2DB_GETREPOSSKIP, get_repos tool, if set then tool does nothing
-	OnlyIssues          []int64         // From GHA2DB_ONLY_ISSUES, ghapi2db tool, process a user provided list of issues "issue_id1,issue_id2,...,issue_idN", default "". This is for GH API debugging.
 	OnlyEvents          []int64         // From GHA2DB_ONLY_EVENTS, ghapi2db tool, process a user provided list of events "event_id1,event_id2,...,event_idN", default "". This is for artificial events cleanup debugging.
 	CSVFile             string          // From GHA2DB_CSVOUT, runq tool, if set, saves result in this file
 	ComputeAll          bool            // From GHA2DB_COMPUTE_ALL, all tools, if set then no period decisions are taken based on time, but all possible periods are recalculated
@@ -478,17 +477,6 @@ func (ctx *Ctx) Init() {
 
 	ctx.CSVFile = os.Getenv("GHA2DB_CSVOUT")
 
-	issues := os.Getenv("GHA2DB_ONLY_ISSUES")
-	if issues == "" {
-		ctx.OnlyIssues = []int64{}
-	} else {
-		issuesArr := strings.Split(issues, ",")
-		for _, issue := range issuesArr {
-			iIssue, err := strconv.ParseInt(issue, 10, 64)
-			FatalNoLog(err)
-			ctx.OnlyIssues = append(ctx.OnlyIssues, iIssue)
-		}
-	}
 	events := os.Getenv("GHA2DB_ONLY_EVENTS")
 	if events == "" {
 		ctx.OnlyEvents = []int64{}

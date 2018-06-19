@@ -61,32 +61,48 @@ func (ic IssueConfigAry) Less(i, j int) bool {
 	return ic[i].EventID < ic[j].EventID
 }
 
+func ghActorIDOrNil(actPtr *github.User) interface{} {
+	if actPtr == nil {
+		return nil
+	}
+	return actPtr.ID
+}
+
+func ghActorLoginOrNil(actPtr *github.User, maybeHide func(string) string) interface{} {
+	if actPtr == nil {
+		return nil
+	}
+	if actPtr.Login == nil {
+		return nil
+	}
+	return maybeHide(*actPtr.Login)
+}
+
+func ghMilestoneIDOrNil(milPtr *github.Milestone) interface{} {
+	if milPtr == nil {
+		return nil
+	}
+	return milPtr.ID
+}
+
 // ArtificialEvent - create artificial 'ArtificialEvent'
 // creates new issue state, artificial event and its payload
-func ArtificialEvent(
-	c *sql.DB,
-	ctx *Ctx,
-	iid, eid int64,
-	milestone string,
-	labels map[int64]string,
-	labelsChanged bool,
-	ghIssue *github.Issue,
-	createdAt time.Time,
-) (err error) {
+func ArtificialEvent(c *sql.DB, ctx *Ctx, cfg *IssueConfig) (err error) {
 	if ctx.SkipPDB {
 		if ctx.Debug > 0 {
-			Printf("Skipping write for issue_id: %d, event_id: %d, milestone_id: %s, labels(%v): %v\n", iid, eid, milestone, labelsChanged, labels)
+			Printf("Skipping write for '%v'\n", *cfg)
 		}
 		return nil
 	}
 	// Create artificial event, add 2^48 to eid
+	eid := cfg.EventID
+	iid := cfg.IssueID
+	issue := cfg.GhIssue
 	eventID := 281474976710656 + eid
-	now := createdAt
+	now := cfg.CreatedAt
 
-	// If no new milestone, just copy "milestone_id" from the source
-	if milestone == "" {
-		milestone = "milestone_id"
-	}
+	// To handle GDPR
+	maybeHide := MaybeHideFunc(GetHidden(HideCfgFile))
 
 	// Start transaction
 	tc, err := c.Begin()
@@ -102,32 +118,50 @@ func ArtificialEvent(
 				"locked, milestone_id, number, state, title, updated_at, user_id, "+
 				"dup_actor_id, dup_actor_login, dup_repo_id, dup_repo_name, dup_type, dup_created_at, "+
 				"dup_user_login, dupn_assignee_login, is_pull_request) "+
-				"select id, %s, assignee_id, body, %s, %s, created_at, "+
-				"%s, %s, number, %s, title, %s, 0, "+
-				"0, 'devstats-bot', dup_repo_id, dup_repo_name, 'ArtificialEvent', %s, "+
-				"'devstats-bot', dupn_assignee_login, is_pull_request "+
-				"from gha_issues where id = %s and event_id = %s",
+				"values(%s, %s, %s, %s, %s, %s, %s, "+
+				"%s, %s, %s, %s, %s, %s, %s, "+
+				"0, 'devstats-bot', (select max(id) from gha_repos where name = %s), %s, 'ArtificialEvent', %s, "+
+				"'devstats-bot', %s, %s) ",
 			NValue(1),
 			NValue(2),
 			NValue(3),
 			NValue(4),
-			milestone,
 			NValue(5),
 			NValue(6),
 			NValue(7),
 			NValue(8),
 			NValue(9),
+			NValue(10),
+			NValue(11),
+			NValue(12),
+			NValue(13),
+			NValue(14),
+			NValue(15),
+			NValue(16),
+			NValue(17),
+			NValue(18),
+			NValue(19),
 		),
 		AnyArray{
-			eventID,
-			TimeOrNil(ghIssue.ClosedAt),
-			IntOrNil(ghIssue.Comments),
-			BoolOrNil(ghIssue.Locked),
-			StringOrNil(ghIssue.State),
-			now,
-			now,
 			iid,
-			eid,
+			eventID,
+			ghActorIDOrNil(issue.Assignee),
+			TruncStringOrNil(issue.Body, 0xffff),
+			TimeOrNil(issue.ClosedAt),
+			IntOrNil(issue.Comments),
+			issue.CreatedAt,
+			BoolOrNil(issue.Locked),
+			ghMilestoneIDOrNil(issue.Milestone),
+			issue.Number,
+			issue.State,
+			issue.Title,
+			now,
+			ghActorIDOrNil(issue.User),
+			cfg.Repo,
+			cfg.Repo,
+			now,
+			ghActorLoginOrNil(issue.Assignee, maybeHide),
+			issue.IsPullRequest(),
 		}...,
 	)
 
@@ -139,17 +173,20 @@ func ArtificialEvent(
 			"insert into gha_events("+
 				"id, type, actor_id, repo_id, public, created_at, "+
 				"dup_actor_login, dup_repo_name, org_id, forkee_id) "+
-				"select %s, 'ArtificialEvent', 0, repo_id, public, %s, "+
-				"'devstats-bot', dup_repo_name, org_id, forkee_id "+
-				"from gha_events where id = %s",
+				"values(%s, 'ArtificialEvent', 0, (select max(id) from gha_repos where name = %s), true, %s, "+
+				"'devstats-bot', %s, (select max(org_id) from gha_repos where name = %s), null)",
 			NValue(1),
 			NValue(2),
 			NValue(3),
+			NValue(4),
+			NValue(5),
 		),
 		AnyArray{
 			eventID,
+			cfg.Repo,
 			now,
-			eid,
+			cfg.Repo,
+			cfg.Repo,
 		}...,
 	)
 
@@ -163,26 +200,29 @@ func ArtificialEvent(
 				"issue_id, pull_request_id, comment_id, ref_type, master_branch, commit, "+
 				"description, number, forkee_id, release_id, member_id, "+
 				"dup_actor_id, dup_actor_login, dup_repo_id, dup_repo_name, dup_type, dup_created_at) "+
-				"select %s, null, null, null, null, null, 'artificial', "+
-				"issue_id, pull_request_id, null, null, null, null, "+
-				"null, number, null, null, null, "+
-				"0, 'devstats-bot', dup_repo_id, dup_repo_name, 'ArtificialEvent', %s "+
-				"from gha_payloads where issue_id = %s and event_id = %s",
+				"values(%s, null, null, null, null, null, 'artificial', "+
+				"%s, null, null, null, null, null, "+
+				"null, %s, null, null, null, "+
+				"0, 'devstats-bot', (select max(id) from gha_repos where name = %s), %s, 'ArtificialEvent', %s)",
 			NValue(1),
 			NValue(2),
 			NValue(3),
 			NValue(4),
+			NValue(5),
+			NValue(6),
 		),
 		AnyArray{
 			eventID,
-			now,
 			iid,
-			eid,
+			issue.Number,
+			cfg.Repo,
+			cfg.Repo,
+			now,
 		}...,
 	)
 
 	// Add issue labels
-	for label, labelName := range labels {
+	for labelID, labelName := range cfg.LabelsMap {
 		ExecSQLTxWithErr(
 			tc,
 			ctx,
@@ -190,11 +230,9 @@ func ArtificialEvent(
 				"insert into gha_issues_labels(issue_id, event_id, label_id, "+
 					"dup_actor_id, dup_actor_login, dup_repo_id, dup_repo_name, "+
 					"dup_type, dup_created_at, dup_issue_number, dup_label_name) "+
-					"select %s, %s, %s, "+
-					"0, 'devstats-bot', repo_id, dup_repo_name, "+
-					"'ArtificialEvent', %s, "+
-					"(select number from gha_issues where id = %s and event_id = %s limit 1), %s "+
-					"from gha_events where id = %s",
+					"values(%s, %s, %s, "+
+					"0, 'devstats-bot', (select max(id) from gha_repos where name = %s), %s, "+
+					"'ArtificialEvent', %s, %s, %s)",
 				NValue(1),
 				NValue(2),
 				NValue(3),
@@ -207,12 +245,12 @@ func ArtificialEvent(
 			AnyArray{
 				iid,
 				eventID,
-				label,
+				labelID,
+				cfg.Repo,
+				cfg.Repo,
 				now,
-				iid,
-				eid,
+				issue.Number,
 				labelName,
-				eid,
 			}...,
 		)
 	}
@@ -257,40 +295,92 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 				var (
 					ghaMilestoneID *int64
 					ghaEventID     int64
+					ghaClosedAt    *time.Time
+					ghaState       string
 				)
 
 				// Process current milestone
 				apiMilestoneID := cfg.MilestoneID
+				apiClosedAt := cfg.GhIssue.ClosedAt
+				apiState := *cfg.GhIssue.State
 				rowsM := QuerySQLWithErr(
 					c,
 					ctx,
-					fmt.Sprintf("select milestone_id, event_id from gha_issues where id = %s order by updated_at desc, event_id desc limit 1", NValue(1)),
+					fmt.Sprintf(
+						"select milestone_id, event_id, closed_at, state "+
+							"from gha_issues where id = %s and updated_at = %s "+
+							"order by updated_at desc, event_id desc limit 1",
+						NValue(1),
+						NValue(2),
+					),
 					cfg.IssueID,
+					cfg.CreatedAt,
 				)
 				defer func() { FatalOnError(rowsM.Close()) }()
+				got := false
 				for rowsM.Next() {
-					FatalOnError(rowsM.Scan(&ghaMilestoneID, &ghaEventID))
+					FatalOnError(rowsM.Scan(&ghaMilestoneID, &ghaEventID, &ghaClosedAt, &ghaState))
+					got = true
 				}
 				FatalOnError(rowsM.Err())
+				if !got {
+					if ctx.Debug > 0 {
+						Printf("Adding missing event '%v'\n", cfg)
+					}
+					FatalOnError(
+						ArtificialEvent(
+							c,
+							ctx,
+							&cfg,
+						),
+					)
+					updatesMutex.Lock()
+					updates++
+					updatesMutex.Unlock()
+					ch <- true
+					return
+				}
 
-				// newMilestone will be non-empty when we detect that something needs to be updated
-				newMilestone := ""
-				if apiMilestoneID == nil && ghaMilestoneID != nil {
-					newMilestone = Null
+				changedClosed := false
+				if apiClosedAt == nil && ghaClosedAt != nil || (apiClosedAt != nil && ghaClosedAt == nil) || (apiClosedAt != nil && ghaClosedAt != nil && ToYMDHMSDate(*apiClosedAt) != ToYMDHMSDate(*ghaClosedAt)) {
+					changedClosed = true
 					if ctx.Debug > 0 {
-						Printf("Updating issue '%v' milestone to null, it was %d (event_id %d)\n", cfg, *ghaMilestoneID, ghaEventID)
-					}
-				}
-				if apiMilestoneID != nil && (ghaMilestoneID == nil || *apiMilestoneID != *ghaMilestoneID) {
-					newMilestone = fmt.Sprintf("%d", *apiMilestoneID)
-					if ctx.Debug > 0 {
-						if ghaMilestoneID != nil {
-							Printf("Updating issue '%v' milestone to %d, it was %d (event_id %d)\n", cfg, *apiMilestoneID, *ghaMilestoneID, ghaEventID)
-						} else {
-							Printf("Updating issue '%v' milestone to %d, it was null (event_id %d)\n", cfg, *apiMilestoneID, ghaEventID)
+						from := Null
+						if ghaClosedAt != nil {
+							from = fmt.Sprintf("%v", ToYMDHMSDate(*ghaClosedAt))
 						}
+						to := Null
+						if apiClosedAt != nil {
+							to = fmt.Sprintf("%v", ToYMDHMSDate(*apiClosedAt))
+						}
+						Printf("Updating issue '%v' closed_at %s -> %s\n", cfg, from, to)
 					}
 				}
+
+				changedState := false
+				if apiState != ghaState {
+					changedState = true
+					if ctx.Debug > 0 {
+						Printf("Updating issue '%v' state %s -> %s\n", cfg, ghaState, apiState)
+					}
+				}
+
+				changedMilestone := false
+				if apiMilestoneID == nil && ghaMilestoneID != nil || (apiMilestoneID != nil && ghaMilestoneID == nil) || (apiMilestoneID != nil && ghaMilestoneID != nil && *apiMilestoneID != *ghaMilestoneID) {
+					changedMilestone = true
+					if ctx.Debug > 0 {
+						from := Null
+						if ghaMilestoneID != nil {
+							from = fmt.Sprintf("%d", *ghaMilestoneID)
+						}
+						to := Null
+						if apiMilestoneID != nil {
+							to = fmt.Sprintf("%d", *apiMilestoneID)
+						}
+						Printf("Updating issue '%v' milestone %s -> %s\n", cfg, from, to)
+					}
+				}
+
 				// Process current labels
 				rowsL := QuerySQLWithErr(
 					c,
@@ -309,23 +399,19 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 					FatalOnError(rowsL.Scan(&ghaLabels))
 				}
 				FatalOnError(rowsL.Err())
+				changedLabels := false
 				if ctx.Debug > 0 && ghaLabels != cfg.Labels {
 					Printf("Updating issue '%v' labels to '%s', they were: '%s' (event_id %d)\n", cfg, cfg.Labels, ghaLabels, ghaEventID)
+					changedLabels = true
 				}
 
 				// Do the update if needed: wrong milestone or label set
-				if newMilestone != "" || ghaLabels != cfg.Labels {
+				if changedMilestone || changedState || changedClosed || changedLabels {
 					FatalOnError(
 						ArtificialEvent(
 							c,
 							ctx,
-							cfg.IssueID,
-							ghaEventID,
-							newMilestone,
-							cfg.LabelsMap,
-							ghaLabels != cfg.Labels,
-							cfg.GhIssue,
-							cfg.CreatedAt,
+							&cfg,
 						),
 					)
 					updatesMutex.Lock()
@@ -334,9 +420,7 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 				}
 
 				// Synchronize go routine
-				if ch != nil {
-					ch <- true
-				}
+				ch <- true
 			}(ch, key, idx)
 
 			// go routine called with 'ch' channel to sync and tag index
