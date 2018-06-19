@@ -81,7 +81,10 @@ func ensureColumns() {
 			}
 			lib.FatalOnError(crows.Err())
 			if len(colNames) == 0 {
-				lib.Fatalf("wrong config: %+v, no columns returned", col)
+				if ch != nil {
+					ch <- true
+				}
+				return
 			}
 			if ctx.Debug > 0 {
 				lib.Printf("Ensure columns: %+v --> %+v\n", col, colNames)
