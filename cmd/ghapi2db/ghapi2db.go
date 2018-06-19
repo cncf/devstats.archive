@@ -424,12 +424,14 @@ func syncEvents(ctx *lib.Ctx) {
 	// GitHub don't like MT quering - they say that:
 	// 403 You have triggered an abuse detection mechanism. Please wait a few minutes before you try again
 	// So let's get all GitHub stuff one-after-another (ugly and slow) and then spawn threads to speedup
-	// Damn GitHub! - this could be working Number of CPU times faster! We're trying some hardcoded value: allowedThrN
+	// Damn GitHub! - this could be working Number of CPU times faster! We're trying some hardcoded value: maxThreads
 	// Seems like GitHub is not detecting abuse when using 16 threads, but it detects when using 32.
-	allowedThrN := 16
-	if allowedThrN > thrN {
-		allowedThrN = thrN
+	maxThreads := 16
+	if maxThreads > thrN {
+		maxThreads = thrN
 	}
+	allowedThrN := maxThreads
+	var thrMutex = &sync.Mutex{}
 	ch := make(chan bool)
 	nThreads := 0
 	dtStart := time.Now()
@@ -468,7 +470,7 @@ func syncEvents(ctx *lib.Ctx) {
 			lib.FatalOnError(err)
 			for {
 				got := false
-				for tr := 1; tr <= ctx.MaxGHAPIRetry; tr++ {
+				for tr := 0; tr < ctx.MaxGHAPIRetry; tr++ {
 					_, rem, waitPeriod := lib.GetRateLimits(gctx, gc, true)
 					if ctx.Debug > 0 {
 						lib.Printf("Try: %d, rem: %v, waitPeriod: %v\n", tr, rem, waitPeriod)
@@ -492,11 +494,24 @@ func syncEvents(ctx *lib.Ctx) {
 					res := lib.HandlePossibleError(err, &gcfg, "Issues.ListRepositoryEvents")
 					if res != "" {
 						if res == lib.Abuse {
-							wait := time.Duration(int(math.Pow(2.0, float64(tr)))) * time.Second
+							wait := time.Duration(int(math.Pow(2.0, float64(tr+3)))) * time.Second
+							thrMutex.Lock()
 							lib.Printf("GitHub API abuse detected, wait %v\n", wait)
+							if allowedThrN > 1 {
+								allowedThrN--
+								lib.Printf("Lower threads limit: %d/%d\n", nThreads, allowedThrN)
+							}
+							thrMutex.Unlock()
 							time.Sleep(wait)
 						}
 						continue
+					} else {
+						thrMutex.Lock()
+						if allowedThrN < maxThreads {
+							allowedThrN++
+							lib.Printf("Rise threads limit: %d/%d\n", nThreads, allowedThrN)
+						}
+						thrMutex.Unlock()
 					}
 					got = true
 					break
@@ -573,7 +588,7 @@ func syncEvents(ctx *lib.Ctx) {
 			ch <- true
 		}(ch, orgRepo)
 		nThreads++
-		if nThreads == allowedThrN {
+		for nThreads >= allowedThrN {
 			<-ch
 			nThreads--
 			checked++
