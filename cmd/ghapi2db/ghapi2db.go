@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"math"
 	"os"
 	"sort"
 	"strconv"
@@ -392,7 +393,7 @@ func getRecentRepos(c *sql.DB, ctx *lib.Ctx) (repos []string) {
 		c,
 		ctx,
 		"select distinct dup_repo_name from gha_events "+
-			"where created_at > now() - '4 days'::interval",
+			"where created_at > now() - '1 day'::interval",
 	)
 	defer func() { lib.FatalOnError(rows.Close()) }()
 	var repo string
@@ -439,7 +440,7 @@ func syncEvents(ctx *lib.Ctx) {
 	lib.Printf("ghapi2db.go: Processing %d repos - GHAPI part\n", nRepos)
 
 	//opt := &github.ListOptions{}
-	opt := &github.ListOptions{PerPage: 1000}
+	opt := &github.ListOptions{PerPage: 100}
 	issues := make(map[int64]lib.IssueConfigAry)
 	var issuesMutex = &sync.Mutex{}
 	for _, orgRepo := range repos {
@@ -469,6 +470,9 @@ func syncEvents(ctx *lib.Ctx) {
 				got := false
 				for tr := 1; tr <= ctx.MaxGHAPIRetry; tr++ {
 					_, rem, waitPeriod := lib.GetRateLimits(gctx, gc, true)
+					if ctx.Debug > 0 {
+						lib.Printf("Try: %d, rem: %v, waitPeriod: %v\n", tr, rem, waitPeriod)
+					}
 					if rem <= ctx.MinGHAPIPoints {
 						if waitPeriod.Seconds() <= float64(ctx.MaxGHAPIWaitSeconds) {
 							lib.Printf("API limit reached while getting events data, waiting %v (%d)\n", waitPeriod, tr)
@@ -485,7 +489,15 @@ func syncEvents(ctx *lib.Ctx) {
 						lib.Printf("API call for %s (%d), remaining GHAPI points %d\n", orgRepo, nPages, rem)
 					}
 					events, response, err = gc.Issues.ListRepositoryEvents(gctx, org, repo, opt)
-					lib.HandlePossibleError(err, &gcfg, "Issues.ListRepositoryEvents")
+					res := lib.HandlePossibleError(err, &gcfg, "Issues.ListRepositoryEvents")
+					if res != "" {
+						if res == lib.Abuse {
+							wait := time.Duration(int(math.Pow(2.0, float64(tr)))) * time.Second
+							lib.Printf("GitHub API abuse detected, wait %v\n", wait)
+							time.Sleep(wait)
+						}
+						continue
+					}
 					got = true
 					break
 				}

@@ -240,6 +240,7 @@ func sync(ctx *lib.Ctx, args []string) {
 		if !ctx.SkipGHAPI || !ctx.SkipArtificailClean {
 			lib.Printf("Update data from GitHub API\n")
 			// Recompute views and DB summaries
+			ctx.ExecFatal = false
 			_, err = lib.ExecCommand(
 				ctx,
 				[]string{
@@ -247,7 +248,11 @@ func sync(ctx *lib.Ctx, args []string) {
 				},
 				nil,
 			)
-			lib.FatalOnError(err)
+			ctx.ExecFatal = true
+			if err != nil {
+				lib.Printf("Error executing ghapi2db: %+v\n", err)
+				fmt.Fprintf(os.Stderr, "Error executing ghapi2db: %+v\n", err)
+			}
 		}
 
 		// Eventual postprocess SQL's from 'structure' call
