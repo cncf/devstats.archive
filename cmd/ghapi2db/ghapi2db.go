@@ -67,8 +67,7 @@ func cleanArtificialEvents(ctx *lib.Ctx) {
 			ctx,
 			fmt.Sprintf(
 				"select id, event_id, milestone_id, updated_at, closed_at, state "+
-					"from gha_issues where "+
-					"event_id > %d and event_id in (%s)",
+					"from gha_issues where event_id > %d and event_id in (%s)",
 				minEventID,
 				strings.Join(ary, ","),
 			),
@@ -79,8 +78,9 @@ func cleanArtificialEvents(ctx *lib.Ctx) {
 			c,
 			ctx,
 			fmt.Sprintf(
-				"select id, event_id, milestone_id, updated_at, closed_at, state from gha_issues "+
-					"where event_id > %s and updated_at > %s::timestamp - %s::interval",
+				"select id, event_id, milestone_id, updated_at, closed_at, state "+
+					"from gha_issues where event_id > %s "+
+					"and updated_at > %s::timestamp - %s::interval",
 				lib.NValue(1),
 				lib.NValue(2),
 				lib.NValue(3),
@@ -392,7 +392,7 @@ func getRecentRepos(c *sql.DB, ctx *lib.Ctx) (repos []string) {
 		c,
 		ctx,
 		"select distinct dup_repo_name from gha_events "+
-			"where created_at > now() - '1 week'::interval",
+			"where created_at > now() - '4 days'::interval",
 	)
 	defer func() { lib.FatalOnError(rows.Close()) }()
 	var repo string
