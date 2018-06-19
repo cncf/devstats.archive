@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"os"
 	"sort"
 	"strconv"
 	"strings"
@@ -321,132 +322,45 @@ func cleanArtificialEvents(ctx *lib.Ctx) {
 	lib.Printf("Processed %d artificial events, deleted %d\n", nRows, deleted)
 }
 
-// Insert Postgres vars
-func ghapi2db(ctx *lib.Ctx) {
+func getRecentRepos(c *sql.DB, ctx *lib.Ctx) (repos []string) {
+	rows := lib.QuerySQLWithErr(
+		c,
+		ctx,
+		"select distinct dup_repo_name from gha_events "+
+			"where created_at > now() - '1 week'::interval",
+	)
+	defer func() { lib.FatalOnError(rows.Close()) }()
+	var repo string
+	for rows.Next() {
+		lib.FatalOnError(rows.Scan(&repo))
+		repos = append(repos, repo)
+	}
+	lib.FatalOnError(rows.Err())
+	return
+}
+
+func syncEvents(ctx *lib.Ctx) {
+	// Connect to GitHub API
+	gctx, gc := lib.GHClient(ctx)
+
 	// Connect to Postgres DB
 	c := lib.PgConn(ctx)
 	defer func() { lib.FatalOnError(c.Close()) }()
 
-	// Connect to GitHub API
-	gctx, gc := lib.GHClient(ctx)
-
-	// Get RateLimits info
-	_, rem, wait := lib.GetRateLimits(gctx, gc, true)
+	// Get list of repositories to process
+	repos := getRecentRepos(c, ctx)
+	if ctx.Debug > 0 {
+		lib.Printf("Repos to process: %v\n", repos)
+	}
 
 	// Get number of CPUs available
 	thrN := lib.GetThreadsNum(ctx)
-	lib.Printf("ghapi2db.go: Running (on %d CPUs): %d API points available, resets in %v\n", thrN, rem, wait)
-
-	// Local or cron mode?
-	dataPrefix := lib.DataDir
-	if ctx.Local {
-		dataPrefix = "./"
-	}
-	// Get recently modified opened issues/PRs
-	bytes, err := lib.ReadFile(
-		ctx,
-		dataPrefix+"util_sql/open_issues_and_prs.sql",
-	)
-	lib.FatalOnError(err)
-	sqlQuery := string(bytes)
-
-	// Set range from a context
-	sqlQuery = strings.Replace(sqlQuery, "{{period}}", ctx.RecentRange, -1)
-	rows := lib.QuerySQLWithErr(c, ctx, sqlQuery)
-	defer func() { lib.FatalOnError(rows.Close()) }()
-
-	// Get issues/PRs to check
-	// repo, number, issueID, is_pr
-	var issuesMutex = &sync.RWMutex{}
-	issues := make(map[int64]lib.IssueConfigAry)
-	var (
-		repo    string
-		number  int
-		issueID int64
-		pr      bool
-	)
-	nIssues := 0
-	for rows.Next() {
-		lib.FatalOnError(rows.Scan(&repo, &number, &issueID, &pr))
-		cfg := lib.IssueConfig{
-			Repo:    repo,
-			Number:  number,
-			IssueID: issueID,
-			Pr:      pr,
-		}
-		v, ok := issues[issueID]
-		if ok {
-			if ctx.Debug > 0 {
-				lib.Printf("Warning: we already have issue config for id=%d: %v, skipped new config: %v\n", issueID, v[0], cfg)
-			}
-			continue
-		}
-		issues[issueID] = lib.IssueConfigAry{cfg}
-		nIssues++
-		if ctx.Debug > 0 {
-			lib.Printf("Open Issue ID '%d' --> '%v'\n", issueID, cfg)
-		}
-	}
-	lib.FatalOnError(rows.Err())
-	if ctx.Debug > 0 {
-		lib.Printf("Got %d open issues for period %s\n", nIssues, ctx.RecentRange)
-	}
-
-	if len(ctx.OnlyIssues) > 0 {
-		ary := []string{}
-		for _, issue := range ctx.OnlyIssues {
-			ary = append(ary, strconv.FormatInt(issue, 10))
-		}
-		onlyIssues := make(map[int64]lib.IssueConfigAry)
-		nOnlyIssues := 0
-		lib.Printf("Processing only selected %d %v issues for debugging\n", len(ctx.OnlyIssues), ctx.OnlyIssues)
-		irows := lib.QuerySQLWithErr(
-			c,
-			ctx,
-			fmt.Sprintf(
-				"select distinct dup_repo_name, number, id, is_pull_request from gha_issues where id in (%s)",
-				strings.Join(ary, ","),
-			),
-		)
-		defer func() { lib.FatalOnError(irows.Close()) }()
-		for irows.Next() {
-			lib.FatalOnError(irows.Scan(&repo, &number, &issueID, &pr))
-			cfg := lib.IssueConfig{
-				Repo:    repo,
-				Number:  number,
-				IssueID: issueID,
-				Pr:      pr,
-			}
-			v, ok := onlyIssues[issueID]
-			if ok {
-				if ctx.Debug > 0 {
-					lib.Printf("Warning: we already have issue config for id=%d: %v, skipped new config: %v\n", issueID, v[0], cfg)
-				}
-				continue
-			}
-			onlyIssues[issueID] = lib.IssueConfigAry{cfg}
-			nOnlyIssues++
-			_, ok = issues[issueID]
-			if ok {
-				lib.Printf("Issue %d(%v) would also be processed by the default workflow\n", issueID, cfg)
-			} else {
-				lib.Printf("Issue %d(%v) would not be processed by the default workflow\n", issueID, cfg)
-			}
-		}
-		lib.FatalOnError(irows.Err())
-		lib.Printf("Processing %d/%d user provided issues\n", nOnlyIssues, len(ctx.OnlyIssues))
-		issues = onlyIssues
-		nIssues = nOnlyIssues
-	}
-
-	// GitHub paging config
-	opt := &github.ListOptions{PerPage: 1000}
 	// GitHub don't like MT quering - they say that:
 	// 403 You have triggered an abuse detection mechanism. Please wait a few minutes before you try again
 	// So let's get all GitHub stuff one-after-another (ugly and slow) and then spawn threads to speedup
 	// Damn GitHub! - this could be working Number of CPU times faster! We're trying some hardcoded value: allowedThrN
-	// Seems like GitHub is not detecting abuse when using 24 threads, but it detects when using 32.
-	allowedThrN := 24
+	// Seems like GitHub is not detecting abuse when using 16 threads, but it detects when using 32.
+	allowedThrN := 16
 	if allowedThrN > thrN {
 		allowedThrN = thrN
 	}
@@ -455,129 +369,132 @@ func ghapi2db(ctx *lib.Ctx) {
 	dtStart := time.Now()
 	lastTime := dtStart
 	checked := 0
-	lib.Printf("ghapi2db.go: Processing %d issues - GHAPI part\n", nIssues)
-	// Create keys array to avoid accessing shared issues map concurently
-	keys := []int64{}
-	for key := range issues {
-		keys = append(keys, key)
-	}
-	for _, key := range keys {
-		go func(ch chan bool, iid int64) {
-			// Refer to current tag using index passed to anonymous function
-			issuesMutex.RLock()
-			cfg := issues[iid][0]
-			issuesMutex.RUnlock()
-			if ctx.Debug > 0 {
-				lib.Printf("GitHub Issue ID (before) '%d' --> '%v'\n", iid, cfg)
-			}
-			// Get separate org and repo
-			ary := strings.Split(cfg.Repo, "/")
-			if len(ary) != 2 {
-				if ctx.Debug > 0 {
-					lib.Printf("Warning: wrong repository name: %s\n", cfg.Repo)
-				}
-				return
-			}
-			// Use Github API to get issue info
-			got := false
-			for tr := 1; tr <= ctx.MaxGHAPIRetry; tr++ {
-				_, rem, waitPeriod := lib.GetRateLimits(gctx, gc, true)
-				if rem <= ctx.MinGHAPIPoints {
-					if waitPeriod.Seconds() <= float64(ctx.MaxGHAPIWaitSeconds) {
-						lib.Printf("API limit reached while getting issue data, waiting %v (%d)\n", waitPeriod, tr)
-						time.Sleep(time.Duration(1) * time.Second)
-						time.Sleep(waitPeriod)
-						continue
-					} else {
-						lib.Fatalf("API limit reached while getting issue data, aborting, don't want to wait %v", waitPeriod)
-						return
-					}
-				}
-				issue, _, err := gc.Issues.Get(gctx, ary[0], ary[1], cfg.Number)
-				lib.HandlePossibleError(err, &cfg, "Issues.Get")
-				if issue.Milestone != nil {
-					cfg.MilestoneID = issue.Milestone.ID
-				}
-				cfg.GhIssue = issue
-				cfg.CreatedAt = time.Now()
-				got = true
-				break
-			}
-			if !got {
-				lib.Fatalf("GetRateLimit call failed %d times while getting issue data, aboorting", ctx.MaxGHAPIRetry)
-				return
-			}
+	nRepos := len(repos)
+	recentDt := lib.GetDateAgo(c, ctx, lib.HourStart(time.Now()), ctx.RecentRange)
+	lib.Printf("ghapi2db.go: Processing %d repos - GHAPI part\n", nRepos)
 
-			// Use GitHub API to get labels info
-			cfg.LabelsMap = make(map[int64]string)
+	//opt := &github.ListOptions{}
+	opt := &github.ListOptions{PerPage: 1000}
+	issues := make(map[int64]lib.IssueConfigAry)
+	var issuesMutex = &sync.Mutex{}
+	for _, orgRepo := range repos {
+		go func(ch chan bool, orgRepo string) {
+			ary := strings.Split(orgRepo, "/")
+			if len(ary) < 2 {
+				ch <- false
+				return
+			}
+			org := ary[0]
+			repo := ary[1]
+			if org == "" || repo == "" {
+				ch <- false
+				return
+			}
+			gcfg := lib.IssueConfig{
+				Repo: orgRepo,
+			}
 			var (
-				resp   *github.Response
-				labels []*github.Label
+				err      error
+				events   []*github.IssueEvent
+				response *github.Response
 			)
+			nPages := 0
+			lib.FatalOnError(err)
 			for {
 				got := false
 				for tr := 1; tr <= ctx.MaxGHAPIRetry; tr++ {
 					_, rem, waitPeriod := lib.GetRateLimits(gctx, gc, true)
 					if rem <= ctx.MinGHAPIPoints {
 						if waitPeriod.Seconds() <= float64(ctx.MaxGHAPIWaitSeconds) {
-							lib.Printf("API limit reached while getting issue labels, waiting %v (%d)\n", waitPeriod, tr)
+							lib.Printf("API limit reached while getting events data, waiting %v (%d)\n", waitPeriod, tr)
 							time.Sleep(time.Duration(1) * time.Second)
 							time.Sleep(waitPeriod)
 							continue
 						} else {
-							lib.Fatalf("API limit reached while getting issue labels, aborting, don't want to wait %v", waitPeriod)
-							return
+							lib.Fatalf("API limit reached while getting issue data, aborting, don't want to wait %v", waitPeriod)
+							os.Exit(1)
 						}
 					}
-					var errIn error
-					labels, resp, errIn = gc.Issues.ListLabelsByIssue(gctx, ary[0], ary[1], cfg.Number, opt)
-					lib.HandlePossibleError(errIn, &cfg, "Issues.ListLabelsByIssue")
-					for _, label := range labels {
-						cfg.LabelsMap[*label.ID] = *label.Name
+					nPages++
+					if ctx.Debug > 0 {
+						lib.Printf("API call for %s (%d), remaining GHAPI points %d\n", orgRepo, nPages, rem)
 					}
+					events, response, err = gc.Issues.ListRepositoryEvents(gctx, org, repo, opt)
+					lib.HandlePossibleError(err, &gcfg, "Issues.ListRepositoryEvents")
 					got = true
 					break
 				}
 				if !got {
-					lib.Fatalf("GetRateLimit call failed %d times while getting issue labels, aboorting", ctx.MaxGHAPIRetry)
-					return
+					lib.Fatalf("GetRateLimit call failed %d times while getting events, aboorting", ctx.MaxGHAPIRetry)
+					os.Exit(2)
 				}
-
-				// Handle eventual paging (should not happen for labels)
-				if resp.NextPage == 0 {
+				minCreatedAt := time.Now()
+				maxCreatedAt := recentDt
+				for _, event := range events {
+					createdAt := *event.CreatedAt
+					if createdAt.Before(minCreatedAt) {
+						minCreatedAt = createdAt
+					}
+					if createdAt.After(maxCreatedAt) {
+						maxCreatedAt = createdAt
+					}
+					cfg := lib.IssueConfig{Repo: orgRepo}
+					issue := event.Issue
+					if issue.Milestone != nil {
+						cfg.MilestoneID = issue.Milestone.ID
+					}
+					cfg.CreatedAt = createdAt
+					cfg.GhIssue = issue
+					cfg.Number = *issue.Number
+					cfg.IssueID = *issue.ID
+					cfg.EventID = *event.ID
+					cfg.Pr = issue.IsPullRequest()
+					cfg.LabelsMap = make(map[int64]string)
+					for _, label := range issue.Labels {
+						cfg.LabelsMap[*label.ID] = *label.Name
+					}
+					labelsAry := lib.Int64Ary{}
+					for label := range cfg.LabelsMap {
+						labelsAry = append(labelsAry, label)
+					}
+					sort.Sort(labelsAry)
+					l := len(labelsAry)
+					for i, label := range labelsAry {
+						if i == l-1 {
+							cfg.Labels += fmt.Sprintf("%d", label)
+						} else {
+							cfg.Labels += fmt.Sprintf("%d,", label)
+						}
+					}
+					if createdAt.After(recentDt) {
+						issuesMutex.Lock()
+						_, ok := issues[cfg.IssueID]
+						if ok {
+							issues[cfg.IssueID] = append(issues[cfg.IssueID], cfg)
+						} else {
+							issues[cfg.IssueID] = []lib.IssueConfig{cfg}
+						}
+						issuesMutex.Unlock()
+						if ctx.Debug > 0 {
+							lib.Printf("Processing %v\n", cfg)
+						}
+					}
+				}
+				if ctx.Debug > 0 {
+					lib.Printf("%s: [%v - %v] < %v: %v\n", orgRepo, minCreatedAt, maxCreatedAt, recentDt, minCreatedAt.Before(recentDt))
+				}
+				if minCreatedAt.Before(recentDt) {
 					break
 				}
-				opt.Page = resp.NextPage
-			}
-			labelsAry := lib.Int64Ary{}
-			for label := range cfg.LabelsMap {
-				labelsAry = append(labelsAry, label)
-			}
-			sort.Sort(labelsAry)
-			l := len(labelsAry)
-			for i, label := range labelsAry {
-				if i == l-1 {
-					cfg.Labels += fmt.Sprintf("%d", label)
-				} else {
-					cfg.Labels += fmt.Sprintf("%d,", label)
+				// Handle paging
+				if response.NextPage == 0 {
+					break
 				}
+				opt.Page = response.NextPage
 			}
-			if ctx.Debug > 0 {
-				lib.Printf("GitHub Issue ID (after) '%d' --> '%v'\n", iid, cfg)
-			}
-
-			// Finally update issues map, this must be protected by the mutex
-			issuesMutex.Lock()
-			issues[iid] = lib.IssueConfigAry{cfg}
-			issuesMutex.Unlock()
-
 			// Synchronize go routine
-			if ch != nil {
-				ch <- true
-			}
-		}(ch, key)
-		// go routine called with 'ch' channel to sync and tag index
-
+			ch <- true
+		}(ch, orgRepo)
 		nThreads++
 		if nThreads == allowedThrN {
 			<-ch
@@ -585,7 +502,7 @@ func ghapi2db(ctx *lib.Ctx) {
 			checked++
 			// Get RateLimits info
 			_, rem, wait := lib.GetRateLimits(gctx, gc, true)
-			lib.ProgressInfo(checked, nIssues, dtStart, &lastTime, time.Duration(10)*time.Second, fmt.Sprintf("API points: %d, resets in: %v", rem, wait))
+			lib.ProgressInfo(checked, nRepos, dtStart, &lastTime, time.Duration(10)*time.Second, fmt.Sprintf("API points: %d, resets in: %v", rem, wait))
 		}
 	}
 	// Usually all work happens on '<-ch'
@@ -596,9 +513,16 @@ func ghapi2db(ctx *lib.Ctx) {
 		checked++
 		// Get RateLimits info
 		_, rem, wait := lib.GetRateLimits(gctx, gc, true)
-		lib.ProgressInfo(checked, nIssues, dtStart, &lastTime, time.Duration(10)*time.Second, fmt.Sprintf("API points: %d, resets in: %v", rem, wait))
+		lib.ProgressInfo(checked, nRepos, dtStart, &lastTime, time.Duration(10)*time.Second, fmt.Sprintf("API points: %d, resets in: %v", rem, wait))
+	}
+	for issueID := range issues {
+		sort.Sort(issues[issueID])
+		if ctx.Debug > 1 {
+			lib.Printf("Sorted: %+v\n", issues[issueID])
+		}
 	}
 
+	// Do final corrections
 	lib.SyncIssuesState(gctx, gc, ctx, c, issues)
 }
 
@@ -615,7 +539,7 @@ func main() {
 
 	// Create artificial events
 	if !ctx.SkipGHAPI {
-		ghapi2db(&ctx)
+		syncEvents(&ctx)
 	}
 	dtEnd := time.Now()
 	lib.Printf("Time: %v\n", dtEnd.Sub(dtStart))
