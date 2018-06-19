@@ -59,3 +59,6 @@ const All string = "all"
 
 // Kubernetes - common constant string
 const Kubernetes string = "kubernetes"
+
+// Abuse - common constant string
+const Abuse string = "abuse"

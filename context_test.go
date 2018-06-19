@@ -208,8 +208,8 @@ func TestInit(t *testing.T) {
 		Debug:               0,
 		CmdDebug:            0,
 		MinGHAPIPoints:      1,
-		MaxGHAPIWaitSeconds: 5,
-		MaxGHAPIRetry:       3,
+		MaxGHAPIWaitSeconds: 10,
+		MaxGHAPIRetry:       5,
 		JSONOut:             false,
 		DBOut:               true,
 		ST:                  false,
@@ -370,7 +370,7 @@ func TestInit(t *testing.T) {
 			dynamicSetFields(
 				t,
 				copyContext(&defaultContext),
-				map[string]interface{}{"MaxGHAPIWaitSeconds": 5},
+				map[string]interface{}{"MaxGHAPIWaitSeconds": 10},
 			),
 		},
 		{
@@ -388,7 +388,7 @@ func TestInit(t *testing.T) {
 			dynamicSetFields(
 				t,
 				copyContext(&defaultContext),
-				map[string]interface{}{"MaxGHAPIRetry": 3},
+				map[string]interface{}{"MaxGHAPIRetry": 5},
 			),
 		},
 		{
@@ -402,11 +402,11 @@ func TestInit(t *testing.T) {
 		},
 		{
 			"Setting GitHub API Retry 5",
-			map[string]string{"GHA2DB_MAX_GHAPI_RETRY": "5"},
+			map[string]string{"GHA2DB_MAX_GHAPI_RETRY": "15"},
 			dynamicSetFields(
 				t,
 				copyContext(&defaultContext),
-				map[string]interface{}{"MaxGHAPIRetry": 5},
+				map[string]interface{}{"MaxGHAPIRetry": 15},
 			),
 		},
 		{

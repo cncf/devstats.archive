@@ -573,17 +573,24 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 }
 
 // HandlePossibleError - display error specific message, detect rate limit and abuse
-func HandlePossibleError(err error, cfg *IssueConfig, info string) {
+func HandlePossibleError(err error, cfg *IssueConfig, info string) string {
 	if err != nil {
 		_, rate := err.(*github.RateLimitError)
 		_, abuse := err.(*github.AbuseRateLimitError)
 		if abuse || rate {
 			Printf("Hit rate limit (%s) for %v\n", info, cfg)
+			if rate {
+				return "rate"
+			}
+			if abuse {
+				return Abuse
+			}
 		}
 		//FatalOnError(err)
 		Printf("%s error: %v, non fatal, exiting 0 status\n", os.Args[0], err)
 		os.Exit(0)
 	}
+	return ""
 }
 
 // GetRateLimits - returns all and remaining API points and duration to wait for reset
