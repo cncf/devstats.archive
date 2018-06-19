@@ -66,7 +66,8 @@ func cleanArtificialEvents(ctx *lib.Ctx) {
 			c,
 			ctx,
 			fmt.Sprintf(
-				"select id, event_id, milestone_id, updated_at from gha_issues where "+
+				"select id, event_id, milestone_id, updated_at, closed_at, state "+
+					"from gha_issues where "+
 					"event_id > %d and event_id in (%s)",
 				minEventID,
 				strings.Join(ary, ","),
@@ -78,12 +79,14 @@ func cleanArtificialEvents(ctx *lib.Ctx) {
 			c,
 			ctx,
 			fmt.Sprintf(
-				"select id, event_id, milestone_id, updated_at from gha_issues "+
-					"where event_id > %s and updated_at > now() - %s::interval",
+				"select id, event_id, milestone_id, updated_at, closed_at, state from gha_issues "+
+					"where event_id > %s and updated_at > %s::timestamp - %s::interval",
 				lib.NValue(1),
 				lib.NValue(2),
+				lib.NValue(3),
 			),
 			minEventID,
+			lib.ToYMDHMSDate(lib.HourStart(time.Now())),
 			ctx.RecentRange,
 		)
 	}
@@ -93,6 +96,8 @@ func cleanArtificialEvents(ctx *lib.Ctx) {
 		eventID     int64
 		milestoneID *int64
 		updatedAt   time.Time
+		closedAt    *time.Time
+		state       string
 	)
 	ch := make(chan bool)
 	nThreads := 0
@@ -100,8 +105,8 @@ func cleanArtificialEvents(ctx *lib.Ctx) {
 	var counterMutex = &sync.Mutex{}
 	deleted := 0
 	for rows.Next() {
-		lib.FatalOnError(rows.Scan(&issueID, &eventID, &milestoneID, &updatedAt))
-		go func(ch chan bool, iid int64, eid int64, mid *int64, updated time.Time) {
+		lib.FatalOnError(rows.Scan(&issueID, &eventID, &milestoneID, &updatedAt, &closedAt, &state))
+		go func(ch chan bool, iid int64, eid int64, mid *int64, updated time.Time, closed *time.Time, state string) {
 			// Synchronize go routine
 			defer func(c chan bool) { c <- true }(ch)
 
@@ -110,7 +115,7 @@ func cleanArtificialEvents(ctx *lib.Ctx) {
 				c,
 				ctx,
 				fmt.Sprintf(
-					"select event_id, milestone_id, updated_at from gha_issues "+
+					"select event_id, milestone_id, updated_at, closed_at, state from gha_issues "+
 						"where id = %s and updated_at < %s order by updated_at desc limit 1",
 					lib.NValue(1),
 					lib.NValue(2),
@@ -123,11 +128,24 @@ func cleanArtificialEvents(ctx *lib.Ctx) {
 				peid     int64
 				pmid     *int64
 				pupdated time.Time
+				pclosed  *time.Time
+				pstate   string
 			)
 			for rowsP.Next() {
-				lib.FatalOnError(rowsP.Scan(&peid, &pmid, &pupdated))
+				lib.FatalOnError(rowsP.Scan(&peid, &pmid, &pupdated, &pclosed, &pstate))
 			}
 			lib.FatalOnError(rowsP.Err())
+
+			// Check if they differ by state, if so, we are done
+			if state != pstate {
+				if ctx.Debug > 0 {
+					lib.Printf(
+						"Issue %d, Event (%d, %d), Dates(%v, %v): state difference artificial: %s != previus: %s\n",
+						iid, eid, peid, lib.ToYMDHMSDate(updated), lib.ToYMDHMSDate(pupdated), state, pstate,
+					)
+				}
+				return
+			}
 
 			// Check if they differ by milestone, if so, then we are done
 			smid := lib.Null
@@ -143,6 +161,25 @@ func cleanArtificialEvents(ctx *lib.Ctx) {
 					lib.Printf(
 						"Issue %d, Event (%d, %d), Dates(%v, %v): milestone difference artificial: %s != previus: %s\n",
 						iid, eid, peid, lib.ToYMDHMSDate(updated), lib.ToYMDHMSDate(pupdated), smid, spmid,
+					)
+				}
+				return
+			}
+
+			// Check if they differ by closed_at, if so, then we are done
+			sclosed := lib.Null
+			spclosed := lib.Null
+			if closed != nil {
+				sclosed = lib.ToYMDHMSDate(*closed)
+			}
+			if pclosed != nil {
+				spclosed = lib.ToYMDHMSDate(*pclosed)
+			}
+			if sclosed != spclosed {
+				if ctx.Debug > 0 {
+					lib.Printf(
+						"Issue %d, Event (%d, %d), Dates(%v, %v): closed_at difference artificial: %s != previus: %s\n",
+						iid, eid, peid, lib.ToYMDHMSDate(updated), lib.ToYMDHMSDate(pupdated), sclosed, spclosed,
 					)
 				}
 				return
@@ -197,13 +234,13 @@ func cleanArtificialEvents(ctx *lib.Ctx) {
 				return
 			}
 
-			// Get first event after this artificial event, not newer than 2 hours
-			updated2h := lib.HourStart(updated).Add(2 * time.Hour)
+			// Get first event after this artificial event, not newer than 3 hours
+			updated3h := lib.HourStart(updated).Add(3 * time.Hour)
 			rowsN := lib.QuerySQLWithErr(
 				c,
 				ctx,
 				fmt.Sprintf(
-					"select event_id, milestone_id, updated_at from gha_issues "+
+					"select event_id, milestone_id, updated_at, closed_at, state from gha_issues "+
 						"where id = %s and updated_at > %s and updated_at < %s "+
 						"order by updated_at asc limit 1",
 					lib.NValue(1),
@@ -212,17 +249,19 @@ func cleanArtificialEvents(ctx *lib.Ctx) {
 				),
 				iid,
 				updated,
-				updated2h,
+				updated3h,
 			)
 			defer func() { lib.FatalOnError(rowsN.Close()) }()
 			var (
 				neid     int64
 				nmid     *int64
 				nupdated time.Time
+				nclosed  *time.Time
+				nstate   string
 			)
 			ngot := false
 			for rowsN.Next() {
-				lib.FatalOnError(rowsN.Scan(&neid, &nmid, &nupdated))
+				lib.FatalOnError(rowsN.Scan(&neid, &nmid, &nupdated, &nclosed, &nstate))
 				ngot = true
 			}
 			lib.FatalOnError(rowsN.Err())
@@ -238,6 +277,17 @@ func cleanArtificialEvents(ctx *lib.Ctx) {
 				return
 			}
 
+			// Check if they differ by state, if so, we are done
+			if state != nstate {
+				if ctx.Debug > 0 {
+					lib.Printf(
+						"Issue %d, Event (%d, %d), Dates(%v, %v): state difference artificial: %s != next: %s\n",
+						iid, eid, neid, lib.ToYMDHMSDate(updated), lib.ToYMDHMSDate(nupdated), state, nstate,
+					)
+				}
+				return
+			}
+
 			// Check if they differ by milestone, if so, then we are done
 			snmid := lib.Null
 			if nmid != nil {
@@ -248,6 +298,21 @@ func cleanArtificialEvents(ctx *lib.Ctx) {
 					lib.Printf(
 						"Issue %d, Event (%d, %d), Dates(%v, %v): milestone difference artificial: %s != next: %s\n",
 						iid, eid, neid, lib.ToYMDHMSDate(updated), lib.ToYMDHMSDate(nupdated), smid, snmid,
+					)
+				}
+				return
+			}
+
+			// Check if they differ by closed_at, if so, then we are done
+			snclosed := lib.Null
+			if nclosed != nil {
+				snclosed = lib.ToYMDHMSDate(*nclosed)
+			}
+			if sclosed != snclosed {
+				if ctx.Debug > 0 {
+					lib.Printf(
+						"Issue %d, Event (%d, %d), Dates(%v, %v): closed_at difference artificial: %s != next: %s\n",
+						iid, eid, neid, lib.ToYMDHMSDate(updated), lib.ToYMDHMSDate(nupdated), sclosed, snclosed,
 					)
 				}
 				return
@@ -287,12 +352,12 @@ func cleanArtificialEvents(ctx *lib.Ctx) {
 			if ctx.Debug > 0 {
 				lib.Printf(
 					"Removing artificial event:\n"+
-						"iid=%d  eid=%d  mid=%v  labels=%s  updated=%v\n"+
-						"iid=%d peid=%d      pmid=%v plabels=%s pupdated=%v\n"+
-						"iid=%d neid=%d      nmid=%v nlabels=%s nupdated=%v\n\n",
-					iid, eid, mid, labels, lib.ToYMDHMSDate(updated),
-					iid, peid, pmid, plabels, lib.ToYMDHMSDate(pupdated),
-					iid, neid, nmid, nlabels, lib.ToYMDHMSDate(nupdated),
+						"iid=%d  eid=%d mid=%v  closed_at=%s state=%s labels=%s  updated=%v\n"+
+						"iid=%d peid=%d pmid=%v closed_at=%s state=%s plabels=%s pupdated=%v\n"+
+						"iid=%d neid=%d nmid=%v closed_at=%s state=%s nlabels=%s nupdated=%v\n\n",
+					iid, eid, mid, sclosed, state, labels, lib.ToYMDHMSDate(updated),
+					iid, peid, pmid, spclosed, pstate, plabels, lib.ToYMDHMSDate(pupdated),
+					iid, neid, nmid, snclosed, nstate, nlabels, lib.ToYMDHMSDate(nupdated),
 				)
 			}
 			// Delete artificial event
@@ -302,7 +367,7 @@ func cleanArtificialEvents(ctx *lib.Ctx) {
 			counterMutex.Lock()
 			deleted++
 			counterMutex.Unlock()
-		}(ch, issueID, eventID, milestoneID, updatedAt)
+		}(ch, issueID, eventID, milestoneID, updatedAt, closedAt, state)
 
 		nThreads++
 		if nThreads == thrN {
