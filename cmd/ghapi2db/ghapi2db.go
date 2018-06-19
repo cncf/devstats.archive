@@ -445,8 +445,8 @@ func ghapi2db(ctx *lib.Ctx) {
 	// 403 You have triggered an abuse detection mechanism. Please wait a few minutes before you try again
 	// So let's get all GitHub stuff one-after-another (ugly and slow) and then spawn threads to speedup
 	// Damn GitHub! - this could be working Number of CPU times faster! We're trying some hardcoded value: allowedThrN
-	// Seems like GitHub is not detecting abuse when using 16 thread, but it detects when using 32.
-	allowedThrN := 16
+	// Seems like GitHub is not detecting abuse when using 24 threads, but it detects when using 32.
+	allowedThrN := 24
 	if allowedThrN > thrN {
 		allowedThrN = thrN
 	}

@@ -24,6 +24,7 @@ type IssueConfig struct {
 	LabelsMap   map[int64]string
 	GhIssue     *github.Issue
 	CreatedAt   time.Time
+	EventID     int64
 }
 
 func (ic IssueConfig) String() string {
@@ -32,10 +33,11 @@ func (ic IssueConfig) String() string {
 		milestoneID = *ic.MilestoneID
 	}
 	return fmt.Sprintf(
-		"{Repo: %s, Number: %d, IssueID: %d, Pr: %v, MilestoneID: %d, Labels: %s, CreatedAt: %v, LabelsMap: %+v}",
+		"{Repo: %s, Number: %d, IssueID: %d, EventID: %d, Pr: %v, MilestoneID: %d, Labels: %s, CreatedAt: %v, LabelsMap: %+v}",
 		ic.Repo,
 		ic.Number,
 		ic.IssueID,
+		ic.EventID,
 		ic.Pr,
 		milestoneID,
 		ic.Labels,
@@ -53,7 +55,10 @@ func (ic IssueConfigAry) Less(i, j int) bool {
 	if ic[i].IssueID != ic[j].IssueID {
 		return ic[i].IssueID < ic[j].IssueID
 	}
-	return ic[i].CreatedAt.Before(ic[j].CreatedAt)
+	if ic[i].CreatedAt != ic[j].CreatedAt {
+		return ic[i].CreatedAt.Before(ic[j].CreatedAt)
+	}
+	return ic[i].EventID < ic[j].EventID
 }
 
 // ArtificialEvent - create artificial 'ArtificialEvent'
@@ -232,7 +237,10 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 	checked := 0
 	var updatesMutex = &sync.Mutex{}
 	updates := 0
-	nIssues := len(issues)
+	nIssues := 0
+	for _, issueConfig := range issues {
+		nIssues += len(issueConfig)
+	}
 
 	Printf("ghapi2db.go: Processing %d issues - GHA part\n", nIssues)
 	// Use map key to pass to the closure
