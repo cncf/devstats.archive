@@ -5,5 +5,4 @@ from
 where
   created_at >= '{{from}}'
   and created_at < '{{to}}'
-  and type != 'ArtificialEvent'
 ;

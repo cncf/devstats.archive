@@ -167,6 +167,31 @@ func ghMilestone(con *sql.Tx, ctx *Ctx, eid int64, ic *IssueConfig, maybeHide fu
 	)
 }
 
+// DeleteArtificialEvent - deletes artificial event from all tables
+func DeleteArtificialEvent(c *sql.DB, ctx *Ctx, eid int64) (err error) {
+	if ctx.SkipPDB {
+		if ctx.Debug > 0 {
+			Printf("Skipping delete artificial event: %d\n", eid)
+		}
+		return nil
+	}
+
+	// Start transaction
+	tc, err := c.Begin()
+	FatalOnError(err)
+
+	// Delete from gha_events, gha_issues, gha_payloads, gha_issues_labels
+	ExecSQLTxWithErr(tc, ctx, fmt.Sprintf("delete from gha_events where id = %s", NValue(1)), eid)
+	ExecSQLTxWithErr(tc, ctx, fmt.Sprintf("delete from gha_issues where event_id = %s", NValue(1)), eid)
+	ExecSQLTxWithErr(tc, ctx, fmt.Sprintf("delete from gha_payloads where event_id = %s", NValue(1)), eid)
+	ExecSQLTxWithErr(tc, ctx, fmt.Sprintf("delete from gha_issues_labels where event_id = %s", NValue(1)), eid)
+
+	// Final commit
+	FatalOnError(tc.Commit())
+	//FatalOnError(tc.Rollback())
+	return
+}
+
 // ArtificialEvent - create artificial 'ArtificialEvent'
 // creates new issue state, artificial event and its payload
 func ArtificialEvent(c *sql.DB, ctx *Ctx, cfg *IssueConfig, eeid int64) (err error) {

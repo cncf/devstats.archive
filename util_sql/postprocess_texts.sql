@@ -27,7 +27,6 @@ from
   gha_issues
 where
   title != ''
-  and dup_type != 'ArtificialEvent'
   and event_id > (select max_event_id from var)
 union select
   event_id, body, created_at, dup_repo_id, dup_repo_name, dup_actor_id, dup_actor_login, dup_type
@@ -35,7 +34,6 @@ from
   gha_issues
 where
   body != ''
-  and dup_type != 'ArtificialEvent'
   and event_id > (select max_event_id from var)
 union select 
   event_id, title, created_at, dup_repo_id, dup_repo_name, dup_actor_id, dup_actor_login, dup_type

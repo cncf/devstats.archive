@@ -136,7 +136,6 @@ You can tweak `devstats` tools by environment variables:
 - Set `GHA2DB_MIN_GHAPI_POINTS`, `ghapi2db` tool, minimum GitHub API points, before waiting for reset. Default 1 (API point).
 - Set `GHA2DB_MAX_GHAPI_WAIT`, `ghapi2db` tool, maximum wait time for GitHub API points reset (in seconds). Default 1s.
 - Set `GHA2DB_GHAPISKIP`, ghapi2db tool, if set then tool is not creating artificial events using GitHub API.
-- Set `GHA2DB_AECLEANSKIP`, ghapi2db tool, if set then tool is not attempting to clean unneeded artificial events.
 - Set `GHA2DB_GETREPOSSKIP`, get_repos tool, if set then tool does nothing.
 - Set `GHA2DB_COMPUTE_ALL`, all tools, this forces computing all possible periods (weekly, daily, yearly, since last release to now, since CNCF join date to now etc.) instead of making decision based on current time.
 
