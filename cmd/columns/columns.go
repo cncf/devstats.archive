@@ -83,7 +83,7 @@ func ensureColumns() {
 			if len(colNames) == 0 {
 				lib.Printf("Warning: no tag values for (%s, %s)\n", col.Column, col.Tag)
 				if ch != nil {
-					ch <- true
+					ch <- false
 				}
 				return
 			}
@@ -123,7 +123,7 @@ func ensureColumns() {
 			}
 			// Synchronize go routine
 			if ch != nil {
-				ch <- true
+				ch <- numTables > 0
 			}
 		}(ch, i)
 		// go routine called with 'ch' channel to sync and column config index
