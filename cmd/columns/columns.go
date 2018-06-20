@@ -81,6 +81,7 @@ func ensureColumns() {
 			}
 			lib.FatalOnError(crows.Err())
 			if len(colNames) == 0 {
+				lib.Printf("Warning: no tag values for (%s, %s)\n", col.Column, col.Tag)
 				if ch != nil {
 					ch <- true
 				}
@@ -118,7 +119,7 @@ func ensureColumns() {
 			}
 			lib.FatalOnError(rows.Err())
 			if numTables == 0 {
-				lib.Fatalf("wrong config: %+v, no table hits", col)
+				lib.Printf("Warning: '%+v': no table hits", col)
 			}
 			// Synchronize go routine
 			if ch != nil {
