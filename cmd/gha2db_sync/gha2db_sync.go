@@ -237,7 +237,7 @@ func sync(ctx *lib.Ctx, args []string) {
 
 		// GitHub API calls to get open issues state
 		// It updates milestone and/or label(s) when different sice last comment state
-		if !ctx.SkipGHAPI || !ctx.SkipArtificailClean {
+		if !ctx.SkipGHAPI {
 			lib.Printf("Update data from GitHub API\n")
 			// Recompute views and DB summaries
 			ctx.ExecFatal = false

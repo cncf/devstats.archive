@@ -81,7 +81,6 @@ type Ctx struct {
 	MaxGHAPIWaitSeconds int             // From GHA2DB_MAX_GHAPI_WAIT, ghapi2db tool, maximum wait time for GitHub API points reset (in seconds).
 	MaxGHAPIRetry       int             // From GHA2DB_MAX_GHAPI_RETRY, ghapi2db tool, maximum wait retries
 	SkipGHAPI           bool            // From GHA2DB_GHAPISKIP, ghapi2db tool, if set then tool is not creating artificial events using GitHub API
-	SkipArtificailClean bool            // From GHA2DB_AECLEANSKIP, ghapi2db tool, if set then tool is not attempting to clean unneeded artificial events
 	SkipGetRepos        bool            // From GHA2DB_GETREPOSSKIP, get_repos tool, if set then tool does nothing
 	OnlyEvents          []int64         // From GHA2DB_ONLY_EVENTS, ghapi2db tool, process a user provided list of events "event_id1,event_id2,...,event_idN", default "". This is for artificial events cleanup debugging.
 	CSVFile             string          // From GHA2DB_CSVOUT, runq tool, if set, saves result in this file
@@ -226,7 +225,6 @@ func (ctx *Ctx) Init() {
 	// Skip ghapi2db and/or get_repos
 	ctx.SkipGetRepos = os.Getenv("GHA2DB_GETREPOSSKIP") != ""
 	ctx.SkipGHAPI = os.Getenv("GHA2DB_GHAPISKIP") != ""
-	ctx.SkipArtificailClean = os.Getenv("GHA2DB_AECLEANSKIP") != ""
 
 	// Last TS series
 	ctx.LastSeries = os.Getenv("GHA2DB_LASTSERIES")

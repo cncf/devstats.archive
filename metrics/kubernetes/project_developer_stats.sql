@@ -97,7 +97,6 @@ from (
   where
     {{period:created_at}}
     and (lower(dup_actor_login) {{exclude_bots}})
-    and type != 'ArtificialEvent'
   group by
     dup_actor_login
   ) sub
@@ -309,7 +308,6 @@ from (
       r.name = e.dup_repo_name
       and {{period:e.created_at}}
       and (lower(e.dup_actor_login) {{exclude_bots}})
-      and e.type != 'ArtificialEvent'
   ) sub
   where
     sub.repo_group is not null

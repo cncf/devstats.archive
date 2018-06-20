@@ -289,7 +289,6 @@ from (
     {{period:e.created_at}}
     and e.repo_id = r.id
     and (lower(e.dup_actor_login) {{exclude_bots}})
-    and e.type != 'ArtificialEvent'
   ) sub
 where
   sub.repo_group is not null
@@ -303,7 +302,6 @@ from
 where
   {{period:created_at}}
   and (lower(dup_actor_login) {{exclude_bots}})
-  and type != 'ArtificialEvent'
 order by
   name asc,
   value desc,
