@@ -4,3 +4,6 @@ delete from gha_issues where event_id > 281474976710656;
 delete from gha_milestones where event_id > 281474976710656;
 delete from gha_payloads where event_id > 281474976710656;
 delete from gha_events where id > 281474976710656;
+delete from gha_pull_requests where event_id > 281474976710656;
+delete from gha_pull_requests_assignees where event_id > 281474976710656;
+delete from gha_pull_requests_requested_reviewers where event_id > 281474976710656;

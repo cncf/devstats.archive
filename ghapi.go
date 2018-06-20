@@ -184,36 +184,38 @@ func ghMilestone(con *sql.Tx, ctx *Ctx, eid int64, ic *IssueConfig, maybeHide fu
 	ExecSQLTxWithErr(
 		con,
 		ctx,
-		fmt.Sprintf(
-			"insert into gha_milestones("+
-				"id, event_id, closed_at, closed_issues, created_at, creator_id, "+
-				"description, due_on, number, open_issues, state, title, updated_at, "+
-				"dup_actor_id, dup_actor_login, dup_repo_id, dup_repo_name, dup_type, dup_created_at, "+
-				"dupn_creator_login) values("+
-				"%s, %s, %s, %s, %s, %s, "+
-				"%s, %s, %s, %s, %s, %s, %s, "+
-				"%s, %s, (select max(id) from gha_repos where name = %s), %s, %s, %s, "+
-				"%s)",
-			NValue(1),
-			NValue(2),
-			NValue(3),
-			NValue(4),
-			NValue(5),
-			NValue(6),
-			NValue(7),
-			NValue(8),
-			NValue(9),
-			NValue(10),
-			NValue(11),
-			NValue(12),
-			NValue(13),
-			NValue(14),
-			NValue(15),
-			NValue(16),
-			NValue(17),
-			NValue(18),
-			NValue(19),
-			NValue(20),
+		InsertIgnore(
+			fmt.Sprintf(
+				"into gha_milestones("+
+					"id, event_id, closed_at, closed_issues, created_at, creator_id, "+
+					"description, due_on, number, open_issues, state, title, updated_at, "+
+					"dup_actor_id, dup_actor_login, dup_repo_id, dup_repo_name, dup_type, dup_created_at, "+
+					"dupn_creator_login) values("+
+					"%s, %s, %s, %s, %s, %s, "+
+					"%s, %s, %s, %s, %s, %s, %s, "+
+					"%s, %s, (select max(id) from gha_repos where name = %s), %s, %s, %s, "+
+					"%s)",
+				NValue(1),
+				NValue(2),
+				NValue(3),
+				NValue(4),
+				NValue(5),
+				NValue(6),
+				NValue(7),
+				NValue(8),
+				NValue(9),
+				NValue(10),
+				NValue(11),
+				NValue(12),
+				NValue(13),
+				NValue(14),
+				NValue(15),
+				NValue(16),
+				NValue(17),
+				NValue(18),
+				NValue(19),
+				NValue(20),
+			),
 		),
 		AnyArray{
 			ic.MilestoneID,
@@ -428,9 +430,8 @@ func ArtificialPREvent(c *sql.DB, ctx *Ctx, cfg *IssueConfig, pr *github.PullReq
 		}
 	}
 	// Final commit
-	// TODO: rollback -> commit
-	//FatalOnError(tc.Commit())
-	FatalOnError(tc.Rollback())
+	FatalOnError(tc.Commit())
+	//FatalOnError(tc.Rollback())
 	return
 }
 
