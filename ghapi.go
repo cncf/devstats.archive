@@ -443,8 +443,8 @@ func ArtificialEvent(c *sql.DB, ctx *Ctx, cfg *IssueConfig) (err error) {
 					"dup_actor_id, dup_actor_login, dup_repo_id, dup_repo_name, "+
 					"dup_type, dup_created_at, dup_issue_number, dup_label_name) "+
 					"values(%s, %s, %s, "+
-					"0, 'devstats-bot', (select max(id) from gha_repos where name = %s), %s, "+
-					"'ArtificialEvent', %s, %s, %s)",
+					"%s, %s, (select max(id) from gha_repos where name = %s), %s, "+
+					"%s, %s, %s, %s)",
 				NValue(1),
 				NValue(2),
 				NValue(3),
@@ -453,13 +453,19 @@ func ArtificialEvent(c *sql.DB, ctx *Ctx, cfg *IssueConfig) (err error) {
 				NValue(6),
 				NValue(7),
 				NValue(8),
+				NValue(9),
+				NValue(10),
+				NValue(11),
 			),
 			AnyArray{
 				iid,
 				eventID,
 				labelID,
+				ghActorIDOrNil(event.Actor),
+				ghActorLoginOrNil(event.Actor, maybeHide),
 				cfg.Repo,
 				cfg.Repo,
+				cfg.EventType,
 				now,
 				issue.Number,
 				labelName,
@@ -537,9 +543,12 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 	lastTime := dtStart
 	checked := 0
 	var updatesMutex = &sync.Mutex{}
-	updates := 0
-	var insertsMutex = &sync.Mutex{}
-	inserts := 0
+	// updates:
+	// 0: no such event --> new
+	// 1: artificial exists --> skip
+	// 2: normal exists, no new
+	// 3: normal exists, new needed
+	updates := []int{0, 0, 0, 0}
 	nIssues := 0
 	for _, issueConfig := range issues {
 		nIssues += len(issueConfig)
@@ -605,7 +614,7 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 				}
 				FatalOnError(rowsM.Err())
 				if !got {
-					if ctx.Debug >= 0 {
+					if ctx.Debug > 0 {
 						Printf("Adding missing event '%v'\n", cfg)
 					}
 					FatalOnError(
@@ -615,16 +624,19 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 							&cfg,
 						),
 					)
-					insertsMutex.Lock()
-					inserts++
-					insertsMutex.Unlock()
+					updatesMutex.Lock()
+					updates[0]++
+					updatesMutex.Unlock()
 					ch <- true
 					return
 				}
 				if ghaEventID > 281474976710656 {
-					if ctx.Debug >= 0 {
+					if ctx.Debug > 0 {
 						Printf("Artificial event already exists, skipping: '%v'\n", cfg)
 					}
+					updatesMutex.Lock()
+					updates[1]++
+					updatesMutex.Unlock()
 					ch <- false
 					return
 				}
@@ -755,9 +767,11 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 					changedAssignees = true
 				}
 
+				uidx := 2
 				// Do the update if needed
 				changedAnything := changedMilestone || changedState || changedClosed || changedAssignee || changedTitle || changedLocked || changedLabels || changedAssignees
 				if changedAnything {
+					uidx = 3
 					FatalOnError(
 						ArtificialEvent(
 							c,
@@ -765,14 +779,14 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 							&cfg,
 						),
 					)
-					updatesMutex.Lock()
-					updates++
-					updatesMutex.Unlock()
 				}
 
-				if ctx.Debug >= 0 {
+				if ctx.Debug > 0 {
 					Printf("Event for the same date exist, added artificial: %v: '%v'\n", changedAnything, cfg)
 				}
+				updatesMutex.Lock()
+				updates[uidx]++
+				updatesMutex.Unlock()
 				// Synchronize go routine
 				ch <- changedAnything
 				return
@@ -799,7 +813,7 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 	// Get RateLimits info
 	_, rem, wait := GetRateLimits(gctx, gc, true)
 	Printf(
-		"ghapi2db.go: Processed %d issues/PRs (%d updated, %d inserted): %d API points remain, resets in %v\n",
-		checked, updates, inserts, rem, wait,
+		"ghapi2db.go: Processed %d issues/PRs (%d new for date, %d artificial exists, date exists: %d not needed, %d added): %d API points remain, resets in %v\n",
+		checked, updates[0], updates[1], updates[2], updates[3], rem, wait,
 	)
 }
