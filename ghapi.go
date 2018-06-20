@@ -426,7 +426,7 @@ func ArtificialEvent(c *sql.DB, ctx *Ctx, cfg *IssueConfig, eeid int64) (err err
 				"insert into gha_events("+
 					"id, type, actor_id, repo_id, public, created_at, "+
 					"dup_actor_login, dup_repo_name, org_id, forkee_id) "+
-					"values(%s, 'ArtificialEvent', %s, (select max(id) from gha_repos where name = %s), true, %s, "+
+					"values(%s, %s, %s, (select max(id) from gha_repos where name = %s), true, %s, "+
 					"%s, %s, (select max(org_id) from gha_repos where name = %s), null)",
 				NValue(1),
 				NValue(2),
@@ -435,13 +435,15 @@ func ArtificialEvent(c *sql.DB, ctx *Ctx, cfg *IssueConfig, eeid int64) (err err
 				NValue(5),
 				NValue(6),
 				NValue(7),
+				NValue(8),
 			),
 			AnyArray{
 				eventID,
-				ghActorIDOrNil(issue.User),
+				cfg.EventType,
+				ghActorIDOrNil(event.Actor),
 				cfg.Repo,
 				now,
-				ghActorLoginOrNil(issue.User, maybeHide),
+				ghActorLoginOrNil(event.Actor, maybeHide),
 				cfg.Repo,
 				cfg.Repo,
 			}...,
@@ -451,14 +453,16 @@ func ArtificialEvent(c *sql.DB, ctx *Ctx, cfg *IssueConfig, eeid int64) (err err
 			tc,
 			ctx,
 			fmt.Sprintf(
-				"update gha_events set type = 'ArtificialEvent', actor_id = %s, dup_actor_login = %s where id = %s",
+				"update gha_events set type = %s, actor_id = %s, dup_actor_login = %s where id = %s",
 				NValue(1),
 				NValue(2),
 				NValue(3),
+				NValue(4),
 			),
 			AnyArray{
-				ghActorIDOrNil(issue.User),
-				ghActorLoginOrNil(issue.User, maybeHide),
+				cfg.EventType,
+				ghActorIDOrNil(event.Actor),
+				ghActorLoginOrNil(event.Actor, maybeHide),
 				eeid,
 			}...,
 		)
@@ -475,23 +479,31 @@ func ArtificialEvent(c *sql.DB, ctx *Ctx, cfg *IssueConfig, eeid int64) (err err
 					"issue_id, pull_request_id, comment_id, ref_type, master_branch, commit, "+
 					"description, number, forkee_id, release_id, member_id, "+
 					"dup_actor_id, dup_actor_login, dup_repo_id, dup_repo_name, dup_type, dup_created_at) "+
-					"values(%s, null, null, null, null, null, 'artificial', "+
+					"values(%s, null, null, null, null, null, %s, "+
 					"%s, null, null, null, null, null, "+
 					"null, %s, null, null, null, "+
-					"0, 'devstats-bot', (select max(id) from gha_repos where name = %s), %s, 'ArtificialEvent', %s)",
+					"%s, %s, (select max(id) from gha_repos where name = %s), %s, %s, %s)",
 				NValue(1),
 				NValue(2),
 				NValue(3),
 				NValue(4),
 				NValue(5),
 				NValue(6),
+				NValue(7),
+				NValue(8),
+				NValue(9),
+				NValue(10),
 			),
 			AnyArray{
 				eventID,
+				cfg.EventType,
 				iid,
 				issue.Number,
+				ghActorIDOrNil(event.Actor),
+				ghActorLoginOrNil(event.Actor, maybeHide),
 				cfg.Repo,
 				cfg.Repo,
+				cfg.EventType,
 				now,
 			}...,
 		)
@@ -500,14 +512,16 @@ func ArtificialEvent(c *sql.DB, ctx *Ctx, cfg *IssueConfig, eeid int64) (err err
 			tc,
 			ctx,
 			fmt.Sprintf(
-				"update gha_payloads set action = 'artificial', dup_actor_id = %s, dup_actor_login = %s where event_id = %s",
+				"update gha_payloads set action = %s, dup_actor_id = %s, dup_actor_login = %s where event_id = %s",
 				NValue(1),
 				NValue(2),
 				NValue(3),
+				NValue(4),
 			),
 			AnyArray{
-				ghActorIDOrNil(issue.User),
-				ghActorLoginOrNil(issue.User, maybeHide),
+				cfg.EventType,
+				ghActorIDOrNil(event.Actor),
+				ghActorLoginOrNil(event.Actor, maybeHide),
 				eeid,
 			}...,
 		)
@@ -584,8 +598,8 @@ func ArtificialEvent(c *sql.DB, ctx *Ctx, cfg *IssueConfig, eeid int64) (err err
 			ctx,
 			fmt.Sprintf(
 				"insert into gha_issues_assignees(issue_id, event_id, assignee_id) "+
-					"values(%s, %s, %s)"+
-					NValue(1),
+					"values(%s, %s, %s)",
+				NValue(1),
 				NValue(2),
 				NValue(3),
 			),
