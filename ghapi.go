@@ -65,6 +65,47 @@ func (ic IssueConfigAry) Less(i, j int) bool {
 	return ic[i].EventID < ic[j].EventID
 }
 
+// GetRateLimits - returns all and remaining API points and duration to wait for reset
+// when core=true - returns Core limits, when core=false returns Search limits
+func GetRateLimits(gctx context.Context, gc *github.Client, core bool) (int, int, time.Duration) {
+	rl, _, err := gc.RateLimits(gctx)
+	if err != nil {
+		Printf("GetRateLimit: %v\n", err)
+	}
+	if rl == nil {
+		return -1, -1, time.Duration(5) * time.Second
+	}
+	if core {
+		return rl.Core.Limit, rl.Core.Remaining, rl.Core.Reset.Time.Sub(time.Now()) + time.Duration(1)*time.Second
+	}
+	return rl.Search.Limit, rl.Search.Remaining, rl.Search.Reset.Time.Sub(time.Now()) + time.Duration(1)*time.Second
+}
+
+// GHClient - get GitHub client
+func GHClient(ctx *Ctx) (ghCtx context.Context, client *github.Client) {
+	// Get GitHub OAuth from env or from file
+	oAuth := ctx.GitHubOAuth
+	if strings.Contains(ctx.GitHubOAuth, "/") {
+		bytes, err := ReadFile(ctx, ctx.GitHubOAuth)
+		FatalOnError(err)
+		oAuth = strings.TrimSpace(string(bytes))
+	}
+
+	// GitHub authentication or use public access
+	ghCtx = context.Background()
+	if oAuth == "-" {
+		client = github.NewClient(nil)
+	} else {
+		ts := oauth2.StaticTokenSource(
+			&oauth2.Token{AccessToken: oAuth},
+		)
+		tc := oauth2.NewClient(ghCtx, ts)
+		client = github.NewClient(tc)
+	}
+
+	return
+}
+
 func ghActorIDOrNil(actPtr *github.User) interface{} {
 	if actPtr == nil {
 		return nil
@@ -102,12 +143,10 @@ func ghActor(con *sql.Tx, ctx *Ctx, actor *github.User, maybeHide func(string) s
 	)
 }
 
+// Insert single GitHub milestone
 func ghMilestone(con *sql.Tx, ctx *Ctx, eid int64, ic *IssueConfig, maybeHide func(string) string) {
 	milestone := ic.GhIssue.Milestone
 	ev := ic.GhEvent
-	if milestone.Title == nil {
-		return
-	}
 	// gha_milestones
 	ExecSQLTxWithErr(
 		con,
@@ -155,7 +194,7 @@ func ghMilestone(con *sql.Tx, ctx *Ctx, eid int64, ic *IssueConfig, maybeHide fu
 			milestone.Number,
 			milestone.OpenIssues,
 			milestone.State,
-			TruncToBytes(*milestone.Title, 200),
+			TruncStringOrNil(milestone.Title, 200),
 			milestone.UpdatedAt,
 			ev.Actor.ID,
 			maybeHide(*ev.Actor.Login),
@@ -168,28 +207,21 @@ func ghMilestone(con *sql.Tx, ctx *Ctx, eid int64, ic *IssueConfig, maybeHide fu
 	)
 }
 
-// DeleteArtificialEvent - deletes artificial event from all tables
-func DeleteArtificialEvent(c *sql.DB, ctx *Ctx, eid int64) (err error) {
-	if ctx.SkipPDB {
-		if ctx.Debug > 0 {
-			Printf("Skipping delete artificial event: %d\n", eid)
-		}
-		return nil
+// GetRecentRepos - get list of repos active last day
+func GetRecentRepos(c *sql.DB, ctx *Ctx) (repos []string) {
+	rows := QuerySQLWithErr(
+		c,
+		ctx,
+		"select distinct dup_repo_name from gha_events "+
+			"where created_at > now() - '1 day'::interval",
+	)
+	defer func() { FatalOnError(rows.Close()) }()
+	var repo string
+	for rows.Next() {
+		FatalOnError(rows.Scan(&repo))
+		repos = append(repos, repo)
 	}
-
-	// Start transaction
-	tc, err := c.Begin()
-	FatalOnError(err)
-
-	// Delete from gha_events, gha_issues, gha_payloads, gha_issues_labels
-	ExecSQLTxWithErr(tc, ctx, fmt.Sprintf("delete from gha_events where id = %s", NValue(1)), eid)
-	ExecSQLTxWithErr(tc, ctx, fmt.Sprintf("delete from gha_issues where event_id = %s", NValue(1)), eid)
-	ExecSQLTxWithErr(tc, ctx, fmt.Sprintf("delete from gha_payloads where event_id = %s", NValue(1)), eid)
-	ExecSQLTxWithErr(tc, ctx, fmt.Sprintf("delete from gha_issues_labels where event_id = %s", NValue(1)), eid)
-
-	// Final commit
-	FatalOnError(tc.Commit())
-	//FatalOnError(tc.Rollback())
+	FatalOnError(rows.Err())
 	return
 }
 
@@ -724,45 +756,4 @@ func HandlePossibleError(err error, cfg *IssueConfig, info string) string {
 		os.Exit(0)
 	}
 	return ""
-}
-
-// GetRateLimits - returns all and remaining API points and duration to wait for reset
-// when core=true - returns Core limits, when core=false returns Search limits
-func GetRateLimits(gctx context.Context, gc *github.Client, core bool) (int, int, time.Duration) {
-	rl, _, err := gc.RateLimits(gctx)
-	if err != nil {
-		Printf("GetRateLimit: %v\n", err)
-	}
-	if rl == nil {
-		return -1, -1, time.Duration(5) * time.Second
-	}
-	if core {
-		return rl.Core.Limit, rl.Core.Remaining, rl.Core.Reset.Time.Sub(time.Now()) + time.Duration(1)*time.Second
-	}
-	return rl.Search.Limit, rl.Search.Remaining, rl.Search.Reset.Time.Sub(time.Now()) + time.Duration(1)*time.Second
-}
-
-// GHClient - get GitHub client
-func GHClient(ctx *Ctx) (ghCtx context.Context, client *github.Client) {
-	// Get GitHub OAuth from env or from file
-	oAuth := ctx.GitHubOAuth
-	if strings.Contains(ctx.GitHubOAuth, "/") {
-		bytes, err := ReadFile(ctx, ctx.GitHubOAuth)
-		FatalOnError(err)
-		oAuth = strings.TrimSpace(string(bytes))
-	}
-
-	// GitHub authentication or use public access
-	ghCtx = context.Background()
-	if oAuth == "-" {
-		client = github.NewClient(nil)
-	} else {
-		ts := oauth2.StaticTokenSource(
-			&oauth2.Token{AccessToken: oAuth},
-		)
-		tc := oauth2.NewClient(ghCtx, ts)
-		client = github.NewClient(tc)
-	}
-
-	return
 }

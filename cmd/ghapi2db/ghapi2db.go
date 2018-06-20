@@ -1,7 +1,6 @@
 package main
 
 import (
-	"database/sql"
 	"fmt"
 	"math"
 	"os"
@@ -14,23 +13,6 @@ import (
 
 	"github.com/google/go-github/github"
 )
-
-func getRecentRepos(c *sql.DB, ctx *lib.Ctx) (repos []string) {
-	rows := lib.QuerySQLWithErr(
-		c,
-		ctx,
-		"select distinct dup_repo_name from gha_events "+
-			"where created_at > now() - '1 day'::interval",
-	)
-	defer func() { lib.FatalOnError(rows.Close()) }()
-	var repo string
-	for rows.Next() {
-		lib.FatalOnError(rows.Scan(&repo))
-		repos = append(repos, repo)
-	}
-	lib.FatalOnError(rows.Err())
-	return
-}
 
 //     closed
 //       The Actor closed the issue.
@@ -77,7 +59,7 @@ func syncEvents(ctx *lib.Ctx) {
 	defer func() { lib.FatalOnError(c.Close()) }()
 
 	// Get list of repositories to process
-	repos := getRecentRepos(c, ctx)
+	repos := lib.GetRecentRepos(c, ctx)
 	if ctx.Debug > 0 {
 		lib.Printf("Repos to process: %v\n", repos)
 	}
