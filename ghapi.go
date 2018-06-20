@@ -26,6 +26,8 @@ type IssueConfig struct {
 	GhIssue     *github.Issue
 	CreatedAt   time.Time
 	EventID     int64
+	EventType   string
+	GhEvent     *github.IssueEvent
 }
 
 func (ic IssueConfig) String() string {
@@ -86,9 +88,89 @@ func ghMilestoneIDOrNil(milPtr *github.Milestone) interface{} {
 	return milPtr.ID
 }
 
+// Inserts single GitHub User
+func ghActor(con *sql.Tx, ctx *Ctx, actor *github.User, maybeHide func(string) string) {
+	if actor == nil || actor.Login == nil {
+		return
+	}
+	ExecSQLTxWithErr(
+		con,
+		ctx,
+		InsertIgnore("into gha_actors(id, login, name) "+NValues(3)),
+		AnyArray{actor.ID, maybeHide(*actor.Login), ""}...,
+	)
+}
+
+func ghMilestone(con *sql.Tx, ctx *Ctx, eid int64, ic *IssueConfig, maybeHide func(string) string) {
+	milestone := ic.GhIssue.Milestone
+	ev := ic.GhEvent
+	if milestone.Title == nil {
+		return
+	}
+	// gha_milestones
+	ExecSQLTxWithErr(
+		con,
+		ctx,
+		fmt.Sprintf(
+			"insert into gha_milestones("+
+				"id, event_id, closed_at, closed_issues, created_at, creator_id, "+
+				"description, due_on, number, open_issues, state, title, updated_at, "+
+				"dup_actor_id, dup_actor_login, dup_repo_id, dup_repo_name, dup_type, dup_created_at, "+
+				"dupn_creator_login) values("+
+				"%s, %s, %s, %s, %s, %s, "+
+				"%s, %s, %s, %s, %s, %s, %s, "+
+				"%s, %s, (select max(id) from gha_repos where name = %s), %s, %s, %s, "+
+				"%s)",
+			NValue(1),
+			NValue(2),
+			NValue(3),
+			NValue(4),
+			NValue(5),
+			NValue(6),
+			NValue(7),
+			NValue(8),
+			NValue(9),
+			NValue(10),
+			NValue(11),
+			NValue(12),
+			NValue(13),
+			NValue(14),
+			NValue(15),
+			NValue(16),
+			NValue(17),
+			NValue(18),
+			NValue(19),
+			NValue(20),
+		),
+		AnyArray{
+			milestone.ID,
+			eid,
+			TimeOrNil(milestone.ClosedAt),
+			milestone.ClosedIssues,
+			milestone.CreatedAt,
+			ghActorIDOrNil(milestone.Creator),
+			TruncStringOrNil(milestone.Description, 0xffff),
+			TimeOrNil(milestone.DueOn),
+			milestone.Number,
+			milestone.OpenIssues,
+			milestone.State,
+			TruncToBytes(*milestone.Title, 200),
+			milestone.UpdatedAt,
+			ev.Actor.ID,
+			maybeHide(*ev.Actor.Login),
+			ic.Repo,
+			ic.Repo,
+			ic.EventType,
+			ic.CreatedAt,
+			ghActorLoginOrNil(milestone.Creator, maybeHide),
+		}...,
+	)
+}
+
 // ArtificialEvent - create artificial 'ArtificialEvent'
 // creates new issue state, artificial event and its payload
 func ArtificialEvent(c *sql.DB, ctx *Ctx, cfg *IssueConfig, eeid int64) (err error) {
+	// github.com/google/go-github/github/issues_events.go
 	newEvent := true
 	if eeid > 0 {
 		newEvent = false
@@ -116,6 +198,16 @@ func ArtificialEvent(c *sql.DB, ctx *Ctx, cfg *IssueConfig, eeid int64) (err err
 	// Start transaction
 	tc, err := c.Begin()
 	FatalOnError(err)
+
+	// Actors
+	ghActor(tc, ctx, issue.Assignee, maybeHide)
+	ghActor(tc, ctx, issue.User, maybeHide)
+	for _, assignee := range issue.Assignees {
+		ghActor(tc, ctx, assignee, maybeHide)
+	}
+	if issue.Milestone != nil {
+		ghActor(tc, ctx, issue.Milestone.Creator, maybeHide)
+	}
 
 	// Create new issue state
 	if newEvent {
@@ -202,6 +294,11 @@ func ArtificialEvent(c *sql.DB, ctx *Ctx, cfg *IssueConfig, eeid int64) (err err
 				eeid,
 			}...,
 		)
+	}
+
+	// Create Milestone if new event and milestone non-null
+	if newEvent && issue.Milestone != nil {
+		ghMilestone(tc, ctx, eventID, cfg, maybeHide)
 	}
 
 	// Create artificial 'ArtificialEvent' event
@@ -578,11 +675,12 @@ func HandlePossibleError(err error, cfg *IssueConfig, info string) string {
 		_, rate := err.(*github.RateLimitError)
 		_, abuse := err.(*github.AbuseRateLimitError)
 		if abuse || rate {
-			Printf("Hit rate limit (%s) for %v\n", info, cfg)
 			if rate {
+				Printf("Rate limit (%s) for %v\n", info, cfg)
 				return "rate"
 			}
 			if abuse {
+				Printf("Abuse detected (%s) for %v\n", info, cfg)
 				return Abuse
 			}
 		}
