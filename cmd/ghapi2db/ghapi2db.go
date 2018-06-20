@@ -405,6 +405,42 @@ func getRecentRepos(c *sql.DB, ctx *lib.Ctx) (repos []string) {
 	return
 }
 
+//     closed
+//       The Actor closed the issue.
+//       If the issue was closed by commit message, CommitID holds the SHA1 hash of the commit.
+//
+//     merged
+//       The Actor merged into master a branch containing a commit mentioning the issue.
+//       CommitID holds the SHA1 of the merge commit.
+//
+//     referenced
+//       The Actor committed to master a commit mentioning the issue in its commit message.
+//       CommitID holds the SHA1 of the commit.
+//
+//     reopened, locked, unlocked
+//       The Actor did that to the issue.
+//
+//     renamed
+//       The Actor changed the issue title from Rename.From to Rename.To.
+//
+//     mentioned
+//       Someone unspecified @mentioned the Actor [sic] in an issue comment body.
+//
+//     assigned, unassigned
+//       The Assigner assigned the issue to or removed the assignment from the Assignee.
+//
+//     labeled, unlabeled
+//       The Actor added or removed the Label from the issue.
+//
+//     milestoned, demilestoned
+//       The Actor added or removed the issue from the Milestone.
+//
+//     subscribed, unsubscribed
+//       The Actor subscribed to or unsubscribed from notifications for an issue.
+//
+//     head_ref_deleted, head_ref_restored
+//       The pull request’s branch was deleted or restored.
+//
 func syncEvents(ctx *lib.Ctx) {
 	// Connect to GitHub API
 	gctx, gc := lib.GHClient(ctx)
@@ -418,6 +454,20 @@ func syncEvents(ctx *lib.Ctx) {
 	if ctx.Debug > 0 {
 		lib.Printf("Repos to process: %v\n", repos)
 	}
+
+	// Specify list of events to process
+	eventTypes := make(map[string]struct{})
+	eventTypes["closed"] = struct{}{}
+	eventTypes["reopened"] = struct{}{}
+	eventTypes["locked"] = struct{}{}
+	eventTypes["unlocked"] = struct{}{}
+	eventTypes["renamed"] = struct{}{}
+	eventTypes["assigned"] = struct{}{}
+	eventTypes["unassigned"] = struct{}{}
+	eventTypes["labeled"] = struct{}{}
+	eventTypes["unlabeled"] = struct{}{}
+	eventTypes["milestoned"] = struct{}{}
+	eventTypes["demilestoned"] = struct{}{}
 
 	// Get number of CPUs available
 	thrN := lib.GetThreadsNum(ctx)
@@ -496,10 +546,14 @@ func syncEvents(ctx *lib.Ctx) {
 						if res == lib.Abuse {
 							wait := time.Duration(int(math.Pow(2.0, float64(tr+3)))) * time.Second
 							thrMutex.Lock()
-							lib.Printf("GitHub API abuse detected, wait %v\n", wait)
+							if ctx.Debug > 0 {
+								lib.Printf("GitHub API abuse detected, wait %v\n", wait)
+							}
 							if allowedThrN > 1 {
 								allowedThrN--
-								lib.Printf("Lower threads limit: %d/%d\n", nThreads, allowedThrN)
+								if ctx.Debug > 0 {
+									lib.Printf("Lower threads limit: %d/%d\n", nThreads, allowedThrN)
+								}
 							}
 							thrMutex.Unlock()
 							time.Sleep(wait)
@@ -509,7 +563,9 @@ func syncEvents(ctx *lib.Ctx) {
 						thrMutex.Lock()
 						if allowedThrN < maxThreads {
 							allowedThrN++
-							lib.Printf("Rise threads limit: %d/%d\n", nThreads, allowedThrN)
+							if ctx.Debug > 0 {
+								lib.Printf("Rise threads limit: %d/%d\n", nThreads, allowedThrN)
+							}
 						}
 						thrMutex.Unlock()
 					}
@@ -523,6 +579,16 @@ func syncEvents(ctx *lib.Ctx) {
 				minCreatedAt := time.Now()
 				maxCreatedAt := recentDt
 				for _, event := range events {
+					if event.Event == nil {
+						lib.Printf("Skipping event without type\n")
+						continue
+					}
+					eventType := *event.Event
+					_, ok := eventTypes[eventType]
+					if !ok {
+						lib.Printf("Skipping event type: %s\n", eventType)
+						continue
+					}
 					createdAt := *event.CreatedAt
 					if createdAt.Before(minCreatedAt) {
 						minCreatedAt = createdAt
@@ -535,8 +601,13 @@ func syncEvents(ctx *lib.Ctx) {
 					if issue.Milestone != nil {
 						cfg.MilestoneID = issue.Milestone.ID
 					}
+					if eventType == "renamed" {
+						issue.Title = event.Rename.To
+					}
+					cfg.EventType = eventType
 					cfg.CreatedAt = createdAt
 					cfg.GhIssue = issue
+					cfg.GhEvent = event
 					cfg.Number = *issue.Number
 					cfg.IssueID = *issue.ID
 					cfg.EventID = *event.ID
