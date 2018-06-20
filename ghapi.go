@@ -260,19 +260,11 @@ func GetRecentRepos(c *sql.DB, ctx *Ctx) (repos []string) {
 
 // ArtificialEvent - create artificial 'ArtificialEvent'
 // creates new issue state, artificial event and its payload
-func ArtificialEvent(c *sql.DB, ctx *Ctx, cfg *IssueConfig, eeid int64) (err error) {
+func ArtificialEvent(c *sql.DB, ctx *Ctx, cfg *IssueConfig) (err error) {
 	// github.com/google/go-github/github/issues_events.go
-	newEvent := true
-	if eeid > 0 {
-		newEvent = false
-	}
 	if ctx.SkipPDB {
 		if ctx.Debug > 0 {
-			if newEvent {
-				Printf("Skipping adding '%v'\n", *cfg)
-			} else {
-				Printf("Skipping updating '%v'\n", *cfg)
-			}
+			Printf("Skipping adding '%v'\n", *cfg)
 		}
 		return nil
 	}
@@ -302,247 +294,146 @@ func ArtificialEvent(c *sql.DB, ctx *Ctx, cfg *IssueConfig, eeid int64) (err err
 	}
 
 	// Create new issue state
-	if newEvent {
-		ExecSQLTxWithErr(
-			tc,
-			ctx,
-			fmt.Sprintf(
-				"insert into gha_issues("+
-					"id, event_id, assignee_id, body, closed_at, comments, created_at, "+
-					"locked, milestone_id, number, state, title, updated_at, user_id, "+
-					"dup_actor_id, dup_actor_login, dup_repo_id, dup_repo_name, dup_type, dup_created_at, "+
-					"dup_user_login, dupn_assignee_login, is_pull_request) "+
-					"values(%s, %s, %s, %s, %s, %s, %s, "+
-					"%s, %s, %s, %s, %s, %s, %s, "+
-					"%s, %s, (select max(id) from gha_repos where name = %s), %s, %s, %s, "+
-					"%s, %s, %s) ",
-				NValue(1),
-				NValue(2),
-				NValue(3),
-				NValue(4),
-				NValue(5),
-				NValue(6),
-				NValue(7),
-				NValue(8),
-				NValue(9),
-				NValue(10),
-				NValue(11),
-				NValue(12),
-				NValue(13),
-				NValue(14),
-				NValue(15),
-				NValue(16),
-				NValue(17),
-				NValue(18),
-				NValue(19),
-				NValue(20),
-				NValue(21),
-				NValue(22),
-				NValue(23),
-			),
-			AnyArray{
-				iid,
-				eventID,
-				ghActorIDOrNil(issue.Assignee),
-				TruncStringOrNil(issue.Body, 0xffff),
-				TimeOrNil(issue.ClosedAt),
-				IntOrNil(issue.Comments),
-				issue.CreatedAt,
-				BoolOrNil(issue.Locked),
-				ghMilestoneIDOrNil(issue.Milestone),
-				issue.Number,
-				issue.State,
-				issue.Title,
-				now,
-				ghActorIDOrNil(issue.User),
-				ghActorIDOrNil(event.Actor),
-				ghActorLoginOrNil(event.Actor, maybeHide),
-				cfg.Repo,
-				cfg.Repo,
-				cfg.EventType,
-				now,
-				ghActorLoginOrNil(issue.User, maybeHide),
-				ghActorLoginOrNil(issue.Assignee, maybeHide),
-				issue.IsPullRequest(),
-			}...,
-		)
-	} else {
-		ExecSQLTxWithErr(
-			tc,
-			ctx,
-			fmt.Sprintf(
-				"update gha_issues set closed_at = %s, milestone_id = %s, "+
-					"state = %s, user_id = %s, assignee_id = %s, dupn_assignee_login = %s, "+
-					"dup_type = %s, title = %s, locked = %s, dup_actor_id = %s, "+
-					"dup_actor_login = %s, dup_user_login = %s, dupn_assignee_login = %s "+
-					"where id = %s and event_id = %s",
-				NValue(1),
-				NValue(2),
-				NValue(3),
-				NValue(4),
-				NValue(5),
-				NValue(6),
-				NValue(7),
-				NValue(8),
-				NValue(9),
-				NValue(10),
-				NValue(11),
-				NValue(12),
-				NValue(13),
-				NValue(14),
-				NValue(15),
-			),
-			AnyArray{
-				TimeOrNil(issue.ClosedAt),
-				ghMilestoneIDOrNil(issue.Milestone),
-				issue.State,
-				ghActorIDOrNil(issue.User),
-				ghActorIDOrNil(issue.Assignee),
-				ghActorLoginOrNil(issue.Assignee, maybeHide),
-				cfg.EventType,
-				issue.Title,
-				BoolOrNil(issue.Locked),
-				ghActorIDOrNil(event.Actor),
-				ghActorLoginOrNil(event.Actor, maybeHide),
-				ghActorLoginOrNil(issue.User, maybeHide),
-				ghActorLoginOrNil(issue.Assignee, maybeHide),
-				iid,
-				eeid,
-			}...,
-		)
-	}
+	ExecSQLTxWithErr(
+		tc,
+		ctx,
+		fmt.Sprintf(
+			"insert into gha_issues("+
+				"id, event_id, assignee_id, body, closed_at, comments, created_at, "+
+				"locked, milestone_id, number, state, title, updated_at, user_id, "+
+				"dup_actor_id, dup_actor_login, dup_repo_id, dup_repo_name, dup_type, dup_created_at, "+
+				"dup_user_login, dupn_assignee_login, is_pull_request) "+
+				"values(%s, %s, %s, %s, %s, %s, %s, "+
+				"%s, %s, %s, %s, %s, %s, %s, "+
+				"%s, %s, (select max(id) from gha_repos where name = %s), %s, %s, %s, "+
+				"%s, %s, %s) ",
+			NValue(1),
+			NValue(2),
+			NValue(3),
+			NValue(4),
+			NValue(5),
+			NValue(6),
+			NValue(7),
+			NValue(8),
+			NValue(9),
+			NValue(10),
+			NValue(11),
+			NValue(12),
+			NValue(13),
+			NValue(14),
+			NValue(15),
+			NValue(16),
+			NValue(17),
+			NValue(18),
+			NValue(19),
+			NValue(20),
+			NValue(21),
+			NValue(22),
+			NValue(23),
+		),
+		AnyArray{
+			iid,
+			eventID,
+			ghActorIDOrNil(issue.Assignee),
+			TruncStringOrNil(issue.Body, 0xffff),
+			TimeOrNil(issue.ClosedAt),
+			IntOrNil(issue.Comments),
+			issue.CreatedAt,
+			BoolOrNil(issue.Locked),
+			ghMilestoneIDOrNil(issue.Milestone),
+			issue.Number,
+			issue.State,
+			issue.Title,
+			now,
+			ghActorIDOrNil(issue.User),
+			ghActorIDOrNil(event.Actor),
+			ghActorLoginOrNil(event.Actor, maybeHide),
+			cfg.Repo,
+			cfg.Repo,
+			cfg.EventType,
+			now,
+			ghActorLoginOrNil(issue.User, maybeHide),
+			ghActorLoginOrNil(issue.Assignee, maybeHide),
+			issue.IsPullRequest(),
+		}...,
+	)
 
 	// Create Milestone if new event and milestone non-null
-	if newEvent && issue.Milestone != nil {
+	if issue.Milestone != nil {
 		ghMilestone(tc, ctx, eventID, cfg, maybeHide)
 	}
 
 	// Create artificial 'ArtificialEvent' event
-	if newEvent {
-		ExecSQLTxWithErr(
-			tc,
-			ctx,
-			fmt.Sprintf(
-				"insert into gha_events("+
-					"id, type, actor_id, repo_id, public, created_at, "+
-					"dup_actor_login, dup_repo_name, org_id, forkee_id) "+
-					"values(%s, %s, %s, (select max(id) from gha_repos where name = %s), true, %s, "+
-					"%s, %s, (select max(org_id) from gha_repos where name = %s), null)",
-				NValue(1),
-				NValue(2),
-				NValue(3),
-				NValue(4),
-				NValue(5),
-				NValue(6),
-				NValue(7),
-				NValue(8),
-			),
-			AnyArray{
-				eventID,
-				cfg.EventType,
-				ghActorIDOrNil(event.Actor),
-				cfg.Repo,
-				now,
-				ghActorLoginOrNil(event.Actor, maybeHide),
-				cfg.Repo,
-				cfg.Repo,
-			}...,
-		)
-	} else {
-		ExecSQLTxWithErr(
-			tc,
-			ctx,
-			fmt.Sprintf(
-				"update gha_events set type = %s, actor_id = %s, dup_actor_login = %s where id = %s",
-				NValue(1),
-				NValue(2),
-				NValue(3),
-				NValue(4),
-			),
-			AnyArray{
-				cfg.EventType,
-				ghActorIDOrNil(event.Actor),
-				ghActorLoginOrNil(event.Actor, maybeHide),
-				eeid,
-			}...,
-		)
-	}
+	ExecSQLTxWithErr(
+		tc,
+		ctx,
+		fmt.Sprintf(
+			"insert into gha_events("+
+				"id, type, actor_id, repo_id, public, created_at, "+
+				"dup_actor_login, dup_repo_name, org_id, forkee_id) "+
+				"values(%s, %s, %s, (select max(id) from gha_repos where name = %s), true, %s, "+
+				"%s, %s, (select max(org_id) from gha_repos where name = %s), null)",
+			NValue(1),
+			NValue(2),
+			NValue(3),
+			NValue(4),
+			NValue(5),
+			NValue(6),
+			NValue(7),
+			NValue(8),
+		),
+		AnyArray{
+			eventID,
+			cfg.EventType,
+			ghActorIDOrNil(event.Actor),
+			cfg.Repo,
+			now,
+			ghActorLoginOrNil(event.Actor, maybeHide),
+			cfg.Repo,
+			cfg.Repo,
+		}...,
+	)
 
 	// Create artificial event's payload
-	if newEvent {
-		ExecSQLTxWithErr(
-			tc,
-			ctx,
-			fmt.Sprintf(
-				"insert into gha_payloads("+
-					"event_id, push_id, size, ref, head, befor, action, "+
-					"issue_id, pull_request_id, comment_id, ref_type, master_branch, commit, "+
-					"description, number, forkee_id, release_id, member_id, "+
-					"dup_actor_id, dup_actor_login, dup_repo_id, dup_repo_name, dup_type, dup_created_at) "+
-					"values(%s, null, null, null, null, null, %s, "+
-					"%s, null, null, null, null, null, "+
-					"null, %s, null, null, null, "+
-					"%s, %s, (select max(id) from gha_repos where name = %s), %s, %s, %s)",
-				NValue(1),
-				NValue(2),
-				NValue(3),
-				NValue(4),
-				NValue(5),
-				NValue(6),
-				NValue(7),
-				NValue(8),
-				NValue(9),
-				NValue(10),
-			),
-			AnyArray{
-				eventID,
-				cfg.EventType,
-				iid,
-				issue.Number,
-				ghActorIDOrNil(event.Actor),
-				ghActorLoginOrNil(event.Actor, maybeHide),
-				cfg.Repo,
-				cfg.Repo,
-				cfg.EventType,
-				now,
-			}...,
-		)
-	} else {
-		ExecSQLTxWithErr(
-			tc,
-			ctx,
-			fmt.Sprintf(
-				"update gha_payloads set action = %s, dup_actor_id = %s, dup_actor_login = %s where event_id = %s",
-				NValue(1),
-				NValue(2),
-				NValue(3),
-				NValue(4),
-			),
-			AnyArray{
-				cfg.EventType,
-				ghActorIDOrNil(event.Actor),
-				ghActorLoginOrNil(event.Actor, maybeHide),
-				eeid,
-			}...,
-		)
-	}
+	ExecSQLTxWithErr(
+		tc,
+		ctx,
+		fmt.Sprintf(
+			"insert into gha_payloads("+
+				"event_id, push_id, size, ref, head, befor, action, "+
+				"issue_id, pull_request_id, comment_id, ref_type, master_branch, commit, "+
+				"description, number, forkee_id, release_id, member_id, "+
+				"dup_actor_id, dup_actor_login, dup_repo_id, dup_repo_name, dup_type, dup_created_at) "+
+				"values(%s, null, null, null, null, null, %s, "+
+				"%s, null, null, null, null, null, "+
+				"null, %s, null, null, null, "+
+				"%s, %s, (select max(id) from gha_repos where name = %s), %s, %s, %s)",
+			NValue(1),
+			NValue(2),
+			NValue(3),
+			NValue(4),
+			NValue(5),
+			NValue(6),
+			NValue(7),
+			NValue(8),
+			NValue(9),
+			NValue(10),
+		),
+		AnyArray{
+			eventID,
+			cfg.EventType,
+			iid,
+			issue.Number,
+			ghActorIDOrNil(event.Actor),
+			ghActorLoginOrNil(event.Actor, maybeHide),
+			cfg.Repo,
+			cfg.Repo,
+			cfg.EventType,
+			now,
+		}...,
+	)
 
 	// Add issue labels
-	if !newEvent {
-		ExecSQLTxWithErr(
-			tc,
-			ctx,
-			fmt.Sprintf(
-				"delete from gha_issues_labels where issue_id = %s and event_id = %s",
-				NValue(1),
-				NValue(2),
-			),
-			AnyArray{
-				iid,
-				eeid,
-			}...,
-		)
-	}
 	for labelID, labelName := range cfg.LabelsMap {
 		ExecSQLTxWithErr(
 			tc,
@@ -577,21 +468,6 @@ func ArtificialEvent(c *sql.DB, ctx *Ctx, cfg *IssueConfig, eeid int64) (err err
 	}
 
 	// Add issue assignees
-	if !newEvent {
-		ExecSQLTxWithErr(
-			tc,
-			ctx,
-			fmt.Sprintf(
-				"delete from gha_issues_assignees where issue_id = %s and event_id = %s",
-				NValue(1),
-				NValue(2),
-			),
-			AnyArray{
-				iid,
-				eeid,
-			}...,
-		)
-	}
 	for assigneeID := range cfg.AssigneesMap {
 		ExecSQLTxWithErr(
 			tc,
@@ -729,7 +605,7 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 				}
 				FatalOnError(rowsM.Err())
 				if !got {
-					if ctx.Debug > 0 {
+					if ctx.Debug >= 0 {
 						Printf("Adding missing event '%v'\n", cfg)
 					}
 					FatalOnError(
@@ -737,13 +613,19 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 							c,
 							ctx,
 							&cfg,
-							0,
 						),
 					)
 					insertsMutex.Lock()
 					inserts++
 					insertsMutex.Unlock()
 					ch <- true
+					return
+				}
+				if ghaEventID > 281474976710656 {
+					if ctx.Debug >= 0 {
+						Printf("Artificial event already exists, skipping: '%v'\n", cfg)
+					}
+					ch <- false
 					return
 				}
 
@@ -874,13 +756,13 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 				}
 
 				// Do the update if needed
-				if changedMilestone || changedState || changedClosed || changedAssignee || changedTitle || changedLocked || changedLabels || changedAssignees {
+				changedAnything := changedMilestone || changedState || changedClosed || changedAssignee || changedTitle || changedLocked || changedLabels || changedAssignees
+				if changedAnything {
 					FatalOnError(
 						ArtificialEvent(
 							c,
 							ctx,
 							&cfg,
-							ghaEventID,
 						),
 					)
 					updatesMutex.Lock()
@@ -888,8 +770,12 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 					updatesMutex.Unlock()
 				}
 
+				if ctx.Debug >= 0 {
+					Printf("Event for the same date exist, added artificial: %v: '%v'\n", changedAnything, cfg)
+				}
 				// Synchronize go routine
-				ch <- true
+				ch <- changedAnything
+				return
 			}(ch, key, idx)
 
 			// go routine called with 'ch' channel to sync and tag index
