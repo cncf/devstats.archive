@@ -85,6 +85,7 @@ func syncEvents(ctx *lib.Ctx) {
 	// Specify list of events to process
 	eventTypes := make(map[string]struct{})
 	eventTypes["closed"] = struct{}{}
+	eventTypes["merged"] = struct{}{}
 	eventTypes["reopened"] = struct{}{}
 	eventTypes["locked"] = struct{}{}
 	eventTypes["unlocked"] = struct{}{}
@@ -222,6 +223,9 @@ func syncEvents(ctx *lib.Ctx) {
 					if createdAt.After(maxCreatedAt) {
 						maxCreatedAt = createdAt
 					}
+					if createdAt.Before(recentDt) {
+						continue
+					}
 					cfg := lib.IssueConfig{Repo: orgRepo}
 					issue := event.Issue
 					if issue.Milestone != nil {
@@ -255,18 +259,16 @@ func syncEvents(ctx *lib.Ctx) {
 							cfg.Labels += fmt.Sprintf("%d,", label)
 						}
 					}
-					if createdAt.After(recentDt) {
-						issuesMutex.Lock()
-						_, ok := issues[cfg.IssueID]
-						if ok {
-							issues[cfg.IssueID] = append(issues[cfg.IssueID], cfg)
-						} else {
-							issues[cfg.IssueID] = []lib.IssueConfig{cfg}
-						}
-						issuesMutex.Unlock()
-						if ctx.Debug > 0 {
-							lib.Printf("Processing %v\n", cfg)
-						}
+					issuesMutex.Lock()
+					_, ok = issues[cfg.IssueID]
+					if ok {
+						issues[cfg.IssueID] = append(issues[cfg.IssueID], cfg)
+					} else {
+						issues[cfg.IssueID] = []lib.IssueConfig{cfg}
+					}
+					issuesMutex.Unlock()
+					if ctx.Debug > 0 {
+						lib.Printf("Processing %v\n", cfg)
 					}
 				}
 				if ctx.Debug > 0 {
@@ -303,12 +305,6 @@ func syncEvents(ctx *lib.Ctx) {
 		// Get RateLimits info
 		_, rem, wait := lib.GetRateLimits(gctx, gc, true)
 		lib.ProgressInfo(checked, nRepos, dtStart, &lastTime, time.Duration(10)*time.Second, fmt.Sprintf("API points: %d, resets in: %v", rem, wait))
-	}
-	for issueID := range issues {
-		sort.Sort(issues[issueID])
-		if ctx.Debug > 1 {
-			lib.Printf("Sorted: %+v\n", issues[issueID])
-		}
 	}
 
 	// Do final corrections
