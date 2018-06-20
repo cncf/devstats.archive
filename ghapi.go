@@ -260,6 +260,188 @@ func GetRecentRepos(c *sql.DB, ctx *Ctx) (repos []string) {
 
 // ArtificialPREvent - create artificial API event (PR state for now())
 func ArtificialPREvent(c *sql.DB, ctx *Ctx, cfg *IssueConfig, pr *github.PullRequest) (err error) {
+	// To handle GDPR
+	maybeHide := MaybeHideFunc(GetHidden(HideCfgFile))
+
+	eventID := cfg.EventID
+	eType := cfg.EventType
+	eCreatedAt := cfg.CreatedAt
+	actor := cfg.GhEvent.Actor
+
+	// Start transaction
+	tc, err := c.Begin()
+	FatalOnError(err)
+
+	// User
+	ghActor(tc, ctx, pr.User, maybeHide)
+
+	baseSHA := ""
+	headSHA := ""
+	if pr.Base != nil && pr.Base.SHA != nil {
+		baseSHA = *pr.Base.SHA
+	}
+	if pr.Head != nil && pr.Head.SHA != nil {
+		headSHA = *pr.Head.SHA
+	}
+
+	if pr.MergedBy != nil {
+		ghActor(tc, ctx, pr.MergedBy, maybeHide)
+	}
+
+	if pr.Assignee != nil {
+		ghActor(tc, ctx, pr.Assignee, maybeHide)
+	}
+
+	if pr.Milestone != nil {
+		ghMilestone(tc, ctx, eventID, cfg, maybeHide)
+	}
+
+	prid := *pr.ID
+	ExecSQLTxWithErr(
+		tc,
+		ctx,
+		fmt.Sprintf(
+			"insert into gha_pull_requests("+
+				"id, event_id, user_id, base_sha, head_sha, merged_by_id, assignee_id, milestone_id, "+
+				"number, state, title, body, created_at, updated_at, closed_at, merged_at, "+
+				"merge_commit_sha, merged, mergeable, mergeable_state, comments, "+
+				"maintainer_can_modify, commits, additions, deletions, changed_files, "+
+				"dup_actor_id, dup_actor_login, dup_repo_id, dup_repo_name, dup_type, dup_created_at, "+
+				"dup_user_login, dupn_assignee_login, dupn_merged_by_login) values("+
+				"%s, %s, %s, %s, %s, %s, %s, %s, "+
+				"%s, %s, %s, %s, %s, %s, %s, %s, "+
+				"%s, %s, %s, %s, %s, "+
+				"%s, %s, %s, %s, %s, "+
+				"%s, %s, (select max(id) from gha_repos where name = %s), %s, %s, %s, "+
+				"%s, %s, %s)",
+			NValue(1),
+			NValue(2),
+			NValue(3),
+			NValue(4),
+			NValue(5),
+			NValue(6),
+			NValue(7),
+			NValue(8),
+			NValue(9),
+			NValue(10),
+			NValue(11),
+			NValue(12),
+			NValue(13),
+			NValue(14),
+			NValue(15),
+			NValue(16),
+			NValue(17),
+			NValue(18),
+			NValue(19),
+			NValue(20),
+			NValue(21),
+			NValue(22),
+			NValue(23),
+			NValue(24),
+			NValue(25),
+			NValue(26),
+			NValue(27),
+			NValue(28),
+			NValue(29),
+			NValue(30),
+			NValue(31),
+			NValue(32),
+			NValue(33),
+			NValue(34),
+			NValue(35),
+		),
+		AnyArray{
+			prid,
+			eventID,
+			ghActorIDOrNil(pr.User),
+			baseSHA,
+			headSHA,
+			ghActorIDOrNil(pr.MergedBy),
+			ghActorIDOrNil(pr.Assignee),
+			ghMilestoneIDOrNil(pr.Milestone),
+			pr.Number,
+			pr.State,
+			pr.Title,
+			TruncStringOrNil(pr.Body, 0xffff),
+			pr.CreatedAt,
+			pr.UpdatedAt,
+			TimeOrNil(pr.ClosedAt),
+			TimeOrNil(pr.MergedAt),
+			StringOrNil(pr.MergeCommitSHA),
+			BoolOrNil(pr.Merged),
+			BoolOrNil(pr.Mergeable),
+			StringOrNil(pr.MergeableState),
+			IntOrNil(pr.Comments),
+			BoolOrNil(pr.MaintainerCanModify),
+			IntOrNil(pr.Commits),
+			IntOrNil(pr.Additions),
+			IntOrNil(pr.Deletions),
+			IntOrNil(pr.ChangedFiles),
+			actor.ID,
+			ghActorLoginOrNil(actor, maybeHide),
+			cfg.Repo,
+			cfg.Repo,
+			eType,
+			eCreatedAt,
+			ghActorLoginOrNil(pr.User, maybeHide),
+			ghActorLoginOrNil(pr.Assignee, maybeHide),
+			ghActorLoginOrNil(pr.MergedBy, maybeHide),
+		}...,
+	)
+	/*
+
+		// Arrays: actors: assignees, requested_reviewers
+		// assignees
+		var assignees []lib.Actor
+
+		prAid := lib.ActorIDOrNil(pr.Assignee)
+		if pr.Assignee != nil {
+			assignees = append(assignees, *pr.Assignee)
+		}
+
+		if pr.Assignees != nil {
+			for _, assignee := range *pr.Assignees {
+				aid := assignee.ID
+				if aid == prAid {
+					continue
+				}
+				assignees = append(assignees, assignee)
+			}
+		}
+
+		for _, assignee := range assignees {
+			// assignee
+			ghaActor(con, ctx, &assignee, maybeHide)
+
+			// pull_request-assignee connection
+			lib.ExecSQLTxWithErr(
+				con,
+				ctx,
+				"insert into gha_pull_requests_assignees(pull_request_id, event_id, assignee_id) "+lib.NValues(3),
+				lib.AnyArray{prid, eventID, assignee.ID}...,
+			)
+		}
+
+		// requested_reviewers
+		if pr.RequestedReviewers != nil {
+			for _, reviewer := range *pr.RequestedReviewers {
+				// reviewer
+				ghaActor(con, ctx, &reviewer, maybeHide)
+
+				// pull_request-requested_reviewer connection
+				lib.ExecSQLTxWithErr(
+					con,
+					ctx,
+					"insert into gha_pull_requests_requested_reviewers(pull_request_id, event_id, requested_reviewer_id) "+lib.NValues(3),
+					lib.AnyArray{prid, eventID, reviewer.ID}...,
+				)
+			}
+		}
+	*/
+	// Final commit
+	// TODO: rollback -> commit
+	//FatalOnError(tc.Commit())
+	FatalOnError(tc.Rollback())
 	return
 }
 
@@ -558,8 +740,6 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 		nIssues += len(issueConfig)
 	}
 	nPRs := len(prs)
-	//ObjectToJSON(prs, "jsons/prs.json")
-	//ObjectToYAML(prs, "jsons/prs.yaml")
 
 	Printf("ghapi2db.go: Processing %d PRs, %d issues (%d with date collisions) - GHA part\n", nPRs, nIssues, nIssuesBefore)
 	// Use map key to pass to the closure
