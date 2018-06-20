@@ -263,7 +263,7 @@ func ArtificialPREvent(c *sql.DB, ctx *Ctx, cfg *IssueConfig, pr *github.PullReq
 	// To handle GDPR
 	maybeHide := MaybeHideFunc(GetHidden(HideCfgFile))
 
-	eventID := cfg.EventID
+	eventID := 281474976710656 + cfg.EventID
 	eType := cfg.EventType
 	eCreatedAt := cfg.CreatedAt
 	actor := cfg.GhEvent.Actor
@@ -391,36 +391,22 @@ func ArtificialPREvent(c *sql.DB, ctx *Ctx, cfg *IssueConfig, pr *github.PullReq
 
 	// Arrays: actors: assignees, requested_reviewers
 	// assignees
-	var assignees []github.User
-
-	prAid := ghActorIDOrNil(pr.Assignee)
-	if pr.Assignee != nil {
-		assignees = append(assignees, *pr.Assignee)
-	}
 
 	if pr.Assignees != nil {
 		for _, assignee := range pr.Assignees {
 			if assignee == nil {
 				continue
 			}
-			aid := assignee.ID
-			if aid == prAid {
-				continue
-			}
-			assignees = append(assignees, *assignee)
+			// assignee
+			ghActor(tc, ctx, assignee, maybeHide)
+
+			ExecSQLTxWithErr(
+				tc,
+				ctx,
+				"insert into gha_pull_requests_assignees(pull_request_id, event_id, assignee_id) "+NValues(3),
+				AnyArray{prid, eventID, assignee.ID}...,
+			)
 		}
-	}
-
-	for _, assignee := range assignees {
-		// assignee
-		ghActor(tc, ctx, &assignee, maybeHide)
-
-		ExecSQLTxWithErr(
-			tc,
-			ctx,
-			"insert into gha_pull_requests_assignees(pull_request_id, event_id, assignee_id) "+NValues(3),
-			AnyArray{prid, eventID, assignee.ID}...,
-		)
 	}
 
 	// requested_reviewers
@@ -1024,7 +1010,7 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 			l := len(ica)
 			ic := ica[l-1]
 			prsMutex.RUnlock()
-			eid := ic.EventID
+			eid := ic.EventID + 281474976710656
 			prid := *pr.ID
 			if ctx.Debug > 0 {
 				Printf("GHA Issue ID '%d' --> PR ID %d, Issue Event ID %d\n", iid, prid, eid)
