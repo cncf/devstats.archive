@@ -189,6 +189,13 @@ func syncEvents(ctx *lib.Ctx) {
 				minCreatedAt := time.Now()
 				maxCreatedAt := recentDt
 				for _, event := range events {
+					createdAt := *event.CreatedAt
+					if createdAt.Before(minCreatedAt) {
+						minCreatedAt = createdAt
+					}
+					if createdAt.After(maxCreatedAt) {
+						maxCreatedAt = createdAt
+					}
 					if event.Event == nil {
 						lib.Printf("Skipping event without type\n")
 						continue
@@ -198,13 +205,6 @@ func syncEvents(ctx *lib.Ctx) {
 					if !ok {
 						continue
 					}
-					createdAt := *event.CreatedAt
-					if createdAt.Before(minCreatedAt) {
-						minCreatedAt = createdAt
-					}
-					if createdAt.After(maxCreatedAt) {
-						maxCreatedAt = createdAt
-					}
 					if createdAt.Before(recentDt) {
 						continue
 					}
@@ -212,6 +212,9 @@ func syncEvents(ctx *lib.Ctx) {
 					issue := event.Issue
 					if issue.Milestone != nil {
 						cfg.MilestoneID = issue.Milestone.ID
+					}
+					if issue.Assignee != nil {
+						cfg.AssigneeID = issue.Assignee.ID
 					}
 					if eventType == "renamed" {
 						issue.Title = event.Rename.To
@@ -224,6 +227,7 @@ func syncEvents(ctx *lib.Ctx) {
 					cfg.IssueID = *issue.ID
 					cfg.EventID = *event.ID
 					cfg.Pr = issue.IsPullRequest()
+					// Labels
 					cfg.LabelsMap = make(map[int64]string)
 					for _, label := range issue.Labels {
 						cfg.LabelsMap[*label.ID] = *label.Name
@@ -239,6 +243,24 @@ func syncEvents(ctx *lib.Ctx) {
 							cfg.Labels += fmt.Sprintf("%d", label)
 						} else {
 							cfg.Labels += fmt.Sprintf("%d,", label)
+						}
+					}
+					// Assignees
+					cfg.AssigneesMap = make(map[int64]string)
+					for _, assignee := range issue.Assignees {
+						cfg.AssigneesMap[*assignee.ID] = *assignee.Login
+					}
+					assigneesAry := lib.Int64Ary{}
+					for assignee := range cfg.AssigneesMap {
+						assigneesAry = append(assigneesAry, assignee)
+					}
+					sort.Sort(assigneesAry)
+					l = len(assigneesAry)
+					for i, assignee := range assigneesAry {
+						if i == l-1 {
+							cfg.Assignees += fmt.Sprintf("%d", assignee)
+						} else {
+							cfg.Assignees += fmt.Sprintf("%d,", assignee)
 						}
 					}
 					issuesMutex.Lock()
