@@ -33,6 +33,7 @@ from (
     )
   group by
     dup_actor_login
+  union select 'none', 0
 ) sub
 order by
   sub.events desc
