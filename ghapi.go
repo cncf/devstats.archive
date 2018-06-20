@@ -36,11 +36,12 @@ func (ic IssueConfig) String() string {
 		milestoneID = *ic.MilestoneID
 	}
 	return fmt.Sprintf(
-		"{Repo: %s, Number: %d, IssueID: %d, EventID: %d, Pr: %v, MilestoneID: %d, Labels: %s, CreatedAt: %v, LabelsMap: %+v}",
+		"{Repo: %s, Number: %d, IssueID: %d, EventID: %d, EventType: %s, Pr: %v, MilestoneID: %d, Labels: %s, CreatedAt: %v, LabelsMap: %+v}",
 		ic.Repo,
 		ic.Number,
 		ic.IssueID,
 		ic.EventID,
+		ic.EventType,
 		ic.Pr,
 		milestoneID,
 		ic.Labels,
@@ -143,14 +144,14 @@ func ghMilestone(con *sql.Tx, ctx *Ctx, eid int64, ic *IssueConfig, maybeHide fu
 			NValue(20),
 		),
 		AnyArray{
-			milestone.ID,
+			ic.MilestoneID,
 			eid,
-			TimeOrNil(milestone.ClosedAt),
+			milestone.ClosedAt,
 			milestone.ClosedIssues,
 			milestone.CreatedAt,
 			ghActorIDOrNil(milestone.Creator),
 			TruncStringOrNil(milestone.Description, 0xffff),
-			TimeOrNil(milestone.DueOn),
+			milestone.DueOn,
 			milestone.Number,
 			milestone.OpenIssues,
 			milestone.State,
@@ -479,11 +480,20 @@ func ArtificialEvent(c *sql.DB, ctx *Ctx, cfg *IssueConfig, eeid int64) (err err
 
 // SyncIssuesState synchonizes issues states
 func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.DB, issues map[int64]IssueConfigAry) {
-	// Make sure we only have single event per single second - final state
 	nIssuesBefore := 0
 	for _, issueConfig := range issues {
 		nIssuesBefore += len(issueConfig)
 	}
+
+	// Make sure we only have single event per single second - final state
+	// Sort by iid then created_at then event_id
+	for issueID := range issues {
+		sort.Sort(issues[issueID])
+		if ctx.Debug > 1 {
+			Printf("Sorted: %+v\n", issues[issueID])
+		}
+	}
+	// Leave only final state
 	for iid, issueConfigAry := range issues {
 		mp := make(map[string]IssueConfig)
 		for _, issue := range issueConfigAry {
