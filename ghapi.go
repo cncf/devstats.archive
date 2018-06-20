@@ -500,7 +500,7 @@ func ArtificialEvent(c *sql.DB, ctx *Ctx, cfg *IssueConfig) (err error) {
 }
 
 // SyncIssuesState synchonizes issues states
-func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.DB, issues map[int64]IssueConfigAry) {
+func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.DB, issues map[int64]IssueConfigAry, prs map[int64]github.PullRequest) {
 	nIssuesBefore := 0
 	for _, issueConfig := range issues {
 		nIssuesBefore += len(issueConfig)
@@ -553,8 +553,29 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 	for _, issueConfig := range issues {
 		nIssues += len(issueConfig)
 	}
+	nPRs := len(prs)
+	/*
+	 base_sha
+	 head_sha
+	 merged_by_id
+	 merged_at
+	 merge_commit_sha
+	 merged
+	 mergeable
+	 rebaseable
+	 mergeable_state
+	 review_comments
+	 maintainer_can_modify
+	 commits
+	 additions
+	 deletions
+	 changed_files
+	 dupn_merged_by_login
+	*/
+	ObjectToJSON(prs, "jsons/prs.json")
+	ObjectToYAML(prs, "jsons/prs.yaml")
 
-	Printf("ghapi2db.go: Processing %d issues (%d with date collisions) - GHA part\n", nIssues, nIssuesBefore)
+	Printf("ghapi2db.go: Processing %d PRs, %d issues (%d with date collisions) - GHA part\n", nPRs, nIssues, nIssuesBefore)
 	// Use map key to pass to the closure
 	for key, issueConfig := range issues {
 		for idx := range issueConfig {
