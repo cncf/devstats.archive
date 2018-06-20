@@ -258,8 +258,12 @@ func GetRecentRepos(c *sql.DB, ctx *Ctx) (repos []string) {
 	return
 }
 
-// ArtificialEvent - create artificial 'ArtificialEvent'
-// creates new issue state, artificial event and its payload
+// ArtificialPREvent - create artificial API event (PR state for now())
+func ArtificialPREvent(c *sql.DB, ctx *Ctx, cfg *IssueConfig, pr *github.PullRequest) (err error) {
+	return
+}
+
+// ArtificialEvent - create artificial API event (but from the past)
 func ArtificialEvent(c *sql.DB, ctx *Ctx, cfg *IssueConfig) (err error) {
 	// github.com/google/go-github/github/issues_events.go
 	if ctx.SkipPDB {
@@ -554,26 +558,8 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 		nIssues += len(issueConfig)
 	}
 	nPRs := len(prs)
-	/*
-	 base_sha
-	 head_sha
-	 merged_by_id
-	 merged_at
-	 merge_commit_sha
-	 merged
-	 mergeable
-	 rebaseable
-	 mergeable_state
-	 review_comments
-	 maintainer_can_modify
-	 commits
-	 additions
-	 deletions
-	 changed_files
-	 dupn_merged_by_login
-	*/
-	ObjectToJSON(prs, "jsons/prs.json")
-	ObjectToYAML(prs, "jsons/prs.yaml")
+	//ObjectToJSON(prs, "jsons/prs.json")
+	//ObjectToYAML(prs, "jsons/prs.yaml")
 
 	Printf("ghapi2db.go: Processing %d PRs, %d issues (%d with date collisions) - GHA part\n", nPRs, nIssues, nIssuesBefore)
 	// Use map key to pass to the closure
@@ -824,7 +810,7 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 		}
 	}
 	// Usually all work happens on '<-ch'
-	Printf("Final GHA threads join\n")
+	Printf("GHA threads join issues\n")
 	for nThreads > 0 {
 		<-ch
 		nThreads--
@@ -836,5 +822,90 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 	Printf(
 		"ghapi2db.go: Processed %d issues/PRs (%d new for date, %d artificial exists, date exists: %d not needed, %d added): %d API points remain, resets in %v\n",
 		checked, updates[0], updates[1], updates[2], updates[3], rem, wait,
+	)
+
+	// PRs sync (using state at run date XX:08+)
+	// Use map key to pass to the closure
+	ch = make(chan bool)
+	nThreads = 0
+	dtStart = time.Now()
+	lastTime = dtStart
+	checked = 0
+	newPRs := 0
+	var prsMutex = &sync.RWMutex{}
+	for iid := range prs {
+		go func(ch chan bool, iid int64) {
+			prsMutex.RLock()
+			pr := prs[iid]
+			ica := issues[iid]
+			l := len(ica)
+			ic := ica[l-1]
+			prsMutex.RUnlock()
+			eid := ic.EventID
+			prid := *pr.ID
+			if ctx.Debug > 0 {
+				Printf("GHA Issue ID '%d' --> PR ID %d, Issue Event ID %d\n", iid, prid, eid)
+			}
+			var ghaEventID int64
+			rowsM := QuerySQLWithErr(
+				c,
+				ctx,
+				fmt.Sprintf(
+					"select event_id from gha_pull_requests where id = %s and event_id = %s",
+					NValue(1),
+					NValue(2),
+				),
+				prid,
+				eid,
+			)
+			defer func() { FatalOnError(rowsM.Close()) }()
+			got := false
+			for rowsM.Next() {
+				FatalOnError(rowsM.Scan(&ghaEventID))
+				got = true
+			}
+			FatalOnError(rowsM.Err())
+			if !got {
+				if ctx.Debug > 0 {
+					Printf("Adding missing Issue ID %d, PR ID %d, Issue Event ID %d'\n", iid, prid, eid)
+				}
+				FatalOnError(
+					ArtificialPREvent(
+						c,
+						ctx,
+						&ic,
+						&pr,
+					),
+				)
+				updatesMutex.Lock()
+				newPRs++
+				updatesMutex.Unlock()
+			}
+			ch <- !got
+			return
+		}(ch, iid)
+
+		// go routine called with 'ch' channel to sync and tag index
+		nThreads++
+		if nThreads == thrN {
+			<-ch
+			nThreads--
+			checked++
+			ProgressInfo(checked, nIssues, dtStart, &lastTime, time.Duration(10)*time.Second, "")
+		}
+	}
+	// Usually all work happens on '<-ch'
+	Printf("GHA threads join PRs\n")
+	for nThreads > 0 {
+		<-ch
+		nThreads--
+		checked++
+		ProgressInfo(checked, nIssues, dtStart, &lastTime, time.Duration(10)*time.Second, "")
+	}
+	// Get RateLimits info
+	_, rem, wait = GetRateLimits(gctx, gc, true)
+	Printf(
+		"ghapi2db.go: Processed %d PRs (%d added): %d API points remain, resets in %v\n",
+		checked, newPRs, rem, wait,
 	)
 }
