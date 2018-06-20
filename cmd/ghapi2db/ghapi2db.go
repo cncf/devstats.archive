@@ -105,6 +105,8 @@ func syncEvents(ctx *lib.Ctx) {
 	opt := &github.ListOptions{PerPage: 100}
 	issues := make(map[int64]lib.IssueConfigAry)
 	var issuesMutex = &sync.Mutex{}
+	prs := make(map[int64]github.PullRequest)
+	var prsMutex = &sync.Mutex{}
 	for _, orgRepo := range repos {
 		go func(ch chan bool, orgRepo string) {
 			ary := strings.Split(orgRepo, "/")
@@ -125,6 +127,7 @@ func syncEvents(ctx *lib.Ctx) {
 				err      error
 				events   []*github.IssueEvent
 				response *github.Response
+				pr       *github.PullRequest
 			)
 			nPages := 0
 			lib.FatalOnError(err)
@@ -133,7 +136,7 @@ func syncEvents(ctx *lib.Ctx) {
 				for tr := 0; tr < ctx.MaxGHAPIRetry; tr++ {
 					_, rem, waitPeriod := lib.GetRateLimits(gctx, gc, true)
 					if ctx.Debug > 0 {
-						lib.Printf("Try: %d, rem: %v, waitPeriod: %v\n", tr, rem, waitPeriod)
+						lib.Printf("Issues Repo Events Try: %d, rem: %v, waitPeriod: %v\n", tr, rem, waitPeriod)
 					}
 					if rem <= ctx.MinGHAPIPoints {
 						if waitPeriod.Seconds() <= float64(ctx.MaxGHAPIWaitSeconds) {
@@ -142,13 +145,13 @@ func syncEvents(ctx *lib.Ctx) {
 							time.Sleep(waitPeriod)
 							continue
 						} else {
-							lib.Fatalf("API limit reached while getting issue data, aborting, don't want to wait %v", waitPeriod)
+							lib.Fatalf("API limit reached while getting issues events data, aborting, don't want to wait %v", waitPeriod)
 							os.Exit(1)
 						}
 					}
 					nPages++
 					if ctx.Debug > 0 {
-						lib.Printf("API call for %s (%d), remaining GHAPI points %d\n", orgRepo, nPages, rem)
+						lib.Printf("API call for isuues events %s (%d), remaining GHAPI points %d\n", orgRepo, nPages, rem)
 					}
 					events, response, err = gc.Issues.ListRepositoryEvents(gctx, org, repo, opt)
 					res := lib.HandlePossibleError(err, &gcfg, "Issues.ListRepositoryEvents")
@@ -157,12 +160,12 @@ func syncEvents(ctx *lib.Ctx) {
 							wait := time.Duration(int(math.Pow(2.0, float64(tr+3)))) * time.Second
 							thrMutex.Lock()
 							if ctx.Debug > 0 {
-								lib.Printf("GitHub API abuse detected, wait %v\n", wait)
+								lib.Printf("GitHub API abuse detected (issues events), wait %v\n", wait)
 							}
 							if allowedThrN > 1 {
 								allowedThrN--
 								if ctx.Debug > 0 {
-									lib.Printf("Lower threads limit: %d/%d\n", nThreads, allowedThrN)
+									lib.Printf("Lower threads limit (issues events): %d/%d\n", nThreads, allowedThrN)
 								}
 							}
 							thrMutex.Unlock()
@@ -174,7 +177,7 @@ func syncEvents(ctx *lib.Ctx) {
 						if allowedThrN < maxThreads {
 							allowedThrN++
 							if ctx.Debug > 0 {
-								lib.Printf("Rise threads limit: %d/%d\n", nThreads, allowedThrN)
+								lib.Printf("Rise threads limit (issues events): %d/%d\n", nThreads, allowedThrN)
 							}
 						}
 						thrMutex.Unlock()
@@ -183,7 +186,7 @@ func syncEvents(ctx *lib.Ctx) {
 					break
 				}
 				if !got {
-					lib.Fatalf("GetRateLimit call failed %d times while getting events, aboorting", ctx.MaxGHAPIRetry)
+					lib.Fatalf("GetRateLimit call failed %d times while getting events, aborting", ctx.MaxGHAPIRetry)
 					os.Exit(2)
 				}
 				minCreatedAt := time.Now()
@@ -274,6 +277,77 @@ func syncEvents(ctx *lib.Ctx) {
 					if ctx.Debug > 0 {
 						lib.Printf("Processing %v\n", cfg)
 					}
+					// Handle PR
+					if issue.IsPullRequest() {
+						prsMutex.Lock()
+						_, foundPR := prs[cfg.IssueID]
+						prsMutex.Unlock()
+						if !foundPR {
+							prNum := *issue.Number
+							got = false
+							for tr := 0; tr < ctx.MaxGHAPIRetry; tr++ {
+								_, rem, waitPeriod := lib.GetRateLimits(gctx, gc, true)
+								if ctx.Debug > 0 {
+									lib.Printf("Get PR Try: %d, rem: %v, waitPeriod: %v\n", tr, rem, waitPeriod)
+								}
+								if rem <= ctx.MinGHAPIPoints {
+									if waitPeriod.Seconds() <= float64(ctx.MaxGHAPIWaitSeconds) {
+										lib.Printf("API limit reached while getting PR data, waiting %v (%d)\n", waitPeriod, tr)
+										time.Sleep(time.Duration(1) * time.Second)
+										time.Sleep(waitPeriod)
+										continue
+									} else {
+										lib.Fatalf("API limit reached while getting PR data, aborting, don't want to wait %v", waitPeriod)
+										os.Exit(1)
+									}
+								}
+								nPages++
+								if ctx.Debug > 0 {
+									lib.Printf("API call for %s PR: %d, remaining GHAPI points %d\n", orgRepo, prNum, rem)
+								}
+								pr, response, err = gc.PullRequests.Get(gctx, org, repo, prNum)
+								res := lib.HandlePossibleError(err, &gcfg, "PullRequests.Get")
+								if res != "" {
+									if res == lib.Abuse {
+										wait := time.Duration(int(math.Pow(2.0, float64(tr+3)))) * time.Second
+										thrMutex.Lock()
+										if ctx.Debug > 0 {
+											lib.Printf("GitHub API abuse detected (get PR), wait %v\n", wait)
+										}
+										if allowedThrN > 1 {
+											allowedThrN--
+											if ctx.Debug > 0 {
+												lib.Printf("Lower threads limit (get PR): %d/%d\n", nThreads, allowedThrN)
+											}
+										}
+										thrMutex.Unlock()
+										time.Sleep(wait)
+									}
+									continue
+								} else {
+									thrMutex.Lock()
+									if allowedThrN < maxThreads {
+										allowedThrN++
+										if ctx.Debug > 0 {
+											lib.Printf("Rise threads limit (get PR): %d/%d\n", nThreads, allowedThrN)
+										}
+									}
+									thrMutex.Unlock()
+								}
+								got = true
+								break
+							}
+							if !got {
+								lib.Fatalf("GetRateLimit call failed %d times while getting PR, aborting", ctx.MaxGHAPIRetry)
+								os.Exit(2)
+							}
+							if pr != nil {
+								prsMutex.Lock()
+								prs[cfg.IssueID] = *pr
+								prsMutex.Unlock()
+							}
+						}
+					}
 				}
 				if ctx.Debug > 0 {
 					lib.Printf("%s: [%v - %v] < %v: %v\n", orgRepo, minCreatedAt, maxCreatedAt, recentDt, minCreatedAt.Before(recentDt))
@@ -312,7 +386,7 @@ func syncEvents(ctx *lib.Ctx) {
 	}
 
 	// Do final corrections
-	lib.SyncIssuesState(gctx, gc, ctx, c, issues)
+	lib.SyncIssuesState(gctx, gc, ctx, c, issues, prs)
 }
 
 func main() {
