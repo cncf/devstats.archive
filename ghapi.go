@@ -388,56 +388,59 @@ func ArtificialPREvent(c *sql.DB, ctx *Ctx, cfg *IssueConfig, pr *github.PullReq
 			ghActorLoginOrNil(pr.MergedBy, maybeHide),
 		}...,
 	)
-	/*
 
-		// Arrays: actors: assignees, requested_reviewers
-		// assignees
-		var assignees []lib.Actor
+	// Arrays: actors: assignees, requested_reviewers
+	// assignees
+	var assignees []github.User
 
-		prAid := lib.ActorIDOrNil(pr.Assignee)
-		if pr.Assignee != nil {
-			assignees = append(assignees, *pr.Assignee)
-		}
+	prAid := ghActorIDOrNil(pr.Assignee)
+	if pr.Assignee != nil {
+		assignees = append(assignees, *pr.Assignee)
+	}
 
-		if pr.Assignees != nil {
-			for _, assignee := range *pr.Assignees {
-				aid := assignee.ID
-				if aid == prAid {
-					continue
-				}
-				assignees = append(assignees, assignee)
+	if pr.Assignees != nil {
+		for _, assignee := range pr.Assignees {
+			if assignee == nil {
+				continue
 			}
+			aid := assignee.ID
+			if aid == prAid {
+				continue
+			}
+			assignees = append(assignees, *assignee)
 		}
+	}
 
-		for _, assignee := range assignees {
-			// assignee
-			ghaActor(con, ctx, &assignee, maybeHide)
+	for _, assignee := range assignees {
+		// assignee
+		ghActor(tc, ctx, &assignee, maybeHide)
 
-			// pull_request-assignee connection
-			lib.ExecSQLTxWithErr(
-				con,
+		ExecSQLTxWithErr(
+			tc,
+			ctx,
+			"insert into gha_pull_requests_assignees(pull_request_id, event_id, assignee_id) "+NValues(3),
+			AnyArray{prid, eventID, assignee.ID}...,
+		)
+	}
+
+	// requested_reviewers
+	if pr.RequestedReviewers != nil {
+		for _, reviewer := range pr.RequestedReviewers {
+			if reviewer == nil {
+				continue
+			}
+			// reviewer
+			ghActor(tc, ctx, reviewer, maybeHide)
+
+			// pull_request-requested_reviewer connection
+			ExecSQLTxWithErr(
+				tc,
 				ctx,
-				"insert into gha_pull_requests_assignees(pull_request_id, event_id, assignee_id) "+lib.NValues(3),
-				lib.AnyArray{prid, eventID, assignee.ID}...,
+				"insert into gha_pull_requests_requested_reviewers(pull_request_id, event_id, requested_reviewer_id) "+NValues(3),
+				AnyArray{prid, eventID, reviewer.ID}...,
 			)
 		}
-
-		// requested_reviewers
-		if pr.RequestedReviewers != nil {
-			for _, reviewer := range *pr.RequestedReviewers {
-				// reviewer
-				ghaActor(con, ctx, &reviewer, maybeHide)
-
-				// pull_request-requested_reviewer connection
-				lib.ExecSQLTxWithErr(
-					con,
-					ctx,
-					"insert into gha_pull_requests_requested_reviewers(pull_request_id, event_id, requested_reviewer_id) "+lib.NValues(3),
-					lib.AnyArray{prid, eventID, reviewer.ID}...,
-				)
-			}
-		}
-	*/
+	}
 	// Final commit
 	// TODO: rollback -> commit
 	//FatalOnError(tc.Commit())
