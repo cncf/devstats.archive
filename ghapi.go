@@ -280,6 +280,7 @@ func ArtificialEvent(c *sql.DB, ctx *Ctx, cfg *IssueConfig, eeid int64) (err err
 	eid := cfg.EventID
 	iid := cfg.IssueID
 	issue := cfg.GhIssue
+	event := cfg.GhEvent
 	eventID := 281474976710656 + eid
 	now := cfg.CreatedAt
 
@@ -313,8 +314,8 @@ func ArtificialEvent(c *sql.DB, ctx *Ctx, cfg *IssueConfig, eeid int64) (err err
 					"dup_user_login, dupn_assignee_login, is_pull_request) "+
 					"values(%s, %s, %s, %s, %s, %s, %s, "+
 					"%s, %s, %s, %s, %s, %s, %s, "+
-					"0, 'devstats-bot', (select max(id) from gha_repos where name = %s), %s, 'ArtificialEvent', %s, "+
-					"'devstats-bot', %s, %s) ",
+					"%s, %s, (select max(id) from gha_repos where name = %s), %s, %s, %s, "+
+					"%s, %s, %s) ",
 				NValue(1),
 				NValue(2),
 				NValue(3),
@@ -334,6 +335,10 @@ func ArtificialEvent(c *sql.DB, ctx *Ctx, cfg *IssueConfig, eeid int64) (err err
 				NValue(17),
 				NValue(18),
 				NValue(19),
+				NValue(20),
+				NValue(21),
+				NValue(22),
+				NValue(23),
 			),
 			AnyArray{
 				iid,
@@ -350,9 +355,13 @@ func ArtificialEvent(c *sql.DB, ctx *Ctx, cfg *IssueConfig, eeid int64) (err err
 				issue.Title,
 				now,
 				ghActorIDOrNil(issue.User),
+				ghActorIDOrNil(event.Actor),
+				ghActorLoginOrNil(event.Actor, maybeHide),
 				cfg.Repo,
 				cfg.Repo,
+				cfg.EventType,
 				now,
+				ghActorLoginOrNil(issue.User, maybeHide),
 				ghActorLoginOrNil(issue.Assignee, maybeHide),
 				issue.IsPullRequest(),
 			}...,
@@ -364,7 +373,9 @@ func ArtificialEvent(c *sql.DB, ctx *Ctx, cfg *IssueConfig, eeid int64) (err err
 			fmt.Sprintf(
 				"update gha_issues set closed_at = %s, milestone_id = %s, "+
 					"state = %s, user_id = %s, assignee_id = %s, dupn_assignee_login = %s, "+
-					"dup_type = 'ArtificialEvent' where id = %s and event_id = %s",
+					"dup_type = %s, title = %s, locked = %s, dup_actor_id = %s, "+
+					"dup_actor_login = %s, dup_user_login = %s, dupn_assignee_login = %s "+
+					"where id = %s and event_id = %s",
 				NValue(1),
 				NValue(2),
 				NValue(3),
@@ -373,6 +384,13 @@ func ArtificialEvent(c *sql.DB, ctx *Ctx, cfg *IssueConfig, eeid int64) (err err
 				NValue(6),
 				NValue(7),
 				NValue(8),
+				NValue(9),
+				NValue(10),
+				NValue(11),
+				NValue(12),
+				NValue(13),
+				NValue(14),
+				NValue(15),
 			),
 			AnyArray{
 				TimeOrNil(issue.ClosedAt),
@@ -380,6 +398,13 @@ func ArtificialEvent(c *sql.DB, ctx *Ctx, cfg *IssueConfig, eeid int64) (err err
 				issue.State,
 				ghActorIDOrNil(issue.User),
 				ghActorIDOrNil(issue.Assignee),
+				ghActorLoginOrNil(issue.Assignee, maybeHide),
+				cfg.EventType,
+				issue.Title,
+				BoolOrNil(issue.Locked),
+				ghActorIDOrNil(event.Actor),
+				ghActorLoginOrNil(event.Actor, maybeHide),
+				ghActorLoginOrNil(issue.User, maybeHide),
 				ghActorLoginOrNil(issue.Assignee, maybeHide),
 				iid,
 				eeid,
