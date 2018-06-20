@@ -16,27 +16,36 @@ import (
 
 // IssueConfig - holds issue data
 type IssueConfig struct {
-	Repo        string
-	Number      int
-	IssueID     int64
-	Pr          bool
-	MilestoneID *int64
-	Labels      string
-	LabelsMap   map[int64]string
-	GhIssue     *github.Issue
-	CreatedAt   time.Time
-	EventID     int64
-	EventType   string
-	GhEvent     *github.IssueEvent
+	Repo         string
+	Number       int
+	IssueID      int64
+	Pr           bool
+	MilestoneID  *int64
+	Labels       string
+	LabelsMap    map[int64]string
+	GhIssue      *github.Issue
+	CreatedAt    time.Time
+	EventID      int64
+	EventType    string
+	GhEvent      *github.IssueEvent
+	AssigneeID   *int64
+	Assignees    string
+	AssigneesMap map[int64]string
 }
 
 func (ic IssueConfig) String() string {
-	var milestoneID int64
+	var (
+		milestoneID int64
+		assigneeID  int64
+	)
 	if ic.MilestoneID != nil {
 		milestoneID = *ic.MilestoneID
 	}
+	if ic.AssigneeID != nil {
+		assigneeID = *ic.AssigneeID
+	}
 	return fmt.Sprintf(
-		"{Repo: %s, Number: %d, IssueID: %d, EventID: %d, EventType: %s, Pr: %v, MilestoneID: %d, Labels: %s, CreatedAt: %v, LabelsMap: %+v}",
+		"{Repo: %s, Number: %d, IssueID: %d, EventID: %d, EventType: %s, Pr: %v, MilestoneID: %d, AssigneeID: %d, CreatedAt: %s, Labels: %s, LabelsMap: %+v, Assignees: %s, AssigneesMap: %+v}",
 		ic.Repo,
 		ic.Number,
 		ic.IssueID,
@@ -44,9 +53,12 @@ func (ic IssueConfig) String() string {
 		ic.EventType,
 		ic.Pr,
 		milestoneID,
+		assigneeID,
+		ToYMDHMSDate(ic.CreatedAt),
 		ic.Labels,
-		ic.CreatedAt,
 		ic.LabelsMap,
+		ic.Assignees,
+		ic.AssigneesMap,
 	)
 }
 
@@ -102,8 +114,29 @@ func GHClient(ctx *Ctx) (ghCtx context.Context, client *github.Client) {
 		tc := oauth2.NewClient(ghCtx, ts)
 		client = github.NewClient(tc)
 	}
-
 	return
+}
+
+// HandlePossibleError - display error specific message, detect rate limit and abuse
+func HandlePossibleError(err error, cfg *IssueConfig, info string) string {
+	if err != nil {
+		_, rate := err.(*github.RateLimitError)
+		_, abuse := err.(*github.AbuseRateLimitError)
+		if abuse || rate {
+			if rate {
+				Printf("Rate limit (%s) for %v\n", info, cfg)
+				return "rate"
+			}
+			if abuse {
+				Printf("Abuse detected (%s) for %v\n", info, cfg)
+				return Abuse
+			}
+		}
+		//FatalOnError(err)
+		Printf("%s error: %v, non fatal, exiting 0 status\n", os.Args[0], err)
+		os.Exit(0)
+	}
+	return ""
 }
 
 func ghActorIDOrNil(actPtr *github.User) interface{} {
@@ -504,6 +537,41 @@ func ArtificialEvent(c *sql.DB, ctx *Ctx, cfg *IssueConfig, eeid int64) (err err
 		)
 	}
 
+	// Add issue assignees
+	if !newEvent {
+		ExecSQLTxWithErr(
+			tc,
+			ctx,
+			fmt.Sprintf(
+				"delete from gha_issues_assignees where issue_id = %s and event_id = %s",
+				NValue(1),
+				NValue(2),
+			),
+			AnyArray{
+				iid,
+				eeid,
+			}...,
+		)
+	}
+	for assigneeID := range cfg.AssigneesMap {
+		ExecSQLTxWithErr(
+			tc,
+			ctx,
+			fmt.Sprintf(
+				"insert into gha_issues_assignees(issue_id, event_id, assignee_id) "+
+					"values(%s, %s, %s)"+
+					NValue(1),
+				NValue(2),
+				NValue(3),
+			),
+			AnyArray{
+				iid,
+				eventID,
+				assigneeID,
+			}...,
+		)
+	}
+
 	// Final commit
 	FatalOnError(tc.Commit())
 	//FatalOnError(tc.Rollback())
@@ -579,17 +647,23 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 					ghaEventID     int64
 					ghaClosedAt    *time.Time
 					ghaState       string
+					ghaTitle       string
+					ghaLocked      bool
+					ghaAssigneeID  *int64
 				)
 
 				// Process current milestone
 				apiMilestoneID := cfg.MilestoneID
 				apiClosedAt := cfg.GhIssue.ClosedAt
 				apiState := *cfg.GhIssue.State
+				apiTitle := *cfg.GhIssue.Title
+				apiLocked := *cfg.GhIssue.Locked
+				apiAssigneeID := cfg.AssigneeID
 				rowsM := QuerySQLWithErr(
 					c,
 					ctx,
 					fmt.Sprintf(
-						"select milestone_id, event_id, closed_at, state "+
+						"select milestone_id, event_id, closed_at, state, title, locked, assignee_id "+
 							"from gha_issues where id = %s and updated_at = %s "+
 							"order by updated_at desc, event_id desc limit 1",
 						NValue(1),
@@ -601,7 +675,17 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 				defer func() { FatalOnError(rowsM.Close()) }()
 				got := false
 				for rowsM.Next() {
-					FatalOnError(rowsM.Scan(&ghaMilestoneID, &ghaEventID, &ghaClosedAt, &ghaState))
+					FatalOnError(
+						rowsM.Scan(
+							&ghaMilestoneID,
+							&ghaEventID,
+							&ghaClosedAt,
+							&ghaState,
+							&ghaTitle,
+							&ghaLocked,
+							&ghaAssigneeID,
+						),
+					)
 					got = true
 				}
 				FatalOnError(rowsM.Err())
@@ -624,6 +708,33 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 					return
 				}
 
+				// Check state change
+				changedState := false
+				if apiState != ghaState {
+					changedState = true
+					if ctx.Debug > 0 {
+						Printf("Updating issue '%v' state %s -> %s\n", cfg, ghaState, apiState)
+					}
+				}
+
+				// Check title change
+				changedTitle := false
+				if apiTitle != ghaTitle {
+					changedTitle = true
+					if ctx.Debug > 0 {
+						Printf("Updating issue '%v' title %s -> %s\n", cfg, ghaTitle, apiTitle)
+					}
+				}
+
+				// Check locked change
+				changedLocked := false
+				if apiLocked != ghaLocked {
+					changedLocked = true
+					if ctx.Debug > 0 {
+						Printf("Updating issue '%v' locked %s -> %s\n", cfg, ghaLocked, apiLocked)
+					}
+				}
+
 				// Check closed_at change
 				changedClosed := false
 				if (apiClosedAt == nil && ghaClosedAt != nil) || (apiClosedAt != nil && ghaClosedAt == nil) || (apiClosedAt != nil && ghaClosedAt != nil && ToYMDHMSDate(*apiClosedAt) != ToYMDHMSDate(*ghaClosedAt)) {
@@ -641,15 +752,6 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 					}
 				}
 
-				// Check state change
-				changedState := false
-				if apiState != ghaState {
-					changedState = true
-					if ctx.Debug > 0 {
-						Printf("Updating issue '%v' state %s -> %s\n", cfg, ghaState, apiState)
-					}
-				}
-
 				// Check milestone change
 				changedMilestone := false
 				if (apiMilestoneID == nil && ghaMilestoneID != nil) || (apiMilestoneID != nil && ghaMilestoneID == nil) || (apiMilestoneID != nil && ghaMilestoneID != nil && *apiMilestoneID != *ghaMilestoneID) {
@@ -664,6 +766,23 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 							to = fmt.Sprintf("%d", *apiMilestoneID)
 						}
 						Printf("Updating issue '%v' milestone %s -> %s\n", cfg, from, to)
+					}
+				}
+
+				// Check assignee change
+				changedAssignee := false
+				if (apiAssigneeID == nil && ghaAssigneeID != nil) || (apiAssigneeID != nil && ghaAssigneeID == nil) || (apiAssigneeID != nil && ghaAssigneeID != nil && *apiAssigneeID != *ghaAssigneeID) {
+					changedAssignee = true
+					if ctx.Debug > 0 {
+						from := Null
+						if ghaAssigneeID != nil {
+							from = fmt.Sprintf("%d", *ghaAssigneeID)
+						}
+						to := Null
+						if apiAssigneeID != nil {
+							to = fmt.Sprintf("%d", *apiAssigneeID)
+						}
+						Printf("Updating issue '%v' assignee %s -> %s\n", cfg, from, to)
 					}
 				}
 
@@ -691,8 +810,32 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 					changedLabels = true
 				}
 
-				// Do the update if needed: wrong milestone or label set
-				if changedMilestone || changedState || changedClosed || changedLabels {
+				// Process current assignees
+				rowsA := QuerySQLWithErr(
+					c,
+					ctx,
+					fmt.Sprintf(
+						"select coalesce(string_agg(sub.assignee_id::text, ','), '') from "+
+							"(select assignee_id from gha_issues_assignees where event_id = %s "+
+							"order by assignee_id) sub",
+						NValue(1),
+					),
+					ghaEventID,
+				)
+				defer func() { FatalOnError(rowsA.Close()) }()
+				ghaAssignees := ""
+				for rowsA.Next() {
+					FatalOnError(rowsA.Scan(&ghaAssignees))
+				}
+				FatalOnError(rowsA.Err())
+				changedAssignees := false
+				if ctx.Debug > 0 && ghaAssignees != cfg.Assignees {
+					Printf("Updating issue '%v' assignees to '%s', they were: '%s' (event_id %d)\n", cfg, cfg.Assignees, ghaAssignees, ghaEventID)
+					changedAssignees = true
+				}
+
+				// Do the update if needed
+				if changedMilestone || changedState || changedClosed || changedAssignee || changedTitle || changedLocked || changedLabels || changedAssignees {
 					FatalOnError(
 						ArtificialEvent(
 							c,
@@ -734,26 +877,4 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 		"ghapi2db.go: Processed %d issues/PRs (%d updated, %d inserted): %d API points remain, resets in %v\n",
 		checked, updates, inserts, rem, wait,
 	)
-}
-
-// HandlePossibleError - display error specific message, detect rate limit and abuse
-func HandlePossibleError(err error, cfg *IssueConfig, info string) string {
-	if err != nil {
-		_, rate := err.(*github.RateLimitError)
-		_, abuse := err.(*github.AbuseRateLimitError)
-		if abuse || rate {
-			if rate {
-				Printf("Rate limit (%s) for %v\n", info, cfg)
-				return "rate"
-			}
-			if abuse {
-				Printf("Abuse detected (%s) for %v\n", info, cfg)
-				return Abuse
-			}
-		}
-		//FatalOnError(err)
-		Printf("%s error: %v, non fatal, exiting 0 status\n", os.Args[0], err)
-		os.Exit(0)
-	}
-	return ""
 }
