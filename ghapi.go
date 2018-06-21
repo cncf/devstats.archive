@@ -1361,15 +1361,60 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 			FatalOnError(rowsA.Err())
 			changedAssignees := false
 			if ghaAssignees != apiAssignees {
-				if ctx.Debug >= 0 {
+				if ctx.Debug > 0 {
 					Printf("Updating PR '%v' assignees to '%s', they were: '%s' (event_id %d)\n", ic, apiAssignees, ghaAssignees, ghaEventID)
 				}
 				changedAssignees = true
 			}
 
+			// API Requested reviewers
+			RequestedReviewersMap := make(map[int64]string)
+			for _, reviewer := range pr.RequestedReviewers {
+				RequestedReviewersMap[*reviewer.ID] = *reviewer.Login
+			}
+			reviewersAry := Int64Ary{}
+			for reviewer := range RequestedReviewersMap {
+				reviewersAry = append(reviewersAry, reviewer)
+			}
+			sort.Sort(reviewersAry)
+			l = len(reviewersAry)
+			apiRequestedReviewers := ""
+			for i, reviewer := range reviewersAry {
+				if i == l-1 {
+					apiRequestedReviewers += fmt.Sprintf("%d", reviewer)
+				} else {
+					apiRequestedReviewers += fmt.Sprintf("%d,", reviewer)
+				}
+			}
+			// GHA reviewers
+			rowsRV := QuerySQLWithErr(
+				c,
+				ctx,
+				fmt.Sprintf(
+					"select coalesce(string_agg(sub.requested_reviewer_id::text, ','), '') from "+
+						"(select requested_reviewer_id from gha_pull_requests_requested_reviewers where event_id = %s "+
+						"order by requested_reviewer_id) sub",
+					NValue(1),
+				),
+				ghaEventID,
+			)
+			defer func() { FatalOnError(rowsRV.Close()) }()
+			ghaRequestedReviewers := ""
+			for rowsRV.Next() {
+				FatalOnError(rowsRV.Scan(&ghaRequestedReviewers))
+			}
+			FatalOnError(rowsRV.Err())
+			changedRequestedReviewers := false
+			if ghaRequestedReviewers != apiRequestedReviewers {
+				if ctx.Debug >= 0 {
+					Printf("Updating PR '%v' requested reviewers to '%s', they were: '%s' (event_id %d)\n", ic, apiRequestedReviewers, ghaRequestedReviewers, ghaEventID)
+				}
+				changedRequestedReviewers = true
+			}
+
 			uidx := 2
 			// Do the update if needed
-			changedAnything := changedMilestone || changedState || changedClosed || changedAssignee || changedTitle || changedLabels || changedAssignees
+			changedAnything := changedMilestone || changedState || changedClosed || changedAssignee || changedTitle || changedLabels || changedAssignees || changedRequestedReviewers
 			if changedAnything {
 				uidx = 3
 				FatalOnError(
