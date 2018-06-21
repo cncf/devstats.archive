@@ -81,9 +81,9 @@ Prerequisites:
     - This will generate all data, without fetching anything from backups: `INIT=1 ONLY=projectname PG_PASS=... PG_PASS_RO=... PG_PASS_TEAM=... ./devel/deploy_all.sh`
     - If you do not specify `ONLY="project1 project2 ... projectN"` it will deploy all projects defined in `projects.yaml`.
     - Use `SKIPWWW=1` to skip Apache/SSL config (which requires DNS name for a server), the final result will be Grafana via HTTP on port 3xxx on accessible by server IP or name.
-    - Example with skipping GitHub API and custom ARTWORK: `ARTWORK=/data/artwork SKIPWWW=1 GHA2DB_GITHUB_OAUTH=- GHA2DB_GHAPISKIP=1 GHA2DB_AECLEANSKIP=1 IGET=1 GET=1 ONLY=someproj PG_PASS=... ./devel/deploy_all.sh`
+    - Example with skipping GitHub API and custom ARTWORK: `ARTWORK=/data/artwork SKIPWWW=1 GHA2DB_GITHUB_OAUTH=- GHA2DB_GHAPISKIP=1 IGET=1 GET=1 ONLY=someproj PG_PASS=... ./devel/deploy_all.sh`
     - Other possible env variables used for automatic deploy are in the comments section in a first lines of deploy files: `devel/deploy_all.sh devel/deploy_proj.sh devel/create_databases.sh devel/init_database.sh devel/create_grafana.sh devel/create_www.sh all/add_project.sh`.
-    - Example command that worked on a clean Ubuntu 18 without domain name: `EXTERNAL=1 SKIPTEMP=1 ARTWORK=/data/artwork INIT=1 PG_PASS=p PG_PASS_RO=p PG_PASS_TEAM=p ONLY=cncf GET=1 SKIPWWW=1 GHA2DB_GITHUB_OAUTH=- GHA2DB_GHAPISKIP=1 GHA2DB_AECLEANSKIP=1 GHA2DB_PROJECTS_OVERRIDE="+cncf" ./devel/deploy_all.sh`.
+    - Example command that worked on a clean Ubuntu 18 without domain name: `EXTERNAL=1 SKIPTEMP=1 ARTWORK=/data/artwork INIT=1 PG_PASS=p PG_PASS_RO=p PG_PASS_TEAM=p ONLY=cncf GET=1 SKIPWWW=1 GHA2DB_GITHUB_OAUTH=- GHA2DB_GHAPISKIP=1 GHA2DB_PROJECTS_OVERRIDE="+cncf" ./devel/deploy_all.sh`.
     - Assuming you have GitHub OAuth file and artwork is in the default localtion and there is no domain name: `EXTERNAL=1 SKIPTEMP=1 INIT=1 PG_PASS=p PG_PASS_RO=p PG_PASS_TEAM=p ONLY=cncf GET=1 SKIPWWW=1 GHA2DB_PROJECTS_OVERRIDE="+cncf" ./devel/deploy_all.sh`.
     - You can also take a look at `ADDING_NEW_PROJECT.md` file for more info about setting up new projects.
     - Assuming that you deployed cncf project (like in the last example), you should see response using `links 127.0.0.1:3255`. You should albo be able to access your Grafana from outside world via: `http://ip:3255`
