@@ -166,7 +166,6 @@ from (
     and af.dt_to > e.created_at
     and {{period:e.created_at}}
     and (lower(e.dup_actor_login) {{exclude_bots}})
-    and e.type != 'ArtificialEvent'
   group by
     af.company_name
   union select 'Commits' as metric,
@@ -275,7 +274,6 @@ from (
   where
     {{period:e.created_at}}
     and (lower(e.dup_actor_login) {{exclude_bots}})
-    and e.type != 'ArtificialEvent'
   ) sub
 where
   (sub.metric = 'Commenters' and sub.value >= 3)

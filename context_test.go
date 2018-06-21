@@ -44,7 +44,6 @@ func copyContext(in *lib.Ctx) *lib.Ctx {
 		SkipGHAPI:           in.SkipGHAPI,
 		AllowBrokenJSON:     in.AllowBrokenJSON,
 		WebsiteData:         in.WebsiteData,
-		SkipArtificailClean: in.SkipArtificailClean,
 		SkipGetRepos:        in.SkipGetRepos,
 		ResetTSDB:           in.ResetTSDB,
 		ResetRanges:         in.ResetRanges,
@@ -89,7 +88,7 @@ func copyContext(in *lib.Ctx) *lib.Ctx {
 		OutputDB:            in.OutputDB,
 		TmOffset:            in.TmOffset,
 		RecentRange:         in.RecentRange,
-		OnlyIssues:          in.OnlyIssues,
+		RecentReposRange:    in.RecentReposRange,
 		OnlyEvents:          in.OnlyEvents,
 		CSVFile:             in.CSVFile,
 		ComputeAll:          in.ComputeAll,
@@ -209,8 +208,8 @@ func TestInit(t *testing.T) {
 		Debug:               0,
 		CmdDebug:            0,
 		MinGHAPIPoints:      1,
-		MaxGHAPIWaitSeconds: 5,
-		MaxGHAPIRetry:       3,
+		MaxGHAPIWaitSeconds: 10,
+		MaxGHAPIRetry:       6,
 		JSONOut:             false,
 		DBOut:               true,
 		ST:                  false,
@@ -235,7 +234,6 @@ func TestInit(t *testing.T) {
 		SkipGHAPI:           false,
 		AllowBrokenJSON:     false,
 		WebsiteData:         false,
-		SkipArtificailClean: false,
 		SkipGetRepos:        false,
 		ResetTSDB:           false,
 		ResetRanges:         false,
@@ -280,7 +278,7 @@ func TestInit(t *testing.T) {
 		OutputDB:            "",
 		TmOffset:            0,
 		RecentRange:         "2 hours",
-		OnlyIssues:          []int64{},
+		RecentReposRange:    "1 day",
 		OnlyEvents:          []int64{},
 		CSVFile:             "",
 		ComputeAll:          false,
@@ -372,7 +370,7 @@ func TestInit(t *testing.T) {
 			dynamicSetFields(
 				t,
 				copyContext(&defaultContext),
-				map[string]interface{}{"MaxGHAPIWaitSeconds": 5},
+				map[string]interface{}{"MaxGHAPIWaitSeconds": 10},
 			),
 		},
 		{
@@ -390,7 +388,7 @@ func TestInit(t *testing.T) {
 			dynamicSetFields(
 				t,
 				copyContext(&defaultContext),
-				map[string]interface{}{"MaxGHAPIRetry": 3},
+				map[string]interface{}{"MaxGHAPIRetry": 6},
 			),
 		},
 		{
@@ -404,11 +402,11 @@ func TestInit(t *testing.T) {
 		},
 		{
 			"Setting GitHub API Retry 5",
-			map[string]string{"GHA2DB_MAX_GHAPI_RETRY": "5"},
+			map[string]string{"GHA2DB_MAX_GHAPI_RETRY": "15"},
 			dynamicSetFields(
 				t,
 				copyContext(&defaultContext),
-				map[string]interface{}{"MaxGHAPIRetry": 5},
+				map[string]interface{}{"MaxGHAPIRetry": 15},
 			),
 		},
 		{
@@ -540,15 +538,13 @@ func TestInit(t *testing.T) {
 			map[string]string{
 				"GHA2DB_GETREPOSSKIP": "1",
 				"GHA2DB_GHAPISKIP":    "1",
-				"GHA2DB_AECLEANSKIP":  "1",
 			},
 			dynamicSetFields(
 				t,
 				copyContext(&defaultContext),
 				map[string]interface{}{
-					"SkipGHAPI":           true,
-					"SkipGetRepos":        true,
-					"SkipArtificailClean": true,
+					"SkipGHAPI":    true,
+					"SkipGetRepos": true,
 				},
 			),
 		},
@@ -906,13 +902,15 @@ func TestInit(t *testing.T) {
 		{
 			"Setting recent range",
 			map[string]string{
-				"GHA2DB_RECENT_RANGE": "1 year",
+				"GHA2DB_RECENT_RANGE":       "6 hours",
+				"GHA2DB_RECENT_REPOS_RANGE": "1 week",
 			},
 			dynamicSetFields(
 				t,
 				copyContext(&defaultContext),
 				map[string]interface{}{
-					"RecentRange": "1 year",
+					"RecentRange":      "6 hours",
+					"RecentReposRange": "1 week",
 				},
 			),
 		},
@@ -1146,26 +1144,6 @@ func TestInit(t *testing.T) {
 				map[string]interface{}{
 					"InputDBs": []string{"db1", "db2", "db3"},
 					"OutputDB": "db4",
-				},
-			),
-		},
-		{
-			"Setting debug issues mode on ghapi2db",
-			map[string]string{
-				"GHA2DB_ONLY_ISSUES": "1,2000,3000000,4000000000,5000000000000,6000000000000000",
-			},
-			dynamicSetFields(
-				t,
-				copyContext(&defaultContext),
-				map[string]interface{}{
-					"OnlyIssues": []int64{
-						1,
-						2000,
-						3000000,
-						4000000000,
-						5000000000000,
-						6000000000000000,
-					},
 				},
 			),
 		},

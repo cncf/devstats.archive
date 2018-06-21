@@ -77,13 +77,12 @@ type Ctx struct {
 	TmOffset            int             // From GHA2DB_TMOFFSET, gha2db_sync tool - uses time offset to decide when to calculate various metrics, default offset is 0 which means UTC, good offset for USA is -6, and for Poland is 1 or 2
 	DefaultHostname     string          // "devstats.cncf.io"
 	RecentRange         string          // From GHA2DB_RECENT_RANGE, ghapi2db tool, default '2 hours'. This is a recent period to check open issues/PR to fix their labels and milestones.
+	RecentReposRange    string          // From GHA2DB_RECENT_REPOS_RANGE, ghapi2db tool, default '1 day'. This is a recent period to check modified repositories.
 	MinGHAPIPoints      int             // From GHA2DB_MIN_GHAPI_POINTS, ghapi2db tool, minimum GitHub API points, before waiting for reset.
 	MaxGHAPIWaitSeconds int             // From GHA2DB_MAX_GHAPI_WAIT, ghapi2db tool, maximum wait time for GitHub API points reset (in seconds).
 	MaxGHAPIRetry       int             // From GHA2DB_MAX_GHAPI_RETRY, ghapi2db tool, maximum wait retries
 	SkipGHAPI           bool            // From GHA2DB_GHAPISKIP, ghapi2db tool, if set then tool is not creating artificial events using GitHub API
-	SkipArtificailClean bool            // From GHA2DB_AECLEANSKIP, ghapi2db tool, if set then tool is not attempting to clean unneeded artificial events
 	SkipGetRepos        bool            // From GHA2DB_GETREPOSSKIP, get_repos tool, if set then tool does nothing
-	OnlyIssues          []int64         // From GHA2DB_ONLY_ISSUES, ghapi2db tool, process a user provided list of issues "issue_id1,issue_id2,...,issue_idN", default "". This is for GH API debugging.
 	OnlyEvents          []int64         // From GHA2DB_ONLY_EVENTS, ghapi2db tool, process a user provided list of events "event_id1,event_id2,...,event_idN", default "". This is for artificial events cleanup debugging.
 	CSVFile             string          // From GHA2DB_CSVOUT, runq tool, if set, saves result in this file
 	ComputeAll          bool            // From GHA2DB_COMPUTE_ALL, all tools, if set then no period decisions are taken based on time, but all possible periods are recalculated
@@ -115,7 +114,7 @@ func (ctx *Ctx) Init() {
 			ctx.MinGHAPIPoints = pts
 		}
 	}
-	ctx.MaxGHAPIWaitSeconds = 5
+	ctx.MaxGHAPIWaitSeconds = 10
 	if os.Getenv("GHA2DB_MAX_GHAPI_WAIT") != "" {
 		secs, err := strconv.Atoi(os.Getenv("GHA2DB_MAX_GHAPI_WAIT"))
 		FatalNoLog(err)
@@ -123,7 +122,7 @@ func (ctx *Ctx) Init() {
 			ctx.MaxGHAPIWaitSeconds = secs
 		}
 	}
-	ctx.MaxGHAPIRetry = 3
+	ctx.MaxGHAPIRetry = 6
 	if os.Getenv("GHA2DB_MAX_GHAPI_RETRY") != "" {
 		tr, err := strconv.Atoi(os.Getenv("GHA2DB_MAX_GHAPI_RETRY"))
 		FatalNoLog(err)
@@ -227,7 +226,6 @@ func (ctx *Ctx) Init() {
 	// Skip ghapi2db and/or get_repos
 	ctx.SkipGetRepos = os.Getenv("GHA2DB_GETREPOSSKIP") != ""
 	ctx.SkipGHAPI = os.Getenv("GHA2DB_GHAPISKIP") != ""
-	ctx.SkipArtificailClean = os.Getenv("GHA2DB_AECLEANSKIP") != ""
 
 	// Last TS series
 	ctx.LastSeries = os.Getenv("GHA2DB_LASTSERIES")
@@ -470,25 +468,18 @@ func (ctx *Ctx) Init() {
 	}
 	ctx.OutputDB = os.Getenv("GHA2DB_OUTPUT_DB")
 
-	// RecentRange - ghapi2db will check issues from now() - this range to now()
+	// RecentRange - ghapi2db will check issues/PRs from now() - this range to now()
 	ctx.RecentRange = os.Getenv("GHA2DB_RECENT_RANGE")
 	if ctx.RecentRange == "" {
 		ctx.RecentRange = "2 hours"
 	}
+	ctx.RecentReposRange = os.Getenv("GHA2DB_RECENT_REPOS_RANGE")
+	if ctx.RecentReposRange == "" {
+		ctx.RecentReposRange = "1 day"
+	}
 
 	ctx.CSVFile = os.Getenv("GHA2DB_CSVOUT")
 
-	issues := os.Getenv("GHA2DB_ONLY_ISSUES")
-	if issues == "" {
-		ctx.OnlyIssues = []int64{}
-	} else {
-		issuesArr := strings.Split(issues, ",")
-		for _, issue := range issuesArr {
-			iIssue, err := strconv.ParseInt(issue, 10, 64)
-			FatalNoLog(err)
-			ctx.OnlyIssues = append(ctx.OnlyIssues, iIssue)
-		}
-	}
 	events := os.Getenv("GHA2DB_ONLY_EVENTS")
 	if events == "" {
 		ctx.OnlyEvents = []int64{}

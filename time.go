@@ -1,12 +1,34 @@
 package devstats
 
 import (
+	"database/sql"
 	"fmt"
 	"os"
 	"strconv"
 	"strings"
 	"time"
 )
+
+// GetDateAgo returns date: 'from' - 'n hours/days' etc.
+func GetDateAgo(con *sql.DB, ctx *Ctx, from time.Time, ago string) (tm time.Time) {
+	rows := QuerySQLWithErr(
+		con,
+		ctx,
+		fmt.Sprintf(
+			"select %s::timestamp - %s::interval",
+			NValue(1),
+			NValue(2),
+		),
+		ToYMDHMSDate(from),
+		ago,
+	)
+	defer func() { FatalOnError(rows.Close()) }()
+	for rows.Next() {
+		FatalOnError(rows.Scan(&tm))
+	}
+	FatalOnError(rows.Err())
+	return
+}
 
 // ProgressInfo display info about progress: i/n if current time >= last + period
 // If displayed info, update last

@@ -86,7 +86,9 @@ func ProcessTag(con *sql.DB, ctx *Ctx, tg *Tag, replaces [][]string) {
 	for i := range columns {
 		iVals[i] = new([]byte)
 	}
+	got := false
 	for rows.Next() {
+		got = true
 		FatalOnError(rows.Scan(iVals...))
 		sVals := []string{}
 		for _, iVal := range iVals {
@@ -122,6 +124,9 @@ func ProcessTag(con *sql.DB, ctx *Ctx, tg *Tag, replaces [][]string) {
 		tm = tm.Add(time.Hour)
 	}
 	FatalOnError(rows.Err())
+	if !got {
+		Printf("Warning: Tag '%+v' have no values\n", &tg)
+	}
 
 	// Write the batch
 	if !ctx.SkipTSDB {
