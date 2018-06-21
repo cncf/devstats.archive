@@ -1,9 +1,26 @@
 #!/bin/bash
-cp gha_events.csv /tmp/ || exit 1
-cp gha_payloads.csv /tmp/ || exit 2
-cp gha_issues.csv /tmp/ || exit 3
-cp gha_issues_labels.csv /tmp/ || exit 4
-sudo -u postgres psql gha -c "copy gha_events from '/tmp/gha_events.csv';" || exit 5
-sudo -u postgres psql gha -c "copy gha_payloads from '/tmp/gha_payloads.csv';" || exit 6
-sudo -u postgres psql gha -c "copy gha_issues from '/tmp/gha_issues.csv';" || exit 7
-sudo -u postgres psql gha -c "copy gha_issues_labels from '/tmp/gha_issues_labels.csv';" || exit 8
+if [ -z "$1" ]
+then
+  echo "$0: you need to provide database name as an argument"
+  exit 1
+fi
+db=$1
+cd /tmp || exit 1
+function finish {
+  cd /tmp
+  rm $db.*
+}
+trap finish EXIT
+rm -f $db.tar* || exit 2
+cp /var/www/html/$db.tar.xz . || exit 3
+xz -d $db.tar.xz || exit 4
+tar xf $db.tar || exit 5
+sudo -u postgres psql $db -tAc "copy gha_events from '/tmp/$db.events.tsv'" || exit 6
+sudo -u postgres psql $db -tAc "copy gha_payloads from '/tmp/$db.payloads.tsv'" || exit 7
+sudo -u postgres psql $db -tAc "copy gha_issues from '/tmp/$db.issues.tsv'" || exit 8
+sudo -u postgres psql $db -tAc "copy gha_pull_requests from '/tmp/$db.prs.tsv'" || exit 9
+sudo -u postgres psql $db -tAc "copy gha_milestones from '/tmp/$db.milestones.tsv'" || exit 10
+sudo -u postgres psql $db -tAc "copy gha_issues_labels from '/tmp/$db.labels.tsv'" || exit 11
+sudo -u postgres psql $db -tAc "copy gha_issues_assignees from '/tmp/$db.issue_assignees.tsv'" || exit 12
+sudo -u postgres psql $db -tAc "copy gha_pull_requests_assignees from '/tmp/$db.pr_assignees.tsv'" || exit 13
+sudo -u postgres psql $db -tAc "copy gha_pull_requests_requested_reviewers from '/tmp/$db.pr_reviewers.tsv'" || exit 14
