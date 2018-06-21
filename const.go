@@ -62,3 +62,6 @@ const Kubernetes string = "kubernetes"
 
 // Abuse - common constant string
 const Abuse string = "abuse"
+
+// NotFound - common constant string
+const NotFound string = "not_found"

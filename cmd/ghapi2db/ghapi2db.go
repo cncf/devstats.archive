@@ -59,10 +59,12 @@ func syncEvents(ctx *lib.Ctx) {
 	defer func() { lib.FatalOnError(c.Close()) }()
 
 	// Get list of repositories to process
-	repos := lib.GetRecentRepos(c, ctx)
+	recentReposDt := lib.GetDateAgo(c, ctx, lib.HourStart(time.Now()), ctx.RecentReposRange)
+	repos := lib.GetRecentRepos(c, ctx, recentReposDt)
 	if ctx.Debug > 0 {
-		lib.Printf("Repos to process: %v\n", repos)
+		lib.Printf("Repos to process from %v: %v\n", recentReposDt, repos)
 	}
+	recentDt := lib.GetDateAgo(c, ctx, lib.HourStart(time.Now()), ctx.RecentRange)
 
 	// Specify list of events to process
 	eventTypes := make(map[string]struct{})
@@ -98,7 +100,6 @@ func syncEvents(ctx *lib.Ctx) {
 	lastTime := dtStart
 	checked := 0
 	nRepos := len(repos)
-	recentDt := lib.GetDateAgo(c, ctx, lib.HourStart(time.Now()), ctx.RecentRange)
 	lib.Printf("ghapi2db.go: Processing %d repos - GHAPI part\n", nRepos)
 
 	//opt := &github.ListOptions{}
@@ -170,6 +171,10 @@ func syncEvents(ctx *lib.Ctx) {
 							}
 							thrMutex.Unlock()
 							time.Sleep(wait)
+						}
+						if res == lib.NotFound {
+							ch <- false
+							return
 						}
 						continue
 					} else {

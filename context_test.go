@@ -88,6 +88,7 @@ func copyContext(in *lib.Ctx) *lib.Ctx {
 		OutputDB:            in.OutputDB,
 		TmOffset:            in.TmOffset,
 		RecentRange:         in.RecentRange,
+		RecentReposRange:    in.RecentReposRange,
 		OnlyEvents:          in.OnlyEvents,
 		CSVFile:             in.CSVFile,
 		ComputeAll:          in.ComputeAll,
@@ -277,6 +278,7 @@ func TestInit(t *testing.T) {
 		OutputDB:            "",
 		TmOffset:            0,
 		RecentRange:         "2 hours",
+		RecentReposRange:    "1 day",
 		OnlyEvents:          []int64{},
 		CSVFile:             "",
 		ComputeAll:          false,
@@ -900,13 +902,15 @@ func TestInit(t *testing.T) {
 		{
 			"Setting recent range",
 			map[string]string{
-				"GHA2DB_RECENT_RANGE": "1 year",
+				"GHA2DB_RECENT_RANGE":       "6 hours",
+				"GHA2DB_RECENT_REPOS_RANGE": "1 week",
 			},
 			dynamicSetFields(
 				t,
 				copyContext(&defaultContext),
 				map[string]interface{}{
-					"RecentRange": "1 year",
+					"RecentRange":      "6 hours",
+					"RecentReposRange": "1 week",
 				},
 			),
 		},
