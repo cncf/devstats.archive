@@ -1055,7 +1055,7 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 				}
 
 				if ctx.Debug > 0 {
-					Printf("Event for the same date (%v) exist, added artificial: %v: '%v'\n", cfg.CreatedAt, changedAnything, cfg)
+					Printf("Event for the same date (%v) exist (event_id: %d), added artificial: %v: '%v'\n", cfg.CreatedAt, ghaEventID, changedAnything, cfg)
 				}
 				updatesMutex.Lock()
 				updates[uidx]++
@@ -1096,7 +1096,8 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 	dtStart = time.Now()
 	lastTime = dtStart
 	checked = 0
-	updates = []int{0, 0, 0, 0}
+	updates = []int{0, 0, 0, 0, 0}
+	// updates[4] - collisions
 	var prsMutex = &sync.RWMutex{}
 	for iid := range prs {
 		go func(ch chan bool, iid int64) {
@@ -1132,12 +1133,48 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 			if pr.Assignee != nil {
 				apiAssigneeID = pr.Assignee.ID
 			}
+
+			// Handle eventual collision
+			eventID := 281474976710656 + ic.EventID
+			rowsE := QuerySQLWithErr(
+				c,
+				ctx,
+				fmt.Sprintf(
+					"select 1 from gha_pull_requests where id = %s and event_id = %s and updated_at != %s",
+					NValue(1),
+					NValue(2),
+					NValue(3),
+				),
+				prid,
+				eventID,
+				updatedAt,
+			)
+			defer func() { FatalOnError(rowsE.Close()) }()
+			collision := false
+			dummy := 0
+			for rowsE.Next() {
+				FatalOnError(rowsE.Scan(&dummy))
+				collision = true
+			}
+			FatalOnError(rowsE.Err())
+			if collision {
+				if ctx.Debug > 0 {
+					Printf("Exact PR event already exists, skipping: '%v', PR ID: %d\n", updatedAt, ic, prid)
+				}
+				updatesMutex.Lock()
+				updates[4]++
+				updatesMutex.Unlock()
+				ch <- false
+				return
+			}
+
+			// Get event for this date
 			rowsM := QuerySQLWithErr(
 				c,
 				ctx,
 				fmt.Sprintf(
 					"select milestone_id, event_id, closed_at, state, title, assignee_id "+
-						"from gha_pull_requests where id = %s and updated_at <= %s "+
+						"from gha_pull_requests where id = %s and updated_at = %s "+
 						"order by updated_at desc, event_id desc limit 1",
 					NValue(1),
 					NValue(2),
@@ -1322,7 +1359,6 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 				FatalOnError(rowsA.Scan(&ghaAssignees))
 			}
 			FatalOnError(rowsA.Err())
-			fmt.Printf("api '%s' <=> gha '%s'\n", apiAssignees, ghaAssignees)
 			changedAssignees := false
 			if ghaAssignees != apiAssignees {
 				if ctx.Debug >= 0 {
@@ -1347,7 +1383,7 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 			}
 
 			if ctx.Debug >= 0 {
-				Printf("PR Event for the same date (%v) exist, added artificial: %v: '%v'\n", updatedAt, changedAnything, ic)
+				Printf("PR Event for the same date (%v) exist (event_id: %d), added artificial: %v: '%v'\n", updatedAt, ghaEventID, changedAnything, ic)
 			}
 			updatesMutex.Lock()
 			updates[uidx]++
@@ -1376,7 +1412,7 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 	// Get RateLimits info
 	_, rem, wait = GetRateLimits(gctx, gc, true)
 	Printf(
-		"ghapi2db.go: Processed %d PRs (%d new for date, %d artificial exists, date exists: %d not needed, %d added): %d API points remain, resets in %v\n",
-		checked, updates[0], updates[1], updates[2], updates[3], rem, wait,
+		"ghapi2db.go: Processed %d PRs (%d new for date, %d artificial exists, date exists: %d not needed, %d added, collisions: %d): %d API points remain, resets in %v\n",
+		checked, updates[0], updates[1], updates[2], updates[3], updates[4], rem, wait,
 	)
 }
