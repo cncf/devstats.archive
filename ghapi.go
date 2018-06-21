@@ -1118,9 +1118,13 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 				ghaClosedAt    *time.Time
 				ghaState       string
 				ghaTitle       string
+				ghaMergedByID  *int64
+				ghaMergedAt    *time.Time
+				ghaMerged      *bool
 				ghaAssigneeID  *int64
 				apiMilestoneID *int64
 				apiAssigneeID  *int64
+				apiMergedByID  *int64
 			)
 
 			// Process current milestone
@@ -1133,6 +1137,11 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 			if pr.Assignee != nil {
 				apiAssigneeID = pr.Assignee.ID
 			}
+			if pr.MergedBy != nil {
+				apiMergedByID = pr.MergedBy.ID
+			}
+			apiMergedAt := pr.MergedAt
+			apiMerged := pr.Merged
 
 			// Handle eventual collision
 			eventID := 281474976710656 + ic.EventID
@@ -1173,7 +1182,8 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 				c,
 				ctx,
 				fmt.Sprintf(
-					"select milestone_id, event_id, closed_at, state, title, assignee_id "+
+					"select milestone_id, event_id, closed_at, state, title, assignee_id, "+
+						"merged_by_id, merged_at, merged "+
 						"from gha_pull_requests where id = %s and updated_at = %s "+
 						"order by updated_at desc, event_id desc limit 1",
 					NValue(1),
@@ -1193,6 +1203,9 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 						&ghaState,
 						&ghaTitle,
 						&ghaAssigneeID,
+						&ghaMergedByID,
+						&ghaMergedAt,
+						&ghaMerged,
 					),
 				)
 				got = true
@@ -1245,6 +1258,23 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 				}
 			}
 
+			// Check merged change
+			changedMerged := false
+			if (apiMerged == nil && ghaMerged != nil) || (apiMerged != nil && ghaMerged == nil) || (apiMerged != nil && ghaMerged != nil && *apiMerged != *ghaMerged) {
+				changedMerged = true
+				if ctx.Debug > 0 {
+					from := Null
+					if ghaMerged != nil {
+						from = fmt.Sprintf("%v", *ghaMerged)
+					}
+					to := Null
+					if apiMerged != nil {
+						to = fmt.Sprintf("%v", *apiMerged)
+					}
+					Printf("Updating PR '%v' merged %s -> %s\n", ic, from, to)
+				}
+			}
+
 			// Check closed_at change
 			changedClosed := false
 			if (apiClosedAt == nil && ghaClosedAt != nil) || (apiClosedAt != nil && ghaClosedAt == nil) || (apiClosedAt != nil && ghaClosedAt != nil && ToYMDHMSDate(*apiClosedAt) != ToYMDHMSDate(*ghaClosedAt)) {
@@ -1259,6 +1289,23 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 						to = fmt.Sprintf("%v", ToYMDHMSDate(*apiClosedAt))
 					}
 					Printf("Updating PR '%v' closed_at %s -> %s\n", ic, from, to)
+				}
+			}
+
+			// Check merged_at change
+			changedMergedAt := false
+			if (apiMergedAt == nil && ghaMergedAt != nil) || (apiMergedAt != nil && ghaMergedAt == nil) || (apiMergedAt != nil && ghaMergedAt != nil && ToYMDHMSDate(*apiMergedAt) != ToYMDHMSDate(*ghaMergedAt)) {
+				changedMergedAt = true
+				if ctx.Debug > 0 {
+					from := Null
+					if ghaMergedAt != nil {
+						from = fmt.Sprintf("%v", ToYMDHMSDate(*ghaMergedAt))
+					}
+					to := Null
+					if apiMergedAt != nil {
+						to = fmt.Sprintf("%v", ToYMDHMSDate(*apiMergedAt))
+					}
+					Printf("Updating PR '%v' merged_at %s -> %s\n", ic, from, to)
 				}
 			}
 
@@ -1293,6 +1340,23 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 						to = fmt.Sprintf("%d", *apiAssigneeID)
 					}
 					Printf("Updating PR '%v' assignee %s -> %s\n", ic, from, to)
+				}
+			}
+
+			// Check merged by change
+			changedMergedBy := false
+			if (apiMergedByID == nil && ghaMergedByID != nil) || (apiMergedByID != nil && ghaMergedByID == nil) || (apiMergedByID != nil && ghaMergedByID != nil && *apiMergedByID != *ghaMergedByID) {
+				changedMergedBy = true
+				if ctx.Debug > 0 {
+					from := Null
+					if ghaMergedByID != nil {
+						from = fmt.Sprintf("%d", *ghaMergedByID)
+					}
+					to := Null
+					if apiMergedByID != nil {
+						to = fmt.Sprintf("%d", *apiMergedByID)
+					}
+					Printf("Updating PR '%v' merged by %s -> %s\n", ic, from, to)
 				}
 			}
 
@@ -1414,7 +1478,7 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 
 			uidx := 2
 			// Do the update if needed
-			changedAnything := changedMilestone || changedState || changedClosed || changedAssignee || changedTitle || changedLabels || changedAssignees || changedRequestedReviewers
+			changedAnything := changedMilestone || changedState || changedClosed || changedMerged || changedMergedAt || changedMergedBy || changedAssignee || changedTitle || changedLabels || changedAssignees || changedRequestedReviewers
 			if changedAnything {
 				uidx = 3
 				FatalOnError(
