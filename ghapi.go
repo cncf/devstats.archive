@@ -635,20 +635,22 @@ func ArtificialEvent(c *sql.DB, ctx *Ctx, cfg *IssueConfig) (err error) {
 	ExecSQLTxWithErr(
 		tc,
 		ctx,
-		fmt.Sprintf(
-			"insert into gha_events("+
-				"id, type, actor_id, repo_id, public, created_at, "+
-				"dup_actor_login, dup_repo_name, org_id, forkee_id) "+
-				"values(%s, %s, %s, (select max(id) from gha_repos where name = %s), true, %s, "+
-				"%s, %s, (select max(org_id) from gha_repos where name = %s), null)",
-			NValue(1),
-			NValue(2),
-			NValue(3),
-			NValue(4),
-			NValue(5),
-			NValue(6),
-			NValue(7),
-			NValue(8),
+		InsertIgnore(
+			fmt.Sprintf(
+				"into gha_events("+
+					"id, type, actor_id, repo_id, public, created_at, "+
+					"dup_actor_login, dup_repo_name, org_id, forkee_id) "+
+					"values(%s, %s, %s, (select max(id) from gha_repos where name = %s), true, %s, "+
+					"%s, %s, (select max(org_id) from gha_repos where name = %s), null)",
+				NValue(1),
+				NValue(2),
+				NValue(3),
+				NValue(4),
+				NValue(5),
+				NValue(6),
+				NValue(7),
+				NValue(8),
+			),
 		),
 		AnyArray{
 			eventID,
@@ -666,26 +668,28 @@ func ArtificialEvent(c *sql.DB, ctx *Ctx, cfg *IssueConfig) (err error) {
 	ExecSQLTxWithErr(
 		tc,
 		ctx,
-		fmt.Sprintf(
-			"insert into gha_payloads("+
-				"event_id, push_id, size, ref, head, befor, action, "+
-				"issue_id, pull_request_id, comment_id, ref_type, master_branch, commit, "+
-				"description, number, forkee_id, release_id, member_id, "+
-				"dup_actor_id, dup_actor_login, dup_repo_id, dup_repo_name, dup_type, dup_created_at) "+
-				"values(%s, null, null, null, null, null, %s, "+
-				"%s, null, null, null, null, null, "+
-				"null, %s, null, null, null, "+
-				"%s, %s, (select max(id) from gha_repos where name = %s), %s, %s, %s)",
-			NValue(1),
-			NValue(2),
-			NValue(3),
-			NValue(4),
-			NValue(5),
-			NValue(6),
-			NValue(7),
-			NValue(8),
-			NValue(9),
-			NValue(10),
+		InsertIgnore(
+			fmt.Sprintf(
+				"into gha_payloads("+
+					"event_id, push_id, size, ref, head, befor, action, "+
+					"issue_id, pull_request_id, comment_id, ref_type, master_branch, commit, "+
+					"description, number, forkee_id, release_id, member_id, "+
+					"dup_actor_id, dup_actor_login, dup_repo_id, dup_repo_name, dup_type, dup_created_at) "+
+					"values(%s, null, null, null, null, null, %s, "+
+					"%s, null, null, null, null, null, "+
+					"null, %s, null, null, null, "+
+					"%s, %s, (select max(id) from gha_repos where name = %s), %s, %s, %s)",
+				NValue(1),
+				NValue(2),
+				NValue(3),
+				NValue(4),
+				NValue(5),
+				NValue(6),
+				NValue(7),
+				NValue(8),
+				NValue(9),
+				NValue(10),
+			),
 		),
 		AnyArray{
 			eventID,
@@ -1470,7 +1474,7 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 			FatalOnError(rowsRV.Err())
 			changedRequestedReviewers := false
 			if ghaRequestedReviewers != apiRequestedReviewers {
-				if ctx.Debug >= 0 {
+				if ctx.Debug > 0 {
 					Printf("Updating PR '%v' requested reviewers to '%s', they were: '%s' (event_id %d)\n", ic, apiRequestedReviewers, ghaRequestedReviewers, ghaEventID)
 				}
 				changedRequestedReviewers = true
@@ -1491,7 +1495,7 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 				)
 			}
 
-			if ctx.Debug >= 0 {
+			if ctx.Debug > 0 {
 				Printf("PR Event for the same date (%v) exist (event_id: %d), added artificial: %v: '%v'\n", updatedAt, ghaEventID, changedAnything, ic)
 			}
 			updatesMutex.Lock()
