@@ -268,6 +268,9 @@ func ArtificialPREvent(c *sql.DB, ctx *Ctx, cfg *IssueConfig, pr *github.PullReq
 	eventID := 281474976710656 + cfg.EventID
 	eType := cfg.EventType
 	eCreatedAt := cfg.CreatedAt
+	event := cfg.GhEvent
+	issue := cfg.GhIssue
+	iid := *issue.ID
 	actor := cfg.GhEvent.Actor
 
 	// Start transaction
@@ -389,6 +392,95 @@ func ArtificialPREvent(c *sql.DB, ctx *Ctx, cfg *IssueConfig, pr *github.PullReq
 			ghActorLoginOrNil(pr.Assignee, maybeHide),
 			ghActorLoginOrNil(pr.MergedBy, maybeHide),
 		}...,
+	)
+
+	// Create artificial 'ArtificialEvent' event
+	ExecSQLTxWithErr(
+		tc,
+		ctx,
+		InsertIgnore(
+			fmt.Sprintf(
+				"into gha_events("+
+					"id, type, actor_id, repo_id, public, created_at, "+
+					"dup_actor_login, dup_repo_name, org_id, forkee_id) "+
+					"values(%s, %s, %s, (select max(id) from gha_repos where name = %s), true, %s, "+
+					"%s, %s, (select max(org_id) from gha_repos where name = %s), null)",
+				NValue(1),
+				NValue(2),
+				NValue(3),
+				NValue(4),
+				NValue(5),
+				NValue(6),
+				NValue(7),
+				NValue(8),
+			),
+		),
+		AnyArray{
+			eventID,
+			cfg.EventType,
+			ghActorIDOrNil(event.Actor),
+			cfg.Repo,
+			eCreatedAt,
+			ghActorLoginOrNil(event.Actor, maybeHide),
+			cfg.Repo,
+			cfg.Repo,
+		}...,
+	)
+
+	// Create artificial event's payload
+	ExecSQLTxWithErr(
+		tc,
+		ctx,
+		InsertIgnore(
+			fmt.Sprintf(
+				"into gha_payloads("+
+					"event_id, push_id, size, ref, head, befor, action, "+
+					"issue_id, pull_request_id, comment_id, ref_type, master_branch, commit, "+
+					"description, number, forkee_id, release_id, member_id, "+
+					"dup_actor_id, dup_actor_login, dup_repo_id, dup_repo_name, dup_type, dup_created_at) "+
+					"values(%s, null, null, null, null, null, %s, "+
+					"%s, %s, null, null, null, null, "+
+					"null, %s, null, null, null, "+
+					"%s, %s, (select max(id) from gha_repos where name = %s), %s, %s, %s)",
+				NValue(1),
+				NValue(2),
+				NValue(3),
+				NValue(4),
+				NValue(5),
+				NValue(6),
+				NValue(7),
+				NValue(8),
+				NValue(9),
+				NValue(10),
+				NValue(11),
+			),
+		),
+		AnyArray{
+			eventID,
+			cfg.EventType,
+			iid,
+			prid,
+			issue.Number,
+			ghActorIDOrNil(event.Actor),
+			ghActorLoginOrNil(event.Actor, maybeHide),
+			cfg.Repo,
+			cfg.Repo,
+			cfg.EventType,
+			eCreatedAt,
+		}...,
+	)
+
+	// If such payload already existed, we need to set PR ID on it
+	ExecSQLTxWithErr(
+		tc,
+		ctx,
+		fmt.Sprintf(
+			"update gha_payloads set pull_request_id = %s where issue_id = %s and event_id = %s",
+			NValue(1),
+			NValue(2),
+			NValue(3),
+		),
+		AnyArray{prid, iid, eventID}...,
 	)
 
 	// Arrays: actors: assignees, requested_reviewers
@@ -792,7 +884,7 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 				FatalOnError(rowsM.Err())
 				if !got {
 					if ctx.Debug > 0 {
-						Printf("Adding missing event '%v'\n", cfg)
+						Printf("Adding missing (%v) event '%v'\n", cfg.CreatedAt, cfg)
 					}
 					FatalOnError(
 						ArtificialEvent(
@@ -809,7 +901,7 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 				}
 				if ghaEventID > 281474976710656 {
 					if ctx.Debug > 0 {
-						Printf("Artificial event already exists, skipping: '%v'\n", cfg)
+						Printf("Artificial event (%v) already exists, skipping: '%v'\n", cfg.CreatedAt, cfg)
 					}
 					updatesMutex.Lock()
 					updates[1]++
@@ -915,8 +1007,10 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 				}
 				FatalOnError(rowsL.Err())
 				changedLabels := false
-				if ctx.Debug > 0 && ghaLabels != cfg.Labels {
-					Printf("Updating issue '%v' labels to '%s', they were: '%s' (event_id %d)\n", cfg, cfg.Labels, ghaLabels, ghaEventID)
+				if ghaLabels != cfg.Labels {
+					if ctx.Debug > 0 {
+						Printf("Updating issue '%v' labels to '%s', they were: '%s' (event_id %d)\n", cfg, cfg.Labels, ghaLabels, ghaEventID)
+					}
 					changedLabels = true
 				}
 
@@ -939,8 +1033,10 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 				}
 				FatalOnError(rowsA.Err())
 				changedAssignees := false
-				if ctx.Debug > 0 && ghaAssignees != cfg.Assignees {
-					Printf("Updating issue '%v' assignees to '%s', they were: '%s' (event_id %d)\n", cfg, cfg.Assignees, ghaAssignees, ghaEventID)
+				if ghaAssignees != cfg.Assignees {
+					if ctx.Debug > 0 {
+						Printf("Updating issue '%v' assignees to '%s', they were: '%s' (event_id %d)\n", cfg, cfg.Assignees, ghaAssignees, ghaEventID)
+					}
 					changedAssignees = true
 				}
 
@@ -959,14 +1055,13 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 				}
 
 				if ctx.Debug > 0 {
-					Printf("Event for the same date exist, added artificial: %v: '%v'\n", changedAnything, cfg)
+					Printf("Event for the same date (%v) exist, added artificial: %v: '%v'\n", cfg.CreatedAt, changedAnything, cfg)
 				}
 				updatesMutex.Lock()
 				updates[uidx]++
 				updatesMutex.Unlock()
 				// Synchronize go routine
 				ch <- changedAnything
-				return
 			}(ch, key, idx)
 
 			// go routine called with 'ch' channel to sync and tag index
@@ -1001,7 +1096,7 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 	dtStart = time.Now()
 	lastTime = dtStart
 	checked = 0
-	newPRs := 0
+	updates = []int{0, 0, 0, 0}
 	var prsMutex = &sync.RWMutex{}
 	for iid := range prs {
 		go func(ch chan bool, iid int64) {
@@ -1011,33 +1106,64 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 			l := len(ica)
 			ic := ica[l-1]
 			prsMutex.RUnlock()
-			eid := ic.EventID + 281474976710656
 			prid := *pr.ID
+			updatedAt := *pr.UpdatedAt
 			if ctx.Debug > 0 {
-				Printf("GHA Issue ID '%d' --> PR ID %d, Issue Event ID %d\n", iid, prid, eid)
+				Printf("GHA Issue ID '%d' --> PR ID %d, updated %v\n", iid, prid, updatedAt)
 			}
-			var ghaEventID int64
+			var (
+				ghaMilestoneID *int64
+				ghaEventID     int64
+				ghaClosedAt    *time.Time
+				ghaState       string
+				ghaTitle       string
+				ghaAssigneeID  *int64
+				apiMilestoneID *int64
+				apiAssigneeID  *int64
+			)
+
+			// Process current milestone
+			if pr.Milestone != nil {
+				apiMilestoneID = pr.Milestone.ID
+			}
+			apiClosedAt := pr.ClosedAt
+			apiState := *pr.State
+			apiTitle := *pr.Title
+			if pr.Assignee != nil {
+				apiAssigneeID = pr.Assignee.ID
+			}
 			rowsM := QuerySQLWithErr(
 				c,
 				ctx,
 				fmt.Sprintf(
-					"select event_id from gha_pull_requests where id = %s and event_id = %s",
+					"select milestone_id, event_id, closed_at, state, title, assignee_id "+
+						"from gha_pull_requests where id = %s and updated_at <= %s "+
+						"order by updated_at desc, event_id desc limit 1",
 					NValue(1),
 					NValue(2),
 				),
 				prid,
-				eid,
+				updatedAt,
 			)
 			defer func() { FatalOnError(rowsM.Close()) }()
 			got := false
 			for rowsM.Next() {
-				FatalOnError(rowsM.Scan(&ghaEventID))
+				FatalOnError(
+					rowsM.Scan(
+						&ghaMilestoneID,
+						&ghaEventID,
+						&ghaClosedAt,
+						&ghaState,
+						&ghaTitle,
+						&ghaAssigneeID,
+					),
+				)
 				got = true
 			}
 			FatalOnError(rowsM.Err())
 			if !got {
 				if ctx.Debug > 0 {
-					Printf("Adding missing Issue ID %d, PR ID %d, Issue Event ID %d'\n", iid, prid, eid)
+					Printf("Adding missing (%v) PR event '%v', PR ID: %d\n", updatedAt, ic, prid)
 				}
 				FatalOnError(
 					ArtificialPREvent(
@@ -1048,11 +1174,186 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 					),
 				)
 				updatesMutex.Lock()
-				newPRs++
+				updates[0]++
 				updatesMutex.Unlock()
+				ch <- true
+				return
 			}
-			ch <- !got
-			return
+			if ghaEventID > 281474976710656 {
+				if ctx.Debug > 0 {
+					Printf("Artificial PR event (%v) already exists, skipping: '%v', PR ID: %d\n", updatedAt, ic, prid)
+				}
+				updatesMutex.Lock()
+				updates[1]++
+				updatesMutex.Unlock()
+				ch <- false
+				return
+			}
+
+			// Check state change
+			changedState := false
+			if apiState != ghaState {
+				changedState = true
+				if ctx.Debug > 0 {
+					Printf("Updating PR '%v' state %s -> %s\n", ic, ghaState, apiState)
+				}
+			}
+
+			// Check title change
+			changedTitle := false
+			if apiTitle != ghaTitle {
+				changedTitle = true
+				if ctx.Debug > 0 {
+					Printf("Updating PR '%v' title %s -> %s\n", ic, ghaTitle, apiTitle)
+				}
+			}
+
+			// Check closed_at change
+			changedClosed := false
+			if (apiClosedAt == nil && ghaClosedAt != nil) || (apiClosedAt != nil && ghaClosedAt == nil) || (apiClosedAt != nil && ghaClosedAt != nil && ToYMDHMSDate(*apiClosedAt) != ToYMDHMSDate(*ghaClosedAt)) {
+				changedClosed = true
+				if ctx.Debug > 0 {
+					from := Null
+					if ghaClosedAt != nil {
+						from = fmt.Sprintf("%v", ToYMDHMSDate(*ghaClosedAt))
+					}
+					to := Null
+					if apiClosedAt != nil {
+						to = fmt.Sprintf("%v", ToYMDHMSDate(*apiClosedAt))
+					}
+					Printf("Updating PR '%v' closed_at %s -> %s\n", ic, from, to)
+				}
+			}
+
+			// Check milestone change
+			changedMilestone := false
+			if (apiMilestoneID == nil && ghaMilestoneID != nil) || (apiMilestoneID != nil && ghaMilestoneID == nil) || (apiMilestoneID != nil && ghaMilestoneID != nil && *apiMilestoneID != *ghaMilestoneID) {
+				changedMilestone = true
+				if ctx.Debug > 0 {
+					from := Null
+					if ghaMilestoneID != nil {
+						from = fmt.Sprintf("%d", *ghaMilestoneID)
+					}
+					to := Null
+					if apiMilestoneID != nil {
+						to = fmt.Sprintf("%d", *apiMilestoneID)
+					}
+					Printf("Updating PR '%v' milestone %s -> %s\n", ic, from, to)
+				}
+			}
+
+			// Check assignee change
+			changedAssignee := false
+			if (apiAssigneeID == nil && ghaAssigneeID != nil) || (apiAssigneeID != nil && ghaAssigneeID == nil) || (apiAssigneeID != nil && ghaAssigneeID != nil && *apiAssigneeID != *ghaAssigneeID) {
+				changedAssignee = true
+				if ctx.Debug > 0 {
+					from := Null
+					if ghaAssigneeID != nil {
+						from = fmt.Sprintf("%d", *ghaAssigneeID)
+					}
+					to := Null
+					if apiAssigneeID != nil {
+						to = fmt.Sprintf("%d", *apiAssigneeID)
+					}
+					Printf("Updating PR '%v' assignee %s -> %s\n", ic, from, to)
+				}
+			}
+
+			// Process current labels (they are on the issue not PR, but if changed we should add entry)
+			rowsL := QuerySQLWithErr(
+				c,
+				ctx,
+				fmt.Sprintf(
+					"select coalesce(string_agg(sub.label_id::text, ','), '') from "+
+						"(select label_id from gha_issues_labels where event_id = %s "+
+						"order by label_id) sub",
+					NValue(1),
+				),
+				ghaEventID,
+			)
+			defer func() { FatalOnError(rowsL.Close()) }()
+			ghaLabels := ""
+			for rowsL.Next() {
+				FatalOnError(rowsL.Scan(&ghaLabels))
+			}
+			FatalOnError(rowsL.Err())
+			changedLabels := false
+			if ghaLabels != ic.Labels {
+				if ctx.Debug > 0 {
+					Printf("Updating PR '%v' labels to '%s', they were: '%s' (event_id %d)\n", ic, ic.Labels, ghaLabels, ghaEventID)
+				}
+				changedLabels = true
+			}
+
+			// API Assignees
+			AssigneesMap := make(map[int64]string)
+			for _, assignee := range pr.Assignees {
+				AssigneesMap[*assignee.ID] = *assignee.Login
+			}
+			assigneesAry := Int64Ary{}
+			for assignee := range AssigneesMap {
+				assigneesAry = append(assigneesAry, assignee)
+			}
+			sort.Sort(assigneesAry)
+			l = len(assigneesAry)
+			apiAssignees := ""
+			for i, assignee := range assigneesAry {
+				if i == l-1 {
+					apiAssignees += fmt.Sprintf("%d", assignee)
+				} else {
+					apiAssignees += fmt.Sprintf("%d,", assignee)
+				}
+			}
+			// GHA assignees
+			rowsA := QuerySQLWithErr(
+				c,
+				ctx,
+				fmt.Sprintf(
+					"select coalesce(string_agg(sub.assignee_id::text, ','), '') from "+
+						"(select assignee_id from gha_pull_requests_assignees where event_id = %s "+
+						"order by assignee_id) sub",
+					NValue(1),
+				),
+				ghaEventID,
+			)
+			defer func() { FatalOnError(rowsA.Close()) }()
+			ghaAssignees := ""
+			for rowsA.Next() {
+				FatalOnError(rowsA.Scan(&ghaAssignees))
+			}
+			FatalOnError(rowsA.Err())
+			fmt.Printf("api '%s' <=> gha '%s'\n", apiAssignees, ghaAssignees)
+			changedAssignees := false
+			if ghaAssignees != apiAssignees {
+				if ctx.Debug >= 0 {
+					Printf("Updating PR '%v' assignees to '%s', they were: '%s' (event_id %d)\n", ic, apiAssignees, ghaAssignees, ghaEventID)
+				}
+				changedAssignees = true
+			}
+
+			uidx := 2
+			// Do the update if needed
+			changedAnything := changedMilestone || changedState || changedClosed || changedAssignee || changedTitle || changedLabels || changedAssignees
+			if changedAnything {
+				uidx = 3
+				FatalOnError(
+					ArtificialPREvent(
+						c,
+						ctx,
+						&ic,
+						&pr,
+					),
+				)
+			}
+
+			if ctx.Debug >= 0 {
+				Printf("PR Event for the same date (%v) exist, added artificial: %v: '%v'\n", updatedAt, changedAnything, ic)
+			}
+			updatesMutex.Lock()
+			updates[uidx]++
+			updatesMutex.Unlock()
+			// Synchronize go routine
+			ch <- changedAnything
 		}(ch, iid)
 
 		// go routine called with 'ch' channel to sync and tag index
@@ -1075,7 +1376,7 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 	// Get RateLimits info
 	_, rem, wait = GetRateLimits(gctx, gc, true)
 	Printf(
-		"ghapi2db.go: Processed %d PRs (%d added): %d API points remain, resets in %v\n",
-		checked, newPRs, rem, wait,
+		"ghapi2db.go: Processed %d PRs (%d new for date, %d artificial exists, date exists: %d not needed, %d added): %d API points remain, resets in %v\n",
+		checked, updates[0], updates[1], updates[2], updates[3], rem, wait,
 	)
 }
