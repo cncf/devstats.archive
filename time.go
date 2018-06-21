@@ -20,7 +20,7 @@ func GetDateAgo(con *sql.DB, ctx *Ctx, from time.Time, ago string) (tm time.Time
 			NValue(2),
 		),
 		ToYMDHMSDate(from),
-		ctx.RecentRange,
+		ago,
 	)
 	defer func() { FatalOnError(rows.Close()) }()
 	for rows.Next() {

@@ -77,6 +77,7 @@ type Ctx struct {
 	TmOffset            int             // From GHA2DB_TMOFFSET, gha2db_sync tool - uses time offset to decide when to calculate various metrics, default offset is 0 which means UTC, good offset for USA is -6, and for Poland is 1 or 2
 	DefaultHostname     string          // "devstats.cncf.io"
 	RecentRange         string          // From GHA2DB_RECENT_RANGE, ghapi2db tool, default '2 hours'. This is a recent period to check open issues/PR to fix their labels and milestones.
+	RecentReposRange    string          // From GHA2DB_RECENT_REPOS_RANGE, ghapi2db tool, default '1 day'. This is a recent period to check modified repositories.
 	MinGHAPIPoints      int             // From GHA2DB_MIN_GHAPI_POINTS, ghapi2db tool, minimum GitHub API points, before waiting for reset.
 	MaxGHAPIWaitSeconds int             // From GHA2DB_MAX_GHAPI_WAIT, ghapi2db tool, maximum wait time for GitHub API points reset (in seconds).
 	MaxGHAPIRetry       int             // From GHA2DB_MAX_GHAPI_RETRY, ghapi2db tool, maximum wait retries
@@ -467,10 +468,14 @@ func (ctx *Ctx) Init() {
 	}
 	ctx.OutputDB = os.Getenv("GHA2DB_OUTPUT_DB")
 
-	// RecentRange - ghapi2db will check issues from now() - this range to now()
+	// RecentRange - ghapi2db will check issues/PRs from now() - this range to now()
 	ctx.RecentRange = os.Getenv("GHA2DB_RECENT_RANGE")
 	if ctx.RecentRange == "" {
 		ctx.RecentRange = "2 hours"
+	}
+	ctx.RecentReposRange = os.Getenv("GHA2DB_RECENT_REPOS_RANGE")
+	if ctx.RecentReposRange == "" {
+		ctx.RecentReposRange = "1 day"
 	}
 
 	ctx.CSVFile = os.Getenv("GHA2DB_CSVOUT")

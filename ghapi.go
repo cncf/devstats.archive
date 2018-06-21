@@ -132,6 +132,10 @@ func HandlePossibleError(err error, cfg *IssueConfig, info string) string {
 				return Abuse
 			}
 		}
+		if strings.Contains(err.Error(), "404 Not Found") {
+			Printf("Not found (%s) for %v: %v\n", info, cfg, err)
+			return NotFound
+		}
 		//FatalOnError(err)
 		Printf("%s error: %v, non fatal, exiting 0 status\n", os.Args[0], err)
 		os.Exit(0)
@@ -243,12 +247,16 @@ func ghMilestone(con *sql.Tx, ctx *Ctx, eid int64, ic *IssueConfig, maybeHide fu
 }
 
 // GetRecentRepos - get list of repos active last day
-func GetRecentRepos(c *sql.DB, ctx *Ctx) (repos []string) {
+func GetRecentRepos(c *sql.DB, ctx *Ctx, dtFrom time.Time) (repos []string) {
 	rows := QuerySQLWithErr(
 		c,
 		ctx,
-		"select distinct dup_repo_name from gha_events "+
-			"where created_at > now() - '1 day'::interval",
+		fmt.Sprintf(
+			"select distinct dup_repo_name from gha_events "+
+				"where created_at > %s",
+			NValue(1),
+		),
+		dtFrom,
 	)
 	defer func() { FatalOnError(rows.Close()) }()
 	var repo string
@@ -262,6 +270,12 @@ func GetRecentRepos(c *sql.DB, ctx *Ctx) (repos []string) {
 
 // ArtificialPREvent - create artificial API event (PR state for now())
 func ArtificialPREvent(c *sql.DB, ctx *Ctx, cfg *IssueConfig, pr *github.PullRequest) (err error) {
+	if ctx.SkipPDB {
+		if ctx.Debug > 0 {
+			Printf("Skipping adding PR '%v'\n", *cfg)
+		}
+		return nil
+	}
 	// To handle GDPR
 	maybeHide := MaybeHideFunc(GetHidden(HideCfgFile))
 
@@ -532,7 +546,7 @@ func ArtificialEvent(c *sql.DB, ctx *Ctx, cfg *IssueConfig) (err error) {
 	// github.com/google/go-github/github/issues_events.go
 	if ctx.SkipPDB {
 		if ctx.Debug > 0 {
-			Printf("Skipping adding '%v'\n", *cfg)
+			Printf("Skipping adding issue '%v'\n", *cfg)
 		}
 		return nil
 	}
@@ -1079,7 +1093,6 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 		}
 	}
 	// Usually all work happens on '<-ch'
-	Printf("GHA threads join issues\n")
 	for nThreads > 0 {
 		<-ch
 		nThreads--
@@ -1515,7 +1528,6 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 		}
 	}
 	// Usually all work happens on '<-ch'
-	Printf("GHA threads join PRs\n")
 	for nThreads > 0 {
 		<-ch
 		nThreads--
