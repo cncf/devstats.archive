@@ -18,7 +18,7 @@ We're trying 3 versions:
 - Go on Postgres.
 
 On 2 data sets:
-- All kubernetes GHA events (orgs `kubernetes`, `kubernetes-incubator` and `kubernetes-client`) on single month `2017-07-01` - `2017-08-01`.
+- All kubernetes GHA events (orgs `kubernetes`, `kubernetes-incubator`, `kubernetes-client`, `kubernetes-csi`) on single month `2017-07-01` - `2017-08-01`.
 - All GHA events (no org/repo filter) on 2 days `2017-08-01` - `2017-08-03` (Tue and Wed).
 
 Columns:
@@ -30,7 +30,7 @@ Columns:
 - `Range` - length of data processed.
 
 And final run for Kubernetes for all `2015-08-06` - `2017-08-26` using Go version of `gha2db`:
-- `time PG_PASS='...' PG_DB='test' ./gha2db 2015-08-06 0 2017-08-26 0 'kubernetes,kubernetes-incubator,kubernetes-client'`
+- `time PG_PASS='...' PG_DB='test' ./gha2db 2015-08-06 0 2017-08-26 0 'kubernetes,kubernetes-incubator,kubernetes-client,kubernetes-csi'`
 
 Outputs 1200426 GHA events in:
 ```

@@ -17,7 +17,7 @@ set
 where
   (
     org_login in (
-      'kubernetes', 'kubernetes-client', 'kubernetes-incubator'
+      'kubernetes', 'kubernetes-client', 'kubernetes-incubator', 'kubernetes-csi'
     )
     or name in (
       'GoogleCloudPlatform/kubernetes', 'kubernetes' , 'kubernetes-client'
