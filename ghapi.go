@@ -951,7 +951,7 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 				if apiLocked != ghaLocked {
 					changedLocked = true
 					if ctx.Debug > 0 {
-						Printf("Updating issue '%v' locked %s -> %s\n", cfg, ghaLocked, apiLocked)
+						Printf("Updating issue '%v' locked %v -> %v\n", cfg, ghaLocked, apiLocked)
 					}
 				}
 
@@ -1185,7 +1185,7 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 			FatalOnError(rowsE.Err())
 			if collision {
 				if ctx.Debug > 0 {
-					Printf("Exact PR event already exists, skipping: '%v', PR ID: %d\n", updatedAt, ic, prid)
+					Printf("Exact PR event already exists, skipping: '%v', PR ID: %d\n", updatedAt, prid)
 				}
 				updatesMutex.Lock()
 				updates[4]++
