@@ -6,6 +6,8 @@ update gha_repos set repo_group = 'Kubernetes' where name in (
   'kubernetes'
 );
 
+update gha_repos set repo_group = 'CSI' where org_login = 'kubernetes-csi';
+
 update gha_repos set repo_group = 'Contrib' where name in (
   'kubernetes/contrib'
 );
