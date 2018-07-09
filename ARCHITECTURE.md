@@ -17,7 +17,7 @@ Project uses use GitHub archives and local copy of all git repositories. The pos
 - You can use GitHub hook callbacks, but they only fire for current events.
 
 3) GitHub archives
-- All GitHub events are packed into multi-json gzipped files each hour and made available from [Github Archive](https://www.githubarchive.org/). To use this data, you need to extract all hours (since the Kubernetes project started) and filter out all data except for events from the 4 kubernetes organizations ([kubernetes](https://github.com/kubernetes), [kubernetes-incubator](https://github.com/kubernetes-incubator), [kubernetes-client](https://github.com/kubernetes-client), [kubernetes-helm](https://github.com/kubernetes-helm)).
+- All GitHub events are packed into multi-json gzipped files each hour and made available from [Github Archive](https://www.githubarchive.org/). To use this data, you need to extract all hours (since the Kubernetes project started) and filter out all data except for events from the 4 kubernetes organizations ([kubernetes](https://github.com/kubernetes), [kubernetes-incubator](https://github.com/kubernetes-incubator), [kubernetes-client](https://github.com/kubernetes-client), [kubernetes-csi](https://github.com/kubernetes-csi)).
 - This is a lot of data to process, but you have all possible GitHub events in the past, processing more than 3 years of this data takes about 2-2,5 hours, but this must only be done once and then the processed results are available for other's use.
 - You have a lot of data in a single file, that can be processed/filtered in memory.
 - You are getting all possible events, and all of them include the current state of PRs, issues, repos at given point in time.
