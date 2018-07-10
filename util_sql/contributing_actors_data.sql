@@ -16,9 +16,10 @@ from (
     ae.actor_id = a.id
   where
     (e.actor_id = a.id or e.dup_actor_login = a.login)
-    and type in (
+    and e.type in (
       'PushEvent', 'PullRequestEvent', 'IssuesEvent'
     )
+    and (lower(e.dup_actor_login) {{exclude_bots}})
   order by
     id asc,
     name asc,
