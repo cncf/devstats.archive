@@ -8,10 +8,11 @@ from (
     gha_actors a
   where
     (e.actor_id = a.id or e.dup_actor_login = a.login)
-    and type in (
+    and e.type in (
       'PullRequestReviewCommentEvent', 'PushEvent', 'PullRequestEvent',
       'IssuesEvent', 'IssueCommentEvent', 'CommitCommentEvent'
     )
+    and (lower(e.dup_actor_login) {{exclude_bots}})
   order by
     actor asc
   ) sub
