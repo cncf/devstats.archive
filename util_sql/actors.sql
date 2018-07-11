@@ -12,7 +12,6 @@ from (
       'PullRequestReviewCommentEvent', 'PushEvent', 'PullRequestEvent',
       'IssuesEvent', 'IssueCommentEvent', 'CommitCommentEvent'
     )
-    and (lower(e.dup_actor_login) {{exclude_bots}})
   order by
     actor asc
   ) sub
