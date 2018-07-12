@@ -797,27 +797,30 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 
 	// Make sure we only have single event per single second - final state with highest EventID that was sorted
 	// Sort by iid then created_at then event_id
-	for issueID := range issues {
-		sort.Sort(issues[issueID])
-		if ctx.Debug > 1 {
-			Printf("Sorted: %+v\n", issues[issueID])
+	// in manual mode we only have one entry per issue so no sort is needed
+	if !manual {
+		for issueID := range issues {
+			sort.Sort(issues[issueID])
+			if ctx.Debug > 1 {
+				Printf("Sorted: %+v\n", issues[issueID])
+			}
 		}
-	}
-	// Leave only final state
-	for iid, issueConfigAry := range issues {
-		mp := make(map[string]IssueConfig)
-		for _, issue := range issueConfigAry {
-			sdt := ToYMDHMSDate(issue.CreatedAt)
-			mp[sdt] = issue
-		}
-		sdts := []string{}
-		for sdt := range mp {
-			sdts = append(sdts, sdt)
-		}
-		sort.Strings(sdts)
-		issues[iid] = []IssueConfig{}
-		for _, sdt := range sdts {
-			issues[iid] = append(issues[iid], mp[sdt])
+		// Leave only final state
+		for iid, issueConfigAry := range issues {
+			mp := make(map[string]IssueConfig)
+			for _, issue := range issueConfigAry {
+				sdt := ToYMDHMSDate(issue.CreatedAt)
+				mp[sdt] = issue
+			}
+			sdts := []string{}
+			for sdt := range mp {
+				sdts = append(sdts, sdt)
+			}
+			sort.Strings(sdts)
+			issues[iid] = []IssueConfig{}
+			for _, sdt := range sdts {
+				issues[iid] = append(issues[iid], mp[sdt])
+			}
 		}
 	}
 
@@ -832,11 +835,15 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 	lastTime := dtStart
 	checked := 0
 	var updatesMutex = &sync.Mutex{}
-	// updates:
+	// updates (non-manual mode):
 	// 0: no such event --> new
 	// 1: artificial exists --> skip
 	// 2: normal exists, no new
 	// 3: normal exists, new needed
+	// updates (manual mode)
+	// 0 - no such issue --> new
+	// 2: previous issue state exists, no new
+	// 3: previous issue state exists, new needed
 	updates := []int{0, 0, 0, 0}
 	nIssues := 0
 	for _, issueConfig := range issues {
@@ -844,7 +851,7 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 	}
 	nPRs := len(prs)
 
-	Printf("ghapi2db.go: Processing %d PRs, %d issues (%d with date collisions) - GHA part\n", nPRs, nIssues, nIssuesBefore)
+	Printf("ghapi2db.go: Processing %d PRs, %d issues (%d with date collisions), manual mode: %v - GHA part\n", nPRs, nIssues, nIssuesBefore, manual)
 	// Use map key to pass to the closure
 	for key, issueConfig := range issues {
 		for idx := range issueConfig {
@@ -873,19 +880,34 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 				apiTitle := *cfg.GhIssue.Title
 				apiLocked := *cfg.GhIssue.Locked
 				apiAssigneeID := cfg.AssigneeID
-				rowsM := QuerySQLWithErr(
-					c,
-					ctx,
-					fmt.Sprintf(
-						"select milestone_id, event_id, closed_at, state, title, locked, assignee_id "+
-							"from gha_issues where id = %s and updated_at = %s "+
-							"order by updated_at desc, event_id desc limit 1",
-						NValue(1),
-						NValue(2),
-					),
-					cfg.IssueID,
-					cfg.CreatedAt,
-				)
+				var rowsM *sql.Rows
+				if manual {
+					rowsM = QuerySQLWithErr(
+						c,
+						ctx,
+						fmt.Sprintf(
+							"select milestone_id, event_id, closed_at, state, title, locked, assignee_id "+
+								"from gha_issues where id = %s "+
+								"order by updated_at desc, event_id desc limit 1",
+							NValue(1),
+						),
+						cfg.IssueID,
+					)
+				} else {
+					rowsM = QuerySQLWithErr(
+						c,
+						ctx,
+						fmt.Sprintf(
+							"select milestone_id, event_id, closed_at, state, title, locked, assignee_id "+
+								"from gha_issues where id = %s and updated_at = %s "+
+								"order by updated_at desc, event_id desc limit 1",
+							NValue(1),
+							NValue(2),
+						),
+						cfg.IssueID,
+						cfg.CreatedAt,
+					)
+				}
 				defer func() { FatalOnError(rowsM.Close()) }()
 				got := false
 				for rowsM.Next() {
@@ -921,7 +943,7 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 					return
 				}
 				// We have such artificial event and code is making sure it is most up-to-date for a given second, so we may skip it.
-				if ghaEventID > 281474976710656 {
+				if !manual && ghaEventID > 281474976710656 {
 					if ctx.Debug > 0 {
 						Printf("Artificial event (%v) already exists, skipping: '%v'\n", cfg.CreatedAt, cfg)
 					}
@@ -1079,7 +1101,11 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 				}
 
 				if ctx.Debug > 0 {
-					Printf("Event for the same date (%v) exist (event_id: %d), added artificial: %v: '%v'\n", cfg.CreatedAt, ghaEventID, changedAnything, cfg)
+					if manual {
+						Printf("Previous event (event_id: %d), added artificial: %v: '%v'\n", ghaEventID, changedAnything, cfg)
+					} else {
+						Printf("Event for the same date (%v) exist (event_id: %d), added artificial: %v: '%v'\n", cfg.CreatedAt, ghaEventID, changedAnything, cfg)
+					}
 				}
 				updatesMutex.Lock()
 				updates[uidx]++
@@ -1107,10 +1133,17 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 	}
 	// Get RateLimits info
 	_, rem, wait := GetRateLimits(gctx, gc, true)
-	Printf(
-		"ghapi2db.go: Processed %d issues/PRs (%d new for date, %d artificial exists, date exists: %d not needed, %d added): %d API points remain, resets in %v\n",
-		checked, updates[0], updates[1], updates[2], updates[3], rem, wait,
-	)
+	if manual {
+		Printf(
+			"ghapi2db.go: Manually processed %d issues/PRs (%d new issues, existing: %d not needed, %d added): %d API points remain, resets in %v\n",
+			checked, updates[0], updates[2], updates[3], rem, wait,
+		)
+	} else {
+		Printf(
+			"ghapi2db.go: Automatically processed %d issues/PRs (%d new for date, %d artificial exists, date exists: %d not needed, %d added): %d API points remain, resets in %v\n",
+			checked, updates[0], updates[1], updates[2], updates[3], rem, wait,
+		)
+	}
 
 	// PRs sync (using state at run date XX:08+)
 	// Use map key to pass to the closure
@@ -1120,7 +1153,7 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 	lastTime = dtStart
 	checked = 0
 	updates = []int{0, 0, 0, 0, 0}
-	// updates[4] - collisions
+	// updates[4] - collisions (only with non-manual mode)
 	var prsMutex = &sync.RWMutex{}
 	for iid := range prs {
 		go func(ch chan bool, iid int64) {
@@ -1167,54 +1200,72 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 			apiMerged := pr.Merged
 
 			// Handle eventual collision
-			eventID := 281474976710656 + ic.EventID
-			rowsE := QuerySQLWithErr(
-				c,
-				ctx,
-				fmt.Sprintf(
-					"select 1 from gha_pull_requests where id = %s and event_id = %s and updated_at != %s",
-					NValue(1),
-					NValue(2),
-					NValue(3),
-				),
-				prid,
-				eventID,
-				updatedAt,
-			)
-			defer func() { FatalOnError(rowsE.Close()) }()
-			collision := false
-			dummy := 0
-			for rowsE.Next() {
-				FatalOnError(rowsE.Scan(&dummy))
-				collision = true
-			}
-			FatalOnError(rowsE.Err())
-			if collision {
-				if ctx.Debug > 0 {
-					Printf("Exact PR event already exists, skipping: '%v', PR ID: %d\n", updatedAt, prid)
+			if !manual {
+				eventID := 281474976710656 + ic.EventID
+				rowsE := QuerySQLWithErr(
+					c,
+					ctx,
+					fmt.Sprintf(
+						"select 1 from gha_pull_requests where id = %s and event_id = %s and updated_at != %s",
+						NValue(1),
+						NValue(2),
+						NValue(3),
+					),
+					prid,
+					eventID,
+					updatedAt,
+				)
+				defer func() { FatalOnError(rowsE.Close()) }()
+				collision := false
+				dummy := 0
+				for rowsE.Next() {
+					FatalOnError(rowsE.Scan(&dummy))
+					collision = true
 				}
-				updatesMutex.Lock()
-				updates[4]++
-				updatesMutex.Unlock()
-				ch <- false
-				return
+				FatalOnError(rowsE.Err())
+				if collision {
+					if ctx.Debug > 0 {
+						Printf("Exact PR event already exists, skipping: '%v', PR ID: %d\n", updatedAt, prid)
+					}
+					updatesMutex.Lock()
+					updates[4]++
+					updatesMutex.Unlock()
+					ch <- false
+					return
+				}
 			}
 
 			// Get event for this date
-			rowsM := QuerySQLWithErr(
-				c,
-				ctx,
-				fmt.Sprintf(
-					"select milestone_id, event_id, closed_at, state, title, assignee_id, "+
-						"merged_by_id, merged_at, merged "+
-						"from gha_pull_requests where id = %s and updated_at = %s "+
-						"order by updated_at desc, event_id desc limit 1",
-					NValue(1),
-					NValue(2),
-				),
-				prid,
-				updatedAt,
-			)
+			var rowsM *sql.Rows
+			if manual {
+				rowsM = QuerySQLWithErr(
+					c,
+					ctx,
+					fmt.Sprintf(
+						"select milestone_id, event_id, closed_at, state, title, assignee_id, "+
+							"merged_by_id, merged_at, merged "+
+							"from gha_pull_requests where id = %s "+
+							"order by updated_at desc, event_id desc limit 1",
+						NValue(1),
+					),
+					prid,
+				)
+			} else {
+				rowsM = QuerySQLWithErr(
+					c,
+					ctx,
+					fmt.Sprintf(
+						"select milestone_id, event_id, closed_at, state, title, assignee_id, "+
+							"merged_by_id, merged_at, merged "+
+							"from gha_pull_requests where id = %s and updated_at = %s "+
+							"order by updated_at desc, event_id desc limit 1",
+						NValue(1),
+						NValue(2),
+					),
+					prid,
+					updatedAt,
+				)
+			}
 			defer func() { FatalOnError(rowsM.Close()) }()
 			got := false
 			for rowsM.Next() {
@@ -1252,7 +1303,7 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 				ch <- true
 				return
 			}
-			if ghaEventID > 281474976710656 {
+			if !manual && ghaEventID > 281474976710656 {
 				if ctx.Debug > 0 {
 					Printf("Artificial PR event (%v) already exists, skipping: '%v', PR ID: %d\n", updatedAt, ic, prid)
 				}
@@ -1515,7 +1566,11 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 			}
 
 			if ctx.Debug > 0 {
-				Printf("PR Event for the same date (%v) exist (event_id: %d), added artificial: %v: '%v'\n", updatedAt, ghaEventID, changedAnything, ic)
+				if manual {
+					Printf("PR Event exist (event_id: %d), added artificial: %v: '%v'\n", ghaEventID, changedAnything, ic)
+				} else {
+					Printf("PR Event for the same date (%v) exist (event_id: %d), added artificial: %v: '%v'\n", updatedAt, ghaEventID, changedAnything, ic)
+				}
 			}
 			updatesMutex.Lock()
 			updates[uidx]++
@@ -1542,8 +1597,15 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 	}
 	// Get RateLimits info
 	_, rem, wait = GetRateLimits(gctx, gc, true)
-	Printf(
-		"ghapi2db.go: Processed %d PRs (%d new for date, %d artificial exists, date exists: %d not needed, %d added, collisions: %d): %d API points remain, resets in %v\n",
-		checked, updates[0], updates[1], updates[2], updates[3], updates[4], rem, wait,
-	)
+	if manual {
+		Printf(
+			"ghapi2db.go: Manually processed %d PRs (%d new PRs, existing: %d not needed, %d added): %d API points remain, resets in %v\n",
+			checked, updates[0], updates[2], updates[3], rem, wait,
+		)
+	} else {
+		Printf(
+			"ghapi2db.go: Automatically processed %d PRs (%d new for date, %d artificial exists, date exists: %d not needed, %d added, collisions: %d): %d API points remain, resets in %v\n",
+			checked, updates[0], updates[1], updates[2], updates[3], updates[4], rem, wait,
+		)
+	}
 }
