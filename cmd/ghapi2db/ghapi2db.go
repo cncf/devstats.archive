@@ -158,7 +158,7 @@ func syncEvents(ctx *lib.Ctx) {
 					}
 					nPages++
 					if ctx.Debug > 0 {
-						lib.Printf("API call for isuues events %s (%d), remaining GHAPI points %d\n", orgRepo, nPages, rem)
+						lib.Printf("API call for issues events %s (%d), remaining GHAPI points %d\n", orgRepo, nPages, rem)
 					}
 					events, response, err = gc.Issues.ListRepositoryEvents(gctx, org, repo, opt)
 					res := lib.HandlePossibleError(err, &gcfg, "Issues.ListRepositoryEvents")
@@ -179,6 +179,7 @@ func syncEvents(ctx *lib.Ctx) {
 							time.Sleep(wait)
 						}
 						if res == lib.NotFound {
+							lib.Printf("Warning: not found: %s/%s", org, repo)
 							ch <- false
 							return
 						}
@@ -312,11 +313,10 @@ func syncEvents(ctx *lib.Ctx) {
 										os.Exit(1)
 									}
 								}
-								nPages++
 								if ctx.Debug > 0 {
 									lib.Printf("API call for %s PR: %d, remaining GHAPI points %d\n", orgRepo, prNum, rem)
 								}
-								pr, response, err = gc.PullRequests.Get(gctx, org, repo, prNum)
+								pr, _, err = gc.PullRequests.Get(gctx, org, repo, prNum)
 								res := lib.HandlePossibleError(err, &gcfg, "PullRequests.Get")
 								if res != "" {
 									if res == lib.Abuse {
