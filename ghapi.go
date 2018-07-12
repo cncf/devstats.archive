@@ -408,7 +408,7 @@ func ArtificialPREvent(c *sql.DB, ctx *Ctx, cfg *IssueConfig, pr *github.PullReq
 		}...,
 	)
 
-	// Create artificial 'ArtificialEvent' event
+	// Create artificial event
 	ExecSQLTxWithErr(
 		tc,
 		ctx,
@@ -645,7 +645,7 @@ func ArtificialEvent(c *sql.DB, ctx *Ctx, cfg *IssueConfig) (err error) {
 		ghMilestone(tc, ctx, eventID, cfg, maybeHide)
 	}
 
-	// Create artificial 'ArtificialEvent' event
+	// Create artificial event
 	ExecSQLTxWithErr(
 		tc,
 		ctx,
@@ -792,7 +792,7 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 		nIssuesBefore += len(issueConfig)
 	}
 
-	// Make sure we only have single event per single second - final state
+	// Make sure we only have single event per single second - final state with highest EventID that was sorted
 	// Sort by iid then created_at then event_id
 	for issueID := range issues {
 		sort.Sort(issues[issueID])
@@ -863,7 +863,7 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 					ghaAssigneeID  *int64
 				)
 
-				// Process current milestone
+				// Process current milestone (given issue and second)
 				apiMilestoneID := cfg.MilestoneID
 				apiClosedAt := cfg.GhIssue.ClosedAt
 				apiState := *cfg.GhIssue.State
@@ -917,6 +917,7 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 					ch <- true
 					return
 				}
+				// We have such artificial event and code is making sure it is most up-to-date for a given second, so we may skip it.
 				if ghaEventID > 281474976710656 {
 					if ctx.Debug > 0 {
 						Printf("Artificial event (%v) already exists, skipping: '%v'\n", cfg.CreatedAt, cfg)
@@ -928,6 +929,8 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 					return
 				}
 
+				// Now have existing GHA event, but we don't know if it is a correct state event
+				// Or just bot comment after which (on the same second) milestone or label(s) are updated
 				// Check state change
 				changedState := false
 				if apiState != ghaState {
