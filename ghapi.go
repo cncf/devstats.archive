@@ -786,7 +786,10 @@ func ArtificialEvent(c *sql.DB, ctx *Ctx, cfg *IssueConfig) (err error) {
 }
 
 // SyncIssuesState synchonizes issues states
-func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.DB, issues map[int64]IssueConfigAry, prs map[int64]github.PullRequest) {
+// manual:
+//  false: normal devstats sync cron mode using 'ghapi2db' tool
+//  true: manual sync using'sync_issues' tool
+func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.DB, issues map[int64]IssueConfigAry, prs map[int64]github.PullRequest, manual bool) {
 	nIssuesBefore := 0
 	for _, issueConfig := range issues {
 		nIssuesBefore += len(issueConfig)
