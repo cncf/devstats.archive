@@ -70,16 +70,22 @@ func syncEvents(ctx *lib.Ctx) {
 	eventTypes := make(map[string]struct{})
 	eventTypes["closed"] = struct{}{}
 	eventTypes["merged"] = struct{}{}
+	eventTypes["referenced"] = struct{}{}
 	eventTypes["reopened"] = struct{}{}
 	eventTypes["locked"] = struct{}{}
 	eventTypes["unlocked"] = struct{}{}
 	eventTypes["renamed"] = struct{}{}
+	eventTypes["mentioned"] = struct{}{}
 	eventTypes["assigned"] = struct{}{}
 	eventTypes["unassigned"] = struct{}{}
 	eventTypes["labeled"] = struct{}{}
 	eventTypes["unlabeled"] = struct{}{}
 	eventTypes["milestoned"] = struct{}{}
 	eventTypes["demilestoned"] = struct{}{}
+	eventTypes["subscribed"] = struct{}{}
+	eventTypes["unsubscribed"] = struct{}{}
+	eventTypes["head_ref_deleted"] = struct{}{}
+	eventTypes["head_ref_restored"] = struct{}{}
 
 	// Get number of CPUs available
 	thrN := lib.GetThreadsNum(ctx)
@@ -205,7 +211,7 @@ func syncEvents(ctx *lib.Ctx) {
 						maxCreatedAt = createdAt
 					}
 					if event.Event == nil {
-						lib.Printf("Skipping event without type\n")
+						lib.Printf("Warning: Skipping event without type\n")
 						continue
 					}
 					eventType := *event.Event
