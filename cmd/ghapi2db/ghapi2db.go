@@ -397,7 +397,8 @@ func syncEvents(ctx *lib.Ctx) {
 	}
 
 	// Do final corrections
-	lib.SyncIssuesState(gctx, gc, ctx, c, issues, prs)
+	// manual sync: false
+	lib.SyncIssuesState(gctx, gc, ctx, c, issues, prs, false)
 }
 
 func main() {

@@ -38,10 +38,18 @@ func syncIssues(ctx *lib.Ctx) {
 	repos := []string{}
 	number := 0
 	repo := ""
+	seen := make(map[string]struct{})
 	for rows.Next() {
 		lib.FatalOnError(rows.Scan(&repo, &number))
-		numbers = append(numbers, number)
-		repos = append(repos, repo)
+		key := fmt.Sprintf("%s:%d", repo, number)
+		_, ok := seen[key]
+		if !ok {
+			numbers = append(numbers, number)
+			repos = append(repos, repo)
+			seen[key] = struct{}{}
+		} else {
+			lib.Printf("Duplicated issue: %s\n", key)
+		}
 	}
 	lib.FatalOnError(rows.Err())
 	nNumbers := len(numbers)
@@ -316,7 +324,8 @@ func syncIssues(ctx *lib.Ctx) {
 	}
 
 	// Do final corrections
-	lib.SyncIssuesState(gctx, gc, ctx, c, issues, prs)
+	// manual sync: true
+	lib.SyncIssuesState(gctx, gc, ctx, c, issues, prs, true)
 }
 
 func main() {
