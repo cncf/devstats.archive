@@ -10,7 +10,7 @@ WITH pr_latest AS (
              prs.title,
              prs.user_id AS creator_id,
              prs.assignee_id,
-             prs.dup_created_at AS created_at,
+             prs.created_at AS created_at,
              prs.updated_at,
              prs.closed_at,
              prs.merged_at,
