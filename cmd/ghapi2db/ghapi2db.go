@@ -220,6 +220,7 @@ func syncEvents(ctx *lib.Ctx) {
 					eventType := *event.Event
 					_, ok := eventTypes[eventType]
 					if !ok {
+						lib.Printf("Warning: skipping event type %s for issue %s %d\n", eventType, orgRepo, *event.Issue.Number)
 						continue
 					}
 					if createdAt.Before(recentDt) {

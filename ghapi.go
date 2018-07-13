@@ -868,23 +868,29 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 	nThreads := 0
 	dtStart := time.Now()
 	lastTime := dtStart
-	checked := 0
-	var updatesMutex = &sync.Mutex{}
-	// updates (non-manual mode):
-	// 0: no such event --> new
-	// 1: artificial exists --> skip
-	// 2: normal exists, no new
-	// 3: normal exists, new needed
-	// updates (manual mode)
-	// 0 - no such issue --> new
-	// 2: previous issue state exists, no new
-	// 3: previous issue state exists, new needed
-	updates := []int{0, 0, 0, 0}
 	nIssues := 0
 	for _, issueConfig := range issues {
 		nIssues += len(issueConfig)
 	}
 	nPRs := len(prs)
+	checked := 0
+	var updatesMutex = &sync.Mutex{}
+	updates := []int{0, 0, 0, 0}
+	// updates (non-manual mode):
+	// 0: no such event (for exact date) --> new
+	// 1: artificial exists (for exact date) --> skip
+	// 2: normal exists (for exact date) --> no new
+	// 3: normal exists (for exact date) --> new needed
+	// updates (manual mode)
+	// 0 - no such issue --> new
+	// 2: previous issue state exists, no new
+	// 3: previous issue state exists, new needed
+	why := ""
+	what := ""
+	// infos uses updatesmutex (when updates is also changed)
+	// when only infos is changes it uses infoxMutex
+	var infosMutex = &sync.Mutex{}
+	infos := make(map[string][]string)
 
 	Printf("ghapi2db.go: Processing %d PRs, %d issues (%d with date collisions), manual mode: %v - GHA part\n", nPRs, nIssues, nIssuesBefore, manual)
 	// Use map key to pass to the closure
@@ -895,7 +901,7 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 				issuesMutex.RLock()
 				cfg := issues[iid][idx]
 				issuesMutex.RUnlock()
-				if ctx.Debug > 0 {
+				if ctx.Debug > 1 {
 					Printf("GHA Issue ID '%d' --> '%v'\n", iid, cfg)
 				}
 				var (
@@ -961,7 +967,7 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 				}
 				FatalOnError(rowsM.Err())
 				if !got {
-					if ctx.Debug > 0 {
+					if ctx.Debug > 1 {
 						Printf("Adding missing (%v) event '%v'\n", cfg.CreatedAt, cfg)
 					}
 					FatalOnError(
@@ -971,19 +977,40 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 							&cfg,
 						),
 					)
+					if manual {
+						why = "no previous issue state"
+						what = fmt.Sprintf("%s %d", cfg.Repo, cfg.Number)
+					} else {
+						why = "no event at date"
+						what = fmt.Sprintf("%s %d %s %s", cfg.Repo, cfg.Number, ToYMDHMSDate(cfg.CreatedAt), cfg.EventType)
+					}
 					updatesMutex.Lock()
 					updates[0]++
+					_, ok := infos[why]
+					if ok {
+						infos[why] = append(infos[why], what)
+					} else {
+						infos[why] = []string{what}
+					}
 					updatesMutex.Unlock()
 					ch <- true
 					return
 				}
 				// We have such artificial event and code is making sure it is most up-to-date for a given second, so we may skip it.
 				if !manual && ghaEventID > 281474976710656 {
-					if ctx.Debug > 0 {
+					if ctx.Debug > 1 {
 						Printf("Artificial event (%v) already exists, skipping: '%v'\n", cfg.CreatedAt, cfg)
 					}
+					why = "already have artificial event at date"
+					what = fmt.Sprintf("%s %d %s %s", cfg.Repo, cfg.Number, ToYMDHMSDate(cfg.CreatedAt), cfg.EventType)
 					updatesMutex.Lock()
 					updates[1]++
+					_, ok := infos[why]
+					if ok {
+						infos[why] = append(infos[why], what)
+					} else {
+						infos[why] = []string{what}
+					}
 					updatesMutex.Unlock()
 					ch <- false
 					return
@@ -995,9 +1022,23 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 				changedState := false
 				if apiState != ghaState {
 					changedState = true
-					if ctx.Debug > 0 {
+					if ctx.Debug > 1 {
 						Printf("Updating issue '%v' state %s -> %s\n", cfg, ghaState, apiState)
 					}
+					why = "changed issue state"
+					if manual {
+						what = fmt.Sprintf("%s %d: %s -> %s", cfg.Repo, cfg.Number, ghaState, apiState)
+					} else {
+						what = fmt.Sprintf("%s %d %s %s: %s -> %s", cfg.Repo, cfg.Number, ToYMDHMSDate(cfg.CreatedAt), cfg.EventType, ghaState, apiState)
+					}
+					infosMutex.Lock()
+					_, ok := infos[why]
+					if ok {
+						infos[why] = append(infos[why], what)
+					} else {
+						infos[why] = []string{what}
+					}
+					infosMutex.Unlock()
 				}
 
 				// Check title change
@@ -1007,6 +1048,20 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 					if ctx.Debug > 0 {
 						Printf("Updating issue '%v' title %s -> %s\n", cfg, ghaTitle, apiTitle)
 					}
+					why = "changed issue title"
+					if manual {
+						what = fmt.Sprintf("%s %d: %s -> %s", cfg.Repo, cfg.Number, ghaTitle, apiTitle)
+					} else {
+						what = fmt.Sprintf("%s %d %s %s: %s -> %s", cfg.Repo, cfg.Number, ToYMDHMSDate(cfg.CreatedAt), cfg.EventType, ghaTitle, apiTitle)
+					}
+					infosMutex.Lock()
+					_, ok := infos[why]
+					if ok {
+						infos[why] = append(infos[why], what)
+					} else {
+						infos[why] = []string{what}
+					}
+					infosMutex.Unlock()
 				}
 
 				// Check locked change
