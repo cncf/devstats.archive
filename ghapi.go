@@ -64,7 +64,7 @@ func (ic IssueConfig) String() string {
 
 // outputIssuesInfo: display summary of data to process
 func outputIssuesInfo(issues map[int64]IssueConfigAry, info string) {
-  Printf("%s:\n", info)
+	Printf("%s:\n", info)
 	data := make(map[string][]string)
 	for _, cfgAry := range issues {
 		for _, cfg := range cfgAry {
@@ -96,7 +96,7 @@ func outputIssuesInfo(issues map[int64]IssueConfigAry, info string) {
 
 // outputInfo: displays messages gathered in the map
 func outputInfo(infos map[string][]string, info string) {
-  Printf("%s:\n", info)
+	Printf("%s:\n", info)
 	keys := []string{}
 	for key := range infos {
 		keys = append(keys, key)
@@ -105,7 +105,7 @@ func outputInfo(infos map[string][]string, info string) {
 	for _, key := range keys {
 		msgs := infos[key]
 		sort.Strings(msgs)
-		Printf("%s: [%s]\n", key, strings.Join(msgs, ", "))
+		Printf("%s:\n\t%s\n", key, strings.Join(msgs, "\n\t"))
 	}
 }
 
