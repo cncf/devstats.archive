@@ -99,8 +99,8 @@ func outputPRsInfo(prs map[int64]github.PullRequest, info string) {
 	Printf("%s:\n", info)
 	infos := []string{}
 	for prid, pr := range prs {
-		if pr.Number != nil && pr.Head != nil && pr.Head.Repo != nil && pr.Head.Repo.FullName != nil {
-			infos = append(infos, fmt.Sprintf("%s %d", *pr.Head.Repo.FullName, *pr.Number))
+		if pr.Number != nil && pr.Base != nil && pr.Base.Repo != nil && pr.Base.Repo.FullName != nil {
+			infos = append(infos, fmt.Sprintf("%s %d", *pr.Base.Repo.FullName, *pr.Number))
 		} else {
 			infos = append(infos, fmt.Sprintf("<%d>", prid))
 		}
@@ -1457,7 +1457,7 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 					}
 					// PR data for the same GH API event is already created
 					why = "pr collision"
-					what = fmt.Sprintf("%s %d", ic.Repo, ic.Number)
+					what = fmt.Sprintf("%s %d %s %s", ic.Repo, ic.Number, ToYMDHMSDate(ic.CreatedAt), ic.EventType)
 					updatesMutex.Lock()
 					updates[4]++
 					_, ok := infos[why]
