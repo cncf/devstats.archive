@@ -2000,6 +2000,12 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 			}
 			updatesMutex.Lock()
 			updates[uidx]++
+			_, ok := infos[why]
+			if ok {
+				infos[why] = append(infos[why], what)
+			} else {
+				infos[why] = []string{what}
+			}
 			updatesMutex.Unlock()
 			// Synchronize go routine
 			ch <- changedAnything
