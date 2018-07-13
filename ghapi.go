@@ -1804,46 +1804,6 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 				infosMutex.Unlock()
 			}
 
-			// Process current labels (they are on the issue not PR, but if changed we should add entry)
-			rowsL := QuerySQLWithErr(
-				c,
-				ctx,
-				fmt.Sprintf(
-					"select coalesce(string_agg(sub.label_id::text, ','), '') from "+
-						"(select label_id from gha_issues_labels where event_id = %s "+
-						"order by label_id) sub",
-					NValue(1),
-				),
-				ghaEventID,
-			)
-			defer func() { FatalOnError(rowsL.Close()) }()
-			ghaLabels := ""
-			for rowsL.Next() {
-				FatalOnError(rowsL.Scan(&ghaLabels))
-			}
-			FatalOnError(rowsL.Err())
-			changedLabels := false
-			if ghaLabels != ic.Labels {
-				if ctx.Debug > 1 {
-					Printf("Updating PR '%v' labels to '%s', they were: '%s' (event_id %d)\n", ic, ic.Labels, ghaLabels, ghaEventID)
-				}
-				changedLabels = true
-				why = "changed pr labels"
-				if manual {
-					what = fmt.Sprintf("%s %d: %v -> %v", ic.Repo, ic.Number, ghaLabels, ic.Labels)
-				} else {
-					what = fmt.Sprintf("%s %d %s %s: %v -> %v", ic.Repo, ic.Number, ToYMDHMSDate(ic.CreatedAt), ic.EventType, ghaLabels, ic.Labels)
-				}
-				infosMutex.Lock()
-				_, ok := infos[why]
-				if ok {
-					infos[why] = append(infos[why], what)
-				} else {
-					infos[why] = []string{what}
-				}
-				infosMutex.Unlock()
-			}
-
 			// API Assignees
 			AssigneesMap := make(map[int64]string)
 			for _, assignee := range pr.Assignees {
@@ -1971,7 +1931,7 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 				what = fmt.Sprintf("%s %d %s %s", ic.Repo, ic.Number, ToYMDHMSDate(ic.CreatedAt), ic.EventType)
 			}
 			// Do the update if needed
-			changedAnything := changedMilestone || changedState || changedClosed || changedMerged || changedMergedAt || changedMergedBy || changedAssignee || changedTitle || changedLabels || changedAssignees || changedRequestedReviewers
+			changedAnything := changedMilestone || changedState || changedClosed || changedMerged || changedMergedAt || changedMergedBy || changedAssignee || changedTitle || changedAssignees || changedRequestedReviewers
 			if changedAnything {
 				uidx = 3
 				FatalOnError(
