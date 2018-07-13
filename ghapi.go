@@ -62,7 +62,7 @@ func (ic IssueConfig) String() string {
 	)
 }
 
-// outputIssuesInfo: display summary of data to process
+// outputIssuesInfo: display summary of issues data to process
 func outputIssuesInfo(issues map[int64]IssueConfigAry, info string) {
 	Printf("%s:\n", info)
 	data := make(map[string][]string)
@@ -92,6 +92,21 @@ func outputIssuesInfo(issues map[int64]IssueConfigAry, info string) {
 		sort.Strings(svalues)
 		Printf("%s: [%s]\n", key, strings.Join(svalues, ", "))
 	}
+}
+
+// outputPRsInfo: display summary of PRs data to process
+func outputPRsInfo(prs map[int64]github.PullRequest, info string) {
+	Printf("%s:\n", info)
+	infos := []string{}
+	for prid, pr := range prs {
+		if pr.Number != nil && pr.Head != nil && pr.Head.Repo != nil && pr.Head.Repo.FullName != nil {
+			infos = append(infos, fmt.Sprintf("%s %d", *pr.Head.Repo.FullName, *pr.Number))
+		} else {
+			infos = append(infos, fmt.Sprintf("<%d>", prid))
+		}
+	}
+	sort.Strings(infos)
+	Printf("PRs: %s\n", strings.Join(infos, ", "))
 }
 
 // outputInfo: displays messages gathered in the map
@@ -996,7 +1011,7 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 						why = "no previous issue state"
 						what = fmt.Sprintf("%s %d", cfg.Repo, cfg.Number)
 					} else {
-						why = "no event at date"
+						why = "no issue event at date"
 						what = fmt.Sprintf("%s %d %s %s", cfg.Repo, cfg.Number, ToYMDHMSDate(cfg.CreatedAt), cfg.EventType)
 					}
 					updatesMutex.Lock()
@@ -1016,7 +1031,7 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 					if ctx.Debug > 1 {
 						Printf("Artificial event (%v) already exists, skipping: '%v'\n", cfg.CreatedAt, cfg)
 					}
-					why = "already have artificial event at date"
+					why = "already have artificial issue event at date"
 					what = fmt.Sprintf("%s %d %s %s", cfg.Repo, cfg.Number, ToYMDHMSDate(cfg.CreatedAt), cfg.EventType)
 					updatesMutex.Lock()
 					updates[1]++
@@ -1277,10 +1292,10 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 
 				uidx := 2
 				if manual {
-					why = "previous state the same"
+					why = "previous issue state the same"
 					what = fmt.Sprintf("%s %d", cfg.Repo, cfg.Number)
 				} else {
-					why = "existing state at date the same"
+					why = "existing issue state at date the same"
 					what = fmt.Sprintf("%s %d %s %s", cfg.Repo, cfg.Number, ToYMDHMSDate(cfg.CreatedAt), cfg.EventType)
 				}
 				// Do the update if needed
@@ -1295,10 +1310,10 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 						),
 					)
 					if manual {
-						why = "previous state different"
+						why = "previous issue state different"
 						what = fmt.Sprintf("%s %d", cfg.Repo, cfg.Number)
 					} else {
-						why = "existing state at date different"
+						why = "existing issue state at date different"
 						what = fmt.Sprintf("%s %d %s %s", cfg.Repo, cfg.Number, ToYMDHMSDate(cfg.CreatedAt), cfg.EventType)
 					}
 				}
@@ -1358,6 +1373,8 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 
 	// PRs sync (using state at run date XX:08+)
 	// Use map key to pass to the closure
+	outputPRsInfo(prs, "PRs to process")
+	infos = make(map[string][]string)
 	ch = make(chan bool)
 	nThreads = 0
 	dtStart = time.Now()
@@ -1376,7 +1393,7 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 			prsMutex.RUnlock()
 			prid := *pr.ID
 			updatedAt := *pr.UpdatedAt
-			if ctx.Debug > 0 {
+			if ctx.Debug > 1 {
 				Printf("GHA Issue ID '%d' --> PR ID %d, updated %v\n", iid, prid, updatedAt)
 			}
 			var (
@@ -1435,11 +1452,20 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 				}
 				FatalOnError(rowsE.Err())
 				if collision {
-					if ctx.Debug > 0 {
-						Printf("Exact PR event already exists, skipping: '%v', PR ID: %d\n", updatedAt, prid)
+					if ctx.Debug > 1 {
+						Printf("Exact PR event already exists for different date, skipping: '%v', PR ID: %d\n", updatedAt, prid)
 					}
+					// PR data for the same GH API event is already created
+					why = "pr collision"
+					what = fmt.Sprintf("%s %d", ic.Repo, ic.Number)
 					updatesMutex.Lock()
 					updates[4]++
+					_, ok := infos[why]
+					if ok {
+						infos[why] = append(infos[why], what)
+					} else {
+						infos[why] = []string{what}
+					}
 					updatesMutex.Unlock()
 					ch <- false
 					return
@@ -1497,7 +1523,7 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 			}
 			FatalOnError(rowsM.Err())
 			if !got {
-				if ctx.Debug > 0 {
+				if ctx.Debug > 1 {
 					Printf("Adding missing (%v) PR event '%v', PR ID: %d\n", updatedAt, ic, prid)
 				}
 				FatalOnError(
@@ -1508,18 +1534,39 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 						&pr,
 					),
 				)
+				if manual {
+					why = "no previous pr state"
+					what = fmt.Sprintf("%s %d", ic.Repo, ic.Number)
+				} else {
+					why = "no pr event at date"
+					what = fmt.Sprintf("%s %d %s %s", ic.Repo, ic.Number, ToYMDHMSDate(ic.CreatedAt), ic.EventType)
+				}
 				updatesMutex.Lock()
 				updates[0]++
+				_, ok := infos[why]
+				if ok {
+					infos[why] = append(infos[why], what)
+				} else {
+					infos[why] = []string{what}
+				}
 				updatesMutex.Unlock()
 				ch <- true
 				return
 			}
 			if !manual && ghaEventID > 281474976710656 {
-				if ctx.Debug > 0 {
+				if ctx.Debug > 1 {
 					Printf("Artificial PR event (%v) already exists, skipping: '%v', PR ID: %d\n", updatedAt, ic, prid)
 				}
+				why = "already have artificial pr event at date"
+				what = fmt.Sprintf("%s %d %s %s", ic.Repo, ic.Number, ToYMDHMSDate(ic.CreatedAt), ic.EventType)
 				updatesMutex.Lock()
 				updates[1]++
+				_, ok := infos[why]
+				if ok {
+					infos[why] = append(infos[why], what)
+				} else {
+					infos[why] = []string{what}
+				}
 				updatesMutex.Unlock()
 				ch <- false
 				return
@@ -1529,9 +1576,23 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 			changedState := false
 			if apiState != ghaState {
 				changedState = true
-				if ctx.Debug > 0 {
+				if ctx.Debug > 1 {
 					Printf("Updating PR '%v' state %s -> %s\n", ic, ghaState, apiState)
 				}
+				why = "changed pr state"
+				if manual {
+					what = fmt.Sprintf("%s %d: %s -> %s", ic.Repo, ic.Number, ghaState, apiState)
+				} else {
+					what = fmt.Sprintf("%s %d %s %s: %s -> %s", ic.Repo, ic.Number, ToYMDHMSDate(ic.CreatedAt), ic.EventType, ghaState, apiState)
+				}
+				infosMutex.Lock()
+				_, ok := infos[why]
+				if ok {
+					infos[why] = append(infos[why], what)
+				} else {
+					infos[why] = []string{what}
+				}
+				infosMutex.Unlock()
 			}
 
 			// Check title change
@@ -1819,4 +1880,6 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 			checked, updates[0], updates[1], updates[2], updates[3], updates[4], rem, wait,
 		)
 	}
+	// Info
+	outputInfo(infos, "PRs")
 }
