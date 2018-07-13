@@ -142,12 +142,14 @@ func syncEvents(ctx *lib.Ctx) {
 				got := false
 				for tr := 0; tr < ctx.MaxGHAPIRetry; tr++ {
 					_, rem, waitPeriod := lib.GetRateLimits(gctx, gc, true)
-					if ctx.Debug > 0 {
+					if ctx.Debug > 1 {
 						lib.Printf("Issues Repo Events Try: %d, rem: %v, waitPeriod: %v\n", tr, rem, waitPeriod)
 					}
 					if rem <= ctx.MinGHAPIPoints {
 						if waitPeriod.Seconds() <= float64(ctx.MaxGHAPIWaitSeconds) {
-							lib.Printf("API limit reached while getting events data, waiting %v (%d)\n", waitPeriod, tr)
+							if ctx.Debug > 0 {
+								lib.Printf("API limit reached while getting events data, waiting %v (%d)\n", waitPeriod, tr)
+							}
 							time.Sleep(time.Duration(1) * time.Second)
 							time.Sleep(waitPeriod)
 							continue
@@ -157,7 +159,7 @@ func syncEvents(ctx *lib.Ctx) {
 						}
 					}
 					nPages++
-					if ctx.Debug > 0 {
+					if ctx.Debug > 1 {
 						lib.Printf("API call for issues events %s (%d), remaining GHAPI points %d\n", orgRepo, nPages, rem)
 					}
 					events, response, err = gc.Issues.ListRepositoryEvents(gctx, org, repo, opt)
@@ -286,8 +288,10 @@ func syncEvents(ctx *lib.Ctx) {
 						issues[cfg.IssueID] = []lib.IssueConfig{cfg}
 					}
 					issuesMutex.Unlock()
-					if ctx.Debug > 0 {
+					if ctx.Debug > 1 {
 						lib.Printf("Processing %v\n", cfg)
+					} else if ctx.Debug == 1 {
+						lib.Printf("Processing issue number %d, event: %s, date: %s\n", cfg.Number, cfg.EventType, lib.ToYMDHMSDate(cfg.CreatedAt))
 					}
 					// Handle PR
 					if issue.IsPullRequest() {
@@ -299,12 +303,14 @@ func syncEvents(ctx *lib.Ctx) {
 							got = false
 							for tr := 0; tr < ctx.MaxGHAPIRetry; tr++ {
 								_, rem, waitPeriod := lib.GetRateLimits(gctx, gc, true)
-								if ctx.Debug > 0 {
+								if ctx.Debug > 1 {
 									lib.Printf("Get PR Try: %d, rem: %v, waitPeriod: %v\n", tr, rem, waitPeriod)
 								}
 								if rem <= ctx.MinGHAPIPoints {
 									if waitPeriod.Seconds() <= float64(ctx.MaxGHAPIWaitSeconds) {
-										lib.Printf("API limit reached while getting PR data, waiting %v (%d)\n", waitPeriod, tr)
+										if ctx.Debug > 0 {
+											lib.Printf("API limit reached while getting PR data, waiting %v (%d)\n", waitPeriod, tr)
+										}
 										time.Sleep(time.Duration(1) * time.Second)
 										time.Sleep(waitPeriod)
 										continue
@@ -313,7 +319,7 @@ func syncEvents(ctx *lib.Ctx) {
 										os.Exit(1)
 									}
 								}
-								if ctx.Debug > 0 {
+								if ctx.Debug > 1 {
 									lib.Printf("API call for %s PR: %d, remaining GHAPI points %d\n", orgRepo, prNum, rem)
 								}
 								pr, _, err = gc.PullRequests.Get(gctx, org, repo, prNum)
@@ -360,7 +366,7 @@ func syncEvents(ctx *lib.Ctx) {
 						}
 					}
 				}
-				if ctx.Debug > 0 {
+				if ctx.Debug > 1 {
 					lib.Printf("%s: [%v - %v] < %v: %v\n", orgRepo, minCreatedAt, maxCreatedAt, recentDt, minCreatedAt.Before(recentDt))
 				}
 				if minCreatedAt.Before(recentDt) {
@@ -386,7 +392,9 @@ func syncEvents(ctx *lib.Ctx) {
 		}
 	}
 	// Usually all work happens on '<-ch'
-	lib.Printf("Final GHAPI threads join\n")
+	if ctx.Debug > 1 {
+		lib.Printf("Final GHAPI threads join\n")
+	}
 	for nThreads > 0 {
 		<-ch
 		nThreads--

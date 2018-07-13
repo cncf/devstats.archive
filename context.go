@@ -83,7 +83,6 @@ type Ctx struct {
 	MaxGHAPIRetry       int             // From GHA2DB_MAX_GHAPI_RETRY, ghapi2db tool, maximum wait retries
 	SkipGHAPI           bool            // From GHA2DB_GHAPISKIP, ghapi2db tool, if set then tool is not creating artificial events using GitHub API
 	SkipGetRepos        bool            // From GHA2DB_GETREPOSSKIP, get_repos tool, if set then tool does nothing
-	OnlyEvents          []int64         // From GHA2DB_ONLY_EVENTS, ghapi2db tool, process a user provided list of events "event_id1,event_id2,...,event_idN", default "". This is for artificial events cleanup debugging.
 	CSVFile             string          // From GHA2DB_CSVOUT, runq tool, if set, saves result in this file
 	ComputeAll          bool            // From GHA2DB_COMPUTE_ALL, all tools, if set then no period decisions are taken based on time, but all possible periods are recalculated
 	ActorsFilter        bool            // From GHA2DB_ACTORS_FILTER gha2db tool, if enabled then actor filterning will be added, default false
@@ -479,18 +478,6 @@ func (ctx *Ctx) Init() {
 	}
 
 	ctx.CSVFile = os.Getenv("GHA2DB_CSVOUT")
-
-	events := os.Getenv("GHA2DB_ONLY_EVENTS")
-	if events == "" {
-		ctx.OnlyEvents = []int64{}
-	} else {
-		eventsArr := strings.Split(events, ",")
-		for _, event := range eventsArr {
-			iEvent, err := strconv.ParseInt(event, 10, 64)
-			FatalNoLog(err)
-			ctx.OnlyEvents = append(ctx.OnlyEvents, iEvent)
-		}
-	}
 
 	// Context out if requested
 	if ctx.CtxOut {
