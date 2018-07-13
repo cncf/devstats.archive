@@ -915,11 +915,6 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 	// 0 - no such issue --> new
 	// 2: previous issue state exists, no new
 	// 3: previous issue state exists, new needed
-	why := ""
-	what := ""
-	// infos uses updatesMutex (when updates is also changed)
-	// when only infos is changes it uses infoxMutex
-	var infosMutex = &sync.Mutex{}
 	infos := make(map[string][]string)
 
 	Printf("ghapi2db.go: Processing %d PRs, %d issues (%d with date collisions), manual mode: %v - GHA part\n", nPRs, nIssues, nIssuesBefore, manual)
@@ -927,6 +922,8 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 	for key, issueConfig := range issues {
 		for idx := range issueConfig {
 			go func(ch chan bool, iid int64, idx int) {
+				why := ""
+				what := ""
 				// Refer to current tag using index passed to anonymous function
 				issuesMutex.RLock()
 				cfg := issues[iid][idx]
@@ -1061,14 +1058,14 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 					} else {
 						what = fmt.Sprintf("%s %d %s %s: %s -> %s", cfg.Repo, cfg.Number, ToYMDHMSDate(cfg.CreatedAt), cfg.EventType, ghaState, apiState)
 					}
-					infosMutex.Lock()
+					updatesMutex.Lock()
 					_, ok := infos[why]
 					if ok {
 						infos[why] = append(infos[why], what)
 					} else {
 						infos[why] = []string{what}
 					}
-					infosMutex.Unlock()
+					updatesMutex.Unlock()
 				}
 
 				// Check title change
@@ -1084,14 +1081,14 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 					} else {
 						what = fmt.Sprintf("%s %d %s %s: %s -> %s", cfg.Repo, cfg.Number, ToYMDHMSDate(cfg.CreatedAt), cfg.EventType, ghaTitle, apiTitle)
 					}
-					infosMutex.Lock()
+					updatesMutex.Lock()
 					_, ok := infos[why]
 					if ok {
 						infos[why] = append(infos[why], what)
 					} else {
 						infos[why] = []string{what}
 					}
-					infosMutex.Unlock()
+					updatesMutex.Unlock()
 				}
 
 				// Check locked change
@@ -1107,14 +1104,14 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 					} else {
 						what = fmt.Sprintf("%s %d %s %s: %v -> %v", cfg.Repo, cfg.Number, ToYMDHMSDate(cfg.CreatedAt), cfg.EventType, ghaLocked, apiLocked)
 					}
-					infosMutex.Lock()
+					updatesMutex.Lock()
 					_, ok := infos[why]
 					if ok {
 						infos[why] = append(infos[why], what)
 					} else {
 						infos[why] = []string{what}
 					}
-					infosMutex.Unlock()
+					updatesMutex.Unlock()
 				}
 
 				// Check closed_at change
@@ -1138,14 +1135,14 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 					} else {
 						what = fmt.Sprintf("%s %d %s %s: %s -> %s", cfg.Repo, cfg.Number, ToYMDHMSDate(cfg.CreatedAt), cfg.EventType, from, to)
 					}
-					infosMutex.Lock()
+					updatesMutex.Lock()
 					_, ok := infos[why]
 					if ok {
 						infos[why] = append(infos[why], what)
 					} else {
 						infos[why] = []string{what}
 					}
-					infosMutex.Unlock()
+					updatesMutex.Unlock()
 				}
 
 				// Check milestone change
@@ -1169,14 +1166,14 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 					} else {
 						what = fmt.Sprintf("%s %d %s %s: %s -> %s", cfg.Repo, cfg.Number, ToYMDHMSDate(cfg.CreatedAt), cfg.EventType, from, to)
 					}
-					infosMutex.Lock()
+					updatesMutex.Lock()
 					_, ok := infos[why]
 					if ok {
 						infos[why] = append(infos[why], what)
 					} else {
 						infos[why] = []string{what}
 					}
-					infosMutex.Unlock()
+					updatesMutex.Unlock()
 				}
 
 				// Check assignee change
@@ -1200,14 +1197,14 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 					} else {
 						what = fmt.Sprintf("%s %d %s %s: %s -> %s", cfg.Repo, cfg.Number, ToYMDHMSDate(cfg.CreatedAt), cfg.EventType, from, to)
 					}
-					infosMutex.Lock()
+					updatesMutex.Lock()
 					_, ok := infos[why]
 					if ok {
 						infos[why] = append(infos[why], what)
 					} else {
 						infos[why] = []string{what}
 					}
-					infosMutex.Unlock()
+					updatesMutex.Unlock()
 				}
 
 				// Process current labels
@@ -1240,14 +1237,14 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 					} else {
 						what = fmt.Sprintf("%s %d %s %s: %s -> %s", cfg.Repo, cfg.Number, ToYMDHMSDate(cfg.CreatedAt), cfg.EventType, ghaLabels, cfg.Labels)
 					}
-					infosMutex.Lock()
+					updatesMutex.Lock()
 					_, ok := infos[why]
 					if ok {
 						infos[why] = append(infos[why], what)
 					} else {
 						infos[why] = []string{what}
 					}
-					infosMutex.Unlock()
+					updatesMutex.Unlock()
 				}
 
 				// Process current assignees
@@ -1280,14 +1277,14 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 					} else {
 						what = fmt.Sprintf("%s %d %s %s: %s -> %s", cfg.Repo, cfg.Number, ToYMDHMSDate(cfg.CreatedAt), cfg.EventType, ghaAssignees, cfg.Assignees)
 					}
-					infosMutex.Lock()
+					updatesMutex.Lock()
 					_, ok := infos[why]
 					if ok {
 						infos[why] = append(infos[why], what)
 					} else {
 						infos[why] = []string{what}
 					}
-					infosMutex.Unlock()
+					updatesMutex.Unlock()
 				}
 
 				uidx := 2
@@ -1385,6 +1382,8 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 	var prsMutex = &sync.RWMutex{}
 	for iid := range prs {
 		go func(ch chan bool, iid int64) {
+			why := ""
+			what := ""
 			prsMutex.RLock()
 			pr := prs[iid]
 			ica := issues[iid]
@@ -1585,14 +1584,14 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 				} else {
 					what = fmt.Sprintf("%s %d %s %s: %s -> %s", ic.Repo, ic.Number, ToYMDHMSDate(ic.CreatedAt), ic.EventType, ghaState, apiState)
 				}
-				infosMutex.Lock()
+				updatesMutex.Lock()
 				_, ok := infos[why]
 				if ok {
 					infos[why] = append(infos[why], what)
 				} else {
 					infos[why] = []string{what}
 				}
-				infosMutex.Unlock()
+				updatesMutex.Unlock()
 			}
 
 			// Check title change
@@ -1608,29 +1607,29 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 				} else {
 					what = fmt.Sprintf("%s %d %s %s: %s -> %s", ic.Repo, ic.Number, ToYMDHMSDate(ic.CreatedAt), ic.EventType, ghaTitle, apiTitle)
 				}
-				infosMutex.Lock()
+				updatesMutex.Lock()
 				_, ok := infos[why]
 				if ok {
 					infos[why] = append(infos[why], what)
 				} else {
 					infos[why] = []string{what}
 				}
-				infosMutex.Unlock()
+				updatesMutex.Unlock()
 			}
 
 			// Check merged change
 			changedMerged := false
 			if (apiMerged == nil && ghaMerged != nil) || (apiMerged != nil && ghaMerged == nil) || (apiMerged != nil && ghaMerged != nil && *apiMerged != *ghaMerged) {
 				changedMerged = true
+				from := Null
+				if ghaMerged != nil {
+					from = fmt.Sprintf("%v", *ghaMerged)
+				}
+				to := Null
+				if apiMerged != nil {
+					to = fmt.Sprintf("%v", *apiMerged)
+				}
 				if ctx.Debug > 1 {
-					from := Null
-					if ghaMerged != nil {
-						from = fmt.Sprintf("%v", *ghaMerged)
-					}
-					to := Null
-					if apiMerged != nil {
-						to = fmt.Sprintf("%v", *apiMerged)
-					}
 					Printf("Updating PR '%v' merged %s -> %s\n", ic, from, to)
 				}
 				why = "changed pr merged"
@@ -1639,14 +1638,14 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 				} else {
 					what = fmt.Sprintf("%s %d %s %s: %v -> %v", ic.Repo, ic.Number, ToYMDHMSDate(ic.CreatedAt), ic.EventType, ghaMerged, apiMerged)
 				}
-				infosMutex.Lock()
+				updatesMutex.Lock()
 				_, ok := infos[why]
 				if ok {
 					infos[why] = append(infos[why], what)
 				} else {
 					infos[why] = []string{what}
 				}
-				infosMutex.Unlock()
+				updatesMutex.Unlock()
 			}
 
 			// Check closed_at change
@@ -1666,18 +1665,18 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 				}
 				why = "changed pr closed at"
 				if manual {
-					what = fmt.Sprintf("%s %d: %v -> %v", ic.Repo, ic.Number, from, to)
+					what = fmt.Sprintf("%s %d: %s -> %s", ic.Repo, ic.Number, from, to)
 				} else {
-					what = fmt.Sprintf("%s %d %s %s: %v -> %v", ic.Repo, ic.Number, ToYMDHMSDate(ic.CreatedAt), ic.EventType, from, to)
+					what = fmt.Sprintf("%s %d %s %s: %s -> %s", ic.Repo, ic.Number, ToYMDHMSDate(ic.CreatedAt), ic.EventType, from, to)
 				}
-				infosMutex.Lock()
+				updatesMutex.Lock()
 				_, ok := infos[why]
 				if ok {
 					infos[why] = append(infos[why], what)
 				} else {
 					infos[why] = []string{what}
 				}
-				infosMutex.Unlock()
+				updatesMutex.Unlock()
 			}
 
 			// Check merged_at change
@@ -1697,18 +1696,18 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 				}
 				why = "changed pr merged at"
 				if manual {
-					what = fmt.Sprintf("%s %d: %v -> %v", ic.Repo, ic.Number, from, to)
+					what = fmt.Sprintf("%s %d: %s -> %s", ic.Repo, ic.Number, from, to)
 				} else {
-					what = fmt.Sprintf("%s %d %s %s: %v -> %v", ic.Repo, ic.Number, ToYMDHMSDate(ic.CreatedAt), ic.EventType, from, to)
+					what = fmt.Sprintf("%s %d %s %s: %s -> %s", ic.Repo, ic.Number, ToYMDHMSDate(ic.CreatedAt), ic.EventType, from, to)
 				}
-				infosMutex.Lock()
+				updatesMutex.Lock()
 				_, ok := infos[why]
 				if ok {
 					infos[why] = append(infos[why], what)
 				} else {
 					infos[why] = []string{what}
 				}
-				infosMutex.Unlock()
+				updatesMutex.Unlock()
 			}
 
 			// Check milestone change
@@ -1728,18 +1727,18 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 				}
 				why = "changed pr milestone"
 				if manual {
-					what = fmt.Sprintf("%s %d: %v -> %v", ic.Repo, ic.Number, from, to)
+					what = fmt.Sprintf("%s %d: %s -> %s", ic.Repo, ic.Number, from, to)
 				} else {
-					what = fmt.Sprintf("%s %d %s %s: %v -> %v", ic.Repo, ic.Number, ToYMDHMSDate(ic.CreatedAt), ic.EventType, from, to)
+					what = fmt.Sprintf("%s %d %s %s: %s -> %s", ic.Repo, ic.Number, ToYMDHMSDate(ic.CreatedAt), ic.EventType, from, to)
 				}
-				infosMutex.Lock()
+				updatesMutex.Lock()
 				_, ok := infos[why]
 				if ok {
 					infos[why] = append(infos[why], what)
 				} else {
 					infos[why] = []string{what}
 				}
-				infosMutex.Unlock()
+				updatesMutex.Unlock()
 			}
 
 			// Check assignee change
@@ -1759,18 +1758,18 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 				}
 				why = "changed pr assignee"
 				if manual {
-					what = fmt.Sprintf("%s %d: %v -> %v", ic.Repo, ic.Number, from, to)
+					what = fmt.Sprintf("%s %d: %s -> %s", ic.Repo, ic.Number, from, to)
 				} else {
-					what = fmt.Sprintf("%s %d %s %s: %v -> %v", ic.Repo, ic.Number, ToYMDHMSDate(ic.CreatedAt), ic.EventType, from, to)
+					what = fmt.Sprintf("%s %d %s %s: %s -> %s", ic.Repo, ic.Number, ToYMDHMSDate(ic.CreatedAt), ic.EventType, from, to)
 				}
-				infosMutex.Lock()
+				updatesMutex.Lock()
 				_, ok := infos[why]
 				if ok {
 					infos[why] = append(infos[why], what)
 				} else {
 					infos[why] = []string{what}
 				}
-				infosMutex.Unlock()
+				updatesMutex.Unlock()
 			}
 
 			// Check merged by change
@@ -1790,18 +1789,18 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 				}
 				why = "changed pr merged by"
 				if manual {
-					what = fmt.Sprintf("%s %d: %v -> %v", ic.Repo, ic.Number, from, to)
+					what = fmt.Sprintf("%s %d: %s -> %s", ic.Repo, ic.Number, from, to)
 				} else {
-					what = fmt.Sprintf("%s %d %s %s: %v -> %v", ic.Repo, ic.Number, ToYMDHMSDate(ic.CreatedAt), ic.EventType, from, to)
+					what = fmt.Sprintf("%s %d %s %s: %s -> %s", ic.Repo, ic.Number, ToYMDHMSDate(ic.CreatedAt), ic.EventType, from, to)
 				}
-				infosMutex.Lock()
+				updatesMutex.Lock()
 				_, ok := infos[why]
 				if ok {
 					infos[why] = append(infos[why], what)
 				} else {
 					infos[why] = []string{what}
 				}
-				infosMutex.Unlock()
+				updatesMutex.Unlock()
 			}
 
 			// API Assignees
@@ -1849,18 +1848,18 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 				changedAssignees = true
 				why = "changed pr assignees"
 				if manual {
-					what = fmt.Sprintf("%s %d: %v -> %v", ic.Repo, ic.Number, ghaAssignees, apiAssignees)
+					what = fmt.Sprintf("%s %d: %s -> %s", ic.Repo, ic.Number, ghaAssignees, apiAssignees)
 				} else {
-					what = fmt.Sprintf("%s %d %s %s: %v -> %v", ic.Repo, ic.Number, ToYMDHMSDate(ic.CreatedAt), ic.EventType, ghaAssignees, apiAssignees)
+					what = fmt.Sprintf("%s %d %s %s: %s -> %s", ic.Repo, ic.Number, ToYMDHMSDate(ic.CreatedAt), ic.EventType, ghaAssignees, apiAssignees)
 				}
-				infosMutex.Lock()
+				updatesMutex.Lock()
 				_, ok := infos[why]
 				if ok {
 					infos[why] = append(infos[why], what)
 				} else {
 					infos[why] = []string{what}
 				}
-				infosMutex.Unlock()
+				updatesMutex.Unlock()
 			}
 
 			// API Requested reviewers
@@ -1908,18 +1907,18 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 				changedRequestedReviewers = true
 				why = "changed pr reqested reviewers"
 				if manual {
-					what = fmt.Sprintf("%s %d: %v -> %v", ic.Repo, ic.Number, ghaRequestedReviewers, apiRequestedReviewers)
+					what = fmt.Sprintf("%s %d: %s -> %s", ic.Repo, ic.Number, ghaRequestedReviewers, apiRequestedReviewers)
 				} else {
-					what = fmt.Sprintf("%s %d %s %s: %v -> %v", ic.Repo, ic.Number, ToYMDHMSDate(ic.CreatedAt), ic.EventType, ghaRequestedReviewers, apiRequestedReviewers)
+					what = fmt.Sprintf("%s %d %s %s: %s -> %s", ic.Repo, ic.Number, ToYMDHMSDate(ic.CreatedAt), ic.EventType, ghaRequestedReviewers, apiRequestedReviewers)
 				}
-				infosMutex.Lock()
+				updatesMutex.Lock()
 				_, ok := infos[why]
 				if ok {
 					infos[why] = append(infos[why], what)
 				} else {
 					infos[why] = []string{what}
 				}
-				infosMutex.Unlock()
+				updatesMutex.Unlock()
 			}
 
 			uidx := 2
@@ -1951,7 +1950,7 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 				}
 			}
 
-			if ctx.Debug > 0 {
+			if ctx.Debug > 1 {
 				if manual {
 					Printf("PR Event exist (event_id: %d), added artificial: %v: '%v'\n", ghaEventID, changedAnything, ic)
 				} else {

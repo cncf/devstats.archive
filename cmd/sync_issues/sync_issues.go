@@ -79,13 +79,13 @@ func syncIssues(ctx *lib.Ctx) {
 	var issuesMutex = &sync.Mutex{}
 	prs := make(map[int64]github.PullRequest)
 	var prsMutex = &sync.Mutex{}
-	artificialUID := int64(-1)
-	artificialLogin := "devstats-sync"
-	artificialEvent := &github.IssueEvent{Actor: &github.User{ID: &artificialUID, Login: &artificialLogin}}
 
 	// Process issues
 	for idx := range numbers {
 		go func(ch chan bool, orgRepo string, number int) {
+			artificialUID := int64(-1)
+			artificialLogin := "devstats-sync"
+			artificialEvent := &github.IssueEvent{Actor: &github.User{ID: &artificialUID, Login: &artificialLogin}}
 			ary := strings.Split(orgRepo, "/")
 			if len(ary) < 2 {
 				ch <- false
