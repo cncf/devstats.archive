@@ -86,6 +86,12 @@ func syncEvents(ctx *lib.Ctx) {
 	eventTypes["unsubscribed"] = struct{}{}
 	eventTypes["head_ref_deleted"] = struct{}{}
 	eventTypes["head_ref_restored"] = struct{}{}
+	// Non specified in GH API but happenning
+	eventTypes["review_requested"] = struct{}{}
+	eventTypes["review_dismissed"] = struct{}{}
+	eventTypes["review_request_removed"] = struct{}{}
+	eventTypes["added_to_project"] = struct{}{}
+	eventTypes["moved_columns_in_project"] = struct{}{}
 
 	// Get number of CPUs available
 	thrN := lib.GetThreadsNum(ctx)
