@@ -106,7 +106,7 @@ func syncIssues(ctx *lib.Ctx) {
 			got := false
 			for tr := 0; tr < ctx.MaxGHAPIRetry; tr++ {
 				_, rem, waitPeriod := lib.GetRateLimits(gctx, gc, true)
-				if ctx.Debug > 0 {
+				if ctx.Debug > 1 {
 					lib.Printf("Get Issue Try: %d, rem: %v, waitPeriod: %v\n", tr, rem, waitPeriod)
 				}
 				if rem <= ctx.MinGHAPIPoints {
@@ -120,7 +120,7 @@ func syncIssues(ctx *lib.Ctx) {
 						os.Exit(1)
 					}
 				}
-				if ctx.Debug > 0 {
+				if ctx.Debug > 1 {
 					lib.Printf("API call for Issue %s %d, remaining GHAPI points %d\n", orgRepo, number, rem)
 				}
 				issue, _, err = gc.Issues.Get(gctx, org, repo, number)
@@ -226,6 +226,8 @@ func syncIssues(ctx *lib.Ctx) {
 			issuesMutex.Unlock()
 			if ctx.Debug > 0 {
 				lib.Printf("Processing %v\n", cfg)
+			} else if ctx.Debug == 1 {
+				lib.Printf("Processing issue number %d\n", cfg.Number)
 			}
 
 			// Handle PR
@@ -238,7 +240,7 @@ func syncIssues(ctx *lib.Ctx) {
 					got = false
 					for tr := 0; tr < ctx.MaxGHAPIRetry; tr++ {
 						_, rem, waitPeriod := lib.GetRateLimits(gctx, gc, true)
-						if ctx.Debug > 0 {
+						if ctx.Debug > 1 {
 							lib.Printf("Get PR Try: %d, rem: %v, waitPeriod: %v\n", tr, rem, waitPeriod)
 						}
 						if rem <= ctx.MinGHAPIPoints {
@@ -252,7 +254,7 @@ func syncIssues(ctx *lib.Ctx) {
 								os.Exit(1)
 							}
 						}
-						if ctx.Debug > 0 {
+						if ctx.Debug > 1 {
 							lib.Printf("API call for PR %s %d, remaining GHAPI points %d\n", orgRepo, prNum, rem)
 						}
 						pr, _, err = gc.PullRequests.Get(gctx, org, repo, prNum)
@@ -313,7 +315,9 @@ func syncIssues(ctx *lib.Ctx) {
 		}
 	}
 	// Usually all work happens on '<-ch'
-	lib.Printf("Final GHAPI threads join\n")
+	if ctx.Debug > 1 {
+		lib.Printf("Final GHAPI threads join\n")
+	}
 	for nThreads > 0 {
 		<-ch
 		nThreads--
