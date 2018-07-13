@@ -48,7 +48,9 @@ func syncIssues(ctx *lib.Ctx) {
 			repos = append(repos, repo)
 			seen[key] = struct{}{}
 		} else {
-			lib.Printf("Duplicated issue: %s\n", key)
+			if ctx.Debug > 0 {
+				lib.Printf("Duplicated issue: %s\n", key)
+			}
 		}
 	}
 	lib.FatalOnError(rows.Err())
