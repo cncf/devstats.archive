@@ -17,7 +17,7 @@ where
         title in ('v1.11', 'v1.12')
     ) or (
       i.milestone_id is null
-      and i.updated_at > now() - '1 day'::interval
+      and i.updated_at > now() - '1 month'::interval
     )
   )
 limit

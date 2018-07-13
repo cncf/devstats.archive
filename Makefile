@@ -4,12 +4,12 @@ GO_TEST_FILES=context_test.go gha_test.go map_test.go mgetc_test.go threads_test
 GO_DBTEST_FILES=pg_test.go series_test.go metrics_test.go
 GO_LIBTEST_FILES=test/compare.go test/time.go
 GO_BIN_CMDS=devstats/cmd/structure devstats/cmd/runq devstats/cmd/gha2db devstats/cmd/calc_metric devstats/cmd/gha2db_sync devstats/cmd/import_affs devstats/cmd/annotations devstats/cmd/tags devstats/cmd/webhook devstats/cmd/devstats devstats/cmd/get_repos devstats/cmd/merge_dbs devstats/cmd/replacer devstats/cmd/vars devstats/cmd/ghapi2db devstats/cmd/columns devstats/cmd/hide_data devstats/cmd/sqlitedb devstats/cmd/website_data devstats/cmd/sync_issues
+#for race CGO_ENABLED=1
 #GO_ENV=CGO_ENABLED=1
 GO_ENV=CGO_ENABLED=0
 # -ldflags '-s -w': create release binary - without debug info
-#GO_BUILD=go build
-#GO_BUILD=go build -ldflags '-s -w' -race
 GO_BUILD=go build -ldflags '-s -w'
+#GO_BUILD=go build -ldflags '-s -w' -race
 #  -ldflags '-s': instal stripped binary
 #GO_INSTALL=go install
 GO_INSTALL=go install -ldflags '-s'
