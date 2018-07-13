@@ -1075,7 +1075,7 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 				changedTitle := false
 				if apiTitle != ghaTitle {
 					changedTitle = true
-					if ctx.Debug > 0 {
+					if ctx.Debug > 1 {
 						Printf("Updating issue '%v' title %s -> %s\n", cfg, ghaTitle, apiTitle)
 					}
 					why = "changed issue title"
@@ -1098,7 +1098,7 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 				changedLocked := false
 				if apiLocked != ghaLocked {
 					changedLocked = true
-					if ctx.Debug > 0 {
+					if ctx.Debug > 1 {
 						Printf("Updating issue '%v' locked %v -> %v\n", cfg, ghaLocked, apiLocked)
 					}
 					why = "changed issue locked state"
@@ -1129,7 +1129,7 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 					if apiClosedAt != nil {
 						to = fmt.Sprintf("%v", ToYMDHMSDate(*apiClosedAt))
 					}
-					if ctx.Debug > 0 {
+					if ctx.Debug > 1 {
 						Printf("Updating issue '%v' closed_at %s -> %s\n", cfg, from, to)
 					}
 					why = "changed issue closed at"
@@ -1160,7 +1160,7 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 					if apiMilestoneID != nil {
 						to = fmt.Sprintf("%d", *apiMilestoneID)
 					}
-					if ctx.Debug > 0 {
+					if ctx.Debug > 1 {
 						Printf("Updating issue '%v' milestone %s -> %s\n", cfg, from, to)
 					}
 					why = "changed issue milestone"
@@ -1191,7 +1191,7 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 					if apiAssigneeID != nil {
 						to = fmt.Sprintf("%d", *apiAssigneeID)
 					}
-					if ctx.Debug > 0 {
+					if ctx.Debug > 1 {
 						Printf("Updating issue '%v' assignee %s -> %s\n", cfg, from, to)
 					}
 					why = "changed issue assignee"
@@ -1230,7 +1230,7 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 				FatalOnError(rowsL.Err())
 				changedLabels := false
 				if ghaLabels != cfg.Labels {
-					if ctx.Debug > 0 {
+					if ctx.Debug > 1 {
 						Printf("Updating issue '%v' labels to '%s', they were: '%s' (event_id %d)\n", cfg, cfg.Labels, ghaLabels, ghaEventID)
 					}
 					changedLabels = true
@@ -1270,7 +1270,7 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 				FatalOnError(rowsA.Err())
 				changedAssignees := false
 				if ghaAssignees != cfg.Assignees {
-					if ctx.Debug > 0 {
+					if ctx.Debug > 1 {
 						Printf("Updating issue '%v' assignees to '%s', they were: '%s' (event_id %d)\n", cfg, cfg.Assignees, ghaAssignees, ghaEventID)
 					}
 					changedAssignees = true
@@ -1318,7 +1318,7 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 					}
 				}
 
-				if ctx.Debug > 0 {
+				if ctx.Debug > 1 {
 					if manual {
 						Printf("Previous event (event_id: %d), added artificial: %v: '%v'\n", ghaEventID, changedAnything, cfg)
 					} else {
@@ -1599,16 +1599,30 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 			changedTitle := false
 			if apiTitle != ghaTitle {
 				changedTitle = true
-				if ctx.Debug > 0 {
+				if ctx.Debug > 1 {
 					Printf("Updating PR '%v' title %s -> %s\n", ic, ghaTitle, apiTitle)
 				}
+				why = "changed pr title"
+				if manual {
+					what = fmt.Sprintf("%s %d: %s -> %s", ic.Repo, ic.Number, ghaTitle, apiTitle)
+				} else {
+					what = fmt.Sprintf("%s %d %s %s: %s -> %s", ic.Repo, ic.Number, ToYMDHMSDate(ic.CreatedAt), ic.EventType, ghaTitle, apiTitle)
+				}
+				infosMutex.Lock()
+				_, ok := infos[why]
+				if ok {
+					infos[why] = append(infos[why], what)
+				} else {
+					infos[why] = []string{what}
+				}
+				infosMutex.Unlock()
 			}
 
 			// Check merged change
 			changedMerged := false
 			if (apiMerged == nil && ghaMerged != nil) || (apiMerged != nil && ghaMerged == nil) || (apiMerged != nil && ghaMerged != nil && *apiMerged != *ghaMerged) {
 				changedMerged = true
-				if ctx.Debug > 0 {
+				if ctx.Debug > 1 {
 					from := Null
 					if ghaMerged != nil {
 						from = fmt.Sprintf("%v", *ghaMerged)
@@ -1619,91 +1633,175 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 					}
 					Printf("Updating PR '%v' merged %s -> %s\n", ic, from, to)
 				}
+				why = "changed pr merged"
+				if manual {
+					what = fmt.Sprintf("%s %d: %v -> %v", ic.Repo, ic.Number, ghaMerged, apiMerged)
+				} else {
+					what = fmt.Sprintf("%s %d %s %s: %v -> %v", ic.Repo, ic.Number, ToYMDHMSDate(ic.CreatedAt), ic.EventType, ghaMerged, apiMerged)
+				}
+				infosMutex.Lock()
+				_, ok := infos[why]
+				if ok {
+					infos[why] = append(infos[why], what)
+				} else {
+					infos[why] = []string{what}
+				}
+				infosMutex.Unlock()
 			}
 
 			// Check closed_at change
 			changedClosed := false
 			if (apiClosedAt == nil && ghaClosedAt != nil) || (apiClosedAt != nil && ghaClosedAt == nil) || (apiClosedAt != nil && ghaClosedAt != nil && ToYMDHMSDate(*apiClosedAt) != ToYMDHMSDate(*ghaClosedAt)) {
 				changedClosed = true
-				if ctx.Debug > 0 {
-					from := Null
-					if ghaClosedAt != nil {
-						from = fmt.Sprintf("%v", ToYMDHMSDate(*ghaClosedAt))
-					}
-					to := Null
-					if apiClosedAt != nil {
-						to = fmt.Sprintf("%v", ToYMDHMSDate(*apiClosedAt))
-					}
+				from := Null
+				if ghaClosedAt != nil {
+					from = fmt.Sprintf("%v", ToYMDHMSDate(*ghaClosedAt))
+				}
+				to := Null
+				if apiClosedAt != nil {
+					to = fmt.Sprintf("%v", ToYMDHMSDate(*apiClosedAt))
+				}
+				if ctx.Debug > 1 {
 					Printf("Updating PR '%v' closed_at %s -> %s\n", ic, from, to)
 				}
+				why = "changed pr closed at"
+				if manual {
+					what = fmt.Sprintf("%s %d: %v -> %v", ic.Repo, ic.Number, from, to)
+				} else {
+					what = fmt.Sprintf("%s %d %s %s: %v -> %v", ic.Repo, ic.Number, ToYMDHMSDate(ic.CreatedAt), ic.EventType, from, to)
+				}
+				infosMutex.Lock()
+				_, ok := infos[why]
+				if ok {
+					infos[why] = append(infos[why], what)
+				} else {
+					infos[why] = []string{what}
+				}
+				infosMutex.Unlock()
 			}
 
 			// Check merged_at change
 			changedMergedAt := false
 			if (apiMergedAt == nil && ghaMergedAt != nil) || (apiMergedAt != nil && ghaMergedAt == nil) || (apiMergedAt != nil && ghaMergedAt != nil && ToYMDHMSDate(*apiMergedAt) != ToYMDHMSDate(*ghaMergedAt)) {
 				changedMergedAt = true
-				if ctx.Debug > 0 {
-					from := Null
-					if ghaMergedAt != nil {
-						from = fmt.Sprintf("%v", ToYMDHMSDate(*ghaMergedAt))
-					}
-					to := Null
-					if apiMergedAt != nil {
-						to = fmt.Sprintf("%v", ToYMDHMSDate(*apiMergedAt))
-					}
+				from := Null
+				if ghaMergedAt != nil {
+					from = fmt.Sprintf("%v", ToYMDHMSDate(*ghaMergedAt))
+				}
+				to := Null
+				if apiMergedAt != nil {
+					to = fmt.Sprintf("%v", ToYMDHMSDate(*apiMergedAt))
+				}
+				if ctx.Debug > 1 {
 					Printf("Updating PR '%v' merged_at %s -> %s\n", ic, from, to)
 				}
+				why = "changed pr merged at"
+				if manual {
+					what = fmt.Sprintf("%s %d: %v -> %v", ic.Repo, ic.Number, from, to)
+				} else {
+					what = fmt.Sprintf("%s %d %s %s: %v -> %v", ic.Repo, ic.Number, ToYMDHMSDate(ic.CreatedAt), ic.EventType, from, to)
+				}
+				infosMutex.Lock()
+				_, ok := infos[why]
+				if ok {
+					infos[why] = append(infos[why], what)
+				} else {
+					infos[why] = []string{what}
+				}
+				infosMutex.Unlock()
 			}
 
 			// Check milestone change
 			changedMilestone := false
 			if (apiMilestoneID == nil && ghaMilestoneID != nil) || (apiMilestoneID != nil && ghaMilestoneID == nil) || (apiMilestoneID != nil && ghaMilestoneID != nil && *apiMilestoneID != *ghaMilestoneID) {
 				changedMilestone = true
-				if ctx.Debug > 0 {
-					from := Null
-					if ghaMilestoneID != nil {
-						from = fmt.Sprintf("%d", *ghaMilestoneID)
-					}
-					to := Null
-					if apiMilestoneID != nil {
-						to = fmt.Sprintf("%d", *apiMilestoneID)
-					}
+				from := Null
+				if ghaMilestoneID != nil {
+					from = fmt.Sprintf("%d", *ghaMilestoneID)
+				}
+				to := Null
+				if apiMilestoneID != nil {
+					to = fmt.Sprintf("%d", *apiMilestoneID)
+				}
+				if ctx.Debug > 1 {
 					Printf("Updating PR '%v' milestone %s -> %s\n", ic, from, to)
 				}
+				why = "changed pr milestone"
+				if manual {
+					what = fmt.Sprintf("%s %d: %v -> %v", ic.Repo, ic.Number, from, to)
+				} else {
+					what = fmt.Sprintf("%s %d %s %s: %v -> %v", ic.Repo, ic.Number, ToYMDHMSDate(ic.CreatedAt), ic.EventType, from, to)
+				}
+				infosMutex.Lock()
+				_, ok := infos[why]
+				if ok {
+					infos[why] = append(infos[why], what)
+				} else {
+					infos[why] = []string{what}
+				}
+				infosMutex.Unlock()
 			}
 
 			// Check assignee change
 			changedAssignee := false
 			if (apiAssigneeID == nil && ghaAssigneeID != nil) || (apiAssigneeID != nil && ghaAssigneeID == nil) || (apiAssigneeID != nil && ghaAssigneeID != nil && *apiAssigneeID != *ghaAssigneeID) {
 				changedAssignee = true
-				if ctx.Debug > 0 {
-					from := Null
-					if ghaAssigneeID != nil {
-						from = fmt.Sprintf("%d", *ghaAssigneeID)
-					}
-					to := Null
-					if apiAssigneeID != nil {
-						to = fmt.Sprintf("%d", *apiAssigneeID)
-					}
+				from := Null
+				if ghaAssigneeID != nil {
+					from = fmt.Sprintf("%d", *ghaAssigneeID)
+				}
+				to := Null
+				if apiAssigneeID != nil {
+					to = fmt.Sprintf("%d", *apiAssigneeID)
+				}
+				if ctx.Debug > 1 {
 					Printf("Updating PR '%v' assignee %s -> %s\n", ic, from, to)
 				}
+				why = "changed pr assignee"
+				if manual {
+					what = fmt.Sprintf("%s %d: %v -> %v", ic.Repo, ic.Number, from, to)
+				} else {
+					what = fmt.Sprintf("%s %d %s %s: %v -> %v", ic.Repo, ic.Number, ToYMDHMSDate(ic.CreatedAt), ic.EventType, from, to)
+				}
+				infosMutex.Lock()
+				_, ok := infos[why]
+				if ok {
+					infos[why] = append(infos[why], what)
+				} else {
+					infos[why] = []string{what}
+				}
+				infosMutex.Unlock()
 			}
 
 			// Check merged by change
 			changedMergedBy := false
 			if (apiMergedByID == nil && ghaMergedByID != nil) || (apiMergedByID != nil && ghaMergedByID == nil) || (apiMergedByID != nil && ghaMergedByID != nil && *apiMergedByID != *ghaMergedByID) {
 				changedMergedBy = true
-				if ctx.Debug > 0 {
-					from := Null
-					if ghaMergedByID != nil {
-						from = fmt.Sprintf("%d", *ghaMergedByID)
-					}
-					to := Null
-					if apiMergedByID != nil {
-						to = fmt.Sprintf("%d", *apiMergedByID)
-					}
+				from := Null
+				if ghaMergedByID != nil {
+					from = fmt.Sprintf("%d", *ghaMergedByID)
+				}
+				to := Null
+				if apiMergedByID != nil {
+					to = fmt.Sprintf("%d", *apiMergedByID)
+				}
+				if ctx.Debug > 1 {
 					Printf("Updating PR '%v' merged by %s -> %s\n", ic, from, to)
 				}
+				why = "changed pr merged by"
+				if manual {
+					what = fmt.Sprintf("%s %d: %v -> %v", ic.Repo, ic.Number, from, to)
+				} else {
+					what = fmt.Sprintf("%s %d %s %s: %v -> %v", ic.Repo, ic.Number, ToYMDHMSDate(ic.CreatedAt), ic.EventType, from, to)
+				}
+				infosMutex.Lock()
+				_, ok := infos[why]
+				if ok {
+					infos[why] = append(infos[why], what)
+				} else {
+					infos[why] = []string{what}
+				}
+				infosMutex.Unlock()
 			}
 
 			// Process current labels (they are on the issue not PR, but if changed we should add entry)
@@ -1726,10 +1824,24 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 			FatalOnError(rowsL.Err())
 			changedLabels := false
 			if ghaLabels != ic.Labels {
-				if ctx.Debug > 0 {
+				if ctx.Debug > 1 {
 					Printf("Updating PR '%v' labels to '%s', they were: '%s' (event_id %d)\n", ic, ic.Labels, ghaLabels, ghaEventID)
 				}
 				changedLabels = true
+				why = "changed pr labels"
+				if manual {
+					what = fmt.Sprintf("%s %d: %v -> %v", ic.Repo, ic.Number, ghaLabels, ic.Labels)
+				} else {
+					what = fmt.Sprintf("%s %d %s %s: %v -> %v", ic.Repo, ic.Number, ToYMDHMSDate(ic.CreatedAt), ic.EventType, ghaLabels, ic.Labels)
+				}
+				infosMutex.Lock()
+				_, ok := infos[why]
+				if ok {
+					infos[why] = append(infos[why], what)
+				} else {
+					infos[why] = []string{what}
+				}
+				infosMutex.Unlock()
 			}
 
 			// API Assignees
@@ -1771,10 +1883,24 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 			FatalOnError(rowsA.Err())
 			changedAssignees := false
 			if ghaAssignees != apiAssignees {
-				if ctx.Debug > 0 {
+				if ctx.Debug > 1 {
 					Printf("Updating PR '%v' assignees to '%s', they were: '%s' (event_id %d)\n", ic, apiAssignees, ghaAssignees, ghaEventID)
 				}
 				changedAssignees = true
+				why = "changed pr assignees"
+				if manual {
+					what = fmt.Sprintf("%s %d: %v -> %v", ic.Repo, ic.Number, ghaAssignees, apiAssignees)
+				} else {
+					what = fmt.Sprintf("%s %d %s %s: %v -> %v", ic.Repo, ic.Number, ToYMDHMSDate(ic.CreatedAt), ic.EventType, ghaAssignees, apiAssignees)
+				}
+				infosMutex.Lock()
+				_, ok := infos[why]
+				if ok {
+					infos[why] = append(infos[why], what)
+				} else {
+					infos[why] = []string{what}
+				}
+				infosMutex.Unlock()
 			}
 
 			// API Requested reviewers
@@ -1816,13 +1942,34 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 			FatalOnError(rowsRV.Err())
 			changedRequestedReviewers := false
 			if ghaRequestedReviewers != apiRequestedReviewers {
-				if ctx.Debug > 0 {
+				if ctx.Debug > 1 {
 					Printf("Updating PR '%v' requested reviewers to '%s', they were: '%s' (event_id %d)\n", ic, apiRequestedReviewers, ghaRequestedReviewers, ghaEventID)
 				}
 				changedRequestedReviewers = true
+				why = "changed pr reqested reviewers"
+				if manual {
+					what = fmt.Sprintf("%s %d: %v -> %v", ic.Repo, ic.Number, ghaRequestedReviewers, apiRequestedReviewers)
+				} else {
+					what = fmt.Sprintf("%s %d %s %s: %v -> %v", ic.Repo, ic.Number, ToYMDHMSDate(ic.CreatedAt), ic.EventType, ghaRequestedReviewers, apiRequestedReviewers)
+				}
+				infosMutex.Lock()
+				_, ok := infos[why]
+				if ok {
+					infos[why] = append(infos[why], what)
+				} else {
+					infos[why] = []string{what}
+				}
+				infosMutex.Unlock()
 			}
 
 			uidx := 2
+			if manual {
+				why = "previous pr state the same"
+				what = fmt.Sprintf("%s %d", ic.Repo, ic.Number)
+			} else {
+				why = "existing pr state at date the same"
+				what = fmt.Sprintf("%s %d %s %s", ic.Repo, ic.Number, ToYMDHMSDate(ic.CreatedAt), ic.EventType)
+			}
 			// Do the update if needed
 			changedAnything := changedMilestone || changedState || changedClosed || changedMerged || changedMergedAt || changedMergedBy || changedAssignee || changedTitle || changedLabels || changedAssignees || changedRequestedReviewers
 			if changedAnything {
@@ -1835,6 +1982,13 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 						&pr,
 					),
 				)
+				if manual {
+					why = "previous pr state different"
+					what = fmt.Sprintf("%s %d", ic.Repo, ic.Number)
+				} else {
+					why = "existing pr state at date different"
+					what = fmt.Sprintf("%s %d %s %s", ic.Repo, ic.Number, ToYMDHMSDate(ic.CreatedAt), ic.EventType)
+				}
 			}
 
 			if ctx.Debug > 0 {
