@@ -1634,9 +1634,9 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 				}
 				why = "changed pr merged"
 				if manual {
-					what = fmt.Sprintf("%s %d: %v -> %v", ic.Repo, ic.Number, ghaMerged, apiMerged)
+					what = fmt.Sprintf("%s %d: %s -> %s", ic.Repo, ic.Number, from, to)
 				} else {
-					what = fmt.Sprintf("%s %d %s %s: %v -> %v", ic.Repo, ic.Number, ToYMDHMSDate(ic.CreatedAt), ic.EventType, ghaMerged, apiMerged)
+					what = fmt.Sprintf("%s %d %s %s: %s -> %s", ic.Repo, ic.Number, ToYMDHMSDate(ic.CreatedAt), ic.EventType, from, to)
 				}
 				updatesMutex.Lock()
 				_, ok := infos[why]
