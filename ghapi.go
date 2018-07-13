@@ -62,6 +62,38 @@ func (ic IssueConfig) String() string {
 	)
 }
 
+// outputIssuesInfo: display summary of data to process
+func outputIssuesInfo(issues map[int64]IssueConfigAry, info string) {
+	data := make(map[string][]string)
+	for _, cfgAry := range issues {
+		for _, cfg := range cfgAry {
+			key := fmt.Sprintf("%s %d", cfg.Repo, cfg.Number)
+			val := fmt.Sprintf("%s %s", ToYMDHMSDate(cfg.CreatedAt), cfg.EventType)
+			_, ok := data[key]
+			if ok {
+				data[key] = append(data[key], val)
+			} else {
+				data[key] = []string{val}
+			}
+		}
+	}
+	keys := []string{}
+	for key := range data {
+		keys = append(keys, key)
+	}
+	sort.Strings(keys)
+	Printf("%s\n", info)
+	for _, key := range keys {
+		values := data[key]
+		svalues := []string{}
+		for _, value := range values {
+			svalues = append(svalues, value)
+		}
+		sort.Strings(svalues)
+		Printf("%s: [%s]\n", key, strings.Join(svalues, ", "))
+	}
+}
+
 // IssueConfigAry - allows sorting IssueConfig array by IssueID annd then event creation date
 type IssueConfigAry []IssueConfig
 
@@ -272,7 +304,7 @@ func GetRecentRepos(c *sql.DB, ctx *Ctx, dtFrom time.Time) (repos []string) {
 func ArtificialPREvent(c *sql.DB, ctx *Ctx, cfg *IssueConfig, pr *github.PullRequest) (err error) {
 	if ctx.SkipPDB {
 		if ctx.Debug > 0 {
-			Printf("Skipping adding PR '%v'\n", *cfg)
+			Printf("No DB write: PR '%v'\n", *cfg)
 		}
 		return nil
 	}
@@ -546,7 +578,7 @@ func ArtificialEvent(c *sql.DB, ctx *Ctx, cfg *IssueConfig) (err error) {
 	// github.com/google/go-github/github/issues_events.go
 	if ctx.SkipPDB {
 		if ctx.Debug > 0 {
-			Printf("Skipping adding issue '%v'\n", *cfg)
+			Printf("No DB write: Issue '%v'\n", *cfg)
 		}
 		return nil
 	}
@@ -823,6 +855,9 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 			}
 		}
 	}
+
+	// Output data info
+	outputIssuesInfo(issues, "Issues to process")
 
 	// Get number of CPUs available
 	thrN := GetThreadsNum(ctx)
