@@ -14,6 +14,9 @@ import (
 	"github.com/google/go-github/github"
 )
 
+// Sync issues state given by query from GHA2DB_ISSUES_SYNC_SQL env
+// Possible dynamic replacements inside the query via
+// FROM1=var1 TO1=val1, FROM2=..., TO2=..., ...
 func syncIssues(ctx *lib.Ctx) {
 	// Connect to GitHub API
 	gctx, gc := lib.GHClient(ctx)
@@ -29,6 +32,18 @@ func syncIssues(ctx *lib.Ctx) {
 	if sql == "" {
 		lib.Printf("You have to provide a SQL query to get a list of issue numbers to sync. Use GHA2DB_ISSUES_SYNC_SQL environment variable for this")
 		lib.Fatalf("no sync issues sql query provided")
+	}
+
+	i := 1
+	for {
+		from := os.Getenv(fmt.Sprintf("FROM%d", i))
+		to := os.Getenv(fmt.Sprintf("TO%d", i))
+		if from != "" {
+			sql = strings.Replace(sql, from, to, -1)
+			i++
+		} else {
+			break
+		}
 	}
 
 	// Execute SQL
