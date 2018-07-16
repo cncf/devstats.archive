@@ -341,7 +341,7 @@ func syncEvents(ctx *lib.Ctx) {
 					if ctx.Debug > 1 {
 						lib.Printf("Processing %v\n", cfg)
 					} else if ctx.Debug == 1 {
-						lib.Printf("Processing issue number %d, event: %s, date: %s\n", cfg.Number, cfg.EventType, lib.ToYMDHMSDate(cfg.CreatedAt))
+						lib.Printf("Processing %s issue number %d, event: %s, date: %s\n", cfg.Repo, cfg.Number, cfg.EventType, lib.ToYMDHMSDate(cfg.CreatedAt))
 					}
 					// Handle PR
 					if issue.IsPullRequest() {
@@ -416,7 +416,7 @@ func syncEvents(ctx *lib.Ctx) {
 						}
 					}
 				}
-				if ctx.Debug > 1 {
+				if ctx.Debug > 0 {
 					lib.Printf("%s: [%v - %v] < %v: %v\n", orgRepo, minCreatedAt, maxCreatedAt, recentDt, minCreatedAt.Before(recentDt))
 				}
 				if minCreatedAt.Before(recentDt) {
