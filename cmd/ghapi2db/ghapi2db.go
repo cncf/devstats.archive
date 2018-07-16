@@ -50,6 +50,11 @@ import (
 //     head_ref_deleted, head_ref_restored
 //       The pull request’s branch was deleted or restored.
 //
+// Some debugging options (environment variables)
+// You can set:
+// REPO=full_repo_name
+// FROM=datetime 'YYYY-MM-DD hh:mm:ss.uuuuuu"
+// TO=....
 func syncEvents(ctx *lib.Ctx) {
 	// Connect to GitHub API
 	gctx, gc := lib.GHClient(ctx)
@@ -65,6 +70,32 @@ func syncEvents(ctx *lib.Ctx) {
 		lib.Printf("Repos to process from %v: %v\n", recentReposDt, repos)
 	}
 	recentDt := lib.GetDateAgo(c, ctx, lib.HourStart(time.Now()), ctx.RecentRange)
+
+	// Single repo mode
+	isSingleRepo := false
+	singleRepo := os.Getenv("REPO")
+	if singleRepo != "" {
+		isSingleRepo = true
+	}
+
+	// Date range mode
+	var (
+		dateRangeFrom *time.Time
+		dateRangeTo   *time.Time
+	)
+	isDateRange := false
+	dateRangeFromS := os.Getenv("FROM")
+	dateRangeToS := os.Getenv("TO")
+	if dateRangeFromS != "" {
+		tmp := lib.TimeParseAny(dateRangeFromS)
+		dateRangeFrom = &tmp
+		isDateRange = true
+	}
+	if dateRangeToS != "" {
+		tmp := lib.TimeParseAny(dateRangeToS)
+		dateRangeTo = &tmp
+		isDateRange = true
+	}
 
 	// Specify list of events to process
 	eventTypes := make(map[string]struct{})
@@ -122,6 +153,10 @@ func syncEvents(ctx *lib.Ctx) {
 	var prsMutex = &sync.Mutex{}
 	for _, orgRepo := range repos {
 		go func(ch chan bool, orgRepo string) {
+			if isSingleRepo && orgRepo != singleRepo {
+				ch <- false
+				return
+			}
 			ary := strings.Split(orgRepo, "/")
 			if len(ary) < 2 {
 				ch <- false
@@ -218,6 +253,14 @@ func syncEvents(ctx *lib.Ctx) {
 					}
 					if createdAt.After(maxCreatedAt) {
 						maxCreatedAt = createdAt
+					}
+					if isDateRange {
+						if dateRangeFrom != nil && createdAt.Before(*dateRangeFrom) {
+							continue
+						}
+						if dateRangeTo != nil && createdAt.After(*dateRangeTo) {
+							continue
+						}
 					}
 					if event.Event == nil {
 						lib.Printf("Warning: Skipping event without type\n")
