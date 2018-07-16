@@ -50,6 +50,11 @@ import (
 //     head_ref_deleted, head_ref_restored
 //       The pull request’s branch was deleted or restored.
 //
+// Some debugging options (environment variables)
+// You can set:
+// REPO=full_repo_name
+// FROM=datetime 'YYYY-MM-DD hh:mm:ss.uuuuuu"
+// TO=....
 func syncEvents(ctx *lib.Ctx) {
 	// Connect to GitHub API
 	gctx, gc := lib.GHClient(ctx)
@@ -66,20 +71,58 @@ func syncEvents(ctx *lib.Ctx) {
 	}
 	recentDt := lib.GetDateAgo(c, ctx, lib.HourStart(time.Now()), ctx.RecentRange)
 
+	// Single repo mode
+	isSingleRepo := false
+	singleRepo := os.Getenv("REPO")
+	if singleRepo != "" {
+		isSingleRepo = true
+	}
+
+	// Date range mode
+	var (
+		dateRangeFrom *time.Time
+		dateRangeTo   *time.Time
+	)
+	isDateRange := false
+	dateRangeFromS := os.Getenv("FROM")
+	dateRangeToS := os.Getenv("TO")
+	if dateRangeFromS != "" {
+		tmp := lib.TimeParseAny(dateRangeFromS)
+		dateRangeFrom = &tmp
+		isDateRange = true
+	}
+	if dateRangeToS != "" {
+		tmp := lib.TimeParseAny(dateRangeToS)
+		dateRangeTo = &tmp
+		isDateRange = true
+	}
+
 	// Specify list of events to process
 	eventTypes := make(map[string]struct{})
 	eventTypes["closed"] = struct{}{}
 	eventTypes["merged"] = struct{}{}
+	eventTypes["referenced"] = struct{}{}
 	eventTypes["reopened"] = struct{}{}
 	eventTypes["locked"] = struct{}{}
 	eventTypes["unlocked"] = struct{}{}
 	eventTypes["renamed"] = struct{}{}
+	eventTypes["mentioned"] = struct{}{}
 	eventTypes["assigned"] = struct{}{}
 	eventTypes["unassigned"] = struct{}{}
 	eventTypes["labeled"] = struct{}{}
 	eventTypes["unlabeled"] = struct{}{}
 	eventTypes["milestoned"] = struct{}{}
 	eventTypes["demilestoned"] = struct{}{}
+	eventTypes["subscribed"] = struct{}{}
+	eventTypes["unsubscribed"] = struct{}{}
+	eventTypes["head_ref_deleted"] = struct{}{}
+	eventTypes["head_ref_restored"] = struct{}{}
+	// Non specified in GH API but happenning
+	eventTypes["review_requested"] = struct{}{}
+	eventTypes["review_dismissed"] = struct{}{}
+	eventTypes["review_request_removed"] = struct{}{}
+	eventTypes["added_to_project"] = struct{}{}
+	eventTypes["moved_columns_in_project"] = struct{}{}
 
 	// Get number of CPUs available
 	thrN := lib.GetThreadsNum(ctx)
@@ -110,6 +153,10 @@ func syncEvents(ctx *lib.Ctx) {
 	var prsMutex = &sync.Mutex{}
 	for _, orgRepo := range repos {
 		go func(ch chan bool, orgRepo string) {
+			if isSingleRepo && orgRepo != singleRepo {
+				ch <- false
+				return
+			}
 			ary := strings.Split(orgRepo, "/")
 			if len(ary) < 2 {
 				ch <- false
@@ -136,12 +183,14 @@ func syncEvents(ctx *lib.Ctx) {
 				got := false
 				for tr := 0; tr < ctx.MaxGHAPIRetry; tr++ {
 					_, rem, waitPeriod := lib.GetRateLimits(gctx, gc, true)
-					if ctx.Debug > 0 {
+					if ctx.Debug > 1 {
 						lib.Printf("Issues Repo Events Try: %d, rem: %v, waitPeriod: %v\n", tr, rem, waitPeriod)
 					}
 					if rem <= ctx.MinGHAPIPoints {
 						if waitPeriod.Seconds() <= float64(ctx.MaxGHAPIWaitSeconds) {
-							lib.Printf("API limit reached while getting events data, waiting %v (%d)\n", waitPeriod, tr)
+							if ctx.Debug > 0 {
+								lib.Printf("API limit reached while getting events data, waiting %v (%d)\n", waitPeriod, tr)
+							}
 							time.Sleep(time.Duration(1) * time.Second)
 							time.Sleep(waitPeriod)
 							continue
@@ -151,8 +200,8 @@ func syncEvents(ctx *lib.Ctx) {
 						}
 					}
 					nPages++
-					if ctx.Debug > 0 {
-						lib.Printf("API call for isuues events %s (%d), remaining GHAPI points %d\n", orgRepo, nPages, rem)
+					if ctx.Debug > 1 {
+						lib.Printf("API call for issues events %s (%d), remaining GHAPI points %d\n", orgRepo, nPages, rem)
 					}
 					events, response, err = gc.Issues.ListRepositoryEvents(gctx, org, repo, opt)
 					res := lib.HandlePossibleError(err, &gcfg, "Issues.ListRepositoryEvents")
@@ -173,6 +222,7 @@ func syncEvents(ctx *lib.Ctx) {
 							time.Sleep(wait)
 						}
 						if res == lib.NotFound {
+							lib.Printf("Warning: not found: %s/%s", org, repo)
 							ch <- false
 							return
 						}
@@ -204,13 +254,22 @@ func syncEvents(ctx *lib.Ctx) {
 					if createdAt.After(maxCreatedAt) {
 						maxCreatedAt = createdAt
 					}
+					if isDateRange {
+						if dateRangeFrom != nil && createdAt.Before(*dateRangeFrom) {
+							continue
+						}
+						if dateRangeTo != nil && createdAt.After(*dateRangeTo) {
+							continue
+						}
+					}
 					if event.Event == nil {
-						lib.Printf("Skipping event without type\n")
+						lib.Printf("Warning: Skipping event without type\n")
 						continue
 					}
 					eventType := *event.Event
 					_, ok := eventTypes[eventType]
 					if !ok {
+						lib.Printf("Warning: skipping event type %s for issue %s %d\n", eventType, orgRepo, *event.Issue.Number)
 						continue
 					}
 					if createdAt.Before(recentDt) {
@@ -279,8 +338,10 @@ func syncEvents(ctx *lib.Ctx) {
 						issues[cfg.IssueID] = []lib.IssueConfig{cfg}
 					}
 					issuesMutex.Unlock()
-					if ctx.Debug > 0 {
+					if ctx.Debug > 1 {
 						lib.Printf("Processing %v\n", cfg)
+					} else if ctx.Debug == 1 {
+						lib.Printf("Processing %s issue number %d, event: %s, date: %s\n", cfg.Repo, cfg.Number, cfg.EventType, lib.ToYMDHMSDate(cfg.CreatedAt))
 					}
 					// Handle PR
 					if issue.IsPullRequest() {
@@ -292,12 +353,14 @@ func syncEvents(ctx *lib.Ctx) {
 							got = false
 							for tr := 0; tr < ctx.MaxGHAPIRetry; tr++ {
 								_, rem, waitPeriod := lib.GetRateLimits(gctx, gc, true)
-								if ctx.Debug > 0 {
+								if ctx.Debug > 1 {
 									lib.Printf("Get PR Try: %d, rem: %v, waitPeriod: %v\n", tr, rem, waitPeriod)
 								}
 								if rem <= ctx.MinGHAPIPoints {
 									if waitPeriod.Seconds() <= float64(ctx.MaxGHAPIWaitSeconds) {
-										lib.Printf("API limit reached while getting PR data, waiting %v (%d)\n", waitPeriod, tr)
+										if ctx.Debug > 0 {
+											lib.Printf("API limit reached while getting PR data, waiting %v (%d)\n", waitPeriod, tr)
+										}
 										time.Sleep(time.Duration(1) * time.Second)
 										time.Sleep(waitPeriod)
 										continue
@@ -306,11 +369,10 @@ func syncEvents(ctx *lib.Ctx) {
 										os.Exit(1)
 									}
 								}
-								nPages++
-								if ctx.Debug > 0 {
+								if ctx.Debug > 1 {
 									lib.Printf("API call for %s PR: %d, remaining GHAPI points %d\n", orgRepo, prNum, rem)
 								}
-								pr, response, err = gc.PullRequests.Get(gctx, org, repo, prNum)
+								pr, _, err = gc.PullRequests.Get(gctx, org, repo, prNum)
 								res := lib.HandlePossibleError(err, &gcfg, "PullRequests.Get")
 								if res != "" {
 									if res == lib.Abuse {
@@ -380,7 +442,9 @@ func syncEvents(ctx *lib.Ctx) {
 		}
 	}
 	// Usually all work happens on '<-ch'
-	lib.Printf("Final GHAPI threads join\n")
+	if ctx.Debug > 1 {
+		lib.Printf("Final GHAPI threads join\n")
+	}
 	for nThreads > 0 {
 		<-ch
 		nThreads--
@@ -391,7 +455,8 @@ func syncEvents(ctx *lib.Ctx) {
 	}
 
 	// Do final corrections
-	lib.SyncIssuesState(gctx, gc, ctx, c, issues, prs)
+	// manual sync: false
+	lib.SyncIssuesState(gctx, gc, ctx, c, issues, prs, false)
 }
 
 func main() {

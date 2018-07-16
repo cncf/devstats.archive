@@ -89,7 +89,6 @@ func copyContext(in *lib.Ctx) *lib.Ctx {
 		TmOffset:            in.TmOffset,
 		RecentRange:         in.RecentRange,
 		RecentReposRange:    in.RecentReposRange,
-		OnlyEvents:          in.OnlyEvents,
 		CSVFile:             in.CSVFile,
 		ComputeAll:          in.ComputeAll,
 		ActorsFilter:        in.ActorsFilter,
@@ -279,7 +278,6 @@ func TestInit(t *testing.T) {
 		TmOffset:            0,
 		RecentRange:         "2 hours",
 		RecentReposRange:    "1 day",
-		OnlyEvents:          []int64{},
 		CSVFile:             "",
 		ComputeAll:          false,
 		ActorsFilter:        false,
@@ -1144,26 +1142,6 @@ func TestInit(t *testing.T) {
 				map[string]interface{}{
 					"InputDBs": []string{"db1", "db2", "db3"},
 					"OutputDB": "db4",
-				},
-			),
-		},
-		{
-			"Setting debug events mode on ghapi2db",
-			map[string]string{
-				"GHA2DB_ONLY_EVENTS": "1,2000,3000000,4000000000,5000000000000,6000000000000000",
-			},
-			dynamicSetFields(
-				t,
-				copyContext(&defaultContext),
-				map[string]interface{}{
-					"OnlyEvents": []int64{
-						1,
-						2000,
-						3000000,
-						4000000000,
-						5000000000000,
-						6000000000000000,
-					},
 				},
 			),
 		},
