@@ -30,6 +30,8 @@ icontypes=(
   ["cloudevents"]="color"
   ["telepresence"]="color"
   ["helm"]="color"
+  ["openmetrics"]="color"
+  ["harbor"]="color"
   ["all"]="color"
   ["devstats"]="color"
 )
