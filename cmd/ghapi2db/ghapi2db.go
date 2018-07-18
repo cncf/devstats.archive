@@ -5,6 +5,7 @@ import (
 	"math"
 	"os"
 	"sort"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -20,6 +21,8 @@ import (
 // REPO=full_repo_name
 // FROM=datetime 'YYYY-MM-DD hh:mm:ss.uuuuuu"
 // TO=datetime 'YYYY-MM-DD hh:mm:ss.uuuuuu"
+// MILESTONE=milestone name
+// ISSUE="issue_number"
 func syncEvents(ctx *lib.Ctx) {
 	// Connect to GitHub API
 	gctx, gc := lib.GHClient(ctx)
@@ -60,6 +63,25 @@ func syncEvents(ctx *lib.Ctx) {
 		tmp := lib.TimeParseAny(dateRangeToS)
 		dateRangeTo = &tmp
 		isDateRange = true
+	}
+
+	// Single milestone mode
+	isSingleMilestone := false
+	singleMilestone := os.Getenv("MILESTONE")
+	if singleMilestone != "" {
+		isSingleMilestone = true
+	}
+
+	// Single issue mode
+	isSingleIssue := false
+	singleIssue := 0
+	sSingleIssue := os.Getenv("ISSUE")
+	if sSingleIssue != "" {
+		var err error
+		singleIssue, err = strconv.Atoi(sSingleIssue)
+		if err == nil {
+			isSingleIssue = true
+		}
 	}
 
 	// Specify list of events to process
@@ -247,11 +269,17 @@ func syncEvents(ctx *lib.Ctx) {
 						lib.Printf("Warning: skipping event type %s for issue %s %d\n", eventType, orgRepo, *event.Issue.Number)
 						continue
 					}
+					issue := event.Issue
+					if isSingleIssue && (issue.Number == nil || *issue.Number != singleIssue) {
+						continue
+					}
+					if isSingleMilestone && (issue.Milestone == nil || issue.Milestone.Title == nil || *issue.Milestone.Title != singleMilestone) {
+						continue
+					}
 					if createdAt.Before(recentDt) {
 						continue
 					}
 					cfg := lib.IssueConfig{Repo: orgRepo}
-					issue := event.Issue
 					if issue.Milestone != nil {
 						cfg.MilestoneID = issue.Milestone.ID
 					}
