@@ -14,41 +14,6 @@ import (
 	"github.com/google/go-github/github"
 )
 
-//     closed
-//       The Actor closed the issue.
-//       If the issue was closed by commit message, CommitID holds the SHA1 hash of the commit.
-//
-//     merged
-//       The Actor merged into master a branch containing a commit mentioning the issue.
-//       CommitID holds the SHA1 of the merge commit.
-//
-//     referenced
-//       The Actor committed to master a commit mentioning the issue in its commit message.
-//       CommitID holds the SHA1 of the commit.
-//
-//     reopened, locked, unlocked
-//       The Actor did that to the issue.
-//
-//     renamed
-//       The Actor changed the issue title from Rename.From to Rename.To.
-//
-//     mentioned
-//       Someone unspecified @mentioned the Actor [sic] in an issue comment body.
-//
-//     assigned, unassigned
-//       The Assigner assigned the issue to or removed the assignment from the Assignee.
-//
-//     labeled, unlabeled
-//       The Actor added or removed the Label from the issue.
-//
-//     milestoned, demilestoned
-//       The Actor added or removed the issue from the Milestone.
-//
-//     subscribed, unsubscribed
-//       The Actor subscribed to or unsubscribed from notifications for an issue.
-//
-//     head_ref_deleted, head_ref_restored
-//       The pull request’s branch was deleted or restored.
 //
 // Some debugging options (environment variables)
 // You can set:
@@ -117,12 +82,19 @@ func syncEvents(ctx *lib.Ctx) {
 	eventTypes["unsubscribed"] = struct{}{}
 	eventTypes["head_ref_deleted"] = struct{}{}
 	eventTypes["head_ref_restored"] = struct{}{}
-	// Non specified in GH API but happenning
 	eventTypes["review_requested"] = struct{}{}
 	eventTypes["review_dismissed"] = struct{}{}
 	eventTypes["review_request_removed"] = struct{}{}
 	eventTypes["added_to_project"] = struct{}{}
+	eventTypes["removed_from_project"] = struct{}{}
 	eventTypes["moved_columns_in_project"] = struct{}{}
+	eventTypes["marked_as_duplicate"] = struct{}{}
+	eventTypes["unmarked_as_duplicate"] = struct{}{}
+	eventTypes["converted_note_to_issue"] = struct{}{}
+	// Non specified in GH API but happenning
+	eventTypes["base_ref_changed"] = struct{}{}
+	eventTypes["comment_deleted"] = struct{}{}
+	eventTypes["deployed"] = struct{}{}
 
 	// Get number of CPUs available
 	thrN := lib.GetThreadsNum(ctx)
