@@ -7,7 +7,7 @@ select
 from
   gha_logs
 where
-  lower(msg) like '%error%'
+  lower(msg) like '%{{msg}}%'
 order by
   dt desc
 ;
