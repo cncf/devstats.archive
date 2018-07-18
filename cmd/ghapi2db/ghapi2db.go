@@ -5,6 +5,7 @@ import (
 	"math"
 	"os"
 	"sort"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -14,47 +15,14 @@ import (
 	"github.com/google/go-github/github"
 )
 
-//     closed
-//       The Actor closed the issue.
-//       If the issue was closed by commit message, CommitID holds the SHA1 hash of the commit.
-//
-//     merged
-//       The Actor merged into master a branch containing a commit mentioning the issue.
-//       CommitID holds the SHA1 of the merge commit.
-//
-//     referenced
-//       The Actor committed to master a commit mentioning the issue in its commit message.
-//       CommitID holds the SHA1 of the commit.
-//
-//     reopened, locked, unlocked
-//       The Actor did that to the issue.
-//
-//     renamed
-//       The Actor changed the issue title from Rename.From to Rename.To.
-//
-//     mentioned
-//       Someone unspecified @mentioned the Actor [sic] in an issue comment body.
-//
-//     assigned, unassigned
-//       The Assigner assigned the issue to or removed the assignment from the Assignee.
-//
-//     labeled, unlabeled
-//       The Actor added or removed the Label from the issue.
-//
-//     milestoned, demilestoned
-//       The Actor added or removed the issue from the Milestone.
-//
-//     subscribed, unsubscribed
-//       The Actor subscribed to or unsubscribed from notifications for an issue.
-//
-//     head_ref_deleted, head_ref_restored
-//       The pull request’s branch was deleted or restored.
 //
 // Some debugging options (environment variables)
 // You can set:
 // REPO=full_repo_name
 // FROM=datetime 'YYYY-MM-DD hh:mm:ss.uuuuuu"
-// TO=....
+// TO=datetime 'YYYY-MM-DD hh:mm:ss.uuuuuu"
+// MILESTONE=milestone name
+// ISSUE="issue_number"
 func syncEvents(ctx *lib.Ctx) {
 	// Connect to GitHub API
 	gctx, gc := lib.GHClient(ctx)
@@ -97,6 +65,25 @@ func syncEvents(ctx *lib.Ctx) {
 		isDateRange = true
 	}
 
+	// Single milestone mode
+	isSingleMilestone := false
+	singleMilestone := os.Getenv("MILESTONE")
+	if singleMilestone != "" {
+		isSingleMilestone = true
+	}
+
+	// Single issue mode
+	isSingleIssue := false
+	singleIssue := 0
+	sSingleIssue := os.Getenv("ISSUE")
+	if sSingleIssue != "" {
+		var err error
+		singleIssue, err = strconv.Atoi(sSingleIssue)
+		if err == nil {
+			isSingleIssue = true
+		}
+	}
+
 	// Specify list of events to process
 	eventTypes := make(map[string]struct{})
 	eventTypes["closed"] = struct{}{}
@@ -117,12 +104,19 @@ func syncEvents(ctx *lib.Ctx) {
 	eventTypes["unsubscribed"] = struct{}{}
 	eventTypes["head_ref_deleted"] = struct{}{}
 	eventTypes["head_ref_restored"] = struct{}{}
-	// Non specified in GH API but happenning
 	eventTypes["review_requested"] = struct{}{}
 	eventTypes["review_dismissed"] = struct{}{}
 	eventTypes["review_request_removed"] = struct{}{}
 	eventTypes["added_to_project"] = struct{}{}
+	eventTypes["removed_from_project"] = struct{}{}
 	eventTypes["moved_columns_in_project"] = struct{}{}
+	eventTypes["marked_as_duplicate"] = struct{}{}
+	eventTypes["unmarked_as_duplicate"] = struct{}{}
+	eventTypes["converted_note_to_issue"] = struct{}{}
+	// Non specified in GH API but happenning
+	eventTypes["base_ref_changed"] = struct{}{}
+	eventTypes["comment_deleted"] = struct{}{}
+	eventTypes["deployed"] = struct{}{}
 
 	// Get number of CPUs available
 	thrN := lib.GetThreadsNum(ctx)
@@ -203,6 +197,9 @@ func syncEvents(ctx *lib.Ctx) {
 					if ctx.Debug > 1 {
 						lib.Printf("API call for issues events %s (%d), remaining GHAPI points %d\n", orgRepo, nPages, rem)
 					}
+					// Returns events in GHA format
+					//events, response, err = gc.Activity.ListRepositoryEvents(gctx, org, repo, opt)
+					// Returns events in Issue Event format (UI events)
 					events, response, err = gc.Issues.ListRepositoryEvents(gctx, org, repo, opt)
 					res := lib.HandlePossibleError(err, &gcfg, "Issues.ListRepositoryEvents")
 					if res != "" {
@@ -272,11 +269,17 @@ func syncEvents(ctx *lib.Ctx) {
 						lib.Printf("Warning: skipping event type %s for issue %s %d\n", eventType, orgRepo, *event.Issue.Number)
 						continue
 					}
+					issue := event.Issue
+					if isSingleIssue && (issue.Number == nil || *issue.Number != singleIssue) {
+						continue
+					}
+					if isSingleMilestone && (issue.Milestone == nil || issue.Milestone.Title == nil || *issue.Milestone.Title != singleMilestone) {
+						continue
+					}
 					if createdAt.Before(recentDt) {
 						continue
 					}
 					cfg := lib.IssueConfig{Repo: orgRepo}
-					issue := event.Issue
 					if issue.Milestone != nil {
 						cfg.MilestoneID = issue.Milestone.ID
 					}
