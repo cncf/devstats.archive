@@ -19,7 +19,7 @@ import (
 // You can set:
 // REPO=full_repo_name
 // FROM=datetime 'YYYY-MM-DD hh:mm:ss.uuuuuu"
-// TO=....
+// TO=datetime 'YYYY-MM-DD hh:mm:ss.uuuuuu"
 func syncEvents(ctx *lib.Ctx) {
 	// Connect to GitHub API
 	gctx, gc := lib.GHClient(ctx)
