@@ -1315,7 +1315,7 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 						why = "collision and state differs"
 						what = fmt.Sprintf("%s %d %s %s: %d", cfg.Repo, cfg.Number, ToYMDHMSDate(cfg.CreatedAt), cfg.EventType, eventID)
 						updatesMutex.Lock()
-						updates[1]++
+						updates[4]++
 						_, ok := infos[why]
 						if ok {
 							infos[why] = append(infos[why], what)
@@ -1384,13 +1384,13 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 	_, rem, wait := GetRateLimits(gctx, gc, true)
 	if manual {
 		Printf(
-			"ghapi2db.go: Manually processed %d issues/PRs (%d new issues, existing: %d not needed, %d added): %d API points remain, resets in %v\n",
-			checked, updates[0], updates[2], updates[3], rem, wait,
+			"ghapi2db.go: Manually processed %d issues/PRs (%d new issues, existing: %d not needed, %d addedi, %d warnings): %d API points remain, resets in %v\n",
+			checked, updates[0], updates[2], updates[3], updates[4], rem, wait,
 		)
 	} else {
 		Printf(
-			"ghapi2db.go: Automatically processed %d issues/PRs (%d new for date, %d artificial exists, date exists: %d not needed, %d added): %d API points remain, resets in %v\n",
-			checked, updates[0], updates[1], updates[2], updates[3], rem, wait,
+			"ghapi2db.go: Automatically processed %d issues/PRs (%d new for date, %d artificial exists, date exists: %d not needed, %d added, %d warnings): %d API points remain, resets in %v\n",
+			checked, updates[0], updates[1], updates[2], updates[3], updates[4], rem, wait,
 		)
 	}
 	// Info
