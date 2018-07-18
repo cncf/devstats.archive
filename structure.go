@@ -211,7 +211,7 @@ func Structure(ctx *Ctx) {
 					"ref varchar(200), "+
 					"head varchar(40), "+
 					"befor varchar(40), "+
-					"action varchar(20), "+
+					"action varchar(40), "+
 					"issue_id bigint, "+
 					"pull_request_id bigint, "+
 					"comment_id bigint, "+
@@ -308,7 +308,7 @@ func Structure(ctx *Ctx) {
 				"gha_pages("+
 					"sha varchar(40) not null, "+
 					"event_id bigint not null, "+
-					"action varchar(20) not null, "+
+					"action varchar(40) not null, "+
 					"title varchar(300) not null, "+
 					"dup_actor_id bigint not null, "+
 					"dup_actor_login varchar(120) not null, "+

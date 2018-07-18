@@ -188,7 +188,7 @@ func importAffs(jsonFN string) {
 	added, updated := 0, 0
 	for login, names := range loginNames {
 		if len(names) > 1 {
-			lib.Printf("Warning: login has multiple names: %v: %+v\n", login, names)
+			lib.Printf("Note: login has multiple names: %v: %+v\n", login, names)
 			//lib.Fatalf("login has multiple names: %v: %+v", login, names)
 		}
 		name := firstKey(names)

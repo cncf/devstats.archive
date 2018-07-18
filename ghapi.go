@@ -857,16 +857,20 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 		nIssuesBefore += len(issueConfig)
 	}
 
+	// Sort issues to by their state changes in time
+	for issueID := range issues {
+		sort.Sort(issues[issueID])
+		if ctx.Debug > 1 {
+			Printf("Sorted: %+v\n", issues[issueID])
+		}
+	}
+
 	// Make sure we only have single event per single second - final state with highest EventID that was sorted
 	// Sort by iid then created_at then event_id
 	// in manual mode we only have one entry per issue so no sort is needed
-	if !manual {
-		for issueID := range issues {
-			sort.Sort(issues[issueID])
-			if ctx.Debug > 1 {
-				Printf("Sorted: %+v\n", issues[issueID])
-			}
-		}
+	onlyLastEventForSecond := false
+	noDoubleArtificialEventsForSecond := false
+	if !manual && onlyLastEventForSecond {
 		// Leave only final state
 		for iid, issueConfigAry := range issues {
 			mp := make(map[string]IssueConfig)
@@ -1024,7 +1028,7 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 					return
 				}
 				// We have such artificial event and code is making sure it is most up-to-date for a given second, so we may skip it.
-				if !manual && ghaEventID > 281474976710656 {
+				if !manual && noDoubleArtificialEventsForSecond && ghaEventID > 281474976710656 {
 					if ctx.Debug > 1 {
 						Printf("Artificial event (%v) already exists, skipping: '%v'\n", cfg.CreatedAt, cfg)
 					}
