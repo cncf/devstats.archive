@@ -203,6 +203,9 @@ func syncEvents(ctx *lib.Ctx) {
 					if ctx.Debug > 1 {
 						lib.Printf("API call for issues events %s (%d), remaining GHAPI points %d\n", orgRepo, nPages, rem)
 					}
+					// Returns events in GHA format
+					//events, response, err = gc.Activity.ListRepositoryEvents(gctx, org, repo, opt)
+					// Returns events in Issue Event format (UI events)
 					events, response, err = gc.Issues.ListRepositoryEvents(gctx, org, repo, opt)
 					res := lib.HandlePossibleError(err, &gcfg, "Issues.ListRepositoryEvents")
 					if res != "" {
