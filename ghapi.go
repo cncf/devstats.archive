@@ -857,18 +857,20 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 		nIssuesBefore += len(issueConfig)
 	}
 
+	// Sort issues to by their state changes in time
+	for issueID := range issues {
+		sort.Sort(issues[issueID])
+		if ctx.Debug > 1 {
+			Printf("Sorted: %+v\n", issues[issueID])
+		}
+	}
+
 	// Make sure we only have single event per single second - final state with highest EventID that was sorted
 	// Sort by iid then created_at then event_id
 	// in manual mode we only have one entry per issue so no sort is needed
 	onlyLastEventForSecond := false
 	noDoubleArtificialEventsForSecond := false
 	if !manual && onlyLastEventForSecond {
-		for issueID := range issues {
-			sort.Sort(issues[issueID])
-			if ctx.Debug > 1 {
-				Printf("Sorted: %+v\n", issues[issueID])
-			}
-		}
 		// Leave only final state
 		for iid, issueConfigAry := range issues {
 			mp := make(map[string]IssueConfig)
