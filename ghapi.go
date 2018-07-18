@@ -865,31 +865,6 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 		}
 	}
 
-	// Make sure we only have single event per single second - final state with highest EventID that was sorted
-	// Sort by iid then created_at then event_id
-	// in manual mode we only have one entry per issue so no sort is needed
-	onlyLastEventForSecond := false
-	noDoubleArtificialEventsForSecond := false
-	if !manual && onlyLastEventForSecond {
-		// Leave only final state
-		for iid, issueConfigAry := range issues {
-			mp := make(map[string]IssueConfig)
-			for _, issue := range issueConfigAry {
-				sdt := ToYMDHMSDate(issue.CreatedAt)
-				mp[sdt] = issue
-			}
-			sdts := []string{}
-			for sdt := range mp {
-				sdts = append(sdts, sdt)
-			}
-			sort.Strings(sdts)
-			issues[iid] = []IssueConfig{}
-			for _, sdt := range sdts {
-				issues[iid] = append(issues[iid], mp[sdt])
-			}
-		}
-	}
-
 	// Output data info
 	outputIssuesInfo(issues, "Issues to process")
 
@@ -909,17 +884,15 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 	nPRs := len(prs)
 	checked := 0
 	var updatesMutex = &sync.Mutex{}
-	updates := []int{0, 0, 0, 0, 0}
+	updates := []int{0, 0, 0}
 	// updates (non-manual mode):
-	// 0: no such event (for exact date) --> new
-	// 1: artificial exists (for exact date) --> skip
-	// 2: normal exists (for exact date) --> no new
-	// 3: normal exists (for exact date) --> new needed
-	// 4: artificial exist with wrong data --> skip (but this must be investigated)
+	// 0: no such event --> new
+	// 1: event exists and the same state --> no new
+	// 2: event exists with different state --> warning
 	// updates (manual mode)
 	// 0 - no such issue --> new
-	// 2: previous issue state exists, no new
-	// 3: previous issue state exists, new needed
+	// 1: previous issue state exists, no new
+	// 2: previous issue state exists, new needed
 	infos := make(map[string][]string)
 
 	Printf("ghapi2db.go: Processing %d PRs, %d issues (%d with date collisions), manual mode: %v - GHA part\n", nPRs, nIssues, nIssuesBefore, manual)
@@ -953,6 +926,9 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 				apiTitle := *cfg.GhIssue.Title
 				apiLocked := *cfg.GhIssue.Locked
 				apiAssigneeID := cfg.AssigneeID
+				eventID := 281474976710656 + cfg.EventID
+
+				// Get eventual current state
 				var rowsM *sql.Rows
 				if manual {
 					rowsM = QuerySQLWithErr(
@@ -972,13 +948,13 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 						ctx,
 						fmt.Sprintf(
 							"select milestone_id, event_id, closed_at, state, title, locked, assignee_id "+
-								"from gha_issues where id = %s and updated_at = %s "+
+								"from gha_issues where id = %s and event_id = %s "+
 								"order by updated_at desc, event_id desc limit 1",
 							NValue(1),
 							NValue(2),
 						),
 						cfg.IssueID,
-						cfg.CreatedAt,
+						eventID,
 					)
 				}
 				defer func() { FatalOnError(rowsM.Close()) }()
@@ -998,6 +974,8 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 					got = true
 				}
 				FatalOnError(rowsM.Err())
+
+				// Missing event
 				if !got {
 					if ctx.Debug > 1 {
 						Printf("Adding missing (%v) event '%v'\n", cfg.CreatedAt, cfg)
@@ -1013,7 +991,7 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 						why = "no previous issue state"
 						what = fmt.Sprintf("%s %d", cfg.Repo, cfg.Number)
 					} else {
-						why = "no issue event at date"
+						why = "no issue event"
 						what = fmt.Sprintf("%s %d %s %s", cfg.Repo, cfg.Number, ToYMDHMSDate(cfg.CreatedAt), cfg.EventType)
 					}
 					updatesMutex.Lock()
@@ -1027,32 +1005,6 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 					updatesMutex.Unlock()
 					ch <- true
 					return
-				}
-				// We have such artificial event and code is making sure it is most up-to-date for a given second, so we may skip it.
-				if !manual && noDoubleArtificialEventsForSecond && ghaEventID > 281474976710656 {
-					if ctx.Debug > 1 {
-						Printf("Artificial event (%v) already exists, skipping: '%v'\n", cfg.CreatedAt, cfg)
-					}
-					why = "already have artificial issue event at date"
-					what = fmt.Sprintf("%s %d %s %s", cfg.Repo, cfg.Number, ToYMDHMSDate(cfg.CreatedAt), cfg.EventType)
-					updatesMutex.Lock()
-					updates[1]++
-					_, ok := infos[why]
-					if ok {
-						infos[why] = append(infos[why], what)
-					} else {
-						infos[why] = []string{what}
-					}
-					updatesMutex.Unlock()
-					ch <- false
-					return
-				}
-
-				// Handle collision
-				eventID := 281474976710656 + cfg.EventID
-				collision := false
-				if ghaEventID == eventID {
-					collision = true
 				}
 
 				// Now have existing GHA event, but we don't know if it is a correct state event
@@ -1299,47 +1251,31 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 					updatesMutex.Unlock()
 				}
 
-				uidx := 2
+				uidx := 1
+				why = "previous issue state the same"
 				if manual {
-					why = "previous issue state the same"
 					what = fmt.Sprintf("%s %d", cfg.Repo, cfg.Number)
 				} else {
-					why = "existing issue state at date the same"
 					what = fmt.Sprintf("%s %d %s %s", cfg.Repo, cfg.Number, ToYMDHMSDate(cfg.CreatedAt), cfg.EventType)
 				}
 				// Do the update if needed
 				changedAnything := changedMilestone || changedState || changedClosed || changedAssignee || changedTitle || changedLocked || changedLabels || changedAssignees
 				if changedAnything {
-					if collision {
-						Printf("Warning: Exact artificial event (%v, %d) already exists with different state, skipping: '%v'\n", cfg.CreatedAt, eventID, cfg)
-						why = "collision and state differs"
-						what = fmt.Sprintf("%s %d %s %s: %d", cfg.Repo, cfg.Number, ToYMDHMSDate(cfg.CreatedAt), cfg.EventType, eventID)
-						updatesMutex.Lock()
-						updates[4]++
-						_, ok := infos[why]
-						if ok {
-							infos[why] = append(infos[why], what)
-						} else {
-							infos[why] = []string{what}
-						}
-						updatesMutex.Unlock()
-						ch <- false
-						return
-					}
-					uidx = 3
-					FatalOnError(
-						ArtificialEvent(
-							c,
-							ctx,
-							&cfg,
-						),
-					)
+					uidx = 2
 					if manual {
+						FatalOnError(
+							ArtificialEvent(
+								c,
+								ctx,
+								&cfg,
+							),
+						)
 						why = "previous issue state different"
 						what = fmt.Sprintf("%s %d", cfg.Repo, cfg.Number)
 					} else {
-						why = "existing issue state at date different"
-						what = fmt.Sprintf("%s %d %s %s", cfg.Repo, cfg.Number, ToYMDHMSDate(cfg.CreatedAt), cfg.EventType)
+						Printf("Warning: Exact artificial event (%v, %d) already exists with different state, skipping: '%v'\n", cfg.CreatedAt, eventID, cfg)
+						why = "collision and state differs"
+						what = fmt.Sprintf("%s %d %s %s: %d", cfg.Repo, cfg.Number, ToYMDHMSDate(cfg.CreatedAt), cfg.EventType, eventID)
 					}
 				}
 
@@ -1384,13 +1320,13 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 	_, rem, wait := GetRateLimits(gctx, gc, true)
 	if manual {
 		Printf(
-			"ghapi2db.go: Manually processed %d issues/PRs (%d new issues, existing: %d not needed, %d addedi, %d warnings): %d API points remain, resets in %v\n",
-			checked, updates[0], updates[2], updates[3], updates[4], rem, wait,
+			"ghapi2db.go: Manually processed %d issues/PRs (%d new issues, existing: %d not needed, %d added): %d API points remain, resets in %v\n",
+			checked, updates[0], updates[1], updates[2], rem, wait,
 		)
 	} else {
 		Printf(
-			"ghapi2db.go: Automatically processed %d issues/PRs (%d new for date, %d artificial exists, date exists: %d not needed, %d added, %d warnings): %d API points remain, resets in %v\n",
-			checked, updates[0], updates[1], updates[2], updates[3], updates[4], rem, wait,
+			"ghapi2db.go: Automatically processed %d issues/PRs (%d new, %d the same exists, %d incorrect state exists): %d API points remain, resets in %v\n",
+			checked, updates[0], updates[1], updates[2], rem, wait,
 		)
 	}
 	// Info
