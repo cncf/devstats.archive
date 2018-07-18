@@ -909,7 +909,7 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 	nPRs := len(prs)
 	checked := 0
 	var updatesMutex = &sync.Mutex{}
-	updates := []int{0, 0, 0, 0}
+	updates := []int{0, 0, 0, 0, 0}
 	// updates (non-manual mode):
 	// 0: no such event (for exact date) --> new
 	// 1: artificial exists (for exact date) --> skip
