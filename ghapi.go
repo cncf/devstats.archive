@@ -915,6 +915,7 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 	// 1: artificial exists (for exact date) --> skip
 	// 2: normal exists (for exact date) --> no new
 	// 3: normal exists (for exact date) --> new needed
+	// 4: artificial exist with wrong data --> skip (but this must be investigated)
 	// updates (manual mode)
 	// 0 - no such issue --> new
 	// 2: previous issue state exists, no new
@@ -1045,6 +1046,13 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 					updatesMutex.Unlock()
 					ch <- false
 					return
+				}
+
+				// Handle collision
+				eventID := 281474976710656 + cfg.EventID
+				collision := false
+				if ghaEventID == eventID {
+					collision = true
 				}
 
 				// Now have existing GHA event, but we don't know if it is a correct state event
@@ -1302,6 +1310,22 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 				// Do the update if needed
 				changedAnything := changedMilestone || changedState || changedClosed || changedAssignee || changedTitle || changedLocked || changedLabels || changedAssignees
 				if changedAnything {
+					if collision {
+						Printf("Warning: Exact artificial event (%v, %d) already exists with different state, skipping: '%v'\n", cfg.CreatedAt, eventID, cfg)
+						why = "collision and state differs"
+						what = fmt.Sprintf("%s %d %s %s: %d", cfg.Repo, cfg.Number, ToYMDHMSDate(cfg.CreatedAt), cfg.EventType, eventID)
+						updatesMutex.Lock()
+						updates[1]++
+						_, ok := infos[why]
+						if ok {
+							infos[why] = append(infos[why], what)
+						} else {
+							infos[why] = []string{what}
+						}
+						updatesMutex.Unlock()
+						ch <- false
+						return
+					}
 					uidx = 3
 					FatalOnError(
 						ArtificialEvent(
