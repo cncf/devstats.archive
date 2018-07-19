@@ -1326,11 +1326,12 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 						what = fmt.Sprintf("%s %d", cfg.Repo, cfg.Number)
 					} else {
 						if ctx.Debug > 0 {
-							Printf("Warning: Exact artificial event (%v, %d) already exists with different state, skipping: '%v'\n", cfg.CreatedAt, eventID, cfg)
+							Printf("Debug: Exact artificial event (%v, %d) already exists with different state, skipping: '%v'\n", cfg.CreatedAt, eventID, cfg)
 						}
 						why = "collision and issue state differs"
 						what = fmt.Sprintf("%s %d %s %s: %d", cfg.Repo, cfg.Number, ToYMDHMSDate(cfg.CreatedAt), cfg.EventType, eventID)
-						if ctx.DropAndRecreate {
+						if !ctx.SkipUpdateEvents {
+							why = "updated existing state"
 							FatalOnError(DeleteArtificialEvent(c, ctx, &cfg))
 							FatalOnError(ArtificialEvent(c, ctx, &cfg))
 						}
