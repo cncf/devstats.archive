@@ -92,7 +92,7 @@ type Ctx struct {
 	AllowBrokenJSON     bool            // From GHA2DB_ALLOW_BROKEN_JSON, gha2db tool, default false. If set then gha2db skips broken jsons and saves them as jsons/error_YYYY-MM-DD-h-n-m.json (n is the JSON number (1-m) of m JSONS array)
 	JSONsDir            string          // From GHA2DB_JSONS_DIR, website_data tool, default "./jsons/"
 	WebsiteData         bool            // From GHA2DB_WEBSITEDATA, devstats tool, run website_data just after sync is complete, default false.
-	DropAndRecreate     bool            // FROM GHA2DB_DROP_AND_RECREATE, ghapi2db tool, drop and recreate artificial events if their state differs, default false
+	SkipUpdateEvents    bool            // FROM GHA2DB_SKIP_UPDATE_EVENTS, ghapi2db tool, drop and recreate artificial events if their state differs, default false
 }
 
 // Init - get context from environment variables
@@ -244,8 +244,8 @@ func (ctx *Ctx) Init() {
 	// Run website_data tool after sync
 	ctx.WebsiteData = os.Getenv("GHA2DB_WEBSITEDATA") != ""
 
-	// Run website_data tool after sync
-	ctx.DropAndRecreate = os.Getenv("GHA2DB_DROP_AND_RECREATE") != ""
+	// Disable delete & recreate past events
+	ctx.SkipUpdateEvents = os.Getenv("GHA2DB_SKIP_UPDATE_EVENTS") != ""
 
 	// Postgres DB variables
 	ctx.SkipPDB = os.Getenv("GHA2DB_SKIPPDB") != ""

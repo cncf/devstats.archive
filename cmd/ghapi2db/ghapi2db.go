@@ -57,7 +57,7 @@ func syncEvents(ctx *lib.Ctx) {
 		repos = append(repos, repo)
 	}
 	if ctx.Debug > 0 {
-		lib.Printf("Unique repos: %v\n", recentReposDt, repos)
+		lib.Printf("Unique repos: %v\n", repos)
 	}
 	recentDt := lib.GetDateAgo(c, ctx, lib.HourStart(time.Now()), ctx.RecentRange)
 
@@ -322,7 +322,8 @@ func syncEvents(ctx *lib.Ctx) {
 					eidsMutex.Unlock()
 					if duplicate {
 						lib.Printf("Warning: duplicate GH event %d, %v, %v\n", eid, eids[eid], eidRepos[eid])
-						continue
+						ch <- false
+						return
 					}
 					if issue.Milestone != nil {
 						cfg.MilestoneID = issue.Milestone.ID

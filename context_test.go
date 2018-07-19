@@ -44,7 +44,7 @@ func copyContext(in *lib.Ctx) *lib.Ctx {
 		SkipGHAPI:           in.SkipGHAPI,
 		AllowBrokenJSON:     in.AllowBrokenJSON,
 		WebsiteData:         in.WebsiteData,
-		DropAndRecreate:     in.DropAndRecreate,
+		SkipUpdateEvents:    in.SkipUpdateEvents,
 		SkipGetRepos:        in.SkipGetRepos,
 		ResetTSDB:           in.ResetTSDB,
 		ResetRanges:         in.ResetRanges,
@@ -234,7 +234,7 @@ func TestInit(t *testing.T) {
 		SkipGHAPI:           false,
 		AllowBrokenJSON:     false,
 		WebsiteData:         false,
-		DropAndRecreate:     false,
+		SkipUpdateEvents:    false,
 		SkipGetRepos:        false,
 		ResetTSDB:           false,
 		ResetRanges:         false,
@@ -577,13 +577,13 @@ func TestInit(t *testing.T) {
 		{
 			"Drop and recreate artificial events mode",
 			map[string]string{
-				"GHA2DB_DROP_AND_RECREATE": "1",
+				"GHA2DB_SKIP_UPDATE_EVENTS": "1",
 			},
 			dynamicSetFields(
 				t,
 				copyContext(&defaultContext),
 				map[string]interface{}{
-					"DropAndRecreate": true,
+					"SkipUpdateEvents": true,
 				},
 			),
 		},
