@@ -522,3 +522,8 @@ Please see [Historical benchmarks](https://github.com/cncf/devstats/blob/master/
 
 Please see [Tests](https://github.com/cncf/devstats/blob/master/TESTING.md)
 
+# Debugging
+
+- Install Delve: `go get -u github.com/derekparker/delve/cmd/dlv`.
+- Debug any command via: `ENV1=... ENV2=... dlv debug devstats/cmd/command`.
+- For example see: `util_sh/dlv_ghapi2db.sh`.
