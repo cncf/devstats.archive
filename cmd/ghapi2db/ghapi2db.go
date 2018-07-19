@@ -297,7 +297,7 @@ func syncEvents(ctx *lib.Ctx) {
 					}
 					eidsMutex.Unlock()
 					if duplicate {
-						lib.Printf("Warining: duplicate GH event %d\n", eid)
+						lib.Printf("Warning: duplicate GH event %d\n", eid)
 						continue
 					}
 					if issue.Milestone != nil {
