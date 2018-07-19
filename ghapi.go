@@ -932,8 +932,6 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 	}
 	nPRs := len(prs)
 	checked := 0
-	// This drops and recreates artificial event when its state differs
-	dropAndRecreate := false
 	var updatesMutex = &sync.Mutex{}
 	updates := []int{0, 0, 0}
 	// updates (non-manual mode):
@@ -1326,7 +1324,7 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 						Printf("Warning: Exact artificial event (%v, %d) already exists with different state, skipping: '%v'\n", cfg.CreatedAt, eventID, cfg)
 						why = "collision and issue state differs"
 						what = fmt.Sprintf("%s %d %s %s: %d", cfg.Repo, cfg.Number, ToYMDHMSDate(cfg.CreatedAt), cfg.EventType, eventID)
-						if dropAndRecreate {
+						if ctx.DropAndRecreate {
 							FatalOnError(DeleteArtificialEvent(c, ctx, &cfg))
 							FatalOnError(ArtificialEvent(c, ctx, &cfg))
 						}
