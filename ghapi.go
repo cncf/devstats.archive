@@ -322,22 +322,26 @@ func ghMilestone(con *sql.Tx, ctx *Ctx, eid int64, ic *IssueConfig, maybeHide fu
 }
 
 // GetRecentRepos - get list of repos active last day
-func GetRecentRepos(c *sql.DB, ctx *Ctx, dtFrom time.Time) (repos []string) {
+func GetRecentRepos(c *sql.DB, ctx *Ctx, dtFrom time.Time) (repos []string, rids []int64) {
 	rows := QuerySQLWithErr(
 		c,
 		ctx,
 		fmt.Sprintf(
-			"select distinct dup_repo_name from gha_events "+
+			"select distinct repo_id, dup_repo_name from gha_events "+
 				"where created_at > %s",
 			NValue(1),
 		),
 		dtFrom,
 	)
 	defer func() { FatalOnError(rows.Close()) }()
-	var repo string
+	var (
+		repo string
+		rid  int64
+	)
 	for rows.Next() {
-		FatalOnError(rows.Scan(&repo))
+		FatalOnError(rows.Scan(&rid, &repo))
 		repos = append(repos, repo)
+		rids = append(rids, rid)
 	}
 	FatalOnError(rows.Err())
 	return
@@ -1321,7 +1325,9 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 						why = "previous issue state different"
 						what = fmt.Sprintf("%s %d", cfg.Repo, cfg.Number)
 					} else {
-						Printf("Warning: Exact artificial event (%v, %d) already exists with different state, skipping: '%v'\n", cfg.CreatedAt, eventID, cfg)
+						if ctx.Debug > 0 {
+							Printf("Warning: Exact artificial event (%v, %d) already exists with different state, skipping: '%v'\n", cfg.CreatedAt, eventID, cfg)
+						}
 						why = "collision and issue state differs"
 						what = fmt.Sprintf("%s %d %s %s: %d", cfg.Repo, cfg.Number, ToYMDHMSDate(cfg.CreatedAt), cfg.EventType, eventID)
 						if ctx.DropAndRecreate {
