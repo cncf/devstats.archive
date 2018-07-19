@@ -48,3 +48,4 @@ done
 ./grafana/start_all_grafanas.sh || exit 10
 sleep 5
 ps -aux | grep 'grafana-server'
+echo 'Do: cd ~/cncf/contributors && ./grafana.sh &'
