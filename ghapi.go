@@ -65,9 +65,17 @@ func (ic IssueConfig) String() string {
 // outputIssuesInfo: display summary of issues data to process
 func outputIssuesInfo(issues map[int64]IssueConfigAry, info string) {
 	Printf("%s:\n", info)
+	eids := make(map[int64][2]int64)
 	data := make(map[string][]string)
 	for _, cfgAry := range issues {
 		for _, cfg := range cfgAry {
+			eid := cfg.EventID
+			_, o := eids[eid]
+			if o {
+				eids[eid] = [2]int64{*cfg.GhIssue.ID, eids[eid][1] + 1}
+			} else {
+				eids[eid] = [2]int64{*cfg.GhIssue.ID, 1}
+			}
 			key := fmt.Sprintf("%s %d", cfg.Repo, cfg.Number)
 			val := fmt.Sprintf("%s %s", ToYMDHMSDate(cfg.CreatedAt), cfg.EventType)
 			_, ok := data[key]
@@ -91,6 +99,11 @@ func outputIssuesInfo(issues map[int64]IssueConfigAry, info string) {
 		}
 		sort.Strings(svalues)
 		Printf("%s: [%s]\n", key, strings.Join(svalues, ", "))
+	}
+	for eid, na := range eids {
+		if na[1] > 1 {
+			Printf("Warning: Duplicate event %d(%d): %v\n", eid, na[1], issues[na[0]])
+		}
 	}
 }
 
@@ -603,6 +616,42 @@ func ArtificialPREvent(c *sql.DB, ctx *Ctx, cfg *IssueConfig, pr *github.PullReq
 	return
 }
 
+// DeleteArtificialEvent - create artificial API event (but from the past)
+func DeleteArtificialEvent(c *sql.DB, ctx *Ctx, cfg *IssueConfig) (err error) {
+	// github.com/google/go-github/github/issues_events.go
+	if ctx.SkipPDB {
+		if ctx.Debug > 0 {
+			Printf("No DB write: Delete '%v'\n", *cfg)
+		}
+		return nil
+	}
+	eid := 281474976710656 + cfg.EventID
+	condition := fmt.Sprintf(" where event_id = %d", eid)
+	deletes := []string{
+		"delete from gha_issues_labels" + condition,
+		"delete from gha_issues_assignees" + condition,
+		"delete from gha_issues" + condition,
+		"delete from gha_milestones" + condition,
+		"delete from gha_payloads" + condition,
+		"delete from gha_pull_requests" + condition,
+		"delete from gha_pull_requests_assignees" + condition,
+		"delete from gha_pull_requests_requested_reviewers" + condition,
+		fmt.Sprintf("delete from gha_events where id = %d", eid),
+	}
+	// Start transaction
+	tc, err := c.Begin()
+	FatalOnError(err)
+
+	for _, del := range deletes {
+		ExecSQLTxWithErr(tc, ctx, del)
+	}
+
+	// Final commit
+	FatalOnError(tc.Commit())
+	//FatalOnError(tc.Rollback())
+	return
+}
+
 // ArtificialEvent - create artificial API event (but from the past)
 func ArtificialEvent(c *sql.DB, ctx *Ctx, cfg *IssueConfig) (err error) {
 	// github.com/google/go-github/github/issues_events.go
@@ -883,6 +932,8 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 	}
 	nPRs := len(prs)
 	checked := 0
+	// This drops and recreates artificial event when its state differs
+	dropAndRecreate := false
 	var updatesMutex = &sync.Mutex{}
 	updates := []int{0, 0, 0}
 	// updates (non-manual mode):
@@ -948,8 +999,7 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 						ctx,
 						fmt.Sprintf(
 							"select milestone_id, event_id, closed_at, state, title, locked, assignee_id "+
-								"from gha_issues where id = %s and event_id = %s "+
-								"order by updated_at desc, event_id desc limit 1",
+								"from gha_issues where id = %s and event_id = %s",
 							NValue(1),
 							NValue(2),
 						),
@@ -1273,10 +1323,13 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 						why = "previous issue state different"
 						what = fmt.Sprintf("%s %d", cfg.Repo, cfg.Number)
 					} else {
-						// TODO: delete? investigate what's best
 						Printf("Warning: Exact artificial event (%v, %d) already exists with different state, skipping: '%v'\n", cfg.CreatedAt, eventID, cfg)
-						why = "collision and state differs"
+						why = "collision and issue state differs"
 						what = fmt.Sprintf("%s %d %s %s: %d", cfg.Repo, cfg.Number, ToYMDHMSDate(cfg.CreatedAt), cfg.EventType, eventID)
+						if dropAndRecreate {
+							FatalOnError(DeleteArtificialEvent(c, ctx, &cfg))
+							FatalOnError(ArtificialEvent(c, ctx, &cfg))
+						}
 					}
 				}
 
@@ -1342,8 +1395,7 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 	dtStart = time.Now()
 	lastTime = dtStart
 	checked = 0
-	updates = []int{0, 0, 0, 0, 0}
-	// updates[4] - collisions (only with non-manual mode)
+	updates = []int{0, 0, 0}
 	var prsMutex = &sync.RWMutex{}
 	for iid := range prs {
 		go func(ch chan bool, iid int64) {
@@ -1390,51 +1442,7 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 			}
 			apiMergedAt := pr.MergedAt
 			apiMerged := pr.Merged
-
-			// Handle eventual collision
-			if !manual {
-				eventID := 281474976710656 + ic.EventID
-				rowsE := QuerySQLWithErr(
-					c,
-					ctx,
-					fmt.Sprintf(
-						"select 1 from gha_pull_requests where id = %s and event_id = %s and updated_at != %s",
-						NValue(1),
-						NValue(2),
-						NValue(3),
-					),
-					prid,
-					eventID,
-					updatedAt,
-				)
-				defer func() { FatalOnError(rowsE.Close()) }()
-				collision := false
-				dummy := 0
-				for rowsE.Next() {
-					FatalOnError(rowsE.Scan(&dummy))
-					collision = true
-				}
-				FatalOnError(rowsE.Err())
-				if collision {
-					if ctx.Debug > 1 {
-						Printf("Exact PR event already exists for different date, skipping: '%v', PR ID: %d\n", updatedAt, prid)
-					}
-					// PR data for the same GH API event is already created
-					why = "pr collision"
-					what = fmt.Sprintf("%s %d %s %s", ic.Repo, ic.Number, ToYMDHMSDate(ic.CreatedAt), ic.EventType)
-					updatesMutex.Lock()
-					updates[4]++
-					_, ok := infos[why]
-					if ok {
-						infos[why] = append(infos[why], what)
-					} else {
-						infos[why] = []string{what}
-					}
-					updatesMutex.Unlock()
-					ch <- false
-					return
-				}
-			}
+			eventID := 281474976710656 + ic.EventID
 
 			// Get event for this date
 			var rowsM *sql.Rows
@@ -1458,13 +1466,12 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 					fmt.Sprintf(
 						"select milestone_id, event_id, closed_at, state, title, assignee_id, "+
 							"merged_by_id, merged_at, merged "+
-							"from gha_pull_requests where id = %s and updated_at = %s "+
-							"order by updated_at desc, event_id desc limit 1",
+							"from gha_pull_requests where id = %s and event_id = %s",
 						NValue(1),
 						NValue(2),
 					),
 					prid,
-					updatedAt,
+					eventID,
 				)
 			}
 			defer func() { FatalOnError(rowsM.Close()) }()
@@ -1502,7 +1509,7 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 					why = "no previous pr state"
 					what = fmt.Sprintf("%s %d", ic.Repo, ic.Number)
 				} else {
-					why = "no pr event at date"
+					why = "no pr event"
 					what = fmt.Sprintf("%s %d %s %s", ic.Repo, ic.Number, ToYMDHMSDate(ic.CreatedAt), ic.EventType)
 				}
 				updatesMutex.Lock()
@@ -1515,24 +1522,6 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 				}
 				updatesMutex.Unlock()
 				ch <- true
-				return
-			}
-			if !manual && ghaEventID > 281474976710656 {
-				if ctx.Debug > 1 {
-					Printf("Artificial PR event (%v) already exists, skipping: '%v', PR ID: %d\n", updatedAt, ic, prid)
-				}
-				why = "already have artificial pr event at date"
-				what = fmt.Sprintf("%s %d %s %s", ic.Repo, ic.Number, ToYMDHMSDate(ic.CreatedAt), ic.EventType)
-				updatesMutex.Lock()
-				updates[1]++
-				_, ok := infos[why]
-				if ok {
-					infos[why] = append(infos[why], what)
-				} else {
-					infos[why] = []string{what}
-				}
-				updatesMutex.Unlock()
-				ch <- false
 				return
 			}
 
@@ -1886,32 +1875,32 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 				updatesMutex.Unlock()
 			}
 
-			uidx := 2
+			uidx := 1
+			why = "previous pr state the same"
 			if manual {
-				why = "previous pr state the same"
 				what = fmt.Sprintf("%s %d", ic.Repo, ic.Number)
 			} else {
-				why = "existing pr state at date the same"
 				what = fmt.Sprintf("%s %d %s %s", ic.Repo, ic.Number, ToYMDHMSDate(ic.CreatedAt), ic.EventType)
 			}
 			// Do the update if needed
 			changedAnything := changedMilestone || changedState || changedClosed || changedMerged || changedMergedAt || changedMergedBy || changedAssignee || changedTitle || changedAssignees || changedRequestedReviewers
 			if changedAnything {
-				uidx = 3
-				FatalOnError(
-					ArtificialPREvent(
-						c,
-						ctx,
-						&ic,
-						&pr,
-					),
-				)
+				uidx = 2
 				if manual {
+					FatalOnError(
+						ArtificialPREvent(
+							c,
+							ctx,
+							&ic,
+							&pr,
+						),
+					)
 					why = "previous pr state different"
 					what = fmt.Sprintf("%s %d", ic.Repo, ic.Number)
 				} else {
-					why = "existing pr state at date different"
-					what = fmt.Sprintf("%s %d %s %s", ic.Repo, ic.Number, ToYMDHMSDate(ic.CreatedAt), ic.EventType)
+					Printf("Warning: Exact artificial PR event (%v, %d) already exists with different state, skipping: '%v'\n", ic.CreatedAt, eventID, ic)
+					why = "collision and pr state differs"
+					what = fmt.Sprintf("%s %d %s %s: %d", ic.Repo, ic.Number, ToYMDHMSDate(ic.CreatedAt), ic.EventType, eventID)
 				}
 			}
 
@@ -1956,12 +1945,12 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 	if manual {
 		Printf(
 			"ghapi2db.go: Manually processed %d PRs (%d new PRs, existing: %d not needed, %d added): %d API points remain, resets in %v\n",
-			checked, updates[0], updates[2], updates[3], rem, wait,
+			checked, updates[0], updates[1], updates[2], rem, wait,
 		)
 	} else {
 		Printf(
-			"ghapi2db.go: Automatically processed %d PRs (%d new for date, %d artificial exists, date exists: %d not needed, %d added, collisions: %d): %d API points remain, resets in %v\n",
-			checked, updates[0], updates[1], updates[2], updates[3], updates[4], rem, wait,
+			"ghapi2db.go: Automatically processed %d PRs (%d new PRs, existing: %d not needed, %d added): %d API points remain, resets in %v\n",
+			checked, updates[0], updates[1], updates[2], rem, wait,
 		)
 	}
 	// Info
