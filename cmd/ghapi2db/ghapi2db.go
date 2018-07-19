@@ -23,6 +23,7 @@ import (
 // TO=datetime 'YYYY-MM-DD hh:mm:ss.uuuuuu"
 // MILESTONE=milestone name
 // ISSUE="issue_number"
+// To use FROM and TO make sure you set GHA2DB_RECENT_RANGE to cover that range too.
 func syncEvents(ctx *lib.Ctx) {
 	// Connect to GitHub API
 	gctx, gc := lib.GHClient(ctx)
@@ -143,6 +144,8 @@ func syncEvents(ctx *lib.Ctx) {
 	opt := &github.ListOptions{PerPage: 100}
 	issues := make(map[int64]lib.IssueConfigAry)
 	var issuesMutex = &sync.Mutex{}
+	eids := make(map[int64][2]int64)
+	var eidsMutex = &sync.Mutex{}
 	prs := make(map[int64]github.PullRequest)
 	var prsMutex = &sync.Mutex{}
 	for _, orgRepo := range repos {
@@ -280,6 +283,23 @@ func syncEvents(ctx *lib.Ctx) {
 						continue
 					}
 					cfg := lib.IssueConfig{Repo: orgRepo}
+					eid := *event.ID
+					iid := *issue.ID
+					// Check for duplicate events
+					eidsMutex.Lock()
+					duplicate := false
+					_, o := eids[eid]
+					if o {
+						eids[eid] = [2]int64{iid, eids[eid][1] + 1}
+						duplicate = true
+					} else {
+						eids[eid] = [2]int64{iid, 1}
+					}
+					eidsMutex.Unlock()
+					if duplicate {
+						lib.Printf("Warining: duplicate GH event %d\n", eid)
+						continue
+					}
 					if issue.Milestone != nil {
 						cfg.MilestoneID = issue.Milestone.ID
 					}
@@ -289,13 +309,13 @@ func syncEvents(ctx *lib.Ctx) {
 					if eventType == "renamed" {
 						issue.Title = event.Rename.To
 					}
+					cfg.EventID = *event.ID
+					cfg.IssueID = *issue.ID
 					cfg.EventType = eventType
 					cfg.CreatedAt = createdAt
 					cfg.GhIssue = issue
 					cfg.GhEvent = event
 					cfg.Number = *issue.Number
-					cfg.IssueID = *issue.ID
-					cfg.EventID = *event.ID
 					cfg.Pr = issue.IsPullRequest()
 					// Labels
 					cfg.LabelsMap = make(map[int64]string)
