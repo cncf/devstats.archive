@@ -62,6 +62,29 @@ func (ic IssueConfig) String() string {
 	)
 }
 
+func (ic IssueConfig) configStr() string {
+	var (
+		milestoneID int64
+		assigneeID  int64
+	)
+	if ic.MilestoneID != nil {
+		milestoneID = *ic.MilestoneID
+	}
+	if ic.AssigneeID != nil {
+		assigneeID = *ic.AssigneeID
+	}
+	return fmt.Sprintf(
+		"{Repo: %s, Number: %d, IssueID: %d, MilestoneID: %d, AssigneeID: %d, Labels: %s, Assignees: %s}",
+		ic.Repo,
+		ic.Number,
+		ic.IssueID,
+		milestoneID,
+		assigneeID,
+		ic.Labels,
+		ic.Assignees,
+	)
+}
+
 // outputIssuesInfo: display summary of issues data to process
 func outputIssuesInfo(issues map[int64]IssueConfigAry, info string) {
 	Printf("%s:\n", info)
@@ -103,6 +126,19 @@ func outputIssuesInfo(issues map[int64]IssueConfigAry, info string) {
 	for eid, na := range eids {
 		if na[1] > 1 {
 			Printf("Warning: Duplicate event %d(%d): %v\n", eid, na[1], issues[na[0]])
+		}
+	}
+	for _, cfgAry := range issues {
+		l := len(cfgAry)
+		for i := 0; i < l; i++ {
+			for j := i + 1; j < l; j++ {
+				stateA := cfgAry[i].configStr()
+				stateB := cfgAry[j].configStr()
+				if stateA != stateB {
+					Printf("StateA: %v\n", stateA)
+					Printf("StateB: %v\n\n", stateB)
+				}
+			}
 		}
 	}
 }
