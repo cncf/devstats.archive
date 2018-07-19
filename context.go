@@ -90,8 +90,9 @@ type Ctx struct {
 	ActorsForbid        *regexp.Regexp  // From GHA2DB_ACTORS_FORBID, gha2db tool, process JSON if actor matches this regexp, default ""
 	OnlyMetrics         map[string]bool // From GHA2DB_ONLY_METRICS, gha2db_sync tool, default "" - comma separated list of metrics to process, as fiven my "sql: name" in the "metrics.yaml" file. Only those metrics will be calculated.
 	AllowBrokenJSON     bool            // From GHA2DB_ALLOW_BROKEN_JSON, gha2db tool, default false. If set then gha2db skips broken jsons and saves them as jsons/error_YYYY-MM-DD-h-n-m.json (n is the JSON number (1-m) of m JSONS array)
-	JSONsDir            string          // From GHA2DB_JSONS_DIR website_data tool, default "./jsons/"
-	WebsiteData         bool            // From GHA2DB_WEBSITEDATA devstats tool, run website_data just after sync is complete, default false.
+	JSONsDir            string          // From GHA2DB_JSONS_DIR, website_data tool, default "./jsons/"
+	WebsiteData         bool            // From GHA2DB_WEBSITEDATA, devstats tool, run website_data just after sync is complete, default false.
+	DropAndRecreate     bool            // FROM GHA2DB_DROP_AND_RECREATE, ghapi2db tool, drop and recreate artificial events if their state differs, default false
 }
 
 // Init - get context from environment variables
@@ -242,6 +243,9 @@ func (ctx *Ctx) Init() {
 
 	// Run website_data tool after sync
 	ctx.WebsiteData = os.Getenv("GHA2DB_WEBSITEDATA") != ""
+
+	// Run website_data tool after sync
+	ctx.DropAndRecreate = os.Getenv("GHA2DB_DROP_AND_RECREATE") != ""
 
 	// Postgres DB variables
 	ctx.SkipPDB = os.Getenv("GHA2DB_SKIPPDB") != ""
