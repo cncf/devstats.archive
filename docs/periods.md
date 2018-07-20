@@ -13,8 +13,8 @@
 
 # DevStats metrics ranges definitions
 
-- Ranges allow selecting data range for table based dashboards.
+- Ranges allow selecting date range for table based dashboards.
 - There are two types or ranges:
-  - `Last [range]`. where `[range]` is: day, week, month etc.
+  - `Last [range]`, where `[range]` is: day, week, month etc.
   - `[annotation1]` - `[annotation2]`, where `[annotation]` is a particular release/tag defined on the project main repo, it allows selecting ranges between one annotation and next one.
 - See [this](https://github.com/cncf/devstats/blob/master/docs/annotations.md) for more informations about annotations.
