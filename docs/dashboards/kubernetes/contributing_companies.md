@@ -8,7 +8,7 @@
 <h1 id="description">Description</h1>
 <ul>
 <li>This dashboard shows how many companies and developers are contributing in a given repository group.</li>
-<li>By contributor we mean someone who made a commit, created issue or PR, reviwed PR, commented on issue or PR.</li>
+<li>By contributor we mean someone who made a comment, commit, created issue or PR, reviwed PR, commented on issue or PR.</li>
 <li>You can select single repository group or summary for all of them.</li>
 <li>Selecting period (for example week) means that dashboard will show data in those periods.</li>
 <li>See <a href="https://github.com/cncf/devstats/blob/master/docs/periods.md" target="_blank">here</a> for more informations about periods.</li>
