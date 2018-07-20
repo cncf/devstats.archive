@@ -383,6 +383,35 @@ func GetRecentRepos(c *sql.DB, ctx *Ctx, dtFrom time.Time) (repos []string, rids
 	return
 }
 
+// DeleteArtificialPREvent - create artificial API event (but from the past)
+func DeleteArtificialPREvent(c *sql.DB, ctx *Ctx, cfg *IssueConfig) (err error) {
+	if ctx.SkipPDB {
+		if ctx.Debug > 0 {
+			Printf("No DB write: Delete PR '%v'\n", *cfg)
+		}
+		return nil
+	}
+	eid := 281474976710656 + cfg.EventID
+	condition := fmt.Sprintf(" where event_id = %d", eid)
+	deletes := []string{
+		"delete from gha_pull_requests" + condition,
+		"delete from gha_pull_requests_assignees" + condition,
+		"delete from gha_pull_requests_requested_reviewers" + condition,
+	}
+	// Start transaction
+	tc, err := c.Begin()
+	FatalOnError(err)
+
+	for _, del := range deletes {
+		ExecSQLTxWithErr(tc, ctx, del)
+	}
+
+	// Final commit
+	FatalOnError(tc.Commit())
+	//FatalOnError(tc.Rollback())
+	return
+}
+
 // ArtificialPREvent - create artificial API event (PR state for now())
 func ArtificialPREvent(c *sql.DB, ctx *Ctx, cfg *IssueConfig, pr *github.PullRequest) (err error) {
 	if ctx.SkipPDB {
@@ -658,10 +687,9 @@ func ArtificialPREvent(c *sql.DB, ctx *Ctx, cfg *IssueConfig, pr *github.PullReq
 
 // DeleteArtificialEvent - create artificial API event (but from the past)
 func DeleteArtificialEvent(c *sql.DB, ctx *Ctx, cfg *IssueConfig) (err error) {
-	// github.com/google/go-github/github/issues_events.go
 	if ctx.SkipPDB {
 		if ctx.Debug > 0 {
-			Printf("No DB write: Delete '%v'\n", *cfg)
+			Printf("No DB write: Delete Issue '%v'\n", *cfg)
 		}
 		return nil
 	}
@@ -1367,7 +1395,7 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 						why = "collision and issue state differs"
 						what = fmt.Sprintf("%s %d %s %s: %d", cfg.Repo, cfg.Number, ToYMDHMSDate(cfg.CreatedAt), cfg.EventType, eventID)
 						if !ctx.SkipUpdateEvents {
-							why = "updated existing state"
+							why = "updated existing issue state"
 							FatalOnError(DeleteArtificialEvent(c, ctx, &cfg))
 							FatalOnError(ArtificialEvent(c, ctx, &cfg))
 						}
@@ -1942,6 +1970,11 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 					Printf("Warning: Exact artificial PR event (%v, %d) already exists with different state, skipping: '%v'\n", ic.CreatedAt, eventID, ic)
 					why = "collision and pr state differs"
 					what = fmt.Sprintf("%s %d %s %s: %d", ic.Repo, ic.Number, ToYMDHMSDate(ic.CreatedAt), ic.EventType, eventID)
+					if !ctx.SkipUpdateEvents {
+						why = "updated existing pr state"
+						FatalOnError(DeleteArtificialPREvent(c, ctx, &ic))
+						FatalOnError(ArtificialPREvent(c, ctx, &ic, &pr))
+					}
 				}
 			}
 
