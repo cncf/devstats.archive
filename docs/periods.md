@@ -10,3 +10,11 @@
 - d7 = '7 Days MA' = '7 days moving average'.
 - h24 = '24 Hours MA' = '24 hours moving avegage'.
 - Note that moving averages can give non-intuitive values, for example let's say there were 10 issues in 7 days. 7 Days MA will give you value 10/7 = 1.42857... which doesnt look like a correct Issue number. But this means avg 1.49 issue/day in 7 Days moving average period.
+
+# DevStats metrics ranges definitions
+
+- Ranges allow selecting data range for table based dashboards.
+- There are two types or ranges:
+  - `Last [range]`. where `[range]` is: day, week, month etc.
+  - `[annotation1]` - `[annotation2]`, where `[annotation]` is a particular release/tag defined on the project main repo, it allows selecting ranges between one annotation and next one.
+- See [this](https://github.com/cncf/devstats/blob/master/docs/annotations.md) for more informations about annotations.
