@@ -42,8 +42,10 @@ func copyContext(in *lib.Ctx) *lib.Ctx {
 		SkipTSDB:            in.SkipTSDB,
 		SkipPDB:             in.SkipPDB,
 		SkipGHAPI:           in.SkipGHAPI,
+		GHAPIErrorIsFatal:   in.GHAPIErrorIsFatal,
 		AllowBrokenJSON:     in.AllowBrokenJSON,
 		WebsiteData:         in.WebsiteData,
+		SkipUpdateEvents:    in.SkipUpdateEvents,
 		SkipGetRepos:        in.SkipGetRepos,
 		ResetTSDB:           in.ResetTSDB,
 		ResetRanges:         in.ResetRanges,
@@ -231,8 +233,10 @@ func TestInit(t *testing.T) {
 		SkipTSDB:            false,
 		SkipPDB:             false,
 		SkipGHAPI:           false,
+		GHAPIErrorIsFatal:   false,
 		AllowBrokenJSON:     false,
 		WebsiteData:         false,
+		SkipUpdateEvents:    false,
 		SkipGetRepos:        false,
 		ResetTSDB:           false,
 		ResetRanges:         false,
@@ -534,15 +538,17 @@ func TestInit(t *testing.T) {
 		{
 			"Setting skip GHAPI and GetRepos",
 			map[string]string{
-				"GHA2DB_GETREPOSSKIP": "1",
-				"GHA2DB_GHAPISKIP":    "1",
+				"GHA2DB_GETREPOSSKIP":      "1",
+				"GHA2DB_GHAPISKIP":         "1",
+				"GHA2DB_GHAPI_ERROR_FATAL": "1",
 			},
 			dynamicSetFields(
 				t,
 				copyContext(&defaultContext),
 				map[string]interface{}{
-					"SkipGHAPI":    true,
-					"SkipGetRepos": true,
+					"SkipGetRepos":      true,
+					"SkipGHAPI":         true,
+					"GHAPIErrorIsFatal": true,
 				},
 			),
 		},
@@ -569,6 +575,19 @@ func TestInit(t *testing.T) {
 				copyContext(&defaultContext),
 				map[string]interface{}{
 					"WebsiteData": true,
+				},
+			),
+		},
+		{
+			"Drop and recreate artificial events mode",
+			map[string]string{
+				"GHA2DB_SKIP_UPDATE_EVENTS": "1",
+			},
+			dynamicSetFields(
+				t,
+				copyContext(&defaultContext),
+				map[string]interface{}{
+					"SkipUpdateEvents": true,
 				},
 			),
 		},

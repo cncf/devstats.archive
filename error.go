@@ -20,6 +20,8 @@ func FatalOnError(err error) string {
 				Printf("Warning: too many postgres connections: %+v: '%s'\n", tm, err.Error())
 				return Retry
 			}
+			Printf("PqError: code=%s, detail=%s\n", e.Code, e.Detail)
+			fmt.Fprintf(os.Stderr, "PqError: code=%s, detail=%s\n", e.Code, e.Detail)
 		}
 		Printf("Error(time=%+v):\nError: '%s'\nStacktrace:\n%s\n", tm, err.Error(), string(debug.Stack()))
 		fmt.Fprintf(os.Stderr, "Error(time=%+v):\nError: '%s'\nStacktrace:\n", tm, err.Error())

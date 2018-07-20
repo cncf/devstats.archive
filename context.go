@@ -81,6 +81,7 @@ type Ctx struct {
 	MinGHAPIPoints      int             // From GHA2DB_MIN_GHAPI_POINTS, ghapi2db tool, minimum GitHub API points, before waiting for reset.
 	MaxGHAPIWaitSeconds int             // From GHA2DB_MAX_GHAPI_WAIT, ghapi2db tool, maximum wait time for GitHub API points reset (in seconds).
 	MaxGHAPIRetry       int             // From GHA2DB_MAX_GHAPI_RETRY, ghapi2db tool, maximum wait retries
+	GHAPIErrorIsFatal   bool            // From GHA2DB_GHAPI_ERROR_FATAL, ghapi2db tool, make any GH API error fatal, default false
 	SkipGHAPI           bool            // From GHA2DB_GHAPISKIP, ghapi2db tool, if set then tool is not creating artificial events using GitHub API
 	SkipGetRepos        bool            // From GHA2DB_GETREPOSSKIP, get_repos tool, if set then tool does nothing
 	CSVFile             string          // From GHA2DB_CSVOUT, runq tool, if set, saves result in this file
@@ -90,8 +91,9 @@ type Ctx struct {
 	ActorsForbid        *regexp.Regexp  // From GHA2DB_ACTORS_FORBID, gha2db tool, process JSON if actor matches this regexp, default ""
 	OnlyMetrics         map[string]bool // From GHA2DB_ONLY_METRICS, gha2db_sync tool, default "" - comma separated list of metrics to process, as fiven my "sql: name" in the "metrics.yaml" file. Only those metrics will be calculated.
 	AllowBrokenJSON     bool            // From GHA2DB_ALLOW_BROKEN_JSON, gha2db tool, default false. If set then gha2db skips broken jsons and saves them as jsons/error_YYYY-MM-DD-h-n-m.json (n is the JSON number (1-m) of m JSONS array)
-	JSONsDir            string          // From GHA2DB_JSONS_DIR website_data tool, default "./jsons/"
-	WebsiteData         bool            // From GHA2DB_WEBSITEDATA devstats tool, run website_data just after sync is complete, default false.
+	JSONsDir            string          // From GHA2DB_JSONS_DIR, website_data tool, default "./jsons/"
+	WebsiteData         bool            // From GHA2DB_WEBSITEDATA, devstats tool, run website_data just after sync is complete, default false.
+	SkipUpdateEvents    bool            // FROM GHA2DB_SKIP_UPDATE_EVENTS, ghapi2db tool, drop and recreate artificial events if their state differs, default false
 }
 
 // Init - get context from environment variables
@@ -225,6 +227,7 @@ func (ctx *Ctx) Init() {
 	// Skip ghapi2db and/or get_repos
 	ctx.SkipGetRepos = os.Getenv("GHA2DB_GETREPOSSKIP") != ""
 	ctx.SkipGHAPI = os.Getenv("GHA2DB_GHAPISKIP") != ""
+	ctx.GHAPIErrorIsFatal = os.Getenv("GHA2DB_GHAPI_ERROR_FATAL") != ""
 
 	// Last TS series
 	ctx.LastSeries = os.Getenv("GHA2DB_LASTSERIES")
@@ -242,6 +245,9 @@ func (ctx *Ctx) Init() {
 
 	// Run website_data tool after sync
 	ctx.WebsiteData = os.Getenv("GHA2DB_WEBSITEDATA") != ""
+
+	// Disable delete & recreate past events
+	ctx.SkipUpdateEvents = os.Getenv("GHA2DB_SKIP_UPDATE_EVENTS") != ""
 
 	// Postgres DB variables
 	ctx.SkipPDB = os.Getenv("GHA2DB_SKIPPDB") != ""
