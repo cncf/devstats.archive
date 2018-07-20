@@ -23,6 +23,7 @@ import (
 // TO=datetime 'YYYY-MM-DD hh:mm:ss.uuuuuu"
 // MILESTONE=milestone name
 // ISSUE="issue_number"
+// To use FROM and TO make sure you set GHA2DB_RECENT_RANGE to cover that range too.
 func syncEvents(ctx *lib.Ctx) {
 	// Connect to GitHub API
 	gctx, gc := lib.GHClient(ctx)
@@ -33,9 +34,30 @@ func syncEvents(ctx *lib.Ctx) {
 
 	// Get list of repositories to process
 	recentReposDt := lib.GetDateAgo(c, ctx, lib.HourStart(time.Now()), ctx.RecentReposRange)
-	repos := lib.GetRecentRepos(c, ctx, recentReposDt)
+	reposA, rids := lib.GetRecentRepos(c, ctx, recentReposDt)
 	if ctx.Debug > 0 {
-		lib.Printf("Repos to process from %v: %v\n", recentReposDt, repos)
+		lib.Printf("Repos to process from %v: %v\n", recentReposDt, reposA)
+	}
+	// Repos can have the same ID with diffrent names
+	// But they also have the same name with different IDs
+	// We first need to put all repo names with unique IDs
+	// And then make this names list unique as well
+	ridsM := make(map[int64]struct{})
+	reposM := make(map[string]struct{})
+	for i := range rids {
+		rid := rids[i]
+		_, ok := ridsM[rid]
+		if !ok {
+			reposM[reposA[i]] = struct{}{}
+			ridsM[rid] = struct{}{}
+		}
+	}
+	var repos []string
+	for repo := range reposM {
+		repos = append(repos, repo)
+	}
+	if ctx.Debug > 0 {
+		lib.Printf("Unique repos: %v\n", repos)
 	}
 	recentDt := lib.GetDateAgo(c, ctx, lib.HourStart(time.Now()), ctx.RecentRange)
 
@@ -143,6 +165,9 @@ func syncEvents(ctx *lib.Ctx) {
 	opt := &github.ListOptions{PerPage: 100}
 	issues := make(map[int64]lib.IssueConfigAry)
 	var issuesMutex = &sync.Mutex{}
+	eids := make(map[int64][2]int64)
+	eidRepos := make(map[int64][]string)
+	var eidsMutex = &sync.Mutex{}
 	prs := make(map[int64]github.PullRequest)
 	var prsMutex = &sync.Mutex{}
 	for _, orgRepo := range repos {
@@ -189,8 +214,14 @@ func syncEvents(ctx *lib.Ctx) {
 							time.Sleep(waitPeriod)
 							continue
 						} else {
-							lib.Fatalf("API limit reached while getting issues events data, aborting, don't want to wait %v", waitPeriod)
-							os.Exit(1)
+							if ctx.GHAPIErrorIsFatal {
+								lib.Fatalf("API limit reached while getting issues events data, aborting, don't want to wait %v", waitPeriod)
+								os.Exit(1)
+							} else {
+								lib.Printf("Error: API limit reached while getting issues events data, aborting, don't want to wait %v", waitPeriod)
+								ch <- false
+								return
+							}
 						}
 					}
 					nPages++
@@ -238,8 +269,14 @@ func syncEvents(ctx *lib.Ctx) {
 					break
 				}
 				if !got {
-					lib.Fatalf("GetRateLimit call failed %d times while getting events, aborting", ctx.MaxGHAPIRetry)
-					os.Exit(2)
+					if ctx.GHAPIErrorIsFatal {
+						lib.Fatalf("GetRateLimit call failed %d times while getting events, aborting", ctx.MaxGHAPIRetry)
+						os.Exit(2)
+					} else {
+						lib.Printf("Error: GetRateLimit call failed %d times while getting events, aborting", ctx.MaxGHAPIRetry)
+						ch <- false
+						return
+					}
 				}
 				minCreatedAt := time.Now()
 				maxCreatedAt := recentDt
@@ -280,6 +317,28 @@ func syncEvents(ctx *lib.Ctx) {
 						continue
 					}
 					cfg := lib.IssueConfig{Repo: orgRepo}
+					eid := *event.ID
+					iid := *issue.ID
+					// Check for duplicate events
+					eidsMutex.Lock()
+					duplicate := false
+					_, o := eids[eid]
+					if o {
+						eids[eid] = [2]int64{iid, eids[eid][1] + 1}
+						eidRepos[eid] = append(eidRepos[eid], orgRepo)
+						duplicate = true
+					} else {
+						eids[eid] = [2]int64{iid, 1}
+						eidRepos[eid] = []string{orgRepo}
+					}
+					eidsMutex.Unlock()
+					if duplicate {
+						if ctx.Debug > 0 {
+							lib.Printf("Note: duplicate GH event %d, %v, %v\n", eid, eids[eid], eidRepos[eid])
+						}
+						ch <- false
+						return
+					}
 					if issue.Milestone != nil {
 						cfg.MilestoneID = issue.Milestone.ID
 					}
@@ -289,13 +348,13 @@ func syncEvents(ctx *lib.Ctx) {
 					if eventType == "renamed" {
 						issue.Title = event.Rename.To
 					}
+					cfg.EventID = *event.ID
+					cfg.IssueID = *issue.ID
 					cfg.EventType = eventType
 					cfg.CreatedAt = createdAt
 					cfg.GhIssue = issue
 					cfg.GhEvent = event
 					cfg.Number = *issue.Number
-					cfg.IssueID = *issue.ID
-					cfg.EventID = *event.ID
 					cfg.Pr = issue.IsPullRequest()
 					// Labels
 					cfg.LabelsMap = make(map[int64]string)
@@ -368,8 +427,14 @@ func syncEvents(ctx *lib.Ctx) {
 										time.Sleep(waitPeriod)
 										continue
 									} else {
-										lib.Fatalf("API limit reached while getting PR data, aborting, don't want to wait %v", waitPeriod)
-										os.Exit(1)
+										if ctx.GHAPIErrorIsFatal {
+											lib.Fatalf("API limit reached while getting PR data, aborting, don't want to wait %v", waitPeriod)
+											os.Exit(1)
+										} else {
+											lib.Printf("Error: API limit reached while getting PR data, aborting, don't want to wait %v", waitPeriod)
+											ch <- false
+											return
+										}
 									}
 								}
 								if ctx.Debug > 1 {
@@ -408,8 +473,14 @@ func syncEvents(ctx *lib.Ctx) {
 								break
 							}
 							if !got {
-								lib.Fatalf("GetRateLimit call failed %d times while getting PR, aborting", ctx.MaxGHAPIRetry)
-								os.Exit(2)
+								if ctx.GHAPIErrorIsFatal {
+									lib.Fatalf("GetRateLimit call failed %d times while getting PR, aborting", ctx.MaxGHAPIRetry)
+									os.Exit(2)
+								} else {
+									lib.Printf("Error: GetRateLimit call failed %d times while getting PR, aborting", ctx.MaxGHAPIRetry)
+									ch <- false
+									return
+								}
 							}
 							if pr != nil {
 								prsMutex.Lock()

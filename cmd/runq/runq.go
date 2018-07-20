@@ -194,7 +194,7 @@ func runq(sqlFile string, params []string) {
 		if writer != nil {
 			err = writer.Write(vals)
 		}
-		output = output[:len(output)-1] + "|\n"
+		output = strings.Replace(output[:len(output)-1]+"|\n", "%", "%%", -1)
 		lib.Printf(output)
 	}
 
