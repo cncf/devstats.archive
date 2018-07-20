@@ -7,7 +7,7 @@
 </ul>
 <h1 id="description">Description</h1>
 <ul>
-<li>This dashboard shows summary of all GitHub events happening on a given project repository or all of them.</li>
+<li>This dashboard shows summary of all GitHub events happening on a given repository group or all of them.</li>
 <li>Selecting period (for example week) means that dashboard will show activity in those periods.</li>
 <li>See <a href="https://github.com/cncf/devstats/blob/master/docs/periods.md" target="_blank">here</a> for more informations about periods.</li>
 <li>See <a href="https://github.com/cncf/devstats/blob/master/docs/repository_groups.md" target="_blank">here</a> for more informations about repository groups.</li>
