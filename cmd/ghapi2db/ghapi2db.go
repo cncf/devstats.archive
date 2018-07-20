@@ -214,8 +214,14 @@ func syncEvents(ctx *lib.Ctx) {
 							time.Sleep(waitPeriod)
 							continue
 						} else {
-							lib.Fatalf("API limit reached while getting issues events data, aborting, don't want to wait %v", waitPeriod)
-							os.Exit(1)
+							if ctx.GHAPIErrorIsFatal {
+								lib.Fatalf("API limit reached while getting issues events data, aborting, don't want to wait %v", waitPeriod)
+								os.Exit(1)
+							} else {
+								lib.Printf("Error: API limit reached while getting issues events data, aborting, don't want to wait %v", waitPeriod)
+								ch <- false
+								return
+							}
 						}
 					}
 					nPages++
@@ -263,8 +269,14 @@ func syncEvents(ctx *lib.Ctx) {
 					break
 				}
 				if !got {
-					lib.Fatalf("GetRateLimit call failed %d times while getting events, aborting", ctx.MaxGHAPIRetry)
-					os.Exit(2)
+					if ctx.GHAPIErrorIsFatal {
+						lib.Fatalf("GetRateLimit call failed %d times while getting events, aborting", ctx.MaxGHAPIRetry)
+						os.Exit(2)
+					} else {
+						lib.Printf("Error: GetRateLimit call failed %d times while getting events, aborting", ctx.MaxGHAPIRetry)
+						ch <- false
+						return
+					}
 				}
 				minCreatedAt := time.Now()
 				maxCreatedAt := recentDt
@@ -415,8 +427,14 @@ func syncEvents(ctx *lib.Ctx) {
 										time.Sleep(waitPeriod)
 										continue
 									} else {
-										lib.Fatalf("API limit reached while getting PR data, aborting, don't want to wait %v", waitPeriod)
-										os.Exit(1)
+										if ctx.GHAPIErrorIsFatal {
+											lib.Fatalf("API limit reached while getting PR data, aborting, don't want to wait %v", waitPeriod)
+											os.Exit(1)
+										} else {
+											lib.Printf("Error: API limit reached while getting PR data, aborting, don't want to wait %v", waitPeriod)
+											ch <- false
+											return
+										}
 									}
 								}
 								if ctx.Debug > 1 {
@@ -455,8 +473,14 @@ func syncEvents(ctx *lib.Ctx) {
 								break
 							}
 							if !got {
-								lib.Fatalf("GetRateLimit call failed %d times while getting PR, aborting", ctx.MaxGHAPIRetry)
-								os.Exit(2)
+								if ctx.GHAPIErrorIsFatal {
+									lib.Fatalf("GetRateLimit call failed %d times while getting PR, aborting", ctx.MaxGHAPIRetry)
+									os.Exit(2)
+								} else {
+									lib.Printf("Error: GetRateLimit call failed %d times while getting PR, aborting", ctx.MaxGHAPIRetry)
+									ch <- false
+									return
+								}
 							}
 							if pr != nil {
 								prsMutex.Lock()
