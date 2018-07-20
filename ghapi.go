@@ -247,6 +247,10 @@ func HandlePossibleError(err error, cfg *IssueConfig, info string) string {
 			Printf("Not found (%s) for %v: %v\n", info, cfg, err)
 			return NotFound
 		}
+		if strings.Contains(err.Error(), "502 Server Error") {
+			Printf("Server Error (%s) for %v: %v\n", info, cfg, err)
+			return "server_error"
+		}
 		//FatalOnError(err)
 		Printf("%s error: %v, non fatal, exiting 0 status\n", os.Args[0], err)
 		os.Exit(0)
