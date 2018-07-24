@@ -1,9 +1,9 @@
-<h1 id="dashboard-header">[[full_name]] new and episodic contributors dashboard</h1>
+<h1 id="dashboard-header">[[full_name]] new and episodic PR contributors dashboard</h1>
 <p>Links:</p>
 <ul>
 <li>New contributors metric <a href="https://github.com/cncf/devstats/blob/master/metrics/shared/new_contributors.sql" target="_blank">SQL file</a>.</li>
 <li>Episodic contributors metric <a href="https://github.com/cncf/devstats/blob/master/metrics/shared/episodic_contributors.sql" target="_blank">SQL file</a>.</li>
-<li>TSDB <a href="https://github.com/cncf/devstats/blob/master/metrics/kubernetes/metrics.yaml" target="_blank">series definition</a>. Search for <code>New and episodic contributors</code></li>
+<li>TSDB <a href="https://github.com/cncf/devstats/blob/master/metrics/shared/metrics.yaml" target="_blank">series definition</a>. Search for <code>New and episodic contributors</code></li>
 <li>Grafana dashboard <a href="https://github.com/cncf/devstats/blob/master/grafana/dashboards/[[lower_name]]/new-and-episodic-contributors.json" target="_blank">JSON</a>.</li>
 </ul>
 <h1 id="description">Description</h1>
