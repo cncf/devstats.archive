@@ -3,7 +3,7 @@
 <ul>
 <li>New issues metric <a href="https://github.com/cncf/devstats/blob/master/metrics/shared/new_issues.sql" target="_blank">SQL file</a>.</li>
 <li>Episodic issues metric <a href="https://github.com/cncf/devstats/blob/master/metrics/shared/episodic_issues.sql" target="_blank">SQL file</a>.</li>
-<li>TSDB <a href="https://github.com/cncf/devstats/blob/master/metrics/shared/metrics.yaml" target="_blank">series definition</a>. Search for <code>New and episodic issues</code></li>
+<li>TSDB <a href="https://github.com/cncf/devstats/blob/master/metrics/shared/metrics.yaml" target="_blank">series definition</a>. Search for <code>New and episodic issue creators</code></li>
 <li>Grafana dashboard <a href="https://github.com/cncf/devstats/blob/master/grafana/dashboards/[[lower_name]]/new-and-episodic-issue-creators.json" target="_blank">JSON</a>.</li>
 </ul>
 <h1 id="description">Description</h1>
