@@ -7,8 +7,8 @@
 </ul>
 <h1 id="description">Description</h1>
 <ul>
-<li>This dashboard shows the number of approved PRs and the numbe rof PRs awaiting approval</li>
-<li>It counts PRs modified in given periods, approved PR is a PR that is merged or open and have <code>/approve</code> or <code>/lgtm</code> comment.</li>
+<li>This dashboard shows the number of approved PRs and the number of PRs awaiting approval.</li>
+<li>It counts PRs modified in given periods, approved PR is a PR that is either merged or open and have <code>/approve</code> or <code>/lgtm</code> comment.</li>
 <li>You can select single repository group or summary for all of them.</li>
 <li>Selecting period (for example week) means that dashboard will calculate PRs in those periods.</li>
 <li>See <a href="https://github.com/cncf/devstats/blob/master/docs/periods.md" target="_blank">here</a> for more informations about periods.</li>
