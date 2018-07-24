@@ -1,4 +1,4 @@
-<h1 id="dashboard-header">[[full_name]] stub dashboard</h1>
+<h1 id="dashboard-header">[[full_name]] project statistics dashboard</h1>
 <p>Links:</p>
 <ul>
 <li>Main metric <a href="https://github.com/cncf/devstats/blob/master/metrics/shared/project_stats.sql" target="_blank">SQL file</a>.</li>
