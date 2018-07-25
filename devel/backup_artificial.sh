@@ -20,7 +20,9 @@ sudo -u postgres psql $db -tAc "copy (select * from gha_issues_labels where even
 sudo -u postgres psql $db -tAc "copy (select * from gha_issues_assignees where event_id > 281474976710656) TO '/tmp/$db.issue_assignees.tsv'" || exit 8
 sudo -u postgres psql $db -tAc "copy (select * from gha_pull_requests_assignees where event_id > 281474976710656) TO '/tmp/$db.pr_assignees.tsv'" || exit 9
 sudo -u postgres psql $db -tAc "copy (select * from gha_pull_requests_requested_reviewers where event_id > 281474976710656) TO '/tmp/$db.pr_reviewers.tsv'" || exit 10
-rm -f $db.tar* || exit 11
-tar cf $db.tar $db.*.tsv || exit 12
-xz $db.tar || exit 13
-mv $db.tar.xz /var/www/html/ || exit 14
+sudo -u postgres psql $db -tAc "copy (select * from gha_issues_events_labels where event_id > 281474976710656) TO '/tmp/$db.issues_events_labels.tsv'" || exit 11
+sudo -u postgres psql $db -tAc "copy (select * from gha_texts where event_id > 281474976710656) TO '/tmp/$db.texts.tsv'" || exit 12
+rm -f $db.tar* || exit 13
+tar cf $db.tar $db.*.tsv || exit 14
+xz $db.tar || exit 15
+mv $db.tar.xz /var/www/html/ || exit 16

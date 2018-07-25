@@ -24,3 +24,5 @@ sudo -u postgres psql $db -tAc "copy gha_issues_labels from '/tmp/$db.labels.tsv
 sudo -u postgres psql $db -tAc "copy gha_issues_assignees from '/tmp/$db.issue_assignees.tsv'" || exit 12
 sudo -u postgres psql $db -tAc "copy gha_pull_requests_assignees from '/tmp/$db.pr_assignees.tsv'" || exit 13
 sudo -u postgres psql $db -tAc "copy gha_pull_requests_requested_reviewers from '/tmp/$db.pr_reviewers.tsv'" || exit 14
+sudo -u postgres psql $db -tAc "copy gha_issues_events_labels from '/tmp/$db.issues_events_labels.tsv'" || exit 15
+sudo -u postgres psql $db -tAc "copy gha_texts from '/tmp/$db.texts.tsv'" || exit 16
