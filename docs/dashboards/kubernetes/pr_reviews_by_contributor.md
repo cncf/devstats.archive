@@ -12,10 +12,9 @@
 <li>Review means user added PR review comment.</li>
 <li>You can select reviewer from the reviewers drop-down, it shows top active reviewers from last 3 months.</li>
 <li>To find top active reviewers we sum number of reviews and lgtms per user.</li>
-<li>You can select single repository group or summary for all of them.</li>
+<li>You can select single repository or summary for all of them.</li>
 <li>You can filter by period and choose multiple reviewers to stack their data.</li>
 <li>Selecting period (for example week) means that dashboard will show reviews and lgtms in those periods.</li>
 <li>See <a href="https://github.com/cncf/devstats/blob/master/docs/periods.md" target="_blank">here</a> for more informations about periods.</li>
-<li>See <a href="https://github.com/cncf/devstats/blob/master/docs/repository_groups.md" target="_blank">here</a> for more informations about repository groups.</li>
 <li>We are skipping bots when calculating number of commenters, see <a href="https://github.com/cncf/devstats/blob/master/docs/excluding_bots.md" target="_blank">excluding bots</a> for details.</li>
 </ul>

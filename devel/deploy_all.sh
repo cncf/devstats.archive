@@ -149,15 +149,23 @@ do
   elif [ "$proj" = "helm" ]
   then
     PROJ=helm           PROJDB=helm           PROJREPO="kubernetes/helm"            ORGNAME=Helm         PORT=3022 ICON=helm         GRAFSUFF=helm           GA="UA-108085315-27" ./devel/deploy_proj.sh || exit 24
+# TODO: icons
+  elif [ "$proj" = "openmetrics" ]
+  then
+    PROJ=openmetrics    PROJDB=openmetrics    PROJREPO="RichiH/OpenMetrics"         ORGNAME=OpenMetrics  PORT=3023 ICON=cncf         GRAFSUFF=openmetrics    GA="UA-108085315-28" ./devel/deploy_proj.sh || exit 25
+# TODO: icons
+  elif [ "$proj" = "harbor" ]
+  then
+    PROJ=harbor         PROJDB=harbor         PROJREPO="vmware/harbor"              ORGNAME=Harbor       PORT=3024 ICON=cncf         GRAFSUFF=harbor         GA="UA-108085315-29" ./devel/deploy_proj.sh || exit 26
   elif [ "$proj" = "opencontainers" ]
   then
-    PROJ=opencontainers PROJDB=opencontainers PROJREPO="opencontainers/runc"        ORGNAME=OCI          PORT=3100 ICON="-"          GRAFSUFF=opencontainers GA="UA-108085315-19" ./devel/deploy_proj.sh || exit 25
+    PROJ=opencontainers PROJDB=opencontainers PROJREPO="opencontainers/runc"        ORGNAME=OCI          PORT=3100 ICON="-"          GRAFSUFF=opencontainers GA="UA-108085315-19" ./devel/deploy_proj.sh || exit 27
   elif [ "$proj" = "cncf" ]
   then
-    PROJ=cncf           PROJDB=cncf           PROJREPO="cncf/landscape"             ORGNAME=CNCF         PORT=3255 ICON=cncf         GRAFSUFF=cncf           GA="UA-108085315-8" ./devel/deploy_proj.sh || exit 26
+    PROJ=cncf           PROJDB=cncf           PROJREPO="cncf/landscape"             ORGNAME=CNCF         PORT=3255 ICON=cncf         GRAFSUFF=cncf           GA="UA-108085315-8" ./devel/deploy_proj.sh || exit 28
   elif [ "$proj" = "all" ]
   then
-    PROJ=all            PROJDB=allprj         PROJREPO="not/used"                   ORGNAME="All CNCF"   PORT=3254 ICON=cncf         GRAFSUFF=all            GA="UA-108085315-20" ./devel/deploy_proj.sh || exit 27
+    PROJ=all            PROJDB=allprj         PROJREPO="not/used"                   ORGNAME="All CNCF"   PORT=3254 ICON=cncf         GRAFSUFF=all            GA="UA-108085315-20" ./devel/deploy_proj.sh || exit 29
   else
     echo "Unknown project: $proj"
     exit 28
@@ -166,10 +174,10 @@ done
 
 if [ -z "$SKIPWWW" ]
 then
-  CERT=1 WWW=1 ./devel/create_www.sh || exit 29
+  CERT=1 WWW=1 ./devel/create_www.sh || exit 30
 fi
 if [ -z "$SKIPVARS" ]
 then
-  ./devel/vars_all.sh || exit 30
+  ./devel/vars_all.sh || exit 31
 fi
 echo "$0: All deployments finished"

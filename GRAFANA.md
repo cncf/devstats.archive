@@ -52,6 +52,7 @@ This will only allow accessing Grafana from Apache proxy, please also see:
 - `git diff`.
 - `go run build.go setup`.
 - `go run build.go build`.
+- `apt install npm`.
 - `npm install -g yarn`.
 - `yarn install --pure-lockfile`.
 - `yarn start` (blocks one terminal).
