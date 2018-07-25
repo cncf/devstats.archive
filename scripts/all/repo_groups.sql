@@ -258,6 +258,26 @@ where
   or name in ('kubernetes/helm', 'kubernetes/deployment-manager', 'kubernetes/charts')
 ;
 
+-- OpenMetrics
+update
+  gha_repos
+set
+  repo_group = 'OpenMetrics',
+  alias = 'OpenMetrics'
+where
+  name in ('RichiH/OpenMetrics')
+;
+
+-- Harbor
+update
+  gha_repos
+set
+  repo_group = 'Harbor',
+  alias = 'Harbor'
+where
+  name in ('vmware/harbor')
+;
+
 -- CNCF
 update
   gha_repos
@@ -267,3 +287,4 @@ set
 where
   org_login in ('cncf', 'crosscloudci')
 ;
+
