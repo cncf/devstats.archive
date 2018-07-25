@@ -1,5 +1,5 @@
 # Contributing to devstats
-If You see any error, or if You have suggestion please create [issue and/or PR](https://github.com/cncf/devstats).
+If You see any error, or if you have suggestion please create [issue and/or PR](https://github.com/cncf/devstats).
 
 # Coding standards
 - Please follow coding standards required for Go language.
