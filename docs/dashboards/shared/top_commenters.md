@@ -7,7 +7,7 @@
 </ul>
 <h1 id="description">Description</h1>
 <ul>
-<li>This dashboard show most active commenter in the selected period.</li>
+<li>This dashboard show most active commenters in the selected period.</li>
 <li>You can select last day, month, week etc. range or date range between releases, for example <code>v1.9 - v1.10</code>.</li>
 <li>You can select single repository group or summary for all of them.</li>
 <li>See <a href="https://github.com/cncf/devstats/blob/master/docs/periods.md" target="_blank">here</a> for more informations about periods.</li>
