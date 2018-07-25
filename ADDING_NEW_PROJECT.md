@@ -1,6 +1,6 @@
 # Adding new project
 
-This file describes how to add new project on the test server.
+This file describes how to add new project on the test and production servers.
 
 ## To add new project on the production (when already added on the test), you should use automatic deploy script:
 
