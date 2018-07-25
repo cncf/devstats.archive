@@ -1,17 +1,24 @@
 with var as (
   select
     coalesce(max(event_id), -9223372036854775808) as max_event_id,
-    true as gh
+    0 as opt
   from
     gha_issues_events_labels
   where
     type like '%Event'
   union select coalesce(max(event_id), 281474976710657) as max_event_id,
-    false as gh
+    1 as opt
   from
     gha_issues_events_labels
   where
     type not like '%Event'
+    and type != 'sync'
+  union select coalesce(max(event_id), 329900000000000) as max_event_id,
+    2 as opt
+  from
+    gha_issues_events_labels
+  where
+    type = 'sync'
 )
 insert into gha_issues_events_labels(
   issue_id, event_id, label_id, label_name, created_at,
@@ -26,12 +33,24 @@ from
 where
   il.label_id = lb.id
   and (
-    il.event_id > (select max_event_id from var where gh = false)
-    or (
+    (
       il.event_id > (
-        select max_event_id from var where gh = true
+        select max_event_id from var where opt = 0
       )
       and il.event_id < 281474976710657
+    )
+    or (
+      il.event_id > (
+        select max_event_id from var where opt = 1
+      )
+      and il.event_id >= 281474976710657
+      and il.event_id < 329900000000000
+    )
+    or (
+      il.event_id > (
+        select max_event_id from var where opt = 2
+      )
+      and il.event_id >= 329900000000000
     )
   )
 ;
