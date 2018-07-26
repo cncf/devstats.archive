@@ -7,7 +7,7 @@
 </ul>
 <h1 id="description">Description</h1>
 <ul>
-<li>This dashboard how many PRs have a specified label(s) in a given repository group(s).</li>
+<li>This dashboard how many PRs have/had a specified label(s) in a given repository group(s) at given point in time.</li>
 <li>List of labels is hardcoded. It contains PR merge blocker labels.</li>
 <li>You can select any of labels from given set or choose <code>All labels combined</code>.</li>
 <li>You can select single repository group or summary for all of them <code>All repos combined</code>.</li>
