@@ -8,6 +8,7 @@
 <h1 id="description">Description</h1>
 <ul>
 <li>This dashboard shows number of PRs that were blocked due to various reasons at given point of time.</li>
+<li>It shows PRs that were created during the selected periods.</li>
 <li>Chart shows number of all PRs and PRs blocked due to missing: <code>approved</code> or <code>lgtm</code> labels.</li>
 <li>It also list PRs blocked due to <code>release-note-label-needed</code> or <code>needs-ok-to-test</code> or <code>do-not-merge*</code> labels.</li>
 <li>You can select single repository group or summary for all of them.</li>
