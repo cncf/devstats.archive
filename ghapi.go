@@ -1972,8 +1972,8 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 					what = fmt.Sprintf("%s %d", ic.Repo, ic.Number)
 				} else {
 					if ctx.Debug > 0 {
-					  Printf("Warning: Exact artificial PR event (%v, %d) already exists with different state, skipping: '%v'\n", ic.CreatedAt, eventID, ic)
-          }
+						Printf("Warning: Exact artificial PR event (%v, %d) already exists with different state, skipping: '%v'\n", ic.CreatedAt, eventID, ic)
+					}
 					why = "collision and pr state differs"
 					what = fmt.Sprintf("%s %d %s %s: %d", ic.Repo, ic.Number, ToYMDHMSDate(ic.CreatedAt), ic.EventType, eventID)
 					if !ctx.SkipUpdateEvents {
