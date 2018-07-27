@@ -12,6 +12,9 @@ GO_BUILD=go build -ldflags '-s -w'
 #GO_BUILD=go build -ldflags '-s -w' -race
 #  -ldflags '-s': instal stripped binary
 #GO_INSTALL=go install
+#For static gcc linking
+GCC_STATIC=
+#GCC_STATIC=-ldflags '-extldflags "-static"'
 GO_INSTALL=go install -ldflags '-s'
 GO_FMT=gofmt -s -w
 GO_LINT=golint -set_exit_status
@@ -87,7 +90,7 @@ website_data: cmd/website_data/website_data.go ${GO_LIB_FILES}
 	 ${GO_ENV} ${GO_BUILD} -o website_data cmd/website_data/website_data.go
 
 sqlitedb: cmd/sqlitedb/sqlitedb.go ${GO_LIB_FILES}
-	 ${GO_BUILD} -o sqlitedb cmd/sqlitedb/sqlitedb.go
+	 ${GO_BUILD} ${GCC_STATIC} -o sqlitedb cmd/sqlitedb/sqlitedb.go
 
 fmt: ${GO_BIN_FILES} ${GO_LIB_FILES} ${GO_TEST_FILES} ${GO_DBTEST_FILES} ${GO_LIBTEST_FILES}
 	./for_each_go_file.sh "${GO_FMT}"
