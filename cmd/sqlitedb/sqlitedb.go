@@ -25,20 +25,22 @@ type dashboard struct {
 
 // dashboardData keeps all dashboard data & metadata
 type dashboardData struct {
-	dash  dashboard
-	id    int
-	title string
-	slug  string
-	data  string
-	fn    string
-	uid   string
+	dash     dashboard
+	id       int
+	title    string
+	slug     string
+	data     string
+	fn       string
+	uid      string
+	isfolder int
+	folderid int
 }
 
 // String for dashboardData - skip displaying long JSON data
 func (dd dashboardData) String() string {
 	return fmt.Sprintf(
-		"{dash:'%+v', id:%d, title:'%s', slug:'%s', data:len:%d, fn:'%s'}",
-		dd.dash, dd.id, dd.title, dd.slug, len(dd.data), dd.fn,
+		"{dash:'%+v', id:%d, title:'%s', slug:'%s', isfolder: %d, folderid: %d, data:len:%d, fn:'%s'}",
+		dd.dash, dd.id, dd.title, dd.slug, dd.isfolder, dd.folderid, len(dd.data), dd.fn,
 	)
 }
 
