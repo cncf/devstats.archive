@@ -234,7 +234,7 @@ func insertDashboard(db *sql.DB, ctx *lib.Ctx, dd *dashboardData) {
 	lib.FatalOnError(rows.Err())
 	lib.Printf("Inserted dashboard: id=%d (uid=%s, title=%s, slug=%s)\n", dd.id, dd.uid, dd.title, dd.slug)
 	updated := updateTags(db, ctx, dd.id, dd.dash.Tags, dd.dash.UID+" "+dd.dash.Title)
-	if !updated {
+	if len(dd.dash.Tags) > 0 && !updated {
 		lib.Fatalf("should add new tags for %+v", dd)
 	}
 }
