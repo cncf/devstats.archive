@@ -153,7 +153,7 @@ func updateTags(db *sql.DB, ctx *lib.Ctx, did int, jsonTags []string, info strin
 	return true
 }
 
-// deleteUids uses dbFile database to dump all dashboards as JSONs
+// deleteUids opens dbFile and delete all dashboards with given uids
 func deleteUids(ctx *lib.Ctx, dbFile string, uids []string) {
 	// Connect to SQLite3
 	db, err := sql.Open("sqlite3", dbFile)

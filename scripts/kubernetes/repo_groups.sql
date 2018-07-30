@@ -46,8 +46,7 @@ update gha_repos set repo_group = 'Apps' where name in (
   'kubernetes/charts',
   'kubernetes/application-images',
   'kubernetes/examples',
-  'kubernetes-incubator/kompose',
-  'kubernetes-incubator/service-catalog'
+  'kubernetes-incubator/kompose'
 );
 
 update gha_repos set repo_group = 'Autoscaling and monitoring' where name in (
@@ -138,6 +137,10 @@ update gha_repos set repo_group = 'Docs' where name in (
   'kubernetes-incubator/reference-docs',
   'kubernetes/kubernetes-bootcamp',
   'kubernetes/md-format'
+);
+
+update gha_repos set repo_group = 'SIG Service Catalog' where name in (
+  'kubernetes-incubator/service-catalog'
 );
 
 -- By default alias is the newest repo name for given repo ID
