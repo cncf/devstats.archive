@@ -21,14 +21,14 @@ To add new metric (replace `{{project}}` with kubernetes, prometheus or any othe
 - For "histogram" metrics `histogram: true` we are putting data for last `{{period}}` using some string key instead of timestamp data. So for example simplest metric (single row, single column) means: multiple rows with hist "values", each value being "name,value" pair.
 - Simplest type of histogram `series_name_or_func` is just a series name. Because we're calculating histogram for last `{{period}}` each time, given series is cleared and recalculated.
 - Metric can return multiple rows with single column (which means 3 columns in histogram mode: `prefix,series_name` and then histogram value (2 columns: `name` and `value`), exactly the same as `series_name_or_func: multi_row_single_column`.
-- If metrics need additiona string descriptions (like when we are returning number of hours as age, and want to have nice formatted string value like "1 day 12 hours") use `desc: time_diff_as_string`.
+- If metrics need additional string descriptions (like when we are returning number of hours as age, and want to have nice formatted string value like "1 day 12 hours") use `desc: time_diff_as_string`.
 - Metric can return multiple values in a single series (for example for SIG mentions stacking, bot commands, company stats etc), use `multi_value: true` to mark series to return multi value in a single series (instead of creating multiple series with single values). Multi values are used for stacked charts with multi value drop down to select series.
 - If you want to escape value names in multi-valued series use `escape_value_name: true` in `metrics.yaml`.
 3) Add test coverage in [metrics_test.go](https://github.com/cncf/devstats/blob/master/metrics_test.go) and [tests.yaml](https://github.com/cncf/devstats/blob/master/tests.yaml).
-4) You need to generate data, using `PG_PASS=... ./devel/add_single_metric.sh`. If you choose to use add single metric, you need to create 2 files: `test_metrics.yaml` and `test_tags.yaml`. Those YAML files should contain only new metric related data.
+4) You need to generate data, using `PG_PASS=... ./devel/add_single_metric.sh`. If you choose to use add single metric, you need to create 2 files: `test_metrics.yaml` and `test_tags.yaml`. Those YAML files should contain only new metric related data. You may need to update `test_columns.yaml` too.
 5) To test new metric on non-production database "test", use: `GHA2DB_PROJECT={{project}} ./devel/test_metric_sync.sh` script.
 6) Add Grafana dashboard or row that displays this metric.
-7) Export new Grafana dashboard to JSON.
+7) Export new Grafana dashboard to JSON, for example use `./devel/get_all_sqlite_jsons.sh`.
 8) Create PR for the new metric.
 9) Add metrics dashboard decription in this [file](https://github.com/cncf/devstats/blob/master/DASHBOARDS.md).
 10) Add more detailed documentation in [dashboards documentation](https://github.com/cncf/devstats/blob/master/docs/dashboards/).
