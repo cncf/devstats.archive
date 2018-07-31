@@ -5,7 +5,10 @@ import (
 	"io/ioutil"
 	"os"
 	"regexp"
+	"strconv"
 	"strings"
+
+	lib "devstats"
 )
 
 // replacer - replace regexp or string with regesp or string
@@ -19,6 +22,29 @@ func replacer(from, to, fn, mode string) {
 	}
 	if to == "-" {
 		to = ""
+	}
+	var err error
+	nReplaces := -1
+	snReplaces := os.Getenv("NREPLACES")
+	if snReplaces != "" {
+		nReplaces, err = strconv.Atoi(snReplaces)
+		lib.FatalOnError(err)
+		if nReplaces < 1 {
+			lib.Fatalf("NREPLACES must be positive")
+		}
+	}
+	replaceFrom := -1
+	sReplaceFrom := os.Getenv("REPLACEFROM")
+	if sReplaceFrom != "" {
+		replaceFrom, err = strconv.Atoi(sReplaceFrom)
+		lib.FatalOnError(err)
+		if replaceFrom < 1 {
+			lib.Fatalf("REPLACEFROM must be positive")
+		}
+		l := len(from)
+		if replaceFrom >= l {
+			lib.Fatalf("REPLACEFROM must be less than filename length %d", l)
+		}
 	}
 	bytes, err := ioutil.ReadFile(fn)
 	if err != nil {
@@ -44,7 +70,7 @@ func replacer(from, to, fn, mode string) {
 		}
 		fmt.Printf("Hits: %s\n", fn)
 	case "ss", "ss0":
-		newContents = strings.Replace(contents, from, to, -1)
+		newContents = strings.Replace(contents, from, to, nReplaces)
 		if contents == newContents {
 			fmt.Printf("Nothing replaced in: %s\n", fn)
 			if mode == "ss" {

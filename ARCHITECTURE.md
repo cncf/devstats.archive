@@ -127,6 +127,7 @@ We're getting all possible GitHub data for all objects, and all objects historic
 - You can use `merge_dbs` to add new projects to a existing database, but please consider running './devel/remove_db_dups.sh' then or use: './all/add_project.sh' script.
 - [replacer](https://github.com/cncf/devstats/blob/master/cmd/replacer/replacer.go)
 - `replacer` is used to mass replace data in text files. It has regexp modes, string modes, terminate on no match etc.
+- Supports MODE, FROM, TO, NREPLACES, REPLACEFROM environment variables, see `devel/replace.sh` script for examples.
 - [vars](https://github.com/cncf/devstats/blob/master/cmd/vars/vars.go)
 - `vars` is used to add special variables (tags) to the database, see [here](https://github.com/cncf/devstats/blob/master/docs/vars.md) for more info.
 - [sqlitedb](https://github.com/cncf/devstats/blob/master/cmd/sqlitedb/sqlitedb.go)
