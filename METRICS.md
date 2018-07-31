@@ -28,6 +28,7 @@ To add new metric (replace `{{project}}` with kubernetes, prometheus or any othe
 4) You need to generate data, using `PG_PASS=... ./devel/add_single_metric.sh`. If you choose to use add single metric, you need to create 2 files: `test_metrics.yaml` and `test_tags.yaml`. Those YAML files should contain only new metric related data. You may need to update `test_columns.yaml` too.
 5) To test new metric on non-production database "test", use: `GHA2DB_PROJECT={{project}} ./devel/test_metric_sync.sh` script.
 6) Add Grafana dashboard or row that displays this metric.
+7) Update all Home dashboards (make dashboard list panel higher to include new dashboard without scrolling).
 7) Export new Grafana dashboard to JSON, for example use `./devel/get_all_sqlite_jsons.sh`.
 8) Create PR for the new metric.
 9) Add metrics dashboard decription in this [file](https://github.com/cncf/devstats/blob/master/DASHBOARDS.md).
