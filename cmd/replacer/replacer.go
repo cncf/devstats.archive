@@ -23,7 +23,12 @@ func replacer(from, to, fn, mode string) {
 	if to == "-" {
 		to = ""
 	}
-	var err error
+	bytes, err := ioutil.ReadFile(fn)
+	if err != nil {
+		fmt.Printf("Error: %v\n", err)
+		os.Exit(1)
+	}
+	contents := string(bytes)
 	nReplaces := -1
 	snReplaces := os.Getenv("NREPLACES")
 	if snReplaces != "" {
@@ -41,17 +46,11 @@ func replacer(from, to, fn, mode string) {
 		if replaceFrom < 1 {
 			lib.Fatalf("REPLACEFROM must be positive")
 		}
-		l := len(from)
+		l := len(contents)
 		if replaceFrom >= l {
 			lib.Fatalf("REPLACEFROM must be less than filename length %d", l)
 		}
 	}
-	bytes, err := ioutil.ReadFile(fn)
-	if err != nil {
-		fmt.Printf("Error: %v\n", err)
-		os.Exit(1)
-	}
-	contents := string(bytes)
 	var newContents string
 	switch mode {
 	case "rr", "rr0", "rs", "rs0":
@@ -70,13 +69,26 @@ func replacer(from, to, fn, mode string) {
 		}
 		fmt.Printf("Hits: %s\n", fn)
 	case "ss", "ss0":
-		newContents = strings.Replace(contents, from, to, nReplaces)
-		if contents == newContents {
-			fmt.Printf("Nothing replaced in: %s\n", fn)
-			if mode == "ss" {
-				os.Exit(1)
+		if replaceFrom < 0 {
+			newContents = strings.Replace(contents, from, to, nReplaces)
+			if contents == newContents {
+				fmt.Printf("Nothing replaced in: %s\n", fn)
+				if mode == "ss" {
+					os.Exit(1)
+				}
+				return
 			}
-			return
+		} else {
+			contents1 := contents[:replaceFrom]
+			contents2 := contents[replaceFrom:]
+			newContents = contents1 + strings.Replace(contents2, from, to, nReplaces)
+			if contents2 == newContents {
+				fmt.Printf("Nothing replaced in: %s\n", fn)
+				if mode == "ss" {
+					os.Exit(1)
+				}
+				return
+			}
 		}
 		fmt.Printf("Hits: %s\n", fn)
 	default:
