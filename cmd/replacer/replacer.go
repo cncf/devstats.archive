@@ -82,7 +82,7 @@ func replacer(from, to, fn, mode string) {
 			contents1 := contents[:replaceFrom]
 			contents2 := contents[replaceFrom:]
 			newContents = contents1 + strings.Replace(contents2, from, to, nReplaces)
-			if contents2 == newContents {
+			if contents == newContents {
 				fmt.Printf("Nothing replaced in: %s\n", fn)
 				if mode == "ss" {
 					os.Exit(1)
