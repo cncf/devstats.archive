@@ -30,7 +30,7 @@ do
     icon="cncf"
   fi
   # TODO: remove when we have icons
-  if ( [ "$icon" = "openmentrics" ] || [ "$icon" = "harbor" ] )
+  if [ "$icon" = "openmetrics" ]
   then
     icon="cncf"
   fi
