@@ -153,10 +153,9 @@ do
   elif [ "$proj" = "openmetrics" ]
   then
     PROJ=openmetrics    PROJDB=openmetrics    PROJREPO="RichiH/OpenMetrics"         ORGNAME=OpenMetrics  PORT=3023 ICON=cncf         GRAFSUFF=openmetrics    GA="UA-108085315-28" ./devel/deploy_proj.sh || exit 25
-# TODO: icons
   elif [ "$proj" = "harbor" ]
   then
-    PROJ=harbor         PROJDB=harbor         PROJREPO="vmware/harbor"              ORGNAME=Harbor       PORT=3024 ICON=cncf         GRAFSUFF=harbor         GA="UA-108085315-29" ./devel/deploy_proj.sh || exit 26
+    PROJ=harbor         PROJDB=harbor         PROJREPO="vmware/harbor"              ORGNAME=Harbor       PORT=3024 ICON=harbor       GRAFSUFF=harbor         GA="UA-108085315-29" ./devel/deploy_proj.sh || exit 26
   elif [ "$proj" = "opencontainers" ]
   then
     PROJ=opencontainers PROJDB=opencontainers PROJREPO="opencontainers/runc"        ORGNAME=OCI          PORT=3100 ICON="-"          GRAFSUFF=opencontainers GA="UA-108085315-19" ./devel/deploy_proj.sh || exit 27
