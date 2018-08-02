@@ -275,7 +275,8 @@ set
   repo_group = 'Harbor',
   alias = 'Harbor'
 where
-  name in ('vmware/harbor')
+  org_login in ('goharbor')
+  or name in ('vmware/harbor')
 ;
 
 -- CNCF
