@@ -6,6 +6,7 @@ select
   max(created_at) as date_to
 from (
   select * from
+    [githubarchive:month.201807],
     [githubarchive:month.201806],
     [githubarchive:month.201805],
     [githubarchive:month.201804],
