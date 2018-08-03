@@ -33,7 +33,7 @@ then
 fi
 if ( [ -z "$SKIPADDALL"] && [ ! "$PROJ" = "all" ] && [ ! "$PROJ" = "opencontainers" ] )
 then
-  ./all/add_project.sh "$PROJDB" "$PROJREPO" || exit 4
+  TSDB=1 ./all/add_project.sh "$PROJDB" "$PROJREPO" || exit 4
 fi
 if [ -z "$SKIPGRAFANA" ]
 then
