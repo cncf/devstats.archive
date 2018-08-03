@@ -32,6 +32,7 @@ icontypes=(
   ["helm"]="color"
   ["openmetrics"]="color"
   ["harbor"]="color"
+  ["etcd"]="color"
   ["all"]="color"
   ["devstats"]="color"
 )

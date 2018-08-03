@@ -22,7 +22,7 @@
         "showIn": 0,
         "tagsColumn": "title,description",
         "textColumn": "",
-        "titleColumn": "Release",
+        "titleColumn": "[[full_name]] release",
         "type": "alert"
       }
     ]
@@ -30,43 +30,41 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 56,
-  "iteration": 1529598505736,
+  "id": 27,
+  "iteration": 1533290180376,
   "links": [],
   "panels": [
     {
       "aliasColors": {},
-      "bars": true,
+      "bars": false,
       "dashLength": 10,
       "dashes": false,
       "datasource": "psql",
-      "decimals": 0,
-      "description": "[[full_name]] commits in given repository group",
-      "fill": 3,
+      "decimals": 2,
+      "description": "Time from open to merge.",
+      "fill": 1,
       "gridPos": {
-        "h": 21,
-        "w": 24,
+        "h": 13,
+        "w": 12,
         "x": 0,
         "y": 0
       },
-      "id": 2,
+      "id": 8,
       "legend": {
         "alignAsTable": true,
         "avg": true,
         "current": true,
         "max": true,
         "min": true,
-        "rightSide": true,
+        "rightSide": false,
         "show": true,
-        "sort": "total",
-        "sortDesc": true,
-        "total": true,
+        "total": false,
         "values": true
       },
-      "lines": false,
-      "linewidth": 0,
+      "lines": true,
+      "linewidth": 1,
       "links": [],
-      "nullPointMode": "null as zero",
+      "nullPointMode": "null",
       "percentage": false,
       "pointradius": 5,
       "points": false,
@@ -74,19 +72,18 @@
       "seriesOverrides": [],
       "spaceLength": 10,
       "stack": true,
-      "steppedLine": true,
+      "steppedLine": false,
       "targets": [
         {
           "alias": "",
           "dsType": "influxdb",
           "format": "time_series",
           "groupBy": [],
-          "measurement": "notused",
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "SELECT /^[[repogroups]]$/ FROM \"repo_group_commits_[[period]]\" WHERE $timeFilter",
+          "query": "SELECT \"value\" FROM \"time_metrics_[[repogroup]]_median_open_to_merge_[[period]]\" WHERE $timeFilter",
           "rawQuery": true,
-          "rawSql": "select\n  time,\n  ${repogroups:csv}\nfrom\n  scommits\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\norder by\n  time",
+          "rawSql": "select\n  time,\n  value as \"Median time from open to merge (in hours)\"\nfrom\n  stime_metrics\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'tmet[[repogroup]]med'\norder by\n  time",
           "refId": "A",
           "resultFormat": "time_series",
           "select": [
@@ -105,10 +102,10 @@
       "thresholds": [],
       "timeFrom": null,
       "timeShift": null,
-      "title": "[[full_name]] commits in repository groups ([[repogroups]], [[period]])",
+      "title": "Median time PRs from open to merge (Repository group [[repogroup_name]], [[period]])",
       "tooltip": {
         "shared": true,
-        "sort": 2,
+        "sort": 0,
         "value_type": "individual"
       },
       "type": "graph",
@@ -117,22 +114,23 @@
         "mode": "time",
         "name": null,
         "show": true,
-        "values": []
+        "values": [
+          "avg"
+        ]
       },
       "yaxes": [
         {
-          "decimals": null,
-          "format": "short",
-          "label": "Commits",
+          "format": "h",
+          "label": "",
           "logBase": 1,
           "max": null,
           "min": "0",
           "show": true
         },
         {
-          "format": "short",
+          "format": "none",
           "label": "",
-          "logBase": 1,
+          "logBase": 10,
           "max": null,
           "min": "0",
           "show": true
@@ -149,40 +147,38 @@
       "dashLength": 10,
       "dashes": false,
       "datasource": "psql",
-      "decimals": 0,
-      "description": "[[full_name]] commits in given repository group",
-      "fill": 3,
+      "decimals": 2,
+      "description": "Time from open to merge.",
+      "fill": 1,
       "gridPos": {
-        "h": 21,
-        "w": 24,
-        "x": 0,
-        "y": 21
+        "h": 13,
+        "w": 12,
+        "x": 12,
+        "y": 0
       },
-      "id": 4,
+      "id": 9,
       "legend": {
         "alignAsTable": true,
         "avg": true,
         "current": true,
         "max": true,
         "min": true,
-        "rightSide": true,
+        "rightSide": false,
         "show": true,
-        "sort": "total",
-        "sortDesc": true,
-        "total": true,
+        "total": false,
         "values": true
       },
       "lines": true,
       "linewidth": 1,
       "links": [],
-      "nullPointMode": "null as zero",
+      "nullPointMode": "null",
       "percentage": false,
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
       "seriesOverrides": [],
       "spaceLength": 10,
-      "stack": false,
+      "stack": true,
       "steppedLine": false,
       "targets": [
         {
@@ -190,12 +186,11 @@
           "dsType": "influxdb",
           "format": "time_series",
           "groupBy": [],
-          "measurement": "notused",
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "SELECT /^[[repogroups]]$/ FROM \"repo_group_commits_[[period]]\" WHERE $timeFilter",
+          "query": "SELECT \"value\" FROM \"time_metrics_[[repogroup]]_percentile_85_open_to_merge_[[period]]\" WHERE $timeFilter",
           "rawQuery": true,
-          "rawSql": "select\n  time,\n  ${repogroups:csv}\nfrom\n  scommits\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\norder by\n  time",
+          "rawSql": "select\n  time,\n  value as \"85th percentile time from open to merge (in hours)\"\nfrom\n  stime_metrics\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'tmet[[repogroup]]p85'\norder by\n  time",
           "refId": "A",
           "resultFormat": "time_series",
           "select": [
@@ -214,10 +209,10 @@
       "thresholds": [],
       "timeFrom": null,
       "timeShift": null,
-      "title": "[[full_name]] commits in repository groups ([[repogroups]], [[period]])",
+      "title": "85th percentile time PRs from open to merge for (Repository group: [[repogroup_name]], [[period]])",
       "tooltip": {
         "shared": true,
-        "sort": 2,
+        "sort": 0,
         "value_type": "individual"
       },
       "type": "graph",
@@ -226,25 +221,26 @@
         "mode": "time",
         "name": null,
         "show": true,
-        "values": []
+        "values": [
+          "avg"
+        ]
       },
       "yaxes": [
         {
-          "decimals": null,
-          "format": "short",
-          "label": "Commits",
+          "format": "h",
+          "label": "",
           "logBase": 1,
           "max": null,
           "min": "0",
           "show": true
         },
         {
-          "format": "short",
+          "format": "none",
           "label": "",
-          "logBase": 1,
+          "logBase": 10,
           "max": null,
           "min": "0",
-          "show": false
+          "show": true
         }
       ],
       "yaxis": {
@@ -253,58 +249,71 @@
       }
     },
     {
-      "aliasColors": {},
-      "bars": true,
-      "dashLength": 10,
-      "dashes": false,
+      "columns": [],
       "datasource": "psql",
-      "decimals": 0,
-      "description": "[[full_name]] commits in given repository group",
-      "fill": 3,
+      "description": "Time PRs from open to merge",
+      "fontSize": "80%",
       "gridPos": {
-        "h": 21,
+        "h": 10,
         "w": 24,
         "x": 0,
-        "y": 42
+        "y": 13
       },
-      "id": 3,
-      "legend": {
-        "alignAsTable": true,
-        "avg": true,
-        "current": true,
-        "max": true,
-        "min": true,
-        "rightSide": true,
-        "show": true,
-        "sort": "total",
-        "sortDesc": true,
-        "total": true,
-        "values": true
-      },
-      "lines": false,
-      "linewidth": 0,
+      "id": 10,
       "links": [],
-      "nullPointMode": "null as zero",
-      "percentage": true,
-      "pointradius": 5,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [],
-      "spaceLength": 10,
-      "stack": true,
-      "steppedLine": true,
+      "pageSize": 10,
+      "scroll": true,
+      "showHeader": true,
+      "sort": {
+        "col": 0,
+        "desc": true
+      },
+      "styles": [
+        {
+          "alias": "Time",
+          "dateFormat": "MM/DD/YYYY",
+          "pattern": "Time",
+          "type": "date"
+        },
+        {
+          "alias": "",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "decimals": 2,
+          "pattern": "/.*/",
+          "thresholds": [],
+          "type": "number",
+          "unit": "short"
+        }
+      ],
       "targets": [
         {
           "alias": "",
           "dsType": "influxdb",
-          "format": "time_series",
-          "groupBy": [],
-          "measurement": "notused",
+          "format": "table",
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "SELECT /^[[repogroups]]$/ FROM \"repo_group_commits_[[period]]\" WHERE $timeFilter",
+          "query": "SELECT \"descr\" FROM \"time_metrics_[[repogroup]]_median_open_to_merge_[[period]]\" WHERE $timeFilter",
           "rawQuery": true,
-          "rawSql": "select\n  time,\n  ${repogroups:csv}\nfrom\n  scommits\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\norder by\n  time",
+          "rawSql": "select\n  time as \"Time\",\n  descr as \"Median open to merge\"\nfrom\n  stime_metrics\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'tmet[[repogroup]]med'\norder by\n  time",
           "refId": "A",
           "resultFormat": "time_series",
           "select": [
@@ -314,51 +323,60 @@
                   "value"
                 ],
                 "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "",
+          "dsType": "influxdb",
+          "format": "table",
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "SELECT \"descr\" FROM \"time_metrics_[[repogroup]]_percentile_85_open_to_merge_[[period]]\" WHERE $timeFilter",
+          "rawQuery": true,
+          "rawSql": "select\n  time as \"Time\",\n  descr as \"85th percentile open to merge\"\nfrom\n  stime_metrics\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'tmet[[repogroup]]p85'\norder by\n  time",
+          "refId": "D",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
               }
             ]
           ],
           "tags": []
         }
       ],
-      "thresholds": [],
-      "timeFrom": null,
-      "timeShift": null,
-      "title": "[[full_name]] commits in repository groups ([[repogroups]], [[period]])",
-      "tooltip": {
-        "shared": true,
-        "sort": 2,
-        "value_type": "individual"
-      },
-      "type": "graph",
-      "xaxis": {
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true,
-        "values": []
-      },
-      "yaxes": [
-        {
-          "format": "short",
-          "label": "Commits",
-          "logBase": 1,
-          "max": null,
-          "min": "0",
-          "show": true
-        },
-        {
-          "format": "short",
-          "label": "",
-          "logBase": 1,
-          "max": null,
-          "min": "0",
-          "show": true
-        }
-      ],
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      }
+      "title": "Time PRs from open to merge (Repository group[[repogroup_name]], [[period]])",
+      "transform": "table",
+      "type": "table"
     },
     {
       "content": "[[docs]]",
@@ -366,7 +384,7 @@
         "h": 9,
         "w": 24,
         "x": 0,
-        "y": 63
+        "y": 23
       },
       "id": 11,
       "links": [],
@@ -375,12 +393,11 @@
       "type": "text"
     }
   ],
-  "refresh": false,
   "schemaVersion": 16,
   "style": "dark",
   "tags": [
     "dashboard",
-    "all"
+    "etcd"
   ],
   "templating": {
     "list": [
@@ -388,8 +405,8 @@
         "allValue": null,
         "current": {
           "tags": [],
-          "text": "24 Hours MA",
-          "value": "h24"
+          "text": "7 Days MA",
+          "value": "d7"
         },
         "hide": 0,
         "includeAll": false,
@@ -399,21 +416,11 @@
         "options": [
           {
             "selected": false,
-            "text": "Hour",
-            "value": "h"
-          },
-          {
-            "selected": true,
-            "text": "24 Hours MA",
-            "value": "h24"
-          },
-          {
-            "selected": false,
             "text": "Day",
             "value": "d"
           },
           {
-            "selected": false,
+            "selected": true,
             "text": "7 Days MA",
             "value": "d7"
           },
@@ -438,13 +445,64 @@
             "value": "y"
           }
         ],
-        "query": "h,d,w,m,q,y",
+        "query": "d,w,m,q,y",
         "skipUrlSync": false,
         "type": "custom"
       },
       {
         "allValue": null,
-        "current": {},
+        "current": {
+          "text": "All",
+          "value": "All"
+        },
+        "datasource": "psql",
+        "hide": 0,
+        "includeAll": false,
+        "label": "Repository group",
+        "multi": false,
+        "name": "repogroup_name",
+        "options": [],
+        "query": "select all_repo_group_name from tall_repo_groups order by 1",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "text": "all",
+          "value": "all"
+        },
+        "datasource": "psql",
+        "hide": 2,
+        "includeAll": false,
+        "label": "",
+        "multi": false,
+        "name": "repogroup",
+        "options": [],
+        "query": "select all_repo_group_value from tall_repo_groups where all_repo_group_name = '[[repogroup_name]]'",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": true,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "text": "Prometheus",
+          "value": "Prometheus"
+        },
         "datasource": "psql",
         "hide": 2,
         "includeAll": false,
@@ -464,27 +522,6 @@
         "useTags": false
       },
       {
-        "allValue": "",
-        "current": {},
-        "datasource": "psql",
-        "hide": 0,
-        "includeAll": true,
-        "label": "Repository group",
-        "multi": true,
-        "name": "repogroups",
-        "options": [],
-        "query": "select '\"' || repo_group_name || '\"' from trepo_groups order by 1",
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": false,
-        "sort": 0,
-        "tagValuesQuery": "",
-        "tags": [],
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false
-      },
-      {
         "allValue": null,
         "current": {},
         "datasource": "psql",
@@ -494,7 +531,7 @@
         "multi": false,
         "name": "docs",
         "options": [],
-        "query": "select value_s from gha_vars where name = 'commits_docs_html'",
+        "query": "select value_s from gha_vars where name = 'time_metrics_docs_html'",
         "refresh": 1,
         "regex": "",
         "skipUrlSync": true,
@@ -508,8 +545,8 @@
     ]
   },
   "time": {
-    "from": "now-30d",
-    "to": "now"
+    "from": "now-3y",
+    "to": "now-1w"
   },
   "timepicker": {
     "refresh_intervals": [
@@ -537,7 +574,7 @@
     ]
   },
   "timezone": "",
-  "title": "Commits repository groups",
-  "uid": "2",
+  "title": "Time metrics",
+  "uid": "27",
   "version": 2
 }
