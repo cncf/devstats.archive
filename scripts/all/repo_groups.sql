@@ -279,6 +279,16 @@ where
   or name in ('vmware/harbor')
 ;
 
+-- etcd
+update
+  gha_repos
+set
+  repo_group = 'etcd',
+  alias = 'etcd'
+where
+  name in ('coreos/etcd', 'etcd')
+;
+
 -- CNCF
 update
   gha_repos
