@@ -38,3 +38,4 @@ provider_config = user=gha_admin host=127.0.0.1 port=5432 dbname=projectname_gra
 - `/usr/sbin/grafana-server --config=${CONF_FILE} --pidfile=${PID_FILE_DIR}/grafana-server.pid cfg:default.paths.logs=${LOG_DIR} cfg:default.paths.data=${DATA_DIR} cfg:default.paths.plugins=${PLUGINS_DIR}`
 - You should also add: `max_connections = 300` to `/etc/postgresql/X.Y/main/postgresql.conf`. Default is 100.
 - `service postgresql restart`
+- This is all done as a part of standard deploy script see: `./devel/deploy_all.sh`.
