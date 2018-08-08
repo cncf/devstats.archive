@@ -1,6 +1,6 @@
 # Apache installation
 
-- Install apache: `apt-get install apache2`
+- Install apache: `apt install apache2`
 - Create "web" directory: `mkdir /var/www/html/` (it will hold gha databases dumps and other static info on the main domain.)
 - Copy either `apache/www/index_test.html` or `apache/www/index_prod.html` to `/var/www/html` and adjust this file if needed.
 - Enable mod proxy, mod rewrite and mod headers:
