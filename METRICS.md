@@ -2,17 +2,17 @@
 
 To add new metric (replace `{{project}}` with kubernetes, prometheus or any other project defined in `projects.yaml`):
 
-1) Define parameterized SQL (with `{{from}}`, `{{to}}`  and `{{n}}` params) that returns this metric data. For histogram metrics define `{{periodi:alias.date_column}}` instead.
-- {{n}} is only used in aggregate periods mode and it will get value from `Number of periods` drop-down. For example for 7 days MA (moving average) it will be 7.
-- Use {{period:alias.date_column}} for quick ranges based metrics, to test such metric use `PG_PASS=... ./runq ./metrics/project/filename.sql qr '1 week,,'`.
-- Use (lower(actor_col) {{exclude_bots}}) to skip bot activity.
+1) Define parameterized SQL (with `{{from}}`, `{{to}}`  and `{{n}}` params) that returns this metric data. For histogram metrics define `{{period:alias.date_column}}` instead.
+- `{{n}}` is only used in aggregate periods mode and it will get value from `Number of periods` drop-down. For example for 7 days MA (moving average) it will be 7.
+- Use `{{period:alias.date_column}}` for quick ranges based metrics, to test such metric use `PG_PASS=... ./runq ./metrics/project/filename.sql qr '1 week,,'`.
+- Use `(lower(actor_col) {{exclude_bots}})` to skip bot activity.
 - This SQL will be automatically called on different periods by `gha2db_sync` and/or `devstats` tool.
 2) Define this metric in [metrics/{{project}}/metrics.yaml](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/metrics.yaml) (file used by `gha2db_sync` tool).
 - You can define this metric in `devel/test_metrics.yaml` first (and eventually in `devel/test_columns.yaml`, `devel/test_tags.yaml`) and run `devel/test_metric_sync.sh`
 - Then call `sudo -u postgres psql -c 'select * from sseries_name'` to see the results.
 - You need to define periods for calculations, for example m,q,y for "month, quarter and year", or h,d,w for "hour, day and week". You can use any combination of h,d,w,m,q,y. You can also use `annotations_ranges: true` for tabular tables with automatic quick ranges.
 - You can define aggregate periods via `aggregate: n1,n2,n3,...`, if you don't define this, there will be one aggregation period = 1. Some aggregate combinations can be set to skip, for example you have `periods: m,q,y`, `aggregate: 1,3,7`, you want to skip >1 aggregate for y and 7 for q, then set: `skip: y3,y7,q3`.
-- You need to define SQL file via `sql: filename`. It will use `metrics/{{project}}/filename.sql`.
+- You need to define SQL file via `sql: filename`. It will use `metrics/{{project}}/filename.sql` with fallback to `metrics/shared/filename.sql`.
 - You need to define how to generate time series name(s) for this metrics. There are 4 options here:
 - Metric can return a single row with a single value (like for instance "All PRs merged" - in that case, you can define series name inside YAML file via `series_name_or_func: your_series_name`. If metrics use more than single period, You should add `add_period_to_name: true` which will add period name to your series name (it adds _w, _d, _q etc.)
 - Metric can return a single row containing multiple columns, for example, "Time opened to merged". It returns lower percentile, median and higher percentile for the time from open to merge for PRs in a given period. You should use `series_name_or_func: single_row_multi_column` in such case, and SQL should return single row, with the first column in format `series_name1,seriesn_name2,...,series_nameN` and then N value columns. The period name will be added to all N series automatically.
@@ -27,7 +27,7 @@ To add new metric (replace `{{project}}` with kubernetes, prometheus or any othe
 3) Add test coverage in [metrics_test.go](https://github.com/cncf/devstats/blob/master/metrics_test.go) and [tests.yaml](https://github.com/cncf/devstats/blob/master/tests.yaml).
 4) You need to generate data, using `PG_PASS=... ./devel/add_single_metric.sh`. If you choose to use add single metric, you need to create 2 files: `test_metrics.yaml` and `test_tags.yaml`. Those YAML files should contain only new metric related data. You may need to update `test_columns.yaml` too.
 5) To test new metric on non-production database "test", use: `GHA2DB_PROJECT={{project}} ./devel/test_metric_sync.sh` script.
-6) Add Grafana dashboard or row that displays this metric.
+6) Add Grafana dashboard or row that displays this metric. Eventually copy existing one and adjust.
 7) Update all Home dashboards (make dashboard list panel higher to include new dashboard without scrolling).
 7) Export new Grafana dashboard to JSON, for example use `./devel/get_all_sqlite_jsons.sh`.
 8) Create PR for the new metric.
