@@ -7,6 +7,13 @@ Each dashboard is defined by its metrics SQL, saved Grafana JSON export and link
 Many dashboards use "Repository group" drop-down. Repository groups are defined manually to group similar repositories into single projects.
 They are defined here: [repo_groups.sql](https://github.com/cncf/devstats/blob/master/scripts/kubernetes/repo_groups.sql)
 
+# Import and export
+
+- To get all currently defined dashboard from their Grafana's SQLite databases use: `./devel/get_all_sqlite_jsons.sh`.
+- To put all JSONs into their Grafana's SQLite databases use: `./devel/put_all_charts.sh`. If all is OK, clean DB backups: `./devel/put_all_charts_cleanup.sh`.
+- To specify a list of projects to import/export prepend commands with: `ONLY="project1 project2 ... projectN"`.
+- See [this](https://github.com/cncf/devstats/blob/master/SQLITE.md) file for more details.
+
 # Kubernetes dashboards
 
 - Blocked PRs repository groups: [blocked-prs-repository-groups.json](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/blocked-prs-repository-groups.json), [view](https://k8s.devstats.cncf.io/d/4/blocked-prs-repository-groups?orgId=1)
