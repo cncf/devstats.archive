@@ -162,16 +162,13 @@ GitHub archives keep data as Gzipped JSONs for each hour (24 gzipped JSONs per d
 Single JSON is not a real JSON file, but "\n" newline separated list of JSONs for each GitHub event in that hour.
 So this is a JSON array in reality.
 
-GihHub archive files can be found here <https://www.githubarchive.org>
+GihHub archive files can be found [here](http://www.gharchive.org).
 
 For example to fetch 2017-08-03 18:00 UTC can be fetched by:
 
-- wget http://data.githubarchive.org/2017-08-03-18.json.gz
+- wget http://data.gharchive.org/2017-08-03-18.json.gz
 
-Gzipped files are usually 10-30 Mb in size (single hour).
-Decompressed fields are usually 100-200 Mb.
-
-We download this gzipped JSON, process it on the fly, creating the array of JSON events and then each single event JSON matching org/repo criteria is saved in [jsons](https://github.com/cncf/devstats/blob/master/jsons/) directory as `N_ID.json` where:
+We download this gzipped JSON, process it on the fly, creating the array of JSON events and then each single event JSON matching org/repo criteria is saved in [jsons](https://github.com/cncf/devstats/blob/master/jsons/) directory as `N_ID.json` (if `GHA2DB_JSON` variable is set) where:
 - N - given GitHub archive''s JSON hour as UNIX timestamp.
 - ID - GitHub event ID.
 
@@ -186,45 +183,8 @@ You can use `GHA2DB_ST` environment variable to force single threaded version.
 
 # Results (JSON)
 
-Example: you can generate and save all JSONs for a single day in jsons/ directory by running (all GitHub repos/orgs without filtering):
+Example: you can generate and save all JSONs for a single day in `jsons/` directory by running (all GitHub repos/orgs without filtering):
 - `GHA2DB_JSON=1 GHA2DB_NODB=1 ./gha2db 2018-01-02 0 2018-01-02 0`.
-
-Usually, there are about 25000 GitHub events in a single hour in Jan 2017 (for July 2017 it is 40000).
-Average seems to be from 15000 to 60000.
-
-1) Running this program on 5 days of data with org `kubernetes` (and no repo set - which means all kubernetes repos):
-- Takes: 10 minutes 50 seconds.
-- Generates 12002 JSONs with summary size 165 Mb (each JSON is a single GitHub event).
-- To do so it processes about 21 Gb of data.
-
-2) Running this program 1 month of data with org `kubernetes` (and no repo set - which means all kubernetes repos).
-June 2017:
-- Takes: 61 minutes 26 seconds.
-- Generates 60773 JSONs with summary size 815 Mb.
-- To do so it processes about 126 Gb of data.
-
-3) Running this program 3 hours of data with no filters.
-2017-07-05 hours: 18, 19, 20:
-- Takes: 55 seconds.
-- Generates 168683 JSONs with summary size 1.1 Gb.
-- To do so it processes about 126 Gb of data.
-
-Taking all events from a single day is 5 minutes 50 seconds (2017-07-28):
-- Generates 1194599 JSON files (1.2M)
-- Takes 7 Gb of disc space
-
-Please note that this is not a correct JSON, it contains files separated by line `JSON: jsons/filename.json` - that says what was the original JSON filename. This file is 16.7M xzipped, but 1.07G uncompressed.
-
-Please also note that JSON for 2016-10-21 18:00 is broken, so running this command will produce no data. The code will output error to logs and continue. Always examine `errors.txt` from `kubernetes/kubernetes*.sh` script.
-
-This will log error and process no JSONs:
-- `./gha2db 2016-10-21 18 2016-10-21 18 'kubernetes,kubernetes-client,kubernetes-incubator,kubernetes-csi'`.
-
-1) Running on all Kubernetes org since the beginning of kubernetes:
-- Takes about 2h15m.
-- Database dump is 7.5 Gb, XZ compressed dump is ~400 Mb
-- Note that those counts include historical changes to objects (for example single issue can have multiple entries with a different state on different events)
-- Completed [dump](https://devstats.cncf.io/gha.sql.xz).
 
 # PostgreSQL database setup
 
@@ -232,6 +192,7 @@ Detailed setup instructions are here (they use already populated postgres dump):
 - [Mac >= 10.12](https://github.com/cncf/devstats/blob/master/INSTALL_MAC.md)
 - [Linux Ubuntu 16 LTS](https://github.com/cncf/devstats/blob/master/INSTALL_UBUNTU16.md)
 - [Linux Ubuntu 17](https://github.com/cncf/devstats/blob/master/INSTALL_UBUNTU17.md)
+- [Linux Ubuntu 18 LTS](https://github.com/cncf/devstats/blob/master/INSTALL_UBUNTU18.md)
 - [FreeBSD 11 (work in progress)](https://github.com/cncf/devstats/blob/master/INSTALL_FREEBSD.md)
 
 In short for Ubuntu like Linux:
@@ -245,7 +206,7 @@ In short for Ubuntu like Linux:
 - alter user gha_admin createdb;
 - go get github.com/lib/pq
 - PG_PASS='pwd' ./structure
-- psql gha
+- sudo -u postgres psql gha
 - Create `ro_user` via `PG_PASS=... ./devel/create_ro_user.sh`
 
 `structure` script is used to create Postgres database schema.
@@ -442,6 +403,7 @@ To install cron job please check "cron" section:
 - [Mac](https://github.com/cncf/devstats/blob/master/INSTALL_MAC.md)
 - [Linux Ubuntu 16 LTS](https://github.com/cncf/devstats/blob/master/INSTALL_UBUNTU16.md)
 - [Linux Ubuntu 17](https://github.com/cncf/devstats/blob/master/INSTALL_UBUNTU17.md)
+- [Linux Ubuntu 18 LTS](https://github.com/cncf/devstats/blob/master/INSTALL_UBUNTU18.md)
 - [FreeBSD 11](https://github.com/cncf/devstats/blob/master/INSTALL_FREEBSD.md)
 
 # Developers affiliations
