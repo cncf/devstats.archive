@@ -20,13 +20,15 @@ Influx DB was used as a time series database. Then it was dropped and replaced w
 
 Postgres is faster as a time series database than a dedicated time series database InfluxDB.
 
-This tools filter GitHub archive for given date period and given organization, repository and save results in a Postgres database.
+This tools filter GitHub archives for given date period and given organization, repository and save results in a Postgres database.
 It can also save results into JSON files.
 It displays results using Grafana and Postgres as a time series database.
 
 It can import developers affiliations from [cncf/gitdm](https://github.com/cncf/gitdm).
 
 It also clones all git repos to analyse all commits files.
+
+Some additional events not included in GitHub events (like (un)labelled, (de)milestoned, referenced, (un)subscibed etc.) are fetched using GitHub API. This requires GitHub OAuth2 token saved in `/etc/github/oauth`.
 
 # Compilation
 
@@ -54,9 +56,9 @@ Installed:
 - `sudo make install`
 - `ENV_VARIABLES gha2db YYYY-MM-DD HH YYYY-MM-DD HH [org [repo]]`.
 
-You can use already populated Postgres dump: [Kubernetes Psql dump](https://devstats.cncf.io/gha.sql.xz) (more than 380 Mb, more than 7,5Gb uncompressed)
+You can use already populated Postgres dump: [Kubernetes Psql dump](https://devstats.cncf.io/gha.sql.xz).
 
-There is also a dump for `cncf` org: [CNCF Psql dump](https://cncftest.io/cncf.sql.xz) (less than 900 kb, about 8,5 Mb uncompressed, data from 2017-03-01)
+There is also a dump for `cncf` org: [CNCF Psql dump](https://cncftest.io/cncf.sql.xz).
 
 First two parameters are date from:
 - YYYY-MM-DD
@@ -67,7 +69,7 @@ Next two parameters are date to:
 - HH
 
 Both next two parameters are optional:
-- org (if given and non-empty '' then only return JSONs matching given org). You can also provide a comma-separated list of orgs here: 'org1,org2,org3'.
+- org (if given and non-empty '' then only return JSONs matching given org). You can also provide a comma-separated list of orgs here: 'org1,org2,org3'. You can use exact repo paths here: `org1,org2/repo2,org2/repo3,org3`.
 - repo (if given and non-empty '' then only return JSONs matching given repo). You can also provide a comma-separated list of repos here: 'repo1,repo2'.
 
 Org/Repo filtering:
@@ -76,10 +78,7 @@ Org/Repo filtering:
 - You can return all JSONs by skipping both params.
 - You can provide both to observe only events from given org/repo.
 - You can list exact full repository names to run on: use `GHA2DB_EXACT=1` to process only repositories listed as "orgs" parameter, by their full names, like for example 3 repos: "GoogleCloudPlatform/kubernetes,kubernetes,kubernetes/kubernetes".
-- Without GHA2DB_EXACT flag only full names like "a/b,x/y" can be treated as exact full repository names, names without "/" are treated either as orgs or as repositories.
-
-# Broken githubarchives JSON file
-- For 2017-11-08 01:00:00 githubarchive JSON contains an error.
+- Without `GHA2DB_EXACT` flag only full names like "a/b,x/y" can be treated as exact full repository names, names without "/" are treated either as orgs or as repositories.
 
 # Configuration
 
@@ -138,6 +137,14 @@ You can tweak `devstats` tools by environment variables:
 - Set `GHA2DB_GHAPISKIP`, ghapi2db tool, if set then tool is not creating artificial events using GitHub API.
 - Set `GHA2DB_GETREPOSSKIP`, get_repos tool, if set then tool does nothing.
 - Set `GHA2DB_COMPUTE_ALL`, all tools, this forces computing all possible periods (weekly, daily, yearly, since last release to now, since CNCF join date to now etc.) instead of making decision based on current time.
+- Set `GHA2DB_ACTORS_FILTER`, `gha2db` tool, enable filtering by actor, default false which means skip next two actor related variables.
+- Set `GHA2DB_ACTORS_ALLOW`, `gha2db` tool, process JSON if actor matches this regexp, default "" which means skip this check.
+- Set `GHA2DB_ACTORS_FORBID`, `gha2db` tool, process JSON if actor doesn't match this regexp, default "" which means skip this check.
+- Set `GHA2DB_ONLY_METRICS`, `gha2db_sync` tool, default "" - comma separated list of metrics to process, as fiven my "sql: name" in the "metrics.yaml" file. Only those metrics will be calculated.
+- Set `GHA2DB_ALLOW_BROKEN_JSON`, `gha2db` tool, default false. If set then gha2db skips broken jsons and saves them as `jsons/error_YYYY-MM-DD-h-n-m.json` (n is the JSON number (1-m) of m JSONS array).
+- Set `GHA2DB_JSONS_DIR`, `website_data` tool, JSONs output directory default `./jsons/`.
+- Set `GHA2DB_WEBSITEDATA`, `devstats` tool, run `website_data` just after sync is complete, default false.
+- Set `GHA2DB_SKIP_UPDATE_EVENTS`, ghapi2db tool, drop and recreate artificial events if their state differs, default false.
 
 All environment context details are defined in [context.go](https://github.com/cncf/devstats/blob/master/context.go), please see that file for details (you can also see how it works in [context_test.go](https://github.com/cncf/devstats/blob/master/context_test.go)).
 
