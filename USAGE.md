@@ -20,13 +20,15 @@ Influx DB was used as a time series database. Then it was dropped and replaced w
 
 Postgres is faster as a time series database than a dedicated time series database InfluxDB.
 
-This tools filter GitHub archive for given date period and given organization, repository and save results in a Postgres database.
+This tools filter GitHub archives for given date period and given organization, repository and save results in a Postgres database.
 It can also save results into JSON files.
 It displays results using Grafana and Postgres as a time series database.
 
 It can import developers affiliations from [cncf/gitdm](https://github.com/cncf/gitdm).
 
 It also clones all git repos to analyse all commits files.
+
+Some additional events not included in GitHub events (like (un)labelled, (de)milestoned, referenced, (un)subscibed etc.) are fetched using GitHub API. This requires GitHub OAuth2 token saved in `/etc/github/oauth`.
 
 # Compilation
 
@@ -54,9 +56,9 @@ Installed:
 - `sudo make install`
 - `ENV_VARIABLES gha2db YYYY-MM-DD HH YYYY-MM-DD HH [org [repo]]`.
 
-You can use already populated Postgres dump: [Kubernetes Psql dump](https://devstats.cncf.io/gha.sql.xz) (more than 380 Mb, more than 7,5Gb uncompressed)
+You can use already populated Postgres dump: [Kubernetes Psql dump](https://devstats.cncf.io/gha.sql.xz).
 
-There is also a dump for `cncf` org: [CNCF Psql dump](https://cncftest.io/cncf.sql.xz) (less than 900 kb, about 8,5 Mb uncompressed, data from 2017-03-01)
+There is also a dump for `cncf` org: [CNCF Psql dump](https://cncftest.io/cncf.sql.xz).
 
 First two parameters are date from:
 - YYYY-MM-DD
@@ -67,7 +69,7 @@ Next two parameters are date to:
 - HH
 
 Both next two parameters are optional:
-- org (if given and non-empty '' then only return JSONs matching given org). You can also provide a comma-separated list of orgs here: 'org1,org2,org3'.
+- org (if given and non-empty '' then only return JSONs matching given org). You can also provide a comma-separated list of orgs here: 'org1,org2,org3'. You can use exact repo paths here: `org1,org2/repo2,org2/repo3,org3`.
 - repo (if given and non-empty '' then only return JSONs matching given repo). You can also provide a comma-separated list of repos here: 'repo1,repo2'.
 
 Org/Repo filtering:
@@ -76,10 +78,7 @@ Org/Repo filtering:
 - You can return all JSONs by skipping both params.
 - You can provide both to observe only events from given org/repo.
 - You can list exact full repository names to run on: use `GHA2DB_EXACT=1` to process only repositories listed as "orgs" parameter, by their full names, like for example 3 repos: "GoogleCloudPlatform/kubernetes,kubernetes,kubernetes/kubernetes".
-- Without GHA2DB_EXACT flag only full names like "a/b,x/y" can be treated as exact full repository names, names without "/" are treated either as orgs or as repositories.
-
-# Broken githubarchives JSON file
-- For 2017-11-08 01:00:00 githubarchive JSON contains an error.
+- Without `GHA2DB_EXACT` flag only full names like "a/b,x/y" can be treated as exact full repository names, names without "/" are treated either as orgs or as repositories.
 
 # Configuration
 
@@ -138,6 +137,14 @@ You can tweak `devstats` tools by environment variables:
 - Set `GHA2DB_GHAPISKIP`, ghapi2db tool, if set then tool is not creating artificial events using GitHub API.
 - Set `GHA2DB_GETREPOSSKIP`, get_repos tool, if set then tool does nothing.
 - Set `GHA2DB_COMPUTE_ALL`, all tools, this forces computing all possible periods (weekly, daily, yearly, since last release to now, since CNCF join date to now etc.) instead of making decision based on current time.
+- Set `GHA2DB_ACTORS_FILTER`, `gha2db` tool, enable filtering by actor, default false which means skip next two actor related variables.
+- Set `GHA2DB_ACTORS_ALLOW`, `gha2db` tool, process JSON if actor matches this regexp, default "" which means skip this check.
+- Set `GHA2DB_ACTORS_FORBID`, `gha2db` tool, process JSON if actor doesn't match this regexp, default "" which means skip this check.
+- Set `GHA2DB_ONLY_METRICS`, `gha2db_sync` tool, default "" - comma separated list of metrics to process, as fiven my "sql: name" in the "metrics.yaml" file. Only those metrics will be calculated.
+- Set `GHA2DB_ALLOW_BROKEN_JSON`, `gha2db` tool, default false. If set then gha2db skips broken jsons and saves them as `jsons/error_YYYY-MM-DD-h-n-m.json` (n is the JSON number (1-m) of m JSONS array).
+- Set `GHA2DB_JSONS_DIR`, `website_data` tool, JSONs output directory default `./jsons/`.
+- Set `GHA2DB_WEBSITEDATA`, `devstats` tool, run `website_data` just after sync is complete, default false.
+- Set `GHA2DB_SKIP_UPDATE_EVENTS`, ghapi2db tool, drop and recreate artificial events if their state differs, default false.
 
 All environment context details are defined in [context.go](https://github.com/cncf/devstats/blob/master/context.go), please see that file for details (you can also see how it works in [context_test.go](https://github.com/cncf/devstats/blob/master/context_test.go)).
 
@@ -155,16 +162,13 @@ GitHub archives keep data as Gzipped JSONs for each hour (24 gzipped JSONs per d
 Single JSON is not a real JSON file, but "\n" newline separated list of JSONs for each GitHub event in that hour.
 So this is a JSON array in reality.
 
-GihHub archive files can be found here <https://www.githubarchive.org>
+GihHub archive files can be found [here](http://www.gharchive.org).
 
 For example to fetch 2017-08-03 18:00 UTC can be fetched by:
 
-- wget http://data.githubarchive.org/2017-08-03-18.json.gz
+- wget http://data.gharchive.org/2017-08-03-18.json.gz
 
-Gzipped files are usually 10-30 Mb in size (single hour).
-Decompressed fields are usually 100-200 Mb.
-
-We download this gzipped JSON, process it on the fly, creating the array of JSON events and then each single event JSON matching org/repo criteria is saved in [jsons](https://github.com/cncf/devstats/blob/master/jsons/) directory as `N_ID.json` where:
+We download this gzipped JSON, process it on the fly, creating the array of JSON events and then each single event JSON matching org/repo criteria is saved in [jsons](https://github.com/cncf/devstats/blob/master/jsons/) directory as `N_ID.json` (if `GHA2DB_JSON` variable is set) where:
 - N - given GitHub archive''s JSON hour as UNIX timestamp.
 - ID - GitHub event ID.
 
@@ -179,45 +183,8 @@ You can use `GHA2DB_ST` environment variable to force single threaded version.
 
 # Results (JSON)
 
-Example: you can generate and save all JSONs for a single day in jsons/ directory by running (all GitHub repos/orgs without filtering):
+Example: you can generate and save all JSONs for a single day in `jsons/` directory by running (all GitHub repos/orgs without filtering):
 - `GHA2DB_JSON=1 GHA2DB_NODB=1 ./gha2db 2018-01-02 0 2018-01-02 0`.
-
-Usually, there are about 25000 GitHub events in a single hour in Jan 2017 (for July 2017 it is 40000).
-Average seems to be from 15000 to 60000.
-
-1) Running this program on 5 days of data with org `kubernetes` (and no repo set - which means all kubernetes repos):
-- Takes: 10 minutes 50 seconds.
-- Generates 12002 JSONs with summary size 165 Mb (each JSON is a single GitHub event).
-- To do so it processes about 21 Gb of data.
-
-2) Running this program 1 month of data with org `kubernetes` (and no repo set - which means all kubernetes repos).
-June 2017:
-- Takes: 61 minutes 26 seconds.
-- Generates 60773 JSONs with summary size 815 Mb.
-- To do so it processes about 126 Gb of data.
-
-3) Running this program 3 hours of data with no filters.
-2017-07-05 hours: 18, 19, 20:
-- Takes: 55 seconds.
-- Generates 168683 JSONs with summary size 1.1 Gb.
-- To do so it processes about 126 Gb of data.
-
-Taking all events from a single day is 5 minutes 50 seconds (2017-07-28):
-- Generates 1194599 JSON files (1.2M)
-- Takes 7 Gb of disc space
-
-Please note that this is not a correct JSON, it contains files separated by line `JSON: jsons/filename.json` - that says what was the original JSON filename. This file is 16.7M xzipped, but 1.07G uncompressed.
-
-Please also note that JSON for 2016-10-21 18:00 is broken, so running this command will produce no data. The code will output error to logs and continue. Always examine `errors.txt` from `kubernetes/kubernetes*.sh` script.
-
-This will log error and process no JSONs:
-- `./gha2db 2016-10-21 18 2016-10-21 18 'kubernetes,kubernetes-client,kubernetes-incubator,kubernetes-csi'`.
-
-1) Running on all Kubernetes org since the beginning of kubernetes:
-- Takes about 2h15m.
-- Database dump is 7.5 Gb, XZ compressed dump is ~400 Mb
-- Note that those counts include historical changes to objects (for example single issue can have multiple entries with a different state on different events)
-- Completed [dump](https://devstats.cncf.io/gha.sql.xz).
 
 # PostgreSQL database setup
 
@@ -225,6 +192,7 @@ Detailed setup instructions are here (they use already populated postgres dump):
 - [Mac >= 10.12](https://github.com/cncf/devstats/blob/master/INSTALL_MAC.md)
 - [Linux Ubuntu 16 LTS](https://github.com/cncf/devstats/blob/master/INSTALL_UBUNTU16.md)
 - [Linux Ubuntu 17](https://github.com/cncf/devstats/blob/master/INSTALL_UBUNTU17.md)
+- [Linux Ubuntu 18 LTS](https://github.com/cncf/devstats/blob/master/INSTALL_UBUNTU18.md)
 - [FreeBSD 11 (work in progress)](https://github.com/cncf/devstats/blob/master/INSTALL_FREEBSD.md)
 
 In short for Ubuntu like Linux:
@@ -238,7 +206,7 @@ In short for Ubuntu like Linux:
 - alter user gha_admin createdb;
 - go get github.com/lib/pq
 - PG_PASS='pwd' ./structure
-- psql gha
+- sudo -u postgres psql gha
 - Create `ro_user` via `PG_PASS=... ./devel/create_ro_user.sh`
 
 `structure` script is used to create Postgres database schema.
@@ -435,6 +403,7 @@ To install cron job please check "cron" section:
 - [Mac](https://github.com/cncf/devstats/blob/master/INSTALL_MAC.md)
 - [Linux Ubuntu 16 LTS](https://github.com/cncf/devstats/blob/master/INSTALL_UBUNTU16.md)
 - [Linux Ubuntu 17](https://github.com/cncf/devstats/blob/master/INSTALL_UBUNTU17.md)
+- [Linux Ubuntu 18 LTS](https://github.com/cncf/devstats/blob/master/INSTALL_UBUNTU18.md)
 - [FreeBSD 11](https://github.com/cncf/devstats/blob/master/INSTALL_FREEBSD.md)
 
 # Developers affiliations

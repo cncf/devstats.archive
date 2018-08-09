@@ -87,8 +87,8 @@ type Ctx struct {
 	CSVFile             string          // From GHA2DB_CSVOUT, runq tool, if set, saves result in this file
 	ComputeAll          bool            // From GHA2DB_COMPUTE_ALL, all tools, if set then no period decisions are taken based on time, but all possible periods are recalculated
 	ActorsFilter        bool            // From GHA2DB_ACTORS_FILTER gha2db tool, if enabled then actor filterning will be added, default false
-	ActorsAllow         *regexp.Regexp  // From GHA2DB_ACTORS_ALLOW, gha2db tool, process JSON if actor matches this regexp, default ""
-	ActorsForbid        *regexp.Regexp  // From GHA2DB_ACTORS_FORBID, gha2db tool, process JSON if actor matches this regexp, default ""
+	ActorsAllow         *regexp.Regexp  // From GHA2DB_ACTORS_ALLOW, gha2db tool, process JSON if actor matches this regexp, default "" which means skip this check
+	ActorsForbid        *regexp.Regexp  // From GHA2DB_ACTORS_FORBID, gha2db tool, process JSON if actor doesn't match this regexp, default "" which means skip this check
 	OnlyMetrics         map[string]bool // From GHA2DB_ONLY_METRICS, gha2db_sync tool, default "" - comma separated list of metrics to process, as fiven my "sql: name" in the "metrics.yaml" file. Only those metrics will be calculated.
 	AllowBrokenJSON     bool            // From GHA2DB_ALLOW_BROKEN_JSON, gha2db tool, default false. If set then gha2db skips broken jsons and saves them as jsons/error_YYYY-MM-DD-h-n-m.json (n is the JSON number (1-m) of m JSONS array)
 	JSONsDir            string          // From GHA2DB_JSONS_DIR, website_data tool, default "./jsons/"
