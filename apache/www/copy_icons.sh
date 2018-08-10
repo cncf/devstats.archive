@@ -26,10 +26,6 @@ do
     icon="cncf"
   fi
   # TODO: remove when we have icons
-  if [ "$icon" = "openmetrics" ]
-  then
-    icon="cncf"
-  fi
   if [ "$icon" = "etcd" ]
   then
     icon="cncf"
