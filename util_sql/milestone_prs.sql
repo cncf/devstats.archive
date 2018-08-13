@@ -1,5 +1,3 @@
-refresh materialized view current_state.prs;
-
 select
   state,
   count(*) as count
