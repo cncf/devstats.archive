@@ -1,26 +1,26 @@
 create materialized view current_state.issues as
-WITH issue_latest AS (
-          SELECT issues.id,
-             issues.dup_repo_id AS repo_id,
-             issues.dup_repo_name AS repo_name,
+with issue_latest as (
+          select issues.id,
+             issues.dup_repo_id as repo_id,
+             issues.dup_repo_name as repo_name,
              issues.number,
              issues.is_pull_request,
              issues.milestone_id,
              milestones.milestone,
              issues.state,
              issues.title,
-             issues.user_id AS creator_id,
+             issues.user_id as creator_id,
              issues.assignee_id,
-             issues.created_at AS created_at,
+             issues.created_at as created_at,
              issues.updated_at,
              issues.closed_at,
              issues.body,
              issues.comments,
-             row_number() OVER (PARTITION BY issues.id ORDER BY issues.updated_at DESC, issues.event_id DESC) AS rank
-            FROM (gha_issues issues
-              LEFT JOIN current_state.milestones ON issues.milestone_id = milestones.id)
+             row_number() over (partition by issues.id order by issues.updated_at desc, issues.event_id desc) as rank
+            from (gha_issues issues
+              left join current_state.milestones on issues.milestone_id = milestones.id)
          )
-SELECT issue_latest.id,
+select issue_latest.id,
      issue_latest.repo_id,
      issue_latest.repo_name,
      issue_latest.number,
@@ -36,6 +36,6 @@ SELECT issue_latest.id,
      issue_latest.closed_at,
      issue_latest.body,
      issue_latest.comments
-    FROM issue_latest
-   WHERE (issue_latest.rank = 1)
-   ORDER BY issue_latest.repo_name, issue_latest.number;
+    from issue_latest
+   where (issue_latest.rank = 1)
+   order by issue_latest.repo_name, issue_latest.number;
