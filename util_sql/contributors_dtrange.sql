@@ -19,6 +19,10 @@ from (
       and (lower(a.login) {{exclude_bots}})
       and e.created_at >= '{{from}}'
       and e.created_at < '{{to}}'
+      and e.type in (
+        'PullRequestReviewCommentEvent', 'PushEvent', 'PullRequestEvent',
+        'IssuesEvent', 'IssueCommentEvent', 'CommitCommentEvent'
+      )
     group by
       a.login,
       a.id
