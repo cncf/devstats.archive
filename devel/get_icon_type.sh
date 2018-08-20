@@ -33,6 +33,7 @@ icontypes=(
   ["openmetrics"]="color"
   ["harbor"]="color"
   ["etcd"]="color"
+  ["tikv"]="color"
   ["all"]="color"
   ["devstats"]="color"
 )
