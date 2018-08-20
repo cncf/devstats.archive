@@ -21,7 +21,7 @@ where
     select
       org.login
     from
-      [githubarchive:month.201805]
+      [githubarchive:month.201807]
     where
       org.login = 'your_org_name'
     group by
