@@ -39,7 +39,7 @@ This file describes how to add new project on the test and production servers.
 - Update `partials/projects.html`. Test with: `ONLY="proj1 proj2 ..." PG_PASS=... ./devel/vars_all.sh`
 - Update Apache proxy and SSL files `apache/www/index_* apache/*/sites-enabled/* apache/*/sites.txt` files.
 - Run deploy all script: `CUSTGRAFPATH=1 PG_PASS=... ./devel/deploy_all.sh`. If succeeded `make install`.
-- Bacause this can take few hours to complete (for a projects 4 years old for example), run next sync manually. Get sync command from `crontab -l` and prepend it with `GHA2DB_RECENT_RANGE="4 hours"` to avoid missing GitHub API events.
+- Bacause this can take few hours to complete (for a project 4 years old for example), run next sync manually. Get sync command from `crontab -l` and prepend it with `GHA2DB_RECENT_RANGE="4 hours"` to avoid missing GitHub API events.
 - You can also deploy automatically from webhook (even on the test server), but it takes very long time and is harder to debug, see [continuous deployment](https://github.com/cncf/devstats/blob/master/CONTINUOUS_DEPLOYMENT.md).
 - Open `newproject.cncftest.io` login with admin/admin, change the default password and follow instructions from `GRAFANA.md`.
 - Import `grafana/dashboards/proj/dashboards.json` dashboard on all remaining projects manually or use `sqlitedb` tool.
