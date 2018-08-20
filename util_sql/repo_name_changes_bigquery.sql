@@ -21,7 +21,7 @@ where
     select
       repo.id
     from
-      [githubarchive:month.201805]
+      [githubarchive:month.201807]
     where
       repo.name = 'current_org/current_repo'
     group by
