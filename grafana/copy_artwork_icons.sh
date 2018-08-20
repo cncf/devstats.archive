@@ -34,6 +34,10 @@ do
   then
     icon="cncf"
   fi
+  if [ "$icon" = "tikv" ]
+  then
+    icon="cncf"
+  fi
   icontype=`./devel/get_icon_type.sh "$proj"` || exit 1
   echo "Proj: $proj, icon: $icon, icon type: $icontype:, suffix: $suff"
   cp "$HOME/dev/cncf/artwork/$icon/icon/$icontype/$icon-icon-$icontype.svg" "/usr/share/grafana.$suff/public/img/grafana_icon.svg" || exit 2
