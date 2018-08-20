@@ -289,6 +289,17 @@ where
   name in ('coreos/etcd', 'etcd')
 ;
 
+-- TiKV
+update
+  gha_repos
+set
+  repo_group = 'TiKV',
+  alias = 'TiKV'
+where
+  org_login in ('tikv')
+  or name in ('pingcap/tikv')
+;
+
 -- CNCF
 update
   gha_repos
