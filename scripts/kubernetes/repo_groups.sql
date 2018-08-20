@@ -96,6 +96,7 @@ update gha_repos set repo_group = 'Node' where name in (
 
 update gha_repos set repo_group = 'Cluster lifecycle' where name in (
   'kubernetes-incubator/kargo',
+  'kubernetes-incubator/kubespray',
   'kubernetes-incubator/kube-aws',
   'kubernetes-incubator/kube-mesos-framework',
   'kubernetes/kops',
