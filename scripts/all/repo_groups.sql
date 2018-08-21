@@ -17,7 +17,11 @@ set
 where
   (
     org_login in (
-      'kubernetes', 'kubernetes-client', 'kubernetes-incubator', 'kubernetes-csi'
+      'kubernetes', 'kubernetes-client', 'kubernetes-incubator', 'kubernetes-csi',
+      'kubernetes-graveyard', 'kubernetes-incubator-retired', 'kubernetes-sig-testing',
+      'kubernetes-providers', 'kubernetes-addons', 'kubernetes-retired',
+      'kubernetes-extensions', 'kubernetes-federation', 'kubernetes-security',
+      'kubernetes-sidecars', 'kubernetes-tools', 'kubernetes-test'
     )
     or name in (
       'GoogleCloudPlatform/kubernetes', 'kubernetes' , 'kubernetes-client'
@@ -254,7 +258,7 @@ set
   repo_group = 'Helm',
   alias = 'Helm'
 where
-  org_login in ('kubernetes-helm', 'helm')
+  org_login in ('kubernetes-helm', 'kubernetes-charts', 'helm')
   or name in ('kubernetes/helm', 'kubernetes/deployment-manager', 'kubernetes/charts')
 ;
 
