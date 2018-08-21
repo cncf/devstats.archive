@@ -1456,7 +1456,7 @@ func getGHAJSON(ch chan bool, ctx *lib.Ctx, dt time.Time, forg map[string]struct
 
 	// Split JSON array into separate JSONs
 	jsonsArray := bytes.Split(jsonsBytes, []byte("\n"))
-	lib.Printf("Splitted %s, %d JSONs\n", fn, len(jsonsArray))
+	lib.Printf("Split %s, %d JSONs\n", fn, len(jsonsArray))
 
 	// Process JSONs one by one
 	n, f, e := 0, 0, 0
