@@ -125,7 +125,7 @@ func ProcessTag(con *sql.DB, ctx *Ctx, tg *Tag, replaces [][]string) {
 	}
 	FatalOnError(rows.Err())
 	if !got {
-		Printf("Warning: Tag '%+v' have no values\n", &tg)
+		Printf("Warning: Tag '%+v' have no values\n", tg)
 	}
 
 	// Write the batch
