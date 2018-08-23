@@ -9,6 +9,10 @@ This is a toolset to visualize GitHub [archives](https://www.gharchive.org) usin
 
 GHA2DB stands for **G**it**H**ub **A**rchives to **D**ash**B**oards.
 
+# Deploying on your own project(s)
+
+See the simple [DevStats example](https://github.com/cncf/devstats-example) repository for single project deployment (Homebrew), follow [instructions](https://github.com/cncf/devstats-example/blob/master/SETUP_OTHER_PROJECT.md) to deploy for your own project.
+
 # Goal
 
 We want to create a toolset for visualizing various metrics for the Kubernetes community (and also for all CNCF projects).
