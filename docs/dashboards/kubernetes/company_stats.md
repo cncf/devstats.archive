@@ -8,8 +8,8 @@
 <h1 id="description">Description</h1>
 <ul>
 <li>This dashboard shows various companies metrics.</li>
-<li>Contributor is defined as somebody who made a comment, commit, created PR or issue.</li>
-<li>Contribution is a comment, commit, issue or PR.</li>
+<li>Contributor is defined as somebody who made a review, comment, commit, created PR or issue.</li>
+<li>Contribution is a review, comment, commit, issue or PR.</li>
 <li>All activity counts all GitHub events.</li>
 <li>You can select all companies or choose some subset of them.</li>
 <li>You can select single repository group or summary for all of them.</li>

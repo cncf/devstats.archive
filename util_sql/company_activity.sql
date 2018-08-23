@@ -16,12 +16,12 @@ from (
     count(distinct ev.id) as activity,
     count(distinct ev.actor_id) as authors,
     count(distinct ev.actor_id) filter (where ev.type in ('IssuesEvent', 'PullRequestEvent', 'PushEvent')) as contributors,
-    sum(case ev.type when 'IssuesEvent' then 1 else 0 end) as issues,
-    sum(case ev.type when 'PullRequestEvent' then 1 else 0 end) as prs,
-    sum(case ev.type when 'PushEvent' then 1 else 0 end) as commits,
-    sum(case ev.type when 'PullRequestReviewCommentEvent' then 1 else 0 end) as review_comments,
-    sum(case ev.type when 'IssueCommentEvent' then 1 else 0 end) as issue_comments,
-    sum(case ev.type when 'CommitCommentEvent' then 1 else 0 end) as commit_comments
+    count(distinct ev.id) filter(where ev.type = 'IssuesEvent') as issues,
+    count(distinct ev.id) filter(where ev.type = 'PullRequestEvent') as prs,
+    count(distinct ev.id) filter(where ev.type = 'PushEvent') as commits,
+    count(distinct ev.id) filter(where ev.type = 'PullRequestReviewCommentEvent') as review_comments,
+    count(distinct ev.id) filter(where ev.type = 'IssueCommentEvent') as issue_comments,
+    count(distinct ev.id) filter(where ev.type = 'CommitCommentEvent') as commit_comments
   from
     gha_events ev,
     gha_actors_affiliations affs
