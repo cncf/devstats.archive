@@ -8,7 +8,7 @@
 <h1 id="description">Description</h1>
 <ul>
 <li>This dashboard shows various project metrics.</li>
-<li>Contributor is defined as somebody who made a comment, commit or created PR or issue.</li>
+<li>Contributor is defined as somebody who made a review, comment, commit or created PR or issue.</li>
 <li>You can select last day, month, week etc. range or date range between releases, for example <code>v1.9 - v1.10</code>.</li>
 <li>You can select single repository group or summary for all of them.</li>
 <li>See <a href="https://github.com/cncf/devstats/blob/master/docs/repository_groups.md" target="_blank">here</a> for more informations about repository groups.</li>

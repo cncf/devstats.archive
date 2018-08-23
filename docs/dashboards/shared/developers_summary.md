@@ -8,7 +8,7 @@
 <h1 id="description">Description</h1>
 <ul>
 <li>This dashboard shows various developer metrics.</li>
-<li>Contribution is a comment, commit, issue or PR.</li>
+<li>Contribution is a review, comment, commit, issue or PR.</li>
 <li>You can select last day, month, week etc. range or date range between releases, for example <code>v1.9 - v1.10</code>.</li>
 <li>See <a href="https://github.com/cncf/devstats/blob/master/docs/periods.md" target="_blank">here</a> for more informations about periods.</li>
 <li>We are skipping bots, see <a href="https://github.com/cncf/devstats/blob/master/docs/excluding_bots.md" target="_blank">excluding bots</a> for details.</li>

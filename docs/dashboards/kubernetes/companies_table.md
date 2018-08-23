@@ -8,8 +8,8 @@
 <h1 id="description">Description</h1>
 <ul>
 <li>This dashboard shows various GitHub metrics and aggregate them by actors companies.</li>
-<li>Contributor is defined as somebody who made a comment, commit, created PR or issue.</li>
-<li>Contribution is a comment, commit, issue or PR.</li>
+<li>Contributor is defined as somebody who made a review, comment, commit, created PR or issue.</li>
+<li>Contribution is a review, comment, commit, issue or PR.</li>
 <li>You can select last day, month, week etc. range or date range between releases, for example <code>v1.9 - v1.10</code>.</li>
 <li>We are skipping bots when calculating statistics, see <a href="https://github.com/cncf/devstats/blob/master/docs/excluding_bots.md" target="_blank">excluding bots</a> for details.</li>
 <li>We are determining user's company affiliation from <a href="https://github.com/cncf/devstats/blob/master/github_users.json" target="_blank">this file</a>, which is imported from <code>cncf/gitdm</code>.</li>
