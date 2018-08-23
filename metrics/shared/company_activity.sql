@@ -32,11 +32,6 @@ from (
     and affs.dt_to > ev.created_at
     and ev.created_at >= '{{from}}'
     and ev.created_at < '{{to}}'
-    and ev.type in (
-      'PullRequestReviewCommentEvent', 'PushEvent', 'PullRequestEvent',
-      'IssuesEvent', 'IssueCommentEvent', 'CommitCommentEvent',
-      'ReleaseEvent', 'DeleteEvent', 'CreateEvent', 'GollumEvent'
-    )
     and (lower(ev.dup_actor_login) {{exclude_bots}})
     and affs.company_name in (select companies_name from tcompanies)
   group by
@@ -67,11 +62,6 @@ from (
     and affs.dt_to > ev.created_at
     and ev.created_at >= '{{from}}'
     and ev.created_at < '{{to}}'
-    and ev.type in (
-      'PullRequestReviewCommentEvent', 'PushEvent', 'PullRequestEvent',
-      'IssuesEvent', 'IssueCommentEvent', 'CommitCommentEvent',
-      'ReleaseEvent', 'DeleteEvent', 'CreateEvent', 'GollumEvent'
-    )
     and (lower(dup_actor_login) {{exclude_bots}})
     and affs.company_name in (select companies_name from tcompanies)
   group by
@@ -93,11 +83,6 @@ from (
   where
     ev.created_at >= '{{from}}'
     and ev.created_at < '{{to}}'
-    and ev.type in (
-      'PullRequestReviewCommentEvent', 'PushEvent', 'PullRequestEvent',
-      'IssuesEvent', 'IssueCommentEvent', 'CommitCommentEvent',
-      'ReleaseEvent', 'DeleteEvent', 'CreateEvent', 'GollumEvent'
-    )
     and (lower(dup_actor_login) {{exclude_bots}})
   union select 'All' as company,
     coalesce(ecf.repo_group, r.repo_group) as repo_group,
@@ -121,11 +106,6 @@ from (
     r.id = ev.repo_id
     and ev.created_at >= '{{from}}'
     and ev.created_at < '{{to}}'
-    and ev.type in (
-      'PullRequestReviewCommentEvent', 'PushEvent', 'PullRequestEvent',
-      'IssuesEvent', 'IssueCommentEvent', 'CommitCommentEvent',
-      'ReleaseEvent', 'DeleteEvent', 'CreateEvent', 'GollumEvent'
-    )
     and (lower(dup_actor_login) {{exclude_bots}})
   group by
     coalesce(ecf.repo_group, r.repo_group)
