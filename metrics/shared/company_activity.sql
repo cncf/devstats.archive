@@ -17,12 +17,12 @@ from (
     count(distinct ev.id) as activity,
     count(distinct ev.actor_id) as authors,
     count(distinct ev.actor_id) filter (where ev.type in ('IssuesEvent', 'PullRequestEvent', 'PushEvent', 'CommitCommentEvent', 'IssueCommentEvent', 'PullRequestReviewCommentEvent')) as contributors,
-    sum(case ev.type when 'IssuesEvent' then 1 else 0 end) as issues,
-    sum(case ev.type when 'PullRequestEvent' then 1 else 0 end) as prs,
-    sum(case ev.type when 'PushEvent' then 1 else 0 end) as commits,
-    sum(case ev.type when 'PullRequestReviewCommentEvent' then 1 else 0 end) as review_comments,
-    sum(case ev.type when 'IssueCommentEvent' then 1 else 0 end) as issue_comments,
-    sum(case ev.type when 'CommitCommentEvent' then 1 else 0 end) as commit_comments
+    count(distinct ev.id) filter(where ev.type = 'IssuesEvent') as issues,
+    count(distinct ev.id) filter(where ev.type = 'PullRequestEvent') as prs,
+    count(distinct ev.id) filter(where ev.type = 'PushEvent') as commits,
+    count(distinct ev.id) filter(where ev.type = 'PullRequestReviewCommentEvent') as review_comments,
+    count(distinct ev.id) filter(where ev.type = 'IssueCommentEvent') as issue_comments,
+    count(distinct ev.id) filter(where ev.type = 'CommitCommentEvent') as commit_comments
   from
     gha_events ev,
     gha_actors_affiliations affs
@@ -41,12 +41,12 @@ from (
     count(distinct ev.id) as activity,
     count(distinct ev.actor_id) as authors,
     count(distinct ev.actor_id) filter (where ev.type in ('IssuesEvent', 'PullRequestEvent', 'PushEvent', 'CommitCommentEvent', 'IssueCommentEvent', 'PullRequestReviewCommentEvent')) as contributors,
-    sum(case ev.type when 'IssuesEvent' then 1 else 0 end) as issues,
-    sum(case ev.type when 'PullRequestEvent' then 1 else 0 end) as prs,
-    sum(case ev.type when 'PushEvent' then 1 else 0 end) as commits,
-    sum(case ev.type when 'PullRequestReviewCommentEvent' then 1 else 0 end) as review_comments,
-    sum(case ev.type when 'IssueCommentEvent' then 1 else 0 end) as issue_comments,
-    sum(case ev.type when 'CommitCommentEvent' then 1 else 0 end) as commit_comments
+    count(distinct ev.id) filter(where ev.type = 'IssuesEvent') as issues,
+    count(distinct ev.id) filter(where ev.type = 'PullRequestEvent') as prs,
+    count(distinct ev.id) filter(where ev.type = 'PushEvent') as commits,
+    count(distinct ev.id) filter(where ev.type = 'PullRequestReviewCommentEvent') as review_comments,
+    count(distinct ev.id) filter(where ev.type = 'IssueCommentEvent') as issue_comments,
+    count(distinct ev.id) filter(where ev.type = 'CommitCommentEvent') as commit_comments
   from
     gha_actors_affiliations affs,
     gha_repos r,
@@ -62,7 +62,7 @@ from (
     and affs.dt_to > ev.created_at
     and ev.created_at >= '{{from}}'
     and ev.created_at < '{{to}}'
-    and (lower(dup_actor_login) {{exclude_bots}})
+    and (lower(ev.dup_actor_login) {{exclude_bots}})
     and affs.company_name in (select companies_name from tcompanies)
   group by
     affs.company_name,
@@ -72,29 +72,29 @@ from (
     count(distinct ev.id) as activity,
     count(distinct ev.actor_id) as authors,
     count(distinct ev.actor_id) filter (where ev.type in ('IssuesEvent', 'PullRequestEvent', 'PushEvent', 'CommitCommentEvent', 'IssueCommentEvent', 'PullRequestReviewCommentEvent')) as contributors,
-    sum(case ev.type when 'IssuesEvent' then 1 else 0 end) as issues,
-    sum(case ev.type when 'PullRequestEvent' then 1 else 0 end) as prs,
-    sum(case ev.type when 'PushEvent' then 1 else 0 end) as commits,
-    sum(case ev.type when 'PullRequestReviewCommentEvent' then 1 else 0 end) as review_comments,
-    sum(case ev.type when 'IssueCommentEvent' then 1 else 0 end) as issue_comments,
-    sum(case ev.type when 'CommitCommentEvent' then 1 else 0 end) as commit_comments
+    count(distinct ev.id) filter(where ev.type = 'IssuesEvent') as issues,
+    count(distinct ev.id) filter(where ev.type = 'PullRequestEvent') as prs,
+    count(distinct ev.id) filter(where ev.type = 'PushEvent') as commits,
+    count(distinct ev.id) filter(where ev.type = 'PullRequestReviewCommentEvent') as review_comments,
+    count(distinct ev.id) filter(where ev.type = 'IssueCommentEvent') as issue_comments,
+    count(distinct ev.id) filter(where ev.type = 'CommitCommentEvent') as commit_comments
   from
     gha_events ev
   where
     ev.created_at >= '{{from}}'
     and ev.created_at < '{{to}}'
-    and (lower(dup_actor_login) {{exclude_bots}})
+    and (lower(ev.dup_actor_login) {{exclude_bots}})
   union select 'All' as company,
     coalesce(ecf.repo_group, r.repo_group) as repo_group,
     count(distinct ev.id) as activity,
     count(distinct ev.actor_id) as authors,
     count(distinct ev.actor_id) filter (where ev.type in ('IssuesEvent', 'PullRequestEvent', 'PushEvent', 'CommitCommentEvent', 'IssueCommentEvent', 'PullRequestReviewCommentEvent')) as contributors,
-    sum(case ev.type when 'IssuesEvent' then 1 else 0 end) as issues,
-    sum(case ev.type when 'PullRequestEvent' then 1 else 0 end) as prs,
-    sum(case ev.type when 'PushEvent' then 1 else 0 end) as commits,
-    sum(case ev.type when 'PullRequestReviewCommentEvent' then 1 else 0 end) as review_comments,
-    sum(case ev.type when 'IssueCommentEvent' then 1 else 0 end) as issue_comments,
-    sum(case ev.type when 'CommitCommentEvent' then 1 else 0 end) as commit_comments
+    count(distinct ev.id) filter(where ev.type = 'IssuesEvent') as issues,
+    count(distinct ev.id) filter(where ev.type = 'PullRequestEvent') as prs,
+    count(distinct ev.id) filter(where ev.type = 'PushEvent') as commits,
+    count(distinct ev.id) filter(where ev.type = 'PullRequestReviewCommentEvent') as review_comments,
+    count(distinct ev.id) filter(where ev.type = 'IssueCommentEvent') as issue_comments,
+    count(distinct ev.id) filter(where ev.type = 'CommitCommentEvent') as commit_comments
   from
     gha_repos r,
     gha_events ev
@@ -106,7 +106,7 @@ from (
     r.id = ev.repo_id
     and ev.created_at >= '{{from}}'
     and ev.created_at < '{{to}}'
-    and (lower(dup_actor_login) {{exclude_bots}})
+    and (lower(ev.dup_actor_login) {{exclude_bots}})
   group by
     coalesce(ecf.repo_group, r.repo_group)
   order by
