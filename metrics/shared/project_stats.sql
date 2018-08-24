@@ -209,6 +209,36 @@ where
   {{period:created_at}}
   and (lower(dup_user_login) {{exclude_bots}})
 union select sub.repo_group,
+  'Commits authors' as name,
+  count(distinct sub.author_name) as value
+from (
+  select 'pstat,' || coalesce(ecf.repo_group, r.repo_group) as repo_group,
+    c.author_name
+  from
+    gha_repos r,
+    gha_commits c
+  left join
+    gha_events_commits_files ecf
+  on
+    ecf.event_id = c.event_id
+  where
+    {{period:c.dup_created_at}}
+    and c.dup_repo_id = r.id
+    and (lower(c.dup_actor_login) {{exclude_bots}})
+  ) sub
+where
+  sub.repo_group is not null
+group by
+  sub.repo_group
+union select 'pstat,All' as repo_group,
+  'Commits authors' as name,
+  count(distinct author_name) as value
+from
+  gha_commits
+where
+  {{period:dup_created_at}}
+  and (lower(dup_actor_login) {{exclude_bots}})
+union select sub.repo_group,
   'Issues' as name,
   count(distinct sub.id) as value
 from (
