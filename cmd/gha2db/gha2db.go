@@ -920,7 +920,10 @@ func writeToDBOldFmt(db *sql.DB, ctx *lib.Ctx, eventID string, ev *lib.EventOld,
 					sha,
 					eventID,
 					maybeHide(lib.TruncToBytes(commit[3].(string), 160)),
-					lib.TruncToBytes(commit[1].(string), 160),
+					// TODO: FIXME: change when past data is received
+					lib.TruncToBytes(commit[3].(string), 160),
+					//lib.TruncToBytes(commit[1].(string), 160),
+					// TODO: FIXME: change when past data is received
 					lib.TruncToBytes(commit[2].(string), 0xffff),
 					commit[4].(bool),
 					actor.ID,
@@ -1176,7 +1179,10 @@ func writeToDB(db *sql.DB, ctx *lib.Ctx, ev *lib.Event, shas map[string]string) 
 				sha,
 				eventID,
 				maybeHide(lib.TruncToBytes(commit.Author.Name, 160)),
-				lib.TruncToBytes(commit.Author.Email, 160),
+				// TODO: FIXME: change when past data is received
+				lib.TruncToBytes(commit.Author.Name, 160),
+				//lib.TruncToBytes(commit.Author.Email, 160),
+				// TODO: FIXME: change when past data is received
 				lib.TruncToBytes(commit.Message, 0xffff),
 				commit.Distinct,
 				ev.Actor.ID,
