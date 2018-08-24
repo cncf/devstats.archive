@@ -913,13 +913,17 @@ func writeToDBOldFmt(db *sql.DB, ctx *lib.Ctx, eventID string, ev *lib.EventOld,
 				con,
 				ctx,
 				"insert into gha_commits("+
-					"sha, event_id, author_name, message, is_distinct, "+
+					"sha, event_id, author_name, encrypted_email, message, is_distinct, "+
 					"dup_actor_id, dup_actor_login, dup_repo_id, dup_repo_name, dup_type, dup_created_at"+
-					") "+lib.NValues(11),
+					") "+lib.NValues(12),
 				lib.AnyArray{
 					sha,
 					eventID,
 					maybeHide(lib.TruncToBytes(commit[3].(string), 160)),
+					// TODO: FIXME: change when past data is received
+					lib.TruncToBytes(commit[3].(string), 160),
+					//lib.TruncToBytes(commit[1].(string), 160),
+					// TODO: FIXME: change when past data is received
 					lib.TruncToBytes(commit[2].(string), 0xffff),
 					commit[4].(bool),
 					actor.ID,
@@ -1168,13 +1172,17 @@ func writeToDB(db *sql.DB, ctx *lib.Ctx, ev *lib.Event, shas map[string]string) 
 			con,
 			ctx,
 			"insert into gha_commits("+
-				"sha, event_id, author_name, message, is_distinct, "+
+				"sha, event_id, author_name, encrypted_email, message, is_distinct, "+
 				"dup_actor_id, dup_actor_login, dup_repo_id, dup_repo_name, dup_type, dup_created_at"+
-				") "+lib.NValues(11),
+				") "+lib.NValues(12),
 			lib.AnyArray{
 				sha,
 				eventID,
 				maybeHide(lib.TruncToBytes(commit.Author.Name, 160)),
+				// TODO: FIXME: change when past data is received
+				lib.TruncToBytes(commit.Author.Name, 160),
+				//lib.TruncToBytes(commit.Author.Email, 160),
+				// TODO: FIXME: change when past data is received
 				lib.TruncToBytes(commit.Message, 0xffff),
 				commit.Distinct,
 				ev.Actor.ID,

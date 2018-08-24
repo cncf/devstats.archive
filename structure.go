@@ -270,6 +270,7 @@ func Structure(ctx *Ctx) {
 					"sha varchar(40) not null, "+
 					"event_id bigint not null, "+
 					"author_name varchar(160) not null, "+
+					"encrypted_email varchar(160) not null, "+
 					"message text not null, "+
 					"is_distinct boolean not null, "+
 					"dup_actor_id bigint not null, "+
@@ -285,6 +286,9 @@ func Structure(ctx *Ctx) {
 	}
 	if ctx.Index {
 		ExecSQLWithErr(c, ctx, "create index commits_event_id_idx on gha_commits(event_id)")
+		ExecSQLWithErr(c, ctx, "create index commits_sha_idx on gha_commits(sha)")
+		ExecSQLWithErr(c, ctx, "create index commits_author_name_idx on gha_commits(author_name)")
+		ExecSQLWithErr(c, ctx, "create index commits_encrypted_email_idx on gha_commits(encrypted_email)")
 		ExecSQLWithErr(c, ctx, "create index commits_dup_actor_id_idx on gha_commits(dup_actor_id)")
 		ExecSQLWithErr(c, ctx, "create index commits_dup_actor_login_idx on gha_commits(dup_actor_login)")
 		ExecSQLWithErr(c, ctx, "create index commits_dup_repo_id_idx on gha_commits(dup_repo_id)")

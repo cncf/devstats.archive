@@ -210,10 +210,10 @@ where
   and (lower(dup_user_login) {{exclude_bots}})
 union select sub.repo_group,
   'Commits authors' as name,
-  count(distinct sub.author_name) as value
+  count(distinct sub.encrypted_email) as value
 from (
   select 'pstat,' || coalesce(ecf.repo_group, r.repo_group) as repo_group,
-    c.author_name
+    c.encrypted_email
   from
     gha_repos r,
     gha_commits c
@@ -232,7 +232,7 @@ group by
   sub.repo_group
 union select 'pstat,All' as repo_group,
   'Commits authors' as name,
-  count(distinct author_name) as value
+  count(distinct encrypted_email) as value
 from
   gha_commits
 where
