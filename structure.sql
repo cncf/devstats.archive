@@ -160,6 +160,7 @@ CREATE TABLE gha_commits (
     sha character varying(40) NOT NULL,
     event_id bigint NOT NULL,
     author_name character varying(160) NOT NULL,
+    encrypted_email character varying(160) NOT NULL,
     message text NOT NULL,
     is_distinct boolean NOT NULL,
     dup_actor_id bigint NOT NULL,

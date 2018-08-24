@@ -703,35 +703,36 @@ func addText(con *sql.DB, ctx *lib.Ctx, args ...interface{}) (err error) {
 }
 
 // Add commit
-// sha, event_id, author_name, message, dup_actor_id, dup_actor_login,
+// sha, event_id, author_name, encrypted_email, message, dup_actor_id, dup_actor_login,
 // dup_repo_id, dup_repo_name, dup_type, dup_created_at
 func addCommit(con *sql.DB, ctx *lib.Ctx, args ...interface{}) (err error) {
-	if len(args) != 10 {
-		err = fmt.Errorf("addCommit: expects 10 variadic parameters")
+	if len(args) != 11 {
+		err = fmt.Errorf("addCommit: expects 11 variadic parameters")
 		return
 	}
 
 	// New args
 	newArgs := lib.AnyArray{
-		args[0], // sha
-		args[1], // event_id
-		args[2], // author_name
-		args[3], // message
-		true,    // is_distinct
-		args[4], // dup_actor_id
-		args[5], // dup_actor_login
-		args[6], // dup_repo_id
-		args[7], // dup_repo_name
-		args[8], // dup_type
-		args[9], // dup_created_at
+		args[0],  // sha
+		args[1],  // event_id
+		args[2],  // author_name
+		args[3],  // encrypted_email
+		args[4],  // message
+		true,     // is_distinct
+		args[5],  // dup_actor_id
+		args[6],  // dup_actor_login
+		args[7],  // dup_repo_id
+		args[8],  // dup_repo_name
+		args[9],  // dup_type
+		args[10], // dup_created_at
 	}
 	_, err = lib.ExecSQL(
 		con,
 		ctx,
 		"insert into gha_commits("+
-			"sha, event_id, author_name, message, is_distinct, "+
+			"sha, event_id, author_name, encrypted_email, message, is_distinct, "+
 			"dup_actor_id, dup_actor_login, dup_repo_id, dup_repo_name, dup_type, dup_created_at"+
-			") "+lib.NValues(11),
+			") "+lib.NValues(12),
 		newArgs...,
 	)
 	return
