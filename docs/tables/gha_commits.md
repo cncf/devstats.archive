@@ -16,6 +16,7 @@
 - `sha`: commits unique SHA.
 - `event_id`: GitHub event ID refering to this commit.
 - `author_name`: Author name as provided by commiter when doing `git commit`. This is *NOT* a GitHub login.
+- `encrypted_email`: Author email encrypted by GitHub, for example `76f8b7dc8ef32a26553fcbdb25b75cb20f767b8e@gmail.com`.
 - `message`: Commit message.
 - `is_distinct`: boolean true/false.
 
