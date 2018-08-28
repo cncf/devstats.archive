@@ -30,10 +30,6 @@ do
   then
     icon="cncf"
   fi
-  if [ "$icon" = "tikv" ]
-  then
-    icon="cncf"
-  fi
   icontype=`./devel/get_icon_type.sh "$proj"` || exit 1
   path=$icon
   if [ "$path" = "devstats" ]
