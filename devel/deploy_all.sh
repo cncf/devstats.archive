@@ -161,7 +161,7 @@ do
     PROJ=etcd           PROJDB=etcd           PROJREPO="coreos/etcd"                 ORGNAME=etcd         PORT=3025 ICON=cncf         GRAFSUFF=etcd           GA="UA-108085315-30" ./devel/deploy_proj.sh || exit 27
   elif [ "$proj" = "tikv" ]
   then
-    PROJ=tikv           PROJDB=tikv           PROJREPO="tikv/tikv"                   ORGNAME=TiKV         PORT=3026 ICON=cncf         GRAFSUFF=tikv           GA="UA-108085315-31" ./devel/deploy_proj.sh || exit 28
+    PROJ=tikv           PROJDB=tikv           PROJREPO="tikv/tikv"                   ORGNAME=TiKV         PORT=3026 ICON=tikv         GRAFSUFF=tikv           GA="UA-108085315-31" ./devel/deploy_proj.sh || exit 28
   elif [ "$proj" = "opencontainers" ]
   then
     PROJ=opencontainers PROJDB=opencontainers PROJREPO="opencontainers/runc"         ORGNAME=OCI          PORT=3100 ICON="-"          GRAFSUFF=opencontainers GA="UA-108085315-19" ./devel/deploy_proj.sh || exit 29
