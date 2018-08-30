@@ -59,8 +59,9 @@ func writeToDBOldFmt(db *sql.DB, ctx *lib.Ctx, eventID string, ev *lib.EventOld,
 			)
 			aff, err := res.RowsAffected()
 			lib.FatalOnError(err)
-			if aff < 1 {
+			if aff < 1 && ctx.Debug > 0 {
 				lib.Printf("Warning: commit not found sha=%s, event_id=%s, name: %s\n", sha, eventID, maybeHide(lib.TruncToBytes(commit[3].(string), 160)))
+				return -1
 			}
 		}
 		return 1
@@ -106,8 +107,9 @@ func writeToDB(db *sql.DB, ctx *lib.Ctx, ev *lib.Event, shas map[string]string) 
 		)
 		aff, err := res.RowsAffected()
 		lib.FatalOnError(err)
-		if aff < 1 {
+		if aff < 1 && ctx.Debug > 0 {
 			lib.Printf("Warning: commit not found sha=%s, event_id=%s, name: %s\n", sha, eventID, maybeHide(lib.TruncToBytes(commit.Author.Name, 160)))
+			return -1
 		}
 		return 1
 	}
