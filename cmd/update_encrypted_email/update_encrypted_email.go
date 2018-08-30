@@ -63,9 +63,10 @@ func writeToDBOldFmt(db *sql.DB, ctx *lib.Ctx, eventID string, ev *lib.EventOld,
 				lib.Printf("Warning: commit not found sha=%s, event_id=%s, name: %s\n", sha, eventID, maybeHide(lib.TruncToBytes(commit[3].(string), 160)))
 			}
 		}
+		return 1
 	}
 
-	return 1
+	return 0
 }
 
 // Write entire GHA event (in a new 2015+ format) into Postgres DB
@@ -108,9 +109,10 @@ func writeToDB(db *sql.DB, ctx *lib.Ctx, ev *lib.Event, shas map[string]string) 
 		if aff < 1 {
 			lib.Printf("Warning: commit not found sha=%s, event_id=%s, name: %s\n", sha, eventID, maybeHide(lib.TruncToBytes(commit.Author.Name, 160)))
 		}
+		return 1
 	}
 
-	return 1
+	return 0
 }
 
 // parseJSON - parse signle GHA JSON event
