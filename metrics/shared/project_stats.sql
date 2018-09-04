@@ -213,9 +213,7 @@ union select sub.repo_group,
   count(distinct sub.encrypted_email) as value
 from (
   select 'pstat,' || coalesce(ecf.repo_group, r.repo_group) as repo_group,
--- TODO:
---    c.encrypted_email
-    c.author_name as encrypted_email
+    c.encrypted_email
   from
     gha_repos r,
     gha_commits c
@@ -234,9 +232,7 @@ group by
   sub.repo_group
 union select 'pstat,All' as repo_group,
   'Commits authors' as name,
--- TODO:
---  count(distinct encrypted_email) as value
-  count(distinct author_name) as value
+  count(distinct encrypted_email) as value
 from
   gha_commits
 where
