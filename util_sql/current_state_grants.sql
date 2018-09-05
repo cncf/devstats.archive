@@ -3,3 +3,8 @@ grant select on current_state.milestones to gha_admin;
 grant select on current_state.issue_labels to gha_admin;
 grant select on current_state.prs to gha_admin;
 grant select on current_state.issues to gha_admin;
+grant usage on schema current_state to devstats_team;
+grant select on current_state.milestones to devstats_team;
+grant select on current_state.issue_labels to devstats_team;
+grant select on current_state.prs to devstats_team;
+grant select on current_state.issues to devstats_team;
