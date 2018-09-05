@@ -42,7 +42,7 @@ CREATE MATERIALIZED VIEW current_state.issue_labels AS
    FROM (label_fields
      JOIN event_rank ON (((label_fields.issue_id = event_rank.issue_id) AND (label_fields.event_id = event_rank.event_id) AND (event_rank.rank = 1))))
   ORDER BY label_fields.issue_id, (current_state.label_prefix((label_fields.dup_label_name)::text)), (current_state.label_suffix((label_fields.dup_label_name)::text))
-  WITH NO DATA;
+  ;
 ALTER TABLE current_state.issue_labels OWNER TO devstats_team;
 CREATE MATERIALIZED VIEW current_state.milestones AS
  WITH milestone_latest AS (
@@ -68,7 +68,7 @@ CREATE MATERIALIZED VIEW current_state.milestones AS
     milestone_latest.repo_name
    FROM milestone_latest
   WHERE (milestone_latest.rank = 1)
-  WITH NO DATA;
+  ;
 ALTER TABLE current_state.milestones OWNER TO devstats_team;
 CREATE MATERIALIZED VIEW current_state.issues AS
  WITH issue_latest AS (
@@ -111,7 +111,7 @@ CREATE MATERIALIZED VIEW current_state.issues AS
    FROM issue_latest
   WHERE (issue_latest.rank = 1)
   ORDER BY issue_latest.repo_name, issue_latest.number
-  WITH NO DATA;
+  ;
 ALTER TABLE current_state.issues OWNER TO devstats_team;
 CREATE TABLE current_state.priorities (
     priority text,
@@ -184,7 +184,7 @@ CREATE MATERIALIZED VIEW current_state.prs AS
    FROM pr_latest
   WHERE (pr_latest.rank = 1)
   ORDER BY pr_latest.repo_name, pr_latest.number
-  WITH NO DATA;
+  ;
 ALTER TABLE current_state.prs OWNER TO postgres;
 CREATE INDEX issue_labels_issue_id ON current_state.issue_labels USING btree (issue_id);
 CREATE INDEX issue_labels_label_parts ON current_state.issue_labels USING btree (prefix, label);
