@@ -21,7 +21,7 @@ where
       'kubernetes-graveyard', 'kubernetes-incubator-retired', 'kubernetes-sig-testing',
       'kubernetes-providers', 'kubernetes-addons', 'kubernetes-retired',
       'kubernetes-extensions', 'kubernetes-federation', 'kubernetes-security',
-      'kubernetes-sidecars', 'kubernetes-tools', 'kubernetes-test'
+      'kubernetes-sidecars', 'kubernetes-tools', 'kubernetes-test', 'kubernetes-sigs'
     )
     or name in (
       'GoogleCloudPlatform/kubernetes', 'kubernetes' , 'kubernetes-client'

@@ -1,3 +1,4 @@
+create materialized view current_state.issue_labels as
 with label_fields as (
           select gha_issues_labels.issue_id,
              gha_issues_labels.label_id,

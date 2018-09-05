@@ -1,3 +1,4 @@
+create materialized view current_state.milestones as
 with milestone_latest as (
           select gha_milestones.id,
              gha_milestones.title as milestone,
