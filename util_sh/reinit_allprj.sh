@@ -6,7 +6,6 @@ then
 fi
 ./devel/drop_psql_db.sh allprj &&\
 ./all/psql.sh &&\
-./devel/restore_artificial.sh allprj &&\
 ONLY=all SKIPTEMP=1 ./devel/reinit.sh &&\
 ONLY=all ./devel/vars_all.sh &&\
 ONLY=allprj cron/cron_db_backup_all.sh
