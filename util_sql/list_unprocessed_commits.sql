@@ -19,5 +19,5 @@ where
   and cf.sha is null
   and sub.sha is not null
   and sub.sha <> ''
-  and sub.repo like '%/%'
+  and sub.repo like '%_/_%'
 ;

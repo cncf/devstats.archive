@@ -312,7 +312,7 @@ func ghMilestone(con *sql.Tx, ctx *Ctx, eid int64, ic *IssueConfig, maybeHide fu
 					"dupn_creator_login) values("+
 					"%s, %s, %s, %s, %s, %s, "+
 					"%s, %s, %s, %s, %s, %s, %s, "+
-					"%s, %s, (select max(repo_id) from gha_events where dup_repo_name = %s), %s, %s, %s, "+
+					"%s, %s, (select coalesce(max(repo_id), -1) from gha_events where dup_repo_name = %s), %s, %s, %s, "+
 					"%s)",
 				NValue(1),
 				NValue(2),
@@ -433,7 +433,7 @@ func ArtificialPREvent(c *sql.DB, ctx *Ctx, cfg *IssueConfig, pr *github.PullReq
 	event := cfg.GhEvent
 	issue := cfg.GhIssue
 	iid := *issue.ID
-	actor := cfg.GhEvent.Actor
+	actor := event.Actor
 
 	// Start transaction
 	tc, err := c.Begin()
@@ -479,7 +479,7 @@ func ArtificialPREvent(c *sql.DB, ctx *Ctx, cfg *IssueConfig, pr *github.PullReq
 				"%s, %s, %s, %s, %s, %s, %s, %s, "+
 				"%s, %s, %s, %s, %s, "+
 				"%s, %s, %s, %s, %s, "+
-				"%s, %s, (select max(repo_id) from gha_events where dup_repo_name = %s), %s, %s, %s, "+
+				"%s, %s, (select coalesce(max(repo_id), -1) from gha_events where dup_repo_name = %s), %s, %s, %s, "+
 				"%s, %s, %s)",
 			NValue(1),
 			NValue(2),
@@ -565,7 +565,7 @@ func ArtificialPREvent(c *sql.DB, ctx *Ctx, cfg *IssueConfig, pr *github.PullReq
 				"into gha_events("+
 					"id, type, actor_id, repo_id, public, created_at, "+
 					"dup_actor_login, dup_repo_name, org_id, forkee_id) "+
-					"values(%s, %s, %s, (select max(repo_id) from gha_events where dup_repo_name = %s), true, %s, "+
+					"values(%s, %s, %s, (select coalesce(max(repo_id), -1) from gha_events where dup_repo_name = %s), true, %s, "+
 					"%s, %s, (select max(org_id) from gha_events where dup_repo_name = %s), null)",
 				NValue(1),
 				NValue(2),
@@ -603,7 +603,7 @@ func ArtificialPREvent(c *sql.DB, ctx *Ctx, cfg *IssueConfig, pr *github.PullReq
 					"values(%s, null, null, null, null, null, %s, "+
 					"%s, %s, null, null, null, null, "+
 					"null, %s, null, null, null, "+
-					"%s, %s, (select max(repo_id) from gha_events where dup_repo_name = %s), %s, %s, %s)",
+					"%s, %s, (select coalesce(max(repo_id), -1) from gha_events where dup_repo_name = %s), %s, %s, %s)",
 				NValue(1),
 				NValue(2),
 				NValue(3),
@@ -770,7 +770,7 @@ func ArtificialEvent(c *sql.DB, ctx *Ctx, cfg *IssueConfig) (err error) {
 				"dup_user_login, dupn_assignee_login, is_pull_request) "+
 				"values(%s, %s, %s, %s, %s, %s, %s, "+
 				"%s, %s, %s, %s, %s, %s, %s, "+
-				"%s, %s, (select max(repo_id) from gha_events where dup_repo_name = %s), %s, %s, %s, "+
+				"%s, %s, (select coalesce(max(repo_id), -1) from gha_events where dup_repo_name = %s), %s, %s, %s, "+
 				"%s, %s, %s) ",
 			NValue(1),
 			NValue(2),
@@ -837,7 +837,7 @@ func ArtificialEvent(c *sql.DB, ctx *Ctx, cfg *IssueConfig) (err error) {
 				"into gha_events("+
 					"id, type, actor_id, repo_id, public, created_at, "+
 					"dup_actor_login, dup_repo_name, org_id, forkee_id) "+
-					"values(%s, %s, %s, (select max(repo_id) from gha_events where dup_repo_name = %s), true, %s, "+
+					"values(%s, %s, %s, (select coalesce(max(repo_id), -1) from gha_events where dup_repo_name = %s), true, %s, "+
 					"%s, %s, (select max(org_id) from gha_events where dup_repo_name = %s), null)",
 				NValue(1),
 				NValue(2),
@@ -875,7 +875,7 @@ func ArtificialEvent(c *sql.DB, ctx *Ctx, cfg *IssueConfig) (err error) {
 					"values(%s, null, null, null, null, null, %s, "+
 					"%s, null, null, null, null, null, "+
 					"null, %s, null, null, null, "+
-					"%s, %s, (select max(repo_id) from gha_events where dup_repo_name = %s), %s, %s, %s)",
+					"%s, %s, (select coalesce(max(repo_id), -1) from gha_events where dup_repo_name = %s), %s, %s, %s)",
 				NValue(1),
 				NValue(2),
 				NValue(3),
@@ -907,24 +907,26 @@ func ArtificialEvent(c *sql.DB, ctx *Ctx, cfg *IssueConfig) (err error) {
 		ExecSQLTxWithErr(
 			tc,
 			ctx,
-			fmt.Sprintf(
-				"insert into gha_issues_labels(issue_id, event_id, label_id, "+
-					"dup_actor_id, dup_actor_login, dup_repo_id, dup_repo_name, "+
-					"dup_type, dup_created_at, dup_issue_number, dup_label_name) "+
-					"values(%s, %s, %s, "+
-					"%s, %s, (select max(repo_id) from gha_events where dup_repo_name = %s), %s, "+
-					"%s, %s, %s, %s)",
-				NValue(1),
-				NValue(2),
-				NValue(3),
-				NValue(4),
-				NValue(5),
-				NValue(6),
-				NValue(7),
-				NValue(8),
-				NValue(9),
-				NValue(10),
-				NValue(11),
+			InsertIgnore(
+				fmt.Sprintf(
+					"into gha_issues_labels(issue_id, event_id, label_id, "+
+						"dup_actor_id, dup_actor_login, dup_repo_id, dup_repo_name, "+
+						"dup_type, dup_created_at, dup_issue_number, dup_label_name) "+
+						"values(%s, %s, %s, "+
+						"%s, %s, (select coalesce(max(repo_id), -1) from gha_events where dup_repo_name = %s), %s, "+
+						"%s, %s, %s, %s)",
+					NValue(1),
+					NValue(2),
+					NValue(3),
+					NValue(4),
+					NValue(5),
+					NValue(6),
+					NValue(7),
+					NValue(8),
+					NValue(9),
+					NValue(10),
+					NValue(11),
+				),
 			),
 			AnyArray{
 				iid,
@@ -971,7 +973,7 @@ func ArtificialEvent(c *sql.DB, ctx *Ctx, cfg *IssueConfig) (err error) {
 // SyncIssuesState synchonizes issues states
 // manual:
 //  false: normal devstats sync cron mode using 'ghapi2db' tool
-//  true: manual sync using'sync_issues' tool
+//  true: manual sync using 'sync_issues' tool
 func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.DB, issues map[int64]IssueConfigAry, prs map[int64]github.PullRequest, manual bool) {
 	nIssuesBefore := 0
 	for _, issueConfig := range issues {
