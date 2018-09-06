@@ -270,7 +270,6 @@ func Structure(ctx *Ctx) {
 					"sha varchar(40) not null, "+
 					"event_id bigint not null, "+
 					"author_name varchar(160) not null, "+
-					"encrypted_email varchar(160) not null, "+
 					"message text not null, "+
 					"is_distinct boolean not null, "+
 					"dup_actor_id bigint not null, "+
@@ -279,6 +278,7 @@ func Structure(ctx *Ctx) {
 					"dup_repo_name varchar(160) not null, "+
 					"dup_type varchar(40) not null, "+
 					"dup_created_at {{ts}} not null, "+
+					"encrypted_email varchar(160) not null, "+
 					"primary key(sha, event_id)"+
 					")",
 			),
