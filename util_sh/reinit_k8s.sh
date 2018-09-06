@@ -4,6 +4,7 @@ then
   echo "You need to set PG_PASS environment variable to run this script"
   exit 1
 fi
+./devel/drop_psql_db.sh gha &&\
 ./kubernetes/psql.sh &&\
 ./devel/restore_artificial.sh gha &&\
 sudo -u postgres psql gha -f util_sql/current_state_all.sql &&\
