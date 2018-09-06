@@ -26,7 +26,7 @@ where
     or name in (
       'GoogleCloudPlatform/kubernetes', 'kubernetes' , 'kubernetes-client'
     )
-  ) and name not in ('kubernetes/helm', 'kubernetes/deployment-manager', 'kubernetes/charts')
+  ) and name not in ('kubernetes/helm', 'kubernetes/deployment-manager', 'kubernetes/charts', 'kubernetes/application-dm-templates')
 ;
 
 -- Prometheus
@@ -259,7 +259,7 @@ set
   alias = 'Helm'
 where
   org_login in ('kubernetes-helm', 'kubernetes-charts', 'helm')
-  or name in ('kubernetes/helm', 'kubernetes/deployment-manager', 'kubernetes/charts')
+  or name in ('kubernetes/helm', 'kubernetes/deployment-manager', 'kubernetes/charts', 'kubernetes/application-dm-templates')
 ;
 
 -- OpenMetrics
