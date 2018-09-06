@@ -185,7 +185,7 @@ CREATE MATERIALIZED VIEW current_state.prs AS
   WHERE (pr_latest.rank = 1)
   ORDER BY pr_latest.repo_name, pr_latest.number
   ;
-ALTER TABLE current_state.prs OWNER TO postgres;
+ALTER TABLE current_state.prs OWNER TO devstats_team;
 CREATE INDEX issue_labels_issue_id ON current_state.issue_labels USING btree (issue_id);
 CREATE INDEX issue_labels_label_parts ON current_state.issue_labels USING btree (prefix, label);
 CREATE INDEX issue_labels_prefix ON current_state.issue_labels USING btree (prefix);
