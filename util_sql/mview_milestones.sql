@@ -13,6 +13,7 @@ with milestone_latest as (
             from gha_milestones
          )
 select milestone_latest.id,
+     milestone_latest.event_id,
      milestone_latest.milestone,
      milestone_latest.state,
      milestone_latest.created_at,
@@ -20,4 +21,5 @@ select milestone_latest.id,
      milestone_latest.closed_at,
      milestone_latest.repo_id,
      milestone_latest.repo_name
-from milestone_latest;
+from milestone_latest
+where (milestone_latest.rank = 1);
