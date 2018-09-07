@@ -2,7 +2,13 @@ CREATE INDEX issue_labels_issue_id ON current_state.issue_labels USING btree (is
 CREATE INDEX issue_labels_label_parts ON current_state.issue_labels USING btree (prefix, label);
 CREATE INDEX issue_labels_prefix ON current_state.issue_labels USING btree (prefix);
 CREATE INDEX issues_id ON current_state.issues USING btree (id);
+CREATE INDEX issues_event_id ON current_state.issues USING btree (event_id);
 CREATE INDEX issues_milestone ON current_state.issues USING btree (milestone);
 CREATE INDEX issues_number ON current_state.issues USING btree (number);
 CREATE INDEX milestones_id ON current_state.milestones USING btree (id);
+CREATE INDEX milestones_event_id ON current_state.milestones USING btree (event_id);
 CREATE INDEX milestones_name ON current_state.milestones USING btree (milestone);
+CREATE INDEX prs_id ON current_state.prs USING btree (id);
+CREATE INDEX prs_event_id ON current_state.prs USING btree (event_id);
+CREATE INDEX prs_milestone ON current_state.prs USING btree (milestone);
+CREATE INDEX prs_number ON current_state.prs USING btree (number);

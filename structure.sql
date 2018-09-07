@@ -177,6 +177,7 @@ CREATE MATERIALIZED VIEW current_state.milestones AS
            FROM public.gha_milestones
         )
  SELECT milestone_latest.id,
+    milestone_latest.event_id,
     milestone_latest.milestone,
     milestone_latest.state,
     milestone_latest.created_at,
@@ -231,6 +232,7 @@ ALTER TABLE public.gha_issues OWNER TO gha_admin;
 CREATE MATERIALIZED VIEW current_state.issues AS
  WITH issue_latest AS (
          SELECT issues.id,
+            issues.event_id,
             issues.dup_repo_id AS repo_id,
             issues.dup_repo_name AS repo_name,
             issues.number,
@@ -241,16 +243,17 @@ CREATE MATERIALIZED VIEW current_state.issues AS
             issues.title,
             issues.user_id AS creator_id,
             issues.assignee_id,
-            issues.dup_created_at AS created_at,
+            issues.created_at,
             issues.updated_at,
             issues.closed_at,
             issues.body,
             issues.comments,
             row_number() OVER (PARTITION BY issues.id ORDER BY issues.updated_at DESC, issues.event_id DESC) AS rank
            FROM (public.gha_issues issues
-             JOIN current_state.milestones ON ((issues.milestone_id = milestones.id)))
+             LEFT JOIN current_state.milestones ON ((issues.milestone_id = milestones.id)))
         )
  SELECT issue_latest.id,
+    issue_latest.event_id,
     issue_latest.repo_id,
     issue_latest.repo_name,
     issue_latest.number,
@@ -373,6 +376,7 @@ ALTER TABLE public.gha_pull_requests OWNER TO gha_admin;
 CREATE MATERIALIZED VIEW current_state.prs AS
  WITH pr_latest AS (
          SELECT prs.id,
+            prs.event_id,
             prs.dup_repo_id AS repo_id,
             prs.dup_repo_name AS repo_name,
             prs.number,
@@ -382,7 +386,7 @@ CREATE MATERIALIZED VIEW current_state.prs AS
             prs.title,
             prs.user_id AS creator_id,
             prs.assignee_id,
-            prs.dup_created_at AS created_at,
+            prs.created_at,
             prs.updated_at,
             prs.closed_at,
             prs.merged_at,
@@ -393,6 +397,7 @@ CREATE MATERIALIZED VIEW current_state.prs AS
              LEFT JOIN current_state.milestones ON ((prs.milestone_id = milestones.id)))
         )
  SELECT pr_latest.id,
+    pr_latest.event_id,
     pr_latest.repo_id,
     pr_latest.repo_name,
     pr_latest.number,
@@ -1329,6 +1334,13 @@ CREATE INDEX issue_labels_prefix ON current_state.issue_labels USING btree (pref
 
 
 --
+-- Name: issues_event_id; Type: INDEX; Schema: current_state; Owner: devstats_team
+--
+
+CREATE INDEX issues_event_id ON current_state.issues USING btree (event_id);
+
+
+--
 -- Name: issues_id; Type: INDEX; Schema: current_state; Owner: devstats_team
 --
 
@@ -1350,6 +1362,13 @@ CREATE INDEX issues_number ON current_state.issues USING btree (number);
 
 
 --
+-- Name: milestones_event_id; Type: INDEX; Schema: current_state; Owner: devstats_team
+--
+
+CREATE INDEX milestones_event_id ON current_state.milestones USING btree (event_id);
+
+
+--
 -- Name: milestones_id; Type: INDEX; Schema: current_state; Owner: devstats_team
 --
 
@@ -1361,6 +1380,34 @@ CREATE INDEX milestones_id ON current_state.milestones USING btree (id);
 --
 
 CREATE INDEX milestones_name ON current_state.milestones USING btree (milestone);
+
+
+--
+-- Name: prs_event_id; Type: INDEX; Schema: current_state; Owner: devstats_team
+--
+
+CREATE INDEX prs_event_id ON current_state.prs USING btree (event_id);
+
+
+--
+-- Name: prs_id; Type: INDEX; Schema: current_state; Owner: devstats_team
+--
+
+CREATE INDEX prs_id ON current_state.prs USING btree (id);
+
+
+--
+-- Name: prs_milestone; Type: INDEX; Schema: current_state; Owner: devstats_team
+--
+
+CREATE INDEX prs_milestone ON current_state.prs USING btree (milestone);
+
+
+--
+-- Name: prs_number; Type: INDEX; Schema: current_state; Owner: devstats_team
+--
+
+CREATE INDEX prs_number ON current_state.prs USING btree (number);
 
 
 --
@@ -2964,6 +3011,41 @@ CREATE INDEX texts_type_idx ON public.gha_texts USING btree (type);
 --
 
 CREATE INDEX vars_name_idx ON public.gha_vars USING btree (name);
+
+
+--
+-- Name: SCHEMA current_state; Type: ACL; Schema: -; Owner: devstats_team
+--
+
+GRANT USAGE ON SCHEMA current_state TO gha_admin;
+
+
+--
+-- Name: TABLE issue_labels; Type: ACL; Schema: current_state; Owner: devstats_team
+--
+
+GRANT SELECT ON TABLE current_state.issue_labels TO gha_admin;
+
+
+--
+-- Name: TABLE milestones; Type: ACL; Schema: current_state; Owner: devstats_team
+--
+
+GRANT SELECT ON TABLE current_state.milestones TO gha_admin;
+
+
+--
+-- Name: TABLE issues; Type: ACL; Schema: current_state; Owner: devstats_team
+--
+
+GRANT SELECT ON TABLE current_state.issues TO gha_admin;
+
+
+--
+-- Name: TABLE prs; Type: ACL; Schema: current_state; Owner: devstats_team
+--
+
+GRANT SELECT ON TABLE current_state.prs TO gha_admin;
 
 
 --
