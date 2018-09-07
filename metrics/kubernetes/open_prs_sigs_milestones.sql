@@ -29,7 +29,7 @@ with issues as (
   where
     sub.closed_at is null
 ), prs as (
-  select i.issue_id,
+  select distinct i.issue_id,
     i.event_id,
     i.milestone_id,
     i.repo
