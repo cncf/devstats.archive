@@ -1,6 +1,7 @@
 create materialized view current_state.issues as
 with issue_latest as (
           select issues.id,
+             issues.event_id,
              issues.dup_repo_id as repo_id,
              issues.dup_repo_name as repo_name,
              issues.number,
@@ -21,6 +22,7 @@ with issue_latest as (
               left join current_state.milestones on issues.milestone_id = milestones.id)
          )
 select issue_latest.id,
+     issue_latest.event_id,
      issue_latest.repo_id,
      issue_latest.repo_name,
      issue_latest.number,
