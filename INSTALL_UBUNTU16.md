@@ -85,7 +85,7 @@ Prerequisites:
     - Tests should pass.
 
 10. We have both databases running and Go tools installed, let's try to sync database dump from k8s.devstats.cncf.io manually:
-    - Set reuse TCP connections: `sudo ./scripts/net_tcp_config.sh`
+    - Set reuse TCP connections: `sudo ./cron/net_tcp_config.sh`
     - On some VMs `tcp_tw_recycle` will be unavailable, ignore the warning.
     - We need to prefix call with `GHA2DB_LOCAL=1` to enable using tools from "./" directory
     - You need to have GitHub OAuth token, either put this token in `/etc/github/oauth` file or specify token value via `GHA2DB_GITHUB_OAUTH=deadbeef654...10a0` (here you token value)

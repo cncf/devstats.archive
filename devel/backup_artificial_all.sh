@@ -14,5 +14,5 @@ fi
 
 for db in $all
 do
- ./devel/backup_artificial.sh "$db" || exit 1
+ ./cron/backup_artificial.sh "$db" || exit 1
 done
