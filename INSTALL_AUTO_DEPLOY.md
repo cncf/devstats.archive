@@ -21,7 +21,7 @@ Prerequisites:
     - [errcheck](https://github.com/kisielk/errcheck): `go get github.com/kisielk/errcheck`
 2. Go to `$GOPATH/src/` and clone devstats there:
     - `git clone https://github.com/cncf/devstats.git`, cd `devstats`
-    - Set reuse TCP connections: `./scripts/net_tcp_config.sh`
+    - Set reuse TCP connections: `./cron/net_tcp_config.sh`
     - This variable can be unavailable on your system, ignore the warining if this is the case.
 3. If you want to make changes and PRs, please clone `devstats` from GitHub UI, and clone your forked version instead, like this:
     - `git clone https://github.com/your_github_username/devstats.git`
