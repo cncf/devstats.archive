@@ -1,6 +1,7 @@
 create materialized view current_state.prs as
 with pr_latest as (
           select prs.id,
+             prs.event_id,
              prs.dup_repo_id as repo_id,
              prs.dup_repo_name as repo_name,
              prs.number,
@@ -21,6 +22,7 @@ with pr_latest as (
               left join current_state.milestones on prs.milestone_id = milestones.id)
          )
 select pr_latest.id,
+     pr_latest.event_id,
      pr_latest.repo_id,
      pr_latest.repo_name,
      pr_latest.number,
