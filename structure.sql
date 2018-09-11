@@ -431,7 +431,8 @@ CREATE TABLE public.gha_actors (
     name character varying(120),
     country_id character varying(2),
     sex character varying(1),
-    sex_prob double precision
+    sex_prob double precision,
+    tz character varying(40)
 );
 
 
@@ -1488,6 +1489,13 @@ CREATE INDEX actors_sex_idx ON public.gha_actors USING btree (sex);
 --
 
 CREATE INDEX actors_sex_prob_idx ON public.gha_actors USING btree (sex_prob);
+
+
+--
+-- Name: actors_tz_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX actors_tz_idx ON public.gha_actors USING btree (tz);
 
 
 --

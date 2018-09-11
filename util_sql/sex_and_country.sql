@@ -1,6 +1,8 @@
 alter table gha_actors add country_id varchar(2);
 alter table gha_actors add sex varchar(1);
 alter table gha_actors add sex_prob double precision;
+alter table gha_actors add tz varchar(40);
 create index actors_country_id_idx on gha_actors(country_id);
 create index actors_sex_idx on gha_actors(sex);
 create index actors_sex_prob_idx on gha_actors(sex_prob);
+create index actors_tz_idx on gha_actors(tz);
