@@ -60,6 +60,9 @@ func emailDecode(line string) string {
 
 // returns timezone offset in minutes for a given tz string
 func tzOffset(db *sql.DB, ctx *lib.Ctx, tz string, cache map[string]interface{}) interface{} {
+	if tz == "" {
+		return nil
+	}
 	off, ok := cache[tz]
 	if ok {
 		return off
@@ -69,7 +72,7 @@ func tzOffset(db *sql.DB, ctx *lib.Ctx, tz string, cache map[string]interface{})
 		ctx,
 		"select extract(epoch from utc_offset) / 60 "+
 			"from pg_timezone_names where name = "+lib.NValue(1)+
-			" union select null limit 1",
+			" union select null order by 1 limit 1",
 		tz,
 	)
 	defer func() { lib.FatalOnError(rows.Close()) }()
