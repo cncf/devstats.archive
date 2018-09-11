@@ -68,7 +68,8 @@ func Structure(ctx *Ctx) {
 					"country_id varchar(2),"+
 					"sex varchar(1),"+
 					"sex_prob double precision,"+
-					"tz varchar(40)"+
+					"tz varchar(40),"+
+					"tz_offset int"+
 					")",
 			),
 		)
@@ -80,6 +81,7 @@ func Structure(ctx *Ctx) {
 		ExecSQLWithErr(c, ctx, "create index actors_sex_idx on gha_actors(sex)")
 		ExecSQLWithErr(c, ctx, "create index actors_sex_prob_idx on gha_actors(sex_prob)")
 		ExecSQLWithErr(c, ctx, "create index actors_tz_idx on gha_actors(tz)")
+		ExecSQLWithErr(c, ctx, "create index actors_tz_offset on gha_actors(tz_offset)")
 	}
 
 	// gha_actors_emails: this is filled by `import_affs` tool, that uses cncf/gitdm:github_users.json
