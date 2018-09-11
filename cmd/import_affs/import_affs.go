@@ -17,10 +17,13 @@ type gitHubUsers []gitHubUser
 
 // gitHubUser - single GitHug user entry from cncf/gitdm `github_users.json` JSON.
 type gitHubUser struct {
-	Login       string `json:"login"`
-	Email       string `json:"email"`
-	Affiliation string `json:"affiliation"`
-	Name        string `json:"name"`
+	Login       string  `json:"login"`
+	Email       string  `json:"email"`
+	Affiliation string  `json:"affiliation"`
+	Name        string  `json:"name"`
+	CountryID   string  `json:"country_id"`
+	Sex         string  `json:"sex"`
+	SexProb     float64 `json:"sex_prob"`
 }
 
 // stringSet - set of strings
@@ -38,6 +41,13 @@ type affData struct {
 	Company string
 	From    time.Time
 	To      time.Time
+}
+
+// csData holds country_id, sex and sex_prob
+type csData struct {
+	CountryID string
+	Sex       string
+	SexProb   float64
 }
 
 // decode emails with ! instead of @
@@ -99,13 +109,13 @@ func firstKey(strMap stringSet) string {
 }
 
 // Adds non-existing actor
-func addActor(con *sql.DB, ctx *lib.Ctx, login, name string, maybeHide func(string) string) int {
+func addActor(con *sql.DB, ctx *lib.Ctx, login, name, countryID, sex string, sexProb float64, maybeHide func(string) string) int {
 	hlogin := maybeHide(login)
 	name = maybeHide(name)
 	aid := lib.HashStrings([]string{login})
 	lib.ExecSQLWithErr(con, ctx,
-		"insert into gha_actors(id, login, name) "+lib.NValues(3),
-		lib.AnyArray{aid, hlogin, name}...,
+		"insert into gha_actors(id, login, name, country_id, sex, sex_prob) "+lib.NValues(6),
+		lib.AnyArray{aid, hlogin, name, countryID, sex, sexProb}...,
 	)
 	return aid
 }
@@ -137,11 +147,13 @@ func importAffs(jsonFN string) {
 	loginEmails := make(mapStringSet)
 	loginNames := make(mapStringSet)
 	loginAffs := make(mapStringSet)
+	loginCSData := make(map[string]csData)
 	eNames, eEmails, eAffs := 0, 0, 0
 	for _, user := range users {
 		// Email decode ! --> @
 		user.Email = emailDecode(user.Email)
 		login := user.Login
+
 		// Email
 		email := user.Email
 		if email != "" {
@@ -177,6 +189,9 @@ func importAffs(jsonFN string) {
 		} else {
 			eAffs++
 		}
+
+		// Country & sex data
+		loginCSData[login] = csData{CountryID: user.CountryID, Sex: user.Sex, SexProb: user.SexProb}
 	}
 	lib.Printf(
 		"Processing non-empty: %d names, %d emails lists and %d affiliations lists\n",
@@ -191,20 +206,32 @@ func importAffs(jsonFN string) {
 			lib.Printf("Note: login has multiple names: %v: %+v\n", login, names)
 			//lib.Fatalf("login has multiple names: %v: %+v", login, names)
 		}
+		csData := loginCSData[login]
 		name := firstKey(names)
 		// Try to find actor by login
 		actor, ok := findActor(con, &ctx, login, maybeHide)
 		if !ok {
 			// If no such actor, add with artificial ID (just like data from pre-2015)
-			addActor(con, &ctx, login, name, maybeHide)
+			addActor(con, &ctx, login, name, csData.CountryID, csData.Sex, csData.SexProb, maybeHide)
 			added++
 		} else if name != actor.Name {
 			// If actor found, but with different name (actually with name == "" after standard GHA import), update name
 			// Because there can be the same actor (by id) with different IDs (pre-2015 and post 2015), update His/Her name
 			// for all records with this login
 			lib.ExecSQLWithErr(con, &ctx,
-				"update gha_actors set name="+lib.NValue(1)+" where login="+lib.NValue(2),
-				lib.AnyArray{maybeHide(name), maybeHide(login)}...,
+				"update gha_actors set "+
+					"name="+lib.NValue(1)+
+					", country_id="+lib.NValue(2)+
+					", sex="+lib.NValue(3)+
+					", sex_prob="+lib.NValue(4)+
+					" where login="+lib.NValue(5),
+				lib.AnyArray{
+					maybeHide(name),
+					csData.CountryID,
+					csData.Sex,
+					csData.SexProb,
+					maybeHide(login),
+				}...,
 			)
 			updated++
 		}
@@ -217,9 +244,10 @@ func importAffs(jsonFN string) {
 	for login, emails := range loginEmails {
 		actIDs := findActorIDs(con, &ctx, login, maybeHide)
 		if len(actIDs) < 1 {
+			csData := loginCSData[login]
 			// Can happen if user have github login but name = "" or null
 			// In that case previous loop by loginName didn't add such user
-			actIDs = append(actIDs, addActor(con, &ctx, login, "", maybeHide))
+			actIDs = append(actIDs, addActor(con, &ctx, login, "", csData.CountryID, csData.Sex, csData.SexProb, maybeHide))
 			added++
 		}
 		// Store given login's actor IDs in the case
@@ -324,9 +352,10 @@ func importAffs(jsonFN string) {
 		if !ok {
 			actIDs = findActorIDs(con, &ctx, login, maybeHide)
 			if len(actIDs) < 1 {
+				csData := loginCSData[login]
 				// Can happen if user have github login but email = "" or null
 				// In that case previous loop by loginEmail didn't add such user
-				actIDs = append(actIDs, addActor(con, &ctx, login, "", maybeHide))
+				actIDs = append(actIDs, addActor(con, &ctx, login, "", csData.CountryID, csData.Sex, csData.SexProb, maybeHide))
 				added++
 			}
 			cacheActIDs[login] = actIDs
