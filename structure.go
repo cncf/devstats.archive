@@ -64,7 +64,10 @@ func Structure(ctx *Ctx) {
 				"gha_actors("+
 					"id bigint not null primary key, "+
 					"login varchar(120) not null, "+
-					"name varchar(120)"+
+					"name varchar(120),"+
+					"country_id varchar(2),"+
+					"sex varchar(1),"+
+					"sex_prob double precision"+
 					")",
 			),
 		)
@@ -72,6 +75,9 @@ func Structure(ctx *Ctx) {
 	if ctx.Index {
 		ExecSQLWithErr(c, ctx, "create index actors_login_idx on gha_actors(login)")
 		ExecSQLWithErr(c, ctx, "create index actors_name_idx on gha_actors(name)")
+		ExecSQLWithErr(c, ctx, "create index actors_country_id_idx on gha_actors(country_id)")
+		ExecSQLWithErr(c, ctx, "create index actors_sex_idx on gha_actors(sex)")
+		ExecSQLWithErr(c, ctx, "create index actors_sex_prob_idx on gha_actors(sex_prob)")
 	}
 
 	// gha_actors_emails: this is filled by `import_affs` tool, that uses cncf/gitdm:github_users.json
