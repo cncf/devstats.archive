@@ -7,7 +7,7 @@ from (
     a.sex,
     'all' as repo_group,
     count(distinct e.actor_id) as contributors,
-    round(count(distinct e.id) / {{n}}, 2) as contributions
+    count(distinct e.id) as contributions
   from
     gha_events e,
     gha_actors a
@@ -25,7 +25,7 @@ from (
     a.sex,
     coalesce(ecf.repo_group, r.repo_group) as repo_group,
     count(distinct e.actor_id) as contributors,
-    round(count(distinct e.id) / {{n}}, 2) as contributions
+    count(distinct e.id) as contributions
   from
     gha_repos r,
     gha_actors a,
