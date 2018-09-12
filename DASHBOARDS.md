@@ -91,7 +91,7 @@ All non-k8s projects currently have the same set of dashbords, you only need to 
 - Time metrics: [time-metrics.json](https://github.com/cncf/devstats/blob/master/grafana/dashboards/prometheus/time-metrics.json), [view](https://prometheus.devstats.cncf.io/d/27/time-metrics?orgId=1)
 - Top commenters: [top-commenters.json](https://github.com/cncf/devstats/blob/master/grafana/dashboards/prometheus/top-commenters.json), [view](https://prometheus.devstats.cncf.io/d/28/top-commenters?orgId=1)
 - User reviews: [user-reviews.json](https://github.com/cncf/devstats/blob/master/grafana/dashboards/prometheus/user-reviews.json), [view](https://prometheus.devstats.cncf.io/d/46/user-reviews?orgId=1)
-- Users stats: [users-stats.json](https://github.com/cncf/devstats/blob/master/grafana/dashboards/prometheus/users-stats.json), [view](https://prometheus.devstats.cncf.io/d/47/users-stats?orgId=1)
+- Users stats: [users-stats.json](https://github.com/cncf/devstats/blob/master/grafana/dashboards/prometheus/users-stats.json), [view](https://prometheus.devstats.cncf.io/d/48/users-stats?orgId=1)
 
 There is also an 'All' [Project](https://all.cncftest.io) on the test server that contains all CNCF projects data combined. Each CNCF projects is a repository group there.
 
