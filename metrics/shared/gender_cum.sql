@@ -3,7 +3,7 @@ select
   inn.contributors,
   inn.contributions
 from (
-  select 'sex' as type,
+  select 'sexcum' as type,
     a.sex,
     'all' as repo_group,
     count(distinct e.actor_id) as contributors,
@@ -18,11 +18,10 @@ from (
     and a.sex is not null
     and a.sex != ''
     and a.sex_prob >= 0.75
-    and e.created_at >= '{{from}}'
     and e.created_at < '{{to}}'
   group by
     a.sex
-  union select 'sex' as type,
+  union select 'sexcum' as type,
     a.sex,
     coalesce(ecf.repo_group, r.repo_group) as repo_group,
     count(distinct e.actor_id) as contributors,
@@ -43,7 +42,6 @@ from (
     and a.sex is not null
     and a.sex != ''
     and a.sex_prob >= 0.75
-    and e.created_at >= '{{from}}'
     and e.created_at < '{{to}}'
   group by
     a.sex,
