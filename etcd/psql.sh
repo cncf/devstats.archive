@@ -13,7 +13,7 @@ fi
 > run.log
 GHA2DB_PROJECT=etcd PG_DB=etcd GHA2DB_LOCAL=1 ./structure 2>>errors.txt | tee -a run.log || exit 1
 sudo -u postgres psql etcd -c "create extension if not exists pgcrypto" || exit 1
-GHA2DB_PROJECT=etcd PG_DB=etcd GHA2DB_LOCAL=1 ./gha2db 2015-01-01 0 today now "coreos/etcd,etcd" 2>>errors.txt | tee -a run.log || exit 2
+GHA2DB_PROJECT=etcd PG_DB=etcd GHA2DB_LOCAL=1 ./gha2db 2015-01-01 0 today now "coreos/etcd,etcd,etcd-io" 2>>errors.txt | tee -a run.log || exit 2
 GHA2DB_PROJECT=etcd PG_DB=etcd GHA2DB_LOCAL=1 GHA2DB_OLDFMT=1 GHA2DB_EXACT=1 ./gha2db 2014-01-02 0 2014-12-31 23 'etcd' 2>>errors.txt | tee -a run.log || exit 3
 GHA2DB_PROJECT=etcd PG_DB=etcd GHA2DB_LOCAL=1 GHA2DB_MGETC=y GHA2DB_SKIPTABLE=1 GHA2DB_INDEX=1 ./structure 2>>errors.txt | tee -a run.log || exit 4
 GHA2DB_PROJECT=etcd PG_DB=etcd ./shared/setup_repo_groups.sh 2>>errors.txt | tee -a run.log || exit 5
