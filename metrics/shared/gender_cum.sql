@@ -1,5 +1,5 @@
 select
-  concat(inn.type, ';', case inn.sex when 'm' then 'Male' when 'f' then 'Female' end, '`', inn.repo_group, ';contributors,contributions,users,events,committers,commits,prcreators,prs,issucreators,issues,commenters,comments,reviewers,reviews,watchers,watches,forkers,forks') as name,
+  concat(inn.type, ';', case inn.sex when 'm' then 'Male' when 'f' then 'Female' end, '`', inn.repo_group, ';contributors,contributions,users,events,committers,commits,prcreators,prs,issuecreators,issues,commenters,comments,reviewers,reviews,watchers,watches,forkers,forks') as name,
   inn.contributors,
   inn.contributions,
   inn.users,
