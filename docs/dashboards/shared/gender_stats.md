@@ -13,7 +13,7 @@
 <li>Contribution is a review, comment, commit, issue or PR.</li>
 <li>We are determining contributor's gender by using GitHub localization and user name to query <a href="https://store.genderize.io" target="_blank">genderize.io</a> for gender for a given country and name.</li>
 <li>You can select single repository group or summary statistics for all of them combined.</li>
-<li>You can choose to display contributors, contributions, users or actvity.</li>
+<li>You can choose to display contributors, contributions, users, actvity, committers, commits etc.</li>
 <li>You can select cumulative statistics or statistics in given periods.</li>
 <li>Selecting period (for example week) means that dashboard will show data in those periods.</li>
 <li>See <a href="https://github.com/cncf/devstats/blob/master/docs/periods.md" target="_blank">here</a> for more informations about periods.</li>
