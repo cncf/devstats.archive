@@ -2,6 +2,7 @@ package devstats
 
 import (
 	"fmt"
+	"math"
 	"os"
 	"sort"
 	"strings"
@@ -605,4 +606,46 @@ func MilestoneIDOrNil(milPtr *Milestone) interface{} {
 		return nil
 	}
 	return milPtr.ID
+}
+
+// CompareStringPtr - compares two string pointers
+// returns true if both pointers are null or both are non null and point to strings with the same content
+func CompareStringPtr(p1, p2 *string) bool {
+	if p1 == nil && p2 == nil {
+		return true
+	}
+	if (p1 == nil && p2 != nil) || (p1 != nil && p2 == nil) {
+		return false
+	}
+	s1 := *p1
+	s2 := *p2
+	return s1 == s2
+}
+
+// CompareIntPtr - compares two int pointers
+// returns true if both pointers are null or both are non null and point to integers with the same value
+func CompareIntPtr(p1, p2 *int) bool {
+	if p1 == nil && p2 == nil {
+		return true
+	}
+	if (p1 == nil && p2 != nil) || (p1 != nil && p2 == nil) {
+		return false
+	}
+	i1 := *p1
+	i2 := *p2
+	return i1 == i2
+}
+
+// CompareFloat64Ptr - compares two string pointers
+// returns true if both pointers are null or both are non null and point to floats with the same value (with epsilon)
+func CompareFloat64Ptr(p1, p2 *float64) bool {
+	if p1 == nil && p2 == nil {
+		return true
+	}
+	if (p1 == nil && p2 != nil) || (p1 != nil && p2 == nil) {
+		return false
+	}
+	f1 := *p1
+	f2 := *p2
+	return math.Abs(f1-f2) < 1e-10
 }

@@ -428,7 +428,12 @@ ALTER TABLE current_state.prs OWNER TO devstats_team;
 CREATE TABLE public.gha_actors (
     id bigint NOT NULL,
     login character varying(120) NOT NULL,
-    name character varying(120)
+    name character varying(120),
+    country_id character varying(2),
+    sex character varying(1),
+    sex_prob double precision,
+    tz character varying(40),
+    tz_offset integer
 );
 
 
@@ -1439,6 +1444,13 @@ CREATE INDEX actors_affiliations_dt_to_idx ON public.gha_actors_affiliations USI
 
 
 --
+-- Name: actors_country_id_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX actors_country_id_idx ON public.gha_actors USING btree (country_id);
+
+
+--
 -- Name: actors_emails_actor_id_idx; Type: INDEX; Schema: public; Owner: gha_admin
 --
 
@@ -1464,6 +1476,34 @@ CREATE INDEX actors_login_idx ON public.gha_actors USING btree (login);
 --
 
 CREATE INDEX actors_name_idx ON public.gha_actors USING btree (name);
+
+
+--
+-- Name: actors_sex_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX actors_sex_idx ON public.gha_actors USING btree (sex);
+
+
+--
+-- Name: actors_sex_prob_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX actors_sex_prob_idx ON public.gha_actors USING btree (sex_prob);
+
+
+--
+-- Name: actors_tz_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX actors_tz_idx ON public.gha_actors USING btree (tz);
+
+
+--
+-- Name: actors_tz_offset; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX actors_tz_offset ON public.gha_actors USING btree (tz_offset);
 
 
 --

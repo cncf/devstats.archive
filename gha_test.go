@@ -569,3 +569,98 @@ func TestMilestoneIDOrNil(t *testing.T) {
 		t.Errorf("test ID=2 case: expected 2, got %v", result)
 	}
 }
+
+func TestCompareStringPtr(t *testing.T) {
+	s1 := "string1"
+	s2 := "string2"
+	s3 := "string1"
+	result := lib.CompareStringPtr(nil, nil)
+	if result != true {
+		t.Errorf("test nil, nil case: expected true, got %v", result)
+	}
+	result = lib.CompareStringPtr(nil, &s1)
+	if result != false {
+		t.Errorf("test nil, &s1 case: expected false, got %v", result)
+	}
+	result = lib.CompareStringPtr(&s2, nil)
+	if result != false {
+		t.Errorf("test &s2, nil case: expected false, got %v", result)
+	}
+	result = lib.CompareStringPtr(&s1, &s2)
+	if result != false {
+		t.Errorf("test &s1, &s2 case: expected false, got %v", result)
+	}
+	result = lib.CompareStringPtr(&s1, &s1)
+	if result != true {
+		t.Errorf("test &s1, &s1 case: expected true, got %v", result)
+	}
+	result = lib.CompareStringPtr(&s1, &s3)
+	if result != true {
+		t.Errorf("test &s1, &s1 case: expected true, got %v", result)
+	}
+}
+
+func TestCompareIntPtr(t *testing.T) {
+	i1 := 1
+	i2 := 2
+	i3 := 1
+	result := lib.CompareIntPtr(nil, nil)
+	if result != true {
+		t.Errorf("test nil, nil case: expected true, got %v", result)
+	}
+	result = lib.CompareIntPtr(nil, &i1)
+	if result != false {
+		t.Errorf("test nil, &i1 case: expected false, got %v", result)
+	}
+	result = lib.CompareIntPtr(&i2, nil)
+	if result != false {
+		t.Errorf("test &i2, nil case: expected false, got %v", result)
+	}
+	result = lib.CompareIntPtr(&i1, &i2)
+	if result != false {
+		t.Errorf("test &i1, &i2 case: expected false, got %v", result)
+	}
+	result = lib.CompareIntPtr(&i1, &i1)
+	if result != true {
+		t.Errorf("test &i1, &i1 case: expected true, got %v", result)
+	}
+	result = lib.CompareIntPtr(&i1, &i3)
+	if result != true {
+		t.Errorf("test &i1, &i1 case: expected true, got %v", result)
+	}
+}
+
+func TestCompareFloat64Ptr(t *testing.T) {
+	f1 := 1.1
+	f2 := 1.2
+	f3 := 1.1
+	f4 := 1.10000000001
+	result := lib.CompareFloat64Ptr(nil, nil)
+	if result != true {
+		t.Errorf("test nil, nil case: expected true, got %v", result)
+	}
+	result = lib.CompareFloat64Ptr(nil, &f1)
+	if result != false {
+		t.Errorf("test nil, &f1 case: expected false, got %v", result)
+	}
+	result = lib.CompareFloat64Ptr(&f2, nil)
+	if result != false {
+		t.Errorf("test &f2, nil case: expected false, got %v", result)
+	}
+	result = lib.CompareFloat64Ptr(&f1, &f2)
+	if result != false {
+		t.Errorf("test &f1, &f2 case: expected false, got %v", result)
+	}
+	result = lib.CompareFloat64Ptr(&f1, &f1)
+	if result != true {
+		t.Errorf("test &f1, &f1 case: expected true, got %v", result)
+	}
+	result = lib.CompareFloat64Ptr(&f1, &f3)
+	if result != true {
+		t.Errorf("test &f1, &f1 case: expected true, got %v", result)
+	}
+	result = lib.CompareFloat64Ptr(&f1, &f4)
+	if result != true {
+		t.Errorf("test &f1, &f4 case: expected true, got %v", result)
+	}
+}

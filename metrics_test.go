@@ -98,6 +98,16 @@ func TestMetrics(t *testing.T) {
 		ary := strings.Split(testMetrics, ",")
 		for _, m := range ary {
 			selectedMetrics[m] = struct{}{}
+			found := false
+			for _, test := range testCases {
+				if test.Metric == m {
+					found = true
+					break
+				}
+			}
+			if !found {
+				t.Errorf("no such test case '%s'", m)
+			}
 		}
 	}
 
@@ -257,7 +267,11 @@ func dataForMetricTestCase(con *sql.DB, ctx *lib.Ctx, testMetric *metricTestCase
 		}
 		actors, ok := data["actors"]
 		if ok {
-			for _, actor := range actors {
+			actorsAppend, okAppend := data["actors_append"]
+			for idx, actor := range actors {
+				if okAppend {
+					actor = append(actor, actorsAppend[idx%len(actorsAppend)]...)
+				}
 				err = addActor(con, ctx, actor...)
 				if err != nil {
 					return
@@ -594,14 +608,14 @@ func addCompany(con *sql.DB, ctx *lib.Ctx, args ...interface{}) (err error) {
 // Add actor
 // id, login, name
 func addActor(con *sql.DB, ctx *lib.Ctx, args ...interface{}) (err error) {
-	if len(args) != 3 {
-		err = fmt.Errorf("addActor: expects 3 variadic parameters")
+	if len(args) != 8 {
+		err = fmt.Errorf("addActor: expects 8 variadic parameters")
 		return
 	}
 	_, err = lib.ExecSQL(
 		con,
 		ctx,
-		"insert into gha_actors(id, login, name) "+lib.NValues(3),
+		"insert into gha_actors(id, login, name, country_id, tz, tz_offset, sex, sex_prob) "+lib.NValues(8),
 		args...,
 	)
 	return
