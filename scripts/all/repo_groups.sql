@@ -109,8 +109,11 @@ set
   repo_group = 'rkt',
   alias = 'rkt'
 where
-  org_login in ('rkt' , 'coreos', 'rktproject')
-  or name in ('rkt/Navigation_Drawer', 'rocket')
+  name != 'coreos/etcd'
+  and (
+    org_login in ('rkt' , 'coreos', 'rktproject')
+    or name in ('rkt/Navigation_Drawer', 'rocket')
+  )
 ;
 
 -- CNI
@@ -269,7 +272,8 @@ set
   repo_group = 'OpenMetrics',
   alias = 'OpenMetrics'
 where
-  name in ('RichiH/OpenMetrics')
+  org_login = 'OpenObservability'
+  or name in ('RichiH/OpenMetrics')
 ;
 
 -- Harbor
@@ -290,7 +294,8 @@ set
   repo_group = 'etcd',
   alias = 'etcd'
 where
-  name in ('coreos/etcd', 'etcd')
+  org_login in ('etcd-io', 'etcd')
+  or name in ('coreos/etcd', 'etcd')
 ;
 
 -- TiKV

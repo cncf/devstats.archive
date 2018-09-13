@@ -16,11 +16,10 @@ set
 update gha_repos set repo_group = alias;
 
 update gha_repos
-set repo_group = 'etcd', alias = 'etcd'
+set repo_group = 'OpenMetrics', alias = 'openMetrics'
 where name in (
-  'etcd',
-  'coreos/etcd',
-  'etcd-io/etcd'
+  'RichiH/OpenMetrics',
+  'OpenObservability/OpenMetrics'
 );
 
 select
