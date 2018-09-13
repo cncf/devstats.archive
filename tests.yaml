@@ -1215,7 +1215,65 @@ projects:
           - ["htop_commenters,Group 2", A1, 1]
           - ["htop_commenters,Group 2", A3, 1]
         data: KubernetesTopCommentersMetric
+      - metric: gender
+        n: 1
+        from: 2018-09-01T00:00:00Z
+        to: 2018-10-01T00:00:00Z
+        expected:
+          - ['sex;Female`all;contributors,contributions,users,events,committers,commits,prcreators,prs,issuecreators,issues,commenters,comments,reviewers,reviews,watchers,watches,forkers,forks', 1, 1, 1, 2, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0]
+          - ['sex;Female`Group1;contributors,contributions,users,events,committers,commits,prcreators,prs,issuecreators,issues,commenters,comments,reviewers,reviews,watchers,watches,forkers,forks', 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+          - ['sex;Female`Group2;contributors,contributions,users,events,committers,commits,prcreators,prs,issuecreators,issues,commenters,comments,reviewers,reviews,watchers,watches,forkers,forks', 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0]
+          - ['sex;Male`all;contributors,contributions,users,events,committers,commits,prcreators,prs,issuecreators,issues,commenters,comments,reviewers,reviews,watchers,watches,forkers,forks', 2, 3, 2, 4, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0]
+          - ['sex;Male`Group1;contributors,contributions,users,events,committers,commits,prcreators,prs,issuecreators,issues,commenters,comments,reviewers,reviews,watchers,watches,forkers,forks', 2, 3, 2, 4, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0]
+        data: KubernetesGenderMetric
+      - metric: gender_cum
+        n: 1
+        from: 2018-09-01T00:00:00Z
+        to: 2018-10-01T00:00:00Z
+        expected:
+          - ['sexcum;Female`all;contributors,contributions,users,events,committers,commits,prcreators,prs,issuecreators,issues,commenters,comments,reviewers,reviews,watchers,watches,forkers,forks', 1, 1, 1, 2, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0]
+          - ['sexcum;Female`Group1;contributors,contributions,users,events,committers,commits,prcreators,prs,issuecreators,issues,commenters,comments,reviewers,reviews,watchers,watches,forkers,forks', 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+          - ['sexcum;Female`Group2;contributors,contributions,users,events,committers,commits,prcreators,prs,issuecreators,issues,commenters,comments,reviewers,reviews,watchers,watches,forkers,forks', 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0]
+          - ['sexcum;Male`all;contributors,contributions,users,events,committers,commits,prcreators,prs,issuecreators,issues,commenters,comments,reviewers,reviews,watchers,watches,forkers,forks', 2, 4, 2, 5, 0, 0, 0, 0, 1, 2, 1, 1, 1, 1, 0, 0, 0, 0]
+          - ['sexcum;Male`Group1;contributors,contributions,users,events,committers,commits,prcreators,prs,issuecreators,issues,commenters,comments,reviewers,reviews,watchers,watches,forkers,forks', 2, 4, 2, 5, 0, 0, 0, 0, 1, 2, 1, 1, 1, 1, 0, 0, 0, 0]
+        data: KubernetesGenderMetric
 data:
+  KubernetesGenderMetric:
+    # append to actors (localize and genderize data)
+    # country_id, tz, tz_offsex, sex, sex_prob
+    actors_append:
+      - ['pl', 'Europe/Warsaw', 120, 'm', 1]
+      - ['ru', 'Europe/Moscow', 240, 'f', 0.92]
+      - [null, null, null, null, null]
+      - ['cn', 'Asia/Shanghai', 480, 'm', 0.69]
+      - ['us', 'America/Los_Angeles', -420, 'm', 0.99]
+    # id, login, name
+    actors:
+      - [1, lukaszgryglicki, Łukasz Gryglicki]
+      - [2, lena, Лена Кузьмич]
+      - [3, bot-robot, Robot who is bot]
+      - [4, zhangchang, Zchang Chang]
+      - [5, starlight, Jack Daniels]
+    # id, name, org_id, org_login, repo_group
+    repos:
+      - [1, R1, null, null, Group1]
+      - [2, R2, null, null, Group1]
+      - [3, R3, null, null, Group2]
+      - [4, R4, null, null, null]
+    # eid, etype, aid, rid, public, created_at, aname, rname, orgid
+    events:
+      - [1, IssuesEvent, 1, 1, true, '2018-09-01T12:00:00Z', Łukasz Gryglicki, R1, null]
+      - [2, PushEvent, 2, 2, true, '2018-09-02T12:00:00Z', Лена Кузьмич, R2, null]
+      - [3, PullRequestEvent, 3, 3, true, '2018-09-03T12:00:00Z', Robot who is bot, R3, null]
+      - [4, CommitCommentEvent, 4, 4, true, '2018-09-04T12:00:00Z', Zchang Chang, R4, null]
+      - [5, PullRequestReviewCommentEvent, 5, 1, true, '2018-09-05T12:00:00Z', Jack Daniels, R1, null]
+      - [6, IssueCommentEvent, 1, 2, true, '2018-09-06T12:00:00Z', Łukasz Gryglicki, R1, null]
+      - [7, WatchEvent, 2, 3, true, '2018-09-07T12:00:00Z', Лена Кузьмич, R2, null]
+      - [8, ForkEvent, 3, 4, true, '2018-09-08T12:00:00Z', Robot who is bot, R3, null]
+      - [9, labelled, 4, 1, true, '2018-09-09T12:00:00Z', Zchang Chang, R4, null]
+      - [10, subscribed, 5, 2, true, '2018-09-10T12:00:00Z', Jack Daniels, R1, null]
+      - [11, IssuesEvent, 1, 1, true, '2018-08-01T12:00:00Z', Łukasz Gryglicki, R1, null]
+      - [12, PushEvent, 2, 2, true, '2018-10-02T12:00:00Z', Лена Кузьмич, R2, null]
   KubernetesIssuesMilestonesMetric:
     # prid, eid, uid, merged_id, assignee_id, num, state, title, body,
     # created_at, closed_at, merged_at, merged
@@ -1686,6 +1744,8 @@ data:
       - [2, 'Company1', '1990-01-01T12:00:00Z', '2030-01-01T12:00:00Z']
       - [3, 'Company2', '1990-01-01T12:00:00Z', '2030-01-01T12:00:00Z']
       - [4, 'Company2', '1990-01-01T12:00:00Z', '2030-01-01T12:00:00Z']
+    # append to actors (localize and genderize data) - not needed - nulls
+    actors_append: [[null, null, null, null, null]]
     # id, login, name
     actors:
       - [1, A1, Actor 1]
@@ -3991,6 +4051,8 @@ data:
       - [1, company1, '1980-01-01T12:00:00Z', '1980-01-01T12:00:00Z']
       - [2, company1, '1980-01-01T12:00:00Z', '1980-01-01T12:00:00Z']
       - [3, company2, '1980-01-01T12:00:00Z', '1980-01-01T12:00:00Z']
+    # append to actors (localize and genderize data) - not needed - nulls
+    actors_append: [[null, null, null, null, null]]
     # id, login, name
     actors:
       - [1, Actor 1, Name 1]
@@ -4168,6 +4230,8 @@ data:
         - A1
         - T
   KubernetesOnlyActorsMetric:
+    # append to actors (localize and genderize data) - not needed - nulls
+    actors_append: [[null, null, null, null, null]]
     # id, login, name
     actors:
       - [1, A1, Actor 1]
@@ -4186,6 +4250,8 @@ data:
       - [3, company2, '2017-09-12T00:00:00Z', '2017-09-12T00:00:00Z']
       - [3, company3, '2017-09-18T00:00:00Z', '2017-09-24T00:00:00Z']
       - [3, company4, '2017-09-24T00:00:00Z', '2020-01-01T00:00:00Z']
+    # append to actors (localize and genderize data) - not needed - nulls
+    actors_append: [[null, null, null, null, null]]
     # id, login, name
     actors:
       - [1, A1, Actor 1]
