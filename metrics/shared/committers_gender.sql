@@ -6,13 +6,21 @@ from (
   select 'sex' as type,
     a.sex,
     'all' as repo_group,
-    count(distinct a.name) as rcommitters,
+    count(distinct a.login) as rcommitters,
     count(distinct c.sha) as rcommits
   from
     gha_actors a,
     gha_commits c
   where
-    c.author_name = a.name
+    (
+      c.author_name = a.name
+      or
+      (
+        a.login = c.dup_actor_login
+        and (lower(a.login) {{exclude_bots}})
+        and (lower(c.dup_actor_login) {{exclude_bots}})
+      )
+    )
     and a.sex is not null
     and a.sex != ''
     and a.sex_prob >= 0.7
@@ -23,7 +31,7 @@ from (
   union select 'sex' as type,
     a.sex,
     coalesce(ecf.repo_group, r.repo_group) as repo_group,
-    count(distinct a.name) as rcommitters,
+    count(distinct a.login) as rcommitters,
     count(distinct c.sha) as rcommits
   from
     gha_repos r,
@@ -34,8 +42,16 @@ from (
   on
     ecf.event_id = c.event_id
   where
-    r.id = c.dup_repo_id
-    and c.author_name = a.name
+    (
+      c.author_name = a.name
+      or
+      (
+        a.login = c.dup_actor_login
+        and (lower(a.login) {{exclude_bots}})
+        and (lower(c.dup_actor_login) {{exclude_bots}})
+      )
+    )
+    and r.id = c.dup_repo_id
     and a.sex is not null
     and a.sex != ''
     and a.sex_prob >= 0.7
