@@ -19,7 +19,8 @@ update gha_repos
 set repo_group = 'etcd', alias = 'etcd'
 where name in (
   'etcd',
-  'coreos/etcd'
+  'coreos/etcd',
+  'etcd-io/etcd'
 );
 
 select
