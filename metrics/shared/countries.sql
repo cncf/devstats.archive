@@ -1,5 +1,5 @@
 select
-  concat(inn.type, ';', inn.country_id, '`', inn.repo_group, ';contributors,contributions,users,events,committers,commits,prcreators,prs,issuecreators,issues,commenters,comments,reviewers,reviews,watchers,watches,forkers,forks') as name,
+  concat(inn.type, ';', inn.country_name, '`', inn.repo_group, ';contributors,contributions,users,events,committers,commits,prcreators,prs,issuecreators,issues,commenters,comments,reviewers,reviews,watchers,watches,forkers,forks') as name,
   inn.contributors,
   inn.contributions,
   inn.users,
@@ -20,7 +20,7 @@ select
   inn.forks
 from (
   select 'countries' as type,
-    a.country_id,
+    a.country_name,
     'all' as repo_group,
     count(distinct e.actor_id) filter (where e.type in ('IssuesEvent', 'PullRequestEvent', 'PushEvent', 'CommitCommentEvent', 'IssueCommentEvent', 'PullRequestReviewCommentEvent')) as contributors,
     count(distinct e.id) filter (where e.type in ('IssuesEvent', 'PullRequestEvent', 'PushEvent', 'CommitCommentEvent', 'IssueCommentEvent', 'PullRequestReviewCommentEvent')) as contributions,
@@ -46,14 +46,14 @@ from (
   where
     (lower(e.dup_actor_login) {{exclude_bots}})
     and a.id = e.actor_id
-    and a.country_id is not null
-    and a.country_id != ''
+    and a.country_name is not null
+    and a.country_name != ''
     and e.created_at >= '{{from}}'
     and e.created_at < '{{to}}'
   group by
-    a.country_id
+    a.country_name
   union select 'countries' as type,
-    a.country_id,
+    a.country_name,
     coalesce(ecf.repo_group, r.repo_group) as repo_group,
     count(distinct e.actor_id) filter (where e.type in ('IssuesEvent', 'PullRequestEvent', 'PushEvent', 'CommitCommentEvent', 'IssueCommentEvent', 'PullRequestReviewCommentEvent')) as contributors,
     count(distinct e.id) filter (where e.type in ('IssuesEvent', 'PullRequestEvent', 'PushEvent', 'CommitCommentEvent', 'IssueCommentEvent', 'PullRequestReviewCommentEvent')) as contributions,
@@ -85,12 +85,12 @@ from (
     r.id = e.repo_id
     and (lower(e.dup_actor_login) {{exclude_bots}})
     and a.id = e.actor_id
-    and a.country_id is not null
-    and a.country_id != ''
+    and a.country_name is not null
+    and a.country_name != ''
     and e.created_at >= '{{from}}'
     and e.created_at < '{{to}}'
   group by
-    a.country_id,
+    a.country_name,
     coalesce(ecf.repo_group, r.repo_group)
 ) inn
 where
