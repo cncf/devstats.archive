@@ -1,10 +1,10 @@
 select
-  concat(inn.type, ';', inn.country_id, '`', inn.repo_group, ';rcommitters,rcommits') as name,
+  concat(inn.type, ';', inn.country_name, '`', inn.repo_group, ';rcommitters,rcommits') as name,
   inn.rcommitters,
   inn.rcommits
 from (
   select 'countries' as type,
-    a.country_id,
+    a.country_name,
     'all' as repo_group,
     count(distinct a.login) as rcommitters,
     count(distinct c.sha) as rcommits
@@ -21,14 +21,14 @@ from (
         and (lower(c.dup_actor_login) {{exclude_bots}})
       )
     )
-    and a.country_id is not null
-    and a.country_id != ''
+    and a.country_name is not null
+    and a.country_name != ''
     and c.dup_created_at >= '{{from}}'
     and c.dup_created_at < '{{to}}'
   group by
-    a.country_id
+    a.country_name
   union select 'countries' as type,
-    a.country_id,
+    a.country_name,
     coalesce(ecf.repo_group, r.repo_group) as repo_group,
     count(distinct a.login) as rcommitters,
     count(distinct c.sha) as rcommits
@@ -51,12 +51,12 @@ from (
       )
     )
     and r.id = c.dup_repo_id
-    and a.country_id is not null
-    and a.country_id != ''
+    and a.country_name is not null
+    and a.country_name != ''
     and c.dup_created_at >= '{{from}}'
     and c.dup_created_at < '{{to}}'
   group by
-    a.country_id,
+    a.country_name,
     coalesce(ecf.repo_group, r.repo_group)
 ) inn
 where
