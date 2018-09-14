@@ -54,16 +54,9 @@ func ProgressInfo(i, n int, start time.Time, last *time.Time, period time.Durati
 	}
 }
 
-// ComputePeriodAtThisDate - for some longer periods, only recalculate them on specific dates
-// hourly period is always calculated
-// daily period is always calculated
-// multiple days period are calculaded at hours: 1, 5, 9, 13, 17, 21 (UTC)
-// annotation ranges are calculated:
-// from last release to now - every 2 hours
-// for past ranges only once (calculation is marked as computed) at 2 AM
-// weekly ranges are calculated at hours: 0, 4, 8, 12, 16, 20
-// monthly, quarterly, yearly ranges are calculated at midnight
-func ComputePeriodAtThisDate(ctx *Ctx, period string, dt time.Time) bool {
+// ComputePeriodAtThisDate - for some longer periods, only recalculate them on specific dates/times
+// see: time_test.go
+func ComputePeriodAtThisDate(ctx *Ctx, period string, dt time.Time, hist bool) bool {
 	if ctx.ComputeAll {
 		return true
 	}
@@ -80,21 +73,34 @@ func ComputePeriodAtThisDate(ctx *Ctx, period string, dt time.Time) bool {
 			return true
 		}
 		return h%4 == 1
-	} else if periodStart == "a" {
+	} else if hist && periodStart == "a" {
 		periodLen := len(period)
-		periodEnd := period[periodLen-3:]
-		if periodEnd == "now" {
+		periodEnd := period[periodLen-2:]
+		if periodEnd == "_n" {
 			return h%6 == 1
 		}
 		return h == 2
-	} else if periodStart == "c" {
+	} else if hist && periodStart == "c" {
 		return h == 3
-	} else if periodStart == "w" {
-		return h%6 == 0
-	} else if periodStart == "m" || periodStart == "q" || periodStart == "y" {
-		return h == 23
 	}
-	Fatalf("ComputePeriodAtThisDate: unknown period: '%s'", period)
+	if hist {
+		if periodStart == "w" {
+			return h%6 == 0
+		} else if periodStart == "m" || periodStart == "q" || periodStart == "y" {
+			return h == 23
+		}
+	} else {
+		if periodStart == "w" {
+			return h%6 == 0 && int(dt.Weekday()) == 1
+		} else if periodStart == "m" {
+			return h == 23 && dt.Day() == 1
+		} else if periodStart == "q" {
+			return h == 23 && dt.Day() == 1 && dt.Month()%3 == 1
+		} else if periodStart == "y" {
+			return h == 23 && dt.Day() == 1 && dt.Month() == 1
+		}
+	}
+	Fatalf("ComputePeriodAtThisDate: unknown period: '%s', hist: %v", period, hist)
 	return false
 }
 
