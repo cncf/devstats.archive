@@ -384,8 +384,8 @@ func sync(ctx *lib.Ctx, args []string) {
 						lib.Printf("Skipped period %s\n", periodAggr)
 						continue
 					}
-					if !ctx.ResetTSDB && !lib.ComputePeriodAtThisDate(ctx, period, to) {
-						lib.Printf("Skipping recalculating period \"%s%s\" for date to %v\n", period, aggrSuffix, to)
+					if !ctx.ResetTSDB && !lib.ComputePeriodAtThisDate(ctx, period, to, metric.Histogram) {
+						lib.Printf("Skipping recalculating period \"%s%s\", hist %v for date to %v\n", period, aggrSuffix, metric.Histogram, to)
 						continue
 					}
 					seriesNameOrFunc := metric.SeriesNameOrFunc
