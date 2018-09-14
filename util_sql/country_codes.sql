@@ -247,3 +247,4 @@ insert into gha_countries(code, name) values('eh', 'Western Sahara');
 insert into gha_countries(code, name) values('ye', 'Yemen');
 insert into gha_countries(code, name) values('zm', 'Zambia');
 insert into gha_countries(code, name) values('zw', 'Zimbabwe');
+insert into gha_countries(code, name) values('cs', 'Serbia and Montenegro');
