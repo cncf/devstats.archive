@@ -1,3 +1,4 @@
+drop table if exists gha_countries;
 create table public.gha_countries (
   code character varying(2) not null,
   name text not null
