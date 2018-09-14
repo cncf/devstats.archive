@@ -604,6 +604,18 @@ CREATE TABLE public.gha_computed (
 ALTER TABLE public.gha_computed OWNER TO gha_admin;
 
 --
+-- Name: gha_countries; Type: TABLE; Schema: public; Owner: gha_admin
+--
+
+CREATE TABLE public.gha_countries (
+    code character varying(2) NOT NULL,
+    name text NOT NULL
+);
+
+
+ALTER TABLE public.gha_countries OWNER TO gha_admin;
+
+--
 -- Name: gha_events; Type: TABLE; Schema: public; Owner: gha_admin
 --
 
@@ -1123,6 +1135,14 @@ ALTER TABLE ONLY public.gha_companies
 
 ALTER TABLE ONLY public.gha_computed
     ADD CONSTRAINT gha_computed_pkey PRIMARY KEY (metric, dt);
+
+
+--
+-- Name: gha_countries gha_countries_pkey; Type: CONSTRAINT; Schema: public; Owner: gha_admin
+--
+
+ALTER TABLE ONLY public.gha_countries
+    ADD CONSTRAINT gha_countries_pkey PRIMARY KEY (code);
 
 
 --
@@ -1847,6 +1867,13 @@ CREATE INDEX computed_dt_idx ON public.gha_computed USING btree (dt);
 --
 
 CREATE INDEX computed_metric_idx ON public.gha_computed USING btree (metric);
+
+
+--
+-- Name: countries_name_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX countries_name_idx ON public.gha_countries USING btree (name);
 
 
 --
