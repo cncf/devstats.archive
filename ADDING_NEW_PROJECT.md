@@ -35,6 +35,7 @@ This file describes how to add new project on the test and production servers.
 - Something like this: "MODE=ss0 FROM='"oldproject"' TO='"newproject"' FILES=`find ./grafana/dashboards/newproject -type f -iname '*.json'` ./devel/mass_replace.sh".
 - Update `grafana/dashboards/proj/dashboards.json` for all already existing projects, add new project using `devel/mass_replace.sh` or `devel/replace.sh`.
 - For example: `./devel/dashboards_replace_from_to.sh dashboards.json` with `FROM` file containing old links and `TO` file containing new links.
+- When adding new dashboard to all projects, you can add to single project (for example "cncf") and then populate to all others via something like `util_sh/replace_proj_name_tag.sh`.
 - You can mass update Grafana dashboards using `sqlitedb` tool: `ONLY="proj1 proj2 ..." ./devel/put_all_charts.sh`, then `devel/put_all_charts_cleanup.sh`. You need to use `ONLY` because there is no new project's Grafana yet.
 - Update `partials/projects.html`. Test with: `ONLY="proj1 proj2 ..." PG_PASS=... ./devel/vars_all.sh`
 - Update Apache proxy and SSL files `apache/www/index_* apache/*/sites-enabled/* apache/*/sites.txt` files.
