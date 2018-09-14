@@ -1062,6 +1062,26 @@ func Structure(ctx *Ctx) {
 		)
 	}
 
+	// gha_countries
+	// counst, external
+	if ctx.Table {
+		ExecSQLWithErr(c, ctx, "drop table if exists gha_countries")
+		ExecSQLWithErr(
+			c,
+			ctx,
+			CreateTable(
+				"gha_countries("+
+					"code varchar(2) not null, "+
+					"name text not null, "+
+					"primary key(code)"+
+					")",
+			),
+		)
+	}
+	if ctx.Index {
+		ExecSQLWithErr(c, ctx, "create index countries_name_idx on gha_countries(name)")
+	}
+
 	// This table is a kind of `materialized view` of all texts
 	if ctx.Table {
 		ExecSQLWithErr(c, ctx, "drop table if exists gha_texts")
