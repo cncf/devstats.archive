@@ -5,6 +5,10 @@ then
   exit 1
 fi
 db=$1
+if [ "$db" = "devstats" ]
+then
+  exit 0
+fi
 cd /tmp || exit 1
 function finish {
   cd /tmp
