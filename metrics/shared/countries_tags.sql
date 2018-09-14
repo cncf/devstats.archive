@@ -1,8 +1,8 @@
 select
-  distinct country_id
+  distinct country_name
 from
   gha_actors
 where
-  country_id is not null
-  and country_id != ''
+  country_name is not null
+  and country_name != ''
 ;

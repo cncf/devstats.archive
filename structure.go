@@ -69,7 +69,8 @@ func Structure(ctx *Ctx) {
 					"sex varchar(1),"+
 					"sex_prob double precision,"+
 					"tz varchar(40),"+
-					"tz_offset int"+
+					"tz_offset int,"+
+					"country_name text"+
 					")",
 			),
 		)
@@ -82,6 +83,7 @@ func Structure(ctx *Ctx) {
 		ExecSQLWithErr(c, ctx, "create index actors_sex_prob_idx on gha_actors(sex_prob)")
 		ExecSQLWithErr(c, ctx, "create index actors_tz_idx on gha_actors(tz)")
 		ExecSQLWithErr(c, ctx, "create index actors_tz_offset on gha_actors(tz_offset)")
+		ExecSQLWithErr(c, ctx, "create index actors_country_name_idx on gha_actors(country_name)")
 	}
 
 	// gha_actors_emails: this is filled by `import_affs` tool, that uses cncf/gitdm:github_users.json
@@ -1060,6 +1062,26 @@ func Structure(ctx *Ctx) {
 					")",
 			),
 		)
+	}
+
+	// gha_countries
+	// counst, external
+	if ctx.Table {
+		ExecSQLWithErr(c, ctx, "drop table if exists gha_countries")
+		ExecSQLWithErr(
+			c,
+			ctx,
+			CreateTable(
+				"gha_countries("+
+					"code varchar(2) not null, "+
+					"name text not null, "+
+					"primary key(code)"+
+					")",
+			),
+		)
+	}
+	if ctx.Index {
+		ExecSQLWithErr(c, ctx, "create index countries_name_idx on gha_countries(name)")
 	}
 
 	// This table is a kind of `materialized view` of all texts
