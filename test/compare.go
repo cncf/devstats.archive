@@ -159,3 +159,31 @@ func MakeComparableMapStr(m *map[string]string) {
 	newMap[outStr] = ""
 	*m = newMap
 }
+
+// MakeComparableMap2 - transforms input map { k1: { true: struct{}{}, false: struct{}{}, ...}, k2: { ... } ... }
+// into map with single key being its string representation, works on map[string]map[bool]struct{} type
+// Example: { "w": { true: struct{}{}, false: struct{}{}}, "y10": { false: struct{}{}} } --> { "w:t,w:f,y10:f,": { false: struct{}{} } }
+// We cannot compare such maps directly because order of keys is not guaranteed
+func MakeComparableMap2(m *map[string]map[bool]struct{}) {
+	// Get maps keys
+	keyAry := []string{}
+	for key, val := range *m {
+		for key2 := range val {
+			kk := fmt.Sprintf("%v", key2)[0:1]
+			keyAry = append(keyAry, fmt.Sprintf("%s:%s", key, kk))
+		}
+	}
+	// Map keys aren't sorted
+	sort.Strings(keyAry)
+
+	// Create string with k:v sorted
+	outStr := ""
+	for _, key := range keyAry {
+		outStr += fmt.Sprintf("%s,", key)
+	}
+	// Replace original map
+	newMap := make(map[string]map[bool]struct{})
+	newMap[outStr] = make(map[bool]struct{})
+	newMap[outStr][false] = struct{}{}
+	*m = newMap
+}

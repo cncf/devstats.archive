@@ -97,6 +97,7 @@ func copyContext(in *lib.Ctx) *lib.Ctx {
 		ActorsAllow:         in.ActorsAllow,
 		ActorsForbid:        in.ActorsForbid,
 		OnlyMetrics:         in.OnlyMetrics,
+		ComputePeriods:      in.ComputePeriods,
 	}
 	return &out
 }
@@ -181,6 +182,14 @@ func dynamicSetFields(t *testing.T, ctx *lib.Ctx, fields map[string]interface{})
 			// Check if types match
 			fieldType := field.Type()
 			if fieldType != reflect.TypeOf(map[string]bool{}) {
+				t.Errorf("trying to set value %v, type %T for field \"%s\", type %v", interfaceValue, interfaceValue, fieldName, fieldKind)
+				return ctx
+			}
+			field.Set(reflect.ValueOf(fieldValue))
+		case map[string]map[bool]struct{}:
+			// Check if types match
+			fieldType := field.Type()
+			if fieldType != reflect.TypeOf(map[string]map[bool]struct{}{}) {
 				t.Errorf("trying to set value %v, type %T for field \"%s\", type %v", interfaceValue, interfaceValue, fieldName, fieldKind)
 				return ctx
 			}
@@ -284,6 +293,7 @@ func TestInit(t *testing.T) {
 		RecentReposRange:    "1 day",
 		CSVFile:             "",
 		ComputeAll:          false,
+		ComputePeriods:      map[string]map[bool]struct{}{},
 		ActorsFilter:        false,
 		ActorsAllow:         nil,
 		ActorsForbid:        nil,
@@ -986,6 +996,65 @@ func TestInit(t *testing.T) {
 			),
 		},
 		{
+			"Set compute periods mode",
+			map[string]string{
+				"GHA2DB_FORCE_PERIODS": "w:f",
+			},
+			dynamicSetFields(
+				t,
+				copyContext(&defaultContext),
+				map[string]interface{}{
+					"ComputePeriods": map[string]map[bool]struct{}{
+						"w": {
+							false: {},
+						},
+					},
+				},
+			),
+		},
+		{
+			"Set compute periods mode 2",
+			map[string]string{
+				"GHA2DB_FORCE_PERIODS": "w:t,w:f",
+			},
+			dynamicSetFields(
+				t,
+				copyContext(&defaultContext),
+				map[string]interface{}{
+					"ComputePeriods": map[string]map[bool]struct{}{
+						"w": {
+							false: {},
+							true:  {},
+						},
+					},
+				},
+			),
+		},
+		{
+			"Set compute periods mode 3",
+			map[string]string{
+				"GHA2DB_FORCE_PERIODS": "m:t,m:f,q2:t,y10:f",
+			},
+			dynamicSetFields(
+				t,
+				copyContext(&defaultContext),
+				map[string]interface{}{
+					"ComputePeriods": map[string]map[bool]struct{}{
+						"m": {
+							false: {},
+							true:  {},
+						},
+						"q2": {
+							true: {},
+						},
+						"y10": {
+							false: {},
+						},
+					},
+				},
+			),
+		},
+		{
 			"Set actors filter",
 			map[string]string{
 				"GHA2DB_ACTORS_FILTER": "1",
@@ -1219,6 +1288,8 @@ func TestInit(t *testing.T) {
 		testlib.MakeComparableMap(&test.expectedContext.ExcludeRepos)
 		testlib.MakeComparableMap(&gotContext.OnlyMetrics)
 		testlib.MakeComparableMap(&test.expectedContext.OnlyMetrics)
+		testlib.MakeComparableMap2(&gotContext.ComputePeriods)
+		testlib.MakeComparableMap2(&test.expectedContext.ComputePeriods)
 
 		// Check if we got expected context
 		got := fmt.Sprintf("%+v", gotContext)
