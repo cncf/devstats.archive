@@ -608,14 +608,14 @@ func addCompany(con *sql.DB, ctx *lib.Ctx, args ...interface{}) (err error) {
 // Add actor
 // id, login, name
 func addActor(con *sql.DB, ctx *lib.Ctx, args ...interface{}) (err error) {
-	if len(args) != 8 {
-		err = fmt.Errorf("addActor: expects 8 variadic parameters")
+	if len(args) != 9 {
+		err = fmt.Errorf("addActor: expects 9 variadic parameters")
 		return
 	}
 	_, err = lib.ExecSQL(
 		con,
 		ctx,
-		"insert into gha_actors(id, login, name, country_id, tz, tz_offset, sex, sex_prob) "+lib.NValues(8),
+		"insert into gha_actors(id, login, name, country_id, country_name, tz, tz_offset, sex, sex_prob) "+lib.NValues(9),
 		args...,
 	)
 	return

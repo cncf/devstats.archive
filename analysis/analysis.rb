@@ -77,6 +77,7 @@ def analysis(prefix, calls, jsons)
     oh = h
     calls.each do |call|
       next unless h
+
       if call.include?(':')
         ary = call.split ':'
         h = h[ary[1].to_i] if ary[0] == 'i'
@@ -110,13 +111,13 @@ def analysis(prefix, calls, jsons)
     File.write("analysis/#{prefix}_#{index}.json", JSON.pretty_generate(h))
   end
   strs.keys.sort.each { |k| p k }
-  puts ""
+  puts ''
   p occ
-  puts ""
+  puts ''
   p ml
-  puts ""
+  puts ''
   p n
-  puts ""
+  puts ''
   # binding.pry if strs.keys.length > 1
 end
 
