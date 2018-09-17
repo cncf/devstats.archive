@@ -22,12 +22,13 @@ func TestComputePeriodAtThisDate(t *testing.T) {
 	// monthly, quarterly, yearly ranges are calculated at midnight
 	ft := testlib.YMDHMS
 	var testCases = []struct {
-		tmOffset   int
-		period     string
-		dt         time.Time
-		hist       bool
-		expected   bool
-		computeAll bool
+		tmOffset       int
+		period         string
+		dt             time.Time
+		hist           bool
+		expected       bool
+		computeAll     bool
+		computePeriods map[string]map[bool]struct{}
 	}{
 		{hist: true, period: "h", dt: ft(2017, 12, 19), expected: true},
 		{hist: true, period: "h", dt: ft(2017, 12, 19, 3), expected: true},
@@ -171,6 +172,18 @@ func TestComputePeriodAtThisDate(t *testing.T) {
 		{hist: false, period: "y", dt: ft(2017, 10, 1, 3), expected: false},
 		{hist: false, period: "y", dt: ft(2017, 1, 1, 23), expected: true},
 		{hist: false, period: "y", dt: ft(2017, 1, 1, 3), expected: false},
+		{hist: false, period: "y", dt: ft(2017, 1, 1, 3), computePeriods: map[string]map[bool]struct{}{"y": {false: {}}}, expected: true},
+		{hist: false, period: "y", dt: ft(2017, 1, 1, 3), computePeriods: map[string]map[bool]struct{}{"y": {true: {}}}, expected: false},
+		{hist: false, period: "y", dt: ft(2017, 1, 1, 3), computePeriods: map[string]map[bool]struct{}{"m": {false: {}}}, expected: false},
+		{hist: false, period: "y", dt: ft(2017, 1, 1, 23), computePeriods: map[string]map[bool]struct{}{"y": {false: {}}}, expected: true},
+		{hist: false, period: "y", dt: ft(2017, 1, 1, 23), computePeriods: map[string]map[bool]struct{}{"y": {true: {}}}, expected: false},
+		{hist: false, period: "y", dt: ft(2017, 1, 1, 23), computePeriods: map[string]map[bool]struct{}{"m": {false: {}}}, expected: false},
+		{hist: true, period: "y", dt: ft(2017, 1, 1, 3), computePeriods: map[string]map[bool]struct{}{"y": {false: {}}}, expected: false},
+		{hist: true, period: "y", dt: ft(2017, 1, 1, 3), computePeriods: map[string]map[bool]struct{}{"y": {true: {}}}, expected: true},
+		{hist: true, period: "y", dt: ft(2017, 1, 1, 3), computePeriods: map[string]map[bool]struct{}{"m": {false: {}}}, expected: false},
+		{hist: true, period: "y", dt: ft(2017, 1, 1, 23), computePeriods: map[string]map[bool]struct{}{"y": {false: {}}}, expected: false},
+		{hist: true, period: "y", dt: ft(2017, 1, 1, 23), computePeriods: map[string]map[bool]struct{}{"y": {true: {}}}, expected: true},
+		{hist: true, period: "y", dt: ft(2017, 1, 1, 23), computePeriods: map[string]map[bool]struct{}{"m": {false: {}}}, expected: false},
 	}
 
 	// Environment context parse
@@ -182,6 +195,7 @@ func TestComputePeriodAtThisDate(t *testing.T) {
 		expected := test.expected
 		ctx.TmOffset = test.tmOffset
 		ctx.ComputeAll = test.computeAll
+		ctx.ComputePeriods = test.computePeriods
 		got := lib.ComputePeriodAtThisDate(&ctx, test.period, test.dt, test.hist)
 		if got != expected {
 			t.Errorf(

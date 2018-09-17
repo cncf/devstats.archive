@@ -60,6 +60,14 @@ func ComputePeriodAtThisDate(ctx *Ctx, period string, dt time.Time, hist bool) b
 	if ctx.ComputeAll {
 		return true
 	}
+	if ctx.ComputePeriods != nil {
+		data, ok := ctx.ComputePeriods[period]
+		if !ok {
+			return false
+		}
+		_, ok = data[hist]
+		return ok
+	}
 	dt = HourStart(dt)
 	h := (dt.Hour() + ctx.TmOffset) % 24
 	if h < 0 {
