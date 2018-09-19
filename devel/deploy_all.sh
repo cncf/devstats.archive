@@ -69,6 +69,34 @@ else
   all=$ONLY
 fi
 
+if [ -z "$ONLYDB" ]
+then
+  host=`hostname`
+  if [ $host = "cncftest.io" ]
+  then
+    alldb=`cat ./devel/all_test_dbs.txt`
+  else
+    alldb=`cat ./devel/all_prod_dbs.txt`
+  fi
+else
+  alldb=$ONLYDB
+fi
+
+LASTDB=""
+for db in $alldb
+do
+  exists=`sudo -u postgres psql -tAc "select 1 from pg_database where datname = '$db'"` || exit 100
+  echo "exists $exists"
+  if [ ! "$exists" = "1" ]
+  then
+    LASTDB=$db
+  fi
+done
+export LASTDB
+echo "Last DB is $LASTDB"
+exit 1
+
+
 if [ ! -z "$INIT" ]
 then
   ./devel/init_database.sh || exit 1

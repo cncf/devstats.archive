@@ -31,14 +31,14 @@ then
 fi
 if [ ! -z "$PDB" ]
 then
-  exists=`sudo -u postgres psql -tAc "select 1 from pg_database WHERE datname = '$PROJDB'"` || exit 3
+  exists=`sudo -u postgres psql -tAc "select 1 from pg_database where datname = '$PROJDB'"` || exit 3
   if ( [ ! -z "$PDROP" ] && [ "$exists" = "1" ] )
   then
     echo "dropping postgres database $PROJDB"
     sudo -u postgres psql -c "select pg_terminate_backend(pid) from pg_stat_activity where datname = '$PROJDB'" || exit 4
     sudo -u postgres psql -c "drop database $PROJDB" || exit 5
   fi
-  exists=`sudo -u postgres psql -tAc "select 1 from pg_database WHERE datname = '$PROJDB'"` || exit 6
+  exists=`sudo -u postgres psql -tAc "select 1 from pg_database where datname = '$PROJDB'"` || exit 6
   if [ ! "$exists" = "1" ]
   then
     echo "creating postgres database $PROJDB"
@@ -71,7 +71,7 @@ else
 fi
 if [ ! -z "$TSDB" ]
 then
-  exists=`sudo -u postgres psql -tAc "select 1 from pg_database WHERE datname = '$PROJDB'"` || exit 3
+  exists=`sudo -u postgres psql -tAc "select 1 from pg_database where datname = '$PROJDB'"` || exit 3
   if [ ! "$exists" = "1" ]
   then
     echo "$0: '$PROJDB' must exist to initialize TSDB"
