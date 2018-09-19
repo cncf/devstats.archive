@@ -1,10 +1,12 @@
 select
+  org.id as org_id,
   org.login as org,
   repo.name as repo,
   repo.id as rid,
   min(created_at) as date_from,
   max(created_at) as date_to
 from
+  [githubarchive:month.201808],
   [githubarchive:month.201807],
   [githubarchive:month.201806],
   [githubarchive:month.201805],
@@ -17,18 +19,18 @@ from
   [githubarchive:year.2015],
   [githubarchive:year.2014]
 where
-  org.login = (
+  org.id = (
     select
-      org.login
+      org.id
     from
-      [githubarchive:month.201807]
+      [githubarchive:month.201808]
     where
       org.login = 'your_org_name'
     group by
-      org.login
+      org.id
   )
 group by
-  org, repo, rid
+  org_id, org, repo, rid
 order by
   date_from
 ;
