@@ -2,9 +2,11 @@ select
   org.login as org,
   repo.name as repo,
   repo.id as rid,
+  org.id as oid,
   min(created_at) as date_from,
   max(created_at) as date_to
 from
+  [githubarchive:month.201808],
   [githubarchive:month.201807],
   [githubarchive:month.201806],
   [githubarchive:month.201805],
@@ -21,14 +23,14 @@ where
     select
       repo.id
     from
-      [githubarchive:month.201807]
+      [githubarchive:month.201808]
     where
       repo.name = 'current_org/current_repo'
     group by
       repo.id
   )
 group by
-  org, repo, rid
+  org, repo, rid, oid
 order by
   date_from
 ;
