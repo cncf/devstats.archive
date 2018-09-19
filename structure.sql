@@ -1059,6 +1059,575 @@ ALTER TABLE ONLY public.gha_logs ALTER COLUMN id SET DEFAULT nextval('public.gha
 
 
 --
+-- Data for Name: priorities; Type: TABLE DATA; Schema: current_state; Owner: devstats_team
+--
+
+COPY current_state.priorities (priority, label_sort) FROM stdin;
+\.
+
+
+--
+-- Data for Name: gha_actors; Type: TABLE DATA; Schema: public; Owner: gha_admin
+--
+
+COPY public.gha_actors (id, login, name, country_id, sex, sex_prob, tz, tz_offset, country_name) FROM stdin;
+\.
+
+
+--
+-- Data for Name: gha_actors_affiliations; Type: TABLE DATA; Schema: public; Owner: gha_admin
+--
+
+COPY public.gha_actors_affiliations (actor_id, company_name, dt_from, dt_to) FROM stdin;
+\.
+
+
+--
+-- Data for Name: gha_actors_emails; Type: TABLE DATA; Schema: public; Owner: gha_admin
+--
+
+COPY public.gha_actors_emails (actor_id, email) FROM stdin;
+\.
+
+
+--
+-- Data for Name: gha_assets; Type: TABLE DATA; Schema: public; Owner: gha_admin
+--
+
+COPY public.gha_assets (id, event_id, name, label, uploader_id, content_type, state, size, download_count, created_at, updated_at, dup_actor_id, dup_actor_login, dup_repo_id, dup_repo_name, dup_type, dup_created_at, dup_uploader_login) FROM stdin;
+\.
+
+
+--
+-- Data for Name: gha_branches; Type: TABLE DATA; Schema: public; Owner: gha_admin
+--
+
+COPY public.gha_branches (sha, event_id, user_id, repo_id, label, ref, dup_type, dup_created_at, dupn_forkee_name, dupn_user_login) FROM stdin;
+\.
+
+
+--
+-- Data for Name: gha_comments; Type: TABLE DATA; Schema: public; Owner: gha_admin
+--
+
+COPY public.gha_comments (id, event_id, body, created_at, updated_at, user_id, commit_id, original_commit_id, diff_hunk, "position", original_position, path, pull_request_review_id, line, dup_actor_id, dup_actor_login, dup_repo_id, dup_repo_name, dup_type, dup_created_at, dup_user_login) FROM stdin;
+\.
+
+
+--
+-- Data for Name: gha_commits; Type: TABLE DATA; Schema: public; Owner: gha_admin
+--
+
+COPY public.gha_commits (sha, event_id, author_name, message, is_distinct, dup_actor_id, dup_actor_login, dup_repo_id, dup_repo_name, dup_type, dup_created_at, encrypted_email) FROM stdin;
+\.
+
+
+--
+-- Data for Name: gha_commits_files; Type: TABLE DATA; Schema: public; Owner: gha_admin
+--
+
+COPY public.gha_commits_files (sha, path, size, dt) FROM stdin;
+\.
+
+
+--
+-- Data for Name: gha_companies; Type: TABLE DATA; Schema: public; Owner: gha_admin
+--
+
+COPY public.gha_companies (name) FROM stdin;
+\.
+
+
+--
+-- Data for Name: gha_computed; Type: TABLE DATA; Schema: public; Owner: gha_admin
+--
+
+COPY public.gha_computed (metric, dt) FROM stdin;
+\.
+
+
+--
+-- Data for Name: gha_countries; Type: TABLE DATA; Schema: public; Owner: gha_admin
+--
+
+COPY public.gha_countries (code, name) FROM stdin;
+af	Afghanistan
+ax	Åland Islands
+al	Albania
+dz	Algeria
+as	American Samoa
+ad	Andorra
+ao	Angola
+ai	Anguilla
+aq	Antarctica
+ag	Antigua and Barbuda
+ar	Argentina
+am	Armenia
+aw	Aruba
+au	Australia
+at	Austria
+az	Azerbaijan
+bs	Bahamas
+bh	Bahrain
+bd	Bangladesh
+bb	Barbados
+by	Belarus
+be	Belgium
+bz	Belize
+bj	Benin
+bm	Bermuda
+bt	Bhutan
+bo	Bolivia, Plurinational State of
+bq	Bonaire, Sint Eustatius and Saba
+ba	Bosnia and Herzegovina
+bw	Botswana
+bv	Bouvet Island
+br	Brazil
+io	British Indian Ocean Territory
+bn	Brunei Darussalam
+bg	Bulgaria
+bf	Burkina Faso
+bi	Burundi
+kh	Cambodia
+cm	Cameroon
+ca	Canada
+cv	Cape Verde
+ky	Cayman Islands
+cf	Central African Republic
+td	Chad
+cl	Chile
+cn	China
+cx	Christmas Island
+cc	Cocos (Keeling) Islands
+co	Colombia
+km	Comoros
+cg	Congo
+cd	Congo, the Democratic Republic of the
+ck	Cook Islands
+cr	Costa Rica
+ci	Côte D'ivoire
+hr	Croatia
+cu	Cuba
+cw	Curaçao
+cy	Cyprus
+cz	Czech Republic
+dk	Denmark
+dj	Djibouti
+dm	Dominica
+do	Dominican Republic
+ec	Ecuador
+eg	Egypt
+sv	El Salvador
+gq	Equatorial Guinea
+er	Eritrea
+ee	Estonia
+et	Ethiopia
+fk	Falkland Islands (Malvinas)
+fo	Faroe Islands
+fj	Fiji
+fi	Finland
+fr	France
+gf	French Guiana
+pf	French Polynesia
+tf	French Southern Territories
+ga	Gabon
+gm	Gambia
+ge	Georgia
+de	Germany
+gh	Ghana
+gi	Gibraltar
+gr	Greece
+gl	Greenland
+gd	Grenada
+gp	Guadeloupe
+gu	Guam
+gt	Guatemala
+gg	Guernsey
+gn	Guinea
+gw	Guinea-Bissau
+gy	Guyana
+ht	Haiti
+hm	Heard Island and Mcdonald Islands
+va	Holy See (Vatican City State)
+hn	Honduras
+hk	Hong Kong
+hu	Hungary
+is	Iceland
+in	India
+id	Indonesia
+ir	Iran, Islamic Republic of
+iq	Iraq
+ie	Ireland
+im	Isle of Man
+il	Israel
+it	Italy
+jm	Jamaica
+jp	Japan
+je	Jersey
+jo	Jordan
+kz	Kazakhstan
+ke	Kenya
+ki	Kiribati
+kp	Korea, Democratic People's Republic of
+kr	Korea, Republic of
+kw	Kuwait
+kg	Kyrgyzstan
+la	Lao People's Democratic Republic
+lv	Latvia
+lb	Lebanon
+ls	Lesotho
+lr	Liberia
+ly	Libya
+li	Liechtenstein
+lt	Lithuania
+lu	Luxembourg
+mo	Macao
+mk	Macedonia, the Former Yugoslav Republic of
+mg	Madagascar
+mw	Malawi
+my	Malaysia
+mv	Maldives
+ml	Mali
+mt	Malta
+mh	Marshall Islands
+mq	Martinique
+mr	Mauritania
+mu	Mauritius
+yt	Mayotte
+mx	Mexico
+fm	Micronesia, Federated States of
+md	Moldova, Republic of
+mc	Monaco
+mn	Mongolia
+me	Montenegro
+ms	Montserrat
+ma	Morocco
+mz	Mozambique
+mm	Myanmar
+na	Namibia
+nr	Nauru
+np	Nepal
+nl	Netherlands
+nc	New Caledonia
+nz	New Zealand
+ni	Nicaragua
+ne	Niger
+ng	Nigeria
+nu	Niue
+nf	Norfolk Island
+mp	Northern Mariana Islands
+no	Norway
+om	Oman
+pk	Pakistan
+pw	Palau
+ps	Palestine, State of
+pa	Panama
+pg	Papua New Guinea
+py	Paraguay
+pe	Peru
+ph	Philippines
+pn	Pitcairn
+pl	Poland
+pt	Portugal
+pr	Puerto Rico
+qa	Qatar
+re	Réunion
+ro	Romania
+ru	Russian Federation
+rw	Rwanda
+bl	Saint Barthélemy
+sh	Saint Helena, Ascension and Tristan da Cunha
+kn	Saint Kitts and Nevis
+lc	Saint Lucia
+mf	Saint Martin (French Part)
+pm	Saint Pierre and Miquelon
+vc	Saint Vincent and the Grenadines
+ws	Samoa
+sm	San Marino
+st	Sao Tome and Principe
+sa	Saudi Arabia
+sn	Senegal
+rs	Serbia
+sc	Seychelles
+sl	Sierra Leone
+sg	Singapore
+sx	Sint Maarten (Dutch Part)
+sk	Slovakia
+si	Slovenia
+sb	Solomon Islands
+so	Somalia
+za	South Africa
+gs	South Georgia and the South Sandwich Islands
+ss	South Sudan
+es	Spain
+lk	Sri Lanka
+sd	Sudan
+sr	Suriname
+sj	Svalbard and Jan Mayen
+sz	Swaziland
+se	Sweden
+ch	Switzerland
+sy	Syrian Arab Republic
+tw	Taiwan, Province of China
+tj	Tajikistan
+tz	Tanzania, United Republic of
+th	Thailand
+tl	Timor-Leste
+tg	Togo
+tk	Tokelau
+to	Tonga
+tt	Trinidad and Tobago
+tn	Tunisia
+tr	Turkey
+tm	Turkmenistan
+tc	Turks and Caicos Islands
+tv	Tuvalu
+ug	Uganda
+ua	Ukraine
+ae	United Arab Emirates
+gb	United Kingdom
+us	United States
+um	United States Minor Outlying Islands
+uy	Uruguay
+uz	Uzbekistan
+vu	Vanuatu
+ve	Venezuela, Bolivarian Republic of
+vn	Viet Nam
+vg	Virgin Islands, British
+vi	Virgin Islands, U.S.
+wf	Wallis and Futuna
+eh	Western Sahara
+ye	Yemen
+zm	Zambia
+zw	Zimbabwe
+cs	Serbia and Montenegro
+\.
+
+
+--
+-- Data for Name: gha_events; Type: TABLE DATA; Schema: public; Owner: gha_admin
+--
+
+COPY public.gha_events (id, type, actor_id, repo_id, public, created_at, org_id, forkee_id, dup_actor_login, dup_repo_name) FROM stdin;
+\.
+
+
+--
+-- Data for Name: gha_events_commits_files; Type: TABLE DATA; Schema: public; Owner: gha_admin
+--
+
+COPY public.gha_events_commits_files (sha, event_id, path, size, dt, repo_group, dup_repo_id, dup_repo_name, dup_type, dup_created_at) FROM stdin;
+\.
+
+
+--
+-- Data for Name: gha_forkees; Type: TABLE DATA; Schema: public; Owner: gha_admin
+--
+
+COPY public.gha_forkees (id, event_id, name, full_name, owner_id, description, fork, created_at, updated_at, pushed_at, homepage, size, stargazers_count, has_issues, has_projects, has_downloads, has_wiki, has_pages, forks, open_issues, watchers, default_branch, public, language, organization, dup_actor_id, dup_actor_login, dup_repo_id, dup_repo_name, dup_type, dup_created_at, dup_owner_login) FROM stdin;
+\.
+
+
+--
+-- Data for Name: gha_issues; Type: TABLE DATA; Schema: public; Owner: gha_admin
+--
+
+COPY public.gha_issues (id, event_id, assignee_id, body, closed_at, comments, created_at, locked, milestone_id, number, state, title, updated_at, user_id, is_pull_request, dup_actor_id, dup_actor_login, dup_repo_id, dup_repo_name, dup_type, dup_created_at, dupn_assignee_login, dup_user_login) FROM stdin;
+\.
+
+
+--
+-- Data for Name: gha_issues_assignees; Type: TABLE DATA; Schema: public; Owner: gha_admin
+--
+
+COPY public.gha_issues_assignees (issue_id, event_id, assignee_id) FROM stdin;
+\.
+
+
+--
+-- Data for Name: gha_issues_events_labels; Type: TABLE DATA; Schema: public; Owner: gha_admin
+--
+
+COPY public.gha_issues_events_labels (issue_id, event_id, label_id, label_name, created_at, actor_id, actor_login, repo_id, repo_name, type, issue_number) FROM stdin;
+\.
+
+
+--
+-- Data for Name: gha_issues_labels; Type: TABLE DATA; Schema: public; Owner: gha_admin
+--
+
+COPY public.gha_issues_labels (issue_id, event_id, label_id, dup_actor_id, dup_actor_login, dup_repo_id, dup_repo_name, dup_type, dup_created_at, dup_issue_number, dup_label_name) FROM stdin;
+\.
+
+
+--
+-- Data for Name: gha_issues_pull_requests; Type: TABLE DATA; Schema: public; Owner: gha_admin
+--
+
+COPY public.gha_issues_pull_requests (issue_id, pull_request_id, number, repo_id, repo_name, created_at) FROM stdin;
+\.
+
+
+--
+-- Data for Name: gha_labels; Type: TABLE DATA; Schema: public; Owner: gha_admin
+--
+
+COPY public.gha_labels (id, name, color, is_default) FROM stdin;
+\.
+
+
+--
+-- Data for Name: gha_logs; Type: TABLE DATA; Schema: public; Owner: gha_admin
+--
+
+COPY public.gha_logs (id, dt, prog, proj, run_dt, msg) FROM stdin;
+\.
+
+
+--
+-- Data for Name: gha_milestones; Type: TABLE DATA; Schema: public; Owner: gha_admin
+--
+
+COPY public.gha_milestones (id, event_id, closed_at, closed_issues, created_at, creator_id, description, due_on, number, open_issues, state, title, updated_at, dup_actor_id, dup_actor_login, dup_repo_id, dup_repo_name, dup_type, dup_created_at, dupn_creator_login) FROM stdin;
+\.
+
+
+--
+-- Data for Name: gha_orgs; Type: TABLE DATA; Schema: public; Owner: gha_admin
+--
+
+COPY public.gha_orgs (id, login) FROM stdin;
+\.
+
+
+--
+-- Data for Name: gha_pages; Type: TABLE DATA; Schema: public; Owner: gha_admin
+--
+
+COPY public.gha_pages (sha, event_id, action, title, dup_actor_id, dup_actor_login, dup_repo_id, dup_repo_name, dup_type, dup_created_at) FROM stdin;
+\.
+
+
+--
+-- Data for Name: gha_parsed; Type: TABLE DATA; Schema: public; Owner: gha_admin
+--
+
+COPY public.gha_parsed (dt) FROM stdin;
+\.
+
+
+--
+-- Data for Name: gha_payloads; Type: TABLE DATA; Schema: public; Owner: gha_admin
+--
+
+COPY public.gha_payloads (event_id, push_id, size, ref, head, befor, action, issue_id, pull_request_id, comment_id, ref_type, master_branch, description, number, forkee_id, release_id, member_id, commit, dup_actor_id, dup_actor_login, dup_repo_id, dup_repo_name, dup_type, dup_created_at) FROM stdin;
+\.
+
+
+--
+-- Data for Name: gha_postprocess_scripts; Type: TABLE DATA; Schema: public; Owner: gha_admin
+--
+
+COPY public.gha_postprocess_scripts (ord, path) FROM stdin;
+\.
+
+
+--
+-- Data for Name: gha_pull_requests; Type: TABLE DATA; Schema: public; Owner: gha_admin
+--
+
+COPY public.gha_pull_requests (id, event_id, user_id, base_sha, head_sha, merged_by_id, assignee_id, milestone_id, number, state, locked, title, body, created_at, updated_at, closed_at, merged_at, merge_commit_sha, merged, mergeable, rebaseable, mergeable_state, comments, review_comments, maintainer_can_modify, commits, additions, deletions, changed_files, dup_actor_id, dup_actor_login, dup_repo_id, dup_repo_name, dup_type, dup_created_at, dup_user_login, dupn_assignee_login, dupn_merged_by_login) FROM stdin;
+\.
+
+
+--
+-- Data for Name: gha_pull_requests_assignees; Type: TABLE DATA; Schema: public; Owner: gha_admin
+--
+
+COPY public.gha_pull_requests_assignees (pull_request_id, event_id, assignee_id) FROM stdin;
+\.
+
+
+--
+-- Data for Name: gha_pull_requests_requested_reviewers; Type: TABLE DATA; Schema: public; Owner: gha_admin
+--
+
+COPY public.gha_pull_requests_requested_reviewers (pull_request_id, event_id, requested_reviewer_id) FROM stdin;
+\.
+
+
+--
+-- Data for Name: gha_releases; Type: TABLE DATA; Schema: public; Owner: gha_admin
+--
+
+COPY public.gha_releases (id, event_id, tag_name, target_commitish, name, draft, author_id, prerelease, created_at, published_at, body, dup_actor_id, dup_actor_login, dup_repo_id, dup_repo_name, dup_type, dup_created_at, dup_author_login) FROM stdin;
+\.
+
+
+--
+-- Data for Name: gha_releases_assets; Type: TABLE DATA; Schema: public; Owner: gha_admin
+--
+
+COPY public.gha_releases_assets (release_id, event_id, asset_id) FROM stdin;
+\.
+
+
+--
+-- Data for Name: gha_repos; Type: TABLE DATA; Schema: public; Owner: gha_admin
+--
+
+COPY public.gha_repos (id, name, org_id, org_login, repo_group, alias) FROM stdin;
+\.
+
+
+--
+-- Data for Name: gha_skip_commits; Type: TABLE DATA; Schema: public; Owner: gha_admin
+--
+
+COPY public.gha_skip_commits (sha, dt) FROM stdin;
+\.
+
+
+--
+-- Data for Name: gha_teams; Type: TABLE DATA; Schema: public; Owner: gha_admin
+--
+
+COPY public.gha_teams (id, event_id, name, slug, permission, dup_actor_id, dup_actor_login, dup_repo_id, dup_repo_name, dup_type, dup_created_at) FROM stdin;
+\.
+
+
+--
+-- Data for Name: gha_teams_repositories; Type: TABLE DATA; Schema: public; Owner: gha_admin
+--
+
+COPY public.gha_teams_repositories (team_id, event_id, repository_id) FROM stdin;
+\.
+
+
+--
+-- Data for Name: gha_texts; Type: TABLE DATA; Schema: public; Owner: gha_admin
+--
+
+COPY public.gha_texts (event_id, body, created_at, actor_id, actor_login, repo_id, repo_name, type) FROM stdin;
+\.
+
+
+--
+-- Data for Name: gha_vars; Type: TABLE DATA; Schema: public; Owner: gha_admin
+--
+
+COPY public.gha_vars (name, value_i, value_f, value_s, value_dt) FROM stdin;
+\.
+
+
+--
+-- Name: gha_logs_id_seq; Type: SEQUENCE SET; Schema: public; Owner: gha_admin
+--
+
+SELECT pg_catalog.setval('public.gha_logs_id_seq', 1, false);
+
+
+--
 -- Name: gha_actors_affiliations gha_actors_affiliations_pkey; Type: CONSTRAINT; Schema: public; Owner: gha_admin
 --
 
@@ -3121,6 +3690,34 @@ GRANT SELECT ON TABLE current_state.issues TO gha_admin;
 --
 
 GRANT SELECT ON TABLE current_state.prs TO gha_admin;
+
+
+--
+-- Name: issue_labels; Type: MATERIALIZED VIEW DATA; Schema: current_state; Owner: devstats_team
+--
+
+REFRESH MATERIALIZED VIEW current_state.issue_labels;
+
+
+--
+-- Name: milestones; Type: MATERIALIZED VIEW DATA; Schema: current_state; Owner: devstats_team
+--
+
+REFRESH MATERIALIZED VIEW current_state.milestones;
+
+
+--
+-- Name: issues; Type: MATERIALIZED VIEW DATA; Schema: current_state; Owner: devstats_team
+--
+
+REFRESH MATERIALIZED VIEW current_state.issues;
+
+
+--
+-- Name: prs; Type: MATERIALIZED VIEW DATA; Schema: current_state; Owner: devstats_team
+--
+
+REFRESH MATERIALIZED VIEW current_state.prs;
 
 
 --
