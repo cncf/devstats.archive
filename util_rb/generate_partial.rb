@@ -99,8 +99,9 @@ def generate_partial(outfile, tfile, pfile, tpref, tsuff, ppref, psuff, repl_fro
   outlines.each_with_index do |line, idx|
     outlines[idx] = "#{outlines_ws[idx]}#{outlines[idx]}"
   end
-  # pretty print HTML
-  binding.pry
+
+  # Write output
+  File.write outfile, outlines.join("\n")
 end
 
 if ARGV.size < 9
