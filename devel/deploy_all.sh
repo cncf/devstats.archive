@@ -86,16 +86,13 @@ LASTDB=""
 for db in $alldb
 do
   exists=`sudo -u postgres psql -tAc "select 1 from pg_database where datname = '$db'"` || exit 100
-  echo "exists $exists"
   if [ ! "$exists" = "1" ]
   then
     LASTDB=$db
   fi
 done
 export LASTDB
-echo "Last DB is $LASTDB"
-exit 1
-
+echo "Last missing DB is $LASTDB"
 
 if [ ! -z "$INIT" ]
 then
