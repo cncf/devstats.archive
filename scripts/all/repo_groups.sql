@@ -309,6 +309,26 @@ where
   or name in ('pingcap/tikv')
 ;
 
+-- Cortex
+update
+  gha_repos
+set
+  repo_group = 'Cortex',
+  alias = 'Cortex'
+where
+  name in ('weaveworks/cortex')
+;
+
+-- Buildpacks
+update
+  gha_repos
+set
+  repo_group = 'Buildpacks',
+  alias = 'Buildpacks'
+where
+  org_login in ('buildpack')
+;
+
 -- CNCF
 update
   gha_repos

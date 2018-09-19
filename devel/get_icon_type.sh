@@ -34,6 +34,8 @@ icontypes=(
   ["harbor"]="color"
   ["etcd"]="color"
   ["tikv"]="color"
+  ["cortex"]="color"
+  ["buildpacks"]="color"
   ["all"]="color"
   ["devstats"]="color"
 )
