@@ -1282,5 +1282,15 @@ func Structure(ctx *Ctx) {
 			}
 		}
 		FatalOnError(rows.Err())
+		dtStart := time.Now()
+		script = "util_sql/country_codes.sql"
+		bytes, err := ReadFile(ctx, dataPrefix+script)
+		FatalOnError(err)
+		sql := string(bytes)
+		ExecSQLWithErr(c, ctx, sql)
+		if ctx.Debug > 0 {
+			dtEnd := time.Now()
+			Printf("Executed countries script: %s: took %v\n", script, dtEnd.Sub(dtStart))
+		}
 	}
 }
