@@ -35,6 +35,7 @@ if ( [ -z "$SKIPADDALL"] && [ ! "$PROJ" = "all" ] && [ ! "$PROJ" = "opencontaine
 then
   if [ "$PROJDB" = "$LASTDB" ]
   then
+    echo "updating ALL CNCF project with reinit mode"
     TSDB=1 ./all/add_project.sh "$PROJDB" "$PROJREPO" || exit 4
   else
     ./all/add_project.sh "$PROJDB" "$PROJREPO" || exit 5
