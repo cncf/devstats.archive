@@ -20,8 +20,7 @@ set repo_group = 'Cortex', alias = 'Cortex'
 where name in (
   'weaveworks/cortex',
   'weaveworks/prism',
-  'weaveworks/frankenstein',
-  'cortexproject/cortex'
+  'weaveworks/frankenstein'
 );
 
 select
