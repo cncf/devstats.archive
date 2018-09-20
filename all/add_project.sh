@@ -35,15 +35,21 @@ then
 fi
 if [ ! -z "$AGET" ]
 then
-  echo "attempt to fetch postgres database allprj from backup"
-  wget "https://cncftest.io/allprj.dump" || exit 5
-  ./devel/restore_db.sh allprj || exit 6
-  rm -f allprj.dump || exit 7
-  echo 'dropping and recreating postgres variables'
-  sudo -u postgres psql allprj -c "delete from gha_vars" || exit 8
-  GHA2DB_PROJECT=all PG_DB=allprj GHA2DB_LOCAL=1 ./vars || exit 9
-  echo "allprj backup restored"
-  GHA2DB_PROJECT=all PG_DB=allprj ./gha2db_sync || exit 10
+  if [ "$PROJDB" = "$LASTDB" ]
+  then
+    echo "$PROJDB is the last DB, processing allprj"
+    echo "attempt to fetch postgres database allprj from backup"
+    wget "https://cncftest.io/allprj.dump" || exit 5
+    ./devel/restore_db.sh allprj || exit 6
+    rm -f allprj.dump || exit 7
+    echo 'dropping and recreating postgres variables'
+    sudo -u postgres psql allprj -c "delete from gha_vars" || exit 8
+    GHA2DB_PROJECT=all PG_DB=allprj GHA2DB_LOCAL=1 ./vars || exit 9
+    echo "allprj backup restored"
+    GHA2DB_PROJECT=all PG_DB=allprj ./gha2db_sync || exit 10
+  else
+    echo "$PROJDB is not the last DB ($LASTDB), skipping allprj database restore"
+  fi
   exit 0
 else
   echo "merging $1 into allprj"
