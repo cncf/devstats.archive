@@ -102,6 +102,7 @@ if [ ! -d "/var/lib/grafana.$GRAFSUFF/" ]
 then
   echo "copying /var/lib/grafana.$GRAFSUFF/"
   cp -R "$GRAF_VARLIB" "/var/lib/grafana.$GRAFSUFF/" || exit 17
+  rm -f "/var/lib/grafana.$GRAFSUFF/grafana.db" || exit 17
 fi
   
 if ( [ ! -f "/var/lib/grafana.$GRAFSUFF/grafana.db" ] && [ ! -z "$GGET" ] )
