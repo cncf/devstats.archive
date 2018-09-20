@@ -7,7 +7,6 @@ This file describes how to add new project on the test and production servers.
 - Make sure that you have Postgres database backup generated on the test server (this happens automatically on full deploy and nightly).
 - Make sure you have Grafana DB dumps available on the test server by running `./grafana/copy_grafana_dbs.sh`.
 - Commit to `production` branch with `[deploy]` in the commit message. Automatic deploy will happen. After successful deploy start Grafana `./grafana/newproj/grafana_start.sh &`.
-- If you are deploying more than one new project, consider skipping 'All CNCF projects' update for all but final deployment.
 - Or manually run `CUSTGRAFPATH=1 PG_PASS=... GET=1 AGET=1 GGET=1 SKIPTEMP=1 ./devel/deploy_all.sh` script with correct env variables after `make install`.
 - Go to `https://newproject.devstats.cncf.io` and change Grafana and PostgreSQL passwords (default deploy copies database from the test server, so it has test server credentials initially).
 - `./devel/put_all_charts.sh` then `./devel/put_all_charts_cleanup.sh`.
@@ -37,7 +36,7 @@ This file describes how to add new project on the test and production servers.
 - For example: `./devel/dashboards_replace_from_to.sh dashboards.json` with `FROM` file containing old links and `TO` file containing new links.
 - When adding new dashboard to all projects, you can add to single project (for example "cncf") and then populate to all others via something like `util_sh/replace_proj_name_tag.sh`.
 - You can mass update Grafana dashboards using `sqlitedb` tool: `ONLY="proj1 proj2 ..." ./devel/put_all_charts.sh`, then `devel/put_all_charts_cleanup.sh`. You need to use `ONLY` because there is no new project's Grafana yet.
-- Update `partials/projects.html`. Test with: `ONLY="proj1 proj2 ..." PG_PASS=... ./devel/vars_all.sh`
+- Update `partials/projects.html`. Test with: `ONLY="proj1 proj2 ..." PG_PASS=... ./devel/vars_all.sh`. In simpler cases you can use `./util_sh/generate_partials.sh`.
 - Update Apache proxy and SSL files `apache/www/index_* apache/*/sites-enabled/* apache/*/sites.txt` files.
 - Run deploy all script: `CUSTGRAFPATH=1 PG_PASS=... ./devel/deploy_all.sh`. If succeeded `make install`.
 - Bacause this can take few hours to complete (for a project 4 years old for example), run next sync manually. Get sync command from `crontab -l` and prepend it with `GHA2DB_RECENT_RANGE="4 hours"` to avoid missing GitHub API events.
