@@ -7,7 +7,6 @@ This file describes how to add new project on the test and production servers.
 - Make sure that you have Postgres database backup generated on the test server (this happens automatically on full deploy and nightly).
 - Make sure you have Grafana DB dumps available on the test server by running `./grafana/copy_grafana_dbs.sh`.
 - Commit to `production` branch with `[deploy]` in the commit message. Automatic deploy will happen. After successful deploy start Grafana `./grafana/newproj/grafana_start.sh &`.
-- If you are deploying more than one new project, consider skipping 'All CNCF projects' update for all but final deployment.
 - Or manually run `CUSTGRAFPATH=1 PG_PASS=... GET=1 AGET=1 GGET=1 SKIPTEMP=1 ./devel/deploy_all.sh` script with correct env variables after `make install`.
 - Go to `https://newproject.devstats.cncf.io` and change Grafana and PostgreSQL passwords (default deploy copies database from the test server, so it has test server credentials initially).
 - `./devel/put_all_charts.sh` then `./devel/put_all_charts_cleanup.sh`.
