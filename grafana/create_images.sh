@@ -31,7 +31,7 @@ do
     icon="cncf"
   fi
   # TODO: remove when we have icons
-  if ( [ "$icon" = "etcd" ] || [ "$icon" = "cortex" ] || [ "$icon" = "buildpacks" ] )
+  if ( [ "$icon" = "etcd" ] || [ "$icon" = "buildpacks" ] )
   then
     icon="cncf"
   fi

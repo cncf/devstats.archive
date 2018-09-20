@@ -187,10 +187,9 @@ do
   elif [ "$proj" = "tikv" ]
   then
     PROJ=tikv           PROJDB=tikv           PROJREPO="tikv/tikv"                     ORGNAME=TiKV         PORT=3026 ICON=tikv         GRAFSUFF=tikv           GA="UA-108085315-31" ./devel/deploy_proj.sh || exit 28
-# TODO: icons
   elif [ "$proj" = "cortex" ]
   then
-    PROJ=cortex         PROJDB=cortex         PROJREPO="weaveworks/cortex"             ORGNAME=Cortex       PORT=3027 ICON=cncf         GRAFSUFF=cortex         GA="UA-108085315-32" ./devel/deploy_proj.sh || exit 29
+    PROJ=cortex         PROJDB=cortex         PROJREPO="weaveworks/cortex"             ORGNAME=Cortex       PORT=3027 ICON=cortex       GRAFSUFF=cortex         GA="UA-108085315-32" ./devel/deploy_proj.sh || exit 29
 # TODO: icons
   elif [ "$proj" = "buildpacks" ]
   then
