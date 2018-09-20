@@ -22,6 +22,9 @@ select
     and (lower(e.dup_actor_login) {{exclude_bots}})
   group by
     c.name
+  union select 'None' as name,
+    0 as acnt,
+    0 as ecnt
   order by
     acnt desc,
     ecnt desc,

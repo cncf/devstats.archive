@@ -33,10 +33,16 @@ then
 fi
 if ( [ -z "$SKIPADDALL"] && [ ! "$PROJ" = "all" ] && [ ! "$PROJ" = "opencontainers" ] )
 then
-  TSDB=1 ./all/add_project.sh "$PROJDB" "$PROJREPO" || exit 4
+  if [ "$PROJDB" = "$LASTDB" ]
+  then
+    echo "updating ALL CNCF project with reinit mode"
+    TSDB=1 ./all/add_project.sh "$PROJDB" "$PROJREPO" || exit 4
+  else
+    ./all/add_project.sh "$PROJDB" "$PROJREPO" || exit 5
+  fi
 fi
 if [ -z "$SKIPGRAFANA" ]
 then
-  ./devel/create_grafana.sh || exit 5
+  ./devel/create_grafana.sh || exit 6
 fi
 echo "$0: $PROJ deploy finished"

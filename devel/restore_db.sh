@@ -1,6 +1,6 @@
 #!/bin/bash
 # FROMBACKUP: if set, it will use /var/www/html/$1.dump as a restore source
-# TEMPRENAME: restore to $1_teamp and then drop $1 and rename $1_temp to $1 (a lot less $1 downtime but more disk usage)
+# TEMPRENAME: restore to $1_temp and then drop $1 and rename $1_temp to $1 (a lot less $1 downtime but more disk usage)
 if [ -z "$1" ]
 then
   echo "$0: you need to provide database name"
