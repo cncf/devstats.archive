@@ -316,8 +316,7 @@ set
   repo_group = 'Cortex',
   alias = 'Cortex'
 where
-  org_login in ('cortexproject')
-  or name in ('weaveworks/cortex')
+  name in ('weaveworks/cortex')
 ;
 
 -- Buildpacks
