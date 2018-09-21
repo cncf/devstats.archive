@@ -30,17 +30,13 @@ from (
     a.sex
   union select 'sex' as type,
     a.sex,
-    coalesce(ecf.repo_group, r.repo_group) as repo_group,
+    r.repo_group,
     count(distinct a.login) as rcommitters,
     count(distinct c.sha) as rcommits
   from
     gha_repos r,
     gha_actors a,
     gha_commits c
-  left join
-    gha_events_commits_files ecf
-  on
-    ecf.event_id = c.event_id
   where
     (
       c.author_name = a.name
@@ -59,7 +55,7 @@ from (
     and c.dup_created_at < '{{to}}'
   group by
     a.sex,
-    coalesce(ecf.repo_group, r.repo_group)
+    r.repo_group
 ) inn
 where
   inn.repo_group is not null 
