@@ -91,6 +91,7 @@ All non-k8s projects currently have the same set of dashbords, you only need to 
 - Repository commenters: [repository-commenters.json](https://github.com/cncf/devstats/blob/master/grafana/dashboards/prometheus/repository-commenters.json), [view](https://prometheus.devstats.cncf.io/d/25/repository-commenters?orgId=1)
 - Repository comments: [repository-comments.json](https://github.com/cncf/devstats/blob/master/grafana/dashboards/prometheus/repository-comments.json), [view](https://prometheus.devstats.cncf.io/d/26/repository-comments?orgId=1)
 - Time metrics: [time-metrics.json](https://github.com/cncf/devstats/blob/master/grafana/dashboards/prometheus/time-metrics.json), [view](https://prometheus.devstats.cncf.io/d/27/time-metrics?orgId=1)
+- Timezone stats: [timezones-stats.json](https://github.com/cncf/devstats/blob/master/grafana/dashboards/prometheus/timeones-stats.json), [view](https://prometheus.cncftest.io/d/51/timezones-stats?orgId=1)
 - Top commenters: [top-commenters.json](https://github.com/cncf/devstats/blob/master/grafana/dashboards/prometheus/top-commenters.json), [view](https://prometheus.devstats.cncf.io/d/28/top-commenters?orgId=1)
 - User reviews: [user-reviews.json](https://github.com/cncf/devstats/blob/master/grafana/dashboards/prometheus/user-reviews.json), [view](https://prometheus.devstats.cncf.io/d/46/user-reviews?orgId=1)
 - Users stats: [users-stats.json](https://github.com/cncf/devstats/blob/master/grafana/dashboards/prometheus/users-stats.json), [view](https://prometheus.devstats.cncf.io/d/48/users-stats?orgId=1)
