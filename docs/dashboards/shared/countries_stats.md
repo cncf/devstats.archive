@@ -8,7 +8,7 @@
 </ul>
 <h1 id="description">Description</h1>
 <ul>
-<li>This dashboard shows contributor countries statistics (cumulative and in given periods).</li>
+<li>This dashboard shows countries statistics (cumulative and in given periods).</li>
 <li>Contributor is defined as somebody who made a review, comment, commit, created PR or issue.</li>
 <li>Contribution is a review, comment, commit, issue or PR.</li>
 <li>We are determining contributor's country by using GitHub localization and searching for a country using <a href="http://www.geonames.org" target="_blank">geonames</a> database.</li>
