@@ -126,25 +126,25 @@ select
   inn.value
 from (
   select 'tz_rcommitters_' || repo_group || ',' || tz_offset as name, rcommitters as value from committers_data
-  select 'tz_rcommits_' || repo_group || ',' || tz_offset as name, rcommits as value from committers_data
-  select 'tz_contributors_' || repo_group || ',' || tz_offset as name, contributors as value from data
-  select 'tz_contributions_' || repo_group || ',' || tz_offset as name, contributions as value from data
-  select 'tz_users_' || repo_group || ',' || tz_offset as name, users as value from data
-  select 'tz_events_' || repo_group || ',' || tz_offset as name, events as value from data
-  select 'tz_committers_' || repo_group || ',' || tz_offset as name, committers as value from data
-  select 'tz_commits_' || repo_group || ',' || tz_offset as name, commits as value from data
-  select 'tz_prcreators_' || repo_group || ',' || tz_offset as name, prcreators as value from data
-  select 'tz_prs_' || repo_group || ',' || tz_offset as name, prs as value from data
-  select 'tz_issuecreators_' || repo_group || ',' || tz_offset as name, issuecreators as value from data
-  select 'tz_issues_' || repo_group || ',' || tz_offset as name, issues as value from data
-  select 'tz_commenters_' || repo_group || ',' || tz_offset as name, commenters as value from data
-  select 'tz_comments_' || repo_group || ',' || tz_offset as name, comments as value from data
-  select 'tz_reviewers_' || repo_group || ',' || tz_offset as name, reviewers as value from data
-  select 'tz_reviews_' || repo_group || ',' || tz_offset as name, reviews as value from data
-  select 'tz_watchers_' || repo_group || ',' || tz_offset as name, watchers as value from data
-  select 'tz_watches_' || repo_group || ',' || tz_offset as name, watches as value from data
-  select 'tz_forkers_' || repo_group || ',' || tz_offset as name, forkers as value from data
-  select 'tz_forks_' || repo_group || ',' || tz_offset as name, forks as value from data
+  union select 'tz_rcommits_' || repo_group || ',' || tz_offset as name, rcommits as value from committers_data
+  union select 'tz_contributors_' || repo_group || ',' || tz_offset as name, contributors as value from data
+  union select 'tz_contributions_' || repo_group || ',' || tz_offset as name, contributions as value from data
+  union select 'tz_users_' || repo_group || ',' || tz_offset as name, users as value from data
+  union select 'tz_events_' || repo_group || ',' || tz_offset as name, events as value from data
+  union select 'tz_committers_' || repo_group || ',' || tz_offset as name, committers as value from data
+  union select 'tz_commits_' || repo_group || ',' || tz_offset as name, commits as value from data
+  union select 'tz_prcreators_' || repo_group || ',' || tz_offset as name, prcreators as value from data
+  union select 'tz_prs_' || repo_group || ',' || tz_offset as name, prs as value from data
+  union select 'tz_issuecreators_' || repo_group || ',' || tz_offset as name, issuecreators as value from data
+  union select 'tz_issues_' || repo_group || ',' || tz_offset as name, issues as value from data
+  union select 'tz_commenters_' || repo_group || ',' || tz_offset as name, commenters as value from data
+  union select 'tz_comments_' || repo_group || ',' || tz_offset as name, comments as value from data
+  union select 'tz_reviewers_' || repo_group || ',' || tz_offset as name, reviewers as value from data
+  union select 'tz_reviews_' || repo_group || ',' || tz_offset as name, reviews as value from data
+  union select 'tz_watchers_' || repo_group || ',' || tz_offset as name, watchers as value from data
+  union select 'tz_watches_' || repo_group || ',' || tz_offset as name, watches as value from data
+  union select 'tz_forkers_' || repo_group || ',' || tz_offset as name, forkers as value from data
+  union select 'tz_forks_' || repo_group || ',' || tz_offset as name, forks as value from data
 ) inn
 where
   inn.value > 0
