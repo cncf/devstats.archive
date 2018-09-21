@@ -66,7 +66,7 @@ with data as (
     r.repo_group
 )
 select
-  'tz;' || tz_offset || '`' || repo_group || ';contributors,contributions,users,events,committers,commits,prcreators,prs,issuecreators,issues,commenters,comments,reviewers,reviews,watchers,watches,forkers,forks' as name,
+  'tz;' || round(tz_offset / 60.0, 1) || '`' || repo_group || ';contributors,contributions,users,events,committers,commits,prcreators,prs,issuecreators,issues,commenters,comments,reviewers,reviews,watchers,watches,forkers,forks' as name,
   contributors,
   contributions,
   users,

@@ -1,5 +1,5 @@
 select
-  distinct tz_offset
+  distinct round(tz_offset / 60.0, 1)
 from
   gha_actors
 where

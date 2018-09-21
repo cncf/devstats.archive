@@ -48,7 +48,7 @@ with committers_data as (
     r.repo_group
 )
 select
-  'tz;' || tz_offset || '`' || repo_group || ';rcommitters,rcommits' as name,
+  'tz;' || round(tz_offset / 60.0, 1) || '`' || repo_group || ';rcommitters,rcommits' as name,
   rcommitters,
   rcommits
 from
