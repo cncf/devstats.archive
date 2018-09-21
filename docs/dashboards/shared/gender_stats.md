@@ -8,7 +8,7 @@
 </ul>
 <h1 id="description">Description</h1>
 <ul>
-<li>This dashboard shows contributor gender statistics (cumulative and in given periods).</li>
+<li>This dashboard shows gender statistics (cumulative and in given periods).</li>
 <li>Contributor is defined as somebody who made a review, comment, commit, created PR or issue.</li>
 <li>Contribution is a review, comment, commit, issue or PR.</li>
 <li>We are determining contributor's gender by using GitHub localization and user name to query <a href="https://store.genderize.io" target="_blank">genderize.io</a> for gender for a given country and name.</li>
