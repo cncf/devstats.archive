@@ -1,10 +1,5 @@
-select
-  concat(inn.type, ';', inn.country_name, '`', inn.repo_group, ';rcommitters,rcommits') as name,
-  inn.rcommitters,
-  inn.rcommits
-from (
-  select 'countries' as type,
-    a.country_name,
+with committers_data as (
+  select a.tz_offset,
     'all' as repo_group,
     count(distinct a.login) as rcommitters,
     count(distinct c.sha) as rcommits
@@ -21,14 +16,12 @@ from (
         and (lower(c.dup_actor_login) {{exclude_bots}})
       )
     )
-    and a.country_name is not null
-    and a.country_name != ''
+    and a.tz_offset is not null
     and c.dup_created_at >= '{{from}}'
     and c.dup_created_at < '{{to}}'
   group by
-    a.country_name
-  union select 'countries' as type,
-    a.country_name,
+    a.tz_offset
+  union select a.tz_offset,
     r.repo_group,
     count(distinct a.login) as rcommitters,
     count(distinct c.sha) as rcommits
@@ -47,16 +40,17 @@ from (
       )
     )
     and r.id = c.dup_repo_id
-    and a.country_name is not null
-    and a.country_name != ''
+    and a.tz_offset is not null
     and c.dup_created_at >= '{{from}}'
     and c.dup_created_at < '{{to}}'
   group by
-    a.country_name,
+    a.tz_offset,
     r.repo_group
-) inn
-where
-  inn.repo_group is not null 
-order by
-  name
+)
+select
+  'tz;' || tz_offset || '`' || repo_group || ';rcommitters,rcommits' as name,
+  rcommitters,
+  rcommits
+from
+  committers_data
 ;
