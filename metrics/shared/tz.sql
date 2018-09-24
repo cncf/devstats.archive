@@ -23,7 +23,7 @@ with data as (
     gha_events e,
     gha_actors a
   where
-    (lower(e.dup_actor_login) {{exclude_bots}})
+    (lower(a.login) {{exclude_bots}})
     and a.id = e.actor_id
     and a.tz_offset is not null
     and e.created_at >= '{{from}}'
@@ -56,9 +56,10 @@ with data as (
     gha_events e
   where
     r.id = e.repo_id
-    and (lower(e.dup_actor_login) {{exclude_bots}})
+    and (lower(a.login) {{exclude_bots}})
     and a.id = e.actor_id
     and a.tz_offset is not null
+    and r.repo_group is not null
     and e.created_at >= '{{from}}'
     and e.created_at < '{{to}}'
   group by

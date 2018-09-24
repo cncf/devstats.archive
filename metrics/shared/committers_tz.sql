@@ -41,6 +41,7 @@ with committers_data as (
     )
     and r.id = c.dup_repo_id
     and a.tz_offset is not null
+    and r.repo_group is not null
     and c.dup_created_at >= '{{from}}'
     and c.dup_created_at < '{{to}}'
   group by
