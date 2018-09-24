@@ -11,7 +11,7 @@ do
   base=${table:0:1}
   if ( [ "$base" = "t" ] || [ "$base" = "s" ] )
   then
-    sudo -u postgres psql $proj -c "drop table $table" || exit 1
+    sudo -u postgres psql $proj -c "drop table \"$table\"" || exit 1
     echo "dropped $table"
   fi
 done
