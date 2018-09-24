@@ -3,12 +3,14 @@
 <ul>
 <li>Metric <a href="https://github.com/cncf/devstats/blob/master/metrics/shared/gender.sql" target="_blank">SQL file</a>.</li>
 <li>Cumulative metric <a href="https://github.com/cncf/devstats/blob/master/metrics/shared/gender_cum.sql" target="_blank">SQL file</a>.</li>
+<li>Committers metric <a href="https://github.com/cncf/devstats/blob/master/metrics/shared/committers_gender.sql" target="_blank">SQL file</a>.</li>
+<li>Committers cumulative metric <a href="https://github.com/cncf/devstats/blob/master/metrics/shared/committers_gender_cum.sql" target="_blank">SQL file</a>.</li>
 <li>TSDB <a href="https://github.com/cncf/devstats/blob/master/metrics/shared/metrics.yaml" target="_blank">series definition</a>. Search for <code>gender</code></li>
 <li>Grafana dashboard <a href="https://github.com/cncf/devstats/blob/master/grafana/dashboards/[[lower_name]]/gender-stats.json" target="_blank">JSON</a>.</li>
 </ul>
 <h1 id="description">Description</h1>
 <ul>
-<li>This dashboard shows contributor gender statistics (cumulative and in given periods).</li>
+<li>This dashboard shows gender statistics (cumulative and in given periods).</li>
 <li>Contributor is defined as somebody who made a review, comment, commit, created PR or issue.</li>
 <li>Contribution is a review, comment, commit, issue or PR.</li>
 <li>We are determining contributor's gender by using GitHub localization and user name to query <a href="https://store.genderize.io" target="_blank">genderize.io</a> for gender for a given country and name.</li>
