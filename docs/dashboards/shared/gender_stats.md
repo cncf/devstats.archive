@@ -3,6 +3,8 @@
 <ul>
 <li>Metric <a href="https://github.com/cncf/devstats/blob/master/metrics/shared/gender.sql" target="_blank">SQL file</a>.</li>
 <li>Cumulative metric <a href="https://github.com/cncf/devstats/blob/master/metrics/shared/gender_cum.sql" target="_blank">SQL file</a>.</li>
+<li>Committers metric <a href="https://github.com/cncf/devstats/blob/master/metrics/shared/committers_gender.sql" target="_blank">SQL file</a>.</li>
+<li>Committers cumulative metric <a href="https://github.com/cncf/devstats/blob/master/metrics/shared/committers_gender_cum.sql" target="_blank">SQL file</a>.</li>
 <li>TSDB <a href="https://github.com/cncf/devstats/blob/master/metrics/shared/metrics.yaml" target="_blank">series definition</a>. Search for <code>gender</code></li>
 <li>Grafana dashboard <a href="https://github.com/cncf/devstats/blob/master/grafana/dashboards/[[lower_name]]/gender-stats.json" target="_blank">JSON</a>.</li>
 </ul>
