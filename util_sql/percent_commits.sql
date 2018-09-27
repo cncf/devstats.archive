@@ -26,6 +26,7 @@ from (
         and (lower(c.dup_actor_login) {{exclude_bots}})
       )
     )
+    and e.created_at >= '{{from}}'
   group by
     coalesce(af.company_name, 'Unknown')
 ) i
