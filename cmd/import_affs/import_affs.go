@@ -203,7 +203,7 @@ func importAffs(jsonFN string) {
 	eNames, eEmails, eAffs := 0, 0, 0
 	for _, user := range users {
 		// Email decode ! --> @
-		user.Email = emailDecode(user.Email)
+		user.Email = strings.ToLower(emailDecode(user.Email))
 		login := user.Login
 
 		// Email
