@@ -98,11 +98,14 @@ func findActor(db *sql.DB, ctx *lib.Ctx, login string, maybeHide func(string) st
 		db,
 		ctx,
 		fmt.Sprintf(
-			"select id, name, country_id, tz, tz_offset, sex, sex_prob "+
-				"from gha_actors where login=%s order by id desc limit 1",
+			"select id, name, country_id, tz, tz_offset, sex, sex_prob from gha_actors where login=%s "+
+				"union select id, name, country_id, tz, tz_offset, sex, sex_prob from gha_actors where lower(login)=%s "+
+				"order by id desc limit 1",
 			lib.NValue(1),
+			lib.NValue(2),
 		),
 		login,
+		strings.ToLower(login),
 	)
 	defer func() { lib.FatalOnError(rows.Close()) }()
 	var name *string
@@ -135,8 +138,8 @@ func findActorIDs(db *sql.DB, ctx *lib.Ctx, login string, maybeHide func(string)
 	rows := lib.QuerySQLWithErr(
 		db,
 		ctx,
-		fmt.Sprintf("select id from gha_actors where login=%s", lib.NValue(1)),
-		login,
+		fmt.Sprintf("select id from gha_actors where lower(login)=%s", lib.NValue(1)),
+		strings.ToLower(login),
 	)
 	defer func() { lib.FatalOnError(rows.Close()) }()
 	var aid int
@@ -283,7 +286,7 @@ func importAffs(jsonFN string) {
 					", tz="+lib.NValue(4)+
 					", sex_prob="+lib.NValue(5)+
 					", tz_offset="+lib.NValue(6)+
-					" where login="+lib.NValue(7),
+					" where lower(login)="+lib.NValue(7),
 				lib.AnyArray{
 					maybeHide(name),
 					csD.CountryID,
@@ -291,7 +294,7 @@ func importAffs(jsonFN string) {
 					csD.Tz,
 					csD.SexProb,
 					csD.TzOffset,
-					maybeHide(login),
+					strings.ToLower(maybeHide(login)),
 				}...,
 			)
 			updated++
