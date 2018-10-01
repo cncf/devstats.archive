@@ -34,7 +34,7 @@ type Ctx struct {
 	ForceStartDate      bool                         // From GHA2DB_STARTDT_FORCE, default false
 	LastSeries          string                       // From GHA2DB_LASTSERIES, use this TSDB series to determine last timestamp date, default "events_h"
 	SkipTSDB            bool                         // From GHA2DB_SKIPTSDB gha2db_sync tool, skip TS DB processing? for calc_metric it skips final series write, default false
-	SkipPDB             bool                         // From GHA2DB_SKIPPDB gha2db_sync tool, skip Postgres DB processing? default false
+	SkipPDB             bool                         // From GHA2DB_SKIPPDB gha2db_sync tool, skip Postgres DB processing (gha2db part)? default false
 	ResetTSDB           bool                         // From GHA2DB_RESETTSDB sync tool, regenerate all TS points? default false
 	ResetRanges         bool                         // From GHA2DB_RESETRANGES sync tool, regenerate all past quick ranges? default false
 	Explain             bool                         // From GHA2DB_EXPLAIN runq tool, prefix query with "explain " - it will display query plan instead of executing real query, default false
