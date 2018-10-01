@@ -393,7 +393,7 @@ func sync(ctx *lib.Ctx, args []string) {
 						seriesNameOrFunc += "_" + periodAggr
 					}
 					// Histogram metrics usualy take long time, but executes single query, so there is no way to
-					// Implement multi threading inside "calc_metric" call fro them
+					// Implement multi threading inside "calc_metric" call for them
 					// So we're creating array of such metrics to be executed at the end - each in a separate go routine
 					if metric.Histogram {
 						lib.Printf("Scheduled histogram metric %v, period %v, desc: '%v', aggregate: '%v' ...\n", metric.Name, period, metric.Desc, aggrSuffix)
