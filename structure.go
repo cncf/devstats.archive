@@ -77,6 +77,7 @@ func Structure(ctx *Ctx) {
 	}
 	if ctx.Index {
 		ExecSQLWithErr(c, ctx, "create index actors_login_idx on gha_actors(login)")
+		ExecSQLWithErr(c, ctx, "create index actors_lower_login_idx on gha_actors(lower(login))")
 		ExecSQLWithErr(c, ctx, "create index actors_name_idx on gha_actors(name)")
 		ExecSQLWithErr(c, ctx, "create index actors_country_id_idx on gha_actors(country_id)")
 		ExecSQLWithErr(c, ctx, "create index actors_sex_idx on gha_actors(sex)")
