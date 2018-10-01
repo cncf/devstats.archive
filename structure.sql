@@ -2069,6 +2069,13 @@ CREATE INDEX actors_login_idx ON public.gha_actors USING btree (login);
 
 
 --
+-- Name: actors_lower_login_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX actors_lower_login_idx ON public.gha_actors USING btree (lower((login)::text));
+
+
+--
 -- Name: actors_name_idx; Type: INDEX; Schema: public; Owner: gha_admin
 --
 
