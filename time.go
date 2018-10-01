@@ -69,10 +69,9 @@ func ComputePeriodAtThisDate(ctx *Ctx, period string, dt time.Time, hist bool) b
 		return ok
 	}
 	dt = HourStart(dt)
-	h := (dt.Hour() + ctx.TmOffset) % 24
-	if h < 0 {
-		h += 24
-	}
+	dt = dt.Add(time.Hour * time.Duration(ctx.TmOffset))
+	dtn := dt.AddDate(0, 0, 1)
+	h := dt.Hour()
 	periodStart := period[0:1]
 	if periodStart == "h" {
 		return true
@@ -99,13 +98,13 @@ func ComputePeriodAtThisDate(ctx *Ctx, period string, dt time.Time, hist bool) b
 		}
 	} else {
 		if periodStart == "w" {
-			return h%6 == 0 && int(dt.Weekday()) == 1
+			return h == 23 && int(dt.Weekday()) == 0
 		} else if periodStart == "m" {
-			return h == 23 && dt.Day() == 1
+			return h == 23 && dtn.Day() == 1
 		} else if periodStart == "q" {
-			return h == 23 && dt.Day() == 1 && dt.Month()%3 == 1
+			return h == 23 && dtn.Day() == 1 && dtn.Month()%3 == 1
 		} else if periodStart == "y" {
-			return h == 23 && dt.Day() == 1 && dt.Month() == 1
+			return h == 23 && dtn.Day() == 1 && dtn.Month() == 1
 		}
 	}
 	Fatalf("ComputePeriodAtThisDate: unknown period: '%s', hist: %v", period, hist)
