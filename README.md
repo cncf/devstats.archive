@@ -9,6 +9,8 @@ This is a toolset to visualize GitHub [archives](https://www.gharchive.org) usin
 
 GHA2DB stands for **G**it**H**ub **A**rchives to **D**ash**B**oards.
 
+Presentation [link](https://github.com/cncf/devstats/blob/master/docs/DevStatsPresentation.pdf).
+
 # Deploying on your own project(s)
 
 See the simple [DevStats example](https://github.com/cncf/devstats-example) repository for single project deployment (Homebrew), follow [instructions](https://github.com/cncf/devstats-example/blob/master/SETUP_OTHER_PROJECT.md) to deploy for your own project.
