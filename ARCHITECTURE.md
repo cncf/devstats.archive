@@ -34,6 +34,7 @@ Project uses use GitHub archives and local copy of all git repositories. The pos
 - All projects repositories are updated every hour using `git` (part of standard cron workflow).
 - For all commits retrieved from GitHub archives we are storing list of modified (modified, added, deleted) files and their size (at the commit time).
 - This allows file name analsysis, assigning given files from repositories to repository groups (file level granularity) and file size analysis (for example file size growth in time).
+- cncf/gitdm uses git to GitHub connection from git pushes to allow connecting committers with their GitHub accounts. This is used to determine committers company affiliations.
 
 # Architecture
 
