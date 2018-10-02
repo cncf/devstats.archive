@@ -9,7 +9,11 @@ This is a toolset to visualize GitHub [archives](https://www.gharchive.org) usin
 
 GHA2DB stands for **G**it**H**ub **A**rchives to **D**ash**B**oards.
 
-Presentation [link](https://github.com/cncf/devstats/blob/master/docs/DevStatsPresentation.pdf).
+
+# Presentations
+
+- Presentations are available [here](https://github.com/cncf/devstats/blob/master/docs/presentation).
+- Direct [link](https://docs.google.com/presentation/d/1v5zuSFQkwcthWXgS2p9vs9x5e4fnavMR8HdykS7aWYA/edit?usp=sharing).
 
 # Deploying on your own project(s)
 
