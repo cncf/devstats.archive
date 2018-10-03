@@ -1,20 +1,24 @@
 #!/bin/bash
 # GRAFANA_DATA=/usr/share/grafana.jaeger/
+# SKIPVIM=1 skip text replace part"
 if [ -z "${GRAFANA_DATA}" ]
 then
   echo "You need to set GRAFANA_DATA environment variable to run this script"
   exit 1
 fi
-for f in `find ${GRAFANA_DATA} -type f -exec grep -l "'Grafana - '" "{}" \; | sort | uniq`
-do
-  ls -l "$f"
-  vim -c "%s/'Grafana - '/'Jaeger DevStats - '/g|wq" "$f"
-done
-for f in `find ${GRAFANA_DATA} -type f -exec grep -l '"Grafana - "' "{}" \; | sort | uniq`
-do
-  ls -l "$f"
-  vim -c '%s/"Grafana - "/"Jaeger DevStats - "/g|wq' "$f"
-done
+if [ -z "${SKIPVIM}" ]
+then
+  for f in `find ${GRAFANA_DATA} -type f -exec grep -l "'Grafana - '" "{}" \; | sort | uniq`
+  do
+    ls -l "$f"
+    vim -c "%s/'Grafana - '/'Jaeger DevStats - '/g|wq" "$f"
+  done
+  for f in `find ${GRAFANA_DATA} -type f -exec grep -l '"Grafana - "' "{}" \; | sort | uniq`
+  do
+    ls -l "$f"
+    vim -c '%s/"Grafana - "/"Jaeger DevStats - "/g|wq' "$f"
+  done
+fi
 cp -n ${GRAFANA_DATA}/public/img/grafana_icon.svg ${GRAFANA_DATA}/public/img/grafana_icon.svg.bak
 cp grafana/img/jaeger.svg ${GRAFANA_DATA}/public/img/grafana_icon.svg || exit 1
 cp -n ${GRAFANA_DATA}/public/img/grafana_com_auth_icon.svg ${GRAFANA_DATA}/public/img/grafana_com_auth_icon.svg.bak
