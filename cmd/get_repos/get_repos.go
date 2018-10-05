@@ -41,7 +41,7 @@ func dirExists(path string) (bool, error) {
 }
 
 // getRepos returns map { 'org' --> list of repos } for all devstats projects
-func getRepos(ctx *lib.Ctx) (map[string]string, map[string][]string) {
+func getRepos(ctx *lib.Ctx) (map[string]string, map[string]map[string]struct{}) {
 	// Process all projects, or restrict from environment variable?
 	onlyProjects := make(map[string]bool)
 	selectedProjects := false
@@ -73,7 +73,7 @@ func getRepos(ctx *lib.Ctx) (map[string]string, map[string][]string) {
 		dbs[proj.PDB] = proj.FilesSkipPattern
 	}
 
-	allRepos := make(map[string][]string)
+	allRepos := make(map[string]map[string]struct{})
 	for db := range dbs {
 		// Connect to Postgres `db` database.
 		con := lib.PgConnDB(ctx, db)
@@ -102,10 +102,9 @@ func getRepos(ctx *lib.Ctx) (map[string]string, map[string][]string) {
 			org := ary[0]
 			_, ok := allRepos[org]
 			if !ok {
-				allRepos[org] = []string{}
+				allRepos[org] = make(map[string]struct{})
 			}
-			ary = append(allRepos[org], repo)
-			allRepos[org] = ary
+			allRepos[org][repo] = struct{}{}
 		}
 	}
 
@@ -182,7 +181,7 @@ func processRepo(ch chan string, ctx *lib.Ctx, orgRepo, rwd string) {
 
 // processRepos process map of org -> list of repos to clone or pull them as needed
 // it also displays cncf/gitdm needed info in debug mode (called manually)
-func processRepos(ctx *lib.Ctx, allRepos map[string][]string) {
+func processRepos(ctx *lib.Ctx, allRepos map[string]map[string]struct{}) {
 	// Set non-fatal exec mode, we want to run sync for next project(s) if current fails
 	// Also set quite mode, many git-pulls or git-clones can fail and this is not needed to log it to DB
 	// User can set higher debug level and run manually to debug this
@@ -234,7 +233,7 @@ func processRepos(ctx *lib.Ctx, allRepos map[string][]string) {
 			}
 		}
 		// Iterate org's repositories
-		for _, orgRepo := range repos {
+		for orgRepo := range repos {
 			// Check if we already processed that repo
 			_, ok := seen[orgRepo]
 			if ok {
