@@ -330,6 +330,17 @@ where
   org_login in ('buildpack')
 ;
 
+-- Falco
+update
+  gha_repos
+set
+  repo_group = 'Falco',
+  alias = 'Falco'
+where
+  org_login in ('falcosecurity')
+  or name in ('draios/falco')
+;
+
 -- CNCF
 update
   gha_repos
