@@ -193,15 +193,19 @@ do
   elif [ "$proj" = "buildpacks" ]
   then
     PROJ=buildpacks     PROJDB=buildpacks     PROJREPO="buildpack/lifecycle"           ORGNAME=Buildpacks   PORT=3028 ICON=buildpacks   GRAFSUFF=buildpacks     GA="UA-108085315-33" ./devel/deploy_proj.sh || exit 30
+# TODO: icons
+  elif [ "$proj" = "falco" ]
+  then
+    PROJ=falco          PROJDB=falco          PROJREPO="falcosecurity/falco"           ORGNAME=Falco        PORT=3029 ICON=cncf         GRAFSUFF=falco          GA="UA-108085315-34" ./devel/deploy_proj.sh || exit 31
   elif [ "$proj" = "opencontainers" ]
   then
-    PROJ=opencontainers PROJDB=opencontainers PROJREPO="opencontainers/runc"           ORGNAME=OCI          PORT=3100 ICON="-"          GRAFSUFF=opencontainers GA="UA-108085315-19" ./devel/deploy_proj.sh || exit 31
+    PROJ=opencontainers PROJDB=opencontainers PROJREPO="opencontainers/runc"           ORGNAME=OCI          PORT=3100 ICON="-"          GRAFSUFF=opencontainers GA="UA-108085315-19" ./devel/deploy_proj.sh || exit 32
   elif [ "$proj" = "cncf" ]
   then
-    PROJ=cncf           PROJDB=cncf           PROJREPO="cncf/landscape"                ORGNAME=CNCF         PORT=3255 ICON=cncf         GRAFSUFF=cncf           GA="UA-108085315-8" ./devel/deploy_proj.sh || exit 32
+    PROJ=cncf           PROJDB=cncf           PROJREPO="cncf/landscape"                ORGNAME=CNCF         PORT=3255 ICON=cncf         GRAFSUFF=cncf           GA="UA-108085315-8" ./devel/deploy_proj.sh || exit 33
   elif [ "$proj" = "all" ]
   then
-    PROJ=all            PROJDB=allprj         PROJREPO="not/used"                      ORGNAME="All CNCF"   PORT=3254 ICON=cncf         GRAFSUFF=all            GA="UA-108085315-20" ./devel/deploy_proj.sh || exit 33
+    PROJ=all            PROJDB=allprj         PROJREPO="not/used"                      ORGNAME="All CNCF"   PORT=3254 ICON=cncf         GRAFSUFF=all            GA="UA-108085315-20" ./devel/deploy_proj.sh || exit 34
   else
     echo "Unknown project: $proj"
     exit 28
@@ -210,10 +214,10 @@ done
 
 if [ -z "$SKIPWWW" ]
 then
-  CERT=1 WWW=1 ./devel/create_www.sh || exit 34
+  CERT=1 WWW=1 ./devel/create_www.sh || exit 35
 fi
 if [ -z "$SKIPVARS" ]
 then
-  ./devel/vars_all.sh || exit 35
+  ./devel/vars_all.sh || exit 36
 fi
 echo "$0: All deployments finished"
