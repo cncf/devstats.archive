@@ -16,10 +16,10 @@ set
 update gha_repos set repo_group = alias;
 
 update gha_repos
-set repo_group = 'OpenMetrics', alias = 'OpenMetrics'
+set repo_group = 'Falco', alias = 'Falco'
 where name in (
-  'RichiH/OpenMetrics',
-  'OpenObservability/OpenMetrics'
+  'falcosecurity/falco',
+  'draios/falco'
 );
 
 select
