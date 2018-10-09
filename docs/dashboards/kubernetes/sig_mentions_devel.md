@@ -6,7 +6,7 @@ Links:
 - Grafana dashboard JSON: [sig_mentions.json](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/sig_mentions.json).
 - User documentation: [sig_mentions.md](https://github.com/cncf/devstats/blob/master/docs/dashboards/kubernetes/sig_mentions.md).
 - Production version: [view](https://k8s.devstats.cncf.io/d/41/sig-mentions?orgId=1).
-- Test version: [view](https://k8s.cncftest.io/d/41/sig-mentions?orgId=1).
+- Test version: [view](https://k8s.teststats.cncf.io/d/41/sig-mentions?orgId=1).
 
 # Description
 
