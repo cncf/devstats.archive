@@ -6,5 +6,6 @@ then
 fi
 
 cd "$1" || exit 2
-git reset --hard || exit 3
-git pull || exit 4
+git fetch origin || exit 3
+git reset --hard origin/master || exit 4
+git pull || exit 5

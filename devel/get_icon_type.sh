@@ -36,6 +36,7 @@ icontypes=(
   ["tikv"]="color"
   ["cortex"]="color"
   ["buildpacks"]="color"
+  ["falco"]="color"
   ["all"]="color"
   ["devstats"]="color"
 )

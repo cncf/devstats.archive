@@ -31,7 +31,7 @@ do
     icon="cncf"
   fi
   # TODO: remove when we have icons
-  if [ "$icon" = "etcd" ]
+  if ( [ "$icon" = "etcd" ] || [ "$icon" = "falco" ] )
   then
     icon="cncf"
   fi
