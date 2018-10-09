@@ -16,7 +16,7 @@ set
 update gha_repos set repo_group = alias;
 
 update gha_repos
-set repo_group = 'OpenMetrics', alias = 'openMetrics'
+set repo_group = 'OpenMetrics', alias = 'OpenMetrics'
 where name in (
   'RichiH/OpenMetrics',
   'OpenObservability/OpenMetrics'
