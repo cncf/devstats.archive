@@ -58,7 +58,7 @@ Installed:
 
 You can use already populated Postgres dump: [Kubernetes Psql dump](https://devstats.cncf.io/gha.sql.xz).
 
-There is also a dump for `cncf` org: [CNCF Psql dump](https://cncftest.io/cncf.sql.xz).
+There is also a dump for `cncf` org: [CNCF Psql dump](https://teststats.cncf.io/cncf.sql.xz).
 
 First two parameters are date from:
 - YYYY-MM-DD
@@ -176,7 +176,7 @@ Once saved, you can review those JSONs manually (they're pretty printed).
 
 # Multithreading
 
-For example <http://cncftest.io> server has 48 CPU cores.
+For example <http://teststats.cncf.io> server has 48 CPU cores.
 It will just process 48 hours in parallel.
 It detects the number of available CPUs automatically.
 You can use `GHA2DB_ST` environment variable to force single threaded version.
@@ -369,7 +369,7 @@ You can also change any other value, just note that parameters after SQL file na
 # Checking projects activity
 
 - Use: `PG_PASS=... PG_DB=allprj ./devel/activity.sh '1 month,,' > all.txt`.
-- Example results [here](https://cncftest.io/all.txt) - all CNCF project activity during January 2018, excluding bots.
+- Example results [here](https://teststats.cncf.io/all.txt) - all CNCF project activity during January 2018, excluding bots.
 
 # Sync tool
 
@@ -428,7 +428,7 @@ To setup default repository groups:
 
 This is a part of `kubernetes/psql.sh` script and [kubernetes psql dump](https://devstats.cncf.io/gha.sql.xz) already has groups configured.
 
-In an 'All' project (https://all.cncftest.io) repository groups are mapped to individual CNCF projects [scripts/all/repo_groups.sql](https://github.com/cncf/devstats/blob/master/scripts/all/repo_groups.sql):
+In an 'All' project (https://all.teststats.cncf.io) repository groups are mapped to individual CNCF projects [scripts/all/repo_groups.sql](https://github.com/cncf/devstats/blob/master/scripts/all/repo_groups.sql):
 
 # Grafana output
 
