@@ -6,7 +6,7 @@ Links:
 - Grafana dashboard JSON: [dashboards.json](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/dashboards.json).
 - User documentation: [dashboards.md](https://github.com/cncf/devstats/blob/master/docs/dashboards/dashboards.md).
 - Production version: [view](https://k8s.devstats.cncf.io/d/12/dashboards?refresh=15m&orgId=1).
-- Test version: [view](https://k8s.cncftest.io/d/12/dashboards?refresh=15m&orgId=1).
+- Test version: [view](https://k8s.teststats.cncf.io/d/12/dashboards?refresh=15m&orgId=1).
 
 # Description
 

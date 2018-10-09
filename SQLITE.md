@@ -17,7 +17,7 @@
 ```
 GRAFANA=k8s devel/import_jsons_to_sqlite.sh `find grafana/dashboards/kubernetes/ -iname "*.json" -not -iname "dashboards.json"`
 ```
-- Check [Grafana](https://k8s.cncftest.io) if all modifications are OK.
+- Check [Grafana](https://k8s.teststats.cncf.io) if all modifications are OK.
 - If ok then we can remove all backups: `git status`, followed by `find . -iname "*.was" -exec rm -f "{}" \;`, `rm grafana.k8s.db*`, `./grafana/copy_grafana_dbs.sh`, `git status`.
 - Now JSONs names could chage due to renames. Proper JSON name is `grafana/dashboards/project/title-slug.json`.
 - Import all JSONs from SQLite DB now: `ONLY=kubernetes devel/get_all_sqlite_jsons.sh`.
