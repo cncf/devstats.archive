@@ -11,6 +11,9 @@ where
   and f.updated_at >= '{{from}}'
   and f.updated_at < '{{to}}'
   and r.repo_group is not null
+  and f.watchers > 0
+  and f.forks > 0
+  and f.open_issues > 0
 group by
   r.repo_group
 order by
