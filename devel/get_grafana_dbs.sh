@@ -2,7 +2,7 @@
 if [ -z "$ONLY" ]
 then
   host=`hostname`
-  if [ $host = "cncftest.io" ]
+  if [ $host = "teststats.cncf.io" ]
   then
     all=`cat ./devel/all_test_projects.txt`
   else
@@ -17,7 +17,7 @@ for proj in $all
 do
     echo "wget grafana.$proj.db"
     rm -f grafana.$proj.db 2>/dev/null
-    wget https://cncftest.io/grafana.$proj.db || exit 1
+    wget https://teststats.cncf.io/grafana.$proj.db || exit 1
     ls -l grafana.$proj.db
     mv grafana.$proj.db /var/lib/grafana.$proj/grafana.db || exit 2
 done

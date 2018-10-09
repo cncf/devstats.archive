@@ -108,7 +108,7 @@ fi
 if ( [ ! -f "/var/lib/grafana.$GRAFSUFF/grafana.db" ] && [ ! -z "$GGET" ] )
 then
   echo "attempt to fetch grafana database $GRAFSUFF from the test server"
-  wget "https://cncftest.io/grafana.$GRAFSUFF.db" || exit 18
+  wget "https://teststats.cncf.io/grafana.$GRAFSUFF.db" || exit 18
   mv "grafana.$GRAFSUFF.db" "/var/lib/grafana.$GRAFSUFF/grafana.db" || exit 19
 fi
 
