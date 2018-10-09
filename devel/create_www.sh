@@ -1,6 +1,6 @@
 #!/bin/bash
 # CERT=1 (setup SSL cert via certbot)
-# WW=1 (update www index files)
+# WWW=1 (update www index files)
 set -o pipefail
 if [ ! -z "$WWW" ]
 then
