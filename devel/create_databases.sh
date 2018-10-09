@@ -17,7 +17,7 @@ then
 fi
 if [ -z "$HOST_SRC" ]
 then
-  HOST_SRC=cncftest.io
+  HOST_SRC=teststats.cncf.io
 fi
 function finish {
     rm -rf "$PROJDB.dump" >/dev/null 2>&1
@@ -48,7 +48,7 @@ then
     if [ ! -z "$GET" ]
     then
       echo "attempt to fetch postgres database $PROJDB from backup"
-      wget "https://cncftest.io/$PROJDB.dump" || exit 9
+      wget "https://teststats.cncf.io/$PROJDB.dump" || exit 9
       sudo -u postgres pg_restore -d "$PROJDB" "$PROJDB.dump" || exit 10
       rm -f "$PROJDB.dump" || exit 11
       echo 'dropping and recreating postgres variables'
