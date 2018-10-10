@@ -196,7 +196,7 @@ do
 # TODO: icons
   elif [ "$proj" = "falco" ]
   then
-    PROJ=falco          PROJDB=falco          PROJREPO="falcosecurity/falco"           ORGNAME=Falco        PORT=3029 ICON=cncf         GRAFSUFF=falco          GA="UA-108085315-34" ./devel/deploy_proj.sh || exit 31
+    PROJ=falco          PROJDB=falco          PROJREPO="falcosecurity/falco"           ORGNAME=Falco        PORT=3029 ICON=falco        GRAFSUFF=falco          GA="UA-108085315-34" ./devel/deploy_proj.sh || exit 31
   elif [ "$proj" = "opencontainers" ]
   then
     PROJ=opencontainers PROJDB=opencontainers PROJREPO="opencontainers/runc"           ORGNAME=OCI          PORT=3100 ICON="-"          GRAFSUFF=opencontainers GA="UA-108085315-19" ./devel/deploy_proj.sh || exit 32
