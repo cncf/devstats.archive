@@ -27,6 +27,19 @@ type apiContext struct {
 	endpoints    []endPoint
 }
 
+// outputJSON write final JSON from "data" to "writer"
+// depending on "pretty" param presence in "request"
+func (actx *apiContext) outputJSON(writer http.ResponseWriter, request *http.Request, data interface{}) {
+	encoder := json.NewEncoder(writer)
+	// params := mux.Vars(request)
+	//_, pretty := params["pretty"]
+	_, pretty := request.URL.Query()["pretty"]
+	if pretty {
+		encoder.SetIndent("", "  ")
+	}
+	encoder.Encode(data)
+}
+
 // getProjects - return projects data
 func (actx *apiContext) getProjects() []lib.Project {
 	return actx.projects
@@ -34,7 +47,7 @@ func (actx *apiContext) getProjects() []lib.Project {
 
 // getProjectsJSON - return projects as JSON
 func (actx *apiContext) getProjectsJSON(w http.ResponseWriter, r *http.Request) {
-	json.NewEncoder(w).Encode(actx.getProjects())
+	actx.outputJSON(w, r, actx.getProjects())
 }
 
 // getAllProjects - return all projects data
@@ -44,7 +57,7 @@ func (actx *apiContext) getAllProjects() lib.AllProjects {
 
 // getAllProjectsJSON - return all projects as JSON
 func (actx *apiContext) getAllProjectsJSON(w http.ResponseWriter, r *http.Request) {
-	json.NewEncoder(w).Encode(actx.getAllProjects())
+	actx.outputJSON(w, r, actx.getAllProjects())
 }
 
 // getProjectNames - return projects names data
@@ -54,17 +67,24 @@ func (actx *apiContext) getProjectNames() []string {
 
 // getProjectnamesJSON - return projects names as JSON
 func (actx *apiContext) getProjectNamesJSON(w http.ResponseWriter, r *http.Request) {
-	json.NewEncoder(w).Encode(actx.getProjectNames())
+	actx.outputJSON(w, r, actx.getProjectNames())
 }
 
 // getEndpoints - return projects names data
-func (actx *apiContext) getEndpoints() []endPoint {
-	return actx.endpoints
+func (actx *apiContext) getEndpoints() interface{} {
+	var result = struct {
+      Message   string `json:"message"`
+      Endpoints []endPoint `json:"endpoints"`
+	}{
+    Message: "You can add ?pretty flag to make JSONs human readable",
+    Endpoints: actx.endpoints,
+  }
+  return result
 }
 
 // getEndpointsJSON - return projects names as JSON
 func (actx *apiContext) getEndpointsJSON(w http.ResponseWriter, r *http.Request) {
-	json.NewEncoder(w).Encode(actx.getEndpoints())
+	actx.outputJSON(w, r, actx.getEndpoints())
 }
 
 func main() {
