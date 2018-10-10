@@ -59,7 +59,7 @@ fi
 if [ -z "$ONLY" ]
 then
   host=`hostname`
-  if [ $host = "cncftest.io" ]
+  if [ $host = "teststats.cncf.io" ]
   then
     all=`cat ./devel/all_test_projects.txt`
   else
@@ -72,7 +72,7 @@ fi
 if [ -z "$ONLYDB" ]
 then
   host=`hostname`
-  if [ $host = "cncftest.io" ]
+  if [ $host = "teststats.cncf.io" ]
   then
     alldb=`cat ./devel/all_test_dbs.txt`
   else

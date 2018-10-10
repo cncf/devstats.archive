@@ -7,7 +7,7 @@ Links:
 - Grafana dashboard JSON: [github-stats-by-repository.json](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/github-stats-by-repository.json).
 - Grafana dashboard JSON: [github-stats-by-repository-group.json](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/github-stats-by-repository-group.json).
 - Production version: [view stats by repos](https://k8s.devstats.cncf.io/d/49/github-stats-by-repository?orgId=1), [view stats by repo groups](https://k8s.devstats.cncf.io/d/48/github-stats-by-repository-group?orgId=1).
-- Test version: [view stats by repos](https://k8s.cncftest.io/d/49/github-stats-by-repository?orgId=1), [view stats by repo groups](https://k8s.cncftest.io/d/48/github-stats-by-repository-group?orgId=1).
+- Test version: [view stats by repos](https://k8s.teststats.cncf.io/d/49/github-stats-by-repository?orgId=1), [view stats by repo groups](https://k8s.teststats.cncf.io/d/48/github-stats-by-repository-group?orgId=1).
 
 # Description
 

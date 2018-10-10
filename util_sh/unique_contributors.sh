@@ -3,13 +3,13 @@ rm actors.txt
 if [ -z "$ONLY" ]
 then
   host=`hostname`
-  if [ $host = "cncftest.io" ]
+  if [ $host = "teststats.cncf.io" ]
   then
     all=`cat ./devel/all_test_dbs.txt`
     from="https://devstats.cncf.io/"
   else
     all=`cat ./devel/all_prod_dbs.txt`
-    from="https://cncftest.io/"
+    from="https://teststats.cncf.io/"
   fi
 else
   all=$ONLY
