@@ -36,7 +36,7 @@ fi
 if [ ! -z "$AGET" ]
 then
   echo "attempt to fetch postgres database allprj from backup"
-  wget "https://cncftest.io/allprj.dump" || exit 5
+  wget "https://teststats.cncf.io/allprj.dump" || exit 5
   ./devel/restore_db.sh allprj || exit 6
   rm -f allprj.dump || exit 7
   echo 'dropping and recreating postgres variables'

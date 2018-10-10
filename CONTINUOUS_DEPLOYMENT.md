@@ -2,7 +2,7 @@
 
 - Every commit triggers Travis CI tests.
 - Once Travis finishes tests, it fires webhook as defined in [.travis.yml](https://github.com/cncf/devstats/blob/master/.travis.yml).
-- By default it makes HTTP POST to the following addresses: https://cncftest.io:2982/hook and https://devstats.cncf.io:2982/hook
+- By default it makes HTTP POST to the following addresses: https://teststats.cncf.io:2982/hook and https://devstats.cncf.io:2982/hook
 - There is a tool `cmd/webhook/webhook` that listens to those webhook events.
 - By default we use https protocol. To do so we need Apache server to proxy https requests on 2982 port, into http requests to localhost:1982 (webhook tool only understands http).
 - To configure Apache we use those config files [ports.conf](https://github.com/cncf/devstats/blob/master/apache/ports.conf) and [000-default-le-ssl.conf](https://github.com/cncf/devstats/blob/master/apache/sites-available/000-default-le-ssl.conf).
@@ -18,7 +18,7 @@
 - You can set `GHA2DB_DEPLOY_RESULTS`, default "0", comma separated list, to set which Travis CI results should be deployed.
 - You can set `GHA2DB_DEPLOY_TYPES`, default "push", comma separated list, to set which event types should be deployed.
 - You *MUST* set `GHA2DB_PROJECT_ROOT=/path/to/repo` for webhook tool, this is needed to decide where to run `make install` on successful build.
-- You should list only production branch via `GHA2DB_DEPLOY_BRANCHES=production` for production server, and you can list any number of branches for test servers: devstats.cncf.io is a production server, while cncftest.io is a test server.
+- You should list only production branch via `GHA2DB_DEPLOY_BRANCHES=production` for production server, and you can list any number of branches for test servers: devstats.cncf.io is a production server, while teststats.cncf.io is a test server.
 - If you changed `webhook` tool and deploy was successful - you need to kill old running instance via `killall webhook` then wait for cron to fire it again, to se if it works use `ps -aux | grep webhook`.
 - If you add `[ci skip]` to the commit message, Travis CI build will be skipped, so `webhook` tool won't be called at all (this skips tests).
 - If you add `[no deploy]` or `[wip]` to the commit message, Travis CI build will run, but `webhook` tool will not deploy this build.
