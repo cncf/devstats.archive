@@ -75,6 +75,7 @@ from (
     and af.dt_from <= e.created_at
     and af.dt_to > e.created_at
     and af.company_name != 'Independent'
+    and af.company_name != ''
   where
     e.created_at >= d.f
     and e.created_at < d.t
@@ -127,6 +128,7 @@ from (
     and e.type in (
       'PushEvent', 'PullRequestEvent', 'IssuesEvent'
     )
+    and af.company_name != ''
   group by
     d.f,
     d.t,
@@ -168,6 +170,7 @@ from (
     and af.dt_from <= e.created_at
     and af.dt_to > e.created_at
     and af.company_name != 'Independent'
+    and af.company_name != ''
   where
     e.created_at >= d.f
     and e.created_at < d.t
@@ -216,6 +219,7 @@ from (
     and e.created_at < d.t
     and (lower(e.dup_actor_login) {{exclude_bots}})
     and e.type = 'PushEvent'
+    and af.company_name != ''
   group by
     d.f,
     d.t,
@@ -257,6 +261,7 @@ from (
     and af.dt_from <= e.created_at
     and af.dt_to > e.created_at
     and af.company_name != 'Independent'
+    and af.company_name != ''
   where
     e.created_at >= d.f
     and e.created_at < d.t
@@ -305,6 +310,7 @@ from (
     and e.created_at < d.t
     and (lower(e.dup_actor_login) {{exclude_bots}})
     and e.type = 'IssuesEvent'
+    and af.company_name != ''
   group by
     d.f,
     d.t,
@@ -346,6 +352,7 @@ from (
     and af.dt_from <= e.created_at
     and af.dt_to > e.created_at
     and af.company_name != 'Independent'
+    and af.company_name != ''
   where
     e.created_at >= d.f
     and e.created_at < d.t
@@ -394,6 +401,7 @@ from (
     and e.created_at < d.t
     and (lower(e.dup_actor_login) {{exclude_bots}})
     and e.type = 'PullRequestEvent'
+    and af.company_name != ''
   group by
     d.f,
     d.t,
@@ -435,6 +443,7 @@ from (
     and af.dt_from <= e.created_at
     and af.dt_to > e.created_at
     and af.company_name != 'Independent'
+    and af.company_name != ''
   where
     e.created_at >= d.f
     and e.created_at < d.t
@@ -483,6 +492,7 @@ from (
     and e.created_at < d.t
     and (lower(e.dup_actor_login) {{exclude_bots}})
     and e.type = 'PullRequestReviewCommentEvent'
+    and af.company_name != ''
   group by
     d.f,
     d.t,
@@ -524,6 +534,7 @@ from (
     and af.dt_from <= e.created_at
     and af.dt_to > e.created_at
     and af.company_name != 'Independent'
+    and af.company_name != ''
   where
     e.created_at >= d.f
     and e.created_at < d.t
@@ -572,6 +583,7 @@ from (
     and e.created_at < d.t
     and (lower(e.dup_actor_login) {{exclude_bots}})
     and e.type in ('CommitCommentEvent', 'IssueCommentEvent')
+    and af.company_name != ''
   group by
     d.f,
     d.t,
@@ -847,6 +859,7 @@ from (
     and af.dt_from <= e.created_at
     and af.dt_to > e.created_at
     and af.company_name != 'Independent'
+    and af.company_name != ''
   where
     e.created_at >= d.f
     and e.created_at < d.t

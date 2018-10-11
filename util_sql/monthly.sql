@@ -29,6 +29,7 @@ where
   and aa.company_name in ({{companies}})
   and aa.dt_from <= e.created_at
   and aa.dt_to > e.created_at
+  and aa.company_name != ''
 group by
   d.rel,
   d.f,
