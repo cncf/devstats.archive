@@ -232,7 +232,7 @@ func importAffs(jsonFN string) {
 
 		// Affiliation
 		aff := user.Affiliation
-		if aff != "NotFound" && aff != "(Unknown)" && aff != "?" {
+		if aff != "NotFound" && aff != "(Unknown)" && aff != "?" && aff != "" {
 			_, ok := loginAffs[login]
 			if !ok {
 				loginAffs[login] = stringSet{}
@@ -387,6 +387,9 @@ func importAffs(jsonFN string) {
 				dtFrom = prevDate
 				dtTo = defaultEndDate
 			}
+			if company == "" {
+				continue
+			}
 			companies[company] = emptyVal
 			affList = append(affList, affData{Login: login, Company: company, From: dtFrom, To: dtTo})
 			prevDate = dtTo
@@ -400,6 +403,9 @@ func importAffs(jsonFN string) {
 
 	// Add companies
 	for company := range companies {
+		if company == "" {
+			continue
+		}
 		lib.ExecSQLWithErr(con, &ctx,
 			lib.InsertIgnore("into gha_companies(name) "+lib.NValues(1)),
 			lib.AnyArray{maybeHide(company)}...,
@@ -428,6 +434,9 @@ func importAffs(jsonFN string) {
 			cached++
 		}
 		company := aff.Company
+		if company == "" {
+			continue
+		}
 		dtFrom := aff.From
 		dtTo := aff.To
 		for _, aid := range actIDs {
