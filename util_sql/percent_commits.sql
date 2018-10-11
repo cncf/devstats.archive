@@ -16,6 +16,7 @@ from (
     e.actor_id = af.actor_id
     and af.dt_from <= e.created_at
     and af.dt_to > e.created_at
+    and af.company_name != ''
   where
     e.id = c.event_id
     and (

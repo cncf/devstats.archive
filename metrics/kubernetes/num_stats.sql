@@ -11,6 +11,7 @@ on
   ev.actor_id = affs.actor_id
   and affs.dt_from <= ev.created_at
   and affs.dt_to > ev.created_at
+  and affs.company_name != ''
 where
   ev.created_at >= '{{from}}'
   and ev.created_at < '{{to}}'
@@ -40,6 +41,7 @@ from (
     ev.actor_id = affs.actor_id
     and affs.dt_from <= ev.created_at
     and affs.dt_to > ev.created_at
+    and affs.company_name != ''
   where
     r.name = ev.dup_repo_name
     and ev.created_at >= '{{from}}'

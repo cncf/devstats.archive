@@ -15,6 +15,7 @@ from (
     e.actor_id = af.actor_id
     and af.dt_from <= e.created_at
     and af.dt_to > e.created_at
+    and af.company_name != ''
   where
     e.actor_id = a.id
     and (lower(a.login) {{exclude_bots}})

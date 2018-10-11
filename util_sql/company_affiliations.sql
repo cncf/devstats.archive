@@ -13,6 +13,7 @@ where
   a.id = ae.actor_id
   and a.id = aa.actor_id
   and aa.company_name in ({{companies}})
+  and aa.company_name != ''
 order by
   a.name asc,
   ae.email asc,

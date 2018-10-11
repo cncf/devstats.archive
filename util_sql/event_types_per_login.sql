@@ -39,6 +39,7 @@ from (
     and e.created_at < aa.dt_to
     and e.created_at >= '{{from}}'
     and e.created_at < '{{to}}'
+    and aa.company_name != ''
   ) sub
 group by
   sub.login,
