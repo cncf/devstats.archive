@@ -21,6 +21,7 @@ from (
     and {{period:pr.created_at}}
     and pr.dup_repo_id = r.id
     and (lower(pr.dup_actor_login) {{exclude_bots}})
+    and a.company_name != ''
   ) sub
 where
   sub.repo_group is not null
@@ -41,6 +42,7 @@ where
   and a.dt_to > pr.created_at
   and {{period:pr.created_at}}
   and (lower(pr.dup_actor_login) {{exclude_bots}})
+  and a.company_name != ''
 group by
   a.company_name
 having

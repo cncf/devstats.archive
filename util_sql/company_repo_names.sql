@@ -16,6 +16,7 @@ from (
     and e.created_at >= aa.dt_from
     and e.created_at < aa.dt_to
     and aa.company_name in ({{companies}})
+    and aa.company_name != ''
   group by
     e.repo_id,
     e.dup_repo_name

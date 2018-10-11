@@ -16,6 +16,7 @@ from (
     and e.created_at >= '{{from}}'
     and e.created_at < '{{to}}'
     and (lower(e.dup_actor_login) {{exclude_bots}})
+    and aa.company_name != ''
   group by
     aa.company_name
   ) sub

@@ -20,6 +20,7 @@ select
     )
     and e.created_at > now() - '3 years'::interval
     and (lower(e.dup_actor_login) {{exclude_bots}})
+    and c.name != ''
   group by
     c.name
   union select 'None' as name,

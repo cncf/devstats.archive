@@ -37,6 +37,8 @@ icontypes=(
   ["cortex"]="color"
   ["buildpacks"]="color"
   ["falco"]="color"
+  ["istio"]="color"
+  ["spinnaker"]="color"
   ["all"]="color"
   ["devstats"]="color"
 )

@@ -21,6 +21,7 @@ from (
       'IssuesEvent', 'IssueCommentEvent', 'CommitCommentEvent'
     )
     and e.created_at > now() - '3 years'::interval
+    and c.name != ''
   group by
     c.name
   order by
