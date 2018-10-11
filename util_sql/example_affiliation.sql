@@ -17,6 +17,7 @@ where
     aa.company_name = 'CNCF'
     or a.login = 'lukaszgryglicki'
   )
+  and aa.company_name != ''
 order by
   a.name asc,
   ae.email asc,

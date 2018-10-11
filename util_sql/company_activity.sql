@@ -36,6 +36,7 @@ from (
       'IssuesEvent', 'IssueCommentEvent', 'CommitCommentEvent'
     )
     and (lower(ev.dup_actor_login) {{exclude_bots}})
+    and affs.company_name != ''
   group by
     affs.company_name
   order by

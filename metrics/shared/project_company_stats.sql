@@ -15,6 +15,7 @@ from (
     and af.dt_to > c.dup_created_at
     and {{period:c.dup_created_at}}
     and (lower(c.dup_actor_login) {{exclude_bots}})
+    and af.company_name != ''
   group by
     af.company_name
   union select case e.type
@@ -43,6 +44,7 @@ from (
     )
     and {{period:e.created_at}}
     and (lower(e.dup_actor_login) {{exclude_bots}})
+    and af.company_name != ''
   group by
     e.type,
     af.company_name
@@ -62,6 +64,7 @@ from (
     )
     and {{period:e.created_at}}
     and (lower(e.dup_actor_login) {{exclude_bots}})
+    and af.company_name != ''
   group by
     af.company_name
   union select 'Contributions' as metric,
@@ -80,6 +83,7 @@ from (
     )
     and {{period:e.created_at}}
     and (lower(e.dup_actor_login) {{exclude_bots}})
+    and af.company_name != ''
   group by
     af.company_name
   union select 'Repositories' as metric,
@@ -94,6 +98,7 @@ from (
     and af.dt_to > e.created_at
     and {{period:e.created_at}}
     and (lower(e.dup_actor_login) {{exclude_bots}})
+    and af.company_name != ''
   group by
     af.company_name
   union select 'Comments' as metric,
@@ -108,6 +113,7 @@ from (
     and af.dt_to > c.created_at
     and {{period:c.created_at}}
     and (lower(c.dup_user_login) {{exclude_bots}})
+    and af.company_name != ''
   group by
     af.company_name
   union select 'Commenters' as metric,
@@ -122,6 +128,7 @@ from (
     and af.dt_to > c.created_at
     and {{period:c.created_at}}
     and (lower(c.dup_user_login) {{exclude_bots}})
+    and af.company_name != ''
   group by
     af.company_name
   union select 'Issues' as metric,
@@ -137,6 +144,7 @@ from (
     and {{period:i.created_at}}
     and i.is_pull_request = false
     and (lower(i.dup_user_login) {{exclude_bots}})
+    and af.company_name != ''
   group by
     af.company_name
   union select 'PRs' as metric,
@@ -152,6 +160,7 @@ from (
     and {{period:i.created_at}}
     and i.is_pull_request = true
     and (lower(i.dup_user_login) {{exclude_bots}})
+    and af.company_name != ''
   group by
     af.company_name
   union select 'Events' as metric,
@@ -166,6 +175,7 @@ from (
     and af.dt_to > e.created_at
     and {{period:e.created_at}}
     and (lower(e.dup_actor_login) {{exclude_bots}})
+    and af.company_name != ''
   group by
     af.company_name
   union select 'Commits' as metric,

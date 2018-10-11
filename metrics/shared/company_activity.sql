@@ -34,6 +34,7 @@ from (
     and ev.created_at < '{{to}}'
     and (lower(ev.dup_actor_login) {{exclude_bots}})
     and affs.company_name in (select companies_name from tcompanies)
+    and affs.company_name != ''
   group by
     affs.company_name
   union select affs.company_name as company,
@@ -64,6 +65,7 @@ from (
     and ev.created_at < '{{to}}'
     and (lower(ev.dup_actor_login) {{exclude_bots}})
     and affs.company_name in (select companies_name from tcompanies)
+    and affs.company_name != ''
   group by
     affs.company_name,
     coalesce(ecf.repo_group, r.repo_group)

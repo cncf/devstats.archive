@@ -11,6 +11,7 @@ on
   e.actor_id = af.actor_id
   and af.dt_from <= e.created_at
   and af.dt_to > e.created_at
+  and af.company_name != ''
 where
   a.id = e.actor_id
   and a.login not in ('googlebot')
