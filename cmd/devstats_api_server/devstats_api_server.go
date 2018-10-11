@@ -73,13 +73,13 @@ func (actx *apiContext) getProjectNamesJSON(w http.ResponseWriter, r *http.Reque
 // getEndpoints - return projects names data
 func (actx *apiContext) getEndpoints() interface{} {
 	var result = struct {
-      Message   string `json:"message"`
-      Endpoints []endPoint `json:"endpoints"`
+		Message   string     `json:"message"`
+		Endpoints []endPoint `json:"endpoints"`
 	}{
-    Message: "You can add ?pretty flag to make JSONs human readable",
-    Endpoints: actx.endpoints,
-  }
-  return result
+		Message:   "You can add ?pretty flag to make JSONs human readable",
+		Endpoints: actx.endpoints,
+	}
+	return result
 }
 
 // getEndpointsJSON - return projects names as JSON
