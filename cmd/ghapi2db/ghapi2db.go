@@ -64,23 +64,207 @@ func getAPIParams(ctx *lib.Ctx) (repos []string, isSingleRepo bool, singleRepo s
 	return
 }
 
+// Some debugging options (environment variables)
+// You can set:
+// REPO=full_repo_name
+// FROM=datetime 'YYYY-MM-DD hh:mm:ss.uuuuuu"
+// To use FROM make sure you set GHA2DB_RECENT_RANGE to cover that range too.
 func syncCommits(ctx *lib.Ctx) {
 	// Get common params
-	/*
-		  repos, isSingleRepo, singleRepo, gctx, gc, c, recentDt := getAPIParams(ctx)
+	repos, isSingleRepo, singleRepo, gctx, gc, c, recentDt := getAPIParams(ctx)
+	// FIXME: remove this
+	if ctx.Debug > 0 {
+		fmt.Printf("c=%v\n", c)
+	}
 
-			// Date range mode
-			var (
-				dateRangeFrom *time.Time
-			)
-			isDateRange := false
-			dateRangeFromS := os.Getenv("FROM")
-			if dateRangeFromS != "" {
-				tmp := lib.TimeParseAny(dateRangeFromS)
-				dateRangeFrom = &tmp
-				isDateRange = true
+	// Date range mode
+	var (
+		dateRangeFrom *time.Time
+		dateRangeTo   *time.Time
+	)
+	isDateRange := false
+	dateRangeFromS := os.Getenv("FROM")
+	dateRangeToS := os.Getenv("TO")
+	if dateRangeFromS != "" {
+		tmp := lib.TimeParseAny(dateRangeFromS)
+		dateRangeFrom = &tmp
+		isDateRange = true
+	}
+	if dateRangeToS != "" {
+		tmp := lib.TimeParseAny(dateRangeToS)
+		dateRangeTo = &tmp
+		isDateRange = true
+	}
+
+	// Process commits in parallel
+	thrN := lib.GetThreadsNum(ctx)
+	maxThreads := 16
+	if maxThreads > thrN {
+		maxThreads = thrN
+	}
+	allowedThrN := maxThreads
+	var thrMutex = &sync.Mutex{}
+	ch := make(chan bool)
+	nThreads := 0
+	dtStart := time.Now()
+	lastTime := dtStart
+	checked := 0
+	nRepos := len(repos)
+	lib.Printf("ghapi2db.go: Processing %d repos - GHAPI commits part\n", nRepos)
+
+	opt := &github.CommitsListOptions{
+		Since: recentDt,
+		// SHA:    "s",
+		// Path:   "p",
+		// Author: "a",
+	}
+	opt.PerPage = 2
+	if isDateRange {
+		if dateRangeFrom != nil {
+			opt.Since = *dateRangeFrom
+		}
+		if dateRangeTo != nil {
+			opt.Until = *dateRangeTo
+		}
+	}
+	for _, orgRepo := range repos {
+		go func(ch chan bool, orgRepo string) {
+			if isSingleRepo && orgRepo != singleRepo {
+				ch <- false
+				return
 			}
-	*/
+			ary := strings.Split(orgRepo, "/")
+			if len(ary) < 2 {
+				ch <- false
+				return
+			}
+			org := ary[0]
+			repo := ary[1]
+			if org == "" || repo == "" {
+				ch <- false
+				return
+			}
+			var (
+				err      error
+				commits  []*github.RepositoryCommit
+				response *github.Response
+			)
+			nPages := 0
+			// Synchronize go routine
+			// start infinite for (paging)
+			for {
+				got := false
+				/// start trials
+				for tr := 0; tr < ctx.MaxGHAPIRetry; tr++ {
+					_, rem, waitPeriod := lib.GetRateLimits(gctx, gc, true)
+					if ctx.Debug > 1 {
+						lib.Printf("Repo commits Try: %d, rem: %v, waitPeriod: %v\n", tr, rem, waitPeriod)
+					}
+					if rem <= ctx.MinGHAPIPoints {
+						if waitPeriod.Seconds() <= float64(ctx.MaxGHAPIWaitSeconds) {
+							if ctx.Debug > 0 {
+								lib.Printf("API limit reached while getting commits data, waiting %v (%d)\n", waitPeriod, tr)
+							}
+							time.Sleep(time.Duration(1) * time.Second)
+							time.Sleep(waitPeriod)
+							continue
+						} else {
+							if ctx.GHAPIErrorIsFatal {
+								lib.Fatalf("API limit reached while getting commits data, aborting, don't want to wait %v", waitPeriod)
+								os.Exit(1)
+							} else {
+								lib.Printf("Error: API limit reached while getting commits data, aborting, don't want to wait %v", waitPeriod)
+								ch <- false
+								return
+							}
+						}
+					}
+					nPages++
+					if ctx.Debug > 1 {
+						lib.Printf("API call for commits %s (%d), remaining GHAPI points %d\n", orgRepo, nPages, rem)
+					}
+					// FIXME: use "c" psql connection to get most recent enriched commit data, and query commits since then.
+					// this must be configurable: on/off as a recentDT, FROM, TO replacement/helper
+					commits, response, err = gc.Repositories.ListCommits(gctx, org, repo, opt)
+					res := lib.HandlePossibleError(err, orgRepo, "Repositories.ListCommits")
+					if res != "" {
+						if res == lib.Abuse {
+							wait := time.Duration(int(math.Pow(2.0, float64(tr+3)))) * time.Second
+							thrMutex.Lock()
+							if ctx.Debug > 0 {
+								lib.Printf("GitHub API abuse detected (issues events), wait %v\n", wait)
+							}
+							if allowedThrN > 1 {
+								allowedThrN--
+								if ctx.Debug > 0 {
+									lib.Printf("Lower threads limit (issues events): %d/%d\n", nThreads, allowedThrN)
+								}
+							}
+							thrMutex.Unlock()
+							time.Sleep(wait)
+						}
+						if res == lib.NotFound {
+							lib.Printf("Warning: not found: %s/%s", org, repo)
+							ch <- false
+							return
+						}
+						continue
+					} else {
+						thrMutex.Lock()
+						if allowedThrN < maxThreads {
+							allowedThrN++
+							if ctx.Debug > 0 {
+								lib.Printf("Rise threads limit (issues events): %d/%d\n", nThreads, allowedThrN)
+							}
+						}
+						thrMutex.Unlock()
+					}
+					got = true
+					fmt.Printf("%s -> %+v\n", orgRepo, commits)
+					break
+				}
+				/// end trials
+				if !got {
+					if ctx.GHAPIErrorIsFatal {
+						lib.Fatalf("GetRateLimit call failed %d times while getting events, aborting", ctx.MaxGHAPIRetry)
+						os.Exit(2)
+					} else {
+						lib.Printf("Error: GetRateLimit call failed %d times while getting events, aborting", ctx.MaxGHAPIRetry)
+						ch <- false
+						return
+					}
+				}
+				// Handle paging
+				if response.NextPage == 0 {
+					break
+				}
+				opt.Page = response.NextPage
+			}
+			// end infinite for (paging)
+			ch <- true
+		}(ch, orgRepo)
+		nThreads++
+		for nThreads >= allowedThrN {
+			<-ch
+			nThreads--
+			checked++
+			// Get RateLimits info
+			_, rem, wait := lib.GetRateLimits(gctx, gc, true)
+			lib.ProgressInfo(checked, nRepos, dtStart, &lastTime, time.Duration(10)*time.Second, fmt.Sprintf("API points: %d, resets in: %v", rem, wait))
+		}
+	}
+	// Usually all work happens on '<-ch'
+	if ctx.Debug > 1 {
+		lib.Printf("Final GHAPI threads join\n")
+	}
+	for nThreads > 0 {
+		<-ch
+		nThreads--
+		checked++
+		// Get RateLimits info
+		_, rem, wait := lib.GetRateLimits(gctx, gc, true)
+		lib.ProgressInfo(checked, nRepos, dtStart, &lastTime, time.Duration(10)*time.Second, fmt.Sprintf("API points: %d, resets in: %v", rem, wait))
+	}
 }
 
 // Some debugging options (environment variables)
@@ -186,7 +370,7 @@ func syncEvents(ctx *lib.Ctx) {
 	lastTime := dtStart
 	checked := 0
 	nRepos := len(repos)
-	lib.Printf("ghapi2db.go: Processing %d repos - GHAPI part\n", nRepos)
+	lib.Printf("ghapi2db.go: Processing %d repos - GHAPI Events part\n", nRepos)
 
 	//opt := &github.ListOptions{}
 	opt := &github.ListOptions{PerPage: 100}
@@ -224,7 +408,6 @@ func syncEvents(ctx *lib.Ctx) {
 				pr       *github.PullRequest
 			)
 			nPages := 0
-			lib.FatalOnError(err)
 			for {
 				got := false
 				for tr := 0; tr < ctx.MaxGHAPIRetry; tr++ {
@@ -259,7 +442,7 @@ func syncEvents(ctx *lib.Ctx) {
 					//events, response, err = gc.Activity.ListRepositoryEvents(gctx, org, repo, opt)
 					// Returns events in Issue Event format (UI events)
 					events, response, err = gc.Issues.ListRepositoryEvents(gctx, org, repo, opt)
-					res := lib.HandlePossibleError(err, &gcfg, "Issues.ListRepositoryEvents")
+					res := lib.HandlePossibleError(err, gcfg.String(), "Issues.ListRepositoryEvents")
 					if res != "" {
 						if res == lib.Abuse {
 							wait := time.Duration(int(math.Pow(2.0, float64(tr+3)))) * time.Second
@@ -468,7 +651,7 @@ func syncEvents(ctx *lib.Ctx) {
 									lib.Printf("API call for %s PR: %d, remaining GHAPI points %d\n", orgRepo, prNum, rem)
 								}
 								pr, _, err = gc.PullRequests.Get(gctx, org, repo, prNum)
-								res := lib.HandlePossibleError(err, &gcfg, "PullRequests.Get")
+								res := lib.HandlePossibleError(err, gcfg.String(), "PullRequests.Get")
 								if res != "" {
 									if res == lib.Abuse {
 										wait := time.Duration(int(math.Pow(2.0, float64(tr+3)))) * time.Second
@@ -571,9 +754,9 @@ func main() {
 		if !ctx.SkipAPIEvents {
 			syncEvents(&ctx)
 		}
-		if !ctx.SkipAPICommits {
-			syncCommits(&ctx)
-		}
+		//if !ctx.SkipAPICommits {
+		//	syncCommits(&ctx)
+		//}
 	}
 	dtEnd := time.Now()
 	lib.Printf("Time: %v\n", dtEnd.Sub(dtStart))

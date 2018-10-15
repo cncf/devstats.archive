@@ -229,7 +229,7 @@ func GHClient(ctx *Ctx) (ghCtx context.Context, client *github.Client) {
 }
 
 // HandlePossibleError - display error specific message, detect rate limit and abuse
-func HandlePossibleError(err error, cfg *IssueConfig, info string) string {
+func HandlePossibleError(err error, cfg, info string) string {
 	if err != nil {
 		_, rate := err.(*github.RateLimitError)
 		_, abuse := err.(*github.AbuseRateLimitError)
