@@ -71,9 +71,10 @@ func getLastRichCommitDate(c *sql.DB, ctx *lib.Ctx, repo string) time.Time {
 		fmt.Sprintf(
 			"select coalesce(max(dup_created_at), "+
 				"(select min(dup_created_at) from gha_commits where dup_repo_id = ("+
-				"select id from gha_repos where name = %s)), '2014-01-01 00:00:00') "+
+				"select max(id) from gha_repos where name = %s)), "+
+				"(select min(dup_created_at) from gha_commits)) "+
 				"from gha_commits where author_email != '' and dup_repo_id = ("+
-				"select id from gha_repos where name = %s)",
+				"select max(id) from gha_repos where name = %s)",
 			lib.NValue(1),
 			lib.NValue(2),
 		),
@@ -144,7 +145,7 @@ func processCommit(c *sql.DB, ctx *lib.Ctx, commit *github.RepositoryCommit, may
 	// Committer
 	committerID := int64(0)
 	committerLogin := ""
-	if commit.Committer != nil {
+	if commit.Committer != nil && commit.Committer.ID != nil && commit.Committer.Login != nil {
 		committerID = *commit.Committer.ID
 		committerLogin = *commit.Committer.Login
 	}
@@ -155,7 +156,7 @@ func processCommit(c *sql.DB, ctx *lib.Ctx, commit *github.RepositoryCommit, may
 	// Author
 	authorID := int64(0)
 	authorLogin := ""
-	if commit.Author != nil {
+	if commit.Author != nil && commit.Author.ID != nil && commit.Author.Login != nil {
 		authorID = *commit.Author.ID
 		authorLogin = *commit.Author.Login
 	}
@@ -380,6 +381,7 @@ func syncCommits(ctx *lib.Ctx) {
 			maybeHide := lib.MaybeHideFunc(lib.GetHidden(lib.HideCfgFile))
 			// Need deep copy - threads
 			copt := opt
+			// No FROM/TO set and no GHA2DB_NO_AUTOFETCHCOMMITS
 			if !isDateRange && ctx.AutoFetchCommits {
 				dt := getLastRichCommitDate(c, ctx, orgRepo)
 				copt = &github.CommitsListOptions{
@@ -713,7 +715,7 @@ func syncEvents(ctx *lib.Ctx) {
 							time.Sleep(wait)
 						}
 						if res == lib.NotFound {
-							lib.Printf("Warning: not found: %s/%s", org, repo)
+							lib.Printf("Warning: not found: %s/%s\n", org, repo)
 							ch <- false
 							return
 						}
