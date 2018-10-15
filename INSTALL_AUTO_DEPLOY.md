@@ -14,7 +14,7 @@ Prerequisites:
      PATH=$PATH:$GOPATH/bin; export PATH
      ```
     - Logout and login again.
-    - [golint](https://github.com/golang/lint): `go get -u github.com/golang/lint/golint`
+    - [golint](https://github.com/golang/lint): `go get -u golang.org/x/lint/golint`
     - [goimports](https://godoc.org/golang.org/x/tools/cmd/goimports): `go get golang.org/x/tools/cmd/goimports`
     - [goconst](https://github.com/jgautheron/goconst): `go get github.com/jgautheron/goconst/cmd/goconst`
     - [usedexports](https://github.com/jgautheron/usedexports): `go get github.com/jgautheron/usedexports`
