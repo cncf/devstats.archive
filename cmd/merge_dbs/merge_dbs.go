@@ -54,6 +54,7 @@ func mergePDBs() {
 		{"gha_actors", "id > 0", "id <= 0"},
 		//{"gha_actors_affiliations", "", "-"},
 		//{"gha_actors_emails", "", "-"},
+		//{"gha_actors_names", "", "-"},
 		{"gha_assets", "", "-"},
 		{"gha_branches", "", "-"},
 		{"gha_comments", "", "-"},

@@ -333,6 +333,29 @@ func importAffs(jsonFN string) {
 	}
 	lib.Printf("%d emails lists, added actors: %d, all emails: %d\n", len(loginEmails), added, allEmails)
 
+	// Login - Names(s) 1:N
+	added, allNames := 0, 0
+	for login, names := range loginNames {
+		actIDs := findActorIDs(con, &ctx, login, maybeHide)
+		if len(actIDs) < 1 {
+			lib.Fatalf("actor login not found %s", login)
+		}
+		// Store given login's actor IDs in the case
+		cacheActIDs[login] = actIDs
+		for name := range names {
+			// One actor can have multiple names but...
+			// One name can also belong to multiple actors
+			for _, aid := range actIDs {
+				lib.ExecSQLWithErr(con, &ctx,
+					lib.InsertIgnore("into gha_actors_names(actor_id, name) "+lib.NValues(2)),
+					lib.AnyArray{aid, maybeHide(name)}...,
+				)
+				allNames++
+			}
+		}
+	}
+	lib.Printf("%d names lists, all names: %d\n", len(loginNames), allNames)
+
 	// Login - Affiliation should be 1:1, but it is sometimes 1:2 or 1:3
 	// There are some ambigous affiliations in github_users.json
 	// For such cases we're picking up the one with most entries
