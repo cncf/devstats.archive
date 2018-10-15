@@ -576,7 +576,9 @@ CREATE TABLE public.gha_commits (
     encrypted_email character varying(160) NOT NULL,
     author_email character varying(160) DEFAULT ''::character varying NOT NULL,
     committer_name character varying(160) DEFAULT ''::character varying NOT NULL,
-    committer_email character varying(160) DEFAULT ''::character varying NOT NULL
+    committer_email character varying(160) DEFAULT ''::character varying NOT NULL,
+    author_id bigint,
+    committer_id bigint
 );
 
 
@@ -1141,7 +1143,7 @@ COPY public.gha_comments (id, event_id, body, created_at, updated_at, user_id, c
 -- Data for Name: gha_commits; Type: TABLE DATA; Schema: public; Owner: gha_admin
 --
 
-COPY public.gha_commits (sha, event_id, author_name, message, is_distinct, dup_actor_id, dup_actor_login, dup_repo_id, dup_repo_name, dup_type, dup_created_at, encrypted_email, author_email, committer_name, committer_email) FROM stdin;
+COPY public.gha_commits (sha, event_id, author_name, message, is_distinct, dup_actor_id, dup_actor_login, dup_repo_id, dup_repo_name, dup_type, dup_created_at, encrypted_email, author_email, committer_name, committer_email, author_id, committer_id) FROM stdin;
 \.
 
 
@@ -2394,10 +2396,24 @@ CREATE INDEX commits_author_email_idx ON public.gha_commits USING btree (author_
 
 
 --
+-- Name: commits_author_id_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX commits_author_id_idx ON public.gha_commits USING btree (author_id);
+
+
+--
 -- Name: commits_author_name_idx; Type: INDEX; Schema: public; Owner: gha_admin
 --
 
 CREATE INDEX commits_author_name_idx ON public.gha_commits USING btree (author_name);
+
+
+--
+-- Name: commits_committer_id_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX commits_committer_id_idx ON public.gha_commits USING btree (committer_id);
 
 
 --
