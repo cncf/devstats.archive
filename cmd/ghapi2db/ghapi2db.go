@@ -69,8 +69,11 @@ func getLastRichCommitDate(c *sql.DB, ctx *lib.Ctx, repo string) time.Time {
 		c,
 		ctx,
 		fmt.Sprintf(
-			"select coalesce(max(dup_created_at), (select min(dup_created_at) from gha_commits where dup_repo_name = %s)) "+
-				"from gha_commits where author_email != '' and dup_repo_name = %s",
+			"select coalesce(max(dup_created_at), "+
+				"(select min(dup_created_at) from gha_commits where dup_repo_id = ("+
+				"select id from gha_repos where name = %s)), '2014-01-01 00:00:00') "+
+				"from gha_commits where author_email != '' and dup_repo_id = ("+
+				"select id from gha_repos where name = %s)",
 			lib.NValue(1),
 			lib.NValue(2),
 		),
@@ -84,7 +87,9 @@ func getLastRichCommitDate(c *sql.DB, ctx *lib.Ctx, repo string) time.Time {
 		dt = dt.Add(time.Minute * time.Duration(-2))
 	}
 	lib.FatalOnError(rows.Err())
-	lib.Printf("%s from: %+v\n", repo, dt)
+	if ctx.Debug > 0 {
+		lib.Printf("%s from: %+v\n", repo, dt)
+	}
 	return dt
 }
 
@@ -183,7 +188,7 @@ func processCommit(c *sql.DB, ctx *lib.Ctx, commit *github.RepositoryCommit, may
 		lib.FatalOnError(rows.Scan(&sha, &currentAuthorName, &createdAt))
 	}
 	lib.FatalOnError(rows.Err())
-	if sha != "" && ctx.Debug > 0 {
+	if sha != "" && ctx.Debug > 1 {
 		lib.Printf("GHA GHAPI time difference for sha %s: %v\n", cSHA, createdAt.Sub(authorDate))
 	}
 
@@ -202,11 +207,15 @@ func processCommit(c *sql.DB, ctx *lib.Ctx, commit *github.RepositoryCommit, may
 
 	// Compare to what we currently have, eventually warn and insert new
 	if committerLogin != "" && sha != "" && newCommitterID != committerID {
-		lib.Printf("DB Committer ID: %d != API Committer ID: %d, sha: %s, login: %s\n", newCommitterID, committerID, cSHA, committerLogin)
+		if ctx.Debug > 0 {
+			lib.Printf("DB Committer ID: %d != API Committer ID: %d, sha: %s, login: %s\n", newCommitterID, committerID, cSHA, committerLogin)
+		}
 		insertActorTx(tx, ctx, committerID, committerLogin, committerName, maybeHide)
 	}
 	if authorLogin != "" && sha != "" && authorLogin != committerLogin && newAuthorID != authorID {
-		lib.Printf("DB Author ID: %d != API Author ID: %d, SHA: %s, login: %s\n", newAuthorID, authorID, cSHA, authorLogin)
+		if ctx.Debug > 0 {
+			lib.Printf("DB Author ID: %d != API Author ID: %d, SHA: %s, login: %s\n", newAuthorID, authorID, cSHA, authorLogin)
+		}
 		insertActorTx(tx, ctx, authorID, authorLogin, authorName, maybeHide)
 	}
 
@@ -218,7 +227,7 @@ func processCommit(c *sql.DB, ctx *lib.Ctx, commit *github.RepositoryCommit, may
 	// If we have that commit, update (enrich) it.
 	if sha == "" {
 		sha = *commit.SHA
-		if ctx.Debug > 0 {
+		if ctx.Debug > 1 {
 			lib.Printf("SHA %s not found\n", sha)
 		}
 	} else {
@@ -440,7 +449,7 @@ func syncCommits(ctx *lib.Ctx) {
 							time.Sleep(wait)
 						}
 						if res == lib.NotFound {
-							lib.Printf("Warning: not found: %s/%s", org, repo)
+							lib.Printf("Warning: not found: %s/%s\n", org, repo)
 							ch <- false
 							return
 						}
@@ -470,7 +479,9 @@ func syncCommits(ctx *lib.Ctx) {
 					}
 				}
 				// Process commits
-				lib.Printf("%s: processing %d commits, page %d\n", orgRepo, len(commits), nPages)
+				if ctx.Debug > 0 {
+					lib.Printf("%s: processing %d commits, page %d\n", orgRepo, len(commits), nPages)
+				}
 				for _, commit := range commits {
 					processCommit(c, ctx, commit, maybeHide)
 				}
