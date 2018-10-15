@@ -243,16 +243,19 @@ func HandlePossibleError(err error, cfg, info string) string {
 				return Abuse
 			}
 		}
-		if strings.Contains(err.Error(), "404 Not Found") {
+		errStr := err.Error()
+		if strings.Contains(errStr, "404 Not Found") {
 			Printf("Not found (%s) for %v: %v\n", info, cfg, err)
 			return NotFound
-		}
-		if strings.Contains(err.Error(), "502 Server Error") {
+		} else if strings.Contains(errStr, "502 Server Error") {
 			Printf("Server Error (%s) for %v: %v\n", info, cfg, err)
 			return "server_error"
+		} else if strings.Contains(errStr, "409 Git Repository is empty") {
+			Printf("Git repository empty (%s) for %v: %v\n", info, cfg, err)
+			return NotFound
 		}
 		//FatalOnError(err)
-		Printf("%s error: %v, non fatal, exiting 0 status\n", os.Args[0], err)
+		Printf("%s error: %T:%v, non fatal, exiting 0 status\n", os.Args[0], err, err)
 		os.Exit(0)
 	}
 	return ""
