@@ -291,7 +291,7 @@ func lookupActor(db *sql.DB, ctx *lib.Ctx, login string, maybeHide func(string) 
 	rows := lib.QuerySQLWithErr(
 		db,
 		ctx,
-		fmt.Sprintf("select id from gha_actors where login=%s", lib.NValue(1)),
+		fmt.Sprintf("select id from gha_actors where login=%s order by id desc limit 1", lib.NValue(1)),
 		hlogin,
 	)
 	defer func() { lib.FatalOnError(rows.Close()) }()
@@ -313,7 +313,7 @@ func lookupActorTx(con *sql.Tx, ctx *lib.Ctx, login string, maybeHide func(strin
 	rows := lib.QuerySQLTxWithErr(
 		con,
 		ctx,
-		fmt.Sprintf("select id from gha_actors where login=%s", lib.NValue(1)),
+		fmt.Sprintf("select id from gha_actors where login=%s order by id desc limit 1", lib.NValue(1)),
 		hlogin,
 	)
 	defer func() { lib.FatalOnError(rows.Close()) }()

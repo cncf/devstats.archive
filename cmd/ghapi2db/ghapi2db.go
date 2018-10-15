@@ -80,33 +80,178 @@ func getLastRichCommitDate(c *sql.DB, ctx *lib.Ctx, repo string) (time.Time, tim
 		dtt = dtt.Add(time.Minute * time.Duration(2))
 	}
 	lib.FatalOnError(rows.Err())
-	fmt.Printf("%s -> (%+v, %+v)\n", repo, dtf, dtt)
+	lib.Printf("%s range: %+v - %+v\n", repo, dtf, dtt)
 	return dtf, dtt
 }
 
-func processCommit(c *sql.DB, ctx *lib.Ctx, commit *github.RepositoryCommit) {
-	/*
-	   "sha": "440252bdc1938899d9555196ae176d82a936fafa",
-	   "commit": {
-	     "author": {
-	       "name": "Lukasz Gryglicki",
-	       "email": "lukaszgryglicki!o2.pl",
-	     },
-	     "committer": {
-	       "name": "Lukasz Gryglicki",
-	       "email": "lukaszgryglicki!o2.pl",
-	     },
-	   },
-	   "author": {
-	     "login": "lukaszgryglicki",
-	     "id": 2469783,
-	   },
-	   "committer": {
-	     "login": "lukaszgryglicki",
-	     "id": 2469783,
-	   },
-	*/
-	fmt.Printf("%+v\n", commit)
+// Search for given actor using his/her login
+// If not found, return hash as its ID
+func lookupActorTx(con *sql.Tx, ctx *lib.Ctx, login string, maybeHide func(string) string) int {
+	hlogin := maybeHide(login)
+	rows := lib.QuerySQLTxWithErr(
+		con,
+		ctx,
+		fmt.Sprintf("select id from gha_actors where login=%s order by id desc limit 1", lib.NValue(1)),
+		hlogin,
+	)
+	defer func() { lib.FatalOnError(rows.Close()) }()
+	aid := 0
+	for rows.Next() {
+		lib.FatalOnError(rows.Scan(&aid))
+	}
+	lib.FatalOnError(rows.Err())
+	if aid == 0 {
+		aid = lib.HashStrings([]string{login})
+	}
+	return aid
+}
+
+// Inserts single GHA Actor
+func insertActorTx(con *sql.Tx, ctx *lib.Ctx, aid int64, login, name string, maybeHide func(string) string) {
+	lib.ExecSQLTxWithErr(
+		con,
+		ctx,
+		lib.InsertIgnore("into gha_actors(id, login, name) "+lib.NValues(3)),
+		lib.AnyArray{aid, maybeHide(login), maybeHide(name)}...,
+	)
+}
+
+// processCommit - logic to enrich commit
+func processCommit(c *sql.DB, ctx *lib.Ctx, commit *github.RepositoryCommit, maybeHide func(string) string) {
+	// Start transaction for data possibly shared between events
+	tx, err := c.Begin()
+	lib.FatalOnError(err)
+
+	// Shortcuts
+	authorID := *commit.Author.ID
+	authorLogin := *commit.Author.Login
+	authorName := *commit.Commit.Author.Name
+	authorEmail := *commit.Commit.Author.Email
+	authorDate := *commit.Commit.Author.Date
+	committerID := *commit.Committer.ID
+	committerLogin := *commit.Committer.Login
+	committerName := *commit.Commit.Committer.Name
+	committerEmail := *commit.Commit.Committer.Email
+	// committerDate := *commit.Commit.Committer.Date
+	cSHA := *commit.SHA
+
+	//lib.Printf("%s %v %v\n", cSHA, authorDate, committerDate)
+	// Check if we already have this commit
+	strAuthorDate := lib.ToYMDHMSDate(authorDate)
+	rows := lib.QuerySQLTxWithErr(
+		tx,
+		ctx,
+		fmt.Sprintf(
+			"select sha, author_name, dup_created_at "+
+				"from gha_commits where sha = %s "+
+				"order by abs(extract(epoch from %s - dup_created_at)) "+
+				"limit 1",
+			lib.NValue(1),
+			lib.NValue(2),
+		),
+		cSHA,
+		strAuthorDate,
+	)
+	defer func() { lib.FatalOnError(rows.Close()) }()
+	sha := ""
+	currentAuthorName := ""
+	var createdAt time.Time
+	for rows.Next() {
+		lib.FatalOnError(rows.Scan(&sha, &currentAuthorName, &createdAt))
+	}
+	lib.FatalOnError(rows.Err())
+	if sha != "" && ctx.Debug > 0 {
+		lib.Printf("GHA GHAPI time difference for sha %s: %v\n", cSHA, createdAt.Sub(authorDate))
+	}
+
+	// Get existing author & committer, it is possible that we don't have them yet
+	newAuthorID := int64(lookupActorTx(tx, ctx, authorLogin, maybeHide))
+	newCommitterID := authorID
+	if committerLogin != authorLogin {
+		newCommitterID = int64(lookupActorTx(tx, ctx, committerLogin, maybeHide))
+	}
+
+	// Compare to what we currently have, eventually warn and insert new
+	if sha != "" && newAuthorID != authorID {
+		lib.Printf("DB Author ID: %d != API Author ID: %d, sha: %s\n", newAuthorID, authorID, cSHA)
+		insertActorTx(tx, ctx, authorID, authorLogin, authorName, maybeHide)
+	}
+	if sha != "" && committerLogin != authorLogin && newCommitterID != committerID {
+		lib.Printf("DB committer ID: %d != API Committer ID: %d, SHA: %s\n", newCommitterID, committerID, cSHA)
+		insertActorTx(tx, ctx, committerID, committerLogin, committerName, maybeHide)
+	}
+
+	// Same author?
+	if sha != "" && currentAuthorName != authorName {
+		lib.Printf("Author name mismatch API: %s, DB: %s, SHA: %s\n", authorName, currentAuthorName, cSHA)
+	}
+
+	// If we have that commit, update (enrich) it.
+	if sha == "" {
+		sha = *commit.SHA
+		if ctx.Debug > 0 {
+			lib.Printf("SHA %s not found\n", sha)
+		}
+	} else {
+		lib.ExecSQLTxWithErr(tx, ctx,
+			"update gha_commits set "+
+				"author_name="+lib.NValue(1)+
+				", author_email="+lib.NValue(2)+
+				", committer_name="+lib.NValue(3)+
+				", committer_email="+lib.NValue(4)+
+				", author_id="+lib.NValue(5)+
+				", committer_id="+lib.NValue(6)+
+				" where sha="+lib.NValue(7)+
+				" and dup_created_at="+lib.NValue(8),
+			lib.AnyArray{
+				maybeHide(authorName),
+				maybeHide(authorEmail),
+				maybeHide(committerName),
+				maybeHide(committerEmail),
+				authorID,
+				committerID,
+				sha,
+				createdAt,
+			}...,
+		)
+	}
+
+	// Author email
+	lib.ExecSQLTxWithErr(
+		tx,
+		ctx,
+		lib.InsertIgnore("into gha_actors_emails(actor_id, email) "+lib.NValues(2)),
+		lib.AnyArray{authorID, maybeHide(authorEmail)}...,
+	)
+	// Committer email
+	if committerEmail != authorEmail {
+		lib.ExecSQLTxWithErr(
+			tx,
+			ctx,
+			lib.InsertIgnore("into gha_actors_emails(actor_id, email) "+lib.NValues(2)),
+			lib.AnyArray{committerID, maybeHide(committerEmail)}...,
+		)
+	}
+	// Author name
+	lib.ExecSQLTxWithErr(
+		tx,
+		ctx,
+		lib.InsertIgnore("into gha_actors_names(actor_id, name) "+lib.NValues(2)),
+		lib.AnyArray{authorID, maybeHide(authorName)}...,
+	)
+	// Committer name
+	if committerName != authorName {
+		lib.ExecSQLTxWithErr(
+			tx,
+			ctx,
+			lib.InsertIgnore("into gha_actors_names(actor_id, name) "+lib.NValues(2)),
+			lib.AnyArray{committerID, maybeHide(committerName)}...,
+		)
+	}
+
+	// Final commit
+	// lib.FatalOnError(tx.Rollback())
+	lib.FatalOnError(tx.Commit())
 }
 
 // Some debugging options (environment variables)
@@ -186,6 +331,8 @@ func syncCommits(ctx *lib.Ctx) {
 				ch <- false
 				return
 			}
+			// To handle GDPR
+			maybeHide := lib.MaybeHideFunc(lib.GetHidden(lib.HideCfgFile))
 			// Need deep copy - threads
 			copt := opt
 			if !isDateRange && ctx.AutoFetchCommits {
@@ -238,9 +385,7 @@ func syncCommits(ctx *lib.Ctx) {
 					if ctx.Debug > 1 {
 						lib.Printf("API call for commits %s (%d), remaining GHAPI points %d\n", orgRepo, nPages, rem)
 					}
-					// FIXME: use "c" psql connection to get most recent enriched commit data, and query commits since then.
-					// this must be configurable: on/off as a recentDT, FROM, TO replacement/helper
-					commits, response, err = gc.Repositories.ListCommits(gctx, org, repo, opt)
+					commits, response, err = gc.Repositories.ListCommits(gctx, org, repo, copt)
 					res := lib.HandlePossibleError(err, orgRepo, "Repositories.ListCommits")
 					if res != "" {
 						if res == lib.Abuse {
@@ -289,8 +434,9 @@ func syncCommits(ctx *lib.Ctx) {
 					}
 				}
 				// Process commits
+				lib.Printf("%s: processing %d commits\n", orgRepo, len(commits))
 				for _, commit := range commits {
-					processCommit(c, ctx, commit)
+					processCommit(c, ctx, commit, maybeHide)
 				}
 				// Handle paging
 				if response.NextPage == 0 {
@@ -323,6 +469,7 @@ func syncCommits(ctx *lib.Ctx) {
 		_, rem, wait := lib.GetRateLimits(gctx, gc, true)
 		lib.ProgressInfo(checked, nRepos, dtStart, &lastTime, time.Duration(10)*time.Second, fmt.Sprintf("API points: %d, resets in: %v", rem, wait))
 	}
+	lib.Printf("Commits finished\n")
 }
 
 // Some debugging options (environment variables)
@@ -814,7 +961,7 @@ func main() {
 			syncEvents(&ctx)
 		}
 		//if !ctx.SkipAPICommits {
-			//syncCommits(&ctx)
+		//	syncCommits(&ctx)
 		//}
 	}
 	dtEnd := time.Now()
