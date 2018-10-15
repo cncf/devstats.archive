@@ -25,7 +25,6 @@ func getAPIParams(ctx *lib.Ctx) (repos []string, isSingleRepo bool, singleRepo s
 
 	// Connect to Postgres DB
 	c = lib.PgConn(ctx)
-	defer func() { lib.FatalOnError(c.Close()) }()
 
 	// Get list of repositories to process
 	recentReposDt := lib.GetDateAgo(c, ctx, lib.HourStart(time.Now()), ctx.RecentReposRange)
@@ -64,6 +63,27 @@ func getAPIParams(ctx *lib.Ctx) (repos []string, isSingleRepo bool, singleRepo s
 	return
 }
 
+// getLastRichCommitDate return last enriched commits date
+func getLastRichCommitDate(c *sql.DB, ctx *lib.Ctx, repo string) (time.Time, time.Time) {
+	rows := lib.QuerySQLWithErr(
+		c,
+		ctx,
+		"select min(dup_created_at), max(dup_created_at) from gha_commits where author_email = '' and dup_repo_name = "+lib.NValue(1),
+		repo,
+	)
+	defer func() { lib.FatalOnError(rows.Close()) }()
+	dtf := time.Now()
+	dtt := time.Now()
+	for rows.Next() {
+		lib.FatalOnError(rows.Scan(&dtf, &dtt))
+		dtf = dtf.Add(time.Minute * time.Duration(-2))
+		dtt = dtt.Add(time.Minute * time.Duration(2))
+	}
+	lib.FatalOnError(rows.Err())
+	fmt.Printf("%s -> (%+v, %+v)\n", repo, dtf, dtt)
+	return dtf, dtt
+}
+
 func processCommit(c *sql.DB, ctx *lib.Ctx, commit *github.RepositoryCommit) {
 	/*
 	   "sha": "440252bdc1938899d9555196ae176d82a936fafa",
@@ -97,10 +117,7 @@ func processCommit(c *sql.DB, ctx *lib.Ctx, commit *github.RepositoryCommit) {
 func syncCommits(ctx *lib.Ctx) {
 	// Get common params
 	repos, isSingleRepo, singleRepo, gctx, gc, c, recentDt := getAPIParams(ctx)
-	// FIXME: remove this
-	if ctx.Debug > 0 {
-		fmt.Printf("c=%v\n", c)
-	}
+	defer func() { lib.FatalOnError(c.Close()) }()
 
 	// Date range mode
 	var (
@@ -143,7 +160,7 @@ func syncCommits(ctx *lib.Ctx) {
 		// Path:   "p",
 		// Author: "a",
 	}
-	opt.PerPage = 2
+	opt.PerPage = 1000
 	if isDateRange {
 		if dateRangeFrom != nil {
 			opt.Since = *dateRangeFrom
@@ -168,6 +185,19 @@ func syncCommits(ctx *lib.Ctx) {
 			if org == "" || repo == "" {
 				ch <- false
 				return
+			}
+			// Need deep copy - threads
+			copt := opt
+			if !isDateRange && ctx.AutoFetchCommits {
+				dtf, dtt := getLastRichCommitDate(c, ctx, orgRepo)
+				copt = &github.CommitsListOptions{
+					Since:  dtf,
+					Until:  dtt,
+					SHA:    opt.SHA,
+					Path:   opt.Path,
+					Author: opt.Author,
+				}
+				copt.PerPage = opt.PerPage
 			}
 			var (
 				err      error
@@ -306,6 +336,7 @@ func syncCommits(ctx *lib.Ctx) {
 func syncEvents(ctx *lib.Ctx) {
 	// Get common params
 	repos, isSingleRepo, singleRepo, gctx, gc, c, recentDt := getAPIParams(ctx)
+	defer func() { lib.FatalOnError(c.Close()) }()
 
 	// Date range mode
 	var (
@@ -783,7 +814,7 @@ func main() {
 			syncEvents(&ctx)
 		}
 		//if !ctx.SkipAPICommits {
-		//	syncCommits(&ctx)
+			//syncCommits(&ctx)
 		//}
 	}
 	dtEnd := time.Now()
