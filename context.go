@@ -82,7 +82,9 @@ type Ctx struct {
 	MaxGHAPIWaitSeconds int                          // From GHA2DB_MAX_GHAPI_WAIT, ghapi2db tool, maximum wait time for GitHub API points reset (in seconds).
 	MaxGHAPIRetry       int                          // From GHA2DB_MAX_GHAPI_RETRY, ghapi2db tool, maximum wait retries
 	GHAPIErrorIsFatal   bool                         // From GHA2DB_GHAPI_ERROR_FATAL, ghapi2db tool, make any GH API error fatal, default false
-	SkipGHAPI           bool                         // From GHA2DB_GHAPISKIP, ghapi2db tool, if set then tool is not creating artificial events using GitHub API
+	SkipGHAPI           bool                         // From GHA2DB_GHAPISKIP, ghapi2db tool, if set then tool is skipping GH API calls (all: events (artificial events to make sure we are in sync with GH) and commits (enriches obfuscated GHA commits data)
+	SkipAPIEvents       bool                         // From GHA2DB_GHAPISKIPEVENTS, ghapi2db tool, if set then tool is skipping GH API events sync
+	SkipAPICommits      bool                         // From GHA2DB_GHAPISKIPCOMMITS, ghapi2db tool, if set then tool is skipping GH API commits enrichment
 	SkipGetRepos        bool                         // From GHA2DB_GETREPOSSKIP, get_repos tool, if set then tool does nothing
 	CSVFile             string                       // From GHA2DB_CSVOUT, runq tool, if set, saves result in this file
 	ComputeAll          bool                         // From GHA2DB_COMPUTE_ALL, all tools, if set then no period decisions are taken based on time, but all possible periods are recalculated
@@ -228,6 +230,8 @@ func (ctx *Ctx) Init() {
 	// Skip ghapi2db and/or get_repos
 	ctx.SkipGetRepos = os.Getenv("GHA2DB_GETREPOSSKIP") != ""
 	ctx.SkipGHAPI = os.Getenv("GHA2DB_GHAPISKIP") != ""
+	ctx.SkipAPIEvents = os.Getenv("GHA2DB_GHAPISKIPEVENTS") != ""
+	ctx.SkipAPICommits = os.Getenv("GHA2DB_GHAPISKIPCOMMITS") != ""
 	ctx.GHAPIErrorIsFatal = os.Getenv("GHA2DB_GHAPI_ERROR_FATAL") != ""
 
 	// Last TS series

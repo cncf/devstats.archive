@@ -1,6 +1,8 @@
 package main
 
 import (
+	"context"
+	"database/sql"
 	"fmt"
 	"math"
 	"os"
@@ -15,21 +17,14 @@ import (
 	"github.com/google/go-github/github"
 )
 
-//
-// Some debugging options (environment variables)
-// You can set:
-// REPO=full_repo_name
-// FROM=datetime 'YYYY-MM-DD hh:mm:ss.uuuuuu"
-// TO=datetime 'YYYY-MM-DD hh:mm:ss.uuuuuu"
-// MILESTONE=milestone name
-// ISSUE="issue_number"
-// To use FROM and TO make sure you set GHA2DB_RECENT_RANGE to cover that range too.
-func syncEvents(ctx *lib.Ctx) {
+// getAPIParams connects to GitHub and Postgres
+// Returns list of recent repositories and recent date to fetch commits from
+func getAPIParams(ctx *lib.Ctx) (repos []string, isSingleRepo bool, singleRepo string, gctx context.Context, gc *github.Client, c *sql.DB, recentDt time.Time) {
 	// Connect to GitHub API
-	gctx, gc := lib.GHClient(ctx)
+	gctx, gc = lib.GHClient(ctx)
 
 	// Connect to Postgres DB
-	c := lib.PgConn(ctx)
+	c = lib.PgConn(ctx)
 	defer func() { lib.FatalOnError(c.Close()) }()
 
 	// Get list of repositories to process
@@ -52,21 +47,53 @@ func syncEvents(ctx *lib.Ctx) {
 			ridsM[rid] = struct{}{}
 		}
 	}
-	var repos []string
 	for repo := range reposM {
 		repos = append(repos, repo)
 	}
 	if ctx.Debug > 0 {
 		lib.Printf("Unique repos: %v\n", repos)
 	}
-	recentDt := lib.GetDateAgo(c, ctx, lib.HourStart(time.Now()), ctx.RecentRange)
+	recentDt = lib.GetDateAgo(c, ctx, lib.HourStart(time.Now()), ctx.RecentRange)
 
 	// Single repo mode
-	isSingleRepo := false
-	singleRepo := os.Getenv("REPO")
+	singleRepo = os.Getenv("REPO")
 	if singleRepo != "" {
 		isSingleRepo = true
 	}
+
+	return
+}
+
+func syncCommits(ctx *lib.Ctx) {
+	// Get common params
+	/*
+		  repos, isSingleRepo, singleRepo, gctx, gc, c, recentDt := getAPIParams(ctx)
+
+			// Date range mode
+			var (
+				dateRangeFrom *time.Time
+			)
+			isDateRange := false
+			dateRangeFromS := os.Getenv("FROM")
+			if dateRangeFromS != "" {
+				tmp := lib.TimeParseAny(dateRangeFromS)
+				dateRangeFrom = &tmp
+				isDateRange = true
+			}
+	*/
+}
+
+// Some debugging options (environment variables)
+// You can set:
+// REPO=full_repo_name
+// FROM=datetime 'YYYY-MM-DD hh:mm:ss.uuuuuu"
+// TO=datetime 'YYYY-MM-DD hh:mm:ss.uuuuuu"
+// MILESTONE=milestone name
+// ISSUE="issue_number"
+// To use FROM and TO make sure you set GHA2DB_RECENT_RANGE to cover that range too.
+func syncEvents(ctx *lib.Ctx) {
+	// Get common params
+	repos, isSingleRepo, singleRepo, gctx, gc, c, recentDt := getAPIParams(ctx)
 
 	// Date range mode
 	var (
@@ -541,7 +568,12 @@ func main() {
 	dtStart := time.Now()
 	// Create artificial events
 	if !ctx.SkipGHAPI {
-		syncEvents(&ctx)
+		if !ctx.SkipAPIEvents {
+			syncEvents(&ctx)
+		}
+		if !ctx.SkipAPICommits {
+			syncCommits(&ctx)
+		}
 	}
 	dtEnd := time.Now()
 	lib.Printf("Time: %v\n", dtEnd.Sub(dtStart))

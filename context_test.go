@@ -42,6 +42,8 @@ func copyContext(in *lib.Ctx) *lib.Ctx {
 		SkipTSDB:            in.SkipTSDB,
 		SkipPDB:             in.SkipPDB,
 		SkipGHAPI:           in.SkipGHAPI,
+		SkipAPIEvents:       in.SkipAPIEvents,
+		SkipAPICommits:      in.SkipAPICommits,
 		GHAPIErrorIsFatal:   in.GHAPIErrorIsFatal,
 		AllowBrokenJSON:     in.AllowBrokenJSON,
 		WebsiteData:         in.WebsiteData,
@@ -242,6 +244,8 @@ func TestInit(t *testing.T) {
 		SkipTSDB:            false,
 		SkipPDB:             false,
 		SkipGHAPI:           false,
+		SkipAPIEvents:       false,
+		SkipAPICommits:      false,
 		GHAPIErrorIsFatal:   false,
 		AllowBrokenJSON:     false,
 		WebsiteData:         false,
@@ -550,6 +554,8 @@ func TestInit(t *testing.T) {
 			map[string]string{
 				"GHA2DB_GETREPOSSKIP":      "1",
 				"GHA2DB_GHAPISKIP":         "1",
+				"GHA2DB_GHAPISKIPEVENTS":   "1",
+				"GHA2DB_GHAPISKIPCOMMITS":  "1",
 				"GHA2DB_GHAPI_ERROR_FATAL": "1",
 			},
 			dynamicSetFields(
@@ -558,6 +564,8 @@ func TestInit(t *testing.T) {
 				map[string]interface{}{
 					"SkipGetRepos":      true,
 					"SkipGHAPI":         true,
+					"SkipAPIEvents":     true,
+					"SkipAPICommits":    true,
 					"GHAPIErrorIsFatal": true,
 				},
 			),
