@@ -64,6 +64,31 @@ func getAPIParams(ctx *lib.Ctx) (repos []string, isSingleRepo bool, singleRepo s
 	return
 }
 
+func processCommit(c *sql.DB, ctx *lib.Ctx, commit *github.RepositoryCommit) {
+	/*
+	   "sha": "440252bdc1938899d9555196ae176d82a936fafa",
+	   "commit": {
+	     "author": {
+	       "name": "Lukasz Gryglicki",
+	       "email": "lukaszgryglicki!o2.pl",
+	     },
+	     "committer": {
+	       "name": "Lukasz Gryglicki",
+	       "email": "lukaszgryglicki!o2.pl",
+	     },
+	   },
+	   "author": {
+	     "login": "lukaszgryglicki",
+	     "id": 2469783,
+	   },
+	   "committer": {
+	     "login": "lukaszgryglicki",
+	     "id": 2469783,
+	   },
+	*/
+	fmt.Printf("%+v\n", commit)
+}
+
 // Some debugging options (environment variables)
 // You can set:
 // REPO=full_repo_name
@@ -220,7 +245,6 @@ func syncCommits(ctx *lib.Ctx) {
 						thrMutex.Unlock()
 					}
 					got = true
-					fmt.Printf("%s -> %+v\n", orgRepo, commits)
 					break
 				}
 				/// end trials
@@ -233,6 +257,10 @@ func syncCommits(ctx *lib.Ctx) {
 						ch <- false
 						return
 					}
+				}
+				// Process commits
+				for _, commit := range commits {
+					processCommit(c, ctx, commit)
 				}
 				// Handle paging
 				if response.NextPage == 0 {
