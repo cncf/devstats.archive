@@ -98,6 +98,9 @@ type Ctx struct {
 	SkipUpdateEvents    bool                         // From GHA2DB_SKIP_UPDATE_EVENTS, ghapi2db tool, drop and recreate artificial events if their state differs, default false
 	ComputePeriods      map[string]map[bool]struct{} // From GHA2DB_FORCE_PERIODS, gha2db_sync tool, force recompute only given periods, "y10:t,m:f,...", default ""
 	AutoFetchCommits    bool                         // From GHA2DB_NO_AUTOFETCHCOMMITS, ghapi2db, disable fetching from last enriched commit data, it will fetch from 'RecentRange instead, AutoFetchCommits is enabled by default
+	SkipTags            bool                         // From GHA2DB_SKIP_TAGS, gha2db_sync tool, skip calling tags tool, default false
+	SkipAnnotations     bool                         // From GHA2DB_SKIP_ANNOTATIONS, gha2db_sync tool, skip calling annotations tool, default false
+	SkipColumns         bool                         // From GHA2DB_SKIP_COLUMNS, gha2db_sync tool, skip calling columns tool, default false
 }
 
 // Init - get context from environment variables
@@ -241,6 +244,11 @@ func (ctx *Ctx) Init() {
 	if ctx.LastSeries == "" {
 		ctx.LastSeries = "events_h"
 	}
+
+	// Skip some tools
+	ctx.SkipTags = os.Getenv("GHA2DB_SKIP_TAGS") != ""
+	ctx.SkipAnnotations = os.Getenv("GHA2DB_SKIP_ANNOTATIONS") != ""
+	ctx.SkipColumns = os.Getenv("GHA2DB_SKIP_COLUMNS") != ""
 
 	// TS variables
 	ctx.SkipTSDB = os.Getenv("GHA2DB_SKIPTSDB") != ""
