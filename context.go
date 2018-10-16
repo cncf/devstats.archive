@@ -82,7 +82,9 @@ type Ctx struct {
 	MaxGHAPIWaitSeconds int                          // From GHA2DB_MAX_GHAPI_WAIT, ghapi2db tool, maximum wait time for GitHub API points reset (in seconds).
 	MaxGHAPIRetry       int                          // From GHA2DB_MAX_GHAPI_RETRY, ghapi2db tool, maximum wait retries
 	GHAPIErrorIsFatal   bool                         // From GHA2DB_GHAPI_ERROR_FATAL, ghapi2db tool, make any GH API error fatal, default false
-	SkipGHAPI           bool                         // From GHA2DB_GHAPISKIP, ghapi2db tool, if set then tool is not creating artificial events using GitHub API
+	SkipGHAPI           bool                         // From GHA2DB_GHAPISKIP, ghapi2db tool, if set then tool is skipping GH API calls (all: events (artificial events to make sure we are in sync with GH) and commits (enriches obfuscated GHA commits data)
+	SkipAPIEvents       bool                         // From GHA2DB_GHAPISKIPEVENTS, ghapi2db tool, if set then tool is skipping GH API events sync
+	SkipAPICommits      bool                         // From GHA2DB_GHAPISKIPCOMMITS, ghapi2db tool, if set then tool is skipping GH API commits enrichment
 	SkipGetRepos        bool                         // From GHA2DB_GETREPOSSKIP, get_repos tool, if set then tool does nothing
 	CSVFile             string                       // From GHA2DB_CSVOUT, runq tool, if set, saves result in this file
 	ComputeAll          bool                         // From GHA2DB_COMPUTE_ALL, all tools, if set then no period decisions are taken based on time, but all possible periods are recalculated
@@ -95,6 +97,10 @@ type Ctx struct {
 	WebsiteData         bool                         // From GHA2DB_WEBSITEDATA, devstats tool, run website_data just after sync is complete, default false.
 	SkipUpdateEvents    bool                         // From GHA2DB_SKIP_UPDATE_EVENTS, ghapi2db tool, drop and recreate artificial events if their state differs, default false
 	ComputePeriods      map[string]map[bool]struct{} // From GHA2DB_FORCE_PERIODS, gha2db_sync tool, force recompute only given periods, "y10:t,m:f,...", default ""
+	AutoFetchCommits    bool                         // From GHA2DB_NO_AUTOFETCHCOMMITS, ghapi2db, disable fetching from last enriched commit data, it will fetch from 'RecentRange instead, AutoFetchCommits is enabled by default
+	SkipTags            bool                         // From GHA2DB_SKIP_TAGS, gha2db_sync tool, skip calling tags tool, default false
+	SkipAnnotations     bool                         // From GHA2DB_SKIP_ANNOTATIONS, gha2db_sync tool, skip calling annotations tool, default false
+	SkipColumns         bool                         // From GHA2DB_SKIP_COLUMNS, gha2db_sync tool, skip calling columns tool, default false
 }
 
 // Init - get context from environment variables
@@ -228,13 +234,21 @@ func (ctx *Ctx) Init() {
 	// Skip ghapi2db and/or get_repos
 	ctx.SkipGetRepos = os.Getenv("GHA2DB_GETREPOSSKIP") != ""
 	ctx.SkipGHAPI = os.Getenv("GHA2DB_GHAPISKIP") != ""
+	ctx.SkipAPIEvents = os.Getenv("GHA2DB_GHAPISKIPEVENTS") != ""
+	ctx.SkipAPICommits = os.Getenv("GHA2DB_GHAPISKIPCOMMITS") != ""
 	ctx.GHAPIErrorIsFatal = os.Getenv("GHA2DB_GHAPI_ERROR_FATAL") != ""
+	ctx.AutoFetchCommits = os.Getenv("GHA2DB_NO_AUTOFETCHCOMMITS") == ""
 
 	// Last TS series
 	ctx.LastSeries = os.Getenv("GHA2DB_LASTSERIES")
 	if ctx.LastSeries == "" {
 		ctx.LastSeries = "events_h"
 	}
+
+	// Skip some tools
+	ctx.SkipTags = os.Getenv("GHA2DB_SKIP_TAGS") != ""
+	ctx.SkipAnnotations = os.Getenv("GHA2DB_SKIP_ANNOTATIONS") != ""
+	ctx.SkipColumns = os.Getenv("GHA2DB_SKIP_COLUMNS") != ""
 
 	// TS variables
 	ctx.SkipTSDB = os.Getenv("GHA2DB_SKIPTSDB") != ""

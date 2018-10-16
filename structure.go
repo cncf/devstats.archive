@@ -107,6 +107,26 @@ func Structure(ctx *Ctx) {
 		ExecSQLWithErr(c, ctx, "create index actors_emails_email_idx on gha_actors_emails(email)")
 	}
 
+	// gha_actors_names: this is filled by `ghapi2db` tool
+	if ctx.Table {
+		ExecSQLWithErr(c, ctx, "drop table if exists gha_actors_names")
+		ExecSQLWithErr(
+			c,
+			ctx,
+			CreateTable(
+				"gha_actors_names("+
+					"actor_id bigint not null, "+
+					"name varchar(120) not null, "+
+					"primary key(actor_id, name)"+
+					")",
+			),
+		)
+	}
+	if ctx.Index {
+		ExecSQLWithErr(c, ctx, "create index actors_names_actor_id_idx on gha_actors_names(actor_id)")
+		ExecSQLWithErr(c, ctx, "create index actors_names_email_idx on gha_actors_names(name)")
+	}
+
 	// gha_companies: this is filled by `import_affs` tool, that uses cncf/gitdm:github_users.json
 	if ctx.Table {
 		ExecSQLWithErr(c, ctx, "drop table if exists gha_companies")
@@ -292,6 +312,11 @@ func Structure(ctx *Ctx) {
 					"dup_type varchar(40) not null, "+
 					"dup_created_at {{ts}} not null, "+
 					"encrypted_email varchar(160) not null, "+
+					"author_email varchar(160) not null default '', "+
+					"committer_name varchar(160) not null default '', "+
+					"committer_email varchar(160) not null default '', "+
+					"author_id bigint, "+
+					"committer_id bigint, "+
 					"primary key(sha, event_id)"+
 					")",
 			),
@@ -301,6 +326,9 @@ func Structure(ctx *Ctx) {
 		ExecSQLWithErr(c, ctx, "create index commits_event_id_idx on gha_commits(event_id)")
 		ExecSQLWithErr(c, ctx, "create index commits_sha_idx on gha_commits(sha)")
 		ExecSQLWithErr(c, ctx, "create index commits_author_name_idx on gha_commits(author_name)")
+		ExecSQLWithErr(c, ctx, "create index commits_author_email_idx on gha_commits(author_email)")
+		ExecSQLWithErr(c, ctx, "create index commits_committers_name_idx on gha_commits(committer_name)")
+		ExecSQLWithErr(c, ctx, "create index commits_committers_email_idx on gha_commits(committer_email)")
 		ExecSQLWithErr(c, ctx, "create index commits_encrypted_email_idx on gha_commits(encrypted_email)")
 		ExecSQLWithErr(c, ctx, "create index commits_dup_actor_id_idx on gha_commits(dup_actor_id)")
 		ExecSQLWithErr(c, ctx, "create index commits_dup_actor_login_idx on gha_commits(dup_actor_login)")
@@ -308,6 +336,8 @@ func Structure(ctx *Ctx) {
 		ExecSQLWithErr(c, ctx, "create index commits_dup_repo_name_idx on gha_commits(dup_repo_name)")
 		ExecSQLWithErr(c, ctx, "create index commits_dup_type_idx on gha_commits(dup_type)")
 		ExecSQLWithErr(c, ctx, "create index commits_dup_created_at_idx on gha_commits(dup_created_at)")
+		ExecSQLWithErr(c, ctx, "create index commits_author_id_idx on gha_commits(author_id)")
+		ExecSQLWithErr(c, ctx, "create index commits_committer_id_idx on gha_commits(committer_id)")
 	}
 
 	// gha_pages

@@ -150,8 +150,13 @@ func TestComputePeriodAtThisDate(t *testing.T) {
 		{hist: true, period: "y10", dt: ft(2017, 12, 19, 11, 12, 13), computeAll: true, expected: true},
 		{tmOffset: -10, hist: false, period: "w", dt: ft(2018, 9, 14, 10), expected: false},
 		{tmOffset: -10, hist: false, period: "w", dt: ft(2018, 9, 14, 11), expected: false},
-		{tmOffset: -10, hist: false, period: "w", dt: ft(2018, 9, 17, 9), expected: true},
-		{tmOffset: 10, hist: false, period: "w", dt: ft(2018, 9, 16, 13), expected: true},
+		{tmOffset: -10, hist: false, period: "w", dt: ft(2018, 9, 17, 9), expected: false},
+		{tmOffset: 10, hist: false, period: "w", dt: ft(2018, 9, 16, 13), expected: false},
+		{tmOffset: 10, hist: false, period: "w", dt: ft(2018, 9, 16, 23), expected: true},
+		{tmOffset: 10, hist: false, period: "w", dt: ft(2018, 9, 17, 23), expected: false},
+		{tmOffset: -10, hist: false, period: "w", dt: ft(2018, 9, 17, 23), expected: false},
+		{tmOffset: 10, hist: false, period: "w", dt: ft(2018, 9, 15, 23), expected: false},
+		{tmOffset: -10, hist: false, period: "w", dt: ft(2018, 9, 15, 23), expected: false},
 		{hist: false, period: "w", dt: ft(2018, 9, 23, 23), expected: true},
 		{hist: false, period: "w", dt: ft(2018, 9, 24, 0), expected: false},
 		{hist: false, period: "w", dt: ft(2018, 9, 16, 13), expected: false},
@@ -250,6 +255,45 @@ func TestDescriblePeriodInHours(t *testing.T) {
 			t.Errorf(
 				"test number %d, expected '%v' from %v hours, got '%v'",
 				index+1, expected, test.hours, got,
+			)
+		}
+	}
+}
+
+func TestPeriodParse(t *testing.T) {
+	//func PeriodParse(perStr string) (dur time.Duration) {
+	// Test cases
+	expectedDuration, _ := time.ParseDuration("2m31s")
+	var blankDuration time.Duration
+	var testCases = []struct {
+		periodStr        string
+		expectedBool     bool
+		expectedDuration time.Duration
+	}{
+		{periodStr: "blah blah blah [rate reset in 2m31s] no more calls", expectedBool: true, expectedDuration: expectedDuration},
+		{periodStr: "blah blah blah [rate reset in 2m31s]", expectedBool: true, expectedDuration: expectedDuration},
+		{periodStr: "[rate reset in 2m31s] no more calls", expectedBool: true, expectedDuration: expectedDuration},
+		{periodStr: "[rate reset in 2m31s]", expectedBool: true, expectedDuration: expectedDuration},
+		{periodStr: "[rate reset in xxx]", expectedBool: false, expectedDuration: blankDuration},
+		{periodStr: "[rate reset in ]", expectedBool: false, expectedDuration: blankDuration},
+		{periodStr: "[rate reset in]", expectedBool: false, expectedDuration: blankDuration},
+		{periodStr: "blah blah blah", expectedBool: false, expectedDuration: blankDuration},
+	}
+	// Execute test cases
+	for index, test := range testCases {
+		expectedBool := test.expectedBool
+		expectedDuration := test.expectedDuration
+		gotDuration, gotBool := lib.PeriodParse(test.periodStr)
+		if gotBool != expectedBool {
+			t.Errorf(
+				"test number %d, expected boolean %v, got %v",
+				index+1, expectedBool, gotBool,
+			)
+		}
+		if gotDuration != expectedDuration {
+			t.Errorf(
+				"test number %d, expected duration %v, got %v",
+				index+1, expectedDuration, gotDuration,
 			)
 		}
 	}

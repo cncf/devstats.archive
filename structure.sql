@@ -467,6 +467,18 @@ CREATE TABLE public.gha_actors_emails (
 ALTER TABLE public.gha_actors_emails OWNER TO gha_admin;
 
 --
+-- Name: gha_actors_names; Type: TABLE; Schema: public; Owner: gha_admin
+--
+
+CREATE TABLE public.gha_actors_names (
+    actor_id bigint NOT NULL,
+    name character varying(120) NOT NULL
+);
+
+
+ALTER TABLE public.gha_actors_names OWNER TO gha_admin;
+
+--
 -- Name: gha_assets; Type: TABLE; Schema: public; Owner: gha_admin
 --
 
@@ -561,7 +573,12 @@ CREATE TABLE public.gha_commits (
     dup_repo_name character varying(160) NOT NULL,
     dup_type character varying(40) NOT NULL,
     dup_created_at timestamp without time zone NOT NULL,
-    encrypted_email character varying(160) NOT NULL
+    encrypted_email character varying(160) NOT NULL,
+    author_email character varying(160) DEFAULT ''::character varying NOT NULL,
+    committer_name character varying(160) DEFAULT ''::character varying NOT NULL,
+    committer_email character varying(160) DEFAULT ''::character varying NOT NULL,
+    author_id bigint,
+    committer_id bigint
 );
 
 
@@ -1091,6 +1108,14 @@ COPY public.gha_actors_emails (actor_id, email) FROM stdin;
 
 
 --
+-- Data for Name: gha_actors_names; Type: TABLE DATA; Schema: public; Owner: gha_admin
+--
+
+COPY public.gha_actors_names (actor_id, name) FROM stdin;
+\.
+
+
+--
 -- Data for Name: gha_assets; Type: TABLE DATA; Schema: public; Owner: gha_admin
 --
 
@@ -1118,7 +1143,7 @@ COPY public.gha_comments (id, event_id, body, created_at, updated_at, user_id, c
 -- Data for Name: gha_commits; Type: TABLE DATA; Schema: public; Owner: gha_admin
 --
 
-COPY public.gha_commits (sha, event_id, author_name, message, is_distinct, dup_actor_id, dup_actor_login, dup_repo_id, dup_repo_name, dup_type, dup_created_at, encrypted_email) FROM stdin;
+COPY public.gha_commits (sha, event_id, author_name, message, is_distinct, dup_actor_id, dup_actor_login, dup_repo_id, dup_repo_name, dup_type, dup_created_at, encrypted_email, author_email, committer_name, committer_email, author_id, committer_id) FROM stdin;
 \.
 
 
@@ -1644,6 +1669,14 @@ ALTER TABLE ONLY public.gha_actors_emails
 
 
 --
+-- Name: gha_actors_names gha_actors_names_pkey; Type: CONSTRAINT; Schema: public; Owner: gha_admin
+--
+
+ALTER TABLE ONLY public.gha_actors_names
+    ADD CONSTRAINT gha_actors_names_pkey PRIMARY KEY (actor_id, name);
+
+
+--
 -- Name: gha_actors gha_actors_pkey; Type: CONSTRAINT; Schema: public; Owner: gha_admin
 --
 
@@ -2083,6 +2116,20 @@ CREATE INDEX actors_name_idx ON public.gha_actors USING btree (name);
 
 
 --
+-- Name: actors_names_actor_id_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX actors_names_actor_id_idx ON public.gha_actors_names USING btree (actor_id);
+
+
+--
+-- Name: actors_names_email_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX actors_names_email_idx ON public.gha_actors_names USING btree (name);
+
+
+--
 -- Name: actors_sex_idx; Type: INDEX; Schema: public; Owner: gha_admin
 --
 
@@ -2342,10 +2389,45 @@ CREATE INDEX comments_user_id_idx ON public.gha_comments USING btree (user_id);
 
 
 --
+-- Name: commits_author_email_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX commits_author_email_idx ON public.gha_commits USING btree (author_email);
+
+
+--
+-- Name: commits_author_id_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX commits_author_id_idx ON public.gha_commits USING btree (author_id);
+
+
+--
 -- Name: commits_author_name_idx; Type: INDEX; Schema: public; Owner: gha_admin
 --
 
 CREATE INDEX commits_author_name_idx ON public.gha_commits USING btree (author_name);
+
+
+--
+-- Name: commits_committer_id_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX commits_committer_id_idx ON public.gha_commits USING btree (committer_id);
+
+
+--
+-- Name: commits_committers_email_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX commits_committers_email_idx ON public.gha_commits USING btree (committer_email);
+
+
+--
+-- Name: commits_committers_name_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX commits_committers_name_idx ON public.gha_commits USING btree (committer_name);
 
 
 --
