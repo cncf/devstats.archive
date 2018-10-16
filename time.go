@@ -58,7 +58,7 @@ func ProgressInfo(i, n int, start time.Time, last *time.Time, period time.Durati
 
 // ComputePeriodAtThisDate - for some longer periods, only recalculate them on specific dates/times
 // see: time_test.go
-func ComputePeriodAtThisDate(ctx *Ctx, period string, dt time.Time, hist bool) bool {
+func ComputePeriodAtThisDate(ctx *Ctx, period string, idt time.Time, hist bool) bool {
 	if ctx.ComputeAll {
 		return true
 	}
@@ -70,10 +70,17 @@ func ComputePeriodAtThisDate(ctx *Ctx, period string, dt time.Time, hist bool) b
 		_, ok = data[hist]
 		return ok
 	}
-	dt = HourStart(dt)
-	dt = dt.Add(time.Hour * time.Duration(ctx.TmOffset))
+	dt := HourStart(idt)
+	// dtc: date with current hour start
+	// dtn: tomorrow with current hour start
+	// dth: current data with tz offset
+	dtc := dt
 	dtn := dt.AddDate(0, 0, 1)
-	h := dt.Hour()
+	dth := dt.Add(time.Hour * time.Duration(ctx.TmOffset))
+	// h: current hour with tz offset
+	// ch: current hour without tz offse
+	h := dth.Hour()
+	ch := dtc.Hour()
 	periodStart := period[0:1]
 	if periodStart == "h" {
 		return true
@@ -100,13 +107,13 @@ func ComputePeriodAtThisDate(ctx *Ctx, period string, dt time.Time, hist bool) b
 		}
 	} else {
 		if periodStart == "w" {
-			return h == 23 && int(dt.Weekday()) == 0
+			return ch == 23 && int(dtc.Weekday()) == 0
 		} else if periodStart == "m" {
-			return h == 23 && dtn.Day() == 1
+			return ch == 23 && dtn.Day() == 1
 		} else if periodStart == "q" {
-			return h == 23 && dtn.Day() == 1 && dtn.Month()%3 == 1
+			return ch == 23 && dtn.Day() == 1 && dtn.Month()%3 == 1
 		} else if periodStart == "y" {
-			return h == 23 && dtn.Day() == 1 && dtn.Month() == 1
+			return ch == 23 && dtn.Day() == 1 && dtn.Month() == 1
 		}
 	}
 	Fatalf("ComputePeriodAtThisDate: unknown period: '%s', hist: %v", period, hist)

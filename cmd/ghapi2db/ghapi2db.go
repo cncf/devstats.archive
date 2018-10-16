@@ -477,7 +477,7 @@ func syncCommits(ctx *lib.Ctx) {
 						lib.Fatalf("GetRateLimit call failed %d times while getting events, aborting", ctx.MaxGHAPIRetry)
 						os.Exit(2)
 					} else {
-						lib.Printf("Error: GetRateLimit call failed %d times while getting events, aborting", ctx.MaxGHAPIRetry)
+						lib.Printf("Error: GetRateLimit call failed %d times while getting events, aborting\n", ctx.MaxGHAPIRetry)
 						ch <- false
 						return
 					}
@@ -742,7 +742,7 @@ func syncEvents(ctx *lib.Ctx) {
 						lib.Fatalf("GetRateLimit call failed %d times while getting events, aborting", ctx.MaxGHAPIRetry)
 						os.Exit(2)
 					} else {
-						lib.Printf("Error: GetRateLimit call failed %d times while getting events, aborting", ctx.MaxGHAPIRetry)
+						lib.Printf("Error: GetRateLimit call failed %d times while getting events, aborting\n", ctx.MaxGHAPIRetry)
 						ch <- false
 						return
 					}
@@ -946,7 +946,7 @@ func syncEvents(ctx *lib.Ctx) {
 									lib.Fatalf("GetRateLimit call failed %d times while getting PR, aborting", ctx.MaxGHAPIRetry)
 									os.Exit(2)
 								} else {
-									lib.Printf("Error: GetRateLimit call failed %d times while getting PR, aborting", ctx.MaxGHAPIRetry)
+									lib.Printf("Error: GetRateLimit call failed %d times while getting PR, aborting\n", ctx.MaxGHAPIRetry)
 									ch <- false
 									return
 								}
