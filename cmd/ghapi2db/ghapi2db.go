@@ -63,18 +63,16 @@ func getAPIParams(ctx *lib.Ctx) (repos []string, isSingleRepo bool, singleRepo s
 	return
 }
 
-// getLastRichCommitDate return last enriched commits date
-func getLastRichCommitDate(c *sql.DB, ctx *lib.Ctx, repo string) time.Time {
+// getEnrichCommitsDateRange return last enriched commits date
+func getEnrichCommitsDateRange(c *sql.DB, ctx *lib.Ctx, repo string) (dtf time.Time, dtt time.Time, ok bool) {
+	var pdt *time.Time
 	rows := lib.QuerySQLWithErr(
 		c,
 		ctx,
 		fmt.Sprintf(
 			"select coalesce(max(dup_created_at), "+
-				"(select min(dup_created_at) from gha_commits where dup_repo_id = ("+
-				"select max(id) from gha_repos where name = %s)), "+
-				"(select min(dup_created_at) from gha_commits)) "+
-				"from gha_commits where author_email != '' and dup_repo_id = ("+
-				"select max(id) from gha_repos where name = %s)",
+				"(select min(dup_created_at) from gha_commits where dup_repo_name = %s)) "+
+				"from gha_commits where author_email != '' and dup_repo_name = %s",
 			lib.NValue(1),
 			lib.NValue(2),
 		),
@@ -82,16 +80,43 @@ func getLastRichCommitDate(c *sql.DB, ctx *lib.Ctx, repo string) time.Time {
 		repo,
 	)
 	defer func() { lib.FatalOnError(rows.Close()) }()
-	dt := time.Now()
 	for rows.Next() {
-		lib.FatalOnError(rows.Scan(&dt))
-		dt = dt.Add(time.Minute * time.Duration(-2))
+		lib.FatalOnError(rows.Scan(&pdt))
+		if pdt == nil {
+			if ctx.Debug > 0 {
+				lib.Printf("%s: no date from\n", repo)
+			}
+			return
+		}
+		dtf = pdt.Add(time.Minute * time.Duration(-2))
+	}
+	lib.FatalOnError(rows.Err())
+	rows = lib.QuerySQLWithErr(
+		c,
+		ctx,
+		fmt.Sprintf(
+			"select max(dup_created_at) from gha_commits where dup_repo_name = %s",
+			lib.NValue(1),
+		),
+		repo,
+	)
+	defer func() { lib.FatalOnError(rows.Close()) }()
+	for rows.Next() {
+		lib.FatalOnError(rows.Scan(&pdt))
+		if pdt == nil {
+			if ctx.Debug > 0 {
+				lib.Printf("%s: no date to\n", repo)
+			}
+			return
+		}
+		dtt = pdt.Add(time.Minute * time.Duration(2))
 	}
 	lib.FatalOnError(rows.Err())
 	if ctx.Debug > 0 {
-		lib.Printf("%s from: %+v\n", repo, dt)
+		lib.Printf("%s: %s - %s\n", repo, lib.ToYMDHMSDate(dtf), lib.ToYMDHMSDate(dtt))
 	}
-	return dt
+	ok = true
+	return
 }
 
 // Search for given actor using his/her login
@@ -385,10 +410,14 @@ func syncCommits(ctx *lib.Ctx) {
 			copt := opt
 			// No FROM/TO set and no GHA2DB_NO_AUTOFETCHCOMMITS
 			if !isDateRange && ctx.AutoFetchCommits {
-				dt := getLastRichCommitDate(c, ctx, orgRepo)
+				dtf, dtt, ok := getEnrichCommitsDateRange(c, ctx, orgRepo)
+				if !ok {
+					ch <- false
+					return
+				}
 				copt = &github.CommitsListOptions{
-					Since:  dt,
-					Until:  opt.Until,
+					Since:  dtf,
+					Until:  dtt,
 					SHA:    opt.SHA,
 					Path:   opt.Path,
 					Author: opt.Author,
