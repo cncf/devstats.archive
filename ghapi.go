@@ -195,6 +195,7 @@ func GetRateLimits(gctx context.Context, gc *github.Client, core bool) (int, int
 	if err != nil {
 		rem, ok := PeriodParse(err.Error())
 		if ok {
+			Printf("Parsed wait time from error message: %v\n", rem)
 			return -1, -1, rem
 		}
 		Printf("GetRateLimit: %v\n", err)

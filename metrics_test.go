@@ -2,6 +2,8 @@ package devstats
 
 import (
 	"database/sql"
+	lib "devstats"
+	testlib "devstats/test"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -10,9 +12,6 @@ import (
 	"strings"
 	"testing"
 	"time"
-
-	lib "devstats"
-	testlib "devstats/test"
 
 	yaml "gopkg.in/yaml.v2"
 )

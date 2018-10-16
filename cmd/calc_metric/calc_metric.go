@@ -2,14 +2,13 @@ package main
 
 import (
 	"database/sql"
+	lib "devstats"
 	"fmt"
 	"os"
 	"strconv"
 	"strings"
 	"sync"
 	"time"
-
-	lib "devstats"
 )
 
 // valueDescription - return string description for given float value

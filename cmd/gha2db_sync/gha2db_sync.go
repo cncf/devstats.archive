@@ -1,13 +1,12 @@
 package main
 
 import (
+	lib "devstats"
 	"fmt"
 	"os"
 	"strconv"
 	"strings"
 	"time"
-
-	lib "devstats"
 
 	yaml "gopkg.in/yaml.v2"
 )

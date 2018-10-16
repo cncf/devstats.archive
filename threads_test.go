@@ -1,9 +1,8 @@
 package devstats
 
 import (
-	"testing"
-
 	lib "devstats"
+	"testing"
 )
 
 func TestGetThreadsNum(t *testing.T) {
