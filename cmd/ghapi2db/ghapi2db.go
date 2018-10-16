@@ -543,7 +543,6 @@ func syncCommits(ctx *lib.Ctx) {
 			_, rem, wait := lib.GetRateLimits(gctx, gc, true)
 			lib.ProgressInfo(checked, nRepos, dtStart, &lastTime, time.Duration(10)*time.Second, fmt.Sprintf("API points: %d, resets in: %v", rem, wait))
 		}
-		lib.Printf("GH Commits API calls: %d\n", apiCalls)
 	}
 	// Usually all work happens on '<-ch'
 	if ctx.Debug > 1 {
@@ -557,7 +556,7 @@ func syncCommits(ctx *lib.Ctx) {
 		_, rem, wait := lib.GetRateLimits(gctx, gc, true)
 		lib.ProgressInfo(checked, nRepos, dtStart, &lastTime, time.Duration(10)*time.Second, fmt.Sprintf("API points: %d, resets in: %v", rem, wait))
 	}
-	lib.Printf("Commits finished\n")
+	lib.Printf("GH Commits API calls: %d\n", apiCalls)
 }
 
 // Some debugging options (environment variables)
