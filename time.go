@@ -44,11 +44,13 @@ func ProgressInfo(i, n int, start time.Time, last *time.Time, period time.Durati
 			etaNs := float64(now.Sub(start).Nanoseconds()) * (float64(n) / float64(i))
 			etaDuration := time.Duration(etaNs) * time.Nanosecond
 			eta = start.Add(etaDuration)
-		}
-		if msg != "" {
-			Printf("%d/%d (%.3f%%), ETA: %v: %s\n", i, n, perc, eta, msg)
+			if msg != "" {
+				Printf("%d/%d (%.3f%%), ETA: %v: %s\n", i, n, perc, eta, msg)
+			} else {
+				Printf("%d/%d (%.3f%%), ETA: %v\n", i, n, perc, eta)
+			}
 		} else {
-			Printf("%d/%d (%.3f%%), ETA: %v\n", i, n, perc, eta)
+			Printf("%s\n", msg)
 		}
 		*last = now
 	}
