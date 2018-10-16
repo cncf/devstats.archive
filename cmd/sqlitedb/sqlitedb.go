@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	lib "devstats"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -12,8 +13,6 @@ import (
 	"time"
 
 	_ "github.com/mattn/go-sqlite3"
-
-	lib "devstats"
 )
 
 // dashboard stores main dashoard keys title and uid

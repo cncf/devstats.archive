@@ -1,9 +1,8 @@
 package devstats
 
 import (
-	"testing"
-
 	lib "devstats"
+	"testing"
 )
 
 func TestStripUnicode(t *testing.T) {

@@ -2,14 +2,13 @@ package main
 
 import (
 	"database/sql"
+	lib "devstats"
 	"encoding/json"
 	"fmt"
 	"os"
 	"regexp"
 	"strings"
 	"time"
-
-	lib "devstats"
 )
 
 // gitHubUsers - list of GitHub user data from cncf/gitdm.

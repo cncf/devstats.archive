@@ -1,14 +1,13 @@
 package main
 
 import (
+	lib "devstats"
 	"fmt"
 	"io/ioutil"
 	"os"
 	"regexp"
 	"strconv"
 	"strings"
-
-	lib "devstats"
 )
 
 // replacer - replace regexp or string with regesp or string
