@@ -2,14 +2,13 @@ package main
 
 import (
 	"database/sql"
+	lib "devstats"
 	"fmt"
 	"os"
 	"regexp"
 	"strconv"
 	"strings"
 	"time"
-
-	lib "devstats"
 
 	yaml "gopkg.in/yaml.v2"
 )

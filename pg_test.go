@@ -2,11 +2,10 @@ package devstats
 
 import (
 	"database/sql"
-	"testing"
-	"time"
-
 	lib "devstats"
 	testlib "devstats/test"
+	"testing"
+	"time"
 )
 
 func TestCleanUTF8(t *testing.T) {

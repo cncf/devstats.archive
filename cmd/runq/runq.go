@@ -1,14 +1,13 @@
 package main
 
 import (
+	lib "devstats"
 	"encoding/csv"
 	"fmt"
 	"os"
 	"strconv"
 	"strings"
 	"time"
-
-	lib "devstats"
 )
 
 func runq(sqlFile string, params []string) {

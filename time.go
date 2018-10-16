@@ -268,8 +268,8 @@ func PeriodParse(perStr string) (dur time.Duration, ok bool) {
 		return
 	}
 	rateStr := ""
-	fmt.Sscanf(perStr[idx:], "[rate reset in %s]", &rateStr)
-	if len(rateStr) < 2 {
+	_, err := fmt.Sscanf(perStr[idx:], "[rate reset in %s", &rateStr)
+	if err != nil || len(rateStr) < 2 {
 		return
 	}
 	rateStr = rateStr[0 : len(rateStr)-1]
