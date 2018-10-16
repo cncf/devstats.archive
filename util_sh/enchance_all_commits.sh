@@ -25,16 +25,24 @@ then
   host=`hostname`
   if [ $host = "teststats.cncf.io" ]
   then
-    all=`cat ./devel/all_test_dbs.txt`
+    all=`cat ./devel/all_test_projects.txt`
   else
-    all=`cat ./devel/all_prod_dbs.txt`
+    all=`cat ./devel/all_prod_projects.txt`
   fi
 else
   all=$ONLY
 fi
-for db in $all
+for proj in $all
 do
-  GHA2DB_GHAPISKIPEVENTS=1 GHA2DB_RECENT_REPOS_RANGE="5 years" PG_DB="$db" ./ghapi2db
+  db=$proj
+  if [ "$db" = "kubernetes" ]
+  then
+    db="gha"
+  elif [ "$db" = "all" ]
+  then
+    db="allprj"
+  fi
+  GHA2DB_GHAPISKIPEVENTS=1 GHA2DB_RECENT_REPOS_RANGE="5 years" GHA2DB_PROJECT="$proj" PG_DB="$db" ./ghapi2db
 done
 
 echo 'OK'
