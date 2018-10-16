@@ -141,7 +141,7 @@ func syncIssues(ctx *lib.Ctx) {
 					lib.Printf("API call for Issue %s %d, remaining GHAPI points %d\n", orgRepo, number, rem)
 				}
 				issue, _, err = gc.Issues.Get(gctx, org, repo, number)
-				res := lib.HandlePossibleError(err, &gcfg, "Issues.Get")
+				res := lib.HandlePossibleError(err, gcfg.String(), "Issues.Get")
 				if res != "" {
 					if res == lib.Abuse {
 						wait := time.Duration(int(math.Pow(2.0, float64(tr+3)))) * time.Second
@@ -275,7 +275,7 @@ func syncIssues(ctx *lib.Ctx) {
 							lib.Printf("API call for PR %s %d, remaining GHAPI points %d\n", orgRepo, prNum, rem)
 						}
 						pr, _, err = gc.PullRequests.Get(gctx, org, repo, prNum)
-						res := lib.HandlePossibleError(err, &gcfg, "PullRequests.Get")
+						res := lib.HandlePossibleError(err, gcfg.String(), "PullRequests.Get")
 						if res != "" {
 							if res == lib.Abuse {
 								wait := time.Duration(int(math.Pow(2.0, float64(tr+3)))) * time.Second

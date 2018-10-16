@@ -286,25 +286,29 @@ func sync(ctx *lib.Ctx, args []string) {
 		lib.Printf("TS range: %s - %s\n", lib.ToYMDHDate(from), lib.ToYMDHDate(to))
 
 		// TSDB tags (repo groups template variable currently)
-		if ctx.ResetTSDB || time.Now().Hour() == 0 {
-			_, err := lib.ExecCommand(ctx, []string{cmdPrefix + "tags"}, nil)
-			lib.FatalOnError(err)
-		} else {
-			lib.Printf("Skipping `tags` recalculation, it is only computed once per day\n")
+		if !ctx.SkipTags {
+			if ctx.ResetTSDB || time.Now().Hour() == 0 {
+				_, err := lib.ExecCommand(ctx, []string{cmdPrefix + "tags"}, nil)
+				lib.FatalOnError(err)
+			} else {
+				lib.Printf("Skipping `tags` recalculation, it is only computed once per day\n")
+			}
 		}
 
 		// Annotations
-		if ctx.Project != "" && (ctx.ResetTSDB || time.Now().Hour() == 0) {
-			_, err := lib.ExecCommand(
-				ctx,
-				[]string{
-					cmdPrefix + "annotations",
-				},
-				nil,
-			)
-			lib.FatalOnError(err)
-		} else {
-			lib.Printf("Skipping `annotations` recalculation, it is only computed once per day\n")
+		if !ctx.SkipAnnotations {
+			if ctx.Project != "" && (ctx.ResetTSDB || time.Now().Hour() == 0) {
+				_, err := lib.ExecCommand(
+					ctx,
+					[]string{
+						cmdPrefix + "annotations",
+					},
+					nil,
+				)
+				lib.FatalOnError(err)
+			} else {
+				lib.Printf("Skipping `annotations` recalculation, it is only computed once per day\n")
+			}
 		}
 
 		// Get Quick Ranges from TSDB (it is filled by annotations command)
@@ -457,11 +461,13 @@ func sync(ctx *lib.Ctx, args []string) {
 		}
 
 		// TSDB ensure that calculated metric have all columns from tags
-		if ctx.ResetTSDB || time.Now().Hour() == 0 {
-			_, err := lib.ExecCommand(ctx, []string{cmdPrefix + "columns"}, nil)
-			lib.FatalOnError(err)
-		} else {
-			lib.Printf("Skipping `columns` recalculation, it is only computed once per day\n")
+		if !ctx.SkipColumns {
+			if ctx.ResetTSDB || time.Now().Hour() == 0 {
+				_, err := lib.ExecCommand(ctx, []string{cmdPrefix + "columns"}, nil)
+				lib.FatalOnError(err)
+			} else {
+				lib.Printf("Skipping `columns` recalculation, it is only computed once per day\n")
+			}
 		}
 	}
 	lib.Printf("Sync success\n")
