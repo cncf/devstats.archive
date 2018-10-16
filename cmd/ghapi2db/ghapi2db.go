@@ -362,6 +362,8 @@ func syncCommits(ctx *lib.Ctx) {
 	}
 	allowedThrN := maxThreads
 	var thrMutex = &sync.Mutex{}
+	apiCalls := 0
+	var apiCallsMutex = &sync.Mutex{}
 	ch := make(chan bool)
 	nThreads := 0
 	dtStart := time.Now()
@@ -463,6 +465,9 @@ func syncCommits(ctx *lib.Ctx) {
 					if ctx.Debug > 1 {
 						lib.Printf("API call for commits %s (%d), remaining GHAPI points %d\n", orgRepo, nPages, rem)
 					}
+					apiCallsMutex.Lock()
+					apiCalls++
+					apiCallsMutex.Unlock()
 					commits, response, err = gc.Repositories.ListCommits(gctx, org, repo, copt)
 					res := lib.HandlePossibleError(err, orgRepo, "Repositories.ListCommits")
 					if res != "" {
@@ -551,7 +556,7 @@ func syncCommits(ctx *lib.Ctx) {
 		_, rem, wait := lib.GetRateLimits(gctx, gc, true)
 		lib.ProgressInfo(checked, nRepos, dtStart, &lastTime, time.Duration(10)*time.Second, fmt.Sprintf("API points: %d, resets in: %v", rem, wait))
 	}
-	lib.Printf("Commits finished\n")
+	lib.Printf("GH Commits API calls: %d\n", apiCalls)
 }
 
 // Some debugging options (environment variables)
@@ -669,6 +674,8 @@ func syncEvents(ctx *lib.Ctx) {
 	var eidsMutex = &sync.Mutex{}
 	prs := make(map[int64]github.PullRequest)
 	var prsMutex = &sync.Mutex{}
+	apiCalls := 0
+	var apiCallsMutex = &sync.Mutex{}
 	for _, orgRepo := range repos {
 		go func(ch chan bool, orgRepo string) {
 			if isSingleRepo && orgRepo != singleRepo {
@@ -726,6 +733,9 @@ func syncEvents(ctx *lib.Ctx) {
 					if ctx.Debug > 1 {
 						lib.Printf("API call for issues events %s (%d), remaining GHAPI points %d\n", orgRepo, nPages, rem)
 					}
+					apiCallsMutex.Lock()
+					apiCalls++
+					apiCallsMutex.Unlock()
 					// Returns events in GHA format
 					//events, response, err = gc.Activity.ListRepositoryEvents(gctx, org, repo, opt)
 					// Returns events in Issue Event format (UI events)
@@ -938,6 +948,9 @@ func syncEvents(ctx *lib.Ctx) {
 								if ctx.Debug > 1 {
 									lib.Printf("API call for %s PR: %d, remaining GHAPI points %d\n", orgRepo, prNum, rem)
 								}
+								apiCallsMutex.Lock()
+								apiCalls++
+								apiCallsMutex.Unlock()
 								pr, _, err = gc.PullRequests.Get(gctx, org, repo, prNum)
 								res := lib.HandlePossibleError(err, gcfg.String(), "PullRequests.Get")
 								if res != "" {
@@ -1025,6 +1038,9 @@ func syncEvents(ctx *lib.Ctx) {
 		_, rem, wait := lib.GetRateLimits(gctx, gc, true)
 		lib.ProgressInfo(checked, nRepos, dtStart, &lastTime, time.Duration(10)*time.Second, fmt.Sprintf("API points: %d, resets in: %v", rem, wait))
 	}
+
+	// API calls
+	lib.Printf("GH Repo Events/PRs API calls: %d\n", apiCalls)
 
 	// Do final corrections
 	// manual sync: false
