@@ -1009,9 +1009,9 @@ func main() {
 		if !ctx.SkipAPIEvents {
 			syncEvents(&ctx)
 		}
-		//if !ctx.SkipAPICommits {
-		//	syncCommits(&ctx)
-		//}
+		if !ctx.SkipAPICommits {
+			syncCommits(&ctx)
+		}
 	}
 	dtEnd := time.Now()
 	lib.Printf("Time: %v\n", dtEnd.Sub(dtStart))
