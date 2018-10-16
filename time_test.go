@@ -260,6 +260,45 @@ func TestDescriblePeriodInHours(t *testing.T) {
 	}
 }
 
+func TestPeriodParse(t *testing.T) {
+	//func PeriodParse(perStr string) (dur time.Duration) {
+	// Test cases
+	expectedDuration, _ := time.ParseDuration("2m31s")
+	var blankDuration time.Duration
+	var testCases = []struct {
+		periodStr        string
+		expectedBool     bool
+		expectedDuration time.Duration
+	}{
+		{periodStr: "blah blah blah [rate reset in 2m31s] no more calls", expectedBool: true, expectedDuration: expectedDuration},
+		{periodStr: "blah blah blah [rate reset in 2m31s]", expectedBool: true, expectedDuration: expectedDuration},
+		{periodStr: "[rate reset in 2m31s] no more calls", expectedBool: true, expectedDuration: expectedDuration},
+		{periodStr: "[rate reset in 2m31s]", expectedBool: true, expectedDuration: expectedDuration},
+		{periodStr: "[rate reset in xxx]", expectedBool: false, expectedDuration: blankDuration},
+		{periodStr: "[rate reset in ]", expectedBool: false, expectedDuration: blankDuration},
+		{periodStr: "[rate reset in]", expectedBool: false, expectedDuration: blankDuration},
+		{periodStr: "blah blah blah", expectedBool: false, expectedDuration: blankDuration},
+	}
+	// Execute test cases
+	for index, test := range testCases {
+		expectedBool := test.expectedBool
+		expectedDuration := test.expectedDuration
+		gotDuration, gotBool := lib.PeriodParse(test.periodStr)
+		if gotBool != expectedBool {
+			t.Errorf(
+				"test number %d, expected boolean %v, got %v",
+				index+1, expectedBool, gotBool,
+			)
+		}
+		if gotDuration != expectedDuration {
+			t.Errorf(
+				"test number %d, expected duration %v, got %v",
+				index+1, expectedDuration, gotDuration,
+			)
+		}
+	}
+}
+
 func TestHourStart(t *testing.T) {
 	// Test cases
 	ft := testlib.YMDHMS

@@ -424,7 +424,7 @@ func syncCommits(ctx *lib.Ctx) {
 								lib.Fatalf("API limit reached while getting commits data, aborting, don't want to wait %v", waitPeriod)
 								os.Exit(1)
 							} else {
-								lib.Printf("Error: API limit reached while getting commits data, aborting, don't want to wait %v", waitPeriod)
+								lib.Printf("Error: API limit reached while getting commits data, aborting, don't want to wait %v\n", waitPeriod)
 								ch <- false
 								return
 							}
@@ -687,7 +687,7 @@ func syncEvents(ctx *lib.Ctx) {
 								lib.Fatalf("API limit reached while getting issues events data, aborting, don't want to wait %v", waitPeriod)
 								os.Exit(1)
 							} else {
-								lib.Printf("Error: API limit reached while getting issues events data, aborting, don't want to wait %v", waitPeriod)
+								lib.Printf("Error: API limit reached while getting issues events data, aborting, don't want to wait %v\n", waitPeriod)
 								ch <- false
 								return
 							}
@@ -900,7 +900,7 @@ func syncEvents(ctx *lib.Ctx) {
 											lib.Fatalf("API limit reached while getting PR data, aborting, don't want to wait %v", waitPeriod)
 											os.Exit(1)
 										} else {
-											lib.Printf("Error: API limit reached while getting PR data, aborting, don't want to wait %v", waitPeriod)
+											lib.Printf("Error: API limit reached while getting PR data, aborting, don't want to wait %v\n", waitPeriod)
 											ch <- false
 											return
 										}

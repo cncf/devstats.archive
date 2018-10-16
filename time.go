@@ -261,6 +261,30 @@ func PrevYearStart(dt time.Time) time.Time {
 	return YearStart(dt).AddDate(-1, 0, 0)
 }
 
+// PeriodParse - tries to parse period
+func PeriodParse(perStr string) (dur time.Duration, ok bool) {
+	idx := strings.Index(perStr, "[rate reset in ")
+	if idx == -1 {
+		return
+	}
+	rateStr := ""
+	fmt.Sscanf(perStr[idx:], "[rate reset in %s]", &rateStr)
+	if len(rateStr) < 2 {
+		return
+	}
+	rateStr = rateStr[0 : len(rateStr)-1]
+	if rateStr == "" {
+		return
+	}
+	d, err := time.ParseDuration(rateStr)
+	if err != nil {
+		return
+	}
+	dur = d
+	ok = true
+	return
+}
+
 // TimeParseAny - attempts to parse time from string YYYY-MM-DD HH:MI:SS
 // Skipping parts from right until only YYYY id left
 func TimeParseAny(dtStr string) time.Time {

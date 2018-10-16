@@ -193,6 +193,10 @@ func (ic IssueConfigAry) Less(i, j int) bool {
 func GetRateLimits(gctx context.Context, gc *github.Client, core bool) (int, int, time.Duration) {
 	rl, _, err := gc.RateLimits(gctx)
 	if err != nil {
+		rem, ok := PeriodParse(err.Error())
+		if ok {
+			return -1, -1, rem
+		}
 		Printf("GetRateLimit: %v\n", err)
 	}
 	if rl == nil {
