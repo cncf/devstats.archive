@@ -1,11 +1,10 @@
 package devstats
 
 import (
+	lib "devstats"
 	"reflect"
 	"regexp"
 	"testing"
-
-	lib "devstats"
 )
 
 func TestMakeUniqueSort(t *testing.T) {

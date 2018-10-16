@@ -1,9 +1,8 @@
 package devstats
 
 import (
-	"testing"
-
 	lib "devstats"
+	"testing"
 )
 
 func TestSlugify(t *testing.T) {

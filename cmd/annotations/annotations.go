@@ -1,9 +1,8 @@
 package main
 
 import (
-	"time"
-
 	lib "devstats"
+	"time"
 
 	yaml "gopkg.in/yaml.v2"
 )

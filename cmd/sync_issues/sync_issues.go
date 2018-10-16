@@ -1,6 +1,7 @@
 package main
 
 import (
+	lib "devstats"
 	"fmt"
 	"math"
 	"os"
@@ -8,8 +9,6 @@ import (
 	"strings"
 	"sync"
 	"time"
-
-	lib "devstats"
 
 	"github.com/google/go-github/github"
 )

@@ -1,12 +1,11 @@
 package devstats
 
 import (
+	lib "devstats"
+	testlib "devstats/test"
 	"reflect"
 	"testing"
 	"time"
-
-	lib "devstats"
-	testlib "devstats/test"
 )
 
 func TestComputePeriodAtThisDate(t *testing.T) {

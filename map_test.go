@@ -1,11 +1,10 @@
 package devstats
 
 import (
-	"strings"
-	"testing"
-
 	lib "devstats"
 	testlib "devstats/test"
+	"strings"
+	"testing"
 )
 
 func TestSkipEmpty(t *testing.T) {

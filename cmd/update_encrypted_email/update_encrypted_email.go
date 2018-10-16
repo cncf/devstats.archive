@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"compress/gzip"
 	"database/sql"
+	lib "devstats"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -12,8 +13,6 @@ import (
 	"strconv"
 	"strings"
 	"time"
-
-	lib "devstats"
 )
 
 // Write GHA entire event (in old pre 2015 format) into Postgres DB

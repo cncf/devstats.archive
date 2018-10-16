@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"compress/gzip"
 	"database/sql"
+	lib "devstats"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -12,8 +13,6 @@ import (
 	"strconv"
 	"strings"
 	"time"
-
-	lib "devstats"
 )
 
 // Inserts single GHA Actor
