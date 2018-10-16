@@ -377,6 +377,8 @@ func syncCommits(ctx *lib.Ctx) {
 				ch <- false
 				return
 			}
+			thDtStart := time.Now()
+			thLastTime := dtStart
 			// To handle GDPR
 			maybeHide := lib.MaybeHideFunc(lib.GetHidden(lib.HideCfgFile))
 			// Need deep copy - threads
@@ -487,6 +489,8 @@ func syncCommits(ctx *lib.Ctx) {
 				for _, commit := range commits {
 					processCommit(c, ctx, commit, maybeHide)
 				}
+				_, thRem, thWait := lib.GetRateLimits(gctx, gc, true)
+				lib.ProgressInfo(0, 0, thDtStart, &thLastTime, time.Duration(10)*time.Second, fmt.Sprintf("%s page %d, API points: %d, resets in: %v", orgRepo, nPages, thRem, thWait))
 				// Handle paging
 				if response.NextPage == 0 {
 					break
