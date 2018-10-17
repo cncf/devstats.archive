@@ -6,147 +6,216 @@ update gha_repos set repo_group = 'Kubernetes' where name in (
   'kubernetes'
 );
 
-update gha_repos set repo_group = 'CSI' where org_login = 'kubernetes-csi';
-
-update gha_repos set repo_group = 'Contrib' where name in (
-  'kubernetes/contrib'
-);
-
-update gha_repos set repo_group = 'API machinery' where name in (
-  'kubernetes/api',
-  'kubernetes/apiextensions-apiserver',
-  'kubernetes/apimachinery',
-  'kubernetes/apiserver',
-  'kubernetes/code-generator',
-  'kubernetes/gengo',
-  'kubernetes-incubator/apiserver-builder',
-  'kubernetes/kube-aggregator',
-  'kubernetes/kube-openapi',
-  'kubernetes/sample-apiserver'
-);
-
-update gha_repos set repo_group = 'Clients' where name in (
-  'kubernetes-client',
-  'kubernetes-client/community',
+update gha_repos set repo_group = 'SIG API Machinery' where name in (
   'kubernetes-client/csharp',
   'kubernetes-client/gen',
   'kubernetes-client/go',
-  'kubernetes/client-go',
   'kubernetes-client/go-base',
+  'kubernetes-client/haskell',
   'kubernetes-client/java',
   'kubernetes-client/javascript',
   'kubernetes-client/python-base',
   'kubernetes-client/ruby',
-  'kubernetes-client/typescript',
-  'kubernetes-incubator/client-python'
+  'kubernetes-incubator/apiserver-builder',
+  'kubernetes-incubator/client-python',
+  'kubernetes-sigs/controller-runtime',
+  'kubernetes-sigs/controller-tools',
+  'kubernetes-sigs/kube-storage-version-migrator',
+  'kubernetes-sigs/kubebuilder',
+  'kubernetes-sigs/structured-merge-diff',
+  'kubernetes/apiextensions-apiserver',
+  'kubernetes/apimachinery',
+  'kubernetes/apiserver',
+  'kubernetes/client-go',
+  'kubernetes/code-generator',
+  'kubernetes/gengo',
+  'kubernetes/kube-aggregator',
+  'kubernetes/kube-openapi',
+  'kubernetes/sample-apiserver',
+  'kubernetes/sample-controller'
 );
 
-update gha_repos set repo_group = 'Apps' where name in (
-  'kubernetes/kubectl',
-  'kubernetes/application-images',
+update gha_repos set repo_group = 'SIG Apps' where name in (
+  'kubernetes-sigs/application',
   'kubernetes/examples',
-  'kubernetes-incubator/kompose'
+  'kubernetes/kompose'
 );
 
-update gha_repos set repo_group = 'Autoscaling and monitoring' where name in (
-  'kubernetes/autoscaler',
-  'kubernetes/horizontal-self-scaler',
+update gha_repos set repo_group = 'SIG Architecture' where name in (
+  'kubernetes-incubator/spartakus',
+  'kubernetes-sigs/architecture-tracking',
+  'kubernetes/api',
+  'kubernetes/contrib',
+  'kubernetes/kubernetes-template-project',
+  'kubernetes/steering',
+  'kubernetes/utils'
+);
+
+update gha_repos set repo_group = 'SIG Autoscaling' where name in (
+  'kubernetes-incubator/cluster-proportional-autoscaler',
   'kubernetes-incubator/cluster-proportional-vertical-autoscaler',
-  'kubernetes/heapster',
-  'kubernetes-incubator/custom-metrics-apiserver',
-  'kubernetes-incubator/metrics-server',
-  'kubernetes/kube-state-metrics',
-  'kubernetes/metrics'
+  'kubernetes/autoscaler',
 );
 
-update gha_repos set repo_group = 'Networking' where name in (
-  'kubernetes/dns',
-  'kubernetes-incubator/external-dns',
-  'kubernetes-incubator/ip-masq-agent',
-  'kubernetes/ingress'
+update gha_repos set repo_group = 'SIG AWS' where name in (
+  'kubernetes-sigs/aws-alb-ingress-controller',
+  'kubernetes-sigs/aws-encryption-provider',
+  'kubernetes-sigs/aws-iam-authenticator',
+  'kubernetes/cloud-provider-aws'
 );
 
-update gha_repos set repo_group = 'Storage' where name in (
-  'kubernetes-incubator/external-storage',
-  'kubernetes-incubator/nfs-provisioner'
+update gha_repos set repo_group = 'SIG Azure' where name in (
+  'kubernetes/cloud-provider-azure'
 );
 
-update gha_repos set repo_group = 'Multi-cluster' where name in (
-  'kubernetes/cluster-registry'
+update gha_repos set repo_group = 'SIG CLI' where name in (
+  'kubernetes-sigs/kustomize',
+  'kubernetes/cli-runtime',
+  'kubernetes/kubectl',
+  'kubernetes/sample-cli-plugin'
 );
 
-update gha_repos set repo_group = 'Project' where name in (
-  'kubernetes/community',
-  'kubernetes/features',
-  'kubernetes/sig-release',
-  'kubernetes/steering'
+update gha_repos set repo_group = 'SIG Cloud Provider' where name in (
+  'kubernetes/cloud-provider',
+  'kubernetes/cloud-provider-gcp',
+  'kubernetes/cloud-provider-openstack',
+  'kubernetes/cloud-provider-vsphere'
 );
 
-update gha_repos set repo_group = 'Node' where name in (
-  'kubernetes/frakti',
-  'kubernetes-incubator/cri-containerd',
-  'kubernetes-incubator/cri-tools',
-  'kubernetes-incubator/ocid',
-  'kubernetes-incubator/node-feature-discovery',
-  'kubernetes/node-problem-detector',
-  'kubernetes/ocid',
-  'kubernetes/rktlet'
-);
-
-update gha_repos set repo_group = 'Cluster lifecycle' where name in (
-  'kubernetes-incubator/kargo',
-  'kubernetes-incubator/kubespray',
+update gha_repos set repo_group = 'SIG Cluster Lifecycle' where name in (
+  'kubernetes-incubator/bootkube',
   'kubernetes-incubator/kube-aws',
-  'kubernetes-incubator/kube-mesos-framework',
+  'kubernetes-incubator/kubespray',
   'kubernetes-sigs/cluster-api',
   'kubernetes-sigs/cluster-api-provider-aws',
   'kubernetes-sigs/cluster-api-provider-gcp',
   'kubernetes-sigs/cluster-api-provider-openstack',
-  'kubernetes-sigs/cluster-api-provider-vsphere',
   'kubernetes-sigs/kubeadm-dind-cluster',
   'kubernetes/kops',
-  'kubernetes/kubeadm',
-  'kubernetes-incubator/bootkube',
-  'kubernetes/kubernetes-anywhere',
   'kubernetes/kube-deploy',
+  'kubernetes/kubeadm',
+  'kubernetes/kubernetes-anywhere',
   'kubernetes/minikube'
 );
 
-update gha_repos set repo_group = 'Project infra' where name in (
+update gha_repos set repo_group = 'SIG Contributor Experience' where name in (
+  'kubernetes-sigs/contributor-playground',
+  'kubernetes-sigs/contributor-site',
+  'kubernetes/community',
   'kubernetes/k8s.io',
-  'kubernetes/kubernetes-template-project',
-  'kubernetes/perf-tests',
-  'kubernetes/pr-bot',
-  'kubernetes/release',
-  'kubernetes/repo-infra',
-  'kubernetes-incubator/spartakus',
-  'kubernetes/test-infra',
-  'kubernetes/utils'
+  'kubernetes/org',
+  'kubernetes/repo-infra'
 );
 
-update gha_repos set repo_group = 'UI' where name in (
-  'kubernetes/dashboard',
-  'kubernetes/kubedash',
-  'kubernetes/kube-ui'
-);
-
-update gha_repos set repo_group = 'Misc' where name in (
-  'kubernetes-incubator/cluster-capacity',
-  'kubernetes-incubator/kube-arbitrator',
-  'kubernetes/git-sync',
-  'kubernetes/kube2consul'
-);
-
-update gha_repos set repo_group = 'Docs' where name in (
-  'kubernetes/kubernetes.github.io',
-  'kubernetes/kubernetes-docs-cn',
+update gha_repos set repo_group = 'SIG Docs' where name in (
   'kubernetes-incubator/reference-docs',
-  'kubernetes/kubernetes-bootcamp',
-  'kubernetes/md-format'
+  'kubernetes/kubernetes-docs-ja',
+  'kubernetes/kubernetes-docs-ko',
+  'kubernetes/kubernetes-docs-zh',
+  'kubernetes/website'
+);
+
+update gha_repos set repo_group = 'SIG GCP' where name in (
+  'kubernetes-sigs/gcp-compute-persistent-disk-csi-driver',
+  'kubernetes-sigs/gcp-filestore-csi-driver'
+);
+
+update gha_repos set repo_group = 'SIG Instrumentation' where name in (
+  'kubernetes-incubator/custom-metrics-apiserver',
+  'kubernetes-incubator/metrics-server',
+  'kubernetes/heapster',
+  'kubernetes/kube-state-metrics',
+  'kubernetes/metrics'
+);
+
+update gha_repos set repo_group = 'SIG Multicluster' where name in (
+  'GoogleCloudPlatform/k8s-multicluster-ingress',
+  'kubernetes-sigs/federation-v2',
+  'kubernetes/cluster-registry',
+  'kubernetes/federation'
+);
+
+update gha_repos set repo_group = 'SIG Network' where name in (
+  'kubernetes-incubator/external-dns',
+  'kubernetes-incubator/ip-masq-agent',
+  'kubernetes/dns',
+  'kubernetes/ingress-gce',
+  'kubernetes/ingress-nginx',
+  'kubernetes/pkg'
+);
+
+update gha_repos set repo_group = 'SIG Node' where name in (
+  'kubernetes-incubator/node-feature-discovery',
+  'kubernetes-incubator/rktlet',
+  'kubernetes-sigs/cri-o',
+  'kubernetes-sigs/cri-tools',
+  'kubernetes/frakti',
+  'kubernetes/node-problem-detector'
+);
+
+update gha_repos set repo_group = 'SIG PM' where name in (
+  'kubernetes/features'
+);
+
+update gha_repos set repo_group = 'SIG Release' where name in (
+  'kubernetes/release',
+  'kubernetes/sig-release'
+);
+
+update gha_repos set repo_group = 'SIG Scalability' where name in (
+  'kubernetes/perf-tests'
+);
+
+update gha_repos set repo_group = 'SIG Scheduling' where name in (
+  'kubernetes-incubator/cluster-capacity',
+  'kubernetes-incubator/descheduler',
+  'kubernetes-sigs/kube-batch',
+  'kubernetes-sigs/poseidon'
 );
 
 update gha_repos set repo_group = 'SIG Service Catalog' where name in (
   'kubernetes-incubator/service-catalog'
+);
+
+update gha_repos set repo_group = 'SIG Storage' where name in (
+  'kubernetes-csi/csi-driver-cinder',
+  'kubernetes-csi/csi-driver-flex',
+  'kubernetes-csi/csi-driver-host-path',
+  'kubernetes-csi/csi-driver-iscsi',
+  'kubernetes-csi/csi-driver-nfs',
+  'kubernetes-csi/csi-lib-common',
+  'kubernetes-csi/csi-lib-fc',
+  'kubernetes-csi/csi-lib-iscsi',
+  'kubernetes-csi/csi-test',
+  'kubernetes-csi/docs',
+  'kubernetes-csi/driver-registrar',
+  'kubernetes-csi/drivers',
+  'kubernetes-csi/external-attacher',
+  'kubernetes-csi/external-provisioner',
+  'kubernetes-csi/external-snapshotter',
+  'kubernetes-csi/kubernetes-csi-migration-library',
+  'kubernetes-csi/kubernetes-csi.github.io',
+  'kubernetes-csi/livenessprobe',
+  'kubernetes-incubator/external-storage',
+  'kubernetes-incubator/nfs-provisioner',
+  'kubernetes-sigs/sig-storage-lib-external-provisioner',
+  'kubernetes/csi-api',
+  'kubernetes/git-sync'
+);
+
+update gha_repos set repo_group = 'SIG Testing' where name in (
+  'kubernetes-sigs/kind',
+  'kubernetes-sigs/testing_frameworks',
+  'kubernetes/publishing-bot',
+  'kubernetes/test-infra'
+);
+
+update gha_repos set repo_group = 'SIG UI' where name in (
+  'kubernetes/dashboard'
+);
+
+update gha_repos set repo_group = 'SIG VMware' where name in (
+  'kubernetes-sigs/cluster-api-provider-vsphere'
 );
 
 -- By default alias is the newest repo name for given repo ID
