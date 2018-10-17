@@ -54,7 +54,7 @@ update gha_repos set repo_group = 'SIG Architecture' where name in (
 update gha_repos set repo_group = 'SIG Autoscaling' where name in (
   'kubernetes-incubator/cluster-proportional-autoscaler',
   'kubernetes-incubator/cluster-proportional-vertical-autoscaler',
-  'kubernetes/autoscaler',
+  'kubernetes/autoscaler'
 );
 
 update gha_repos set repo_group = 'SIG AWS' where name in (
