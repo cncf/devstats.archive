@@ -34,14 +34,56 @@ func ESConn(ctx *Ctx) *ES {
 		ctx: ctxb,
 		es:  client,
 		mapping: `{"settings":{"number_of_shards":1,"number_of_replicas":0},` +
-			`"mappings":{"$$$":{"properties":{` +
+			`"mappings":{"items":{"properties":{` +
 			`"time":{"type":"date","format":"yyyyMMddHH"},` +
-			`"series":{"type":"string","index":"not_analyzed"},` +
-			`"period":{"type":"string","index":"not_analyzed"},` +
-			`"descr":{"type":"string","index":"not_analyzed"},` +
+			`"series":{"type":"keyword"},` +
+			`"period":{"type":"keyword"},` +
+			`"descr":{"type":"keyword"},` +
 			`"value":{"type":"double"}` +
 			`}}}}`,
 	}
+}
+
+// FullName must use DB name + table name as index name - ES is flat
+func FullName(ctx *Ctx, name string) string {
+	return ctx.PgDB + "_" + name
+}
+
+// IndexExists checks if a given index exists
+func (es *ES) IndexExists(ctx *Ctx, indexName string) bool {
+	exists, err := es.es.IndexExists(FullName(ctx, indexName)).Do(es.ctx)
+	FatalOnError(err)
+	return exists
+}
+
+// CreateIndex creates index
+func (es *ES) CreateIndex(ctx *Ctx, indexName string) {
+	createIndex, err := es.es.CreateIndex(FullName(ctx, indexName)).BodyString(es.mapping).Do(es.ctx)
+	FatalOnError(err)
+	if !createIndex.Acknowledged {
+		Fatalf("index " + FullName(ctx, indexName) + " not created")
+	}
+}
+
+// Bulk request
+func (es *ES) Bulk() *elastic.BulkService {
+	return es.es.Bulk()
+}
+
+// AddBulkItem adds single item to the Bulk Request
+func AddBulkItem(ctx *Ctx, bulk *elastic.BulkService, index, typen string, doc map[string]interface{}) {
+	bulk.Add(elastic.NewBulkIndexRequest().Index(FullName(ctx, index)).Type(typen).Doc(doc))
+}
+
+// ExecuteBulk executes scheduled commands
+func (es *ES) ExecuteBulk(bulk *elastic.BulkService) {
+	res, err := bulk.Do(es.ctx)
+	FatalOnError(err)
+	failed := res.Failed()
+	if len(failed) > 0 {
+		Fatalf("bulk failed: %+v\n", failed)
+	}
+  // TODO: check more details why bulk failed
 }
 
 // WriteESPoints write batch of points to postgresql
@@ -106,198 +148,54 @@ func (es *ES) WriteESPoints(ctx *Ctx, pts *TSPoints, mergeS string, mut *sync.Mu
 		Printf("%d tags:\n%+v\n", len(tags), tags)
 		Printf("%d fields:\n%+v\n", len(fields), fields)
 	}
-	/*
-		sqls := []string{}
-		// Only used when multiple threads are writing the same series
-		if mut != nil {
-			mut.Lock()
+	// Only used when multiple threads are writing the same series
+	if mut != nil {
+		mut.Lock()
+	}
+	// Tags
+	for name, data := range tags {
+		if len(data) == 0 {
+			continue
 		}
-		var (
-			exists    bool
-			colExists bool
-		)
-		for name, data := range tags {
+		exists := es.IndexExists(ctx, name)
+		if !exists {
+			es.CreateIndex(ctx, name)
+		}
+	}
+	// Fields
+	if merge {
+		exists := es.IndexExists(ctx, mergeS)
+		if !exists {
+			es.CreateIndex(ctx, mergeS)
+		}
+	} else {
+		for name, data := range fields {
 			if len(data) == 0 {
 				continue
 			}
-			exists = TableExists(con, ctx, name)
+			exists := es.IndexExists(ctx, name)
 			if !exists {
-				sq := "create table if not exists \"" + name + "\"("
-				sq += "time timestamp primary key, "
-				indices := []string{}
-				for col := range data {
-					sq += "\"" + col + "\" text, "
-					iname := makePsqlName("i"+name[1:]+col, false)
-					indices = append(indices, "create index if not exists \""+iname+"\" on \""+name+"\"(\""+col+"\")")
-				}
-				l := len(sq)
-				sq = sq[:l-2] + ")"
-				sqls = append(sqls, sq)
-				sqls = append(sqls, indices...)
-				sqls = append(sqls, "grant select on \""+name+"\" to ro_user")
-				sqls = append(sqls, "grant select on \""+name+"\" to devstats_team")
-			} else {
-				for col := range data {
-					colExists = TableColumnExists(con, ctx, name, col)
-					if !colExists {
-						sq := "alter table \"" + name + "\" add column if not exists \"" + col + "\" text"
-						sqls = append(sqls, sq)
-						iname := makePsqlName("i"+name[1:]+col, false)
-						sqls = append(sqls, "create index if not exists \""+iname+"\" on \""+name+"\"(\""+col+"\")")
-					}
-				}
+				es.CreateIndex(ctx, name)
 			}
 		}
-		if merge {
-			bTable := false
-			colMap := make(map[string]struct{})
-			for _, data := range fields {
-				if len(data) == 0 {
-					continue
-				}
-				if !bTable {
-					exists = TableExists(con, ctx, mergeS)
-					if !exists {
-						sq := "create table if not exists \"" + mergeS + "\"("
-						sq += "time timestamp not null, series text not null, period text not null default '', "
-						indices := []string{
-							"create index if not exists \"" + makePsqlName("i"+mergeS[1:]+"t", false) + "\" on \"" + mergeS + "\"(time)",
-							"create index if not exists \"" + makePsqlName("i"+mergeS[1:]+"s", false) + "\" on \"" + mergeS + "\"(series)",
-							"create index if not exists \"" + makePsqlName("i"+mergeS[1:]+"p", false) + "\" on \"" + mergeS + "\"(period)",
-						}
-						for col, ty := range data {
-							if ty == 0 {
-								sq += "\"" + col + "\" double precision not null default 0.0, "
-								//indices = append(indices, "create index if not exists \""+makePsqlName("i"+mergeS[1:]+col, false)+"\" on \""+mergeS+"\"(\""+col+"\")")
-							} else {
-								sq += "\"" + col + "\" text not null default '', "
-							}
-							colMap[col] = struct{}{}
-						}
-						sq += "primary key(time, series, period))"
-						sqls = append(sqls, sq)
-						sqls = append(sqls, indices...)
-						sqls = append(sqls, "grant select on \""+mergeS+"\" to ro_user")
-						sqls = append(sqls, "grant select on \""+mergeS+"\" to devstats_team")
-					}
-					bTable = true
-				}
-				for col, ty := range data {
-					_, ok := colMap[col]
-					if !ok {
-						colExists = TableColumnExists(con, ctx, mergeS, col)
-						colMap[col] = struct{}{}
-						if !colExists {
-							if ty == 0 {
-								sqls = append(sqls, "alter table \""+mergeS+"\" add column if not exists \""+col+"\" double precision not null default 0.0")
-								//sqls = append(sqls, "create index if not exists \""+makePsqlName("i"+mergeS[1:]+col, false)+"\" on \""+mergeS+"\"(\""+col+"\")")
-							} else {
-								sqls = append(sqls, "alter table \""+mergeS+"\" add column if not exists \""+col+"\" text not null default ''")
-							}
-						}
-					}
-				}
+	}
+	// Only used when multiple threads are writing the same series
+	if mut != nil {
+		mut.Unlock()
+	}
+	items := 0
+	bulk := es.Bulk()
+	for _, p := range *pts {
+		if p.tags != nil {
+			obj := make(map[string]interface{})
+			obj["time"] = ToESDate(p.t)
+			for tagName, tagValue := range p.tags {
+				obj[tagName] = tagValue
 			}
-		} else {
-			for name, data := range fields {
-				if len(data) == 0 {
-					continue
-				}
-				exists = TableExists(con, ctx, name)
-				if !exists {
-					sq := "create table if not exists \"" + name + "\"("
-					sq += "time timestamp not null, period text not null default '', "
-					indices := []string{
-						"create index if not exists \"" + makePsqlName("i"+name[1:]+"t", false) + "\" on \"" + name + "\"(time)",
-						"create index if not exists \"" + makePsqlName("i"+name[1:]+"p", false) + "\" on \"" + name + "\"(period)",
-					}
-					for col, ty := range data {
-						if ty == 0 {
-							sq += "\"" + col + "\" double precision not null default 0.0, "
-							//indices = append(indices, "create index if not exists \""+makePsqlName("i"+name[1:]+col, false)+"\" on \""+name+"\"(\""+col+"\")")
-						} else {
-							sq += "\"" + col + "\" text not null default '', "
-						}
-					}
-					sq += "primary key(time, period))"
-					sqls = append(sqls, sq)
-					sqls = append(sqls, indices...)
-					sqls = append(sqls, "grant select on \""+name+"\" to ro_user")
-					sqls = append(sqls, "grant select on \""+name+"\" to devstats_team")
-				} else {
-					for col, ty := range data {
-						colExists = TableColumnExists(con, ctx, name, col)
-						if !colExists {
-							if ty == 0 {
-								sqls = append(sqls, "alter table \""+name+"\" add column if not exists \""+col+"\" double precision not null default 0.0")
-								//sqls = append(sqls, "create index if not exists \""+makePsqlName("i"+name[1:]+col, false)+"\" on \""+name+"\"(\""+col+"\")")
-							} else {
-								sqls = append(sqls, "alter table \""+name+"\" add column if not exists \""+col+"\" text not null default ''")
-							}
-						}
-					}
-				}
-			}
+			AddBulkItem(ctx, bulk, p.name, "items", obj)
+			items++
 		}
-		if ctx.Debug > 0 && len(sqls) > 0 {
-			Printf("structural sqls:\n%s\n", strings.Join(sqls, "\n"))
-		}
-		for _, q := range sqls {
-			// Notice: This **may** fail, when using multiple processes (not threads) to create structures (tables, columns and indices)
-			// But each operation can only fail when some other process already executed it succesfully
-			// So **ALL** those failures are *OK*.
-			// We can avoid thenm by using transaction, but it is much slower then, effect is the same and all we want **IS THE SPEED**
-			// So this is done for purpose!
-			_, err := ExecSQL(con, ctx, q)
-			if err != nil {
-				Printf("Ignored %s\n", q)
-			}
-		}
-		// Only used when multiple threads are writing the same series
-		if mut != nil {
-			mut.Unlock()
-		}
-		ns := 0
-		for _, p := range *pts {
-			if p.tags != nil {
-				name := makePsqlName("t"+p.name, true)
-				namesI := []string{"time"}
-				argsI := []string{"$1"}
-				vals := []interface{}{p.t}
-				i := 2
-				for tagName, tagValue := range p.tags {
-					namesI = append(namesI, "\""+makePsqlName(tagName, true)+"\"")
-					argsI = append(argsI, "$"+strconv.Itoa(i))
-					vals = append(vals, tagValue)
-					i++
-				}
-				namesIA := strings.Join(namesI, ", ")
-				argsIA := strings.Join(argsI, ", ")
-				namesU := []string{}
-				argsU := []string{}
-				for tagName, tagValue := range p.tags {
-					namesU = append(namesU, "\""+makePsqlName(tagName, true)+"\"")
-					argsU = append(argsU, "$"+strconv.Itoa(i))
-					vals = append(vals, tagValue)
-					i++
-				}
-				namesUA := strings.Join(namesU, ", ")
-				argsUA := strings.Join(argsU, ", ")
-				if len(namesU) > 1 {
-					namesUA = "(" + namesUA + ")"
-					argsUA = "(" + argsUA + ")"
-				}
-				argT := "$" + strconv.Itoa(i)
-				vals = append(vals, p.t)
-				q := fmt.Sprintf(
-					"insert into \"%[1]s\"("+namesIA+") values("+argsIA+") "+
-						"on conflict(time) do update set "+namesUA+" = "+argsUA+" "+
-						"where \"%[1]s\".time = "+argT,
-					name,
-				)
-				ExecSQLWithErr(con, ctx, q, vals...)
-				ns++
-			}
+		/*
 			if p.fields != nil && !merge {
 				name := makePsqlName("s"+p.name, true)
 				namesI := []string{"time", "period"}
@@ -381,9 +279,10 @@ func (es *ES) WriteESPoints(ctx *Ctx, pts *TSPoints, mergeS string, mut *sync.Mu
 				ExecSQLWithErr(con, ctx, q, vals...)
 				ns++
 			}
-		}
-		if ctx.Debug > 0 {
-			Printf("upserts: %d\n", ns)
-		}
-	*/
+		*/
+	}
+	es.ExecuteBulk(bulk)
+	if ctx.Debug >= 0 {
+		Printf("Items: %d\n", items)
+	}
 }
