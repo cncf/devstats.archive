@@ -293,6 +293,13 @@ func sync(ctx *lib.Ctx, args []string) {
 				lib.Printf("Skipping `tags` recalculation, it is only computed once per day\n")
 			}
 		}
+		// When resetting all TSDB data, adding new TS points will race for update TSDB structure
+		// While we can just run "columns" once to ensure thay match tags output
+		// Event if there are new columns after that - they will be very few not all of them to add at once
+		if ctx.ResetTSDB && !ctx.SkipColumns {
+			_, err := lib.ExecCommand(ctx, []string{cmdPrefix + "columns"}, nil)
+			lib.FatalOnError(err)
+		}
 
 		// Annotations
 		if !ctx.SkipAnnotations {
