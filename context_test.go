@@ -103,6 +103,8 @@ func copyContext(in *lib.Ctx) *lib.Ctx {
 		ActorsForbid:        in.ActorsForbid,
 		OnlyMetrics:         in.OnlyMetrics,
 		ComputePeriods:      in.ComputePeriods,
+		ElasticURL:          in.ElasticURL,
+		UseES:               in.UseES,
 	}
 	return &out
 }
@@ -309,6 +311,8 @@ func TestInit(t *testing.T) {
 		ActorsAllow:         nil,
 		ActorsForbid:        nil,
 		OnlyMetrics:         map[string]bool{},
+		ElasticURL:          "http://127.0.0.1:9200",
+		UseES:               false,
 	}
 
 	var nilRegexp *regexp.Regexp
@@ -1013,6 +1017,21 @@ func TestInit(t *testing.T) {
 				copyContext(&defaultContext),
 				map[string]interface{}{
 					"ExternalInfo": true,
+				},
+			),
+		},
+		{
+			"Set ES params",
+			map[string]string{
+				"GHA2DB_ES_URL": "http://other.server:9222",
+				"GHA2DB_USE_ES": "1",
+			},
+			dynamicSetFields(
+				t,
+				copyContext(&defaultContext),
+				map[string]interface{}{
+					"ElasticURL": "http://other.server:9222",
+					"UseES":      true,
 				},
 			),
 		},

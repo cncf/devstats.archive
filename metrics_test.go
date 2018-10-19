@@ -1091,7 +1091,7 @@ func (metricTestCase) RunTags(con *sql.DB, ctx *lib.Ctx, arg string, replaces []
 		name := tag.Name
 		found, ok := tagMap[name]
 		if ok && !found {
-			lib.ProcessTag(con, ctx, &tag, replaces)
+			lib.ProcessTag(con, nil, ctx, &tag, replaces)
 			tagMap[name] = true
 		}
 	}
