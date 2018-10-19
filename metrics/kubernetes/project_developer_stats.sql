@@ -327,6 +327,7 @@ from (
     gha_commits c,
     gha_actors a
   where
+    -- (c.committer_id = a.id or c.author_id = a.id or c.dup_actor_login = a.login or c.author_login = a.login or c.committer_login = a.login)
     (c.committer_id = a.id or c.author_id = a.id or c.dup_actor_login = a.login)
     and {{period:c.dup_created_at}}
     and (lower(a.login) {{exclude_bots}})
@@ -347,7 +348,7 @@ from (
     gha_events e,
     gha_actors a
   where
-    e.actor_id = a.id
+    (e.actor_id = a.id or e.dup_actor_login = a.login)
     and e.type in (
       'PushEvent', 'PullRequestReviewCommentEvent',
       'IssueCommentEvent', 'CommitCommentEvent'
@@ -367,7 +368,7 @@ from (
     gha_events e,
     gha_actors a
   where
-    e.actor_id = a.id
+    (e.actor_id = a.id or e.dup_actor_login = a.login)
     and e.type in (
       'PushEvent', 'PullRequestEvent', 'IssuesEvent',
       'CommitCommentEvent', 'IssueCommentEvent', 'PullRequestReviewCommentEvent'
@@ -386,7 +387,7 @@ from (
     gha_events e,
     gha_actors a
   where
-    e.actor_id = a.id
+    (e.actor_id = a.id or e.dup_actor_login = a.login)
     and {{period:e.created_at}}
     and (lower(a.login) {{exclude_bots}})
     and a.country_name is not null
@@ -401,7 +402,7 @@ from (
     gha_comments c,
     gha_actors a
   where
-    c.user_id = a.id
+    (c.user_id = a.id or c.dup_user_login = a.login)
     and {{period:c.created_at}}
     and (lower(a.login) {{exclude_bots}})
     and a.country_name is not null
@@ -416,7 +417,7 @@ from (
     gha_issues i,
     gha_actors a
   where
-    i.user_id = a.id
+    (i.user_id = a.id or i.dup_user_login = a.login)
     and {{period:i.created_at}}
     and i.is_pull_request = false
     and (lower(a.login) {{exclude_bots}})
@@ -432,7 +433,7 @@ from (
     gha_issues pr,
     gha_actors a
   where
-    pr.user_id = a.id
+    (pr.user_id = a.id or pr.dup_user_login = a.login)
     and {{period:pr.created_at}}
     and pr.is_pull_request = true
     and (lower(a.login) {{exclude_bots}})
@@ -448,7 +449,7 @@ from (
     gha_events e,
     gha_actors a
   where
-    e.actor_id = a.id
+    (e.actor_id = a.id or e.dup_actor_login = a.login)
     and {{period:e.created_at}}
     and (lower(a.login) {{exclude_bots}})
     and a.country_name is not null
@@ -495,6 +496,7 @@ from (
       ecf.event_id = c.event_id
     where
       r.name = c.dup_repo_name
+      -- and (c.committer_id = a.id or c.author_id = a.id or c.dup_actor_login = a.login or c.author_login = a.login or c.committer_login = a.login)
       and (c.committer_id = a.id or c.author_id = a.id or c.dup_actor_login = a.login)
       and {{period:c.dup_created_at}}
       and (lower(a.login) {{exclude_bots}})
@@ -532,7 +534,7 @@ from (
       ecf.event_id = e.id
     where
       r.name = e.dup_repo_name
-      and e.actor_id = a.id
+      and (e.actor_id = a.id or e.dup_actor_login = a.login)
       and e.type in (
         'PushEvent', 'PullRequestReviewCommentEvent',
         'IssueCommentEvent', 'CommitCommentEvent'
@@ -568,7 +570,7 @@ from (
       ecf.event_id = e.id
     where
       r.name = e.dup_repo_name
-      and e.actor_id = a.id
+      and (e.actor_id = a.id or e.dup_actor_login = a.login)
       and e.type in (
         'PushEvent', 'PullRequestEvent', 'IssuesEvent',
         'CommitCommentEvent', 'IssueCommentEvent', 'PullRequestReviewCommentEvent'
@@ -603,7 +605,7 @@ from (
       ecf.event_id = e.id
     where
       r.name = e.dup_repo_name
-      and e.actor_id = a.id
+      and (e.actor_id = a.id or e.dup_actor_login = a.login)
       and {{period:e.created_at}}
       and (lower(a.login) {{exclude_bots}})
   ) sub
@@ -634,7 +636,7 @@ from (
       ecf.event_id = c.event_id
     where
       c.dup_repo_name = r.name
-      and c.user_id = a.id
+      and (c.user_id = a.id or c.dup_user_login = a.login)
       and {{period:c.created_at}}
       and (lower(a.login) {{exclude_bots}})
   ) sub
@@ -669,7 +671,7 @@ from (
       ecf.event_id = i.event_id
     where
       i.dup_repo_name = r.name
-      and i.user_id = a.id
+      and (i.user_id = a.id or i.dup_user_login = a.login)
       and {{period:i.created_at}}
       and (lower(a.login) {{exclude_bots}})
   ) sub
@@ -701,7 +703,7 @@ from (
       ecf.event_id = e.id
     where
       r.name = e.dup_repo_name
-      and e.actor_id = a.id
+      and (e.actor_id = a.id or e.dup_actor_login = a.login)
       and {{period:e.created_at}}
       and (lower(e.dup_actor_login) {{exclude_bots}})
   ) sub
