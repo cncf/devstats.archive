@@ -141,6 +141,12 @@ func workerThread(
 	sqlc := lib.PgConn(ctx)
 	defer func() { lib.FatalOnError(sqlc.Close()) }()
 
+	// Optional ElasticSearch output
+	var es *lib.ES
+	if ctx.UseES {
+		es = lib.ESConn(ctx)
+	}
+
 	// Get BatchPoints
 	var pts lib.TSPoints
 	sqlQueryOrig = strings.Replace(sqlQueryOrig, "{{n}}", strconv.Itoa(nIntervals)+".0", -1)
@@ -285,6 +291,9 @@ func workerThread(
 		lib.WriteTSPoints(ctx, sqlc, &pts, mergeSeries, mut)
 	} else if ctx.Debug > 0 {
 		lib.Printf("Skipping series write\n")
+	}
+	if ctx.UseES {
+		es.WriteESPoints(ctx, &pts, mergeSeries, mut)
 	}
 
 	// Synchronize go routine
