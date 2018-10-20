@@ -83,7 +83,7 @@ func (es *ES) ExecuteBulk(bulk *elastic.BulkService) {
 	if len(failed) > 0 {
 		Fatalf("bulk failed: %+v\n", failed)
 	}
-  // TODO: check more details why bulk failed
+	// TODO: check more details why bulk failed
 }
 
 // WriteESPoints write batch of points to postgresql
@@ -98,6 +98,7 @@ func (es *ES) WriteESPoints(ctx *Ctx, pts *TSPoints, mergeS string, mut *sync.Mu
 	}
 	merge := false
 	if mergeS != "" {
+		mergeS = "s" + mergeS
 		merge = true
 	}
 	tags := make(map[string]map[string]struct{})
@@ -157,9 +158,10 @@ func (es *ES) WriteESPoints(ctx *Ctx, pts *TSPoints, mergeS string, mut *sync.Mu
 		if len(data) == 0 {
 			continue
 		}
-		exists := es.IndexExists(ctx, name)
+		tname := "t" + name
+		exists := es.IndexExists(ctx, tname)
 		if !exists {
-			es.CreateIndex(ctx, name)
+			es.CreateIndex(ctx, tname)
 		}
 	}
 	// Fields
@@ -173,9 +175,10 @@ func (es *ES) WriteESPoints(ctx *Ctx, pts *TSPoints, mergeS string, mut *sync.Mu
 			if len(data) == 0 {
 				continue
 			}
-			exists := es.IndexExists(ctx, name)
+			sname := "s" + name
+			exists := es.IndexExists(ctx, sname)
 			if !exists {
-				es.CreateIndex(ctx, name)
+				es.CreateIndex(ctx, sname)
 			}
 		}
 	}
@@ -192,94 +195,30 @@ func (es *ES) WriteESPoints(ctx *Ctx, pts *TSPoints, mergeS string, mut *sync.Mu
 			for tagName, tagValue := range p.tags {
 				obj[tagName] = tagValue
 			}
-			AddBulkItem(ctx, bulk, p.name, "items", obj)
+			AddBulkItem(ctx, bulk, "t"+p.name, "items", obj)
 			items++
 		}
-		/*
-			if p.fields != nil && !merge {
-				name := makePsqlName("s"+p.name, true)
-				namesI := []string{"time", "period"}
-				argsI := []string{"$1", "$2"}
-				vals := []interface{}{p.t, p.period}
-				i := 3
-				for fieldName, fieldValue := range p.fields {
-					namesI = append(namesI, "\""+makePsqlName(fieldName, true)+"\"")
-					argsI = append(argsI, "$"+strconv.Itoa(i))
-					vals = append(vals, fieldValue)
-					i++
-				}
-				namesIA := strings.Join(namesI, ", ")
-				argsIA := strings.Join(argsI, ", ")
-				namesU := []string{}
-				argsU := []string{}
-				for fieldName, fieldValue := range p.fields {
-					namesU = append(namesU, "\""+makePsqlName(fieldName, true)+"\"")
-					argsU = append(argsU, "$"+strconv.Itoa(i))
-					vals = append(vals, fieldValue)
-					i++
-				}
-				namesUA := strings.Join(namesU, ", ")
-				argsUA := strings.Join(argsU, ", ")
-				if len(namesU) > 1 {
-					namesUA = "(" + namesUA + ")"
-					argsUA = "(" + argsUA + ")"
-				}
-				argT := "$" + strconv.Itoa(i)
-				argP := "$" + strconv.Itoa(i+1)
-				vals = append(vals, p.t)
-				vals = append(vals, p.period)
-				q := fmt.Sprintf(
-					"insert into \"%[1]s\"("+namesIA+") values("+argsIA+") "+
-						"on conflict(time, period) do update set "+namesUA+" = "+argsUA+" "+
-						"where \"%[1]s\".time = "+argT+" and \"%[1]s\".period = "+argP,
-					name,
-				)
-				ExecSQLWithErr(con, ctx, q, vals...)
-				ns++
+		if p.fields != nil && !merge {
+			obj := make(map[string]interface{})
+			obj["time"] = ToESDate(p.t)
+			obj["period"] = p.period
+			for fieldName, fieldValue := range p.fields {
+				obj[fieldName] = fieldValue
 			}
-			if p.fields != nil && merge {
-				namesI := []string{"time", "period", "series"}
-				argsI := []string{"$1", "$2", "$3"}
-				vals := []interface{}{p.t, p.period, p.name}
-				i := 4
-				for fieldName, fieldValue := range p.fields {
-					namesI = append(namesI, "\""+makePsqlName(fieldName, true)+"\"")
-					argsI = append(argsI, "$"+strconv.Itoa(i))
-					vals = append(vals, fieldValue)
-					i++
-				}
-				namesIA := strings.Join(namesI, ", ")
-				argsIA := strings.Join(argsI, ", ")
-				namesU := []string{}
-				argsU := []string{}
-				for fieldName, fieldValue := range p.fields {
-					namesU = append(namesU, "\""+makePsqlName(fieldName, true)+"\"")
-					argsU = append(argsU, "$"+strconv.Itoa(i))
-					vals = append(vals, fieldValue)
-					i++
-				}
-				namesUA := strings.Join(namesU, ", ")
-				argsUA := strings.Join(argsU, ", ")
-				if len(namesU) > 1 {
-					namesUA = "(" + namesUA + ")"
-					argsUA = "(" + argsUA + ")"
-				}
-				argT := "$" + strconv.Itoa(i)
-				argP := "$" + strconv.Itoa(i+1)
-				argS := "$" + strconv.Itoa(i+2)
-				vals = append(vals, p.t)
-				vals = append(vals, p.period)
-				vals = append(vals, p.name)
-				q := fmt.Sprintf(
-					"insert into \"%[1]s\"("+namesIA+") values("+argsIA+") "+
-						"on conflict(time, series, period) do update set "+namesUA+" = "+argsUA+" "+
-						"where \"%[1]s\".time = "+argT+" and \"%[1]s\".period = "+argP+" and \"%[1]s\".series = "+argS,
-					mergeS,
-				)
-				ExecSQLWithErr(con, ctx, q, vals...)
-				ns++
+			AddBulkItem(ctx, bulk, "s"+p.name, "items", obj)
+			items++
+		}
+		if p.fields != nil && merge {
+			obj := make(map[string]interface{})
+			obj["time"] = ToESDate(p.t)
+			obj["period"] = p.period
+			obj["series"] = p.name
+			for fieldName, fieldValue := range p.fields {
+				obj[fieldName] = fieldValue
 			}
-		*/
+			AddBulkItem(ctx, bulk, mergeS, "items", obj)
+			items++
+		}
 	}
 	es.ExecuteBulk(bulk)
 	if ctx.Debug >= 0 {
