@@ -337,7 +337,7 @@ func dataForMetricTestCase(con *sql.DB, ctx *lib.Ctx, testMetric *metricTestCase
 
 // This executes test of single metric
 // All metric data is defined in "testMetric" argument
-// Singel metric test is dropping & creating database from scratch (to avoid junky database)
+// Single metric test is dropping & creating database from scratch (to avoid junky database)
 // It also creates full DB structure - without indexes - they're not needed in
 // small databases - like the ones created by test covergae tools
 func executeMetricTestCase(testMetric *metricTestCase, tests *metricTests, ctx *lib.Ctx) (result [][]interface{}, err error) {

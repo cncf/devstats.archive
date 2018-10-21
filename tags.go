@@ -66,9 +66,11 @@ func ProcessTag(con *sql.DB, es *ES, ctx *Ctx, tg *Tag, replaces [][]string) {
 	defer func() { FatalOnError(rows.Close()) }()
 
 	// Drop current tags
-	table := "t" + tg.SeriesName
-	if TableExists(con, ctx, table) {
-		ExecSQLWithErr(con, ctx, "truncate "+table)
+	if !ctx.SkipTSDB {
+		table := "t" + tg.SeriesName
+		if TableExists(con, ctx, table) {
+			ExecSQLWithErr(con, ctx, "truncate "+table)
+		}
 	}
 	tm := TimeParseAny("2014-01-01")
 
