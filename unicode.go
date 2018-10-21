@@ -18,11 +18,11 @@ func StripUnicode(str string) string {
 	return str
 }
 
-// NormalizeName - clean DB string from -, /, ., " ",), (, ], [ trim leading and trailing space, lowercase
+// NormalizeName - clean DB string from ", ', -, /, ., " ",), (, ], [ trim leading and trailing space, lowercase
 // Normalize Unicode characters
 func NormalizeName(str string) string {
 	r := strings.NewReplacer(
-		"-", "", "/", "", ".", "", " ", "", ",", "", ";", "", ":", "", "`", "", "(", "", ")", "", "[", "", "]", "", "<", "", ">", "", "_", "",
+		"-", "", "/", "", ".", "", " ", "", ",", "", ";", "", ":", "", "`", "", "(", "", ")", "", "[", "", "]", "", "<", "", ">", "", "_", "", "\"", "", "'", "",
 	)
 	return r.Replace(strings.ToLower(strings.TrimSpace(StripUnicode(str))))
 }

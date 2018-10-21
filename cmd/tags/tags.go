@@ -17,6 +17,12 @@ func calcTags() {
 	con := lib.PgConn(&ctx)
 	defer func() { lib.FatalOnError(con.Close()) }()
 
+	// Optional ElasticSearch output
+	var es *lib.ES
+	if ctx.UseES {
+		es = lib.ESConn(&ctx)
+	}
+
 	// Local or cron mode?
 	dataPrefix := lib.DataDir
 	if ctx.Local {
@@ -52,7 +58,7 @@ func calcTags() {
 			}
 
 			// Process tag
-			lib.ProcessTag(con, &ctx, tg, [][]string{})
+			lib.ProcessTag(con, es, &ctx, tg, [][]string{})
 
 			// Synchronize go routine
 			if ch != nil {

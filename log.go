@@ -107,6 +107,8 @@ func ClearDBLogs() {
 	defer func() { _ = c.Close() }()
 
 	// Clear logs older that defined period
-	fmt.Printf("Clearing old DB logs.\n")
-	ExecSQLWithErr(c, &ctx, "delete from gha_logs where dt < now() - '"+ctx.ClearDBPeriod+"'::interval")
+	if !ctx.SkipPDB {
+		fmt.Printf("Clearing old DB logs.\n")
+		ExecSQLWithErr(c, &ctx, "delete from gha_logs where dt < now() - '"+ctx.ClearDBPeriod+"'::interval")
+	}
 }

@@ -23,7 +23,7 @@ type Tag struct {
 }
 
 // ProcessTag - insert given Tag into Postgres TSDB
-func ProcessTag(con *sql.DB, ctx *Ctx, tg *Tag, replaces [][]string) {
+func ProcessTag(con *sql.DB, es *ES, ctx *Ctx, tg *Tag, replaces [][]string) {
 	// Batch TS points
 	var pts TSPoints
 
@@ -66,9 +66,11 @@ func ProcessTag(con *sql.DB, ctx *Ctx, tg *Tag, replaces [][]string) {
 	defer func() { FatalOnError(rows.Close()) }()
 
 	// Drop current tags
-	table := "t" + tg.SeriesName
-	if TableExists(con, ctx, table) {
-		ExecSQLWithErr(con, ctx, "truncate "+table)
+	if !ctx.SkipTSDB {
+		table := "t" + tg.SeriesName
+		if TableExists(con, ctx, table) {
+			ExecSQLWithErr(con, ctx, "truncate "+table)
+		}
 	}
 	tm := TimeParseAny("2014-01-01")
 
@@ -133,5 +135,10 @@ func ProcessTag(con *sql.DB, ctx *Ctx, tg *Tag, replaces [][]string) {
 		WriteTSPoints(ctx, con, &pts, "", nil)
 	} else if ctx.Debug > 0 {
 		Printf("Skipping tags series write\n")
+	}
+
+	// Output to ElasticSearch
+	if ctx.UseES {
+		es.WriteESPoints(ctx, &pts, "")
 	}
 }
