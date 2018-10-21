@@ -293,7 +293,7 @@ func workerThread(
 		lib.Printf("Skipping series write\n")
 	}
 	if ctx.UseES {
-		es.WriteESPoints(ctx, &pts, mergeSeries, mut)
+		es.WriteESPoints(ctx, &pts, mergeSeries)
 	}
 
 	// Synchronize go routine
@@ -364,6 +364,12 @@ func calcHistogram(
 	// Connect to Postgres DB
 	sqlc := lib.PgConn(ctx)
 	defer func() { lib.FatalOnError(sqlc.Close()) }()
+
+	// Optional ElasticSearch output
+	var es *lib.ES
+	if ctx.UseES {
+		es = lib.ESConn(ctx)
+	}
 
 	// Get BatchPoints
 	var pts lib.TSPoints
@@ -444,7 +450,16 @@ func calcHistogram(
 			if lib.TableExists(sqlc, ctx, table) {
 				lib.ExecSQLWithErr(sqlc, ctx, fmt.Sprintf("delete from "+table+" where period = %s", lib.NValue(1)), intervalAbbr)
 				if ctx.Debug > 0 {
-					lib.Printf("Dropped measurement %s\n", seriesNameOrFunc)
+					lib.Printf("Dropped data from %s table with %s period\n", table, intervalAbbr)
+				}
+			}
+		}
+		if ctx.UseES {
+			index := lib.ESFullName(ctx, "s"+seriesNameOrFunc)
+			if es.IndexExists(ctx, index) {
+				es.DeleteByQuery(ctx, index, "items", "period", intervalAbbr)
+				if ctx.Debug > 0 {
+					lib.Printf("Dropped data from index %s with %s period\n", index, intervalAbbr)
 				}
 			}
 		}
@@ -595,6 +610,17 @@ func calcHistogram(
 					}
 				}
 			}
+			if ctx.UseES {
+				for series := range seriesToClear {
+					index := lib.ESFullName(ctx, "s"+series)
+					if es.IndexExists(ctx, index) {
+						es.DeleteByQuery(ctx, index, "items", "period", intervalAbbr)
+						if ctx.Debug > 0 {
+							lib.Printf("Dropped data from index %s with %s period\n", index, intervalAbbr)
+						}
+					}
+				}
+			}
 		}
 	}
 	// Write the batch
@@ -606,6 +632,9 @@ func calcHistogram(
 		}
 	} else if ctx.Debug > 0 {
 		lib.Printf("Skipping series write\n")
+	}
+	if ctx.UseES {
+		es.WriteESPoints(ctx, &pts, mergeSeries)
 	}
 }
 
