@@ -3,7 +3,6 @@ package devstats
 import (
 	"context"
 	"fmt"
-	"sync"
 
 	"github.com/olivere/elastic"
 )
@@ -44,24 +43,53 @@ func ESConn(ctx *Ctx) *ES {
 	}
 }
 
-// FullName must use DB name + table name as index name - ES is flat
-func FullName(ctx *Ctx, name string) string {
-	return ctx.PgDB + "_" + name
+// ESFullName must use DB name + table name as index name - ES is flat
+func ESFullName(ctx *Ctx, name string) string {
+	return ctx.Project + "_" + name
 }
 
 // IndexExists checks if a given index exists
 func (es *ES) IndexExists(ctx *Ctx, indexName string) bool {
-	exists, err := es.es.IndexExists(FullName(ctx, indexName)).Do(es.ctx)
+	exists, err := es.es.IndexExists(ESFullName(ctx, indexName)).Do(es.ctx)
 	FatalOnError(err)
 	return exists
 }
 
 // CreateIndex creates index
 func (es *ES) CreateIndex(ctx *Ctx, indexName string) {
-	createIndex, err := es.es.CreateIndex(FullName(ctx, indexName)).BodyString(es.mapping).Do(es.ctx)
+	createIndex, err := es.es.CreateIndex(ESFullName(ctx, indexName)).BodyString(es.mapping).Do(es.ctx)
 	FatalOnError(err)
 	if !createIndex.Acknowledged {
-		Fatalf("index " + FullName(ctx, indexName) + " not created")
+		Fatalf("index " + ESFullName(ctx, indexName) + " not created")
+	}
+}
+
+// DeleteIndex creates index
+func (es *ES) DeleteIndex(ctx *Ctx, indexName string) {
+	deleteIndex, err := es.es.DeleteIndex(ESFullName(ctx, indexName)).Do(es.ctx)
+	FatalOnError(err)
+	if !deleteIndex.Acknowledged {
+		Fatalf("index " + ESFullName(ctx, indexName) + " not deleted")
+	}
+}
+
+// DeleteByQuery deletes data from given index & type by simple bool query
+func (es *ES) DeleteByQuery(ctx *Ctx, indexName, typeName, propName string, propValue interface{}) {
+	boolQuery := elastic.NewBoolQuery().Must(elastic.NewTermQuery(propName, propValue))
+	result, err := elastic.NewDeleteByQueryService(es.es).Index(ESFullName(ctx, indexName)).Type(typeName).Query(boolQuery).Do(es.ctx)
+	FatalOnError(err)
+	if ctx.Debug > 0 {
+		Printf("DeleteByQuery(%s, %s, %s, %+v): %+v\n", indexName, typeName, propName, propValue, result)
+	}
+}
+
+// DeleteByWildcardQuery deletes data from given index & type by using wildcard query
+func (es *ES) DeleteByWildcardQuery(ctx *Ctx, indexName, typeName, propName, propQuery string) {
+	wildcardQuery := elastic.NewWildcardQuery(propName, propQuery)
+	result, err := elastic.NewDeleteByQueryService(es.es).Index(ESFullName(ctx, indexName)).Type(typeName).Query(wildcardQuery).Do(es.ctx)
+	FatalOnError(err)
+	if ctx.Debug > 0 {
+		Printf("DeleteByWildcardQuery(%s, %s, %s, %s): %+v\n", indexName, typeName, propName, propQuery, result)
 	}
 }
 
@@ -71,14 +99,18 @@ func (es *ES) Bulk() *elastic.BulkService {
 }
 
 // AddBulkItem adds single item to the Bulk Request
-func AddBulkItem(ctx *Ctx, bulk *elastic.BulkService, index, typen string, doc map[string]interface{}) {
-	bulk.Add(elastic.NewBulkIndexRequest().Index(FullName(ctx, index)).Type(typen).Doc(doc))
+func AddBulkItem(ctx *Ctx, bulk *elastic.BulkService, indexName, typeName string, doc map[string]interface{}) {
+	bulk.Add(elastic.NewBulkIndexRequest().Index(ESFullName(ctx, indexName)).Type(typeName).Doc(doc))
 }
 
 // ExecuteBulk executes scheduled commands
 func (es *ES) ExecuteBulk(bulk *elastic.BulkService) {
 	res, err := bulk.Do(es.ctx)
 	FatalOnError(err)
+	actions := bulk.NumberOfActions()
+	if actions != 0 {
+		Fatalf("bulk not all actions executed: %+v\n", actions)
+	}
 	failed := res.Failed()
 	if len(failed) > 0 {
 		Fatalf("bulk failed: %+v\n", failed)
@@ -87,7 +119,7 @@ func (es *ES) ExecuteBulk(bulk *elastic.BulkService) {
 }
 
 // WriteESPoints write batch of points to postgresql
-func (es *ES) WriteESPoints(ctx *Ctx, pts *TSPoints, mergeS string, mut *sync.Mutex) {
+func (es *ES) WriteESPoints(ctx *Ctx, pts *TSPoints, mergeS string) {
 	npts := len(*pts)
 	if ctx.Debug > 0 {
 		Printf("WriteESPoints: writing %d points\n", len(*pts))
@@ -144,14 +176,10 @@ func (es *ES) WriteESPoints(ctx *Ctx, pts *TSPoints, mergeS string, mut *sync.Mu
 			}
 		}
 	}
-	if ctx.Debug >= 0 {
+	if ctx.Debug > 0 {
 		Printf("Merge: %v,%s\n", merge, mergeS)
 		Printf("%d tags:\n%+v\n", len(tags), tags)
 		Printf("%d fields:\n%+v\n", len(fields), fields)
-	}
-	// Only used when multiple threads are writing the same series
-	if mut != nil {
-		mut.Lock()
 	}
 	// Tags
 	for name, data := range tags {
@@ -181,10 +209,6 @@ func (es *ES) WriteESPoints(ctx *Ctx, pts *TSPoints, mergeS string, mut *sync.Mu
 				es.CreateIndex(ctx, sname)
 			}
 		}
-	}
-	// Only used when multiple threads are writing the same series
-	if mut != nil {
-		mut.Unlock()
 	}
 	items := 0
 	bulk := es.Bulk()
@@ -221,7 +245,7 @@ func (es *ES) WriteESPoints(ctx *Ctx, pts *TSPoints, mergeS string, mut *sync.Mu
 		}
 	}
 	es.ExecuteBulk(bulk)
-	if ctx.Debug >= 0 {
+	if ctx.Debug > 0 {
 		Printf("Items: %d\n", items)
 	}
 }

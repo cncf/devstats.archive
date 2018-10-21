@@ -152,6 +152,12 @@ func ProcessAnnotations(ctx *Ctx, annotations *Annotations, startDate, joinDate 
 	ic := PgConn(ctx)
 	defer func() { FatalOnError(ic.Close()) }()
 
+	// Optional ElasticSearch output
+	var es *ES
+	if ctx.UseES {
+		es = ESConn(ctx)
+	}
+
 	// Get BatchPoints
 	var pts TSPoints
 
@@ -347,5 +353,14 @@ func ProcessAnnotations(ctx *Ctx, annotations *Annotations, startDate, joinDate 
 		WriteTSPoints(ctx, ic, &pts, "", nil)
 	} else if ctx.Debug > 0 {
 		Printf("Skipping annotations series write\n")
+	}
+
+	// Output to ElasticSearch
+	if ctx.UseES {
+		index := ESFullName(ctx, "quick_ranges")
+		if es.IndexExists(ctx, index) {
+			es.DeleteByWildcardQuery(ctx, index, "items", "quick_ranges_suffix", "*_n")
+		}
+		es.WriteESPoints(ctx, &pts, "")
 	}
 }
