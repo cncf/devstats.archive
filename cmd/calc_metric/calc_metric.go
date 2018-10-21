@@ -600,13 +600,15 @@ func calcHistogram(
 			}
 		}
 		lib.FatalOnError(rows.Err())
-		if len(seriesToClear) > 0 && !ctx.SkipTSDB {
-			for series := range seriesToClear {
-				table := "s" + series
-				if lib.TableExists(sqlc, ctx, table) {
-					lib.ExecSQLWithErr(sqlc, ctx, fmt.Sprintf("delete from "+table+" where period = %s", lib.NValue(1)), intervalAbbr)
-					if ctx.Debug > 0 {
-						lib.Printf("Dropped series: %s\n", series)
+		if len(seriesToClear) > 0 {
+			if !ctx.SkipTSDB {
+				for series := range seriesToClear {
+					table := "s" + series
+					if lib.TableExists(sqlc, ctx, table) {
+						lib.ExecSQLWithErr(sqlc, ctx, fmt.Sprintf("delete from "+table+" where period = %s", lib.NValue(1)), intervalAbbr)
+						if ctx.Debug > 0 {
+							lib.Printf("Dropped series: %s\n", series)
+						}
 					}
 				}
 			}
