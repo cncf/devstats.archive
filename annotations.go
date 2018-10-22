@@ -344,7 +344,7 @@ func ProcessAnnotations(ctx *Ctx, annotations *Annotations, startDate, joinDate 
 	}
 
 	// Write the batch
-	if !ctx.SkipTSDB {
+	if !ctx.SkipTSDB && !ctx.UseESOnly {
 		table := "tquick_ranges"
 		column := "quick_ranges_suffix"
 		if TableExists(ic, ctx, table) && TableColumnExists(ic, ctx, table, column) {

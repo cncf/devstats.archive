@@ -101,8 +101,9 @@ type Ctx struct {
 	SkipTags            bool                         // From GHA2DB_SKIP_TAGS, gha2db_sync tool, skip calling tags tool, default false
 	SkipAnnotations     bool                         // From GHA2DB_SKIP_ANNOTATIONS, gha2db_sync tool, skip calling annotations tool, default false
 	SkipColumns         bool                         // From GHA2DB_SKIP_COLUMNS, gha2db_sync tool, skip calling columns tool, default false
-	ElasticURL          string                       // From GHA2DB_ES_URL, calc_metric tool - ElasticSearch URL (if used), default http://127.0.0.1:9200
-	UseES               bool                         // From GHA2DB_USE_ES, calc_metric tool - enable ElasticSearch, default false
+	ElasticURL          string                       // From GHA2DB_ES_URL, calc_metric, tags, annotations tools - ElasticSearch URL (if used), default http://127.0.0.1:9200
+	UseES               bool                         // From GHA2DB_USE_ES, calc_metric, atgs, annotations tools - enable ElasticSearch, default false
+	UseESOnly           bool                         // From GHA2DB_USE_ES_ONLY, calc_metric, annotations tools - enable ElasticSearch and do not write PSQL TSDB, default false
 }
 
 // Init - get context from environment variables
@@ -469,6 +470,7 @@ func (ctx *Ctx) Init() {
 
 	// ElasticSearch
 	ctx.UseES = os.Getenv("GHA2DB_USE_ES") != ""
+	ctx.UseESOnly = os.Getenv("GHA2DB_USE_ES_ONLY") != ""
 	ctx.ElasticURL = os.Getenv("GHA2DB_ES_URL")
 	if ctx.ElasticURL == "" {
 		ctx.ElasticURL = "http://127.0.0.1:9200"

@@ -105,6 +105,7 @@ func copyContext(in *lib.Ctx) *lib.Ctx {
 		ComputePeriods:      in.ComputePeriods,
 		ElasticURL:          in.ElasticURL,
 		UseES:               in.UseES,
+		UseESOnly:           in.UseESOnly,
 	}
 	return &out
 }
@@ -313,6 +314,7 @@ func TestInit(t *testing.T) {
 		OnlyMetrics:         map[string]bool{},
 		ElasticURL:          "http://127.0.0.1:9200",
 		UseES:               false,
+		UseESOnly:           false,
 	}
 
 	var nilRegexp *regexp.Regexp
@@ -1023,8 +1025,9 @@ func TestInit(t *testing.T) {
 		{
 			"Set ES params",
 			map[string]string{
-				"GHA2DB_ES_URL": "http://other.server:9222",
-				"GHA2DB_USE_ES": "1",
+				"GHA2DB_ES_URL":      "http://other.server:9222",
+				"GHA2DB_USE_ES":      "1",
+				"GHA2DB_USE_ES_ONLY": "y",
 			},
 			dynamicSetFields(
 				t,
@@ -1032,6 +1035,7 @@ func TestInit(t *testing.T) {
 				map[string]interface{}{
 					"ElasticURL": "http://other.server:9222",
 					"UseES":      true,
+					"UseESOnly":  true,
 				},
 			),
 		},
