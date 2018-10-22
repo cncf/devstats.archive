@@ -448,7 +448,7 @@ func calcHistogram(
 			// Drop existing data
 			table := "s" + seriesNameOrFunc
 			if lib.TableExists(sqlc, ctx, table) {
-				lib.ExecSQLWithErr(sqlc, ctx, fmt.Sprintf("delete from "+table+" where period = %s", lib.NValue(1)), intervalAbbr)
+				lib.ExecSQLWithErr(sqlc, ctx, fmt.Sprintf("delete from \""+table+"\" where period = %s", lib.NValue(1)), intervalAbbr)
 				if ctx.Debug > 0 {
 					lib.Printf("Dropped data from %s table with %s period\n", table, intervalAbbr)
 				}
@@ -605,7 +605,7 @@ func calcHistogram(
 				for series := range seriesToClear {
 					table := "s" + series
 					if lib.TableExists(sqlc, ctx, table) {
-						lib.ExecSQLWithErr(sqlc, ctx, fmt.Sprintf("delete from "+table+" where period = %s", lib.NValue(1)), intervalAbbr)
+						lib.ExecSQLWithErr(sqlc, ctx, fmt.Sprintf("delete from \""+table+"\" where period = %s", lib.NValue(1)), intervalAbbr)
 						if ctx.Debug > 0 {
 							lib.Printf("Dropped series: %s\n", series)
 						}

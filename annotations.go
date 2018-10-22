@@ -348,7 +348,7 @@ func ProcessAnnotations(ctx *Ctx, annotations *Annotations, startDate, joinDate 
 		table := "tquick_ranges"
 		column := "quick_ranges_suffix"
 		if TableExists(ic, ctx, table) && TableColumnExists(ic, ctx, table, column) {
-			ExecSQLWithErr(ic, ctx, fmt.Sprintf("delete from %s where %s like '%%_n'", table, column))
+			ExecSQLWithErr(ic, ctx, fmt.Sprintf("delete from \"%s\" where \"%s\" like '%%_n'", table, column))
 		}
 		WriteTSPoints(ctx, ic, &pts, "", nil)
 	} else if ctx.Debug > 0 {
