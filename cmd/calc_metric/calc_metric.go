@@ -301,7 +301,7 @@ func workerThread(
 		}
 	}
 	// Write the batch
-	if !ctx.SkipTSDB {
+	if !ctx.SkipTSDB && !ctx.UseESOnly {
 		lib.WriteTSPoints(ctx, sqlc, &pts, mergeSeries, mut)
 	} else if ctx.Debug > 0 {
 		lib.Printf("Skipping series write\n")
@@ -680,7 +680,7 @@ func calcHistogram(
 		}
 	}
 	// Write the batch
-	if !ctx.SkipTSDB {
+	if !ctx.SkipTSDB && !ctx.UseESOnly {
 		// Mark this metric & period as already computed if this is a QR period
 		lib.WriteTSPoints(ctx, sqlc, &pts, mergeSeries, nil)
 		if qrFrom != nil {
