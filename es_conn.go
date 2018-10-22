@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"strings"
-	"sync"
 
 	"github.com/olivere/elastic"
 )
@@ -63,8 +62,11 @@ func (es *ES) IndexExists(ctx *Ctx, indexName string) bool {
 }
 
 // CreateIndex creates index
-func (es *ES) CreateIndex(ctx *Ctx, indexName string) {
+func (es *ES) CreateIndex(ctx *Ctx, indexName string, allowExists bool) {
 	createIndex, err := es.es.CreateIndex(ESFullName(ctx, indexName)).BodyString(es.mapping).Do(es.ctx)
+	if allowExists && strings.Contains(err.Error(), "already exists") {
+		return
+	}
 	FatalOnError(err)
 	if !createIndex.Acknowledged {
 		Fatalf("index " + ESFullName(ctx, indexName) + " not created")
@@ -128,11 +130,10 @@ func (es *ES) ExecuteBulk(bulk *elastic.BulkService) {
 		}
 		Fatalf("bulk failed: %+v\n", failedResults)
 	}
-	// TODO: check more details why bulk failed
 }
 
 // WriteESPoints write batch of points to postgresql
-func (es *ES) WriteESPoints(ctx *Ctx, pts *TSPoints, mergeS string, mut *sync.Mutex) {
+func (es *ES) WriteESPoints(ctx *Ctx, pts *TSPoints, mergeS string, allowExists bool) {
 	npts := len(*pts)
 	if ctx.Debug > 0 {
 		Printf("WriteESPoints: writing %d points\n", len(*pts))
@@ -195,10 +196,6 @@ func (es *ES) WriteESPoints(ctx *Ctx, pts *TSPoints, mergeS string, mut *sync.Mu
 		Printf("%d fields:\n%+v\n", len(fields), fields)
 	}
 	// Only used when multiple threads are writing the same series
-	if mut != nil {
-		mut.Lock()
-	}
-	// Tags
 	for name, data := range tags {
 		if len(data) == 0 {
 			continue
@@ -206,14 +203,14 @@ func (es *ES) WriteESPoints(ctx *Ctx, pts *TSPoints, mergeS string, mut *sync.Mu
 		tname := "t" + name
 		exists := es.IndexExists(ctx, tname)
 		if !exists {
-			es.CreateIndex(ctx, tname)
+			es.CreateIndex(ctx, tname, false)
 		}
 	}
 	// Fields
 	if merge {
 		exists := es.IndexExists(ctx, mergeS)
 		if !exists {
-			es.CreateIndex(ctx, mergeS)
+			es.CreateIndex(ctx, mergeS, allowExists)
 		}
 	} else {
 		for name, data := range fields {
@@ -223,13 +220,9 @@ func (es *ES) WriteESPoints(ctx *Ctx, pts *TSPoints, mergeS string, mut *sync.Mu
 			sname := "s" + name
 			exists := es.IndexExists(ctx, sname)
 			if !exists {
-				es.CreateIndex(ctx, sname)
+				es.CreateIndex(ctx, sname, allowExists)
 			}
 		}
-	}
-	// Only used when multiple threads are writing the same series
-	if mut != nil {
-		mut.Unlock()
 	}
 	items := 0
 	bulk := es.Bulk()

@@ -361,6 +361,6 @@ func ProcessAnnotations(ctx *Ctx, annotations *Annotations, startDate, joinDate 
 		if es.IndexExists(ctx, index) {
 			es.DeleteByWildcardQuery(ctx, index, "items", "quick_ranges_suffix", "*_n")
 		}
-		es.WriteESPoints(ctx, &pts, "", nil)
+		es.WriteESPoints(ctx, &pts, "", false)
 	}
 }
