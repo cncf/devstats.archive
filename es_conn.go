@@ -3,6 +3,7 @@ package devstats
 import (
 	"context"
 	"fmt"
+	"sync"
 
 	"github.com/olivere/elastic"
 )
@@ -74,12 +75,15 @@ func (es *ES) DeleteIndex(ctx *Ctx, indexName string) {
 }
 
 // DeleteByQuery deletes data from given index & type by simple bool query
-func (es *ES) DeleteByQuery(ctx *Ctx, indexName, typeName, propName string, propValue interface{}) {
-	boolQuery := elastic.NewBoolQuery().Must(elastic.NewTermQuery(propName, propValue))
+func (es *ES) DeleteByQuery(ctx *Ctx, indexName, typeName string, propNames []string, propValues []interface{}) {
+	boolQuery := elastic.NewBoolQuery()
+	for i := range propNames {
+		boolQuery = boolQuery.Must(elastic.NewTermQuery(propNames[i], propValues[i]))
+	}
 	result, err := elastic.NewDeleteByQueryService(es.es).Index(ESFullName(ctx, indexName)).Type(typeName).Query(boolQuery).Do(es.ctx)
 	FatalOnError(err)
 	if ctx.Debug > 0 {
-		Printf("DeleteByQuery(%s, %s, %s, %+v): %+v\n", indexName, typeName, propName, propValue, result)
+		Printf("DeleteByQuery(%s, %+v, %+v, %+v): %+v\n", indexName, typeName, propNames, propValues, result)
 	}
 }
 
@@ -119,7 +123,7 @@ func (es *ES) ExecuteBulk(bulk *elastic.BulkService) {
 }
 
 // WriteESPoints write batch of points to postgresql
-func (es *ES) WriteESPoints(ctx *Ctx, pts *TSPoints, mergeS string) {
+func (es *ES) WriteESPoints(ctx *Ctx, pts *TSPoints, mergeS string, mut *sync.Mutex) {
 	npts := len(*pts)
 	if ctx.Debug > 0 {
 		Printf("WriteESPoints: writing %d points\n", len(*pts))
@@ -181,6 +185,10 @@ func (es *ES) WriteESPoints(ctx *Ctx, pts *TSPoints, mergeS string) {
 		Printf("%d tags:\n%+v\n", len(tags), tags)
 		Printf("%d fields:\n%+v\n", len(fields), fields)
 	}
+	// Only used when multiple threads are writing the same series
+	if mut != nil {
+		mut.Lock()
+	}
 	// Tags
 	for name, data := range tags {
 		if len(data) == 0 {
@@ -209,6 +217,10 @@ func (es *ES) WriteESPoints(ctx *Ctx, pts *TSPoints, mergeS string) {
 				es.CreateIndex(ctx, sname)
 			}
 		}
+	}
+	// Only used when multiple threads are writing the same series
+	if mut != nil {
+		mut.Unlock()
 	}
 	items := 0
 	bulk := es.Bulk()

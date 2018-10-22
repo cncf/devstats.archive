@@ -293,7 +293,7 @@ func workerThread(
 		lib.Printf("Skipping series write\n")
 	}
 	if ctx.UseES {
-		es.WriteESPoints(ctx, &pts, mergeSeries)
+		es.WriteESPoints(ctx, &pts, mergeSeries, mut)
 	}
 
 	// Synchronize go routine
@@ -446,20 +446,48 @@ func calcHistogram(
 	if nColumns == 2 {
 		if !ctx.SkipTSDB {
 			// Drop existing data
-			table := "s" + seriesNameOrFunc
-			if lib.TableExists(sqlc, ctx, table) {
-				lib.ExecSQLWithErr(sqlc, ctx, fmt.Sprintf("delete from "+table+" where period = %s", lib.NValue(1)), intervalAbbr)
-				if ctx.Debug > 0 {
-					lib.Printf("Dropped data from %s table with %s period\n", table, intervalAbbr)
+			if mergeSeries == "" {
+				table := "s" + seriesNameOrFunc
+				if lib.TableExists(sqlc, ctx, table) {
+					lib.ExecSQLWithErr(sqlc, ctx, fmt.Sprintf("delete from \""+table+"\" where period = %s", lib.NValue(1)), intervalAbbr)
+					if ctx.Debug > 0 {
+						lib.Printf("Dropped data from %s table with %s period\n", table, intervalAbbr)
+					}
+				}
+			} else {
+				table := "s" + mergeSeries
+				if lib.TableExists(sqlc, ctx, table) {
+					lib.ExecSQLWithErr(sqlc, ctx,
+						fmt.Sprintf(
+							"delete from \""+table+"\" where series = %s and period = %s",
+							lib.NValue(1),
+							lib.NValue(2),
+						),
+						seriesNameOrFunc,
+						intervalAbbr,
+					)
+					if ctx.Debug > 0 {
+						lib.Printf("Dropped data from %s table with %s series and %s period\n", table, seriesNameOrFunc, intervalAbbr)
+					}
 				}
 			}
 		}
 		if ctx.UseES {
-			index := lib.ESFullName(ctx, "s"+seriesNameOrFunc)
-			if es.IndexExists(ctx, index) {
-				es.DeleteByQuery(ctx, index, "items", "period", intervalAbbr)
-				if ctx.Debug > 0 {
-					lib.Printf("Dropped data from index %s with %s period\n", index, intervalAbbr)
+			if mergeSeries == "" {
+				index := lib.ESFullName(ctx, "s"+seriesNameOrFunc)
+				if es.IndexExists(ctx, index) {
+					es.DeleteByQuery(ctx, index, "items", []string{"period"}, []interface{}{intervalAbbr})
+					if ctx.Debug > 0 {
+						lib.Printf("Dropped data from index %s with %s period\n", index, intervalAbbr)
+					}
+				}
+			} else {
+				index := lib.ESFullName(ctx, "s"+mergeSeries)
+				if es.IndexExists(ctx, index) {
+					es.DeleteByQuery(ctx, index, "items", []string{"series", "period"}, []interface{}{seriesNameOrFunc, intervalAbbr})
+					if ctx.Debug > 0 {
+						lib.Printf("Dropped data from index %s with %s series and %s period\n", index, seriesNameOrFunc, intervalAbbr)
+					}
 				}
 			}
 		}
@@ -602,23 +630,55 @@ func calcHistogram(
 		lib.FatalOnError(rows.Err())
 		if len(seriesToClear) > 0 {
 			if !ctx.SkipTSDB {
-				for series := range seriesToClear {
-					table := "s" + series
+				if mergeSeries == "" {
+					for series := range seriesToClear {
+						table := "s" + series
+						if lib.TableExists(sqlc, ctx, table) {
+							lib.ExecSQLWithErr(sqlc, ctx, fmt.Sprintf("delete from \""+table+"\" where period = %s", lib.NValue(1)), intervalAbbr)
+							if ctx.Debug > 0 {
+								lib.Printf("Dropped from table %s with %s period\n", table, intervalAbbr)
+							}
+						}
+					}
+				} else {
+					table := "s" + mergeSeries
 					if lib.TableExists(sqlc, ctx, table) {
-						lib.ExecSQLWithErr(sqlc, ctx, fmt.Sprintf("delete from "+table+" where period = %s", lib.NValue(1)), intervalAbbr)
-						if ctx.Debug > 0 {
-							lib.Printf("Dropped series: %s\n", series)
+						for series := range seriesToClear {
+							lib.ExecSQLWithErr(sqlc, ctx,
+								fmt.Sprintf(
+									"delete from \""+table+"\" where series = %s and period = %s",
+									lib.NValue(1),
+									lib.NValue(2),
+								),
+								series,
+								intervalAbbr,
+							)
+							if ctx.Debug > 0 {
+								lib.Printf("Dropped from table %s with %s series and %s period\n", table, series, intervalAbbr)
+							}
 						}
 					}
 				}
 			}
 			if ctx.UseES {
-				for series := range seriesToClear {
-					index := lib.ESFullName(ctx, "s"+series)
+				if mergeSeries == "" {
+					for series := range seriesToClear {
+						index := lib.ESFullName(ctx, "s"+series)
+						if es.IndexExists(ctx, index) {
+							es.DeleteByQuery(ctx, index, "items", []string{"period"}, []interface{}{intervalAbbr})
+							if ctx.Debug > 0 {
+								lib.Printf("Dropped data from index %s with %s period\n", index, intervalAbbr)
+							}
+						}
+					}
+				} else {
+					index := lib.ESFullName(ctx, "s"+mergeSeries)
 					if es.IndexExists(ctx, index) {
-						es.DeleteByQuery(ctx, index, "items", "period", intervalAbbr)
-						if ctx.Debug > 0 {
-							lib.Printf("Dropped data from index %s with %s period\n", index, intervalAbbr)
+						for series := range seriesToClear {
+							es.DeleteByQuery(ctx, index, "items", []string{"series", "period"}, []interface{}{series, intervalAbbr})
+							if ctx.Debug > 0 {
+								lib.Printf("Dropped data from index %s with %s series and %s period\n", index, series, intervalAbbr)
+							}
 						}
 					}
 				}
@@ -636,7 +696,7 @@ func calcHistogram(
 		lib.Printf("Skipping series write\n")
 	}
 	if ctx.UseES {
-		es.WriteESPoints(ctx, &pts, mergeSeries)
+		es.WriteESPoints(ctx, &pts, mergeSeries, nil)
 	}
 }
 

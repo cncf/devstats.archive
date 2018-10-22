@@ -12,7 +12,7 @@ do
   base=${table:0:$len}
   if [ "$base" = "$2" ]
   then
-    sudo -u postgres psql $proj -c "drop table $table" || exit 1
+    sudo -u postgres psql $proj -c "drop table \"$table\"" || exit 1
     echo "dropped $table"
   fi
 done

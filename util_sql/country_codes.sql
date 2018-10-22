@@ -52,7 +52,7 @@ insert into gha_countries(code, name) values('cg', 'Congo') on conflict do nothi
 insert into gha_countries(code, name) values('cd', 'Congo, the Democratic Republic of the') on conflict do nothing;
 insert into gha_countries(code, name) values('ck', 'Cook Islands') on conflict do nothing;
 insert into gha_countries(code, name) values('cr', 'Costa Rica') on conflict do nothing;
-insert into gha_countries(code, name) values('ci', 'Côte D''ivoire') on conflict do nothing;
+insert into gha_countries(code, name) values('ci', 'Côte Divoire') on conflict do nothing;
 insert into gha_countries(code, name) values('hr', 'Croatia') on conflict do nothing;
 insert into gha_countries(code, name) values('cu', 'Cuba') on conflict do nothing;
 insert into gha_countries(code, name) values('cw', 'Curaçao') on conflict do nothing;
@@ -115,11 +115,11 @@ insert into gha_countries(code, name) values('jo', 'Jordan') on conflict do noth
 insert into gha_countries(code, name) values('kz', 'Kazakhstan') on conflict do nothing;
 insert into gha_countries(code, name) values('ke', 'Kenya') on conflict do nothing;
 insert into gha_countries(code, name) values('ki', 'Kiribati') on conflict do nothing;
-insert into gha_countries(code, name) values('kp', 'Korea, Democratic People''s Republic of') on conflict do nothing;
+insert into gha_countries(code, name) values('kp', 'Korea, Democratic People Republic of') on conflict do nothing;
 insert into gha_countries(code, name) values('kr', 'Korea, Republic of') on conflict do nothing;
 insert into gha_countries(code, name) values('kw', 'Kuwait') on conflict do nothing;
 insert into gha_countries(code, name) values('kg', 'Kyrgyzstan') on conflict do nothing;
-insert into gha_countries(code, name) values('la', 'Lao People''s Democratic Republic') on conflict do nothing;
+insert into gha_countries(code, name) values('la', 'Lao People Democratic Republic') on conflict do nothing;
 insert into gha_countries(code, name) values('lv', 'Latvia') on conflict do nothing;
 insert into gha_countries(code, name) values('lb', 'Lebanon') on conflict do nothing;
 insert into gha_countries(code, name) values('ls', 'Lesotho') on conflict do nothing;

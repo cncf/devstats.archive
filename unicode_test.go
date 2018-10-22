@@ -28,7 +28,7 @@ func TestStripUnicode(t *testing.T) {
 	}
 }
 
-// NormalizeName - clean DB string from -, /, ., " ", trim leading and trailing space, lowercase
+// NormalizeName - clean DB string from ', ", -, /, ., " ", trim leading and trailing space, lowercase
 // Normalize Unicode characters
 func TestNormalizeName(t *testing.T) {
 	// Test cases
