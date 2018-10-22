@@ -115,9 +115,12 @@ func (es *ES) ExecuteBulk(bulk *elastic.BulkService) {
 	if actions != 0 {
 		Fatalf("bulk not all actions executed: %+v\n", actions)
 	}
-	failed := res.Failed()
-	if len(failed) > 0 {
-		Fatalf("bulk failed: %+v\n", failed)
+	failedResults := res.Failed()
+	if len(failedResults) > 0 {
+		for _, failed := range failedResults {
+			Printf("Failed: %+v: %+v\n", failed, failed.Error)
+		}
+		Fatalf("bulk failed: %+v\n", failedResults)
 	}
 	// TODO: check more details why bulk failed
 }
