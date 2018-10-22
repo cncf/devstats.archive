@@ -75,12 +75,15 @@ func (es *ES) DeleteIndex(ctx *Ctx, indexName string) {
 }
 
 // DeleteByQuery deletes data from given index & type by simple bool query
-func (es *ES) DeleteByQuery(ctx *Ctx, indexName, typeName, propName string, propValue interface{}) {
-	boolQuery := elastic.NewBoolQuery().Must(elastic.NewTermQuery(propName, propValue))
+func (es *ES) DeleteByQuery(ctx *Ctx, indexName, typeName string, propNames []string, propValues []interface{}) {
+	boolQuery := elastic.NewBoolQuery()
+	for i := range propNames {
+		boolQuery = boolQuery.Must(elastic.NewTermQuery(propNames[i], propValues[i]))
+	}
 	result, err := elastic.NewDeleteByQueryService(es.es).Index(ESFullName(ctx, indexName)).Type(typeName).Query(boolQuery).Do(es.ctx)
 	FatalOnError(err)
 	if ctx.Debug > 0 {
-		Printf("DeleteByQuery(%s, %s, %s, %+v): %+v\n", indexName, typeName, propName, propValue, result)
+		Printf("DeleteByQuery(%s, %+v, %+v, %+v): %+v\n", indexName, typeName, propNames, propValues, result)
 	}
 }
 
