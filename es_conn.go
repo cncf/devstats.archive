@@ -3,6 +3,7 @@ package devstats
 import (
 	"context"
 	"fmt"
+	"sync"
 
 	"github.com/olivere/elastic"
 )
@@ -119,7 +120,7 @@ func (es *ES) ExecuteBulk(bulk *elastic.BulkService) {
 }
 
 // WriteESPoints write batch of points to postgresql
-func (es *ES) WriteESPoints(ctx *Ctx, pts *TSPoints, mergeS string) {
+func (es *ES) WriteESPoints(ctx *Ctx, pts *TSPoints, mergeS string, mut *sync.Mutex) {
 	npts := len(*pts)
 	if ctx.Debug > 0 {
 		Printf("WriteESPoints: writing %d points\n", len(*pts))
@@ -181,6 +182,10 @@ func (es *ES) WriteESPoints(ctx *Ctx, pts *TSPoints, mergeS string) {
 		Printf("%d tags:\n%+v\n", len(tags), tags)
 		Printf("%d fields:\n%+v\n", len(fields), fields)
 	}
+	// Only used when multiple threads are writing the same series
+	if mut != nil {
+		mut.Lock()
+	}
 	// Tags
 	for name, data := range tags {
 		if len(data) == 0 {
@@ -209,6 +214,10 @@ func (es *ES) WriteESPoints(ctx *Ctx, pts *TSPoints, mergeS string) {
 				es.CreateIndex(ctx, sname)
 			}
 		}
+	}
+	// Only used when multiple threads are writing the same series
+	if mut != nil {
+		mut.Unlock()
 	}
 	items := 0
 	bulk := es.Bulk()
