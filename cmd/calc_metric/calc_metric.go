@@ -128,10 +128,22 @@ func roundF2I(val float64) int {
 	return int(val + 0.5)
 }
 
+func mergeESSeriesName(mergeSeries, sqlFile string) string {
+	if mergeSeries != "" {
+		return "s" + mergeSeries
+	}
+	ary := strings.Split(sqlFile, "/")
+	l := len(ary)
+	s := ary[l-1]
+	ary = strings.Split(s, ".")
+	s = strings.TrimSpace(ary[0])
+	return "s" + s
+}
+
 func workerThread(
 	ch chan bool,
 	ctx *lib.Ctx,
-	seriesNameOrFunc, sqlQueryOrig, excludeBots, period, desc, mergeSeries string,
+	seriesNameOrFunc, sqlFile, sqlQueryOrig, excludeBots, period, desc, mergeSeries string,
 	multivalue, escapeValueName bool,
 	nIntervals int,
 	dtAry, fromAry, toAry []time.Time,
@@ -143,8 +155,10 @@ func workerThread(
 
 	// Optional ElasticSearch output
 	var es *lib.ES
+	mergeSeriesES := ""
 	if ctx.UseES {
 		es = lib.ESConn(ctx)
+		mergeSeriesES = mergeESSeriesName(mergeSeries, sqlFile)
 	}
 
 	// Get BatchPoints
@@ -293,7 +307,7 @@ func workerThread(
 		lib.Printf("Skipping series write\n")
 	}
 	if ctx.UseES {
-		es.WriteESPoints(ctx, &pts, mergeSeries, mut)
+		es.WriteESPoints(ctx, &pts, mergeSeriesES, mut)
 	}
 
 	// Synchronize go routine
@@ -367,8 +381,10 @@ func calcHistogram(
 
 	// Optional ElasticSearch output
 	var es *lib.ES
+	mergeSeriesES := ""
 	if ctx.UseES {
 		es = lib.ESConn(ctx)
+		mergeSeriesES = mergeESSeriesName(mergeSeries, sqlFile)
 	}
 
 	// Get BatchPoints
@@ -473,21 +489,11 @@ func calcHistogram(
 			}
 		}
 		if ctx.UseES {
-			if mergeSeries == "" {
-				index := lib.ESFullName(ctx, "s"+seriesNameOrFunc)
-				if es.IndexExists(ctx, index) {
-					es.DeleteByQuery(ctx, index, "items", []string{"period"}, []interface{}{intervalAbbr})
-					if ctx.Debug > 0 {
-						lib.Printf("Dropped data from index %s with %s period\n", index, intervalAbbr)
-					}
-				}
-			} else {
-				index := lib.ESFullName(ctx, "s"+mergeSeries)
-				if es.IndexExists(ctx, index) {
-					es.DeleteByQuery(ctx, index, "items", []string{"series", "period"}, []interface{}{seriesNameOrFunc, intervalAbbr})
-					if ctx.Debug > 0 {
-						lib.Printf("Dropped data from index %s with %s series and %s period\n", index, seriesNameOrFunc, intervalAbbr)
-					}
+			index := lib.ESFullName(ctx, mergeSeriesES)
+			if es.IndexExists(ctx, index) {
+				es.DeleteByQuery(ctx, index, "items", []string{"series", "period"}, []interface{}{seriesNameOrFunc, intervalAbbr})
+				if ctx.Debug > 0 {
+					lib.Printf("Dropped data from index %s with %s series and %s period\n", index, seriesNameOrFunc, intervalAbbr)
 				}
 			}
 		}
@@ -661,24 +667,12 @@ func calcHistogram(
 				}
 			}
 			if ctx.UseES {
-				if mergeSeries == "" {
+				index := lib.ESFullName(ctx, mergeSeriesES)
+				if es.IndexExists(ctx, index) {
 					for series := range seriesToClear {
-						index := lib.ESFullName(ctx, "s"+series)
-						if es.IndexExists(ctx, index) {
-							es.DeleteByQuery(ctx, index, "items", []string{"period"}, []interface{}{intervalAbbr})
-							if ctx.Debug > 0 {
-								lib.Printf("Dropped data from index %s with %s period\n", index, intervalAbbr)
-							}
-						}
-					}
-				} else {
-					index := lib.ESFullName(ctx, "s"+mergeSeries)
-					if es.IndexExists(ctx, index) {
-						for series := range seriesToClear {
-							es.DeleteByQuery(ctx, index, "items", []string{"series", "period"}, []interface{}{series, intervalAbbr})
-							if ctx.Debug > 0 {
-								lib.Printf("Dropped data from index %s with %s series and %s period\n", index, series, intervalAbbr)
-							}
+						es.DeleteByQuery(ctx, index, "items", []string{"series", "period"}, []interface{}{series, intervalAbbr})
+						if ctx.Debug > 0 {
+							lib.Printf("Dropped data from index %s with %s series and %s period\n", index, series, intervalAbbr)
 						}
 					}
 				}
@@ -696,7 +690,7 @@ func calcHistogram(
 		lib.Printf("Skipping series write\n")
 	}
 	if ctx.UseES {
-		es.WriteESPoints(ctx, &pts, mergeSeries, nil)
+		es.WriteESPoints(ctx, &pts, mergeSeriesES, nil)
 	}
 }
 
@@ -803,6 +797,7 @@ func calcMetric(
 				ch,
 				&ctx,
 				seriesNameOrFunc,
+				sqlFile,
 				sqlQuery,
 				excludeBots,
 				intervalAbbr,
@@ -829,6 +824,7 @@ func calcMetric(
 				nil,
 				&ctx,
 				seriesNameOrFunc,
+				sqlFile,
 				sqlQuery,
 				excludeBots,
 				intervalAbbr,
