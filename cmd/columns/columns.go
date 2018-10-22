@@ -26,6 +26,11 @@ func ensureColumns() {
 	var ctx lib.Ctx
 	ctx.Init()
 
+  // If skip TSDB or only ES output - nothing to do
+  if ctx.SkipTSDB || ctx.UseESOnly {
+    return
+  }
+
 	// Connect to Postgres DB
 	con := lib.PgConn(&ctx)
 	defer func() { lib.FatalOnError(con.Close()) }()
