@@ -3,6 +3,7 @@ package devstats
 import (
 	"context"
 	"fmt"
+	"strings"
 	"sync"
 
 	"github.com/olivere/elastic"
@@ -46,7 +47,12 @@ func ESConn(ctx *Ctx) *ES {
 
 // ESFullName must use DB name + table name as index name - ES is flat
 func ESFullName(ctx *Ctx, name string) string {
-	return ctx.Project + "_" + name
+	return "d_" + ctx.Project + "_" + name
+}
+
+// ESEscapeFieldName escape characters non allowed in ES field names
+func ESEscapeFieldName(fieldName string) string {
+	return strings.Replace(fieldName, ".", "", -1)
 }
 
 // IndexExists checks if a given index exists
@@ -232,7 +238,7 @@ func (es *ES) WriteESPoints(ctx *Ctx, pts *TSPoints, mergeS string, mut *sync.Mu
 			obj := make(map[string]interface{})
 			obj["time"] = ToESDate(p.t)
 			for tagName, tagValue := range p.tags {
-				obj[tagName] = tagValue
+				obj[ESEscapeFieldName(tagName)] = tagValue
 			}
 			AddBulkItem(ctx, bulk, "t"+p.name, "items", obj)
 			items++
@@ -242,7 +248,7 @@ func (es *ES) WriteESPoints(ctx *Ctx, pts *TSPoints, mergeS string, mut *sync.Mu
 			obj["time"] = ToESDate(p.t)
 			obj["period"] = p.period
 			for fieldName, fieldValue := range p.fields {
-				obj[fieldName] = fieldValue
+				obj[ESEscapeFieldName(fieldName)] = fieldValue
 			}
 			AddBulkItem(ctx, bulk, "s"+p.name, "items", obj)
 			items++
@@ -253,7 +259,7 @@ func (es *ES) WriteESPoints(ctx *Ctx, pts *TSPoints, mergeS string, mut *sync.Mu
 			obj["period"] = p.period
 			obj["series"] = p.name
 			for fieldName, fieldValue := range p.fields {
-				obj[fieldName] = fieldValue
+				obj[ESEscapeFieldName(fieldName)] = fieldValue
 			}
 			AddBulkItem(ctx, bulk, mergeS, "items", obj)
 			items++
