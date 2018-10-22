@@ -130,14 +130,14 @@ func roundF2I(val float64) int {
 
 func mergeESSeriesName(mergeSeries, sqlFile string) string {
 	if mergeSeries != "" {
-		return "s" + mergeSeries
+		return mergeSeries
 	}
 	ary := strings.Split(sqlFile, "/")
 	l := len(ary)
-	s := ary[l-1]
-	ary = strings.Split(s, ".")
-	s = strings.TrimSpace(ary[0])
-	return "s" + s
+	series := ary[l-1]
+	ary = strings.Split(series, ".")
+	series = strings.TrimSpace(ary[0])
+	return series
 }
 
 func workerThread(
