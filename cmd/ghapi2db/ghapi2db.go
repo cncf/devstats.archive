@@ -273,10 +273,16 @@ func processCommit(c *sql.DB, ctx *lib.Ctx, commit *github.RepositoryCommit, may
 			cols = append(cols, "committer_id="+lib.NValue(nVal))
 			vals = append(vals, committerID)
 			nVal++
+			cols = append(cols, "dup_committer_login="+lib.NValue(nVal))
+			vals = append(vals, maybeHide(committerLogin))
+			nVal++
 		}
 		if authorLogin != "" {
 			cols = append(cols, "author_id="+lib.NValue(nVal))
 			vals = append(vals, authorID)
+			nVal++
+			cols = append(cols, "dup_author_login="+lib.NValue(nVal))
+			vals = append(vals, maybeHide(authorLogin))
 			nVal++
 		}
 		vals = append(vals, sha)

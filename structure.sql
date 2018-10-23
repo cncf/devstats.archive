@@ -578,7 +578,9 @@ CREATE TABLE public.gha_commits (
     committer_name character varying(160) DEFAULT ''::character varying NOT NULL,
     committer_email character varying(160) DEFAULT ''::character varying NOT NULL,
     author_id bigint,
-    committer_id bigint
+    committer_id bigint,
+    dup_author_login character varying(120),
+    dup_committer_login character varying(120)
 );
 
 
@@ -1143,7 +1145,7 @@ COPY public.gha_comments (id, event_id, body, created_at, updated_at, user_id, c
 -- Data for Name: gha_commits; Type: TABLE DATA; Schema: public; Owner: gha_admin
 --
 
-COPY public.gha_commits (sha, event_id, author_name, message, is_distinct, dup_actor_id, dup_actor_login, dup_repo_id, dup_repo_name, dup_type, dup_created_at, encrypted_email, author_email, committer_name, committer_email, author_id, committer_id) FROM stdin;
+COPY public.gha_commits (sha, event_id, author_name, message, is_distinct, dup_actor_id, dup_actor_login, dup_repo_id, dup_repo_name, dup_type, dup_created_at, encrypted_email, author_email, committer_name, committer_email, author_id, committer_id, dup_author_login, dup_committer_login) FROM stdin;
 \.
 
 
@@ -1230,7 +1232,7 @@ cg	Congo
 cd	Congo, the Democratic Republic of the
 ck	Cook Islands
 cr	Costa Rica
-ci	Côte D'ivoire
+ci	Côte Divoire
 hr	Croatia
 cu	Cuba
 cw	Curaçao
@@ -1293,11 +1295,11 @@ jo	Jordan
 kz	Kazakhstan
 ke	Kenya
 ki	Kiribati
-kp	Korea, Democratic People's Republic of
+kp	Korea, Democratic People Republic of
 kr	Korea, Republic of
 kw	Kuwait
 kg	Kyrgyzstan
-la	Lao People's Democratic Republic
+la	Lao People Democratic Republic
 lv	Latvia
 lb	Lebanon
 ls	Lesotho
@@ -2442,6 +2444,20 @@ CREATE INDEX commits_dup_actor_id_idx ON public.gha_commits USING btree (dup_act
 --
 
 CREATE INDEX commits_dup_actor_login_idx ON public.gha_commits USING btree (dup_actor_login);
+
+
+--
+-- Name: commits_dup_author_login_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX commits_dup_author_login_idx ON public.gha_commits USING btree (dup_author_login);
+
+
+--
+-- Name: commits_dup_committer_login_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX commits_dup_committer_login_idx ON public.gha_commits USING btree (dup_committer_login);
 
 
 --
