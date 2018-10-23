@@ -31,7 +31,11 @@ func HashObject(iv map[string]interface{}, keys []string) string {
 	h := fnv.New64a()
 	s := ""
 	for _, key := range keys {
-		s += fmt.Sprintf("%v", iv[key])
+		v, ok := iv[key]
+		if !ok {
+			Fatalf("HashObject: %+v missing %s key", iv, key)
+		}
+		s += fmt.Sprintf("%v", v)
 	}
 	_, _ = h.Write([]byte(s))
 	return strconv.FormatUint(h.Sum64(), 36)
