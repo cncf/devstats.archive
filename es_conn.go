@@ -110,7 +110,7 @@ func (es *ES) DeleteByWildcardQuery(ctx *Ctx, propName, propQuery string) {
 		}
 		return
 	}
-  // FIXME: 'elastic: Error 409 (Conflict)'
+	// FIXME: 'elastic: Error 409 (Conflict)'
 	FatalOnError(err)
 	if ctx.Debug > 0 {
 		Printf("DeleteByWildcardQuery(%s, %s): %+v\n", propName, propQuery, result)
