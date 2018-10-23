@@ -1,7 +1,9 @@
 package devstats
 
 import (
+	"fmt"
 	"hash/fnv"
+	"strconv"
 )
 
 // HashStrings - returns unique Hash for strings array
@@ -21,4 +23,16 @@ func HashStrings(strs []string) int {
 		return HashStrings(append(strs, "a"))
 	}
 	return res
+}
+
+// HashObject takes map[string]interface{} and keys from []string and returns hash string
+// from given keys from map
+func HashObject(iv map[string]interface{}, keys []string) string {
+	h := fnv.New64a()
+	s := ""
+	for _, key := range keys {
+		s += fmt.Sprintf("%v", iv[key])
+	}
+	_, _ = h.Write([]byte(s))
+	return strconv.FormatUint(h.Sum64(), 36)
 }
