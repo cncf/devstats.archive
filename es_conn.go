@@ -215,7 +215,7 @@ func (es *ES) WriteESPoints(ctx *Ctx, pts *TSPoints, mergeS string) {
 				obj["tag_time"] = ToESDate(p.t)
 				obj["iname"] = tagName
 				obj["ivalue"] = tagValue
-				AddBulksItems(ctx, bulkDel, bulkAdd, obj, []string{"type", "tag_time", "name"})
+				AddBulksItems(ctx, bulkDel, bulkAdd, obj, []string{"type", "tag_time", "iname"})
 			}
 			/**/
 			items++
@@ -242,7 +242,7 @@ func (es *ES) WriteESPoints(ctx *Ctx, pts *TSPoints, mergeS string) {
 				obj["time_added"] = ToESDate(p.added)
 				obj["iname"] = fieldName
 				obj["ivalue"] = fieldValue
-				AddBulksItems(ctx, bulkDel, bulkAdd, obj, []string{"type", "time", "period", "name"})
+				AddBulksItems(ctx, bulkDel, bulkAdd, obj, []string{"type", "time", "period", "iname"})
 			}
 			/**/
 			items++
@@ -271,7 +271,7 @@ func (es *ES) WriteESPoints(ctx *Ctx, pts *TSPoints, mergeS string) {
 				obj["time_added"] = ToESDate(p.added)
 				obj["iname"] = fieldName
 				obj["ivalue"] = fieldValue
-				AddBulksItems(ctx, bulkDel, bulkAdd, obj, []string{"type", "time", "period", "series", "name"})
+				AddBulksItems(ctx, bulkDel, bulkAdd, obj, []string{"type", "time", "period", "series", "iname"})
 			}
 			/**/
 			items++
