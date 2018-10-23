@@ -207,17 +207,17 @@ func (es *ES) WriteESPoints(ctx *Ctx, pts *TSPoints, mergeS string) {
 			}
 			obj["data"] = data
 			AddBulksItems(ctx, bulkDel, bulkAdd, obj, []string{"type", "tag_time"})
-			/*
-				      for tagName, tagValue := range p.tags {
-								obj := make(map[string]interface{})
-								obj["type"] = "it" + p.name
-								obj["time"] = ToESDate(p.added)
-								obj["tag_time"] = ToESDate(p.t)
-								obj["name"] = tagName
-								obj["value"] = tagValue
-								AddBulksItems(ctx, bulkDel, bulkAdd, obj, []string{"type", "tag_time", "name"})
-							}
-			*/
+			/**/
+			for tagName, tagValue := range p.tags {
+				obj := make(map[string]interface{})
+				obj["type"] = "it" + p.name
+				obj["time"] = ToESDate(p.added)
+				obj["tag_time"] = ToESDate(p.t)
+				obj["iname"] = tagName
+				obj["ivalue"] = tagValue
+				AddBulksItems(ctx, bulkDel, bulkAdd, obj, []string{"type", "tag_time", "name"})
+			}
+			/**/
 			items++
 		}
 		if p.fields != nil && !merge {
@@ -233,18 +233,18 @@ func (es *ES) WriteESPoints(ctx *Ctx, pts *TSPoints, mergeS string) {
 			}
 			obj["data"] = data
 			AddBulksItems(ctx, bulkDel, bulkAdd, obj, []string{"type", "time", "period"})
-			/*
-				      for fieldName, fieldValue := range p.fields {
-								obj := make(map[string]interface{})
-								obj["type"] = "is" + p.name
-								obj["time"] = ToESDate(p.t)
-								obj["period"] = p.period
-								obj["time_added"] = ToESDate(p.added)
-								obj["name"] = fieldName
-								obj["value"] = fieldValue
-								AddBulksItems(ctx, bulkDel, bulkAdd, obj, []string{"type", "time", "period", "name"})
-							}
-			*/
+			/**/
+			for fieldName, fieldValue := range p.fields {
+				obj := make(map[string]interface{})
+				obj["type"] = "is" + p.name
+				obj["time"] = ToESDate(p.t)
+				obj["period"] = p.period
+				obj["time_added"] = ToESDate(p.added)
+				obj["iname"] = fieldName
+				obj["ivalue"] = fieldValue
+				AddBulksItems(ctx, bulkDel, bulkAdd, obj, []string{"type", "time", "period", "name"})
+			}
+			/**/
 			items++
 		}
 		if p.fields != nil && merge {
@@ -261,19 +261,19 @@ func (es *ES) WriteESPoints(ctx *Ctx, pts *TSPoints, mergeS string) {
 			}
 			obj["data"] = data
 			AddBulksItems(ctx, bulkDel, bulkAdd, obj, []string{"type", "time", "period", "series"})
-			/*
-				      for fieldName, fieldValue := range p.fields {
-								obj := make(map[string]interface{})
-								obj["type"] = "i" + mergeS
-								obj["time"] = ToESDate(p.t)
-								obj["period"] = p.period
-								obj["series"] = p.name
-								obj["time_added"] = ToESDate(p.added)
-								obj["name"] = fieldName
-								obj["value"] = fieldValue
-								AddBulksItems(ctx, bulkDel, bulkAdd, obj, []string{"type", "time", "period", "series", "name"})
-							}
-			*/
+			/**/
+			for fieldName, fieldValue := range p.fields {
+				obj := make(map[string]interface{})
+				obj["type"] = "i" + mergeS
+				obj["time"] = ToESDate(p.t)
+				obj["period"] = p.period
+				obj["series"] = p.name
+				obj["time_added"] = ToESDate(p.added)
+				obj["iname"] = fieldName
+				obj["ivalue"] = fieldValue
+				AddBulksItems(ctx, bulkDel, bulkAdd, obj, []string{"type", "time", "period", "series", "name"})
+			}
+			/**/
 			items++
 		}
 	}
