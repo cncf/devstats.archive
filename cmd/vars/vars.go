@@ -141,12 +141,12 @@ func pdbVars() {
 					&ctx,
 					"vars",
 					"",
-					nil,
-					map[string]interface{}{
+					map[string]string{
 						"vtype":  va.Type,
 						"vname":  va.Name,
 						"vvalue": va.Value,
 					},
+					nil,
 					tm,
 				),
 			)
@@ -184,7 +184,7 @@ func pdbVars() {
 	// Output to ElasticSearch
 	if ctx.UseES {
 		if es.IndexExists(&ctx) {
-			es.DeleteByQuery(&ctx, []string{"type"}, []interface{}{"svars"})
+			es.DeleteByQuery(&ctx, []string{"type"}, []interface{}{"tvars"})
 		}
 		es.WriteESPoints(&ctx, &pts, "")
 	}

@@ -1,0 +1,2 @@
+#!/bin/bash
+clear; ONLY=cncf GHA2DB_USE_ES_ONLY=1 GHA2DB_USE_ES=1 GHA2DB_SKIPTSDB=1 GHA2DB_SKIPPDB=1 ./devel/vars_all.sh

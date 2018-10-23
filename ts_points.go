@@ -8,6 +8,7 @@ import (
 // TSPoint keeps single time series point
 type TSPoint struct {
 	t      time.Time
+	added  time.Time
 	period string
 	name   string
 	tags   map[string]string
@@ -20,8 +21,9 @@ type TSPoints []TSPoint
 // Str - string pretty print
 func (p *TSPoint) Str() string {
 	return fmt.Sprintf(
-		"%s %s period: %s tags: %+v fields: %+v",
+		"%s %s %s period: %s tags: %+v fields: %+v",
 		ToYMDHDate(p.t),
+		ToYMDHDate(p.added),
 		p.name,
 		p.period,
 		p.tags,
@@ -58,6 +60,7 @@ func NewTSPoint(ctx *Ctx, name, period string, tags map[string]string, fields ma
 	}
 	p := TSPoint{
 		t:      HourStart(t),
+		added:  time.Now(),
 		name:   name,
 		period: period,
 		tags:   otags,

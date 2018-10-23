@@ -35,9 +35,10 @@ func ESConn(ctx *Ctx) *ES {
 		es:  client,
 		mapping: `{"settings":{"number_of_shards":1,"number_of_replicas":0},` +
 			`"mappings":{"_doc":{` +
-			`"dynamic_templates":[{"not_analyzerd":` +
-			`{"match":"*","match_mapping_type":"string","mapping":{"type":"keyword"}}}],` +
-			`"properties":{` +
+			`"dynamic_templates":[` +
+			`{"not_analyzerd":{"match":"*","match_mapping_type":"string","mapping":{"type":"keyword"}}},` +
+			`{"numbers":{"match":"*","match_mapping_type":"long","mapping":{"type":"float"}}}` +
+			`],"properties":{` +
 			`"type":{"type":"keyword"},` +
 			`"time":{"type":"date","format":"yyyy-MM-dd HH:mm:ss"},` +
 			`"series":{"type":"keyword"},` +
@@ -109,6 +110,7 @@ func (es *ES) DeleteByWildcardQuery(ctx *Ctx, propName, propQuery string) {
 		}
 		return
 	}
+  // FIXME: 'elastic: Error 409 (Conflict)'
 	FatalOnError(err)
 	if ctx.Debug > 0 {
 		Printf("DeleteByWildcardQuery(%s, %s): %+v\n", propName, propQuery, result)
@@ -190,11 +192,12 @@ func (es *ES) WriteESPoints(ctx *Ctx, pts *TSPoints, mergeS string) {
 		if p.tags != nil {
 			obj := make(map[string]interface{})
 			obj["type"] = "t" + p.name
-			obj["time"] = ToESDate(p.t)
+			obj["time"] = ToESDate(p.added)
+			obj["tag_time"] = ToESDate(p.t)
 			for tagName, tagValue := range p.tags {
 				obj[ESEscapeFieldName(tagName)] = tagValue
 			}
-			AddBulksItems(ctx, bulkDel, bulkAdd, obj, []string{"type", "time"})
+			AddBulksItems(ctx, bulkDel, bulkAdd, obj, []string{"type", "tag_time"})
 			items++
 		}
 		if p.fields != nil && !merge {
@@ -202,6 +205,7 @@ func (es *ES) WriteESPoints(ctx *Ctx, pts *TSPoints, mergeS string) {
 			obj["type"] = "s" + p.name
 			obj["time"] = ToESDate(p.t)
 			obj["period"] = p.period
+			obj["time_added"] = ToESDate(p.added)
 			for fieldName, fieldValue := range p.fields {
 				obj[ESEscapeFieldName(fieldName)] = fieldValue
 			}
@@ -214,6 +218,7 @@ func (es *ES) WriteESPoints(ctx *Ctx, pts *TSPoints, mergeS string) {
 			obj["time"] = ToESDate(p.t)
 			obj["period"] = p.period
 			obj["series"] = p.name
+			obj["time_added"] = ToESDate(p.added)
 			for fieldName, fieldValue := range p.fields {
 				obj[ESEscapeFieldName(fieldName)] = fieldValue
 			}
