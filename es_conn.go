@@ -15,6 +15,12 @@ type ES struct {
 	mapping string
 }
 
+// ESDataObject internal JSON data for stored documents
+type ESDataObject struct {
+	Name  string      `json:"name"`
+	Value interface{} `json:"value"`
+}
+
 // ESConn Connects to ElasticSearch
 func ESConn(ctx *Ctx) *ES {
 	ctxb := context.Background()
@@ -194,10 +200,24 @@ func (es *ES) WriteESPoints(ctx *Ctx, pts *TSPoints, mergeS string) {
 			obj["type"] = "t" + p.name
 			obj["time"] = ToESDate(p.added)
 			obj["tag_time"] = ToESDate(p.t)
+			data := []ESDataObject{}
 			for tagName, tagValue := range p.tags {
 				obj[ESEscapeFieldName(tagName)] = tagValue
+				data = append(data, ESDataObject{Name: tagName, Value: tagValue})
 			}
+			obj["data"] = data
 			AddBulksItems(ctx, bulkDel, bulkAdd, obj, []string{"type", "tag_time"})
+			/*
+				      for tagName, tagValue := range p.tags {
+								obj := make(map[string]interface{})
+								obj["type"] = "it" + p.name
+								obj["time"] = ToESDate(p.added)
+								obj["tag_time"] = ToESDate(p.t)
+								obj["name"] = tagName
+								obj["value"] = tagValue
+								AddBulksItems(ctx, bulkDel, bulkAdd, obj, []string{"type", "tag_time", "name"})
+							}
+			*/
 			items++
 		}
 		if p.fields != nil && !merge {
@@ -206,10 +226,25 @@ func (es *ES) WriteESPoints(ctx *Ctx, pts *TSPoints, mergeS string) {
 			obj["time"] = ToESDate(p.t)
 			obj["period"] = p.period
 			obj["time_added"] = ToESDate(p.added)
+			data := []ESDataObject{}
 			for fieldName, fieldValue := range p.fields {
 				obj[ESEscapeFieldName(fieldName)] = fieldValue
+				data = append(data, ESDataObject{Name: fieldName, Value: fieldValue})
 			}
+			obj["data"] = data
 			AddBulksItems(ctx, bulkDel, bulkAdd, obj, []string{"type", "time", "period"})
+			/*
+				      for fieldName, fieldValue := range p.fields {
+								obj := make(map[string]interface{})
+								obj["type"] = "is" + p.name
+								obj["time"] = ToESDate(p.t)
+								obj["period"] = p.period
+								obj["time_added"] = ToESDate(p.added)
+								obj["name"] = fieldName
+								obj["value"] = fieldValue
+								AddBulksItems(ctx, bulkDel, bulkAdd, obj, []string{"type", "time", "period", "name"})
+							}
+			*/
 			items++
 		}
 		if p.fields != nil && merge {
@@ -219,10 +254,26 @@ func (es *ES) WriteESPoints(ctx *Ctx, pts *TSPoints, mergeS string) {
 			obj["period"] = p.period
 			obj["series"] = p.name
 			obj["time_added"] = ToESDate(p.added)
+			data := []ESDataObject{}
 			for fieldName, fieldValue := range p.fields {
 				obj[ESEscapeFieldName(fieldName)] = fieldValue
+				data = append(data, ESDataObject{Name: fieldName, Value: fieldValue})
 			}
+			obj["data"] = data
 			AddBulksItems(ctx, bulkDel, bulkAdd, obj, []string{"type", "time", "period", "series"})
+			/*
+				      for fieldName, fieldValue := range p.fields {
+								obj := make(map[string]interface{})
+								obj["type"] = "i" + mergeS
+								obj["time"] = ToESDate(p.t)
+								obj["period"] = p.period
+								obj["series"] = p.name
+								obj["time_added"] = ToESDate(p.added)
+								obj["name"] = fieldName
+								obj["value"] = fieldValue
+								AddBulksItems(ctx, bulkDel, bulkAdd, obj, []string{"type", "time", "period", "series", "name"})
+							}
+			*/
 			items++
 		}
 	}
