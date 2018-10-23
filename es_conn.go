@@ -50,6 +50,11 @@ func ESConn(ctx *Ctx) *ES {
 			`"series":{"type":"keyword"},` +
 			`"period":{"type":"keyword"},` +
 			`"descr":{"type":"keyword"},` +
+			`"ivalue":{"type":"double"},` +
+			`"svalue":{"type":"keyword"},` +
+			`"tvalue":{"type":"keyword"},` +
+			`"iname":{"type":"keyword"},` +
+			`"tname":{"type":"keyword"},` +
 			`"value":{"type":"double"}` +
 			`}}}}`,
 	}
@@ -213,9 +218,9 @@ func (es *ES) WriteESPoints(ctx *Ctx, pts *TSPoints, mergeS string) {
 				obj["type"] = "it" + p.name
 				obj["time"] = ToESDate(p.added)
 				obj["tag_time"] = ToESDate(p.t)
-				obj["iname"] = tagName
-				obj["ivalue"] = tagValue
-				AddBulksItems(ctx, bulkDel, bulkAdd, obj, []string{"type", "tag_time", "iname"})
+				obj["tname"] = tagName
+				obj["tvalue"] = tagValue
+				AddBulksItems(ctx, bulkDel, bulkAdd, obj, []string{"type", "tag_time", "tname"})
 			}
 			/**/
 			items++
@@ -241,7 +246,12 @@ func (es *ES) WriteESPoints(ctx *Ctx, pts *TSPoints, mergeS string) {
 				obj["period"] = p.period
 				obj["time_added"] = ToESDate(p.added)
 				obj["iname"] = fieldName
-				obj["ivalue"] = fieldValue
+				_, ok := fieldValue.(string)
+				if !ok {
+					obj["ivalue"] = fieldValue
+				} else {
+					obj["svalue"] = fieldValue
+				}
 				AddBulksItems(ctx, bulkDel, bulkAdd, obj, []string{"type", "time", "period", "iname"})
 			}
 			/**/
@@ -270,7 +280,12 @@ func (es *ES) WriteESPoints(ctx *Ctx, pts *TSPoints, mergeS string) {
 				obj["series"] = p.name
 				obj["time_added"] = ToESDate(p.added)
 				obj["iname"] = fieldName
-				obj["ivalue"] = fieldValue
+				_, ok := fieldValue.(string)
+				if !ok {
+					obj["ivalue"] = fieldValue
+				} else {
+					obj["svalue"] = fieldValue
+				}
 				AddBulksItems(ctx, bulkDel, bulkAdd, obj, []string{"type", "time", "period", "series", "iname"})
 			}
 			/**/
