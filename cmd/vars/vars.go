@@ -32,6 +32,16 @@ func pdbVars() {
 	var ctx lib.Ctx
 	ctx.Init()
 
+	// Batch TS points
+	var pts lib.TSPoints
+	// Optional ElasticSearch output
+	var es *lib.ES
+	var tm time.Time
+	if ctx.UseES {
+		es = lib.ESConn(&ctx)
+		tm = lib.TimeParseAny("2014-01-01")
+	}
+
 	// Connect to Postgres DB
 	c := lib.PgConn(&ctx)
 	defer func() { lib.FatalOnError(c.Close()) }()
@@ -123,6 +133,26 @@ func pdbVars() {
 		}
 		replaces[va.Name] = va.Value
 
+		if ctx.UseES {
+			lib.AddTSPoint(
+				&ctx,
+				&pts,
+				lib.NewTSPoint(
+					&ctx,
+					"vars",
+					"",
+					nil,
+					map[string]interface{}{
+						"vtype":  va.Type,
+						"vname":  va.Name,
+						"vvalue": va.Value,
+					},
+					tm,
+				),
+			)
+			tm = tm.Add(time.Hour)
+		}
+
 		if !ctx.SkipPDB {
 			// Start transaction
 			con, err := c.Begin()
@@ -149,6 +179,14 @@ func pdbVars() {
 		} else if ctx.Debug > 0 {
 			lib.Printf("Skipping postgres vars write\n")
 		}
+	}
+
+	// Output to ElasticSearch
+	if ctx.UseES {
+		if es.IndexExists(&ctx) {
+			es.DeleteByQuery(&ctx, []string{"type"}, []interface{}{"svars"})
+		}
+		es.WriteESPoints(&ctx, &pts, "")
 	}
 }
 

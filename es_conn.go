@@ -34,8 +34,9 @@ func ESConn(ctx *Ctx) *ES {
 		ctx: ctxb,
 		es:  client,
 		mapping: `{"settings":{"number_of_shards":1,"number_of_replicas":0},` +
-			`"mappings":{"_doc":` +
-			`{"properties":{` +
+			`"mappings":{"_doc":{` +
+			`"dynamic_templates":[{"not_analyzerd":{"match":"*","match_mapping_type":"string","mapping":{"type":"keyword"}}}],` +
+			`"properties":{` +
 			`"type":{"type":"keyword"},` +
 			`"time":{"type":"date","format":"yyyy-MM-dd HH:mm:ss"},` +
 			`"series":{"type":"keyword"},` +
@@ -67,6 +68,9 @@ func (es *ES) IndexExists(ctx *Ctx) bool {
 func (es *ES) CreateIndex(ctx *Ctx) {
 	createIndex, err := es.es.CreateIndex(ESIndexName(ctx)).BodyString(es.mapping).Do(es.ctx)
 	if err != nil && strings.Contains(err.Error(), "already exists") {
+		if ctx.Debug > 0 {
+			Printf("CreateIndex: %s index already exists: %+v\n", ESIndexName(ctx), err)
+		}
 		return
 	}
 	FatalOnError(err)
@@ -82,6 +86,12 @@ func (es *ES) DeleteByQuery(ctx *Ctx, propNames []string, propValues []interface
 		boolQuery = boolQuery.Must(elastic.NewTermQuery(propNames[i], propValues[i]))
 	}
 	result, err := elastic.NewDeleteByQueryService(es.es).Index(ESIndexName(ctx)).Type("_doc").Query(boolQuery).Do(es.ctx)
+	if err != nil && strings.Contains(err.Error(), "search_phase_execution_exception") {
+		if ctx.Debug > 0 {
+			Printf("DeleteByQuery: %s index not yet ready for delete (so it doesn't have data for delete anyway): %+v\n", ESIndexName(ctx), err)
+		}
+		return
+	}
 	FatalOnError(err)
 	if ctx.Debug > 0 {
 		Printf("DeleteByQuery(%+v, %+v): %+v\n", propNames, propValues, result)
@@ -92,6 +102,12 @@ func (es *ES) DeleteByQuery(ctx *Ctx, propNames []string, propValues []interface
 func (es *ES) DeleteByWildcardQuery(ctx *Ctx, propName, propQuery string) {
 	wildcardQuery := elastic.NewWildcardQuery(propName, propQuery)
 	result, err := elastic.NewDeleteByQueryService(es.es).Index(ESIndexName(ctx)).Type("_doc").Query(wildcardQuery).Do(es.ctx)
+	if err != nil && strings.Contains(err.Error(), "search_phase_execution_exception") {
+		if ctx.Debug > 0 {
+			Printf("DeleteByWildcardQuery: %s index not yet ready for delete (so it doesn't have data for delete anyway): %+v\n", ESIndexName(ctx), err)
+		}
+		return
+	}
 	FatalOnError(err)
 	if ctx.Debug > 0 {
 		Printf("DeleteByWildcardQuery(%s, %s): %+v\n", propName, propQuery, result)
