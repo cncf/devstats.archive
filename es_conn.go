@@ -35,7 +35,8 @@ func ESConn(ctx *Ctx) *ES {
 		es:  client,
 		mapping: `{"settings":{"number_of_shards":1,"number_of_replicas":0},` +
 			`"mappings":{"_doc":{` +
-			`"dynamic_templates":[{"not_analyzerd":{"match":"*","match_mapping_type":"string","mapping":{"type":"keyword"}}}],` +
+			`"dynamic_templates":[{"not_analyzerd":` +
+			`{"match":"*","match_mapping_type":"string","mapping":{"type":"keyword"}}}],` +
 			`"properties":{` +
 			`"type":{"type":"keyword"},` +
 			`"time":{"type":"date","format":"yyyy-MM-dd HH:mm:ss"},` +
@@ -114,30 +115,52 @@ func (es *ES) DeleteByWildcardQuery(ctx *Ctx, propName, propQuery string) {
 	}
 }
 
-// Bulk request
-func (es *ES) Bulk() *elastic.BulkService {
-	return es.es.Bulk()
+// Bulks returns Delete and Add requests
+func (es *ES) Bulks() (*elastic.BulkService, *elastic.BulkService) {
+	return es.es.Bulk(), es.es.Bulk()
 }
 
-// AddBulkItem adds single item to the Bulk Request
-func AddBulkItem(ctx *Ctx, bulk *elastic.BulkService, doc map[string]interface{}) {
-	bulk.Add(elastic.NewBulkIndexRequest().Index(ESIndexName(ctx)).Type("_doc").Doc(doc))
+// AddBulksItems adds single item to the Bulk Request
+func AddBulksItems(ctx *Ctx, bulkDel, bulkAdd *elastic.BulkService, doc map[string]interface{}, keys []string) {
+	docHash := HashObject(doc, keys)
+	bulkDel.Add(elastic.NewBulkDeleteRequest().Index(ESIndexName(ctx)).Type("_doc").Id(docHash))
+	bulkAdd.Add(elastic.NewBulkIndexRequest().Index(ESIndexName(ctx)).Type("_doc").Doc(doc).Id(docHash))
 }
 
-// ExecuteBulk executes scheduled commands
-func (es *ES) ExecuteBulk(bulk *elastic.BulkService) {
-	res, err := bulk.Do(es.ctx)
+// ExecuteBulks executes scheduled commands (delete and then inserts)
+func (es *ES) ExecuteBulks(bulkDel, bulkAdd *elastic.BulkService) {
+	res, err := bulkDel.Do(es.ctx)
 	FatalOnError(err)
-	actions := bulk.NumberOfActions()
+	actions := bulkDel.NumberOfActions()
 	if actions != 0 {
-		Fatalf("bulk not all actions executed: %+v\n", actions)
+		Fatalf("bulk delete: not all actions executed: %+v\n", actions)
 	}
 	failedResults := res.Failed()
+	nFailed := len(failedResults)
 	if len(failedResults) > 0 {
 		for _, failed := range failedResults {
-			Printf("Failed: %+v: %+v\n", failed, failed.Error)
+			if strings.Contains(failed.Result, "not_found") {
+				nFailed--
+			} else {
+				Printf("Failed delete: %+v: %+v\n", failed, failed.Error)
+			}
 		}
-		Fatalf("bulk failed: %+v\n", failedResults)
+		if nFailed > 0 {
+			Fatalf("bulk delete failed: %+v\n", failedResults)
+		}
+	}
+	res, err = bulkAdd.Do(es.ctx)
+	FatalOnError(err)
+	actions = bulkAdd.NumberOfActions()
+	if actions != 0 {
+		Fatalf("bulk add not all actions executed: %+v\n", actions)
+	}
+	failedResults = res.Failed()
+	if len(failedResults) > 0 {
+		for _, failed := range failedResults {
+			Printf("Failed add: %+v: %+v\n", failed, failed.Error)
+		}
+		Fatalf("bulk failed add: %+v\n", failedResults)
 	}
 }
 
@@ -162,43 +185,43 @@ func (es *ES) WriteESPoints(ctx *Ctx, pts *TSPoints, mergeS string) {
 		es.CreateIndex(ctx)
 	}
 	items := 0
-	bulk := es.Bulk()
+	bulkDel, bulkAdd := es.Bulks()
 	for _, p := range *pts {
 		if p.tags != nil {
 			obj := make(map[string]interface{})
-			obj["time"] = ToESDate(p.t)
 			obj["type"] = "t" + p.name
+			obj["time"] = ToESDate(p.t)
 			for tagName, tagValue := range p.tags {
 				obj[ESEscapeFieldName(tagName)] = tagValue
 			}
-			AddBulkItem(ctx, bulk, obj)
+			AddBulksItems(ctx, bulkDel, bulkAdd, obj, []string{"type", "time"})
 			items++
 		}
 		if p.fields != nil && !merge {
 			obj := make(map[string]interface{})
+			obj["type"] = "s" + p.name
 			obj["time"] = ToESDate(p.t)
 			obj["period"] = p.period
-			obj["type"] = "s" + p.name
 			for fieldName, fieldValue := range p.fields {
 				obj[ESEscapeFieldName(fieldName)] = fieldValue
 			}
-			AddBulkItem(ctx, bulk, obj)
+			AddBulksItems(ctx, bulkDel, bulkAdd, obj, []string{"type", "time", "period"})
 			items++
 		}
 		if p.fields != nil && merge {
 			obj := make(map[string]interface{})
+			obj["type"] = mergeS
 			obj["time"] = ToESDate(p.t)
 			obj["period"] = p.period
 			obj["series"] = p.name
-			obj["type"] = mergeS
 			for fieldName, fieldValue := range p.fields {
 				obj[ESEscapeFieldName(fieldName)] = fieldValue
 			}
-			AddBulkItem(ctx, bulk, obj)
+			AddBulksItems(ctx, bulkDel, bulkAdd, obj, []string{"type", "time", "period", "series"})
 			items++
 		}
 	}
-	es.ExecuteBulk(bulk)
+	es.ExecuteBulks(bulkDel, bulkAdd)
 	if ctx.Debug > 0 {
 		Printf("Items: %d\n", items)
 	}
