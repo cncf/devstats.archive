@@ -72,6 +72,11 @@ func ProcessTag(con *sql.DB, es *ES, ctx *Ctx, tg *Tag, replaces [][]string) {
 			ExecSQLWithErr(con, ctx, "truncate "+table)
 		}
 	}
+	if ctx.UseES {
+		if es.IndexExists(ctx) {
+			es.DeleteByQuery(ctx, []string{"type"}, []interface{}{"t" + tg.SeriesName})
+		}
+	}
 	tm := TimeParseAny("2014-01-01")
 
 	// Columns
@@ -139,6 +144,6 @@ func ProcessTag(con *sql.DB, es *ES, ctx *Ctx, tg *Tag, replaces [][]string) {
 
 	// Output to ElasticSearch
 	if ctx.UseES {
-		es.WriteESPoints(ctx, &pts, "", false)
+		es.WriteESPoints(ctx, &pts, "")
 	}
 }

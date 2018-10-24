@@ -15,6 +15,12 @@ type ES struct {
 	mapping string
 }
 
+// ESDataObject internal JSON data for stored documents
+type ESDataObject struct {
+	Name  string      `json:"name"`
+	Value interface{} `json:"value"`
+}
+
 // ESConn Connects to ElasticSearch
 func ESConn(ctx *Ctx) *ES {
 	ctxb := context.Background()
@@ -34,19 +40,29 @@ func ESConn(ctx *Ctx) *ES {
 		ctx: ctxb,
 		es:  client,
 		mapping: `{"settings":{"number_of_shards":1,"number_of_replicas":0},` +
-			`"mappings":{"items":{"properties":{` +
-			`"time":{"type":"date","format":"yyyyMMddHH"},` +
+			`"mappings":{"_doc":{` +
+			`"dynamic_templates":[` +
+			`{"not_analyzerd":{"match":"*","match_mapping_type":"string","mapping":{"type":"keyword"}}},` +
+			`{"numbers":{"match":"*","match_mapping_type":"long","mapping":{"type":"float"}}}` +
+			`],"properties":{` +
+			`"type":{"type":"keyword"},` +
+			`"time":{"type":"date","format":"yyyy-MM-dd HH:mm:ss"},` +
 			`"series":{"type":"keyword"},` +
 			`"period":{"type":"keyword"},` +
 			`"descr":{"type":"keyword"},` +
+			`"ivalue":{"type":"double"},` +
+			`"svalue":{"type":"keyword"},` +
+			`"tvalue":{"type":"keyword"},` +
+			`"iname":{"type":"keyword"},` +
+			`"tname":{"type":"keyword"},` +
 			`"value":{"type":"double"}` +
 			`}}}}`,
 	}
 }
 
-// ESFullName must use DB name + table name as index name - ES is flat
-func ESFullName(ctx *Ctx, name string) string {
-	return "d_" + ctx.Project + "_" + name
+// ESIndexName returns ES index name "d_{{project}}" --> "d_kubernetes"
+func ESIndexName(ctx *Ctx) string {
+	return "d_" + ctx.Project
 }
 
 // ESEscapeFieldName escape characters non allowed in ES field names
@@ -54,86 +70,115 @@ func ESEscapeFieldName(fieldName string) string {
 	return strings.Replace(fieldName, ".", "", -1)
 }
 
-// IndexExists checks if a given index exists
-func (es *ES) IndexExists(ctx *Ctx, indexName string) bool {
-	exists, err := es.es.IndexExists(ESFullName(ctx, indexName)).Do(es.ctx)
+// IndexExists checks if index exists
+func (es *ES) IndexExists(ctx *Ctx) bool {
+	exists, err := es.es.IndexExists(ESIndexName(ctx)).Do(es.ctx)
 	FatalOnError(err)
 	return exists
 }
 
 // CreateIndex creates index
-func (es *ES) CreateIndex(ctx *Ctx, indexName string, allowExists bool) {
-	createIndex, err := es.es.CreateIndex(ESFullName(ctx, indexName)).BodyString(es.mapping).Do(es.ctx)
-	if allowExists && strings.Contains(err.Error(), "already exists") {
+func (es *ES) CreateIndex(ctx *Ctx) {
+	createIndex, err := es.es.CreateIndex(ESIndexName(ctx)).BodyString(es.mapping).Do(es.ctx)
+	if err != nil && strings.Contains(err.Error(), "already exists") {
+		if ctx.Debug > 0 {
+			Printf("CreateIndex: %s index already exists: %+v\n", ESIndexName(ctx), err)
+		}
 		return
 	}
 	FatalOnError(err)
 	if !createIndex.Acknowledged {
-		Fatalf("index " + ESFullName(ctx, indexName) + " not created")
-	}
-}
-
-// DeleteIndex creates index
-func (es *ES) DeleteIndex(ctx *Ctx, indexName string) {
-	deleteIndex, err := es.es.DeleteIndex(ESFullName(ctx, indexName)).Do(es.ctx)
-	FatalOnError(err)
-	if !deleteIndex.Acknowledged {
-		Fatalf("index " + ESFullName(ctx, indexName) + " not deleted")
+		Fatalf("index " + ESIndexName(ctx) + " not created")
 	}
 }
 
 // DeleteByQuery deletes data from given index & type by simple bool query
-func (es *ES) DeleteByQuery(ctx *Ctx, indexName, typeName string, propNames []string, propValues []interface{}) {
+func (es *ES) DeleteByQuery(ctx *Ctx, propNames []string, propValues []interface{}) {
 	boolQuery := elastic.NewBoolQuery()
 	for i := range propNames {
 		boolQuery = boolQuery.Must(elastic.NewTermQuery(propNames[i], propValues[i]))
 	}
-	result, err := elastic.NewDeleteByQueryService(es.es).Index(ESFullName(ctx, indexName)).Type(typeName).Query(boolQuery).Do(es.ctx)
+	result, err := elastic.NewDeleteByQueryService(es.es).Index(ESIndexName(ctx)).Type("_doc").Query(boolQuery).Do(es.ctx)
+	if err != nil && strings.Contains(err.Error(), "search_phase_execution_exception") {
+		if ctx.Debug > 0 {
+			Printf("DeleteByQuery: %s index not yet ready for delete (so it doesn't have data for delete anyway): %+v\n", ESIndexName(ctx), err)
+		}
+		return
+	}
 	FatalOnError(err)
 	if ctx.Debug > 0 {
-		Printf("DeleteByQuery(%s, %+v, %+v, %+v): %+v\n", indexName, typeName, propNames, propValues, result)
+		Printf("DeleteByQuery(%+v, %+v): %+v\n", propNames, propValues, result)
 	}
 }
 
 // DeleteByWildcardQuery deletes data from given index & type by using wildcard query
-func (es *ES) DeleteByWildcardQuery(ctx *Ctx, indexName, typeName, propName, propQuery string) {
+func (es *ES) DeleteByWildcardQuery(ctx *Ctx, propName, propQuery string) {
 	wildcardQuery := elastic.NewWildcardQuery(propName, propQuery)
-	result, err := elastic.NewDeleteByQueryService(es.es).Index(ESFullName(ctx, indexName)).Type(typeName).Query(wildcardQuery).Do(es.ctx)
+	result, err := elastic.NewDeleteByQueryService(es.es).Index(ESIndexName(ctx)).Type("_doc").Query(wildcardQuery).Do(es.ctx)
+	if err != nil && strings.Contains(err.Error(), "search_phase_execution_exception") {
+		if ctx.Debug > 0 {
+			Printf("DeleteByWildcardQuery: %s index not yet ready for delete (so it doesn't have data for delete anyway): %+v\n", ESIndexName(ctx), err)
+		}
+		return
+	}
+	// FIXME: 'elastic: Error 409 (Conflict)'
 	FatalOnError(err)
 	if ctx.Debug > 0 {
-		Printf("DeleteByWildcardQuery(%s, %s, %s, %s): %+v\n", indexName, typeName, propName, propQuery, result)
+		Printf("DeleteByWildcardQuery(%s, %s): %+v\n", propName, propQuery, result)
 	}
 }
 
-// Bulk request
-func (es *ES) Bulk() *elastic.BulkService {
-	return es.es.Bulk()
+// Bulks returns Delete and Add requests
+func (es *ES) Bulks() (*elastic.BulkService, *elastic.BulkService) {
+	return es.es.Bulk(), es.es.Bulk()
 }
 
-// AddBulkItem adds single item to the Bulk Request
-func AddBulkItem(ctx *Ctx, bulk *elastic.BulkService, indexName, typeName string, doc map[string]interface{}) {
-	bulk.Add(elastic.NewBulkIndexRequest().Index(ESFullName(ctx, indexName)).Type(typeName).Doc(doc))
+// AddBulksItems adds single item to the Bulk Request
+func AddBulksItems(ctx *Ctx, bulkDel, bulkAdd *elastic.BulkService, doc map[string]interface{}, keys []string) {
+	docHash := HashObject(doc, keys)
+	bulkDel.Add(elastic.NewBulkDeleteRequest().Index(ESIndexName(ctx)).Type("_doc").Id(docHash))
+	bulkAdd.Add(elastic.NewBulkIndexRequest().Index(ESIndexName(ctx)).Type("_doc").Doc(doc).Id(docHash))
 }
 
-// ExecuteBulk executes scheduled commands
-func (es *ES) ExecuteBulk(bulk *elastic.BulkService) {
-	res, err := bulk.Do(es.ctx)
+// ExecuteBulks executes scheduled commands (delete and then inserts)
+func (es *ES) ExecuteBulks(bulkDel, bulkAdd *elastic.BulkService) {
+	res, err := bulkDel.Do(es.ctx)
 	FatalOnError(err)
-	actions := bulk.NumberOfActions()
+	actions := bulkDel.NumberOfActions()
 	if actions != 0 {
-		Fatalf("bulk not all actions executed: %+v\n", actions)
+		Fatalf("bulk delete: not all actions executed: %+v\n", actions)
 	}
 	failedResults := res.Failed()
+	nFailed := len(failedResults)
 	if len(failedResults) > 0 {
 		for _, failed := range failedResults {
-			Printf("Failed: %+v: %+v\n", failed, failed.Error)
+			if strings.Contains(failed.Result, "not_found") {
+				nFailed--
+			} else {
+				Printf("Failed delete: %+v: %+v\n", failed, failed.Error)
+			}
 		}
-		Fatalf("bulk failed: %+v\n", failedResults)
+		if nFailed > 0 {
+			Fatalf("bulk delete failed: %+v\n", failedResults)
+		}
+	}
+	res, err = bulkAdd.Do(es.ctx)
+	FatalOnError(err)
+	actions = bulkAdd.NumberOfActions()
+	if actions != 0 {
+		Fatalf("bulk add not all actions executed: %+v\n", actions)
+	}
+	failedResults = res.Failed()
+	if len(failedResults) > 0 {
+		for _, failed := range failedResults {
+			Printf("Failed add: %+v: %+v\n", failed, failed.Error)
+		}
+		Fatalf("bulk failed add: %+v\n", failedResults)
 	}
 }
 
 // WriteESPoints write batch of points to postgresql
-func (es *ES) WriteESPoints(ctx *Ctx, pts *TSPoints, mergeS string, allowExists bool) {
+func (es *ES) WriteESPoints(ctx *Ctx, pts *TSPoints, mergeS string) {
 	npts := len(*pts)
 	if ctx.Debug > 0 {
 		Printf("WriteESPoints: writing %d points\n", len(*pts))
@@ -147,118 +192,107 @@ func (es *ES) WriteESPoints(ctx *Ctx, pts *TSPoints, mergeS string, allowExists 
 		mergeS = "s" + mergeS
 		merge = true
 	}
-	tags := make(map[string]map[string]struct{})
-	fields := make(map[string]map[string]int)
-	for _, p := range *pts {
-		if p.tags != nil {
-			name := p.name
-			_, ok := tags[name]
-			if !ok {
-				tags[name] = make(map[string]struct{})
-			}
-			for tagName := range p.tags {
-				tags[name][tagName] = struct{}{}
-			}
-		}
-		if p.fields != nil {
-			name := p.name
-			_, ok := fields[name]
-			if !ok {
-				fields[name] = make(map[string]int)
-			}
-			for fieldName, fieldValue := range p.fields {
-				t, ok := fields[name][fieldName]
-				if !ok {
-					t = -1
-				}
-				ty := -1
-				switch fieldValue.(type) {
-				case float64:
-					ty = 0
-				case string:
-					ty = 1
-				default:
-					Fatalf("usupported metric value type: %+v,%T (field %s)", fieldValue, fieldValue, fieldName)
-				}
-				if t >= 0 && t != ty {
-					Fatalf(
-						"Field %s has a value %+v,%T, previous values were different type %d != %d",
-						fieldName, fieldValue, fieldValue, ty, t,
-					)
-				}
-				fields[name][fieldName] = ty
-			}
-		}
-	}
-	if ctx.Debug > 0 {
-		Printf("Merge: %v,%s\n", merge, mergeS)
-		Printf("%d tags:\n%+v\n", len(tags), tags)
-		Printf("%d fields:\n%+v\n", len(fields), fields)
-	}
-	// Only used when multiple threads are writing the same series
-	for name, data := range tags {
-		if len(data) == 0 {
-			continue
-		}
-		tname := "t" + name
-		exists := es.IndexExists(ctx, tname)
-		if !exists {
-			es.CreateIndex(ctx, tname, false)
-		}
-	}
-	// Fields
-	if merge {
-		exists := es.IndexExists(ctx, mergeS)
-		if !exists {
-			es.CreateIndex(ctx, mergeS, allowExists)
-		}
-	} else {
-		for name, data := range fields {
-			if len(data) == 0 {
-				continue
-			}
-			sname := "s" + name
-			exists := es.IndexExists(ctx, sname)
-			if !exists {
-				es.CreateIndex(ctx, sname, allowExists)
-			}
-		}
+	// Create index
+	exists := es.IndexExists(ctx)
+	if !exists {
+		es.CreateIndex(ctx)
 	}
 	items := 0
-	bulk := es.Bulk()
+	bulkDel, bulkAdd := es.Bulks()
 	for _, p := range *pts {
 		if p.tags != nil {
 			obj := make(map[string]interface{})
-			obj["time"] = ToESDate(p.t)
+			obj["type"] = "t" + p.name
+			obj["time"] = ToESDate(p.added)
+			obj["tag_time"] = ToESDate(p.t)
+			data := []ESDataObject{}
 			for tagName, tagValue := range p.tags {
 				obj[ESEscapeFieldName(tagName)] = tagValue
+				data = append(data, ESDataObject{Name: tagName, Value: tagValue})
 			}
-			AddBulkItem(ctx, bulk, "t"+p.name, "items", obj)
+			obj["data"] = data
+			AddBulksItems(ctx, bulkDel, bulkAdd, obj, []string{"type", "tag_time"})
+			/**/
+			for tagName, tagValue := range p.tags {
+				obj := make(map[string]interface{})
+				obj["type"] = "it" + p.name
+				obj["time"] = ToESDate(p.added)
+				obj["tag_time"] = ToESDate(p.t)
+				obj["tname"] = tagName
+				obj["tvalue"] = tagValue
+				AddBulksItems(ctx, bulkDel, bulkAdd, obj, []string{"type", "tag_time", "tname"})
+			}
+			/**/
 			items++
 		}
 		if p.fields != nil && !merge {
 			obj := make(map[string]interface{})
+			obj["type"] = "s" + p.name
 			obj["time"] = ToESDate(p.t)
 			obj["period"] = p.period
+			obj["time_added"] = ToESDate(p.added)
+			data := []ESDataObject{}
 			for fieldName, fieldValue := range p.fields {
 				obj[ESEscapeFieldName(fieldName)] = fieldValue
+				data = append(data, ESDataObject{Name: fieldName, Value: fieldValue})
 			}
-			AddBulkItem(ctx, bulk, "s"+p.name, "items", obj)
+			obj["data"] = data
+			AddBulksItems(ctx, bulkDel, bulkAdd, obj, []string{"type", "time", "period"})
+			/**/
+			for fieldName, fieldValue := range p.fields {
+				obj := make(map[string]interface{})
+				obj["type"] = "is" + p.name
+				obj["time"] = ToESDate(p.t)
+				obj["period"] = p.period
+				obj["time_added"] = ToESDate(p.added)
+				obj["iname"] = fieldName
+				_, ok := fieldValue.(string)
+				if !ok {
+					obj["ivalue"] = fieldValue
+				} else {
+					obj["svalue"] = fieldValue
+				}
+				AddBulksItems(ctx, bulkDel, bulkAdd, obj, []string{"type", "time", "period", "iname"})
+			}
+			/**/
 			items++
 		}
 		if p.fields != nil && merge {
 			obj := make(map[string]interface{})
+			obj["type"] = mergeS
 			obj["time"] = ToESDate(p.t)
 			obj["period"] = p.period
 			obj["series"] = p.name
+			obj["time_added"] = ToESDate(p.added)
+			data := []ESDataObject{}
 			for fieldName, fieldValue := range p.fields {
 				obj[ESEscapeFieldName(fieldName)] = fieldValue
+				data = append(data, ESDataObject{Name: fieldName, Value: fieldValue})
 			}
-			AddBulkItem(ctx, bulk, mergeS, "items", obj)
+			obj["data"] = data
+			AddBulksItems(ctx, bulkDel, bulkAdd, obj, []string{"type", "time", "period", "series"})
+			/**/
+			for fieldName, fieldValue := range p.fields {
+				obj := make(map[string]interface{})
+				obj["type"] = "i" + mergeS
+				obj["time"] = ToESDate(p.t)
+				obj["period"] = p.period
+				obj["series"] = p.name
+				obj["time_added"] = ToESDate(p.added)
+				obj["iname"] = fieldName
+				_, ok := fieldValue.(string)
+				if !ok {
+					obj["ivalue"] = fieldValue
+				} else {
+					obj["svalue"] = fieldValue
+				}
+				AddBulksItems(ctx, bulkDel, bulkAdd, obj, []string{"type", "time", "period", "series", "iname"})
+			}
+			/**/
 			items++
 		}
 	}
-	es.ExecuteBulk(bulk)
+	es.ExecuteBulks(bulkDel, bulkAdd)
 	if ctx.Debug > 0 {
 		Printf("Items: %d\n", items)
 	}

@@ -357,10 +357,9 @@ func ProcessAnnotations(ctx *Ctx, annotations *Annotations, startDate, joinDate 
 
 	// Output to ElasticSearch
 	if ctx.UseES {
-		index := ESFullName(ctx, "quick_ranges")
-		if es.IndexExists(ctx, index) {
-			es.DeleteByWildcardQuery(ctx, index, "items", "quick_ranges_suffix", "*_n")
+		if es.IndexExists(ctx) {
+			es.DeleteByWildcardQuery(ctx, "quick_ranges_suffix", "*_n")
 		}
-		es.WriteESPoints(ctx, &pts, "", false)
+		es.WriteESPoints(ctx, &pts, "")
 	}
 }

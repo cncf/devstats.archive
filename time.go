@@ -330,7 +330,7 @@ func ToYMDHDate(dt time.Time) string {
 
 // ToESDate - return time formatted as YYYY-MM-DD HH
 func ToESDate(dt time.Time) string {
-	return fmt.Sprintf("%04d%02d%02d%02d", dt.Year(), dt.Month(), dt.Day(), dt.Hour())
+	return fmt.Sprintf("%04d-%02d-%02d %02d:00:00", dt.Year(), dt.Month(), dt.Day(), dt.Hour())
 }
 
 // DescriblePeriodInHours - return string description of a time period given in hours
