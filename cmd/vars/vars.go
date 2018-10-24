@@ -186,7 +186,7 @@ func pdbVars() {
 		if es.IndexExists(&ctx) {
 			es.DeleteByQuery(&ctx, []string{"type"}, []interface{}{"tvars"})
 		}
-		es.WriteESPoints(&ctx, &pts, "")
+		es.WriteESPoints(&ctx, &pts, "", [3]bool{true, false, false})
 	}
 }
 
