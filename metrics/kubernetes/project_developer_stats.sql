@@ -326,9 +326,13 @@ from (
   from
     gha_commits c,
     gha_actors a
-  where
-    -- (c.committer_id = a.id or c.author_id = a.id or c.dup_actor_login = a.login or c.author_login = a.login or c.committer_login = a.login)
-    (c.committer_id = a.id or c.author_id = a.id or c.dup_actor_login = a.login)
+  where (
+      c.committer_id = a.id
+      or c.author_id = a.id
+      or c.dup_actor_login = a.login
+      or c.dup_author_login = a.login
+      or c.dup_committer_login = a.login
+    )
     and {{period:c.dup_created_at}}
     and (lower(a.login) {{exclude_bots}})
     and a.country_name is not null
@@ -494,10 +498,14 @@ from (
       gha_events_commits_files ecf
     on
       ecf.event_id = c.event_id
-    where
-      r.name = c.dup_repo_name
-      -- and (c.committer_id = a.id or c.author_id = a.id or c.dup_actor_login = a.login or c.author_login = a.login or c.committer_login = a.login)
-      and (c.committer_id = a.id or c.author_id = a.id or c.dup_actor_login = a.login)
+    where (
+        c.committer_id = a.id
+        or c.author_id = a.id
+        or c.dup_actor_login = a.login
+        or c.dup_author_login = a.login
+        or c.dup_committer_login = a.login
+      )
+      and r.name = c.dup_repo_name
       and {{period:c.dup_created_at}}
       and (lower(a.login) {{exclude_bots}})
     ) sub
