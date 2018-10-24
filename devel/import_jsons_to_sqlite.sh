@@ -17,6 +17,6 @@ cp /var/lib/grafana.$GRAFANA/grafana.db ./grafana.$GRAFANA.db || exit 4
 ./sqlitedb ./grafana.$GRAFANA.db $* || exit 5
 ./devel/grafana_stop.sh $GRAFANA || exit 6
 cp ./grafana.$GRAFANA.db /var/lib/grafana.$GRAFANA/grafana.db || exit 7
-./devel/grafana_start.sh $GRAFANA || exit 8
+NOSTOP=1 ./devel/grafana_start.sh $GRAFANA || exit 8
 echo "OK, if all is fine delete grafana.$GRAFANA.db.* db backup files and *.was json backup files".
 echo "Otherwise use grafana.$GRAFANA.db.* backup file to restore previous Grafana DB."
