@@ -17,8 +17,9 @@ type ES struct {
 
 // ESDataObject internal JSON data for stored documents
 type ESDataObject struct {
-	Name  string      `json:"name"`
-	Value interface{} `json:"value"`
+	Name   string  `json:"name"`
+	IValue float64 `json:"ivalue"`
+	SValue string  `json:"svalue"`
 }
 
 // ESConn Connects to ElasticSearch
@@ -50,11 +51,11 @@ func ESConn(ctx *Ctx) *ES {
 			`"series":{"type":"keyword"},` +
 			`"period":{"type":"keyword"},` +
 			`"descr":{"type":"keyword"},` +
-			`"ivalue":{"type":"double"},` +
+			`"name":{"type":"keyword"},` +
 			`"svalue":{"type":"keyword"},` +
-			`"tvalue":{"type":"keyword"},` +
-			`"iname":{"type":"keyword"},` +
-			`"tname":{"type":"keyword"},` +
+			`"ivalue":{"type":"double"},` +
+			`"data.svalue":{"type":"keyword"},` +
+			`"data.ivalue":{"type":"double"},` +
 			`"value":{"type":"double"}` +
 			`}}}}`,
 	}
@@ -208,21 +209,19 @@ func (es *ES) WriteESPoints(ctx *Ctx, pts *TSPoints, mergeS string) {
 			data := []ESDataObject{}
 			for tagName, tagValue := range p.tags {
 				obj[ESEscapeFieldName(tagName)] = tagValue
-				data = append(data, ESDataObject{Name: tagName, Value: tagValue})
+				data = append(data, ESDataObject{Name: tagName, SValue: tagValue})
 			}
 			obj["data"] = data
 			AddBulksItems(ctx, bulkDel, bulkAdd, obj, []string{"type", "tag_time"})
-			/**/
 			for tagName, tagValue := range p.tags {
 				obj := make(map[string]interface{})
 				obj["type"] = "it" + p.name
 				obj["time"] = ToESDate(p.added)
 				obj["tag_time"] = ToESDate(p.t)
-				obj["tname"] = tagName
-				obj["tvalue"] = tagValue
-				AddBulksItems(ctx, bulkDel, bulkAdd, obj, []string{"type", "tag_time", "tname"})
+				obj["name"] = tagName
+				obj["svalue"] = tagValue
+				AddBulksItems(ctx, bulkDel, bulkAdd, obj, []string{"type", "tag_time", "name"})
 			}
-			/**/
 			items++
 		}
 		if p.fields != nil && !merge {
@@ -234,27 +233,38 @@ func (es *ES) WriteESPoints(ctx *Ctx, pts *TSPoints, mergeS string) {
 			data := []ESDataObject{}
 			for fieldName, fieldValue := range p.fields {
 				obj[ESEscapeFieldName(fieldName)] = fieldValue
-				data = append(data, ESDataObject{Name: fieldName, Value: fieldValue})
+				value, ok := fieldValue.(string)
+				if ok {
+					data = append(data, ESDataObject{Name: fieldName, SValue: value})
+				} else {
+					value, ok := GetFloatFromInterface(fieldValue)
+					if !ok {
+						Fatalf("cannot convert %+v to a number", fieldValue)
+					}
+					data = append(data, ESDataObject{Name: fieldName, IValue: value})
+				}
 			}
 			obj["data"] = data
 			AddBulksItems(ctx, bulkDel, bulkAdd, obj, []string{"type", "time", "period"})
-			/**/
 			for fieldName, fieldValue := range p.fields {
 				obj := make(map[string]interface{})
 				obj["type"] = "is" + p.name
 				obj["time"] = ToESDate(p.t)
 				obj["period"] = p.period
 				obj["time_added"] = ToESDate(p.added)
-				obj["iname"] = fieldName
-				_, ok := fieldValue.(string)
-				if !ok {
-					obj["ivalue"] = fieldValue
+				obj["name"] = fieldName
+				value, ok := fieldValue.(string)
+				if ok {
+					obj["svalue"] = value
 				} else {
-					obj["svalue"] = fieldValue
+					value, ok := GetFloatFromInterface(fieldValue)
+					if !ok {
+						Fatalf("cannot convert %+v to a number", fieldValue)
+					}
+					obj["ivalue"] = value
 				}
-				AddBulksItems(ctx, bulkDel, bulkAdd, obj, []string{"type", "time", "period", "iname"})
+				AddBulksItems(ctx, bulkDel, bulkAdd, obj, []string{"type", "time", "period", "name"})
 			}
-			/**/
 			items++
 		}
 		if p.fields != nil && merge {
@@ -267,11 +277,19 @@ func (es *ES) WriteESPoints(ctx *Ctx, pts *TSPoints, mergeS string) {
 			data := []ESDataObject{}
 			for fieldName, fieldValue := range p.fields {
 				obj[ESEscapeFieldName(fieldName)] = fieldValue
-				data = append(data, ESDataObject{Name: fieldName, Value: fieldValue})
+				value, ok := fieldValue.(string)
+				if ok {
+					data = append(data, ESDataObject{Name: fieldName, SValue: value})
+				} else {
+					value, ok := GetFloatFromInterface(fieldValue)
+					if !ok {
+						Fatalf("cannot convert %+v to a number", fieldValue)
+					}
+					data = append(data, ESDataObject{Name: fieldName, IValue: value})
+				}
 			}
 			obj["data"] = data
 			AddBulksItems(ctx, bulkDel, bulkAdd, obj, []string{"type", "time", "period", "series"})
-			/**/
 			for fieldName, fieldValue := range p.fields {
 				obj := make(map[string]interface{})
 				obj["type"] = "i" + mergeS
@@ -279,16 +297,19 @@ func (es *ES) WriteESPoints(ctx *Ctx, pts *TSPoints, mergeS string) {
 				obj["period"] = p.period
 				obj["series"] = p.name
 				obj["time_added"] = ToESDate(p.added)
-				obj["iname"] = fieldName
-				_, ok := fieldValue.(string)
-				if !ok {
-					obj["ivalue"] = fieldValue
+				obj["name"] = fieldName
+				value, ok := fieldValue.(string)
+				if ok {
+					obj["svalue"] = value
 				} else {
-					obj["svalue"] = fieldValue
+					value, ok := GetFloatFromInterface(fieldValue)
+					if !ok {
+						Fatalf("cannot convert %+v to a number", fieldValue)
+					}
+					obj["ivalue"] = value
 				}
-				AddBulksItems(ctx, bulkDel, bulkAdd, obj, []string{"type", "time", "period", "series", "iname"})
+				AddBulksItems(ctx, bulkDel, bulkAdd, obj, []string{"type", "time", "period", "series", "name"})
 			}
-			/**/
 			items++
 		}
 	}
