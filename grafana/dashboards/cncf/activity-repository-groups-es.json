@@ -11,17 +11,20 @@
         "type": "dashboard"
       },
       {
-        "datasource": "psql",
+        "datasource": "es",
         "enable": true,
         "hide": false,
         "iconColor": "rgba(255, 96, 96, 1)",
         "limit": 100,
         "name": "Releases",
-        "query": "SELECT title, description from annotations WHERE $timeFilter order by time asc",
+        "query": "type:sannotations",
         "rawQuery": "select extract(epoch from time) AS time, title as text, description as tags from sannotations where $__timeFilter(time)",
         "showIn": 0,
         "tagsColumn": "title,description",
+        "tagsField": "description",
         "textColumn": "",
+        "textField": "title",
+        "timeField": "time",
         "titleColumn": "[[full_name]] Release",
         "type": "alert"
       }
@@ -30,19 +33,19 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 34,
-  "iteration": 1529597882075,
+  "id": 66,
+  "iteration": 1540299377887,
   "links": [],
   "panels": [
     {
       "aliasColors": {},
-      "bars": true,
+      "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "psql",
+      "datasource": "es",
       "decimals": null,
       "description": "[[full_name]] GitHub activity in given repository group",
-      "fill": 3,
+      "fill": 6,
       "gridPos": {
         "h": 21,
         "w": 24,
@@ -50,6 +53,7 @@
         "y": 0
       },
       "id": 2,
+      "interval": "1h",
       "legend": {
         "alignAsTable": true,
         "avg": true,
@@ -63,7 +67,7 @@
         "total": true,
         "values": true
       },
-      "lines": false,
+      "lines": true,
       "linewidth": 0,
       "links": [],
       "nullPointMode": "null as zero",
@@ -78,13 +82,56 @@
       "targets": [
         {
           "alias": "",
+          "bucketAggs": [
+            {
+              "field": "time",
+              "id": "2",
+              "settings": {
+                "interval": "1h",
+                "min_doc_count": 1,
+                "trimEdges": 0
+              },
+              "type": "date_histogram"
+            }
+          ],
           "dsType": "influxdb",
           "format": "time_series",
           "groupBy": [],
+          "hide": false,
           "measurement": "notused",
+          "metrics": [
+            {
+              "field": "cncf/landscape",
+              "id": "1",
+              "meta": {},
+              "pipelineAgg": "select metric",
+              "settings": {
+                "missing": 0
+              },
+              "type": "avg"
+            },
+            {
+              "field": "cncf/devstats",
+              "id": "3",
+              "meta": {},
+              "settings": {
+                "missing": 0
+              },
+              "type": "avg"
+            },
+            {
+              "field": "cncf/gitdm",
+              "id": "4",
+              "meta": {},
+              "settings": {
+                "missing": 0
+              },
+              "type": "avg"
+            }
+          ],
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "SELECT /^[[repogroups]]$/ FROM \"repo_group_activity_[[period]]\" WHERE $timeFilter",
+          "query": "type:sactivity_repo_groups AND period:[[period]]",
           "rawQuery": true,
           "rawSql": "select\n  time,\n  ${repogroups:csv}\nfrom\n  sact\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\norder by\n  time",
           "refId": "A",
@@ -99,7 +146,8 @@
               }
             ]
           ],
-          "tags": []
+          "tags": [],
+          "timeField": "time"
         }
       ],
       "thresholds": [],
@@ -111,6 +159,7 @@
         "sort": 2,
         "value_type": "individual"
       },
+      "transparent": false,
       "type": "graph",
       "xaxis": {
         "buckets": null,
@@ -121,7 +170,7 @@
       },
       "yaxes": [
         {
-          "decimals": null,
+          "decimals": 0,
           "format": "short",
           "label": "GitHub activity",
           "logBase": 1,
@@ -130,6 +179,7 @@
           "show": true
         },
         {
+          "decimals": 0,
           "format": "short",
           "label": "",
           "logBase": 1,
@@ -148,7 +198,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "psql",
+      "datasource": "es",
       "decimals": null,
       "description": "[[full_name]] GitHub activity in given repository group",
       "fill": 3,
@@ -187,13 +237,54 @@
       "targets": [
         {
           "alias": "",
+          "bucketAggs": [
+            {
+              "field": "time",
+              "id": "2",
+              "settings": {
+                "interval": "1h",
+                "min_doc_count": 1,
+                "trimEdges": 0
+              },
+              "type": "date_histogram"
+            }
+          ],
           "dsType": "influxdb",
           "format": "time_series",
           "groupBy": [],
           "measurement": "notused",
+          "metrics": [
+            {
+              "field": "cncf/landscape",
+              "id": "1",
+              "meta": {},
+              "settings": {
+                "missing": 0
+              },
+              "type": "avg"
+            },
+            {
+              "field": "cncf/devstats",
+              "id": "3",
+              "meta": {},
+              "settings": {
+                "missing": 0
+              },
+              "type": "avg"
+            },
+            {
+              "field": "cncf/gitdm",
+              "id": "4",
+              "meta": {},
+              "settings": {
+                "missing": 0
+              },
+              "type": "avg"
+            }
+          ],
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "SELECT /^[[repogroups]]$/ FROM \"repo_group_activity_[[period]]\" WHERE $timeFilter",
+          "query": "type:sactivity_repo_groups AND period:[[period]]",
           "rawQuery": true,
           "rawSql": "select\n  time,\n  ${repogroups:csv}\nfrom\n  sact\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\norder by\n  time",
           "refId": "A",
@@ -208,7 +299,8 @@
               }
             ]
           ],
-          "tags": []
+          "tags": [],
+          "timeField": "time"
         }
       ],
       "thresholds": [],
@@ -257,7 +349,7 @@
       "bars": true,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "psql",
+      "datasource": "es",
       "decimals": null,
       "description": "[[full_name]] GitHub activity in given repository group",
       "fill": 3,
@@ -296,13 +388,54 @@
       "targets": [
         {
           "alias": "",
+          "bucketAggs": [
+            {
+              "field": "time",
+              "id": "2",
+              "settings": {
+                "interval": "1h",
+                "min_doc_count": 1,
+                "trimEdges": 0
+              },
+              "type": "date_histogram"
+            }
+          ],
           "dsType": "influxdb",
           "format": "time_series",
           "groupBy": [],
           "measurement": "notused",
+          "metrics": [
+            {
+              "field": "cncf/landscape",
+              "id": "3",
+              "meta": {},
+              "settings": {
+                "missing": 0
+              },
+              "type": "avg"
+            },
+            {
+              "field": "cncf/devstats",
+              "id": "4",
+              "meta": {},
+              "settings": {
+                "missing": 0
+              },
+              "type": "avg"
+            },
+            {
+              "field": "cncf/gitdm",
+              "id": "5",
+              "meta": {},
+              "settings": {
+                "missing": 0
+              },
+              "type": "avg"
+            }
+          ],
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "SELECT /^[[repogroups]]$/ FROM \"repo_group_activity_[[period]]\" WHERE $timeFilter",
+          "query": "type:sactivity_repo_groups AND period:[[period]]",
           "rawQuery": true,
           "rawSql": "select\n  time,\n  ${repogroups:csv}\nfrom\n  sact\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\norder by\n  time",
           "refId": "A",
@@ -317,7 +450,8 @@
               }
             ]
           ],
-          "tags": []
+          "tags": [],
+          "timeField": "time"
         }
       ],
       "thresholds": [],
@@ -386,16 +520,19 @@
     "list": [
       {
         "allValue": null,
-        "current": {},
-        "datasource": "psql",
+        "current": {
+          "text": "CNCF",
+          "value": "CNCF"
+        },
+        "datasource": "es",
         "hide": 2,
         "includeAll": false,
         "label": null,
         "multi": false,
         "name": "full_name",
         "options": [],
-        "query": "select value_s from gha_vars where name = 'full_name'",
-        "refresh": 1,
+        "query": "{ \"find\": \"terms\", \"field\": \"vvalue\", \"query\": \"type:tvars AND vname:full_name\" } ",
+        "refresh": 2,
         "regex": "",
         "skipUrlSync": true,
         "sort": 0,
@@ -408,9 +545,10 @@
       {
         "allValue": null,
         "current": {
+          "selected": false,
           "tags": [],
-          "text": "24 Hours MA",
-          "value": "h24"
+          "text": "7 Days MA",
+          "value": "d7"
         },
         "hide": 0,
         "includeAll": false,
@@ -424,7 +562,7 @@
             "value": "h"
           },
           {
-            "selected": true,
+            "selected": false,
             "text": "24 Hours MA",
             "value": "h24"
           },
@@ -434,7 +572,7 @@
             "value": "d"
           },
           {
-            "selected": false,
+            "selected": true,
             "text": "7 Days MA",
             "value": "d7"
           },
@@ -465,16 +603,19 @@
       },
       {
         "allValue": "",
-        "current": {},
-        "datasource": "psql",
+        "current": {
+          "text": "All",
+          "value": "$__all"
+        },
+        "datasource": "es",
         "hide": 0,
         "includeAll": true,
         "label": "Repository group",
         "multi": true,
         "name": "repogroups",
         "options": [],
-        "query": "select '\"' || repo_group_name || '\"' from trepo_groups order by 1",
-        "refresh": 1,
+        "query": "{\"find\": \"terms\", \"field\": \"repo_group_name\", \"query\": \"type:trepo_groups\"}",
+        "refresh": 2,
         "regex": "",
         "skipUrlSync": false,
         "sort": 0,
@@ -486,16 +627,19 @@
       },
       {
         "allValue": null,
-        "current": {},
-        "datasource": "psql",
+        "current": {
+          "text": "\u003ch1 id=\"dashboard-header\"\u003eCNCF activity repository groups dashboard\u003c/h1\u003e\n\u003cp\u003eLinks:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003eMetric \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/activity_repo_groups.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eTSDB \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/metrics.yaml\" target=\"_blank\"\u003eseries definition\u003c/a\u003e. Search for \u003ccode\u003eactivity_repo_groups\u003c/code\u003e\u003c/li\u003e\n\u003cli\u003eGrafana dashboard \u003ca href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/cncf/activity-repository-groups.json\" target=\"_blank\"\u003eJSON\u003c/a\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch1 id=\"description\"\u003eDescription\u003c/h1\u003e\n\u003cul\u003e\n\u003cli\u003eThis dashboard shows summary of all GitHub events happening on a given repository group or all of them.\u003c/li\u003e\n\u003cli\u003eSelecting period (for example week) means that dashboard will show activity in those periods.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/periods.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about periods.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/repository_groups.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about repository groups.\u003c/li\u003e\n\u003cli\u003eWe are skipping bots activity, see \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/excluding_bots.md\" target=\"_blank\"\u003eexcluding bots\u003c/a\u003e for details.\u003c/li\u003e\n\u003c/ul\u003e",
+          "value": "\u003ch1 id=\"dashboard-header\"\u003eCNCF activity repository groups dashboard\u003c/h1\u003e\n\u003cp\u003eLinks:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003eMetric \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/activity_repo_groups.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eTSDB \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/metrics.yaml\" target=\"_blank\"\u003eseries definition\u003c/a\u003e. Search for \u003ccode\u003eactivity_repo_groups\u003c/code\u003e\u003c/li\u003e\n\u003cli\u003eGrafana dashboard \u003ca href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/cncf/activity-repository-groups.json\" target=\"_blank\"\u003eJSON\u003c/a\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch1 id=\"description\"\u003eDescription\u003c/h1\u003e\n\u003cul\u003e\n\u003cli\u003eThis dashboard shows summary of all GitHub events happening on a given repository group or all of them.\u003c/li\u003e\n\u003cli\u003eSelecting period (for example week) means that dashboard will show activity in those periods.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/periods.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about periods.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/repository_groups.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about repository groups.\u003c/li\u003e\n\u003cli\u003eWe are skipping bots activity, see \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/excluding_bots.md\" target=\"_blank\"\u003eexcluding bots\u003c/a\u003e for details.\u003c/li\u003e\n\u003c/ul\u003e"
+        },
+        "datasource": "es",
         "hide": 2,
         "includeAll": false,
         "label": null,
         "multi": false,
         "name": "docs",
         "options": [],
-        "query": "select value_s from gha_vars where name = 'activity_docs_html'",
-        "refresh": 1,
+        "query": "{\"find\": \"terms\", \"field\": \"vvalue\", \"query\": \"type:tvars AND vname:activity_docs_html\"}",
+        "refresh": 2,
         "regex": "",
         "skipUrlSync": true,
         "sort": 0,
@@ -508,7 +652,7 @@
     ]
   },
   "time": {
-    "from": "now-30d",
+    "from": "now-2y",
     "to": "now"
   },
   "timepicker": {
@@ -539,5 +683,5 @@
   "timezone": "",
   "title": "Activity repository groups ES",
   "uid": "1001",
-  "version": 2
+  "version": 17
 }
