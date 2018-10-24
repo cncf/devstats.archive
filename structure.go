@@ -317,6 +317,8 @@ func Structure(ctx *Ctx) {
 					"committer_email varchar(160) not null default '', "+
 					"author_id bigint, "+
 					"committer_id bigint, "+
+					"dup_author_login varchar(120), "+
+					"dup_committer_login varchar(120), "+
 					"primary key(sha, event_id)"+
 					")",
 			),
@@ -338,6 +340,8 @@ func Structure(ctx *Ctx) {
 		ExecSQLWithErr(c, ctx, "create index commits_dup_created_at_idx on gha_commits(dup_created_at)")
 		ExecSQLWithErr(c, ctx, "create index commits_author_id_idx on gha_commits(author_id)")
 		ExecSQLWithErr(c, ctx, "create index commits_committer_id_idx on gha_commits(committer_id)")
+		ExecSQLWithErr(c, ctx, "create index commits_dup_author_login_idx on gha_commits(dup_author_login)")
+		ExecSQLWithErr(c, ctx, "create index commits_dup_committer_login_idx on gha_commits(dup_committer_login)")
 	}
 
 	// gha_pages

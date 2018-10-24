@@ -307,7 +307,7 @@ func workerThread(
 		lib.Printf("Skipping series write\n")
 	}
 	if ctx.UseES {
-		es.WriteESPoints(ctx, &pts, mergeSeriesES, true)
+		es.WriteESPoints(ctx, &pts, mergeSeriesES)
 	}
 
 	// Synchronize go routine
@@ -489,11 +489,10 @@ func calcHistogram(
 			}
 		}
 		if ctx.UseES {
-			index := lib.ESFullName(ctx, mergeSeriesES)
-			if es.IndexExists(ctx, index) {
-				es.DeleteByQuery(ctx, index, "items", []string{"series", "period"}, []interface{}{seriesNameOrFunc, intervalAbbr})
+			if es.IndexExists(ctx) {
+				es.DeleteByQuery(ctx, []string{"type", "series", "period"}, []interface{}{mergeSeriesES, seriesNameOrFunc, intervalAbbr})
 				if ctx.Debug > 0 {
-					lib.Printf("Dropped data from index %s with %s series and %s period\n", index, seriesNameOrFunc, intervalAbbr)
+					lib.Printf("Dropped data from index with %s type and %s series and %s period\n", mergeSeriesES, seriesNameOrFunc, intervalAbbr)
 				}
 			}
 		}
@@ -667,12 +666,11 @@ func calcHistogram(
 				}
 			}
 			if ctx.UseES {
-				index := lib.ESFullName(ctx, mergeSeriesES)
-				if es.IndexExists(ctx, index) {
+				if es.IndexExists(ctx) {
 					for series := range seriesToClear {
-						es.DeleteByQuery(ctx, index, "items", []string{"series", "period"}, []interface{}{series, intervalAbbr})
+						es.DeleteByQuery(ctx, []string{"type", "series", "period"}, []interface{}{mergeSeriesES, series, intervalAbbr})
 						if ctx.Debug > 0 {
-							lib.Printf("Dropped data from index %s with %s series and %s period\n", index, series, intervalAbbr)
+							lib.Printf("Dropped data from index with %s type and %s series and %s period\n", mergeSeriesES, seriesNameOrFunc, intervalAbbr)
 						}
 					}
 				}
@@ -690,7 +688,7 @@ func calcHistogram(
 		lib.Printf("Skipping series write\n")
 	}
 	if ctx.UseES {
-		es.WriteESPoints(ctx, &pts, mergeSeriesES, false)
+		es.WriteESPoints(ctx, &pts, mergeSeriesES)
 	}
 }
 
