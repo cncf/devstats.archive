@@ -307,7 +307,7 @@ func workerThread(
 		lib.Printf("Skipping series write\n")
 	}
 	if ctx.UseES {
-		es.WriteESPoints(ctx, &pts, mergeSeriesES)
+		es.WriteESPoints(ctx, &pts, mergeSeriesES, [3]bool{false, false, true})
 	}
 
 	// Synchronize go routine
@@ -688,7 +688,7 @@ func calcHistogram(
 		lib.Printf("Skipping series write\n")
 	}
 	if ctx.UseES {
-		es.WriteESPoints(ctx, &pts, mergeSeriesES)
+		es.WriteESPoints(ctx, &pts, mergeSeriesES, [3]bool{false, false, true})
 	}
 }
 
