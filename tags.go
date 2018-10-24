@@ -144,6 +144,6 @@ func ProcessTag(con *sql.DB, es *ES, ctx *Ctx, tg *Tag, replaces [][]string) {
 
 	// Output to ElasticSearch
 	if ctx.UseES {
-		es.WriteESPoints(ctx, &pts, "")
+		es.WriteESPoints(ctx, &pts, "", [3]bool{true, false, false})
 	}
 }
