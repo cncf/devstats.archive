@@ -25,4 +25,5 @@ do
     echo "Project: $proj"
     NOCOPY=1 GRAFANA=$suff devel/import_jsons_to_sqlite.sh grafana/dashboards/$proj/*.json || exit 2
 done
+./grafana/restart_all_grafanas.sh || exit 3
 echo 'OK'
