@@ -54,14 +54,32 @@ type esRawCommit struct {
 }
 
 type esRawIssue struct {
-	Type           string `json:"type"`
-	ID             int64  `json:"id"`
-	EventID        int64  `json:"event_id"`
-	EventCreatedAt string `json:"time"`
-	CreatedAt      string `json:"created_at"`
+	Type                string   `json:"type"`
+	ID                  int64    `json:"id"`
+	EventID             int64    `json:"event_id"`
+	EventCreatedAt      string   `json:"time"`
+	CreatedAt           string   `json:"created_at"`
+	Body                string   `json:"body"`
+	ClosedAt            *string  `json:"closed_at"`
+	Comments            int      `json:"comments"`
+	Locked              bool     `json:"locked"`
+	Number              int      `json:"number"`
+	State               string   `json:"state"`
+	Title               string   `json:"title"`
+	UpdatedAt           string   `json:"updated_at"`
+	IsPR                bool     `json:"is_pr"`
+	EventType           string   `json:"event_type"`
+	AssigneeLogin       string   `json:"assignee_login"`
+	AssigneeName        string   `json:"assignee_name"`
+	AssigneeCountryCode string   `json:"assignee_country_code"`
+	AssigneeGender      string   `json:"assignee_gender"`
+	AssigneeGenderProb  *float64 `json:"assignee_gender_prob"`
+	AssigneeTZ          string   `json:"assignee_tz"`
+	AssigneeTZOffset    *int     `json:"assignee_tz_offset"`
+	AssigneeCountry     string   `json:"assignee_country"`
 }
 
-func generateRawES(ch chan struct{}, ctx *lib.Ctx, con *sql.DB, es *lib.ES, dtf, dtt time.Time, sqls map[string]string, shas map[string]string) {
+func generateRawES(ch chan struct{}, ctx *lib.Ctx, con *sql.DB, es *lib.ES, dtf, dtt time.Time, sqls map[string]string) {
 	if ctx.Debug > 0 {
 		lib.Printf("Working on %v - %v\n", dtf, dtt)
 	}
@@ -85,6 +103,7 @@ func generateRawES(ch chan struct{}, ctx *lib.Ctx, con *sql.DB, es *lib.ES, dtf,
 		commit    esRawCommit
 		createdAt time.Time
 	)
+	shas := make(map[string]struct{})
 	commit.Type = "commit"
 	nCommits := 0
 	for rows.Next() {
@@ -133,6 +152,7 @@ func generateRawES(ch chan struct{}, ctx *lib.Ctx, con *sql.DB, es *lib.ES, dtf,
 		)
 		nCommits++
 		commit.CreatedAt = lib.ToESDate(createdAt)
+		shas[commit.SHA] = struct{}{}
 		es.AddBulksItemsI(ctx, bulkDel, bulkAdd, commit, lib.HashArray([]interface{}{commit.Type, commit.SHA, commit.EventID}))
 	}
 	lib.FatalOnError(rows.Err())
@@ -148,7 +168,10 @@ func generateRawES(ch chan struct{}, ctx *lib.Ctx, con *sql.DB, es *lib.ES, dtf,
 	var (
 		issue          esRawIssue
 		eventCreatedAt time.Time
+		closedAt       *time.Time
+		updatedAt      time.Time
 	)
+	ids := make(map[int64]struct{})
 	issue.Type = "issue"
 	nIssues := 0
 	for rows.Next() {
@@ -158,11 +181,38 @@ func generateRawES(ch chan struct{}, ctx *lib.Ctx, con *sql.DB, es *lib.ES, dtf,
 				&issue.EventID,
 				&eventCreatedAt,
 				&createdAt,
+				&issue.Body,
+				&closedAt,
+				&issue.Comments,
+				&issue.Locked,
+				&issue.Number,
+				&issue.State,
+				&issue.Title,
+				&updatedAt,
+				&issue.IsPR,
+				&issue.EventType,
+				&issue.AssigneeLogin,
+				&issue.AssigneeName,
+				&issue.AssigneeCountryCode,
+				&issue.AssigneeGender,
+				&issue.AssigneeGenderProb,
+				&issue.AssigneeTZ,
+				&issue.AssigneeTZOffset,
+				&issue.AssigneeCountry,
 			),
 		)
 		nIssues++
 		issue.CreatedAt = lib.ToESDate(createdAt)
 		issue.EventCreatedAt = lib.ToESDate(eventCreatedAt)
+		issue.UpdatedAt = lib.ToESDate(updatedAt)
+		issue.Body = lib.TruncToBytes(issue.Body, 0x400)
+		if closedAt != nil {
+			tm := lib.ToESDate(*closedAt)
+			issue.ClosedAt = &tm
+		} else {
+			issue.ClosedAt = nil
+		}
+		ids[issue.ID] = struct{}{}
 		es.AddBulksItemsI(ctx, bulkDel, bulkAdd, issue, lib.HashArray([]interface{}{issue.Type, issue.ID, issue.EventID}))
 	}
 	lib.FatalOnError(rows.Err())
@@ -171,7 +221,10 @@ func generateRawES(ch chan struct{}, ctx *lib.Ctx, con *sql.DB, es *lib.ES, dtf,
 	es.ExecuteBulks(ctx, bulkDel, bulkAdd)
 
 	if ctx.Debug > 0 {
-		lib.Printf("%v - %v: %d commits, %d issues\n", sFrom, sTo, nCommits, nIssues)
+		lib.Printf(
+			"%v - %v: %d commits (%d unique SHAs), %d issue events (%d unique issues)\n",
+			sFrom, sTo, nCommits, len(shas), nIssues, len(ids),
+		)
 	}
 
 	if ch != nil {
@@ -274,9 +327,6 @@ func gha2es(args []string) {
 	}
 	lib.Printf("gha2es.go: Running (%v CPUs): %v - %v, interval %dh\n", thrN, dFrom, dTo, hours)
 
-	// GDPR data hiding
-	shaMap := lib.GetHidden(lib.HideCfgFile)
-
 	dt := dFrom
 	dtN := dt
 	if thrN > 1 {
@@ -284,7 +334,7 @@ func gha2es(args []string) {
 		nThreads := 0
 		for dt.Before(dTo) || dt.Equal(dTo) {
 			dtN = dt.Add(time.Hour * time.Duration(hours))
-			go generateRawES(ch, &ctx, con, es, dt, dtN, sqls, shaMap)
+			go generateRawES(ch, &ctx, con, es, dt, dtN, sqls)
 			dt = dtN
 			nThreads++
 			if nThreads == thrN {
@@ -301,7 +351,7 @@ func gha2es(args []string) {
 		lib.Printf("Using single threaded version\n")
 		for dt.Before(dTo) || dt.Equal(dTo) {
 			dtN = dt.Add(time.Hour * time.Duration(hours))
-			generateRawES(nil, &ctx, con, es, dt, dtN, sqls, shaMap)
+			generateRawES(nil, &ctx, con, es, dt, dtN, sqls)
 			dt = dtN
 		}
 	}

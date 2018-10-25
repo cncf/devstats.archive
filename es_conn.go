@@ -68,7 +68,9 @@ func ESConn(ctx *Ctx, prefix string) *ES {
 			`{"numbers":{"match":"*","match_mapping_type":"long","mapping":{"type":"float"}}}` +
 			`],"properties":{` +
 			`"type":{"type":"keyword"},` +
-			`"message":{"type":"text"},` +
+			// `"message":{"type":"text"},` +
+			// `"title":{"type":"text"},` +
+			// `"body":{"type":"text"},` +
 			`"time":{"type":"date","format":"yyyy-MM-dd HH:mm:ss"}` +
 			`}}}}`,
 	}
