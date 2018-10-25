@@ -33,7 +33,10 @@ select
   committer.sex_prob,
   coalesce(committer.tz, ''),
   committer.tz_offset,
-  coalesce(committer.country_name, '')
+  coalesce(committer.country_name, ''),
+  coalesce(actor_aff.company_name, ''),
+  coalesce(author_aff.company_name, ''),
+  coalesce(committer_aff.company_name, '')
 from
   gha_commits c
 left join
@@ -53,7 +56,25 @@ left join
   gha_actors committer
 on
   c.committer_id = committer.id
+left join
+  gha_actors_affiliations committer_aff
+on
+  c.committer_id = committer_aff.actor_id
+  and committer_aff.dt_from <= c.dup_created_at
+  and committer_aff.dt_to > c.dup_created_at
+left join
+  gha_actors_affiliations author_aff
+on
+  c.author_id = author_aff.actor_id
+  and author_aff.dt_from <= c.dup_created_at
+  and author_aff.dt_to > c.dup_created_at
+left join
+  gha_actors_affiliations actor_aff
+on
+  c.dup_actor_id = actor_aff.actor_id
+  and actor_aff.dt_from <= c.dup_created_at
+  and actor_aff.dt_to > c.dup_created_at
 where
-  dup_created_at >= '{{from}}'
-  and dup_created_at < '{{to}}'
+  c.dup_created_at >= '{{from}}'
+  and c.dup_created_at < '{{to}}'
 ;
