@@ -38,7 +38,7 @@ func pdbVars() {
 	var es *lib.ES
 	var tm time.Time
 	if ctx.UseES {
-		es = lib.ESConn(&ctx)
+		es = lib.ESConn(&ctx, "d_")
 		tm = lib.TimeParseAny("2014-01-01")
 	}
 

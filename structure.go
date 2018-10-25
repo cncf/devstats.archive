@@ -317,8 +317,8 @@ func Structure(ctx *Ctx) {
 					"committer_email varchar(160) not null default '', "+
 					"author_id bigint, "+
 					"committer_id bigint, "+
-					"dup_author_login varchar(120), "+
-					"dup_committer_login varchar(120), "+
+					"dup_author_login varchar(120) not null default '', "+
+					"dup_committer_login varchar(120) not null default '', "+
 					"primary key(sha, event_id)"+
 					")",
 			),
