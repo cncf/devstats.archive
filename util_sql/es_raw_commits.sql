@@ -13,8 +13,8 @@ select
   coalesce(c.dup_author_login, author.login, ''),
   coalesce(c.dup_committer_login, committer.login, ''),
   coalesce(r.org_login, ''),
-  r.repo_group,
-  r.alias,
+  coalesce(r.repo_group, ''),
+  coalesce(r.alias, ''),
   coalesce(actor.name, ''),
   coalesce(actor.country_id, ''),
   coalesce(actor.sex, ''),
@@ -36,7 +36,8 @@ select
   coalesce(committer.country_name, ''),
   coalesce(actor_aff.company_name, ''),
   coalesce(author_aff.company_name, ''),
-  coalesce(committer_aff.company_name, '')
+  coalesce(committer_aff.company_name, ''),
+  p.size
 from
   gha_commits c
 left join
@@ -74,6 +75,10 @@ on
   c.dup_actor_id = actor_aff.actor_id
   and actor_aff.dt_from <= c.dup_created_at
   and actor_aff.dt_to > c.dup_created_at
+left join
+  gha_payloads p
+on
+  c.event_id = p.event_id
 where
   c.dup_created_at >= '{{from}}'
   and c.dup_created_at < '{{to}}'
