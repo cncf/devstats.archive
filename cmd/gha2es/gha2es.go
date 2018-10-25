@@ -53,6 +53,14 @@ type esRawCommit struct {
 	Size                 int      `json:"size"`
 }
 
+type esRawIssue struct {
+	Type           string `json:"type"`
+	ID             int64  `json:"id"`
+	EventID        int64  `json:"event_id"`
+	EventCreatedAt string `json:"time"`
+	CreatedAt      string `json:"created_at"`
+}
+
 func generateRawES(ch chan struct{}, ctx *lib.Ctx, con *sql.DB, es *lib.ES, dtf, dtt time.Time, sqls map[string]string, shas map[string]string) {
 	if ctx.Debug > 0 {
 		lib.Printf("Working on %v - %v\n", dtf, dtt)
@@ -61,6 +69,11 @@ func generateRawES(ch chan struct{}, ctx *lib.Ctx, con *sql.DB, es *lib.ES, dtf,
 	// Replace dates
 	sFrom := lib.ToYMDHMSDate(dtf)
 	sTo := lib.ToYMDHMSDate(dtt)
+
+	// ES bulk inserts
+	bulkDel, bulkAdd := es.Bulks()
+
+	// Commits
 	sql := strings.Replace(sqls["commits"], "{{from}}", sFrom, -1)
 	sql = strings.Replace(sql, "{{to}}", sTo, -1)
 
@@ -68,65 +81,97 @@ func generateRawES(ch chan struct{}, ctx *lib.Ctx, con *sql.DB, es *lib.ES, dtf,
 	rows := lib.QuerySQLWithErr(con, ctx, sql)
 	defer func() { lib.FatalOnError(rows.Close()) }()
 
-	// ES bulk inserts
-	bulkDel, bulkAdd := es.Bulks()
-	var c esRawCommit
-	var tm time.Time
-	c.Type = "commit"
-	n := 0
+	var (
+		commit    esRawCommit
+		createdAt time.Time
+	)
+	commit.Type = "commit"
+	nCommits := 0
 	for rows.Next() {
 		lib.FatalOnError(
 			rows.Scan(
-				&c.SHA,
-				&c.EventID,
-				&c.AuthorName,
-				&c.Message,
-				&c.ActorLogin,
-				&c.RepoName,
-				&tm,
-				&c.EncryptedEmail,
-				&c.AuthorEmail,
-				&c.CommitterName,
-				&c.CommitterEmail,
-				&c.AuthorLogin,
-				&c.CommitterLogin,
-				&c.Org,
-				&c.RepoGroup,
-				&c.RepoAlias,
-				&c.ActorName,
-				&c.ActorCountryCode,
-				&c.ActorGender,
-				&c.ActorGenderProb,
-				&c.ActorTZ,
-				&c.ActorTZOffset,
-				&c.ActorCountry,
-				&c.AuthorCountryCode,
-				&c.AuthorGender,
-				&c.AuthorGenderProb,
-				&c.AuthorTZ,
-				&c.AuthorTZOffset,
-				&c.AuthorCountry,
-				&c.CommitterCountryCode,
-				&c.CommitterGender,
-				&c.CommitterGenderProb,
-				&c.CommitterTZ,
-				&c.CommitterTZOffset,
-				&c.CommitterCountry,
-				&c.ActorCompany,
-				&c.AuthorCompany,
-				&c.Committer,
-				&c.Size,
+				&commit.SHA,
+				&commit.EventID,
+				&commit.AuthorName,
+				&commit.Message,
+				&commit.ActorLogin,
+				&commit.RepoName,
+				&createdAt,
+				&commit.EncryptedEmail,
+				&commit.AuthorEmail,
+				&commit.CommitterName,
+				&commit.CommitterEmail,
+				&commit.AuthorLogin,
+				&commit.CommitterLogin,
+				&commit.Org,
+				&commit.RepoGroup,
+				&commit.RepoAlias,
+				&commit.ActorName,
+				&commit.ActorCountryCode,
+				&commit.ActorGender,
+				&commit.ActorGenderProb,
+				&commit.ActorTZ,
+				&commit.ActorTZOffset,
+				&commit.ActorCountry,
+				&commit.AuthorCountryCode,
+				&commit.AuthorGender,
+				&commit.AuthorGenderProb,
+				&commit.AuthorTZ,
+				&commit.AuthorTZOffset,
+				&commit.AuthorCountry,
+				&commit.CommitterCountryCode,
+				&commit.CommitterGender,
+				&commit.CommitterGenderProb,
+				&commit.CommitterTZ,
+				&commit.CommitterTZOffset,
+				&commit.CommitterCountry,
+				&commit.ActorCompany,
+				&commit.AuthorCompany,
+				&commit.Committer,
+				&commit.Size,
 			),
 		)
-		n++
-		c.CreatedAt = lib.ToESDate(tm)
-		es.AddBulksItemsI(ctx, bulkDel, bulkAdd, c, lib.HashArray([]interface{}{c.Type, c.SHA, c.EventID}))
+		nCommits++
+		commit.CreatedAt = lib.ToESDate(createdAt)
+		es.AddBulksItemsI(ctx, bulkDel, bulkAdd, commit, lib.HashArray([]interface{}{commit.Type, commit.SHA, commit.EventID}))
 	}
 	lib.FatalOnError(rows.Err())
+
+	// Issues
+	sql = strings.Replace(sqls["issues"], "{{from}}", sFrom, -1)
+	sql = strings.Replace(sql, "{{to}}", sTo, -1)
+
+	// Execute query
+	rows = lib.QuerySQLWithErr(con, ctx, sql)
+	defer func() { lib.FatalOnError(rows.Close()) }()
+
+	var (
+		issue          esRawIssue
+		eventCreatedAt time.Time
+	)
+	issue.Type = "issue"
+	nIssues := 0
+	for rows.Next() {
+		lib.FatalOnError(
+			rows.Scan(
+				&issue.ID,
+				&issue.EventID,
+				&eventCreatedAt,
+				&createdAt,
+			),
+		)
+		nIssues++
+		issue.CreatedAt = lib.ToESDate(createdAt)
+		issue.EventCreatedAt = lib.ToESDate(eventCreatedAt)
+		es.AddBulksItemsI(ctx, bulkDel, bulkAdd, issue, lib.HashArray([]interface{}{issue.Type, issue.ID, issue.EventID}))
+	}
+	lib.FatalOnError(rows.Err())
+
+	// Bulk insert to ES
 	es.ExecuteBulks(ctx, bulkDel, bulkAdd)
 
 	if ctx.Debug > 0 {
-		lib.Printf("%v - %v: %d commits\n", sFrom, sTo, n)
+		lib.Printf("%v - %v: %d commits, %d issues\n", sFrom, sTo, nCommits, nIssues)
 	}
 
 	if ch != nil {
@@ -168,12 +213,18 @@ func gha2es(args []string) {
 	if ctx.Local {
 		dataPrefix = "./"
 	}
-	bytes, err := lib.ReadFile(
-		&ctx,
-		dataPrefix+"util_sql/es_raw_commits.sql",
-	)
-	lib.FatalOnError(err)
-	sqls["commits"] = string(bytes)
+	data := [][2]string{
+		{"commits", "util_sql/es_raw_commits.sql"},
+		{"issues", "util_sql/es_raw_issues.sql"},
+	}
+	for _, row := range data {
+		bytes, err := lib.ReadFile(
+			&ctx,
+			dataPrefix+row[1],
+		)
+		lib.FatalOnError(err)
+		sqls[row[0]] = string(bytes)
+	}
 
 	// Current date
 	now := time.Now()
