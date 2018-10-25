@@ -155,7 +155,7 @@ func ProcessAnnotations(ctx *Ctx, annotations *Annotations, startDate, joinDate 
 	// Optional ElasticSearch output
 	var es *ES
 	if ctx.UseES {
-		es = ESConn(ctx)
+		es = ESConn(ctx, "d_")
 	}
 
 	// Get BatchPoints

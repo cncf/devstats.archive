@@ -157,7 +157,7 @@ func workerThread(
 	var es *lib.ES
 	mergeSeriesES := ""
 	if ctx.UseES {
-		es = lib.ESConn(ctx)
+		es = lib.ESConn(ctx, "d_")
 		mergeSeriesES = mergeESSeriesName(mergeSeries, sqlFile)
 	}
 
@@ -383,7 +383,7 @@ func calcHistogram(
 	var es *lib.ES
 	mergeSeriesES := ""
 	if ctx.UseES {
-		es = lib.ESConn(ctx)
+		es = lib.ESConn(ctx, "d_")
 		mergeSeriesES = mergeESSeriesName(mergeSeries, sqlFile)
 	}
 
