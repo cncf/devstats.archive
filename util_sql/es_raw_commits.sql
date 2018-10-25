@@ -12,7 +12,7 @@ select
   c.committer_email,
   c.dup_author_login,
   c.dup_committer_login,
-  r.org_login,
+  coalesce(r.org_login, ''),
   r.repo_group,
   r.alias,
   coalesce(a.name, ''),

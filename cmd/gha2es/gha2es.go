@@ -38,7 +38,9 @@ type esRawCommit struct {
 }
 
 func generateRawES(ch chan struct{}, ctx *lib.Ctx, con *sql.DB, es *lib.ES, dtf, dtt time.Time, sqls map[string]string, shas map[string]string) {
-	lib.Printf("Working on %v - %v\n", dtf, dtt)
+	if ctx.Debug > 0 {
+		lib.Printf("Working on %v - %v\n", dtf, dtt)
+	}
 
 	// Replace dates
 	sFrom := lib.ToYMDHMSDate(dtf)
@@ -55,6 +57,7 @@ func generateRawES(ch chan struct{}, ctx *lib.Ctx, con *sql.DB, es *lib.ES, dtf,
 	var c esRawCommit
 	var tm time.Time
 	c.Type = "commit"
+	n := 0
 	for rows.Next() {
 		lib.FatalOnError(
 			rows.Scan(
@@ -83,11 +86,16 @@ func generateRawES(ch chan struct{}, ctx *lib.Ctx, con *sql.DB, es *lib.ES, dtf,
 				&c.ActorCountry,
 			),
 		)
+		n++
 		c.CreatedAt = lib.ToESDate(tm)
 		es.AddBulksItemsI(ctx, bulkDel, bulkAdd, c, lib.HashArray([]interface{}{c.Type, c.SHA, c.EventID}))
 	}
 	lib.FatalOnError(rows.Err())
 	es.ExecuteBulks(ctx, bulkDel, bulkAdd)
+
+	if ctx.Debug > 0 {
+		lib.Printf("%v - %v: %d commits\n", sFrom, sTo, n)
+	}
 
 	if ch != nil {
 		ch <- struct{}{}
@@ -209,9 +217,9 @@ func gha2es(args []string) {
 	} else {
 		lib.Printf("Using single threaded version\n")
 		for dt.Before(dTo) || dt.Equal(dTo) {
-			dt = dt.Add(time.Hour * time.Duration(hours))
+			dtN = dt.Add(time.Hour * time.Duration(hours))
 			generateRawES(nil, &ctx, con, es, dt, dtN, sqls, shaMap)
-			dtN = dt
+			dt = dtN
 		}
 	}
 	// Finished
