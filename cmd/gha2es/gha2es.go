@@ -152,8 +152,13 @@ func generateRawES(ch chan struct{}, ctx *lib.Ctx, con *sql.DB, es *lib.ES, dtf,
 		)
 		nCommits++
 		commit.CreatedAt = lib.ToESDate(createdAt)
+		commit.Message = lib.TruncToBytes(commit.Message, 0x400)
 		shas[commit.SHA] = struct{}{}
 		es.AddBulksItemsI(ctx, bulkDel, bulkAdd, commit, lib.HashArray([]interface{}{commit.Type, commit.SHA, commit.EventID}))
+		if nCommits%10000 == 0 {
+			// Bulk insert to ES
+			es.ExecuteBulks(ctx, bulkDel, bulkAdd)
+		}
 	}
 	lib.FatalOnError(rows.Err())
 
@@ -214,6 +219,10 @@ func generateRawES(ch chan struct{}, ctx *lib.Ctx, con *sql.DB, es *lib.ES, dtf,
 		}
 		ids[issue.ID] = struct{}{}
 		es.AddBulksItemsI(ctx, bulkDel, bulkAdd, issue, lib.HashArray([]interface{}{issue.Type, issue.ID, issue.EventID}))
+		if nIssues%10000 == 0 {
+			// Bulk insert to ES
+			es.ExecuteBulks(ctx, bulkDel, bulkAdd)
+		}
 	}
 	lib.FatalOnError(rows.Err())
 
