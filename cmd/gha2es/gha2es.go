@@ -69,6 +69,9 @@ type esRawIssue struct {
 	UpdatedAt           string   `json:"updated_at"`
 	IsPR                bool     `json:"is_pr"`
 	EventType           string   `json:"event_type"`
+	MilestoneNumber     *int     `json:"milestone_number"`
+	MilestoneState      string   `json:"milestone_state"`
+	MilestoneTitle      string   `json:"milestone_title"`
 	AssigneeLogin       string   `json:"assignee_login"`
 	AssigneeName        string   `json:"assignee_name"`
 	AssigneeCountryCode string   `json:"assignee_country_code"`
@@ -77,6 +80,22 @@ type esRawIssue struct {
 	AssigneeTZ          string   `json:"assignee_tz"`
 	AssigneeTZOffset    *int     `json:"assignee_tz_offset"`
 	AssigneeCountry     string   `json:"assignee_country"`
+	ActorLogin          string   `json:"actor_login"`
+	ActorName           string   `json:"actor_name"`
+	ActorCountryCode    string   `json:"actor_country_code"`
+	ActorGender         string   `json:"actor_gender"`
+	ActorGenderProb     *float64 `json:"actor_gender_prob"`
+	ActorTZ             string   `json:"actor_tz"`
+	ActorTZOffset       *int     `json:"actor_tz_offset"`
+	ActorCountry        string   `json:"actor_country"`
+	UserLogin           string   `json:"user_login"`
+	UserName            string   `json:"user_name"`
+	UserCountryCode     string   `json:"user_country_code"`
+	UserGender          string   `json:"user_gender"`
+	UserGenderProb      *float64 `json:"user_gender_prob"`
+	UserTZ              string   `json:"user_tz"`
+	UserTZOffset        *int     `json:"user_tz_offset"`
+	UserCountry         string   `json:"user_country"`
 }
 
 func generateRawES(ch chan struct{}, ctx *lib.Ctx, con *sql.DB, es *lib.ES, dtf, dtt time.Time, sqls map[string]string) {
@@ -196,6 +215,9 @@ func generateRawES(ch chan struct{}, ctx *lib.Ctx, con *sql.DB, es *lib.ES, dtf,
 				&updatedAt,
 				&issue.IsPR,
 				&issue.EventType,
+				&issue.MilestoneNumber,
+				&issue.MilestoneState,
+				&issue.MilestoneTitle,
 				&issue.AssigneeLogin,
 				&issue.AssigneeName,
 				&issue.AssigneeCountryCode,
@@ -204,6 +226,22 @@ func generateRawES(ch chan struct{}, ctx *lib.Ctx, con *sql.DB, es *lib.ES, dtf,
 				&issue.AssigneeTZ,
 				&issue.AssigneeTZOffset,
 				&issue.AssigneeCountry,
+				&issue.ActorLogin,
+				&issue.ActorName,
+				&issue.ActorCountryCode,
+				&issue.ActorGender,
+				&issue.ActorGenderProb,
+				&issue.ActorTZ,
+				&issue.ActorTZOffset,
+				&issue.ActorCountry,
+				&issue.UserLogin,
+				&issue.UserName,
+				&issue.UserCountryCode,
+				&issue.UserGender,
+				&issue.UserGenderProb,
+				&issue.UserTZ,
+				&issue.UserTZOffset,
+				&issue.UserCountry,
 			),
 		)
 		nIssues++
