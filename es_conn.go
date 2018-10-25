@@ -28,9 +28,7 @@ type ESDataObject struct {
 func ESConn(ctx *Ctx, prefix string) *ES {
 	ctxb := context.Background()
 	if ctx.QOut {
-		// Use fmt.Printf (not lib.Printf that logs to DB) here
-		// Avoid trying to log something to DB while connecting
-		fmt.Printf("ESConnectString: %s\n", ctx.ElasticURL)
+		Printf("ESConnectString: %s\n", ctx.ElasticURL)
 	}
 	client, err := elastic.NewClient(elastic.SetURL(ctx.ElasticURL))
 	FatalOnError(err)
