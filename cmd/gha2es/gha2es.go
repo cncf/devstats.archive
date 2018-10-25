@@ -47,6 +47,9 @@ type esRawCommit struct {
 	CommitterTZ          string   `json:"committer_tz"`
 	CommitterTZOffset    *int     `json:"committer_tz_offset"`
 	CommitterCountry     string   `json:"committer_country"`
+	ActorCompany         string   `json:"actor_company"`
+	AuthorCompany        string   `json:"author_company"`
+	Committer            string   `json:"committer_company"`
 }
 
 func generateRawES(ch chan struct{}, ctx *lib.Ctx, con *sql.DB, es *lib.ES, dtf, dtt time.Time, sqls map[string]string, shas map[string]string) {
@@ -108,6 +111,9 @@ func generateRawES(ch chan struct{}, ctx *lib.Ctx, con *sql.DB, es *lib.ES, dtf,
 				&c.CommitterTZ,
 				&c.CommitterTZOffset,
 				&c.CommitterCountry,
+				&c.ActorCompany,
+				&c.AuthorCompany,
+				&c.Committer,
 			),
 		)
 		n++
