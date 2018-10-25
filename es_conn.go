@@ -177,45 +177,45 @@ func (es *ES) ExecuteBulks(ctx *Ctx, bulkDel, bulkAdd *elastic.BulkService) {
 			Printf("ExecuteBulks: no actions to commit\n")
 		}
 	} else {
-	  FatalOnError(err)
-	  actions := bulkDel.NumberOfActions()
-	  if actions != 0 {
-		  Fatalf("bulk delete: not all actions executed: %+v\n", actions)
-	  }
-	  failedResults := res.Failed()
-	  nFailed := len(failedResults)
-	  if len(failedResults) > 0 {
-		  for _, failed := range failedResults {
-			  if strings.Contains(failed.Result, "not_found") {
-				  nFailed--
-			  } else {
-				  Printf("Failed delete: %+v: %+v\n", failed, failed.Error)
-			  }
-		  }
-		  if nFailed > 0 {
-			  Fatalf("bulk delete failed: %+v\n", failedResults)
-		  }
-	  }
-  }
+		FatalOnError(err)
+		actions := bulkDel.NumberOfActions()
+		if actions != 0 {
+			Fatalf("bulk delete: not all actions executed: %+v\n", actions)
+		}
+		failedResults := res.Failed()
+		nFailed := len(failedResults)
+		if len(failedResults) > 0 {
+			for _, failed := range failedResults {
+				if strings.Contains(failed.Result, "not_found") {
+					nFailed--
+				} else {
+					Printf("Failed delete: %+v: %+v\n", failed, failed.Error)
+				}
+			}
+			if nFailed > 0 {
+				Fatalf("bulk delete failed: %+v\n", failedResults)
+			}
+		}
+	}
 	res, err = bulkAdd.Do(es.ctx)
 	if err != nil && strings.Contains(err.Error(), "No bulk actions to commit") {
 		if ctx.Debug > 0 {
 			Printf("ExecuteBulks: no actions to commit\n")
 		}
-  } else {
-	  FatalOnError(err)
-    actions := bulkAdd.NumberOfActions()
-	  if actions != 0 {
-		  Fatalf("bulk add not all actions executed: %+v\n", actions)
-	  }
-    failedResults := res.Failed()
-	  if len(failedResults) > 0 {
-		  for _, failed := range failedResults {
-			  Printf("Failed add: %+v: %+v\n", failed, failed.Error)
-		  }
-		  Fatalf("bulk failed add: %+v\n", failedResults)
-	  }
-  }
+	} else {
+		FatalOnError(err)
+		actions := bulkAdd.NumberOfActions()
+		if actions != 0 {
+			Fatalf("bulk add not all actions executed: %+v\n", actions)
+		}
+		failedResults := res.Failed()
+		if len(failedResults) > 0 {
+			for _, failed := range failedResults {
+				Printf("Failed add: %+v: %+v\n", failed, failed.Error)
+			}
+			Fatalf("bulk failed add: %+v\n", failedResults)
+		}
+	}
 }
 
 // WriteESPoints write batch of points to postgresql
