@@ -13,11 +13,13 @@ select
   i.updated_at,
   i.is_pull_request,
   i.dup_type,
+  i.dup_repo_name,
+  coalesce(r.org_login, ''),
+  coalesce(r.repo_group, ''),
+  coalesce(r.alias, ''),
   m.number,
   coalesce(m.state, ''),
-  coalesce(m.title, ''), 
--- dup_repo_id         | bigint                      |           | not null |
--- dup_repo_name       | character varying(160)      |           | not null |
+  coalesce(m.title, ''),
   coalesce(i.dupn_assignee_login, assignee.login, ''),
   coalesce(assignee.name, ''),
   coalesce(assignee.country_id, ''),
@@ -44,6 +46,11 @@ select
   coalesce(usr.country_name, '')
 from
   gha_issues i
+left join
+  gha_repos r
+on
+  i.dup_repo_id = r.id
+  and i.dup_repo_name = r.name
 left join
   gha_actors assignee
 on

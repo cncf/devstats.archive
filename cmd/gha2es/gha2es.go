@@ -69,6 +69,10 @@ type esRawIssue struct {
 	UpdatedAt           string   `json:"updated_at"`
 	IsPR                bool     `json:"is_pr"`
 	EventType           string   `json:"event_type"`
+	RepoName            string   `json:"repo_name"`
+	Org                 string   `json:"org"`
+	RepoGroup           string   `json:"repo_group"`
+	RepoAlias           string   `json:"repo_alias"`
 	MilestoneNumber     *int     `json:"milestone_number"`
 	MilestoneState      string   `json:"milestone_state"`
 	MilestoneTitle      string   `json:"milestone_title"`
@@ -215,6 +219,10 @@ func generateRawES(ch chan struct{}, ctx *lib.Ctx, con *sql.DB, es *lib.ES, dtf,
 				&updatedAt,
 				&issue.IsPR,
 				&issue.EventType,
+				&issue.RepoName,
+				&issue.Org,
+				&issue.RepoGroup,
+				&issue.RepoAlias,
 				&issue.MilestoneNumber,
 				&issue.MilestoneState,
 				&issue.MilestoneTitle,
