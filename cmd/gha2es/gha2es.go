@@ -11,20 +11,23 @@ import (
 )
 
 type esRawCommit struct {
-	Type           string    `json:"type"`
-	SHA            string    `json:"sha"`
-	EventID        int64     `json:"event_id"`
-	AuthorName     string    `json:"author_name"`
-	Message        string    `json:"message"`
-	ActorLogin     string    `json:"actor_login"`
-	RepoName       string    `json:"repo_name"`
-	CreatedAt      string    `json:"time"`
-	EncryptedEmail string    `json:"encrypted_author_email"`
-	AuthorEmail    string    `json:"author_email"`
-	CommitterName  string    `json:"committer_name"`
-	CommitterEmail string    `json:"committer_email"`
-	AuthorLogin    string    `json:"author_login"`
-	CommitterLogin string    `json:"committer_login"`
+	Type           string `json:"type"`
+	SHA            string `json:"sha"`
+	EventID        int64  `json:"event_id"`
+	AuthorName     string `json:"author_name"`
+	Message        string `json:"message"`
+	ActorLogin     string `json:"actor_login"`
+	RepoName       string `json:"repo_name"`
+	CreatedAt      string `json:"time"`
+	EncryptedEmail string `json:"encrypted_author_email"`
+	AuthorEmail    string `json:"author_email"`
+	CommitterName  string `json:"committer_name"`
+	CommitterEmail string `json:"committer_email"`
+	AuthorLogin    string `json:"author_login"`
+	CommitterLogin string `json:"committer_login"`
+	Org            string `json:"org"`
+	RepoGroup      string `json:"repo_group"`
+	RepoAlias      string `json:"repo_alias"`
 }
 
 func generateRawES(ch chan struct{}, ctx *lib.Ctx, con *sql.DB, es *lib.ES, dtf, dtt time.Time, sqls map[string]string, shas map[string]string) {
@@ -43,7 +46,7 @@ func generateRawES(ch chan struct{}, ctx *lib.Ctx, con *sql.DB, es *lib.ES, dtf,
 	// ES bulk inserts
 	bulkDel, bulkAdd := es.Bulks()
 	var c esRawCommit
-  var tm time.Time
+	var tm time.Time
 	c.Type = "commit"
 	for rows.Next() {
 		lib.FatalOnError(
@@ -61,9 +64,12 @@ func generateRawES(ch chan struct{}, ctx *lib.Ctx, con *sql.DB, es *lib.ES, dtf,
 				&c.CommitterEmail,
 				&c.AuthorLogin,
 				&c.CommitterLogin,
+				&c.Org,
+				&c.RepoGroup,
+				&c.RepoAlias,
 			),
 		)
-    c.CreatedAt = lib.ToESDate(tm)
+		c.CreatedAt = lib.ToESDate(tm)
 		es.AddBulksItemsI(ctx, bulkDel, bulkAdd, c, lib.HashArray([]interface{}{c.Type, c.SHA, c.EventID}))
 	}
 	lib.FatalOnError(rows.Err())
