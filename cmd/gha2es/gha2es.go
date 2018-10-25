@@ -11,23 +11,30 @@ import (
 )
 
 type esRawCommit struct {
-	Type           string `json:"type"`
-	SHA            string `json:"sha"`
-	EventID        int64  `json:"event_id"`
-	AuthorName     string `json:"author_name"`
-	Message        string `json:"message"`
-	ActorLogin     string `json:"actor_login"`
-	RepoName       string `json:"repo_name"`
-	CreatedAt      string `json:"time"`
-	EncryptedEmail string `json:"encrypted_author_email"`
-	AuthorEmail    string `json:"author_email"`
-	CommitterName  string `json:"committer_name"`
-	CommitterEmail string `json:"committer_email"`
-	AuthorLogin    string `json:"author_login"`
-	CommitterLogin string `json:"committer_login"`
-	Org            string `json:"org"`
-	RepoGroup      string `json:"repo_group"`
-	RepoAlias      string `json:"repo_alias"`
+	Type             string   `json:"type"`
+	SHA              string   `json:"sha"`
+	EventID          int64    `json:"event_id"`
+	AuthorName       string   `json:"author_name"`
+	Message          string   `json:"message"`
+	ActorLogin       string   `json:"actor_login"`
+	RepoName         string   `json:"repo_name"`
+	CreatedAt        string   `json:"time"`
+	EncryptedEmail   string   `json:"encrypted_author_email"`
+	AuthorEmail      string   `json:"author_email"`
+	CommitterName    string   `json:"committer_name"`
+	CommitterEmail   string   `json:"committer_email"`
+	AuthorLogin      string   `json:"author_login"`
+	CommitterLogin   string   `json:"committer_login"`
+	Org              string   `json:"org"`
+	RepoGroup        string   `json:"repo_group"`
+	RepoAlias        string   `json:"repo_alias"`
+	ActorName        string   `json:"actor_name"`
+	ActorCountryCode string   `json:"actor_country_code"`
+	ActorGender      string   `json:"actor_gender"`
+	ActorGenderProb  *float64 `json:"actor_gender_prob"`
+	ActorTZ          string   `json:"actor_tz"`
+	ActorTZOffset    *int     `json:"actor_tz_offset"`
+	ActorCountry     string   `json:"actor_country"`
 }
 
 func generateRawES(ch chan struct{}, ctx *lib.Ctx, con *sql.DB, es *lib.ES, dtf, dtt time.Time, sqls map[string]string, shas map[string]string) {
@@ -67,6 +74,13 @@ func generateRawES(ch chan struct{}, ctx *lib.Ctx, con *sql.DB, es *lib.ES, dtf,
 				&c.Org,
 				&c.RepoGroup,
 				&c.RepoAlias,
+				&c.ActorName,
+				&c.ActorCountryCode,
+				&c.ActorGender,
+				&c.ActorGenderProb,
+				&c.ActorTZ,
+				&c.ActorTZOffset,
+				&c.ActorCountry,
 			),
 		)
 		c.CreatedAt = lib.ToESDate(tm)
