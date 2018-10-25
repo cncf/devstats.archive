@@ -11,30 +11,42 @@ import (
 )
 
 type esRawCommit struct {
-	Type             string   `json:"type"`
-	SHA              string   `json:"sha"`
-	EventID          int64    `json:"event_id"`
-	AuthorName       string   `json:"author_name"`
-	Message          string   `json:"message"`
-	ActorLogin       string   `json:"actor_login"`
-	RepoName         string   `json:"repo_name"`
-	CreatedAt        string   `json:"time"`
-	EncryptedEmail   string   `json:"encrypted_author_email"`
-	AuthorEmail      string   `json:"author_email"`
-	CommitterName    string   `json:"committer_name"`
-	CommitterEmail   string   `json:"committer_email"`
-	AuthorLogin      string   `json:"author_login"`
-	CommitterLogin   string   `json:"committer_login"`
-	Org              string   `json:"org"`
-	RepoGroup        string   `json:"repo_group"`
-	RepoAlias        string   `json:"repo_alias"`
-	ActorName        string   `json:"actor_name"`
-	ActorCountryCode string   `json:"actor_country_code"`
-	ActorGender      string   `json:"actor_gender"`
-	ActorGenderProb  *float64 `json:"actor_gender_prob"`
-	ActorTZ          string   `json:"actor_tz"`
-	ActorTZOffset    *int     `json:"actor_tz_offset"`
-	ActorCountry     string   `json:"actor_country"`
+	Type                 string   `json:"type"`
+	SHA                  string   `json:"sha"`
+	EventID              int64    `json:"event_id"`
+	AuthorName           string   `json:"author_name"`
+	Message              string   `json:"message"`
+	ActorLogin           string   `json:"actor_login"`
+	RepoName             string   `json:"repo_name"`
+	CreatedAt            string   `json:"time"`
+	EncryptedEmail       string   `json:"encrypted_author_email"`
+	AuthorEmail          string   `json:"author_email"`
+	CommitterName        string   `json:"committer_name"`
+	CommitterEmail       string   `json:"committer_email"`
+	AuthorLogin          string   `json:"author_login"`
+	CommitterLogin       string   `json:"committer_login"`
+	Org                  string   `json:"org"`
+	RepoGroup            string   `json:"repo_group"`
+	RepoAlias            string   `json:"repo_alias"`
+	ActorName            string   `json:"actor_name"`
+	ActorCountryCode     string   `json:"actor_country_code"`
+	ActorGender          string   `json:"actor_gender"`
+	ActorGenderProb      *float64 `json:"actor_gender_prob"`
+	ActorTZ              string   `json:"actor_tz"`
+	ActorTZOffset        *int     `json:"actor_tz_offset"`
+	ActorCountry         string   `json:"actor_country"`
+	AuthorCountryCode    string   `json:"author_country_code"`
+	AuthorGender         string   `json:"author_gender"`
+	AuthorGenderProb     *float64 `json:"author_gender_prob"`
+	AuthorTZ             string   `json:"author_tz"`
+	AuthorTZOffset       *int     `json:"author_tz_offset"`
+	AuthorCountry        string   `json:"author_country"`
+	CommitterCountryCode string   `json:"committer_country_code"`
+	CommitterGender      string   `json:"committer_gender"`
+	CommitterGenderProb  *float64 `json:"committer_gender_prob"`
+	CommitterTZ          string   `json:"committer_tz"`
+	CommitterTZOffset    *int     `json:"committer_tz_offset"`
+	CommitterCountry     string   `json:"committer_country"`
 }
 
 func generateRawES(ch chan struct{}, ctx *lib.Ctx, con *sql.DB, es *lib.ES, dtf, dtt time.Time, sqls map[string]string, shas map[string]string) {
@@ -84,6 +96,18 @@ func generateRawES(ch chan struct{}, ctx *lib.Ctx, con *sql.DB, es *lib.ES, dtf,
 				&c.ActorTZ,
 				&c.ActorTZOffset,
 				&c.ActorCountry,
+				&c.AuthorCountryCode,
+				&c.AuthorGender,
+				&c.AuthorGenderProb,
+				&c.AuthorTZ,
+				&c.AuthorTZOffset,
+				&c.AuthorCountry,
+				&c.CommitterCountryCode,
+				&c.CommitterGender,
+				&c.CommitterGenderProb,
+				&c.CommitterTZ,
+				&c.CommitterTZOffset,
+				&c.CommitterCountry,
 			),
 		)
 		n++
