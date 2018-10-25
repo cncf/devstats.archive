@@ -1,9 +1,9 @@
 GO_LIB_FILES=pg_conn.go error.go mgetc.go map.go threads.go gha.go json.go time.go context.go exec.go structure.go log.go hash.go unicode.go const.go string.go annotations.go env.go ghapi.go io.go tags.go yaml.go es_conn.go ts_points.go convert.go
-GO_BIN_FILES=cmd/structure/structure.go cmd/runq/runq.go cmd/gha2db/gha2db.go cmd/calc_metric/calc_metric.go cmd/gha2db_sync/gha2db_sync.go cmd/import_affs/import_affs.go cmd/annotations/annotations.go cmd/tags/tags.go cmd/webhook/webhook.go cmd/devstats/devstats.go cmd/get_repos/get_repos.go cmd/merge_dbs/merge_dbs.go cmd/replacer/replacer.go cmd/vars/vars.go cmd/ghapi2db/ghapi2db.go cmd/columns/columns.go cmd/hide_data/hide_data.go cmd/sqlitedb/sqlitedb.go cmd/website_data/website_data.go cmd/sync_issues/sync_issues.go cmd/devstats_api_server/devstats_api_server.go
+GO_BIN_FILES=cmd/structure/structure.go cmd/runq/runq.go cmd/gha2db/gha2db.go cmd/calc_metric/calc_metric.go cmd/gha2db_sync/gha2db_sync.go cmd/import_affs/import_affs.go cmd/annotations/annotations.go cmd/tags/tags.go cmd/webhook/webhook.go cmd/devstats/devstats.go cmd/get_repos/get_repos.go cmd/merge_dbs/merge_dbs.go cmd/replacer/replacer.go cmd/vars/vars.go cmd/ghapi2db/ghapi2db.go cmd/columns/columns.go cmd/hide_data/hide_data.go cmd/sqlitedb/sqlitedb.go cmd/website_data/website_data.go cmd/sync_issues/sync_issues.go cmd/devstats_api_server/devstats_api_server.go cmd/gha2es/gha2es.go
 GO_TEST_FILES=context_test.go gha_test.go map_test.go mgetc_test.go threads_test.go time_test.go unicode_test.go string_test.go regexp_test.go annotations_test.go env_test.go convert_test.go
 GO_DBTEST_FILES=pg_test.go series_test.go metrics_test.go
 GO_LIBTEST_FILES=test/compare.go test/time.go
-GO_BIN_CMDS=devstats/cmd/structure devstats/cmd/runq devstats/cmd/gha2db devstats/cmd/calc_metric devstats/cmd/gha2db_sync devstats/cmd/import_affs devstats/cmd/annotations devstats/cmd/tags devstats/cmd/webhook devstats/cmd/devstats devstats/cmd/get_repos devstats/cmd/merge_dbs devstats/cmd/replacer devstats/cmd/vars devstats/cmd/ghapi2db devstats/cmd/columns devstats/cmd/hide_data devstats/cmd/sqlitedb devstats/cmd/website_data devstats/cmd/sync_issues devstats/cmd/devstats_api_server
+GO_BIN_CMDS=devstats/cmd/structure devstats/cmd/runq devstats/cmd/gha2db devstats/cmd/calc_metric devstats/cmd/gha2db_sync devstats/cmd/import_affs devstats/cmd/annotations devstats/cmd/tags devstats/cmd/webhook devstats/cmd/devstats devstats/cmd/get_repos devstats/cmd/merge_dbs devstats/cmd/replacer devstats/cmd/vars devstats/cmd/ghapi2db devstats/cmd/columns devstats/cmd/hide_data devstats/cmd/sqlitedb devstats/cmd/website_data devstats/cmd/sync_issues devstats/cmd/devstats_api_server devstats/cmd/gha2es
 #for race CGO_ENABLED=1
 #GO_ENV=CGO_ENABLED=1
 GO_ENV=CGO_ENABLED=0
@@ -24,7 +24,7 @@ GO_IMPORTS=goimports -w
 GO_USEDEXPORTS=usedexports -ignore 'sqlitedb.go|vendor'
 GO_ERRCHECK=errcheck -asserts -ignore '[FS]?[Pp]rint*' -ignoretests
 GO_TEST=go test
-BINARIES=structure runq gha2db calc_metric gha2db_sync import_affs annotations tags webhook devstats get_repos merge_dbs replacer vars ghapi2db columns hide_data website_data sync_issues devstats_api_server sqlitedb
+BINARIES=structure runq gha2db calc_metric gha2db_sync import_affs annotations tags webhook devstats get_repos merge_dbs replacer vars ghapi2db columns hide_data website_data sync_issues devstats_api_server gha2es sqlitedb
 CRON_SCRIPTS=cron/cron_db_backup.sh cron/cron_db_backup_all.sh cron/refresh_mviews.sh cron/net_tcp_config.sh cron/backup_artificial.sh cron/restart_dbs.sh
 UTIL_SCRIPTS=devel/wait_for_command.sh devel/cronctl.sh devel/sync_lock.sh devel/sync_unlock.sh
 GIT_SCRIPTS=git/git_reset_pull.sh git/git_files.sh git/git_tags.sh git/last_tag.sh
@@ -40,6 +40,9 @@ runq: cmd/runq/runq.go ${GO_LIB_FILES}
 
 gha2db: cmd/gha2db/gha2db.go ${GO_LIB_FILES}
 	 ${GO_ENV} ${GO_BUILD} -o gha2db cmd/gha2db/gha2db.go
+
+gha2es: cmd/gha2es/gha2es.go ${GO_LIB_FILES}
+	 ${GO_ENV} ${GO_BUILD} -o gha2es cmd/gha2es/gha2es.go
 
 calc_metric: cmd/calc_metric/calc_metric.go ${GO_LIB_FILES}
 	 ${GO_ENV} ${GO_BUILD} -o calc_metric cmd/calc_metric/calc_metric.go

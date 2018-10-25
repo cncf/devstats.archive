@@ -270,6 +270,24 @@ func sync(ctx *lib.Ctx, args []string) {
 		lib.FatalOnError(err)
 	}
 
+	// If ElasticSearch output is enabled
+	if ctx.UseES {
+		lib.Printf("Update ElasticSearch raw index\n")
+		// Recompute views and DB summaries
+		_, err := lib.ExecCommand(
+			ctx,
+			[]string{
+				cmdPrefix + "gha2es",
+				fromDate,
+				fromHour,
+				toDate,
+				toHour,
+			},
+			nil,
+		)
+		lib.FatalOnError(err)
+	}
+
 	// Calc metric
 	if !ctx.SkipTSDB {
 		metricsDir := dataPrefix + "metrics"

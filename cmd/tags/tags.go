@@ -20,7 +20,7 @@ func calcTags() {
 	// Optional ElasticSearch output
 	var es *lib.ES
 	if ctx.UseES {
-		es = lib.ESConn(&ctx)
+		es = lib.ESConn(&ctx, "d_")
 	}
 
 	// Local or cron mode?

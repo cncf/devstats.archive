@@ -579,8 +579,8 @@ CREATE TABLE public.gha_commits (
     committer_email character varying(160) DEFAULT ''::character varying NOT NULL,
     author_id bigint,
     committer_id bigint,
-    dup_author_login character varying(120),
-    dup_committer_login character varying(120)
+    dup_author_login character varying(120) DEFAULT ''::character varying NOT NULL,
+    dup_committer_login character varying(120) DEFAULT ''::character varying NOT NULL
 );
 
 
