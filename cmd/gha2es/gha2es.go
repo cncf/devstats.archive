@@ -165,9 +165,18 @@ type esRawPR struct {
 	UserTZ              string   `json:"creator_tz"`
 	UserTZOffset        *int     `json:"creator_tz_offset"`
 	UserCountry         string   `json:"creator_country"`
+	MergedByLogin       string   `json:"merged_by_login"`
+	MergedByName        string   `json:"merged_by_name"`
+	MergedByCountryCode string   `json:"merged_by_country_code"`
+	MergedByGender      string   `json:"merged_by_gender"`
+	MergedByGenderProb  *float64 `json:"merged_by_gender_prob"`
+	MergedByTZ          string   `json:"merged_by_tz"`
+	MergedByTZOffset    *int     `json:"merged_by_tz_offset"`
+	MergedByCountry     string   `json:"merged_by_country"`
 	AssigneeCompany     string   `json:"assignee_company"`
 	ActorCompany        string   `json:"actor_company"`
 	UserCompany         string   `json:"creator_company"`
+	MergedByCompany     string   `json:"merged_by_company"`
 }
 
 func generateRawES(ch chan struct{}, ctx *lib.Ctx, con *sql.DB, es *lib.ES, dtf, dtt time.Time, sqls map[string]string) {
@@ -419,9 +428,18 @@ func generateRawES(ch chan struct{}, ctx *lib.Ctx, con *sql.DB, es *lib.ES, dtf,
 				&pr.UserTZ,
 				&pr.UserTZOffset,
 				&pr.UserCountry,
+				&pr.MergedByLogin,
+				&pr.MergedByName,
+				&pr.MergedByCountryCode,
+				&pr.MergedByGender,
+				&pr.MergedByGenderProb,
+				&pr.MergedByTZ,
+				&pr.MergedByTZOffset,
+				&pr.MergedByCountry,
 				&pr.AssigneeCompany,
 				&pr.ActorCompany,
 				&pr.UserCompany,
+				&pr.MergedByCompany,
 			),
 		)
 		nPRs++
@@ -501,8 +519,8 @@ func gha2es(args []string) {
 		dataPrefix = "./"
 	}
 	data := [][2]string{
-		//{"commits", "util_sql/es_raw_commits.sql"},
-		//{"issues", "util_sql/es_raw_issues.sql"},
+		{"commits", "util_sql/es_raw_commits.sql"},
+		{"issues", "util_sql/es_raw_issues.sql"},
 		{"prs", "util_sql/es_raw_prs.sql"},
 	}
 	for _, row := range data {

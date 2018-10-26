@@ -1,8 +1,4 @@
 select
-/*
- merged_by_id          | bigint                      |           |          |
- dupn_merged_by_login  | character varying(120)      |           |          |
-*/
   pr.id,
   pr.event_id,
   pr.dup_created_at,
@@ -61,9 +57,18 @@ select
   coalesce(usr.tz, ''),
   usr.tz_offset,
   coalesce(usr.country_name, ''),
+  coalesce(pr.dupn_merged_by_login, merged_by.login, ''),
+  coalesce(merged_by.name, ''),
+  coalesce(merged_by.country_id, ''),
+  coalesce(merged_by.sex, ''),
+  merged_by.sex_prob,
+  coalesce(merged_by.tz, ''),
+  merged_by.tz_offset,
+  coalesce(merged_by.country_name, ''),
   coalesce(assignee_aff.company_name, ''),
   coalesce(actor_aff.company_name, ''),
-  coalesce(usr_aff.company_name, '')
+  coalesce(usr_aff.company_name, ''),
+  coalesce(merged_by_aff.company_name, '')
 from
   gha_pull_requests pr
 left join
@@ -83,6 +88,10 @@ left join
   gha_actors usr
 on
   pr.user_id = usr.id
+left join
+  gha_actors merged_by
+on
+  pr.merged_by_id = merged_by.id
 left join
   gha_milestones m
 on
@@ -106,6 +115,12 @@ on
   pr.user_id = usr_aff.actor_id
   and usr_aff.dt_from <= pr.created_at
   and usr_aff.dt_to > pr.created_at
+left join
+  gha_actors_affiliations merged_by_aff
+on
+  pr.merged_by_id = merged_by_aff.actor_id
+  and merged_by_aff.dt_from <= pr.merged_at
+  and merged_by_aff.dt_to > pr.merged_at
 where
   pr.dup_created_at >= '{{from}}'
   and pr.dup_created_at < '{{to}}'
