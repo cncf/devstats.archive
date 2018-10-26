@@ -180,9 +180,7 @@ func sync(ctx *lib.Ctx, args []string) {
 			}
 		}
 	}
-	if ctx.Debug > 0 {
-		lib.Printf("Using start dates: %v, %v\n", maxDtPg, maxDtTSDB)
-	}
+	lib.Printf("Using start dates: %s, %s\n", lib.ToYMDHDate(maxDtPg), lib.ToYMDHDate(maxDtTSDB))
 
 	// Create date range
 	// Just to get into next GHA hour
@@ -271,8 +269,9 @@ func sync(ctx *lib.Ctx, args []string) {
 	}
 
 	// If ElasticSearch output is enabled
-	if ctx.UseES {
+	if ctx.UseESRaw {
 		lib.Printf("Update ElasticSearch raw index\n")
+		lib.Printf("ES range: %s %s - %s %s\n", fromDate, fromHour, toDate, toHour)
 		// Recompute views and DB summaries
 		_, err := lib.ExecCommand(
 			ctx,
