@@ -15,13 +15,13 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 57,
-  "iteration": 1529597897988,
+  "id": 70,
+  "iteration": 1540549002050,
   "links": [],
   "panels": [
     {
       "columns": [],
-      "datasource": "psql",
+      "datasource": "es",
       "description": "",
       "fontSize": "90%",
       "gridPos": {
@@ -97,6 +97,18 @@
       "targets": [
         {
           "alias": "",
+          "bucketAggs": [
+            {
+              "field": "time",
+              "id": "2",
+              "settings": {
+                "interval": "auto",
+                "min_doc_count": 0,
+                "trimEdges": 0
+              },
+              "type": "date_histogram"
+            }
+          ],
           "dsType": "influxdb",
           "format": "table",
           "groupBy": [
@@ -113,9 +125,16 @@
               "type": "fill"
             }
           ],
+          "metrics": [
+            {
+              "field": "select field",
+              "id": "1",
+              "type": "count"
+            }
+          ],
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "SELECT \"name\", \"value\" FROM \"project_company_stats_[[metric]]_[[period]]\" WHERE $timeFilter",
+          "query": "type:ishcom AND period:[[period]] AND series:hcom[[metric]]",
           "rawQuery": true,
           "rawSql": "select name, value from \"shcom\" where series = 'hcom[[metric]]' and period = '[[period]]'",
           "refId": "A",
@@ -134,11 +153,12 @@
               }
             ]
           ],
-          "tags": []
+          "tags": [],
+          "timeField": "time"
         }
       ],
       "title": "[[full_name]] Companies statistics ([[metric]], Range: [[period_name]]), bots excluded",
-      "transform": "table",
+      "transform": "timeseries_to_rows",
       "transparent": false,
       "type": "table"
     },
@@ -174,15 +194,15 @@
           "text": "CNCF",
           "value": "CNCF"
         },
-        "datasource": "psql",
+        "datasource": "es",
         "hide": 2,
         "includeAll": false,
         "label": null,
         "multi": false,
         "name": "full_name",
         "options": [],
-        "query": "select value_s from gha_vars where name = 'full_name'",
-        "refresh": 1,
+        "query": "{ \"find\": \"terms\", \"field\": \"vvalue\", \"query\": \"type:tvars AND vname:full_name\" } ",
+        "refresh": 2,
         "regex": "",
         "skipUrlSync": true,
         "sort": 0,
@@ -199,18 +219,18 @@
           "text": "Last decade",
           "value": "Last decade"
         },
-        "datasource": "psql",
+        "datasource": "es",
         "hide": 0,
         "includeAll": false,
         "label": "Range",
         "multi": false,
         "name": "period_name",
         "options": [],
-        "query": "select quick_ranges_name from tquick_ranges order by time",
-        "refresh": 1,
+        "query": "{\"find\": \"terms\", \"field\": \"quick_ranges_name\", \"query\": \"type: tquick_ranges\"}",
+        "refresh": 2,
         "regex": "",
         "skipUrlSync": false,
-        "sort": 0,
+        "sort": 2,
         "tagValuesQuery": "",
         "tags": [],
         "tagsQuery": "",
@@ -322,15 +342,15 @@
           "text": "y10",
           "value": "y10"
         },
-        "datasource": "psql",
+        "datasource": "es",
         "hide": 2,
         "includeAll": false,
         "label": null,
         "multi": false,
         "name": "period",
         "options": [],
-        "query": "select quick_ranges_suffix from tquick_ranges where quick_ranges_name = '[[period_name]]'",
-        "refresh": 1,
+        "query": " { \"find\": \"terms\", \"field\": \"quick_ranges_suffix\", \"query\": \"type: tquick_ranges AND quick_ranges_name:[[period_name]]\" }",
+        "refresh": 2,
         "regex": "",
         "skipUrlSync": true,
         "sort": 0,
@@ -343,15 +363,15 @@
       {
         "allValue": null,
         "current": {},
-        "datasource": "psql",
+        "datasource": "es",
         "hide": 2,
         "includeAll": false,
         "label": null,
         "multi": false,
         "name": "docs",
         "options": [],
-        "query": "select value_s from gha_vars where name = 'companies_summary_docs_html'",
-        "refresh": 1,
+        "query": "{\"find\": \"terms\", \"field\": \"vvalue\", \"query\": \"type:tvars AND vname: companies_summary_docs_html\"}",
+        "refresh": 2,
         "regex": "",
         "skipUrlSync": true,
         "sort": 0,
