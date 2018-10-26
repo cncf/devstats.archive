@@ -92,14 +92,17 @@ type esRawIssue struct {
 	ActorTZ             string   `json:"actor_tz"`
 	ActorTZOffset       *int     `json:"actor_tz_offset"`
 	ActorCountry        string   `json:"actor_country"`
-	UserLogin           string   `json:"user_login"`
-	UserName            string   `json:"user_name"`
-	UserCountryCode     string   `json:"user_country_code"`
-	UserGender          string   `json:"user_gender"`
-	UserGenderProb      *float64 `json:"user_gender_prob"`
-	UserTZ              string   `json:"user_tz"`
-	UserTZOffset        *int     `json:"user_tz_offset"`
-	UserCountry         string   `json:"user_country"`
+	UserLogin           string   `json:"creator_login"`
+	UserName            string   `json:"creator_name"`
+	UserCountryCode     string   `json:"creator_country_code"`
+	UserGender          string   `json:"creator_gender"`
+	UserGenderProb      *float64 `json:"creator_gender_prob"`
+	UserTZ              string   `json:"creator_tz"`
+	UserTZOffset        *int     `json:"creator_tz_offset"`
+	UserCountry         string   `json:"creator_country"`
+	AssigneeCompany     string   `json:"assignee_company"`
+	ActorCompany        string   `json:"actor_company"`
+	UserCompany         string   `json:"creator_company"`
 }
 
 func generateRawES(ch chan struct{}, ctx *lib.Ctx, con *sql.DB, es *lib.ES, dtf, dtt time.Time, sqls map[string]string) {
@@ -250,6 +253,9 @@ func generateRawES(ch chan struct{}, ctx *lib.Ctx, con *sql.DB, es *lib.ES, dtf,
 				&issue.UserTZ,
 				&issue.UserTZOffset,
 				&issue.UserCountry,
+				&issue.AssigneeCompany,
+				&issue.ActorCompany,
+				&issue.UserCompany,
 			),
 		)
 		nIssues++
