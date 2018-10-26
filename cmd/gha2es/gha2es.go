@@ -119,6 +119,20 @@ type esRawPR struct {
 	State               string   `json:"state"`
 	Title               string   `json:"title"`
 	UpdatedAt           string   `json:"updated_at"`
+	BaseSHA             string   `json:"base_sha"`
+	HeadSHA             string   `json:"head_sha"`
+	MergedAt            *string  `json:"merged_at"`
+	MergeCommitSHA      *string  `json:"merge_commit_sha"`
+	Merged              *bool    `json:"merged"`
+	Mergeable           *bool    `json:"mergeable"`
+	Rebaseable          *bool    `json:"rebaseable"`
+	MergeableState      *string  `json:"mergeable_state"`
+	ReviewComments      *int     `json:"review_comments"`
+	MaintainerCanModify *bool    `json:"maintainer_can_modify"`
+	Commits             *int     `json:"commits"`
+	Additions           *int     `json:"additions"`
+	Deletions           *int     `json:"deleteions"`
+	ChangedFiles        *int     `json:"changed_files"`
 	EventType           string   `json:"event_type"`
 	RepoName            string   `json:"repo_name"`
 	Org                 string   `json:"org"`
@@ -338,7 +352,8 @@ func generateRawES(ch chan struct{}, ctx *lib.Ctx, con *sql.DB, es *lib.ES, dtf,
 	defer func() { lib.FatalOnError(rows.Close()) }()
 
 	var (
-		pr esRawPR
+		pr       esRawPR
+		mergedAt *time.Time
 	)
 	prids := make(map[int64]struct{})
 	pr.Type = "pr"
@@ -358,6 +373,20 @@ func generateRawES(ch chan struct{}, ctx *lib.Ctx, con *sql.DB, es *lib.ES, dtf,
 				&pr.State,
 				&pr.Title,
 				&updatedAt,
+				&pr.BaseSHA,
+				&pr.HeadSHA,
+				&mergedAt,
+				&pr.MergeCommitSHA,
+				&pr.Merged,
+				&pr.Mergeable,
+				&pr.Rebaseable,
+				&pr.MergeableState,
+				&pr.ReviewComments,
+				&pr.MaintainerCanModify,
+				&pr.Commits,
+				&pr.Additions,
+				&pr.Deletions,
+				&pr.ChangedFiles,
 				&pr.EventType,
 				&pr.RepoName,
 				&pr.Org,
@@ -405,6 +434,12 @@ func generateRawES(ch chan struct{}, ctx *lib.Ctx, con *sql.DB, es *lib.ES, dtf,
 			pr.ClosedAt = &tm
 		} else {
 			pr.ClosedAt = nil
+		}
+		if mergedAt != nil {
+			tm := lib.ToESDate(*mergedAt)
+			pr.MergedAt = &tm
+		} else {
+			pr.MergedAt = nil
 		}
 		prids[pr.ID] = struct{}{}
 		es.AddBulksItemsI(ctx, bulkDel, bulkAdd, pr, lib.HashArray([]interface{}{pr.Type, pr.ID, pr.EventID}))
