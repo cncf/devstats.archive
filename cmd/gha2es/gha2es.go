@@ -497,7 +497,7 @@ func gha2es(args []string) {
 
 	// Environment context parse
 	ctx.Init()
-	if !ctx.UseES {
+	if !ctx.UseESRaw {
 		return
 	}
 	// Connect to ElasticSearch
