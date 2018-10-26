@@ -14,12 +14,12 @@ type Tags struct {
 
 // Tag contain each TSDB tag data
 type Tag struct {
-	Name       string            `yaml:"name"`
-	SQLFile    string            `yaml:"sql"`
-	SeriesName string            `yaml:"series_name"`
-	NameTag    string            `yaml:"name_tag"`
-	ValueTag   string            `yaml:"value_tag"`
-	OtherTags  map[string]string `yaml:"other_tags"`
+	Name       string               `yaml:"name"`
+	SQLFile    string               `yaml:"sql"`
+	SeriesName string               `yaml:"series_name"`
+	NameTag    string               `yaml:"name_tag"`
+	ValueTag   string               `yaml:"value_tag"`
+	OtherTags  map[string][2]string `yaml:"other_tags"`
 }
 
 // ProcessTag - insert given Tag into Postgres TSDB
@@ -113,13 +113,17 @@ func ProcessTag(con *sql.DB, es *ES, ctx *Ctx, tg *Tag, replaces [][]string) {
 			tags[tg.ValueTag] = NormalizeName(strVal)
 		}
 		if tg.OtherTags != nil {
-			for tName, tValue := range tg.OtherTags {
+			for tName, tData := range tg.OtherTags {
+				tValue := tData[0]
 				cIdx, ok := colIdx[tValue]
 				if !ok {
 					Fatalf("other tag: name: %s: column %s not found", tName, tValue)
 				}
 				tags[tName] = sVals[cIdx]
-				tags[tName+"_norm"] = NormalizeName(sVals[cIdx])
+				tNorm := strings.ToLower(tData[1])
+				if tNorm == "1" || tNorm == "t" || tNorm == "y" {
+					tags[tName+"_norm"] = NormalizeName(sVals[cIdx])
+				}
 			}
 		}
 		if ctx.Debug > 0 {
