@@ -9,11 +9,12 @@ import (
 
 // ES - ElasticSearch connection client, context and default mapping
 type ES struct {
-	ctx        context.Context
-	es         *elastic.Client
-	mapping    string
-	mappingRaw string
-	prefix     string
+	ctx           context.Context
+	es            *elastic.Client
+	mapping       string
+	mappingRaw    string
+	prefix        string
+	fieldsToMerge map[string]string
 }
 
 // ESDataObject internal JSON data for stored documents
@@ -36,10 +37,16 @@ func ESConn(ctx *Ctx, prefix string) *ES {
 	if ctx.Debug > 0 {
 		Printf("ElasticSearch connection code %d and version %s\n", code, info.Version.Number)
 	}
+	fieldsToMerge := map[string]string{
+		"name":  "svalue",
+		"value": "ivalue",
+		"descr": "descr",
+	}
 	return &ES{
-		ctx:    ctxb,
-		es:     client,
-		prefix: prefix,
+		ctx:           ctxb,
+		es:            client,
+		prefix:        prefix,
+		fieldsToMerge: fieldsToMerge,
 		mapping: `{"settings":{"number_of_shards":1,"number_of_replicas":0},` +
 			`"mappings":{"_doc":{` +
 			`"dynamic_templates":[` +
@@ -220,7 +227,7 @@ func (es *ES) ExecuteBulks(ctx *Ctx, bulkDel, bulkAdd *elastic.BulkService) {
 // WriteESPoints write batch of points to postgresql
 // outputs[0] - output using variable column name (1 doc)
 // outputs[1] - output using data[] array containing {name,ivalue,svalue} tripplets (1 doc)
-// outputs[2] - output using N separate docs, each containing {name,ivalue,svalue} tripplets (N docs)
+// outputs[2] - output using N separate docs, each containing {name,ivalue,svalue} tripplets (N docs) (but trying to keep both int and string value in the same record)
 func (es *ES) WriteESPoints(ctx *Ctx, pts *TSPoints, mergeS string, outputs [3]bool) {
 	npts := len(*pts)
 	if ctx.Debug > 0 {
@@ -309,6 +316,7 @@ func (es *ES) WriteESPoints(ctx *Ctx, pts *TSPoints, mergeS string, outputs [3]b
 				items++
 			}
 			if outputs[2] {
+				mergeFields := make(map[string]map[string]interface{})
 				for fieldName, fieldValue := range p.fields {
 					obj := make(map[string]interface{})
 					obj["type"] = "is" + p.name
@@ -326,6 +334,29 @@ func (es *ES) WriteESPoints(ctx *Ctx, pts *TSPoints, mergeS string, outputs [3]b
 						}
 						obj["ivalue"] = value
 					}
+					field, ok := es.fieldsToMerge[fieldName]
+					if ok {
+						mergeFields[field] = obj
+						continue
+					}
+					es.AddBulksItems(ctx, bulkDel, bulkAdd, obj, []string{"type", "time", "period", "name"})
+					items++
+				}
+				if len(mergeFields) > 0 {
+					var (
+						initialized bool
+					)
+					obj := make(map[string]interface{})
+					for merge, mobj := range mergeFields {
+						if !initialized {
+							for k, v := range mobj {
+								obj[k] = v
+							}
+							initialized = true
+						}
+						obj[merge] = mobj[merge]
+					}
+					obj["name"] = Merged
 					es.AddBulksItems(ctx, bulkDel, bulkAdd, obj, []string{"type", "time", "period", "name"})
 					items++
 				}
@@ -364,6 +395,7 @@ func (es *ES) WriteESPoints(ctx *Ctx, pts *TSPoints, mergeS string, outputs [3]b
 				items++
 			}
 			if outputs[2] {
+				mergeFields := make(map[string]map[string]interface{})
 				for fieldName, fieldValue := range p.fields {
 					obj := make(map[string]interface{})
 					obj["type"] = "i" + mergeS
@@ -382,6 +414,29 @@ func (es *ES) WriteESPoints(ctx *Ctx, pts *TSPoints, mergeS string, outputs [3]b
 						}
 						obj["ivalue"] = value
 					}
+					field, ok := es.fieldsToMerge[fieldName]
+					if ok {
+						mergeFields[field] = obj
+						continue
+					}
+					es.AddBulksItems(ctx, bulkDel, bulkAdd, obj, []string{"type", "time", "period", "series", "name"})
+					items++
+				}
+				if len(mergeFields) > 0 {
+					var (
+						initialized bool
+					)
+					obj := make(map[string]interface{})
+					for merge, mobj := range mergeFields {
+						if !initialized {
+							for k, v := range mobj {
+								obj[k] = v
+							}
+							initialized = true
+						}
+						obj[merge] = mobj[merge]
+					}
+					obj["name"] = Merged
 					es.AddBulksItems(ctx, bulkDel, bulkAdd, obj, []string{"type", "time", "period", "series", "name"})
 					items++
 				}

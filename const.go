@@ -65,3 +65,6 @@ const Abuse string = "abuse"
 
 // NotFound - common constant string
 const NotFound string = "not_found"
+
+// Merged - common constant string
+const Merged string = "merged"
