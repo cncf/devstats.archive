@@ -16,11 +16,20 @@
   "gnetId": null,
   "graphTooltip": 0,
   "id": 70,
-  "iteration": 1540549002050,
+  "iteration": 1540556128656,
   "links": [],
   "panels": [
     {
-      "columns": [],
+      "columns": [
+        {
+          "text": "svalue",
+          "value": "svalue"
+        },
+        {
+          "text": "ivalue",
+          "value": "ivalue"
+        }
+      ],
       "datasource": "es",
       "description": "",
       "fontSize": "90%",
@@ -58,7 +67,7 @@
           ],
           "dateFormat": "YYYY-MM-DD HH:mm:ss",
           "decimals": 2,
-          "pattern": "name",
+          "pattern": "svalue",
           "preserveFormat": false,
           "thresholds": [],
           "type": "string",
@@ -74,7 +83,7 @@
           ],
           "dateFormat": "YYYY-MM-DD HH:mm:ss",
           "decimals": 0,
-          "pattern": "value",
+          "pattern": "ivalue",
           "thresholds": [],
           "type": "number",
           "unit": "none"
@@ -97,18 +106,7 @@
       "targets": [
         {
           "alias": "",
-          "bucketAggs": [
-            {
-              "field": "time",
-              "id": "2",
-              "settings": {
-                "interval": "auto",
-                "min_doc_count": 0,
-                "trimEdges": 0
-              },
-              "type": "date_histogram"
-            }
-          ],
+          "bucketAggs": [],
           "dsType": "influxdb",
           "format": "table",
           "groupBy": [
@@ -127,14 +125,18 @@
           ],
           "metrics": [
             {
-              "field": "select field",
+              "field": "ivalue",
               "id": "1",
-              "type": "count"
+              "meta": {},
+              "settings": {
+                "size": 10000
+              },
+              "type": "raw_document"
             }
           ],
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "type:ishcom AND period:[[period]] AND series:hcom[[metric]]",
+          "query": "type:ishcom AND period:[[period]] AND series:hcom[[metric]] AND name:merged",
           "rawQuery": true,
           "rawSql": "select name, value from \"shcom\" where series = 'hcom[[metric]]' and period = '[[period]]'",
           "refId": "A",
@@ -158,7 +160,7 @@
         }
       ],
       "title": "[[full_name]] Companies statistics ([[metric]], Range: [[period_name]]), bots excluded",
-      "transform": "timeseries_to_rows",
+      "transform": "json",
       "transparent": false,
       "type": "table"
     },
@@ -215,7 +217,6 @@
       {
         "allValue": null,
         "current": {
-          "tags": [],
           "text": "Last decade",
           "value": "Last decade"
         },
@@ -362,7 +363,10 @@
       },
       {
         "allValue": null,
-        "current": {},
+        "current": {
+          "text": "\u003ch1 id=\"dashboard-header\"\u003eCNCF companies summary dashboard\u003c/h1\u003e\n\u003cp\u003eLinks:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003eMetric \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/project_company_stats.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eTSDB \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/metrics.yaml\" target=\"_blank\"\u003eseries definition\u003c/a\u003e. Search for \u003ccode\u003eproject_company_stats\u003c/code\u003e\u003c/li\u003e\n\u003cli\u003eGrafana dashboard \u003ca href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/cncf/companies-summary.json\" target=\"_blank\"\u003eJSON\u003c/a\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch1 id=\"description\"\u003eDescription\u003c/h1\u003e\n\u003cul\u003e\n\u003cli\u003eThis dashboard shows various GitHub metrics and aggregate them by actors companies.\u003c/li\u003e\n\u003cli\u003eContributor is defined as somebody who made a review, comment, commit, created PR or issue.\u003c/li\u003e\n\u003cli\u003eContribution is a review, comment, commit, issue or PR.\u003c/li\u003e\n\u003cli\u003eYou can select last day, month, week etc. range or date range between releases, for example \u003ccode\u003ev1.9 - v1.10\u003c/code\u003e.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/periods.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about periods.\u003c/li\u003e\n\u003cli\u003eWe are skipping bots activity, see \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/excluding_bots.md\" target=\"_blank\"\u003eexcluding bots\u003c/a\u003e for details.\u003c/li\u003e\n\u003cli\u003eWe are determining user's company affiliation from \u003ca href=\"https://github.com/cncf/devstats/blob/master/github_users.json\" target=\"_blank\"\u003ethis file\u003c/a\u003e, which is imported from \u003ccode\u003ecncf/gitdm\u003c/code\u003e.\u003c/li\u003e\n\u003c/ul\u003e",
+          "value": "\u003ch1 id=\"dashboard-header\"\u003eCNCF companies summary dashboard\u003c/h1\u003e\n\u003cp\u003eLinks:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003eMetric \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/project_company_stats.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eTSDB \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/metrics.yaml\" target=\"_blank\"\u003eseries definition\u003c/a\u003e. Search for \u003ccode\u003eproject_company_stats\u003c/code\u003e\u003c/li\u003e\n\u003cli\u003eGrafana dashboard \u003ca href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/cncf/companies-summary.json\" target=\"_blank\"\u003eJSON\u003c/a\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch1 id=\"description\"\u003eDescription\u003c/h1\u003e\n\u003cul\u003e\n\u003cli\u003eThis dashboard shows various GitHub metrics and aggregate them by actors companies.\u003c/li\u003e\n\u003cli\u003eContributor is defined as somebody who made a review, comment, commit, created PR or issue.\u003c/li\u003e\n\u003cli\u003eContribution is a review, comment, commit, issue or PR.\u003c/li\u003e\n\u003cli\u003eYou can select last day, month, week etc. range or date range between releases, for example \u003ccode\u003ev1.9 - v1.10\u003c/code\u003e.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/periods.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about periods.\u003c/li\u003e\n\u003cli\u003eWe are skipping bots activity, see \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/excluding_bots.md\" target=\"_blank\"\u003eexcluding bots\u003c/a\u003e for details.\u003c/li\u003e\n\u003cli\u003eWe are determining user's company affiliation from \u003ca href=\"https://github.com/cncf/devstats/blob/master/github_users.json\" target=\"_blank\"\u003ethis file\u003c/a\u003e, which is imported from \u003ccode\u003ecncf/gitdm\u003c/code\u003e.\u003c/li\u003e\n\u003c/ul\u003e"
+        },
         "datasource": "es",
         "hide": 2,
         "includeAll": false,
@@ -416,5 +420,5 @@
   "timezone": "",
   "title": "Companies summary ES",
   "uid": "1005",
-  "version": 3
+  "version": 8
 }

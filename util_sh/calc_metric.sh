@@ -4,4 +4,6 @@
 # GHA2DB_PROJECT=kubernetes GHA2DB_LOCAL=1 GHA2DB_USE_ES=1 GHA2DB_SKIPTSDB=1 ./calc_metric multi_row_single_column ./metrics/kubernetes/project_stats.sql '2014-06-01 0' '2018-10-17 5' q hist,annotations_ranges
 # GHA2DB_PROJECT=kubernetes GHA2DB_LOCAL=1 GHA2DB_USE_ES=1 GHA2DB_SKIPTSDB=1 ./calc_metric multi_row_single_column ./metrics/kubernetes/project_developer_stats.sql '2014-06-01 0' '2018-10-17 5' q hist,annotations_ranges,skip_past
 # PG_DB=spinnaker GHA2DB_DEBUG=1 GHA2DB_PROJECT=spinnaker GHA2DB_USE_ES_ONLY=1 GHA2DB_USE_ES=1 ./calc_metric multi_row_single_column ./metrics/shared/activity_repo_groups.sql '2018-10-22 12' '2018-10-22 12' d7 multivalue,skip_past
-PG_DB=cncf GHA2DB_PROJECT=kubernetes GHA2DB_USE_ES_ONLY=1 GHA2DB_USE_ES=1 ./calc_metric multi_row_single_column ./metrics/shared/activity_repo_groups.sql '2015-12-07 18' '2018-10-24 8' y multivalue
+# PG_DB=cncf GHA2DB_PROJECT=kubernetes GHA2DB_USE_ES_ONLY=1 GHA2DB_USE_ES=1 ./calc_metric multi_row_single_column ./metrics/shared/activity_repo_groups.sql '2015-12-07 18' '2018-10-24 8' y multivalue
+# PG_DB=cncf GHA2DB_PROJECT=cncf GHA2DB_USE_ES_ONLY=1 GHA2DB_USE_ES=1 ./calc_metric multi_row_single_column ./metrics/shared/activity_repo_groups.sql '2018-10-26 0' '2018-10-27 0' d multivalue
+PG_DB=cncf GHA2DB_PROJECT=cncf GHA2DB_USE_ES_ONLY=1 GHA2DB_USE_ES=1 ./calc_metric multi_row_single_column ./metrics/shared/project_company_stats.sql '2018-10-26 10' '2018-10-26 10' w 'hist,merge_series:hcom,annotations_ranges,skip_past'
