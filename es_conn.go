@@ -2,7 +2,6 @@ package devstats
 
 import (
 	"context"
-	"fmt"
 	"strings"
 
 	"github.com/olivere/elastic"
