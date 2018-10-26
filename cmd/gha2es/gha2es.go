@@ -386,6 +386,9 @@ func gha2es(args []string) {
 	if hours < 1 {
 		hours = 1
 	}
+	if hours > 480 {
+		hours = 480
+	}
 	lib.Printf("gha2es.go: Running (%v CPUs): %v - %v, interval %dh\n", thrN, dFrom, dTo, hours)
 
 	dt := dFrom
