@@ -43,7 +43,10 @@ select
   usr.sex_prob,
   coalesce(usr.tz, ''),
   usr.tz_offset,
-  coalesce(usr.country_name, '')
+  coalesce(usr.country_name, ''),
+  coalesce(assignee_aff.company_name, ''),
+  coalesce(actor_aff.company_name, ''),
+  coalesce(usr_aff.company_name, '')
 from
   gha_issues i
 left join
@@ -68,6 +71,24 @@ left join
 on
   i.milestone_id = m.id
   and i.event_id = m.event_id
+left join
+  gha_actors_affiliations assignee_aff
+on
+  i.assignee_id = assignee_aff.actor_id
+  and assignee_aff.dt_from <= i.dup_created_at
+  and assignee_aff.dt_to > i.dup_created_at
+left join
+  gha_actors_affiliations actor_aff
+on
+  i.dup_actor_id = actor_aff.actor_id
+  and actor_aff.dt_from <= i.dup_created_at
+  and actor_aff.dt_to > i.dup_created_at
+left join
+  gha_actors_affiliations usr_aff
+on
+  i.user_id = usr_aff.actor_id
+  and usr_aff.dt_from <= i.created_at
+  and usr_aff.dt_to > i.created_at
 where
   i.dup_created_at >= '{{from}}'
   and i.dup_created_at < '{{to}}'
