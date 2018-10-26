@@ -92,14 +92,91 @@ type esRawIssue struct {
 	ActorTZ             string   `json:"actor_tz"`
 	ActorTZOffset       *int     `json:"actor_tz_offset"`
 	ActorCountry        string   `json:"actor_country"`
-	UserLogin           string   `json:"user_login"`
-	UserName            string   `json:"user_name"`
-	UserCountryCode     string   `json:"user_country_code"`
-	UserGender          string   `json:"user_gender"`
-	UserGenderProb      *float64 `json:"user_gender_prob"`
-	UserTZ              string   `json:"user_tz"`
-	UserTZOffset        *int     `json:"user_tz_offset"`
-	UserCountry         string   `json:"user_country"`
+	UserLogin           string   `json:"creator_login"`
+	UserName            string   `json:"creator_name"`
+	UserCountryCode     string   `json:"creator_country_code"`
+	UserGender          string   `json:"creator_gender"`
+	UserGenderProb      *float64 `json:"creator_gender_prob"`
+	UserTZ              string   `json:"creator_tz"`
+	UserTZOffset        *int     `json:"creator_tz_offset"`
+	UserCountry         string   `json:"creator_country"`
+	AssigneeCompany     string   `json:"assignee_company"`
+	ActorCompany        string   `json:"actor_company"`
+	UserCompany         string   `json:"creator_company"`
+}
+
+type esRawPR struct {
+	Type                string   `json:"type"`
+	ID                  int64    `json:"id"`
+	EventID             int64    `json:"event_id"`
+	EventCreatedAt      string   `json:"time"`
+	CreatedAt           string   `json:"created_at"`
+	Body                string   `json:"body"`
+	ClosedAt            *string  `json:"closed_at"`
+	Comments            *int     `json:"comments"`
+	Locked              *bool    `json:"locked"`
+	Number              int      `json:"number"`
+	State               string   `json:"state"`
+	Title               string   `json:"title"`
+	UpdatedAt           string   `json:"updated_at"`
+	BaseSHA             string   `json:"base_sha"`
+	HeadSHA             string   `json:"head_sha"`
+	MergedAt            *string  `json:"merged_at"`
+	MergeCommitSHA      *string  `json:"merge_commit_sha"`
+	Merged              *bool    `json:"merged"`
+	Mergeable           *bool    `json:"mergeable"`
+	Rebaseable          *bool    `json:"rebaseable"`
+	MergeableState      *string  `json:"mergeable_state"`
+	ReviewComments      *int     `json:"review_comments"`
+	MaintainerCanModify *bool    `json:"maintainer_can_modify"`
+	Commits             *int     `json:"commits"`
+	Additions           *int     `json:"additions"`
+	Deletions           *int     `json:"deleteions"`
+	ChangedFiles        *int     `json:"changed_files"`
+	EventType           string   `json:"event_type"`
+	RepoName            string   `json:"repo_name"`
+	Org                 string   `json:"org"`
+	RepoGroup           string   `json:"repo_group"`
+	RepoAlias           string   `json:"repo_alias"`
+	MilestoneNumber     *int     `json:"milestone_number"`
+	MilestoneState      string   `json:"milestone_state"`
+	MilestoneTitle      string   `json:"milestone_title"`
+	AssigneeLogin       string   `json:"assignee_login"`
+	AssigneeName        string   `json:"assignee_name"`
+	AssigneeCountryCode string   `json:"assignee_country_code"`
+	AssigneeGender      string   `json:"assignee_gender"`
+	AssigneeGenderProb  *float64 `json:"assignee_gender_prob"`
+	AssigneeTZ          string   `json:"assignee_tz"`
+	AssigneeTZOffset    *int     `json:"assignee_tz_offset"`
+	AssigneeCountry     string   `json:"assignee_country"`
+	ActorLogin          string   `json:"actor_login"`
+	ActorName           string   `json:"actor_name"`
+	ActorCountryCode    string   `json:"actor_country_code"`
+	ActorGender         string   `json:"actor_gender"`
+	ActorGenderProb     *float64 `json:"actor_gender_prob"`
+	ActorTZ             string   `json:"actor_tz"`
+	ActorTZOffset       *int     `json:"actor_tz_offset"`
+	ActorCountry        string   `json:"actor_country"`
+	UserLogin           string   `json:"creator_login"`
+	UserName            string   `json:"creator_name"`
+	UserCountryCode     string   `json:"creator_country_code"`
+	UserGender          string   `json:"creator_gender"`
+	UserGenderProb      *float64 `json:"creator_gender_prob"`
+	UserTZ              string   `json:"creator_tz"`
+	UserTZOffset        *int     `json:"creator_tz_offset"`
+	UserCountry         string   `json:"creator_country"`
+	MergedByLogin       string   `json:"merged_by_login"`
+	MergedByName        string   `json:"merged_by_name"`
+	MergedByCountryCode string   `json:"merged_by_country_code"`
+	MergedByGender      string   `json:"merged_by_gender"`
+	MergedByGenderProb  *float64 `json:"merged_by_gender_prob"`
+	MergedByTZ          string   `json:"merged_by_tz"`
+	MergedByTZOffset    *int     `json:"merged_by_tz_offset"`
+	MergedByCountry     string   `json:"merged_by_country"`
+	AssigneeCompany     string   `json:"assignee_company"`
+	ActorCompany        string   `json:"actor_company"`
+	UserCompany         string   `json:"creator_company"`
+	MergedByCompany     string   `json:"merged_by_company"`
 }
 
 func generateRawES(ch chan struct{}, ctx *lib.Ctx, con *sql.DB, es *lib.ES, dtf, dtt time.Time, sqls map[string]string) {
@@ -199,7 +276,7 @@ func generateRawES(ch chan struct{}, ctx *lib.Ctx, con *sql.DB, es *lib.ES, dtf,
 		closedAt       *time.Time
 		updatedAt      time.Time
 	)
-	ids := make(map[int64]struct{})
+	iids := make(map[int64]struct{})
 	issue.Type = "issue"
 	nIssues := 0
 	for rows.Next() {
@@ -250,6 +327,9 @@ func generateRawES(ch chan struct{}, ctx *lib.Ctx, con *sql.DB, es *lib.ES, dtf,
 				&issue.UserTZ,
 				&issue.UserTZOffset,
 				&issue.UserCountry,
+				&issue.AssigneeCompany,
+				&issue.ActorCompany,
+				&issue.UserCompany,
 			),
 		)
 		nIssues++
@@ -263,9 +343,125 @@ func generateRawES(ch chan struct{}, ctx *lib.Ctx, con *sql.DB, es *lib.ES, dtf,
 		} else {
 			issue.ClosedAt = nil
 		}
-		ids[issue.ID] = struct{}{}
+		iids[issue.ID] = struct{}{}
 		es.AddBulksItemsI(ctx, bulkDel, bulkAdd, issue, lib.HashArray([]interface{}{issue.Type, issue.ID, issue.EventID}))
 		if nIssues%10000 == 0 {
+			// Bulk insert to ES
+			es.ExecuteBulks(ctx, bulkDel, bulkAdd)
+		}
+	}
+	lib.FatalOnError(rows.Err())
+
+	// PRs
+	sql = strings.Replace(sqls["prs"], "{{from}}", sFrom, -1)
+	sql = strings.Replace(sql, "{{to}}", sTo, -1)
+
+	// Execute query
+	rows = lib.QuerySQLWithErr(con, ctx, sql)
+	defer func() { lib.FatalOnError(rows.Close()) }()
+
+	var (
+		pr       esRawPR
+		mergedAt *time.Time
+	)
+	prids := make(map[int64]struct{})
+	pr.Type = "pr"
+	nPRs := 0
+	for rows.Next() {
+		lib.FatalOnError(
+			rows.Scan(
+				&pr.ID,
+				&pr.EventID,
+				&eventCreatedAt,
+				&createdAt,
+				&pr.Body,
+				&closedAt,
+				&pr.Comments,
+				&pr.Locked,
+				&pr.Number,
+				&pr.State,
+				&pr.Title,
+				&updatedAt,
+				&pr.BaseSHA,
+				&pr.HeadSHA,
+				&mergedAt,
+				&pr.MergeCommitSHA,
+				&pr.Merged,
+				&pr.Mergeable,
+				&pr.Rebaseable,
+				&pr.MergeableState,
+				&pr.ReviewComments,
+				&pr.MaintainerCanModify,
+				&pr.Commits,
+				&pr.Additions,
+				&pr.Deletions,
+				&pr.ChangedFiles,
+				&pr.EventType,
+				&pr.RepoName,
+				&pr.Org,
+				&pr.RepoGroup,
+				&pr.RepoAlias,
+				&pr.MilestoneNumber,
+				&pr.MilestoneState,
+				&pr.MilestoneTitle,
+				&pr.AssigneeLogin,
+				&pr.AssigneeName,
+				&pr.AssigneeCountryCode,
+				&pr.AssigneeGender,
+				&pr.AssigneeGenderProb,
+				&pr.AssigneeTZ,
+				&pr.AssigneeTZOffset,
+				&pr.AssigneeCountry,
+				&pr.ActorLogin,
+				&pr.ActorName,
+				&pr.ActorCountryCode,
+				&pr.ActorGender,
+				&pr.ActorGenderProb,
+				&pr.ActorTZ,
+				&pr.ActorTZOffset,
+				&pr.ActorCountry,
+				&pr.UserLogin,
+				&pr.UserName,
+				&pr.UserCountryCode,
+				&pr.UserGender,
+				&pr.UserGenderProb,
+				&pr.UserTZ,
+				&pr.UserTZOffset,
+				&pr.UserCountry,
+				&pr.MergedByLogin,
+				&pr.MergedByName,
+				&pr.MergedByCountryCode,
+				&pr.MergedByGender,
+				&pr.MergedByGenderProb,
+				&pr.MergedByTZ,
+				&pr.MergedByTZOffset,
+				&pr.MergedByCountry,
+				&pr.AssigneeCompany,
+				&pr.ActorCompany,
+				&pr.UserCompany,
+				&pr.MergedByCompany,
+			),
+		)
+		nPRs++
+		pr.CreatedAt = lib.ToESDate(createdAt)
+		pr.EventCreatedAt = lib.ToESDate(eventCreatedAt)
+		pr.UpdatedAt = lib.ToESDate(updatedAt)
+		pr.Body = lib.TruncToBytes(pr.Body, 0x400)
+		if closedAt != nil {
+			tm := lib.ToESDate(*closedAt)
+			pr.ClosedAt = &tm
+		} else {
+			pr.ClosedAt = nil
+		}
+		if mergedAt != nil {
+			tm := lib.ToESDate(*mergedAt)
+			pr.MergedAt = &tm
+		} else {
+			pr.MergedAt = nil
+		}
+		prids[pr.ID] = struct{}{}
+		es.AddBulksItemsI(ctx, bulkDel, bulkAdd, pr, lib.HashArray([]interface{}{pr.Type, pr.ID, pr.EventID}))
+		if nPRs%10000 == 0 {
 			// Bulk insert to ES
 			es.ExecuteBulks(ctx, bulkDel, bulkAdd)
 		}
@@ -277,11 +473,12 @@ func generateRawES(ch chan struct{}, ctx *lib.Ctx, con *sql.DB, es *lib.ES, dtf,
 
 	if ctx.Debug > 0 {
 		lib.Printf(
-			"%v - %v: %d commits (%d unique SHAs), %d issue events (%d unique issues)\n",
-			sFrom, sTo, nCommits, len(shas), nIssues, len(ids),
+			"%v - %v: %d commits (%d unique SHAs), %d issue events (%d unique issues), %d PR events (%d unique PRs)\n",
+			sFrom, sTo, nCommits, len(shas), nIssues, len(iids), nPRs, len(prids),
 		)
 	}
 
+	// Synchronize go routine
 	if ch != nil {
 		ch <- struct{}{}
 	}
@@ -324,6 +521,7 @@ func gha2es(args []string) {
 	data := [][2]string{
 		{"commits", "util_sql/es_raw_commits.sql"},
 		{"issues", "util_sql/es_raw_issues.sql"},
+		{"prs", "util_sql/es_raw_prs.sql"},
 	}
 	for _, row := range data {
 		bytes, err := lib.ReadFile(
@@ -379,6 +577,9 @@ func gha2es(args []string) {
 	hours := int(dTo.Sub(dFrom).Hours()) / thrN
 	if hours < 1 {
 		hours = 1
+	}
+	if hours > 480 {
+		hours = 480
 	}
 	lib.Printf("gha2es.go: Running (%v CPUs): %v - %v, interval %dh\n", thrN, dFrom, dTo, hours)
 
