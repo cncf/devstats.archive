@@ -104,6 +104,7 @@ type Ctx struct {
 	ElasticURL          string                       // From GHA2DB_ES_URL, calc_metric, tags, annotations tools - ElasticSearch URL (if used), default http://127.0.0.1:9200
 	UseES               bool                         // From GHA2DB_USE_ES, calc_metric, atgs, annotations tools - enable ElasticSearch, default false
 	UseESOnly           bool                         // From GHA2DB_USE_ES_ONLY, calc_metric, annotations tools - enable ElasticSearch and do not write PSQL TSDB, default false
+	UseESRaw            bool                         // From GHA2DB_USE_ES_RAW, gha2es, gha2db_sync tools - enable generating RAW ElasticSearch data (directly from gha_tables instead of aggregated data from TSDB)
 }
 
 // Init - get context from environment variables
@@ -471,6 +472,7 @@ func (ctx *Ctx) Init() {
 	// ElasticSearch
 	ctx.UseES = os.Getenv("GHA2DB_USE_ES") != ""
 	ctx.UseESOnly = os.Getenv("GHA2DB_USE_ES_ONLY") != ""
+	ctx.UseESRaw = os.Getenv("GHA2DB_USE_ES_RAW") != ""
 	ctx.ElasticURL = os.Getenv("GHA2DB_ES_URL")
 	if ctx.ElasticURL == "" {
 		ctx.ElasticURL = "http://127.0.0.1:9200"
