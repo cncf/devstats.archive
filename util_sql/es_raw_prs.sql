@@ -1,4 +1,8 @@
 select
+/*
+ merged_by_id          | bigint                      |           |          |
+ dupn_merged_by_login  | character varying(120)      |           |          |
+*/
   pr.id,
   pr.event_id,
   pr.dup_created_at,
@@ -11,6 +15,20 @@ select
   pr.state,
   pr.title,
   pr.updated_at,
+  pr.base_sha,
+  pr.head_sha,
+  pr.merged_at,
+  pr.merge_commit_sha,
+  pr.merged,
+  pr.mergeable,
+  pr.rebaseable,
+  pr.mergeable_state,
+  pr.review_comments,
+  pr.maintainer_can_modify,
+  pr.commits,
+  pr.additions,
+  pr.deletions,
+  pr.changed_files,
   pr.dup_type,
   pr.dup_repo_name,
   coalesce(r.org_login, ''),
