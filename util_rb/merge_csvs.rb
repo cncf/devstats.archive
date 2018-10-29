@@ -10,12 +10,13 @@ def merge_csvs(args)
     CSV.foreach(fn, headers: true) do |row|
       h = row.to_h
       dt = h['rel']
+      ddt = DateTime.strptime(dt, '%m/%Y')
       h.each do |k,v|
         next if k == 'f' || k == 't' || k == 'rel'
         data[k] = {} unless data.key?(k)
-        data[k][dt] = {} unless data[k].key?(dt)
-        data[k][dt][arg] = v
-        dates[dt] = 1
+        data[k][ddt] = {} unless data[k].key?(ddt)
+        data[k][ddt][arg] = v
+        dates[ddt] = 1
         keys[k] = 1
       end
     end
@@ -25,10 +26,10 @@ def merge_csvs(args)
     fn = "csv/#{k}_monthly.csv"
     CSV.open(fn, 'w', headers: hdr) do |csv|
       csv << hdr
-      dates.keys.sort.each do |dt|
-        ary = [dt]
+      dates.keys.sort.each do |ddt|
+        ary = [ddt.strftime("%m/%Y")]
         args.sort.each do |arg|
-          v = data[k][dt][arg]
+          v = data[k][ddt][arg]
           v = 0 if v.nil? || v == ''
           ary << v
         end
