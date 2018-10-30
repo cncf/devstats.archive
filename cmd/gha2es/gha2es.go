@@ -180,10 +180,24 @@ type esRawPR struct {
 }
 
 type esRawText struct {
-	Type      string `json:"type"`
-	EventID   int64  `json:"event_id"`
-	CreatedAt string `json:"created_at"`
-	Body      string `json:"body"`
+	Type             string   `json:"type"`
+	EventID          int64    `json:"event_id"`
+	CreatedAt        string   `json:"created_at"`
+	Body             string   `json:"body"`
+	EventType        string   `json:"event_type"`
+	RepoName         string   `json:"repo_name"`
+	Org              string   `json:"org"`
+	RepoGroup        string   `json:"repo_group"`
+	RepoAlias        string   `json:"repo_alias"`
+	ActorLogin       string   `json:"actor_login"`
+	ActorName        string   `json:"actor_name"`
+	ActorCountryCode string   `json:"actor_country_code"`
+	ActorGender      string   `json:"actor_gender"`
+	ActorGenderProb  *float64 `json:"actor_gender_prob"`
+	ActorTZ          string   `json:"actor_tz"`
+	ActorTZOffset    *int     `json:"actor_tz_offset"`
+	ActorCountry     string   `json:"actor_country"`
+	ActorCompany     string   `json:"actor_company"`
 }
 
 func generateRawES(ch chan struct{}, ctx *lib.Ctx, con *sql.DB, es *lib.ES, dtf, dtt time.Time, sqls map[string]string) {
@@ -495,6 +509,20 @@ func generateRawES(ch chan struct{}, ctx *lib.Ctx, con *sql.DB, es *lib.ES, dtf,
 				&text.EventID,
 				&text.Body,
 				&createdAt,
+				&text.EventType,
+				&text.RepoName,
+				&text.Org,
+				&text.RepoGroup,
+				&text.RepoAlias,
+				&text.ActorLogin,
+				&text.ActorName,
+				&text.ActorCountryCode,
+				&text.ActorGender,
+				&text.ActorGenderProb,
+				&text.ActorTZ,
+				&text.ActorTZOffset,
+				&text.ActorCountry,
+				&text.ActorCompany,
 			),
 		)
 		nTexts++
