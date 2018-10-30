@@ -179,6 +179,13 @@ type esRawPR struct {
 	MergedByCompany     string   `json:"merged_by_company"`
 }
 
+type esRawText struct {
+	Type      string `json:"type"`
+	EventID   int64  `json:"event_id"`
+	CreatedAt string `json:"created_at"`
+	Body      string `json:"body"`
+}
+
 func generateRawES(ch chan struct{}, ctx *lib.Ctx, con *sql.DB, es *lib.ES, dtf, dtt time.Time, sqls map[string]string) {
 	if ctx.Debug > 0 {
 		lib.Printf("Working on %v - %v\n", dtf, dtt)
@@ -468,13 +475,49 @@ func generateRawES(ch chan struct{}, ctx *lib.Ctx, con *sql.DB, es *lib.ES, dtf,
 	}
 	lib.FatalOnError(rows.Err())
 
+	// Texts
+	sql = strings.Replace(sqls["texts"], "{{from}}", sFrom, -1)
+	sql = strings.Replace(sql, "{{to}}", sTo, -1)
+
+	// Execute query
+	rows = lib.QuerySQLWithErr(con, ctx, sql)
+	defer func() { lib.FatalOnError(rows.Close()) }()
+
+	var (
+		text esRawText
+	)
+	textids := make(map[int64]struct{})
+	text.Type = "text"
+	nTexts := 0
+	for rows.Next() {
+		lib.FatalOnError(
+			rows.Scan(
+				&text.EventID,
+				&text.Body,
+				&createdAt,
+			),
+		)
+		nTexts++
+		text.CreatedAt = lib.ToESDate(createdAt)
+		text.Body = lib.TruncToBytes(text.Body, 0x1000)
+		textids[text.EventID] = struct{}{}
+		es.AddBulksItemsI(ctx, bulkDel, bulkAdd, text, lib.HashArray([]interface{}{text.Type, text.EventID, text.Body}))
+		if nTexts%10000 == 0 {
+			// Bulk insert to ES
+			es.ExecuteBulks(ctx, bulkDel, bulkAdd)
+		}
+	}
+	lib.FatalOnError(rows.Err())
+
 	// Bulk insert to ES
 	es.ExecuteBulks(ctx, bulkDel, bulkAdd)
 
 	if ctx.Debug > 0 {
 		lib.Printf(
-			"%v - %v: %d commits (%d unique SHAs), %d issue events (%d unique issues), %d PR events (%d unique PRs)\n",
-			sFrom, sTo, nCommits, len(shas), nIssues, len(iids), nPRs, len(prids),
+			"%v - %v: %d commits (%d unique SHAs), %d issue events (%d unique issues), "+
+				"%d PR events (%d unique PRs), %d texts (%d unique)\n",
+			sFrom, sTo, nCommits, len(shas), nIssues, len(iids),
+			nPRs, len(prids), nTexts, len(textids),
 		)
 	}
 
@@ -519,9 +562,10 @@ func gha2es(args []string) {
 		dataPrefix = "./"
 	}
 	data := [][2]string{
-		{"commits", "util_sql/es_raw_commits.sql"},
-		{"issues", "util_sql/es_raw_issues.sql"},
-		{"prs", "util_sql/es_raw_prs.sql"},
+		//{"commits", "util_sql/es_raw_commits.sql"},
+		//{"issues", "util_sql/es_raw_issues.sql"},
+		//{"prs", "util_sql/es_raw_prs.sql"},
+		{"texts", "util_sql/es_raw_texts.sql"},
 	}
 	for _, row := range data {
 		bytes, err := lib.ReadFile(
