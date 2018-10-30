@@ -272,7 +272,7 @@ func generateRawES(ch chan struct{}, ctx *lib.Ctx, con *sql.DB, es *lib.ES, dtf,
 			),
 		)
 		nCommits++
-		commit.CreatedAt = lib.ToESDate(createdAt)
+		commit.CreatedAt = lib.ToYMDHMSDate(createdAt)
 		commit.Message = lib.TruncToBytes(commit.Message, 0x400)
 		shas[commit.SHA] = struct{}{}
 		es.AddBulksItemsI(ctx, bulkDel, bulkAdd, commit, lib.HashArray([]interface{}{commit.Type, commit.SHA, commit.EventID}))
@@ -354,12 +354,12 @@ func generateRawES(ch chan struct{}, ctx *lib.Ctx, con *sql.DB, es *lib.ES, dtf,
 			),
 		)
 		nIssues++
-		issue.CreatedAt = lib.ToESDate(createdAt)
-		issue.EventCreatedAt = lib.ToESDate(eventCreatedAt)
-		issue.UpdatedAt = lib.ToESDate(updatedAt)
+		issue.CreatedAt = lib.ToYMDHMSDate(createdAt)
+		issue.EventCreatedAt = lib.ToYMDHMSDate(eventCreatedAt)
+		issue.UpdatedAt = lib.ToYMDHMSDate(updatedAt)
 		issue.Body = lib.TruncToBytes(issue.Body, 0x400)
 		if closedAt != nil {
-			tm := lib.ToESDate(*closedAt)
+			tm := lib.ToYMDHMSDate(*closedAt)
 			issue.ClosedAt = &tm
 		} else {
 			issue.ClosedAt = nil
@@ -464,18 +464,18 @@ func generateRawES(ch chan struct{}, ctx *lib.Ctx, con *sql.DB, es *lib.ES, dtf,
 			),
 		)
 		nPRs++
-		pr.CreatedAt = lib.ToESDate(createdAt)
-		pr.EventCreatedAt = lib.ToESDate(eventCreatedAt)
-		pr.UpdatedAt = lib.ToESDate(updatedAt)
+		pr.CreatedAt = lib.ToYMDHMSDate(createdAt)
+		pr.EventCreatedAt = lib.ToYMDHMSDate(eventCreatedAt)
+		pr.UpdatedAt = lib.ToYMDHMSDate(updatedAt)
 		pr.Body = lib.TruncToBytes(pr.Body, 0x400)
 		if closedAt != nil {
-			tm := lib.ToESDate(*closedAt)
+			tm := lib.ToYMDHMSDate(*closedAt)
 			pr.ClosedAt = &tm
 		} else {
 			pr.ClosedAt = nil
 		}
 		if mergedAt != nil {
-			tm := lib.ToESDate(*mergedAt)
+			tm := lib.ToYMDHMSDate(*mergedAt)
 			pr.MergedAt = &tm
 		} else {
 			pr.MergedAt = nil
@@ -526,7 +526,7 @@ func generateRawES(ch chan struct{}, ctx *lib.Ctx, con *sql.DB, es *lib.ES, dtf,
 			),
 		)
 		nTexts++
-		text.CreatedAt = lib.ToESDate(createdAt)
+		text.CreatedAt = lib.ToYMDHMSDate(createdAt)
 		text.Body = lib.TruncToBytes(text.Body, 0x1000)
 		textids[text.EventID] = struct{}{}
 		es.AddBulksItemsI(ctx, bulkDel, bulkAdd, text, lib.HashArray([]interface{}{text.Type, text.EventID, text.Body}))
@@ -590,9 +590,9 @@ func gha2es(args []string) {
 		dataPrefix = "./"
 	}
 	data := [][2]string{
-		//{"commits", "util_sql/es_raw_commits.sql"},
-		//{"issues", "util_sql/es_raw_issues.sql"},
-		//{"prs", "util_sql/es_raw_prs.sql"},
+		{"commits", "util_sql/es_raw_commits.sql"},
+		{"issues", "util_sql/es_raw_issues.sql"},
+		{"prs", "util_sql/es_raw_prs.sql"},
 		{"texts", "util_sql/es_raw_texts.sql"},
 	}
 	for _, row := range data {
