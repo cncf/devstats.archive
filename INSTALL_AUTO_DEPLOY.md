@@ -19,6 +19,7 @@ Prerequisites:
     - [goconst](https://github.com/jgautheron/goconst): `go get github.com/jgautheron/goconst/cmd/goconst`
     - [usedexports](https://github.com/jgautheron/usedexports): `go get github.com/jgautheron/usedexports`
     - [errcheck](https://github.com/kisielk/errcheck): `go get github.com/kisielk/errcheck`
+    - If you want to use ElasticSearch output: [elastic](https://github.com/olivere/elastic): `go get -u github.com/olivere/elastic`.
 2. Go to `$GOPATH/src/` and clone devstats there:
     - `git clone https://github.com/cncf/devstats.git`, cd `devstats`
     - Set reuse TCP connections: `./cron/net_tcp_config.sh`
