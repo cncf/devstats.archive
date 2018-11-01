@@ -254,8 +254,8 @@ func (es *ES) WriteESPoints(ctx *Ctx, pts *TSPoints, mergeS string, outputs [3]b
 			if outputs[0] || outputs[1] {
 				obj := make(map[string]interface{})
 				obj["type"] = "t" + p.name
-				obj["time"] = ToESDate(p.added)
-				obj["tag_time"] = ToESDate(p.t)
+				obj["time"] = ToYMDHMSDate(p.added)
+				obj["tag_time"] = ToYMDHMSDate(p.t)
 				data := []ESDataObject{}
 				for tagName, tagValue := range p.tags {
 					if outputs[0] {
@@ -275,8 +275,8 @@ func (es *ES) WriteESPoints(ctx *Ctx, pts *TSPoints, mergeS string, outputs [3]b
 				for tagName, tagValue := range p.tags {
 					obj := make(map[string]interface{})
 					obj["type"] = "it" + p.name
-					obj["time"] = ToESDate(p.added)
-					obj["tag_time"] = ToESDate(p.t)
+					obj["time"] = ToYMDHMSDate(p.added)
+					obj["tag_time"] = ToYMDHMSDate(p.t)
 					obj["name"] = tagName
 					obj["svalue"] = tagValue
 					es.AddBulksItems(ctx, bulkDel, bulkAdd, obj, []string{"type", "tag_time", "name"})
@@ -288,9 +288,9 @@ func (es *ES) WriteESPoints(ctx *Ctx, pts *TSPoints, mergeS string, outputs [3]b
 			if outputs[0] || outputs[1] {
 				obj := make(map[string]interface{})
 				obj["type"] = "s" + p.name
-				obj["time"] = ToESDate(p.t)
+				obj["time"] = ToYMDHMSDate(p.t)
 				obj["period"] = p.period
-				obj["time_added"] = ToESDate(p.added)
+				obj["time_added"] = ToYMDHMSDate(p.added)
 				data := []ESDataObject{}
 				for fieldName, fieldValue := range p.fields {
 					if outputs[0] {
@@ -320,9 +320,9 @@ func (es *ES) WriteESPoints(ctx *Ctx, pts *TSPoints, mergeS string, outputs [3]b
 				for fieldName, fieldValue := range p.fields {
 					obj := make(map[string]interface{})
 					obj["type"] = "is" + p.name
-					obj["time"] = ToESDate(p.t)
+					obj["time"] = ToYMDHMSDate(p.t)
 					obj["period"] = p.period
-					obj["time_added"] = ToESDate(p.added)
+					obj["time_added"] = ToYMDHMSDate(p.added)
 					obj["name"] = fieldName
 					value, ok := fieldValue.(string)
 					if ok {
@@ -366,10 +366,10 @@ func (es *ES) WriteESPoints(ctx *Ctx, pts *TSPoints, mergeS string, outputs [3]b
 			if outputs[0] || outputs[1] {
 				obj := make(map[string]interface{})
 				obj["type"] = mergeS
-				obj["time"] = ToESDate(p.t)
+				obj["time"] = ToYMDHMSDate(p.t)
 				obj["period"] = p.period
 				obj["series"] = p.name
-				obj["time_added"] = ToESDate(p.added)
+				obj["time_added"] = ToYMDHMSDate(p.added)
 				data := []ESDataObject{}
 				for fieldName, fieldValue := range p.fields {
 					if outputs[0] {
@@ -399,10 +399,10 @@ func (es *ES) WriteESPoints(ctx *Ctx, pts *TSPoints, mergeS string, outputs [3]b
 				for fieldName, fieldValue := range p.fields {
 					obj := make(map[string]interface{})
 					obj["type"] = "i" + mergeS
-					obj["time"] = ToESDate(p.t)
+					obj["time"] = ToYMDHMSDate(p.t)
 					obj["period"] = p.period
 					obj["series"] = p.name
-					obj["time_added"] = ToESDate(p.added)
+					obj["time_added"] = ToYMDHMSDate(p.added)
 					obj["name"] = fieldName
 					value, ok := fieldValue.(string)
 					if ok {
