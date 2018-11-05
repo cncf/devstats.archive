@@ -5,9 +5,10 @@ select
 from
   gha_actors a,
   gha_actors_emails ae,
-  shdev_contributionsall ts
+  shdev ts
 where
   ts.period = 'y'
+  and ts.series = 'hdev_contributionsallall'
   and ts.name = a.login
   and ae.actor_id = a.id
   and ts.value >= 50
