@@ -130,7 +130,7 @@ func ProcessTag(con *sql.DB, es *ES, ctx *Ctx, tg *Tag, replaces [][]string) {
 			Printf("'%s': %+v\n", tg.SeriesName, tags)
 		}
 		// Add batch point
-		pt := NewTSPoint(ctx, tg.SeriesName, "", tags, nil, tm)
+		pt := NewTSPoint(ctx, tg.SeriesName, "", tags, nil, tm, false)
 		AddTSPoint(ctx, &pts, pt)
 		tm = tm.Add(time.Hour)
 	}

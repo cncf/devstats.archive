@@ -41,7 +41,7 @@ func (ps *TSPoints) Str() string {
 }
 
 // NewTSPoint returns new point as specified by args
-func NewTSPoint(ctx *Ctx, name, period string, tags map[string]string, fields map[string]interface{}, t time.Time) TSPoint {
+func NewTSPoint(ctx *Ctx, name, period string, tags map[string]string, fields map[string]interface{}, t time.Time, exact bool) TSPoint {
 	var (
 		otags   map[string]string
 		ofields map[string]interface{}
@@ -58,8 +58,14 @@ func NewTSPoint(ctx *Ctx, name, period string, tags map[string]string, fields ma
 			ofields[k] = v
 		}
 	}
+	var pt time.Time
+	if exact {
+		pt = t
+	} else {
+		pt = HourStart(t)
+	}
 	p := TSPoint{
-		t:      HourStart(t),
+		t:      pt,
 		added:  time.Now(),
 		name:   name,
 		period: period,
