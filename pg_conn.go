@@ -70,6 +70,8 @@ func WriteTSPoints(ctx *Ctx, con *sql.DB, pts *TSPoints, mergeSeries string, mut
 					ty = 0
 				case string:
 					ty = 1
+				case time.Time:
+					ty = 2
 				default:
 					Fatalf("usupported metric value type: %+v,%T (field %s)", fieldValue, fieldValue, fieldName)
 				}

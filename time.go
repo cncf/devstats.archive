@@ -289,6 +289,7 @@ func PeriodParse(perStr string) (dur time.Duration, ok bool) {
 // Skipping parts from right until only YYYY id left
 func TimeParseAny(dtStr string) time.Time {
 	formats := []string{
+		"2006-01-02T15:04:05Z",
 		"2006-01-02 15:04:05",
 		"2006-01-02 15:04",
 		"2006-01-02 15",

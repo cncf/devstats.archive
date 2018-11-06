@@ -144,7 +144,7 @@ func workerThread(
 	ch chan bool,
 	ctx *lib.Ctx,
 	seriesNameOrFunc, sqlFile, sqlQueryOrig, excludeBots, period, desc, mergeSeries string,
-	multivalue, escapeValueName bool,
+	multivalue, escapeValueName, customData bool,
 	nIntervals int,
 	dtAry, fromAry, toAry []time.Time,
 	mut *sync.Mutex,
@@ -190,9 +190,12 @@ func workerThread(
 
 		// Metric Results, assume they're floats
 		var (
-			pValue *float64
-			value  float64
-			name   string
+			pValue  *float64
+			value   float64
+			name    string
+			cFloat  float64
+			cTime   time.Time
+			cString string
 		)
 		// Single row & single column result
 		if nColumns == 1 {
@@ -251,39 +254,97 @@ func workerThread(
 				}
 				if len(names) > 0 {
 					// Iterate values
-					pFloats := pValues[1:]
-					for idx, pVal := range pFloats {
-						if pVal != nil {
-							value, _ = strconv.ParseFloat(string(*pVal.(*sql.RawBytes)), 64)
-						} else {
-							value = 0.0
+					if customData {
+						pCustVals := pValues[1:]
+						// values tripples (time, float, string)
+						for idx, pVal := range pCustVals {
+							valType := idx % 3
+							cidx := idx / 3
+							if valType == 0 {
+								if pVal != nil {
+									sTime := string(*pVal.(*sql.RawBytes))
+									cTime = lib.TimeParseAny(sTime)
+								} else {
+									cTime = time.Now()
+								}
+							} else if valType == 1 {
+								if pVal != nil {
+									cFloat, _ = strconv.ParseFloat(string(*pVal.(*sql.RawBytes)), 64)
+								} else {
+									cFloat = 0.0
+								}
+							} else {
+								if pVal != nil {
+									cString = string(*pVal.(*sql.RawBytes))
+								} else {
+									cString = ""
+								}
+								if multivalue {
+									nameArr := strings.Split(names[cidx], ";")
+									seriesName := nameArr[0]
+									seriesValueName := nameArr[1]
+									if ctx.Debug > 0 {
+										lib.Printf("%v - %v -> (%v, %v): %v[%v], (%v, %v, %v)\n", from, to, idx, cidx, seriesName, seriesValueName, cTime, cFloat, cString)
+									}
+									if _, ok := allFields[seriesName]; !ok {
+										allFields[seriesName] = make(map[string]interface{})
+									}
+									allFields[seriesName][seriesValueName+"_t"] = cTime
+									allFields[seriesName][seriesValueName+"_v"] = cFloat
+									allFields[seriesName][seriesValueName+"_s"] = cString
+								} else {
+									name = names[cidx]
+									if ctx.Debug > 0 {
+										lib.Printf("%v - %v -> (%v, %v): %v, (%v, %v, %v)\n", from, to, idx, cidx, name, cTime, cFloat, cString)
+									}
+									// Add batch point
+									fields := map[string]interface{}{"value": cFloat, "str": cString, "dt": cTime}
+									if useDesc {
+										fields["descr"] = valueDescription(desc, cFloat)
+									}
+									lib.AddTSPoint(
+										ctx,
+										&pts,
+										lib.NewTSPoint(ctx, name, period, nil, fields, cTime),
+									)
+								}
+							}
 						}
-						if multivalue {
-							nameArr := strings.Split(names[idx], ";")
-							seriesName := nameArr[0]
-							seriesValueName := nameArr[1]
-							if ctx.Debug > 0 {
-								lib.Printf("%v - %v -> %v: %v[%v], %v\n", from, to, idx, seriesName, seriesValueName, value)
+					} else {
+						pFloats := pValues[1:]
+						for idx, pVal := range pFloats {
+							if pVal != nil {
+								value, _ = strconv.ParseFloat(string(*pVal.(*sql.RawBytes)), 64)
+							} else {
+								value = 0.0
 							}
-							if _, ok := allFields[seriesName]; !ok {
-								allFields[seriesName] = make(map[string]interface{})
+							if multivalue {
+								nameArr := strings.Split(names[idx], ";")
+								seriesName := nameArr[0]
+								seriesValueName := nameArr[1]
+								if ctx.Debug > 0 {
+									lib.Printf("%v - %v -> %v: %v[%v], %v\n", from, to, idx, seriesName, seriesValueName, value)
+								}
+								if _, ok := allFields[seriesName]; !ok {
+									allFields[seriesName] = make(map[string]interface{})
+								}
+								allFields[seriesName][seriesValueName] = value
+							} else {
+								name = names[idx]
+								if ctx.Debug > 0 {
+									lib.Printf("%v - %v -> %v: %v, %v\n", from, to, idx, name, value)
+								}
+								// Add batch point
+								fields := map[string]interface{}{"value": value}
+								if useDesc {
+									fields["descr"] = valueDescription(desc, value)
+								}
+								lib.AddTSPoint(
+									ctx,
+									&pts,
+									lib.NewTSPoint(ctx, name, period, nil, fields, dt),
+								)
 							}
-							allFields[seriesName][seriesValueName] = value
-						} else {
-							name = names[idx]
-							if ctx.Debug > 0 {
-								lib.Printf("%v - %v -> %v: %v, %v\n", from, to, idx, name, value)
-							}
-							// Add batch point
-							fields := map[string]interface{}{"value": value}
-							if useDesc {
-								fields["descr"] = valueDescription(desc, value)
-							}
-							lib.AddTSPoint(
-								ctx,
-								&pts,
-								lib.NewTSPoint(ctx, name, period, nil, fields, dt),
-							)
 						}
 					}
 				}
@@ -373,7 +434,7 @@ func calcHistogram(
 	seriesNameOrFunc, sqlFile, sqlQuery, excludeBots, interval, intervalAbbr string,
 	nIntervals int,
 	annotationsRanges, skipPast, multivalue bool,
-	mergeSeries string,
+	mergeSeries string, customData bool,
 ) {
 	// Connect to Postgres DB
 	sqlc := lib.PgConn(ctx)
@@ -695,7 +756,7 @@ func calcHistogram(
 func calcMetric(
 	seriesNameOrFunc, sqlFile, from, to, intervalAbbr string,
 	hist, multivalue, escapeValueName, annotationsRanges, skipPast bool,
-	desc, mergeSeries string,
+	desc, mergeSeries string, customData bool,
 ) {
 	if intervalAbbr == "" {
 		lib.Fatalf("you need to define period")
@@ -737,6 +798,7 @@ func calcMetric(
 			skipPast,
 			multivalue,
 			mergeSeries,
+			customData,
 		)
 		return
 	}
@@ -753,7 +815,7 @@ func calcMetric(
 	thrN := lib.GetThreadsNum(&ctx)
 
 	// Run
-	lib.Printf("calc_metric.go: Running (on %d CPUs): %v - %v with interval %s, descriptions '%s', multivalue: %v, escape_value_name: %v\n", thrN, dFrom, dTo, interval, desc, multivalue, escapeValueName)
+	lib.Printf("calc_metric.go: Running (on %d CPUs): %v - %v with interval %s, descriptions '%s', multivalue: %v, escape_value_name: %v, custom_data: %v\n", thrN, dFrom, dTo, interval, desc, multivalue, escapeValueName, customData)
 	dt := dFrom
 	dta := [][]time.Time{}
 	ndta := [][]time.Time{}
@@ -803,6 +865,7 @@ func calcMetric(
 				mergeSeries,
 				multivalue,
 				escapeValueName,
+				customData,
 				nIntervals,
 				dta[i],
 				pdta[i],
@@ -830,6 +893,7 @@ func calcMetric(
 				mergeSeries,
 				multivalue,
 				escapeValueName,
+				customData,
 				nIntervals,
 				dta[0],
 				pdta[0],
@@ -847,7 +911,7 @@ func main() {
 	if len(os.Args) < 6 {
 		lib.Printf(
 			"Required series name, SQL file name, from, to, period " +
-				"[series_name_or_func some.sql '2015-08-03' '2017-08-21' h|d|w|m|q|y [hist,desc:time_diff_as_string,multivalue,escape_value_name,annotations_ranges,skip_past]]\n",
+				"[series_name_or_func some.sql '2015-08-03' '2017-08-21' h|d|w|m|q|y [hist,desc:time_diff_as_string,multivalue,escape_value_name,annotations_ranges,skip_past,merge_series:name,custom_data]]\n",
 		)
 		lib.Printf(
 			"Series name (series_name_or_func) will become exact series name if " +
@@ -864,6 +928,7 @@ func main() {
 	skipPast := false
 	desc := ""
 	mergeSeries := ""
+	customData := false
 	if len(os.Args) > 6 {
 		opts := strings.Split(os.Args[6], ",")
 		optMap := make(map[string]string)
@@ -897,6 +962,9 @@ func main() {
 		if ms, ok := optMap["merge_series"]; ok {
 			mergeSeries = ms
 		}
+		if _, ok := optMap["custom_data"]; ok {
+			customData = true
+		}
 	}
 	lib.Printf("%s...\n", os.Args[2])
 	calcMetric(
@@ -912,6 +980,7 @@ func main() {
 		skipPast,
 		desc,
 		mergeSeries,
+		customData,
 	)
 	dtEnd := time.Now()
 	lib.Printf("Time(%s): %v\n", os.Args[2], dtEnd.Sub(dtStart))
