@@ -4,6 +4,7 @@ with prev as (
     gha_pull_requests
   where
     created_at < '{{from}}'
+    and (lower(dup_actor_login) {{exclude_bots}})
 ), contributors as (
   select distinct pr.user_id,
     first_value(pr.created_at) over prs_by_created_at as created_at,
@@ -20,6 +21,7 @@ with prev as (
     pr.created_at >= '{{from}}'
     and pr.created_at < '{{to}}'
     and pr.user_id not in (select user_id from prev)
+    and (lower(pr.dup_actor_login) {{exclude_bots}})
   window
     prs_by_created_at as (
       partition by pr.user_id
