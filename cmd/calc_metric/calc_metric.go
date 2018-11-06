@@ -232,7 +232,7 @@ func workerThread(
 			lib.AddTSPoint(
 				ctx,
 				&pts,
-				lib.NewTSPoint(ctx, name, period, nil, fields, dt),
+				lib.NewTSPoint(ctx, name, period, nil, fields, dt, false),
 			)
 		} else if nColumns >= 2 {
 			// Multiple rows, each with (series name, value(s))
@@ -305,7 +305,7 @@ func workerThread(
 									lib.AddTSPoint(
 										ctx,
 										&pts,
-										lib.NewTSPoint(ctx, name, period, nil, fields, cTime),
+										lib.NewTSPoint(ctx, name, period, nil, fields, cTime, true),
 									)
 								}
 							}
@@ -342,7 +342,7 @@ func workerThread(
 								lib.AddTSPoint(
 									ctx,
 									&pts,
-									lib.NewTSPoint(ctx, name, period, nil, fields, dt),
+									lib.NewTSPoint(ctx, name, period, nil, fields, dt, false),
 								)
 							}
 						}
@@ -354,7 +354,7 @@ func workerThread(
 				lib.AddTSPoint(
 					ctx,
 					&pts,
-					lib.NewTSPoint(ctx, seriesName, period, nil, seriesValues, dt),
+					lib.NewTSPoint(ctx, seriesName, period, nil, seriesValues, dt, customData),
 				)
 			}
 			lib.FatalOnError(rows.Err())
@@ -571,7 +571,7 @@ func calcHistogram(
 			lib.AddTSPoint(
 				ctx,
 				&pts,
-				lib.NewTSPoint(ctx, seriesNameOrFunc, intervalAbbr, nil, fields, tm),
+				lib.NewTSPoint(ctx, seriesNameOrFunc, intervalAbbr, nil, fields, tm, false),
 			)
 			rowCount++
 			tm = tm.Add(-time.Hour)
@@ -653,7 +653,7 @@ func calcHistogram(
 				lib.AddTSPoint(
 					ctx,
 					&pts,
-					lib.NewTSPoint(ctx, name, intervalAbbr, nil, fields, tm),
+					lib.NewTSPoint(ctx, name, intervalAbbr, nil, fields, tm, false),
 				)
 			} else {
 				if nNames > 0 {
@@ -687,7 +687,7 @@ func calcHistogram(
 						lib.AddTSPoint(
 							ctx,
 							&pts,
-							lib.NewTSPoint(ctx, name, intervalAbbr, nil, fields, tm),
+							lib.NewTSPoint(ctx, name, intervalAbbr, nil, fields, tm, false),
 						)
 					}
 				}
