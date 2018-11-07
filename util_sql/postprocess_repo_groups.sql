@@ -4,7 +4,7 @@
 update
   gha_events_commits_files
 set
-  repo_group = 'Cluster lifecycle'
+  repo_group = 'SIG Cluster Lifecycle'
 where
   repo_group is null
   and (
@@ -17,7 +17,7 @@ where
 update
   gha_events_commits_files
 set
-  repo_group = 'Cluster lifecycle'
+  repo_group = 'SIG Cluster Lifecycle'
 where
   repo_group is null
   and event_id in (
