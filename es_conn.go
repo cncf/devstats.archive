@@ -233,8 +233,8 @@ func (es *ES) ExecuteBulks(ctx *Ctx, bulkDel, bulkAdd *elastic.BulkService) {
 
 // WriteESPoints write batch of points to postgresql
 // outputs[0] - output using variable column name (1 doc)
-// outputs[1] - output using data[] array containing {name,ivalue,svalue} tripplets (1 doc)
-// outputs[2] - output using N separate docs, each containing {name,ivalue,svalue} tripplets (N docs) (but trying to keep both int and string value in the same record)
+// outputs[1] - output using data[] array containing {name,ivalue,svalue,dtvalue} (1 doc), any of those keys is optional
+// outputs[2] - output using N separate docs, each containing {name,ivalue,svalue,dtvalue} (N docs) (but trying to keep both int and string value in the same record)
 func (es *ES) WriteESPoints(ctx *Ctx, pts *TSPoints, mergeS string, outputs [3]bool) {
 	npts := len(*pts)
 	if ctx.Debug > 0 {
