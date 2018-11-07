@@ -1,6 +1,6 @@
 # Overview
 
-The DevStats dashboard is maintained as a subproject of the Contributor Experience Special Interest Group (SIG) of the Kubernetes Project. Its goal is to track the health of the project and provide actionable insights that inform policy decisions at the project, special interest group, and subproject level. 
+The DevStats dashboard is maintained as a subproject of the Contributor Experience Special Interest Group (SIG) of the Kubernetes Project. Its goal is to track the health of the project and provide actionable insights that inform policy decisions at the project, special interest group, and subproject level.
 
 # Important terms for understanding the graphs
 
@@ -16,7 +16,7 @@ The DevStats dashboard is maintained as a subproject of the Contributor Experien
 For additional term definitions and customizations for individual graphs, scroll to the bottom of the specific graph’s page. 
 
 
-# Contributing 
+# Contributing
 
 If you are interested in contributing to the dashboard, check the Kubernetes community calendar for meeting dates and times. 
 
