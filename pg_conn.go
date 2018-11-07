@@ -68,9 +68,9 @@ func WriteTSPoints(ctx *Ctx, con *sql.DB, pts *TSPoints, mergeSeries string, mut
 				switch fieldValue.(type) {
 				case float64:
 					ty = 0
-				case string:
-					ty = 1
 				case time.Time:
+					ty = 1
+				case string:
 					ty = 2
 				default:
 					Fatalf("usupported metric value type: %+v,%T (field %s)", fieldValue, fieldValue, fieldName)
@@ -152,6 +152,8 @@ func WriteTSPoints(ctx *Ctx, con *sql.DB, pts *TSPoints, mergeSeries string, mut
 						if ty == 0 {
 							sq += "\"" + col + "\" double precision not null default 0.0, "
 							//indices = append(indices, "create index if not exists \""+makePsqlName("i"+mergeS[1:]+col, false)+"\" on \""+mergeS+"\"(\""+col+"\")")
+						} else if ty == 1 {
+							sq += "\"" + col + "\" timestamp not null default '1970-01-01 00:00:00', "
 						} else {
 							sq += "\"" + col + "\" text not null default '', "
 						}
@@ -174,6 +176,8 @@ func WriteTSPoints(ctx *Ctx, con *sql.DB, pts *TSPoints, mergeSeries string, mut
 						if ty == 0 {
 							sqls = append(sqls, "alter table \""+mergeS+"\" add column if not exists \""+col+"\" double precision not null default 0.0")
 							//sqls = append(sqls, "create index if not exists \""+makePsqlName("i"+mergeS[1:]+col, false)+"\" on \""+mergeS+"\"(\""+col+"\")")
+						} else if ty == 1 {
+							sqls = append(sqls, "alter table \""+mergeS+"\" add column if not exists \""+col+"\" timestamp not null default '1970-01-01 00:00:00'")
 						} else {
 							sqls = append(sqls, "alter table \""+mergeS+"\" add column if not exists \""+col+"\" text not null default ''")
 						}
@@ -198,6 +202,8 @@ func WriteTSPoints(ctx *Ctx, con *sql.DB, pts *TSPoints, mergeSeries string, mut
 					if ty == 0 {
 						sq += "\"" + col + "\" double precision not null default 0.0, "
 						//indices = append(indices, "create index if not exists \""+makePsqlName("i"+name[1:]+col, false)+"\" on \""+name+"\"(\""+col+"\")")
+					} else if ty == 1 {
+						sq += "\"" + col + "\" timestamp not null default '1970-01-01 00:00:00', "
 					} else {
 						sq += "\"" + col + "\" text not null default '', "
 					}
@@ -214,6 +220,8 @@ func WriteTSPoints(ctx *Ctx, con *sql.DB, pts *TSPoints, mergeSeries string, mut
 						if ty == 0 {
 							sqls = append(sqls, "alter table \""+name+"\" add column if not exists \""+col+"\" double precision not null default 0.0")
 							//sqls = append(sqls, "create index if not exists \""+makePsqlName("i"+name[1:]+col, false)+"\" on \""+name+"\"(\""+col+"\")")
+						} else if ty == 1 {
+							sqls = append(sqls, "alter table \""+name+"\" add column if not exists \""+col+"\" timestamp not null default '1970-01-01 00:00:00'")
 						} else {
 							sqls = append(sqls, "alter table \""+name+"\" add column if not exists \""+col+"\" text not null default ''")
 						}

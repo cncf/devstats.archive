@@ -3,6 +3,7 @@ package devstats
 import (
 	"context"
 	"strings"
+	"time"
 
 	"github.com/olivere/elastic"
 )
@@ -19,9 +20,10 @@ type ES struct {
 
 // ESDataObject internal JSON data for stored documents
 type ESDataObject struct {
-	Name   string  `json:"name"`
-	IValue float64 `json:"ivalue"`
-	SValue string  `json:"svalue"`
+	Name    string    `json:"name"`
+	IValue  float64   `json:"ivalue"`
+	SValue  string    `json:"svalue"`
+	DtValue time.Time `json:"dtvalue"`
 }
 
 // ESConn Connects to ElasticSearch
@@ -40,7 +42,9 @@ func ESConn(ctx *Ctx, prefix string) *ES {
 	fieldsToMerge := map[string]string{
 		"name":  "svalue",
 		"value": "ivalue",
-		"descr": "descr",
+		"descr": "svalue",
+		"dt":    "dtvalue",
+		"str":   "svalue",
 	}
 	return &ES{
 		ctx:           ctxb,
@@ -58,11 +62,14 @@ func ESConn(ctx *Ctx, prefix string) *ES {
 			`"series":{"type":"keyword"},` +
 			`"period":{"type":"keyword"},` +
 			`"descr":{"type":"keyword"},` +
+			`"str":{"type":"keyword"},` +
 			`"name":{"type":"keyword"},` +
 			`"svalue":{"type":"keyword"},` +
 			`"ivalue":{"type":"double"},` +
+			`"dtvalue":{"type":"date","format":"yyyy-MM-dd HH:mm:ss"},` +
 			`"data.svalue":{"type":"keyword"},` +
 			`"data.ivalue":{"type":"double"},` +
+			`"data.dtvalue":{"type":"date","format":"yyyy-MM-dd HH:mm:ss"},` +
 			`"value":{"type":"double"}` +
 			`}}}}`,
 		mappingRaw: `{"settings":{"number_of_shards":1,"number_of_replicas":0},` +
@@ -226,8 +233,8 @@ func (es *ES) ExecuteBulks(ctx *Ctx, bulkDel, bulkAdd *elastic.BulkService) {
 
 // WriteESPoints write batch of points to postgresql
 // outputs[0] - output using variable column name (1 doc)
-// outputs[1] - output using data[] array containing {name,ivalue,svalue} tripplets (1 doc)
-// outputs[2] - output using N separate docs, each containing {name,ivalue,svalue} tripplets (N docs) (but trying to keep both int and string value in the same record)
+// outputs[1] - output using data[] array containing {name,ivalue,svalue,dtvalue} (1 doc), any of those keys is optional
+// outputs[2] - output using N separate docs, each containing {name,ivalue,svalue,dtvalue} (N docs) (but trying to keep both int and string value in the same record)
 func (es *ES) WriteESPoints(ctx *Ctx, pts *TSPoints, mergeS string, outputs [3]bool) {
 	npts := len(*pts)
 	if ctx.Debug > 0 {
@@ -298,8 +305,11 @@ func (es *ES) WriteESPoints(ctx *Ctx, pts *TSPoints, mergeS string, outputs [3]b
 					}
 					if outputs[1] {
 						value, ok := fieldValue.(string)
+						valueDt, okDt := fieldValue.(time.Time)
 						if ok {
 							data = append(data, ESDataObject{Name: fieldName, SValue: value})
+						} else if okDt {
+							data = append(data, ESDataObject{Name: fieldName, DtValue: valueDt})
 						} else {
 							value, ok := GetFloatFromInterface(fieldValue)
 							if !ok {
@@ -325,8 +335,11 @@ func (es *ES) WriteESPoints(ctx *Ctx, pts *TSPoints, mergeS string, outputs [3]b
 					obj["time_added"] = ToYMDHMSDate(p.added)
 					obj["name"] = fieldName
 					value, ok := fieldValue.(string)
+					valueDt, okDt := fieldValue.(time.Time)
 					if ok {
 						obj["svalue"] = value
+					} else if okDt {
+						obj["dtvalue"] = ToYMDHMSDate(valueDt)
 					} else {
 						value, ok := GetFloatFromInterface(fieldValue)
 						if !ok {
@@ -377,8 +390,11 @@ func (es *ES) WriteESPoints(ctx *Ctx, pts *TSPoints, mergeS string, outputs [3]b
 					}
 					if outputs[1] {
 						value, ok := fieldValue.(string)
+						valueDt, okDt := fieldValue.(time.Time)
 						if ok {
 							data = append(data, ESDataObject{Name: fieldName, SValue: value})
+						} else if okDt {
+							data = append(data, ESDataObject{Name: fieldName, DtValue: valueDt})
 						} else {
 							value, ok := GetFloatFromInterface(fieldValue)
 							if !ok {
@@ -405,8 +421,11 @@ func (es *ES) WriteESPoints(ctx *Ctx, pts *TSPoints, mergeS string, outputs [3]b
 					obj["time_added"] = ToYMDHMSDate(p.added)
 					obj["name"] = fieldName
 					value, ok := fieldValue.(string)
+					valueDt, okDt := fieldValue.(time.Time)
 					if ok {
 						obj["svalue"] = value
+					} else if okDt {
+						obj["dtvalue"] = ToYMDHMSDate(valueDt)
 					} else {
 						value, ok := GetFloatFromInterface(fieldValue)
 						if !ok {
