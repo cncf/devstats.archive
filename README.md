@@ -9,6 +9,8 @@ This is a toolset to visualize GitHub [archives](https://www.gharchive.org) usin
 
 GHA2DB stands for **G**it**H**ub **A**rchives to **D**ash**B**oards.
 
+More informations about Kubernetes dashboards [here]([Usage](https://github.com/cncf/devstats/blob/master/README_K8s.md).
+
 
 # Presentations
 
