@@ -4,6 +4,15 @@
 # RM=1 (only with STOP, get rid of all grafana data before proceeding)
 # IMPJSONS=1 (will import all jsons defined for given project using sqlitedb tool), if used with GGET - it will first fetch from server and then import
 # EXTERNAL=1 (will expose Grafana to outside world: will bind to 0.0.0.0 instead of 127.0.0.1, useful when no Apache proxy + SSL is enabled)
+if [ -z "$PG_HOST" ]
+then
+  PG_HOST=127.0.0.1
+fi
+
+if [ -z "$PG_PORT" ]
+then
+  PG_PORT=5432
+fi
 set -o pipefail
 if ( [ -z "$PG_PASS" ] || [ -z "$PORT" ] || [ -z "$GA" ] || [ -z "$ICON" ] || [ -z "$ORGNAME" ] || [ -z "$PROJ" ] || [ -z "$PROJDB" ] || [ -z "$GRAFSUFF" ] )
 then
@@ -57,8 +66,8 @@ then
     rm -rf "/usr/share/grafana.$GRAFSUFF/" 2>/dev/null
     rm -rf "/var/lib/grafana.$GRAFSUFF/" 2>/dev/null
     rm -rf "/etc/grafana.$GRAFSUFF/" 2>/dev/null
-    sudo -u postgres psql -c "select pg_terminate_backend(pid) from pg_stat_activity where datname = '${GRAFSUFF}_grafana_sessions'" || exit 1
-    sudo -u postgres psql -c "drop database ${GRAFSUFF}_grafana_sessions" || exit 2
+    sudo -u postgres psql -h "$PG_HOST" -p "$PG_PORT" -c "select pg_terminate_backend(pid) from pg_stat_activity where datname = '${GRAFSUFF}_grafana_sessions'" || exit 1
+    sudo -u postgres psql -h "$PG_HOST" -p "$PG_PORT" -c "drop database ${GRAFSUFF}_grafana_sessions" || exit 2
   fi
 fi
 
@@ -135,13 +144,13 @@ then
   MODE=ss FROM='{{org}}' TO="$ORGNAME" replacer "$cfile" || exit 32
 fi
 
-exists=`sudo -u postgres psql -tAc "select 1 from pg_database WHERE datname = '${GRAFSUFF}_grafana_sessions'"` || exit 33
+exists=`sudo -u postgres psql -h "$PG_HOST" -p "$PG_PORT" -tAc "select 1 from pg_database WHERE datname = '${GRAFSUFF}_grafana_sessions'"` || exit 33
 if [ ! "$exists" = "1" ]
 then
   echo "creating grafana sessions database ${GRAFSUFF}_grafana_sessions"
-  sudo -u postgres psql -c "create database ${GRAFSUFF}_grafana_sessions" || exit 34
-  sudo -u postgres psql -c "grant all privileges on database \"${GRAFSUFF}_grafana_sessions\" to gha_admin" || exit 35
-  sudo -u postgres psql "${GRAFSUFF}_grafana_sessions" < util_sql/grafana_session_table.sql || exit 36
+  sudo -u postgres psql -h "$PG_HOST" -p "$PG_PORT" -c "create database ${GRAFSUFF}_grafana_sessions" || exit 34
+  sudo -u postgres psql -h "$PG_HOST" -p "$PG_PORT" -c "grant all privileges on database \"${GRAFSUFF}_grafana_sessions\" to gha_admin" || exit 35
+  sudo -u postgres psql -h "$PG_HOST" -p "$PG_PORT" "${GRAFSUFF}_grafana_sessions" < util_sql/grafana_session_table.sql || exit 36
 else
   echo "grafana sessions database ${GRAFSUFF}_grafana_sessions already exists"
 fi

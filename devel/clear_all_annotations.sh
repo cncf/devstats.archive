@@ -1,4 +1,13 @@
 #!/bin/bash
+if [ -z "$PG_HOST" ]
+then
+  PG_HOST=127.0.0.1
+fi
+
+if [ -z "$PG_PORT" ]
+then
+  PG_PORT=5432
+fi
 if [ -z "$ONLY" ]
 then
   host=`hostname`
@@ -14,8 +23,8 @@ fi
 for db in $all
 do
     echo "Clearing annotations data on $db"
-    sudo -u postgres psql -c "delete from sannotations" || exit 1
-    sudo -u postgres psql -c "delete from tquick_ranges" || exit 1
-    sudo -u postgres psql -c "delete from gha_computed" || exit 1
+    sudo -u postgres psql -h "$PG_HOST" -p "$PG_PORT" -c "delete from sannotations" || exit 1
+    sudo -u postgres psql -h "$PG_HOST" -p "$PG_PORT" -c "delete from tquick_ranges" || exit 1
+    sudo -u postgres psql -h "$PG_HOST" -p "$PG_PORT" -c "delete from gha_computed" || exit 1
 done
 echo 'OK'
