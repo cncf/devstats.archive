@@ -9,6 +9,7 @@ then
   else
     echo -n 'Postgres pwd: '
     read -s PG_PASS
+    echo ''
   fi
 fi
 if [ -z "$PG_DB" ]
