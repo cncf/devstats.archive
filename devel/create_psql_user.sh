@@ -25,17 +25,27 @@ else
   all=$ONLY
 fi
 
+if [ -z "$PG_HOST" ]
+then
+  PG_HOST=127.0.0.1
+fi
+
+if [ -z "$PG_PORT" ]
+then
+  PG_PORT=5432
+fi
+
 cp ./util_sql/drop_psql_user.sql /tmp/drop_user.sql || exit 1
 FROM="{{user}}" TO="$1" MODE=ss ./replacer /tmp/drop_user.sql || exit 1
 
 if [ ! -z "$DROP" ]
 then
   echo "Drop from public"
-  sudo -u postgres psql < /tmp/drop_user.sql || exit 1
+  sudo -u postgres psql -h "$PG_HOST" -p "$PG_PORT" < /tmp/drop_user.sql || exit 1
   for proj in $all
   do
     echo "Drop from $proj"
-    sudo -u postgres psql "$proj" < /tmp/drop_user.sql || exit 1
+    sudo -u postgres psql -h "$PG_HOST" -p "$PG_PORT" "$proj" < /tmp/drop_user.sql || exit 1
   done
 fi
 
@@ -46,7 +56,7 @@ then
 fi
 
 echo "Create role"
-sudo -u postgres psql -c "create user \"$1\" with password '$PG_PASS'" || exit 1
+sudo -u postgres psql -h "$PG_HOST" -p "$PG_PORT" -c "create user \"$1\" with password '$PG_PASS'" || exit 1
 
 for proj in $all
 do
