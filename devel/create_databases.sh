@@ -3,6 +3,15 @@
 # TSDB=1 (will generate TS DB)
 # PDROP=1 (will drop & create Postgres DB)
 # GET=1 (will use Postgres DB backup)
+if [ -z "$PG_HOST" ]
+then
+  PG_HOST=127.0.0.1
+fi
+
+if [ -z "$PG_PORT" ]
+then
+  PG_PORT=5432
+fi
 lim=70
 set -o pipefail
 if [ -z "$PG_PASS" ]
@@ -31,20 +40,20 @@ then
 fi
 if [ ! -z "$PDB" ]
 then
-  exists=`sudo -u postgres psql -tAc "select 1 from pg_database where datname = '$PROJDB'"` || exit 3
+  exists=`sudo -u postgres psql -h "$PG_HOST" -p "$PG_PORT" -tAc "select 1 from pg_database where datname = '$PROJDB'"` || exit 3
   if ( [ ! -z "$PDROP" ] && [ "$exists" = "1" ] )
   then
     echo "dropping postgres database $PROJDB"
-    sudo -u postgres psql -c "select pg_terminate_backend(pid) from pg_stat_activity where datname = '$PROJDB'" || exit 4
-    sudo -u postgres psql -c "drop database $PROJDB" || exit 5
+    sudo -u postgres psql -h "$PG_HOST" -p "$PG_PORT" -c "select pg_terminate_backend(pid) from pg_stat_activity where datname = '$PROJDB'" || exit 4
+    sudo -u postgres psql -h "$PG_HOST" -p "$PG_PORT" -c "drop database $PROJDB" || exit 5
   fi
-  exists=`sudo -u postgres psql -tAc "select 1 from pg_database where datname = '$PROJDB'"` || exit 6
+  exists=`sudo -u postgres psql -h "$PG_HOST" -p "$PG_PORT" -tAc "select 1 from pg_database where datname = '$PROJDB'"` || exit 6
   if [ ! "$exists" = "1" ]
   then
     echo "creating postgres database $PROJDB"
-    sudo -u postgres psql -c "create database $PROJDB" || exit 7
-    sudo -u postgres psql -c "grant all privileges on database \"$PROJDB\" to gha_admin" || exit 8
-    sudo -u postgres psql "$PROJDB" -c "create extension if not exists pgcrypto" || exit 23
+    sudo -u postgres psql -h "$PG_HOST" -p "$PG_PORT" -c "create database $PROJDB" || exit 7
+    sudo -u postgres psql -h "$PG_HOST" -p "$PG_PORT" -c "grant all privileges on database \"$PROJDB\" to gha_admin" || exit 8
+    sudo -u postgres psql -h "$PG_HOST" -p "$PG_PORT" "$PROJDB" -c "create extension if not exists pgcrypto" || exit 23
     if [ ! -z "$GET" ]
     then
       echo "attempt to fetch postgres database $PROJDB from backup"
@@ -52,7 +61,7 @@ then
       sudo -u postgres pg_restore -d "$PROJDB" "$PROJDB.dump" || exit 10
       rm -f "$PROJDB.dump" || exit 11
       echo 'dropping and recreating postgres variables'
-      sudo -u postgres psql "$PROJDB" -c "delete from gha_vars" || exit 12
+      sudo -u postgres psql -h "$PG_HOST" -p "$PG_PORT" "$PROJDB" -c "delete from gha_vars" || exit 12
       GHA2DB_PROJECT="$PROJ" PG_DB="$PROJDB" GHA2DB_LOCAL=1 ./vars || exit 13
       GOT=1
     else
@@ -71,13 +80,13 @@ else
 fi
 if [ ! -z "$TSDB" ]
 then
-  exists=`sudo -u postgres psql -tAc "select 1 from pg_database where datname = '$PROJDB'"` || exit 3
+  exists=`sudo -u postgres psql -h "$PG_HOST" -p "$PG_PORT" -tAc "select 1 from pg_database where datname = '$PROJDB'"` || exit 3
   if [ ! "$exists" = "1" ]
   then
     echo "$0: '$PROJDB' must exist to initialize TSDB"
     exit 21
   fi
-  exists=`sudo -u postgres psql "$PROJDB" -tAc "select to_regclass('sevents_h')"` || exit 22
+  exists=`sudo -u postgres psql -h "$PG_HOST" -p "$PG_PORT" "$PROJDB" -tAc "select to_regclass('sevents_h')"` || exit 22
   if [ "$exists" = "sevents_h" ]
   then
     echo "time series data already exists in $PROJDB"
