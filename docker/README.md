@@ -14,6 +14,7 @@
 - Use `PG_PASS=... PG_PASS_RO=... PG_PASS_TEAM=... ./docker/docker_deploy.sh` to deploy single project (buildpacks) into the dockerized postgres.
 - It will use `./docker/docker_deploy_all.sh` script which currently uses `SKIPGRAFANA=1`, `GHA2DB_GHAPISKIP=1` and `ONLY=buildpacks; export ONLY`.
 - Use `PG_PASS=... ./docker/docker_display_logs.sh` to see deployment logs.
-- Use `PG_PASS=.., ./docker/docker_health.sh` to do a health check (after succesfull deployment). It will display number of texts in the buildpacks database.
+- Use `PG_PASS=... ./docker/docker_health.sh` to do a health check (after succesfull deployment). It will display number of texts in the buildpacks database.
 
-docker_display_logs.sh  docker_health.sh
+# Devstats hourly sync
+- Use `PG_PASS=... ./docker/docker_devstats.sh` to do devstats sync for buildpacks. This should be run hourly, ideally when new GHA files are available which is about every hour:08.
