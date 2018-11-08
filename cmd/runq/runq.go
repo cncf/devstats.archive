@@ -44,8 +44,14 @@ func runq(sqlFile string, params []string) {
 		}
 	}
 
+	// Local or cron mode?
+	dataPrefix := lib.DataDir
+	if ctx.Local {
+		dataPrefix = "./"
+	}
+
 	// Read and eventually transform SQL file.
-	bytes, err := lib.ReadFile(&ctx, sqlFile)
+	bytes, err := lib.ReadFile(&ctx, dataPrefix+sqlFile)
 	lib.FatalOnError(err)
 	sqlQuery := string(bytes)
 	qrPeriod := ""
