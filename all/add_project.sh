@@ -1,6 +1,15 @@
 #!/bin/bash
 # TSDB=1 (will update TSDB)
 # AGET=1 (will fetch allprj database from backup)
+if [ -z "$PG_HOST" ]
+then
+  PG_HOST=127.0.0.1
+fi
+
+if [ -z "$PG_PORT" ]
+then
+  PG_PORT=5432
+fi
 set -o pipefail
 if ( [ -z "$1" ] || [ -z "$2" ] )
 then
@@ -12,13 +21,13 @@ then
   echo "$0: You need to set PG_PASS environment variable to run this script"
   exit 2
 fi
-exists=`sudo -u postgres psql -tAc "select 1 from pg_database WHERE datname = 'allprj'"` || exit 3
+exists=`sudo -u postgres psql -h "$PG_HOST" -p "$PG_PORT" -tAc "select 1 from pg_database WHERE datname = 'allprj'"` || exit 3
 if [ -z "$exists" ]
 then
   echo "All CNCF Project database doesn't exist"
   exit 0
 fi
-added=`sudo -u postgres psql allprj -tAc "select name from gha_repos where name = '$2'"` || exit 4
+added=`sudo -u postgres psql -h "$PG_HOST" -p "$PG_PORT" allprj -tAc "select name from gha_repos where name = '$2'"` || exit 4
 if [ ! -z "$added" ]
 then
   echo "Project '$1' is already present in 'All CNCF', repo '$2' exists"
@@ -40,7 +49,7 @@ then
   ./devel/restore_db.sh allprj || exit 6
   rm -f allprj.dump || exit 7
   echo 'dropping and recreating postgres variables'
-  sudo -u postgres psql allprj -c "delete from gha_vars" || exit 8
+  sudo -u postgres psql -h "$PG_HOST" -p "$PG_PORT" allprj -c "delete from gha_vars" || exit 8
   GHA2DB_PROJECT=all PG_DB=allprj GHA2DB_LOCAL=1 ./vars || exit 9
   echo "allprj backup restored"
   GHA2DB_PROJECT=all PG_DB=allprj ./gha2db_sync || exit 10

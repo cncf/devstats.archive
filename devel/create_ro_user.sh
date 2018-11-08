@@ -1,4 +1,13 @@
 #!/bin/bash
+if [ -z "$PG_HOST" ]
+then
+  PG_HOST=127.0.0.1
+fi
+
+if [ -z "$PG_PORT" ]
+then
+  PG_PORT=5432
+fi
 if [ -z "${PG_PASS}" ]
 then
   echo "You need to set PG_PASS environment variable to run this script"
@@ -21,10 +30,10 @@ fi
 
 if [ ! -z "$DROP" ]
 then
-  sudo -u postgres psql < ./util_sql/drop_ro_user.sql || exit 1
+  sudo -u postgres psql -h "$PG_HOST" -p "$PG_PORT" < ./util_sql/drop_ro_user.sql || exit 1
   for proj in $all
   do
-    sudo -u postgres psql "$proj" < ./util_sql/drop_ro_user.sql || exit 2
+    sudo -u postgres psql -h "$PG_HOST" -p "$PG_PORT" "$proj" < ./util_sql/drop_ro_user.sql || exit 2
   done
 fi
 
@@ -34,7 +43,7 @@ then
   exit 0
 fi
 
-sudo -u postgres psql -c "create user ro_user with password '$PG_PASS'" || exit 3
+sudo -u postgres psql -h "$PG_HOST" -p "$PG_PORT" -c "create user ro_user with password '$PG_PASS'" || exit 3
 
 for proj in $all
 do

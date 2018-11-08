@@ -6,6 +6,15 @@
 # SKIPWWW=1 (skips Apache and SSL cert configuration, final result will be Grafana exposed on the server on its port (for example 3010) via HTTP)
 # SKIPVARS=1 (if set it will skip final Postgres vars regeneration)
 # CUSTGRAFPATH=1 (set this to use non-standard grafana instalation from ~/grafana.v5/)
+if [ -z "$PG_HOST" ]
+then
+  PG_HOST=127.0.0.1
+fi
+
+if [ -z "$PG_PORT" ]
+then
+  PG_PORT=5432
+fi
 set -o pipefail
 exec > >(tee run.log)
 exec 2> >(tee errors.txt)
@@ -85,7 +94,7 @@ fi
 LASTDB=""
 for db in $alldb
 do
-  exists=`sudo -u postgres psql -tAc "select 1 from pg_database where datname = '$db'"` || exit 100
+  exists=`sudo -u postgres psql -h "$PG_HOST" -p "$PG_PORT" -tAc "select 1 from pg_database where datname = '$db'"` || exit 100
   if [ ! "$exists" = "1" ]
   then
     LASTDB=$db
