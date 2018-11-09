@@ -28,3 +28,7 @@
 # Minimal devstats image
 
 - If you only want to deploy from host, you can use `Dockerfile.minimal` and `makefile.minimal` to build minimal devstats image. It will skip all tools needed to bootstrap database and deploy projects.
+
+
+# DockerHub
+- Devstats image can be pulled from the [docker hub](https://hub.docker.com/r/lukaszgryglicki/devstats/).
