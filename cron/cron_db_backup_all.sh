@@ -1,4 +1,8 @@
 #!/bin/bash
+if [ ! -z "${NOBACKUP}" ]
+then
+  exit 0
+fi
 if [ -z "$ONLY" ]
 then
   host=`hostname`
