@@ -1,14 +1,5 @@
 #!/bin/bash
 # SKIPTEMP=1 skip regenerating data into temporary database and use current database directly
-if [ -z "$PG_HOST" ]
-then
-  PG_HOST=127.0.0.1
-fi
-
-if [ -z "$PG_PORT" ]
-then
-  PG_PORT=5432
-fi
 if ( [ -z "$GHA2DB_PROJECT" ] || [ -z "$PG_DB" ] || [ -z "$PG_PASS" ] )
 then
   echo "$0: you need to set GHA2DB_PROJECT, PG_DB, PG_PASS env variables to use this script"
@@ -26,23 +17,23 @@ fi
 if [ ! -z "$SKIPTEMP" ]
 then
   ./devel/drop_ts_tables.sh "$PG_DB" || exit 2
-  sudo -u postgres psql -h "$PG_HOST" -p "$PG_PORT" "$PG_DB" -c "delete from gha_vars" || exit 3
-  sudo -u postgres psql -h "$PG_HOST" -p "$PG_PORT" "$PG_DB" -c "delete from gha_computed" || exit 4
+  ./devel/db.sh psql "$PG_DB" -c "delete from gha_vars" || exit 3
+  ./devel/db.sh psql "$PG_DB" -c "delete from gha_computed" || exit 4
   GHA2DB_LOCAL=1 ./vars || exit 5
   GHA2DB_CMDDEBUG=1 GHA2DB_RESETTSDB=1 GHA2DB_LOCAL=1 ./gha2db_sync || exit 6
 else
   db=$PG_DB
   tdb="${PG_DB}_temp"
-  sudo -u postgres pg_dump -Fc $db -f /tmp/$tdb.dump || exit 7
+  ./devel/db.sh pg_dump -Fc $db -f /tmp/$tdb.dump || exit 7
   mv /tmp/$tdb.dump . || exit 8
   ./devel/restore_db.sh $tdb || exit 9
   ./devel/drop_ts_tables.sh $tdb || exit 10
-  sudo -u postgres psql -h "$PG_HOST" -p "$PG_PORT" $tdb -c "delete from gha_vars" || exit 11
-  sudo -u postgres psql -h "$PG_HOST" -p "$PG_PORT" $tdb -c "delete from gha_computed" || exit 12
+  ./devel/db.sh psql $tdb -c "delete from gha_vars" || exit 11
+  ./devel/db.sh psql $tdb -c "delete from gha_computed" || exit 12
   GHA2DB_LOCAL=1 PG_DB=$tdb ./vars || exit 13
   GHA2DB_CMDDEBUG=1 GHA2DB_RESETTSDB=1 GHA2DB_LOCAL=1 PG_DB=$tdb ./gha2db_sync || exit 14
   ./devel/drop_psql_db.sh $db || exit 15
-  sudo -u postgres psql -h "$PG_HOST" -p "$PG_PORT" -c "select pg_terminate_backend(pid) from pg_stat_activity where datname = '$tdb'" || exit 16
-  sudo -u postgres psql -h "$PG_HOST" -p "$PG_PORT" -c "alter database \"$tdb\" rename to \"$db\"" || exit 17
+  ./devel/db.sh psql -c "select pg_terminate_backend(pid) from pg_stat_activity where datname = '$tdb'" || exit 16
+  ./devel/db.sh psql -c "alter database \"$tdb\" rename to \"$db\"" || exit 17
   rm -f $tdb.dump || exit 18
 fi
