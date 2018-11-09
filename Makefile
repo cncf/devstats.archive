@@ -30,7 +30,6 @@ DOCKER_BINARIES=structure gha2db calc_metric gha2db_sync import_affs annotations
 CRON_SCRIPTS=cron/cron_db_backup.sh cron/cron_db_backup_all.sh cron/refresh_mviews.sh cron/net_tcp_config.sh cron/backup_artificial.sh cron/restart_dbs.sh
 UTIL_SCRIPTS=devel/wait_for_command.sh devel/cronctl.sh devel/sync_lock.sh devel/sync_unlock.sh devel/db.sh
 GIT_SCRIPTS=git/git_reset_pull.sh git/git_files.sh git/git_tags.sh git/last_tag.sh
-DOCKER_SCRIPTS=cron/net_tcp_config.sh
 STRIP=strip
 
 all: check ${BINARIES}
@@ -160,7 +159,7 @@ install: ${BINARIES} data
 
 dockerinstall: ${DOCKER_BINARIES} copydata
 	${GO_INSTALL} ${GO_DOCKER_BIN_CMDS}
-	cp -v ${DOCKER_SCRIPTS} ${GOPATH}/bin
+	cp -v ${CRON_SCRIPTS} ${GOPATH}/bin
 	cp -v ${GIT_SCRIPTS} ${GOPATH}/bin
 
 strip: ${BINARIES}
