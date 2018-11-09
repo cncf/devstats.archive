@@ -48,7 +48,7 @@ Prerequisites:
     - sudo pkg install postgresql96-server
     - Add 'postgresql_enable="YES"' to /etc/rc.conf
     - service postgresql initdb
-    - service postgresql start
+    - `service postgresql start` or `systemctl start postgresql@10-main`.
     - sudo -i -u postgres
     - psql
     - Postgres only allows local connections by default so it is secure, we don't need to disable external connections:
