@@ -18,6 +18,7 @@
 - Use `./docker/docker_psql_into_logs_db.sh` to connect to dockerized postgres host post 65432 -> container port 5432.
 - Use `PG_PASS=... ./docker/docker_display_logs.sh` to see deployment logs.
 - Use `PG_PASS=... ./docker/docker_health.sh` to do a health check (after succesfull deployment). It will display number of texts in the buildpacks database.
+- Use `./docker/docker_remove_psql.sh` to remove dockerized postgres instance.
 
 
 # Devstats hourly sync
