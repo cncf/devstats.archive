@@ -25,7 +25,7 @@ GO_IMPORTS=goimports -w
 GO_USEDEXPORTS=usedexports -ignore 'sqlitedb.go|vendor'
 GO_ERRCHECK=errcheck -asserts -ignore '[FS]?[Pp]rint*' -ignoretests
 GO_TEST=go test
-BINARIES=structure runq gha2db calc_metric gha2db_sync import_affs annotations tags webhook devstats get_repos merge_dbs replacer vars ghapi2db columns hide_data website_data sync_issues devstats_api_server gha2es sqlitedb
+BINARIES=structure gha2db calc_metric gha2db_sync import_affs annotations tags webhook devstats get_repos merge_dbs replacer vars ghapi2db columns hide_data website_data sync_issues devstats_api_server gha2es sqlitedb runq
 DOCKER_BINARIES=structure gha2db calc_metric gha2db_sync annotations tags devstats get_repos ghapi2db columns gha2es runq
 CRON_SCRIPTS=cron/cron_db_backup.sh cron/cron_db_backup_all.sh cron/refresh_mviews.sh cron/net_tcp_config.sh cron/backup_artificial.sh cron/restart_dbs.sh
 UTIL_SCRIPTS=devel/wait_for_command.sh devel/cronctl.sh devel/sync_lock.sh devel/sync_unlock.sh
@@ -132,13 +132,15 @@ dbtest:
 
 check: fmt lint imports vet const usedexports errcheck
 
-data:
+util_scripts:
 	cp -v ${UTIL_SCRIPTS} ${GOPATH}/bin
+
+data: util_scripts
 	[ ! -f /tmp/deploy.wip ] || exit 1
 	wait_for_command.sh devstats 3600 || exit 2
 	make copydata
 
-copydata:
+copydata: util_scripts
 	mkdir /etc/gha2db 2>/dev/null || echo "..."
 	chmod 777 /etc/gha2db 2>/dev/null || echo "..."
 	rm -fr /etc/gha2db/* || exit 3
