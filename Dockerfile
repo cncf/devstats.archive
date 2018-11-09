@@ -3,4 +3,4 @@ RUN apt-get update -y && apt-get upgrade -y && apt-get install -y ca-certificate
 WORKDIR /go/src/devstats
 ADD devstats.tar .
 RUN make dockerinstall
-RUN rm -rf /go/src/devstats
+# RUN rm -rf /go/src/devstats

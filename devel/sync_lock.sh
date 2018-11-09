@@ -1,4 +1,9 @@
 #!/bin/bash
+# NOLOCK=1 skip
+if [ ! -z "$NOLOCK" ]
+then
+  exit 0
+fi
 if [ -z "$SKIPLOCK" ]
 then
   if [ -f "/tmp/deploy.wip" ]
