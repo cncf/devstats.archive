@@ -1,10 +1,10 @@
 #!/bin/bash
-sudo -u postgres psql gha < util_sql/tables_commits_files.sql
-sudo -u postgres psql prometheus < util_sql/tables_commits_files.sql
-sudo -u postgres psql opentracing < util_sql/tables_commits_files.sql
-sudo -u postgres psql fluentd < util_sql/tables_commits_files.sql
-sudo -u postgres psql linkerd < util_sql/tables_commits_files.sql
-sudo -u postgres psql grpc < util_sql/tables_commits_files.sql
-sudo -u postgres psql coredns < util_sql/tables_commits_files.sql
-sudo -u postgres psql containerd < util_sql/tables_commits_files.sql
-sudo -u postgres psql cncf < util_sql/tables_commits_files.sql
+./devel/db.sh psql gha < util_sql/tables_commits_files.sql
+./devel/db.sh psql prometheus < util_sql/tables_commits_files.sql
+./devel/db.sh psql opentracing < util_sql/tables_commits_files.sql
+./devel/db.sh psql fluentd < util_sql/tables_commits_files.sql
+./devel/db.sh psql linkerd < util_sql/tables_commits_files.sql
+./devel/db.sh psql grpc < util_sql/tables_commits_files.sql
+./devel/db.sh psql coredns < util_sql/tables_commits_files.sql
+./devel/db.sh psql containerd < util_sql/tables_commits_files.sql
+./devel/db.sh psql cncf < util_sql/tables_commits_files.sql
