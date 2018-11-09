@@ -22,3 +22,8 @@
 
 # Devstats hourly sync
 - Use `PG_PASS=... ./docker/docker_devstats.sh` to do devstats sync for buildpacks. This should be run hourly, ideally when new GHA files are available which is about every hour:08.
+
+
+# Minimal devstats image
+
+- If you only want to deploy from host, you can use `Dockerfile.minimal` to build devstats image. It will skip all tools needed to bootstrap database and deploy projects.

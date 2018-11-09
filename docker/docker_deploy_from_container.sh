@@ -1,5 +1,4 @@
 #!/bin/bash
-echo 'Uses devstats runq command to connect to host postgres and display number of texts in the database'
 if ( [ -z "$PG_PASS" ] || [ -z "$PG_PASS_RO" ] || [ -z "$PG_PASS_TEAM" ] )
 then
   echo "$0: you need to set PG_PASS=... PG_PASS_RO=... PG_PASS_TEAM=... environment variables"

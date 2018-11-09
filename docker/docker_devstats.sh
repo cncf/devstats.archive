@@ -1,5 +1,5 @@
 #!/bin/bash
-echo 'Uses devstats runq command to connect to host postgres and display number of texts in the database'
+echo 'Uses devstats to sync projects, supposed to run hourly'
 if [ -z "$PG_PASS" ]
 then
   if [ -z "$INTERACTIVE" ]
