@@ -1,13 +1,4 @@
 #!/bin/sh
-if [ -z "$PG_HOST" ]
-then
-  PG_HOST=127.0.0.1
-fi
-
-if [ -z "$PG_PORT" ]
-then
-  PG_PORT=5432
-fi
 rm actors.txt
 if [ -z "$ONLY" ]
 then
@@ -26,7 +17,7 @@ fi
 for db in $all
 do
   echo "DB: $db"
-  sudo -u postgres psql -h "$PG_HOST" -p "$PG_PORT" -tA $db < ./util_sql/actors.sql >> actors.txt
+  ./devel/db.sh psql -tA $db < ./util_sql/actors.sql >> actors.txt
 done
 cat actors.txt | sort | uniq > actors.tmp
 mv actors.tmp actors.txt
