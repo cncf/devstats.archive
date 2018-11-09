@@ -1,13 +1,4 @@
 #!/bin/bash
-if [ -z "$PG_HOST" ]
-then
-  PG_HOST=127.0.0.1
-fi
-
-if [ -z "$PG_PORT" ]
-then
-  PG_PORT=5432
-fi
 if [ -z "$1" ]
 then
   echo "$0: at least one SQL script required"
@@ -30,7 +21,7 @@ do
   for sql in $*
   do
     echo "Execute script '$sql' on '$db' database"
-    sudo -u postgres psql -h "$PG_HOST" -p "$PG_PORT" "$db" < "$sql" || exit 2
+    ./devel/db.sh psql "$db" < "$sql" || exit 2
   done
 done
 echo 'OK'
