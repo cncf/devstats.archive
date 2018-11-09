@@ -1,4 +1,8 @@
 #!/bin/bash
+if [ ! -z "${NOBACKUP}" ]
+then
+  exit 0
+fi
 echo "Backup start:" && date
 db.sh pg_dump -Fc $1 -f /tmp/$1.dump || exit 1
 mv /tmp/$1.dump /var/www/html/ || exit 2

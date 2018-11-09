@@ -1,4 +1,8 @@
 #!/bin/bash
+if [ ! -z "${NOBACKUP}" ]
+then
+  exit 0
+fi
 if [ -z "$1" ]
 then
   echo "$0: you need to provide database name as an argument"
