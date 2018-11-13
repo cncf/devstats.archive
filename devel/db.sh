@@ -1,4 +1,5 @@
 #!/bin/bash
+# DBDEBUG=1 - verbose operations
 if [ -z "$PG_PASS" ]
 then
   echo "$0: you need to set PG_PASS=... $*"
@@ -23,4 +24,8 @@ then
 fi
 cmd=${1}
 shift
+if [ ! -z "$DBDEBUG" ]
+then
+  echo "PGPASSWORD=... '${cmd}' -U '${PG_USER}' -h '${PG_HOST}' -p '${PG_PORT}' '${@}'"
+fi
 PGPASSWORD="${PG_PASS}" "${cmd}" -U "${PG_USER}" -h "${PG_HOST}" -p "${PG_PORT}" "${@}"
