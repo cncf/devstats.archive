@@ -26,6 +26,6 @@ cmd=${1}
 shift
 if [ ! -z "$DBDEBUG" ]
 then
-  echo "PGPASSWORD=... '${cmd}' -U '${PG_USER}' -h '${PG_HOST}' -p '${PG_PORT}' '${@}'"
+  echo "PGPASSWORD=... '${cmd}' -U '${PG_USER}' -h '${PG_HOST}' -p '${PG_PORT}' '${@}'" >&2
 fi
 PGPASSWORD="${PG_PASS}" "${cmd}" -U "${PG_USER}" -h "${PG_HOST}" -p "${PG_PORT}" "${@}"
