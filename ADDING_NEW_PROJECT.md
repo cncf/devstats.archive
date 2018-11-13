@@ -15,7 +15,7 @@ This file describes how to add new project on the test and production servers.
 
 - Do not commit changes until all is ready, or commit with `[no deploy]` in the commit message.
 - Add project entry to `projects.yaml` file. Find projects orgs, repos, select start date, eventually add test coverage for complex regular expression in `regexp_test.go`.
-- To identify repo and/or org name changes, date ranges for entrire projest use `util_sql/(repo|org)_name_changes_bigquery.sql` replacing name there.
+- To identify repo and/or org name changes, date ranges for entrire projest use `util_sh/(repo|org)_name_changes_bigquery.sh org|org/repo`.
 - Main repo can be empty `''` - in this case only two annotations will be added: 'start date - CNCF join date' and 'CNCF join date - now".
 - CNCF join dates are listed [here](https://github.com/cncf/toc#projects).
 - Update projects list files: `devel/all_prod_dbs.txt devel/all_prod_projects.txt devel/all_test_dbs.txt devel/all_test_projects.txt CONTRIBUTORS.md docker/docker_devstats.sh` and project icon type `devel/get_icon_type.sh`.
