@@ -48,13 +48,14 @@ Prerequisites:
     - sudo pkg install postgresql96-server
     - Add 'postgresql_enable="YES"' to /etc/rc.conf
     - service postgresql initdb
-    - service postgresql start
+    - `service postgresql start` or `systemctl start postgresql@10-main`.
     - sudo -i -u postgres
     - psql
     - Postgres only allows local connections by default so it is secure, we don't need to disable external connections:
     - Config file is: `/usr/local/share/postgresql/pg_hba.conf`, instructions to enable external connections (not recommended): `http://www.thegeekstuff.com/2014/02/enable-remote-postgresql-connection/?utm_source=tuicool`
     - Set bigger maximum number of connections, at least 200 or more: `/etc/postgresql/X.Y/main/postgresql.conf`. Default is 100. `max_connections = 300`.
     - You can also set `shared_buffers = ...` to something like 25% of your RAM. This is optional.
+    - `./devel/set_psql_password.sh` to set postgres user password.
 8. Inside psql client shell (sudo -u postgres psql):
     - `create database gha;`
     - `create database devstats;`

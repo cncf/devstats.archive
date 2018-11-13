@@ -1,13 +1,4 @@
 #!/bin/bash
-if [ -z "$PG_HOST" ]
-then
-  PG_HOST=127.0.0.1
-fi
-
-if [ -z "$PG_PORT" ]
-then
-  PG_PORT=5432
-fi
 function finish {
     sync_unlock.sh
 }
@@ -21,7 +12,7 @@ set -o pipefail
 > errors.txt
 > run.log
 GHA2DB_PROJECT=kubernetes PG_DB=gha GHA2DB_LOCAL=1 ./structure 2>>errors.txt | tee -a run.log || exit 1
-sudo -u postgres psql -h "$PG_HOST" -p "$PG_PORT" gha -c "create extension if not exists pgcrypto" || exit 1
+./devel/db.sh psql gha -c "create extension if not exists pgcrypto" || exit 1
 GHA2DB_EXCLUDE_REPOS='kubernetes/api,kubernetes/apiextensions-apiserver,kubernetes/apimachinery,kubernetes/apiserver,kubernetes/client-go,kubernetes/code-generator,kubernetes/kube-aggregator,kubernetes/metrics,kubernetes/sample-apiserver,kubernetes/sample-controller,kubernetes/helm,kubernetes/deployment-manager,kubernetes/charts,kubernetes/application-dm-templates,kubernetes/cli-runtime,kubernetes/csi-api,kubernetes/kube-proxy,kubernetes/kube-controller-manager,kubernetes/kube-scheduler,kubernetes/kubelet,kubernetes/sample-cli-plugin' GHA2DB_PROJECT=kubernetes PG_DB=gha GHA2DB_LOCAL=1 ./gha2db 2015-08-06 0 today now 'kubernetes,kubernetes-client,kubernetes-incubator,kubernetes-csi,kubernetes-graveyard,kubernetes-incubator-retired,kubernetes-sig-testing,kubernetes-providers,kubernetes-addons,kubernetes-extensions,kubernetes-federation,kubernetes-security,kubernetes-sigs,kubernetes-sidecars,kubernetes-tools,kubernetes-test,kubernetes-retired' 2>>errors.txt | tee -a run.log || exit 2
 GHA2DB_PROJECT=kubernetes PG_DB=gha GHA2DB_LOCAL=1 GHA2DB_EXACT=1 ./gha2db 2015-01-01 0 2015-08-14 0 'GoogleCloudPlatform/kubernetes,kubernetes,kubernetes-client,kubernetes-csi' 2>>errors.txt | tee -a run.log || exit 3
 GHA2DB_PROJECT=kubernetes PG_DB=gha GHA2DB_LOCAL=1 GHA2DB_OLDFMT=1 GHA2DB_EXACT=1 ./gha2db 2014-06-02 0 2014-12-31 23 'GoogleCloudPlatform/kubernetes,kubernetes,kubernetes-client,kubernetes-csi' 2>>errors.txt | tee -a run.log || exit 4

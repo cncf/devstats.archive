@@ -37,6 +37,7 @@ icontypes=(
   ["cortex"]="color"
   ["buildpacks"]="color"
   ["falco"]="color"
+  ["dragonfly"]="color"
   ["istio"]="color"
   ["spinnaker"]="color"
   ["all"]="color"

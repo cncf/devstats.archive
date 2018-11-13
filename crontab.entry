@@ -8,12 +8,12 @@
 8 * * * * PATH=$PATH:/home/justa/dev/go/bin GHA2DB_WEBSITEDATA=1 GHA2DB_JSONS_DIR=/var/www/html/jsons GHA2DB_PROJECTS_OVERRIDE="+cncf,+all,+opencontainers,+istio,+spinnaker" GHA2DB_TMOFFSET="-5" PG_PASS=... devstats 2>> /tmp/gha2db_sync.err 1>> /tmp/gha2db_sync.log
 7 * * * * PATH=$PATH:/home/justa/dev/go/bin net_tcp_config.sh
 59 * * * * PATH=$PATH:/home/justa/dev/go/bin GHA2DB_JSONS_DIR=/var/www/html/jsons GHA2DB_PROJECTS_OVERRIDE="+cncf,+all,+opencontainers,+istio,+spinnaker" PG_PASS=... website_data 1>>/tmp/website_data.log 2>>/tmp/website_data.err
-40 4 * * * PATH=$PATH:/home/justa/dev/go/bin cron_db_backup_all.sh 2>> /tmp/gha2db_backup.err 1>> /tmp/gha2db_backup.log
+40 4 * * * PATH=$PATH:/home/justa/dev/go/bin PG_PASS=... cron_db_backup_all.sh 2>> /tmp/gha2db_backup.err 1>> /tmp/gha2db_backup.log
 # For the prod server (uses test server to get data for automatic deploy)
 */5 * * * * PATH=$PATH:/home/justa/dev/go/bin GOPATH=/home/justa/dev/go GHA2DB_DEPLOY_BRANCHES="production" GHA2DB_PROJECT_ROOT=/home/justa/dev/go/src/devstats PG_PASS=... GET=1 IGET=1 webhook 2>> /tmp/gha2db_webhook.err 1>> /tmp/gha2db_webhook.log
 # For the test server (no data for automatic deploy, do it manually
 */5 * * * * PATH=$PATH:/home/justa/dev/go/bin GOPATH=/home/justa/dev/go GHA2DB_DEPLOY_BRANCHES="master" GHA2DB_PROJECT_ROOT=/home/justa/dev/go/src/devstats PG_PASS=... GHA2DB_SKIP_FULL_DEPLOY=1 webhook 2>> /tmp/gha2db_webhook.err 1>> /tmp/gha2db_webhook.log
 # For the test server to make automatic deploy (this takes a very long time and runs from cron, so it is harder to debug)
 */5 * * * * PATH=$PATH:/home/justa/dev/go/bin GOPATH=/home/justa/dev/go GHA2DB_DEPLOY_BRANCHES="master" GHA2DB_PROJECT_ROOT=/home/justa/dev/go/src/devstats GHA2DB_CMDDEBUG=2 PG_PASS=... w0ebhook 2>> /tmp/gha2db_webhook.err 1>> /tmp/gha2db_webhook.log
-40 0 * * * PATH=$PATH:/home/justa/dev/go/bin refresh_mviews.sh 2>> /tmp/refresh_mviews.err 1>> /tmp/refresh_mviews.log
-0 4 * * * PATH=$PATH:/home/justa/dev/go/bin restart_dbs.sh
+40 0 * * * PATH=$PATH:/home/justa/dev/go/bin PG_PASS=... refresh_mviews.sh 2>> /tmp/refresh_mviews.err 1>> /tmp/refresh_mviews.log
+0 4 * * * PATH=$PATH:/home/justa/dev/go/bin PG_PASS=... restart_dbs.sh

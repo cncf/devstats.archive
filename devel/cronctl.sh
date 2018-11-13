@@ -1,4 +1,9 @@
 #!/bin/bash
+# NOLOCK=1 skip
+if [ ! -z "$NOLOCK" ]
+then
+  exit 0
+fi
 set -o pipefail
 if ([ -z "$1" ] || [ -z "$2" ])
 then
