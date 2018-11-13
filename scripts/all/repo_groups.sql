@@ -349,7 +349,7 @@ set
   alias = 'Dragonfly'
 where
   org_login in ('alibaba')
-  and name in ('Dragonfly')
+  and name in ('alibaba/Dragonfly')
 ;
 
 -- CNCF
