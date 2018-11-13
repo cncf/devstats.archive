@@ -82,6 +82,7 @@ func ESConn(ctx *Ctx, prefix string) *ES {
 			// `"message":{"type":"text"},` +
 			// `"title":{"type":"text"},` +
 			// `"body":{"type":"text"},` +
+			`"full_body":{"type":"text"},` +
 			`"time":{"type":"date","format":"yyyy-MM-dd HH:mm:ss"}` +
 			`}}}}`,
 	}

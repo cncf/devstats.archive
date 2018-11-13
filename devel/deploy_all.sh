@@ -6,15 +6,6 @@
 # SKIPWWW=1 (skips Apache and SSL cert configuration, final result will be Grafana exposed on the server on its port (for example 3010) via HTTP)
 # SKIPVARS=1 (if set it will skip final Postgres vars regeneration)
 # CUSTGRAFPATH=1 (set this to use non-standard grafana instalation from ~/grafana.v5/)
-if [ -z "$PG_HOST" ]
-then
-  PG_HOST=127.0.0.1
-fi
-
-if [ -z "$PG_PORT" ]
-then
-  PG_PORT=5432
-fi
 set -o pipefail
 exec > >(tee run.log)
 exec 2> >(tee errors.txt)
@@ -94,7 +85,7 @@ fi
 LASTDB=""
 for db in $alldb
 do
-  exists=`sudo -u postgres psql -h "$PG_HOST" -p "$PG_PORT" -tAc "select 1 from pg_database where datname = '$db'"` || exit 100
+  exists=`./devel/db.sh psql -tAc "select 1 from pg_database where datname = '$db'"` || exit 100
   if [ ! "$exists" = "1" ]
   then
     LASTDB=$db
@@ -205,6 +196,10 @@ do
   elif [ "$proj" = "falco" ]
   then
     PROJ=falco          PROJDB=falco          PROJREPO="falcosecurity/falco"           ORGNAME=Falco        PORT=3029 ICON=falco        GRAFSUFF=falco          GA="UA-108085315-34" ./devel/deploy_proj.sh || exit 31
+# TODO: missing dragonfly icons
+  elif [ "$proj" = "dragonfly" ]
+  then
+    PROJ=dragonfly      PROJDB=dragonfly      PROJREPO="alibaba/Dragonfly"             ORGNAME=Dragonfly    PORT=3030 ICON=cncf        GRAFSUFF=dragonfly       GA="UA-108085315-35" ./devel/deploy_proj.sh || exit 39
   elif [ "$proj" = "opencontainers" ]
   then
     PROJ=opencontainers PROJDB=opencontainers PROJREPO="opencontainers/runc"           ORGNAME=OCI          PORT=3100 ICON="-"          GRAFSUFF=opencontainers GA="UA-108085315-19" ./devel/deploy_proj.sh || exit 32

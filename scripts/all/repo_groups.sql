@@ -341,6 +341,17 @@ where
   or name in ('draios/falco')
 ;
 
+-- Dragonfly
+update
+  gha_repos
+set
+  repo_group = 'Dragonfly',
+  alias = 'Dragonfly'
+where
+  org_login in ('alibaba')
+  and name in ('Dragonfly')
+;
+
 -- CNCF
 update
   gha_repos

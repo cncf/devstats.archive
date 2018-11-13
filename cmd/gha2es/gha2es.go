@@ -198,6 +198,7 @@ type esRawText struct {
 	ActorTZOffset    *int     `json:"actor_tz_offset"`
 	ActorCountry     string   `json:"actor_country"`
 	ActorCompany     string   `json:"actor_company"`
+	FullBody         string   `json:"full_body"`
 }
 
 func generateRawES(ch chan struct{}, ctx *lib.Ctx, con *sql.DB, es *lib.ES, dtf, dtt time.Time, sqls map[string]string) {
@@ -527,6 +528,7 @@ func generateRawES(ch chan struct{}, ctx *lib.Ctx, con *sql.DB, es *lib.ES, dtf,
 		)
 		nTexts++
 		text.CreatedAt = lib.ToYMDHMSDate(createdAt)
+		text.FullBody = text.Body
 		text.Body = lib.TruncToBytes(text.Body, 0x1000)
 		textids[text.EventID] = struct{}{}
 		es.AddBulksItemsI(ctx, bulkDel, bulkAdd, text, lib.HashArray([]interface{}{text.Type, text.EventID, text.Body}))
