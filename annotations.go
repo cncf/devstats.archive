@@ -359,35 +359,23 @@ func ProcessAnnotations(ctx *Ctx, annotations *Annotations, startDate, joinDate 
 			ExecSQLWithErr(ic, ctx, fmt.Sprintf("delete from \"%s\" where \"%s\" like '%%_n'", table, column))
 		}
 		WriteTSPoints(ctx, ic, &pts, "", nil)
+		// Annotations from all projects into 'allprj' database
 		if ctx.SharedDB != "" {
-			suffix := "_shared"
-			for i := range pts {
-				pts[i].name += suffix
-				if pts[i].fields != nil {
-					pts[i].fields["project"] = ctx.Project
-					pts[i].fields["repo"] = ctx.ProjectMainRepo
+			var anots TSPoints
+			for _, pt := range pts {
+				if pt.name != "annotations" {
+					continue
 				}
-				if pts[i].tags != nil {
-					pts[i].tags["project"] = ctx.Project
-					pts[i].tags["repo"] = ctx.ProjectMainRepo
+				pt.name = "annotations_shared"
+				if pt.fields != nil {
+					pt.period = ctx.Project
+					pt.fields["repo"] = ctx.ProjectMainRepo
 				}
+				anots = append(anots, pt)
 			}
 			ics := PgConnDB(ctx, ctx.SharedDB)
 			defer func() { FatalOnError(ics.Close()) }()
-			table += suffix
-			if TableExists(ics, ctx, table) && TableColumnExists(ics, ctx, table, column) {
-				ExecSQLWithErr(
-					ics,
-					ctx,
-					fmt.Sprintf(
-						"delete from \"%s\" where \"%s\" like '%%_n' and project = "+NValue(1),
-						table,
-						column,
-					),
-					ctx.Project,
-				)
-			}
-			WriteTSPoints(ctx, ics, &pts, "", nil)
+			WriteTSPoints(ctx, ics, &anots, "", nil)
 		}
 	} else if ctx.Debug > 0 {
 		Printf("Skipping annotations series write\n")
