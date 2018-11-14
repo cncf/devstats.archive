@@ -35,6 +35,7 @@ type Project struct {
 	Env              map[string]string `yaml:"env"`
 	FullName         string            `yaml:"name"`
 	Status           string            `yaml:"status"`
+	SharedDB         string            `yaml:"shared_db"`
 }
 
 // AnyArray - holds array of interface{} - just a shortcut

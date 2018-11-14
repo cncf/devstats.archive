@@ -196,10 +196,9 @@ do
   elif [ "$proj" = "falco" ]
   then
     PROJ=falco          PROJDB=falco          PROJREPO="falcosecurity/falco"           ORGNAME=Falco        PORT=3029 ICON=falco        GRAFSUFF=falco          GA="UA-108085315-34" ./devel/deploy_proj.sh || exit 31
-# TODO: missing dragonfly icons
   elif [ "$proj" = "dragonfly" ]
   then
-    PROJ=dragonfly      PROJDB=dragonfly      PROJREPO="alibaba/Dragonfly"             ORGNAME=Dragonfly    PORT=3030 ICON=cncf        GRAFSUFF=dragonfly       GA="UA-108085315-35" ./devel/deploy_proj.sh || exit 39
+    PROJ=dragonfly      PROJDB=dragonfly      PROJREPO="alibaba/Dragonfly"             ORGNAME=Dragonfly    PORT=3030 ICON=dragonfly    GRAFSUFF=dragonfly       GA="UA-108085315-35" ./devel/deploy_proj.sh || exit 39
   elif [ "$proj" = "opencontainers" ]
   then
     PROJ=opencontainers PROJDB=opencontainers PROJREPO="opencontainers/runc"           ORGNAME=OCI          PORT=3100 ICON="-"          GRAFSUFF=opencontainers GA="UA-108085315-19" ./devel/deploy_proj.sh || exit 32

@@ -105,6 +105,8 @@ type Ctx struct {
 	UseES               bool                         // From GHA2DB_USE_ES, calc_metric, atgs, annotations tools - enable ElasticSearch, default false
 	UseESOnly           bool                         // From GHA2DB_USE_ES_ONLY, calc_metric, annotations tools - enable ElasticSearch and do not write PSQL TSDB, default false
 	UseESRaw            bool                         // From GHA2DB_USE_ES_RAW, gha2es, gha2db_sync tools - enable generating RAW ElasticSearch data (directly from gha_tables instead of aggregated data from TSDB)
+	SharedDB            string                       // Currently annotations tool read this from projects.yaml:shared_db and if set, outputs annotations data to the sharded DB in addition to the current DB
+	ProjectMainRepo     string                       // Used by annotations tool to store project's main repo name
 }
 
 // Init - get context from environment variables
