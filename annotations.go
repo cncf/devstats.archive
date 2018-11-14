@@ -343,6 +343,14 @@ func ProcessAnnotations(ctx *Ctx, annotations *Annotations, startDate, joinDate 
 		tm = tm.Add(time.Hour)
 	}
 
+	// Output to ElasticSearch
+	if ctx.UseES {
+		if es.IndexExists(ctx) {
+			es.DeleteByWildcardQuery(ctx, "quick_ranges_suffix", "*_n")
+		}
+		es.WriteESPoints(ctx, &pts, "", [3]bool{true, false, false})
+	}
+
 	// Write the batch
 	if !ctx.SkipTSDB && !ctx.UseESOnly {
 		table := "tquick_ranges"
@@ -351,15 +359,25 @@ func ProcessAnnotations(ctx *Ctx, annotations *Annotations, startDate, joinDate 
 			ExecSQLWithErr(ic, ctx, fmt.Sprintf("delete from \"%s\" where \"%s\" like '%%_n'", table, column))
 		}
 		WriteTSPoints(ctx, ic, &pts, "", nil)
+		// Annotations from all projects into 'allprj' database
+		if ctx.SharedDB != "" {
+			var anots TSPoints
+			for _, pt := range pts {
+				if pt.name != "annotations" {
+					continue
+				}
+				pt.name = "annotations_shared"
+				if pt.fields != nil {
+					pt.period = ctx.Project
+					pt.fields["repo"] = ctx.ProjectMainRepo
+				}
+				anots = append(anots, pt)
+			}
+			ics := PgConnDB(ctx, ctx.SharedDB)
+			defer func() { FatalOnError(ics.Close()) }()
+			WriteTSPoints(ctx, ics, &anots, "", nil)
+		}
 	} else if ctx.Debug > 0 {
 		Printf("Skipping annotations series write\n")
-	}
-
-	// Output to ElasticSearch
-	if ctx.UseES {
-		if es.IndexExists(ctx) {
-			es.DeleteByWildcardQuery(ctx, "quick_ranges_suffix", "*_n")
-		}
-		es.WriteESPoints(ctx, &pts, "", [3]bool{true, false, false})
 	}
 }
