@@ -343,6 +343,14 @@ func ProcessAnnotations(ctx *Ctx, annotations *Annotations, startDate, joinDate 
 		tm = tm.Add(time.Hour)
 	}
 
+	// Output to ElasticSearch
+	if ctx.UseES {
+		if es.IndexExists(ctx) {
+			es.DeleteByWildcardQuery(ctx, "quick_ranges_suffix", "*_n")
+		}
+		es.WriteESPoints(ctx, &pts, "", [3]bool{true, false, false})
+	}
+
 	// Write the batch
 	if !ctx.SkipTSDB && !ctx.UseESOnly {
 		table := "tquick_ranges"
@@ -351,15 +359,37 @@ func ProcessAnnotations(ctx *Ctx, annotations *Annotations, startDate, joinDate 
 			ExecSQLWithErr(ic, ctx, fmt.Sprintf("delete from \"%s\" where \"%s\" like '%%_n'", table, column))
 		}
 		WriteTSPoints(ctx, ic, &pts, "", nil)
+		if ctx.SharedDB != "" {
+			suffix := "_shared"
+			for i := range pts {
+				pts[i].name += suffix
+				if pts[i].fields != nil {
+					pts[i].fields["project"] = ctx.Project
+					pts[i].fields["repo"] = ctx.ProjectMainRepo
+				}
+				if pts[i].tags != nil {
+					pts[i].tags["project"] = ctx.Project
+					pts[i].tags["repo"] = ctx.ProjectMainRepo
+				}
+			}
+			ics := PgConnDB(ctx, ctx.SharedDB)
+			defer func() { FatalOnError(ics.Close()) }()
+			table += suffix
+			if TableExists(ics, ctx, table) && TableColumnExists(ics, ctx, table, column) {
+				ExecSQLWithErr(
+					ics,
+					ctx,
+					fmt.Sprintf(
+						"delete from \"%s\" where \"%s\" like '%%_n' and project = "+NValue(1),
+						table,
+						column,
+					),
+					ctx.Project,
+				)
+			}
+			WriteTSPoints(ctx, ics, &pts, "", nil)
+		}
 	} else if ctx.Debug > 0 {
 		Printf("Skipping annotations series write\n")
-	}
-
-	// Output to ElasticSearch
-	if ctx.UseES {
-		if es.IndexExists(ctx) {
-			es.DeleteByWildcardQuery(ctx, "quick_ranges_suffix", "*_n")
-		}
-		es.WriteESPoints(ctx, &pts, "", [3]bool{true, false, false})
 	}
 }

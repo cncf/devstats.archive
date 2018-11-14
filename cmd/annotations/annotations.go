@@ -35,6 +35,8 @@ func makeAnnotations() {
 	if !ok {
 		lib.Fatalf("project '%s' not found in '%s'", ctx.Project, ctx.ProjectsYaml)
 	}
+	ctx.SharedDB = proj.SharedDB
+	ctx.ProjectMainRepo = proj.MainRepo
 
 	// Get annotations using GitHub API and add annotations and quick ranges to TSDB
 	if proj.MainRepo != "" {
