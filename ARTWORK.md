@@ -7,3 +7,4 @@
 - Update & run: `./grafana/create_images.sh`.
 - Update & run: `./grafana/copy_artwork_icons.sh`.
 - Run: `./grafana/restart_all_grafanas.sh`.
+- Check if new artwork is available for all projects and for the main page.
