@@ -62,6 +62,7 @@ Prerequisites:
     - Set bigger maximum number of connections, at least 200 or more: `/etc/postgresql/X.Y/main/postgresql.conf`. Default is 100. `max_connections = 300`.
     - You can also set `shared_buffers = ...` to something like 25% of your RAM. This is optional.
     - `./devel/set_psql_password.sh` to set postgres user password.
+    - `chown -R postgres /var/log/postgresql`.
 
 7. Inside psql client shell:
     - `create database gha;`

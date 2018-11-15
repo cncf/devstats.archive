@@ -18,6 +18,7 @@ then
 fi
 
 echo "$0 start"
+# TODO: set postgres user password to ${PG_PASS}
 
 if [ ! -z "$UDROP" ]
 then
