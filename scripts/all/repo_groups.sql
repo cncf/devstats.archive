@@ -348,8 +348,8 @@ set
   repo_group = 'Dragonfly',
   alias = 'Dragonfly'
 where
-  org_login in ('alibaba')
-  and name in ('alibaba/Dragonfly')
+  org_login in ('dragonflyoss')
+  or name in ('alibaba/Dragonfly')
 ;
 
 -- CNCF
