@@ -63,6 +63,7 @@ Prerequisites:
     - `PG_PASS=... ONLY="devstats gha" ./devel/create_psql_user.sh devstats_team`.
     - In case of problems both scripts (`create_ro_user.sh` and `create_psql_user.sh`) support `DROP=1`, `NOCREATE=1` env variables.
     - `./devel/set_psql_password.sh` to set postgres user password.
+    - `chown -R postgres /var/log/postgresql`.
 
 11. Leave `psql` shell, and get newest Kubernetes database dump:
     - `wget https://devstats.cncf.io/gha.dump`.

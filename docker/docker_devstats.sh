@@ -12,4 +12,4 @@ then
     echo ''
   fi
 fi
-docker run -e GHA2DB_PROJECTS_OVERRIDE="-kubernetes,-prometheus,-opentracing,-fluentd,-linkerd,-grpc,-coredns,-containerd,-rkt,-cni,-envoy,-jaeger,-notary,-tuf,-rook,-vitess,-nats,-opa,-spiffe,-spire,-cloudevents,-telepresence,-helm,-openmetrics,-harbor,-etcd,-tikv,-cortex,-falco,-dragonfly,-cncf,-all,-opencontainers,-istio,-spinnaker" -e ONLY=buildpacks -e GHA2DB_GHAPISKIP=1 -e PG_PORT=65432 -e PG_HOST=`docker run -it devstats ip route show | awk '/default/ {print $3}'` -e PG_PASS="${PG_PASS}" -it devstats devstats
+docker run -e GHA2DB_PROJECTS_YAML="docker/docker_projects.yaml" -e GHA2DB_GHAPISKIP=1 -e PG_PORT=65432 -e PG_HOST=`docker run -it devstats ip route show | awk '/default/ {print $3}'` -e PG_PASS="${PG_PASS}" -it devstats devstats
