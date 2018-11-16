@@ -29,6 +29,8 @@ then
   exit 1
 fi
 
+GHA2DB_PROJECTS_YAML="docker/docker_projects.yaml"
+export GHA2DB_PROJECTS_YAML
 ONLY=buildpacks
 export ONLY
 
