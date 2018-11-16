@@ -648,6 +648,7 @@ func syncEvents(ctx *lib.Ctx) {
 	eventTypes["base_ref_changed"] = struct{}{}
 	eventTypes["comment_deleted"] = struct{}{}
 	eventTypes["deployed"] = struct{}{}
+	eventTypes["transferred"] = struct{}{}
 
 	// Get number of CPUs available
 	thrN := lib.GetThreadsNum(ctx)
