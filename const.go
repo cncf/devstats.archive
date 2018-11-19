@@ -68,3 +68,6 @@ const NotFound string = "not_found"
 
 // Merged - common constant string
 const Merged string = "merged"
+
+// Nil - common constant string
+const Nil string = "(nil)"
