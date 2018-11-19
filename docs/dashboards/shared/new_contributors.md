@@ -7,7 +7,7 @@
 </ul>
 <h1 id="description">Description</h1>
 <ul>
-<li>This dashboard shows statistics about new PR contributors</li>
+<li>This dashboard shows statistics about new PR contributors.</li>
 <li>New contributor (PR creator) is someone whose PR was merged for the first time.</li>
 <li>You can select single repository group or summary for all of them.</li>
 <li>You can select date range to show new contributors for this period.</li>
