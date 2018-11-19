@@ -38,7 +38,8 @@ with issues as (
       where
         sub.dup_actor_id != i.user_id
         and sub.id = i.id
-        and sub.updated_at > i.created_at
+        and sub.updated_at > i.created_at + '30 seconds'::interval
+        and sub.dup_type like '%Event'
       order by
         sub.updated_at asc
       limit 1
@@ -64,7 +65,8 @@ with issues as (
       where
         sub.dup_actor_id != p.user_id
         and sub.id = p.id
-        and sub.updated_at > p.created_at
+        and sub.updated_at > p.created_at + '30 seconds'::interval
+        and sub.dup_type like '%Event'
       order by
         sub.updated_at asc
       limit 1

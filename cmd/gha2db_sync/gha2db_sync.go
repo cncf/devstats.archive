@@ -415,7 +415,11 @@ func sync(ctx *lib.Ctx, args []string) {
 						lib.Printf("Skipped period %s\n", periodAggr)
 						continue
 					}
-					if (!ctx.ResetTSDB || ctx.ComputePeriods != nil) && !lib.ComputePeriodAtThisDate(ctx, period, to, metric.Histogram) {
+					recalc := lib.ComputePeriodAtThisDate(ctx, period, to, metric.Histogram)
+					if ctx.Debug > 0 {
+						lib.Printf("Recalculate period \"%s%s\", hist %v for date to %v: %v\n", period, aggrSuffix, metric.Histogram, to, recalc)
+					}
+					if (!ctx.ResetTSDB || ctx.ComputePeriods != nil) && !recalc {
 						lib.Printf("Skipping recalculating period \"%s%s\", hist %v for date to %v\n", period, aggrSuffix, metric.Histogram, to)
 						continue
 					}
