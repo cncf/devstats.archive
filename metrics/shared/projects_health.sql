@@ -168,6 +168,7 @@ with projects as (
         sub.dup_actor_id != i.user_id
         and sub.id = i.id
         and sub.updated_at > i.created_at + '30 seconds'::interval
+        and sub.dup_type like '%Event'
       order by
         sub.updated_at asc
       limit 1
