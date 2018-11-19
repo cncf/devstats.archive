@@ -11,6 +11,18 @@ import (
 	"time"
 )
 
+// calcMetricData structure to hold metric calculation data
+type calcMetricData struct {
+	hist              bool
+	multivalue        bool
+	escapeValueName   bool
+	annotationsRanges bool
+	skipPast          bool
+	desc              string
+	mergeSeries       string
+	customData        bool
+}
+
 // valueDescription - return string description for given float value
 // descFunc specifies how to treat value
 // currently supported:
@@ -140,11 +152,11 @@ func mergeESSeriesName(mergeSeries, sqlFile string) string {
 	return series
 }
 
-func workerThread(
+func calcRange(
 	ch chan bool,
 	ctx *lib.Ctx,
-	seriesNameOrFunc, sqlFile, sqlQueryOrig, excludeBots, period, desc, mergeSeries string,
-	multivalue, escapeValueName, customData bool,
+	seriesNameOrFunc, sqlFile, sqlQueryOrig, excludeBots, period string,
+	cfg *calcMetricData,
 	nIntervals int,
 	dtAry, fromAry, toAry []time.Time,
 	mut *sync.Mutex,
@@ -158,7 +170,7 @@ func workerThread(
 	mergeSeriesES := ""
 	if ctx.UseES {
 		es = lib.ESConn(ctx, "d_")
-		mergeSeriesES = mergeESSeriesName(mergeSeries, sqlFile)
+		mergeSeriesES = mergeESSeriesName(cfg.mergeSeries, sqlFile)
 	}
 
 	// Get BatchPoints
@@ -186,7 +198,7 @@ func workerThread(
 		nColumns := len(columns)
 
 		// Use value descriptions?
-		useDesc := desc != ""
+		useDesc := cfg.desc != ""
 
 		// Metric Results, assume they're floats
 		var (
@@ -227,7 +239,7 @@ func workerThread(
 			// Add batch point
 			fields := map[string]interface{}{"value": value}
 			if useDesc {
-				fields["descr"] = valueDescription(desc, value)
+				fields["descr"] = valueDescription(cfg.desc, value)
 			}
 			lib.AddTSPoint(
 				ctx,
@@ -248,13 +260,13 @@ func workerThread(
 				// Get first column name, and using it all series names
 				// First column should contain nColumns - 1 names separated by ","
 				name := string(*pValues[0].(*sql.RawBytes))
-				names := nameForMetricsRow(seriesNameOrFunc, name, multivalue, escapeValueName)
+				names := nameForMetricsRow(seriesNameOrFunc, name, cfg.multivalue, cfg.escapeValueName)
 				if ctx.Debug > 0 {
 					lib.Printf("nameForMetricsRow: %s -> %v\n", name, names)
 				}
 				if len(names) > 0 {
 					// Iterate values
-					if customData {
+					if cfg.customData {
 						pCustVals := pValues[1:]
 						// values tripples (time, float, string)
 						for idx, pVal := range pCustVals {
@@ -279,7 +291,7 @@ func workerThread(
 								} else {
 									cString = ""
 								}
-								if multivalue {
+								if cfg.multivalue {
 									nameArr := strings.Split(names[cidx], ";")
 									seriesName := nameArr[0]
 									seriesValueName := nameArr[1]
@@ -300,7 +312,7 @@ func workerThread(
 									// Add batch point
 									fields := map[string]interface{}{"value": cFloat, "str": cString, "dt": cTime}
 									if useDesc {
-										fields["descr"] = valueDescription(desc, cFloat)
+										fields["descr"] = valueDescription(cfg.desc, cFloat)
 									}
 									lib.AddTSPoint(
 										ctx,
@@ -318,7 +330,7 @@ func workerThread(
 							} else {
 								value = 0.0
 							}
-							if multivalue {
+							if cfg.multivalue {
 								nameArr := strings.Split(names[idx], ";")
 								seriesName := nameArr[0]
 								seriesValueName := nameArr[1]
@@ -337,7 +349,7 @@ func workerThread(
 								// Add batch point
 								fields := map[string]interface{}{"value": value}
 								if useDesc {
-									fields["descr"] = valueDescription(desc, value)
+									fields["descr"] = valueDescription(cfg.desc, value)
 								}
 								lib.AddTSPoint(
 									ctx,
@@ -354,7 +366,7 @@ func workerThread(
 				lib.AddTSPoint(
 					ctx,
 					&pts,
-					lib.NewTSPoint(ctx, seriesName, period, nil, seriesValues, dt, customData),
+					lib.NewTSPoint(ctx, seriesName, period, nil, seriesValues, dt, cfg.customData),
 				)
 			}
 			lib.FatalOnError(rows.Err())
@@ -363,7 +375,7 @@ func workerThread(
 	}
 	// Write the batch
 	if !ctx.SkipTSDB && !ctx.UseESOnly {
-		lib.WriteTSPoints(ctx, sqlc, &pts, mergeSeries, mut)
+		lib.WriteTSPoints(ctx, sqlc, &pts, cfg.mergeSeries, mut)
 	} else if ctx.Debug > 0 {
 		lib.Printf("Skipping series write\n")
 	}
@@ -429,13 +441,7 @@ func setAlreadyComputed(con *sql.DB, ctx *lib.Ctx, key, from string) {
 	)
 }
 
-func calcHistogram(
-	ctx *lib.Ctx,
-	seriesNameOrFunc, sqlFile, sqlQuery, excludeBots, interval, intervalAbbr string,
-	nIntervals int,
-	annotationsRanges, skipPast, multivalue bool,
-	mergeSeries string, customData bool,
-) {
+func calcHistogram(ctx *lib.Ctx, seriesNameOrFunc, sqlFile, sqlQuery, excludeBots, interval, intervalAbbr string, nIntervals int, cfg *calcMetricData) {
 	// Connect to Postgres DB
 	sqlc := lib.PgConn(ctx)
 	defer func() { lib.FatalOnError(sqlc.Close()) }()
@@ -445,17 +451,17 @@ func calcHistogram(
 	mergeSeriesES := ""
 	if ctx.UseES {
 		es = lib.ESConn(ctx, "d_")
-		mergeSeriesES = mergeESSeriesName(mergeSeries, sqlFile)
+		mergeSeriesES = mergeESSeriesName(cfg.mergeSeries, sqlFile)
 	}
 
 	// Get BatchPoints
 	var pts lib.TSPoints
 
-	lib.Printf("calc_metric.go: Histogram running interval '%v,%v' n:%d anno:%v past:%v multi:%v\n", interval, intervalAbbr, nIntervals, annotationsRanges, skipPast, multivalue)
+	lib.Printf("calc_metric.go: Histogram running interval '%v,%v' n:%d anno:%v past:%v multi:%v\n", interval, intervalAbbr, nIntervals, cfg.annotationsRanges, cfg.skipPast, cfg.multivalue)
 
 	// If using annotations ranges, then get their values
 	var qrFrom *string
-	if annotationsRanges {
+	if cfg.annotationsRanges {
 		// Get Quick Ranges from TSDB (it is filled by annotations command)
 		quickRanges := lib.GetTagValues(sqlc, ctx, "quick_ranges", "quick_ranges_data")
 		if ctx.Debug > 0 {
@@ -472,7 +478,7 @@ func calcHistogram(
 				from := ary[2]
 				to := ary[3]
 				// We can skip past data sometimes
-				if skipPast && period == "" {
+				if cfg.skipPast && period == "" {
 					dtTo := lib.TimeParseAny(to)
 					prevHour := lib.PrevHourStart(time.Now())
 					if dtTo.Before(prevHour) && isAlreadyComputed(sqlc, ctx, sqlFile, from) {
@@ -523,7 +529,7 @@ func calcHistogram(
 	if nColumns == 2 {
 		if !ctx.SkipTSDB {
 			// Drop existing data
-			if mergeSeries == "" {
+			if cfg.mergeSeries == "" {
 				table := "s" + seriesNameOrFunc
 				if lib.TableExists(sqlc, ctx, table) {
 					lib.ExecSQLWithErr(sqlc, ctx, fmt.Sprintf("delete from \""+table+"\" where period = %s", lib.NValue(1)), intervalAbbr)
@@ -532,7 +538,7 @@ func calcHistogram(
 					}
 				}
 			} else {
-				table := "s" + mergeSeries
+				table := "s" + cfg.mergeSeries
 				if lib.TableExists(sqlc, ctx, table) {
 					lib.ExecSQLWithErr(sqlc, ctx,
 						fmt.Sprintf(
@@ -582,8 +588,10 @@ func calcHistogram(
 		lib.FatalOnError(rows.Err())
 	} else if nColumns >= 3 {
 		var (
-			fValue float64
-			sValue string
+			fValue  float64
+			sValue  string
+			s2Value string
+			dtValue time.Time
 		)
 		columns, err := rows.Columns()
 		lib.FatalOnError(err)
@@ -597,13 +605,13 @@ func calcHistogram(
 			// Get row values
 			lib.FatalOnError(rows.Scan(pValues...))
 			name := string(*pValues[0].(*sql.RawBytes))
-			names := nameForMetricsRow(seriesNameOrFunc, name, multivalue, false)
+			names := nameForMetricsRow(seriesNameOrFunc, name, cfg.multivalue, false)
 			if ctx.Debug > 0 {
 				lib.Printf("nameForMetricsRow: %s -> %v\n", name, names)
 			}
 			// multivalue will return names as [ser_name1;a,b,c]
 			valueNames := []string{}
-			if multivalue {
+			if cfg.multivalue {
 				if len(names) > 1 {
 					lib.Fatalf("should return only one series name when using multi value, got: %+v", names)
 				}
@@ -614,7 +622,7 @@ func calcHistogram(
 				}
 			}
 			nNames := len(names)
-			if multivalue {
+			if cfg.multivalue {
 				fields := map[string]interface{}{}
 				name = names[0]
 				for i, valueData := range valueNames {
@@ -657,38 +665,89 @@ func calcHistogram(
 				)
 			} else {
 				if nNames > 0 {
-					for i := 0; i < nNames; i++ {
-						pName := pValues[2*i+1]
-						if pName != nil {
-							sValue = string(*pName.(*sql.RawBytes))
-						} else {
-							sValue = "(nil)"
+					if cfg.customData {
+						// seriesName + N * (name, dt_value, f_value, s_value) 4-tupples
+						for i := 0; i < nNames; i++ {
+							pName := pValues[4*i+1]
+							if pName != nil {
+								sValue = string(*pName.(*sql.RawBytes))
+							} else {
+								sValue = "(nil)"
+							}
+							pDtVal := pValues[4*i+2]
+							if pDtVal != nil {
+								sTime := string(*pDtVal.(*sql.RawBytes))
+								dtValue = lib.TimeParseAny(sTime)
+							} else {
+								dtValue = time.Now()
+							}
+							pVal := pValues[4*i+3]
+							if pVal != nil {
+								fValue, _ = strconv.ParseFloat(string(*pVal.(*sql.RawBytes)), 64)
+							} else {
+								fValue = 0.0
+							}
+							pSVal := pValues[4*i+4]
+							if pSVal != nil {
+								s2Value = string(*pSVal.(*sql.RawBytes))
+							} else {
+								s2Value = ""
+							}
+							name = names[i]
+							if ctx.Debug > 0 {
+								lib.Printf("hist %v, %v %v -> %v, %v, %v, %v\n", name, nIntervals, interval, sValue, dtValue, fValue, s2Value)
+							}
+							tm, ok := seriesToClear[name]
+							if ok {
+								tm = tm.Add(-time.Hour)
+								seriesToClear[name] = tm
+							} else {
+								tm = lib.TimeParseAny("2014-01-01")
+								seriesToClear[name] = tm
+							}
+							// Add batch point
+							fields := map[string]interface{}{"name": sValue, "value": fValue, "str": s2Value, "dt": dtValue}
+							lib.AddTSPoint(
+								ctx,
+								&pts,
+								lib.NewTSPoint(ctx, name, intervalAbbr, nil, fields, tm, false),
+							)
 						}
-						pVal := pValues[2*i+2]
-						if pVal != nil {
-							fValue, _ = strconv.ParseFloat(string(*pVal.(*sql.RawBytes)), 64)
-						} else {
-							fValue = 0.0
+					} else {
+						// seriesName + N * (name, value) pairs
+						for i := 0; i < nNames; i++ {
+							pName := pValues[2*i+1]
+							if pName != nil {
+								sValue = string(*pName.(*sql.RawBytes))
+							} else {
+								sValue = "(nil)"
+							}
+							pVal := pValues[2*i+2]
+							if pVal != nil {
+								fValue, _ = strconv.ParseFloat(string(*pVal.(*sql.RawBytes)), 64)
+							} else {
+								fValue = 0.0
+							}
+							name = names[i]
+							if ctx.Debug > 0 {
+								lib.Printf("hist %v, %v %v -> %v, %v\n", name, nIntervals, interval, sValue, fValue)
+							}
+							tm, ok := seriesToClear[name]
+							if ok {
+								tm = tm.Add(-time.Hour)
+								seriesToClear[name] = tm
+							} else {
+								tm = lib.TimeParseAny("2014-01-01")
+								seriesToClear[name] = tm
+							}
+							// Add batch point
+							fields := map[string]interface{}{"name": sValue, "value": fValue}
+							lib.AddTSPoint(
+								ctx,
+								&pts,
+								lib.NewTSPoint(ctx, name, intervalAbbr, nil, fields, tm, false),
+							)
 						}
-						name = names[i]
-						if ctx.Debug > 0 {
-							lib.Printf("hist %v, %v %v -> %v, %v\n", name, nIntervals, interval, sValue, fValue)
-						}
-						tm, ok := seriesToClear[name]
-						if ok {
-							tm = tm.Add(-time.Hour)
-							seriesToClear[name] = tm
-						} else {
-							tm = lib.TimeParseAny("2014-01-01")
-							seriesToClear[name] = tm
-						}
-						// Add batch point
-						fields := map[string]interface{}{"name": sValue, "value": fValue}
-						lib.AddTSPoint(
-							ctx,
-							&pts,
-							lib.NewTSPoint(ctx, name, intervalAbbr, nil, fields, tm, false),
-						)
 					}
 				}
 			}
@@ -696,7 +755,7 @@ func calcHistogram(
 		lib.FatalOnError(rows.Err())
 		if len(seriesToClear) > 0 {
 			if !ctx.SkipTSDB {
-				if mergeSeries == "" {
+				if cfg.mergeSeries == "" {
 					for series := range seriesToClear {
 						table := "s" + series
 						if lib.TableExists(sqlc, ctx, table) {
@@ -707,7 +766,7 @@ func calcHistogram(
 						}
 					}
 				} else {
-					table := "s" + mergeSeries
+					table := "s" + cfg.mergeSeries
 					if lib.TableExists(sqlc, ctx, table) {
 						for series := range seriesToClear {
 							lib.ExecSQLWithErr(sqlc, ctx,
@@ -741,7 +800,7 @@ func calcHistogram(
 	// Write the batch
 	if !ctx.SkipTSDB && !ctx.UseESOnly {
 		// Mark this metric & period as already computed if this is a QR period
-		lib.WriteTSPoints(ctx, sqlc, &pts, mergeSeries, nil)
+		lib.WriteTSPoints(ctx, sqlc, &pts, cfg.mergeSeries, nil)
 		if qrFrom != nil {
 			setAlreadyComputed(sqlc, ctx, sqlFile, *qrFrom)
 		}
@@ -753,11 +812,7 @@ func calcHistogram(
 	}
 }
 
-func calcMetric(
-	seriesNameOrFunc, sqlFile, from, to, intervalAbbr string,
-	hist, multivalue, escapeValueName, annotationsRanges, skipPast bool,
-	desc, mergeSeries string, customData bool,
-) {
+func calcMetric(seriesNameOrFunc, sqlFile, from, to, intervalAbbr string, cfg *calcMetricData) {
 	if intervalAbbr == "" {
 		lib.Fatalf("you need to define period")
 	}
@@ -782,9 +837,9 @@ func calcMetric(
 	excludeBots := string(bytes)
 
 	// Process interval
-	interval, nIntervals, intervalStart, nextIntervalStart, prevIntervalStart := lib.GetIntervalFunctions(intervalAbbr, annotationsRanges)
+	interval, nIntervals, intervalStart, nextIntervalStart, prevIntervalStart := lib.GetIntervalFunctions(intervalAbbr, cfg.annotationsRanges)
 
-	if hist {
+	if cfg.hist {
 		calcHistogram(
 			&ctx,
 			seriesNameOrFunc,
@@ -794,11 +849,7 @@ func calcMetric(
 			interval,
 			intervalAbbr,
 			nIntervals,
-			annotationsRanges,
-			skipPast,
-			multivalue,
-			mergeSeries,
-			customData,
+			cfg,
 		)
 		return
 	}
@@ -815,7 +866,10 @@ func calcMetric(
 	thrN := lib.GetThreadsNum(&ctx)
 
 	// Run
-	lib.Printf("calc_metric.go: Running (on %d CPUs): %v - %v with interval %s, descriptions '%s', multivalue: %v, escape_value_name: %v, custom_data: %v\n", thrN, dFrom, dTo, interval, desc, multivalue, escapeValueName, customData)
+	lib.Printf(
+		"calc_metric.go: Running (on %d CPUs): %v - %v with interval %s, descriptions '%s', multivalue: %v, escape_value_name: %v, custom_data: %v\n",
+		thrN, dFrom, dTo, interval, cfg.desc, cfg.multivalue, cfg.escapeValueName, cfg.customData,
+	)
 	dt := dFrom
 	dta := [][]time.Time{}
 	ndta := [][]time.Time{}
@@ -853,7 +907,7 @@ func calcMetric(
 			if i == ldt {
 				break
 			}
-			go workerThread(
+			go calcRange(
 				ch,
 				&ctx,
 				seriesNameOrFunc,
@@ -861,11 +915,7 @@ func calcMetric(
 				sqlQuery,
 				excludeBots,
 				intervalAbbr,
-				desc,
-				mergeSeries,
-				multivalue,
-				escapeValueName,
-				customData,
+				cfg,
 				nIntervals,
 				dta[i],
 				pdta[i],
@@ -881,7 +931,7 @@ func calcMetric(
 	} else {
 		lib.Printf("Using single threaded version\n")
 		for i := 0; i < thrN; i++ {
-			workerThread(
+			calcRange(
 				nil,
 				&ctx,
 				seriesNameOrFunc,
@@ -889,11 +939,7 @@ func calcMetric(
 				sqlQuery,
 				excludeBots,
 				intervalAbbr,
-				desc,
-				mergeSeries,
-				multivalue,
-				escapeValueName,
-				customData,
+				cfg,
 				nIntervals,
 				dta[0],
 				pdta[0],
@@ -921,14 +967,7 @@ func main() {
 		lib.Printf("receives data row and period and returns name and value(s) for it\n")
 		os.Exit(1)
 	}
-	hist := false
-	multivalue := false
-	escapeValueName := false
-	annotationsRanges := false
-	skipPast := false
-	desc := ""
-	mergeSeries := ""
-	customData := false
+	var cfg calcMetricData
 	if len(os.Args) > 6 {
 		opts := strings.Split(os.Args[6], ",")
 		optMap := make(map[string]string)
@@ -942,28 +981,28 @@ func main() {
 			optMap[optName] = optVal
 		}
 		if _, ok := optMap["hist"]; ok {
-			hist = true
+			cfg.hist = true
 		}
 		if _, ok := optMap["multivalue"]; ok {
-			multivalue = true
+			cfg.multivalue = true
 		}
 		if _, ok := optMap["escape_value_name"]; ok {
-			escapeValueName = true
+			cfg.escapeValueName = true
 		}
 		if _, ok := optMap["annotations_ranges"]; ok {
-			annotationsRanges = true
+			cfg.annotationsRanges = true
 		}
 		if _, ok := optMap["skip_past"]; ok {
-			skipPast = true
+			cfg.skipPast = true
 		}
 		if d, ok := optMap["desc"]; ok {
-			desc = d
+			cfg.desc = d
 		}
 		if ms, ok := optMap["merge_series"]; ok {
-			mergeSeries = ms
+			cfg.mergeSeries = ms
 		}
 		if _, ok := optMap["custom_data"]; ok {
-			customData = true
+			cfg.customData = true
 		}
 	}
 	lib.Printf("%s...\n", os.Args[2])
@@ -973,14 +1012,7 @@ func main() {
 		os.Args[3],
 		os.Args[4],
 		os.Args[5],
-		hist,
-		multivalue,
-		escapeValueName,
-		annotationsRanges,
-		skipPast,
-		desc,
-		mergeSeries,
-		customData,
+		&cfg,
 	)
 	dtEnd := time.Now()
 	lib.Printf("Time(%s): %v\n", os.Args[2], dtEnd.Sub(dtStart))
