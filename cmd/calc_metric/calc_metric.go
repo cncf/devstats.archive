@@ -672,7 +672,7 @@ func calcHistogram(ctx *lib.Ctx, seriesNameOrFunc, sqlFile, sqlQuery, excludeBot
 							if pName != nil {
 								sValue = string(*pName.(*sql.RawBytes))
 							} else {
-								sValue = "(nil)"
+								sValue = lib.Nil
 							}
 							pDtVal := pValues[4*i+2]
 							if pDtVal != nil {
@@ -720,7 +720,7 @@ func calcHistogram(ctx *lib.Ctx, seriesNameOrFunc, sqlFile, sqlQuery, excludeBot
 							if pName != nil {
 								sValue = string(*pName.(*sql.RawBytes))
 							} else {
-								sValue = "(nil)"
+								sValue = lib.Nil
 							}
 							pVal := pValues[2*i+2]
 							if pVal != nil {
