@@ -3,9 +3,10 @@ package main
 import (
 	"database/sql"
 	lib "devstats"
-  "fmt"
+	"fmt"
 	"os"
 	"os/exec"
+	"strconv"
 	"strings"
 	"time"
 
@@ -27,6 +28,55 @@ type pvar struct {
 	Disabled bool       `yaml:"disabled"`
 	NoWrite  bool       `yaml:"no_write"`
 	Queries  [][]string `yaml:"queries"`
+	Loops    [][]int    `yaml:"loops"`
+}
+
+func processLoops(str string, loops [][]int) string {
+	for _, loop := range loops {
+		loopN := loop[0]
+		from := loop[1]
+		to := loop[2]
+		inc := loop[3]
+		start := fmt.Sprintf("loop:%d:start", loopN)
+		end := fmt.Sprintf("loop:%d:end", loopN)
+		rep := fmt.Sprintf("loop:%d:i", loopN)
+		iStart := strings.Index(str, start)
+		if iStart < 0 {
+			continue
+		}
+		iEnd := strings.Index(str, end)
+		if iEnd < 0 {
+			continue
+		}
+		lStart := len(start)
+		lEnd := len(end)
+		before := str[0:iStart]
+		body := str[iStart+lStart : iEnd]
+		after := str[iEnd+lEnd:]
+		out := before
+		for i := from; i < to; i += inc {
+			lBody := strings.Replace(body, rep, strconv.Itoa(i), -1)
+			out += lBody
+		}
+		out += after
+		str = out
+	}
+	return str
+}
+
+func processQueries(str string, queries map[string]map[string][][]string) string {
+	for name, query := range queries {
+		for mp, values := range query {
+			pref := name + ":" + mp
+			for r, columns := range values {
+				for c, value := range columns {
+					rep := fmt.Sprintf("%s:%d:%d", pref, r, c)
+					str = strings.Replace(str, rep, value, -1)
+				}
+			}
+		}
+	}
+	return str
 }
 
 func handleQuery(c *sql.DB, ctx *lib.Ctx, queries map[string]map[string][][]string, queryData []string) {
@@ -88,21 +138,6 @@ func handleQuery(c *sql.DB, ctx *lib.Ctx, queries map[string]map[string][][]stri
 		}
 	}
 	lib.FatalOnError(rows.Err())
-}
-
-func processQueries(str string, queries map[string]map[string][][]string) string {
-	for name, query := range queries {
-		for mp, values := range query {
-			pref := name + ":" + mp
-			for r, columns := range values {
-				for c, value := range columns {
-					rep := fmt.Sprintf("%s:%d:%d", pref, r, c)
-				  str = strings.Replace(str, rep, value, -1)
-				}
-			}
-		}
-	}
-	return str
 }
 
 // Insert Postgres vars
@@ -170,7 +205,6 @@ func pdbVars() {
 		for _, queryData := range va.Queries {
 			handleQuery(c, &ctx, queries, queryData)
 		}
-		lib.Printf("queries: %+v\n", queries["metrics"]["series:phealthkubernetes"])
 
 		if len(va.Command) > 0 {
 			for i := range va.Command {
@@ -215,6 +249,8 @@ func pdbVars() {
 						}
 					}
 				}
+				// process queries and loops
+				outString = processLoops(outString, va.Loops)
 				outString = processQueries(outString, queries)
 				va.Value = outString
 				if ctx.Debug > 0 {
