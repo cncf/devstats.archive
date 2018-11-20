@@ -2,7 +2,6 @@ package main
 
 import (
 	lib "devstats"
-	"fmt"
 	"os"
 	"os/exec"
 	"strings"
@@ -24,6 +23,7 @@ type pvar struct {
 	Command  []string   `yaml:"command"`
 	Replaces [][]string `yaml:"replaces"`
 	Disabled bool       `yaml:"disabled"`
+	NoWrite  bool       `yaml:"no_write"`
 }
 
 // Insert Postgres vars
@@ -72,7 +72,10 @@ func pdbVars() {
 	// Iterate vars
 	for _, va := range allVars.Vars {
 		if ctx.Debug > 0 {
-			lib.Printf("Variable Name '%s', Value '%s', Type '%s', Command %v, Replaces %v, Disabled: %v\n", va.Name, va.Value, va.Type, va.Command, va.Replaces, va.Disabled)
+			lib.Printf(
+				"Variable Name '%s', Value '%s', Type '%s', Command %v, Replaces %v, Disabled: %v, NoWrite: %v\n",
+				va.Name, va.Value, va.Type, va.Command, va.Replaces, va.Disabled, va.NoWrite,
+			)
 		}
 		if va.Disabled {
 			continue
@@ -154,29 +157,18 @@ func pdbVars() {
 			tm = tm.Add(time.Hour)
 		}
 
-		if !ctx.SkipPDB {
-			// Start transaction
-			con, err := c.Begin()
-			lib.FatalOnError(err)
-
-			// Check if such name already exists
-			rows := lib.QuerySQLTxWithErr(con, &ctx, fmt.Sprintf("select 1 from gha_vars where name=%s", lib.NValue(1)), va.Name)
-			defer func() { lib.FatalOnError(rows.Close()) }()
-			exists := 0
-			for rows.Next() {
-				lib.FatalOnError(rows.Scan(&exists))
-			}
-			lib.FatalOnError(rows.Err())
-
-			// Insert or update existing
-			if exists == 0 {
-				lib.ExecSQLTxWithErr(con, &ctx, "insert into gha_vars(name, value_"+va.Type+") "+lib.NValues(2), va.Name, va.Value)
-			} else {
-				lib.ExecSQLTxWithErr(con, &ctx, "update gha_vars set value_"+va.Type+" = "+lib.NValue(1)+" where name = "+lib.NValue(2), va.Value, va.Name)
-			}
-
-			// Commit transaction
-			lib.FatalOnError(con.Commit())
+		if !ctx.SkipPDB && !va.NoWrite {
+			lib.ExecSQLWithErr(
+				c,
+				&ctx,
+				"insert into gha_vars(name, value_"+va.Type+") "+lib.NValues(2)+
+					" on conflict(name) do update set "+
+					"value_"+va.Type+" = "+lib.NValue(3)+" where gha_vars.name = "+lib.NValue(4),
+				va.Name,
+				va.Value,
+				va.Value,
+				va.Name,
+			)
 		} else if ctx.Debug > 0 {
 			lib.Printf("Skipping postgres vars write\n")
 		}
