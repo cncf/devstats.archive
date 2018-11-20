@@ -130,7 +130,7 @@ You can tweak `devstats` tools by environment variables:
 - Set `GHA2DB_INPUT_DBS`, `merge_dbs` tool - list of input databases to merge, order matters - first one will insert on a clean DB, next will do insert ignore (to avoid constraints failure due to common data).
 - Set `GHA2DB_OUTPUT_DB`, `merge_dbs` tool - output database to merge into.
 - Set `GHA2DB_TMOFFSET`, `gha2db_sync` tool - uses time offset to decide when to calculate various metrics, default offset is 0 which means UTC, good offset for USA is -6, and for Poland is 1 or 2
-- Set `GHA2DB_VARS_YAML`, `vars` tool - to set nonstandard `vars.yaml` file.
+- Set `GHA2DB_VARS_YAML`, `GHA2DB_VARS_FN_YAML`, `vars` tool - to set nonstandard `vars.yaml` file, either full path or just a final file name.
 - Set `GHA2DB_RECENT_RANGE`, `ghapi2db` tool, default '2 hours'. This is a recent period to check open issues/PR to fix their labels and milestones.
 - Set `GHA2DB_MIN_GHAPI_POINTS`, `ghapi2db` tool, minimum GitHub API points, before waiting for reset. Default 1 (API point).
 - Set `GHA2DB_MAX_GHAPI_WAIT`, `ghapi2db` tool, maximum wait time for GitHub API points reset (in seconds). Default 1s.
