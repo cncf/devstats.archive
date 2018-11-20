@@ -189,8 +189,8 @@ func pdbVars() {
 	for _, va := range allVars.Vars {
 		if ctx.Debug > 0 {
 			lib.Printf(
-				"Variable Name '%s', Value '%s', Type '%s', Command %v, Replaces %v, Queries: %v, Disabled: %v, NoWrite: %v\n",
-				va.Name, va.Value, va.Type, va.Command, va.Replaces, va.Queries, va.Disabled, va.NoWrite,
+				"Variable Name '%s', Value '%s', Type '%s', Command %v, Replaces %v, Queries: %v, Loops: %v, Disabled: %v, NoWrite: %v\n",
+				va.Name, va.Value, va.Type, va.Command, va.Replaces, va.Queries, va.Loops, va.Disabled, va.NoWrite,
 			)
 		}
 		if va.Disabled {
