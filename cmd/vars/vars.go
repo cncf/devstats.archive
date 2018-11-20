@@ -1,10 +1,12 @@
 package main
 
 import (
+	"database/sql"
 	lib "devstats"
 	"fmt"
 	"os"
 	"os/exec"
+	"strconv"
 	"strings"
 	"time"
 
@@ -24,6 +26,118 @@ type pvar struct {
 	Command  []string   `yaml:"command"`
 	Replaces [][]string `yaml:"replaces"`
 	Disabled bool       `yaml:"disabled"`
+	NoWrite  bool       `yaml:"no_write"`
+	Queries  [][]string `yaml:"queries"`
+	Loops    [][]int    `yaml:"loops"`
+}
+
+func processLoops(str string, loops [][]int) string {
+	for _, loop := range loops {
+		loopN := loop[0]
+		from := loop[1]
+		to := loop[2]
+		inc := loop[3]
+		start := fmt.Sprintf("loop:%d:start", loopN)
+		end := fmt.Sprintf("loop:%d:end", loopN)
+		rep := fmt.Sprintf("loop:%d:i", loopN)
+		iStart := strings.Index(str, start)
+		if iStart < 0 {
+			continue
+		}
+		iEnd := strings.Index(str, end)
+		if iEnd < 0 {
+			continue
+		}
+		lStart := len(start)
+		lEnd := len(end)
+		before := str[0:iStart]
+		body := str[iStart+lStart : iEnd]
+		after := str[iEnd+lEnd:]
+		out := before
+		for i := from; i < to; i += inc {
+			lBody := strings.Replace(body, rep, strconv.Itoa(i), -1)
+			out += lBody
+		}
+		out += after
+		str = out
+	}
+	return str
+}
+
+func processQueries(str string, queries map[string]map[string][][]string) string {
+	for name, query := range queries {
+		for mp, values := range query {
+			pref := name + ":" + mp
+			for r, columns := range values {
+				for c, value := range columns {
+					rep := fmt.Sprintf("%s:%d:%d", pref, r, c)
+					str = strings.Replace(str, rep, value, -1)
+				}
+			}
+		}
+	}
+	return str
+}
+
+func handleQuery(c *sql.DB, ctx *lib.Ctx, queries map[string]map[string][][]string, queryData []string) {
+	// Name to store query results
+	name := queryData[0]
+	_, ok := queries[name]
+	if ok {
+		lib.Fatalf("query '%s' already defined", name)
+	}
+
+	// Execute SQL
+	sql := queryData[1]
+	rows := lib.QuerySQLWithErr(c, ctx, sql)
+	defer func() { lib.FatalOnError(rows.Close()) }()
+
+	// Columns metadata
+	columns, err := rows.Columns()
+	lib.FatalOnError(err)
+	columnsMap := make(map[string]int)
+	for i, col := range columns {
+		columnsMap[col] = i
+	}
+	resultsMap := make(map[string]int)
+	for _, mp := range queryData[2:] {
+		i, ok := columnsMap[mp]
+		if !ok {
+			lib.Fatalf("column '%s' not found in query results: %+v", mp, columns)
+		}
+		resultsMap[mp] = i
+	}
+
+	// Vals to hold any type as []interface{}
+	vals := make([]interface{}, len(columns))
+	for i := range columns {
+		vals[i] = new([]byte)
+	}
+
+	queries[name] = make(map[string][][]string)
+	// Values
+	for rows.Next() {
+		lib.FatalOnError(rows.Scan(vals...))
+		svals := []string{}
+		for _, val := range vals {
+			value := ""
+			if val != nil {
+				value = string(*val.(*[]byte))
+			}
+			svals = append(svals, value)
+		}
+		for mp, i := range resultsMap {
+			svalue := svals[i]
+			key := mp + ":" + svalue
+			_, ok := queries[name][key]
+			if !ok {
+				queries[name][key] = [][]string{svals}
+			} else {
+				queries[name][key] = append(queries[name][key], svals)
+			}
+		}
+	}
+	lib.FatalOnError(rows.Err())
 }
 
 // Insert Postgres vars
@@ -69,10 +183,15 @@ func pdbVars() {
 		pair := strings.Split(e, "=")
 		replaces["$"+pair[0]] = pair[1]
 	}
+	// Queries
+	queries := make(map[string]map[string][][]string)
 	// Iterate vars
 	for _, va := range allVars.Vars {
 		if ctx.Debug > 0 {
-			lib.Printf("Variable Name '%s', Value '%s', Type '%s', Command %v, Replaces %v, Disabled: %v\n", va.Name, va.Value, va.Type, va.Command, va.Replaces, va.Disabled)
+			lib.Printf(
+				"Variable Name '%s', Value '%s', Type '%s', Command %v, Replaces %v, Queries: %v, Disabled: %v, NoWrite: %v\n",
+				va.Name, va.Value, va.Type, va.Command, va.Replaces, va.Queries, va.Disabled, va.NoWrite,
+			)
 		}
 		if va.Disabled {
 			continue
@@ -80,6 +199,11 @@ func pdbVars() {
 		if va.Type == "" || va.Name == "" || (va.Value == "" && len(va.Command) == 0) {
 			lib.Printf("Incorrect variable configuration, skipping\n")
 			continue
+		}
+
+		// Handle queries
+		for _, queryData := range va.Queries {
+			handleQuery(c, &ctx, queries, queryData)
 		}
 
 		if len(va.Command) > 0 {
@@ -125,6 +249,9 @@ func pdbVars() {
 						}
 					}
 				}
+				// process queries and loops
+				outString = processLoops(outString, va.Loops)
+				outString = processQueries(outString, queries)
 				va.Value = outString
 				if ctx.Debug > 0 {
 					lib.Printf("Name '%s', New Value '%s', Type '%s'\n", va.Name, va.Value, va.Type)
@@ -154,29 +281,18 @@ func pdbVars() {
 			tm = tm.Add(time.Hour)
 		}
 
-		if !ctx.SkipPDB {
-			// Start transaction
-			con, err := c.Begin()
-			lib.FatalOnError(err)
-
-			// Check if such name already exists
-			rows := lib.QuerySQLTxWithErr(con, &ctx, fmt.Sprintf("select 1 from gha_vars where name=%s", lib.NValue(1)), va.Name)
-			defer func() { lib.FatalOnError(rows.Close()) }()
-			exists := 0
-			for rows.Next() {
-				lib.FatalOnError(rows.Scan(&exists))
-			}
-			lib.FatalOnError(rows.Err())
-
-			// Insert or update existing
-			if exists == 0 {
-				lib.ExecSQLTxWithErr(con, &ctx, "insert into gha_vars(name, value_"+va.Type+") "+lib.NValues(2), va.Name, va.Value)
-			} else {
-				lib.ExecSQLTxWithErr(con, &ctx, "update gha_vars set value_"+va.Type+" = "+lib.NValue(1)+" where name = "+lib.NValue(2), va.Value, va.Name)
-			}
-
-			// Commit transaction
-			lib.FatalOnError(con.Commit())
+		if !ctx.SkipPDB && !va.NoWrite {
+			lib.ExecSQLWithErr(
+				c,
+				&ctx,
+				"insert into gha_vars(name, value_"+va.Type+") "+lib.NValues(2)+
+					" on conflict(name) do update set "+
+					"value_"+va.Type+" = "+lib.NValue(3)+" where gha_vars.name = "+lib.NValue(4),
+				va.Name,
+				va.Value,
+				va.Value,
+				va.Name,
+			)
 		} else if ctx.Debug > 0 {
 			lib.Printf("Skipping postgres vars write\n")
 		}

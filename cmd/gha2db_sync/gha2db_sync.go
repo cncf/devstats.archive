@@ -501,6 +501,18 @@ func sync(ctx *lib.Ctx, args []string) {
 			}
 		}
 	}
+
+	// Vars (some tables/dashboards require vars calculation)
+	if !ctx.SkipPDB && !ctx.SkipVars {
+		_, err := lib.ExecCommand(
+			ctx,
+			[]string{cmdPrefix + "vars"},
+			map[string]string{
+				"GHA2DB_VARS_FN_YAML": "sync_vars.yaml",
+			},
+		)
+		lib.FatalOnError(err)
+	}
 	lib.Printf("Sync success\n")
 }
 

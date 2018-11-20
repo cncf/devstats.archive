@@ -45,7 +45,8 @@ type Ctx struct {
 	MetricsYaml         string                       // From GHA2DB_METRICS_YAML gha2db_sync tool, set other metrics.yaml file, default is "metrics/{{project}}metrics.yaml"
 	TagsYaml            string                       // From GHA2DB_TAGS_YAML tags tool, set other tags.yaml file, default is "metrics/{{project}}/tags.yaml"
 	ColumnsYaml         string                       // From GHA2DB_COLUMNS_YAML tags tool, set other columns.yaml file, default is "metrics/{{project}}/columns.yaml"
-	VarsYaml            string                       // From GHA2DB_VARS_YAML db_vars tool, set other vars.yaml file, default is "metrics/{{project}}/vars.yaml"
+	VarsYaml            string                       // From GHA2DB_VARS_YAML db_vars tool, set other vars.yaml file (full path), default is "metrics/{{project}}/vars.yaml"
+	VarsFnYaml          string                       // From GHA2DB_VARS_FN_YAML db_vars tool, set other vars.yaml file (final file name without path), default is "vars.yaml"
 	GitHubOAuth         string                       // From GHA2DB_GITHUB_OAUTH ghapi2db tool, if not set reads from /etc/github/oauth file, set to "-" to force public access.
 	ClearDBPeriod       string                       // From GHA2DB_MAXLOGAGE gha2db_sync tool, maximum age of devstats.gha_logs entries, default "1 week"
 	Trials              []int                        // From GHA2DB_TRIALS, all Postgres related tools, retry periods for "too many connections open" error
@@ -101,6 +102,7 @@ type Ctx struct {
 	SkipTags            bool                         // From GHA2DB_SKIP_TAGS, gha2db_sync tool, skip calling tags tool, default false
 	SkipAnnotations     bool                         // From GHA2DB_SKIP_ANNOTATIONS, gha2db_sync tool, skip calling annotations tool, default false
 	SkipColumns         bool                         // From GHA2DB_SKIP_COLUMNS, gha2db_sync tool, skip calling columns tool, default false
+	SkipVars            bool                         // From GHA2DB_SKIP_VARS, gha2db_sync tool, skip calling vars tool, default false
 	ElasticURL          string                       // From GHA2DB_ES_URL, calc_metric, tags, annotations tools - ElasticSearch URL (if used), default http://127.0.0.1:9200
 	UseES               bool                         // From GHA2DB_USE_ES, calc_metric, atgs, annotations tools - enable ElasticSearch, default false
 	UseESOnly           bool                         // From GHA2DB_USE_ES_ONLY, calc_metric, annotations tools - enable ElasticSearch and do not write PSQL TSDB, default false
@@ -255,6 +257,7 @@ func (ctx *Ctx) Init() {
 	ctx.SkipTags = os.Getenv("GHA2DB_SKIP_TAGS") != ""
 	ctx.SkipAnnotations = os.Getenv("GHA2DB_SKIP_ANNOTATIONS") != ""
 	ctx.SkipColumns = os.Getenv("GHA2DB_SKIP_COLUMNS") != ""
+	ctx.SkipVars = os.Getenv("GHA2DB_SKIP_VARS") != ""
 
 	// TS variables
 	ctx.SkipTSDB = os.Getenv("GHA2DB_SKIPTSDB") != ""
@@ -300,6 +303,10 @@ func (ctx *Ctx) Init() {
 	ctx.TagsYaml = os.Getenv("GHA2DB_TAGS_YAML")
 	ctx.ColumnsYaml = os.Getenv("GHA2DB_COLUMNS_YAML")
 	ctx.VarsYaml = os.Getenv("GHA2DB_VARS_YAML")
+	ctx.VarsFnYaml = os.Getenv("GHA2DB_VARS_FN_YAML")
+	if ctx.VarsFnYaml == "" {
+		ctx.VarsFnYaml = "vars.yaml"
+	}
 	if ctx.MetricsYaml == "" {
 		ctx.MetricsYaml = "metrics/" + proj + "metrics.yaml"
 	}
@@ -310,7 +317,7 @@ func (ctx *Ctx) Init() {
 		ctx.ColumnsYaml = "metrics/" + proj + "columns.yaml"
 	}
 	if ctx.VarsYaml == "" {
-		ctx.VarsYaml = "metrics/" + proj + "vars.yaml"
+		ctx.VarsYaml = "metrics/" + proj + ctx.VarsFnYaml
 	}
 
 	// GitHub OAuth
