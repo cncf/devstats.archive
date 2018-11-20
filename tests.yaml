@@ -1292,6 +1292,16 @@ projects:
           - ['tz;4.0`Group1;rcommitters,rcommits', 1, 2]
           - ['tz;4.0`all;rcommitters,rcommits', 1, 2]
         data: KubernetesCountryGenderMetric
+      - metric: new_contributors_data
+        from: 2018-02-01T00:00:00Z
+        to: 2018-03-01T00:00:00Z
+        n: 1
+        expected:
+          - ['ncd,All', '2018-02-01T12:00:00Z', '0.0', 'Łukasz Gryglicki (lukaszgryglicki)']
+          - ['ncd,All', '2018-02-05T12:00:00Z', '0.0', 'Лена Кузьмич (lena)']
+          - ['ncd,Group1', '2018-02-01T12:00:00Z', '0.0', 'Łukasz Gryglicki (lukaszgryglicki)']
+          - ['ncd,Overruled', '2018-02-05T12:00:00Z', '0.0', 'Лена Кузьмич (lena)']
+        data: KubernetesNewContributorsMetric
 data:
   KubernetesCountryGenderMetric:
     # append to actors (localize and genderize data)
@@ -1682,6 +1692,50 @@ data:
         - [16, 16, 0, Body16, null, '2017-07-22T12:00:00Z', 2, open, PR2, '2017-07-22T12:00:00Z', 4, 4, A4, 1, R1, PullRequestEvent, true]
         - [17, 17, 0, Body17, null, '2018-01-22T12:00:00Z', 3, open, PR3, '2018-01-22T12:00:00Z', 3, 3, A3, 1, R1, PullRequestEvent, true]
         - [18, 18, 0, Body18, null, '2018-01-23T12:00:00Z', 4, open, PR4, '2018-01-23T12:00:00Z', 2, 2, A2, 1, R1, PullRequestEvent, true]
+  KubernetesNewContributorsMetric:
+    # append to actors (localize and genderize data)
+    # country_id, country_name, tz, tz_offset, sex, sex_prob
+    actors_append:
+      - ['pl', 'Poland', 'Europe/Warsaw', 120, 'm', 1]
+      - ['ru', 'Russia', 'Europe/Moscow', 240, 'f', 0.92]
+      - [null, null, null, null, null, null]
+      - ['cn', 'China', 'Asia/Shanghai', 480, 'm', 0.69]
+      - ['us', 'United States', 'America/Los_Angeles', -420, 'm', 0.99]
+    # id, login, name
+    actors:
+      - [1, lukaszgryglicki, Łukasz Gryglicki]
+      - [2, lena, Лена Кузьмич]
+      - [3, bot-robot, Robot who is bot]
+      - [4, zhangchang, Zchang Chang]
+      - [5, starlight, Jack Daniels]
+    # id, name, org_id, org_login, repo_group
+    repos:
+      - [1, R1, null, null, Group1]
+      - [2, R2, null, null, Group1]
+      - [3, R3, null, null, Group2]
+      - [4, R4, null, null, null]
+    # prid, eid, uid, merged_id, assignee_id, num, state, title, body,
+    # created_at, closed_at, merged_at, merged
+    # repo_id, repo_name, actor_id, actor_login, updated_at
+    prs:
+      - [ 1, 1, 1, 0, 0, 1, open, PR1, BodyPR1, '2018-02-01T12:00:00Z', null, '2018-02-01T12:00:00Z', true, 1, R1, 1, A1, '2018-02-01T12:00:00Z']
+      - [ 2, 2, 1, 0, 0, 2, open, PR2, BodyPR2, '2018-02-02T12:00:00Z', null, '2018-02-02T12:00:00Z', true, 2, R2, 1, A1, '2018-02-02T12:00:00Z']
+      - [ 3, 3, 1, 0, 0, 3, open, PR3, BodyPR3, '2018-02-03T12:00:00Z', null, '2018-02-03T12:00:00Z', true, 3, R3, 1, A1, '2018-02-03T12:00:00Z']
+      - [ 4, 4, 1, 0, 0, 4, open, PR4, BodyPR4, '2018-02-04T12:00:00Z', null, '2018-02-04T12:00:00Z', true, 4, R4, 1, A1, '2018-02-04T12:00:00Z']
+      - [ 5, 5, 2, 0, 0, 5, open, PR5, BodyPR5, '2018-02-05T12:00:00Z', null, '2018-02-05T12:00:00Z', true, 1, R1, 2, A2, '2018-02-05T12:00:00Z']
+      - [ 6, 6, 3, 0, 0, 6, open, PR6, BodyPR6, '2018-02-06T12:00:00Z', null, '2018-02-06T12:00:00Z', true, 1, R1, 3, A3, '2018-02-06T12:00:00Z']
+      - [ 7, 7, 4, 0, 0, 7, open, PR7, BodyPR7, '2018-02-07T12:00:00Z', null, '2018-02-07T12:00:00Z', true, 1, R1, 4, A4, '2018-02-07T12:00:00Z']
+      - [ 8, 8, 5, 0, 0, 8, open, PR8, BodyPR8, '2018-02-08T12:00:00Z', null, '2018-02-08T12:00:00Z', true, 1, R1, 5, A5, '2018-02-08T12:00:00Z']
+      - [ 9, 9, 3, 0, 0, 9, open, PR9, BodyPR9, '2018-01-21T12:00:00Z', null, '2018-01-21T12:00:00Z', true, 1, R1, 3, A3, '2018-01-21T12:00:00Z']
+      - [ 10, 10, 4, 0, 0, 10, open, PR10, BodyPR10, '2017-07-21T12:00:00Z', null, '2017-07-21T12:00:00Z', true, 1, R1, 4, A4, '2017-07-21T12:00:00Z']
+      - [ 11, 11, 5, 0, 0, 11, open, PR11, BodyPR11, '2017-08-01T12:00:00Z', null, '2017-08-01T12:00:00Z', true, 1, R1, 5, A5, '2017-08-01T12:00:00Z']
+      - [ 12, 12, 5, 0, 0, 12, open, PR12, BodyPR12, '2017-08-02T12:00:00Z', null, '2017-08-02T12:00:00Z', true, 1, R1, 5, A5, '2017-08-02T12:00:00Z']
+      - [ 13, 13, 5, 0, 0, 13, open, PR13, BodyPR13, '2017-08-03T12:00:00Z', null, '2017-08-03T12:00:00Z', true, 1, R1, 5, A5, '2017-08-03T12:00:00Z']
+      - [ 14, 14, 5, 0, 0, 14, open, PR14, BodyPR14, '2017-08-04T12:00:00Z', null, '2017-08-04T12:00:00Z', true, 1, R1, 5, A5, '2017-08-04T12:00:00Z']
+    # sha, eid, path, size, dt, repo_group,
+    # dup_repo_id, dup_repo_name, dup_type, dup_created_at
+    events_commits_files:
+      - [1234567890abcdef, 5, R1/file.txt, 1024, '2018-02-05T00:00:00Z', Overruled, 1, R1, PushEvent, '2018-02-05T00:00:00Z']
   KubernetesEpisodicContributorsMetric:
     # id, name, org_id, org_login, repo_group
     repos:
