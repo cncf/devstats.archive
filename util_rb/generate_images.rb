@@ -57,7 +57,7 @@ def generate_images
     await browser.close();
   })();
   """
-  js_fn = './util_js/temp.js'
+  js_fn = './util_js/temp_[[pid]].js'
   data = YAML.load_file 'projects.yaml'
   data['projects'].each do |project|
     name = project[0]
@@ -101,16 +101,21 @@ def generate_images
         img += '.png'
         js = js_code.gsub('[[url]]', url)
         js = js.gsub('[[image]]', img)
-        File.write(js_fn, js)
-        t1 = Time.now
-        res = `node #{js_fn}`
-        if res != ''
-          puts "Error for #{img}: #{res}\nCode:\n#{js}\n"
-          exit 1
+        fork do
+          fn = js_fn.gsub('[[pid]]', Process.pid.to_s)
+          File.write(fn, js)
+          t1 = Time.now
+          res = `node #{fn}`
+          if res != ''
+            puts "Error for #{img}: #{res}\nCode (#{fn}):\n#{js}\n"
+            exit 1
+          end
+          File.delete(fn)
+          t2 = Time.now
+          tm = t2 - t1
+          puts "#{img} generated: time: #{tm}"
+          exit 0
         end
-        t2 = Time.now
-        tm = t2 - t1
-        puts "#{img} generated: time: #{tm}"
         binding.pry
       end
     end
