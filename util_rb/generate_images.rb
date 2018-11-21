@@ -15,6 +15,16 @@ def make_cartesian(arg)
 end
 
 def generate_images
+  # urls data - array of URL generators
+  #   urls data row: array
+  #     1st item: [url root, [only], [skip]
+  #       only: array of projects to use this url, all projects if empty
+  #       skip: array of projects not using this url, none if empty
+  #     2nd, 3rd ... (all remaining items): params to replace
+  #       each param: [name, [values]]
+  #         param name: [[name]] will be replaced with its value
+  #         [[name]] will be replaced by all [values] from array
+  #     If more than 1 param, all cartesian combinations will be used
   urls_data = [
     [
       [
@@ -22,8 +32,17 @@ def generate_images
         [],
         ['k8s'],
       ],
+      ['period', ['d7', 'w', 'm']],
+      ['metric', ['issues', 'prs', 'commits', 'contributions', 'comments']],
+    ],
+    [
+      [
+        'https://[[project]].devstats.cncf.io/d/8/company-statistics-by-repository-group?orgId=1&var-period=[[period]]&var-metric=[[metric]]&var-repogroup_name=All&var-companies=All&from=[[from]]&to=[[to]]',
+        ['k8s'],
+        [],
+      ],
       ['period', ['w', 'm']],
-      ['metric', ['activity', 'issues', 'prs', 'commits', 'contributions', 'comments']],
+      ['metric', ['authors', 'issues', 'prs', 'commits', 'contributions', 'contributors', 'comments']],
     ],
   ]
   data = YAML.load_file 'projects.yaml'
@@ -64,7 +83,7 @@ def generate_images
           value = values[i]
           url = url.sub('[[' + param + ']]', value)
         end
-        p url
+        # p url
       end
     end
   end
