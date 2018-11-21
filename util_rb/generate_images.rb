@@ -15,6 +15,7 @@ def make_cartesian(arg)
 end
 
 def generate_images
+  # This program requires puppeteer, install via `npm i puppeteer`.
   # urls data - array of URL generators
   #   urls data row: array
   #     1st item: [url root, [only], [skip]
