@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 
 require 'yaml'
+require 'etc'
 require 'pry'
 
 def make_cartesian(arg)
@@ -58,10 +59,14 @@ def generate_images
   })();
   """
   js_fn = './util_js/temp_[[pid]].js'
+  pids = []
+  maxProc = Etc.nprocessors
   data = YAML.load_file 'projects.yaml'
   data['projects'].each do |project|
     name = project[0]
     name = 'k8s' if name == 'kubernetes'
+    disabled = project[1]['disabled']
+    next if disabled
     start_dt = project[1]['start_date']
     join_dt = project[1]['join_date']
     next unless join_dt
@@ -101,7 +106,7 @@ def generate_images
         img += '.png'
         js = js_code.gsub('[[url]]', url)
         js = js.gsub('[[image]]', img)
-        fork do
+        pid = fork do
           fn = js_fn.gsub('[[pid]]', Process.pid.to_s)
           File.write(fn, js)
           t1 = Time.now
@@ -116,9 +121,18 @@ def generate_images
           puts "#{img} generated: time: #{tm}"
           exit 0
         end
-        binding.pry
+        pids << pid
+        if pids.count >= maxProc
+          pid = pids[0]
+          pids = pids[1..-1]
+          Process.wait pid
+        end
+        # binding.pry
       end
     end
+  end
+  pids.each do |pid|
+    Process.wait pid
   end
 end
 
