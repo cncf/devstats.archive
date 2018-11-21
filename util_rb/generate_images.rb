@@ -19,7 +19,7 @@ def generate_images
   # This program requires puppeteer, install via `npm i puppeteer`.
   # urls data - array of URL generators
   #   urls data row: array
-  #     1st item: [url root, [only], [skip]
+  #     1st item: [name, url root, [only], [skip]
   #       only: array of projects to use this url, all projects if empty
   #       skip: array of projects not using this url, none if empty
   #     2nd, 3rd ... (all remaining items): params to replace
@@ -30,37 +30,80 @@ def generate_images
   urls_data = [
     [
       [
+        'users-stats',
         'https://[[project]].devstats.cncf.io/d/48/users-stats?orgId=1&var-period=[[period]]&var-metric=[[metric]]&var-repogroup_name=All&var-users=All&from=[[from]]&to=[[to]]',
         [],
         ['k8s'],
       ],
-      ['period', ['d7', 'w', 'm']],
+      ['period', ['d7', 'w']],
       ['metric', ['issues', 'prs', 'commits', 'contributions', 'comments']],
     ],
     [
       [
+        'companies-stats',
         'https://[[project]].devstats.cncf.io/d/8/company-statistics-by-repository-group?orgId=1&var-period=[[period]]&var-metric=[[metric]]&var-repogroup_name=All&var-companies=All&from=[[from]]&to=[[to]]',
         ['k8s'],
         [],
       ],
-      ['period', ['w', 'm']],
+      ['period', ['d7', 'w']],
+      ['metric', ['authors', 'issues', 'prs', 'commits', 'contributions', 'contributors', 'comments']],
+    ],
+    [
+      [
+        'companies-stats',
+        'https://[[project]].teststats.cncf.io/d/4/companies-stats?orgId=1&from=[[from]]&to=[[to]]&var-period=[[period]]&var-metric=[[metric]]&var-repogroup_name=All&var-companies=All',
+        [],
+        ['k8s'],
+      ],
+      ['period', ['d7', 'w']],
       ['metric', ['authors', 'issues', 'prs', 'commits', 'contributions', 'contributors', 'comments']],
     ],
   ]
+
   # puppeteer code to generate images
+  # ensures --no-sandbox mode
+  # sets bigger viewport
+  # hides all annotations and use 1st one to draw line before/after joining CNCF
+  # it just manipulates 'left' CSS property of an existing first annotation line
+  # finally it captures given chart selector and saves as a jpeg file
   js_code = """
   const puppeteer = require('puppeteer');
   (async () => {
     const browser = await puppeteer.launch({headless: true, args:['--no-sandbox']});
     const page = await browser.newPage();
-    await page.goto('[[url]]');
-    await page.screenshot({path: '/var/www/html/img/projects/[[image]]'});
+    page.setViewport({width:[[width]], height:[[height]]});
+    await page.goto('[[url]]', {waitUntil: 'networkidle0'});
+    await page.evaluate(() => {
+      $('.events_line').css('display', 'none');
+      $('.events_line:first').css('display', '');
+      var left = parseFloat($('.events_line:first').css('left'));
+      var right = parseFloat($('.events_line:first').css('right'));
+      var sum = left + right;
+      var off = [[join]] * sum;
+      $('.events_line:first').css('left', off);
+    });
+    const elementHandle = await page.$('[[selector]]');
+    await elementHandle.screenshot({type: '[[type]]', quality: [[qual]], path: '/var/www/html/img/projects/[[image]]'});
     await browser.close();
   })();
   """
+  # Config variables
+  # width, height, join, type, qual
   js_fn = './util_js/temp_[[pid]].js'
+  itype = 'jpeg'
+  # was capturing chart panel with legend and header
+  # js_code = js_code.gsub('[[selector]]', '.react-grid-item')
+  # this captures only chart panel
+  js_code = js_code.gsub('[[selector]]', '.graph-panel__chart')
+  js_code = js_code.gsub('[[width]]', '1920')
+  js_code = js_code.gsub('[[height]]', '1080')
+  js_code = js_code.gsub('[[type]]', itype)
+  js_code = js_code.gsub('[[qual]]', '85')
   pids = []
   maxProc = Etc.nprocessors
+
+  # Process projects.yaml
+  ts = Time.now
   data = YAML.load_file 'projects.yaml'
   data['projects'].each do |project|
     name = project[0]
@@ -80,14 +123,14 @@ def generate_images
     nows = (now.to_i * 1000).to_s
     # p [name, start_dt, dt, join_dt, now, join_perc]
     urls_data.each do |url_data|
-      url_root = url_data[0][0]
-      only = url_data[0][1]
-      skip = url_data[0][2]
+      url_name = url_data[0][0]
+      url_root = url_data[0][1]
+      only = url_data[0][2]
+      skip = url_data[0][3]
       next if only.count > 0 && !only.include?(name)
       next if skip.count > 0 && skip.include?(name)
       url_root = url_root.gsub('[[project]]', name)
       url_root = url_root.gsub('[[from]]', dts)
-      url_root = url_root.gsub('[[to]]', nows)
       params = {}
       url_data[1..-1].each do |param_data|
         param = param_data[0]
@@ -97,15 +140,22 @@ def generate_images
       params = make_cartesian(params)
       params[1].each do |values|
         url = url_root
-        img = name
+        img = name + '-' + url_name
+        to_replaced = false
         params[0].each_with_index do |param, i|
           value = values[i]
           url = url.gsub('[[' + param + ']]', value)
           img += "-" + param + '-' + value
+          if param == 'period' and value.length == 1
+            url = url.gsub('[[to]]', 'now-1'+value)
+            to_replaced = true
+          end
         end
-        img += '.png'
+        url = url.gsub('[[to]]', nows) unless to_replaced
+        img += '.' + itype
         js = js_code.gsub('[[url]]', url)
         js = js.gsub('[[image]]', img)
+        js = js.gsub('[[join]]', join_perc.to_s)
         pid = fork do
           fn = js_fn.gsub('[[pid]]', Process.pid.to_s)
           File.write(fn, js)
@@ -125,7 +175,7 @@ def generate_images
         if pids.count >= maxProc
           pid = pids[0]
           pids = pids[1..-1]
-          Process.wait pid
+          res = Process.wait pid
         end
         # binding.pry
       end
@@ -134,6 +184,9 @@ def generate_images
   pids.each do |pid|
     Process.wait pid
   end
+  te = Time.now
+  tm = te - ts
+  puts "All images generated, time: #{tm}"
 end
 
 generate_images
