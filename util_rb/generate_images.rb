@@ -46,6 +46,18 @@ def generate_images
       ['metric', ['authors', 'issues', 'prs', 'commits', 'contributions', 'contributors', 'comments']],
     ],
   ]
+  # puppeteer code to generate images
+  js_code = """
+  const puppeteer = require('puppeteer');
+  (async () => {
+    const browser = await puppeteer.launch({headless: true, args:['--no-sandbox']});
+    const page = await browser.newPage();
+    await page.goto('[[url]]');
+    await page.screenshot({path: '/var/www/html/img/projects/[[image]]'});
+    await browser.close();
+  })();
+  """
+  js_fn = './util_js/temp.js'
   data = YAML.load_file 'projects.yaml'
   data['projects'].each do |project|
     name = project[0]
@@ -68,9 +80,9 @@ def generate_images
       skip = url_data[0][2]
       next if only.count > 0 && !only.include?(name)
       next if skip.count > 0 && skip.include?(name)
-      url_root = url_root.sub('[[project]]', name)
-      url_root = url_root.sub('[[from]]', dts)
-      url_root = url_root.sub('[[to]]', nows)
+      url_root = url_root.gsub('[[project]]', name)
+      url_root = url_root.gsub('[[from]]', dts)
+      url_root = url_root.gsub('[[to]]', nows)
       params = {}
       url_data[1..-1].each do |param_data|
         param = param_data[0]
@@ -80,11 +92,26 @@ def generate_images
       params = make_cartesian(params)
       params[1].each do |values|
         url = url_root
+        img = name
         params[0].each_with_index do |param, i|
           value = values[i]
-          url = url.sub('[[' + param + ']]', value)
+          url = url.gsub('[[' + param + ']]', value)
+          img += "-" + param + '-' + value
         end
-        # p url
+        img += '.png'
+        js = js_code.gsub('[[url]]', url)
+        js = js.gsub('[[image]]', img)
+        File.write(js_fn, js)
+        t1 = Time.now
+        res = `node #{js_fn}`
+        if res != ''
+          puts "Error for #{img}: #{res}\nCode:\n#{js}\n"
+          exit 1
+        end
+        t2 = Time.now
+        tm = t2 - t1
+        puts "#{img} generated: time: #{tm}"
+        binding.pry
       end
     end
   end
