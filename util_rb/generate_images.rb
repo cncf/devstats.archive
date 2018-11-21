@@ -35,7 +35,7 @@ def generate_images
         [],
         ['k8s'],
       ],
-      ['period', ['d7', 'w']],
+      ['period', ['d7', 'w', 'm', 'q']],
       ['metric', ['issues', 'prs', 'commits', 'contributions', 'comments']],
     ],
     [
@@ -45,7 +45,7 @@ def generate_images
         ['k8s'],
         [],
       ],
-      ['period', ['d7', 'w']],
+      ['period', ['d7', 'w', 'm', 'q']],
       ['metric', ['authors', 'issues', 'prs', 'commits', 'contributions', 'contributors', 'comments']],
     ],
     [
@@ -55,7 +55,7 @@ def generate_images
         [],
         ['k8s'],
       ],
-      ['period', ['d7', 'w']],
+      ['period', ['d7', 'w', 'm', 'q']],
       ['metric', ['authors', 'issues', 'prs', 'commits', 'contributions', 'contributors', 'comments']],
     ],
   ]
@@ -89,7 +89,7 @@ def generate_images
   """
   # Config variables
   # width, height, join, type, qual
-  js_fn = './util_js/temp_[[pid]].js'
+  js_fn = './util_js/[[name]]_[[pid]].js'
   itype = 'jpeg'
   # was capturing chart panel with legend and header
   # js_code = js_code.gsub('[[selector]]', '.react-grid-item')
@@ -114,14 +114,15 @@ def generate_images
     join_dt = project[1]['join_date']
     next unless join_dt
     now = Time.now
+    now3m = now - 10540800
     join_ago = now - join_dt
     dt = join_dt - join_ago
     dt = start_dt if dt < start_dt
+    dt = now3m if dt > now3m
     dt_ago = now - dt
-    join_perc = join_ago / dt_ago
+    join_perc = 1. - join_ago / dt_ago
     dts = (dt.to_i * 1000).to_s
     nows = (now.to_i * 1000).to_s
-    # p [name, start_dt, dt, join_dt, now, join_perc]
     urls_data.each do |url_data|
       url_name = url_data[0][0]
       url_root = url_data[0][1]
@@ -139,6 +140,7 @@ def generate_images
       end
       params = make_cartesian(params)
       params[1].each do |values|
+        njoin_perc = join_perc
         url = url_root
         img = name + '-' + url_name
         to_replaced = false
@@ -146,18 +148,33 @@ def generate_images
           value = values[i]
           url = url.gsub('[[' + param + ']]', value)
           img += "-" + param + '-' + value
-          if param == 'period' and value.length == 1
-            url = url.gsub('[[to]]', 'now-1'+value)
+          if param == 'period'
+            tend = now
+            case value
+            when 'd', 'd7'
+              tend -= 86400
+            when 'w'
+              tend -= 604800
+            when 'm'
+              tend -= 2678400
+            when 'q'
+              tend -= 7948800
+            end
+            join_ago = tend - join_dt
+            dt_ago = tend - dt
+            njoin_perc = 1. - join_ago / dt_ago
+            tends = (tend.to_i * 1000).to_s
             to_replaced = true
+            url = url.gsub('[[to]]', tends)
           end
         end
         url = url.gsub('[[to]]', nows) unless to_replaced
-        img += '.' + itype
         js = js_code.gsub('[[url]]', url)
-        js = js.gsub('[[image]]', img)
-        js = js.gsub('[[join]]', join_perc.to_s)
+        js = js.gsub('[[image]]', img + '.' + itype)
+        js = js.gsub('[[join]]', njoin_perc.to_s)
         pid = fork do
           fn = js_fn.gsub('[[pid]]', Process.pid.to_s)
+          fn = fn.gsub('[[name]]', img)
           File.write(fn, js)
           t1 = Time.now
           res = `node #{fn}`
