@@ -59,7 +59,7 @@ def generate_images
     [
       [
         'companies-stats',
-        'https://[[project]].teststats.cncf.io/d/4/companies-stats?orgId=1&from=[[from]]&to=[[to]]&var-period=[[period]]&var-metric=[[metric]]&var-repogroup_name=All&var-companies=All',
+        'https://[[project]].devstats.cncf.io/d/4/companies-stats?orgId=1&from=[[from]]&to=[[to]]&var-period=[[period]]&var-metric=[[metric]]&var-repogroup_name=All&var-companies=All',
         [],
         ['k8s'],
       ],
