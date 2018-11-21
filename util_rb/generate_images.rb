@@ -27,6 +27,9 @@ def generate_images
   #         param name: [[name]] will be replaced with its value
   #         [[name]] will be replaced by all [values] from array
   #     If more than 1 param, all cartesian combinations will be used
+  periods = ['d7', 'w', 'm']
+  companies_metrics = ['authors', 'issues', 'prs', 'commits', 'contributions', 'contributors', 'comments']
+  users_metrics = ['issues', 'prs', 'commits', 'contributions', 'comments']
   urls_data = [
     [
       [
@@ -35,8 +38,8 @@ def generate_images
         [],
         ['k8s'],
       ],
-      ['period', ['d7', 'w', 'm', 'q']],
-      ['metric', ['issues', 'prs', 'commits', 'contributions', 'comments']],
+      ['period', periods],
+      ['metric', users_metrics],
     ],
     [
       [
@@ -45,8 +48,8 @@ def generate_images
         ['k8s'],
         [],
       ],
-      ['period', ['d7', 'w', 'm', 'q']],
-      ['metric', ['authors', 'issues', 'prs', 'commits', 'contributions', 'contributors', 'comments']],
+      ['period', periods],
+      ['metric', companies_metrics],
     ],
     [
       [
@@ -55,8 +58,8 @@ def generate_images
         [],
         ['k8s'],
       ],
-      ['period', ['d7', 'w', 'm', 'q']],
-      ['metric', ['authors', 'issues', 'prs', 'commits', 'contributions', 'contributors', 'comments']],
+      ['period', periods],
+      ['metric', companies_metrics],
     ],
   ]
 
