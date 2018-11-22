@@ -183,6 +183,16 @@ func importAffs(jsonFN string) {
 	// To handle GDPR
 	maybeHide := lib.MaybeHideFunc(lib.GetHidden(lib.HideCfgFile))
 
+	// Handle default file name
+	if jsonFN == "" {
+		// Local or cron mode?
+		dataPrefix := lib.DataDir
+		if ctx.Local {
+			dataPrefix = "./"
+		}
+		jsonFN = dataPrefix + ctx.AffiliationsJSON
+	}
+
 	// Parse github_users.json
 	var users gitHubUsers
 	data, err := lib.ReadFile(&ctx, jsonFN)
@@ -477,10 +487,10 @@ func importAffs(jsonFN string) {
 func main() {
 	dtStart := time.Now()
 	if len(os.Args) < 2 {
-		lib.Printf("Required argument: filename.json\n")
-		os.Exit(1)
+		importAffs("")
+	} else {
+		importAffs(os.Args[1])
 	}
-	importAffs(os.Args[1])
 	dtEnd := time.Now()
 	lib.Printf("Time: %v\n", dtEnd.Sub(dtStart))
 }

@@ -31,6 +31,8 @@ fi
 
 GHA2DB_PROJECTS_YAML="docker/docker_projects.yaml"
 export GHA2DB_PROJECTS_YAML
+GHA2DB_AFFILIATIONS_JSON="docker/docker_affiliations.json"
+export GHA2DB_AFFILIATIONS_JSON
 ONLY=buildpacks
 export ONLY
 

@@ -92,6 +92,7 @@ func copyContext(in *lib.Ctx) *lib.Ctx {
 		ProjectsCommits:     in.ProjectsCommits,
 		ProjectsYaml:        in.ProjectsYaml,
 		ProjectsOverride:    in.ProjectsOverride,
+		AffiliationsJSON:    in.AffiliationsJSON,
 		ExcludeRepos:        in.ExcludeRepos,
 		InputDBs:            in.InputDBs,
 		OutputDB:            in.OutputDB,
@@ -304,6 +305,7 @@ func TestInit(t *testing.T) {
 		ProjectsCommits:     "",
 		ProjectsYaml:        "projects.yaml",
 		ProjectsOverride:    map[string]bool{},
+		AffiliationsJSON:    "github_users.json",
 		ExcludeRepos:        map[string]bool{},
 		InputDBs:            []string{},
 		OutputDB:            "",
@@ -929,15 +931,17 @@ func TestInit(t *testing.T) {
 			),
 		},
 		{
-			"Setting projects.yaml",
+			"Setting projects.yaml && github_users.json",
 			map[string]string{
-				"GHA2DB_PROJECTS_YAML": "baz.yml",
+				"GHA2DB_PROJECTS_YAML":     "baz.yml",
+				"GHA2DB_AFFILIATIONS_JSON": "other.json",
 			},
 			dynamicSetFields(
 				t,
 				copyContext(&defaultContext),
 				map[string]interface{}{
-					"ProjectsYaml": "baz.yml",
+					"ProjectsYaml":     "baz.yml",
+					"AffiliationsJSON": "other.json",
 				},
 			),
 		},
