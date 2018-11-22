@@ -16,31 +16,34 @@ else
   exit 2
 fi
 
-oauthfile="/etc/github/oauth"
-if [ ! -f "${oauthfile}" ]
+GITHUB_OAUTH_FILE="/etc/github/oauth"
+if [ ! -f "${GITHUB_OAUTH_FILE}" ]
 then
-  echo "Warning: no ${oauthfile} file, setting env variables to skip GitHub API"
-  GHA2DB_GHAPISKIP=1
-  export GHA2DB_GHAPISKIP
+  echo "Warning: no ${GITHUB_OAUTH_FILE} file, setting env variables to skip GitHub API"
+  export GHA2DB_GHAPISKIP=1
 else
-  echo "GitHub API credentials found (${oauthfile}), using them"
-  GHA2DB_GITHUB_OAUTH="`cat ${oauthfile}`"
-  export GHA2DB_GITHUB_OAUTH
+  echo "GitHub API credentials found (${GITHUB_OAUTH_FILE}), using them"
+  export GHA2DB_GITHUB_OAUTH="`cat ${GITHUB_OAUTH_FILE}`"
 fi
 
+./docker/docker_remove_es.sh
 ./docker/docker_remove_psql.sh
-./docker/docker_psql.sh || exit 3
-./docker/docker_build.sh || exit 4
+./docker/docker_es.sh || exit 3
+./docker/docker_psql.sh || exit 4
+./docker/docker_build.sh || exit 5
 if [ "${DEPLOY_FROM}" = "host" ]
 then
-  PG_PASS="${PASS}" PG_PASS_RO="${PASS}" PG_PASS_TEAM="${PASS}" ./docker/docker_deploy_from_host.sh || exit 5
+  PG_PASS="${PASS}" PG_PASS_RO="${PASS}" PG_PASS_TEAM="${PASS}" ./docker/docker_deploy_from_host.sh || exit 6
 elif [ "${DEPLOY_FROM}" = "container" ]
 then
-  PG_PASS="${PASS}" PG_PASS_RO="${PASS}" PG_PASS_TEAM="${PASS}" ./docker/docker_deploy_from_container.sh || exit 6
+  PG_PASS="${PASS}" PG_PASS_RO="${PASS}" PG_PASS_TEAM="${PASS}" ./docker/docker_deploy_from_container.sh || exit 7
 fi
-PG_PASS="${PASS}" ./docker/docker_display_logs.sh || exit 7
-PG_PASS="${PASS}" ./docker/docker_devstats.sh || exit 8
-PG_PASS="${PASS}" ./docker/docker_display_logs.sh || exit 9
-PG_PASS="${PASS}" ./docker/docker_health.sh || exit 10
+PG_PASS="${PASS}" ./docker/docker_display_logs.sh || exit 8
+PG_PASS="${PASS}" ./docker/docker_devstats.sh || exit 9
+PG_PASS="${PASS}" ./docker/docker_display_logs.sh || exit 10
+./docker/docker_es_logs.sh || exit 11
+./docker/docker_es_indexes.sh || exit 12
+./docker/docker_es_health.sh || exit 13
+PG_PASS="${PASS}" ./docker/docker_health.sh || exit 14
 echo 'All OK'
-echo 'You can call docker/docker_remove_psql.sh and docker/docker_remove.sh to cleanup'
+echo 'You can call "docker/docker_remove_psql.sh; docker/docker_remove_es.sh; docker/docker_remove.sh" to cleanup'

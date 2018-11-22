@@ -1,7 +1,7 @@
 #!/bin/bash
 if [ -z "${ES_URL}" ]
 then
-  ES_URL="localhost:19200"
+  ES_URL="http://localhost:19200"
 fi
 if [ -z "$1" ]
 then

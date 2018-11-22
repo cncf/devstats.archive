@@ -110,6 +110,7 @@ func copyContext(in *lib.Ctx) *lib.Ctx {
 		UseES:               in.UseES,
 		UseESOnly:           in.UseESOnly,
 		UseESRaw:            in.UseESRaw,
+		ResetESRaw:          in.ResetESRaw,
 	}
 	return &out
 }
@@ -323,6 +324,7 @@ func TestInit(t *testing.T) {
 		UseES:               false,
 		UseESOnly:           false,
 		UseESRaw:            false,
+		ResetESRaw:          false,
 	}
 
 	var nilRegexp *regexp.Regexp
@@ -1056,10 +1058,11 @@ func TestInit(t *testing.T) {
 		{
 			"Set ES params",
 			map[string]string{
-				"GHA2DB_ES_URL":      "http://other.server:9222",
-				"GHA2DB_USE_ES":      "1",
-				"GHA2DB_USE_ES_ONLY": "y",
-				"GHA2DB_USE_ES_RAW":  "t",
+				"GHA2DB_ES_URL":       "http://other.server:9222",
+				"GHA2DB_USE_ES":       "1",
+				"GHA2DB_USE_ES_ONLY":  "y",
+				"GHA2DB_USE_ES_RAW":   "t",
+				"GHA2DB_RESET_ES_RAW": "1",
 			},
 			dynamicSetFields(
 				t,
@@ -1069,6 +1072,7 @@ func TestInit(t *testing.T) {
 					"UseES":      true,
 					"UseESOnly":  true,
 					"UseESRaw":   true,
+					"ResetESRaw": true,
 				},
 			),
 		},
