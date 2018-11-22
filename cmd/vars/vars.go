@@ -40,26 +40,28 @@ func processLoops(str string, loops [][]int) string {
 		start := fmt.Sprintf("loop:%d:start", loopN)
 		end := fmt.Sprintf("loop:%d:end", loopN)
 		rep := fmt.Sprintf("loop:%d:i", loopN)
-		iStart := strings.Index(str, start)
-		if iStart < 0 {
-			continue
+		for {
+			iStart := strings.Index(str, start)
+			if iStart < 0 {
+				break
+			}
+			iEnd := strings.Index(str, end)
+			if iEnd < 0 {
+				break
+			}
+			lStart := len(start)
+			lEnd := len(end)
+			before := str[0:iStart]
+			body := str[iStart+lStart : iEnd]
+			after := str[iEnd+lEnd:]
+			out := before
+			for i := from; i < to; i += inc {
+				lBody := strings.Replace(body, rep, strconv.Itoa(i), -1)
+				out += lBody
+			}
+			out += after
+			str = out
 		}
-		iEnd := strings.Index(str, end)
-		if iEnd < 0 {
-			continue
-		}
-		lStart := len(start)
-		lEnd := len(end)
-		before := str[0:iStart]
-		body := str[iStart+lStart : iEnd]
-		after := str[iEnd+lEnd:]
-		out := before
-		for i := from; i < to; i += inc {
-			lBody := strings.Replace(body, rep, strconv.Itoa(i), -1)
-			out += lBody
-		}
-		out += after
-		str = out
 	}
 	return str
 }
@@ -218,6 +220,10 @@ func pdbVars() {
 			}
 			outString := strings.TrimSpace(string(cmdBytes))
 			if outString != "" {
+				// Process queries and loops (first pass)
+				outString = processLoops(outString, va.Loops)
+				outString = processQueries(outString, queries)
+
 				// Handle replacements using variables defined so far
 				for _, repl := range va.Replaces {
 					if len(repl) != 2 {
@@ -249,7 +255,7 @@ func pdbVars() {
 						}
 					}
 				}
-				// process queries and loops
+				// Process queries and loops (second pass after variables/replacements processing)
 				outString = processLoops(outString, va.Loops)
 				outString = processQueries(outString, queries)
 				va.Value = outString
