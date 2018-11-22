@@ -7,6 +7,18 @@
 - Use `./docker/docker_publish.sh` to publish `devstats` image to the dockerhub.
 - Use `./docker/docker_remove.sh` to remove `devstats` docker image.
 
+# ElasticSearch
+
+- Use `./docker/docker_es.sh` to start dockerized ElasticSearch 6.5.1 instance.
+- Use `./docker/docker_es_bash.sh` to bash into the ElasticSearch container.
+- Use `./docker/docker_es_indexes.sh` to see ES indexes.
+- Use `./docker/docker_es_dump.sh indexname filename` to dump ES index into a file.
+- Use `./docker/docker_es_restore.sh indexname filename` to restore ES index from a file.
+- Use `./docker/docker_es_query.sh index type query` to query ES instance (allows quick lucene queries).
+- Use `./docker/docker_es_search.sh index type query` to search ES instance (allows full query search JSON syntax).
+- Use `./docker/docker_es_logs.sh` to see ES logs.
+- Use `./docker/docker_remove_es.sh` to remove dockerized postgres instance.
+
 
 # Postgres and deployment
 
