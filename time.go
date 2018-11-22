@@ -78,7 +78,7 @@ func ComputePeriodAtThisDate(ctx *Ctx, period string, idt time.Time, hist bool) 
 	dtn := dt.AddDate(0, 0, 1)
 	dth := dt.Add(time.Hour * time.Duration(ctx.TmOffset))
 	// h: current hour with tz offset
-	// ch: current hour without tz offse
+	// ch: current hour without tz offset
 	h := dth.Hour()
 	ch := dtc.Hour()
 	periodStart := period[0:1]

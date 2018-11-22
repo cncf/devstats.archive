@@ -222,6 +222,19 @@ where
   and r.repo_group is not null
 group by
   r.repo_group
+union select 'phealth,' || r.repo_group || ',lcommd' as name,
+  'Commits: Days since last commit',
+  max(c.dup_created_at),
+  0.0,
+  DATE_PART('day', now() - max(c.dup_created_at))::text || ' days'
+from
+  gha_commits c,
+  gha_repos r
+where
+  c.dup_repo_id = r.id
+  and r.repo_group is not null
+group by
+  r.repo_group
 union select 'phealth,' || repo_group || ',acomm3' as name,
   'Committers: Number of committers in the last 3 months',
   now(),
