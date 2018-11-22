@@ -271,15 +271,22 @@ func sync(ctx *lib.Ctx, args []string) {
 
 	// If ElasticSearch output is enabled
 	if ctx.UseESRaw {
+		// Regenerate points from this date
+		esFromDate := fromDate
+		esFromHour := fromHour
+		if ctx.ResetESRaw {
+			esFromDate = lib.ToYMDDate(ctx.DefaultStartDate)
+			esFromHour = strconv.Itoa(ctx.DefaultStartDate.Hour())
+		}
 		lib.Printf("Update ElasticSearch raw index\n")
-		lib.Printf("ES range: %s %s - %s %s\n", fromDate, fromHour, toDate, toHour)
+		lib.Printf("ES range: %s %s - %s %s\n", esFromDate, esFromHour, toDate, toHour)
 		// Recompute views and DB summaries
 		_, err := lib.ExecCommand(
 			ctx,
 			[]string{
 				cmdPrefix + "gha2es",
-				fromDate,
-				fromHour,
+				esFromDate,
+				esFromHour,
 				toDate,
 				toHour,
 			},
@@ -504,11 +511,15 @@ func sync(ctx *lib.Ctx, args []string) {
 
 	// Vars (some tables/dashboards require vars calculation)
 	if !ctx.SkipPDB && !ctx.SkipVars {
+		varsFN := os.Getenv("GHA2DB_VARS_FN_YAML")
+		if varsFN == "" {
+			varsFN = "sync_vars.yaml"
+		}
 		_, err := lib.ExecCommand(
 			ctx,
 			[]string{cmdPrefix + "vars"},
 			map[string]string{
-				"GHA2DB_VARS_FN_YAML": "sync_vars.yaml",
+				"GHA2DB_VARS_FN_YAML": varsFN,
 			},
 		)
 		lib.FatalOnError(err)

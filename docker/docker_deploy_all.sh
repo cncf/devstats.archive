@@ -29,12 +29,13 @@ then
   exit 1
 fi
 
-GHA2DB_PROJECTS_YAML="docker/docker_projects.yaml"
-export GHA2DB_PROJECTS_YAML
-GHA2DB_AFFILIATIONS_JSON="docker/docker_affiliations.json"
-export GHA2DB_AFFILIATIONS_JSON
-ONLY=buildpacks
-export ONLY
+# For docker conatiners PG_HOST is 172.17.0.1
+export ONLY="buildpacks"
+export GHA2DB_PROJECTS_YAML="docker/docker_projects.yaml"
+export GHA2DB_AFFILIATIONS_JSON="docker/docker_affiliations.json"
+export GHA2DB_ES_URL="http://${PG_HOST}:19200"
+export GHA2DB_USE_ES=1
+export GHA2DB_USE_ES_RAW=1
 
 if [ ! -z "$INIT" ]
 then
