@@ -12,4 +12,10 @@ then
     echo ''
   fi
 fi
-docker run -e GHA2DB_PROJECTS_YAML="docker/docker_projects.yaml" -e GHA2DB_GHAPISKIP=1 -e PG_PORT=65432 -e PG_HOST=`docker run -it devstats ip route show | awk '/default/ {print $3}'` -e PG_PASS="${PG_PASS}" -it devstats devstats
+if ( [ -z "${GHA2DB_GITHUB_OAUTH}" ] && [ -z "${GHA2DB_GHAPISKIP}" ] )
+then
+  echo "$0: warning no GitHub API key provided via GHA2DB_GITHUB_OAUTH=..., falling back to public API (very limited)"
+  echo "You can also skip GitHub API processing by setting GHA2DB_GHAPISKIP=1"
+  GHA2DB_GITHUB_OAUTH="-"
+fi
+docker run -e GHA2DB_GITHUB_OAUTH="${GHA2DB_GITHUB_OAUTH}" -e GHA2DB_GHAPISKIP="${GHA2DB_GHAPISKIP}" -e GHA2DB_PROJECTS_YAML="docker/docker_projects.yaml" -e GHA2DB_GHAPISKIP=1 -e PG_PORT=65432 -e PG_HOST=`docker run -it devstats ip route show | awk '/default/ {print $3}'` -e PG_PASS="${PG_PASS}" -it devstats devstats

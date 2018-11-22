@@ -16,6 +16,18 @@ else
   exit 2
 fi
 
+oauthfile="/etc/github/oauth"
+if [ ! -f "${oauthfile}" ]
+then
+  echo "Warning: no ${oauthfile} file, setting env variables to skip GitHub API"
+  GHA2DB_GHAPISKIP=1
+  export GHA2DB_GHAPISKIP
+else
+  echo "GitHub API credentials found (${oauthfile}), using them"
+  GHA2DB_GITHUB_OAUTH="`cat ${oauthfile}`"
+  export GHA2DB_GITHUB_OAUTH
+fi
+
 ./docker/docker_remove_psql.sh
 ./docker/docker_psql.sh || exit 3
 ./docker/docker_build.sh || exit 4
