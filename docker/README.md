@@ -39,6 +39,6 @@
 
 # One command test all
 
-- Use `PASS=... FROM=host|container ./docker/docker_test_all.sh` to test full deployment from either the host or the container.
+- Use `PASS=... DEPLOY_FROM=host|container ./docker/docker_test_all.sh` to test full deployment from either the host or the container.
 
 
