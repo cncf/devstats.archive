@@ -333,8 +333,8 @@ func processCommit(c *sql.DB, ctx *lib.Ctx, commit *github.RepositoryCommit, may
 // Some debugging options (environment variables)
 // You can set:
 // REPO=full_repo_name
-// FROM=datetime 'YYYY-MM-DD hh:mm:ss.uuuuuu"
-// To use FROM make sure you set GHA2DB_RECENT_RANGE to cover that range too.
+// DTFROM=datetime 'YYYY-MM-DD hh:mm:ss.uuuuuu"
+// To use DTFROM make sure you set GHA2DB_RECENT_RANGE to cover that range too.
 func syncCommits(ctx *lib.Ctx) {
 	// Get common params
 	repos, isSingleRepo, singleRepo, gctx, gc, c, recentDt := getAPIParams(ctx)
@@ -346,8 +346,8 @@ func syncCommits(ctx *lib.Ctx) {
 		dateRangeTo   *time.Time
 	)
 	isDateRange := false
-	dateRangeFromS := os.Getenv("FROM")
-	dateRangeToS := os.Getenv("TO")
+	dateRangeFromS := os.Getenv("DTFROM")
+	dateRangeToS := os.Getenv("DTTO")
 	if dateRangeFromS != "" {
 		tmp := lib.TimeParseAny(dateRangeFromS)
 		dateRangeFrom = &tmp
@@ -415,7 +415,7 @@ func syncCommits(ctx *lib.Ctx) {
 			maybeHide := lib.MaybeHideFunc(lib.GetHidden(lib.HideCfgFile))
 			// Need deep copy - threads
 			copt := opt
-			// No FROM/TO set and no GHA2DB_NO_AUTOFETCHCOMMITS
+			// No DTFROM/DTTO set and no GHA2DB_NO_AUTOFETCHCOMMITS
 			if !isDateRange && ctx.AutoFetchCommits {
 				dtf, dtt, ok := getEnrichCommitsDateRange(c, ctx, orgRepo)
 				if !ok {
@@ -567,11 +567,11 @@ func syncCommits(ctx *lib.Ctx) {
 // Some debugging options (environment variables)
 // You can set:
 // REPO=full_repo_name
-// FROM=datetime 'YYYY-MM-DD hh:mm:ss.uuuuuu"
-// TO=datetime 'YYYY-MM-DD hh:mm:ss.uuuuuu"
+// DTFROM=datetime 'YYYY-MM-DD hh:mm:ss.uuuuuu"
+// DTTO=datetime 'YYYY-MM-DD hh:mm:ss.uuuuuu"
 // MILESTONE=milestone name
 // ISSUE="issue_number"
-// To use FROM and TO make sure you set GHA2DB_RECENT_RANGE to cover that range too.
+// To use DTFROM and DTTO make sure you set GHA2DB_RECENT_RANGE to cover that range too.
 func syncEvents(ctx *lib.Ctx) {
 	// Get common params
 	repos, isSingleRepo, singleRepo, gctx, gc, c, recentDt := getAPIParams(ctx)
@@ -583,8 +583,8 @@ func syncEvents(ctx *lib.Ctx) {
 		dateRangeTo   *time.Time
 	)
 	isDateRange := false
-	dateRangeFromS := os.Getenv("FROM")
-	dateRangeToS := os.Getenv("TO")
+	dateRangeFromS := os.Getenv("DTFROM")
+	dateRangeToS := os.Getenv("DTTO")
 	if dateRangeFromS != "" {
 		tmp := lib.TimeParseAny(dateRangeFromS)
 		dateRangeFrom = &tmp

@@ -92,6 +92,7 @@ func copyContext(in *lib.Ctx) *lib.Ctx {
 		ProjectsCommits:     in.ProjectsCommits,
 		ProjectsYaml:        in.ProjectsYaml,
 		ProjectsOverride:    in.ProjectsOverride,
+		AffiliationsJSON:    in.AffiliationsJSON,
 		ExcludeRepos:        in.ExcludeRepos,
 		InputDBs:            in.InputDBs,
 		OutputDB:            in.OutputDB,
@@ -109,6 +110,7 @@ func copyContext(in *lib.Ctx) *lib.Ctx {
 		UseES:               in.UseES,
 		UseESOnly:           in.UseESOnly,
 		UseESRaw:            in.UseESRaw,
+		ResetESRaw:          in.ResetESRaw,
 	}
 	return &out
 }
@@ -304,6 +306,7 @@ func TestInit(t *testing.T) {
 		ProjectsCommits:     "",
 		ProjectsYaml:        "projects.yaml",
 		ProjectsOverride:    map[string]bool{},
+		AffiliationsJSON:    "github_users.json",
 		ExcludeRepos:        map[string]bool{},
 		InputDBs:            []string{},
 		OutputDB:            "",
@@ -321,6 +324,7 @@ func TestInit(t *testing.T) {
 		UseES:               false,
 		UseESOnly:           false,
 		UseESRaw:            false,
+		ResetESRaw:          false,
 	}
 
 	var nilRegexp *regexp.Regexp
@@ -929,15 +933,17 @@ func TestInit(t *testing.T) {
 			),
 		},
 		{
-			"Setting projects.yaml",
+			"Setting projects.yaml && github_users.json",
 			map[string]string{
-				"GHA2DB_PROJECTS_YAML": "baz.yml",
+				"GHA2DB_PROJECTS_YAML":     "baz.yml",
+				"GHA2DB_AFFILIATIONS_JSON": "other.json",
 			},
 			dynamicSetFields(
 				t,
 				copyContext(&defaultContext),
 				map[string]interface{}{
-					"ProjectsYaml": "baz.yml",
+					"ProjectsYaml":     "baz.yml",
+					"AffiliationsJSON": "other.json",
 				},
 			),
 		},
@@ -1052,10 +1058,11 @@ func TestInit(t *testing.T) {
 		{
 			"Set ES params",
 			map[string]string{
-				"GHA2DB_ES_URL":      "http://other.server:9222",
-				"GHA2DB_USE_ES":      "1",
-				"GHA2DB_USE_ES_ONLY": "y",
-				"GHA2DB_USE_ES_RAW":  "t",
+				"GHA2DB_ES_URL":       "http://other.server:9222",
+				"GHA2DB_USE_ES":       "1",
+				"GHA2DB_USE_ES_ONLY":  "y",
+				"GHA2DB_USE_ES_RAW":   "t",
+				"GHA2DB_RESET_ES_RAW": "1",
 			},
 			dynamicSetFields(
 				t,
@@ -1065,6 +1072,7 @@ func TestInit(t *testing.T) {
 					"UseES":      true,
 					"UseESOnly":  true,
 					"UseESRaw":   true,
+					"ResetESRaw": true,
 				},
 			),
 		},

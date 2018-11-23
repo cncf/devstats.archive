@@ -13,7 +13,7 @@ with projects as (
       partition by period
       order by
         time asc
-      range between unbounded preceding
+      range between current row
       and unbounded following
     )
 ), contributors as (
@@ -25,8 +25,7 @@ with projects as (
   from (
       select repo_id,
         created_at,
-        actor_id,
-        dup_actor_login as actor_login
+        actor_id
       from
         gha_events
       where
@@ -35,8 +34,7 @@ with projects as (
         and (lower(dup_actor_login) {{exclude_bots}})
       union select dup_repo_id as repo_id,
         dup_created_at as created_at,
-        author_id as actor_id,
-        dup_author_login as actor_login
+        author_id as actor_id
       from
         gha_commits
       where
@@ -45,8 +43,7 @@ with projects as (
         and (lower(dup_author_login) {{exclude_bots}})
       union select dup_repo_id as repo_id,
         dup_created_at as created_at,
-        committer_id as actor_id,
-        dup_committer_login as actor_login
+        committer_id as actor_id
       from
         gha_commits
       where
@@ -58,6 +55,247 @@ with projects as (
   where
     r.repo_group is not null
     and r.id = e.repo_id
+  group by
+    r.repo_group
+), prev12_contributors as (
+  select distinct r.repo_group,
+    e.actor_id
+  from (
+      select repo_id,
+        actor_id
+      from
+        gha_events
+      where
+        type in ('IssuesEvent', 'PullRequestEvent', 'PushEvent', 'CommitCommentEvent', 'IssueCommentEvent', 'PullRequestReviewCommentEvent')
+        and created_at < now() - '1 year'::interval
+        and (lower(dup_actor_login) {{exclude_bots}})
+      union select dup_repo_id as repo_id,
+        author_id as actor_id
+      from
+        gha_commits
+      where
+        dup_author_login is not null
+        and dup_created_at < now() - '1 year'::interval
+        and (lower(dup_author_login) {{exclude_bots}})
+      union select dup_repo_id as repo_id,
+        committer_id as actor_id
+      from
+        gha_commits
+      where
+        dup_committer_login is not null
+        and dup_created_at < now() - '1 year'::interval
+        and (lower(dup_committer_login) {{exclude_bots}})
+    ) e,
+    gha_repos r
+  where
+    r.repo_group is not null
+    and r.id = e.repo_id
+  group by
+    r.repo_group,
+    e.actor_id
+), prev6_contributors as (
+  select distinct r.repo_group,
+    e.actor_id
+  from (
+      select repo_id,
+        actor_id
+      from
+        gha_events
+      where
+        type in ('IssuesEvent', 'PullRequestEvent', 'PushEvent', 'CommitCommentEvent', 'IssueCommentEvent', 'PullRequestReviewCommentEvent')
+        and created_at < now() - '6 months'::interval
+        and (lower(dup_actor_login) {{exclude_bots}})
+      union select dup_repo_id as repo_id,
+        author_id as actor_id
+      from
+        gha_commits
+      where
+        dup_author_login is not null
+        and dup_created_at < now() - '6 months'::interval
+        and (lower(dup_author_login) {{exclude_bots}})
+      union select dup_repo_id as repo_id,
+        committer_id as actor_id
+      from
+        gha_commits
+      where
+        dup_committer_login is not null
+        and dup_created_at < now() - '6 months'::interval
+        and (lower(dup_committer_login) {{exclude_bots}})
+    ) e,
+    gha_repos r
+  where
+    r.repo_group is not null
+    and r.id = e.repo_id
+  group by
+    r.repo_group,
+    e.actor_id
+), prev3_contributors as (
+  select distinct r.repo_group,
+    e.actor_id
+  from (
+      select repo_id,
+        actor_id
+      from
+        gha_events
+      where
+        type in ('IssuesEvent', 'PullRequestEvent', 'PushEvent', 'CommitCommentEvent', 'IssueCommentEvent', 'PullRequestReviewCommentEvent')
+        and created_at < now() - '3 months'::interval
+        and (lower(dup_actor_login) {{exclude_bots}})
+      union select dup_repo_id as repo_id,
+        author_id as actor_id
+      from
+        gha_commits
+      where
+        dup_author_login is not null
+        and dup_created_at < now() - '3 months'::interval
+        and (lower(dup_author_login) {{exclude_bots}})
+      union select dup_repo_id as repo_id,
+        committer_id as actor_id
+      from
+        gha_commits
+      where
+        dup_committer_login is not null
+        and dup_created_at < now() - '3 months'::interval
+        and (lower(dup_committer_login) {{exclude_bots}})
+    ) e,
+    gha_repos r
+  where
+    r.repo_group is not null
+    and r.id = e.repo_id
+  group by
+    r.repo_group,
+    e.actor_id
+), new12_contributors as (
+  select r.repo_group,
+    count(distinct e.actor_id) as ncontrib12
+  from (
+      select repo_id,
+        actor_id
+      from
+        gha_events
+      where
+        type in ('IssuesEvent', 'PullRequestEvent', 'PushEvent', 'CommitCommentEvent', 'IssueCommentEvent', 'PullRequestReviewCommentEvent')
+        and created_at >= now() - '1 year'::interval
+        and (lower(dup_actor_login) {{exclude_bots}})
+      union select dup_repo_id as repo_id,
+        author_id as actor_id
+      from
+        gha_commits
+      where
+        dup_author_login is not null
+        and dup_created_at >= now() - '1 year'::interval
+        and (lower(dup_author_login) {{exclude_bots}})
+      union select dup_repo_id as repo_id,
+        committer_id as actor_id
+      from
+        gha_commits
+      where
+        dup_committer_login is not null
+        and dup_created_at >= now() - '1 year'::interval
+        and (lower(dup_committer_login) {{exclude_bots}})
+    ) e
+  join
+    gha_repos r
+  on
+    r.id = e.repo_id
+    and r.repo_group is not null
+  left join
+    prev12_contributors pc
+  on
+    r.repo_group = pc.repo_group
+    and e.actor_id = pc.actor_id
+  where
+    pc.actor_id is null
+  group by
+    r.repo_group
+), new6_contributors as (
+  select r.repo_group,
+    count(distinct e.actor_id) as ncontrib6,
+    count(distinct e.actor_id) filter (where e.created_at < now() - '3 months'::interval) as ncontribp3
+  from (
+      select repo_id,
+        created_at,
+        actor_id
+      from
+        gha_events
+      where
+        type in ('IssuesEvent', 'PullRequestEvent', 'PushEvent', 'CommitCommentEvent', 'IssueCommentEvent', 'PullRequestReviewCommentEvent')
+        and created_at >= now() - '6 months'::interval
+        and (lower(dup_actor_login) {{exclude_bots}})
+      union select dup_repo_id as repo_id,
+        dup_created_at as created_at,
+        author_id as actor_id
+      from
+        gha_commits
+      where
+        dup_author_login is not null
+        and dup_created_at >= now() - '6 months'::interval
+        and (lower(dup_author_login) {{exclude_bots}})
+      union select dup_repo_id as repo_id,
+        dup_created_at as created_at,
+        committer_id as actor_id
+      from
+        gha_commits
+      where
+        dup_committer_login is not null
+        and dup_created_at >= now() - '6 months'::interval
+        and (lower(dup_committer_login) {{exclude_bots}})
+    ) e
+  join
+    gha_repos r
+  on
+    r.id = e.repo_id
+    and r.repo_group is not null
+  left join
+    prev6_contributors pc
+  on
+    r.repo_group = pc.repo_group
+    and e.actor_id = pc.actor_id
+  where
+    pc.actor_id is null
+  group by
+    r.repo_group
+), new3_contributors as (
+  select r.repo_group,
+    count(distinct e.actor_id) as ncontrib3
+  from (
+      select repo_id,
+        actor_id
+      from
+        gha_events
+      where
+        type in ('IssuesEvent', 'PullRequestEvent', 'PushEvent', 'CommitCommentEvent', 'IssueCommentEvent', 'PullRequestReviewCommentEvent')
+        and created_at >= now() - '3 months'::interval
+        and (lower(dup_actor_login) {{exclude_bots}})
+      union select dup_repo_id as repo_id,
+        author_id as actor_id
+      from
+        gha_commits
+      where
+        dup_author_login is not null
+        and dup_created_at >= now() - '3 months'::interval
+        and (lower(dup_author_login) {{exclude_bots}})
+      union select dup_repo_id as repo_id,
+        committer_id as actor_id
+      from
+        gha_commits
+      where
+        dup_committer_login is not null
+        and dup_created_at >= now() - '3 months'::interval
+        and (lower(dup_committer_login) {{exclude_bots}})
+    ) e
+  join
+    gha_repos r
+  on
+    r.id = e.repo_id
+    and r.repo_group is not null
+  left join
+    prev3_contributors pc
+  on
+    r.repo_group = pc.repo_group
+    and e.actor_id = pc.actor_id
+  where
+    pc.actor_id is null
   group by
     r.repo_group
 ), commits as (
@@ -74,8 +312,7 @@ with projects as (
       select dup_repo_id as repo_id,
         sha,
         dup_created_at as created_at,
-        dup_actor_id as actor_id,
-        dup_actor_login as actor_login
+        dup_actor_id as actor_id
       from
         gha_commits
       where
@@ -84,8 +321,7 @@ with projects as (
       union select dup_repo_id as repo_id,
         sha,
         dup_created_at as created_at,
-        author_id as actor_id,
-        dup_author_login as actor_login
+        author_id as actor_id
       from
         gha_commits
       where
@@ -95,8 +331,7 @@ with projects as (
       union select dup_repo_id as repo_id,
         sha,
         dup_created_at as created_at,
-        committer_id as actor_id,
-        dup_committer_login as actor_login
+        committer_id as actor_id
       from
         gha_commits
       where
@@ -125,6 +360,22 @@ with projects as (
     and pr.created_at >= now() - '1 year'::interval
   group by
     r.repo_group
+), prs_closed as (
+  select r.repo_group,
+    count(distinct pr.id) as pr12,
+    count(distinct pr.id) filter (where pr.closed_at >= now() - '6 months'::interval) as pr6,
+    count(distinct pr.id) filter (where pr.closed_at >= now() - '3 months'::interval) as pr3,
+    count(distinct pr.id) filter (where pr.closed_at >= now() - '6 months'::interval and pr.closed_at < now() - '3 months'::interval) as prp3
+  from
+    gha_pull_requests pr,
+    gha_repos r
+  where
+    r.repo_group is not null
+    and pr.closed_at is not null
+    and r.id = pr.dup_repo_id
+    and pr.closed_at >= now() - '1 year'::interval
+  group by
+    r.repo_group
 ), prs_merged as (
   select r.repo_group,
     count(distinct pr.id) as pr12,
@@ -141,6 +392,48 @@ with projects as (
     and pr.merged_at >= now() - '1 year'::interval
   group by
     r.repo_group
+), issues_opened as (
+  select r.repo_group,
+    count(distinct i.id) as i12,
+    count(distinct i.id) filter (where i.created_at >= now() - '6 months'::interval) as i6,
+    count(distinct i.id) filter (where i.created_at >= now() - '3 months'::interval) as i3,
+    count(distinct i.id) filter (where i.created_at >= now() - '6 months'::interval and i.created_at < now() - '3 months'::interval) as ip3
+  from
+    gha_issues i,
+    gha_repos r
+  where
+    r.repo_group is not null
+    and i.is_pull_request = false
+    and r.id = i.dup_repo_id
+    and i.created_at >= now() - '1 year'::interval
+  group by
+    r.repo_group
+), issues_closed as (
+  select r.repo_group,
+    count(distinct i.id) as i12,
+    count(distinct i.id) filter (where i.closed_at >= now() - '6 months'::interval) as i6,
+    count(distinct i.id) filter (where i.closed_at >= now() - '3 months'::interval) as i3,
+    count(distinct i.id) filter (where i.closed_at >= now() - '6 months'::interval and i.closed_at < now() - '3 months'::interval) as ip3
+  from
+    gha_issues i,
+    gha_repos r
+  where
+    r.repo_group is not null
+    and i.is_pull_request = false
+    and i.closed_at is not null
+    and r.id = i.dup_repo_id
+    and i.closed_at >= now() - '1 year'::interval
+  group by
+    r.repo_group
+), issue_ratio as (
+  select io.repo_group,
+    case ic.i3 when 0 then -1.0 else io.i3::float / ic.i3::float end as r3,
+    case ic.ip3 when 0 then -1.0 else io.ip3::float / ic.ip3::float end as rp3
+  from
+    issues_opened io,
+    issues_closed ic
+  where
+    io.repo_group = ic.repo_group
 ), recent_issues as (
   select distinct id,
     user_id,
@@ -184,6 +477,166 @@ with projects as (
     repo_group is not null
   group by
     repo_group
+), pr_ratio as (
+  select po.repo_group,
+    case pc.pr3 when 0 then -1.0 else po.pr3::float / pc.pr3::float end as r3,
+    case pc.prp3 when 0 then -1.0 else po.prp3::float / pc.prp3::float end as rp3
+  from
+    prs_opened po,
+    prs_closed pc
+  where
+    po.repo_group = pc.repo_group
+), commits_counts as (
+  select r.repo_group,
+    count(distinct e.sha) as n
+  from (
+      select dup_repo_id as repo_id,
+        sha
+      from
+        gha_commits
+      where
+        (lower(dup_actor_login) {{exclude_bots}})
+      union select dup_repo_id as repo_id,
+        sha
+      from
+        gha_commits
+      where
+        dup_author_login is not null
+        and (lower(dup_author_login) {{exclude_bots}})
+      union select dup_repo_id as repo_id,
+        sha
+      from
+        gha_commits
+      where
+        dup_committer_login is not null
+        and (lower(dup_committer_login) {{exclude_bots}})
+    ) e,
+    gha_repos r
+  where
+    r.repo_group is not null
+    and r.id = e.repo_id
+  group by
+    r.repo_group
+), known_commits_counts as (
+  select r.repo_group,
+    count(distinct e.sha) as n
+  from (
+      select dup_repo_id as repo_id,
+        sha,
+        dup_created_at as created_at,
+        dup_actor_id as actor_id
+      from
+        gha_commits
+      where
+        (lower(dup_actor_login) {{exclude_bots}})
+      union select dup_repo_id as repo_id,
+        sha,
+        dup_created_at as created_at,
+        author_id as actor_id
+      from
+        gha_commits
+      where
+        dup_author_login is not null
+        and (lower(dup_author_login) {{exclude_bots}})
+      union select dup_repo_id as repo_id,
+        sha,
+        dup_created_at as created_at,
+        committer_id as actor_id
+      from
+        gha_commits
+      where
+        dup_committer_login is not null
+        and (lower(dup_committer_login) {{exclude_bots}})
+    ) e,
+    gha_repos r,
+    gha_actors_affiliations a
+  where
+    r.repo_group is not null
+    and a.company_name != ''
+    and a.company_name != 'NotFound'
+    and a.company_name != '(Unknown)'
+    and r.id = e.repo_id
+    and e.actor_id = a.actor_id
+    and a.dt_from <= e.created_at
+    and a.dt_to > e.created_at
+  group by
+    r.repo_group
+), company_commits_counts as (
+  select r.repo_group,
+    a.company_name,
+    count(distinct e.sha) as n
+  from (
+      select dup_repo_id as repo_id,
+        sha,
+        dup_created_at as created_at,
+        dup_actor_id as actor_id
+      from
+        gha_commits
+      where
+        (lower(dup_actor_login) {{exclude_bots}})
+      union select dup_repo_id as repo_id,
+        sha,
+        dup_created_at as created_at,
+        author_id as actor_id
+      from
+        gha_commits
+      where
+        dup_author_login is not null
+        and (lower(dup_author_login) {{exclude_bots}})
+      union select dup_repo_id as repo_id,
+        sha,
+        dup_created_at as created_at,
+        committer_id as actor_id
+      from
+        gha_commits
+      where
+        dup_committer_login is not null
+        and (lower(dup_committer_login) {{exclude_bots}})
+    ) e,
+    gha_repos r,
+    gha_actors_affiliations a
+  where
+    r.repo_group is not null
+    and a.company_name != ''
+    and r.id = e.repo_id
+    and e.actor_id = a.actor_id
+    and a.dt_from <= e.created_at
+    and a.dt_to > e.created_at
+  group by
+    r.repo_group,
+    a.company_name
+), top_all as (
+  select distinct c.repo_group,
+    round(first_value((c.n::numeric / a.n::numeric) * 100.0) over companies_by_commits, 2)::text || '% ' || first_value(c.company_name) over companies_by_commits as top
+  from
+    commits_counts a,
+    company_commits_counts c
+  where
+    a.repo_group = c.repo_group
+  window
+    companies_by_commits as (
+      partition by c.repo_group
+      order by
+        c.n desc
+      range between unbounded preceding
+      and current row
+    )
+), top_known as (
+  select distinct c.repo_group,
+    round(first_value((c.n::numeric / k.n::numeric) * 100.0) over companies_by_commits, 2)::text || '% ' || first_value(c.company_name) over companies_by_commits as top
+  from
+    known_commits_counts k,
+    company_commits_counts c
+  where
+    k.repo_group = c.repo_group
+  window
+    companies_by_commits as (
+      partition by c.repo_group
+      order by
+        c.n desc
+      range between unbounded preceding
+      and current row
+    )
 )
 select
   'phealth,' || project || ',ltag' as name,
@@ -375,6 +828,41 @@ union select 'phealth,' || repo_group || ',opr' as name,
   case pr3 > prp3 when true then 'Up' else case pr3 < prp3 when true then 'Down' else 'Flat' end end
 from
   prs_opened
+union select 'phealth,' || repo_group || ',cpr3' as name,
+  'PRs: Number of PRs closed in the last 3 months',
+  now(),
+  0.0,
+  pr3::text
+from
+  prs_closed
+union select 'phealth,' || repo_group || ',cpr6' as name,
+  'PRs: Number of PRs closed in the last 6 months',
+  now(),
+  0.0,
+  pr6::text
+from
+  prs_closed
+union select 'phealth,' || repo_group || ',cpr12' as name,
+  'PRs: Number of PRs closed in the last 12 months',
+  now(),
+  0.0,
+  pr12::text
+from
+  prs_closed
+union select 'phealth,' || repo_group || ',cprp3' as name,
+  'PRs: Number of PRs closed in the last 3 months (previous 3 months)',
+  now(),
+  0.0,
+  prp3::text
+from
+  prs_closed
+union select 'phealth,' || repo_group || ',cpr' as name,
+  'PRs: Number of PRs closed in the last 3 months vs. previous 3 months',
+  now(),
+  0.0,
+  case pr3 > prp3 when true then 'Up' else case pr3 < prp3 when true then 'Down' else 'Flat' end end
+from
+  prs_closed
 union select 'phealth,' || repo_group || ',mpr3' as name,
   'PRs: Number of PRs merged in the last 3 months',
   now(),
@@ -431,4 +919,220 @@ union select 'phealth,' || repo_group || ',ip85' as name,
   p85::text
 from
   react_time
+union select 'phealth,' || repo_group || ',pro2c' as name,
+  'PRs: Opened to closed rate in the last 3 months vs. previous 3 months',
+  now(),
+  0.0,
+  case r3 < 0 or rp3 < 0 when true then '-' else case r3 > rp3 when true then 'Up' else case r3 < rp3 when true then 'Down' else 'Flat' end end end
+from
+  pr_ratio
+union select 'phealth,' || po.repo_group || ',pro2c3' as name,
+  'PRs: Opened to closed rate in the last 3 months',
+  now(),
+  0.0,
+  case pc.pr3 when 0 then '-' else round(po.pr3::numeric / pc.pr3::numeric, 2)::text end
+from
+  prs_opened po,
+  prs_closed pc
+where
+  po.repo_group = pc.repo_group
+union select 'phealth,' || po.repo_group || ',pro2cp3' as name,
+  'PRs: Opened to closed rate in the last 3 months (previous 3 months)',
+  now(),
+  0.0,
+  case pc.prp3 when 0 then '-' else round(po.prp3::numeric / pc.prp3::numeric, 2)::text end
+from
+  prs_opened po,
+  prs_closed pc
+where
+  po.repo_group = pc.repo_group
+union select 'phealth,' || po.repo_group || ',pro2c6' as name,
+  'PRs: Opened to closed rate in the last 6 months',
+  now(),
+  0.0,
+  case pc.pr6 when 0 then '-' else round(po.pr6::numeric / pc.pr6::numeric, 2)::text end
+from
+  prs_opened po,
+  prs_closed pc
+where
+  po.repo_group = pc.repo_group
+union select 'phealth,' || po.repo_group || ',pro2c12' as name,
+  'PRs: Opened to closed rate in the last 12 months',
+  now(),
+  0.0,
+  case pc.pr12 when 0 then '-' else round(po.pr12::numeric / pc.pr12::numeric, 2)::text end
+from
+  prs_opened po,
+  prs_closed pc
+where
+  po.repo_group = pc.repo_group
+union select 'phealth,' || repo_group || ',oi3' as name,
+  'Issues: Number of issues opened in the last 3 months',
+  now(),
+  0.0,
+  i3::text
+from
+  issues_opened
+union select 'phealth,' || repo_group || ',oi6' as name,
+  'Issues: Number of issues opened in the last 6 months',
+  now(),
+  0.0,
+  i6::text
+from
+  issues_opened
+union select 'phealth,' || repo_group || ',oi12' as name,
+  'Issues: Number of issues opened in the last 12 months',
+  now(),
+  0.0,
+  i12::text
+from
+  issues_opened
+union select 'phealth,' || repo_group || ',oip3' as name,
+  'Issues: Number of issues opened in the last 3 months (previous 3 months)',
+  now(),
+  0.0,
+  ip3::text
+from
+  issues_opened
+union select 'phealth,' || repo_group || ',oi' as name,
+  'Issues: Number of issues opened in the last 3 months vs. previous 3 months',
+  now(),
+  0.0,
+  case i3 > ip3 when true then 'Up' else case i3 < ip3 when true then 'Down' else 'Flat' end end
+from
+  issues_opened
+union select 'phealth,' || repo_group || ',ci3' as name,
+  'Issues: Number of issues closed in the last 3 months',
+  now(),
+  0.0,
+  i3::text
+from
+  issues_closed
+union select 'phealth,' || repo_group || ',ci6' as name,
+  'Issues: Number of issues closed in the last 6 months',
+  now(),
+  0.0,
+  i6::text
+from
+  issues_closed
+union select 'phealth,' || repo_group || ',ci12' as name,
+  'Issues: Number of issues closed in the last 12 months',
+  now(),
+  0.0,
+  i12::text
+from
+  issues_closed
+union select 'phealth,' || repo_group || ',cip3' as name,
+  'Issues: Number of issues closed in the last 3 months (previous 3 months)',
+  now(),
+  0.0,
+  ip3::text
+from
+  issues_closed
+union select 'phealth,' || repo_group || ',ci' as name,
+  'Issues: Number of issues closed in the last 3 months vs. previous 3 months',
+  now(),
+  0.0,
+  case i3 > ip3 when true then 'Up' else case i3 < ip3 when true then 'Down' else 'Flat' end end
+from
+  issues_closed
+union select 'phealth,' || repo_group || ',io2c' as name,
+  'Issues: Opened to closed rate in the last 3 months vs. previous 3 months',
+  now(),
+  0.0,
+  case r3 < 0 or rp3 < 0 when true then '-' else case r3 > rp3 when true then 'Up' else case r3 < rp3 when true then 'Down' else 'Flat' end end end
+from
+  issue_ratio
+union select 'phealth,' || io.repo_group || ',io2c3' as name,
+  'Issues: Opened to closed rate in the last 3 months',
+  now(),
+  0.0,
+  case ic.i3 when 0 then '-' else round(io.i3::numeric / ic.i3::numeric, 2)::text end
+from
+  issues_opened io,
+  issues_closed ic
+where
+  io.repo_group = ic.repo_group
+union select 'phealth,' || io.repo_group || ',io2cp3' as name,
+  'Issues: Opened to closed rate in the last 3 months (previous 3 months)',
+  now(),
+  0.0,
+  case ic.ip3 when 0 then '-' else round(io.ip3::numeric / ic.ip3::numeric, 2)::text end
+from
+  issues_opened io,
+  issues_closed ic
+where
+  io.repo_group = ic.repo_group
+union select 'phealth,' || io.repo_group || ',io2c6' as name,
+  'Issues: Opened to closed rate in the last 6 months',
+  now(),
+  0.0,
+  case ic.i6 when 0 then '-' else round(io.i6::numeric / ic.i6::numeric, 2)::text end
+from
+  issues_opened io,
+  issues_closed ic
+where
+  io.repo_group = ic.repo_group
+union select 'phealth,' || io.repo_group || ',io2c12' as name,
+  'Issues: Opened to closed rate in the last 12 months',
+  now(),
+  0.0,
+  case ic.i12 when 0 then '-' else round(io.i12::numeric / ic.i12::numeric, 2)::text end
+from
+  issues_opened io,
+  issues_closed ic
+where
+  io.repo_group = ic.repo_group
+union select 'phealth,' || repo_group || ',ncontr3' as name,
+  'Contributors: Number of new contributors in the last 3 months',
+  now(),
+  0.0,
+  ncontrib3::text
+from
+  new3_contributors
+union select 'phealth,' || repo_group || ',ncontr6' as name,
+  'Contributors: Number of new contributors in the last 6 months',
+  now(),
+  0.0,
+  ncontrib6::text
+from
+  new6_contributors
+union select 'phealth,' || repo_group || ',ncontr12' as name,
+  'Contributors: Number of new contributors in the last 12 months',
+  now(),
+  0.0,
+  ncontrib12::text
+from
+  new12_contributors
+union select 'phealth,' || repo_group || ',ncontrp3' as name,
+  'Contributors: Number of new contributors in the last 3 months (previous 3 months)',
+  now(),
+  0.0,
+  ncontribp3::text
+from
+  new6_contributors
+union select 'phealth,' || n.repo_group || ',ncontr' as name,
+  'Contributors: Number of new contributors in the last 3 months vs. previous 3 months',
+  now(),
+  0.0,
+  case n.ncontrib3 > p.ncontribp3 when true then 'Up' else case n.ncontrib3 < p.ncontribp3 when true then 'Down' else 'Flat' end end
+from
+  new3_contributors n,
+  new6_contributors p
+where
+  n.repo_group = p.repo_group
+union select 'phealth,' || repo_group || ',topcompall' as name,
+  'Companies: percent of known commits from top committing company',
+  now(),
+  0.0,
+  top
+from
+  top_known
+union select 'phealth,' || repo_group || ',topcompall' as name,
+  'Companies: percent of all commits from top committing company',
+  now(),
+  0.0,
+  top
+from
+  top_all
 ;

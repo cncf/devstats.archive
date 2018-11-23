@@ -72,6 +72,7 @@ type Ctx struct {
 	ProjectsCommits     string                       // From GHA2DB_PROJECTS_COMMITS get_repos tool, set list of projects for commits analysis instead of analysing all, default "" - means all
 	ProjectsYaml        string                       // From GHA2DB_PROJECTS_YAML, many tools - set main projects file, default "projects.yaml"
 	ProjectsOverride    map[string]bool              // From GHA2DB_PROJECTS_OVERRIDE, get_repos and ./devstats tools - for example "-pro1,+pro2" means never sync pro1 and always sync pro2 (even if disabled in `projects.yaml`).
+	AffiliationsJSON    string                       // From GHA2DB_AFFILIATIONS_JSON, import_affs tool - set main affiliations file, default "github_users.json"
 	ExcludeRepos        map[string]bool              // From GHA2DB_EXCLUDE_REPOS, gha2db tool, default "" - comma separated list of repos to exclude, example: "theupdateframework/notary,theupdateframework/other"
 	InputDBs            []string                     // From GHA2DB_INPUT_DBS, merge_dbs tool - list of input databases to merge, order matters - first one will insert on a clean DB, next will do insert ignore (to avoid constraints failure due to common data)
 	OutputDB            string                       // From GHA2DB_OUTPUT_DB, merge_dbs tool - output database to merge into
@@ -104,9 +105,10 @@ type Ctx struct {
 	SkipColumns         bool                         // From GHA2DB_SKIP_COLUMNS, gha2db_sync tool, skip calling columns tool, default false
 	SkipVars            bool                         // From GHA2DB_SKIP_VARS, gha2db_sync tool, skip calling vars tool, default false
 	ElasticURL          string                       // From GHA2DB_ES_URL, calc_metric, tags, annotations tools - ElasticSearch URL (if used), default http://127.0.0.1:9200
-	UseES               bool                         // From GHA2DB_USE_ES, calc_metric, atgs, annotations tools - enable ElasticSearch, default false
+	UseES               bool                         // From GHA2DB_USE_ES, calc_metric, tags, annotations tools - enable ElasticSearch, default false
 	UseESOnly           bool                         // From GHA2DB_USE_ES_ONLY, calc_metric, annotations tools - enable ElasticSearch and do not write PSQL TSDB, default false
 	UseESRaw            bool                         // From GHA2DB_USE_ES_RAW, gha2es, gha2db_sync tools - enable generating RAW ElasticSearch data (directly from gha_tables instead of aggregated data from TSDB)
+	ResetESRaw          bool                         // From GHA2DB_RESET_ES_RAW, gha2db_sync tools - generate RAW ES index from project start date
 	SharedDB            string                       // Currently annotations tool read this from projects.yaml:shared_db and if set, outputs annotations data to the sharded DB in addition to the current DB
 	ProjectMainRepo     string                       // Used by annotations tool to store project's main repo name
 }
@@ -455,6 +457,12 @@ func (ctx *Ctx) Init() {
 		ctx.ProjectsYaml = "projects.yaml"
 	}
 
+	// Main affiliations file
+	ctx.AffiliationsJSON = os.Getenv("GHA2DB_AFFILIATIONS_JSON")
+	if ctx.AffiliationsJSON == "" {
+		ctx.AffiliationsJSON = "github_users.json"
+	}
+
 	// `get_repos` repositories dir
 	ctx.ReposDir = os.Getenv("GHA2DB_REPOS_DIR")
 	if ctx.ReposDir == "" {
@@ -482,6 +490,7 @@ func (ctx *Ctx) Init() {
 	ctx.UseES = os.Getenv("GHA2DB_USE_ES") != ""
 	ctx.UseESOnly = os.Getenv("GHA2DB_USE_ES_ONLY") != ""
 	ctx.UseESRaw = os.Getenv("GHA2DB_USE_ES_RAW") != ""
+	ctx.ResetESRaw = os.Getenv("GHA2DB_RESET_ES_RAW") != ""
 	ctx.ElasticURL = os.Getenv("GHA2DB_ES_URL")
 	if ctx.ElasticURL == "" {
 		ctx.ElasticURL = "http://127.0.0.1:9200"
