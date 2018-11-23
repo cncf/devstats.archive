@@ -25,7 +25,7 @@ GO_IMPORTS=goimports -w
 GO_USEDEXPORTS=usedexports -ignore 'sqlitedb.go|vendor'
 GO_ERRCHECK=errcheck -asserts -ignore '[FS]?[Pp]rint*' -ignoretests
 GO_TEST=go test
-BINARIES=structure gha2db calc_metric gha2db_sync import_affs annotations tags webhook devstats get_repos merge_dbs replacer vars ghapi2db columns hide_data website_data sync_issues devstats_api_server gha2es sqlitedb runq
+BINARIES=structure gha2db calc_metric gha2db_sync import_affs annotations tags webhook devstats get_repos merge_dbs replacer vars ghapi2db columns hide_data website_data sync_issues devstats_api_server gha2es runq sqlitedb
 DOCKER_BINARIES=structure gha2db calc_metric gha2db_sync import_affs annotations tags devstats get_repos vars ghapi2db columns gha2es runq
 CRON_SCRIPTS=cron/cron_db_backup.sh cron/cron_db_backup_all.sh cron/refresh_mviews.sh cron/net_tcp_config.sh cron/backup_artificial.sh cron/restart_dbs.sh
 UTIL_SCRIPTS=devel/wait_for_command.sh devel/cronctl.sh devel/sync_lock.sh devel/sync_unlock.sh devel/db.sh
@@ -151,6 +151,7 @@ copydata: util_scripts
 	cp -R scripts/ /etc/gha2db/scripts/ || exit 9
 	cp projects.yaml /etc/gha2db/ || exit 10
 	cp devel/*.txt /etc/gha2db/ || exit 11
+	cp github_users.json /etc/gha2db/ || exit 12
 
 install: ${BINARIES} data
 	${GO_INSTALL} ${GO_BIN_CMDS}

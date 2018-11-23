@@ -135,33 +135,50 @@ func (es *ES) DeleteByQuery(ctx *Ctx, propNames []string, propValues []interface
 	for i := range propNames {
 		boolQuery = boolQuery.Must(elastic.NewTermQuery(propNames[i], propValues[i]))
 	}
-	result, err := elastic.NewDeleteByQueryService(es.es).Index(es.ESIndexName(ctx)).Type("_doc").Query(boolQuery).Do(es.ctx)
-	if err != nil && strings.Contains(err.Error(), "search_phase_execution_exception") {
-		if ctx.Debug > 0 {
-			Printf("DeleteByQuery: %s index not yet ready for delete (so it doesn't have data for delete anyway): %+v\n", es.ESIndexName(ctx), err)
+	ne := 0
+	for {
+		result, err := elastic.NewDeleteByQueryService(es.es).Index(es.ESIndexName(ctx)).Type("_doc").Query(boolQuery).Do(es.ctx)
+		if err != nil && strings.Contains(err.Error(), "search_phase_execution_exception") {
+			if ctx.Debug > 0 {
+				Printf("DeleteByQuery: %s index not yet ready for delete (so it doesn't have data for delete anyway): %+v\n", es.ESIndexName(ctx), err)
+			}
+			return
 		}
-		return
-	}
-	FatalOnError(err)
-	if ctx.Debug > 0 {
-		Printf("DeleteByQuery(%+v, %+v): %+v\n", propNames, propValues, result)
+		if err != nil && strings.Contains(err.Error(), "Error 409 (Conflict)") && ne < 100 {
+			time.Sleep(time.Duration(20000000) * time.Nanosecond)
+			ne++
+			continue
+		}
+		FatalOnError(err)
+		if ctx.Debug > 0 {
+			Printf("DeleteByQuery(%+v, %+v): %+v\n", propNames, propValues, result)
+		}
+		break
 	}
 }
 
 // DeleteByWildcardQuery deletes data from given index & type by using wildcard query
 func (es *ES) DeleteByWildcardQuery(ctx *Ctx, propName, propQuery string) {
 	wildcardQuery := elastic.NewWildcardQuery(propName, propQuery)
-	result, err := elastic.NewDeleteByQueryService(es.es).Index(es.ESIndexName(ctx)).Type("_doc").Query(wildcardQuery).Do(es.ctx)
-	if err != nil && strings.Contains(err.Error(), "search_phase_execution_exception") {
-		if ctx.Debug > 0 {
-			Printf("DeleteByWildcardQuery: %s index not yet ready for delete (so it doesn't have data for delete anyway): %+v\n", es.ESIndexName(ctx), err)
+	ne := 0
+	for {
+		result, err := elastic.NewDeleteByQueryService(es.es).Index(es.ESIndexName(ctx)).Type("_doc").Query(wildcardQuery).Do(es.ctx)
+		if err != nil && strings.Contains(err.Error(), "search_phase_execution_exception") {
+			if ctx.Debug > 0 {
+				Printf("DeleteByWildcardQuery: %s index not yet ready for delete (so it doesn't have data for delete anyway): %+v\n", es.ESIndexName(ctx), err)
+			}
+			return
 		}
-		return
-	}
-	// FIXME: 'elastic: Error 409 (Conflict)'
-	FatalOnError(err)
-	if ctx.Debug > 0 {
-		Printf("DeleteByWildcardQuery(%s, %s): %+v\n", propName, propQuery, result)
+		if err != nil && strings.Contains(err.Error(), "Error 409 (Conflict)") && ne < 100 {
+			time.Sleep(time.Duration(20000000) * time.Nanosecond)
+			ne++
+			continue
+		}
+		FatalOnError(err)
+		if ctx.Debug > 0 {
+			Printf("DeleteByWildcardQuery(%s, %s): %+v\n", propName, propQuery, result)
+		}
+		break
 	}
 }
 

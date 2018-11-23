@@ -20,15 +20,19 @@ type pvars struct {
 
 // pvar contain each Postgres data
 type pvar struct {
-	Name     string     `yaml:"name"`
-	Type     string     `yaml:"type"`
-	Value    string     `yaml:"value"`
-	Command  []string   `yaml:"command"`
-	Replaces [][]string `yaml:"replaces"`
-	Disabled bool       `yaml:"disabled"`
-	NoWrite  bool       `yaml:"no_write"`
-	Queries  [][]string `yaml:"queries"`
-	Loops    [][]int    `yaml:"loops"`
+	Name          string     `yaml:"name"`
+	Type          string     `yaml:"type"`
+	Value         string     `yaml:"value"`
+	Command       []string   `yaml:"command"`
+	Replaces      [][]string `yaml:"replaces"`
+	Disabled      bool       `yaml:"disabled"`
+	NoWrite       bool       `yaml:"no_write"`
+	Queries       [][]string `yaml:"queries"`
+	Loops         [][]int    `yaml:"loops"`
+	QueriesBefore bool       `yaml:"queries_before"`
+	QueriesAfter  bool       `yaml:"queries_after"`
+	LoopsBefore   bool       `yaml:"loops_before"`
+	LoopsAfter    bool       `yaml:"loops_after"`
 }
 
 func processLoops(str string, loops [][]int) string {
@@ -221,8 +225,12 @@ func pdbVars() {
 			outString := strings.TrimSpace(string(cmdBytes))
 			if outString != "" {
 				// Process queries and loops (first pass)
-				outString = processLoops(outString, va.Loops)
-				outString = processQueries(outString, queries)
+				if va.LoopsBefore {
+					outString = processLoops(outString, va.Loops)
+				}
+				if va.QueriesBefore {
+					outString = processQueries(outString, queries)
+				}
 
 				// Handle replacements using variables defined so far
 				for _, repl := range va.Replaces {
@@ -256,8 +264,12 @@ func pdbVars() {
 					}
 				}
 				// Process queries and loops (second pass after variables/replacements processing)
-				outString = processLoops(outString, va.Loops)
-				outString = processQueries(outString, queries)
+				if va.LoopsAfter {
+					outString = processLoops(outString, va.Loops)
+				}
+				if va.QueriesAfter {
+					outString = processQueries(outString, queries)
+				}
 				va.Value = outString
 				if ctx.Debug > 0 {
 					lib.Printf("Name '%s', New Value '%s', Type '%s'\n", va.Name, va.Value, va.Type)
