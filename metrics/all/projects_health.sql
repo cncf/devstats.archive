@@ -125,6 +125,22 @@ with projects as (
     and pr.created_at >= now() - '1 year'::interval
   group by
     r.repo_group
+), prs_closed as (
+  select r.repo_group,
+    count(distinct pr.id) as pr12,
+    count(distinct pr.id) filter (where pr.closed_at >= now() - '6 months'::interval) as pr6,
+    count(distinct pr.id) filter (where pr.closed_at >= now() - '3 months'::interval) as pr3,
+    count(distinct pr.id) filter (where pr.closed_at >= now() - '6 months'::interval and pr.closed_at < now() - '3 months'::interval) as prp3
+  from
+    gha_pull_requests pr,
+    gha_repos r
+  where
+    r.repo_group is not null
+    and pr.closed_at is not null
+    and r.id = pr.dup_repo_id
+    and pr.closed_at >= now() - '1 year'::interval
+  group by
+    r.repo_group
 ), prs_merged as (
   select r.repo_group,
     count(distinct pr.id) as pr12,
@@ -141,6 +157,48 @@ with projects as (
     and pr.merged_at >= now() - '1 year'::interval
   group by
     r.repo_group
+), issues_opened as (
+  select r.repo_group,
+    count(distinct i.id) as i12,
+    count(distinct i.id) filter (where i.created_at >= now() - '6 months'::interval) as i6,
+    count(distinct i.id) filter (where i.created_at >= now() - '3 months'::interval) as i3,
+    count(distinct i.id) filter (where i.created_at >= now() - '6 months'::interval and i.created_at < now() - '3 months'::interval) as ip3
+  from
+    gha_issues i,
+    gha_repos r
+  where
+    r.repo_group is not null
+    and i.is_pull_request = false
+    and r.id = i.dup_repo_id
+    and i.created_at >= now() - '1 year'::interval
+  group by
+    r.repo_group
+), issues_closed as (
+  select r.repo_group,
+    count(distinct i.id) as i12,
+    count(distinct i.id) filter (where i.closed_at >= now() - '6 months'::interval) as i6,
+    count(distinct i.id) filter (where i.closed_at >= now() - '3 months'::interval) as i3,
+    count(distinct i.id) filter (where i.closed_at >= now() - '6 months'::interval and i.closed_at < now() - '3 months'::interval) as ip3
+  from
+    gha_issues i,
+    gha_repos r
+  where
+    r.repo_group is not null
+    and i.is_pull_request = false
+    and i.closed_at is not null
+    and r.id = i.dup_repo_id
+    and i.closed_at >= now() - '1 year'::interval
+  group by
+    r.repo_group
+), issue_ratio as (
+  select io.repo_group,
+    case ic.i3 when 0 then -1.0 else io.i3::float / ic.i3::float end as r3,
+    case ic.ip3 when 0 then -1.0 else io.ip3::float / ic.ip3::float end as rp3
+  from
+    issues_opened io,
+    issues_closed ic
+  where
+    io.repo_group = ic.repo_group
 ), recent_issues as (
   select distinct id,
     user_id,
@@ -184,6 +242,15 @@ with projects as (
     repo_group is not null
   group by
     repo_group
+), pr_ratio as (
+  select po.repo_group,
+    case pc.pr3 when 0 then -1.0 else po.pr3::float / pc.pr3::float end as r3,
+    case pc.prp3 when 0 then -1.0 else po.prp3::float / pc.prp3::float end as rp3
+  from
+    prs_opened po,
+    prs_closed pc
+  where
+    po.repo_group = pc.repo_group
 )
 select
   'phealth,' || project || ',ltag' as name,
@@ -375,6 +442,41 @@ union select 'phealth,' || repo_group || ',opr' as name,
   case pr3 > prp3 when true then 'Up' else case pr3 < prp3 when true then 'Down' else 'Flat' end end
 from
   prs_opened
+union select 'phealth,' || repo_group || ',cpr3' as name,
+  'PRs: Number of PRs closed in the last 3 months',
+  now(),
+  0.0,
+  pr3::text
+from
+  prs_closed
+union select 'phealth,' || repo_group || ',cpr6' as name,
+  'PRs: Number of PRs closed in the last 6 months',
+  now(),
+  0.0,
+  pr6::text
+from
+  prs_closed
+union select 'phealth,' || repo_group || ',cpr12' as name,
+  'PRs: Number of PRs closed in the last 12 months',
+  now(),
+  0.0,
+  pr12::text
+from
+  prs_closed
+union select 'phealth,' || repo_group || ',cprp3' as name,
+  'PRs: Number of PRs closed in the last 3 months (previous 3 months)',
+  now(),
+  0.0,
+  prp3::text
+from
+  prs_closed
+union select 'phealth,' || repo_group || ',cpr' as name,
+  'PRs: Number of PRs closed in the last 3 months vs. previous 3 months',
+  now(),
+  0.0,
+  case pr3 > prp3 when true then 'Up' else case pr3 < prp3 when true then 'Down' else 'Flat' end end
+from
+  prs_closed
 union select 'phealth,' || repo_group || ',mpr3' as name,
   'PRs: Number of PRs merged in the last 3 months',
   now(),
@@ -431,4 +533,168 @@ union select 'phealth,' || repo_group || ',ip85' as name,
   p85::text
 from
   react_time
+union select 'phealth,' || repo_group || ',pro2c' as name,
+  'PRs: Opened to closed rate in the last 3 months vs. previous 3 months',
+  now(),
+  0.0,
+  case r3 < 0 or rp3 < 0 when true then '-' else case r3 > rp3 when true then 'Up' else case r3 < rp3 when true then 'Down' else 'Flat' end end end
+from
+  pr_ratio
+union select 'phealth,' || po.repo_group || ',pro2c3' as name,
+  'PRs: Opened to closed rate in the last 3 months',
+  now(),
+  0.0,
+  case pc.pr3 when 0 then '-' else round(po.pr3::numeric / pc.pr3::numeric, 2)::text end
+from
+  prs_opened po,
+  prs_closed pc
+where
+  po.repo_group = pc.repo_group
+union select 'phealth,' || po.repo_group || ',pro2cp3' as name,
+  'PRs: Opened to closed rate in the last 3 months (previous 3 months)',
+  now(),
+  0.0,
+  case pc.prp3 when 0 then '-' else round(po.prp3::numeric / pc.prp3::numeric, 2)::text end
+from
+  prs_opened po,
+  prs_closed pc
+where
+  po.repo_group = pc.repo_group
+union select 'phealth,' || po.repo_group || ',pro2c6' as name,
+  'PRs: Opened to closed rate in the last 6 months',
+  now(),
+  0.0,
+  case pc.pr6 when 0 then '-' else round(po.pr6::numeric / pc.pr6::numeric, 2)::text end
+from
+  prs_opened po,
+  prs_closed pc
+where
+  po.repo_group = pc.repo_group
+union select 'phealth,' || po.repo_group || ',pro2c12' as name,
+  'PRs: Opened to closed rate in the last 12 months',
+  now(),
+  0.0,
+  case pc.pr12 when 0 then '-' else round(po.pr12::numeric / pc.pr12::numeric, 2)::text end
+from
+  prs_opened po,
+  prs_closed pc
+where
+  po.repo_group = pc.repo_group
+union select 'phealth,' || repo_group || ',oi3' as name,
+  'Issues: Number of issues opened in the last 3 months',
+  now(),
+  0.0,
+  i3::text
+from
+  issues_opened
+union select 'phealth,' || repo_group || ',oi6' as name,
+  'Issues: Number of issues opened in the last 6 months',
+  now(),
+  0.0,
+  i6::text
+from
+  issues_opened
+union select 'phealth,' || repo_group || ',oi12' as name,
+  'Issues: Number of issues opened in the last 12 months',
+  now(),
+  0.0,
+  i12::text
+from
+  issues_opened
+union select 'phealth,' || repo_group || ',oip3' as name,
+  'Issues: Number of issues opened in the last 3 months (previous 3 months)',
+  now(),
+  0.0,
+  ip3::text
+from
+  issues_opened
+union select 'phealth,' || repo_group || ',oi' as name,
+  'Issues: Number of issues opened in the last 3 months vs. previous 3 months',
+  now(),
+  0.0,
+  case i3 > ip3 when true then 'Up' else case i3 < ip3 when true then 'Down' else 'Flat' end end
+from
+  issues_opened
+union select 'phealth,' || repo_group || ',ci3' as name,
+  'Issues: Number of issues closed in the last 3 months',
+  now(),
+  0.0,
+  i3::text
+from
+  issues_closed
+union select 'phealth,' || repo_group || ',ci6' as name,
+  'Issues: Number of issues closed in the last 6 months',
+  now(),
+  0.0,
+  i6::text
+from
+  issues_closed
+union select 'phealth,' || repo_group || ',ci12' as name,
+  'Issues: Number of issues closed in the last 12 months',
+  now(),
+  0.0,
+  i12::text
+from
+  issues_closed
+union select 'phealth,' || repo_group || ',cip3' as name,
+  'Issues: Number of issues closed in the last 3 months (previous 3 months)',
+  now(),
+  0.0,
+  ip3::text
+from
+  issues_closed
+union select 'phealth,' || repo_group || ',ci' as name,
+  'Issues: Number of issues closed in the last 3 months vs. previous 3 months',
+  now(),
+  0.0,
+  case i3 > ip3 when true then 'Up' else case i3 < ip3 when true then 'Down' else 'Flat' end end
+from
+  issues_closed
+union select 'phealth,' || repo_group || ',io2c' as name,
+  'Issues: Opened to closed rate in the last 3 months vs. previous 3 months',
+  now(),
+  0.0,
+  case r3 < 0 or rp3 < 0 when true then '-' else case r3 > rp3 when true then 'Up' else case r3 < rp3 when true then 'Down' else 'Flat' end end end
+from
+  issue_ratio
+union select 'phealth,' || io.repo_group || ',io2c3' as name,
+  'Issues: Opened to closed rate in the last 3 months',
+  now(),
+  0.0,
+  case ic.i3 when 0 then '-' else round(io.i3::numeric / ic.i3::numeric, 2)::text end
+from
+  issues_opened io,
+  issues_closed ic
+where
+  io.repo_group = ic.repo_group
+union select 'phealth,' || io.repo_group || ',io2cp3' as name,
+  'Issues: Opened to closed rate in the last 3 months (previous 3 months)',
+  now(),
+  0.0,
+  case ic.ip3 when 0 then '-' else round(io.ip3::numeric / ic.ip3::numeric, 2)::text end
+from
+  issues_opened io,
+  issues_closed ic
+where
+  io.repo_group = ic.repo_group
+union select 'phealth,' || io.repo_group || ',io2c6' as name,
+  'Issues: Opened to closed rate in the last 6 months',
+  now(),
+  0.0,
+  case ic.i6 when 0 then '-' else round(io.i6::numeric / ic.i6::numeric, 2)::text end
+from
+  issues_opened io,
+  issues_closed ic
+where
+  io.repo_group = ic.repo_group
+union select 'phealth,' || io.repo_group || ',io2c12' as name,
+  'Issues: Opened to closed rate in the last 12 months',
+  now(),
+  0.0,
+  case ic.i12 when 0 then '-' else round(io.i12::numeric / ic.i12::numeric, 2)::text end
+from
+  issues_opened io,
+  issues_closed ic
+where
+  io.repo_group = ic.repo_group
 ;
