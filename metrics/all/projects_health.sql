@@ -25,8 +25,7 @@ with projects as (
   from (
       select repo_id,
         created_at,
-        actor_id,
-        dup_actor_login as actor_login
+        actor_id
       from
         gha_events
       where
@@ -35,8 +34,7 @@ with projects as (
         and (lower(dup_actor_login) {{exclude_bots}})
       union select dup_repo_id as repo_id,
         dup_created_at as created_at,
-        author_id as actor_id,
-        dup_author_login as actor_login
+        author_id as actor_id
       from
         gha_commits
       where
@@ -45,8 +43,7 @@ with projects as (
         and (lower(dup_author_login) {{exclude_bots}})
       union select dup_repo_id as repo_id,
         dup_created_at as created_at,
-        committer_id as actor_id,
-        dup_committer_login as actor_login
+        committer_id as actor_id
       from
         gha_commits
       where
@@ -58,6 +55,247 @@ with projects as (
   where
     r.repo_group is not null
     and r.id = e.repo_id
+  group by
+    r.repo_group
+), prev12_contributors as (
+  select distinct r.repo_group,
+    e.actor_id
+  from (
+      select repo_id,
+        actor_id
+      from
+        gha_events
+      where
+        type in ('IssuesEvent', 'PullRequestEvent', 'PushEvent', 'CommitCommentEvent', 'IssueCommentEvent', 'PullRequestReviewCommentEvent')
+        and created_at < now() - '1 year'::interval
+        and (lower(dup_actor_login) {{exclude_bots}})
+      union select dup_repo_id as repo_id,
+        author_id as actor_id
+      from
+        gha_commits
+      where
+        dup_author_login is not null
+        and dup_created_at < now() - '1 year'::interval
+        and (lower(dup_author_login) {{exclude_bots}})
+      union select dup_repo_id as repo_id,
+        committer_id as actor_id
+      from
+        gha_commits
+      where
+        dup_committer_login is not null
+        and dup_created_at < now() - '1 year'::interval
+        and (lower(dup_committer_login) {{exclude_bots}})
+    ) e,
+    gha_repos r
+  where
+    r.repo_group is not null
+    and r.id = e.repo_id
+  group by
+    r.repo_group,
+    e.actor_id
+), prev6_contributors as (
+  select distinct r.repo_group,
+    e.actor_id
+  from (
+      select repo_id,
+        actor_id
+      from
+        gha_events
+      where
+        type in ('IssuesEvent', 'PullRequestEvent', 'PushEvent', 'CommitCommentEvent', 'IssueCommentEvent', 'PullRequestReviewCommentEvent')
+        and created_at < now() - '6 months'::interval
+        and (lower(dup_actor_login) {{exclude_bots}})
+      union select dup_repo_id as repo_id,
+        author_id as actor_id
+      from
+        gha_commits
+      where
+        dup_author_login is not null
+        and dup_created_at < now() - '6 months'::interval
+        and (lower(dup_author_login) {{exclude_bots}})
+      union select dup_repo_id as repo_id,
+        committer_id as actor_id
+      from
+        gha_commits
+      where
+        dup_committer_login is not null
+        and dup_created_at < now() - '6 months'::interval
+        and (lower(dup_committer_login) {{exclude_bots}})
+    ) e,
+    gha_repos r
+  where
+    r.repo_group is not null
+    and r.id = e.repo_id
+  group by
+    r.repo_group,
+    e.actor_id
+), prev3_contributors as (
+  select distinct r.repo_group,
+    e.actor_id
+  from (
+      select repo_id,
+        actor_id
+      from
+        gha_events
+      where
+        type in ('IssuesEvent', 'PullRequestEvent', 'PushEvent', 'CommitCommentEvent', 'IssueCommentEvent', 'PullRequestReviewCommentEvent')
+        and created_at < now() - '3 months'::interval
+        and (lower(dup_actor_login) {{exclude_bots}})
+      union select dup_repo_id as repo_id,
+        author_id as actor_id
+      from
+        gha_commits
+      where
+        dup_author_login is not null
+        and dup_created_at < now() - '3 months'::interval
+        and (lower(dup_author_login) {{exclude_bots}})
+      union select dup_repo_id as repo_id,
+        committer_id as actor_id
+      from
+        gha_commits
+      where
+        dup_committer_login is not null
+        and dup_created_at < now() - '3 months'::interval
+        and (lower(dup_committer_login) {{exclude_bots}})
+    ) e,
+    gha_repos r
+  where
+    r.repo_group is not null
+    and r.id = e.repo_id
+  group by
+    r.repo_group,
+    e.actor_id
+), new12_contributors as (
+  select r.repo_group,
+    count(distinct e.actor_id) as ncontrib12
+  from (
+      select repo_id,
+        actor_id
+      from
+        gha_events
+      where
+        type in ('IssuesEvent', 'PullRequestEvent', 'PushEvent', 'CommitCommentEvent', 'IssueCommentEvent', 'PullRequestReviewCommentEvent')
+        and created_at >= now() - '1 year'::interval
+        and (lower(dup_actor_login) {{exclude_bots}})
+      union select dup_repo_id as repo_id,
+        author_id as actor_id
+      from
+        gha_commits
+      where
+        dup_author_login is not null
+        and dup_created_at >= now() - '1 year'::interval
+        and (lower(dup_author_login) {{exclude_bots}})
+      union select dup_repo_id as repo_id,
+        committer_id as actor_id
+      from
+        gha_commits
+      where
+        dup_committer_login is not null
+        and dup_created_at >= now() - '1 year'::interval
+        and (lower(dup_committer_login) {{exclude_bots}})
+    ) e
+  join
+    gha_repos r
+  on
+    r.id = e.repo_id
+    and r.repo_group is not null
+  left join
+    prev12_contributors pc
+  on
+    r.repo_group = pc.repo_group
+    and e.actor_id = pc.actor_id
+  where
+    pc.actor_id is null
+  group by
+    r.repo_group
+), new6_contributors as (
+  select r.repo_group,
+    count(distinct e.actor_id) as ncontrib6,
+    count(distinct e.actor_id) filter (where e.created_at < now() - '3 months'::interval) as ncontribp3
+  from (
+      select repo_id,
+        created_at,
+        actor_id
+      from
+        gha_events
+      where
+        type in ('IssuesEvent', 'PullRequestEvent', 'PushEvent', 'CommitCommentEvent', 'IssueCommentEvent', 'PullRequestReviewCommentEvent')
+        and created_at >= now() - '6 months'::interval
+        and (lower(dup_actor_login) {{exclude_bots}})
+      union select dup_repo_id as repo_id,
+        dup_created_at as created_at,
+        author_id as actor_id
+      from
+        gha_commits
+      where
+        dup_author_login is not null
+        and dup_created_at >= now() - '6 months'::interval
+        and (lower(dup_author_login) {{exclude_bots}})
+      union select dup_repo_id as repo_id,
+        dup_created_at as created_at,
+        committer_id as actor_id
+      from
+        gha_commits
+      where
+        dup_committer_login is not null
+        and dup_created_at >= now() - '6 months'::interval
+        and (lower(dup_committer_login) {{exclude_bots}})
+    ) e
+  join
+    gha_repos r
+  on
+    r.id = e.repo_id
+    and r.repo_group is not null
+  left join
+    prev6_contributors pc
+  on
+    r.repo_group = pc.repo_group
+    and e.actor_id = pc.actor_id
+  where
+    pc.actor_id is null
+  group by
+    r.repo_group
+), new3_contributors as (
+  select r.repo_group,
+    count(distinct e.actor_id) as ncontrib3
+  from (
+      select repo_id,
+        actor_id
+      from
+        gha_events
+      where
+        type in ('IssuesEvent', 'PullRequestEvent', 'PushEvent', 'CommitCommentEvent', 'IssueCommentEvent', 'PullRequestReviewCommentEvent')
+        and created_at >= now() - '3 months'::interval
+        and (lower(dup_actor_login) {{exclude_bots}})
+      union select dup_repo_id as repo_id,
+        author_id as actor_id
+      from
+        gha_commits
+      where
+        dup_author_login is not null
+        and dup_created_at >= now() - '3 months'::interval
+        and (lower(dup_author_login) {{exclude_bots}})
+      union select dup_repo_id as repo_id,
+        committer_id as actor_id
+      from
+        gha_commits
+      where
+        dup_committer_login is not null
+        and dup_created_at >= now() - '3 months'::interval
+        and (lower(dup_committer_login) {{exclude_bots}})
+    ) e
+  join
+    gha_repos r
+  on
+    r.id = e.repo_id
+    and r.repo_group is not null
+  left join
+    prev3_contributors pc
+  on
+    r.repo_group = pc.repo_group
+    and e.actor_id = pc.actor_id
+  where
+    pc.actor_id is null
   group by
     r.repo_group
 ), commits as (
@@ -74,8 +312,7 @@ with projects as (
       select dup_repo_id as repo_id,
         sha,
         dup_created_at as created_at,
-        dup_actor_id as actor_id,
-        dup_actor_login as actor_login
+        dup_actor_id as actor_id
       from
         gha_commits
       where
@@ -84,8 +321,7 @@ with projects as (
       union select dup_repo_id as repo_id,
         sha,
         dup_created_at as created_at,
-        author_id as actor_id,
-        dup_author_login as actor_login
+        author_id as actor_id
       from
         gha_commits
       where
@@ -95,8 +331,7 @@ with projects as (
       union select dup_repo_id as repo_id,
         sha,
         dup_created_at as created_at,
-        committer_id as actor_id,
-        dup_committer_login as actor_login
+        committer_id as actor_id
       from
         gha_commits
       where
@@ -697,4 +932,42 @@ from
   issues_closed ic
 where
   io.repo_group = ic.repo_group
+union select 'phealth,' || repo_group || ',ncontr3' as name,
+  'Contributors: Number of new contributors in the last 3 months',
+  now(),
+  0.0,
+  ncontrib3::text
+from
+  new3_contributors
+union select 'phealth,' || repo_group || ',ncontr6' as name,
+  'Contributors: Number of new contributors in the last 6 months',
+  now(),
+  0.0,
+  ncontrib6::text
+from
+  new6_contributors
+union select 'phealth,' || repo_group || ',ncontr12' as name,
+  'Contributors: Number of new contributors in the last 12 months',
+  now(),
+  0.0,
+  ncontrib12::text
+from
+  new12_contributors
+union select 'phealth,' || repo_group || ',ncontrp3' as name,
+  'Contributors: Number of new contributors in the last 3 months (previous 3 months)',
+  now(),
+  0.0,
+  ncontribp3::text
+from
+  new6_contributors
+union select 'phealth,' || n.repo_group || ',ncontr' as name,
+  'Contributors: Number of new contributors in the last 3 months vs. previous 3 months',
+  now(),
+  0.0,
+  case n.ncontrib3 > p.ncontribp3 when true then 'Up' else case n.ncontrib3 < p.ncontribp3 when true then 'Down' else 'Flat' end end
+from
+  new3_contributors n,
+  new6_contributors p
+where
+  n.repo_group = p.repo_group
 ;
