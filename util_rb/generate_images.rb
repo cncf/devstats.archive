@@ -234,11 +234,11 @@ def generate_images
       end
     end
   end
-  # cleasnup and wait for all subprocesses to finish
+  # cleanup and wait for all subprocesses to finish
   puts 'Finished, waiting for children' if pdebug
   pids.each do |pid|
     begin
-      Timeout::timeout(60) do
+      Timeout::timeout(timeout_seconds) do
         Process.wait pid
         puts "Finished #{pid}" if pdebug
       end
