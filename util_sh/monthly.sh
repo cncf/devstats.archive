@@ -34,4 +34,4 @@ fi
 
 COLNAME=${5%.*}
 
-GHA2DB_SKIPTIME=1 GHA2DB_SKIPLOG=1 PG_DB=gha GHA2DB_CSVOUT="$5" ./runq util_sql/monthly.sql {{exclude_bots}} "`cat util_sql/exclude_bots.sql`" {{bots}} "$BOTS" {{colname}} "$COLNAME"  {{skipfrom}} "$SKIPFROM" {{skipto}} "$SKIPTO" {{start_date}} "$1" {{companies}} "$2" {{types}} "$3" {{col}} "$4"
+GHA2DB_LOCAL=1 GHA2DB_SKIPTIME=1 GHA2DB_SKIPLOG=1 PG_DB=gha GHA2DB_CSVOUT="$5" ./runq util_sql/monthly.sql {{exclude_bots}} "`cat util_sql/exclude_bots.sql`" {{bots}} "$BOTS" {{colname}} "$COLNAME"  {{skipfrom}} "$SKIPFROM" {{skipto}} "$SKIPTO" {{start_date}} "$1" {{companies}} "$2" {{types}} "$3" {{col}} "$4"
