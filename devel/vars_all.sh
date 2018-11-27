@@ -18,5 +18,6 @@ do
     echo "Project: $proj, PDB: $db"
     ./devel/db.sh psql "$db" -c "delete from gha_vars" || exit 1
     GHA2DB_LOCAL=1 GHA2DB_PROJECT=$proj PG_DB=$db ./vars || exit 2
+    GHA2DB_LOCAL=1 GHA2DB_PROJECT=$proj PG_DB=$db GHA2DB_VARS_FN_YAML="sync_vars.yaml" ./vars || exit 3
 done
 echo 'OK'
