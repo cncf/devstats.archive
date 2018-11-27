@@ -82,6 +82,7 @@ Prerequisites:
     - Use `INIT=1` to specify that you want to initialize logs database `devstats`, you need to provide passowrd for admin `PG_PASS`, `ro_user` (`PG_PASS_RO` used by Grafana for read-only access) and `devstats_team` (`PG_PASS_TEAM` - this is just another role to allow readonly access from the bastion ssh server).
     - You must use `INIT=1` when running for the first time, this creates shared logs database and postgres users.
     - This will generate all data, without fetching anything from backups: `INIT=1 ONLY=projectname PG_PASS=... PG_PASS_RO=... PG_PASS_TEAM=... ./devel/deploy_all.sh`
+    - You shoud add `SETPASS=1` on the first run to set main postgres database user password. Thsi requires user interaction, so it shouldn't be used from automatic scripts.
     - If you do not specify `ONLY="project1 project2 ... projectN"` it will deploy all projects defined in `projects.yaml`.
     - Use `SKIPWWW=1` to skip Apache/SSL config (which requires DNS name for a server), the final result will be Grafana via HTTP on port 3xxx on accessible by server IP or name.
     - Example with skipping GitHub API and custom ARTWORK: `ARTWORK=/data/artwork SKIPWWW=1 GHA2DB_GITHUB_OAUTH=- GHA2DB_GHAPISKIP=1 IGET=1 GET=1 ONLY=someproj PG_PASS=... ./devel/deploy_all.sh`
