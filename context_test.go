@@ -1395,6 +1395,8 @@ func TestInit(t *testing.T) {
 		testlib.MakeComparableMap(&test.expectedContext.ProjectsOverride)
 		testlib.MakeComparableMap(&gotContext.ExcludeRepos)
 		testlib.MakeComparableMap(&test.expectedContext.ExcludeRepos)
+		testlib.MakeComparableMap(&gotContext.ExcludeVars)
+		testlib.MakeComparableMap(&test.expectedContext.ExcludeVars)
 		testlib.MakeComparableMap(&gotContext.OnlyMetrics)
 		testlib.MakeComparableMap(&test.expectedContext.OnlyMetrics)
 		testlib.MakeComparableMap2(&gotContext.ComputePeriods)
