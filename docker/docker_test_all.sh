@@ -37,6 +37,8 @@ fi
 ./docker/docker_es.sh || exit 3
 PG_PASS="${PASS}" ./docker/docker_psql.sh || exit 4
 ./docker/docker_build.sh || exit 5
+./docker/docker_es_wait.sh
+PG_PASS="${PASS}" ./docker/docker_psql_wait.sh
 if [ "${DEPLOY_FROM}" = "host" ]
 then
   PG_PASS="${PASS}" PG_PASS_RO="${PASS}" PG_PASS_TEAM="${PASS}" ./docker/docker_deploy_from_host.sh || exit 6
