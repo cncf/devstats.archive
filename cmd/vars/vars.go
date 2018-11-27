@@ -291,7 +291,7 @@ func pdbVars() {
 					map[string]string{
 						"vtype":  va.Type,
 						"vname":  va.Name,
-						"vvalue": va.Value,
+						"vvalue": lib.TruncToBytes(va.Value, 32766),
 					},
 					nil,
 					tm,
