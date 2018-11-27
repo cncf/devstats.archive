@@ -12,7 +12,7 @@ set -o pipefail
 > errors.txt
 > run.log
 GHA2DB_PROJECT=lfn PG_DB=lfn GHA2DB_LOCAL=1 ./structure 2>>errors.txt | tee -a run.log || exit 1
-sudo -u postgres psql lfn -c "create extension if not exists pgcrypto" || exit 1
+./devel/db.sh psql lfn -c "create extension if not exists pgcrypto" || exit 1
 ./devel/ro_user_grants.sh lfn || exit 2
 GHA2DB_PROJECT=lfn PG_DB=lfn GHA2DB_LOCAL=1 ./gha2db 2018-11-20 0 today now 'iovisor,mininet,opennetworkinglab,opensecuritycontroller,open-switch,p4lang,openbmp,tungstenfabric,opencord' 2>>errors.txt | tee -a run.log || exit 3
 #GHA2DB_PROJECT=lfn PG_DB=lfn GHA2DB_LOCAL=1 ./gha2db 2015-01-01 0 today now 'iovisor,mininet,opennetworkinglab,opensecuritycontroller,open-switch,p4lang,openbmp,tungstenfabric,opencord' 2>>errors.txt | tee -a run.log || exit 3
