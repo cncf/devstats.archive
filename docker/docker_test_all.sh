@@ -16,14 +16,20 @@ else
   exit 2
 fi
 
-GITHUB_OAUTH_FILE="/etc/github/oauth"
-if [ ! -f "${GITHUB_OAUTH_FILE}" ]
+if [ -z "${GHA2DB_GITHUB_OAUTH}" ]
 then
-  echo "Warning: no ${GITHUB_OAUTH_FILE} file, setting env variables to skip GitHub API"
-  export GHA2DB_GHAPISKIP=1
+  GITHUB_OAUTH_FILE="/etc/github/oauth"
+  if [ ! -f "${GITHUB_OAUTH_FILE}" ]
+  then
+    echo "Warning: no ${GITHUB_OAUTH_FILE} file, setting env variables to skip GitHub API"
+    export GHA2DB_GHAPISKIP=1
+  else
+    echo "GitHub API credentials found (${GITHUB_OAUTH_FILE}), using them"
+    export GHA2DB_GITHUB_OAUTH="`cat ${GITHUB_OAUTH_FILE}`"
+  fi
 else
-  echo "GitHub API credentials found (${GITHUB_OAUTH_FILE}), using them"
-  export GHA2DB_GITHUB_OAUTH="`cat ${GITHUB_OAUTH_FILE}`"
+  echo "GitHub API credentials provided from the env variable, suign them"
+  export GHA2DB_GITHUB_OAUTH
 fi
 
 ./docker/docker_remove_es.sh
