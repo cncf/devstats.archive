@@ -1,19 +1,11 @@
 #!/bin/sh
-rm actors.txt
-if [ -z "$ONLY" ]
+if [ -z "$PG_PASS" ]
 then
-  host=`hostname`
-  if [ $host = "teststats.cncf.io" ]
-  then
-    all=`cat ./devel/all_test_dbs.txt`
-    from="https://devstats.cncf.io/"
-  else
-    all=`cat ./devel/all_prod_dbs.txt`
-    from="https://teststats.cncf.io/"
-  fi
-else
-  all=$ONLY
+  echo "$0: you need to specify PG_PASS env variable"
+  exit 1
 fi
+rm actors.txt
+. ./devel/all_dbs.sh || exit 2
 for db in $all
 do
   echo "DB: $db"
