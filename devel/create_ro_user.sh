@@ -5,19 +5,7 @@ then
   exit 1
 fi
 
-if [ -z "$ONLY" ]
-then
-  host=`hostname`
-  if [ $host = "teststats.cncf.io" ]
-  then
-    all=`cat ./devel/all_test_dbs.txt`
-  else
-    all=`cat ./devel/all_prod_dbs.txt`
-  fi
-  all="$all devstats"
-else
-  all=$ONLY
-fi
+. ./devel/all_dbs.sh || exit 2
 
 if [ ! -z "$DROP" ]
 then

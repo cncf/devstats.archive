@@ -21,18 +21,7 @@ rm -f `basename "$1"` 2>/dev/null
 mv /usr/share/grafana ~/grafana.v5/usr.share.grafana || exit 5
 mv /var/lib/grafana ~/grafana.v5/var.lib.grafana || exit 6
 mv /etc/grafana ~/grafana.v5/etc.grafana || exit 7
-if [ -z "$ONLY" ]
-then
-  host=`hostname`
-  if [ $host = "teststats.cncf.io" ]
-  then
-    all=`cat ./devel/all_test_projects.txt`
-  else
-    all=`cat ./devel/all_prod_projects.txt`
-  fi
-else
-  all=$ONLY
-fi
+. ./devel/all_projs.sh || exit 2
 all=${all/kubernetes/k8s}
 for proj in $all
 do

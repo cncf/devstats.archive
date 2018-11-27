@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 if [ -z "$PG_PASS" ]
 then
   echo "$0: you need to specify PG_PASS env variable"
