@@ -162,8 +162,6 @@ dockerinstall: ${DOCKER_BINARIES} copydata
 	mkdir /etc/gha2db/docker 2>/dev/null || echo "..."
 	chmod 777 /etc/gha2db/docker 2>/dev/null || echo "..."
 	cp docker/docker_projects.yaml /etc/gha2db/docker/ || exit 10
-	cp docker/all_*.txt devel/ || exit 11
-	cp docker/all_*.txt /etc/gha2db/ || exit 12
 	${GO_INSTALL} ${GO_DOCKER_BIN_CMDS}
 	cp -v ${CRON_SCRIPTS} ${GOPATH}/bin
 	cp -v ${GIT_SCRIPTS} ${GOPATH}/bin
