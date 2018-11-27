@@ -35,6 +35,7 @@ export GHA2DB_AFFILIATIONS_JSON="docker/docker_affiliations.json"
 export GHA2DB_ES_URL="http://${PG_HOST}:19200"
 export GHA2DB_USE_ES=1
 export GHA2DB_USE_ES_RAW=1
+export LIST_FN_PREFIX="docker/all_"
 
 if [ ! -z "$INIT" ]
 then
