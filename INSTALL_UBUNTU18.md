@@ -29,7 +29,7 @@ Prerequisites:
     - If you want to use ElasticSearch output: [elastic](https://github.com/olivere/elastic): `go get -u github.com/olivere/elastic`.
 2. Go to `$GOPATH/src/` and clone devstats there:
     - `git clone https://github.com/cncf/devstats.git`, cd `devstats`
-    - Set reuse TCP connections: `./cron/net_tcp_config.sh`
+    - Set reuse TCP connections: `./cron/sysctl_config.sh`
 3. If you want to make changes and PRs, please clone `devstats` from GitHub UI, and clone your forked version instead, like this:
     - `git clone https://github.com/your_github_username/devstats.git`
 6. Go to devstats directory, so you are in `~/dev/go/src/devstats` directory and compile binaries:
