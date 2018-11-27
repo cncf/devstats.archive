@@ -21,6 +21,7 @@
 - Use `./docker/docker_es_logs.sh` to see ES logs.
 - Use `./docker/docker_es_health.sh` to do a health check (after succesfull deployment). It will display some inmdex structures and do some basic queries.
 - Use `./docker/docker_remove_es.sh` to remove dockerized postgres instance.
+- Use `./docker/docker_es_wait.sh` to wait for the ES docker container become ready.
 
 
 # Postgres and deployment
@@ -35,6 +36,7 @@
 - Use `PG_PASS=... ./docker/docker_display_logs.sh` to see deployment logs.
 - Use `PG_PASS=... ./docker/docker_health.sh` to do a health check (after succesfull deployment). It will display number of texts in the database.
 - Use `./docker/docker_remove_psql.sh` to remove dockerized postgres instance.
+- Use `PG_PASS=... ./docker/docker_psql_wait.sh` to wait for the postgres docker container become ready.
 
 
 # Devstats hourly sync
