@@ -58,3 +58,8 @@
 - Or specify GitHub OAuth token manually `GHA2DB_GITHUB_OAUTH=... PASS=... DEPLOY_FROM=host|container ./docker/docker_test_all.sh` to test full deployment from either the host or the container.
 
 
+# Setup
+
+- Use `./docker/docker_setup.sh` to bootsrap environment to run `./docker/docker_test_all.sh`.
+
+
