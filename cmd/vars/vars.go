@@ -193,13 +193,15 @@ func pdbVars() {
 	queries := make(map[string]map[string][][]string)
 	// Iterate vars
 	for _, va := range allVars.Vars {
+		// If given variable name is in the exclude list, skip it
+		_, skip := ctx.ExcludeVars[va.Name]
 		if ctx.Debug > 0 {
 			lib.Printf(
-				"Variable Name '%s', Value '%s', Type '%s', Command %v, Replaces %v, Queries: %v, Loops: %v, Disabled: %v, NoWrite: %v\n",
-				va.Name, va.Value, va.Type, va.Command, va.Replaces, va.Queries, va.Loops, va.Disabled, va.NoWrite,
+				"Variable Name '%s', Value '%s', Type '%s', Command %v, Replaces %v, Queries: %v, Loops: %v, Disabled: %v, Skip: %v, NoWrite: %v\n",
+				va.Name, va.Value, va.Type, va.Command, va.Replaces, va.Queries, va.Loops, va.Disabled, skip, va.NoWrite,
 			)
 		}
-		if va.Disabled {
+		if skip || va.Disabled {
 			continue
 		}
 		if va.Type == "" || va.Name == "" || (va.Value == "" && len(va.Command) == 0) {
@@ -289,7 +291,7 @@ func pdbVars() {
 					map[string]string{
 						"vtype":  va.Type,
 						"vname":  va.Name,
-						"vvalue": va.Value,
+						"vvalue": lib.TruncToBytes(va.Value, 32766),
 					},
 					nil,
 					tm,

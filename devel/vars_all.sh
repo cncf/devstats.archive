@@ -4,18 +4,7 @@ then
   echo "You need to set PG_PASS environment variable to run this script"
   exit 1
 fi
-if [ -z "$ONLY" ]
-then
-  host=`hostname`
-  if [ $host = "teststats.cncf.io" ]
-  then
-    all=`cat ./devel/all_test_projects.txt`
-  else
-    all=`cat ./devel/all_prod_projects.txt`
-  fi
-else
-  all=$ONLY
-fi
+. ./devel/all_projs.sh || exit 2
 for proj in $all
 do
     db=$proj
@@ -29,5 +18,6 @@ do
     echo "Project: $proj, PDB: $db"
     ./devel/db.sh psql "$db" -c "delete from gha_vars" || exit 1
     GHA2DB_LOCAL=1 GHA2DB_PROJECT=$proj PG_DB=$db ./vars || exit 2
+    GHA2DB_LOCAL=1 GHA2DB_PROJECT=$proj PG_DB=$db GHA2DB_VARS_FN_YAML="sync_vars.yaml" ./vars || exit 3
 done
 echo 'OK'

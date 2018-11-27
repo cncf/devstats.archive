@@ -111,6 +111,7 @@ func copyContext(in *lib.Ctx) *lib.Ctx {
 		UseESOnly:           in.UseESOnly,
 		UseESRaw:            in.UseESRaw,
 		ResetESRaw:          in.ResetESRaw,
+		ExcludeVars:         in.ExcludeVars,
 	}
 	return &out
 }
@@ -325,6 +326,7 @@ func TestInit(t *testing.T) {
 		UseESOnly:           false,
 		UseESRaw:            false,
 		ResetESRaw:          false,
+		ExcludeVars:         map[string]bool{},
 	}
 
 	var nilRegexp *regexp.Regexp
@@ -1299,6 +1301,19 @@ func TestInit(t *testing.T) {
 			),
 		},
 		{
+			"Setting exclude variables",
+			map[string]string{"GHA2DB_EXCLUDE_VARS": "hostname,projects_health_partial_html,,"},
+			dynamicSetFields(
+				t,
+				copyContext(&defaultContext),
+				map[string]interface{}{"ExcludeVars": map[string]bool{
+					"hostname":                     true,
+					"projects_health_partial_html": true,
+				},
+				},
+			),
+		},
+		{
 			"Setting only metrics mode",
 			map[string]string{"GHA2DB_ONLY_METRICS": "metric1,metric2,,metric3"},
 			dynamicSetFields(
@@ -1380,6 +1395,8 @@ func TestInit(t *testing.T) {
 		testlib.MakeComparableMap(&test.expectedContext.ProjectsOverride)
 		testlib.MakeComparableMap(&gotContext.ExcludeRepos)
 		testlib.MakeComparableMap(&test.expectedContext.ExcludeRepos)
+		testlib.MakeComparableMap(&gotContext.ExcludeVars)
+		testlib.MakeComparableMap(&test.expectedContext.ExcludeVars)
 		testlib.MakeComparableMap(&gotContext.OnlyMetrics)
 		testlib.MakeComparableMap(&test.expectedContext.OnlyMetrics)
 		testlib.MakeComparableMap2(&gotContext.ComputePeriods)

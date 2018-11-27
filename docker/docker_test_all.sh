@@ -16,21 +16,29 @@ else
   exit 2
 fi
 
-GITHUB_OAUTH_FILE="/etc/github/oauth"
-if [ ! -f "${GITHUB_OAUTH_FILE}" ]
+if [ -z "${GHA2DB_GITHUB_OAUTH}" ]
 then
-  echo "Warning: no ${GITHUB_OAUTH_FILE} file, setting env variables to skip GitHub API"
-  export GHA2DB_GHAPISKIP=1
+  GITHUB_OAUTH_FILE="/etc/github/oauth"
+  if [ ! -f "${GITHUB_OAUTH_FILE}" ]
+  then
+    echo "Warning: no ${GITHUB_OAUTH_FILE} file, setting env variables to skip GitHub API"
+    export GHA2DB_GHAPISKIP=1
+  else
+    echo "GitHub API credentials found (${GITHUB_OAUTH_FILE}), using them"
+    export GHA2DB_GITHUB_OAUTH="`cat ${GITHUB_OAUTH_FILE}`"
+  fi
 else
-  echo "GitHub API credentials found (${GITHUB_OAUTH_FILE}), using them"
-  export GHA2DB_GITHUB_OAUTH="`cat ${GITHUB_OAUTH_FILE}`"
+  echo "GitHub API credentials provided from the env variable, using them"
+  export GHA2DB_GITHUB_OAUTH
 fi
 
 ./docker/docker_remove_es.sh
 ./docker/docker_remove_psql.sh
 ./docker/docker_es.sh || exit 3
-./docker/docker_psql.sh || exit 4
+PG_PASS="${PASS}" ./docker/docker_psql.sh || exit 4
 ./docker/docker_build.sh || exit 5
+./docker/docker_es_wait.sh
+PG_PASS="${PASS}" ./docker/docker_psql_wait.sh
 if [ "${DEPLOY_FROM}" = "host" ]
 then
   PG_PASS="${PASS}" PG_PASS_RO="${PASS}" PG_PASS_TEAM="${PASS}" ./docker/docker_deploy_from_host.sh || exit 6

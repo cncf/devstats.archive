@@ -1,6 +1,7 @@
 #!/bin/bash
 # UDROP=1 attempt to drop users
 # LDROP=1 attempt to drop devstats database
+# SETPASS=1 (should be set on a real first run to set main postgres password interactively, CANNOT be used without user interaction)
 set -o pipefail
 if ( [ -z "$PG_PASS" ] || [ -z "$PG_PASS_RO" ] || [ -z "$PG_PASS_TEAM" ] )
 then
@@ -18,7 +19,10 @@ then
 fi
 
 echo "$0 start"
-# TODO: set postgres user password to ${PG_PASS}
+if [ ! -z "${SETPASS}" ]
+then
+  ./devel/set_psql_password.sh
+fi
 
 if [ ! -z "$UDROP" ]
 then

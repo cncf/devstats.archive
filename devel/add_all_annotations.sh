@@ -4,18 +4,7 @@ then
   echo "$0: PG_PASS environment variable must be set"
   exit 1
 fi
-if [ -z "$ONLY" ]
-then
-  host=`hostname`
-  if [ $host = "teststats.cncf.io" ]
-  then
-    all=`cat ./devel/all_test_projects.txt`
-  else
-    all=`cat ./devel/all_prod_projects.txt`
-  fi
-else
-  all=$ONLY
-fi
+. ./devel/all_projs.sh || exit 2
 for proj in $all
 do
   db=$proj

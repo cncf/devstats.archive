@@ -29,7 +29,7 @@ Prerequisites:
     - If you want to use ElasticSearch output: [elastic](https://github.com/olivere/elastic): `go get -u github.com/olivere/elastic`.
 2. Go to `$GOPATH/src/` and clone devstats there:
     - `git clone https://github.com/cncf/devstats.git`, cd `devstats`
-    - Set reuse TCP connections: `./cron/net_tcp_config.sh`
+    - Set reuse TCP connections: `./cron/sysctl_config.sh`
 3. If you want to make changes and PRs, please clone `devstats` from GitHub UI, and clone your forked version instead, like this:
     - `git clone https://github.com/your_github_username/devstats.git`
 6. Go to devstats directory, so you are in `~/dev/go/src/devstats` directory and compile binaries:
@@ -82,6 +82,7 @@ Prerequisites:
     - Use `INIT=1` to specify that you want to initialize logs database `devstats`, you need to provide passowrd for admin `PG_PASS`, `ro_user` (`PG_PASS_RO` used by Grafana for read-only access) and `devstats_team` (`PG_PASS_TEAM` - this is just another role to allow readonly access from the bastion ssh server).
     - You must use `INIT=1` when running for the first time, this creates shared logs database and postgres users.
     - This will generate all data, without fetching anything from backups: `INIT=1 ONLY=projectname PG_PASS=... PG_PASS_RO=... PG_PASS_TEAM=... ./devel/deploy_all.sh`
+    - You shoud add `SETPASS=1` on the first run to set main postgres database user password. Thsi requires user interaction, so it shouldn't be used from automatic scripts.
     - If you do not specify `ONLY="project1 project2 ... projectN"` it will deploy all projects defined in `projects.yaml`.
     - Use `SKIPWWW=1` to skip Apache/SSL config (which requires DNS name for a server), the final result will be Grafana via HTTP on port 3xxx on accessible by server IP or name.
     - Example with skipping GitHub API and custom ARTWORK: `ARTWORK=/data/artwork SKIPWWW=1 GHA2DB_GITHUB_OAUTH=- GHA2DB_GHAPISKIP=1 IGET=1 GET=1 ONLY=someproj PG_PASS=... ./devel/deploy_all.sh`
