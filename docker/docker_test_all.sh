@@ -28,7 +28,7 @@ then
     export GHA2DB_GITHUB_OAUTH="`cat ${GITHUB_OAUTH_FILE}`"
   fi
 else
-  echo "GitHub API credentials provided from the env variable, suign them"
+  echo "GitHub API credentials provided from the env variable, using them"
   export GHA2DB_GITHUB_OAUTH
 fi
 
