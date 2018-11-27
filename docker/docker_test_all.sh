@@ -29,7 +29,7 @@ fi
 ./docker/docker_remove_es.sh
 ./docker/docker_remove_psql.sh
 ./docker/docker_es.sh || exit 3
-./docker/docker_psql.sh || exit 4
+PG_PASS="${PASS}" ./docker/docker_psql.sh || exit 4
 ./docker/docker_build.sh || exit 5
 if [ "${DEPLOY_FROM}" = "host" ]
 then

@@ -6,6 +6,7 @@
 # SKIPWWW=1 (skips Apache and SSL cert configuration, final result will be Grafana exposed on the server on its port (for example 3010) via HTTP)
 # SKIPVARS=1 (if set it will skip final Postgres vars regeneration)
 # CUSTGRAFPATH=1 (set this to use non-standard grafana instalation from ~/grafana.v5/)
+# SETPASS=1 (should be set on a real first run to set main postgres password interactively, CANNOT be used without user interaction)
 set -o pipefail
 exec > >(tee run.log)
 exec 2> >(tee errors.txt)

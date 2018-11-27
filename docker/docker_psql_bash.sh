@@ -1,2 +1,2 @@
 #!/bin/bash
-docker run -it postgres:10 /bin/bash
+docker run -it postgres:11 /bin/bash
