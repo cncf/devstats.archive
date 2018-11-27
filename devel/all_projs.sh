@@ -39,7 +39,7 @@ then
   fi
   if [ -z "${all}" ]
   then
-    echo "$0: hostname ${host} is neither ${TEST_SERVER_NAME} nor ${PROD_SERVER_NAME}"
+    echo "$0: hostname '${host}' is neither '${TEST_SERVER_NAME}' nor '${PROD_SERVER_NAME}'"
     exit 4
   fi
 else
