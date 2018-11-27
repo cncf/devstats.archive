@@ -1,6 +1,6 @@
 #!/bin/bash
-sudo apt update || exit 1
-sudo apt upgrade || exit 2
+sudo apt update -y || exit 1
+sudo apt upgrade -y || exit 2
 sudo apt install -y git || exit 3
 git clone https://github.com/cncf/devstats.git || exit 4
 cd devstats || exit 5
