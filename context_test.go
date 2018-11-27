@@ -111,6 +111,7 @@ func copyContext(in *lib.Ctx) *lib.Ctx {
 		UseESOnly:           in.UseESOnly,
 		UseESRaw:            in.UseESRaw,
 		ResetESRaw:          in.ResetESRaw,
+		ExcludeVars:         in.ExcludeVars,
 	}
 	return &out
 }
@@ -325,6 +326,7 @@ func TestInit(t *testing.T) {
 		UseESOnly:           false,
 		UseESRaw:            false,
 		ResetESRaw:          false,
+		ExcludeVars:         map[string]bool{},
 	}
 
 	var nilRegexp *regexp.Regexp
@@ -1294,6 +1296,19 @@ func TestInit(t *testing.T) {
 					"repo1":      true,
 					"org1/repo2": true,
 					"abc":        true,
+				},
+				},
+			),
+		},
+		{
+			"Setting exclude variables",
+			map[string]string{"GHA2DB_EXCLUDE_VARS": "hostname,projects_health_partial_html,,"},
+			dynamicSetFields(
+				t,
+				copyContext(&defaultContext),
+				map[string]interface{}{"ExcludeVars": map[string]bool{
+					"hostname":                     true,
+					"projects_health_partial_html": true,
 				},
 				},
 			),
