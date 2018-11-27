@@ -1,0 +1,31 @@
+---
+vars:
+  - name: os_hostname
+    type: s
+    command: [hostname]
+    no_write: true
+  - name: projects_health_partial_html
+    type: s
+    command:
+      - cat
+      - '{{datadir}}partials/projects_health.html'
+    replaces:
+      - [hostname, os_hostname]
+      #- [hostname, ':devstats.cncf.io']
+      - [':testsrv=teststats.cncf.io ', ':']
+      - [': teststats.cncf.io=testsrv', ':']
+      - [':testsrv=', ':<!-- ']
+      - [':=testsrv', ': -->']
+      - [':prodsrv=devstats.cncf.io ', ':']
+      - [': devstats.cncf.io=prodsrv', ':']
+      - [':prodsrv=', ':<!-- ']
+      - [':=prodsrv', ': -->']
+      - [':>Up<', ':>⇧<']
+      - [':>Down<', ':>⇩<']
+    queries_before: true
+    queries:
+      - [metrics, "select series, name, str from sprojects_health where period = 'd' and series like 'phealth%' order by name asc", series]
+    loops_before: true
+    loops:
+      - [0,0,1,1]  # number of prod LF projects
+      - [1,0,65,1]  # number of metrics

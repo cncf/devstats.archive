@@ -9,19 +9,8 @@ then
   echo "You need to set FILES, example FROM=abc FILES='f1 f2' $0"
   exit 3
 fi
-if [ -z "$ONLY" ]
-then
-  host=`hostname`
-  if [ $host = "teststats.cncf.io" ]
-  then
-    all=`cat ./devel/all_test_projects.txt`
-  else
-    all=`cat ./devel/all_prod_projects.txt`
-  fi
-else
-  all=$ONLY
-fi
 FROM="    \"$FROM\""
+. ./devel/all_projs.sh || exit 2
 for proj in $all
 do
   echo "Project: $proj"

@@ -9,4 +9,4 @@ then
   echo "$0: you need to set PG_PASS to run this script"
   exit 1
 fi
-GHA2DB_SKIPTIME=1 GHA2DB_SKIPLOG=1 ./runq util_sql/top_committing_companies.sql {{exclude_bots}} "`cat util_sql/exclude_bots.sql`" {{lim}} "$1"
+GHA2DB_LOCAL=1 GHA2DB_SKIPTIME=1 GHA2DB_SKIPLOG=1 ./runq util_sql/top_committing_companies.sql {{exclude_bots}} "`cat util_sql/exclude_bots.sql`" {{lim}} "$1"

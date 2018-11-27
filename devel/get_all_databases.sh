@@ -1,18 +1,12 @@
 #!/bin/bash
-if [ -z "$ONLY" ]
+host=`hostname`
+if [ "$host" = "teststats.cncf.io" ]
 then
-  host=`hostname`
-  if [ $host = "teststats.cncf.io" ]
-  then
-    all=`cat ./devel/all_test_dbs.txt`
-    from="https://devstats.cncf.io/"
-  else
-    all=`cat ./devel/all_prod_dbs.txt`
-    from="https://teststats.cncf.io/"
-  fi
+  from="https://devstats.cncf.io/"
 else
-  all=$ONLY
+  from="https://teststats.cncf.io/"
 fi
+. ./devel/all_dbs.sh || exit 2
 for db in $all
 do
   echo "DB: $db"

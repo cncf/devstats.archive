@@ -30,19 +30,19 @@ then
 fi
 
 # For docker conatiners PG_HOST is 172.17.0.1
-export ONLY="buildpacks"
 export GHA2DB_PROJECTS_YAML="docker/docker_projects.yaml"
 export GHA2DB_AFFILIATIONS_JSON="docker/docker_affiliations.json"
 export GHA2DB_ES_URL="http://${PG_HOST}:19200"
 export GHA2DB_USE_ES=1
 export GHA2DB_USE_ES_RAW=1
+export LIST_FN_PREFIX="docker/all_"
 
 if [ ! -z "$INIT" ]
 then
   ./devel/init_database.sh || exit 1
 fi
 
-PROJ=buildpacks PROJDB=buildpacks PROJREPO="buildpack/lifecycle" ORGNAME=Buildpacks PORT=3001 ICON="-" GA="-" GRAFSUFF="-" SKIPGRAFANA=1 ./devel/deploy_proj.sh || exit 30
+PROJ=lfn PROJDB=lfn PROJREPO="iovisor/bcc" ORGNAME="Linux Foundation Networking" PORT=3001 ICON="-" GRAFSUFF="-" GA="-" SKIPGRAFANA=1 ./devel/deploy_proj.sh || exit 2
 
 if [ -z "$SKIPVARS" ]
 then
