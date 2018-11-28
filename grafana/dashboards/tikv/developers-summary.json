@@ -15,8 +15,8 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 8,
-  "iteration": 1529597635857,
+  "id": 141,
+  "iteration": 1539936949403,
   "links": [],
   "panels": [
     {
@@ -115,9 +115,9 @@
           ],
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "SELECT \"name\", \"value\" FROM \"project_developer_stats_[[metric]]_[[period]]\" WHERE $timeFilter",
+          "query": "SELECT \"name\", \"value\" FROM \"developers_hist_[[metric]]_[[repogroup]]_[[period]]\" WHERE $timeFilter",
           "rawQuery": true,
-          "rawSql": "select name, value from \"shdev\" where series = 'hdev[[metric]]' and period = '[[period]]'",
+          "rawSql": "select name, value from shdev where series = 'hdev_[[metric]][[repogroup]][[country]]' and period = '[[period]]'",
           "refId": "A",
           "resultFormat": "table",
           "select": [
@@ -137,7 +137,7 @@
           "tags": []
         }
       ],
-      "title": "[[full_name]] Developers statistics ([[metric]], Range: [[period_name]]), bots excluded",
+      "title": "[[full_name]] Developers statistics ([[metric]], Range: [[period_name]], Repository group: [[repogroup_name]]), bots excluded",
       "transform": "table",
       "transparent": false,
       "type": "table"
@@ -145,12 +145,12 @@
     {
       "content": "[[docs]]",
       "gridPos": {
-        "h": 9,
+        "h": 10,
         "w": 24,
         "x": 0,
         "y": 22
       },
-      "id": 11,
+      "id": 3,
       "links": [],
       "mode": "html",
       "title": "Dashboard documentation",
@@ -163,6 +163,7 @@
   "tags": [
     "dashboard",
     "tikv",
+    "repogroups",
     "table"
   ],
   "templating": {
@@ -170,31 +171,7 @@
       {
         "allValue": null,
         "current": {
-          "text": "SPIFFE",
-          "value": "SPIFFE"
-        },
-        "datasource": "psql",
-        "hide": 2,
-        "includeAll": false,
-        "label": null,
-        "multi": false,
-        "name": "full_name",
-        "options": [],
-        "query": "select value_s from gha_vars where name = 'full_name'",
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": true,
-        "sort": 0,
-        "tagValuesQuery": "",
-        "tags": [],
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false
-      },
-      {
-        "allValue": null,
-        "current": {
-          "tags": [],
+          "selected": true,
           "text": "Last decade",
           "value": "Last decade"
         },
@@ -219,6 +196,7 @@
       {
         "allValue": null,
         "current": {
+          "selected": false,
           "tags": [],
           "text": "Contributions",
           "value": "contributions"
@@ -237,7 +215,7 @@
           {
             "selected": false,
             "text": "Commit comments",
-            "value": "commitcomments"
+            "value": "commit_comments"
           },
           {
             "selected": false,
@@ -247,17 +225,17 @@
           {
             "selected": false,
             "text": "GitHub events",
-            "value": "githubevents"
+            "value": "events"
           },
           {
             "selected": false,
             "text": "GitHub pushes",
-            "value": "githubpushes"
+            "value": "pushes"
           },
           {
             "selected": false,
             "text": "Issue comments",
-            "value": "issuecomments"
+            "value": "issue_comments"
           },
           {
             "selected": false,
@@ -272,7 +250,7 @@
           {
             "selected": false,
             "text": "Review comments",
-            "value": "reviewcomments"
+            "value": "review_comments"
           },
           {
             "selected": true,
@@ -282,10 +260,10 @@
           {
             "selected": false,
             "text": "Active repositories",
-            "value": "activerepositories"
+            "value": "active_repos"
           }
         ],
-        "query": "comments,commitcomments,commits,githubevents,githubpushes,issuecomments,issues,prs,reviewcomments,activerepositories",
+        "query": "comments,commit_comments,commits,events,pushes,contributions,issue_comments,issues,prs,review_comments,active_repos",
         "skipUrlSync": false,
         "type": "custom"
       },
@@ -303,6 +281,77 @@
         "name": "period",
         "options": [],
         "query": "select quick_ranges_suffix from tquick_ranges where quick_ranges_name = '[[period_name]]'",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": true,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+        },
+        "datasource": "psql",
+        "hide": 2,
+        "includeAll": false,
+        "label": null,
+        "multi": false,
+        "name": "full_name",
+        "options": [],
+        "query": "select value_s from gha_vars where name = 'full_name'",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": true,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "selected": true,
+          "text": "All",
+          "value": "All"
+        },
+        "datasource": "psql",
+        "hide": 0,
+        "includeAll": false,
+        "label": "Repository group",
+        "multi": false,
+        "name": "repogroup_name",
+        "options": [],
+        "query": "select all_repo_group_name from tall_repo_groups order by 1",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "text": "all",
+          "value": "all"
+        },
+        "datasource": "psql",
+        "hide": 2,
+        "includeAll": false,
+        "label": "",
+        "multi": false,
+        "name": "repogroup",
+        "options": [],
+        "query": "select all_repo_group_value from tall_repo_groups where all_repo_group_name = '[[repogroup_name]]'",
         "refresh": 1,
         "regex": "",
         "skipUrlSync": true,
@@ -333,11 +382,60 @@
         "tagsQuery": "",
         "type": "query",
         "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "text": "all",
+          "value": "all"
+        },
+        "datasource": "psql",
+        "hide": 2,
+        "includeAll": false,
+        "label": "",
+        "multi": false,
+        "name": "country",
+        "options": [],
+        "query": "select sub.value from (select country_value as value, 0 as ord from tcountries where country_name = '[[country_name]]' union select 'all', 1 as ord) sub order by sub.ord limit 1",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": true,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": "all",
+        "current": {
+          "selected": true,
+          "text": "All",
+          "value": "All"
+        },
+        "datasource": "psql",
+        "hide": 0,
+        "includeAll": false,
+        "label": "Country",
+        "multi": false,
+        "name": "country_name",
+        "options": [],
+        "query": "select 'All' union select country_name from tcountries order by 1",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
       }
     ]
   },
   "time": {
-    "from": "now-1y",
+    "from": "now-5y",
     "to": "now"
   },
   "timepicker": {
@@ -369,5 +467,5 @@
   "timezone": "",
   "title": "Developers summary",
   "uid": "9",
-  "version": 2
+  "version": 10
 }

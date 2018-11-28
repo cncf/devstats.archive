@@ -14,6 +14,7 @@
 <li>Review is defined when someone adds <code>/approve</code> or <code>/lgtm</code> comment or adds <code>approved</code> or <code>lgtm</code> label or adds PR review comment.</li>
 <li>You can select last day, month, week etc. range or date range between releases, for example <code>v1.9 - v1.10</code>.</li>
 <li>You can select single repository group or summary for all of them.</li>
+<li>You can select country from a drop-down or summary for all countries.</li>
 <li>See <a href="https://github.com/cncf/devstats/blob/master/docs/repository_groups.md" target="_blank">here</a> for more informations about repository groups.</li>
 <li>We are skipping bots when calculating statistics, see <a href="https://github.com/cncf/devstats/blob/master/docs/excluding_bots.md" target="_blank">excluding bots</a> for details.</li>
 </ul>
