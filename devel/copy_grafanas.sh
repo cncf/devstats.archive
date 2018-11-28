@@ -10,7 +10,7 @@ do
     echo $proj
     if [ ! -z "$ONLY" ]
     then
-      kill `ps -aux | grep grafana-server | grep $proj | awk '{print $2}'`
+      kill `ps -aux | grep grafana-server | grep $proj | awk '{print $2}'` 2>/dev/null
     fi
     rm -rf /usr/share/grafana.$proj
     cp -R /usr/share/grafana /usr/share/grafana.$proj || exit 1
