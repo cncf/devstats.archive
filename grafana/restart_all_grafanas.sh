@@ -1,8 +1,23 @@
 #!/bin/bash
-killall grafana-server
-./grafana/start_all_grafanas.sh
-host=`hostname`
-if [ $host = "teststats.cncf.io" ]
+if [ -z "$ONLY" ]
 then
-  ./util_sh/start_contrib.sh
+  killall grafana-server 2>/dev/null
+else
+  . ./devel/all_projs.sh || exit 2
+  all=${all/kubernetes/k8s}
+  for proj in $all
+  do
+    echo "stopping $proj grafana"
+    kill `ps -aux | grep grafana-server | grep $proj | awk '{print $2}'`
+  done
+fi
+sleep 1
+./grafana/start_all_grafanas.sh
+if [ -z "$ONLY" ]
+then
+  host=`hostname`
+  if [ $host = "teststats.cncf.io" ]
+  then
+    ./util_sh/start_contrib.sh
+  fi
 fi
