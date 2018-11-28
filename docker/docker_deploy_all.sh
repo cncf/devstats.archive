@@ -42,8 +42,6 @@ then
   ./devel/init_database.sh || exit 1
 fi
 
-iovisor mininet opennetworkinglab opensecuritycontroller openswitch p4lang openbmp tungstenfabric cord lfn
-
 PROJ=lfn                    PROJDB=lfn                    PROJREPO="iovisor/bcc"                     ORGNAME="Linux Foundation Networking" PORT=3001 ICON="-" GRAFSUFF="-" GA="-" SKIPGRAFANA=1 ./devel/deploy_proj.sh || exit 2
 PROJ=iovisor                PROJDB=iovisor                PROJREPO="iovisor/bcc"                     ORGNAME="IO Visor"                    PORT=3002 ICON="-" GRAFSUFF="-" GA="-" SKIPGRAFANA=1 ./devel/deploy_proj.sh || exit 3
 PROJ=mininet                PROJDB=mininet                PROJREPO="mininet/mininet"                 ORGNAME="Mininet"                     PORT=3003 ICON="-" GRAFSUFF="-" GA="-" SKIPGRAFANA=1 ./devel/deploy_proj.sh || exit 4
