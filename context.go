@@ -105,6 +105,7 @@ type Ctx struct {
 	SkipColumns         bool                         // From GHA2DB_SKIP_COLUMNS, gha2db_sync tool, skip calling columns tool, default false
 	SkipVars            bool                         // From GHA2DB_SKIP_VARS, gha2db_sync tool, skip calling vars tool, default false
 	ExcludeVars         map[string]bool              // From GHA2DB_EXCLUDE_VARS, vars tool, default "" - comma separated list of variable names to exclude, example: "hostname,projects_health_partial_html"
+	OnlyVars            map[string]bool              // From GHA2DB_ONLY_VARS, vars tool, default "" - comma separated list of variable names to write (and skip all others): "hostname,projects_health_partial_html", not used if empty
 	ElasticURL          string                       // From GHA2DB_ES_URL, calc_metric, tags, annotations tools - ElasticSearch URL (if used), default http://127.0.0.1:9200
 	UseES               bool                         // From GHA2DB_USE_ES, calc_metric, tags, annotations tools - enable ElasticSearch, default false
 	UseESOnly           bool                         // From GHA2DB_USE_ES_ONLY, calc_metric, annotations tools - enable ElasticSearch and do not write PSQL TSDB, default false
@@ -422,6 +423,18 @@ func (ctx *Ctx) Init() {
 		for _, exclude := range excludeArray {
 			if exclude != "" {
 				ctx.ExcludeVars[exclude] = true
+			}
+		}
+	}
+
+	// Only vars
+	only := os.Getenv("GHA2DB_ONLY_VARS")
+	ctx.OnlyVars = make(map[string]bool)
+	if only != "" {
+		onlyArray := strings.Split(only, ",")
+		for _, onl := range onlyArray {
+			if onl != "" {
+				ctx.OnlyVars[onl] = true
 			}
 		}
 	}
