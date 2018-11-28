@@ -8,7 +8,7 @@ else
   for proj in $all
   do
     echo "stopping $proj grafana"
-    kill `ps -aux | grep grafana-server | grep $proj | awk '{print $2}'`
+    kill `ps -aux | grep grafana-server | grep $proj | awk '{print $2}'` 2>/dev/null
   done
 fi
 sleep 1
