@@ -105,6 +105,7 @@ func copyContext(in *lib.Ctx) *lib.Ctx {
 		ActorsAllow:         in.ActorsAllow,
 		ActorsForbid:        in.ActorsForbid,
 		OnlyMetrics:         in.OnlyMetrics,
+		SkipMetrics:         in.SkipMetrics,
 		ComputePeriods:      in.ComputePeriods,
 		ElasticURL:          in.ElasticURL,
 		UseES:               in.UseES,
@@ -113,6 +114,7 @@ func copyContext(in *lib.Ctx) *lib.Ctx {
 		ResetESRaw:          in.ResetESRaw,
 		ExcludeVars:         in.ExcludeVars,
 		OnlyVars:            in.OnlyVars,
+		SkipSharedDB:        in.SkipSharedDB,
 	}
 	return &out
 }
@@ -322,6 +324,7 @@ func TestInit(t *testing.T) {
 		ActorsAllow:         nil,
 		ActorsForbid:        nil,
 		OnlyMetrics:         map[string]bool{},
+		SkipMetrics:         map[string]bool{},
 		ElasticURL:          "http://127.0.0.1:9200",
 		UseES:               false,
 		UseESOnly:           false,
@@ -329,6 +332,7 @@ func TestInit(t *testing.T) {
 		ResetESRaw:          false,
 		ExcludeVars:         map[string]bool{},
 		OnlyVars:            map[string]bool{},
+		SkipSharedDB:        false,
 	}
 
 	var nilRegexp *regexp.Regexp
@@ -1094,6 +1098,19 @@ func TestInit(t *testing.T) {
 			),
 		},
 		{
+			"Set skip shared DB mode",
+			map[string]string{
+				"GHA2DB_SKIP_SHAREDDB": "1",
+			},
+			dynamicSetFields(
+				t,
+				copyContext(&defaultContext),
+				map[string]interface{}{
+					"SkipSharedDB": true,
+				},
+			),
+		},
+		{
 			"Set compute periods mode",
 			map[string]string{
 				"GHA2DB_FORCE_PERIODS": "w:f",
@@ -1343,6 +1360,20 @@ func TestInit(t *testing.T) {
 			),
 		},
 		{
+			"Setting skip metrics mode",
+			map[string]string{"GHA2DB_SKIP_METRICS": "metric1,metric2,,metric3"},
+			dynamicSetFields(
+				t,
+				copyContext(&defaultContext),
+				map[string]interface{}{"SkipMetrics": map[string]bool{
+					"metric1": true,
+					"metric2": true,
+					"metric3": true,
+				},
+				},
+			),
+		},
+		{
 			"Setting input & output DBs for 'merge_dbs' tool",
 			map[string]string{
 				"GHA2DB_INPUT_DBS": "db1,db2,db3",
@@ -1412,8 +1443,12 @@ func TestInit(t *testing.T) {
 		testlib.MakeComparableMap(&test.expectedContext.ExcludeRepos)
 		testlib.MakeComparableMap(&gotContext.ExcludeVars)
 		testlib.MakeComparableMap(&test.expectedContext.ExcludeVars)
+		testlib.MakeComparableMap(&gotContext.OnlyVars)
+		testlib.MakeComparableMap(&test.expectedContext.OnlyVars)
 		testlib.MakeComparableMap(&gotContext.OnlyMetrics)
 		testlib.MakeComparableMap(&test.expectedContext.OnlyMetrics)
+		testlib.MakeComparableMap(&gotContext.SkipMetrics)
+		testlib.MakeComparableMap(&test.expectedContext.SkipMetrics)
 		testlib.MakeComparableMap2(&gotContext.ComputePeriods)
 		testlib.MakeComparableMap2(&test.expectedContext.ComputePeriods)
 

@@ -361,12 +361,22 @@ func sync(ctx *lib.Ctx, args []string) {
 		if len(ctx.OnlyMetrics) > 0 {
 			onlyMetrics = true
 		}
+		skipMetrics := false
+		if len(ctx.SkipMetrics) > 0 {
+			skipMetrics = true
+		}
 
 		// Iterate all metrics
 		for _, metric := range allMetrics.Metrics {
 			if onlyMetrics {
 				_, ok := ctx.OnlyMetrics[metric.MetricSQL]
 				if !ok {
+					continue
+				}
+			}
+			if skipMetrics {
+				_, skip := ctx.SkipMetrics[metric.MetricSQL]
+				if skip {
 					continue
 				}
 			}
