@@ -42,10 +42,21 @@ then
   ./devel/init_database.sh || exit 1
 fi
 
-PROJ=lfn PROJDB=lfn PROJREPO="iovisor/bcc" ORGNAME="Linux Foundation Networking" PORT=3001 ICON="-" GRAFSUFF="-" GA="-" SKIPGRAFANA=1 ./devel/deploy_proj.sh || exit 2
+iovisor mininet opennetworkinglab opensecuritycontroller openswitch p4lang openbmp tungstenfabric cord lfn
+
+PROJ=lfn                    PROJDB=lfn                    PROJREPO="iovisor/bcc"                     ORGNAME="Linux Foundation Networking" PORT=3001 ICON="-" GRAFSUFF="-" GA="-" SKIPGRAFANA=1 ./devel/deploy_proj.sh || exit 2
+PROJ=iovisor                PROJDB=iovisor                PROJREPO="iovisor/bcc"                     ORGNAME="IO Visor"                    PORT=3002 ICON="-" GRAFSUFF="-" GA="-" SKIPGRAFANA=1 ./devel/deploy_proj.sh || exit 3
+PROJ=mininet                PROJDB=mininet                PROJREPO="mininet/mininet"                 ORGNAME="Mininet"                     PORT=3003 ICON="-" GRAFSUFF="-" GA="-" SKIPGRAFANA=1 ./devel/deploy_proj.sh || exit 4
+PROJ=opennetworkinglab      PROJDB=opennetworkinglab      PROJREPO="opennetworkinglab/onos"          ORGNAME="Open Networking Laboratory"  PORT=3004 ICON="-" GRAFSUFF="-" GA="-" SKIPGRAFANA=1 ./devel/deploy_proj.sh || exit 5
+PROJ=opensecuritycontroller PROJDB=opensecuritycontroller PROJREPO="opensecuritycontroller/osc-core" ORGNAME="Open Security Controller"    PORT=3005 ICON="-" GRAFSUFF="-" GA="-" SKIPGRAFANA=1 ./devel/deploy_proj.sh || exit 6
+PROJ=openswitch             PROJDB=openswitch             PROJREPO="open-switch/opx-nas-interface"   ORGNAME="OpenSwitch"                  PORT=3006 ICON="-" GRAFSUFF="-" GA="-" SKIPGRAFANA=1 ./devel/deploy_proj.sh || exit 7
+PROJ=p4lang                 PROJDB=p4lang                 PROJREPO="p4lang/p4c"                      ORGNAME="P4 Language"                 PORT=3007 ICON="-" GRAFSUFF="-" GA="-" SKIPGRAFANA=1 ./devel/deploy_proj.sh || exit 8
+PROJ=openbmp                PROJDB=openbmp                PROJREPO="OpenBMP/openbmp"                 ORGNAME="OpenBMP"                     PORT=3008 ICON="-" GRAFSUFF="-" GA="-" SKIPGRAFANA=1 ./devel/deploy_proj.sh || exit 9
+PROJ=tungstenfabric         PROJDB=tungstenfabric         PROJREPO="tungstenfabric/website"          ORGNAME="Tungsten Fabric"             PORT=3009 ICON="-" GRAFSUFF="-" GA="-" SKIPGRAFANA=1 ./devel/deploy_proj.sh || exit 10
+PROJ=cord                   PROJDB=cord                   PROJREPO="opencord/voltha"                 ORGNAME="CORD"                        PORT=3010 ICON="-" GRAFSUFF="-" GA="-" SKIPGRAFANA=1 ./devel/deploy_proj.sh || exit 11
 
 if [ -z "$SKIPVARS" ]
 then
-  ./devel/vars_all.sh || exit 3
+  ./devel/vars_all.sh || exit 12
 fi
 echo "$0: All deployments finished"

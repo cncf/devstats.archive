@@ -36,7 +36,8 @@ func (a AnnotationsByDate) Less(i, j int) bool {
 
 // GetFakeAnnotations - returns 'startDate - joinDate' and 'joinDate - now' annotations
 func GetFakeAnnotations(startDate, joinDate time.Time) (annotations Annotations) {
-	if !joinDate.After(startDate) {
+	minDate := TimeParseAny("2014-01-01")
+	if joinDate.Before(minDate) || startDate.Before(minDate) || !joinDate.After(startDate) {
 		return
 	}
 	annotations.Annotations = append(
@@ -101,6 +102,7 @@ func GetAnnotations(ctx *Ctx, orgRepo, annoRegexp string) (annotations Annotatio
 	tags := strings.Split(tagsStr, "\n")
 	nTags := 0
 
+	minDate := TimeParseAny("2014-01-01")
 	for _, tagData := range tags {
 		data := strings.TrimSpace(tagData)
 		if data == "" {
@@ -121,6 +123,12 @@ func GetAnnotations(ctx *Ctx, orgRepo, annoRegexp string) (annotations Annotatio
 		}
 		FatalOnError(err)
 		creatorDate := time.Unix(unixTimeStamp, 0)
+		if creatorDate.Before(minDate) {
+			if ctx.Debug > 0 {
+				Printf("Skipping annotation %v because it is before %v\n", creatorDate, minDate)
+			}
+			continue
+		}
 		message := tagDataAry[2]
 		if len(message) > 40 {
 			message = message[0:40]
