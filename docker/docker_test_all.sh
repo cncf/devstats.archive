@@ -32,6 +32,7 @@ else
   export GHA2DB_GITHUB_OAUTH
 fi
 
+./cron/sysctl_config.sh
 ./docker/docker_remove_es.sh
 ./docker/docker_remove_psql.sh
 ./docker/docker_es.sh || exit 3
