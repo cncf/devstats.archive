@@ -11,8 +11,8 @@ import (
 func TestGetFakeAnnotations(t *testing.T) {
 	// Example data
 	ft := testlib.YMDHMS
-	startDate := []time.Time{ft(2014), ft(2015), ft(2015)}
-	joinDate := []time.Time{ft(2015), ft(2015), ft(2014)}
+	startDate := []time.Time{ft(2014), ft(2015), ft(2015), ft(2012)}
+	joinDate := []time.Time{ft(2015), ft(2015), ft(2014), ft(2013)}
 
 	// Test cases
 	var testCases = []struct {
@@ -48,6 +48,27 @@ func TestGetFakeAnnotations(t *testing.T) {
 		{
 			startDate: startDate[2],
 			joinDate:  joinDate[2],
+			expectedAnnotations: lib.Annotations{
+				Annotations: []lib.Annotation{},
+			},
+		},
+		{
+			startDate: startDate[3],
+			joinDate:  joinDate[3],
+			expectedAnnotations: lib.Annotations{
+				Annotations: []lib.Annotation{},
+			},
+		},
+		{
+			startDate: startDate[0],
+			joinDate:  joinDate[3],
+			expectedAnnotations: lib.Annotations{
+				Annotations: []lib.Annotation{},
+			},
+		},
+		{
+			startDate: startDate[3],
+			joinDate:  joinDate[0],
 			expectedAnnotations: lib.Annotations{
 				Annotations: []lib.Annotation{},
 			},

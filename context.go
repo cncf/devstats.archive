@@ -93,7 +93,8 @@ type Ctx struct {
 	ActorsFilter        bool                         // From GHA2DB_ACTORS_FILTER gha2db tool, if enabled then actor filterning will be added, default false
 	ActorsAllow         *regexp.Regexp               // From GHA2DB_ACTORS_ALLOW, gha2db tool, process JSON if actor matches this regexp, default "" which means skip this check
 	ActorsForbid        *regexp.Regexp               // From GHA2DB_ACTORS_FORBID, gha2db tool, process JSON if actor doesn't match this regexp, default "" which means skip this check
-	OnlyMetrics         map[string]bool              // From GHA2DB_ONLY_METRICS, gha2db_sync tool, default "" - comma separated list of metrics to process, as fiven my "sql: name" in the "metrics.yaml" file. Only those metrics will be calculated.
+	SkipMetrics         map[string]bool              // From GHA2DB_SKIP_METRICS, gha2db_sync tool, default "" - comma separated list of metrics to skip, as given by "sql: name" in the "metrics.yaml" file. Those metrics will be skipped.
+	OnlyMetrics         map[string]bool              // From GHA2DB_ONLY_METRICS, gha2db_sync tool, default "" - comma separated list of metrics to process, as given by "sql: name" in the "metrics.yaml" file. Only those metrics will be calculated.
 	AllowBrokenJSON     bool                         // From GHA2DB_ALLOW_BROKEN_JSON, gha2db tool, default false. If set then gha2db skips broken jsons and saves them as jsons/error_YYYY-MM-DD-h-n-m.json (n is the JSON number (1-m) of m JSONS array)
 	JSONsDir            string                       // From GHA2DB_JSONS_DIR, website_data tool, default "./jsons/"
 	WebsiteData         bool                         // From GHA2DB_WEBSITEDATA, devstats tool, run website_data just after sync is complete, default false.
@@ -111,6 +112,7 @@ type Ctx struct {
 	UseESOnly           bool                         // From GHA2DB_USE_ES_ONLY, calc_metric, annotations tools - enable ElasticSearch and do not write PSQL TSDB, default false
 	UseESRaw            bool                         // From GHA2DB_USE_ES_RAW, gha2es, gha2db_sync tools - enable generating RAW ElasticSearch data (directly from gha_tables instead of aggregated data from TSDB)
 	ResetESRaw          bool                         // From GHA2DB_RESET_ES_RAW, gha2db_sync tools - generate RAW ES index from project start date
+	SkipSharedDB        bool                         // From GHA2DB_SKIP_SHAREDDB, annotations tool, default false, will skip writing to shared_db (from projects.yaml) if set
 	SharedDB            string                       // Currently annotations tool read this from projects.yaml:shared_db and if set, outputs annotations data to the sharded DB in addition to the current DB
 	ProjectMainRepo     string                       // Used by annotations tool to store project's main repo name
 }
@@ -451,6 +453,18 @@ func (ctx *Ctx) Init() {
 		}
 	}
 
+	// Exclude metrics
+	excludes = os.Getenv("GHA2DB_SKIP_METRICS")
+	ctx.SkipMetrics = make(map[string]bool)
+	if excludes != "" {
+		excludeArray := strings.Split(excludes, ",")
+		for _, exclude := range excludeArray {
+			if exclude != "" {
+				ctx.SkipMetrics[exclude] = true
+			}
+		}
+	}
+
 	// WebHook Host, Port, Root
 	ctx.WebHookHost = os.Getenv("GHA2DB_WHHOST")
 	if ctx.WebHookHost == "" {
@@ -521,6 +535,9 @@ func (ctx *Ctx) Init() {
 	if ctx.ElasticURL == "" {
 		ctx.ElasticURL = "http://127.0.0.1:9200"
 	}
+
+	// Skip writing to shared_db from projects.yaml
+	ctx.SkipSharedDB = os.Getenv("GHA2DB_SKIP_SHAREDDB") != ""
 
 	// Calculate all periods?
 	ctx.ComputeAll = os.Getenv("GHA2DB_COMPUTE_ALL") != ""
