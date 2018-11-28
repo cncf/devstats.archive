@@ -368,7 +368,7 @@ func ProcessAnnotations(ctx *Ctx, annotations *Annotations, startDate, joinDate 
 		}
 		WriteTSPoints(ctx, ic, &pts, "", nil)
 		// Annotations from all projects into 'allprj' database
-		if ctx.SharedDB != "" {
+		if !ctx.SkipSharedDB && ctx.SharedDB != "" {
 			var anots TSPoints
 			for _, pt := range pts {
 				if pt.name != "annotations" {
