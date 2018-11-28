@@ -280,7 +280,13 @@ func pdbVars() {
 		}
 		replaces[va.Name] = va.Value
 
-		if ctx.UseES {
+		write := !va.NoWrite
+		// If only selected variables mode is on, the check if we want to include this variable
+		if write && len(ctx.OnlyVars) > 0 {
+			_, write = ctx.OnlyVars[va.Name]
+		}
+
+		if ctx.UseES && write {
 			lib.AddTSPoint(
 				&ctx,
 				&pts,
@@ -301,7 +307,7 @@ func pdbVars() {
 			tm = tm.Add(time.Hour)
 		}
 
-		if !ctx.SkipPDB && !va.NoWrite {
+		if !ctx.SkipPDB && write {
 			lib.ExecSQLWithErr(
 				c,
 				&ctx,

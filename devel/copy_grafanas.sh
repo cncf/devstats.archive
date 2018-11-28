@@ -1,10 +1,17 @@
 #!/bin/bash
 . ./devel/all_projs.sh || exit 2
 all=${all/kubernetes/k8s}
-killall grafana-server
+if [ -z "$ONLY" ]
+then
+  killall grafana-server 2>/dev/null
+fi
 for proj in $all
 do
     echo $proj
+    if [ ! -z "$ONLY" ]
+    then
+      kill `ps -aux | grep grafana-server | grep $proj | awk '{print $2}'`
+    fi
     rm -rf /usr/share/grafana.$proj
     cp -R /usr/share/grafana /usr/share/grafana.$proj || exit 1
     rm -rf /var/lib/grafana.$proj

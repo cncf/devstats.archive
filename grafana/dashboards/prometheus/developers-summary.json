@@ -15,8 +15,8 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 54,
-  "iteration": 1540207794007,
+  "id": 141,
+  "iteration": 1539936949403,
   "links": [],
   "panels": [
     {
@@ -115,9 +115,9 @@
           ],
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "SELECT \"name\", \"value\" FROM \"project_developer_stats_[[metric]]_[[period]]\" WHERE $timeFilter",
+          "query": "SELECT \"name\", \"value\" FROM \"developers_hist_[[metric]]_[[repogroup]]_[[period]]\" WHERE $timeFilter",
           "rawQuery": true,
-          "rawSql": "select name, value from \"shdev\" where series = 'hdev[[metric]]' and period = '[[period]]'",
+          "rawSql": "select name, value from shdev where series = 'hdev_[[metric]][[repogroup]][[country]]' and period = '[[period]]'",
           "refId": "A",
           "resultFormat": "table",
           "select": [
@@ -137,7 +137,7 @@
           "tags": []
         }
       ],
-      "title": "[[full_name]] Developers statistics ([[metric]], Range: [[period_name]]), bots excluded",
+      "title": "[[full_name]] Developers statistics ([[metric]], Range: [[period_name]], Repository group: [[repogroup_name]]), bots excluded",
       "transform": "table",
       "transparent": false,
       "type": "table"
@@ -145,12 +145,12 @@
     {
       "content": "[[docs]]",
       "gridPos": {
-        "h": 9,
+        "h": 10,
         "w": 24,
         "x": 0,
         "y": 22
       },
-      "id": 11,
+      "id": 3,
       "links": [],
       "mode": "html",
       "title": "Dashboard documentation",
@@ -163,6 +163,7 @@
   "tags": [
     "dashboard",
     "prometheus",
+    "repogroups",
     "table"
   ],
   "templating": {
@@ -170,6 +171,7 @@
       {
         "allValue": null,
         "current": {
+          "selected": true,
           "text": "Last decade",
           "value": "Last decade"
         },
@@ -194,7 +196,8 @@
       {
         "allValue": null,
         "current": {
-          "selected": true,
+          "selected": false,
+          "tags": [],
           "text": "Contributions",
           "value": "contributions"
         },
@@ -212,7 +215,7 @@
           {
             "selected": false,
             "text": "Commit comments",
-            "value": "commitcomments"
+            "value": "commit_comments"
           },
           {
             "selected": false,
@@ -222,17 +225,17 @@
           {
             "selected": false,
             "text": "GitHub events",
-            "value": "githubevents"
+            "value": "events"
           },
           {
             "selected": false,
             "text": "GitHub pushes",
-            "value": "githubpushes"
+            "value": "pushes"
           },
           {
             "selected": false,
             "text": "Issue comments",
-            "value": "issuecomments"
+            "value": "issue_comments"
           },
           {
             "selected": false,
@@ -247,7 +250,7 @@
           {
             "selected": false,
             "text": "Review comments",
-            "value": "reviewcomments"
+            "value": "review_comments"
           },
           {
             "selected": true,
@@ -257,10 +260,10 @@
           {
             "selected": false,
             "text": "Active repositories",
-            "value": "activerepositories"
+            "value": "active_repos"
           }
         ],
-        "query": "comments,commitcomments,commits,githubevents,githubpushes,issuecomments,issues,prs,reviewcomments,activerepositories",
+        "query": "comments,commit_comments,commits,events,pushes,contributions,issue_comments,issues,prs,review_comments,active_repos",
         "skipUrlSync": false,
         "type": "custom"
       },
@@ -291,8 +294,6 @@
       {
         "allValue": null,
         "current": {
-          "text": "Prometheus",
-          "value": "Prometheus"
         },
         "datasource": "psql",
         "hide": 2,
@@ -315,9 +316,55 @@
       {
         "allValue": null,
         "current": {
-          "text": "\u003ch1 id=\"dashboard-header\"\u003ePrometheus developers summary dashboard\u003c/h1\u003e\n\u003cp\u003eLinks:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003eMetric \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/project_developer_stats.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eTSDB \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/metrics.yaml\" target=\"_blank\"\u003eseries definition\u003c/a\u003e. Search for \u003ccode\u003eproject_developer_stats\u003c/code\u003e\u003c/li\u003e\n\u003cli\u003eGrafana dashboard \u003ca href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/prometheus/developers-summary.json\" target=\"_blank\"\u003eJSON\u003c/a\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch1 id=\"description\"\u003eDescription\u003c/h1\u003e\n\u003cul\u003e\n\u003cli\u003eThis dashboard shows various developer metrics.\u003c/li\u003e\n\u003cli\u003eContribution is a review, comment, commit, issue or PR.\u003c/li\u003e\n\u003cli\u003eYou can select last day, month, week etc. range or date range between releases, for example \u003ccode\u003ev1.9 - v1.10\u003c/code\u003e.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/periods.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about periods.\u003c/li\u003e\n\u003cli\u003eWe are skipping bots, see \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/excluding_bots.md\" target=\"_blank\"\u003eexcluding bots\u003c/a\u003e for details.\u003c/li\u003e\n\u003c/ul\u003e",
-          "value": "\u003ch1 id=\"dashboard-header\"\u003ePrometheus developers summary dashboard\u003c/h1\u003e\n\u003cp\u003eLinks:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003eMetric \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/project_developer_stats.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eTSDB \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/metrics.yaml\" target=\"_blank\"\u003eseries definition\u003c/a\u003e. Search for \u003ccode\u003eproject_developer_stats\u003c/code\u003e\u003c/li\u003e\n\u003cli\u003eGrafana dashboard \u003ca href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/prometheus/developers-summary.json\" target=\"_blank\"\u003eJSON\u003c/a\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch1 id=\"description\"\u003eDescription\u003c/h1\u003e\n\u003cul\u003e\n\u003cli\u003eThis dashboard shows various developer metrics.\u003c/li\u003e\n\u003cli\u003eContribution is a review, comment, commit, issue or PR.\u003c/li\u003e\n\u003cli\u003eYou can select last day, month, week etc. range or date range between releases, for example \u003ccode\u003ev1.9 - v1.10\u003c/code\u003e.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/periods.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about periods.\u003c/li\u003e\n\u003cli\u003eWe are skipping bots, see \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/excluding_bots.md\" target=\"_blank\"\u003eexcluding bots\u003c/a\u003e for details.\u003c/li\u003e\n\u003c/ul\u003e"
+          "selected": true,
+          "text": "All",
+          "value": "All"
         },
+        "datasource": "psql",
+        "hide": 0,
+        "includeAll": false,
+        "label": "Repository group",
+        "multi": false,
+        "name": "repogroup_name",
+        "options": [],
+        "query": "select all_repo_group_name from tall_repo_groups order by 1",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "text": "all",
+          "value": "all"
+        },
+        "datasource": "psql",
+        "hide": 2,
+        "includeAll": false,
+        "label": "",
+        "multi": false,
+        "name": "repogroup",
+        "options": [],
+        "query": "select all_repo_group_value from tall_repo_groups where all_repo_group_name = '[[repogroup_name]]'",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": true,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {},
         "datasource": "psql",
         "hide": 2,
         "includeAll": false,
@@ -329,6 +376,55 @@
         "refresh": 1,
         "regex": "",
         "skipUrlSync": true,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "text": "all",
+          "value": "all"
+        },
+        "datasource": "psql",
+        "hide": 2,
+        "includeAll": false,
+        "label": "",
+        "multi": false,
+        "name": "country",
+        "options": [],
+        "query": "select sub.value from (select country_value as value, 0 as ord from tcountries where country_name = '[[country_name]]' union select 'all', 1 as ord) sub order by sub.ord limit 1",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": true,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": "all",
+        "current": {
+          "selected": true,
+          "text": "All",
+          "value": "All"
+        },
+        "datasource": "psql",
+        "hide": 0,
+        "includeAll": false,
+        "label": "Country",
+        "multi": false,
+        "name": "country_name",
+        "options": [],
+        "query": "select 'All' union select country_name from tcountries order by 1",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
         "sort": 0,
         "tagValuesQuery": "",
         "tags": [],
@@ -371,5 +467,5 @@
   "timezone": "",
   "title": "Developers summary",
   "uid": "9",
-  "version": 7
+  "version": 10
 }
