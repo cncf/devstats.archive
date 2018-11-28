@@ -9,7 +9,7 @@ for proj in $all
 do
     if [ ! -z "$ONLY" ]
     then
-      kill `ps -aux | grep grafana-server | grep $proj | awk '{print $2}'`
+      kill `ps -aux | grep grafana-server | grep $proj | awk '{print $2}'` 2>/dev/null
     fi
     echo "wget grafana.$proj.db"
     rm -f grafana.$proj.db 2>/dev/null
