@@ -5,5 +5,5 @@ Every dashboard can be exported to CSV.
 - Click then menu icon on the bottom-left.
 - Choose "Export to CSV".
 - You can select "series as rows" or "series as columns" for chart dashboards.
-- You can specify date format and choose exel dialect.
+- You can specify date format and choose Excel dialect.
 
