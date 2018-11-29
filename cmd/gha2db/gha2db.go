@@ -1585,7 +1585,7 @@ func gha2db(args []string) {
 		}
 		lib.Printf("Final threads join\n")
 		for nThreads > 0 {
-			if ctx.Debug > 0 {
+			if ctx.Debug >= 0 {
 				dta := []string{}
 				for k := range mp {
 					dta = append(dta, lib.ToYMDHDate(k))
