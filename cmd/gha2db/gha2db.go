@@ -1585,12 +1585,16 @@ func gha2db(args []string) {
 		}
 		lib.Printf("Final threads join\n")
 		for nThreads > 0 {
+			if ctx.Debug > 0 {
+				dta := []string{}
+				for k := range mp {
+					dta = append(dta, lib.ToYMDHDate(k))
+				}
+				lib.Printf("%d remain: %v\n", nThreads, strings.Join(dta, ", "))
+			}
 			prcdt := <-ch
 			delete(mp, prcdt)
 			nThreads--
-			if ctx.Debug > 0 {
-				lib.Printf("%d remain: %v\n", nThreads, mp)
-			}
 		}
 	} else {
 		lib.Printf("Using single threaded version\n")
