@@ -2,6 +2,8 @@
 ./docker/docker_es_indexes.sh 2>/dev/null 1>out || exit 1
 cat out | grep '"status" : 404' && exit 2
 cat out
+export TEST_SERVER=1
+export LIST_FN_PREFIX="docker/all_"
 . ./devel/all_dbs.sh || exit 3
 for db in $all
 do
