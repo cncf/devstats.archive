@@ -1,2 +1,2 @@
 #!/bin/bash
-rm -rf /data/psql /data/es
+rm -rf /data/psql /data/es /data/devstats
