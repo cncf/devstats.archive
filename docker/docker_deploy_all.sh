@@ -55,6 +55,6 @@ PROJ=cord                   PROJDB=cord                   PROJREPO="opencord/vol
 
 if [ -z "$SKIPVARS" ]
 then
-  ./devel/vars_all.sh || exit 12
+  GHA2DB_SKIP_METRICS="projects_health" ./devel/vars_all.sh || exit 12
 fi
 echo "$0: All deployments finished"
