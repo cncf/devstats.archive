@@ -8,7 +8,7 @@ update gha_repos set repo_group = 'Open Networking' where org_login = 'opennetwo
 update gha_repos set repo_group = 'Open Security' where org_login = 'opensecuritycontroller';
 update gha_repos set repo_group = 'OpenSwitch' where org_login = 'open-switch';
 update gha_repos set repo_group = 'p4language' where org_login = 'p4lang';
-update gha_repos set repo_group = 'OpenBMP' where org_login = 'openbmp';
+update gha_repos set repo_group = 'OpenBMP' where org_login = 'OpenBMP';
 update gha_repos set repo_group = 'Tungsten Fabric' where org_login = 'tungstenfabric';
 update gha_repos set repo_group = 'CORD' where org_login = 'opencord';
 update gha_repos set repo_group = null where org_login is null;
