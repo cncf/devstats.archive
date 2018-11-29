@@ -59,6 +59,7 @@
 - Use `PASS=... DEPLOY_FROM=host|container ./docker/docker_test_all.sh` to test full deployment from either the host or the container. It will try to use `/etc/github/oauth` as a GitHub OAuth token (if file is present, otherwise it will use public mode - very restricted).
 - Or specify GitHub OAuth token manually `GHA2DB_GITHUB_OAUTH=... PASS=... DEPLOY_FROM=host|container ./docker/docker_test_all.sh` to test full deployment from either the host or the container.
 - Use `DEPLOY_FROM=host` only on the machine that already has `golang` configured, has all development tools and go static analysis tools, follow `INSTALL_UBUNTU18.md` for details. For a clean OS installs use `DEPLOY_FROM=container`.
+- Final command on a fresh system should be `clear; GHA2DB_GITHUB_OAUTH=key PASS=test DEPLOY_FROM=container ./docker/docker_test_all.sh`.
 
 
 # Setup
