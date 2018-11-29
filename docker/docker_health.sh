@@ -13,6 +13,8 @@ then
   fi
 fi
 host=`docker run -it devstats ip route show 2>/dev/null | awk '/default/ {print $3}'`
+export TEST_SERVER=1
+export LIST_FN_PREFIX="docker/all_"
 . ./devel/all_dbs.sh || exit 2
 for db in $all
 do
