@@ -1,4 +1,5 @@
 #!/bin/bash
+# RESTART=1 - reuse existing deployment
 if [ -z "${PASS}" ]
 then
   echo "$0: Set the password via PASS=... $*"
@@ -33,10 +34,14 @@ else
 fi
 
 ./cron/sysctl_config.sh
-./docker/docker_remove_es.sh
-./docker/docker_remove_psql.sh
-./docker/docker_es.sh || exit 3
-PG_PASS="${PASS}" ./docker/docker_psql.sh || exit 4
+if [ -z "${RESTART}" ]
+then
+  ./docker/docker_remove.sh
+  ./docker/docker_remove_es.sh
+  ./docker/docker_remove_psql.sh
+  ./docker/docker_es.sh || exit 3
+  PG_PASS="${PASS}" ./docker/docker_psql.sh || exit 4
+fi
 ./docker/docker_build.sh || exit 5
 ./docker/docker_es_wait.sh
 PG_PASS="${PASS}" ./docker/docker_psql_wait.sh
@@ -55,4 +60,4 @@ PG_PASS="${PASS}" ./docker/docker_display_logs.sh || exit 10
 ./docker/docker_es_health.sh || exit 13
 PG_PASS="${PASS}" ./docker/docker_health.sh || exit 14
 echo 'All OK'
-echo 'You can call "docker/docker_remove_psql.sh; docker/docker_remove_es.sh; docker/docker_remove.sh" to cleanup'
+echo 'You can call "./docker/docker_remove_mapped_data.sh" and/or "./docker/docker_cleanup.sh" to clean up data'

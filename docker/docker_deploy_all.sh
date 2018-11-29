@@ -42,7 +42,7 @@ then
   ./devel/init_database.sh || exit 1
 fi
 
-PROJ=lfn                    PROJDB=lfn                    PROJREPO="iovisor/bcc"                     ORGNAME="Linux Foundation Networking" PORT=3001 ICON="-" GRAFSUFF="-" GA="-" SKIPGRAFANA=1 GHA2DB_SKIP_METRICS="projects_health" GHA2DB_SKIP_VARS=1 ./devel/deploy_proj.sh || exit 2
+PROJ=lfn                    PROJDB=lfn                    PROJREPO="iovisor/bcc"                     ORGNAME="Linux Foundation Networking" PORT=3001 ICON="-" GRAFSUFF="-" GA="-" SKIPGRAFANA=1 GHA2DB_SKIP_METRICS="projects_health" GHA2DB_EXCLUDE_VARS="projects_health_partial_html" ./devel/deploy_proj.sh || exit 2
 PROJ=iovisor                PROJDB=iovisor                PROJREPO="iovisor/bcc"                     ORGNAME="IO Visor"                    PORT=3002 ICON="-" GRAFSUFF="-" GA="-" SKIPGRAFANA=1 ./devel/deploy_proj.sh || exit 3
 PROJ=mininet                PROJDB=mininet                PROJREPO="mininet/mininet"                 ORGNAME="Mininet"                     PORT=3003 ICON="-" GRAFSUFF="-" GA="-" SKIPGRAFANA=1 ./devel/deploy_proj.sh || exit 4
 PROJ=opennetworkinglab      PROJDB=opennetworkinglab      PROJREPO="opennetworkinglab/onos"          ORGNAME="Open Networking Laboratory"  PORT=3004 ICON="-" GRAFSUFF="-" GA="-" SKIPGRAFANA=1 ./devel/deploy_proj.sh || exit 5
@@ -55,6 +55,6 @@ PROJ=cord                   PROJDB=cord                   PROJREPO="opencord/vol
 
 if [ -z "$SKIPVARS" ]
 then
-  ./devel/vars_all.sh || exit 12
+  GHA2DB_EXCLUDE_VARS="projects_health_partial_html" ./devel/vars_all.sh || exit 12
 fi
 echo "$0: All deployments finished"
