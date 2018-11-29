@@ -1569,7 +1569,6 @@ func gha2db(args []string) {
 
 	dt := dFrom
 	if thrN > 1 {
-		var prcdt time.Time
 		ch := make(chan time.Time)
 		mp := make(map[time.Time]struct{})
 		nThreads := 0
@@ -1579,17 +1578,19 @@ func gha2db(args []string) {
 			dt = dt.Add(time.Hour)
 			nThreads++
 			if nThreads == thrN {
-				prcdt <- ch
+				prcdt := <-ch
 				delete(mp, prcdt)
 				nThreads--
 			}
 		}
 		lib.Printf("Final threads join\n")
 		for nThreads > 0 {
-			prcdt <- ch
+			prcdt := <-ch
 			delete(mp, prcdt)
 			nThreads--
-			lib.Printf("%d remain: %v\n", nThreads, mp)
+			if ctx.Debug > 0 {
+				lib.Printf("%d remain: %v\n", nThreads, mp)
+			}
 		}
 	} else {
 		lib.Printf("Using single threaded version\n")
