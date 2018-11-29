@@ -60,4 +60,4 @@ PG_PASS="${PASS}" ./docker/docker_display_logs.sh || exit 10
 ./docker/docker_es_health.sh || exit 13
 PG_PASS="${PASS}" ./docker/docker_health.sh || exit 14
 echo 'All OK'
-echo 'You can call "./docker/docker_remove_mapped_data.sh" and/or "./docker/docker_cleanup.sh" to clean up data"
+echo 'You can call "./docker/docker_remove_mapped_data.sh" and/or "./docker/docker_cleanup.sh" to clean up data'
