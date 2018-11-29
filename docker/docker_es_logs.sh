@@ -1,3 +1,3 @@
 #!/bin/bash
-cat /tmp/docker.es.log
-cat /tmp/docker.es.err >&2
+tail /tmp/docker.es.log
+tail /tmp/docker.es.err >&2
