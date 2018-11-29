@@ -6,6 +6,7 @@
 - Use `./docker/docker_bash.sh` to bash into `devstats` docker container.
 - Use `./docker/docker_publish.sh` to publish `devstats` image to the dockerhub.
 - Use `./docker/docker_remove.sh` to remove `devstats` docker image.
+- Use `./docker/docker_cleanup.sh` to remove all containers and do `docker system prune`.
 
 # ElasticSearch
 
