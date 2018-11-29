@@ -1411,7 +1411,7 @@ func markAsProcessed(con *sql.DB, ctx *lib.Ctx, dt time.Time) {
 // getGHAJSON - This is a work for single go routine - 1 hour of GHA data
 // Usually such JSON conatin about 15000 - 60000 singe GHA events
 // Boolean channel `ch` is used to synchronize go routines
-func getGHAJSON(ch chan bool, ctx *lib.Ctx, dt time.Time, forg map[string]struct{}, frepo map[string]struct{}, shas map[string]string) {
+func getGHAJSON(ch chan time.Time, ctx *lib.Ctx, dt time.Time, forg map[string]struct{}, frepo map[string]struct{}, shas map[string]string) {
 	lib.Printf("Working on %v\n", dt)
 
 	// Connect to Postgres DB
@@ -1436,7 +1436,7 @@ func getGHAJSON(ch chan bool, ctx *lib.Ctx, dt time.Time, forg map[string]struct
 		lib.Printf("%v: No data yet, gzip reader:\n%v\n", dt, err)
 		fmt.Fprintf(os.Stderr, "%v: No data yet, gzip reader:\n%v\n", dt, err)
 		if ch != nil {
-			ch <- true
+			ch <- dt
 		}
 		return
 	}
@@ -1449,7 +1449,7 @@ func getGHAJSON(ch chan bool, ctx *lib.Ctx, dt time.Time, forg map[string]struct
 		lib.Printf("%v: Error (no data yet, ioutil readall):\n%v\n", dt, err)
 		fmt.Fprintf(os.Stderr, "%v: Error (no data yet, ioutil readall):\n%v\n", dt, err)
 		if ch != nil {
-			ch <- true
+			ch <- dt
 		}
 		return
 	}
@@ -1478,7 +1478,7 @@ func getGHAJSON(ch chan bool, ctx *lib.Ctx, dt time.Time, forg map[string]struct
 	// Mark date as computed, to skip fetching this JSON again when it contains no events for a current project
 	markAsProcessed(con, ctx, dt)
 	if ch != nil {
-		ch <- true
+		ch <- dt
 	}
 }
 
@@ -1569,20 +1569,31 @@ func gha2db(args []string) {
 
 	dt := dFrom
 	if thrN > 1 {
-		ch := make(chan bool)
+		ch := make(chan time.Time)
+		mp := make(map[time.Time]struct{})
 		nThreads := 0
 		for dt.Before(dTo) || dt.Equal(dTo) {
 			go getGHAJSON(ch, &ctx, dt, org, repo, shaMap)
+			mp[dt] = struct{}{}
 			dt = dt.Add(time.Hour)
 			nThreads++
 			if nThreads == thrN {
-				<-ch
+				prcdt := <-ch
+				delete(mp, prcdt)
 				nThreads--
 			}
 		}
 		lib.Printf("Final threads join\n")
 		for nThreads > 0 {
-			<-ch
+			if ctx.Debug >= 0 {
+				dta := []string{}
+				for k := range mp {
+					dta = append(dta, lib.ToYMDHDate(k))
+				}
+				lib.Printf("%d remain: %v\n", nThreads, strings.Join(dta, ", "))
+			}
+			prcdt := <-ch
+			delete(mp, prcdt)
 			nThreads--
 		}
 	} else {

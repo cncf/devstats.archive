@@ -18,7 +18,7 @@ then
   echo "You can also skip GitHub API processing by setting GHA2DB_GHAPISKIP=1"
   GHA2DB_GITHUB_OAUTH="-"
 fi
-PG_HOST=`docker run -it devstats ip route show | awk '/default/ {print $3}'`
+host=`docker run -it devstats ip route show | awk '/default/ {print $3}'`
 ./cron/sysctl_config.sh
-# -e GHA2DB_DEBUG=2 -e GHA2DB_CMDDEBUG=2 -e GHA2DB_QOUT=1
-docker run -e GHA2DB_PROJECTS_COMMITS="${GHA2DB_PROJECTS_COMMITS}" -e ONLY="${ONLY}" -e GHA2DB_ES_URL="http://${PG_HOST}:19200" -e GHA2DB_USE_ES=1 -e GHA2DB_USE_ES_RAW=1 -e GHA2DB_GITHUB_OAUTH="${GHA2DB_GITHUB_OAUTH}" -e GHA2DB_GHAPISKIP="${GHA2DB_GHAPISKIP}" -e GHA2DB_PROJECTS_YAML="docker/docker_projects.yaml" -e GHA2DB_GHAPISKIP=1 -e PG_PORT=65432 -e PG_HOST="${PG_HOST}" -e PG_PASS="${PG_PASS}" -it devstats devstats
+./docker/docker_make_mount_dirs.sh
+docker run --mount src="/data/devstats",target="/root",type=bind -e ONLY="${ONLY}" -e GHA2DB_ES_URL="http://${host}:19200" -e GHA2DB_USE_ES=1 -e GHA2DB_USE_ES_RAW=1 -e GHA2DB_GITHUB_OAUTH="${GHA2DB_GITHUB_OAUTH}" -e GHA2DB_GHAPISKIP="${GHA2DB_GHAPISKIP}" -e GHA2DB_PROJECTS_YAML="docker/docker_projects.yaml" -e PG_PORT=65432 -e PG_HOST="${host}" -e PG_PASS="${PG_PASS}" --env-file <(env | grep GHA2DB) -it devstats devstats
