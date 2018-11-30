@@ -248,7 +248,11 @@ func dataForMetricTestCase(con *sql.DB, ctx *lib.Ctx, testMetric *metricTestCase
 		}
 		commits, ok := data["commits"]
 		if ok {
-			for _, commit := range commits {
+			commitsAppend, okAppend := data["commits_append"]
+			for idx, commit := range commits {
+				if okAppend {
+					commit = append(commit, commitsAppend[idx%len(commitsAppend)]...)
+				}
 				err = addCommit(con, ctx, commit...)
 				if err != nil {
 					return
@@ -500,7 +504,7 @@ func executeMetric(c *sql.DB, ctx *lib.Ctx, metric, msql string, from, to time.T
 // eid, etype, aid, rid, public, created_at, aname, rname, orgid
 func addEvent(con *sql.DB, ctx *lib.Ctx, args ...interface{}) (err error) {
 	if len(args) != 9 {
-		err = fmt.Errorf("addEvent: expects 9 variadic parameters")
+		err = fmt.Errorf("addEvent: expects 9 variadic parameters, got %d %+v", len(args), args)
 		return
 	}
 	_, err = lib.ExecSQL(
@@ -518,7 +522,7 @@ func addEvent(con *sql.DB, ctx *lib.Ctx, args ...interface{}) (err error) {
 // id, name, org_id, org_login, repo_group
 func addRepo(con *sql.DB, ctx *lib.Ctx, args ...interface{}) (err error) {
 	if len(args) != 5 {
-		err = fmt.Errorf("addRepo: expects 5 variadic parameters")
+		err = fmt.Errorf("addRepo: expects 5 variadic parameters, got %d %+v", len(args), args)
 		return
 	}
 	_, err = lib.ExecSQL(
@@ -536,7 +540,7 @@ func addRepo(con *sql.DB, ctx *lib.Ctx, args ...interface{}) (err error) {
 // actor_id, actor_login, repo_id, repo_name, type, owner_login
 func addForkee(con *sql.DB, ctx *lib.Ctx, args ...interface{}) (err error) {
 	if len(args) != 17 {
-		err = fmt.Errorf("addForkee: expects 17 variadic parameters")
+		err = fmt.Errorf("addForkee: expects 17 variadic parameters, got %d %+v", len(args), args)
 		return
 	}
 	newArgs := lib.AnyArray{
@@ -592,7 +596,7 @@ func addForkee(con *sql.DB, ctx *lib.Ctx, args ...interface{}) (err error) {
 // name
 func addCompany(con *sql.DB, ctx *lib.Ctx, args ...interface{}) (err error) {
 	if len(args) != 1 {
-		err = fmt.Errorf("addCompany: expects 1 variadic parameter")
+		err = fmt.Errorf("addCompany: expects 1 variadic parameter, got %d %+v", len(args), args)
 		return
 	}
 	_, err = lib.ExecSQL(
@@ -608,7 +612,7 @@ func addCompany(con *sql.DB, ctx *lib.Ctx, args ...interface{}) (err error) {
 // id, login, name
 func addActor(con *sql.DB, ctx *lib.Ctx, args ...interface{}) (err error) {
 	if len(args) != 9 {
-		err = fmt.Errorf("addActor: expects 9 variadic parameters")
+		err = fmt.Errorf("addActor: expects 9 variadic parameters, got %d %+v", len(args), args)
 		return
 	}
 	_, err = lib.ExecSQL(
@@ -624,7 +628,7 @@ func addActor(con *sql.DB, ctx *lib.Ctx, args ...interface{}) (err error) {
 // actor_id, company_name, dt_from, dt_to
 func addActorAffiliation(con *sql.DB, ctx *lib.Ctx, args ...interface{}) (err error) {
 	if len(args) != 4 {
-		err = fmt.Errorf("addActorAffiliation: expects 4 variadic parameters")
+		err = fmt.Errorf("addActorAffiliation: expects 4 variadic parameters, got %d %+v", len(args), args)
 		return
 	}
 	_, err = lib.ExecSQL(
@@ -640,7 +644,7 @@ func addActorAffiliation(con *sql.DB, ctx *lib.Ctx, args ...interface{}) (err er
 // iid, eid, lid, lname, created_at
 func addIssueEventLabel(con *sql.DB, ctx *lib.Ctx, args ...interface{}) (err error) {
 	if len(args) != 11 {
-		err = fmt.Errorf("addIssueEventLabel: expects 11 variadic parameters, got %v", len(args))
+		err = fmt.Errorf("addIssueEventLabel: expects 11 variadic parameters, got %d %+v", len(args), args)
 		return
 	}
 	_, err = lib.ExecSQL(
@@ -660,7 +664,7 @@ func addIssueEventLabel(con *sql.DB, ctx *lib.Ctx, args ...interface{}) (err err
 // dup_repo_id, dup_repo_name, dup_type, dup_created_at
 func addEventCommitFile(con *sql.DB, ctx *lib.Ctx, args ...interface{}) (err error) {
 	if len(args) != 10 {
-		err = fmt.Errorf("addEventCommitFile: expects 10 variadic parameters, got %v", len(args))
+		err = fmt.Errorf("addEventCommitFile: expects 10 variadic parameters, got %d %+v", len(args), args)
 		return
 	}
 	_, err = lib.ExecSQL(
@@ -680,7 +684,7 @@ func addEventCommitFile(con *sql.DB, ctx *lib.Ctx, args ...interface{}) (err err
 // ev_type, ev_created_at, issue_number, label_name
 func addIssueLabel(con *sql.DB, ctx *lib.Ctx, args ...interface{}) (err error) {
 	if len(args) != 11 {
-		err = fmt.Errorf("addIssueLabel: expects 11 variadic parameters, got %v", len(args))
+		err = fmt.Errorf("addIssueLabel: expects 11 variadic parameters, got %d %+v", len(args), args)
 		return
 	}
 	_, err = lib.ExecSQL(
@@ -700,7 +704,7 @@ func addIssueLabel(con *sql.DB, ctx *lib.Ctx, args ...interface{}) (err error) {
 // repo_id, repo_name, actor_id, actor_login, type
 func addText(con *sql.DB, ctx *lib.Ctx, args ...interface{}) (err error) {
 	if len(args) != 8 {
-		err = fmt.Errorf("addText: expects 8 variadic parameters")
+		err = fmt.Errorf("addText: expects 8 variadic parameters, got %d %+v", len(args), args)
 		return
 	}
 	_, err = lib.ExecSQL(
@@ -717,10 +721,11 @@ func addText(con *sql.DB, ctx *lib.Ctx, args ...interface{}) (err error) {
 
 // Add commit
 // sha, event_id, author_name, encrypted_email, message, dup_actor_id, dup_actor_login,
-// dup_repo_id, dup_repo_name, dup_type, dup_created_at
+// dup_repo_id, dup_repo_name, dup_type, dup_created_at,
+// author_id, committer_id, dup_author_login, dup_committer_login
 func addCommit(con *sql.DB, ctx *lib.Ctx, args ...interface{}) (err error) {
-	if len(args) != 11 {
-		err = fmt.Errorf("addCommit: expects 11 variadic parameters")
+	if len(args) != 15 {
+		err = fmt.Errorf("addCommit: expects 15 variadic parameters, got %d %+v", len(args), args)
 		return
 	}
 
@@ -738,14 +743,19 @@ func addCommit(con *sql.DB, ctx *lib.Ctx, args ...interface{}) (err error) {
 		args[8],  // dup_repo_name
 		args[9],  // dup_type
 		args[10], // dup_created_at
+		args[11], // author_id
+		args[12], // committer_id
+		args[13], // dup_author_login
+		args[14], // dup_committer_login
 	}
 	_, err = lib.ExecSQL(
 		con,
 		ctx,
 		"insert into gha_commits("+
 			"sha, event_id, author_name, encrypted_email, message, is_distinct, "+
-			"dup_actor_id, dup_actor_login, dup_repo_id, dup_repo_name, dup_type, dup_created_at"+
-			") "+lib.NValues(12),
+			"dup_actor_id, dup_actor_login, dup_repo_id, dup_repo_name, dup_type, dup_created_at, "+
+			"author_id, committer_id, dup_author_login, dup_committer_login"+
+			") "+lib.NValues(16),
 		newArgs...,
 	)
 	return
@@ -755,7 +765,7 @@ func addCommit(con *sql.DB, ctx *lib.Ctx, args ...interface{}) (err error) {
 // id, event_id, body, created_at, user_id, repo_id, repo_name, actor_id, actor_login, type, user_login
 func addComment(con *sql.DB, ctx *lib.Ctx, args ...interface{}) (err error) {
 	if len(args) != 11 {
-		err = fmt.Errorf("addComment: expects 11 variadic parameters")
+		err = fmt.Errorf("addComment: expects 11 variadic parameters, got %d %+v", len(args), args)
 		return
 	}
 
@@ -802,7 +812,7 @@ func addComment(con *sql.DB, ctx *lib.Ctx, args ...interface{}) (err error) {
 // actor_id, actor_login, repo_id, repo_name, event_type, event_created_at
 func addPayload(con *sql.DB, ctx *lib.Ctx, args ...interface{}) (err error) {
 	if len(args) != 14 {
-		err = fmt.Errorf("addPayload: expects 14 variadic parameters")
+		err = fmt.Errorf("addPayload: expects 14 variadic parameters, got %d %+v", len(args), args)
 		return
 	}
 	newArgs := lib.AnyArray{
@@ -850,7 +860,7 @@ func addPayload(con *sql.DB, ctx *lib.Ctx, args ...interface{}) (err error) {
 // repo_id, repo_name, actor_id, actor_login, updated_at
 func addPR(con *sql.DB, ctx *lib.Ctx, args ...interface{}) (err error) {
 	if len(args) != 18 {
-		err = fmt.Errorf("addPR: expects 18 variadic parameters, got %v", len(args))
+		err = fmt.Errorf("addPR: expects 18 variadic parameters, got %d %+v", len(args), args)
 		return
 	}
 
@@ -913,7 +923,7 @@ func addPR(con *sql.DB, ctx *lib.Ctx, args ...interface{}) (err error) {
 // issue_id, pr_id, number, repo_id, repo_name, created_at
 func addIssuePR(con *sql.DB, ctx *lib.Ctx, args ...interface{}) (err error) {
 	if len(args) != 6 {
-		err = fmt.Errorf("addIssuePR: expects 6 variadic parameters, got %v", len(args))
+		err = fmt.Errorf("addIssuePR: expects 6 variadic parameters, got %d %+v", len(args), args)
 		return
 	}
 	_, err = lib.ExecSQL(
@@ -933,7 +943,7 @@ func addIssuePR(con *sql.DB, ctx *lib.Ctx, args ...interface{}) (err error) {
 // is_pull_request, milestone_id, dup_created_at
 func addIssue(con *sql.DB, ctx *lib.Ctx, args ...interface{}) (err error) {
 	if len(args) != 19 {
-		err = fmt.Errorf("addIssue: expects 19 variadic parameters, got %v", len(args))
+		err = fmt.Errorf("addIssue: expects 19 variadic parameters, got %d %+v", len(args), args)
 		return
 	}
 	newArgs := lib.AnyArray{
@@ -979,7 +989,7 @@ func addIssue(con *sql.DB, ctx *lib.Ctx, args ...interface{}) (err error) {
 // dup_actor_id, dup_actor_login, dup_repo_id, dup_repo_name, dup_type, dup_created_at
 func addMilestone(con *sql.DB, ctx *lib.Ctx, args ...interface{}) (err error) {
 	if len(args) != 16 {
-		err = fmt.Errorf("addMilestone: expects 16 variadic parameters, got %v", len(args))
+		err = fmt.Errorf("addMilestone: expects 16 variadic parameters, got %d %+v", len(args), args)
 		return
 	}
 	newArgs := lib.AnyArray{
@@ -1128,14 +1138,36 @@ func (metricTestCase) AffiliationsTestHelper(con *sql.DB, ctx *lib.Ctx, arg stri
 
 	// Will hold all events generated
 	events := [][]interface{}{}
+	commits := [][]interface{}{}
 	eid := 1
-	for _, aid := range []string{"1", "2", "3"} {
+	cid := 1
+	rid := 1
+	for aidx, aid := range []string{"1", "2", "3"} {
 		for _, etype := range etypes {
 			for _, dt := range dates {
-				// Events to add
+				// Event to add
 				// eid, etype, aid, rid, public, created_at, aname, rname, orgid
-				events = append(events, []interface{}{eid, etype, aid, 0, true, dt, "A" + aid, "R", nil})
+				events = append(events, []interface{}{eid, etype, aid, rid, true, dt, "A" + aid, "R", nil})
+				if etype == "PushEvent" {
+					// Commit to add
+					// sha, event_id, author_name, encrypted_email, message, dup_actor_id, dup_actor_login,
+					// dup_repo_id, dup_repo_name, dup_type, dup_created_at,
+					// author_id, committer_id, dup_author_login, dup_committer_login
+					commits = append(
+						commits,
+						[]interface{}{
+							strconv.Itoa(cid), eid, "AN" + aid, "", "commit ", aidx + 1, "A" + aid,
+							rid, "R" + strconv.Itoa(rid), etype, dt,
+							aidx + 2, aidx + 3, "AU" + aid, "AC" + aid,
+						},
+					)
+					cid++
+				}
 				eid++
+				rid++
+				if rid > 4 {
+					rid = 1
+				}
 			}
 		}
 	}
@@ -1144,6 +1176,16 @@ func (metricTestCase) AffiliationsTestHelper(con *sql.DB, ctx *lib.Ctx, arg stri
 	for _, event := range events {
 		err = addEvent(con, ctx, event...)
 		if err != nil {
+			fmt.Printf("error adding event: %v", err)
+			return
+		}
+	}
+
+	// Add commits
+	for _, commit := range commits {
+		err = addCommit(con, ctx, commit...)
+		if err != nil {
+			fmt.Printf("error adding commit: %v", err)
 			return
 		}
 	}
