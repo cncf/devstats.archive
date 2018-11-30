@@ -218,6 +218,9 @@ update gha_repos set repo_group = 'SIG VMware' where name in (
   'kubernetes-sigs/cluster-api-provider-vsphere'
 );
 
+-- All other unknown repositories should have 'Other' repository group
+-- update gha_repos set repo_group = 'Other' where repo_group is null;
+
 -- By default alias is the newest repo name for given repo ID
 update
   gha_repos r
