@@ -488,28 +488,35 @@ with projects as (
     po.repo_group = pc.repo_group
 ), commits_counts as (
   select r.repo_group,
-    count(distinct e.sha) as n
+    count(distinct e.sha) as n12,
+    count(distinct e.sha) filter (where e.created_at >= now() - '3 months'::interval) as n3
   from (
       select dup_repo_id as repo_id,
+        dup_created_at as created_at,
         sha
       from
         gha_commits
       where
         (lower(dup_actor_login) {{exclude_bots}})
+        and dup_created_at >= now() - '1 year'::interval
       union select dup_repo_id as repo_id,
+        dup_created_at as created_at,
         sha
       from
         gha_commits
       where
         dup_author_login is not null
         and (lower(dup_author_login) {{exclude_bots}})
+        and dup_created_at >= now() - '1 year'::interval
       union select dup_repo_id as repo_id,
+        dup_created_at as created_at,
         sha
       from
         gha_commits
       where
         dup_committer_login is not null
         and (lower(dup_committer_login) {{exclude_bots}})
+        and dup_created_at >= now() - '1 year'::interval
     ) e,
     gha_repos r
   where
@@ -519,7 +526,8 @@ with projects as (
     r.repo_group
 ), known_commits_counts as (
   select r.repo_group,
-    count(distinct e.sha) as n
+    count(distinct e.sha) as n12,
+    count(distinct e.sha) filter (where e.created_at >= now() - '3 months'::interval) as n3
   from (
       select dup_repo_id as repo_id,
         sha,
@@ -529,6 +537,7 @@ with projects as (
         gha_commits
       where
         (lower(dup_actor_login) {{exclude_bots}})
+        and dup_created_at >= now() - '1 year'::interval
       union select dup_repo_id as repo_id,
         sha,
         dup_created_at as created_at,
@@ -538,6 +547,7 @@ with projects as (
       where
         dup_author_login is not null
         and (lower(dup_author_login) {{exclude_bots}})
+        and dup_created_at >= now() - '1 year'::interval
       union select dup_repo_id as repo_id,
         sha,
         dup_created_at as created_at,
@@ -547,6 +557,7 @@ with projects as (
       where
         dup_committer_login is not null
         and (lower(dup_committer_login) {{exclude_bots}})
+        and dup_created_at >= now() - '1 year'::interval
     ) e,
     gha_repos r,
     gha_actors_affiliations a
@@ -564,7 +575,8 @@ with projects as (
 ), company_commits_counts as (
   select r.repo_group,
     a.company_name,
-    count(distinct e.sha) as n
+    count(distinct e.sha) as n12,
+    count(distinct e.sha) filter (where e.created_at >= now() - '3 months'::interval) as n3
   from (
       select dup_repo_id as repo_id,
         sha,
@@ -574,6 +586,7 @@ with projects as (
         gha_commits
       where
         (lower(dup_actor_login) {{exclude_bots}})
+        and dup_created_at >= now() - '1 year'::interval
       union select dup_repo_id as repo_id,
         sha,
         dup_created_at as created_at,
@@ -583,6 +596,7 @@ with projects as (
       where
         dup_author_login is not null
         and (lower(dup_author_login) {{exclude_bots}})
+        and dup_created_at >= now() - '1 year'::interval
       union select dup_repo_id as repo_id,
         sha,
         dup_created_at as created_at,
@@ -592,6 +606,7 @@ with projects as (
       where
         dup_committer_login is not null
         and (lower(dup_committer_login) {{exclude_bots}})
+        and dup_created_at >= now() - '1 year'::interval
     ) e,
     gha_repos r,
     gha_actors_affiliations a
@@ -605,38 +620,94 @@ with projects as (
   group by
     r.repo_group,
     a.company_name
-), top_all as (
-  select distinct c.repo_group,
-    round(first_value((c.n::numeric / a.n::numeric) * 100.0) over companies_by_commits, 2)::text || '% ' || first_value(c.company_name) over companies_by_commits as top
-  from
-    commits_counts a,
-    company_commits_counts c
-  where
-    a.repo_group = c.repo_group
-  window
-    companies_by_commits as (
-      partition by c.repo_group
-      order by
-        c.n desc
-      range between unbounded preceding
-      and current row
-    )
-), top_known as (
-  select distinct c.repo_group,
-    round(first_value((c.n::numeric / k.n::numeric) * 100.0) over companies_by_commits, 2)::text || '% ' || first_value(c.company_name) over companies_by_commits as top
-  from
-    known_commits_counts k,
-    company_commits_counts c
-  where
-    k.repo_group = c.repo_group
-  window
-    companies_by_commits as (
-      partition by c.repo_group
-      order by
-        c.n desc
-      range between unbounded preceding
-      and current row
-    )
+), top_all_12 as (
+  select i.repo_group,
+    case i.a > 0 when true then round((i.c::numeric / i.a::numeric) * 100.0, 2)::text || '% ' || i.cname else '-' end as top
+  from (
+    select distinct c.repo_group,
+      first_value(c.n12) over companies_by_commits as c,
+      first_value(a.n12) over companies_by_commits as a,
+      first_value(c.company_name) over companies_by_commits as cname
+    from
+      commits_counts a,
+      company_commits_counts c
+    where
+      a.repo_group = c.repo_group
+    window
+      companies_by_commits as (
+        partition by c.repo_group
+        order by
+          c.n12 desc
+        range between unbounded preceding
+        and current row
+      )
+  ) i
+), top_known_12 as (
+  select i.repo_group,
+    case i.k > 0 when true then round((i.c::numeric / i.k::numeric) * 100.0, 2)::text || '% ' || i.cname else '-' end as top
+  from (
+    select distinct c.repo_group,
+      first_value(c.n12) over companies_by_commits as c,
+      first_value(k.n12) over companies_by_commits as k,
+      first_value(c.company_name) over companies_by_commits as cname
+    from
+      known_commits_counts k,
+      company_commits_counts c
+    where
+      k.repo_group = c.repo_group
+    window
+      companies_by_commits as (
+        partition by c.repo_group
+        order by
+          c.n12 desc
+        range between unbounded preceding
+        and current row
+      )
+  ) i
+), top_all_3 as (
+  select i.repo_group,
+    case i.a > 0 when true then round((i.c::numeric / i.a::numeric) * 100.0, 2)::text || '% ' || i.cname else '-' end as top
+  from (
+    select distinct c.repo_group,
+      first_value(c.n3) over companies_by_commits as c,
+      first_value(a.n3) over companies_by_commits as a,
+      first_value(c.company_name) over companies_by_commits as cname
+    from
+      commits_counts a,
+      company_commits_counts c
+    where
+      a.repo_group = c.repo_group
+    window
+      companies_by_commits as (
+        partition by c.repo_group
+        order by
+          c.n3 desc
+        range between unbounded preceding
+        and current row
+      )
+  ) i
+), top_known_3 as (
+  select i.repo_group,
+    case i.k > 0 when true then round((i.c::numeric / i.k::numeric) * 100.0, 2)::text || '% ' || i.cname else '-' end as top
+  from (
+    select distinct c.repo_group,
+      first_value(c.n3) over companies_by_commits as c,
+      first_value(k.n3) over companies_by_commits as k,
+      first_value(c.company_name) over companies_by_commits as cname
+    from
+      known_commits_counts k,
+      company_commits_counts c
+    where
+      k.repo_group = c.repo_group
+    window
+      companies_by_commits as (
+        partition by c.repo_group
+        order by
+          c.n3 desc
+        range between unbounded preceding
+        and current row
+      )
+  ) i
 )
 select
   'phealth,' || project || ',ltag' as name,
@@ -1121,18 +1192,32 @@ from
   new6_contributors p
 where
   n.repo_group = p.repo_group
-union select 'phealth,' || repo_group || ',topcompall' as name,
-  'Companies: percent of known commits from top committing company',
+union select 'phealth,' || repo_group || ',topcompall12' as name,
+  'Companies: percent of known commits from top committing company (last year)',
   now(),
   0.0,
   top
 from
-  top_known
+  top_known_12
 union select 'phealth,' || repo_group || ',topcompall' as name,
-  'Companies: percent of all commits from top committing company',
+  'Companies: percent of all commits from top committing company (last year)',
   now(),
   0.0,
   top
 from
-  top_all
+  top_all_12
+union select 'phealth,' || repo_group || ',topcompall3' as name,
+  'Companies: percent of known commits from top committing company (last 3 months)',
+  now(),
+  0.0,
+  top
+from
+  top_known_3
+union select 'phealth,' || repo_group || ',topcompall3' as name,
+  'Companies: percent of all commits from top committing company (last 3 months)',
+  now(),
+  0.0,
+  top
+from
+  top_all_3
 ;
