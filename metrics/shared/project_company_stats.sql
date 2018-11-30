@@ -1,11 +1,8 @@
-select 
-  'hcom,' || sub.metric as metric,
-  sub.company as name,
-  sub.value as value
-from (
-  select 'Commits' as metric,
-    af.company_name as company,
-    count(distinct c.sha) as value
+with company_commits_data as (
+  select c.dup_repo_id as repo_id,
+    c.sha,
+    c.dup_actor_id as actor_id,
+    af.company_name as company
   from
     gha_commits c,
     gha_actors_affiliations af
@@ -16,12 +13,87 @@ from (
     and {{period:c.dup_created_at}}
     and (lower(c.dup_actor_login) {{exclude_bots}})
     and af.company_name != ''
+  union select c.dup_repo_id as repo_id,
+    c.sha,
+    c.author_id as actor_id,
+    af.company_name as company
+  from
+    gha_commits c,
+    gha_actors_affiliations af
+  where
+    c.author_id is not null
+    and c.author_id = af.actor_id
+    and af.dt_from <= c.dup_created_at
+    and af.dt_to > c.dup_created_at
+    and {{period:c.dup_created_at}}
+    and (lower(c.dup_author_login) {{exclude_bots}})
+    and af.company_name != ''
+  union select c.dup_repo_id as repo_id,
+    c.sha,
+    c.committer_id as actor_id,
+    af.company_name as company
+  from
+    gha_commits c,
+    gha_actors_affiliations af
+  where
+    c.committer_id is not null
+    and c.committer_id = af.actor_id
+    and af.dt_from <= c.dup_created_at
+    and af.dt_to > c.dup_created_at
+    and {{period:c.dup_created_at}}
+    and (lower(c.dup_committer_login) {{exclude_bots}})
+    and af.company_name != ''
+), commits_data as (
+  select c.dup_repo_id as repo_id,
+    c.sha,
+    c.dup_actor_id as actor_id
+  from
+    gha_commits c
+  where
+    {{period:c.dup_created_at}}
+    and (lower(c.dup_actor_login) {{exclude_bots}})
+  union select c.dup_repo_id as repo_id,
+    c.sha,
+    c.author_id as actor_id
+  from
+    gha_commits c
+  where
+    c.author_id is not null
+    and {{period:c.dup_created_at}}
+    and (lower(c.dup_author_login) {{exclude_bots}})
+  union select c.dup_repo_id as repo_id,
+    c.sha,
+    c.committer_id as actor_id
+  from
+    gha_commits c
+  where
+    c.committer_id is not null
+    and {{period:c.dup_created_at}}
+    and (lower(c.dup_committer_login) {{exclude_bots}})
+)
+select 
+  'hcom,' || sub.metric as metric,
+  sub.company as name,
+  sub.value as value
+from (
+  select 'Commits' as metric,
+    company,
+    count(distinct sha) as value
+  from
+    company_commits_data
   group by
-    af.company_name
+    company
+  union select 'Committers' as metric,
+    company,
+    count(distinct actor_id) as value
+  from
+    company_commits_data
+  group by
+    company
   union select case e.type
       when 'IssuesEvent' then 'Issue creators'
       when 'PullRequestEvent' then 'PR creators'
-      when 'PushEvent' then 'Committers'
+      when 'PushEvent' then 'Pushers'
       when 'PullRequestReviewCommentEvent' then 'PR reviewers'
       when 'IssueCommentEvent' then 'Issue commenters'
       when 'CommitCommentEvent' then 'Commit commenters'
@@ -179,17 +251,19 @@ from (
   group by
     af.company_name
   union select 'Commits' as metric,
-    'All' as company,
-    count(distinct c.sha) as value
+    'All',
+    count(distinct sha) as value
   from
-    gha_commits c
-  where
-    {{period:c.dup_created_at}}
-    and (lower(c.dup_actor_login) {{exclude_bots}})
+    commits_data
+  union select 'Committers' as metric,
+    'All',
+    count(distinct actor_id) as value
+  from
+    commits_data
   union select case e.type
       when 'IssuesEvent' then 'Issue creators'
       when 'PullRequestEvent' then 'PR creators'
-      when 'PushEvent' then 'Committers'
+      when 'PushEvent' then 'Pushers'
       when 'PullRequestReviewCommentEvent' then 'PR reviewers'
       when 'IssueCommentEvent' then 'Issue commenters'
       when 'CommitCommentEvent' then 'Commit commenters'
@@ -302,6 +376,7 @@ where
     'Commit commenters',
     'Commits',
     'Committers',
+    'Pushers',
     'Contributors',
     'Contributions'
     )
