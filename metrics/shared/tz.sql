@@ -31,7 +31,7 @@ with data as (
   group by
     a.tz_offset
   union select a.tz_offset,
-    r.repo_group,
+    coalesce(ecf.repo_group, r.repo_group) as repo_group,
     count(distinct e.actor_id) filter (where e.type in ('IssuesEvent', 'PullRequestEvent', 'PushEvent', 'CommitCommentEvent', 'IssueCommentEvent', 'PullRequestReviewCommentEvent')) as contributors,
     count(distinct e.id) filter (where e.type in ('IssuesEvent', 'PullRequestEvent', 'PushEvent', 'CommitCommentEvent', 'IssueCommentEvent', 'PullRequestReviewCommentEvent')) as contributions,
     count(distinct e.actor_id) as users,
@@ -54,17 +54,20 @@ with data as (
     gha_repos r,
     gha_actors a,
     gha_events e
+  left join
+    gha_events_commits_files ecf
+  on
+    ecf.event_id = e.id
   where
     r.id = e.repo_id
     and (lower(a.login) {{exclude_bots}})
     and a.id = e.actor_id
     and a.tz_offset is not null
-    and r.repo_group is not null
     and e.created_at >= '{{from}}'
     and e.created_at < '{{to}}'
   group by
     a.tz_offset,
-    r.repo_group
+    coalesce(ecf.repo_group, r.repo_group)
 )
 select
   'tz;' || round(tz_offset / 60.0, 1) || '`' || repo_group || ';contributors,contributions,users,events,committers,commits,prcreators,prs,issuecreators,issues,commenters,comments,reviewers,reviews,watchers,watches,forkers,forks' as name,
@@ -88,4 +91,6 @@ select
   forks
 from
   data
+where
+  repo_group is not null
 ;
