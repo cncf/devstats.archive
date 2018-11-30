@@ -510,7 +510,7 @@ func sync(ctx *lib.Ctx, args []string) {
 
 		// TSDB ensure that calculated metric have all columns from tags
 		if !ctx.SkipColumns {
-			if ctx.ResetTSDB || time.Now().Hour() == 0 {
+			if ctx.RunColumns || ctx.ResetTSDB || time.Now().Hour() == 0 {
 				_, err := lib.ExecCommand(ctx, []string{cmdPrefix + "columns"}, nil)
 				lib.FatalOnError(err)
 			} else {
