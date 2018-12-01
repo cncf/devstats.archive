@@ -19,6 +19,13 @@
 - `encrypted_email`: Author email encrypted by GitHub, for example `76f8b7dc8ef32a26553fcbdb25b75cb20f767b8e@gmail.com`.
 - `message`: Commit message.
 - `is_distinct`: boolean true/false.
+- `author_id`: commit author, can be null.
+- `committer_id`: committer, can be null.
+- `author_email`: commit author email, can be empty.
+- `committer_name`: committer name, can be empty.
+- `committer_email`: committer email, can be empty.
+- `dup_author_login`: commit author login, can be empty.
+- `dup_committer_login`: committer login, can be empty.
 
 # Duplicates from [gha_events](https://github.com/cncf/devstats/blob/master/docs/tables/gha_events.md) table
 
