@@ -352,6 +352,16 @@ where
   or name in ('alibaba/Dragonfly')
 ;
 
+-- Virtual Kubelet
+update
+  gha_repos
+set
+  repo_group = 'Virtual Kubelet',
+  alias = 'Virtual Kubelet'
+where
+  org_login in ('virtual-kubelet', 'Virtual-Kubelet')
+;
+
 -- CNCF
 update
   gha_repos
