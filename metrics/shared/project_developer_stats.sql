@@ -1,18 +1,67 @@
+with commits_data as (
+  select c.dup_repo_id as repo_id,
+    coalesce(ecf.repo_group, r.repo_group) as repo_group,
+    c.sha,
+    c.dup_actor_id as actor_id,
+    c.dup_actor_login as actor_login
+  from
+    gha_repos r,
+    gha_commits c
+  left join
+    gha_events_commits_files ecf
+  on
+    ecf.event_id = c.event_id
+  where
+    c.dup_repo_id = r.id
+    and {{period:c.dup_created_at}}
+    and (lower(c.dup_actor_login) {{exclude_bots}})
+  union select c.dup_repo_id as repo_id,
+    coalesce(ecf.repo_group, r.repo_group) as repo_group,
+    c.sha,
+    c.author_id as actor_id,
+    c.dup_author_login as actor_login
+  from
+    gha_repos r,
+    gha_commits c
+  left join
+    gha_events_commits_files ecf
+  on
+    ecf.event_id = c.event_id
+  where
+    c.dup_repo_id = r.id
+    and c.author_id is not null
+    and {{period:c.dup_created_at}}
+    and (lower(c.dup_author_login) {{exclude_bots}})
+  union select c.dup_repo_id as repo_id,
+    coalesce(ecf.repo_group, r.repo_group) as repo_group,
+    c.sha,
+    c.committer_id as actor_id,
+    c.dup_committer_login as actor_login
+  from
+    gha_repos r,
+    gha_commits c
+  left join
+    gha_events_commits_files ecf
+  on
+    ecf.event_id = c.event_id
+  where
+    c.dup_repo_id = r.id
+    and c.committer_id is not null
+    and {{period:c.dup_created_at}}
+    and (lower(c.dup_committer_login) {{exclude_bots}})
+)
 select 
   'hdev_' || sub.metric || ',All_All' as metric,
   sub.author as name,
   sub.value as value
 from (
   select 'commits' as metric,
-    dup_actor_login as author,
+    actor_login as author,
     count(distinct sha) as value
   from
-    gha_commits
-  where
-    {{period:dup_created_at}}
-    and (lower(dup_actor_login) {{exclude_bots}})
+    commits_data
   group by
-    dup_actor_login
+    actor_login
   union select case type
       when 'PushEvent' then 'pushes'
       when 'PullRequestReviewCommentEvent' then 'review_comments'
@@ -119,31 +168,17 @@ union select 'hdev_' || sub.metric || ',' || sub.repo_group || '_All' as metric,
   sub.author as name,
   sub.value as value
 from (
-  select 'commits'::text as metric,
-    sub.repo_group,
-    sub.author,
-    count(distinct sub.sha) as value
-  from (
-    select coalesce(ecf.repo_group, r.repo_group) as repo_group,
-      c.dup_actor_login as author,
-      c.sha
-    from
-      gha_repos r,
-      gha_commits c
-    left join
-      gha_events_commits_files ecf
-    on
-      ecf.event_id = c.event_id
-    where
-      r.name = c.dup_repo_name
-      and {{period:c.dup_created_at}}
-      and (lower(c.dup_actor_login) {{exclude_bots}})
-    ) sub
+  select 'commits' as metric,
+    repo_group,
+    actor_login as author,
+    count(distinct sha) as value
+  from
+    commits_data
   where
-    sub.repo_group is not null
+    repo_group is not null
   group by
-    sub.repo_group,
-    sub.author
+    repo_group,
+    actor_login
   union select case sub.type
       when 'PushEvent' then 'pushes'
       when 'PullRequestReviewCommentEvent' then 'review_comments'
@@ -324,17 +359,10 @@ from (
     a.login as author,
     count(distinct c.sha) as value
   from
-    gha_commits c,
+    commits_data c,
     gha_actors a
-  where (
-      c.committer_id = a.id
-      or c.author_id = a.id
-      or c.dup_actor_login = a.login
-      or c.dup_author_login = a.login
-      or c.dup_committer_login = a.login
-    )
-    and {{period:c.dup_created_at}}
-    and (lower(a.login) {{exclude_bots}})
+  where
+    c.actor_id = a.id
     and a.country_name is not null
   group by
     a.country_name,
@@ -480,42 +508,22 @@ union select 'hdev_' || sub.metric || ',' || sub.repo_group || '_' || sub.countr
   sub.author as name,
   sub.value as value
 from (
-  select 'commits'::text as metric,
-    sub.repo_group,
-    sub.country,
-    sub.author,
-    count(distinct sub.sha) as value
-  from (
-    select coalesce(ecf.repo_group, r.repo_group) as repo_group,
-      a.country_name as country,
-      a.login as author,
-      c.sha
-    from
-      gha_actors a,
-      gha_repos r,
-      gha_commits c
-    left join
-      gha_events_commits_files ecf
-    on
-      ecf.event_id = c.event_id
-    where (
-        c.committer_id = a.id
-        or c.author_id = a.id
-        or c.dup_actor_login = a.login
-        or c.dup_author_login = a.login
-        or c.dup_committer_login = a.login
-      )
-      and r.name = c.dup_repo_name
-      and {{period:c.dup_created_at}}
-      and (lower(a.login) {{exclude_bots}})
-    ) sub
+  select 'commits' as metric,
+    c.repo_group,
+    a.country_name as country,
+    a.login as author,
+    count(distinct c.sha) as value
+  from
+    commits_data c,
+    gha_actors a
   where
-    sub.repo_group is not null
-    and sub.country is not null
+    c.actor_id = a.id
+    and a.country_name is not null
+    and c.repo_group is not null
   group by
-    sub.repo_group,
-    sub.country,
-    sub.author
+    c.repo_group,
+    a.country_name,
+    a.login
   union select case sub.type
       when 'PushEvent' then 'pushes'
       when 'PullRequestReviewCommentEvent' then 'review_comments'
