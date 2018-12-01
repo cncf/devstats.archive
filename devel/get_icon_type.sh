@@ -38,8 +38,10 @@ icontypes=(
   ["buildpacks"]="color"
   ["falco"]="color"
   ["dragonfly"]="color"
+  ["virtualkubelet"]="color"
   ["istio"]="color"
   ["spinnaker"]="color"
+  ["knative"]="color"
   ["all"]="color"
   ["devstats"]="color"
 )
