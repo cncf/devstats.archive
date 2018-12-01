@@ -1,3 +1,52 @@
+with commits_data as (
+  select c.dup_repo_id as repo_id,
+    coalesce(ecf.repo_group, r.repo_group) as repo_group,
+    c.sha,
+    c.dup_actor_id as actor_id
+  from
+    gha_repos r,
+    gha_commits c
+  left join
+    gha_events_commits_files ecf
+  on
+    ecf.event_id = c.event_id
+  where
+    c.dup_repo_id = r.id
+    and {{period:c.dup_created_at}}
+    and (lower(c.dup_actor_login) {{exclude_bots}})
+  union select c.dup_repo_id as repo_id,
+    coalesce(ecf.repo_group, r.repo_group) as repo_group,
+    c.sha,
+    c.author_id as actor_id
+  from
+    gha_repos r,
+    gha_commits c
+  left join
+    gha_events_commits_files ecf
+  on
+    ecf.event_id = c.event_id
+  where
+    c.dup_repo_id = r.id
+    and c.author_id is not null
+    and {{period:c.dup_created_at}}
+    and (lower(c.dup_author_login) {{exclude_bots}})
+  union select c.dup_repo_id as repo_id,
+    coalesce(ecf.repo_group, r.repo_group) as repo_group,
+    c.sha,
+    c.committer_id as actor_id
+  from
+    gha_repos r,
+    gha_commits c
+  left join
+    gha_events_commits_files ecf
+  on
+    ecf.event_id = c.event_id
+  where
+    c.dup_repo_id = r.id
+    and c.committer_id is not null
+    and {{period:c.dup_created_at}}
+    and (lower(c.dup_committer_login) {{exclude_bots}})
+)
 select
   sub.repo_group,
   'Contributors' as name,
@@ -37,41 +86,111 @@ where
     'PushEvent', 'PullRequestEvent', 'IssuesEvent',
     'CommitCommentEvent', 'IssueCommentEvent', 'PullRequestReviewCommentEvent'
   )
-union select sub.repo_group,
-  'Commits' as name,
-  count(distinct sub.sha) as value
+union select
+  sub.repo_group,
+  'Contributions' as name,
+  count(distinct sub.id) as value
 from (
   select 'pstat,' || coalesce(ecf.repo_group, r.repo_group) as repo_group,
-    c.sha
+    e.id
   from
     gha_repos r,
-    gha_commits c
+    gha_events e
   left join
     gha_events_commits_files ecf
   on
-    ecf.event_id = c.event_id
+    ecf.event_id = e.id
   where
-    {{period:c.dup_created_at}}
-    and c.dup_repo_id = r.id
-    and (lower(c.dup_actor_login) {{exclude_bots}})
+    {{period:e.created_at}}
+    and e.repo_id = r.id
+    and (lower(e.dup_actor_login) {{exclude_bots}})
+    and e.type in (
+      'PushEvent', 'PullRequestEvent', 'IssuesEvent',
+      'CommitCommentEvent', 'IssueCommentEvent', 'PullRequestReviewCommentEvent'
+    )
   ) sub
 where
   sub.repo_group is not null
 group by
   sub.repo_group
 union select 'pstat,All' as repo_group,
-  'Commits' as name,
-  count(distinct sha) as value
+  'Contributions' as name,
+  count(distinct id) as value
 from
-  gha_commits
+  gha_events
 where
-  {{period:dup_created_at}}
+  {{period:created_at}}
   and (lower(dup_actor_login) {{exclude_bots}})
+  and type in (
+    'PushEvent', 'PullRequestEvent', 'IssuesEvent',
+    'CommitCommentEvent', 'IssueCommentEvent', 'PullRequestReviewCommentEvent'
+  )
+union select
+  sub.repo_group,
+  'Pushes' as name,
+  count(distinct sub.id) as value
+from (
+  select 'pstat,' || coalesce(ecf.repo_group, r.repo_group) as repo_group,
+    e.id
+  from
+    gha_repos r,
+    gha_events e
+  left join
+    gha_events_commits_files ecf
+  on
+    ecf.event_id = e.id
+  where
+    {{period:e.created_at}}
+    and e.repo_id = r.id
+    and (lower(e.dup_actor_login) {{exclude_bots}})
+    and e.type = 'PushEvent'
+  ) sub
+where
+  sub.repo_group is not null
+group by
+  sub.repo_group
+union select 'pstat,All' as repo_group,
+  'Pushes' as name,
+  count(distinct id) as value
+from
+  gha_events
+where
+  {{period:created_at}}
+  and (lower(dup_actor_login) {{exclude_bots}})
+  and type = 'PushEvent'
+union select 'pstat,' || c.repo_group as repo_group,
+  'Commits' as name,
+  count(distinct c.sha) as value
+from
+  commits_data c
+where
+  c.repo_group is not null
+group by
+  c.repo_group
+union select 'pstat,All' as repo_group,
+  'Commits' as name,
+  count(distinct c.sha) as value
+from
+  commits_data c
+union select 'pstat,' || c.repo_group as repo_group,
+  'Committers' as name,
+  count(distinct c.actor_id) as value
+from
+  commits_data c
+where
+  c.repo_group is not null
+group by
+  c.repo_group
+union select 'pstat,All' as repo_group,
+  'Committers' as name,
+  count(distinct c.actor_id) as value
+from
+  commits_data c
 union select sub.repo_group,
   case sub.type
     when 'IssuesEvent' then 'Issue creators'
     when 'PullRequestEvent' then 'PR creators'
-    when 'PushEvent' then 'Committers'
+    when 'PushEvent' then 'Pushers'
     when 'PullRequestReviewCommentEvent' then 'PR reviewers'
     when 'IssueCommentEvent' then 'Issue commenters'
     when 'CommitCommentEvent' then 'Commit commenters'
@@ -109,7 +228,7 @@ union select 'pstat,All' as repo_group,
   case type 
     when 'IssuesEvent' then 'Issue creators'
     when 'PullRequestEvent' then 'PR creators'
-    when 'PushEvent' then 'Committers'
+    when 'PushEvent' then 'Pushers'
     when 'PullRequestReviewCommentEvent' then 'PR reviewers'
     when 'IssueCommentEvent' then 'Issue commenters'
     when 'CommitCommentEvent' then 'Commit commenters'
@@ -208,36 +327,6 @@ from
 where
   {{period:created_at}}
   and (lower(dup_user_login) {{exclude_bots}})
-union select sub.repo_group,
-  'Commits authors' as name,
-  count(distinct sub.encrypted_email) as value
-from (
-  select 'pstat,' || coalesce(ecf.repo_group, r.repo_group) as repo_group,
-    c.encrypted_email
-  from
-    gha_repos r,
-    gha_commits c
-  left join
-    gha_events_commits_files ecf
-  on
-    ecf.event_id = c.event_id
-  where
-    {{period:c.dup_created_at}}
-    and c.dup_repo_id = r.id
-    and (lower(c.dup_actor_login) {{exclude_bots}})
-  ) sub
-where
-  sub.repo_group is not null
-group by
-  sub.repo_group
-union select 'pstat,All' as repo_group,
-  'Commits authors' as name,
-  count(distinct encrypted_email) as value
-from
-  gha_commits
-where
-  {{period:dup_created_at}}
-  and (lower(dup_actor_login) {{exclude_bots}})
 union select sub.repo_group,
   'Issues' as name,
   count(distinct sub.id) as value
