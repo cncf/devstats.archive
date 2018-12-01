@@ -39,7 +39,7 @@ This file describes how to add new project on the test and production servers.
 - You can mass update Grafana dashboards using `sqlitedb` tool: `ONLY="proj1 proj2 ..." ./devel/put_all_charts.sh`, then `devel/put_all_charts_cleanup.sh`. You need to use `ONLY` because there is no new project's Grafana yet.
 - Update `partials/projects.html partials/projects_health.html metrics/all/sync_vars.yaml`. Test with: `ONLY="proj1 proj2 ..." PG_PASS=... ./devel/vars_all.sh`. In simpler cases you can use `./util_sh/generate_partials.sh`.
 - Update Apache proxy and SSL files `apache/www/index_* apache/*/sites-enabled/* apache/*/sites.txt` files.
-- Run deploy all script: `SKIPTEMP=1 CUSTGRAFPATH=1 PG_PASS=... ./devel/deploy_all.sh`. If succeeded `make install`.
+- Run deploy all script: `GHA2DB_PROJECTS_OVERRIDE="+proj1,+proj2" SKIPTEMP=1 CUSTGRAFPATH=1 PG_PASS=... ./devel/deploy_all.sh`. If succeeded `make install`.
 - Bacause this can take few hours to complete (for a project 4 years old for example), run next sync manually. Get sync command from `crontab -l` and prepend it with `GHA2DB_RECENT_RANGE="4 hours"` to avoid missing GitHub API events.
 - You can also deploy automatically from webhook (even on the test server), but it takes very long time and is harder to debug, see [continuous deployment](https://github.com/cncf/devstats/blob/master/CONTINUOUS_DEPLOYMENT.md).
 - Open `newproject.teststats.cncf.io` login with admin/admin, change the default password and follow instructions from `GRAFANA.md`.
