@@ -396,6 +396,15 @@ func sync(ctx *lib.Ctx, args []string) {
 					fromDate = dt
 				}
 			}
+			if ctx.Debug > 0 && fromDate != from {
+				lib.Printf("Using non-standard start date: %v, instead of %v\n", fromDate, from)
+			}
+			if fromDate != from && fromDate.After(to) {
+				if ctx.Debug >= 0 {
+					lib.Printf("Non-standard start date: %v (used instead of %v) is after end date %v, skipping\n", fromDate, from, to)
+				}
+				continue
+			}
 			extraParams := []string{}
 			if metric.Histogram {
 				extraParams = append(extraParams, "hist")
