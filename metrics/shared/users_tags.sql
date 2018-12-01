@@ -15,7 +15,7 @@ from (
         'PullRequestReviewCommentEvent', 'PushEvent', 'PullRequestEvent',
         'IssuesEvent', 'IssueCommentEvent', 'CommitCommentEvent'
       )
-      and created_at > now() - '2 months'::interval
+      and created_at > now() - '3 months'::interval
       and (lower(dup_actor_login) {{exclude_bots}})
     group by
       dup_actor_login
