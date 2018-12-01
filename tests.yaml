@@ -356,13 +356,39 @@ projects:
         to: 2017-10-01T00:00:00Z
         n: 1
         expected:
-          - ["user;All`all;activity,issues,prs,commits,review_comments,issue_comments,commit_comments,comments,contributions", '540.00', '90.00', '90.00', '90.00', '90.00', '90.00', '90.00', '270.00', '270.00']
-          - ["user;A1`all;activity,issues,prs,commits,review_comments,issue_comments,commit_comments,comments,contributions", '180.00', '30.00', '30.00', '30.00', '30.00', '30.00', '30.00', '90.00', '90.00']
-          - ["user;A2`all;activity,issues,prs,commits,review_comments,issue_comments,commit_comments,comments,contributions", '180.00', '30.00', '30.00', '30.00', '30.00', '30.00', '30.00', '90.00', '90.00']
-          - ["user;A3`all;activity,issues,prs,commits,review_comments,issue_comments,commit_comments,comments,contributions", '180.00', '30.00', '30.00', '30.00', '30.00', '30.00', '30.00', '90.00', '90.00']
+          - ["user;All`all;activity,issues,prs,pushes,comments,contributions", '540.00', '90.00', '90.00', '90.00', '270.00', '540.00']
+          - ["user;A1`all;activity,issues,prs,pushes,comments,contributions", '180.00', '30.00', '30.00', '30.00', '90.00', '180.00']
+          - ["user;A2`all;activity,issues,prs,pushes,comments,contributions", '180.00', '30.00', '30.00', '30.00', '90.00', '180.00']
+          - ["user;A3`all;activity,issues,prs,pushes,comments,contributions", '180.00', '30.00', '30.00', '30.00', '90.00', '180.00']
         replaces:
-          - ["created_at > now() - '2 months'::interval", true]
+          - ["created_at > now() - '3 months'::interval", true]
         data: KubernetesOnlyActorsMetric
+      - metric: user_activity_commits
+        additional_setup_funcs:
+          - AffiliationsTestHelper
+          - RunTags
+        additional_setup_args:
+          - ""
+          - Users
+        from: 2017-09-01T00:00:00Z
+        to: 2017-10-01T00:00:00Z
+        n: 2
+        expected:
+          - ["user;A1`all;commits", '15.00']
+          - ["user;All`Mono-group;commits", '11.50']
+          - ["user;A3`all;commits", '15.00']
+          - ["user;A3`Mono-group;commits", '4.00']
+          - ["user;A2`Group;commits", '8.00']
+          - ["user;A2`Mono-group;commits", '3.50']
+          - ["user;All`all;commits", '45.00']
+          - ["user;A1`Group;commits", '7.00']
+          - ["user;A3`Group;commits", '7.00']
+          - ["user;A2`all;commits", '15.00']
+          - ["user;All`Group;commits", '22.00']
+          - ["user;A1`Mono-group;commits", '4.00']
+        replaces:
+          - ["created_at > now() - '3 months'::interval", true]
+        data: KubernetesOnlyActorsAndReposMetric
       - metric: company_activity
         additional_setup_funcs:
           - AffiliationsTestHelper
@@ -4239,6 +4265,20 @@ data:
       - [1, A1, Actor 1]
       - [2, A2, Actor 2]
       - [3, A3, Actor 3]
+  KubernetesOnlyActorsAndReposMetric:
+    # append to actors (localize and genderize data) - not needed - nulls
+    actors_append: [[null, null, null, null, null, null]]
+    # id, login, name
+    actors:
+      - [1, A1, Actor 1]
+      - [2, A2, Actor 2]
+      - [3, A3, Actor 3]
+    # id, name, org_id, org_login, repo_group
+    repos:
+      - [1, R1, 1, O1, Group]
+      - [2, R2, 1, O1, Group]
+      - [3, R3, 2, O2, Mono-group]
+      - [4, R4, 2, O2, null]
   KubernetesAffiliationsMetric:
     # actor_id, company_name, dt_from, dt_to
     affiliations:
