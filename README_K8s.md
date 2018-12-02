@@ -6,8 +6,8 @@ The DevStats dashboard is maintained as a subproject of the Contributor Experien
 
 - *Contributor*: anyone who made a review, comment, commit, created issue or PR, reviewed PR, or commented on an issue or PR
 - *Contribution*: a review, comment, commit, issue or PR
-- *Committer*: anyone who pushed a commit into the repository
-- *Commit author*: anyone who made/authored a commit/PR pushed by the committer, this can be the same person or not
+- *Pusher*: anyone who pushed a commit into the repository
+- *Committer*: anyone who made/authored a commit/PR pushed by the committer, this can be the same person or not
 - *Reviewer*: someone who has added a pull request review comment(s), /lgtm, the lgtm approve label, /approve, or the approve label
 - *Approve*: when someone adds /approve comment
 - *Review*: when someone adds /approve, /lgtm, the approved or lgtm label, or adds a PR review comment
