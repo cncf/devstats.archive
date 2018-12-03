@@ -1,4 +1,5 @@
 #!/bin/bash
+# AURORA=1 - use Aurora DB
 # RESTART=1 - reuse existing deployment
 if [ -z "${PASS}" ]
 then
@@ -38,9 +39,15 @@ if [ -z "${RESTART}" ]
 then
   ./docker/docker_remove.sh
   ./docker/docker_remove_es.sh
-  ./docker/docker_remove_psql.sh
+  if [ -z "$AURORA" ]
+  then
+    ./docker/docker_remove_psql.sh
+  fi
   ./docker/docker_es.sh || exit 3
-  PG_PASS="${PASS}" ./docker/docker_psql.sh || exit 4
+  if [ -z "$AURORA" ]
+  then
+    PG_PASS="${PASS}" ./docker/docker_psql.sh || exit 4
+  fi
 fi
 ./docker/docker_build.sh || exit 5
 ./docker/docker_es_wait.sh
