@@ -37,7 +37,10 @@ fi
 ./cron/sysctl_config.sh
 if [ -z "${RESTART}" ]
 then
-  ./docker/docker_remove.sh
+  if [ "${DEPLOY_FROM}" = "container" ]
+  then
+    ./docker/docker_remove.sh
+  fi
   ./docker/docker_remove_es.sh
   if [ -z "$AURORA" ]
   then
