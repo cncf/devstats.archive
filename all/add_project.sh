@@ -12,7 +12,7 @@ then
   echo "$0: You need to set PG_PASS environment variable to run this script"
   exit 2
 fi
-exists=`./devel/db.sh psql -tAc "select 1 from pg_database WHERE datname = 'allprj'"` || exit 3
+exists=`./devel/db.sh psql postgres -tAc "select 1 from pg_database WHERE datname = 'allprj'"` || exit 3
 if [ -z "$exists" ]
 then
   echo "All CNCF Project database doesn't exist"

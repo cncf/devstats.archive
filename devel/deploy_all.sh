@@ -75,7 +75,7 @@ fi
 LASTDB=""
 for db in $alldb
 do
-  exists=`./devel/db.sh psql -tAc "select 1 from pg_database where datname = '$db'"` || exit 100
+  exists=`./devel/db.sh psql postgres -tAc "select 1 from pg_database where datname = '$db'"` || exit 100
   if [ ! "$exists" = "1" ]
   then
     LASTDB=$db

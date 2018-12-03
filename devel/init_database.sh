@@ -33,7 +33,7 @@ then
   echo "dropping done"
 fi
 
-exists=`./devel/db.sh psql -tAc "select 1 from pg_database WHERE datname = 'devstats'"` || exit 1
+exists=`./devel/db.sh psql postgres -tAc "select 1 from pg_database WHERE datname = 'devstats'"` || exit 1
 if ( [ ! -z "$LDROP" ] && [ "$exists" = "1" ] )
 then
   echo "dropping postgres database devstats (logs)"
@@ -47,7 +47,7 @@ then
   exit 0
 fi
 
-exists=`./devel/db.sh psql -tAc "select 1 from pg_database WHERE datname = 'devstats'"` || exit 4
+exists=`./devel/db.sh psql postgres -tAc "select 1 from pg_database WHERE datname = 'devstats'"` || exit 4
 if [ ! "$exists" = "1" ]
 then
   echo "creating postgres database devstats (logs)"

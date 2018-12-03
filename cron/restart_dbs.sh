@@ -20,7 +20,7 @@ systemctl restart postgresql@10-main || exit 3
 echo -n "waiting for postgres to respond..."
 while true
 do
-  exists=`db.sh psql -tAc "select 1 from pg_database WHERE datname = 'devstats'"`
+  exists=`db.sh psql postgres -tAc "select 1 from pg_database WHERE datname = 'devstats'"`
   if [ "$exists" = "1" ]
   then
     break

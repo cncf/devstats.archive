@@ -20,7 +20,12 @@ then
 fi
 if [ -z "$PG_USER" ]
 then
-  PG_USER=postgres
+  if [ -z "$PG_ADMIN_USER" ]
+  then
+    PG_USER=postgres
+  else
+    PG_USER="${PG_ADMIN_USER}"
+  fi
 fi
 cmd=${1}
 shift
