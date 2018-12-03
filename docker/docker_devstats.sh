@@ -33,8 +33,8 @@ then
 else
   if [ -z "$AURORA" ]
   then
-    GHA2DB_ES_URL="http://localhost:19200" GHA2DB_USE_ES=1 GHA2DB_USE_ES_RAW=1 GHA2DB_PROJECTS_YAML="docker/docker_projects.yaml" PG_PORT=65432 devstats
+    GHA2DB_LOCAL=1 GHA2DB_ES_URL="http://localhost:19200" GHA2DB_USE_ES=1 GHA2DB_USE_ES_RAW=1 GHA2DB_PROJECTS_YAML="docker/docker_projects.yaml" PG_PORT=65432 devstats
   else
-    GHA2DB_ES_URL="http://localhost:19200" GHA2DB_USE_ES=1 GHA2DB_USE_ES_RAW=1 GHA2DB_PROJECTS_YAML="docker/docker_projects.yaml" PG_HOST="dev-analytics-api-devstats-dev.cluster-czqvov18pw9a.us-west-2.rds.amazonaws.com" devstats
+    GHA2DB_LOCAL=1 GHA2DB_ES_URL="http://localhost:19200" GHA2DB_USE_ES=1 GHA2DB_USE_ES_RAW=1 GHA2DB_PROJECTS_YAML="docker/docker_projects.yaml" PG_HOST="dev-analytics-api-devstats-dev.cluster-czqvov18pw9a.us-west-2.rds.amazonaws.com" devstats
   fi
 fi
