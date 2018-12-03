@@ -22,7 +22,7 @@ then
   exit 0
 fi
 
-./devel/db.sh psql -c "create user ro_user with password '$PG_PASS'" || exit 3
+./devel/db.sh psql postgres -c "create user ro_user with password '$PG_PASS'" || exit 3
 
 for proj in $all
 do

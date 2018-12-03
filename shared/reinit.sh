@@ -33,7 +33,7 @@ else
   GHA2DB_LOCAL=1 PG_DB=$tdb ./vars || exit 13
   GHA2DB_CMDDEBUG=1 GHA2DB_RESETTSDB=1 GHA2DB_RESET_ES_RAW=1 GHA2DB_LOCAL=1 PG_DB=$tdb ./gha2db_sync || exit 14
   ./devel/drop_psql_db.sh $db || exit 15
-  ./devel/db.sh psql -c "select pg_terminate_backend(pid) from pg_stat_activity where datname = '$tdb'" || exit 16
-  ./devel/db.sh psql -c "alter database \"$tdb\" rename to \"$db\"" || exit 17
+  ./devel/db.sh psql postgres -c "select pg_terminate_backend(pid) from pg_stat_activity where datname = '$tdb'" || exit 16
+  ./devel/db.sh psql postgres -c "alter database \"$tdb\" rename to \"$db\"" || exit 17
   rm -f $tdb.dump || exit 18
 fi

@@ -10,8 +10,8 @@ then
   exit 1
 fi
 proj=$2
-./devel/db.sh psql -c "grant connect on database \"$proj\" to \"$1\"" || exit 1
-./devel/db.sh psql -c "grant usage on schema \"public\" to \"$1\"" || exit 1
+./devel/db.sh psql postgres -c "grant connect on database \"$proj\" to \"$1\"" || exit 1
+./devel/db.sh psql postgres -c "grant usage on schema \"public\" to \"$1\"" || exit 1
 tables=`./devel/db.sh psql $proj -qAntc '\dt' | cut -d\| -f2`
 for table in $tables
 do

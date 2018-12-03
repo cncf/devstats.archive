@@ -9,7 +9,7 @@ To add new metric (replace `{{project}}` with kubernetes, prometheus or any othe
 - This SQL will be automatically called on different periods by `gha2db_sync` and/or `devstats` tool.
 2) Define this metric in [metrics/{{project}}/metrics.yaml](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/metrics.yaml) (file used by `gha2db_sync` tool).
 - You can define this metric in `devel/test_metrics.yaml` first (and eventually in `devel/test_columns.yaml`, `devel/test_tags.yaml`) and run `devel/test_metric_sync.sh`
-- Then call `sudo -u postgres psql -c 'select * from sseries_name'` to see the results.
+- Then call `sudo -u postgres psql gha -c 'select * from sseries_name'` to see the results.
 - You need to define periods for calculations, for example m,q,y for "month, quarter and year", or h,d,w for "hour, day and week". You can use any combination of h,d,w,m,q,y. You can also use `annotations_ranges: true` for tabular tables with automatic quick ranges.
 - You can define aggregate periods via `aggregate: n1,n2,n3,...`, if you don't define this, there will be one aggregation period = 1. Some aggregate combinations can be set to skip, for example you have `periods: m,q,y`, `aggregate: 1,3,7`, you want to skip >1 aggregate for y and 7 for q, then set: `skip: y3,y7,q3`.
 - You need to define SQL file via `sql: filename`. It will use `metrics/{{project}}/filename.sql` with fallback to `metrics/shared/filename.sql`.
