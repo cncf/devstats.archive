@@ -23,7 +23,7 @@ FROM="{{user}}" TO="$1" MODE=ss ./replacer /tmp/drop_user.sql || exit 1
 if [ ! -z "$DROP" ]
 then
   echo "Drop from public"
-  ./devel/db.sh psql < /tmp/drop_user.sql || exit 1
+  ./devel/db.sh psql postgres < /tmp/drop_user.sql || exit 1
   for db in $all
   do
     echo "Drop from $db"

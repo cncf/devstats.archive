@@ -3,6 +3,7 @@
 # GET=1 (attempt to fetch Postgres database from the test server)
 # INIT=1 (needs PG_PASS_RO, PG_PASS_TEAM, initialize from no postgres database state, creates postgres logs database and users)
 # SKIPVARS=1 (if set it will skip final Postgres vars regeneration)
+# AURORA=1 - use Aurora DB
 set -o pipefail
 exec > >(tee run.log)
 exec 2> >(tee errors.txt)
@@ -27,6 +28,11 @@ if [ -z "$PG_PORT" ]
 then
   echo "$0: you need to set PG_PORT to run this script"
   exit 1
+fi
+
+if [ ! -z "$AURORA" ]
+then
+  export PG_ADMIN_USER=sa
 fi
 
 # For docker conatiners PG_HOST is 172.17.0.1

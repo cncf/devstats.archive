@@ -9,7 +9,7 @@ fi
 
 if [ ! -z "$DROP" ]
 then
-  ./devel/db.sh psql < ./util_sql/drop_ro_user.sql || exit 1
+  ./devel/db.sh psql postgres < ./util_sql/drop_ro_user.sql || exit 1
   for proj in $all
   do
     ./devel/db.sh psql "$proj" < ./util_sql/drop_ro_user.sql || exit 2

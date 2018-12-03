@@ -135,7 +135,7 @@ then
   MODE=ss FROM='{{org}}' TO="$ORGNAME" replacer "$cfile" || exit 32
 fi
 
-exists=`./devel/db.sh psql -tAc "select 1 from pg_database WHERE datname = '${GRAFSUFF}_grafana_sessions'"` || exit 33
+exists=`./devel/db.sh psql postgres -tAc "select 1 from pg_database WHERE datname = '${GRAFSUFF}_grafana_sessions'"` || exit 33
 if [ ! "$exists" = "1" ]
 then
   echo "creating grafana sessions database ${GRAFSUFF}_grafana_sessions"
