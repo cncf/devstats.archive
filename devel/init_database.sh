@@ -58,8 +58,9 @@ then
   ./devel/db.sh psql postgres -c "grant all privileges on database \"devstats\" to gha_admin" || exit 9
   ./devel/db.sh psql postgres -c "alter user gha_admin createdb" || exit 10
   ./devel/db.sh psql devstats < ./util_sql/devstats_log_table.sql
-  ./devel/ro_user_grants.sh devstats || exit 11
-  ./devel/psql_user_grants.sh "devstats_team" "devstats" || exit 12
+  PG_USER=gha_admin ./devel/db.sh psql devstats < ./util_sql/devstats_log_table_as_owner.sql
+  PG_USER=gha_admin ./devel/ro_user_grants.sh devstats || exit 11
+  PG_USER=gha_admin ./devel/psql_user_grants.sh devstats_team devstats || exit 12
 else
   echo "postgres database devstats (logs) already exists"
 fi
