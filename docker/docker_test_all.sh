@@ -49,7 +49,13 @@ then
     PG_PASS="${PASS}" ./docker/docker_psql.sh || exit 4
   fi
 fi
-./docker/docker_build.sh || exit 5
+if [ "${DEPLOY_FROM}" = "container" ]
+then
+  ./docker/docker_build.sh || exit 5
+else
+  make || exit 15
+  make install || exit 16
+fi
 ./docker/docker_es_wait.sh
 PG_PASS="${PASS}" ./docker/docker_psql_wait.sh
 if [ "${DEPLOY_FROM}" = "host" ]
