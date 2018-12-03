@@ -57,8 +57,8 @@ then
     rm -rf "/usr/share/grafana.$GRAFSUFF/" 2>/dev/null
     rm -rf "/var/lib/grafana.$GRAFSUFF/" 2>/dev/null
     rm -rf "/etc/grafana.$GRAFSUFF/" 2>/dev/null
-    ./devel/db.sh psql -c "select pg_terminate_backend(pid) from pg_stat_activity where datname = '${GRAFSUFF}_grafana_sessions'" || exit 1
-    ./devel/db.sh psql -c "drop database ${GRAFSUFF}_grafana_sessions" || exit 2
+    ./devel/db.sh psql postgres -c "select pg_terminate_backend(pid) from pg_stat_activity where datname = '${GRAFSUFF}_grafana_sessions'" || exit 1
+    ./devel/db.sh psql postgres -c "drop database ${GRAFSUFF}_grafana_sessions" || exit 2
   fi
 fi
 
@@ -139,8 +139,8 @@ exists=`./devel/db.sh psql -tAc "select 1 from pg_database WHERE datname = '${GR
 if [ ! "$exists" = "1" ]
 then
   echo "creating grafana sessions database ${GRAFSUFF}_grafana_sessions"
-  ./devel/db.sh psql -c "create database ${GRAFSUFF}_grafana_sessions" || exit 34
-  ./devel/db.sh psql -c "grant all privileges on database \"${GRAFSUFF}_grafana_sessions\" to gha_admin" || exit 35
+  ./devel/db.sh psql postgres -c "create database ${GRAFSUFF}_grafana_sessions" || exit 34
+  ./devel/db.sh psql postgres -c "grant all privileges on database \"${GRAFSUFF}_grafana_sessions\" to gha_admin" || exit 35
   ./devel/db.sh psql "${GRAFSUFF}_grafana_sessions" < util_sql/grafana_session_table.sql || exit 36
 else
   echo "grafana sessions database ${GRAFSUFF}_grafana_sessions already exists"

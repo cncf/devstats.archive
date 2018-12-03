@@ -38,7 +38,7 @@ then
 fi
 
 echo "Create role"
-./devel/db.sh psql -c "create user \"$1\" with password '$PG_PASS'" || exit 1
+./devel/db.sh psql postgres -c "create user \"$1\" with password '$PG_PASS'" || exit 1
 
 for db in $all
 do
