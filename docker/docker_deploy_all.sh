@@ -24,6 +24,12 @@ then
   exit 1
 fi
 
+if [ -z "$ES_HOST" ]
+then
+  echo "$0: you need to set ES_HOST to run this script"
+  exit 1
+fi
+
 if [ -z "$PG_PORT" ]
 then
   echo "$0: you need to set PG_PORT to run this script"
@@ -38,7 +44,7 @@ fi
 # For docker conatiners PG_HOST is 172.17.0.1
 export GHA2DB_PROJECTS_YAML="docker/docker_projects.yaml"
 export GHA2DB_AFFILIATIONS_JSON="docker/docker_affiliations.json"
-export GHA2DB_ES_URL="http://127.0.0.1:19200"
+export GHA2DB_ES_URL="http://${ES_HOST}:19200"
 export GHA2DB_USE_ES=1
 export GHA2DB_USE_ES_RAW=1
 export LIST_FN_PREFIX="docker/all_"
