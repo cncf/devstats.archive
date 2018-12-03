@@ -40,19 +40,24 @@ do
     fi
   fi
 done
+user=gha_admin
+if [ ! -z "${PG_USER}" ]
+then
+  user="${PG_USER}"
+fi
 if [ "${DEPLOY_FROM}" = "container" ]
 then
   if [ -z "$AURORA" ]
   then
     docker run -e PG_PORT=65432 -e PG_HOST="${host}" -e PG_PASS="${PG_PASS}" -it devstats db.sh psql lfn -c 'select * from sannotations_shared limit 10' || exit 4
   else
-    docker run -e PG_PORT=5432 -e PG_HOST="dev-analytics-api-devstats-dev.cluster-czqvov18pw9a.us-west-2.rds.amazonaws.com" -e PG_PASS="${PG_PASS}" -it devstats db.sh psql lfn -c 'select * from sannotations_shared limit 10' || exit 4
+    docker run -e PG_USER="${user}" -e PG_PORT=5432 -e PG_HOST="dev-analytics-api-devstats-dev.cluster-czqvov18pw9a.us-west-2.rds.amazonaws.com" -e PG_PASS="${PG_PASS}" -it devstats db.sh psql lfn -c 'select * from sannotations_shared limit 10' || exit 4
   fi
 else
   if [ -z "$AURORA" ]
   then
     PG_PORT=65432 db.sh psql lfn -c 'select * from sannotations_shared limit 10' || exit 4
   else
-    PG_HOST="dev-analytics-api-devstats-dev.cluster-czqvov18pw9a.us-west-2.rds.amazonaws.com" db.sh psql lfn -c 'select * from sannotations_shared limit 10' || exit 4
+    PG_USER="${user}" PG_HOST="dev-analytics-api-devstats-dev.cluster-czqvov18pw9a.us-west-2.rds.amazonaws.com" db.sh psql lfn -c 'select * from sannotations_shared limit 10' || exit 4
   fi
 fi
