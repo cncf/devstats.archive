@@ -9,6 +9,7 @@ then
   echo "$0: need database name argument"
   exit 1
 fi
+user=gha_admin
 if [ ! -z "${PG_USER}" ]
 then
   user="${PG_USER}"
