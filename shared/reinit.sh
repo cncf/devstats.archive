@@ -14,11 +14,16 @@ then
   trap finish EXIT
   export TRAP=1
 fi
+user=gha_admin
+if [ ! -z "${PG_USER}" ]
+then
+  user="${PG_USER}"
+fi
 if [ ! -z "$SKIPTEMP" ]
 then
   ./devel/drop_ts_tables.sh "$PG_DB" || exit 2
-  ./devel/db.sh psql "$PG_DB" -c "delete from gha_vars" || exit 3
-  ./devel/db.sh psql "$PG_DB" -c "delete from gha_computed" || exit 4
+  PG_USER="${user}" ./devel/db.sh psql "$PG_DB" -c "delete from gha_vars" || exit 3
+  PG_USER="${user}" ./devel/db.sh psql "$PG_DB" -c "delete from gha_computed" || exit 4
   GHA2DB_LOCAL=1 ./vars || exit 5
   GHA2DB_CMDDEBUG=1 GHA2DB_RESETTSDB=1 GHA2DB_RESET_ES_RAW=1 GHA2DB_LOCAL=1 ./gha2db_sync || exit 6
 else
@@ -28,8 +33,8 @@ else
   mv /tmp/$tdb.dump . || exit 8
   ./devel/restore_db.sh $tdb || exit 9
   ./devel/drop_ts_tables.sh $tdb || exit 10
-  ./devel/db.sh psql $tdb -c "delete from gha_vars" || exit 11
-  ./devel/db.sh psql $tdb -c "delete from gha_computed" || exit 12
+  PG_USER="${user}" ./devel/db.sh psql $tdb -c "delete from gha_vars" || exit 11
+  PG_USER="${user}" ./devel/db.sh psql $tdb -c "delete from gha_computed" || exit 12
   GHA2DB_LOCAL=1 PG_DB=$tdb ./vars || exit 13
   GHA2DB_CMDDEBUG=1 GHA2DB_RESETTSDB=1 GHA2DB_RESET_ES_RAW=1 GHA2DB_LOCAL=1 PG_DB=$tdb ./gha2db_sync || exit 14
   ./devel/drop_psql_db.sh $db || exit 15
