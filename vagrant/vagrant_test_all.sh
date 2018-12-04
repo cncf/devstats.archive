@@ -20,7 +20,7 @@ then
   ./docker/docker_remove.sh
 fi
 ./docker/docker_build.sh || exit 3
-host=`docker run -it devstats ip route show 2>/dev/null | awk '/default/ {print $3}'`
+host=`docker run devstats ip route show 2>/dev/null | awk '/default/ {print $3}'`
 export ES_URL="http://${host}:9200"
 echo "Host: $host, ES_URL: $ES_URL"
 ./docker/docker_es_wait.sh
