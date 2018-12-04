@@ -20,9 +20,10 @@ then
   ./docker/docker_remove.sh
 fi
 ./docker/docker_build.sh || exit 3
-host=`docker run devstats ip route show 2>/dev/null | awk '/default/ {print $3}'`
-export ES_URL="http://${host}:9200"
-echo "Host: $host, ES_URL: $ES_URL"
+export ES_HOST=`docker run devstats ip route show 2>/dev/null | awk '/default/ {print $3}'`
+export ES_PORT=9200
+export ES_URL="http://${ES_HOST}:${ES_PORT}"
+host="${ES_HOST}"
 ./docker/docker_es_wait.sh
 PG_PASS="${PASS}" PG_HOST="${host}" ./vagrant/vagrant_psql_wait.sh
 PG_PASS="${PASS}" PG_PASS_RO="${PASS}" PG_PASS_TEAM="${PASS}" PG_HOST="${host}" ./vagrant/vagrant_deploy_from_container.sh || exit 4
