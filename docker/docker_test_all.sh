@@ -1,4 +1,5 @@
 #!/bin/bash
+# AURORA=1 - use Aurora DB
 # RESTART=1 - reuse existing deployment
 if [ -z "${PASS}" ]
 then
@@ -36,13 +37,28 @@ fi
 ./cron/sysctl_config.sh
 if [ -z "${RESTART}" ]
 then
-  ./docker/docker_remove.sh
+  if [ "${DEPLOY_FROM}" = "container" ]
+  then
+    ./docker/docker_remove.sh
+  fi
   ./docker/docker_remove_es.sh
-  ./docker/docker_remove_psql.sh
+  if [ -z "$AURORA" ]
+  then
+    ./docker/docker_remove_psql.sh
+  fi
   ./docker/docker_es.sh || exit 3
-  PG_PASS="${PASS}" ./docker/docker_psql.sh || exit 4
+  if [ -z "$AURORA" ]
+  then
+    PG_PASS="${PASS}" ./docker/docker_psql.sh || exit 4
+  fi
 fi
-./docker/docker_build.sh || exit 5
+if [ "${DEPLOY_FROM}" = "container" ]
+then
+  ./docker/docker_build.sh || exit 5
+else
+  make || exit 15
+  make install || exit 16
+fi
 ./docker/docker_es_wait.sh
 PG_PASS="${PASS}" ./docker/docker_psql_wait.sh
 if [ "${DEPLOY_FROM}" = "host" ]

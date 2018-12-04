@@ -29,8 +29,8 @@ else
   echo "Created $tdb"
   ./devel/drop_psql_db.sh $1
   echo "Renaming $tdb to $1"
-  ./devel/db.sh psql -c "select pg_terminate_backend(pid) from pg_stat_activity where datname = '$tdb'" || exit 6
-  ./devel/db.sh psql -c "alter database \"$tdb\" rename to \"$1\"" || exit 7
+  ./devel/db.sh psql postgres -c "select pg_terminate_backend(pid) from pg_stat_activity where datname = '$tdb'" || exit 6
+  ./devel/db.sh psql postgres -c "alter database \"$tdb\" rename to \"$1\"" || exit 7
   echo "Renamed $tdb to $1"
 fi
 

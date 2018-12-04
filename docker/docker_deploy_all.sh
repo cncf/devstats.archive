@@ -3,6 +3,7 @@
 # GET=1 (attempt to fetch Postgres database from the test server)
 # INIT=1 (needs PG_PASS_RO, PG_PASS_TEAM, initialize from no postgres database state, creates postgres logs database and users)
 # SKIPVARS=1 (if set it will skip final Postgres vars regeneration)
+# AURORA=1 - use Aurora DB
 set -o pipefail
 exec > >(tee run.log)
 exec 2> >(tee errors.txt)
@@ -23,16 +24,27 @@ then
   exit 1
 fi
 
+if [ -z "$ES_HOST" ]
+then
+  echo "$0: you need to set ES_HOST to run this script"
+  exit 1
+fi
+
 if [ -z "$PG_PORT" ]
 then
   echo "$0: you need to set PG_PORT to run this script"
   exit 1
 fi
 
+if [ ! -z "$AURORA" ]
+then
+  export PG_ADMIN_USER=sa
+fi
+
 # For docker conatiners PG_HOST is 172.17.0.1
 export GHA2DB_PROJECTS_YAML="docker/docker_projects.yaml"
 export GHA2DB_AFFILIATIONS_JSON="docker/docker_affiliations.json"
-export GHA2DB_ES_URL="http://${PG_HOST}:19200"
+export GHA2DB_ES_URL="http://${ES_HOST}:19200"
 export GHA2DB_USE_ES=1
 export GHA2DB_USE_ES_RAW=1
 export LIST_FN_PREFIX="docker/all_"
@@ -46,7 +58,7 @@ PROJ=lfn                    PROJDB=lfn                    PROJREPO="iovisor/bcc"
 PROJ=iovisor                PROJDB=iovisor                PROJREPO="iovisor/bcc"                     ORGNAME="IO Visor"                    PORT=3002 ICON="-" GRAFSUFF="-" GA="-" SKIPGRAFANA=1 ./devel/deploy_proj.sh || exit 3
 PROJ=mininet                PROJDB=mininet                PROJREPO="mininet/mininet"                 ORGNAME="Mininet"                     PORT=3003 ICON="-" GRAFSUFF="-" GA="-" SKIPGRAFANA=1 ./devel/deploy_proj.sh || exit 4
 PROJ=opennetworkinglab      PROJDB=opennetworkinglab      PROJREPO="opennetworkinglab/onos"          ORGNAME="Open Networking Laboratory"  PORT=3004 ICON="-" GRAFSUFF="-" GA="-" SKIPGRAFANA=1 ./devel/deploy_proj.sh || exit 5
-PROJ=opensecuritycontroller PROJDB=opensecuritycontroller PROJREPO="opensecuritycontroller/osc-core" ORGNAME="Open Security Controller"    PORT=3005 ICON="-" GRAFSUFF="-" GA="-" SKIPGRAFANA=1 ./devel/deploy_proj.sh || exit 6
+#PROJ=opensecuritycontroller PROJDB=opensecuritycontroller PROJREPO="opensecuritycontroller/osc-core" ORGNAME="Open Security Controller"    PORT=3005 ICON="-" GRAFSUFF="-" GA="-" SKIPGRAFANA=1 ./devel/deploy_proj.sh || exit 6
 PROJ=openswitch             PROJDB=openswitch             PROJREPO="open-switch/opx-nas-interface"   ORGNAME="OpenSwitch"                  PORT=3006 ICON="-" GRAFSUFF="-" GA="-" SKIPGRAFANA=1 ./devel/deploy_proj.sh || exit 7
 PROJ=p4lang                 PROJDB=p4lang                 PROJREPO="p4lang/p4c"                      ORGNAME="P4 Language"                 PORT=3007 ICON="-" GRAFSUFF="-" GA="-" SKIPGRAFANA=1 ./devel/deploy_proj.sh || exit 8
 PROJ=openbmp                PROJDB=openbmp                PROJREPO="OpenBMP/openbmp"                 ORGNAME="OpenBMP"                     PORT=3008 ICON="-" GRAFSUFF="-" GA="-" SKIPGRAFANA=1 ./devel/deploy_proj.sh || exit 9
