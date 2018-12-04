@@ -13,4 +13,4 @@ then
     echo ''
   fi
 fi
-docker run -e GHA2DB_SKIPTIME=1 -e GHA2DB_SKIPLOG=1 -e PG_USER="${PG_USER}" -e PG_PORT="${PG_PORT}" -e PG_HOST="${PG_HOST}" -e PG_PASS="${PG_PASS}" -e PG_DB=devstats --env-file <(env | grep GHA2DB) devstats runq util_sql/recent_log.sql '{{lim}}' 10
+docker run  --network=lfda_default -e GHA2DB_SKIPTIME=1 -e GHA2DB_SKIPLOG=1 -e PG_USER="${PG_USER}" -e PG_PORT="${PG_PORT}" -e PG_HOST="${PG_HOST}" -e PG_PASS="${PG_PASS}" -e PG_DB=devstats --env-file <(env | grep GHA2DB) devstats runq util_sql/recent_log.sql '{{lim}}' 10

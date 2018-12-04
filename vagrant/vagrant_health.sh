@@ -19,11 +19,11 @@ export LIST_FN_PREFIX="docker/all_"
 for db in $all
 do
   echo "Database: $db"
-  docker run -e GHA2DB_SKIPTIME=1 -e GHA2DB_SKIPLOG=1 -e PG_USER="${PG_USER}" -e PG_PORT="${PG_PORT}" -e PG_HOST="${PG_HOST}" -e PG_PASS="${PG_PASS}" -e PG_DB="${db}" --env-file <(env | grep GHA2DB) devstats runq util_sql/num_texts.sql || exit 3
+  docker run --network=lfda_default -e GHA2DB_SKIPTIME=1 -e GHA2DB_SKIPLOG=1 -e PG_USER="${PG_USER}" -e PG_PORT="${PG_PORT}" -e PG_HOST="${PG_HOST}" -e PG_PASS="${PG_PASS}" -e PG_DB="${db}" --env-file <(env | grep GHA2DB) devstats runq util_sql/num_texts.sql || exit 3
 done
 user=gha_admin
 if [ ! -z "${PG_USER}" ]
 then
   user="${PG_USER}"
 fi
-docker run -e PG_USER="${user}" -e PG_PORT="${PG_PORT}" -e PG_HOST="${PG_HOST}" -e PG_PASS="${PG_PASS}" devstats db.sh psql lfn -c 'select * from sannotations_shared limit 10' || exit 4
+docker run --network=lfda_default -e PG_USER="${user}" -e PG_PORT="${PG_PORT}" -e PG_HOST="${PG_HOST}" -e PG_PASS="${PG_PASS}" devstats db.sh psql lfn -c 'select * from sannotations_shared limit 10' || exit 4
