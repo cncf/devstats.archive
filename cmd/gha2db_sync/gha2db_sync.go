@@ -18,20 +18,22 @@ type metrics struct {
 
 // metric contain each metric data
 type metric struct {
-	Name              string `yaml:"name"`
-	Periods           string `yaml:"periods"`
-	SeriesNameOrFunc  string `yaml:"series_name_or_func"`
-	MetricSQL         string `yaml:"sql"`
-	AddPeriodToName   bool   `yaml:"add_period_to_name"`
-	Histogram         bool   `yaml:"histogram"`
-	Aggregate         string `yaml:"aggregate"`
-	Skip              string `yaml:"skip"`
-	Desc              string `yaml:"desc"`
-	MultiValue        bool   `yaml:"multi_value"`
-	EscapeValueName   bool   `yaml:"escape_value_name"`
-	AnnotationsRanges bool   `yaml:"annotations_ranges"`
-	MergeSeries       string `yaml:"merge_series"`
-	CustomData        bool   `yaml:"custom_data"`
+	Name              string     `yaml:"name"`
+	Periods           string     `yaml:"periods"`
+	SeriesNameOrFunc  string     `yaml:"series_name_or_func"`
+	MetricSQL         string     `yaml:"sql"`
+	AddPeriodToName   bool       `yaml:"add_period_to_name"`
+	Histogram         bool       `yaml:"histogram"`
+	Aggregate         string     `yaml:"aggregate"`
+	Skip              string     `yaml:"skip"`
+	Desc              string     `yaml:"desc"`
+	MultiValue        bool       `yaml:"multi_value"`
+	EscapeValueName   bool       `yaml:"escape_value_name"`
+	AnnotationsRanges bool       `yaml:"annotations_ranges"`
+	MergeSeries       string     `yaml:"merge_series"`
+	CustomData        bool       `yaml:"custom_data"`
+	StartFrom         *time.Time `yaml:"start_from"`
+	LastHours         int        `yaml:"last_hours"`
 }
 
 // Add _period to all array items
@@ -380,6 +382,29 @@ func sync(ctx *lib.Ctx, args []string) {
 					continue
 				}
 			}
+			// handle start_from (datetime) or last_hours (from now - N hours)
+			fromDate := from
+			if metric.StartFrom != nil && metric.LastHours > 0 {
+				lib.Fatalf("you cannot use both StartFrom %v and LastHours %d", *metric.StartFrom, metric.LastHours)
+			}
+			if metric.StartFrom != nil && fromDate.Before(*metric.StartFrom) {
+				fromDate = *metric.StartFrom
+			}
+			if metric.LastHours > 0 {
+				dt := time.Now().Add(time.Hour * time.Duration(-metric.LastHours))
+				if fromDate.Before(dt) {
+					fromDate = dt
+				}
+			}
+			if ctx.Debug > 0 && fromDate != from {
+				lib.Printf("Using non-standard start date: %v, instead of %v\n", fromDate, from)
+			}
+			if fromDate != from && fromDate.After(to) {
+				if ctx.Debug >= 0 {
+					lib.Printf("Non-standard start date: %v (used instead of %v) is after end date %v, skipping\n", fromDate, from, to)
+				}
+				continue
+			}
 			extraParams := []string{}
 			if metric.Histogram {
 				extraParams = append(extraParams, "hist")
@@ -455,7 +480,7 @@ func sync(ctx *lib.Ctx, args []string) {
 								cmdPrefix + "calc_metric",
 								seriesNameOrFunc,
 								fmt.Sprintf("%s/%s.sql", metricsDir, metric.MetricSQL),
-								lib.ToYMDHDate(from),
+								lib.ToYMDHDate(fromDate),
 								lib.ToYMDHDate(to),
 								periodAggr,
 								strings.Join(extraParams, ","),
@@ -469,7 +494,7 @@ func sync(ctx *lib.Ctx, args []string) {
 								cmdPrefix + "calc_metric",
 								seriesNameOrFunc,
 								fmt.Sprintf("%s/%s.sql", metricsDir, metric.MetricSQL),
-								lib.ToYMDHDate(from),
+								lib.ToYMDHDate(fromDate),
 								lib.ToYMDHDate(to),
 								periodAggr,
 								strings.Join(extraParams, ","),
