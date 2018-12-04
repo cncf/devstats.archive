@@ -166,6 +166,9 @@ dockerinstall: ${DOCKER_BINARIES} copydata
 	cp -v ${CRON_SCRIPTS} ${GOPATH}/bin
 	cp -v ${GIT_SCRIPTS} ${GOPATH}/bin
 
+deploy:
+	./deploy.sh || exit 1
+
 strip: ${BINARIES}
 	${STRIP} ${BINARIES}
 

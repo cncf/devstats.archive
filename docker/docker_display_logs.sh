@@ -17,10 +17,10 @@ if [ "${DEPLOY_FROM}" = "container" ]
 then
   if [ -z "$AURORA" ]
   then
-    host=`docker run -it devstats ip route show | awk '/default/ {print $3}'`
-    docker run -e GHA2DB_SKIPTIME=1 -e GHA2DB_SKIPLOG=1 -e PG_PORT=65432 -e PG_HOST="${host}" -e PG_PASS="${PG_PASS}" -e PG_DB=devstats --env-file <(env | grep GHA2DB) -it devstats runq util_sql/recent_log.sql '{{lim}}' 10
+    host=`docker run devstats ip route show | awk '/default/ {print $3}'`
+    docker run -e GHA2DB_SKIPTIME=1 -e GHA2DB_SKIPLOG=1 -e PG_PORT=65432 -e PG_HOST="${host}" -e PG_PASS="${PG_PASS}" -e PG_DB=devstats --env-file <(env | grep GHA2DB) devstats runq util_sql/recent_log.sql '{{lim}}' 10
   else
-    docker run -e GHA2DB_SKIPTIME=1 -e GHA2DB_SKIPLOG=1 -e PG_PORT=5432 -e PG_HOST="dev-analytics-api-devstats-dev.cluster-czqvov18pw9a.us-west-2.rds.amazonaws.com" -e PG_PASS="${PG_PASS}" -e PG_DB=devstats --env-file <(env | grep GHA2DB) -it devstats runq util_sql/recent_log.sql '{{lim}}' 10
+    docker run -e GHA2DB_SKIPTIME=1 -e GHA2DB_SKIPLOG=1 -e PG_PORT=5432 -e PG_HOST="dev-analytics-api-devstats-dev.cluster-czqvov18pw9a.us-west-2.rds.amazonaws.com" -e PG_PASS="${PG_PASS}" -e PG_DB=devstats --env-file <(env | grep GHA2DB) devstats runq util_sql/recent_log.sql '{{lim}}' 10
   fi
 else
   if [ -z "$AURORA" ]
