@@ -977,7 +977,7 @@ union select 'phealth,' || repo_group || ',ip15' as name,
 from
   react_time
 union select 'phealth,' || repo_group || ',imed' as name,
-  'Issues: median time to respond to issues',
+  'Issues: Median time to respond to issues',
   now(),
   0.0,
   med::text
@@ -1193,28 +1193,28 @@ from
 where
   n.repo_group = p.repo_group
 union select 'phealth,' || repo_group || ',topcompall12' as name,
-  'Companies: percent of known commits from top committing company (last year)',
+  'Companies: Percent of known commits from top committing company (last year)',
   now(),
   0.0,
   top
 from
   top_known_12
 union select 'phealth,' || repo_group || ',topcompall' as name,
-  'Companies: percent of all commits from top committing company (last year)',
+  'Companies: Percent of all commits from top committing company (last year)',
   now(),
   0.0,
   top
 from
   top_all_12
 union select 'phealth,' || repo_group || ',topcompall3' as name,
-  'Companies: percent of known commits from top committing company (last 3 months)',
+  'Companies: Percent of known commits from top committing company (last 3 months)',
   now(),
   0.0,
   top
 from
   top_known_3
 union select 'phealth,' || repo_group || ',topcompall3' as name,
-  'Companies: percent of all commits from top committing company (last 3 months)',
+  'Companies: Percent of all commits from top committing company (last 3 months)',
   now(),
   0.0,
   top
