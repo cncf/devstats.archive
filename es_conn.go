@@ -32,7 +32,12 @@ func ESConn(ctx *Ctx, prefix string) *ES {
 	if ctx.QOut {
 		Printf("ESConnectString: %s\n", ctx.ElasticURL)
 	}
-	client, err := elastic.NewClient(elastic.SetURL(ctx.ElasticURL))
+	// TODO: set sniff enable/disable via context var?
+	client, err := elastic.NewClient(
+		elastic.SetURL(ctx.ElasticURL),
+		elastic.SetSniff(false),
+		//elastic.SetScheme("https"),
+	)
 	FatalOnError(err)
 	info, code, err := client.Ping(ctx.ElasticURL).Do(ctxb)
 	FatalOnError(err)
