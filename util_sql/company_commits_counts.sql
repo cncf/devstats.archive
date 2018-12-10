@@ -6,7 +6,7 @@ with commits_counts as (
         gha_commits
       where
         (lower(dup_actor_login) {{exclude_bots}})
-        and dup_created_at >= now() - '6 months'::interval
+        and dup_created_at >= now() - '{{ago}}'::interval
         and dup_repo_name not like 'cncf%'
         and dup_repo_name not like 'crosscloudci%'
       union select sha
@@ -15,7 +15,7 @@ with commits_counts as (
       where
         dup_author_login is not null
         and (lower(dup_author_login) {{exclude_bots}})
-        and dup_created_at >= now() - '6 months'::interval
+        and dup_created_at >= now() - '{{ago}}'::interval
         and dup_repo_name not like 'cncf%'
         and dup_repo_name not like 'crosscloudci%'
       union select sha
@@ -24,7 +24,7 @@ with commits_counts as (
       where
         dup_committer_login is not null
         and (lower(dup_committer_login) {{exclude_bots}})
-        and dup_created_at >= now() - '6 months'::interval
+        and dup_created_at >= now() - '{{ago}}'::interval
         and dup_repo_name not like 'cncf%'
         and dup_repo_name not like 'crosscloudci%'
     ) e
@@ -39,7 +39,7 @@ with commits_counts as (
         gha_commits
       where
         (lower(dup_actor_login) {{exclude_bots}})
-        and dup_created_at >= now() - '6 months'::interval
+        and dup_created_at >= now() - '{{ago}}'::interval
         and dup_repo_name not like 'cncf%'
         and dup_repo_name not like 'crosscloudci%'
       union select sha,
@@ -50,7 +50,7 @@ with commits_counts as (
       where
         dup_author_login is not null
         and (lower(dup_author_login) {{exclude_bots}})
-        and dup_created_at >= now() - '6 months'::interval
+        and dup_created_at >= now() - '{{ago}}'::interval
         and dup_repo_name not like 'cncf%'
         and dup_repo_name not like 'crosscloudci%'
       union select sha,
@@ -61,7 +61,7 @@ with commits_counts as (
       where
         dup_committer_login is not null
         and (lower(dup_committer_login) {{exclude_bots}})
-        and dup_created_at >= now() - '6 months'::interval
+        and dup_created_at >= now() - '{{ago}}'::interval
         and dup_repo_name not like 'cncf%'
         and dup_repo_name not like 'crosscloudci%'
     ) e,
@@ -83,7 +83,7 @@ with commits_counts as (
         gha_commits
       where
         (lower(dup_actor_login) {{exclude_bots}})
-        and dup_created_at >= now() - '6 months'::interval
+        and dup_created_at >= now() - '{{ago}}'::interval
         and dup_repo_name not like 'cncf%'
         and dup_repo_name not like 'crosscloudci%'
       union select sha,
@@ -94,7 +94,7 @@ with commits_counts as (
       where
         dup_author_login is not null
         and (lower(dup_author_login) {{exclude_bots}})
-        and dup_created_at >= now() - '6 months'::interval
+        and dup_created_at >= now() - '{{ago}}'::interval
         and dup_repo_name not like 'cncf%'
         and dup_repo_name not like 'crosscloudci%'
       union select sha,
@@ -105,7 +105,7 @@ with commits_counts as (
       where
         dup_committer_login is not null
         and (lower(dup_committer_login) {{exclude_bots}})
-        and dup_created_at >= now() - '6 months'::interval
+        and dup_created_at >= now() - '{{ago}}'::interval
         and dup_repo_name not like 'cncf%'
         and dup_repo_name not like 'crosscloudci%'
     ) e,
