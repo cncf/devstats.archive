@@ -170,10 +170,9 @@ do
   elif [ "$proj" = "harbor" ]
   then
          PROJ=harbor         PROJDB=harbor         PROJREPO="goharbor/harbor"                 ORGNAME=Harbor            PORT=3024 ICON=harbor         GRAFSUFF=harbor         GA="UA-108085315-29" ./devel/deploy_proj.sh || exit 26
-# TODO: icons
   elif [ "$proj" = "etcd" ]
   then
-         PROJ=etcd           PROJDB=etcd           PROJREPO="etcd-io/etcd"                    ORGNAME=etcd              PORT=3025 ICON=cncf           GRAFSUFF=etcd           GA="UA-108085315-30" ./devel/deploy_proj.sh || exit 27
+         PROJ=etcd           PROJDB=etcd           PROJREPO="etcd-io/etcd"                    ORGNAME=etcd              PORT=3025 ICON=etcd           GRAFSUFF=etcd           GA="UA-108085315-30" ./devel/deploy_proj.sh || exit 27
   elif [ "$proj" = "tikv" ]
   then
          PROJ=tikv           PROJDB=tikv           PROJREPO="tikv/tikv"                       ORGNAME=TiKV              PORT=3026 ICON=tikv           GRAFSUFF=tikv           GA="UA-108085315-31" ./devel/deploy_proj.sh || exit 28
