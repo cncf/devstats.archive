@@ -1,6 +1,6 @@
 select
   a.login,
-  string_agg(ae.email, ','),
+  string_agg(ae.email, ',') as emails,
   ts.value
 from
   gha_actors a,
