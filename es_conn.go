@@ -56,7 +56,7 @@ func ESConn(ctx *Ctx, prefix string) *ES {
 		es:            client,
 		prefix:        prefix,
 		fieldsToMerge: fieldsToMerge,
-		mapping: `{"settings":{"number_of_shards":1,"number_of_replicas":0},` +
+		mapping: `{"settings":{"number_of_shards":5,"number_of_replicas":0},` +
 			`"mappings":{"_doc":{` +
 			`"dynamic_templates":[` +
 			`{"not_analyzerd":{"match":"*","match_mapping_type":"string","mapping":{"type":"keyword"}}},` +
@@ -77,7 +77,7 @@ func ESConn(ctx *Ctx, prefix string) *ES {
 			`"data.dtvalue":{"type":"date","format":"yyyy-MM-dd HH:mm:ss"},` +
 			`"value":{"type":"double"}` +
 			`}}}}`,
-		mappingRaw: `{"settings":{"number_of_shards":1,"number_of_replicas":0},` +
+		mappingRaw: `{"settings":{"number_of_shards":5,"number_of_replicas":0},` +
 			`"mappings":{"_doc":{` +
 			`"dynamic_templates":[` +
 			`{"not_analyzerd":{"match":"*","match_mapping_type":"string","mapping":{"type":"keyword"}}},` +
