@@ -454,7 +454,9 @@ func sync(ctx *lib.Ctx, args []string) {
 					periodAggr := period + aggrSuffix
 					_, found := skipMap[periodAggr]
 					if found {
-						lib.Printf("Skipped period %s\n", periodAggr)
+						if ctx.Debug > 0 {
+							lib.Printf("Skipped period %s\n", periodAggr)
+						}
 						continue
 					}
 					recalc := lib.ComputePeriodAtThisDate(ctx, period, to, metric.Histogram)
