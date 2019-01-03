@@ -183,7 +183,7 @@ func sync(ctx *lib.Ctx, args []string) {
 			}
 		}
 	}
-	lib.Printf("Using start dates: %s, %s\n", lib.ToYMDHDate(maxDtPg), lib.ToYMDHDate(maxDtTSDB))
+	lib.Printf("Using start dates: pg: %s, tsdb: %s\n", lib.ToYMDHDate(maxDtPg), lib.ToYMDHDate(maxDtTSDB))
 
 	// Create date range
 	// Just to get into next GHA hour
