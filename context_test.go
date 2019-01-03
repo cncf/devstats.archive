@@ -116,6 +116,7 @@ func copyContext(in *lib.Ctx) *lib.Ctx {
 		ExcludeVars:         in.ExcludeVars,
 		OnlyVars:            in.OnlyVars,
 		SkipSharedDB:        in.SkipSharedDB,
+		SkipPIDFile:         in.SkipPIDFile,
 	}
 	return &out
 }
@@ -335,6 +336,7 @@ func TestInit(t *testing.T) {
 		ExcludeVars:         map[string]bool{},
 		OnlyVars:            map[string]bool{},
 		SkipSharedDB:        false,
+		SkipPIDFile:         false,
 	}
 
 	var nilRegexp *regexp.Regexp
@@ -1122,6 +1124,19 @@ func TestInit(t *testing.T) {
 				copyContext(&defaultContext),
 				map[string]interface{}{
 					"SkipSharedDB": true,
+				},
+			),
+		},
+		{
+			"Set skip PID file mode",
+			map[string]string{
+				"GHA2DB_SKIP_PIDFILE": "1",
+			},
+			dynamicSetFields(
+				t,
+				copyContext(&defaultContext),
+				map[string]interface{}{
+					"SkipPIDFile": true,
 				},
 			),
 		},
