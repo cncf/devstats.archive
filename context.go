@@ -114,6 +114,7 @@ type Ctx struct {
 	UseESRaw            bool                         // From GHA2DB_USE_ES_RAW, gha2es, gha2db_sync tools - enable generating RAW ElasticSearch data (directly from gha_tables instead of aggregated data from TSDB)
 	ResetESRaw          bool                         // From GHA2DB_RESET_ES_RAW, gha2db_sync tools - generate RAW ES index from project start date
 	SkipSharedDB        bool                         // From GHA2DB_SKIP_SHAREDDB, annotations tool, default false, will skip writing to shared_db (from projects.yaml) if set
+	SkipPIDFile         bool                         // From GHA2DB_SKIP_PIDFILE, devstats tool, skip creating, checking and removing PID file
 	SharedDB            string                       // Currently annotations tool read this from projects.yaml:shared_db and if set, outputs annotations data to the sharded DB in addition to the current DB
 	ProjectMainRepo     string                       // Used by annotations tool to store project's main repo name
 }
@@ -540,6 +541,9 @@ func (ctx *Ctx) Init() {
 
 	// Skip writing to shared_db from projects.yaml
 	ctx.SkipSharedDB = os.Getenv("GHA2DB_SKIP_SHAREDDB") != ""
+
+	// Skip PID file
+	ctx.SkipPIDFile = os.Getenv("GHA2DB_SKIP_PIDFILE") != ""
 
 	// Calculate all periods?
 	ctx.ComputeAll = os.Getenv("GHA2DB_COMPUTE_ALL") != ""

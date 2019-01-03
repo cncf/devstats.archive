@@ -19,20 +19,22 @@ func syncAllProjects() bool {
 	// Set non-fatal exec mode, we want to run sync for next project(s) if current fails
 	ctx.ExecFatal = false
 
-	// Create PID file (if not exists)
-	// If PID file exists, exit
-	pid := os.Getpid()
-	pidFile := "/tmp/devstats.pid"
-	f, err := os.OpenFile(pidFile, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0700)
-	if err != nil {
-		lib.Printf("Another `devstats` instance is running, PID file '%s' exists, exiting\n", pidFile)
-		return false
-	}
-	fmt.Fprintf(f, "%d", pid)
-	lib.FatalOnError(f.Close())
+	if !ctx.SkipPIDFile {
+		// Create PID file (if not exists)
+		// If PID file exists, exit
+		pid := os.Getpid()
+		pidFile := "/tmp/devstats.pid"
+		f, err := os.OpenFile(pidFile, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0700)
+		if err != nil {
+			lib.Printf("Another `devstats` instance is running, PID file '%s' exists, exiting\n", pidFile)
+			return false
+		}
+		fmt.Fprintf(f, "%d", pid)
+		lib.FatalOnError(f.Close())
 
-	// Schedule remove PID file when finished
-	defer func() { lib.FatalOnError(os.Remove(pidFile)) }()
+		// Schedule remove PID file when finished
+		defer func() { lib.FatalOnError(os.Remove(pidFile)) }()
+	}
 
 	// Local or cron mode?
 	cmdPrefix := ""
