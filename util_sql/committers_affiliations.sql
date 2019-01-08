@@ -26,4 +26,8 @@ where
     where
       (lower(dup_committer_login) {{exclude_bots}})
   )
+order by
+  github_login asc,
+  date_from asc,
+  date_to asc
 ;
