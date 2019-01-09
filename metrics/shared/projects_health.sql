@@ -940,6 +940,12 @@ with projects as (
         and current row
       )
   ) i
+), repo_groups as (
+  select distinct repo_group
+  from
+    gha_repos
+  where
+    repo_group is not null
 )
 select
   'phealth,' || project || ',ltag' as name,
@@ -1408,14 +1414,14 @@ union select 'phealth,' || repo_group || ',ncontr12' as name,
 from
   new12_contributors
 union select 'phealth,' || repo_group || ',ncontrp3' as name,
-  'Contributors: Number of new contributors in the last 3 months (previous 3 months)',
+  'Contributors: Number of new contributors in the last 3 months (last 3 months)',
   now(),
   0.0,
   ncontribp3::text
 from
   new6_contributors
 union select 'phealth,' || n.repo_group || ',ncontr' as name,
-  'Contributors: Number of new contributors in the last 3 months vs. previous 3 months',
+  'Contributors: Number of new contributors in the last 3 months vs. last 3 months',
   now(),
   0.0,
   case n.ncontrib3 > p.ncontribp3 when true then 'Up' else case n.ncontrib3 < p.ncontribp3 when true then 'Down' else 'Flat' end end
@@ -1424,88 +1430,136 @@ from
   new6_contributors p
 where
   n.repo_group = p.repo_group
-union select 'phealth,' || repo_group || ',topcompknact3' as name,
-  'Companies: Percent of known commits pushers from top committing company (previous 3 months)',
+union select 'phealth,' || rg.repo_group || ',topcompknact3' as name,
+  'Companies: Percent of known commits pushers from top committing company (last 3 months)',
   now(),
   0.0,
-  top
+  coalesce(t.top, '-')
 from
-  top_known_actors_3
-union select 'phealth,' || repo_group || ',topcompallact3' as name,
-  'Companies: Percent of all commits pushers from top committing company (previous 3 months)',
+  repo_groups rg
+left join
+  top_known_actors_3 t
+on
+  rg.repo_group = t.repo_group
+union select 'phealth,' || rg.repo_group || ',topcompallact3' as name,
+  'Companies: Percent of all commits pushers from top committing company (last 3 months)',
   now(),
   0.0,
-  top
+  coalesce(t.top, '-')
 from
-  top_all_actors_3
-union select 'phealth,' || repo_group || ',topcompknauth3' as name,
-  'Companies: Percent of known commits authors from top committing company (previous 3 months)',
+  repo_groups rg
+left join
+  top_all_actors_3 t
+on
+  rg.repo_group = t.repo_group
+union select 'phealth,' || rg.repo_group || ',topcompknauth3' as name,
+  'Companies: Percent of known commits authors from top committing company (last 3 months)',
   now(),
   0.0,
-  top
+  coalesce(t.top, '-')
 from
-  top_known_authors_3
-union select 'phealth,' || repo_group || ',topcompallauth3' as name,
-  'Companies: Percent of all commits authors from top committing company (previous 3 months)',
+  repo_groups rg
+left join
+  top_known_authors_3 t
+on
+  rg.repo_group = t.repo_group
+union select 'phealth,' || rg.repo_group || ',topcompallauth3' as name,
+  'Companies: Percent of all commits authors from top committing company (last 3 months)',
   now(),
   0.0,
-  top
+  coalesce(t.top, '-')
 from
-  top_all_authors_3
-union select 'phealth,' || repo_group || ',topcompkncom3' as name,
+  repo_groups rg
+left join
+  top_all_authors_3 t
+on
+  rg.repo_group = t.repo_group
+union select 'phealth,' || rg.repo_group || ',topcompkncom3' as name,
   'Companies: Percent of known commits from top committing company (previous 3 months)',
   now(),
   0.0,
-  top
+  coalesce(t.top, '-')
 from
-  top_known_committers_3
-union select 'phealth,' || repo_group || ',topcompallcom3' as name,
+  repo_groups rg
+left join
+  top_known_committers_3 t
+on
+  rg.repo_group = t.repo_group
+union select 'phealth,' || rg.repo_group || ',topcompallcom3' as name,
   'Companies: Percent of all commits from top committing company (previous 3 months)',
   now(),
   0.0,
-  top
+  coalesce(t.top, '-')
 from
-  top_all_committers_3
-union select 'phealth,' || repo_group || ',topcompknact12' as name,
+  repo_groups rg
+left join
+  top_all_committers_3 t
+on
+  rg.repo_group = t.repo_group
+union select 'phealth,' || rg.repo_group || ',topcompknact12' as name,
   'Companies: Percent of known commits pushers from top committing company (last year)',
   now(),
   0.0,
-  top
+  coalesce(t.top, '-')
 from
-  top_known_actors_12
-union select 'phealth,' || repo_group || ',topcompallact12' as name,
+  repo_groups rg
+left join
+  top_known_actors_12 t
+on
+  rg.repo_group = t.repo_group
+union select 'phealth,' || rg.repo_group || ',topcompallact12' as name,
   'Companies: Percent of all commits pushers from top committing company (last year)',
   now(),
   0.0,
-  top
+  coalesce(t.top, '-')
 from
-  top_all_actors_12
-union select 'phealth,' || repo_group || ',topcompknauth12' as name,
+  repo_groups rg
+left join
+  top_all_actors_12 t
+on
+  rg.repo_group = t.repo_group
+union select 'phealth,' || rg.repo_group || ',topcompknauth12' as name,
   'Companies: Percent of known commits authors from top committing company (last year)',
   now(),
   0.0,
-  top
+  coalesce(t.top, '-')
 from
-  top_known_authors_12
-union select 'phealth,' || repo_group || ',topcompallauth12' as name,
+  repo_groups rg
+left join
+  top_known_authors_12 t
+on
+  rg.repo_group = t.repo_group
+union select 'phealth,' || rg.repo_group || ',topcompallauth12' as name,
   'Companies: Percent of all commits authors from top committing company (last year)',
   now(),
   0.0,
-  top
+  coalesce(t.top, '-')
 from
-  top_all_authors_12
-union select 'phealth,' || repo_group || ',topcompkncom12' as name,
+  repo_groups rg
+left join
+  top_all_authors_12 t
+on
+  rg.repo_group = t.repo_group
+union select 'phealth,' || rg.repo_group || ',topcompkncom12' as name,
   'Companies: Percent of known commits from top committing company (last year)',
   now(),
   0.0,
-  top
+  coalesce(t.top, '-')
 from
-  top_known_committers_12
-union select 'phealth,' || repo_group || ',topcompallcom12' as name,
+  repo_groups rg
+left join
+  top_known_committers_12 t
+on
+  rg.repo_group = t.repo_group
+union select 'phealth,' || rg.repo_group || ',topcompallcom12' as name,
   'Companies: Percent of all commits from top committing company (last year)',
   now(),
   0.0,
-  top
+  coalesce(t.top, '-')
 from
-  top_all_committers_12
+  repo_groups rg
+left join
+  top_all_committers_12 t
+on
+  rg.repo_group = t.repo_group
 ;

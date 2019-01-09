@@ -190,7 +190,7 @@ with commits_counts as (
     a.company_name
 ), top_all_actors_3 as (
   select i.repo_group,
-    case i.a > 0 when true then round((i.c::numeric / i.a::numeric) * 100.0, 2)::text || '% ' || i.cname else '-' end as top
+    case i.a > 0 and i.c > 0 when true then round((i.c::numeric / i.a::numeric) * 100.0, 2)::text || '% ' || i.cname else '-' end as top
   from (
     select distinct c.repo_group,
       first_value(c.n3) over companies_by_commits as c,
@@ -212,7 +212,7 @@ with commits_counts as (
   ) i
 ), top_known_actors_3 as (
   select i.repo_group,
-    case i.k > 0 when true then round((i.c::numeric / i.k::numeric) * 100.0, 2)::text || '% ' || i.cname else '-' end as top
+    case i.k > 0 and i.c > 0 when true then round((i.c::numeric / i.k::numeric) * 100.0, 2)::text || '% ' || i.cname else '-' end as top
   from (
     select distinct c.repo_group,
       first_value(c.n3) over companies_by_commits as c,
@@ -234,7 +234,7 @@ with commits_counts as (
   ) i
 ), top_all_authors_3 as (
   select i.repo_group,
-    case i.a > 0 when true then round((i.c::numeric / i.a::numeric) * 100.0, 2)::text || '% ' || i.cname else '-' end as top
+    case i.a > 0 and i.c > 0 when true then round((i.c::numeric / i.a::numeric) * 100.0, 2)::text || '% ' || i.cname else '-' end as top
   from (
     select distinct c.repo_group,
       first_value(c.n3) over companies_by_commits as c,
@@ -256,7 +256,7 @@ with commits_counts as (
   ) i
 ), top_known_authors_3 as (
   select i.repo_group,
-    case i.k > 0 when true then round((i.c::numeric / i.k::numeric) * 100.0, 2)::text || '% ' || i.cname else '-' end as top
+    case i.k > 0 and i.c > 0 when true then round((i.c::numeric / i.k::numeric) * 100.0, 2)::text || '% ' || i.cname else '-' end as top
   from (
     select distinct c.repo_group,
       first_value(c.n3) over companies_by_commits as c,
@@ -278,7 +278,7 @@ with commits_counts as (
   ) i
 ), top_all_committers_3 as (
   select i.repo_group,
-    case i.a > 0 when true then round((i.c::numeric / i.a::numeric) * 100.0, 2)::text || '% ' || i.cname else '-' end as top
+    case i.a > 0 and i.c > 0 when true then round((i.c::numeric / i.a::numeric) * 100.0, 2)::text || '% ' || i.cname else '-' end as top
   from (
     select distinct c.repo_group,
       first_value(c.n3) over companies_by_commits as c,
@@ -300,7 +300,7 @@ with commits_counts as (
   ) i
 ), top_known_committers_3 as (
   select i.repo_group,
-    case i.k > 0 when true then round((i.c::numeric / i.k::numeric) * 100.0, 2)::text || '% ' || i.cname else '-' end as top
+    case i.k > 0 and i.c > 0 when true then round((i.c::numeric / i.k::numeric) * 100.0, 2)::text || '% ' || i.cname else '-' end as top
   from (
     select distinct c.repo_group,
       first_value(c.n3) over companies_by_commits as c,
@@ -322,7 +322,7 @@ with commits_counts as (
   ) i
 ), top_all_actors_12 as (
   select i.repo_group,
-    case i.a > 0 when true then round((i.c::numeric / i.a::numeric) * 100.0, 2)::text || '% ' || i.cname else '-' end as top
+    case i.a > 0 and i.c > 0 when true then round((i.c::numeric / i.a::numeric) * 100.0, 2)::text || '% ' || i.cname else '-' end as top
   from (
     select distinct c.repo_group,
       first_value(c.n12) over companies_by_commits as c,
@@ -344,7 +344,7 @@ with commits_counts as (
   ) i
 ), top_known_actors_12 as (
   select i.repo_group,
-    case i.k > 0 when true then round((i.c::numeric / i.k::numeric) * 100.0, 2)::text || '% ' || i.cname else '-' end as top
+    case i.k > 0 and i.c > 0 when true then round((i.c::numeric / i.k::numeric) * 100.0, 2)::text || '% ' || i.cname else '-' end as top
   from (
     select distinct c.repo_group,
       first_value(c.n12) over companies_by_commits as c,
@@ -366,7 +366,7 @@ with commits_counts as (
   ) i
 ), top_all_authors_12 as (
   select i.repo_group,
-    case i.a > 0 when true then round((i.c::numeric / i.a::numeric) * 100.0, 2)::text || '% ' || i.cname else '-' end as top
+    case i.a > 0 and i.c > 0 when true then round((i.c::numeric / i.a::numeric) * 100.0, 2)::text || '% ' || i.cname else '-' end as top
   from (
     select distinct c.repo_group,
       first_value(c.n12) over companies_by_commits as c,
@@ -388,7 +388,7 @@ with commits_counts as (
   ) i
 ), top_known_authors_12 as (
   select i.repo_group,
-    case i.k > 0 when true then round((i.c::numeric / i.k::numeric) * 100.0, 2)::text || '% ' || i.cname else '-' end as top
+    case i.k > 0 and i.c > 0 when true then round((i.c::numeric / i.k::numeric) * 100.0, 2)::text || '% ' || i.cname else '-' end as top
   from (
     select distinct c.repo_group,
       first_value(c.n12) over companies_by_commits as c,
@@ -410,7 +410,7 @@ with commits_counts as (
   ) i
 ), top_all_committers_12 as (
   select i.repo_group,
-    case i.a > 0 when true then round((i.c::numeric / i.a::numeric) * 100.0, 2)::text || '% ' || i.cname else '-' end as top
+    case i.a > 0 and i.c > 0 when true then round((i.c::numeric / i.a::numeric) * 100.0, 2)::text || '% ' || i.cname else '-' end as top
   from (
     select distinct c.repo_group,
       first_value(c.n12) over companies_by_commits as c,
@@ -432,7 +432,7 @@ with commits_counts as (
   ) i
 ), top_known_committers_12 as (
   select i.repo_group,
-    case i.k > 0 when true then round((i.c::numeric / i.k::numeric) * 100.0, 2)::text || '% ' || i.cname else '-' end as top
+    case i.k > 0 and i.c > 0 when true then round((i.c::numeric / i.k::numeric) * 100.0, 2)::text || '% ' || i.cname else '-' end as top
   from (
     select distinct c.repo_group,
       first_value(c.n12) over companies_by_commits as c,
@@ -452,6 +452,12 @@ with commits_counts as (
         and current row
       )
   ) i
+), repo_groups as (
+  select distinct repo_group
+  from
+    gha_repos
+  where
+    repo_group is not null
 )
 select 'phealth,' || repo_group || ',topcompknact3' as name,
   'Companies: Percent of known commits pushers from top committing company (previous 3 months)',
@@ -537,4 +543,6 @@ union select 'phealth,' || repo_group || ',topcompallcom12' as name,
   top
 from
   top_all_committers_12
+order by
+  name
 ;
