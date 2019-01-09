@@ -2,8 +2,8 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 10.5 (Ubuntu 10.5-0ubuntu0.18.04)
--- Dumped by pg_dump version 10.5 (Ubuntu 10.5-0ubuntu0.18.04)
+-- Dumped from database version 10.6 (Ubuntu 10.6-0ubuntu0.18.04.1)
+-- Dumped by pg_dump version 10.6 (Ubuntu 10.6-0ubuntu0.18.04.1)
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -447,6 +447,7 @@ ALTER TABLE public.gha_actors OWNER TO gha_admin;
 CREATE TABLE public.gha_actors_affiliations (
     actor_id bigint NOT NULL,
     company_name character varying(160) NOT NULL,
+    original_company_name character varying(160) NOT NULL,
     dt_from timestamp without time zone NOT NULL,
     dt_to timestamp without time zone NOT NULL
 );
@@ -1097,7 +1098,7 @@ COPY public.gha_actors (id, login, name, country_id, sex, sex_prob, tz, tz_offse
 -- Data for Name: gha_actors_affiliations; Type: TABLE DATA; Schema: public; Owner: gha_admin
 --
 
-COPY public.gha_actors_affiliations (actor_id, company_name, dt_from, dt_to) FROM stdin;
+COPY public.gha_actors_affiliations (actor_id, company_name, original_company_name, dt_from, dt_to) FROM stdin;
 \.
 
 
@@ -2066,6 +2067,13 @@ CREATE INDEX actors_affiliations_dt_from_idx ON public.gha_actors_affiliations U
 --
 
 CREATE INDEX actors_affiliations_dt_to_idx ON public.gha_actors_affiliations USING btree (dt_to);
+
+
+--
+-- Name: actors_affiliations_original_company_name_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX actors_affiliations_original_company_name_idx ON public.gha_actors_affiliations USING btree (original_company_name);
 
 
 --
