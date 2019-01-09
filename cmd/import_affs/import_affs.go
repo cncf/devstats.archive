@@ -473,7 +473,7 @@ func importAffs(jsonFN string) {
 		for _, aid := range actIDs {
 			lib.ExecSQLWithErr(con, &ctx,
 				lib.InsertIgnore(
-					"into gha_actors_affiliations(actor_id, company_name, original_company_name, dt_from, dt_to) "+lib.NValues(4)),
+					"into gha_actors_affiliations(actor_id, company_name, original_company_name, dt_from, dt_to) "+lib.NValues(5)),
 				lib.AnyArray{aid, maybeHide(company), maybeHide(company), dtFrom, dtTo}...,
 			)
 		}
