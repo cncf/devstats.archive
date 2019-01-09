@@ -43,6 +43,10 @@ func processHidden(ctx *lib.Ctx) {
 			column: "company_name",
 		},
 		{
+			table:  "gha_actors_affiliations",
+			column: "original_company_name",
+		},
+		{
 			table:  "gha_companies",
 			column: "name",
 		},

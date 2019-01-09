@@ -625,16 +625,16 @@ func addActor(con *sql.DB, ctx *lib.Ctx, args ...interface{}) (err error) {
 }
 
 // Add actor affiliation
-// actor_id, company_name, dt_from, dt_to
+// actor_id, company_name, original_company_name, dt_from, dt_to
 func addActorAffiliation(con *sql.DB, ctx *lib.Ctx, args ...interface{}) (err error) {
-	if len(args) != 4 {
-		err = fmt.Errorf("addActorAffiliation: expects 4 variadic parameters, got %d %+v", len(args), args)
+	if len(args) != 5 {
+		err = fmt.Errorf("addActorAffiliation: expects 5 variadic parameters, got %d %+v", len(args), args)
 		return
 	}
 	_, err = lib.ExecSQL(
 		con,
 		ctx,
-		"insert into gha_actors_affiliations(actor_id, company_name, dt_from, dt_to) "+lib.NValues(4),
+		"insert into gha_actors_affiliations(actor_id, company_name, original_company_name, dt_from, dt_to) "+lib.NValues(5),
 		args...,
 	)
 	return
