@@ -45,6 +45,6 @@ then
   > /tmp/deploy.wip
 fi
 
-PROJ=linux PROJDB=linux PROJREPO="torvalds/linux" ORGNAME=Linux PORT=3255 ICON=cncf GRAFSUFF=linux GA="-" ./devel/deploy_proj.sh || exit 1
+PROJ=linux PROJDB=linux PROJREPO="torvalds/linux" ORGNAME=Linux PORT=3256 ICON=cncf GRAFSUFF=linux GA="-" ./devel/deploy_proj.sh || exit 1
 ./devel/create_www.sh || exit 2
 echo "$0: All deployments finished"
