@@ -380,6 +380,12 @@ func getCommitFiles(ch chan int, ctx *lib.Ctx, con *sql.DB, filesSkipPattern *re
 	for i, data := range files {
 		if i == 0 {
 			unixTimeStamp, err := strconv.ParseInt(data, 10, 64)
+			if data == "" {
+				if ctx.Debug > 0 {
+					lib.Printf("Empty time returned for repo: %s, sha: %s\n", repo, sha)
+				}
+				continue
+			}
 			if err != nil {
 				lib.Printf("Invalid time returned for repo: %s, sha: %s: '%s'\n", repo, sha, data)
 			}
