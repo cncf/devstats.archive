@@ -117,6 +117,12 @@ func GetAnnotations(ctx *Ctx, orgRepo, annoRegexp string) (annotations Annotatio
 		if re != nil && !re.MatchString(tagName) {
 			continue
 		}
+		if tagDataAry[1] == "" {
+			if ctx.Debug > 0 {
+				Printf("Empty time returned for repo: %s, tag: %s\n", orgRepo, tagName)
+			}
+			continue
+		}
 		unixTimeStamp, err := strconv.ParseInt(tagDataAry[1], 10, 64)
 		if err != nil {
 			Printf("Invalid time returned for repo: %s, tag: %s: '%s'\n", orgRepo, tagName, data)
