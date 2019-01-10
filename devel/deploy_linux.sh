@@ -31,6 +31,8 @@ fi
 export GRAF_USRSHARE
 export GRAF_VARLIB
 export GRAF_ETC
+export GHA2DB_PROJECTS_OVERRIDE="+linux"
+export GHA2DB_PROJECTS_YAML="linux.yaml"
 
 host=`hostname`
 function finish {
