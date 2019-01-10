@@ -24,7 +24,7 @@ This tools filter GitHub archives for given date period and given organization, 
 It can also save results into JSON files.
 It displays results using Grafana and Postgres as a time series database.
 
-It can import developers affiliations from [cncf/gitdm](https://github.com/cncf/gitdm).
+It can import developers affiliations from [cncf/gitdm](https://github.com/cncf/gitdm). It uses `companies.yaml` file to map company acquisitions.
 
 It also clones all git repos to analyse all commits files.
 
@@ -410,7 +410,7 @@ To install cron job please check "cron" section:
 
 You need to get [github_users.json](https://raw.githubusercontent.com/cncf/gitdm/master/github_users.json) file from [CNCF/gitdm](https://github.com/cncf/gitdm).
 
-To generate this file follow instructions on cncf/gitdm, or just get the newest version.
+To generate this file follow instructions on `cncf/gitdm`, or just get the newest version. Affiliations import tool uses `companies.yaml` file to map company acquisitions.
 
 This file contains all GitHub user name - company affiliations found by `cncf/gitdm`.
 

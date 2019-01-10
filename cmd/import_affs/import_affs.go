@@ -9,6 +9,8 @@ import (
 	"regexp"
 	"strings"
 	"time"
+
+	yaml "gopkg.in/yaml.v2"
 )
 
 // gitHubUsers - list of GitHub user data from cncf/gitdm.
@@ -24,6 +26,12 @@ type gitHubUser struct {
 	Sex         *string  `json:"sex"`
 	Tz          *string  `json:"tz"`
 	SexProb     *float64 `json:"sex_prob"`
+}
+
+// AllAcquisitions contain all company acquisitions data
+// Acquisition contains acquired company name regular expression and new company name for it.
+type allAcquisitions struct {
+	Acquisitions [][2]string `yaml:"acquisitions"`
 }
 
 // stringSet - set of strings
@@ -183,14 +191,28 @@ func importAffs(jsonFN string) {
 	// To handle GDPR
 	maybeHide := lib.MaybeHideFunc(lib.GetHidden(lib.HideCfgFile))
 
+	// Files path
+	dataPrefix := lib.DataDir
+	if ctx.Local {
+		dataPrefix = "./"
+	}
+
 	// Handle default file name
 	if jsonFN == "" {
 		// Local or cron mode?
-		dataPrefix := lib.DataDir
-		if ctx.Local {
-			dataPrefix = "./"
-		}
 		jsonFN = dataPrefix + ctx.AffiliationsJSON
+	}
+
+	// Read company acquisitions mapping
+	var acqs allAcquisitions
+	if !ctx.SkipCompanyAcq {
+		data, err := lib.ReadFile(&ctx, dataPrefix+ctx.CompanyAcqYaml)
+		if err != nil {
+			lib.Printf("Cannot read company acquisitions mapping '%v', continuying without\n", err)
+		} else {
+			lib.FatalOnError(yaml.Unmarshal(data, &acqs))
+			lib.Printf("%+v\n", acqs)
+		}
 	}
 
 	// Parse github_users.json
