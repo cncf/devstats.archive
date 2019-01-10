@@ -178,6 +178,41 @@ func addActor(con *sql.DB, ctx *lib.Ctx, login, name string, countryID, sex, tz 
 	return aid
 }
 
+// mapCompanyName: maps company name to possibly new company name (when one was acquired by the another)
+// If mapping happens, store it in the cache for speed
+// stat:
+// --- [no_regexp_match, cache] (unmapped)
+// Company_name [match_regexp, match_cache]
+func mapCompanyName(comMap map[string][2]string, acqMap map[*regexp.Regexp]string, stat map[string][2]int, company string) string {
+	res, ok := comMap[company]
+	if ok {
+		if res[1] == "m" {
+			ary := stat[res[0]]
+			ary[1]++
+			stat[res[0]] = ary
+		} else {
+			ary := stat["---"]
+			ary[1]++
+			stat["---"] = ary
+		}
+		return res[0]
+	}
+	for re, res := range acqMap {
+		if re.MatchString(company) {
+			comMap[company] = [2]string{res, "m"}
+			ary := stat[res]
+			ary[0]++
+			stat[res] = ary
+			return res
+		}
+	}
+	comMap[company] = [2]string{company, "u"}
+	ary := stat["---"]
+	ary[0]++
+	stat["---"] = ary
+	return company
+}
+
 // Imports given JSON file.
 func importAffs(jsonFN string) {
 	// Environment context parse
@@ -204,14 +239,41 @@ func importAffs(jsonFN string) {
 	}
 
 	// Read company acquisitions mapping
-	var acqs allAcquisitions
+	var (
+		acqs   allAcquisitions
+		acqMap map[*regexp.Regexp]string
+		comMap map[string][2]string
+		stat   map[string][2]int
+	)
 	if !ctx.SkipCompanyAcq {
 		data, err := lib.ReadFile(&ctx, dataPrefix+ctx.CompanyAcqYaml)
 		if err != nil {
 			lib.Printf("Cannot read company acquisitions mapping '%v', continuying without\n", err)
 		} else {
 			lib.FatalOnError(yaml.Unmarshal(data, &acqs))
-			lib.Printf("%+v\n", acqs)
+			if ctx.Debug > 0 {
+				lib.Printf("Acquisitions: %+v\n", acqs)
+			}
+		}
+		var re *regexp.Regexp
+		acqMap = make(map[*regexp.Regexp]string)
+		comMap = make(map[string][2]string)
+		stat = make(map[string][2]int)
+		srcMap := make(map[string]string)
+		resMap := make(map[string]struct{})
+		for idx, acq := range acqs.Acquisitions {
+			re = regexp.MustCompile(acq[0])
+			res, ok := srcMap[acq[0]]
+			if ok {
+				lib.Fatalf("Acquisition number %d '%+v' is already present in the mapping and maps into '%s'", idx, acq, res)
+			}
+			srcMap[acq[0]] = acq[1]
+			_, ok = resMap[acq[1]]
+			if ok {
+				lib.Fatalf("Acquisition number %d '%+v': some other acquisition already maps into '%s', merge them", idx, acq, acq[1])
+			}
+			resMap[acq[1]] = struct{}{}
+			acqMap[re] = acq[1]
 		}
 	}
 
@@ -463,6 +525,13 @@ func importAffs(jsonFN string) {
 			lib.InsertIgnore("into gha_companies(name) "+lib.NValues(1)),
 			lib.AnyArray{maybeHide(company)}...,
 		)
+		mappedCompany := mapCompanyName(comMap, acqMap, stat, company)
+		if mappedCompany != company {
+			lib.ExecSQLWithErr(con, &ctx,
+				lib.InsertIgnore("into gha_companies(name) "+lib.NValues(1)),
+				lib.AnyArray{maybeHide(mappedCompany)}...,
+			)
+		}
 	}
 	lib.Printf("Processed %d companies\n", len(companies))
 
@@ -490,13 +559,14 @@ func importAffs(jsonFN string) {
 		if company == "" {
 			continue
 		}
+		mappedCompany := mapCompanyName(comMap, acqMap, stat, company)
 		dtFrom := aff.From
 		dtTo := aff.To
 		for _, aid := range actIDs {
 			lib.ExecSQLWithErr(con, &ctx,
 				lib.InsertIgnore(
 					"into gha_actors_affiliations(actor_id, company_name, original_company_name, dt_from, dt_to) "+lib.NValues(5)),
-				lib.AnyArray{aid, maybeHide(company), maybeHide(company), dtFrom, dtTo}...,
+				lib.AnyArray{aid, maybeHide(mappedCompany), maybeHide(company), dtFrom, dtTo}...,
 			)
 		}
 	}
@@ -504,6 +574,19 @@ func importAffs(jsonFN string) {
 		"Processed %d affiliations, added %d actors, cache hit: %d, miss: %d\n",
 		len(affList), added, cached, nonCached,
 	)
+	for company, data := range stat {
+		if company == "---" {
+			lib.Printf("Non-acquired companies: checked all regexp: %d, cache hit: %d\n", data[0], data[1])
+		} else {
+			lib.Printf("Mapped to '%s': checked regexp: %d, cache hit: %d\n", company, data[0], data[1])
+		}
+	}
+  for company, data := range comMap {
+    if data[1] == "u" {
+      continue
+    }
+    lib.Printf("Used mapping '%s' --> '%s'\n", company, data[0])
+  }
 }
 
 func main() {
