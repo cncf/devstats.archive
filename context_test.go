@@ -92,6 +92,7 @@ func copyContext(in *lib.Ctx) *lib.Ctx {
 		ExternalInfo:        in.ExternalInfo,
 		ProjectsCommits:     in.ProjectsCommits,
 		ProjectsYaml:        in.ProjectsYaml,
+		CompanyAcqYaml:      in.CompanyAcqYaml,
 		ProjectsOverride:    in.ProjectsOverride,
 		AffiliationsJSON:    in.AffiliationsJSON,
 		ExcludeRepos:        in.ExcludeRepos,
@@ -117,6 +118,7 @@ func copyContext(in *lib.Ctx) *lib.Ctx {
 		OnlyVars:            in.OnlyVars,
 		SkipSharedDB:        in.SkipSharedDB,
 		SkipPIDFile:         in.SkipPIDFile,
+		SkipCompanyAcq:      in.SkipCompanyAcq,
 	}
 	return &out
 }
@@ -312,6 +314,7 @@ func TestInit(t *testing.T) {
 		ExternalInfo:        false,
 		ProjectsCommits:     "",
 		ProjectsYaml:        "projects.yaml",
+		CompanyAcqYaml:      "companies.yaml",
 		ProjectsOverride:    map[string]bool{},
 		AffiliationsJSON:    "github_users.json",
 		ExcludeRepos:        map[string]bool{},
@@ -337,6 +340,7 @@ func TestInit(t *testing.T) {
 		OnlyVars:            map[string]bool{},
 		SkipSharedDB:        false,
 		SkipPIDFile:         false,
+		SkipCompanyAcq:      false,
 	}
 
 	var nilRegexp *regexp.Regexp
@@ -962,6 +966,7 @@ func TestInit(t *testing.T) {
 			map[string]string{
 				"GHA2DB_PROJECTS_YAML":     "baz.yml",
 				"GHA2DB_AFFILIATIONS_JSON": "other.json",
+				"GHA2DB_COMPANY_ACQ_YAML":  "acq.yml",
 			},
 			dynamicSetFields(
 				t,
@@ -969,6 +974,7 @@ func TestInit(t *testing.T) {
 				map[string]interface{}{
 					"ProjectsYaml":     "baz.yml",
 					"AffiliationsJSON": "other.json",
+					"CompanyAcqYaml":   "acq.yml",
 				},
 			),
 		},
@@ -1137,6 +1143,19 @@ func TestInit(t *testing.T) {
 				copyContext(&defaultContext),
 				map[string]interface{}{
 					"SkipPIDFile": true,
+				},
+			),
+		},
+		{
+			"Set skip company acquisitions file mode",
+			map[string]string{
+				"GHA2DB_SKIP_COMPANY_ACQ": "1",
+			},
+			dynamicSetFields(
+				t,
+				copyContext(&defaultContext),
+				map[string]interface{}{
+					"SkipCompanyAcq": true,
 				},
 			),
 		},

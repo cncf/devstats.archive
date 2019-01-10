@@ -71,6 +71,7 @@ type Ctx struct {
 	ExternalInfo        bool                         // From GHA2DB_EXTERNAL_INFO get_repos tool, enable outputing data needed by external tools (cncf/gitdm), default false
 	ProjectsCommits     string                       // From GHA2DB_PROJECTS_COMMITS get_repos tool, set list of projects for commits analysis instead of analysing all, default "" - means all
 	ProjectsYaml        string                       // From GHA2DB_PROJECTS_YAML, many tools - set main projects file, default "projects.yaml"
+	CompanyAcqYaml      string                       // From GHA2DB_COMPANY_ACQ_YAML, import_affs tool, set non-standard "companies.yaml" file
 	ProjectsOverride    map[string]bool              // From GHA2DB_PROJECTS_OVERRIDE, get_repos and ./devstats tools - for example "-pro1,+pro2" means never sync pro1 and always sync pro2 (even if disabled in `projects.yaml`).
 	AffiliationsJSON    string                       // From GHA2DB_AFFILIATIONS_JSON, import_affs tool - set main affiliations file, default "github_users.json"
 	ExcludeRepos        map[string]bool              // From GHA2DB_EXCLUDE_REPOS, gha2db tool, default "" - comma separated list of repos to exclude, example: "theupdateframework/notary,theupdateframework/other"
@@ -115,6 +116,7 @@ type Ctx struct {
 	ResetESRaw          bool                         // From GHA2DB_RESET_ES_RAW, gha2db_sync tools - generate RAW ES index from project start date
 	SkipSharedDB        bool                         // From GHA2DB_SKIP_SHAREDDB, annotations tool, default false, will skip writing to shared_db (from projects.yaml) if set
 	SkipPIDFile         bool                         // From GHA2DB_SKIP_PIDFILE, devstats tool, skip creating, checking and removing PID file
+	SkipCompanyAcq      bool                         // From GHA2DB_SKIP_COMPANY_ACQ, import_affs tool, skip processing company acquisitions from companies.yaml file
 	SharedDB            string                       // Currently annotations tool read this from projects.yaml:shared_db and if set, outputs annotations data to the sharded DB in addition to the current DB
 	ProjectMainRepo     string                       // Used by annotations tool to store project's main repo name
 }
@@ -506,6 +508,12 @@ func (ctx *Ctx) Init() {
 		ctx.AffiliationsJSON = "github_users.json"
 	}
 
+	// Company acquisitions file
+	ctx.CompanyAcqYaml = os.Getenv("GHA2DB_COMPANY_ACQ_YAML")
+	if ctx.CompanyAcqYaml == "" {
+		ctx.CompanyAcqYaml = "companies.yaml"
+	}
+
 	// `get_repos` repositories dir
 	ctx.ReposDir = os.Getenv("GHA2DB_REPOS_DIR")
 	if ctx.ReposDir == "" {
@@ -544,6 +552,9 @@ func (ctx *Ctx) Init() {
 
 	// Skip PID file
 	ctx.SkipPIDFile = os.Getenv("GHA2DB_SKIP_PIDFILE") != ""
+
+	// Skip company acquisitions file
+	ctx.SkipCompanyAcq = os.Getenv("GHA2DB_SKIP_COMPANY_ACQ") != ""
 
 	// Calculate all periods?
 	ctx.ComputeAll = os.Getenv("GHA2DB_COMPUTE_ALL") != ""

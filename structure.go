@@ -143,6 +143,7 @@ func Structure(ctx *Ctx) {
 	}
 
 	// gha_actors_affiliations: this is filled by `import_affs` tool, that uses cncf/gitdm:github_users.json
+	// users `github_users.json` and `companies.yaml` fiel to map company acquisitions.
 	if ctx.Table {
 		ExecSQLWithErr(c, ctx, "drop table if exists gha_actors_affiliations")
 		ExecSQLWithErr(
