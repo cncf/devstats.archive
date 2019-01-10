@@ -275,6 +275,16 @@ func importAffs(jsonFN string) {
 			resMap[acq[1]] = struct{}{}
 			acqMap[re] = acq[1]
 		}
+		for re, res := range acqMap {
+			for idx, acq := range acqs.Acquisitions {
+				if re.MatchString(acq[1]) {
+					lib.Fatalf("Acquisition's number %d '%s' result '%s' matches other acquisition '%s' which maps to '%s', simplify it: '%v' -> '%s'", idx, acq[0], acq[1], re, res, acq[0], res)
+				}
+				if re.MatchString(acq[0]) && res != acq[1] {
+					lib.Fatalf("Acquisition's number %d '%s' regexp '%s' matches other acquisition '%s' which maps to '%s': result is different '%s'", idx, acq, acq[0], re, res, acq[1])
+				}
+			}
+		}
 	}
 
 	// Parse github_users.json
