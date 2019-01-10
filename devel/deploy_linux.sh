@@ -46,5 +46,5 @@ then
 fi
 
 PROJ=linux PROJDB=linux PROJREPO="torvalds/linux" ORGNAME=Linux PORT=3256 ICON=cncf GRAFSUFF=linux GA="-" ./devel/deploy_proj.sh || exit 1
-./devel/create_www.sh || exit 2
+CERT=1 WWW=1 ./devel/create_www.sh || exit 2
 echo "$0: All deployments finished"
