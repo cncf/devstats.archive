@@ -581,12 +581,12 @@ func importAffs(jsonFN string) {
 			lib.Printf("Mapped to '%s': checked regexp: %d, cache hit: %d\n", company, data[0], data[1])
 		}
 	}
-  for company, data := range comMap {
-    if data[1] == "u" {
-      continue
-    }
-    lib.Printf("Used mapping '%s' --> '%s'\n", company, data[0])
-  }
+	for company, data := range comMap {
+		if data[1] == "u" {
+			continue
+		}
+		lib.Printf("Used mapping '%s' --> '%s'\n", company, data[0])
+	}
 }
 
 func main() {
