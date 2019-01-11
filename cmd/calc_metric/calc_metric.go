@@ -565,7 +565,7 @@ func calcHistogram(ctx *lib.Ctx, seriesNameOrFunc, sqlFile, sqlQuery, excludeBot
 		}
 
 		// Add new data
-		tm := lib.TimeParseAny("2014-01-01")
+		tm := lib.TimeParseAny("2012-07-01")
 		rowCount := 0
 		for rows.Next() {
 			lib.FatalOnError(rows.Scan(&name, &value))
@@ -651,7 +651,7 @@ func calcHistogram(ctx *lib.Ctx, seriesNameOrFunc, sqlFile, sqlQuery, excludeBot
 					tm = tm.Add(-time.Hour)
 					seriesToClear[name] = tm
 				} else {
-					tm = lib.TimeParseAny("2014-01-01")
+					tm = lib.TimeParseAny("2012-07-01")
 					seriesToClear[name] = tm
 				}
 				if ctx.Debug > 0 {
@@ -702,7 +702,7 @@ func calcHistogram(ctx *lib.Ctx, seriesNameOrFunc, sqlFile, sqlQuery, excludeBot
 								tm = tm.Add(-time.Hour)
 								seriesToClear[name] = tm
 							} else {
-								tm = lib.TimeParseAny("2014-01-01")
+								tm = lib.TimeParseAny("2012-07-01")
 								seriesToClear[name] = tm
 							}
 							// Add batch point
@@ -737,7 +737,7 @@ func calcHistogram(ctx *lib.Ctx, seriesNameOrFunc, sqlFile, sqlQuery, excludeBot
 								tm = tm.Add(-time.Hour)
 								seriesToClear[name] = tm
 							} else {
-								tm = lib.TimeParseAny("2014-01-01")
+								tm = lib.TimeParseAny("2012-07-01")
 								seriesToClear[name] = tm
 							}
 							// Add batch point

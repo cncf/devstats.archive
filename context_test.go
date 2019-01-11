@@ -257,7 +257,7 @@ func TestInit(t *testing.T) {
 		Mgetc:               "",
 		QOut:                false,
 		CtxOut:              false,
-		DefaultStartDate:    time.Date(2014, 1, 1, 0, 0, 0, 0, time.UTC),
+		DefaultStartDate:    time.Date(2012, 7, 1, 0, 0, 0, 0, time.UTC),
 		ForceStartDate:      false,
 		LastSeries:          "events_h",
 		SkipTSDB:            false,
