@@ -77,7 +77,7 @@ func ProcessTag(con *sql.DB, es *ES, ctx *Ctx, tg *Tag, replaces [][]string) {
 			es.DeleteByQuery(ctx, []string{"type"}, []interface{}{"t" + tg.SeriesName})
 		}
 	}
-	tm := TimeParseAny("2014-01-01")
+	tm := TimeParseAny("2012-07-01")
 
 	// Columns
 	columns, err := rows.Columns()

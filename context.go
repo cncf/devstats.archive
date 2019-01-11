@@ -30,7 +30,7 @@ type Ctx struct {
 	QOut                bool                         // From GHA2DB_QOUT output all SQL queries?, default false
 	CtxOut              bool                         // From GHA2DB_CTXOUT output all context data (this struct), default false
 	LogTime             bool                         // From GHA2DB_SKIPTIME, output time with all lib.Printf(...) calls, default true, use GHA2DB_SKIPTIME to disable
-	DefaultStartDate    time.Time                    // From GHA2DB_STARTDT, default `2014-01-01 00:00 UTC`, expects format "YYYY-MM-DD HH:MI:SS", can be set in `projects.yaml` via `start_date:`, value from projects.yaml (if set) has the highest priority.
+	DefaultStartDate    time.Time                    // From GHA2DB_STARTDT, default `2012-07-01 00:00 UTC`, expects format "YYYY-MM-DD HH:MI:SS", can be set in `projects.yaml` via `start_date:`, value from projects.yaml (if set) has the highest priority.
 	ForceStartDate      bool                         // From GHA2DB_STARTDT_FORCE, default false
 	LastSeries          string                       // From GHA2DB_LASTSERIES, use this TSDB series to determine last timestamp date, default "events_h"
 	SkipTSDB            bool                         // From GHA2DB_SKIPTSDB gha2db_sync tool, skip TS DB processing? for calc_metric it skips final series write, default false
@@ -242,7 +242,7 @@ func (ctx *Ctx) Init() {
 	if os.Getenv("GHA2DB_STARTDT") != "" {
 		ctx.DefaultStartDate = TimeParseAny(os.Getenv("GHA2DB_STARTDT"))
 	} else {
-		ctx.DefaultStartDate = time.Date(2014, 1, 1, 0, 0, 0, 0, time.UTC)
+		ctx.DefaultStartDate = time.Date(2012, 7, 1, 0, 0, 0, 0, time.UTC)
 	}
 	ctx.ForceStartDate = false
 	if os.Getenv("GHA2DB_STARTDT_FORCE") != "" {

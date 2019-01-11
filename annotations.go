@@ -36,7 +36,7 @@ func (a AnnotationsByDate) Less(i, j int) bool {
 
 // GetFakeAnnotations - returns 'startDate - joinDate' and 'joinDate - now' annotations
 func GetFakeAnnotations(startDate, joinDate time.Time) (annotations Annotations) {
-	minDate := TimeParseAny("2014-01-01")
+	minDate := TimeParseAny("2012-07-01")
 	if joinDate.Before(minDate) || startDate.Before(minDate) || !joinDate.After(startDate) {
 		return
 	}
@@ -102,7 +102,7 @@ func GetAnnotations(ctx *Ctx, orgRepo, annoRegexp string) (annotations Annotatio
 	tags := strings.Split(tagsStr, "\n")
 	nTags := 0
 
-	minDate := TimeParseAny("2014-01-01")
+	minDate := TimeParseAny("2012-07-01")
 	for _, tagData := range tags {
 		data := strings.TrimSpace(tagData)
 		if data == "" {
@@ -261,7 +261,7 @@ func ProcessAnnotations(ctx *Ctx, annotations *Annotations, startDate, joinDate 
 
 	// Add special periods
 	tagName := "quick_ranges"
-	tm := TimeParseAny("2014-01-01")
+	tm := TimeParseAny("2012-07-01")
 
 	// Last "..." periods
 	for _, period := range periods {

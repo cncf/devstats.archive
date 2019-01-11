@@ -159,7 +159,7 @@ func pdbVars() {
 	var tm time.Time
 	if ctx.UseES {
 		es = lib.ESConn(&ctx, "d_")
-		tm = lib.TimeParseAny("2014-01-01")
+		tm = lib.TimeParseAny("2012-07-01")
 	}
 
 	// Connect to Postgres DB

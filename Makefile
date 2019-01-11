@@ -153,6 +153,7 @@ copydata: util_scripts
 	cp devel/*.txt /etc/gha2db/ || exit 11
 	cp github_users.json /etc/gha2db/ || exit 12
 	cp companies.yaml /etc/gha2db/ || exit 13
+	cp linux.yaml /etc/gha2db/ || exit 14
 
 install: ${BINARIES} data
 	${GO_INSTALL} ${GO_BIN_CMDS}
