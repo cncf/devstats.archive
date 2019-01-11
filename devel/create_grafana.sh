@@ -69,7 +69,7 @@ then
   exit 0
 fi
 
-if [ ! -d "$GRAF_USRSHARE.$GRAFSUFF/" ]
+if [ ! -d "/usr/share/grafana.$GRAFSUFF/" ]
 then
   echo "copying /usr/share/grafana.$GRAFSUFF/"
   cp -R "$GRAF_USRSHARE" "/usr/share/grafana.$GRAFSUFF/" || exit 3
