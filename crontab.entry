@@ -4,9 +4,10 @@
 # and will additionally handle "git" files datasource.
 # Please choose appropriate 'webhook' entry depending on server type: test or prod.
 
-#8 * * * * PATH=$PATH:/path/to/GOPATH/bin PG_DB=gha GHA2DB_PROJECT=kubernetes PG_PASS="..." gha2db_sync 2>> /tmp/gha2db_sync_kubernetes.err 1>> /tmp/gha2db_sync_kubernetes.log
+#8 * * * * PATH=$PATH:/path/to/GOPATH/bin PG_DB=gha GHA2DB_PROJECT=kubernetes PG_PASS=... gha2db_sync 2>> /tmp/gha2db_sync_kubernetes.err 1>> /tmp/gha2db_sync_kubernetes.log
 8 * * * * PATH=$PATH:/home/justa/dev/go/bin GHA2DB_WEBSITEDATA=1 GHA2DB_JSONS_DIR=/var/www/html/jsons GHA2DB_PROJECTS_OVERRIDE="+cncf,+all,+opencontainers,+istio,+spinnaker,+knative" GHA2DB_TMOFFSET="-5" PG_PASS=... devstats 2>> /tmp/gha2db_sync.err 1>> /tmp/gha2db_sync.log
 7 * * * * PATH=$PATH:/home/justa/dev/go/bin sysctl_config.sh
+6 * * * * PATH=$PATH:/home/justa/dev/go/bin:/usr/local/go/bin GHA2DB_PROJECTS_YAML=linux.yaml PG_PASS=... GHA2DB_SKIP_PIDFILE=1 devstats 2>> /tmp/contrib.err 1>> /tmp/contrib.log
 59 * * * * PATH=$PATH:/home/justa/dev/go/bin GHA2DB_JSONS_DIR=/var/www/html/jsons GHA2DB_PROJECTS_OVERRIDE="+cncf,+all,+opencontainers,+istio,+spinnaker,+knative" PG_PASS=... website_data 1>>/tmp/website_data.log 2>>/tmp/website_data.err
 40 4 * * * PATH=$PATH:/home/justa/dev/go/bin PG_PASS=... cron_db_backup_all.sh 2>> /tmp/gha2db_backup.err 1>> /tmp/gha2db_backup.log
 # For the prod server (uses test server to get data for automatic deploy)
