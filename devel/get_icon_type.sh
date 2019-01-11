@@ -42,6 +42,7 @@ icontypes=(
   ["istio"]="color"
   ["spinnaker"]="color"
   ["knative"]="color"
+  ["linux"]="color"
   ["all"]="color"
   ["devstats"]="color"
 )
