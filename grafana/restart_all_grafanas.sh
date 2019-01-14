@@ -19,5 +19,6 @@ then
   if [ $host = "teststats.cncf.io" ]
   then
     ./util_sh/start_contrib.sh
+    ./grafana/linux/grafana_start.sh &
   fi
 fi
