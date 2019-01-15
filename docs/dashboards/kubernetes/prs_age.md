@@ -9,7 +9,7 @@
 <ul>
 <li>This dashboard shows the chart of how many PRs were open in selected periods and what was the median PR open to merge time.</li>
 <li>You can select single repository group or summary for all of them.</li>
-<li>You can select PRs with a specific <code>kind/</code> label or summary for all of them.</li>
+<li>You can select PRs with a specific <code>kind/*</code> label or summary for all of them.</li>
 <li>Selecting period (for example week) means that dashboard will show number of open PRs and median open to merge time in those periods.</li>
 <li>See <a href="https://github.com/cncf/devstats/blob/master/docs/periods.md" target="_blank">here</a> for more informations about periods.</li>
 <li>See <a href="https://github.com/cncf/devstats/blob/master/docs/repository_groups.md" target="_blank">here</a> for more informations about repository groups.</li>
