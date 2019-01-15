@@ -50,7 +50,7 @@ with prs as (
     and i.repo_name = ipr.repo_name
     and i.id = iel.issue_id
     and i.event_id = iel.event_id
-    and iel.label_name like 'kind/%'
+    and iel.label_name in ('kind/api-change', 'kind/bug', 'kind/feature', 'kind/design', 'kind/cleanup', 'kind/documentation', 'kind/flake', 'kind/kep')
     and iel.created_at >= '{{from}}'
     and iel.created_at < '{{to}}'
     and ipr.created_at >= '{{from}}'

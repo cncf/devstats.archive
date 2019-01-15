@@ -97,7 +97,7 @@ with issues as (
   where
     i.id = i2.id
     and iel.event_id = i2.event_id
-    and iel.label_name like 'kind/%'
+    and iel.label_name in ('kind/api-change', 'kind/bug', 'kind/feature', 'kind/design', 'kind/cleanup', 'kind/documentation', 'kind/flake', 'kind/kep')
     and (
       r.repo_group is not null
       or ecf.repo_group is not null
