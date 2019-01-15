@@ -239,7 +239,6 @@ where
 group by
   repo_group,
   iel.label_name
--- 
 union select
   'tmet;All_All_' || substring(ielk.label_name from 6) || ';'
   || 'amedo2l,amedl2a,ameda2m,ap85o2l,ap85l2a,ap85a2m,'
@@ -375,7 +374,6 @@ group by
   repo_group,
   iel.label_name,
   ielk.label_name
--- 
 order by
   name asc
 ;
