@@ -117,7 +117,6 @@ with issues as (
         sub.updated_at asc
       limit 1
     )
---
 )
 select
   'non_auth;All,' || label || ';p15,med,p85' as name,
@@ -138,7 +137,6 @@ group by
   label,
   repo_group
 order by
-  -- non_author_median desc,
-  name desc,
+  non_author_median desc,
   name asc
 ;
