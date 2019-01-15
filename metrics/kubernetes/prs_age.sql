@@ -13,24 +13,8 @@ with prs as (
     and pr.event_id = (
       select s.event_id from gha_pull_requests s where s.id = pr.id order by s.updated_at desc limit 1
     )
-), issues as (
-  select i.id,
-    i.dup_repo_id as repo_id,
-    i.dup_repo_name as repo_name,
-    i.created_at,
-    i.event_id
-  from
-    gha_issues i
-  where
-    i.is_pull_request = true
-    and i.created_at >= '{{from}}'
-    and i.created_at < '{{to}}'
-    and i.event_id = (
-      select s.event_id from gha_issues s where s.id = i.id order by s.updated_at desc limit 1
-    )
 ), prs_labels as (
-  select
-    pr.id,
+  select distinct pr.id,
     pr.repo_id,
     iel.label_name,
     pr.created_at,
@@ -38,18 +22,13 @@ with prs as (
     pr.event_id as pr_event_id
   from
     prs pr,
-    issues i,
     gha_issues_pull_requests ipr,
     gha_issues_events_labels iel
   where
     pr.id = ipr.pull_request_id
     and pr.repo_id = ipr.repo_id
     and pr.repo_name = ipr.repo_name
-    and i.id = ipr.issue_id
-    and i.repo_id = ipr.repo_id
-    and i.repo_name = ipr.repo_name
-    and i.id = iel.issue_id
-    and i.event_id = iel.event_id
+    and ipr.issue_id = iel.issue_id
     and iel.label_name in ('kind/api-change', 'kind/bug', 'kind/feature', 'kind/design', 'kind/cleanup', 'kind/documentation', 'kind/flake', 'kind/kep')
     and iel.created_at >= '{{from}}'
     and iel.created_at < '{{to}}'
