@@ -16,6 +16,7 @@
 <li>It means that merging PR means approving it.</li>
 <li>Approve to merge is defined as time from approve to merge if approved label is present. It is zero otherwise.</li>
 <li>You can filter by PR size. PR size is defined by <code>size/*</code> label. You can select All to get all PRs.</li>
+<li>You can select PRs with a specific <code>kind/*</code> label or summary for all of them.</li>
 <li>You can filter by API change. PR belongs to API change yes when it has <code>kind/api-change</code> label. You can select All to get all PRs.</li>
 <li>You can select single repository group or summary for all of them.</li>
 <li>Selecting period (for example week) means that dashboard will data for PRs created in those periods.</li>

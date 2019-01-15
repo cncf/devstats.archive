@@ -5,7 +5,8 @@ with issues as (
   from
     gha_issues
   where
-    created_at >= '{{from}}'
+    is_pull_request = true
+    and created_at >= '{{from}}'
     and created_at < '{{to}}'
 ), prs as (
   select distinct id,
