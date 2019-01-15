@@ -1,5 +1,7 @@
 with prs as (
-  select pr.id, pr.created_at, pr.merged_at
+  select pr.id,
+    pr.created_at,
+    pr.merged_at
   from
     gha_pull_requests pr
   where
@@ -7,6 +9,13 @@ with prs as (
     and pr.created_at < '{{to}}'
     and pr.event_id = (
       select i.event_id from gha_pull_requests i where i.id = pr.id order by i.updated_at desc limit 1
+    )
+    and (
+      pr.closed_at is null
+      or (
+        pr.closed_at is not null
+        and pr.merged_at is not null
+      )
     )
 ), prs_groups as (
   select r.repo_group,
@@ -23,6 +32,13 @@ with prs as (
     and pr.created_at < '{{to}}'
     and pr.event_id = (
       select i.event_id from gha_pull_requests i where i.id = pr.id order by i.updated_at desc limit 1
+    )
+    and (
+      pr.closed_at is null
+      or (
+        pr.closed_at is not null
+        and pr.merged_at is not null
+      )
     )
 ), tdiffs as (
   select id, extract(epoch from coalesce(merged_at - created_at, now() - created_at)) / 3600 as age
