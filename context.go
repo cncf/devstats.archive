@@ -334,7 +334,23 @@ func (ctx *Ctx) Init() {
 	// GitHub OAuth
 	ctx.GitHubOAuth = os.Getenv("GHA2DB_GITHUB_OAUTH")
 	if ctx.GitHubOAuth == "" {
-		ctx.GitHubOAuth = "/etc/github/oauth"
+		fn := "/etc/github/oauths"
+		_, err := os.Stat(fn)
+		if err == nil {
+			ctx.GitHubOAuth = fn
+		} else if os.IsNotExist(err) {
+			fn = "/etc/github/oauth"
+			_, err := os.Stat(fn)
+			if err == nil {
+				ctx.GitHubOAuth = fn
+			} else if os.IsNotExist(err) {
+				ctx.GitHubOAuth = "-"
+			} else {
+				FatalNoLog(err)
+			}
+		} else {
+			FatalNoLog(err)
+		}
 	}
 
 	// Max DB logs age
