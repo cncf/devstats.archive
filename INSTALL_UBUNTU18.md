@@ -52,6 +52,7 @@ Prerequisites:
     - `chown -R postgres /var/log/postgresql`.
 10. Setup GitHub OAuth
     - You need to have GitHub OAuth token, either put this token in `/etc/github/oauth` file or specify token value via `GHA2DB_GITHUB_OAUTH=deadbeef654...10a0` (here you token value)
+    - If you want to use multiple tokens, create `/etc/github/oauths` file that contain list of comma separated OAuth keys or specify token values via `GHA2DB_GITHUB_OAUTH=key1,key2,...,keyN`
     - If you really don't want to use GitHub OAuth2 token, specify `GHA2DB_GITHUB_OAUTH=-` - this will force tokenless operation (via public API), it is a lot more rate limited than OAuth2 which gives 5000 API points/h
     - If you set `GHA2DB_GHAPISKIP=1` all GitHub API calls will be skipped. You can set `GHA2DB_GHAPISKIP=1` then, because artificial events cleanup is not needed when GitHub API is not needed. If both those variables are set, `ghapi2db` won't be called at all.
     - If your project(s) use icons (some of them has value other than `ICON="-"`, then you need to clone CNCF artwork repo into `~/dev/cncf/artwork`: `cd ~/dev/cncf/`, `git clone https://github.com/cncf/artwork.git`.
