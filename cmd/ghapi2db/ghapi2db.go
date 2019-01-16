@@ -443,7 +443,7 @@ func syncCommits(ctx *lib.Ctx) {
 				got := false
 				/// start trials
 				for tr := 0; tr < ctx.MaxGHAPIRetry; tr++ {
-					hint, _, rem, waitPeriod := lib.GetRateLimits(ctx, gctx, gc, true)
+					hint, _, rem, waitPeriod := lib.GetRateLimits(gctx, ctx, gc, true)
 					if ctx.GitHubDebug > 0 {
 						lib.Printf("Repo commits Try: %d, rem: %+v, waitPeriod: %+v, hint: %d\n", tr, rem, waitPeriod, hint)
 					}
@@ -528,7 +528,7 @@ func syncCommits(ctx *lib.Ctx) {
 				for _, commit := range commits {
 					processCommit(c, ctx, commit, maybeHide)
 				}
-				hint, _, thRem, thWait := lib.GetRateLimits(ctx, gctx, gc, true)
+				hint, _, thRem, thWait := lib.GetRateLimits(gctx, ctx, gc, true)
 				lib.ProgressInfo(0, 0, thDtStart, &thLastTime, time.Duration(10)*time.Second, fmt.Sprintf("%s page %d, API points: %+v, resets in: %+v, hint: %d", orgRepo, nPages, thRem, thWait, hint))
 				// Handle paging
 				if response.NextPage == 0 {
@@ -545,7 +545,7 @@ func syncCommits(ctx *lib.Ctx) {
 			nThreads--
 			checked++
 			// Get RateLimits info
-			hint, _, rem, wait := lib.GetRateLimits(ctx, gctx, gc, true)
+			hint, _, rem, wait := lib.GetRateLimits(gctx, ctx, gc, true)
 			lib.ProgressInfo(checked, nRepos, dtStart, &lastTime, time.Duration(10)*time.Second, fmt.Sprintf("API points: %+v, resets in: %+v, hint: %d", rem, wait, hint))
 		}
 	}
@@ -558,7 +558,7 @@ func syncCommits(ctx *lib.Ctx) {
 		nThreads--
 		checked++
 		// Get RateLimits info
-		hint, _, rem, wait := lib.GetRateLimits(ctx, gctx, gc, true)
+		hint, _, rem, wait := lib.GetRateLimits(gctx, ctx, gc, true)
 		lib.ProgressInfo(checked, nRepos, dtStart, &lastTime, time.Duration(10)*time.Second, fmt.Sprintf("API points: %+v, resets in: %+v, hint: %d", rem, wait, hint))
 	}
 	lib.Printf("GH Commits API calls: %d\n", apiCalls)
@@ -715,7 +715,7 @@ func syncEvents(ctx *lib.Ctx) {
 			for {
 				got := false
 				for tr := 0; tr < ctx.MaxGHAPIRetry; tr++ {
-					hint, _, rem, waitPeriod := lib.GetRateLimits(ctx, gctx, gc, true)
+					hint, _, rem, waitPeriod := lib.GetRateLimits(gctx, ctx, gc, true)
 					if ctx.GitHubDebug > 0 {
 						lib.Printf("Issues Repo Events Try: %d, rem: %+v, waitPeriod: %+v, hint: %d\n", tr, rem, waitPeriod, hint)
 					}
@@ -931,7 +931,7 @@ func syncEvents(ctx *lib.Ctx) {
 							prNum := *issue.Number
 							got = false
 							for tr := 0; tr < ctx.MaxGHAPIRetry; tr++ {
-								hint, _, rem, waitPeriod := lib.GetRateLimits(ctx, gctx, gc, true)
+								hint, _, rem, waitPeriod := lib.GetRateLimits(gctx, ctx, gc, true)
 								if ctx.GitHubDebug > 0 {
 									lib.Printf("Get PR Try: %d, rem: %+v, waitPeriod: %+v, hint: %d\n", tr, rem, waitPeriod, hint)
 								}
@@ -1031,7 +1031,7 @@ func syncEvents(ctx *lib.Ctx) {
 			nThreads--
 			checked++
 			// Get RateLimits info
-			hint, _, rem, wait := lib.GetRateLimits(ctx, gctx, gc, true)
+			hint, _, rem, wait := lib.GetRateLimits(gctx, ctx, gc, true)
 			lib.ProgressInfo(checked, nRepos, dtStart, &lastTime, time.Duration(10)*time.Second, fmt.Sprintf("API points: %+v, resets in: %+v, hint: %d", rem, wait, hint))
 		}
 	}
@@ -1044,7 +1044,7 @@ func syncEvents(ctx *lib.Ctx) {
 		nThreads--
 		checked++
 		// Get RateLimits info
-		hint, _, rem, wait := lib.GetRateLimits(ctx, gctx, gc, true)
+		hint, _, rem, wait := lib.GetRateLimits(gctx, ctx, gc, true)
 		lib.ProgressInfo(checked, nRepos, dtStart, &lastTime, time.Duration(10)*time.Second, fmt.Sprintf("API points: %+v, resets in: %+v, hint: %d", rem, wait, hint))
 	}
 

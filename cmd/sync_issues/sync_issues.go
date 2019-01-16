@@ -121,7 +121,7 @@ func syncIssues(ctx *lib.Ctx) {
 			)
 			got := false
 			for tr := 0; tr < ctx.MaxGHAPIRetry; tr++ {
-				hint, _, rem, waitPeriod := lib.GetRateLimits(ctx, gctx, gc, true)
+				hint, _, rem, waitPeriod := lib.GetRateLimits(gctx, ctx, gc, true)
 				if ctx.GitHubDebug > 0 {
 					lib.Printf("Get Issue Try: %d, rem: %+v, waitPeriod: %+v, hint: %d\n", tr, rem, waitPeriod, hint)
 				}
@@ -255,7 +255,7 @@ func syncIssues(ctx *lib.Ctx) {
 					prNum := *issue.Number
 					got = false
 					for tr := 0; tr < ctx.MaxGHAPIRetry; tr++ {
-						hint, _, rem, waitPeriod := lib.GetRateLimits(ctx, gctx, gc, true)
+						hint, _, rem, waitPeriod := lib.GetRateLimits(gctx, ctx, gc, true)
 						if ctx.GitHubDebug > 0 {
 							lib.Printf("Get PR Try: %d, rem: %+v, waitPeriod: %+v, hint: %d\n", tr, rem, waitPeriod, hint)
 						}
@@ -326,7 +326,7 @@ func syncIssues(ctx *lib.Ctx) {
 			nThreads--
 			checked++
 			// Get RateLimits info
-			hint, _, rem, wait := lib.GetRateLimits(ctx, gctx, gc, true)
+			hint, _, rem, wait := lib.GetRateLimits(gctx, ctx, gc, true)
 			lib.ProgressInfo(checked, nNumbers, dtStart, &lastTime, time.Duration(10)*time.Second, fmt.Sprintf("API points: %+v, resets in: %+v, hint: %d", rem, wait, hint))
 		}
 	}
@@ -339,7 +339,7 @@ func syncIssues(ctx *lib.Ctx) {
 		nThreads--
 		checked++
 		// Get RateLimits info
-		hint, _, rem, wait := lib.GetRateLimits(ctx, gctx, gc, true)
+		hint, _, rem, wait := lib.GetRateLimits(gctx, ctx, gc, true)
 		lib.ProgressInfo(checked, nNumbers, dtStart, &lastTime, time.Duration(10)*time.Second, fmt.Sprintf("API points: %+v, resets in: %+v, hint: %d", rem, wait, hint))
 	}
 
