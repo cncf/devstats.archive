@@ -28,7 +28,7 @@ It can import developers affiliations from [cncf/gitdm](https://github.com/cncf/
 
 It also clones all git repos to analyse all commits files.
 
-Some additional events not included in GitHub events (like (un)labelled, (de)milestoned, referenced, (un)subscibed etc.) are fetched using GitHub API. This requires GitHub OAuth2 token saved in `/etc/github/oauth`.
+Some additional events not included in GitHub events (like (un)labelled, (de)milestoned, referenced, (un)subscibed etc.) are fetched using GitHub API. This requires GitHub OAuth2 token(s) saved in `/etc/github/oauths` (for multiple tokens) or `/etc/github/oauth` (for a single token).
 
 # Compilation
 
@@ -102,7 +102,7 @@ You can tweak `devstats` tools by environment variables:
 - Set `GHA2DB_LOCAL` for `gha2db_sync` tool to make it prefix call to other tools with "./" (so it will use other tools binaries from the current working directory instead of `/usr/bin/`). Local mode uses "./metrics/{{project}}/" to search for metrics files. Otherwise "/etc/gha2db/metrics/{{project}}/" is used.
 - Set `GHA2DB_METRICS_YAML` for `gha2db_sync` tool, set name of metrics yaml file, default is "metrics/{{project}}/metrics.yaml".
 - Set `GHA2DB_GAPS_YAML` for `gha2db_sync` tool, set name of gaps yaml file, default is "metrics/{{project}}/gaps.yaml". Please use Grafana's "null as zero" instead of using manuall filling gaps. This simplifies metrics a lot.
-- Set `GHA2DB_GITHUB_OAUTH` for `annotations` tool, if not set reads from `/etc/github/oauth` file. Set to "-" to force public access. **annotations tool is not using GitHub API anymore, it uses `git_tags.sh` script instead.**
+- Set `GHA2DB_GITHUB_OAUTH` for `annotations` tool, if not set reads from `/etc/github/oauths` (multiple comma separated tokens) or `/etc/github/oauth` (single token) file. Set to "-" to force public access. **annotations tool is not using GitHub API anymore, it uses `git_tags.sh` script instead.**
 - Set `GHA2DB_MAXLOGAGE` for `gha2db_sync` tool, maximum age of DB logs stored in `devstats`.`gha_logs` table, default "1 week" (logs are cleared in `gha2db_sync` job).
 - Set `GHA2DB_TRIALS` for tools that use Postgres DB, set retry periods when "too many connection open" psql error appears, default is "10,30,60,120,300,600" (so 30s, 1min, 2min, 5min, 10min).
 - Set `GHA2DB_SKIPTIME` for all tools to skip time output in program outputs (default is to show time).

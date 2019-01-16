@@ -92,6 +92,7 @@ Prerequisites:
     - On some VMs `tcp_tw_recycle` will be unavailable, ignore the warning.
     - We need to prefix call with `GHA2DB_LOCAL=1` to enable using tools from "./" directory
     - You need to have GitHub OAuth token, either put this token in `/etc/github/oauth` file or specify token value via `GHA2DB_GITHUB_OAUTH=deadbeef654...10a0` (here you token value)
+    - If you want to use multiple tokens, create `/etc/github/oauths` file that contain list of comma separated OAuth keys or specify token values via `GHA2DB_GITHUB_OAUTH=key1,key2,...,keyN`
     - If you really don't want to use GitHub OAuth2 token, specify `GHA2DB_GITHUB_OAUTH=-` - this will force tokenless operation (via public API), it is a lot more rate limited than OAuth2 which gives 5000 API points/h
     - To import time series data for the first time (Postgres database is at the state when Kubernetes SQL dump was made on [k8s.devstats.cncf.io](https://k8s.devstats.cncf.io)):
     - `PG_PASS=pwd ONLY=kubernetes ./devel/reinit.sh`

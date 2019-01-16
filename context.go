@@ -13,6 +13,7 @@ import (
 type Ctx struct {
 	Debug               int                          // From GHA2DB_DEBUG Debug level: 0-no, 1-info, 2-verbose, including SQLs, default 0
 	CmdDebug            int                          // From GHA2DB_CMDDEBUG Commands execution Debug level: 0-no, 1-only output commands, 2-output commands and their output, 3-output full environment as well, default 0
+	GitHubDebug         int                          // From GHA2DB_GITHUB_DEBUG debug GitHub rate limits
 	JSONOut             bool                         // From GHA2DB_JSON gha2db: write JSON files? default false
 	DBOut               bool                         // From GHA2DB_NODB gha2db: write to SQL database, default true
 	ST                  bool                         // From GHA2DB_ST true: use single threaded version, false: use multi threaded version, default false
@@ -79,8 +80,8 @@ type Ctx struct {
 	OutputDB            string                       // From GHA2DB_OUTPUT_DB, merge_dbs tool - output database to merge into
 	TmOffset            int                          // From GHA2DB_TMOFFSET, gha2db_sync tool - uses time offset to decide when to calculate various metrics, default offset is 0 which means UTC, good offset for USA is -6, and for Poland is 1 or 2
 	DefaultHostname     string                       // "devstats.cncf.io"
-	RecentRange         string                       // From GHA2DB_RECENT_RANGE, ghapi2db tool, default '2 hours'. This is a recent period to check open issues/PR to fix their labels and milestones.
-	RecentReposRange    string                       // From GHA2DB_RECENT_REPOS_RANGE, ghapi2db tool, default '1 day'. This is a recent period to check modified repositories.
+	RecentRange         string                       // From GHA2DB_RECENT_RANGE, ghapi2db tool, default '4 hours'. This is a recent period to check open issues/PR to fix their labels and milestones.
+	RecentReposRange    string                       // From GHA2DB_RECENT_REPOS_RANGE, ghapi2db tool, default '2 days'. This is a recent period to check modified repositories.
 	MinGHAPIPoints      int                          // From GHA2DB_MIN_GHAPI_POINTS, ghapi2db tool, minimum GitHub API points, before waiting for reset.
 	MaxGHAPIWaitSeconds int                          // From GHA2DB_MAX_GHAPI_WAIT, ghapi2db tool, maximum wait time for GitHub API points reset (in seconds).
 	MaxGHAPIRetry       int                          // From GHA2DB_MAX_GHAPI_RETRY, ghapi2db tool, maximum wait retries
@@ -174,6 +175,14 @@ func (ctx *Ctx) Init() {
 		debugLevel, err := strconv.Atoi(os.Getenv("GHA2DB_CMDDEBUG"))
 		FatalNoLog(err)
 		ctx.CmdDebug = debugLevel
+	}
+	// GitHubDebug
+	if os.Getenv("GHA2DB_GITHUB_DEBUG") == "" {
+		ctx.GitHubDebug = 0
+	} else {
+		debugLevel, err := strconv.Atoi(os.Getenv("GHA2DB_GITHUB_DEBUG"))
+		FatalNoLog(err)
+		ctx.GitHubDebug = debugLevel
 	}
 	ctx.QOut = os.Getenv("GHA2DB_QOUT") != ""
 	ctx.CtxOut = os.Getenv("GHA2DB_CTXOUT") != ""
@@ -334,7 +343,23 @@ func (ctx *Ctx) Init() {
 	// GitHub OAuth
 	ctx.GitHubOAuth = os.Getenv("GHA2DB_GITHUB_OAUTH")
 	if ctx.GitHubOAuth == "" {
-		ctx.GitHubOAuth = "/etc/github/oauth"
+		fn := "/etc/github/oauths"
+		_, err := os.Stat(fn)
+		if err == nil {
+			ctx.GitHubOAuth = fn
+		} else if os.IsNotExist(err) {
+			fn = "/etc/github/oauth"
+			_, err := os.Stat(fn)
+			if err == nil {
+				ctx.GitHubOAuth = fn
+			} else if os.IsNotExist(err) {
+				ctx.GitHubOAuth = "-"
+			} else {
+				FatalNoLog(err)
+			}
+		} else {
+			FatalNoLog(err)
+		}
 	}
 
 	// Max DB logs age
@@ -611,11 +636,11 @@ func (ctx *Ctx) Init() {
 	// RecentRange - ghapi2db will check issues/PRs from now() - this range to now()
 	ctx.RecentRange = os.Getenv("GHA2DB_RECENT_RANGE")
 	if ctx.RecentRange == "" {
-		ctx.RecentRange = "2 hours"
+		ctx.RecentRange = "4 hours"
 	}
 	ctx.RecentReposRange = os.Getenv("GHA2DB_RECENT_REPOS_RANGE")
 	if ctx.RecentReposRange == "" {
-		ctx.RecentReposRange = "1 day"
+		ctx.RecentReposRange = "2 days"
 	}
 
 	ctx.CSVFile = os.Getenv("GHA2DB_CSVOUT")

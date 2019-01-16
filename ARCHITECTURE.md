@@ -100,7 +100,7 @@ We're getting all possible GitHub data for all objects, and all objects historic
 - Sometimes labels and/or milestone information is changed after the last commit. New issue labels/milestone will only be visible after the next issue comment.
 - This tool queries all open issues/PRs from last 2 hours to check their label set and milestone. If it detects difference it creates artificial events with the new state.
 - This is used by 'Open issues/PRs by milestone' dashboard to make sure that we have correct informations.
-- GitHub API points are limited to 5000/hour, use `GHA2DB_GITHUB_OAUTH` env variable to set GitHub OAUth token path. Default is `/etc/github/oauth`. You can set to "-" to force public acces, but you will be limited to 60 API calls/hour.
+- GitHub API points are limited to 5000/hour, use `GHA2DB_GITHUB_OAUTH` env variable to set GitHub OAUth token path. Default is `/etc/github/oauths` (multiple tokens) then `/etc/github/oauth` (single tokens). You can set to "-" to force public acces, but you will be limited to 60 API calls/hour. If using multiple tokens (for example `n`) you will have `n*5000` API points per hour.
 
 8) Additional stuff, most important being `runq`  and `import_affs` tools.
 - [runq](https://github.com/cncf/devstats/blob/master/cmd/runq/runq.go)

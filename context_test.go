@@ -16,6 +16,7 @@ func copyContext(in *lib.Ctx) *lib.Ctx {
 	out := lib.Ctx{
 		Debug:               in.Debug,
 		CmdDebug:            in.CmdDebug,
+		GitHubDebug:         in.GitHubDebug,
 		MinGHAPIPoints:      in.MinGHAPIPoints,
 		MaxGHAPIWaitSeconds: in.MaxGHAPIWaitSeconds,
 		MaxGHAPIRetry:       in.MaxGHAPIRetry,
@@ -238,6 +239,7 @@ func TestInit(t *testing.T) {
 	defaultContext := lib.Ctx{
 		Debug:               0,
 		CmdDebug:            0,
+		GitHubDebug:         0,
 		MinGHAPIPoints:      1,
 		MaxGHAPIWaitSeconds: 10,
 		MaxGHAPIRetry:       6,
@@ -288,7 +290,7 @@ func TestInit(t *testing.T) {
 		ColumnsYaml:         "metrics/columns.yaml",
 		VarsYaml:            "metrics/vars.yaml",
 		VarsFnYaml:          "vars.yaml",
-		GitHubOAuth:         "/etc/github/oauth",
+		GitHubOAuth:         "not_use",
 		ClearDBPeriod:       "1 week",
 		Trials:              []int{10, 30, 60, 120, 300, 600},
 		LogTime:             true,
@@ -321,8 +323,8 @@ func TestInit(t *testing.T) {
 		InputDBs:            []string{},
 		OutputDB:            "",
 		TmOffset:            0,
-		RecentRange:         "2 hours",
-		RecentReposRange:    "1 day",
+		RecentRange:         "4 hours",
+		RecentReposRange:    "2 days",
 		CSVFile:             "",
 		ComputeAll:          false,
 		ComputePeriods:      map[string]map[bool]struct{}{},
@@ -381,6 +383,15 @@ func TestInit(t *testing.T) {
 				t,
 				copyContext(&defaultContext),
 				map[string]interface{}{"CmdDebug": 3},
+			),
+		},
+		{
+			"Setting GitHub debug level",
+			map[string]string{"GHA2DB_GITHUB_DEBUG": "3"},
+			dynamicSetFields(
+				t,
+				copyContext(&defaultContext),
+				map[string]interface{}{"GitHubDebug": 3},
 			),
 		},
 		{
@@ -1446,6 +1457,14 @@ func TestInit(t *testing.T) {
 	// Execute test cases
 	for index, test := range testCases {
 		var gotContext lib.Ctx
+
+		// Because GitHubOAuth is depending on /etc/github/oauth* files
+		// We can't test this, because user test environment can have those files or not
+		// We're forcing skipping that test unless this is a special test for GitHubOAuth
+		_, ok := test.environment["GHA2DB_GITHUB_OAUTH"]
+		if !ok {
+			test.environment["GHA2DB_GITHUB_OAUTH"] = "not_use"
+		}
 
 		// Remember initial environment
 		currEnv := make(map[string]string)
