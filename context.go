@@ -636,11 +636,11 @@ func (ctx *Ctx) Init() {
 	// RecentRange - ghapi2db will check issues/PRs from now() - this range to now()
 	ctx.RecentRange = os.Getenv("GHA2DB_RECENT_RANGE")
 	if ctx.RecentRange == "" {
-		ctx.RecentRange = "4 hours"
+		ctx.RecentRange = "3 hours"
 	}
 	ctx.RecentReposRange = os.Getenv("GHA2DB_RECENT_REPOS_RANGE")
 	if ctx.RecentReposRange == "" {
-		ctx.RecentReposRange = "2 days"
+		ctx.RecentReposRange = "3 days"
 	}
 
 	ctx.CSVFile = os.Getenv("GHA2DB_CSVOUT")
