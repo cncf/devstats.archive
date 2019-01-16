@@ -190,7 +190,7 @@ func (ic IssueConfigAry) Less(i, j int) bool {
 
 // GetRateLimits - returns all and remaining API points and duration to wait for reset
 // when core=true - returns Core limits, when core=false returns Search limits
-func GetRateLimits(ctx *Ctx, gctx context.Context, gcs []*github.Client, core bool) (int, []int, []int, []time.Duration) {
+func GetRateLimits(gctx context.Context, ctx *Ctx, gcs []*github.Client, core bool) (int, []int, []int, []time.Duration) {
 	var (
 		limits     []int
 		remainings []int
@@ -1489,7 +1489,7 @@ func SyncIssuesState(gctx context.Context, gc []*github.Client, ctx *Ctx, c *sql
 		ProgressInfo(checked, nIssues, dtStart, &lastTime, time.Duration(10)*time.Second, "")
 	}
 	// Get RateLimits info
-	hint, _, rem, wait := GetRateLimits(ctx, gctx, gc, true)
+	hint, _, rem, wait := GetRateLimits(gctx, ctx, gc, true)
 	if manual {
 		Printf(
 			"ghapi2db.go: Manually processed %d issues/PRs (%d new issues, existing: %d not needed, %d added): %+v API points remain, resets in %+v, hint key: %d\n",
@@ -2066,7 +2066,7 @@ func SyncIssuesState(gctx context.Context, gc []*github.Client, ctx *Ctx, c *sql
 		ProgressInfo(checked, nIssues, dtStart, &lastTime, time.Duration(10)*time.Second, "")
 	}
 	// Get RateLimits info
-	hint, _, rem, wait = GetRateLimits(ctx, gctx, gc, true)
+	hint, _, rem, wait = GetRateLimits(gctx, ctx, gc, true)
 	if manual {
 		Printf(
 			"ghapi2db.go: Manually processed %d PRs (%d new PRs, existing: %d not needed, %d added): %+v API points remain, resets in %+v, hint key: %d\n",
