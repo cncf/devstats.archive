@@ -16,6 +16,7 @@ func copyContext(in *lib.Ctx) *lib.Ctx {
 	out := lib.Ctx{
 		Debug:               in.Debug,
 		CmdDebug:            in.CmdDebug,
+		GitHubDebug:         in.GitHubDebug,
 		MinGHAPIPoints:      in.MinGHAPIPoints,
 		MaxGHAPIWaitSeconds: in.MaxGHAPIWaitSeconds,
 		MaxGHAPIRetry:       in.MaxGHAPIRetry,
@@ -238,6 +239,7 @@ func TestInit(t *testing.T) {
 	defaultContext := lib.Ctx{
 		Debug:               0,
 		CmdDebug:            0,
+		GitHubDebug:         0,
 		MinGHAPIPoints:      1,
 		MaxGHAPIWaitSeconds: 10,
 		MaxGHAPIRetry:       6,
@@ -381,6 +383,15 @@ func TestInit(t *testing.T) {
 				t,
 				copyContext(&defaultContext),
 				map[string]interface{}{"CmdDebug": 3},
+			),
+		},
+		{
+			"Setting GitHub debug level",
+			map[string]string{"GHA2DB_GITHUB_DEBUG": "3"},
+			dynamicSetFields(
+				t,
+				copyContext(&defaultContext),
+				map[string]interface{}{"GitHubDebug": 3},
 			),
 		},
 		{

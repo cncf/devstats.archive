@@ -18,9 +18,9 @@ import (
 
 // getAPIParams connects to GitHub and Postgres
 // Returns list of recent repositories and recent date to fetch commits from
-func getAPIParams(ctx *lib.Ctx) (repos []string, isSingleRepo bool, singleRepo string, gctx context.Context, gc *github.Client, c *sql.DB, recentDt time.Time) {
+func getAPIParams(ctx *lib.Ctx) (repos []string, isSingleRepo bool, singleRepo string, gctx context.Context, gcs []*github.Client, c *sql.DB, recentDt time.Time) {
 	// Connect to GitHub API
-	gctx, gc = lib.GHClient(ctx)
+	gctx, gcs = lib.GHClient(ctx)
 
 	// Connect to Postgres DB
 	c = lib.PgConn(ctx)
@@ -443,48 +443,48 @@ func syncCommits(ctx *lib.Ctx) {
 				got := false
 				/// start trials
 				for tr := 0; tr < ctx.MaxGHAPIRetry; tr++ {
-					_, rem, waitPeriod := lib.GetRateLimits(gctx, gc, true)
-					if ctx.Debug > 1 {
-						lib.Printf("Repo commits Try: %d, rem: %v, waitPeriod: %v\n", tr, rem, waitPeriod)
+					hint, _, rem, waitPeriod := lib.GetRateLimits(ctx, gctx, gc, true)
+					if ctx.GitHubDebug > 0 {
+						lib.Printf("Repo commits Try: %d, rem: %+v, waitPeriod: %+v, hint: %d\n", tr, rem, waitPeriod, hint)
 					}
-					if rem <= ctx.MinGHAPIPoints {
-						if waitPeriod.Seconds() <= float64(ctx.MaxGHAPIWaitSeconds) {
-							if ctx.Debug > 0 {
-								lib.Printf("API limit reached while getting commits data, waiting %v (%d)\n", waitPeriod, tr)
+					if rem[hint] <= ctx.MinGHAPIPoints {
+						if waitPeriod[hint].Seconds() <= float64(ctx.MaxGHAPIWaitSeconds) {
+							if ctx.GitHubDebug > 0 {
+								lib.Printf("API limit reached while getting commits data, waiting %v (%d)\n", waitPeriod[hint], tr)
 							}
 							time.Sleep(time.Duration(1) * time.Second)
-							time.Sleep(waitPeriod)
+							time.Sleep(waitPeriod[hint])
 							continue
 						} else {
 							if ctx.GHAPIErrorIsFatal {
-								lib.Fatalf("API limit reached while getting commits data, aborting, don't want to wait %v", waitPeriod)
+								lib.Fatalf("API limit reached while getting commits data, aborting, don't want to wait %v", waitPeriod[hint])
 								os.Exit(1)
 							} else {
-								lib.Printf("Error: API limit reached while getting commits data, aborting, don't want to wait %v\n", waitPeriod)
+								lib.Printf("Error: API limit reached while getting commits data, aborting, don't want to wait %v\n", waitPeriod[hint])
 								ch <- false
 								return
 							}
 						}
 					}
 					nPages++
-					if ctx.Debug > 1 {
-						lib.Printf("API call for commits %s (%d), remaining GHAPI points %d\n", orgRepo, nPages, rem)
+					if ctx.GitHubDebug > 0 {
+						lib.Printf("API call for commits %s (%d), remaining GHAPI points %+v, hint: %d\n", orgRepo, nPages, rem, hint)
 					}
 					apiCallsMutex.Lock()
 					apiCalls++
 					apiCallsMutex.Unlock()
-					commits, response, err = gc.Repositories.ListCommits(gctx, org, repo, copt)
+					commits, response, err = gc[hint].Repositories.ListCommits(gctx, org, repo, copt)
 					res := lib.HandlePossibleError(err, orgRepo, "Repositories.ListCommits")
 					if res != "" {
 						if res == lib.Abuse {
 							wait := time.Duration(int(math.Pow(2.0, float64(tr+3)))) * time.Second
 							thrMutex.Lock()
-							if ctx.Debug > 0 {
+							if ctx.GitHubDebug > 0 {
 								lib.Printf("GitHub API abuse detected (issues events), wait %v\n", wait)
 							}
 							if allowedThrN > 1 {
 								allowedThrN--
-								if ctx.Debug > 0 {
+								if ctx.GitHubDebug > 0 {
 									lib.Printf("Lower threads limit (issues events): %d/%d\n", nThreads, allowedThrN)
 								}
 							}
@@ -501,7 +501,7 @@ func syncCommits(ctx *lib.Ctx) {
 						thrMutex.Lock()
 						if allowedThrN < maxThreads {
 							allowedThrN++
-							if ctx.Debug > 0 {
+							if ctx.GitHubDebug > 0 {
 								lib.Printf("Rise threads limit (issues events): %d/%d\n", nThreads, allowedThrN)
 							}
 						}
@@ -528,8 +528,8 @@ func syncCommits(ctx *lib.Ctx) {
 				for _, commit := range commits {
 					processCommit(c, ctx, commit, maybeHide)
 				}
-				_, thRem, thWait := lib.GetRateLimits(gctx, gc, true)
-				lib.ProgressInfo(0, 0, thDtStart, &thLastTime, time.Duration(10)*time.Second, fmt.Sprintf("%s page %d, API points: %d, resets in: %v", orgRepo, nPages, thRem, thWait))
+				hint, _, thRem, thWait := lib.GetRateLimits(ctx, gctx, gc, true)
+				lib.ProgressInfo(0, 0, thDtStart, &thLastTime, time.Duration(10)*time.Second, fmt.Sprintf("%s page %d, API points: %+v, resets in: %+v, hint: %d", orgRepo, nPages, thRem, thWait, hint))
 				// Handle paging
 				if response.NextPage == 0 {
 					break
@@ -545,12 +545,12 @@ func syncCommits(ctx *lib.Ctx) {
 			nThreads--
 			checked++
 			// Get RateLimits info
-			_, rem, wait := lib.GetRateLimits(gctx, gc, true)
-			lib.ProgressInfo(checked, nRepos, dtStart, &lastTime, time.Duration(10)*time.Second, fmt.Sprintf("API points: %d, resets in: %v", rem, wait))
+			hint, _, rem, wait := lib.GetRateLimits(ctx, gctx, gc, true)
+			lib.ProgressInfo(checked, nRepos, dtStart, &lastTime, time.Duration(10)*time.Second, fmt.Sprintf("API points: %+v, resets in: %+v, hint: %d", rem, wait, hint))
 		}
 	}
 	// Usually all work happens on '<-ch'
-	if ctx.Debug > 1 {
+	if ctx.Debug > 0 {
 		lib.Printf("Final GHAPI threads join\n")
 	}
 	for nThreads > 0 {
@@ -558,8 +558,8 @@ func syncCommits(ctx *lib.Ctx) {
 		nThreads--
 		checked++
 		// Get RateLimits info
-		_, rem, wait := lib.GetRateLimits(gctx, gc, true)
-		lib.ProgressInfo(checked, nRepos, dtStart, &lastTime, time.Duration(10)*time.Second, fmt.Sprintf("API points: %d, resets in: %v", rem, wait))
+		hint, _, rem, wait := lib.GetRateLimits(ctx, gctx, gc, true)
+		lib.ProgressInfo(checked, nRepos, dtStart, &lastTime, time.Duration(10)*time.Second, fmt.Sprintf("API points: %+v, resets in: %+v, hint: %d", rem, wait, hint))
 	}
 	lib.Printf("GH Commits API calls: %d\n", apiCalls)
 }
@@ -715,32 +715,32 @@ func syncEvents(ctx *lib.Ctx) {
 			for {
 				got := false
 				for tr := 0; tr < ctx.MaxGHAPIRetry; tr++ {
-					_, rem, waitPeriod := lib.GetRateLimits(gctx, gc, true)
-					if ctx.Debug > 1 {
-						lib.Printf("Issues Repo Events Try: %d, rem: %v, waitPeriod: %v\n", tr, rem, waitPeriod)
+					hint, _, rem, waitPeriod := lib.GetRateLimits(ctx, gctx, gc, true)
+					if ctx.GitHubDebug > 0 {
+						lib.Printf("Issues Repo Events Try: %d, rem: %+v, waitPeriod: %+v, hint: %d\n", tr, rem, waitPeriod, hint)
 					}
-					if rem <= ctx.MinGHAPIPoints {
-						if waitPeriod.Seconds() <= float64(ctx.MaxGHAPIWaitSeconds) {
-							if ctx.Debug > 0 {
-								lib.Printf("API limit reached while getting events data, waiting %v (%d)\n", waitPeriod, tr)
+					if rem[hint] <= ctx.MinGHAPIPoints {
+						if waitPeriod[hint].Seconds() <= float64(ctx.MaxGHAPIWaitSeconds) {
+							if ctx.GitHubDebug > 0 {
+								lib.Printf("API limit reached while getting events data, waiting %v (%d)\n", waitPeriod[hint], tr)
 							}
 							time.Sleep(time.Duration(1) * time.Second)
-							time.Sleep(waitPeriod)
+							time.Sleep(waitPeriod[hint])
 							continue
 						} else {
 							if ctx.GHAPIErrorIsFatal {
-								lib.Fatalf("API limit reached while getting issues events data, aborting, don't want to wait %v", waitPeriod)
+								lib.Fatalf("API limit reached while getting issues events data, aborting, don't want to wait %v", waitPeriod[hint])
 								os.Exit(1)
 							} else {
-								lib.Printf("Error: API limit reached while getting issues events data, aborting, don't want to wait %v\n", waitPeriod)
+								lib.Printf("Error: API limit reached while getting issues events data, aborting, don't want to wait %v\n", waitPeriod[hint])
 								ch <- false
 								return
 							}
 						}
 					}
 					nPages++
-					if ctx.Debug > 1 {
-						lib.Printf("API call for issues events %s (%d), remaining GHAPI points %d\n", orgRepo, nPages, rem)
+					if ctx.GitHubDebug > 0 {
+						lib.Printf("API call for issues events %s (%d), remaining GHAPI points %+v, hint: %d\n", orgRepo, nPages, rem, hint)
 					}
 					apiCallsMutex.Lock()
 					apiCalls++
@@ -748,18 +748,18 @@ func syncEvents(ctx *lib.Ctx) {
 					// Returns events in GHA format
 					//events, response, err = gc.Activity.ListRepositoryEvents(gctx, org, repo, opt)
 					// Returns events in Issue Event format (UI events)
-					events, response, err = gc.Issues.ListRepositoryEvents(gctx, org, repo, opt)
+					events, response, err = gc[hint].Issues.ListRepositoryEvents(gctx, org, repo, opt)
 					res := lib.HandlePossibleError(err, gcfg.String(), "Issues.ListRepositoryEvents")
 					if res != "" {
 						if res == lib.Abuse {
 							wait := time.Duration(int(math.Pow(2.0, float64(tr+3)))) * time.Second
 							thrMutex.Lock()
-							if ctx.Debug > 0 {
+							if ctx.GitHubDebug > 0 {
 								lib.Printf("GitHub API abuse detected (issues events), wait %v\n", wait)
 							}
 							if allowedThrN > 1 {
 								allowedThrN--
-								if ctx.Debug > 0 {
+								if ctx.GitHubDebug > 0 {
 									lib.Printf("Lower threads limit (issues events): %d/%d\n", nThreads, allowedThrN)
 								}
 							}
@@ -776,7 +776,7 @@ func syncEvents(ctx *lib.Ctx) {
 						thrMutex.Lock()
 						if allowedThrN < maxThreads {
 							allowedThrN++
-							if ctx.Debug > 0 {
+							if ctx.GitHubDebug > 0 {
 								lib.Printf("Rise threads limit (issues events): %d/%d\n", nThreads, allowedThrN)
 							}
 						}
@@ -931,47 +931,47 @@ func syncEvents(ctx *lib.Ctx) {
 							prNum := *issue.Number
 							got = false
 							for tr := 0; tr < ctx.MaxGHAPIRetry; tr++ {
-								_, rem, waitPeriod := lib.GetRateLimits(gctx, gc, true)
-								if ctx.Debug > 1 {
-									lib.Printf("Get PR Try: %d, rem: %v, waitPeriod: %v\n", tr, rem, waitPeriod)
+								hint, _, rem, waitPeriod := lib.GetRateLimits(ctx, gctx, gc, true)
+								if ctx.GitHubDebug > 0 {
+									lib.Printf("Get PR Try: %d, rem: %+v, waitPeriod: %+v, hint: %d\n", tr, rem, waitPeriod, hint)
 								}
-								if rem <= ctx.MinGHAPIPoints {
-									if waitPeriod.Seconds() <= float64(ctx.MaxGHAPIWaitSeconds) {
-										if ctx.Debug > 0 {
-											lib.Printf("API limit reached while getting PR data, waiting %v (%d)\n", waitPeriod, tr)
+								if rem[hint] <= ctx.MinGHAPIPoints {
+									if waitPeriod[hint].Seconds() <= float64(ctx.MaxGHAPIWaitSeconds) {
+										if ctx.GitHubDebug > 0 {
+											lib.Printf("API limit reached while getting PR data, waiting %v (%d)\n", waitPeriod[hint], tr)
 										}
 										time.Sleep(time.Duration(1) * time.Second)
-										time.Sleep(waitPeriod)
+										time.Sleep(waitPeriod[hint])
 										continue
 									} else {
 										if ctx.GHAPIErrorIsFatal {
-											lib.Fatalf("API limit reached while getting PR data, aborting, don't want to wait %v", waitPeriod)
+											lib.Fatalf("API limit reached while getting PR data, aborting, don't want to wait %v", waitPeriod[hint])
 											os.Exit(1)
 										} else {
-											lib.Printf("Error: API limit reached while getting PR data, aborting, don't want to wait %v\n", waitPeriod)
+											lib.Printf("Error: API limit reached while getting PR data, aborting, don't want to wait %v\n", waitPeriod[hint])
 											ch <- false
 											return
 										}
 									}
 								}
-								if ctx.Debug > 1 {
-									lib.Printf("API call for %s PR: %d, remaining GHAPI points %d\n", orgRepo, prNum, rem)
+								if ctx.GitHubDebug > 0 {
+									lib.Printf("API call for %s PR: %d, remaining GHAPI points %+v, hint: %d\n", orgRepo, prNum, rem, hint)
 								}
 								apiCallsMutex.Lock()
 								apiCalls++
 								apiCallsMutex.Unlock()
-								pr, _, err = gc.PullRequests.Get(gctx, org, repo, prNum)
+								pr, _, err = gc[hint].PullRequests.Get(gctx, org, repo, prNum)
 								res := lib.HandlePossibleError(err, gcfg.String(), "PullRequests.Get")
 								if res != "" {
 									if res == lib.Abuse {
 										wait := time.Duration(int(math.Pow(2.0, float64(tr+3)))) * time.Second
 										thrMutex.Lock()
-										if ctx.Debug > 0 {
+										if ctx.GitHubDebug > 0 {
 											lib.Printf("GitHub API abuse detected (get PR), wait %v\n", wait)
 										}
 										if allowedThrN > 1 {
 											allowedThrN--
-											if ctx.Debug > 0 {
+											if ctx.GitHubDebug > 0 {
 												lib.Printf("Lower threads limit (get PR): %d/%d\n", nThreads, allowedThrN)
 											}
 										}
@@ -983,7 +983,7 @@ func syncEvents(ctx *lib.Ctx) {
 									thrMutex.Lock()
 									if allowedThrN < maxThreads {
 										allowedThrN++
-										if ctx.Debug > 0 {
+										if ctx.GitHubDebug > 0 {
 											lib.Printf("Rise threads limit (get PR): %d/%d\n", nThreads, allowedThrN)
 										}
 									}
@@ -1031,12 +1031,12 @@ func syncEvents(ctx *lib.Ctx) {
 			nThreads--
 			checked++
 			// Get RateLimits info
-			_, rem, wait := lib.GetRateLimits(gctx, gc, true)
-			lib.ProgressInfo(checked, nRepos, dtStart, &lastTime, time.Duration(10)*time.Second, fmt.Sprintf("API points: %d, resets in: %v", rem, wait))
+			hint, _, rem, wait := lib.GetRateLimits(ctx, gctx, gc, true)
+			lib.ProgressInfo(checked, nRepos, dtStart, &lastTime, time.Duration(10)*time.Second, fmt.Sprintf("API points: %+v, resets in: %+v, hint: %d", rem, wait, hint))
 		}
 	}
 	// Usually all work happens on '<-ch'
-	if ctx.Debug > 1 {
+	if ctx.Debug > 0 {
 		lib.Printf("Final GHAPI threads join\n")
 	}
 	for nThreads > 0 {
@@ -1044,8 +1044,8 @@ func syncEvents(ctx *lib.Ctx) {
 		nThreads--
 		checked++
 		// Get RateLimits info
-		_, rem, wait := lib.GetRateLimits(gctx, gc, true)
-		lib.ProgressInfo(checked, nRepos, dtStart, &lastTime, time.Duration(10)*time.Second, fmt.Sprintf("API points: %d, resets in: %v", rem, wait))
+		hint, _, rem, wait := lib.GetRateLimits(ctx, gctx, gc, true)
+		lib.ProgressInfo(checked, nRepos, dtStart, &lastTime, time.Duration(10)*time.Second, fmt.Sprintf("API points: %+v, resets in: %+v, hint: %d", rem, wait, hint))
 	}
 
 	// API calls

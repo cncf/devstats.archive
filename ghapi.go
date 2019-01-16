@@ -190,27 +190,57 @@ func (ic IssueConfigAry) Less(i, j int) bool {
 
 // GetRateLimits - returns all and remaining API points and duration to wait for reset
 // when core=true - returns Core limits, when core=false returns Search limits
-func GetRateLimits(gctx context.Context, gc *github.Client, core bool) (int, int, time.Duration) {
-	rl, _, err := gc.RateLimits(gctx)
-	if err != nil {
-		rem, ok := PeriodParse(err.Error())
-		if ok {
-			Printf("Parsed wait time from error message: %v\n", rem)
-			return -1, -1, rem
+func GetRateLimits(ctx *Ctx, gctx context.Context, gcs []*github.Client, core bool) (int, []int, []int, []time.Duration) {
+	var (
+		limits     []int
+		remainings []int
+		durations  []time.Duration
+	)
+	for idx, gc := range gcs {
+		rl, _, err := gc.RateLimits(gctx)
+		if err != nil {
+			rem, ok := PeriodParse(err.Error())
+			if ok {
+				Printf("Parsed wait time from error message: %v\n", rem)
+				limits = append(limits, -1)
+				remainings = append(remainings, -1)
+				durations = append(durations, rem)
+				continue
+			}
+			Printf("GetRateLimit(%d): %v\n", idx, err)
 		}
-		Printf("GetRateLimit: %v\n", err)
+		if rl == nil {
+			limits = append(limits, -1)
+			remainings = append(remainings, -1)
+			durations = append(durations, time.Duration(5)*time.Second)
+			continue
+		}
+		if core {
+			limits = append(limits, rl.Core.Limit)
+			remainings = append(remainings, rl.Core.Remaining)
+			durations = append(durations, rl.Core.Reset.Time.Sub(time.Now())+time.Duration(1)*time.Second)
+			continue
+		}
+		limits = append(limits, rl.Search.Limit)
+		remainings = append(remainings, rl.Search.Remaining)
+		durations = append(durations, rl.Search.Reset.Time.Sub(time.Now())+time.Duration(1)*time.Second)
 	}
-	if rl == nil {
-		return -1, -1, time.Duration(5) * time.Second
+	hint := 0
+	for idx := range limits {
+		if remainings[idx] > remainings[hint] {
+			hint = idx
+		} else if idx != hint && remainings[idx] == remainings[hint] && durations[idx] < durations[hint] {
+			hint = idx
+		}
 	}
-	if core {
-		return rl.Core.Limit, rl.Core.Remaining, rl.Core.Reset.Time.Sub(time.Now()) + time.Duration(1)*time.Second
+	if ctx.GitHubDebug > 0 {
+		Printf("GetRateLimits: hint: %d, limits: %+v, remaining: %+v, reset: %+v\n", hint, limits, remainings, durations)
 	}
-	return rl.Search.Limit, rl.Search.Remaining, rl.Search.Reset.Time.Sub(time.Now()) + time.Duration(1)*time.Second
+	return hint, limits, remainings, durations
 }
 
 // GHClient - get GitHub client
-func GHClient(ctx *Ctx) (ghCtx context.Context, client *github.Client) {
+func GHClient(ctx *Ctx) (ghCtx context.Context, clients []*github.Client) {
 	// Get GitHub OAuth from env or from file
 	oAuth := ctx.GitHubOAuth
 	if strings.Contains(ctx.GitHubOAuth, "/") {
@@ -222,13 +252,18 @@ func GHClient(ctx *Ctx) (ghCtx context.Context, client *github.Client) {
 	// GitHub authentication or use public access
 	ghCtx = context.Background()
 	if oAuth == "-" {
-		client = github.NewClient(nil)
+		client := github.NewClient(nil)
+		clients = append(clients, client)
 	} else {
-		ts := oauth2.StaticTokenSource(
-			&oauth2.Token{AccessToken: oAuth},
-		)
-		tc := oauth2.NewClient(ghCtx, ts)
-		client = github.NewClient(tc)
+		oAuths := strings.Split(oAuth, ",")
+		for _, auth := range oAuths {
+			ts := oauth2.StaticTokenSource(
+				&oauth2.Token{AccessToken: auth},
+			)
+			tc := oauth2.NewClient(ghCtx, ts)
+			client := github.NewClient(tc)
+			clients = append(clients, client)
+		}
 	}
 	return
 }
@@ -982,7 +1017,7 @@ func ArtificialEvent(c *sql.DB, ctx *Ctx, cfg *IssueConfig) (err error) {
 // manual:
 //  false: normal devstats sync cron mode using 'ghapi2db' tool
 //  true: manual sync using 'sync_issues' tool
-func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.DB, issues map[int64]IssueConfigAry, prs map[int64]github.PullRequest, manual bool) {
+func SyncIssuesState(gctx context.Context, gc []*github.Client, ctx *Ctx, c *sql.DB, issues map[int64]IssueConfigAry, prs map[int64]github.PullRequest, manual bool) {
 	nIssuesBefore := 0
 	for _, issueConfig := range issues {
 		nIssuesBefore += len(issueConfig)
@@ -1454,16 +1489,16 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 		ProgressInfo(checked, nIssues, dtStart, &lastTime, time.Duration(10)*time.Second, "")
 	}
 	// Get RateLimits info
-	_, rem, wait := GetRateLimits(gctx, gc, true)
+	hint, _, rem, wait := GetRateLimits(ctx, gctx, gc, true)
 	if manual {
 		Printf(
-			"ghapi2db.go: Manually processed %d issues/PRs (%d new issues, existing: %d not needed, %d added): %d API points remain, resets in %v\n",
-			checked, updates[0], updates[1], updates[2], rem, wait,
+			"ghapi2db.go: Manually processed %d issues/PRs (%d new issues, existing: %d not needed, %d added): %+v API points remain, resets in %+v, hint key: %d\n",
+			checked, updates[0], updates[1], updates[2], rem, wait, hint,
 		)
 	} else {
 		Printf(
-			"ghapi2db.go: Automatically processed %d issues/PRs (%d new, %d the same exists, %d incorrect state exists): %d API points remain, resets in %v\n",
-			checked, updates[0], updates[1], updates[2], rem, wait,
+			"ghapi2db.go: Automatically processed %d issues/PRs (%d new, %d the same exists, %d incorrect state exists): %+v API points remain, resets in %+v, hint key: %d\n",
+			checked, updates[0], updates[1], updates[2], rem, wait, hint,
 		)
 	}
 	// Info
@@ -2031,16 +2066,16 @@ func SyncIssuesState(gctx context.Context, gc *github.Client, ctx *Ctx, c *sql.D
 		ProgressInfo(checked, nIssues, dtStart, &lastTime, time.Duration(10)*time.Second, "")
 	}
 	// Get RateLimits info
-	_, rem, wait = GetRateLimits(gctx, gc, true)
+	hint, _, rem, wait = GetRateLimits(ctx, gctx, gc, true)
 	if manual {
 		Printf(
-			"ghapi2db.go: Manually processed %d PRs (%d new PRs, existing: %d not needed, %d added): %d API points remain, resets in %v\n",
-			checked, updates[0], updates[1], updates[2], rem, wait,
+			"ghapi2db.go: Manually processed %d PRs (%d new PRs, existing: %d not needed, %d added): %+v API points remain, resets in %+v, hint key: %d\n",
+			checked, updates[0], updates[1], updates[2], rem, wait, hint,
 		)
 	} else {
 		Printf(
-			"ghapi2db.go: Automatically processed %d PRs (%d new PRs, existing: %d not needed, %d added): %d API points remain, resets in %v\n",
-			checked, updates[0], updates[1], updates[2], rem, wait,
+			"ghapi2db.go: Automatically processed %d PRs (%d new PRs, existing: %d not needed, %d added): %+v API points remain, resets in %+v, hint key: %d\n",
+			checked, updates[0], updates[1], updates[2], rem, wait, hint,
 		)
 	}
 	// Info
