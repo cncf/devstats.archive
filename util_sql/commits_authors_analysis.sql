@@ -18,19 +18,26 @@ with commits as (
       'NATS', 'Notary', 'OPA', 'OpenMetrics', 'OpenTracing', 'Prometheus', 'rkt', 'Rook',
       'SPIFFE', 'SPIRE', 'Telepresence', 'TiKV', 'TUF', 'Virtual Kubelet', 'Vitess'
     )
+    and r.repo_group not in ({{skip_repo_groups}})
 ), company_commits as (
-  select c.repo_group,
-    c.sha,
-    aa.company_name as company
-  from
-    commits c,
-    gha_actors_affiliations aa
+  select i.repo_group,
+    i.sha,
+    i.company
+  from (
+    select c.repo_group,
+      c.sha,
+      coalesce(aa.company_name, '*unknown*') as company
+    from
+      commits c
+    left join
+      gha_actors_affiliations aa
+    on
+      aa.actor_id = c.user_id
+      and aa.dt_from <= c.created_at
+      and aa.dt_to > c.created_at
+  ) i
   where
-    aa.actor_id = c.user_id
-    and aa.dt_from <= c.created_at
-    and aa.dt_to > c.created_at
-    and aa.company_name is not null
-    and aa.company_name not in ({{skip_companies}})
+    i.company not in ({{skip_companies}})
 ), all_commits as (
   select count(distinct sha) as cnt
   from
@@ -175,7 +182,7 @@ with commits as (
       by_company
     order by
       cnt desc
-    limit 30
+    limit 70
   ) a
   where
     i.company = a.company
@@ -295,3 +302,4 @@ with commits as (
     name asc
 )
 select * from  top_companies;
+-- select company, count(distinct sha) as cnt from company_commits group by company order by cnt desc limit 50;
