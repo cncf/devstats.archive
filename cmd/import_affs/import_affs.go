@@ -261,6 +261,7 @@ func importAffs(jsonFN string) {
 		stat = make(map[string][2]int)
 		srcMap := make(map[string]string)
 		resMap := make(map[string]struct{})
+		idxMap := make(map[*regexp.Regexp]int)
 		for idx, acq := range acqs.Acquisitions {
 			re = regexp.MustCompile(acq[0])
 			res, ok := srcMap[acq[0]]
@@ -274,14 +275,16 @@ func importAffs(jsonFN string) {
 			}
 			resMap[acq[1]] = struct{}{}
 			acqMap[re] = acq[1]
+			idxMap[re] = idx
 		}
 		for re, res := range acqMap {
+			i := idxMap[re]
 			for idx, acq := range acqs.Acquisitions {
-				if re.MatchString(acq[1]) {
-					lib.Fatalf("Acquisition's number %d '%s' result '%s' matches other acquisition '%s' which maps to '%s', simplify it: '%v' -> '%s'", idx, acq[0], acq[1], re, res, acq[0], res)
+				if re.MatchString(acq[1]) && i != idx {
+					lib.Fatalf("Acquisition's number %d '%s' result '%s' matches other acquisition number %d '%s' which maps to '%s', simplify it: '%v' -> '%s'", idx, acq[0], acq[1], i, re, res, acq[0], res)
 				}
 				if re.MatchString(acq[0]) && res != acq[1] {
-					lib.Fatalf("Acquisition's number %d '%s' regexp '%s' matches other acquisition '%s' which maps to '%s': result is different '%s'", idx, acq, acq[0], re, res, acq[1])
+					lib.Fatalf("Acquisition's number %d '%s' regexp '%s' matches other acquisition number %d '%s' which maps to '%s': result is different '%s'", idx, acq, acq[0], i, re, res, acq[1])
 				}
 			}
 		}
@@ -359,6 +362,11 @@ func importAffs(jsonFN string) {
 		len(loginNames), len(loginEmails), len(loginAffs),
 	)
 	lib.Printf("Empty/Not found: names: %d, emails: %d, affiliations: %d\n", eNames, eEmails, eAffs)
+
+	if ctx.DryRun {
+		lib.Printf("Exiting due to dry-run mode.\n")
+		return
+	}
 
 	// Login - Names should be 1:1
 	added, updated := 0, 0
