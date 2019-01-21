@@ -22,6 +22,7 @@ func copyContext(in *lib.Ctx) *lib.Ctx {
 		MaxGHAPIRetry:       in.MaxGHAPIRetry,
 		JSONOut:             in.JSONOut,
 		DBOut:               in.DBOut,
+		DryRun:              in.DryRun,
 		ST:                  in.ST,
 		NCPUs:               in.NCPUs,
 		PgHost:              in.PgHost,
@@ -245,6 +246,7 @@ func TestInit(t *testing.T) {
 		MaxGHAPIRetry:       6,
 		JSONOut:             false,
 		DBOut:               true,
+		DryRun:              false,
 		ST:                  false,
 		NCPUs:               0,
 		PgHost:              "localhost",
@@ -473,6 +475,15 @@ func TestInit(t *testing.T) {
 				t,
 				copyContext(&defaultContext),
 				map[string]interface{}{"MaxGHAPIRetry": 15},
+			),
+		},
+		{
+			"Setting dry run mode",
+			map[string]string{"GHA2DB_DRY_RUN": "1"},
+			dynamicSetFields(
+				t,
+				copyContext(&defaultContext),
+				map[string]interface{}{"DryRun": true},
 			),
 		},
 		{

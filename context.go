@@ -14,6 +14,7 @@ type Ctx struct {
 	Debug               int                          // From GHA2DB_DEBUG Debug level: 0-no, 1-info, 2-verbose, including SQLs, default 0
 	CmdDebug            int                          // From GHA2DB_CMDDEBUG Commands execution Debug level: 0-no, 1-only output commands, 2-output commands and their output, 3-output full environment as well, default 0
 	GitHubDebug         int                          // From GHA2DB_GITHUB_DEBUG debug GitHub rate limits
+	DryRun              bool                         // From GHA2DB_DRY_RUN, import_affs tool - stop before doing any updates
 	JSONOut             bool                         // From GHA2DB_JSON gha2db: write JSON files? default false
 	DBOut               bool                         // From GHA2DB_NODB gha2db: write to SQL database, default true
 	ST                  bool                         // From GHA2DB_ST true: use single threaded version, false: use multi threaded version, default false
@@ -131,6 +132,9 @@ func (ctx *Ctx) Init() {
 	// Outputs
 	ctx.JSONOut = os.Getenv("GHA2DB_JSON") != ""
 	ctx.DBOut = os.Getenv("GHA2DB_NODB") == ""
+
+	// Dry run
+	ctx.DryRun = os.Getenv("GHA2DB_DRY_RUN") != ""
 
 	// GitHub API points and waiting for reset
 	ctx.MinGHAPIPoints = 1
