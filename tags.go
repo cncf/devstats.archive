@@ -50,7 +50,7 @@ func ProcessTag(con *sql.DB, es *ES, ctx *Ctx, tg *Tag, replaces [][]string) {
 	excludeBots := string(bytes)
 
 	// Transform SQL
-	sqlQuery = strings.Replace(sqlQuery, "{{lim}}", "69", -1)
+	sqlQuery = strings.Replace(sqlQuery, "{{lim}}", "255", -1)
 	sqlQuery = strings.Replace(sqlQuery, "{{exclude_bots}}", excludeBots, -1)
 
 	// Replaces
