@@ -1,11 +1,11 @@
 #!/bin/bash
 if [ -z "$FROM" ]
 then
-  export FROM=`cat ./FROM`
+  export FROM="`cat ./FROM`"
 fi
 if [ -z "$TO" ]
 then
-  export FROM=`cat ./TO`
+  export TO="`cat ./TO`"
 fi
 if [ -z "$1" ]
 then
