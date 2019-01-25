@@ -19,7 +19,8 @@ update gha_repos
 set repo_group = 'Envoy', alias = 'Envoy'
 where name in (
   'envoyproxy/envoy',
-  'lyft/envoy'
+  'lyft/envoy',
+  'envoyproxy/'
 );
 
 select

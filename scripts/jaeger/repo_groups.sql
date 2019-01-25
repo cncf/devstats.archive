@@ -19,7 +19,8 @@ update gha_repos
 set repo_group = 'Jaeger', alias = 'Jaeger'
 where name in (
   'jaegertracing/jaeger',
-  'uber/jaeger'
+  'uber/jaeger',
+  'jaegertracing/'
 );
 
 select

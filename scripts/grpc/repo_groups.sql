@@ -16,7 +16,7 @@ set
 ;
 update gha_repos set repo_group = alias;
 
-update gha_repos set alias = 'grpc', repo_group = 'grpc' where name like '%grpc';
+update gha_repos set alias = 'grpc', repo_group = 'grpc' where name like '%grpc' or name = 'grpc/';
 
 select
   repo_group,
