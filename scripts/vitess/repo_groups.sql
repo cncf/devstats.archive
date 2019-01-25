@@ -20,7 +20,8 @@ set repo_group = 'Vitess', alias = 'Vitess'
 where name in (
   'vitessio/vitess',
   'youtube/vitess',
-  'vitess'
+  'vitess',
+  'vitessio/'
 );
 
 select

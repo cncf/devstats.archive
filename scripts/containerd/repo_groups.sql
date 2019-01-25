@@ -19,7 +19,8 @@ update gha_repos
 set repo_group = 'containerd', alias = 'containerd'
 where name in (
   'docker/containerd',
-  'containerd/containerd'
+  'containerd/containerd',
+  'containerd/'
 );
 
 select
