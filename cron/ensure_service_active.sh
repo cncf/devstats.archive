@@ -6,9 +6,9 @@ then
 fi
 function restart {
   echo "Stopping $1"
-  service "$1" stop
+  /usr/sbin/service "$1" stop
   echo "Starting $1"
-  service "$1" start
+  /usr/sbin/service "$1" start
   echo "Restarted $1"
 }
 fn="/tmp/ensure_$1"
@@ -25,6 +25,6 @@ trap finish EXIT
 > "$fn"
 while true
 do
-  service "$1" status | grep 'Active: active' || restart "$1"
+  /usr/sbin/service "$1" status | grep 'Active: active' || restart "$1"
   sleep 30
 done
