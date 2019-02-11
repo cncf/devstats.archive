@@ -16,11 +16,11 @@ set
 update gha_repos set repo_group = alias;
 
 update gha_repos
-set repo_group = 'Linux', alias = 'Linux'
+set repo_group = 'Zephyr', alias = 'Zephyr'
 where name in (
-  'linux',
-  'torvalds/linux',
-  'torvalds/'
+  'zephyr',
+  'zephyrproject-rtos/zephyr',
+  'zephyrproject-rtos/'
 );
 
 select
