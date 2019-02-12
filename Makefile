@@ -149,11 +149,8 @@ copydata: util_scripts
 	cp -R docs/ /etc/gha2db/docs/ || exit 7
 	cp -R partials/ /etc/gha2db/partials/ || exit 8
 	cp -R scripts/ /etc/gha2db/scripts/ || exit 9
-	cp projects.yaml /etc/gha2db/ || exit 10
 	cp devel/*.txt /etc/gha2db/ || exit 11
-	cp github_users.json /etc/gha2db/ || exit 12
-	cp companies.yaml /etc/gha2db/ || exit 13
-	cp linux.yaml /etc/gha2db/ || exit 14
+	cp github_users.json projects.yaml companies.yaml linux.yaml zephyr.yaml /etc/gha2db/ || exit 12
 
 install: ${BINARIES} data
 	${GO_INSTALL} ${GO_BIN_CMDS}
