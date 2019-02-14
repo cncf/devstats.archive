@@ -23,6 +23,8 @@ type ESDataObject struct {
 	Name    string    `json:"name"`
 	IValue  float64   `json:"ivalue"`
 	SValue  string    `json:"svalue"`
+	SValue2 string    `json:"svalue2"`
+	SValue3 string    `json:"svalue3"`
 	DtValue time.Time `json:"dtvalue"`
 }
 
@@ -47,9 +49,9 @@ func ESConn(ctx *Ctx, prefix string) *ES {
 	fieldsToMerge := map[string]string{
 		"name":  "svalue",
 		"value": "ivalue",
-		"descr": "svalue",
+		"descr": "svalue2",
 		"dt":    "dtvalue",
-		"str":   "svalue",
+		"str":   "svalue3",
 	}
 	return &ES{
 		ctx:           ctxb,
@@ -70,9 +72,13 @@ func ESConn(ctx *Ctx, prefix string) *ES {
 			`"str":{"type":"keyword"},` +
 			`"name":{"type":"keyword"},` +
 			`"svalue":{"type":"keyword"},` +
+			`"svalue2":{"type":"keyword"},` +
+			`"svalue3":{"type":"keyword"},` +
 			`"ivalue":{"type":"double"},` +
 			`"dtvalue":{"type":"date","format":"yyyy-MM-dd HH:mm:ss"},` +
 			`"data.svalue":{"type":"keyword"},` +
+			`"data.svalue2":{"type":"keyword"},` +
+			`"data.svalue3":{"type":"keyword"},` +
 			`"data.ivalue":{"type":"double"},` +
 			`"data.dtvalue":{"type":"date","format":"yyyy-MM-dd HH:mm:ss"},` +
 			`"value":{"type":"double"}` +
@@ -255,9 +261,9 @@ func (es *ES) ExecuteBulks(ctx *Ctx, bulkDel, bulkAdd *elastic.BulkService) {
 }
 
 // WriteESPoints write batch of points to postgresql
-// outputs[0] - output using variable column name (1 doc)
-// outputs[1] - output using data[] array containing {name,ivalue,svalue,dtvalue} (1 doc), any of those keys is optional
-// outputs[2] - output using N separate docs, each containing {name,ivalue,svalue,dtvalue} (N docs) (but trying to keep both int and string value in the same record)
+// outputs[0] - output using variable column name (1 doc) [used by annotations, tags and vars]
+// outputs[1] - output using data[] array containing {name,ivalue,svalue,svalue2,svalue3,dtvalue} (1 doc), any of those keys is optional [not used currently]
+// outputs[2] - output using N separate docs, each containing {name,ivalue,svalue,svalue2,svalue3,dtvalue} (N docs) (but trying to keep both int and string value in the same record) [used by metrics/time-series]
 func (es *ES) WriteESPoints(ctx *Ctx, pts *TSPoints, mergeS string, outputs [3]bool) {
 	npts := len(*pts)
 	if ctx.Debug > 0 {
@@ -360,7 +366,14 @@ func (es *ES) WriteESPoints(ctx *Ctx, pts *TSPoints, mergeS string, outputs [3]b
 					value, ok := fieldValue.(string)
 					valueDt, okDt := fieldValue.(time.Time)
 					if ok {
-						obj["svalue"] = value
+						field, ok := es.fieldsToMerge[fieldName]
+						if ok {
+							obj[field] = value
+							mergeFields[field] = obj
+							continue
+						} else {
+							obj["svalue"] = value
+						}
 					} else if okDt {
 						obj["dtvalue"] = ToYMDHMSDate(valueDt)
 					} else {
@@ -446,7 +459,14 @@ func (es *ES) WriteESPoints(ctx *Ctx, pts *TSPoints, mergeS string, outputs [3]b
 					value, ok := fieldValue.(string)
 					valueDt, okDt := fieldValue.(time.Time)
 					if ok {
-						obj["svalue"] = value
+						field, ok := es.fieldsToMerge[fieldName]
+						if ok {
+							obj[field] = value
+							mergeFields[field] = obj
+							continue
+						} else {
+							obj["svalue"] = value
+						}
 					} else if okDt {
 						obj["dtvalue"] = ToYMDHMSDate(valueDt)
 					} else {
