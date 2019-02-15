@@ -32,6 +32,12 @@ UTIL_SCRIPTS=devel/wait_for_command.sh devel/cronctl.sh devel/sync_lock.sh devel
 GIT_SCRIPTS=git/git_reset_pull.sh git/git_files.sh git/git_tags.sh git/last_tag.sh
 STRIP=strip
 
+ifdef GHA2DB_DATADIR
+DATADIR=${GHA2DB_DATADIR}
+else
+DATADIR=/etc/gha2db
+endif
+
 all: check ${BINARIES}
 
 dockerbin: ${DOCKER_BINARIES}
@@ -140,17 +146,17 @@ data: util_scripts
 	make copydata
 
 copydata: util_scripts
-	mkdir /etc/gha2db 2>/dev/null || echo "..."
-	chmod 777 /etc/gha2db 2>/dev/null || echo "..."
-	rm -fr /etc/gha2db/* || exit 3
-	cp -R metrics/ /etc/gha2db/metrics/ || exit 4
-	cp -R util_sql/ /etc/gha2db/util_sql/ || exit 5
-	cp -R util_sh/ /etc/gha2db/util_sh/ || exit 6
-	cp -R docs/ /etc/gha2db/docs/ || exit 7
-	cp -R partials/ /etc/gha2db/partials/ || exit 8
-	cp -R scripts/ /etc/gha2db/scripts/ || exit 9
-	cp devel/*.txt /etc/gha2db/ || exit 11
-	cp github_users.json projects.yaml companies.yaml linux.yaml zephyr.yaml /etc/gha2db/ || exit 12
+	mkdir ${DATADIR} 2>/dev/null || echo "..."
+	chmod 777 ${DATADIR} 2>/dev/null || echo "..."
+	rm -fr ${DATADIR}/* || exit 3
+	cp -R metrics/ ${DATADIR}/metrics/ || exit 4
+	cp -R util_sql/ ${DATADIR}/util_sql/ || exit 5
+	cp -R util_sh/ ${DATADIR}/util_sh/ || exit 6
+	cp -R docs/ ${DATADIR}/docs/ || exit 7
+	cp -R partials/ ${DATADIR}/partials/ || exit 8
+	cp -R scripts/ ${DATADIR}/scripts/ || exit 9
+	cp devel/*.txt ${DATADIR}/ || exit 11
+	cp github_users.json projects.yaml companies.yaml linux.yaml zephyr.yaml ${DATADIR}/ || exit 12
 
 install: ${BINARIES} data
 	${GO_INSTALL} ${GO_BIN_CMDS}
@@ -158,9 +164,9 @@ install: ${BINARIES} data
 	cp -v ${GIT_SCRIPTS} ${GOPATH}/bin
 
 dockerinstall: ${DOCKER_BINARIES} copydata
-	mkdir /etc/gha2db/docker 2>/dev/null || echo "..."
-	chmod 777 /etc/gha2db/docker 2>/dev/null || echo "..."
-	cp docker/docker_projects.yaml /etc/gha2db/docker/ || exit 10
+	mkdir ${DATADIR}/docker 2>/dev/null || echo "..."
+	chmod 777 ${DATADIR}/docker 2>/dev/null || echo "..."
+	cp docker/docker_projects.yaml ${DATADIR}/docker/ || exit 10
 	${GO_INSTALL} ${GO_DOCKER_BIN_CMDS}
 	cp -v ${CRON_SCRIPTS} ${GOPATH}/bin
 	cp -v ${GIT_SCRIPTS} ${GOPATH}/bin

@@ -93,7 +93,7 @@ func main() {
 	actx.ctx.Init()
 
 	// Local or cron mode?
-	actx.dataPrefix = lib.DataDir
+	actx.dataPrefix = actx.ctx.DataDir
 	if actx.ctx.Local {
 		actx.dataPrefix = "./"
 	}

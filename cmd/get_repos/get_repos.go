@@ -53,7 +53,7 @@ func getRepos(ctx *lib.Ctx) (map[string]string, map[string]map[string]struct{}) 
 	}
 
 	// Local or cron mode?
-	dataPrefix := lib.DataDir
+	dataPrefix := ctx.DataDir
 	if ctx.Local {
 		dataPrefix = "./"
 	}
@@ -464,7 +464,7 @@ func postprocessCommitsDB(ch chan int, ctx *lib.Ctx, con *sql.DB, query string) 
 func processCommits(ctx *lib.Ctx, dbs map[string]string) {
 	// Read SQL to get commits to sync from 'util_sql/list_unprocessed_commits.sql' file.
 	// Local or cron mode?
-	dataPrefix := lib.DataDir
+	dataPrefix := ctx.DataDir
 	if ctx.Local {
 		dataPrefix = "./"
 	}

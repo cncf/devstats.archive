@@ -241,7 +241,7 @@ func generateWebsiteData() {
 	ctx.ExecFatal = false
 
 	// Local or cron mode?
-	dataPrefix := lib.DataDir
+	dataPrefix := ctx.DataDir
 	cmdPrefix := ""
 	if ctx.Local {
 		dataPrefix = "./"

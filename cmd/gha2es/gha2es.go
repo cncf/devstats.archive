@@ -587,7 +587,7 @@ func gha2es(args []string) {
 
 	// Get raw commits to ES SQL
 	sqls := make(map[string]string)
-	dataPrefix := lib.DataDir
+	dataPrefix := ctx.DataDir
 	if ctx.Local {
 		dataPrefix = "./"
 	}

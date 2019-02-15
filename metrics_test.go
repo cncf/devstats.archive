@@ -1077,7 +1077,7 @@ func (metricTestCase) RunTags(con *sql.DB, ctx *lib.Ctx, arg string, replaces []
 		return fmt.Errorf("empty tags definition")
 	}
 
-	dataPrefix := lib.DataDir
+	dataPrefix := ctx.DataDir
 	if ctx.Local {
 		dataPrefix = "./"
 	}

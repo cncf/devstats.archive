@@ -227,7 +227,7 @@ func importAffs(jsonFN string) {
 	maybeHide := lib.MaybeHideFunc(lib.GetHidden(lib.HideCfgFile))
 
 	// Files path
-	dataPrefix := lib.DataDir
+	dataPrefix := ctx.DataDir
 	if ctx.Local {
 		dataPrefix = "./"
 	}

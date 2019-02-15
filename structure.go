@@ -1298,7 +1298,7 @@ func Structure(ctx *Ctx) {
 	// Tools (like views and functions needed for generating metrics)
 	if ctx.Tools {
 		// Local or cron mode?
-		dataPrefix := DataDir
+		dataPrefix := ctx.DataDir
 		if ctx.Local {
 			dataPrefix = "./"
 		}

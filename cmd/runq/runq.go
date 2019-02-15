@@ -45,7 +45,7 @@ func runq(sqlFile string, params []string) {
 	}
 
 	// Local or cron mode?
-	dataPrefix := lib.DataDir
+	dataPrefix := ctx.DataDir
 	if ctx.Local {
 		dataPrefix = "./"
 	}

@@ -28,7 +28,7 @@ func ProcessTag(con *sql.DB, es *ES, ctx *Ctx, tg *Tag, replaces [][]string) {
 	var pts TSPoints
 
 	// Local or cron mode
-	dataPrefix := DataDir
+	dataPrefix := ctx.DataDir
 	if ctx.Local {
 		dataPrefix = "./"
 	}

@@ -158,7 +158,7 @@ func processHidden(ctx *lib.Ctx) {
 	configFile := lib.HideCfgFile
 	shaMap := lib.GetHidden(configFile)
 
-	dataPrefix := lib.DataDir
+	dataPrefix := ctx.DataDir
 	if ctx.Local {
 		dataPrefix = "./"
 	}
