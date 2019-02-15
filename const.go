@@ -3,8 +3,8 @@ package devstats
 // Today - common constant string
 const Today string = "today"
 
-// DataDir - common constant string
-const DataDir string = "/etc/gha2db/"
+// DefaultDataDir - common constant string
+const DefaultDataDir string = "/etc/gha2db/"
 
 // Retry - common constant string
 const Retry string = "retry"

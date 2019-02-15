@@ -821,7 +821,7 @@ func calcMetric(seriesNameOrFunc, sqlFile, from, to, intervalAbbr string, cfg *c
 	ctx.Init()
 
 	// Local or cron mode?
-	dataPrefix := lib.DataDir
+	dataPrefix := ctx.DataDir
 	if ctx.Local {
 		dataPrefix = "./"
 	}

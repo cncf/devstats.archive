@@ -14,6 +14,7 @@ import (
 // Copies Ctx structure
 func copyContext(in *lib.Ctx) *lib.Ctx {
 	out := lib.Ctx{
+		DataDir:             in.DataDir,
 		Debug:               in.Debug,
 		CmdDebug:            in.CmdDebug,
 		GitHubDebug:         in.GitHubDebug,
@@ -238,6 +239,7 @@ func dynamicSetFields(t *testing.T, ctx *lib.Ctx, fields map[string]interface{})
 func TestInit(t *testing.T) {
 	// This is the expected default struct state
 	defaultContext := lib.Ctx{
+		DataDir:             "/etc/gha2db/",
 		Debug:               0,
 		CmdDebug:            0,
 		GitHubDebug:         0,
@@ -550,6 +552,19 @@ func TestInit(t *testing.T) {
 					"Index": true,
 					"Table": false,
 					"Tools": false,
+				},
+			),
+		},
+		{
+			"Setting data directory",
+			map[string]string{
+				"GHA2DB_DATADIR": "/path/to/dir",
+			},
+			dynamicSetFields(
+				t,
+				copyContext(&defaultContext),
+				map[string]interface{}{
+					"DataDir": "/path/to/dir/",
 				},
 			),
 		},

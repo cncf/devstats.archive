@@ -11,6 +11,7 @@ import (
 
 // Ctx - environment context packed in structure
 type Ctx struct {
+	DataDir             string                       // From GHA2DB_DATADIR, default /etc/gha2db/
 	Debug               int                          // From GHA2DB_DEBUG Debug level: 0-no, 1-info, 2-verbose, including SQLs, default 0
 	CmdDebug            int                          // From GHA2DB_CMDDEBUG Commands execution Debug level: 0-no, 1-only output commands, 2-output commands and their output, 3-output full environment as well, default 0
 	GitHubDebug         int                          // From GHA2DB_GITHUB_DEBUG debug GitHub rate limits
@@ -128,6 +129,15 @@ func (ctx *Ctx) Init() {
 	ctx.ExecFatal = true
 	ctx.ExecQuiet = false
 	ctx.ExecOutput = false
+
+	// Data directory
+	ctx.DataDir = os.Getenv("GHA2DB_DATADIR")
+	if ctx.DataDir == "" {
+		ctx.DataDir = DefaultDataDir
+	}
+	if ctx.DataDir[len(ctx.DataDir)-1:] != "/" {
+		ctx.DataDir += "/"
+	}
 
 	// Outputs
 	ctx.JSONOut = os.Getenv("GHA2DB_JSON") != ""

@@ -38,7 +38,7 @@ func syncAllProjects() bool {
 
 	// Local or cron mode?
 	cmdPrefix := ""
-	dataPrefix := lib.DataDir
+	dataPrefix := ctx.DataDir
 	if ctx.Local {
 		cmdPrefix = "./"
 		dataPrefix = "./"

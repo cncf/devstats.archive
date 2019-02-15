@@ -36,7 +36,7 @@ func ensureColumns() {
 	defer func() { lib.FatalOnError(con.Close()) }()
 
 	// Local or cron mode?
-	dataPrefix := lib.DataDir
+	dataPrefix := ctx.DataDir
 	if ctx.Local {
 		dataPrefix = "./"
 	}

@@ -152,7 +152,7 @@ func sync(ctx *lib.Ctx, args []string) {
 
 	// Local or cron mode?
 	cmdPrefix := ""
-	dataPrefix := lib.DataDir
+	dataPrefix := ctx.DataDir
 	if ctx.Local {
 		cmdPrefix = "./"
 		dataPrefix = "./"
@@ -615,7 +615,7 @@ func getSyncArgs(ctx *lib.Ctx, osArgs []string) []string {
 		)
 	}
 	// Local or cron mode?
-	dataPrefix := lib.DataDir
+	dataPrefix := ctx.DataDir
 	if ctx.Local {
 		dataPrefix = "./"
 	}
