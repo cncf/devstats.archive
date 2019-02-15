@@ -298,7 +298,7 @@ func sync(ctx *lib.Ctx, args []string) {
 	}
 
 	// Calc metric
-	if !ctx.SkipTSDB {
+	if !ctx.SkipTSDB || ctx.UseESOnly {
 		metricsDir := dataPrefix + "metrics"
 		if ctx.Project != "" {
 			metricsDir += "/" + ctx.Project
@@ -547,7 +547,7 @@ func sync(ctx *lib.Ctx, args []string) {
 	}
 
 	// Vars (some tables/dashboards require vars calculation)
-	if !ctx.SkipPDB && !ctx.SkipVars {
+	if (!ctx.SkipPDB || ctx.UseESOnly) && !ctx.SkipVars {
 		varsFN := os.Getenv("GHA2DB_VARS_FN_YAML")
 		if varsFN == "" {
 			varsFN = "sync_vars.yaml"

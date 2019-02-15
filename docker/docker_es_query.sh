@@ -31,7 +31,7 @@ then
   echo 'type:issue AND milestone_title:\"v1.12\"'
   echo 'type:issue AND repo_group:Kubernetes AND milestone_title:v1.12'
   echo 'type:pr AND merged:true'
-  echo 'type:tes_periodsAND devstats_period:d7'
+  echo 'type:tes_periods AND devstats_period:d7'
   echo 'type:ishcom AND period:q AND series:hcomcontributions'
   echo 'type:(issue OR pr)'
   echo 'type:text AND full_body:\"kubernetes bug\"'
