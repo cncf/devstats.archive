@@ -25,5 +25,5 @@ GHA2DB_RECENT_RANGE="4 hours" GHA2DB_TMOFFSET="-4" GHA2DB_PROJECTS_OVERRIDE="+cn
 ONLY="opencontainers istio spinnaker knative" GHA2DB_PROJECTS_OVERRIDE="+opencontainers,+istio,+spinnaker,+knative" ./devel/all_affs.sh
 GHA2DB_RECENT_RANGE="4 hours" GHA2DB_TMOFFSET="-4" GHA2DB_PROJECTS_OVERRIDE="+cncf,+opencontainers,+istio,+spinnaker,+knative" devstats
 
-ONLY="linux all" GHA2DB_PROJECTS_OVERRIDE="+linux" ./devel/all_affs.sh
+ONLY="linux zephyr all" GHA2DB_PROJECTS_OVERRIDE="+linux" ./devel/all_affs.sh
 GHA2DB_RECENT_RANGE="4 hours" GHA2DB_TMOFFSET="-4" GHA2DB_PROJECTS_OVERRIDE="+cncf,+opencontainers,+istio,+spinnaker,+knative" devstats
