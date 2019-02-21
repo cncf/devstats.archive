@@ -70,6 +70,10 @@ then
 else
   echo "postgres database $PROJDB generation skipped"
 fi
+if [ ! -z "$GETREPOS" ]
+then
+  GHA2DB_PROJECT=$PROJ PG_DB=$PROJDB ./shared/get_repos.sh || exit 23
+fi
 if [ ! -z "$TSDB" ]
 then
   exists=`./devel/db.sh psql postgres -tAc "select 1 from pg_database where datname = '$PROJDB'"` || exit 3
