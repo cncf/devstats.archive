@@ -5,7 +5,7 @@ then
   exit 1
 fi
 rm -f devstats.tar 2>/dev/null
-tar cf devstats.tar cmd git metrics docker devel util_sql all lfn shared iovisor mininet opennetworkinglab opensecuritycontroller openswitch p4lang openbmp tungstenfabric cord scripts partials docs cron vendor util_sh/touch *.go projects.yaml companies.yaml linux.yaml zephyr.yaml github_users.json Makefile
+tar cf devstats.tar cmd git metrics k8s docker devel util_sql all lfn shared iovisor mininet opennetworkinglab opensecuritycontroller openswitch p4lang openbmp tungstenfabric cord scripts partials docs cron vendor util_sh/touch *.go projects.yaml companies.yaml linux.yaml zephyr.yaml github_users.json Makefile
 if [ -z "$SKIP_FULL" ]
 then
   docker build -f Dockerfile -t "${DOCKER_USER}/devstats" .
