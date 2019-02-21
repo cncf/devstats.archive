@@ -58,7 +58,7 @@ then
       GOT=1
     else
       echo "generating postgres database $PROJDB"
-      GHA2DB_MGETC=y ./$PROJ/psql.sh || (echo "$PROJ/psql.sh failed: $?" && exit 14)
+      GHA2DB_MGETC=y ./$PROJ/psql.sh || exit 14
       ./devel/ro_user_grants.sh "$PROJDB" || exit 15
       ./devel/psql_user_grants.sh "devstats_team" "$PROJDB" || exit 16
       dbcreated=1

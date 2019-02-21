@@ -181,6 +181,9 @@ dockerinstall: ${DOCKER_BINARIES} copydata
 deploy:
 	./deploy.sh || exit 1
 
+links: clean
+	./util_sh/make_binary_links.sh ${BINARIES} || exit 1
+
 strip: ${BINARIES}
 	${STRIP} ${BINARIES}
 
