@@ -3,7 +3,7 @@ RUN apt-get update -y && apt-get upgrade -y && apt-get install -y ca-certificate
 WORKDIR /go/src/devstats
 ADD devstats.tar .
 RUN make dockerinstall
-RUN make clean
+RUN make links
 FROM alpine
 RUN apk add git bash postgresql-client xz curl
 COPY --from=builder /etc/gha2db /etc/gha2db
