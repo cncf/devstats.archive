@@ -18,6 +18,6 @@ fi
 command="$2"
 if [ -z "${command}" ]
 then
-  export command=/bin/sh
+  export command=/bin/bash
 fi
 kubectl run -i --tty $1 --restart=Never --rm --image="${DOCKER_USER}/$1" --command "$command"

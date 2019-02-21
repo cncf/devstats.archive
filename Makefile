@@ -31,6 +31,7 @@ CRON_SCRIPTS=cron/cron_db_backup.sh cron/cron_db_backup_all.sh cron/refresh_mvie
 UTIL_SCRIPTS=devel/wait_for_command.sh devel/cronctl.sh devel/sync_lock.sh devel/sync_unlock.sh devel/db.sh devel/all_projs.sh devel/all_dbs.sh
 GIT_SCRIPTS=git/git_reset_pull.sh git/git_files.sh git/git_tags.sh git/last_tag.sh
 STRIP=strip
+BINARY_PATH=/devstats-minimal/
 
 ifdef GHA2DB_DATADIR
 DATADIR=${GHA2DB_DATADIR}
@@ -168,8 +169,13 @@ dockerinstall: ${DOCKER_BINARIES} copydata
 	chmod 777 ${DATADIR}/docker 2>/dev/null || echo "..."
 	cp docker/docker_projects.yaml ${DATADIR}/docker/ || exit 10
 	${GO_INSTALL} ${GO_DOCKER_BIN_CMDS}
-	cp -v ${CRON_SCRIPTS} ${GOPATH}/bin
-	cp -v ${GIT_SCRIPTS} ${GOPATH}/bin
+	cp -v ${CRON_SCRIPTS} ${GOPATH}/bin || exit 11
+	cp -v ${GIT_SCRIPTS} ${GOPATH}/bin || exit 12
+	cd ${GOPATH}/bin || exit 13
+	mkdir ${BINARY_PATH} || exit 14
+	cp -v ${DOCKER_BINARIES} ${BINARY_PATH} || exit 15
+	cp -v ${CRON_SCRIPTS} ${BINARY_PATH} || exit 16
+	cp -v ${GIT_SCRIPTS} ${BINARY_PATH} || exit 17
 
 deploy:
 	./deploy.sh || exit 1

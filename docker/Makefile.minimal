@@ -30,7 +30,6 @@ DOCKER_BINARIES=structure gha2db calc_metric gha2db_sync annotations tags devsta
 CRON_SCRIPTS=cron/cron_db_backup.sh cron/cron_db_backup_all.sh cron/refresh_mviews.sh cron/sysctl_config.sh cron/backup_artificial.sh cron/restart_dbs.sh cron/ensure_service_active.sh
 UTIL_SCRIPTS=devel/wait_for_command.sh devel/cronctl.sh devel/sync_lock.sh devel/sync_unlock.sh
 GIT_SCRIPTS=git/git_reset_pull.sh git/git_files.sh git/git_tags.sh git/last_tag.sh
-DOCKER_SCRIPTS=cron/sysctl_config.sh
 STRIP=strip
 BINARY_PATH=/devstats-minimal/
 
@@ -168,11 +167,11 @@ dockerinstall: ${DOCKER_BINARIES} copydata
 	chmod 777 ${DATADIR}/docker 2>/dev/null || echo "..."
 	cp docker/docker_projects.yaml ${DATADIR}/docker/ || exit 10
 	${GO_INSTALL} ${GO_DOCKER_BIN_CMDS}
-	cp -v ${DOCKER_SCRIPTS} ${GOPATH}/bin
-	cp -v ${GIT_SCRIPTS} ${GOPATH}/bin
-	cd ${GOPATH}/bin || exit 11
-	mkdir ${BINARY_PATH} || exit 12
-	cp -v ${DOCKER_BINARIES} ${BINARY_PATH} || exit 13
+	cp -v ${GIT_SCRIPTS} ${GOPATH}/bin || exit 11
+	cd ${GOPATH}/bin || exit 12
+	mkdir ${BINARY_PATH} || exit 13
+	cp -v ${DOCKER_BINARIES} ${BINARY_PATH} || exit 14
+	cp -v ${GIT_SCRIPTS} ${BINARY_PATH} || exit 15
 
 strip: ${BINARIES}
 	${STRIP} ${BINARIES}
