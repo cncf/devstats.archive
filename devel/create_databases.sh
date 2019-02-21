@@ -3,6 +3,7 @@
 # TSDB=1 (will generate TS DB)
 # PDROP=1 (will drop & create Postgres DB)
 # GET=1 (will use Postgres DB backup)
+# GETREPOS=1 to force running init repositories script after GHA and before TSDB part
 lim=70
 set -o pipefail
 if [ -z "$PG_PASS" ]
