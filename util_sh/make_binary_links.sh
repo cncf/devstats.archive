@@ -2,5 +2,5 @@
 for f in "$@"
 do
   echo $f
-  ln -s "${GOPATH}/bin/${f}" "./${f}"
+  ln -s "/usr/bin/${f}" "./${f}"
 done
