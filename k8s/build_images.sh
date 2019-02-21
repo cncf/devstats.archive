@@ -6,8 +6,20 @@ then
 fi
 rm -f devstats.tar 2>/dev/null
 tar cf devstats.tar cmd git metrics docker devel util_sql all lfn shared iovisor mininet opennetworkinglab opensecuritycontroller openswitch p4lang openbmp tungstenfabric cord scripts partials docs cron vendor util_sh/touch *.go projects.yaml companies.yaml linux.yaml zephyr.yaml github_users.json Makefile
-docker build -f Dockerfile -t "${DOCKER_USER}/devstats" .
-docker build -f docker/Dockerfile.minimal -t "${DOCKER_USER}/devstats-minimal" .
+if [ -z "$SKIP_FULL" ]
+then
+  docker build -f Dockerfile -t "${DOCKER_USER}/devstats" .
+fi
+if [ -z "$SKIP_MIN" ]
+then
+  docker build -f docker/Dockerfile.minimal -t "${DOCKER_USER}/devstats-minimal" .
+fi
 rm -f devstats.tar
-docker push "${DOCKER_USER}/devstats"
-docker push "${DOCKER_USER}/devstats-minimal"
+if [ -z "$SKIP_FULL" ]
+then
+  docker push "${DOCKER_USER}/devstats"
+fi
+if [ -z "$SKIP_MIN" ]
+then
+  docker push "${DOCKER_USER}/devstats-minimal"
+fi
