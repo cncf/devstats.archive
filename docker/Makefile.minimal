@@ -32,6 +32,7 @@ UTIL_SCRIPTS=devel/wait_for_command.sh devel/cronctl.sh devel/sync_lock.sh devel
 GIT_SCRIPTS=git/git_reset_pull.sh git/git_files.sh git/git_tags.sh git/last_tag.sh
 DOCKER_SCRIPTS=cron/sysctl_config.sh
 STRIP=strip
+BINARY_PATH=/devstats-minimal/
 
 ifdef GHA2DB_DATADIR
 DATADIR=${GHA2DB_DATADIR}
@@ -169,6 +170,9 @@ dockerinstall: ${DOCKER_BINARIES} copydata
 	${GO_INSTALL} ${GO_DOCKER_BIN_CMDS}
 	cp -v ${DOCKER_SCRIPTS} ${GOPATH}/bin
 	cp -v ${GIT_SCRIPTS} ${GOPATH}/bin
+	cd ${GOPATH}/bin || exit 11
+	mkdir ${BINARY_PATH} || exit 12
+	cp -v ${DOCKER_BINARIES} ${BINARY_PATH} || exit 13
 
 strip: ${BINARIES}
 	${STRIP} ${BINARIES}
