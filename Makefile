@@ -176,6 +176,7 @@ dockerinstall: ${DOCKER_BINARIES} copydata
 	cp -v ${DOCKER_BINARIES} ${BINARY_PATH} || exit 15
 	cp -v ${CRON_SCRIPTS} ${BINARY_PATH} || exit 16
 	cp -v ${GIT_SCRIPTS} ${BINARY_PATH} || exit 17
+	cp -v ${UTIL_SCRIPTS} ${BINARY_PATH} || exit 18
 
 deploy:
 	./deploy.sh || exit 1
