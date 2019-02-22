@@ -5,6 +5,10 @@
 # IMPJSONS=1 (will import all jsons defined for given project using sqlitedb tool), if used with GGET - it will first fetch from server and then import
 # EXTERNAL=1 (will expose Grafana to outside world: will bind to 0.0.0.0 instead of 127.0.0.1, useful when no Apache proxy + SSL is enabled)
 set -o pipefail
+if [ "$PORT" = "-" ]
+then
+  exit 0
+fi
 if ( [ -z "$PG_PASS" ] || [ -z "$PORT" ] || [ -z "$GA" ] || [ -z "$ICON" ] || [ -z "$ORGNAME" ] || [ -z "$PROJ" ] || [ -z "$PROJDB" ] || [ -z "$GRAFSUFF" ] )
 then
   echo "$0: You need to set PG_PASS, PROJ, PROJDB, PORT, GA, ICON, ORGNAME, GRAFSUFF environment variable to run this script"
