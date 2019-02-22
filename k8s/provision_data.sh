@@ -27,7 +27,8 @@ fi
 # ./k8s/configure_pv.sh 
 # XXX: Pass PVC somehow (must be mountded in ~/devstats_repos/)
 
-cmd="kubectl run -i --tty devstats-provision --restart=Never --rm --image=\"${DOCKER_USER}/devstats\" --env=\"PROJ=${PROJ}\" --env=\"PROJDB=${PROJDB}\" --env=\"PROJREPO=${PROJREPO}\" --env=\"INIT=${INIT}\" --env=\"GET=${GET}\" --env=\"SKIPVARS=${SKIPVARS}\" --env=\"SKIPTEMP=1\" --env=\"NOLOCK=1\" --env=\"NOBACKUP=1\" --env=\"SKIPADDALL=1\" --env=\"UDROP=${UDROP}\" --env=\"NOCREATE=${NOCREATE}\" --env=\"LDROP=${LDROP}\" --env=\"DBDEBUG=${DBDEBUG}\" --env=\"ONLY=${ONLY}\" --env=\"TEST_SERVER=1\" --env=\"GETREPOS=${GETREPOS}\""
+ts=`date +'%s%N'`
+cmd="kubectl run -i --tty \"devstats-provision-${ts}\" --restart=Never --rm --image=\"${DOCKER_USER}/devstats\" --env=\"PROJ=${PROJ}\" --env=\"PROJDB=${PROJDB}\" --env=\"PROJREPO=${PROJREPO}\" --env=\"INIT=${INIT}\" --env=\"GET=${GET}\" --env=\"SKIPVARS=${SKIPVARS}\" --env=\"SKIPTEMP=1\" --env=\"NOLOCK=1\" --env=\"NOBACKUP=1\" --env=\"SKIPADDALL=1\" --env=\"UDROP=${UDROP}\" --env=\"NOCREATE=${NOCREATE}\" --env=\"LDROP=${LDROP}\" --env=\"DBDEBUG=${DBDEBUG}\" --env=\"ONLY=${ONLY}\" --env=\"TEST_SERVER=1\" --env=\"GETREPOS=${GETREPOS}\""
 for f in `env | sort | grep GHA2DB`
 do
   cmd="${cmd} --env=\"$f\""
