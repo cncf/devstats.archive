@@ -48,7 +48,7 @@ then
   ./devel/init_database.sh || exit 4
 fi
 
-PORT="-" ICON="-" GRAFSUFF="-" GA="-" SKIPGRAFANA=1 ./devel/deploy_proj.sh || exit 5
+ORGNAME="-" PORT="-" ICON="-" GRAFSUFF="-" GA="-" SKIPGRAFANA=1 ./devel/deploy_proj.sh || exit 5
 
 if [ -z "$SKIPVARS" ]
 then

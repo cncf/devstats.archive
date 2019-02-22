@@ -20,4 +20,5 @@ if [ -z "${command}" ]
 then
   export command=/bin/bash
 fi
-kubectl run -i --tty "${1}-test" --restart=Never --rm --image="${DOCKER_USER}/$1" --command "$command"
+ts=`date +'%s%N'`
+kubectl run -i --tty "${1}-test-${ts}" --restart=Never --rm --image="${DOCKER_USER}/$1" --command "$command"
