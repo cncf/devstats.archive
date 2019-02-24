@@ -16,6 +16,11 @@ func (a Int64Ary) Len() int           { return len(a) }
 func (a Int64Ary) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
 func (a Int64Ary) Less(i, j int) bool { return a[i] < a[j] }
 
+// SkipDatesList holds a list of GHA hours to skip
+type SkipDatesList struct {
+	Dates []time.Time `yaml:"skip_dates"`
+}
+
 // AllProjects contain all projects data
 type AllProjects struct {
 	Projects map[string]Project `yaml:"projects"`

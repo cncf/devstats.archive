@@ -13,6 +13,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	yaml "gopkg.in/yaml.v2"
 )
 
 // Inserts single GHA Actor
@@ -1349,6 +1351,7 @@ func parseJSON(con *sql.DB, ctx *lib.Ctx, idx, njsons int, jsonStr []byte, dt ti
 	}
 	// jsonStr = bytes.Replace(jsonStr, []byte("\x00"), []byte(""), -1)
 	if err != nil {
+		lib.Printf("Error(%v): %v\n", lib.ToGHADate(dt), err)
 		ofn := fmt.Sprintf("jsons/error_%v-%d-%d.json", lib.ToGHADate(dt), idx+1, njsons)
 		lib.FatalOnError(ioutil.WriteFile(ofn, jsonStr, 0644))
 		lib.Printf("%v: Cannot unmarshal:\n%s\n%v\n", dt, string(jsonStr), err)
@@ -1411,12 +1414,23 @@ func markAsProcessed(con *sql.DB, ctx *lib.Ctx, dt time.Time) {
 // getGHAJSON - This is a work for single go routine - 1 hour of GHA data
 // Usually such JSON conatin about 15000 - 60000 singe GHA events
 // Boolean channel `ch` is used to synchronize go routines
-func getGHAJSON(ch chan time.Time, ctx *lib.Ctx, dt time.Time, forg map[string]struct{}, frepo map[string]struct{}, shas map[string]string) {
+func getGHAJSON(ch chan time.Time, ctx *lib.Ctx, dt time.Time, forg map[string]struct{}, frepo map[string]struct{}, shas map[string]string, skipDates map[string]struct{}) {
 	lib.Printf("Working on %v\n", dt)
 
 	// Connect to Postgres DB
 	con := lib.PgConn(ctx)
 	defer func() { lib.FatalOnError(con.Close()) }()
+
+	// Check skip GHA date config
+	_, ok := skipDates[lib.ToYMDHDate(dt)]
+	if ok {
+		lib.Printf("Skipped %v\n", dt)
+		markAsProcessed(con, ctx, dt)
+		if ch != nil {
+			ch <- dt
+		}
+		return
+	}
 
 	fn := fmt.Sprintf("http://data.gharchive.org/%s.json.gz", lib.ToGHADate(dt))
 
@@ -1567,13 +1581,34 @@ func gha2db(args []string) {
 	// GDPR data hiding
 	shaMap := lib.GetHidden(lib.HideCfgFile)
 
+	// Skipping JSON dates
+	dataPrefix := ctx.DataDir
+	if ctx.Local {
+		dataPrefix = "./"
+	}
+
+	// Read GHA dates to skip
+	data, err := lib.ReadFile(&ctx, dataPrefix+ctx.SkipDatesYaml)
+	if err != nil {
+		lib.FatalOnError(err)
+		return
+	}
+
+	// Read lista nd convert it to set
+	var skipDatesList lib.SkipDatesList
+	lib.FatalOnError(yaml.Unmarshal(data, &skipDatesList))
+	skipDates := make(map[string]struct{})
+	for _, date := range skipDatesList.Dates {
+		skipDates[lib.ToYMDHDate(date)] = struct{}{}
+	}
+
 	dt := dFrom
 	if thrN > 1 {
 		ch := make(chan time.Time)
 		mp := make(map[time.Time]struct{})
 		nThreads := 0
 		for dt.Before(dTo) || dt.Equal(dTo) {
-			go getGHAJSON(ch, &ctx, dt, org, repo, shaMap)
+			go getGHAJSON(ch, &ctx, dt, org, repo, shaMap, skipDates)
 			mp[dt] = struct{}{}
 			dt = dt.Add(time.Hour)
 			nThreads++
@@ -1599,7 +1634,7 @@ func gha2db(args []string) {
 	} else {
 		lib.Printf("Using single threaded version\n")
 		for dt.Before(dTo) || dt.Equal(dTo) {
-			getGHAJSON(nil, &ctx, dt, org, repo, shaMap)
+			getGHAJSON(nil, &ctx, dt, org, repo, shaMap, skipDates)
 			dt = dt.Add(time.Hour)
 		}
 	}

@@ -55,4 +55,6 @@ then
   GHA2DB_EXCLUDE_VARS="projects_health_partial_html" ./devel/vars_all.sh || exit 6
 fi
 
+cat errors.log
+
 echo "$0: All deployments finished"
