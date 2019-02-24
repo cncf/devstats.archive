@@ -50,6 +50,7 @@ type Ctx struct {
 	ColumnsYaml         string                       // From GHA2DB_COLUMNS_YAML tags tool, set other columns.yaml file, default is "metrics/{{project}}/columns.yaml"
 	VarsYaml            string                       // From GHA2DB_VARS_YAML db_vars tool, set other vars.yaml file (full path), default is "metrics/{{project}}/vars.yaml"
 	VarsFnYaml          string                       // From GHA2DB_VARS_FN_YAML db_vars tool, set other vars.yaml file (final file name without path), default is "vars.yaml"
+	SkipDatesYaml       string                       // From GHA2DB_SKIP_DATES_YAML gha2db tool, set other skip_dates.yaml file, default is "skip_dates.yaml"
 	GitHubOAuth         string                       // From GHA2DB_GITHUB_OAUTH ghapi2db tool, if not set reads from /etc/github/oauth file, set to "-" to force public access.
 	ClearDBPeriod       string                       // From GHA2DB_MAXLOGAGE gha2db_sync tool, maximum age of devstats.gha_logs entries, default "1 week"
 	Trials              []int                        // From GHA2DB_TRIALS, all Postgres related tools, retry periods for "too many connections open" error
@@ -533,6 +534,12 @@ func (ctx *Ctx) Init() {
 	ctx.TestsYaml = os.Getenv("GHA2DB_TESTS_YAML")
 	if ctx.TestsYaml == "" {
 		ctx.TestsYaml = "tests.yaml"
+	}
+
+	// Skip dates
+	ctx.SkipDatesYaml = os.Getenv("GHA2DB_SKIP_DATES_YAML")
+	if ctx.SkipDatesYaml == "" {
+		ctx.SkipDatesYaml = "skip_dates.yaml"
 	}
 
 	// Main projects file

@@ -122,6 +122,7 @@ func copyContext(in *lib.Ctx) *lib.Ctx {
 		SkipSharedDB:        in.SkipSharedDB,
 		SkipPIDFile:         in.SkipPIDFile,
 		SkipCompanyAcq:      in.SkipCompanyAcq,
+		SkipDatesYaml:       in.SkipDatesYaml,
 	}
 	return &out
 }
@@ -310,6 +311,7 @@ func TestInit(t *testing.T) {
 		ProjectRoot:         "",
 		Project:             "",
 		TestsYaml:           "tests.yaml",
+		SkipDatesYaml:       "skip_dates.yaml",
 		ReposDir:            os.Getenv("HOME") + "/devstats_repos/",
 		JSONsDir:            "./jsons/",
 		ExecFatal:           true,
@@ -995,6 +997,19 @@ func TestInit(t *testing.T) {
 				copyContext(&defaultContext),
 				map[string]interface{}{
 					"TestsYaml": "foobar.yml",
+				},
+			),
+		},
+		{
+			"Setting skip_dates.yaml",
+			map[string]string{
+				"GHA2DB_SKIP_DATES_YAML": "bzz.yml",
+			},
+			dynamicSetFields(
+				t,
+				copyContext(&defaultContext),
+				map[string]interface{}{
+					"SkipDatesYaml": "bzz.yml",
 				},
 			),
 		},
