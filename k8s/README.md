@@ -19,6 +19,7 @@ Please note that `vi` automatically adds new line to all text files, to remove i
 
 - Use `AWS_PROFILE=... ./k8s/apply_manifest.sh ./k8s/other_manifests/test-secrets.yaml` to create pod running bash with all sectets passed. Kubernetes will output pod name, something like: `devstats-test-1551099357785726695`. Shell into it via: `AWS_PROFILE=lfproduct-dev ./k8s/pod_shell.sh pod-name`. Observe environment via: `env | grep -E '(GHA2DB|^PG_|^ES_|^ONLY)' | sort`. Delete pod `kubectl delete pod pod-name`.
 - Use `AWS_PROFILE=... ONLY=projname ./k8s/apply_manifest.sh ./k8s/other_manifests/test-devstats-hourly-sync.yaml` to test hourly sync. Shell into pod: `AWS_PROFILE=lfproduct-dev ./k8s/pod_shell.sh pod-name`. Delete pod: `kubectl delete pod pod-name`.
+- Use `AWS_PROFILE=... PROJ=projname PROJDB=projdb PROJREPO='org/name' INIT=1 ./k8s/other_manifests/test-devstats-provision.yaml`.
 
 
 # Run provisioning and hourly sync manually
