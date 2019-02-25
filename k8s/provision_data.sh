@@ -34,5 +34,5 @@ do
   cmd="${cmd} --env=\"$f\""
 done
 cmd="${cmd} --command ./k8s/deploy_all.sh"
-echo $cmd
-eval $cmd
+echo "${cmd}"
+eval "${cmd}"
