@@ -22,6 +22,12 @@ Please note that `vi` automatically adds new line to all text files, to remove i
 - Use `AWS_PROFILE=... PROJ=projname PROJDB=projdb PROJREPO='org/name' INIT=1 ./k8s/apply_manifest.sh ./k8s/other_manifests/test-devstats-provision.yaml`. Shell into pod: `AWS_PROFILE=... ./k8s/pod_shell.sh pod-name`. Run `./k8s/deploy_all.sh`. Delete pod: `kubectl delete pod pod-name`.
 - To deploy next projects skip `INIT=1` (this is used to bootstrap default users and logs database). This is not mandatory, `INIT=1` will not do any harm, it will detect existing users and databases.
 
+# Deploy on Kubernetes
+
+- Run `AWS_PROFILE=... PROJ=... PROJDB=... PROJREPO=... INIT=1 ./k8s/apply_manifest.sh ./k8s/manifests/devstats-provision.yaml` to do an initial Kubernetes deployment (bootstraps logs database, users and deploys first project).
+- Run `AWS_PROFILE=... PROJ=... PROJDB=... PROJREPO=... ./k8s/apply_manifest.sh ./k8s/manifests/devstats-provision.yaml` to deploy any next project.
+- Run `AWS_PROFILE=... ONLY=projname CRON='8 * * * *' ./k8s/apply_manifest.sh ./k8s/manifests/devstats-hourly-sync.yaml` to create a hourly sync of `projname` at evey hour and 8 minutes.
+- To setup hourly sync for all currently defined project just run: `AWS_PROFILE=... ./k8s/cron_them_all.sh`.
 
 # Run provisioning and hourly sync manually
 
