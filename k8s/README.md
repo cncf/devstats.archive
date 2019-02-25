@@ -7,6 +7,12 @@
 - To bash into a running pod do: `AWS_PROFILE=... ./k8s/pod_shell.sh pod-name`, where pod name can be for example: `devstats-provision-1550826466080940119`, `devstats-test-1550826466080940119`, `devstats-minimal-test-1550826466080940119`, `devstats-1550826466080940119`.
 - To dry-run test provisioning and hourly sync pods against your Kubernetes cluster, run: `AWS_PROFILE=... ./k8s/dryrun_manifest.sh k8s/manifests/*`.
 
+# Secrets
+
+Secret data is not checked-in into the repository. For each file in `k8s/secrets/*.secret.example` you need to create your own `k8s/secrets/*.secret` and propagate into your cluser.
+
+One all those files are created, use `./k8s/create_secrets.sh` script to propagate them into you Kubernetes cluster.
+
 # Run provisioning and hourly sync manually
 
 You can test provisioning (including the first bootstrap) by running the kubernetes pods manually, interactively (with TTY in/out):
