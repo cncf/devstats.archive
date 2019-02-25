@@ -74,6 +74,7 @@ type Ctx struct {
 	ProcessCommits      bool                         // From GHA2DB_PROCESS_COMMITS get_repos tool, enable update/create mapping table: commit - list of file that commit refers to, default false
 	ExternalInfo        bool                         // From GHA2DB_EXTERNAL_INFO get_repos tool, enable outputing data needed by external tools (cncf/gitdm), default false
 	ProjectsCommits     string                       // From GHA2DB_PROJECTS_COMMITS get_repos tool, set list of projects for commits analysis instead of analysing all, default "" - means all
+	PropagateOnlyVar    bool                         // From GHA2DB_PROPAGATE_ONLY_VAR, if set the it will check ONLY="a b c" env variable and propagate it into other project filter variables if they're not set, for example GHA2DB_PROJECTS_COMMITS
 	ProjectsYaml        string                       // From GHA2DB_PROJECTS_YAML, many tools - set main projects file, default "projects.yaml"
 	CompanyAcqYaml      string                       // From GHA2DB_COMPANY_ACQ_YAML, import_affs tool, set non-standard "companies.yaml" file
 	ProjectsOverride    map[string]bool              // From GHA2DB_PROJECTS_OVERRIDE, get_repos and ./devstats tools - for example "-pro1,+pro2" means never sync pro1 and always sync pro2 (even if disabled in `projects.yaml`).
@@ -573,6 +574,17 @@ func (ctx *Ctx) Init() {
 	ctx.ProcessCommits = os.Getenv("GHA2DB_PROCESS_COMMITS") != ""
 	ctx.ExternalInfo = os.Getenv("GHA2DB_EXTERNAL_INFO") != ""
 	ctx.ProjectsCommits = os.Getenv("GHA2DB_PROJECTS_COMMITS")
+
+	// PropagateOnlyVar
+	ctx.PropagateOnlyVar = os.Getenv("GHA2DB_PROPAGATE_ONLY_VAR") != ""
+	if ctx.PropagateOnlyVar {
+		only = os.Getenv("ONLY")
+		if only != "" {
+			if ctx.ProjectsCommits == "" {
+				ctx.ProjectsCommits = strings.Replace(only, " ", ",", -1)
+			}
+		}
+	}
 
 	// `website_data` JSONs dir
 	ctx.JSONsDir = os.Getenv("GHA2DB_JSONS_DIR")
