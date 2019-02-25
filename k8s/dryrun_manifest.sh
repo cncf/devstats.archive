@@ -1,4 +1,5 @@
 #!/bin/bash
+# This dry-runs all manifests given, doing environment subsititution and setting TIMESTAMP to the current time with microsecond resolution
 export TIMESTAMP=`date +'%s%N'`
 for f in "$@"
 do
