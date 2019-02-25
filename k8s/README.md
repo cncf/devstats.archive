@@ -11,7 +11,15 @@
 
 Secret data is not checked-in into the repository. For each file in `k8s/secrets/*.secret.example` you need to create your own `k8s/secrets/*.secret` and propagate into your cluser.
 
-One all those files are created, use `./k8s/create_secrets.sh` script to propagate them into you Kubernetes cluster.
+Once all those files are created, use `./k8s/create_secrets.sh` script to propagate them into you Kubernetes cluster.
+
+Please note that `vi` automatically adds new line to all text files, to remove it run `truncate -s -1` on a saved file.
+
+# Test pods before actually running them
+
+- Use `AWS_PROFILE=... ./k8s/apply_manifest.sh ./k8s/other_manifests/test-secrets.yaml` to create pod running bash with all sectets passed. Kubernetes will output pod name, something like: `devstats-test-1551099357785726695`. Shell into it via: `AWS_PROFILE=lfproduct-dev ./k8s/pod_shell.sh pod-name`. Observe environment via: `env | grep -E '(GHA2DB|^PG_|^ES_|^ONLY)' | sort`. Delete pod `kubectl delete pod pod-name`.
+- Use `AWS_PROFILE=... ONLY=projname ./k8s/apply_manifest.sh ./k8s/other_manifests/test-devstats-hourly-sync.yaml` to test hourly sync. Shell into pod: `AWS_PROFILE=lfproduct-dev ./k8s/pod_shell.sh pod-name`. Delete pod: `kubectl delete pod pod-name`.
+
 
 # Run provisioning and hourly sync manually
 
