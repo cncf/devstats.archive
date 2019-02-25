@@ -10,6 +10,7 @@ for f in "$@"
 do
   echo "Applying '$f'"
   rm -f error.yaml
+  cat "$f" | envsubst
   cat "$f" | envsubst | kubectl apply --dry-run -f - || cat "$f" | envsubst > error.yaml
   if [ -f "error.yaml" ]
   then
