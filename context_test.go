@@ -123,6 +123,7 @@ func copyContext(in *lib.Ctx) *lib.Ctx {
 		SkipPIDFile:         in.SkipPIDFile,
 		SkipCompanyAcq:      in.SkipCompanyAcq,
 		SkipDatesYaml:       in.SkipDatesYaml,
+		PropagateOnlyVar:    in.PropagateOnlyVar,
 	}
 	return &out
 }
@@ -349,6 +350,7 @@ func TestInit(t *testing.T) {
 		SkipSharedDB:        false,
 		SkipPIDFile:         false,
 		SkipCompanyAcq:      false,
+		PropagateOnlyVar:    false,
 	}
 
 	var nilRegexp *regexp.Regexp
@@ -1443,6 +1445,63 @@ func TestInit(t *testing.T) {
 					"hostname":                     true,
 					"projects_health_partial_html": true,
 				},
+				},
+			),
+		},
+		{
+			"Setting propagate variables from ONLY, case without ONLY set",
+			map[string]string{"GHA2DB_PROPAGATE_ONLY_VAR": "1"},
+			dynamicSetFields(
+				t,
+				copyContext(&defaultContext),
+				map[string]interface{}{
+					"PropagateOnlyVar": true,
+				},
+			),
+		},
+		{
+			"Setting propagate variables from ONLY, case with ONLY set to a",
+			map[string]string{
+				"GHA2DB_PROPAGATE_ONLY_VAR": "1",
+				"ONLY":                      "a",
+			},
+			dynamicSetFields(
+				t,
+				copyContext(&defaultContext),
+				map[string]interface{}{
+					"PropagateOnlyVar": true,
+					"ProjectsCommits":  "a",
+				},
+			),
+		},
+		{
+			"Setting propagate variables from ONLY, case with ONLY set to 'a b c'",
+			map[string]string{
+				"GHA2DB_PROPAGATE_ONLY_VAR": "1",
+				"ONLY":                      "a b c",
+			},
+			dynamicSetFields(
+				t,
+				copyContext(&defaultContext),
+				map[string]interface{}{
+					"PropagateOnlyVar": true,
+					"ProjectsCommits":  "a,b,c",
+				},
+			),
+		},
+		{
+			"Setting propagate variables from ONLY, case with ONLY set to 'a b c' but with ProjectCommits also set",
+			map[string]string{
+				"GHA2DB_PROPAGATE_ONLY_VAR": "1",
+				"GHA2DB_PROJECTS_COMMITS":   "d,e,f",
+				"ONLY":                      "a b c",
+			},
+			dynamicSetFields(
+				t,
+				copyContext(&defaultContext),
+				map[string]interface{}{
+					"PropagateOnlyVar": true,
+					"ProjectsCommits":  "d,e,f",
 				},
 			),
 		},

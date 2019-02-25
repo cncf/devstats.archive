@@ -27,7 +27,7 @@ fi
 # XXX: Pass PVC somehow (must be mountded in ~/devstats_repos/)
 
 ts=`date +'%s%N'`
-cmd="kubectl run -i --tty \"devstats-${ts}\" --restart=Never --rm --image=\"${DOCKER_USER}/devstats-minimal\" --env=\"ONLY=${ONLY}\" --env=\"GETREPOS=${GETREPOS}\""
+cmd="kubectl run -i --tty \"devstats-${ts}\" --restart=Never --rm --image=\"${DOCKER_USER}/devstats-minimal\" --env=\"ONLY=${ONLY}\""
 for f in `env | grep -E '(ES_|PG_|GHA2DB)'`
 do
   cmd="${cmd} --env=\"$f\""
