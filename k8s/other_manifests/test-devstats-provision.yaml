@@ -1,0 +1,76 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "devstats-provision-${TIMESTAMP}"
+spec:
+  containers:
+  - command:
+    - /bin/bash
+    env:
+    - name: PROJ
+      value: "${PROJ}"
+    - name: PROJDB
+      value: "${PROJDB}"
+    - name: PROJREPO
+      value: "${PROJREPO}"
+    - name: INIT
+      value: "${INIT}"
+    - name: SKIPTEMP
+      value: "1"
+    - name: NOLOCK
+      value: "1"
+    - name: NOBACKUP
+      value: "1"
+    - name: SKIPADDALL
+      value: "1"
+    - name: UDROP
+      value: "${UDROP}"
+    - name: LDROP
+      value: "${LDROP}"
+    - name: NOCREATE
+      value: "${NOCREATE}"
+    - name: ONLY
+      value: "${PROJ}"
+    - name: TEST_SERVER
+      value: "1"
+    - name: GETREPOS
+      value: "${GETREPOS}"
+    - name: PG_HOST
+      valueFrom:
+        secretKeyRef:
+          name: pg-db
+          key: PG_HOST.secret
+    - name: GHA2DB_GITHUB_OAUTH
+      valueFrom:
+        secretKeyRef:
+          name: github-oauth
+          key: GHA2DB_GITHUB_OAUTH.secret
+    - name: PG_PORT
+      valueFrom:
+        secretKeyRef:
+          name: pg-db
+          key: PG_PORT.secret
+    - name: ES_PORT
+      valueFrom:
+        secretKeyRef:
+          name: es-db
+          key: ES_PORT.secret
+    - name: ES_HOST
+      valueFrom:
+        secretKeyRef:
+          name: es-db
+          key: ES_HOST.secret
+    - name: ES_PROTO
+      valueFrom:
+        secretKeyRef:
+          name: es-db
+          key: ES_PROTO.secret
+    - name: PG_PASS
+      valueFrom:
+        secretKeyRef:
+          name: pg-db
+          key: PG_PASS.secret
+    image: lukaszgryglicki/devstats
+    imagePullPolicy: Always
+    name: "devstats-provision-${TIMESTAMP}"
+  restartPolicy: Never
