@@ -15,6 +15,10 @@ then
   echo "You can also skip GitHub API processing by setting GHA2DB_GHAPISKIP=1"
   GHA2DB_GITHUB_OAUTH="-"
 fi
+if  [ -z "$ONLY" ]
+then
+  echo "$0: warning ONLY=... not set, will sync all projects"
+fi
 
 # XXX: sysctl
 # ./cron/sysctl_config.sh
