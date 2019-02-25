@@ -17,9 +17,10 @@ Please note that `vi` automatically adds new line to all text files, to remove i
 
 # Test pods before actually running them
 
-- Use `AWS_PROFILE=... ./k8s/apply_manifest.sh ./k8s/other_manifests/test-secrets.yaml` to create pod running bash with all sectets passed. Kubernetes will output pod name, something like: `devstats-test-1551099357785726695`. Shell into it via: `AWS_PROFILE=lfproduct-dev ./k8s/pod_shell.sh pod-name`. Observe environment via: `env | grep -E '(GHA2DB|^PG_|^ES_|^ONLY)' | sort`. Delete pod `kubectl delete pod pod-name`.
-- Use `AWS_PROFILE=... ONLY=projname ./k8s/apply_manifest.sh ./k8s/other_manifests/test-devstats-hourly-sync.yaml` to test hourly sync. Shell into pod: `AWS_PROFILE=lfproduct-dev ./k8s/pod_shell.sh pod-name`. Delete pod: `kubectl delete pod pod-name`.
-- Use `AWS_PROFILE=... PROJ=projname PROJDB=projdb PROJREPO='org/name' INIT=1 ./k8s/other_manifests/test-devstats-provision.yaml`.
+- Use `AWS_PROFILE=... ./k8s/apply_manifest.sh ./k8s/other_manifests/test-secrets.yaml` to create pod running bash with all sectets passed. Kubernetes will output pod name, something like: `devstats-test-1551099357785726695`. Shell into it via: `AWS_PROFILE=... ./k8s/pod_shell.sh pod-name`. Observe environment via: `env | grep -E '(GHA2DB|^PG_|^ES_|^ONLY|^INIT|^PROJ)' | sort`. Delete pod `kubectl delete pod pod-name`.
+- Use `AWS_PROFILE=... ONLY=projname ./k8s/apply_manifest.sh ./k8s/other_manifests/test-devstats-hourly-sync.yaml` to test hourly sync. Shell into pod: `AWS_PROFILE=... ./k8s/pod_shell.sh pod-name`. Run `devstats`. Delete pod: `kubectl delete pod pod-name`.
+- Use `AWS_PROFILE=... PROJ=projname PROJDB=projdb PROJREPO='org/name' INIT=1 ./k8s/apply_manifest.sh ./k8s/other_manifests/test-devstats-provision.yaml`. Shell into pod: `AWS_PROFILE=... ./k8s/pod_shell.sh pod-name`. Run `./k8s/deploy_all.sh`. Delete pod: `kubectl delete pod pod-name`.
+- To deploy next projects skip `INIT=1` (this is used to bootstrap default users and logs database). This is not mandatory, `INIT=1` will not do any harm, it will detect existing users and databases.
 
 
 # Run provisioning and hourly sync manually
