@@ -20,15 +20,11 @@ then
   echo "$0: warning ONLY=... not set, will sync all projects"
 fi
 
-# XXX: sysctl
+echo "WARNING: this old deployment mode is not passing secrets and is not mounting volumes - avoid using it"
 # ./cron/sysctl_config.sh
-# XXX: need to configure persistent storage for git data (should check if that exists - if not it should create PV)
-# ./k8s/configure_pv.sh 
-# XXX: Pass PVC somehow (must be mountded in ~/devstats_repos/)
 
 ts=`date +'%s%N'`
-#cmd='kubectl run --schedule="8 * * * *"'
-cmd='kubectl run'
+cmd='kubectl run --schedule="8 * * * *"'
 cmd="${cmd} -i --tty \"devstats-${ts}\" --restart=Never --rm --image=\"${DOCKER_USER}/devstats-minimal\" --env=\"ONLY=${ONLY}\""
 for f in `env | grep -E '(ES_|PG_|GHA2DB)'`
 do

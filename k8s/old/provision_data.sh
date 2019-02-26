@@ -21,11 +21,8 @@ then
   GHA2DB_GITHUB_OAUTH="-"
 fi
 
-# XXX: sysctl
+echo "WARNING: this old deployment mode is not passing secrets and is not mounting volumes - avoid using it"
 # ./cron/sysctl_config.sh
-# XXX: need to configure persistent storage for git data (should check if that exists - if not it should create PV)
-# ./k8s/configure_pv.sh 
-# XXX: Pass PVC somehow (must be mountded in ~/devstats_repos/)
 
 ts=`date +'%s%N'`
 cmd="kubectl run -i --tty \"devstats-provision-${ts}\" --restart=Never --rm --image=\"${DOCKER_USER}/devstats\" --env=\"PROJ=${PROJ}\" --env=\"PROJDB=${PROJDB}\" --env=\"PROJREPO=${PROJREPO}\" --env=\"INIT=${INIT}\" --env=\"ONLYINIT=${ONLYINIT}\" --env=\"GET=${GET}\" --env=\"SKIPVARS=${SKIPVARS}\" --env=\"SKIPTEMP=1\" --env=\"NOLOCK=1\" --env=\"NOBACKUP=1\" --env=\"SKIPADDALL=1\" --env=\"UDROP=${UDROP}\" --env=\"NOCREATE=${NOCREATE}\" --env=\"LDROP=${LDROP}\" --env=\"DBDEBUG=${DBDEBUG}\" --env=\"ONLY=${ONLY}\" --env=\"TEST_SERVER=1\" --env=\"GETREPOS=${GETREPOS}\""
