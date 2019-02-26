@@ -1,7 +1,7 @@
 #!/bin/bash
 # UDROP=1 attempt to drop users
 # LDROP=1 attempt to drop devstats database
-# NOCREATE=1 skip creating enything - can be used with UDROP and LDROP to drop database and users and do not create anything
+# NOCREATE=1 skip creating anything - can be used with UDROP and LDROP to drop database and users and do not create anything
 # SETPASS=1 (should be set on a real first run to set main postgres password interactively, CANNOT be used without user interaction)
 set -o pipefail
 if ( [ -z "$PG_PASS" ] || [ -z "$PG_PASS_RO" ] || [ -z "$PG_PASS_TEAM" ] )

@@ -8,7 +8,7 @@ fi
 export TIMESTAMP=`date +'%s%N'`
 for f in "$@"
 do
-  echo "Applying '$f'"
+  # echo "Applying '$f'"
   rm -f error.yaml
   cat "$f" | envsubst | kubectl apply -f - || cat "$f" | envsubst > error.yaml
   if [ -f "error.yaml" ]

@@ -2,6 +2,7 @@
 # ARTWORK
 # GET=1 (attempt to fetch Postgres database from the test server)
 # INIT=1 (needs PG_PASS_RO, PG_PASS_TEAM, initialize from no postgres database state, creates postgres logs database and users)
+# ONLYINIT=1 (only run init_database.sh and then exit success)
 # SKIPVARS=1 (if set it will skip final Postgres vars regeneration)
 set -o pipefail
 exec > >(tee run.log)
@@ -46,6 +47,11 @@ fi
 if [ ! -z "$INIT" ]
 then
   ./devel/init_database.sh || exit 4
+  if [ ! -z "$ONLYINIT" ]
+  then
+    echo "Only init mode, exiting"
+    exit 0
+  fi
 fi
 
 ORGNAME="-" PORT="-" ICON="-" GRAFSUFF="-" GA="-" SKIPGRAFANA=1 ./devel/deploy_proj.sh || exit 5
