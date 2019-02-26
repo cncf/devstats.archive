@@ -1,21 +1,25 @@
+{{- $root := . -}}
+{{- range .Values.projects -}}
 ---
 apiVersion: v1
 kind: Pod
 metadata:
-  name: {{ .Values.bootstrapPodName }}
+  name: {{ $root.Values.provisionPodName }}-{{ .proj }}
   labels:
-{{- with .Values.labels -}}
+{{- with $root.Values.labels -}}
 {{ toYaml . | nindent 4 }}
 {{- end -}}
 spec:
   containers:
   - command:
-    - {{ .Values.bootstrapCommand }}
+    - {{ $root.Values.provisionCommand }}
     env:
-    - name: INIT
-      value: "1"
-    - name: ONLYINIT
-      value: "1"
+    - name: PROJ
+      value: {{ .proj }}
+    - name: PROJDB
+      value: {{ .db }}
+    - name: PROJREPO
+      value: {{ .repo }}
     - name: SKIPTEMP
       value: "1"
     - name: NOLOCK
@@ -26,70 +30,67 @@ spec:
       value: "1"
     - name: TEST_SERVER
       value: "1"
-    - name: UDROP
-      value: {{ .Values.ubootstrapUDrop }}
-    - name: LDROP
-      value: {{ .Values.bootstrapLDrop }}
-    - name: NOCREATE
-      value: {{ .Values.bootstrapNoCreate }}
+    - name: ONLY
+      value: {{ .proj }}
     - name: GHA2DB_GITHUB_OAUTH
       valueFrom:
         secretKeyRef:
-          name: {{ .Values.oauthSecret }}
+          name: {{ $root.Values.oauthSecret }}
           key: GHA2DB_GITHUB_OAUTH.secret
     - name: ES_PORT
       valueFrom:
         secretKeyRef:
-          name: {{ .Values.esSecret }}
+          name: {{ $root.Values.esSecret }}
           key: ES_PORT.secret
     - name: ES_HOST
       valueFrom:
         secretKeyRef:
-          name: {{ .Values.esSecret }}
+          name: {{ $root.Values.esSecret }}
           key: ES_HOST.secret
     - name: ES_PROTO
       valueFrom:
         secretKeyRef:
-          name: {{ .Values.esSecret }}
+          name: {{ $root.Values.esSecret }}
           key: ES_PROTO.secret
     - name: PG_HOST
       valueFrom:
         secretKeyRef:
-          name: {{ .Values.pgSecret }}
+          name: {{ $root.Values.pgSecret }}
           key: PG_HOST.secret
     - name: PG_PORT
       valueFrom:
         secretKeyRef:
-          name: {{ .Values.pgSecret }}
+          name: {{ $root.Values.pgSecret }}
           key: PG_PORT.secret
     - name: PG_PASS
       valueFrom:
         secretKeyRef:
-          name: {{ .Values.pgSecret }}
+          name: {{ $root.Values.pgSecret }}
           key: PG_PASS.secret
     - name: PG_PASS_RO
       valueFrom:
         secretKeyRef:
-          name: {{ .Values.pgSecret }}
+          name: {{ $root.Values.pgSecret }}
           key: PG_PASS_RO.secret
     - name: PG_PASS_TEAM
       valueFrom:
         secretKeyRef:
-          name: {{ .Values.pgSecret }}
+          name: {{ $root.Values.pgSecret }}
           key: PG_PASS_TEAM.secret
     - name: PG_ADMIN_USER
       valueFrom:
         secretKeyRef:
-          name: {{ .Values.pgSecret }}
+          name: {{ $root.Values.pgSecret }}
           key: PG_ADMIN_USER.secret
-    image: {{ .Values.proivisionImage }}
-    imagePullPolicy: {{ .Values.imagePullPolicy }}
-    name: {{ .Values.bootstrapPodName }}
+    image: {{ $root.Values.proivisionImage }}
+    imagePullPolicy: {{ $root.Values.imagePullPolicy }}
+    name: {{ $root.Values.provisionPodName }}-{{ .proj }}
     volumeMounts:
-    - name: {{ .Values.volumeMountName }}
-      mountPath: {{ .Values.volumeMountPath }}
+    - name: {{ $root.Values.volumeMountName }}
+      mountPath: {{ $root.Values.volumeMountPath }}
   volumes:
-  - name: {{ .Values.volumeName }}
+  - name: {{ $root.Values.volumeName }}
     persistentVolumeClaim:
-      claimName: {{ .Values.pvName }}
-  restartPolicy: {{ .Values.bootstrapRestartPolicy }}
+      claimName: {{ $root.Values.pvName }}
+  restartPolicy: {{ $root.Values.bootstrapRestartPolicy }}
+{{ end }}
