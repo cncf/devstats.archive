@@ -1,11 +1,10 @@
-# Kubernetes deployment
+# Create and test images
 
 - To create DevStats docker container images and publish them, use: `DOCKER_USER=... ./k8s/build_images.sh`.
 - To drop local DevStats docker container images use: `DOCKER_USER=... ./k8s/remove_images.sh`. They're not needed locally, only Kubernetes cluster needs them.
 - To test sync DevStats image (`devstats-minimal` container): `AWS_PROFILE=... DOCKER_USER=... ./k8s/test_image.sh devstats-minimal`.
 - To test provisioning DevStats image (`devstats` container): `AWS_PROFILE=... DOCKER_USER=... ./k8s/test_image.sh devstats`.
 - To bash into a running pod do: `AWS_PROFILE=... ./k8s/pod_shell.sh pod-name`, where pod name can be for example: `devstats-provision-1550826466080940119`, `devstats-test-1550826466080940119`, `devstats-minimal-test-1550826466080940119`, `devstats-1550826466080940119`.
-- To dry-run test provisioning and hourly sync pods against your Kubernetes cluster, run: `AWS_PROFILE=... ./k8s/dryrun_manifest.sh ./k8s/manifests/*.yaml ./k8s/other_manifests/*.yaml`.
 
 # Secrets
 
@@ -17,6 +16,7 @@ Please note that `vi` automatically adds new line to all text files, to remove i
 
 # Test pods before actually running them
 
+- To dry-run test provisioning and hourly sync pods against your Kubernetes cluster, run: `AWS_PROFILE=... ./k8s/dryrun_manifest.sh ./k8s/manifests/*.yaml ./k8s/other_manifests/*.yaml`.
 - Use `AWS_PROFILE=... ./k8s/apply_manifest.sh ./k8s/other_manifests/test-secrets.yaml` to create pod running bash with all sectets passed. Kubernetes will output pod name, something like: `devstats-test-1551099357785726695`. Shell into it via: `AWS_PROFILE=... ./k8s/pod_shell.sh pod-name`. Observe environment via: `env | grep -E '(GHA2DB|^PG_|^ES_|^ONLY|^INIT|^PROJ)' | sort`. Delete pod `kubectl delete pod pod-name`.
 - Use `AWS_PROFILE=... ONLY=projname ./k8s/apply_manifest.sh ./k8s/other_manifests/test-devstats-hourly-sync.yaml` to test hourly sync. Shell into pod: `AWS_PROFILE=... ./k8s/pod_shell.sh pod-name`. Run `devstats`. Delete pod: `kubectl delete pod pod-name`.
 - Use `AWS_PROFILE=... PROJ=projname PROJDB=projdb PROJREPO='org/name' INIT=1 ./k8s/apply_manifest.sh ./k8s/other_manifests/test-devstats-provision.yaml`. Shell into pod: `AWS_PROFILE=... ./k8s/pod_shell.sh pod-name`. Run `./k8s/deploy_all.sh`. Delete pod: `kubectl delete pod pod-name`.
@@ -29,6 +29,7 @@ Please note that `vi` automatically adds new line to all text files, to remove i
 - Run `AWS_PROFILE=... ONLY=projname CRON='8 * * * *' ./k8s/apply_manifest.sh ./k8s/manifests/devstats-hourly-sync.yaml` to create a hourly sync of `projname` at evey hour and 8 minutes.
 - To setup hourly sync for all currently defined project just run: `AWS_PROFILE=... ./k8s/cron_them_all.sh`.
 - To cleanup completed pod, use: `AWS_PROFILE=... ./k8s/cleanup_completed_pods.sh`.
+- To delete all DevStats cron jobs run: `AWS_PROFILE=... ./k8s/delete_devstats_cron_jobs.sh`.
 
 # Run provisioning and hourly sync manually
 
