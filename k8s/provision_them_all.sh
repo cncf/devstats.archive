@@ -50,4 +50,4 @@ PROJ=zephyr                 PROJDB=zephyr                 PROJREPO='zephyrprojec
 PROJ=linux                  PROJDB=linux                  PROJREPO='torvalds/linux'                  ./k8s/apply_manifest.sh ./k8s/manifests/devstats-provision.yaml
 sleep 2
 echo "Spawned provisioning pods"
-kubectl get po
+kubectl get po -l name=devstats
