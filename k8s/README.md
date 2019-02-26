@@ -27,7 +27,8 @@ Please note that `vi` automatically adds new line to all text files, to remove i
 - Run `AWS_PROFILE=... PROJ=... PROJDB=... PROJREPO=... INIT=1 ./k8s/apply_manifest.sh ./k8s/manifests/devstats-provision.yaml` to do an initial Kubernetes deployment (bootstraps logs database, users and deploys first project).
 - Run `AWS_PROFILE=... PROJ=... PROJDB=... PROJREPO=... ./k8s/apply_manifest.sh ./k8s/manifests/devstats-provision.yaml` to deploy any next project.
 - Run `AWS_PROFILE=... ONLY=projname CRON='8 * * * *' ./k8s/apply_manifest.sh ./k8s/manifests/devstats-hourly-sync.yaml` to create a hourly sync of `projname` at evey hour and 8 minutes.
-- To setup hourly sync for all currently defined project just run: `AWS_PROFILE=... ./k8s/cron_them_all.sh`.
+- To provision all projects do: `k8s/provision_them_all.sh`, then wait for all `devstats-provision-1...` pods to finish. This can take a *LOT* of time.
+- To setup hourly sync for all currently defined project just run: `AWS_PROFILE=... ./k8s/cron_them_all.sh`. Do it after all initial provisioning is finished.
 - To cleanup completed pod, use: `AWS_PROFILE=... ./k8s/cleanup_completed_pods.sh`.
 - To delete all DevStats cron jobs run: `AWS_PROFILE=... ./k8s/delete_devstats_cron_jobs.sh`.
 
