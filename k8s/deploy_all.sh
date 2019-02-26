@@ -19,16 +19,19 @@ then
   exit 2
 fi
 
-if ( [ -z "$ES_HOST" ] || [ -z "$ES_PORT" ] || [ -z "$ES_PROTO" ] )
+if [ -z "$ONLYINIT" ]
 then
-  echo "$0: you need to set ES_PROTO, ES_HOST and ES_PORT to run this script"
-  exit 3
-fi
+  if ( [ -z "$ES_HOST" ] || [ -z "$ES_PORT" ] || [ -z "$ES_PROTO" ] )
+  then
+    echo "$0: you need to set ES_PROTO, ES_HOST and ES_PORT to run this script"
+    exit 3
+  fi
 
-if ( [ -z "$PROJ" ] || [ -z "$PROJDB" ] || [ -z "$PROJREPO" ] )
-then
-  echo "$0: You need to set PROJ, PROJDB, PROJREPO environment variables to run this script"
-  exit 4
+  if ( [ -z "$PROJ" ] || [ -z "$PROJDB" ] || [ -z "$PROJREPO" ] )
+  then
+    echo "$0: You need to set PROJ, PROJDB, PROJREPO environment variables to run this script"
+    exit 4
+  fi
 fi
 
 export PG_ADMIN_USER=sa
