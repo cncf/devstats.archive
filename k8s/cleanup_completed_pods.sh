@@ -5,7 +5,7 @@ then
   exit 1
 fi
 pods=""
-for data in `kubectl get po -o=jsonpath='{range .items[*]}{.metadata.name}{";"}{.status.phase}{"\n"}{end}'`
+for data in `kubectl get po -l name=devstats -o=jsonpath='{range .items[*]}{.metadata.name}{";"}{.status.phase}{"\n"}{end}'`
 do
   IFS=';'
   arr=($data)
