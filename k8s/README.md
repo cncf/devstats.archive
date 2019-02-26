@@ -24,6 +24,7 @@ Please note that `vi` automatically adds new line to all text files, to remove i
 
 # Deploy on Kubernetes
 
+- Run `AWS_PROFILE=... ./k8s/apply_manifest.sh ./k8s/manifests/devstats-pvc.yml` to create presistent volume and persisten volume claim for git repository clones storage.
 - Run `AWS_PROFILE=... PROJ=... PROJDB=... PROJREPO=... INIT=1 ./k8s/apply_manifest.sh ./k8s/manifests/devstats-provision.yaml` to do an initial Kubernetes deployment (bootstraps logs database, users and deploys first project).
 - Run `AWS_PROFILE=... PROJ=... PROJDB=... PROJREPO=... ./k8s/apply_manifest.sh ./k8s/manifests/devstats-provision.yaml` to deploy any next project.
 - Run `AWS_PROFILE=... ONLY=projname CRON='8 * * * *' ./k8s/apply_manifest.sh ./k8s/manifests/devstats-hourly-sync.yaml` to create a hourly sync of `projname` at evey hour and 8 minutes.
