@@ -11,9 +11,10 @@ do
   arr=($data)
   unset IFS
   pod=${arr[0]}
-  status=${arr[1]}
-  # echo "$data -> $pod $status"
-  if [ "$status" = "Succeeded" ]
+  sts=${arr[1]}
+  base=${pod:0:8}
+  # echo "$data -> $pod $sts $base"
+  if ( [ "$sts" = "Succeeded" ] && [ "$base" = "devstats" ] )
   then
     pods="${pods} ${pod}"
   fi
