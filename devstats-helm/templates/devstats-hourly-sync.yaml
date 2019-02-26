@@ -1,0 +1,83 @@
+{{- $root := . -}}
+{{- range .Values.projects -}}
+---
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: '{{ $root.Values.syncPodName }}-{{ .proj }}'
+  labels:
+{{- with $root.Values.labels -}}
+{{ toYaml . | nindent 4 }}
+{{ end }}
+    app.kubernetes.io/name: {{ include "devstats-helm.name" . }}
+    helm.sh/chart: {{ include "devstats-helm.chart" . }}
+    app.kubernetes.io/instance: {{ $root.Release.Name }}
+    app.kubernetes.io/managed-by: {{ $root.Release.Service }}
+spec:
+  schedule: '{{ .cron }}'
+  concurrencyPolicy: {{ $root.Values.concurrencyPolicy }}
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          name: '{{ $root.Values.syncPodName }}-{{ .proj }}'
+          labels:
+{{- with $root.Values.labels -}}
+{{ toYaml . | nindent 12 }}
+{{ end }}
+            app.kubernetes.io/name: {{ include "devstats-helm.name" . }}
+            helm.sh/chart: {{ include "devstats-helm.chart" . }}
+            app.kubernetes.io/instance: {{ $root.Release.Name }}
+            app.kubernetes.io/managed-by: {{ $root.Release.Service }}
+        spec:
+          containers:
+          - command:
+            - {{ $root.Values.syncCommand }}
+            env:
+            - name: ONLY
+              value: {{ .proj }}
+            - name: GHA2DB_USE_ES
+              value: "1"
+            - name: GHA2DB_USE_ES_RAW
+              value: "1"
+            - name: GHA2DB_PROPAGATE_ONLY_VAR
+              value: "1"
+            - name: GHA2DB_PROJECTS_YAML
+              value: {{ $root.Values.projectsFile }}
+            - name: GHA2DB_GITHUB_OAUTH
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $root.Values.oauthSecret }}
+                  key: GHA2DB_GITHUB_OAUTH.secret
+            - name: PG_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $root.Values.pgSecret }}
+                  key: PG_HOST.secret
+            - name: PG_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $root.Values.pgSecret }}
+                  key: PG_PORT.secret
+            - name: PG_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $root.Values.pgSecret }}
+                  key: PG_PASS.secret
+            - name: GHA2DB_ES_URL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $root.Values.esSecret }}
+                  key: GHA2DB_ES_URL.secret
+            image: {{ $root.Values.syncImage }}
+            imagePullPolicy: {{ $root.Values.imagePullPolicy }}
+            name: '{{ $root.Values.syncPodName }}-{{ .proj }}'
+            volumeMounts:
+            - name: {{ $root.Values.volumeMountName }}
+              mountPath: '{{ $root.Values.volumeMountPath }}'
+          volumes:
+          - name: {{ $root.Values.volumeName }}
+            persistentVolumeClaim:
+              claimName: {{ $root.Values.pvName }}
+          restartPolicy: {{ $root.Values.bootstrapRestartPolicy }}
+{{ end }}

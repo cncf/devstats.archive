@@ -4,11 +4,15 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: {{ $root.Values.provisionPodName }}-{{ .proj }}
+  name: '{{ $root.Values.provisionPodName }}-{{ .proj }}'
   labels:
 {{- with $root.Values.labels -}}
 {{ toYaml . | nindent 4 }}
-{{- end -}}
+{{ end }}
+    app.kubernetes.io/name: {{ include "devstats-helm.name" . }}
+    helm.sh/chart: {{ include "devstats-helm.chart" . }}
+    app.kubernetes.io/instance: {{ $root.Release.Name }}
+    app.kubernetes.io/managed-by: {{ $root.Release.Service }}
 spec:
   containers:
   - command:
@@ -84,10 +88,10 @@ spec:
           key: PG_ADMIN_USER.secret
     image: {{ $root.Values.proivisionImage }}
     imagePullPolicy: {{ $root.Values.imagePullPolicy }}
-    name: {{ $root.Values.provisionPodName }}-{{ .proj }}
+    name: '{{ $root.Values.provisionPodName }}-{{ .proj }}'
     volumeMounts:
     - name: {{ $root.Values.volumeMountName }}
-      mountPath: {{ $root.Values.volumeMountPath }}
+      mountPath: '{{ $root.Values.volumeMountPath }}'
   volumes:
   - name: {{ $root.Values.volumeName }}
     persistentVolumeClaim:
