@@ -16,6 +16,51 @@ func syncAllProjects() bool {
 	var ctx lib.Ctx
 	ctx.Init()
 
+	// Local or cron mode?
+	cmdPrefix := ""
+	dataPrefix := ctx.DataDir
+	if ctx.Local {
+		cmdPrefix = "./"
+		dataPrefix = "./"
+	}
+
+	// Read defined projects
+	data, err := ioutil.ReadFile(dataPrefix + ctx.ProjectsYaml)
+	lib.FatalOnError(err)
+
+	var projects lib.AllProjects
+	lib.FatalOnError(yaml.Unmarshal(data, &projects))
+
+	// Get ordered & filtered projects
+	names, projs := lib.GetProjectsList(&ctx, &projects)
+
+	// If check provision flag is set, we need to iterate all projects
+	// and check if all of them are provisioned
+	if ctx.CheckProvisionFlag {
+		missing := 0
+		for _, proj := range projs {
+			db := proj.PDB
+			con := lib.PgConnDB(&ctx, db)
+			provisionFlag := "provisioned2"
+			rows := lib.QuerySQLWithErr(con, &ctx, "select 1 from gha_computed where metric = "+lib.NValue(1)+" limit 1", provisionFlag)
+			provisioned := 0
+			for rows.Next() {
+				lib.FatalOnError(rows.Scan(&provisioned))
+			}
+			lib.FatalOnError(rows.Err())
+			lib.FatalOnError(rows.Close())
+			lib.FatalOnError(con.Close())
+			if provisioned != 1 {
+				lib.Printf("Missing provisioned flag on '%s' database and check provisioned flag is set\n", db)
+				missing++
+			}
+		}
+		if missing > 0 {
+			lib.Printf("Not all databases provisioned, pending: %d, exiting\n", missing)
+			return false
+		}
+	}
+
 	// Set non-fatal exec mode, we want to run sync for next project(s) if current fails
 	ctx.ExecFatal = false
 
@@ -34,14 +79,6 @@ func syncAllProjects() bool {
 
 		// Schedule remove PID file when finished
 		defer func() { lib.FatalOnError(os.Remove(pidFile)) }()
-	}
-
-	// Local or cron mode?
-	cmdPrefix := ""
-	dataPrefix := ctx.DataDir
-	if ctx.Local {
-		cmdPrefix = "./"
-		dataPrefix = "./"
 	}
 
 	// Only run clone/pull part here
@@ -71,15 +108,7 @@ func syncAllProjects() bool {
 		lib.Printf("Updated git repos, took: %v\n", dtEnd.Sub(dtStart))
 	}
 
-	// Read defined projects
-	data, err := ioutil.ReadFile(dataPrefix + ctx.ProjectsYaml)
-	lib.FatalOnError(err)
-
-	var projects lib.AllProjects
-	lib.FatalOnError(yaml.Unmarshal(data, &projects))
-
-	// Get ordered & filtered projects
-	names, projs := lib.GetProjectsList(&ctx, &projects)
+	// Sync all projects
 	for i, name := range names {
 		proj := projs[i]
 		projEnv := map[string]string{
@@ -135,5 +164,7 @@ func main() {
 	dtEnd := time.Now()
 	if synced {
 		lib.Printf("Synced all projects in: %v\n", dtEnd.Sub(dtStart))
+	} else {
+		lib.Printf("There were sync errors, took: %v\n", dtEnd.Sub(dtStart))
 	}
 }
