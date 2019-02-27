@@ -26,7 +26,7 @@ This file describes how to add new project on the test and production servers.
 - Review `grafana/copy_artwork_icons.sh apache/www/copy_icons.sh grafana/create_images.sh grafana/change_title_and_icons_all.sh` - maybe you need to add special case. Icon related scripts are marked 'ARTWORK'.
 - Copy setup scripts and then adjust them: `cp -R oldproject/ projectname/`, `vim projectname/*`. Most them can be shared for all projects in `./shared/`, usually only `psql.sh` is project specific.
 - Update automatic deploy script: `./devel/deploy_all.sh`.
-- Some projects should not be added to 'All CNCF' (like openconatiners, istio, spinnaker, knative), update `devel/deploy_proj.sh` in such cases.
+- Some projects should not be added to 'All CNCF' (like openconatiners, istio, spinnaker, knative, linux, zephyr), update `devel/deploy_proj.sh` in such cases.
 - Copy `metrics/oldproject` to `metrics/projectname`. Update `./metrics/projectname/vars.yaml` file.
 - `cp -Rv scripts/oldproject/ scripts/projectname`, `vim scripts/projectname/*`. Usually it is only `repo_groups.sql` and in simple cases it can fallback to `scripts/shared/repo_groups.sql`, you can skip copy then.
 - `cp -Rv grafana/oldproject/ grafana/projectname/` and then update files. Usually `%s/oldproject/newproject/g|w|next`.
