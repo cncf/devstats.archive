@@ -4,7 +4,7 @@ then
   echo "$0: you need to set AWS_PROFILE=... to run this script"
   exit 1
 fi
-ONLY=iovisor                CRON='6 * * * *' ./k8s/apply_manifest.sh ./k8s/manifests/devstats-hourly-sync.yaml
+ONLY=iovisor                CRON='6 * * * *'  ./k8s/apply_manifest.sh ./k8s/manifests/devstats-hourly-sync.yaml
 ONLY=mininet                CRON='10 * * * *' ./k8s/apply_manifest.sh ./k8s/manifests/devstats-hourly-sync.yaml
 ONLY=opennetworkinglab      CRON='14 * * * *' ./k8s/apply_manifest.sh ./k8s/manifests/devstats-hourly-sync.yaml
 ONLY=opensecuritycontroller CRON='18 * * * *' ./k8s/apply_manifest.sh ./k8s/manifests/devstats-hourly-sync.yaml
@@ -16,3 +16,4 @@ ONLY=cord                   CRON='38 * * * *' ./k8s/apply_manifest.sh ./k8s/mani
 ONLY=envoy                  CRON='42 * * * *' ./k8s/apply_manifest.sh ./k8s/manifests/devstats-hourly-sync.yaml
 ONLY=zephyr                 CRON='46 * * * *' ./k8s/apply_manifest.sh ./k8s/manifests/devstats-hourly-sync.yaml
 ONLY=linux                  CRON='50 * * * *' ./k8s/apply_manifest.sh ./k8s/manifests/devstats-hourly-sync.yaml
+ONLY=prometheus             CRON='54 * * * *' ./k8s/apply_manifest.sh ./k8s/manifests/devstats-hourly-sync.yaml
