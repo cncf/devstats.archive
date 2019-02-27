@@ -4,6 +4,7 @@
 # SKIPDBS=1 (entirely skip project's database operations)
 # SKIPADDALL=1 (skip adding/merging to allprj)
 # SKIPGRAFANA=1 (skip all grafana related stuff)
+# WAITBOOT=N (use devel/wait_for_bootstrap.sh script before proceeding to deployment)
 set -o pipefail
 if [ -z "$PG_PASS" ]
 then
@@ -27,6 +28,11 @@ then
   > /tmp/deploy.wip
 fi
 echo "$0: $PROJ deploy started"
+if [ ! -z "$WAITBOOT" ]
+then
+  echo "$0: $PROJ wait for bootstrap complete"
+  ./devel/wait_for_bootstrap.sh $WAITBOOT || exit 7
+fi
 if [ -z "$SKIPDBS" ]
 then
   PDB=1 TSDB=1 ./devel/create_databases.sh || exit 3
