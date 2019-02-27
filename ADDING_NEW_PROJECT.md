@@ -54,3 +54,7 @@ This file describes how to add new project on the test and production servers.
 # Updating artwork icons
 
 - When updating artwork icons after the deployment (which happens often when we wait for an artwork), follow instructions in `ARTWORK.md`.
+
+# Graduating projects
+
+- See [graduating instructions](https://github.com/cncf/devstats/blob/master/GRADUATING.md).
