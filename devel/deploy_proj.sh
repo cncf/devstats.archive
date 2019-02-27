@@ -32,6 +32,7 @@ if [ ! -z "$WAITBOOT" ]
 then
   echo "$0: $PROJ wait for bootstrap complete"
   ./devel/wait_for_bootstrap.sh $WAITBOOT || exit 7
+  echo "$0: $PROJ wait for bootstrap completed"
 fi
 if [ -z "$SKIPDBS" ]
 then
