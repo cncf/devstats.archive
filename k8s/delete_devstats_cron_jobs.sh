@@ -7,9 +7,9 @@ fi
 cjobs=""
 for job in `kubectl get cronjobs -l name=devstats -o=jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}'`
 do
-  base=${job:0:10}
+  base=${job:0:9}
   # echo "$base"
-  if [ "$base" = "devstats-1" ]
+  if [ "$base" = "devstats-" ]
   then
     cjobs="${cjobs} ${job}"
   fi

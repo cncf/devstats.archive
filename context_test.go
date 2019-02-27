@@ -122,6 +122,7 @@ func copyContext(in *lib.Ctx) *lib.Ctx {
 		SkipSharedDB:        in.SkipSharedDB,
 		SkipPIDFile:         in.SkipPIDFile,
 		SkipCompanyAcq:      in.SkipCompanyAcq,
+		CheckProvisionFlag:  in.CheckProvisionFlag,
 		SkipDatesYaml:       in.SkipDatesYaml,
 		PropagateOnlyVar:    in.PropagateOnlyVar,
 	}
@@ -350,6 +351,7 @@ func TestInit(t *testing.T) {
 		SkipSharedDB:        false,
 		SkipPIDFile:         false,
 		SkipCompanyAcq:      false,
+		CheckProvisionFlag:  false,
 		PropagateOnlyVar:    false,
 	}
 
@@ -1210,6 +1212,19 @@ func TestInit(t *testing.T) {
 				copyContext(&defaultContext),
 				map[string]interface{}{
 					"SkipCompanyAcq": true,
+				},
+			),
+		},
+		{
+			"Set check provision flag",
+			map[string]string{
+				"GHA2DB_CHECK_PROVISION_FLAG": "1",
+			},
+			dynamicSetFields(
+				t,
+				copyContext(&defaultContext),
+				map[string]interface{}{
+					"CheckProvisionFlag": true,
 				},
 			),
 		},
