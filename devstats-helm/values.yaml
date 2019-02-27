@@ -1,35 +1,35 @@
-name: devstats
-nameOverride: devstats
-fullnameOverride: devstats
-labels:
-  name: devstats
-pvName: devstats-git
-storageClass: efs
-storageAccessModes: ReadWriteMany
-storageSize: 200Gi
-pgSecret: pg-db
-esSecret: es-db
-oauthSecret: github-oauth
-secretType: Opaque
-bootstrapUDrop: ''
+bootstrapCommand: './k8s/deploy_all.sh'
 bootstrapLDrop: ''
 bootstrapNoCreate: ''
 bootstrapPodName: devstats-provision-bootstrap
-bootstrapCommand: './k8s/deploy_all.sh'
-proivisionImage: 'lukaszgryglicki/devstats'
-waitForBootstrap: 5
+bootstrapRestartPolicy: Never
+bootstrapUDrop: ''
+concurrencyPolicy: Forbid
+esSecret: es-db
+fullnameOverride: devstats
 imagePullPolicy: Always
+name: devstats
+nameOverride: devstats
+oauthSecret: github-oauth
+pgSecret: pg-db
+proivisionImage: 'lukaszgryglicki/devstats'
+projectsFile: 'k8s/projects.yaml'
+provisionCommand: './k8s/deploy_all.sh'
+provisionPodName: devstats-provision
+pvName: devstats-git
+secretType: Opaque
+storageAccessModes: ReadWriteMany
+storageClass: efs
+storageSize: 200Gi
+syncCommand: devstats
+syncImage: 'lukaszgryglicki/devstats-minimal'
+syncPodName: devstats
 volumeMountName: data
 volumeMountPath: '/root'
 volumeName: data
-bootstrapRestartPolicy: Never
-provisionPodName: devstats-provision
-provisionCommand: './k8s/deploy_all.sh'
-syncPodName: devstats
-concurrencyPolicy: Forbid
-syncCommand: devstats
-projectsFile: 'k8s/projects.yaml'
-syncImage: 'lukaszgryglicki/devstats-minimal'
+waitForBootstrap: 5
+labels:
+  name: devstats
 projects:
   - proj: iovisor
     db: iovisor
