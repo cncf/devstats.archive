@@ -41,7 +41,7 @@ func syncAllProjects() bool {
 		for _, proj := range projs {
 			db := proj.PDB
 			con := lib.PgConnDB(&ctx, db)
-			provisionFlag := "provisioned2"
+			provisionFlag := "provisioned"
 			rows := lib.QuerySQLWithErr(con, &ctx, "select 1 from gha_computed where metric = "+lib.NValue(1)+" limit 1", provisionFlag)
 			provisioned := 0
 			for rows.Next() {
