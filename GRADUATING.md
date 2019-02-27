@@ -8,3 +8,5 @@ Those steps are generally needed to change project status (usually from `Incubat
 - Put new home dashboards: `./devel/put_all_charts.sh` and then `./devel/put_all_charts_cleanup.sh`.
 - Update files: `partials/projects.html partials/projects_health.html` (remember about `cncf-` classes/separators).
 - Run to update partials: `PG_PASS=... ./devel/vars_all.sh`.
+- Update test and production www index files: `apache/www/index_test.html apache/www/index_prod.html`.
+- Install them as `/var/www/html/index.html` on test and production respectively: `cp apache/www/index_envname.html /var/www/html/index.html`.
