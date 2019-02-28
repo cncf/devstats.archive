@@ -7,6 +7,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/lib/pq"
 	yaml "gopkg.in/yaml.v2"
 )
 
@@ -42,7 +43,23 @@ func syncAllProjects() bool {
 			db := proj.PDB
 			con := lib.PgConnDB(&ctx, db)
 			provisionFlag := "provisioned"
-			rows := lib.QuerySQLWithErr(con, &ctx, "select 1 from gha_computed where metric = "+lib.NValue(1)+" limit 1", provisionFlag)
+			rows, err := lib.QuerySQL(con, &ctx, "select 1 from gha_computed where metric = "+lib.NValue(1)+" limit 1", provisionFlag)
+			if err != nil {
+				switch e := err.(type) {
+				case *pq.Error:
+					errName := e.Code.Name()
+					if errName == "invalid_catalog_name" {
+						lib.Printf("No '%s' database, missing provisioning flag\n", db)
+						missing++
+						lib.FatalOnError(con.Close())
+						continue
+					} else {
+						lib.FatalOnError(err)
+					}
+				default:
+					lib.FatalOnError(err)
+				}
+			}
 			provisioned := 0
 			for rows.Next() {
 				lib.FatalOnError(rows.Scan(&provisioned))
