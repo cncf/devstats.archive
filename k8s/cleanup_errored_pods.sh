@@ -1,4 +1,5 @@
 #!/bin/bash
+# DRYRUN=1 (only display what would be done)
 if [ -z "${AWS_PROFILE}" ]
 then
   echo "$0: you need to set AWS_PROFILE=... to run this script"
@@ -21,6 +22,11 @@ do
 done
 if [ ! -z "$pods" ]
 then
-  echo "Deleting pods: ${pods}"
-  kubectl delete pod ${pods}
+  if [ -z "$DRYRUN" ]
+  then
+    echo "Deleting pods: ${pods}"
+    kubectl delete pod ${pods}
+  else
+    echo "Would delete pods: ${pods}"
+  fi
 fi
