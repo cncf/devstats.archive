@@ -2,6 +2,7 @@
 {{ if not $skipProvisions }}
 {{- $root := . -}}
 {{- range $index, $_ := .Values.projects -}}
+{{- if and (or (eq ($index|int) ($root.Values.indexProvisionsFrom|int)) (gt ($index|int) ($root.Values.indexProvisionsFrom|int))) (lt ($index|int) ($root.Values.indexProvisionsTo|int)) -}}
 ---
 apiVersion: v1
 kind: Pod
@@ -102,5 +103,6 @@ spec:
     persistentVolumeClaim:
       claimName: {{ $root.Values.pvName }}
   restartPolicy: {{ $root.Values.bootstrapRestartPolicy }}
+{{ end }}
 {{ end }}
 {{ end }}
