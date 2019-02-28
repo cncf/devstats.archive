@@ -214,6 +214,9 @@ func (ctx *Ctx) Init() {
 		FatalNoLog(err)
 		if nCPUs > 0 {
 			ctx.NCPUs = nCPUs
+			if ctx.NCPUs == 1 {
+				ctx.ST = true
+			}
 		}
 	}
 
