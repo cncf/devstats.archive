@@ -513,6 +513,24 @@ func TestInit(t *testing.T) {
 			),
 		},
 		{
+			"Setting NCPUs to 2",
+			map[string]string{"GHA2DB_NCPUS": "2"},
+			dynamicSetFields(
+				t,
+				copyContext(&defaultContext),
+				map[string]interface{}{"ST": false, "NCPUs": 2},
+			),
+		},
+		{
+			"Setting NCPUs to 1 should also set ST mode",
+			map[string]string{"GHA2DB_NCPUS": "1"},
+			dynamicSetFields(
+				t,
+				copyContext(&defaultContext),
+				map[string]interface{}{"ST": true, "NCPUs": 1},
+			),
+		},
+		{
 			"Setting TmOffset",
 			map[string]string{"GHA2DB_TMOFFSET": "5"},
 			dynamicSetFields(
