@@ -1,7 +1,8 @@
 {{- $skipCrons := .Values.skipCrons -}}
 {{ if not $skipCrons }}
 {{- $root := . -}}
-{{- range .Values.projects -}}
+{{- range $index, $_ := .Values.projects -}}
+{{- if and (or (eq ($index|int) ($root.Values.indexCronsFrom|int)) (gt ($index|int) ($root.Values.indexCronsFrom|int))) (lt ($index|int) ($root.Values.indexCronsTo|int)) -}}
 ---
 apiVersion: batch/v1beta1
 kind: CronJob
@@ -86,5 +87,6 @@ spec:
             persistentVolumeClaim:
               claimName: {{ $root.Values.pvName }}
           restartPolicy: {{ $root.Values.bootstrapRestartPolicy }}
+{{ end }}
 {{ end }}
 {{ end }}
