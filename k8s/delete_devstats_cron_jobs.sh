@@ -20,7 +20,7 @@ then
   if [ -z "$DRYRUN" ]
   then
     echo "Deleting cron jobs: ${cjobs}"
-    kubectl delete pod ${cjobs}
+    kubectl delete cronjob ${cjobs}
   else
     echo "Would delete cronjobs: ${cjobs}"
   fi
