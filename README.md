@@ -12,6 +12,13 @@ GHA2DB stands for **G**it**H**ub **A**rchives to **D**ash**B**oards.
 More information about Kubernetes dashboards [here](https://github.com/cncf/devstats/blob/master/README_K8s.md).
 
 
+# Kubernetes and Helm
+
+Please see [Helm charts](https://github.com/cncf/devstats/tree/master/devstats-helm) for a Helm deployment.
+
+Please see [K8s](https://github.com/cncf/devstats/tree/master/k8s) for the Kubernetes deployment hints.
+
+
 # Presentations
 
 - Presentations are available [here](https://github.com/cncf/devstats/blob/master/docs/presentation).
