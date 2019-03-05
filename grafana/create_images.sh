@@ -4,7 +4,7 @@
 . ./devel/all_projs.sh || exit 2
 for proj in $all
 do
-  if [ "$proj" = "opencontainers" ]
+    if ( [ "$proj" = "opencontainers" ] || [ "$icon" = "spinnaker" ] || [ "$icon" = "tekton" ] || [ "$icon" = "jenkins" ] || [ "$icon" = "jenkinsx" ] )
   then
     continue
   fi
@@ -19,7 +19,7 @@ do
     icon="cncf"
   fi
   # TODO: remove when we have icons
-  if ( [ "$icon" = "istio" ] || [ "$icon" = "spinnaker" ] || [ "$icon" = "knative" ] )
+  if ( [ "$icon" = "istio" ] || [ "$icon" = "knative" ] )
   then
     icon="cncf"
   fi
