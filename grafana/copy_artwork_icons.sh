@@ -4,7 +4,7 @@
 . ./devel/all_projs.sh || exit 2
 for proj in $all
 do
-  if [ "$proj" = "opencontainers" ]
+  if ( [ "$proj" = "opencontainers" ] || [ "$proj" = "spinnaker" ] || [ "$proj" = "tekton" ] || [ "$proj" = "jenkins" ] || [ "$proj" = "jenkinsx" ] )
   then
     continue
   fi
@@ -19,7 +19,7 @@ do
     icon="cncf"
   fi
   # TODO: remove when we have icons
-  if ( [ "$icon" = "istio" ] || [ "$icon" = "spinnaker" ] || [ "$icon" = "knative" ] )
+  if ( [ "$icon" = "istio" ] || [ "$icon" = "knative" ] )
   then
     icon="cncf"
   fi
@@ -44,6 +44,7 @@ do
 
 done
 
+# Special cases
 # Special OCI case (not a CNCF project)
 if [[ $all = *"opencontainers"* ]]
 then
@@ -51,5 +52,33 @@ then
   cp ./images/OCI.svg /usr/share/grafana.opencontainers/public/img/grafana_com_auth_icon.svg || exit 15
   cp ./images/OCI.svg /usr/share/grafana.opencontainers/public/img/grafana_net_logo.svg || exit 16
   cp ./images/OCI.svg /usr/share/grafana.opencontainers/public/img/grafana_mask_icon.svg || exit 17
+fi
+if [[ $all = *"spinnaker"* ]]
+then
+  cp ./images/spinnaker.svg /usr/share/grafana.spinnaker/public/img/grafana_icon.svg || exit 14
+  cp ./images/spinnaker.svg /usr/share/grafana.spinnaker/public/img/grafana_com_auth_icon.svg || exit 15
+  cp ./images/spinnaker.svg /usr/share/grafana.spinnaker/public/img/grafana_net_logo.svg || exit 16
+  cp ./images/spinnaker.svg /usr/share/grafana.spinnaker/public/img/grafana_mask_icon.svg || exit 17
+fi
+if [[ $all = *"tekton"* ]]
+then
+  cp ./images/tekton.svg /usr/share/grafana.tekton/public/img/grafana_icon.svg || exit 14
+  cp ./images/tekton.svg /usr/share/grafana.tekton/public/img/grafana_com_auth_icon.svg || exit 15
+  cp ./images/tekton.svg /usr/share/grafana.tekton/public/img/grafana_net_logo.svg || exit 16
+  cp ./images/tekton.svg /usr/share/grafana.tekton/public/img/grafana_mask_icon.svg || exit 17
+fi
+if [[ $all = *"jenkins"* ]]
+then
+  cp ./images/jenkins.svg /usr/share/grafana.jenkins/public/img/grafana_icon.svg || exit 14
+  cp ./images/jenkins.svg /usr/share/grafana.jenkins/public/img/grafana_com_auth_icon.svg || exit 15
+  cp ./images/jenkins.svg /usr/share/grafana.jenkins/public/img/grafana_net_logo.svg || exit 16
+  cp ./images/jenkins.svg /usr/share/grafana.jenkins/public/img/grafana_mask_icon.svg || exit 17
+fi
+if [[ $all = *"jenkinsx"* ]]
+then
+  cp ./images/jenkinsx.svg /usr/share/grafana.jenkinsx/public/img/grafana_icon.svg || exit 14
+  cp ./images/jenkinsx.svg /usr/share/grafana.jenkinsx/public/img/grafana_com_auth_icon.svg || exit 15
+  cp ./images/jenkinsx.svg /usr/share/grafana.jenkinsx/public/img/grafana_net_logo.svg || exit 16
+  cp ./images/jenkinsx.svg /usr/share/grafana.jenkinsx/public/img/grafana_mask_icon.svg || exit 17
 fi
 echo 'OK'
