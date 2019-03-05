@@ -20,5 +20,6 @@ then
   then
     ./util_sh/start_contrib.sh
     ./grafana/linux/grafana_start.sh &
+    ./grafana/zephyr/grafana_start.sh &
   fi
 fi
