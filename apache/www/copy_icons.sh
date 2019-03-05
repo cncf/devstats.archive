@@ -45,7 +45,7 @@ then
   convert ./images/tekton.png -resize 80x80 /var/www/html/img/tekton-icon-color.png || exit 4
   cp ./images/tekton.svg /var/www/html/img/tekton-icon-color.svg || exit 5
 fi
-if [[ $all = *"jenkins"* ]]
+if ( [[ $all = *"jenkins"* ]] && [[ ! $all = *"jenkinsx"* ]] )
 then
   convert ./images/jenkins.png -resize 80x80 /var/www/html/img/jenkins-icon-color.png || exit 4
   cp ./images/jenkins.svg /var/www/html/img/jenkins-icon-color.svg || exit 5

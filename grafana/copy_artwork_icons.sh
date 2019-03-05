@@ -67,7 +67,7 @@ then
   cp ./images/tekton.svg /usr/share/grafana.tekton/public/img/grafana_net_logo.svg || exit 16
   cp ./images/tekton.svg /usr/share/grafana.tekton/public/img/grafana_mask_icon.svg || exit 17
 fi
-if [[ $all = *"jenkins"* ]]
+if ( [[ $all = *"jenkins"* ]] && [[ ! $all = *"jenkinsx"* ]] )
 then
   cp ./images/jenkins.svg /usr/share/grafana.jenkins/public/img/grafana_icon.svg || exit 14
   cp ./images/jenkins.svg /usr/share/grafana.jenkins/public/img/grafana_com_auth_icon.svg || exit 15
