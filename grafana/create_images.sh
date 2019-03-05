@@ -45,4 +45,19 @@ then
   cp images/spinnaker.svg grafana/img/spinnaker.svg || exit 4
   convert images/spinnaker.png -resize 32x32 grafana/img/spinnaker32.png || exit 5
 fi
+if [[ $all = *"tekton"* ]]
+then
+  cp images/tekton.svg grafana/img/tekton.svg || exit 4
+  convert images/tekton.png -resize 32x32 grafana/img/tekton32.png || exit 5
+fi
+if [[ $all = *"jenkins"* ]]
+then
+  cp images/jenkins.svg grafana/img/jenkins.svg || exit 4
+  convert images/jenkins.png -resize 32x32 grafana/img/jenkins32.png || exit 5
+fi
+if [[ $all = *"jenkinsx"* ]]
+then
+  cp images/jenkinsx.svg grafana/img/jenkinsx.svg || exit 4
+  convert images/jenkinsx.png -resize 32x32 grafana/img/jenkinsx32.png || exit 5
+fi
 echo 'OK'
