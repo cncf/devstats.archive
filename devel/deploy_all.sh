@@ -196,16 +196,27 @@ do
     PROJ=opencontainers      PROJDB=opencontainers PROJREPO="opencontainers/runc"             ORGNAME=OCI               PORT=3100 ICON="-"            GRAFSUFF=opencontainers GA="UA-108085315-19" ./devel/deploy_proj.sh || exit 32
   elif [ "$proj" = "cncf" ]
   then
-    PROJ=cncf                PROJDB=cncf           PROJREPO="cncf/landscape"                  ORGNAME=CNCF              PORT=3255 ICON=cncf           GRAFSUFF=cncf           GA="UA-108085315-8" ./devel/deploy_proj.sh || exit 33
+    PROJ=cncf                PROJDB=cncf           PROJREPO="cncf/landscape"                  ORGNAME=CNCF              PORT=3255 ICON=cncf           GRAFSUFF=cncf           GA="UA-108085315-8"  ./devel/deploy_proj.sh || exit 33
   elif [ "$proj" = "istio" ]
   then
-    PROJ=istio               PROJDB=istio          PROJREPO="istio/istio"                     ORGNAME=Istio             PORT=3101 ICON=cncf           GRAFSUFF=istio          GA="-"              ./devel/deploy_proj.sh || exit 34
+    PROJ=istio               PROJDB=istio          PROJREPO="istio/istio"                     ORGNAME=Istio             PORT=3101 ICON=cncf           GRAFSUFF=istio          GA="-"               ./devel/deploy_proj.sh || exit 34
   elif [ "$proj" = "spinnaker" ]
   then
-    PROJ=spinnaker           PROJDB=spinnaker      PROJREPO="spinnaker/spinnaker"             ORGNAME=Spinnaker         PORT=3102 ICON=cncf           GRAFSUFF=spinnaker      GA="-"              ./devel/deploy_proj.sh || exit 35
+    PROJ=spinnaker           PROJDB=spinnaker      PROJREPO="spinnaker/spinnaker"             ORGNAME=Spinnaker         PORT=3102 ICON=cncf           GRAFSUFF=spinnaker      GA="UA-108085315-37" ./devel/deploy_proj.sh || exit 35
   elif [ "$proj" = "knative" ]
   then
-    PROJ=knative             PROJDB=knative        PROJREPO="knative/serving"                 ORGNAME=Knative           PORT=3103 ICON=cncf           GRAFSUFF=knative        GA="-"              ./devel/deploy_proj.sh || exit 41
+    PROJ=knative             PROJDB=knative        PROJREPO="knative/serving"                 ORGNAME=Knative           PORT=3103 ICON=cncf           GRAFSUFF=knative        GA="-"               ./devel/deploy_proj.sh || exit 41
+#
+  elif [ "$proj" = "tekton" ]
+  then
+    PROJ=tekton              PROJDB=tekton         PROJREPO="knative/build"                   ORGNAME=Tekton            PORT=3104 ICON=tekton         GRAFSUFF=tekton         GA="UA-108085315-38" ./devel/deploy_proj.sh || exit 42
+  elif [ "$proj" = "jenkins" ]
+  then
+    PROJ=jenkins             PROJDB=jenkins        PROJREPO="jenkinsci/jenkins"               ORGNAME=Jenkins           PORT=3105 ICON=jenkins        GRAFSUFF=jenkins        GA="UA-108085315-39" ./devel/deploy_proj.sh || exit 43
+  elif [ "$proj" = "jenkinsx" ]
+  then
+    PROJ=jenkinsx            PROJDB=jenkinsx       PROJREPO="jenkins-x/jx"                    ORGNAME='Jenkins X'       PORT=3106 ICON=jenkinsx       GRAFSUFF=jenkinsx       GA="UA-108085315-40" ./devel/deploy_proj.sh || exit 44
+#
   elif [ "$proj" = "all" ]
   then
     PROJ=all                 PROJDB=allprj         PROJREPO="not/used"                        ORGNAME="All CNCF"        PORT=3254 ICON=cncf           GRAFSUFF=all            GA="UA-108085315-20" ./devel/deploy_proj.sh || exit 36
