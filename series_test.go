@@ -114,7 +114,7 @@ func TestProcessAnnotations(t *testing.T) {
 	}{
 		{
 			annotations: lib.Annotations{
-				[]lib.Annotation{
+				Annotations: []lib.Annotation{
 					{
 						Name:        "release 0.0.0",
 						Description: "desc 0.0.0",
@@ -146,7 +146,7 @@ func TestProcessAnnotations(t *testing.T) {
 		},
 		{
 			annotations: lib.Annotations{
-				[]lib.Annotation{
+				Annotations: []lib.Annotation{
 					{
 						Name:        "release 0.0.0",
 						Description: "desc 0.0.0",
@@ -172,7 +172,7 @@ func TestProcessAnnotations(t *testing.T) {
 		},
 		{
 			annotations: lib.Annotations{
-				[]lib.Annotation{
+				Annotations: []lib.Annotation{
 					{
 						Name:        "release 0.0.0",
 						Description: "desc 0.0.0",
@@ -198,7 +198,7 @@ func TestProcessAnnotations(t *testing.T) {
 		},
 		{
 			annotations: lib.Annotations{
-				[]lib.Annotation{
+				Annotations: []lib.Annotation{
 					{
 						Name:        "release 0.0.0",
 						Description: "desc 0.0.0",
@@ -224,7 +224,7 @@ func TestProcessAnnotations(t *testing.T) {
 		},
 		{
 			annotations: lib.Annotations{
-				[]lib.Annotation{
+				Annotations: []lib.Annotation{
 					{
 						Name:        "release 0.0.0",
 						Description: "desc 0.0.0",
@@ -249,7 +249,7 @@ func TestProcessAnnotations(t *testing.T) {
 		{
 			joinDate: &earlyDate,
 			annotations: lib.Annotations{
-				[]lib.Annotation{
+				Annotations: []lib.Annotation{
 					{
 						Name:        "release 0.0.0",
 						Description: "desc 0.0.0",
@@ -275,7 +275,7 @@ func TestProcessAnnotations(t *testing.T) {
 		{
 			joinDate: &lateDate,
 			annotations: lib.Annotations{
-				[]lib.Annotation{
+				Annotations: []lib.Annotation{
 					{
 						Name:        "release 0.0.0",
 						Description: "desc 0.0.0",
@@ -299,7 +299,7 @@ func TestProcessAnnotations(t *testing.T) {
 			},
 		},
 		{
-			annotations:         lib.Annotations{[]lib.Annotation{}},
+			annotations:         lib.Annotations{Annotations: []lib.Annotation{}},
 			expectedAnnotations: [][]interface{}{},
 			expectedQuickRanges: [][]interface{}{
 				{"d;1 day;;", "Last day", "d"},
@@ -313,7 +313,7 @@ func TestProcessAnnotations(t *testing.T) {
 		},
 		{
 			annotations: lib.Annotations{
-				[]lib.Annotation{
+				Annotations: []lib.Annotation{
 					{
 						Name:        "release 4.0.0",
 						Description: "desc 4.0.0",
@@ -365,7 +365,7 @@ func TestProcessAnnotations(t *testing.T) {
 		},
 		{
 			annotations: lib.Annotations{
-				[]lib.Annotation{
+				Annotations: []lib.Annotation{
 					{
 						Name:        "v1.0",
 						Description: "desc v1.0",
