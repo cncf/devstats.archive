@@ -8,7 +8,7 @@ select
 from
   [githubarchive:month.201902],
   [githubarchive:month.201901],
-  [githubarchive:year.2019],
+  [githubarchive:year.2018],
   [githubarchive:year.2017],
   [githubarchive:year.2016],
   [githubarchive:year.2015],
