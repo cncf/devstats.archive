@@ -38,7 +38,7 @@ if [ -z "$SKIPDBS" ]
 then
   PDB=1 TSDB=1 ./devel/create_databases.sh || exit 3
 fi
-if ( [ -z "$SKIPADDALL" ] && [ ! "$PROJ" = "all" ] && [ ! "$PROJ" = "opencontainers" ] && [ ! "$PROJ" = "istio" ] && [ ! "$PROJ" = "spinnaker" ] && [ ! "$PROJ" = "knative" ] && [ ! "$PROJ" = "nodejs" ] && [ ! "$PROJ" = "linux" ] && [ ! "$PROJ" = "zephyr" ] )
+if ( [ -z "$SKIPADDALL" ] && [ ! "$PROJ" = "all" ] && [ ! "$PROJ" = "opencontainers" ] && [ ! "$PROJ" = "istio" ] && [ ! "$PROJ" = "spinnaker" ] && [ ! "$PROJ" = "knative" ] && [ ! "$PROJ" = "nodejs" ] && [ ! "$PROJ" = "linux" ] && [ ! "$PROJ" = "zephyr" ] && [ ! "$PROJ" = "tekton" ] && [ ! "$PROJ" = "jenkins" ] && [ ! "$PROJ" = "jenkinsx" ] )
 then
   if [ "$PROJDB" = "$LASTDB" ]
   then
