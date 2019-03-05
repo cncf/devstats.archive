@@ -206,7 +206,6 @@ do
   elif [ "$proj" = "knative" ]
   then
     PROJ=knative             PROJDB=knative        PROJREPO="knative/serving"                 ORGNAME=Knative           PORT=3103 ICON=cncf           GRAFSUFF=knative        GA="-"               ./devel/deploy_proj.sh || exit 41
-#
   elif [ "$proj" = "tekton" ]
   then
     PROJ=tekton              PROJDB=tekton         PROJREPO="knative/build"                   ORGNAME=Tekton            PORT=3104 ICON=tekton         GRAFSUFF=tekton         GA="UA-108085315-38" ./devel/deploy_proj.sh || exit 42
@@ -216,7 +215,6 @@ do
   elif [ "$proj" = "jenkinsx" ]
   then
     PROJ=jenkinsx            PROJDB=jenkinsx       PROJREPO="jenkins-x/jx"                    ORGNAME='Jenkins X'       PORT=3106 ICON=jenkinsx       GRAFSUFF=jenkinsx       GA="UA-108085315-40" ./devel/deploy_proj.sh || exit 44
-#
   elif [ "$proj" = "all" ]
   then
     PROJ=all                 PROJDB=allprj         PROJREPO="not/used"                        ORGNAME="All CNCF"        PORT=3254 ICON=cncf           GRAFSUFF=all            GA="UA-108085315-20" ./devel/deploy_proj.sh || exit 36
