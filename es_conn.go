@@ -2,6 +2,7 @@ package devstats
 
 import (
 	"context"
+	"fmt"
 	"strings"
 	"time"
 
@@ -219,10 +220,12 @@ func (es *ES) ExecuteBulks(ctx *Ctx, bulkDel, bulkAdd *elastic.BulkService) {
 			Printf("ExecuteBulks: no actions to commit\n")
 		}
 	} else {
-		FatalOnError(err)
 		actions := bulkDel.NumberOfActions()
 		if actions != 0 {
-			Fatalf("bulk delete: not all actions executed: %+v\n", actions)
+			Printf("bulk delete: not all actions executed: %+v\n", actions)
+			if err == nil {
+				err = fmt.Errorf("bulk delete: not all actions executed: %+v\n", actions)
+			}
 		}
 		failedResults := res.Failed()
 		nFailed := len(failedResults)
@@ -235,28 +238,41 @@ func (es *ES) ExecuteBulks(ctx *Ctx, bulkDel, bulkAdd *elastic.BulkService) {
 				}
 			}
 			if nFailed > 0 {
-				Fatalf("bulk delete failed: %+v\n", failedResults)
+				Printf("bulk delete failed: %+v\n", failedResults)
+				if err == nil {
+					err = fmt.Errorf("bulk delete failed: %+v\n", failedResults)
+				}
 			}
 		}
+		FatalOnError(err)
 	}
 	res, err = bulkAdd.Do(es.ctx)
 	if err != nil && strings.Contains(err.Error(), "No bulk actions to commit") {
 		if ctx.Debug > 0 {
 			Printf("ExecuteBulks: no actions to commit\n")
 		}
+	} else if err != nil && strings.Contains(err.Error(), "transport connection broken") {
+		Printf("ERROR: ExecuteBulks: transport connection broken, skipping: %+v\n", err)
+		time.Sleep(2000 * time.Millisecond)
 	} else {
-		FatalOnError(err)
 		actions := bulkAdd.NumberOfActions()
 		if actions != 0 {
-			Fatalf("bulk add not all actions executed: %+v\n", actions)
+			Printf("bulk add not all actions executed: %+v\n", actions)
+			if err == nil {
+				err = fmt.Errorf("bulk add not all actions executed: %+v\n", actions)
+			}
 		}
 		failedResults := res.Failed()
 		if len(failedResults) > 0 {
 			for _, failed := range failedResults {
 				Printf("Failed add: %+v: %+v\n", failed, failed.Error)
 			}
-			Fatalf("bulk failed add: %+v\n", failedResults)
+			Printf("bulk failed add: %+v\n", failedResults)
+			if err == nil {
+				err = fmt.Errorf("bulk failed add: %+v\n", failedResults)
+			}
 		}
+		FatalOnError(err)
 	}
 }
 
