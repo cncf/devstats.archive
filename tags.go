@@ -3,6 +3,7 @@ package devstats
 import (
 	"database/sql"
 	"fmt"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -20,6 +21,7 @@ type Tag struct {
 	NameTag    string               `yaml:"name_tag"`
 	ValueTag   string               `yaml:"value_tag"`
 	OtherTags  map[string][2]string `yaml:"other_tags"`
+	Limit      int                  `yaml:"limit"`
 }
 
 // ProcessTag - insert given Tag into Postgres TSDB
@@ -50,7 +52,11 @@ func ProcessTag(con *sql.DB, es *ES, ctx *Ctx, tg *Tag, replaces [][]string) {
 	excludeBots := string(bytes)
 
 	// Transform SQL
-	sqlQuery = strings.Replace(sqlQuery, "{{lim}}", "255", -1)
+	limit := tg.Limit
+	if limit <= 0 {
+		limit = 255
+	}
+	sqlQuery = strings.Replace(sqlQuery, "{{lim}}", strconv.Itoa(limit), -1)
 	sqlQuery = strings.Replace(sqlQuery, "{{exclude_bots}}", excludeBots, -1)
 
 	// Replaces
