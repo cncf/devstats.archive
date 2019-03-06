@@ -13,6 +13,7 @@ from
   gha_repos r
 where
   i.dup_repo_id = r.id
+  and r.name in (select repo_name from trepos)
   and r.repo_group is not null
   and i.closed_at >= '{{from}}'
   and i.closed_at < '{{to}}'
