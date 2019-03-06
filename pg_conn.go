@@ -241,7 +241,7 @@ func WriteTSPoints(ctx *Ctx, con *sql.DB, pts *TSPoints, mergeSeries string, mut
 		// So this is done for purpose!
 		_, err := ExecSQL(con, ctx, q)
 		if err != nil {
-			Printf("Ignored %s\n", q)
+			Printf("Ignored %s: %+v\n", q, err)
 		}
 	}
 	// Only used when multiple threads are writing the same series
