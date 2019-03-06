@@ -224,7 +224,7 @@ func (es *ES) ExecuteBulks(ctx *Ctx, bulkDel, bulkAdd *elastic.BulkService) {
 		if actions != 0 {
 			Printf("bulk delete: not all actions executed: %+v\n", actions)
 			if err == nil {
-				err = fmt.Errorf("bulk delete: not all actions executed: %+v\n", actions)
+				err = fmt.Errorf("bulk delete: not all actions executed: %+v", actions)
 			}
 		}
 		failedResults := res.Failed()
@@ -240,7 +240,7 @@ func (es *ES) ExecuteBulks(ctx *Ctx, bulkDel, bulkAdd *elastic.BulkService) {
 			if nFailed > 0 {
 				Printf("bulk delete failed: %+v\n", failedResults)
 				if err == nil {
-					err = fmt.Errorf("bulk delete failed: %+v\n", failedResults)
+					err = fmt.Errorf("bulk delete failed: %+v", failedResults)
 				}
 			}
 		}
@@ -259,7 +259,7 @@ func (es *ES) ExecuteBulks(ctx *Ctx, bulkDel, bulkAdd *elastic.BulkService) {
 		if actions != 0 {
 			Printf("bulk add not all actions executed: %+v\n", actions)
 			if err == nil {
-				err = fmt.Errorf("bulk add not all actions executed: %+v\n", actions)
+				err = fmt.Errorf("bulk add not all actions executed: %+v", actions)
 			}
 		}
 		failedResults := res.Failed()
@@ -269,7 +269,7 @@ func (es *ES) ExecuteBulks(ctx *Ctx, bulkDel, bulkAdd *elastic.BulkService) {
 			}
 			Printf("bulk failed add: %+v\n", failedResults)
 			if err == nil {
-				err = fmt.Errorf("bulk failed add: %+v\n", failedResults)
+				err = fmt.Errorf("bulk failed add: %+v", failedResults)
 			}
 		}
 		FatalOnError(err)
