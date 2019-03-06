@@ -13,7 +13,7 @@ from (
     ecf.event_id = ev.id
   where
     r.name = ev.dup_repo_name
-    and r.name in (select repo_group_name from trepo_groups)
+    and r.name in (select repo_name from trepos)
     and ev.created_at >= '{{from}}'
     and ev.created_at < '{{to}}'
     and (lower(ev.dup_actor_login) {{exclude_bots}})

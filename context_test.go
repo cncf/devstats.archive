@@ -125,6 +125,7 @@ func copyContext(in *lib.Ctx) *lib.Ctx {
 		CheckProvisionFlag:  in.CheckProvisionFlag,
 		SkipDatesYaml:       in.SkipDatesYaml,
 		PropagateOnlyVar:    in.PropagateOnlyVar,
+		TestMode:            in.TestMode,
 	}
 	return &out
 }
@@ -353,6 +354,7 @@ func TestInit(t *testing.T) {
 		SkipCompanyAcq:      false,
 		CheckProvisionFlag:  false,
 		PropagateOnlyVar:    false,
+		TestMode:            true,
 	}
 
 	var nilRegexp *regexp.Regexp
@@ -1625,6 +1627,7 @@ func TestInit(t *testing.T) {
 
 		// Initialize context while new environment is set
 		gotContext.Init()
+		gotContext.TestMode = true
 		if test.environment["GHA2DB_CTXOUT"] != "" {
 			os.Stdout = stdout
 		}

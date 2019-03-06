@@ -204,6 +204,7 @@ func TestComputePeriodAtThisDate(t *testing.T) {
 	// Environment context parse
 	var ctx lib.Ctx
 	ctx.Init()
+	ctx.TestMode = true
 
 	// Execute test cases
 	for index, test := range testCases {

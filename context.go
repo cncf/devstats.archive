@@ -125,6 +125,7 @@ type Ctx struct {
 	CheckProvisionFlag  bool                         // From GHA2DB_CHECK_PROVISION_FLAG, devstats tool - check if there is a 'provision' metric saved in 'gha_computed' table - if not, abort
 	SharedDB            string                       // Currently annotations tool read this from projects.yaml:shared_db and if set, outputs annotations data to the sharded DB in addition to the current DB
 	ProjectMainRepo     string                       // Used by annotations tool to store project's main repo name
+	TestMode            bool                         // True when running tests
 }
 
 // Init - get context from environment variables

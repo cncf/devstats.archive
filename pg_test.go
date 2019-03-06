@@ -212,6 +212,7 @@ func TestPostgres(t *testing.T) {
 	// Environment context parse
 	var ctx lib.Ctx
 	ctx.Init()
+	ctx.TestMode = true
 
 	// Do not allow to run tests in "gha" database
 	if ctx.PgDB != "dbtest" {

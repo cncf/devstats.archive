@@ -9,6 +9,7 @@ func TestGetThreadsNum(t *testing.T) {
 	// Environment context parse
 	var ctx lib.Ctx
 	ctx.Init()
+	ctx.TestMode = true
 
 	// Get actual number of threads available
 	nThreads := lib.GetThreadsNum(&ctx)
