@@ -158,6 +158,7 @@ copydata: util_scripts
 	cp -R scripts/ ${DATADIR}/scripts/ || exit 9
 	cp devel/*.txt ${DATADIR}/ || exit 11
 	cp github_users.json projects.yaml companies.yaml skip_dates.yaml linux.yaml zephyr.yaml ${DATADIR}/ || exit 12
+	cp cdf/projects.yaml ${DATADIR}/cdf_projects.yaml || exit 13
 
 install: ${BINARIES} data
 	${GO_INSTALL} ${GO_BIN_CMDS}
