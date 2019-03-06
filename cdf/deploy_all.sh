@@ -99,16 +99,16 @@ do
   db=$proj
   if [ "$proj" = "spinnaker" ]
   then
-    PROJ=spinnaker           PROJDB=spinnaker      PROJREPO="spinnaker/spinnaker"             ORGNAME=Spinnaker         PORT=3102 ICON=cncf           GRAFSUFF=spinnaker      GA="UA-108085315-37" ./devel/deploy_proj.sh || exit 35
+    PROJ=spinnaker           PROJDB=spinnaker      PROJREPO="spinnaker/spinnaker"             ORGNAME=Spinnaker         PORT=3102 ICON=cncf           GRAFSUFF=spinnaker      GA="UA-108085315-38" ./devel/deploy_proj.sh || exit 35
   elif [ "$proj" = "tekton" ]
   then
-    PROJ=tekton              PROJDB=tekton         PROJREPO="knative/build"                   ORGNAME=Tekton            PORT=3104 ICON=cncf           GRAFSUFF=tekton         GA="UA-108085315-38" ./devel/deploy_proj.sh || exit 42
+    PROJ=tekton              PROJDB=tekton         PROJREPO="knative/build"                   ORGNAME=Tekton            PORT=3104 ICON=cncf           GRAFSUFF=tekton         GA="UA-108085315-39" ./devel/deploy_proj.sh || exit 42
   elif [ "$proj" = "jenkins" ]
   then
-    PROJ=jenkins             PROJDB=jenkins        PROJREPO="jenkinsci/jenkins"               ORGNAME=Jenkins           PORT=3105 ICON=cncf           GRAFSUFF=jenkins        GA="UA-108085315-39" ./devel/deploy_proj.sh || exit 43
+    PROJ=jenkins             PROJDB=jenkins        PROJREPO="jenkinsci/jenkins"               ORGNAME=Jenkins           PORT=3105 ICON=cncf           GRAFSUFF=jenkins        GA="UA-108085315-40" ./devel/deploy_proj.sh || exit 43
   elif [ "$proj" = "jenkinsx" ]
   then
-    PROJ=jenkinsx            PROJDB=jenkinsx       PROJREPO="jenkins-x/jx"                    ORGNAME='Jenkins X'       PORT=3106 ICON=cncf           GRAFSUFF=jenkinsx       GA="UA-108085315-40" ./devel/deploy_proj.sh || exit 44
+    PROJ=jenkinsx            PROJDB=jenkinsx       PROJREPO="jenkins-x/jx"                    ORGNAME='Jenkins X'       PORT=3106 ICON=cncf           GRAFSUFF=jenkinsx       GA="UA-108085315-41" ./devel/deploy_proj.sh || exit 44
   else
     echo "Unknown project: $proj"
     exit 28
