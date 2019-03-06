@@ -5,7 +5,7 @@ then
   exit 1
 fi
 rm -f devstats.tar 2>/dev/null
-tar cf devstats.tar cmd git metrics k8s docker devel util_sql envoy all lfn shared iovisor mininet opennetworkinglab opensecuritycontroller openswitch p4lang openbmp tungstenfabric cord scripts partials docs cron vendor zephyr linux kubernetes prometheus opentracing fluentd linkerd grpc coredns containerd rkt cni jaeger notary tuf rook vitess nats opa spiffe spire cloudevents telepresence helm openmetrics harbor etcd tikv cortex buildpacks falco dragonfly virtualkubelet cncf opencontainers istio spinnaker knative jsons/.keep util_sh/make_binary_links.sh *.go projects.yaml companies.yaml skip_dates.yaml linux.yaml zephyr.yaml github_users.json Makefile
+tar cf devstats.tar cmd git metrics k8s docker cdf devel util_sql envoy all lfn shared iovisor mininet opennetworkinglab opensecuritycontroller openswitch p4lang openbmp tungstenfabric cord scripts partials docs cron vendor zephyr linux kubernetes prometheus opentracing fluentd linkerd grpc coredns containerd rkt cni jaeger notary tuf rook vitess nats opa spiffe spire cloudevents telepresence helm openmetrics harbor etcd tikv cortex buildpacks falco dragonfly virtualkubelet cncf opencontainers istio spinnaker knative jsons/.keep util_sh/make_binary_links.sh *.go projects.yaml companies.yaml skip_dates.yaml linux.yaml zephyr.yaml github_users.json Makefile
 if [ -z "$SKIP_FULL" ]
 then
   docker build -f Dockerfile -t "${DOCKER_USER}/devstats" .
