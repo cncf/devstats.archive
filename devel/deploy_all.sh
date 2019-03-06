@@ -44,6 +44,11 @@ export GRAF_USRSHARE
 export GRAF_VARLIB
 export GRAF_ETC
 
+if [ ! -z "$ONLY" ]
+then
+  export ONLY
+fi
+
 host=`hostname`
 function finish {
     sync_unlock.sh
