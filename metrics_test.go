@@ -456,7 +456,11 @@ func executeMetric(c *sql.DB, ctx *lib.Ctx, metric, msql string, from, to time.T
 	sqlQuery = lib.PrepareQuickRangeQuery(sqlQuery, period, qrFrom, qrTo)
 
 	// Execute SQL
-	rows := lib.QuerySQLWithErr(c, ctx, sqlQuery)
+	rows, err := lib.QuerySQL(c, ctx, sqlQuery)
+	if err != nil {
+		lib.Printf("Failed: metric: %s, sql: %s\n", metric, msql)
+		lib.FatalOnError(err)
+	}
 	defer func() { lib.FatalOnError(rows.Close()) }()
 
 	// Now unknown rows, with unknown types
