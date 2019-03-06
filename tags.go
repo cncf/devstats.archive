@@ -22,12 +22,18 @@ type Tag struct {
 	ValueTag   string               `yaml:"value_tag"`
 	OtherTags  map[string][2]string `yaml:"other_tags"`
 	Limit      int                  `yaml:"limit"`
+	Disabled   bool                 `yaml:"disabled"`
 }
 
 // ProcessTag - insert given Tag into Postgres TSDB
 func ProcessTag(con *sql.DB, es *ES, ctx *Ctx, tg *Tag, replaces [][]string) {
 	// Batch TS points
 	var pts TSPoints
+
+	// Skip disabled tags
+	if tg.Disabled && !ctx.TestMode {
+		return
+	}
 
 	// Local or cron mode
 	dataPrefix := ctx.DataDir
