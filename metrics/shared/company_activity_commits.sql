@@ -22,6 +22,7 @@ with company_commits_data as (
     and (lower(c.dup_actor_login) {{exclude_bots}})
     and af.company_name != ''
     and af.company_name in (select companies_name from tcompanies)
+    and r.name in (select repo_name from trepos)
   union select c.dup_repo_id as repo_id,
     coalesce(ecf.repo_group, r.repo_group) as repo_group,
     c.sha,
@@ -46,6 +47,7 @@ with company_commits_data as (
     and (lower(c.dup_author_login) {{exclude_bots}})
     and af.company_name != ''
     and af.company_name in (select companies_name from tcompanies)
+    and r.name in (select repo_name from trepos)
   union select c.dup_repo_id as repo_id,
     coalesce(ecf.repo_group, r.repo_group) as repo_group,
     c.sha,
@@ -70,6 +72,7 @@ with company_commits_data as (
     and (lower(c.dup_committer_login) {{exclude_bots}})
     and af.company_name != ''
     and af.company_name in (select companies_name from tcompanies)
+    and r.name in (select repo_name from trepos)
 ), commits_data as (
   select c.dup_repo_id as repo_id,
     coalesce(ecf.repo_group, r.repo_group) as repo_group,
@@ -84,6 +87,7 @@ with company_commits_data as (
     ecf.event_id = c.event_id
   where
     c.dup_repo_id = r.id
+    and r.name in (select repo_name from trepos)
     and c.dup_created_at >= '{{from}}'
     and c.dup_created_at < '{{to}}'
     and (lower(c.dup_actor_login) {{exclude_bots}})
@@ -100,6 +104,7 @@ with company_commits_data as (
     ecf.event_id = c.event_id
   where
     c.dup_repo_id = r.id
+    and r.name in (select repo_name from trepos)
     and c.author_id is not null
     and c.dup_created_at >= '{{from}}'
     and c.dup_created_at < '{{to}}'
@@ -117,6 +122,7 @@ with company_commits_data as (
     ecf.event_id = c.event_id
   where
     c.dup_repo_id = r.id
+    and r.name in (select repo_name from trepos)
     and c.committer_id is not null
     and c.dup_created_at >= '{{from}}'
     and c.dup_created_at < '{{to}}'
