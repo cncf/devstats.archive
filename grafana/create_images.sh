@@ -50,7 +50,7 @@ then
   cp images/tekton.svg grafana/img/tekton.svg || exit 4
   convert images/tekton.png -resize 32x32 grafana/img/tekton32.png || exit 5
 fi
-if ( [[ $all = *"jenkins"* ]] && [[ ! $all = *"jenkinsx"* ]] )
+if [[ $all = *"jenkins"* ]]
 then
   cp images/jenkins.svg grafana/img/jenkins.svg || exit 4
   convert images/jenkins.png -resize 32x32 grafana/img/jenkins32.png || exit 5
