@@ -344,8 +344,8 @@ func (es *ES) ExecuteBulkAdd(ctx *Ctx, bulkAdd *elastic.BulkService) {
 
 // ExecuteBulks executes scheduled commands (delete and then inserts)
 func (es *ES) ExecuteBulks(ctx *Ctx, b *ESBulks) {
-	if ctx.Debug >= 0 {
-		Printf("Bulks: %+v\n", b)
+	if ctx.Debug > 0 {
+		Printf("%+v\n", b)
 	}
 	for _, del := range b.del {
 		es.ExecuteBulkDel(ctx, del)
@@ -368,10 +368,8 @@ func (es *ES) ExecuteBulks(ctx *Ctx, b *ESBulks) {
 // outputs[2] - output using N separate docs, each containing {name,ivalue,svalue,svalue2,svalue3,dtvalue} (N docs) (but trying to keep both int and string value in the same record) [used by metrics/time-series]
 func (es *ES) WriteESPoints(ctx *Ctx, pts *TSPoints, mergeS string, outputs [3]bool) {
 	npts := len(*pts)
-	if ctx.Debug >= 0 {
-		Printf("WriteESPoints: writing %d points\n", len(*pts))
-	}
 	if ctx.Debug > 0 {
+		Printf("WriteESPoints: writing %d points\n", len(*pts))
 		Printf("Points:\n%+v\n", pts.Str())
 	}
 	if npts == 0 {
