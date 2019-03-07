@@ -29,6 +29,58 @@ type ESDataObject struct {
 	DtValue time.Time `json:"dtvalue"`
 }
 
+// ESBulks keeps array of bulk services to add/delete
+// each delete/add but can hold 10 items
+type ESBulks struct {
+	add     []*elastic.BulkService
+	del     []*elastic.BulkService
+	currAdd *elastic.BulkService
+	currDel *elastic.BulkService
+	nBulks  int
+	nItems  int
+	k       int
+	max     int
+}
+
+// Init creates structure to hanle bulk inserts/deletes
+func (b *ESBulks) Init(ec *elastic.Client, ctx *Ctx) {
+	b.add = append(b.add, ec.Bulk())
+	b.del = append(b.del, ec.Bulk())
+	b.currAdd = b.add[0]
+	b.currDel = b.del[0]
+	b.nBulks = 1
+	b.max = ctx.ESBulkSize
+}
+
+// CurrentDel returns current bulk delete object
+func (b *ESBulks) CurrentDel() *elastic.BulkService {
+	return b.currDel
+}
+
+// CurrentAdd returns current bulk add object
+func (b *ESBulks) CurrentAdd() *elastic.BulkService {
+	return b.currAdd
+}
+
+// Next will increase objects count and possibly switch to another bulk objects
+func (b *ESBulks) Next(ec *elastic.Client) {
+	b.nItems++
+	b.k++
+	if b.k == b.max {
+		b.k = 0
+		b.add = append(b.add, ec.Bulk())
+		b.del = append(b.del, ec.Bulk())
+		b.currAdd = b.add[b.nBulks]
+		b.currDel = b.del[b.nBulks]
+		b.nBulks++
+	}
+}
+
+// String - output bulks config
+func (b *ESBulks) String() string {
+	return fmt.Sprintf("{nBulks:%d, nItems:%d, k:%d, max:%d}", b.nBulks, b.nItems, b.k, b.max)
+}
+
 // ESConn Connects to ElasticSearch
 func ESConn(ctx *Ctx, prefix string) *ES {
 	ctxb := context.Background()
@@ -194,30 +246,37 @@ func (es *ES) DeleteByWildcardQuery(ctx *Ctx, propName, propQuery string) {
 	}
 }
 
+// GetElasticClient - returns embedded ES client
+func (es *ES) GetElasticClient() *elastic.Client {
+	return es.es
+}
+
 // Bulks returns Delete and Add requests
 func (es *ES) Bulks() (*elastic.BulkService, *elastic.BulkService) {
 	return es.es.Bulk(), es.es.Bulk()
 }
 
 // AddBulksItems adds items to the Bulk Request
-func (es *ES) AddBulksItems(ctx *Ctx, bulkDel, bulkAdd *elastic.BulkService, doc map[string]interface{}, keys []string) {
+func (es *ES) AddBulksItems(ctx *Ctx, b *ESBulks, doc map[string]interface{}, keys []string) {
 	docHash := HashObject(doc, keys)
-	bulkDel.Add(elastic.NewBulkDeleteRequest().Index(es.ESIndexName(ctx)).Type("_doc").Id(docHash))
-	bulkAdd.Add(elastic.NewBulkIndexRequest().Index(es.ESIndexName(ctx)).Type("_doc").Doc(doc).Id(docHash))
+	b.CurrentDel().Add(elastic.NewBulkDeleteRequest().Index(es.ESIndexName(ctx)).Type("_doc").Id(docHash))
+	b.CurrentAdd().Add(elastic.NewBulkIndexRequest().Index(es.ESIndexName(ctx)).Type("_doc").Doc(doc).Id(docHash))
+	b.Next(es.es)
 }
 
 // AddBulksItemsI adds items to the Bulk Request
-func (es *ES) AddBulksItemsI(ctx *Ctx, bulkDel, bulkAdd *elastic.BulkService, doc interface{}, docHash string) {
-	bulkDel.Add(elastic.NewBulkDeleteRequest().Index(es.ESIndexName(ctx)).Type("_doc").Id(docHash))
-	bulkAdd.Add(elastic.NewBulkIndexRequest().Index(es.ESIndexName(ctx)).Type("_doc").Doc(doc).Id(docHash))
+func (es *ES) AddBulksItemsI(ctx *Ctx, b *ESBulks, doc interface{}, docHash string) {
+	b.CurrentDel().Add(elastic.NewBulkDeleteRequest().Index(es.ESIndexName(ctx)).Type("_doc").Id(docHash))
+	b.CurrentAdd().Add(elastic.NewBulkIndexRequest().Index(es.ESIndexName(ctx)).Type("_doc").Doc(doc).Id(docHash))
+	b.Next(es.es)
 }
 
-// ExecuteBulks executes scheduled commands (delete and then inserts)
-func (es *ES) ExecuteBulks(ctx *Ctx, bulkDel, bulkAdd *elastic.BulkService) {
+// ExecuteBulkDel executes scheduled commands (delete and then inserts)
+func (es *ES) ExecuteBulkDel(ctx *Ctx, bulkDel *elastic.BulkService) {
 	res, err := bulkDel.Do(es.ctx)
 	if err != nil && strings.Contains(err.Error(), "No bulk actions to commit") {
 		if ctx.Debug > 0 {
-			Printf("ExecuteBulks: no actions to commit\n")
+			Printf("ExecuteBulkDel: no actions to commit\n")
 		}
 	} else {
 		actions := bulkDel.NumberOfActions()
@@ -246,13 +305,20 @@ func (es *ES) ExecuteBulks(ctx *Ctx, bulkDel, bulkAdd *elastic.BulkService) {
 		}
 		FatalOnError(err)
 	}
-	res, err = bulkAdd.Do(es.ctx)
+}
+
+// ExecuteBulkAdd executes scheduled commands (delete and then inserts)
+func (es *ES) ExecuteBulkAdd(ctx *Ctx, bulkAdd *elastic.BulkService) {
+	res, err := bulkAdd.Do(es.ctx)
 	if err != nil && strings.Contains(err.Error(), "No bulk actions to commit") {
 		if ctx.Debug > 0 {
-			Printf("ExecuteBulks: no actions to commit\n")
+			Printf("ExecuteBulkAdd: no actions to commit\n")
 		}
 	} else if err != nil && strings.Contains(err.Error(), "transport connection broken") {
-		Printf("ERROR: ExecuteBulks: transport connection broken, skipping: %+v\n", err)
+		Printf("ERROR: ExecuteBulkAdd: transport connection broken, skipping: %+v\n", err)
+		time.Sleep(2000 * time.Millisecond)
+	} else if err != nil && strings.Contains(err.Error(), "context deadline exceeded") {
+		Printf("ERROR: ExecuteBulkAdd: context deadline exceeded, skipping: %+v\n", err)
 		time.Sleep(2000 * time.Millisecond)
 	} else {
 		actions := bulkAdd.NumberOfActions()
@@ -276,14 +342,36 @@ func (es *ES) ExecuteBulks(ctx *Ctx, bulkDel, bulkAdd *elastic.BulkService) {
 	}
 }
 
+// ExecuteBulks executes scheduled commands (delete and then inserts)
+func (es *ES) ExecuteBulks(ctx *Ctx, b *ESBulks) {
+	if ctx.Debug >= 0 {
+		Printf("Bulks: %+v\n", b)
+	}
+	for _, del := range b.del {
+		es.ExecuteBulkDel(ctx, del)
+	}
+	for _, add := range b.add {
+		es.ExecuteBulkAdd(ctx, add)
+	}
+	b.add = []*elastic.BulkService{}
+	b.del = []*elastic.BulkService{}
+	b.currAdd = nil
+	b.currDel = nil
+	b.nBulks = 0
+	b.nItems = 0
+	b.k = 0
+}
+
 // WriteESPoints write batch of points to postgresql
 // outputs[0] - output using variable column name (1 doc) [used by annotations, tags and vars]
 // outputs[1] - output using data[] array containing {name,ivalue,svalue,svalue2,svalue3,dtvalue} (1 doc), any of those keys is optional [not used currently]
 // outputs[2] - output using N separate docs, each containing {name,ivalue,svalue,svalue2,svalue3,dtvalue} (N docs) (but trying to keep both int and string value in the same record) [used by metrics/time-series]
 func (es *ES) WriteESPoints(ctx *Ctx, pts *TSPoints, mergeS string, outputs [3]bool) {
 	npts := len(*pts)
-	if ctx.Debug > 0 {
+	if ctx.Debug >= 0 {
 		Printf("WriteESPoints: writing %d points\n", len(*pts))
+	}
+	if ctx.Debug > 0 {
 		Printf("Points:\n%+v\n", pts.Str())
 	}
 	if npts == 0 {
@@ -300,7 +388,11 @@ func (es *ES) WriteESPoints(ctx *Ctx, pts *TSPoints, mergeS string, outputs [3]b
 		es.CreateIndex(ctx, false)
 	}
 	items := 0
-	bulkDel, bulkAdd := es.Bulks()
+
+	// Handle Bulk operations
+	var b ESBulks
+	b.Init(es.es, ctx)
+
 	for _, p := range *pts {
 		if p.tags != nil {
 			if outputs[0] || outputs[1] {
@@ -320,7 +412,7 @@ func (es *ES) WriteESPoints(ctx *Ctx, pts *TSPoints, mergeS string, outputs [3]b
 				if outputs[1] {
 					obj["data"] = data
 				}
-				es.AddBulksItems(ctx, bulkDel, bulkAdd, obj, []string{"type", "tag_time"})
+				es.AddBulksItems(ctx, &b, obj, []string{"type", "tag_time"})
 				items++
 			}
 			if outputs[2] {
@@ -331,7 +423,7 @@ func (es *ES) WriteESPoints(ctx *Ctx, pts *TSPoints, mergeS string, outputs [3]b
 					obj["tag_time"] = ToYMDHMSDate(p.t)
 					obj["name"] = tagName
 					obj["svalue"] = tagValue
-					es.AddBulksItems(ctx, bulkDel, bulkAdd, obj, []string{"type", "tag_time", "name"})
+					es.AddBulksItems(ctx, &b, obj, []string{"type", "tag_time", "name"})
 					items++
 				}
 			}
@@ -367,7 +459,7 @@ func (es *ES) WriteESPoints(ctx *Ctx, pts *TSPoints, mergeS string, outputs [3]b
 				if outputs[1] {
 					obj["data"] = data
 				}
-				es.AddBulksItems(ctx, bulkDel, bulkAdd, obj, []string{"type", "time", "period"})
+				es.AddBulksItems(ctx, &b, obj, []string{"type", "time", "period"})
 				items++
 			}
 			if outputs[2] {
@@ -404,7 +496,7 @@ func (es *ES) WriteESPoints(ctx *Ctx, pts *TSPoints, mergeS string, outputs [3]b
 						mergeFields[field] = obj
 						continue
 					}
-					es.AddBulksItems(ctx, bulkDel, bulkAdd, obj, []string{"type", "time", "period", "name"})
+					es.AddBulksItems(ctx, &b, obj, []string{"type", "time", "period", "name"})
 					items++
 				}
 				if len(mergeFields) > 0 {
@@ -422,7 +514,7 @@ func (es *ES) WriteESPoints(ctx *Ctx, pts *TSPoints, mergeS string, outputs [3]b
 						obj[merge] = mobj[merge]
 					}
 					obj["name"] = Merged
-					es.AddBulksItems(ctx, bulkDel, bulkAdd, obj, []string{"type", "time", "period", "name"})
+					es.AddBulksItems(ctx, &b, obj, []string{"type", "time", "period", "name"})
 					items++
 				}
 			}
@@ -459,7 +551,7 @@ func (es *ES) WriteESPoints(ctx *Ctx, pts *TSPoints, mergeS string, outputs [3]b
 				if outputs[1] {
 					obj["data"] = data
 				}
-				es.AddBulksItems(ctx, bulkDel, bulkAdd, obj, []string{"type", "time", "period", "series"})
+				es.AddBulksItems(ctx, &b, obj, []string{"type", "time", "period", "series"})
 				items++
 			}
 			if outputs[2] {
@@ -497,7 +589,7 @@ func (es *ES) WriteESPoints(ctx *Ctx, pts *TSPoints, mergeS string, outputs [3]b
 						mergeFields[field] = obj
 						continue
 					}
-					es.AddBulksItems(ctx, bulkDel, bulkAdd, obj, []string{"type", "time", "period", "series", "name"})
+					es.AddBulksItems(ctx, &b, obj, []string{"type", "time", "period", "series", "name"})
 					items++
 				}
 				if len(mergeFields) > 0 {
@@ -515,13 +607,13 @@ func (es *ES) WriteESPoints(ctx *Ctx, pts *TSPoints, mergeS string, outputs [3]b
 						obj[merge] = mobj[merge]
 					}
 					obj["name"] = Merged
-					es.AddBulksItems(ctx, bulkDel, bulkAdd, obj, []string{"type", "time", "period", "series", "name"})
+					es.AddBulksItems(ctx, &b, obj, []string{"type", "time", "period", "series", "name"})
 					items++
 				}
 			}
 		}
 	}
-	es.ExecuteBulks(ctx, bulkDel, bulkAdd)
+	es.ExecuteBulks(ctx, &b)
 	if ctx.Debug > 0 {
 		Printf("Items: %d\n", items)
 	}

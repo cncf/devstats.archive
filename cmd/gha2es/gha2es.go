@@ -211,7 +211,8 @@ func generateRawES(ch chan struct{}, ctx *lib.Ctx, con *sql.DB, es *lib.ES, dtf,
 	sTo := lib.ToYMDHMSDate(dtt)
 
 	// ES bulk inserts
-	bulkDel, bulkAdd := es.Bulks()
+	var b lib.ESBulks
+	b.Init(es.GetElasticClient(), ctx)
 
 	// Commits
 	sql := strings.Replace(sqls["commits"], "{{from}}", sFrom, -1)
@@ -276,11 +277,7 @@ func generateRawES(ch chan struct{}, ctx *lib.Ctx, con *sql.DB, es *lib.ES, dtf,
 		commit.CreatedAt = lib.ToYMDHMSDate(createdAt)
 		commit.Message = lib.TruncToBytes(commit.Message, 0x400)
 		shas[commit.SHA] = struct{}{}
-		es.AddBulksItemsI(ctx, bulkDel, bulkAdd, commit, lib.HashArray([]interface{}{commit.Type, commit.SHA, commit.EventID}))
-		if nCommits%10000 == 0 {
-			// Bulk insert to ES
-			es.ExecuteBulks(ctx, bulkDel, bulkAdd)
-		}
+		es.AddBulksItemsI(ctx, &b, commit, lib.HashArray([]interface{}{commit.Type, commit.SHA, commit.EventID}))
 	}
 	lib.FatalOnError(rows.Err())
 
@@ -366,11 +363,7 @@ func generateRawES(ch chan struct{}, ctx *lib.Ctx, con *sql.DB, es *lib.ES, dtf,
 			issue.ClosedAt = nil
 		}
 		iids[issue.ID] = struct{}{}
-		es.AddBulksItemsI(ctx, bulkDel, bulkAdd, issue, lib.HashArray([]interface{}{issue.Type, issue.ID, issue.EventID}))
-		if nIssues%10000 == 0 {
-			// Bulk insert to ES
-			es.ExecuteBulks(ctx, bulkDel, bulkAdd)
-		}
+		es.AddBulksItemsI(ctx, &b, issue, lib.HashArray([]interface{}{issue.Type, issue.ID, issue.EventID}))
 	}
 	lib.FatalOnError(rows.Err())
 
@@ -482,11 +475,7 @@ func generateRawES(ch chan struct{}, ctx *lib.Ctx, con *sql.DB, es *lib.ES, dtf,
 			pr.MergedAt = nil
 		}
 		prids[pr.ID] = struct{}{}
-		es.AddBulksItemsI(ctx, bulkDel, bulkAdd, pr, lib.HashArray([]interface{}{pr.Type, pr.ID, pr.EventID}))
-		if nPRs%10000 == 0 {
-			// Bulk insert to ES
-			es.ExecuteBulks(ctx, bulkDel, bulkAdd)
-		}
+		es.AddBulksItemsI(ctx, &b, pr, lib.HashArray([]interface{}{pr.Type, pr.ID, pr.EventID}))
 	}
 	lib.FatalOnError(rows.Err())
 
@@ -531,16 +520,12 @@ func generateRawES(ch chan struct{}, ctx *lib.Ctx, con *sql.DB, es *lib.ES, dtf,
 		text.FullBody = text.Body
 		text.Body = lib.TruncToBytes(text.Body, 0x1000)
 		textids[text.EventID] = struct{}{}
-		es.AddBulksItemsI(ctx, bulkDel, bulkAdd, text, lib.HashArray([]interface{}{text.Type, text.EventID, text.Body}))
-		if nTexts%10000 == 0 {
-			// Bulk insert to ES
-			es.ExecuteBulks(ctx, bulkDel, bulkAdd)
-		}
+		es.AddBulksItemsI(ctx, &b, text, lib.HashArray([]interface{}{text.Type, text.EventID, text.Body}))
 	}
 	lib.FatalOnError(rows.Err())
 
 	// Bulk insert to ES
-	es.ExecuteBulks(ctx, bulkDel, bulkAdd)
+	es.ExecuteBulks(ctx, &b)
 
 	if ctx.Debug > 0 {
 		lib.Printf(

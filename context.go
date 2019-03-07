@@ -123,6 +123,7 @@ type Ctx struct {
 	SkipPIDFile         bool                         // From GHA2DB_SKIP_PIDFILE, devstats tool, skip creating, checking and removing PID file
 	SkipCompanyAcq      bool                         // From GHA2DB_SKIP_COMPANY_ACQ, import_affs tool, skip processing company acquisitions from companies.yaml file
 	CheckProvisionFlag  bool                         // From GHA2DB_CHECK_PROVISION_FLAG, devstats tool - check if there is a 'provision' metric saved in 'gha_computed' table - if not, abort
+	ESBulkSize          int                          // FROM GHA2DB_ES_BULK_SIZE, calc_metric and gha2es tools, default 10000
 	SharedDB            string                       // Currently annotations tool read this from projects.yaml:shared_db and if set, outputs annotations data to the sharded DB in addition to the current DB
 	ProjectMainRepo     string                       // Used by annotations tool to store project's main repo name
 	TestMode            bool                         // True when running tests
@@ -608,6 +609,13 @@ func (ctx *Ctx) Init() {
 	ctx.ElasticURL = os.Getenv("GHA2DB_ES_URL")
 	if ctx.ElasticURL == "" {
 		ctx.ElasticURL = "http://127.0.0.1:9200"
+	}
+	if os.Getenv("GHA2DB_ES_BULK_SIZE") == "" {
+		ctx.ESBulkSize = 10000
+	} else {
+		size, err := strconv.Atoi(os.Getenv("GHA2DB_ES_BULK_SIZE"))
+		FatalNoLog(err)
+		ctx.ESBulkSize = size
 	}
 
 	// Skip writing to shared_db from projects.yaml
