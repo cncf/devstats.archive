@@ -57,11 +57,15 @@ func ensureColumns() {
 	}
 
 	thrN := lib.GetThreadsNum(&ctx)
-	ch := make(chan bool)
+	ch := make(chan [2][]string)
 	nThreads := 0
+	allTables := []string{}
+	allCols := []string{}
 	// Use integer index to pass to go rountine
 	for i := range allColumns.Columns {
-		go func(ch chan bool, idx int) {
+		go func(ch chan [2][]string, idx int) {
+			tables := []string{}
+			cols := []string{}
 			// Refer to current column config using index passed to anonymous function
 			col := &allColumns.Columns[idx]
 			if ctx.Debug > 0 {
@@ -87,7 +91,7 @@ func ensureColumns() {
 			if len(colNames) == 0 {
 				lib.Printf("Warning: no tag values for (%s, %s)\n", col.Column, col.Tag)
 				if ch != nil {
-					ch <- false
+					ch <- [2][]string{tables, cols}
 				}
 				return
 			}
@@ -113,34 +117,103 @@ func ensureColumns() {
 					_, err := lib.ExecSQL(
 						con,
 						&ctx,
-						"alter table \""+table+"\" add column \""+colName+"\" double precision not null default 0.0",
+						"alter table \""+table+"\" add column \""+colName+"\" double precision",
 					)
 					if err == nil {
 						lib.Printf("Added column \"%s\" to \"%s\" table\n", colName, table)
+						tables = append(tables, table)
+						cols = append(cols, colName)
+						//} else {
+						//	lib.Printf("%+v\n", err)
 					}
 				}
 				numTables++
 			}
 			lib.FatalOnError(rows.Err())
 			if numTables == 0 {
-				lib.Printf("Warning: '%+v': no table hits", col)
+				lib.Printf("Warning: '%+v': no table hits\n", col)
 			}
 			// Synchronize go routine
 			if ch != nil {
-				ch <- numTables > 0
+				ch <- [2][]string{tables, cols}
 			}
 		}(ch, i)
 		// go routine called with 'ch' channel to sync and column config index
 		nThreads++
 		if nThreads == thrN {
-			<-ch
+			data := <-ch
+			tables := data[0]
+			cols := data[1]
+			for i, table := range tables {
+				col := cols[i]
+				allTables = append(allTables, table)
+				allCols = append(allCols, col)
+			}
 			nThreads--
 		}
 	}
 	// Usually all work happens on '<-ch'
-	lib.Printf("Final threads join\n")
 	for nThreads > 0 {
-		<-ch
+		data := <-ch
+		tables := data[0]
+		cols := data[1]
+		for i, table := range tables {
+			col := cols[i]
+			allTables = append(allTables, table)
+			allCols = append(allCols, col)
+		}
+		nThreads--
+	}
+	//lib.Printf("Tables: %+v\n", allTables)
+	//lib.Printf("Columns: %+v\n", allCols)
+	cfg := make(map[string]map[string]struct{})
+	for i, table := range allTables {
+		col := allCols[i]
+		_, ok := cfg[table]
+		if !ok {
+			cfg[table] = make(map[string]struct{})
+		}
+		cfg[table][col] = struct{}{}
+	}
+	if ctx.Debug > 0 {
+		lib.Printf("Cfg: %+v\n", cfg)
+	}
+
+	// process separate tables in parallel
+	sch := make(chan [2]string)
+	nThreads = 0
+	for table, columns := range cfg {
+		go func(sch chan [2]string, tab string, cols map[string]struct{}) {
+			s := "update \"" + tab + "\" set "
+			for col := range cols {
+				s += "\"" + col + "\" = 0.0, "
+			}
+			s = s[:len(s)-2]
+			dtStart := time.Now()
+			lib.ExecSQLWithErr(con, &ctx, s)
+			dtEnd := time.Now()
+			lib.Printf("Mass updated \"%s\", took: %v\n", tab, dtEnd.Sub(dtStart))
+			s = "alter table \"" + tab + "\" "
+			for col := range cols {
+				s += "alter column \"" + col + "\" set not null, alter column \"" + col + "\" set default 0.0, "
+			}
+			s = s[:len(s)-2]
+			dtStart = time.Now()
+			lib.ExecSQLWithErr(con, &ctx, s)
+			dtEnd = time.Now()
+			lib.Printf("Altered \"%s\" defaults and restrictions, took: %v\n", tab, dtEnd.Sub(dtStart))
+			if sch != nil {
+				sch <- [2]string{tab, "ok"}
+			}
+		}(sch, table, columns)
+		nThreads++
+		if nThreads == thrN {
+			<-sch
+			nThreads--
+		}
+	}
+	for nThreads > 0 {
+		<-sch
 		nThreads--
 	}
 }
