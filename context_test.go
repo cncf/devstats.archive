@@ -126,6 +126,7 @@ func copyContext(in *lib.Ctx) *lib.Ctx {
 		SkipDatesYaml:       in.SkipDatesYaml,
 		PropagateOnlyVar:    in.PropagateOnlyVar,
 		TestMode:            in.TestMode,
+		ESBulkSize:          in.ESBulkSize,
 	}
 	return &out
 }
@@ -355,6 +356,7 @@ func TestInit(t *testing.T) {
 		CheckProvisionFlag:  false,
 		PropagateOnlyVar:    false,
 		TestMode:            true,
+		ESBulkSize:          10000,
 	}
 
 	var nilRegexp *regexp.Regexp
@@ -404,6 +406,15 @@ func TestInit(t *testing.T) {
 				t,
 				copyContext(&defaultContext),
 				map[string]interface{}{"GitHubDebug": 3},
+			),
+		},
+		{
+			"Setting ElasticSearch bulk size",
+			map[string]string{"GHA2DB_ES_BULK_SIZE": "999"},
+			dynamicSetFields(
+				t,
+				copyContext(&defaultContext),
+				map[string]interface{}{"ESBulkSize": 999},
 			),
 		},
 		{
