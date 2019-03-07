@@ -4,6 +4,7 @@
 set -o pipefail
 if [ ! -z "$WWW" ]
 then
+  echo 'copying www files'
   host=`hostname`
   if [ "$host" = "devstats.cncf.io" ]
   then
