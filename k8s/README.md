@@ -45,4 +45,4 @@ This is optional (it starts real containers with their command replaced with the
 - To setup hourly sync for all currently defined project just run: `AWS_PROFILE=... ./k8s/cron_them_all.sh`. Do it after all initial provisioning is finished.
 - To cleanup completed pod, use: `AWS_PROFILE=... ./k8s/cleanup_completed_pods.sh`.
 - To delete all DevStats cron jobs run: `AWS_PROFILE=... ./k8s/delete_devstats_cron_jobs.sh`.
-- To delete and recreate cron jobs run: `AWS_PROFILE=... ./k8s/recreate_cron_jobs.sh`.
+- To delete and recreate cron jobs run: `AWS_PROFILE=... ./k8s/recreate_cron_jobs.sh`. This uses Helm and `devstats-helm` chart.
