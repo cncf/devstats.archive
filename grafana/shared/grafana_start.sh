@@ -1,11 +1,13 @@
 #!/bin/bash
-if [ -z "$GF_SECURITY_ADMIN_USER" ]
+if ( [ -z "$GF_SECURITY_ADMIN_USER" ] || [ -z "$GF_SECURITY_ADMIN_PASSWORD" ] || [ -z "$PROJ" ] )
 then
-  echo "$0: you need to set GF_SECURITY_ADMIN_USER=..."
+  echo "$0: you need to set GF_SECURITY_ADMIN_USER=..., GF_SECURITY_ADMIN_PASSWORD=... and PROJ=..."
   exit 1
 fi
+cwd=`pwd`
 cd /usr/share/grafana
-GF_SECURITY_ADMIN_USER="${GF_SECURITY_ADMIN_USER}" grafana-server -config /etc/grafana/grafana.ini cfg:default.paths.data=/var/lib/grafana 1>/var/log/grafana.log 2>/var/log/grafana.err &
+GF_SECURITY_ADMIN_USER="${GF_SECURITY_ADMIN_USER}" GF_SECURITY_ADMIN_PASSWORD="${GF_SECURITY_ADMIN_PASSWORD}" grafana-server -config /etc/grafana/grafana.ini cfg:default.paths.data=/var/lib/grafana 1>/var/log/grafana.log 2>/var/log/grafana.err &
+cd "$cwd"
 n=0
 while true
 do
@@ -30,6 +32,9 @@ do
     break
   fi
 done
+echo 'Provisioning dashboards'
 sqlitedb /var/lib/grafana/grafana.db grafana/dashboards/$PROJ/*.json || exit 3
+echo 'Provisioning other preferences'
 sqlite3 /var/lib/grafana/grafana.db < grafana/$PROJ/update_sqlite.sql || exit 4
-fg
+echo 'OK'
+wait
