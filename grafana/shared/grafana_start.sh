@@ -73,7 +73,15 @@ sqlitedb /var/lib/grafana/grafana.db grafana/dashboards/$PROJ/*.json || exit 8
 
 # Set organization name and home dashboard
 echo 'Provisioning other preferences'
-sqlite3 /var/lib/grafana/grafana.db < grafana/$PROJ/update_sqlite.sql || exit 9
+cfile="grafana/shared/update_sqlite.sql"
+uid=8
+if [ "$PROJ" = "kubernetes" ]
+then
+  uid=12
+fi
+MODE=ss FROM='{{uid}}' TO="${uid}" replacer "$cfile" || exit 21
+MODE=ss FROM='{{org}}' TO="${ORGNAME}" replacer "$cfile" || exit 22
+sqlite3 /var/lib/grafana/grafana.db < grafana/shared/update_sqlite.sql || exit 9
 
 # Switch to already started Grafana
 echo 'OK'
