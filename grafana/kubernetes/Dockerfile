@@ -3,6 +3,6 @@ RUN apt-get update -y && apt-get upgrade -y && apt-get install -y apt-utils ca-c
 RUN wget https://dl.grafana.com/oss/release/grafana_5.4.3_amd64.deb
 RUN dpkg -i grafana_5.4.3_amd64.deb
 ADD devstats-grafana.tar .
-# grafana/img/k8s*
-# ICON GA
+RUN cp replacer sqlitedb /usr/bin/
+RUN GA='' PROJ=kubernetes ORGNAME=Kubernetes ICON=k8s ./grafana/shared/setup_grafana.sh
 RUN cp grafana/shared/grafana_start.sh /usr/bin
