@@ -21,5 +21,10 @@ do
   then
     echo "stopping pid $pid"
     kill $pid
+    echo "kill: $?"
+    exit 0
+  else
+    echo "Grafana not found, existing"
+    exit 2
   fi
 done
