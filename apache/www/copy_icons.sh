@@ -4,7 +4,7 @@
 . ./devel/all_projs.sh || exit 2
 for proj in $all
 do
-  if ( [ "$proj" = "opencontainers" ] || [ "$proj" = "spinnaker" ] || [ "$proj" = "tekton" ] || [ "$proj" = "jenkins" ] || [ "$proj" = "jenkinsx" ] )
+  if ( [ "$proj" = "opencontainers" ] )
   then
     continue
   fi
@@ -19,13 +19,14 @@ do
     icon="cncf"
   fi
   icontype=`./devel/get_icon_type.sh "$proj"` || exit 1
+  iconorg=`./devel/get_icon_source.sh "$proj"` || exit 4
   path=$icon
   if [ "$path" = "devstats" ]
   then
     path="other/$icon"
   fi
-  convert "$HOME/dev/cncf/artwork/$path/icon/$icontype/$icon-icon-$icontype.png" -resize 80x80 "/var/www/html/img/$proj-icon-color.png" || exit 2
-  cp "$HOME/dev/cncf/artwork/$path/icon/$icontype/$icon-icon-$icontype.svg" "/var/www/html/img/$proj-icon-color.svg" || exit 3
+  convert "$HOME/dev/$iconorg/artwork/$path/icon/$icontype/$icon-icon-$icontype.png" -resize 80x80 "/var/www/html/img/$proj-icon-color.png" || exit 2
+  cp "$HOME/dev/$iconorg/artwork/$path/icon/$icontype/$icon-icon-$icontype.svg" "/var/www/html/img/$proj-icon-color.svg" || exit 3
 done
 
 # Special cases
@@ -34,25 +35,5 @@ if [[ $all = *"opencontainers"* ]]
 then
   convert ./images/OCI.png -resize 80x80 /var/www/html/img/opencontainers-icon-color.png || exit 4
   cp ./images/OCI.svg /var/www/html/img/opencontainers-icon-color.svg || exit 5
-fi
-if [[ $all = *"spinnaker"* ]]
-then
-  convert ./images/spinnaker.png -resize 80x80 /var/www/html/img/spinnaker-icon-color.png || exit 4
-  cp ./images/spinnaker.svg /var/www/html/img/spinnaker-icon-color.svg || exit 5
-fi
-if [[ $all = *"tekton"* ]]
-then
-  convert ./images/tekton.png -resize 80x80 /var/www/html/img/tekton-icon-color.png || exit 4
-  cp ./images/tekton.svg /var/www/html/img/tekton-icon-color.svg || exit 5
-fi
-if [[ $all = *"jenkins"* ]]
-then
-  convert ./images/jenkins.png -resize 80x80 /var/www/html/img/jenkins-icon-color.png || exit 4
-  cp ./images/jenkins.svg /var/www/html/img/jenkins-icon-color.svg || exit 5
-fi
-if [[ $all = *"jenkinsx"* ]]
-then
-  convert ./images/jenkinsx.png -resize 80x80 /var/www/html/img/jenkinsx-icon-color.png || exit 4
-  cp ./images/jenkinsx.svg /var/www/html/img/jenkinsx-icon-color.svg || exit 5
 fi
 echo 'OK'

@@ -4,7 +4,7 @@
 . ./devel/all_projs.sh || exit 2
 for proj in $all
 do
-  if ( [ "$proj" = "opencontainers" ] || [ "$proj" = "spinnaker" ] || [ "$proj" = "tekton" ] || [ "$proj" = "jenkins" ] || [ "$proj" = "jenkinsx" ] )
+  if ( [ "$proj" = "opencontainers" ]  || [ "$proj" = "cdf" ] )
   then
     continue
   fi
@@ -24,7 +24,7 @@ do
     icon="cncf"
   fi
   icontype=`./devel/get_icon_type.sh "$proj"` || exit 1
-  iconorg=`./devel/get_icon_source.sh "$proj"` || exit 1
+  iconorg=`./devel/get_icon_source.sh "$proj"` || exit 18
   echo "Proj: $proj, icon: $icon, icon type: $icontype:, suffix: $suff"
   cp "$HOME/dev/$iconorg/artwork/$icon/icon/$icontype/$icon-icon-$icontype.svg" "/usr/share/grafana.$suff/public/img/grafana_icon.svg" || exit 2
   cp "$HOME/dev/$iconorg/artwork/$icon/icon/$icontype/$icon-icon-$icontype.svg" "/usr/share/grafana.$suff/public/img/grafana_com_auth_icon.svg" || exit 3
