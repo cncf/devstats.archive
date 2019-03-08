@@ -20,10 +20,11 @@ cp "grafana/img/$ICON.svg" "/usr/share/grafana/public/img/grafana_net_logo.svg" 
 cp "grafana/img/$ICON.svg" "/usr/share/grafana/public/img/grafana_mask_icon.svg" || exit 4
 GRAFANA_DATA="/usr/share/grafana/" ./grafana/$PROJ/change_title_and_icons.sh || exit 5
 # rm -f "/var/lib/grafana/grafana.db" || exit 6
-
 cfile="/etc/grafana/grafana.ini"
 cp ./grafana/shared/grafana.ini.example "$cfile" || exit 7
 MODE=ss FROM='{{project}}' TO="$PROJ" replacer "$cfile" || exit 8
 MODE=ss FROM='{{url}}' TO="$host" replacer "$cfile" || exit 9
 MODE=ss FROM='{{ga}}' TO="$ga" replacer "$cfile" || exit 10
 MODE=ss FROM='{{org}}' TO="$ORGNAME" replacer "$cfile" || exit 11
+./grafana/shared/grafana_create_db.sh || exit 12
+sqlitedb /var/lib/grafana/grafana.db grafana/dashboards/$proj/*.json || exit 13
