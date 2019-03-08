@@ -24,11 +24,12 @@ do
     icon="cncf"
   fi
   icontype=`./devel/get_icon_type.sh "$proj"` || exit 1
+  iconorg=`./devel/get_icon_source.sh "$proj"` || exit 1
   echo "Proj: $proj, icon: $icon, icon type: $icontype:, suffix: $suff"
-  cp "$HOME/dev/cncf/artwork/$icon/icon/$icontype/$icon-icon-$icontype.svg" "/usr/share/grafana.$suff/public/img/grafana_icon.svg" || exit 2
-  cp "$HOME/dev/cncf/artwork/$icon/icon/$icontype/$icon-icon-$icontype.svg" "/usr/share/grafana.$suff/public/img/grafana_com_auth_icon.svg" || exit 3
-  cp "$HOME/dev/cncf/artwork/$icon/icon/$icontype/$icon-icon-$icontype.svg" "/usr/share/grafana.$suff/public/img/grafana_net_logo.svg" || exit 4
-  cp "$HOME/dev/cncf/artwork/$icon/icon/$icontype/$icon-icon-$icontype.svg" "/usr/share/grafana.$suff/public/img/grafana_mask_icon.svg" || exit 5
+  cp "$HOME/dev/$iconorg/artwork/$icon/icon/$icontype/$icon-icon-$icontype.svg" "/usr/share/grafana.$suff/public/img/grafana_icon.svg" || exit 2
+  cp "$HOME/dev/$iconorg/artwork/$icon/icon/$icontype/$icon-icon-$icontype.svg" "/usr/share/grafana.$suff/public/img/grafana_com_auth_icon.svg" || exit 3
+  cp "$HOME/dev/$iconorg/artwork/$icon/icon/$icontype/$icon-icon-$icontype.svg" "/usr/share/grafana.$suff/public/img/grafana_net_logo.svg" || exit 4
+  cp "$HOME/dev/$iconorg/artwork/$icon/icon/$icontype/$icon-icon-$icontype.svg" "/usr/share/grafana.$suff/public/img/grafana_mask_icon.svg" || exit 5
   if [ "$icon" = "kubernetes" ]
   then
     icon="k8s"
@@ -52,33 +53,5 @@ then
   cp ./images/OCI.svg /usr/share/grafana.opencontainers/public/img/grafana_com_auth_icon.svg || exit 15
   cp ./images/OCI.svg /usr/share/grafana.opencontainers/public/img/grafana_net_logo.svg || exit 16
   cp ./images/OCI.svg /usr/share/grafana.opencontainers/public/img/grafana_mask_icon.svg || exit 17
-fi
-if [[ $all = *"spinnaker"* ]]
-then
-  cp ./images/spinnaker.svg /usr/share/grafana.spinnaker/public/img/grafana_icon.svg || exit 14
-  cp ./images/spinnaker.svg /usr/share/grafana.spinnaker/public/img/grafana_com_auth_icon.svg || exit 15
-  cp ./images/spinnaker.svg /usr/share/grafana.spinnaker/public/img/grafana_net_logo.svg || exit 16
-  cp ./images/spinnaker.svg /usr/share/grafana.spinnaker/public/img/grafana_mask_icon.svg || exit 17
-fi
-if [[ $all = *"tekton"* ]]
-then
-  cp ./images/tekton.svg /usr/share/grafana.tekton/public/img/grafana_icon.svg || exit 14
-  cp ./images/tekton.svg /usr/share/grafana.tekton/public/img/grafana_com_auth_icon.svg || exit 15
-  cp ./images/tekton.svg /usr/share/grafana.tekton/public/img/grafana_net_logo.svg || exit 16
-  cp ./images/tekton.svg /usr/share/grafana.tekton/public/img/grafana_mask_icon.svg || exit 17
-fi
-if [[ $all = *"jenkins"* ]]
-then
-  cp ./images/jenkins.svg /usr/share/grafana.jenkins/public/img/grafana_icon.svg || exit 14
-  cp ./images/jenkins.svg /usr/share/grafana.jenkins/public/img/grafana_com_auth_icon.svg || exit 15
-  cp ./images/jenkins.svg /usr/share/grafana.jenkins/public/img/grafana_net_logo.svg || exit 16
-  cp ./images/jenkins.svg /usr/share/grafana.jenkins/public/img/grafana_mask_icon.svg || exit 17
-fi
-if [[ $all = *"jenkinsx"* ]]
-then
-  cp ./images/jenkinsx.svg /usr/share/grafana.jenkinsx/public/img/grafana_icon.svg || exit 14
-  cp ./images/jenkinsx.svg /usr/share/grafana.jenkinsx/public/img/grafana_com_auth_icon.svg || exit 15
-  cp ./images/jenkinsx.svg /usr/share/grafana.jenkinsx/public/img/grafana_net_logo.svg || exit 16
-  cp ./images/jenkinsx.svg /usr/share/grafana.jenkinsx/public/img/grafana_mask_icon.svg || exit 17
 fi
 echo 'OK'
