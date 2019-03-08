@@ -4,4 +4,3 @@ RUN wget https://dl.grafana.com/oss/release/grafana_5.4.3_amd64.deb
 RUN dpkg -i grafana_5.4.3_amd64.deb
 ADD devstats-grafana.tar .
 RUN cp replacer sqlitedb grafana/shared/grafana_start.sh /usr/bin/
-RUN GA='' PROJ=kubernetes ORGNAME=Kubernetes ICON=k8s ./grafana/shared/setup_grafana.sh
