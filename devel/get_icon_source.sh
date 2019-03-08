@@ -10,6 +10,7 @@ icontypes=(
   ["tekton"]="cdfoundation"
   ["jenkins"]="cdfoundation"
   ["jenkinsx"]="cdfoundation"
+  ["cdf"]="cdfoundation"
 )
 icontype=${icontypes[$1]}
 if [ -z "$icontype" ]
