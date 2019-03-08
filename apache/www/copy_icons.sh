@@ -1,6 +1,6 @@
 #!/bin/bash
 # ARTWORK
-# This script assumes that You have cncf/artwork cloned in ~/dev/cncf/artwork and imagemagick installed
+# This script assumes that You have cncf/artwork and cdfoundation/artwork cloned in ~/dev/cncf/artwork and imagemagick installed
 . ./devel/all_projs.sh || exit 2
 for proj in $all
 do
