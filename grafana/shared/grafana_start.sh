@@ -81,7 +81,14 @@ then
 fi
 MODE=ss FROM='{{uid}}' TO="${uid}" replacer "$cfile" || exit 21
 MODE=ss FROM='{{org}}' TO="${ORGNAME}" replacer "$cfile" || exit 22
-sqlite3 /var/lib/grafana/grafana.db < grafana/shared/update_sqlite.sql || exit 9
+sqlite3 /var/lib/grafana/grafana.db < "$cfile" || exit 9
+if [ -f "grafana/${PROJ}/update_sqlite.sql" ]
+then
+  cfile="grafana/${PROJ}/update_sqlite.sql"
+  MODE=ss FROM='{{uid}}' TO="${uid}" replacer "$cfile" || exit 23
+  MODE=ss FROM='{{org}}' TO="${ORGNAME}" replacer "$cfile" || exit 24
+  sqlite3 /var/lib/grafana/grafana.db < "$cfile" || exit 25
+fi
 
 # Switch to already started Grafana
 echo 'OK'
