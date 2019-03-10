@@ -1,0 +1,37 @@
+{{- $skipServices := .Values.skipServices -}}
+{{ if not $skipServices }}
+{{- $root := . -}}
+{{- range $index, $_ := .Values.projects -}}
+{{- if and (or (eq ($index|int) ($root.Values.indexServicesFrom|int)) (gt ($index|int) ($root.Values.indexServicesFrom|int))) (lt ($index|int) ($root.Values.indexServicesTo|int)) -}}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: '{{ $root.Values.servicePodName }}-{{ .proj }}'
+  labels:
+    type: 'service'
+    proj: {{ .proj }}
+{{- with $root.Values.labels -}}
+{{ toYaml . | nindent 4 }}
+{{ end }}
+    app.kubernetes.io/name: {{ $root.Chart.Name }}
+    helm.sh/chart: {{ printf "%s-%s" $root.Chart.Name $root.Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" }}
+    app.kubernetes.io/instance: {{ $root.Release.Name }}
+    app.kubernetes.io/managed-by: {{ $root.Release.Service }}
+spec:
+  ports:
+  - port: {{ $root.Values.grafanaPort }}
+  selector:
+    type: 'grafana'
+    proj: {{ .proj }}
+{{- with $root.Values.labels -}}
+{{ toYaml . | nindent 4 }}
+{{ end }}
+    app.kubernetes.io/name: {{ $root.Chart.Name }}
+    helm.sh/chart: {{ printf "%s-%s" $root.Chart.Name $root.Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" }}
+    app.kubernetes.io/instance: {{ $root.Release.Name }}
+    app.kubernetes.io/managed-by: {{ $root.Release.Service }}
+  type: {{ $root.Values.serviceType }}
+{{ end }}
+{{ end }}
+{{ end }}
