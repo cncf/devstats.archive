@@ -10,15 +10,19 @@
 # esProto: ''
 # esURL: ''
 # githubOAuth: ''
+# grafanaUser: ''
+# grafanaPassword: ''
 #
 # You can skip some parts of the deployment (useful when deploying partailly again)
 # skipBootstrap (will not run initial bootstrapping - creating logs and users, but you don't need to skip it - bootstrap pod detects already created resources)
 # skipCrons (will not create new cronjobs, you should set it when cron jobs are alredy created, if you want to recreate cron jobs, delete existing ones first and do not set this flag)
+# skipGrafanas (will not create Grafana deployments)
 # skipPV (will not attempt to create persistent volume claim, this is usually needed to avoid creating existing resource)
 # skipProvisions (will not create provisioning pods, usually not needed, provisioning pod will detect already provisioned projects and only provision new ones)
 # skipSecrets (will not attempt to create secrets, if you want to create new secrets delete current secrets first and do not set this flag)
 # skipBootstrap: 1
 # skipCrons: 1
+# skipGrafanas: 1
 # skipPV: 1
 # skipProvisions: 1
 # skipSecrets: 1
@@ -33,6 +37,9 @@
 # debug: 1
 # forceComputeAll: 1
 # githubDebug: 1
+# grafanaCommandArgs:
+#   - arg1
+#   - arg2
 # limitsCPU: 8
 # limitsMemory: '32Gi'
 # onlyMetrics: 'events,tz'
@@ -60,11 +67,20 @@ concurrencyPolicy: Forbid
 esSecret: es-db
 esBulkSize: 5000
 fullnameOverride: devstats
+grafanaCommand: 'grafana_start.sh'
+grafanaImage: 'lukaszgryglicki/devstats-grafana'
+grafanaNReplicas: 1
+grafanaPodName: devstats-grafana
+grafanaPort: 3000
+grafanaRestartPolicy: OnFailure
+grafanaSecret: grafana-secret
 imagePullPolicy: Always
-indexProvisionsFrom: 0
-indexProvisionsTo: 100
 indexCronsFrom: 0
 indexCronsTo: 100
+indexGrafanasFrom: 0
+indexGrafanasTo: 100
+indexProvisionsFrom: 0
+indexProvisionsTo: 100
 name: devstats
 nameOverride: devstats
 oauthSecret: github-oauth
