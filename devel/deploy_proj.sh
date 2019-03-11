@@ -5,6 +5,7 @@
 # SKIPADDALL=1 (skip adding/merging to allprj)
 # SKIPGRAFANA=1 (skip all grafana related stuff)
 # WAITBOOT=N (use devel/wait_for_bootstrap.sh script before proceeding to deployment)
+# ADD_ALLCDF=1 (add to 'All CDF' instead of 'All CNCF')
 set -o pipefail
 if [ -z "$PG_PASS" ]
 then
@@ -27,6 +28,7 @@ then
   export TRAP=1
   > /tmp/deploy.wip
 fi
+
 echo "$0: $PROJ deploy started"
 if [ ! -z "$WAITBOOT" ]
 then
@@ -34,20 +36,37 @@ then
   ./devel/wait_for_bootstrap.sh $WAITBOOT || exit 7
   echo "$0: $PROJ wait for bootstrap completed"
 fi
+
 if [ -z "$SKIPDBS" ]
 then
   PDB=1 TSDB=1 ./devel/create_databases.sh || exit 3
 fi
-if ( [ -z "$SKIPADDALL" ] && [ ! "$PROJ" = "all" ] && [ ! "$PROJ" = "opencontainers" ] && [ ! "$PROJ" = "istio" ] && [ ! "$PROJ" = "spinnaker" ] && [ ! "$PROJ" = "knative" ] && [ ! "$PROJ" = "nodejs" ] && [ ! "$PROJ" = "linux" ] && [ ! "$PROJ" = "zephyr" ] && [ ! "$PROJ" = "tekton" ] && [ ! "$PROJ" = "jenkins" ] && [ ! "$PROJ" = "jenkinsx" ] )
+
+if [ -z "$ADD_ALLCDF" ]
 then
-  if [ "$PROJDB" = "$LASTDB" ]
+  if ( [ -z "$SKIPADDALL" ] && [ ! "$PROJ" = "all" ] && [ ! "$PROJ" = "opencontainers" ] && [ ! "$PROJ" = "istio" ] && [ ! "$PROJ" = "knative" ] && [ ! "$PROJ" = "nodejs" ] && [ ! "$PROJ" = "linux" ] && [ ! "$PROJ" = "zephyr" ] )
   then
-    echo "updating ALL CNCF project with reinit mode"
-    TSDB=1 ./all/add_project.sh "$PROJDB" "$PROJREPO" || exit 4
-  else
-    ./all/add_project.sh "$PROJDB" "$PROJREPO" || exit 5
+    if [ "$PROJDB" = "$LASTDB" ]
+    then
+      echo "updating ALL CNCF project with reinit mode"
+      TSDB=1 ./all/add_project.sh "$PROJDB" "$PROJREPO" || exit 4
+    else
+      ./all/add_project.sh "$PROJDB" "$PROJREPO" || exit 5
+    fi
+  fi
+else
+  if ( [ -z "$SKIPADDALL" ] && [ ! "$PROJ" = "allcdf" ] )
+  then
+    if [ "$PROJDB" = "$LASTDB" ]
+    then
+      echo "updating ALL CDF project with reinit mode"
+      TSDB=1 ./allcdf/add_project.sh "$PROJDB" "$PROJREPO" || exit 4
+    else
+      ./allcdf/add_project.sh "$PROJDB" "$PROJREPO" || exit 5
+    fi
   fi
 fi
+
 if [ -z "$SKIPGRAFANA" ]
 then
   ./devel/create_grafana.sh || exit 6
