@@ -49,6 +49,7 @@ icontypes=(
   ["all"]="color"
   ["devstats"]="color"
   ["cdf"]="color"
+  ["allcdf"]="color"
 )
 icontype=${icontypes[$1]}
 if [ -z "$icontype" ]

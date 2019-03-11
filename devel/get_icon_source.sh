@@ -11,6 +11,7 @@ icontypes=(
   ["jenkins"]="cdfoundation"
   ["jenkinsx"]="cdfoundation"
   ["cdf"]="cdfoundation"
+  ["allcdf"]="cdfoundation"
 )
 icontype=${icontypes[$1]}
 if [ -z "$icontype" ]
