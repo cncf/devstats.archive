@@ -12,7 +12,6 @@ fi
 if [ -z "$1" ]
 then
   echo "$0: you need to pass devstats image name as an agument, possible options are: devstats or devstats-minimal"
-  echo "$0: if you've used docker/Dockerfile.minila instead of docker/Dockerfile.minimal.debug there will be no /bin/sh command to run"
   exit 3
 fi
 command="$2"
