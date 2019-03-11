@@ -19,6 +19,10 @@ do
   then
     icon="cncf"
   fi
+  if [ "$icon" = "allcdf" ]
+  then
+    icon="cdf"
+  fi
   # TODO: remove when we have icons
   if ( [ "$icon" = "istio" ] || [ "$icon" = "knative" ] )
   then
