@@ -1,139 +1,101 @@
-{{- $skipCrons := .Values.skipCrons -}}
-{{ if not $skipCrons }}
-{{- $root := . -}}
-{{- range $index, $_ := .Values.projects -}}
-{{- if and (or (eq ($index|int) ($root.Values.indexCronsFrom|int)) (gt ($index|int) ($root.Values.indexCronsFrom|int))) (lt ($index|int) ($root.Values.indexCronsTo|int)) -}}
+{{- $skipCron := .Values.skipCron -}}
+{{ if not $skipCron }}
 ---
 apiVersion: batch/v1beta1
 kind: CronJob
 metadata:
-  name: '{{ $root.Values.syncPodName }}-{{ .proj }}'
+  name: '{{ .Values.importPodName }}'
   labels:
     type: 'cron'
-    proj: {{ .proj }}
-{{- with $root.Values.labels -}}
+{{- with .Values.labels -}}
 {{ toYaml . | nindent 4 }}
 {{ end }}
-    app.kubernetes.io/name: {{ $root.Chart.Name }}
-    helm.sh/chart: {{ printf "%s-%s" $root.Chart.Name $root.Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" }}
-    app.kubernetes.io/instance: {{ $root.Release.Name }}
-    app.kubernetes.io/managed-by: {{ $root.Release.Service }}
+    app.kubernetes.io/name: {{ include "json2hat-helm.name" . }}
+    helm.sh/chart: {{ include "json2hat-helm.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
 spec:
-  schedule: '{{ .cron }}'
-  concurrencyPolicy: {{ $root.Values.concurrencyPolicy }}
+  schedule: '{{ .Values.schedule }}'
+  concurrencyPolicy: {{ .Values.concurrencyPolicy }}
   jobTemplate:
     spec:
       template:
         metadata:
-          name: '{{ $root.Values.syncPodName }}-{{ .proj }}'
+          name: '{{ .Values.importPodName }}'
           labels:
             type: 'sync'
-            proj: {{ .proj }}
-{{- with $root.Values.labels -}}
+{{- with .Values.labels -}}
 {{ toYaml . | nindent 12 }}
 {{ end }}
-            app.kubernetes.io/name: {{ $root.Chart.Name }}
-            helm.sh/chart: {{ printf "%s-%s" $root.Chart.Name $root.Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" }}
-            app.kubernetes.io/instance: {{ $root.Release.Name }}
-            app.kubernetes.io/managed-by: {{ $root.Release.Service }}
+            app.kubernetes.io/name: {{ include "json2hat-helm.name" . }}
+            helm.sh/chart: {{ include "json2hat-helm.chart" . }}
+            app.kubernetes.io/instance: {{ .Release.Name }}
+            app.kubernetes.io/managed-by: {{ .Release.Service }}
         spec:
           containers:
           - command:
-            - {{ $root.Values.syncCommand }}
-{{ if $root.Values.syncCommandArgs }}
+            - {{ .Values.importCommand }}
+{{ if .Values.importCommandArgs }}
             args:
-{{- with $root.Values.syncCommandArgs -}}
+{{- with .Values.importCommandArgs -}}
 {{ toYaml . | nindent 14 }}
 {{ end }}
 {{ end }}
-{{ if $root.Values.useResourcesLimits }}
+{{ if .Values.useResourcesLimits }}
             resources:
               requests:
-                memory: '{{ $root.Values.requestsMemory }}'
-                cpu: '{{ $root.Values.requestsCPU }}'
+                memory: '{{ .Values.requestsMemory }}'
+                cpu: '{{ .Values.requestsCPU }}'
               limits:
-                memory: '{{ $root.Values.limitsMemory }}'
-                cpu: '{{ $root.Values.limitsCPU }}'
+                memory: '{{ .Values.limitsMemory }}'
+                cpu: '{{ .Values.limitsCPU }}'
 {{ end }}
             env:
-            - name: ONLY
-              value: {{ .proj }}
-            - name: GHA2DB_USE_ES
-              value: '{{ $root.Values.useES }}'
-            - name: GHA2DB_USE_ES_RAW
-              value: '{{ $root.Values.useESRaw }}'
-            - name: GHA2DB_PROPAGATE_ONLY_VAR
-              value: "1"
-            - name: GHA2DB_CHECK_PROVISION_FLAG
-              value: "1"
-            - name: GHA2DB_NCPUS
-              value: '{{ $root.Values.nCPUs }}'
-            - name: GHA2DB_ES_BULK_SIZE
-              value: '{{ $root.Values.esBulkSize }}'
-            - name: GHA2DB_DEBUG
-              value: '{{ $root.Values.debug }}'
-            - name: GHA2DB_CMDDEBUG
-              value: '{{ $root.Values.cmdDebug }}'
-            - name: GHA2DB_GITHUB_DEBUG
-              value: '{{ $root.Values.githubDebug }}'
-            - name: GHA2DB_QOUT
-              value: '{{ $root.Values.queryOut }}'
-            - name: GHA2DB_REPOS_DIR
-              value: '{{ $root.Values.reposDir }}'
-            - name: GHA2DB_COMPANY_ACQ_YAML
-              value: '{{ $root.Values.companyAcq }}'
-            - name: GHA2DB_AFFILIATIONS_JSON
-              value: '{{ $root.Values.affiliations }}'
-            - name: GHA2DB_COMPUTE_ALL
-              value: '{{ $root.Values.forceComputeAll }}'
-            - name: GHA2DB_SKIP_METRICS
-              value: '{{ $root.Values.skipMetrics }}'
-            - name: GHA2DB_ONLY_METRICS
-              value: '{{ $root.Values.onlyMetrics }}'
-            - name: GHA2DB_FORCE_PERIODS
-              value: '{{ $root.Values.periods }}'
-            - name: GHA2DB_PROJECTS_YAML
-              value: {{ $root.Values.projectsFile }}
-            - name: GHA2DB_GITHUB_OAUTH
+            - name: SH_DSN
+              value: '{{ .Values.shDSN }}'
+            - name: SH_PROTO
+              value: '{{ .Values.shProto }}'
+            - name: SH_PARAMS
+              value: '{{ .Values.shParams }}'
+            - name: SH_CLEANUP
+              value: '{{ .Values.shCleanup }}'
+            - name: SH_TEST_CONNECT
+              value: '{{ .Values.shTestConnect }}'
+            - name: SH_REMOTE_JSON_PATH
+              value: '{{ .Values.shRemoteJSONPath }}'
+            - name: SH_REMOTE_YAML_PATH
+              value: '{{ .Values.shRemoteYAMLPath }}'
+            - name: SH_USER
               valueFrom:
                 secretKeyRef:
-                  name: {{ $root.Values.oauthSecret }}
-                  key: GHA2DB_GITHUB_OAUTH.secret
-            - name: PG_HOST
+                  name: {{ .Values.shSecret }}
+                  key: SH_USER.secret
+            - name: SH_HOST
               valueFrom:
                 secretKeyRef:
-                  name: {{ $root.Values.pgSecret }}
-                  key: PG_HOST.secret
-            - name: PG_PORT
+                  name: {{ .Values.shSecret }}
+                  key: SH_HOST.secret
+            - name: SH_PORT
               valueFrom:
                 secretKeyRef:
-                  name: {{ $root.Values.pgSecret }}
-                  key: PG_PORT.secret
-            - name: PG_PASS
+                  name: {{ .Values.shSecret }}
+                  key: SH_PORT.secret
+            - name: SH_PASS
               valueFrom:
                 secretKeyRef:
-                  name: {{ $root.Values.pgSecret }}
-                  key: PG_PASS.secret
-            - name: GHA2DB_ES_URL
+                  name: {{ .Values.shSecret }}
+                  key: SH_PASS.secret
+            - name: SH_DB
               valueFrom:
                 secretKeyRef:
-                  name: {{ $root.Values.esSecret }}
-                  key: GHA2DB_ES_URL.secret
-            image: {{ $root.Values.syncImage }}
-            imagePullPolicy: {{ $root.Values.imagePullPolicy }}
-            name: '{{ $root.Values.syncPodName }}-{{ .proj }}'
-            volumeMounts:
-            - name: {{ $root.Values.volumeMountName }}
-              mountPath: '{{ $root.Values.volumeMountPath }}'
-          volumes:
-          - name: {{ $root.Values.volumeName }}
-            persistentVolumeClaim:
-              claimName: {{ $root.Values.pvName }}
-          restartPolicy: {{ $root.Values.bootstrapRestartPolicy }}
+                  name: {{ .Values.shSecret }}
+                  key: SH_DB.secret
+            image: {{ .Values.importImage }}
+            imagePullPolicy: {{ .Values.imagePullPolicy }}
+            name: '{{ .Values.importPodName }}'
+          restartPolicy: {{ .Values.importRestartPolicy }}
           nodeSelector:
-{{- with $root.Values.nodeSelector -}}
+{{- with .Values.nodeSelector -}}
 {{ toYaml . | nindent 12 }}
-{{ end }}
-{{ end }}
 {{ end }}
 {{ end }}
