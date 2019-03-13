@@ -192,7 +192,8 @@ func ensureColumns() {
 			dtStart := time.Now()
 			lib.ExecSQLWithErr(con, &ctx, s)
 			dtEnd := time.Now()
-			lib.Printf("Mass updated \"%s\", took: %v\n", tab, dtEnd.Sub(dtStart))
+			nCols := len(cols)
+			lib.Printf("Mass updated \"%s\", columns: %d, took: %v\n", tab, nCols, dtEnd.Sub(dtStart))
 			s = "alter table \"" + tab + "\" "
 			for col := range cols {
 				s += "alter column \"" + col + "\" set not null, alter column \"" + col + "\" set default 0.0, "
@@ -201,7 +202,7 @@ func ensureColumns() {
 			dtStart = time.Now()
 			lib.ExecSQLWithErr(con, &ctx, s)
 			dtEnd = time.Now()
-			lib.Printf("Altered \"%s\" defaults and restrictions, took: %v\n", tab, dtEnd.Sub(dtStart))
+			lib.Printf("Altered \"%s\" defaults and restrictions, columns: %d, took: %v\n", tab, nCols, dtEnd.Sub(dtStart))
 			if sch != nil {
 				sch <- [2]string{tab, "ok"}
 			}
