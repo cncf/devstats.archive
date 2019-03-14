@@ -31,7 +31,7 @@ do
     db="allprj"
   fi
 
-  ./devel/check_flag.sh "$db" devstats_running || exit 4
+  ./devel/check_flag.sh "$db" devstats_running 0 || exit 4
   ./devel/clear_flag.sh "$db" provisioned || exit 5
 
   if [ -f "./$proj/import_affs.sh" ]
