@@ -79,8 +79,10 @@ func syncAllProjects() bool {
 	}
 
 	// Set 'devstats_running' flag on 'gha_computed' table and defer clearing that flag
-	if !ctx.SetRunningFlag {
-		lib.Printf("Setting running flag\n")
+	if ctx.SetRunningFlag {
+		if ctx.Debug > 0 {
+			lib.Printf("Setting running flag\n")
+		}
 		missing := 0
 		runningFlag := "devstats_running"
 		for _, proj := range projs {
@@ -110,18 +112,24 @@ func syncAllProjects() bool {
 				}
 			}
 			lib.FatalOnError(con.Close())
-			lib.Printf("Set running flag on %s\n", db)
+			if ctx.Debug > 0 {
+				lib.Printf("Set running flag on %s\n", db)
+			}
 		}
 		// Defer clearing that flag
 		defer func() {
-			lib.Printf("Deleting running flag\n")
+			if ctx.Debug > 0 {
+				lib.Printf("Deleting running flag\n")
+			}
 			for _, proj := range projs {
 				db := proj.PDB
 				con := lib.PgConnDB(&ctx, db)
 				_, err := lib.ExecSQL(con, &ctx, "delete from gha_computed where metric = "+lib.NValue(1), runningFlag)
 				con.Close()
-				if err != nil {
-					lib.Printf("Cleared running flag on %s\n", db)
+				if err == nil {
+					if ctx.Debug > 0 {
+						lib.Printf("Cleared running flag on %s\n", db)
+					}
 				} else {
 					lib.Printf("Failed to clear running flag on %s: %+v\n", db, err)
 				}
