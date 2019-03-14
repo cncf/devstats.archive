@@ -123,6 +123,7 @@ func copyContext(in *lib.Ctx) *lib.Ctx {
 		SkipPIDFile:         in.SkipPIDFile,
 		SkipCompanyAcq:      in.SkipCompanyAcq,
 		CheckProvisionFlag:  in.CheckProvisionFlag,
+		SetRunningFlag:      in.SetRunningFlag,
 		SkipDatesYaml:       in.SkipDatesYaml,
 		PropagateOnlyVar:    in.PropagateOnlyVar,
 		TestMode:            in.TestMode,
@@ -354,6 +355,7 @@ func TestInit(t *testing.T) {
 		SkipPIDFile:         false,
 		SkipCompanyAcq:      false,
 		CheckProvisionFlag:  false,
+		SetRunningFlag:      false,
 		PropagateOnlyVar:    false,
 		TestMode:            true,
 		ESBulkSize:          10000,
@@ -1256,6 +1258,19 @@ func TestInit(t *testing.T) {
 				copyContext(&defaultContext),
 				map[string]interface{}{
 					"CheckProvisionFlag": true,
+				},
+			),
+		},
+		{
+			"Set devstats running flag",
+			map[string]string{
+				"GHA2DB_SET_RUNNING_FLAG": "1",
+			},
+			dynamicSetFields(
+				t,
+				copyContext(&defaultContext),
+				map[string]interface{}{
+					"SetRunningFlag": true,
 				},
 			),
 		},
