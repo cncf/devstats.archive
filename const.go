@@ -69,5 +69,8 @@ const NotFound string = "not_found"
 // Merged - common constant string
 const Merged string = "merged"
 
+// InvalidCatalogName - common constant string
+const InvalidCatalogName string = "invalid_catalog_name"
+
 // Nil - common constant string
 const Nil string = "(nil)"

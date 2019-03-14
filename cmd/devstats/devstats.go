@@ -48,7 +48,7 @@ func syncAllProjects() bool {
 				switch e := err.(type) {
 				case *pq.Error:
 					errName := e.Code.Name()
-					if errName == "invalid_catalog_name" {
+					if errName == lib.InvalidCatalogName {
 						lib.Printf("No '%s' database, missing provisioning flag\n", db)
 						missing++
 						lib.FatalOnError(con.Close())
@@ -74,6 +74,53 @@ func syncAllProjects() bool {
 		}
 		if missing > 0 {
 			lib.Printf("Not all databases provisioned, pending: %d, exiting\n", missing)
+			return false
+		}
+	}
+
+	// Set 'devstats_running' flag on 'gha_computed' table and defer clearing that flag
+	if !ctx.SetRunningFlag {
+		missing := 0
+		runningFlag := "devstats_running"
+		for _, proj := range projs {
+			db := proj.PDB
+			con := lib.PgConnDB(&ctx, db)
+			_, err := lib.ExecSQL(
+				con,
+				&ctx,
+				"insert into gha_computed(metric, dt) select "+lib.NValue(1)+", now() where not exists(select 1 from gha_computed where metric = "+lib.NValue(2)+")",
+				runningFlag,
+				runningFlag,
+			)
+			if err != nil {
+				switch e := err.(type) {
+				case *pq.Error:
+					errName := e.Code.Name()
+					if errName == lib.InvalidCatalogName {
+						lib.Printf("No '%s' database, cannot set running flag\n", db)
+						missing++
+						lib.FatalOnError(con.Close())
+						continue
+					} else {
+						lib.FatalOnError(err)
+					}
+				default:
+					lib.FatalOnError(err)
+				}
+			}
+			lib.FatalOnError(con.Close())
+		}
+		// Defer clearing that flag
+		defer func() {
+			for _, proj := range projs {
+				db := proj.PDB
+				con := lib.PgConnDB(&ctx, db)
+				lib.ExecSQL(con, &ctx, "delete from gha_computed where metric = "+lib.NValue(1), runningFlag)
+				con.Close()
+			}
+		}()
+		if missing > 0 {
+			lib.Printf("Not all databases present, missing: %d, exiting\n", missing)
 			return false
 		}
 	}
