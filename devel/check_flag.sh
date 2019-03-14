@@ -25,6 +25,7 @@ then
   user="${PG_USER}"
 fi
 
+echo "checking $2 flag on $1 database, expected value $3"
 exists=`PG_USER="${user}" ./devel/db.sh psql "$1" -tAc "select 1 from gha_computed where metric = '$2' union select 0 order by 1 desc limit 1"` || exit 5
 if [ ! "$exists" = "$3" ]
 then
