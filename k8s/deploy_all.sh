@@ -38,9 +38,11 @@ export PG_ADMIN_USER=sa
 export GHA2DB_PROJECTS_YAML="k8s/projects.yaml"
 # export GHA2DB_AFFILIATIONS_JSON="docker/docker_affiliations.json"
 # export GHA2DB_AFFILIATIONS_JSON="github_users.json"
+# export GHA2DB_USE_ES="${GHA2DB_USE_ES}"
+# export GHA2DB_USE_ES_RAW="${GHA2DB_USE_ES_RAW}"
+export GHA2DB_USE_ES
+export GHA2DB_USE_ES_RAW
 export GHA2DB_ES_URL="${ES_PROTO}://${ES_HOST}:${ES_PORT}"
-export GHA2DB_USE_ES=1
-export GHA2DB_USE_ES_RAW=1
 export LIST_FN_PREFIX="k8s/all_"
 if [ ! -z "$ONLY" ]
 then
@@ -67,6 +69,6 @@ fi
 cat errors.txt 2>/dev/null
 echo "<<< errors.txt >>>"
 
-./devel/set_provisioned_flag.sh "$PROJDB" || exit 7
+./devel/set_flag.sh "$PROJDB" provisioned || exit 7
 
 echo "$0: All deployments finished"
