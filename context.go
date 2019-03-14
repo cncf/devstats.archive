@@ -123,6 +123,7 @@ type Ctx struct {
 	SkipPIDFile         bool                         // From GHA2DB_SKIP_PIDFILE, devstats tool, skip creating, checking and removing PID file
 	SkipCompanyAcq      bool                         // From GHA2DB_SKIP_COMPANY_ACQ, import_affs tool, skip processing company acquisitions from companies.yaml file
 	CheckProvisionFlag  bool                         // From GHA2DB_CHECK_PROVISION_FLAG, devstats tool - check if there is a 'provision' metric saved in 'gha_computed' table - if not, abort
+	SetRunningFlag      bool                         // From GHA2DB_SET_RUNNING_FLAG, devstats tool - set 'devstats_running' flag on 'gha_computed' table while devstats cronjob is running
 	ESBulkSize          int                          // FROM GHA2DB_ES_BULK_SIZE, calc_metric and gha2es tools, default 10000
 	SharedDB            string                       // Currently annotations tool read this from projects.yaml:shared_db and if set, outputs annotations data to the sharded DB in addition to the current DB
 	ProjectMainRepo     string                       // Used by annotations tool to store project's main repo name
@@ -629,6 +630,9 @@ func (ctx *Ctx) Init() {
 
 	// Check provision flag
 	ctx.CheckProvisionFlag = os.Getenv("GHA2DB_CHECK_PROVISION_FLAG") != ""
+
+	// Set running flag
+	ctx.SetRunningFlag = os.Getenv("GHA2DB_SET_RUNNING_FLAG") != ""
 
 	// Calculate all periods?
 	ctx.ComputeAll = os.Getenv("GHA2DB_COMPUTE_ALL") != ""
