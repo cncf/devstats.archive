@@ -14,6 +14,16 @@ then
 else
   ga="google_analytics_ua_id = $GA"
 fi
+
+# Artwork
+if [ ! -f "grafana/img/$PROJ.svg" ]
+then
+  cp "grafana/img/$ICON.svg" "grafana/img/$PROJ.svg" || exit 24
+fi
+if [ ! -f "grafana/img/${PROJ}32.png" ]
+then
+  cp "grafana/img/${ICON}32.png" "grafana/img/${PROJ}32.png" || exit 25
+fi
 cp "grafana/img/$ICON.svg" "/usr/share/grafana/public/img/grafana_icon.svg" || exit 10
 cp "grafana/img/$ICON.svg" "/usr/share/grafana/public/img/grafana_com_auth_icon.svg" || exit 11
 cp "grafana/img/$ICON.svg" "/usr/share/grafana/public/img/grafana_net_logo.svg" || exit 12
