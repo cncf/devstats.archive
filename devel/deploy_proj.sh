@@ -44,7 +44,7 @@ fi
 
 if [ -z "$ADD_ALLCDF" ]
 then
-  if ( [ -z "$SKIPADDALL" ] && [ ! "$PROJ" = "all" ] && [ ! "$PROJ" = "opencontainers" ] && [ ! "$PROJ" = "istio" ] && [ ! "$PROJ" = "knative" ] && [ ! "$PROJ" = "nodejs" ] && [ ! "$PROJ" = "linux" ] && [ ! "$PROJ" = "zephyr" ] )
+  if ( [ -z "$SKIPADDALL" ] && [ ! "$PROJ" = "all" ] && [ ! "$PROJ" = "opencontainers" ] && [ ! "$PROJ" = "istio" ] && [ ! "$PROJ" = "knative" ] && [ "$PROJ" = "crio" ] && [ ! "$PROJ" = "nodejs" ] && [ ! "$PROJ" = "linux" ] && [ ! "$PROJ" = "zephyr" ] )
   then
     if [ "$PROJDB" = "$LASTDB" ]
     then
