@@ -217,7 +217,7 @@ then
   fi
   MODE=ss FROM='{{uid}}' TO="${uid}" replacer "$cfile" || exit 47
   MODE=ss FROM='{{org}}' TO="${ORGNAME}" replacer "$cfile" || exit 48
-  sqlite3 "/var/lib/grafana.$GRAFSUFF/grafana.db" < "$cfile" || exit 49
+  sqlite3 -echo "/var/lib/grafana.$GRAFSUFF/grafana.db" < "$cfile" || exit 49
   if [ -f "grafana/${PROJ}/custom_sqlite.sql" ]
   then
     echo 'provisioning other preferences (project specific)'
@@ -225,7 +225,7 @@ then
     cp "grafana/${PROJ}/custom_sqlite.sql" "$cfile" || exit 46
     MODE=ss FROM='{{uid}}' TO="${uid}" replacer "$cfile"
     MODE=ss FROM='{{org}}' TO="${ORGNAME}" replacer "$cfile"
-    sqlite3 "/var/lib/grafana.$GRAFSUFF/grafana.db" < "$cfile" || exit 23
+    sqlite3 -echo "/var/lib/grafana.$GRAFSUFF/grafana.db" < "$cfile" || exit 23
   fi
 fi
 echo "$0: $PROJ finished"
