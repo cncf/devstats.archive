@@ -4,8 +4,8 @@ then
   echo "$0: requires project name parameter"
   exit 1
 fi
-declare -A icontypes
-icontypes=( 
+declare -A iconsrcs
+iconsrcs=(
   ["spinnaker"]="cdfoundation"
   ["tekton"]="cdfoundation"
   ["jenkins"]="cdfoundation"
@@ -13,10 +13,10 @@ icontypes=(
   ["cdf"]="cdfoundation"
   ["allcdf"]="cdfoundation"
 )
-icontype=${icontypes[$1]}
-if [ -z "$icontype" ]
+iconsrc=${iconsrcs[$1]}
+if [ -z "$iconsrc" ]
 then
   echo "cncf"
 else
-  echo $icontype
+  echo $iconsrc
 fi
