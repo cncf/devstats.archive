@@ -40,35 +40,10 @@ This will only allow accessing Grafana from Apache proxy, please also see:
 
 - To run multiple Grafana instances follow [MULTIPROJECT.md](https://github.com/cncf/devstats/blob/master/MULTIPROJECT.md).
 
-# Patching Grafana
+# Manually importing dashboards
 
-- `cd $GOPATH/src/github.com/grafana`.
-- `git clone https://github.com/grafana/grafana.git`.
-- `cd grafana`.
-- `git reset --hard`.
-- `git pull`.
-- `git checkout -b patching`.
-- `git apply $GOPATH/src/devstats/grafana/patches/teamplate_variable_value_optional_remove_from_url.patch`.
-- `git diff`.
-- `go run build.go setup`.
-- `go run build.go build`.
-- `apt install npm`.
-- `npm install -g yarn`.
-- `yarn install --pure-lockfile`.
-- `yarn start` (blocks one terminal).
-- `go get github.com/Unknwon/bra`
-- `bra run` (blocks one terminal).
-- `npm run jest`.
-- `npm run karma`.
-- `npm run test`
-- `gem install fpm`
-- `apt install rpm`.
-- `go run build.go build package` (takes a long time).
-- `cp dist/grafanaXXXXX.deb ~/dev/go/src/devstats`.
-- `cd $GOPATH/src/devstats`.
-- `./devel/update_grafanas.sh grafanaXXXXX.deb`.
-- `rm -f rafanaXXXXX.deb`.
+- Import `grafana/dashboards/proj/dashboards.json` dashboard on all remaining projects manually or use `sqlitedb` tool.
+- For example to only import dashboards for the new project use: `ONLY=newproject DASHBOARDS='dashboards.json' ./devel/put_all_charts.sh`. Then eventually (on success): `./devel/put_all_charts_cleanup.sh`.
+- Import all new projects dashboards from `grafana/dashboards/newproject/*.json`, then finally: `grafana/copy_grafana_dbs.sh`.
+- You can also run: `./grafana/restart_all_grafanas.sh`.
 
-Contrib must be started manually:
-- `cd ~/dev/cncf/contributors/`.
-- `./grafana.sh &`.
