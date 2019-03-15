@@ -217,7 +217,16 @@ then
   fi
   MODE=ss FROM='{{uid}}' TO="${uid}" replacer "$cfile" || exit 47
   MODE=ss FROM='{{org}}' TO="${ORGNAME}" replacer "$cfile" || exit 48
-  sqlite3 -echo "/var/lib/grafana.$GRAFSUFF/grafana.db" < "$cfile" || exit 49
+  sqlite3 -echo -header -csv "/var/lib/grafana.$GRAFSUFF/grafana.db" < "$cfile" || exit 49
+
+  # Optional SQL (newer Grafana has team_id field which si not present in the older one)
+  cfile="/etc/grafana.$GRAFSUFF/update_sqlite_optional.sql"
+  cp "grafana/shared/update_sqlite_optional.sql" "$cfile"
+  MODE=ss FROM='{{uid}}' TO="${uid}" replacer "$cfile"
+  MODE=ss FROM='{{org}}' TO="${ORGNAME}" replacer "$cfile"
+  sqlite3 -echo -header -csv "/var/lib/grafana.$GRAFSUFF/grafana.db" < "$cfile"
+
+  # Per project specific grafana updates
   if [ -f "grafana/${PROJ}/custom_sqlite.sql" ]
   then
     echo 'provisioning other preferences (project specific)'
@@ -225,7 +234,7 @@ then
     cp "grafana/${PROJ}/custom_sqlite.sql" "$cfile" || exit 46
     MODE=ss FROM='{{uid}}' TO="${uid}" replacer "$cfile"
     MODE=ss FROM='{{org}}' TO="${ORGNAME}" replacer "$cfile"
-    sqlite3 -echo "/var/lib/grafana.$GRAFSUFF/grafana.db" < "$cfile" || exit 23
+    sqlite3 -echo -header -csv "/var/lib/grafana.$GRAFSUFF/grafana.db" < "$cfile" || exit 23
   fi
 fi
 echo "$0: $PROJ finished"
