@@ -91,14 +91,22 @@ then
 fi
 MODE=ss FROM='{{uid}}' TO="${uid}" replacer "$cfile" || exit 21
 MODE=ss FROM='{{org}}' TO="${ORGNAME}" replacer "$cfile" || exit 22
-sqlite3 -echo /var/lib/grafana/grafana.db < "$cfile" || exit 9
+sqlite3 -echo -header -csv /var/lib/grafana/grafana.db < "$cfile" || exit 9
+
+# Optional script that may fail and can be ignored (to handle incompatible grafana versions)
+cfile="grafana/shared/update_sqlite_optional.sql"
+MODE=ss FROM='{{uid}}' TO="${uid}" replacer "$cfile"
+MODE=ss FROM='{{org}}' TO="${ORGNAME}" replacer "$cfile"
+sqlite3 -echo -header -csv /var/lib/grafana/grafana.db < "$cfile"
+
+# Per project specific grafana scripts
 if [ -f "grafana/${PROJ}/custom_sqlite.sql" ]
 then
   echo 'Provisioning other preferences (project specific)'
   cfile="grafana/${PROJ}/custom_sqlite.sql"
   MODE=ss FROM='{{uid}}' TO="${uid}" replacer "$cfile"
   MODE=ss FROM='{{org}}' TO="${ORGNAME}" replacer "$cfile"
-  sqlite3 -echo /var/lib/grafana/grafana.db < "$cfile" || exit 23
+  sqlite3 -echo -header -csv /var/lib/grafana/grafana.db < "$cfile" || exit 23
 fi
 
 # Switch to already started Grafana
