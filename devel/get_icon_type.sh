@@ -42,6 +42,7 @@ icontypes=(
   ["istio"]="color"
   ["spinnaker"]="color"
   ["knative"]="color"
+  ["crio"]="color"
   ["tekton"]="color"
   ["jenkins"]="color"
   ["jenkinsx"]="color"
