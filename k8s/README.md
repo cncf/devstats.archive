@@ -1,3 +1,8 @@
+# Set default namespace
+
+You should set namespace to 'devstats' first: `./k8s/switch_profile.sh devstats`.
+
+
 # Create and test images
 
 Create and remove docker images:
