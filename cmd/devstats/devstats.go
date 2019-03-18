@@ -78,13 +78,47 @@ func syncAllProjects() bool {
 		}
 	}
 
+	// If running provision flag is set on any project, we skip running this devstats instance
+	runningFlag := "devstats_running"
+	if ctx.CheckRunningFlag {
+		for _, proj := range projs {
+			db := proj.PDB
+			con := lib.PgConnDB(&ctx, db)
+			rows, err := lib.QuerySQL(con, &ctx, "select 1 from gha_computed where metric = "+lib.NValue(1)+" limit 1", runningFlag)
+			if err != nil {
+				switch e := err.(type) {
+				case *pq.Error:
+					errName := e.Code.Name()
+					if errName == lib.InvalidCatalogName {
+						lib.Printf("No '%s' database, cannot check running flag\n", db)
+						lib.FatalOnError(con.Close())
+						return false
+					}
+					lib.FatalOnError(err)
+				default:
+					lib.FatalOnError(err)
+				}
+			}
+			running := 0
+			for rows.Next() {
+				lib.FatalOnError(rows.Scan(&running))
+			}
+			lib.FatalOnError(rows.Err())
+			lib.FatalOnError(rows.Close())
+			lib.FatalOnError(con.Close())
+			if running == 1 {
+				lib.Printf("Running flag on '%s' set, exiting\n", db)
+				return false
+			}
+		}
+	}
+
 	// Set 'devstats_running' flag on 'gha_computed' table and defer clearing that flag
 	if ctx.SetRunningFlag {
 		if ctx.Debug > 0 {
 			lib.Printf("Setting running flag\n")
 		}
 		missing := 0
-		runningFlag := "devstats_running"
 		for _, proj := range projs {
 			db := proj.PDB
 			con := lib.PgConnDB(&ctx, db)
