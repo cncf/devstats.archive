@@ -123,6 +123,7 @@ func copyContext(in *lib.Ctx) *lib.Ctx {
 		SkipPIDFile:         in.SkipPIDFile,
 		SkipCompanyAcq:      in.SkipCompanyAcq,
 		CheckProvisionFlag:  in.CheckProvisionFlag,
+		CheckRunningFlag:    in.CheckRunningFlag,
 		SetRunningFlag:      in.SetRunningFlag,
 		SkipDatesYaml:       in.SkipDatesYaml,
 		PropagateOnlyVar:    in.PropagateOnlyVar,
@@ -355,6 +356,7 @@ func TestInit(t *testing.T) {
 		SkipPIDFile:         false,
 		SkipCompanyAcq:      false,
 		CheckProvisionFlag:  false,
+		CheckRunningFlag:    false,
 		SetRunningFlag:      false,
 		PropagateOnlyVar:    false,
 		TestMode:            true,
@@ -1252,12 +1254,14 @@ func TestInit(t *testing.T) {
 			"Set check provision flag",
 			map[string]string{
 				"GHA2DB_CHECK_PROVISION_FLAG": "1",
+				"GHA2DB_CHECK_RUNNING_FLAG":   "yes",
 			},
 			dynamicSetFields(
 				t,
 				copyContext(&defaultContext),
 				map[string]interface{}{
 					"CheckProvisionFlag": true,
+					"CheckRunningFlag":   true,
 				},
 			),
 		},
