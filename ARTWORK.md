@@ -1,7 +1,7 @@
 # Updating icons/artwork
 
-- Make sure you have the newest `cncf/artwork` in `~/dev/cncf/artwork`.
-- Edit all files marked with `ARTWORK`, uncomment `TODO` and update icons.
+- Make sure you have the newest `cncf/artwork` in `~/dev/cncf/artwork` and `cdfoundation/artwork` in `~/dev/cdfoundation/artwork`.
+- Edit all files marked with `ARTWORK`, uncomment `TODO` and update icons: `./find.sh . '*' ARTWORK`.
 - Update: `devel/deploy_all.sh`.
 - Update & run: `./apache/www/copy_icons.sh`.
 - Update & run: `./grafana/create_images.sh`.
