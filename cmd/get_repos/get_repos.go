@@ -115,7 +115,7 @@ func getRepos(ctx *lib.Ctx) (map[string]string, map[string]map[string]struct{}) 
 func processRepo(ch chan string, ctx *lib.Ctx, orgRepo, rwd string) {
 	// Local or cron mode?
 	cmdPrefix := ""
-	if ctx.Local {
+	if ctx.LocalCmd {
 		cmdPrefix = lib.LocalGitScripts
 	}
 
@@ -338,7 +338,7 @@ func processCommitsDB(ch chan dbCommits, ctx *lib.Ctx, db, filesSkipPattern, que
 func getCommitFiles(ch chan int, ctx *lib.Ctx, con *sql.DB, filesSkipPattern *regexp.Regexp, repo, sha string) {
 	// Local or cron mode?
 	cmdPrefix := ""
-	if ctx.Local {
+	if ctx.LocalCmd {
 		cmdPrefix = lib.LocalGitScripts
 	}
 

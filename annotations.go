@@ -76,7 +76,7 @@ func GetAnnotations(ctx *Ctx, orgRepo, annoRegexp string) (annotations Annotatio
 
 	// Local or cron mode?
 	cmdPrefix := ""
-	if ctx.Local {
+	if ctx.LocalCmd {
 		cmdPrefix = LocalGitScripts
 	}
 

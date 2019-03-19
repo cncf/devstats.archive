@@ -18,11 +18,13 @@ func syncAllProjects() bool {
 	ctx.Init()
 
 	// Local or cron mode?
-	cmdPrefix := ""
 	dataPrefix := ctx.DataDir
 	if ctx.Local {
-		cmdPrefix = "./"
 		dataPrefix = "./"
+	}
+	cmdPrefix := ""
+	if ctx.LocalCmd {
+		cmdPrefix = "./"
 	}
 
 	// Read defined projects
