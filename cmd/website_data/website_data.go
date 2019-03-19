@@ -242,9 +242,11 @@ func generateWebsiteData() {
 
 	// Local or cron mode?
 	dataPrefix := ctx.DataDir
-	cmdPrefix := ""
 	if ctx.Local {
 		dataPrefix = "./"
+	}
+	cmdPrefix := ""
+	if ctx.LocalCmd {
 		cmdPrefix = lib.LocalGitScripts
 	}
 	lastTagCmd := cmdPrefix + "last_tag.sh"

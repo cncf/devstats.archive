@@ -151,11 +151,13 @@ func sync(ctx *lib.Ctx, args []string) {
 	lib.Printf("gha2db_sync.go: Running on: %s/%s\n", strings.Join(org, "+"), strings.Join(repo, "+"))
 
 	// Local or cron mode?
-	cmdPrefix := ""
 	dataPrefix := ctx.DataDir
 	if ctx.Local {
-		cmdPrefix = "./"
 		dataPrefix = "./"
+	}
+	cmdPrefix := ""
+	if ctx.LocalCmd {
+		cmdPrefix = "./"
 	}
 
 	// Connect to Postgres DB
