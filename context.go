@@ -44,7 +44,8 @@ type Ctx struct {
 	OldFormat           bool                         // From GHA2DB_OLDFMT gha2db tool, if set then use pre 2015 GHA JSONs format
 	Exact               bool                         // From GHA2DB_EXACT gha2db tool, if set then orgs list provided from commandline is used as a list of exact repository full names, like "a/b,c/d,e", if not only full names "a/b,x/y" can be treated like this, names without "/" are either orgs or repos.
 	LogToDB             bool                         // From GHA2DB_SKIPLOG all tools, if set, DB logging into Postgres table `gha_logs` in `devstats` database will be disabled
-	Local               bool                         // From GHA2DB_LOCAL gha2db_sync tool, if set, gha2_db will call other tools prefixed with "./" to use local compile ones. Otherwise it will call binaries without prefix (so it will use thos ein /usr/bin/).
+	Local               bool                         // From GHA2DB_LOCAL many tools, if set it will use data files prefixed with "./" to use local ones. Otherwise it will search for data files in /etc/gha2db.
+	LocalCmd            bool                         // From GHA2DB_LOCAL_CMD many tools, if set it will call other tools prefixed with "./" to use locally compiled ones. Otherwise it will call binaries without prefix (so it will use those in $PATH).
 	MetricsYaml         string                       // From GHA2DB_METRICS_YAML gha2db_sync tool, set other metrics.yaml file, default is "metrics/{{project}}metrics.yaml"
 	TagsYaml            string                       // From GHA2DB_TAGS_YAML tags tool, set other tags.yaml file, default is "metrics/{{project}}/tags.yaml"
 	ColumnsYaml         string                       // From GHA2DB_COLUMNS_YAML tags tool, set other columns.yaml file, default is "metrics/{{project}}/columns.yaml"
@@ -332,8 +333,11 @@ func (ctx *Ctx) Init() {
 	// Log to Postgres DB, table `devstats`.`gha_logs`
 	ctx.LogToDB = os.Getenv("GHA2DB_SKIPLOG") == ""
 
-	// Local mode
+	// Local data files mode
 	ctx.Local = os.Getenv("GHA2DB_LOCAL") != ""
+
+	// Local binary/shell files mode
+	ctx.LocalCmd = os.Getenv("GHA2DB_LOCAL_CMD") != ""
 
 	// Project
 	ctx.Project = os.Getenv("GHA2DB_PROJECT")

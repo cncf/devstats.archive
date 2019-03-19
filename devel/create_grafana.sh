@@ -236,5 +236,6 @@ then
     MODE=ss FROM='{{org}}' TO="${ORGNAME}" replacer "$cfile"
     sqlite3 -echo -header -csv "/var/lib/grafana.$GRAFSUFF/grafana.db" < "$cfile" || exit 23
   fi
+  echo 'provisioning OK'
 fi
 echo "$0: $PROJ finished"
