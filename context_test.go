@@ -64,6 +64,7 @@ func copyContext(in *lib.Ctx) *lib.Ctx {
 		Exact:               in.Exact,
 		LogToDB:             in.LogToDB,
 		Local:               in.Local,
+		LocalCmd:            in.LocalCmd,
 		MetricsYaml:         in.MetricsYaml,
 		TagsYaml:            in.TagsYaml,
 		ColumnsYaml:         in.ColumnsYaml,
@@ -296,6 +297,7 @@ func TestInit(t *testing.T) {
 		Exact:               false,
 		LogToDB:             true,
 		Local:               false,
+		LocalCmd:            false,
 		MetricsYaml:         "metrics/metrics.yaml",
 		TagsYaml:            "metrics/tags.yaml",
 		ColumnsYaml:         "metrics/columns.yaml",
@@ -839,12 +841,21 @@ func TestInit(t *testing.T) {
 			),
 		},
 		{
-			"Setting local mode",
+			"Setting local data mode",
 			map[string]string{"GHA2DB_LOCAL": "yeah"},
 			dynamicSetFields(
 				t,
 				copyContext(&defaultContext),
 				map[string]interface{}{"Local": true},
+			),
+		},
+		{
+			"Setting local commands (binary and shell scripts) mode",
+			map[string]string{"GHA2DB_LOCAL_CMD": "yeah"},
+			dynamicSetFields(
+				t,
+				copyContext(&defaultContext),
+				map[string]interface{}{"LocalCmd": true},
 			),
 		},
 		{
