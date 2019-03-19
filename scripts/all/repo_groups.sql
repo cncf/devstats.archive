@@ -362,6 +362,26 @@ where
   org_login in ('virtual-kubelet', 'Virtual-Kubelet')
 ;
 
+-- KubeEdge
+update
+  gha_repos
+set
+  repo_group = 'KubeEdge',
+  alias = 'KubeEdge'
+where
+  org_login in ('kubeedge')
+;
+
+-- Brigade
+update
+  gha_repos
+set
+  repo_group = 'Brigade',
+  alias = 'Brigade'
+where
+  name in ('Azure/brigade')
+;
+
 -- CNCF
 update
   gha_repos
