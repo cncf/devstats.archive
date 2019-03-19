@@ -11,10 +11,10 @@ GHA2DB_RECENT_RANGE="4 hours" GHA2DB_TMOFFSET="-4" devstats
 ONLY="fluentd linkerd grpc coredns containerd rkt cni envoy jaeger notary" ./devel/all_affs.sh || exit 3
 GHA2DB_RECENT_RANGE="4 hours" GHA2DB_TMOFFSET="-4" devstats
 
-ONLY="tuf rook vitess nats opa spiffe spire cloudevents telepresence" ./devel/all_affs.sh || exit 4
+ONLY="tuf rook vitess nats opa spiffe spire cloudevents telepresence helm" ./devel/all_affs.sh || exit 4
 GHA2DB_RECENT_RANGE="4 hours" GHA2DB_TMOFFSET="-4" devstats
 
-ONLY="helm openmetrics harbor etcd tikv cortex buildpacks falco dragonfly virtualkubelet" ./devel/all_affs.sh || exit 5
+ONLY="openmetrics harbor etcd tikv cortex buildpacks falco dragonfly virtualkubelet kubeedge brigade" ./devel/all_affs.sh || exit 5
 GHA2DB_RECENT_RANGE="4 hours" GHA2DB_TMOFFSET="-4" devstats
 
 ONLY="all" ./devel/all_affs.sh || exit 6
