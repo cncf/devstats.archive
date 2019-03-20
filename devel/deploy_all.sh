@@ -202,6 +202,9 @@ do
   elif [ "$proj" = "brigade" ]
   then 
     PROJ=brigade             PROJDB=brigade        PROJREPO="Azure/brigade"                   ORGNAME=Brigade           PORT=3033 ICON=brigade        GRAFSUFF=brigade        GA="UA-108085315-44" ./devel/deploy_proj.sh || exit 44
+  elif [ "$proj" = "crio" ]
+  then
+    PROJ=crio                PROJDB=crio           PROJREPO="kubernetes-sigs/cri-o"           ORGNAME="CRI-O"           PORT=3104 ICON=cncf           GRAFSUFF=crio           GA="-"               ./devel/deploy_proj.sh || exit 42
   elif [ "$proj" = "opencontainers" ]
   then
     PROJ=opencontainers      PROJDB=opencontainers PROJREPO="opencontainers/runc"             ORGNAME=OCI               PORT=3100 ICON="-"            GRAFSUFF=opencontainers GA="UA-108085315-19" ./devel/deploy_proj.sh || exit 32
@@ -214,9 +217,6 @@ do
   elif [ "$proj" = "knative" ]
   then
     PROJ=knative             PROJDB=knative        PROJREPO="knative/serving"                 ORGNAME=Knative           PORT=3103 ICON=cncf           GRAFSUFF=knative        GA="-"               ./devel/deploy_proj.sh || exit 41
-  elif [ "$proj" = "crio" ]
-  then
-    PROJ=crio                PROJDB=crio           PROJREPO="kubernetes-sigs/cri-o"           ORGNAME="CRI-O"           PORT=3104 ICON=cncf           GRAFSUFF=crio           GA="-"               ./devel/deploy_proj.sh || exit 42
   elif [ "$proj" = "all" ]
   then
     PROJ=all                 PROJDB=allprj         PROJREPO="not/used"                        ORGNAME="All CNCF"        PORT=3254 ICON=cncf           GRAFSUFF=all            GA="UA-108085315-20" ./devel/deploy_proj.sh || exit 36
