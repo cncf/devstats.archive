@@ -26,7 +26,10 @@ where
     or name in (
       'GoogleCloudPlatform/kubernetes', 'kubernetes' , 'kubernetes-client'
     )
-  ) and name not in ('kubernetes/helm', 'kubernetes/deployment-manager', 'kubernetes/charts', 'kubernetes/application-dm-templates')
+  ) and name not in (
+    'kubernetes/helm', 'kubernetes/deployment-manager', 'kubernetes/charts',
+    'kubernetes/application-dm-templates', 'kubernetes-sigs/cri-o'
+  )
 ;
 
 -- Prometheus
@@ -380,6 +383,16 @@ set
   alias = 'Brigade'
 where
   name in ('Azure/brigade')
+;
+
+-- CRI-O
+update
+  gha_repos
+set
+  repo_group = 'CRI-O',
+  alias = 'CRI-O'
+where
+  name in ('kubernetes-sigs/cri-o')
 ;
 
 -- CNCF
