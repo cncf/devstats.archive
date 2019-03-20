@@ -51,3 +51,7 @@ This is optional (it starts real containers with their command replaced with the
 - To cleanup completed pod, use: `AWS_PROFILE=... ./k8s/cleanup_completed_pods.sh`.
 - To delete all DevStats cron jobs run: `AWS_PROFILE=... ./k8s/delete_devstats_cron_jobs.sh`.
 - To delete and recreate cron jobs run: `AWS_PROFILE=... ./k8s/recreate_cron_jobs.sh`. This uses Helm and `devstats-helm` chart.
+
+# New projects
+
+See `NEW_PROJECT.md`.
