@@ -52,3 +52,6 @@ ONLY=opencontainers         CRON='50 * * * *' ./k8s/apply_manifest.sh ./k8s/mani
 ONLY=istio                  CRON='51 * * * *' ./k8s/apply_manifest.sh ./k8s/manifests/devstats-hourly-sync.yaml || exit 47
 ONLY=spinnaker              CRON='52 * * * *' ./k8s/apply_manifest.sh ./k8s/manifests/devstats-hourly-sync.yaml || exit 48
 ONLY=knative                CRON='53 * * * *' ./k8s/apply_manifest.sh ./k8s/manifests/devstats-hourly-sync.yaml || exit 49
+ONLY=kubeedge               CRON='54 * * * *' ./k8s/apply_manifest.sh ./k8s/manifests/devstats-hourly-sync.yaml || exit 50
+ONLY=brigade                CRON='55 * * * *' ./k8s/apply_manifest.sh ./k8s/manifests/devstats-hourly-sync.yaml || exit 51
+ONLY=crio                   CRON='56 * * * *' ./k8s/apply_manifest.sh ./k8s/manifests/devstats-hourly-sync.yaml || exit 52

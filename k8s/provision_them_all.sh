@@ -84,6 +84,9 @@ PROJ=cncf                   PROJDB=cncf                   PROJREPO="cncf/landsca
 PROJ=istio                  PROJDB=istio                  PROJREPO="istio/istio"                     ./k8s/apply_manifest.sh ./k8s/manifests/devstats-provision.yaml || exit 49
 PROJ=spinnaker              PROJDB=spinnaker              PROJREPO="spinnaker/spinnaker"             ./k8s/apply_manifest.sh ./k8s/manifests/devstats-provision.yaml || exit 50
 PROJ=knative                PROJDB=knative                PROJREPO="knative/serving"                 ./k8s/apply_manifest.sh ./k8s/manifests/devstats-provision.yaml || exit 51
+PROJ=kubeedge               PROJDB=kubeedge               PROJREPO="kubeedge/kubeedge"               ./k8s/apply_manifest.sh ./k8s/manifests/devstats-provision.yaml || exit 52
+PROJ=brigade                PROJDB=brigade                PROJREPO="Azure/brigade"                   ./k8s/apply_manifest.sh ./k8s/manifests/devstats-provision.yaml || exit 53
+PROJ=crio                   PROJDB=crio                   PROJREPO="kubernetes-sigs/cri-o"           ./k8s/apply_manifest.sh ./k8s/manifests/devstats-provision.yaml || exit 54
 sleep 2
 echo "Spawned provisioning pods"
 kubectl get po -l name=devstats
