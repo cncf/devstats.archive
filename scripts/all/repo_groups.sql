@@ -28,7 +28,8 @@ where
     )
   ) and name not in (
     'kubernetes/helm', 'kubernetes/deployment-manager', 'kubernetes/charts',
-    'kubernetes/application-dm-templates', 'kubernetes-sigs/cri-o'
+    'kubernetes/application-dm-templates', 'kubernetes-sigs/cri-o',
+    'kubernetes-incubator/ocid', 'kubernetes-incubator/cri-o'
   )
 ;
 
@@ -392,7 +393,11 @@ set
   repo_group = 'CRI-O',
   alias = 'CRI-O'
 where
-  name in ('kubernetes-sigs/cri-o')
+  name in (
+    'kubernetes-sigs/cri-o',
+    'kubernetes-incubator/ocid',
+    'kubernetes-incubator/cri-o'
+  )
 ;
 
 -- CNCF
