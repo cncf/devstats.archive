@@ -44,8 +44,6 @@
 # grafanaCommandArgs:
 #   - "36000"
 #   - arg2
-# limitsCPU: 8
-# limitsMemory: '32Gi'
 # onlyMetrics: 'events,tz'
 # periods: 'd7:t,m:f,q:t,y10:f'
 # provisionCommand: './k8s/affs.sh'
@@ -54,12 +52,9 @@
 #   - "36000"
 # queryOut: 1
 # reposDir: "/root/devstats_repos/"
-# requestsCPU: 2
-# requestsMemory: '16Gi'
 # skipMetrics: 'users_activity,committers_cum'
 # syncCommandArgs:
 #   - "syncarg"
-# useResourcesLimits: 1
 affiliations: 'github_users.json'
 bootstrapCommand: './k8s/deploy_all.sh'
 bootstrapLDrop: ''
@@ -88,8 +83,14 @@ indexProvisionsFrom: 0
 indexProvisionsTo: 100
 indexServicesFrom: 0
 indexServicesTo: 100
-limitsCPU: '6000m'
-limitsMemory: '16Gi'
+limitsBootstrapCPU: '2000m'
+limitsBootstrapMemory: '2Gi'
+limitsCronsCPU: '6000m'
+limitsCronsMemory: '16Gi'
+limitsGrafanasCPU: '2000m'
+limitsGrafanasMemory: '8Gi'
+limitsProvisionsCPU: '8000m'
+limitsProvisionsMemory: '24Gi'
 name: devstats
 nameOverride: devstats
 oauthSecret: github-oauth
@@ -100,8 +101,14 @@ provisionCommand: './k8s/deploy_all.sh'
 provisionPodName: devstats-provision
 provisionRestartPolicy: Never
 pvName: devstats-git
-requestsCPU: '2000m'
-requestsMemory: '2Gi'
+requestsBootstrapCPU: '500m'
+requestsBootstrapMemory: '512Mi'
+requestsCronsCPU: '2000m'
+requestsCronsMemory: '2Gi'
+requestsGrafanasCPU: '1000m'
+requestsGrafanasMemory: '1Gi'
+requestsProvisionsCPU: '2000m'
+requestsProvisionsMemory: '2Gi'
 secretType: Opaque
 servicePodName: devstats-service
 serviceType: LoadBalancer
@@ -117,7 +124,10 @@ volumeMountPath: '/root'
 volumeName: data
 useES: 1
 useESRaw: 1
-useResourcesLimits: 1
+useBootstrapResourcesLimits: 1
+useCronsResourcesLimits: 1
+useGrafanasResourcesLimits: 1
+useProvisionsResourcesLimits: 1
 waitForBootstrap: 30
 labels:
   name: devstats
