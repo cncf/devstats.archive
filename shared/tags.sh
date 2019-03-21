@@ -13,4 +13,4 @@ then
   trap finish EXIT
   export TRAP=1
 fi
-GHA2DB_LOCAL=1 ./tags
+GHA2DB_LOCAL=1 tags
