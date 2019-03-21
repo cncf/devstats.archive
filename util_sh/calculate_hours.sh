@@ -21,10 +21,10 @@ fi
 # PG_PASS=... GHA2DB_PROJECT=fluentd PG_DB=fluentd GHA2DB_LOCAL=1 gha2db 2018-03-27 15 2018-03-27 18 'fluent'
 
 # PG_PASS=... PG_DB=gha GHA2DB_DEBUG=1 ./devel/calculate_hours.sh '2017-12-20 11' '2017-12-20 13'
-./calc_metric events_h metrics/shared/events.sql "$1" "$2" h
+calc_metric events_h metrics/shared/events.sql "$1" "$2" h
 periods="h d w m q y h24"
 for period in $periods
 do
   echo $period
-  ./calc_metric multi_row_single_column metrics/shared/activity_repo_groups.sql "$1" "$2" "$period" multivalue
+  calc_metric multi_row_single_column metrics/shared/activity_repo_groups.sql "$1" "$2" "$period" multivalue
 done
