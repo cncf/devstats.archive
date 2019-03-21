@@ -14,5 +14,5 @@ function finish {
     rm -f a.db* 2>/dev/null
 }
 trap finish EXIT
-./sqlitedb a.db $* || exit 4
+sqlitedb a.db $* || exit 4
 ./devel/update_from_sqlite.sh
