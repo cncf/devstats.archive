@@ -13,4 +13,4 @@ then
   trap finish EXIT
   export TRAP=1
 fi
-GHA2DB_LOCAL=1 ./gha2db_sync
+GHA2DB_LOCAL=1 gha2db_sync

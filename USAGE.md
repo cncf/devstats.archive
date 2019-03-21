@@ -379,7 +379,7 @@ GitHub archive generates new file every hour.
 Use `gha2db_sync` tool to update all your data.
 
 Example call:
-- `GHA2DB_PROJECT=kubernetes PG_PASS='pwd' ./gha2db_sync`
+- `GHA2DB_PROJECT=kubernetes PG_PASS='pwd' gha2db_sync`
 - Add `GHA2DB_RESETTSDB` environment variable to rebuild time series instead of update since the last run
 - Add `GHA2DB_SKIPTSDB` environment variable to skip syncing time series (so it will only sync GHA data)
 - Add `GHA2DB_SKIPPDB` environment variable to skip syncing GHA data (so it will only sync time series)
@@ -442,7 +442,7 @@ Grafana install instruction are here:
 
 # To drop & recreate time series data:
 - `./devel/drop_ts_tables.sh dbname`
-- `GHA2DB_PROJECT=kubernetes PG_PASS=... GHA2DB_RESETTSDB=1 GHA2DB_LOCAL=1 ./gha2db_sync || exit 6
+- `GHA2DB_PROJECT=kubernetes PG_PASS=... GHA2DB_RESETTSDB=1 GHA2DB_LOCAL=1 gha2db_sync || exit 6
 
 Or:
 - `PG_PASS=pwd ONLY=kubernetes ./devel/reinit.sh`

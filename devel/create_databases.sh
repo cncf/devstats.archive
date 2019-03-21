@@ -99,7 +99,7 @@ then
   fi
   if [ ! -z "$GOT" ]
   then
-    GHA2DB_PROJECT="$PROJ" PG_DB="$PROJDB" ./gha2db_sync || exit 20
+    GHA2DB_PROJECT="$PROJ" PG_DB="$PROJDB" gha2db_sync || exit 20
   fi
   if [ ! -z "$REINIT" ]
   then

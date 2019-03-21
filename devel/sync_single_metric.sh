@@ -13,4 +13,4 @@ then
   trap finish EXIT
   export TRAP=1
 fi
-GHA2DB_CMDDEBUG=1 GHA2DB_METRICS_YAML=devel/test_metrics.yaml GHA2DB_TAGS_YAML=devel/test_tags.yaml GHA2DB_LOCAL=1 ./gha2db_sync
+GHA2DB_CMDDEBUG=1 GHA2DB_METRICS_YAML=devel/test_metrics.yaml GHA2DB_TAGS_YAML=devel/test_tags.yaml GHA2DB_LOCAL=1 gha2db_sync
