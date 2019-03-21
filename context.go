@@ -78,7 +78,7 @@ type Ctx struct {
 	PropagateOnlyVar    bool                         // From GHA2DB_PROPAGATE_ONLY_VAR, if set the it will check ONLY="a b c" env variable and propagate it into other project filter variables if they're not set, for example GHA2DB_PROJECTS_COMMITS
 	ProjectsYaml        string                       // From GHA2DB_PROJECTS_YAML, many tools - set main projects file, default "projects.yaml"
 	CompanyAcqYaml      string                       // From GHA2DB_COMPANY_ACQ_YAML, import_affs tool, set non-standard "companies.yaml" file
-	ProjectsOverride    map[string]bool              // From GHA2DB_PROJECTS_OVERRIDE, get_repos and ./devstats tools - for example "-pro1,+pro2" means never sync pro1 and always sync pro2 (even if disabled in `projects.yaml`).
+	ProjectsOverride    map[string]bool              // From GHA2DB_PROJECTS_OVERRIDE, get_repos and devstats tools - for example "-pro1,+pro2" means never sync pro1 and always sync pro2 (even if disabled in `projects.yaml`).
 	AffiliationsJSON    string                       // From GHA2DB_AFFILIATIONS_JSON, import_affs tool - set main affiliations file, default "github_users.json"
 	ExcludeRepos        map[string]bool              // From GHA2DB_EXCLUDE_REPOS, gha2db tool, default "" - comma separated list of repos to exclude, example: "theupdateframework/notary,theupdateframework/other"
 	InputDBs            []string                     // From GHA2DB_INPUT_DBS, merge_dbs tool - list of input databases to merge, order matters - first one will insert on a clean DB, next will do insert ignore (to avoid constraints failure due to common data)
