@@ -19,7 +19,7 @@ do
   do
     f="./grafana/dashboards/$proj/$f"
     echo "FROM=$FROM TO=$TO f=$f"
-    MODE=ss FROM=$FROM TO=$TO ./replacer $f || exit 1
+    MODE=ss FROM=$FROM TO=$TO replacer $f || exit 1
   done
 done
 echo 'OK'
