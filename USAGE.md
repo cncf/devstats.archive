@@ -49,7 +49,7 @@ To run tools locally (without install) prefix them with `GHA2DB_LOCAl=1 `.
 
 Local:
 - `make`
-- `ENV_VARIABLES GHA2DB_LOCAl=1 ./gha2db YYYY-MM-DD HH YYYY-MM-DD HH [org [repo]]`.
+- `ENV_VARIABLES GHA2DB_LOCAl=1 gha2db YYYY-MM-DD HH YYYY-MM-DD HH [org [repo]]`.
 
 Installed:
 - `make`
@@ -184,7 +184,7 @@ You can use `GHA2DB_ST` environment variable to force single threaded version.
 # Results (JSON)
 
 Example: you can generate and save all JSONs for a single day in `jsons/` directory by running (all GitHub repos/orgs without filtering):
-- `GHA2DB_JSON=1 GHA2DB_NODB=1 ./gha2db 2018-01-02 0 2018-01-02 0`.
+- `GHA2DB_JSON=1 GHA2DB_NODB=1 gha2db 2018-01-02 0 2018-01-02 0`.
 
 # PostgreSQL database setup
 
@@ -331,7 +331,7 @@ Before 2015-08-06 Kubernetes is in `GoogleCloudPlatform/kubernetes` or just few 
 And finally before 2015-01-01 GitHub used different JSONs format. To process them you have to use `GHA2DB_OLDFMT` mode. It is usable for GH events starting from 2012-07-01.
 
 For example June 2017:
-- `time PG_PASS=pwd ./gha2db 2017-06-01 0 2017-07-01 0 'kubernetes,kubernetes-incubator,kubernetes-client,kubernetes-csi'`
+- `time PG_PASS=pwd gha2db 2017-06-01 0 2017-07-01 0 'kubernetes,kubernetes-incubator,kubernetes-client,kubernetes-csi'`
 
 To process kubernetes all time just use `kubernetes/psql.sh` script. Like this:
 - `time PG_PASS=pwd ./kubernetes/psql.sh`.

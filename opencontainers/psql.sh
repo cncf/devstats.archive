@@ -13,7 +13,7 @@ set -o pipefail
 > run.log
 GHA2DB_PROJECT=opencontainers PG_DB=opencontainers GHA2DB_LOCAL=1 structure 2>>errors.txt | tee -a run.log || exit 1
 ./devel/db.sh psql opencontainers -c "create extension if not exists pgcrypto" || exit 1
-GHA2DB_PROJECT=opencontainers PG_DB=opencontainers GHA2DB_LOCAL=1 ./gha2db 2015-06-22 0 today now 'opencontainers' 'image-tools,image-spec,runtime-tools,ocitools,runtime-spec,specs,runc' 2>>errors.txt | tee -a run.log || exit 2
+GHA2DB_PROJECT=opencontainers PG_DB=opencontainers GHA2DB_LOCAL=1 gha2db 2015-06-22 0 today now 'opencontainers' 'image-tools,image-spec,runtime-tools,ocitools,runtime-spec,specs,runc' 2>>errors.txt | tee -a run.log || exit 2
 GHA2DB_PROJECT=opencontainers PG_DB=opencontainers GHA2DB_LOCAL=1 GHA2DB_MGETC=y GHA2DB_SKIPTABLE=1 GHA2DB_INDEX=1 structure 2>>errors.txt | tee -a run.log || exit 3
 GHA2DB_PROJECT=opencontainers PG_DB=opencontainers ./shared/setup_repo_groups.sh 2>>errors.txt | tee -a run.log || exit 4
 GHA2DB_PROJECT=opencontainers PG_DB=opencontainers ./shared/import_affs.sh 2>>errors.txt | tee -a run.log || exit 5

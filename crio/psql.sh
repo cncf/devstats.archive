@@ -13,7 +13,7 @@ fi
 > run.log
 GHA2DB_PROJECT=crio PG_DB=crio GHA2DB_LOCAL=1 structure 2>>errors.txt | tee -a run.log || exit 1
 ./devel/db.sh psql crio -c "create extension if not exists pgcrypto" || exit 1
-GHA2DB_PROJECT=crio PG_DB=crio GHA2DB_LOCAL=1 ./gha2db  2016-09-09 0 today now 'kubernetes-incubator/ocid,kubernetes-incubator/cri-o,kubernetes-sigs/cri-o' 2>>errors.txt | tee -a run.log || exit 2
+GHA2DB_PROJECT=crio PG_DB=crio GHA2DB_LOCAL=1 gha2db  2016-09-09 0 today now 'kubernetes-incubator/ocid,kubernetes-incubator/cri-o,kubernetes-sigs/cri-o' 2>>errors.txt | tee -a run.log || exit 2
 GHA2DB_PROJECT=crio PG_DB=crio GHA2DB_LOCAL=1 GHA2DB_MGETC=y GHA2DB_SKIPTABLE=1 GHA2DB_INDEX=1 structure 2>>errors.txt | tee -a run.log || exit 3
 GHA2DB_PROJECT=crio PG_DB=crio ./shared/setup_repo_groups.sh 2>>errors.txt | tee -a run.log || exit 4
 GHA2DB_PROJECT=crio PG_DB=crio ./shared/import_affs.sh 2>>errors.txt | tee -a run.log || exit 5
