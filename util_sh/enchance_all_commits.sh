@@ -31,7 +31,7 @@ do
   then
     db="allprj"
   fi
-  GHA2DB_GHAPISKIPEVENTS=1 GHA2DB_RECENT_REPOS_RANGE="5 years" GHA2DB_PROJECT="$proj" PG_DB="$db" ./ghapi2db
+  GHA2DB_GHAPISKIPEVENTS=1 GHA2DB_RECENT_REPOS_RANGE="5 years" GHA2DB_PROJECT="$proj" PG_DB="$db" ghapi2db
 done
 
 echo 'OK'
