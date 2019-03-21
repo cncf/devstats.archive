@@ -34,7 +34,7 @@ then
 fi
   
 echo "merging $1 into allcdf"
-GHA2DB_INPUT_DBS="$1" GHA2DB_OUTPUT_DB="allcdf" ./merge_dbs || exit 11
+GHA2DB_INPUT_DBS="$1" GHA2DB_OUTPUT_DB="allcdf" merge_dbs || exit 11
 PG_DB="allcdf" ./devel/remove_db_dups.sh || exit 12
 if [ -f "./allcdf/get_repos.sh" ]
 then

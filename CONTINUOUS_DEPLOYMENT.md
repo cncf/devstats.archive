@@ -9,7 +9,7 @@
 - You can change `webhook`'s port via `GHA2DB_WHPORT` environment variable (default is 1982), `webhook`'s root via `GHA2DB_WHROOT` (default is `hook`) and `webhook`'s host via `GHA2DB_WHHOST` (default is 127.0.0.1).
 - Please see [Usage](https://github.com/cncf/devstats/blob/master/USAGE.md) for details.
 - By default `webhook` tool verifies payloads to determine if they are original Travis CI payloads.
-- To enable testing locally you can start tool via `GOPATH=/path GHA2DB_PROJECT_ROOT=/path/to/repo PG_PASS=... GHA2DB_SKIP_VERIFY_PAYLOAD=1 ./webhook` or use ready script `webhook.sh` and then use `./test_webhook.sh` script for testing.
+- To enable testing locally you can start tool via `GOPATH=/path GHA2DB_PROJECT_ROOT=/path/to/repo PG_PASS=... GHA2DB_SKIP_VERIFY_PAYLOAD=1 webhook` or use ready script `webhook.sh` and then use `./test_webhook.sh` script for testing.
 - You need to set both `GOPATH` and `GHA2DB_PROJECT_ROOT` because cron job environment have no environment variables set at all, you also have to set `PG_PASS` (this is to allow `webhook` to log into database in addition to `/tmp/gha2db_*` files).
 - Webook must be run via cron job (it can be called every 5 minutes because every next instance will either start or do nothing due to port being used by previous instance).
 - See [crontab.entry](https://github.com/cncf/devstats/blob/master/crontab.entry) for details, you need to tweak it a little and install via `crontab -e`.
