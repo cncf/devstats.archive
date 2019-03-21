@@ -1,4 +1,4 @@
-package devstats_test
+package devstats
 
 import (
 	"database/sql"
