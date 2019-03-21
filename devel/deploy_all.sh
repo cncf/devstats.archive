@@ -198,7 +198,7 @@ do
     PROJ=virtualkubelet      PROJDB=virtualkubelet PROJREPO="virtual-kubelet/virtual-kubelet" ORGNAME="Virtual Kubelet" PORT=3031 ICON=virtualkubelet GRAFSUFF=virtualkubelet GA="UA-108085315-36" ./devel/deploy_proj.sh || exit 40
   elif [ "$proj" = "kubeedge" ]
   then 
-    PROJ=kubeedge            PROJDB=kubeedge       PROJREPO="kubeedge/kubeedge"               ORGNAME=KubeEdge          PORT=3032 ICON=cncf           GRAFSUFF=kubeedge       GA="UA-108085315-43" ./devel/deploy_proj.sh || exit 43
+    PROJ=kubeedge            PROJDB=kubeedge       PROJREPO="kubeedge/kubeedge"               ORGNAME=KubeEdge          PORT=3032 ICON=kubeedge       GRAFSUFF=kubeedge       GA="UA-108085315-43" ./devel/deploy_proj.sh || exit 43
   elif [ "$proj" = "brigade" ]
   then 
     PROJ=brigade             PROJDB=brigade        PROJREPO="Azure/brigade"                   ORGNAME=Brigade           PORT=3033 ICON=brigade        GRAFSUFF=brigade        GA="UA-108085315-44" ./devel/deploy_proj.sh || exit 44
