@@ -15,5 +15,5 @@ then
 fi
 proj=$GHA2DB_PROJECT
 ./devel/drop_tsdb_affs_tables.sh "$PG_DB"
-# GHA2DB_COLUMNS_YAML=metrics/$GHA2DB_PROJECT/columns_affs.yaml GHA2DB_LOCAL=1 ./columns
+# GHA2DB_COLUMNS_YAML=metrics/$GHA2DB_PROJECT/columns_affs.yaml GHA2DB_LOCAL=1 columns
 GHA2DB_CMDDEBUG=1 GHA2DB_LOCAL=1 GHA2DB_RESET_ES_RAW=1 GHA2DB_RESETTSDB=1 GHA2DB_COLUMNS_YAML=./metrics/$proj/columns_affs.yaml GHA2DB_METRICS_YAML=./metrics/$proj/metrics_affs.yaml GHA2DB_TAGS_YAML=./metrics/$proj/tags_affs.yaml gha2db_sync

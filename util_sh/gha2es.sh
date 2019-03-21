@@ -14,6 +14,6 @@ then
   echo "$0: please specify hour from HH as a second argument"
   exit 3
 fi
-# GHA2DB_DEBUG=1 GHA2DB_LOCAL=1 GHA2DB_USE_ES_RAW=1 GHA2DB_PROJECT=cncf PG_DB=cncf ./gha2es 2018-06-01 4 today now
-# GHA2DB_DEBUG=1 GHA2DB_LOCAL=1 GHA2DB_USE_ES_RAW=1 GHA2DB_PROJECT=all PG_DB=allprj ./gha2es "$1" "$2" today now
-GHA2DB_ES_BULK_SIZE=1000 GHA2DB_LOCAL=1 GHA2DB_USE_ES_RAW=1 GHA2DB_PROJECT=all PG_DB=allprj ./gha2es "$1" "$2" today now
+# GHA2DB_DEBUG=1 GHA2DB_LOCAL=1 GHA2DB_USE_ES_RAW=1 GHA2DB_PROJECT=cncf PG_DB=cncf gha2es 2018-06-01 4 today now
+# GHA2DB_DEBUG=1 GHA2DB_LOCAL=1 GHA2DB_USE_ES_RAW=1 GHA2DB_PROJECT=all PG_DB=allprj gha2es "$1" "$2" today now
+GHA2DB_ES_BULK_SIZE=1000 GHA2DB_LOCAL=1 GHA2DB_USE_ES_RAW=1 GHA2DB_PROJECT=all PG_DB=allprj gha2es "$1" "$2" today now

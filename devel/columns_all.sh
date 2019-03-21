@@ -16,6 +16,6 @@ do
     db="allprj"
   fi
   echo "Project: $proj, PDB: $db"
-  GHA2DB_LOCAL=1 GHA2DB_PROJECT=$proj PG_DB=$db ./columns || exit 2
+  GHA2DB_LOCAL=1 GHA2DB_PROJECT=$proj PG_DB=$db columns || exit 2
 done
 echo 'OK'
