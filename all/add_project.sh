@@ -41,8 +41,8 @@ then
   rm -f allprj.dump || exit 7
   echo 'dropping and recreating postgres variables'
   ./devel/db.sh psql allprj -c "delete from gha_vars" || exit 8
-  GHA2DB_PROJECT=all PG_DB=allprj GHA2DB_LOCAL=1 ./vars || exit 9
-  GHA2DB_PROJECT=all PG_DB=allprj GHA2DB_LOCAL=1 GHA2DB_VARS_FN_YAML="sync_vars.yaml" ./vars || exit 9
+  GHA2DB_PROJECT=all PG_DB=allprj GHA2DB_LOCAL=1 vars || exit 9
+  GHA2DB_PROJECT=all PG_DB=allprj GHA2DB_LOCAL=1 GHA2DB_VARS_FN_YAML="sync_vars.yaml" vars || exit 9
   echo "allprj backup restored"
   GHA2DB_PROJECT=all PG_DB=allprj gha2db_sync || exit 10
   exit 0

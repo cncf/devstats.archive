@@ -19,6 +19,6 @@ GHA2DB_PROJECT=buildpacks PG_DB=buildpacks ./shared/setup_repo_groups.sh 2>>erro
 GHA2DB_PROJECT=buildpacks PG_DB=buildpacks ./shared/import_affs.sh 2>>errors.txt | tee -a run.log || exit 5
 GHA2DB_PROJECT=buildpacks PG_DB=buildpacks ./shared/setup_scripts.sh 2>>errors.txt | tee -a run.log || exit 6
 GHA2DB_PROJECT=buildpacks PG_DB=buildpacks ./shared/get_repos.sh 2>>errors.txt | tee -a run.log || exit 7
-GHA2DB_PROJECT=buildpacks PG_DB=buildpacks GHA2DB_LOCAL=1 ./vars || exit 8
+GHA2DB_PROJECT=buildpacks PG_DB=buildpacks GHA2DB_LOCAL=1 vars || exit 8
 ./devel/ro_user_grants.sh buildpacks || exit 9
 ./devel/psql_user_grants.sh devstats_team buildpacks || exit 10

@@ -19,6 +19,6 @@ GHA2DB_PROJECT=rook PG_DB=rook ./shared/setup_repo_groups.sh 2>>errors.txt | tee
 GHA2DB_PROJECT=rook PG_DB=rook ./shared/import_affs.sh 2>>errors.txt | tee -a run.log || exit 5
 GHA2DB_PROJECT=rook PG_DB=rook ./shared/setup_scripts.sh 2>>errors.txt | tee -a run.log || exit 6
 GHA2DB_PROJECT=rook PG_DB=rook ./shared/get_repos.sh 2>>errors.txt | tee -a run.log || exit 7
-GHA2DB_PROJECT=rook PG_DB=rook GHA2DB_LOCAL=1 ./vars || exit 8
+GHA2DB_PROJECT=rook PG_DB=rook GHA2DB_LOCAL=1 vars || exit 8
 ./devel/ro_user_grants.sh rook || exit 9
 ./devel/psql_user_grants.sh devstats_team rook || exit 10

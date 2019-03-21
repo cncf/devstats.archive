@@ -19,6 +19,6 @@ GHA2DB_PROJECT=knative PG_DB=knative ./shared/setup_repo_groups.sh 2>>errors.txt
 GHA2DB_PROJECT=knative PG_DB=knative ./shared/import_affs.sh 2>>errors.txt | tee -a run.log || exit 5
 GHA2DB_PROJECT=knative PG_DB=knative ./shared/setup_scripts.sh 2>>errors.txt | tee -a run.log || exit 6
 GHA2DB_PROJECT=knative PG_DB=knative ./shared/get_repos.sh 2>>errors.txt | tee -a run.log || exit 7
-GHA2DB_PROJECT=knative PG_DB=knative GHA2DB_LOCAL=1 ./vars || exit 8
+GHA2DB_PROJECT=knative PG_DB=knative GHA2DB_LOCAL=1 vars || exit 8
 ./devel/ro_user_grants.sh knative || exit 9
 ./devel/psql_user_grants.sh devstats_team knative || exit 10

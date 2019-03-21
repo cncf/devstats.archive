@@ -22,4 +22,4 @@ GHA2DB_PROJECT=lfn PG_DB=lfn ./shared/setup_repo_groups.sh 2>>errors.txt | tee -
 GHA2DB_PROJECT=lfn PG_DB=lfn ./shared/setup_scripts.sh 2>>errors.txt | tee -a run.log || exit 7
 GHA2DB_PROJECT=lfn PG_DB=lfn ./shared/get_repos.sh 2>>errors.txt | tee -a run.log || exit 8
 GHA2DB_PROJECT=lfn PG_DB=lfn ./shared/import_affs.sh 2>>errors.txt | tee -a run.log || exit 9
-GHA2DB_PROJECT=lfn PG_DB=lfn GHA2DB_LOCAL=1 GHA2DB_EXCLUDE_VARS="projects_health_partial_html" ./vars || exit 10
+GHA2DB_PROJECT=lfn PG_DB=lfn GHA2DB_LOCAL=1 GHA2DB_EXCLUDE_VARS="projects_health_partial_html" vars || exit 10

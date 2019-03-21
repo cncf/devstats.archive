@@ -19,6 +19,6 @@ GHA2DB_PROJECT=cloudevents PG_DB=cloudevents ./shared/setup_repo_groups.sh 2>>er
 GHA2DB_PROJECT=cloudevents PG_DB=cloudevents ./shared/import_affs.sh 2>>errors.txt | tee -a run.log || exit 5
 GHA2DB_PROJECT=cloudevents PG_DB=cloudevents ./shared/setup_scripts.sh 2>>errors.txt | tee -a run.log || exit 6
 GHA2DB_PROJECT=cloudevents PG_DB=cloudevents ./shared/get_repos.sh 2>>errors.txt | tee -a run.log || exit 7
-GHA2DB_PROJECT=cloudevents PG_DB=cloudevents GHA2DB_LOCAL=1 ./vars || exit 8
+GHA2DB_PROJECT=cloudevents PG_DB=cloudevents GHA2DB_LOCAL=1 vars || exit 8
 ./devel/ro_user_grants.sh cloudevents || exit 9
 ./devel/psql_user_grants.sh devstats_team cloudevents || exit 10
