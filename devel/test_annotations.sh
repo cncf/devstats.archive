@@ -4,4 +4,4 @@ then
   exit 1
 fi
 ./devel/drop_ts_tables.sh test || exit 2
-GHA2DB_LOCAL=1 GHA2DB_DEBUG=1 PG_DB=test ./annotations
+GHA2DB_LOCAL=1 GHA2DB_DEBUG=1 PG_DB=test annotations
