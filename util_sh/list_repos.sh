@@ -8,6 +8,6 @@ fi
 > list_repos.csv
 for db in $all
 do
-  PG_DB="$db" GHA2DB_LOCAL=1 GHA2DB_CSVOUT="/tmp/temp.csv" ./runq ./util_sql/list_repos.sql {{project}} "$db"
+  PG_DB="$db" GHA2DB_LOCAL=1 GHA2DB_CSVOUT="/tmp/temp.csv" runq ./util_sql/list_repos.sql {{project}} "$db"
   cat /tmp/temp.csv >> list_repos.csv
 done

@@ -14,5 +14,5 @@ fi
 for db in $all
 do
   echo "$db"
-  GHA2DB_LOCAL=1 PG_DB=$db GHA2DB_CSVOUT="percent_commits_from_${1}_${db}.csv" GHA2DB_SKIPTIME=1 GHA2DB_SKIPLOG=1 ./runq util_sql/percent_commits.sql {{exclude_bots}} "`cat util_sql/exclude_bots.sql`" {{from}} "$1" > /dev/null
+  GHA2DB_LOCAL=1 PG_DB=$db GHA2DB_CSVOUT="percent_commits_from_${1}_${db}.csv" GHA2DB_SKIPTIME=1 GHA2DB_SKIPLOG=1 runq util_sql/percent_commits.sql {{exclude_bots}} "`cat util_sql/exclude_bots.sql`" {{from}} "$1" > /dev/null
 done

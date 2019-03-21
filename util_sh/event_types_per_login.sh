@@ -11,4 +11,4 @@ then
   echo "Use GHA2DB_CSVOUT=filename.csv to save as CSV"
   exit 1
 fi
-GHA2DB_LOCAL=1 GHA2DB_SKIPTIME=1 GHA2DB_SKIPLOG=1 ./runq util_sql/event_types_per_login.sql {{companies}} "$1" {{from}} "$2" {{to}} "$3"
+GHA2DB_LOCAL=1 GHA2DB_SKIPTIME=1 GHA2DB_SKIPLOG=1 runq util_sql/event_types_per_login.sql {{companies}} "$1" {{from}} "$2" {{to}} "$3"
