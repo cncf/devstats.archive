@@ -30,7 +30,7 @@ Columns:
 - `Range` - length of data processed.
 
 And final run for Kubernetes for all `2015-08-06` - `2017-08-26` using Go version of `gha2db`:
-- `time PG_PASS='...' PG_DB='test' ./gha2db 2015-08-06 0 2017-08-26 0 'kubernetes,kubernetes-incubator,kubernetes-client,kubernetes-csi'`
+- `time PG_PASS='...' PG_DB='test' gha2db 2015-08-06 0 2017-08-26 0 'kubernetes,kubernetes-incubator,kubernetes-client,kubernetes-csi'`
 
 Outputs 1200426 GHA events in:
 ```

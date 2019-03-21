@@ -1,7 +1,7 @@
 #!/bin/bash
 echo "You need to have example set of JSONs from >= 2015 in jsons/ directory"
 # To generate them, use for example:
-# GHA2DB_JSON=1 GHA2DB_NODB=1 ./gha2db 2016-06-02 17 2016-06-02 17
+# GHA2DB_JSON=1 GHA2DB_NODB=1 gha2db 2016-06-02 17 2016-06-02 17
 ruby analysis.rb new '' jsons/*.json | tee analysis/new.txt
 ruby analysis.rb new_actor 'actor' jsons/*.json | tee analysis/new_actor.txt
 ruby analysis.rb new_repo 'repo' jsons/*.json | tee analysis/new_repo.txt
