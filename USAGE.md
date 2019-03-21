@@ -352,17 +352,17 @@ Metrics are in [./metrics/{{project}}/](https://github.com/cncf/devstats/blob/ma
 This tool takes at least one parameter - sql file name.
 
 Typical usages:
-- `time PG_PASS='password' ./runq metrics/{{project}}/metric.sql`
+- `time PG_PASS='password' runq metrics/{{project}}/metric.sql`
 
 Some SQLs files require parameter substitution (like all metrics used by Grafana).
 
 They usually have `'{{from}}'` and `'{{to}}'` parameters, to run such files do:
-- `time PG_PASS='password' ./runq metrics/{{project}}/metric.sql '{{from}}' 'YYYY-MM-DD HH:MM:SS' '{{to}}' 'YYYY-MM-DD HH:MM:SS' '{{n}}' 1.0`
+- `time PG_PASS='password' runq metrics/{{project}}/metric.sql '{{from}}' 'YYYY-MM-DD HH:MM:SS' '{{to}}' 'YYYY-MM-DD HH:MM:SS' '{{n}}' 1.0`
 
 For some histograms special format of replace is used (to support quick ranges), they use `{{period:alias.col_name}}`.
 To run this in `runq` use:
-- `time PG_PASS='password' ./runq metrics/{{project}}/metric.sql qr '1 week,,'` - to specify period ago (like `1week,,`, `3 months,,` etc.).
-- `time PG_PASS='password' ./runq metrics/{{project}}/metric.sql qr ',2017-07-16,2017-11-30 10:18:00'` - to specify period date range. 
+- `time PG_PASS='password' runq metrics/{{project}}/metric.sql qr '1 week,,'` - to specify period ago (like `1week,,`, `3 months,,` etc.).
+- `time PG_PASS='password' runq metrics/{{project}}/metric.sql qr ',2017-07-16,2017-11-30 10:18:00'` - to specify period date range. 
 
 You can also change any other value, just note that parameters after SQL file name are pairs: (`value_to_replace`, `replacement`).
 

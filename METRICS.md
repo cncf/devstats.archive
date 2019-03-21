@@ -4,7 +4,7 @@ To add new metric (replace `{{project}}` with kubernetes, prometheus or any othe
 
 1) Define parameterized SQL (with `{{from}}`, `{{to}}`  and `{{n}}` params) that returns this metric data. For histogram metrics define `{{period:alias.date_column}}` instead.
 - `{{n}}` is only used in aggregate periods mode and it will get value from `Number of periods` drop-down. For example for 7 days MA (moving average) it will be 7.
-- Use `{{period:alias.date_column}}` for quick ranges based metrics, to test such metric use `PG_PASS=... ./runq ./metrics/project/filename.sql qr '1 week,,'`.
+- Use `{{period:alias.date_column}}` for quick ranges based metrics, to test such metric use `PG_PASS=... runq ./metrics/project/filename.sql qr '1 week,,'`.
 - Use `(lower(actor_col) {{exclude_bots}})` to skip bot activity.
 - This SQL will be automatically called on different periods by `gha2db_sync` and/or `devstats` tool.
 2) Define this metric in [metrics/{{project}}/metrics.yaml](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/metrics.yaml) (file used by `gha2db_sync` tool).

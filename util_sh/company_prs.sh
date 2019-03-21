@@ -14,4 +14,4 @@ then
   echo "$0: You need to pass downcased company names as a second argument, for example \"'google', 'red hat'\""
   exit 3
 fi
-GHA2DB_LOCAL=1 GHA2DB_CSVOUT="company_prs.csv" ./runq ./util_sql/company_prs.sql  {{ago}} "$1" {{companies}} "$2"
+GHA2DB_LOCAL=1 GHA2DB_CSVOUT="company_prs.csv" runq ./util_sql/company_prs.sql  {{ago}} "$1" {{companies}} "$2"

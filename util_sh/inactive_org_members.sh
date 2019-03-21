@@ -9,4 +9,4 @@ then
   echo "$0: you must provide database password via PG_PASS=..., you can select non-default database via PG_DB=..."
   exit 2
 fi
-GHA2DB_SKIPTIME=1 GHA2DB_SKIPLOG=1 GHA2DB_CSVOUT=util_sql/inactive_org_members.csv ./runq util_sql/inactive_org_members.sql {{period}} "$1"
+GHA2DB_SKIPTIME=1 GHA2DB_SKIPLOG=1 GHA2DB_CSVOUT=util_sql/inactive_org_members.csv runq util_sql/inactive_org_members.sql {{period}} "$1"
