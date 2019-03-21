@@ -14,7 +14,7 @@ then
   ./grafana/copy_grafana_dbs.sh || exit 3
 fi
 cp /var/lib/grafana.$GRAFANA/grafana.db ./grafana.$GRAFANA.db || exit 4
-./sqlitedb ./grafana.$GRAFANA.db $* || exit 5
+sqlitedb ./grafana.$GRAFANA.db $* || exit 5
 ./devel/grafana_stop.sh $GRAFANA || exit 6
 cp ./grafana.$GRAFANA.db /var/lib/grafana.$GRAFANA/grafana.db || exit 7
 NOSTOP=1 ./devel/grafana_start.sh $GRAFANA || exit 8
