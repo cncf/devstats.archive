@@ -205,7 +205,7 @@ In short for Ubuntu like Linux:
 - grant all privileges on database "gha" to gha_admin;
 - alter user gha_admin createdb;
 - go get github.com/lib/pq
-- PG_PASS='pwd' ./structure
+- PG_PASS='pwd' structure
 - sudo -u postgres psql gha
 - Create `ro_user` via `PG_PASS=... ./devel/create_ro_user.sh`
 
@@ -224,12 +224,12 @@ Defaults are:
 - If you want to skip creating DB tools (like views and functions), use `GHA2DB_SKIPTOOLS` environment variable.
 
 It is recommended to create structure without indexes first (the default), then get data from GHA and populate array, and finally add indexes. To do do:
-- `time PG_PASS=your_password ./structure`
+- `time PG_PASS=your_password structure`
 - `time PG_PASS=your_password ./scripts/gha2db.sh`
-- `time GHA2DB_SKIPTABLE=1 GHA2DB_INDEX=1 PG_PASS=your_password ./structure` (will take some time to generate indexes on populated database)
+- `time GHA2DB_SKIPTABLE=1 GHA2DB_INDEX=1 PG_PASS=your_password structure` (will take some time to generate indexes on populated database)
 
 Typical internal usage:
-`time GHA2DB_INDEX=1 PG_PASS=your_password ./structure`
+`time GHA2DB_INDEX=1 PG_PASS=your_password structure`
 
 Alternatively, you can use [structure.sql](https://github.com/cncf/devstats/blob/master/structure.sql) to create database structure.
 
