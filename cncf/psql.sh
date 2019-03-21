@@ -19,6 +19,6 @@ GHA2DB_PROJECT=cncf PG_DB=cncf ./shared/setup_repo_groups.sh 2>>errors.txt | tee
 GHA2DB_PROJECT=cncf PG_DB=cncf ./shared/setup_scripts.sh 2>>errors.txt | tee -a run.log || exit 5
 GHA2DB_PROJECT=cncf PG_DB=cncf ./shared/import_affs.sh 2>>errors.txt | tee -a run.log || exit 6
 GHA2DB_PROJECT=cncf PG_DB=cncf ./shared/get_repos.sh 2>>errors.txt | tee -a run.log || exit 7
-GHA2DB_PROJECT=cncf PG_DB=cncf GHA2DB_LOCAL=1 ./vars || exit 8
+GHA2DB_PROJECT=cncf PG_DB=cncf GHA2DB_LOCAL=1 vars || exit 8
 ./devel/ro_user_grants.sh cncf || exit 9
 ./devel/psql_user_grants.sh devstats_team cncf || exit 10

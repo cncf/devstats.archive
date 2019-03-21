@@ -20,6 +20,6 @@ GHA2DB_PROJECT=jenkins PG_DB=jenkins ./shared/setup_repo_groups.sh 2>>errors.txt
 GHA2DB_PROJECT=jenkins PG_DB=jenkins ./shared/import_affs.sh 2>>errors.txt | tee -a run.log || exit 6
 GHA2DB_PROJECT=jenkins PG_DB=jenkins ./shared/setup_scripts.sh 2>>errors.txt | tee -a run.log || exit 7
 GHA2DB_PROJECT=jenkins PG_DB=jenkins ./shared/get_repos.sh 2>>errors.txt | tee -a run.log || exit 8
-GHA2DB_PROJECT=jenkins PG_DB=jenkins GHA2DB_LOCAL=1 ./vars || exit 9
+GHA2DB_PROJECT=jenkins PG_DB=jenkins GHA2DB_LOCAL=1 vars || exit 9
 ./devel/ro_user_grants.sh jenkins || exit 10
 ./devel/psql_user_grants.sh devstats_team jenkins || exit 11

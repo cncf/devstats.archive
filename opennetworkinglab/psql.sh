@@ -22,4 +22,4 @@ GHA2DB_PROJECT=opennetworkinglab PG_DB=opennetworkinglab ./shared/setup_repo_gro
 GHA2DB_PROJECT=opennetworkinglab PG_DB=opennetworkinglab ./shared/setup_scripts.sh 2>>errors.txt | tee -a run.log || exit 7
 GHA2DB_PROJECT=opennetworkinglab PG_DB=opennetworkinglab ./shared/get_repos.sh 2>>errors.txt | tee -a run.log || exit 8
 GHA2DB_PROJECT=opennetworkinglab PG_DB=opennetworkinglab ./shared/import_affs.sh 2>>errors.txt | tee -a run.log || exit 9
-GHA2DB_PROJECT=opennetworkinglab PG_DB=opennetworkinglab GHA2DB_LOCAL=1 ./vars || exit 10
+GHA2DB_PROJECT=opennetworkinglab PG_DB=opennetworkinglab GHA2DB_LOCAL=1 vars || exit 10

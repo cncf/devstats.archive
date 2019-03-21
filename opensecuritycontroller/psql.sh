@@ -21,4 +21,4 @@ GHA2DB_PROJECT=opensecuritycontroller PG_DB=opensecuritycontroller ./shared/setu
 GHA2DB_PROJECT=opensecuritycontroller PG_DB=opensecuritycontroller ./shared/setup_scripts.sh 2>>errors.txt | tee -a run.log || exit 7
 GHA2DB_PROJECT=opensecuritycontroller PG_DB=opensecuritycontroller ./shared/get_repos.sh 2>>errors.txt | tee -a run.log || exit 8
 GHA2DB_PROJECT=opensecuritycontroller PG_DB=opensecuritycontroller ./shared/import_affs.sh 2>>errors.txt | tee -a run.log || exit 9
-GHA2DB_PROJECT=opensecuritycontroller PG_DB=opensecuritycontroller GHA2DB_LOCAL=1 ./vars || exit 10
+GHA2DB_PROJECT=opensecuritycontroller PG_DB=opensecuritycontroller GHA2DB_LOCAL=1 vars || exit 10

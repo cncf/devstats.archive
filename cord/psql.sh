@@ -21,4 +21,4 @@ GHA2DB_PROJECT=cord PG_DB=cord ./shared/setup_repo_groups.sh 2>>errors.txt | tee
 GHA2DB_PROJECT=cord PG_DB=cord ./shared/setup_scripts.sh 2>>errors.txt | tee -a run.log || exit 7
 GHA2DB_PROJECT=cord PG_DB=cord ./shared/get_repos.sh 2>>errors.txt | tee -a run.log || exit 8
 GHA2DB_PROJECT=cord PG_DB=cord ./shared/import_affs.sh 2>>errors.txt | tee -a run.log || exit 9
-GHA2DB_PROJECT=cord PG_DB=cord GHA2DB_LOCAL=1 ./vars || exit 10
+GHA2DB_PROJECT=cord PG_DB=cord GHA2DB_LOCAL=1 vars || exit 10

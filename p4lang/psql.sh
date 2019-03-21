@@ -21,4 +21,4 @@ GHA2DB_PROJECT=p4lang PG_DB=p4lang ./shared/setup_repo_groups.sh 2>>errors.txt |
 GHA2DB_PROJECT=p4lang PG_DB=p4lang ./shared/setup_scripts.sh 2>>errors.txt | tee -a run.log || exit 7
 GHA2DB_PROJECT=p4lang PG_DB=p4lang ./shared/get_repos.sh 2>>errors.txt | tee -a run.log || exit 8
 GHA2DB_PROJECT=p4lang PG_DB=p4lang ./shared/import_affs.sh 2>>errors.txt | tee -a run.log || exit 9
-GHA2DB_PROJECT=p4lang PG_DB=p4lang GHA2DB_LOCAL=1 ./vars || exit 10
+GHA2DB_PROJECT=p4lang PG_DB=p4lang GHA2DB_LOCAL=1 vars || exit 10

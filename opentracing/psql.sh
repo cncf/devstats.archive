@@ -19,6 +19,6 @@ GHA2DB_PROJECT=opentracing PG_DB=opentracing ./shared/setup_repo_groups.sh 2>>er
 GHA2DB_PROJECT=opentracing PG_DB=opentracing ./shared/import_affs.sh 2>>errors.txt | tee -a run.log || exit 5
 GHA2DB_PROJECT=opentracing PG_DB=opentracing ./shared/setup_scripts.sh 2>>errors.txt | tee -a run.log || exit 6
 GHA2DB_PROJECT=opentracing PG_DB=opentracing ./shared/get_repos.sh 2>>errors.txt | tee -a run.log || exit 7
-GHA2DB_PROJECT=opentracing PG_DB=opentracing GHA2DB_LOCAL=1 ./vars || exit 8
+GHA2DB_PROJECT=opentracing PG_DB=opentracing GHA2DB_LOCAL=1 vars || exit 8
 ./devel/ro_user_grants.sh opentracing || exit 9
 ./devel/psql_user_grants.sh devstats_team opentracing || exit 10
