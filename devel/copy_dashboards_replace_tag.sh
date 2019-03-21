@@ -9,7 +9,7 @@ for proj in $ONLY
 do
     db=$proj
     cp grafana/dashboards/$SRC/$FILE grafana/dashboards/$proj/$FILE || exit 3
-    FROM="\"$SRC\"" TO="\"$proj\"" MODE=ss0 ./replacer grafana/dashboards/$proj/$FILE || exit 4
+    FROM="\"$SRC\"" TO="\"$proj\"" MODE=ss0 replacer grafana/dashboards/$proj/$FILE || exit 4
 done
 echo 'OK'
 

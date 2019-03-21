@@ -15,7 +15,7 @@ then
   export TRAP=1
 fi
 
-GHA2DB_LOCAL=1 GHA2DB_PROCESS_REPOS=1 ./get_repos
+GHA2DB_LOCAL=1 GHA2DB_PROCESS_REPOS=1 get_repos
 
 . ./devel/all_projs.sh || exit 2
 for proj in $all

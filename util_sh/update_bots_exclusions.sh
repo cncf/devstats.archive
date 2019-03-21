@@ -5,6 +5,6 @@ do
   if [ "$?" = "0" ]
   then
     echo $f
-    MODE=rr FROM='\((.*)\s+{{exclude_bots}}\)' TO='(lower($1) {{exclude_bots}})' ./replacer $f || exit 1
+    MODE=rr FROM='\((.*)\s+{{exclude_bots}}\)' TO='(lower($1) {{exclude_bots}})' replacer $f || exit 1
   fi
 done
