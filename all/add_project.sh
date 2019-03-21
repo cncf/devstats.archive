@@ -48,7 +48,7 @@ then
   exit 0
 else
   echo "merging $1 into allprj"
-  GHA2DB_INPUT_DBS="$1" GHA2DB_OUTPUT_DB="allprj" ./merge_dbs || exit 11
+  GHA2DB_INPUT_DBS="$1" GHA2DB_OUTPUT_DB="allprj" merge_dbs || exit 11
   PG_DB="allprj" ./devel/remove_db_dups.sh || exit 12
   if [ -f "./all/get_repos.sh" ]
   then
