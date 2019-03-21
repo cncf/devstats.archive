@@ -31,4 +31,12 @@ then
   find "$1" -type f -iname "$2" -not -name "out" -not -path '*.git/*' -exec grep -El "$3" "{}" \; > out
   export FILES=`cat out`
 fi
-./devel/mass_replace.sh
+if [ -z "$DRY" ]
+then
+  ./devel/mass_replace.sh
+else
+  echo "from: '$FROM'"
+  echo "to: '$TO'"
+  echo "mode: '$MODE'"
+  echo "files: '$FILES'"
+fi
