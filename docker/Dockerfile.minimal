@@ -1,9 +1,0 @@
-FROM golang:1.11 AS builder
-RUN apt-get update -y && apt-get upgrade -y && apt-get install -y ca-certificates openssh-client git curl make
-WORKDIR /go/src/devstats
-ADD devstats.tar .
-RUN make -f docker/Makefile.minimal dockerinstall
-FROM alpine
-RUN apk add git bash
-COPY --from=builder /devstats-minimal/* /usr/bin/
-COPY --from=builder /etc/gha2db /etc/gha2db
