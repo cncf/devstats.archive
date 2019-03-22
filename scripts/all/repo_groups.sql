@@ -383,7 +383,8 @@ set
   repo_group = 'Brigade',
   alias = 'Brigade'
 where
-  name in ('Azure/brigade')
+  org_login in ('brigadecore')
+  or name in ('Azure/brigade')
 ;
 
 -- CRI-O
