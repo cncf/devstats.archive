@@ -18,7 +18,8 @@ update gha_repos set repo_group = alias;
 update gha_repos
 set repo_group = 'Brigade', alias = 'Brigade'
 where name in (
-  'Azure/brigade'
+  'Azure/brigade',
+  'brigadecore/brigade'
 );
 
 select
