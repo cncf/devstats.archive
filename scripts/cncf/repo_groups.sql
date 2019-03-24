@@ -16,15 +16,16 @@ set
 
 update gha_repos set repo_group = alias;
 
-/*
-update gha_repos set repo_group = 'cncf/devstats', alias = 'cncf/devstats' where name in (
-  'cncf/gha2pg',
-  'cncf/gha2db'
-);
-update gha_repos set repo_group = 'cncf/wg-serverless', alias = 'cncf/wg-serverless' where name in (
-  'cncf/draft-wg-serverless'
-);
-*/
+update
+  gha_repos
+set
+  repo_group = 'devstats'
+where
+  name in (
+    'cncf/gha2pg',
+    'cncf/gha2db'
+  ) or name like 'cncf/devstats%'
+;
 
 select
   repo_group,
