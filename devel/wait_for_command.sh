@@ -40,9 +40,10 @@ do
   if [ "$running" -ge "1" ]
   then
     info="${info}, ${running}/${all} running"
-    if [ "$trials" -eq "0" ]
+    if ( [ "$trials" -eq "0" ] || [ ! "$info" = "$lastinfo" ] )
     then
       echo "${info}, waiting"
+      lastinfo=$info
     fi
     sleep 1
     trials=$((trials+1))
