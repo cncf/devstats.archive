@@ -53,7 +53,10 @@ util_scripts:
 
 data: util_scripts
 	[ ! -f /tmp/deploy.wip ] || exit 1
-	wait_for_command.sh devstats 3600 || exit 2
+	wait_for_command.sh devstats 600 || exit 2
+	wait_for_command.sh devstats_others 600 || exit 3
+	wait_for_command.sh devstats_kubernetes 600 || exit 4
+	wait_for_command.sh devstats_allprj 600 || exit 5
 	make copydata
 
 copydata: util_scripts
