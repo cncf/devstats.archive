@@ -204,7 +204,7 @@ do
     PROJ=brigade             PROJDB=brigade        PROJREPO="brigadecore/brigade"             ORGNAME=Brigade           PORT=3033 ICON=brigade        GRAFSUFF=brigade        GA="UA-108085315-44" ./devel/deploy_proj.sh || exit 44
   elif [ "$proj" = "crio" ]
   then
-    PROJ=crio                PROJDB=crio           PROJREPO="kubernetes-sigs/cri-o"           ORGNAME="CRI-O"           PORT=3034 ICON=crio           GRAFSUFF=crio           GA="UA-108085315-45" ./devel/deploy_proj.sh || exit 42
+    PROJ=crio                PROJDB=crio           PROJREPO="cri-o/cri-o"                     ORGNAME="CRI-O"           PORT=3034 ICON=crio           GRAFSUFF=crio           GA="UA-108085315-45" ./devel/deploy_proj.sh || exit 42
   elif [ "$proj" = "opencontainers" ]
   then
     PROJ=opencontainers      PROJDB=opencontainers PROJREPO="opencontainers/runc"             ORGNAME=OCI               PORT=3100 ICON="-"            GRAFSUFF=opencontainers GA="UA-108085315-19" ./devel/deploy_proj.sh || exit 32

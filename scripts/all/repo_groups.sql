@@ -394,7 +394,8 @@ set
   repo_group = 'CRI-O',
   alias = 'CRI-O'
 where
-  name in (
+  org_login in ('cri-o')
+  or name in (
     'kubernetes-sigs/cri-o',
     'kubernetes-incubator/ocid',
     'kubernetes-incubator/cri-o'

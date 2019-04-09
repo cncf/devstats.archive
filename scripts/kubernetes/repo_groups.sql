@@ -148,7 +148,6 @@ update gha_repos set repo_group = 'SIG Network' where name in (
 update gha_repos set repo_group = 'SIG Node' where name in (
   'kubernetes-incubator/node-feature-discovery',
   'kubernetes-incubator/rktlet',
-  'kubernetes-sigs/cri-o',
   'kubernetes-sigs/cri-tools',
   'kubernetes/frakti',
   'kubernetes/node-problem-detector'
