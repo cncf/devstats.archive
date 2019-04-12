@@ -10,3 +10,4 @@ Those steps are generally needed to change project status (usually from `Incubat
 - Run to update partials: `PG_PASS=... ./devel/vars_all.sh`.
 - Update test and production www index files: `apache/www/index_test.html apache/www/index_prod.html`.
 - Install them as `/var/www/html/index.html` on test and production respectively: `cp apache/www/index_envname.html /var/www/html/index.html`.
+- Install everything: `make install`.
