@@ -402,6 +402,19 @@ where
   )
 ;
 
+-- Network Service Mesh
+update
+  gha_repos
+set
+  repo_group = 'Network Service Mesh',
+  alias = 'Network Service Mesh'
+where
+  org_login in ('networkservicemesh')
+  or name in (
+    'ligato/networkservicemesh',
+  )
+;
+
 -- CNCF
 update
   gha_repos
