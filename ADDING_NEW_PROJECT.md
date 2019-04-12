@@ -46,6 +46,7 @@ This file describes how to add new project on the test and production servers.
 - Open `newproject.teststats.cncf.io` login with admin/admin, change the default password. Everything should be automatically populated, in case of any problems refer to `GRAFANA.md` file.
 - Final deploy script is: `./devel/deploy_all.sh`. It should do all deployment automatically on the prod server. Follow all code from this script (eventually run some parts manually, the final version should do full deploy OOTB).
 - If added disabled project, remember to add it to `crontab -e` via `GHA2DB_PROJECTS_OVERRIDE="+new_disabled_project"`.
+- Also add in another devstats repositories, follow `devstats-docker-images:NEW_PROJECT.md`.
 
 # Updating artwork icons
 
