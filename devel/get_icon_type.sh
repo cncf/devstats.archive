@@ -45,6 +45,7 @@ icontypes=(
   ["spinnaker"]="color"
   ["knative"]="color"
   ["crio"]="color"
+  ["networkservicemesh"]="color"
   ["tekton"]="color"
   ["jenkins"]="color"
   ["jenkinsx"]="color"
