@@ -411,7 +411,7 @@ set
 where
   org_login in ('networkservicemesh')
   or name in (
-    'ligato/networkservicemesh',
+    'ligato/networkservicemesh'
   )
 ;
 
