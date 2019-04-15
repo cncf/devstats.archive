@@ -29,6 +29,8 @@ cp "grafana/img/$ICON.svg" "/usr/share/grafana/public/img/grafana_com_auth_icon.
 cp "grafana/img/$ICON.svg" "/usr/share/grafana/public/img/grafana_net_logo.svg" || exit 12
 cp "grafana/img/$ICON.svg" "/usr/share/grafana/public/img/grafana_mask_icon.svg" || exit 13
 GRAFANA_DATA="/usr/share/grafana/" ./grafana/$PROJ/change_title_and_icons.sh || exit 14
+mkdir /usr/share/grafana/public/img/projects 2>/dev/null
+cp grafana/img/*.svg /usr/share/grafana/public/img/projects/ || exit 26
 cfile="/etc/grafana/grafana.ini"
 cp ./grafana/shared/grafana.ini.example "$cfile" || exit 16
 MODE=ss FROM='{{project}}' TO="$PROJ" replacer "$cfile" || exit 17
