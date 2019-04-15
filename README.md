@@ -87,6 +87,8 @@ DevStats has an import tool that fetches company affiliations from `cncf/gitdm` 
 
 If you see errors in the company affiliations, please open a pull request on [cncf/gitdm](https://github.com/cncf/gitdm) and the updates will be reflected on [https://k8s.devstats.cncf.io](https://k8s.devstats.cncf.io) a couple days after the PR has been accepted. Note that gitdm supports mapping based on dates, to account for developers moving between companies.
 
+New affiliations are imported into DevStats about 1-2 times/month.
+
 # Architecture
 
 For architecture details please see [architecture](https://github.com/cncf/devstats/blob/master/ARCHITECTURE.md) file.
