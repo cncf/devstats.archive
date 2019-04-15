@@ -47,6 +47,9 @@ do
   cp -n "/usr/share/grafana.$suff/public/img/fav_dark_32.png" "/usr/share/grafana.$suff/public/img/fav_dark_32.png.bak" || exit 12
   cp "grafana/img/${icon}32.png" "/usr/share/grafana.$suff/public/img/fav_dark_32.png" || exit 13
 
+  mkdir "/usr/share/grafana.$suff/public/img/projects" 2>/dev/null
+  cp grafana/img/*.svg "/usr/share/grafana.$suff/public/img/projects/" || exit 18
+
 done
 
 # Special cases
