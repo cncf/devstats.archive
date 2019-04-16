@@ -24,3 +24,5 @@ GHA2DB_RECENT_RANGE="4 hours" GHA2DB_TMOFFSET="-4" GHA2DB_PROJECTS_OVERRIDE="+cn
 
 ONLY="linux zephyr all" GHA2DB_PROJECTS_OVERRIDE="+linux,+zephyr" ./devel/all_affs.sh || exit 8
 GHA2DB_RECENT_RANGE="4 hours" GHA2DB_TMOFFSET="-4" GHA2DB_PROJECTS_OVERRIDE="+cncf,+opencontainers,+istio,+knative,+linux,+zephyr" devstats
+
+./devel/columns_all.sh
