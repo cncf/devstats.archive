@@ -43,4 +43,4 @@ do
     GHA2DB_PROJECT=$proj PG_DB=$db ./shared/update_affs.sh || exit 4
   fi
 done
-echo 'All affiliations updated'
+echo 'All affiliations updated, you should run ./devel/columns_all.sh now'
