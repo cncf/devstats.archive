@@ -110,6 +110,8 @@ then
     fi
   fi
   GRAFANA_DATA="/usr/share/grafana.$GRAFSUFF/" ./grafana/$PROJ/change_title_and_icons.sh || exit 16
+  mkdir "/usr/share/grafana.$GRAFSUFF/public/img/projects" 2>/dev/null
+  cp grafana/img/*.svg "/usr/share/grafana.$GRAFSUFF/public/img/projects/" || exit 51
 
   cp ./grafana/shared/datasource.yaml.example "/usr/share/grafana.$GRAFSUFF/conf/provisioning/datasources/datasources.yaml" || exit 39
   cfile="/usr/share/grafana.$GRAFSUFF/conf/provisioning/datasources/datasources.yaml"
@@ -231,7 +233,7 @@ then
   then
     echo 'provisioning other preferences (project specific)'
     cfile="/etc/grafana.$GRAFSUFF/custom_sqlite.sql"
-    cp "grafana/${PROJ}/custom_sqlite.sql" "$cfile" || exit 46
+    cp "grafana/${PROJ}/custom_sqlite.sql" "$cfile" || exit 50
     MODE=ss FROM='{{uid}}' TO="${uid}" replacer "$cfile"
     MODE=ss FROM='{{org}}' TO="${ORGNAME}" replacer "$cfile"
     sqlite3 -echo -header -csv "/var/lib/grafana.$GRAFSUFF/grafana.db" < "$cfile" || exit 23
