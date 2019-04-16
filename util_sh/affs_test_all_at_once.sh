@@ -6,3 +6,5 @@ then
 fi
 GHA2DB_PROJECTS_OVERRIDE="+cncf,+opencontainers,+istio,+knative,+linux,+zephyr" ./devel/all_affs.sh || exit 2
 GHA2DB_RECENT_RANGE="12 hours" GHA2DB_TMOFFSET="-4" GHA2DB_PROJECTS_OVERRIDE="+cncf,+opencontainers,+istio,+knative,+linux,+zephyr" devstats
+
+./devel/columns_all.sh
