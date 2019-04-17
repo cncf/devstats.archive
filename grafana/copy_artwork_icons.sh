@@ -23,7 +23,7 @@ do
     icon="cdf"
   fi
   # TODO: remove when we have icons
-  if ( [ "$icon" = "istio" ] || [ "$icon" = "knative" ] || [ "$icon" = "networkservicemesh" ] )
+  if ( [ "$icon" = "istio" ] || [ "$icon" = "knative" ] || [ "$icon" = "contrib" ] || [ "$icon" = "networkservicemesh" ] )
   then
     icon="cncf"
   fi

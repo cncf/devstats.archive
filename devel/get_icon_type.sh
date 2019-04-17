@@ -53,6 +53,7 @@ icontypes=(
   ["all"]="color"
   ["devstats"]="color"
   ["cdf"]="color"
+  ["contrib"]="color"
   ["allcdf"]="color"
 )
 icontype=${icontypes[$1]}
