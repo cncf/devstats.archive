@@ -24,16 +24,19 @@ do
     icon="cdf"
   fi
   # TODO: remove when we have icons
-  if ( [ "$icon" = "istio" ] || [ "$icon" = "knative" ] || [ "$icon" = "networkservicemesh" ] )
+  if ( [ "$icon" = "istio" ] || [ "$icon" = "knative" ] || [ "$icon" = "contrib" ] || [ "$icon" = "networkservicemesh" ] )
   then
     icon="cncf"
   fi
   icontype=`./devel/get_icon_type.sh "$proj"` || exit 1
   iconorg=`./devel/get_icon_source.sh "$proj"` || exit 4
   path=$icon
-  if [ "$path" = "devstats" ]
+  if ( [ "$path" = "devstats" ] || [ "$path" = "cncf" ] )
   then
     path="other/$icon"
+  elif [ "$iconorg" = "cncf" ]
+  then
+    path="projects/$icon"
   fi
   cp "$HOME/dev/$iconorg/artwork/$path/icon/$icontype/$icon-icon-$icontype.svg" "grafana/img/$suff.svg" || exit 2
   convert "$HOME/dev/$iconorg/artwork/$path/icon/$icontype/$icon-icon-$icontype.png" -resize 32x32 "grafana/img/${suff}32.png" || exit 3
