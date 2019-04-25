@@ -168,7 +168,7 @@ do
          PROJ=telepresence   PROJDB=telepresence   PROJREPO="telepresenceio/telepresence"     ORGNAME=Telepresence      PORT=3021 ICON=telepresence   GRAFSUFF=telepresence   GA="UA-108085315-26" ./devel/deploy_proj.sh || exit 23
   elif [ "$proj" = "helm" ]
   then
-         PROJ=helm           PROJDB=helm           PROJREPO="kubernetes/helm"                 ORGNAME=Helm              PORT=3022 ICON=helm           GRAFSUFF=helm           GA="UA-108085315-27" ./devel/deploy_proj.sh || exit 24
+         PROJ=helm           PROJDB=helm           PROJREPO="helm/helm"                       ORGNAME=Helm              PORT=3022 ICON=helm           GRAFSUFF=helm           GA="UA-108085315-27" ./devel/deploy_proj.sh || exit 24
   elif [ "$proj" = "openmetrics" ]
   then
          PROJ=openmetrics    PROJDB=openmetrics    PROJREPO="OpenObservability/OpenMetrics"   ORGNAME=OpenMetrics       PORT=3023 ICON=openmetrics    GRAFSUFF=openmetrics    GA="UA-108085315-28" ./devel/deploy_proj.sh || exit 25

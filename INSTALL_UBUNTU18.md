@@ -45,7 +45,7 @@ Prerequisites:
     - `sudo -i -u postgres`, `psql` and as root `sudo -u postgres psql` to test installation.
     - Postgres only allows local connections by default so it is secure, we don't need to disable external connections:
     - Config file is: `/etc/postgresql/10/main/pg_hba.conf`, instructions to enable external connections (not recommended): `http://www.thegeekstuff.com/2014/02/enable-remote-postgresql-connection/?utm_source=tuicool`
-    - You need to set something like `host all all 1.2.3.4/32 md5` in this fiel and also `listen_addresses = '*'` in `postgresql.conf`.
+    - You need to set something like `host all all 1.2.3.4/32 md5` in this file and also `listen_addresses = '*'` in `postgresql.conf`.
     - Set bigger maximum number of connections, at least 4x number of your CPU cores or more: `/etc/postgresql/10/main/postgresql.conf`. Default is 100. `max_connections = 300`.
     - You can also set `shared_buffers = ...` to something like 25% of your RAM. This is optional.
     - `service postgresql restart` or `systemctl restart postgresql@10-main`.

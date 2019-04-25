@@ -23,17 +23,25 @@ do
     icon="cdf"
   fi
   # TODO: remove when we have icons
-  if ( [ "$icon" = "istio" ] || [ "$icon" = "knative" ] || [ "$icon" = "networkservicemesh" ] )
+  if ( [ "$icon" = "istio" ] || [ "$icon" = "knative" ] || [ "$icon" = "contrib" ] || [ "$icon" = "networkservicemesh" ] )
   then
     icon="cncf"
   fi
   icontype=`./devel/get_icon_type.sh "$proj"` || exit 1
   iconorg=`./devel/get_icon_source.sh "$proj"` || exit 18
-  echo "Proj: $proj, icon: $icon, icon type: $icontype:, suffix: $suff"
-  cp "$HOME/dev/$iconorg/artwork/$icon/icon/$icontype/$icon-icon-$icontype.svg" "/usr/share/grafana.$suff/public/img/grafana_icon.svg" || exit 2
-  cp "$HOME/dev/$iconorg/artwork/$icon/icon/$icontype/$icon-icon-$icontype.svg" "/usr/share/grafana.$suff/public/img/grafana_com_auth_icon.svg" || exit 3
-  cp "$HOME/dev/$iconorg/artwork/$icon/icon/$icontype/$icon-icon-$icontype.svg" "/usr/share/grafana.$suff/public/img/grafana_net_logo.svg" || exit 4
-  cp "$HOME/dev/$iconorg/artwork/$icon/icon/$icontype/$icon-icon-$icontype.svg" "/usr/share/grafana.$suff/public/img/grafana_mask_icon.svg" || exit 5
+  path=$icon
+  if ( [ "$path" = "devstats" ] || [ "$path" = "cncf" ] )
+  then
+    path="other/$icon"
+  elif [ "$iconorg" = "cncf" ]
+  then
+    path="projects/$icon"
+  fi
+  # echo "Proj: $proj, icon: $icon, path: $path, icon type: $icontype:, icon org: $iconorg, suffix: $suff"
+  cp "$HOME/dev/$iconorg/artwork/$path/icon/$icontype/$icon-icon-$icontype.svg" "/usr/share/grafana.$suff/public/img/grafana_icon.svg" || exit 2
+  cp "$HOME/dev/$iconorg/artwork/$path/icon/$icontype/$icon-icon-$icontype.svg" "/usr/share/grafana.$suff/public/img/grafana_com_auth_icon.svg" || exit 3
+  cp "$HOME/dev/$iconorg/artwork/$path/icon/$icontype/$icon-icon-$icontype.svg" "/usr/share/grafana.$suff/public/img/grafana_net_logo.svg" || exit 4
+  cp "$HOME/dev/$iconorg/artwork/$path/icon/$icontype/$icon-icon-$icontype.svg" "/usr/share/grafana.$suff/public/img/grafana_mask_icon.svg" || exit 5
   if [ "$icon" = "kubernetes" ]
   then
     icon="k8s"
