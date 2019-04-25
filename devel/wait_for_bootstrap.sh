@@ -3,7 +3,7 @@ logdb=devstats
 logtable=gha_logs
 waits=1
 waitn=1
-maxwait=8
+maxwait=9
 if [ -z "$1" ]
 then
   waitafter=5
