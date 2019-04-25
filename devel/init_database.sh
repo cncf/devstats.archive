@@ -3,6 +3,7 @@
 # LDROP=1 attempt to drop devstats database
 # NOCREATE=1 skip creating anything - can be used with UDROP and LDROP to drop database and users and do not create anything
 # SETPASS=1 (should be set on a real first run to set main postgres password interactively, CANNOT be used without user interaction)
+# WAITBOOT=N (use devel/wait_for_postgres.sh script before proceeding to bootstrap)
 set -o pipefail
 if ( [ -z "$PG_PASS" ] || [ -z "$PG_PASS_RO" ] || [ -z "$PG_PASS_TEAM" ] )
 then
@@ -20,6 +21,14 @@ then
 fi
 
 echo "$0 start"
+
+if [ ! -z "$WAITBOOT" ]
+then
+  echo "$0: $PROJ wait for postgres ready"
+  ./devel/wait_for_postgres.sh $WAITBOOT || exit 13
+  echo "$0: $PROJ wait for postgres ready completed"
+fi
+
 if [ ! -z "${SETPASS}" ]
 then
   ./devel/set_psql_password.sh

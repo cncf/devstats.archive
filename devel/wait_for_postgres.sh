@@ -12,15 +12,14 @@ else
 fi
 while true
 do
-  exists=`./devel/db.sh psql "$logdb" -tAc "select 1 from pg_tables where tablename = '$logtable'" 2>&1`
+  exists=`./devel/db.sh psql -tAc "select 1" 2>&1`
   # echo "exists: '$exists'"
   if [[ "$exists" == *"you need to set PG_PASS"* ]]
   then
     echo "$0: no PG_PASS passed"
     exit 1
   fi
-  # if [[ "$exists" == *"authentication failed"* ]] || [[ "$exists" == *"does not exist"* ]] || [[ "$exists" == *"could not connect to server"* ]]
-  if [[ "$exists" == *"authentication failed"* ]] || [[ "$exists" == *"does not exist"* ]] || [[ "$exists" == *"could not translate host name"* ]]
+  if [[ "$exists" == *"could not translate host name"* ]]
   then
     echo "$0: #$waitn wait ${waits}s"
     sleep $waits
@@ -36,5 +35,5 @@ do
   fi
   break
 done
-echo "Bootstrap complete, waiting final ${waitafter}s"
+echo "Postgres available, waiting final ${waitafter}s"
 sleep $waitafter
