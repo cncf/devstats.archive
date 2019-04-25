@@ -15,7 +15,7 @@ else
   ga="google_analytics_ua_id = $GA"
 fi
 
-# Artwork
+# ARTWORK
 if [ ! -f "grafana/img/$PROJ.svg" ]
 then
   cp "grafana/img/$ICON.svg" "grafana/img/$PROJ.svg" || exit 24

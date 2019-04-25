@@ -12,4 +12,4 @@
 
 # Other repos
 
-- Run `./find.sh . '*' ARTWORK` on `github.com/cncf/devstats-helm-lf` and `github.com/cncf/devstats-k8s-lf`.
+- Run `./find.sh . '*' ARTWORK` on `github.com/cncf/devstats-helm-lf`, `github.com/cncf/devstats-k8s-lf`, `github.com/cncf/devstats-helm-example`, `github.com/cncf/devstats-docker-lf`, `github.com/cncf/devstats-docker-images` and `github.com/cncf/devstats-example`.
