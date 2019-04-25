@@ -19,13 +19,14 @@ do
     echo "$0: no PG_PASS passed"
     exit 1
   fi
-  if [[ "$exists" == *"authentication failed"* ]] || [[ "$exists" == *"does not exist"* ]]
+  if [[ "$exists" == *"authentication failed"* ]] || [[ "$exists" == *"does not exist"* ]] || [[ "$exists" == *"could not connect to server"* ]]
   then
     echo "$0: #$waitn wait ${waits}s"
     sleep $waits
     if [ "$waitn" = "$maxwait" ]
     then
       echo "$0: aborting"
+      echo "exists: '$exists'"
       exit 2
     fi
     ((waits*=2))
