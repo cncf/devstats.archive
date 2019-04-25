@@ -94,19 +94,27 @@ then
     cd "$ARTWORK" || exit 4
     git pull || exit 5
     cd $wd || exit 6
-    cp "$ARTWORK/$ICON/icon/$icontype/$ICON-icon-$icontype.svg" "/usr/share/grafana.$GRAFSUFF/public/img/grafana_icon.svg" || exit 8
-    cp "$ARTWORK/$ICON/icon/$icontype/$ICON-icon-$icontype.svg" "/usr/share/grafana.$GRAFSUFF/public/img/grafana_com_auth_icon.svg" || exit 9
-    cp "$ARTWORK/$ICON/icon/$icontype/$ICON-icon-$icontype.svg" "/usr/share/grafana.$GRAFSUFF/public/img/grafana_net_logo.svg" || exit 10
-    cp "$ARTWORK/$ICON/icon/$icontype/$ICON-icon-$icontype.svg" "/usr/share/grafana.$GRAFSUFF/public/img/grafana_mask_icon.svg" || exit 11
-    convert "$ARTWORK/$ICON/icon/$icontype/$ICON-icon-$icontype.png" -resize 80x80 "/var/www/html/img/$PROJ-icon-color.png" || exit 12
-    cp "$ARTWORK/$ICON/icon/$icontype/$ICON-icon-$icontype.svg" "/var/www/html/img/$PROJ-icon-color.svg" || exit 13
+    path=$ICON
+    if ( [ "$path" = "devstats" ] || [ "$path" = "cncf" ] )
+    then
+      path="other/$icon"
+    elif [ "$iconorg" = "cncf" ]
+    then
+      path="projects/$icon"
+    fi
+    cp "$ARTWORK/$path/icon/$icontype/$ICON-icon-$icontype.svg" "/usr/share/grafana.$GRAFSUFF/public/img/grafana_icon.svg" || exit 8
+    cp "$ARTWORK/$path/icon/$icontype/$ICON-icon-$icontype.svg" "/usr/share/grafana.$GRAFSUFF/public/img/grafana_com_auth_icon.svg" || exit 9
+    cp "$ARTWORK/$path/icon/$icontype/$ICON-icon-$icontype.svg" "/usr/share/grafana.$GRAFSUFF/public/img/grafana_net_logo.svg" || exit 10
+    cp "$ARTWORK/$path/icon/$icontype/$ICON-icon-$icontype.svg" "/usr/share/grafana.$GRAFSUFF/public/img/grafana_mask_icon.svg" || exit 11
+    convert "$ARTWORK/$path/icon/$icontype/$ICON-icon-$icontype.png" -resize 80x80 "/var/www/html/img/$PROJ-icon-color.png" || exit 12
+    cp "$ARTWORK/$path/icon/$icontype/$ICON-icon-$icontype.svg" "/var/www/html/img/$PROJ-icon-color.svg" || exit 13
     if [ ! -f "grafana/img/$GRAFSUFF.svg" ]
     then
-      cp "$ARTWORK/$ICON/icon/$icontype/$ICON-icon-$icontype.svg" "grafana/img/$GRAFSUFF.svg" || exit 14
+      cp "$ARTWORK/$path/icon/$icontype/$ICON-icon-$icontype.svg" "grafana/img/$GRAFSUFF.svg" || exit 14
     fi
     if [ ! -f "grafana/img/${GRAFSUFF}32.png" ]
     then
-      convert "$ARTWORK/$ICON/icon/$icontype/$ICON-icon-$icontype.png" -resize 32x32 "grafana/img/${GRAFSUFF}32.png" || exit 15
+      convert "$ARTWORK/$path/icon/$icontype/$ICON-icon-$icontype.png" -resize 32x32 "grafana/img/${GRAFSUFF}32.png" || exit 15
     fi
   fi
   GRAFANA_DATA="/usr/share/grafana.$GRAFSUFF/" ./grafana/$PROJ/change_title_and_icons.sh || exit 16
