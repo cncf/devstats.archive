@@ -213,7 +213,7 @@ do
     PROJ=opencontainers      PROJDB=opencontainers PROJREPO="opencontainers/runc"             ORGNAME=OCI               PORT=3100 ICON="-"            GRAFSUFF=opencontainers GA="UA-108085315-19" ./devel/deploy_proj.sh || exit 32
   elif [ "$proj" = "cncf" ]
   then
-    PROJ=cncf                PROJDB=cncf           PROJREPO="cncf/landscape"                  ORGNAME=CNCF              PORT=3255 ICON=cncf           GRAFSUFF=cncf           GA="UA-108085315-8"  ./devel/deploy_proj.sh || exit 33
+    PROJ=cncf                PROJDB=cncf           PROJREPO="cncf/landscapeapp"               ORGNAME=CNCF              PORT=3255 ICON=cncf           GRAFSUFF=cncf           GA="UA-108085315-8"  ./devel/deploy_proj.sh || exit 33
   elif [ "$proj" = "istio" ]
   then
     PROJ=istio               PROJDB=istio          PROJREPO="istio/istio"                     ORGNAME=Istio             PORT=3101 ICON=cncf           GRAFSUFF=istio          GA="-"               ./devel/deploy_proj.sh || exit 34

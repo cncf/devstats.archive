@@ -13,5 +13,5 @@ fi
 for f in $*
 do
   ls -l "$f"
-  vim -c "%s/${FROM}/${TO}/g|wq" "$f"
+  vim --not-a-term -c "%s/${FROM}/${TO}/g" -c "wq!" "$f"
 done
