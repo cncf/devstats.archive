@@ -11,12 +11,12 @@ then
   for f in `find ${GRAFANA_DATA} -type f -exec grep -l "'Grafana - '" "{}" \; | sort | uniq`
   do
     ls -l "$f"
-    vim -c --not-a-term "%s/'Grafana - '/'Linux DevStats - '/g|wq" "$f"
+    vim --not-a-term -c "%s/'Grafana - '/'Linux DevStats - '/g" -c 'wq!' "$f"
   done
   for f in `find ${GRAFANA_DATA} -type f -exec grep -l '"Grafana - "' "{}" \; | sort | uniq`
   do
     ls -l "$f"
-    vim -c --not-a-term '%s/"Grafana - "/"Linux DevStats - "/g|wq' "$f"
+    vim --not-a-term -c '%s/"Grafana - "/"Linux DevStats - "/g' -c 'wq!' "$f"
   done
 fi
 cp -n ${GRAFANA_DATA}/public/img/grafana_icon.svg ${GRAFANA_DATA}/public/img/grafana_icon.svg.bak
