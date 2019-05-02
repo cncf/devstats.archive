@@ -33,19 +33,23 @@ with matching as (
     and sub.cmd is not null
 )
 select
-  'bot_cmds,' || substring(cmd from 1) || '`All' as command,
-  round(count(distinct eid) / {{n}}, 2) as count_value
-from
-  matching
-group by
-  cmd
-union select 'bot_cmds,' || substring(cmd from 1) || '`' || repo_group as command,
-  round(count(distinct eid) / {{n}}, 2) as count_value
-from
-  matching
-group by
-  cmd,
-  repo_group
+  sub.command,
+  sub.count_value
+from (
+  select 'bot_cmds,' || substring(cmd from 1) || '`All' as command,
+    round(count(distinct eid) / {{n}}, 2) as count_value
+  from
+    matching
+  group by
+    cmd
+  union select 'bot_cmds,' || substring(cmd from 1) || '`' || repo_group as command,
+    round(count(distinct eid) / {{n}}, 2) as count_value
+  from
+    matching
+  group by
+    cmd,
+    repo_group
+  ) sub
 order by
   count_value desc,
   command asc;
