@@ -350,7 +350,10 @@ func executeMetricTestCase(testMetric *metricTestCase, tests *metricTests, ctx *
 	lib.DropDatabaseIfExists(ctx)
 
 	// Create database if needed
-	createdDatabase := lib.CreateDatabaseIfNeeded(ctx)
+	createdDatabase := lib.CreateDatabaseIfNeededExtended(
+		ctx,
+		"lc_collate = 'en_US.UTF-8' lc_ctype = 'en_US.UTF-8' encoding = 'UTF8' template = 'template0'",
+	)
 	if !createdDatabase {
 		err = fmt.Errorf("failed to create database \"%s\"", ctx.PgDB)
 		return
