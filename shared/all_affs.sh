@@ -16,9 +16,10 @@ then
 fi
 
 if [ ! -z "$SKIPTEMP" ]
+then
   db=$PG_DB
   tdb=$PG_DB
-then
+else
   db=$PG_DB
   tdb="${PG_DB}_temp"
   ./devel/db.sh pg_dump -Fc $db -f /tmp/$tdb.dump || exit 1
@@ -33,14 +34,16 @@ then
 else
   GHA2DB_PROJECT=$proj PG_DB=$tdb ./shared/import_affs.sh || exit 5
 fi
+
 if [ -f "./$proj/update_affs.sh" ]
 then
   PG_DB=$tdb ./$proj/update_affs.sh || exit 6
 else
-  GHA2DB_PROJECT=$proj PG_DB=$db ./shared/update_affs.sh || exit 7
+  GHA2DB_PROJECT=$proj PG_DB=$tdb ./shared/update_affs.sh || exit 7
 fi
 
 if [ -z "$SKIPTEMP" ]
+then
   ./devel/drop_psql_db.sh $db || exit 8
   ./devel/db.sh psql postgres -c "select pg_terminate_backend(pid) from pg_stat_activity where datname = '$tdb'" || exit 9
   ./devel/db.sh psql postgres -c "alter database \"$tdb\" rename to \"$db\"" || exit 10
