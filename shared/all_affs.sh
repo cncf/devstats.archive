@@ -39,7 +39,7 @@ if [ -f "./$proj/update_affs.sh" ]
 then
   PG_DB=$tdb ./$proj/update_affs.sh || exit 6
 else
-  GHA2DB_PROJECT=$proj PG_DB=$db ./shared/update_affs.sh || exit 7
+  GHA2DB_PROJECT=$proj PG_DB=$tdb ./shared/update_affs.sh || exit 7
 fi
 
 if [ -z "$SKIPTEMP" ]
