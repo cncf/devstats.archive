@@ -19,7 +19,7 @@ fi
 
 GHA2DB_LOCAL=1 GHA2DB_PROCESS_REPOS=1 get_repos
 
-. ./devel/all_projs.sh || exit 2
+. ./devel/all_projs.sh || exit 1
 for proj in $all
 do
   db=$proj
@@ -30,17 +30,6 @@ do
   then
     db="allprj"
   fi
-  if [ -f "./$proj/import_affs.sh" ]
-  then
-    ./$proj/import_affs.sh || exit 1
-  else
-    GHA2DB_PROJECT=$proj PG_DB=$db ./shared/import_affs.sh || exit 2
-  fi
-  if [ -f "./$proj/update_affs.sh" ]
-  then
-    ./$proj/update_affs.sh || exit 3
-  else
-    GHA2DB_PROJECT=$proj PG_DB=$db ./shared/update_affs.sh || exit 4
-  fi
+  GHA2DB_PROJECT=$proj PG_DB=$db ./shared/all_affs.sh || exit 2
 done
 echo 'All affiliations updated, you should run ./devel/columns_all.sh now'
