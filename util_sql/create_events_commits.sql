@@ -107,4 +107,5 @@ on
   and sub.event_id = ecf.event_id
 where
   ecf.sha is null
+on conflict do nothing
 ;
