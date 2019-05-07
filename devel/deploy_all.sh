@@ -240,4 +240,8 @@ if [ -z "$SKIPVARS" ]
 then
   ./devel/vars_all.sh || exit 38
 fi
+
+make || exit 47
+make install || exit 48
+
 echo "$0: All deployments finished"
