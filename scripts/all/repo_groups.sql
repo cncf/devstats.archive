@@ -415,6 +415,16 @@ where
   )
 ;
 
+-- OpenEBS
+update
+  gha_repos
+set
+  repo_group = 'OpenEBS',
+  alias = 'OpenEBS'
+where
+  org_login in ('openebs')
+;
+
 -- CNCF
 update
   gha_repos
