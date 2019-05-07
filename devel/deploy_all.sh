@@ -241,7 +241,8 @@ then
   ./devel/vars_all.sh || exit 38
 fi
 
-make || exit 47
-make install || exit 48
+./devel/icons_all.sh || exit 47
+make || exit 48
+make install || exit 49
 
 echo "$0: All deployments finished"
