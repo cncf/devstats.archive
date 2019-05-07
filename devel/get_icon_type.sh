@@ -46,6 +46,7 @@ icontypes=(
   ["knative"]="color"
   ["crio"]="color"
   ["networkservicemesh"]="color"
+  ["openebs"]="color"
   ["tekton"]="color"
   ["jenkins"]="color"
   ["jenkinsx"]="color"
