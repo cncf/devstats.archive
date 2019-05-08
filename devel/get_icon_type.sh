@@ -47,6 +47,7 @@ icontypes=(
   ["crio"]="color"
   ["networkservicemesh"]="color"
   ["openebs"]="color"
+  ["opentelemetry"]="color"
   ["tekton"]="color"
   ["jenkins"]="color"
   ["jenkinsx"]="color"
