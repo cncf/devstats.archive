@@ -210,7 +210,10 @@ do
     PROJ=networkservicemesh  PROJDB=networkservicemesh PROJREPO="networkservicemesh/networkservicemesh" ORGNAME="Network Service Mesh" PORT=3035 ICON=cncf GRAFSUFF=networkservicemesh GA="UA-108085315-46" ./devel/deploy_proj.sh || exit 45
   elif [ "$proj" = "openebs" ]
   then
-    PROJ=openebs             PROJDB=openebs         PROJREPO="openebs/openebs"                ORGNAME=OpenEBS           PORT=3036 ICON=cncf           GRAFSUFF=openebs        GA="UA-108085315-47" ./devel/deploy_proj.sh || exit 46
+    PROJ=openebs             PROJDB=openebs        PROJREPO="openebs/openebs"                ORGNAME=OpenEBS            PORT=3036 ICON=cncf           GRAFSUFF=openebs        GA="UA-108085315-47" ./devel/deploy_proj.sh || exit 46
+  elif [ "$proj" = "opentelemetry" ]
+  then
+    PROJ=opentelemetry       PROJDB=opentelemetry  PROJREPO="opentelemetry/opentelemetry-java" ORGNAME=OpenTelemetry    PORT=3037 ICON=cncf           GRAFSUFF=opentelemetry  GA="UA-108085315-48" ./devel/deploy_proj.sh || exit 50
   elif [ "$proj" = "opencontainers" ]
   then
     PROJ=opencontainers      PROJDB=opencontainers PROJREPO="opencontainers/runc"             ORGNAME=OCI               PORT=3100 ICON="-"            GRAFSUFF=opencontainers GA="UA-108085315-19" ./devel/deploy_proj.sh || exit 32
