@@ -97,10 +97,10 @@ then
     path=$ICON
     if ( [ "$path" = "devstats" ] || [ "$path" = "cncf" ] )
     then
-      path="other/$icon"
+      path="other/$ICON"
     elif [ "$iconorg" = "cncf" ]
     then
-      path="projects/$icon"
+      path="projects/$ICON"
     fi
     cp "$ARTWORK/$path/icon/$icontype/$ICON-icon-$icontype.svg" "/usr/share/grafana.$GRAFSUFF/public/img/grafana_icon.svg" || exit 8
     cp "$ARTWORK/$path/icon/$icontype/$ICON-icon-$icontype.svg" "/usr/share/grafana.$GRAFSUFF/public/img/grafana_com_auth_icon.svg" || exit 9

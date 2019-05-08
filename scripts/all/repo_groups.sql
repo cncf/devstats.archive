@@ -415,6 +415,26 @@ where
   )
 ;
 
+-- OpenEBS
+update
+  gha_repos
+set
+  repo_group = 'OpenEBS',
+  alias = 'OpenEBS'
+where
+  org_login in ('openebs')
+;
+
+-- OpenTelemetry
+update
+  gha_repos
+set
+  repo_group = 'OpenTelemetry',
+  alias = 'OpenTelemetry'
+where
+  org_login in ('open-telemetry')
+;
+
 -- CNCF
 update
   gha_repos

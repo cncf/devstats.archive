@@ -15,13 +15,13 @@ This file describes how to add new project on the test and production servers.
 
 - Do not commit changes until all is ready, or commit with `[no deploy]` in the commit message.
 - Add project entry to `projects.yaml` file. Find projects orgs, repos, select start date, eventually add test coverage for complex regular expression in `regexp_test.go`.
-- To identify repo and/or org name changes, date ranges for entrire projest use `util_sh/(repo|org)_name_changes_bigquery.sh org|org/repo`.
+- To identify repo and/or org name changes, date ranges for entrire projest use `util_sh/(repo|org)_name_changes_bigquery.sh org|org/repo`. You may need to update `util_sql/(org_repo)_name_changes_bigquery.sql` to include newest months.
 - Main repo can be empty `''` - in this case only two annotations will be added: 'start date - CNCF join date' and 'CNCF join date - now".
 - CNCF join dates are listed [here](https://github.com/cncf/toc#projects).
 - Update projects list files: `devel/all_prod_dbs.txt devel/all_prod_projects.txt devel/all_test_dbs.txt devel/all_test_projects.txt util_sh/affs_test.sh util_sh/affs_prod.sh CONTRIBUTORS.md devel/get_icon_type.sh devel/get_icon_source.sh`.
 - Add this new project config to 'All' project in `projects.yaml all/psql.sh grafana/dashboards/all/dashboards.json scripts/all/repo_groups.sql util_sh/calculate_hours.sh`.
 - Add entire new project as a new repo group in 'All' project.
-- Update `cncf/gitdm:src/generate_actors.sh`.
+- Update `cncf/gitdm:src/generate_actors*.sh`.
 - Add Google Analytics (GA) for the new domain and keep the `UA-...` code for deployment.
 - Review `grafana/copy_artwork_icons.sh apache/www/copy_icons.sh grafana/create_images.sh grafana/change_title_and_icons_all.sh` - maybe you need to add special case. Icon related scripts are marked 'ARTWORK'.
 - Copy setup scripts and then adjust them: `cp -R oldproject/ projectname/`, `vim projectname/*`. Most them can be shared for all projects in `./shared/`, usually only `psql.sh` is project specific.
@@ -43,7 +43,8 @@ This file describes how to add new project on the test and production servers.
 - Run deploy all script: `GHA2DB_PROJECTS_OVERRIDE="+proj1,+proj2" HEALTH=1 SKIPTEMP=1 CUSTGRAFPATH=1 PG_PASS=... ./devel/deploy_all.sh`. If succeeded `make install`.
 - Bacause this can take few hours to complete (for a project 5 years old for example), run next sync manually. Get sync command from `crontab -l` and prepend it with `GHA2DB_RECENT_RANGE="6 hours"` to avoid missing GitHub API events.
 - You can also deploy automatically from webhook (even on the test server), but it takes very long time and is harder to debug, see [continuous deployment](https://github.com/cncf/devstats/blob/master/CONTINUOUS_DEPLOYMENT.md).
-- Open `newproject.teststats.cncf.io` login with admin/admin, change the default password. Everything should be automatically populated, in case of any problems refer to `GRAFANA.md` file. You shoudl visit all dashboards and adjust date ranges and for some dashboards automatically selected values.
+- Open `newproject.teststats.cncf.io` login with admin/admin, change the default password. Everything should be automatically populated, in case of any problems refer to `GRAFANA.md` file.
+- You should visit all dashboards and adjust date ranges and for some dashboards automatically selected values.
 - Final deploy script is: `./devel/deploy_all.sh`. It should do all deployment automatically on the prod server. Follow all code from this script (eventually run some parts manually, the final version should do full deploy OOTB).
 - If added disabled project, remember to add it to `crontab -e` via `GHA2DB_PROJECTS_OVERRIDE="+new_disabled_project"`.
 - Also add in another devstats repositories, follow `devstats-docker-images:NEW_PROJECT.md`.
