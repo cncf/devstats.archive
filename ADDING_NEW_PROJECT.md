@@ -43,8 +43,8 @@ This file describes how to add new project on the test and production servers.
 - Run deploy all script: `GHA2DB_PROJECTS_OVERRIDE="+proj1,+proj2" HEALTH=1 SKIPTEMP=1 CUSTGRAFPATH=1 PG_PASS=... ./devel/deploy_all.sh`. If succeeded `make install`.
 - Bacause this can take few hours to complete (for a project 5 years old for example), run next sync manually. Get sync command from `crontab -l` and prepend it with `GHA2DB_RECENT_RANGE="6 hours"` to avoid missing GitHub API events.
 - You can also deploy automatically from webhook (even on the test server), but it takes very long time and is harder to debug, see [continuous deployment](https://github.com/cncf/devstats/blob/master/CONTINUOUS_DEPLOYMENT.md).
-- Open `newproject.teststats.cncf.io` login with admin/admin, change the default password. Everything should be automatically populated, in case of any problems refer to `GRAFANA.md` file. You shoudl visit all dashboards and adjust date ranges and for some dashboards automatically selected values.
-- Adjust every dashboard's time ranges and drop-down default selections if needed.
+- Open `newproject.teststats.cncf.io` login with admin/admin, change the default password. Everything should be automatically populated, in case of any problems refer to `GRAFANA.md` file.
+- You should visit all dashboards and adjust date ranges and for some dashboards automatically selected values.
 - Final deploy script is: `./devel/deploy_all.sh`. It should do all deployment automatically on the prod server. Follow all code from this script (eventually run some parts manually, the final version should do full deploy OOTB).
 - If added disabled project, remember to add it to `crontab -e` via `GHA2DB_PROJECTS_OVERRIDE="+new_disabled_project"`.
 - Also add in another devstats repositories, follow `devstats-docker-images:NEW_PROJECT.md`.
