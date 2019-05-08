@@ -62,6 +62,7 @@ join
 on
   prs.dup_repo_name = r.name
   and r.repo_group is not null
+  and r.repo_group in (select all_repo_group_name from tall_repo_groups)
 left join 
   approved_prs a
 on
