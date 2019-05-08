@@ -23,7 +23,7 @@ do
     icon="cdf"
   fi
   # TODO: remove when we have icons
-  if ( [ "$icon" = "istio" ] || [ "$icon" = "knative" ] || [ "$icon" = "contrib" ] || [ "$icon" = "networkservicemesh" ] )
+  if ( [ "$icon" = "istio" ] || [ "$icon" = "knative" ] || [ "$icon" = "contrib" ] || [ "$icon" = "networkservicemesh" ] || [ "$icon" = "openebs" ] || [ "$icon" = "opentelemetry" ] )
   then
     icon="cncf"
   fi
@@ -56,6 +56,7 @@ do
   cp "grafana/img/${icon}32.png" "/usr/share/grafana.$suff/public/img/fav_dark_32.png" || exit 13
 
   mkdir "/usr/share/grafana.$suff/public/img/projects" 2>/dev/null
+  # Copy all other projects images
   cp grafana/img/*.svg "/usr/share/grafana.$suff/public/img/projects/" || exit 18
 
 done
