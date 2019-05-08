@@ -99,6 +99,7 @@ sqlite3 -echo -header -csv /var/lib/grafana/grafana.db < "$cfile" || exit 9
 cfile="grafana/shared/update_sqlite_optional.sql"
 MODE=ss FROM='{{uid}}' TO="${uid}" replacer "$cfile"
 MODE=ss FROM='{{org}}' TO="${ORGNAME}" replacer "$cfile"
+echo "Next command can fail, this is optional"
 sqlite3 -echo -header -csv /var/lib/grafana/grafana.db < "$cfile"
 
 # Per project specific grafana scripts
