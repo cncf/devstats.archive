@@ -1,6 +1,6 @@
 #!/bin/bash
-PG_DB=$PROJDB
-GHA2DB_PROJECT=$PROJ
+export PG_DB=$PROJDB
+export GHA2DB_PROJECT=$PROJ
 if ( [ -z "$GHA2DB_PROJECT" ] || [ -z "$PG_DB" ] || [ -z "$PG_PASS" ] )
 then
   echo "$0: you need to set GHA2DB_PROJECT, PG_DB and PG_PASS env variables to use this script"
