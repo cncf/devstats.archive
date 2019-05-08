@@ -229,11 +229,12 @@ then
   MODE=ss FROM='{{org}}' TO="${ORGNAME}" replacer "$cfile" || exit 48
   sqlite3 -echo -header -csv "/var/lib/grafana.$GRAFSUFF/grafana.db" < "$cfile" || exit 49
 
-  # Optional SQL (newer Grafana has team_id field which si not present in the older one)
+  # Optional SQL (newer Grafana has team_id field which is not present in the older one)
   cfile="/etc/grafana.$GRAFSUFF/update_sqlite_optional.sql"
   cp "grafana/shared/update_sqlite_optional.sql" "$cfile"
   MODE=ss FROM='{{uid}}' TO="${uid}" replacer "$cfile"
   MODE=ss FROM='{{org}}' TO="${ORGNAME}" replacer "$cfile"
+  echo "Next command can fail, this is optional"
   sqlite3 -echo -header -csv "/var/lib/grafana.$GRAFSUFF/grafana.db" < "$cfile"
 
   # Per project specific grafana updates
