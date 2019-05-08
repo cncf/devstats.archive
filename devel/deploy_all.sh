@@ -53,8 +53,8 @@ fi
 
 host=`hostname`
 function finish {
-    sync_unlock.sh
-    rm -f /tmp/deploy.wip 2>/dev/null
+  sync_unlock.sh
+  rm -f /tmp/deploy.wip 2>/dev/null
 }
 if [ -z "$TRAP" ]
 then
@@ -252,6 +252,7 @@ then
 fi
 if [ -z "$SKIPMAKE" ]
 then
+  rm -f /tmp/deploy.wip 2>/dev/null
   make install || exit 48
 fi
 
