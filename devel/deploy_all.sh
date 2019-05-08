@@ -5,6 +5,8 @@
 # INIT=1 (needs PG_PASS_RO, PG_PASS_TEAM, initialize from no postgres database state, creates postgres logs database and users)
 # SKIPWWW=1 (skips Apache and SSL cert configuration, final result will be Grafana exposed on the server on its port (for example 3010) via HTTP)
 # SKIPVARS=1 (if set it will skip final Postgres vars regeneration)
+# SKIPICONS=1 (if set it will skip updating all artworks)
+# SKIPMAKE=1 (if set it will skip final make install call)
 # CUSTGRAFPATH=1 (set this to use non-standard grafana instalation from ~/grafana.v5/)
 # SETPASS=1 (should be set on a real first run to set main postgres password interactively, CANNOT be used without user interaction)
 set -o pipefail
@@ -213,7 +215,7 @@ do
     PROJ=openebs             PROJDB=openebs        PROJREPO="openebs/openebs"                ORGNAME=OpenEBS            PORT=3036 ICON=cncf           GRAFSUFF=openebs        GA="UA-108085315-47" ./devel/deploy_proj.sh || exit 46
   elif [ "$proj" = "opentelemetry" ]
   then
-    PROJ=opentelemetry       PROJDB=opentelemetry  PROJREPO="open-telemetry/opentelemetry-java" ORGNAME=OpenTelemetry   PORT=3037 ICON=cncf           GRAFSUFF=opentelemetry  GA="UA-108085315-48" ./devel/deploy_proj.sh || exit 50
+    PROJ=opentelemetry       PROJDB=opentelemetry  PROJREPO="open-telemetry/opentelemetry-java" ORGNAME=OpenTelemetry   PORT=3037 ICON=cncf           GRAFSUFF=opentelemetry  GA="UA-108085315-48" ./devel/deploy_proj.sh || exit 49
   elif [ "$proj" = "opencontainers" ]
   then
     PROJ=opencontainers      PROJDB=opencontainers PROJREPO="opencontainers/runc"             ORGNAME=OCI               PORT=3100 ICON="-"            GRAFSUFF=opencontainers GA="UA-108085315-19" ./devel/deploy_proj.sh || exit 32
@@ -244,8 +246,13 @@ then
   ./devel/vars_all.sh || exit 38
 fi
 
-./devel/icons_all.sh || exit 47
-make || exit 48
-make install || exit 49
+if [ -z "$SKIPICONS" ]
+then
+  ./devel/icons_all.sh || exit 47
+fi
+if [ -z "$SKIPMAKE" ]
+then
+  make install || exit 48
+fi
 
 echo "$0: All deployments finished"
