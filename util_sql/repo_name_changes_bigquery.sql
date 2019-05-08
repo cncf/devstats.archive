@@ -6,6 +6,9 @@ select
   min(created_at) as date_from,
   max(created_at) as date_to
 from
+  [githubarchive:month.201905],
+  [githubarchive:month.201904],
+  [githubarchive:month.201903],
   [githubarchive:month.201902],
   [githubarchive:month.201901],
   [githubarchive:year.2018],
@@ -20,7 +23,7 @@ where
     select
       repo.id
     from
-      [githubarchive:month.201902]
+      [githubarchive:month.201905]
     where
       repo.name = '{{org_repo}}'
     group by

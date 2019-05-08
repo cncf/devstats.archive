@@ -19,7 +19,7 @@ GHA2DB_RECENT_RANGE="4 hours" GHA2DB_TMOFFSET="-4" GHA2DB_PROJECTS_OVERRIDE="+cn
 ONLY="tikv cortex buildpacks falco dragonfly virtualkubelet kubeedge brigade" ./devel/all_affs.sh || exit 6
 GHA2DB_RECENT_RANGE="4 hours" GHA2DB_TMOFFSET="-4" GHA2DB_PROJECTS_OVERRIDE="+cncf,+opencontainers,+istio,+knative" devstats
 
-ONLY="crio networkservicemesh openebs cncf opencontainers istio knative" GHA2DB_PROJECTS_OVERRIDE="+cncf,+opencontainers,+istio,+knative" ./devel/all_affs.sh || exit 7
+ONLY="crio networkservicemesh openebs opentelemetry cncf opencontainers istio knative" GHA2DB_PROJECTS_OVERRIDE="+cncf,+opencontainers,+istio,+knative" ./devel/all_affs.sh || exit 7
 GHA2DB_RECENT_RANGE="4 hours" GHA2DB_TMOFFSET="-4" GHA2DB_PROJECTS_OVERRIDE="+cncf,+opencontainers,+istio,+knative" devstats
 
 ONLY="linux zephyr all" GHA2DB_PROJECTS_OVERRIDE="+linux,+zephyr" ./devel/all_affs.sh || exit 8
