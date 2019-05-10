@@ -30,8 +30,8 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 18,
-  "iteration": 1543674748840,
+  "id": 28,
+  "iteration": 1557503582897,
   "links": [],
   "panels": [
     {
@@ -41,7 +41,7 @@
       "dashes": false,
       "datasource": "psql",
       "decimals": 0,
-      "description": "Number of new pull requests created in [[repogroup]] repository group.",
+      "description": "Number of unique PR authors in [[repogroup_name]] repository group.",
       "fill": 1,
       "gridPos": {
         "h": 22,
@@ -80,14 +80,16 @@
           "alias": "",
           "dsType": "influxdb",
           "format": "time_series",
+          "group": [],
           "groupBy": [],
           "hide": false,
           "measurement": "reviewers_d",
+          "metricColumn": "none",
           "orderByTime": "ASC",
           "policy": "autogen",
-          "query": "SELECT \"value\" FROM \"autogen\".\"new_prs_[[repogroup]]_[[period]][[aggregate]]\" WHERE $timeFilter",
+          "query": "SELECT \"value\" FROM \"autogen\".\"prs_authors_[[repogroup]]_[[period]][[aggregate]]\" WHERE $timeFilter",
           "rawQuery": true,
-          "rawSql": "select\n  time,\n  value as \"[[repogroup_name]]\"\nfrom\n  snew_prs\nwhere\n  $__timeFilter(time)\n  and series = 'new_prs[[repogroup]]'\n  and period = '[[period]]'\norder by\n  time",
+          "rawSql": "select\n  time,\n  value as \"Unique PR authors\"\nfrom\n  spr_auth\nwhere\n  $__timeFilter(time)\n  and series = 'pr_auth[[repogroup]]'\n  and period = '[[period]]'\norder by\n  time",
           "refId": "A",
           "resultFormat": "time_series",
           "select": [
@@ -100,19 +102,27 @@
               }
             ]
           ],
-          "tags": []
+          "tags": [],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
         }
       ],
       "thresholds": [],
       "timeFrom": null,
+      "timeRegions": [],
       "timeShift": null,
-      "title": "New PRs created in [[repogroup_name]] repository group ([[period]])",
+      "title": "Number of unique PRs authors in [[repogroup_name]] repository group ([[period]])",
       "tooltip": {
         "shared": false,
         "sort": 0,
         "value_type": "individual"
       },
-      "transparent": false,
       "type": "graph",
       "xaxis": {
         "buckets": null,
@@ -126,7 +136,7 @@
       "yaxes": [
         {
           "format": "short",
-          "label": "New PRs",
+          "label": "Unique PRs authors",
           "logBase": 1,
           "max": null,
           "min": "0",
@@ -149,7 +159,7 @@
     {
       "content": "[[docs]]",
       "gridPos": {
-        "h": 8,
+        "h": 9,
         "w": 24,
         "x": 0,
         "y": 22
@@ -162,7 +172,7 @@
     }
   ],
   "refresh": false,
-  "schemaVersion": 16,
+  "schemaVersion": 18,
   "style": "dark",
   "tags": [
     "dashboard",
@@ -170,27 +180,6 @@
   ],
   "templating": {
     "list": [
-      {
-        "allValue": null,
-        "current": {},
-        "datasource": "psql",
-        "hide": 2,
-        "includeAll": false,
-        "label": null,
-        "multi": false,
-        "name": "full_name",
-        "options": [],
-        "query": "select value_s from gha_vars where name = 'full_name'",
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": true,
-        "sort": 0,
-        "tagValuesQuery": "",
-        "tags": [],
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false
-      },
       {
         "allValue": null,
         "current": {
@@ -205,14 +194,14 @@
         "name": "period",
         "options": [
           {
-            "selected": true,
-            "text": "7 Days MA",
-            "value": "d7"
-          },
-          {
             "selected": false,
             "text": "Day",
             "value": "d"
+          },
+          {
+            "selected": true,
+            "text": "7 Days MA",
+            "value": "d7"
           },
           {
             "selected": false,
@@ -241,8 +230,12 @@
       },
       {
         "allValue": null,
-        "current": {},
+        "current": {
+          "text": "All",
+          "value": "All"
+        },
         "datasource": "psql",
+        "definition": "",
         "hide": 0,
         "includeAll": false,
         "label": "Repository group",
@@ -262,8 +255,12 @@
       },
       {
         "allValue": null,
-        "current": {},
+        "current": {
+          "text": "all",
+          "value": "all"
+        },
         "datasource": "psql",
+        "definition": "",
         "hide": 2,
         "includeAll": false,
         "label": "",
@@ -285,13 +282,36 @@
         "allValue": null,
         "current": {},
         "datasource": "psql",
+        "definition": "",
+        "hide": 2,
+        "includeAll": false,
+        "label": null,
+        "multi": false,
+        "name": "full_name",
+        "options": [],
+        "query": "select value_s from gha_vars where name = 'full_name'",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": true,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {},
+        "datasource": "psql",
+        "definition": "",
         "hide": 2,
         "includeAll": false,
         "label": null,
         "multi": false,
         "name": "docs",
         "options": [],
-        "query": "select value_s from gha_vars where name = 'new_prs_docs_html'",
+        "query": "select value_s from gha_vars where name = 'prs_authors_chart_docs_html'",
         "refresh": 1,
         "regex": "",
         "skipUrlSync": true,
@@ -305,7 +325,7 @@
     ]
   },
   "time": {
-    "from": "now-6M",
+    "from": "now-2y",
     "to": "now"
   },
   "timepicker": {
@@ -334,7 +354,7 @@
     ]
   },
   "timezone": "",
-  "title": "New PRs in Repository Groups",
-  "uid": "dVM-cCCkk",
+  "title": "PRs Authors Repository Groups",
+  "uid": "21",
   "version": 2
 }

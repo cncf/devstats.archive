@@ -30,8 +30,8 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 23,
-  "iteration": 1543674829778,
+  "id": 8,
+  "iteration": 1557503521056,
   "links": [],
   "panels": [
     {
@@ -40,52 +40,61 @@
       "dashLength": 10,
       "dashes": false,
       "datasource": "psql",
-      "decimals": 2,
-      "description": "Number of PRs",
-      "fill": 5,
+      "decimals": 0,
+      "description": "",
+      "fill": 1,
       "gridPos": {
         "h": 22,
         "w": 24,
         "x": 0,
         "y": 0
       },
-      "id": 2,
+      "id": 1,
       "legend": {
         "alignAsTable": true,
         "avg": true,
         "current": true,
+        "hideEmpty": false,
+        "hideZero": false,
         "max": true,
         "min": true,
         "rightSide": false,
         "show": true,
-        "sort": "avg",
-        "sortDesc": true,
-        "total": true,
+        "total": false,
         "values": true
       },
       "lines": true,
-      "linewidth": 0,
+      "linewidth": 1,
       "links": [],
-      "nullPointMode": "null as zero",
+      "nullPointMode": "null",
       "percentage": false,
-      "pointradius": 5,
+      "pointradius": 1,
       "points": false,
       "renderer": "flot",
-      "seriesOverrides": [],
+      "seriesOverrides": [
+        {
+          "alias": "Number of contributing developers",
+          "yaxis": 2
+        }
+      ],
       "spaceLength": 10,
-      "stack": true,
-      "steppedLine": true,
+      "stack": false,
+      "steppedLine": false,
       "targets": [
         {
-          "alias": "Approved",
+          "alias": "Number of contributing companies",
           "dsType": "influxdb",
+          "format": "time_series",
+          "group": [],
           "groupBy": [],
-          "measurement": "",
+          "hide": false,
+          "measurement": "reviewers_d",
+          "metricColumn": "none",
           "orderByTime": "ASC",
-          "policy": "default",
-          "query": "SELECT /^[[repogroup]]$/ FROM \"prs_approve_state_approved_[[period]]\" WHERE $timeFilter",
+          "policy": "autogen",
+          "query": "SELECT \"value\" FROM \"autogen\".\"num_stats_[[repogroup]]_companies_[[period]]\" WHERE $timeFilter",
           "rawQuery": true,
-          "rawSql": "select\n  time,\n  \"[[repogroup]]\" as \"Approved\"\nfrom\n  spr_apprappr\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\norder by\n  time",
+          "rawSql": "select\n  time,\n  value as \"Number of contributing companies\"\nfrom\n  snum_stats\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'nstats[[repogroup]]comps'\norder by\n  time",
           "refId": "A",
           "resultFormat": "time_series",
           "select": [
@@ -98,18 +107,30 @@
               }
             ]
           ],
-          "tags": []
+          "tags": [],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
         },
         {
-          "alias": "Awaiting approval",
+          "alias": "Number of contributing developers",
           "dsType": "influxdb",
+          "format": "time_series",
+          "group": [],
           "groupBy": [],
-          "measurement": "",
+          "hide": false,
+          "measurement": "reviewers_d",
+          "metricColumn": "none",
           "orderByTime": "ASC",
-          "policy": "default",
-          "query": "SELECT /^[[repogroup]]$/ FROM \"prs_approve_state_awaiting_[[period]]\" WHERE $timeFilter",
+          "policy": "autogen",
+          "query": "SELECT \"value\" FROM \"autogen\".\"num_stats_[[repogroup]]_developers_[[period]]\" WHERE $timeFilter",
           "rawQuery": true,
-          "rawSql": "select\n  time,\n  \"[[repogroup]]\" as \"Awaiting approval\"\nfrom\n  spr_apprwait\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\norder by\n  time",
+          "rawSql": "select\n  time,\n  value as \"Number of contributing developers\"\nfrom\n  snum_stats\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'nstats[[repogroup]]devs'\norder by\n  time",
           "refId": "B",
           "resultFormat": "time_series",
           "select": [
@@ -122,38 +143,50 @@
               }
             ]
           ],
-          "tags": []
+          "tags": [],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
         }
       ],
       "thresholds": [],
       "timeFrom": null,
+      "timeRegions": [],
       "timeShift": null,
-      "title": "PRs approved and awaiting approval ([[repogroup]], [[period]])",
+      "title": "Contributing companies and developers ([[repogroup_name]], [[period]])",
       "tooltip": {
         "shared": true,
-        "sort": 2,
+        "sort": 0,
         "value_type": "individual"
       },
+      "transparent": true,
       "type": "graph",
       "xaxis": {
         "buckets": null,
         "mode": "time",
         "name": null,
         "show": true,
-        "values": []
+        "values": [
+          "total"
+        ]
       },
       "yaxes": [
         {
-          "format": "short",
-          "label": "Pull requests",
+          "format": "none",
+          "label": "Companies",
           "logBase": 1,
           "max": null,
           "min": "0",
           "show": true
         },
         {
-          "format": "short",
-          "label": "",
+          "format": "none",
+          "label": "Developers",
           "logBase": 1,
           "max": null,
           "min": "0",
@@ -168,7 +201,7 @@
     {
       "content": "[[docs]]",
       "gridPos": {
-        "h": 9,
+        "h": 10,
         "w": 24,
         "x": 0,
         "y": 22
@@ -181,9 +214,10 @@
     }
   ],
   "refresh": false,
-  "schemaVersion": 16,
+  "schemaVersion": 18,
   "style": "dark",
   "tags": [
+    "companies",
     "dashboard",
     "graphqljs"
   ],
@@ -193,6 +227,7 @@
         "allValue": null,
         "current": {},
         "datasource": "psql",
+        "definition": "",
         "hide": 2,
         "includeAll": false,
         "label": null,
@@ -214,8 +249,8 @@
         "allValue": null,
         "current": {
           "tags": [],
-          "text": "7 Days MA",
-          "value": "d7"
+          "text": "28 Days MA",
+          "value": "d28"
         },
         "hide": 0,
         "includeAll": false,
@@ -224,9 +259,14 @@
         "name": "period",
         "options": [
           {
-            "selected": true,
+            "selected": false,
             "text": "7 Days MA",
             "value": "d7"
+          },
+          {
+            "selected": true,
+            "text": "28 Days MA",
+            "value": "d28"
           },
           {
             "selected": false,
@@ -242,21 +282,17 @@
             "selected": false,
             "text": "Quarter",
             "value": "q"
-          },
-          {
-            "selected": false,
-            "text": "Year",
-            "value": "y"
           }
         ],
-        "query": "d,w,m,q,y",
+        "query": "d7,d28,w,m,q",
         "skipUrlSync": false,
         "type": "custom"
       },
       {
-        "allValue": "",
+        "allValue": null,
         "current": {},
         "datasource": "psql",
+        "definition": "",
         "hide": 0,
         "includeAll": false,
         "label": "Repository group",
@@ -275,9 +311,10 @@
         "useTags": false
       },
       {
-        "allValue": "",
+        "allValue": null,
         "current": {},
         "datasource": "psql",
+        "definition": "",
         "hide": 2,
         "includeAll": false,
         "label": "",
@@ -299,13 +336,14 @@
         "allValue": null,
         "current": {},
         "datasource": "psql",
+        "definition": "",
         "hide": 2,
         "includeAll": false,
         "label": null,
         "multi": false,
         "name": "docs",
         "options": [],
-        "query": "select value_s from gha_vars where name = 'prs_approval_docs_html'",
+        "query": "select value_s from gha_vars where name = 'contributing_companies_docs_html'",
         "refresh": 1,
         "regex": "",
         "skipUrlSync": true,
@@ -319,7 +357,7 @@
     ]
   },
   "time": {
-    "from": "now-6M",
+    "from": "now-2y",
     "to": "now"
   },
   "timepicker": {
@@ -348,7 +386,7 @@
     ]
   },
   "timezone": "",
-  "title": "PRs Approval Repository Groups",
-  "uid": "20",
+  "title": "Companies Contributing in Repository Groups",
+  "uid": "7",
   "version": 2
 }

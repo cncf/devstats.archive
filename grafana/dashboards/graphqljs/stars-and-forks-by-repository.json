@@ -30,8 +30,8 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 6,
-  "iteration": 1543674572024,
+  "id": 3,
+  "iteration": 1557503589531,
   "links": [],
   "panels": [
     {
@@ -41,8 +41,8 @@
       "dashes": false,
       "datasource": "psql",
       "decimals": 0,
-      "description": "",
-      "fill": 1,
+      "description": "Community stats ([[repo_name]], [[period]])",
+      "fill": 0,
       "gridPos": {
         "h": 22,
         "w": 24,
@@ -51,7 +51,7 @@
       },
       "id": 1,
       "legend": {
-        "alignAsTable": true,
+        "alignAsTable": false,
         "avg": true,
         "current": true,
         "hideEmpty": false,
@@ -73,7 +73,15 @@
       "renderer": "flot",
       "seriesOverrides": [
         {
-          "alias": "Number of contributing developers",
+          "alias": "Stargazers",
+          "yaxis": 1
+        },
+        {
+          "alias": "Forks",
+          "yaxis": 2
+        },
+        {
+          "alias": "Open issues",
           "yaxis": 2
         }
       ],
@@ -82,16 +90,19 @@
       "steppedLine": false,
       "targets": [
         {
-          "alias": "Number of contributing companies",
+          "alias": "",
           "dsType": "influxdb",
+          "format": "time_series",
+          "group": [],
           "groupBy": [],
           "hide": false,
           "measurement": "reviewers_d",
+          "metricColumn": "none",
           "orderByTime": "ASC",
           "policy": "autogen",
-          "query": "SELECT \"value\" FROM \"autogen\".\"num_stats_[[repogroup]]_companies_[[period]]\" WHERE $timeFilter",
+          "query": "SELECT \"value\" FROM \"autogen\".\"contrib_[[repogroup]]_watchers_[[period]]\" WHERE $timeFilter",
           "rawQuery": true,
-          "rawSql": "select\n  time,\n  value as \"Number of contributing companies\"\nfrom\n  snum_stats\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'nstats[[repogroup]]comps'\norder by\n  time",
+          "rawSql": "select\n  time,\n  value as \"Stargazers\"\nfrom\n  swatchers\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'watch[[repo]]watch'\norder by\n  time",
           "refId": "A",
           "resultFormat": "time_series",
           "select": [
@@ -104,19 +115,30 @@
               }
             ]
           ],
-          "tags": []
+          "tags": [],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
         },
         {
-          "alias": "Number of contributing developers",
+          "alias": "",
           "dsType": "influxdb",
+          "format": "time_series",
+          "group": [],
           "groupBy": [],
           "hide": false,
           "measurement": "reviewers_d",
+          "metricColumn": "none",
           "orderByTime": "ASC",
           "policy": "autogen",
-          "query": "SELECT \"value\" FROM \"autogen\".\"num_stats_[[repogroup]]_developers_[[period]]\" WHERE $timeFilter",
+          "query": "SELECT \"value\" FROM \"autogen\".\"contrib_[[repogroup]]_forks_[[period]]\" WHERE $timeFilter",
           "rawQuery": true,
-          "rawSql": "select\n  time,\n  value as \"Number of contributing developers\"\nfrom\n  snum_stats\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'nstats[[repogroup]]devs'\norder by\n  time",
+          "rawSql": "select\n  time,\n  value as \"Forks\"\nfrom\n  swatchers\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'watch[[repo]]forks'\norder by\n  time",
           "refId": "B",
           "resultFormat": "time_series",
           "select": [
@@ -129,16 +151,61 @@
               }
             ]
           ],
-          "tags": []
+          "tags": [],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        },
+        {
+          "alias": "",
+          "dsType": "influxdb",
+          "format": "time_series",
+          "group": [],
+          "groupBy": [],
+          "hide": false,
+          "measurement": "reviewers_d",
+          "metricColumn": "none",
+          "orderByTime": "ASC",
+          "policy": "autogen",
+          "query": "SELECT \"value\" FROM \"autogen\".\"contrib_[[repogroup]]_open_issues_[[period]]\" WHERE $timeFilter",
+          "rawQuery": true,
+          "rawSql": "select\n  time,\n  value as \"Open issues\"\nfrom\n  swatchers\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'watch[[repo]]opiss'\norder by\n  time",
+          "refId": "C",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              }
+            ]
+          ],
+          "tags": [],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
         }
       ],
       "thresholds": [],
       "timeFrom": null,
+      "timeRegions": [],
       "timeShift": null,
-      "title": "Contributing companies and developers ([[repogroup_name]], [[period]])",
+      "title": "Community stats ([[repo_name]], [[period]])",
       "tooltip": {
         "shared": true,
-        "sort": 0,
+        "sort": 2,
         "value_type": "individual"
       },
       "transparent": true,
@@ -155,7 +222,7 @@
       "yaxes": [
         {
           "format": "none",
-          "label": "Companies",
+          "label": "Stargazers",
           "logBase": 1,
           "max": null,
           "min": "0",
@@ -163,7 +230,7 @@
         },
         {
           "format": "none",
-          "label": "Developers",
+          "label": "Forks, Open issues",
           "logBase": 1,
           "max": null,
           "min": "0",
@@ -178,7 +245,7 @@
     {
       "content": "[[docs]]",
       "gridPos": {
-        "h": 10,
+        "h": 8,
         "w": 24,
         "x": 0,
         "y": 22
@@ -191,10 +258,9 @@
     }
   ],
   "refresh": false,
-  "schemaVersion": 16,
+  "schemaVersion": 18,
   "style": "dark",
   "tags": [
-    "companies",
     "dashboard",
     "graphqljs"
   ],
@@ -202,8 +268,12 @@
     "list": [
       {
         "allValue": null,
-        "current": {},
+        "current": {
+          "text": "Knative",
+          "value": "Knative"
+        },
         "datasource": "psql",
+        "definition": "",
         "hide": 2,
         "includeAll": false,
         "label": null,
@@ -225,8 +295,8 @@
         "allValue": null,
         "current": {
           "tags": [],
-          "text": "28 Days MA",
-          "value": "d28"
+          "text": "7 Days MA",
+          "value": "d7"
         },
         "hide": 0,
         "includeAll": false,
@@ -236,13 +306,13 @@
         "options": [
           {
             "selected": false,
-            "text": "7 Days MA",
-            "value": "d7"
+            "text": "Day",
+            "value": "d"
           },
           {
             "selected": true,
-            "text": "28 Days MA",
-            "value": "d28"
+            "text": "7 Days MA",
+            "value": "d7"
           },
           {
             "selected": false,
@@ -258,27 +328,37 @@
             "selected": false,
             "text": "Quarter",
             "value": "q"
+          },
+          {
+            "selected": false,
+            "text": "Year",
+            "value": "y"
           }
         ],
-        "query": "d7,d28,w,m,q",
+        "query": "d,w,m,q,y",
         "skipUrlSync": false,
         "type": "custom"
       },
       {
         "allValue": null,
-        "current": {},
+        "current": {
+          "tags": [],
+          "text": "knative/serving",
+          "value": "knative/serving"
+        },
         "datasource": "psql",
+        "definition": "",
         "hide": 0,
         "includeAll": false,
-        "label": "Repository group",
+        "label": "Repository",
         "multi": false,
-        "name": "repogroup_name",
+        "name": "repo_name",
         "options": [],
-        "query": "select all_repo_group_name from tall_repo_groups order by 1",
+        "query": "select top_repo_names_name from ttop_repo_names order by 1",
         "refresh": 1,
         "regex": "",
         "skipUrlSync": false,
-        "sort": 0,
+        "sort": 1,
         "tagValuesQuery": "",
         "tags": [],
         "tagsQuery": "",
@@ -287,15 +367,19 @@
       },
       {
         "allValue": null,
-        "current": {},
+        "current": {
+          "text": "knativeserving",
+          "value": "knativeserving"
+        },
         "datasource": "psql",
+        "definition": "",
         "hide": 2,
         "includeAll": false,
         "label": "",
         "multi": false,
-        "name": "repogroup",
+        "name": "repo",
         "options": [],
-        "query": "select all_repo_group_value from tall_repo_groups where all_repo_group_name = '[[repogroup_name]]'",
+        "query": "select top_repo_names_value from ttop_repo_names where top_repo_names_name = '[[repo_name]]'",
         "refresh": 1,
         "regex": "",
         "skipUrlSync": true,
@@ -308,15 +392,19 @@
       },
       {
         "allValue": null,
-        "current": {},
+        "current": {
+          "text": "\u003ch1 id=\"dashboard-header\"\u003eKnative community stats dashboard\u003c/h1\u003e\n\u003cp\u003eLinks:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003eMetric \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/watchers.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eTSDB \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/metrics.yaml\" target=\"_blank\"\u003eseries definition\u003c/a\u003e. Search for \u003ccode\u003ewatchers\u003c/code\u003e\u003c/li\u003e\n\u003cli\u003eGrafana dashboard \u003ca href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/knative/community-stats.json\" target=\"_blank\"\u003eJSON\u003c/a\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch1 id=\"description\"\u003eDescription\u003c/h1\u003e\n\u003cul\u003e\n\u003cli\u003eThis dashboard shows forks, stars and open issues charts for a given repository\u003c/li\u003e\n\u003cli\u003eSelecting period (for example week) means that dashboard will show maximum value in those periods.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/periods.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about periods.\u003c/li\u003e\n\u003c/ul\u003e",
+          "value": "\u003ch1 id=\"dashboard-header\"\u003eKnative community stats dashboard\u003c/h1\u003e\n\u003cp\u003eLinks:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003eMetric \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/watchers.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eTSDB \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/metrics.yaml\" target=\"_blank\"\u003eseries definition\u003c/a\u003e. Search for \u003ccode\u003ewatchers\u003c/code\u003e\u003c/li\u003e\n\u003cli\u003eGrafana dashboard \u003ca href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/knative/community-stats.json\" target=\"_blank\"\u003eJSON\u003c/a\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch1 id=\"description\"\u003eDescription\u003c/h1\u003e\n\u003cul\u003e\n\u003cli\u003eThis dashboard shows forks, stars and open issues charts for a given repository\u003c/li\u003e\n\u003cli\u003eSelecting period (for example week) means that dashboard will show maximum value in those periods.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/periods.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about periods.\u003c/li\u003e\n\u003c/ul\u003e"
+        },
         "datasource": "psql",
+        "definition": "",
         "hide": 2,
         "includeAll": false,
         "label": null,
         "multi": false,
         "name": "docs",
         "options": [],
-        "query": "select value_s from gha_vars where name = 'contributing_companies_docs_html'",
+        "query": "select value_s from gha_vars where name = 'community_stats_docs_html'",
         "refresh": 1,
         "regex": "",
         "skipUrlSync": true,
@@ -330,7 +418,7 @@
     ]
   },
   "time": {
-    "from": "now-6M",
+    "from": "now-2y",
     "to": "now"
   },
   "timepicker": {
@@ -359,7 +447,7 @@
     ]
   },
   "timezone": "",
-  "title": "Companies Contributing in Repository Groups",
-  "uid": "7",
+  "title": "Stars and Forks by Repository",
+  "uid": "3",
   "version": 2
 }
