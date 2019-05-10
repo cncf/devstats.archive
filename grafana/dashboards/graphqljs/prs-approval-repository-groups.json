@@ -30,8 +30,8 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 3,
-  "iteration": 1543674465307,
+  "id": 25,
+  "iteration": 1557503581366,
   "links": [],
   "panels": [
     {
@@ -40,67 +40,55 @@
       "dashLength": 10,
       "dashes": false,
       "datasource": "psql",
-      "decimals": 0,
-      "description": "Community stats ([[repo_name]], [[period]])",
-      "fill": 0,
+      "decimals": 2,
+      "description": "Number of PRs",
+      "fill": 5,
       "gridPos": {
         "h": 22,
         "w": 24,
         "x": 0,
         "y": 0
       },
-      "id": 1,
+      "id": 2,
       "legend": {
-        "alignAsTable": false,
+        "alignAsTable": true,
         "avg": true,
         "current": true,
-        "hideEmpty": false,
-        "hideZero": false,
         "max": true,
         "min": true,
         "rightSide": false,
         "show": true,
-        "total": false,
+        "sort": "avg",
+        "sortDesc": true,
+        "total": true,
         "values": true
       },
       "lines": true,
-      "linewidth": 1,
+      "linewidth": 0,
       "links": [],
-      "nullPointMode": "null",
+      "nullPointMode": "null as zero",
       "percentage": false,
-      "pointradius": 1,
+      "pointradius": 5,
       "points": false,
       "renderer": "flot",
-      "seriesOverrides": [
-        {
-          "alias": "Stargazers",
-          "yaxis": 1
-        },
-        {
-          "alias": "Forks",
-          "yaxis": 2
-        },
-        {
-          "alias": "Open issues",
-          "yaxis": 2
-        }
-      ],
+      "seriesOverrides": [],
       "spaceLength": 10,
-      "stack": false,
-      "steppedLine": false,
+      "stack": true,
+      "steppedLine": true,
       "targets": [
         {
-          "alias": "",
+          "alias": "Approved",
           "dsType": "influxdb",
           "format": "time_series",
+          "group": [],
           "groupBy": [],
-          "hide": false,
-          "measurement": "reviewers_d",
+          "measurement": "",
+          "metricColumn": "none",
           "orderByTime": "ASC",
-          "policy": "autogen",
-          "query": "SELECT \"value\" FROM \"autogen\".\"contrib_[[repogroup]]_watchers_[[period]]\" WHERE $timeFilter",
+          "policy": "default",
+          "query": "SELECT /^[[repogroup]]$/ FROM \"prs_approve_state_approved_[[period]]\" WHERE $timeFilter",
           "rawQuery": true,
-          "rawSql": "select\n  time,\n  value as \"Stargazers\"\nfrom\n  swatchers\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'watch[[repo]]watch'\norder by\n  time",
+          "rawSql": "select\n  time,\n  \"[[repogroup]]\" as \"Approved\"\nfrom\n  spr_apprappr\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\norder by\n  time",
           "refId": "A",
           "resultFormat": "time_series",
           "select": [
@@ -113,20 +101,29 @@
               }
             ]
           ],
-          "tags": []
+          "tags": [],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
         },
         {
-          "alias": "",
+          "alias": "Awaiting approval",
           "dsType": "influxdb",
           "format": "time_series",
+          "group": [],
           "groupBy": [],
-          "hide": false,
-          "measurement": "reviewers_d",
+          "measurement": "",
+          "metricColumn": "none",
           "orderByTime": "ASC",
-          "policy": "autogen",
-          "query": "SELECT \"value\" FROM \"autogen\".\"contrib_[[repogroup]]_forks_[[period]]\" WHERE $timeFilter",
+          "policy": "default",
+          "query": "SELECT /^[[repogroup]]$/ FROM \"prs_approve_state_awaiting_[[period]]\" WHERE $timeFilter",
           "rawQuery": true,
-          "rawSql": "select\n  time,\n  value as \"Forks\"\nfrom\n  swatchers\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'watch[[repo]]forks'\norder by\n  time",
+          "rawSql": "select\n  time,\n  \"[[repogroup]]\" as \"Awaiting approval\"\nfrom\n  spr_apprwait\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\norder by\n  time",
           "refId": "B",
           "resultFormat": "time_series",
           "select": [
@@ -139,67 +136,47 @@
               }
             ]
           ],
-          "tags": []
-        },
-        {
-          "alias": "",
-          "dsType": "influxdb",
-          "format": "time_series",
-          "groupBy": [],
-          "hide": false,
-          "measurement": "reviewers_d",
-          "orderByTime": "ASC",
-          "policy": "autogen",
-          "query": "SELECT \"value\" FROM \"autogen\".\"contrib_[[repogroup]]_open_issues_[[period]]\" WHERE $timeFilter",
-          "rawQuery": true,
-          "rawSql": "select\n  time,\n  value as \"Open issues\"\nfrom\n  swatchers\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'watch[[repo]]opiss'\norder by\n  time",
-          "refId": "C",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              }
-            ]
-          ],
-          "tags": []
+          "tags": [],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
         }
       ],
       "thresholds": [],
       "timeFrom": null,
+      "timeRegions": [],
       "timeShift": null,
-      "title": "Community stats ([[repo_name]], [[period]])",
+      "title": "PRs approved and awaiting approval ([[repogroup]], [[period]])",
       "tooltip": {
         "shared": true,
         "sort": 2,
         "value_type": "individual"
       },
-      "transparent": true,
       "type": "graph",
       "xaxis": {
         "buckets": null,
         "mode": "time",
         "name": null,
         "show": true,
-        "values": [
-          "total"
-        ]
+        "values": []
       },
       "yaxes": [
         {
-          "format": "none",
-          "label": "Stargazers",
+          "format": "short",
+          "label": "Pull requests",
           "logBase": 1,
           "max": null,
           "min": "0",
           "show": true
         },
         {
-          "format": "none",
-          "label": "Forks, Open issues",
+          "format": "short",
+          "label": "",
           "logBase": 1,
           "max": null,
           "min": "0",
@@ -214,7 +191,7 @@
     {
       "content": "[[docs]]",
       "gridPos": {
-        "h": 8,
+        "h": 9,
         "w": 24,
         "x": 0,
         "y": 22
@@ -227,7 +204,7 @@
     }
   ],
   "refresh": false,
-  "schemaVersion": 16,
+  "schemaVersion": 18,
   "style": "dark",
   "tags": [
     "dashboard",
@@ -237,11 +214,9 @@
     "list": [
       {
         "allValue": null,
-        "current": {
-          "text": "Knative",
-          "value": "Knative"
-        },
+        "current": {},
         "datasource": "psql",
+        "definition": "",
         "hide": 2,
         "includeAll": false,
         "label": null,
@@ -273,11 +248,6 @@
         "name": "period",
         "options": [
           {
-            "selected": false,
-            "text": "Day",
-            "value": "d"
-          },
-          {
             "selected": true,
             "text": "7 Days MA",
             "value": "d7"
@@ -308,24 +278,21 @@
         "type": "custom"
       },
       {
-        "allValue": null,
-        "current": {
-          "tags": [],
-          "text": "knative/serving",
-          "value": "knative/serving"
-        },
+        "allValue": "",
+        "current": {},
         "datasource": "psql",
+        "definition": "",
         "hide": 0,
         "includeAll": false,
-        "label": "Repository",
+        "label": "Repository group",
         "multi": false,
-        "name": "repo_name",
+        "name": "repogroup_name",
         "options": [],
-        "query": "select top_repo_names_name from ttop_repo_names order by 1",
+        "query": "select all_repo_group_name from tall_repo_groups order by 1",
         "refresh": 1,
         "regex": "",
         "skipUrlSync": false,
-        "sort": 1,
+        "sort": 0,
         "tagValuesQuery": "",
         "tags": [],
         "tagsQuery": "",
@@ -333,19 +300,17 @@
         "useTags": false
       },
       {
-        "allValue": null,
-        "current": {
-          "text": "knativeserving",
-          "value": "knativeserving"
-        },
+        "allValue": "",
+        "current": {},
         "datasource": "psql",
+        "definition": "",
         "hide": 2,
         "includeAll": false,
         "label": "",
         "multi": false,
-        "name": "repo",
+        "name": "repogroup",
         "options": [],
-        "query": "select top_repo_names_value from ttop_repo_names where top_repo_names_name = '[[repo_name]]'",
+        "query": "select all_repo_group_value from tall_repo_groups where all_repo_group_name = '[[repogroup_name]]'",
         "refresh": 1,
         "regex": "",
         "skipUrlSync": true,
@@ -358,18 +323,16 @@
       },
       {
         "allValue": null,
-        "current": {
-          "text": "\u003ch1 id=\"dashboard-header\"\u003eKnative community stats dashboard\u003c/h1\u003e\n\u003cp\u003eLinks:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003eMetric \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/watchers.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eTSDB \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/metrics.yaml\" target=\"_blank\"\u003eseries definition\u003c/a\u003e. Search for \u003ccode\u003ewatchers\u003c/code\u003e\u003c/li\u003e\n\u003cli\u003eGrafana dashboard \u003ca href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/knative/community-stats.json\" target=\"_blank\"\u003eJSON\u003c/a\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch1 id=\"description\"\u003eDescription\u003c/h1\u003e\n\u003cul\u003e\n\u003cli\u003eThis dashboard shows forks, stars and open issues charts for a given repository\u003c/li\u003e\n\u003cli\u003eSelecting period (for example week) means that dashboard will show maximum value in those periods.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/periods.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about periods.\u003c/li\u003e\n\u003c/ul\u003e",
-          "value": "\u003ch1 id=\"dashboard-header\"\u003eKnative community stats dashboard\u003c/h1\u003e\n\u003cp\u003eLinks:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003eMetric \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/watchers.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eTSDB \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/metrics.yaml\" target=\"_blank\"\u003eseries definition\u003c/a\u003e. Search for \u003ccode\u003ewatchers\u003c/code\u003e\u003c/li\u003e\n\u003cli\u003eGrafana dashboard \u003ca href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/knative/community-stats.json\" target=\"_blank\"\u003eJSON\u003c/a\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch1 id=\"description\"\u003eDescription\u003c/h1\u003e\n\u003cul\u003e\n\u003cli\u003eThis dashboard shows forks, stars and open issues charts for a given repository\u003c/li\u003e\n\u003cli\u003eSelecting period (for example week) means that dashboard will show maximum value in those periods.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/periods.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about periods.\u003c/li\u003e\n\u003c/ul\u003e"
-        },
+        "current": {},
         "datasource": "psql",
+        "definition": "",
         "hide": 2,
         "includeAll": false,
         "label": null,
         "multi": false,
         "name": "docs",
         "options": [],
-        "query": "select value_s from gha_vars where name = 'community_stats_docs_html'",
+        "query": "select value_s from gha_vars where name = 'prs_approval_docs_html'",
         "refresh": 1,
         "regex": "",
         "skipUrlSync": true,
@@ -383,7 +346,7 @@
     ]
   },
   "time": {
-    "from": "now-6M",
+    "from": "now-2y",
     "to": "now"
   },
   "timepicker": {
@@ -412,7 +375,7 @@
     ]
   },
   "timezone": "",
-  "title": "Stars and Forks by Repository",
-  "uid": "3",
-  "version": 3
+  "title": "PRs Approval Repository Groups",
+  "uid": "20",
+  "version": 2
 }
