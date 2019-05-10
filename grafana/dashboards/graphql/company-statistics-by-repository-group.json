@@ -32,8 +32,8 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 34,
-  "iteration": 1543675027757,
+  "id": 4,
+  "iteration": 1557502412178,
   "links": [],
   "panels": [
     {
@@ -43,7 +43,7 @@
       "dashes": false,
       "datasource": "psql",
       "decimals": 2,
-      "description": "Measures user [[metric]].",
+      "description": "Measures company [[metric]]. Independent means developers working on their own.",
       "fill": 6,
       "gridPos": {
         "h": 17,
@@ -65,7 +65,7 @@
         "sideWidth": null,
         "sort": "avg",
         "sortDesc": true,
-        "total": false,
+        "total": true,
         "values": true
       },
       "lines": true,
@@ -95,13 +95,15 @@
           "alias": "",
           "dsType": "influxdb",
           "format": "time_series",
+          "group": [],
           "groupBy": [],
           "measurement": "sig_federation_d",
+          "metricColumn": "none",
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "",
+          "query": "SELECT /^[[companies]]$/ FROM \"company_[[repogroup]]_[[metric]]_[[period]]\" WHERE $timeFilter",
           "rawQuery": true,
-          "rawSql": "select\n  time,\n  ${users:csv}\nfrom\n  suser_activity\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'user[[repogroup]][[metric]]'\norder by\n  time",
+          "rawSql": "select\n  time,\n  ${companies:csv}\nfrom\n  scompany_activity\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'company[[repogroup]][[metric]]'\norder by\n  time",
           "refId": "B",
           "resultFormat": "time_series",
           "select": [
@@ -114,13 +116,22 @@
               }
             ]
           ],
-          "tags": []
+          "tags": [],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
         }
       ],
       "thresholds": [],
       "timeFrom": null,
+      "timeRegions": [],
       "timeShift": null,
-      "title": "Users [[metric]] metric ([[repogroup_name]], [[period]])",
+      "title": "Companies [[metric]] metric ([[repogroup_name]], [[period]])",
       "tooltip": {
         "shared": true,
         "sort": 2,
@@ -138,7 +149,7 @@
       "yaxes": [
         {
           "format": "short",
-          "label": "Value",
+          "label": "Per company",
           "logBase": 1,
           "max": null,
           "min": "0",
@@ -166,7 +177,7 @@
       "dashes": false,
       "datasource": "psql",
       "decimals": 2,
-      "description": "Measures user [[metric]].",
+      "description": "Measures company [[metric]]. Independent means developers working on their own.",
       "fill": 6,
       "gridPos": {
         "h": 16,
@@ -188,7 +199,7 @@
         "sideWidth": null,
         "sort": "avg",
         "sortDesc": true,
-        "total": false,
+        "total": true,
         "values": true
       },
       "lines": true,
@@ -208,13 +219,15 @@
           "alias": "",
           "dsType": "influxdb",
           "format": "time_series",
+          "group": [],
           "groupBy": [],
           "measurement": "sig_federation_d",
+          "metricColumn": "none",
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "",
+          "query": "SELECT /^[[companies]]$/ FROM \"company_[[repogroup]]_[[metric]]_[[period]]\" WHERE $timeFilter",
           "rawQuery": true,
-          "rawSql": "select\n  time,\n  ${users:csv}\nfrom\n  suser_activity\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'user[[repogroup]][[metric]]'\norder by\n  time",
+          "rawSql": "select\n  time,\n  ${companies:csv}\nfrom\n  scompany_activity\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'company[[repogroup]][[metric]]'\norder by\n  time",
           "refId": "B",
           "resultFormat": "time_series",
           "select": [
@@ -227,13 +240,22 @@
               }
             ]
           ],
-          "tags": []
+          "tags": [],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
         }
       ],
       "thresholds": [],
       "timeFrom": null,
+      "timeRegions": [],
       "timeShift": null,
-      "title": "Users [[metric]] metric ([[repogroup_name]], [[period]])",
+      "title": "Companies [[metric]] metric ([[repogroup_name]], [[period]])",
       "tooltip": {
         "shared": true,
         "sort": 2,
@@ -275,7 +297,7 @@
     {
       "content": "[[docs]]",
       "gridPos": {
-        "h": 11,
+        "h": 12,
         "w": 24,
         "x": 0,
         "y": 33
@@ -287,9 +309,10 @@
       "type": "text"
     }
   ],
-  "schemaVersion": 16,
+  "schemaVersion": 18,
   "style": "dark",
   "tags": [
+    "companies",
     "dashboard",
     "graphql"
   ],
@@ -297,11 +320,9 @@
     "list": [
       {
         "allValue": null,
-        "current": {
-          "text": "CNCF",
-          "value": "CNCF"
-        },
+        "current": {},
         "datasource": "psql",
+        "definition": "",
         "hide": 2,
         "includeAll": false,
         "label": null,
@@ -323,8 +344,8 @@
         "allValue": null,
         "current": {
           "tags": [],
-          "text": "Week",
-          "value": "w"
+          "text": "7 Days MA",
+          "value": "d7"
         },
         "hide": 0,
         "includeAll": false,
@@ -338,12 +359,12 @@
             "value": "d"
           },
           {
-            "selected": false,
+            "selected": true,
             "text": "7 Days MA",
             "value": "d7"
           },
           {
-            "selected": true,
+            "selected": false,
             "text": "Week",
             "value": "w"
           },
@@ -371,8 +392,8 @@
         "allValue": null,
         "current": {
           "tags": [],
-          "text": "Contributions",
-          "value": "contributions"
+          "text": "All activity",
+          "value": "activity"
         },
         "hide": 0,
         "includeAll": false,
@@ -387,6 +408,11 @@
           },
           {
             "selected": false,
+            "text": "Active authors",
+            "value": "authors"
+          },
+          {
+            "selected": false,
             "text": "Issues created",
             "value": "issues"
           },
@@ -397,13 +423,23 @@
           },
           {
             "selected": false,
-            "text": "Commits made",
+            "text": "Commits",
             "value": "commits"
           },
           {
             "selected": false,
-            "text": "Pushes made",
+            "text": "Commiters",
+            "value": "committers"
+          },
+          {
+            "selected": false,
+            "text": "Pushes",
             "value": "pushes"
+          },
+          {
+            "selected": false,
+            "text": "Pushers",
+            "value": "pushers"
           },
           {
             "selected": true,
@@ -412,21 +448,24 @@
           },
           {
             "selected": false,
-            "text": "Added comments",
+            "text": "Contributors",
+            "value": "contributors"
+          },
+          {
+            "selected": false,
+            "text": "Comments",
             "value": "comments"
           }
         ],
-        "query": "activity,issues,prs,pushes,commits,contributions,comments",
+        "query": "activity,authors,issues,prs,commits,committers,pushers,pushes,comments,contributions,contributors",
         "skipUrlSync": false,
         "type": "custom"
       },
       {
         "allValue": null,
-        "current": {
-          "text": "All",
-          "value": "All"
-        },
+        "current": {},
         "datasource": "psql",
+        "definition": "",
         "hide": 0,
         "includeAll": false,
         "label": "Repository group",
@@ -446,11 +485,9 @@
       },
       {
         "allValue": null,
-        "current": {
-          "text": "all",
-          "value": "all"
-        },
+        "current": {},
         "datasource": "psql",
+        "definition": "",
         "hide": 2,
         "includeAll": false,
         "label": "",
@@ -470,18 +507,16 @@
       },
       {
         "allValue": "",
-        "current": {
-          "text": "All",
-          "value": "$__all"
-        },
+        "current": {},
         "datasource": "psql",
+        "definition": "",
         "hide": 0,
         "includeAll": true,
-        "label": "Users",
+        "label": "Companies",
         "multi": true,
-        "name": "users",
+        "name": "companies",
         "options": [],
-        "query": "select '\"' || users_name || '\"' from tusers order by time asc",
+        "query": "select '\"' || companies_name || '\"' from tcompanies order by time asc",
         "refresh": 1,
         "regex": "",
         "skipUrlSync": false,
@@ -494,18 +529,16 @@
       },
       {
         "allValue": null,
-        "current": {
-          "text": "\u003ch1 id=\"dashboard-header\"\u003eCNCF users stats dashboard\u003c/h1\u003e\n\u003cp\u003eLinks:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003eMetric \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/user_activity.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eTSDB \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/metrics.yaml\" target=\"_blank\"\u003eseries definition\u003c/a\u003e. Search for \u003ccode\u003euser_activity\u003c/code\u003e\u003c/li\u003e\n\u003cli\u003eGrafana dashboard \u003ca href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/cncf/users-stats.json\" target=\"_blank\"\u003eJSON\u003c/a\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch1 id=\"description\"\u003eDescription\u003c/h1\u003e\n\u003cul\u003e\n\u003cli\u003eThis dashboard shows various user statistics.\u003c/li\u003e\n\u003cli\u003eContributor is defined as somebody who made a review, comment, commit, created PR or issue.\u003c/li\u003e\n\u003cli\u003eContribution is a review, comment, commit, issue or PR.\u003c/li\u003e\n\u003cli\u003eYou can select statistic from the metrics drop down (All activity means all events registered by GitHub).\u003c/li\u003e\n\u003cli\u003eYou can select single repository group or summary statistics for all of them combined.\u003c/li\u003e\n\u003cli\u003eYou can select multiple users or all of them in a multi select dowp down.\u003c/li\u003e\n\u003cli\u003eWe are showing to 70 most active users in the drop-down list.\u003c/li\u003e\n\u003cli\u003eSelecting period (for example week) means that dashboard will show data in those periods.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/periods.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about periods.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/repository_groups.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about repository groups.\u003c/li\u003e\n\u003cli\u003eWe are skipping bots activity, see \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/excluding_bots.md\" target=\"_blank\"\u003eexcluding bots\u003c/a\u003e for details.\u003c/li\u003e\n\u003c/ul\u003e",
-          "value": "\u003ch1 id=\"dashboard-header\"\u003eCNCF users stats dashboard\u003c/h1\u003e\n\u003cp\u003eLinks:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003eMetric \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/user_activity.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eTSDB \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/metrics.yaml\" target=\"_blank\"\u003eseries definition\u003c/a\u003e. Search for \u003ccode\u003euser_activity\u003c/code\u003e\u003c/li\u003e\n\u003cli\u003eGrafana dashboard \u003ca href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/cncf/users-stats.json\" target=\"_blank\"\u003eJSON\u003c/a\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch1 id=\"description\"\u003eDescription\u003c/h1\u003e\n\u003cul\u003e\n\u003cli\u003eThis dashboard shows various user statistics.\u003c/li\u003e\n\u003cli\u003eContributor is defined as somebody who made a review, comment, commit, created PR or issue.\u003c/li\u003e\n\u003cli\u003eContribution is a review, comment, commit, issue or PR.\u003c/li\u003e\n\u003cli\u003eYou can select statistic from the metrics drop down (All activity means all events registered by GitHub).\u003c/li\u003e\n\u003cli\u003eYou can select single repository group or summary statistics for all of them combined.\u003c/li\u003e\n\u003cli\u003eYou can select multiple users or all of them in a multi select dowp down.\u003c/li\u003e\n\u003cli\u003eWe are showing to 70 most active users in the drop-down list.\u003c/li\u003e\n\u003cli\u003eSelecting period (for example week) means that dashboard will show data in those periods.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/periods.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about periods.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/repository_groups.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about repository groups.\u003c/li\u003e\n\u003cli\u003eWe are skipping bots activity, see \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/excluding_bots.md\" target=\"_blank\"\u003eexcluding bots\u003c/a\u003e for details.\u003c/li\u003e\n\u003c/ul\u003e"
-        },
+        "current": {},
         "datasource": "psql",
+        "definition": "",
         "hide": 2,
         "includeAll": false,
         "label": null,
         "multi": false,
         "name": "docs",
         "options": [],
-        "query": "select value_s from gha_vars where name = 'users_stats_docs_html'",
+        "query": "select value_s from gha_vars where name = 'companies_stats_docs_html'",
         "refresh": 1,
         "regex": "",
         "skipUrlSync": true,
@@ -519,7 +552,7 @@
     ]
   },
   "time": {
-    "from": "now-6M",
+    "from": "now-2y",
     "to": "now"
   },
   "timepicker": {
@@ -548,7 +581,7 @@
     ]
   },
   "timezone": "",
-  "title": "Users Statistics by Repository Group",
-  "uid": "48",
+  "title": "Company Statistics by Repository Group",
+  "uid": "4",
   "version": 2
 }
