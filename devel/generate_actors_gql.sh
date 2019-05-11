@@ -7,3 +7,6 @@ then
 fi
 PGPASSWORD="${PG_PASS}" psql -h "${PG_HOST}" -U gha_admin -tA graphql < ./util_sql/actors.sql
 PGPASSWORD="${PG_PASS}" psql -h "${PG_HOST}" -U gha_admin -tA graphqljs < ./util_sql/actors.sql
+PGPASSWORD="${PG_PASS}" psql -h "${PG_HOST}" -U gha_admin -tA graphiql < ./util_sql/actors.sql
+PGPASSWORD="${PG_PASS}" psql -h "${PG_HOST}" -U gha_admin -tA expressgraphql < ./util_sql/actors.sql
+PGPASSWORD="${PG_PASS}" psql -h "${PG_HOST}" -U gha_admin -tA graphqlspec < ./util_sql/actors.sql
