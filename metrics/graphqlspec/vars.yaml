@@ -5,10 +5,26 @@ vars:
     command: [hostname]
   - name: full_name
     type: s
-    value: GraphQL
+    value: GraphQL Spec
   - name: lower_name
     type: s
-    value: graphql
+    value: graphqljs
+  - name: projects_partial_html
+    type: s
+    command:
+      - cat
+      - '{{datadir}}partials/projects.html'
+    replaces:
+      - [hostname, os_hostname]
+      #- [hostname, ':devstats.cncf.io']
+      - [':testsrv=teststats.cncf.io ', ':']
+      - [': teststats.cncf.io=testsrv', ':']
+      - [':testsrv=', ':<!-- ']
+      - [':=testsrv', ': -->']
+      - [':prodsrv=devstats.cncf.io ', ':']
+      - [': devstats.cncf.io=prodsrv', ':']
+      - [':prodsrv=', ':<!-- ']
+      - [':=prodsrv', ': -->']
   - name: activity_docs_html
     type: s
     command:
@@ -286,22 +302,6 @@ vars:
     command:
       - cat
       - '{{datadir}}docs/dashboards/shared/company_prs.md'
-    replaces:
-      - [full_name, full_name]
-      - [lower_name, lower_name]
-  - name: projects_health_docs_html
-    type: s
-    command:
-      - cat
-      - '{{datadir}}docs/dashboards/shared/projects_health.md'
-    replaces:
-      - [full_name, full_name]
-      - [lower_name, lower_name]
-  - name: project_health_docs_html
-    type: s
-    command:
-      - cat
-      - '{{datadir}}docs/dashboards/shared/project_health.md'
     replaces:
       - [full_name, full_name]
       - [lower_name, lower_name]
