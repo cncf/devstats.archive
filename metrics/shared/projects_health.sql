@@ -957,7 +957,7 @@ from
   projects
 union select 'phealth,' || rg.repo_group || ',ltag' as name,
   'Releases: Last release',
-  '19080-01-01 00:00:00',
+  '1980-01-01 00:00:00',
   0.0,
   '-'
 from
