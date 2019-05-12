@@ -955,15 +955,6 @@ select
   last_release_tag
 from
   projects
-union select 'phealth,' || rg.repo_group || ',ltag' as name,
-  'Releases: Last release',
-  '1980-01-01 00:00:00',
-  0.0,
-  '-'
-from
-  repo_groups rg
-where
-  (select count(*) from projects where rg.repo_group = project) = 0
 union select
   'phealth,' || project || ',ldate' as name,
   'Releases: Last release date',
@@ -973,16 +964,6 @@ union select
 from
   projects
 union select
-  'phealth,' || rg.repo_group || ',ldate' as name,
-  'Releases: Last release date',
-  '1980-01-01 00:00:00',
-  0.0,
-  '-'
-from
-  repo_groups rg
-where
-  (select count(*) from projects where rg.repo_group = project) = 0
-union select
   'phealth,' || project || ',ldesc' as name,
   'Releases: Last release description',
   last_release_date,
@@ -990,16 +971,6 @@ union select
   last_release_desc
 from
   projects
-union select
-  'phealth,' || rg.repo_group || ',ldesc' as name,
-  'Releases: Last release description',
-  '1980-01-01 00:00:00',
-  0.0,
-  '-'
-from
-  repo_groups rg
-where
-  (select count(*) from projects where rg.repo_group = project) = 0
 union select 'phealth,' || r.repo_group || ',lcomm' as name,
   'Commits: Last commit date',
   max(c.dup_created_at),
