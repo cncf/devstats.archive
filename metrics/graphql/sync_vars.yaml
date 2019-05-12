@@ -8,15 +8,15 @@ vars:
     type: s
     command:
       - cat
-      - '{{datadir}}partials/projects_health_cdf.html'
+      - '{{datadir}}partials/projects_health_gql.html'
     replaces:
       - [hostname, os_hostname]
-      #- [hostname, ':devstats.cd.foundation']
+      #- [hostname, ':devstats.graphql.org']
       - [':>Up<', ':>⇧<']
       - [':>Down<', ':>⇩<']
     queries_before: true
     queries:
-      - [metrics, "select series, name, str from sprojects_health where period = 'd' and series like 'phealth%' order by name asc", series]
+      - [metrics, "select series, name, str from sprojects_health where period = 'd' and series in ('phealthgraphqljs', 'phealthgraphiql', 'phealthgraphqlspec', 'phealthexpressgraphql') order by name asc", series]
     loops_before: true
     loops:
       - [0,0,4,1]   # number of prod CDF projects
