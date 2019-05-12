@@ -984,6 +984,15 @@ where
   and r.repo_group is not null
 group by
   r.repo_group
+union select 'phealth,' || rg.repo_group || ',lcomm' as name,
+  'Commits: Last commit date',
+  '1980-01-01 00:00:00',
+  0.0,
+  '-'
+from
+  repo_groups rg
+where
+  (select count(*) from gha_commits c, gha_repos r where c.dup_repo_id = r.id and r.repo_group = rg.repo_group) = 0
 union select 'phealth,' || r.repo_group || ',lcommd' as name,
   'Commits: Days since last commit',
   max(c.dup_created_at),
@@ -997,6 +1006,15 @@ where
   and r.repo_group is not null
 group by
   r.repo_group
+union select 'phealth,' || rg.repo_group || ',lcommd' as name,
+  'Commits: Days since last commit',
+  '1980-01-01 00:00:00',
+  0.0,
+  '-'
+from
+  repo_groups rg
+where
+  (select count(*) from gha_commits c, gha_repos r where c.dup_repo_id = r.id and r.repo_group = rg.repo_group) = 0
 union select 'phealth,' || repo_group || ',acomm3' as name,
   'Committers: Number of committers in the last 3 months',
   now(),
@@ -1004,6 +1022,15 @@ union select 'phealth,' || repo_group || ',acomm3' as name,
   acomm3::text
 from
   commits
+union select 'phealth,' || rg.repo_group || ',acomm3' as name,
+  'Committers: Number of committers in the last 3 months',
+  now(),
+  0.0,
+  '-'
+from
+  repo_groups rg
+where
+  (select count(*) from commits where repo_group = rg.repo_group) = 0
 union select 'phealth,' || repo_group || ',acomm6' as name,
   'Committers: Number of committers in the last 6 months',
   now(),
@@ -1011,6 +1038,15 @@ union select 'phealth,' || repo_group || ',acomm6' as name,
   acomm6::text
 from
   commits
+union select 'phealth,' || rg.repo_group || ',acomm6' as name,
+  'Committers: Number of committers in the last 6 months',
+  now(),
+  0.0,
+  '-'
+from
+  repo_groups rg
+where
+  (select count(*) from commits where repo_group = rg.repo_group) = 0
 union select 'phealth,' || repo_group || ',acomm12' as name,
   'Committers: Number of committers in the last 12 months',
   now(),
@@ -1018,6 +1054,15 @@ union select 'phealth,' || repo_group || ',acomm12' as name,
   acomm12::text
 from
   commits
+union select 'phealth,' || rg.repo_group || ',acomm12' as name,
+  'Committers: Number of committers in the last 12 months',
+  now(),
+  0.0,
+  '-'
+from
+  repo_groups rg
+where
+  (select count(*) from commits where repo_group = rg.repo_group) = 0
 union select 'phealth,' || repo_group || ',acommp3' as name,
   'Committers: Number of committers in the last 3 months (previous 3 months)',
   now(),
@@ -1025,6 +1070,15 @@ union select 'phealth,' || repo_group || ',acommp3' as name,
   acommp3::text
 from
   commits
+union select 'phealth,' || rg.repo_group || ',acommp3' as name,
+  'Committers: Number of committers in the last 3 months (previous 3 months)',
+  now(),
+  0.0,
+  '-'
+from
+  repo_groups rg
+where
+  (select count(*) from commits where repo_group = rg.repo_group) = 0
 union select 'phealth,' || repo_group || ',acomm' as name,
   'Committers: Number of committers in the last 3 months vs. previous 3 months',
   now(),
@@ -1032,6 +1086,15 @@ union select 'phealth,' || repo_group || ',acomm' as name,
   case acomm3 > acommp3 when true then 'Up' else case acomm3 < acommp3 when true then 'Down' else 'Flat' end end
 from
   commits
+union select 'phealth,' || rg.repo_group || ',acomm' as name,
+  'Committers: Number of committers in the last 3 months vs. previous 3 months',
+  now(),
+  0.0,
+  '-'
+from
+  repo_groups rg
+where
+  (select count(*) from commits where repo_group = rg.repo_group) = 0
 union select 'phealth,' || repo_group || ',comm3' as name,
   'Commits: Number of commits in the last 3 months',
   now(),
@@ -1039,6 +1102,15 @@ union select 'phealth,' || repo_group || ',comm3' as name,
   comm3::text
 from
   commits
+union select 'phealth,' || rg.repo_group || ',comm3' as name,
+  'Commits: Number of commits in the last 3 months',
+  now(),
+  0.0,
+  '-'
+from
+  repo_groups rg
+where
+  (select count(*) from commits where repo_group = rg.repo_group) = 0
 union select 'phealth,' || repo_group || ',comm6' as name,
   'Commits: Number of commits in the last 6 months',
   now(),
@@ -1046,6 +1118,15 @@ union select 'phealth,' || repo_group || ',comm6' as name,
   comm6::text
 from
   commits
+union select 'phealth,' || rg.repo_group || ',comm6' as name,
+  'Commits: Number of commits in the last 6 months',
+  now(),
+  0.0,
+  '-'
+from
+  repo_groups rg
+where
+  (select count(*) from commits where repo_group = rg.repo_group) = 0
 union select 'phealth,' || repo_group || ',comm12' as name,
   'Commits: Number of commits in the last 12 months',
   now(),
@@ -1053,6 +1134,15 @@ union select 'phealth,' || repo_group || ',comm12' as name,
   comm12::text
 from
   commits
+union select 'phealth,' || rg.repo_group || ',comm12' as name,
+  'Commits: Number of commits in the last 12 months',
+  now(),
+  0.0,
+  '-'
+from
+  repo_groups rg
+where
+  (select count(*) from commits where repo_group = rg.repo_group) = 0
 union select 'phealth,' || repo_group || ',commp3' as name,
   'Commits: Number of commits in the last 3 months (previous 3 months)',
   now(),
@@ -1060,6 +1150,15 @@ union select 'phealth,' || repo_group || ',commp3' as name,
   commp3::text
 from
   commits
+union select 'phealth,' || rg.repo_group || ',commp3' as name,
+  'Commits: Number of commits in the last 3 months (previous 3 months)',
+  now(),
+  0.0,
+  '-'
+from
+  repo_groups rg
+where
+  (select count(*) from commits where repo_group = rg.repo_group) = 0
 union select 'phealth,' || repo_group || ',comm' as name,
   'Commits: Number of commits in the last 3 months vs. previous 3 months',
   now(),
@@ -1067,6 +1166,15 @@ union select 'phealth,' || repo_group || ',comm' as name,
   case comm3 > commp3 when true then 'Up' else case comm3 < commp3 when true then 'Down' else 'Flat' end end
 from
   commits
+union select 'phealth,' || rg.repo_group || ',comm' as name,
+  'Commits: Number of commits in the last 3 months vs. previous 3 months',
+  now(),
+  0.0,
+  '-'
+from
+  repo_groups rg
+where
+  (select count(*) from commits where repo_group = rg.repo_group) = 0
 union select 'phealth,' || repo_group || ',contr3' as name,
   'Contributors: Number of contributors in the last 3 months',
   now(),
@@ -1074,6 +1182,15 @@ union select 'phealth,' || repo_group || ',contr3' as name,
   contrib3::text
 from
   contributors
+union select 'phealth,' || rg.repo_group || ',contr3' as name,
+  'Contributors: Number of contributors in the last 3 months',
+  now(),
+  0.0,
+  '-'
+from
+  repo_groups rg
+where
+  (select count(*) from contributors where repo_group = rg.repo_group) = 0
 union select 'phealth,' || repo_group || ',contr6' as name,
   'Contributors: Number of contributors in the last 6 months',
   now(),
@@ -1081,6 +1198,15 @@ union select 'phealth,' || repo_group || ',contr6' as name,
   contrib6::text
 from
   contributors
+union select 'phealth,' || rg.repo_group || ',contr6' as name,
+  'Contributors: Number of contributors in the last 6 months',
+  now(),
+  0.0,
+  '-'
+from
+  repo_groups rg
+where
+  (select count(*) from contributors where repo_group = rg.repo_group) = 0
 union select 'phealth,' || repo_group || ',contr12' as name,
   'Contributors: Number of contributors in the last 12 months',
   now(),
@@ -1088,6 +1214,15 @@ union select 'phealth,' || repo_group || ',contr12' as name,
   contrib12::text
 from
   contributors
+union select 'phealth,' || rg.repo_group || ',contr12' as name,
+  'Contributors: Number of contributors in the last 12 months',
+  now(),
+  0.0,
+  '-'
+from
+  repo_groups rg
+where
+  (select count(*) from contributors where repo_group = rg.repo_group) = 0
 union select 'phealth,' || repo_group || ',contrp3' as name,
   'Contributors: Number of contributors in the last 3 months (previous 3 months)',
   now(),
@@ -1095,6 +1230,15 @@ union select 'phealth,' || repo_group || ',contrp3' as name,
   contribp3::text
 from
   contributors
+union select 'phealth,' || rg.repo_group || ',contrp3' as name,
+  'Contributors: Number of contributors in the last 3 months (previous 3 months)',
+  now(),
+  0.0,
+  '-'
+from
+  repo_groups rg
+where
+  (select count(*) from contributors where repo_group = rg.repo_group) = 0
 union select 'phealth,' || repo_group || ',contr' as name,
   'Contributors: Number of contributors in the last 3 months vs. previous 3 months',
   now(),
@@ -1102,6 +1246,15 @@ union select 'phealth,' || repo_group || ',contr' as name,
   case contrib3 > contribp3 when true then 'Up' else case contrib3 < contribp3 when true then 'Down' else 'Flat' end end
 from
   contributors
+union select 'phealth,' || rg.repo_group || ',contr' as name,
+  'Contributors: Number of contributors in the last 3 months vs. previous 3 months',
+  now(),
+  0.0,
+  '-'
+from
+  repo_groups rg
+where
+  (select count(*) from contributors where repo_group = rg.repo_group) = 0
 union select 'phealth,' || repo_group || ',opr3' as name,
   'PRs: Number of PRs opened in the last 3 months',
   now(),
@@ -1109,6 +1262,15 @@ union select 'phealth,' || repo_group || ',opr3' as name,
   pr3::text
 from
   prs_opened
+union select 'phealth,' || rg.repo_group || ',opr3' as name,
+  'PRs: Number of PRs opened in the last 3 months',
+  now(),
+  0.0,
+  '-'
+from
+  repo_groups rg
+where
+  (select count(*) from prs_opened where repo_group = rg.repo_group) = 0
 union select 'phealth,' || repo_group || ',opr6' as name,
   'PRs: Number of PRs opened in the last 6 months',
   now(),
@@ -1116,6 +1278,15 @@ union select 'phealth,' || repo_group || ',opr6' as name,
   pr6::text
 from
   prs_opened
+union select 'phealth,' || rg.repo_group || ',opr6' as name,
+  'PRs: Number of PRs opened in the last 6 months',
+  now(),
+  0.0,
+  '-'
+from
+  repo_groups rg
+where
+  (select count(*) from prs_opened where repo_group = rg.repo_group) = 0
 union select 'phealth,' || repo_group || ',opr12' as name,
   'PRs: Number of PRs opened in the last 12 months',
   now(),
@@ -1123,6 +1294,15 @@ union select 'phealth,' || repo_group || ',opr12' as name,
   pr12::text
 from
   prs_opened
+union select 'phealth,' || rg.repo_group || ',opr12' as name,
+  'PRs: Number of PRs opened in the last 12 months',
+  now(),
+  0.0,
+  '-'
+from
+  repo_groups rg
+where
+  (select count(*) from prs_opened where repo_group = rg.repo_group) = 0
 union select 'phealth,' || repo_group || ',oprp3' as name,
   'PRs: Number of PRs opened in the last 3 months (previous 3 months)',
   now(),
@@ -1130,6 +1310,15 @@ union select 'phealth,' || repo_group || ',oprp3' as name,
   prp3::text
 from
   prs_opened
+union select 'phealth,' || rg.repo_group || ',oprp3' as name,
+  'PRs: Number of PRs opened in the last 3 months (previous 3 months)',
+  now(),
+  0.0,
+  '-'
+from
+  repo_groups rg
+where
+  (select count(*) from prs_opened where repo_group = rg.repo_group) = 0
 union select 'phealth,' || repo_group || ',opr' as name,
   'PRs: Number of PRs opened in the last 3 months vs. previous 3 months',
   now(),
@@ -1137,6 +1326,15 @@ union select 'phealth,' || repo_group || ',opr' as name,
   case pr3 > prp3 when true then 'Up' else case pr3 < prp3 when true then 'Down' else 'Flat' end end
 from
   prs_opened
+union select 'phealth,' || rg.repo_group || ',opr' as name,
+  'PRs: Number of PRs opened in the last 3 months vs. previous 3 months',
+  now(),
+  0.0,
+  '-'
+from
+  repo_groups rg
+where
+  (select count(*) from prs_opened where repo_group = rg.repo_group) = 0
 union select 'phealth,' || repo_group || ',cpr3' as name,
   'PRs: Number of PRs closed in the last 3 months',
   now(),
@@ -1144,6 +1342,15 @@ union select 'phealth,' || repo_group || ',cpr3' as name,
   pr3::text
 from
   prs_closed
+union select 'phealth,' || rg.repo_group || ',cpr3' as name,
+  'PRs: Number of PRs closed in the last 3 months',
+  now(),
+  0.0,
+  '-'
+from
+  repo_groups rg
+where
+  (select count(*) from prs_closed where repo_group = rg.repo_group) = 0
 union select 'phealth,' || repo_group || ',cpr6' as name,
   'PRs: Number of PRs closed in the last 6 months',
   now(),
@@ -1151,6 +1358,15 @@ union select 'phealth,' || repo_group || ',cpr6' as name,
   pr6::text
 from
   prs_closed
+union select 'phealth,' || rg.repo_group || ',cpr6' as name,
+  'PRs: Number of PRs closed in the last 6 months',
+  now(),
+  0.0,
+  '-'
+from
+  repo_groups rg
+where
+  (select count(*) from prs_closed where repo_group = rg.repo_group) = 0
 union select 'phealth,' || repo_group || ',cpr12' as name,
   'PRs: Number of PRs closed in the last 12 months',
   now(),
@@ -1158,6 +1374,15 @@ union select 'phealth,' || repo_group || ',cpr12' as name,
   pr12::text
 from
   prs_closed
+union select 'phealth,' || rg.repo_group || ',cpr12' as name,
+  'PRs: Number of PRs closed in the last 12 months',
+  now(),
+  0.0,
+  '-'
+from
+  repo_groups rg
+where
+  (select count(*) from prs_closed where repo_group = rg.repo_group) = 0
 union select 'phealth,' || repo_group || ',cprp3' as name,
   'PRs: Number of PRs closed in the last 3 months (previous 3 months)',
   now(),
@@ -1165,6 +1390,15 @@ union select 'phealth,' || repo_group || ',cprp3' as name,
   prp3::text
 from
   prs_closed
+union select 'phealth,' || rg.repo_group || ',cprp3' as name,
+  'PRs: Number of PRs closed in the last 3 months (previous 3 months)',
+  now(),
+  0.0,
+  '-'
+from
+  repo_groups rg
+where
+  (select count(*) from prs_closed where repo_group = rg.repo_group) = 0
 union select 'phealth,' || repo_group || ',cpr' as name,
   'PRs: Number of PRs closed in the last 3 months vs. previous 3 months',
   now(),
@@ -1172,6 +1406,15 @@ union select 'phealth,' || repo_group || ',cpr' as name,
   case pr3 > prp3 when true then 'Up' else case pr3 < prp3 when true then 'Down' else 'Flat' end end
 from
   prs_closed
+union select 'phealth,' || rg.repo_group || ',cpr' as name,
+  'PRs: Number of PRs closed in the last 3 months vs. previous 3 months',
+  now(),
+  0.0,
+  '-'
+from
+  repo_groups rg
+where
+  (select count(*) from prs_closed where repo_group = rg.repo_group) = 0
 union select 'phealth,' || repo_group || ',mpr3' as name,
   'PRs: Number of PRs merged in the last 3 months',
   now(),
@@ -1179,6 +1422,15 @@ union select 'phealth,' || repo_group || ',mpr3' as name,
   pr3::text
 from
   prs_merged
+union select 'phealth,' || rg.repo_group || ',mpr3' as name,
+  'PRs: Number of PRs merged in the last 3 months',
+  now(),
+  0.0,
+  '-'
+from
+  repo_groups rg
+where
+  (select count(*) from prs_merged where repo_group = rg.repo_group) = 0
 union select 'phealth,' || repo_group || ',mpr6' as name,
   'PRs: Number of PRs merged in the last 6 months',
   now(),
@@ -1186,6 +1438,15 @@ union select 'phealth,' || repo_group || ',mpr6' as name,
   pr6::text
 from
   prs_merged
+union select 'phealth,' || rg.repo_group || ',mpr6' as name,
+  'PRs: Number of PRs merged in the last 6 months',
+  now(),
+  0.0,
+  '-'
+from
+  repo_groups rg
+where
+  (select count(*) from prs_merged where repo_group = rg.repo_group) = 0
 union select 'phealth,' || repo_group || ',mpr12' as name,
   'PRs: Number of PRs merged in the last 12 months',
   now(),
@@ -1193,6 +1454,15 @@ union select 'phealth,' || repo_group || ',mpr12' as name,
   pr12::text
 from
   prs_merged
+union select 'phealth,' || rg.repo_group || ',mpr12' as name,
+  'PRs: Number of PRs merged in the last 12 months',
+  now(),
+  0.0,
+  '-'
+from
+  repo_groups rg
+where
+  (select count(*) from prs_merged where repo_group = rg.repo_group) = 0
 union select 'phealth,' || repo_group || ',mprp3' as name,
   'PRs: Number of PRs merged in the last 3 months (previous 3 months)',
   now(),
@@ -1200,6 +1470,15 @@ union select 'phealth,' || repo_group || ',mprp3' as name,
   prp3::text
 from
   prs_merged
+union select 'phealth,' || rg.repo_group || ',mprp3' as name,
+  'PRs: Number of PRs merged in the last 3 months (previous 3 months)',
+  now(),
+  0.0,
+  '-'
+from
+  repo_groups rg
+where
+  (select count(*) from prs_merged where repo_group = rg.repo_group) = 0
 union select 'phealth,' || repo_group || ',mpr' as name,
   'PRs: Number of PRs merged in the last 3 months vs. previous 3 months',
   now(),
@@ -1207,6 +1486,15 @@ union select 'phealth,' || repo_group || ',mpr' as name,
   case pr3 > prp3 when true then 'Up' else case pr3 < prp3 when true then 'Down' else 'Flat' end end
 from
   prs_merged
+union select 'phealth,' || rg.repo_group || ',mpr' as name,
+  'PRs: Number of PRs merged in the last 3 months vs. previous 3 months',
+  now(),
+  0.0,
+  '-'
+from
+  repo_groups rg
+where
+  (select count(*) from prs_merged where repo_group = rg.repo_group) = 0
 union select 'phealth,' || repo_group || ',ip15' as name,
   'Issues: 15th percentile of time to respond to issues',
   now(),
@@ -1214,6 +1502,15 @@ union select 'phealth,' || repo_group || ',ip15' as name,
   p15::text
 from
   react_time
+union select 'phealth,' || rg.repo_group || ',ip15' as name,
+  'Issues: 15th percentile of time to respond to issues',
+  now(),
+  0.0,
+  '-'
+from
+  repo_groups rg
+where
+  (select count(*) from react_time where repo_group = rg.repo_group) = 0
 union select 'phealth,' || repo_group || ',imed' as name,
   'Issues: Median time to respond to issues',
   now(),
@@ -1221,6 +1518,15 @@ union select 'phealth,' || repo_group || ',imed' as name,
   med::text
 from
   react_time
+union select 'phealth,' || rg.repo_group || ',imed' as name,
+  'Issues: Median time to respond to issues',
+  now(),
+  0.0,
+  '-'
+from
+  repo_groups rg
+where
+  (select count(*) from react_time where repo_group = rg.repo_group) = 0
 union select 'phealth,' || repo_group || ',ip85' as name,
   'Issues: 85th percentile of time to respond to issues',
   now(),
@@ -1228,6 +1534,15 @@ union select 'phealth,' || repo_group || ',ip85' as name,
   p85::text
 from
   react_time
+union select 'phealth,' || rg.repo_group || ',ip85' as name,
+  'Issues: 85th percentile of time to respond to issues',
+  now(),
+  0.0,
+  '-'
+from
+  repo_groups rg
+where
+  (select count(*) from react_time where repo_group = rg.repo_group) = 0
 union select 'phealth,' || repo_group || ',pro2c' as name,
   'PRs: Opened to closed rate in the last 3 months vs. previous 3 months',
   now(),
@@ -1235,6 +1550,15 @@ union select 'phealth,' || repo_group || ',pro2c' as name,
   case r3 < 0 or rp3 < 0 when true then '-' else case r3 > rp3 when true then 'Up' else case r3 < rp3 when true then 'Down' else 'Flat' end end end
 from
   pr_ratio
+union select 'phealth,' || rg.repo_group || ',pro2c' as name,
+  'PRs: Opened to closed rate in the last 3 months vs. previous 3 months',
+  now(),
+  0.0,
+  '-'
+from
+  repo_groups rg
+where
+  (select count(*) from pr_ratio where repo_group = rg.repo_group) = 0
 union select 'phealth,' || po.repo_group || ',pro2c3' as name,
   'PRs: Opened to closed rate in the last 3 months',
   now(),
@@ -1245,6 +1569,15 @@ from
   prs_closed pc
 where
   po.repo_group = pc.repo_group
+union select 'phealth,' || rg.repo_group || ',pro2c3' as name,
+  'PRs: Opened to closed rate in the last 3 months',
+  now(),
+  0.0,
+  '-'
+from
+  repo_groups rg
+where
+  (select count(*) from prs_opened po, prs_closed pc where po.repo_group = pc.repo_group and pc.repo_group = rg.repo_group) = 0
 union select 'phealth,' || po.repo_group || ',pro2cp3' as name,
   'PRs: Opened to closed rate in the last 3 months (previous 3 months)',
   now(),
@@ -1255,6 +1588,15 @@ from
   prs_closed pc
 where
   po.repo_group = pc.repo_group
+union select 'phealth,' || rg.repo_group || ',pro2cp3' as name,
+  'PRs: Opened to closed rate in the last 3 months (previous 3 months)',
+  now(),
+  0.0,
+  '-'
+from
+  repo_groups rg
+where
+  (select count(*) from prs_opened po, prs_closed pc where po.repo_group = pc.repo_group and pc.repo_group = rg.repo_group) = 0
 union select 'phealth,' || po.repo_group || ',pro2c6' as name,
   'PRs: Opened to closed rate in the last 6 months',
   now(),
@@ -1265,6 +1607,15 @@ from
   prs_closed pc
 where
   po.repo_group = pc.repo_group
+union select 'phealth,' || rg.repo_group || ',pro2c6' as name,
+  'PRs: Opened to closed rate in the last 6 months',
+  now(),
+  0.0,
+  '-'
+from
+  repo_groups rg
+where
+  (select count(*) from prs_opened po, prs_closed pc where po.repo_group = pc.repo_group and pc.repo_group = rg.repo_group) = 0
 union select 'phealth,' || po.repo_group || ',pro2c12' as name,
   'PRs: Opened to closed rate in the last 12 months',
   now(),
@@ -1275,6 +1626,15 @@ from
   prs_closed pc
 where
   po.repo_group = pc.repo_group
+union select 'phealth,' || rg.repo_group || ',pro2c12' as name,
+  'PRs: Opened to closed rate in the last 12 months',
+  now(),
+  0.0,
+  '-'
+from
+  repo_groups rg
+where
+  (select count(*) from prs_opened po, prs_closed pc where po.repo_group = pc.repo_group and pc.repo_group = rg.repo_group) = 0
 union select 'phealth,' || repo_group || ',oi3' as name,
   'Issues: Number of issues opened in the last 3 months',
   now(),
@@ -1282,6 +1642,15 @@ union select 'phealth,' || repo_group || ',oi3' as name,
   i3::text
 from
   issues_opened
+union select 'phealth,' || rg.repo_group || ',oi3' as name,
+  'Issues: Number of issues opened in the last 3 months',
+  now(),
+  0.0,
+  '-'
+from
+  repo_groups rg
+where
+  (select count(*) from issues_opened where repo_group = rg.repo_group) = 0
 union select 'phealth,' || repo_group || ',oi6' as name,
   'Issues: Number of issues opened in the last 6 months',
   now(),
@@ -1289,6 +1658,15 @@ union select 'phealth,' || repo_group || ',oi6' as name,
   i6::text
 from
   issues_opened
+union select 'phealth,' || rg.repo_group || ',oi6' as name,
+  'Issues: Number of issues opened in the last 6 months',
+  now(),
+  0.0,
+  '-'
+from
+  repo_groups rg
+where
+  (select count(*) from issues_opened where repo_group = rg.repo_group) = 0
 union select 'phealth,' || repo_group || ',oi12' as name,
   'Issues: Number of issues opened in the last 12 months',
   now(),
@@ -1296,6 +1674,15 @@ union select 'phealth,' || repo_group || ',oi12' as name,
   i12::text
 from
   issues_opened
+union select 'phealth,' || rg.repo_group || ',oi12' as name,
+  'Issues: Number of issues opened in the last 12 months',
+  now(),
+  0.0,
+  '-'
+from
+  repo_groups rg
+where
+  (select count(*) from issues_opened where repo_group = rg.repo_group) = 0
 union select 'phealth,' || repo_group || ',oip3' as name,
   'Issues: Number of issues opened in the last 3 months (previous 3 months)',
   now(),
@@ -1303,6 +1690,15 @@ union select 'phealth,' || repo_group || ',oip3' as name,
   ip3::text
 from
   issues_opened
+union select 'phealth,' || rg.repo_group || ',oip3' as name,
+  'Issues: Number of issues opened in the last 3 months (previous 3 months)',
+  now(),
+  0.0,
+  '-'
+from
+  repo_groups rg
+where
+  (select count(*) from issues_opened where repo_group = rg.repo_group) = 0
 union select 'phealth,' || repo_group || ',oi' as name,
   'Issues: Number of issues opened in the last 3 months vs. previous 3 months',
   now(),
@@ -1310,6 +1706,15 @@ union select 'phealth,' || repo_group || ',oi' as name,
   case i3 > ip3 when true then 'Up' else case i3 < ip3 when true then 'Down' else 'Flat' end end
 from
   issues_opened
+union select 'phealth,' || rg.repo_group || ',oi' as name,
+  'Issues: Number of issues opened in the last 3 months vs. previous 3 months',
+  now(),
+  0.0,
+  '-'
+from
+  repo_groups rg
+where
+  (select count(*) from issues_opened where repo_group = rg.repo_group) = 0
 union select 'phealth,' || repo_group || ',ci3' as name,
   'Issues: Number of issues closed in the last 3 months',
   now(),
@@ -1317,6 +1722,15 @@ union select 'phealth,' || repo_group || ',ci3' as name,
   i3::text
 from
   issues_closed
+union select 'phealth,' || rg.repo_group || ',ci3' as name,
+  'Issues: Number of issues closed in the last 3 months',
+  now(),
+  0.0,
+  '-'
+from
+  repo_groups rg
+where
+  (select count(*) from issues_closed where repo_group = rg.repo_group) = 0
 union select 'phealth,' || repo_group || ',ci6' as name,
   'Issues: Number of issues closed in the last 6 months',
   now(),
@@ -1324,6 +1738,15 @@ union select 'phealth,' || repo_group || ',ci6' as name,
   i6::text
 from
   issues_closed
+union select 'phealth,' || rg.repo_group || ',ci6' as name,
+  'Issues: Number of issues closed in the last 6 months',
+  now(),
+  0.0,
+  '-'
+from
+  repo_groups rg
+where
+  (select count(*) from issues_closed where repo_group = rg.repo_group) = 0
 union select 'phealth,' || repo_group || ',ci12' as name,
   'Issues: Number of issues closed in the last 12 months',
   now(),
@@ -1331,6 +1754,15 @@ union select 'phealth,' || repo_group || ',ci12' as name,
   i12::text
 from
   issues_closed
+union select 'phealth,' || rg.repo_group || ',ci12' as name,
+  'Issues: Number of issues closed in the last 12 months',
+  now(),
+  0.0,
+  '-'
+from
+  repo_groups rg
+where
+  (select count(*) from issues_closed where repo_group = rg.repo_group) = 0
 union select 'phealth,' || repo_group || ',cip3' as name,
   'Issues: Number of issues closed in the last 3 months (previous 3 months)',
   now(),
@@ -1338,6 +1770,15 @@ union select 'phealth,' || repo_group || ',cip3' as name,
   ip3::text
 from
   issues_closed
+union select 'phealth,' || rg.repo_group || ',cip3' as name,
+  'Issues: Number of issues closed in the last 3 months (previous 3 months)',
+  now(),
+  0.0,
+  '-'
+from
+  repo_groups rg
+where
+  (select count(*) from issues_closed where repo_group = rg.repo_group) = 0
 union select 'phealth,' || repo_group || ',ci' as name,
   'Issues: Number of issues closed in the last 3 months vs. previous 3 months',
   now(),
@@ -1345,6 +1786,15 @@ union select 'phealth,' || repo_group || ',ci' as name,
   case i3 > ip3 when true then 'Up' else case i3 < ip3 when true then 'Down' else 'Flat' end end
 from
   issues_closed
+union select 'phealth,' || rg.repo_group || ',ci' as name,
+  'Issues: Number of issues closed in the last 3 months vs. previous 3 months',
+  now(),
+  0.0,
+  '-'
+from
+  repo_groups rg
+where
+  (select count(*) from issues_closed where repo_group = rg.repo_group) = 0
 union select 'phealth,' || repo_group || ',io2c' as name,
   'Issues: Opened to closed rate in the last 3 months vs. previous 3 months',
   now(),
@@ -1352,6 +1802,15 @@ union select 'phealth,' || repo_group || ',io2c' as name,
   case r3 < 0 or rp3 < 0 when true then '-' else case r3 > rp3 when true then 'Up' else case r3 < rp3 when true then 'Down' else 'Flat' end end end
 from
   issue_ratio
+union select 'phealth,' || rg.repo_group || ',io2c' as name,
+  'Issues: Opened to closed rate in the last 3 months vs. previous 3 months',
+  now(),
+  0.0,
+  '-'
+from
+  repo_groups rg
+where
+  (select count(*) from issue_ratio where repo_group = rg.repo_group) = 0
 union select 'phealth,' || io.repo_group || ',io2c3' as name,
   'Issues: Opened to closed rate in the last 3 months',
   now(),
@@ -1362,6 +1821,15 @@ from
   issues_closed ic
 where
   io.repo_group = ic.repo_group
+union select 'phealth,' || rg.repo_group || ',io2c3' as name,
+  'Issues: Opened to closed rate in the last 3 months',
+  now(),
+  0.0,
+  '-'
+from
+  repo_groups rg
+where
+  (select count(*) from issues_opened io, issues_closed ic where io.repo_group = ic.repo_group and ic.repo_group = rg.repo_group) = 0
 union select 'phealth,' || io.repo_group || ',io2cp3' as name,
   'Issues: Opened to closed rate in the last 3 months (previous 3 months)',
   now(),
@@ -1372,6 +1840,15 @@ from
   issues_closed ic
 where
   io.repo_group = ic.repo_group
+union select 'phealth,' || rg.repo_group || ',io2cp3' as name,
+  'Issues: Opened to closed rate in the last 3 months (previous 3 months)',
+  now(),
+  0.0,
+  '-'
+from
+  repo_groups rg
+where
+  (select count(*) from issues_opened io, issues_closed ic where io.repo_group = ic.repo_group and ic.repo_group = rg.repo_group) = 0
 union select 'phealth,' || io.repo_group || ',io2c6' as name,
   'Issues: Opened to closed rate in the last 6 months',
   now(),
@@ -1382,6 +1859,15 @@ from
   issues_closed ic
 where
   io.repo_group = ic.repo_group
+union select 'phealth,' || rg.repo_group || ',io2c6' as name,
+  'Issues: Opened to closed rate in the last 6 months',
+  now(),
+  0.0,
+  '-'
+from
+  repo_groups rg
+where
+  (select count(*) from issues_opened io, issues_closed ic where io.repo_group = ic.repo_group and ic.repo_group = rg.repo_group) = 0
 union select 'phealth,' || io.repo_group || ',io2c12' as name,
   'Issues: Opened to closed rate in the last 12 months',
   now(),
@@ -1392,6 +1878,15 @@ from
   issues_closed ic
 where
   io.repo_group = ic.repo_group
+union select 'phealth,' || rg.repo_group || ',io2c12' as name,
+  'Issues: Opened to closed rate in the last 12 months',
+  now(),
+  0.0,
+  '-'
+from
+  repo_groups rg
+where
+  (select count(*) from issues_opened io, issues_closed ic where io.repo_group = ic.repo_group and ic.repo_group = rg.repo_group) = 0
 union select 'phealth,' || repo_group || ',ncontr3' as name,
   'Contributors: Number of new contributors in the last 3 months',
   now(),
@@ -1399,6 +1894,15 @@ union select 'phealth,' || repo_group || ',ncontr3' as name,
   ncontrib3::text
 from
   new3_contributors
+union select 'phealth,' || rg.repo_group || ',ncontr3' as name,
+  'Contributors: Number of new contributors in the last 3 months',
+  now(),
+  0.0,
+  '-'
+from
+  repo_groups rg
+where
+  (select count(*) from new3_contributors where repo_group = rg.repo_group) = 0
 union select 'phealth,' || repo_group || ',ncontr6' as name,
   'Contributors: Number of new contributors in the last 6 months',
   now(),
@@ -1406,6 +1910,15 @@ union select 'phealth,' || repo_group || ',ncontr6' as name,
   ncontrib6::text
 from
   new6_contributors
+union select 'phealth,' || rg.repo_group || ',ncontr6' as name,
+  'Contributors: Number of new contributors in the last 6 months',
+  now(),
+  0.0,
+  '-'
+from
+  repo_groups rg
+where
+  (select count(*) from new6_contributors where repo_group = rg.repo_group) = 0
 union select 'phealth,' || repo_group || ',ncontr12' as name,
   'Contributors: Number of new contributors in the last 12 months',
   now(),
@@ -1413,6 +1926,15 @@ union select 'phealth,' || repo_group || ',ncontr12' as name,
   ncontrib12::text
 from
   new12_contributors
+union select 'phealth,' || rg.repo_group || ',ncontr12' as name,
+  'Contributors: Number of new contributors in the last 12 months',
+  now(),
+  0.0,
+  '-'
+from
+  repo_groups rg
+where
+  (select count(*) from new12_contributors where repo_group = rg.repo_group) = 0
 union select 'phealth,' || repo_group || ',ncontrp3' as name,
   'Contributors: Number of new contributors in the last 3 months (last 3 months)',
   now(),
@@ -1420,6 +1942,15 @@ union select 'phealth,' || repo_group || ',ncontrp3' as name,
   ncontribp3::text
 from
   new6_contributors
+union select 'phealth,' || rg.repo_group || ',ncontrp3' as name,
+  'Contributors: Number of new contributors in the last 3 months (last 3 months)',
+  now(),
+  0.0,
+  '-'
+from
+  repo_groups rg
+where
+  (select count(*) from new6_contributors where repo_group = rg.repo_group) = 0
 union select 'phealth,' || n.repo_group || ',ncontr' as name,
   'Contributors: Number of new contributors in the last 3 months vs. last 3 months',
   now(),
@@ -1430,6 +1961,15 @@ from
   new6_contributors p
 where
   n.repo_group = p.repo_group
+union select 'phealth,' || rg.repo_group || ',ncontr' as name,
+  'Contributors: Number of new contributors in the last 3 months vs. last 3 months',
+  now(),
+  0.0,
+  '-'
+from
+  repo_groups rg
+where
+  (select count(*) from new3_contributors n, new6_contributors p where n.repo_group = p.repo_group and p.repo_group = rg.repo_group) = 0
 union select 'phealth,' || rg.repo_group || ',topcompknact3' as name,
   'Companies: Percent of known commits pushers from top committing company (last 3 months)',
   now(),
