@@ -1,21 +1,6 @@
 -- Add repository groups
--- This is a stub, repo_group = repo name in gRPC
-update
-  gha_repos r
-set
-  alias = coalesce((
-    select e.dup_repo_name
-    from
-      gha_events e
-    where
-      e.repo_id = r.id
-    order by
-      e.created_at desc
-    limit 1
-  ), name)
-;
-update gha_repos set repo_group = alias;
 
+update gha_repos set alias = null, repo_group = null;
 update gha_repos set alias = 'GraphQL JavaScript', repo_group = 'GraphQL JavaScript' where name = 'graphql/graphql-js';
 update gha_repos set alias = 'GraphQL IDE', repo_group = 'GraphQL IDE' where name = 'graphql/graphiql';
 update gha_repos set alias = 'Express GraphQL', repo_group = 'Express GraphQL' where name = 'graphql/express-graphql';
