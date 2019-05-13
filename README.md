@@ -22,6 +22,8 @@ Please see [GraphQL Helm chart](https://github.com/cncf/devstats/tree/master/dev
 
 Please see [bare metal example](https://github.com/cncf/devstats-example) to see example bare metal deployment.
 
+The rest of this document describes current bare metal deployment on packet.net used by CNCF projects.
+
 
 # Presentations
 
