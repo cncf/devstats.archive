@@ -16,9 +16,9 @@ More information about Kubernetes dashboards [here](https://github.com/cncf/devs
 
 Please see [example Helm chart](https://github.com/cncf/devstats-helm-example) for an example Helm deployment.
 
-Please see [LF Helm chart](https://github.com/cncf/devstats-helm-lf) for the LF Helm deployment (it is a data deployemnt, has no Grafana and uses ElasticSearch in addition to Postgres to store data).
+Please see [LF Helm chart](https://github.com/cncf/devstats-helm-lf) for the LF Helm deployment (it is a data deployment, has no Grafana and uses ElasticSearch in addition to Postgres to store data).
 
-Please see [GraphQL Helm chart](https://github.com/cncf/devstats-helm-graphql) for GraphQL foundation DevStats deployemnt.
+Please see [GraphQL Helm chart](https://github.com/cncf/devstats-helm-graphql) for GraphQL foundation DevStats deployment.
 
 Please see [kubenrtes dashboard](https://github.com/cncf/devstats-kubernetes-dashboard) if you want to enable a local dashboard to explore cluster state.
 
