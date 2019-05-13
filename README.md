@@ -20,7 +20,7 @@ Please see [LF Helm chart](https://github.com/cncf/devstats-helm-lf) for the LF 
 
 Please see [GraphQL Helm chart](https://github.com/cncf/devstats-helm-graphql) for GraphQL foundation DevStats deployment.
 
-Please see [kubenrtes dashboard](https://github.com/cncf/devstats-kubernetes-dashboard) if you want to enable a local dashboard to explore cluster state.
+Please see [Kubernetes dashboard](https://github.com/cncf/devstats-kubernetes-dashboard) if you want to enable a local dashboard to explore cluster state.
 
 Please see [bare metal example](https://github.com/cncf/devstats-example) to see example bare metal deployment.
 
