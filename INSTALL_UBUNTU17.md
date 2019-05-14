@@ -25,23 +25,37 @@ Prerequisites:
     - Go GitHub API client: `go get github.com/google/go-github/github`
     - Go OAuth2 client: `go get golang.org/x/oauth2`
     - Go SQLite3 client: `go get github.com/mattn/go-sqlite3`
-2. Go to $GOPATH/src/ and clone devstats there:
-    - `git clone https://github.com/cncf/devstats.git`, cd `devstats`
+
+2. Go to `$GOPATH/src/github.com/cncf` and clone devstats and devstatscode there:
+    - `git clone https://github.com/cncf/devstats.git`.
+    - `git clone https://github.com/cncf/devstatscode.git`.
+    - cd `devstats`.
     - Set reuse TCP connections: `./cron/sysctl_config.sh`
     - This variable can be unavailable on your system, ignore the warining if this is the case.
-3. If you want to make changes and PRs, please clone `devstats` from GitHub UI, and clone your forked version instead, like this:
+
+3. If you want to make changes and PRs, please clone `devstats` and `devstatscode` from GitHub UI, and clone your forked version instead, like this:
     - `git clone https://github.com/your_github_username/devstats.git`
-6. Go to devstats directory, so you are in `~/dev/go/src/devstats` directory and compile binaries:
+    - `git clone https://github.com/your_github_username/devstatscode.git`
+
+4. Go to `devstatscode` directory, so you are in `~/dev/go/src/github.com/cncf/devstatscode` directory and compile binaries:
     - `make`
-7. If compiled sucessfully then execute test coverage that doesn't need databases:
+
+5. If compiled sucessfully then execute test coverage that doesn't need databases:
     - `make test`
     - Tests should pass.
-8. Install binaries & metrics:
+
+6. Install binaries:
     - `sudo mkdir /etc/gha2db`
     - `sudo chmod 777 /etc/gha2db`
     - `sudo make install`
 
-9. Install Postgres database ([link](https://gist.github.com/sgnl/609557ebacd3378f3b72)):
+7. Go to `devstats` directory, so you are in `~/dev/go/src/github.com/cncf/devstats` and install scripts, metrics and other config/data files:
+    - `sudo mkdir /etc/gha2db`
+    - `sudo chmod 777 /etc/gha2db`
+    - `make install`
+
+8. Install Postgres database ([link](https://gist.github.com/sgnl/609557ebacd3378f3b72)):
+    - Make sure you database uses `en_US.UTF-8` locale and collation.
     - apt-get install postgresql (you can use specific version, for example `postgresql-9.6`)
     - sudo -i -u postgres
     - psql
@@ -50,7 +64,7 @@ Prerequisites:
     - Set bigger maximum number of connections, at least 200 or more: `/etc/postgresql/X.Y/main/postgresql.conf`. Default is 100. `max_connections = 300`.
     - You can also set `shared_buffers = ...` to something like 25% of your RAM. This is optional.
 
-10. Inside psql client shell:
+9. Inside psql client shell:
     - `create database gha;`
     - `create database devstats;`
     - `create user gha_admin with password 'your_password_here';`
@@ -65,17 +79,17 @@ Prerequisites:
     - `./devel/set_psql_password.sh` to set postgres user password.
     - `chown -R postgres /var/log/postgresql`.
 
-11. Leave `psql` shell, and get newest Kubernetes database dump:
+10. Leave `psql` shell, and get newest Kubernetes database dump:
     - `wget https://devstats.cncf.io/gha.dump`.
     - `mv gha.dump /tmp`.
     - `sudo -u postgres pg_restore -d gha /tmp/gha.dump` (restore DB dump)
     - `rm /tmp/gha.dump`
 
-12. Databases installed, you need to test if all works fine, use database test coverage:
-    - `GHA2DB_PROJECT=kubernetes PG_DB=dbtest PG_PASS=your_postgres_pwd make dbtest`
+11. Databases installed, you need to test if all works fine, use database test coverage (on `cncf/devstats` repo):
+    - `PG_PASS=your_postgres_pwd make`
     - Tests should pass.
 
-13. We have both databases running and Go tools installed, let's try to sync database dump from k8s.devstats.cncf.io manually:
+12. We have both databases running and Go tools installed, let's try to sync database dump from k8s.devstats.cncf.io manually:
     - We need to prefix call with `GHA2DB_LOCAL=1` to enable using tools from "./" directory
     - To import time series data for the first time (Postgres database is at the state when Kubernetes SQL dump was made on [k8s.devstats.cncf.io](https://k8s.devstats.cncf.io)):
     - You need to have GitHub OAuth token, either put this token in `/etc/github/oauth` file or specify token value via `GHA2DB_GITHUB_OAUTH=deadbeef654...10a0` (here you token value)
@@ -85,7 +99,7 @@ Prerequisites:
     - This can take a while (depending how old is psql dump `gha.sql.xz` on [k8s.devstats.cncf.io](https://k8s.devstats.cncf.io). It is generated daily at 3:00 AM UTC.
     - Command should be successfull.
 
-14. We need to setup cron job that will call sync every hour (10 minutes after 1:00, 2:00, ...)
+13. We need to setup cron job that will call sync every hour (10 minutes after 1:00, 2:00, ...)
     - You need to open `crontab.entry` file, it looks like this for single project setup (this is obsolete, please use `devstats` mode instead):
     ```
     8 * * * * PATH=$PATH:/path/to/your/GOPATH/bin GHA2DB_CMDDEBUG=1 GHA2DB_PROJECT=kubernetes PG_PASS='...' gha2db_sync 2>> /tmp/gha2db_sync.err 1>> /tmp/gha2db_sync.log
@@ -109,7 +123,7 @@ Prerequisites:
     - Check database values and logs about 15 minutes after full hours, like 14:15:
     - Check max event created date: `select max(created_at) from gha_events` and logs `select * from gha_logs order by dt desc limit 20`.
 
-15. Install [Grafana](http://docs.grafana.org/installation/mac/), see [MULTIPROJECT.md](https://github.com/cncf/devstats/blob/master/MULTIPROJECT.md).
+14. Install [Grafana](http://docs.grafana.org/installation/mac/), see [MULTIPROJECT.md](https://github.com/cncf/devstats/blob/master/MULTIPROJECT.md).
 
     - `sudo apt-get install -y adduser libfontconfig`
     - `sudo dpkg -i grafana_5.x.x_amd64.deb`
@@ -120,7 +134,7 @@ Prerequisites:
     - Install Apache as described [here](https://github.com/cncf/devstats/blob/master/APACHE.md).
     - You can also enable SSL, to do so you need to follow SSL instruction in [SSL](https://github.com/cncf/devstats/blob/master/SSL.md) (that requires domain name).
 
-16. To change all Grafana page titles (starting with "Grafana - ") and icons use this script:
+15. To change all Grafana page titles (starting with "Grafana - ") and icons use this script:
     - `GRAFANA_DATA=/usr/share/grafana/ ./grafana/{{project}}/change_title_and_icons.sh`.
     - `GRAFANA_DATA` can also be `/usr/share/grafana.prometheus/` for example, see [MULTIPROJECT.md](https://github.com/cncf/devstats/blob/master/MULTIPROJECT.md).
     - Replace `GRAFANA_DATA` with your Grafana data directory.
@@ -129,10 +143,11 @@ Prerequisites:
     - `mv /usr/share/grafana/public/app/core/settings.js /usr/share/grafana/public/app/core/settings.js.old`, restart grafana server and restore file.
     - On Safari you can use Develop -> Empty Caches followed by refresh page (Command+R).
 
-17. To enable Continuous deployment using Travis, please follow instructions [here](https://github.com/cncf/devstats/blob/master/CONTINUOUS_DEPLOYMENT.md).
+16. To enable Continuous deployment using Travis, please follow instructions [here](https://github.com/cncf/devstats/blob/master/CONTINUOUS_DEPLOYMENT.md).
 
-18. You can create new metrics (as SQL files and YAML definitions) and dashboards in Grafana (export as JSON).
-19. PRs and suggestions are welcome, please create PRs and Issues on the [GitHub](https://github.com/cncf/devstats).
+17. You can create new metrics (as SQL files and YAML definitions) and dashboards in Grafana (export as JSON).
+
+18. PRs and suggestions are welcome, please create PRs and Issues on the [GitHub](https://github.com/cncf/devstats).
 
 # More details
 - [Local Development](https://github.com/cncf/devstats/blob/master/DEVELOPMENT.md).
