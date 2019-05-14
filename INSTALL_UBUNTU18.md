@@ -27,19 +27,27 @@ Prerequisites:
     - [usedexports](https://github.com/jgautheron/usedexports): `go get -u github.com/jgautheron/usedexports`
     - [errcheck](https://github.com/kisielk/errcheck): `go get -u github.com/kisielk/errcheck`
     - If you want to use ElasticSearch output: [elastic](https://github.com/olivere/elastic): `go get -u github.com/olivere/elastic`.
-2. Go to `$GOPATH/src/` and clone devstats there:
-    - `git clone https://github.com/cncf/devstats.git`, cd `devstats`
+2. Go to `$GOPATH/src/github.com/cncf` and clone devstats and devstatscode there:
+    - `git clone https://github.com/cncf/devstats.git`.
+    - `git clone https://github.com/cncf/devstatscode.git`.
+    - cd `devstats`.
     - Set reuse TCP connections: `./cron/sysctl_config.sh`
-3. If you want to make changes and PRs, please clone `devstats` from GitHub UI, and clone your forked version instead, like this:
+3. If you want to make changes and PRs, please clone `devstats` and `devstatscode` from GitHub UI, and clone your forked version instead, like this:
     - `git clone https://github.com/your_github_username/devstats.git`
-6. Go to devstats directory, so you are in `~/dev/go/src/devstats` directory and compile binaries:
+    - `git clone https://github.com/your_github_username/devstatscode.git`
+4. Go to `devstatscode` directory, so you are in `~/dev/go/src/github.com/cncf/devstatscode` directory and compile binaries:
     - `make`
-7. If compiled sucessfully then execute test coverage that doesn't need databases:
+5. If compiled sucessfully then execute test coverage that doesn't need databases:
     - `make test`
     - Tests should pass.
-8. Install binaries & metrics:
+6. Install binaries:
+    - `sudo mkdir /etc/gha2db`
+    - `sudo chmod 777 /etc/gha2db`
     - `sudo make install`
-9. Install Postgres database ([link](https://gist.github.com/sgnl/609557ebacd3378f3b72)):
+7. Go to `devstats` directory, so you are in `~/dev/go/src/github.com/cncf/devstats` and install scripts, metrics and other config/data files:
+    - `make install`
+8. Install Postgres database ([link](https://gist.github.com/sgnl/609557ebacd3378f3b72)):
+    - Make sure you database uses `en_US.UTF-8` locale and collation.
     - `apt install postgresql` (you can use specific version, for example `postgresql-9.6`)
     - `devstats` repo directory must be available for postgres user. `chmod -R ugo+r /data/`.
     - `sudo -i -u postgres`, `psql` and as root `sudo -u postgres psql` to test installation.
@@ -51,7 +59,7 @@ Prerequisites:
     - `service postgresql restart` or `systemctl restart postgresql@10-main`.
     - `./devel/set_psql_password.sh` to set postgres user password.
     - `chown -R postgres /var/log/postgresql`.
-10. Setup GitHub OAuth
+9. Setup GitHub OAuth
     - You need to have GitHub OAuth token, either put this token in `/etc/github/oauth` file or specify token value via `GHA2DB_GITHUB_OAUTH=deadbeef654...10a0` (here you token value)
     - If you want to use multiple tokens, create `/etc/github/oauths` file that contain list of comma separated OAuth keys or specify token values via `GHA2DB_GITHUB_OAUTH=key1,key2,...,keyN`
     - If you really don't want to use GitHub OAuth2 token, specify `GHA2DB_GITHUB_OAUTH=-` - this will force tokenless operation (via public API), it is a lot more rate limited than OAuth2 which gives 5000 API points/h
@@ -60,11 +68,11 @@ Prerequisites:
     - You can have artwork elsewhere, then you must use `ARTWORK=/path/to/artwork/repo`. If all projects use `ICON="-"` artwork is not needed.
     - You also need ImageMagick's convert utility: `apt install imagemagick`.
     - You need to have `/var/www/html/img` directory available for deploy user.
-11. Install Grafana.
+10. Install Grafana.
     - Go to: `https://grafana.com/grafana/download`.
     - `wget https://s3-us-west-2.amazonaws.com/grafana-releases/release/grafana_5.x.x_amd64.deb`.
     - `sudo dpkg -i grafana_5.x.x_amd64.deb`
-12. Install Apache & SSL (You need to have a working DNS name for this). This is optional.
+11. Install Apache & SSL (You need to have a working DNS name for this). This is optional.
     - `apt-get install apache2`.
     - Create "web" directory: `mkdir /var/www/html/` (it will hold gha databases dumps and other static info on the main domain.)
     - `chmod -R ugo+rwx /var/www`.
@@ -78,7 +86,7 @@ Prerequisites:
     - `service apache2 restart`
     - Test via: `apt install links`, `links 127.0.0.1`
     - If you don't use Apache/SSL proxy, you should add EXTERNAL=1 when deploying - this will expose grafana to outside world by binding to `0.0.0.0` instead of local only `127.0.0.1`. See `devel/create_grafana.sh`.
-13. Automatic deploy of first database (few examples)
+12. Automatic deploy of first database (few examples)
     - You should probably use last two command examples or tweak any of commands listed below.
     - Top deploy one of CNCF projects see `projects.yaml` chose one `projectname` and specify to deploy only this project: `ONLY=projectname`.
     - Use `INIT=1` to specify that you want to initialize logs database `devstats`, you need to provide passowrd for admin `PG_PASS`, `ro_user` (`PG_PASS_RO` used by Grafana for read-only access) and `devstats_team` (`PG_PASS_TEAM` - this is just another role to allow readonly access from the bastion ssh server).
@@ -93,10 +101,10 @@ Prerequisites:
     - Assuming you have GitHub OAuth file and artwork is in the default localtion and there is no domain name: `EXTERNAL=1 SKIPTEMP=1 INIT=1 PG_PASS=p PG_PASS_RO=p PG_PASS_TEAM=p ONLY=cncf GET=1 SKIPWWW=1 GHA2DB_PROJECTS_OVERRIDE="+cncf" ./devel/deploy_all.sh`.
     - You can also take a look at `ADDING_NEW_PROJECT.md` file for more info about setting up new projects.
     - Assuming that you deployed cncf project (like in the last example), you should see response using `links 127.0.0.1:3255`. You should albo be able to access your Grafana from outside world via: `http://ip:3255`
-    - Now when postgres users are created, you test all stuff that require databases: `GHA2DB_PROJECT=kubernetes PG_DB=dbtest PG_PASS=p make dbtest`
+    - Now when postgres users are created, you test all stuff that require databases (on `cncf/devstats` repo): `PG_PASS=p make`.
     - Tests should pass.
-14. To enable Continuous deployment using Travis, please follow instructions [here](https://github.com/cncf/devstats/blob/master/CONTINUOUS_DEPLOYMENT.md).
-15. We need to setup cron job that will call sync every hour (10 minutes after 1:00, 2:00, ...)
+13. To enable Continuous deployment using Travis, please follow instructions [here](https://github.com/cncf/devstats/blob/master/CONTINUOUS_DEPLOYMENT.md).
+14. We need to setup cron job that will call sync every hour (10 minutes after 1:00, 2:00, ...)
     - Setup `devstats`, `webhook` (to handle CI/CD deployments) and `cron_db_backup_all.sh` cron jobs, similar to this:
     ```
     7 * * * * PATH=$PATH:/path/to/GOPATH/bin PG_PASS="..." devstats 2>> /tmp/gha2db_sync.err 1>> /tmp/gha2db_sync.log
