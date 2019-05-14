@@ -14,9 +14,17 @@ More information about Kubernetes dashboards [here](https://github.com/cncf/devs
 
 # Kubernetes and Helm
 
-Please see [Helm charts](https://github.com/cncf/devstats/tree/master/devstats-helm) for a Helm deployment.
+Please see [example Helm chart](https://github.com/cncf/devstats-helm-example) for an example Helm deployment.
 
-Please see [K8s](https://github.com/cncf/devstats/tree/master/k8s) for the Kubernetes deployment hints.
+Please see [LF Helm chart](https://github.com/cncf/devstats-helm-lf) for the LF Helm deployment (it is a data deployment, has no Grafana and uses ElasticSearch in addition to Postgres to store data).
+
+Please see [GraphQL Helm chart](https://github.com/cncf/devstats-helm-graphql) for GraphQL foundation DevStats deployment.
+
+Please see [Kubernetes dashboard](https://github.com/cncf/devstats-kubernetes-dashboard) if you want to enable a local dashboard to explore cluster state.
+
+Please see [bare metal example](https://github.com/cncf/devstats-example) to see example bare metal deployment.
+
+The rest of this document describes current bare metal deployment on packet.net used by CNCF projects.
 
 
 # Presentations
