@@ -30,7 +30,6 @@ Prerequisites:
     - `git clone https://github.com/cncf/devstats.git`.
     - `git clone https://github.com/cncf/devstatscode.git`.
     - cd `devstats`.
-    - Set reuse TCP connections: `./cron/sysctl_config.sh`
 
 3. If you want to make changes and PRs, please clone `devstats` and `devstatscode` from GitHub UI, and clone your forked version instead, like this:
     - `git clone https://github.com/your_github_username/devstats.git`
