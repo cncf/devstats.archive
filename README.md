@@ -109,7 +109,9 @@ Please see [metrics](https://github.com/cncf/devstats/blob/master/METRICS.md) to
 
 # Adding new projects
 
-To add new project follow [adding new project](https://github.com/cncf/devstats/blob/master/ADDING_NEW_PROJECT.md) instructions.
+To add new project on a bare metal deployment follow [adding new project](https://github.com/cncf/devstats/blob/master/ADDING_NEW_PROJECT.md) instructions.
+
+See `cncf/devstats-helm-example`:`ADDING_NEW_PROJECTS.md` for informations about how to add more projects on Kubernetes/Helm deployment.
 
 # Grafana dashboards
 
