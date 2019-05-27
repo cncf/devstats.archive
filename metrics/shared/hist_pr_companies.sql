@@ -15,12 +15,14 @@ from (
   on
     ecf.event_id = pr.event_id
   where
-    pr.dup_actor_id = a.actor_id
+    pr.user_id = a.actor_id
     and a.dt_from <= pr.created_at
     and a.dt_to > pr.created_at
     and {{period:pr.created_at}}
     and pr.dup_repo_id = r.id
-    and (lower(pr.dup_actor_login) {{exclude_bots}})
+    -- and pr.dup_type = 'PullRequestEvent'
+    -- and pr.state = 'open'
+    and (lower(pr.dup_user_login) {{exclude_bots}})
     and a.company_name != ''
   ) sub
 where
@@ -37,11 +39,13 @@ from
   gha_pull_requests pr,
   gha_actors_affiliations a
 where
-  pr.dup_actor_id = a.actor_id
+  pr.user_id = a.actor_id
   and a.dt_from <= pr.created_at
   and a.dt_to > pr.created_at
   and {{period:pr.created_at}}
-  and (lower(pr.dup_actor_login) {{exclude_bots}})
+  -- and dup_type = 'PullRequestEvent'
+  -- and state = 'open'
+  and (lower(pr.dup_user_login) {{exclude_bots}})
   and a.company_name != ''
 group by
   a.company_name
