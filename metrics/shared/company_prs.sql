@@ -24,11 +24,13 @@ from (
     and aa.dt_from <= pr.created_at
     and aa.dt_to > pr.created_at
     and pr.dup_repo_id = r.id
+    -- and pr.dup_type = 'PullRequestEvent'
+    -- and pr.state = 'open'
     and aa.company_name != ''
     and aa.company_name in (select companies_name from tcompanies)
     and r.repo_group is not null
     and {{period:pr.created_at}}
-    and (lower(pr.dup_actor_login) {{exclude_bots}})
+    and (lower(pr.dup_user_login) {{exclude_bots}})
   group by
     company,
     repo,
