@@ -5,7 +5,7 @@ with prev as (
   where
     merged = true
     and merged_at < '{{from}}'
-    and (lower(dup_actor_login) {{exclude_bots}})
+    and (lower(dup_user_login) {{exclude_bots}})
 ), contributors as (
   select distinct pr.user_id,
     first_value(pr.merged_at) over prs_by_merged_at as merged_at,
@@ -19,7 +19,7 @@ with prev as (
     and pr.merged_at >= '{{from}}'
     and pr.merged_at < '{{to}}'
     and pr.user_id not in (select user_id from prev)
-    and (lower(pr.dup_actor_login) {{exclude_bots}})
+    and (lower(pr.dup_user_login) {{exclude_bots}})
   window
     prs_by_merged_at as (
       partition by pr.user_id
