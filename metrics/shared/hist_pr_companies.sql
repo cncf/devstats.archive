@@ -20,6 +20,8 @@ from (
     and a.dt_to > pr.created_at
     and {{period:pr.created_at}}
     and pr.dup_repo_id = r.id
+    and pr.dup_type = 'PullRequestEvent'
+    and pr.state = 'open'
     and (lower(pr.dup_actor_login) {{exclude_bots}})
     and a.company_name != ''
   ) sub
@@ -41,6 +43,8 @@ where
   and a.dt_from <= pr.created_at
   and a.dt_to > pr.created_at
   and {{period:pr.created_at}}
+  and dup_type = 'PullRequestEvent'
+  and state = 'open'
   and (lower(pr.dup_actor_login) {{exclude_bots}})
   and a.company_name != ''
 group by

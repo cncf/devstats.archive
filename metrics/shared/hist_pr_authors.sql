@@ -16,6 +16,8 @@ from (
   where
     {{period:pr.created_at}}
     and pr.dup_repo_id = r.id
+    and pr.dup_type = 'PullRequestEvent'
+    and pr.state = 'open'
     and (lower(pr.dup_actor_login) {{exclude_bots}})
   ) sub
 where
@@ -32,6 +34,8 @@ from
   gha_pull_requests
 where
   {{period:created_at}}
+  and dup_type = 'PullRequestEvent'
+  and state = 'open'
   and (lower(dup_actor_login) {{exclude_bots}})
 group by
   dup_actor_login
