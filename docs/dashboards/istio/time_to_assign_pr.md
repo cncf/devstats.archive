@@ -2,7 +2,7 @@
 <p>Links:</p>
 <ul>
 <li>Metric <a href="https://github.com/cncf/devstats/blob/master/metrics/shared/time_to_assign_pr.sql" target="_blank">SQL file</a>.</li>
-<li>TSDB <a href="https://github.com/cncf/devstats/blob/master/metrics/[[lower_unique]]/metrics.yaml" target="_blank">series definition</a>. Search for <code>time_to_assign_pr</code></li>
+<li>TSDB <a href="https://github.com/cncf/devstats/blob/master/metrics/[[lower_name]]/metrics.yaml" target="_blank">series definition</a>. Search for <code>time_to_assign_pr</code></li>
 <li>Grafana dashboard <a href="https://github.com/cncf/devstats/blob/master/grafana/dashboards/[[lower_name]]/time-to-assign-reviewers-to-a-pr.json" target="_blank">JSON</a>.</li>
 </ul>
 <h1 id="description">Description</h1>
