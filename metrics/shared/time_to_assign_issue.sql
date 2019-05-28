@@ -20,9 +20,7 @@ with issues as (
   )
 ), tdiffs as (
   select extract(epoch from i2.updated_at - i.created_at) / 3600 as diff,
-    coalesce(ecf.repo_group, r.repo_group) as repo_group,
-    i2.number,
-    i2.id
+    coalesce(ecf.repo_group, r.repo_group) as repo_group
   from
     issues i,
     gha_repos r,
