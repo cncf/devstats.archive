@@ -28,6 +28,7 @@ fi
 if [ ! -z "$CERT" ]
 then
   echo 'obtaining SSL certs'
+  host=`hostname`
   if [ "$host" = "devstats.cncf.io" ]
   then
     cp apache/prod/sites-enabled/000-default-le-ssl.conf /etc/apache2/sites-enabled/ || exit 7
