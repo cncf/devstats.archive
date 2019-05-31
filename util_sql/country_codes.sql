@@ -24,8 +24,8 @@ insert into gha_countries(code, name) values('bz', 'Belize') on conflict do noth
 insert into gha_countries(code, name) values('bj', 'Benin') on conflict do nothing;
 insert into gha_countries(code, name) values('bm', 'Bermuda') on conflict do nothing;
 insert into gha_countries(code, name) values('bt', 'Bhutan') on conflict do nothing;
-insert into gha_countries(code, name) values('bo', 'Bolivia, Plurinational State of') on conflict do nothing;
-insert into gha_countries(code, name) values('bq', 'Bonaire, Sint Eustatius and Saba') on conflict do nothing;
+insert into gha_countries(code, name) values('bo', 'Bolivia Plurinational State of') on conflict do nothing;
+insert into gha_countries(code, name) values('bq', 'Bonaire Sint Eustatius and Saba') on conflict do nothing;
 insert into gha_countries(code, name) values('ba', 'Bosnia and Herzegovina') on conflict do nothing;
 insert into gha_countries(code, name) values('bw', 'Botswana') on conflict do nothing;
 insert into gha_countries(code, name) values('bv', 'Bouvet Island') on conflict do nothing;
@@ -49,7 +49,7 @@ insert into gha_countries(code, name) values('cc', 'Cocos (Keeling) Islands') on
 insert into gha_countries(code, name) values('co', 'Colombia') on conflict do nothing;
 insert into gha_countries(code, name) values('km', 'Comoros') on conflict do nothing;
 insert into gha_countries(code, name) values('cg', 'Congo') on conflict do nothing;
-insert into gha_countries(code, name) values('cd', 'Congo, the Democratic Republic of the') on conflict do nothing;
+insert into gha_countries(code, name) values('cd', 'Congo the Democratic Republic of the') on conflict do nothing;
 insert into gha_countries(code, name) values('ck', 'Cook Islands') on conflict do nothing;
 insert into gha_countries(code, name) values('cr', 'Costa Rica') on conflict do nothing;
 insert into gha_countries(code, name) values('ci', 'Côte Divoire') on conflict do nothing;
@@ -102,7 +102,7 @@ insert into gha_countries(code, name) values('hu', 'Hungary') on conflict do not
 insert into gha_countries(code, name) values('is', 'Iceland') on conflict do nothing;
 insert into gha_countries(code, name) values('in', 'India') on conflict do nothing;
 insert into gha_countries(code, name) values('id', 'Indonesia') on conflict do nothing;
-insert into gha_countries(code, name) values('ir', 'Iran, Islamic Republic of') on conflict do nothing;
+insert into gha_countries(code, name) values('ir', 'Iran Islamic Republic of') on conflict do nothing;
 insert into gha_countries(code, name) values('iq', 'Iraq') on conflict do nothing;
 insert into gha_countries(code, name) values('ie', 'Ireland') on conflict do nothing;
 insert into gha_countries(code, name) values('im', 'Isle of Man') on conflict do nothing;
@@ -115,8 +115,8 @@ insert into gha_countries(code, name) values('jo', 'Jordan') on conflict do noth
 insert into gha_countries(code, name) values('kz', 'Kazakhstan') on conflict do nothing;
 insert into gha_countries(code, name) values('ke', 'Kenya') on conflict do nothing;
 insert into gha_countries(code, name) values('ki', 'Kiribati') on conflict do nothing;
-insert into gha_countries(code, name) values('kp', 'Korea, Democratic People Republic of') on conflict do nothing;
-insert into gha_countries(code, name) values('kr', 'Korea, Republic of') on conflict do nothing;
+insert into gha_countries(code, name) values('kp', 'Korea Democratic People Republic of') on conflict do nothing;
+insert into gha_countries(code, name) values('kr', 'Korea Republic of') on conflict do nothing;
 insert into gha_countries(code, name) values('kw', 'Kuwait') on conflict do nothing;
 insert into gha_countries(code, name) values('kg', 'Kyrgyzstan') on conflict do nothing;
 insert into gha_countries(code, name) values('la', 'Lao People Democratic Republic') on conflict do nothing;
@@ -129,7 +129,7 @@ insert into gha_countries(code, name) values('li', 'Liechtenstein') on conflict 
 insert into gha_countries(code, name) values('lt', 'Lithuania') on conflict do nothing;
 insert into gha_countries(code, name) values('lu', 'Luxembourg') on conflict do nothing;
 insert into gha_countries(code, name) values('mo', 'Macao') on conflict do nothing;
-insert into gha_countries(code, name) values('mk', 'Macedonia, the Former Yugoslav Republic of') on conflict do nothing;
+insert into gha_countries(code, name) values('mk', 'Macedonia the Former Yugoslav Republic of') on conflict do nothing;
 insert into gha_countries(code, name) values('mg', 'Madagascar') on conflict do nothing;
 insert into gha_countries(code, name) values('mw', 'Malawi') on conflict do nothing;
 insert into gha_countries(code, name) values('my', 'Malaysia') on conflict do nothing;
@@ -142,8 +142,8 @@ insert into gha_countries(code, name) values('mr', 'Mauritania') on conflict do 
 insert into gha_countries(code, name) values('mu', 'Mauritius') on conflict do nothing;
 insert into gha_countries(code, name) values('yt', 'Mayotte') on conflict do nothing;
 insert into gha_countries(code, name) values('mx', 'Mexico') on conflict do nothing;
-insert into gha_countries(code, name) values('fm', 'Micronesia, Federated States of') on conflict do nothing;
-insert into gha_countries(code, name) values('md', 'Moldova, Republic of') on conflict do nothing;
+insert into gha_countries(code, name) values('fm', 'Micronesia Federated States of') on conflict do nothing;
+insert into gha_countries(code, name) values('md', 'Moldova Republic of') on conflict do nothing;
 insert into gha_countries(code, name) values('mc', 'Monaco') on conflict do nothing;
 insert into gha_countries(code, name) values('mn', 'Mongolia') on conflict do nothing;
 insert into gha_countries(code, name) values('me', 'Montenegro') on conflict do nothing;
@@ -167,7 +167,7 @@ insert into gha_countries(code, name) values('no', 'Norway') on conflict do noth
 insert into gha_countries(code, name) values('om', 'Oman') on conflict do nothing;
 insert into gha_countries(code, name) values('pk', 'Pakistan') on conflict do nothing;
 insert into gha_countries(code, name) values('pw', 'Palau') on conflict do nothing;
-insert into gha_countries(code, name) values('ps', 'Palestine, State of') on conflict do nothing;
+insert into gha_countries(code, name) values('ps', 'Palestine State of') on conflict do nothing;
 insert into gha_countries(code, name) values('pa', 'Panama') on conflict do nothing;
 insert into gha_countries(code, name) values('pg', 'Papua New Guinea') on conflict do nothing;
 insert into gha_countries(code, name) values('py', 'Paraguay') on conflict do nothing;
@@ -183,7 +183,7 @@ insert into gha_countries(code, name) values('ro', 'Romania') on conflict do not
 insert into gha_countries(code, name) values('ru', 'Russian Federation') on conflict do nothing;
 insert into gha_countries(code, name) values('rw', 'Rwanda') on conflict do nothing;
 insert into gha_countries(code, name) values('bl', 'Saint Barthélemy') on conflict do nothing;
-insert into gha_countries(code, name) values('sh', 'Saint Helena, Ascension and Tristan da Cunha') on conflict do nothing;
+insert into gha_countries(code, name) values('sh', 'Saint Helena Ascension and Tristan da Cunha') on conflict do nothing;
 insert into gha_countries(code, name) values('kn', 'Saint Kitts and Nevis') on conflict do nothing;
 insert into gha_countries(code, name) values('lc', 'Saint Lucia') on conflict do nothing;
 insert into gha_countries(code, name) values('mf', 'Saint Martin (French Part)') on conflict do nothing;
@@ -215,9 +215,9 @@ insert into gha_countries(code, name) values('sz', 'Swaziland') on conflict do n
 insert into gha_countries(code, name) values('se', 'Sweden') on conflict do nothing;
 insert into gha_countries(code, name) values('ch', 'Switzerland') on conflict do nothing;
 insert into gha_countries(code, name) values('sy', 'Syrian Arab Republic') on conflict do nothing;
-insert into gha_countries(code, name) values('tw', 'Taiwan, Province of China') on conflict do nothing;
+insert into gha_countries(code, name) values('tw', 'Taiwan Province of China') on conflict do nothing;
 insert into gha_countries(code, name) values('tj', 'Tajikistan') on conflict do nothing;
-insert into gha_countries(code, name) values('tz', 'Tanzania, United Republic of') on conflict do nothing;
+insert into gha_countries(code, name) values('tz', 'Tanzania United Republic of') on conflict do nothing;
 insert into gha_countries(code, name) values('th', 'Thailand') on conflict do nothing;
 insert into gha_countries(code, name) values('tl', 'Timor-Leste') on conflict do nothing;
 insert into gha_countries(code, name) values('tg', 'Togo') on conflict do nothing;
@@ -238,10 +238,10 @@ insert into gha_countries(code, name) values('um', 'United States Minor Outlying
 insert into gha_countries(code, name) values('uy', 'Uruguay') on conflict do nothing;
 insert into gha_countries(code, name) values('uz', 'Uzbekistan') on conflict do nothing;
 insert into gha_countries(code, name) values('vu', 'Vanuatu') on conflict do nothing;
-insert into gha_countries(code, name) values('ve', 'Venezuela, Bolivarian Republic of') on conflict do nothing;
+insert into gha_countries(code, name) values('ve', 'Venezuela Bolivarian Republic of') on conflict do nothing;
 insert into gha_countries(code, name) values('vn', 'Viet Nam') on conflict do nothing;
-insert into gha_countries(code, name) values('vg', 'Virgin Islands, British') on conflict do nothing;
-insert into gha_countries(code, name) values('vi', 'Virgin Islands, U.S.') on conflict do nothing;
+insert into gha_countries(code, name) values('vg', 'Virgin Islands British') on conflict do nothing;
+insert into gha_countries(code, name) values('vi', 'Virgin Islands U.S.') on conflict do nothing;
 insert into gha_countries(code, name) values('wf', 'Wallis and Futuna') on conflict do nothing;
 insert into gha_countries(code, name) values('eh', 'Western Sahara') on conflict do nothing;
 insert into gha_countries(code, name) values('ye', 'Yemen') on conflict do nothing;
