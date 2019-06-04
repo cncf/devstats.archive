@@ -1,9 +1,9 @@
-<h1 id="dashboard-header">[[full_name]] companies summary dashboard</h1>
+<h1 id="dashboard-header">[[full_name]] companies table dashboard</h1>
 <p>Links:</p>
 <ul>
 <li>Metric <a href="https://github.com/cncf/devstats/blob/master/metrics/shared/project_company_stats.sql" target="_blank">SQL file</a>.</li>
 <li>TSDB <a href="https://github.com/cncf/devstats/blob/master/metrics/shared/metrics.yaml" target="_blank">series definition</a>. Search for <code>project_company_stats</code></li>
-<li>Grafana dashboard <a href="https://github.com/cncf/devstats/blob/master/grafana/dashboards/[[lower_name]]/companies-summary.json" target="_blank">JSON</a>.</li>
+<li>Grafana dashboard <a href="https://github.com/cncf/devstats/blob/master/grafana/dashboards/[[lower_name]]/companies-table.json" target="_blank">JSON</a>.</li>
 </ul>
 <h1 id="description">Description</h1>
 <ul>
