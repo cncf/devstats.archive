@@ -1,6 +1,5 @@
 with commits_data as (
-  select c.dup_repo_id as repo_id,
-    coalesce(ecf.repo_group, r.repo_group) as repo_group,
+  select coalesce(ecf.repo_group, r.repo_group) as repo_group,
     c.sha,
     c.dup_actor_id as actor_id,
     c.dup_actor_login as actor_login
@@ -13,10 +12,10 @@ with commits_data as (
     ecf.event_id = c.event_id
   where
     c.dup_repo_id = r.id
+    and c.dup_repo_name = r.name
     and {{period:c.dup_created_at}}
     and (lower(c.dup_actor_login) {{exclude_bots}})
-  union select c.dup_repo_id as repo_id,
-    coalesce(ecf.repo_group, r.repo_group) as repo_group,
+  union select coalesce(ecf.repo_group, r.repo_group) as repo_group,
     c.sha,
     c.author_id as actor_id,
     c.dup_author_login as actor_login
@@ -29,11 +28,11 @@ with commits_data as (
     ecf.event_id = c.event_id
   where
     c.dup_repo_id = r.id
+    and c.dup_repo_name = r.name
     and c.author_id is not null
     and {{period:c.dup_created_at}}
     and (lower(c.dup_author_login) {{exclude_bots}})
-  union select c.dup_repo_id as repo_id,
-    coalesce(ecf.repo_group, r.repo_group) as repo_group,
+  union select coalesce(ecf.repo_group, r.repo_group) as repo_group,
     c.sha,
     c.committer_id as actor_id,
     c.dup_committer_login as actor_login
@@ -46,6 +45,7 @@ with commits_data as (
     ecf.event_id = c.event_id
   where
     c.dup_repo_id = r.id
+    and c.dup_repo_name = r.name
     and c.committer_id is not null
     and {{period:c.dup_created_at}}
     and (lower(c.dup_committer_login) {{exclude_bots}})
@@ -202,6 +202,7 @@ from (
       ecf.event_id = e.id
     where
       r.name = e.dup_repo_name
+      and r.id = e.repo_id
       and e.type in (
         'PushEvent', 'PullRequestReviewCommentEvent',
         'IssueCommentEvent', 'CommitCommentEvent'
@@ -232,6 +233,7 @@ from (
       ecf.event_id = e.id
     where
       r.name = e.dup_repo_name
+      and r.id = e.repo_id
       and e.type in (
         'PushEvent', 'PullRequestEvent', 'IssuesEvent',
         'CommitCommentEvent', 'IssueCommentEvent', 'PullRequestReviewCommentEvent'
@@ -261,6 +263,7 @@ from (
       ecf.event_id = e.id
     where
       r.name = e.dup_repo_name
+      and r.id = e.repo_id
       and {{period:e.created_at}}
       and (lower(e.dup_actor_login) {{exclude_bots}})
   ) sub
@@ -286,6 +289,7 @@ from (
       ecf.event_id = c.event_id
     where
       c.dup_repo_name = r.name
+      and c.dup_repo_id = r.id
       and {{period:c.created_at}}
       and (lower(c.dup_user_login) {{exclude_bots}})
   ) sub
@@ -315,6 +319,7 @@ from (
       ecf.event_id = i.event_id
     where
     i.dup_repo_name = r.name
+    and i.dup_repo_id = r.id
     and {{period:i.created_at}}
     and (lower(i.dup_user_login) {{exclude_bots}})
   ) sub
@@ -341,6 +346,7 @@ from (
       ecf.event_id = e.id
     where
       r.name = e.dup_repo_name
+      and r.id = e.repo_id
       and {{period:e.created_at}}
       and (lower(e.dup_actor_login) {{exclude_bots}})
   ) sub
@@ -550,6 +556,7 @@ from (
       ecf.event_id = e.id
     where
       r.name = e.dup_repo_name
+      and r.id = e.repo_id
       and (e.actor_id = a.id or e.dup_actor_login = a.login)
       and e.type in (
         'PushEvent', 'PullRequestReviewCommentEvent',
@@ -586,6 +593,7 @@ from (
       ecf.event_id = e.id
     where
       r.name = e.dup_repo_name
+      and r.id = e.repo_id
       and (e.actor_id = a.id or e.dup_actor_login = a.login)
       and e.type in (
         'PushEvent', 'PullRequestEvent', 'IssuesEvent',
@@ -621,6 +629,7 @@ from (
       ecf.event_id = e.id
     where
       r.name = e.dup_repo_name
+      and r.id = e.repo_id
       and (e.actor_id = a.id or e.dup_actor_login = a.login)
       and {{period:e.created_at}}
       and (lower(a.login) {{exclude_bots}})
@@ -652,6 +661,7 @@ from (
       ecf.event_id = c.event_id
     where
       c.dup_repo_name = r.name
+      and c.dup_repo_id = r.id
       and (c.user_id = a.id or c.dup_user_login = a.login)
       and {{period:c.created_at}}
       and (lower(a.login) {{exclude_bots}})
@@ -687,6 +697,7 @@ from (
       ecf.event_id = i.event_id
     where
       i.dup_repo_name = r.name
+      and i.dup_repo_id = r.id
       and (i.user_id = a.id or i.dup_user_login = a.login)
       and {{period:i.created_at}}
       and (lower(a.login) {{exclude_bots}})
@@ -719,6 +730,7 @@ from (
       ecf.event_id = e.id
     where
       r.name = e.dup_repo_name
+      and r.id = e.repo_id
       and (e.actor_id = a.id or e.dup_actor_login = a.login)
       and {{period:e.created_at}}
       and (lower(e.dup_actor_login) {{exclude_bots}})

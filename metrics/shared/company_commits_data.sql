@@ -26,6 +26,7 @@ from (
     ecf.event_id = c.event_id
   where
     c.dup_repo_id = r.id
+    and c.dup_repo_name = r.name
     and c.author_id = af.actor_id
     and af.dt_from <= c.dup_created_at
     and af.dt_to > c.dup_created_at

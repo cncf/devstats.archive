@@ -58,6 +58,7 @@ from (
     ecf.event_id = ev.id
   where
     r.id = ev.repo_id
+    and r.name = ev.dup_repo_name
     and r.name in (select repo_name from trepos)
     and ev.actor_id = affs.actor_id
     and affs.dt_from <= ev.created_at
@@ -109,6 +110,7 @@ from (
     ecf.event_id = ev.id
   where
     r.id = ev.repo_id
+    and r.name = ev.dup_repo_name
     and r.name in (select repo_name from trepos)
     and ev.created_at >= '{{from}}'
     and ev.created_at < '{{to}}'

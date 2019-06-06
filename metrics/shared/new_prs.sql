@@ -13,6 +13,7 @@ from
   gha_repos r
 where
   pr.dup_repo_id = r.id
+  and pr.dup_repo_name = r.name
   and r.repo_group is not null
   and pr.created_at >= '{{from}}'
   and pr.created_at < '{{to}}'

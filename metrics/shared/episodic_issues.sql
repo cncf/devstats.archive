@@ -52,6 +52,7 @@ from (
     pc.user_id = i.user_id
   where
     i.dup_repo_id = r.id
+    and i.dup_repo_name = r.name
     and i.is_pull_request = false
     and i.created_at >= '{{from}}'
     and i.created_at < '{{to}}'

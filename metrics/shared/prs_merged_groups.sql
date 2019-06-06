@@ -13,6 +13,7 @@ from (
     ecf.event_id = pr.event_id
   where
     r.name = pr.dup_repo_name
+    and r.id = pr.dup_repo_id
     and r.name in (select repo_name from trepos)
     and pr.merged_at is not null
     and pr.merged_at >= '{{from}}'

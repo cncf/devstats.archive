@@ -1,6 +1,5 @@
 with company_commits_data as (
-  select c.dup_repo_id as repo_id,
-    coalesce(ecf.repo_group, r.repo_group) as repo_group,
+  select coalesce(ecf.repo_group, r.repo_group) as repo_group,
     c.sha,
     c.dup_actor_id as actor_id,
     af.company_name as company
@@ -14,6 +13,7 @@ with company_commits_data as (
     ecf.event_id = c.event_id
   where
     c.dup_repo_id = r.id
+    and c.dup_repo_name = r.name
     and c.dup_actor_id = af.actor_id
     and af.dt_from <= c.dup_created_at
     and af.dt_to > c.dup_created_at
@@ -23,8 +23,7 @@ with company_commits_data as (
     and af.company_name != ''
     and af.company_name in (select companies_name from tcompanies)
     and r.name in (select repo_name from trepos)
-  union select c.dup_repo_id as repo_id,
-    coalesce(ecf.repo_group, r.repo_group) as repo_group,
+  union select coalesce(ecf.repo_group, r.repo_group) as repo_group,
     c.sha,
     c.author_id as actor_id,
     af.company_name as company
@@ -38,6 +37,7 @@ with company_commits_data as (
     ecf.event_id = c.event_id
   where
     c.dup_repo_id = r.id
+    and c.dup_repo_name = r.name
     and c.author_id is not null
     and c.author_id = af.actor_id
     and af.dt_from <= c.dup_created_at
@@ -48,8 +48,7 @@ with company_commits_data as (
     and af.company_name != ''
     and af.company_name in (select companies_name from tcompanies)
     and r.name in (select repo_name from trepos)
-  union select c.dup_repo_id as repo_id,
-    coalesce(ecf.repo_group, r.repo_group) as repo_group,
+  union select coalesce(ecf.repo_group, r.repo_group) as repo_group,
     c.sha,
     c.committer_id as actor_id,
     af.company_name as company
@@ -63,6 +62,7 @@ with company_commits_data as (
     ecf.event_id = c.event_id
   where
     c.dup_repo_id = r.id
+    and c.dup_repo_name = r.name
     and c.committer_id is not null
     and c.committer_id = af.actor_id
     and af.dt_from <= c.dup_created_at
@@ -74,8 +74,7 @@ with company_commits_data as (
     and af.company_name in (select companies_name from tcompanies)
     and r.name in (select repo_name from trepos)
 ), commits_data as (
-  select c.dup_repo_id as repo_id,
-    coalesce(ecf.repo_group, r.repo_group) as repo_group,
+  select coalesce(ecf.repo_group, r.repo_group) as repo_group,
     c.sha,
     c.dup_actor_id as actor_id
   from
@@ -87,12 +86,12 @@ with company_commits_data as (
     ecf.event_id = c.event_id
   where
     c.dup_repo_id = r.id
+    and c.dup_repo_name = r.name
     and r.name in (select repo_name from trepos)
     and c.dup_created_at >= '{{from}}'
     and c.dup_created_at < '{{to}}'
     and (lower(c.dup_actor_login) {{exclude_bots}})
-  union select c.dup_repo_id as repo_id,
-    coalesce(ecf.repo_group, r.repo_group) as repo_group,
+  union select coalesce(ecf.repo_group, r.repo_group) as repo_group,
     c.sha,
     c.author_id as actor_id
   from
@@ -104,13 +103,13 @@ with company_commits_data as (
     ecf.event_id = c.event_id
   where
     c.dup_repo_id = r.id
+    and c.dup_repo_name = r.name
     and r.name in (select repo_name from trepos)
     and c.author_id is not null
     and c.dup_created_at >= '{{from}}'
     and c.dup_created_at < '{{to}}'
     and (lower(c.dup_author_login) {{exclude_bots}})
-  union select c.dup_repo_id as repo_id,
-    coalesce(ecf.repo_group, r.repo_group) as repo_group,
+  union select coalesce(ecf.repo_group, r.repo_group) as repo_group,
     c.sha,
     c.committer_id as actor_id
   from
@@ -122,6 +121,7 @@ with company_commits_data as (
     ecf.event_id = c.event_id
   where
     c.dup_repo_id = r.id
+    and c.dup_repo_name = r.name
     and r.name in (select repo_name from trepos)
     and c.committer_id is not null
     and c.dup_created_at >= '{{from}}'

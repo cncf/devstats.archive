@@ -24,6 +24,7 @@ with matching as (
       ecf.event_id = t.event_id
     where
       r.id = t.repo_id
+      and r.name = t.repo_name
       and t.created_at >= '{{from}}'
       and t.created_at < '{{to}}'
       and (lower(t.actor_login) {{exclude_bots}})

@@ -47,6 +47,7 @@ with prs as (
       gha_issues_pull_requests ipr
     on
       r.id = ipr.repo_id
+      and r.name = ipr.repo_name
       and pr.id = ipr.pull_request_id
     left join
       gha_events_commits_files ecf

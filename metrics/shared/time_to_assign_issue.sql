@@ -32,6 +32,7 @@ with issues as (
   where
     i.id = i2.id
     and r.name = i2.dup_repo_name
+    and r.id = i2.dup_repo_id
     and i2.event_id in (
       select sub.event_id
       from

@@ -31,6 +31,7 @@ with prs as (
   where
     pr.id = pr2.id
     and r.name = pr2.dup_repo_name
+    and r.id = pr2.dup_repo_id
     and pr2.event_id in (
       select sub.event_id
       from

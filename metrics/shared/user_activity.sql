@@ -43,6 +43,7 @@ from (
     ecf.event_id = ev.id
   where
     r.id = ev.repo_id
+    and r.name = ev.dup_repo_name
     and ev.created_at >= '{{from}}'
     and ev.created_at < '{{to}}'
     and (lower(ev.dup_actor_login) {{exclude_bots}})
@@ -83,6 +84,7 @@ from (
     ecf.event_id = ev.id
   where
     r.id = ev.repo_id
+    and r.name = ev.dup_repo_name
     and ev.created_at >= '{{from}}'
     and ev.created_at < '{{to}}'
     and (lower(ev.dup_actor_login) {{exclude_bots}})

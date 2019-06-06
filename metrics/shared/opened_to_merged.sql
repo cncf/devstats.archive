@@ -18,6 +18,7 @@ with prs as (
     gha_repos r
   where
     r.id = pr.dup_repo_id
+    and r.name = pr.dup_repo_name
     and r.repo_group is not null
     and pr.merged_at is not null
     and pr.created_at >= '{{from}}'

@@ -60,6 +60,7 @@ with data as (
     ecf.event_id = e.id
   where
     r.id = e.repo_id
+    and r.name = e.dup_repo_name
     and (lower(a.login) {{exclude_bots}})
     and a.id = e.actor_id
     and a.tz_offset is not null

@@ -1,6 +1,5 @@
 with company_commits_data as (
-  select c.dup_repo_id as repo_id,
-    c.sha,
+  select c.sha,
     c.dup_actor_id as actor_id,
     af.company_name as company
   from
@@ -13,8 +12,7 @@ with company_commits_data as (
     and {{period:c.dup_created_at}}
     and (lower(c.dup_actor_login) {{exclude_bots}})
     and af.company_name != ''
-  union select c.dup_repo_id as repo_id,
-    c.sha,
+  union select c.sha,
     c.author_id as actor_id,
     af.company_name as company
   from
@@ -28,8 +26,7 @@ with company_commits_data as (
     and {{period:c.dup_created_at}}
     and (lower(c.dup_author_login) {{exclude_bots}})
     and af.company_name != ''
-  union select c.dup_repo_id as repo_id,
-    c.sha,
+  union select c.sha,
     c.committer_id as actor_id,
     af.company_name as company
   from
@@ -44,16 +41,14 @@ with company_commits_data as (
     and (lower(c.dup_committer_login) {{exclude_bots}})
     and af.company_name != ''
 ), commits_data as (
-  select c.dup_repo_id as repo_id,
-    c.sha,
+  select c.sha,
     c.dup_actor_id as actor_id
   from
     gha_commits c
   where
     {{period:c.dup_created_at}}
     and (lower(c.dup_actor_login) {{exclude_bots}})
-  union select c.dup_repo_id as repo_id,
-    c.sha,
+  union select c.sha,
     c.author_id as actor_id
   from
     gha_commits c
@@ -61,8 +56,7 @@ with company_commits_data as (
     c.author_id is not null
     and {{period:c.dup_created_at}}
     and (lower(c.dup_author_login) {{exclude_bots}})
-  union select c.dup_repo_id as repo_id,
-    c.sha,
+  union select c.sha,
     c.committer_id as actor_id
   from
     gha_commits c

@@ -1,11 +1,13 @@
 with issues as (
   select sub.issue_id,
     sub.event_id,
-    sub.repo_name
+    sub.repo_name,
+    sub.repo_id
   from (
     select distinct
       id as issue_id,
       dup_repo_name as repo_name,
+      dup_repo_id as repo_id,
       last_value(event_id) over issues_ordered_by_update as event_id,
       last_value(closed_at) over issues_ordered_by_update as closed_at
     from
@@ -29,7 +31,8 @@ with issues as (
 ), prs as (
   select i.issue_id,
     i.event_id,
-    i.repo_name
+    i.repo_name,
+    i.repo_id
   from (
     select distinct id as pr_id,
       last_value(closed_at) over prs_ordered_by_update as closed_at,
@@ -60,6 +63,7 @@ with issues as (
 ), labels as (
   select il.issue_id,
     pr.repo_name,
+    pr.repo_id,
     il.dup_label_name as label,
     il.event_id
   from
@@ -94,6 +98,7 @@ from (
     gha_repos re
   on
     r.repo_name = re.name
+    and r.repo_id = re.id
   left join
     gha_events_commits_files ecf
   on
@@ -106,6 +111,7 @@ from (
     gha_repos re
   on
     r.repo_name = re.name
+    and r.repo_id = re.id
   left join
     gha_events_commits_files ecf
   on

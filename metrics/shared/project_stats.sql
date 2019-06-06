@@ -1,6 +1,5 @@
 with commits_data as (
-  select c.dup_repo_id as repo_id,
-    coalesce(ecf.repo_group, r.repo_group) as repo_group,
+  select coalesce(ecf.repo_group, r.repo_group) as repo_group,
     c.sha,
     c.dup_actor_id as actor_id
   from
@@ -12,10 +11,10 @@ with commits_data as (
     ecf.event_id = c.event_id
   where
     c.dup_repo_id = r.id
+    and c.dup_repo_name = r.name
     and {{period:c.dup_created_at}}
     and (lower(c.dup_actor_login) {{exclude_bots}})
-  union select c.dup_repo_id as repo_id,
-    coalesce(ecf.repo_group, r.repo_group) as repo_group,
+  union select coalesce(ecf.repo_group, r.repo_group) as repo_group,
     c.sha,
     c.author_id as actor_id
   from
@@ -27,11 +26,11 @@ with commits_data as (
     ecf.event_id = c.event_id
   where
     c.dup_repo_id = r.id
+    and c.dup_repo_name = r.name
     and c.author_id is not null
     and {{period:c.dup_created_at}}
     and (lower(c.dup_author_login) {{exclude_bots}})
-  union select c.dup_repo_id as repo_id,
-    coalesce(ecf.repo_group, r.repo_group) as repo_group,
+  union select coalesce(ecf.repo_group, r.repo_group) as repo_group,
     c.sha,
     c.committer_id as actor_id
   from
@@ -43,6 +42,7 @@ with commits_data as (
     ecf.event_id = c.event_id
   where
     c.dup_repo_id = r.id
+    and c.dup_repo_name = r.name
     and c.committer_id is not null
     and {{period:c.dup_created_at}}
     and (lower(c.dup_committer_login) {{exclude_bots}})
@@ -64,6 +64,7 @@ from (
   where
     {{period:e.created_at}}
     and e.repo_id = r.id
+    and e.dup_repo_name = r.name
     and (lower(e.dup_actor_login) {{exclude_bots}})
     and e.type in (
       'PushEvent', 'PullRequestEvent', 'IssuesEvent',
@@ -103,6 +104,7 @@ from (
   where
     {{period:e.created_at}}
     and e.repo_id = r.id
+    and e.dup_repo_name = r.name
     and (lower(e.dup_actor_login) {{exclude_bots}})
     and e.type in (
       'PushEvent', 'PullRequestEvent', 'IssuesEvent',
@@ -142,6 +144,7 @@ from (
   where
     {{period:e.created_at}}
     and e.repo_id = r.id
+    and e.dup_repo_name = r.name
     and (lower(e.dup_actor_login) {{exclude_bots}})
     and e.type = 'PushEvent'
   ) sub
@@ -217,6 +220,7 @@ from (
     )
     and {{period:e.created_at}}
     and e.repo_id = r.id
+    and e.dup_repo_name = r.name
     and (lower(e.dup_actor_login) {{exclude_bots}})
   ) sub
 where
@@ -257,6 +261,7 @@ from
 where
   {{period:e.created_at}}
   and e.repo_id = r.id
+    and e.dup_repo_name = r.name
   and r.repo_group is not null
 group by
   r.repo_group
@@ -283,6 +288,7 @@ from (
   where
     {{period:c.created_at}}
     and c.dup_repo_id = r.id
+    and c.dup_repo_name = r.name
     and (lower(c.dup_user_login) {{exclude_bots}})
   ) sub
 where
@@ -313,6 +319,7 @@ from (
   where
     {{period:c.created_at}}
     and c.dup_repo_id = r.id
+    and c.dup_repo_name = r.name
     and (lower(c.dup_user_login) {{exclude_bots}})
   ) sub
 where
@@ -343,6 +350,7 @@ from (
   where
     {{period:i.created_at}}
     and i.dup_repo_id = r.id
+    and i.dup_repo_name = r.name
     and i.is_pull_request = false
     and (lower(i.dup_user_login) {{exclude_bots}})
   ) sub
@@ -375,6 +383,7 @@ from (
   where
     {{period:i.created_at}}
     and i.dup_repo_id = r.id
+    and i.dup_repo_name = r.name
     and i.is_pull_request = true
     and (lower(i.dup_user_login) {{exclude_bots}})
  ) sub
@@ -407,6 +416,7 @@ from (
   where
     {{period:e.created_at}}
     and e.repo_id = r.id
+    and e.dup_repo_name = r.name
     and (lower(e.dup_actor_login) {{exclude_bots}})
   ) sub
 where

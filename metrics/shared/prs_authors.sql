@@ -21,6 +21,7 @@ from (
     ecf.event_id = pr.event_id
   where
     pr.dup_repo_id = r.id
+    and pr.dup_repo_name = r.name
     and pr.created_at >= '{{from}}'
     and pr.created_at < '{{to}}'
     and (lower(pr.dup_user_login) {{exclude_bots}})

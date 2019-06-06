@@ -30,6 +30,7 @@ from (
     ecf.event_id = c.event_id
   where
     r.name = c.dup_repo_name
+    and r.id = c.dup_repo_id
     and c.dup_created_at >= '{{from}}'
     and c.dup_created_at < '{{to}}'
     and (lower(c.dup_actor_login) {{exclude_bots}})
@@ -45,6 +46,7 @@ from
   gha_repos r
 where
   i.dup_repo_id = r.id
+  and i.dup_repo_name = r.name
   and r.repo_group is not null
   and i.closed_at >= '{{from}}'
   and i.closed_at < '{{to}}'
@@ -57,6 +59,7 @@ from
   gha_repos r
 where
   i.dup_repo_id = r.id
+  and i.dup_repo_name = r.name
   and r.repo_group is not null
   and i.created_at >= '{{from}}'
   and i.created_at < '{{to}}'
@@ -76,6 +79,7 @@ from (
     ecf.event_id = pr.event_id
   where
     pr.dup_repo_id = r.id
+    and pr.dup_repo_name = r.name
     and pr.created_at >= '{{from}}'
     and pr.created_at < '{{to}}'
   ) sub
@@ -97,6 +101,7 @@ from (
     ecf.event_id = pr.event_id
   where
     r.name = pr.dup_repo_name
+    and r.id = pr.dup_repo_id
     and pr.merged_at is not null
     and pr.merged_at >= '{{from}}'
     and pr.merged_at < '{{to}}'
@@ -119,6 +124,7 @@ from (
     ecf.event_id = pr.event_id
   where
     r.name = pr.dup_repo_name
+    and r.id = pr.dup_repo_id
     and pr.merged_at is null
     and pr.closed_at >= '{{from}}'
     and pr.closed_at < '{{to}}'
@@ -134,6 +140,7 @@ from
   gha_repos r
 where
   i.dup_repo_id = r.id
+  and i.dup_repo_name = r.name
   and r.repo_group is not null
   and i.dup_created_at >= '{{from}}'
   and i.dup_created_at < '{{to}}'
@@ -149,6 +156,7 @@ from
   gha_repos r
 where
   i.dup_repo_id = r.id
+  and i.dup_repo_name = r.name
   and r.repo_group is not null
   and i.dup_created_at >= '{{from}}'
   and i.dup_created_at < '{{to}}'
@@ -164,6 +172,7 @@ from
   gha_repos r
 where
   i.dup_repo_id = r.id
+  and i.dup_repo_name = r.name
   and r.repo_group is not null
   and i.dup_created_at >= '{{from}}'
   and i.dup_created_at < '{{to}}'
@@ -179,6 +188,7 @@ from
   gha_repos r
 where
   i.dup_repo_id = r.id
+  and i.dup_repo_name = r.name
   and r.repo_group is not null
   and i.dup_created_at >= '{{from}}'
   and i.dup_created_at < '{{to}}'
@@ -201,6 +211,7 @@ from (
     ecf.event_id = e.id
   where
     e.repo_id = r.id
+    and e.dup_repo_name = r.name
     and (lower(e.dup_actor_login) {{exclude_bots}})
     and e.id in (
       select min(event_id)
