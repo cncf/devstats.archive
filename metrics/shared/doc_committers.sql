@@ -43,6 +43,7 @@ from (
     and c.dup_created_at < '{{to}}'
     and (lower(c.dup_author_login) {{exclude_bots}})
     and c.dup_repo_id = r.id
+    and c.dup_repo_name = r.name
   ) sub
 where
   sub.name is not null

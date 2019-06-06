@@ -10,6 +10,7 @@ with issues as (
     i.is_pull_request = false
     and i.closed_at is not null
     and r.name = i.dup_repo_name
+    and r.id = i.dup_repo_id
     and i.created_at >= '{{from}}'
     and i.created_at < '{{to}}'
     and i.event_id = (

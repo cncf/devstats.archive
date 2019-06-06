@@ -44,6 +44,7 @@ from (
     and affs.company_name != ''
   where
     r.name = ev.dup_repo_name
+    and r.id = ev.repo_id
     and ev.created_at >= '{{from}}'
     and ev.created_at < '{{to}}'
     and ev.type in (

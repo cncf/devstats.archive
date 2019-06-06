@@ -1,6 +1,7 @@
 with all_prs as (
   select distinct i.id,
-    i.dup_repo_name
+    i.dup_repo_name,
+    i.dup_repo_id
   from
     gha_issues i,
     gha_issues_pull_requests ipr,
@@ -10,6 +11,7 @@ with all_prs as (
     and ipr.pull_request_id = pr.id
     and i.number = pr.number
     and i.dup_repo_id = pr.dup_repo_id
+    and i.dup_repo_name = pr.dup_repo_name
     and i.is_pull_request = true
     and i.updated_at >= '{{from}}'
     and i.updated_at < '{{to}}'
@@ -18,8 +20,7 @@ with all_prs as (
       or pr.closed_at is null
     )
 ), approved_prs as (
-  select distinct i.id,
-    i.dup_repo_name
+  select distinct i.id
   from
     gha_issues i,
     gha_comments c,
@@ -30,6 +31,7 @@ with all_prs as (
     and ipr.pull_request_id = pr.id
     and i.number = pr.number
     and i.dup_repo_id = pr.dup_repo_id
+    and i.dup_repo_name = pr.dup_repo_name
     and i.event_id = c.event_id
     and i.is_pull_request = true
     and i.updated_at >= '{{from}}'
@@ -61,6 +63,7 @@ join
   all_prs prs
 on
   prs.dup_repo_name = r.name
+  and prs.dup_repo_id = r.id
   and r.repo_group is not null
   and r.repo_group in (select all_repo_group_name from tall_repo_groups)
 left join 

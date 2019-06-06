@@ -2,7 +2,8 @@ with issues as (
   select distinct i.id as issue_id,
     pr.id as pr_id,
     pr.event_id as event_id,
-    i.dup_repo_name
+    i.dup_repo_name,
+    i.dup_repo_id
   from
     gha_issues_pull_requests ipr,
     gha_pull_requests pr,
@@ -13,6 +14,7 @@ with issues as (
     and ipr.pull_request_id = pr.id
     and i.number = pr.number
     and i.dup_repo_id = pr.dup_repo_id
+    and i.dup_repo_name = pr.dup_repo_name
     and i.created_at >= '{{from}}'
     and i.created_at < '{{to}}'
     and (pr.merged_at is null or pr.merged_at >= '{{to}}')
@@ -57,6 +59,7 @@ with issues as (
       issues i
     on
       i.dup_repo_name = r.name
+      and i.dup_repo_id = r.id
     left join
       gha_events_commits_files ecf
     on

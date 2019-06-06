@@ -16,6 +16,7 @@ with prs as (
 ), prs_labels as (
   select distinct pr.id,
     pr.repo_id,
+    pr.repo_name,
     iel.label_name,
     pr.created_at,
     pr.merged_at,
@@ -53,6 +54,7 @@ with prs as (
       ecf.event_id = pr.event_id
     where
       r.id = pr.repo_id
+      and r.name = pr.repo_name
       and pr.created_at >= '{{from}}'
       and pr.created_at < '{{to}}'
     ) sub
@@ -79,6 +81,7 @@ with prs as (
       ecf.event_id = pr.pr_event_id
     where
       r.id = pr.repo_id
+      and r.name = pr.repo_name
       and pr.created_at >= '{{from}}'
       and pr.created_at < '{{to}}'
     ) sub

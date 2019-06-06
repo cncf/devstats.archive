@@ -24,6 +24,7 @@ from (
     and aa.dt_from <= pr.created_at
     and aa.dt_to > pr.created_at
     and pr.dup_repo_id = r.id
+    and pr.dup_repo_name = r.name
     -- and pr.dup_type = 'PullRequestEvent'
     -- and pr.state = 'open'
     and aa.company_name != ''

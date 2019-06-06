@@ -16,6 +16,7 @@ from (
   where
     {{period:t.created_at}}
     and t.dup_repo_id = r.id
+    and t.dup_repo_name = r.name
     and (lower(t.dup_actor_login) {{exclude_bots}})
   ) sub
 where

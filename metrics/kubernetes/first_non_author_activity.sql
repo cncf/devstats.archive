@@ -36,6 +36,7 @@ with issues as (
       or ecf.repo_group is not null
     )
     and r.name = i2.dup_repo_name
+    and r.id = i2.dup_repo_id
     and (lower(i2.dup_actor_login) {{exclude_bots}})
     and i2.event_id in (
       select event_id
@@ -68,6 +69,7 @@ with issues as (
       or ecf.repo_group is not null
     )
     and r.name = p2.dup_repo_name
+    and r.id = p2.dup_repo_id
     and (lower(p2.dup_actor_login) {{exclude_bots}})
     and p2.event_id in (
       select event_id
@@ -103,6 +105,7 @@ with issues as (
       or ecf.repo_group is not null
     )
     and r.name = i2.dup_repo_name
+    and r.id = i2.dup_repo_id
     and (lower(i2.dup_actor_login) {{exclude_bots}})
     and i2.event_id in (
       select event_id

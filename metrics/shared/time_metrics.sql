@@ -22,6 +22,7 @@ with prs as (
     gha_repos r
   where
     r.id = ipr.repo_id
+    and r.name = ipr.repo_name
     and r.repo_group is not null
     and pr.id = ipr.pull_request_id
     and pr.merged_at is not null

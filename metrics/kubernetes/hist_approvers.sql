@@ -23,6 +23,7 @@ from (
     ecf.event_id = e.id
   where
     e.repo_id = r.id
+    and e.dup_repo_name = r.name
     and (lower(e.dup_actor_login) {{exclude_bots}})
     and e.id in (
       select event_id
@@ -92,6 +93,7 @@ from (
   where
     (e.actor_id = a.id or e.dup_actor_login = a.login)
     and e.repo_id = r.id
+    and e.dup_repo_name = r.name
     and (lower(a.login) {{exclude_bots}})
     and e.id in (
       select event_id
