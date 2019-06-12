@@ -33,6 +33,14 @@ The rest of this document describes current bare metal deployment on packet.net 
 
 - Presentations are available [here](https://github.com/cncf/devstats/blob/master/docs/presentation).
 - Direct [link](https://docs.google.com/presentation/d/1v5zuSFQkwcthWXgS2p9vs9x5e4fnavMR8HdykS7aWYA/edit?usp=sharing).
+- Another direct [link](https://docs.google.com/presentation/d/1LLv4kio_KGP36cjkpeSMHZrNl0IYJ7B2pKGU0aHWqx8/edit?usp=sharing).
+
+
+# Talks
+
+- [Who What How: Understanding Kubernetes Development through DevStats](https://www.youtube.com/watch?v=D3CMuxQymR8).
+- [A Kubernetes Application End-to-End: DevStats](https://www.youtube.com/watch?v=U2PTifzzKNE&t=58s).
+
 
 # Deploying on your own project(s)
 
