@@ -51,6 +51,7 @@ echo 'Starting Grafana'
 cwd=`pwd`
 cd /usr/share/grafana
 GF_SECURITY_ADMIN_USER="${GF_SECURITY_ADMIN_USER}" GF_SECURITY_ADMIN_PASSWORD="${GF_SECURITY_ADMIN_PASSWORD}" grafana-server -config /etc/grafana/grafana.ini cfg:default.paths.data=/var/lib/grafana 1>/var/log/grafana.log 2>/var/log/grafana.err &
+grafana_wait=$!
 cd "$cwd"
 
 # Wait for start and update its SQLite database after configured provisioning is finished
@@ -105,8 +106,9 @@ then
 fi
 
 # Expose final grafana.db file
-cp /var/lib/grafana/grafana.db "/root/grafana.${PROJ}.db" || exit 27
+expose_grafana_db.sh "$PROJ" 30 &
+expose_wait=$!
 
 # Switch to already started Grafana
 echo 'OK'
-wait
+wait $grafana_wait
