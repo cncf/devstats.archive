@@ -3,7 +3,7 @@
 
 # GitHub archives and git Grafana visualization dashboards
 
-Authors: Łukasz Gryglicki <lgryglicki@cncf.io>, Justyna Gryglicka <lgryglicka@cncf.io>.
+Authors: Łukasz Gryglicki <lgryglicki@cncf.io>, Justyna Gryglicka <jgryglicka@cncf.io>.
 
 This is a toolset to visualize GitHub [archives](https://www.gharchive.org) using Grafana dashboards.
 
