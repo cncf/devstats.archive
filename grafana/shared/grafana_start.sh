@@ -104,6 +104,9 @@ then
   sqlite3 -echo -header -csv /var/lib/grafana/grafana.db < "$cfile" || exit 23
 fi
 
+# Expose final grafana.db file
+cp /var/lib/grafana/grafana.db "/root/grafana.${PROJ}.db" || exit 27
+
 # Switch to already started Grafana
 echo 'OK'
 wait
