@@ -12,8 +12,10 @@ do
   echo "Project: $proj, GrafanaDB: $db"
   rm -f sqlite/* 2>/dev/null
   touch sqlite/touch
-  sqlitedb /var/lib/grafana.$db/grafana.db || exit 1
-  rm -f grafana/dashboards/$proj/*.json || exit 2
-  mv sqlite/*.json grafana/dashboards/$proj/ || exit 3
+  #sqlitedb /var/lib/grafana.$db/grafana.db || exit 1
+  wget "https://teststats.cncf.io/backups/grafana.$proj.db" || exit 1
+  sqlitedb "grafana.$proj.db" || exit 2
+  rm -f grafana/dashboards/$proj/*.json || exit 3
+  mv sqlite/*.json grafana/dashboards/$proj/ || exit 4
 done
 echo 'OK'
