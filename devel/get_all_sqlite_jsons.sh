@@ -15,7 +15,8 @@ do
   #sqlitedb /var/lib/grafana.$db/grafana.db || exit 1
   wget "https://teststats.cncf.io/backups/grafana.$proj.db" || exit 1
   sqlitedb "grafana.$proj.db" || exit 2
-  rm -f grafana/dashboards/$proj/*.json || exit 3
-  mv sqlite/*.json grafana/dashboards/$proj/ || exit 4
+  rm -f "grafana.$proj.db" || exit 3
+  rm -f grafana/dashboards/$proj/*.json || exit 4
+  mv sqlite/*.json grafana/dashboards/$proj/ || exit 5
 done
 echo 'OK'
