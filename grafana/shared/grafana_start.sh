@@ -106,7 +106,7 @@ then
 fi
 
 # Expose final grafana.db file
-expose_grafana_db.sh "$PROJ" 30 &
+expose_grafana_db.sh "$PROJ" 60 &
 expose_wait=$!
 
 # Switch to already started Grafana
