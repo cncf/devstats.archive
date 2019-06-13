@@ -15,8 +15,8 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 125,
-  "iteration": 1546502144521,
+  "id": 5,
+  "iteration": 1560401589599,
   "links": [],
   "panels": [
     {
@@ -33,11 +33,12 @@
       "hideTimeOverride": true,
       "id": 1,
       "links": [],
+      "options": {},
       "pageSize": 1000,
       "scroll": true,
       "showHeader": true,
       "sort": {
-        "col": 1,
+        "col": 2,
         "desc": true
       },
       "styles": [
@@ -87,6 +88,22 @@
             "rgba(237, 129, 40, 0.89)",
             "rgba(50, 172, 45, 0.97)"
           ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 0,
+          "mappingType": 1,
+          "pattern": "Rank",
+          "thresholds": [],
+          "type": "string",
+          "unit": "short"
+        },
+        {
+          "alias": "",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
           "decimals": 0,
           "pattern": "/.*/",
           "thresholds": [],
@@ -99,6 +116,7 @@
           "alias": "",
           "dsType": "influxdb",
           "format": "table",
+          "group": [],
           "groupBy": [
             {
               "params": [
@@ -113,11 +131,12 @@
               "type": "fill"
             }
           ],
+          "metricColumn": "none",
           "orderByTime": "ASC",
           "policy": "default",
           "query": "SELECT \"name\", \"value\" FROM \"project_company_stats_[[metric]]_[[period]]\" WHERE $timeFilter",
           "rawQuery": true,
-          "rawSql": "select name, value from \"shcom\" where series = 'hcom[[metric]]' and period = '[[period]]'",
+          "rawSql": "select row_number() over (order by value desc) as \"Rank\", name, value from \"shcom\" where series = 'hcom[[metric]]' and period = '[[period]]'",
           "refId": "A",
           "resultFormat": "table",
           "select": [
@@ -134,12 +153,19 @@
               }
             ]
           ],
-          "tags": []
+          "tags": [],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
         }
       ],
       "title": "[[full_name]] Companies statistics ([[metric]], Range: [[period_name]]), bots excluded",
       "transform": "table",
-      "transparent": false,
       "type": "table"
     },
     {
@@ -153,12 +179,13 @@
       "id": 3,
       "links": [],
       "mode": "html",
+      "options": {},
       "title": "Dashboard documentation",
       "type": "text"
     }
   ],
   "refresh": false,
-  "schemaVersion": 16,
+  "schemaVersion": 18,
   "style": "dark",
   "tags": [
     "dashboard",
@@ -175,6 +202,7 @@
           "value": "Last decade"
         },
         "datasource": "psql",
+        "definition": "",
         "hide": 0,
         "includeAll": false,
         "label": "Range",
@@ -313,6 +341,7 @@
           "value": "y10"
         },
         "datasource": "psql",
+        "definition": "",
         "hide": 2,
         "includeAll": false,
         "label": null,
@@ -337,6 +366,7 @@
           "value": "Kubernetes"
         },
         "datasource": "psql",
+        "definition": "",
         "hide": 2,
         "includeAll": false,
         "label": null,
@@ -361,6 +391,7 @@
           "value": "\u003ch1 id=\"kubernetes-dashboard\"\u003eKubernetes Companies table dashboard\u003c/h1\u003e\n\u003cp\u003eLinks:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003eMetric \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/project_company_stats.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eTSDB \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/metrics.yaml\" target=\"_blank\"\u003eseries definition\u003c/a\u003e. Search for \u003ccode\u003eproject_company_stats\u003c/code\u003e\u003c/li\u003e\n\u003cli\u003eGrafana dashboard \u003ca href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/companies-table.json\" target=\"_blank\"\u003eJSON\u003c/a\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch1 id=\"description\"\u003eDescription\u003c/h1\u003e\n\u003cul\u003e\n\u003cli\u003eThis dashboard shows various GitHub metrics and aggregate them by actors companies.\u003c/li\u003e\n\u003cli\u003eContributor is defined as somebody who made a review, comment, commit, created PR or issue.\u003c/li\u003e\n\u003cli\u003eContribution is a review, comment, commit, issue or PR.\u003c/li\u003e\n\u003cli\u003eYou can select last day, month, week etc. range or date range between releases, for example \u003ccode\u003ev1.9 - v1.10\u003c/code\u003e.\u003c/li\u003e\n\u003cli\u003eWe are skipping bots when calculating statistics, see \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/excluding_bots.md\" target=\"_blank\"\u003eexcluding bots\u003c/a\u003e for details.\u003c/li\u003e\n\u003cli\u003eWe are determining user's company affiliation from \u003ca href=\"https://github.com/cncf/devstats/blob/master/github_users.json\" target=\"_blank\"\u003ethis file\u003c/a\u003e, which is imported from \u003ccode\u003ecncf/gitdm\u003c/code\u003e.\u003c/li\u003e\n\u003c/ul\u003e"
         },
         "datasource": "psql",
+        "definition": "",
         "hide": 2,
         "includeAll": false,
         "label": null,
@@ -413,5 +444,5 @@
   "timezone": "",
   "title": "Companies table",
   "uid": "9",
-  "version": 11
+  "version": 3
 }
