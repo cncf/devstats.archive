@@ -48,7 +48,7 @@ set
   alias = 'Labs',
   repo_group = 'Labs'
 where
-  org in ('hyperledger-labs')
+  org_login in ('hyperledger-labs')
 ;
 
 update
