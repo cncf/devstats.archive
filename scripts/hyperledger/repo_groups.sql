@@ -126,24 +126,6 @@ where
 update
   gha_repos
 set
-  alias = '',
-  repo_group = ''
-where
-  name like 'hyperledger/%'
-;
-
-update
-  gha_repos
-set
-  alias = '',
-  repo_group = ''
-where
-  name like 'hyperledger/%'
-;
-
-update
-  gha_repos
-set
   alias = 'PSWG',
   repo_group = 'PSWG'
 where
