@@ -32,6 +32,7 @@ GRAFANA_DATA="/usr/share/grafana/" ./grafana/$PROJ/change_title_and_icons.sh || 
 mkdir /usr/share/grafana/public/img/projects 2>/dev/null
 cp grafana/img/*.svg /usr/share/grafana/public/img/projects/ || exit 26
 cfile="/etc/grafana/grafana.ini"
+cp "$cfile" "${cfile}.orig" || exit 27
 cp ./grafana/shared/grafana.ini.example "$cfile" || exit 16
 MODE=ss FROM='{{project}}' TO="$PROJ" replacer "$cfile" || exit 17
 MODE=ss FROM='{{url}}' TO="$host" replacer "$cfile" || exit 18
@@ -40,6 +41,7 @@ MODE=ss FROM='{{org}}' TO="$ORGNAME" replacer "$cfile" || exit 20
 
 # Setup Grafana provisioning
 echo 'Updating provisioning yaml'
+cp /usr/share/grafana/conf/provisioning/datasources/datasources.yaml /usr/share/grafana/conf/provisioning/datasources/datasources.yaml.orig || exit 28
 cp ./grafana/shared/datasource.yaml.example /usr/share/grafana/conf/provisioning/datasources/datasources.yaml || exit 15
 cfile="/usr/share/grafana/conf/provisioning/datasources/datasources.yaml"
 MODE=ss FROM='{{url}}' TO="${PG_HOST}:${PG_PORT}" replacer "$cfile" || exit 2
