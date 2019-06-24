@@ -15,8 +15,8 @@
   "description": "Replicate git analytics data",
   "editable": true,
   "gnetId": null,
-  "graphTooltip": 0,
-  "id": 44,
+  "graphTooltip": 2,
+  "id": 19,
   "links": [],
   "panels": [
     {
@@ -113,6 +113,7 @@
       "timeFrom": null,
       "timeShift": null,
       "title": "",
+      "transparent": true,
       "type": "singlestat",
       "valueFontSize": "50%",
       "valueMaps": [
@@ -123,6 +124,115 @@
         }
       ],
       "valueName": "last_time"
+    },
+    {
+      "cacheTimeout": null,
+      "colorBackground": false,
+      "colorPostfix": true,
+      "colorPrefix": true,
+      "colorValue": true,
+      "colors": [
+        "#C4162A",
+        "#FFF899",
+        "#56A64B"
+      ],
+      "decimals": 1,
+      "description": "Time of last event",
+      "format": "none",
+      "gauge": {
+        "maxValue": 100,
+        "minValue": 0,
+        "show": false,
+        "thresholdLabels": false,
+        "thresholdMarkers": true
+      },
+      "gridPos": {
+        "h": 1,
+        "w": 3,
+        "x": 4,
+        "y": 0
+      },
+      "id": 5,
+      "interval": "1h",
+      "links": [],
+      "mappingType": 1,
+      "mappingTypes": [
+        {
+          "name": "value to text",
+          "value": 1
+        },
+        {
+          "name": "range to text",
+          "value": 2
+        }
+      ],
+      "maxDataPoints": 100,
+      "nullPointMode": "connected",
+      "nullText": null,
+      "options": {},
+      "postfix": "%",
+      "postfixFontSize": "50%",
+      "prefix": "Commits",
+      "prefixFontSize": "50%",
+      "rangeMaps": [
+        {
+          "from": "null",
+          "text": "N/A",
+          "to": "null"
+        }
+      ],
+      "sparkline": {
+        "fillColor": "rgba(31, 118, 189, 0.18)",
+        "full": false,
+        "lineColor": "rgb(31, 120, 193)",
+        "show": false
+      },
+      "tableColumn": "",
+      "targets": [
+        {
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "select\n  sub.time as \"time\",\n  ((sub.recent - sub.previous) * 100.0) / (case sub.previous when 0 then 1 else sub.previous end) as \"value\"\nfrom (\n  select\n    max(dup_created_at) as \"time\",\n    count(distinct sha) filter (where dup_created_at \u003e= now() - '2 months'::interval and dup_created_at \u003c now() - '1 month'::interval) as \"previous\",\n    count(distinct sha) filter (where $__timeFilter(\"dup_created_at\")) as recent\n  from\n    gha_commits\n) sub",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "sall_prs_merged",
+          "timeColumn": "\"time\"",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "thresholds": "-10,10",
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "",
+      "transparent": true,
+      "type": "singlestat",
+      "valueFontSize": "50%",
+      "valueMaps": [
+        {
+          "op": "=",
+          "text": "No data",
+          "value": "null"
+        }
+      ],
+      "valueName": "current"
     },
     {
       "description": "Percent of repos active during the last month compared to the number of repos active during the last year",
@@ -205,6 +315,7 @@
       "timeFrom": null,
       "timeShift": null,
       "title": "Percent repos active",
+      "transparent": true,
       "type": "gauge"
     }
   ],
@@ -219,7 +330,7 @@
     "list": []
   },
   "time": {
-    "from": "now-6h",
+    "from": "now-1M",
     "to": "now"
   },
   "timepicker": {
@@ -251,5 +362,5 @@
   "timezone": "",
   "title": "Home",
   "uid": "62",
-  "version": 4
+  "version": 5
 }
