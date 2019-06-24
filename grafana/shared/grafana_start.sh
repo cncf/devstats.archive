@@ -41,7 +41,6 @@ MODE=ss FROM='{{org}}' TO="$ORGNAME" replacer "$cfile" || exit 20
 
 # Setup Grafana provisioning
 echo 'Updating provisioning yaml'
-cp /usr/share/grafana/conf/provisioning/datasources/datasources.yaml /usr/share/grafana/conf/provisioning/datasources/datasources.yaml.orig || exit 28
 cp ./grafana/shared/datasource.yaml.example /usr/share/grafana/conf/provisioning/datasources/datasources.yaml || exit 15
 cfile="/usr/share/grafana/conf/provisioning/datasources/datasources.yaml"
 MODE=ss FROM='{{url}}' TO="${PG_HOST}:${PG_PORT}" replacer "$cfile" || exit 2
