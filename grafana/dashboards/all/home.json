@@ -1,0 +1,1271 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations \u0026 Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "description": "Replicate git analytics data",
+  "editable": true,
+  "gnetId": null,
+  "graphTooltip": 2,
+  "id": 19,
+  "links": [],
+  "panels": [
+    {
+      "cacheTimeout": null,
+      "colorBackground": false,
+      "colorValue": false,
+      "colors": [
+        "#299c46",
+        "rgba(237, 129, 40, 0.89)",
+        "#d44a3a"
+      ],
+      "description": "Time of the last event.",
+      "format": "dateTimeAsUS",
+      "gauge": {
+        "maxValue": 100,
+        "minValue": 0,
+        "show": false,
+        "thresholdLabels": false,
+        "thresholdMarkers": true
+      },
+      "gridPos": {
+        "h": 1,
+        "w": 4,
+        "x": 0,
+        "y": 0
+      },
+      "id": 4,
+      "interval": "1h",
+      "links": [],
+      "mappingType": 1,
+      "mappingTypes": [
+        {
+          "name": "value to text",
+          "value": 1
+        },
+        {
+          "name": "range to text",
+          "value": 2
+        }
+      ],
+      "maxDataPoints": 100,
+      "nullPointMode": "connected",
+      "nullText": null,
+      "options": {},
+      "postfix": "",
+      "postfixFontSize": "50%",
+      "prefix": "Last event:",
+      "prefixFontSize": "50%",
+      "rangeMaps": [
+        {
+          "from": "null",
+          "text": "N/A",
+          "to": "null"
+        }
+      ],
+      "sparkline": {
+        "fillColor": "rgba(31, 118, 189, 0.18)",
+        "full": false,
+        "lineColor": "rgb(31, 120, 193)",
+        "show": false
+      },
+      "tableColumn": "",
+      "targets": [
+        {
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "select\n  created_at as \"time\",\n  0 as value\nfrom gha_events\nWHERE\n  $__timeFilter(\"created_at\")",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "sall_prs_merged",
+          "timeColumn": "\"time\"",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "thresholds": "",
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "",
+      "transparent": true,
+      "type": "singlestat",
+      "valueFontSize": "50%",
+      "valueMaps": [
+        {
+          "op": "=",
+          "text": "No events",
+          "value": "null"
+        }
+      ],
+      "valueName": "last_time"
+    },
+    {
+      "cacheTimeout": null,
+      "colorBackground": false,
+      "colorPostfix": true,
+      "colorPrefix": true,
+      "colorValue": true,
+      "colors": [
+        "#C4162A",
+        "#FFF899",
+        "#56A64B"
+      ],
+      "decimals": 1,
+      "description": "The number of commits for the last month compared to the previous month.",
+      "format": "none",
+      "gauge": {
+        "maxValue": 100,
+        "minValue": 0,
+        "show": false,
+        "thresholdLabels": false,
+        "thresholdMarkers": true
+      },
+      "gridPos": {
+        "h": 1,
+        "w": 5,
+        "x": 4,
+        "y": 0
+      },
+      "id": 5,
+      "interval": "1h",
+      "links": [],
+      "mappingType": 1,
+      "mappingTypes": [
+        {
+          "name": "value to text",
+          "value": 1
+        },
+        {
+          "name": "range to text",
+          "value": 2
+        }
+      ],
+      "maxDataPoints": 100,
+      "nullPointMode": "connected",
+      "nullText": null,
+      "options": {},
+      "postfix": "%",
+      "postfixFontSize": "50%",
+      "prefix": "Commits change",
+      "prefixFontSize": "50%",
+      "rangeMaps": [
+        {
+          "from": "null",
+          "text": "N/A",
+          "to": "null"
+        }
+      ],
+      "sparkline": {
+        "fillColor": "rgba(31, 118, 189, 0.18)",
+        "full": false,
+        "lineColor": "rgb(31, 120, 193)",
+        "show": false
+      },
+      "tableColumn": "",
+      "targets": [
+        {
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "select\n  sub.time as \"time\",\n  ((sub.current - sub.previous) * 100.0) / (case sub.previous when 0 then 1 else sub.previous end) as \"value\"\nfrom (\n  select\n    max(dup_created_at) as \"time\",\n    count(distinct sha) filter (where dup_created_at \u003e= now() - '2 months'::interval and dup_created_at \u003c now() - '1 month'::interval) as \"previous\",\n    count(distinct sha) filter (where $__timeFilter(\"dup_created_at\")) as \"current\"\n  from\n    gha_commits\n) sub",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "sall_prs_merged",
+          "timeColumn": "\"time\"",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "thresholds": "-20,20",
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "",
+      "transparent": true,
+      "type": "singlestat",
+      "valueFontSize": "50%",
+      "valueMaps": [
+        {
+          "op": "=",
+          "text": "No data",
+          "value": "null"
+        }
+      ],
+      "valueName": "current"
+    },
+    {
+      "circleMaxSize": "20",
+      "circleMinSize": "2",
+      "colors": [
+        "rgba(245, 54, 54, 0.9)",
+        "rgba(237, 129, 40, 0.89)",
+        "#FFEE52",
+        "rgba(50, 172, 45, 0.97)"
+      ],
+      "decimals": 0,
+      "esMetric": "Count",
+      "gridPos": {
+        "h": 8,
+        "w": 7,
+        "x": 9,
+        "y": 0
+      },
+      "hideEmpty": false,
+      "hideZero": false,
+      "id": 7,
+      "initialZoom": 1,
+      "interval": "1h",
+      "links": [],
+      "locationData": "countries",
+      "mapCenter": "custom",
+      "mapCenterLatitude": "30",
+      "mapCenterLongitude": 0,
+      "maxDataPoints": 1,
+      "mouseWheelZoom": true,
+      "options": {},
+      "showLegend": false,
+      "stickyLabels": false,
+      "tableQueryOptions": {
+        "geohashField": "country",
+        "labelField": "country",
+        "latitudeField": "latitude",
+        "longitudeField": "longitude",
+        "metricField": "value",
+        "queryType": "geohash"
+      },
+      "targets": [
+        {
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "select\n  now() as \"time\",\n  count(e.id) as \"value\",\n  coalesce(a.country_id, '') as \"name\"\nfrom\n  gha_actors a,\n  gha_events e\nwhere\n  e.dup_actor_login = a.login\n  and e.type in ('IssuesEvent', 'PullRequestEvent', 'PushEvent', 'PullRequestReviewCommentEvent', 'IssueCommentEvent', 'CommitCommentEvent')\n  and $__timeFilter(e.created_at)\n  and lower(a.login) not like all(array['devstats-sync', 'googlebot', 'coveralls', 'rktbot', 'coreosbot', 'web-flow', 'prometheus-roobot', 'cncf-bot', 'kernelprbot', 'istio-testing', 'spinnakerbot', 'pikbot', 'spinnaker-release', 'docker-jenkins', 'golangcibot', 'opencontrail-ci-admin', 'k8s-%', '%-bot', '%-robot', 'bot-%', 'robot-%', '%[bot]%', '%-jenkins', '%-ci%bot', '%-testing', 'codecov-%', '%clabot%', '%cla-bot%', '%-gerrit', '%-bot-%'])\ngroup by\n  a.country_id",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "sall_prs_merged",
+          "timeColumn": "\"time\"",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "thresholds": "5,50,500",
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Contributions",
+      "transparent": true,
+      "type": "grafana-worldmap-panel",
+      "unitPlural": "contributions",
+      "unitSingle": "",
+      "unitSingular": "contribution",
+      "valueName": "current"
+    },
+    {
+      "circleMaxSize": "20",
+      "circleMinSize": 2,
+      "colors": [
+        "rgba(245, 54, 54, 0.9)",
+        "rgba(237, 129, 40, 0.89)",
+        "#FFEE52",
+        "rgba(50, 172, 45, 0.97)"
+      ],
+      "decimals": 0,
+      "description": "Number of active contributors during the last month.",
+      "esMetric": "Count",
+      "gridPos": {
+        "h": 8,
+        "w": 7,
+        "x": 16,
+        "y": 0
+      },
+      "hideEmpty": false,
+      "hideZero": false,
+      "id": 9,
+      "initialZoom": 1,
+      "links": [],
+      "locationData": "countries",
+      "mapCenter": "custom",
+      "mapCenterLatitude": "30",
+      "mapCenterLongitude": 0,
+      "maxDataPoints": 1,
+      "mouseWheelZoom": true,
+      "options": {},
+      "showLegend": false,
+      "stickyLabels": false,
+      "tableQueryOptions": {
+        "geohashField": "country",
+        "labelField": "country",
+        "latitudeField": "latitude",
+        "longitudeField": "longitude",
+        "metricField": "value",
+        "queryType": "geohash"
+      },
+      "targets": [
+        {
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "select\n  now() as \"time\",\n  count(distinct a.login) as \"value\",\n  coalesce(a.country_id, '') as \"name\"\nfrom\n  gha_actors a,\n  gha_events e\nwhere\n  e.dup_actor_login = a.login\n  and e.type in ('IssuesEvent', 'PullRequestEvent', 'PushEvent', 'PullRequestReviewCommentEvent', 'IssueCommentEvent', 'CommitCommentEvent')\n  and $__timeFilter(e.created_at)\n  and lower(a.login) not like all(array['devstats-sync', 'googlebot', 'coveralls', 'rktbot', 'coreosbot', 'web-flow', 'prometheus-roobot', 'cncf-bot', 'kernelprbot', 'istio-testing', 'spinnakerbot', 'pikbot', 'spinnaker-release', 'docker-jenkins', 'golangcibot', 'opencontrail-ci-admin', 'k8s-%', '%-bot', '%-robot', 'bot-%', 'robot-%', '%[bot]%', '%-jenkins', '%-ci%bot', '%-testing', 'codecov-%', '%clabot%', '%cla-bot%', '%-gerrit', '%-bot-%'])\ngroup by\n  a.country_id",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "sall_prs_merged",
+          "timeColumn": "\"time\"",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "thresholds": "2,5,10",
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Contributors",
+      "transparent": true,
+      "type": "grafana-worldmap-panel",
+      "unitPlural": "contributors",
+      "unitSingle": "",
+      "unitSingular": "contributor",
+      "valueName": "current"
+    },
+    {
+      "description": "Percent of repositories active during the last month compared to the number of repositories active during the last year.",
+      "gridPos": {
+        "h": 6,
+        "w": 4,
+        "x": 0,
+        "y": 1
+      },
+      "id": 2,
+      "interval": "",
+      "links": [],
+      "options": {
+        "fieldOptions": {
+          "calcs": [
+            "last"
+          ],
+          "defaults": {
+            "decimals": 1,
+            "max": 100,
+            "min": 0,
+            "title": "Last month vs last year"
+          },
+          "mappings": [],
+          "override": {},
+          "thresholds": [
+            {
+              "color": "dark-red",
+              "index": 0,
+              "value": null
+            },
+            {
+              "color": "light-yellow",
+              "index": 1,
+              "value": 10
+            },
+            {
+              "color": "dark-green",
+              "index": 2,
+              "value": 70
+            }
+          ],
+          "values": false
+        },
+        "orientation": "auto",
+        "showThresholdLabels": true,
+        "showThresholdMarkers": true
+      },
+      "pluginVersion": "6.2.4",
+      "targets": [
+        {
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "select\n  sub.time,\n  (sub.recent * 100.0) / (case sub.all when 0 then 1 else sub.all end)\nfrom (\n  select\n    max(created_at) as time,\n    count(distinct repo_id) filter (where created_at \u003e= now() - '1 year'::interval) as all,\n    count(distinct repo_id) filter (where $__timeFilter(created_at)) as recent\n  from\n    gha_events\n) sub",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "sall_prs_merged",
+          "timeColumn": "\"time\"",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Percent repositories active",
+      "transparent": true,
+      "type": "gauge"
+    },
+    {
+      "cacheTimeout": null,
+      "colorBackground": false,
+      "colorPostfix": true,
+      "colorPrefix": true,
+      "colorValue": true,
+      "colors": [
+        "#C4162A",
+        "#FFEE52",
+        "#37872D"
+      ],
+      "decimals": 1,
+      "description": "Percent of PRs opened during the last month compared to the number of PRs opened during the previous month.",
+      "format": "none",
+      "gauge": {
+        "maxValue": 100,
+        "minValue": 0,
+        "show": false,
+        "thresholdLabels": false,
+        "thresholdMarkers": true
+      },
+      "gridPos": {
+        "h": 1,
+        "w": 5,
+        "x": 4,
+        "y": 1
+      },
+      "id": 10,
+      "interval": "1h",
+      "links": [],
+      "mappingType": 1,
+      "mappingTypes": [
+        {
+          "name": "value to text",
+          "value": 1
+        },
+        {
+          "name": "range to text",
+          "value": 2
+        }
+      ],
+      "maxDataPoints": 100,
+      "nullPointMode": "connected",
+      "nullText": null,
+      "options": {},
+      "pluginVersion": "6.2.4",
+      "postfix": "%",
+      "postfixFontSize": "50%",
+      "prefix": "Opened PRs change",
+      "prefixFontSize": "50%",
+      "rangeMaps": [
+        {
+          "from": "null",
+          "text": "N/A",
+          "to": "null"
+        }
+      ],
+      "sparkline": {
+        "fillColor": "rgba(31, 118, 189, 0.18)",
+        "full": false,
+        "lineColor": "rgb(31, 120, 193)",
+        "show": false
+      },
+      "tableColumn": "",
+      "targets": [
+        {
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "select\n  sub.time,\n  ((sub.current - sub.previous) * 100.0) / (case sub.previous when 0 then 1 else sub.previous end) as \"value\"\nfrom (\n  select\n    max(created_at) as time,\n    count(distinct id) filter (where created_at \u003e= now() - '2 months'::interval and created_at \u003c now() - '1 month'::interval) as previous,\n    count(distinct id) filter (where $__timeFilter(created_at)) as \"current\"\n  from\n    gha_pull_requests\n) sub",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "sall_prs_merged",
+          "timeColumn": "\"time\"",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "thresholds": "-20,20",
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "",
+      "transparent": true,
+      "type": "singlestat",
+      "valueFontSize": "50%",
+      "valueMaps": [
+        {
+          "op": "=",
+          "text": "N/A",
+          "value": "null"
+        }
+      ],
+      "valueName": "current"
+    },
+    {
+      "cacheTimeout": null,
+      "colorBackground": false,
+      "colorPostfix": true,
+      "colorPrefix": true,
+      "colorValue": true,
+      "colors": [
+        "#C4162A",
+        "#FFF899",
+        "#56A64B"
+      ],
+      "decimals": 1,
+      "description": "Percent of PRs merged during the last month compared to the number of PRs merged during the previous month.",
+      "format": "none",
+      "gauge": {
+        "maxValue": 100,
+        "minValue": 0,
+        "show": false,
+        "thresholdLabels": false,
+        "thresholdMarkers": true
+      },
+      "gridPos": {
+        "h": 1,
+        "w": 5,
+        "x": 4,
+        "y": 2
+      },
+      "id": 11,
+      "interval": "1h",
+      "links": [],
+      "mappingType": 1,
+      "mappingTypes": [
+        {
+          "name": "value to text",
+          "value": 1
+        },
+        {
+          "name": "range to text",
+          "value": 2
+        }
+      ],
+      "maxDataPoints": 100,
+      "nullPointMode": "connected",
+      "nullText": null,
+      "options": {},
+      "postfix": "%",
+      "postfixFontSize": "50%",
+      "prefix": "Merged PRs change",
+      "prefixFontSize": "50%",
+      "rangeMaps": [
+        {
+          "from": "null",
+          "text": "N/A",
+          "to": "null"
+        }
+      ],
+      "sparkline": {
+        "fillColor": "rgba(31, 118, 189, 0.18)",
+        "full": false,
+        "lineColor": "rgb(31, 120, 193)",
+        "show": false
+      },
+      "tableColumn": "",
+      "targets": [
+        {
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "select\n  sub.time,\n  ((sub.current - sub.previous) * 100.0) / (case sub.previous when 0 then 1 else sub.previous end) as \"value\"\nfrom (\n  select\n    max(created_at) as time,\n    count(distinct id) filter (where merged_at \u003e= now() - '2 months'::interval and merged_at \u003c now() - '1 month'::interval) as previous,\n    count(distinct id) filter (where $__timeFilter(merged_at)) as \"current\"\n  from\n    gha_pull_requests\n) sub",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "sall_prs_merged",
+          "timeColumn": "\"time\"",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "thresholds": "-20,20",
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "",
+      "transparent": true,
+      "type": "singlestat",
+      "valueFontSize": "50%",
+      "valueMaps": [
+        {
+          "op": "=",
+          "text": "No data",
+          "value": "null"
+        }
+      ],
+      "valueName": "current"
+    },
+    {
+      "cacheTimeout": null,
+      "colorBackground": false,
+      "colorPostfix": false,
+      "colorPrefix": false,
+      "colorValue": false,
+      "colors": [
+        "#C4162A",
+        "#FFF899",
+        "#56A64B"
+      ],
+      "decimals": null,
+      "description": "Median time to merge PRs during the last month.",
+      "format": "none",
+      "gauge": {
+        "maxValue": 100,
+        "minValue": 0,
+        "show": false,
+        "thresholdLabels": false,
+        "thresholdMarkers": true
+      },
+      "gridPos": {
+        "h": 1,
+        "w": 5,
+        "x": 4,
+        "y": 3
+      },
+      "id": 12,
+      "interval": "1h",
+      "links": [],
+      "mappingType": 1,
+      "mappingTypes": [
+        {
+          "name": "value to text",
+          "value": 1
+        },
+        {
+          "name": "range to text",
+          "value": 2
+        }
+      ],
+      "maxDataPoints": 100,
+      "nullPointMode": "connected",
+      "nullText": null,
+      "options": {},
+      "postfix": "",
+      "postfixFontSize": "50%",
+      "prefix": "Median time to merge PR",
+      "prefixFontSize": "50%",
+      "rangeMaps": [
+        {
+          "from": "null",
+          "text": "N/A",
+          "to": "null"
+        }
+      ],
+      "sparkline": {
+        "fillColor": "rgba(31, 118, 189, 0.18)",
+        "full": false,
+        "lineColor": "rgb(31, 120, 193)",
+        "show": false
+      },
+      "tableColumn": "value",
+      "targets": [
+        {
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "select\n  percentile_disc(0.5) within group (order by sub.time_to_merge asc) as \"value\"\nfrom (\n  select distinct\n    id,\n    max(merged_at) - max(created_at) as time_to_merge\n  from\n    gha_pull_requests\n  where\n    merged_at is not null\n    and dup_type = 'PullRequestEvent'\n    and $__timeFilter(merged_at)\n  group by\n    id\n) sub",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "sall_prs_merged",
+          "timeColumn": "\"time\"",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "thresholds": "-20,20",
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "",
+      "transparent": true,
+      "type": "singlestat",
+      "valueFontSize": "50%",
+      "valueMaps": [],
+      "valueName": "current"
+    },
+    {
+      "cacheTimeout": null,
+      "colorBackground": false,
+      "colorPostfix": false,
+      "colorPrefix": false,
+      "colorValue": false,
+      "colors": [
+        "#C4162A",
+        "#FFF899",
+        "#56A64B"
+      ],
+      "decimals": null,
+      "description": "Median time to merge PRs during the previous month.",
+      "format": "none",
+      "gauge": {
+        "maxValue": 100,
+        "minValue": 0,
+        "show": false,
+        "thresholdLabels": false,
+        "thresholdMarkers": true
+      },
+      "gridPos": {
+        "h": 1,
+        "w": 5,
+        "x": 4,
+        "y": 4
+      },
+      "id": 14,
+      "interval": "1h",
+      "links": [],
+      "mappingType": 1,
+      "mappingTypes": [
+        {
+          "name": "value to text",
+          "value": 1
+        },
+        {
+          "name": "range to text",
+          "value": 2
+        }
+      ],
+      "maxDataPoints": 100,
+      "nullPointMode": "connected",
+      "nullText": null,
+      "options": {},
+      "postfix": "",
+      "postfixFontSize": "50%",
+      "prefix": "Previous time to merge PR",
+      "prefixFontSize": "50%",
+      "rangeMaps": [
+        {
+          "from": "null",
+          "text": "N/A",
+          "to": "null"
+        }
+      ],
+      "sparkline": {
+        "fillColor": "rgba(31, 118, 189, 0.18)",
+        "full": false,
+        "lineColor": "rgb(31, 120, 193)",
+        "show": false
+      },
+      "tableColumn": "value",
+      "targets": [
+        {
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "select\n  percentile_disc(0.5) within group (order by sub.time_to_merge asc) as \"value\"\nfrom (\n  select distinct\n    id,\n    max(merged_at) - max(created_at) as time_to_merge\n  from\n    gha_pull_requests\n  where\n    merged_at is not null\n    and dup_type = 'PullRequestEvent'\n    and merged_at \u003e= now() - '2 months'::interval\n    and merged_at \u003c now() - '1 month'::interval\n  group by\n    id\n) sub",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "sall_prs_merged",
+          "timeColumn": "\"time\"",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "thresholds": "-20,20",
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "",
+      "transparent": true,
+      "type": "singlestat",
+      "valueFontSize": "50%",
+      "valueMaps": [],
+      "valueName": "current"
+    },
+    {
+      "cacheTimeout": null,
+      "colorBackground": false,
+      "colorPostfix": true,
+      "colorPrefix": true,
+      "colorValue": true,
+      "colors": [
+        "#56A64B",
+        "#FFF899",
+        "#C4162A"
+      ],
+      "decimals": 1,
+      "description": "Change of the median time to merge PRs this month vs. previous month.",
+      "format": "none",
+      "gauge": {
+        "maxValue": 100,
+        "minValue": 0,
+        "show": false,
+        "thresholdLabels": false,
+        "thresholdMarkers": true
+      },
+      "gridPos": {
+        "h": 1,
+        "w": 5,
+        "x": 4,
+        "y": 5
+      },
+      "id": 13,
+      "interval": "1h",
+      "links": [],
+      "mappingType": 1,
+      "mappingTypes": [
+        {
+          "name": "value to text",
+          "value": 1
+        },
+        {
+          "name": "range to text",
+          "value": 2
+        }
+      ],
+      "maxDataPoints": 100,
+      "nullPointMode": "connected",
+      "nullText": null,
+      "options": {},
+      "postfix": "%",
+      "postfixFontSize": "50%",
+      "prefix": "Avg merge time change",
+      "prefixFontSize": "50%",
+      "rangeMaps": [
+        {
+          "from": "null",
+          "text": "N/A",
+          "to": "null"
+        }
+      ],
+      "sparkline": {
+        "fillColor": "rgba(31, 118, 189, 0.18)",
+        "full": false,
+        "lineColor": "rgb(31, 120, 193)",
+        "show": false
+      },
+      "tableColumn": "value",
+      "targets": [
+        {
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "with curr as (\n  select\n    extract(epoch from percentile_disc(0.5) within group (order by sub.time_to_merge asc)) as \"value\"\n  from (\n    select distinct\n      id,\n      max(merged_at) - max(created_at) as time_to_merge\n    from\n      gha_pull_requests\n    where\n      merged_at is not null\n      and dup_type = 'PullRequestEvent'\n      and $__timeFilter(merged_at)\n    group by\n      id\n  ) sub\n), prev as (\n  select\n    extract(epoch from percentile_disc(0.5) within group (order by sub.time_to_merge asc)) as \"value\"\n  from (\n    select distinct\n      id,\n      max(merged_at) - max(created_at) as time_to_merge\n    from\n      gha_pull_requests\n    where\n      merged_at is not null\n      and dup_type = 'PullRequestEvent'\n      and merged_at \u003e= now() - '2 month'::interval\n      and merged_at \u003c now() - '1 month'::interval\n    group by\n      id\n  ) sub\n)\nselect\n  ((curr.value - prev.value) * 100.0) / (case prev.value when 0 then 1 else prev.value end) as \"value\"\nfrom\n  prev,\n  curr\n;",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "sall_prs_merged",
+          "timeColumn": "\"time\"",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "thresholds": "-20,20",
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "",
+      "transparent": true,
+      "type": "singlestat",
+      "valueFontSize": "50%",
+      "valueMaps": [
+        {
+          "op": "=",
+          "text": "No data",
+          "value": "null"
+        }
+      ],
+      "valueName": "current"
+    },
+    {
+      "bgColor": "rgb(0, 0, 0)",
+      "description": "Contributions graph",
+      "gridPos": {
+        "h": 7,
+        "w": 6,
+        "x": 0,
+        "y": 7
+      },
+      "id": 19,
+      "interval": "1h",
+      "links": [],
+      "options": {},
+      "radarSettings": {
+        "animationDurationMs": "1",
+        "aspectRatio": 2,
+        "autoScale": true,
+        "drawTicksBackground": false,
+        "fontColor": "#C0D8FF",
+        "fontSize": 14,
+        "gridColor": "gray",
+        "ignoreTimeInfluxDB": false,
+        "legendType": "top",
+        "limitAspectRatio": true,
+        "scaleMax": "10",
+        "scaleMin": "1",
+        "scaleStep": "5",
+        "seriesAlias": "A;Contributions"
+      },
+      "targets": [
+        {
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "select\n  now() as \"time\",\n  count(distinct id) as \"value\",\n  'PRs' as \"metric\"\nfrom\n  gha_pull_requests\nwhere\n  dup_type = 'PullRequestEvent'\n  and $__timeFilter(\"created_at\")\nunion select\n  now() as \"time\",\n  count(distinct id) as \"value\",\n  'Issues' as \"metric\"\nfrom\n  gha_issues\nwhere\n  dup_type = 'IssuesEvent'\n  and $__timeFilter(\"created_at\")\nunion select\n  now() as \"time\",\n  count(distinct event_id) as \"value\",\n  'Reviews' as \"metric\"\nfrom\n  gha_pull_requests\nwhere\n  dup_type = 'PullRequestReviewCommentEvent'\n  and $__timeFilter(\"created_at\")\nunion select\n  now() as \"time\",\n  count(distinct id) as \"value\",\n  'Comments' as \"metric\"\nfrom\n  gha_events\nwhere\n  type in ('IssueCommentEvent', 'CommitCommentEvent')\n  and $__timeFilter(\"created_at\")\nunion select\n  now() as \"time\",\n  count(distinct sha) as \"value\",\n  'Commits' as \"metric\"\nfrom\n  gha_commits\nwhere\n  $__timeFilter(\"dup_created_at\")\n\n  ",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "sall_prs_merged",
+          "timeColumn": "\"time\"",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "",
+      "transparent": true,
+      "type": "snuids-radar-panel"
+    },
+    {
+      "aliasColors": {},
+      "breakPoint": "50%",
+      "cacheTimeout": null,
+      "combine": {
+        "label": "Others",
+        "threshold": "0.02"
+      },
+      "decimals": null,
+      "description": "",
+      "fontSize": "60%",
+      "format": "short",
+      "gridPos": {
+        "h": 10,
+        "w": 5,
+        "x": 13,
+        "y": 8
+      },
+      "id": 17,
+      "interval": "1h",
+      "legend": {
+        "header": "",
+        "percentage": true,
+        "percentageDecimals": 1,
+        "show": true,
+        "sideWidth": 140,
+        "values": true
+      },
+      "legendType": "On graph",
+      "links": [],
+      "maxDataPoints": 3,
+      "nullPointMode": "connected",
+      "options": {},
+      "pieType": "donut",
+      "strokeWidth": "1",
+      "targets": [
+        {
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "select\n  now() as \"time\",\n  count(distinct id) as \"value\",\n  dup_actor_login as \"name\"\nfrom\n  gha_events\nwhere\n  $__timeFilter(\"created_at\")\n  and type in ('IssuesEvent', 'PullRequestEvent', 'PushEvent', 'PullRequestReviewCommentEvent', 'IssueCommentEvent', 'CommitCommentEvent')\n  and lower(dup_actor_login) not like all(array['devstats-sync', 'googlebot', 'coveralls', 'rktbot', 'coreosbot', 'web-flow', 'prometheus-roobot', 'cncf-bot', 'kernelprbot', 'istio-testing', 'spinnakerbot', 'pikbot', 'spinnaker-release', 'docker-jenkins', 'golangcibot', 'opencontrail-ci-admin', 'k8s-%', '%-bot', '%-robot', 'bot-%', 'robot-%', '%[bot]%', '%-jenkins', '%-ci%bot', '%-testing', 'codecov-%', '%clabot%', '%cla-bot%', '%-gerrit', '%-bot-%'])\ngroup by\n  dup_actor_login\norder by\n  value desc\nlimit\n  30",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "sall_prs_merged",
+          "timeColumn": "\"time\"",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Top contributors",
+      "transparent": true,
+      "type": "grafana-piechart-panel",
+      "valueName": "current"
+    },
+    {
+      "aliasColors": {},
+      "breakPoint": "50%",
+      "cacheTimeout": null,
+      "combine": {
+        "label": "Others",
+        "threshold": "0.02"
+      },
+      "decimals": null,
+      "description": "",
+      "fontSize": "70%",
+      "format": "short",
+      "gridPos": {
+        "h": 10,
+        "w": 5,
+        "x": 18,
+        "y": 8
+      },
+      "id": 16,
+      "interval": "1h",
+      "legend": {
+        "header": "",
+        "percentage": true,
+        "percentageDecimals": 1,
+        "show": true,
+        "sideWidth": 140,
+        "values": true
+      },
+      "legendType": "On graph",
+      "links": [],
+      "maxDataPoints": 3,
+      "nullPointMode": "connected",
+      "options": {},
+      "pieType": "donut",
+      "strokeWidth": "1",
+      "targets": [
+        {
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "select\n  now() as \"time\",\n  count(distinct id) as \"value\",\n  dup_repo_name as \"name\"\nfrom\n  gha_events\nwhere\n  $__timeFilter(\"created_at\")\n  and type in ('IssuesEvent', 'PullRequestEvent', 'PushEvent', 'PullRequestReviewCommentEvent', 'IssueCommentEvent', 'CommitCommentEvent')\n  and lower(dup_actor_login) not like all(array['devstats-sync', 'googlebot', 'coveralls', 'rktbot', 'coreosbot', 'web-flow', 'prometheus-roobot', 'cncf-bot', 'kernelprbot', 'istio-testing', 'spinnakerbot', 'pikbot', 'spinnaker-release', 'docker-jenkins', 'golangcibot', 'opencontrail-ci-admin', 'k8s-%', '%-bot', '%-robot', 'bot-%', 'robot-%', '%[bot]%', '%-jenkins', '%-ci%bot', '%-testing', 'codecov-%', '%clabot%', '%cla-bot%', '%-gerrit', '%-bot-%'])\ngroup by\n  dup_repo_name\norder by\n  value desc\nlimit\n  30",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "sall_prs_merged",
+          "timeColumn": "\"time\"",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Top repositories",
+      "transparent": true,
+      "type": "grafana-piechart-panel",
+      "valueName": "current"
+    }
+  ],
+  "refresh": "15m",
+  "schemaVersion": 18,
+  "style": "dark",
+  "tags": [
+    "all",
+    "dashboard"
+  ],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "now-1M",
+    "to": "now"
+  },
+  "timepicker": {
+    "hidden": true,
+    "refresh_intervals": [
+      "5s",
+      "10s",
+      "30s",
+      "1m",
+      "5m",
+      "15m",
+      "30m",
+      "1h",
+      "2h",
+      "1d"
+    ],
+    "time_options": [
+      "5m",
+      "15m",
+      "1h",
+      "6h",
+      "12h",
+      "24h",
+      "2d",
+      "7d",
+      "30d"
+    ]
+  },
+  "timezone": "",
+  "title": "Home",
+  "uid": "62",
+  "version": 4
+}
