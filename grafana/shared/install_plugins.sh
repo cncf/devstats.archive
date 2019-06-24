@@ -12,4 +12,10 @@ grafana-cli plugins install snuids-radar-panel || exit 10
 grafana-cli plugins install scadavis-synoptic-panel || exit 11
 grafana-cli plugins install blackmirror1-statusbygroup-panel || exit 12
 grafana-cli plugins install btplc-trend-box-panel || exit 13
+grafana-cli plugins install grafana-clock-panel || exit 14
+grafana-cli plugins install farski-blendstat-panel || exit 15
+grafana-cli plugins install yesoreyeram-boomtable-panel || exit 16
+grafana-cli plugins install digrich-bubblechart-panel || exit 17
+grafana-cli plugins install neocat-cal-heatmap-panel || exit 18
+grafana-cli plugins install petrslavotinek-carpetplot-panel || exit 19
 echo 'Plugins installed'
