@@ -1015,12 +1015,77 @@
       "valueName": "current"
     },
     {
+      "bgColor": "rgb(0, 0, 0)",
+      "description": "Contributions graph",
+      "gridPos": {
+        "h": 7,
+        "w": 6,
+        "x": 0,
+        "y": 7
+      },
+      "id": 19,
+      "interval": "1h",
+      "links": [],
+      "options": {},
+      "radarSettings": {
+        "animationDurationMs": "1",
+        "aspectRatio": 2,
+        "autoScale": true,
+        "drawTicksBackground": false,
+        "fontColor": "#C0D8FF",
+        "fontSize": 14,
+        "gridColor": "gray",
+        "ignoreTimeInfluxDB": false,
+        "legendType": "top",
+        "limitAspectRatio": true,
+        "scaleMax": "10",
+        "scaleMin": "1",
+        "scaleStep": "5",
+        "seriesAlias": "A;Contributions"
+      },
+      "targets": [
+        {
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "select\n  now() as \"time\",\n  count(distinct id) as \"value\",\n  'PRs' as \"metric\"\nfrom\n  gha_pull_requests\nwhere\n  dup_type = 'PullRequestEvent'\n  and $__timeFilter(\"created_at\")\nunion select\n  now() as \"time\",\n  count(distinct id) as \"value\",\n  'Issues' as \"metric\"\nfrom\n  gha_issues\nwhere\n  dup_type = 'IssuesEvent'\n  and $__timeFilter(\"created_at\")\nunion select\n  now() as \"time\",\n  count(distinct event_id) as \"value\",\n  'Reviews' as \"metric\"\nfrom\n  gha_pull_requests\nwhere\n  dup_type = 'PullRequestReviewCommentEvent'\n  and $__timeFilter(\"created_at\")\nunion select\n  now() as \"time\",\n  count(distinct id) as \"value\",\n  'Comments' as \"metric\"\nfrom\n  gha_events\nwhere\n  type in ('IssueCommentEvent', 'CommitCommentEvent')\n  and $__timeFilter(\"created_at\")\nunion select\n  now() as \"time\",\n  count(distinct sha) as \"value\",\n  'Commits' as \"metric\"\nfrom\n  gha_commits\nwhere\n  $__timeFilter(\"dup_created_at\")\n\n  ",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "sall_prs_merged",
+          "timeColumn": "\"time\"",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "",
+      "transparent": true,
+      "type": "snuids-radar-panel"
+    },
+    {
       "aliasColors": {},
       "breakPoint": "50%",
       "cacheTimeout": null,
       "combine": {
         "label": "Others",
-        "threshold": "0.01"
+        "threshold": "0.02"
       },
       "decimals": null,
       "description": "",
@@ -1202,5 +1267,5 @@
   "timezone": "",
   "title": "Home",
   "uid": "62",
-  "version": 13
+  "version": 4
 }
