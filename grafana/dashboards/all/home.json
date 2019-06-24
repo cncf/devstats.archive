@@ -16,7 +16,7 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 2,
-  "id": 19,
+  "id": 14,
   "links": [],
   "panels": [
     {
@@ -85,7 +85,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "select\n  created_at as \"time\",\n  0 as value\nfrom gha_events\nWHERE\n  $__timeFilter(\"created_at\")",
+          "rawSql": "select\n  created_at as \"time\",\n  0 as value\nfrom\n  gha_events\nwhere\n  $__timeFilter(\"created_at\")\n  and lower(dup_actor_login) not like all(array['devstats-sync', 'googlebot', 'coveralls', 'rktbot', 'coreosbot', 'web-flow', 'prometheus-roobot', 'cncf-bot', 'kernelprbot', 'istio-testing', 'spinnakerbot', 'pikbot', 'spinnaker-release', 'docker-jenkins', 'golangcibot', 'opencontrail-ci-admin', 'k8s-%', '%-bot', '%-robot', 'bot-%', 'robot-%', '%[bot]%', '%-jenkins', '%-ci%bot', '%-testing', 'codecov-%', '%clabot%', '%cla-bot%', '%-gerrit', '%-bot-%'])",
           "refId": "A",
           "select": [
             [
@@ -194,7 +194,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "select\n  sub.time as \"time\",\n  ((sub.current - sub.previous) * 100.0) / (case sub.previous when 0 then 1 else sub.previous end) as \"value\"\nfrom (\n  select\n    max(dup_created_at) as \"time\",\n    count(distinct sha) filter (where dup_created_at \u003e= now() - '2 months'::interval and dup_created_at \u003c now() - '1 month'::interval) as \"previous\",\n    count(distinct sha) filter (where $__timeFilter(\"dup_created_at\")) as \"current\"\n  from\n    gha_commits\n) sub",
+          "rawSql": "select\n  sub.time as \"time\",\n  ((sub.current - sub.previous) * 100.0) / (case sub.previous when 0 then 1 else sub.previous end) as \"value\"\nfrom (\n  select\n    max(dup_created_at) as \"time\",\n    count(distinct sha) filter (where dup_created_at \u003e= now() - '2 months'::interval and dup_created_at \u003c now() - '1 month'::interval) as \"previous\",\n    count(distinct sha) filter (where $__timeFilter(\"dup_created_at\")) as \"current\"\n  from\n    gha_commits\n  where\n    lower(dup_author_login) not like all(array['devstats-sync', 'googlebot', 'coveralls', 'rktbot', 'coreosbot', 'web-flow', 'prometheus-roobot', 'cncf-bot', 'kernelprbot', 'istio-testing', 'spinnakerbot', 'pikbot', 'spinnaker-release', 'docker-jenkins', 'golangcibot', 'opencontrail-ci-admin', 'k8s-%', '%-bot', '%-robot', 'bot-%', 'robot-%', '%[bot]%', '%-jenkins', '%-ci%bot', '%-testing', 'codecov-%', '%clabot%', '%cla-bot%', '%-gerrit', '%-bot-%'])\n) sub",
           "refId": "A",
           "select": [
             [
@@ -1015,7 +1015,7 @@
       "valueName": "current"
     },
     {
-      "bgColor": "rgb(0, 0, 0)",
+      "bgColor": "rgba(0, 0, 0, 0)",
       "description": "Contributions graph",
       "gridPos": {
         "h": 7,
@@ -1041,15 +1041,16 @@
         "scaleMax": "10",
         "scaleMin": "1",
         "scaleStep": "5",
-        "seriesAlias": "A;Contributions"
+        "seriesAlias": "A=Contributions;"
       },
       "targets": [
         {
           "format": "time_series",
           "group": [],
+          "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "select\n  now() as \"time\",\n  count(distinct id) as \"value\",\n  'PRs' as \"metric\"\nfrom\n  gha_pull_requests\nwhere\n  dup_type = 'PullRequestEvent'\n  and $__timeFilter(\"created_at\")\nunion select\n  now() as \"time\",\n  count(distinct id) as \"value\",\n  'Issues' as \"metric\"\nfrom\n  gha_issues\nwhere\n  dup_type = 'IssuesEvent'\n  and $__timeFilter(\"created_at\")\nunion select\n  now() as \"time\",\n  count(distinct event_id) as \"value\",\n  'Reviews' as \"metric\"\nfrom\n  gha_pull_requests\nwhere\n  dup_type = 'PullRequestReviewCommentEvent'\n  and $__timeFilter(\"created_at\")\nunion select\n  now() as \"time\",\n  count(distinct id) as \"value\",\n  'Comments' as \"metric\"\nfrom\n  gha_events\nwhere\n  type in ('IssueCommentEvent', 'CommitCommentEvent')\n  and $__timeFilter(\"created_at\")\nunion select\n  now() as \"time\",\n  count(distinct sha) as \"value\",\n  'Commits' as \"metric\"\nfrom\n  gha_commits\nwhere\n  $__timeFilter(\"dup_created_at\")\n\n  ",
+          "rawSql": "select\n  now() as \"time\",\n  count(distinct id) as \"value\",\n  'PRs' as \"metric\"\nfrom\n  gha_pull_requests\nwhere\n  dup_type = 'PullRequestEvent'\n  and $__timeFilter(\"created_at\")\n  and lower(dup_user_login) not like all(array['devstats-sync', 'googlebot', 'coveralls', 'rktbot', 'coreosbot', 'web-flow', 'prometheus-roobot', 'cncf-bot', 'kernelprbot', 'istio-testing', 'spinnakerbot', 'pikbot', 'spinnaker-release', 'docker-jenkins', 'golangcibot', 'opencontrail-ci-admin', 'k8s-%', '%-bot', '%-robot', 'bot-%', 'robot-%', '%[bot]%', '%-jenkins', '%-ci%bot', '%-testing', 'codecov-%', '%clabot%', '%cla-bot%', '%-gerrit', '%-bot-%'])\nunion select\n  now() as \"time\",\n  count(distinct id) as \"value\",\n  'Issues' as \"metric\"\nfrom\n  gha_issues\nwhere\n  dup_type = 'IssuesEvent'\n  and $__timeFilter(\"created_at\")\n  and lower(dup_user_login) not like all(array['devstats-sync', 'googlebot', 'coveralls', 'rktbot', 'coreosbot', 'web-flow', 'prometheus-roobot', 'cncf-bot', 'kernelprbot', 'istio-testing', 'spinnakerbot', 'pikbot', 'spinnaker-release', 'docker-jenkins', 'golangcibot', 'opencontrail-ci-admin', 'k8s-%', '%-bot', '%-robot', 'bot-%', 'robot-%', '%[bot]%', '%-jenkins', '%-ci%bot', '%-testing', 'codecov-%', '%clabot%', '%cla-bot%', '%-gerrit', '%-bot-%'])\nunion select\n  now() as \"time\",\n  count(distinct event_id) as \"value\",\n  'Reviews' as \"metric\"\nfrom\n  gha_pull_requests\nwhere\n  dup_type = 'PullRequestReviewCommentEvent'\n  and $__timeFilter(\"created_at\")\n  and lower(dup_actor_login) not like all(array['devstats-sync', 'googlebot', 'coveralls', 'rktbot', 'coreosbot', 'web-flow', 'prometheus-roobot', 'cncf-bot', 'kernelprbot', 'istio-testing', 'spinnakerbot', 'pikbot', 'spinnaker-release', 'docker-jenkins', 'golangcibot', 'opencontrail-ci-admin', 'k8s-%', '%-bot', '%-robot', 'bot-%', 'robot-%', '%[bot]%', '%-jenkins', '%-ci%bot', '%-testing', 'codecov-%', '%clabot%', '%cla-bot%', '%-gerrit', '%-bot-%'])\nunion select\n  now() as \"time\",\n  count(distinct id) as \"value\",\n  'Comments' as \"metric\"\nfrom\n  gha_events\nwhere\n  type in ('IssueCommentEvent', 'CommitCommentEvent')\n  and $__timeFilter(\"created_at\")\n  and lower(dup_actor_login) not like all(array['devstats-sync', 'googlebot', 'coveralls', 'rktbot', 'coreosbot', 'web-flow', 'prometheus-roobot', 'cncf-bot', 'kernelprbot', 'istio-testing', 'spinnakerbot', 'pikbot', 'spinnaker-release', 'docker-jenkins', 'golangcibot', 'opencontrail-ci-admin', 'k8s-%', '%-bot', '%-robot', 'bot-%', 'robot-%', '%[bot]%', '%-jenkins', '%-ci%bot', '%-testing', 'codecov-%', '%clabot%', '%cla-bot%', '%-gerrit', '%-bot-%'])\nunion select\n  now() as \"time\",\n  count(distinct sha) as \"value\",\n  'Commits' as \"metric\"\nfrom\n  gha_commits\nwhere\n  $__timeFilter(\"dup_created_at\")\n  and lower(dup_author_login) not like all(array['devstats-sync', 'googlebot', 'coveralls', 'rktbot', 'coreosbot', 'web-flow', 'prometheus-roobot', 'cncf-bot', 'kernelprbot', 'istio-testing', 'spinnakerbot', 'pikbot', 'spinnaker-release', 'docker-jenkins', 'golangcibot', 'opencontrail-ci-admin', 'k8s-%', '%-bot', '%-robot', 'bot-%', 'robot-%', '%[bot]%', '%-jenkins', '%-ci%bot', '%-testing', 'codecov-%', '%clabot%', '%cla-bot%', '%-gerrit', '%-bot-%'])",
           "refId": "A",
           "select": [
             [
@@ -1093,8 +1094,8 @@
       "format": "short",
       "gridPos": {
         "h": 10,
-        "w": 5,
-        "x": 13,
+        "w": 6,
+        "x": 11,
         "y": 8
       },
       "id": 17,
@@ -1165,8 +1166,8 @@
       "format": "short",
       "gridPos": {
         "h": 10,
-        "w": 5,
-        "x": 18,
+        "w": 6,
+        "x": 17,
         "y": 8
       },
       "id": 16,
@@ -1267,5 +1268,5 @@
   "timezone": "",
   "title": "Home",
   "uid": "62",
-  "version": 4
+  "version": 2
 }
