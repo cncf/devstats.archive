@@ -17,7 +17,7 @@
   "gnetId": null,
   "graphTooltip": 2,
   "id": 14,
-  "iteration": 1561460531239,
+  "iteration": 1561467704805,
   "links": [],
   "panels": [
     {
@@ -1073,7 +1073,7 @@
         "animationDuration": 0,
         "cellPadding": "0",
         "cellRadius": "0",
-        "cellSize": "16",
+        "cellSize": "15",
         "colLimit": "24",
         "displayLegend": true,
         "domain": "day",
@@ -1112,7 +1112,7 @@
       },
       "description": "Commits per day of month and hour.",
       "gridPos": {
-        "h": 20,
+        "h": 16,
         "w": 5,
         "x": 0,
         "y": 8
@@ -1135,7 +1135,7 @@
           ],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "select\n  $__timeGroupAlias(dup_created_at,1h),\n  count(distinct sha) as \"commits\"\nfrom\n  gha_commits c,\n  gha_repos r\nwhere\n  c.dup_repo_id = r.id\n  and c.dup_repo_name = r.name\n  and r.repo_group in ([[repogroup]])\n  and $__timeFilter(c.dup_created_at)\n  and (c.dup_author_login in ([[contributors]]) or '[[contributors:csv]]' = 'null')\n  and lower(c.dup_author_login) not like all(array['devstats-sync', 'googlebot', 'coveralls', 'rktbot', 'coreosbot', 'web-flow', 'prometheus-roobot', 'cncf-bot', 'kernelprbot', 'istio-testing', 'spinnakerbot', 'pikbot', 'spinnaker-release', 'docker-jenkins', 'golangcibot', 'opencontrail-ci-admin', 'k8s-%', '%-bot', '%-robot', 'bot-%', 'robot-%', '%[bot]%', '%-jenkins', '%-ci%bot', '%-testing', 'codecov-%', '%clabot%', '%cla-bot%', '%-gerrit', '%-bot-%'])\ngroup by\n  1\norder by\n  1",
+          "rawSql": "select\n  $__timeGroupAlias(c.dup_created_at,1h),\n  count(distinct c.sha) as \"commits\"\nfrom\n  gha_commits c,\n  gha_repos r\nwhere\n  c.dup_repo_id = r.id\n  and c.dup_repo_name = r.name\n  and r.repo_group in ([[repogroup]])\n  and $__timeFilter(c.dup_created_at)\n  and (c.dup_author_login in ([[contributors]]) or '[[contributors:csv]]' = 'null')\n  and lower(c.dup_author_login) not like all(array['devstats-sync', 'googlebot', 'coveralls', 'rktbot', 'coreosbot', 'web-flow', 'prometheus-roobot', 'cncf-bot', 'kernelprbot', 'istio-testing', 'spinnakerbot', 'pikbot', 'spinnaker-release', 'docker-jenkins', 'golangcibot', 'opencontrail-ci-admin', 'k8s-%', '%-bot', '%-robot', 'bot-%', 'robot-%', '%[bot]%', '%-jenkins', '%-ci%bot', '%-testing', 'codecov-%', '%clabot%', '%cla-bot%', '%-gerrit', '%-bot-%'])\ngroup by\n  1",
           "refId": "A",
           "select": [
             [
@@ -1602,6 +1602,115 @@
       "title": "",
       "transparent": true,
       "type": "snuids-radar-panel"
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "description": "Contributions over time",
+      "fill": 0,
+      "gridPos": {
+        "h": 4,
+        "w": 5,
+        "x": 0,
+        "y": 24
+      },
+      "id": 28,
+      "interval": "1h",
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": false,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "links": [],
+      "nullPointMode": "null",
+      "options": {},
+      "percentage": false,
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "select\n  $__timeGroupAlias(e.created_at,1h),\n  count(distinct e.id) as \"contributions\"\nfrom\n  gha_events e,\n  gha_repos r\nwhere\n  e.repo_id = r.id\n  and e.dup_repo_name = r.name\n  and r.repo_group in ([[repogroup]])\n  and $__timeFilter(e.created_at)\n  and e.type in ('IssuesEvent', 'PullRequestEvent', 'PushEvent', 'PullRequestReviewCommentEvent', 'IssueCommentEvent', 'CommitCommentEvent')\n  and (e.dup_actor_login in ([[contributors]]) or '[[contributors:csv]]' = 'null')\n  and lower(e.dup_actor_login) not like all(array['devstats-sync', 'googlebot', 'coveralls', 'rktbot', 'coreosbot', 'web-flow', 'prometheus-roobot', 'cncf-bot', 'kernelprbot', 'istio-testing', 'spinnakerbot', 'pikbot', 'spinnaker-release', 'docker-jenkins', 'golangcibot', 'opencontrail-ci-admin', 'k8s-%', '%-bot', '%-robot', 'bot-%', 'robot-%', '%[bot]%', '%-jenkins', '%-ci%bot', '%-testing', 'codecov-%', '%clabot%', '%cla-bot%', '%-gerrit', '%-bot-%'])\ngroup by\n  1",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "shpr_comps",
+          "timeColumn": "\"time\"",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "transparent": true,
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": false,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": false
+        },
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": false
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
     }
   ],
   "refresh": "15m",
@@ -1704,5 +1813,5 @@
   "timezone": "",
   "title": "Home",
   "uid": "62",
-  "version": 27
+  "version": 4
 }
