@@ -17,7 +17,7 @@
   "gnetId": null,
   "graphTooltip": 2,
   "id": 14,
-  "iteration": 1561452537944,
+  "iteration": 1561452537974,
   "links": [],
   "panels": [
     {
@@ -226,13 +226,7 @@
       "transparent": true,
       "type": "singlestat",
       "valueFontSize": "50%",
-      "valueMaps": [
-        {
-          "op": "=",
-          "text": "No data",
-          "value": "null"
-        }
-      ],
+      "valueMaps": [],
       "valueName": "current"
     },
     {
@@ -582,13 +576,7 @@
       "transparent": true,
       "type": "singlestat",
       "valueFontSize": "50%",
-      "valueMaps": [
-        {
-          "op": "=",
-          "text": "N/A",
-          "value": "null"
-        }
-      ],
+      "valueMaps": [],
       "valueName": "current"
     },
     {
@@ -691,13 +679,7 @@
       "transparent": true,
       "type": "singlestat",
       "valueFontSize": "50%",
-      "valueMaps": [
-        {
-          "op": "=",
-          "text": "No data",
-          "value": "null"
-        }
-      ],
+      "valueMaps": [],
       "valueName": "current"
     },
     {
@@ -1013,7 +995,7 @@
       "bgColor": "rgba(0, 0, 0, 0)",
       "description": "Contributions graph",
       "gridPos": {
-        "h": 7,
+        "h": 11,
         "w": 6,
         "x": 0,
         "y": 7
@@ -1084,7 +1066,79 @@
         "threshold": "0.01"
       },
       "decimals": null,
-      "description": "Top 50 contributors, all contributors having less than 1.5% merged into 'Others'.",
+      "description": "Top 50 repositories by the number of contributions, all having less than 1% merged into 'Others'.",
+      "fontSize": "60%",
+      "format": "short",
+      "gridPos": {
+        "h": 10,
+        "w": 5,
+        "x": 6,
+        "y": 8
+      },
+      "id": 16,
+      "interval": "1h",
+      "legend": {
+        "header": "",
+        "percentage": true,
+        "percentageDecimals": 1,
+        "show": true,
+        "sideWidth": 140,
+        "values": true
+      },
+      "legendType": "On graph",
+      "links": [],
+      "maxDataPoints": 3,
+      "nullPointMode": "connected",
+      "options": {},
+      "pieType": "donut",
+      "strokeWidth": "1",
+      "targets": [
+        {
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "select\n  now() as \"time\",\n  count(distinct e.id) as \"value\",\n  e.dup_repo_name as \"name\"\nfrom\n  gha_events e,\n  gha_repos r\nwhere\n  e.repo_id = r.id\n  and e.dup_repo_name = r.name\n  and r.repo_group in ([[repogroup]])\n  and $__timeFilter(e.created_at)\n  and e.type in ('IssuesEvent', 'PullRequestEvent', 'PushEvent', 'PullRequestReviewCommentEvent', 'IssueCommentEvent', 'CommitCommentEvent')\n  and (e.dup_actor_login in ([[contributors]]) or '[[contributors:csv]]' = 'null')\n  and lower(e.dup_actor_login) not like all(array['devstats-sync', 'googlebot', 'coveralls', 'rktbot', 'coreosbot', 'web-flow', 'prometheus-roobot', 'cncf-bot', 'kernelprbot', 'istio-testing', 'spinnakerbot', 'pikbot', 'spinnaker-release', 'docker-jenkins', 'golangcibot', 'opencontrail-ci-admin', 'k8s-%', '%-bot', '%-robot', 'bot-%', 'robot-%', '%[bot]%', '%-jenkins', '%-ci%bot', '%-testing', 'codecov-%', '%clabot%', '%cla-bot%', '%-gerrit', '%-bot-%'])\ngroup by\n  e.dup_repo_name\norder by\n  value desc\nlimit\n  50",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "sall_prs_merged",
+          "timeColumn": "\"time\"",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Top 50 repositories",
+      "transparent": true,
+      "type": "grafana-piechart-panel",
+      "valueName": "current"
+    },
+    {
+      "aliasColors": {},
+      "breakPoint": "50%",
+      "cacheTimeout": null,
+      "combine": {
+        "label": "Others",
+        "threshold": "0.01"
+      },
+      "decimals": null,
+      "description": "Top 50 contributing companies, all companies having less than 1% merged into 'Others'.",
       "fontSize": "60%",
       "format": "short",
       "gridPos": {
@@ -1094,6 +1148,78 @@
         "y": 8
       },
       "id": 17,
+      "interval": "1h",
+      "legend": {
+        "header": "",
+        "percentage": true,
+        "percentageDecimals": 1,
+        "show": true,
+        "sideWidth": 140,
+        "values": true
+      },
+      "legendType": "On graph",
+      "links": [],
+      "maxDataPoints": 3,
+      "nullPointMode": "connected",
+      "options": {},
+      "pieType": "donut",
+      "strokeWidth": "1",
+      "targets": [
+        {
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "select\n  now() as \"time\",\n  count(distinct e.id) as \"value\",\n  coalesce(affs.company_name, 'Unknown') as \"name\"\nfrom\n  gha_repos r,\n  gha_events e\nleft join\n  gha_actors_affiliations affs\non\n  e.actor_id = affs.actor_id\n  and affs.dt_from \u003c= e.created_at\n  and affs.dt_to \u003e e.created_at\nwhere\n  e.repo_id = r.id\n  and e.dup_repo_name = r.name\n  and r.repo_group in ([[repogroup]])\n  and $__timeFilter(e.created_at)\n  and e.type in ('IssuesEvent', 'PullRequestEvent', 'PushEvent', 'PullRequestReviewCommentEvent', 'IssueCommentEvent', 'CommitCommentEvent')\n  and affs.company_name is not null\n  and (e.dup_actor_login in ([[contributors]]) or '[[contributors:csv]]' = 'null')\n  and lower(e.dup_actor_login) not like all(array['devstats-sync', 'googlebot', 'coveralls', 'rktbot', 'coreosbot', 'web-flow', 'prometheus-roobot', 'cncf-bot', 'kernelprbot', 'istio-testing', 'spinnakerbot', 'pikbot', 'spinnaker-release', 'docker-jenkins', 'golangcibot', 'opencontrail-ci-admin', 'k8s-%', '%-bot', '%-robot', 'bot-%', 'robot-%', '%[bot]%', '%-jenkins', '%-ci%bot', '%-testing', 'codecov-%', '%clabot%', '%cla-bot%', '%-gerrit', '%-bot-%'])\ngroup by\n  affs.company_name\norder by\n  value desc\nlimit\n  50",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "sall_prs_merged",
+          "timeColumn": "\"time\"",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Top 50 contributing companies",
+      "transparent": true,
+      "type": "grafana-piechart-panel",
+      "valueName": "current"
+    },
+    {
+      "aliasColors": {},
+      "breakPoint": "50%",
+      "cacheTimeout": null,
+      "combine": {
+        "label": "Others",
+        "threshold": "0.01"
+      },
+      "decimals": null,
+      "description": "Top 50 contributors, all contributors having less than 1% merged into 'Others'.",
+      "fontSize": "60%",
+      "format": "short",
+      "gridPos": {
+        "h": 10,
+        "w": 6,
+        "x": 17,
+        "y": 8
+      },
+      "id": 20,
       "interval": "1h",
       "legend": {
         "header": "",
@@ -1156,16 +1282,16 @@
         "threshold": "0.01"
       },
       "decimals": null,
-      "description": "Top 50 repositories by the number of contributions, all having less than 1% merged into 'Others'.",
+      "description": "Top 50 committing companies, all companies having less than 1% merged into 'Others'.",
       "fontSize": "60%",
       "format": "short",
       "gridPos": {
         "h": 10,
         "w": 6,
-        "x": 17,
-        "y": 8
+        "x": 11,
+        "y": 18
       },
-      "id": 16,
+      "id": 21,
       "interval": "1h",
       "legend": {
         "header": "",
@@ -1188,7 +1314,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "select\n  now() as \"time\",\n  count(distinct e.id) as \"value\",\n  e.dup_repo_name as \"name\"\nfrom\n  gha_events e,\n  gha_repos r\nwhere\n  e.repo_id = r.id\n  and e.dup_repo_name = r.name\n  and r.repo_group in ([[repogroup]])\n  and $__timeFilter(e.created_at)\n  and e.type in ('IssuesEvent', 'PullRequestEvent', 'PushEvent', 'PullRequestReviewCommentEvent', 'IssueCommentEvent', 'CommitCommentEvent')\n  and (e.dup_actor_login in ([[contributors]]) or '[[contributors:csv]]' = 'null')\n  and lower(e.dup_actor_login) not like all(array['devstats-sync', 'googlebot', 'coveralls', 'rktbot', 'coreosbot', 'web-flow', 'prometheus-roobot', 'cncf-bot', 'kernelprbot', 'istio-testing', 'spinnakerbot', 'pikbot', 'spinnaker-release', 'docker-jenkins', 'golangcibot', 'opencontrail-ci-admin', 'k8s-%', '%-bot', '%-robot', 'bot-%', 'robot-%', '%[bot]%', '%-jenkins', '%-ci%bot', '%-testing', 'codecov-%', '%clabot%', '%cla-bot%', '%-gerrit', '%-bot-%'])\ngroup by\n  e.dup_repo_name\norder by\n  value desc\nlimit\n  50",
+          "rawSql": "select\n  now() as \"time\",\n  count(distinct c.sha) as \"value\",\n  coalesce(affs.company_name, 'Unknown') as \"name\"\nfrom\n  gha_repos r,\n  gha_commits c\nleft join\n  gha_actors_affiliations affs\non\n  c.author_id = affs.actor_id\n  and affs.dt_from \u003c= c.dup_created_at\n  and affs.dt_to \u003e c.dup_created_at\nwhere\n  c.dup_repo_id = r.id\n  and c.dup_repo_name = r.name\n  and r.repo_group in ([[repogroup]])\n  and $__timeFilter(c.dup_created_at)\n  and affs.company_name is not null\n  and (c.dup_author_login in ([[contributors]]) or '[[contributors:csv]]' = 'null')\n  and lower(c.dup_author_login) not like all(array['devstats-sync', 'googlebot', 'coveralls', 'rktbot', 'coreosbot', 'web-flow', 'prometheus-roobot', 'cncf-bot', 'kernelprbot', 'istio-testing', 'spinnakerbot', 'pikbot', 'spinnaker-release', 'docker-jenkins', 'golangcibot', 'opencontrail-ci-admin', 'k8s-%', '%-bot', '%-robot', 'bot-%', 'robot-%', '%[bot]%', '%-jenkins', '%-ci%bot', '%-testing', 'codecov-%', '%clabot%', '%cla-bot%', '%-gerrit', '%-bot-%'])\ngroup by\n  affs.company_name\norder by\n  value desc\nlimit\n  50",
           "refId": "A",
           "select": [
             [
@@ -1214,7 +1340,79 @@
       ],
       "timeFrom": null,
       "timeShift": null,
-      "title": "Top 50 repositories",
+      "title": "Top 50 committing companies",
+      "transparent": true,
+      "type": "grafana-piechart-panel",
+      "valueName": "current"
+    },
+    {
+      "aliasColors": {},
+      "breakPoint": "50%",
+      "cacheTimeout": null,
+      "combine": {
+        "label": "Others",
+        "threshold": "0.01"
+      },
+      "decimals": null,
+      "description": "Top 50 committers, all contributors having less than 1% merged into 'Others'.",
+      "fontSize": "60%",
+      "format": "short",
+      "gridPos": {
+        "h": 10,
+        "w": 6,
+        "x": 17,
+        "y": 18
+      },
+      "id": 22,
+      "interval": "1h",
+      "legend": {
+        "header": "",
+        "percentage": true,
+        "percentageDecimals": 1,
+        "show": true,
+        "sideWidth": 140,
+        "values": true
+      },
+      "legendType": "On graph",
+      "links": [],
+      "maxDataPoints": 3,
+      "nullPointMode": "connected",
+      "options": {},
+      "pieType": "donut",
+      "strokeWidth": "1",
+      "targets": [
+        {
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "select\n  now() as \"time\",\n  count(distinct c.sha) as \"value\",\n  c.dup_author_login as \"name\"\nfrom\n  gha_commits c,\n  gha_repos r\nwhere\n  c.dup_repo_id = r.id\n  and c.dup_repo_name = r.name\n  and r.repo_group in ([[repogroup]])\n  and $__timeFilter(c.dup_created_at)\n  and c.dup_author_login != ''\n  and (c.dup_author_login in ([[contributors]]) or '[[contributors:csv]]' = 'null')\n  and lower(c.dup_author_login) not like all(array['devstats-sync', 'googlebot', 'coveralls', 'rktbot', 'coreosbot', 'web-flow', 'prometheus-roobot', 'cncf-bot', 'kernelprbot', 'istio-testing', 'spinnakerbot', 'pikbot', 'spinnaker-release', 'docker-jenkins', 'golangcibot', 'opencontrail-ci-admin', 'k8s-%', '%-bot', '%-robot', 'bot-%', 'robot-%', '%[bot]%', '%-jenkins', '%-ci%bot', '%-testing', 'codecov-%', '%clabot%', '%cla-bot%', '%-gerrit', '%-bot-%'])\ngroup by\n  c.dup_author_login\norder by\n  value desc\nlimit\n  50",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "sall_prs_merged",
+          "timeColumn": "\"time\"",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Top 50 committers",
       "transparent": true,
       "type": "grafana-piechart-panel",
       "valueName": "current"
@@ -1320,5 +1518,5 @@
   "timezone": "",
   "title": "Home",
   "uid": "62",
-  "version": 19
+  "version": 23
 }
