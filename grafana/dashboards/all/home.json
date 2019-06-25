@@ -17,6 +17,7 @@
   "gnetId": null,
   "graphTooltip": 2,
   "id": 14,
+  "iteration": 1561447644455,
   "links": [],
   "panels": [
     {
@@ -64,7 +65,7 @@
       "postfix": "",
       "postfixFontSize": "50%",
       "prefix": "Last event:",
-      "prefixFontSize": "50%",
+      "prefixFontSize": "30%",
       "rangeMaps": [
         {
           "from": "null",
@@ -85,7 +86,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "select\n  created_at as \"time\",\n  0 as value\nfrom\n  gha_events\nwhere\n  $__timeFilter(\"created_at\")\n  and lower(dup_actor_login) not like all(array['devstats-sync', 'googlebot', 'coveralls', 'rktbot', 'coreosbot', 'web-flow', 'prometheus-roobot', 'cncf-bot', 'kernelprbot', 'istio-testing', 'spinnakerbot', 'pikbot', 'spinnaker-release', 'docker-jenkins', 'golangcibot', 'opencontrail-ci-admin', 'k8s-%', '%-bot', '%-robot', 'bot-%', 'robot-%', '%[bot]%', '%-jenkins', '%-ci%bot', '%-testing', 'codecov-%', '%clabot%', '%cla-bot%', '%-gerrit', '%-bot-%'])",
+          "rawSql": "select\n  e.created_at as \"time\",\n  0 as value\nfrom\n  gha_events e,\n  gha_repos r\nwhere\n  e.repo_id = r.id\n  and e.dup_repo_name = r.name\n  and r.repo_group in ([[repogroup]])\n  and $__timeFilter(e.created_at)\n  and lower(e.dup_actor_login) not like all(array['devstats-sync', 'googlebot', 'coveralls', 'rktbot', 'coreosbot', 'web-flow', 'prometheus-roobot', 'cncf-bot', 'kernelprbot', 'istio-testing', 'spinnakerbot', 'pikbot', 'spinnaker-release', 'docker-jenkins', 'golangcibot', 'opencontrail-ci-admin', 'k8s-%', '%-bot', '%-robot', 'bot-%', 'robot-%', '%[bot]%', '%-jenkins', '%-ci%bot', '%-testing', 'codecov-%', '%clabot%', '%cla-bot%', '%-gerrit', '%-bot-%'])",
           "refId": "A",
           "select": [
             [
@@ -171,9 +172,9 @@
       "nullText": null,
       "options": {},
       "postfix": "%",
-      "postfixFontSize": "50%",
+      "postfixFontSize": "30%",
       "prefix": "Commits change",
-      "prefixFontSize": "50%",
+      "prefixFontSize": "30%",
       "rangeMaps": [
         {
           "from": "null",
@@ -194,7 +195,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "select\n  sub.time as \"time\",\n  ((sub.current - sub.previous) * 100.0) / (case sub.previous when 0 then 1 else sub.previous end) as \"value\"\nfrom (\n  select\n    max(dup_created_at) as \"time\",\n    count(distinct sha) filter (where dup_created_at \u003e= now() - '2 months'::interval and dup_created_at \u003c now() - '1 month'::interval) as \"previous\",\n    count(distinct sha) filter (where $__timeFilter(\"dup_created_at\")) as \"current\"\n  from\n    gha_commits\n  where\n    lower(dup_author_login) not like all(array['devstats-sync', 'googlebot', 'coveralls', 'rktbot', 'coreosbot', 'web-flow', 'prometheus-roobot', 'cncf-bot', 'kernelprbot', 'istio-testing', 'spinnakerbot', 'pikbot', 'spinnaker-release', 'docker-jenkins', 'golangcibot', 'opencontrail-ci-admin', 'k8s-%', '%-bot', '%-robot', 'bot-%', 'robot-%', '%[bot]%', '%-jenkins', '%-ci%bot', '%-testing', 'codecov-%', '%clabot%', '%cla-bot%', '%-gerrit', '%-bot-%'])\n) sub",
+          "rawSql": "select\n  sub.time as \"time\",\n  ((sub.current - sub.previous) * 100.0) / (case sub.previous when 0 then 1 else sub.previous end) as \"value\"\nfrom (\n  select\n    max(c.dup_created_at) as \"time\",\n    count(distinct c.sha) filter (where c.dup_created_at \u003e= now() - '2 months'::interval and c.dup_created_at \u003c now() - '1 month'::interval) as \"previous\",\n    count(distinct c.sha) filter (where $__timeFilter(c.dup_created_at)) as \"current\"\n  from\n    gha_commits c,\n    gha_repos r\n  where\n    c.dup_repo_id = r.id\n    and c.dup_repo_name = r.name\n    and r.repo_group in ([[repogroup]])\n    and lower(c.dup_author_login) not like all(array['devstats-sync', 'googlebot', 'coveralls', 'rktbot', 'coreosbot', 'web-flow', 'prometheus-roobot', 'cncf-bot', 'kernelprbot', 'istio-testing', 'spinnakerbot', 'pikbot', 'spinnaker-release', 'docker-jenkins', 'golangcibot', 'opencontrail-ci-admin', 'k8s-%', '%-bot', '%-robot', 'bot-%', 'robot-%', '%[bot]%', '%-jenkins', '%-ci%bot', '%-testing', 'codecov-%', '%clabot%', '%cla-bot%', '%-gerrit', '%-bot-%'])\n) sub",
           "refId": "A",
           "select": [
             [
@@ -280,7 +281,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "select\n  now() as \"time\",\n  count(e.id) as \"value\",\n  coalesce(a.country_id, '') as \"name\"\nfrom\n  gha_actors a,\n  gha_events e\nwhere\n  e.dup_actor_login = a.login\n  and e.type in ('IssuesEvent', 'PullRequestEvent', 'PushEvent', 'PullRequestReviewCommentEvent', 'IssueCommentEvent', 'CommitCommentEvent')\n  and $__timeFilter(e.created_at)\n  and lower(a.login) not like all(array['devstats-sync', 'googlebot', 'coveralls', 'rktbot', 'coreosbot', 'web-flow', 'prometheus-roobot', 'cncf-bot', 'kernelprbot', 'istio-testing', 'spinnakerbot', 'pikbot', 'spinnaker-release', 'docker-jenkins', 'golangcibot', 'opencontrail-ci-admin', 'k8s-%', '%-bot', '%-robot', 'bot-%', 'robot-%', '%[bot]%', '%-jenkins', '%-ci%bot', '%-testing', 'codecov-%', '%clabot%', '%cla-bot%', '%-gerrit', '%-bot-%'])\ngroup by\n  a.country_id",
+          "rawSql": "select\n  now() as \"time\",\n  count(e.id) as \"value\",\n  coalesce(a.country_id, '') as \"name\"\nfrom\n  gha_actors a,\n  gha_events e,\n  gha_repos r\nwhere\n  e.repo_id = r.id\n  and e.dup_repo_name = r.name\n  and r.repo_group in ([[repogroup]])\n  and e.dup_actor_login = a.login\n  and e.type in ('IssuesEvent', 'PullRequestEvent', 'PushEvent', 'PullRequestReviewCommentEvent', 'IssueCommentEvent', 'CommitCommentEvent')\n  and $__timeFilter(e.created_at)\n  and lower(a.login) not like all(array['devstats-sync', 'googlebot', 'coveralls', 'rktbot', 'coreosbot', 'web-flow', 'prometheus-roobot', 'cncf-bot', 'kernelprbot', 'istio-testing', 'spinnakerbot', 'pikbot', 'spinnaker-release', 'docker-jenkins', 'golangcibot', 'opencontrail-ci-admin', 'k8s-%', '%-bot', '%-robot', 'bot-%', 'robot-%', '%[bot]%', '%-jenkins', '%-ci%bot', '%-testing', 'codecov-%', '%clabot%', '%cla-bot%', '%-gerrit', '%-bot-%'])\ngroup by\n  a.country_id",
           "refId": "A",
           "select": [
             [
@@ -361,7 +362,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "select\n  now() as \"time\",\n  count(distinct a.login) as \"value\",\n  coalesce(a.country_id, '') as \"name\"\nfrom\n  gha_actors a,\n  gha_events e\nwhere\n  e.dup_actor_login = a.login\n  and e.type in ('IssuesEvent', 'PullRequestEvent', 'PushEvent', 'PullRequestReviewCommentEvent', 'IssueCommentEvent', 'CommitCommentEvent')\n  and $__timeFilter(e.created_at)\n  and lower(a.login) not like all(array['devstats-sync', 'googlebot', 'coveralls', 'rktbot', 'coreosbot', 'web-flow', 'prometheus-roobot', 'cncf-bot', 'kernelprbot', 'istio-testing', 'spinnakerbot', 'pikbot', 'spinnaker-release', 'docker-jenkins', 'golangcibot', 'opencontrail-ci-admin', 'k8s-%', '%-bot', '%-robot', 'bot-%', 'robot-%', '%[bot]%', '%-jenkins', '%-ci%bot', '%-testing', 'codecov-%', '%clabot%', '%cla-bot%', '%-gerrit', '%-bot-%'])\ngroup by\n  a.country_id",
+          "rawSql": "select\n  now() as \"time\",\n  count(distinct a.login) as \"value\",\n  coalesce(a.country_id, '') as \"name\"\nfrom\n  gha_actors a,\n  gha_events e,\n  gha_repos r\nwhere\n  e.repo_id = r.id\n  and e.dup_repo_name = r.name\n  and r.repo_group in ([[repogroup]])\n  and e.dup_actor_login = a.login\n  and e.type in ('IssuesEvent', 'PullRequestEvent', 'PushEvent', 'PullRequestReviewCommentEvent', 'IssueCommentEvent', 'CommitCommentEvent')\n  and $__timeFilter(e.created_at)\n  and lower(a.login) not like all(array['devstats-sync', 'googlebot', 'coveralls', 'rktbot', 'coreosbot', 'web-flow', 'prometheus-roobot', 'cncf-bot', 'kernelprbot', 'istio-testing', 'spinnakerbot', 'pikbot', 'spinnaker-release', 'docker-jenkins', 'golangcibot', 'opencontrail-ci-admin', 'k8s-%', '%-bot', '%-robot', 'bot-%', 'robot-%', '%[bot]%', '%-jenkins', '%-ci%bot', '%-testing', 'codecov-%', '%clabot%', '%cla-bot%', '%-gerrit', '%-bot-%'])\ngroup by\n  a.country_id",
           "refId": "A",
           "select": [
             [
@@ -405,7 +406,7 @@
         "y": 1
       },
       "id": 2,
-      "interval": "",
+      "interval": "1h",
       "links": [],
       "options": {
         "fieldOptions": {
@@ -450,7 +451,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "select\n  sub.time,\n  (sub.recent * 100.0) / (case sub.all when 0 then 1 else sub.all end)\nfrom (\n  select\n    max(created_at) as time,\n    count(distinct repo_id) filter (where created_at \u003e= now() - '1 year'::interval) as all,\n    count(distinct repo_id) filter (where $__timeFilter(created_at)) as recent\n  from\n    gha_events\n) sub",
+          "rawSql": "select\n  sub.time,\n  (sub.recent * 100.0) / (case sub.all when 0 then 1 else sub.all end)\nfrom (\n  select\n    max(e.created_at) as time,\n    count(distinct e.repo_id) filter (where e.created_at \u003e= now() - '1 year'::interval) as all,\n    count(distinct e.repo_id) filter (where $__timeFilter(e.created_at)) as recent\n  from\n    gha_events e,\n    gha_repos r\n  where\n    e.repo_id = r.id\n    and e.dup_repo_name = r.name\n    and r.repo_group in ([[repogroup]])\n) sub",
           "refId": "A",
           "select": [
             [
@@ -527,9 +528,9 @@
       "options": {},
       "pluginVersion": "6.2.4",
       "postfix": "%",
-      "postfixFontSize": "50%",
+      "postfixFontSize": "30%",
       "prefix": "Opened PRs change",
-      "prefixFontSize": "50%",
+      "prefixFontSize": "30%",
       "rangeMaps": [
         {
           "from": "null",
@@ -550,7 +551,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "select\n  sub.time,\n  ((sub.current - sub.previous) * 100.0) / (case sub.previous when 0 then 1 else sub.previous end) as \"value\"\nfrom (\n  select\n    max(created_at) as time,\n    count(distinct id) filter (where created_at \u003e= now() - '2 months'::interval and created_at \u003c now() - '1 month'::interval) as previous,\n    count(distinct id) filter (where $__timeFilter(created_at)) as \"current\"\n  from\n    gha_pull_requests\n) sub",
+          "rawSql": "select\n  sub.time,\n  ((sub.current - sub.previous) * 100.0) / (case sub.previous when 0 then 1 else sub.previous end) as \"value\"\nfrom (\n  select\n    max(pr.created_at) as time,\n    count(distinct pr.id) filter (where pr.created_at \u003e= now() - '2 months'::interval and pr.created_at \u003c now() - '1 month'::interval) as previous,\n    count(distinct pr.id) filter (where $__timeFilter(pr.created_at)) as \"current\"\n  from\n    gha_pull_requests pr,\n    gha_repos r\n  where\n    pr.dup_repo_id = r.id\n    and pr.dup_repo_name = r.name\n    and r.repo_group in ([[repogroup]])\n) sub",
           "refId": "A",
           "select": [
             [
@@ -636,9 +637,9 @@
       "nullText": null,
       "options": {},
       "postfix": "%",
-      "postfixFontSize": "50%",
+      "postfixFontSize": "30%",
       "prefix": "Merged PRs change",
-      "prefixFontSize": "50%",
+      "prefixFontSize": "30%",
       "rangeMaps": [
         {
           "from": "null",
@@ -659,7 +660,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "select\n  sub.time,\n  ((sub.current - sub.previous) * 100.0) / (case sub.previous when 0 then 1 else sub.previous end) as \"value\"\nfrom (\n  select\n    max(created_at) as time,\n    count(distinct id) filter (where merged_at \u003e= now() - '2 months'::interval and merged_at \u003c now() - '1 month'::interval) as previous,\n    count(distinct id) filter (where $__timeFilter(merged_at)) as \"current\"\n  from\n    gha_pull_requests\n) sub",
+          "rawSql": "select\n  sub.time,\n  ((sub.current - sub.previous) * 100.0) / (case sub.previous when 0 then 1 else sub.previous end) as \"value\"\nfrom (\n  select\n    max(pr.created_at) as time,\n    count(distinct pr.id) filter (where pr.merged_at \u003e= now() - '2 months'::interval and pr.merged_at \u003c now() - '1 month'::interval) as previous,\n    count(distinct pr.id) filter (where $__timeFilter(pr.merged_at)) as \"current\"\n  from\n    gha_pull_requests pr,\n    gha_repos r\n  where\n    pr.dup_repo_id = r.id\n    and pr.dup_repo_name = r.name\n    and r.repo_group in ([[repogroup]])\n) sub",
           "refId": "A",
           "select": [
             [
@@ -745,9 +746,9 @@
       "nullText": null,
       "options": {},
       "postfix": "",
-      "postfixFontSize": "50%",
+      "postfixFontSize": "30%",
       "prefix": "Median time to merge PR",
-      "prefixFontSize": "50%",
+      "prefixFontSize": "30%",
       "rangeMaps": [
         {
           "from": "null",
@@ -768,7 +769,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "select\n  percentile_disc(0.5) within group (order by sub.time_to_merge asc) as \"value\"\nfrom (\n  select distinct\n    id,\n    max(merged_at) - max(created_at) as time_to_merge\n  from\n    gha_pull_requests\n  where\n    merged_at is not null\n    and dup_type = 'PullRequestEvent'\n    and $__timeFilter(merged_at)\n  group by\n    id\n) sub",
+          "rawSql": "select\n  percentile_disc(0.5) within group (order by sub.time_to_merge asc) as \"value\"\nfrom (\n  select distinct\n    pr.id,\n    max(pr.merged_at) - max(pr.created_at) as time_to_merge\n  from\n    gha_pull_requests pr,\n    gha_repos r\n  where\n    pr.dup_repo_id = r.id\n    and pr.dup_repo_name = r.name\n    and r.repo_group in ([[repogroup]])\n    and pr.merged_at is not null\n    and pr.dup_type = 'PullRequestEvent'\n    and $__timeFilter(pr.merged_at)\n  group by\n    pr.id\n) sub",
           "refId": "A",
           "select": [
             [
@@ -1050,7 +1051,7 @@
           "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "select\n  now() as \"time\",\n  count(distinct id) as \"value\",\n  'PRs' as \"metric\"\nfrom\n  gha_pull_requests\nwhere\n  dup_type = 'PullRequestEvent'\n  and $__timeFilter(\"created_at\")\n  and lower(dup_user_login) not like all(array['devstats-sync', 'googlebot', 'coveralls', 'rktbot', 'coreosbot', 'web-flow', 'prometheus-roobot', 'cncf-bot', 'kernelprbot', 'istio-testing', 'spinnakerbot', 'pikbot', 'spinnaker-release', 'docker-jenkins', 'golangcibot', 'opencontrail-ci-admin', 'k8s-%', '%-bot', '%-robot', 'bot-%', 'robot-%', '%[bot]%', '%-jenkins', '%-ci%bot', '%-testing', 'codecov-%', '%clabot%', '%cla-bot%', '%-gerrit', '%-bot-%'])\nunion select\n  now() as \"time\",\n  count(distinct id) as \"value\",\n  'Issues' as \"metric\"\nfrom\n  gha_issues\nwhere\n  dup_type = 'IssuesEvent'\n  and $__timeFilter(\"created_at\")\n  and lower(dup_user_login) not like all(array['devstats-sync', 'googlebot', 'coveralls', 'rktbot', 'coreosbot', 'web-flow', 'prometheus-roobot', 'cncf-bot', 'kernelprbot', 'istio-testing', 'spinnakerbot', 'pikbot', 'spinnaker-release', 'docker-jenkins', 'golangcibot', 'opencontrail-ci-admin', 'k8s-%', '%-bot', '%-robot', 'bot-%', 'robot-%', '%[bot]%', '%-jenkins', '%-ci%bot', '%-testing', 'codecov-%', '%clabot%', '%cla-bot%', '%-gerrit', '%-bot-%'])\nunion select\n  now() as \"time\",\n  count(distinct event_id) as \"value\",\n  'Reviews' as \"metric\"\nfrom\n  gha_pull_requests\nwhere\n  dup_type = 'PullRequestReviewCommentEvent'\n  and $__timeFilter(\"created_at\")\n  and lower(dup_actor_login) not like all(array['devstats-sync', 'googlebot', 'coveralls', 'rktbot', 'coreosbot', 'web-flow', 'prometheus-roobot', 'cncf-bot', 'kernelprbot', 'istio-testing', 'spinnakerbot', 'pikbot', 'spinnaker-release', 'docker-jenkins', 'golangcibot', 'opencontrail-ci-admin', 'k8s-%', '%-bot', '%-robot', 'bot-%', 'robot-%', '%[bot]%', '%-jenkins', '%-ci%bot', '%-testing', 'codecov-%', '%clabot%', '%cla-bot%', '%-gerrit', '%-bot-%'])\nunion select\n  now() as \"time\",\n  count(distinct id) as \"value\",\n  'Comments' as \"metric\"\nfrom\n  gha_events\nwhere\n  type in ('IssueCommentEvent', 'CommitCommentEvent')\n  and $__timeFilter(\"created_at\")\n  and lower(dup_actor_login) not like all(array['devstats-sync', 'googlebot', 'coveralls', 'rktbot', 'coreosbot', 'web-flow', 'prometheus-roobot', 'cncf-bot', 'kernelprbot', 'istio-testing', 'spinnakerbot', 'pikbot', 'spinnaker-release', 'docker-jenkins', 'golangcibot', 'opencontrail-ci-admin', 'k8s-%', '%-bot', '%-robot', 'bot-%', 'robot-%', '%[bot]%', '%-jenkins', '%-ci%bot', '%-testing', 'codecov-%', '%clabot%', '%cla-bot%', '%-gerrit', '%-bot-%'])\nunion select\n  now() as \"time\",\n  count(distinct sha) as \"value\",\n  'Commits' as \"metric\"\nfrom\n  gha_commits\nwhere\n  $__timeFilter(\"dup_created_at\")\n  and lower(dup_author_login) not like all(array['devstats-sync', 'googlebot', 'coveralls', 'rktbot', 'coreosbot', 'web-flow', 'prometheus-roobot', 'cncf-bot', 'kernelprbot', 'istio-testing', 'spinnakerbot', 'pikbot', 'spinnaker-release', 'docker-jenkins', 'golangcibot', 'opencontrail-ci-admin', 'k8s-%', '%-bot', '%-robot', 'bot-%', 'robot-%', '%[bot]%', '%-jenkins', '%-ci%bot', '%-testing', 'codecov-%', '%clabot%', '%cla-bot%', '%-gerrit', '%-bot-%'])\norder by\n  \"metric\"",
+          "rawSql": "select\n  now() as \"time\",\n  count(distinct pr.id) as \"value\",\n  'PRs' as \"metric\"\nfrom\n  gha_pull_requests pr,\n  gha_repos r\nwhere\n  pr.dup_repo_id = r.id\n  and pr.dup_repo_name = r.name\n  and r.repo_group in ([[repogroup]])\n  and pr.dup_type = 'PullRequestEvent'\n  and $__timeFilter(pr.created_at)\n  and lower(pr.dup_user_login) not like all(array['devstats-sync', 'googlebot', 'coveralls', 'rktbot', 'coreosbot', 'web-flow', 'prometheus-roobot', 'cncf-bot', 'kernelprbot', 'istio-testing', 'spinnakerbot', 'pikbot', 'spinnaker-release', 'docker-jenkins', 'golangcibot', 'opencontrail-ci-admin', 'k8s-%', '%-bot', '%-robot', 'bot-%', 'robot-%', '%[bot]%', '%-jenkins', '%-ci%bot', '%-testing', 'codecov-%', '%clabot%', '%cla-bot%', '%-gerrit', '%-bot-%'])\nunion select\n  now() as \"time\",\n  count(distinct i.id) as \"value\",\n  'Issues' as \"metric\"\nfrom\n  gha_issues i,\n  gha_repos r\nwhere\n  i.dup_repo_id = r.id\n  and i.dup_repo_name = r.name\n  and r.repo_group in ([[repogroup]])\n  and i.dup_type = 'IssuesEvent'\n  and $__timeFilter(i.created_at)\n  and lower(i.dup_user_login) not like all(array['devstats-sync', 'googlebot', 'coveralls', 'rktbot', 'coreosbot', 'web-flow', 'prometheus-roobot', 'cncf-bot', 'kernelprbot', 'istio-testing', 'spinnakerbot', 'pikbot', 'spinnaker-release', 'docker-jenkins', 'golangcibot', 'opencontrail-ci-admin', 'k8s-%', '%-bot', '%-robot', 'bot-%', 'robot-%', '%[bot]%', '%-jenkins', '%-ci%bot', '%-testing', 'codecov-%', '%clabot%', '%cla-bot%', '%-gerrit', '%-bot-%'])\nunion select\n  now() as \"time\",\n  count(distinct pr.event_id) as \"value\",\n  'Reviews' as \"metric\"\nfrom\n  gha_pull_requests pr,\n  gha_repos r\nwhere\n  pr.dup_repo_id = r.id\n  and pr.dup_repo_name = r.name\n  and r.repo_group in ([[repogroup]])\n  and pr.dup_type = 'PullRequestReviewCommentEvent'\n  and $__timeFilter(pr.dup_created_at)\n  and lower(pr.dup_actor_login) not like all(array['devstats-sync', 'googlebot', 'coveralls', 'rktbot', 'coreosbot', 'web-flow', 'prometheus-roobot', 'cncf-bot', 'kernelprbot', 'istio-testing', 'spinnakerbot', 'pikbot', 'spinnaker-release', 'docker-jenkins', 'golangcibot', 'opencontrail-ci-admin', 'k8s-%', '%-bot', '%-robot', 'bot-%', 'robot-%', '%[bot]%', '%-jenkins', '%-ci%bot', '%-testing', 'codecov-%', '%clabot%', '%cla-bot%', '%-gerrit', '%-bot-%'])\nunion select\n  now() as \"time\",\n  count(distinct e.id) as \"value\",\n  'Comments' as \"metric\"\nfrom\n  gha_events e,\n  gha_repos r\nwhere\n  e.repo_id = r.id\n  and e.dup_repo_name = r.name\n  and r.repo_group in ([[repogroup]])\n  and e.type in ('IssueCommentEvent', 'CommitCommentEvent')\n  and $__timeFilter(e.created_at)\n  and lower(e.dup_actor_login) not like all(array['devstats-sync', 'googlebot', 'coveralls', 'rktbot', 'coreosbot', 'web-flow', 'prometheus-roobot', 'cncf-bot', 'kernelprbot', 'istio-testing', 'spinnakerbot', 'pikbot', 'spinnaker-release', 'docker-jenkins', 'golangcibot', 'opencontrail-ci-admin', 'k8s-%', '%-bot', '%-robot', 'bot-%', 'robot-%', '%[bot]%', '%-jenkins', '%-ci%bot', '%-testing', 'codecov-%', '%clabot%', '%cla-bot%', '%-gerrit', '%-bot-%'])\nunion select\n  now() as \"time\",\n  count(distinct c.sha) as \"value\",\n  'Commits' as \"metric\"\nfrom\n  gha_commits c,\n  gha_repos r\nwhere\n  c.dup_repo_id = r.id\n  and c.dup_repo_name = r.name\n  and r.repo_group in ([[repogroup]])\n  and $__timeFilter(c.dup_created_at)\n  and lower(c.dup_author_login) not like all(array['devstats-sync', 'googlebot', 'coveralls', 'rktbot', 'coreosbot', 'web-flow', 'prometheus-roobot', 'cncf-bot', 'kernelprbot', 'istio-testing', 'spinnakerbot', 'pikbot', 'spinnaker-release', 'docker-jenkins', 'golangcibot', 'opencontrail-ci-admin', 'k8s-%', '%-bot', '%-robot', 'bot-%', 'robot-%', '%[bot]%', '%-jenkins', '%-ci%bot', '%-testing', 'codecov-%', '%clabot%', '%cla-bot%', '%-gerrit', '%-bot-%'])\norder by\n  \"metric\"",
           "refId": "A",
           "select": [
             [
@@ -1086,10 +1087,10 @@
       "cacheTimeout": null,
       "combine": {
         "label": "Others",
-        "threshold": "0.02"
+        "threshold": "0.01"
       },
       "decimals": null,
-      "description": "",
+      "description": "Top 50 contributors, all contributors having less than 1.5% merged into 'Others'.",
       "fontSize": "60%",
       "format": "short",
       "gridPos": {
@@ -1121,7 +1122,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "select\n  now() as \"time\",\n  count(distinct id) as \"value\",\n  dup_actor_login as \"name\"\nfrom\n  gha_events\nwhere\n  $__timeFilter(\"created_at\")\n  and type in ('IssuesEvent', 'PullRequestEvent', 'PushEvent', 'PullRequestReviewCommentEvent', 'IssueCommentEvent', 'CommitCommentEvent')\n  and lower(dup_actor_login) not like all(array['devstats-sync', 'googlebot', 'coveralls', 'rktbot', 'coreosbot', 'web-flow', 'prometheus-roobot', 'cncf-bot', 'kernelprbot', 'istio-testing', 'spinnakerbot', 'pikbot', 'spinnaker-release', 'docker-jenkins', 'golangcibot', 'opencontrail-ci-admin', 'k8s-%', '%-bot', '%-robot', 'bot-%', 'robot-%', '%[bot]%', '%-jenkins', '%-ci%bot', '%-testing', 'codecov-%', '%clabot%', '%cla-bot%', '%-gerrit', '%-bot-%'])\ngroup by\n  dup_actor_login\norder by\n  value desc\nlimit\n  30",
+          "rawSql": "select\n  now() as \"time\",\n  count(distinct e.id) as \"value\",\n  e.dup_actor_login as \"name\"\nfrom\n  gha_events e,\n  gha_repos r\nwhere\n  e.repo_id = r.id\n  and e.dup_repo_name = r.name\n  and r.repo_group in ([[repogroup]])\n  and $__timeFilter(e.created_at)\n  and e.type in ('IssuesEvent', 'PullRequestEvent', 'PushEvent', 'PullRequestReviewCommentEvent', 'IssueCommentEvent', 'CommitCommentEvent')\n  and lower(e.dup_actor_login) not like all(array['devstats-sync', 'googlebot', 'coveralls', 'rktbot', 'coreosbot', 'web-flow', 'prometheus-roobot', 'cncf-bot', 'kernelprbot', 'istio-testing', 'spinnakerbot', 'pikbot', 'spinnaker-release', 'docker-jenkins', 'golangcibot', 'opencontrail-ci-admin', 'k8s-%', '%-bot', '%-robot', 'bot-%', 'robot-%', '%[bot]%', '%-jenkins', '%-ci%bot', '%-testing', 'codecov-%', '%clabot%', '%cla-bot%', '%-gerrit', '%-bot-%'])\ngroup by\n  e.dup_actor_login\norder by\n  value desc\nlimit\n  50",
           "refId": "A",
           "select": [
             [
@@ -1147,7 +1148,7 @@
       ],
       "timeFrom": null,
       "timeShift": null,
-      "title": "Top contributors",
+      "title": "Top 50 contributors",
       "transparent": true,
       "type": "grafana-piechart-panel",
       "valueName": "current"
@@ -1158,11 +1159,11 @@
       "cacheTimeout": null,
       "combine": {
         "label": "Others",
-        "threshold": "0.02"
+        "threshold": "0.01"
       },
       "decimals": null,
-      "description": "",
-      "fontSize": "70%",
+      "description": "Top 50 repositories by the number of contributions, all having less than 1% merged into 'Others'.",
+      "fontSize": "60%",
       "format": "short",
       "gridPos": {
         "h": 10,
@@ -1193,7 +1194,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "select\n  now() as \"time\",\n  count(distinct id) as \"value\",\n  dup_repo_name as \"name\"\nfrom\n  gha_events\nwhere\n  $__timeFilter(\"created_at\")\n  and type in ('IssuesEvent', 'PullRequestEvent', 'PushEvent', 'PullRequestReviewCommentEvent', 'IssueCommentEvent', 'CommitCommentEvent')\n  and lower(dup_actor_login) not like all(array['devstats-sync', 'googlebot', 'coveralls', 'rktbot', 'coreosbot', 'web-flow', 'prometheus-roobot', 'cncf-bot', 'kernelprbot', 'istio-testing', 'spinnakerbot', 'pikbot', 'spinnaker-release', 'docker-jenkins', 'golangcibot', 'opencontrail-ci-admin', 'k8s-%', '%-bot', '%-robot', 'bot-%', 'robot-%', '%[bot]%', '%-jenkins', '%-ci%bot', '%-testing', 'codecov-%', '%clabot%', '%cla-bot%', '%-gerrit', '%-bot-%'])\ngroup by\n  dup_repo_name\norder by\n  value desc\nlimit\n  30",
+          "rawSql": "select\n  now() as \"time\",\n  count(distinct e.id) as \"value\",\n  e.dup_repo_name as \"name\"\nfrom\n  gha_events e,\n  gha_repos r\nwhere\n  e.repo_id = r.id\n  and e.dup_repo_name = r.name\n  and r.repo_group in ([[repogroup]])\n  and $__timeFilter(e.created_at)\n  and e.type in ('IssuesEvent', 'PullRequestEvent', 'PushEvent', 'PullRequestReviewCommentEvent', 'IssueCommentEvent', 'CommitCommentEvent')\n  and lower(e.dup_actor_login) not like all(array['devstats-sync', 'googlebot', 'coveralls', 'rktbot', 'coreosbot', 'web-flow', 'prometheus-roobot', 'cncf-bot', 'kernelprbot', 'istio-testing', 'spinnakerbot', 'pikbot', 'spinnaker-release', 'docker-jenkins', 'golangcibot', 'opencontrail-ci-admin', 'k8s-%', '%-bot', '%-robot', 'bot-%', 'robot-%', '%[bot]%', '%-jenkins', '%-ci%bot', '%-testing', 'codecov-%', '%clabot%', '%cla-bot%', '%-gerrit', '%-bot-%'])\ngroup by\n  e.dup_repo_name\norder by\n  value desc\nlimit\n  50",
           "refId": "A",
           "select": [
             [
@@ -1219,7 +1220,7 @@
       ],
       "timeFrom": null,
       "timeShift": null,
-      "title": "Top repositories",
+      "title": "Top 50 repositories",
       "transparent": true,
       "type": "grafana-piechart-panel",
       "valueName": "current"
@@ -1233,7 +1234,237 @@
     "dashboard"
   ],
   "templating": {
-    "list": []
+    "list": [
+      {
+        "allValue": null,
+        "current": {
+          "tags": [],
+          "text": "Kubernetes",
+          "value": [
+            "Kubernetes"
+          ]
+        },
+        "datasource": "psql",
+        "definition": "select distinct repo_group from gha_repos where repo_group is not null order by 1",
+        "hide": 0,
+        "includeAll": true,
+        "label": "Repository group",
+        "multi": true,
+        "name": "repogroup",
+        "options": [
+          {
+            "selected": false,
+            "text": "All",
+            "value": "$__all"
+          },
+          {
+            "selected": false,
+            "text": "Brigade",
+            "value": "Brigade"
+          },
+          {
+            "selected": false,
+            "text": "Buildpacks",
+            "value": "Buildpacks"
+          },
+          {
+            "selected": false,
+            "text": "CloudEvents",
+            "value": "CloudEvents"
+          },
+          {
+            "selected": false,
+            "text": "CNCF",
+            "value": "CNCF"
+          },
+          {
+            "selected": false,
+            "text": "CNI",
+            "value": "CNI"
+          },
+          {
+            "selected": false,
+            "text": "containerd",
+            "value": "containerd"
+          },
+          {
+            "selected": false,
+            "text": "CoreDNS",
+            "value": "CoreDNS"
+          },
+          {
+            "selected": false,
+            "text": "Cortex",
+            "value": "Cortex"
+          },
+          {
+            "selected": false,
+            "text": "CRI-O",
+            "value": "CRI-O"
+          },
+          {
+            "selected": false,
+            "text": "Dragonfly",
+            "value": "Dragonfly"
+          },
+          {
+            "selected": false,
+            "text": "Envoy",
+            "value": "Envoy"
+          },
+          {
+            "selected": false,
+            "text": "etcd",
+            "value": "etcd"
+          },
+          {
+            "selected": false,
+            "text": "Falco",
+            "value": "Falco"
+          },
+          {
+            "selected": false,
+            "text": "Fluentd",
+            "value": "Fluentd"
+          },
+          {
+            "selected": false,
+            "text": "gRPC",
+            "value": "gRPC"
+          },
+          {
+            "selected": false,
+            "text": "Harbor",
+            "value": "Harbor"
+          },
+          {
+            "selected": false,
+            "text": "Helm",
+            "value": "Helm"
+          },
+          {
+            "selected": false,
+            "text": "Jaeger",
+            "value": "Jaeger"
+          },
+          {
+            "selected": false,
+            "text": "KubeEdge",
+            "value": "KubeEdge"
+          },
+          {
+            "selected": true,
+            "text": "Kubernetes",
+            "value": "Kubernetes"
+          },
+          {
+            "selected": false,
+            "text": "Linkerd",
+            "value": "Linkerd"
+          },
+          {
+            "selected": false,
+            "text": "NATS",
+            "value": "NATS"
+          },
+          {
+            "selected": false,
+            "text": "Network Service Mesh",
+            "value": "Network Service Mesh"
+          },
+          {
+            "selected": false,
+            "text": "Notary",
+            "value": "Notary"
+          },
+          {
+            "selected": false,
+            "text": "OPA",
+            "value": "OPA"
+          },
+          {
+            "selected": false,
+            "text": "OpenEBS",
+            "value": "OpenEBS"
+          },
+          {
+            "selected": false,
+            "text": "OpenMetrics",
+            "value": "OpenMetrics"
+          },
+          {
+            "selected": false,
+            "text": "OpenTelemetry",
+            "value": "OpenTelemetry"
+          },
+          {
+            "selected": false,
+            "text": "OpenTracing",
+            "value": "OpenTracing"
+          },
+          {
+            "selected": false,
+            "text": "Prometheus",
+            "value": "Prometheus"
+          },
+          {
+            "selected": false,
+            "text": "rkt",
+            "value": "rkt"
+          },
+          {
+            "selected": false,
+            "text": "Rook",
+            "value": "Rook"
+          },
+          {
+            "selected": false,
+            "text": "SPIFFE",
+            "value": "SPIFFE"
+          },
+          {
+            "selected": false,
+            "text": "SPIRE",
+            "value": "SPIRE"
+          },
+          {
+            "selected": false,
+            "text": "Telepresence",
+            "value": "Telepresence"
+          },
+          {
+            "selected": false,
+            "text": "TiKV",
+            "value": "TiKV"
+          },
+          {
+            "selected": false,
+            "text": "TUF",
+            "value": "TUF"
+          },
+          {
+            "selected": false,
+            "text": "Virtual Kubelet",
+            "value": "Virtual Kubelet"
+          },
+          {
+            "selected": false,
+            "text": "Vitess",
+            "value": "Vitess"
+          }
+        ],
+        "query": "select distinct repo_group from gha_repos where repo_group is not null order by 1",
+        "refresh": 0,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      }
+    ]
   },
   "time": {
     "from": "now-1M",
@@ -1268,5 +1499,5 @@
   "timezone": "",
   "title": "Home",
   "uid": "62",
-  "version": 3
+  "version": 9
 }
