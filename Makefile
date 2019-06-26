@@ -12,7 +12,7 @@ GO_TEST_ENV=PG_DB=dbtest GHA2DB_PROJECT=kubernetes GHA2DB_LOCAL=1
 
 CRON_SCRIPTS=cron/cron_db_backup.sh cron/cron_db_backup_all.sh cron/refresh_mviews.sh cron/sysctl_config.sh cron/backup_artificial.sh cron/restart_dbs.sh cron/ensure_service_active.sh
 UTIL_SCRIPTS=devel/wait_for_command.sh devel/cronctl.sh devel/sync_lock.sh devel/sync_unlock.sh devel/db.sh devel/all_projs.sh devel/all_dbs.sh
-GIT_SCRIPTS=git/git_reset_pull.sh git/git_files.sh git/git_tags.sh git/last_tag.sh
+GIT_SCRIPTS=git/git_reset_pull.sh git/git_files.sh git/git_tags.sh git/last_tag.sh git/git_loc.sh
 
 ifdef GHA2DB_DATADIR
 DATADIR=${GHA2DB_DATADIR}
