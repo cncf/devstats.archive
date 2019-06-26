@@ -568,6 +568,9 @@ CREATE TABLE public.gha_commits (
     author_name character varying(160) NOT NULL,
     message text NOT NULL,
     is_distinct boolean NOT NULL,
+    loc_added int,
+    loc_removed int,
+    files_changed int,
     dup_actor_id bigint NOT NULL,
     dup_actor_login character varying(120) NOT NULL,
     dup_repo_id bigint NOT NULL,
@@ -1148,7 +1151,7 @@ COPY public.gha_comments (id, event_id, body, created_at, updated_at, user_id, c
 -- Data for Name: gha_commits; Type: TABLE DATA; Schema: public; Owner: gha_admin
 --
 
-COPY public.gha_commits (sha, event_id, author_name, message, is_distinct, dup_actor_id, dup_actor_login, dup_repo_id, dup_repo_name, dup_type, dup_created_at, encrypted_email, author_email, committer_name, committer_email, author_id, committer_id, dup_author_login, dup_committer_login) FROM stdin;
+COPY public.gha_commits (sha, event_id, author_name, message, is_distinct, loc_added, loc_removed, files_changed, dup_actor_id, dup_actor_login, dup_repo_id, dup_repo_name, dup_type, dup_created_at, encrypted_email, author_email, committer_name, committer_email, author_id, committer_id, dup_author_login, dup_committer_login) FROM stdin;
 \.
 
 
@@ -2405,6 +2408,24 @@ CREATE INDEX comments_user_id_idx ON public.gha_comments USING btree (user_id);
 --
 
 CREATE INDEX commits_author_email_idx ON public.gha_commits USING btree (author_email);
+
+--
+-- Name: commits_loc_added_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX commits_loc_added_idx ON public.gha_commits USING btree (loc_added);
+
+--
+-- Name: commits_loc_removed_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX commits_loc_removed_idx ON public.gha_commits USING btree (loc_removed);
+
+--
+-- Name: commits_files_changed_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX commits_files_changed_idx ON public.gha_commits USING btree (files_changed);
 
 
 --

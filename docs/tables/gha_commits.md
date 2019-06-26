@@ -19,6 +19,9 @@
 - `encrypted_email`: Author email encrypted by GitHub, for example `76f8b7dc8ef32a26553fcbdb25b75cb20f767b8e@gmail.com`.
 - `message`: Commit message.
 - `is_distinct`: boolean true/false.
+- `loc_added`: integer - lines of code added.
+- `loc_removed`: integer - lines of code removed.
+- `files_changed`: interger - number of files modified.
 - `author_id`: commit author, can be null.
 - `committer_id`: committer, can be null.
 - `author_email`: commit author email, can be empty.

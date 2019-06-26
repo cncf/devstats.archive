@@ -12,12 +12,26 @@ from (
   union select distinct head_sha as sha, dup_repo_name as repo from gha_pull_requests
   union select distinct merge_commit_sha as sha, dup_repo_name as repo from gha_pull_requests where merge_commit_sha is not null
   ) sub
-left join gha_skip_commits sc on sub.sha = sc.sha
+left join gha_skip_commits sc1 on sub.sha = sc1.sha and sc1.reason = 1
+left join gha_skip_commits sc2 on sub.sha = sc2.sha and sc2.reason = 2
 left join gha_commits_files cf on sub.sha = cf.sha
+left join gha_commits c on sub.sha = c.sha
 where
-  sc.sha is null
-  and cf.sha is null
-  and sub.sha is not null
+  sub.sha is not null
   and sub.sha <> ''
   and sub.repo like '%_/_%'
+  and (
+    (
+      sc1.sha is null
+      and cf.sha is null
+    )
+    or (
+      sc2.sha is null
+      and (
+        c.loc_added is null
+        or c.loc_removed is null
+        or c.files_changed is null
+      )
+    )
+  )
 ;
