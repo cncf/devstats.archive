@@ -2,8 +2,8 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 10.6 (Ubuntu 10.6-0ubuntu0.18.04.1)
--- Dumped by pg_dump version 10.6 (Ubuntu 10.6-0ubuntu0.18.04.1)
+-- Dumped from database version 10.9 (Ubuntu 10.9-0ubuntu0.18.04.1)
+-- Dumped by pg_dump version 10.9 (Ubuntu 10.9-0ubuntu0.18.04.1)
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -12,6 +12,7 @@ SET client_encoding = 'UTF8';
 SET standard_conforming_strings = on;
 SELECT pg_catalog.set_config('search_path', '', false);
 SET check_function_bodies = false;
+SET xmloption = content;
 SET client_min_messages = warning;
 SET row_security = off;
 
@@ -568,9 +569,9 @@ CREATE TABLE public.gha_commits (
     author_name character varying(160) NOT NULL,
     message text NOT NULL,
     is_distinct boolean NOT NULL,
-    loc_added int,
-    loc_removed int,
-    files_changed int,
+    loc_added integer,
+    loc_removed integer,
+    files_changed integer,
     dup_actor_id bigint NOT NULL,
     dup_actor_login character varying(120) NOT NULL,
     dup_repo_id bigint NOT NULL,
@@ -597,7 +598,7 @@ ALTER TABLE public.gha_commits OWNER TO gha_admin;
 CREATE TABLE public.gha_commits_files (
     sha character varying(40) NOT NULL,
     path text NOT NULL,
-    ext text NOT NULL default '',
+    ext text DEFAULT ''::text NOT NULL,
     size bigint NOT NULL,
     dt timestamp without time zone NOT NULL
 );
@@ -668,7 +669,7 @@ CREATE TABLE public.gha_events_commits_files (
     sha character varying(40) NOT NULL,
     event_id bigint NOT NULL,
     path text NOT NULL,
-    ext text NOT NULL default '',
+    ext text DEFAULT ''::text NOT NULL,
     size bigint NOT NULL,
     dt timestamp without time zone NOT NULL,
     repo_group character varying(80),
@@ -1003,7 +1004,8 @@ ALTER TABLE public.gha_repos OWNER TO gha_admin;
 
 CREATE TABLE public.gha_skip_commits (
     sha character varying(40) NOT NULL,
-    dt timestamp without time zone NOT NULL
+    dt timestamp without time zone NOT NULL,
+    reason integer NOT NULL
 );
 
 
@@ -1210,8 +1212,8 @@ bz	Belize
 bj	Benin
 bm	Bermuda
 bt	Bhutan
-bo	Bolivia, Plurinational State of
-bq	Bonaire, Sint Eustatius and Saba
+bo	Bolivia Plurinational State of
+bq	Bonaire Sint Eustatius and Saba
 ba	Bosnia and Herzegovina
 bw	Botswana
 bv	Bouvet Island
@@ -1235,7 +1237,7 @@ cc	Cocos (Keeling) Islands
 co	Colombia
 km	Comoros
 cg	Congo
-cd	Congo, the Democratic Republic of the
+cd	Congo the Democratic Republic of the
 ck	Cook Islands
 cr	Costa Rica
 ci	Côte Divoire
@@ -1288,7 +1290,7 @@ hu	Hungary
 is	Iceland
 in	India
 id	Indonesia
-ir	Iran, Islamic Republic of
+ir	Iran Islamic Republic of
 iq	Iraq
 ie	Ireland
 im	Isle of Man
@@ -1301,8 +1303,8 @@ jo	Jordan
 kz	Kazakhstan
 ke	Kenya
 ki	Kiribati
-kp	Korea, Democratic People Republic of
-kr	Korea, Republic of
+kp	Korea Democratic People Republic of
+kr	Korea Republic of
 kw	Kuwait
 kg	Kyrgyzstan
 la	Lao People Democratic Republic
@@ -1315,7 +1317,7 @@ li	Liechtenstein
 lt	Lithuania
 lu	Luxembourg
 mo	Macao
-mk	Macedonia, the Former Yugoslav Republic of
+mk	Macedonia the Former Yugoslav Republic of
 mg	Madagascar
 mw	Malawi
 my	Malaysia
@@ -1328,8 +1330,8 @@ mr	Mauritania
 mu	Mauritius
 yt	Mayotte
 mx	Mexico
-fm	Micronesia, Federated States of
-md	Moldova, Republic of
+fm	Micronesia Federated States of
+md	Moldova Republic of
 mc	Monaco
 mn	Mongolia
 me	Montenegro
@@ -1353,7 +1355,7 @@ no	Norway
 om	Oman
 pk	Pakistan
 pw	Palau
-ps	Palestine, State of
+ps	Palestine State of
 pa	Panama
 pg	Papua New Guinea
 py	Paraguay
@@ -1369,7 +1371,7 @@ ro	Romania
 ru	Russian Federation
 rw	Rwanda
 bl	Saint Barthélemy
-sh	Saint Helena, Ascension and Tristan da Cunha
+sh	Saint Helena Ascension and Tristan da Cunha
 kn	Saint Kitts and Nevis
 lc	Saint Lucia
 mf	Saint Martin (French Part)
@@ -1401,9 +1403,9 @@ sz	Swaziland
 se	Sweden
 ch	Switzerland
 sy	Syrian Arab Republic
-tw	Taiwan, Province of China
+tw	Taiwan Province of China
 tj	Tajikistan
-tz	Tanzania, United Republic of
+tz	Tanzania United Republic of
 th	Thailand
 tl	Timor-Leste
 tg	Togo
@@ -1424,10 +1426,10 @@ um	United States Minor Outlying Islands
 uy	Uruguay
 uz	Uzbekistan
 vu	Vanuatu
-ve	Venezuela, Bolivarian Republic of
+ve	Venezuela Bolivarian Republic of
 vn	Viet Nam
-vg	Virgin Islands, British
-vi	Virgin Islands, U.S.
+vg	Virgin Islands British
+vi	Virgin Islands U.S.
 wf	Wallis and Futuna
 eh	Western Sahara
 ye	Yemen
@@ -1617,7 +1619,7 @@ COPY public.gha_repos (id, name, org_id, org_login, repo_group, alias) FROM stdi
 -- Data for Name: gha_skip_commits; Type: TABLE DATA; Schema: public; Owner: gha_admin
 --
 
-COPY public.gha_skip_commits (sha, dt) FROM stdin;
+COPY public.gha_skip_commits (sha, dt, reason) FROM stdin;
 \.
 
 
@@ -1921,7 +1923,7 @@ ALTER TABLE ONLY public.gha_repos
 --
 
 ALTER TABLE ONLY public.gha_skip_commits
-    ADD CONSTRAINT gha_skip_commits_pkey PRIMARY KEY (sha);
+    ADD CONSTRAINT gha_skip_commits_pkey PRIMARY KEY (sha, reason);
 
 
 --
@@ -2409,24 +2411,6 @@ CREATE INDEX comments_user_id_idx ON public.gha_comments USING btree (user_id);
 
 CREATE INDEX commits_author_email_idx ON public.gha_commits USING btree (author_email);
 
---
--- Name: commits_loc_added_idx; Type: INDEX; Schema: public; Owner: gha_admin
---
-
-CREATE INDEX commits_loc_added_idx ON public.gha_commits USING btree (loc_added);
-
---
--- Name: commits_loc_removed_idx; Type: INDEX; Schema: public; Owner: gha_admin
---
-
-CREATE INDEX commits_loc_removed_idx ON public.gha_commits USING btree (loc_removed);
-
---
--- Name: commits_files_changed_idx; Type: INDEX; Schema: public; Owner: gha_admin
---
-
-CREATE INDEX commits_files_changed_idx ON public.gha_commits USING btree (files_changed);
-
 
 --
 -- Name: commits_author_id_idx; Type: INDEX; Schema: public; Owner: gha_admin
@@ -2534,6 +2518,13 @@ CREATE INDEX commits_event_id_idx ON public.gha_commits USING btree (event_id);
 
 
 --
+-- Name: commits_files_changed_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX commits_files_changed_idx ON public.gha_commits USING btree (files_changed);
+
+
+--
 -- Name: commits_files_dt_idx; Type: INDEX; Schema: public; Owner: gha_admin
 --
 
@@ -2541,16 +2532,17 @@ CREATE INDEX commits_files_dt_idx ON public.gha_commits_files USING btree (dt);
 
 
 --
--- Name: commits_files_path_idx; Type: INDEX; Schema: public; Owner: gha_admin
---
-
-CREATE INDEX commits_files_path_idx ON public.gha_commits_files USING btree (path);
-
---
 -- Name: commits_files_ext_idx; Type: INDEX; Schema: public; Owner: gha_admin
 --
 
 CREATE INDEX commits_files_ext_idx ON public.gha_commits_files USING btree (ext);
+
+
+--
+-- Name: commits_files_path_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX commits_files_path_idx ON public.gha_commits_files USING btree (path);
 
 
 --
@@ -2565,6 +2557,20 @@ CREATE INDEX commits_files_sha_idx ON public.gha_commits_files USING btree (sha)
 --
 
 CREATE INDEX commits_files_size_idx ON public.gha_commits_files USING btree (size);
+
+
+--
+-- Name: commits_loc_added_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX commits_loc_added_idx ON public.gha_commits USING btree (loc_added);
+
+
+--
+-- Name: commits_loc_removed_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX commits_loc_removed_idx ON public.gha_commits USING btree (loc_removed);
 
 
 --
@@ -2645,16 +2651,17 @@ CREATE INDEX events_commits_files_event_id_idx ON public.gha_events_commits_file
 
 
 --
--- Name: events_commits_files_path_idx; Type: INDEX; Schema: public; Owner: gha_admin
---
-
-CREATE INDEX events_commits_files_path_idx ON public.gha_events_commits_files USING btree (path);
-
---
 -- Name: events_commits_files_ext_idx; Type: INDEX; Schema: public; Owner: gha_admin
 --
 
 CREATE INDEX events_commits_files_ext_idx ON public.gha_events_commits_files USING btree (ext);
+
+
+--
+-- Name: events_commits_files_path_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX events_commits_files_path_idx ON public.gha_events_commits_files USING btree (path);
 
 
 --
@@ -3670,6 +3677,20 @@ CREATE INDEX repos_org_login_idx ON public.gha_repos USING btree (org_login);
 --
 
 CREATE INDEX repos_repo_group_idx ON public.gha_repos USING btree (repo_group);
+
+
+--
+-- Name: skip_commits_dt_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX skip_commits_dt_idx ON public.gha_skip_commits USING btree (dt);
+
+
+--
+-- Name: skip_commits_reason_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX skip_commits_reason_idx ON public.gha_skip_commits USING btree (reason);
 
 
 --
