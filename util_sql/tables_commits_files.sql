@@ -46,11 +46,15 @@ CREATE INDEX events_commits_files_dt_idx ON gha_events_commits_files USING btree
 CREATE INDEX events_commits_files_size_idx ON gha_events_commits_files USING btree (size);
 
 CREATE TABLE gha_skip_commits (
-  sha character varying(40) NOT NULL
+  sha character varying(40) NOT NULL,
+  dt timestamp without time zone NOT NULL,
+  reason int NOT NULL
 );
 ALTER TABLE gha_skip_commits OWNER TO gha_admin;
-ALTER TABLE ONLY gha_skip_commits ADD CONSTRAINT gha_skip_commits_pkey PRIMARY KEY (sha);
+ALTER TABLE ONLY gha_skip_commits ADD CONSTRAINT gha_skip_commits_pkey PRIMARY KEY (sha, reason);
 CREATE INDEX skip_commits_sha_idx ON gha_skip_commits USING btree (sha);
+CREATE INDEX skip_commits_dt_idx ON gha_skip_commits USING btree (dt);
+CREATE INDEX skip_commits_reason_idx ON gha_skip_commits USING btree (reason);
 
 CREATE TABLE gha_postprocess_scripts (
   ord integer NOT NULL,

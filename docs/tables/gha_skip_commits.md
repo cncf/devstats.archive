@@ -13,9 +13,10 @@
 - It contains about 264K records as of Feb 2018.
 - It is created here: [structure.go](https://github.com/cncf/devstats/blob/master/structure.go#L1000-L1009).
 - You can see its SQL structure here: [structure.sql](https://github.com/cncf/devstats/blob/master/structure.sql#L681-L683).
-- Its primary key is `sha`.
+- Its primary key is `(sha, reason)`.
 
 # Columns
 
 - `sha`: commit SHA.
 - `dt`: date when this commit was marked as skipped.
+- `reason`: integer: 1 - error getting commit files or no commit files, 2 - error geting LOC stats.
