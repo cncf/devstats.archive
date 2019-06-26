@@ -5,7 +5,8 @@ select
   f.size,
   f.dup_repo_name as repo,
   f.repo_group,
-  f.path
+  f.path,
+  f.ext
   -- f.sha as commit_SHA
 from
   gha_events_commits_files f,

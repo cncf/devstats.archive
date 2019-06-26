@@ -594,6 +594,7 @@ ALTER TABLE public.gha_commits OWNER TO gha_admin;
 CREATE TABLE public.gha_commits_files (
     sha character varying(40) NOT NULL,
     path text NOT NULL,
+    ext text NOT NULL default '',
     size bigint NOT NULL,
     dt timestamp without time zone NOT NULL
 );
@@ -664,6 +665,7 @@ CREATE TABLE public.gha_events_commits_files (
     sha character varying(40) NOT NULL,
     event_id bigint NOT NULL,
     path text NOT NULL,
+    ext text NOT NULL default '',
     size bigint NOT NULL,
     dt timestamp without time zone NOT NULL,
     repo_group character varying(80),
@@ -1154,7 +1156,7 @@ COPY public.gha_commits (sha, event_id, author_name, message, is_distinct, dup_a
 -- Data for Name: gha_commits_files; Type: TABLE DATA; Schema: public; Owner: gha_admin
 --
 
-COPY public.gha_commits_files (sha, path, size, dt) FROM stdin;
+COPY public.gha_commits_files (sha, path, ext, size, dt) FROM stdin;
 \.
 
 
@@ -1444,7 +1446,7 @@ COPY public.gha_events (id, type, actor_id, repo_id, public, created_at, org_id,
 -- Data for Name: gha_events_commits_files; Type: TABLE DATA; Schema: public; Owner: gha_admin
 --
 
-COPY public.gha_events_commits_files (sha, event_id, path, size, dt, repo_group, dup_repo_id, dup_repo_name, dup_type, dup_created_at) FROM stdin;
+COPY public.gha_events_commits_files (sha, event_id, path, ext, size, dt, repo_group, dup_repo_id, dup_repo_name, dup_type, dup_created_at) FROM stdin;
 \.
 
 
@@ -2523,6 +2525,12 @@ CREATE INDEX commits_files_dt_idx ON public.gha_commits_files USING btree (dt);
 
 CREATE INDEX commits_files_path_idx ON public.gha_commits_files USING btree (path);
 
+--
+-- Name: commits_files_ext_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX commits_files_ext_idx ON public.gha_commits_files USING btree (ext);
+
 
 --
 -- Name: commits_files_sha_idx; Type: INDEX; Schema: public; Owner: gha_admin
@@ -2620,6 +2628,12 @@ CREATE INDEX events_commits_files_event_id_idx ON public.gha_events_commits_file
 --
 
 CREATE INDEX events_commits_files_path_idx ON public.gha_events_commits_files USING btree (path);
+
+--
+-- Name: events_commits_files_ext_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX events_commits_files_ext_idx ON public.gha_events_commits_files USING btree (ext);
 
 
 --

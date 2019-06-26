@@ -22,6 +22,7 @@
 - `sha`: commit SHA.
 - `event_id`: GitHub event ID that refers to this commit file.
 - `path`: full path generated as repo's path (like org/repo) and file's path (like dir/file.ext) --> `org/repo/dir/file.ext`.
+- `ext`: file extension: created from `path` in the following way: `ext = regexp_replace(lower(path), '^.*\.', '')`.
 - `size`: file size at commit's date.
 - `dt`: commit's date.
 - `repo_group`: repository group - this is updated every hour based on commit's file's repository's repo group and (possibly for Kubernetes) file level granularity repository groups definitions, see [repo groups](https://github.com/cncf/devstats/blob/master/docs/repository_groups.md).

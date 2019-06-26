@@ -6,12 +6,14 @@ drop table if exists gha_postprocess_scripts;
 CREATE TABLE gha_commits_files (
     sha character varying(40) NOT NULL,
     path text NOT NULL,
+    ext text NOT NULL default '',
     size bigint NOT NULL,
     dt timestamp without time zone NOT NULL
 );
 ALTER TABLE gha_commits_files OWNER TO gha_admin;
 ALTER TABLE ONLY gha_commits_files ADD CONSTRAINT gha_commits_files_pkey PRIMARY KEY (sha, path);
 CREATE INDEX commits_files_path_idx ON gha_commits_files USING btree (path);
+CREATE INDEX commits_files_ext_idx ON gha_commits_files USING btree (ext);
 CREATE INDEX commits_files_sha_idx ON gha_commits_files USING btree (sha);
 CREATE INDEX commits_files_dt_idx ON gha_commits_files USING btree (dt);
 CREATE INDEX commits_files_size_idx ON gha_commits_files USING btree (size);
@@ -20,6 +22,7 @@ CREATE TABLE gha_events_commits_files (
     sha character varying(40) NOT NULL,
     event_id bigint NOT NULL,
     path text NOT NULL,
+    ext text NOT NULL default '',
     size bigint NOT NULL,
     dt timestamp without time zone NOT NULL,
     repo_group character varying(80),
@@ -36,6 +39,7 @@ CREATE INDEX events_commits_files_dup_repo_name_idx ON gha_events_commits_files 
 CREATE INDEX events_commits_files_dup_type_idx ON gha_events_commits_files USING btree (dup_type);
 CREATE INDEX events_commits_files_event_id_idx ON gha_events_commits_files USING btree (event_id);
 CREATE INDEX events_commits_files_path_idx ON gha_events_commits_files USING btree (path);
+CREATE INDEX events_commits_files_ext_idx ON gha_events_commits_files USING btree (ext);
 CREATE INDEX events_commits_files_repo_group_idx ON gha_events_commits_files USING btree (repo_group);
 CREATE INDEX events_commits_files_sha_idx ON gha_events_commits_files USING btree (sha);
 CREATE INDEX events_commits_files_dt_idx ON gha_events_commits_files USING btree (dt);

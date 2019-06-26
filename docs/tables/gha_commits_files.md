@@ -17,5 +17,6 @@
 
 - `sha`: commit SHA.
 - `path`: file path, it doesn't include repo name, so can be something like `dir/file.ext`.
+- `ext`: file extension: created from `path` in the following way: `ext = regexp_replace(lower(path), '^.*\.', '')`.
 - `size`: file size at commit's date.
 - `dt`: commit's date.
