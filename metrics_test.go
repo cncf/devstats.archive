@@ -680,8 +680,9 @@ func addEventCommitFile(con *sql.DB, ctx *lib.Ctx, args ...interface{}) (err err
 		ctx,
 		"insert into gha_events_commits_files("+
 			"sha, event_id, path, size, dt, repo_group, "+
-			"dup_repo_id, dup_repo_name, dup_type, dup_created_at"+
-			") "+lib.NValues(10),
+			"dup_repo_id, dup_repo_name, dup_type, dup_created_at, ext"+
+			") values($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, "+
+			"regexp_replace(lower($3), '^.*\\.', ''))",
 		args...,
 	)
 	return
