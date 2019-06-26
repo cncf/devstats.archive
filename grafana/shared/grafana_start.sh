@@ -83,7 +83,12 @@ done
 
 # Provision dashboards
 echo 'Provisioning dashboards'
-sqlitedb /var/lib/grafana/grafana.db grafana/dashboards/$PROJ/*.json || exit 8
+if [ -z "$PG_HOST_RW" ]
+then
+  sqlitedb /var/lib/grafana/grafana.db grafana/dashboards/$PROJ/*.json || exit 8
+else
+  PG_HOST="${PG_HOST_RW}" sqlitedb /var/lib/grafana/grafana.db grafana/dashboards/$PROJ/*.json || exit 28
+fi
 
 # Set organization name and home dashboard
 echo 'Provisioning other preferences'
