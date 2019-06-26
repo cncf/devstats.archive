@@ -7,8 +7,9 @@ create index commits_loc_removed_idx on public.gha_commits using btree (loc_remo
 create index commits_files_changed_idx on public.gha_commits using btree (files_changed);
 
 alter table gha_skip_commits drop constraint gha_skip_commits_pkey;
-alter table gha_skip_commits add reason int not null;
+alter table gha_skip_commits add reason int;
 update gha_skip_commits set reason = 1;
+alter table gha_skip_commits alter column reason set not null;
 alter table gha_skip_commits add constraint gha_skip_commits_pkey primary key (sha, reason);
 
 create index skip_commits_sha_idx on gha_skip_commits using btree (sha);
