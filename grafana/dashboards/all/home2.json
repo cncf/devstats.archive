@@ -16,7 +16,7 @@
   "gnetId": null,
   "graphTooltip": 0,
   "id": 15,
-  "iteration": 1561553465546,
+  "iteration": 1561642146248,
   "links": [],
   "panels": [
     {
@@ -430,6 +430,190 @@
       "transparent": true,
       "type": "grafana-piechart-panel",
       "valueName": "current"
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "decimals": null,
+      "description": "Chart for all LOC stats for all. days during the last month.",
+      "fill": 0,
+      "gridPos": {
+        "h": 15,
+        "w": 18,
+        "x": 6,
+        "y": 3
+      },
+      "id": 6,
+      "interval": "1h",
+      "legend": {
+        "alignAsTable": true,
+        "avg": false,
+        "current": true,
+        "max": true,
+        "min": true,
+        "rightSide": false,
+        "show": true,
+        "total": false,
+        "values": true
+      },
+      "lines": true,
+      "linewidth": 2,
+      "links": [],
+      "nullPointMode": "null",
+      "options": {},
+      "percentage": false,
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [
+        {
+          "alias": "70th percentile files changed daily",
+          "fill": 2,
+          "linewidth": 0,
+          "steppedLine": true,
+          "yaxis": 2
+        },
+        {
+          "alias": "70th percentile LOC added daily",
+          "color": "#37872D"
+        },
+        {
+          "alias": "70th percentile LOC removed daily",
+          "color": "#C4162A"
+        }
+      ],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "select\n  floor(extract(epoch from dup_created_at)/86400)*86400 AS \"time\",\n  percentile_cont(0.7) within group (order by loc_added asc) as \"70th percentile LOC added daily\"\nfrom\n  gha_commits\nwhere\n  loc_added is not null\n  and loc_added \u003e 0\n  and $__timeFilter(dup_created_at)\ngroup by\n  \"time\"\norder by\n  \"time\"",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "shpr_comps",
+          "timeColumn": "\"time\"",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        },
+        {
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "select\n  floor(extract(epoch from dup_created_at)/86400)*86400 AS \"time\",\n  percentile_cont(0.7) within group (order by loc_removed asc) as \"70th percentile LOC removed daily\"\nfrom\n  gha_commits\nwhere\n  loc_removed is not null\n  and loc_removed \u003e 0\n  and $__timeFilter(dup_created_at)\ngroup by\n  \"time\"\norder by\n  \"time\"",
+          "refId": "B",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "shpr_comps",
+          "timeColumn": "\"time\"",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        },
+        {
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "select\n  floor(extract(epoch from dup_created_at)/86400)*86400 AS \"time\",\n  percentile_cont(0.7) within group (order by files_changed asc) as \"70th percentile files changed daily\"\nfrom\n  gha_commits\nwhere\n  files_changed is not null\n  and files_changed \u003e 0\n  and $__timeFilter(dup_created_at)\ngroup by\n  \"time\"\norder by\n  \"time\"",
+          "refId": "C",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "shpr_comps",
+          "timeColumn": "\"time\"",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "LOC stats chart",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "transparent": true,
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
     }
   ],
   "refresh": "15m",
@@ -526,5 +710,5 @@
   "timezone": "",
   "title": "Home2",
   "uid": "63",
-  "version": 12
+  "version": 15
 }
