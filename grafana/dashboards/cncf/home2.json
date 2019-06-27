@@ -16,7 +16,7 @@
   "gnetId": null,
   "graphTooltip": 0,
   "id": 15,
-  "iteration": 1561642146248,
+  "iteration": 1561642146280,
   "links": [],
   "panels": [
     {
@@ -331,7 +331,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "select\n  avg(sub.loc_added) filter (where sub.loc_added \u003e 0) as \"Average LOC added\",\n  max(sub.loc_added) as \"Max LOC added\",\n  percentile_cont(0.5) within group (order by sub.loc_added asc) filter (where sub.loc_added \u003e 0) as \"Median LOC added\",\n  percentile_cont(0.15) within group (order by sub.loc_added asc) filter (where sub.loc_added \u003e 0) as \"15th perc. LOC added\",\n  percentile_cont(0.85) within group (order by sub.loc_added asc) filter (where sub.loc_added \u003e 0) as \"85th perc. LOC added\",\n  avg(sub.loc_removed) filter (where sub.loc_removed \u003e 0) as \"Average LOC removed\",\n  max(sub.loc_removed) as \"Max LOC removed\",\n  percentile_cont(0.5) within group (order by sub.loc_removed asc) filter (where sub.loc_removed \u003e 0) as \"Median LOC removed\",\n  percentile_cont(0.15) within group (order by sub.loc_removed asc) filter (where sub.loc_removed \u003e 0) as \"15th perc. LOC removed\",\n  percentile_cont(0.85) within group (order by sub.loc_removed asc) filter (where sub.loc_removed \u003e 0) as \"85th perc. LOC removed\",\n  avg(sub.files_changed) filter (where sub.files_changed \u003e 0) as \"Average files ch.\",\n  max(sub.files_changed) as \"Max files ch.\",\n  percentile_cont(0.5) within group (order by sub.files_changed asc) filter (where sub.files_changed \u003e 0) as \"Median files ch.\",\n  percentile_cont(0.15) within group (order by sub.files_changed asc) filter (where sub.files_changed \u003e 0) as \"15th perc. files ch.\",\n  percentile_cont(0.85) within group (order by sub.files_changed asc) filter (where sub.files_changed \u003e 0) as \"85th perc. files ch.\"\nfrom (\n  select distinct\n    c.sha,\n    c.loc_added,\n    c.loc_removed,\n    c.files_changed\n  from\n    gha_commits c,\n    gha_repos r\n  where\n    c.dup_repo_id = r.id\n    and c.dup_repo_name = r.name\n    and r.repo_group in ([[repogroups]])\n    and c.loc_added is not null\n    and c.loc_removed is not null\n    and c.files_changed is not null\n    and $__timeFilter(c.dup_created_at)\n    and (c.dup_author_login in ([[contributors]]) or '[[contributors:csv]]' = 'null')\n) sub",
+          "rawSql": "select\n  avg(sub.loc_added) filter (where sub.loc_added \u003e 0) as \"Average LOC added\",\n  max(sub.loc_added) as \"Max LOC added\",\n  percentile_cont(0.5) within group (order by sub.loc_added asc) filter (where sub.loc_added \u003e 0) as \"Median LOC added\",\n  percentile_cont(0.15) within group (order by sub.loc_added asc) filter (where sub.loc_added \u003e 0) as \"15th perc. LOC added\",\n  percentile_cont(0.85) within group (order by sub.loc_added asc) filter (where sub.loc_added \u003e 0) as \"85th perc. LOC added\",\n  avg(sub.loc_removed) filter (where sub.loc_removed \u003e 0) as \"Average LOC removed\",\n  max(sub.loc_removed) as \"Max LOC removed\",\n  percentile_cont(0.5) within group (order by sub.loc_removed asc) filter (where sub.loc_removed \u003e 0) as \"Median LOC removed\",\n  percentile_cont(0.15) within group (order by sub.loc_removed asc) filter (where sub.loc_removed \u003e 0) as \"15th perc. LOC removed\",\n  percentile_cont(0.85) within group (order by sub.loc_removed asc) filter (where sub.loc_removed \u003e 0) as \"85th perc. LOC removed\",\n  avg(sub.files_changed) filter (where sub.files_changed \u003e 0) as \"Average files ch.\",\n  max(sub.files_changed) as \"Max files ch.\",\n  percentile_cont(0.5) within group (order by sub.files_changed asc) filter (where sub.files_changed \u003e 0) as \"Median files ch.\",\n  percentile_cont(0.15) within group (order by sub.files_changed asc) filter (where sub.files_changed \u003e 0) as \"15th perc. files ch.\",\n  percentile_cont(0.85) within group (order by sub.files_changed asc) filter (where sub.files_changed \u003e 0) as \"85th perc. files ch.\"\nfrom (\n  select distinct\n    c.sha,\n    c.loc_added,\n    c.loc_removed,\n    c.files_changed\n  from\n    gha_commits c,\n    gha_repos r\n  where\n    c.dup_repo_id = r.id\n    and c.dup_repo_name = r.name\n    and r.repo_group in ([[repogroups]])\n    and c.loc_added is not null\n    and c.loc_removed is not null\n    and c.files_changed is not null\n    and $__timeFilter(c.dup_created_at)\n    and (c.dup_author_login in ([[contributors]]) or '[[contributors:csv]]' = 'null')\n    and lower(c.dup_author_login) not like all(array['devstats-sync', 'googlebot', 'coveralls', 'rktbot', 'coreosbot', 'web-flow', 'prometheus-roobot', 'cncf-bot', 'kernelprbot', 'istio-testing', 'spinnakerbot', 'pikbot', 'spinnaker-release', 'docker-jenkins', 'golangcibot', 'opencontrail-ci-admin', 'k8s-%', '%-bot', '%-robot', 'bot-%', 'robot-%', '%[bot]%', '%-jenkins', '%-ci%bot', '%-testing', 'codecov-%', '%clabot%', '%cla-bot%', '%-gerrit', '%-bot-%'])\n) sub",
           "refId": "A",
           "select": [
             [
@@ -357,7 +357,7 @@
       ],
       "timeFrom": null,
       "timeShift": null,
-      "title": "LOC statistics",
+      "title": "Last month LOC statistics",
       "transform": "table",
       "transparent": true,
       "type": "table"
@@ -426,7 +426,7 @@
       ],
       "timeFrom": null,
       "timeShift": null,
-      "title": "Top commits files extensions",
+      "title": "Last month top commits files extensions",
       "transparent": true,
       "type": "grafana-piechart-panel",
       "valueName": "current"
@@ -437,7 +437,7 @@
       "dashLength": 10,
       "dashes": false,
       "decimals": null,
-      "description": "Chart for all LOC stats for all. days during the last month.",
+      "description": "Chart for all LOC statistics for all days during the last month. Displays 30th and 70th percentiles.",
       "fill": 0,
       "gridPos": {
         "h": 15,
@@ -461,15 +461,16 @@
       "lines": true,
       "linewidth": 2,
       "links": [],
-      "nullPointMode": "null",
+      "nullPointMode": "null as zero",
       "options": {},
       "percentage": false,
       "pointradius": 2,
-      "points": false,
+      "points": true,
       "renderer": "flot",
       "seriesOverrides": [
         {
           "alias": "70th percentile files changed daily",
+          "color": "#3274D9",
           "fill": 2,
           "linewidth": 0,
           "steppedLine": true,
@@ -477,11 +478,27 @@
         },
         {
           "alias": "70th percentile LOC added daily",
-          "color": "#37872D"
+          "color": "#56A64B"
         },
         {
           "alias": "70th percentile LOC removed daily",
           "color": "#C4162A"
+        },
+        {
+          "alias": "30th percentile files changed daily",
+          "color": "rgb(77, 99, 115)",
+          "fill": 4,
+          "linewidth": 0,
+          "steppedLine": true,
+          "yaxis": 2
+        },
+        {
+          "alias": "30th percentile LOC added daily",
+          "color": "#37872D"
+        },
+        {
+          "alias": "30th percentile LOC removed daily",
+          "color": "#E02F44"
         }
       ],
       "spaceLength": 10,
@@ -493,7 +510,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "select\n  floor(extract(epoch from dup_created_at)/86400)*86400 AS \"time\",\n  percentile_cont(0.7) within group (order by loc_added asc) as \"70th percentile LOC added daily\"\nfrom\n  gha_commits\nwhere\n  loc_added is not null\n  and loc_added \u003e 0\n  and $__timeFilter(dup_created_at)\ngroup by\n  \"time\"\norder by\n  \"time\"",
+          "rawSql": "select\n  floor(extract(epoch from dup_created_at)/86400)*86400 AS \"time\",\n  percentile_cont(0.7) within group (order by loc_added asc) as \"70th percentile LOC added daily\",\n  percentile_cont(0.3) within group (order by loc_added asc) as \"30th percentile LOC added daily\"\nfrom\n  gha_commits c,\n  gha_repos r\nwhere\n  c.dup_repo_id = r.id\n  and c.dup_repo_name = r.name\n  and r.repo_group in ([[repogroups]])\n  and (c.dup_author_login in ([[contributors]]) or '[[contributors:csv]]' = 'null')\n  and lower(c.dup_author_login) not like all(array['devstats-sync', 'googlebot', 'coveralls', 'rktbot', 'coreosbot', 'web-flow', 'prometheus-roobot', 'cncf-bot', 'kernelprbot', 'istio-testing', 'spinnakerbot', 'pikbot', 'spinnaker-release', 'docker-jenkins', 'golangcibot', 'opencontrail-ci-admin', 'k8s-%', '%-bot', '%-robot', 'bot-%', 'robot-%', '%[bot]%', '%-jenkins', '%-ci%bot', '%-testing', 'codecov-%', '%clabot%', '%cla-bot%', '%-gerrit', '%-bot-%'])\n  and loc_added is not null\n  and loc_added \u003e 0\n  and $__timeFilter(dup_created_at)\ngroup by\n  \"time\"\norder by\n  \"time\"",
           "refId": "A",
           "select": [
             [
@@ -521,7 +538,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "select\n  floor(extract(epoch from dup_created_at)/86400)*86400 AS \"time\",\n  percentile_cont(0.7) within group (order by loc_removed asc) as \"70th percentile LOC removed daily\"\nfrom\n  gha_commits\nwhere\n  loc_removed is not null\n  and loc_removed \u003e 0\n  and $__timeFilter(dup_created_at)\ngroup by\n  \"time\"\norder by\n  \"time\"",
+          "rawSql": "select\n  floor(extract(epoch from dup_created_at)/86400)*86400 AS \"time\",\n  percentile_cont(0.7) within group (order by loc_removed asc) as \"70th percentile LOC removed daily\",\n  percentile_cont(0.3) within group (order by loc_removed asc) as \"30th percentile LOC removed daily\"\nfrom\n  gha_commits c,\n  gha_repos r\nwhere\n  c.dup_repo_id = r.id\n  and c.dup_repo_name = r.name\n  and r.repo_group in ([[repogroups]])\n  and (c.dup_author_login in ([[contributors]]) or '[[contributors:csv]]' = 'null')\n  and lower(c.dup_author_login) not like all(array['devstats-sync', 'googlebot', 'coveralls', 'rktbot', 'coreosbot', 'web-flow', 'prometheus-roobot', 'cncf-bot', 'kernelprbot', 'istio-testing', 'spinnakerbot', 'pikbot', 'spinnaker-release', 'docker-jenkins', 'golangcibot', 'opencontrail-ci-admin', 'k8s-%', '%-bot', '%-robot', 'bot-%', 'robot-%', '%[bot]%', '%-jenkins', '%-ci%bot', '%-testing', 'codecov-%', '%clabot%', '%cla-bot%', '%-gerrit', '%-bot-%'])\n  and loc_removed is not null\n  and loc_removed \u003e 0\n  and $__timeFilter(dup_created_at)\ngroup by\n  \"time\"\norder by\n  \"time\"",
           "refId": "B",
           "select": [
             [
@@ -549,7 +566,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "select\n  floor(extract(epoch from dup_created_at)/86400)*86400 AS \"time\",\n  percentile_cont(0.7) within group (order by files_changed asc) as \"70th percentile files changed daily\"\nfrom\n  gha_commits\nwhere\n  files_changed is not null\n  and files_changed \u003e 0\n  and $__timeFilter(dup_created_at)\ngroup by\n  \"time\"\norder by\n  \"time\"",
+          "rawSql": "select\n  floor(extract(epoch from dup_created_at)/86400)*86400 AS \"time\",\n  percentile_cont(0.7) within group (order by files_changed asc) as \"70th percentile files changed daily\",\n  percentile_cont(0.3) within group (order by files_changed asc) as \"30th percentile files changed daily\"\nfrom\n  gha_commits c,\n  gha_repos r\nwhere\n  c.dup_repo_id = r.id\n  and c.dup_repo_name = r.name\n  and r.repo_group in ([[repogroups]])\n  and (c.dup_author_login in ([[contributors]]) or '[[contributors:csv]]' = 'null')\n  and lower(c.dup_author_login) not like all(array['devstats-sync', 'googlebot', 'coveralls', 'rktbot', 'coreosbot', 'web-flow', 'prometheus-roobot', 'cncf-bot', 'kernelprbot', 'istio-testing', 'spinnakerbot', 'pikbot', 'spinnaker-release', 'docker-jenkins', 'golangcibot', 'opencontrail-ci-admin', 'k8s-%', '%-bot', '%-robot', 'bot-%', 'robot-%', '%[bot]%', '%-jenkins', '%-ci%bot', '%-testing', 'codecov-%', '%clabot%', '%cla-bot%', '%-gerrit', '%-bot-%'])\n  and files_changed is not null\n  and files_changed \u003e 0\n  and $__timeFilter(dup_created_at)\ngroup by\n  \"time\"\norder by\n  \"time\"",
           "refId": "C",
           "select": [
             [
@@ -577,7 +594,7 @@
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "LOC stats chart",
+      "title": "LOC statistics chart",
       "tooltip": {
         "shared": true,
         "sort": 0,
@@ -594,9 +611,10 @@
       },
       "yaxes": [
         {
+          "decimals": null,
           "format": "short",
           "label": null,
-          "logBase": 1,
+          "logBase": 2,
           "max": null,
           "min": null,
           "show": true
@@ -710,5 +728,5 @@
   "timezone": "",
   "title": "Home2",
   "uid": "63",
-  "version": 15
+  "version": 22
 }
