@@ -16,7 +16,7 @@
   "gnetId": null,
   "graphTooltip": 0,
   "id": 15,
-  "iteration": 1561642146280,
+  "iteration": 1561705518444,
   "links": [],
   "panels": [
     {
@@ -31,6 +31,7 @@
         "y": 0
       },
       "id": 4,
+      "interval": "1h",
       "links": [],
       "options": {},
       "pageSize": null,
@@ -331,7 +332,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "select\n  avg(sub.loc_added) filter (where sub.loc_added \u003e 0) as \"Average LOC added\",\n  max(sub.loc_added) as \"Max LOC added\",\n  percentile_cont(0.5) within group (order by sub.loc_added asc) filter (where sub.loc_added \u003e 0) as \"Median LOC added\",\n  percentile_cont(0.15) within group (order by sub.loc_added asc) filter (where sub.loc_added \u003e 0) as \"15th perc. LOC added\",\n  percentile_cont(0.85) within group (order by sub.loc_added asc) filter (where sub.loc_added \u003e 0) as \"85th perc. LOC added\",\n  avg(sub.loc_removed) filter (where sub.loc_removed \u003e 0) as \"Average LOC removed\",\n  max(sub.loc_removed) as \"Max LOC removed\",\n  percentile_cont(0.5) within group (order by sub.loc_removed asc) filter (where sub.loc_removed \u003e 0) as \"Median LOC removed\",\n  percentile_cont(0.15) within group (order by sub.loc_removed asc) filter (where sub.loc_removed \u003e 0) as \"15th perc. LOC removed\",\n  percentile_cont(0.85) within group (order by sub.loc_removed asc) filter (where sub.loc_removed \u003e 0) as \"85th perc. LOC removed\",\n  avg(sub.files_changed) filter (where sub.files_changed \u003e 0) as \"Average files ch.\",\n  max(sub.files_changed) as \"Max files ch.\",\n  percentile_cont(0.5) within group (order by sub.files_changed asc) filter (where sub.files_changed \u003e 0) as \"Median files ch.\",\n  percentile_cont(0.15) within group (order by sub.files_changed asc) filter (where sub.files_changed \u003e 0) as \"15th perc. files ch.\",\n  percentile_cont(0.85) within group (order by sub.files_changed asc) filter (where sub.files_changed \u003e 0) as \"85th perc. files ch.\"\nfrom (\n  select distinct\n    c.sha,\n    c.loc_added,\n    c.loc_removed,\n    c.files_changed\n  from\n    gha_commits c,\n    gha_repos r\n  where\n    c.dup_repo_id = r.id\n    and c.dup_repo_name = r.name\n    and r.repo_group in ([[repogroups]])\n    and c.loc_added is not null\n    and c.loc_removed is not null\n    and c.files_changed is not null\n    and $__timeFilter(c.dup_created_at)\n    and (c.dup_author_login in ([[contributors]]) or '[[contributors:csv]]' = 'null')\n    and lower(c.dup_author_login) not like all(array['devstats-sync', 'googlebot', 'coveralls', 'rktbot', 'coreosbot', 'web-flow', 'prometheus-roobot', 'cncf-bot', 'kernelprbot', 'istio-testing', 'spinnakerbot', 'pikbot', 'spinnaker-release', 'docker-jenkins', 'golangcibot', 'opencontrail-ci-admin', 'k8s-%', '%-bot', '%-robot', 'bot-%', 'robot-%', '%[bot]%', '%-jenkins', '%-ci%bot', '%-testing', 'codecov-%', '%clabot%', '%cla-bot%', '%-gerrit', '%-bot-%'])\n) sub",
+          "rawSql": "select\n  avg(sub.loc_added) filter (where sub.loc_added \u003e 0) as \"Average LOC added\",\n  max(sub.loc_added) as \"Max LOC added\",\n  percentile_cont(0.5) within group (order by sub.loc_added asc) filter (where sub.loc_added \u003e 0) as \"Median LOC added\",\n  percentile_cont(0.15) within group (order by sub.loc_added asc) filter (where sub.loc_added \u003e 0) as \"15th perc. LOC added\",\n  percentile_cont(0.85) within group (order by sub.loc_added asc) filter (where sub.loc_added \u003e 0) as \"85th perc. LOC added\",\n  avg(sub.loc_removed) filter (where sub.loc_removed \u003e 0) as \"Average LOC removed\",\n  max(sub.loc_removed) as \"Max LOC removed\",\n  percentile_cont(0.5) within group (order by sub.loc_removed asc) filter (where sub.loc_removed \u003e 0) as \"Median LOC removed\",\n  percentile_cont(0.15) within group (order by sub.loc_removed asc) filter (where sub.loc_removed \u003e 0) as \"15th perc. LOC removed\",\n  percentile_cont(0.85) within group (order by sub.loc_removed asc) filter (where sub.loc_removed \u003e 0) as \"85th perc. LOC removed\",\n  avg(sub.files_changed) filter (where sub.files_changed \u003e 0) as \"Average files ch.\",\n  max(sub.files_changed) as \"Max files ch.\",\n  percentile_cont(0.5) within group (order by sub.files_changed asc) filter (where sub.files_changed \u003e 0) as \"Median files ch.\",\n  percentile_cont(0.15) within group (order by sub.files_changed asc) filter (where sub.files_changed \u003e 0) as \"15th perc. files ch.\",\n  percentile_cont(0.85) within group (order by sub.files_changed asc) filter (where sub.files_changed \u003e 0) as \"85th perc. files ch.\"\nfrom (\n  select distinct\n    c.sha,\n    c.loc_added,\n    c.loc_removed,\n    c.files_changed\n  from\n    gha_commits c,\n    gha_repos r\n  where\n    c.dup_repo_id = r.id\n    and c.dup_repo_name = r.name\n    and r.repo_group in ([[repogroups]])\n    and c.loc_added is not null\n    and c.loc_removed is not null\n    and c.files_changed is not null\n    and c.files_changed \u003e 0\n    and (c.loc_added \u003e 0 or c.loc_removed \u003e 0)\n    and $__timeFilter(c.dup_created_at)\n    and (c.dup_author_login in ([[contributors]]) or '[[contributors:csv]]' = 'null')\n    and lower(c.dup_author_login) not like all(array['devstats-sync', 'googlebot', 'coveralls', 'rktbot', 'coreosbot', 'web-flow', 'prometheus-roobot', 'cncf-bot', 'kernelprbot', 'istio-testing', 'spinnakerbot', 'pikbot', 'spinnaker-release', 'docker-jenkins', 'golangcibot', 'opencontrail-ci-admin', 'k8s-%', '%-bot', '%-robot', 'bot-%', 'robot-%', '%[bot]%', '%-jenkins', '%-ci%bot', '%-testing', 'codecov-%', '%clabot%', '%cla-bot%', '%-gerrit', '%-bot-%'])\n) sub",
           "refId": "A",
           "select": [
             [
@@ -632,6 +633,86 @@
         "align": false,
         "alignLevel": null
       }
+    },
+    {
+      "columns": [],
+      "description": "Throughput measures the amount of productive code written by a developer. By that we mean new lines of code written.",
+      "fontSize": "80%",
+      "gridPos": {
+        "h": 13,
+        "w": 24,
+        "x": 0,
+        "y": 18
+      },
+      "id": 8,
+      "interval": "1h",
+      "links": [],
+      "options": {},
+      "pageSize": 200,
+      "scroll": true,
+      "showHeader": true,
+      "sort": {
+        "col": 1,
+        "desc": true
+      },
+      "styles": [
+        {
+          "alias": "Time",
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "pattern": "Time",
+          "type": "date"
+        },
+        {
+          "alias": "",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "decimals": 0,
+          "pattern": "/.*/",
+          "thresholds": [],
+          "type": "number",
+          "unit": "none"
+        }
+      ],
+      "targets": [
+        {
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "select \n  sub2.\"Committer\",\n  sub2.\"Throughput\",\n  sub2.\"Previous Throughput\",\n  case sub2.\"Ratio\" \u003e 0 when true then '+' || round(sub2.\"Ratio\", 1)::text || '%' else round(sub2.\"Ratio\", 1)::text || '%' end as \"Change\"\nfrom (\n  select\n    sub.\"Committer\",\n    sub.\"Throughput\",\n    sub.\"Previous Throughput\",\n    100.0 * (sub.\"Throughput\" - sub.\"Previous Throughput\") / sub.\"Previous Throughput\" as \"Ratio\"\n  from (\n    select\n      c.dup_author_login as \"Committer\",\n      sum(c.loc_added) filter (where c.dup_created_at \u003e= now() - '1 month'::interval) as \"Throughput\",\n      sum(c.loc_added) filter (where c.dup_created_at \u003c now() - '1 month'::interval) as \"Previous Throughput\"\n    from\n      gha_commits c,\n      gha_repos r\n    where\n      c.dup_repo_id = r.id\n      and c.dup_repo_name = r.name\n      and r.repo_group in ([[repogroups]])\n      and lower(c.dup_actor_login) not like all(array['devstats-sync', 'googlebot', 'coveralls', 'rktbot', 'coreosbot', 'web-flow', 'prometheus-roobot', 'cncf-bot', 'kernelprbot', 'istio-testing', 'spinnakerbot', 'pikbot', 'spinnaker-release', 'docker-jenkins', 'golangcibot', 'opencontrail-ci-admin', 'k8s-%', '%-bot', '%-robot', 'bot-%', 'robot-%', '%[bot]%', '%-jenkins', '%-ci%bot', '%-testing', 'codecov-%', '%clabot%', '%cla-bot%', '%-gerrit', '%-bot-%'])\n      and c.loc_added is not null\n      and c.loc_added \u003e 0\n      and c.dup_created_at \u003e= now() - '2 months'::interval\n    group by\n      c.dup_author_login\n  ) sub\n  where\n    sub.\"Throughput\" \u003e 0\n    and sub.\"Previous Throughput\" \u003e 0\n) sub2\nlimit\n  200",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "shpr_comps",
+          "timeColumn": "\"time\"",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Throughput",
+      "transform": "table",
+      "transparent": true,
+      "type": "table"
     }
   ],
   "refresh": "15m",
@@ -728,5 +809,5 @@
   "timezone": "",
   "title": "Home2",
   "uid": "63",
-  "version": 22
+  "version": 4
 }
