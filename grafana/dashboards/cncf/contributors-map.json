@@ -16,11 +16,11 @@
   "gnetId": null,
   "graphTooltip": 0,
   "id": 8,
-  "iteration": 1562222454047,
+  "iteration": 1562224646796,
   "links": [],
   "panels": [
     {
-      "circleMaxSize": "50",
+      "circleMaxSize": "100",
       "circleMinSize": "1",
       "colors": [
         "#ff0000",
@@ -34,7 +34,7 @@
         "#00ff40"
       ],
       "decimals": 0,
-      "description": "Number of contributors in different countries.",
+      "description": "Number of contributions in different countries.",
       "esMetric": "Count",
       "gridPos": {
         "h": 27,
@@ -72,7 +72,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "select\n  now() as \"time\",\n  count(distinct sub.[[type]]) as \"value\",\n  coalesce(sub.country_id, '') as \"name\"\nfrom (\n  select\n    a.login,\n    e.id as event_id,\n    coalesce(a.country_id, '') as country_id\n  from\n    gha_actors a,\n    gha_events e,\n    gha_repos r\n  where\n    e.repo_id = r.id\n    and e.dup_repo_name = r.name\n    and r.repo_group in ([[repogroups]])\n    and e.dup_actor_login = a.login\n    and e.type in ('IssuesEvent', 'PullRequestEvent', 'PushEvent', 'PullRequestReviewCommentEvent', 'IssueCommentEvent', 'CommitCommentEvent')\n    and $__timeFilter(e.created_at)\n    and (e.dup_actor_login in ([[contributors]]) or '[[contributors:csv]]' = 'null')\n    and lower(a.login) not like all(array['devstats-sync', 'googlebot', 'coveralls', 'rktbot', 'coreosbot', 'web-flow', 'prometheus-roobot', 'cncf-bot', 'kernelprbot', 'istio-testing', 'spinnakerbot', 'pikbot', 'spinnaker-release', 'docker-jenkins', 'golangcibot', 'opencontrail-ci-admin', 'k8s-%', '%-bot', '%-robot', 'bot-%', 'robot-%', '%[bot]%', '%-jenkins', '%-ci%bot', '%-testing', 'codecov-%', '%clabot%', '%cla-bot%', '%-gerrit', '%-bot-%'])\n  union select\n    a.login,\n    c.event_id,\n    coalesce(a.country_id, '') as country_id\n  from\n    gha_actors a,\n    gha_commits c,\n    gha_repos r\n  where\n    c.dup_repo_id = r.id\n    and c.dup_repo_name = r.name\n    and r.repo_group in ([[repogroups]])\n    and c.dup_author_login = a.login\n    and $__timeFilter(c.dup_created_at)\n    and (c.dup_author_login in ([[contributors]]) or '[[contributors:csv]]' = 'null')\n    and lower(a.login) not like all(array['devstats-sync', 'googlebot', 'coveralls', 'rktbot', 'coreosbot', 'web-flow', 'prometheus-roobot', 'cncf-bot', 'kernelprbot', 'istio-testing', 'spinnakerbot', 'pikbot', 'spinnaker-release', 'docker-jenkins', 'golangcibot', 'opencontrail-ci-admin', 'k8s-%', '%-bot', '%-robot', 'bot-%', 'robot-%', '%[bot]%', '%-jenkins', '%-ci%bot', '%-testing', 'codecov-%', '%clabot%', '%cla-bot%', '%-gerrit', '%-bot-%'])\n  union select\n    a.login,\n    c.event_id,\n    coalesce(a.country_id, '') as country_id\n  from\n    gha_actors a,\n    gha_commits c,\n    gha_repos r\n  where\n    c.dup_repo_id = r.id\n    and c.dup_repo_name = r.name\n    and r.repo_group in ([[repogroups]])\n    and c.dup_committer_login = a.login\n    and $__timeFilter(c.dup_created_at)\n    and (c.dup_committer_login in ([[contributors]]) or '[[contributors:csv]]' = 'null')\n    and lower(a.login) not like all(array['devstats-sync', 'googlebot', 'coveralls', 'rktbot', 'coreosbot', 'web-flow', 'prometheus-roobot', 'cncf-bot', 'kernelprbot', 'istio-testing', 'spinnakerbot', 'pikbot', 'spinnaker-release', 'docker-jenkins', 'golangcibot', 'opencontrail-ci-admin', 'k8s-%', '%-bot', '%-robot', 'bot-%', 'robot-%', '%[bot]%', '%-jenkins', '%-ci%bot', '%-testing', 'codecov-%', '%clabot%', '%cla-bot%', '%-gerrit', '%-bot-%'])\n) sub\nwhere\n  sub.country_id != ''\ngroup by\n  sub.country_id",
+          "rawSql": "select\n  now() as \"time\",\n  round(sqrt(count(distinct sub.[[type]])::numeric), 0) as \"value\",\n  coalesce(sub.country_id, '') as \"name\"\nfrom (\n  select\n    a.login,\n    e.id as event_id,\n    coalesce(a.country_id, '') as country_id\n  from\n    gha_actors a,\n    gha_events e,\n    gha_repos r\n  where\n    e.repo_id = r.id\n    and e.dup_repo_name = r.name\n    and r.repo_group in ([[repogroups]])\n    and e.dup_actor_login = a.login\n    and e.type in ('IssuesEvent', 'PullRequestEvent', 'PushEvent', 'PullRequestReviewCommentEvent', 'IssueCommentEvent', 'CommitCommentEvent')\n    and $__timeFilter(e.created_at)\n    and (e.dup_actor_login in ([[contributors]]) or '[[contributors:csv]]' = 'null')\n    and lower(a.login) not like all(array['devstats-sync', 'googlebot', 'coveralls', 'rktbot', 'coreosbot', 'web-flow', 'prometheus-roobot', 'cncf-bot', 'kernelprbot', 'istio-testing', 'spinnakerbot', 'pikbot', 'spinnaker-release', 'docker-jenkins', 'golangcibot', 'opencontrail-ci-admin', 'k8s-%', '%-bot', '%-robot', 'bot-%', 'robot-%', '%[bot]%', '%-jenkins', '%-ci%bot', '%-testing', 'codecov-%', '%clabot%', '%cla-bot%', '%-gerrit', '%-bot-%'])\n  union select\n    a.login,\n    c.event_id,\n    coalesce(a.country_id, '') as country_id\n  from\n    gha_actors a,\n    gha_commits c,\n    gha_repos r\n  where\n    c.dup_repo_id = r.id\n    and c.dup_repo_name = r.name\n    and r.repo_group in ([[repogroups]])\n    and c.dup_author_login = a.login\n    and $__timeFilter(c.dup_created_at)\n    and (c.dup_author_login in ([[contributors]]) or '[[contributors:csv]]' = 'null')\n    and lower(a.login) not like all(array['devstats-sync', 'googlebot', 'coveralls', 'rktbot', 'coreosbot', 'web-flow', 'prometheus-roobot', 'cncf-bot', 'kernelprbot', 'istio-testing', 'spinnakerbot', 'pikbot', 'spinnaker-release', 'docker-jenkins', 'golangcibot', 'opencontrail-ci-admin', 'k8s-%', '%-bot', '%-robot', 'bot-%', 'robot-%', '%[bot]%', '%-jenkins', '%-ci%bot', '%-testing', 'codecov-%', '%clabot%', '%cla-bot%', '%-gerrit', '%-bot-%'])\n  union select\n    a.login,\n    c.event_id,\n    coalesce(a.country_id, '') as country_id\n  from\n    gha_actors a,\n    gha_commits c,\n    gha_repos r\n  where\n    c.dup_repo_id = r.id\n    and c.dup_repo_name = r.name\n    and r.repo_group in ([[repogroups]])\n    and c.dup_committer_login = a.login\n    and $__timeFilter(c.dup_created_at)\n    and (c.dup_committer_login in ([[contributors]]) or '[[contributors:csv]]' = 'null')\n    and lower(a.login) not like all(array['devstats-sync', 'googlebot', 'coveralls', 'rktbot', 'coreosbot', 'web-flow', 'prometheus-roobot', 'cncf-bot', 'kernelprbot', 'istio-testing', 'spinnakerbot', 'pikbot', 'spinnaker-release', 'docker-jenkins', 'golangcibot', 'opencontrail-ci-admin', 'k8s-%', '%-bot', '%-robot', 'bot-%', 'robot-%', '%[bot]%', '%-jenkins', '%-ci%bot', '%-testing', 'codecov-%', '%clabot%', '%cla-bot%', '%-gerrit', '%-bot-%'])\n) sub\nwhere\n  sub.country_id != ''\ngroup by\n  sub.country_id",
           "refId": "A",
           "select": [
             [
@@ -96,10 +96,10 @@
           ]
         }
       ],
-      "thresholds": "10,20,50,100,200,500,1000,2000",
+      "thresholds": "7,10,15,20,30,50,70,100",
       "timeFrom": null,
       "timeShift": null,
-      "title": "Contributors",
+      "title": "Contributions",
       "transparent": true,
       "type": "grafana-worldmap-panel",
       "unitPlural": "",
@@ -120,6 +120,7 @@
       {
         "allValue": null,
         "current": {
+          "tags": [],
           "text": "All",
           "value": [
             "$__all"
@@ -172,6 +173,7 @@
       {
         "allValue": null,
         "current": {
+          "selected": true,
           "tags": [],
           "text": "Contributors",
           "value": "login"
@@ -231,5 +233,5 @@
   "timezone": "",
   "title": "Contributors Map",
   "uid": "64",
-  "version": 3
+  "version": 2
 }
