@@ -435,6 +435,21 @@ where
   org_login in ('open-telemetry')
 ;
 
+
+-- Thanos
+update
+  gha_repos
+set
+  repo_group = 'Thanos',
+  alias = 'Thanos'
+where
+  org_login in ('thanos-io')
+  or name in (
+    'improbable-eng/promlts',
+    'improbable-eng/thanos'
+  )
+;
+
 -- CNCF
 update
   gha_repos
