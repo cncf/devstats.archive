@@ -48,6 +48,7 @@ icontypes=(
   ["networkservicemesh"]="color"
   ["openebs"]="color"
   ["opentelemetry"]="color"
+  ["thanos"]="color"
   ["tekton"]="color"
   ["jenkins"]="color"
   ["jenkinsx"]="color"
