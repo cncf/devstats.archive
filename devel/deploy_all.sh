@@ -4,6 +4,7 @@
 # AGET=1 (attempt to fetch 'All CNCF' Postgres database from the test server)
 # INIT=1 (needs PG_PASS_RO, PG_PASS_TEAM, initialize from no postgres database state, creates postgres logs database and users)
 # SKIPWWW=1 (skips Apache and SSL cert configuration, final result will be Grafana exposed on the server on its port (for example 3010) via HTTP)
+# SKIPCERT=1 (skip certificate issue)
 # SKIPVARS=1 (if set it will skip final Postgres vars regeneration)
 # SKIPICONS=1 (if set it will skip updating all artworks)
 # SKIPMAKE=1 (if set it will skip final make install call)
@@ -240,9 +241,14 @@ do
   fi
 done
 
+if [ -z "$SKIPCERT" ]
+then
+  export CERT=1
+fi
+
 if [ -z "$SKIPWWW" ]
 then
-  CERT=1 WWW=1 ./devel/create_www.sh || exit 37
+  WWW=1 ./devel/create_www.sh || exit 37
 fi
 if [ -z "$SKIPVARS" ]
 then
