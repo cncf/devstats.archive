@@ -6,6 +6,10 @@ then
   echo "$0: You need to provide project name and repo name as arguments"
   exit 1
 fi
+if [ "$2" = "-" ]
+then
+  exit 0
+fi
 if [ -z "$PG_PASS" ]
 then
   echo "$0: You need to set PG_PASS environment variable to run this script"
