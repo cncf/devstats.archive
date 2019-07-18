@@ -49,6 +49,7 @@ icontypes=(
   ["openebs"]="color"
   ["opentelemetry"]="color"
   ["thanos"]="color"
+  ["flux"]="color"
   ["tekton"]="color"
   ["jenkins"]="color"
   ["jenkinsx"]="color"

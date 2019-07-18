@@ -435,7 +435,6 @@ where
   org_login in ('open-telemetry')
 ;
 
-
 -- Thanos
 update
   gha_repos
@@ -448,6 +447,17 @@ where
     'improbable-eng/promlts',
     'improbable-eng/thanos'
   )
+;
+
+-- Flux
+update
+  gha_repos
+set
+  repo_group = 'Flux',
+  alias = 'Flux'
+where
+  org_login in ('fluxcd')
+  or name in ('weaveworks/flux')
 ;
 
 -- CNCF
