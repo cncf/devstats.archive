@@ -219,7 +219,7 @@ do
     PROJ=opentelemetry       PROJDB=opentelemetry  PROJREPO="open-telemetry/opentelemetry-java" ORGNAME=OpenTelemetry   PORT=3037 ICON=opentelemetry  GRAFSUFF=opentelemetry  GA="UA-108085315-48" ./devel/deploy_proj.sh || exit 49
   elif [ "$proj" = "thanos" ]
   then
-    PROJ=thanos              PROJDB=thanos         PROJREPO="improbable-eng/thanos"           ORGNAME=Thanos            PORT=3038 ICON=thanos         GRAFSUFF=thanos         GA="UA-108085315-49" ./devel/deploy_proj.sh || exit 50
+    PROJ=thanos              PROJDB=thanos         PROJREPO="thanos-io/thanos"                ORGNAME=Thanos            PORT=3038 ICON=thanos         GRAFSUFF=thanos         GA="UA-108085315-49" ./devel/deploy_proj.sh || exit 50
   elif [ "$proj" = "flux" ]
   then
     PROJ=flux                PROJDB=flux           PROJREPO="fluxcd/flux"                     ORGNAME=Flux              PORT=3039 ICON=cncf           GRAFSUFF=flux           GA="UA-108085315-50" ./devel/deploy_proj.sh || exit 51
