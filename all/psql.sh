@@ -13,7 +13,7 @@ set -o pipefail
 > errors.txt
 > run.log
 GHA2DB_PROJECT=all PG_DB=allprj GHA2DB_LOCAL=1 GHA2DB_MGETC=y structure 2>>errors.txt | tee -a run.log || exit 1
-./devel/db.sh psql allprj -c "create extension if not exists pgcrypto" || exit 1
+./devel/db.sh psql allprj -c "create extension if not exists pgcrypto" || exit 2
 if [ ! -z "$MERGE_MODE" ]
   exclude="kubernetes/api,kubernetes/apiextensions-apiserver,kubernetes/apimachinery,kubernetes/apiserver,kubernetes/client-go,kubernetes/code-generator,kubernetes/kube-aggregator,kubernetes/metrics,kubernetes/sample-apiserver,kubernetes/sample-controller,kubernetes/csi-api,kubernetes/kube-proxy,kubernetes/kube-controller-manager,kubernetes/kube-scheduler,kubernetes/kubelet,kubernetes/sample-cli-plugin"
   args="kubernetes,kubernetes-client,kubernetes-incubator,kubernetes-csi,kubernetes-graveyard,kubernetes-incubator-retired,kubernetes-sig-testing,kubernetes-providers,kubernetes-addons,kubernetes-extensions,kubernetes-federation,kubernetes-security,kubernetes-sigs,kubernetes-sidecars,kubernetes-tools,kubernetes-test,kubernetes-retired,GoogleCloudPlatform/kubernetes"
@@ -21,18 +21,9 @@ if [ ! -z "$MERGE_MODE" ]
   args="${args},open-policy-agent,spiffe,cloudevents,openeventing,telepresenceio,datawire/telepresence,helm,kubernetes-helm,kubernetes-charts,kubernetes/helm,kubernetes/charts,kubernetes/deployment-manager,kubernetes/application-dm-templates,OpenObservability,RichiH/OpenMetrics,goharbor,vmware/harbor,coreos/etcd,etcd,etcd-io,pingcap/tikv,tikv"
   args="${args},cortexproject,weaveworks/cortex,weaveworks/prism,weaveworks/frankenstein,buildpack,falcosecurity,draios/falco,dragonflyoss,alibaba/Dragonfly,virtual-kubelet,Virtual-Kubelet,kubeedge,brigadecore,Azure/brigade,kubernetes-incubator/ocid,kubernetes-incubator/cri-o,kubernetes-sigs/cri-o,cri-o,networkservicemesh,NetworkServiceMesh,ligato/networkservicemesh"
   args="${args},openebs,open-telemetry,thanos-io,improbable-eng/promlts,improbable-eng/thanos,fluxcd,weaveworks/flux"
-  
-  GHA2DB_EXCLUDE_REPOS=$exclude GHA2DB_PROJECT=all PG_DB=allprj GHA2DB_LOCAL=1 gha2db 2015-01-01 0 today now $args 2>>errors.txt | tee -a run.log || exit 2
-  
-  GHA2DB_PROJECT=kubernetes PG_DB=gha GHA2DB_LOCAL=1 GHA2DB_OLDFMT=1 GHA2DB_EXACT=1 gha2db 2014-06-02 0 2014-12-31 23 'GoogleCloudPlatform/kubernetes,kubernetes,kubernetes-client,kubernetes-csi' 2>>errors.txt | tee -a run.log || exit 4
-  GHA2DB_PROJECT=prometheus PG_DB=prometheus GHA2DB_LOCAL=1 GHA2DB_OLDFMT=1 GHA2DB_EXACT=1 gha2db 2014-01-06 0 2014-12-31 23 'prometheus/prometheus' 2>>errors.txt | tee -a run.log || exit 3
-  GHA2DB_PROJECT=fluentd PG_DB=fluentd GHA2DB_LOCAL=1 GHA2DB_OLDFMT=1 gha2db 2014-01-02 0 2014-12-31 23 fluent 2>>errors.txt | tee -a run.log || exit 3
-  GHA2DB_PROJECT=rkt PG_DB=rkt GHA2DB_LOCAL=1 GHA2DB_EXACT=1 GHA2DB_OLDFMT=1 gha2db 2014-11-26 0 2014-12-31 23 'rocket' 2>>errors.txt | tee -a run.log || exit 4
-  GHA2DB_PROJECT=tuf PG_DB=tuf GHA2DB_LOCAL=1 GHA2DB_EXACT=1 GHA2DB_OLDFMT=1 gha2db 2014-01-02 0 2014-12-31 23 'theupdateframework,tuf' 2>>errors.txt | tee -a run.log || exit 3
-  GHA2DB_PROJECT=vitess PG_DB=vitess GHA2DB_LOCAL=1 GHA2DB_EXACT=1 GHA2DB_OLDFMT=1 gha2db 2014-01-02 0 2014-12-31 23 'vitessio,youtube/vitess' 2>>errors.txt | tee -a run.log || exit 3
-  GHA2DB_PROJECT=nats PG_DB=nats GHA2DB_LOCAL=1 GHA2DB_EXACT=1 GHA2DB_OLDFMT=1 gha2db 2014-01-02 0 2014-03-02 16 'nats-io,apcera/nats,apcera/gnatsd' 2>>errors.txt | tee -a run.log || exit 3
-  GHA2DB_PROJECT=nats PG_DB=nats GHA2DB_LOCAL=1 GHA2DB_EXACT=1 GHA2DB_OLDFMT=1 gha2db 2014-03-02 18 2014-12-31 23 'nats-io,apcera/nats,apcera/gnatsd' 2>>errors.txt | tee -a run.log || exit 3
-  GHA2DB_PROJECT=etcd PG_DB=etcd GHA2DB_LOCAL=1 GHA2DB_OLDFMT=1 GHA2DB_EXACT=1 gha2db 2014-01-02 0 2014-12-31 23 'etcd' 2>>errors.txt | tee -a run.log || exit 3
+  GHA2DB_EXCLUDE_REPOS=$exclude GHA2DB_PROJECT=all PG_DB=allprj GHA2DB_LOCAL=1 gha2db 2015-01-01 0 today now "$args" 2>>errors.txt | tee -a run.log || exit 3
+  args="GoogleCloudPlatform/kubernetes,kubernetes,kubernetes-client,kubernetes-csi,prometheus/prometheus,fluent,rocket,theupdateframework,tuf,vitessio,youtube/vitess,nats-io,apcera/nats,apcera/gnatsd,etcd"
+  GHA2DB_LOCAL=1 GHA2DB_OLDFMT=1 GHA2DB_EXACT=1 gha2db 2014-01-02 0 2014-12-31 23 "$args" 2>>errors.txt | tee -a run.log || exit 4
 then
   GHA2DB_INPUT_DBS="gha,prometheus,opentracing,fluentd,linkerd,grpc,coredns,containerd,rkt,cni,envoy,jaeger,notary,tuf,rook,vitess,nats,cncf,opa,spiffe,spire,cloudevents,telepresence,helm,openmetrics,harbor,etcd,tikv,cortex,buildpacks,falco,dragonfly,virtualkubelet,kubeedge,brigade,crio,networkservicemesh,openebs,opentelemetry,thanos,flux" GHA2DB_OUTPUT_DB="allprj" merge_dbs || exit 2
 else
