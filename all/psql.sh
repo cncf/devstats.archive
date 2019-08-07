@@ -15,6 +15,7 @@ set -o pipefail
 GHA2DB_PROJECT=all PG_DB=allprj GHA2DB_LOCAL=1 GHA2DB_MGETC=y structure 2>>errors.txt | tee -a run.log || exit 1
 ./devel/db.sh psql allprj -c "create extension if not exists pgcrypto" || exit 2
 if [ ! -z "$MERGE_MODE" ]
+then
   exclude="kubernetes/api,kubernetes/apiextensions-apiserver,kubernetes/apimachinery,kubernetes/apiserver,kubernetes/client-go,kubernetes/code-generator,kubernetes/kube-aggregator,kubernetes/metrics,kubernetes/sample-apiserver,kubernetes/sample-controller,kubernetes/csi-api,kubernetes/kube-proxy,kubernetes/kube-controller-manager,kubernetes/kube-scheduler,kubernetes/kubelet,kubernetes/sample-cli-plugin"
   args="kubernetes,kubernetes-client,kubernetes-incubator,kubernetes-csi,kubernetes-graveyard,kubernetes-incubator-retired,kubernetes-sig-testing,kubernetes-providers,kubernetes-addons,kubernetes-extensions,kubernetes-federation,kubernetes-security,kubernetes-sigs,kubernetes-sidecars,kubernetes-tools,kubernetes-test,kubernetes-retired,GoogleCloudPlatform/kubernetes"
   args="${args},prometheus,opentracing,fluent,linkerd,BuoyantIO/linkerd,grpc,miekg/coredns,coredns,containerd,docker/containerd,rkt,coreos/rkt,coreos/rocket,rktproject/rkt,containernetworking,appc/cni,envoyproxy,lyft/envoy,jaegertracing,uber/jaeger,theupdateframework,docker/notary,rook,vitessio,youtube/vitess,nats-io,apcera/nats,apcera/gnatsd"
@@ -24,9 +25,8 @@ if [ ! -z "$MERGE_MODE" ]
   GHA2DB_EXCLUDE_REPOS=$exclude GHA2DB_PROJECT=all PG_DB=allprj GHA2DB_LOCAL=1 gha2db 2015-01-01 0 today now "$args" 2>>errors.txt | tee -a run.log || exit 3
   args="GoogleCloudPlatform/kubernetes,kubernetes,kubernetes-client,kubernetes-csi,prometheus/prometheus,fluent,rocket,theupdateframework,tuf,vitessio,youtube/vitess,nats-io,apcera/nats,apcera/gnatsd,etcd"
   GHA2DB_LOCAL=1 GHA2DB_OLDFMT=1 GHA2DB_EXACT=1 gha2db 2014-01-02 0 2014-12-31 23 "$args" 2>>errors.txt | tee -a run.log || exit 4
-then
-  GHA2DB_INPUT_DBS="gha,prometheus,opentracing,fluentd,linkerd,grpc,coredns,containerd,rkt,cni,envoy,jaeger,notary,tuf,rook,vitess,nats,cncf,opa,spiffe,spire,cloudevents,telepresence,helm,openmetrics,harbor,etcd,tikv,cortex,buildpacks,falco,dragonfly,virtualkubelet,kubeedge,brigade,crio,networkservicemesh,openebs,opentelemetry,thanos,flux,intoto" GHA2DB_OUTPUT_DB="allprj" merge_dbs || exit 2
 else
+  GHA2DB_INPUT_DBS="gha,prometheus,opentracing,fluentd,linkerd,grpc,coredns,containerd,rkt,cni,envoy,jaeger,notary,tuf,rook,vitess,nats,cncf,opa,spiffe,spire,cloudevents,telepresence,helm,openmetrics,harbor,etcd,tikv,cortex,buildpacks,falco,dragonfly,virtualkubelet,kubeedge,brigade,crio,networkservicemesh,openebs,opentelemetry,thanos,flux,intoto" GHA2DB_OUTPUT_DB="allprj" merge_dbs || exit 2
 fi
 GHA2DB_PROJECT=all PG_DB=allprj GHA2DB_LOCAL=1 GHA2DB_MGETC=y GHA2DB_SKIPTABLE=1 GHA2DB_INDEX=1 structure 2>>errors.txt | tee -a run.log || exit 3
 GHA2DB_PROJECT=all PG_DB=allprj ./shared/setup_repo_groups.sh 2>>errors.txt | tee -a run.log || exit 4
