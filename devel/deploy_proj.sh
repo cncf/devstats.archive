@@ -51,6 +51,7 @@ then
       echo "updating ALL CNCF project with reinit mode"
       TSDB=1 ./all/add_project.sh "$PROJDB" "$PROJREPO" || exit 4
     else
+      echo "updating ALL CNCF project"
       ./all/add_project.sh "$PROJDB" "$PROJREPO" || exit 5
     fi
   fi
