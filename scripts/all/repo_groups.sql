@@ -460,6 +460,17 @@ where
   or name in ('weaveworks/flux')
 ;
 
+
+-- in-toto
+update
+  gha_repos
+set
+  repo_group = 'in-toto',
+  alias = 'in-toto'
+where
+  org_login in ('in-toto')
+;
+
 -- CNCF
 update
   gha_repos
