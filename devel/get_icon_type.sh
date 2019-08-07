@@ -50,6 +50,7 @@ icontypes=(
   ["opentelemetry"]="color"
   ["thanos"]="color"
   ["flux"]="color"
+  ["intoto"]="color"
   ["tekton"]="color"
   ["jenkins"]="color"
   ["jenkinsx"]="color"
