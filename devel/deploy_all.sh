@@ -222,7 +222,7 @@ do
     PROJ=thanos              PROJDB=thanos         PROJREPO="thanos-io/thanos"                ORGNAME=Thanos            PORT=3038 ICON=thanos         GRAFSUFF=thanos         GA="UA-108085315-49" ./devel/deploy_proj.sh || exit 50
   elif [ "$proj" = "flux" ]
   then
-    PROJ=flux                PROJDB=flux           PROJREPO="fluxcd/flux"                     ORGNAME=Flux              PORT=3039 ICON=cncf           GRAFSUFF=flux           GA="UA-108085315-50" ./devel/deploy_proj.sh || exit 51
+    PROJ=flux                PROJDB=flux           PROJREPO="fluxcd/flux"                     ORGNAME=Flux              PORT=3039 ICON=flux           GRAFSUFF=flux           GA="UA-108085315-50" ./devel/deploy_proj.sh || exit 51
   elif [ "$proj" = "intoto" ]
   then
     PROJ=intoto              PROJDB=intoto         PROJREPO="in-toto/in-toto"                 ORGNAME="in-toto"         PORT=3040 ICON=cncf           GRAFSUFF=intoto         GA="UA-145264316-1"  ./devel/deploy_proj.sh || exit 52

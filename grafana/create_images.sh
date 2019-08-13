@@ -24,7 +24,7 @@ do
     icon="cdf"
   fi
   # TODO: remove when we have icons
-  if ( [ "$icon" = "intoto" ] || [ "$icon" = "flux" ] || [ "$icon" = "istio" ] || [ "$icon" = "knative" ] || [ "$icon" = "contrib" ] )
+  if ( [ "$icon" = "intoto" ] || [ "$icon" = "istio" ] || [ "$icon" = "knative" ] || [ "$icon" = "contrib" ] )
   then
     icon="cncf"
   fi
