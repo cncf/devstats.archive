@@ -8,7 +8,7 @@ fi
 ONLY="kubernetes prometheus opentracing" ./devel/all_affs.sh || exit 2
 GHA2DB_RECENT_RANGE="4 hours" GHA2DB_TMOFFSET="-4" devstats
 
-ONLY="fluentd linkerd grpc coredns containerd rkt cni envoy jaeger notary" ./devel/all_affs.sh || exit 3
+ONLY="fluentd linkerd grpc coredns containerd cni envoy jaeger notary" ./devel/all_affs.sh || exit 3
 GHA2DB_RECENT_RANGE="4 hours" GHA2DB_TMOFFSET="-4" devstats
 
 ONLY="tuf rook vitess nats opa spiffe spire cloudevents telepresence helm" ./devel/all_affs.sh || exit 4
