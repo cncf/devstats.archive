@@ -1,6 +1,7 @@
 #!/bin/bash
 # TSDB=1 (will update TSDB)
 # AGET=1 (will fetch allprj database from backup)
+# FORCEADDALL (will add/merge project into all even if its repo is already present)
 set -o pipefail
 if ( [ -z "$1" ] || [ -z "$2" ] )
 then
@@ -26,7 +27,12 @@ added=`./devel/db.sh psql allprj -tAc "select name from gha_repos where name = '
 if [ ! -z "$added" ]
 then
   echo "Project '$1' is already present in 'All CNCF', repo '$2' exists"
-  exit 0
+  if [ -z "$FORCEADDALL" ]
+  then
+    exit 0
+  else
+    echo 'Adding/merging anyway'
+  fi
 fi
 function finish {
     sync_unlock.sh
