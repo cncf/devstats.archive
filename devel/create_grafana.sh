@@ -225,7 +225,7 @@ then
   then
     uid=12
   fi
-  MODE=ss FROM='{{uid}}' TO="${uid}" replacer "$cfile" || exit 47
+  MODE=ss FROM='{{uid}}' TO="${uid}" replacer "$cfile"
   MODE=ss FROM='{{org}}' TO="${ORGNAME}" replacer "$cfile" || exit 48
   sqlite3 -echo -header -csv "/var/lib/grafana.$GRAFSUFF/grafana.db" < "$cfile" || exit 49
 
