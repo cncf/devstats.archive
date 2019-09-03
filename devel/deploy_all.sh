@@ -226,6 +226,9 @@ do
   elif [ "$proj" = "intoto" ]
   then
     PROJ=intoto              PROJDB=intoto         PROJREPO="in-toto/in-toto"                 ORGNAME="in-toto"         PORT=3040 ICON=cncf           GRAFSUFF=intoto         GA="UA-145264316-1"  ./devel/deploy_proj.sh || exit 52
+  elif [ "$proj" = "strimzi" ]
+  then
+    PROJ=strimzi             PROJDB=strimzi        PROJREPO="strimzi/strimzi-kafka-operator"  ORGNAME="Strimzi"         PORT=3041 ICON=cncf           GRAFSUFF=strimzi        GA="UA-145264316-2"  ./devel/deploy_proj.sh || exit 53
   elif [ "$proj" = "opencontainers" ]
   then
     PROJ=opencontainers      PROJDB=opencontainers PROJREPO="opencontainers/runc"             ORGNAME=OCI               PORT=3100 ICON="-"            GRAFSUFF=opencontainers GA="UA-108085315-19" ./devel/deploy_proj.sh || exit 32
