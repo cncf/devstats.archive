@@ -51,6 +51,7 @@ icontypes=(
   ["thanos"]="color"
   ["flux"]="color"
   ["intoto"]="color"
+  ["strimzi"]="color"
   ["tekton"]="color"
   ["jenkins"]="color"
   ["jenkinsx"]="color"
