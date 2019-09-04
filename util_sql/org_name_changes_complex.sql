@@ -1,3 +1,4 @@
+#standardSQL
 select
   org_id,
   org,
@@ -14,7 +15,7 @@ from (
     min(created_at) as date_from,
     max(created_at) as date_to
   from
-    [githubarchive:{{period}}],
+    `githubarchive.{{period}}`
   group by
     org_id, org, repo, rid
   order by
@@ -25,7 +26,7 @@ where
     select
       repo.id
     from
-      [githubarchive:{{period}}]
+      `githubarchive.{{period}}`
     where
       org.login = '{{org}}'
     group by
