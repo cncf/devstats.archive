@@ -27,6 +27,20 @@ where
       repo.id
     from
       [githubarchive:month.201908]
+      [githubarchive:month.201907],
+      [githubarchive:month.201906],
+      [githubarchive:month.201905],
+      [githubarchive:month.201904],
+      [githubarchive:month.201903],
+      [githubarchive:month.201902],
+      [githubarchive:month.201901],
+      [githubarchive:year.2018],
+      [githubarchive:year.2017],
+      [githubarchive:year.2016],
+      [githubarchive:year.2015],
+      [githubarchive:year.2014],
+      [githubarchive:year.2013],
+      [githubarchive:year.2012]
     where
       repo.name = '{{org_repo}}'
     group by
