@@ -32,4 +32,6 @@ where
     group by
       repo.id
   )
+order by
+  date_from
 ;
