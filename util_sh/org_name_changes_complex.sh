@@ -6,7 +6,7 @@ then
 fi
 if [ -z "$2" ]
 then
-  echo "$0: you need to provide period name, like 'month.201907' or 'year.2018'"
+  echo "$0: you need to provide period name, like 'month.201907', 'year.2018', 'month.2019*', 'year.201*'"
   exit 2
 fi
 function finish {
@@ -17,4 +17,4 @@ trap finish EXIT
 cp util_sql/org_name_changes_complex.sql /tmp/org_name_changes_complex.sql || exit 3
 FROM="{{org}}" TO="$1" MODE=ss replacer /tmp/org_name_changes_complex.sql || exit 4
 FROM="{{period}}" TO="$2" MODE=ss replacer /tmp/org_name_changes_complex.sql || exit 5
-cat /tmp/org_name_changes_complex.sql | bq --format=csv --headless query --use_legacy_sql=true -n 1000000 --use_cache
+cat /tmp/org_name_changes_complex.sql | bq --format=csv --headless query --use_legacy_sql=false -n 1000000 --use_cache

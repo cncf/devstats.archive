@@ -1,3 +1,4 @@
+#legacySQL
 select
   org.id as org_id,
   org.login as org,
