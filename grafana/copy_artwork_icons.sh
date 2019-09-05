@@ -22,6 +22,10 @@ do
   then
     icon="cdf"
   fi
+  if [ "$icon" = "intoto" ]
+  then
+    icon="in-toto"
+  fi
   # TODO: remove when we have icons
   if ( [ "$icon" = "istio" ] || [ "$icon" = "knative" ] || [ "$icon" = "contrib" ] || [ "$icon" = "sam" ] || [ "$icon" = "azf" ] || [ "$icon" = "riff" ] || [ "$icon" = "fn" ] || [ "$icon" = "openwhisk" ] || [ "$icon" = "openfaas" ] )
   then
@@ -45,6 +49,10 @@ do
   if [ "$icon" = "kubernetes" ]
   then
     icon="k8s"
+  fi
+  if [ "$icon" = "in-toto" ]
+  then
+    icon="intoto"
   fi
   cp -n "/usr/share/grafana.$suff/public/img/fav32.png" "/usr/share/grafana.$suff/public/img/fav32.png.bak" || exit 6
   cp "grafana/img/${icon}32.png" "/usr/share/grafana.$suff/public/img/fav32.png" || exit 7
