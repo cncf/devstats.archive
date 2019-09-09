@@ -482,6 +482,16 @@ where
   or name in ('EnMasseProject/barnabas', 'ppatierno/barnabas', 'ppatierno/kaas')
 ;
 
+-- KubeVirt
+update
+  gha_repos
+set
+  repo_group = 'KubeVirt',
+  alias = 'KubeVirt'
+where
+  org_login in ('kubevirt')
+;
+
 -- CNCF
 update
   gha_repos
