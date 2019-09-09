@@ -58,6 +58,7 @@ icontypes=(
   ["flux"]="color"
   ["intoto"]="color"
   ["strimzi"]="color"
+  ["kubevirt"]="color"
   ["tekton"]="color"
   ["jenkins"]="color"
   ["jenkinsx"]="color"
