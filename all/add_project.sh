@@ -1,7 +1,7 @@
 #!/bin/bash
 # TSDB=1 (will update TSDB)
 # AGET=1 (will fetch allprj database from backup)
-# FORCEADDALL (will add/merge project into all even if its repo is already present)
+# FORCEADDALL=1|tsdb (will add/merge project into all even if its repo is already present)
 set -o pipefail
 if ( [ -z "$1" ] || [ -z "$2" ] )
 then
@@ -73,7 +73,7 @@ else
     GHA2DB_PROJECT=all PG_DB=allprj ./shared/setup_repo_groups.sh || exit 16
   fi
 fi
-if [ ! -z "$TSDB" ]
+if ( [ ! -z "$TSDB" ] || [ "$FORCEADDALL" = "tsdb" ] )
 then
   echo "regenerating allprj TS database"
   if [ -f "./all/reinit.sh" ]
