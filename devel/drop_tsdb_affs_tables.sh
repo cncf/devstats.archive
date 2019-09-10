@@ -10,6 +10,8 @@ fi
 ./devel/drop_ts_tables_staring_with.sh "$1" "shcom"
 ./devel/drop_ts_tables_staring_with.sh "$1" "ssex"
 ./devel/drop_ts_tables_staring_with.sh "$1" "scountries"
+./devel/drop_ts_tables_staring_with.sh "$1" "scompany_prs"
+./devel/drop_ts_tables_staring_with.sh "$1" "shdev"
 ./devel/drop_ts_tables_staring_with.sh "$1" "stz"
 ./devel/drop_ts_tables_staring_with.sh "$1" "ttz_offsets"
 ./devel/drop_ts_tables_staring_with.sh "$1" "tcompanies"
