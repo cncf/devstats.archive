@@ -9,6 +9,8 @@
 - or use `./devel/icons_all.sh`.
 - Run: `./grafana/restart_all_grafanas.sh` (this is optional).
 - Check if new artwork is available for all projects and for the main page.
+- Update `cncf/devstats-helm`:`devstats-helm/values.yaml`.
+- Update `cncf/devstats-helm-lf`:`devstats-helm/values.yaml`.
 
 
 # Other repos
