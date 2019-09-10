@@ -497,8 +497,8 @@ union select 'hdev_' || sub.metric || ',All_' || sub.country as metric,
 from (
   select 'commits' as metric,
     a.country_name as country,
-    c.company,
     a.login as author,
+    c.company,
     count(distinct c.sha) as value
   from
     commits_data c,
@@ -541,12 +541,12 @@ from (
   group by
     e.type,
     a.country_name,
-    aa.company_name,
-    a.login
+    a.login,
+    aa.company_name
   union select 'contributions' as metric,
     a.country_name as country,
-    coalesce(aa.company_name, '') as company,
     a.login as author,
+    coalesce(aa.company_name, '') as company,
     count(distinct e.id) as value
   from
     gha_actors a,
@@ -572,8 +572,8 @@ from (
     aa.company_name
   union select 'active_repos' as metric,
     a.country_name as country,
-    coalesce(aa.company_name, '') as company,
     a.login as author,
+    coalesce(aa.company_name, '') as company,
     count(distinct e.repo_id) as value
   from
     gha_actors a,
@@ -595,8 +595,8 @@ from (
     aa.company_name
   union select 'comments' as metric,
     a.country_name as country,
-    coalesce(aa.company_name, '') as company,
     a.login as author,
+    coalesce(aa.company_name, '') as company,
     count(distinct c.id) as value
   from
     gha_actors a,
@@ -618,8 +618,8 @@ from (
     aa.company_name
   union select 'issues' as metric,
     a.country_name as country,
-    coalesce(aa.company_name, '') as company,
     a.login as author,
+    coalesce(aa.company_name, '') as company,
     count(distinct i.id) as value
   from
     gha_actors a,
@@ -641,9 +641,9 @@ from (
     a.login,
     aa.company_name
   union select 'prs' as metric,
-    coalesce(aa.company_name, '') as company,
     a.country_name as country,
     a.login as author,
+    coalesce(aa.company_name, '') as company,
     count(distinct pr.id) as value
   from
     gha_actors a,
@@ -665,9 +665,9 @@ from (
     a.login,
     aa.company_name
   union select 'events' as metric,
-    coalesce(aa.company_name, '') as company,
     a.country_name as country,
     a.login as author,
+    coalesce(aa.company_name, '') as company,
     count(distinct e.id) as value
   from
     gha_actors a,
@@ -734,7 +734,7 @@ from (
     sub.repo_group,
     sub.country,
     sub.author,
-    sub.country,
+    sub.company,
     count(distinct sub.id) as value
   from (
     select coalesce(ecf.repo_group, r.repo_group) as repo_group,

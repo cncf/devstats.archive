@@ -6,7 +6,7 @@ from (
     r.repo_group as repo,
     aa.company_name as company,
     a.login as github_id,
-    coalesce(a.country_name, '') as country,
+    coalesce(a.country_name, '-') as country,
     coalesce(string_agg(distinct an.name, ', '), '-') as author_names,
     coalesce(string_agg(distinct ae.email, ', '), '-') as author_emails,
     count(distinct pr.id) as PRs
