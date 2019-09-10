@@ -16,7 +16,7 @@
   "gnetId": null,
   "graphTooltip": 0,
   "id": 11,
-  "iteration": 1568117461023,
+  "iteration": 1568128095757,
   "links": [],
   "panels": [
     {
@@ -137,7 +137,7 @@
           "policy": "default",
           "query": "SELECT \"name\", \"value\" FROM \"developers_hist_[[metric]]_[[repogroup]]_[[period]]\" WHERE $timeFilter",
           "rawQuery": true,
-          "rawSql": "select \n  sub.\"Rank\",\n  split_part(sub.name, '$$$', 1) as name,\n  split_part(sub.name, '$$$', 2) as \"Company\",\n  sub.value \nfrom (\n  select row_number() over (order by value desc) as \"Rank\",\n    name,\n    value\n  from\n    shdev\n  where\n    series = 'hdev_[[metric]][[repogroup]][[country]]'\n    and period = '[[period]]'\n) sub",
+          "rawSql": "select \n  sub.\"Rank\",\n  split_part(sub.name, '$$$', 1) as name,\n  split_part(sub.name, '$$$', 2) as \"Company\",\n  sub.value \nfrom (\n  select row_number() over (order by value desc) as \"Rank\",\n    name,\n    value\n  from\n    shdev\n  where\n    series = 'hdev_[[metric]][[repogroup]][[country]]'\n    and period = '[[period]]'\n    and ('[[companies:csv]]' = 'null' or split_part(name, '$$$', 2) in ([[companies]]))\n) sub",
           "refId": "A",
           "resultFormat": "table",
           "select": [
@@ -193,7 +193,8 @@
     "dashboard",
     "kubernetes",
     "repogroups",
-    "table"
+    "table",
+    "companies"
   ],
   "templating": {
     "list": [
@@ -483,6 +484,34 @@
         "tagsQuery": "",
         "type": "query",
         "useTags": false
+      },
+      {
+        "allValue": "null",
+        "current": {
+          "tags": [],
+          "text": "All",
+          "value": [
+            "$__all"
+          ]
+        },
+        "datasource": "psql",
+        "definition": "select companies_name from tcompanies order by time",
+        "hide": 0,
+        "includeAll": true,
+        "label": "Companies",
+        "multi": true,
+        "name": "companies",
+        "options": [],
+        "query": "select companies_name from tcompanies order by time",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
       }
     ]
   },
@@ -519,5 +548,5 @@
   "timezone": "",
   "title": "Developer Activity Counts by Repository Group",
   "uid": "13",
-  "version": 2
+  "version": 4
 }
