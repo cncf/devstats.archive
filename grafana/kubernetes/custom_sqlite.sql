@@ -63,6 +63,7 @@ where
     'bot-commands-repository-groups',
     'company-prs-in-repository-groups',
     'developer-activity-counts-by-repository-group',
+    'developer-activity-counts-by-companies',
     'new-and-episodic-pr-contributors',
     'new-contributors',
     'pr-reviews-by-contributor',
