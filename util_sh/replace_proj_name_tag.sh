@@ -13,5 +13,5 @@ fi
 . ./devel/all_projs.sh || exit 3
 for f in $all
 do
-  FROM="\"${FROM_PROJ}\"" TO="\"$f\"" FILES=`find grafana/dashboards/$f/ -iname "$1"` MODE=ss0 ./devel/mass_replace.sh
+  FROM="    \"${FROM_PROJ}\"" TO="    \"$f\"" FILES=`find grafana/dashboards/$f/ -iname "$1"` MODE=ss0 ./devel/mass_replace.sh
 done
