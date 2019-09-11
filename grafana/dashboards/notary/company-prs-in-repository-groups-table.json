@@ -16,7 +16,7 @@
   "gnetId": null,
   "graphTooltip": 0,
   "id": 6,
-  "iteration": 1568129381929,
+  "iteration": 1568187874942,
   "links": [],
   "panels": [
     {
@@ -39,7 +39,7 @@
       "scroll": true,
       "showHeader": true,
       "sort": {
-        "col": 5,
+        "col": 6,
         "desc": true
       },
       "styles": [
@@ -77,7 +77,7 @@
           "decimals": 2,
           "pattern": "/.*/",
           "thresholds": [],
-          "type": "number",
+          "type": "string",
           "unit": "none"
         }
       ],
@@ -106,7 +106,7 @@
           "policy": "default",
           "query": "SELECT \"name\", \"value\" FROM \"top_commenters_[[repogroup]]_[[period]]\" WHERE $timeFilter",
           "rawQuery": true,
-          "rawSql": "select\n  split_part(name, '$$$', 2) as \"Company\",\n  split_part(name, '$$$', 1) as \"Repository group\",\n  split_part(name, '$$$', 3) as \"GitHub ID\",\n  split_part(name, '$$$', 4) as \"User names\",\n  split_part(name, '$$$', 6) as \"Country\",\n  value as \"Opened PRs\"\nfrom\n  scompany_prs\nwhere\n  period = '[[period]]'\n  and ('[[repogroups:csv]]' = 'null' or split_part(name, '$$$', 1) in ([[repogroups]]))\n  and ('[[companies:csv]]' = 'null' or split_part(name, '$$$', 2) in ([[companies]]))\n  and ('[[countries:csv]]' = 'null' or split_part(name, '$$$', 6) in ([[countries]]))",
+          "rawSql": "select\n  row_number() over (order by value desc) as \"Rank\",\n  split_part(name, '$$$', 2) as \"Company\",\n  split_part(name, '$$$', 1) as \"Repository group\",\n  split_part(name, '$$$', 3) as \"GitHub ID\",\n  split_part(name, '$$$', 4) as \"User names\",\n  split_part(name, '$$$', 6) as \"Country\",\n  value as \"Opened PRs\"\nfrom\n  scompany_prs\nwhere\n  period = '[[period]]'\n  and ('[[repogroups:csv]]' = 'null' or split_part(name, '$$$', 1) in ([[repogroups]]))\n  and ('[[companies:csv]]' = 'null' or split_part(name, '$$$', 2) in ([[companies]]))\n  and ('[[countries:csv]]' = 'null' or split_part(name, '$$$', 6) in ([[countries]]))",
           "refId": "A",
           "resultFormat": "table",
           "select": [
@@ -159,7 +159,7 @@
   "style": "dark",
   "tags": [
     "dashboard",
-    "notary",
+    "all",
     "table",
     "companies",
     "repogroups"
@@ -246,8 +246,8 @@
       {
         "allValue": null,
         "current": {
-          "text": "KubeVirt",
-          "value": "KubeVirt"
+          "text": "All CNCF",
+          "value": "All CNCF"
         },
         "datasource": "psql",
         "definition": "",
@@ -271,8 +271,8 @@
       {
         "allValue": null,
         "current": {
-          "text": "\u003ch1 id=\"dashboard-header\"\u003eKubeVirt company PRs in repository groups dashboard\u003c/h1\u003e\n\u003cp\u003eLinks:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003eMetric \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/company_prs.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eTSDB \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/metrics.yaml\" target=\"_blank\"\u003eseries definition\u003c/a\u003e. Search for \u003ccode\u003ecompany_prs\u003c/code\u003e\u003c/li\u003e\n\u003cli\u003eGrafana dashboard \u003ca href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubevirt/company-prs-in-repository-groups.json\" target=\"_blank\"\u003eJSON\u003c/a\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch1 id=\"description\"\u003eDescription\u003c/h1\u003e\n\u003cul\u003e\n\u003cli\u003eThis dashboard shows how many PRs were open by given company's developer in given repository groups\u003c/li\u003e\n\u003cli\u003eYou can select one, two or more companies or All to select all of them.\u003c/li\u003e\n\u003cli\u003eYou can select one, two or more repository groups or All to select all fo tem.\u003c/li\u003e\n\u003cli\u003eYou can select last day, month, week etc. range or date range between releases, for example \u003ccode\u003ev1.9 - v1.10\u003c/code\u003e.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/periods.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about periods.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/repository_groups.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about repository groups.\u003c/li\u003e\n\u003cli\u003eWe are determining user's company affiliation from \u003ca href=\"https://github.com/cncf/devstats/blob/master/github_users.json\" target=\"_blank\"\u003ethis file\u003c/a\u003e, which is imported from \u003ccode\u003ecncf/gitdm\u003c/code\u003e.\u003c/li\u003e\n\u003c/ul\u003e",
-          "value": "\u003ch1 id=\"dashboard-header\"\u003eKubeVirt company PRs in repository groups dashboard\u003c/h1\u003e\n\u003cp\u003eLinks:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003eMetric \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/company_prs.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eTSDB \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/metrics.yaml\" target=\"_blank\"\u003eseries definition\u003c/a\u003e. Search for \u003ccode\u003ecompany_prs\u003c/code\u003e\u003c/li\u003e\n\u003cli\u003eGrafana dashboard \u003ca href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubevirt/company-prs-in-repository-groups.json\" target=\"_blank\"\u003eJSON\u003c/a\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch1 id=\"description\"\u003eDescription\u003c/h1\u003e\n\u003cul\u003e\n\u003cli\u003eThis dashboard shows how many PRs were open by given company's developer in given repository groups\u003c/li\u003e\n\u003cli\u003eYou can select one, two or more companies or All to select all of them.\u003c/li\u003e\n\u003cli\u003eYou can select one, two or more repository groups or All to select all fo tem.\u003c/li\u003e\n\u003cli\u003eYou can select last day, month, week etc. range or date range between releases, for example \u003ccode\u003ev1.9 - v1.10\u003c/code\u003e.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/periods.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about periods.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/repository_groups.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about repository groups.\u003c/li\u003e\n\u003cli\u003eWe are determining user's company affiliation from \u003ca href=\"https://github.com/cncf/devstats/blob/master/github_users.json\" target=\"_blank\"\u003ethis file\u003c/a\u003e, which is imported from \u003ccode\u003ecncf/gitdm\u003c/code\u003e.\u003c/li\u003e\n\u003c/ul\u003e"
+          "text": "\u003ch1 id=\"dashboard-header\"\u003eAll CNCF company PRs in repository groups dashboard\u003c/h1\u003e\n\u003cp\u003eLinks:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003eMetric \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/company_prs.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eTSDB \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/metrics.yaml\" target=\"_blank\"\u003eseries definition\u003c/a\u003e. Search for \u003ccode\u003ecompany_prs\u003c/code\u003e\u003c/li\u003e\n\u003cli\u003eGrafana dashboard \u003ca href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/all/company-prs-in-repository-groups.json\" target=\"_blank\"\u003eJSON\u003c/a\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch1 id=\"description\"\u003eDescription\u003c/h1\u003e\n\u003cul\u003e\n\u003cli\u003eThis dashboard shows how many PRs were open by given company's developer in given repository groups\u003c/li\u003e\n\u003cli\u003eYou can select one, two or more companies or All to select all of them.\u003c/li\u003e\n\u003cli\u003eYou can select one, two or more repository groups or All to select all fo tem.\u003c/li\u003e\n\u003cli\u003eYou can select last day, month, week etc. range or date range between releases, for example \u003ccode\u003ev1.9 - v1.10\u003c/code\u003e.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/periods.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about periods.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/repository_groups.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about repository groups.\u003c/li\u003e\n\u003cli\u003eWe are determining user's company affiliation from \u003ca href=\"https://github.com/cncf/devstats/blob/master/github_users.json\" target=\"_blank\"\u003ethis file\u003c/a\u003e, which is imported from \u003ccode\u003ecncf/gitdm\u003c/code\u003e.\u003c/li\u003e\n\u003c/ul\u003e",
+          "value": "\u003ch1 id=\"dashboard-header\"\u003eAll CNCF company PRs in repository groups dashboard\u003c/h1\u003e\n\u003cp\u003eLinks:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003eMetric \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/company_prs.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eTSDB \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/metrics.yaml\" target=\"_blank\"\u003eseries definition\u003c/a\u003e. Search for \u003ccode\u003ecompany_prs\u003c/code\u003e\u003c/li\u003e\n\u003cli\u003eGrafana dashboard \u003ca href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/all/company-prs-in-repository-groups.json\" target=\"_blank\"\u003eJSON\u003c/a\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch1 id=\"description\"\u003eDescription\u003c/h1\u003e\n\u003cul\u003e\n\u003cli\u003eThis dashboard shows how many PRs were open by given company's developer in given repository groups\u003c/li\u003e\n\u003cli\u003eYou can select one, two or more companies or All to select all of them.\u003c/li\u003e\n\u003cli\u003eYou can select one, two or more repository groups or All to select all fo tem.\u003c/li\u003e\n\u003cli\u003eYou can select last day, month, week etc. range or date range between releases, for example \u003ccode\u003ev1.9 - v1.10\u003c/code\u003e.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/periods.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about periods.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/repository_groups.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about repository groups.\u003c/li\u003e\n\u003cli\u003eWe are determining user's company affiliation from \u003ca href=\"https://github.com/cncf/devstats/blob/master/github_users.json\" target=\"_blank\"\u003ethis file\u003c/a\u003e, which is imported from \u003ccode\u003ecncf/gitdm\u003c/code\u003e.\u003c/li\u003e\n\u003c/ul\u003e"
         },
         "datasource": "psql",
         "definition": "",
