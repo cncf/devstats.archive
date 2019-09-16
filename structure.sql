@@ -2,8 +2,8 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 10.9 (Ubuntu 10.9-0ubuntu0.18.04.1)
--- Dumped by pg_dump version 10.9 (Ubuntu 10.9-0ubuntu0.18.04.1)
+-- Dumped from database version 10.10 (Ubuntu 10.10-0ubuntu0.18.04.1)
+-- Dumped by pg_dump version 10.10 (Ubuntu 10.10-0ubuntu0.18.04.1)
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -569,9 +569,6 @@ CREATE TABLE public.gha_commits (
     author_name character varying(160) NOT NULL,
     message text NOT NULL,
     is_distinct boolean NOT NULL,
-    loc_added integer,
-    loc_removed integer,
-    files_changed integer,
     dup_actor_id bigint NOT NULL,
     dup_actor_login character varying(120) NOT NULL,
     dup_repo_id bigint NOT NULL,
@@ -585,7 +582,10 @@ CREATE TABLE public.gha_commits (
     author_id bigint,
     committer_id bigint,
     dup_author_login character varying(120) DEFAULT ''::character varying NOT NULL,
-    dup_committer_login character varying(120) DEFAULT ''::character varying NOT NULL
+    dup_committer_login character varying(120) DEFAULT ''::character varying NOT NULL,
+    loc_added integer,
+    loc_removed integer,
+    files_changed integer
 );
 
 
@@ -598,9 +598,9 @@ ALTER TABLE public.gha_commits OWNER TO gha_admin;
 CREATE TABLE public.gha_commits_files (
     sha character varying(40) NOT NULL,
     path text NOT NULL,
-    ext text DEFAULT ''::text NOT NULL,
     size bigint NOT NULL,
-    dt timestamp without time zone NOT NULL
+    dt timestamp without time zone NOT NULL,
+    ext text DEFAULT ''::text NOT NULL
 );
 
 
@@ -669,14 +669,14 @@ CREATE TABLE public.gha_events_commits_files (
     sha character varying(40) NOT NULL,
     event_id bigint NOT NULL,
     path text NOT NULL,
-    ext text DEFAULT ''::text NOT NULL,
     size bigint NOT NULL,
     dt timestamp without time zone NOT NULL,
     repo_group character varying(80),
     dup_repo_id bigint NOT NULL,
     dup_repo_name character varying(160) NOT NULL,
     dup_type character varying(40) NOT NULL,
-    dup_created_at timestamp without time zone NOT NULL
+    dup_created_at timestamp without time zone NOT NULL,
+    ext text DEFAULT ''::text NOT NULL
 );
 
 
@@ -723,6 +723,18 @@ CREATE TABLE public.gha_forkees (
 
 
 ALTER TABLE public.gha_forkees OWNER TO gha_admin;
+
+--
+-- Name: gha_imported_shas; Type: TABLE; Schema: public; Owner: gha_admin
+--
+
+CREATE TABLE public.gha_imported_shas (
+    sha text NOT NULL,
+    dt timestamp without time zone NOT NULL
+);
+
+
+ALTER TABLE public.gha_imported_shas OWNER TO gha_admin;
 
 --
 -- Name: gha_issues_assignees; Type: TABLE; Schema: public; Owner: gha_admin
@@ -1153,7 +1165,7 @@ COPY public.gha_comments (id, event_id, body, created_at, updated_at, user_id, c
 -- Data for Name: gha_commits; Type: TABLE DATA; Schema: public; Owner: gha_admin
 --
 
-COPY public.gha_commits (sha, event_id, author_name, message, is_distinct, loc_added, loc_removed, files_changed, dup_actor_id, dup_actor_login, dup_repo_id, dup_repo_name, dup_type, dup_created_at, encrypted_email, author_email, committer_name, committer_email, author_id, committer_id, dup_author_login, dup_committer_login) FROM stdin;
+COPY public.gha_commits (sha, event_id, author_name, message, is_distinct, dup_actor_id, dup_actor_login, dup_repo_id, dup_repo_name, dup_type, dup_created_at, encrypted_email, author_email, committer_name, committer_email, author_id, committer_id, dup_author_login, dup_committer_login, loc_added, loc_removed, files_changed) FROM stdin;
 \.
 
 
@@ -1161,7 +1173,7 @@ COPY public.gha_commits (sha, event_id, author_name, message, is_distinct, loc_a
 -- Data for Name: gha_commits_files; Type: TABLE DATA; Schema: public; Owner: gha_admin
 --
 
-COPY public.gha_commits_files (sha, path, ext, size, dt) FROM stdin;
+COPY public.gha_commits_files (sha, path, size, dt, ext) FROM stdin;
 \.
 
 
@@ -1451,7 +1463,7 @@ COPY public.gha_events (id, type, actor_id, repo_id, public, created_at, org_id,
 -- Data for Name: gha_events_commits_files; Type: TABLE DATA; Schema: public; Owner: gha_admin
 --
 
-COPY public.gha_events_commits_files (sha, event_id, path, ext, size, dt, repo_group, dup_repo_id, dup_repo_name, dup_type, dup_created_at) FROM stdin;
+COPY public.gha_events_commits_files (sha, event_id, path, size, dt, repo_group, dup_repo_id, dup_repo_name, dup_type, dup_created_at, ext) FROM stdin;
 \.
 
 
@@ -1460,6 +1472,14 @@ COPY public.gha_events_commits_files (sha, event_id, path, ext, size, dt, repo_g
 --
 
 COPY public.gha_forkees (id, event_id, name, full_name, owner_id, description, fork, created_at, updated_at, pushed_at, homepage, size, stargazers_count, has_issues, has_projects, has_downloads, has_wiki, has_pages, forks, open_issues, watchers, default_branch, public, language, organization, dup_actor_id, dup_actor_login, dup_repo_id, dup_repo_name, dup_type, dup_created_at, dup_owner_login) FROM stdin;
+\.
+
+
+--
+-- Data for Name: gha_imported_shas; Type: TABLE DATA; Schema: public; Owner: gha_admin
+--
+
+COPY public.gha_imported_shas (sha, dt) FROM stdin;
 \.
 
 
@@ -1780,6 +1800,14 @@ ALTER TABLE ONLY public.gha_events
 
 ALTER TABLE ONLY public.gha_forkees
     ADD CONSTRAINT gha_forkees_pkey PRIMARY KEY (id, event_id);
+
+
+--
+-- Name: gha_imported_shas gha_imported_shas_pkey; Type: CONSTRAINT; Schema: public; Owner: gha_admin
+--
+
+ALTER TABLE ONLY public.gha_imported_shas
+    ADD CONSTRAINT gha_imported_shas_pkey PRIMARY KEY (sha);
 
 
 --
