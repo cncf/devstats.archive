@@ -730,7 +730,7 @@ ALTER TABLE public.gha_forkees OWNER TO gha_admin;
 
 CREATE TABLE public.gha_imported_shas (
     sha text NOT NULL,
-    dt timestamp without time zone NOT NULL
+    dt timestamp without time zone DEFAULT now() NOT NULL
 );
 
 
