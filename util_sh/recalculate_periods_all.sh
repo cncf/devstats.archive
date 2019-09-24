@@ -4,10 +4,14 @@ then
   echo "You need to set PG_PASS environment variable to run this script"
   exit 1
 fi
-if [ -z "$1" ]
+if [ -z "$GHA2DB_FORCE_PERIODS" ]
 then
-  echo "$0: you need to provide periods to calculate: 'w:f,m:f,q:f,y:f,a_33_34:t'"
-  exit 1
+  if [ -z "$1" ]
+  then
+    echo "$0: you need to provide periods to calculate: 'w:f,m:f,q:f,y:f,a_33_34:t'"
+    exit 1
+  fi
+  export GHA2DB_FORCE_PERIODS="$1"
 fi
 
 function finish {

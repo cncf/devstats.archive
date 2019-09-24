@@ -14,10 +14,14 @@ then
   echo "$0: you need to provide date start as a 1st argument: YYYY-MM-DD"
   exit 1
 fi
-if [ -z "$2" ]
+if [ -z "$GHA2DB_FORCE_PERIODS" ]
 then
-  echo "$0: you need to provide periods to calculate as a 2nd argument: 'w:f,m:f,q:f,y:f'"
-  exit 1
+  if [ -z "$2" ]
+  then
+    echo "$0: you need to provide periods to calculate: 'w:f,m:f,q:f,y:f,a_33_34:t'"
+    exit 1
+  fi
+  export GHA2DB_FORCE_PERIODS="$2"
 fi
 function finish {
     sync_unlock.sh
