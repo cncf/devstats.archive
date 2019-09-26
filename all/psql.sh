@@ -24,7 +24,7 @@ then
   args="${args},openebs,open-telemetry,thanos-io,improbable-eng/promlts,improbable-eng/thanos,fluxcd,weaveworks/flux,in-toto,strimzi,EnMasseProject/barnabas,ppatierno/barnabas,ppatierno/kaas,kubevirt,cncf,crosscloudci,cdfoundation"
   GHA2DB_EXCLUDE_REPOS=$exclude GHA2DB_PROJECT=all PG_DB=allprj GHA2DB_LOCAL=1 gha2db 2015-01-01 0 today now "$args" 2>>errors.txt | tee -a run.log || exit 3
   args="GoogleCloudPlatform/kubernetes,kubernetes,kubernetes-client,kubernetes-csi,prometheus/prometheus,fluent,rocket,theupdateframework,tuf,vitessio,youtube/vitess,nats-io,apcera/nats,apcera/gnatsd,etcd"
-  GHA2DB_LOCAL=1 GHA2DB_OLDFMT=1 GHA2DB_EXACT=1 gha2db 2014-01-02 0 2014-12-31 23 "$args" 2>>errors.txt | tee -a run.log || exit 4
+  GHA2DB_PROJECT=all PG_DB=allprj GHA2DB_LOCAL=1 GHA2DB_OLDFMT=1 GHA2DB_EXACT=1 gha2db 2014-01-02 0 2014-12-31 23 "$args" 2>>errors.txt | tee -a run.log || exit 4
 else
   GHA2DB_INPUT_DBS="gha,prometheus,opentracing,fluentd,linkerd,grpc,coredns,containerd,cni,envoy,jaeger,notary,tuf,rook,vitess,nats,cncf,opa,spiffe,spire,cloudevents,telepresence,helm,openmetrics,harbor,etcd,tikv,cortex,buildpacks,falco,dragonfly,virtualkubelet,kubeedge,brigade,crio,networkservicemesh,openebs,opentelemetry,thanos,flux,intoto,strimzi,kubevirt" GHA2DB_OUTPUT_DB="allprj" merge_dbs || exit 2
 fi
