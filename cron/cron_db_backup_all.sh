@@ -1,5 +1,6 @@
 #!/bin/bash
 # ONLY_ARTIFICIAL=1 - only backup artificial events
+# SKIP_ARTIFICIAL=1 - skip backup artificial events
 if [ ! -z "${NOBACKUP}" ]
 then
   exit 0
