@@ -1,9 +1,8 @@
 #!/bin/bash
-git pull || exit 1
 export TEST_SERVER=1
-. ./devel/all_dbs.sh || exit 2
-# found=`find /var/www/html -iname "*.tar.xz"` || exit 3
-found=`find /var/openebs/local -iname "*.tar.xz"` || exit 3
+. ./devel/all_dbs.sh || exit 1
+# found=`find /var/www/html -iname "*.tar.xz"` || exit 2
+found=`find /var/openebs/local -iname "*.tar.xz"` || exit 2
 mkdir ~/backups 1>/dev/null 2>/dev/null
 for db in $all
 do
@@ -24,6 +23,6 @@ do
     echo "$db backup not found"
   else
     echo "copying $f"
-    cp "$f" ~/backups/ || exit 4
+    cp "$f" ~/backups/ || exit 3
   fi
 done
