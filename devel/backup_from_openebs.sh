@@ -1,5 +1,6 @@
 #!/bin/bash
 git pull || exit 1
+export TEST_SERVER=1
 . ./devel/all_dbs.sh || exit 2
 # found=`find /var/www/html -iname "*.tar.xz"` || exit 3
 found=`find /var/openebs/local -iname "*.tar.xz"` || exit 3
