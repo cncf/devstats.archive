@@ -12,5 +12,6 @@ fi
 LIST_FN_PREFIX="${GHA2DB_DATADIR}/all_" . all_dbs.sh || exit 2
 for proj in $all
 do
+  echo "Backing up $proj"
   cron_db_backup.sh "$proj" 2>> "/tmp/gha2db_backup_$proj.err" 1>> "/tmp/gha2db_backup_$proj.log"
 done
