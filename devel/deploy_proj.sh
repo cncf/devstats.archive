@@ -6,6 +6,7 @@
 # SKIPGRAFANA=1 (skip all grafana related stuff)
 # WAITBOOT=N (use devel/wait_for_bootstrap.sh script before proceeding to deployment)
 # ADD_ALLCDF=1 (add to 'All CDF' instead of 'All CNCF')
+# ONLY_GHA - finish after psql.sh part (this allows running for example artificial events backup restore after GHA data is populated)
 set -o pipefail
 if [ -z "$PG_PASS" ]
 then
@@ -42,6 +43,12 @@ then
   PDB=1 TSDB=1 ./devel/create_databases.sh || exit 3
 fi
 
+if [ ! -z "$ONLY_GHA" ]
+then
+  echo "Only GHA data mode, exiting $0"
+  exit 0
+fi
+
 if [ -z "$ADD_ALLCDF" ]
 then
   if ( [ -z "$SKIPADDALL" ] && [ ! "$PROJ" = "all" ] && [ ! "$PROJ" = "opencontainers" ] && \
@@ -50,7 +57,9 @@ then
        [ ! "$PROJ" = "sam" ] && [ ! "$PROJ" = "azf" ] && [ ! "$PROJ" = "riff" ] && \
        [ ! "$PROJ" = "fn" ] && [ ! "$PROJ" = "openwhisk" ] && [ ! "$PROJ" = "openfaas" ] && \
        [ ! "$PROJ" = "graphql" ] && [ ! "$PROJ" = "graphqljs" ] && [ ! "$PROJ" = "graphiql" ] && \
-       [ ! "$PROJ" = "expressgraphql" ] && [ ! "$PROJ" = "graphqlspec" ] )
+       [ ! "$PROJ" = "expressgraphql" ] && [ ! "$PROJ" = "graphqlspec" ] && [ ! "$PROJ" = "allcdf" ] && \
+       [ ! "$PROJ" = "spinnaker" ] && [ ! "$PROJ" = "tekton" ] && [ ! "$PROJ" = "jenkins" ] && \
+       [ ! "$PROJ" = "jenkinsx" ] )
   then
     if [ "$PROJDB" = "$LASTDB" ]
     then

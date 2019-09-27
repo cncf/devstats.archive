@@ -4,6 +4,7 @@
 # PDROP=1 (will drop & create Postgres DB)
 # GET=1 (will use Postgres DB backup)
 # GETREPOS=1 to force running init repositories script after GHA and before TSDB part
+# ONLY_GHA - finish after psql.sh part (this allows running for example artificial events backup restore after GHA data is populated)
 lim=70
 set -o pipefail
 if [ -z "$PG_PASS" ]
@@ -73,7 +74,13 @@ else
 fi
 if [ ! -z "$GETREPOS" ]
 then
+  echo "GETREPOS mode"
   GHA2DB_PROJECT=$PROJ PG_DB=$PROJDB ./shared/get_repos.sh || exit 23
+fi
+if [ ! -z "$ONLY_GHA" ]
+then
+  echo "Only GHA data mode, exiting $0"
+  exit 0
 fi
 if [ ! -z "$TSDB" ]
 then
