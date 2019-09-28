@@ -16,7 +16,19 @@ then
 fi
 if [ -z "$HEALTH" ]
 then
-  GHA2DB_CMDDEBUG=1 GHA2DB_GHAPISKIP=1 GHA2DB_GETREPOSSKIP=1 GHA2DB_SKIPPDB=1 GHA2DB_RESETTSDB=1 GHA2DB_METRICS_YAML=devel/test_metrics.yaml GHA2DB_TAGS_YAML=devel/test_tags.yaml GHA2DB_COLUMNS_YAML=devel/test_columns.yaml GHA2DB_LOCAL=1 gha2db_sync
+  if [ -z "$GHA2DB_METRICS_YAML" ]
+  then
+    export GHA2DB_METRICS_YAML=devel/test_metrics.yaml
+  fi
+  if [ -z "$GHA2DB_TAGS_YAML" ]
+  then
+    export GHA2DB_TAGS_YAML=devel/test_tags.yaml
+  fi
+  if [ -z "$GHA2DB_COLUMNS_YAML" ]
+  then
+    export GHA2DB_COLUMNS_YAML=devel/test_columns.yaml
+  fi
+  GHA2DB_CMDDEBUG=1 GHA2DB_GHAPISKIP=1 GHA2DB_GETREPOSSKIP=1 GHA2DB_SKIPPDB=1 GHA2DB_RESETTSDB=1 GHA2DB_LOCAL=1 gha2db_sync
 else
   if ( [ "$PG_DB" = "allprj" ] || [ "$PG_DB" = "allcdf" ] || [ "$PG_DB" = "graphql" ] )
   then
