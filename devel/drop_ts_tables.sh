@@ -8,6 +8,10 @@ proj=$1
 tables=`./devel/db.sh psql $proj -qAntc '\dt' | cut -d\| -f2`
 for table in $tables
 do
+  if [ "$table" = "sannotations_shared" ]
+  then
+    continue
+  fi
   base=${table:0:1}
   if ( [ "$base" = "t" ] || [ "$base" = "s" ] )
   then
