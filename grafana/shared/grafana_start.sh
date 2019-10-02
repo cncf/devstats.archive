@@ -38,6 +38,7 @@ MODE=ss FROM='{{project}}' TO="$PROJ" replacer "$cfile" || exit 17
 MODE=ss FROM='{{url}}' TO="$host" replacer "$cfile" || exit 18
 MODE=ss FROM='{{ga}}' TO="$ga" replacer "$cfile" || exit 19
 MODE=ss FROM='{{org}}' TO="$ORGNAME" replacer "$cfile" || exit 20
+cp ./grafana/shared/robots.txt /usr/share/grafana/public/robots.txt || exit 29
 
 # Setup Grafana provisioning
 echo 'Updating provisioning yaml'
