@@ -492,6 +492,16 @@ where
   org_login in ('kubevirt')
 ;
 
+-- Longhorn
+update
+  gha_repos
+set
+  repo_group = 'Longhorn',
+  alias = 'Longhorn'
+where
+  org_login in ('longhorn')
+;
+
 -- CNCF
 update
   gha_repos

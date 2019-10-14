@@ -59,6 +59,7 @@ icontypes=(
   ["intoto"]="color"
   ["strimzi"]="color"
   ["kubevirt"]="color"
+  ["longhorn"]="color"
   ["tekton"]="color"
   ["jenkins"]="color"
   ["jenkinsx"]="color"
