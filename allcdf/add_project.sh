@@ -1,6 +1,7 @@
 #!/bin/bash
 # TSDB=1 (will update TSDB)
 # FORCEADDALL (will add/merge project into all even if its repo is already present)
+# USE_FLAGS=1 (will check devstats running flag and abort when set, then it will clear provisioned flag for the time of adding new metric and then set it)
 set -o pipefail
 if ( [ -z "$1" ] || [ -z "$2" ] )
 then
@@ -34,13 +35,22 @@ then
   fi
 fi
 function finish {
-    sync_unlock.sh
+  if [ ! -z "$USE_FLAGS" ]
+  then
+    ./devel/set_flag.sh allprj provisioned || exit 21
+  fi
+  sync_unlock.sh
 }
 if [ -z "$TRAP" ]
 then
   sync_lock.sh || exit -1
   trap finish EXIT
   export TRAP=1
+  if [ ! -z "$USE_FLAGS" ]
+  then
+    ./devel/wait_flag.sh allcdf devstats_running 0 || exit 19
+    ./devel/clear_flag.sh allcdf provisioned || exit 20
+  fi
 fi
   
 echo "merging $1 into allcdf"
