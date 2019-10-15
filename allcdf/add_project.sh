@@ -34,25 +34,36 @@ then
     echo 'Adding/merging anyway'
   fi
 fi
+
 function finish {
+  sync_unlock.sh
+}
+
+function finish_flags {
   if [ ! -z "$USE_FLAGS" ]
   then
     ./devel/set_flag.sh allprj provisioned || exit 21
+  else
+    echo 'Not setting provisioned flag'
   fi
-  sync_unlock.sh
 }
+
 if [ -z "$TRAP" ]
 then
   sync_lock.sh || exit -1
   trap finish EXIT
   export TRAP=1
-  if [ ! -z "$USE_FLAGS" ]
-  then
-    ./devel/wait_flag.sh allcdf devstats_running 0 || exit 19
-    ./devel/clear_flag.sh allcdf provisioned || exit 20
-  fi
 fi
-  
+
+if [ ! -z "$USE_FLAGS" ]
+then
+  ./devel/wait_flag.sh allprj devstats_running 0 || exit 19
+  ./devel/clear_flag.sh allprj provisioned || exit 20
+  trap finish_flags EXIT
+else
+  echo 'Not checking running flag and clearing provisioned flag'
+fi
+
 echo "merging $1 into allcdf"
 GHA2DB_INPUT_DBS="$1" GHA2DB_OUTPUT_DB="allcdf" merge_dbs || exit 11
 PG_DB="allcdf" ./devel/remove_db_dups.sh || exit 12
