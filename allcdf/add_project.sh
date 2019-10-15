@@ -39,29 +39,42 @@ function finish {
   sync_unlock.sh
 }
 
-function finish_flags {
+function flags {
   if [ ! -z "$USE_FLAGS" ]
   then
-    ./devel/set_flag.sh allprj provisioned || exit 21
+    ./devel/set_flag.sh allcdf provisioned || exit 21
   else
     echo 'Not setting provisioned flag'
   fi
 }
 
-if [ -z "$TRAP" ]
-then
-  sync_lock.sh || exit -1
-  trap finish EXIT
-  export TRAP=1
-fi
+function finish_flags {
+  finish
+  flags
+}
 
 if [ ! -z "$USE_FLAGS" ]
 then
-  ./devel/wait_flag.sh allprj devstats_running 0 || exit 19
-  ./devel/clear_flag.sh allprj provisioned || exit 20
-  trap finish_flags EXIT
+  ./devel/wait_flag.sh allcdf devstats_running 0 || exit 19
+  ./devel/clear_flag.sh allcdf provisioned || exit 20
+  if [ -z "$TRAP" ]
+  then
+    trap finish_flags EXIT
+  else
+    trap flags EXIT
+  fi
 else
   echo 'Not checking running flag and clearing provisioned flag'
+  if [ -z "$TRAP" ]
+  then
+    trap finish EXIT
+  fi
+fi
+
+if [ -z "$TRAP" ]
+then
+  sync_lock.sh || exit -1
+  export TRAP=1
 fi
 
 echo "merging $1 into allcdf"
