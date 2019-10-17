@@ -48,6 +48,7 @@ icontypes=(
   ["fn"]="color"
   ["openwhisk"]="color"
   ["openfaas"]="color"
+  ["cii"]="color"
   ["spinnaker"]="color"
   ["knative"]="color"
   ["crio"]="color"
