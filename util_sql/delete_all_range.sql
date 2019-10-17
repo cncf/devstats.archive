@@ -1,6 +1,8 @@
 delete from gha_pull_requests_assignees where event_id in (select id from gha_events where created_at > '{{from}}' and created_at < '{{to}}');
 delete from gha_pull_requests_requested_reviewers where event_id in (select id from gha_events where created_at > '{{from}}' and created_at < '{{to}}');
 delete from gha_issues_assignees where event_id in (select id from gha_events where created_at > '{{from}}' and created_at < '{{to}}');
+delete from gha_releases_assets where event_id in (select id from gha_events where created_at > '{{from}}' and created_at < '{{to}}');
+delete from gha_teams_repositories event_id in (select id from gha_events where created_at > '{{from}}' and created_at < '{{to}}');
 delete from gha_events where created_at > '{{from}}' and created_at < '{{to}}';
 delete from gha_assets where dup_created_at > '{{from}}' and dup_created_at < '{{to}}';
 delete from gha_branches where dup_created_at > '{{from}}' and dup_created_at < '{{to}}';
@@ -24,3 +26,4 @@ delete from gha_releases where dup_created_at > '{{from}}' and dup_created_at < 
 delete from gha_skip_commits where dt > '{{from}}' and dt < '{{to}}';
 delete from gha_teams where dup_created_at > '{{from}}' and dup_created_at < '{{to}}';
 delete from gha_texts where created_at > '{{from}}' and created_at < '{{to}}';
+delete from gha_parsed where dt > '{{from}}' and dt < '{{to}}';
