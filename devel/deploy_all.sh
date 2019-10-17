@@ -267,7 +267,7 @@ do
     PROJ=openfaas            PROJDB=openfaas       PROJREPO="openfaas/faas"                   ORGNAME="OpenFaaS"        PORT=3109 ICON=cncf           GRAFSUFF=openfaas       GA="-"               ./devel/deploy_proj.sh || exit 59
   elif [ "$proj" = "cii" ]
   then
-    PROJ=cii                 PROJDB=cii            PROJREPO="not/user"                        ORGNAME="CII"             PORT=3110 ICON=cncf           GRAFSUFF=cii            GA="-"               ./devel/deploy_proj.sh || exit 62
+    PROJ=cii                 PROJDB=cii            PROJREPO="not/used"                        ORGNAME="CII"             PORT=3110 ICON=cncf           GRAFSUFF=cii            GA="-"               ./devel/deploy_proj.sh || exit 62
   elif [ "$proj" = "all" ]
   then
     PROJ=all                 PROJDB=allprj         PROJREPO="not/used"                        ORGNAME="All CNCF"        PORT=3254 ICON=cncf           GRAFSUFF=all            GA="UA-108085315-20" ./devel/deploy_proj.sh || exit 36
