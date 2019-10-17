@@ -59,7 +59,7 @@ then
        [ ! "$PROJ" = "graphql" ] && [ ! "$PROJ" = "graphqljs" ] && [ ! "$PROJ" = "graphiql" ] && \
        [ ! "$PROJ" = "expressgraphql" ] && [ ! "$PROJ" = "graphqlspec" ] && [ ! "$PROJ" = "allcdf" ] && \
        [ ! "$PROJ" = "spinnaker" ] && [ ! "$PROJ" = "tekton" ] && [ ! "$PROJ" = "jenkins" ] && \
-       [ ! "$PROJ" = "jenkinsx" ] )
+       [ ! "$PROJ" = "jenkinsx" ]  && [ ! "$PROJ" = "cii" ] )
   then
     if [ "$PROJDB" = "$LASTDB" ]
     then
