@@ -3,9 +3,9 @@ export TEST_SERVER=1
 . ./devel/all_dbs.sh || exit 1
 found=`find /var/openebs/local -iname "*.tar.xz" -o -iname "*.dump"` || exit 2
 mkdir ~/backups 1>/dev/null 2>/dev/null
-for db in $all
+for idb in $all
 do
-  db="$db.tar.xz"
+  db="$idb.tar.xz"
   hit=''
   for f in $found
   do
@@ -24,7 +24,7 @@ do
     echo "copying $f"
     cp "$f" ~/backups/ || exit 3
   fi
-  db="$db.dump"
+  db="$idb.dump"
   hit=''
   for f in $found
   do
