@@ -23,7 +23,7 @@ from (
     )
     and a.sex is not null
     and a.sex != ''
-    and a.sex_prob >= 0.7
+    and a.sex_prob >= 0.5
     and c.dup_created_at >= '{{from}}'
     and c.dup_created_at < '{{to}}'
   group by
@@ -50,7 +50,7 @@ from (
     and r.id = c.dup_repo_id
     and a.sex is not null
     and a.sex != ''
-    and a.sex_prob >= 0.7
+    and a.sex_prob >= 0.5
     and c.dup_created_at >= '{{from}}'
     and c.dup_created_at < '{{to}}'
   group by

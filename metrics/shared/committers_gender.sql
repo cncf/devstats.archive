@@ -67,7 +67,7 @@ from (
     c.actor_id = a.id
     and a.sex is not null
     and a.sex != ''
-    and a.sex_prob >= 0.7
+    and a.sex_prob >= 0.5
   group by
     a.sex
   union select 'sex' as type,
@@ -82,7 +82,7 @@ from (
     c.actor_id = a.id
     and a.sex is not null
     and a.sex != ''
-    and a.sex_prob >= 0.7
+    and a.sex_prob >= 0.5
   group by
     a.sex,
     c.repo_group
