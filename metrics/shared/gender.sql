@@ -48,7 +48,7 @@ from (
     and a.id = e.actor_id
     and a.sex is not null
     and a.sex != ''
-    and a.sex_prob >= 0.7
+    and a.sex_prob >= 0.5
     and e.created_at >= '{{from}}'
     and e.created_at < '{{to}}'
   group by
@@ -89,7 +89,7 @@ from (
     and a.id = e.actor_id
     and a.sex is not null
     and a.sex != ''
-    and a.sex_prob >= 0.7
+    and a.sex_prob >= 0.5
     and e.created_at >= '{{from}}'
     and e.created_at < '{{to}}'
   group by
