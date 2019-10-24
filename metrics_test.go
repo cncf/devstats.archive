@@ -619,8 +619,8 @@ func addCompany(con *sql.DB, ctx *lib.Ctx, args ...interface{}) (err error) {
 // Add actor
 // id, login, name
 func addActor(con *sql.DB, ctx *lib.Ctx, args ...interface{}) (err error) {
-	if len(args) != 9 {
-		err = fmt.Errorf("addActor: expects 9 variadic parameters, got %d %+v", len(args), args)
+	if len(args) != 10 {
+		err = fmt.Errorf("addActor: expects 10 variadic parameters, got %d %+v", len(args), args)
 		return
 	}
 	_, err = lib.ExecSQL(
