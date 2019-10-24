@@ -626,7 +626,7 @@ func addActor(con *sql.DB, ctx *lib.Ctx, args ...interface{}) (err error) {
 	_, err = lib.ExecSQL(
 		con,
 		ctx,
-		"insert into gha_actors(id, login, name, country_id, country_name, tz, tz_offset, sex, sex_prob) "+lib.NValues(9),
+		"insert into gha_actors(id, login, name, country_id, country_name, tz, tz_offset, sex, sex_prob, age) "+lib.NValues(10),
 		args...,
 	)
 	return
