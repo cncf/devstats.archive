@@ -435,7 +435,8 @@ CREATE TABLE public.gha_actors (
     sex_prob double precision,
     tz character varying(40),
     tz_offset integer,
-    country_name text
+    country_name text,
+    age integer
 );
 
 
@@ -1109,7 +1110,7 @@ COPY current_state.priorities (priority, label_sort) FROM stdin;
 -- Data for Name: gha_actors; Type: TABLE DATA; Schema: public; Owner: gha_admin
 --
 
-COPY public.gha_actors (id, login, name, country_id, sex, sex_prob, tz, tz_offset, country_name) FROM stdin;
+COPY public.gha_actors (id, login, name, country_id, sex, sex_prob, tz, tz_offset, country_name, age) FROM stdin;
 \.
 
 
@@ -2109,6 +2110,13 @@ CREATE INDEX actors_affiliations_dt_to_idx ON public.gha_actors_affiliations USI
 --
 
 CREATE INDEX actors_affiliations_original_company_name_idx ON public.gha_actors_affiliations USING btree (original_company_name);
+
+
+--
+-- Name: actors_age_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX actors_age_idx ON public.gha_actors USING btree (age);
 
 
 --
