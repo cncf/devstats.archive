@@ -2,7 +2,7 @@
 
 Those steps are generally needed to change project status (usually from `Incubating` to `Graduated` or from `Sandbox` to `Incubating`):
 
-- Update status in `projects.yaml`.
+- Update status in `projects.yaml`. Add `incubating_date` or `graduated_date`.
 - Add `graduated_date` or similar (`incubating_date`, `archived_date`).
 - Change projects links order on all home dashboards. Take for example `grafana/dashboards/all/dashboards.json`, copy list of projects links into `FROM` file, change order accordingly and paste it into `TO` file.
 - Run: `./devel/dashboards_replace_from_to.sh dashboards.json`.
