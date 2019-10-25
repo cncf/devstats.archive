@@ -11,7 +11,7 @@ select
     aa.company_name = c.name
     and e.actor_id = aa.actor_id
     and c.name not in (
-      '(Unknown)'
+      '(Unknown)', 'NotFound'
     )
     and e.type = 'PushEvent'
     and e.created_at > now() - '3 years'::interval

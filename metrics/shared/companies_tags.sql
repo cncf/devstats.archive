@@ -12,7 +12,7 @@ select
     aa.company_name = c.name
     and e.actor_id = aa.actor_id
     and c.name not in (
-      '(Unknown)'
+      '(Unknown)', 'NotFound'
     )
     and e.type in (
       'PullRequestReviewCommentEvent', 'PushEvent', 'PullRequestEvent',
