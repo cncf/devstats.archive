@@ -408,7 +408,9 @@ To install cron job please check "cron" section:
 
 # Developers affiliations
 
-You need to get [github_users.json](https://github.com/cncf/gitdm/raw/master/src/github_users.json) file from [CNCF/gitdm](https://github.com/cncf/gitdm).
+You need to get [github_users.json](https://github.com/cncf/devstats/raw/master/github_users.json) and [companies.yaml](https://github.com/cncf/devstats/raw/master/companies.yaml) files. 
+
+They're periodically imported from [CNCF/gitdm](https://github.com/cncf/gitdm).
 
 To generate this file follow instructions on `cncf/gitdm`, or just get the newest version. Affiliations import tool uses `companies.yaml` file to map company acquisitions.
 
