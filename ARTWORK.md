@@ -1,5 +1,6 @@
 # Updating icons/artwork
 
+- If given artwork is not merged yet, then go to `~/cncf/artwort` and `git checkout feature-branch-name`.
 - Make sure you have the newest `cncf/artwork` in `~/dev/cncf/artwork` and `cdfoundation/artwork` in `~/dev/cdfoundation/artwork`.
 - Edit all files marked with `ARTWORK`, uncomment `TODO` and update icons: `./find.sh . '*' ARTWORK`.
 - Update: `devel/deploy_all.sh`.
