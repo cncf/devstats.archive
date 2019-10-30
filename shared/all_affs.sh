@@ -30,7 +30,7 @@ else
 fi
 
 proj=$GHA2DB_PROJECT
-if [ -z "SKIP_IMP_AFFS" ]
+if [ -z "$SKIP_IMP_AFFS" ]
 then
   if [ -f "./$proj/import_affs.sh" ]
   then
@@ -40,7 +40,7 @@ then
   fi
 fi
 
-if [ -z "SKIP_UPD_AFFS" ]
+if [ -z "$SKIP_UPD_AFFS" ]
 then
   if [ -f "./$proj/update_affs.sh" ]
   then
