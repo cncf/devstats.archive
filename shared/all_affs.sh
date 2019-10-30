@@ -1,5 +1,7 @@
 #!/bin/bash
 # SKIPTEMP=1 skip regenerating data into temporary database and use current database directly
+# SKIP_IMP_AFFS=1 skip import_affs.sh phase
+# SKIP_UPD_AFFS=1 skip update_affs.sh phase
 if ( [ -z "$GHA2DB_PROJECT" ] || [ -z "$PG_DB" ] || [ -z "$PG_PASS" ] )
 then
   echo "$0: you need to set GHA2DB_PROJECT, PG_DB, PG_PASS env variables to use this script"
@@ -28,18 +30,24 @@ else
 fi
 
 proj=$GHA2DB_PROJECT
-if [ -f "./$proj/import_affs.sh" ]
+if [ -z "SKIP_IMP_AFFS" ]
 then
-  PG_DB=$tdb ./$proj/import_affs.sh || exit 4
-else
-  GHA2DB_PROJECT=$proj PG_DB=$tdb ./shared/import_affs.sh || exit 5
+  if [ -f "./$proj/import_affs.sh" ]
+  then
+    PG_DB=$tdb ./$proj/import_affs.sh || exit 4
+  else
+    GHA2DB_PROJECT=$proj PG_DB=$tdb ./shared/import_affs.sh || exit 5
+  fi
 fi
 
-if [ -f "./$proj/update_affs.sh" ]
+if [ -z "SKIP_UPD_AFFS" ]
 then
-  PG_DB=$tdb ./$proj/update_affs.sh || exit 6
-else
-  GHA2DB_PROJECT=$proj PG_DB=$tdb ./shared/update_affs.sh || exit 7
+  if [ -f "./$proj/update_affs.sh" ]
+  then
+    PG_DB=$tdb ./$proj/update_affs.sh || exit 6
+  else
+    GHA2DB_PROJECT=$proj PG_DB=$tdb ./shared/update_affs.sh || exit 7
+  fi
 fi
 
 if [ -z "$SKIPTEMP" ]
