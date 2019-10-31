@@ -45,7 +45,10 @@ set
   repo_group = 'Jenkins X',
   alias = 'Jenkins X'
 where
-  org_login in ('jenkins-x')
+  org_login in (
+    'jenkins-x', 'jenkins-x-quickstarts', 'jenkins-x-apps',
+    'jenkins-x-charts', 'jenkins-x-buildpacks'
+  )
 ;
 
 -- Stats
