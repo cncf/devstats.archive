@@ -39,8 +39,8 @@
       "scroll": true,
       "showHeader": true,
       "sort": {
-        "col": 2,
-        "desc": true
+        "col": 0,
+        "desc": false
       },
       "styles": [
         {
@@ -83,17 +83,19 @@
         },
         {
           "alias": "",
-          "colorMode": null,
+          "colorMode": "value",
           "colors": [
-            "rgba(245, 54, 54, 0.9)",
-            "rgba(237, 129, 40, 0.89)",
-            "rgba(50, 172, 45, 0.97)"
+            "rgba(0, 0, 0, 0)",
+            "rgb(255, 255, 255)",
+            "rgb(255, 255, 255)"
           ],
           "decimals": 0,
-          "pattern": "/.*/",
-          "thresholds": [],
-          "type": "string",
-          "unit": "short"
+          "pattern": "Rank",
+          "thresholds": [
+            "1"
+          ],
+          "type": "number",
+          "unit": "none"
         }
       ],
       "targets": [
@@ -121,7 +123,7 @@
           "policy": "default",
           "query": "SELECT \"name\", \"value\" FROM \"project_company_stats_[[metric]]_[[period]]\" WHERE $timeFilter",
           "rawQuery": true,
-          "rawSql": "select case sub.\"Rank\" when 0 then '' else sub.\"Rank\"::text end, sub.name, sub.value from (\n  select\n    (row_number() over (order by value desc) -1) as \"Rank\",\n    name,\n    value\n  from\n    shcom\n  where\n    series = 'hcom[[metric]]'\n    and period = '[[period]]'\n  ) sub",
+          "rawSql": "select\n  (row_number() over (order by value desc) -1) as \"Rank\",\n  name,\n  value\nfrom\n  shcom\nwhere\n  series = 'hcom[[metric]]'\n  and period = '[[period]]'",
           "refId": "A",
           "resultFormat": "table",
           "select": [
