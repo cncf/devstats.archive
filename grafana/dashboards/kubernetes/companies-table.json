@@ -16,7 +16,7 @@
   "gnetId": null,
   "graphTooltip": 0,
   "id": 5,
-  "iteration": 1560751212753,
+  "iteration": 1573016736473,
   "links": [],
   "panels": [
     {
@@ -38,8 +38,8 @@
       "scroll": true,
       "showHeader": true,
       "sort": {
-        "col": 2,
-        "desc": true
+        "col": 0,
+        "desc": false
       },
       "styles": [
         {
@@ -82,19 +82,21 @@
         },
         {
           "alias": "",
-          "colorMode": null,
+          "colorMode": "value",
           "colors": [
-            "rgba(245, 54, 54, 0.9)",
-            "rgba(237, 129, 40, 0.89)",
-            "rgba(50, 172, 45, 0.97)"
+            "rgba(0, 0, 0, 0)",
+            "rgb(255, 255, 255)",
+            "rgb(255, 255, 255)"
           ],
           "dateFormat": "YYYY-MM-DD HH:mm:ss",
           "decimals": 0,
           "mappingType": 1,
           "pattern": "Rank",
-          "thresholds": [],
-          "type": "string",
-          "unit": "short"
+          "thresholds": [
+            "1"
+          ],
+          "type": "number",
+          "unit": "none"
         },
         {
           "alias": "",
@@ -136,7 +138,7 @@
           "policy": "default",
           "query": "SELECT \"name\", \"value\" FROM \"project_company_stats_[[metric]]_[[period]]\" WHERE $timeFilter",
           "rawQuery": true,
-          "rawSql": "select case sub.\"Rank\" when 0 then '' else sub.\"Rank\"::text end, sub.name, sub.value from (select (row_number() over (order by value desc) -1) as \"Rank\", name, value from \"shcom\" where series = 'hcom[[metric]]' and period = '[[period]]') sub",
+          "rawSql": "select (row_number() over (order by value desc) -1) as \"Rank\", name, value from \"shcom\" where series = 'hcom[[metric]]' and period = '[[period]]'",
           "refId": "A",
           "resultFormat": "table",
           "select": [
@@ -164,12 +166,14 @@
           ]
         }
       ],
+      "timeFrom": null,
       "title": "[[full_name]] Companies statistics ([[metric]], Range: [[period_name]]), bots excluded",
       "transform": "table",
       "type": "table"
     },
     {
       "content": "[[docs]]",
+      "datasource": null,
       "gridPos": {
         "h": 9,
         "w": 24,
@@ -185,7 +189,7 @@
     }
   ],
   "refresh": false,
-  "schemaVersion": 18,
+  "schemaVersion": 20,
   "style": "dark",
   "tags": [
     "dashboard",
