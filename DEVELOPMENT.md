@@ -11,3 +11,7 @@
 - If you want to use multiple tokens, create `/etc/github/oauths` file that contain list of comma separated OAuth keys or specify token values via `GHA2DB_GITHUB_OAUTH=key1,key2,...,keyN`
 - If you really don't want to use GitHub OAuth2 token, specify GHA2DB_GITHUB_OAUTH=- .This will force tokenless operation (via public API), it is a lot more rate limited (60 API points/h) than OAuth2 which gives 5000 API points/h.
 - GitHub OAuth token is only needed for `ghapi2db` and `sync_issues` tools.
+
+# Git LFS file differences
+
+- You can see differences of `git-lfs` stored files via: `./git-lfs-diff.sh revA revB dir/filename`, for example: `./git-lfs-diff.sh HEAD^ HEAD github_users.com`.
