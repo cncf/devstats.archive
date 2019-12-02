@@ -6,6 +6,7 @@ select
   max(created_at) as date_to
 from (
   select * from
+    [githubarchive:month.201911],
     [githubarchive:month.201910],
     [githubarchive:month.201909],
     [githubarchive:month.201908],
@@ -29,9 +30,9 @@ where
     select
       repo.id
     from
+      [githubarchive:month.201911],
       [githubarchive:month.201910],
-      [githubarchive:month.201909],
-      [githubarchive:month.201908]
+      [githubarchive:month.201909]
     where
       repo.name like 'org_name/%'
     group by
