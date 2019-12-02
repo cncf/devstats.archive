@@ -49,6 +49,7 @@ icontypes=(
   ["openwhisk"]="color"
   ["openfaas"]="color"
   ["cii"]="color"
+  ["prestodb"]="color"
   ["spinnaker"]="color"
   ["knative"]="color"
   ["crio"]="color"
