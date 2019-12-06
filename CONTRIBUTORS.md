@@ -17,3 +17,7 @@ Make sure to apply Format -> Number -> Plain text to all data.
 - Or `zip -9 ~/contrib.zip contributors_and_emails.csv contributing_actors.csv contributing_actors_data.csv k8s_contributors_and_emails.csv top_50_k8s_yearly_contributors.csv k8s_yearly_contributors_with_50.csv`
 
 You can run it from the SSH bastion or locally (assuming teststats.cncf.io has whitelisted your local IP). You can also run it from teststats.cncf.io and download CSVs to your computer to put them in google sheet.
+
+# Kubernetes
+
+new approach is to use `cncf/devstats-reports`, see [contributors section](https://github.com/cncf/devstats-reports#contributors).
