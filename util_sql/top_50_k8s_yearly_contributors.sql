@@ -9,7 +9,7 @@ from
 where
   ts.period = 'y'
   and ts.series = 'hdev_contributionsallall'
-  and ts.name = a.login
+  and split_part(ts.name, '$$$', 1) = a.login
   and ae.actor_id = a.id
   and (lower(a.login) {{exclude_bots}})
 group by
