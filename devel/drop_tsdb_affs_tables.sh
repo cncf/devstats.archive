@@ -20,4 +20,5 @@ if [ ! "$1" = "gha" ]
 then
   ./devel/drop_ts_tables_staring_with.sh "$1" "ssex"
   ./devel/drop_ts_tables_staring_with.sh "$1" "shpr_comps"
+  ./devel/drop_ts_tables_staring_with.sh "$1" "scompany_commits_data"
 fi
