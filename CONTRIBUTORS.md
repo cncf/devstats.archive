@@ -20,4 +20,5 @@ You can run it from the SSH bastion or locally (assuming teststats.cncf.io has w
 
 # Kubernetes
 
-new approach is to use `cncf/devstats-reports`, see [contributors section](https://github.com/cncf/devstats-reports#contributors).
+- New approach is to use `cncf/devstats-reports`, see [contributors section](https://github.com/cncf/devstats-reports#contributors).
+- Final zip containing all data in [here](https://teststats.cncf.io/backups/contrib.zip). Unzip it, and upload corresponding CSV files into google sheet.
