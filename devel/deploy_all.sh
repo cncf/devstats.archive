@@ -270,7 +270,7 @@ do
     PROJ=cii                 PROJDB=cii            PROJREPO="not/used"                        ORGNAME="CII"             PORT=3110 ICON=cncf           GRAFSUFF=cii            GA="-"               ./devel/deploy_proj.sh || exit 62
   elif [ "$proj" = "prestodb" ]
   then
-    PROJ=prestodb            PROJDB=prestodb       PROJREPO="presto/prestodb"                 ORGNAME="Presto"          PORT=3111 ICON=cncf           GRAFSUFF=prestodb       GA="-"               ./devel/deploy_proj.sh || exit 63
+    PROJ=prestodb            PROJDB=prestodb       PROJREPO="presto/prestodb"                 ORGNAME="Presto"          PORT=3111 ICON=prestodb       GRAFSUFF=prestodb       GA="-"               ./devel/deploy_proj.sh || exit 63
   elif [ "$proj" = "all" ]
   then
     PROJ=all                 PROJDB=allprj         PROJREPO="not/used"                        ORGNAME="All CNCF"        PORT=3254 ICON=cncf           GRAFSUFF=all            GA="UA-108085315-20" ./devel/deploy_proj.sh || exit 36
