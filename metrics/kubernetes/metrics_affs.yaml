@@ -8,6 +8,7 @@ metrics:
     skip: w7,m7,q7,y7
     multi_value: true
     merge_series: company_activity
+    drop: scompany_activity
   - name: Number of companies and developers contributing
     series_name_or_func: multi_row_multi_column
     sql: num_stats
@@ -15,24 +16,28 @@ metrics:
     aggregate: 1,7,28
     skip: d,w7,m7,q7,w28,m28,q28
     merge_series: num_stats
+    drop: snum_stats
   - name: Company summaries
     sql: project_company_stats
     series_name_or_func: multi_row_single_column
     histogram: true
     annotations_ranges: true
     merge_series: hcom
+    drop: shcom
   - name: Countries stats
     series_name_or_func: multi_row_multi_column
     sqls: [countries, committers_countries]
     periods: w,m,q,y
     multi_value: true
     merge_series: countries
+    drop: scountries
   - name: Countries stats cumulative
     series_name_or_func: multi_row_multi_column
     sqls: [countries_cum, committers_countries_cum]
     periods: m
     multi_value: true
     merge_series: countriescum
+    drop: scountriescum
     env:
       GHA2DB_NCPUS: 8
   - name: Timezone stats
@@ -43,6 +48,7 @@ metrics:
     skip: h7,w7,m7,q7,y7
     multi_value: true
     merge_series: tz
+    drop: stz
     env:
       GHA2DB_NCPUS: 8
   - name: Company PRs in repository groups
@@ -50,11 +56,13 @@ metrics:
     series_name_or_func: company_prs
     histogram: true
     annotations_ranges: true
+    drop: scompany_prs
   - name: Developer activity counts by repositroy group
     histogram: true
     annotations_ranges: true
     series_name_or_func: multi_row_single_column
     sqls: [hist_reviewers, hist_approvers, project_developer_stats]
     merge_series: hdev
+    drop: shdev
     env:
       GHA2DB_NCPUS: 8
