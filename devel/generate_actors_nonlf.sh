@@ -49,6 +49,7 @@ PGPASSWORD="${PG_PASS}" psql -h "${PG_HOST}" -U gha_admin -tA intoto < ./util_sq
 PGPASSWORD="${PG_PASS}" psql -h "${PG_HOST}" -U gha_admin -tA strimzi < ./util_sql/actors.sql
 PGPASSWORD="${PG_PASS}" psql -h "${PG_HOST}" -U gha_admin -tA kubevirt < ./util_sql/actors.sql
 PGPASSWORD="${PG_PASS}" psql -h "${PG_HOST}" -U gha_admin -tA longhorn < ./util_sql/actors.sql
+PGPASSWORD="${PG_PASS}" psql -h "${PG_HOST}" -U gha_admin -tA chubaofs < ./util_sql/actors.sql
 PGPASSWORD="${PG_PASS}" psql -h "${PG_HOST}" -U gha_admin -tA cncf < ./util_sql/actors.sql
 PGPASSWORD="${PG_PASS}" psql -h "${PG_HOST}" -U gha_admin -tA allprj < ./util_sql/actors.sql
 PGPASSWORD="${PG_PASS}" psql -h "${PG_HOST}" -U gha_admin -tA spinnaker < ./util_sql/actors.sql
