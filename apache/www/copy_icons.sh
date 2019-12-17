@@ -4,7 +4,7 @@
 . ./devel/all_projs.sh || exit 2
 for proj in $all
 do
-  if ( [ "$proj" = "opencontainers" ]  || [ "$proj" = "prestodb" ] )
+  if ( [ "$proj" = "opencontainers" ] || [ "$proj" = "prestodb" ] )
   then
     continue
   fi
@@ -46,5 +46,12 @@ if [[ $all = *"opencontainers"* ]]
 then
   convert ./images/OCI.png -resize 80x80 /var/www/html/img/opencontainers-icon-color.png || exit 4
   cp ./images/OCI.svg /var/www/html/img/opencontainers-icon-color.svg || exit 5
+fi
+
+# Special PrestoDB case (not a CNCF project)
+if [[ $all = *"prestodb"* ]]
+then
+  convert ./images/presto-logo-stacked.png -resize 80x80 /var/www/html/img/prestodb-icon-color.png || exit 4
+  cp ./images/presto-logo-stacked.svg /var/www/html/img/prestodb-icon-color.svg || exit 5
 fi
 echo 'OK'
