@@ -502,6 +502,19 @@ where
   org_login in ('longhorn')
 ;
 
+-- ChubaoFS
+update
+  gha_repos
+set
+  repo_group = 'ChubaoFS',
+  alias = 'ChubaoFS'
+where
+  org_login in ('chubaofs')
+  or name in (
+    'containerfs/containerfs.github.io', 'containerfilesystem/cfs', 'containerfilesystem/doc-zh'
+  )
+;
+
 -- CNCF
 update
   gha_repos

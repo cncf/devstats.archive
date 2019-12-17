@@ -62,6 +62,7 @@ icontypes=(
   ["strimzi"]="color"
   ["kubevirt"]="color"
   ["longhorn"]="color"
+  ["chubaofs"]="color"
   ["tekton"]="color"
   ["jenkins"]="color"
   ["jenkinsx"]="color"
