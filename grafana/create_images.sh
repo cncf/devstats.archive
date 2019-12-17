@@ -5,7 +5,7 @@
 . ./devel/all_projs.sh || exit 2
 for proj in $all
 do
-  if ( [ "$proj" = "opencontainers" ] )
+  if ( [ "$proj" = "opencontainers" ] || [ "$proj" = "prestodb" ] )
   then
     continue
   fi
@@ -28,7 +28,7 @@ do
     icon="in-toto"
   fi
   # TODO: remove when we have icons
-  if ( [ "$icon" = "chubaofs" ] || [ "$icon" = "istio" ] || [ "$icon" = "knative" ] || [ "$icon" = "contrib" ] || [ "$icon" = "sam" ] || [ "$icon" = "azf" ] || [ "$icon" = "riff" ] || [ "$icon" = "fn" ] || [ "$icon" = "openwhisk" ] || [ "$icon" = "openfaas" ] || [ "$icon" = "cii" ]  || [ "$icon" = "prestodb" ] )
+  if ( [ "$icon" = "istio" ] || [ "$icon" = "knative" ] || [ "$icon" = "contrib" ] || [ "$icon" = "sam" ] || [ "$icon" = "azf" ] || [ "$icon" = "riff" ] || [ "$icon" = "fn" ] || [ "$icon" = "openwhisk" ] || [ "$icon" = "openfaas" ] || [ "$icon" = "cii" ] )
   then
     icon="cncf"
   fi
@@ -52,5 +52,12 @@ if [[ $all = *"opencontainers"* ]]
 then
   cp images/OCI.svg grafana/img/opencontainers.svg || exit 4
   convert images/OCI.png -resize 32x32 grafana/img/opencontainers32.png || exit 5
+fi
+
+# Special OCI case (not a CNCF project)
+if [[ $all = *"opencontainers"* ]]
+then
+  cp images/presto-logo-stacked.svg grafana/img/opencontainers.svg || exit 4
+  convert images/presto-logo-stacked.png -resize 32x32 grafana/img/opencontainers32.png || exit 5
 fi
 echo 'OK'
