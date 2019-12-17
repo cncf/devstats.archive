@@ -4,7 +4,7 @@
 . ./devel/all_projs.sh || exit 2
 for proj in $all
 do
-  if ( [ "$proj" = "opencontainers" ] )
+  if ( [ "$proj" = "opencontainers" ]  || [ "$proj" = "prestodb" ] )
   then
     continue
   fi
@@ -22,7 +22,7 @@ do
     icon="in-toto"
   fi
   # TODO: remove when we have icons
-  if ( [ "$icon" = "chubaofs" ] || [ "$icon" = "istio" ] || [ "$icon" = "knative" ] || [ "$icon" = "contrib" ] || [ "$icon" = "sam" ] || [ "$icon" = "azf" ] || [ "$icon" = "riff" ] || [ "$icon" = "fn" ] || [ "$icon" = "openwhisk" ] || [ "$icon" = "openfaas" ] || [ "$icon" = "cii" ] )
+  if ( [ "$icon" = "istio" ] || [ "$icon" = "knative" ] || [ "$icon" = "contrib" ] || [ "$icon" = "sam" ] || [ "$icon" = "azf" ] || [ "$icon" = "riff" ] || [ "$icon" = "fn" ] || [ "$icon" = "openwhisk" ] || [ "$icon" = "openfaas" ] || [ "$icon" = "cii" ] )
   then
     icon="cncf"
   fi
