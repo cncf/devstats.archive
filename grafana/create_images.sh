@@ -55,9 +55,9 @@ then
 fi
 
 # Special OCI case (not a CNCF project)
-if [[ $all = *"opencontainers"* ]]
+if [[ $all = *"prestodb"* ]]
 then
-  cp images/presto-logo-stacked.svg grafana/img/opencontainers.svg || exit 4
-  convert images/presto-logo-stacked.png -resize 32x32 grafana/img/opencontainers32.png || exit 5
+  cp images/presto-logo-stacked.svg grafana/img/prestodb.svg || exit 6
+  convert images/presto-logo-stacked.png -resize 32x32 grafana/img/prestodb32.png || exit 7
 fi
 echo 'OK'
