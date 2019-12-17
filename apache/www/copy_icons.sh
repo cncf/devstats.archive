@@ -51,7 +51,7 @@ fi
 # Special PrestoDB case (not a CNCF project)
 if [[ $all = *"prestodb"* ]]
 then
-  convert ./images/presto-logo-stacked.png -resize 80x80 /var/www/html/img/prestodb-icon-color.png || exit 4
-  cp ./images/presto-logo-stacked.svg /var/www/html/img/prestodb-icon-color.svg || exit 5
+  convert ./images/presto-logo-stacked.png -resize 80x80 /var/www/html/img/prestodb-icon-color.png || exit 6
+  cp ./images/presto-logo-stacked.svg /var/www/html/img/prestodb-icon-color.svg || exit 7
 fi
 echo 'OK'
