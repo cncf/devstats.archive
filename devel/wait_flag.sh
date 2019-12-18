@@ -35,7 +35,7 @@ do
   exists=`PG_USER="${user}" ./devel/db.sh psql "$1" -tAc "select 1 from gha_computed where metric = '$2' union select 0 order by 1 desc limit 1"` || exit 5
   if [ ! "$exists" = "$3" ]
   then
-    echo "$1 expecting $2 to be $3, got $exists, waiting $seconds seconds"
+    echo "$1 expecting $2 to be $3, got '$exists', waiting $seconds seconds"
     sleep $seconds
   else
     echo "$0 finished "
