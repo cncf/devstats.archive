@@ -10,6 +10,7 @@ metrics:
     merge_series: gh_stats_rgrp
     #start_from: 2018-01-01T00:00:00Z
     last_hours: 8766
+    drop: sgh_stats_rgrp
   - name: Github Stats by Repository
     series_name_or_func: multi_row_single_column
     sql: github_stats_by_repos
@@ -20,11 +21,13 @@ metrics:
     merge_series: gh_stats_r
     #start_from: 2018-01-01T00:00:00Z
     last_hours: 8766
+    drop: gh_stats_r
   - name: PR labels repository groups
     series_name_or_func: multi_row_single_column
     sql: prs_labels
     periods: d
     merge_series: prs_labels
+    drop: sprs_labels
   - name: PR Time to Approve and Merge
     series_name_or_func: multi_row_multi_column
     sql: time_metrics
@@ -33,6 +36,7 @@ metrics:
     skip: w7,m7,q7,y7
     desc: time_diff_as_string
     merge_series: time_metrics
+    drop: stime_metrics
     env:
       GHA2DB_NCPUS: 8
   - name: PR time to engagement
@@ -43,6 +47,7 @@ metrics:
     skip: d,w7,m7,q7,y7
     desc: time_diff_as_string
     merge_series: first_non_author
+    drop: sfirst_non_author
   - name: Opened PRs age by repository group
     series_name_or_func: multi_row_multi_column
     sql: prs_age
@@ -51,6 +56,7 @@ metrics:
     skip: w7,m7,q7,y7
     desc: time_diff_as_string
     merge_series: prs_age
+    drop: sprs_age
   - name: Issues age by SIG and repository group
     series_name_or_func: multi_row_multi_column
     sql: issues_age
@@ -59,12 +65,14 @@ metrics:
     skip: w7,m7,q7,y7
     desc: time_diff_as_string
     merge_series: issues_age
+    drop: sissues_age
   - name: PR comments
     series_name_or_func: single_row_multi_column
     sql: pr_comments
     periods: d,w,m,q,y
     aggregate: 1,7
     skip: w7,m7,q7,y7
+    drop: 'spr_comms_med;spr_comms_p85;spr_comms_p95'
   - name: Stars and forks by repository
     series_name_or_func: multi_row_multi_column
     sql: watchers
@@ -72,6 +80,7 @@ metrics:
     aggregate: 1,7
     skip: w7,m7,q7,y7
     merge_series: watchers
+    drop: swatchers
   - name: New and episodic PR contributors
     series_name_or_func: multi_row_multi_column
     sql: new_contributors
@@ -79,6 +88,7 @@ metrics:
     aggregate: 1,28
     skip: d,w28,m28,q28,y28
     merge_series: new_contributors
+    drop: snew_contributors
   - name: New and episodic PR contributors
     series_name_or_func: multi_row_multi_column
     sql: episodic_contributors
@@ -86,6 +96,7 @@ metrics:
     aggregate: 1,28
     skip: d,w28,m28,q28,y28
     merge_series: episodic_contributors
+    drop: sepisodic_contributors
   - name: New and episodic issue creators
     series_name_or_func: multi_row_multi_column
     sql: new_issues
@@ -93,6 +104,7 @@ metrics:
     aggregate: 1,28
     skip: d,w28,m28,q28,y28
     merge_series: new_issues
+    drop: snew_issues
   - name: New and episodic issue creators
     series_name_or_func: multi_row_multi_column
     sql: episodic_issues
@@ -100,6 +112,7 @@ metrics:
     aggregate: 1,28
     skip: d,w28,m28,q28,y28
     merge_series: episodic_issues
+    drop: sepisodic_issues
   - name: Issues opened/closed by SIG
     series_name_or_func: multi_row_single_column
     sql: labels_sig_kind
@@ -107,6 +120,7 @@ metrics:
     aggregate: 1,7
     skip: w7,m7,q7,y7
     merge_series: sigm_lsk
+    drop: ssigm_lsk
   - name: Issues opened/closed by SIG
     series_name_or_func: multi_row_single_column
     sql: labels_sig_kind_closed
@@ -114,6 +128,7 @@ metrics:
     aggregate: 1,7
     skip: w7,m7,q7,y7
     merge_series: iclosed_lsk
+    drop: siclosed_lsk
   - name: Bot commands repository groups
     series_name_or_func: multi_row_single_column
     sql: bot_commands
@@ -122,16 +137,19 @@ metrics:
     skip: w7,m7,q7,y7
     multi_value: true
     merge_series: bot_commands
+    drop:  sbot_commands
   - name: Open issues/PRs by milestone and repository
     series_name_or_func: multi_row_single_column
     sql: open_issues_sigs_milestones
     periods: d
     merge_series: issues_milestones
+    drop: sissues_milestones
   - name: Open issues/PRs by milestone and repository
     series_name_or_func: multi_row_single_column
     sql: open_prs_sigs_milestones
     periods: d
     merge_series: prs_milestones
+    drop: sprs_milestones
   - name: Developer activity counts by repositroy group
     histogram: true
     annotations_ranges: true
@@ -163,6 +181,7 @@ metrics:
     sql: pr_workload
     periods: d
     multi_value: true
+    drop: 'ssig_pr_wlabs;ssig_pr_wliss;ssig_pr_wlrel;ssig_pr_wlrev'
   - name: PR authors repository group
     series_name_or_func: multi_row_single_column
     sql: prs_authors
@@ -170,6 +189,7 @@ metrics:
     aggregate: 1,7
     skip: w7,m7,q7,y7
     merge_series: pr_auth
+    drop: spr_auth
   - name: SIG mentions
     series_name_or_func: multi_row_single_column
     sql: sig_mentions
@@ -177,6 +197,7 @@ metrics:
     aggregate: 1,7
     skip: w7,m7,q7,y7
     multi_value: true
+    drop: ssigm_txt
   - name: PRs approval repository groups
     series_name_or_func: multi_row_multi_column
     sql: prs_state
@@ -184,6 +205,7 @@ metrics:
     aggregate: 1,7
     skip: d,w7,m7,q7,y7
     multi_value: true
+    drop: 'spr_apprappr;spr_apprwait'
   - name: Blocked PRs repository groups
     series_name_or_func: multi_row_multi_column
     sql: prs_blocked
@@ -191,6 +213,7 @@ metrics:
     aggregate: 1,7
     skip: d,w7,m7,q7,y7
     multi_value: true
+    drop: 'sprblckall;sprblckdo_not_merge;sprblckneeds_ok_to_test;sprblckno_approve;sprblckno_lgtm;sprblckrelease_note_label_needed'
   - name: Company statistics by repository groups
     series_name_or_func: multi_row_multi_column
     sqls: [company_activity, company_activity_commits]
@@ -199,6 +222,7 @@ metrics:
     skip: w7,m7,q7,y7
     multi_value: true
     merge_series: company_activity
+    drop: scompany_activity
   - name: Companies contributing in repository groups
     series_name_or_func: multi_row_multi_column
     sql: num_stats
@@ -206,6 +230,7 @@ metrics:
     aggregate: 1,7,28
     skip: d,w7,m7,q7,w28,m28,q28
     merge_series: num_stats
+    drop: snum_stats
   - name: PR reviews by contributor
     series_name_or_func: multi_row_single_column
     sql: reviews_per_user
@@ -214,18 +239,21 @@ metrics:
     skip: w7,m7,q7,y7
     multi_value: true
     merge_series: user_reviews
+    drop: suser_reviews
   - name: Countries stats
     series_name_or_func: multi_row_multi_column
     sqls: [countries, committers_countries]
     periods: w,m,q,y
     multi_value: true
     merge_series: countries
+    drop: scountries
   - name: Countries stats cumulative
     series_name_or_func: multi_row_multi_column
     sqls: [countries_cum, committers_countries_cum]
     periods: m
     multi_value: true
     merge_series: countriescum
+    drop: scountriescum
     env:
       GHA2DB_NCPUS: 8
   - name: Timezone stats
@@ -236,6 +264,7 @@ metrics:
     skip: h7,w7,m7,q7,y7
     multi_value: true
     merge_series: tz
+    drop: stz
     env:
       GHA2DB_NCPUS: 8
   - name: Contributor statistics
@@ -244,6 +273,7 @@ metrics:
     custom_data: true
     merge_series: new_contributors_data
     periods: h
+    drop: snew_contributors_data
   - name: Company PRs in repository groups
     sql: company_prs
     series_name_or_func: company_prs
@@ -253,3 +283,4 @@ metrics:
     series_name_or_func: events_h
     sql: events
     periods: h
+    drop: sevents_h
