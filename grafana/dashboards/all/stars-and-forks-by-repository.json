@@ -356,7 +356,7 @@
           "policy": "autogen",
           "query": "",
           "rawQuery": true,
-          "rawSql": "with time_points as (\n  select distinct time\n  from\n    swatchers\n  where\n    period = '[[period]]'\n    and series like 'watch%forks'\n), last_data as (\n  select \n    w.series,\n    tp.time,\n    max(w.time) as last_time\n  from\n    time_points tp,\n    swatchers w\n  where\n    w.period = '[[period]]'\n    and w.series like 'watch%forks'\n    and w.time \u003c= tp.time\n  group by\n    w.series,\n    tp.time\n)\nselect\n  ld.time,\n  sum(w.value) as \"All Forks\"\nfrom\n  last_data ld,\n  swatchers w\nwhere\n  ld.last_time = w.time\n  and ld.series = w.series\n  and $__timeFilter(ld.time)\n  and w.series like 'watch%forks'\n  and w.period = '[[period]]'\ngroup by\n  ld.time\norder by\n  ld.time\n;",
+          "rawSql": "with time_points as (\n  select distinct time\n  from\n    swatchers\n  where\n    period = '[[period]]'\n    and series like 'watch%forks'\n), last_data as (\n  select \n    w.series,\n    tp.time,\n    max(w.time) as last_time\n  from\n    time_points tp,\n    swatchers w\n  where\n    w.period = '[[period]]'\n    and w.series like 'watch%forks'\n    and w.time \u003c= tp.time\n  group by\n    w.series,\n    tp.time\n)\nselect\n  ld.time,\n  sum(w.value) as \"All Forks\"\nfrom\n  last_data ld,\n  swatchers w\nwhere\n  ld.last_time = w.time\n  and ld.series = w.series\n  and $__timeFilter(ld.time)\n  and w.series like 'watch%sforks'\n  and w.period = '[[period]]'\ngroup by\n  ld.time\norder by\n  ld.time\n;",
           "refId": "B",
           "resultFormat": "time_series",
           "select": [
