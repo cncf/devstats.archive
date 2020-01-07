@@ -30,8 +30,8 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 3,
-  "iteration": 1557503589531,
+  "id": 39,
+  "iteration": 1578390250257,
   "links": [],
   "panels": [
     {
@@ -43,12 +43,14 @@
       "decimals": 0,
       "description": "Community stats ([[repo_name]], [[period]])",
       "fill": 0,
+      "fillGradient": 0,
       "gridPos": {
         "h": 22,
         "w": 24,
         "x": 0,
         "y": 0
       },
+      "hiddenSeries": false,
       "id": 1,
       "legend": {
         "alignAsTable": false,
@@ -67,6 +69,9 @@
       "linewidth": 1,
       "links": [],
       "nullPointMode": "null",
+      "options": {
+        "dataLinks": []
+      },
       "percentage": false,
       "pointradius": 1,
       "points": false,
@@ -78,10 +83,10 @@
         },
         {
           "alias": "Forks",
-          "yaxis": 2
+          "yaxis": 1
         },
         {
-          "alias": "Open issues",
+          "alias": "Open Issues and PRs",
           "yaxis": 2
         }
       ],
@@ -100,9 +105,9 @@
           "metricColumn": "none",
           "orderByTime": "ASC",
           "policy": "autogen",
-          "query": "SELECT \"value\" FROM \"autogen\".\"contrib_[[repogroup]]_watchers_[[period]]\" WHERE $timeFilter",
+          "query": "",
           "rawQuery": true,
-          "rawSql": "select\n  time,\n  value as \"Stargazers\"\nfrom\n  swatchers\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'watch[[repo]]watch'\norder by\n  time",
+          "rawSql": "with time_points as (\n  select distinct time\n  from\n    swatchers\n  where\n    period = '[[period]]'\n    and series like 'watch%watch'\n), last_data as (\n  select \n    w.series,\n    tp.time,\n    max(w.time) as last_time\n  from\n    time_points tp,\n    swatchers w\n  where\n    w.period = '[[period]]'\n    and w.series = 'watch[[repo]]watch'\n    and w.time \u003c= tp.time\n  group by\n    w.series,\n    tp.time\n)\nselect\n  ld.time,\n  w.value as \"Stargazers\"\nfrom\n  last_data ld,\n  swatchers w\nwhere\n  ld.last_time = w.time\n  and $__timeFilter(ld.time)\n  and w.series = 'watch[[repo]]watch'\n  and w.period = '[[period]]'\norder by\n  ld.time\n;",
           "refId": "A",
           "resultFormat": "time_series",
           "select": [
@@ -136,9 +141,9 @@
           "metricColumn": "none",
           "orderByTime": "ASC",
           "policy": "autogen",
-          "query": "SELECT \"value\" FROM \"autogen\".\"contrib_[[repogroup]]_forks_[[period]]\" WHERE $timeFilter",
+          "query": "",
           "rawQuery": true,
-          "rawSql": "select\n  time,\n  value as \"Forks\"\nfrom\n  swatchers\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'watch[[repo]]forks'\norder by\n  time",
+          "rawSql": "with time_points as (\n  select distinct time\n  from\n    swatchers\n  where\n    period = '[[period]]'\n    and series like 'watch%forks'\n), last_data as (\n  select \n    w.series,\n    tp.time,\n    max(w.time) as last_time\n  from\n    time_points tp,\n    swatchers w\n  where\n    w.period = '[[period]]'\n    and w.series = 'watch[[repo]]forks'\n    and w.time \u003c= tp.time\n  group by\n    w.series,\n    tp.time\n)\nselect\n  ld.time,\n  w.value as \"Forks\"\nfrom\n  last_data ld,\n  swatchers w\nwhere\n  ld.last_time = w.time\n  and $__timeFilter(ld.time)\n  and w.series = 'watch[[repo]]forks'\n  and w.period = '[[period]]'\norder by\n  ld.time\n;",
           "refId": "B",
           "resultFormat": "time_series",
           "select": [
@@ -172,9 +177,9 @@
           "metricColumn": "none",
           "orderByTime": "ASC",
           "policy": "autogen",
-          "query": "SELECT \"value\" FROM \"autogen\".\"contrib_[[repogroup]]_open_issues_[[period]]\" WHERE $timeFilter",
+          "query": "",
           "rawQuery": true,
-          "rawSql": "select\n  time,\n  value as \"Open issues\"\nfrom\n  swatchers\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'watch[[repo]]opiss'\norder by\n  time",
+          "rawSql": "with time_points as (\n  select distinct time\n  from\n    swatchers\n  where\n    period = '[[period]]'\n    and series like 'watch%opiss'\n), last_data as (\n  select \n    w.series,\n    tp.time,\n    max(w.time) as last_time\n  from\n    time_points tp,\n    swatchers w\n  where\n    w.period = '[[period]]'\n    and w.series = 'watch[[repo]]opiss'\n    and w.time \u003c= tp.time\n  group by\n    w.series,\n    tp.time\n)\nselect\n  ld.time,\n  w.value as \"Open Issues and PRs\"\nfrom\n  last_data ld,\n  swatchers w\nwhere\n  ld.last_time = w.time\n  and $__timeFilter(ld.time)\n  and w.series = 'watch[[repo]]opiss'\n  and w.period = '[[period]]'\norder by\n  ld.time\n;",
           "refId": "C",
           "resultFormat": "time_series",
           "select": [
@@ -230,7 +235,220 @@
         },
         {
           "format": "none",
-          "label": "Forks, Open issues",
+          "label": "Forks, Open issues and PRs",
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "psql",
+      "decimals": 0,
+      "description": "Community stats combined",
+      "fill": 0,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 22,
+        "w": 24,
+        "x": 0,
+        "y": 22
+      },
+      "hiddenSeries": false,
+      "id": 12,
+      "legend": {
+        "alignAsTable": false,
+        "avg": true,
+        "current": true,
+        "hideEmpty": false,
+        "hideZero": false,
+        "max": true,
+        "min": true,
+        "rightSide": false,
+        "show": true,
+        "total": false,
+        "values": true
+      },
+      "lines": true,
+      "linewidth": 1,
+      "links": [],
+      "nullPointMode": "null",
+      "options": {
+        "dataLinks": []
+      },
+      "percentage": false,
+      "pointradius": 1,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [
+        {
+          "alias": "All Stargazers",
+          "yaxis": 1
+        },
+        {
+          "alias": "All Forks",
+          "yaxis": 1
+        },
+        {
+          "alias": "All Open Issues and PRs",
+          "yaxis": 2
+        }
+      ],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "alias": "",
+          "dsType": "influxdb",
+          "format": "time_series",
+          "group": [],
+          "groupBy": [],
+          "hide": false,
+          "measurement": "reviewers_d",
+          "metricColumn": "none",
+          "orderByTime": "ASC",
+          "policy": "autogen",
+          "query": "",
+          "rawQuery": true,
+          "rawSql": "with time_points as (\n  select distinct time\n  from\n    swatchers\n  where\n    period = '[[period]]'\n    and series like 'watch%watch'\n), last_data as (\n  select \n    w.series,\n    tp.time,\n    max(w.time) as last_time\n  from\n    time_points tp,\n    swatchers w\n  where\n    w.period = '[[period]]'\n    and w.series like 'watch%watch'\n    and w.time \u003c= tp.time\n  group by\n    w.series,\n    tp.time\n)\nselect\n  ld.time,\n  sum(w.value) as \"All Stargazers\"\nfrom\n  last_data ld,\n  swatchers w\nwhere\n  ld.last_time = w.time\n  and ld.series = w.series\n  and $__timeFilter(ld.time)\n  and w.series like 'watch%watch'\n  and w.period = '[[period]]'\ngroup by\n  ld.time\norder by\n  ld.time\n;",
+          "refId": "A",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              }
+            ]
+          ],
+          "tags": [],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        },
+        {
+          "alias": "",
+          "dsType": "influxdb",
+          "format": "time_series",
+          "group": [],
+          "groupBy": [],
+          "hide": false,
+          "measurement": "reviewers_d",
+          "metricColumn": "none",
+          "orderByTime": "ASC",
+          "policy": "autogen",
+          "query": "",
+          "rawQuery": true,
+          "rawSql": "with time_points as (\n  select distinct time\n  from\n    swatchers\n  where\n    period = '[[period]]'\n    and series like 'watch%forks'\n), last_data as (\n  select \n    w.series,\n    tp.time,\n    max(w.time) as last_time\n  from\n    time_points tp,\n    swatchers w\n  where\n    w.period = '[[period]]'\n    and w.series like 'watch%forks'\n    and w.time \u003c= tp.time\n  group by\n    w.series,\n    tp.time\n)\nselect\n  ld.time,\n  sum(w.value) as \"All Forks\"\nfrom\n  last_data ld,\n  swatchers w\nwhere\n  ld.last_time = w.time\n  and ld.series = w.series\n  and $__timeFilter(ld.time)\n  and w.series like 'watch%sforks'\n  and w.period = '[[period]]'\ngroup by\n  ld.time\norder by\n  ld.time\n;",
+          "refId": "B",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              }
+            ]
+          ],
+          "tags": [],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        },
+        {
+          "alias": "",
+          "dsType": "influxdb",
+          "format": "time_series",
+          "group": [],
+          "groupBy": [],
+          "hide": false,
+          "measurement": "reviewers_d",
+          "metricColumn": "none",
+          "orderByTime": "ASC",
+          "policy": "autogen",
+          "query": "",
+          "rawQuery": true,
+          "rawSql": "with time_points as (\n  select distinct time\n  from\n    swatchers\n  where\n    period = '[[period]]'\n    and series like 'watch%opiss'\n), last_data as (\n  select \n    w.series,\n    tp.time,\n    max(w.time) as last_time\n  from\n    time_points tp,\n    swatchers w\n  where\n    w.period = '[[period]]'\n    and w.series like 'watch%opiss'\n    and w.time \u003c= tp.time\n  group by\n    w.series,\n    tp.time\n)\nselect\n  ld.time,\n  sum(w.value) as \"All Open Issues and PRs\"\nfrom\n  last_data ld,\n  swatchers w\nwhere\n  ld.last_time = w.time\n  and ld.series = w.series\n  and $__timeFilter(ld.time)\n  and w.series like 'watch%opiss'\n  and w.period = '[[period]]'\ngroup by\n  ld.time\norder by\n  ld.time\n;",
+          "refId": "C",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              }
+            ]
+          ],
+          "tags": [],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "Community stats combined",
+      "tooltip": {
+        "shared": true,
+        "sort": 2,
+        "value_type": "individual"
+      },
+      "transparent": true,
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": [
+          "total"
+        ]
+      },
+      "yaxes": [
+        {
+          "format": "none",
+          "label": "Stargazers",
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true
+        },
+        {
+          "format": "none",
+          "label": "Forks, Open issues and PRs",
           "logBase": 1,
           "max": null,
           "min": "0",
@@ -244,33 +462,74 @@
     },
     {
       "content": "${docs:raw}",
+      "datasource": null,
       "gridPos": {
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 22
+        "y": 44
       },
       "id": 11,
       "links": [],
       "mode": "html",
+      "options": {},
       "title": "Dashboard documentation",
       "type": "text"
     }
   ],
   "refresh": false,
-  "schemaVersion": 18,
+  "schemaVersion": 21,
   "style": "dark",
   "tags": [
     "dashboard",
-    "graphqlspec"
+    "allxxx"
   ],
   "templating": {
     "list": [
       {
         "allValue": null,
         "current": {
-          "text": "Knative",
-          "value": "Knative"
+          "selected": false,
+          "tags": [],
+          "text": "Week",
+          "value": "w"
+        },
+        "hide": 0,
+        "includeAll": false,
+        "label": "Period",
+        "multi": false,
+        "name": "period",
+        "options": [
+          {
+            "selected": true,
+            "text": "Week",
+            "value": "w"
+          },
+          {
+            "selected": false,
+            "text": "Month",
+            "value": "m"
+          },
+          {
+            "selected": false,
+            "text": "Quarter",
+            "value": "q"
+          },
+          {
+            "selected": false,
+            "text": "Year",
+            "value": "y"
+          }
+        ],
+        "query": "w,m,q,y",
+        "skipUrlSync": false,
+        "type": "custom"
+      },
+      {
+        "allValue": null,
+        "current": {
+          "text": "All CNCF",
+          "value": "All CNCF"
         },
         "datasource": "psql",
         "definition": "",
@@ -294,57 +553,10 @@
       {
         "allValue": null,
         "current": {
+          "selected": false,
           "tags": [],
-          "text": "7 Days MA",
-          "value": "d7"
-        },
-        "hide": 0,
-        "includeAll": false,
-        "label": "Period",
-        "multi": false,
-        "name": "period",
-        "options": [
-          {
-            "selected": false,
-            "text": "Day",
-            "value": "d"
-          },
-          {
-            "selected": true,
-            "text": "7 Days MA",
-            "value": "d7"
-          },
-          {
-            "selected": false,
-            "text": "Week",
-            "value": "w"
-          },
-          {
-            "selected": false,
-            "text": "Month",
-            "value": "m"
-          },
-          {
-            "selected": false,
-            "text": "Quarter",
-            "value": "q"
-          },
-          {
-            "selected": false,
-            "text": "Year",
-            "value": "y"
-          }
-        ],
-        "query": "d,w,m,q,y",
-        "skipUrlSync": false,
-        "type": "custom"
-      },
-      {
-        "allValue": null,
-        "current": {
-          "tags": [],
-          "text": "knative/serving",
-          "value": "knative/serving"
+          "text": "Kubernetes",
+          "value": "Kubernetes"
         },
         "datasource": "psql",
         "definition": "",
@@ -368,8 +580,8 @@
       {
         "allValue": null,
         "current": {
-          "text": "knativeserving",
-          "value": "knativeserving"
+          "text": "kubernetes",
+          "value": "kubernetes"
         },
         "datasource": "psql",
         "definition": "",
@@ -393,8 +605,8 @@
       {
         "allValue": null,
         "current": {
-          "text": "\u003ch1 id=\"dashboard-header\"\u003eKnative community stats dashboard\u003c/h1\u003e\n\u003cp\u003eLinks:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003eMetric \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/watchers.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eTSDB \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/metrics.yaml\" target=\"_blank\"\u003eseries definition\u003c/a\u003e. Search for \u003ccode\u003ewatchers\u003c/code\u003e\u003c/li\u003e\n\u003cli\u003eGrafana dashboard \u003ca href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/knative/community-stats.json\" target=\"_blank\"\u003eJSON\u003c/a\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch1 id=\"description\"\u003eDescription\u003c/h1\u003e\n\u003cul\u003e\n\u003cli\u003eThis dashboard shows forks, stars and open issues charts for a given repository\u003c/li\u003e\n\u003cli\u003eSelecting period (for example week) means that dashboard will show maximum value in those periods.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/periods.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about periods.\u003c/li\u003e\n\u003c/ul\u003e",
-          "value": "\u003ch1 id=\"dashboard-header\"\u003eKnative community stats dashboard\u003c/h1\u003e\n\u003cp\u003eLinks:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003eMetric \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/watchers.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eTSDB \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/metrics.yaml\" target=\"_blank\"\u003eseries definition\u003c/a\u003e. Search for \u003ccode\u003ewatchers\u003c/code\u003e\u003c/li\u003e\n\u003cli\u003eGrafana dashboard \u003ca href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/knative/community-stats.json\" target=\"_blank\"\u003eJSON\u003c/a\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch1 id=\"description\"\u003eDescription\u003c/h1\u003e\n\u003cul\u003e\n\u003cli\u003eThis dashboard shows forks, stars and open issues charts for a given repository\u003c/li\u003e\n\u003cli\u003eSelecting period (for example week) means that dashboard will show maximum value in those periods.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/periods.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about periods.\u003c/li\u003e\n\u003c/ul\u003e"
+          "text": "\u003ch1 id=\"dashboard-header\"\u003eAll CNCF community stats dashboard\u003c/h1\u003e\n\u003cp\u003eLinks:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003eMetric \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/watchers.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eTSDB \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/metrics.yaml\" target=\"_blank\"\u003eseries definition\u003c/a\u003e. Search for \u003ccode\u003ewatchers\u003c/code\u003e\u003c/li\u003e\n\u003cli\u003eGrafana dashboard \u003ca href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/all/community-stats.json\" target=\"_blank\"\u003eJSON\u003c/a\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch1 id=\"description\"\u003eDescription\u003c/h1\u003e\n\u003cul\u003e\n\u003cli\u003eThis dashboard shows forks, stars, open issues and PRs charts for a given repository\u003c/li\u003e\n\u003cli\u003eSelecting period (for example week) means that dashboard will show maximum value in those periods.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/periods.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about periods.\u003c/li\u003e\n\u003c/ul\u003e",
+          "value": "\u003ch1 id=\"dashboard-header\"\u003eAll CNCF community stats dashboard\u003c/h1\u003e\n\u003cp\u003eLinks:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003eMetric \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/watchers.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eTSDB \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/metrics.yaml\" target=\"_blank\"\u003eseries definition\u003c/a\u003e. Search for \u003ccode\u003ewatchers\u003c/code\u003e\u003c/li\u003e\n\u003cli\u003eGrafana dashboard \u003ca href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/all/community-stats.json\" target=\"_blank\"\u003eJSON\u003c/a\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch1 id=\"description\"\u003eDescription\u003c/h1\u003e\n\u003cul\u003e\n\u003cli\u003eThis dashboard shows forks, stars, open issues and PRs charts for a given repository\u003c/li\u003e\n\u003cli\u003eSelecting period (for example week) means that dashboard will show maximum value in those periods.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/periods.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about periods.\u003c/li\u003e\n\u003c/ul\u003e"
         },
         "datasource": "psql",
         "definition": "",
@@ -418,7 +630,7 @@
     ]
   },
   "time": {
-    "from": "now-2y",
+    "from": "now-5y",
     "to": "now"
   },
   "timepicker": {
@@ -449,5 +661,5 @@
   "timezone": "",
   "title": "Stars and Forks by Repository",
   "uid": "3",
-  "version": 2
+  "version": 5
 }
