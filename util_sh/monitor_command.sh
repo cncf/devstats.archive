@@ -2,6 +2,8 @@
 # TIMEOUT - set number of seconds to wait for command to finish
 # TIMEOUT2 - set number of seconds to wait for command to finish when it ignored the first grace signal (HUP)
 # WAIT - specify time needed to graceful kill to happen
+# MAIL_TO - email address to send mail when command was terminated, skip if '-'
+ts=`date +'%s'`
 if [ -z "$1" ]
 then
   echo "Please specify command to run"
@@ -21,6 +23,11 @@ if [ -z "$WAIT" ]
 then
   echo "Please specify how long actual graceful kill can take via WAIT=n_seconds (can be 0.5 for example)"
   exit 3
+fi
+if [ -z "$MAIL_TO" ]
+then
+  echo "Please specify email address to send email when command is terminated via MAIL_TO=email_address"
+  exit 4
 fi
 
 # Run command, store pid as $pid
@@ -54,6 +61,7 @@ done
 wait $watcher 2>/dev/null
 # give a bit of time so kill -HUP actually takes place
 sleep $WAIT
+force=''
 p=`ps -p $pid | awk '{ print $1}' | tail -n 1`
 if [ "$p" = "$pid" ]
 then
@@ -63,6 +71,7 @@ then
   then
     echo "$pid didn't finish yet, killing it"
     kill -KILL $pid  2>/dev/null
+    force='1'
   fi
 fi
 
@@ -74,6 +83,27 @@ then
   echo "$* ($pid) finished ($code)"
 else
   code=$?
-  echo "$* ($pid) interrupted ($code)"
+  host=`hostname`
+  if [ -z "$force" ]
+  then
+    msg="$host: $* ($pid) interrupted ($code)"
+  else
+    msg="$host: $* ($pid) force interrupted ($code)"
+  fi
+  ts2=`date +'%s'`
+  took=$(($ts2-$ts))
+  echo "From: monitor_command_$$@${host}" > temp.txt
+  echo "To: $MAIL_TO" >> temp.txt
+  echo "Subject: $msg" >> temp.txt
+  echo '' >> temp.txt
+  echo $msg >> temp.txt
+  echo "Config: TIMEOUT=${TIMEOUT}s, TIMEOUT2=${TIMEOUT2}s, WAIT=${WAIT}s" >> temp.txt
+  echo "Took: ${took}s" >> temp.txt
+  cat temp.txt
+  if [ ! "$MAIL_TO" = "-" ]
+  then
+    sendmail $MAIL_TO < temp.txt
+  fi
+  rm -f temp.txt
 fi
 exit $code
