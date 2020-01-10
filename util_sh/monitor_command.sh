@@ -3,6 +3,8 @@
 # TIMEOUT2 - set number of seconds to wait for command to finish when it ignored the first grace signal (HUP)
 # WAIT - specify time needed to graceful kill to happen
 # MAIL_TO - email address to send mail when command was terminated, skip if '-'
+#
+# Example crontab entry that ensures docker is alive: `0 * * * * TIMEOUT=1800 TIMEOUT2=300 WAIT=30 MAIL_TO=lukaszgryglicki@o2.pl /usr/bin/monitor_command.sh /usr/bin/docker system info`
 ts=`date +'%s'`
 if [ -z "$1" ]
 then
