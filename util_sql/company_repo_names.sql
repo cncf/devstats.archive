@@ -11,6 +11,7 @@ from (
   where
     e.type in ({{event_types}})
     and e.dup_repo_name like '%_/_%'
+    and e.dup_repo_name not like '%/%/%'
     and e.dup_repo_name not like all(array['youtube/%', 'apcera/%', 'docker/%'])
     and e.actor_id = aa.actor_id
     and e.created_at >= aa.dt_from
