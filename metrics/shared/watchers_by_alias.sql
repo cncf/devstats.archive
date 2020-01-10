@@ -1,5 +1,5 @@
 with last_date as (
-  select distinct dup_repo_id as repo_id, 
+  select dup_repo_id as repo_id, 
     max(updated_at) as dt
   from
     gha_forkees
