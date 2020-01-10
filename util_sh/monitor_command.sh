@@ -4,7 +4,7 @@
 # WAIT - specify time needed to graceful kill to happen
 # MAIL_TO - email address to send mail when command was terminated, skip if '-'
 #
-# Example crontab entry that ensures docker is alive: `0 * * * * TIMEOUT=1800 TIMEOUT2=300 WAIT=30 MAIL_TO=lukaszgryglicki@o2.pl /usr/bin/monitor_command.sh /usr/bin/docker system info`
+# Example crontab entry that ensures docker is alive: `0 * * * * TIMEOUT=1800 TIMEOUT2=300 WAIT=30 MAIL_TO=lukaszgryglicki@o2.pl /usr/bin/monitor_command.sh /usr/bin/docker system info 1>/tmp/docker_system_info.log 2>/tmp/docker_system_info.err`
 ts=`date +'%s'`
 if [ -z "$1" ]
 then
