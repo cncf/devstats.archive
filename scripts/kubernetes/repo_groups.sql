@@ -309,6 +309,9 @@ set
       e.created_at desc
     limit 1
   ), name)
+where
+  r.name like '%_/_%'
+  and r.name not like '%/%/%'
 ;
 
 update gha_repos set alias = 'kubernetes/kubernetes' where name like '%kubernetes' or name = 'kubernetes/';

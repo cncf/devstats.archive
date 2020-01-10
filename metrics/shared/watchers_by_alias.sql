@@ -7,7 +7,7 @@ with last_date as (
     updated_at < '{{to}}'
     and updated_at >= '{{to}}'::timestamp - '6 months'::interval
     and dup_repo_name like '%_/_%'
-    and dup_repo_name not like '%_/%/_%'
+    and dup_repo_name not like '%/%/%'
     and watchers > 0
     and forks > 0
     and open_issues > 0

@@ -9,6 +9,7 @@ from (
     gha_events
   where
     dup_repo_name like '%_/_%'
+    and dup_repo_name not like '%/%/%'
   group by
     repo_id,
     dup_repo_name

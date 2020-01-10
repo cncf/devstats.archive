@@ -18,6 +18,8 @@ set
     where
       i.id = r.id
       and e.repo_id = r.id
+      and i.name like '%_/_%'
+      and i.name not like '%/%/%'
     order by
       e.created_at desc
     limit 1

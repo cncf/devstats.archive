@@ -24,4 +24,5 @@ where
   and sub.sha is not null
   and sub.sha <> ''
   and sub.repo like '%_/_%'
+  and sub.repo not like '%/%/%'
 ;
