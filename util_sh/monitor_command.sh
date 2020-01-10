@@ -101,10 +101,19 @@ else
   echo $msg >> temp.txt
   echo "Config: TIMEOUT=${TIMEOUT}s, TIMEOUT2=${TIMEOUT2}s, WAIT=${WAIT}s" >> temp.txt
   echo "Took: ${took}s" >> temp.txt
+  hash=`echo "$*" | base64`
+  hash="/tmp/${hash}"
+  echo "Hash: $hash" >> temp.txt
   cat temp.txt
   if [ ! "$MAIL_TO" = "-" ]
   then
-    sendmail $MAIL_TO < temp.txt
+    if [ -f "$hash" ]
+    then
+      echo "No need to send email $hash hash file exists."
+    else
+      echo "Sending email to $MAIL_TO and creating $hash hash file"
+      sendmail $MAIL_TO < temp.txt && echo "$*" > "$hash"
+    fi
   fi
   rm -f temp.txt
 fi
