@@ -50,6 +50,22 @@ where
   and le.dt = f.updated_at
  group by
   r.alias
+union select 'allwatch;all;watch,forks,opiss' as name,
+  sum(f.watchers) as watchers,
+  sum(f.forks) as forks,
+  sum(f.open_issues) as open_issues
+from
+  gha_forkees f,
+  gha_repos r,
+  last_event le
+where
+  r.id = le.repo_id
+  and r.alias is not null
+  and r.id = f.dup_repo_id
+  and r.name = f.dup_repo_name
+  and le.repo_id = f.dup_repo_id
+  and le.event_id = f.event_id
+  and le.dt = f.updated_at
 order by
   watchers desc,
   forks desc,
