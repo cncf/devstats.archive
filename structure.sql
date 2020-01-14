@@ -1712,7 +1712,7 @@ ALTER TABLE ONLY public.gha_actors_names
 --
 
 ALTER TABLE ONLY public.gha_actors
-    ADD CONSTRAINT gha_actors_pkey PRIMARY KEY (id);
+    ADD CONSTRAINT gha_actors_pkey PRIMARY KEY (id, login);
 
 
 --
@@ -2145,6 +2145,13 @@ CREATE INDEX actors_emails_actor_id_idx ON public.gha_actors_emails USING btree 
 --
 
 CREATE INDEX actors_emails_email_idx ON public.gha_actors_emails USING btree (email);
+
+
+--
+-- Name: actors_id_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX actors_id_idx ON public.gha_actors USING btree (id);
 
 
 --
@@ -3685,6 +3692,13 @@ CREATE INDEX releases_event_id_idx ON public.gha_releases USING btree (event_id)
 --
 
 CREATE INDEX repos_alias_idx ON public.gha_repos USING btree (alias);
+
+
+--
+-- Name: repos_id_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX repos_id_idx ON public.gha_repos USING btree (id);
 
 
 --
