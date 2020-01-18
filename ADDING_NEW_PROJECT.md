@@ -49,6 +49,7 @@ This file describes how to add new project on the test and production servers.
 - Final deploy script is: `./devel/deploy_all.sh`. It should do all deployment automatically on the prod server. Follow all code from this script (eventually run some parts manually, the final version should do full deploy OOTB).
 - If added disabled project, remember to add it to `crontab -e` via `GHA2DB_PROJECTS_OVERRIDE="+new_disabled_project"`.
 - Also add in other devstats repositories, follow `cncf/devstats-helm:ADDING_NEW_PROJECTS.md`.
+- Update cncf/gitdm affiliations with [official project maintainers](https://docs.google.com/spreadsheets/d/1Pr8cyp8RLrNGx9WBAgQvBzUUmqyOv69R7QAFKhacJEM/edit#gid=262035321).
 
 # Updating artwork icons
 
