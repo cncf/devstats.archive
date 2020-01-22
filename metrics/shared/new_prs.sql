@@ -6,6 +6,7 @@ from
 where
   created_at >= '{{from}}'
   and created_at < '{{to}}'
+  and (lower(dup_user_login) {{exclude_bots}})
 union select 'new_prs,' || r.repo_group as repo_group,
   round(count(distinct pr.id) / {{n}}, 2) as new
 from
@@ -17,6 +18,7 @@ where
   and r.repo_group is not null
   and pr.created_at >= '{{from}}'
   and pr.created_at < '{{to}}'
+  and (lower(pr.dup_user_login) {{exclude_bots}})
 group by
   r.repo_group
 order by
