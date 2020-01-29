@@ -26,6 +26,7 @@ where
   and c.dup_created_at >= '{{from}}'
   and c.dup_created_at < '{{to}}'
   and (lower(c.dup_actor_login) {{exclude_bots}})
+  and r.alias is not null
 group by
   r.alias
 union select 'gstat_r_iclosed,' || r.alias as repo,
@@ -38,6 +39,7 @@ where
   and i.dup_repo_name = r.name
   and i.closed_at >= '{{from}}'
   and i.closed_at < '{{to}}'
+  and r.alias is not null
 group by
   r.alias
 union select 'gstat_r_iopened,' || r.alias as repo,
@@ -50,6 +52,7 @@ where
   and i.dup_repo_name = r.name
   and i.created_at >= '{{from}}'
   and i.created_at < '{{to}}'
+  and r.alias is not null
 group by
   r.alias
 union select 'gstat_r_propened,' || r.alias as repo,
@@ -62,6 +65,7 @@ where
   and pr.dup_repo_name = r.name
   and pr.created_at >= '{{from}}'
   and pr.created_at < '{{to}}'
+  and r.alias is not null
 group by
   r.alias
 union select 'gstat_r_prmerged,' || r.alias as repo,
@@ -75,6 +79,7 @@ where
   and pr.merged_at is not null
   and pr.merged_at >= '{{from}}'
   and pr.merged_at < '{{to}}'
+  and r.alias is not null
 group by
   r.alias
 union select 'gstat_r_prclosed,' || r.alias as repo,
@@ -88,6 +93,7 @@ where
   and pr.merged_at is null
   and pr.closed_at >= '{{from}}'
   and pr.closed_at < '{{to}}'
+  and r.alias is not null
 group by
   r.alias
 union select 'gstat_r_prcomments,' || r.alias as repo,
@@ -103,6 +109,7 @@ where
   and i.dup_type = 'IssueCommentEvent'
   and i.is_pull_request = false
   and (lower(i.dup_actor_login) {{exclude_bots}})
+  and r.alias is not null
 group by
   r.alias
 union select 'gstat_r_prcommenters,' || r.alias as repo,
@@ -118,6 +125,7 @@ where
   and i.dup_type = 'IssueCommentEvent'
   and i.is_pull_request = false
   and (lower(i.dup_actor_login) {{exclude_bots}})
+  and r.alias is not null
 group by
   r.alias
 union select 'gstat_r_icomments,' || r.alias as repo,
@@ -133,6 +141,7 @@ where
   and i.dup_type = 'IssueCommentEvent'
   and i.is_pull_request = true
   and (lower(i.dup_actor_login) {{exclude_bots}})
+  and r.alias is not null
 group by
   r.alias
 union select 'gstat_r_icommenters,' || r.alias as repo,
@@ -147,30 +156,32 @@ where
   and i.dup_type = 'IssueCommentEvent'
   and i.is_pull_request = true
   and (lower(i.dup_actor_login) {{exclude_bots}})
+  and r.alias is not null
 group by
   r.alias
 union select 'gstat_r_reviewers,' || r.alias as repo,
-    count(distinct e.dup_actor_login) as metric
-  from
-    gha_repos r,
-    gha_events e
-  where
-    e.repo_id = r.id
-    and e.dup_repo_name = r.name
-    and (lower(e.dup_actor_login) {{exclude_bots}})
-    and e.id in (
-      select min(event_id)
-      from
-        gha_issues_events_labels
-      where
-        created_at >= '{{from}}'
-        and created_at < '{{to}}'
-        and label_name in ('lgtm', 'approved')
-      group by
-        issue_id
-      union select event_id from matching
-      union select event_id from reviews
-    )
+  count(distinct e.dup_actor_login) as metric
+from
+  gha_repos r,
+  gha_events e
+where
+  e.repo_id = r.id
+  and e.dup_repo_name = r.name
+  and (lower(e.dup_actor_login) {{exclude_bots}})
+  and e.id in (
+    select min(event_id)
+    from
+      gha_issues_events_labels
+    where
+      created_at >= '{{from}}'
+      and created_at < '{{to}}'
+      and label_name in ('lgtm', 'approved')
+    group by
+      issue_id
+    union select event_id from matching
+    union select event_id from reviews
+  )
+  and r.alias is not null
 group by
   r.alias
 order by
