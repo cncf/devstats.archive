@@ -43,4 +43,6 @@ from (
     ecf.repo_group,
     r.repo_group
 ) sub
+where
+  sub.repo_group is not null
 ;
