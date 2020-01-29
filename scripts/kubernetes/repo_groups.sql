@@ -118,7 +118,7 @@ update gha_repos set repo_group = 'SIG Cluster Lifecycle' where name in (
   'kubernetes-incubator/bootkube',
   'kubernetes-incubator/kube-aws',
   'kubernetes-incubator/kubespray',
-  'kubernetes-sigs/addon-operators',
+  'kubernetes-sigs/cluster-addons',
   'kubernetes-sigs/cluster-api',
   'kubernetes-sigs/cluster-api-bootstrap-provider-kubeadm',
   'kubernetes-sigs/cluster-api-provider-aws',
