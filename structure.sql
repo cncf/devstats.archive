@@ -451,7 +451,8 @@ CREATE TABLE public.gha_actors_affiliations (
     company_name character varying(160) NOT NULL,
     original_company_name character varying(160) NOT NULL,
     dt_from timestamp without time zone NOT NULL,
-    dt_to timestamp without time zone NOT NULL
+    dt_to timestamp without time zone NOT NULL,
+    source character varying(30) DEFAULT ''::character varying NOT NULL
 );
 
 
@@ -1118,7 +1119,7 @@ COPY public.gha_actors (id, login, name, country_id, sex, sex_prob, tz, tz_offse
 -- Data for Name: gha_actors_affiliations; Type: TABLE DATA; Schema: public; Owner: gha_admin
 --
 
-COPY public.gha_actors_affiliations (actor_id, company_name, original_company_name, dt_from, dt_to) FROM stdin;
+COPY public.gha_actors_affiliations (actor_id, company_name, original_company_name, dt_from, dt_to, source) FROM stdin;
 \.
 
 
@@ -2110,6 +2111,13 @@ CREATE INDEX actors_affiliations_dt_to_idx ON public.gha_actors_affiliations USI
 --
 
 CREATE INDEX actors_affiliations_original_company_name_idx ON public.gha_actors_affiliations USING btree (original_company_name);
+
+
+--
+-- Name: actors_affiliations_source_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX actors_affiliations_source_idx ON public.gha_actors_affiliations USING btree (source);
 
 
 --

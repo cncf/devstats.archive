@@ -6,5 +6,5 @@ then
 fi
 echo "Dropping $1"
 ./devel/db.sh psql postgres -c "select pg_terminate_backend(pid) from pg_stat_activity where datname = '$1'"
-./devel/db.sh psql postgres -c "drop database $1"
+./devel/db.sh psql postgres -c "drop database if exists $1"
 echo "Dropped $1"

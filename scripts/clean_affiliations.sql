@@ -3,7 +3,7 @@
 delete from gha_actors_affiliations;
 delete from gha_companies;
 
-update
+/*update
   gha_actors
 set
   name = null,
@@ -14,4 +14,4 @@ set
   tz_offset = null,
   country_name  = null,
   age = null
-;
+;*/
