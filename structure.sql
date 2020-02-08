@@ -1006,7 +1006,10 @@ CREATE TABLE public.gha_repos (
     org_id bigint,
     org_login character varying(100),
     repo_group character varying(80),
-    alias character varying(160)
+    alias character varying(160),
+    license_key character varying(30),
+    license_name character varying(160),
+    license_prob double precision
 );
 
 
@@ -1633,7 +1636,7 @@ COPY public.gha_releases_assets (release_id, event_id, asset_id) FROM stdin;
 -- Data for Name: gha_repos; Type: TABLE DATA; Schema: public; Owner: gha_admin
 --
 
-COPY public.gha_repos (id, name, org_id, org_login, repo_group, alias) FROM stdin;
+COPY public.gha_repos (id, name, org_id, org_login, repo_group, alias, license_key, license_name, license_prob) FROM stdin;
 \.
 
 
@@ -3707,6 +3710,27 @@ CREATE INDEX repos_alias_idx ON public.gha_repos USING btree (alias);
 --
 
 CREATE INDEX repos_id_idx ON public.gha_repos USING btree (id);
+
+
+--
+-- Name: repos_license_key_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX repos_license_key_idx ON public.gha_repos USING btree (license_key);
+
+
+--
+-- Name: repos_license_name_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX repos_license_name_idx ON public.gha_repos USING btree (license_name);
+
+
+--
+-- Name: repos_license_prob_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX repos_license_prob_idx ON public.gha_repos USING btree (license_prob);
 
 
 --
