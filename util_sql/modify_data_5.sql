@@ -11,3 +11,4 @@ create index repos_langs_lang_loc_idx on public.gha_repos_langs using btree(lang
 create index repos_langs_lang_name_idx on public.gha_repos_langs using btree(lang_name);
 create index repos_langs_lang_perc_idx on public.gha_repos_langs using btree(lang_perc);
 create index repos_langs_narepo_me_idx on public.gha_repos_langs using btree(repo_name);
+grant select on gha_repos_langs to ro_user;
