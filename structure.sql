@@ -1016,6 +1016,21 @@ CREATE TABLE public.gha_repos (
 ALTER TABLE public.gha_repos OWNER TO gha_admin;
 
 --
+-- Name: gha_repos_langs; Type: TABLE; Schema: public; Owner: gha_admin
+--
+
+CREATE TABLE public.gha_repos_langs (
+    repo_name character varying(160) NOT NULL,
+    lang_name character varying(60) NOT NULL,
+    lang_loc integer NOT NULL,
+    lang_perc double precision NOT NULL,
+    dt timestamp without time zone DEFAULT now()
+);
+
+
+ALTER TABLE public.gha_repos_langs OWNER TO gha_admin;
+
+--
 -- Name: gha_skip_commits; Type: TABLE; Schema: public; Owner: gha_admin
 --
 
@@ -1641,6 +1656,14 @@ COPY public.gha_repos (id, name, org_id, org_login, repo_group, alias, license_k
 
 
 --
+-- Data for Name: gha_repos_langs; Type: TABLE DATA; Schema: public; Owner: gha_admin
+--
+
+COPY public.gha_repos_langs (repo_name, lang_name, lang_loc, lang_perc, dt) FROM stdin;
+\.
+
+
+--
 -- Data for Name: gha_skip_commits; Type: TABLE DATA; Schema: public; Owner: gha_admin
 --
 
@@ -1941,6 +1964,14 @@ ALTER TABLE ONLY public.gha_releases_assets
 
 ALTER TABLE ONLY public.gha_releases
     ADD CONSTRAINT gha_releases_pkey PRIMARY KEY (id, event_id);
+
+
+--
+-- Name: gha_repos_langs gha_repos_langs_pkey; Type: CONSTRAINT; Schema: public; Owner: gha_admin
+--
+
+ALTER TABLE ONLY public.gha_repos_langs
+    ADD CONSTRAINT gha_repos_langs_pkey PRIMARY KEY (repo_name, lang_name);
 
 
 --
@@ -3710,6 +3741,34 @@ CREATE INDEX repos_alias_idx ON public.gha_repos USING btree (alias);
 --
 
 CREATE INDEX repos_id_idx ON public.gha_repos USING btree (id);
+
+
+--
+-- Name: repos_langs_lang_loc_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX repos_langs_lang_loc_idx ON public.gha_repos_langs USING btree (lang_loc);
+
+
+--
+-- Name: repos_langs_lang_name_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX repos_langs_lang_name_idx ON public.gha_repos_langs USING btree (lang_name);
+
+
+--
+-- Name: repos_langs_lang_perc_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX repos_langs_lang_perc_idx ON public.gha_repos_langs USING btree (lang_perc);
+
+
+--
+-- Name: repos_langs_narepo_me_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX repos_langs_narepo_me_idx ON public.gha_repos_langs USING btree (repo_name);
 
 
 --
