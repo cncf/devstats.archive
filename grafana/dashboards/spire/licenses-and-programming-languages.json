@@ -15,8 +15,8 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 19,
-  "iteration": 1581412762408,
+  "id": 20,
+  "iteration": 1581417570770,
   "links": [],
   "panels": [
     {
@@ -68,7 +68,7 @@
           "policy": "default",
           "query": "",
           "rawQuery": true,
-          "rawSql": "select \n  r.license_name as \"License\",\n  count(distinct r.name) as \"Repositories\"\nfrom\n  gha_repos r,\n  gha_repos_langs rl\nwhere\n  r.name = rl.repo_name\n  and ('[[repogroups:csv]]' = 'null' or r.repo_group in ([[repogroups]]))\n  and ('[[licenses:csv]]' = 'null' or r.license_name in ([[licenses]]))\n  and ('[[languages:csv]]' = 'null' or rl.lang_name in ([[languages]]))\ngroup by\n  r.license_name\n;",
+          "rawSql": "select \n  r.license_name as \"License\",\n  count(distinct r.name) as \"Repositories\"\nfrom\n  gha_repos r,\n  gha_repos_langs rl\nwhere\n  r.name = rl.repo_name\n  and ('[[repogroups:csv]]' = 'null' or r.repo_group in ([[repogroups]]))\n  and ('[[licenses:csv]]' = 'null' or r.license_name in ([[licenses]]))\n  and ('[[languages:csv]]' = 'null' or rl.lang_name in ([[languages]]))\n  and r.license_name is not null and r.license_name not in ('', 'Not found')\ngroup by\n  r.license_name\n;",
           "refId": "A",
           "resultFormat": "table",
           "select": [
@@ -151,7 +151,7 @@
           "policy": "default",
           "query": "",
           "rawQuery": true,
-          "rawSql": "select \n  rl.lang_name as \"Language\",\n  count(distinct r.name) as \"Repositories\",\n  sum(rl.lang_loc) as \"LOC\"\nfrom\n  gha_repos r,\n  gha_repos_langs rl\nwhere\n  r.name = rl.repo_name\n  and ('[[repogroups:csv]]' = 'null' or r.repo_group in ([[repogroups]]))\n  and ('[[licenses:csv]]' = 'null' or r.license_name in ([[licenses]]))\n  and ('[[languages:csv]]' = 'null' or rl.lang_name in ([[languages]]))\ngroup by\n  rl.lang_name\n;",
+          "rawSql": "select \n  rl.lang_name as \"Language\",\n  count(distinct r.name) as \"Repositories\",\n  sum(rl.lang_loc) as \"LOC\"\nfrom\n  gha_repos r,\n  gha_repos_langs rl\nwhere\n  r.name = rl.repo_name\n  and ('[[repogroups:csv]]' = 'null' or r.repo_group in ([[repogroups]]))\n  and ('[[licenses:csv]]' = 'null' or r.license_name in ([[licenses]]))\n  and ('[[languages:csv]]' = 'null' or rl.lang_name in ([[languages]]))\n  and rl.lang_name is not null and rl.lang_name not in ('', 'unknown')\ngroup by\n  rl.lang_name\n;",
           "refId": "A",
           "resultFormat": "table",
           "select": [
@@ -234,7 +234,7 @@
           "policy": "default",
           "query": "",
           "rawQuery": true,
-          "rawSql": "select\n  r.license_name as \"License\",\n  rl.lang_name as \"Language\",\n  count(distinct r.name) as \"Repositories\",\n  sum(rl.lang_loc) as \"LOC\"\nfrom\n  gha_repos r,\n  gha_repos_langs rl\nwhere\n  r.name = rl.repo_name\n  and ('[[repogroups:csv]]' = 'null' or r.repo_group in ([[repogroups]]))\n  and ('[[licenses:csv]]' = 'null' or r.license_name in ([[licenses]]))\n  and ('[[languages:csv]]' = 'null' or rl.lang_name in ([[languages]]))\ngroup by\n  r.license_name,\n  rl.lang_name\n;",
+          "rawSql": "select\n  r.license_name as \"License\",\n  rl.lang_name as \"Language\",\n  count(distinct r.name) as \"Repositories\",\n  sum(rl.lang_loc) as \"LOC\"\nfrom\n  gha_repos r,\n  gha_repos_langs rl\nwhere\n  r.name = rl.repo_name\n  and ('[[repogroups:csv]]' = 'null' or r.repo_group in ([[repogroups]]))\n  and ('[[licenses:csv]]' = 'null' or r.license_name in ([[licenses]]))\n  and ('[[languages:csv]]' = 'null' or rl.lang_name in ([[languages]]))\n  and r.license_name is not null and r.license_name not in ('', 'Not found')\n  and rl.lang_name is not null and rl.lang_name not in ('', 'unknown')\ngroup by\n  r.license_name,\n  rl.lang_name\n;",
           "refId": "A",
           "resultFormat": "table",
           "select": [
@@ -334,7 +334,7 @@
           "policy": "default",
           "query": "",
           "rawQuery": true,
-          "rawSql": "select \n  distinct coalesce(r.repo_group, 'No repo group') as \"Repo group\",\n  r.name as \"Repo\",\n  r.license_name as \"License\",\n  rl.lang_name as \"Language\",\n  rl.lang_loc as \"LOC\",\n  rl.lang_perc as \"Language percent\"\nfrom\n  gha_repos r,\n  gha_repos_langs rl\nwhere\n  r.name = rl.repo_name\n  and ('[[repogroups:csv]]' = 'null' or r.repo_group in ([[repogroups]]))\n  and ('[[licenses:csv]]' = 'null' or r.license_name in ([[licenses]]))\n  and ('[[languages:csv]]' = 'null' or rl.lang_name in ([[languages]]))\n;",
+          "rawSql": "select \n  distinct coalesce(r.repo_group, 'No repo group') as \"Repo group\",\n  r.name as \"Repo\",\n  r.license_name as \"License\",\n  rl.lang_name as \"Language\",\n  rl.lang_loc as \"LOC\",\n  rl.lang_perc as \"Language percent\"\nfrom\n  gha_repos r,\n  gha_repos_langs rl\nwhere\n  r.name = rl.repo_name\n  and ('[[repogroups:csv]]' = 'null' or r.repo_group in ([[repogroups]]))\n  and ('[[licenses:csv]]' = 'null' or r.license_name in ([[licenses]]))\n  and ('[[languages:csv]]' = 'null' or rl.lang_name in ([[languages]]))\n  and r.license_name is not null and r.license_name not in ('', 'Not found')\n  and rl.lang_name is not null and rl.lang_name not in ('', 'unknown')\n;",
           "refId": "A",
           "resultFormat": "table",
           "select": [
@@ -372,7 +372,7 @@
       "content": "${docs:raw}",
       "datasource": null,
       "gridPos": {
-        "h": 11,
+        "h": 8,
         "w": 24,
         "x": 0,
         "y": 38
@@ -566,5 +566,5 @@
   "timezone": "",
   "title": "Licenses and programming languages",
   "uid": "67",
-  "version": 9
+  "version": 4
 }
