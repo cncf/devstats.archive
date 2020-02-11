@@ -1,4 +1,4 @@
-<h1 id="dashboard-header">[[full_name]]  censes and programming languages dashboard</h1>
+<h1 id="dashboard-header">[[full_name]] licenses and programming languages dashboard</h1>
 <p>Links:</p>
 <ul>
 <li>Grafana dashboard <a href="https://github.com/cncf/devstats/blob/master/grafana/dashboards/[[lower_name]]/licenses-and-programming-languages.json" target="_blank">JSON</a>.</li>
