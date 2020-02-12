@@ -12,8 +12,7 @@ set
 update
   gha_repos
 set
-  repo_group = 'Spinnaker',
-  alias = 'Spinnaker'
+  repo_group = 'Spinnaker'
 where
   org_login in ('spinnaker')
 ;
@@ -22,8 +21,7 @@ where
 update
   gha_repos
 set
-  repo_group = 'Tekton',
-  alias = 'Tekton'
+  repo_group = 'Tekton'
 where
   org_login in ('knative', 'tektoncd')
 ;
@@ -32,8 +30,7 @@ where
 update
   gha_repos
 set
-  repo_group = 'Jenkins',
-  alias = 'Jenkins'
+  repo_group = 'Jenkins'
 where
   org_login in ('jenkinsci')
 ;
@@ -42,13 +39,30 @@ where
 update
   gha_repos
 set
-  repo_group = 'Jenkins X',
-  alias = 'Jenkins X'
+  repo_group = 'Jenkins X'
 where
   org_login in (
     'jenkins-x', 'jenkins-x-quickstarts', 'jenkins-x-apps',
     'jenkins-x-charts', 'jenkins-x-buildpacks'
   )
+;
+
+update
+  gha_repos r
+set
+  alias = coalesce((
+    select e.dup_repo_name
+    from
+      gha_events e
+    where
+      e.repo_id = r.id
+    order by
+      e.created_at desc
+    limit 1
+  ), name)
+where
+  r.name like '%_/_%'
+  and r.name not like '%/%/%'
 ;
 
 -- Stats
