@@ -1,6 +1,6 @@
 -- Add repository groups
 update gha_repos set repo_group = name;
-update gha_repos set alias = name;
+update gha_repos set alias = null;
 
 update gha_repos set repo_group = 'IO Visor' where org_login = 'iovisor';
 update gha_repos set repo_group = 'Mininet' where org_login = 'mininet';
@@ -12,6 +12,24 @@ update gha_repos set repo_group = 'OpenBMP' where org_login = 'OpenBMP';
 update gha_repos set repo_group = 'Tungsten Fabric' where org_login = 'tungstenfabric';
 update gha_repos set repo_group = 'CORD' where org_login = 'opencord';
 update gha_repos set repo_group = null where org_login is null;
+
+update
+  gha_repos r
+set
+  alias = coalesce((
+    select e.dup_repo_name
+    from
+      gha_events e
+    where
+      e.repo_id = r.id
+    order by
+      e.created_at desc
+    limit 1
+  ), name)
+where
+  r.name like '%_/_%'
+  and r.name not like '%/%/%'
+;
 
 select
   repo_group,

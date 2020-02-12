@@ -12,8 +12,7 @@ set
 update
   gha_repos
 set
-  repo_group = 'Kubernetes',
-  alias = 'Kubernetes'
+  repo_group = 'Kubernetes'
 where
   (
     org_login in (
@@ -37,8 +36,7 @@ where
 update
   gha_repos
 set
-  repo_group = 'Prometheus',
-  alias = 'Prometheus'
+  repo_group = 'Prometheus'
 where
   org_login = 'prometheus'
 ;
@@ -47,8 +45,7 @@ where
 update
   gha_repos
 set
-  repo_group = 'OpenTracing',
-  alias = 'OpenTracing'
+  repo_group = 'OpenTracing'
 where
   org_login = 'opentracing'
 ;
@@ -57,8 +54,7 @@ where
 update
   gha_repos
 set
-  repo_group = 'Fluentd',
-  alias = 'Fluentd'
+  repo_group = 'Fluentd'
 where
   org_login = 'fluent'
 ;
@@ -67,8 +63,7 @@ where
 update
   gha_repos
 set
-  repo_group = 'Linkerd',
-  alias = 'Linkerd'
+  repo_group = 'Linkerd'
 where
   org_login = 'linkerd'
   or name = 'BuoyantIO/linkerd'
@@ -78,8 +73,7 @@ where
 update
   gha_repos
 set
-  repo_group = 'gRPC',
-  alias = 'gRPC'
+  repo_group = 'gRPC'
 where
   org_login = 'grpc'
 ;
@@ -88,8 +82,7 @@ where
 update
   gha_repos
 set
-  repo_group = 'CoreDNS',
-  alias = 'CoreDNS'
+  repo_group = 'CoreDNS'
 where
   org_login = 'coredns'
   or name = 'miekg/coredns'
@@ -99,8 +92,7 @@ where
 update
   gha_repos
 set
-  repo_group = 'containerd',
-  alias = 'containerd'
+  repo_group = 'containerd'
 where
   org_login = 'containerd'
   or name = 'docker/containerd'
@@ -110,8 +102,7 @@ where
 update
   gha_repos
 set
-  repo_group = 'rkt',
-  alias = 'rkt'
+  repo_group = 'rkt'
 where
   name != 'coreos/etcd'
   and (
@@ -124,8 +115,7 @@ where
 update
   gha_repos
 set
-  repo_group = 'CNI',
-  alias = 'CNI'
+  repo_group = 'CNI'
 where
   org_login = 'containernetworking'
   or name = 'appc/cni'
@@ -135,8 +125,7 @@ where
 update
   gha_repos
 set
-  repo_group = 'Envoy',
-  alias = 'Envoy'
+  repo_group = 'Envoy'
 where
   org_login = 'envoyproxy'
   or name = 'lyft/envoy'
@@ -146,8 +135,7 @@ where
 update
   gha_repos
 set
-  repo_group = 'Jaeger',
-  alias = 'Jaeger'
+  repo_group = 'Jaeger'
 where
   org_login = 'jaegertracing'
   or name = 'uber/jaeger'
@@ -157,8 +145,7 @@ where
 update
   gha_repos
 set
-  repo_group = 'Notary',
-  alias = 'Notary'
+  repo_group = 'Notary'
 where
   name in ('theupdateframework/notary', 'docker/notary')
 ;
@@ -167,8 +154,7 @@ where
 update
   gha_repos
 set
-  repo_group = 'TUF',
-  alias = 'TUF'
+  repo_group = 'TUF'
 where
   org_login = 'theupdateframework'
   and name != 'theupdateframework/notary' 
@@ -178,8 +164,7 @@ where
 update
   gha_repos
 set
-  repo_group = 'Rook',
-  alias = 'Rook'
+  repo_group = 'Rook'
 where
   org_login = 'rook'
 ;
@@ -188,8 +173,7 @@ where
 update
   gha_repos
 set
-  repo_group = 'Vitess',
-  alias = 'Vitess'
+  repo_group = 'Vitess'
 where
   org_login = 'vitessio'
   or name in ('youtube/vitess', 'vitess')
@@ -199,8 +183,7 @@ where
 update
   gha_repos
 set
-  repo_group = 'NATS',
-  alias = 'NATS'
+  repo_group = 'NATS'
 where
   org_login = 'nats-io'
   or name in ('apcera/gnatsd', 'gnatsd', 'apcera/nats', 'nats')
@@ -210,8 +193,7 @@ where
 update
   gha_repos
 set
-  repo_group = 'OPA',
-  alias = 'OPA'
+  repo_group = 'OPA'
 where
   org_login = 'open-policy-agent'
   or name = 'open-policy-agent/opa'
@@ -221,8 +203,7 @@ where
 update
   gha_repos
 set
-  repo_group = 'SPIFFE',
-  alias = 'SPIFFE'
+  repo_group = 'SPIFFE'
 where
   org_login = 'spiffe'
   and name != 'spiffe/spire'
@@ -232,8 +213,7 @@ where
 update
   gha_repos
 set
-  repo_group = 'SPIRE',
-  alias = 'SPIRE'
+  repo_group = 'SPIRE'
 where
   name = 'spiffe/spire'
 ;
@@ -242,8 +222,7 @@ where
 update
   gha_repos
 set
-  repo_group = 'CloudEvents',
-  alias = 'CloudEvents'
+  repo_group = 'CloudEvents'
 where
   org_login = 'cloudevents'
 ;
@@ -252,8 +231,7 @@ where
 update
   gha_repos
 set
-  repo_group = 'Telepresence',
-  alias = 'Telepresence'
+  repo_group = 'Telepresence'
 where
   org_login in ('datawire', 'telepresenceio')
 ;
@@ -262,8 +240,7 @@ where
 update
   gha_repos
 set
-  repo_group = 'Helm',
-  alias = 'Helm'
+  repo_group = 'Helm'
 where
   org_login in ('kubernetes-helm', 'kubernetes-charts', 'helm')
   or name in ('kubernetes/helm', 'kubernetes/deployment-manager', 'kubernetes/charts', 'kubernetes/application-dm-templates')
@@ -273,8 +250,7 @@ where
 update
   gha_repos
 set
-  repo_group = 'OpenMetrics',
-  alias = 'OpenMetrics'
+  repo_group = 'OpenMetrics'
 where
   org_login = 'OpenObservability'
   or name in ('RichiH/OpenMetrics')
@@ -284,8 +260,7 @@ where
 update
   gha_repos
 set
-  repo_group = 'Harbor',
-  alias = 'Harbor'
+  repo_group = 'Harbor'
 where
   org_login in ('goharbor')
   or name in ('vmware/harbor')
@@ -295,8 +270,7 @@ where
 update
   gha_repos
 set
-  repo_group = 'etcd',
-  alias = 'etcd'
+  repo_group = 'etcd'
 where
   org_login in ('etcd-io', 'etcd')
   or name in ('coreos/etcd', 'etcd')
@@ -306,8 +280,7 @@ where
 update
   gha_repos
 set
-  repo_group = 'TiKV',
-  alias = 'TiKV'
+  repo_group = 'TiKV'
 where
   org_login in ('tikv')
   or name in ('pingcap/tikv')
@@ -317,8 +290,7 @@ where
 update
   gha_repos
 set
-  repo_group = 'Cortex',
-  alias = 'Cortex'
+  repo_group = 'Cortex'
 where
   org_login in ('cortexproject')
   or name in ('weaveworks/cortex')
@@ -328,8 +300,7 @@ where
 update
   gha_repos
 set
-  repo_group = 'Buildpacks',
-  alias = 'Buildpacks'
+  repo_group = 'Buildpacks'
 where
   org_login in ('buildpack')
 ;
@@ -338,8 +309,7 @@ where
 update
   gha_repos
 set
-  repo_group = 'Falco',
-  alias = 'Falco'
+  repo_group = 'Falco'
 where
   org_login in ('falcosecurity')
   or name in ('draios/falco')
@@ -349,8 +319,7 @@ where
 update
   gha_repos
 set
-  repo_group = 'Dragonfly',
-  alias = 'Dragonfly'
+  repo_group = 'Dragonfly'
 where
   org_login in ('dragonflyoss')
   or name in ('alibaba/Dragonfly')
@@ -360,8 +329,7 @@ where
 update
   gha_repos
 set
-  repo_group = 'Virtual Kubelet',
-  alias = 'Virtual Kubelet'
+  repo_group = 'Virtual Kubelet'
 where
   org_login in ('virtual-kubelet', 'Virtual-Kubelet')
 ;
@@ -370,8 +338,7 @@ where
 update
   gha_repos
 set
-  repo_group = 'KubeEdge',
-  alias = 'KubeEdge'
+  repo_group = 'KubeEdge'
 where
   org_login in ('kubeedge')
 ;
@@ -380,8 +347,7 @@ where
 update
   gha_repos
 set
-  repo_group = 'Brigade',
-  alias = 'Brigade'
+  repo_group = 'Brigade'
 where
   org_login in ('brigadecore')
   or name in ('Azure/brigade')
@@ -391,8 +357,7 @@ where
 update
   gha_repos
 set
-  repo_group = 'CRI-O',
-  alias = 'CRI-O'
+  repo_group = 'CRI-O'
 where
   org_login in ('cri-o')
   or name in (
@@ -406,8 +371,7 @@ where
 update
   gha_repos
 set
-  repo_group = 'Network Service Mesh',
-  alias = 'Network Service Mesh'
+  repo_group = 'Network Service Mesh'
 where
   org_login in ('networkservicemesh')
   or name in (
@@ -419,8 +383,7 @@ where
 update
   gha_repos
 set
-  repo_group = 'OpenEBS',
-  alias = 'OpenEBS'
+  repo_group = 'OpenEBS'
 where
   org_login in ('openebs')
 ;
@@ -429,8 +392,7 @@ where
 update
   gha_repos
 set
-  repo_group = 'OpenTelemetry',
-  alias = 'OpenTelemetry'
+  repo_group = 'OpenTelemetry'
 where
   org_login in ('open-telemetry')
 ;
@@ -439,8 +401,7 @@ where
 update
   gha_repos
 set
-  repo_group = 'Thanos',
-  alias = 'Thanos'
+  repo_group = 'Thanos'
 where
   org_login in ('thanos-io')
   or name in (
@@ -453,8 +414,7 @@ where
 update
   gha_repos
 set
-  repo_group = 'Flux',
-  alias = 'Flux'
+  repo_group = 'Flux'
 where
   org_login in ('fluxcd')
   or name in ('weaveworks/flux')
@@ -465,8 +425,7 @@ where
 update
   gha_repos
 set
-  repo_group = 'in-toto',
-  alias = 'in-toto'
+  repo_group = 'in-toto'
 where
   org_login in ('in-toto')
 ;
@@ -475,8 +434,7 @@ where
 update
   gha_repos
 set
-  repo_group = 'Strimzi',
-  alias = 'Strimzi'
+  repo_group = 'Strimzi'
 where
   org_login in ('strimzi')
   or name in ('EnMasseProject/barnabas', 'ppatierno/barnabas', 'ppatierno/kaas')
@@ -486,8 +444,7 @@ where
 update
   gha_repos
 set
-  repo_group = 'KubeVirt',
-  alias = 'KubeVirt'
+  repo_group = 'KubeVirt'
 where
   org_login in ('kubevirt')
 ;
@@ -496,8 +453,7 @@ where
 update
   gha_repos
 set
-  repo_group = 'Longhorn',
-  alias = 'Longhorn'
+  repo_group = 'Longhorn'
 where
   org_login in ('longhorn')
 ;
@@ -506,8 +462,7 @@ where
 update
   gha_repos
 set
-  repo_group = 'ChubaoFS',
-  alias = 'ChubaoFS'
+  repo_group = 'ChubaoFS'
 where
   org_login in ('chubaofs')
   or name in (
@@ -519,10 +474,27 @@ where
 update
   gha_repos
 set
-  repo_group = 'CNCF',
-  alias = 'CNCF'
+  repo_group = 'CNCF'
 where
   org_login in ('cncf', 'crosscloudci')
+;
+
+update
+  gha_repos r
+set
+  alias = coalesce((
+    select e.dup_repo_name
+    from
+      gha_events e
+    where
+      e.repo_id = r.id
+    order by
+      e.created_at desc
+    limit 1
+  ), name)
+where
+  r.name like '%_/_%'
+  and r.name not like '%/%/%'
 ;
 
 -- Stats
