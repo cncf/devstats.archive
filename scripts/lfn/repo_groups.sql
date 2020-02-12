@@ -1,6 +1,5 @@
 -- Add repository groups
 update gha_repos set repo_group = name;
-update gha_repos set alias = null;
 
 update gha_repos set repo_group = 'IO Visor' where org_login = 'iovisor';
 update gha_repos set repo_group = 'Mininet' where org_login = 'mininet';

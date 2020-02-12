@@ -1,6 +1,6 @@
 -- Add repository groups
 
-update gha_repos set alias = null, repo_group = null;
+update gha_repos set repo_group = null;
 update gha_repos set repo_group = 'GraphQL JavaScript' where name = 'graphql/graphql-js';
 update gha_repos set repo_group = 'GraphQL IDE' where name = 'graphql/graphiql';
 update gha_repos set repo_group = 'Express GraphQL' where name = 'graphql/express-graphql';
