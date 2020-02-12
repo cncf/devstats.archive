@@ -4,8 +4,7 @@
 update
   gha_repos
 set
-  repo_group = null,
-  alias = null
+  repo_group = null
 ;
 
 -- Spinnaker
