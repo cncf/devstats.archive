@@ -8,6 +8,7 @@ update dashboard set id = 1001 where slug = 'community-sizing-and-health-assessm
 update dashboard set id = 1002 where slug = 'contributor-statistics';
 update dashboard set id = 1003 where slug = 'issue-velocity';
 update dashboard set id = 1004 where slug = 'pr-velocity';
+update dashboard set id = 1005 where slug = 'other';
 
 update
   dashboard
@@ -18,7 +19,8 @@ where
     'pr-velocity',
     'community-sizing-and-health-assessment',
     'issue-velocity',
-    'contributor-statistics'
+    'contributor-statistics',
+    'other'
   )
 ;
 
@@ -114,6 +116,24 @@ where
     'pr-workload-per-sig-table',
     'prs-approval-repository-groups',
     'prs-labels-repository-groups'
+  )
+;
+
+update
+  dashboard
+set
+  folder_id = (
+    select
+      id
+    from
+      dashboard
+    where
+      slug = 'other'
+  )
+where
+  slug in (
+    'repository-groups',
+    'licenses-and-programming-languages'
   )
 ;
 
