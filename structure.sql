@@ -1009,7 +1009,9 @@ CREATE TABLE public.gha_repos (
     alias character varying(160),
     license_key character varying(30),
     license_name character varying(160),
-    license_prob double precision
+    license_prob double precision,
+    created_at timestamp without time zone DEFAULT now(),
+    updated_at timestamp without time zone DEFAULT now()
 );
 
 
@@ -1651,7 +1653,7 @@ COPY public.gha_releases_assets (release_id, event_id, asset_id) FROM stdin;
 -- Data for Name: gha_repos; Type: TABLE DATA; Schema: public; Owner: gha_admin
 --
 
-COPY public.gha_repos (id, name, org_id, org_login, repo_group, alias, license_key, license_name, license_prob) FROM stdin;
+COPY public.gha_repos (id, name, org_id, org_login, repo_group, alias, license_key, license_name, license_prob, created_at, updated_at) FROM stdin;
 \.
 
 
@@ -3737,6 +3739,13 @@ CREATE INDEX repos_alias_idx ON public.gha_repos USING btree (alias);
 
 
 --
+-- Name: repos_created_at_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX repos_created_at_idx ON public.gha_repos USING btree (created_at);
+
+
+--
 -- Name: repos_id_idx; Type: INDEX; Schema: public; Owner: gha_admin
 --
 
@@ -3818,6 +3827,13 @@ CREATE INDEX repos_org_login_idx ON public.gha_repos USING btree (org_login);
 --
 
 CREATE INDEX repos_repo_group_idx ON public.gha_repos USING btree (repo_group);
+
+
+--
+-- Name: repos_updated_at_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX repos_updated_at_idx ON public.gha_repos USING btree (updated_at);
 
 
 --
