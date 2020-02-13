@@ -15,20 +15,104 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 18,
-  "iteration": 1581532618031,
+  "id": 20,
+  "iteration": 1581537328187,
   "links": [],
   "panels": [
     {
       "columns": [],
       "datasource": "psql",
-      "description": "Summary of all license types used in [[full_name]] repositories.",
+      "description": "Summary for all [[full_name]] data. It includes data from repositories with unknown licenses and/or unknown programming languages.",
+      "fontSize": "100%",
+      "gridPos": {
+        "h": 3,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "hideTimeOverride": false,
+      "id": 15,
+      "interval": "",
+      "links": [],
+      "options": {},
+      "pageSize": 2,
+      "scroll": true,
+      "showHeader": true,
+      "sort": {
+        "col": 2,
+        "desc": true
+      },
+      "styles": [],
+      "targets": [
+        {
+          "alias": "",
+          "dsType": "influxdb",
+          "format": "table",
+          "group": [],
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "metricColumn": "none",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "",
+          "rawQuery": true,
+          "rawSql": "select\n  count(distinct r.license_name) filter (where r.license_name is not null and r.license_name != '' and r.license_name != 'Not found') as \"All Licenses\",\n  count(distinct rl.lang_name) filter (where rl.lang_name is not null and rl.lang_name != '' and rl.lang_name != 'unknown') as \"All Programming Languages\",\n  count(distinct r.alias) filter (where r.alias is not null) as \"All Repositories\",\n  sum(rl.lang_loc) as \"All LOC\"\nfrom\n  gha_repos r,\n  gha_repos_langs rl\nwhere\n  r.name = rl.repo_name\n  and ('[[repogroups:csv]]' = 'null' or r.repo_group in ([[repogroups]]))\n  and ('[[licenses:csv]]' = 'null' or r.license_name in ([[licenses]]))\n  and ('[[languages:csv]]' = 'null' or rl.lang_name in ([[languages]]))\n  and (r.name, r.id) = (\n    select i.name,\n      i.id\n    from\n      gha_repos i\n    where\n      i.alias = r.alias\n      and i.name like '%_/_%'\n      and i.name not like '%/%/%'\n    limit 1\n  )\n;",
+          "refId": "A",
+          "resultFormat": "table",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": [],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Summary for all data",
+      "transform": "table",
+      "transparent": true,
+      "type": "table"
+    },
+    {
+      "columns": [],
+      "datasource": "psql",
+      "description": "Summary of all license types used in [[full_name]] repositories. Includes data from unidentified programming languages too.",
       "fontSize": "90%",
       "gridPos": {
         "h": 15,
         "w": 5,
         "x": 0,
-        "y": 0
+        "y": 3
       },
       "hideTimeOverride": false,
       "id": 1,
@@ -68,7 +152,7 @@
           "policy": "default",
           "query": "",
           "rawQuery": true,
-          "rawSql": "select \n  r.license_name as \"License\",\n  count(distinct r.alias) as \"Repositories\"\nfrom\n  gha_repos r,\n  gha_repos_langs rl\nwhere\n  r.name = rl.repo_name\n  and ('[[repogroups:csv]]' = 'null' or r.repo_group in ([[repogroups]]))\n  and ('[[licenses:csv]]' = 'null' or r.license_name in ([[licenses]]))\n  and ('[[languages:csv]]' = 'null' or rl.lang_name in ([[languages]]))\n  and r.license_name is not null and r.license_name not in ('', 'Not found')\ngroup by\n  r.license_name\n;",
+          "rawSql": "select \n  r.license_name as \"License\",\n  count(distinct r.alias) as \"Repositories\"\nfrom\n  gha_repos r,\n  gha_repos_langs rl\nwhere\n  r.name = rl.repo_name\n  and ('[[repogroups:csv]]' = 'null' or r.repo_group in ([[repogroups]]))\n  and ('[[licenses:csv]]' = 'null' or r.license_name in ([[licenses]]))\n  and ('[[languages:csv]]' = 'null' or rl.lang_name in ([[languages]]))\n  and r.license_name is not null and r.license_name not in ('', 'Not found')\n  and (r.name, r.id) = (\n    select i.name,\n      i.id\n    from\n      gha_repos i\n    where\n      i.alias = r.alias\n      and i.name like '%_/_%'\n      and i.name not like '%/%/%'\n    limit 1\n  )\ngroup by\n  r.license_name\n;",
           "refId": "A",
           "resultFormat": "table",
           "select": [
@@ -105,13 +189,13 @@
     {
       "columns": [],
       "datasource": "psql",
-      "description": "Summary of all programming languages used in [[full_name]] repositories.",
+      "description": "Summary of all programming languages used in [[full_name]] repositories. Includes data from repositories with unknown licenses.",
       "fontSize": "90%",
       "gridPos": {
         "h": 15,
         "w": 8,
         "x": 5,
-        "y": 0
+        "y": 3
       },
       "hideTimeOverride": false,
       "id": 13,
@@ -188,13 +272,13 @@
     {
       "columns": [],
       "datasource": "psql",
-      "description": "Number of repositories and lines of code per license and programming language.",
+      "description": "The number of repositories and lines of code per license and programming language. It only includes data from repositories with known licenses and programming languages used.",
       "fontSize": "90%",
       "gridPos": {
         "h": 15,
         "w": 11,
         "x": 13,
-        "y": 0
+        "y": 3
       },
       "hideTimeOverride": false,
       "id": 14,
@@ -271,13 +355,13 @@
     {
       "columns": [],
       "datasource": "psql",
-      "description": "Display license types and programming languages splits per repository.",
+      "description": "Display license types and programming languages split per repository.",
       "fontSize": "80%",
       "gridPos": {
         "h": 23,
         "w": 24,
         "x": 0,
-        "y": 15
+        "y": 18
       },
       "hideTimeOverride": false,
       "id": 12,
@@ -364,7 +448,7 @@
       ],
       "timeFrom": null,
       "timeShift": null,
-      "title": "Repository licenses and programming languages details",
+      "title": "Repository licenses and programming languages details for [[full_name]]",
       "transform": "table",
       "type": "table"
     },
@@ -375,7 +459,7 @@
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 38
+        "y": 41
       },
       "id": 11,
       "links": [],
@@ -398,8 +482,8 @@
       {
         "allValue": null,
         "current": {
-          "text": "Kubernetes",
-          "value": "Kubernetes"
+          "text": "All CNCF",
+          "value": "All CNCF"
         },
         "datasource": "psql",
         "definition": "",
@@ -423,8 +507,8 @@
       {
         "allValue": null,
         "current": {
-          "text": "\u003ch1 id=\"dashboard-header\"\u003eKubernetes licenses and programming languages dashboard\u003c/h1\u003e\n\u003cp\u003eLinks:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003eGrafana dashboard \u003ca href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/licenses-and-programming-languages.json\" target=\"_blank\"\u003eJSON\u003c/a\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch1 id=\"description\"\u003eDescription\u003c/h1\u003e\n\u003cul\u003e\n\u003cli\u003eThis dashboard shows summary of repository licenses and programming languages.\u003c/li\u003e\n\u003cli\u003eYou can select one or more repository groups or summary for all of them.\u003c/li\u003e\n\u003cli\u003eYou can select one or more licenses type or summary for all of them.\u003c/li\u003e\n\u003cli\u003eYou can select one or more programming languages or summary for all of them.\u003c/li\u003e\n\u003cli\u003eAll staticstics are displayed for currently selected set of values from drop-downs.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/repository_groups.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about repository groups.\u003c/li\u003e\n\u003c/ul\u003e",
-          "value": "\u003ch1 id=\"dashboard-header\"\u003eKubernetes licenses and programming languages dashboard\u003c/h1\u003e\n\u003cp\u003eLinks:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003eGrafana dashboard \u003ca href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/licenses-and-programming-languages.json\" target=\"_blank\"\u003eJSON\u003c/a\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch1 id=\"description\"\u003eDescription\u003c/h1\u003e\n\u003cul\u003e\n\u003cli\u003eThis dashboard shows summary of repository licenses and programming languages.\u003c/li\u003e\n\u003cli\u003eYou can select one or more repository groups or summary for all of them.\u003c/li\u003e\n\u003cli\u003eYou can select one or more licenses type or summary for all of them.\u003c/li\u003e\n\u003cli\u003eYou can select one or more programming languages or summary for all of them.\u003c/li\u003e\n\u003cli\u003eAll staticstics are displayed for currently selected set of values from drop-downs.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/repository_groups.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about repository groups.\u003c/li\u003e\n\u003c/ul\u003e"
+          "text": "\u003ch1 id=\"dashboard-header\"\u003eAll CNCF licenses and programming languages dashboard\u003c/h1\u003e\n\u003cp\u003eLinks:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003eGrafana dashboard \u003ca href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/all/licenses-and-programming-languages.json\" target=\"_blank\"\u003eJSON\u003c/a\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch1 id=\"description\"\u003eDescription\u003c/h1\u003e\n\u003cul\u003e\n\u003cli\u003eThis dashboard shows summary of repository licenses and programming languages.\u003c/li\u003e\n\u003cli\u003eYou can select one or more repository groups or summary for all of them.\u003c/li\u003e\n\u003cli\u003eYou can select one or more licenses type or summary for all of them.\u003c/li\u003e\n\u003cli\u003eYou can select one or more programming languages or summary for all of them.\u003c/li\u003e\n\u003cli\u003eAll staticstics are displayed for currently selected set of values from drop-downs.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/repository_groups.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about repository groups.\u003c/li\u003e\n\u003c/ul\u003e",
+          "value": "\u003ch1 id=\"dashboard-header\"\u003eAll CNCF licenses and programming languages dashboard\u003c/h1\u003e\n\u003cp\u003eLinks:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003eGrafana dashboard \u003ca href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/all/licenses-and-programming-languages.json\" target=\"_blank\"\u003eJSON\u003c/a\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch1 id=\"description\"\u003eDescription\u003c/h1\u003e\n\u003cul\u003e\n\u003cli\u003eThis dashboard shows summary of repository licenses and programming languages.\u003c/li\u003e\n\u003cli\u003eYou can select one or more repository groups or summary for all of them.\u003c/li\u003e\n\u003cli\u003eYou can select one or more licenses type or summary for all of them.\u003c/li\u003e\n\u003cli\u003eYou can select one or more programming languages or summary for all of them.\u003c/li\u003e\n\u003cli\u003eAll staticstics are displayed for currently selected set of values from drop-downs.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/repository_groups.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about repository groups.\u003c/li\u003e\n\u003c/ul\u003e"
         },
         "datasource": "psql",
         "definition": "select value_s from gha_vars where name = 'licenses_docs_html'",
@@ -502,6 +586,7 @@
       {
         "allValue": "null",
         "current": {
+          "tags": [],
           "text": "All",
           "value": [
             "$__all"
