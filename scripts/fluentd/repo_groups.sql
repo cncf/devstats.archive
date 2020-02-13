@@ -1,18 +1,27 @@
 -- Add repository groups
--- This is a stub, repo_group = repo name in Prometheus
+with repo_latest as (
+  select sub.repo_id,
+    sub.repo_name
+  from (
+    select repo_id,
+      dup_repo_name as repo_name,
+      row_number() over (partition by repo_id order by created_at desc, id desc) as row_num
+    from
+      gha_events
+  ) sub
+  where
+    sub.row_num = 1
+)
 update
   gha_repos r
 set
-  alias = coalesce((
-    select e.dup_repo_name
+  alias = (
+    select rl.repo_name
     from
-      gha_events e
+      repo_latest rl
     where
-      e.repo_id = r.id
-    order by
-      e.created_at desc
-    limit 1
-  ), name)
+      rl.repo_id = r.id
+  )
 where
   r.name like '%_/_%'
   and r.name not like '%/%/%'
