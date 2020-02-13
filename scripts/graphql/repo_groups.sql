@@ -6,19 +6,29 @@ update gha_repos set repo_group = 'GraphQL IDE' where name = 'graphql/graphiql';
 update gha_repos set repo_group = 'Express GraphQL' where name = 'graphql/express-graphql';
 update gha_repos set repo_group = 'GraphQL Spec' where name in ('graphql/graphql-spec', 'facebook/graphql');
 
+with repo_latest as (
+  select sub.repo_id,
+    sub.repo_name
+  from (
+    select repo_id,
+      dup_repo_name as repo_name,
+      row_number() over (partition by repo_id order by created_at desc, id desc) as row_num
+    from
+      gha_events
+  ) sub
+  where
+    sub.row_num = 1
+)
 update
   gha_repos r
 set
-  alias = coalesce((
-    select e.dup_repo_name
+  alias = (
+    select rl.repo_name
     from
-      gha_events e
+      repo_latest rl
     where
-      e.repo_id = r.id
-    order by
-      e.created_at desc
-    limit 1
-  ), name)
+      rl.repo_id = r.id
+  )
 where
   r.name like '%_/_%'
   and r.name not like '%/%/%'
