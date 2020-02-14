@@ -11,8 +11,8 @@ fi
 set -o pipefail
 > errors.txt
 > run.log
-#start_date="2015-01-01"
-start_date="2019-02-01"
+start_date="2015-01-01"
+#start_date="2019-02-01"
 GHA2DB_PROJECT=contrib PG_DB=contrib GHA2DB_LOCAL=1 structure 2>>errors.txt | tee -a run.log || exit 1
 sudo -u postgres psql contrib -c "create extension if not exists pgcrypto" || exit 1
 ./devel/ro_user_grants.sh contrib || exit 2
