@@ -53,7 +53,9 @@ util_scripts:
 
 data: util_scripts
 	[ ! -f /tmp/deploy.wip ] || exit 1
+ifneq (${NOWAIT},1)
 	wait_for_command.sh 'devstats,devstats_others,devstats_kubernetes,devstats_allprj' 900 || exit 2
+endif
 	make copydata
 
 copydata: util_scripts
