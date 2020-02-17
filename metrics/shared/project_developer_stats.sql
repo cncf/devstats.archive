@@ -231,9 +231,9 @@ from (
 where
   (sub.metric = 'events' and sub.value >= 200)
   or (sub.metric = 'active_repos' and sub.value > 2)
-  or (sub.metric = 'contributions' and sub.value > 20)
+  or (sub.metric = 'contributions' and sub.value > 10)
   or (sub.metric = 'commit_comments' and sub.value > 10)
-  or (sub.metric = 'comments' and sub.value > 20)
+  or (sub.metric = 'comments' and sub.value > 10)
   or (sub.metric = 'issue_comments' and sub.value > 10)
   or (sub.metric = 'review_comments' and sub.value > 10)
   or (sub.metric in (
