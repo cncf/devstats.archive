@@ -56,6 +56,24 @@ update gha_repos set repo_group = 'fluentd-ui' where name in ('fluentd-ui', 'flu
 update gha_repos set repo_group = 'NLog.Targets.Fluentd' where name in ('NLog.Targets.Fluentd', 'fluent/NLog.Targets.Fluentd');
 update gha_repos set repo_group = 'fluentd-forwarder' where name in ('fluentd-forwarder', 'fluent/fluentd-forwarder');
 
+update
+  gha_repos
+set
+  repo_group = 'Plugins'
+where
+  lower(org_login) in (
+    'fluent-plugins-nursery'
+  )
+  or lower(name) in (
+    'baritolog/barito-fluent-plugin', 'blacknight95/aws-fluent-plugin-kinesis', 'sumologic/fluentd-kubernetes-sumologic', 'sumologic/fluentd-output-sumologic',
+    'wallynegima/scenario-manager-plugin', 'aliyun/aliyun-odps-fluentd-plugin', 'awslabs/aws-fluent-plugin-kinesis', 'campanja/fluent-output-router',
+    'grafana/loki/', 'jdoconnor/fluentd_https_out', 'newrelic/newrelic-fluentd-output', 'roma42427/filter_wms_auth', 'scalyr/scalyr-fluentd',
+    'sebryu/fluent_plugin_in_websocket', 'tagomoris/fluent-helper-plugin-spec', 'y-ken/fluent-mixin-rewrite-tag-name', 'y-ken/fluent-mixin-type-converter'
+  )
+  or lower(name) like '%_/fluent-plugin-%'
+  or lower(name) like '%_/fluentd-plugin-%'
+;
+
 select
   repo_group,
   count(*) as number_of_repos
