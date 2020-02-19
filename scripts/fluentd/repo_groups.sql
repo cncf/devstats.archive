@@ -55,6 +55,36 @@ update gha_repos set repo_group = 'fluent-logger-ocaml' where name in ('fluent-l
 update gha_repos set repo_group = 'fluentd-ui' where name in ('fluentd-ui', 'fluent/fluentd-ui');
 update gha_repos set repo_group = 'NLog.Targets.Fluentd' where name in ('NLog.Targets.Fluentd', 'fluent/NLog.Targets.Fluentd');
 update gha_repos set repo_group = 'fluentd-forwarder' where name in ('fluentd-forwarder', 'fluent/fluentd-forwarder');
+update gha_repos set repo_group = 'fluent-bit' where name in ('fluent/fluent-bit', 'fluent-bit');
+update gha_repos set repo_group = 'fluent-logger-scala' where name in ('fluent/fluent-logger-scala', 'fluent-logger-scala');
+update gha_repos set repo_group = 'fluent-bit-demo' where name in ('fluent/fluent-bit-demo', 'fluent-bit-demo');
+update gha_repos set repo_group = 'fluent-logger-erlang' where name in ('fluent/fluent-logger-erlang', 'fluent-logger-erlang');
+update gha_repos set repo_group = 'data-collection' where name in ('fluent/data-collection', 'data-collection');
+update gha_repos set repo_group = 'fluent-logger-golang' where name in ('fluent/fluent-logger-golang', 'fluent-logger-golang');
+update gha_repos set repo_group = 'fluentd-docker-image' where name in ('fluent/fluentd-docker-image', 'fluentd-docker-image');
+update gha_repos set repo_group = 'fluent-bit-website' where name in ('fluent/fluent-bit-website', 'fluent-bit-website');
+update gha_repos set repo_group = 'fluentbit-dashboard' where name in ('fluent/fluentbit-dashboard', 'fluentbit-dashboard');
+update gha_repos set repo_group = 'fluentd-website' where name in ('fluent/fluentd-website', 'fluentd-website');
+update gha_repos set repo_group = 'fluentbit-website-v2' where name in ('fluent/fluentbit-website-v2', 'fluentbit-website-v2');
+update gha_repos set repo_group = 'fluent-bit-docs' where name in ('fluent/fluent-bit-docs', 'fluent-bit-docs');
+update gha_repos set repo_group = 'fluent-bit-go' where name in ('fluent/fluent-bit-go', 'fluent-bit-go');
+update gha_repos set repo_group = 'fluent-bit-docker-image' where name in ('fluent/fluent-bit-docker-image', 'fluent-bit-docker-image');
+update gha_repos set repo_group = 'fluentd-kubernetes-daemonset' where name in ('fluent/fluentd-kubernetes-daemonset', 'fluentd-kubernetes-daemonset');
+update gha_repos set repo_group = 'fluentd-docs-kubernetes' where name in ('fluent/fluentd-docs-kubernetes', 'fluentd-docs-kubernetes');
+update gha_repos set repo_group = 'fluent-bit-kubernetes-logging' where name in ('fluent/fluent-bit-kubernetes-logging', 'fluent-bit-kubernetes-logging');
+update gha_repos set repo_group = 'fluent-bit-docker-image' where name in ('fluent/fluent-bit-docker-image', 'fluent-bit-docker-image');
+update gha_repos set repo_group = 'fluent-bit-packaging' where name in ('fluent/fluent-bit-packaging', 'fluent-bit-packaging');
+update gha_repos set repo_group = 'fluent-bit-test' where name in ('fluent/fluent-bit-test', 'fluent-bit-test');
+update gha_repos set repo_group = 'kafka-connect-fluentd' where name in ('fluent/kafka-connect-fluentd', 'kafka-connect-fluentd');
+update gha_repos set repo_group = 'fluent-bit-kubernetes-logging' where name in ('fluent/fluent-bit-kubernetes-logging', 'fluent-bit-kubernetes-logging');
+update gha_repos set repo_group = 'fluentd-docs-gitbook' where name in ('fluent/fluentd-docs-gitbook', 'fluentd-docs-gitbook');
+update gha_repos set repo_group = 'fluent-bit-tutorials' where name in ('fluent/fluent-bit-tutorials', 'fluent-bit-tutorials');
+update gha_repos set repo_group = 'fluent.github.com' where name in ('fluent/fluent.github.com', 'fluent.github.com');
+update gha_repos set repo_group = 'fluent-bit-docs-stream-processing' where name in ('fluent/fluent-bit-docs-stream-processing', 'fluent-bit-docs-stream-processing');
+update gha_repos set repo_group = 'fluent-bit-plugin' where name in ('fluent/fluent-bit-plugin', 'fluent-bit-plugin');
+update gha_repos set repo_group = 'fluent-bit-perf' where name in ('fluent/fluent-bit-perf', 'fluent-bit-perf');
+update gha_repos set repo_group = 'fluent-bit-docker' where name in ('fluent/fluent-bit-docker', 'fluent-bit-docker');
+update gha_repos set repo_group = 'fluent-bit-kubernetes-daemonset' where name in ('fluent/fluent-bit-kubernetes-daemonset', 'fluent-bit-kubernetes-daemonset');
 
 update
   gha_repos
