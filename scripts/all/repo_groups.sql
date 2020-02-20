@@ -107,6 +107,7 @@ where
   and (
     org_login in ('rkt' , 'coreos', 'rktproject')
     or name in ('rkt/Navigation_Drawer', 'rocket')
+    or name like 'rkt/%'
   )
 ;
 
@@ -223,7 +224,7 @@ update
 set
   repo_group = 'CloudEvents'
 where
-  org_login = 'cloudevents'
+  org_login in ('cloudevents', 'openeventing')
 ;
 
 -- Telepresence
@@ -273,6 +274,7 @@ set
 where
   org_login in ('etcd-io', 'etcd')
   or name in ('coreos/etcd', 'etcd')
+  or name like 'etcd/%'
 ;
 
 -- TiKV
@@ -292,7 +294,11 @@ set
   repo_group = 'Cortex'
 where
   org_login in ('cortexproject')
-  or name in ('weaveworks/cortex')
+  or name in (
+    'weaveworks/cortex',
+    'weaveworks/frankenstein',
+    'weaveworks/prism'
+  )
 ;
 
 -- Buildpacks
@@ -372,7 +378,7 @@ update
 set
   repo_group = 'Network Service Mesh'
 where
-  org_login in ('networkservicemesh')
+  lower(org_login) in ('networkservicemesh')
   or name in (
     'ligato/networkservicemesh'
   )
@@ -455,6 +461,7 @@ set
   repo_group = 'Longhorn'
 where
   org_login in ('longhorn')
+  or name in ('rancher/longhorn')
 ;
 
 -- ChubaoFS
@@ -475,7 +482,7 @@ update
 set
   repo_group = 'CNCF'
 where
-  org_login in ('cncf', 'crosscloudci')
+  org_login in ('cncf', 'crosscloudci', 'cdfoundation')
 ;
 
 with repo_latest as (
