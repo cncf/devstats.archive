@@ -153,7 +153,7 @@ do
          PROJ=vitess         PROJDB=vitess         PROJREPO="vitessio/vitess"                 ORGNAME=Vitess            PORT=3015 ICON=vitess         GRAFSUFF=vitess         GA="UA-108085315-18" ./devel/deploy_proj.sh || exit 17
   elif [ "$proj" = "nats" ]
   then
-         PROJ=nats           PROJDB=nats           PROJREPO="nats-io/gnatsd"                  ORGNAME=NATS              PORT=3016 ICON=nats           GRAFSUFF=nats           GA="UA-108085315-21" ./devel/deploy_proj.sh || exit 18
+         PROJ=nats           PROJDB=nats           PROJREPO="nats-io/nats-server"             ORGNAME=NATS              PORT=3016 ICON=nats           GRAFSUFF=nats           GA="UA-108085315-21" ./devel/deploy_proj.sh || exit 18
   elif [ "$proj" = "opa" ]
   then
          PROJ=opa            PROJDB=opa            PROJREPO="open-policy-agent/opa"           ORGNAME=OPA               PORT=3017 ICON=opa            GRAFSUFF=opa            GA="UA-108085315-22" ./devel/deploy_proj.sh || exit 19
