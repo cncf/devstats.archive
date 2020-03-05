@@ -29,8 +29,9 @@ where
 update gha_repos set repo_group = alias;
 
 update gha_repos
-set repo_group = 'gnatsd', alias = 'gnatsd'
+set repo_group = 'nats-server', alias = 'nats-server'
 where name in (
+  'nats-io/nats-server',
   'nats-io/gnatsd',
   'apcera/gnatsd',
   'gnatsd'
