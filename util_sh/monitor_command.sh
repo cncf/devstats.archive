@@ -3,6 +3,7 @@
 # TIMEOUT2 - set number of seconds to wait for command to finish when it ignored the first grace signal (HUP)
 # WAIT - specify time needed to graceful kill to happen
 # MAIL_TO - email address to send mail when command was terminated, skip if '-'
+# [REPORT_NONZERO] - if set, treat non-zero exit code as failure
 #
 # Example crontab entry that ensures docker is alive: `0 * * * * TIMEOUT=1800 TIMEOUT2=300 WAIT=30 MAIL_TO=lukaszgryglicki@o2.pl /usr/bin/monitor_command.sh /usr/bin/docker system info 1>/tmp/docker_system_info.log 2>/tmp/docker_system_info.err`
 ts=`date +'%s'`
@@ -48,6 +49,35 @@ do
     wait $pid
     code=$?
     echo "$* ($pid) finished ($code) before timeout"
+    if ( [ ! -z "$REPORT_NONZERO" ] && [ ! "$code" = "0" ] )
+    then
+      host=`hostname`
+      msg="$host: $* ($pid) exited with error state ($code)"
+      ts2=`date +'%s'`
+      took=$(($ts2-$ts))
+      echo "From: monitor_command_$$@${host}" > temp.txt
+      echo "To: $MAIL_TO" >> temp.txt
+      echo "Subject: $msg" >> temp.txt
+      echo '' >> temp.txt
+      echo $msg >> temp.txt
+      echo "Config: TIMEOUT=${TIMEOUT}s, TIMEOUT2=${TIMEOUT2}s, WAIT=${WAIT}s" >> temp.txt
+      echo "Took: ${took}s" >> temp.txt
+      hash=`echo "$*" | base64`
+      hash="/tmp/${hash}_"
+      echo "Hash: $hash" >> temp.txt
+      cat temp.txt
+      if [ ! "$MAIL_TO" = "-" ]
+      then
+        if [ -f "$hash" ]
+        then
+          echo "No need to send email $hash hash file exists."
+        else
+          echo "Sending email to $MAIL_TO and creating $hash hash file"
+          sendmail $MAIL_TO < temp.txt && echo "$*" > "$hash"
+        fi
+      fi
+      rm -f temp.txt
+    fi
     exit $code
   fi
   # wait for the next second and finish if that second is TIMEOUT value
