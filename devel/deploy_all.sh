@@ -238,6 +238,9 @@ do
   elif [ "$proj" = "chubaofs" ]
   then
     PROJ=chubaofs            PROJDB=chubaofs       PROJREPO="chubaofs/chubaofs"               ORGNAME=ChubaoFS          PORT=3044 ICON=chubaofs       GRAFSUFF=chubaofs       GA="UA-145264316-5"  ./devel/deploy_proj.sh || exit 62
+  elif [ "$proj" = "keda" ]
+  then
+    PROJ=keda                PROJDB=keda           PROJREPO="kedacore/keda"                   ORGNAME=KEDA              PORT=3045 ICON=keda           GRAFSUFF=keda           GA="UA-145264316-6"  ./devel/deploy_proj.sh || exit 63
   elif [ "$proj" = "opencontainers" ]
   then
     PROJ=opencontainers      PROJDB=opencontainers PROJREPO="opencontainers/runc"             ORGNAME=OCI               PORT=3100 ICON="-"            GRAFSUFF=opencontainers GA="UA-108085315-19" ./devel/deploy_proj.sh || exit 32
