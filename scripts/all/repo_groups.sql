@@ -476,6 +476,20 @@ where
   )
 ;
 
+-- KEDA
+update
+  gha_repos
+set
+  repo_group = 'KEDA'
+where
+  org_login in ('kedacore')
+  or name in (
+    'tomkerkhove/sample-dotnet-queue-worker',
+    'tomkerkhove/sample-dotnet-queue-worker-servicebus-queue',
+    'tomkerkhove/sample-dotnet-worker-servicebus-queue'
+  )
+;
+
 -- CNCF
 update
   gha_repos

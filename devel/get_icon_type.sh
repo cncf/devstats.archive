@@ -63,6 +63,7 @@ icontypes=(
   ["kubevirt"]="color"
   ["longhorn"]="color"
   ["chubaofs"]="color"
+  ["keda"]="color"
   ["tekton"]="color"
   ["jenkins"]="color"
   ["jenkinsx"]="color"
