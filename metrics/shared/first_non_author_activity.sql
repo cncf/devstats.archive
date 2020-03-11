@@ -8,6 +8,7 @@ with issues as (
     is_pull_request = true
     and created_at >= '{{from}}'
     and created_at < '{{to}}'
+    and (lower(dup_user_login) {{exclude_bots}})
 ), prs as (
   select distinct id,
     user_id,
@@ -17,6 +18,7 @@ with issues as (
   where
     created_at >= '{{from}}'
     and created_at < '{{to}}'
+    and (lower(dup_user_login) {{exclude_bots}})
 ), tdiffs as (
   select extract(epoch from i2.updated_at - i.created_at) / 3600 as diff,
     coalesce(ecf.repo_group, r.repo_group) as repo_group
@@ -33,6 +35,8 @@ with issues as (
     and r.name = i2.dup_repo_name
     and r.id = i2.dup_repo_id
     and (lower(i2.dup_actor_login) {{exclude_bots}})
+    and i2.created_at >= '{{from}}'
+    and i2.created_at < '{{to}}'
     and i2.event_id in (
       select event_id
       from
@@ -40,6 +44,8 @@ with issues as (
       where
         sub.dup_actor_id != i.user_id
         and sub.id = i.id
+        and sub.created_at >= '{{from}}'
+        and sub.created_at < '{{to}}'
         and sub.updated_at > i.created_at + '30 seconds'::interval
         and sub.dup_type like '%Event'
       order by
@@ -61,6 +67,8 @@ with issues as (
     and r.name = p2.dup_repo_name
     and r.id = p2.dup_repo_id
     and (lower(p2.dup_actor_login) {{exclude_bots}})
+    and p2.created_at >= '{{from}}'
+    and p2.created_at < '{{to}}'
     and p2.event_id in (
       select event_id
       from
@@ -68,6 +76,8 @@ with issues as (
       where
         sub.dup_actor_id != p.user_id
         and sub.id = p.id
+        and sub.created_at >= '{{from}}'
+        and sub.created_at < '{{to}}'
         and sub.updated_at > p.created_at + '30 seconds'::interval
         and sub.dup_type like '%Event'
       order by
