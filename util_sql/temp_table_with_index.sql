@@ -1,4 +1,4 @@
-create temp table prs_latest as 
+create temp table prs_latest as
   select sub.*
   from (
     select id,
