@@ -1,36 +1,52 @@
-with prs as (
-  select ipr.issue_id, pr.created_at, pr.merged_at as merged_at
+with prs_latest as (
+  select sub.id,
+    sub.event_id,
+    sub.created_at,
+    sub.merged_at,
+    sub.dup_repo_id,
+    sub.dup_repo_name
+  from (
+    select id,
+      event_id,
+      created_at,
+      merged_at,
+      dup_repo_id,
+      dup_repo_name,
+      row_number() over (partition by id order by updated_at desc, event_id desc) as rank
+    from
+      gha_pull_requests
+    where
+      created_at >= '{{from}}'
+      and created_at < '{{to}}'
+      and merged_at is not null
+  ) sub
+  where
+    sub.rank = 1
+), prs as (
+  select ipr.issue_id,
+    pr.created_at,
+    pr.merged_at
   from
     gha_issues_pull_requests ipr,
-    gha_pull_requests pr
+    prs_latest pr
   where
     pr.id = ipr.pull_request_id
-    and pr.merged_at is not null
-    and pr.created_at >= '{{from}}'
-    and pr.created_at < '{{to}}'
-    and pr.event_id = (
-      select i.event_id from gha_pull_requests i where i.id = pr.id order by i.updated_at desc limit 1
-    )
 ), prs_groups as (
   select r.repo_group,
     ipr.issue_id,
     pr.created_at,
-    pr.merged_at as merged_at
+    pr.merged_at
   from
     gha_issues_pull_requests ipr,
-    gha_pull_requests pr,
+    prs_latest pr,
     gha_repos r
   where
     r.id = ipr.repo_id
     and r.name = ipr.repo_name
+    and r.id = pr.dup_repo_id
+    and r.name = pr.dup_repo_name
     and r.repo_group is not null
     and pr.id = ipr.pull_request_id
-    and pr.merged_at is not null
-    and pr.created_at >= '{{from}}'
-    and pr.created_at < '{{to}}'
-    and pr.event_id = (
-      select i.event_id from gha_pull_requests i where i.id = pr.id order by i.updated_at desc limit 1
-    )
 ), tdiffs as (
   select extract(epoch from merged_at - created_at) / 3600 as open_to_merge
   from

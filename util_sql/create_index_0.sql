@@ -1,0 +1,13 @@
+create index issues_pull_requests_issue_id_idx on gha_issues_pull_requests(issue_id);
+create index issues_pull_requests_pull_request_id_idx on gha_issues_pull_requests(pull_request_id);
+create index issues_pull_requests_number_idx on gha_issues_pull_requests(number);
+create index issues_pull_requests_repo_id_idx on gha_issues_pull_requests(repo_id);
+create index issues_pull_requests_repo_name_idx on gha_issues_pull_requests(repo_name);
+create index issues_pull_requests_created_at_idx on gha_issues_pull_requests(created_at);
+create index texts_event_id_idx on gha_texts(event_id);
+create index texts_created_at_idx on gha_texts(created_at);
+create index texts_actor_id_idx on gha_texts(actor_id);
+create index texts_actor_login_idx on gha_texts(actor_login);
+create index texts_repo_id_idx on gha_texts(repo_id);
+create index texts_repo_name_idx on gha_texts(repo_name);
+create index texts_type_idx on gha_texts(type);

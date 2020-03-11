@@ -1,20 +1,38 @@
-with prs as (
-  select distinct ipr.issue_id,
+with prs_latest as (
+  select sub.id,
+    sub.event_id,
+    sub.created_at,
+    sub.merged_at,
+    sub.dup_repo_id,
+    sub.dup_repo_name
+  from (
+    select id,
+      event_id,
+      created_at,
+      merged_at,
+      dup_repo_id,
+      dup_repo_name,
+      row_number() over (partition by id order by updated_at desc, event_id desc) as rank
+    from
+      gha_pull_requests
+    where
+      created_at >= '{{from}}'
+      and created_at < '{{to}}'
+      and merged_at is not null
+  ) sub
+  where
+    sub.rank = 1
+), prs as (
+  select ipr.issue_id,
     pr.created_at,
-    pr.merged_at as merged_at,
+    pr.merged_at,
     case iel.label_name when 'kind/api-change' then 'yes' else 'no' end as api_change
   from
-    gha_pull_requests pr
+    prs_latest pr
   join
     gha_issues_pull_requests ipr
   on
     pr.id = ipr.pull_request_id
-    and pr.merged_at is not null
-    and pr.created_at >= '{{from}}'
-    and pr.created_at < '{{to}}'
-    and pr.event_id = (
-      select i.event_id from gha_pull_requests i where i.id = pr.id order by i.updated_at desc limit 1
-    )
   left join
     gha_issues_events_labels iel
   on
@@ -27,22 +45,18 @@ with prs as (
     sub.merged_at,
     sub.api_change
   from (
-    select distinct coalesce(ecf.repo_group, r.repo_group) as repo_group,
+    select coalesce(ecf.repo_group, r.repo_group) as repo_group,
       ipr.issue_id,
       pr.created_at,
-      pr.merged_at as merged_at,
+      pr.merged_at,
       case iel.label_name when 'kind/api-change' then 'yes' else 'no' end as api_change
     from
       gha_repos r
     join
-      gha_pull_requests pr
+      prs_latest pr
     on
-      pr.merged_at is not null
-      and pr.created_at >= '{{from}}'
-      and pr.created_at < '{{to}}'
-      and pr.event_id = (
-        select i.event_id from gha_pull_requests i where i.id = pr.id order by i.updated_at desc limit 1
-      )
+      r.id = pr.dup_repo_id
+      and r.name = pr.dup_repo_name
     join
       gha_issues_pull_requests ipr
     on
@@ -89,9 +103,13 @@ with prs as (
   from
     prs
   left join
-    pr_lgtm lgtm on prs.issue_id = lgtm.issue_id
+    pr_lgtm lgtm
+  on
+    prs.issue_id = lgtm.issue_id
   left join
-    pr_approve approve on prs.issue_id = approve.issue_id
+    pr_approve approve
+  on
+    prs.issue_id = approve.issue_id
 ), ranges_groups as (
   select prs_groups.issue_id,
     prs_groups.repo_group as repo_group,
@@ -123,6 +141,18 @@ with prs as (
     extract(epoch from coalesce(merge - approve, '0'::interval)) / 3600 as approve_to_merge
   from
     ranges_groups
+), labels as (
+  select distinct issue_id,
+    label_name,
+    substring(label_name from 6) as label_sub_name
+  from
+    gha_issues_events_labels
+  where
+    issue_id in (select issue_id from prs)
+    and (
+      label_name in ('kind/bug', 'kind/feature', 'kind/design', 'kind/cleanup', 'kind/documentation', 'kind/flake', 'kind/kep')
+      or label_name like 'size/%'
+    )
 )
 select
   'tmet;All_All_All;'
@@ -177,7 +207,7 @@ from
   tdiffs_groups
 group by
   repo_group
-union select 'tmet;All_' || substring(iel.label_name from 6) || '_All;'
+union select 'tmet;All_' || iel.label_sub_name || '_All;'
   || 'amedo2l,amedl2a,ameda2m,ap85o2l,ap85l2a,ap85a2m,'
   || 'ymedo2l,ymedl2a,ymeda2m,yp85o2l,yp85l2a,yp85a2m,'
   || 'nmedo2l,nmedl2a,nmeda2m,np85o2l,np85l2a,np85a2m'
@@ -202,13 +232,13 @@ union select 'tmet;All_' || substring(iel.label_name from 6) || '_All;'
   greatest(percentile_disc(0.85) within group (order by approve_to_merge asc) filter (where api_change = 'no'), 0) as pc_a2m_n
 from
   tdiffs t,
-  gha_issues_events_labels iel
+  labels iel
 where
   t.issue_id = iel.issue_id
   and iel.label_name like 'size/%'
 group by
-  iel.label_name
-union select 'tmet;' || repo_group || '_' || substring(iel.label_name from 6) || '_All;'
+  iel.label_sub_name
+union select 'tmet;' || repo_group || '_' || iel.label_sub_name || '_All;'
   || 'amedo2l,amedl2a,ameda2m,ap85o2l,ap85l2a,ap85a2m,'
   || 'ymedo2l,ymedl2a,ymeda2m,yp85o2l,yp85l2a,yp85a2m,'
   || 'nmedo2l,nmedl2a,nmeda2m,np85o2l,np85l2a,np85a2m'
@@ -233,15 +263,15 @@ union select 'tmet;' || repo_group || '_' || substring(iel.label_name from 6) ||
   greatest(percentile_disc(0.85) within group (order by approve_to_merge asc) filter (where api_change = 'no'), 0) as pc_a2m_n
 from
   tdiffs_groups t,
-  gha_issues_events_labels iel
+  labels iel
 where
   t.issue_id = iel.issue_id
   and iel.label_name like 'size/%'
 group by
   repo_group,
-  iel.label_name
+  iel.label_sub_name
 union select
-  'tmet;All_All_' || substring(ielk.label_name from 6) || ';'
+  'tmet;All_All_' || ielk.label_sub_name || ';'
   || 'amedo2l,amedl2a,ameda2m,ap85o2l,ap85l2a,ap85a2m,'
   || 'ymedo2l,ymedl2a,ymeda2m,yp85o2l,yp85l2a,yp85a2m,'
   || 'nmedo2l,nmedl2a,nmeda2m,np85o2l,np85l2a,np85a2m'
@@ -266,13 +296,13 @@ union select
   greatest(percentile_disc(0.85) within group (order by approve_to_merge asc) filter (where api_change = 'no'), 0) as pc_a2m_n
 from
   tdiffs t,
-  gha_issues_events_labels ielk
+  labels ielk
 where
   t.issue_id = ielk.issue_id
   and ielk.label_name in ('kind/bug', 'kind/feature', 'kind/design', 'kind/cleanup', 'kind/documentation', 'kind/flake', 'kind/kep')
 group by
-  ielk.label_name
-union select 'tmet;' || repo_group || '_All_' || substring(ielk.label_name from 6) || ';'
+  ielk.label_sub_name
+union select 'tmet;' || repo_group || '_All_' || ielk.label_sub_name || ';'
   || 'amedo2l,amedl2a,ameda2m,ap85o2l,ap85l2a,ap85a2m,'
   || 'ymedo2l,ymedl2a,ymeda2m,yp85o2l,yp85l2a,yp85a2m,'
   || 'nmedo2l,nmedl2a,nmeda2m,np85o2l,np85l2a,np85a2m'
@@ -297,14 +327,14 @@ union select 'tmet;' || repo_group || '_All_' || substring(ielk.label_name from 
   greatest(percentile_disc(0.85) within group (order by approve_to_merge asc) filter (where api_change = 'no'), 0) as pc_a2m_n
 from
   tdiffs_groups t,
-  gha_issues_events_labels ielk
+  labels ielk
 where
   t.issue_id = ielk.issue_id
   and ielk.label_name in ('kind/bug', 'kind/feature', 'kind/design', 'kind/cleanup', 'kind/documentation', 'kind/flake', 'kind/kep')
 group by
   repo_group,
-  ielk.label_name
-union select 'tmet;All_' || substring(iel.label_name from 6) || '_' || substring(ielk.label_name from 6) || ';'
+  ielk.label_sub_name
+union select 'tmet;All_' || iel.label_sub_name || '_' || ielk.label_sub_name || ';'
   || 'amedo2l,amedl2a,ameda2m,ap85o2l,ap85l2a,ap85a2m,'
   || 'ymedo2l,ymedl2a,ymeda2m,yp85o2l,yp85l2a,yp85a2m,'
   || 'nmedo2l,nmedl2a,nmeda2m,np85o2l,np85l2a,np85a2m'
@@ -329,17 +359,17 @@ union select 'tmet;All_' || substring(iel.label_name from 6) || '_' || substring
   greatest(percentile_disc(0.85) within group (order by approve_to_merge asc) filter (where api_change = 'no'), 0) as pc_a2m_n
 from
   tdiffs t,
-  gha_issues_events_labels iel,
-  gha_issues_events_labels ielk
+  labels iel,
+  labels ielk
 where
   t.issue_id = iel.issue_id
   and iel.label_name like 'size/%'
   and t.issue_id = ielk.issue_id
   and ielk.label_name in ('kind/bug', 'kind/feature', 'kind/design', 'kind/cleanup', 'kind/documentation', 'kind/flake', 'kind/kep') 
 group by
-  iel.label_name,
-  ielk.label_name
-union select 'tmet;' || repo_group || '_' || substring(iel.label_name from 6) || '_' || substring(ielk.label_name from 6) || ';'
+  iel.label_sub_name,
+  ielk.label_sub_name
+union select 'tmet;' || repo_group || '_' || iel.label_sub_name || '_' || ielk.label_sub_name || ';'
   || 'amedo2l,amedl2a,ameda2m,ap85o2l,ap85l2a,ap85a2m,'
   || 'ymedo2l,ymedl2a,ymeda2m,yp85o2l,yp85l2a,yp85a2m,'
   || 'nmedo2l,nmedl2a,nmeda2m,np85o2l,np85l2a,np85a2m'
@@ -364,8 +394,8 @@ union select 'tmet;' || repo_group || '_' || substring(iel.label_name from 6) ||
   greatest(percentile_disc(0.85) within group (order by approve_to_merge asc) filter (where api_change = 'no'), 0) as pc_a2m_n
 from
   tdiffs_groups t,
-  gha_issues_events_labels iel,
-  gha_issues_events_labels ielk
+  labels iel,
+  labels ielk
 where
   t.issue_id = iel.issue_id
   and iel.label_name like 'size/%'
@@ -373,8 +403,8 @@ where
   and ielk.label_name in ('kind/bug', 'kind/feature', 'kind/design', 'kind/cleanup', 'kind/documentation', 'kind/flake', 'kind/kep')
 group by
   repo_group,
-  iel.label_name,
-  ielk.label_name
+  iel.label_sub_name,
+  ielk.label_sub_name
 order by
   name asc
 ;
