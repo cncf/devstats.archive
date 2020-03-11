@@ -25,8 +25,18 @@ metrics:
     aggregate: 1,7
     skip: d,w7,m7,q7,y7
     multi_value: true
-    escape_value_name: true # kubernetes doesn't have it
+    escape_value_name: true
     drop: 'spr_apprappr;spr_apprwait'
+    project: '!kubernetes'
+  - name: PRs approval repository groups
+    series_name_or_func: multi_row_multi_column
+    sql: prs_state
+    periods: d,w,m,q,y
+    aggregate: 1,7
+    skip: d,w7,m7,q7,y7
+    multi_value: true
+    drop: 'spr_apprappr;spr_apprwait'
+    project: kubernetes
   - name: Contributor statistics
     series_name_or_func: multi_row_single_column
     sql: new_contributors_data
@@ -34,7 +44,6 @@ metrics:
     merge_series: new_contributors_data
     periods: d
     drop: snew_contributors_data
-  # kubernetes doesn't have that
   - name: Company commits table
     series_name_or_func: multi_row_single_column
     sql: company_commits_data
@@ -42,3 +51,4 @@ metrics:
     merge_series: company_commits_data
     periods: d
     drop: scompany_commits_data
+    project: '!kubernetes'
