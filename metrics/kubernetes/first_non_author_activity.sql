@@ -8,6 +8,7 @@ with issues as (
     is_pull_request = true
     and created_at >= '{{from}}'
     and created_at < '{{to}}'
+    and (lower(dup_user_login) {{exclude_bots}})
 ), prs as (
   select distinct id,
     user_id,
@@ -17,6 +18,17 @@ with issues as (
   where
     created_at >= '{{from}}'
     and created_at < '{{to}}'
+    and (lower(dup_user_login) {{exclude_bots}})
+), labels as (
+  select distinct issue_id,
+    event_id,
+    label_name,
+    substring(label_name from 6) as label_sub_name
+  from
+    gha_issues_events_labels
+  where
+    issue_id in (select id from issues)
+    and label_name in ('kind/api-change', 'kind/bug', 'kind/feature', 'kind/design', 'kind/cleanup', 'kind/documentation', 'kind/flake', 'kind/kep')
 ), tdiffs as (
   select extract(epoch from i2.updated_at - i.created_at) / 3600 as diff,
     coalesce(ecf.repo_group, r.repo_group) as repo_group,
@@ -38,6 +50,8 @@ with issues as (
     and r.name = i2.dup_repo_name
     and r.id = i2.dup_repo_id
     and (lower(i2.dup_actor_login) {{exclude_bots}})
+    and i2.created_at >= '{{from}}'
+    and i2.created_at < '{{to}}'
     and i2.event_id in (
       select event_id
       from
@@ -45,6 +59,8 @@ with issues as (
       where
         sub.dup_actor_id != i.user_id
         and sub.id = i.id
+        and sub.created_at >= '{{from}}'
+        and sub.created_at < '{{to}}'
         and sub.updated_at > i.created_at + '30 seconds'::interval
         and sub.dup_type like '%Event'
       order by
@@ -71,6 +87,8 @@ with issues as (
     and r.name = p2.dup_repo_name
     and r.id = p2.dup_repo_id
     and (lower(p2.dup_actor_login) {{exclude_bots}})
+    and p2.created_at >= '{{from}}'
+    and p2.created_at < '{{to}}'
     and p2.event_id in (
       select event_id
       from
@@ -78,6 +96,8 @@ with issues as (
       where
         sub.dup_actor_id != p.user_id
         and sub.id = p.id
+        and sub.created_at >= '{{from}}'
+        and sub.created_at < '{{to}}'
         and sub.updated_at > p.created_at + '30 seconds'::interval
         and sub.dup_type like '%Event'
       order by
@@ -86,11 +106,11 @@ with issues as (
     )
   union select extract(epoch from i2.updated_at - i.created_at) / 3600 as diff,
     coalesce(ecf.repo_group, r.repo_group) as repo_group,
-    substring(iel.label_name from 6) as label
+    iel.label_sub_name as label
   from
     issues i,
     gha_repos r,
-    gha_issues_events_labels iel,
+    labels iel,
     gha_issues i2
   left join
     gha_events_commits_files ecf
@@ -99,7 +119,6 @@ with issues as (
   where
     i.id = i2.id
     and iel.event_id = i2.event_id
-    and iel.label_name in ('kind/api-change', 'kind/bug', 'kind/feature', 'kind/design', 'kind/cleanup', 'kind/documentation', 'kind/flake', 'kind/kep')
     and (
       r.repo_group is not null
       or ecf.repo_group is not null
@@ -107,6 +126,8 @@ with issues as (
     and r.name = i2.dup_repo_name
     and r.id = i2.dup_repo_id
     and (lower(i2.dup_actor_login) {{exclude_bots}})
+    and i2.created_at >= '{{from}}'
+    and i2.created_at < '{{to}}'
     and i2.event_id in (
       select event_id
       from
@@ -114,6 +135,8 @@ with issues as (
       where
         sub.dup_actor_id != i.user_id
         and sub.id = i.id
+        and sub.created_at >= '{{from}}'
+        and sub.created_at < '{{to}}'
         and sub.updated_at > i.created_at + '30 seconds'::interval
         and sub.dup_type like '%Event'
       order by
