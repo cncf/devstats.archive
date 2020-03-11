@@ -1,8 +1,44 @@
 ---
 metrics:
-  - name: Community stats
+  - name: PR time to engagement
     series_name_or_func: multi_row_multi_column
-    sql: watchers_by_alias
-    periods: w
-    merge_series: watchers
-    drop: swatchers
+    sql: first_non_author_activity
+    periods: d,w,m,q,y
+    aggregate: 1,7
+    skip: d,w7,m7,q7,y7
+    desc: time_diff_as_string
+    merge_series: first_non_author
+    drop: sfirst_non_author
+  - name: PR Time to Approve and Merge
+    series_name_or_func: multi_row_multi_column
+    sql: time_metrics
+    periods: d,w,m,q,y
+    aggregate: 1,7
+    skip: w7,m7,q7,y7
+    desc: time_diff_as_string
+    merge_series: time_metrics
+    drop: stime_metrics
+  - name: PRs approval repository groups
+    series_name_or_func: multi_row_multi_column
+    sql: prs_state
+    periods: d,w,m,q,y
+    aggregate: 1,7
+    skip: d,w7,m7,q7,y7
+    multi_value: true
+    escape_value_name: true # kubernetes doesn't have it
+    drop: 'spr_apprappr;spr_apprwait'
+  - name: Contributor statistics
+    series_name_or_func: multi_row_single_column
+    sql: new_contributors_data
+    custom_data: true
+    merge_series: new_contributors_data
+    periods: d
+    drop: snew_contributors_data
+  # kubernetes doesn't have that
+  - name: Company commits table
+    series_name_or_func: multi_row_single_column
+    sql: company_commits_data
+    custom_data: true
+    merge_series: company_commits_data
+    periods: d
+    drop: scompany_commits_data
