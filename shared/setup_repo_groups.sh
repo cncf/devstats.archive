@@ -5,5 +5,7 @@ then
   exit 1
 fi
 proj=$GHA2DB_PROJECT
+echo "Resetting $proj events commits files repo group values"
+GHA2DB_LOCAL=1 runq "scripts/$proj/reset_events_commits_files_repo_group.sql"
 echo "Setting up $proj repository groups"
 GHA2DB_LOCAL=1 runq "scripts/$proj/repo_groups.sql"
