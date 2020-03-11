@@ -7,6 +7,10 @@ fi
 dbs=$1
 if [ -z "$dbs" ]
 then
+  dbs="`cat devstats-helm/all_test_dbs.txt 2>/dev/null`"
+fi
+if [ -z "$dbs" ]
+then
   dbs="`cat devel/all_test_dbs.txt`"
 fi
 allowed="gha_companies gha_imported_shas gha_issues_assignees gha_postprocess_scripts gha_pull_requests_assignees gha_pull_requests_requested_reviewers gha_releases_assets gha_teams_repositories gha_parsed"
