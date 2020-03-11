@@ -9,7 +9,7 @@ if [ -z "$dbs" ]
 then
   dbs="`cat devel/all_test_dbs.txt`"
 fi
-allowed="gha_companies gha_imported_shas gha_issues_assignees gha_postprocess_scripts gha_pull_requests_assignees gha_pull_requests_requested_reviewers gha_releases_assets gha_teams_repositories"
+allowed="gha_companies gha_imported_shas gha_issues_assignees gha_postprocess_scripts gha_pull_requests_assignees gha_pull_requests_requested_reviewers gha_releases_assets gha_teams_repositories gha_parsed"
 for proj in $dbs
 do
   tables=`./devel/db.sh psql $proj -qAntc '\dt' | cut -d\| -f2`
@@ -29,7 +29,7 @@ do
       done
       if [ -z "$skip" ]
       then
-        echo "Table $table has no indices"
+        echo "DB $proj table $table has no indices"
       fi
     fi
   done
