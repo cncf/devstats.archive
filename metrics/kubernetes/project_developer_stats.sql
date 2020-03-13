@@ -1,5 +1,5 @@
 with commits_data as (
-  select r.repo_group as repo_group,
+  select coalesce(ecf.repo_group, r.repo_group) as repo_group,
     c.sha,
     c.dup_actor_id as actor_id,
     c.dup_actor_login as actor_login,
@@ -7,6 +7,10 @@ with commits_data as (
   from
     gha_repos r,
     gha_commits c
+  left join
+    gha_events_commits_files ecf
+  on
+    ecf.event_id = c.event_id
   left join
     gha_actors_affiliations aa
   on
@@ -18,7 +22,7 @@ with commits_data as (
     and c.dup_repo_name = r.name
     and {{period:c.dup_created_at}}
     and (lower(c.dup_actor_login) {{exclude_bots}})
-  union select r.repo_group as repo_group,
+  union select coalesce(ecf.repo_group, r.repo_group) as repo_group,
     c.sha,
     c.author_id as actor_id,
     c.dup_author_login as actor_login,
@@ -26,6 +30,10 @@ with commits_data as (
   from
     gha_repos r,
     gha_commits c
+  left join
+    gha_events_commits_files ecf
+  on
+    ecf.event_id = c.event_id
   left join
     gha_actors_affiliations aa
   on
@@ -38,7 +46,7 @@ with commits_data as (
     and c.author_id is not null
     and {{period:c.dup_created_at}}
     and (lower(c.dup_author_login) {{exclude_bots}})
-  union select r.repo_group as repo_group,
+  union select coalesce(ecf.repo_group, r.repo_group) as repo_group,
     c.sha,
     c.committer_id as actor_id,
     c.dup_committer_login as actor_login,
@@ -46,6 +54,10 @@ with commits_data as (
   from
     gha_repos r,
     gha_commits c
+  left join
+    gha_events_commits_files ecf
+  on
+    ecf.event_id = c.event_id
   left join
     gha_actors_affiliations aa
   on
@@ -236,20 +248,20 @@ from (
     aa.company_name
   ) sub
 where
-  (sub.metric = 'events' and sub.value > 200 * {{project_scale}})
-  or (sub.metric = 'active_repos' and sub.value > 3 * {{project_scale}})
-  or (sub.metric = 'contributions' and sub.value > 30 * {{project_scale}})
-  or (sub.metric = 'commit_comments' and sub.value > 10 * {{project_scale}})
-  or (sub.metric = 'comments' and sub.value > 20 * {{project_scale}})
-  or (sub.metric = 'issue_comments' and sub.value > 20 * {{project_scale}})
-  or (sub.metric = 'review_comments' and sub.value > 20 * {{project_scale}})
+  (sub.metric = 'events' and sub.value >= 200)
+  or (sub.metric = 'active_repos' and sub.value >= 3)
+  or (sub.metric = 'contributions' and sub.value >= 30)
+  or (sub.metric = 'commit_comments' and sub.value >= 10)
+  or (sub.metric = 'comments' and sub.value >= 20)
+  or (sub.metric = 'issue_comments' and sub.value >= 20)
+  or (sub.metric = 'review_comments' and sub.value >= 20)
   or (sub.metric in (
     'commits',
     'pushes',
     'issues',
     'prs',
     'merged_prs'
-  ) and sub.value > 1.5 * {{project_scale}}
+  ) and sub.value > 1
 )
 union select 'hdev_' || sub.metric || ',' || sub.repo_group || '_All' as metric,
   sub.author || '$$$' || sub.company as name,
@@ -279,7 +291,7 @@ from (
     sub.company,
     count(distinct sub.id) as value
   from (
-    select r.repo_group as repo_group,
+    select coalesce(ecf.repo_group, r.repo_group) as repo_group,
       e.type,
       e.dup_actor_login as author,
       coalesce(aa.company_name, '') as company,
@@ -287,6 +299,10 @@ from (
     from
       gha_repos r,
       gha_events e
+    left join
+      gha_events_commits_files ecf
+    on
+      ecf.event_id = e.id
     left join
       gha_actors_affiliations aa
     on
@@ -316,13 +332,17 @@ from (
     sub.company,
     count(distinct sub.id) as value
   from (
-    select r.repo_group as repo_group,
+    select coalesce(ecf.repo_group, r.repo_group) as repo_group,
       e.dup_actor_login as author,
       coalesce(aa.company_name, '') as company,
       e.id
     from
       gha_repos r,
       gha_events e
+    left join
+      gha_events_commits_files ecf
+    on
+      ecf.event_id = e.id
     left join
       gha_actors_affiliations aa
     on
@@ -351,13 +371,17 @@ from (
     sub.company,
     count(distinct sub.repo_id) as value
   from (
-    select r.repo_group as repo_group,
+    select coalesce(ecf.repo_group, r.repo_group) as repo_group,
       e.dup_actor_login as author,
       coalesce(aa.company_name, '') as company,
       e.repo_id
     from
       gha_repos r,
       gha_events e
+    left join
+      gha_events_commits_files ecf
+    on
+      ecf.event_id = e.id
     left join
       gha_actors_affiliations aa
     on
@@ -382,13 +406,17 @@ from (
     sub.company,
     count(distinct sub.id) as value
   from (
-    select r.repo_group as repo_group,
+    select coalesce(ecf.repo_group, r.repo_group) as repo_group,
       c.dup_user_login as author,
       coalesce(aa.company_name, '') as company,
       c.id
     from
       gha_repos r,
       gha_comments c
+    left join
+      gha_events_commits_files ecf
+    on
+      ecf.event_id = c.event_id
     left join
       gha_actors_affiliations aa
     on
@@ -416,7 +444,7 @@ from (
     sub.company,
     count(distinct sub.id) as value
   from (
-    select r.repo_group as repo_group,
+    select coalesce(ecf.repo_group, r.repo_group) as repo_group,
       i.dup_user_login as author,
       coalesce(aa.company_name, '') as company,
       i.id,
@@ -424,6 +452,10 @@ from (
     from
       gha_repos r,
       gha_issues i
+    left join
+      gha_events_commits_files ecf
+    on
+      ecf.event_id = i.event_id
     left join
       gha_actors_affiliations aa
     on
@@ -449,13 +481,17 @@ from (
     sub.company,
     count(distinct sub.id) as value
   from (
-    select r.repo_group as repo_group,
+    select coalesce(ecf.repo_group, r.repo_group) as repo_group,
       i.dup_user_login as author,
       coalesce(aa.company_name, '') as company,
       i.id
     from
       gha_repos r,
       gha_pull_requests i
+    left join
+      gha_events_commits_files ecf
+    on
+      ecf.event_id = i.event_id
     left join
       gha_actors_affiliations aa
     on
@@ -481,13 +517,17 @@ from (
     sub.company,
     count(distinct sub.id) as value
   from (
-    select r.repo_group as repo_group,
+    select coalesce(ecf.repo_group, r.repo_group) as repo_group,
       e.dup_actor_login as author,
       coalesce(aa.company_name, '') as company,
       e.id
     from
       gha_repos r,
       gha_events e
+    left join
+      gha_events_commits_files ecf
+    on
+      ecf.event_id = e.id
     left join
       gha_actors_affiliations aa
     on
@@ -507,22 +547,6 @@ from (
     sub.author,
     sub.company
 ) sub
-where
-  (sub.metric = 'events' and sub.value > 100 * {{project_scale}})
-  or (sub.metric = 'active_repos' and sub.value > 3 * {{project_scale}})
-  or (sub.metric = 'contributions' and sub.value > 15 * {{project_scale}})
-  or (sub.metric = 'commit_comments' and sub.value > 5 * {{project_scale}})
-  or (sub.metric = 'comments' and sub.value > 15 * {{project_scale}})
-  or (sub.metric = 'issue_comments' and sub.value > 10 * {{project_scale}})
-  or (sub.metric = 'review_comments' and sub.value > 10 * {{project_scale}})
-  or (sub.metric in (
-    'commits',
-    'pushes',
-    'issues',
-    'prs',
-    'merged_prs'
-  ) and sub.value > 0.75 * {{project_scale}}
-)
 union select 'hdev_' || sub.metric || ',All_' || sub.country as metric,
   sub.author || '$$$' || sub.company as name,
   sub.value as value
@@ -745,20 +769,20 @@ from (
     aa.company_name
   ) sub
 where
-  (sub.metric = 'events' and sub.value > 100 * {{project_scale}})
-  or (sub.metric = 'active_repos' and sub.value > 3 * {{project_scale}})
-  or (sub.metric = 'contributions' and sub.value > 15 * {{project_scale}})
-  or (sub.metric = 'commit_comments' and sub.value > 5 * {{project_scale}})
-  or (sub.metric = 'comments' and sub.value > 15 * {{project_scale}})
-  or (sub.metric = 'issue_comments' and sub.value > 10 * {{project_scale}})
-  or (sub.metric = 'review_comments' and sub.value > 10 * {{project_scale}})
+  (sub.metric = 'events' and sub.value >= 100)
+  or (sub.metric = 'active_repos' and sub.value >= 3)
+  or (sub.metric = 'contributions' and sub.value >= 15)
+  or (sub.metric = 'commit_comments' and sub.value >= 5)
+  or (sub.metric = 'comments' and sub.value >= 15)
+  or (sub.metric = 'issue_comments' and sub.value >= 10)
+  or (sub.metric = 'review_comments' and sub.value > 10)
   or (sub.metric in (
     'commits',
     'pushes',
     'issues',
     'prs',
     'merged_prs'
-  ) and sub.value > 0.75 * {{project_scale}}
+  ) and sub.value > 1
 )
 union select 'hdev_' || sub.metric || ',' || sub.repo_group || '_' || sub.country as metric,
   sub.author || '$$$' || sub.company as name,
@@ -794,7 +818,7 @@ from (
     sub.company,
     count(distinct sub.id) as value
   from (
-    select r.repo_group as repo_group,
+    select coalesce(ecf.repo_group, r.repo_group) as repo_group,
       e.type,
       a.country_name as country,
       a.login as author,
@@ -804,6 +828,10 @@ from (
       gha_actors a,
       gha_repos r,
       gha_events e
+    left join
+      gha_events_commits_files ecf
+    on
+      ecf.event_id = e.id
     left join
       gha_actors_affiliations aa
     on
@@ -837,7 +865,7 @@ from (
     sub.company,
     count(distinct sub.id) as value
   from (
-    select r.repo_group as repo_group,
+    select coalesce(ecf.repo_group, r.repo_group) as repo_group,
       a.country_name as country,
       a.login as author,
       coalesce(aa.company_name, '') as company,
@@ -846,6 +874,10 @@ from (
       gha_actors a,
       gha_repos r,
       gha_events e
+    left join
+      gha_events_commits_files ecf
+    on
+      ecf.event_id = e.id
     left join
       gha_actors_affiliations aa
     on
@@ -878,7 +910,7 @@ from (
     sub.company,
     count(distinct sub.repo_id) as value
   from (
-    select r.repo_group as repo_group,
+    select coalesce(ecf.repo_group, r.repo_group) as repo_group,
       a.country_name as country,
       a.login as author,
       coalesce(aa.company_name, '') as company,
@@ -887,6 +919,10 @@ from (
       gha_actors a,
       gha_repos r,
       gha_events e
+    left join
+      gha_events_commits_files ecf
+    on
+      ecf.event_id = e.id
     left join
       gha_actors_affiliations aa
     on
@@ -915,7 +951,7 @@ from (
     sub.company,
     count(distinct sub.id) as value
   from (
-    select r.repo_group as repo_group,
+    select coalesce(ecf.repo_group, r.repo_group) as repo_group,
       a.country_name as country,
       a.login as author,
       coalesce(aa.company_name, '') as company,
@@ -924,6 +960,10 @@ from (
       gha_actors a,
       gha_repos r,
       gha_comments c
+    left join
+      gha_events_commits_files ecf
+    on
+      ecf.event_id = c.event_id
     left join
       gha_actors_affiliations aa
     on
@@ -955,7 +995,7 @@ from (
     sub.company,
     count(distinct sub.id) as value
   from (
-    select r.repo_group as repo_group,
+    select coalesce(ecf.repo_group, r.repo_group) as repo_group,
       a.country_name as country,
       a.login as author,
       coalesce(aa.company_name, '') as company,
@@ -965,6 +1005,10 @@ from (
       gha_actors a,
       gha_repos r,
       gha_issues i
+    left join
+      gha_events_commits_files ecf
+    on
+      ecf.event_id = i.event_id
     left join
       gha_actors_affiliations aa
     on
@@ -994,7 +1038,7 @@ from (
     sub.company,
     count(distinct sub.id) as value
   from (
-    select r.repo_group as repo_group,
+    select coalesce(ecf.repo_group, r.repo_group) as repo_group,
       a.country_name as country,
       a.login as author,
       coalesce(aa.company_name, '') as company,
@@ -1003,6 +1047,10 @@ from (
       gha_actors a,
       gha_repos r,
       gha_pull_requests i
+    left join
+      gha_events_commits_files ecf
+    on
+      ecf.event_id = i.event_id
     left join
       gha_actors_affiliations aa
     on
@@ -1032,7 +1080,7 @@ from (
     sub.company,
     count(distinct sub.id) as value
   from (
-    select r.repo_group as repo_group,
+    select coalesce(ecf.repo_group, r.repo_group) as repo_group,
       a.country_name as country,
       a.login as author,
       coalesce(aa.company_name, '') as company,
@@ -1041,6 +1089,10 @@ from (
       gha_actors a,
       gha_repos r,
       gha_events e
+    left join
+      gha_events_commits_files ecf
+    on
+      ecf.event_id = e.id
     left join
       gha_actors_affiliations aa
     on
@@ -1064,20 +1116,20 @@ from (
     sub.company
   ) sub
 where
-  (sub.metric = 'events' and sub.value > 20 * {{project_scale}})
-  or (sub.metric = 'active_repos' and sub.value > 1 * {{project_scale}})
-  or (sub.metric = 'contributions' and sub.value > 5 * {{project_scale}})
-  or (sub.metric = 'commit_comments' and sub.value > 3 * {{project_scale}})
-  or (sub.metric = 'comments' and sub.value > 5 * {{project_scale}})
-  or (sub.metric = 'issue_comments' and sub.value > 5 * {{project_scale}})
-  or (sub.metric = 'review_comments' and sub.value > 5 * {{project_scale}})
+  (sub.metric = 'events' and sub.value >= 20)
+  or (sub.metric = 'active_repos' and sub.value >= 2)
+  or (sub.metric = 'contributions' and sub.value >= 5)
+  or (sub.metric = 'commit_comments' and sub.value >= 3)
+  or (sub.metric = 'comments' and sub.value >= 5)
+  or (sub.metric = 'issue_comments' and sub.value >= 5)
+  or (sub.metric = 'review_comments' and sub.value >= 5)
   or (sub.metric in (
     'commits',
     'pushes',
     'issues',
     'prs',
     'merged_prs'
-  ) and sub.value > 0.5 * {{project_scale}}
+  )
 )
 order by
   metric asc,

@@ -1,33 +1,45 @@
 with commits_data as (
-  select r.repo_group as repo_group,
+  select coalesce(ecf.repo_group, r.repo_group) as repo_group,
     c.sha,
     c.dup_actor_id as actor_id
   from
     gha_repos r,
     gha_commits c
+  left join
+    gha_events_commits_files ecf
+  on
+    ecf.event_id = c.event_id
   where
     c.dup_repo_id = r.id
     and c.dup_repo_name = r.name
     and {{period:c.dup_created_at}}
     and (lower(c.dup_actor_login) {{exclude_bots}})
-  union select r.repo_group as repo_group,
+  union select coalesce(ecf.repo_group, r.repo_group) as repo_group,
     c.sha,
     c.author_id as actor_id
   from
     gha_repos r,
     gha_commits c
+  left join
+    gha_events_commits_files ecf
+  on
+    ecf.event_id = c.event_id
   where
     c.dup_repo_id = r.id
     and c.dup_repo_name = r.name
     and c.author_id is not null
     and {{period:c.dup_created_at}}
     and (lower(c.dup_author_login) {{exclude_bots}})
-  union select r.repo_group as repo_group,
+  union select coalesce(ecf.repo_group, r.repo_group) as repo_group,
     c.sha,
     c.committer_id as actor_id
   from
     gha_repos r,
     gha_commits c
+  left join
+    gha_events_commits_files ecf
+  on
+    ecf.event_id = c.event_id
   where
     c.dup_repo_id = r.id
     and c.dup_repo_name = r.name
@@ -40,11 +52,15 @@ select
   'Contributors' as name,
   count(distinct sub.actor) as value
 from (
-  select 'pstat,' || r.repo_group as repo_group,
+  select 'pstat,' || coalesce(ecf.repo_group, r.repo_group) as repo_group,
     e.dup_actor_login as actor
   from
     gha_repos r,
     gha_events e
+  left join
+    gha_events_commits_files ecf
+  on
+    ecf.event_id = e.id
   where
     {{period:e.created_at}}
     and e.repo_id = r.id
@@ -76,11 +92,15 @@ union select
   'Contributions' as name,
   count(distinct sub.id) as value
 from (
-  select 'pstat,' || r.repo_group as repo_group,
+  select 'pstat,' || coalesce(ecf.repo_group, r.repo_group) as repo_group,
     e.id
   from
     gha_repos r,
     gha_events e
+  left join
+    gha_events_commits_files ecf
+  on
+    ecf.event_id = e.id
   where
     {{period:e.created_at}}
     and e.repo_id = r.id
@@ -112,11 +132,15 @@ union select
   'Pushes' as name,
   count(distinct sub.id) as value
 from (
-  select 'pstat,' || r.repo_group as repo_group,
+  select 'pstat,' || coalesce(ecf.repo_group, r.repo_group) as repo_group,
     e.id
   from
     gha_repos r,
     gha_events e
+  left join
+    gha_events_commits_files ecf
+  on
+    ecf.event_id = e.id
   where
     {{period:e.created_at}}
     and e.repo_id = r.id
@@ -178,12 +202,16 @@ union select sub.repo_group,
   end as name,
   count(distinct sub.actor_id) as value
 from (
-  select 'pstat,' || r.repo_group as repo_group,
+  select 'pstat,' || coalesce(ecf.repo_group, r.repo_group) as repo_group,
     e.type,
     e.actor_id
   from
     gha_repos r,
     gha_events e
+  left join
+    gha_events_commits_files ecf
+  on
+    ecf.event_id = e.id
   where
     e.type in (
       'IssuesEvent', 'PullRequestEvent', 'PushEvent',
@@ -233,7 +261,7 @@ from
 where
   {{period:e.created_at}}
   and e.repo_id = r.id
-  and e.dup_repo_name = r.name
+    and e.dup_repo_name = r.name
   and r.repo_group is not null
 group by
   r.repo_group
@@ -248,11 +276,15 @@ union select sub.repo_group,
   'Comments' as name,
   count(distinct sub.id) as value
 from (
-  select 'pstat,' || r.repo_group as repo_group,
+  select 'pstat,' || coalesce(ecf.repo_group, r.repo_group) as repo_group,
     c.id
   from
     gha_repos r,
     gha_comments c
+  left join
+    gha_events_commits_files ecf
+  on
+    ecf.event_id = c.event_id
   where
     {{period:c.created_at}}
     and c.dup_repo_id = r.id
@@ -275,11 +307,15 @@ union select sub.repo_group,
   'Commenters' as name,
   count(distinct sub.user_id) as value
 from (
-  select 'pstat,' || r.repo_group as repo_group,
+  select 'pstat,' || coalesce(ecf.repo_group, r.repo_group) as repo_group,
     c.user_id
   from
     gha_repos r,
     gha_comments c
+  left join
+    gha_events_commits_files ecf
+  on
+    ecf.event_id = c.event_id
   where
     {{period:c.created_at}}
     and c.dup_repo_id = r.id
@@ -302,11 +338,15 @@ union select sub.repo_group,
   'Issues' as name,
   count(distinct sub.id) as value
 from (
-  select 'pstat,' || r.repo_group as repo_group,
+  select 'pstat,' || coalesce(ecf.repo_group, r.repo_group) as repo_group,
     i.id
   from
     gha_repos r,
     gha_issues i
+  left join
+    gha_events_commits_files ecf
+  on
+    ecf.event_id = i.event_id
   where
     {{period:i.created_at}}
     and i.dup_repo_id = r.id
@@ -331,11 +371,15 @@ union select sub.repo_group,
   'PRs' as name,
   count(distinct sub.id) as value
 from (
-  select 'pstat,' || r.repo_group as repo_group,
+  select 'pstat,' || coalesce(ecf.repo_group, r.repo_group) as repo_group,
     i.id
   from
     gha_repos r,
     gha_issues i
+  left join
+    gha_events_commits_files ecf
+  on
+    ecf.event_id = i.event_id
   where
     {{period:i.created_at}}
     and i.dup_repo_id = r.id
@@ -360,11 +404,15 @@ union select sub.repo_group,
   'Events' as name,
   count(sub.id) as value
 from (
-  select 'pstat,' || r.repo_group as repo_group,
+  select 'pstat,' || coalesce(ecf.repo_group, r.repo_group) as repo_group,
     e.id
   from
     gha_repos r,
     gha_events e
+  left join
+    gha_events_commits_files ecf
+  on
+    ecf.event_id = e.id
   where
     {{period:e.created_at}}
     and e.repo_id = r.id
