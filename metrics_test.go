@@ -456,7 +456,10 @@ func executeMetric(c *sql.DB, ctx *lib.Ctx, metric, msql string, from, to time.T
 	if to.Year() >= 1980 {
 		qrTo = lib.ToYMDHMSDate(to)
 	}
-	sqlQuery = lib.PrepareQuickRangeQuery(sqlQuery, period, qrFrom, qrTo)
+	sHours := ""
+	sqlQuery, sHours = lib.PrepareQuickRangeQuery(sqlQuery, period, qrFrom, qrTo)
+	sqlQuery = strings.Replace(sqlQuery, "{{range}}", sHours, -1)
+	sqlQuery = strings.Replace(sqlQuery, "{{project_scale}}", "1.0", -1)
 
 	// Execute SQL
 	rows, err := lib.QuerySQL(c, ctx, sqlQuery)
