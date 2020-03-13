@@ -7,5 +7,5 @@ select
   {{period:now()}} as period,
   {{period}} as period2,
   {{n}} as n,
-  {{lim{}} as lim
+  {{lim}} as lim
 ;
