@@ -354,18 +354,18 @@ from (
     and (lower(e.dup_actor_login) {{exclude_bots}})
   ) sub
 where
-  (sub.metric = 'Commenters' and sub.value >= 3)
-  or (sub.metric = 'Comments' and sub.value >= 5)
-  or (sub.metric = 'Events' and sub.value >= 10)
-  or (sub.metric = 'Forkers' and sub.value > 1)
-  or (sub.metric = 'Issue commenters' and sub.value > 1)
-  or (sub.metric = 'Issue creators' and sub.value > 1)
-  or (sub.metric = 'Issues' and sub.value > 1)
-  or (sub.metric = 'PR creators' and sub.value > 1)
-  or (sub.metric = 'PR reviewers' and sub.value > 1)
-  or (sub.metric = 'PRs' and sub.value > 1)
-  or (sub.metric = 'Repositories' and sub.value > 1)
-  or (sub.metric = 'Watchers' and sub.value > 2)
+  (sub.metric = 'Commenters' and sub.value > 3 * {{project_scale}})
+  or (sub.metric = 'Comments' and sub.value > 5 * {{project_scale}})
+  or (sub.metric = 'Events' and sub.value > 15 * {{project_scale}})
+  or (sub.metric = 'Forkers' and sub.value > 1 * {{project_scale}})
+  or (sub.metric = 'Issue commenters' and sub.value > 1 * {{project_scale}})
+  or (sub.metric = 'Issue creators' and sub.value > 1 * {{project_scale}})
+  or (sub.metric = 'Issues' and sub.value > 1 * {{project_scale}})
+  or (sub.metric = 'PR creators' and sub.value > 1 * {{project_scale}})
+  or (sub.metric = 'PR reviewers' and sub.value > 1 * {{project_scale}})
+  or (sub.metric = 'PRs' and sub.value > 1 * {{project_scale}})
+  or (sub.metric = 'Repositories' and sub.value > 1 * {{project_scale}})
+  or (sub.metric = 'Watchers' and sub.value > 3 * {{project_scale}})
   or (sub.metric in (
     'Commit commenters',
     'Commits',
@@ -374,7 +374,7 @@ where
     'Contributors',
     'Contributions'
     )
-  )
+  ) and sub.value > 0.5 * {{project_scale}}
 order by
   metric asc,
   value desc,
