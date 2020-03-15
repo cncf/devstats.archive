@@ -64,6 +64,7 @@ icontypes=(
   ["longhorn"]="color"
   ["chubaofs"]="color"
   ["keda"]="color"
+  ["smi"]="color"
   ["tekton"]="color"
   ["jenkins"]="color"
   ["jenkinsx"]="color"
