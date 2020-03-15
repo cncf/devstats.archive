@@ -19,15 +19,11 @@ with prs as (
   )
 ), tdiffs as (
   select extract(epoch from pr2.updated_at - pr.created_at) / 3600 as diff,
-    coalesce(ecf.repo_group, r.repo_group) as repo_group
+    r.repo_group as repo_group
   from
     prs pr,
     gha_repos r,
     gha_pull_requests pr2
-  left join
-    gha_events_commits_files ecf
-  on
-    ecf.event_id = pr2.event_id
   where
     pr.id = pr2.id
     and r.name = pr2.dup_repo_name

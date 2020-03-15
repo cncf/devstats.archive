@@ -33,16 +33,12 @@ union select sub.name,
   round(count(distinct sub.user_id) / {{n}}, 2) as contributors,
   round(count(distinct sub.id) / {{n}}, 2) as prs
 from (
-    select 'epis_contrib;' || coalesce(ecf.repo_group, r.repo_group) || ';contrib,prs' as name,
+    select 'epis_contrib;' || r.repo_group || ';contrib,prs' as name,
     pr.user_id,
     pr.id
   from
     gha_repos r,
     gha_pull_requests pr
-  left join
-    gha_events_commits_files ecf
-  on
-    ecf.event_id = pr.event_id
   left join
     prev_cnt pc
   on

@@ -53,7 +53,7 @@ from (
     a.country_name
   union select 'countriescum' as type,
     a.country_name,
-    coalesce(ecf.repo_group, r.repo_group) as repo_group,
+    r.repo_group as repo_group,
     count(distinct e.actor_id) filter (where e.type in ('IssuesEvent', 'PullRequestEvent', 'PushEvent', 'CommitCommentEvent', 'IssueCommentEvent', 'PullRequestReviewCommentEvent')) as contributors,
     count(distinct e.id) filter (where e.type in ('IssuesEvent', 'PullRequestEvent', 'PushEvent', 'CommitCommentEvent', 'IssueCommentEvent', 'PullRequestReviewCommentEvent')) as contributions,
     count(distinct e.actor_id) as users,
@@ -76,10 +76,6 @@ from (
     gha_repos r,
     gha_actors a,
     gha_events e
-  left join
-    gha_events_commits_files ecf
-  on
-    ecf.event_id = e.id
   where
     r.id = e.repo_id
     and r.name = e.dup_repo_name
@@ -90,7 +86,7 @@ from (
     and e.created_at < '{{to}}'
   group by
     a.country_name,
-    coalesce(ecf.repo_group, r.repo_group)
+    r.repo_group
 ) inn
 where
   inn.repo_group is not null 

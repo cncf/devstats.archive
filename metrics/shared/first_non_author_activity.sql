@@ -21,15 +21,11 @@ with issues as (
     and (lower(dup_user_login) {{exclude_bots}})
 ), tdiffs as (
   select extract(epoch from i2.updated_at - i.created_at) / 3600 as diff,
-    coalesce(ecf.repo_group, r.repo_group) as repo_group
+    r.repo_group as repo_group
   from
     issues i,
     gha_repos r,
     gha_issues i2
-  left join
-    gha_events_commits_files ecf
-  on
-    ecf.event_id = i2.event_id
   where
     i.id = i2.id
     and r.name = i2.dup_repo_name
@@ -53,15 +49,11 @@ with issues as (
       limit 1
     )
   union select extract(epoch from p2.updated_at - p.created_at) / 3600 as diff,
-    coalesce(ecf.repo_group, r.repo_group) as repo_group
+    r.repo_group as repo_group
   from
     prs p,
     gha_repos r,
     gha_pull_requests p2
-  left join
-    gha_events_commits_files ecf
-  on
-    ecf.event_id = p2.event_id
   where
     p.id = p2.id
     and r.name = p2.dup_repo_name

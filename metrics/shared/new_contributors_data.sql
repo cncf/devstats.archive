@@ -40,7 +40,7 @@ from
   gha_actors a
 where
   c.user_id = a.id
-union select 'ncd,' || coalesce(ecf.repo_group, r.repo_group) as metric,
+union select 'ncd,' || r.repo_group as metric,
   c.merged_at,
   0.0 as value,
   case a.name is null when true then a.login else case a.name when '' then a.login else a.name || ' (' || a.login || ')' end end as contributor
@@ -48,10 +48,6 @@ from
   gha_actors a,
   gha_repos r,
   contributors c
-left join
-  gha_events_commits_files ecf
-on
-  ecf.event_id = c.event_id
 where
   c.user_id = a.id
   and c.repo_id = r.id

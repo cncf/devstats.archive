@@ -20,15 +20,11 @@ with issues as (
   )
 ), tdiffs as (
   select extract(epoch from i2.updated_at - i.created_at) / 3600 as diff,
-    coalesce(ecf.repo_group, r.repo_group) as repo_group
+    r.repo_group as repo_group
   from
     issues i,
     gha_repos r,
     gha_issues i2
-  left join
-    gha_events_commits_files ecf
-  on
-    ecf.event_id = i2.event_id
   where
     i.id = i2.id
     and r.name = i2.dup_repo_name
