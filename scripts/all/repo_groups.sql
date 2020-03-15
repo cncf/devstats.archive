@@ -490,6 +490,22 @@ where
   )
 ;
 
+-- SMI
+update
+  gha_repos
+set
+  repo_group = 'SMI'
+where
+  org_login in ('servicemeshinterface')
+  or name in (
+    'deislabs/smi-spec',
+    'deislabs/smi-sdk-go',
+    'deislabs/smi-metrics',
+    'deislabs/smi-adapter-istio',
+    'deislabs/smi-spec.io'
+  )
+;
+
 -- CNCF
 update
   gha_repos
