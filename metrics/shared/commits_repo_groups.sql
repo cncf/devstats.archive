@@ -2,15 +2,11 @@ select
   sub.repo_group,
   round(count(distinct sub.sha) / {{n}}, 2) as commits
 from (
-  select 'commits,' || coalesce(ecf.repo_group, r.repo_group) as repo_group,
+  select 'commits,' || r.repo_group as repo_group,
     c.sha
   from
     gha_repos r,
     gha_commits c
-  left join
-    gha_events_commits_files ecf
-  on
-    ecf.event_id = c.event_id
   where
     r.name = c.dup_repo_name
     and r.id = c.dup_repo_id

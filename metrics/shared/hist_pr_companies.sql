@@ -3,17 +3,13 @@ select
   sub.company,
   count(distinct sub.id) as prs
 from (
-  select 'hpr_comps,' || coalesce(ecf.repo_group, r.repo_group) as repo_group,
+  select 'hpr_comps,' || r.repo_group as repo_group,
     a.company_name as company,
     pr.id
   from
     gha_repos r,
     gha_actors_affiliations a,
     gha_pull_requests pr
-  left join
-    gha_events_commits_files ecf
-  on
-    ecf.event_id = pr.event_id
   where
     pr.user_id = a.actor_id
     and a.dt_from <= pr.created_at

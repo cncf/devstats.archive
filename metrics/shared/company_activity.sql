@@ -37,7 +37,7 @@ from (
   group by
     affs.company_name
   union select affs.company_name as company,
-    coalesce(ecf.repo_group, r.repo_group) as repo_group,
+    r.repo_group as repo_group,
     count(distinct ev.id) as activity,
     count(distinct ev.actor_id) as authors,
     count(distinct ev.actor_id) filter(where ev.type = 'PushEvent') as pushers,
@@ -52,10 +52,6 @@ from (
     gha_actors_affiliations affs,
     gha_repos r,
     gha_events ev
-  left join
-    gha_events_commits_files ecf
-  on
-    ecf.event_id = ev.id
   where
     r.id = ev.repo_id
     and r.name = ev.dup_repo_name
@@ -70,7 +66,7 @@ from (
     and affs.company_name != ''
   group by
     affs.company_name,
-    coalesce(ecf.repo_group, r.repo_group)
+    r.repo_group
   union select 'All' as company,
     'all' as repo_group,
     count(distinct ev.id) as activity,
@@ -90,7 +86,7 @@ from (
     and ev.created_at < '{{to}}'
     and (lower(ev.dup_actor_login) {{exclude_bots}})
   union select 'All' as company,
-    coalesce(ecf.repo_group, r.repo_group) as repo_group,
+    r.repo_group as repo_group,
     count(distinct ev.id) as activity,
     count(distinct ev.actor_id) as authors,
     count(distinct ev.actor_id) filter(where ev.type = 'PushEvent') as pushers,
@@ -104,10 +100,6 @@ from (
   from
     gha_repos r,
     gha_events ev
-  left join
-    gha_events_commits_files ecf
-  on
-    ecf.event_id = ev.id
   where
     r.id = ev.repo_id
     and r.name = ev.dup_repo_name
@@ -116,7 +108,7 @@ from (
     and ev.created_at < '{{to}}'
     and (lower(ev.dup_actor_login) {{exclude_bots}})
   group by
-    coalesce(ecf.repo_group, r.repo_group)
+    r.repo_group
   order by
     authors desc,
     activity desc,

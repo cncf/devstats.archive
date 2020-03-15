@@ -3,16 +3,12 @@ select
   sub.actor,
   count(distinct sub.id) as comments
 from (
-  select 'htop_commenters,' || coalesce(ecf.repo_group, r.repo_group) as repo_group,
+  select 'htop_commenters,' || r.repo_group as repo_group,
     t.dup_actor_login as actor,
     t.id
   from
     gha_repos r,
     gha_comments t
-  left join
-    gha_events_commits_files ecf
-  on
-    ecf.event_id = t.event_id
   where
     {{period:t.created_at}}
     and t.dup_repo_id = r.id

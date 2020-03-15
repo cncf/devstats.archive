@@ -18,15 +18,11 @@ from (
   group by
     dup_user_login
   union select i.dup_user_login as cuser,
-    coalesce(ecf.repo_group, r.repo_group) as repo_group,
+    r.repo_group as repo_group,
     count(distinct i.id) as issues
   from
     gha_repos r,
     gha_issues i
-  left join
-    gha_events_commits_files ecf
-  on
-    ecf.event_id = i.event_id
   where
     r.id = i.dup_repo_id
     and r.name = i.dup_repo_name
@@ -39,7 +35,7 @@ from (
     and i.dup_user_login in (select users_name from tusers)
   group by
     i.dup_user_login,
-    coalesce(ecf.repo_group, r.repo_group)
+    r.repo_group
   union select 'All' as cuser,
     'all' as repo_group,
     count(distinct id) as issues
@@ -53,15 +49,11 @@ from (
     and dup_type = 'IssuesEvent'
     and (lower(dup_user_login) {{exclude_bots}})
   union select 'All' as cuser,
-    coalesce(ecf.repo_group, r.repo_group) as repo_group,
+    r.repo_group as repo_group,
     count(distinct i.id) as issues
   from
     gha_repos r,
     gha_issues i
-  left join
-    gha_events_commits_files ecf
-  on
-    ecf.event_id = i.event_id
   where
     r.id = i.dup_repo_id
     and r.name = i.dup_repo_name
@@ -72,7 +64,7 @@ from (
     and i.dup_type = 'IssuesEvent'
     and (lower(i.dup_user_login) {{exclude_bots}})
   group by
-    coalesce(ecf.repo_group, r.repo_group)
+    r.repo_group
   order by
     issues desc,
     cuser asc
