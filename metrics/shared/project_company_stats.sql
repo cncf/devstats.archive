@@ -354,9 +354,9 @@ from (
     and (lower(e.dup_actor_login) {{exclude_bots}})
   ) sub
 where
-  (sub.metric = 'Commenters' and sub.value > 3 * {{project_scale}} * sqrt({{range}}/1450.0))
-  or (sub.metric = 'Comments' and sub.value > 5 * {{project_scale}} * sqrt({{range}}/1450.0))
-  or (sub.metric = 'Events' and sub.value > 20 * {{project_scale}} * sqrt({{range}}/1450.0))
+  (sub.metric = 'Commenters' and sub.value > 2 * {{project_scale}} * sqrt({{range}}/1450.0))
+  or (sub.metric = 'Comments' and sub.value > 3 * {{project_scale}} * sqrt({{range}}/1450.0))
+  or (sub.metric = 'Events' and sub.value > 10 * {{project_scale}} * sqrt({{range}}/1450.0))
   or (sub.metric = 'Forkers' and sub.value > 2 * {{project_scale}} * sqrt({{range}}/1450.0))
   or (sub.metric = 'Issue commenters' and sub.value > 1 * {{project_scale}} * sqrt({{range}}/1450.0))
   or (sub.metric = 'Issue creators' and sub.value > 1 * {{project_scale}} * sqrt({{range}}/1450.0))
@@ -374,7 +374,7 @@ where
     'Contributors',
     'Contributions'
     )
-  ) and sub.value > 0.5 * {{project_scale}} * sqrt({{range}}/1450.0)
+  ) and sub.value > 0.2 * {{project_scale}} * sqrt({{range}}/1450.0)
 order by
   metric asc,
   value desc,

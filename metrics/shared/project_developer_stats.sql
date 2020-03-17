@@ -236,7 +236,7 @@ from (
     aa.company_name
   ) sub
 where
-  (sub.metric = 'events' and sub.value > 200 * {{project_scale}} * sqrt({{range}}/1450.0))
+  (sub.metric = 'events' and sub.value > 100 * {{project_scale}} * sqrt({{range}}/1450.0))
   or (sub.metric = 'active_repos' and sub.value > 3 * {{project_scale}} * sqrt({{range}}/1450.0))
   or (sub.metric = 'contributions' and sub.value > 10 * {{project_scale}} * sqrt({{range}}/1450.0))
   or (sub.metric = 'commit_comments' and sub.value > 3 * {{project_scale}} * sqrt({{range}}/1450.0))
@@ -508,7 +508,7 @@ from (
     sub.company
 ) sub
 where
-  (sub.metric = 'events' and sub.value > 100 * {{project_scale}} * sqrt({{range}}/1450.0))
+  (sub.metric = 'events' and sub.value > 80 * {{project_scale}} * sqrt({{range}}/1450.0))
   or (sub.metric = 'active_repos' and sub.value > 3 * {{project_scale}} * sqrt({{range}}/1450.0))
   or (sub.metric = 'contributions' and sub.value > 5 * {{project_scale}} * sqrt({{range}}/1450.0))
   or (sub.metric = 'commit_comments' and sub.value > 2 * {{project_scale}} * sqrt({{range}}/1450.0))
@@ -1065,19 +1065,19 @@ from (
   ) sub
 where
   (sub.metric = 'events' and sub.value > 20 * {{project_scale}} * sqrt({{range}}/1450.0))
-  or (sub.metric = 'active_repos' and sub.value > 1 * {{project_scale}} * sqrt({{range}}/1450.0))
-  or (sub.metric = 'contributions' and sub.value > 3 * {{project_scale}} * sqrt({{range}}/1450.0))
-  or (sub.metric = 'commit_comments' and sub.value > 1 * {{project_scale}} * sqrt({{range}}/1450.0))
-  or (sub.metric = 'comments' and sub.value > 5 * {{project_scale}} * sqrt({{range}}/1450.0))
-  or (sub.metric = 'issue_comments' and sub.value > 5 * {{project_scale}} * sqrt({{range}}/1450.0))
-  or (sub.metric = 'review_comments' and sub.value > 5 * {{project_scale}} * sqrt({{range}}/1450.0))
+  or (sub.metric = 'active_repos' and sub.value > 0.5 * {{project_scale}} * sqrt({{range}}/1450.0))
+  or (sub.metric = 'commit_comments' and sub.value > 0.5 * {{project_scale}} * sqrt({{range}}/1450.0))
+  or (sub.metric = 'comments' and sub.value > 2 * {{project_scale}} * sqrt({{range}}/1450.0))
+  or (sub.metric = 'issue_comments' and sub.value > 2 * {{project_scale}} * sqrt({{range}}/1450.0))
+  or (sub.metric = 'review_comments' and sub.value > 2 * {{project_scale}} * sqrt({{range}}/1450.0))
   or (sub.metric in (
+    'contributions',
     'commits',
     'pushes',
     'issues',
     'prs',
     'merged_prs'
-  ) and sub.value > 0.25 * {{project_scale}} * sqrt({{range}}/1450.0)
+  ) and sub.value > 0.2 * {{project_scale}} * sqrt({{range}}/1450.0)
 )
 order by
   metric asc,
