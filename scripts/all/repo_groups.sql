@@ -506,6 +506,15 @@ where
   )
 ;
 
+-- Argo
+update
+  gha_repos
+set
+  repo_group = 'Argo'
+where
+  org_login in ('argoproj')
+;
+
 -- CNCF
 update
   gha_repos
