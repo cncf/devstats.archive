@@ -243,7 +243,10 @@ do
     PROJ=keda                PROJDB=keda           PROJREPO="kedacore/keda"                   ORGNAME=KEDA              PORT=3045 ICON=keda           GRAFSUFF=keda           GA="UA-145264316-6"  ./devel/deploy_proj.sh || exit 63
   elif [ "$proj" = "smi" ]
   then
-    PROJ=smi                 PROJDB=smi            PROJREPO="deislabs/smi-spec"               ORGNAME=SMI               PORT=3046 ICON=smi            GRAFSUFF=smi            GA="UA-145264316-7"  ./devel/deploy_proj.sh || exit 64
+    PROJ=smi                 PROJDB=smi            PROJREPO="servicemeshinterface/smi-spec"   ORGNAME=SMI               PORT=3046 ICON=smi            GRAFSUFF=smi            GA="UA-145264316-7"  ./devel/deploy_proj.sh || exit 64
+  elif [ "$proj" = "argo" ]
+  then
+    PROJ=argo                PROJDB=argo           PROJREPO="argoproj/argo"                   ORGNAME=Argo              PORT=3047 ICON=argo           GRAFSUFF=argo           GA="UA-145264316-8"  ./devel/deploy_proj.sh || exit 65
   elif [ "$proj" = "opencontainers" ]
   then
     PROJ=opencontainers      PROJDB=opencontainers PROJREPO="opencontainers/runc"             ORGNAME=OCI               PORT=3100 ICON="-"            GRAFSUFF=opencontainers GA="UA-108085315-19" ./devel/deploy_proj.sh || exit 32
