@@ -65,6 +65,7 @@ icontypes=(
   ["chubaofs"]="color"
   ["keda"]="color"
   ["smi"]="color"
+  ["argo"]="color"
   ["tekton"]="color"
   ["jenkins"]="color"
   ["jenkinsx"]="color"
