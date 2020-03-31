@@ -189,7 +189,7 @@ do
          PROJ=cortex         PROJDB=cortex         PROJREPO="cortexproject/cortex"            ORGNAME=Cortex            PORT=3027 ICON=cortex         GRAFSUFF=cortex         GA="UA-108085315-32" ./devel/deploy_proj.sh || exit 29
   elif [ "$proj" = "buildpacks" ]
   then
-         PROJ=buildpacks     PROJDB=buildpacks     PROJREPO="buildpack/lifecycle"             ORGNAME=Buildpacks        PORT=3028 ICON=buildpacks     GRAFSUFF=buildpacks     GA="UA-108085315-33" ./devel/deploy_proj.sh || exit 30
+         PROJ=buildpacks     PROJDB=buildpacks     PROJREPO="buildpacks/lifecycle"            ORGNAME=Buildpacks        PORT=3028 ICON=buildpacks     GRAFSUFF=buildpacks     GA="UA-108085315-33" ./devel/deploy_proj.sh || exit 30
   elif [ "$proj" = "falco" ]
   then
          PROJ=falco          PROJDB=falco          PROJREPO="falcosecurity/falco"             ORGNAME=Falco             PORT=3029 ICON=falco          GRAFSUFF=falco          GA="UA-108085315-34" ./devel/deploy_proj.sh || exit 31
