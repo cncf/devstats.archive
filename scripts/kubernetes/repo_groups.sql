@@ -136,6 +136,7 @@ update gha_repos set repo_group = 'SIG Cloud Provider' where lower(name) in (
   'kubernetes/legacy-cloud-providers'
 );
 
+
 update gha_repos set repo_group = 'SIG Cluster Lifecycle' where lower(name) in (
   'kubernetes-incubator/bootkube',
   'kubernetes-incubator/kargo',
@@ -149,10 +150,13 @@ update gha_repos set repo_group = 'SIG Cluster Lifecycle' where lower(name) in (
   'kubernetes-sigs/cluster-api',
   'kubernetes-sigs/cluster-api-bootstrap-provider-kubeadm',
   'kubernetes-sigs/cluster-api-provider-aws',
+  'kubernetes-sigs/cluster-api-provider-azure',
   'kubernetes-sigs/cluster-api-provider-digitalocean',
   'kubernetes-sigs/cluster-api-provider-docker',
   'kubernetes-sigs/cluster-api-provider-gcp',
+  'kubernetes-sigs/cluster-api-provider-ibmcloud',
   'kubernetes-sigs/cluster-api-provider-openstack',
+  'kubernetes-sigs/cluster-api-provider-vsphere',
   'kubernetes-sigs/etcdadm',
   'kubernetes-sigs/image-builder',
   'kubernetes-sigs/kubeadm-dind-cluster',
@@ -164,6 +168,19 @@ update gha_repos set repo_group = 'SIG Cluster Lifecycle' where lower(name) in (
   'kubernetes/kubernetes-anywhere',
   'kubernetes/minikube',
   'kubernetes/system-validators'
+);
+
+update gha_repos set repo_group = 'SIG Cluster Lifecycle (Cluster API)' where lower(name) in (
+  'kubernetes-sigs/cluster-api',
+  'kubernetes-sigs/cluster-api-bootstrap-provider-kubeadm',
+  'kubernetes-sigs/cluster-api-provider-aws',
+  'kubernetes-sigs/cluster-api-provider-azure',
+  'kubernetes-sigs/cluster-api-provider-digitalocean',
+  'kubernetes-sigs/cluster-api-provider-docker',
+  'kubernetes-sigs/cluster-api-provider-gcp',
+  'kubernetes-sigs/cluster-api-provider-ibmcloud',
+  'kubernetes-sigs/cluster-api-provider-openstack',
+  'kubernetes-sigs/cluster-api-provider-vsphere',
 );
 
 
