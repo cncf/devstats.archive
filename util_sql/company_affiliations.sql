@@ -3,8 +3,8 @@ select
   a.name as name,
   ae.email as email,
   aa.company_name as employer,
-  case date_part('year', aa.dt_from) when 1970 then '-' else to_char(aa.dt_from, 'MM/DD/YYYY') end as date_from,
-  case date_part('year', aa.dt_to) when 2099 then '-' else to_char(aa.dt_to, 'MM/DD/YYYY') end as date_to
+  case date_part('year', aa.dt_from) when 1900 then '-' else to_char(aa.dt_from, 'MM/DD/YYYY') end as date_from,
+  case date_part('year', aa.dt_to) when 2100 then '-' else to_char(aa.dt_to, 'MM/DD/YYYY') end as date_to
 from
   gha_actors a,
   gha_actors_emails ae,
