@@ -506,6 +506,15 @@ where
   )
 ;
 
+-- Volcano
+update
+  gha_repos
+set
+  repo_group = 'Volcano'
+where
+  org_login in ('volcano-sh')
+;
+
 -- Argo
 update
   gha_repos
