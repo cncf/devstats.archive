@@ -5,7 +5,7 @@ then
   exit 1
 fi
 function finish {
-    rm -f /tmp/repo_name_changes_bigquery.sql
+  rm -f /tmp/repo_name_changes_bigquery.sql
 }
 trap finish EXIT
 

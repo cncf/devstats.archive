@@ -8,6 +8,7 @@ select
   max(created_at) as date_to
 from
   -- TABLE_DATE_RANGE([githubarchive:day.], TIMESTAMP('2018-01-01'), TIMESTAMP('2019-08-01'))
+  [githubarchive:month.202003],
   [githubarchive:month.202002],
   [githubarchive:month.202001],
   [githubarchive:year.2019],
@@ -22,6 +23,7 @@ where
       repo.id
     from
       -- TABLE_DATE_RANGE([githubarchive:day.], TIMESTAMP('2018-01-01'), TIMESTAMP('2019-08-01'))
+      [githubarchive:month.202003],
       [githubarchive:month.202002],
       [githubarchive:month.202001],
       [githubarchive:year.2019],
@@ -34,6 +36,7 @@ where
       repo.name = '{{org_repo}}'
     group by
       repo.id
+    limit 1
   )
 group by
   org, repo, rid, oid
