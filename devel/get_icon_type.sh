@@ -66,6 +66,7 @@ icontypes=(
   ["keda"]="color"
   ["smi"]="color"
   ["argo"]="color"
+  ["volcano"]="color"
   ["tekton"]="color"
   ["jenkins"]="color"
   ["jenkinsx"]="color"
