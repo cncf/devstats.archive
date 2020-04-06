@@ -247,6 +247,9 @@ do
   elif [ "$proj" = "argo" ]
   then
     PROJ=argo                PROJDB=argo           PROJREPO="argoproj/argo"                   ORGNAME=Argo              PORT=3047 ICON=argo           GRAFSUFF=argo           GA="UA-145264316-8"  ./devel/deploy_proj.sh || exit 65
+  elif [ "$proj" = "volcano" ]
+  then
+    PROJ=volcano             PROJDB=volcano        PROJREPO="volcano-sh/volcano"              ORGNAME=Volcano           PORT=3048 ICON=volcano        GRAFSUFF=volcano        GA="UA-145264316-9"  ./devel/deploy_proj.sh || exit 66
   elif [ "$proj" = "opencontainers" ]
   then
     PROJ=opencontainers      PROJDB=opencontainers PROJREPO="opencontainers/runc"             ORGNAME=OCI               PORT=3100 ICON="-"            GRAFSUFF=opencontainers GA="UA-108085315-19" ./devel/deploy_proj.sh || exit 32
