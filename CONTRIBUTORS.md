@@ -21,4 +21,4 @@ You can run it from the SSH bastion or locally (assuming teststats.cncf.io has w
 # Kubernetes
 
 - New approach is to use `cncf/devstats-reports`, see [contributors section](https://github.com/cncf/devstats-reports#contributors).
-- Final zip containing all data in [here](https://teststats.cncf.io/backups/contrib.zip). Unzip it, and upload corresponding CSV files into google sheet.
+- Final zip containing all data in [here](https://teststats.cncf.io/backups/contrib.zip) or [here](https://devstats.cncf.io/backups/contrib.zip) (depending on which environment you run reports pod). Unzip it, and upload corresponding CSV files into google sheet.
