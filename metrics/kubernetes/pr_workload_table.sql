@@ -122,16 +122,16 @@ with issues as (
     union select event_id, issue_id from reviewers_text
     ) sub
 ), sig_reviewers as (
-  select case sub2.sig
-      when 'azure' then 'cloud-provider'
-      when 'openstack' then 'cloud-provider'
-      when 'aws' then 'cloud-provider'
-      when 'gcp' then 'cloud-provider'
-      else sub2.sig
-    end as sig,
+  select sub2.sig,
     count(distinct sub2.dup_actor_login) as rev
   from (
-    select sub.sig,
+    select case sub.sig
+        when 'azure' then 'cloud-provider'
+        when 'openstack' then 'cloud-provider'
+        when 'aws' then 'cloud-provider'
+        when 'gcp' then 'cloud-provider'
+        else sub.sig
+      end as sig,
       e.dup_actor_login
     from (
       select distinct issue_id,
