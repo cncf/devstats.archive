@@ -70,20 +70,30 @@ with issues as (
   where
     sub.size is not null
 ), pr_sigs as (
-  select sub.issue_id,
-    sub.sig
+  select sub2.issue_id,
+    case sub2.sig
+      when 'azure' then 'cloud-provider'
+      when 'openstack' then 'cloud-provider'
+      when 'aws' then 'cloud-provider'
+      when 'gcp' then 'cloud-provider'
+      else sub2.sig
+    end as sig
   from (
-    select pr.issue_id,
-      lower(substring(il.dup_label_name from '(?i)sig/(.*)')) as sig
-    from
-      gha_issues_labels il,
-      prs pr
+    select sub.issue_id,
+      sub.sig
+    from (
+      select pr.issue_id,
+        lower(substring(il.dup_label_name from '(?i)sig/(.*)')) as sig
+      from
+        gha_issues_labels il,
+        prs pr
+      where
+        il.issue_id = pr.issue_id
+        and il.event_id = pr.event_id
+      ) sub
     where
-      il.issue_id = pr.issue_id
-      and il.event_id = pr.event_id
-    ) sub
-  where
-    sub.sig is not null
+      sub.sig is not null
+  ) sub2
 ), reviewers_text as (
   select t.event_id,
     pl.issue_id
@@ -112,22 +122,32 @@ with issues as (
     union select event_id, issue_id from reviewers_text
     ) sub
 ), sig_reviewers as (
-  select sub.sig,
-    count(distinct e.dup_actor_login) as rev
+  select case sub2.sig
+      when 'azure' then 'cloud-provider'
+      when 'openstack' then 'cloud-provider'
+      when 'aws' then 'cloud-provider'
+      when 'gcp' then 'cloud-provider'
+      else sub2.sig
+    end as sig,
+    count(distinct sub2.dup_actor_login) as rev
   from (
-    select distinct issue_id,
-      lower(substring(dup_label_name from '(?i)sig/(.*)')) as sig
-    from
-      gha_issues_labels
-    ) sub,
-    issue_events ie,
-    gha_events e
-  where
-    sub.sig is not null
-    and ie.issue_id = sub.issue_id
-    and ie.event_id = e.id
+    select sub.sig,
+      e.dup_actor_login
+    from (
+      select distinct issue_id,
+        lower(substring(dup_label_name from '(?i)sig/(.*)')) as sig
+      from
+        gha_issues_labels
+      ) sub,
+      issue_events ie,
+      gha_events e
+    where
+      sub.sig is not null
+      and ie.issue_id = sub.issue_id
+      and ie.event_id = e.id
+  ) sub2
   group by
-    sub.sig
+    sub2.sig
 )
 select
   'hpr_wl;sig:s,iss:f,abs:f,rev:f,rel:f;sigs' as metric,
