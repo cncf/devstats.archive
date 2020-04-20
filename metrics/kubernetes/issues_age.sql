@@ -22,7 +22,16 @@ with issues as (
     )
 ), labels as (
   select distinct issue_id,
-    dup_label_name as name
+    case dup_label_name
+      when 'sig/aws' then 'sig/cloud-provider'
+      when 'sig/azure' then 'sig/cloud-provider'
+      when 'sig/batchd' then 'sig/cloud-provider'
+      when 'sig/gcp' then 'sig/cloud-provider'
+      when 'sig/ibmcloud' then 'sig/cloud-provider'
+      when 'sig/openstack' then 'sig/cloud-provider'
+      when 'sig/vmware' then 'sig/cloud-provider'
+      else dup_label_name
+    end as name
   from
     gha_issues_labels
   where
@@ -36,6 +45,13 @@ with issues as (
     and issue_id in (
       select id from issues
     )
+    and substring(dup_label_name from 5) not in (
+      'apimachinery', 'api-machiner', 'cloude-provider', 'nework',
+      'scalability-proprosals', 'storge', 'ui-preview-reviewes',
+      'cluster-fifecycle', 'rktnetes'
+    )
+    and dup_label_name not like '%use-only-as-a-last-resort'
+    and substring(dup_label_name from 5) in (select sig_mentions_labels_name from tsig_mentions_labels)
 ), tdiffs as (
   select id, repo_group, extract(epoch from closed_at - created_at) / 3600 as age
   from
