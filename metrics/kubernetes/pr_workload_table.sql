@@ -72,10 +72,13 @@ with issues as (
 ), pr_sigs as (
   select sub2.issue_id,
     case sub2.sig
-      when 'azure' then 'cloud-provider'
-      when 'openstack' then 'cloud-provider'
       when 'aws' then 'cloud-provider'
+      when 'azure' then 'cloud-provider'
+      when 'batchd' then 'cloud-provider'
       when 'gcp' then 'cloud-provider'
+      when 'ibmcloud' then 'cloud-provider'
+      when 'openstack' then 'cloud-provider'
+      when 'vmware' then 'cloud-provider'
       else sub2.sig
     end as sig
   from (
@@ -93,6 +96,11 @@ with issues as (
       ) sub
     where
       sub.sig is not null
+      and sub.sig not in (
+        'apimachinery', 'api-machiner', 'cloude-provider', 'nework',
+        'scalability-proprosals', 'storge', 'ui-preview-reviewes',
+        'cluster-fifecycle', 'rktnetes'
+      )
   ) sub2
 ), reviewers_text as (
   select t.event_id,
@@ -126,10 +134,13 @@ with issues as (
     count(distinct sub2.dup_actor_login) as rev
   from (
     select case sub.sig
-        when 'azure' then 'cloud-provider'
-        when 'openstack' then 'cloud-provider'
         when 'aws' then 'cloud-provider'
+        when 'azure' then 'cloud-provider'
+        when 'batchd' then 'cloud-provider'
         when 'gcp' then 'cloud-provider'
+        when 'ibmcloud' then 'cloud-provider'
+        when 'openstack' then 'cloud-provider'
+        when 'vmware' then 'cloud-provider'
         else sub.sig
       end as sig,
       e.dup_actor_login
@@ -143,6 +154,11 @@ with issues as (
       gha_events e
     where
       sub.sig is not null
+      and sub.sig not in (
+        'apimachinery', 'api-machiner', 'cloude-provider', 'nework',
+        'scalability-proprosals', 'storge', 'ui-preview-reviewes',
+        'cluster-fifecycle', 'rktnetes'
+      )
       and ie.issue_id = sub.issue_id
       and ie.event_id = e.id
   ) sub2
