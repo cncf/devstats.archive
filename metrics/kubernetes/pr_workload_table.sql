@@ -101,6 +101,7 @@ with issues as (
         'scalability-proprosals', 'storge', 'ui-preview-reviewes',
         'cluster-fifecycle', 'rktnetes'
       )
+      and sub.sig not like '%use-only-as-a-last-resort'
   ) sub2
 ), reviewers_text as (
   select t.event_id,
@@ -159,6 +160,7 @@ with issues as (
         'scalability-proprosals', 'storge', 'ui-preview-reviewes',
         'cluster-fifecycle', 'rktnetes'
       )
+      and sub.sig not like '%use-only-as-a-last-resort'
       and ie.issue_id = sub.issue_id
       and ie.event_id = e.id
   ) sub2
@@ -207,6 +209,8 @@ left join
   sig_reviewers sr
 on
   sub.sig = sr.sig
+where
+  sub.sig in (select sig_mentions_labels_name from tsig_mentions_labels)
 order by
   rel desc,
   sub.sig asc

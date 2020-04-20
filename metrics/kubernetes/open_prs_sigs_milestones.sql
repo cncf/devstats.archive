@@ -61,16 +61,44 @@ with issues as (
     and pr.closed_at is null
     and pr.merged_at is null
 ), prs_sigs as (
-  select pr.issue_id,
-    pr.repo,
-    lower(substring(il.dup_label_name from '(?i)sig/(.*)')) as sig
-  from
-    prs pr,
-    gha_issues_labels il
+  select sub2.issue_id,
+    sub2.repo,
+    case sub2.sig
+      when 'aws' then 'cloud-provider'
+      when 'azure' then 'cloud-provider'
+      when 'batchd' then 'cloud-provider'
+      when 'gcp' then 'cloud-provider'
+      when 'ibmcloud' then 'cloud-provider'
+      when 'openstack' then 'cloud-provider'
+      when 'vmware' then 'cloud-provider'
+      else sub2.sig
+    end as sig
+  from (
+    select sub.issue_id,
+      sub.repo,
+      sub.sig
+    from (
+      select pr.issue_id,
+        pr.repo,
+        lower(substring(il.dup_label_name from '(?i)sig/(.*)')) as sig
+      from
+        prs pr,
+        gha_issues_labels il
+      where
+        pr.event_id = il.event_id
+        and pr.issue_id = il.issue_id
+    ) sub
+    where
+      sub.sig is not null
+      and sub.sig not in (
+        'apimachinery', 'api-machiner', 'cloude-provider', 'nework',
+        'scalability-proprosals', 'storge', 'ui-preview-reviewes',
+        'cluster-fifecycle', 'rktnetes'
+      )
+      and sub.sig not like '%use-only-as-a-last-resort'
+  ) sub2
   where
-    pr.event_id = il.event_id
-    and pr.issue_id = il.issue_id
-    and lower(substring(il.dup_label_name from '(?i)sig/(.*)')) is not null
+    sub2.sig in (select sig_mentions_labels_name from tsig_mentions_labels)
 ), prs_milestones as (
   select pr.issue_id,
     pr.repo,
