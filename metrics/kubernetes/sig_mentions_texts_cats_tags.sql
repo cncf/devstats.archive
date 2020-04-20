@@ -9,6 +9,7 @@ from (
     ('feature-request'),
     ('proposal'),
     ('test-failure'),
-    ('design-proposal')
+    ('design-proposal'),
+    ('owners'),
   ) as temp(cat)
 ;
