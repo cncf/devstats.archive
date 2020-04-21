@@ -9,6 +9,7 @@ from (
         when 'aws' then 'cloud-provider'
         when 'azure' then 'cloud-provider'
         when 'batchd' then 'cloud-provider'
+        when 'cloud-provider-aws' then 'cloud-provider'
         when 'gcp' then 'cloud-provider'
         when 'ibmcloud' then 'cloud-provider'
         when 'openstack' then 'cloud-provider'
