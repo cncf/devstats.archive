@@ -27,6 +27,8 @@ projects:
           - ["sigm_txt,group-1", '3.00']
           - ["sigm_txt,group2", '3.00']
           - ["sigm_txt,a-b-c", '1.00']
+        replaces:
+          - ["sub2.sig in (select sig_mentions_texts_name from tsig_mentions_texts)", true]
         data: KubernetesSigMentionsTextMetric
       - metric: sig_mentions
         from: 2017-07-01T00:00:00Z
@@ -36,6 +38,8 @@ projects:
           - ["sigm_txt,group-1", '1.50']
           - ["sigm_txt,group2", '1.50']
           - ["sigm_txt,a-b-c", '0.50']
+        replaces:
+          - ["sub2.sig in (select sig_mentions_texts_name from tsig_mentions_texts)", true]
         data: KubernetesSigMentionsTextMetric
       - metric: labels_sig
         from: 2017-09-01T00:00:00Z
@@ -70,6 +74,9 @@ projects:
           - ["sigm_lsk,sig1-kind2", '1.00']
           - ["sigm_lsk,sig2-kind2", '1.00']
           - ["sigm_lsk,sig3-All", '1.00']
+        replaces:
+          - ["sel1.sig in (select sig_mentions_labels_name_with_all from tsig_mentions_labels_with_all)", true]
+          - ["sel2.kind in (select sigm_lbl_kind_name_with_all from tsigm_lbl_kinds_with_all)", true]
         data: KubernetesSigMentionsLabelMetric
       - metric: prs_merged
         sql: github_stats_by_repos
@@ -313,6 +320,9 @@ projects:
           - ["iclosed_lsk,sig1-kind2", '1.00']
           - ["iclosed_lsk,sig2-All", '1.00']
           - ["iclosed_lsk,sig2-kind2", '1.00']
+        replaces:
+          - ["sel1.sig in (select sig_mentions_labels_name_with_all from tsig_mentions_labels_with_all)", true]
+          - ["sel2.kind in (select sigm_lbl_kind_name_with_all from tsigm_lbl_kinds_with_all)", true]
         data: KubernetesIssuesMetric
       - metric: issues_opened
         additional_setup_funcs:
@@ -565,6 +575,8 @@ projects:
           - ["iage;All_All_kind3_All;n,m", '1.00', 744]
           - ["iage;G1_All_kind3_All;n,m", '1.00', 744]
           - ["iage;All_sig4_All_All;n,m", '1.00', 984]
+        replaces:
+          - ["substring(dup_label_name from 5) in (select sig_mentions_labels_name from tsig_mentions_labels)", true]
         data: KubernetesIssuesAgeMetric
       - metric: prs_state
         additional_setup_funcs:
@@ -944,7 +956,8 @@ projects:
           - ['sig_pr_wl;sig6;iss,abs,rev,rel', 1, '1.0', 1, '1.00']
           - ['sig_pr_wl;sig7;iss,abs,rev,rel', 1, '1.0', 0, 0]
         replaces:
-            - ['sub.abs / sr.rev', 'round(sub.abs / sr.rev, 2)']
+          - ['sub.abs / sr.rev', 'round(sub.abs / sr.rev, 2)']
+          - ['sub.sig in (select sig_mentions_labels_name from tsig_mentions_labels)', true]
         data: KubernetesPRWorkloadMetric
       - metric: pr_workload_table
         additional_setup_funcs:
@@ -967,11 +980,12 @@ projects:
           - ['hpr_wl;sig:s,iss:f,abs:f,rev:f,rel:f;sigs', sig2, 1, '1.0', 2, '0.50']
           - ['hpr_wl;sig:s,iss:f,abs:f,rev:f,rel:f;sigs', sig7, 1, '1.0', 0, 0]
         replaces:
-            - ['sub.abs / sr.rev', 'round(sub.abs / sr.rev, 2)']
-            - ['and pr.created_at < {{to}}', '']
-            - ['sub.closed_at >= {{to}}', "sub.closed_at >= '2018-03-01'"]
-            - ['{{period:t.created_at}}', 'true']
-            - ['{{period:dup_created_at}}', 'true']
+          - ['sub.abs / sr.rev', 'round(sub.abs / sr.rev, 2)']
+          - ['and pr.created_at < {{to}}', '']
+          - ['sub.closed_at >= {{to}}', "sub.closed_at >= '2018-03-01'"]
+          - ['{{period:t.created_at}}', 'true']
+          - ['{{period:dup_created_at}}', 'true']
+          - ['sub.sig in (select sig_mentions_labels_name from tsig_mentions_labels)', true]
         data: KubernetesPRWorkloadMetric
       - metric: reviews_per_user
         additional_setup_funcs:
@@ -1028,6 +1042,8 @@ projects:
           - ['isigml,sig2-M3-R3', 1]
           - ['isigml,sig3-All-All', 1]
           - ['isigml,sig3-All-R1', 1]
+        replaces:
+          - ["sub2.sig in (select sig_mentions_labels_name from tsig_mentions_labels)", true]
         data: KubernetesIssuesMilestonesMetric
       - metric: open_prs_sigs_milestones
         n: 1
@@ -1063,6 +1079,8 @@ projects:
           - ['prsigml,sig2-M3-R3', 1]
           - ['prsigml,sig3-All-All', 1]
           - ['prsigml,sig3-All-R1', 1]
+        replaces:
+          - ["sub2.sig in (select sig_mentions_labels_name from tsig_mentions_labels)", true]
         data: KubernetesIssuesMilestonesMetric
       - metric: hist_reviewers
         additional_setup_funcs:
