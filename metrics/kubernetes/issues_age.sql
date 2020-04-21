@@ -26,6 +26,7 @@ with issues as (
       when 'sig/aws' then 'sig/cloud-provider'
       when 'sig/azure' then 'sig/cloud-provider'
       when 'sig/batchd' then 'sig/cloud-provider'
+      when 'sig/cloud-provider-aws' then 'sig/cloud-provider'
       when 'sig/gcp' then 'sig/cloud-provider'
       when 'sig/ibmcloud' then 'sig/cloud-provider'
       when 'sig/openstack' then 'sig/cloud-provider'
