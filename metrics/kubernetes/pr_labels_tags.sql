@@ -11,8 +11,10 @@ from (
     ('do-not-merge/hold'),
     ('do-not-merge/release-note-label-needed'),
     ('do-not-merge/work-in-progress'),
+    ('priority/critical-urgent'),
     ('needs-ok-to-test'),
     ('needs-rebase'),
+    ('needs-priority'),
     ('release-note-label-needed')
   ) as temp(cat)
 ;
