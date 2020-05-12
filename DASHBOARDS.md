@@ -44,6 +44,9 @@ They are defined here: [repo_groups.sql](https://github.com/cncf/devstats/blob/m
 - SIG mentions: [sig-mentions.json](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/sig-mentions.json), [view](https://k8s.devstats.cncf.io/d/41/sig-mentions?orgId=1)
 - Stars and Forks by Repository: [stars-and-forks-by-repository.json](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/stars-and-forks-by-repository.json), [view](https://k8s.devstats.cncf.io/d/7/stars-and-forks-by-repository?orgId=1)
 - Time metrics by repository groups: [time-metrics-by-repository-groups.json](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/time-metrics-by-repository-groups.json), [view](https://k8s.devstats.cncf.io/d/44/time-metrics-by-repository-groups?orgId=1)
+- PRs opened by SIG: [prs-opened-by-sig.json](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/prs-opened-by-sig.json), [view](https://k8s.devstats.cncf.io/d/69/prs-opened-by-sig?orgId=1)
+- Awaiting PRs by SIG: [awaiting-prs-by-sig.json](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/awaiting-prs-by-sig.json), [view](https://k8s.devstats.cncf.io/d/70/awaiting-prs-by-sig?orgId=1)
+- PRs labels by SIG: [prs-labels-by-sig.json](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/prs-labels-by-sig.json), [view](https://k8s.devstats.cncf.io/d/71/prs-labels-by-sig?orgId=1)
 
 Metric SQL's are defined in [metrics.yaml](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/metrics.yaml), search for dashboard name to find its SQL metric file.
 

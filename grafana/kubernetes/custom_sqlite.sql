@@ -116,7 +116,9 @@ where
     'pr-workload-per-sig-table',
     'prs-approval-repository-groups',
     'prs-labels-repository-groups',
-    'prs-opened-by-sigs'
+    'prs-opened-by-sig',
+    'awaiting-prs-by-sig',
+    'prs-labels-by-sig'
   )
 ;
 

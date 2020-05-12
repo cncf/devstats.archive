@@ -511,6 +511,34 @@ projects:
           - ['prlbl,G2: needs-ok-to-test', 1]
           - ['prlbl,G2: needs-rebase', 1]
         data: KubernetesPRsLabelsMetric
+      - metric: prs_labels_by_sig
+        additional_setup_funcs:
+          - SetDates
+        additional_setup_args:
+          - gha_issues;updated_at;now()
+        from: 2017-10-01T00:00:00Z
+        to: 2017-11-01T00:00:00Z
+        n: 1
+        expected:
+          - ['prsiglbl,All SIGs combined: All labels combined', 8]
+          - ['prsiglbl,All SIGs combined: needs-rebase', 4]
+          - ['prsiglbl,sig1: All labels combined', 4]
+          - ['prsiglbl,sig2: All labels combined', 3]
+          - ['prsiglbl,sig1: needs-rebase', 2]
+          - ['prsiglbl,All SIGs combined: cla: no', 1]
+          - ['prsiglbl,All SIGs combined: do-not-merge', 1]
+          - ['prsiglbl,All SIGs combined: needs-ok-to-test', 1]
+          - ['prsiglbl,All SIGs combined: release-note-label-needed', 1]
+          - ['prsiglbl,sig1: do-not-merge', 1]
+          - ['prsiglbl,sig1: needs-ok-to-test', 1]
+          - ['prsiglbl,sig2: cla: no', 1]
+          - ['prsiglbl,sig2: needs-rebase', 1]
+          - ['prsiglbl,sig2: release-note-label-needed', 1]
+          - ['prsiglbl,sig3: All labels combined', 1]
+          - ['prsiglbl,sig3: needs-rebase', 1]
+        replaces:
+          - ['sub.sig in (select sig_mentions_labels_name from tsig_mentions_labels)', true]
+        data: KubernetesPRsLabelsMetric
       - metric: opened_to_merged
         additional_setup_funcs:
           - SetDates
@@ -1005,6 +1033,30 @@ projects:
           - ['sig_prs_open,sig7', '1.00']
         replaces:
           - ['sub.sig in (select sig_mentions_labels_name from tsig_mentions_labels)', true]
+        data: KubernetesPRWorkloadMetric
+      - metric: awaiting_prs_by_sig
+        additional_setup_funcs:
+          - SetDates
+        additional_setup_args:
+            - "gha_issues_labels;dup_created_at;'2018-02-14 00:00:00'"
+        from: 2018-02-01T00:00:00Z
+        to: 2018-03-01T00:00:00Z
+        n: 1
+        expected:
+          - ['awaiting_prs_by_sig;sig1;d10,d30,d60,d90,y', 2, 2, 2, 2, 0]
+          - ['awaiting_prs_by_sig;sig2;d10,d30,d60,d90,y', 2, 2, 2, 2, 0]
+          - ['awaiting_prs_by_sig;sig3;d10,d30,d60,d90,y', 2, 2, 2, 2, 0]
+          - ['awaiting_prs_by_sig;sig4;d10,d30,d60,d90,y', 2, 2, 2, 1, 0]
+          - ['awaiting_prs_by_sig;sig5;d10,d30,d60,d90,y', 2, 2, 2, 0, 0]
+          - ['awaiting_prs_by_sig;sig6;d10,d30,d60,d90,y', 1, 1, 1, 0, 0]
+          - ['awaiting_prs_by_sig;sig7;d10,d30,d60,d90,y', 1, 1, 1, 0, 0]
+        replaces:
+          - ['sub.sig in (select sig_mentions_labels_name from tsig_mentions_labels)', true]
+          - ['864000', '86400']
+          - ['2592000', '7*86400']
+          - ['5184000', '14*86400']
+          - ['7776000', '21*86400']
+          - ['31557600', '28*86400']
         data: KubernetesPRWorkloadMetric
       - metric: reviews_per_user
         additional_setup_funcs:
@@ -4232,6 +4284,20 @@ data:
       - [5, 25, 0, 0, '', 1, R1, '', '2017-10-15T00:00:00Z', 5, needs-rebase]
       - [7, 27, 0, 0, '', 3, R3, '', '2017-10-17T00:00:00Z', 7, needs-rebase]
       - [8, 28, 0, 0, '', 4, R4, '', '2017-10-18T00:00:00Z', 8, release-note-label-needed]
+      - [1, 1, 1, 0, '', 1, R1, '', '2017-10-11T00:00:00Z', 1, sig/sig1]
+      - [2, 2, 1, 0, '', 2, R2, '', '2017-10-12T00:00:00Z', 2, sig/sig1]
+      - [3, 3, 1, 0, '', 3, R3, '', '2017-10-13T00:00:00Z', 3, sig/sig1]
+      - [4, 4, 1, 0, '', 4, R4, '', '2017-10-14T00:00:00Z', 4, sig/sig2]
+      - [5, 5, 1, 0, '', 1, R1, '', '2017-10-15T00:00:00Z', 5, sig/sig2]
+      - [6, 6, 1, 0, '', 2, R2, '', '2017-10-16T00:00:00Z', 6, sig/sig3]
+      - [7, 7, 1, 0, '', 3, R3, '', '2017-10-17T00:00:00Z', 7, sig/sig1]
+      - [8, 8, 1, 0, '', 4, R4, '', '2017-10-18T00:00:00Z', 8, sig/sig2]
+      - [1, 21, 1, 0, '', 1, R1, '', '2017-10-11T00:00:00Z', 1, sig/sig1]
+      - [2, 22, 1, 0, '', 2, R2, '', '2017-10-12T00:00:00Z', 2, sig/sig1]
+      - [4, 24, 1, 0, '', 4, R4, '', '2017-10-14T00:00:00Z', 4, sig/sig2]
+      - [5, 25, 1, 0, '', 1, R1, '', '2017-10-15T00:00:00Z', 5, sig/sig2]
+      - [7, 27, 1, 0, '', 3, R3, '', '2017-10-17T00:00:00Z', 7, sig/sig1]
+      - [8, 28, 1, 0, '', 4, R4, '', '2017-10-18T00:00:00Z', 8, sig/sig2]
     # issue_id, pr_id, number, repo_id, repo_name, created_at
     issues_prs:
       - [1, 1, 1, 1, R1, '2017-10-01T00:00:00Z']

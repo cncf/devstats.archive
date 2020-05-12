@@ -1,13 +1,9 @@
 with issues as (
-  select sub.issue_id,
-    sub.event_id,
-    sub.repo_name,
-    sub.repo_id
+  select distinct sub.issue_id,
+    sub.event_id
   from (
     select distinct
       id as issue_id,
-      dup_repo_name as repo_name,
-      dup_repo_id as repo_id,
       last_value(event_id) over issues_ordered_by_update as event_id,
       last_value(closed_at) over issues_ordered_by_update as closed_at
     from
@@ -26,13 +22,11 @@ with issues as (
         and unbounded following
       )
     ) sub
-  where
-    sub.closed_at is null
+    where
+      sub.closed_at is null
 ), prs as (
-  select i.issue_id,
-    i.event_id,
-    i.repo_name,
-    i.repo_id
+  select distinct i.issue_id,
+    i.event_id
   from (
     select distinct id as pr_id,
       last_value(closed_at) over prs_ordered_by_update as closed_at,
@@ -60,12 +54,49 @@ with issues as (
     and ipr.pull_request_id = pr.pr_id
     and pr.closed_at is null
     and pr.merged_at is null
-), labels as (
+), pr_sigs as (
+  select sub2.issue_id,
+    sub2.event_id,
+    case sub2.sig
+      when 'aws' then 'cloud-provider'
+      when 'azure' then 'cloud-provider'
+      when 'batchd' then 'cloud-provider'
+      when 'cloud-provider-aws' then 'cloud-provider'
+      when 'gcp' then 'cloud-provider'
+      when 'ibmcloud' then 'cloud-provider'
+      when 'openstack' then 'cloud-provider'
+      when 'vmware' then 'cloud-provider'
+      else sub2.sig
+    end as sig
+  from (
+    select sub.issue_id,
+      sub.event_id,
+      sub.sig
+    from (
+      select pr.issue_id,
+        pr.event_id,
+        lower(substring(il.dup_label_name from '(?i)sig/(.*)')) as sig
+      from
+        gha_issues_labels il,
+        prs pr
+      where
+        il.issue_id = pr.issue_id
+        and il.event_id = pr.event_id
+      ) sub
+    where
+      sub.sig is not null
+      and sub.sig not in (
+        'apimachinery', 'api-machiner', 'cloude-provider', 'nework',
+        'scalability-proprosals', 'storge', 'ui-preview-reviewes',
+        'cluster-fifecycle', 'rktnetes'
+      )
+      and sub.sig not like '%use-only-as-a-last-resort'
+      and sub.sig in (select sig_mentions_labels_name from tsig_mentions_labels)
+  ) sub2
+), pr_labels as (
   select il.issue_id,
-    pr.repo_name,
-    pr.repo_id,
-    il.dup_label_name as label,
-    il.event_id
+    il.event_id,
+    il.dup_label_name as label
   from
     prs pr,
     gha_issues_labels il
@@ -81,57 +112,42 @@ with issues as (
       'do-not-merge/hold',
       'do-not-merge/release-note-label-needed',
       'do-not-merge/work-in-progress',
-      'priority/critical-urgent',
       'needs-ok-to-test',
       'needs-rebase',
       'needs-priority',
+      'priority/critical-urgent',
       'release-note-label-needed'
     )
 )
 select
   sub.name,
-  count(distinct sub.issue_id) as label_count
+  count(distinct sub.issue_id) as cnt
 from (
-  select 'prlbl,' || coalesce(ecf.repo_group, re.repo_group) || ': All labels combined' as name,
-    r.issue_id
+  select 'prsiglbl,' || s.sig || ': All labels combined' as name,
+    s.issue_id
   from
-    labels r
-  join
-    gha_repos re
-  on
-    r.repo_name = re.name
-    and r.repo_id = re.id
-  left join
-    gha_events_commits_files ecf
-  on
-    ecf.event_id = r.event_id
-  union select 'prlbl,' || coalesce(ecf.repo_group, re.repo_group) || ': ' || r.label as name,
-    r.issue_id
+    pr_sigs s
+  union select 'prsiglbl,' || s.sig || ': ' || l.label as name,
+    l.issue_id
   from
-    labels r
-  join
-    gha_repos re
-  on
-    r.repo_name = re.name
-    and r.repo_id = re.id
-  left join
-    gha_events_commits_files ecf
-  on
-    ecf.event_id = r.event_id
-  union select 'prlbl,All repos combined: All labels combined' as name,
-    r.issue_id
+    pr_sigs s,
+    pr_labels l
+  where
+    s.event_id = l.event_id
+  union select 'prsiglbl,All SIGs combined: All labels combined' as name,
+    l.issue_id
   from
-    labels r
-  union select 'prlbl,All repos combined: ' || r.label as name,
-    r.issue_id
+    pr_labels l
+  union select 'prsiglbl,All SIGs combined: ' || l.label as name,
+    l.issue_id
   from
-    labels r
+    pr_labels l
   ) sub
 where
   sub.name is not null
 group by
   sub.name
 order by
-  label_count desc,
+  cnt desc,
   name asc
 ;
