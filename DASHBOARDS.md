@@ -47,6 +47,8 @@ They are defined here: [repo_groups.sql](https://github.com/cncf/devstats/blob/m
 - PRs opened by SIG: [prs-opened-by-sig.json](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/prs-opened-by-sig.json), [view](https://k8s.devstats.cncf.io/d/69/prs-opened-by-sig?orgId=1)
 - Awaiting PRs by SIG: [awaiting-prs-by-sig.json](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/awaiting-prs-by-sig.json), [view](https://k8s.devstats.cncf.io/d/70/awaiting-prs-by-sig?orgId=1)
 - PRs labels by SIG: [prs-labels-by-sig.json](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/prs-labels-by-sig.json), [view](https://k8s.devstats.cncf.io/d/71/prs-labels-by-sig?orgId=1)
+- Inactive PRs by SIG: [inactive-prs-by-sig.json](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/inactive-prs-by-sig.json), [view](https://k8s.devstats.cncf.io/d/72/inactive-prs-by-sig?orgId=1)
+- Inactive Issues by SIG: [inactive-issues-by-sig.json](https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/inactive-issues-by-sig.json), [view](https://k8s.devstats.cncf.io/d/73/inactive-issues-by-sig?orgId=1)
 
 Metric SQL's are defined in [metrics.yaml](https://github.com/cncf/devstats/blob/master/metrics/kubernetes/metrics.yaml), search for dashboard name to find its SQL metric file.
 
