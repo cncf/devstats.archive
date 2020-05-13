@@ -1058,6 +1058,45 @@ projects:
           - ['7776000', '21*86400']
           - ['31557600', '28*86400']
         data: KubernetesPRWorkloadMetric
+      - metric: inactive_prs_by_sig
+        additional_setup_funcs:
+          - SetDates
+        additional_setup_args:
+            - "gha_issues_labels;dup_created_at;'2018-02-14 00:00:00'"
+        from: 2018-02-01T00:00:00Z
+        to: 2018-03-01T00:00:00Z
+        n: 1
+        expected:
+          - ['inactive_prs_by_sig;sig1;w2,d30,d90', 2, 2, 2]
+          - ['inactive_prs_by_sig;sig2;w2,d30,d90', 2, 2, 2]
+          - ['inactive_prs_by_sig;sig3;w2,d30,d90', 2, 2, 2]
+          - ['inactive_prs_by_sig;sig4;w2,d30,d90', 2, 2, 2]
+          - ['inactive_prs_by_sig;sig5;w2,d30,d90', 2, 2, 2]
+          - ['inactive_prs_by_sig;sig6;w2,d30,d90', 1, 1, 1]
+          - ['inactive_prs_by_sig;sig7;w2,d30,d90', 1, 1, 1]
+        replaces:
+          - ['sub.sig in (select sig_mentions_labels_name from tsig_mentions_labels)', true]
+          - ['1209600', '86400']
+          - ['2592000', '7*86400']
+          - ['7776000', '14*86400']
+        data: KubernetesPRWorkloadMetric
+      - metric: inactive_issues_by_sig
+        additional_setup_funcs:
+          - SetDates
+        additional_setup_args:
+            - "gha_issues_labels;dup_created_at;'2018-02-14 00:00:00'"
+        from: 2018-03-01T00:00:00Z
+        to: 2018-04-01T00:00:00Z
+        expected:
+          - ['inactive_issues_by_sig;sig1;w2,d30,d90', 4, 3, 3]
+          - ['inactive_issues_by_sig;sig2;w2,d30,d90', 2, 2, 2]
+          - ['inactive_issues_by_sig;sig3;w2,d30,d90', 1, 1, 1]
+        replaces:
+          - ['sub.sig in (select sig_mentions_labels_name from tsig_mentions_labels)', true]
+          - ['1209600', '86400']
+          - ['2592000', '7*86400']
+          - ['7776000', '14*86400']
+        data: KubernetesIssuesMilestonesMetric
       - metric: reviews_per_user
         additional_setup_funcs:
           - RunTags

@@ -2,7 +2,7 @@
 
 To add new metric (replace `{{project}}` with kubernetes, prometheus or any other project defined in `projects.yaml`):
 
-1) Define parameterized SQL (with `{{from}}`, `{{to}}`  and `{{n}}` params) that returns this metric data. For histogram metrics define `{{period:alias.date_column}}` instead.
+1) Define parameterized SQL (with `{{from}}`, `{{to}}` and `{{n}}` params) that returns this metric data. For histogram metrics define `{{period:alias.date_column}}` instead.
 - `{{n}}` is only used in aggregate periods mode and it will get value from `Number of periods` drop-down. For example for 7 days MA (moving average) it will be 7.
 - Use `{{period:alias.date_column}}` for quick ranges based metrics, to test such metric use `PG_PASS=... runq ./metrics/project/filename.sql qr '1 week,,'`.
 - Use `(lower(actor_col) {{exclude_bots}})` to skip bot activity.
@@ -29,10 +29,10 @@ To add new metric (replace `{{project}}` with kubernetes, prometheus or any othe
 5) To test new metric on non-production database "test", use: `GHA2DB_PROJECT={{project}} ./devel/test_metric_sync.sh` script.
 6) Add Grafana dashboard or row that displays this metric. Eventually copy existing one and adjust.
 7) Update all Home dashboards (make dashboard list panel higher to include new dashboard without scrolling).
-7) Export new Grafana dashboard to JSON, for example use `./devel/get_all_sqlite_jsons.sh`.
+7) Export new Grafana dashboard to JSON, for example use `./devel/get_all_sqlite_jsons.sh`. If you are using dashboards folders update `./grafana/project/custom_sqlite.sql`.
 8) Create PR for the new metric.
 9) Add metrics dashboard decription in this [file](https://github.com/cncf/devstats/blob/master/DASHBOARDS.md).
-10) Add more detailed documentation in [dashboards documentation](https://github.com/cncf/devstats/blob/master/docs/dashboards/).
+10) Add more detailed documentation in [dashboards documentation](https://github.com/cncf/devstats/blob/master/docs/dashboards/). Then update `metrics/project/vars.yaml` to include that metric.
 
 # Tags
 
