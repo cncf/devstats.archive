@@ -89,7 +89,8 @@ where
   slug in (
     'issues-age-by-sig-and-repository-groups',
     'issues-opened-closed-by-sig',
-    'new-and-episodic-issue-creators'
+    'new-and-episodic-issue-creators',
+    'inactive-issues-by-sig'
   )
 ;
 
@@ -118,7 +119,8 @@ where
     'prs-labels-repository-groups',
     'prs-opened-by-sig',
     'awaiting-prs-by-sig',
-    'prs-labels-by-sig'
+    'prs-labels-by-sig',
+    'inactive-prs-by-sig'
   )
 ;
 
