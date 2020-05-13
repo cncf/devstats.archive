@@ -1,4 +1,6 @@
-with issues as (
+with dtfrom as (
+  select '{{to}}'::timestamp - '1 year'::interval as dtfrom
+), issues as (
   select sub.issue_id,
     sub.event_id,
     sub.milestone_id,
@@ -11,9 +13,11 @@ with issues as (
       last_value(event_id) over issues_ordered_by_update as event_id,
       last_value(milestone_id) over issues_ordered_by_update as milestone_id
     from
-      gha_issues
+      gha_issues,
+      dtfrom
     where
-      created_at < '{{to}}'
+      created_at >= dtfrom
+      and created_at < '{{to}}'
       and updated_at < '{{to}}'
       and is_pull_request = false
     window

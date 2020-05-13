@@ -1,4 +1,6 @@
-with issues as (
+with dtfrom as (
+  select '{{to}}'::timestamp - '3 year'::interval as dtfrom
+), issues as (
   select distinct sub.issue_id,
     sub.event_id
   from (
@@ -7,9 +9,11 @@ with issues as (
       last_value(event_id) over issues_ordered_by_update as event_id,
       last_value(closed_at) over issues_ordered_by_update as closed_at
     from
-      gha_issues
+      gha_issues,
+      dtfrom
     where
-      created_at < '{{to}}'
+      created_at >= dtfrom
+      and created_at < '{{to}}'
       and updated_at < '{{to}}'
       and is_pull_request = true
     window
@@ -32,9 +36,11 @@ with issues as (
       last_value(closed_at) over prs_ordered_by_update as closed_at,
       last_value(merged_at) over prs_ordered_by_update as merged_at
     from
-      gha_pull_requests
+      gha_pull_requests,
+      dtfrom
     where
-      created_at < '{{to}}'
+      created_at >= dtfrom
+      and created_at < '{{to}}'
       and updated_at < '{{to}}'
       and event_id > 0
     window
