@@ -147,4 +147,4 @@ The servers to run `devstats` are generously provided by [Packet](https://www.pa
 # Checking projects activity
 
 - Use: `PG_PASS=... PG_DB=allprj ./devel/activity.sh '1 month,,' > all.txt`.
-- Example results [here](https://teststats.cncf.io/all.txt) - all CNCF project activity during January 2018, excluding bots.
+- Example results [here](https://teststats.cncf.io) - all CNCF project activity during January 2018, excluding bots.
