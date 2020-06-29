@@ -572,6 +572,18 @@ where
   )
 ;
 
+-- Dex
+update
+  gha_repos
+set
+  repo_group = 'Dex'
+where
+  org_login in ('dexidp')
+  or name in (
+    'coreos/dex'
+  )
+;
+
 -- CNCF
 update
   gha_repos
