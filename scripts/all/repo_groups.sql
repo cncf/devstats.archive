@@ -652,6 +652,18 @@ where
   )
 ;
 
+-- Crossplane
+update
+  gha_repos
+set
+  repo_group = 'Crossplane'
+where
+  org_login in (
+    'crossplane',
+    'crossplaneio'
+  )
+;
+
 -- CNCF
 update
   gha_repos
