@@ -628,6 +628,18 @@ where
   )
 ;
 
+-- PARSEC
+update
+  gha_repos
+set
+  repo_group = 'PARSEC'
+where
+  org_login in ('parallaxsecond')
+  or name in (
+    'docker/pasl'
+  )
+;
+
 -- CNCF
 update
   gha_repos
