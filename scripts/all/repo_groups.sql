@@ -640,6 +640,18 @@ where
   )
 ;
 
+-- BFE
+update
+  gha_repos
+set
+  repo_group = 'BFE'
+where
+  org_login in ('bfenetworks')
+  or name in (
+    'baidu/bfe'
+  )
+;
+
 -- CNCF
 update
   gha_repos
