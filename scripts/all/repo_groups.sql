@@ -515,6 +515,42 @@ where
   org_login in ('volcano-sh')
 ;
 
+-- CNI-Genie
+update
+  gha_repos
+set
+  repo_group = 'CNI-Genie'
+where
+  org_login in ('cni-genie')
+  or name in (
+    'Huawei-PaaS/CNI-Genie'
+  )
+;
+
+-- Keptn
+update
+  gha_repos
+set
+  repo_group = 'Keptn'
+where
+  org_login in ('keptn')
+;
+
+-- Kudo
+update
+  gha_repos
+set
+  repo_group = 'Kudo'
+where
+  org_login in ('kudobuilder')
+  or name in (
+    'patras-sdk/kubebuilder-maestro',
+    'patras-sdk/maestro',
+    'maestrosdk/maestro',
+    'maestrosdk/frameworks'
+  )
+;
+
 -- Argo
 update
   gha_repos
