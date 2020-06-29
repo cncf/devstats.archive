@@ -11,14 +11,14 @@ then
 fi
 > errors.txt
 > run.log
-GHA2DB_PROJECT=limuschaos PG_DB=limuschaos GHA2DB_LOCAL=1 structure 2>>errors.txt | tee -a run.log || exit 1
-./devel/db.sh psql limuschaos -c "create extension if not exists pgcrypto" || exit 1
-GHA2DB_PROJECT=limuschaos PG_DB=limuschaos GHA2DB_LOCAL=1 gha2db 2017-03-15 0 today now 'litmuschaos,openebs/test-storage,openebs/litmus' 2>>errors.txt | tee -a run.log || exit 2
-GHA2DB_PROJECT=limuschaos PG_DB=limuschaos GHA2DB_LOCAL=1 GHA2DB_MGETC=y GHA2DB_SKIPTABLE=1 GHA2DB_INDEX=1 structure 2>>errors.txt | tee -a run.log || exit 3
-GHA2DB_PROJECT=limuschaos PG_DB=limuschaos ./shared/setup_repo_groups.sh 2>>errors.txt | tee -a run.log || exit 4
-GHA2DB_PROJECT=limuschaos PG_DB=limuschaos ./shared/import_affs.sh 2>>errors.txt | tee -a run.log || exit 5
-GHA2DB_PROJECT=limuschaos PG_DB=limuschaos ./shared/setup_scripts.sh 2>>errors.txt | tee -a run.log || exit 6
-GHA2DB_PROJECT=limuschaos PG_DB=limuschaos ./shared/get_repos.sh 2>>errors.txt | tee -a run.log || exit 7
-GHA2DB_PROJECT=limuschaos PG_DB=limuschaos GHA2DB_LOCAL=1 vars || exit 8
-./devel/ro_user_grants.sh limuschaos || exit 9
-./devel/psql_user_grants.sh devstats_team limuschaos || exit 10
+GHA2DB_PROJECT=litmuschaos PG_DB=litmuschaos GHA2DB_LOCAL=1 structure 2>>errors.txt | tee -a run.log || exit 1
+./devel/db.sh psql litmuschaos -c "create extension if not exists pgcrypto" || exit 1
+GHA2DB_PROJECT=litmuschaos PG_DB=litmuschaos GHA2DB_LOCAL=1 gha2db 2017-03-15 0 today now 'litmuschaos,openebs/test-storage,openebs/litmus' 2>>errors.txt | tee -a run.log || exit 2
+GHA2DB_PROJECT=litmuschaos PG_DB=litmuschaos GHA2DB_LOCAL=1 GHA2DB_MGETC=y GHA2DB_SKIPTABLE=1 GHA2DB_INDEX=1 structure 2>>errors.txt | tee -a run.log || exit 3
+GHA2DB_PROJECT=litmuschaos PG_DB=litmuschaos ./shared/setup_repo_groups.sh 2>>errors.txt | tee -a run.log || exit 4
+GHA2DB_PROJECT=litmuschaos PG_DB=litmuschaos ./shared/import_affs.sh 2>>errors.txt | tee -a run.log || exit 5
+GHA2DB_PROJECT=litmuschaos PG_DB=litmuschaos ./shared/setup_scripts.sh 2>>errors.txt | tee -a run.log || exit 6
+GHA2DB_PROJECT=litmuschaos PG_DB=litmuschaos ./shared/get_repos.sh 2>>errors.txt | tee -a run.log || exit 7
+GHA2DB_PROJECT=litmuschaos PG_DB=litmuschaos GHA2DB_LOCAL=1 vars || exit 8
+./devel/ro_user_grants.sh litmuschaos || exit 9
+./devel/psql_user_grants.sh devstats_team litmuschaos || exit 10
