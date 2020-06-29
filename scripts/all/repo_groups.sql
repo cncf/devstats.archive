@@ -613,6 +613,21 @@ where
   )
 ;
 
+-- Kuma
+update
+  gha_repos
+set
+  repo_group = 'Kuma'
+where
+  name in (
+    'Kong/kuma',
+    'Kong/kuma-website',
+    'Kong/kuma-demo',
+    'Kong/kuma-gui',
+    'Kong/kumacut'
+  )
+;
+
 -- CNCF
 update
   gha_repos
