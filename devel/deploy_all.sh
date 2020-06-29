@@ -250,6 +250,39 @@ do
   elif [ "$proj" = "volcano" ]
   then
     PROJ=volcano             PROJDB=volcano        PROJREPO="volcano-sh/volcano"              ORGNAME=Volcano           PORT=3048 ICON=volcano        GRAFSUFF=volcano        GA="UA-145264316-9"  ./devel/deploy_proj.sh || exit 66
+  elif [ "$proj" = "cnigenie" ]
+  then
+    PROJ=cnigenie           PROJDB=cnigenie        PROJREPO="cni-genie/CNI-Genie"             ORGNAME="CNI-Genie"       PORT=3049 ICON=cnigenie       GRAFSUFF=cnigenie       GA="UA-145264316-10" ./devel/deploy_proj.sh || exit 67
+  elif [ "$proj" = "keptn" ]
+  then
+    PROJ=keptn              PROJDB=keptn           PROJREPO="keptn/keptn"                     ORGNAME=Keptn             PORT=3050 ICON=keptn          GRAFSUFF=keptn          GA="UA-145264316-11" ./devel/deploy_proj.sh || exit 68
+  elif [ "$proj" = "kudo" ]
+  then
+    PROJ=kudo               PROJDB=kudo            PROJREPO="kudobuilder/kudo"                ORGNAME=Kudo              PORT=3051 ICON=kudo           GRAFSUFF=kudo           GA="UA-145264316-12" ./devel/deploy_proj.sh || exit 69
+  elif [ "$proj" = "cloudcustodian" ]
+  then
+    PROJ=cloudcustodian     PROJDB=cloudcustodian  PROJREPO="cloud-custodian/cloud-custodian" ORGNAME="Cloud Custodian" PORT=3052 ICON=cloudcustodian GRAFSUFF=cloudcustodian GA="UA-145264316-13" ./devel/deploy_proj.sh || exit 70
+  elif [ "$proj" = "dex" ]
+  then
+    PROJ=dex                PROJDB=dex             PROJREPO="dexidp/dex"                      ORGNAME=Dex               PORT=3053 ICON=dex            GRAFSUFF= dex           GA="UA-145264316-14" ./devel/deploy_proj.sh || exit 71
+  elif [ "$proj" = "litmuschaos" ]
+  then
+    PROJ=litmuschaos        PROJDB=litmuschaos     PROJREPO="litmuschaos/litmus"              ORGNAME=LitmusChaos       PORT=3054 ICON=litmuschaos    GRAFSUFF=litmuschaos    GA="UA-145264316-15" ./devel/deploy_proj.sh || exit 72
+  elif [ "$proj" = "artifacthub" ]
+  then
+    PROJ=artifacthub        PROJDB=artifacthub     PROJREPO="artifacthub/hub"                 ORGNAME="Artifact Hub"    PORT=3055 ICON=artifacthub    GRAFSUFF=artifacthub    GA="UA-145264316-16" ./devel/deploy_proj.sh || exit 73
+  elif [ "$proj" = "kuma" ]
+  then
+    PROJ=kuma               PROJDB=kuma            PROJREPO="Kong/kuma"                       ORGNAME=Kuma              PORT=3056 ICON=kuma           GRAFSUFF=kuma           GA="UA-145264316-17" ./devel/deploy_proj.sh || exit 74
+  elif [ "$proj" = "parsec" ]
+  then
+    PROJ=parsec             PROJDB=parsec          PROJREPO="parallaxsecond/parsec"           ORGNAME=PARSEC            PORT=3057 ICON=parsec         GRAFSUFF=parsec         GA="UA-145264316-18" ./devel/deploy_proj.sh || exit 75
+  elif [ "$proj" = "bfe" ]
+  then
+    PROJ=bfe                PROJDB=bfe             PROJREPO="bfenetworks/bfe"                 ORGNAME=BFE               PORT=3058 ICON=bfe            GRAFSUFF=bfe            GA="UA-145264316-19" ./devel/deploy_proj.sh || exit 76
+  elif [ "$proj" = "crossplane" ]
+  then
+    PROJ=crossplane         PROJDB=crossplane      PROJREPO="crossplane/crossplane"           ORGNAME=Crossplane        PORT=3059 ICON=crossplane     GRAFSUFF=crossplane     GA="UA-145264316-20" ./devel/deploy_proj.sh || exit 77
   elif [ "$proj" = "opencontainers" ]
   then
     PROJ=opencontainers      PROJDB=opencontainers PROJREPO="opencontainers/runc"             ORGNAME=OCI               PORT=3100 ICON="-"            GRAFSUFF=opencontainers GA="UA-108085315-19" ./devel/deploy_proj.sh || exit 32
