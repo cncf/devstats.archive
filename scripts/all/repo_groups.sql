@@ -391,6 +391,10 @@ set
   repo_group = 'OpenEBS'
 where
   org_login in ('openebs')
+  and name not in (
+    'openebs/test-storage',
+    'openebs/litmus'
+  )
 ;
 
 -- OpenTelemetry
@@ -581,6 +585,19 @@ where
   org_login in ('dexidp')
   or name in (
     'coreos/dex'
+  )
+;
+
+-- LitmusChaos
+update
+  gha_repos
+set
+  repo_group = 'LitmusChaos'
+where
+  org_login in ('litmuschaos')
+  or name in (
+    'openebs/test-storage',
+    'openebs/litmus'
   )
 ;
 
