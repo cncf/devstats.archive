@@ -506,6 +506,15 @@ where
   )
 ;
 
+-- Argo
+update
+  gha_repos
+set
+  repo_group = 'Argo'
+where
+  org_login in ('argoproj')
+;
+
 -- Volcano
 update
   gha_repos
@@ -551,13 +560,16 @@ where
   )
 ;
 
--- Argo
+-- Cloud Custodian
 update
   gha_repos
 set
-  repo_group = 'Argo'
+  repo_group = 'Cloud Custodian'
 where
-  org_login in ('argoproj')
+  org_login in ('cloud-custodian')
+  or name in (
+    'capitalone/cloud-custodian'
+  )
 ;
 
 -- CNCF
