@@ -601,6 +601,18 @@ where
   )
 ;
 
+-- Artifact Hub
+update
+  gha_repos
+set
+  repo_group = 'Artifact Hub'
+where
+  org_login in ('artifacthub')
+  or name in (
+    'cncf/hub'
+  )
+;
+
 -- CNCF
 update
   gha_repos
@@ -608,6 +620,7 @@ set
   repo_group = 'CNCF'
 where
   org_login in ('cncf', 'crosscloudci', 'cdfoundation')
+  and name not in ('cncf/hub')
 ;
 
 with repo_latest as (
