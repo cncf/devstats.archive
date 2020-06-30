@@ -10,7 +10,7 @@ from (
   where
     r.name = pr.dup_repo_name
     and r.id = pr.dup_repo_id
-    and r.name in (select repo_name from trepos)
+    -- and r.name in (select repo_name from trepos)
     and pr.merged_at is not null
     and pr.merged_at >= '{{from}}'
     and pr.merged_at < '{{to}}'

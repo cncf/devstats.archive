@@ -15,7 +15,7 @@ from
 where
   i.dup_repo_id = r.id
   and i.dup_repo_name = r.name
-  and r.name in (select repo_name from trepos)
+  -- and r.name in (select repo_name from trepos)
   and r.repo_group is not null
   and i.closed_at >= '{{from}}'
   and i.closed_at < '{{to}}'
@@ -37,7 +37,7 @@ from
 where
   pr.dup_repo_id = r.id
   and pr.dup_repo_name = r.name
-  and r.name in (select repo_name from trepos)
+  -- and r.name in (select repo_name from trepos)
   and r.repo_group is not null
   and pr.closed_at >= '{{from}}'
   and pr.closed_at < '{{to}}'

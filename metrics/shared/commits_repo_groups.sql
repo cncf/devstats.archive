@@ -10,7 +10,7 @@ with commits as (
     and c.dup_repo_name = r.name
     and c.dup_created_at >= '{{from}}'
     and c.dup_created_at < '{{to}}'
-    and r.name in (select repo_name from trepos)
+    -- and r.name in (select repo_name from trepos)
     and (lower(c.dup_actor_login) {{exclude_bots}})
   union select r.repo_group as repo_group,
     c.sha,
@@ -24,7 +24,7 @@ with commits as (
     and c.author_id is not null
     and c.dup_created_at >= '{{from}}'
     and c.dup_created_at < '{{to}}'
-    and r.name in (select repo_name from trepos)
+    -- and r.name in (select repo_name from trepos)
     and (lower(c.dup_author_login) {{exclude_bots}})
   union select r.repo_group as repo_group,
     c.sha,
@@ -38,7 +38,7 @@ with commits as (
     and c.committer_id is not null
     and c.dup_created_at >= '{{from}}'
     and c.dup_created_at < '{{to}}'
-    and r.name in (select repo_name from trepos)
+    -- and r.name in (select repo_name from trepos)
     and (lower(c.dup_committer_login) {{exclude_bots}})
 )
 select
