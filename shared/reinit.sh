@@ -1,6 +1,6 @@
 #!/bin/bash
 # SKIPTEMP=1 skip regenerating data into temporary database and use current database directly
-# TSDB_DROP=1 - drop TSDB tables before reinitializing data (new approach handles that per-metric via `drop:` property
+# TSDB_DROP=1 - drop TSDB tables before reinitializing data (new approach handles that per-metric via `drop:` property)
 if ( [ -z "$GHA2DB_PROJECT" ] || [ -z "$PG_DB" ] || [ -z "$PG_PASS" ] )
 then
   echo "$0: you need to set GHA2DB_PROJECT, PG_DB, PG_PASS env variables to use this script"
