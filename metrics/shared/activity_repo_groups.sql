@@ -10,7 +10,7 @@ from (
   where
     r.name = ev.dup_repo_name
     and r.id = ev.repo_id
-    -- and r.name in (select repo_name from trepos)
+    and r.name in (select repo_name from trepos)
     and ev.created_at >= '{{from}}'
     and ev.created_at < '{{to}}'
     and (lower(ev.dup_actor_login) {{exclude_bots}})
