@@ -619,7 +619,8 @@ update
 set
   repo_group = 'Kuma'
 where
-  name in (
+  org_login in ('kumahq')
+  or name in (
     'Kong/kuma',
     'Kong/kuma-website',
     'Kong/kuma-demo',

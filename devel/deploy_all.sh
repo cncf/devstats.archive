@@ -273,7 +273,7 @@ do
     PROJ=artifacthub        PROJDB=artifacthub     PROJREPO="artifacthub/hub"                 ORGNAME="Artifact Hub"    PORT=3055 ICON=artifacthub    GRAFSUFF=artifacthub    GA="UA-145264316-16" ./devel/deploy_proj.sh || exit 73
   elif [ "$proj" = "kuma" ]
   then
-    PROJ=kuma               PROJDB=kuma            PROJREPO="Kong/kuma"                       ORGNAME=Kuma              PORT=3056 ICON=kuma           GRAFSUFF=kuma           GA="UA-145264316-17" ./devel/deploy_proj.sh || exit 74
+    PROJ=kuma               PROJDB=kuma            PROJREPO="kumahq/kuma"                     ORGNAME=Kuma              PORT=3056 ICON=kuma           GRAFSUFF=kuma           GA="UA-145264316-17" ./devel/deploy_proj.sh || exit 74
   elif [ "$proj" = "parsec" ]
   then
     PROJ=parsec             PROJDB=parsec          PROJREPO="parallaxsecond/parsec"           ORGNAME=PARSEC            PORT=3057 ICON=parsec         GRAFSUFF=parsec         GA="UA-145264316-18" ./devel/deploy_proj.sh || exit 75
