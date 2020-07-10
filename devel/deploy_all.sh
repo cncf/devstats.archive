@@ -283,6 +283,12 @@ do
   elif [ "$proj" = "crossplane" ]
   then
     PROJ=crossplane         PROJDB=crossplane      PROJREPO="crossplane/crossplane"           ORGNAME=Crossplane        PORT=3059 ICON=crossplane     GRAFSUFF=crossplane     GA="UA-145264316-20" ./devel/deploy_proj.sh || exit 77
+  elif [ "$proj" = "contour" ]
+  then
+    PROJ=contour            PROJDB=contour         PROJREPO="projectcontour/contour"          ORGNAME=Contour           PORT=3060 ICON=contour        GRAFSUFF=contour        GA="UA-145264316-21" ./devel/deploy_proj.sh || exit 78
+  elif [ "$proj" = "operatorframework" ]
+  then
+    PROJ=operatorframework  PROJDB=operatorframework PROJREPO="operator-framework/operator-sdk" ORGNAME=Operator Framework PORT=3061 ICON=operatorframework GRAFSUFF=operatorframework GA="UA-145264316-22" ./devel/deploy_proj.sh || exit 79
   elif [ "$proj" = "opencontainers" ]
   then
     PROJ=opencontainers      PROJDB=opencontainers PROJREPO="opencontainers/runc"             ORGNAME=OCI               PORT=3100 ICON="-"            GRAFSUFF=opencontainers GA="UA-108085315-19" ./devel/deploy_proj.sh || exit 32
