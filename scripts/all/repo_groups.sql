@@ -665,6 +665,25 @@ where
   )
 ;
 
+-- Contour
+update
+  gha_repos
+set
+  repo_group = 'Contour'
+where
+  org_login in ('projectcontour')
+  or name in ('heptio/contour')
+;
+
+-- Operator Framework
+update
+  gha_repos
+set
+  repo_group = 'Operator Framework'
+where
+  org_login in ('operator-framework')
+;
+
 -- CNCF
 update
   gha_repos
