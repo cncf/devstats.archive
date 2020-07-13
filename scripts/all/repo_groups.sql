@@ -625,7 +625,8 @@ where
     'Kong/kuma-website',
     'Kong/kuma-demo',
     'Kong/kuma-gui',
-    'Kong/kumacut'
+    'Kong/kumacut',
+    'Kong/docker-kuma'
   )
 ;
 
