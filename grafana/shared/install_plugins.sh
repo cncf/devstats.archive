@@ -13,7 +13,7 @@ install_plugin () {
     trials=$((trials+1))
     echo "Installing ${1} failed, retrying in ${trials}s"
     sleep $trials
-    if [ "$trials" = "10" ]
+    if [ "$trials" = "30" ]
     then
       echo "Installing ${1} failed, giving up"
       return $res
