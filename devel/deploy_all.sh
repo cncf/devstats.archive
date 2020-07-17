@@ -289,6 +289,12 @@ do
   elif [ "$proj" = "operatorframework" ]
   then
     PROJ=operatorframework  PROJDB=operatorframework PROJREPO="operator-framework/operator-sdk" ORGNAME=Operator Framework PORT=3061 ICON=operatorframework GRAFSUFF=operatorframework GA="UA-145264316-22" ./devel/deploy_proj.sh || exit 79
+  elif [ "$proj" = "chaosmesh" ]
+  then
+    PROJ=chaosmesh          PROJDB=chaosmesh       PROJREPO="chaos-mesh/chaos-mesh"           ORGNAME="Chaos Mesh"      PORT=3062 ICON=chaosmesh      GRAFSUFF=chaosmesh      GA="UA-145264316-23" ./devel/deploy_proj.sh || exit 80
+  elif [ "$proj" = "serverlessworkflow" ]
+  then
+    PROJ=serverlessworkflow PROJDB=serverlessworkflow PROJREPO="serverlessworkflow/specification" ORGNAME="Serverless Workflow" PORT=3063 ICON=serverlessworkflow GRAFSUFF=serverlessworkflow GA="UA-145264316-24" ./devel/deploy_proj.sh || exit 81
   elif [ "$proj" = "opencontainers" ]
   then
     PROJ=opencontainers      PROJDB=opencontainers PROJREPO="opencontainers/runc"             ORGNAME=OCI               PORT=3100 ICON="-"            GRAFSUFF=opencontainers GA="UA-108085315-19" ./devel/deploy_proj.sh || exit 32
