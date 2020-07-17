@@ -685,6 +685,26 @@ where
   org_login in ('operator-framework')
 ;
 
+-- Chaos Mesh
+update
+  gha_repos
+set
+  repo_group = 'Chaos Mesh'
+where
+  org_login in ('chaos-mesh')
+  or name in ('pingcap/chaos-mesh')
+;
+
+-- Serverless Workflow
+update
+  gha_repos
+set
+  repo_group = 'Serverless Workflow'
+where
+  org_login in ('serverlessworkflow')
+  or name in ('cncf/wg-serverless-workflow')
+;
+
 -- CNCF
 update
   gha_repos
@@ -692,7 +712,10 @@ set
   repo_group = 'CNCF'
 where
   org_login in ('cncf', 'crosscloudci', 'cdfoundation')
-  and name not in ('cncf/hub')
+  and name not in (
+    'cncf/hub',
+    'cncf/wg-serverless-workflow'
+  )
 ;
 
 with repo_latest as (
