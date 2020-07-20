@@ -1,7 +1,7 @@
 <h1 id="kubernetes-dashboard">[[full_name]] Developer Activity Counts by Companies dashboard</h1>
 <p>Links:</p>
 <ul>
-<li>Main metric <a href="https://github.com/cncf/devstats/blob/master/metrics/shared/project_developer_stats.sql" target="_blank">SQL file</a>.</li>
+<li>Main metric <a href="https://github.com/cncf/devstats/blob/master/metrics/kubernetes/project_developer_stats.sql" target="_blank">SQL file</a>.</li>
 <li>Approves metric <a href="https://github.com/cncf/devstats/blob/master/metrics/kubernetes/hist_approvers.sql" target="_blank">SQL file</a>.</li>
 <li>Reviews metric <a href="https://github.com/cncf/devstats/blob/master/metrics/kubernetes/hist_reviewers.sql" target="_blank">SQL file</a>.</li>
 <li>TSDB <a href="https://github.com/cncf/devstats/blob/master/metrics/kubernetes/metrics.yaml" target="_blank">series definition</a>. Search for <code>Developer activity</code></li>
