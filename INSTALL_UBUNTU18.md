@@ -26,6 +26,7 @@ Prerequisites:
     - [goconst](https://github.com/jgautheron/goconst): `go get -u github.com/jgautheron/goconst/cmd/goconst`
     - [usedexports](https://github.com/jgautheron/usedexports): `go get -u github.com/jgautheron/usedexports`
     - [errcheck](https://github.com/kisielk/errcheck): `go get -u github.com/kisielk/errcheck`
+    - [cors](https://github.com/rs/cors): `go get -u github.com/rs/cors`
     - If you want to use ElasticSearch output: [elastic](https://github.com/olivere/elastic): `go get -u github.com/olivere/elastic`.
 2. Go to `$GOPATH/src/github.com/cncf` and clone devstats and devstatscode there:
     - `git clone https://github.com/cncf/devstats.git`.
