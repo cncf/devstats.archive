@@ -35,7 +35,7 @@ do
     icon="litmus"
   fi
   # TODO: remove when we have icons
-  if ( [ "$icon" = "cnigenie" ] || [ "$icon" = "cloudcustodian" ] || [ "$icon" = "kuma" ] || [ "$icon" = "contour" ] || [ "$icon" = "operatorframework" ] || [ "$icon" = "chaosmesh" ] || [ "$icon" = "serverlessworkflow" ] || [ "$icon" = "istio" ] || [ "$icon" = "knative" ] || [ "$icon" = "contrib" ] || [ "$icon" = "sam" ] || [ "$icon" = "azf" ] || [ "$icon" = "riff" ] || [ "$icon" = "fn" ] || [ "$icon" = "openwhisk" ] || [ "$icon" = "openfaas" ] || [ "$icon" = "cii" ] )
+  if ( [ "$icon" = "cnigenie" ] || [ "$icon" = "cloudcustodian" ] || [ "$icon" = "kuma" ] || [ "$icon" = "operatorframework" ] || [ "$icon" = "chaosmesh" ] || [ "$icon" = "serverlessworkflow" ] || [ "$icon" = "istio" ] || [ "$icon" = "knative" ] || [ "$icon" = "contrib" ] || [ "$icon" = "sam" ] || [ "$icon" = "azf" ] || [ "$icon" = "riff" ] || [ "$icon" = "fn" ] || [ "$icon" = "openwhisk" ] || [ "$icon" = "openfaas" ] || [ "$icon" = "cii" ] )
   then
     icon="cncf"
   fi
