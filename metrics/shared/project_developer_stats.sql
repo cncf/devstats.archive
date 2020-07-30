@@ -235,7 +235,7 @@ from (
     e.dup_actor_login,
     aa.company_name
   ) sub
-where
+/*where
   (sub.metric = 'events' and sub.value > 100 * {{project_scale}} * sqrt({{range}}/1450.0))
   or (sub.metric = 'active_repos' and sub.value > 3 * {{project_scale}} * sqrt({{range}}/1450.0))
   or (sub.metric = 'contributions' and sub.value > 10 * {{project_scale}} * sqrt({{range}}/1450.0))
@@ -250,7 +250,7 @@ where
     'prs',
     'merged_prs'
   ) and sub.value > 0.8 * {{project_scale}} * sqrt({{range}}/1450.0)
-)
+)*/
 union select 'hdev_' || sub.metric || ',' || sub.repo_group || '_All' as metric,
   sub.author || '$$$' || sub.company as name,
   sub.value as value
@@ -507,7 +507,7 @@ from (
     sub.author,
     sub.company
 ) sub
-where
+/*where
   (sub.metric = 'events' and sub.value > 80 * {{project_scale}} * sqrt({{range}}/1450.0))
   or (sub.metric = 'active_repos' and sub.value > 3 * {{project_scale}} * sqrt({{range}}/1450.0))
   or (sub.metric = 'contributions' and sub.value > 5 * {{project_scale}} * sqrt({{range}}/1450.0))
@@ -522,7 +522,7 @@ where
     'prs',
     'merged_prs'
   ) and sub.value > 0.5 * {{project_scale}} * sqrt({{range}}/1450.0)
-)
+)*/
 union select 'hdev_' || sub.metric || ',All_' || sub.country as metric,
   sub.author || '$$$' || sub.company as name,
   sub.value as value
@@ -744,7 +744,7 @@ from (
     a.login,
     aa.company_name
   ) sub
-where
+/*where
   (sub.metric = 'events' and sub.value > 100 * {{project_scale}} * sqrt({{range}}/1450.0))
   or (sub.metric = 'active_repos' and sub.value > 3 * {{project_scale}} * sqrt({{range}}/1450.0))
   or (sub.metric = 'contributions' and sub.value > 5 * {{project_scale}} * sqrt({{range}}/1450.0))
@@ -759,7 +759,7 @@ where
     'prs',
     'merged_prs'
   ) and sub.value > 0.5 * {{project_scale}} * sqrt({{range}}/1450.0)
-)
+)*/
 union select 'hdev_' || sub.metric || ',' || sub.repo_group || '_' || sub.country as metric,
   sub.author || '$$$' || sub.company as name,
   sub.value as value
@@ -1063,7 +1063,7 @@ from (
     sub.author,
     sub.company
   ) sub
-where
+/*where
   (sub.metric = 'events' and sub.value > 20 * {{project_scale}} * sqrt({{range}}/1450.0))
   or (sub.metric = 'active_repos' and sub.value > 0.5 * {{project_scale}} * sqrt({{range}}/1450.0))
   or (sub.metric = 'commit_comments' and sub.value > 0.5 * {{project_scale}} * sqrt({{range}}/1450.0))
@@ -1078,7 +1078,7 @@ where
     'prs',
     'merged_prs'
   ) and sub.value > 0.2 * {{project_scale}} * sqrt({{range}}/1450.0)
-)
+)*/
 order by
   metric asc,
   value desc,
