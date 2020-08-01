@@ -7,12 +7,13 @@
 # MODE=rs0 FROM='(?m)^.*"uid": "\w+",\n' TO='-' replacer input.json
 # MODE=rr0 FROM='(?m)(^.*)"uid": "(\w+)",' TO='$1"uid": "placeholder",' replacer input.json
 # MODE=rr FROM='(?m);;;(.*)$' TO=';;;$1 # {{repo_groups}}' FILES=`find metrics/ -iname "gaps.yaml"` ./devel/mass_replace.sh
+# NO_TO=1 - allow no TO
 if [ -z "${FROM}" ]
 then
   echo "You need to set FROM, example FROM=abc TO=xyz FILES='f1 f2' $0"
   exit 1
 fi
-if [ -z "${TO}" ]
+if ( [ -z "${TO}" ] && [ -z "${NO_TO}" ] )
 then
   echo "You need to set TO, example FROM=abc TO=xyz FILES='f1 f2' $0"
   exit 2
