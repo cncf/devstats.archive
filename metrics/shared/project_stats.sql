@@ -152,7 +152,7 @@ union select 'pstat,All' as repo_group,
 from
   commits_data c
 union select 'pstat,' || c.repo_group as repo_group,
-  'Committers' as name,
+  'Code committers' as name,
   count(distinct c.actor_id) as value
 from
   commits_data c
@@ -161,7 +161,7 @@ where
 group by
   c.repo_group
 union select 'pstat,All' as repo_group,
-  'Committers' as name,
+  'Code committers' as name,
   count(distinct c.actor_id) as value
 from
   commits_data c
