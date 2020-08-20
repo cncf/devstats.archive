@@ -295,6 +295,9 @@ do
   elif [ "$proj" = "serverlessworkflow" ]
   then
     PROJ=serverlessworkflow PROJDB=serverlessworkflow PROJREPO="serverlessworkflow/specification" ORGNAME="Serverless Workflow" PORT=3063 ICON=serverlessworkflow GRAFSUFF=serverlessworkflow GA="UA-145264316-24" ./devel/deploy_proj.sh || exit 81
+  elif [ "$proj" = "k3s" ]
+  then
+    PROJ=k3s                 PROJDB=chaosmesh      PROJREPO="rancher/k3s"                     ORGNAME=K3s               PORT=3064 ICON=k3s            GRAFSUFF=k3s            GA="UA-145264316-25" ./devel/deploy_proj.sh || exit 82
   elif [ "$proj" = "opencontainers" ]
   then
     PROJ=opencontainers      PROJDB=opencontainers PROJREPO="opencontainers/runc"             ORGNAME=OCI               PORT=3100 ICON="-"            GRAFSUFF=opencontainers GA="UA-108085315-19" ./devel/deploy_proj.sh || exit 32
