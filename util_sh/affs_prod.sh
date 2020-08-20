@@ -23,7 +23,7 @@ GHA2DB_RECENT_RANGE="4 hours" GHA2DB_TMOFFSET="-4" devstats
 ONLY="smi argo volcano cnigenie keptn kudo cloudcustodian dex litmuschaos artifacthub kuma parsec bfe crossplane" ./devel/all_affs.sh || exit 7
 GHA2DB_RECENT_RANGE="4 hours" GHA2DB_TMOFFSET="-4" devstats
 
-ONLY="contour operatorframework chaosmesh serverlessworkflow" ./devel/all_affs.sh || exit 8
+ONLY="contour operatorframework chaosmesh serverlessworkflow k3s" ./devel/all_affs.sh || exit 8
 GHA2DB_RECENT_RANGE="4 hours" GHA2DB_TMOFFSET="-4" devstats
 
 ONLY="all" ./devel/all_affs.sh || exit 9

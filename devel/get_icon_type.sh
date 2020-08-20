@@ -82,6 +82,7 @@ icontypes=(
   ["operatorframework"]="color"
   ["chaosmesh"]="color"
   ["serverlessworkflow"]="color"
+  ["k3s"]="color"
   ["tekton"]="color"
   ["jenkins"]="color"
   ["jenkinsx"]="color"
