@@ -705,6 +705,17 @@ where
   or name in ('cncf/wg-serverless-workflow')
 ;
 
+-- K3s
+update
+  gha_repos
+set
+  repo_group = 'K3s'
+where
+  org_login in ('ibuildthecloud')
+  or name in ('rancher/k3d')
+  or name like 'rancher/%k3s%'
+;
+
 -- CNCF
 update
   gha_repos
