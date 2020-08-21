@@ -55,7 +55,7 @@ update
 set
   repo_group = 'Fluentd'
 where
-  org_login = 'fluent'
+  name ~ '(?i)^(fluent|fluent-plugins-nursery\/.*fluent.*|.+\/fluentd?-plugin-.+|baritolog\/barito-fluent-plugin|blacknight95\/aws-fluent-plugin-kinesis|sumologic\/fluentd-kubernetes-sumologic|sumologic\/fluentd-output-sumologic|wallynegima\/scenario-manager-plugin|aliyun\/aliyun-odps-fluentd-plugin|awslabs\/aws-fluent-plugin-kinesis|campanja\/fluent-output-router|grafana\/loki\/|jdoconnor\/fluentd_https_out|newrelic\/newrelic-fluentd-output|roma42427\/filter_wms_auth|scalyr\/scalyr-fluentd|sebryu\/fluent_plugin_in_websocket|tagomoris\/fluent-helper-plugin-spec|y-ken\/fluent-mixin-rewrite-tag-name|y-ken\/fluent-mixin-type-converter)$'
 ;
 
 -- Linkerd
@@ -206,7 +206,14 @@ set
   repo_group = 'SPIFFE'
 where
   org_login = 'spiffe'
-  and name != 'spiffe/spire'
+  and name not in (
+    'spiffe/spire',
+    'spiffe/spire-k8s',
+    'spiffe/spire-test',
+    'spiffe/spire-tutorials',
+    'spiffe/spire-examples',
+    'spiffe/spire-circleci-test'
+  )
 ;
 
 -- SPIRE
@@ -215,7 +222,7 @@ update
 set
   repo_group = 'SPIRE'
 where
-  name = 'spiffe/spire'
+  name ~ '(?i)^(spiffe\/spire.*)$'
 ;
 
 -- CloudEvents
@@ -711,9 +718,7 @@ update
 set
   repo_group = 'K3s'
 where
-  org_login in ('ibuildthecloud')
-  or name in ('rancher/k3d')
-  or name like 'rancher/%k3s%'
+  name ~ '(?i)^(ibuildthecloud|rancher)\/.*k3(s|d).*$'
 ;
 
 -- CNCF
