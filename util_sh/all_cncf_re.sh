@@ -1,4 +1,6 @@
 #!/bin/bash
+# Example:
+# ONLY=`cat devel/all_prod_projects.txt` ./util_sh/all_cncf_re.sh
 function dbg() {
   if [ ! -z "${DBG}" ]
   then
@@ -95,3 +97,13 @@ for proj in ${projs}
 do
   echo "$proj,regexp:${res[${proj}]}"
 done
+if [ ! -z "${ONLY}" ]
+then
+  for o in ${ONLY}
+  do
+    if ( [ -z "${res[${o}]}" ] && [ -z "${skip[${o}]}" ] )
+    then
+      echo "Requested ${o} but such project is not found"
+    fi
+  done
+fi
