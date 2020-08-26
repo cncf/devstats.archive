@@ -1,6 +1,6 @@
 #!/bin/bash
 # Example:
-# ONLY=`cat devel/all_prod_projects.txt` ./util_sh/all_cncf_re.sh
+# ONLY=`cat devel/all_prod_projects.txt` SKIP=all ./util_sh/all_cncf_re.sh
 function dbg() {
   if [ ! -z "${DBG}" ]
   then
@@ -93,10 +93,30 @@ do
   fi
   res[$proj]=$re
 done
+final=''
 for proj in ${projs}
 do
   echo "$proj,regexp:${res[${proj}]}"
+  re="${res[${proj}]}"
+  if [ "${re:5:1}" = "(" ]
+  then
+    if [ -z "${final}" ]
+    then
+      final="${re:6:-2}"
+    else
+      final="${final}|${re:6:-2}"
+    fi
+  else
+    if [ -z "${final}" ]
+    then
+      final="${re:5:-1}"
+    else
+      final="${final}|${re:5:-1}"
+    fi
+  fi
 done
+final="regexp:(?i)^(${final})$"
+echo "all,${final}"
 if [ ! -z "${ONLY}" ]
 then
   for o in ${ONLY}
