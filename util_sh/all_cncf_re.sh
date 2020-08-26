@@ -23,7 +23,11 @@ then
 fi
 declare -A res=()
 projs=''
-for row in `cat ./util_data/project_re.txt | sort`
+if [ -z "${FN}" ]
+then
+  FN='./util_data/project_re.txt'
+fi
+for row in `cat "${FN}" | sort`
 do
   ary=(${row//,/ })
   dbg "Project ${ary[0]} --> ${ary[1]}"
@@ -89,5 +93,5 @@ do
 done
 for proj in ${projs}
 do
-  echo "$proj --> ${res[${proj}]}"
+  echo "$proj,regexp:${res[${proj}]}"
 done
