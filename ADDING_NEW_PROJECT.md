@@ -20,6 +20,7 @@ This file describes how to add new project on the test and production servers.
 - CNCF join dates are listed [here](https://github.com/cncf/toc#projects).
 - Update projects list files: `devel/all_prod_dbs.txt devel/all_prod_projects.txt devel/all_test_dbs.txt devel/all_test_projects.txt util_sh/affs_test.sh util_sh/affs_prod.sh CONTRIBUTORS.md devel/get_icon_type.sh devel/get_icon_source.sh devel/add_single_metric.sh`.
 - Add this new project config to 'All' project in `projects.yaml all/psql.sh grafana/dashboards/all/dashboards.json scripts/all/repo_groups.sql util_sh/calculate_hours.sh`.
+- Add new project repo REGEXP in `util_data/project_re.txt`.
 - Add entire new project as a new repo group in 'All' project.
 - Update `devel/generate_actors_nonlf.sh`, possibly other `devel/generate_actors_*.sh` files.
 - Add Google Analytics (GA) for the new domain and keep the `UA-...` code for deployment.
