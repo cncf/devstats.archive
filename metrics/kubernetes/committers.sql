@@ -121,6 +121,7 @@ from
   commits_data
 where
   company is not null
+  and company in (select companies_name from tcompanies)
 group by
   company
 union select  'cs;commits_' || repo_group || '_All_' || company || ';evs,acts' as metric,
@@ -131,6 +132,7 @@ from
 where
   repo_group is not null
   and company is not null
+  and company in (select companies_name from tcompanies)
 group by
   repo_group,
   company
@@ -144,6 +146,7 @@ where
   c.actor_id = a.id
   and a.country_name is not null
   and c.company is not null
+  and c.company in (select companies_name from tcompanies)
 group by
   a.country_name,
   c.company
@@ -158,11 +161,14 @@ where
   and a.country_name is not null
   and c.repo_group is not null
   and c.company is not null
+  and c.company in (select companies_name from tcompanies)
 group by
   a.country_name,
   c.repo_group,
   c.company
+/*
 order by
   acts desc,
   evs desc
+*/
 ;

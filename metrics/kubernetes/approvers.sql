@@ -6,16 +6,16 @@ with matching as (
     created_at >= '{{from}}'
     and created_at < '{{to}}'
     and substring(body from '(?i)(?:^|\n|\r)\s*/(?:approve)\s*(?:\n|\r|$)') is not null
+    and (lower(actor_login) {{exclude_bots}})
 )
-select 'cs;appr_All_All_All;evs,acts' as metric,
+select 'cs;approves_All_All_All;evs,acts' as metric,
   round(count(distinct e.id) / {{n}}, 2) as evs,
   count(distinct e.dup_actor_login) as acts
 from
   gha_events e
 where
   e.id in (select event_id from matching)
-  and (lower(e.dup_actor_login) {{exclude_bots}})
-union select 'cs;appr_' || sub.repo_group || '_All_All;evs,acts' as metric,
+union select 'cs;approves_' || sub.repo_group || '_All_All;evs,acts' as metric,
   round(count(distinct sub.id) / {{n}}, 2) as evs,
   count(distinct sub.actor) as acts
 from (
@@ -32,14 +32,13 @@ from (
   where
     e.repo_id = r.id
     and e.dup_repo_name = r.name
-    and (lower(e.dup_actor_login) {{exclude_bots}})
     and e.id in (select event_id from matching)
     ) sub
 where
   sub.repo_group is not null
 group by
   sub.repo_group
-union select 'cs;appr_All_' || a.country_name || '_All;evs,acts' as metric,
+union select 'cs;approves_All_' || a.country_name || '_All;evs,acts' as metric,
   round(count(distinct e.id) / {{n}}, 2) as evs,
   count(distinct e.dup_actor_login) as acts
 from
@@ -48,11 +47,10 @@ from
 where
   (e.actor_id = a.id or e.dup_actor_login = a.login)
   and e.id in (select event_id from matching)
-  and (lower(a.login) {{exclude_bots}})
   and a.country_name is not null
 group by
   a.country_name
-union select 'cs;appr_' || sub.repo_group || '_' || sub.country || '_All;evs,acts' as metric,
+union select 'cs;approves_' || sub.repo_group || '_' || sub.country || '_All;evs,acts' as metric,
   round(count(distinct sub.id) / {{n}}, 2) as evs,
   count(distinct sub.actor) as acts
 from (
@@ -72,7 +70,6 @@ from (
     (e.actor_id = a.id or e.dup_actor_login = a.login)
     and e.repo_id = r.id
     and e.dup_repo_name = r.name
-    and (lower(a.login) {{exclude_bots}})
     and e.id in (select event_id from matching)
     ) sub
 where
@@ -81,7 +78,7 @@ where
 group by
   sub.repo_group,
   sub.country
-union select 'cs;appr_All_All_' || aa.company_name || ';evs,acts' as metric,
+union select 'cs;approves_All_All_' || aa.company_name || ';evs,acts' as metric,
   round(count(distinct e.id) / {{n}}, 2) as evs,
   count(distinct e.dup_actor_login) as acts
 from
@@ -92,10 +89,10 @@ where
   and aa.dt_from <= e.created_at
   and aa.dt_to > e.created_at
   and e.id in (select event_id from matching)
-  and (lower(e.dup_actor_login) {{exclude_bots}})
+  and aa.company_name in (select companies_name from tcompanies)
 group by
   aa.company_name
-union select 'cs;appr_' || sub.repo_group || '_All_' || sub.company || ';evs,acts' as metric,
+union select 'cs;approves_' || sub.repo_group || '_All_' || sub.company || ';evs,acts' as metric,
   round(count(distinct sub.id) / {{n}}, 2) as evs,
   count(distinct sub.actor) as acts
 from (
@@ -117,7 +114,7 @@ from (
     and aa.dt_to > e.created_at
     and e.repo_id = r.id
     and e.dup_repo_name = r.name
-    and (lower(e.dup_actor_login) {{exclude_bots}})
+    and aa.company_name in (select companies_name from tcompanies)
     and e.id in (select event_id from matching)
     ) sub
 where
@@ -125,7 +122,7 @@ where
 group by
   sub.repo_group,
   sub.company
-union select 'cs;appr_All_' || a.country_name || '_' || aa.company_name || ';evs,acts' as metric,
+union select 'cs;approves_All_' || a.country_name || '_' || aa.company_name || ';evs,acts' as metric,
   round(count(distinct e.id) / {{n}}, 2) as evs,
   count(distinct e.dup_actor_login) as acts
 from
@@ -138,12 +135,12 @@ where
   and aa.dt_to > e.created_at
   and (e.actor_id = a.id or e.dup_actor_login = a.login)
   and e.id in (select event_id from matching)
-  and (lower(a.login) {{exclude_bots}})
+  and aa.company_name in (select companies_name from tcompanies)
   and a.country_name is not null
 group by
   a.country_name,
   aa.company_name
-union select 'cs;appr_' || sub.repo_group || '_' || sub.country || '_' || sub.company || ';evs,acts' as metric,
+union select 'cs;approves_' || sub.repo_group || '_' || sub.country || '_' || sub.company || ';evs,acts' as metric,
   round(count(distinct sub.id) / {{n}}, 2) as evs,
   count(distinct sub.actor) as acts
 from (
@@ -168,7 +165,7 @@ from (
     and (e.actor_id = a.id or e.dup_actor_login = a.login)
     and e.repo_id = r.id
     and e.dup_repo_name = r.name
-    and (lower(a.login) {{exclude_bots}})
+    and aa.company_name in (select companies_name from tcompanies)
     and e.id in (select event_id from matching)
     ) sub
 where
