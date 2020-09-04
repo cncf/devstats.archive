@@ -1,7 +1,7 @@
 <h1 id="dashboard-header">[[full_name]] community stats dashboard</h1>
 <p>Links:</p>
 <ul>
-<li>Metric <a href="https://github.com/cncf/devstats/blob/master/metrics/shared/watchers.sql" target="_blank">SQL file</a>.</li>
+<li>Metric <a href="https://github.com/cncf/devstats/blob/master/metrics/shared/watchers_by_alias.sql" target="_blank">SQL file</a>.</li>
 <li>TSDB <a href="https://github.com/cncf/devstats/blob/master/metrics/shared/metrics.yaml" target="_blank">series definition</a>. Search for <code>watchers</code></li>
 <li>Grafana dashboard <a href="https://github.com/cncf/devstats/blob/master/grafana/dashboards/[[lower_name]]/community-stats.json" target="_blank">JSON</a>.</li>
 </ul>
