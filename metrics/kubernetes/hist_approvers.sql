@@ -1,5 +1,5 @@
 with matching as (
-  select event_id
+  select distinct event_id
   from
     gha_texts
   where
@@ -32,11 +32,7 @@ from (
     e.repo_id = r.id
     and e.dup_repo_name = r.name
     and (lower(e.dup_actor_login) {{exclude_bots}})
-    and e.id in (
-      select event_id
-      from
-        matching
-      )
+    and e.id in (select distinct event_id from matching)
     ) sub
 where
   sub.repo_group is not null
@@ -58,11 +54,7 @@ on
   and aa.dt_from <= e.created_at
   and aa.dt_to > e.created_at
 where
-  e.id in (
-    select event_id
-    from
-      matching
-  )
+  e.id in (select distinct event_id from matching)
   and (lower(e.dup_actor_login) {{exclude_bots}})
 group by
   e.dup_actor_login,
@@ -83,11 +75,7 @@ on
   and aa.dt_to > e.created_at
 where
   (e.actor_id = a.id or e.dup_actor_login = a.login)
-  and e.id in (
-    select event_id
-    from
-      matching
-  )
+  and e.id in (select distinct event_id from matching)
   and (lower(a.login) {{exclude_bots}})
   and a.country_name is not null
 group by
@@ -124,11 +112,7 @@ from (
     and e.repo_id = r.id
     and e.dup_repo_name = r.name
     and (lower(a.login) {{exclude_bots}})
-    and e.id in (
-      select event_id
-      from
-        matching
-      )
+    and e.id in (select distinct event_id from matching)
     ) sub
 where
   sub.repo_group is not null

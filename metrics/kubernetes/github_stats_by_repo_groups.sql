@@ -1,5 +1,5 @@
 with matching as (
-  select event_id
+  select distinct event_id
   from
     gha_texts
   where

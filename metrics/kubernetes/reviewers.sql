@@ -1,5 +1,5 @@
 with matching as (
-  select event_id
+  select distinct event_id
   from
     gha_texts
   where
@@ -8,7 +8,7 @@ with matching as (
     and substring(body from '(?i)(?:^|\n|\r)\s*/(?:lgtm|approve)\s*(?:\n|\r|$)') is not null
     and (lower(actor_login) {{exclude_bots}})
 ), reviews as (
-  select id as event_id
+  select distinct id as event_id
   from
     gha_events
   where

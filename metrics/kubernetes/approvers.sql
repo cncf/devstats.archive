@@ -1,5 +1,5 @@
 with matching as (
-  select event_id
+  select distinct event_id
   from
     gha_texts
   where
@@ -14,7 +14,7 @@ select 'cs;approves_All_All_All;evs,acts' as metric,
 from
   gha_events e
 where
-  e.id in (select event_id from matching)
+  e.id in (select distinct event_id from matching)
 union select 'cs;approves_' || sub.repo_group || '_All_All;evs,acts' as metric,
   round(count(distinct sub.id) / {{n}}, 2) as evs,
   count(distinct sub.actor) as acts
@@ -32,7 +32,7 @@ from (
   where
     e.repo_id = r.id
     and e.dup_repo_name = r.name
-    and e.id in (select event_id from matching)
+    and e.id in (select distinct event_id from matching)
     ) sub
 where
   sub.repo_group is not null
@@ -46,7 +46,7 @@ from
   gha_events e
 where
   (e.actor_id = a.id or e.dup_actor_login = a.login)
-  and e.id in (select event_id from matching)
+  and e.id in (select distinct event_id from matching)
   and a.country_name is not null
 group by
   a.country_name
@@ -70,7 +70,7 @@ from (
     (e.actor_id = a.id or e.dup_actor_login = a.login)
     and e.repo_id = r.id
     and e.dup_repo_name = r.name
-    and e.id in (select event_id from matching)
+    and e.id in (select distinct event_id from matching)
     ) sub
 where
   sub.repo_group is not null
@@ -88,7 +88,7 @@ where
   aa.actor_id = e.actor_id
   and aa.dt_from <= e.created_at
   and aa.dt_to > e.created_at
-  and e.id in (select event_id from matching)
+  and e.id in (select distinct event_id from matching)
   and aa.company_name in (select companies_name from tcompanies)
 group by
   aa.company_name
@@ -115,7 +115,7 @@ from (
     and e.repo_id = r.id
     and e.dup_repo_name = r.name
     and aa.company_name in (select companies_name from tcompanies)
-    and e.id in (select event_id from matching)
+    and e.id in (select distinct event_id from matching)
     ) sub
 where
   sub.repo_group is not null
@@ -134,7 +134,7 @@ where
   and aa.dt_from <= e.created_at
   and aa.dt_to > e.created_at
   and (e.actor_id = a.id or e.dup_actor_login = a.login)
-  and e.id in (select event_id from matching)
+  and e.id in (select distinct event_id from matching)
   and aa.company_name in (select companies_name from tcompanies)
   and a.country_name is not null
 group by
@@ -166,7 +166,7 @@ from (
     and e.repo_id = r.id
     and e.dup_repo_name = r.name
     and aa.company_name in (select companies_name from tcompanies)
-    and e.id in (select event_id from matching)
+    and e.id in (select distinct event_id from matching)
     ) sub
 where
   sub.repo_group is not null
