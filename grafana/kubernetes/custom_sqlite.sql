@@ -70,7 +70,8 @@ where
     'new-contributors',
     'pr-reviews-by-contributor',
     'prs-authors-repository-groups',
-    'sig-mentions'
+    'sig-mentions',
+    'contributions-chart'
   )
 ;
 
