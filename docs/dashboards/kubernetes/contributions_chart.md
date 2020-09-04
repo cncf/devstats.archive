@@ -1,4 +1,4 @@
-<h1 id="kubernetes-dashboard">[[full_name]] Inactive issues by SIG dashboard</h1>
+<h1 id="kubernetes-dashboard">[[full_name]] Contributions chart dashboard</h1>
 <p>Links:</p>
 <ul>
 <li>Reviewers metric <a href="https://github.com/cncf/devstats/blob/master/metrics/kubernetes/reviewers.sql" target="_blank">SQL file</a>.</li>
