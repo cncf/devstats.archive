@@ -15,8 +15,7 @@ with matching as (
     and created_at < '{{to}}'
     and type in ('PullRequestReviewCommentEvent')
 )
--- All_All_All: RepoGroup_Country_Company
-select 'reviewers;All_All_All;evs,acts' as metric,
+select 'cs;revs_All_All_All;evs,acts' as metric,
   round(count(distinct e.id) / {{n}}, 2) as evs,
   count(distinct e.dup_actor_login) as acts
 from
@@ -36,8 +35,7 @@ where
     union select event_id from reviews
   )
   and (lower(dup_actor_login) {{exclude_bots}})
-union select
-  'reviewers;' || sub.repo_group || '_All_All;evs,acts' as metric,
+union select 'cs;revs_' || sub.repo_group || '_All_All;evs,acts' as metric,
   round(count(distinct sub.id) / {{n}}, 2) as evs,
   count(distinct sub.actor) as acts
 from (
@@ -73,7 +71,7 @@ where
   sub.repo_group is not null
 group by
   sub.repo_group
-union select 'reviewers;' || sub.repo_group || '_' || sub.country || '_All;evs,acts' as metric,
+union select 'cs;revs_' || sub.repo_group || '_' || sub.country || '_All;evs,acts' as metric,
   round(count(distinct sub.id) / {{n}}, 2) as evs,
   count(distinct sub.actor) as acts
 from (
@@ -114,7 +112,7 @@ where
 group by
   sub.country,
   sub.repo_group
-union select 'reviewers;All_' || a.country_name || '_All;evs,acts' as metric,
+union select 'cs;revs_All_' || a.country_name || '_All;evs,acts' as metric,
   round(count(distinct e.id) / {{n}}, 2) as evs,
   count(distinct e.dup_actor_login) as acts
 from
@@ -139,7 +137,7 @@ where
   and a.country_name is not null
 group by
   a.country_name
-union select 'reviewers;All_All_' || aa.company_name || ';evs,acts' as metric,
+union select 'cs;revs_All_All_' || aa.company_name || ';evs,acts' as metric,
   round(count(distinct e.id) / {{n}}, 2) as evs,
   count(distinct e.dup_actor_login) as acts
 from
@@ -165,8 +163,7 @@ where
   and (lower(dup_actor_login) {{exclude_bots}})
 group by
   aa.company_name
-union select
-  'reviewers;' || sub.repo_group || '_All_' || sub.company || ';evs,acts' as metric ,
+union select 'cs;revs_' || sub.repo_group || '_All_' || sub.company || ';evs,acts' as metric ,
   round(count(distinct sub.id) / {{n}}, 2) as evs,
   count(distinct sub.actor) as acts
 from (
@@ -208,7 +205,7 @@ where
 group by
   sub.repo_group,
   sub.company
-union select 'reviewers;' || sub.repo_group || '_' || sub.country || '_' || sub.company || ';evs,acts' as metric,
+union select 'cs;revs_' || sub.repo_group || '_' || sub.country || '_' || sub.company || ';evs,acts' as metric,
   round(count(distinct sub.id) / {{n}}, 2) as evs,
   count(distinct sub.actor) as acts
 from (
@@ -255,7 +252,7 @@ group by
   sub.country,
   sub.repo_group,
   sub.company
-union select 'reviewers;All_' || a.country_name || '_' || aa.company_name || ';evs,acts' as metric,
+union select 'cs;revs_All_' || a.country_name || '_' || aa.company_name || ';evs,acts' as metric,
   round(count(distinct e.id) / {{n}}, 2) as evs,
   count(distinct e.dup_actor_login) as acts
 from
@@ -285,7 +282,9 @@ where
 group by
   a.country_name,
   aa.company_name
+/*
 order by
   acts desc,
   evs desc
+*/
 ;
