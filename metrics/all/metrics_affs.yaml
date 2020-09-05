@@ -1,0 +1,92 @@
+metrics:
+  - name: Companies stats & velocity
+    series_name_or_func: multi_row_multi_column
+    sqls: [company_activity, company_activity_commits]
+    periods: d,w,m,q,y
+    aggregate: 1,7
+    skip: w7,m7,q7,y7
+    multi_value: true
+    merge_series: company_activity
+    drop: scompany_activity
+  - name: PRs authors companies histogram
+    histogram: true
+    annotations_ranges: true
+    series_name_or_func: multi_row_single_column
+    sql: hist_pr_companies
+    merge_series: hpr_comps
+  - name: Number of companies and developers contributing
+    series_name_or_func: multi_row_multi_column
+    sql: num_stats
+    periods: d,w,m,q
+    aggregate: 1,7,28
+    skip: d,w7,m7,q7,w28,m28,q28
+    merge_series: num_stats
+    drop: snum_stats
+  - name: Company summaries
+    sqls: [project_company_stats, doc_committers_hist]
+    series_name_or_func: multi_row_single_column
+    histogram: true
+    annotations_ranges: true
+    merge_series: hcom
+  - name: Countries stats
+    series_name_or_func: multi_row_multi_column
+    sqls: [countries, committers_countries]
+    periods: w,m,q,y
+    multi_value: true
+    merge_series: countries
+    drop: scountries
+  - name: Countries stats cumulative
+    series_name_or_func: multi_row_multi_column
+    sqls: [countries_cum, committers_countries_cum]
+    periods: m
+    multi_value: true
+    merge_series: countriescum
+    drop: scountriescum
+    env:
+      GHA2DB_NCPUS: 8
+  - name: Company PRs in repository groups
+    sql: company_prs
+    series_name_or_func: company_prs
+    histogram: true
+    annotations_ranges: true
+  - name: Company commits table
+    series_name_or_func: multi_row_single_column
+    sql: company_commits_data
+    custom_data: true
+    merge_series: company_commits_data
+    periods: d
+    drop: scompany_commits_data
+  - name: Documentation committers stats
+    series_name_or_func: multi_row_multi_column
+    sql: doc_committers
+    periods: d,w,m,q
+    aggregate: 1,7
+    skip: d,w7,m7,q7
+    merge_series: doc_committers
+    drop: sdoc_committers
+  - name: Developer summary
+    sql: project_developer_stats
+    series_name_or_func: multi_row_single_column
+    histogram: true
+    annotations_ranges: true
+    merge_series: hdev
+    env:
+      GHA2DB_NCPUS: 8
+  - name: Contributions chart (committers)
+    series_name_or_func: multi_row_multi_column
+    sql: committers
+    periods: d,w,m
+    aggregate: 1,7
+    skip: d,w7,m7
+    merge_series: cs
+    drop: scs
+  - name: Contributions chart (env)
+    series_name_or_func: multi_row_multi_column
+    sql: contributors
+    periods: d,w,m
+    aggregate: 1,7
+    skip: d,w7,m7
+    merge_series: cs
+    drop: scs
+    env:
+      GHA2DB_NCPUS: 8
