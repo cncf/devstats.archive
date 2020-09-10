@@ -721,6 +721,60 @@ where
   name ~ '(?i)^(ibuildthecloud|rancher)\/.*k3(s|d).*$'
 ;
 
+-- Backstage
+update
+  gha_repos
+set
+  repo_group = 'Backstage'
+where
+  name in ('spotify/backstage')
+;
+
+-- Tremor
+update
+  gha_repos
+set
+  repo_group = 'Tremor'
+where
+  name in ('wayfair-tremor/tremor-runtime')
+;
+
+-- Metal³
+update
+  gha_repos
+set
+  repo_group = 'Metal³'
+where
+  org_login in ('metal3-io')
+;
+
+-- Porter
+update
+  gha_repos
+set
+  repo_group = 'Porter'
+where
+  name in ('deislabs/porter')
+;
+
+-- OpenYurt
+update
+  gha_repos
+set
+  repo_group = 'OpenYurt'
+where
+  name in ('alibaba/openyurt')
+;
+
+-- Open Service Mesh
+update
+  gha_repos
+set
+  repo_group = 'Open Service Mesh'
+where
+  org_login in ('openservicemesh')
+;
+
 -- CNCF
 update
   gha_repos
