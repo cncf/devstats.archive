@@ -20,10 +20,10 @@ This file describes how to add new project on the test and production servers.
 - CNCF join dates are listed [here](https://github.com/cncf/toc#projects).
 - Update projects list files: `devel/all_prod_dbs.txt devel/all_prod_projects.txt devel/all_test_dbs.txt devel/all_test_projects.txt util_sh/affs_test.sh util_sh/affs_prod.sh CONTRIBUTORS.md devel/get_icon_type.sh devel/get_icon_source.sh devel/add_single_metric.sh`.
 - Add this new project config to 'All' project in `projects.yaml all/psql.sh grafana/dashboards/all/dashboards.json scripts/all/repo_groups.sql util_sh/calculate_hours.sh`.
-- Add new project repo REGEXP in `util_data/project_re.txt` and command line sin `util_data/project_cmdline.txt`.
+- Add entire new project as a new repo group in 'All' project.
+- Add new project repo REGEXP in `util_data/project_re.txt` and command line sin `util_data/project_cmdline.txt`. `all` means 'All CNCF`, everything means `All CNCF` + non-standard test projects.
 - Update `all` and `everything` REGEXPs. Run `ONLY=`cat devel/all_prod_projects.txt` SKIP=all ./util_sh/all_cncf_re.sh > out` to get `all` value for all CNCF projects.
 - Then run `SKIP=all ./util_sh/all_cncf_re.sh > out` to get everything value, replace `all,` with `everything,` and save as `util_data/project_re.txt`.
-- Add entire new project as a new repo group in 'All' project.
 - Update `devel/generate_actors_nonlf.sh`, possibly other `devel/generate_actors_*.sh` files.
 - Add Google Analytics (GA) for the new domain and keep the `UA-...` code for deployment.
 - Review `grafana/copy_artwork_icons.sh apache/www/copy_icons.sh grafana/create_images.sh grafana/change_title_and_icons_all.sh` - maybe you need to add special case. Icon related scripts are marked 'ARTWORK'.
