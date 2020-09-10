@@ -297,7 +297,25 @@ do
     PROJ=serverlessworkflow PROJDB=serverlessworkflow PROJREPO="serverlessworkflow/specification" ORGNAME="Serverless Workflow" PORT=3063 ICON=serverlessworkflow GRAFSUFF=serverlessworkflow GA="UA-145264316-24" ./devel/deploy_proj.sh || exit 81
   elif [ "$proj" = "k3s" ]
   then
-    PROJ=k3s                 PROJDB=chaosmesh      PROJREPO="rancher/k3s"                     ORGNAME=K3s               PORT=3064 ICON=k3s            GRAFSUFF=k3s            GA="UA-145264316-25" ./devel/deploy_proj.sh || exit 82
+    PROJ=k3s                 PROJDB=k3s            PROJREPO="rancher/k3s"                     ORGNAME=K3s               PORT=3064 ICON=k3s            GRAFSUFF=k3s            GA="UA-145264316-25" ./devel/deploy_proj.sh || exit 82
+  elif [ "$proj" = "backstage" ]
+  then
+    PROJ=backstage           PROJDB=backstage      PROJREPO="spotify/backstag"                ORGNAME=Backstage         PORT=3065 ICON=backstage      GRAFSUFF=backstage      GA="UA-145264316-26" ./devel/deploy_proj.sh || exit 83
+  elif [ "$proj" = "tremor" ]
+  then
+    PROJ=tremor              PROJDB=tremor         PROJREPO="wayfair-tremor/tremor-runtime"   ORGNAME=tremor            PORT=3066 ICON=tremor         GRAFSUFF=tremor         GA="UA-145264316-27" ./devel/deploy_proj.sh || exit 84
+  elif [ "$proj" = "metal3" ]
+  then
+    PROJ=metal3              PROJDB=metal3         PROJREPO="metal3-io/cluster-api-provider-metal3" ORGNAME="Metal³"    PORT=3067 ICON=metal3         GRAFSUFF=metal3         GA="UA-145264316-28" ./devel/deploy_proj.sh || exit 85
+  elif [ "$proj" = "porter" ]
+  then
+    PROJ=porter              PROJDB=porter         PROJREPO="deislabs/porter"                 ORGNAME=Porter            PORT=3068 ICON=porter         GRAFSUFF=porter         GA="UA-145264316-29" ./devel/deploy_proj.sh || exit 86
+  elif [ "$proj" = "openyurt" ]
+  then
+    PROJ=openyurt            PROJDB=openyurt       PROJREPO="alibaba/openyurt"                ORGNAME=OpenYurt          PORT=3069 ICON=openyurt       GRAFSUFF=openyurt       GA="UA-145264316-30" ./devel/deploy_proj.sh || exit 87
+  elif [ "$proj" = "openservicemesh" ]
+  then
+    PROJ=openservicemesh     PROJDB=openservicemesh PROJREPO="openservicemesh/osm"            ORGNAME="Open Service Mesh" PORT=3070 ICON=openservicemesh GRAFSUFF=openservicemesh GA="UA-145264316-31" ./devel/deploy_proj.sh || exit 88
   elif [ "$proj" = "opencontainers" ]
   then
     PROJ=opencontainers      PROJDB=opencontainers PROJREPO="opencontainers/runc"             ORGNAME=OCI               PORT=3100 ICON="-"            GRAFSUFF=opencontainers GA="UA-108085315-19" ./devel/deploy_proj.sh || exit 32
