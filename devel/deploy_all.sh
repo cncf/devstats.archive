@@ -303,7 +303,7 @@ do
     PROJ=backstage           PROJDB=backstage      PROJREPO="spotify/backstag"                ORGNAME=Backstage         PORT=3065 ICON=backstage      GRAFSUFF=backstage      GA="UA-145264316-26" ./devel/deploy_proj.sh || exit 83
   elif [ "$proj" = "tremor" ]
   then
-    PROJ=tremor              PROJDB=tremor         PROJREPO="wayfair-tremor/tremor-runtime"   ORGNAME=tremor            PORT=3066 ICON=tremor         GRAFSUFF=tremor         GA="UA-145264316-27" ./devel/deploy_proj.sh || exit 84
+    PROJ=tremor              PROJDB=tremor         PROJREPO="tremor-rs/tremor-runtime"        ORGNAME=tremor            PORT=3066 ICON=tremor         GRAFSUFF=tremor         GA="UA-145264316-27" ./devel/deploy_proj.sh || exit 84
   elif [ "$proj" = "metal3" ]
   then
     PROJ=metal3              PROJDB=metal3         PROJREPO="metal3-io/cluster-api-provider-metal3" ORGNAME="Metal³"    PORT=3067 ICON=metal3         GRAFSUFF=metal3         GA="UA-145264316-28" ./devel/deploy_proj.sh || exit 85

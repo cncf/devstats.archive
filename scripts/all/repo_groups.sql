@@ -736,7 +736,7 @@ update
 set
   repo_group = 'Tremor'
 where
-  org_login in ('wayfair-tremor')
+  org_login in ('wayfair-tremor', 'tremor-rs')
 ;
 
 -- Metal³
