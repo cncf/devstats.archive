@@ -21,7 +21,7 @@ from (
     and e.created_at >= '{{from}}'
     and e.created_at < '{{to}}'
     and (lower(e.dup_actor_login) {{exclude_bots}})
-  union select 'contributions' as metric,
+  union all select 'contributions' as metric,
     e.dup_actor_login as author,
     e.id
   from
@@ -34,7 +34,7 @@ from (
     and e.created_at >= '{{from}}'
     and e.created_at < '{{to}}'
     and (lower(e.dup_actor_login) {{exclude_bots}})
-  union select 'comments' as metric,
+  union all select 'comments' as metric,
     c.dup_user_login as author,
     c.id
   from
@@ -43,7 +43,7 @@ from (
     c.created_at >= '{{from}}'
     and c.created_at < '{{to}}'
     and (lower(c.dup_user_login) {{exclude_bots}})
-  union select 'issues' as metric,
+  union all select 'issues' as metric,
     i.dup_user_login as author,
     i.id
   from
@@ -53,7 +53,7 @@ from (
     and i.created_at < '{{to}}'
     and i.is_pull_request = false
     and (lower(i.dup_user_login) {{exclude_bots}})
-  union select 'prs' as metric,
+  union all select 'prs' as metric,
     i.dup_user_login as author,
     i.id
   from
@@ -63,7 +63,7 @@ from (
     and i.created_at < '{{to}}'
     and i.is_pull_request = true
     and (lower(i.dup_user_login) {{exclude_bots}})
-  union select 'merged_prs' as metric,
+  union all select 'merged_prs' as metric,
     i.dup_user_login as author,
     i.id
   from
@@ -72,7 +72,7 @@ from (
     i.merged_at >= '{{from}}'
     and i.merged_at < '{{to}}'
     and (lower(i.dup_user_login) {{exclude_bots}})
-  union select 'events' as metric,
+  union all select 'events' as metric,
     e.dup_actor_login as author,
     e.id
   from
@@ -84,7 +84,7 @@ from (
   ) sub
 group by
   sub.metric
-union select 'cs;' || sub.metric || '_' || sub.repo_group || '_All_All;evs,acts' as metric,
+union all select 'cs;' || sub.metric || '_' || sub.repo_group || '_All_All;evs,acts' as metric,
   round(count(distinct sub.id) / {{n}}, 2) as evs,
   count(distinct sub.author) as acts
 from (
@@ -118,7 +118,7 @@ from (
   ) sub
   where
     sub.repo_group is not null
-  union select 'contributions' as metric,
+  union all select 'contributions' as metric,
     sub.repo_group,
     sub.author,
     sub.id
@@ -142,7 +142,7 @@ from (
   ) sub
   where
     sub.repo_group is not null
-  union select 'comments' as metric,
+  union all select 'comments' as metric,
     sub.repo_group,
     sub.author,
     sub.id
@@ -162,7 +162,7 @@ from (
   ) sub
   where
     sub.repo_group is not null
-  union select case sub.is_pull_request
+  union all select case sub.is_pull_request
       when true then 'prs'
       else 'issues'
     end as metric,
@@ -186,7 +186,7 @@ from (
   ) sub
   where
     sub.repo_group is not null
-  union select 'merged_prs' as metric,
+  union all select 'merged_prs' as metric,
     sub.repo_group,
     sub.author,
     sub.id
@@ -207,7 +207,7 @@ from (
   ) sub
   where
     sub.repo_group is not null
-  union select 'events' as metric,
+  union all select 'events' as metric,
     sub.repo_group,
     sub.author,
     sub.id
@@ -231,7 +231,7 @@ from (
 group by
   sub.metric,
   sub.repo_group
-union select 'cs;' || sub.metric || '_All_' || sub.country || '_All;evs,acts' as metric,
+union all select 'cs;' || sub.metric || '_All_' || sub.country || '_All;evs,acts' as metric,
   round(count(distinct sub.id) / {{n}}, 2) as evs,
   count(distinct sub.author) as acts
 from (
@@ -257,7 +257,7 @@ from (
     and e.created_at < '{{to}}'
     and (lower(a.login) {{exclude_bots}})
     and a.country_name is not null
-  union select 'contributions' as metric,
+  union all select 'contributions' as metric,
     a.country_name as country,
     a.login as author,
     e.id
@@ -274,7 +274,7 @@ from (
     and e.created_at < '{{to}}'
     and (lower(a.login) {{exclude_bots}})
     and a.country_name is not null
-  union select 'comments' as metric,
+  union all select 'comments' as metric,
     a.country_name as country,
     a.login as author,
     c.id
@@ -287,7 +287,7 @@ from (
     and c.created_at < '{{to}}'
     and (lower(a.login) {{exclude_bots}})
     and a.country_name is not null
-  union select 'issues' as metric,
+  union all select 'issues' as metric,
     a.country_name as country,
     a.login as author,
     i.id
@@ -301,7 +301,7 @@ from (
     and i.is_pull_request = false
     and (lower(a.login) {{exclude_bots}})
     and a.country_name is not null
-  union select 'prs' as metric,
+  union all select 'prs' as metric,
     a.country_name as country,
     a.login as author,
     pr.id as value
@@ -315,7 +315,7 @@ from (
     and pr.is_pull_request = true
     and (lower(a.login) {{exclude_bots}})
     and a.country_name is not null
-  union select 'merged_prs' as metric,
+  union all select 'merged_prs' as metric,
     a.country_name as country,
     a.login as author,
     pr.id
@@ -329,7 +329,7 @@ from (
     and pr.merged_at < '{{to}}'
     and (lower(a.login) {{exclude_bots}})
     and a.country_name is not null
-  union select 'events' as metric,
+  union all select 'events' as metric,
     a.country_name as country,
     a.login as author,
     e.id
@@ -346,7 +346,7 @@ from (
 group by
   sub.metric,
   sub.country
-union select 'cs;' || sub.metric || '_'|| sub.repo_group || '_' || sub.country || '_All;evs,acts' as metric,
+union all select 'cs;' || sub.metric || '_'|| sub.repo_group || '_' || sub.country || '_All;evs,acts' as metric,
   round(count(distinct sub.id) / {{n}}, 2) as evs,
   count(distinct sub.author) as acts
 from (
@@ -385,7 +385,7 @@ from (
   where
     sub.repo_group is not null
     and sub.country is not null
-  union select 'contributions' as metric,
+  union all select 'contributions' as metric,
     sub.repo_group,
     sub.country,
     sub.author,
@@ -414,7 +414,7 @@ from (
   where
     sub.repo_group is not null
     and sub.country is not null
-  union select 'comments' as metric,
+  union all select 'comments' as metric,
     sub.repo_group,
     sub.country,
     sub.author,
@@ -439,7 +439,7 @@ from (
   where
     sub.repo_group is not null
     and sub.country is not null
-  union select case sub.is_pull_request
+  union all select case sub.is_pull_request
       when true then 'prs'
       else 'issues'
     end as metric,
@@ -468,7 +468,7 @@ from (
   where
     sub.repo_group is not null
     and sub.country is not null
-  union select 'merged_prs' as metric,
+  union all select 'merged_prs' as metric,
     sub.repo_group,
     sub.country,
     sub.author,
@@ -494,7 +494,7 @@ from (
   where
     sub.repo_group is not null
     and sub.country is not null
-  union select 'events' as metric,
+  union all select 'events' as metric,
     sub.repo_group,
     sub.country,
     sub.author,
@@ -524,7 +524,7 @@ group by
   sub.metric,
   sub.repo_group,
   sub.country
-union select 'cs;' || sub.metric || '_All_All_' || sub.company || ';evs,acts' as metric,
+union all select 'cs;' || sub.metric || '_All_All_' || sub.company || ';evs,acts' as metric,
   round(count(distinct sub.id) / {{n}}, 2) as evs,
   count(distinct sub.author) as acts
 from (
@@ -552,7 +552,7 @@ from (
     and e.created_at < '{{to}}'
     and (lower(e.dup_actor_login) {{exclude_bots}})
     and aa.company_name in (select companies_name from tcompanies)
-  union select 'contributions' as metric,
+  union all select 'contributions' as metric,
     e.dup_actor_login as author,
     aa.company_name as company,
     e.id
@@ -571,7 +571,7 @@ from (
     and e.created_at < '{{to}}'
     and (lower(e.dup_actor_login) {{exclude_bots}})
     and aa.company_name in (select companies_name from tcompanies)
-  union select 'comments' as metric,
+  union all select 'comments' as metric,
     c.dup_user_login as author,
     aa.company_name as company,
     c.id
@@ -586,7 +586,7 @@ from (
     and c.created_at < '{{to}}'
     and (lower(c.dup_user_login) {{exclude_bots}})
     and aa.company_name in (select companies_name from tcompanies)
-  union select 'issues' as metric,
+  union all select 'issues' as metric,
     i.dup_user_login as author,
     aa.company_name as company,
     i.id
@@ -602,7 +602,7 @@ from (
     and i.is_pull_request = false
     and (lower(i.dup_user_login) {{exclude_bots}})
     and aa.company_name in (select companies_name from tcompanies)
-  union select 'prs' as metric,
+  union all select 'prs' as metric,
     i.dup_user_login as author,
     aa.company_name as company,
     i.id
@@ -618,7 +618,7 @@ from (
     and i.is_pull_request = true
     and (lower(i.dup_user_login) {{exclude_bots}})
     and aa.company_name in (select companies_name from tcompanies)
-  union select 'merged_prs' as metric,
+  union all select 'merged_prs' as metric,
     i.dup_user_login as author,
     aa.company_name as company,
     i.id
@@ -634,7 +634,7 @@ from (
     and i.merged_at < '{{to}}'
     and (lower(i.dup_user_login) {{exclude_bots}})
     and aa.company_name in (select companies_name from tcompanies)
-  union select 'events' as metric,
+  union all select 'events' as metric,
     e.dup_actor_login as author,
     aa.company_name as company,
     e.id
@@ -653,7 +653,7 @@ from (
 group by
   sub.metric,
   sub.company
-union select 'cs;' || sub.metric || '_' || sub.repo_group || '_All_' || sub.company || ';evs,acts' as metric,
+union all select 'cs;' || sub.metric || '_' || sub.repo_group || '_All_' || sub.company || ';evs,acts' as metric,
   round(count(distinct sub.id) / {{n}}, 2) as evs,
   count(distinct sub.author) as acts
 from (
@@ -694,7 +694,7 @@ from (
   ) sub
   where
     sub.repo_group is not null
-  union select 'contributions' as metric,
+  union all select 'contributions' as metric,
     sub.repo_group,
     sub.author,
     sub.company,
@@ -725,7 +725,7 @@ from (
   ) sub
   where
     sub.repo_group is not null
-  union select 'comments' as metric,
+  union all select 'comments' as metric,
     sub.repo_group,
     sub.author,
     sub.company,
@@ -752,7 +752,7 @@ from (
   ) sub
   where
     sub.repo_group is not null
-  union select case sub.is_pull_request
+  union all select case sub.is_pull_request
       when true then 'prs'
       else 'issues'
     end as metric,
@@ -783,7 +783,7 @@ from (
   ) sub
   where
     sub.repo_group is not null
-  union select 'merged_prs' as metric,
+  union all select 'merged_prs' as metric,
     sub.repo_group,
     sub.author,
     sub.company,
@@ -811,7 +811,7 @@ from (
   ) sub
   where
     sub.repo_group is not null
-  union select 'events' as metric,
+  union all select 'events' as metric,
     sub.repo_group,
     sub.author,
     sub.company,
@@ -843,7 +843,7 @@ group by
   sub.metric,
   sub.repo_group,
   sub.company
-union select 'cs;' || sub.metric || '_All_' || sub.country || '_' || sub.company || ';evs,acts' as metric,
+union all select 'cs;' || sub.metric || '_All_' || sub.country || '_' || sub.company || ';evs,acts' as metric,
   round(count(distinct sub.id) / {{n}}, 2) as evs,
   count(distinct sub.author) as acts
 from (
@@ -875,7 +875,7 @@ from (
     and (lower(a.login) {{exclude_bots}})
     and a.country_name is not null
     and aa.company_name in (select companies_name from tcompanies)
-  union select 'contributions' as metric,
+  union all select 'contributions' as metric,
     a.country_name as country,
     a.login as author,
     aa.company_name as company,
@@ -898,7 +898,7 @@ from (
     and (lower(a.login) {{exclude_bots}})
     and a.country_name is not null
     and aa.company_name in (select companies_name from tcompanies)
-  union select 'comments' as metric,
+  union all select 'comments' as metric,
     a.country_name as country,
     a.login as author,
     aa.company_name as company,
@@ -917,7 +917,7 @@ from (
     and (lower(a.login) {{exclude_bots}})
     and a.country_name is not null
     and aa.company_name in (select companies_name from tcompanies)
-  union select 'issues' as metric,
+  union all select 'issues' as metric,
     a.country_name as country,
     a.login as author,
     aa.company_name as company,
@@ -937,7 +937,7 @@ from (
     and (lower(a.login) {{exclude_bots}})
     and a.country_name is not null
     and aa.company_name in (select companies_name from tcompanies)
-  union select 'prs' as metric,
+  union all select 'prs' as metric,
     a.country_name as country,
     a.login as author,
     aa.company_name as company,
@@ -957,7 +957,7 @@ from (
     and (lower(a.login) {{exclude_bots}})
     and a.country_name is not null
     and aa.company_name in (select companies_name from tcompanies)
-  union select 'merged_prs' as metric,
+  union all select 'merged_prs' as metric,
     a.country_name as country,
     a.login as author,
     aa.company_name as company,
@@ -977,7 +977,7 @@ from (
     and (lower(a.login) {{exclude_bots}})
     and a.country_name is not null
     and aa.company_name in (select companies_name from tcompanies)
-  union select 'events' as metric,
+  union all select 'events' as metric,
     a.country_name as country,
     a.login as author,
     aa.company_name as company,
@@ -1001,7 +1001,7 @@ group by
   sub.metric,
   sub.country,
   sub.company
-union select 'cs;' || sub.metric || '_' || sub.repo_group || '_' || sub.country || '_' || sub.company || ';evs,acts' as metric,
+union all select 'cs;' || sub.metric || '_' || sub.repo_group || '_' || sub.country || '_' || sub.company || ';evs,acts' as metric,
   round(count(distinct sub.id) / {{n}}, 2) as evs,
   count(distinct sub.author) as acts
 from (
@@ -1047,7 +1047,7 @@ from (
   where
     sub.repo_group is not null
     and sub.country is not null
-  union select 'contributions' as metric,
+  union all select 'contributions' as metric,
     sub.repo_group,
     sub.country,
     sub.author,
@@ -1083,7 +1083,7 @@ from (
   where
     sub.repo_group is not null
     and sub.country is not null
-  union select 'comments' as metric,
+  union all select 'comments' as metric,
     sub.repo_group,
     sub.country,
     sub.author,
@@ -1115,7 +1115,7 @@ from (
   where
     sub.repo_group is not null
     and sub.country is not null
-  union select case sub.is_pull_request
+  union all select case sub.is_pull_request
       when true then 'prs'
       else 'issues'
     end as metric,
@@ -1151,7 +1151,7 @@ from (
   where
     sub.repo_group is not null
     and sub.country is not null
-  union select 'merged_prs' as metric,
+  union all select 'merged_prs' as metric,
     sub.repo_group,
     sub.country,
     sub.author,
@@ -1184,7 +1184,7 @@ from (
   where
     sub.repo_group is not null
     and sub.country is not null
-  union select 'events' as metric,
+  union all select 'events' as metric,
     sub.repo_group,
     sub.country,
     sub.author,
