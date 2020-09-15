@@ -3,6 +3,7 @@
 # AGET=1 (will fetch allprj database from backup)
 # FORCEADDALL=1|tsdb (will add/merge project into all even if its repo is already present)
 # USE_FLAGS=1 (will check devstats running flag and abort when set, then it will clear provisioned flag for the time of adding new metric and then set it)
+# SKIPGHA=1 (will skip merging/restoring GHA data
 set -o pipefail
 if ( [ -z "$1" ] || [ -z "$2" ] )
 then
@@ -72,35 +73,40 @@ then
   sync_lock.sh || exit -1
   export TRAP=1
 fi
-if [ ! -z "$AGET" ]
+if [ -z "$SKIPGHA" ]
 then
-  echo "attempt to fetch postgres database allprj from backup"
-  wget "https://teststats.cncf.io/allprj.dump" || exit 5
-  ./devel/restore_db.sh allprj || exit 6
-  rm -f allprj.dump || exit 7
-  echo 'dropping and recreating postgres variables'
-  ./devel/db.sh psql allprj -c "delete from gha_vars" || exit 8
-  GHA2DB_PROJECT=all PG_DB=allprj GHA2DB_LOCAL=1 vars || exit 9
-  GHA2DB_PROJECT=all PG_DB=allprj GHA2DB_LOCAL=1 GHA2DB_VARS_FN_YAML="sync_vars.yaml" vars || exit 9
-  echo "allprj backup restored"
-  GHA2DB_PROJECT=all PG_DB=allprj GHA2DB_LOCAL=1 gha2db_sync || exit 10
-  exit 0
+  if [ ! -z "$AGET" ]
+  then
+    echo "attempt to fetch postgres database allprj from backup"
+    wget "https://teststats.cncf.io/allprj.dump" || exit 5
+    ./devel/restore_db.sh allprj || exit 6
+    rm -f allprj.dump || exit 7
+    echo 'dropping and recreating postgres variables'
+    ./devel/db.sh psql allprj -c "delete from gha_vars" || exit 8
+    GHA2DB_PROJECT=all PG_DB=allprj GHA2DB_LOCAL=1 vars || exit 9
+    GHA2DB_PROJECT=all PG_DB=allprj GHA2DB_LOCAL=1 GHA2DB_VARS_FN_YAML="sync_vars.yaml" vars || exit 9
+    echo "allprj backup restored"
+    GHA2DB_PROJECT=all PG_DB=allprj GHA2DB_LOCAL=1 gha2db_sync || exit 10
+    exit 0
+  else
+    echo "merging $1 into allprj"
+    GHA2DB_INPUT_DBS="$1" GHA2DB_OUTPUT_DB="allprj" merge_dbs || exit 11
+    PG_DB="allprj" ./devel/remove_db_dups.sh || exit 12
+    if [ -f "./all/get_repos.sh" ]
+    then
+      ./all/get_repos.sh || exit 13
+    else
+      GHA2DB_PROJECT=all PG_DB=allprj ./shared/get_repos.sh || exit 14
+    fi
+    if [ -f "./all/setup_repo_groups.sh" ]
+    then
+      ./all/setup_repo_groups.sh || exit 15
+    else
+      GHA2DB_PROJECT=all PG_DB=allprj ./shared/setup_repo_groups.sh || exit 16
+    fi
+  fi
 else
-  echo "merging $1 into allprj"
-  GHA2DB_INPUT_DBS="$1" GHA2DB_OUTPUT_DB="allprj" merge_dbs || exit 11
-  PG_DB="allprj" ./devel/remove_db_dups.sh || exit 12
-  if [ -f "./all/get_repos.sh" ]
-  then
-    ./all/get_repos.sh || exit 13
-  else
-    GHA2DB_PROJECT=all PG_DB=allprj ./shared/get_repos.sh || exit 14
-  fi
-  if [ -f "./all/setup_repo_groups.sh" ]
-  then
-    ./all/setup_repo_groups.sh || exit 15
-  else
-    GHA2DB_PROJECT=all PG_DB=allprj ./shared/setup_repo_groups.sh || exit 16
-  fi
+  echo "merge/restore all cncf database skipped"
 fi
 if ( [ ! -z "$TSDB" ] || [ "$FORCEADDALL" = "tsdb" ] )
 then

@@ -2,6 +2,7 @@
 # TSDB=1 (will update TSDB)
 # FORCEADDALL (will add/merge project into all even if its repo is already present)
 # USE_FLAGS=1 (will check devstats running flag and abort when set, then it will clear provisioned flag for the time of adding new metric and then set it)
+# SKIPGHA=1 (will skip merging/restoring GHA data
 set -o pipefail
 if ( [ -z "$1" ] || [ -z "$2" ] )
 then
@@ -77,21 +78,26 @@ then
   export TRAP=1
 fi
 
-echo "merging $1 into allcdf"
-GHA2DB_INPUT_DBS="$1" GHA2DB_OUTPUT_DB="allcdf" merge_dbs || exit 11
-PG_DB="allcdf" ./devel/remove_db_dups.sh || exit 12
-if [ -f "./allcdf/get_repos.sh" ]
+if [ -z "$SKIPGHA" ]
 then
-  ./allcdf/get_repos.sh || exit 13
-else
-  GHA2DB_PROJECT=allcdf PG_DB=allcdf ./shared/get_repos.sh || exit 14
-fi
+  echo "merging $1 into allcdf"
+  GHA2DB_INPUT_DBS="$1" GHA2DB_OUTPUT_DB="allcdf" merge_dbs || exit 11
+  PG_DB="allcdf" ./devel/remove_db_dups.sh || exit 12
+  if [ -f "./allcdf/get_repos.sh" ]
+  then
+    ./allcdf/get_repos.sh || exit 13
+  else
+    GHA2DB_PROJECT=allcdf PG_DB=allcdf ./shared/get_repos.sh || exit 14
+  fi
 
-if [ -f "./allcdf/setup_repo_groups.sh" ]
-then
-  ./allcdf/setup_repo_groups.sh || exit 15
+  if [ -f "./allcdf/setup_repo_groups.sh" ]
+  then
+    ./allcdf/setup_repo_groups.sh || exit 15
+  else
+    GHA2DB_PROJECT=allcdf PG_DB=allcdf ./shared/setup_repo_groups.sh || exit 16
+  fi
 else
-  GHA2DB_PROJECT=allcdf PG_DB=allcdf ./shared/setup_repo_groups.sh || exit 16
+  echo "merge/restore allcdf database skipped"
 fi
 
 if [ ! -z "$TSDB" ]
