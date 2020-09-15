@@ -15,7 +15,7 @@ from
   gha_events e
 where
   e.id in (select distinct event_id from matching)
-union select 'cs;approves_' || sub.repo_group || '_All_All;evs,acts' as metric,
+union all select 'cs;approves_' || sub.repo_group || '_All_All;evs,acts' as metric,
   round(count(distinct sub.id) / {{n}}, 2) as evs,
   count(distinct sub.actor) as acts
 from (
@@ -38,7 +38,7 @@ where
   sub.repo_group is not null
 group by
   sub.repo_group
-union select 'cs;approves_All_' || a.country_name || '_All;evs,acts' as metric,
+union all select 'cs;approves_All_' || a.country_name || '_All;evs,acts' as metric,
   round(count(distinct e.id) / {{n}}, 2) as evs,
   count(distinct e.dup_actor_login) as acts
 from
@@ -50,7 +50,7 @@ where
   and a.country_name is not null
 group by
   a.country_name
-union select 'cs;approves_' || sub.repo_group || '_' || sub.country || '_All;evs,acts' as metric,
+union all select 'cs;approves_' || sub.repo_group || '_' || sub.country || '_All;evs,acts' as metric,
   round(count(distinct sub.id) / {{n}}, 2) as evs,
   count(distinct sub.actor) as acts
 from (
@@ -78,7 +78,7 @@ where
 group by
   sub.repo_group,
   sub.country
-union select 'cs;approves_All_All_' || aa.company_name || ';evs,acts' as metric,
+union all select 'cs;approves_All_All_' || aa.company_name || ';evs,acts' as metric,
   round(count(distinct e.id) / {{n}}, 2) as evs,
   count(distinct e.dup_actor_login) as acts
 from
@@ -92,7 +92,7 @@ where
   and aa.company_name in (select companies_name from tcompanies)
 group by
   aa.company_name
-union select 'cs;approves_' || sub.repo_group || '_All_' || sub.company || ';evs,acts' as metric,
+union all select 'cs;approves_' || sub.repo_group || '_All_' || sub.company || ';evs,acts' as metric,
   round(count(distinct sub.id) / {{n}}, 2) as evs,
   count(distinct sub.actor) as acts
 from (
@@ -122,7 +122,7 @@ where
 group by
   sub.repo_group,
   sub.company
-union select 'cs;approves_All_' || a.country_name || '_' || aa.company_name || ';evs,acts' as metric,
+union all select 'cs;approves_All_' || a.country_name || '_' || aa.company_name || ';evs,acts' as metric,
   round(count(distinct e.id) / {{n}}, 2) as evs,
   count(distinct e.dup_actor_login) as acts
 from
@@ -140,7 +140,7 @@ where
 group by
   a.country_name,
   aa.company_name
-union select 'cs;approves_' || sub.repo_group || '_' || sub.country || '_' || sub.company || ';evs,acts' as metric,
+union all select 'cs;approves_' || sub.repo_group || '_' || sub.country || '_' || sub.company || ';evs,acts' as metric,
   round(count(distinct sub.id) / {{n}}, 2) as evs,
   count(distinct sub.actor) as acts
 from (
