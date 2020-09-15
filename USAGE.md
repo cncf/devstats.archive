@@ -245,7 +245,8 @@ The main idea is that we divide tables into 2 groups:
 
 List of tables:
 - `gha_actors`: const, users table
-- `gha_actors_emails`: const, holds one or more email addresses for actors, this is filled by `import_affs` tool.
+- `gha_actors_emails`: const, holds one or more email addresses for actors, this is filled by `import_affs` (origin=0) and `ghapi2db` (origin=1) tools.
+- `gha_actors_names`: const, holds one or more names for actors, this is filled by `import_affs` (origin=0) and `ghapi2db` (origin=1) tools.
 - `gha_actors_affiliations`: const, holds one or more company affiliations for actors, this is filled by `import_affs` tool.
 - `gha_assets`: variable, assets
 - `gha_branches`: variable, branches data

@@ -1,5 +1,5 @@
--- delete from gha_actors_emails;
--- delete from gha_actors_names;
+delete from gha_actors_emails where origin = 0;
+delete from gha_actors_names where origin = 0;
 delete from gha_actors_affiliations;
 delete from gha_companies;
 
