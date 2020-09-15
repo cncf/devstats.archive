@@ -2,8 +2,8 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 10.10 (Ubuntu 10.10-0ubuntu0.18.04.1)
--- Dumped by pg_dump version 10.10 (Ubuntu 10.10-0ubuntu0.18.04.1)
+-- Dumped from database version 10.14 (Ubuntu 10.14-0ubuntu0.18.04.1)
+-- Dumped by pg_dump version 10.14 (Ubuntu 10.14-0ubuntu0.18.04.1)
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -464,7 +464,8 @@ ALTER TABLE public.gha_actors_affiliations OWNER TO gha_admin;
 
 CREATE TABLE public.gha_actors_emails (
     actor_id bigint NOT NULL,
-    email character varying(120) NOT NULL
+    email character varying(120) NOT NULL,
+    origin smallint DEFAULT 0 NOT NULL
 );
 
 
@@ -476,7 +477,8 @@ ALTER TABLE public.gha_actors_emails OWNER TO gha_admin;
 
 CREATE TABLE public.gha_actors_names (
     actor_id bigint NOT NULL,
-    name character varying(120) NOT NULL
+    name character varying(120) NOT NULL,
+    origin smallint DEFAULT 0 NOT NULL
 );
 
 
@@ -1147,7 +1149,7 @@ COPY public.gha_actors_affiliations (actor_id, company_name, original_company_na
 -- Data for Name: gha_actors_emails; Type: TABLE DATA; Schema: public; Owner: gha_admin
 --
 
-COPY public.gha_actors_emails (actor_id, email) FROM stdin;
+COPY public.gha_actors_emails (actor_id, email, origin) FROM stdin;
 \.
 
 
@@ -1155,7 +1157,7 @@ COPY public.gha_actors_emails (actor_id, email) FROM stdin;
 -- Data for Name: gha_actors_names; Type: TABLE DATA; Schema: public; Owner: gha_admin
 --
 
-COPY public.gha_actors_names (actor_id, name) FROM stdin;
+COPY public.gha_actors_names (actor_id, name, origin) FROM stdin;
 \.
 
 
@@ -2227,10 +2229,10 @@ CREATE INDEX actors_names_actor_id_idx ON public.gha_actors_names USING btree (a
 
 
 --
--- Name: actors_names_email_idx; Type: INDEX; Schema: public; Owner: gha_admin
+-- Name: actors_names_name_idx; Type: INDEX; Schema: public; Owner: gha_admin
 --
 
-CREATE INDEX actors_names_email_idx ON public.gha_actors_names USING btree (name);
+CREATE INDEX actors_names_name_idx ON public.gha_actors_names USING btree (name);
 
 
 --
