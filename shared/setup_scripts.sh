@@ -16,3 +16,5 @@ echo "Setting $proj up default postprocess scripts"
 GHA2DB_LOCAL=1 runq util_sql/default_postprocess_scripts.sql
 echo "Setting $proj up repository groups postprocess script"
 GHA2DB_LOCAL=1 runq util_sql/repo_groups_postprocess_script_from_repos.sql
+echo "Initial emails/names origins"
+GHA2DB_LOCAL=1 runq "scripts/$proj/origins.sql"
