@@ -309,7 +309,7 @@ do
     PROJ=metal3              PROJDB=metal3         PROJREPO="metal3-io/cluster-api-provider-metal3" ORGNAME="Metal³"    PORT=3067 ICON=metal3         GRAFSUFF=metal3         GA="UA-145264316-28" ./devel/deploy_proj.sh || exit 85
   elif [ "$proj" = "porter" ]
   then
-    PROJ=porter              PROJDB=porter         PROJREPO="deislabs/porter"                 ORGNAME=Porter            PORT=3068 ICON=porter         GRAFSUFF=porter         GA="UA-145264316-29" ./devel/deploy_proj.sh || exit 86
+    PROJ=porter              PROJDB=porter         PROJREPO="getporter/porter"                ORGNAME=Porter            PORT=3068 ICON=porter         GRAFSUFF=porter         GA="UA-145264316-29" ./devel/deploy_proj.sh || exit 86
   elif [ "$proj" = "openyurt" ]
   then
     PROJ=openyurt            PROJDB=openyurt       PROJREPO="alibaba/openyurt"                ORGNAME=OpenYurt          PORT=3069 ICON=openyurt       GRAFSUFF=openyurt       GA="UA-145264316-30" ./devel/deploy_proj.sh || exit 87

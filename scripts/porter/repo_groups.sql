@@ -31,7 +31,8 @@ update gha_repos set repo_group = alias;
 update gha_repos
 set repo_group = 'Porter', alias = 'Porter'
 where name in (
-  'deislabs/porter'
+  'deislabs/porter',
+  'getporter/porter'
 );
 
 select

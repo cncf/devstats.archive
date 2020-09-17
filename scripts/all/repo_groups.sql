@@ -755,6 +755,7 @@ set
   repo_group = 'Porter'
 where
   name in ('deislabs/porter')
+  or org_login in ('getporter')
 ;
 
 -- OpenYurt
