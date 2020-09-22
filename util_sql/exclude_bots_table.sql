@@ -1,1 +1,1 @@
-not ilike alL(select pattern from gha_bot_logins)
+not ilike all(select pattern from gha_bot_logins)
