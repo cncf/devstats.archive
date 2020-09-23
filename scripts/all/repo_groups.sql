@@ -776,6 +776,17 @@ where
   org_login in ('openservicemesh')
 ;
 
+-- Keylime
+update
+  gha_repos
+set
+  repo_group = 'Keylime'
+where
+  org_login in ('keylime')
+  or name in ('mit-ll/python-keylime', 'mit-ll/keylime')
+;
+
+
 -- CNCF
 update
   gha_repos
