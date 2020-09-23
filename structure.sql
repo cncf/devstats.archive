@@ -513,6 +513,17 @@ CREATE TABLE public.gha_assets (
 ALTER TABLE public.gha_assets OWNER TO gha_admin;
 
 --
+-- Name: gha_bot_logins; Type: TABLE; Schema: public; Owner: gha_admin
+--
+
+CREATE TABLE public.gha_bot_logins (
+    pattern text NOT NULL
+);
+
+
+ALTER TABLE public.gha_bot_logins OWNER TO gha_admin;
+
+--
 -- Name: gha_branches; Type: TABLE; Schema: public; Owner: gha_admin
 --
 
@@ -1170,6 +1181,73 @@ COPY public.gha_assets (id, event_id, name, label, uploader_id, content_type, st
 
 
 --
+-- Data for Name: gha_bot_logins; Type: TABLE DATA; Schema: public; Owner: gha_admin
+--
+
+COPY public.gha_bot_logins (pattern) FROM stdin;
+svcbot-qecnsdp
+nsmbot
+ti-srebot
+cf-buildpacks-eng
+bosh-ci-push-pull
+gprasath
+zephyr-github
+zephyrbot
+strimzi-ci
+athenabot
+k8s-reviewable
+codecov-io
+grpc-testing
+k8s-teamcity-mesosphere
+angular-builds
+devstats-sync
+googlebot
+hibernate-ci
+coveralls
+rktbot
+coreosbot
+web-flow
+prometheus-roobot
+cncf-bot
+kernelprbot
+istio-testing
+spinnakerbot
+pikbot
+spinnaker-release
+golangcibot
+opencontrail-ci-admin
+titanium-octobot
+asfgit
+appveyorbot
+cadvisorjenkinsbot
+gitcoinbot
+katacontainersbot
+prombot
+prowbot
+travis%bot
+k8s-%
+%-bot
+%-robot
+bot-%
+robot-%
+%[bot]%
+%[robot]%
+%-jenkins
+jenkins-%
+%-ci%bot
+%-testing
+codecov-%
+%clabot%
+%cla-bot%
+%-gerrit
+%-bot-%
+%envoy-filter-example%
+%cibot
+%-ci
+\.
+
+
+--
 -- Data for Name: gha_branches; Type: TABLE DATA; Schema: public; Owner: gha_admin
 --
 
@@ -1752,6 +1830,14 @@ ALTER TABLE ONLY public.gha_actors
 
 ALTER TABLE ONLY public.gha_assets
     ADD CONSTRAINT gha_assets_pkey PRIMARY KEY (id, event_id);
+
+
+--
+-- Name: gha_bot_logins gha_bot_logins_pkey; Type: CONSTRAINT; Schema: public; Owner: gha_admin
+--
+
+ALTER TABLE ONLY public.gha_bot_logins
+    ADD CONSTRAINT gha_bot_logins_pkey PRIMARY KEY (pattern);
 
 
 --
@@ -2912,6 +2998,13 @@ CREATE INDEX forkees_owner_id_idx ON public.gha_forkees USING btree (owner_id);
 --
 
 CREATE INDEX forkees_updated_at_idx ON public.gha_forkees USING btree (updated_at);
+
+
+--
+-- Name: gha_bot_logins_pattern_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX gha_bot_logins_pattern_idx ON public.gha_bot_logins USING btree (pattern);
 
 
 --
