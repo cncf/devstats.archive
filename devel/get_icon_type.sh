@@ -89,6 +89,7 @@ icontypes=(
   ["porter"]="color"
   ["openyurt"]="color"
   ["openservicemesh"]="color"
+  ["keylime"]="color"
   ["tekton"]="color"
   ["jenkins"]="color"
   ["jenkinsx"]="color"
