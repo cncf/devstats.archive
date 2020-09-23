@@ -76,6 +76,7 @@ PGPASSWORD="${PG_PASS}" psql -h "${PG_HOST}" -U gha_admin -tA metal3 < ./util_sq
 PGPASSWORD="${PG_PASS}" psql -h "${PG_HOST}" -U gha_admin -tA porter < ./util_sql/actors.sql
 PGPASSWORD="${PG_PASS}" psql -h "${PG_HOST}" -U gha_admin -tA openyurt < ./util_sql/actors.sql
 PGPASSWORD="${PG_PASS}" psql -h "${PG_HOST}" -U gha_admin -tA openservicemesh < ./util_sql/actors.sql
+PGPASSWORD="${PG_PASS}" psql -h "${PG_HOST}" -U gha_admin -tA keylime < ./util_sql/actors.sql
 PGPASSWORD="${PG_PASS}" psql -h "${PG_HOST}" -U gha_admin -tA cncf < ./util_sql/actors.sql
 PGPASSWORD="${PG_PASS}" psql -h "${PG_HOST}" -U gha_admin -tA allprj < ./util_sql/actors.sql
 PGPASSWORD="${PG_PASS}" psql -h "${PG_HOST}" -U gha_admin -tA spinnaker < ./util_sql/actors.sql
