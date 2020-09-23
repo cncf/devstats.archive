@@ -316,6 +316,9 @@ do
   elif [ "$proj" = "openservicemesh" ]
   then
     PROJ=openservicemesh     PROJDB=openservicemesh PROJREPO="openservicemesh/osm"            ORGNAME="Open Service Mesh" PORT=3070 ICON=openservicemesh GRAFSUFF=openservicemesh GA="UA-145264316-31" ./devel/deploy_proj.sh || exit 88
+  elif [ "$proj" = "keylime" ]
+  then
+    PROJ=keylime             PROJDB=keylime        PROJREPO="keylime/keylime"                 ORGNAME=Keylime           PORT=3071 ICON=keylime        GRAFSUFF=keylime        GA="UA-145264316-32" ./devel/deploy_proj.sh || exit 89
   elif [ "$proj" = "opencontainers" ]
   then
     PROJ=opencontainers      PROJDB=opencontainers PROJREPO="opencontainers/runc"             ORGNAME=OCI               PORT=3100 ICON="-"            GRAFSUFF=opencontainers GA="UA-108085315-19" ./devel/deploy_proj.sh || exit 32
