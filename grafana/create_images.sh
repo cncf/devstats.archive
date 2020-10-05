@@ -5,7 +5,7 @@
 . ./devel/all_projs.sh || exit 2
 for proj in $all
 do
-  if ( [ "$proj" = "opencontainers" ] || [ "$proj" = "prestodb" ] )
+  if ( [ "$proj" = "opencontainers" ] || [ "$proj" = "prestodb" ] || [ "$proj" = "godotengine" ] )
   then
     continue
   fi
@@ -62,10 +62,18 @@ then
   convert images/OCI.png -resize 32x32 grafana/img/opencontainers32.png || exit 5
 fi
 
-# Special OCI case (not a CNCF project)
+# Special Presto DB case (not a CNCF project)
 if [[ $all = *"prestodb"* ]]
 then
   cp images/presto-logo-stacked.svg grafana/img/prestodb.svg || exit 6
   convert images/presto-logo-stacked.png -resize 32x32 grafana/img/prestodb32.png || exit 7
 fi
+
+# Special Godot Engine case (not a CNCF project)
+if [[ $all = *"godotengine"* ]]
+then
+  cp images/godotengine-logo-stacked.svg grafana/img/godotengine.svg || exit 8
+  convert images/godotengine-logo-stacked.png -resize 32x32 grafana/img/godotengine32.png || exit 9
+fi
+
 echo 'OK'

@@ -4,7 +4,7 @@
 . ./devel/all_projs.sh || exit 2
 for proj in $all
 do
-  if ( [ "$proj" = "opencontainers" ] || [ "$proj" = "prestodb" ] )
+  if ( [ "$proj" = "opencontainers" ] || [ "$proj" = "prestodb" ] || [ "$proj" = "godotengine" ] )
   then
     continue
   fi
@@ -56,10 +56,18 @@ then
   cp ./images/OCI.svg /var/www/html/img/opencontainers-icon-color.svg || exit 5
 fi
 
-# Special PrestoDB case (not a CNCF project)
+# Special Presto DB case (not a CNCF project)
 if [[ $all = *"prestodb"* ]]
 then
   convert ./images/presto-logo-stacked.png -resize 80x80 /var/www/html/img/prestodb-icon-color.png || exit 6
   cp ./images/presto-logo-stacked.svg /var/www/html/img/prestodb-icon-color.svg || exit 7
 fi
+
+# Special Godon Engine case (not a CNCF project)
+if [[ $all = *"godotengine"* ]]
+then
+  convert ./images/godotengine-logo-stacked.png -resize 80x80 /var/www/html/img/godotengine-icon-color.png || exit 8
+  cp ./images/godotengine-logo-stacked.svg /var/www/html/img/godotengine-icon-color.svg || exit 9
+fi
+
 echo 'OK'

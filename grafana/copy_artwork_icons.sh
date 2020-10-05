@@ -4,7 +4,7 @@
 . ./devel/all_projs.sh || exit 2
 for proj in $all
 do
-  if ( [ "$proj" = "opencontainers" ] || [ "$proj" = "cdf" ] || [ "$proj" = "prestodb" ] )
+  if ( [ "$proj" = "opencontainers" ] || [ "$proj" = "cdf" ] || [ "$proj" = "prestodb" ] || [ "$proj" = "godotengine" ] )
   then
     continue
   fi
@@ -99,4 +99,14 @@ then
   cp ./images/presto-logo-stacked.svg /usr/share/grafana.prestodb/public/img/grafana_net_logo.svg || exit 21
   cp ./images/presto-logo-stacked.svg /usr/share/grafana.prestodb/public/img/grafana_mask_icon.svg || exit 22
 fi
+
+# Special Godot Engine case (not a CNCF project)
+if [[ $all = *"godotengine"* ]]
+then
+  cp ./images/godotengine-logo-stacked.svg /usr/share/grafana.godotengine/public/img/grafana_icon.svg || exit 23
+  cp ./images/godotengine-logo-stacked.svg /usr/share/grafana.godotengine/public/img/grafana_com_auth_icon.svg || exit 24
+  cp ./images/godotengine-logo-stacked.svg /usr/share/grafana.godotengine/public/img/grafana_net_logo.svg || exit 25
+  cp ./images/godotengine-logo-stacked.svg /usr/share/grafana.godotengine/public/img/grafana_mask_icon.svg || exit 26
+fi
+
 echo 'OK'
