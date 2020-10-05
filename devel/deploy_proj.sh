@@ -59,7 +59,8 @@ then
        [ ! "$PROJ" = "graphql" ] && [ ! "$PROJ" = "graphqljs" ] && [ ! "$PROJ" = "graphiql" ] && \
        [ ! "$PROJ" = "expressgraphql" ] && [ ! "$PROJ" = "graphqlspec" ] && [ ! "$PROJ" = "allcdf" ] && \
        [ ! "$PROJ" = "spinnaker" ] && [ ! "$PROJ" = "tekton" ] && [ ! "$PROJ" = "jenkins" ] && \
-       [ ! "$PROJ" = "jenkinsx" ]  && [ ! "$PROJ" = "cii" ] )
+       [ ! "$PROJ" = "jenkinsx" ]  && [ ! "$PROJ" = "cii" ]  && [ ! "$PROJ" = "prestodb" ] && \
+       [ ! "$PROJ" = "godotengine" ] )
   then
     if [ "$PROJDB" = "$LASTDB" ]
     then
