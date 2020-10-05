@@ -50,6 +50,7 @@ icontypes=(
   ["openfaas"]="color"
   ["cii"]="color"
   ["prestodb"]="color"
+  ["godotengine"]="color"
   ["spinnaker"]="color"
   ["knative"]="color"
   ["crio"]="color"
