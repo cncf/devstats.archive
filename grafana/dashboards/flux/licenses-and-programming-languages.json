@@ -26,7 +26,7 @@
               "type": "fill"
             }
           ],
-          "rawSql": "select\n  count(distinct r.license_name) filter (where r.license_name is not null and r.license_name != '' and r.license_name != 'Not found') as \"All Licenses\",\n  count(distinct rl.lang_name) filter (where rl.lang_name is not null and rl.lang_name != '' and rl.lang_name != 'unknown') as \"All Programming Languages\",\n  count(distinct r.alias) filter (where r.alias is not null) as \"All Repositories\",\n  sum(rl.lang_loc) as \"All LOC\"\nfrom\n  gha_repos r,\n  gha_repos_langs rl\nwhere\n  r.name = rl.repo_name\n  and ('[[repogroups:csv]]' = 'null' or r.repo_group in ([[repogroups]]))\n  and ('[[licenses:csv]]' = 'null' or r.license_name in ([[licenses]]))\n  and ('[[languages:csv]]' = 'null' or rl.lang_name in ([[languages]]))\n  and (r.name, r.id) = (\n    select i.name,\n      i.id\n    from\n      gha_repos i\n    where\n      i.alias = r.alias\n      and i.name like '%_/_%'\n      and i.name not like '%/%/%'\n    limit 1\n  )\n;",
+          "rawSql": "select\n  count(distinct r.license_name) filter (where r.license_name is not null and r.license_name != '' and r.license_name != 'Not found') as \"All Licenses\",\n  count(distinct rl.lang_name) filter (where rl.lang_name is not null and rl.lang_name != '' and rl.lang_name != 'unknown') as \"All Programming Languages\",\n  count(distinct r.alias) filter (where r.alias is not null) as \"All Repositories\",\n  sum(rl.lang_loc) as \"All BOC\"\nfrom\n  gha_repos r,\n  gha_repos_langs rl\nwhere\n  r.name = rl.repo_name\n  and ('[[repogroups:csv]]' = 'null' or r.repo_group in ([[repogroups]]))\n  and ('[[licenses:csv]]' = 'null' or r.license_name in ([[licenses]]))\n  and ('[[languages:csv]]' = 'null' or rl.lang_name in ([[languages]]))\n  and (r.name, r.id) = (\n    select i.name,\n      i.id\n    from\n      gha_repos i\n    where\n      i.alias = r.alias\n      and i.name like '%_/_%'\n      and i.name not like '%/%/%'\n    limit 1\n  )\n;",
           "alias": "",
           "group": [],
           "refId": "A",
@@ -198,7 +198,7 @@
             }
           ],
           "alias": "",
-          "rawSql": "select \n  rl.lang_name as \"Language\",\n  count(distinct r.alias) as \"Repositories\",\n  sum(rl.lang_loc) as \"LOC\"\nfrom\n  gha_repos r,\n  gha_repos_langs rl\nwhere\n  r.name = rl.repo_name\n  and ('[[repogroups:csv]]' = 'null' or r.repo_group in ([[repogroups]]))\n  and ('[[licenses:csv]]' = 'null' or r.license_name in ([[licenses]]))\n  and ('[[languages:csv]]' = 'null' or rl.lang_name in ([[languages]]))\n  and rl.lang_name is not null and rl.lang_name not in ('', 'unknown')\n  and (r.name, r.id) = (\n    select i.name,\n      i.id\n    from\n      gha_repos i\n    where\n      i.alias = r.alias\n      and i.name like '%_/_%'\n      and i.name not like '%/%/%'\n    limit 1\n  )\ngroup by\n  rl.lang_name\n;",
+          "rawSql": "select \n  rl.lang_name as \"Language\",\n  count(distinct r.alias) as \"Repositories\",\n  sum(rl.lang_loc) as \"BOC\"\nfrom\n  gha_repos r,\n  gha_repos_langs rl\nwhere\n  r.name = rl.repo_name\n  and ('[[repogroups:csv]]' = 'null' or r.repo_group in ([[repogroups]]))\n  and ('[[licenses:csv]]' = 'null' or r.license_name in ([[licenses]]))\n  and ('[[languages:csv]]' = 'null' or rl.lang_name in ([[languages]]))\n  and rl.lang_name is not null and rl.lang_name not in ('', 'unknown')\n  and (r.name, r.id) = (\n    select i.name,\n      i.id\n    from\n      gha_repos i\n    where\n      i.alias = r.alias\n      and i.name like '%_/_%'\n      and i.name not like '%/%/%'\n    limit 1\n  )\ngroup by\n  rl.lang_name\n;",
           "refId": "A",
           "resultFormat": "table",
           "dsType": "influxdb",
@@ -251,7 +251,7 @@
     },
     {
       "type": "table",
-      "description": "The number of repositories and lines of code per license and programming language. It only includes data from repositories with known licenses and programming languages used.",
+      "description": "The number of repositories and bytes of code per license and programming language. It only includes data from repositories with known licenses and programming languages used.",
       "fontSize": "90%",
       "timeFrom": null,
       "timeShift": null,
@@ -288,7 +288,7 @@
             }
           ],
           "policy": "default",
-          "rawSql": "select\n  r.license_name as \"License\",\n  rl.lang_name as \"Language\",\n  count(distinct r.alias) as \"Repositories\",\n  sum(rl.lang_loc) as \"LOC\"\nfrom\n  gha_repos r,\n  gha_repos_langs rl\nwhere\n  r.name = rl.repo_name\n  and ('[[repogroups:csv]]' = 'null' or r.repo_group in ([[repogroups]]))\n  and ('[[licenses:csv]]' = 'null' or r.license_name in ([[licenses]]))\n  and ('[[languages:csv]]' = 'null' or rl.lang_name in ([[languages]]))\n  and r.license_name is not null and r.license_name not in ('', 'Not found')\n  and rl.lang_name is not null and rl.lang_name not in ('', 'unknown')\n  and (r.name, r.id) = (\n    select i.name,\n      i.id\n    from\n      gha_repos i\n    where\n      i.alias = r.alias\n      and i.name like '%_/_%'\n      and i.name not like '%/%/%'\n    limit 1\n  )\ngroup by\n  r.license_name,\n  rl.lang_name\n;",
+          "rawSql": "select\n  r.license_name as \"License\",\n  rl.lang_name as \"Language\",\n  count(distinct r.alias) as \"Repositories\",\n  sum(rl.lang_loc) as \"BOC\"\nfrom\n  gha_repos r,\n  gha_repos_langs rl\nwhere\n  r.name = rl.repo_name\n  and ('[[repogroups:csv]]' = 'null' or r.repo_group in ([[repogroups]]))\n  and ('[[licenses:csv]]' = 'null' or r.license_name in ([[licenses]]))\n  and ('[[languages:csv]]' = 'null' or rl.lang_name in ([[languages]]))\n  and r.license_name is not null and r.license_name not in ('', 'Not found')\n  and rl.lang_name is not null and rl.lang_name not in ('', 'unknown')\n  and (r.name, r.id) = (\n    select i.name,\n      i.id\n    from\n      gha_repos i\n    where\n      i.alias = r.alias\n      and i.name like '%_/_%'\n      and i.name not like '%/%/%'\n    limit 1\n  )\ngroup by\n  r.license_name,\n  rl.lang_name\n;",
           "select": [
             [
               {
@@ -395,7 +395,7 @@
           "dsType": "influxdb",
           "group": [],
           "metricColumn": "none",
-          "rawSql": "select \n  distinct coalesce(r.repo_group, 'No repo group') as \"Repo group\",\n  r.alias as \"Repo\",\n  r.license_name as \"License\",\n  rl.lang_name as \"Language\",\n  rl.lang_loc as \"LOC\",\n  rl.lang_perc as \"Language percent\"\nfrom\n  gha_repos r,\n  gha_repos_langs rl\nwhere\n  r.name = rl.repo_name\n  and ('[[repogroups:csv]]' = 'null' or r.repo_group in ([[repogroups]]))\n  and ('[[licenses:csv]]' = 'null' or r.license_name in ([[licenses]]))\n  and ('[[languages:csv]]' = 'null' or rl.lang_name in ([[languages]]))\n  and (r.name, r.id) = (\n    select i.name,\n      i.id\n    from\n      gha_repos i\n    where\n      i.alias = r.alias\n      and i.name like '%_/_%'\n      and i.name not like '%/%/%'\n    limit 1\n  )\n;",
+          "rawSql": "select \n  distinct coalesce(r.repo_group, 'No repo group') as \"Repo group\",\n  r.alias as \"Repo\",\n  r.license_name as \"License\",\n  rl.lang_name as \"Language\",\n  rl.lang_loc as \"BOC\",\n  rl.lang_perc as \"Language percent\"\nfrom\n  gha_repos r,\n  gha_repos_langs rl\nwhere\n  r.name = rl.repo_name\n  and ('[[repogroups:csv]]' = 'null' or r.repo_group in ([[repogroups]]))\n  and ('[[licenses:csv]]' = 'null' or r.license_name in ([[licenses]]))\n  and ('[[languages:csv]]' = 'null' or rl.lang_name in ([[languages]]))\n  and (r.name, r.id) = (\n    select i.name,\n      i.id\n    from\n      gha_repos i\n    where\n      i.alias = r.alias\n      and i.name like '%_/_%'\n      and i.name not like '%/%/%'\n    limit 1\n  )\n;",
           "refId": "A",
           "where": [
             {
