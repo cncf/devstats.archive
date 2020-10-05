@@ -355,6 +355,9 @@ do
   elif [ "$proj" = "prestodb" ]
   then
     PROJ=prestodb            PROJDB=prestodb       PROJREPO="presto/prestodb"                 ORGNAME="Presto"          PORT=3111 ICON=prestodb       GRAFSUFF=prestodb       GA="-"               ./devel/deploy_proj.sh || exit 63
+  elif [ "$proj" = "godotengine" ]
+  then
+    PROJ=godotengine         PROJDB=godotengine    PROJREPO="godotengine/godot"               ORGNAME="Godot Engine"    PORT=3112 ICON=godotengine    GRAFSUFF=godotengine    GA="-"               ./devel/deploy_proj.sh || exit 90
   elif [ "$proj" = "all" ]
   then
     PROJ=all                 PROJDB=allprj         PROJREPO="not/used"                        ORGNAME="All CNCF"        PORT=3254 ICON=cncf           GRAFSUFF=all            GA="UA-108085315-20" ./devel/deploy_proj.sh || exit 36
