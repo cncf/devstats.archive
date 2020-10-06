@@ -1,50 +1,15 @@
 {
-  "annotations": {
-    "list": [
-      {
-        "builtIn": 1,
-        "datasource": "-- Grafana --",
-        "enable": true,
-        "hide": true,
-        "iconColor": "rgba(0, 211, 255, 1)",
-        "name": "Annotations \u0026 Alerts",
-        "type": "dashboard"
-      },
-      {
-        "datasource": "psql",
-        "enable": true,
-        "hide": false,
-        "iconColor": "rgba(255, 96, 96, 1)",
-        "limit": 100,
-        "name": "Releases",
-        "query": "SELECT title, description from annotations WHERE $timeFilter order by time asc",
-        "rawQuery": "select extract(epoch from time) AS time, title as text, description as tags from sannotations where $__timeFilter(time)",
-        "showIn": 0,
-        "tagsColumn": "title,description",
-        "textColumn": "",
-        "titleColumn": "[[full_name]] release",
-        "type": "alert"
-      }
-    ]
+  "time": {
+    "from": "now-7d",
+    "to": "now-1h"
   },
-  "description": "Home dashboard",
-  "editable": true,
-  "gnetId": null,
-  "graphTooltip": 0,
-  "id": 9,
-  "iteration": 1582187141069,
+  "uid": "8",
   "links": [],
+  "style": "dark",
+  "editable": true,
+  "graphTooltip": 0,
   "panels": [
     {
-      "aliasColors": {},
-      "bars": false,
-      "dashLength": 10,
-      "dashes": false,
-      "datasource": "psql",
-      "decimals": 0,
-      "description": "Numbers of GitHub events in all repositories hourly",
-      "fill": 5,
-      "fillGradient": 0,
       "gridPos": {
         "h": 6,
         "w": 20,
@@ -52,10 +17,9 @@
         "y": 0
       },
       "hiddenSeries": false,
-      "id": 2,
       "legend": {
-        "alignAsTable": true,
         "avg": true,
+        "alignAsTable": true,
         "current": true,
         "max": true,
         "min": true,
@@ -64,37 +28,25 @@
         "total": true,
         "values": true
       },
-      "lines": true,
-      "linewidth": 1,
-      "links": [
-        {
-          "title": "DevStats GitHub repository",
-          "url": "https://github.com/cncf/devstats"
-        }
-      ],
       "nullPointMode": "null",
-      "options": {
-        "dataLinks": []
-      },
-      "percentage": false,
-      "pointradius": 1,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [],
+      "timeRegions": [],
+      "dashLength": 10,
+      "fill": 5,
       "spaceLength": 10,
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      },
+      "description": "Numbers of GitHub events in all repositories hourly",
+      "seriesOverrides": [],
       "stack": false,
-      "steppedLine": true,
       "targets": [
         {
           "alias": "",
-          "dsType": "influxdb",
-          "format": "time_series",
-          "groupBy": [],
           "orderByTime": "ASC",
           "policy": "default",
           "query": "SELECT \"value\" FROM \"events_h\" WHERE $timeFilter",
-          "rawQuery": true,
-          "rawSql": "select\n  time,\n  value as \"Number of GitHub events hourly\"\nfrom\n  sevents_h\nwhere\n  $__timeFilter(time)\norder by\n  time",
+          "tags": [],
           "refId": "A",
           "resultFormat": "time_series",
           "select": [
@@ -107,30 +59,48 @@
               }
             ]
           ],
-          "tags": []
+          "dsType": "influxdb",
+          "format": "time_series",
+          "groupBy": [],
+          "rawQuery": true,
+          "rawSql": "select\n  time,\n  value as \"Number of GitHub events hourly\"\nfrom\n  sevents_h\nwhere\n  $__timeFilter(time)\norder by\n  time"
         }
       ],
-      "thresholds": [],
-      "timeFrom": null,
-      "timeRegions": [],
-      "timeShift": null,
       "title": "Hourly [[full_name]] activity on GitHub",
       "tooltip": {
+        "value_type": "individual",
         "shared": false,
-        "sort": 0,
-        "value_type": "individual"
+        "sort": 0
       },
+      "id": 2,
+      "lines": true,
       "transparent": true,
       "type": "graph",
       "xaxis": {
-        "buckets": null,
-        "mode": "time",
         "name": null,
         "show": true,
         "values": [
           "total"
-        ]
+        ],
+        "buckets": null,
+        "mode": "time"
       },
+      "dashes": false,
+      "fillGradient": 0,
+      "links": [
+        {
+          "title": "DevStats GitHub repository",
+          "url": "https://github.com/cncf/devstats"
+        }
+      ],
+      "percentage": false,
+      "steppedLine": true,
+      "timeFrom": null,
+      "timeShift": null,
+      "datasource": "psql",
+      "linewidth": 1,
+      "points": false,
+      "thresholds": [],
       "yaxes": [
         {
           "format": "short",
@@ -149,15 +119,21 @@
           "show": true
         }
       ],
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      }
+      "decimals": 0,
+      "options": {
+        "dataLinks": []
+      },
+      "pointradius": 1,
+      "renderer": "flot",
+      "aliasColors": {
+        
+      },
+      "bars": false
     },
     {
+      "transparent": true,
+      "type": "text",
       "content": "Please report any bugs by opening an issue on \u003ca href=\"https://github.com/cncf/devstats\"\u003ehttps://github.com/cncf/devstats\u003c/a\u003e",
-      "datasource": null,
-      "description": "",
       "gridPos": {
         "h": 6,
         "w": 4,
@@ -166,64 +142,93 @@
       },
       "height": 220,
       "id": 1,
-      "links": [],
-      "mode": "html",
-      "options": {},
       "title": "",
-      "transparent": true,
-      "type": "text"
+      "datasource": null,
+      "description": "",
+      "links": [],
+      "mode": "html"
     },
     {
-      "datasource": null,
+      "id": 4,
+      "search": true,
       "description": "https://github.com/cncf/devstats",
-      "folderId": 0,
       "gridPos": {
-        "h": 42,
-        "w": 24,
         "x": 0,
-        "y": 6
+        "y": 6,
+        "h": 44,
+        "w": 24
       },
       "headings": false,
-      "id": 4,
-      "limit": 50,
       "links": [
         {
           "title": "devstats",
           "url": "https://github.com/cncf/devstats"
         }
       ],
-      "options": {},
-      "query": "",
-      "recent": false,
-      "search": true,
-      "starred": false,
       "tags": [
         "dashboard",
         "godotengine"
       ],
+      "datasource": null,
+      "folderId": 0,
+      "query": "",
+      "limit": 50,
+      "recent": false,
+      "starred": false,
       "title": "All [[full_name]] Dashboards",
       "type": "dashlist"
     },
     {
-      "content": "${docs:raw}",
-      "datasource": null,
-      "gridPos": {
-        "h": 10,
-        "w": 24,
-        "x": 0,
-        "y": 46
-      },
       "id": 6,
       "links": [],
       "mode": "html",
-      "options": {},
       "title": "Dashboard documentation",
-      "type": "text"
+      "type": "text",
+      "content": "${docs:raw}",
+      "datasource": null,
+      "gridPos": {
+        "y": 50,
+        "h": 12,
+        "w": 24,
+        "x": 0
+      }
     }
   ],
   "refresh": "15m",
-  "schemaVersion": 21,
-  "style": "dark",
+  "schemaVersion": 22,
+  "title": "Dashboards",
+  "annotations": {
+    "list": [
+      {
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations \u0026 Alerts",
+        "type": "dashboard",
+        "$$hashKey": "object:16",
+        "builtIn": 1,
+        "datasource": "-- Grafana --"
+      },
+      {
+        "titleColumn": "[[full_name]] release",
+        "iconColor": "rgba(255, 96, 96, 1)",
+        "limit": 100,
+        "name": "Releases",
+        "rawQuery": "select extract(epoch from time) AS time, title as text, description as tags from sannotations where $__timeFilter(time)",
+        "type": "alert",
+        "enable": true,
+        "hide": false,
+        "query": "SELECT title, description from annotations WHERE $timeFilter order by time asc",
+        "$$hashKey": "object:17",
+        "showIn": 0,
+        "textColumn": "",
+        "datasource": "psql",
+        "tagsColumn": "title,description"
+      }
+    ]
+  },
+  "description": "Home dashboard",
+  "version": 3,
   "tags": [
     "home",
     "all",
@@ -232,81 +237,97 @@
   "templating": {
     "list": [
       {
+        "index": -1,
+        "name": "docs",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": true,
+        "sort": 0,
+        "tags": [],
+        "current": {
+          "text": "\u003ch1 id=\"-full_name-home-dashboard\"\u003eGodot Engine Home dashboard\u003c/h1\u003e\n\u003cp\u003eLinks:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003ePostgres \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/events.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e, database \u003ca href=\"https://teststats.cncf.io/backups\" target=\"_blank\"\u003edumps\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eTSDB \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/godotengine/metrics.yaml\" target=\"_blank\"\u003eseries definition\u003c/a\u003e (search for \u003ccode\u003ename: GitHub activity\u003c/code\u003e).\u003c/li\u003e\n\u003cli\u003eGrafana dashboard \u003ca href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/godotengine/dashboards.json\" target=\"_blank\"\u003eJSON\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eDeveloper \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/dashboards/dashboards_devel.md\" target=\"_blank\"\u003edocumentation\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eDirect \u003ca href=\"https://godotengine.teststats.cncf.io\" target=\"_blank\"\u003elink\u003c/a\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch1 id=\"description\"\u003eDescription\u003c/h1\u003e\n\u003cul\u003e\n\u003cli\u003eFirst we\u0026#39;re displaying links to all CNCF projects defined.\u003c/li\u003e\n\u003cli\u003eNext we\u0026#39;re showing current project\u0026#39;s hourly activity - this is the number of all GitHub events that happened for Godot Engine project hourly.\u003c/li\u003e\n\u003cli\u003eThis also includes bots activity (most other dashboards skip bot activity).\u003c/li\u003e\n\u003cli\u003eNext we\u0026#39;re showing HTML panel that shows all CNCF projects icons and links.\u003c/li\u003e\n\u003cli\u003eNext there is a dashboard that shows a list of all dashboards defined for Godot Engine project.\u003c/li\u003e\n\u003c/ul\u003e",
+          "value": "\u003ch1 id=\"-full_name-home-dashboard\"\u003eGodot Engine Home dashboard\u003c/h1\u003e\n\u003cp\u003eLinks:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003ePostgres \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/events.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e, database \u003ca href=\"https://teststats.cncf.io/backups\" target=\"_blank\"\u003edumps\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eTSDB \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/godotengine/metrics.yaml\" target=\"_blank\"\u003eseries definition\u003c/a\u003e (search for \u003ccode\u003ename: GitHub activity\u003c/code\u003e).\u003c/li\u003e\n\u003cli\u003eGrafana dashboard \u003ca href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/godotengine/dashboards.json\" target=\"_blank\"\u003eJSON\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eDeveloper \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/dashboards/dashboards_devel.md\" target=\"_blank\"\u003edocumentation\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eDirect \u003ca href=\"https://godotengine.teststats.cncf.io\" target=\"_blank\"\u003elink\u003c/a\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch1 id=\"description\"\u003eDescription\u003c/h1\u003e\n\u003cul\u003e\n\u003cli\u003eFirst we\u0026#39;re displaying links to all CNCF projects defined.\u003c/li\u003e\n\u003cli\u003eNext we\u0026#39;re showing current project\u0026#39;s hourly activity - this is the number of all GitHub events that happened for Godot Engine project hourly.\u003c/li\u003e\n\u003cli\u003eThis also includes bots activity (most other dashboards skip bot activity).\u003c/li\u003e\n\u003cli\u003eNext we\u0026#39;re showing HTML panel that shows all CNCF projects icons and links.\u003c/li\u003e\n\u003cli\u003eNext there is a dashboard that shows a list of all dashboards defined for Godot Engine project.\u003c/li\u003e\n\u003c/ul\u003e"
+        },
+        "useTags": false,
+        "type": "query",
+        "definition": "",
+        "includeAll": false,
+        "options": [],
+        "query": "select value_s from gha_vars where name = 'dashboards_docs_html'",
+        "tagValuesQuery": "",
+        "datasource": "psql",
+        "hide": 2,
+        "label": null,
+        "multi": false,
+        "tagsQuery": "",
+        "allValue": null
+      },
+      {
         "allValue": null,
         "current": {
-          "text": "\u003ch1 id=\"-full_name-home-dashboard\"\u003eOCI Home dashboard\u003c/h1\u003e\n\u003cp\u003eLinks:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003ePostgres \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/events.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eInfluxDB \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/opencontainers/metrics.yaml\" target=\"_blank\"\u003eseries definition\u003c/a\u003e (search for \u003ccode\u003ename: GitHub activity\u003c/code\u003e).\u003c/li\u003e\n\u003cli\u003eGrafana dashboard \u003ca href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/opencontainers/dashboards.json\" target=\"_blank\"\u003eJSON\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eDeveloper \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/dashboards/dashboards_devel.md\" target=\"_blank\"\u003edocumentation\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eDirect \u003ca href=\"https://opencontainers.cncftest.io\" target=\"_blank\"\u003elink\u003c/a\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch1 id=\"description\"\u003eDescription\u003c/h1\u003e\n\u003cul\u003e\n\u003cli\u003eFirst we\u0026#39;re displaying links to all CNCF projects defined.\u003c/li\u003e\n\u003cli\u003eNext we\u0026#39;re showing current project\u0026#39;s hourly activity - this is the number of all GitHub events that happened for OCI project hourly.\u003c/li\u003e\n\u003cli\u003eThis also includes bots activity (most other dashboards skip bot activity).\u003c/li\u003e\n\u003cli\u003eNext we\u0026#39;re showing HTML panel that shows all CNCF projects icons and links.\u003c/li\u003e\n\u003cli\u003eNext there is a dashboard that shows a list of all dashboards defined for OCI project.\u003c/li\u003e\n\u003c/ul\u003e",
-          "value": "\u003ch1 id=\"-full_name-home-dashboard\"\u003eOCI Home dashboard\u003c/h1\u003e\n\u003cp\u003eLinks:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003ePostgres \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/events.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eInfluxDB \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/opencontainers/metrics.yaml\" target=\"_blank\"\u003eseries definition\u003c/a\u003e (search for \u003ccode\u003ename: GitHub activity\u003c/code\u003e).\u003c/li\u003e\n\u003cli\u003eGrafana dashboard \u003ca href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/opencontainers/dashboards.json\" target=\"_blank\"\u003eJSON\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eDeveloper \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/dashboards/dashboards_devel.md\" target=\"_blank\"\u003edocumentation\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eDirect \u003ca href=\"https://opencontainers.cncftest.io\" target=\"_blank\"\u003elink\u003c/a\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch1 id=\"description\"\u003eDescription\u003c/h1\u003e\n\u003cul\u003e\n\u003cli\u003eFirst we\u0026#39;re displaying links to all CNCF projects defined.\u003c/li\u003e\n\u003cli\u003eNext we\u0026#39;re showing current project\u0026#39;s hourly activity - this is the number of all GitHub events that happened for OCI project hourly.\u003c/li\u003e\n\u003cli\u003eThis also includes bots activity (most other dashboards skip bot activity).\u003c/li\u003e\n\u003cli\u003eNext we\u0026#39;re showing HTML panel that shows all CNCF projects icons and links.\u003c/li\u003e\n\u003cli\u003eNext there is a dashboard that shows a list of all dashboards defined for OCI project.\u003c/li\u003e\n\u003c/ul\u003e"
+          "text": "Godot Engine",
+          "value": "Godot Engine"
         },
         "datasource": "psql",
         "definition": "",
-        "hide": 2,
         "includeAll": false,
-        "label": null,
         "multi": false,
-        "name": "docs",
-        "options": [],
-        "query": "select value_s from gha_vars where name = 'dashboards_docs_html'",
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": true,
-        "sort": 0,
-        "tagValuesQuery": "",
-        "tags": [],
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false
-      },
-      {
-        "allValue": null,
-        "current": {},
-        "datasource": "psql",
-        "definition": "",
-        "hide": 2,
-        "includeAll": false,
-        "label": null,
-        "multi": false,
-        "name": "full_name",
-        "options": [],
         "query": "select value_s from gha_vars where name = 'full_name'",
+        "index": -1,
+        "options": [],
         "refresh": 1,
         "regex": "",
-        "skipUrlSync": true,
-        "sort": 0,
         "tagValuesQuery": "",
-        "tags": [],
         "tagsQuery": "",
         "type": "query",
-        "useTags": false
+        "label": null,
+        "sort": 0,
+        "tags": [],
+        "useTags": false,
+        "hide": 2,
+        "name": "full_name",
+        "skipUrlSync": true
       },
       {
-        "allValue": null,
-        "current": {},
         "datasource": "psql",
-        "definition": "",
-        "hide": 2,
-        "includeAll": false,
-        "label": null,
-        "multi": false,
-        "name": "hostname",
-        "options": [],
-        "query": "select value_s from gha_vars where name = 'os_hostname'",
         "refresh": 1,
-        "regex": "",
+        "useTags": false,
+        "label": null,
         "skipUrlSync": true,
-        "sort": 0,
-        "tagValuesQuery": "",
         "tags": [],
-        "tagsQuery": "",
         "type": "query",
-        "useTags": false
+        "current": {
+          "text": "teststats.cncf.io",
+          "value": "teststats.cncf.io"
+        },
+        "hide": 2,
+        "options": [],
+        "regex": "",
+        "tagsQuery": "",
+        "name": "hostname",
+        "query": "select value_s from gha_vars where name = 'os_hostname'",
+        "sort": 0,
+        "allValue": null,
+        "definition": "",
+        "includeAll": false,
+        "index": -1,
+        "multi": false,
+        "tagValuesQuery": ""
       }
     ]
   },
-  "time": {
-    "from": "now-7d",
-    "to": "now-1h"
-  },
   "timepicker": {
+    "time_options": [
+      "5m",
+      "15m",
+      "1h",
+      "6h",
+      "12h",
+      "24h",
+      "2d",
+      "7d",
+      "30d"
+    ],
     "nowDelay": "1h",
     "refresh_intervals": [
       "5s",
@@ -319,21 +340,13 @@
       "1h",
       "2h",
       "1d"
-    ],
-    "time_options": [
-      "5m",
-      "15m",
-      "1h",
-      "6h",
-      "12h",
-      "24h",
-      "2d",
-      "7d",
-      "30d"
     ]
   },
   "timezone": "",
-  "title": "Dashboards",
-  "uid": "8",
-  "version": 3
+  "variables": {
+    "list": []
+  },
+  "gnetId": null,
+  "id": 10,
+  "iteration": 1601987770947
 }
