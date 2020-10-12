@@ -17,6 +17,7 @@ update gha_repos set repo_group = 'Kubernetes' where lower(name) in (
 );
 
 update gha_repos set repo_group = 'SIG API Machinery' where lower(name) in (
+  'kubernetes-client/c',
   'kubernetes-client/client-python',
   'kubernetes-client/community',
   'kubernetes-client/csharp',
@@ -36,6 +37,8 @@ update gha_repos set repo_group = 'SIG API Machinery' where lower(name) in (
   'kubernetes-incubator/client-python',
   'kubernetes-retired/typescript',
   'kubernetes-sigs/apiserver-builder-alpha',
+  'kubernetes-sigs/apiserver-runtime',
+  'kubernetes-sigs/clientgofix',
   'kubernetes-sigs/controller-runtime',
   'kubernetes-sigs/controller-tools',
   'kubernetes-sigs/kube-metacontroller',
@@ -43,6 +46,7 @@ update gha_repos set repo_group = 'SIG API Machinery' where lower(name) in (
   'kubernetes-sigs/kubebuilder',
   'kubernetes-sigs/kubebuilder-declarative-pattern',
   'kubernetes-sigs/kubebuilder-delcarative-pattern',
+  'kubernetes-sigs/kubebuilder-release-tools',
   'kubernetes-sigs/legacyflag',
   'kubernetes-sigs/meta-controller',
   'kubernetes-sigs/structured-merge-diff',
@@ -53,6 +57,7 @@ update gha_repos set repo_group = 'SIG API Machinery' where lower(name) in (
   'kubernetes/client-go',
   'kubernetes/code-generator',
   'kubernetes/component-base',
+  'kubernetes/controller-manager',
   'kubernetes/gengo',
   'kubernetes/kube-aggregator',
   'kubernetes/kube-openapi',
@@ -61,24 +66,33 @@ update gha_repos set repo_group = 'SIG API Machinery' where lower(name) in (
 );
 
 update gha_repos set repo_group = 'SIG Apps' where lower(name) in (
+  'kubernetes-incubator/application-images',
   'kubernetes-incubator/kompose',
+  'kubernetes-retired/application-images',
   'kubernetes-sigs/app',
   'kubernetes-sigs/application',
   'kubernetes-sigs/apps_application',
   'kubernetes-sigs/execution-hook',
   'kubernetes/application-dm-templates',
+  'kubernetes/application-images',
   'kubernetes/examples',
   'kubernetes/kompose'
 );
 
 update gha_repos set repo_group = 'SIG Architecture' where lower(name) in (
   'kubernetes/api',
+  'kubernetes/component-helpers',
   'kubernetes/contrib',
+  'kubernetes/features',
+  'kubernetes/enhancements',
   'kubernetes/utils'
 );
 
 update gha_repos set repo_group = 'SIG Auth' where lower(name) in (
-  'kubernetes-sigs/multi-tenancy'
+  'kubernetes-sigs/multi-tenancy',
+  'kubernetes-sigs/seccomp-operator',
+  'kubernetes-sigs/secrets-store-csi-driver',
+  'kubernetes-sigs/wg-policy-prototypes'
 );
 
 update gha_repos set repo_group = 'SIG Autoscaling' where lower(name) in (
@@ -116,6 +130,8 @@ update gha_repos set repo_group = 'SIG Cloud Provider' where lower(name) in (
   'kubernetes-sigs/azurefile-csi-driver',
   'kubernetes-sigs/blobfuse-csi-driver',
   'kubernetes-sigs/cloud-provider-azure',
+  'kubernetes-sigs/cloud-provider-baiducloud',
+  'kubernetes-sigs/cloud-provider-huaweicloud',
   'kubernetes-sigs/compute-persistent-disk-csi-driver',
   'kubernetes-sigs/compute-persistent-disk-csi-driver-',
   'kubernetes-sigs/gcp-compute-persistent-disk-csi-driver',
@@ -140,9 +156,12 @@ update gha_repos set repo_group = 'SIG Cluster Lifecycle' where lower(name) in (
   'kubernetes-incubator/kube-aws',
   'kubernetes-incubator/kubespray',
   'kubernetes-retired/kubeadm-dind-cluster',
+  'kubernetes-retired/kube-deploy',
   'kubernetes-sigs/addon-operators',
   'kubernetes-sigs/bootkube',
   'kubernetes-sigs/clife_cluster-api',
+  'kubernetes-sigs/cluster-api-provider-nested',
+  'kubernetes-sigs/cluster-api-provider-packet',
   'kubernetes-sigs/cluster-addons',
   'kubernetes-sigs/etcdadm',
   'kubernetes-sigs/image-builder',
@@ -172,19 +191,24 @@ update gha_repos set repo_group = 'SIG Cluster Lifecycle (Cluster API)' where lo
 
 
 update gha_repos set repo_group = 'SIG Contributor Experience' where lower(name) in (
+  'kubernetes-client/.github',
+  'kubernetes-csi/.github',
   'kubernetes-graveyard/md-check',
   'kubernetes-retired/md-check',
   'kubernetes-sigs/contributor-playground',
   'kubernetes-sigs/contributor-site',
+  'kubernetes-sigs/contributor-tweets',
   'kubernetes-sigs/discuss-theme',
   'kubernetes-sigs/netlify-test',
   'kubernetes-sigs/slack-infra',
+  'kubernetes-sigs/.github',
   'kubernetes/community',
   'kubernetes/k8s.io',
   'kubernetes/md-check',
   'kubernetes/md-format',
   'kubernetes/org',
-  'kubernetes/repo-infra'
+  'kubernetes/repo-infra',
+  'kubernetes/.github'
 );
 
 update gha_repos set repo_group = 'SIG Docs' where lower(name) in (
@@ -209,6 +233,7 @@ update gha_repos set repo_group = 'SIG Instrumentation' where lower(name) in (
   'kubernetes-incubator/metrics-server',
   'kubernetes-retired/heapster',
   'kubernetes-sigs/custom-metrics-apiserver',
+  'kubernetes-sigs/instrumentation-tools',
   'kubernetes-sigs/metrics-server',
   'kubernetes-sigs/mutating-trace-admission-controller',
   'kubernetes/heapster',
@@ -222,6 +247,7 @@ update gha_repos set repo_group = 'SIG Multicluster' where lower(name) in (
   'kubernetes-retired/federation',
   'kubernetes-sigs/federation-v2',
   'kubernetes-sigs/kubefed',
+  'kubernetes-sigs/mcs-api',
   'kubernetes/cluster-registry',
   'kubernetes/federation'
 );
@@ -230,8 +256,11 @@ update gha_repos set repo_group = 'SIG Network' where lower(name) in (
   'kubernetes-incubator/external-dns',
   'kubernetes-incubator/ip-masq-agent',
   'kubernetes-sigs/alb-ingress-controller',
+  'kubernetes-sigs/cluster-proportional-autoscaler',
+  'kubernetes-sigs/cluster-proportional-vertical-autoscaler',
   'kubernetes-sigs/external-dns',
   'kubernetes-sigs/ingress-controller-conformance',
+  'kubernetes-sigs/iptables-wrappers',
   'kubernetes-sigs/ip-masq-agent',
   'kubernetes-sigs/service-apis',
   'kubernetes/dns',
@@ -252,6 +281,7 @@ update gha_repos set repo_group = 'SIG Node' where lower(name) in (
   'kubernetes-sigs/cri-tools',
   'kubernetes-sigs/node-feature-discovery',
   'kubernetes-sigs/node-feature-discovery-operator',
+  'kubernetes-sigs/security-profiles-operator',
   'kubernetes/cri-api',
   'kubernetes/frakti',
   'kubernetes/node-api',
@@ -260,15 +290,13 @@ update gha_repos set repo_group = 'SIG Node' where lower(name) in (
   'kubernetes/rktlet'
 );
 
-update gha_repos set repo_group = 'SIG PM' where lower(name) in (
-  'kubernetes/enhancements',
-  'kubernetes/features'
-);
-
 update gha_repos set repo_group = 'SIG Release' where lower(name) in (
+  'kubernetes-sigs/downloadkubernetes',
   'kubernetes-sigs/k8s-container-image-promoter',
+  'kubernetes-sigs/mdtoc',
   'kubernetes-sigs/release-notes',
   'kubernetes-sigs/relnotes',
+  'kubernetes-sigs/zeitgeist',
   'kubernetes/publishing-bot',
   'kubernetes/release',
   'kubernetes/sig-release'
@@ -294,6 +322,7 @@ update gha_repos set repo_group = 'SIG Scheduling' where lower(name) in (
 
 update gha_repos set repo_group = 'SIG Service Catalog' where lower(name) in (
   'kubernetes-incubator/service-catalog',
+  'kubernetes-sigs/go-open-service-broker-client',
   'kubernetes-sigs/minibroker',
   'kubernetes-sigs/service-catalog'
 );
@@ -307,6 +336,7 @@ update gha_repos set repo_group = 'SIG Storage' where lower(name) in (
   'kubernetes-csi/csi-driver-image-populator',
   'kubernetes-csi/csi-driver-iscsi',
   'kubernetes-csi/csi-driver-nfs',
+  'kubernetes-csi/csi-driver-smb',
   'kubernetes-csi/csi-flex-provisioner',
   'kubernetes-csi/csi-lib-common',
   'kubernetes-csi/csi-lib-fc',
@@ -320,6 +350,7 @@ update gha_repos set repo_group = 'SIG Storage' where lower(name) in (
   'kubernetes-csi/drivers',
   'kubernetes-csi/external-attacher',
   'kubernetes-csi/external-attacher-csi',
+  'kubernetes-csi/external-health-monitor',
   'kubernetes-csi/external-provisioner',
   'kubernetes-csi/external-provisioner-csi',
   'kubernetes-csi/external-resizer',
@@ -337,13 +368,29 @@ update gha_repos set repo_group = 'SIG Storage' where lower(name) in (
   'kubernetes-sigs/sig-storage-local-static-provisioner',
   'kubernetes/csi-api',
   'kubernetes/csi-translation-lib',
-  'kubernetes/git-sync'
+  'kubernetes/git-sync',
+  'kubernetes/mount-utils',
+  'kubernetes-retired/external-storage',
+  'kubernetes-sigs/blob-csi-driver',
+  'kubernetes-sigs/container-object-storage-interface-controller',
+  'kubernetes-sigs/container-object-storage-interface-csi-adapter',
+  'kubernetes-sigs/container-object-storage-interface-provisioner-sidecar',
+  'kubernetes-sigs/container-object-storage-interface-spec',
+  'kubernetes-sigs/gluster-block-external-provisioner',
+  'kubernetes-sigs/gluster-file-external-provisioner',
+  'kubernetes-sigs/nfs-ganesha-server-and-external-provisioner',
+  'kubernetes-sigs/nfs-subdir-external-provisioner'
 );
 
 update gha_repos set repo_group = 'SIG Testing' where lower(name) in (
   'kubernetes-retired/testing_frameworks',
+  'kubernetes-sigs/boskos',
+  'kubernetes-sigs/k8s-gsm-tools',
   'kubernetes-sigs/kind',
+  'kubernetes-sigs/kubetest2',
+  'kubernetes-sigs/secret-sync-rotation',
   'kubernetes-sigs/testing_frameworks',
+  'kubernetes-sig-testing/frameworks',
   'kubernetes/pr-bot',
   'kubernetes/test-infra'
 );
@@ -363,6 +410,7 @@ update gha_repos set repo_group = 'SIG Usability' where lower(name) in (
 );
 
 update gha_repos set repo_group = 'SIG Windows' where lower(name) in (
+  'kubernetes-sigs/sig-windows-samples',
   'kubernetes-sigs/sig-windows-tools',
   'kubernetes-sigs/windows-gmsa',
   'kubernetes-sigs/windows-testing'
