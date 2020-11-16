@@ -6,6 +6,8 @@ select
   max(created_at) as date_to
 from (
   select * from
+    [githubarchive:month.202010],
+    [githubarchive:month.202009],
     [githubarchive:month.202008],
     [githubarchive:month.202007],
     [githubarchive:month.202006],
@@ -26,6 +28,8 @@ where
     select
       repo.id
     from
+      [githubarchive:month.202010],
+      [githubarchive:month.202009],
       [githubarchive:month.202008],
       [githubarchive:month.202007],
       [githubarchive:month.202006],
