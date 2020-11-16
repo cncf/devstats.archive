@@ -727,7 +727,8 @@ update
 set
   repo_group = 'Backstage'
 where
-  name in ('spotify/backstage')
+  org_login in ('backstage')
+  or name in ('spotify/backstage')
 ;
 
 -- Tremor

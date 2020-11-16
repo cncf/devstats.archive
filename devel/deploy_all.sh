@@ -300,7 +300,7 @@ do
     PROJ=k3s                 PROJDB=k3s            PROJREPO="rancher/k3s"                     ORGNAME=K3s               PORT=3064 ICON=k3s            GRAFSUFF=k3s            GA="UA-145264316-25" ./devel/deploy_proj.sh || exit 82
   elif [ "$proj" = "backstage" ]
   then
-    PROJ=backstage           PROJDB=backstage      PROJREPO="spotify/backstag"                ORGNAME=Backstage         PORT=3065 ICON=backstage      GRAFSUFF=backstage      GA="UA-145264316-26" ./devel/deploy_proj.sh || exit 83
+    PROJ=backstage           PROJDB=backstage      PROJREPO="backstage/backstag"              ORGNAME=Backstage         PORT=3065 ICON=backstage      GRAFSUFF=backstage      GA="UA-145264316-26" ./devel/deploy_proj.sh || exit 83
   elif [ "$proj" = "tremor" ]
   then
     PROJ=tremor              PROJDB=tremor         PROJREPO="tremor-rs/tremor-runtime"        ORGNAME=tremor            PORT=3066 ICON=tremor         GRAFSUFF=tremor         GA="UA-145264316-27" ./devel/deploy_proj.sh || exit 84

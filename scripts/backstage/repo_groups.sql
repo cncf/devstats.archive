@@ -31,7 +31,8 @@ update gha_repos set repo_group = alias;
 update gha_repos
 set repo_group = 'Backstage', alias = 'Backstage'
 where name in (
-  'spotify/backstage'
+  'spotify/backstage',
+  'backstage/backstage'
 );
 
 select
