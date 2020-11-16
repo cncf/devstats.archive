@@ -26,7 +26,7 @@ Please see [Kubernetes dashboard](https://github.com/cncf/devstats-kubernetes-da
 
 Please see [bare metal example](https://github.com/cncf/devstats-example) to see example bare metal deployment.
 
-The rest of this document describes current bare metal deployment on packet.net used by CNCF projects.
+The rest of this document describes current bare metal deployment on metal.equinix.com used by CNCF projects.
 
 
 # Presentations
@@ -137,7 +137,7 @@ Please see [exporting](https://github.com/cncf/devstats/blob/master/EXPORT.md).
 
 # Servers
 
-The servers to run `devstats` are generously provided by [Packet](https://www.packet.net/) bare metal hosting as part of CNCF's [Community Infrastructure Lab](https://github.com/cncf/cluster).
+The servers to run `devstats` are generously provided by [Equinix](https://metal.equinix.com) bare metal hosting as part of CNCF's [Community Infrastructure Lab](https://github.com/cncf/cluster).
 
 # One line run all projects
 
