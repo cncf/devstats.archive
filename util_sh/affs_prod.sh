@@ -17,16 +17,19 @@ GHA2DB_RECENT_RANGE="4 hours" GHA2DB_TMOFFSET="-4" devstats
 ONLY="openmetrics harbor etcd tikv cortex buildpacks falco dragonfly virtualkubelet kubeedge brigade keylime" ./devel/all_affs.sh || exit 5
 GHA2DB_RECENT_RANGE="4 hours" GHA2DB_TMOFFSET="-4" devstats
 
-ONLY="crio networkservicemesh openebs opentelemetry thanos flux intoto strimzi kubevirt longhorn chubaofs keda" ./devel/all_affs.sh || exit 6
+ONLY="schemahero cdk8s certmanager openkruise tinkerbell pravega kyverno" ./devel/all_affs.sh || exit 6
 GHA2DB_RECENT_RANGE="4 hours" GHA2DB_TMOFFSET="-4" devstats
 
-ONLY="smi argo volcano cnigenie keptn kudo cloudcustodian dex litmuschaos artifacthub kuma parsec bfe crossplane" ./devel/all_affs.sh || exit 7
+ONLY="crio networkservicemesh openebs opentelemetry thanos flux intoto strimzi kubevirt longhorn chubaofs keda" ./devel/all_affs.sh || exit 7
 GHA2DB_RECENT_RANGE="4 hours" GHA2DB_TMOFFSET="-4" devstats
 
-ONLY="contour operatorframework chaosmesh serverlessworkflow k3s backstage tremor metal3 porter openyurt openservicemesh" ./devel/all_affs.sh || exit 8
+ONLY="smi argo volcano cnigenie keptn kudo cloudcustodian dex litmuschaos artifacthub kuma parsec bfe crossplane" ./devel/all_affs.sh || exit 8
 GHA2DB_RECENT_RANGE="4 hours" GHA2DB_TMOFFSET="-4" devstats
 
-ONLY="all" ./devel/all_affs.sh || exit 9
+ONLY="contour operatorframework chaosmesh serverlessworkflow k3s backstage tremor metal3 porter openyurt openservicemesh" ./devel/all_affs.sh || exit 9
+GHA2DB_RECENT_RANGE="4 hours" GHA2DB_TMOFFSET="-4" devstats
+
+ONLY="all" ./devel/all_affs.sh || exit 10
 GHA2DB_RECENT_RANGE="4 hours" GHA2DB_TMOFFSET="-4" devstats
 
 ./devel/columns_all.sh
