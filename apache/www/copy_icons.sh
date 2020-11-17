@@ -9,6 +9,7 @@ do
     continue
   fi
   icon=$proj
+  mid="icon"
   if [ "$icon" = "all" ]
   then
     icon="cncf"
@@ -29,8 +30,16 @@ do
   then
     icon="litmus"
   fi
+  if [ "$icon" = "certmanager" ]
+  then
+    icon="cert-manager"
+  fi
+  if [ "$icon" = "schemahero" ]
+  then
+    mid="logomark"
+  fi
   # TODO: remove when we have icons
-  if ( [ "$icon" = "cnigenie" ] || [ "$icon" = "istio" ] || [ "$icon" = "knative" ] || [ "$icon" = "contrib" ] || [ "$icon" = "sam" ] || [ "$icon" = "azf" ] || [ "$icon" = "riff" ] || [ "$icon" = "fn" ] || [ "$icon" = "openwhisk" ] || [ "$icon" = "openfaas" ] || [ "$icon" = "cii" ] )
+  if ( [ "$icon" = "kyverno" ] || [ "$icon" = "openkruise" ] || [ "$icon" = "cdk8s" ] || [ "$icon" = "cnigenie" ] || [ "$icon" = "istio" ] || [ "$icon" = "knative" ] || [ "$icon" = "contrib" ] || [ "$icon" = "sam" ] || [ "$icon" = "azf" ] || [ "$icon" = "riff" ] || [ "$icon" = "fn" ] || [ "$icon" = "openwhisk" ] || [ "$icon" = "openfaas" ] || [ "$icon" = "cii" ] )
   then
     icon="cncf"
   fi
@@ -44,8 +53,8 @@ do
   then
     path="projects/$icon"
   fi
-  convert "$HOME/dev/$iconorg/artwork/$path/icon/$icontype/$icon-icon-$icontype.png" -resize 80x80 "/var/www/html/img/$proj-icon-color.png" || exit 2
-  cp "$HOME/dev/$iconorg/artwork/$path/icon/$icontype/$icon-icon-$icontype.svg" "/var/www/html/img/$proj-icon-color.svg" || exit 3
+  convert "$HOME/dev/$iconorg/artwork/$path/icon/$icontype/$icon-$mid-$icontype.png" -resize 80x80 "/var/www/html/img/$proj-icon-color.png" || exit 2
+  cp "$HOME/dev/$iconorg/artwork/$path/icon/$icontype/$icon-$mid-$icontype.svg" "/var/www/html/img/$proj-icon-color.svg" || exit 3
 done
 
 # Special cases

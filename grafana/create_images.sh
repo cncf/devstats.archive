@@ -11,6 +11,7 @@ do
   fi
   suff=$proj
   icon=$proj
+  mid="icon"
   if [ "$suff" = "kubernetes" ]
   then
     suff="k8s"
@@ -35,8 +36,16 @@ do
   then
     icon="litmus"
   fi
+  if [ "$icon" = "certmanager" ]
+  then
+    icon="cert-manager"
+  fi
+  if [ "$icon" = "schemahero" ]
+  then
+    mid="logomark"
+  fi
   # TODO: remove when we have icons
-  if ( [ "$icon" = "cnigenie" ] || [ "$icon" = "istio" ] || [ "$icon" = "knative" ] || [ "$icon" = "contrib" ] || [ "$icon" = "sam" ] || [ "$icon" = "azf" ] || [ "$icon" = "riff" ] || [ "$icon" = "fn" ] || [ "$icon" = "openwhisk" ] || [ "$icon" = "openfaas" ] || [ "$icon" = "cii" ] )
+  if ( [ "$icon" = "kyverno" ] || [ "$icon" = "openkruise" ] || [ "$icon" = "cdk8s" ] || [ "$icon" = "cnigenie" ] || [ "$icon" = "istio" ] || [ "$icon" = "knative" ] || [ "$icon" = "contrib" ] || [ "$icon" = "sam" ] || [ "$icon" = "azf" ] || [ "$icon" = "riff" ] || [ "$icon" = "fn" ] || [ "$icon" = "openwhisk" ] || [ "$icon" = "openfaas" ] || [ "$icon" = "cii" ] )
   then
     icon="cncf"
   fi
@@ -50,8 +59,8 @@ do
   then
     path="projects/$icon"
   fi
-  cp "$HOME/dev/$iconorg/artwork/$path/icon/$icontype/$icon-icon-$icontype.svg" "grafana/img/$suff.svg" || exit 2
-  convert "$HOME/dev/$iconorg/artwork/$path/icon/$icontype/$icon-icon-$icontype.png" -resize 32x32 "grafana/img/${suff}32.png" || exit 3
+  cp "$HOME/dev/$iconorg/artwork/$path/icon/$icontype/$icon-$mid-$icontype.svg" "grafana/img/$suff.svg" || exit 2
+  convert "$HOME/dev/$iconorg/artwork/$path/icon/$icontype/$icon-$mid-$icontype.png" -resize 32x32 "grafana/img/${suff}32.png" || exit 3
 done
 
 # Special cases
