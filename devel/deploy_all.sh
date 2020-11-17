@@ -319,6 +319,27 @@ do
   elif [ "$proj" = "keylime" ]
   then
     PROJ=keylime             PROJDB=keylime        PROJREPO="keylime/keylime"                 ORGNAME=Keylime           PORT=3071 ICON=keylime        GRAFSUFF=keylime        GA="UA-145264316-32" ./devel/deploy_proj.sh || exit 89
+  elif [ "$proj" = "schemahero" ]
+  then
+    PROJ=schemahero          PROJDB=schemahero     PROJREPO="schemahero/schemahero"           ORGNAME=SchemaHero        PORT=3072 ICON=schemahero     GRAFSUFF=schemahero     GA="UA-145264316-33" ./devel/deploy_proj.sh || exit 91
+  elif [ "$proj" = "cdk8s" ]
+  then
+    PROJ=cdk8s               PROJDB=cdk8s          PROJREPO="awslabs/cdk8s" ORGNAME="Cloud Deployment Kit for Kubernetes" PORT=3073 ICON=cdk8s        GRAFSUFF=cdk8s          GA="UA-145264316-34" ./devel/deploy_proj.sh || exit 92
+  elif [ "$proj" = "certmanager" ]
+  then
+    PROJ=certmanager         PROJDB=certmanager    PROJREPO="jetstack/cert-manager"           ORGNAME="cert-manager"    PORT=3074 ICON=certmanager    GRAFSUFF=certmanager    GA="UA-145264316-35" ./devel/deploy_proj.sh || exit 93
+  elif [ "$proj" = "openkruise" ]
+  then
+    PROJ=openkruise          PROJDB=openkruise     PROJREPO="openkruise/kruise"               ORGNAME=OpenKruise        PORT=3075 ICON=openkruise     GRAFSUFF=openkruise     GA="UA-145264316-36" ./devel/deploy_proj.sh || exit 94
+  elif [ "$proj" = "tinkerbell" ]
+  then
+    PROJ=tinkerbell          PROJDB=tinkerbell     PROJREPO="tinkerbell/tink"                 ORGNAME=Tinkerbell        PORT=3076 ICON=tinkerbell     GRAFSUFF=tinkerbell     GA="UA-145264316-37" ./devel/deploy_proj.sh || exit 95
+  elif [ "$proj" = "pravega" ]
+  then
+    PROJ=pravega             PROJDB=pravega        PROJREPO="pravega/pravega"                 ORGNAME=Pravega           PORT=3077 ICON=pravega        GRAFSUFF=pravega        GA="UA-145264316-38" ./devel/deploy_proj.sh || exit 96
+  elif [ "$proj" = "kyverno" ]
+  then
+    PROJ=kyverno             PROJDB=kyverno        PROJREPO="kyverno/kyverno"                 ORGNAME=Kyverno           PORT=3078 ICON=kyverno        GRAFSUFF=kyverno        GA="UA-145264316-39" ./devel/deploy_proj.sh || exit 97
   elif [ "$proj" = "opencontainers" ]
   then
     PROJ=opencontainers      PROJDB=opencontainers PROJREPO="opencontainers/runc"             ORGNAME=OCI               PORT=3100 ICON="-"            GRAFSUFF=opencontainers GA="UA-108085315-19" ./devel/deploy_proj.sh || exit 32
