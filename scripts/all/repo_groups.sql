@@ -787,6 +787,71 @@ where
   or name in ('mit-ll/python-keylime', 'mit-ll/keylime')
 ;
 
+-- SchemaHero
+update
+  gha_repos
+set
+  repo_group = 'SchemaHero'
+where
+  org_login in ('schemahero')
+;
+
+-- Cloud Deployment Kit for Kubernetes
+update
+  gha_repos
+set
+  repo_group = 'Cloud Deployment Kit for Kubernetes'
+where
+  name in ('awslabs/cdk8s')
+;
+
+-- cert-manager
+update
+  gha_repos
+set
+  repo_group = 'cert-manager'
+where
+  org_login in ('cert-manager')
+  or name in ('jetstack/cert-manager', 'jetstack-experimental/cert-manager')
+;
+
+-- OpenKruise
+update
+  gha_repos
+set
+  repo_group = 'OpenKruise'
+where
+  org_login in ('openkruise', 'kruiseio')
+;
+
+-- Tinkerbell
+update
+  gha_repos
+set
+  repo_group = 'Tinkerbell'
+where
+  org_login in ('tinkerbell')
+  or name in ('packethost/tinkerbell')
+;
+
+-- Pravega
+update
+  gha_repos
+set
+  repo_group = 'Pravega'
+where
+  org_login in ('pravega')
+;
+
+-- Kyverno
+update
+  gha_repos
+set
+  repo_group = 'Kyverno'
+where
+  org_login in ('kyverno')
+;
+
 
 -- CNCF
 update
