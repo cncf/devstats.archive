@@ -850,6 +850,7 @@ set
   repo_group = 'Kyverno'
 where
   org_login in ('kyverno')
+  or name in ('nirmata/kyverno')
 ;
 
 
