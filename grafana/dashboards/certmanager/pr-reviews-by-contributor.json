@@ -1,101 +1,34 @@
 {
-  "annotations": {
-    "list": [
-      {
-        "builtIn": 1,
-        "datasource": "-- Grafana --",
-        "enable": true,
-        "hide": true,
-        "iconColor": "rgba(0, 211, 255, 1)",
-        "name": "Annotations \u0026 Alerts",
-        "type": "dashboard"
-      },
-      {
-        "datasource": "psql",
-        "enable": true,
-        "hide": false,
-        "iconColor": "rgba(255, 96, 96, 1)",
-        "limit": 100,
-        "name": "Releases",
-        "query": "SELECT title, description from annotations WHERE $timeFilter order by time asc",
-        "rawQuery": "select extract(epoch from time) AS time, title as text, description as tags from sannotations where $__timeFilter(time)",
-        "showIn": 0,
-        "tagsColumn": "title,description",
-        "textColumn": "",
-        "titleColumn": "[[full_name]] release",
-        "type": "alert"
-      }
-    ]
+  "variables": {
+    "list": []
   },
-  "editable": true,
-  "gnetId": null,
-  "graphTooltip": 0,
-  "id": 26,
-  "iteration": 1584711040675,
   "links": [],
   "panels": [
     {
-      "aliasColors": {},
-      "bars": true,
-      "dashLength": 10,
-      "dashes": false,
-      "datasource": "psql",
-      "decimals": null,
-      "description": "Shows review counts for given users and repository.",
-      "fill": 1,
-      "fillGradient": 0,
-      "gridPos": {
-        "h": 22,
-        "w": 24,
-        "x": 0,
-        "y": 0
-      },
-      "hiddenSeries": false,
-      "hideTimeOverride": false,
-      "id": 1,
-      "legend": {
-        "alignAsTable": true,
-        "avg": true,
-        "current": true,
-        "hideEmpty": false,
-        "hideZero": false,
-        "max": true,
-        "min": true,
-        "rightSide": true,
-        "show": true,
-        "sideWidth": null,
-        "sort": "avg",
-        "sortDesc": true,
-        "total": true,
-        "values": true
-      },
-      "lines": false,
-      "linewidth": 1,
-      "links": [],
-      "nullPointMode": "null as zero",
-      "options": {
-        "dataLinks": []
-      },
       "percentage": false,
-      "pointradius": 5,
-      "points": false,
-      "renderer": "flot",
+      "timeRegions": [],
+      "transparent": true,
+      "fill": 1,
+      "id": 1,
       "seriesOverrides": [],
-      "spaceLength": 10,
       "stack": true,
-      "steppedLine": false,
+      "timeFrom": null,
+      "xaxis": {
+        "name": null,
+        "show": true,
+        "values": [
+          "total"
+        ],
+        "buckets": null,
+        "mode": "time"
+      },
+      "decimals": null,
       "targets": [
         {
-          "alias": "",
-          "dsType": "influxdb",
           "format": "time_series",
-          "groupBy": [],
-          "measurement": "sig_federation_d",
           "orderByTime": "ASC",
-          "policy": "default",
-          "query": "SELECT /^[[reviewers]]$/ FROM \"reviews_per_user_[[repo]]_[[period]]\" WHERE $timeFilter",
+          "groupBy": [],
           "rawQuery": true,
-          "rawSql": "select\n  time,\n  ${reviewers:csv}\nfrom\n  suser_reviews\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'rev_per_usr[[repo]]'\norder by\n  time",
           "refId": "A",
           "resultFormat": "time_series",
           "select": [
@@ -108,30 +41,45 @@
               }
             ]
           ],
-          "tags": []
+          "tags": [],
+          "alias": "",
+          "policy": "default",
+          "query": "SELECT /^[[reviewers]]$/ FROM \"reviews_per_user_[[repo]]_[[period]]\" WHERE $timeFilter",
+          "rawSql": "select\n  time,\n  ${reviewers:csv}\nfrom\n  suser_reviews\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'rev_per_usr[[repo]]'\norder by\n  time",
+          "dsType": "influxdb",
+          "measurement": "sig_federation_d"
         }
       ],
       "thresholds": [],
-      "timeFrom": null,
-      "timeRegions": [],
-      "timeShift": null,
       "title": "Reviews per user/repo ([[repo_name]], [[period]])",
+      "datasource": "psql",
+      "hideTimeOverride": false,
+      "linewidth": 1,
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      },
+      "dashLength": 10,
+      "description": "Shows review counts for given users and repository.",
+      "fillGradient": 0,
+      "links": [],
+      "nullPointMode": "null as zero",
       "tooltip": {
         "shared": true,
         "sort": 2,
         "value_type": "individual"
       },
-      "transparent": true,
-      "type": "graph",
-      "xaxis": {
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true,
-        "values": [
-          "total"
-        ]
+      "gridPos": {
+        "h": 22,
+        "w": 24,
+        "x": 0,
+        "y": 0
       },
+      "hiddenSeries": false,
+      "options": {
+        "dataLinks": []
+      },
+      "timeShift": null,
       "yaxes": [
         {
           "format": "short",
@@ -142,18 +90,42 @@
           "show": true
         },
         {
+          "min": "0",
+          "show": true,
           "format": "short",
           "label": "",
           "logBase": 1,
-          "max": null,
-          "min": "0",
-          "show": true
+          "max": null
         }
       ],
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      }
+      "type": "graph",
+      "aliasColors": {
+        
+      },
+      "dashes": false,
+      "legend": {
+        "avg": true,
+        "max": true,
+        "sideWidth": null,
+        "total": true,
+        "values": true,
+        "alignAsTable": true,
+        "current": true,
+        "hideZero": false,
+        "rightSide": true,
+        "sortDesc": true,
+        "show": true,
+        "hideEmpty": false,
+        "min": true,
+        "sort": "avg"
+      },
+      "pointradius": 5,
+      "renderer": "flot",
+      "spaceLength": 10,
+      "bars": true,
+      "lines": false,
+      "points": false,
+      "steppedLine": false
     },
     {
       "content": "${docs:raw}",
@@ -167,13 +139,10 @@
       "id": 11,
       "links": [],
       "mode": "html",
-      "options": {},
       "title": "Dashboard documentation",
       "type": "text"
     }
   ],
-  "schemaVersion": 21,
-  "style": "dark",
   "tags": [
     "dashboard",
     "certmanager"
@@ -181,17 +150,19 @@
   "templating": {
     "list": [
       {
-        "allValue": null,
         "current": {
           "tags": [],
           "text": "7 Days MA",
           "value": "d7"
         },
-        "hide": 0,
         "includeAll": false,
         "label": "Period",
         "multi": false,
         "name": "period",
+        "query": "d,w,d7,m,q,y",
+        "type": "custom",
+        "allValue": null,
+        "hide": 0,
         "options": [
           {
             "selected": false,
@@ -199,9 +170,9 @@
             "value": "d"
           },
           {
+            "value": "w",
             "selected": false,
-            "text": "Week",
-            "value": "w"
+            "text": "Week"
           },
           {
             "selected": true,
@@ -224,174 +195,174 @@
             "value": "y"
           }
         ],
-        "query": "d,w,d7,m,q,y",
-        "skipUrlSync": false,
-        "type": "custom"
+        "skipUrlSync": false
       },
       {
-        "allValue": null,
+        "skipUrlSync": false,
+        "tagValuesQuery": "",
+        "tagsQuery": "",
+        "type": "query",
         "current": {
           "text": "All",
           "value": "All"
         },
         "datasource": "psql",
-        "definition": "",
-        "hide": 0,
-        "includeAll": false,
-        "label": "Repository",
         "multi": false,
-        "name": "repo_name",
-        "options": [],
         "query": "select top_repos_name_with_all from ttop_repos_with_all order by 1",
+        "tags": [],
+        "useTags": false,
+        "allValue": null,
+        "definition": "",
+        "index": -1,
+        "label": "Repository",
+        "name": "repo_name",
         "refresh": 1,
         "regex": "",
-        "skipUrlSync": false,
         "sort": 0,
+        "hide": 0,
+        "includeAll": false,
+        "options": []
+      },
+      {
+        "name": "repo",
+        "refresh": 1,
         "tagValuesQuery": "",
         "tags": [],
         "tagsQuery": "",
+        "useTags": false,
+        "index": -1,
+        "multi": false,
+        "definition": "",
+        "label": "",
+        "options": [],
+        "skipUrlSync": true,
         "type": "query",
-        "useTags": false
-      },
-      {
         "allValue": null,
+        "datasource": "psql",
+        "regex": "",
+        "includeAll": false,
+        "query": "select top_repos_value_with_all from ttop_repos_with_all where top_repos_name_with_all = '[[repo_name]]'",
+        "sort": 0,
         "current": {
           "text": "all",
           "value": "all"
         },
-        "datasource": "psql",
-        "definition": "",
-        "hide": 2,
-        "includeAll": false,
-        "label": "",
-        "multi": false,
-        "name": "repo",
-        "options": [],
-        "query": "select top_repos_value_with_all from ttop_repos_with_all where top_repos_name_with_all = '[[repo_name]]'",
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": true,
-        "sort": 0,
-        "tagValuesQuery": "",
-        "tags": [],
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false
+        "hide": 2
       },
       {
         "allValue": "",
-        "current": {
-          "selected": false,
-          "tags": [],
-          "text": "\"alexec\" + \"simster7\" + \"whynowy\" + \"jessesuen\" + \"jannfis\" + \"alexmt\" + \"dthomson25\" + \"sarabala1979\" + \"mark9white\" + \"NikeNano\" + \"moensch\" + \"amarrella\" + \"dtjm\" + \"ddseapy\" + \"cabrinha\" + \"MrXinWang\" + \"merlintang\" + \"carlosjgp\" + \"jamhed\" + \"dmayle\" + \"changhc\" + \"zachaller\" + \"danxmoran\" + \"mac9416\" + \"eytanhanig\" + \"rdigiorgio\" + \"igaskin\" + \"tomsanbear\" + \"shelby-moore\" + \"lcostea\" + \"louisblin\" + \"khhirani\"",
-          "value": [
-            "\"alexec\"",
-            "\"simster7\"",
-            "\"whynowy\"",
-            "\"jessesuen\"",
-            "\"jannfis\"",
-            "\"alexmt\"",
-            "\"dthomson25\"",
-            "\"sarabala1979\"",
-            "\"mark9white\"",
-            "\"NikeNano\"",
-            "\"moensch\"",
-            "\"amarrella\"",
-            "\"dtjm\"",
-            "\"ddseapy\"",
-            "\"cabrinha\"",
-            "\"MrXinWang\"",
-            "\"merlintang\"",
-            "\"carlosjgp\"",
-            "\"jamhed\"",
-            "\"dmayle\"",
-            "\"changhc\"",
-            "\"zachaller\"",
-            "\"danxmoran\"",
-            "\"mac9416\"",
-            "\"eytanhanig\"",
-            "\"rdigiorgio\"",
-            "\"igaskin\"",
-            "\"tomsanbear\"",
-            "\"shelby-moore\"",
-            "\"lcostea\"",
-            "\"louisblin\"",
-            "\"khhirani\""
-          ]
-        },
-        "datasource": "psql",
         "definition": "",
-        "hide": 0,
-        "includeAll": false,
-        "label": "Reviewer",
         "multi": true,
-        "name": "reviewers",
         "options": [],
-        "query": "select '\"' || reviewers_name || '\"' from treviewers",
-        "refresh": 1,
         "regex": "",
-        "skipUrlSync": false,
-        "sort": 0,
         "tagValuesQuery": "",
         "tags": [],
-        "tagsQuery": "",
         "type": "query",
-        "useTags": false
+        "useTags": false,
+        "current": {
+          "tags": [],
+          "text": "\"meyskens\" + \"wallrj\" + \"JoshVanL\" + \"jakexks\" + \"munnerz\" + \"james-w\" + \"vniche\" + \"sorah\" + \"maelvls\" + \"raphink\" + \"hzhou97\" + \"deads2k\" + \"ddgenome\" + \"mathianasj\" + \"crandles\" + \"mikesir87\" + \"call-a3\" + \"supriya-premkumar\" + \"nd2014-public\" + \"PaulusTM\" + \"shankgan\" + \"tinuvthomas\" + \"GeoffWilliams\" + \"LekeFasola\" + \"JasonWhall\" + \"terinjokes\" + \"jsoref\" + \"alrs\" + \"sbocinec\"",
+          "value": [
+            "\"meyskens\"",
+            "\"wallrj\"",
+            "\"JoshVanL\"",
+            "\"jakexks\"",
+            "\"munnerz\"",
+            "\"james-w\"",
+            "\"vniche\"",
+            "\"sorah\"",
+            "\"maelvls\"",
+            "\"raphink\"",
+            "\"hzhou97\"",
+            "\"deads2k\"",
+            "\"ddgenome\"",
+            "\"mathianasj\"",
+            "\"crandles\"",
+            "\"mikesir87\"",
+            "\"call-a3\"",
+            "\"supriya-premkumar\"",
+            "\"nd2014-public\"",
+            "\"PaulusTM\"",
+            "\"shankgan\"",
+            "\"tinuvthomas\"",
+            "\"GeoffWilliams\"",
+            "\"LekeFasola\"",
+            "\"JasonWhall\"",
+            "\"terinjokes\"",
+            "\"jsoref\"",
+            "\"alrs\"",
+            "\"sbocinec\""
+          ],
+          "selected": false
+        },
+        "hide": 0,
+        "label": "Reviewer",
+        "name": "reviewers",
+        "query": "select '\"' || reviewers_name || '\"' from treviewers",
+        "sort": 0,
+        "tagsQuery": "",
+        "refresh": 1,
+        "skipUrlSync": false,
+        "datasource": "psql",
+        "includeAll": false,
+        "index": -1
       },
       {
-        "allValue": null,
-        "current": {
-          "text": "Argo",
-          "value": "Argo"
-        },
         "datasource": "psql",
-        "definition": "",
-        "hide": 2,
-        "includeAll": false,
-        "label": null,
+        "index": -1,
         "multi": false,
         "name": "full_name",
         "options": [],
+        "regex": "",
+        "tagsQuery": "",
+        "type": "query",
+        "allValue": null,
+        "includeAll": false,
         "query": "select value_s from gha_vars where name = 'full_name'",
         "refresh": 1,
-        "regex": "",
-        "skipUrlSync": true,
         "sort": 0,
         "tagValuesQuery": "",
+        "definition": "",
         "tags": [],
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false
+        "useTags": false,
+        "current": {
+          "text": "cert-manager",
+          "value": "cert-manager"
+        },
+        "hide": 2,
+        "label": null,
+        "skipUrlSync": true
       },
       {
-        "allValue": null,
-        "current": {
-          "text": "\u003ch1 id=\"dashboard-header\"\u003eArgo user reviews dashboard\u003c/h1\u003e\n\u003cp\u003eLinks:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003eMetric \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/reviews_per_user.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eTSDB \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/metrics.yaml\" target=\"_blank\"\u003eseries definition\u003c/a\u003e. Search for \u003ccode\u003ereviews_per_user\u003c/code\u003e\u003c/li\u003e\n\u003cli\u003eGrafana dashboard \u003ca href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/argo/user-reviews.json\" target=\"_blank\"\u003eJSON\u003c/a\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch1 id=\"description\"\u003eDescription\u003c/h1\u003e\n\u003cul\u003e\n\u003cli\u003eThis dashboard shows number of PR reviews most active reviewers.\u003c/li\u003e\n\u003cli\u003eReview means user added PR review comment.\u003c/li\u003e\n\u003cli\u003eYou can select reviewer from the reviewers drop-down, it shows top active reviewers from last 3 months.\u003c/li\u003e\n\u003cli\u003eTo find top active reviewers we sum number of reviews per user.\u003c/li\u003e\n\u003cli\u003eYou can select single repository or summary for all of them.\u003c/li\u003e\n\u003cli\u003eYou can filter by period and choose multiple reviewers to stack their data.\u003c/li\u003e\n\u003cli\u003eSelecting period (for example week) means that dashboard will show reviews in those periods.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/periods.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about periods.\u003c/li\u003e\n\u003c/ul\u003e",
-          "value": "\u003ch1 id=\"dashboard-header\"\u003eArgo user reviews dashboard\u003c/h1\u003e\n\u003cp\u003eLinks:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003eMetric \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/reviews_per_user.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eTSDB \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/metrics.yaml\" target=\"_blank\"\u003eseries definition\u003c/a\u003e. Search for \u003ccode\u003ereviews_per_user\u003c/code\u003e\u003c/li\u003e\n\u003cli\u003eGrafana dashboard \u003ca href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/argo/user-reviews.json\" target=\"_blank\"\u003eJSON\u003c/a\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch1 id=\"description\"\u003eDescription\u003c/h1\u003e\n\u003cul\u003e\n\u003cli\u003eThis dashboard shows number of PR reviews most active reviewers.\u003c/li\u003e\n\u003cli\u003eReview means user added PR review comment.\u003c/li\u003e\n\u003cli\u003eYou can select reviewer from the reviewers drop-down, it shows top active reviewers from last 3 months.\u003c/li\u003e\n\u003cli\u003eTo find top active reviewers we sum number of reviews per user.\u003c/li\u003e\n\u003cli\u003eYou can select single repository or summary for all of them.\u003c/li\u003e\n\u003cli\u003eYou can filter by period and choose multiple reviewers to stack their data.\u003c/li\u003e\n\u003cli\u003eSelecting period (for example week) means that dashboard will show reviews in those periods.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/periods.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about periods.\u003c/li\u003e\n\u003c/ul\u003e"
-        },
-        "datasource": "psql",
-        "definition": "",
-        "hide": 2,
-        "includeAll": false,
+        "skipUrlSync": true,
+        "type": "query",
+        "name": "docs",
+        "query": "select value_s from gha_vars where name = 'user_reviews_docs_html'",
         "label": null,
         "multi": false,
-        "name": "docs",
-        "options": [],
-        "query": "select value_s from gha_vars where name = 'user_reviews_docs_html'",
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": true,
-        "sort": 0,
         "tagValuesQuery": "",
         "tags": [],
         "tagsQuery": "",
-        "type": "query",
-        "useTags": false
+        "allValue": null,
+        "includeAll": false,
+        "definition": "",
+        "index": -1,
+        "options": [],
+        "current": {
+          "text": "\u003ch1 id=\"dashboard-header\"\u003ecert-manager user reviews dashboard\u003c/h1\u003e\n\u003cp\u003eLinks:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003eMetric \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/reviews_per_user.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eTSDB \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/metrics.yaml\" target=\"_blank\"\u003eseries definition\u003c/a\u003e. Search for \u003ccode\u003ereviews_per_user\u003c/code\u003e\u003c/li\u003e\n\u003cli\u003eGrafana dashboard \u003ca href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/certmanager/user-reviews.json\" target=\"_blank\"\u003eJSON\u003c/a\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch1 id=\"description\"\u003eDescription\u003c/h1\u003e\n\u003cul\u003e\n\u003cli\u003eThis dashboard shows number of PR reviews most active reviewers.\u003c/li\u003e\n\u003cli\u003eReview means user added PR review comment.\u003c/li\u003e\n\u003cli\u003eYou can select reviewer from the reviewers drop-down, it shows top active reviewers from last 3 months.\u003c/li\u003e\n\u003cli\u003eTo find top active reviewers we sum number of reviews per user.\u003c/li\u003e\n\u003cli\u003eYou can select single repository or summary for all of them.\u003c/li\u003e\n\u003cli\u003eYou can filter by period and choose multiple reviewers to stack their data.\u003c/li\u003e\n\u003cli\u003eSelecting period (for example week) means that dashboard will show reviews in those periods.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/periods.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about periods.\u003c/li\u003e\n\u003c/ul\u003e",
+          "value": "\u003ch1 id=\"dashboard-header\"\u003ecert-manager user reviews dashboard\u003c/h1\u003e\n\u003cp\u003eLinks:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003eMetric \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/reviews_per_user.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eTSDB \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/metrics.yaml\" target=\"_blank\"\u003eseries definition\u003c/a\u003e. Search for \u003ccode\u003ereviews_per_user\u003c/code\u003e\u003c/li\u003e\n\u003cli\u003eGrafana dashboard \u003ca href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/certmanager/user-reviews.json\" target=\"_blank\"\u003eJSON\u003c/a\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch1 id=\"description\"\u003eDescription\u003c/h1\u003e\n\u003cul\u003e\n\u003cli\u003eThis dashboard shows number of PR reviews most active reviewers.\u003c/li\u003e\n\u003cli\u003eReview means user added PR review comment.\u003c/li\u003e\n\u003cli\u003eYou can select reviewer from the reviewers drop-down, it shows top active reviewers from last 3 months.\u003c/li\u003e\n\u003cli\u003eTo find top active reviewers we sum number of reviews per user.\u003c/li\u003e\n\u003cli\u003eYou can select single repository or summary for all of them.\u003c/li\u003e\n\u003cli\u003eYou can filter by period and choose multiple reviewers to stack their data.\u003c/li\u003e\n\u003cli\u003eSelecting period (for example week) means that dashboard will show reviews in those periods.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/periods.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about periods.\u003c/li\u003e\n\u003c/ul\u003e"
+        },
+        "datasource": "psql",
+        "regex": "",
+        "sort": 0,
+        "useTags": false,
+        "hide": 2,
+        "refresh": 1
       }
     ]
   },
   "time": {
-    "from": "now-1y",
+    "from": "now-2y",
     "to": "now"
   },
   "timepicker": {
@@ -420,7 +391,44 @@
     ]
   },
   "timezone": "",
+  "iteration": 1605712044766,
+  "style": "dark",
   "title": "PR Reviews by Contributor",
   "uid": "29",
-  "version": 2
+  "version": 2,
+  "annotations": {
+    "list": [
+      {
+        "name": "Annotations \u0026 Alerts",
+        "type": "dashboard",
+        "$$hashKey": "object:25",
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)"
+      },
+      {
+        "hide": false,
+        "tagsColumn": "title,description",
+        "titleColumn": "[[full_name]] release",
+        "type": "alert",
+        "enable": true,
+        "limit": 100,
+        "name": "Releases",
+        "rawQuery": "select extract(epoch from time) AS time, title as text, description as tags from sannotations where $__timeFilter(time)",
+        "$$hashKey": "object:26",
+        "iconColor": "rgba(255, 96, 96, 1)",
+        "query": "SELECT title, description from annotations WHERE $timeFilter order by time asc",
+        "showIn": 0,
+        "textColumn": "",
+        "datasource": "psql"
+      }
+    ]
+  },
+  "editable": true,
+  "gnetId": null,
+  "id": 26,
+  "schemaVersion": 22,
+  "graphTooltip": 0
 }
