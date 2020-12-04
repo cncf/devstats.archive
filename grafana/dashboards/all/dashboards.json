@@ -1,40 +1,221 @@
 {
-  "annotations": {
-    "list": [
-      {
-        "$$hashKey": "object:21",
-        "builtIn": 1,
-        "datasource": "-- Grafana --",
-        "enable": true,
-        "hide": true,
-        "iconColor": "rgba(0, 211, 255, 1)",
-        "name": "Annotations \u0026 Alerts",
-        "type": "dashboard"
+  "panels": [
+    {
+      "description": "Numbers of GitHub events in [[full_name]] repositories hourly",
+      "stack": false,
+      "targets": [
+        {
+          "rawSql": "select\n  time,\n  value as \"Number of GitHub events hourly\"\nfrom\n  sevents_h\nwhere\n  $__timeFilter(time)\norder by\n  time",
+          "tags": [],
+          "timeColumn": "time",
+          "rawQuery": true,
+          "metricColumn": "none",
+          "refId": "A",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "type": "field",
+                "params": [
+                  "value"
+                ]
+              }
+            ]
+          ],
+          "where": [
+            {
+              "params": [],
+              "type": "macro",
+              "name": "$__timeFilter"
+            }
+          ],
+          "group": [],
+          "format": "time_series",
+          "groupBy": [],
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "SELECT \"value\" FROM \"events_h\" WHERE $timeFilter",
+          "dsType": "influxdb",
+          "alias": ""
+        }
+      ],
+      "type": "graph",
+      "yaxes": [
+        {
+          "label": "Activity",
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true,
+          "format": "short"
+        },
+        {
+          "min": "0",
+          "show": true,
+          "format": "short",
+          "label": "",
+          "logBase": 1,
+          "max": null
+        }
+      ],
+      "bars": false,
+      "hiddenSeries": false,
+      "id": 2,
+      "seriesOverrides": [],
+      "xaxis": {
+        "name": null,
+        "show": true,
+        "values": [
+          "total"
+        ],
+        "buckets": null,
+        "mode": "time"
       },
-      {
-        "$$hashKey": "object:22",
-        "datasource": "psql",
-        "enable": true,
-        "hide": false,
-        "iconColor": "rgba(255, 96, 96, 1)",
-        "limit": 100,
-        "name": "Releases",
-        "query": "SELECT title, description from annotations WHERE $timeFilter order by time asc",
-        "rawQuery": "select extract(epoch from time) AS time, title as text, description as tags from sannotations where $__timeFilter(time)",
-        "showIn": 0,
-        "tagsColumn": "title,description",
-        "textColumn": "",
-        "titleColumn": "Annotation",
-        "type": "alert"
+      "gridPos": {
+        "y": 0,
+        "h": 6,
+        "w": 20,
+        "x": 0
+      },
+      "fill": 3,
+      "linewidth": 0,
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      },
+      "dashLength": 10,
+      "nullPointMode": "null",
+      "pointradius": 1,
+      "spaceLength": 10,
+      "thresholds": [],
+      "timeFrom": null,
+      "timeShift": null,
+      "transparent": true,
+      "datasource": "psql",
+      "percentage": false,
+      "renderer": "flot",
+      "title": "Hourly activity on GitHub",
+      "tooltip": {
+        "sort": 0,
+        "value_type": "individual",
+        "shared": false
+      },
+      "links": [
+        {
+          "title": "DevStats GitHub repository",
+          "url": "https://github.com/cncf/devstats"
+        }
+      ],
+      "decimals": 0,
+      "points": true,
+      "timeRegions": [],
+      "dashes": false,
+      "options": {
+        "dataLinks": []
+      },
+      "steppedLine": false,
+      "legend": {
+        "show": true,
+        "total": true,
+        "values": true,
+        "alignAsTable": true,
+        "avg": true,
+        "rightSide": false,
+        "current": true,
+        "max": true,
+        "min": true
+      },
+      "fillGradient": 0,
+      "lines": true,
+      "aliasColors": {
+        
       }
-    ]
-  },
-  "description": "Home dashboard",
-  "editable": true,
-  "gnetId": null,
+    },
+    {
+      "description": "",
+      "height": 220,
+      "id": 1,
+      "title": "",
+      "transparent": true,
+      "type": "text",
+      "content": "Please report any bugs by opening an issue on \u003ca href=\"https://github.com/cncf/devstats\"\u003ehttps://github.com/cncf/devstats\u003c/a\u003e",
+      "datasource": null,
+      "gridPos": {
+        "h": 6,
+        "w": 4,
+        "x": 20,
+        "y": 0
+      },
+      "links": [],
+      "mode": "html"
+    },
+    {
+      "links": [],
+      "mode": "html",
+      "title": "[[full_name]] Projects",
+      "datasource": null,
+      "description": "List of all projects.",
+      "id": 3,
+      "content": "${projects:raw}",
+      "gridPos": {
+        "h": 42,
+        "w": 24,
+        "x": 0,
+        "y": 6
+      },
+      "type": "text"
+    },
+    {
+      "links": [
+        {
+          "title": "devstats",
+          "url": "https://github.com/cncf/devstats"
+        }
+      ],
+      "search": true,
+      "datasource": null,
+      "gridPos": {
+        "h": 46,
+        "w": 24,
+        "x": 0,
+        "y": 48
+      },
+      "folderId": 0,
+      "headings": false,
+      "id": 4,
+      "query": "",
+      "type": "dashlist",
+      "description": "https://github.com/cncf/devstats",
+      "limit": 50,
+      "recent": false,
+      "starred": false,
+      "tags": [
+        "dashboard",
+        "all"
+      ],
+      "title": "[[full_name]] Dashboards"
+    },
+    {
+      "links": [],
+      "mode": "html",
+      "title": "Dashboard documentation",
+      "type": "text",
+      "content": "${docs:raw}",
+      "datasource": null,
+      "gridPos": {
+        "h": 10,
+        "w": 24,
+        "x": 0,
+        "y": 94
+      },
+      "id": 6
+    }
+  ],
+  "schemaVersion": 22,
+  "title": "Dashboards",
   "graphTooltip": 0,
+  "iteration": 1607084142333,
   "id": 11,
-  "iteration": 1599287075355,
   "links": [
     {
       "icon": "dashboard",
@@ -47,14 +228,14 @@
       "url": "https://k8s.[[hostname]]"
     },
     {
+      "tooltip": "Opens Prometheus dashboards",
+      "type": "link",
+      "url": "https://prometheus.[[hostname]]",
       "icon": "dashboard",
       "keepTime": true,
       "tags": [],
       "targetBlank": true,
-      "title": "Prometheus",
-      "tooltip": "Opens Prometheus dashboards",
-      "type": "link",
-      "url": "https://prometheus.[[hostname]]"
+      "title": "Prometheus"
     },
     {
       "icon": "dashboard",
@@ -67,24 +248,24 @@
       "url": "https://envoy.[[hostname]]"
     },
     {
-      "icon": "dashboard",
-      "keepTime": true,
-      "tags": [],
-      "targetBlank": true,
       "title": "CoreDNS",
       "tooltip": "Opens CoreDNS dashboards",
       "type": "link",
-      "url": "https://coredns.[[hostname]]"
+      "url": "https://coredns.[[hostname]]",
+      "icon": "dashboard",
+      "keepTime": true,
+      "tags": [],
+      "targetBlank": true
     },
     {
+      "url": "https://containerd.[[hostname]]",
       "icon": "dashboard",
       "keepTime": true,
       "tags": [],
       "targetBlank": true,
       "title": "containerd",
       "tooltip": "Opens containerd dashboards",
-      "type": "link",
-      "url": "https://containerd.[[hostname]]"
+      "type": "link"
     },
     {
       "icon": "dashboard",
@@ -97,44 +278,44 @@
       "url": "https://fluentd.[[hostname]]"
     },
     {
+      "tooltip": "Opens Jaeger dashboards",
+      "type": "link",
+      "url": "https://jaeger.[[hostname]]",
       "icon": "dashboard",
       "keepTime": true,
       "tags": [],
       "targetBlank": true,
-      "title": "Jaeger",
-      "tooltip": "Opens Jaeger dashboards",
-      "type": "link",
-      "url": "https://jaeger.[[hostname]]"
+      "title": "Jaeger"
     },
     {
-      "icon": "dashboard",
-      "keepTime": true,
       "tags": [],
       "targetBlank": true,
       "title": "Vitess",
       "tooltip": "Opens Vitess dashboards",
       "type": "link",
-      "url": "https://vitess.[[hostname]]"
+      "url": "https://vitess.[[hostname]]",
+      "icon": "dashboard",
+      "keepTime": true
     },
     {
-      "icon": "dashboard",
-      "keepTime": true,
       "tags": [],
       "targetBlank": true,
       "title": "TUF",
       "tooltip": "Opens TUF dashboards",
       "type": "link",
-      "url": "https://tuf.[[hostname]]"
+      "url": "https://tuf.[[hostname]]",
+      "icon": "dashboard",
+      "keepTime": true
     },
     {
+      "url": "https://helm.[[hostname]]",
       "icon": "dashboard",
       "keepTime": true,
       "tags": [],
       "targetBlank": true,
       "title": "Helm",
       "tooltip": "Opens Helm projects dashboards",
-      "type": "link",
-      "url": "https://helm.[[hostname]]"
+      "type": "link"
     },
     {
       "icon": "dashboard",
@@ -147,254 +328,254 @@
       "url": "https://harbor.[[hostname]]"
     },
     {
-      "icon": "dashboard",
       "keepTime": true,
       "tags": [],
       "targetBlank": true,
       "title": "TiKV",
       "tooltip": "Opens TiKV projects dashboards",
       "type": "link",
-      "url": "https://tikv.[[hostname]]"
+      "url": "https://tikv.[[hostname]]",
+      "icon": "dashboard"
     },
     {
-      "icon": "dashboard",
-      "keepTime": true,
-      "tags": [],
-      "targetBlank": true,
-      "title": "Rook",
       "tooltip": "Opens Rook dashboards",
       "type": "link",
-      "url": "https://rook.[[hostname]]"
-    },
-    {
+      "url": "https://rook.[[hostname]]",
       "icon": "dashboard",
       "keepTime": true,
       "tags": [],
       "targetBlank": true,
+      "title": "Rook"
+    },
+    {
       "title": "etcd",
       "tooltip": "Opens etcd projects dashboards",
       "type": "link",
-      "url": "https://etcd.[[hostname]]"
+      "url": "https://etcd.[[hostname]]",
+      "icon": "dashboard",
+      "keepTime": true,
+      "tags": [],
+      "targetBlank": true
     },
     {
+      "url": "https://opentracing.[[hostname]]",
       "icon": "dashboard",
       "keepTime": true,
       "tags": [],
       "targetBlank": true,
       "title": "OpenTracing",
       "tooltip": "Opens OpenTracing dashboards",
-      "type": "link",
-      "url": "https://opentracing.[[hostname]]"
+      "type": "link"
     },
     {
+      "type": "link",
+      "url": "https://grpc.[[hostname]]",
       "icon": "dashboard",
       "keepTime": true,
       "tags": [],
       "targetBlank": true,
       "title": "gRPC",
-      "tooltip": "Opens gRPC dashboards",
-      "type": "link",
-      "url": "https://grpc.[[hostname]]"
+      "tooltip": "Opens gRPC dashboards"
     },
     {
-      "icon": "dashboard",
       "keepTime": true,
       "tags": [],
       "targetBlank": true,
       "title": "CNI",
       "tooltip": "Opens CNI dashboards",
       "type": "link",
-      "url": "https://cni.[[hostname]]"
+      "url": "https://cni.[[hostname]]",
+      "icon": "dashboard"
     },
     {
-      "icon": "dashboard",
-      "keepTime": true,
-      "tags": [],
       "targetBlank": true,
       "title": "Notary",
       "tooltip": "Opens Notary dashboards",
       "type": "link",
-      "url": "https://notary.[[hostname]]"
-    },
-    {
+      "url": "https://notary.[[hostname]]",
       "icon": "dashboard",
       "keepTime": true,
-      "tags": [],
+      "tags": []
+    },
+    {
       "targetBlank": true,
       "title": "NATS",
       "tooltip": "Opens NATS dashboards",
       "type": "link",
-      "url": "https://nats.[[hostname]]"
+      "url": "https://nats.[[hostname]]",
+      "icon": "dashboard",
+      "keepTime": true,
+      "tags": []
     },
     {
+      "type": "link",
+      "url": "https://linkerd.[[hostname]]",
       "icon": "dashboard",
       "keepTime": true,
       "tags": [],
       "targetBlank": true,
       "title": "Linkerd",
-      "tooltip": "Opens Linkerd dashboards",
-      "type": "link",
-      "url": "https://linkerd.[[hostname]]"
+      "tooltip": "Opens Linkerd dashboards"
     },
     {
-      "icon": "dashboard",
-      "keepTime": true,
-      "tags": [],
       "targetBlank": true,
       "title": "OPA",
       "tooltip": "Opens OPA projects dashboards",
       "type": "link",
-      "url": "https://opa.[[hostname]]"
+      "url": "https://opa.[[hostname]]",
+      "icon": "dashboard",
+      "keepTime": true,
+      "tags": []
     },
     {
-      "icon": "dashboard",
       "keepTime": true,
       "tags": [],
       "targetBlank": true,
       "title": "CRI-O",
       "tooltip": "Opens CRI-O projects dashboards",
       "type": "link",
-      "url": "https://crio.[[hostname]]"
+      "url": "https://crio.[[hostname]]",
+      "icon": "dashboard"
     },
     {
+      "tooltip": "Opens CloudEvents projects dashboards",
+      "type": "link",
+      "url": "https://cloudevents.[[hostname]]",
       "icon": "dashboard",
       "keepTime": true,
       "tags": [],
       "targetBlank": true,
-      "title": "CloudEvents",
-      "tooltip": "Opens CloudEvents projects dashboards",
-      "type": "link",
-      "url": "https://cloudevents.[[hostname]]"
+      "title": "CloudEvents"
     },
     {
-      "icon": "dashboard",
-      "keepTime": true,
-      "tags": [],
       "targetBlank": true,
       "title": "Falco",
       "tooltip": "Opens Falco projects dashboards",
       "type": "link",
-      "url": "https://falco.[[hostname]]"
+      "url": "https://falco.[[hostname]]",
+      "icon": "dashboard",
+      "keepTime": true,
+      "tags": []
     },
     {
-      "icon": "dashboard",
       "keepTime": true,
       "tags": [],
       "targetBlank": true,
       "title": "Argo",
       "tooltip": "Opens Argo projects dashboards",
       "type": "link",
-      "url": "https://argo.[[hostname]]"
+      "url": "https://argo.[[hostname]]",
+      "icon": "dashboard"
     },
     {
+      "tooltip": "Opens Dragonfly projects dashboards",
+      "type": "link",
+      "url": "https://dragonfly.[[hostname]]",
       "icon": "dashboard",
       "keepTime": true,
       "tags": [],
       "targetBlank": true,
-      "title": "Dragonfly",
-      "tooltip": "Opens Dragonfly projects dashboards",
-      "type": "link",
-      "url": "https://dragonfly.[[hostname]]"
+      "title": "Dragonfly"
     },
     {
-      "icon": "dashboard",
-      "keepTime": true,
       "tags": [],
       "targetBlank": true,
       "title": "Contour",
       "tooltip": "Opens Contour projects dashboards",
       "type": "link",
-      "url": "https://contour.[[hostname]]"
+      "url": "https://contour.[[hostname]]",
+      "icon": "dashboard",
+      "keepTime": true
     },
     {
-      "icon": "dashboard",
-      "keepTime": true,
-      "tags": [],
       "targetBlank": true,
       "title": "Operator Framework",
       "tooltip": "Opens Operator Framework projects dashboards",
       "type": "link",
-      "url": "https://operatorframework.[[hostname]]"
-    },
-    {
+      "url": "https://operatorframework.[[hostname]]",
       "icon": "dashboard",
       "keepTime": true,
+      "tags": []
+    },
+    {
       "tags": [],
       "targetBlank": true,
       "title": "SPIFFE",
       "tooltip": "Opens SPIFFE projects dashboards",
       "type": "link",
-      "url": "https://spiffe.[[hostname]]"
+      "url": "https://spiffe.[[hostname]]",
+      "icon": "dashboard",
+      "keepTime": true
     },
     {
+      "tooltip": "Opens SPIRE projects dashboards",
+      "type": "link",
+      "url": "https://spire.[[hostname]]",
       "icon": "dashboard",
       "keepTime": true,
       "tags": [],
       "targetBlank": true,
-      "title": "SPIRE",
-      "tooltip": "Opens SPIRE projects dashboards",
-      "type": "link",
-      "url": "https://spire.[[hostname]]"
+      "title": "SPIRE"
     },
     {
-      "icon": "dashboard",
-      "keepTime": true,
-      "tags": [],
       "targetBlank": true,
       "title": "Cortex",
       "tooltip": "Opens Cortex projects dashboards",
       "type": "link",
-      "url": "https://cortex.[[hostname]]"
+      "url": "https://cortex.[[hostname]]",
+      "icon": "dashboard",
+      "keepTime": true,
+      "tags": []
     },
     {
+      "tooltip": "Opens Thanos projects dashboards",
+      "type": "link",
+      "url": "https://thanos.[[hostname]]",
       "icon": "dashboard",
       "keepTime": true,
       "tags": [],
       "targetBlank": true,
-      "title": "Thanos",
-      "tooltip": "Opens Thanos projects dashboards",
-      "type": "link",
-      "url": "https://thanos.[[hostname]]"
+      "title": "Thanos"
     },
     {
-      "icon": "dashboard",
-      "keepTime": true,
       "tags": [],
       "targetBlank": true,
       "title": "Buildpacks",
       "tooltip": "Opens Buildpacks projects dashboards",
       "type": "link",
-      "url": "https://buildpacks.[[hostname]]"
+      "url": "https://buildpacks.[[hostname]]",
+      "icon": "dashboard",
+      "keepTime": true
     },
     {
-      "icon": "dashboard",
       "keepTime": true,
       "tags": [],
       "targetBlank": true,
       "title": "KubeEdge",
       "tooltip": "Opens KubeEdge projects dashboards",
       "type": "link",
-      "url": "https://kubeedge.[[hostname]]"
+      "url": "https://kubeedge.[[hostname]]",
+      "icon": "dashboard"
     },
     {
-      "icon": "dashboard",
       "keepTime": true,
       "tags": [],
       "targetBlank": true,
       "title": "Telepresence",
       "tooltip": "Opens Telepresence projects dashboards",
       "type": "link",
-      "url": "https://telepresence.[[hostname]]"
+      "url": "https://telepresence.[[hostname]]",
+      "icon": "dashboard"
     },
     {
-      "icon": "dashboard",
-      "keepTime": true,
-      "tags": [],
       "targetBlank": true,
       "title": "OpenMetrics",
       "tooltip": "Opens OpenMetrics projects dashboards",
       "type": "link",
-      "url": "https://openmetrics.[[hostname]]"
+      "url": "https://openmetrics.[[hostname]]",
+      "icon": "dashboard",
+      "keepTime": true,
+      "tags": []
     },
     {
       "icon": "dashboard",
@@ -407,24 +588,24 @@
       "url": "https://virtualkubelet.[[hostname]]"
     },
     {
-      "icon": "dashboard",
-      "keepTime": true,
-      "tags": [],
       "targetBlank": true,
       "title": "Brigade",
       "tooltip": "Opens Brigade projects dashboards",
       "type": "link",
-      "url": "https://brigade.[[hostname]]"
-    },
-    {
+      "url": "https://brigade.[[hostname]]",
       "icon": "dashboard",
       "keepTime": true,
-      "tags": [],
-      "targetBlank": true,
+      "tags": []
+    },
+    {
       "title": "Network Service Mesh",
       "tooltip": "Opens Network Service Mesh projects dashboards",
       "type": "link",
-      "url": "https://networkservicemesh.[[hostname]]"
+      "url": "https://networkservicemesh.[[hostname]]",
+      "icon": "dashboard",
+      "keepTime": true,
+      "tags": [],
+      "targetBlank": true
     },
     {
       "icon": "dashboard",
@@ -437,74 +618,74 @@
       "url": "https://openebs.[[hostname]]"
     },
     {
+      "tooltip": "Opens OpenTelemetry projects dashboards",
+      "type": "link",
+      "url": "https://opentelemetry.[[hostname]]",
       "icon": "dashboard",
       "keepTime": true,
       "tags": [],
       "targetBlank": true,
-      "title": "OpenTelemetry",
-      "tooltip": "Opens OpenTelemetry projects dashboards",
-      "type": "link",
-      "url": "https://opentelemetry.[[hostname]]"
+      "title": "OpenTelemetry"
     },
     {
-      "icon": "dashboard",
       "keepTime": true,
       "tags": [],
       "targetBlank": true,
       "title": "Flux",
       "tooltip": "Opens Flux projects dashboards",
       "type": "link",
-      "url": "https://flux.[[hostname]]"
+      "url": "https://flux.[[hostname]]",
+      "icon": "dashboard"
     },
     {
-      "icon": "dashboard",
-      "keepTime": true,
-      "tags": [],
-      "targetBlank": true,
       "title": "in-toto",
       "tooltip": "Opens intoto projects dashboards",
       "type": "link",
-      "url": "https://intoto.[[hostname]]"
-    },
-    {
+      "url": "https://intoto.[[hostname]]",
       "icon": "dashboard",
       "keepTime": true,
       "tags": [],
-      "targetBlank": true,
+      "targetBlank": true
+    },
+    {
       "title": "Strimzi",
       "tooltip": "Opens Strimzi projects dashboards",
       "type": "link",
-      "url": "https://strimzi.[[hostname]]"
+      "url": "https://strimzi.[[hostname]]",
+      "icon": "dashboard",
+      "keepTime": true,
+      "tags": [],
+      "targetBlank": true
     },
     {
+      "tooltip": "Opens KubeVirt projects dashboards",
+      "type": "link",
+      "url": "https://kubevirt.[[hostname]]",
       "icon": "dashboard",
       "keepTime": true,
       "tags": [],
       "targetBlank": true,
-      "title": "KubeVirt",
-      "tooltip": "Opens KubeVirt projects dashboards",
-      "type": "link",
-      "url": "https://kubevirt.[[hostname]]"
+      "title": "KubeVirt"
     },
     {
-      "icon": "dashboard",
-      "keepTime": true,
-      "tags": [],
       "targetBlank": true,
       "title": "Longhorn",
       "tooltip": "Opens Longhorn projects dashboards",
       "type": "link",
-      "url": "https://longhorn.[[hostname]]"
-    },
-    {
+      "url": "https://longhorn.[[hostname]]",
       "icon": "dashboard",
       "keepTime": true,
-      "tags": [],
-      "targetBlank": true,
+      "tags": []
+    },
+    {
       "title": "ChubaoFS",
       "tooltip": "Opens ChubaoFS projects dashboards",
       "type": "link",
-      "url": "https://chubaofs.[[hostname]]"
+      "url": "https://chubaofs.[[hostname]]",
+      "icon": "dashboard",
+      "keepTime": true,
+      "tags": [],
+      "targetBlank": true
     },
     {
       "icon": "dashboard",
@@ -517,24 +698,24 @@
       "url": "https://keda.[[hostname]]"
     },
     {
-      "icon": "dashboard",
-      "keepTime": true,
       "tags": [],
       "targetBlank": true,
       "title": "SMI",
       "tooltip": "Opens SMI projects dashboards",
       "type": "link",
-      "url": "https://smi.[[hostname]]"
+      "url": "https://smi.[[hostname]]",
+      "icon": "dashboard",
+      "keepTime": true
     },
     {
+      "type": "link",
+      "url": "https://volcano.[[hostname]]",
       "icon": "dashboard",
       "keepTime": true,
       "tags": [],
       "targetBlank": true,
       "title": "Volcano",
-      "tooltip": "Opens Volcano projects dashboards",
-      "type": "link",
-      "url": "https://volcano.[[hostname]]"
+      "tooltip": "Opens Volcano projects dashboards"
     },
     {
       "icon": "dashboard",
@@ -547,24 +728,24 @@
       "url": "https://cnigenie.[[hostname]]"
     },
     {
+      "tooltip": "Opens Keptn projects dashboards",
+      "type": "link",
+      "url": "https://keptn.[[hostname]]",
       "icon": "dashboard",
       "keepTime": true,
       "tags": [],
       "targetBlank": true,
-      "title": "Keptn",
-      "tooltip": "Opens Keptn projects dashboards",
-      "type": "link",
-      "url": "https://keptn.[[hostname]]"
+      "title": "Keptn"
     },
     {
-      "icon": "dashboard",
-      "keepTime": true,
       "tags": [],
       "targetBlank": true,
       "title": "Kudo",
       "tooltip": "Opens Kudo projects dashboards",
       "type": "link",
-      "url": "https://kudo.[[hostname]]"
+      "url": "https://kudo.[[hostname]]",
+      "icon": "dashboard",
+      "keepTime": true
     },
     {
       "icon": "dashboard",
@@ -577,585 +758,262 @@
       "url": "https://cloudcustodian.[[hostname]]"
     },
     {
-      "icon": "dashboard",
-      "keepTime": true,
       "tags": [],
       "targetBlank": true,
       "title": "Dex",
       "tooltip": "Opens Dex projects dashboards",
       "type": "link",
-      "url": "https://dex.[[hostname]]"
+      "url": "https://dex.[[hostname]]",
+      "icon": "dashboard",
+      "keepTime": true
     },
     {
-      "icon": "dashboard",
-      "keepTime": true,
-      "tags": [],
-      "targetBlank": true,
       "title": "LitmusChaos",
       "tooltip": "Opens LitmusChaos projects dashboards",
       "type": "link",
-      "url": "https://litmuschaos.[[hostname]]"
+      "url": "https://litmuschaos.[[hostname]]",
+      "icon": "dashboard",
+      "keepTime": true,
+      "tags": [],
+      "targetBlank": true
     },
     {
+      "url": "https://artifacthub.[[hostname]]",
       "icon": "dashboard",
       "keepTime": true,
       "tags": [],
       "targetBlank": true,
       "title": "Artifact Hub",
       "tooltip": "Opens Artifact Hub projects dashboards",
-      "type": "link",
-      "url": "https://artifacthub.[[hostname]]"
+      "type": "link"
     },
     {
-      "icon": "dashboard",
-      "keepTime": true,
       "tags": [],
       "targetBlank": true,
       "title": "Kuma",
       "tooltip": "Opens Kuma projects dashboards",
       "type": "link",
-      "url": "https://kuma.[[hostname]]"
+      "url": "https://kuma.[[hostname]]",
+      "icon": "dashboard",
+      "keepTime": true
     },
     {
-      "icon": "dashboard",
-      "keepTime": true,
-      "tags": [],
-      "targetBlank": true,
       "title": "PARSEC",
       "tooltip": "Opens PARSEC projects dashboards",
       "type": "link",
-      "url": "https://parsec.[[hostname]]"
-    },
-    {
+      "url": "https://parsec.[[hostname]]",
       "icon": "dashboard",
       "keepTime": true,
       "tags": [],
+      "targetBlank": true
+    },
+    {
       "targetBlank": true,
       "title": "BFE",
       "tooltip": "Opens BFE projects dashboards",
       "type": "link",
-      "url": "https://bfe.[[hostname]]"
-    },
-    {
+      "url": "https://bfe.[[hostname]]",
       "icon": "dashboard",
       "keepTime": true,
-      "tags": [],
+      "tags": []
+    },
+    {
       "targetBlank": true,
       "title": "Crossplane",
       "tooltip": "Opens Crossplane projects dashboards",
       "type": "link",
-      "url": "https://crossplane.[[hostname]]"
+      "url": "https://crossplane.[[hostname]]",
+      "icon": "dashboard",
+      "keepTime": true,
+      "tags": []
     },
     {
-      "icon": "dashboard",
       "keepTime": true,
       "tags": [],
       "targetBlank": true,
       "title": "Chaos Mesh",
       "tooltip": "Opens Chaos Mesh projects dashboards",
       "type": "link",
-      "url": "https://chaosmesh.[[hostname]]"
+      "url": "https://chaosmesh.[[hostname]]",
+      "icon": "dashboard"
     },
     {
-      "icon": "dashboard",
-      "keepTime": true,
-      "tags": [],
       "targetBlank": true,
       "title": "Serverless Workflow",
       "tooltip": "Opens Serverless Workflow projects dashboards",
       "type": "link",
-      "url": "https://serverlessworkflow.[[hostname]]"
+      "url": "https://serverlessworkflow.[[hostname]]",
+      "icon": "dashboard",
+      "keepTime": true,
+      "tags": []
     },
     {
+      "url": "https://k3s.[[hostname]]",
       "icon": "dashboard",
       "keepTime": true,
       "tags": [],
       "targetBlank": true,
       "title": "K3s",
       "tooltip": "Opens K3s projects dashboards",
-      "type": "link",
-      "url": "https://k3s.[[hostname]]"
+      "type": "link"
     },
     {
+      "url": "https://backstage.[[hostname]]",
       "icon": "dashboard",
       "keepTime": true,
       "tags": [],
       "targetBlank": true,
       "title": "Backstage",
       "tooltip": "Opens Backstage projects dashboards",
-      "type": "link",
-      "url": "https://backstage.[[hostname]]"
+      "type": "link"
     },
     {
+      "tooltip": "Opens Tremor projects dashboards",
+      "type": "link",
+      "url": "https://tremor.[[hostname]]",
       "icon": "dashboard",
       "keepTime": true,
       "tags": [],
       "targetBlank": true,
-      "title": "Tremor",
-      "tooltip": "Opens Tremor projects dashboards",
-      "type": "link",
-      "url": "https://tremor.[[hostname]]"
+      "title": "Tremor"
     },
     {
-      "icon": "dashboard",
       "keepTime": true,
       "tags": [],
       "targetBlank": true,
       "title": "Metal³",
       "tooltip": "Opens Metal³ projects dashboards",
       "type": "link",
-      "url": "https://metal3.[[hostname]]"
+      "url": "https://metal3.[[hostname]]",
+      "icon": "dashboard"
     },
     {
-      "icon": "dashboard",
       "keepTime": true,
       "tags": [],
       "targetBlank": true,
       "title": "Porter",
       "tooltip": "Opens Porter projects dashboards",
       "type": "link",
-      "url": "https://porter.[[hostname]]"
+      "url": "https://porter.[[hostname]]",
+      "icon": "dashboard"
     },
     {
+      "tooltip": "Opens OpenYurt projects dashboards",
+      "type": "link",
+      "url": "https://openyurt.[[hostname]]",
       "icon": "dashboard",
       "keepTime": true,
       "tags": [],
       "targetBlank": true,
-      "title": "OpenYurt",
-      "tooltip": "Opens OpenYurt projects dashboards",
-      "type": "link",
-      "url": "https://openyurt.[[hostname]]"
+      "title": "OpenYurt"
     },
     {
+      "url": "https://openservicemesh.[[hostname]]",
       "icon": "dashboard",
       "keepTime": true,
       "tags": [],
       "targetBlank": true,
       "title": "Open Service Mesh",
       "tooltip": "Opens Open Service Mesh projects dashboards",
-      "type": "link",
-      "url": "https://openservicemesh.[[hostname]]"
+      "type": "link"
     },
     {
-      "icon": "dashboard",
-      "keepTime": true,
       "tags": [],
       "targetBlank": true,
       "title": "Keylime",
       "tooltip": "Opens Keylime projects dashboards",
       "type": "link",
-      "url": "https://keylime.[[hostname]]"
+      "url": "https://keylime.[[hostname]]",
+      "icon": "dashboard",
+      "keepTime": true
     },
     {
+      "type": "link",
+      "url": "https://schemahero.[[hostname]]",
       "icon": "dashboard",
       "keepTime": true,
       "tags": [],
       "targetBlank": true,
       "title": "SchemaHero",
-      "tooltip": "Opens SchemaHero projects dashboards",
-      "type": "link",
-      "url": "https://schemahero.[[hostname]]"
+      "tooltip": "Opens SchemaHero projects dashboards"
     },
     {
-      "icon": "dashboard",
-      "keepTime": true,
-      "tags": [],
       "targetBlank": true,
       "title": "Cloud Deployment Kit for Kubernetes",
       "tooltip": "Opens Cloud Deployment Kit for Kubernetes projects dashboards",
       "type": "link",
-      "url": "https://cdk8s.[[hostname]]"
+      "url": "https://cdk8s.[[hostname]]",
+      "icon": "dashboard",
+      "keepTime": true,
+      "tags": []
     },
     {
+      "tooltip": "Opens cert-manager projects dashboards",
+      "type": "link",
+      "url": "https://certmanager.[[hostname]]",
       "icon": "dashboard",
       "keepTime": true,
       "tags": [],
       "targetBlank": true,
-      "title": "cert-manager",
-      "tooltip": "Opens cert-manager projects dashboards",
-      "type": "link",
-      "url": "https://certmanager.[[hostname]]"
+      "title": "cert-manager"
     },
     {
-      "icon": "dashboard",
-      "keepTime": true,
-      "tags": [],
       "targetBlank": true,
       "title": "OpenKruise",
       "tooltip": "Opens OpenKruise projects dashboards",
       "type": "link",
-      "url": "https://openkruise.[[hostname]]"
-    },
-    {
+      "url": "https://openkruise.[[hostname]]",
       "icon": "dashboard",
       "keepTime": true,
+      "tags": []
+    },
+    {
       "tags": [],
       "targetBlank": true,
       "title": "Tinkerbell",
       "tooltip": "Opens Tinkerbell projects dashboards",
       "type": "link",
-      "url": "https://tinkerbell.[[hostname]]"
+      "url": "https://tinkerbell.[[hostname]]",
+      "icon": "dashboard",
+      "keepTime": true
     },
     {
+      "type": "link",
+      "url": "https://pravega.[[hostname]]",
       "icon": "dashboard",
       "keepTime": true,
       "tags": [],
       "targetBlank": true,
       "title": "Pravega",
-      "tooltip": "Opens Pravega projects dashboards",
-      "type": "link",
-      "url": "https://pravega.[[hostname]]"
+      "tooltip": "Opens Pravega projects dashboards"
     },
     {
+      "url": "https://kyverno.[[hostname]]",
       "icon": "dashboard",
       "keepTime": true,
       "tags": [],
       "targetBlank": true,
       "title": "Kyverno",
       "tooltip": "Opens Kyverno projects dashboards",
-      "type": "link",
-      "url": "https://kyverno.[[hostname]]"
+      "type": "link"
     },
     {
-      "icon": "dashboard",
-      "keepTime": true,
-      "tags": [],
-      "targetBlank": true,
       "title": "All CNCF",
       "tooltip": "Opens All CNCF projects dashboards",
       "type": "link",
-      "url": "https://all.[[hostname]]"
-    }
-  ],
-  "panels": [
-    {
-      "aliasColors": {},
-      "bars": false,
-      "dashLength": 10,
-      "dashes": false,
-      "datasource": "psql",
-      "decimals": 0,
-      "description": "Numbers of GitHub events in [[full_name]] repositories hourly",
-      "fill": 3,
-      "fillGradient": 0,
-      "gridPos": {
-        "h": 6,
-        "w": 20,
-        "x": 0,
-        "y": 0
-      },
-      "hiddenSeries": false,
-      "id": 2,
-      "legend": {
-        "alignAsTable": true,
-        "avg": true,
-        "current": true,
-        "max": true,
-        "min": true,
-        "rightSide": false,
-        "show": true,
-        "total": true,
-        "values": true
-      },
-      "lines": true,
-      "linewidth": 0,
-      "links": [
-        {
-          "title": "DevStats GitHub repository",
-          "url": "https://github.com/cncf/devstats"
-        }
-      ],
-      "nullPointMode": "null",
-      "options": {
-        "dataLinks": []
-      },
-      "percentage": false,
-      "pointradius": 1,
-      "points": true,
-      "renderer": "flot",
-      "seriesOverrides": [],
-      "spaceLength": 10,
-      "stack": false,
-      "steppedLine": false,
-      "targets": [
-        {
-          "alias": "",
-          "dsType": "influxdb",
-          "format": "time_series",
-          "group": [],
-          "groupBy": [],
-          "metricColumn": "none",
-          "orderByTime": "ASC",
-          "policy": "default",
-          "query": "SELECT \"value\" FROM \"events_h\" WHERE $timeFilter",
-          "rawQuery": true,
-          "rawSql": "select\n  time,\n  value as \"Number of GitHub events hourly\"\nfrom\n  sevents_h\nwhere\n  $__timeFilter(time)\norder by\n  time",
-          "refId": "A",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              }
-            ]
-          ],
-          "tags": [],
-          "timeColumn": "time",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ]
-        }
-      ],
-      "thresholds": [],
-      "timeFrom": null,
-      "timeRegions": [],
-      "timeShift": null,
-      "title": "Hourly activity on GitHub",
-      "tooltip": {
-        "shared": false,
-        "sort": 0,
-        "value_type": "individual"
-      },
-      "transparent": true,
-      "type": "graph",
-      "xaxis": {
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true,
-        "values": [
-          "total"
-        ]
-      },
-      "yaxes": [
-        {
-          "format": "short",
-          "label": "Activity",
-          "logBase": 1,
-          "max": null,
-          "min": "0",
-          "show": true
-        },
-        {
-          "format": "short",
-          "label": "",
-          "logBase": 1,
-          "max": null,
-          "min": "0",
-          "show": true
-        }
-      ],
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      }
-    },
-    {
-      "content": "Please report any bugs by opening an issue on \u003ca href=\"https://github.com/cncf/devstats\"\u003ehttps://github.com/cncf/devstats\u003c/a\u003e",
-      "datasource": null,
-      "description": "",
-      "gridPos": {
-        "h": 6,
-        "w": 4,
-        "x": 20,
-        "y": 0
-      },
-      "height": 220,
-      "id": 1,
-      "links": [],
-      "mode": "html",
-      "title": "",
-      "transparent": true,
-      "type": "text"
-    },
-    {
-      "content": "${projects:raw}",
-      "datasource": null,
-      "description": "List of all projects.",
-      "gridPos": {
-        "h": 38,
-        "w": 24,
-        "x": 0,
-        "y": 6
-      },
-      "id": 3,
-      "links": [],
-      "mode": "html",
-      "title": "[[full_name]] Projects",
-      "type": "text"
-    },
-    {
-      "datasource": null,
-      "description": "https://github.com/cncf/devstats",
-      "folderId": 0,
-      "gridPos": {
-        "h": 46,
-        "w": 24,
-        "x": 0,
-        "y": 44
-      },
-      "headings": false,
-      "id": 4,
-      "limit": 50,
-      "links": [
-        {
-          "title": "devstats",
-          "url": "https://github.com/cncf/devstats"
-        }
-      ],
-      "query": "",
-      "recent": false,
-      "search": true,
-      "starred": false,
-      "tags": [
-        "dashboard",
-        "all"
-      ],
-      "title": "[[full_name]] Dashboards",
-      "type": "dashlist"
-    },
-    {
-      "content": "${docs:raw}",
-      "datasource": null,
-      "gridPos": {
-        "h": 10,
-        "w": 24,
-        "x": 0,
-        "y": 90
-      },
-      "id": 6,
-      "links": [],
-      "mode": "html",
-      "title": "Dashboard documentation",
-      "type": "text"
+      "url": "https://all.[[hostname]]",
+      "icon": "dashboard",
+      "keepTime": true,
+      "tags": [],
+      "targetBlank": true
     }
   ],
   "refresh": "15m",
-  "schemaVersion": 22,
-  "style": "dark",
-  "tags": [
-    "home",
-    "all"
-  ],
-  "templating": {
-    "list": [
-      {
-        "allValue": null,
-        "current": {},
-        "datasource": "psql",
-        "definition": "",
-        "hide": 2,
-        "includeAll": false,
-        "index": -1,
-        "label": null,
-        "multi": false,
-        "name": "projects",
-        "options": [],
-        "query": "select value_s from gha_vars where name = 'projects_partial_html'",
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": true,
-        "sort": 0,
-        "tagValuesQuery": "",
-        "tags": [],
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false
-      },
-      {
-        "allValue": null,
-        "current": {
-          "text": "\u003ch1 id=\"-full_name-home-dashboard\"\u003eAll CNCF Home dashboard\u003c/h1\u003e\n\u003cp\u003eLinks:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003ePostgres \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/events.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eTSDB \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/all/metrics.yaml\" target=\"_blank\"\u003eseries definition\u003c/a\u003e (search for \u003ccode\u003ename: GitHub activity\u003c/code\u003e).\u003c/li\u003e\n\u003cli\u003eGrafana dashboard \u003ca href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/all/dashboards.json\" target=\"_blank\"\u003eJSON\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eDeveloper \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/dashboards/dashboards_devel.md\" target=\"_blank\"\u003edocumentation\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eDirect \u003ca href=\"https://all.teststats.cncf.io\" target=\"_blank\"\u003elink\u003c/a\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch1 id=\"description\"\u003eDescription\u003c/h1\u003e\n\u003cul\u003e\n\u003cli\u003eFirst we\u0026#39;re displaying links to all CNCF projects defined.\u003c/li\u003e\n\u003cli\u003eNext we\u0026#39;re showing current project\u0026#39;s hourly activity - this is the number of all GitHub events that happened for All CNCF project hourly.\u003c/li\u003e\n\u003cli\u003eThis also includes bots activity (most other dashboards skip bot activity).\u003c/li\u003e\n\u003cli\u003eNext we\u0026#39;re showing HTML panel that shows all CNCF projects icons and links.\u003c/li\u003e\n\u003cli\u003eNext there is a dashboard that shows a list of all dashboards defined for All CNCF project.\u003c/li\u003e\n\u003c/ul\u003e",
-          "value": "\u003ch1 id=\"-full_name-home-dashboard\"\u003eAll CNCF Home dashboard\u003c/h1\u003e\n\u003cp\u003eLinks:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003ePostgres \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/events.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eTSDB \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/all/metrics.yaml\" target=\"_blank\"\u003eseries definition\u003c/a\u003e (search for \u003ccode\u003ename: GitHub activity\u003c/code\u003e).\u003c/li\u003e\n\u003cli\u003eGrafana dashboard \u003ca href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/all/dashboards.json\" target=\"_blank\"\u003eJSON\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eDeveloper \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/dashboards/dashboards_devel.md\" target=\"_blank\"\u003edocumentation\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eDirect \u003ca href=\"https://all.teststats.cncf.io\" target=\"_blank\"\u003elink\u003c/a\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch1 id=\"description\"\u003eDescription\u003c/h1\u003e\n\u003cul\u003e\n\u003cli\u003eFirst we\u0026#39;re displaying links to all CNCF projects defined.\u003c/li\u003e\n\u003cli\u003eNext we\u0026#39;re showing current project\u0026#39;s hourly activity - this is the number of all GitHub events that happened for All CNCF project hourly.\u003c/li\u003e\n\u003cli\u003eThis also includes bots activity (most other dashboards skip bot activity).\u003c/li\u003e\n\u003cli\u003eNext we\u0026#39;re showing HTML panel that shows all CNCF projects icons and links.\u003c/li\u003e\n\u003cli\u003eNext there is a dashboard that shows a list of all dashboards defined for All CNCF project.\u003c/li\u003e\n\u003c/ul\u003e"
-        },
-        "datasource": "psql",
-        "definition": "",
-        "hide": 2,
-        "includeAll": false,
-        "index": -1,
-        "label": null,
-        "multi": false,
-        "name": "docs",
-        "options": [],
-        "query": "select value_s from gha_vars where name = 'dashboards_docs_html'",
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": true,
-        "sort": 0,
-        "tagValuesQuery": "",
-        "tags": [],
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false
-      },
-      {
-        "allValue": null,
-        "current": {
-          "text": "teststats.cncf.io",
-          "value": "teststats.cncf.io"
-        },
-        "datasource": "psql",
-        "definition": "",
-        "hide": 2,
-        "includeAll": false,
-        "index": -1,
-        "label": null,
-        "multi": false,
-        "name": "hostname",
-        "options": [],
-        "query": "select value_s from gha_vars where name = 'os_hostname'",
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": true,
-        "sort": 0,
-        "tagValuesQuery": "",
-        "tags": [],
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false
-      },
-      {
-        "allValue": null,
-        "current": {
-          "text": "All CNCF",
-          "value": "All CNCF"
-        },
-        "datasource": "psql",
-        "definition": "",
-        "hide": 2,
-        "includeAll": false,
-        "index": -1,
-        "label": null,
-        "multi": false,
-        "name": "full_name",
-        "options": [],
-        "query": "select value_s from gha_vars where name = 'full_name'",
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": true,
-        "sort": 0,
-        "tagValuesQuery": "",
-        "tags": [],
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false
-      }
-    ]
-  },
   "time": {
     "from": "now-7d",
     "to": "now-1h"
   },
   "timepicker": {
-    "hidden": true,
-    "nowDelay": "1h",
     "refresh_intervals": [
       "5s",
       "10s",
@@ -1178,13 +1036,159 @@
       "2d",
       "7d",
       "30d"
-    ]
+    ],
+    "hidden": true,
+    "nowDelay": "1h"
   },
-  "timezone": "",
-  "title": "Dashboards",
-  "uid": "8",
   "variables": {
     "list": []
   },
-  "version": 2
+  "description": "Home dashboard",
+  "gnetId": null,
+  "version": 2,
+  "tags": [
+    "home",
+    "all"
+  ],
+  "uid": "8",
+  "annotations": {
+    "list": [
+      {
+        "name": "Annotations \u0026 Alerts",
+        "type": "dashboard",
+        "$$hashKey": "object:21",
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)"
+      },
+      {
+        "name": "Releases",
+        "rawQuery": "select extract(epoch from time) AS time, title as text, description as tags from sannotations where $__timeFilter(time)",
+        "limit": 100,
+        "enable": true,
+        "iconColor": "rgba(255, 96, 96, 1)",
+        "textColumn": "",
+        "$$hashKey": "object:22",
+        "showIn": 0,
+        "titleColumn": "Annotation",
+        "type": "alert",
+        "query": "SELECT title, description from annotations WHERE $timeFilter order by time asc",
+        "hide": false,
+        "tagsColumn": "title,description",
+        "datasource": "psql"
+      }
+    ]
+  },
+  "editable": true,
+  "timezone": "",
+  "style": "dark",
+  "templating": {
+    "list": [
+      {
+        "label": null,
+        "multi": false,
+        "skipUrlSync": true,
+        "definition": "",
+        "current": {
+          
+        },
+        "datasource": "psql",
+        "query": "select value_s from gha_vars where name = 'projects_partial_html'",
+        "refresh": 1,
+        "sort": 0,
+        "tags": [],
+        "type": "query",
+        "allValue": null,
+        "includeAll": false,
+        "index": -1,
+        "name": "projects",
+        "options": [],
+        "regex": "",
+        "tagValuesQuery": "",
+        "useTags": false,
+        "hide": 2,
+        "tagsQuery": ""
+      },
+      {
+        "skipUrlSync": true,
+        "sort": 0,
+        "tags": [],
+        "type": "query",
+        "useTags": false,
+        "regex": "",
+        "label": null,
+        "current": {
+          "text": "\u003ch1 id=\"-full_name-home-dashboard\"\u003eAll CNCF Home dashboard\u003c/h1\u003e\n\u003cp\u003eLinks:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003ePostgres \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/events.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eTSDB \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/all/metrics.yaml\" target=\"_blank\"\u003eseries definition\u003c/a\u003e (search for \u003ccode\u003ename: GitHub activity\u003c/code\u003e).\u003c/li\u003e\n\u003cli\u003eGrafana dashboard \u003ca href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/all/dashboards.json\" target=\"_blank\"\u003eJSON\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eDeveloper \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/dashboards/dashboards_devel.md\" target=\"_blank\"\u003edocumentation\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eDirect \u003ca href=\"https://all.teststats.cncf.io\" target=\"_blank\"\u003elink\u003c/a\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch1 id=\"description\"\u003eDescription\u003c/h1\u003e\n\u003cul\u003e\n\u003cli\u003eFirst we\u0026#39;re displaying links to all CNCF projects defined.\u003c/li\u003e\n\u003cli\u003eNext we\u0026#39;re showing current project\u0026#39;s hourly activity - this is the number of all GitHub events that happened for All CNCF project hourly.\u003c/li\u003e\n\u003cli\u003eThis also includes bots activity (most other dashboards skip bot activity).\u003c/li\u003e\n\u003cli\u003eNext we\u0026#39;re showing HTML panel that shows all CNCF projects icons and links.\u003c/li\u003e\n\u003cli\u003eNext there is a dashboard that shows a list of all dashboards defined for All CNCF project.\u003c/li\u003e\n\u003c/ul\u003e",
+          "value": "\u003ch1 id=\"-full_name-home-dashboard\"\u003eAll CNCF Home dashboard\u003c/h1\u003e\n\u003cp\u003eLinks:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003ePostgres \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/events.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eTSDB \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/all/metrics.yaml\" target=\"_blank\"\u003eseries definition\u003c/a\u003e (search for \u003ccode\u003ename: GitHub activity\u003c/code\u003e).\u003c/li\u003e\n\u003cli\u003eGrafana dashboard \u003ca href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/all/dashboards.json\" target=\"_blank\"\u003eJSON\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eDeveloper \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/dashboards/dashboards_devel.md\" target=\"_blank\"\u003edocumentation\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eDirect \u003ca href=\"https://all.teststats.cncf.io\" target=\"_blank\"\u003elink\u003c/a\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch1 id=\"description\"\u003eDescription\u003c/h1\u003e\n\u003cul\u003e\n\u003cli\u003eFirst we\u0026#39;re displaying links to all CNCF projects defined.\u003c/li\u003e\n\u003cli\u003eNext we\u0026#39;re showing current project\u0026#39;s hourly activity - this is the number of all GitHub events that happened for All CNCF project hourly.\u003c/li\u003e\n\u003cli\u003eThis also includes bots activity (most other dashboards skip bot activity).\u003c/li\u003e\n\u003cli\u003eNext we\u0026#39;re showing HTML panel that shows all CNCF projects icons and links.\u003c/li\u003e\n\u003cli\u003eNext there is a dashboard that shows a list of all dashboards defined for All CNCF project.\u003c/li\u003e\n\u003c/ul\u003e"
+        },
+        "hide": 2,
+        "tagsQuery": "",
+        "allValue": null,
+        "definition": "",
+        "includeAll": false,
+        "index": -1,
+        "multi": false,
+        "name": "docs",
+        "options": [],
+        "query": "select value_s from gha_vars where name = 'dashboards_docs_html'",
+        "datasource": "psql",
+        "tagValuesQuery": "",
+        "refresh": 1
+      },
+      {
+        "datasource": "psql",
+        "definition": "",
+        "includeAll": false,
+        "index": -1,
+        "label": null,
+        "query": "select value_s from gha_vars where name = 'os_hostname'",
+        "regex": "",
+        "skipUrlSync": true,
+        "tags": [],
+        "type": "query",
+        "useTags": false,
+        "options": [],
+        "refresh": 1,
+        "tagsQuery": "",
+        "allValue": null,
+        "current": {
+          "text": "teststats.cncf.io",
+          "value": "teststats.cncf.io"
+        },
+        "hide": 2,
+        "multi": false,
+        "name": "hostname",
+        "sort": 0,
+        "tagValuesQuery": ""
+      },
+      {
+        "name": "full_name",
+        "current": {
+          "text": "All CNCF",
+          "value": "All CNCF"
+        },
+        "definition": "",
+        "index": -1,
+        "refresh": 1,
+        "type": "query",
+        "datasource": "psql",
+        "hide": 2,
+        "includeAll": false,
+        "query": "select value_s from gha_vars where name = 'full_name'",
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "useTags": false,
+        "allValue": null,
+        "label": null,
+        "multi": false,
+        "options": [],
+        "regex": "",
+        "skipUrlSync": true,
+        "sort": 0
+      }
+    ]
+  }
 }

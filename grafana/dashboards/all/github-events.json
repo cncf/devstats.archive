@@ -1,423 +1,74 @@
 {
+  "version": 3,
+  "gnetId": null,
+  "style": "dark",
+  "time": {
+    "from": "now-30d",
+    "to": "now"
+  },
+  "uid": "47",
   "annotations": {
     "list": [
       {
+        "type": "dashboard",
         "builtIn": 1,
         "datasource": "-- Grafana --",
         "enable": true,
         "hide": true,
         "iconColor": "rgba(0, 211, 255, 1)",
-        "name": "Annotations \u0026 Alerts",
-        "type": "dashboard"
+        "name": "Annotations \u0026 Alerts"
       },
       {
-        "datasource": "psql",
-        "enable": true,
-        "hide": false,
-        "iconColor": "rgba(255, 96, 96, 1)",
         "limit": 100,
-        "name": "Releases",
-        "query": "SELECT title, description from annotations WHERE $timeFilter order by time asc",
-        "rawQuery": "select extract(epoch from time) AS time, title as text, description as tags from sannotations where $__timeFilter(time)",
-        "showIn": 0,
         "tagsColumn": "title,description",
         "textColumn": "",
-        "titleColumn": "[[full_name]] Release",
-        "type": "alert"
+        "datasource": "psql",
+        "rawQuery": "select extract(epoch from time) AS time, title as text, description as tags from sannotations where $__timeFilter(time)",
+        "type": "alert",
+        "hide": false,
+        "query": "SELECT title, description from annotations WHERE $timeFilter order by time asc",
+        "name": "Releases",
+        "enable": true,
+        "iconColor": "rgba(255, 96, 96, 1)",
+        "showIn": 0,
+        "titleColumn": "[[full_name]] Release"
       }
     ]
   },
-  "editable": true,
-  "gnetId": null,
-  "graphTooltip": 0,
-  "id": 63,
-  "iteration": 1533024842622,
-  "links": [],
-  "panels": [
-    {
-      "aliasColors": {},
-      "bars": true,
-      "dashLength": 10,
-      "dashes": false,
-      "datasource": "psql",
-      "decimals": null,
-      "description": "[[full_name]] GitHub events",
-      "fill": 3,
-      "gridPos": {
-        "h": 21,
-        "w": 24,
-        "x": 0,
-        "y": 0
-      },
-      "id": 2,
-      "legend": {
-        "alignAsTable": true,
-        "avg": true,
-        "current": true,
-        "max": true,
-        "min": true,
-        "rightSide": true,
-        "show": true,
-        "sort": "total",
-        "sortDesc": true,
-        "total": true,
-        "values": true
-      },
-      "lines": false,
-      "linewidth": 0,
-      "links": [],
-      "nullPointMode": "null as zero",
-      "percentage": false,
-      "pointradius": 5,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [],
-      "spaceLength": 10,
-      "stack": true,
-      "steppedLine": true,
-      "targets": [
-        {
-          "alias": "",
-          "dsType": "influxdb",
-          "format": "time_series",
-          "groupBy": [],
-          "measurement": "notused",
-          "orderByTime": "ASC",
-          "policy": "default",
-          "query": "SELECT /^[[repogroups]]$/ FROM \"repo_group_activity_[[period]]\" WHERE $timeFilter",
-          "rawQuery": true,
-          "rawSql": "select\n  time,\n  ${types:csv}\nfrom\n  sevent_types\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\norder by\n  time",
-          "refId": "A",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              }
-            ]
-          ],
-          "tags": []
-        }
-      ],
-      "thresholds": [],
-      "timeFrom": null,
-      "timeShift": null,
-      "title": "[[full_name]] GitHub events ([[types]], [[period]])",
-      "tooltip": {
-        "shared": true,
-        "sort": 2,
-        "value_type": "individual"
-      },
-      "type": "graph",
-      "xaxis": {
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true,
-        "values": []
-      },
-      "yaxes": [
-        {
-          "decimals": null,
-          "format": "short",
-          "label": "GitHub Events",
-          "logBase": 1,
-          "max": null,
-          "min": "0",
-          "show": true
-        },
-        {
-          "format": "short",
-          "label": "",
-          "logBase": 1,
-          "max": null,
-          "min": "0",
-          "show": true
-        }
-      ],
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      }
-    },
-    {
-      "aliasColors": {},
-      "bars": false,
-      "dashLength": 10,
-      "dashes": false,
-      "datasource": "psql",
-      "decimals": null,
-      "description": "[[full_name]] GitHub events",
-      "fill": 3,
-      "gridPos": {
-        "h": 21,
-        "w": 24,
-        "x": 0,
-        "y": 21
-      },
-      "id": 4,
-      "legend": {
-        "alignAsTable": true,
-        "avg": true,
-        "current": true,
-        "max": true,
-        "min": true,
-        "rightSide": true,
-        "show": true,
-        "sort": "total",
-        "sortDesc": true,
-        "total": true,
-        "values": true
-      },
-      "lines": true,
-      "linewidth": 1,
-      "links": [],
-      "nullPointMode": "null as zero",
-      "percentage": false,
-      "pointradius": 5,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [],
-      "spaceLength": 10,
-      "stack": false,
-      "steppedLine": false,
-      "targets": [
-        {
-          "alias": "",
-          "dsType": "influxdb",
-          "format": "time_series",
-          "groupBy": [],
-          "measurement": "notused",
-          "orderByTime": "ASC",
-          "policy": "default",
-          "query": "SELECT /^[[repogroups]]$/ FROM \"repo_group_activity_[[period]]\" WHERE $timeFilter",
-          "rawQuery": true,
-          "rawSql": "select\n  time,\n  ${types:csv}\nfrom\n  sevent_types\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\norder by\n  time",
-          "refId": "A",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              }
-            ]
-          ],
-          "tags": []
-        }
-      ],
-      "thresholds": [],
-      "timeFrom": null,
-      "timeShift": null,
-      "title": "[[full_name]] GitHub events ([[types]], [[period]])",
-      "tooltip": {
-        "shared": true,
-        "sort": 2,
-        "value_type": "individual"
-      },
-      "type": "graph",
-      "xaxis": {
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true,
-        "values": []
-      },
-      "yaxes": [
-        {
-          "decimals": null,
-          "format": "short",
-          "label": "GitHub Events",
-          "logBase": 1,
-          "max": null,
-          "min": "0",
-          "show": true
-        },
-        {
-          "format": "short",
-          "label": "",
-          "logBase": 1,
-          "max": null,
-          "min": "0",
-          "show": false
-        }
-      ],
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      }
-    },
-    {
-      "aliasColors": {},
-      "bars": true,
-      "dashLength": 10,
-      "dashes": false,
-      "datasource": "psql",
-      "decimals": null,
-      "description": "[[full_name]] GitHub events",
-      "fill": 3,
-      "gridPos": {
-        "h": 21,
-        "w": 24,
-        "x": 0,
-        "y": 42
-      },
-      "id": 3,
-      "legend": {
-        "alignAsTable": true,
-        "avg": true,
-        "current": true,
-        "max": true,
-        "min": true,
-        "rightSide": true,
-        "show": true,
-        "sort": "total",
-        "sortDesc": true,
-        "total": true,
-        "values": true
-      },
-      "lines": false,
-      "linewidth": 0,
-      "links": [],
-      "nullPointMode": "null as zero",
-      "percentage": true,
-      "pointradius": 5,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [],
-      "spaceLength": 10,
-      "stack": true,
-      "steppedLine": true,
-      "targets": [
-        {
-          "alias": "",
-          "dsType": "influxdb",
-          "format": "time_series",
-          "groupBy": [],
-          "measurement": "notused",
-          "orderByTime": "ASC",
-          "policy": "default",
-          "query": "SELECT /^[[repogroups]]$/ FROM \"repo_group_activity_[[period]]\" WHERE $timeFilter",
-          "rawQuery": true,
-          "rawSql": "select\n  time,\n  ${types:csv}\nfrom\n  sevent_types\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\norder by\n  time",
-          "refId": "A",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              }
-            ]
-          ],
-          "tags": []
-        }
-      ],
-      "thresholds": [],
-      "timeFrom": null,
-      "timeShift": null,
-      "title": "[[full_name]] GitHub events ([[types]], [[period]])",
-      "tooltip": {
-        "shared": true,
-        "sort": 2,
-        "value_type": "individual"
-      },
-      "type": "graph",
-      "xaxis": {
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true,
-        "values": []
-      },
-      "yaxes": [
-        {
-          "decimals": null,
-          "format": "short",
-          "label": "GitHub Events",
-          "logBase": 1,
-          "max": "100",
-          "min": "0",
-          "show": true
-        },
-        {
-          "format": "short",
-          "label": "",
-          "logBase": 1,
-          "max": null,
-          "min": "0",
-          "show": true
-        }
-      ],
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      }
-    },
-    {
-      "content": "${docs:raw}",
-      "gridPos": {
-        "h": 8,
-        "w": 24,
-        "x": 0,
-        "y": 63
-      },
-      "id": 1,
-      "links": [],
-      "mode": "html",
-      "title": "Dashboard documentation",
-      "type": "text"
-    }
-  ],
-  "refresh": false,
-  "schemaVersion": 16,
-  "style": "dark",
-  "tags": [
-    "dashboard",
-    "all"
-  ],
   "templating": {
     "list": [
       {
-        "allValue": null,
-        "current": {},
-        "datasource": "psql",
-        "hide": 2,
-        "includeAll": false,
-        "label": null,
-        "multi": false,
         "name": "full_name",
-        "options": [],
-        "query": "select value_s from gha_vars where name = 'full_name'",
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": true,
+        "label": null,
         "sort": 0,
-        "tagValuesQuery": "",
+        "options": [],
+        "refresh": 1,
         "tags": [],
+        "hide": 2,
+        "multi": false,
         "tagsQuery": "",
         "type": "query",
-        "useTags": false
+        "current": {
+          
+        },
+        "useTags": false,
+        "regex": "",
+        "includeAll": false,
+        "tagValuesQuery": "",
+        "allValue": null,
+        "query": "select value_s from gha_vars where name = 'full_name'",
+        "skipUrlSync": true,
+        "datasource": "psql"
       },
       {
-        "allValue": null,
-        "current": {
-          "tags": [],
-          "text": "24 Hours MA",
-          "value": "h24"
-        },
-        "hide": 0,
+        "type": "custom",
         "includeAll": false,
+        "query": "h,d,w,m,q,y",
+        "skipUrlSync": false,
+        "allValue": null,
+        "hide": 0,
         "label": "Period",
         "multi": false,
-        "name": "period",
         "options": [
           {
             "selected": false,
@@ -425,9 +76,9 @@
             "value": "h"
           },
           {
-            "selected": true,
             "text": "24 Hours MA",
-            "value": "h24"
+            "value": "h24",
+            "selected": true
           },
           {
             "selected": false,
@@ -435,14 +86,14 @@
             "value": "d"
           },
           {
-            "selected": false,
             "text": "7 Days MA",
-            "value": "d7"
+            "value": "d7",
+            "selected": false
           },
           {
-            "selected": false,
             "text": "Week",
-            "value": "w"
+            "value": "w",
+            "selected": false
           },
           {
             "selected": false,
@@ -450,71 +101,73 @@
             "value": "m"
           },
           {
-            "selected": false,
             "text": "Quarter",
-            "value": "q"
+            "value": "q",
+            "selected": false
           },
           {
+            "value": "y",
             "selected": false,
-            "text": "Year",
-            "value": "y"
+            "text": "Year"
           }
         ],
-        "query": "h,d,w,m,q,y",
-        "skipUrlSync": false,
-        "type": "custom"
+        "current": {
+          "value": "h24",
+          "tags": [],
+          "text": "24 Hours MA"
+        },
+        "name": "period"
       },
       {
-        "allValue": "",
         "current": {
           "text": "All",
           "value": "$__all"
         },
-        "datasource": "psql",
-        "hide": 0,
-        "includeAll": true,
-        "label": "Event type",
-        "multi": true,
         "name": "types",
-        "options": [],
         "query": "select '\"' || event_type_name || '\"' from tevent_types order by 1",
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": false,
-        "sort": 0,
-        "tagValuesQuery": "",
-        "tags": [],
+        "useTags": false,
+        "hide": 0,
         "tagsQuery": "",
+        "regex": "",
         "type": "query",
-        "useTags": false
+        "includeAll": true,
+        "options": [],
+        "skipUrlSync": false,
+        "tagValuesQuery": "",
+        "multi": true,
+        "tags": [],
+        "datasource": "psql",
+        "allValue": "",
+        "label": "Event type",
+        "refresh": 1,
+        "sort": 0
       },
       {
-        "allValue": null,
-        "current": {},
-        "datasource": "psql",
-        "hide": 2,
         "includeAll": false,
+        "allValue": null,
+        "hide": 2,
+        "regex": "",
         "label": null,
-        "multi": false,
-        "name": "docs",
         "options": [],
         "query": "select value_s from gha_vars where name = 'github_events_docs_html'",
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": true,
-        "sort": 0,
+        "useTags": false,
         "tagValuesQuery": "",
         "tags": [],
-        "tagsQuery": "",
+        "name": "docs",
+        "sort": 0,
+        "multi": false,
+        "refresh": 1,
+        "skipUrlSync": true,
         "type": "query",
-        "useTags": false
+        "current": {
+          
+        },
+        "datasource": "psql",
+        "tagsQuery": ""
       }
     ]
   },
-  "time": {
-    "from": "now-30d",
-    "to": "now"
-  },
+  "links": [],
   "timepicker": {
     "refresh_intervals": [
       "5s",
@@ -540,8 +193,365 @@
       "30d"
     ]
   },
-  "timezone": "",
+  "editable": true,
+  "iteration": 1533024842622,
   "title": "GitHub Events",
-  "uid": "47",
-  "version": 3
+  "graphTooltip": 0,
+  "refresh": false,
+  "tags": [
+    "dashboard",
+    "all"
+  ],
+  "timezone": "",
+  "id": 63,
+  "schemaVersion": 16,
+  "panels": [
+    {
+      "lines": false,
+      "xaxis": {
+        "show": true,
+        "values": [],
+        "buckets": null,
+        "mode": "time",
+        "name": null
+      },
+      "spaceLength": 10,
+      "aliasColors": {
+        
+      },
+      "timeShift": null,
+      "targets": [
+        {
+          "alias": "",
+          "format": "time_series",
+          "groupBy": [],
+          "policy": "default",
+          "query": "SELECT /^[[repogroups]]$/ FROM \"repo_group_activity_[[period]]\" WHERE $timeFilter",
+          "rawQuery": true,
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              }
+            ]
+          ],
+          "tags": [],
+          "refId": "A",
+          "measurement": "notused",
+          "dsType": "influxdb",
+          "resultFormat": "time_series",
+          "orderByTime": "ASC",
+          "rawSql": "select\n  time,\n  ${types:csv}\nfrom\n  sevent_types\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\norder by\n  time"
+        }
+      ],
+      "steppedLine": true,
+      "yaxes": [
+        {
+          "decimals": null,
+          "format": "short",
+          "label": "GitHub Events",
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true
+        },
+        {
+          "label": "",
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true,
+          "format": "short"
+        }
+      ],
+      "legend": {
+        "current": true,
+        "min": true,
+        "sort": "total",
+        "values": true,
+        "avg": true,
+        "sortDesc": true,
+        "max": true,
+        "rightSide": true,
+        "show": true,
+        "total": true,
+        "alignAsTable": true
+      },
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      },
+      "seriesOverrides": [],
+      "gridPos": {
+        "h": 21,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "fill": 3,
+      "decimals": null,
+      "timeFrom": null,
+      "links": [],
+      "description": "[[full_name]] GitHub events",
+      "percentage": false,
+      "pointradius": 5,
+      "renderer": "flot",
+      "dashes": false,
+      "dashLength": 10,
+      "points": false,
+      "nullPointMode": "null as zero",
+      "thresholds": [],
+      "type": "graph",
+      "title": "[[full_name]] GitHub events ([[types]], [[period]])",
+      "bars": true,
+      "linewidth": 0,
+      "stack": true,
+      "tooltip": {
+        "shared": true,
+        "sort": 2,
+        "value_type": "individual"
+      },
+      "id": 2,
+      "datasource": "psql"
+    },
+    {
+      "linewidth": 1,
+      "aliasColors": {
+        
+      },
+      "tooltip": {
+        "shared": true,
+        "sort": 2,
+        "value_type": "individual"
+      },
+      "gridPos": {
+        "h": 21,
+        "w": 24,
+        "x": 0,
+        "y": 21
+      },
+      "xaxis": {
+        "values": [],
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true
+      },
+      "stack": false,
+      "timeShift": null,
+      "id": 4,
+      "description": "[[full_name]] GitHub events",
+      "legend": {
+        "alignAsTable": true,
+        "max": true,
+        "sortDesc": true,
+        "rightSide": true,
+        "show": true,
+        "total": true,
+        "current": true,
+        "min": true,
+        "values": true,
+        "avg": true,
+        "sort": "total"
+      },
+      "steppedLine": false,
+      "type": "graph",
+      "pointradius": 5,
+      "fill": 3,
+      "seriesOverrides": [],
+      "bars": false,
+      "lines": true,
+      "timeFrom": null,
+      "decimals": null,
+      "targets": [
+        {
+          "orderByTime": "ASC",
+          "select": [
+            [
+              {
+                "type": "field",
+                "params": [
+                  "value"
+                ]
+              }
+            ]
+          ],
+          "resultFormat": "time_series",
+          "refId": "A",
+          "format": "time_series",
+          "measurement": "notused",
+          "policy": "default",
+          "rawSql": "select\n  time,\n  ${types:csv}\nfrom\n  sevent_types\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\norder by\n  time",
+          "alias": "",
+          "query": "SELECT /^[[repogroups]]$/ FROM \"repo_group_activity_[[period]]\" WHERE $timeFilter",
+          "tags": [],
+          "rawQuery": true,
+          "dsType": "influxdb",
+          "groupBy": []
+        }
+      ],
+      "percentage": false,
+      "datasource": "psql",
+      "thresholds": [],
+      "dashLength": 10,
+      "renderer": "flot",
+      "dashes": false,
+      "nullPointMode": "null as zero",
+      "links": [],
+      "points": false,
+      "yaxes": [
+        {
+          "label": "GitHub Events",
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true,
+          "decimals": null,
+          "format": "short"
+        },
+        {
+          "min": "0",
+          "show": false,
+          "format": "short",
+          "label": "",
+          "logBase": 1,
+          "max": null
+        }
+      ],
+      "title": "[[full_name]] GitHub events ([[types]], [[period]])",
+      "spaceLength": 10,
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "title": "[[full_name]] GitHub events ([[types]], [[period]])",
+      "yaxes": [
+        {
+          "show": true,
+          "decimals": null,
+          "format": "short",
+          "label": "GitHub Events",
+          "logBase": 1,
+          "max": "100",
+          "min": "0"
+        },
+        {
+          "max": null,
+          "min": "0",
+          "show": true,
+          "format": "short",
+          "label": "",
+          "logBase": 1
+        }
+      ],
+      "renderer": "flot",
+      "id": 3,
+      "yaxis": {
+        "alignLevel": null,
+        "align": false
+      },
+      "bars": true,
+      "timeFrom": null,
+      "links": [],
+      "tooltip": {
+        "value_type": "individual",
+        "shared": true,
+        "sort": 2
+      },
+      "steppedLine": true,
+      "targets": [
+        {
+          "tags": [],
+          "dsType": "influxdb",
+          "orderByTime": "ASC",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              }
+            ]
+          ],
+          "alias": "",
+          "policy": "default",
+          "groupBy": [],
+          "measurement": "notused",
+          "query": "SELECT /^[[repogroups]]$/ FROM \"repo_group_activity_[[period]]\" WHERE $timeFilter",
+          "rawQuery": true,
+          "format": "time_series",
+          "rawSql": "select\n  time,\n  ${types:csv}\nfrom\n  sevent_types\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\norder by\n  time",
+          "resultFormat": "time_series",
+          "refId": "A"
+        }
+      ],
+      "aliasColors": {
+        
+      },
+      "dashes": false,
+      "points": false,
+      "spaceLength": 10,
+      "seriesOverrides": [],
+      "nullPointMode": "null as zero",
+      "percentage": true,
+      "legend": {
+        "values": true,
+        "max": true,
+        "min": true,
+        "total": true,
+        "alignAsTable": true,
+        "show": true,
+        "sort": "total",
+        "sortDesc": true,
+        "avg": true,
+        "current": true,
+        "rightSide": true
+      },
+      "type": "graph",
+      "dashLength": 10,
+      "timeShift": null,
+      "gridPos": {
+        "h": 21,
+        "w": 24,
+        "x": 0,
+        "y": 42
+      },
+      "stack": true,
+      "lines": false,
+      "decimals": null,
+      "thresholds": [],
+      "description": "[[full_name]] GitHub events",
+      "linewidth": 0,
+      "fill": 3,
+      "pointradius": 5,
+      "datasource": "psql",
+      "xaxis": {
+        "values": [],
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true
+      }
+    },
+    {
+      "type": "text",
+      "content": "${docs:raw}",
+      "gridPos": {
+        "w": 24,
+        "x": 0,
+        "y": 63,
+        "h": 8
+      },
+      "id": 1,
+      "links": [],
+      "mode": "html",
+      "title": "Dashboard documentation"
+    }
+  ]
 }
