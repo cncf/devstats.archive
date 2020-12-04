@@ -1,10 +1,194 @@
 {
+  "time": {
+    "from": "now-1y",
+    "to": "now"
+  },
+  "uid": "61",
+  "title": "Documentation Committers in Repository Groups",
+  "panels": [
+    {
+      "decimals": 0,
+      "yaxes": [
+        {
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true,
+          "format": "none",
+          "label": "Companies"
+        },
+        {
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true,
+          "format": "none",
+          "label": "Developers"
+        }
+      ],
+      "fill": 1,
+      "linewidth": 1,
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      },
+      "dashes": false,
+      "lines": true,
+      "gridPos": {
+        "w": 24,
+        "x": 0,
+        "y": 0,
+        "h": 22
+      },
+      "fillGradient": 0,
+      "spaceLength": 10,
+      "seriesOverrides": [
+        {
+          "yaxis": 2,
+          "alias": "Number of documentation committers"
+        }
+      ],
+      "targets": [
+        {
+          "groupBy": [],
+          "rawSql": "select\n  time,\n  value as \"Number of companies commiting to documentation\"\nfrom\n  sdoc_committers\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'docstats[[repogroup]]comps'\norder by\n  time",
+          "measurement": "reviewers_d",
+          "orderByTime": "ASC",
+          "hide": false,
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              }
+            ]
+          ],
+          "policy": "autogen",
+          "refId": "A",
+          "query": "",
+          "resultFormat": "time_series",
+          "tags": [],
+          "rawQuery": true,
+          "alias": "Number of companies commiting to documentation",
+          "dsType": "influxdb"
+        },
+        {
+          "resultFormat": "time_series",
+          "rawQuery": true,
+          "refId": "B",
+          "measurement": "reviewers_d",
+          "rawSql": "select\n  time,\n  value as \"Number of documentation committers\"\nfrom\n  sdoc_committers\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'docstats[[repogroup]]devs'\norder by\n  time",
+          "orderByTime": "ASC",
+          "query": "",
+          "hide": false,
+          "dsType": "influxdb",
+          "select": [
+            [
+              {
+                "type": "field",
+                "params": [
+                  "value"
+                ]
+              }
+            ]
+          ],
+          "alias": "Number of documentation committers",
+          "policy": "autogen",
+          "groupBy": [],
+          "tags": []
+        }
+      ],
+      "id": 1,
+      "xaxis": {
+        "name": null,
+        "show": true,
+        "values": [
+          "total"
+        ],
+        "buckets": null,
+        "mode": "time"
+      },
+      "links": [],
+      "type": "graph",
+      "renderer": "flot",
+      "thresholds": [],
+      "nullPointMode": "null",
+      "pointradius": 1,
+      "timeRegions": [],
+      "timeShift": null,
+      "transparent": true,
+      "hiddenSeries": false,
+      "dashLength": 10,
+      "description": "",
+      "aliasColors": {
+        
+      },
+      "bars": false,
+      "percentage": false,
+      "steppedLine": false,
+      "legend": {
+        "current": true,
+        "hideEmpty": false,
+        "show": true,
+        "alignAsTable": true,
+        "values": true,
+        "avg": true,
+        "max": true,
+        "total": false,
+        "rightSide": false,
+        "min": true,
+        "hideZero": false
+      },
+      "tooltip": {
+        "sort": 0,
+        "value_type": "individual",
+        "shared": true
+      },
+      "timeFrom": null,
+      "stack": false,
+      "datasource": "psql",
+      "options": {
+        "dataLinks": []
+      },
+      "title": "Documentation committers: companies and developers ([[repogroup_name]], [[period]])",
+      "points": false
+    },
+    {
+      "links": [],
+      "type": "text",
+      "datasource": null,
+      "gridPos": {
+        "w": 24,
+        "x": 0,
+        "y": 22,
+        "h": 10
+      },
+      "content": "${docs:raw}",
+      "id": 11,
+      "options": {
+        
+      },
+      "mode": "html",
+      "title": "Dashboard documentation"
+    }
+  ],
+  "tags": [
+    "companies",
+    "dashboard",
+    "kyverno"
+  ],
+  "style": "dark",
+  "id": 12,
+  "version": 2,
+  "gnetId": null,
   "timezone": "",
+  "graphTooltip": 0,
+  "refresh": false,
   "templating": {
     "list": [
       {
-        "label": "Period",
-        "multi": false,
         "hide": 0,
         "options": [
           {
@@ -18,9 +202,9 @@
             "value": "w"
           },
           {
+            "selected": false,
             "text": "Month",
-            "value": "m",
-            "selected": false
+            "value": "m"
           },
           {
             "selected": false,
@@ -28,330 +212,166 @@
             "value": "q"
           }
         ],
-        "skipUrlSync": false,
-        "query": "d7,w,m,q",
-        "type": "custom",
         "allValue": null,
+        "type": "custom",
+        "name": "period",
+        "skipUrlSync": false,
         "current": {
           "tags": [],
           "text": "7 Days MA",
           "value": "d7"
         },
-        "includeAll": false,
-        "name": "period"
+        "label": "Period",
+        "multi": false,
+        "query": "d7,w,m,q",
+        "includeAll": false
       },
       {
-        "tagValuesQuery": "",
         "tags": [],
-        "datasource": "psql",
-        "name": "full_name",
-        "includeAll": false,
         "label": null,
-        "refresh": 1,
-        "definition": "",
-        "multi": false,
-        "skipUrlSync": true,
-        "hide": 2,
-        "current": {
-          "text": "ChubaoFS",
-          "value": "ChubaoFS"
-        },
-        "sort": 0,
-        "regex": "",
-        "useTags": false,
-        "tagsQuery": "",
-        "type": "query",
+        "includeAll": false,
+        "datasource": "psql",
         "allValue": null,
         "options": [],
-        "query": "select value_s from gha_vars where name = 'full_name'"
+        "query": "select value_s from gha_vars where name = 'full_name'",
+        "current": {
+          "value": "ChubaoFS",
+          "text": "ChubaoFS"
+        },
+        "name": "full_name",
+        "useTags": false,
+        "regex": "",
+        "sort": 0,
+        "refresh": 1,
+        "tagsQuery": "",
+        "type": "query",
+        "tagValuesQuery": "",
+        "definition": "",
+        "multi": false,
+        "hide": 2,
+        "skipUrlSync": true
       },
       {
+        "definition": "",
+        "regex": "",
         "tagValuesQuery": "",
         "type": "query",
         "label": "Repository group",
-        "tags": [],
-        "query": "select all_repo_group_name from tall_repo_groups order by 1",
-        "tagsQuery": "",
-        "refresh": 1,
-        "skipUrlSync": false,
+        "datasource": "psql",
         "useTags": false,
-        "name": "repogroup_name",
         "sort": 0,
-        "hide": 0,
+        "includeAll": false,
+        "tags": [],
+        "skipUrlSync": false,
+        "multi": false,
+        "allValue": null,
+        "name": "repogroup_name",
+        "options": [],
         "current": {
           "value": "All",
           "text": "All"
         },
-        "definition": "",
-        "includeAll": false,
-        "options": [],
-        "multi": false,
-        "regex": "",
-        "datasource": "psql",
-        "allValue": null
+        "tagsQuery": "",
+        "hide": 0,
+        "refresh": 1,
+        "query": "select all_repo_group_name from tall_repo_groups order by 1"
       },
       {
+        "name": "repogroup",
+        "query": "select all_repo_group_value from tall_repo_groups where all_repo_group_name = '[[repogroup_name]]'",
         "tagValuesQuery": "",
-        "definition": "",
         "type": "query",
         "tagsQuery": "",
-        "query": "select all_repo_group_value from tall_repo_groups where all_repo_group_name = '[[repogroup_name]]'",
-        "multi": false,
         "datasource": "psql",
-        "allValue": null,
-        "hide": 2,
-        "name": "repogroup",
-        "options": [],
-        "label": "",
-        "refresh": 1,
-        "tags": [],
-        "includeAll": false,
-        "regex": "",
         "sort": 0,
-        "skipUrlSync": true,
+        "definition": "",
         "useTags": false,
+        "multi": false,
+        "label": "",
+        "skipUrlSync": true,
+        "options": [],
+        "hide": 2,
+        "tags": [],
+        "regex": "",
+        "allValue": null,
+        "refresh": 1,
+        "includeAll": false,
         "current": {
           "text": "all",
           "value": "all"
         }
       },
       {
-        "refresh": 1,
-        "type": "query",
-        "name": "docs",
-        "tagValuesQuery": "",
-        "regex": "",
-        "options": [],
-        "tagsQuery": "",
-        "multi": false,
-        "label": null,
         "allValue": null,
-        "useTags": false,
+        "skipUrlSync": true,
+        "tagValuesQuery": "",
         "hide": 2,
         "query": "select value_s from gha_vars where name = 'documentation_committers_docs_html'",
+        "includeAll": false,
         "sort": 0,
-        "skipUrlSync": true,
         "datasource": "psql",
         "current": {
           "text": "\u003ch1 id=\"dashboard-header\"\u003eChubaoFS documentation committers dashboard\u003c/h1\u003e\n\u003cp\u003eLinks:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003eMetric \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/doc_committers.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eTSDB \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/metrics.yaml\" target=\"_blank\"\u003eseries definition\u003c/a\u003e. Search for \u003ccode\u003edoc_committers\u003c/code\u003e\u003c/li\u003e\n\u003cli\u003eGrafana dashboard \u003ca href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/chubaofs/documentation-committers-in-repository-groups.json\" target=\"_blank\"\u003eJSON\u003c/a\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch1 id=\"description\"\u003eDescription\u003c/h1\u003e\n\u003cul\u003e\n\u003cli\u003eThis dashboard shows how many companies and developers are commiting documentation in a given repository group.\u003c/li\u003e\n\u003cli\u003eDocumentation commiter is someone who commited anything changing \u003ccode\u003e.md\u003c/code\u003e file(s).\u003c/li\u003e\n\u003cli\u003eYou can select single repository group or summary for all of them.\u003c/li\u003e\n\u003cli\u003eSelecting period (for example week) means that dashboard will show data in those periods.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/periods.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about periods.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/repository_groups.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about repository groups.\u003c/li\u003e\n\u003cli\u003eWe are skipping bots activity, see \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/excluding_bots.md\" target=\"_blank\"\u003eexcluding bots\u003c/a\u003e for details.\u003c/li\u003e\n\u003cli\u003eWe are determining user's company affiliation from \u003ca href=\"https://github.com/cncf/devstats/blob/master/github_users.json\" target=\"_blank\"\u003ethis file\u003c/a\u003e, which is imported from \u003ccode\u003ecncf/gitdm\u003c/code\u003e.\u003c/li\u003e\n\u003c/ul\u003e",
           "value": "\u003ch1 id=\"dashboard-header\"\u003eChubaoFS documentation committers dashboard\u003c/h1\u003e\n\u003cp\u003eLinks:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003eMetric \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/doc_committers.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eTSDB \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/metrics.yaml\" target=\"_blank\"\u003eseries definition\u003c/a\u003e. Search for \u003ccode\u003edoc_committers\u003c/code\u003e\u003c/li\u003e\n\u003cli\u003eGrafana dashboard \u003ca href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/chubaofs/documentation-committers-in-repository-groups.json\" target=\"_blank\"\u003eJSON\u003c/a\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch1 id=\"description\"\u003eDescription\u003c/h1\u003e\n\u003cul\u003e\n\u003cli\u003eThis dashboard shows how many companies and developers are commiting documentation in a given repository group.\u003c/li\u003e\n\u003cli\u003eDocumentation commiter is someone who commited anything changing \u003ccode\u003e.md\u003c/code\u003e file(s).\u003c/li\u003e\n\u003cli\u003eYou can select single repository group or summary for all of them.\u003c/li\u003e\n\u003cli\u003eSelecting period (for example week) means that dashboard will show data in those periods.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/periods.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about periods.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/repository_groups.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about repository groups.\u003c/li\u003e\n\u003cli\u003eWe are skipping bots activity, see \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/excluding_bots.md\" target=\"_blank\"\u003eexcluding bots\u003c/a\u003e for details.\u003c/li\u003e\n\u003cli\u003eWe are determining user's company affiliation from \u003ca href=\"https://github.com/cncf/devstats/blob/master/github_users.json\" target=\"_blank\"\u003ethis file\u003c/a\u003e, which is imported from \u003ccode\u003ecncf/gitdm\u003c/code\u003e.\u003c/li\u003e\n\u003c/ul\u003e"
         },
-        "includeAll": false,
+        "label": null,
+        "definition": "",
+        "options": [],
+        "refresh": 1,
+        "multi": false,
+        "name": "docs",
+        "type": "query",
+        "regex": "",
+        "tagsQuery": "",
         "tags": [],
-        "definition": ""
+        "useTags": false
       }
     ]
   },
   "links": [],
-  "schemaVersion": 21,
-  "panels": [
-    {
-      "timeFrom": null,
-      "title": "Documentation committers: companies and developers ([[repogroup_name]], [[period]])",
-      "stack": false,
-      "options": {
-        "dataLinks": []
-      },
-      "steppedLine": false,
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      },
-      "yaxes": [
-        {
-          "label": "Companies",
-          "logBase": 1,
-          "max": null,
-          "min": "0",
-          "show": true,
-          "format": "none"
-        },
-        {
-          "min": "0",
-          "show": true,
-          "format": "none",
-          "label": "Developers",
-          "logBase": 1,
-          "max": null
-        }
-      ],
-      "nullPointMode": "null",
-      "points": false,
-      "dashLength": 10,
-      "thresholds": [],
-      "gridPos": {
-        "h": 22,
-        "w": 24,
-        "x": 0,
-        "y": 0
-      },
-      "type": "graph",
-      "linewidth": 1,
-      "fill": 1,
-      "percentage": false,
-      "aliasColors": {
-        
-      },
-      "targets": [
-        {
-          "refId": "A",
-          "orderByTime": "ASC",
-          "alias": "Number of companies commiting to documentation",
-          "dsType": "influxdb",
-          "groupBy": [],
-          "resultFormat": "time_series",
-          "rawSql": "select\n  time,\n  value as \"Number of companies commiting to documentation\"\nfrom\n  sdoc_committers\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'docstats[[repogroup]]comps'\norder by\n  time",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              }
-            ]
-          ],
-          "query": "",
-          "measurement": "reviewers_d",
-          "hide": false,
-          "policy": "autogen",
-          "rawQuery": true,
-          "tags": []
-        },
-        {
-          "hide": false,
-          "query": "",
-          "rawSql": "select\n  time,\n  value as \"Number of documentation committers\"\nfrom\n  sdoc_committers\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'docstats[[repogroup]]devs'\norder by\n  time",
-          "measurement": "reviewers_d",
-          "resultFormat": "time_series",
-          "orderByTime": "ASC",
-          "policy": "autogen",
-          "refId": "B",
-          "tags": [],
-          "dsType": "influxdb",
-          "select": [
-            [
-              {
-                "type": "field",
-                "params": [
-                  "value"
-                ]
-              }
-            ]
-          ],
-          "alias": "Number of documentation committers",
-          "rawQuery": true,
-          "groupBy": []
-        }
-      ],
-      "seriesOverrides": [
-        {
-          "alias": "Number of documentation committers",
-          "yaxis": 2
-        }
-      ],
-      "renderer": "flot",
-      "decimals": 0,
-      "legend": {
-        "current": true,
-        "hideEmpty": false,
-        "show": true,
-        "values": true,
-        "alignAsTable": true,
-        "avg": true,
-        "rightSide": false,
-        "max": true,
-        "min": true,
-        "total": false,
-        "hideZero": false
-      },
-      "timeShift": null,
-      "dashes": false,
-      "pointradius": 1,
-      "xaxis": {
-        "values": [
-          "total"
-        ],
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true
-      },
-      "id": 1,
-      "timeRegions": [],
-      "hiddenSeries": false,
-      "spaceLength": 10,
-      "transparent": true,
-      "links": [],
-      "lines": true,
-      "fillGradient": 0,
-      "bars": false,
-      "tooltip": {
-        "shared": true,
-        "sort": 0,
-        "value_type": "individual"
-      },
-      "datasource": "psql",
-      "description": ""
-    },
-    {
-      "title": "Dashboard documentation",
-      "id": 11,
-      "mode": "html",
-      "type": "text",
-      "datasource": null,
-      "gridPos": {
-        "x": 0,
-        "y": 22,
-        "h": 10,
-        "w": 24
-      },
-      "options": {
-        
-      },
-      "content": "${docs:raw}",
-      "links": []
-    }
-  ],
-  "id": 12,
   "annotations": {
     "list": [
       {
-        "builtIn": 1,
-        "datasource": "-- Grafana --",
-        "enable": true,
         "hide": true,
         "iconColor": "rgba(0, 211, 255, 1)",
         "name": "Annotations \u0026 Alerts",
-        "type": "dashboard"
+        "type": "dashboard",
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true
       },
       {
+        "titleColumn": "[[full_name]] release",
+        "tagsColumn": "title,description",
+        "type": "alert",
         "limit": 100,
         "textColumn": "",
-        "tagsColumn": "title,description",
-        "name": "Releases",
-        "type": "alert",
-        "iconColor": "rgba(255, 96, 96, 1)",
-        "query": "SELECT title, description from annotations WHERE $timeFilter order by time asc",
-        "rawQuery": "select extract(epoch from time) AS time, title as text, description as tags from sannotations where $__timeFilter(time)",
         "showIn": 0,
-        "titleColumn": "[[full_name]] release",
+        "query": "SELECT title, description from annotations WHERE $timeFilter order by time asc",
         "datasource": "psql",
+        "name": "Releases",
+        "iconColor": "rgba(255, 96, 96, 1)",
         "enable": true,
-        "hide": false
+        "hide": false,
+        "rawQuery": "select extract(epoch from time) AS time, title as text, description as tags from sannotations where $__timeFilter(time)"
       }
     ]
   },
-  "version": 2,
   "iteration": 1586176937761,
-  "gnetId": null,
-  "graphTooltip": 0,
-  "tags": [
-    "companies",
-    "dashboard",
-    "kyverno"
-  ],
+  "editable": true,
+  "schemaVersion": 21,
   "timepicker": {
+    "time_options": [
+      "5m",
+      "15m",
+      "1h",
+      "6h",
+      "12h",
+      "24h",
+      "2d",
+      "7d",
+      "30d"
+    ],
     "refresh_intervals": [
       "5s",
       "10s",
@@ -363,26 +383,6 @@
       "1h",
       "2h",
       "1d"
-    ],
-    "time_options": [
-      "5m",
-      "15m",
-      "1h",
-      "6h",
-      "12h",
-      "24h",
-      "2d",
-      "7d",
-      "30d"
     ]
-  },
-  "style": "dark",
-  "refresh": false,
-  "time": {
-    "from": "now-1y",
-    "to": "now"
-  },
-  "uid": "61",
-  "editable": true,
-  "title": "Documentation Committers in Repository Groups"
+  }
 }

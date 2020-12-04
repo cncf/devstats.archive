@@ -1,117 +1,222 @@
 {
-  "gnetId": null,
+  "title": "Top Commenters Table",
+  "links": [],
+  "timezone": "",
+  "uid": "28",
+  "iteration": 1568187929551,
+  "editable": true,
+  "id": 42,
+  "style": "dark",
+  "refresh": false,
+  "templating": {
+    "list": [
+      {
+        "sort": 0,
+        "skipUrlSync": false,
+        "datasource": "psql",
+        "tags": [],
+        "label": "Range",
+        "definition": "",
+        "tagsQuery": "",
+        "name": "period_name",
+        "multi": false,
+        "allValue": null,
+        "useTags": false,
+        "options": [],
+        "current": {
+          "value": "Last decade",
+          "text": "Last decade"
+        },
+        "query": "select quick_ranges_name from tquick_ranges order by time",
+        "type": "query",
+        "hide": 0,
+        "refresh": 1,
+        "regex": "",
+        "includeAll": false,
+        "tagValuesQuery": ""
+      },
+      {
+        "regex": "",
+        "hide": 2,
+        "useTags": false,
+        "tags": [],
+        "tagValuesQuery": "",
+        "type": "query",
+        "definition": "",
+        "tagsQuery": "",
+        "skipUrlSync": true,
+        "sort": 0,
+        "refresh": 1,
+        "name": "period",
+        "datasource": "psql",
+        "query": "select quick_ranges_suffix from tquick_ranges where quick_ranges_name = '[[period_name]]'",
+        "includeAll": false,
+        "label": null,
+        "options": [],
+        "multi": false,
+        "current": {
+          "value": "y10",
+          "text": "y10"
+        },
+        "allValue": null
+      },
+      {
+        "hide": 0,
+        "refresh": 1,
+        "type": "query",
+        "current": {
+          "text": "All",
+          "value": "All"
+        },
+        "useTags": false,
+        "datasource": "psql",
+        "name": "repogroup_name",
+        "skipUrlSync": false,
+        "includeAll": false,
+        "tagValuesQuery": "",
+        "options": [],
+        "label": "Repository group",
+        "regex": "",
+        "sort": 0,
+        "tags": [],
+        "tagsQuery": "",
+        "query": "select all_repo_group_name from tall_repo_groups order by 1",
+        "definition": "",
+        "allValue": null,
+        "multi": false
+      },
+      {
+        "tags": [],
+        "options": [],
+        "includeAll": false,
+        "datasource": "psql",
+        "current": {
+          "text": "all",
+          "value": "all"
+        },
+        "regex": "",
+        "tagValuesQuery": "",
+        "refresh": 1,
+        "multi": false,
+        "hide": 2,
+        "type": "query",
+        "allValue": null,
+        "useTags": false,
+        "name": "repogroup",
+        "tagsQuery": "",
+        "sort": 0,
+        "skipUrlSync": true,
+        "query": "select all_repo_group_value from tall_repo_groups where all_repo_group_name = '[[repogroup_name]]'",
+        "definition": "",
+        "label": ""
+      },
+      {
+        "name": "full_name",
+        "tagValuesQuery": "",
+        "datasource": "psql",
+        "hide": 2,
+        "regex": "",
+        "tagsQuery": "",
+        "tags": [],
+        "sort": 0,
+        "current": {
+          "text": "All CNCF",
+          "value": "All CNCF"
+        },
+        "refresh": 1,
+        "allValue": null,
+        "query": "select value_s from gha_vars where name = 'full_name'",
+        "options": [],
+        "useTags": false,
+        "includeAll": false,
+        "skipUrlSync": true,
+        "multi": false,
+        "label": null,
+        "type": "query",
+        "definition": ""
+      },
+      {
+        "query": "select value_s from gha_vars where name = 'top_commenters_docs_html'",
+        "tags": [],
+        "tagsQuery": "",
+        "refresh": 1,
+        "current": {
+          "text": "\u003ch1 id=\"dashboard-header\"\u003eAll CNCF top commenters dashboard\u003c/h1\u003e\n\u003cp\u003eLinks:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003eMetric \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/hist_commenters.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eTSDB \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/metrics.yaml\" target=\"_blank\"\u003eseries definition\u003c/a\u003e. Search for \u003ccode\u003ehist_commenters\u003c/code\u003e\u003c/li\u003e\n\u003cli\u003eGrafana dashboard \u003ca href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/all/top-commenters.json\" target=\"_blank\"\u003eJSON\u003c/a\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch1 id=\"description\"\u003eDescription\u003c/h1\u003e\n\u003cul\u003e\n\u003cli\u003eThis dashboard show most active commenters in the selected period.\u003c/li\u003e\n\u003cli\u003eYou can select last day, month, week etc. range or date range between releases, for example \u003ccode\u003ev1.9 - v1.10\u003c/code\u003e.\u003c/li\u003e\n\u003cli\u003eYou can select single repository group or summary for all of them.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/periods.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about periods.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/repository_groups.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about repository groups.\u003c/li\u003e\n\u003cli\u003eWe are skipping bots activity, see \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/excluding_bots.md\" target=\"_blank\"\u003eexcluding bots\u003c/a\u003e for details.\u003c/li\u003e\n\u003c/ul\u003e",
+          "value": "\u003ch1 id=\"dashboard-header\"\u003eAll CNCF top commenters dashboard\u003c/h1\u003e\n\u003cp\u003eLinks:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003eMetric \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/hist_commenters.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eTSDB \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/metrics.yaml\" target=\"_blank\"\u003eseries definition\u003c/a\u003e. Search for \u003ccode\u003ehist_commenters\u003c/code\u003e\u003c/li\u003e\n\u003cli\u003eGrafana dashboard \u003ca href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/all/top-commenters.json\" target=\"_blank\"\u003eJSON\u003c/a\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch1 id=\"description\"\u003eDescription\u003c/h1\u003e\n\u003cul\u003e\n\u003cli\u003eThis dashboard show most active commenters in the selected period.\u003c/li\u003e\n\u003cli\u003eYou can select last day, month, week etc. range or date range between releases, for example \u003ccode\u003ev1.9 - v1.10\u003c/code\u003e.\u003c/li\u003e\n\u003cli\u003eYou can select single repository group or summary for all of them.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/periods.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about periods.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/repository_groups.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about repository groups.\u003c/li\u003e\n\u003cli\u003eWe are skipping bots activity, see \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/excluding_bots.md\" target=\"_blank\"\u003eexcluding bots\u003c/a\u003e for details.\u003c/li\u003e\n\u003c/ul\u003e"
+        },
+        "type": "query",
+        "definition": "",
+        "label": null,
+        "options": [],
+        "sort": 0,
+        "useTags": false,
+        "skipUrlSync": true,
+        "multi": false,
+        "allValue": null,
+        "includeAll": false,
+        "tagValuesQuery": "",
+        "regex": "",
+        "hide": 2,
+        "name": "docs",
+        "datasource": "psql"
+      }
+    ]
+  },
+  "tags": [
+    "dashboard",
+    "kyverno",
+    "table"
+  ],
+  "time": {
+    "to": "now",
+    "from": "now-5y"
+  },
+  "schemaVersion": 19,
+  "timepicker": {
+    "time_options": [
+      "5m",
+      "15m",
+      "1h",
+      "6h",
+      "12h",
+      "24h",
+      "2d",
+      "7d",
+      "30d"
+    ],
+    "hidden": true,
+    "refresh_intervals": [
+      "5s",
+      "10s",
+      "30s",
+      "1m",
+      "5m",
+      "15m",
+      "30m",
+      "1h",
+      "2h",
+      "1d"
+    ]
+  },
+  "annotations": {
+    "list": [
+      {
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations \u0026 Alerts",
+        "type": "dashboard",
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true
+      }
+    ]
+  },
+  "version": 2,
+  "graphTooltip": 0,
   "panels": [
     {
-      "pageSize": 1000,
-      "sort": {
-        "col": 2,
-        "desc": true
-      },
-      "styles": [
-        {
-          "dateFormat": "YYYY-MM-DD HH:mm:ss",
-          "decimals": null,
-          "pattern": "Time",
-          "type": "hidden",
-          "alias": "Time"
-        },
-        {
-          "pattern": "name",
-          "preserveFormat": false,
-          "unit": "short",
-          "colors": [
-            "rgba(245, 54, 54, 0.9)",
-            "rgba(237, 129, 40, 0.89)",
-            "rgba(50, 172, 45, 0.97)"
-          ],
-          "alias": "Developer",
-          "dateFormat": "YYYY-MM-DD HH:mm:ss",
-          "type": "string",
-          "colorMode": null,
-          "decimals": 2,
-          "thresholds": []
-        },
-        {
-          "colors": [
-            "rgba(245, 54, 54, 0.9)",
-            "rgba(237, 129, 40, 0.89)",
-            "rgba(50, 172, 45, 0.97)"
-          ],
-          "unit": "none",
-          "thresholds": [],
-          "alias": "Comments",
-          "dateFormat": "YYYY-MM-DD HH:mm:ss",
-          "pattern": "value",
-          "type": "number",
-          "decimals": 0,
-          "colorMode": null
-        },
-        {
-          "thresholds": [],
-          "type": "string",
-          "unit": "short",
-          "alias": "",
-          "colorMode": null,
-          "colors": [
-            "rgba(245, 54, 54, 0.9)",
-            "rgba(237, 129, 40, 0.89)",
-            "rgba(50, 172, 45, 0.97)"
-          ],
-          "decimals": 2,
-          "pattern": "/.*/"
-        }
-      ],
-      "description": "Shows most active commenters",
-      "scroll": true,
-      "title": "[[full_name]] Top commenters ([[repogroup_name]], Range: [[period_name]])",
-      "hideTimeOverride": true,
-      "type": "table",
-      "datasource": "psql",
-      "id": 1,
-      "options": {
-        
-      },
-      "links": [],
-      "gridPos": {
-        "x": 0,
-        "y": 0,
-        "h": 22,
-        "w": 24
-      },
-      "fontSize": "90%",
-      "showHeader": true,
-      "columns": [],
       "targets": [
         {
-          "groupBy": [
-            {
-              "params": [
-                "$__interval"
-              ],
-              "type": "time"
-            },
-            {
-              "type": "fill",
-              "params": [
-                "null"
-              ]
-            }
-          ],
-          "timeColumn": "time",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ],
-          "resultFormat": "table",
-          "format": "table",
-          "dsType": "influxdb",
-          "query": "SELECT \"name\", \"value\" FROM \"top_commenters_[[repogroup]]_[[period]]\" WHERE $timeFilter",
-          "alias": "",
-          "rawSql": "select\n  row_number() over (order by value desc) as \"Rank\",\n  name,\n  value\nfrom\n  shtop_commenters\nwhere\n  series = 'htop_commenters[[repogroup]]'\n  and period = '[[period]]'",
-          "refId": "A",
           "select": [
             [
               {
@@ -126,19 +231,126 @@
               }
             ]
           ],
-          "orderByTime": "ASC",
-          "rawQuery": true,
-          "tags": [],
           "group": [],
           "policy": "default",
-          "metricColumn": "none"
+          "format": "table",
+          "metricColumn": "none",
+          "dsType": "influxdb",
+          "refId": "A",
+          "rawSql": "select\n  row_number() over (order by value desc) as \"Rank\",\n  name,\n  value\nfrom\n  shtop_commenters\nwhere\n  series = 'htop_commenters[[repogroup]]'\n  and period = '[[period]]'",
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "type": "fill",
+              "params": [
+                "null"
+              ]
+            }
+          ],
+          "resultFormat": "table",
+          "tags": [],
+          "rawQuery": true,
+          "timeColumn": "time",
+          "query": "SELECT \"name\", \"value\" FROM \"top_commenters_[[repogroup]]_[[period]]\" WHERE $timeFilter",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ],
+          "orderByTime": "ASC",
+          "alias": ""
         }
       ],
+      "showHeader": true,
+      "id": 1,
+      "description": "Shows most active commenters",
+      "fontSize": "90%",
+      "interval": "",
+      "title": "[[full_name]] Top commenters ([[repogroup_name]], Range: [[period_name]])",
+      "hideTimeOverride": true,
+      "pageSize": 1000,
+      "sort": {
+        "col": 2,
+        "desc": true
+      },
       "transform": "table",
-      "interval": ""
+      "scroll": true,
+      "datasource": "psql",
+      "links": [],
+      "gridPos": {
+        "h": 22,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "styles": [
+        {
+          "alias": "Time",
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": null,
+          "pattern": "Time",
+          "type": "hidden"
+        },
+        {
+          "preserveFormat": false,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "type": "string",
+          "decimals": 2,
+          "thresholds": [],
+          "pattern": "name",
+          "alias": "Developer",
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "unit": "short",
+          "colorMode": null
+        },
+        {
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "unit": "none",
+          "type": "number",
+          "colorMode": null,
+          "decimals": 0,
+          "alias": "Comments",
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "thresholds": [],
+          "pattern": "value"
+        },
+        {
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "decimals": 2,
+          "pattern": "/.*/",
+          "thresholds": [],
+          "type": "string",
+          "unit": "short",
+          "alias": "",
+          "colorMode": null
+        }
+      ],
+      "type": "table",
+      "options": {
+        
+      },
+      "columns": []
     },
     {
-      "content": "${docs:raw}",
       "gridPos": {
         "w": 24,
         "x": 0,
@@ -152,221 +364,9 @@
         
       },
       "title": "Dashboard documentation",
-      "type": "text"
+      "type": "text",
+      "content": "${docs:raw}"
     }
   ],
-  "version": 2,
-  "refresh": false,
-  "links": [],
-  "templating": {
-    "list": [
-      {
-        "options": [],
-        "tagsQuery": "",
-        "refresh": 1,
-        "includeAll": false,
-        "label": "Range",
-        "query": "select quick_ranges_name from tquick_ranges order by time",
-        "tags": [],
-        "sort": 0,
-        "tagValuesQuery": "",
-        "useTags": false,
-        "allValue": null,
-        "type": "query",
-        "skipUrlSync": false,
-        "definition": "",
-        "current": {
-          "text": "Last decade",
-          "value": "Last decade"
-        },
-        "name": "period_name",
-        "regex": "",
-        "multi": false,
-        "datasource": "psql",
-        "hide": 0
-      },
-      {
-        "regex": "",
-        "datasource": "psql",
-        "sort": 0,
-        "current": {
-          "text": "y10",
-          "value": "y10"
-        },
-        "definition": "",
-        "label": null,
-        "tags": [],
-        "query": "select quick_ranges_suffix from tquick_ranges where quick_ranges_name = '[[period_name]]'",
-        "tagsQuery": "",
-        "skipUrlSync": true,
-        "refresh": 1,
-        "name": "period",
-        "tagValuesQuery": "",
-        "allValue": null,
-        "type": "query",
-        "options": [],
-        "hide": 2,
-        "includeAll": false,
-        "multi": false,
-        "useTags": false
-      },
-      {
-        "current": {
-          "text": "All",
-          "value": "All"
-        },
-        "tagsQuery": "",
-        "allValue": null,
-        "useTags": false,
-        "label": "Repository group",
-        "query": "select all_repo_group_name from tall_repo_groups order by 1",
-        "regex": "",
-        "hide": 0,
-        "type": "query",
-        "definition": "",
-        "options": [],
-        "name": "repogroup_name",
-        "skipUrlSync": false,
-        "multi": false,
-        "sort": 0,
-        "includeAll": false,
-        "refresh": 1,
-        "tagValuesQuery": "",
-        "tags": [],
-        "datasource": "psql"
-      },
-      {
-        "type": "query",
-        "current": {
-          "text": "all",
-          "value": "all"
-        },
-        "options": [],
-        "multi": false,
-        "name": "repogroup",
-        "regex": "",
-        "skipUrlSync": true,
-        "tagsQuery": "",
-        "query": "select all_repo_group_value from tall_repo_groups where all_repo_group_name = '[[repogroup_name]]'",
-        "definition": "",
-        "refresh": 1,
-        "tagValuesQuery": "",
-        "includeAll": false,
-        "datasource": "psql",
-        "hide": 2,
-        "label": "",
-        "allValue": null,
-        "sort": 0,
-        "tags": [],
-        "useTags": false
-      },
-      {
-        "definition": "",
-        "type": "query",
-        "current": {
-          "text": "All CNCF",
-          "value": "All CNCF"
-        },
-        "hide": 2,
-        "tagValuesQuery": "",
-        "tags": [],
-        "tagsQuery": "",
-        "refresh": 1,
-        "useTags": false,
-        "datasource": "psql",
-        "name": "full_name",
-        "sort": 0,
-        "allValue": null,
-        "options": [],
-        "query": "select value_s from gha_vars where name = 'full_name'",
-        "skipUrlSync": true,
-        "regex": "",
-        "multi": false,
-        "label": null,
-        "includeAll": false
-      },
-      {
-        "name": "docs",
-        "hide": 2,
-        "allValue": null,
-        "options": [],
-        "sort": 0,
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false,
-        "datasource": "psql",
-        "definition": "",
-        "refresh": 1,
-        "current": {
-          "text": "\u003ch1 id=\"dashboard-header\"\u003eAll CNCF top commenters dashboard\u003c/h1\u003e\n\u003cp\u003eLinks:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003eMetric \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/hist_commenters.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eTSDB \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/metrics.yaml\" target=\"_blank\"\u003eseries definition\u003c/a\u003e. Search for \u003ccode\u003ehist_commenters\u003c/code\u003e\u003c/li\u003e\n\u003cli\u003eGrafana dashboard \u003ca href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/all/top-commenters.json\" target=\"_blank\"\u003eJSON\u003c/a\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch1 id=\"description\"\u003eDescription\u003c/h1\u003e\n\u003cul\u003e\n\u003cli\u003eThis dashboard show most active commenters in the selected period.\u003c/li\u003e\n\u003cli\u003eYou can select last day, month, week etc. range or date range between releases, for example \u003ccode\u003ev1.9 - v1.10\u003c/code\u003e.\u003c/li\u003e\n\u003cli\u003eYou can select single repository group or summary for all of them.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/periods.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about periods.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/repository_groups.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about repository groups.\u003c/li\u003e\n\u003cli\u003eWe are skipping bots activity, see \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/excluding_bots.md\" target=\"_blank\"\u003eexcluding bots\u003c/a\u003e for details.\u003c/li\u003e\n\u003c/ul\u003e",
-          "value": "\u003ch1 id=\"dashboard-header\"\u003eAll CNCF top commenters dashboard\u003c/h1\u003e\n\u003cp\u003eLinks:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003eMetric \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/hist_commenters.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eTSDB \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/metrics.yaml\" target=\"_blank\"\u003eseries definition\u003c/a\u003e. Search for \u003ccode\u003ehist_commenters\u003c/code\u003e\u003c/li\u003e\n\u003cli\u003eGrafana dashboard \u003ca href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/all/top-commenters.json\" target=\"_blank\"\u003eJSON\u003c/a\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch1 id=\"description\"\u003eDescription\u003c/h1\u003e\n\u003cul\u003e\n\u003cli\u003eThis dashboard show most active commenters in the selected period.\u003c/li\u003e\n\u003cli\u003eYou can select last day, month, week etc. range or date range between releases, for example \u003ccode\u003ev1.9 - v1.10\u003c/code\u003e.\u003c/li\u003e\n\u003cli\u003eYou can select single repository group or summary for all of them.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/periods.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about periods.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/repository_groups.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about repository groups.\u003c/li\u003e\n\u003cli\u003eWe are skipping bots activity, see \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/excluding_bots.md\" target=\"_blank\"\u003eexcluding bots\u003c/a\u003e for details.\u003c/li\u003e\n\u003c/ul\u003e"
-        },
-        "skipUrlSync": true,
-        "query": "select value_s from gha_vars where name = 'top_commenters_docs_html'",
-        "tagValuesQuery": "",
-        "includeAll": false,
-        "label": null,
-        "regex": "",
-        "tags": [],
-        "multi": false
-      }
-    ]
-  },
-  "schemaVersion": 19,
-  "title": "Top Commenters Table",
-  "timepicker": {
-    "hidden": true,
-    "refresh_intervals": [
-      "5s",
-      "10s",
-      "30s",
-      "1m",
-      "5m",
-      "15m",
-      "30m",
-      "1h",
-      "2h",
-      "1d"
-    ],
-    "time_options": [
-      "5m",
-      "15m",
-      "1h",
-      "6h",
-      "12h",
-      "24h",
-      "2d",
-      "7d",
-      "30d"
-    ]
-  },
-  "id": 42,
-  "annotations": {
-    "list": [
-      {
-        "name": "Annotations \u0026 Alerts",
-        "type": "dashboard",
-        "builtIn": 1,
-        "datasource": "-- Grafana --",
-        "enable": true,
-        "hide": true,
-        "iconColor": "rgba(0, 211, 255, 1)"
-      }
-    ]
-  },
-  "editable": true,
-  "tags": [
-    "dashboard",
-    "kyverno",
-    "table"
-  ],
-  "graphTooltip": 0,
-  "style": "dark",
-  "uid": "28",
-  "iteration": 1568187929551,
-  "time": {
-    "to": "now",
-    "from": "now-5y"
-  },
-  "timezone": ""
+  "gnetId": null
 }

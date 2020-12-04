@@ -1,424 +1,10 @@
 {
-  "annotations": {
-    "list": [
-      {
-        "builtIn": 1,
-        "datasource": "-- Grafana --",
-        "enable": true,
-        "hide": true,
-        "iconColor": "rgba(0, 211, 255, 1)",
-        "name": "Annotations \u0026 Alerts",
-        "type": "dashboard"
-      }
-    ]
-  },
+  "id": 5,
   "editable": true,
+  "refresh": false,
+  "style": "dark",
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 5,
-  "iteration": 1573016736473,
-  "links": [],
-  "panels": [
-    {
-      "columns": [],
-      "datasource": "psql",
-      "description": "",
-      "fontSize": "90%",
-      "gridPos": {
-        "h": 22,
-        "w": 24,
-        "x": 0,
-        "y": 0
-      },
-      "hideTimeOverride": true,
-      "id": 1,
-      "links": [],
-      "options": {},
-      "pageSize": 1000,
-      "scroll": true,
-      "showHeader": true,
-      "sort": {
-        "col": 0,
-        "desc": false
-      },
-      "styles": [
-        {
-          "alias": "Time",
-          "dateFormat": "YYYY-MM-DD HH:mm:ss",
-          "decimals": null,
-          "pattern": "Time",
-          "type": "hidden"
-        },
-        {
-          "alias": "Company",
-          "colorMode": null,
-          "colors": [
-            "rgba(245, 54, 54, 0.9)",
-            "rgba(237, 129, 40, 0.89)",
-            "rgba(50, 172, 45, 0.97)"
-          ],
-          "dateFormat": "YYYY-MM-DD HH:mm:ss",
-          "decimals": 2,
-          "pattern": "name",
-          "preserveFormat": false,
-          "thresholds": [],
-          "type": "string",
-          "unit": "short"
-        },
-        {
-          "alias": "Number",
-          "colorMode": null,
-          "colors": [
-            "rgba(245, 54, 54, 0.9)",
-            "rgba(237, 129, 40, 0.89)",
-            "rgba(50, 172, 45, 0.97)"
-          ],
-          "dateFormat": "YYYY-MM-DD HH:mm:ss",
-          "decimals": 0,
-          "pattern": "value",
-          "thresholds": [],
-          "type": "number",
-          "unit": "none"
-        },
-        {
-          "alias": "",
-          "colorMode": "value",
-          "colors": [
-            "rgba(0, 0, 0, 0)",
-            "rgb(255, 255, 255)",
-            "rgb(255, 255, 255)"
-          ],
-          "dateFormat": "YYYY-MM-DD HH:mm:ss",
-          "decimals": 0,
-          "mappingType": 1,
-          "pattern": "Rank",
-          "thresholds": [
-            "1"
-          ],
-          "type": "number",
-          "unit": "none"
-        },
-        {
-          "alias": "",
-          "colorMode": null,
-          "colors": [
-            "rgba(245, 54, 54, 0.9)",
-            "rgba(237, 129, 40, 0.89)",
-            "rgba(50, 172, 45, 0.97)"
-          ],
-          "decimals": 0,
-          "pattern": "/.*/",
-          "thresholds": [],
-          "type": "number",
-          "unit": "short"
-        }
-      ],
-      "targets": [
-        {
-          "alias": "",
-          "dsType": "influxdb",
-          "format": "table",
-          "group": [],
-          "groupBy": [
-            {
-              "params": [
-                "$__interval"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
-          "metricColumn": "none",
-          "orderByTime": "ASC",
-          "policy": "default",
-          "query": "SELECT \"name\", \"value\" FROM \"project_company_stats_[[metric]]_[[period]]\" WHERE $timeFilter",
-          "rawQuery": true,
-          "rawSql": "select (row_number() over (order by value desc) -1) as \"Rank\", name, value from \"shcom\" where series = 'hcom[[metric]]' and period = '[[period]]'",
-          "refId": "A",
-          "resultFormat": "table",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": [],
-          "timeColumn": "time",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ]
-        }
-      ],
-      "timeFrom": null,
-      "title": "[[full_name]] Companies statistics ([[metric]], Range: [[period_name]]), bots excluded",
-      "transform": "table",
-      "type": "table"
-    },
-    {
-      "content": "${docs:raw}",
-      "datasource": null,
-      "gridPos": {
-        "h": 9,
-        "w": 24,
-        "x": 0,
-        "y": 22
-      },
-      "id": 3,
-      "links": [],
-      "mode": "html",
-      "options": {},
-      "title": "Dashboard documentation",
-      "type": "text"
-    }
-  ],
-  "refresh": false,
-  "schemaVersion": 20,
-  "style": "dark",
-  "tags": [
-    "dashboard",
-    "kubernetes",
-    "companies",
-    "table"
-  ],
-  "templating": {
-    "list": [
-      {
-        "allValue": null,
-        "current": {
-          "text": "Last decade",
-          "value": "Last decade"
-        },
-        "datasource": "psql",
-        "definition": "",
-        "hide": 0,
-        "includeAll": false,
-        "label": "Range",
-        "multi": false,
-        "name": "period_name",
-        "options": [],
-        "query": "select quick_ranges_name from tquick_ranges order by time",
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": false,
-        "sort": 0,
-        "tagValuesQuery": "",
-        "tags": [],
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false
-      },
-      {
-        "allValue": null,
-        "current": {
-          "selected": true,
-          "tags": [],
-          "text": "Contributions",
-          "value": "contributions"
-        },
-        "hide": 0,
-        "includeAll": false,
-        "label": "Metric",
-        "multi": false,
-        "name": "metric",
-        "options": [
-          {
-            "selected": false,
-            "text": "Commenters",
-            "value": "commenters"
-          },
-          {
-            "selected": false,
-            "text": "Comments",
-            "value": "comments"
-          },
-          {
-            "selected": false,
-            "text": "Commit commenters",
-            "value": "commitcommenters"
-          },
-          {
-            "selected": false,
-            "text": "Commits",
-            "value": "commits"
-          },
-          {
-            "selected": false,
-            "text": "Committers",
-            "value": "committers"
-          },
-          {
-            "selected": false,
-            "text": "Documentation commits",
-            "value": "documentationcommits"
-          },
-          {
-            "selected": false,
-            "text": "Documentation committers",
-            "value": "documentationcommitters"
-          },
-          {
-            "selected": false,
-            "text": "Pushers",
-            "value": "pushers"
-          },
-          {
-            "selected": false,
-            "text": "GitHub Events",
-            "value": "events"
-          },
-          {
-            "selected": false,
-            "text": "Forkers",
-            "value": "forkers"
-          },
-          {
-            "selected": false,
-            "text": "Issue commenters",
-            "value": "issuecommenters"
-          },
-          {
-            "selected": false,
-            "text": "Issues",
-            "value": "issues"
-          },
-          {
-            "selected": false,
-            "text": "PR authors",
-            "value": "prcreators"
-          },
-          {
-            "selected": false,
-            "text": "PR reviewers",
-            "value": "prreviewers"
-          },
-          {
-            "selected": false,
-            "text": "Pull requests",
-            "value": "prs"
-          },
-          {
-            "selected": false,
-            "text": "Contributing in repositories",
-            "value": "repositories"
-          },
-          {
-            "selected": false,
-            "text": "Contributors",
-            "value": "contributors"
-          },
-          {
-            "selected": true,
-            "text": "Contributions",
-            "value": "contributions"
-          },
-          {
-            "selected": false,
-            "text": "Watchers",
-            "value": "watchers"
-          }
-        ],
-        "query": "commenters,comments,commitcommenters,commits,committers,documentationcommits,documentationcommitters,pushers,events,forkers,issuecommenters,issues,prcreators,prreviewers,prs,repositories,watchers",
-        "skipUrlSync": false,
-        "type": "custom"
-      },
-      {
-        "allValue": null,
-        "current": {
-          "text": "y10",
-          "value": "y10"
-        },
-        "datasource": "psql",
-        "definition": "",
-        "hide": 2,
-        "includeAll": false,
-        "label": null,
-        "multi": false,
-        "name": "period",
-        "options": [],
-        "query": "select quick_ranges_suffix from tquick_ranges where quick_ranges_name = '[[period_name]]'",
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": true,
-        "sort": 0,
-        "tagValuesQuery": "",
-        "tags": [],
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false
-      },
-      {
-        "allValue": null,
-        "current": {
-          "text": "Kubernetes",
-          "value": "Kubernetes"
-        },
-        "datasource": "psql",
-        "definition": "",
-        "hide": 2,
-        "includeAll": false,
-        "label": null,
-        "multi": false,
-        "name": "full_name",
-        "options": [],
-        "query": "select value_s from gha_vars where name = 'full_name'",
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": true,
-        "sort": 0,
-        "tagValuesQuery": "",
-        "tags": [],
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false
-      },
-      {
-        "allValue": null,
-        "current": {
-          "text": "\u003ch1 id=\"kubernetes-dashboard\"\u003eKubernetes Companies table dashboard\u003c/h1\u003e\n\u003cp\u003eLinks:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003eMetric \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/project_company_stats.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eTSDB \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/metrics.yaml\" target=\"_blank\"\u003eseries definition\u003c/a\u003e. Search for \u003ccode\u003eproject_company_stats\u003c/code\u003e\u003c/li\u003e\n\u003cli\u003eGrafana dashboard \u003ca href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/companies-table.json\" target=\"_blank\"\u003eJSON\u003c/a\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch1 id=\"description\"\u003eDescription\u003c/h1\u003e\n\u003cul\u003e\n\u003cli\u003eThis dashboard shows various GitHub metrics and aggregate them by actors companies.\u003c/li\u003e\n\u003cli\u003eContributor is defined as somebody who made a review, comment, commit, created PR or issue.\u003c/li\u003e\n\u003cli\u003eContribution is a review, comment, commit, issue or PR.\u003c/li\u003e\n\u003cli\u003eYou can select last day, month, week etc. range or date range between releases, for example \u003ccode\u003ev1.9 - v1.10\u003c/code\u003e.\u003c/li\u003e\n\u003cli\u003eWe are skipping bots when calculating statistics, see \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/excluding_bots.md\" target=\"_blank\"\u003eexcluding bots\u003c/a\u003e for details.\u003c/li\u003e\n\u003cli\u003eWe are determining user's company affiliation from \u003ca href=\"https://github.com/cncf/devstats/blob/master/github_users.json\" target=\"_blank\"\u003ethis file\u003c/a\u003e, which is imported from \u003ccode\u003ecncf/gitdm\u003c/code\u003e.\u003c/li\u003e\n\u003c/ul\u003e",
-          "value": "\u003ch1 id=\"kubernetes-dashboard\"\u003eKubernetes Companies table dashboard\u003c/h1\u003e\n\u003cp\u003eLinks:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003eMetric \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/project_company_stats.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eTSDB \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/metrics.yaml\" target=\"_blank\"\u003eseries definition\u003c/a\u003e. Search for \u003ccode\u003eproject_company_stats\u003c/code\u003e\u003c/li\u003e\n\u003cli\u003eGrafana dashboard \u003ca href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/companies-table.json\" target=\"_blank\"\u003eJSON\u003c/a\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch1 id=\"description\"\u003eDescription\u003c/h1\u003e\n\u003cul\u003e\n\u003cli\u003eThis dashboard shows various GitHub metrics and aggregate them by actors companies.\u003c/li\u003e\n\u003cli\u003eContributor is defined as somebody who made a review, comment, commit, created PR or issue.\u003c/li\u003e\n\u003cli\u003eContribution is a review, comment, commit, issue or PR.\u003c/li\u003e\n\u003cli\u003eYou can select last day, month, week etc. range or date range between releases, for example \u003ccode\u003ev1.9 - v1.10\u003c/code\u003e.\u003c/li\u003e\n\u003cli\u003eWe are skipping bots when calculating statistics, see \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/excluding_bots.md\" target=\"_blank\"\u003eexcluding bots\u003c/a\u003e for details.\u003c/li\u003e\n\u003cli\u003eWe are determining user's company affiliation from \u003ca href=\"https://github.com/cncf/devstats/blob/master/github_users.json\" target=\"_blank\"\u003ethis file\u003c/a\u003e, which is imported from \u003ccode\u003ecncf/gitdm\u003c/code\u003e.\u003c/li\u003e\n\u003c/ul\u003e"
-        },
-        "datasource": "psql",
-        "definition": "",
-        "hide": 2,
-        "includeAll": false,
-        "label": null,
-        "multi": false,
-        "name": "docs",
-        "options": [],
-        "query": "select value_s from gha_vars where name = 'companies_table_docs_html'",
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": true,
-        "sort": 0,
-        "tagValuesQuery": "",
-        "tags": [],
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false
-      }
-    ]
-  },
-  "time": {
-    "from": "now-5y",
-    "to": "now"
-  },
   "timepicker": {
     "hidden": true,
     "refresh_intervals": [
@@ -445,8 +31,426 @@
       "30d"
     ]
   },
-  "timezone": "",
+  "annotations": {
+    "list": [
+      {
+        "name": "Annotations \u0026 Alerts",
+        "type": "dashboard",
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)"
+      }
+    ]
+  },
   "title": "Companies table",
+  "version": 2,
   "uid": "9",
-  "version": 2
+  "links": [],
+  "time": {
+    "from": "now-5y",
+    "to": "now"
+  },
+  "templating": {
+    "list": [
+      {
+        "datasource": "psql",
+        "includeAll": false,
+        "options": [],
+        "type": "query",
+        "useTags": false,
+        "multi": false,
+        "tagsQuery": "",
+        "name": "period_name",
+        "definition": "",
+        "hide": 0,
+        "allValue": null,
+        "tags": [],
+        "refresh": 1,
+        "skipUrlSync": false,
+        "current": {
+          "text": "Last decade",
+          "value": "Last decade"
+        },
+        "query": "select quick_ranges_name from tquick_ranges order by time",
+        "sort": 0,
+        "tagValuesQuery": "",
+        "label": "Range",
+        "regex": ""
+      },
+      {
+        "name": "metric",
+        "skipUrlSync": false,
+        "current": {
+          "selected": true,
+          "tags": [],
+          "text": "Contributions",
+          "value": "contributions"
+        },
+        "multi": false,
+        "options": [
+          {
+            "selected": false,
+            "text": "Commenters",
+            "value": "commenters"
+          },
+          {
+            "selected": false,
+            "text": "Comments",
+            "value": "comments"
+          },
+          {
+            "selected": false,
+            "text": "Commit commenters",
+            "value": "commitcommenters"
+          },
+          {
+            "text": "Commits",
+            "value": "commits",
+            "selected": false
+          },
+          {
+            "selected": false,
+            "text": "Committers",
+            "value": "committers"
+          },
+          {
+            "text": "Documentation commits",
+            "value": "documentationcommits",
+            "selected": false
+          },
+          {
+            "value": "documentationcommitters",
+            "selected": false,
+            "text": "Documentation committers"
+          },
+          {
+            "selected": false,
+            "text": "Pushers",
+            "value": "pushers"
+          },
+          {
+            "value": "events",
+            "selected": false,
+            "text": "GitHub Events"
+          },
+          {
+            "selected": false,
+            "text": "Forkers",
+            "value": "forkers"
+          },
+          {
+            "selected": false,
+            "text": "Issue commenters",
+            "value": "issuecommenters"
+          },
+          {
+            "text": "Issues",
+            "value": "issues",
+            "selected": false
+          },
+          {
+            "value": "prcreators",
+            "selected": false,
+            "text": "PR authors"
+          },
+          {
+            "selected": false,
+            "text": "PR reviewers",
+            "value": "prreviewers"
+          },
+          {
+            "text": "Pull requests",
+            "value": "prs",
+            "selected": false
+          },
+          {
+            "value": "repositories",
+            "selected": false,
+            "text": "Contributing in repositories"
+          },
+          {
+            "text": "Contributors",
+            "value": "contributors",
+            "selected": false
+          },
+          {
+            "text": "Contributions",
+            "value": "contributions",
+            "selected": true
+          },
+          {
+            "selected": false,
+            "text": "Watchers",
+            "value": "watchers"
+          }
+        ],
+        "includeAll": false,
+        "query": "commenters,comments,commitcommenters,commits,committers,documentationcommits,documentationcommitters,pushers,events,forkers,issuecommenters,issues,prcreators,prreviewers,prs,repositories,watchers",
+        "type": "custom",
+        "hide": 0,
+        "allValue": null,
+        "label": "Metric"
+      },
+      {
+        "refresh": 1,
+        "skipUrlSync": true,
+        "name": "period",
+        "tagsQuery": "",
+        "useTags": false,
+        "current": {
+          "text": "y10",
+          "value": "y10"
+        },
+        "multi": false,
+        "sort": 0,
+        "definition": "",
+        "type": "query",
+        "includeAll": false,
+        "options": [],
+        "allValue": null,
+        "regex": "",
+        "tagValuesQuery": "",
+        "hide": 2,
+        "datasource": "psql",
+        "tags": [],
+        "query": "select quick_ranges_suffix from tquick_ranges where quick_ranges_name = '[[period_name]]'",
+        "label": null
+      },
+      {
+        "allValue": null,
+        "options": [],
+        "multi": false,
+        "includeAll": false,
+        "tags": [],
+        "regex": "",
+        "tagsQuery": "",
+        "sort": 0,
+        "label": null,
+        "datasource": "psql",
+        "skipUrlSync": true,
+        "useTags": false,
+        "definition": "",
+        "type": "query",
+        "hide": 2,
+        "refresh": 1,
+        "tagValuesQuery": "",
+        "current": {
+          "text": "Kubernetes",
+          "value": "Kubernetes"
+        },
+        "query": "select value_s from gha_vars where name = 'full_name'",
+        "name": "full_name"
+      },
+      {
+        "includeAll": false,
+        "refresh": 1,
+        "tagValuesQuery": "",
+        "type": "query",
+        "tags": [],
+        "hide": 2,
+        "current": {
+          "text": "\u003ch1 id=\"kubernetes-dashboard\"\u003eKubernetes Companies table dashboard\u003c/h1\u003e\n\u003cp\u003eLinks:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003eMetric \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/project_company_stats.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eTSDB \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/metrics.yaml\" target=\"_blank\"\u003eseries definition\u003c/a\u003e. Search for \u003ccode\u003eproject_company_stats\u003c/code\u003e\u003c/li\u003e\n\u003cli\u003eGrafana dashboard \u003ca href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/companies-table.json\" target=\"_blank\"\u003eJSON\u003c/a\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch1 id=\"description\"\u003eDescription\u003c/h1\u003e\n\u003cul\u003e\n\u003cli\u003eThis dashboard shows various GitHub metrics and aggregate them by actors companies.\u003c/li\u003e\n\u003cli\u003eContributor is defined as somebody who made a review, comment, commit, created PR or issue.\u003c/li\u003e\n\u003cli\u003eContribution is a review, comment, commit, issue or PR.\u003c/li\u003e\n\u003cli\u003eYou can select last day, month, week etc. range or date range between releases, for example \u003ccode\u003ev1.9 - v1.10\u003c/code\u003e.\u003c/li\u003e\n\u003cli\u003eWe are skipping bots when calculating statistics, see \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/excluding_bots.md\" target=\"_blank\"\u003eexcluding bots\u003c/a\u003e for details.\u003c/li\u003e\n\u003cli\u003eWe are determining user's company affiliation from \u003ca href=\"https://github.com/cncf/devstats/blob/master/github_users.json\" target=\"_blank\"\u003ethis file\u003c/a\u003e, which is imported from \u003ccode\u003ecncf/gitdm\u003c/code\u003e.\u003c/li\u003e\n\u003c/ul\u003e",
+          "value": "\u003ch1 id=\"kubernetes-dashboard\"\u003eKubernetes Companies table dashboard\u003c/h1\u003e\n\u003cp\u003eLinks:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003eMetric \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/project_company_stats.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eTSDB \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/metrics.yaml\" target=\"_blank\"\u003eseries definition\u003c/a\u003e. Search for \u003ccode\u003eproject_company_stats\u003c/code\u003e\u003c/li\u003e\n\u003cli\u003eGrafana dashboard \u003ca href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/companies-table.json\" target=\"_blank\"\u003eJSON\u003c/a\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch1 id=\"description\"\u003eDescription\u003c/h1\u003e\n\u003cul\u003e\n\u003cli\u003eThis dashboard shows various GitHub metrics and aggregate them by actors companies.\u003c/li\u003e\n\u003cli\u003eContributor is defined as somebody who made a review, comment, commit, created PR or issue.\u003c/li\u003e\n\u003cli\u003eContribution is a review, comment, commit, issue or PR.\u003c/li\u003e\n\u003cli\u003eYou can select last day, month, week etc. range or date range between releases, for example \u003ccode\u003ev1.9 - v1.10\u003c/code\u003e.\u003c/li\u003e\n\u003cli\u003eWe are skipping bots when calculating statistics, see \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/excluding_bots.md\" target=\"_blank\"\u003eexcluding bots\u003c/a\u003e for details.\u003c/li\u003e\n\u003cli\u003eWe are determining user's company affiliation from \u003ca href=\"https://github.com/cncf/devstats/blob/master/github_users.json\" target=\"_blank\"\u003ethis file\u003c/a\u003e, which is imported from \u003ccode\u003ecncf/gitdm\u003c/code\u003e.\u003c/li\u003e\n\u003c/ul\u003e"
+        },
+        "datasource": "psql",
+        "allValue": null,
+        "sort": 0,
+        "label": null,
+        "skipUrlSync": true,
+        "tagsQuery": "",
+        "useTags": false,
+        "query": "select value_s from gha_vars where name = 'companies_table_docs_html'",
+        "definition": "",
+        "name": "docs",
+        "regex": "",
+        "options": [],
+        "multi": false
+      }
+    ]
+  },
+  "schemaVersion": 20,
+  "panels": [
+    {
+      "description": "",
+      "columns": [],
+      "pageSize": 1000,
+      "title": "[[full_name]] Companies statistics ([[metric]], Range: [[period_name]]), bots excluded",
+      "options": {
+        
+      },
+      "styles": [
+        {
+          "decimals": null,
+          "pattern": "Time",
+          "type": "hidden",
+          "alias": "Time",
+          "dateFormat": "YYYY-MM-DD HH:mm:ss"
+        },
+        {
+          "alias": "Company",
+          "decimals": 2,
+          "thresholds": [],
+          "colorMode": null,
+          "preserveFormat": false,
+          "type": "string",
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "unit": "short",
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "pattern": "name"
+        },
+        {
+          "unit": "none",
+          "decimals": 0,
+          "type": "number",
+          "alias": "Number",
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "pattern": "value",
+          "thresholds": [],
+          "colorMode": null,
+          "dateFormat": "YYYY-MM-DD HH:mm:ss"
+        },
+        {
+          "colors": [
+            "rgba(0, 0, 0, 0)",
+            "rgb(255, 255, 255)",
+            "rgb(255, 255, 255)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "mappingType": 1,
+          "unit": "none",
+          "colorMode": "value",
+          "pattern": "Rank",
+          "thresholds": [
+            "1"
+          ],
+          "alias": "",
+          "decimals": 0,
+          "type": "number"
+        },
+        {
+          "unit": "short",
+          "alias": "",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "decimals": 0,
+          "pattern": "/.*/",
+          "thresholds": [],
+          "type": "number"
+        }
+      ],
+      "links": [],
+      "type": "table",
+      "timeFrom": null,
+      "gridPos": {
+        "h": 22,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "transform": "table",
+      "sort": {
+        "desc": false,
+        "col": 0
+      },
+      "id": 1,
+      "showHeader": true,
+      "fontSize": "90%",
+      "targets": [
+        {
+          "refId": "A",
+          "policy": "default",
+          "alias": "",
+          "query": "SELECT \"name\", \"value\" FROM \"project_company_stats_[[metric]]_[[period]]\" WHERE $timeFilter",
+          "rawSql": "select (row_number() over (order by value desc) -1) as \"Rank\", name, value from \"shcom\" where series = 'hcom[[metric]]' and period = '[[period]]'",
+          "dsType": "influxdb",
+          "format": "table",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": [],
+          "groupBy": [
+            {
+              "type": "time",
+              "params": [
+                "$__interval"
+              ]
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "resultFormat": "table",
+          "group": [],
+          "timeColumn": "time",
+          "metricColumn": "none",
+          "orderByTime": "ASC",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ],
+          "rawQuery": true
+        }
+      ],
+      "hideTimeOverride": true,
+      "scroll": true,
+      "datasource": "psql"
+    },
+    {
+      "links": [],
+      "options": {
+        
+      },
+      "type": "text",
+      "id": 3,
+      "content": "${docs:raw}",
+      "datasource": null,
+      "title": "Dashboard documentation",
+      "gridPos": {
+        "h": 9,
+        "w": 24,
+        "x": 0,
+        "y": 22
+      },
+      "mode": "html"
+    }
+  ],
+  "timezone": "",
+  "iteration": 1573016736473,
+  "tags": [
+    "dashboard",
+    "kubernetes",
+    "companies",
+    "table"
+  ]
 }

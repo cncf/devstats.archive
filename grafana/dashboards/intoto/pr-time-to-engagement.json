@@ -1,491 +1,40 @@
 {
-  "annotations": {
-    "list": [
-      {
-        "builtIn": 1,
-        "datasource": "-- Grafana --",
-        "enable": true,
-        "hide": true,
-        "iconColor": "rgba(0, 211, 255, 1)",
-        "name": "Annotations \u0026 Alerts",
-        "type": "dashboard"
-      },
-      {
-        "datasource": "psql",
-        "enable": true,
-        "hide": false,
-        "iconColor": "rgba(255, 96, 96, 1)",
-        "limit": 100,
-        "name": "Releases",
-        "query": "SELECT title, description from annotations WHERE $timeFilter order by time asc",
-        "rawQuery": "select extract(epoch from time) AS time, title as text, description as tags from sannotations where $__timeFilter(time)",
-        "showIn": 0,
-        "tagsColumn": "title,description",
-        "textColumn": "",
-        "titleColumn": "[[full_name]] release",
-        "type": "alert"
-      }
-    ]
-  },
-  "editable": true,
-  "gnetId": null,
-  "graphTooltip": 0,
-  "id": 25,
   "iteration": 1562950159886,
-  "links": [],
-  "panels": [
-    {
-      "aliasColors": {},
-      "bars": false,
-      "dashLength": 10,
-      "dashes": false,
-      "datasource": "psql",
-      "decimals": 2,
-      "description": "Time before any comments or activities from someone other than the author",
-      "fill": 0,
-      "gridPos": {
-        "h": 13,
-        "w": 24,
-        "x": 0,
-        "y": 0
-      },
-      "id": 2,
-      "legend": {
-        "alignAsTable": true,
-        "avg": true,
-        "current": true,
-        "max": true,
-        "min": true,
-        "rightSide": false,
-        "show": true,
-        "total": false,
-        "values": true
-      },
-      "lines": true,
-      "linewidth": 1,
-      "links": [],
-      "nullPointMode": "null",
-      "options": {},
-      "percentage": false,
-      "pointradius": 5,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [
-        {
-          "alias": "15th percentile time opened to merged (in hours)"
-        }
-      ],
-      "spaceLength": 10,
-      "stack": false,
-      "steppedLine": false,
-      "targets": [
-        {
-          "alias": "",
-          "dsType": "influxdb",
-          "format": "time_series",
-          "group": [],
-          "groupBy": [],
-          "metricColumn": "none",
-          "orderByTime": "ASC",
-          "policy": "default",
-          "query": "SELECT \"value\" FROM \"non_author_[[repogroup]]_percentile_85_[[period]]\" WHERE $timeFilter",
-          "rawQuery": true,
-          "rawSql": "select\n  time,\n  value as \"85th percentile time\"\nfrom\n  sfirst_non_author\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'non_auth[[repogroup]]p85'\norder by\n  time",
-          "refId": "A",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              }
-            ]
-          ],
-          "tags": [],
-          "timeColumn": "time",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ]
-        },
-        {
-          "alias": "",
-          "dsType": "influxdb",
-          "format": "time_series",
-          "group": [],
-          "groupBy": [],
-          "metricColumn": "none",
-          "orderByTime": "ASC",
-          "policy": "default",
-          "query": "SELECT \"value\" FROM \"non_author_[[repogroup]]_median_[[period]]\" WHERE $timeFilter",
-          "rawQuery": true,
-          "rawSql": "select\n  time,\n  value as \"Median time\"\nfrom\n  sfirst_non_author\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'non_auth[[repogroup]]med'\norder by\n  time",
-          "refId": "B",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              }
-            ]
-          ],
-          "tags": [],
-          "timeColumn": "time",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ]
-        },
-        {
-          "alias": "",
-          "dsType": "influxdb",
-          "format": "time_series",
-          "group": [],
-          "groupBy": [],
-          "metricColumn": "none",
-          "orderByTime": "ASC",
-          "policy": "default",
-          "query": "SELECT \"value\" FROM \"non_author_[[repogroup]]_percentile_15_[[period]]\" WHERE $timeFilter",
-          "rawQuery": true,
-          "rawSql": "select\n  time,\n  value as \"15th percentile time\"\nfrom\n  sfirst_non_author\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'non_auth[[repogroup]]p15'\norder by\n  time",
-          "refId": "C",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              }
-            ]
-          ],
-          "tags": [],
-          "timeColumn": "time",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ]
-        }
-      ],
-      "thresholds": [],
-      "timeFrom": null,
-      "timeRegions": [],
-      "timeShift": null,
-      "title": "Time before any comments or activities from someone other than the author ([[repogroup_name]], [[period]])",
-      "tooltip": {
-        "shared": true,
-        "sort": 0,
-        "value_type": "individual"
-      },
-      "type": "graph",
-      "xaxis": {
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true,
-        "values": []
-      },
-      "yaxes": [
-        {
-          "format": "h",
-          "label": "",
-          "logBase": 2,
-          "max": null,
-          "min": "0",
-          "show": true
-        },
-        {
-          "format": "short",
-          "label": "",
-          "logBase": 1,
-          "max": null,
-          "min": "0",
-          "show": true
-        }
-      ],
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      }
-    },
-    {
-      "columns": [],
-      "datasource": "psql",
-      "description": "Time to first non-author activity",
-      "fontSize": "90%",
-      "gridPos": {
-        "h": 11,
-        "w": 24,
-        "x": 0,
-        "y": 13
-      },
-      "id": 3,
-      "links": [],
-      "options": {},
-      "pageSize": 10,
-      "scroll": true,
-      "showHeader": true,
-      "sort": {
-        "col": 0,
-        "desc": true
-      },
-      "styles": [
-        {
-          "alias": "Time",
-          "dateFormat": "MM/DD/YYYY",
-          "pattern": "Time",
-          "type": "date"
-        },
-        {
-          "alias": "",
-          "colorMode": null,
-          "colors": [
-            "rgba(245, 54, 54, 0.9)",
-            "rgba(237, 129, 40, 0.89)",
-            "rgba(50, 172, 45, 0.97)"
-          ],
-          "decimals": 2,
-          "pattern": "/.*/",
-          "thresholds": [],
-          "type": "number",
-          "unit": "short"
-        }
-      ],
-      "targets": [
-        {
-          "alias": "",
-          "dsType": "influxdb",
-          "format": "table",
-          "group": [],
-          "groupBy": [
-            {
-              "params": [
-                "$__interval"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
-          "metricColumn": "none",
-          "orderByTime": "ASC",
-          "policy": "default",
-          "query": "SELECT \"descr\" FROM \"non_author_[[repogroup]]_percentile_15_[[period]]\" WHERE $timeFilter",
-          "rawQuery": true,
-          "rawSql": "select\n  time as \"Time\",\n  descr as \"15th percentile\"\nfrom\n  sfirst_non_author\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'non_auth[[repogroup]]p15'\norder by\n  time",
-          "refId": "A",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": [],
-          "timeColumn": "time",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ]
-        },
-        {
-          "alias": "",
-          "dsType": "influxdb",
-          "format": "table",
-          "group": [],
-          "groupBy": [
-            {
-              "params": [
-                "$__interval"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
-          "metricColumn": "none",
-          "orderByTime": "ASC",
-          "policy": "default",
-          "query": "SELECT \"descr\" FROM \"non_author_[[repogroup]]_median_[[period]]\" WHERE $timeFilter",
-          "rawQuery": true,
-          "rawSql": "select\n  time as \"Time\",\n  descr as \"Median\"\nfrom\n  sfirst_non_author\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'non_auth[[repogroup]]med'\norder by\n  time",
-          "refId": "B",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": [],
-          "timeColumn": "time",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ]
-        },
-        {
-          "alias": "",
-          "dsType": "influxdb",
-          "format": "table",
-          "group": [],
-          "groupBy": [
-            {
-              "params": [
-                "$__interval"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
-          "metricColumn": "none",
-          "orderByTime": "ASC",
-          "policy": "default",
-          "query": "SELECT \"descr\" FROM \"non_author_[[repogroup]]_percentile_85_[[period]]\" WHERE $timeFilter",
-          "rawQuery": true,
-          "rawSql": "select\n  time as \"Time\",\n  descr as \"85th percentile\"\nfrom\n  sfirst_non_author\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'non_auth[[repogroup]]p85'\norder by\n  time",
-          "refId": "C",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": [],
-          "timeColumn": "time",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ]
-        }
-      ],
-      "title": "Time to first non-author activity ([[repogroup]], [[period]])",
-      "transform": "table",
-      "type": "table"
-    },
-    {
-      "content": "${docs:raw}",
-      "gridPos": {
-        "h": 9,
-        "w": 24,
-        "x": 0,
-        "y": 24
-      },
-      "id": 11,
-      "links": [],
-      "mode": "html",
-      "options": {},
-      "title": "Dashboard documentation",
-      "type": "text"
-    }
-  ],
-  "schemaVersion": 18,
-  "style": "dark",
-  "tags": [
-    "dashboard",
-    "intoto"
-  ],
   "templating": {
     "list": [
       {
+        "useTags": false,
+        "includeAll": false,
+        "hide": 2,
+        "options": [],
+        "sort": 0,
+        "type": "query",
+        "definition": "",
         "allValue": null,
+        "tagsQuery": "",
+        "datasource": "psql",
+        "tags": [],
+        "multi": false,
+        "refresh": 1,
+        "regex": "",
+        "tagValuesQuery": "",
+        "skipUrlSync": true,
+        "label": null,
+        "name": "full_name",
         "current": {
           "text": "Thanos",
           "value": "Thanos"
         },
-        "datasource": "psql",
-        "definition": "",
-        "hide": 2,
-        "includeAll": false,
-        "label": null,
-        "multi": false,
-        "name": "full_name",
-        "options": [],
-        "query": "select value_s from gha_vars where name = 'full_name'",
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": true,
-        "sort": 0,
-        "tagValuesQuery": "",
-        "tags": [],
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false
+        "query": "select value_s from gha_vars where name = 'full_name'"
       },
       {
-        "allValue": null,
-        "current": {
-          "tags": [],
-          "text": "7 Days MA",
-          "value": "d7"
-        },
+        "skipUrlSync": false,
         "hide": 0,
-        "includeAll": false,
         "label": "Period",
-        "multi": false,
         "name": "period",
+        "type": "custom",
+        "includeAll": false,
+        "multi": false,
         "options": [
           {
             "selected": true,
@@ -498,107 +47,532 @@
             "value": "w"
           },
           {
-            "selected": false,
             "text": "Month",
-            "value": "m"
+            "value": "m",
+            "selected": false
           },
           {
+            "value": "q",
             "selected": false,
-            "text": "Quarter",
-            "value": "q"
+            "text": "Quarter"
           },
           {
+            "value": "y",
             "selected": false,
-            "text": "Year",
-            "value": "y"
+            "text": "Year"
           }
         ],
         "query": "d7,w,m,q,y",
-        "skipUrlSync": false,
-        "type": "custom"
+        "allValue": null,
+        "current": {
+          "value": "d7",
+          "tags": [],
+          "text": "7 Days MA"
+        }
       },
       {
-        "allValue": null,
         "current": {
           "tags": [],
           "text": "improbable-eng/thanos",
           "value": "improbable-eng/thanos"
         },
-        "datasource": "psql",
-        "definition": "",
         "hide": 0,
         "includeAll": false,
-        "label": "Repository group",
-        "multi": false,
-        "name": "repogroup_name",
         "options": [],
-        "query": "select all_repo_group_name from tall_repo_groups order by 1",
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": false,
-        "sort": 0,
+        "multi": false,
         "tagValuesQuery": "",
         "tags": [],
+        "sort": 0,
         "tagsQuery": "",
+        "regex": "",
+        "query": "select all_repo_group_name from tall_repo_groups order by 1",
+        "label": "Repository group",
+        "name": "repogroup_name",
+        "useTags": false,
+        "allValue": null,
+        "skipUrlSync": false,
+        "datasource": "psql",
         "type": "query",
-        "useTags": false
+        "refresh": 1,
+        "definition": ""
       },
       {
-        "allValue": null,
+        "multi": false,
+        "useTags": false,
+        "tagValuesQuery": "",
+        "tagsQuery": "",
+        "regex": "",
+        "tags": [],
         "current": {
           "text": "improbableengthanos",
           "value": "improbableengthanos"
         },
-        "datasource": "psql",
-        "definition": "",
-        "hide": 2,
-        "includeAll": false,
         "label": "",
-        "multi": false,
-        "name": "repogroup",
-        "options": [],
-        "query": "select all_repo_group_value from tall_repo_groups where all_repo_group_name = '[[repogroup_name]]'",
         "refresh": 1,
-        "regex": "",
-        "skipUrlSync": true,
-        "sort": 0,
-        "tagValuesQuery": "",
-        "tags": [],
-        "tagsQuery": "",
+        "hide": 2,
         "type": "query",
-        "useTags": false
+        "query": "select all_repo_group_value from tall_repo_groups where all_repo_group_name = '[[repogroup_name]]'",
+        "sort": 0,
+        "skipUrlSync": true,
+        "includeAll": false,
+        "definition": "",
+        "options": [],
+        "datasource": "psql",
+        "allValue": null,
+        "name": "repogroup"
       },
       {
+        "tagsQuery": "",
+        "type": "query",
+        "datasource": "psql",
+        "tags": [],
+        "refresh": 1,
+        "includeAll": false,
+        "tagValuesQuery": "",
         "allValue": null,
+        "useTags": false,
+        "definition": "",
+        "sort": 0,
+        "hide": 2,
+        "label": null,
+        "options": [],
+        "regex": "",
+        "name": "docs",
+        "skipUrlSync": true,
+        "multi": false,
         "current": {
           "text": "\u003ch1 id=\"dashboard-header\"\u003eThanos first non-author activity dashboard\u003c/h1\u003e\n\u003cp\u003eLinks:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003eMetric \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/first_non_author_activity.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eTSDB \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/metrics.yaml\" target=\"_blank\"\u003eseries definition\u003c/a\u003e. Search for \u003ccode\u003efirst_non_author_activity\u003c/code\u003e\u003c/li\u003e\n\u003cli\u003eGrafana dashboard \u003ca href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/thanos/first-non-author-activity.json\" target=\"_blank\"\u003eJSON\u003c/a\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch1 id=\"description\"\u003eDescription\u003c/h1\u003e\n\u003cul\u003e\n\u003cli\u003eThis dashboard shows median, 15th and 85th percentiles of time before issue creation and first non-author activity on the issue.\u003c/li\u003e\n\u003cli\u003eYou can choose repository group (or all of them) and aggregation period.\u003c/li\u003e\n\u003cli\u003eSelecting period (for example week) means that dashboard will calculate percentiles in those periods.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/periods.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about periods.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/repository_groups.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about repository groups.\u003c/li\u003e\n\u003cli\u003eWe are skipping bots activity, see \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/excluding_bots.md\" target=\"_blank\"\u003eexcluding bots\u003c/a\u003e for details.\u003c/li\u003e\n\u003c/ul\u003e",
           "value": "\u003ch1 id=\"dashboard-header\"\u003eThanos first non-author activity dashboard\u003c/h1\u003e\n\u003cp\u003eLinks:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003eMetric \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/first_non_author_activity.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eTSDB \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/metrics.yaml\" target=\"_blank\"\u003eseries definition\u003c/a\u003e. Search for \u003ccode\u003efirst_non_author_activity\u003c/code\u003e\u003c/li\u003e\n\u003cli\u003eGrafana dashboard \u003ca href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/thanos/first-non-author-activity.json\" target=\"_blank\"\u003eJSON\u003c/a\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch1 id=\"description\"\u003eDescription\u003c/h1\u003e\n\u003cul\u003e\n\u003cli\u003eThis dashboard shows median, 15th and 85th percentiles of time before issue creation and first non-author activity on the issue.\u003c/li\u003e\n\u003cli\u003eYou can choose repository group (or all of them) and aggregation period.\u003c/li\u003e\n\u003cli\u003eSelecting period (for example week) means that dashboard will calculate percentiles in those periods.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/periods.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about periods.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/repository_groups.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about repository groups.\u003c/li\u003e\n\u003cli\u003eWe are skipping bots activity, see \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/excluding_bots.md\" target=\"_blank\"\u003eexcluding bots\u003c/a\u003e for details.\u003c/li\u003e\n\u003c/ul\u003e"
         },
-        "datasource": "psql",
-        "definition": "",
-        "hide": 2,
-        "includeAll": false,
-        "label": null,
-        "multi": false,
-        "name": "docs",
-        "options": [],
-        "query": "select value_s from gha_vars where name = 'non_author_activity_docs_html'",
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": true,
-        "sort": 0,
-        "tagValuesQuery": "",
-        "tags": [],
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false
+        "query": "select value_s from gha_vars where name = 'non_author_activity_docs_html'"
       }
     ]
   },
-  "time": {
-    "from": "now-1y",
-    "to": "now-1w"
-  },
+  "gnetId": null,
+  "version": 2,
+  "panels": [
+    {
+      "decimals": 2,
+      "type": "graph",
+      "linewidth": 1,
+      "tooltip": {
+        "sort": 0,
+        "value_type": "individual",
+        "shared": true
+      },
+      "stack": false,
+      "timeFrom": null,
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "links": [],
+      "thresholds": [],
+      "title": "Time before any comments or activities from someone other than the author ([[repogroup_name]], [[period]])",
+      "lines": true,
+      "options": {
+        
+      },
+      "seriesOverrides": [
+        {
+          "alias": "15th percentile time opened to merged (in hours)"
+        }
+      ],
+      "legend": {
+        "avg": true,
+        "total": false,
+        "values": true,
+        "alignAsTable": true,
+        "max": true,
+        "show": true,
+        "current": true,
+        "min": true,
+        "rightSide": false
+      },
+      "bars": false,
+      "dashLength": 10,
+      "points": false,
+      "gridPos": {
+        "h": 13,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "yaxes": [
+        {
+          "format": "h",
+          "label": "",
+          "logBase": 2,
+          "max": null,
+          "min": "0",
+          "show": true
+        },
+        {
+          "max": null,
+          "min": "0",
+          "show": true,
+          "format": "short",
+          "label": "",
+          "logBase": 1
+        }
+      ],
+      "percentage": false,
+      "aliasColors": {
+        
+      },
+      "datasource": "psql",
+      "timeShift": null,
+      "nullPointMode": "null",
+      "spaceLength": 10,
+      "dashes": false,
+      "description": "Time before any comments or activities from someone other than the author",
+      "pointradius": 5,
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      },
+      "targets": [
+        {
+          "orderByTime": "ASC",
+          "rawSql": "select\n  time,\n  value as \"85th percentile time\"\nfrom\n  sfirst_non_author\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'non_auth[[repogroup]]p85'\norder by\n  time",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              }
+            ]
+          ],
+          "format": "time_series",
+          "group": [],
+          "resultFormat": "time_series",
+          "rawQuery": true,
+          "where": [
+            {
+              "params": [],
+              "type": "macro",
+              "name": "$__timeFilter"
+            }
+          ],
+          "metricColumn": "none",
+          "query": "SELECT \"value\" FROM \"non_author_[[repogroup]]_percentile_85_[[period]]\" WHERE $timeFilter",
+          "refId": "A",
+          "policy": "default",
+          "dsType": "influxdb",
+          "alias": "",
+          "groupBy": [],
+          "timeColumn": "time",
+          "tags": []
+        },
+        {
+          "rawSql": "select\n  time,\n  value as \"Median time\"\nfrom\n  sfirst_non_author\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'non_auth[[repogroup]]med'\norder by\n  time",
+          "rawQuery": true,
+          "format": "time_series",
+          "timeColumn": "time",
+          "tags": [],
+          "dsType": "influxdb",
+          "refId": "B",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              }
+            ]
+          ],
+          "where": [
+            {
+              "params": [],
+              "type": "macro",
+              "name": "$__timeFilter"
+            }
+          ],
+          "orderByTime": "ASC",
+          "group": [],
+          "query": "SELECT \"value\" FROM \"non_author_[[repogroup]]_median_[[period]]\" WHERE $timeFilter",
+          "groupBy": [],
+          "metricColumn": "none",
+          "policy": "default",
+          "alias": ""
+        },
+        {
+          "refId": "C",
+          "orderByTime": "ASC",
+          "rawSql": "select\n  time,\n  value as \"15th percentile time\"\nfrom\n  sfirst_non_author\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'non_auth[[repogroup]]p15'\norder by\n  time",
+          "rawQuery": true,
+          "resultFormat": "time_series",
+          "timeColumn": "time",
+          "policy": "default",
+          "format": "time_series",
+          "group": [],
+          "alias": "",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ],
+          "dsType": "influxdb",
+          "metricColumn": "none",
+          "tags": [],
+          "groupBy": [],
+          "query": "SELECT \"value\" FROM \"non_author_[[repogroup]]_percentile_15_[[period]]\" WHERE $timeFilter",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              }
+            ]
+          ]
+        }
+      ],
+      "steppedLine": false,
+      "id": 2,
+      "renderer": "flot",
+      "fill": 0,
+      "timeRegions": []
+    },
+    {
+      "description": "Time to first non-author activity",
+      "title": "Time to first non-author activity ([[repogroup]], [[period]])",
+      "transform": "table",
+      "links": [],
+      "options": {
+        
+      },
+      "showHeader": true,
+      "sort": {
+        "desc": true,
+        "col": 0
+      },
+      "styles": [
+        {
+          "dateFormat": "MM/DD/YYYY",
+          "pattern": "Time",
+          "type": "date",
+          "alias": "Time"
+        },
+        {
+          "pattern": "/.*/",
+          "thresholds": [],
+          "type": "number",
+          "unit": "short",
+          "alias": "",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "decimals": 2
+        }
+      ],
+      "type": "table",
+      "fontSize": "90%",
+      "id": 3,
+      "gridPos": {
+        "h": 11,
+        "w": 24,
+        "x": 0,
+        "y": 13
+      },
+      "scroll": true,
+      "pageSize": 10,
+      "columns": [],
+      "targets": [
+        {
+          "orderByTime": "ASC",
+          "format": "table",
+          "timeColumn": "time",
+          "query": "SELECT \"descr\" FROM \"non_author_[[repogroup]]_percentile_15_[[period]]\" WHERE $timeFilter",
+          "rawQuery": true,
+          "tags": [],
+          "group": [],
+          "resultFormat": "time_series",
+          "alias": "",
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "policy": "default",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ],
+          "refId": "A",
+          "metricColumn": "none",
+          "rawSql": "select\n  time as \"Time\",\n  descr as \"15th percentile\"\nfrom\n  sfirst_non_author\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'non_auth[[repogroup]]p15'\norder by\n  time",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "type": "mean",
+                "params": []
+              }
+            ]
+          ],
+          "dsType": "influxdb"
+        },
+        {
+          "group": [],
+          "orderByTime": "ASC",
+          "query": "SELECT \"descr\" FROM \"non_author_[[repogroup]]_median_[[period]]\" WHERE $timeFilter",
+          "format": "table",
+          "rawSql": "select\n  time as \"Time\",\n  descr as \"Median\"\nfrom\n  sfirst_non_author\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'non_auth[[repogroup]]med'\norder by\n  time",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "tags": [],
+          "metricColumn": "none",
+          "timeColumn": "time",
+          "resultFormat": "time_series",
+          "dsType": "influxdb",
+          "alias": "",
+          "refId": "B",
+          "policy": "default",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ],
+          "rawQuery": true
+        },
+        {
+          "format": "table",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "alias": "",
+          "rawQuery": true,
+          "rawSql": "select\n  time as \"Time\",\n  descr as \"85th percentile\"\nfrom\n  sfirst_non_author\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'non_auth[[repogroup]]p85'\norder by\n  time",
+          "group": [],
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "type": "fill",
+              "params": [
+                "null"
+              ]
+            }
+          ],
+          "policy": "default",
+          "tags": [],
+          "metricColumn": "none",
+          "dsType": "influxdb",
+          "query": "SELECT \"descr\" FROM \"non_author_[[repogroup]]_percentile_85_[[period]]\" WHERE $timeFilter",
+          "timeColumn": "time",
+          "where": [
+            {
+              "type": "macro",
+              "name": "$__timeFilter",
+              "params": []
+            }
+          ],
+          "orderByTime": "ASC",
+          "refId": "C",
+          "resultFormat": "time_series"
+        }
+      ],
+      "datasource": "psql"
+    },
+    {
+      "type": "text",
+      "content": "${docs:raw}",
+      "gridPos": {
+        "h": 9,
+        "w": 24,
+        "x": 0,
+        "y": 24
+      },
+      "id": 11,
+      "links": [],
+      "mode": "html",
+      "options": {
+        
+      },
+      "title": "Dashboard documentation"
+    }
+  ],
+  "editable": true,
+  "timezone": "",
+  "links": [],
+  "tags": [
+    "dashboard",
+    "intoto"
+  ],
   "timepicker": {
     "refresh_intervals": [
       "5s",
@@ -624,8 +598,42 @@
       "30d"
     ]
   },
-  "timezone": "",
-  "title": "PR Time to Engagement",
   "uid": "10",
-  "version": 2
+  "time": {
+    "from": "now-1y",
+    "to": "now-1w"
+  },
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations \u0026 Alerts",
+        "type": "dashboard"
+      },
+      {
+        "titleColumn": "[[full_name]] release",
+        "type": "alert",
+        "datasource": "psql",
+        "hide": false,
+        "query": "SELECT title, description from annotations WHERE $timeFilter order by time asc",
+        "name": "Releases",
+        "tagsColumn": "title,description",
+        "textColumn": "",
+        "rawQuery": "select extract(epoch from time) AS time, title as text, description as tags from sannotations where $__timeFilter(time)",
+        "showIn": 0,
+        "enable": true,
+        "iconColor": "rgba(255, 96, 96, 1)",
+        "limit": 100
+      }
+    ]
+  },
+  "graphTooltip": 0,
+  "id": 25,
+  "title": "PR Time to Engagement",
+  "schemaVersion": 18,
+  "style": "dark"
 }

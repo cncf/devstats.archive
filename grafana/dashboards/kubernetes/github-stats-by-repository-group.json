@@ -1,386 +1,33 @@
 {
-  "annotations": {
-    "list": [
-      {
-        "builtIn": 1,
-        "datasource": "-- Grafana --",
-        "enable": true,
-        "hide": true,
-        "iconColor": "rgba(0, 211, 255, 1)",
-        "name": "Annotations \u0026 Alerts",
-        "type": "dashboard"
-      },
-      {
-        "datasource": "psql",
-        "enable": true,
-        "hide": false,
-        "iconColor": "rgba(255, 96, 96, 1)",
-        "limit": 100,
-        "name": "Releases",
-        "query": "select title, description from annotations WHERE $timeFilter order by time asc",
-        "rawQuery": "select extract(epoch from time) as time, title as text, description as tags from sannotations where $__timeFilter(time)",
-        "showIn": 0,
-        "tagsColumn": "title,description",
-        "textColumn": "",
-        "titleColumn": "[[full_name]] Release",
-        "type": "alert"
-      }
+  "id": 139,
+  "timezone": "",
+  "timepicker": {
+    "refresh_intervals": [
+      "5s",
+      "10s",
+      "30s",
+      "1m",
+      "5m",
+      "15m",
+      "30m",
+      "1h",
+      "2h",
+      "1d"
+    ],
+    "time_options": [
+      "5m",
+      "15m",
+      "1h",
+      "6h",
+      "12h",
+      "24h",
+      "2d",
+      "7d",
+      "30d"
     ]
   },
-  "editable": true,
+  "version": 24,
   "gnetId": null,
-  "graphTooltip": 0,
-  "id": 139,
-  "links": [],
-  "panels": [
-    {
-      "aliasColors": {},
-      "bars": true,
-      "dashLength": 10,
-      "dashes": false,
-      "datasource": "psql",
-      "decimals": null,
-      "description": "[[full_name]] [[stat]] in given repository group",
-      "fill": 3,
-      "gridPos": {
-        "h": 21,
-        "w": 24,
-        "x": 0,
-        "y": 0
-      },
-      "id": 2,
-      "legend": {
-        "alignAsTable": true,
-        "avg": true,
-        "current": true,
-        "max": true,
-        "min": true,
-        "rightSide": true,
-        "show": true,
-        "sort": "total",
-        "sortDesc": true,
-        "total": true,
-        "values": true
-      },
-      "lines": false,
-      "linewidth": 0,
-      "links": [],
-      "nullPointMode": "null as zero",
-      "percentage": false,
-      "pointradius": 5,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [],
-      "spaceLength": 10,
-      "stack": true,
-      "steppedLine": true,
-      "targets": [
-        {
-          "alias": "",
-          "dsType": "influxdb",
-          "format": "time_series",
-          "groupBy": [],
-          "measurement": "notused",
-          "orderByTime": "ASC",
-          "policy": "default",
-          "query": "",
-          "rawQuery": true,
-          "rawSql": "select\n  time,\n  ${repogroups:csv}\nfrom\n  sgh_stats_rgrp\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'gstat_rgrp_[[stat]]'\norder by\n  time",
-          "refId": "A",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              }
-            ]
-          ],
-          "tags": []
-        }
-      ],
-      "thresholds": [],
-      "timeFrom": null,
-      "timeShift": null,
-      "title": "[[full_name]] [[stat]] in repository groups ([[repogroups]], [[period]])",
-      "tooltip": {
-        "shared": true,
-        "sort": 2,
-        "value_type": "individual"
-      },
-      "transparent": true,
-      "type": "graph",
-      "xaxis": {
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true,
-        "values": []
-      },
-      "yaxes": [
-        {
-          "decimals": null,
-          "format": "short",
-          "label": "Statistic",
-          "logBase": 1,
-          "max": null,
-          "min": "0",
-          "show": true
-        },
-        {
-          "format": "short",
-          "label": "",
-          "logBase": 1,
-          "max": null,
-          "min": "0",
-          "show": true
-        }
-      ],
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      }
-    },
-    {
-      "aliasColors": {},
-      "bars": false,
-      "dashLength": 10,
-      "dashes": false,
-      "datasource": "psql",
-      "decimals": null,
-      "description": "[[full_name]] [[stat]] in given repository group",
-      "fill": 3,
-      "gridPos": {
-        "h": 21,
-        "w": 24,
-        "x": 0,
-        "y": 21
-      },
-      "id": 4,
-      "legend": {
-        "alignAsTable": true,
-        "avg": true,
-        "current": true,
-        "max": true,
-        "min": true,
-        "rightSide": true,
-        "show": true,
-        "sort": "total",
-        "sortDesc": true,
-        "total": true,
-        "values": true
-      },
-      "lines": true,
-      "linewidth": 1,
-      "links": [],
-      "nullPointMode": "null as zero",
-      "percentage": false,
-      "pointradius": 5,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [],
-      "spaceLength": 10,
-      "stack": false,
-      "steppedLine": false,
-      "targets": [
-        {
-          "alias": "",
-          "dsType": "influxdb",
-          "format": "time_series",
-          "groupBy": [],
-          "measurement": "notused",
-          "orderByTime": "ASC",
-          "policy": "default",
-          "query": "SELECT /^[[repogroups]]$/ FROM \"gh_stats_repo_groups_[[stat]]_[[period]]\" WHERE $timeFilter",
-          "rawQuery": true,
-          "rawSql": "select\n  time,\n  ${repogroups:csv}\nfrom\n  sgh_stats_rgrp\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'gstat_rgrp_[[stat]]'\norder by\n  time",
-          "refId": "A",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              }
-            ]
-          ],
-          "tags": []
-        }
-      ],
-      "thresholds": [],
-      "timeFrom": null,
-      "timeShift": null,
-      "title": "[[full_name]] [[stat]] in repository groups ([[repogroups]], [[period]])",
-      "tooltip": {
-        "shared": true,
-        "sort": 2,
-        "value_type": "individual"
-      },
-      "transparent": true,
-      "type": "graph",
-      "xaxis": {
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true,
-        "values": []
-      },
-      "yaxes": [
-        {
-          "decimals": null,
-          "format": "short",
-          "label": "Statistic",
-          "logBase": 1,
-          "max": null,
-          "min": "0",
-          "show": true
-        },
-        {
-          "format": "short",
-          "label": "",
-          "logBase": 1,
-          "max": null,
-          "min": "0",
-          "show": false
-        }
-      ],
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      }
-    },
-    {
-      "aliasColors": {},
-      "bars": true,
-      "dashLength": 10,
-      "dashes": false,
-      "datasource": "psql",
-      "decimals": null,
-      "description": "[[full_name]] [[stat]] in given repository group",
-      "fill": 3,
-      "gridPos": {
-        "h": 21,
-        "w": 24,
-        "x": 0,
-        "y": 42
-      },
-      "id": 3,
-      "legend": {
-        "alignAsTable": true,
-        "avg": true,
-        "current": true,
-        "max": true,
-        "min": true,
-        "rightSide": true,
-        "show": true,
-        "sort": "total",
-        "sortDesc": true,
-        "total": true,
-        "values": true
-      },
-      "lines": false,
-      "linewidth": 0,
-      "links": [],
-      "nullPointMode": "null as zero",
-      "percentage": true,
-      "pointradius": 5,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [],
-      "spaceLength": 10,
-      "stack": true,
-      "steppedLine": true,
-      "targets": [
-        {
-          "alias": "",
-          "dsType": "influxdb",
-          "format": "time_series",
-          "groupBy": [],
-          "measurement": "notused",
-          "orderByTime": "ASC",
-          "policy": "default",
-          "query": "SELECT /^[[repogroups]]$/ FROM \"gh_stats_repo_groups_[[stat]]_[[period]]\" WHERE $timeFilter",
-          "rawQuery": true,
-          "rawSql": "select\n  time,\n  ${repogroups:csv}\nfrom\n  sgh_stats_rgrp\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'gstat_rgrp_[[stat]]'\norder by\n  time",
-          "refId": "A",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              }
-            ]
-          ],
-          "tags": []
-        }
-      ],
-      "thresholds": [],
-      "timeFrom": null,
-      "timeShift": null,
-      "title": "[[full_name]] [[stat]] in repository groups ([[repogroups]], [[period]])",
-      "tooltip": {
-        "shared": true,
-        "sort": 2,
-        "value_type": "individual"
-      },
-      "transparent": true,
-      "type": "graph",
-      "xaxis": {
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true,
-        "values": []
-      },
-      "yaxes": [
-        {
-          "decimals": null,
-          "format": "short",
-          "label": "Statistic",
-          "logBase": 1,
-          "max": "100",
-          "min": "0",
-          "show": true
-        },
-        {
-          "format": "short",
-          "label": "",
-          "logBase": 1,
-          "max": null,
-          "min": "0",
-          "show": true
-        }
-      ],
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      }
-    },
-    {
-      "content": "${docs:raw}",
-      "gridPos": {
-        "h": 13,
-        "w": 24,
-        "x": 0,
-        "y": 63
-      },
-      "id": 1,
-      "links": [],
-      "mode": "html",
-      "title": "Dashboard documentation",
-      "type": "text"
-    }
-  ],
-  "refresh": false,
-  "schemaVersion": 16,
-  "style": "dark",
   "tags": [
     "dashboard",
     "kubernetes",
@@ -389,22 +36,11 @@
   "templating": {
     "list": [
       {
-        "allValue": null,
-        "current": {
-          "tags": [],
-          "text": "24 Hours MA",
-          "value": "h24"
-        },
-        "hide": 0,
-        "includeAll": false,
-        "label": "Period",
-        "multi": false,
-        "name": "period",
         "options": [
           {
+            "value": "h",
             "selected": false,
-            "text": "Hour",
-            "value": "h"
+            "text": "Hour"
           },
           {
             "selected": true,
@@ -422,9 +58,9 @@
             "value": "d7"
           },
           {
+            "value": "w",
             "selected": false,
-            "text": "Week",
-            "value": "w"
+            "text": "Week"
           },
           {
             "selected": false,
@@ -432,9 +68,9 @@
             "value": "m"
           },
           {
+            "value": "q",
             "selected": false,
-            "text": "Quarter",
-            "value": "q"
+            "text": "Quarter"
           },
           {
             "selected": false,
@@ -443,105 +79,106 @@
           }
         ],
         "query": "h,h24,d,d7,w,m,q,y",
+        "type": "custom",
+        "allValue": null,
+        "includeAll": false,
+        "label": "Period",
+        "multi": false,
+        "current": {
+          "tags": [],
+          "text": "24 Hours MA",
+          "value": "h24"
+        },
+        "name": "period",
         "skipUrlSync": false,
-        "type": "custom"
+        "hide": 0
       },
       {
-        "allValue": "",
-        "current": {
-          "text": "All",
-          "value": [
-            "$__all"
-          ]
-        },
-        "datasource": "psql",
-        "hide": 0,
-        "includeAll": true,
-        "label": "Repository group",
-        "multi": true,
-        "name": "repogroups",
-        "options": [],
-        "query": "select '\"' || repo_group_name || '\"' from trepo_groups order by 1",
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": false,
-        "sort": 0,
-        "tagValuesQuery": "",
-        "tags": [],
         "tagsQuery": "",
         "type": "query",
-        "useTags": false
+        "useTags": false,
+        "allValue": "",
+        "current": {
+          "value": [
+            "$__all"
+          ],
+          "text": "All"
+        },
+        "sort": 0,
+        "hide": 0,
+        "label": "Repository group",
+        "options": [],
+        "multi": true,
+        "regex": "",
+        "skipUrlSync": false,
+        "query": "select '\"' || repo_group_name || '\"' from trepo_groups order by 1",
+        "tags": [],
+        "datasource": "psql",
+        "includeAll": true,
+        "name": "repogroups",
+        "tagValuesQuery": "",
+        "refresh": 1
       },
       {
+        "includeAll": false,
+        "refresh": 1,
+        "useTags": false,
+        "multi": false,
+        "query": "select value_s from gha_vars where name = 'full_name'",
+        "regex": "",
+        "label": null,
+        "sort": 0,
+        "type": "query",
+        "name": "full_name",
+        "options": [],
+        "tags": [],
+        "skipUrlSync": true,
         "allValue": null,
         "current": {
           "text": "Kubernetes",
           "value": "Kubernetes"
         },
-        "datasource": "psql",
-        "hide": 2,
-        "includeAll": false,
-        "label": null,
-        "multi": false,
-        "name": "full_name",
-        "options": [],
-        "query": "select value_s from gha_vars where name = 'full_name'",
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": true,
-        "sort": 0,
-        "tagValuesQuery": "",
-        "tags": [],
         "tagsQuery": "",
-        "type": "query",
-        "useTags": false
+        "hide": 2,
+        "tagValuesQuery": "",
+        "datasource": "psql"
       },
       {
         "allValue": null,
+        "regex": "",
+        "tagValuesQuery": "",
+        "includeAll": false,
+        "name": "docs",
+        "refresh": 1,
+        "useTags": false,
         "current": {
           "text": "\u003ch1 id=\"kubernetes-reviewers-dashboard\"\u003eKubernetes reviewers dashboard (part of GitHub stats dashboard)\u003c/h1\u003e\n\u003cp\u003eLinks:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003eRepository groups version metric \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/github_stats_by_repo_groups.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eRepositories version metric \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/github_stats_by_repos.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eInfluxDB \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/metrics.yaml\" target=\"_blank\"\u003eseries definition\u003c/a\u003e. Search for \u003ccode\u003egithub_stats_by_repo\u003c/code\u003e\u003c/li\u003e\n\u003cli\u003eGrafana dashboard \u003ca href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/github-stats-by-repository-group.json\" target=\"_blank\"\u003eJSON\u003c/a\u003e (repository groups version).\u003c/li\u003e\n\u003cli\u003eGrafana dashboard \u003ca href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/github-stats-by-repository.json\" target=\"_blank\"\u003eJSON\u003c/a\u003e (repositories version).\u003c/li\u003e\n\u003cli\u003eDeveloper \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/dashboards/kubernetes/reviewers_devel.md\" target=\"_blank\"\u003edocumentation\u003c/a\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch1 id=\"description\"\u003eDescription\u003c/h1\u003e\n\u003cul\u003e\n\u003cli\u003eThis documentations only refers to \u003ccode\u003eReviewers\u003c/code\u003e statistic.\n\u003cli\u003eThis dashboard shows the number of reviewers for a selected repository or repository group.\u003c/li\u003e\n\u003cli\u003eYou can select multiple repositories or repository groups to stack them.\u003c/li\u003e\n\u003cli\u003eReviewer is defined as someone who added pull request review comment(s) or added \u003ccode\u003e/lgtm\u003c/code\u003e or \u003ccode\u003e/approve\u003c/code\u003e text or added \u003ccode\u003elgtm\u003c/code\u003e or \u003ccode\u003eapprove\u003c/code\u003e label.\u003c/li\u003e\n\u003cli\u003eYou can filter by repository or repository group and period.\u003c/li\u003e\n\u003cli\u003eSelecting period (for example week) means that dahsboard will count distinct users who made a review in these periods.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/periods.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about periods.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/repository_groups.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about repository groups.\u003c/li\u003e\n\u003cli\u003eWe are skipping bots when calculating number of reviewers, see \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/excluding_bots.md\" target=\"_blank\"\u003eexcluding bots\u003c/a\u003e for details.\u003c/li\u003e\n\u003c/ul\u003e",
           "value": "\u003ch1 id=\"kubernetes-reviewers-dashboard\"\u003eKubernetes reviewers dashboard (part of GitHub stats dashboard)\u003c/h1\u003e\n\u003cp\u003eLinks:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003eRepository groups version metric \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/github_stats_by_repo_groups.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eRepositories version metric \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/github_stats_by_repos.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eInfluxDB \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/metrics.yaml\" target=\"_blank\"\u003eseries definition\u003c/a\u003e. Search for \u003ccode\u003egithub_stats_by_repo\u003c/code\u003e\u003c/li\u003e\n\u003cli\u003eGrafana dashboard \u003ca href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/github-stats-by-repository-group.json\" target=\"_blank\"\u003eJSON\u003c/a\u003e (repository groups version).\u003c/li\u003e\n\u003cli\u003eGrafana dashboard \u003ca href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/github-stats-by-repository.json\" target=\"_blank\"\u003eJSON\u003c/a\u003e (repositories version).\u003c/li\u003e\n\u003cli\u003eDeveloper \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/dashboards/kubernetes/reviewers_devel.md\" target=\"_blank\"\u003edocumentation\u003c/a\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch1 id=\"description\"\u003eDescription\u003c/h1\u003e\n\u003cul\u003e\n\u003cli\u003eThis documentations only refers to \u003ccode\u003eReviewers\u003c/code\u003e statistic.\n\u003cli\u003eThis dashboard shows the number of reviewers for a selected repository or repository group.\u003c/li\u003e\n\u003cli\u003eYou can select multiple repositories or repository groups to stack them.\u003c/li\u003e\n\u003cli\u003eReviewer is defined as someone who added pull request review comment(s) or added \u003ccode\u003e/lgtm\u003c/code\u003e or \u003ccode\u003e/approve\u003c/code\u003e text or added \u003ccode\u003elgtm\u003c/code\u003e or \u003ccode\u003eapprove\u003c/code\u003e label.\u003c/li\u003e\n\u003cli\u003eYou can filter by repository or repository group and period.\u003c/li\u003e\n\u003cli\u003eSelecting period (for example week) means that dahsboard will count distinct users who made a review in these periods.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/periods.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about periods.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/repository_groups.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about repository groups.\u003c/li\u003e\n\u003cli\u003eWe are skipping bots when calculating number of reviewers, see \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/excluding_bots.md\" target=\"_blank\"\u003eexcluding bots\u003c/a\u003e for details.\u003c/li\u003e\n\u003c/ul\u003e"
         },
         "datasource": "psql",
-        "hide": 2,
-        "includeAll": false,
-        "label": null,
         "multi": false,
-        "name": "docs",
+        "skipUrlSync": true,
+        "label": null,
+        "tagsQuery": "",
+        "hide": 2,
+        "sort": 0,
+        "type": "query",
         "options": [],
         "query": "select value_s from gha_vars where name = 'gh_stats_[[stat]]_docs_html'",
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": true,
-        "sort": 0,
-        "tagValuesQuery": "",
-        "tags": [],
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false
+        "tags": []
       },
       {
-        "allValue": null,
-        "current": {
-          "tags": [],
-          "text": "Reviewers",
-          "value": "reviewers"
-        },
-        "hide": 0,
-        "includeAll": false,
-        "label": "Statistic",
         "multi": false,
-        "name": "stat",
         "options": [
           {
-            "selected": false,
             "text": "Commits",
-            "value": "commits"
+            "value": "commits",
+            "selected": false
           },
           {
-            "selected": false,
             "text": "Issues closed",
-            "value": "iclosed"
+            "value": "iclosed",
+            "selected": false
           },
           {
             "selected": false,
@@ -569,9 +206,9 @@
             "value": "prcomments"
           },
           {
-            "selected": false,
             "text": "PR commenters",
-            "value": "prcommenters"
+            "value": "prcommenters",
+            "selected": false
           },
           {
             "selected": false,
@@ -584,48 +221,417 @@
             "value": "icommenters"
           },
           {
+            "value": "reviewers",
             "selected": true,
-            "text": "Reviewers",
-            "value": "reviewers"
+            "text": "Reviewers"
           }
         ],
+        "current": {
+          "tags": [],
+          "text": "Reviewers",
+          "value": "reviewers"
+        },
+        "name": "stat",
+        "includeAll": false,
         "query": "commits,iclosed,iopened,propened,prmerged,prclosed,prcomments,prcommenters,icomments,icommenters,reviewers",
+        "type": "custom",
+        "hide": 0,
+        "label": "Statistic",
         "skipUrlSync": false,
-        "type": "custom"
+        "allValue": null
       }
     ]
   },
+  "style": "dark",
   "time": {
     "from": "now-30d",
     "to": "now"
   },
-  "timepicker": {
-    "refresh_intervals": [
-      "5s",
-      "10s",
-      "30s",
-      "1m",
-      "5m",
-      "15m",
-      "30m",
-      "1h",
-      "2h",
-      "1d"
-    ],
-    "time_options": [
-      "5m",
-      "15m",
-      "1h",
-      "6h",
-      "12h",
-      "24h",
-      "2d",
-      "7d",
-      "30d"
+  "panels": [
+    {
+      "yaxes": [
+        {
+          "decimals": null,
+          "format": "short",
+          "label": "Statistic",
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true
+        },
+        {
+          "min": "0",
+          "show": true,
+          "format": "short",
+          "label": "",
+          "logBase": 1,
+          "max": null
+        }
+      ],
+      "gridPos": {
+        "h": 21,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "legend": {
+        "rightSide": true,
+        "values": true,
+        "sort": "total",
+        "total": true,
+        "alignAsTable": true,
+        "max": true,
+        "show": true,
+        "sortDesc": true,
+        "avg": true,
+        "current": true,
+        "min": true
+      },
+      "points": false,
+      "stack": true,
+      "renderer": "flot",
+      "aliasColors": {
+        
+      },
+      "nullPointMode": "null as zero",
+      "description": "[[full_name]] [[stat]] in given repository group",
+      "transparent": true,
+      "dashLength": 10,
+      "id": 2,
+      "percentage": false,
+      "spaceLength": 10,
+      "timeFrom": null,
+      "dashes": false,
+      "links": [],
+      "timeShift": null,
+      "decimals": null,
+      "steppedLine": true,
+      "type": "graph",
+      "seriesOverrides": [],
+      "fill": 3,
+      "bars": true,
+      "xaxis": {
+        "show": true,
+        "values": [],
+        "buckets": null,
+        "mode": "time",
+        "name": null
+      },
+      "lines": false,
+      "linewidth": 0,
+      "pointradius": 5,
+      "datasource": "psql",
+      "title": "[[full_name]] [[stat]] in repository groups ([[repogroups]], [[period]])",
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      },
+      "tooltip": {
+        "shared": true,
+        "sort": 2,
+        "value_type": "individual"
+      },
+      "thresholds": [],
+      "targets": [
+        {
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              }
+            ]
+          ],
+          "alias": "",
+          "orderByTime": "ASC",
+          "format": "time_series",
+          "groupBy": [],
+          "refId": "A",
+          "resultFormat": "time_series",
+          "tags": [],
+          "query": "",
+          "measurement": "notused",
+          "policy": "default",
+          "rawQuery": true,
+          "rawSql": "select\n  time,\n  ${repogroups:csv}\nfrom\n  sgh_stats_rgrp\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'gstat_rgrp_[[stat]]'\norder by\n  time",
+          "dsType": "influxdb"
+        }
+      ]
+    },
+    {
+      "steppedLine": false,
+      "timeFrom": null,
+      "legend": {
+        "avg": true,
+        "sortDesc": true,
+        "current": true,
+        "min": true,
+        "show": true,
+        "max": true,
+        "sort": "total",
+        "values": true,
+        "total": true,
+        "alignAsTable": true,
+        "rightSide": true
+      },
+      "renderer": "flot",
+      "type": "graph",
+      "id": 4,
+      "dashLength": 10,
+      "seriesOverrides": [],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      },
+      "fill": 3,
+      "nullPointMode": "null as zero",
+      "dashes": false,
+      "title": "[[full_name]] [[stat]] in repository groups ([[repogroups]], [[period]])",
+      "percentage": false,
+      "transparent": true,
+      "points": false,
+      "thresholds": [],
+      "pointradius": 5,
+      "spaceLength": 10,
+      "stack": false,
+      "gridPos": {
+        "h": 21,
+        "w": 24,
+        "x": 0,
+        "y": 21
+      },
+      "timeShift": null,
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "max": null,
+          "min": "0",
+          "show": true,
+          "decimals": null,
+          "format": "short",
+          "label": "Statistic",
+          "logBase": 1
+        },
+        {
+          "format": "short",
+          "label": "",
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": false
+        }
+      ],
+      "aliasColors": {
+        
+      },
+      "tooltip": {
+        "sort": 2,
+        "value_type": "individual",
+        "shared": true
+      },
+      "lines": true,
+      "linewidth": 1,
+      "bars": false,
+      "datasource": "psql",
+      "description": "[[full_name]] [[stat]] in given repository group",
+      "decimals": null,
+      "targets": [
+        {
+          "measurement": "notused",
+          "orderByTime": "ASC",
+          "rawSql": "select\n  time,\n  ${repogroups:csv}\nfrom\n  sgh_stats_rgrp\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'gstat_rgrp_[[stat]]'\norder by\n  time",
+          "resultFormat": "time_series",
+          "rawQuery": true,
+          "format": "time_series",
+          "groupBy": [],
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              }
+            ]
+          ],
+          "query": "SELECT /^[[repogroups]]$/ FROM \"gh_stats_repo_groups_[[stat]]_[[period]]\" WHERE $timeFilter",
+          "tags": [],
+          "policy": "default",
+          "dsType": "influxdb",
+          "refId": "A",
+          "alias": ""
+        }
+      ],
+      "links": []
+    },
+    {
+      "decimals": null,
+      "pointradius": 5,
+      "timeShift": null,
+      "timeFrom": null,
+      "tooltip": {
+        "value_type": "individual",
+        "shared": true,
+        "sort": 2
+      },
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "stack": true,
+      "points": false,
+      "thresholds": [],
+      "renderer": "flot",
+      "gridPos": {
+        "h": 21,
+        "w": 24,
+        "x": 0,
+        "y": 42
+      },
+      "steppedLine": true,
+      "description": "[[full_name]] [[stat]] in given repository group",
+      "title": "[[full_name]] [[stat]] in repository groups ([[repogroups]], [[period]])",
+      "bars": true,
+      "lines": false,
+      "fill": 3,
+      "id": 3,
+      "legend": {
+        "rightSide": true,
+        "values": true,
+        "alignAsTable": true,
+        "avg": true,
+        "current": true,
+        "min": true,
+        "sort": "total",
+        "sortDesc": true,
+        "total": true,
+        "max": true,
+        "show": true
+      },
+      "seriesOverrides": [],
+      "transparent": true,
+      "dashLength": 10,
+      "yaxis": {
+        "alignLevel": null,
+        "align": false
+      },
+      "targets": [
+        {
+          "resultFormat": "time_series",
+          "query": "SELECT /^[[repogroups]]$/ FROM \"gh_stats_repo_groups_[[stat]]_[[period]]\" WHERE $timeFilter",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              }
+            ]
+          ],
+          "tags": [],
+          "dsType": "influxdb",
+          "rawSql": "select\n  time,\n  ${repogroups:csv}\nfrom\n  sgh_stats_rgrp\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'gstat_rgrp_[[stat]]'\norder by\n  time",
+          "measurement": "notused",
+          "orderByTime": "ASC",
+          "groupBy": [],
+          "alias": "",
+          "format": "time_series",
+          "policy": "default",
+          "rawQuery": true,
+          "refId": "A"
+        }
+      ],
+      "links": [],
+      "yaxes": [
+        {
+          "min": "0",
+          "show": true,
+          "decimals": null,
+          "format": "short",
+          "label": "Statistic",
+          "logBase": 1,
+          "max": "100"
+        },
+        {
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true,
+          "format": "short",
+          "label": ""
+        }
+      ],
+      "datasource": "psql",
+      "nullPointMode": "null as zero",
+      "dashes": false,
+      "type": "graph",
+      "spaceLength": 10,
+      "linewidth": 0,
+      "percentage": true,
+      "aliasColors": {
+        
+      }
+    },
+    {
+      "links": [],
+      "mode": "html",
+      "title": "Dashboard documentation",
+      "type": "text",
+      "content": "${docs:raw}",
+      "gridPos": {
+        "y": 63,
+        "h": 13,
+        "w": 24,
+        "x": 0
+      },
+      "id": 1
+    }
+  ],
+  "title": "Github Stats by Repository Group",
+  "schemaVersion": 16,
+  "editable": true,
+  "graphTooltip": 0,
+  "refresh": false,
+  "links": [],
+  "annotations": {
+    "list": [
+      {
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations \u0026 Alerts",
+        "type": "dashboard",
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true
+      },
+      {
+        "textColumn": "",
+        "showIn": 0,
+        "iconColor": "rgba(255, 96, 96, 1)",
+        "limit": 100,
+        "name": "Releases",
+        "rawQuery": "select extract(epoch from time) as time, title as text, description as tags from sannotations where $__timeFilter(time)",
+        "tagsColumn": "title,description",
+        "datasource": "psql",
+        "type": "alert",
+        "hide": false,
+        "titleColumn": "[[full_name]] Release",
+        "enable": true,
+        "query": "select title, description from annotations WHERE $timeFilter order by time asc"
+      }
     ]
   },
-  "timezone": "",
-  "title": "Github Stats by Repository Group",
-  "uid": "48",
-  "version": 24
+  "uid": "48"
 }

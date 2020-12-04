@@ -1,104 +1,15 @@
 {
-  "annotations": {
-    "list": [
-      {
-        "builtIn": 1,
-        "datasource": "-- Grafana --",
-        "enable": true,
-        "hide": true,
-        "iconColor": "rgba(0, 211, 255, 1)",
-        "name": "Annotations \u0026 Alerts",
-        "type": "dashboard"
-      }
-    ]
-  },
-  "editable": true,
-  "gnetId": null,
-  "graphTooltip": 0,
-  "id": 18,
-  "iteration": 1529595547139,
-  "links": [],
   "panels": [
     {
       "columns": [],
-      "datasource": "psql",
-      "description": "",
       "fontSize": "90%",
-      "gridPos": {
-        "h": 22,
-        "w": 24,
-        "x": 0,
-        "y": 0
-      },
-      "hideTimeOverride": true,
-      "id": 1,
       "links": [],
-      "pageSize": 20,
-      "scroll": true,
-      "showHeader": true,
-      "sort": {
-        "col": 0,
-        "desc": true
-      },
-      "styles": [
-        {
-          "alias": "Time",
-          "dateFormat": "YYYY-MM-DD HH:mm:ss",
-          "decimals": null,
-          "pattern": "Time",
-          "type": "hidden"
-        },
-        {
-          "alias": "Metric name",
-          "colorMode": null,
-          "colors": [
-            "rgba(245, 54, 54, 0.9)",
-            "rgba(237, 129, 40, 0.89)",
-            "rgba(50, 172, 45, 0.97)"
-          ],
-          "dateFormat": "YYYY-MM-DD HH:mm:ss",
-          "decimals": 2,
-          "pattern": "name",
-          "preserveFormat": false,
-          "thresholds": [],
-          "type": "string",
-          "unit": "short"
-        },
-        {
-          "alias": "Metric value",
-          "colorMode": null,
-          "colors": [
-            "rgba(245, 54, 54, 0.9)",
-            "rgba(237, 129, 40, 0.89)",
-            "rgba(50, 172, 45, 0.97)"
-          ],
-          "dateFormat": "YYYY-MM-DD HH:mm:ss",
-          "decimals": 0,
-          "pattern": "value",
-          "thresholds": [],
-          "type": "number",
-          "unit": "none"
-        },
-        {
-          "alias": "",
-          "colorMode": null,
-          "colors": [
-            "rgba(245, 54, 54, 0.9)",
-            "rgba(237, 129, 40, 0.89)",
-            "rgba(50, 172, 45, 0.97)"
-          ],
-          "decimals": 0,
-          "pattern": "/.*/",
-          "thresholds": [],
-          "type": "number",
-          "unit": "short"
-        }
-      ],
       "targets": [
         {
-          "alias": "",
-          "dsType": "influxdb",
           "format": "table",
+          "rawSql": "select name, value from \"spstat\" where series = 'pstat[[repogroup]]' and period = '[[period]]'",
+          "resultFormat": "table",
+          "dsType": "influxdb",
           "groupBy": [
             {
               "params": [
@@ -114,12 +25,11 @@
             }
           ],
           "orderByTime": "ASC",
+          "tags": [],
+          "alias": "",
           "policy": "default",
-          "query": "SELECT \"name\", \"value\" FROM \"project_stats_[[repogroup]]_[[period]]\" WHERE $timeFilter",
           "rawQuery": true,
-          "rawSql": "select name, value from \"spstat\" where series = 'pstat[[repogroup]]' and period = '[[period]]'",
           "refId": "A",
-          "resultFormat": "table",
           "select": [
             [
               {
@@ -129,26 +39,97 @@
                 "type": "field"
               },
               {
-                "params": [],
-                "type": "mean"
+                "type": "mean",
+                "params": []
               }
             ]
           ],
-          "tags": []
+          "query": "SELECT \"name\", \"value\" FROM \"project_stats_[[repogroup]]_[[period]]\" WHERE $timeFilter"
         }
       ],
-      "title": "[[full_name]] Project statistics (Repository group [[repogroup_name]], Range: [[period_name]]), bots excluded",
-      "transform": "table",
+      "id": 1,
+      "styles": [
+        {
+          "alias": "Time",
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": null,
+          "pattern": "Time",
+          "type": "hidden"
+        },
+        {
+          "alias": "Metric name",
+          "colorMode": null,
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "preserveFormat": false,
+          "thresholds": [],
+          "decimals": 2,
+          "pattern": "name",
+          "type": "string",
+          "unit": "short",
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ]
+        },
+        {
+          "alias": "Metric value",
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "pattern": "value",
+          "colorMode": null,
+          "decimals": 0,
+          "thresholds": [],
+          "type": "number",
+          "unit": "none"
+        },
+        {
+          "type": "number",
+          "unit": "short",
+          "alias": "",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "decimals": 0,
+          "pattern": "/.*/",
+          "thresholds": []
+        }
+      ],
+      "datasource": "psql",
+      "showHeader": true,
+      "type": "table",
+      "description": "",
+      "sort": {
+        "desc": true,
+        "col": 0
+      },
       "transparent": false,
-      "type": "table"
+      "title": "[[full_name]] Project statistics (Repository group [[repogroup_name]], Range: [[period_name]]), bots excluded",
+      "gridPos": {
+        "h": 22,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "pageSize": 20,
+      "transform": "table",
+      "scroll": true,
+      "hideTimeOverride": true
     },
     {
       "content": "${docs:raw}",
       "gridPos": {
-        "h": 9,
         "w": 24,
         "x": 0,
-        "y": 22
+        "y": 22,
+        "h": 9
       },
       "id": 11,
       "links": [],
@@ -157,160 +138,24 @@
       "type": "text"
     }
   ],
+  "links": [],
   "refresh": false,
-  "schemaVersion": 16,
   "style": "dark",
-  "tags": [
-    "dashboard",
-    "nats",
-    "table"
-  ],
-  "templating": {
+  "annotations": {
     "list": [
       {
-        "allValue": null,
-        "current": {
-          "text": "NATS",
-          "value": "NATS"
-        },
-        "datasource": "psql",
-        "hide": 2,
-        "includeAll": false,
-        "label": null,
-        "multi": false,
-        "name": "full_name",
-        "options": [],
-        "query": "select value_s from gha_vars where name = 'full_name'",
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": true,
-        "sort": 0,
-        "tagValuesQuery": "",
-        "tags": [],
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false
-      },
-      {
-        "allValue": null,
-        "current": {
-          "tags": [],
-          "text": "Last decade",
-          "value": "Last decade"
-        },
-        "datasource": "psql",
-        "hide": 0,
-        "includeAll": false,
-        "label": "Range",
-        "multi": false,
-        "name": "period_name",
-        "options": [],
-        "query": "select quick_ranges_name from tquick_ranges order by time",
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": false,
-        "sort": 0,
-        "tagValuesQuery": "",
-        "tags": [],
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false
-      },
-      {
-        "allValue": null,
-        "current": {
-          "text": "y10",
-          "value": "y10"
-        },
-        "datasource": "psql",
-        "hide": 2,
-        "includeAll": false,
-        "label": null,
-        "multi": false,
-        "name": "period",
-        "options": [],
-        "query": "select quick_ranges_suffix from tquick_ranges where quick_ranges_name = '[[period_name]]'",
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": true,
-        "sort": 0,
-        "tagValuesQuery": "",
-        "tags": [],
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false
-      },
-      {
-        "allValue": null,
-        "current": {
-          "text": "All",
-          "value": "All"
-        },
-        "datasource": "psql",
-        "hide": 0,
-        "includeAll": false,
-        "label": "Repository group",
-        "multi": false,
-        "name": "repogroup_name",
-        "options": [],
-        "query": "select all_repo_group_name from tall_repo_groups order by 1",
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": false,
-        "sort": 0,
-        "tagValuesQuery": "",
-        "tags": [],
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false
-      },
-      {
-        "allValue": null,
-        "current": {
-          "text": "all",
-          "value": "all"
-        },
-        "datasource": "psql",
-        "hide": 2,
-        "includeAll": false,
-        "label": "",
-        "multi": false,
-        "name": "repogroup",
-        "options": [],
-        "query": "select all_repo_group_value from tall_repo_groups where all_repo_group_name = '[[repogroup_name]]'",
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": true,
-        "sort": 0,
-        "tagValuesQuery": "",
-        "tags": [],
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false
-      },
-      {
-        "allValue": null,
-        "current": {},
-        "datasource": "psql",
-        "hide": 2,
-        "includeAll": false,
-        "label": null,
-        "multi": false,
-        "name": "docs",
-        "options": [],
-        "query": "select value_s from gha_vars where name = 'projects_stats_docs_html'",
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": true,
-        "sort": 0,
-        "tagValuesQuery": "",
-        "tags": [],
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false
+        "type": "dashboard",
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations \u0026 Alerts"
       }
     ]
   },
+  "graphTooltip": 0,
+  "id": 18,
   "time": {
     "from": "now-5y",
     "to": "now"
@@ -341,8 +186,165 @@
       "30d"
     ]
   },
+  "version": 3,
+  "schemaVersion": 16,
+  "tags": [
+    "dashboard",
+    "nats",
+    "table"
+  ],
   "timezone": "",
-  "title": "Overall Project Statistics Table",
+  "gnetId": null,
+  "iteration": 1529595547139,
+  "templating": {
+    "list": [
+      {
+        "regex": "",
+        "tags": [],
+        "sort": 0,
+        "allValue": null,
+        "tagsQuery": "",
+        "label": null,
+        "options": [],
+        "skipUrlSync": true,
+        "tagValuesQuery": "",
+        "type": "query",
+        "hide": 2,
+        "current": {
+          "value": "NATS",
+          "text": "NATS"
+        },
+        "query": "select value_s from gha_vars where name = 'full_name'",
+        "name": "full_name",
+        "useTags": false,
+        "refresh": 1,
+        "multi": false,
+        "includeAll": false,
+        "datasource": "psql"
+      },
+      {
+        "type": "query",
+        "name": "period_name",
+        "includeAll": false,
+        "query": "select quick_ranges_name from tquick_ranges order by time",
+        "tagValuesQuery": "",
+        "current": {
+          "tags": [],
+          "text": "Last decade",
+          "value": "Last decade"
+        },
+        "label": "Range",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagsQuery": "",
+        "hide": 0,
+        "refresh": 1,
+        "regex": "",
+        "allValue": null,
+        "options": [],
+        "useTags": false,
+        "multi": false,
+        "datasource": "psql",
+        "tags": []
+      },
+      {
+        "query": "select quick_ranges_suffix from tquick_ranges where quick_ranges_name = '[[period_name]]'",
+        "type": "query",
+        "hide": 2,
+        "includeAll": false,
+        "current": {
+          "value": "y10",
+          "text": "y10"
+        },
+        "tagsQuery": "",
+        "useTags": false,
+        "name": "period",
+        "datasource": "psql",
+        "sort": 0,
+        "regex": "",
+        "options": [],
+        "tags": [],
+        "allValue": null,
+        "multi": false,
+        "skipUrlSync": true,
+        "label": null,
+        "refresh": 1,
+        "tagValuesQuery": ""
+      },
+      {
+        "regex": "",
+        "query": "select all_repo_group_name from tall_repo_groups order by 1",
+        "type": "query",
+        "multi": false,
+        "sort": 0,
+        "includeAll": false,
+        "tagValuesQuery": "",
+        "tagsQuery": "",
+        "label": "Repository group",
+        "name": "repogroup_name",
+        "skipUrlSync": false,
+        "allValue": null,
+        "current": {
+          "text": "All",
+          "value": "All"
+        },
+        "hide": 0,
+        "useTags": false,
+        "options": [],
+        "refresh": 1,
+        "tags": [],
+        "datasource": "psql"
+      },
+      {
+        "tagsQuery": "",
+        "includeAll": false,
+        "multi": false,
+        "refresh": 1,
+        "query": "select all_repo_group_value from tall_repo_groups where all_repo_group_name = '[[repogroup_name]]'",
+        "allValue": null,
+        "label": "",
+        "skipUrlSync": true,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "name": "repogroup",
+        "current": {
+          "value": "all",
+          "text": "all"
+        },
+        "tags": [],
+        "useTags": false,
+        "hide": 2,
+        "options": [],
+        "type": "query",
+        "datasource": "psql",
+        "regex": ""
+      },
+      {
+        "skipUrlSync": true,
+        "allValue": null,
+        "tagValuesQuery": "",
+        "name": "docs",
+        "datasource": "psql",
+        "regex": "",
+        "tagsQuery": "",
+        "options": [],
+        "sort": 0,
+        "current": {
+          
+        },
+        "hide": 2,
+        "refresh": 1,
+        "label": null,
+        "query": "select value_s from gha_vars where name = 'projects_stats_docs_html'",
+        "type": "query",
+        "includeAll": false,
+        "multi": false,
+        "tags": [],
+        "useTags": false
+      }
+    ]
+  },
   "uid": "18",
-  "version": 3
+  "editable": true,
+  "title": "Overall Project Statistics Table"
 }

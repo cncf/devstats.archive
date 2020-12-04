@@ -1,88 +1,55 @@
 {
-  "annotations": {
-    "list": [
-      {
-        "builtIn": 1,
-        "datasource": "-- Grafana --",
-        "enable": true,
-        "hide": true,
-        "iconColor": "rgba(0, 211, 255, 1)",
-        "name": "Annotations \u0026 Alerts",
-        "type": "dashboard"
-      }
-    ]
-  },
-  "editable": true,
-  "gnetId": null,
-  "graphTooltip": 0,
-  "id": 33,
+  "tags": [
+    "companies",
+    "dashboard",
+    "notary",
+    "table"
+  ],
+  "uid": "21",
   "iteration": 1568187917472,
-  "links": [],
   "panels": [
     {
-      "columns": [],
-      "datasource": "psql",
-      "description": "Shows PRs authors companies",
-      "fontSize": "90%",
-      "gridPos": {
-        "h": 22,
-        "w": 24,
-        "x": 0,
-        "y": 0
-      },
-      "hideTimeOverride": true,
-      "id": 1,
-      "interval": "",
-      "links": [],
-      "options": {},
-      "pageSize": 1000,
-      "scroll": true,
-      "showHeader": true,
-      "sort": {
-        "col": 2,
-        "desc": true
-      },
+      "title": "[[full_name]] PRs authors companies (Repository group: [[repogroup_name]], Range: [[period_name]])",
       "styles": [
         {
-          "alias": "Time",
           "dateFormat": "YYYY-MM-DD HH:mm:ss",
           "decimals": null,
           "pattern": "Time",
-          "type": "hidden"
+          "type": "hidden",
+          "alias": "Time"
         },
         {
-          "alias": "Company",
           "colorMode": null,
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "unit": "short",
           "colors": [
             "rgba(245, 54, 54, 0.9)",
             "rgba(237, 129, 40, 0.89)",
             "rgba(50, 172, 45, 0.97)"
           ],
-          "dateFormat": "YYYY-MM-DD HH:mm:ss",
           "decimals": 2,
-          "pattern": "name",
-          "preserveFormat": false,
           "thresholds": [],
+          "alias": "Company",
           "type": "string",
-          "unit": "short"
+          "pattern": "name",
+          "preserveFormat": false
         },
         {
-          "alias": "Opened PRs",
-          "colorMode": null,
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "pattern": "value",
           "colors": [
             "rgba(245, 54, 54, 0.9)",
             "rgba(237, 129, 40, 0.89)",
             "rgba(50, 172, 45, 0.97)"
           ],
-          "dateFormat": "YYYY-MM-DD HH:mm:ss",
           "decimals": 0,
-          "pattern": "value",
-          "thresholds": [],
+          "unit": "none",
+          "colorMode": null,
           "type": "number",
-          "unit": "none"
+          "alias": "Opened PRs",
+          "thresholds": []
         },
         {
-          "alias": "",
           "colorMode": null,
           "colors": [
             "rgba(245, 54, 54, 0.9)",
@@ -93,15 +60,28 @@
           "pattern": "/.*/",
           "thresholds": [],
           "type": "string",
-          "unit": "short"
+          "unit": "short",
+          "alias": ""
         }
       ],
+      "showHeader": true,
       "targets": [
         {
-          "alias": "",
-          "dsType": "influxdb",
-          "format": "table",
-          "group": [],
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": [],
           "groupBy": [
             {
               "params": [
@@ -118,226 +98,253 @@
           ],
           "metricColumn": "none",
           "orderByTime": "ASC",
-          "policy": "default",
-          "query": "SELECT \"name\", \"value\" FROM \"hist_pr_companies_[[repogroup]]_[[period]]\" WHERE $timeFilter",
-          "rawQuery": true,
-          "rawSql": "select\n  row_number() over (order by value desc) as \"Rank\",\n  name,\n  value\nfrom\n  shpr_comps\nwhere\n  series = 'hpr_comps[[repogroup]]'\n  and period = '[[period]]'",
           "refId": "A",
-          "resultFormat": "table",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": [],
-          "timeColumn": "time",
           "where": [
             {
+              "type": "macro",
               "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
+              "params": []
             }
-          ]
+          ],
+          "rawQuery": true,
+          "resultFormat": "table",
+          "group": [],
+          "query": "SELECT \"name\", \"value\" FROM \"hist_pr_companies_[[repogroup]]_[[period]]\" WHERE $timeFilter",
+          "rawSql": "select\n  row_number() over (order by value desc) as \"Rank\",\n  name,\n  value\nfrom\n  shpr_comps\nwhere\n  series = 'hpr_comps[[repogroup]]'\n  and period = '[[period]]'",
+          "alias": "",
+          "dsType": "influxdb",
+          "format": "table",
+          "policy": "default",
+          "timeColumn": "time"
         }
       ],
-      "title": "[[full_name]] PRs authors companies (Repository group: [[repogroup_name]], Range: [[period_name]])",
+      "interval": "",
+      "pageSize": 1000,
+      "type": "table",
+      "scroll": true,
+      "datasource": "psql",
+      "fontSize": "90%",
+      "options": {
+        
+      },
       "transform": "table",
-      "type": "table"
+      "hideTimeOverride": true,
+      "id": 1,
+      "description": "Shows PRs authors companies",
+      "links": [],
+      "sort": {
+        "col": 2,
+        "desc": true
+      },
+      "columns": [],
+      "gridPos": {
+        "x": 0,
+        "y": 0,
+        "h": 22,
+        "w": 24
+      }
     },
     {
       "content": "${docs:raw}",
       "gridPos": {
-        "h": 9,
-        "w": 24,
         "x": 0,
-        "y": 22
+        "y": 22,
+        "h": 9,
+        "w": 24
       },
       "id": 11,
       "links": [],
       "mode": "html",
-      "options": {},
+      "options": {
+        
+      },
       "title": "Dashboard documentation",
       "type": "text"
     }
   ],
-  "refresh": false,
-  "schemaVersion": 19,
+  "id": 33,
+  "time": {
+    "to": "now",
+    "from": "now-5y"
+  },
+  "title": "PRs Authors Companies Table",
+  "links": [],
+  "editable": true,
+  "graphTooltip": 0,
+  "timezone": "",
   "style": "dark",
-  "tags": [
-    "companies",
-    "dashboard",
-    "notary",
-    "table"
-  ],
   "templating": {
     "list": [
       {
+        "regex": "",
+        "label": "Range",
+        "multi": false,
+        "hide": 0,
         "allValue": null,
+        "useTags": false,
+        "includeAll": false,
+        "tagsQuery": "",
+        "options": [],
+        "skipUrlSync": false,
+        "refresh": 1,
         "current": {
           "text": "Last decade",
           "value": "Last decade"
         },
-        "datasource": "psql",
-        "definition": "",
-        "hide": 0,
-        "includeAll": false,
-        "label": "Range",
-        "multi": false,
-        "name": "period_name",
-        "options": [],
-        "query": "select quick_ranges_name from tquick_ranges order by time",
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": false,
-        "sort": 0,
         "tagValuesQuery": "",
         "tags": [],
-        "tagsQuery": "",
+        "name": "period_name",
         "type": "query",
-        "useTags": false
+        "datasource": "psql",
+        "query": "select quick_ranges_name from tquick_ranges order by time",
+        "definition": "",
+        "sort": 0
       },
       {
+        "includeAll": false,
+        "skipUrlSync": true,
         "allValue": null,
+        "tagValuesQuery": "",
+        "hide": 2,
+        "query": "select value_s from gha_vars where name = 'full_name'",
+        "options": [],
+        "type": "query",
+        "label": null,
+        "multi": false,
+        "definition": "",
+        "tagsQuery": "",
+        "datasource": "psql",
+        "name": "full_name",
+        "refresh": 1,
+        "tags": [],
+        "sort": 0,
+        "useTags": false,
+        "regex": "",
         "current": {
           "text": "All CNCF",
           "value": "All CNCF"
-        },
-        "datasource": "psql",
-        "definition": "",
-        "hide": 2,
-        "includeAll": false,
-        "label": null,
-        "multi": false,
-        "name": "full_name",
-        "options": [],
-        "query": "select value_s from gha_vars where name = 'full_name'",
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": true,
-        "sort": 0,
-        "tagValuesQuery": "",
-        "tags": [],
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false
+        }
       },
       {
+        "options": [],
+        "query": "select quick_ranges_suffix from tquick_ranges where quick_ranges_name = '[[period_name]]'",
+        "includeAll": false,
+        "name": "period",
+        "type": "query",
+        "tags": [],
+        "hide": 2,
+        "multi": false,
         "allValue": null,
+        "refresh": 1,
+        "label": null,
+        "regex": "",
+        "tagsQuery": "",
+        "skipUrlSync": true,
+        "useTags": false,
+        "definition": "",
+        "sort": 0,
         "current": {
           "text": "y10",
           "value": "y10"
         },
-        "datasource": "psql",
-        "definition": "",
-        "hide": 2,
-        "includeAll": false,
-        "label": null,
-        "multi": false,
-        "name": "period",
-        "options": [],
-        "query": "select quick_ranges_suffix from tquick_ranges where quick_ranges_name = '[[period_name]]'",
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": true,
-        "sort": 0,
         "tagValuesQuery": "",
+        "datasource": "psql"
+      },
+      {
+        "definition": "",
+        "refresh": 1,
+        "useTags": false,
+        "hide": 0,
+        "includeAll": false,
+        "skipUrlSync": false,
         "tags": [],
         "tagsQuery": "",
         "type": "query",
-        "useTags": false
-      },
-      {
+        "regex": "",
         "allValue": null,
+        "options": [],
+        "datasource": "psql",
+        "multi": false,
+        "sort": 0,
+        "query": "select all_repo_group_name from tall_repo_groups order by 1",
+        "tagValuesQuery": "",
         "current": {
           "text": "All",
           "value": "All"
         },
-        "datasource": "psql",
-        "definition": "",
-        "hide": 0,
-        "includeAll": false,
         "label": "Repository group",
-        "multi": false,
-        "name": "repogroup_name",
-        "options": [],
-        "query": "select all_repo_group_name from tall_repo_groups order by 1",
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": false,
-        "sort": 0,
-        "tagValuesQuery": "",
-        "tags": [],
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false
+        "name": "repogroup_name"
       },
       {
         "allValue": null,
+        "options": [],
+        "useTags": false,
+        "hide": 2,
+        "includeAll": false,
+        "tags": [],
+        "sort": 0,
+        "type": "query",
+        "tagsQuery": "",
+        "tagValuesQuery": "",
+        "skipUrlSync": true,
+        "multi": false,
+        "regex": "",
         "current": {
           "text": "all",
           "value": "all"
         },
-        "datasource": "psql",
-        "definition": "",
-        "hide": 2,
-        "includeAll": false,
         "label": "",
-        "multi": false,
-        "name": "repogroup",
-        "options": [],
-        "query": "select all_repo_group_value from tall_repo_groups where all_repo_group_name = '[[repogroup_name]]'",
+        "definition": "",
         "refresh": 1,
-        "regex": "",
-        "skipUrlSync": true,
-        "sort": 0,
-        "tagValuesQuery": "",
-        "tags": [],
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false
+        "name": "repogroup",
+        "query": "select all_repo_group_value from tall_repo_groups where all_repo_group_name = '[[repogroup_name]]'",
+        "datasource": "psql"
       },
       {
+        "useTags": false,
+        "skipUrlSync": true,
+        "name": "docs",
+        "refresh": 1,
         "allValue": null,
+        "query": "select value_s from gha_vars where name = 'pr_companies_docs_html'",
+        "tagsQuery": "",
         "current": {
           "text": "\u003ch1 id=\"dashboard-header\"\u003eAll CNCF PRs authors companies histogram dashboard\u003c/h1\u003e\n\u003cp\u003eLinks:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003eMetric \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/hist_pr_companies.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eTSDB \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/metrics.yaml\" target=\"_blank\"\u003eseries definition\u003c/a\u003e. Search for \u003ccode\u003ehist_pr_companies\u003c/code\u003e\u003c/li\u003e\n\u003cli\u003eGrafana dashboard \u003ca href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/all/prs-authors-companies-histogram.json\" target=\"_blank\"\u003eJSON\u003c/a\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch1 id=\"description\"\u003eDescription\u003c/h1\u003e\n\u003cul\u003e\n\u003cli\u003eThis dashboard shows number of PRs created by contributors groupped by company in the selected period.\u003c/li\u003e\n\u003cli\u003eYou can select last day, month, week etc. range or date range between releases, for example \u003ccode\u003ev1.9 - v1.10\u003c/code\u003e.\u003c/li\u003e\n\u003cli\u003eYou can select single repository group or summary for all of them.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/periods.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about periods.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/repository_groups.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about repository groups.\u003c/li\u003e\n\u003cli\u003eWe are skipping bots activity, see \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/excluding_bots.md\" target=\"_blank\"\u003eexcluding bots\u003c/a\u003e for details.\u003c/li\u003e\n\u003cli\u003eWe are determining user's company affiliation from \u003ca href=\"https://github.com/cncf/devstats/blob/master/github_users.json\" target=\"_blank\"\u003ethis file\u003c/a\u003e, which is imported from \u003ccode\u003ecncf/gitdm\u003c/code\u003e.\u003c/li\u003e\n\u003c/ul\u003e",
           "value": "\u003ch1 id=\"dashboard-header\"\u003eAll CNCF PRs authors companies histogram dashboard\u003c/h1\u003e\n\u003cp\u003eLinks:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003eMetric \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/hist_pr_companies.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eTSDB \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/metrics.yaml\" target=\"_blank\"\u003eseries definition\u003c/a\u003e. Search for \u003ccode\u003ehist_pr_companies\u003c/code\u003e\u003c/li\u003e\n\u003cli\u003eGrafana dashboard \u003ca href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/all/prs-authors-companies-histogram.json\" target=\"_blank\"\u003eJSON\u003c/a\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch1 id=\"description\"\u003eDescription\u003c/h1\u003e\n\u003cul\u003e\n\u003cli\u003eThis dashboard shows number of PRs created by contributors groupped by company in the selected period.\u003c/li\u003e\n\u003cli\u003eYou can select last day, month, week etc. range or date range between releases, for example \u003ccode\u003ev1.9 - v1.10\u003c/code\u003e.\u003c/li\u003e\n\u003cli\u003eYou can select single repository group or summary for all of them.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/periods.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about periods.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/repository_groups.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about repository groups.\u003c/li\u003e\n\u003cli\u003eWe are skipping bots activity, see \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/excluding_bots.md\" target=\"_blank\"\u003eexcluding bots\u003c/a\u003e for details.\u003c/li\u003e\n\u003cli\u003eWe are determining user's company affiliation from \u003ca href=\"https://github.com/cncf/devstats/blob/master/github_users.json\" target=\"_blank\"\u003ethis file\u003c/a\u003e, which is imported from \u003ccode\u003ecncf/gitdm\u003c/code\u003e.\u003c/li\u003e\n\u003c/ul\u003e"
         },
-        "datasource": "psql",
-        "definition": "",
-        "hide": 2,
-        "includeAll": false,
-        "label": null,
-        "multi": false,
-        "name": "docs",
-        "options": [],
-        "query": "select value_s from gha_vars where name = 'pr_companies_docs_html'",
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": true,
-        "sort": 0,
-        "tagValuesQuery": "",
         "tags": [],
-        "tagsQuery": "",
+        "tagValuesQuery": "",
+        "options": [],
+        "regex": "",
+        "includeAll": false,
         "type": "query",
-        "useTags": false
+        "definition": "",
+        "datasource": "psql",
+        "sort": 0,
+        "hide": 2,
+        "label": null,
+        "multi": false
       }
     ]
   },
-  "time": {
-    "from": "now-5y",
-    "to": "now"
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations \u0026 Alerts",
+        "type": "dashboard"
+      }
+    ]
   },
+  "schemaVersion": 19,
+  "version": 2,
+  "gnetId": null,
+  "refresh": false,
   "timepicker": {
-    "hidden": true,
     "refresh_intervals": [
       "5s",
       "10s",
@@ -360,10 +367,7 @@
       "2d",
       "7d",
       "30d"
-    ]
-  },
-  "timezone": "",
-  "title": "PRs Authors Companies Table",
-  "uid": "21",
-  "version": 2
+    ],
+    "hidden": true
+  }
 }

@@ -2,328 +2,27 @@
   "annotations": {
     "list": [
       {
+        "name": "Annotations \u0026 Alerts",
+        "type": "dashboard",
         "builtIn": 1,
         "datasource": "-- Grafana --",
         "enable": true,
         "hide": true,
-        "iconColor": "rgba(0, 211, 255, 1)",
-        "name": "Annotations \u0026 Alerts",
-        "type": "dashboard"
+        "iconColor": "rgba(0, 211, 255, 1)"
       }
     ]
   },
-  "editable": true,
   "gnetId": null,
-  "graphTooltip": 0,
-  "id": 66,
-  "iteration": 1557388627645,
-  "links": [],
-  "panels": [
-    {
-      "columns": [],
-      "datasource": "psql",
-      "description": "",
-      "fontSize": "90%",
-      "gridPos": {
-        "h": 25,
-        "w": 24,
-        "x": 0,
-        "y": 0
-      },
-      "hideTimeOverride": false,
-      "id": 1,
-      "links": [],
-      "pageSize": 30,
-      "scroll": true,
-      "showHeader": true,
-      "sort": {
-        "col": 3,
-        "desc": true
-      },
-      "styles": [
-        {
-          "alias": "Commit link",
-          "colorMode": null,
-          "colors": [
-            "rgba(245, 54, 54, 0.9)",
-            "rgba(237, 129, 40, 0.89)",
-            "rgba(50, 172, 45, 0.97)"
-          ],
-          "dateFormat": "YYYY-MM-DD HH:mm:ss",
-          "decimals": 2,
-          "link": true,
-          "linkTargetBlank": true,
-          "linkTooltip": "",
-          "linkUrl": "https://github.com/${__cell_4}/${__cell_5}/commit/${__cell_6}",
-          "mappingType": 1,
-          "pattern": "Message",
-          "thresholds": [],
-          "type": "string",
-          "unit": "short"
-        },
-        {
-          "alias": "",
-          "colorMode": null,
-          "colors": [
-            "rgba(245, 54, 54, 0.9)",
-            "rgba(237, 129, 40, 0.89)",
-            "rgba(50, 172, 45, 0.97)"
-          ],
-          "dateFormat": "YYYY-MM-DD HH:mm:ss",
-          "decimals": 2,
-          "mappingType": 1,
-          "pattern": "Commit Org",
-          "thresholds": [],
-          "type": "hidden",
-          "unit": "short"
-        },
-        {
-          "alias": "",
-          "colorMode": null,
-          "colors": [
-            "rgba(245, 54, 54, 0.9)",
-            "rgba(237, 129, 40, 0.89)",
-            "rgba(50, 172, 45, 0.97)"
-          ],
-          "dateFormat": "YYYY-MM-DD HH:mm:ss",
-          "decimals": 2,
-          "mappingType": 1,
-          "pattern": "Commit Repo",
-          "thresholds": [],
-          "type": "hidden",
-          "unit": "short"
-        },
-        {
-          "alias": "",
-          "colorMode": null,
-          "colors": [
-            "rgba(245, 54, 54, 0.9)",
-            "rgba(237, 129, 40, 0.89)",
-            "rgba(50, 172, 45, 0.97)"
-          ],
-          "dateFormat": "YYYY-MM-DD HH:mm:ss",
-          "decimals": 2,
-          "mappingType": 1,
-          "pattern": "Commit SHA",
-          "thresholds": [],
-          "type": "hidden",
-          "unit": "short"
-        },
-        {
-          "alias": "",
-          "colorMode": null,
-          "colors": [
-            "rgba(245, 54, 54, 0.9)",
-            "rgba(237, 129, 40, 0.89)",
-            "rgba(50, 172, 45, 0.97)"
-          ],
-          "dateFormat": "MM/DD/YY h:mm:ss a",
-          "decimals": 2,
-          "mappingType": 1,
-          "pattern": "Date",
-          "thresholds": [],
-          "type": "date",
-          "unit": "short"
-        },
-        {
-          "alias": "",
-          "colorMode": null,
-          "colors": [
-            "rgba(245, 54, 54, 0.9)",
-            "rgba(237, 129, 40, 0.89)",
-            "rgba(50, 172, 45, 0.97)"
-          ],
-          "decimals": 0,
-          "pattern": "/.*/",
-          "thresholds": [],
-          "type": "number",
-          "unit": "short"
-        }
-      ],
-      "targets": [
-        {
-          "alias": "",
-          "dsType": "influxdb",
-          "format": "table",
-          "groupBy": [
-            {
-              "params": [
-                "$__interval"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
-          "orderByTime": "ASC",
-          "policy": "default",
-          "query": "",
-          "rawQuery": true,
-          "rawSql": "select\n  split_part(str, '$$$', 1) as \"Company\",\n  split_part(str, '$$$', 2) as \"Repository group\",\n  split_part(str, '$$$', 3) as \"Committer\",\n  dt as \"Date\",\n  split_part(split_part(str, '$$$', 4), '/', 1) as \"Commit Org\",\n  split_part(split_part(str, '$$$', 4), '/', 2) as \"Commit Repo\",\n  split_part(str, '$$$', 5) as \"Commit SHA\",\n  split_part(str, '$$$', 6) as \"Message\"\nfrom\n  scompany_commits_data\nwhere\n  $__timeFilter(dt)\n  and period = 'd'\n  and ('[[repogroups:csv]]' = 'null' or split_part(str, '$$$', 2) in ([[repogroups]]))\n  and ('[[companies:csv]]' = 'null' or split_part(str, '$$$', 1) in ([[companies]]))",
-          "refId": "A",
-          "resultFormat": "table",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": []
-        }
-      ],
-      "timeFrom": null,
-      "timeShift": null,
-      "title": "[[full_name]] company commits table",
-      "transform": "table",
-      "transparent": false,
-      "type": "table"
-    },
-    {
-      "content": "${docs:raw}",
-      "gridPos": {
-        "h": 10,
-        "w": 24,
-        "x": 0,
-        "y": 25
-      },
-      "id": 11,
-      "links": [],
-      "mode": "html",
-      "title": "Dashboard documentation",
-      "type": "text"
-    }
-  ],
-  "refresh": false,
-  "schemaVersion": 16,
-  "style": "dark",
   "tags": [
     "dashboard",
     "notary",
     "table",
     "companies"
   ],
-  "templating": {
-    "list": [
-      {
-        "allValue": null,
-        "current": {
-          "text": "Envoy",
-          "value": "Envoy"
-        },
-        "datasource": "psql",
-        "hide": 2,
-        "includeAll": false,
-        "label": null,
-        "multi": false,
-        "name": "full_name",
-        "options": [],
-        "query": "select value_s from gha_vars where name = 'full_name'",
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": true,
-        "sort": 0,
-        "tagValuesQuery": "",
-        "tags": [],
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false
-      },
-      {
-        "allValue": "null",
-        "current": {
-          "text": "All",
-          "value": [
-            "$__all"
-          ]
-        },
-        "datasource": "psql",
-        "hide": 0,
-        "includeAll": true,
-        "label": "Repository groups",
-        "multi": true,
-        "name": "repogroups",
-        "options": [],
-        "query": "select repo_group_name from trepo_groups order by 1",
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": false,
-        "sort": 0,
-        "tagValuesQuery": "",
-        "tags": [],
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false
-      },
-      {
-        "allValue": null,
-        "current": {
-          "text": "\u003ch1 id=\"dashboard-header\"\u003eEnvoy company commits table dashboard\u003c/h1\u003e\n\u003cp\u003eLinks:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003eCompany commits metric \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/company_commits_data.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eTSDB \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/metrics.yaml\" target=\"_blank\"\u003eseries definition\u003c/a\u003e. Search for \u003ccode\u003eCompany commits table\u003c/code\u003e\u003c/li\u003e\n\u003cli\u003eGrafana dashboard \u003ca href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/envoy/company-commits-table.json\" target=\"_blank\"\u003eJSON\u003c/a\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch1 id=\"description\"\u003eDescription\u003c/h1\u003e\n\u003cul\u003e\n\u003cli\u003eThis dashboard shows statistics about company commits.\u003c/li\u003e\n\u003cli\u003eYou can select date range to show company commits for this period.\u003c/li\u003e\n\u003cli\u003eYou can select multiple repository groups or all of them in a multi select dowp down.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/repository_groups.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about repository groups.\u003c/li\u003e\n\u003cli\u003eYou can select multiple companies or all of them in a multi select dowp down.\u003c/li\u003e\n\u003cli\u003eWe are showing top 255 most active companies in the drop-down list.\u003c/li\u003e\n\u003cli\u003eWe are skipping bots activity, see \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/excluding_bots.md\" target=\"_blank\"\u003eexcluding bots\u003c/a\u003e for details.\u003c/li\u003e\n\u003cli\u003eWe are determining user's company affiliation from \u003ca href=\"https://github.com/cncf/devstats/blob/master/github_users.json\" target=\"_blank\"\u003ethis file\u003c/a\u003e, which is imported from \u003ccode\u003ecncf/gitdm\u003c/code\u003e.\u003c/li\u003e\n\u003c/ul\u003e",
-          "value": "\u003ch1 id=\"dashboard-header\"\u003eEnvoy company commits table dashboard\u003c/h1\u003e\n\u003cp\u003eLinks:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003eCompany commits metric \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/company_commits_data.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eTSDB \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/metrics.yaml\" target=\"_blank\"\u003eseries definition\u003c/a\u003e. Search for \u003ccode\u003eCompany commits table\u003c/code\u003e\u003c/li\u003e\n\u003cli\u003eGrafana dashboard \u003ca href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/envoy/company-commits-table.json\" target=\"_blank\"\u003eJSON\u003c/a\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch1 id=\"description\"\u003eDescription\u003c/h1\u003e\n\u003cul\u003e\n\u003cli\u003eThis dashboard shows statistics about company commits.\u003c/li\u003e\n\u003cli\u003eYou can select date range to show company commits for this period.\u003c/li\u003e\n\u003cli\u003eYou can select multiple repository groups or all of them in a multi select dowp down.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/repository_groups.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about repository groups.\u003c/li\u003e\n\u003cli\u003eYou can select multiple companies or all of them in a multi select dowp down.\u003c/li\u003e\n\u003cli\u003eWe are showing top 255 most active companies in the drop-down list.\u003c/li\u003e\n\u003cli\u003eWe are skipping bots activity, see \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/excluding_bots.md\" target=\"_blank\"\u003eexcluding bots\u003c/a\u003e for details.\u003c/li\u003e\n\u003cli\u003eWe are determining user's company affiliation from \u003ca href=\"https://github.com/cncf/devstats/blob/master/github_users.json\" target=\"_blank\"\u003ethis file\u003c/a\u003e, which is imported from \u003ccode\u003ecncf/gitdm\u003c/code\u003e.\u003c/li\u003e\n\u003c/ul\u003e"
-        },
-        "datasource": "psql",
-        "hide": 2,
-        "includeAll": false,
-        "label": null,
-        "multi": false,
-        "name": "docs",
-        "options": [],
-        "query": "select value_s from gha_vars where name = 'company_commits_docs_html'",
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": true,
-        "sort": 0,
-        "tagValuesQuery": "",
-        "tags": [],
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false
-      },
-      {
-        "allValue": "null",
-        "current": {
-          "text": "All",
-          "value": [
-            "$__all"
-          ]
-        },
-        "datasource": "psql",
-        "hide": 0,
-        "includeAll": true,
-        "label": "Companies",
-        "multi": true,
-        "name": "companies",
-        "options": [],
-        "query": "select companies_name from tcompanies order by time asc",
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": false,
-        "sort": 0,
-        "tagValuesQuery": "",
-        "tags": [],
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false
-      }
-    ]
-  },
-  "time": {
-    "from": "now-1M",
-    "to": "now"
-  },
+  "editable": true,
+  "timezone": "",
+  "schemaVersion": 16,
   "timepicker": {
-    "hidden": false,
     "refresh_intervals": [
       "5s",
       "10s",
@@ -346,10 +45,311 @@
       "2d",
       "7d",
       "30d"
+    ],
+    "hidden": false
+  },
+  "id": 66,
+  "templating": {
+    "list": [
+      {
+        "current": {
+          "text": "Envoy",
+          "value": "Envoy"
+        },
+        "tagsQuery": "",
+        "useTags": false,
+        "regex": "",
+        "hide": 2,
+        "label": null,
+        "query": "select value_s from gha_vars where name = 'full_name'",
+        "refresh": 1,
+        "tagValuesQuery": "",
+        "datasource": "psql",
+        "options": [],
+        "allValue": null,
+        "includeAll": false,
+        "multi": false,
+        "sort": 0,
+        "type": "query",
+        "name": "full_name",
+        "skipUrlSync": true,
+        "tags": []
+      },
+      {
+        "tags": [],
+        "datasource": "psql",
+        "useTags": false,
+        "options": [],
+        "query": "select repo_group_name from trepo_groups order by 1",
+        "current": {
+          "text": "All",
+          "value": [
+            "$__all"
+          ]
+        },
+        "name": "repogroups",
+        "refresh": 1,
+        "tagsQuery": "",
+        "hide": 0,
+        "tagValuesQuery": "",
+        "type": "query",
+        "multi": true,
+        "regex": "",
+        "allValue": "null",
+        "sort": 0,
+        "skipUrlSync": false,
+        "label": "Repository groups",
+        "includeAll": true
+      },
+      {
+        "regex": "",
+        "datasource": "psql",
+        "label": null,
+        "skipUrlSync": true,
+        "options": [],
+        "multi": false,
+        "includeAll": false,
+        "query": "select value_s from gha_vars where name = 'company_commits_docs_html'",
+        "current": {
+          "text": "\u003ch1 id=\"dashboard-header\"\u003eEnvoy company commits table dashboard\u003c/h1\u003e\n\u003cp\u003eLinks:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003eCompany commits metric \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/company_commits_data.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eTSDB \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/metrics.yaml\" target=\"_blank\"\u003eseries definition\u003c/a\u003e. Search for \u003ccode\u003eCompany commits table\u003c/code\u003e\u003c/li\u003e\n\u003cli\u003eGrafana dashboard \u003ca href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/envoy/company-commits-table.json\" target=\"_blank\"\u003eJSON\u003c/a\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch1 id=\"description\"\u003eDescription\u003c/h1\u003e\n\u003cul\u003e\n\u003cli\u003eThis dashboard shows statistics about company commits.\u003c/li\u003e\n\u003cli\u003eYou can select date range to show company commits for this period.\u003c/li\u003e\n\u003cli\u003eYou can select multiple repository groups or all of them in a multi select dowp down.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/repository_groups.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about repository groups.\u003c/li\u003e\n\u003cli\u003eYou can select multiple companies or all of them in a multi select dowp down.\u003c/li\u003e\n\u003cli\u003eWe are showing top 255 most active companies in the drop-down list.\u003c/li\u003e\n\u003cli\u003eWe are skipping bots activity, see \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/excluding_bots.md\" target=\"_blank\"\u003eexcluding bots\u003c/a\u003e for details.\u003c/li\u003e\n\u003cli\u003eWe are determining user's company affiliation from \u003ca href=\"https://github.com/cncf/devstats/blob/master/github_users.json\" target=\"_blank\"\u003ethis file\u003c/a\u003e, which is imported from \u003ccode\u003ecncf/gitdm\u003c/code\u003e.\u003c/li\u003e\n\u003c/ul\u003e",
+          "value": "\u003ch1 id=\"dashboard-header\"\u003eEnvoy company commits table dashboard\u003c/h1\u003e\n\u003cp\u003eLinks:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003eCompany commits metric \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/company_commits_data.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eTSDB \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/metrics.yaml\" target=\"_blank\"\u003eseries definition\u003c/a\u003e. Search for \u003ccode\u003eCompany commits table\u003c/code\u003e\u003c/li\u003e\n\u003cli\u003eGrafana dashboard \u003ca href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/envoy/company-commits-table.json\" target=\"_blank\"\u003eJSON\u003c/a\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch1 id=\"description\"\u003eDescription\u003c/h1\u003e\n\u003cul\u003e\n\u003cli\u003eThis dashboard shows statistics about company commits.\u003c/li\u003e\n\u003cli\u003eYou can select date range to show company commits for this period.\u003c/li\u003e\n\u003cli\u003eYou can select multiple repository groups or all of them in a multi select dowp down.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/repository_groups.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about repository groups.\u003c/li\u003e\n\u003cli\u003eYou can select multiple companies or all of them in a multi select dowp down.\u003c/li\u003e\n\u003cli\u003eWe are showing top 255 most active companies in the drop-down list.\u003c/li\u003e\n\u003cli\u003eWe are skipping bots activity, see \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/excluding_bots.md\" target=\"_blank\"\u003eexcluding bots\u003c/a\u003e for details.\u003c/li\u003e\n\u003cli\u003eWe are determining user's company affiliation from \u003ca href=\"https://github.com/cncf/devstats/blob/master/github_users.json\" target=\"_blank\"\u003ethis file\u003c/a\u003e, which is imported from \u003ccode\u003ecncf/gitdm\u003c/code\u003e.\u003c/li\u003e\n\u003c/ul\u003e"
+        },
+        "tagsQuery": "",
+        "useTags": false,
+        "hide": 2,
+        "sort": 0,
+        "refresh": 1,
+        "tags": [],
+        "allValue": null,
+        "type": "query",
+        "name": "docs",
+        "tagValuesQuery": ""
+      },
+      {
+        "tagsQuery": "",
+        "label": "Companies",
+        "options": [],
+        "datasource": "psql",
+        "hide": 0,
+        "tagValuesQuery": "",
+        "current": {
+          "text": "All",
+          "value": [
+            "$__all"
+          ]
+        },
+        "tags": [],
+        "useTags": false,
+        "skipUrlSync": false,
+        "includeAll": true,
+        "name": "companies",
+        "sort": 0,
+        "query": "select companies_name from tcompanies order by time asc",
+        "refresh": 1,
+        "multi": true,
+        "allValue": "null",
+        "regex": "",
+        "type": "query"
+      }
     ]
   },
-  "timezone": "",
+  "panels": [
+    {
+      "timeFrom": null,
+      "styles": [
+        {
+          "linkTargetBlank": true,
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "pattern": "Message",
+          "link": true,
+          "linkUrl": "https://github.com/${__cell_4}/${__cell_5}/commit/${__cell_6}",
+          "thresholds": [],
+          "mappingType": 1,
+          "type": "string",
+          "linkTooltip": "",
+          "unit": "short",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "alias": "Commit link",
+          "decimals": 2
+        },
+        {
+          "thresholds": [],
+          "mappingType": 1,
+          "type": "hidden",
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "alias": "",
+          "decimals": 2,
+          "unit": "short",
+          "colorMode": null,
+          "pattern": "Commit Org"
+        },
+        {
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "unit": "short",
+          "type": "hidden",
+          "pattern": "Commit Repo",
+          "alias": "",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "thresholds": []
+        },
+        {
+          "alias": "",
+          "decimals": 2,
+          "thresholds": [],
+          "unit": "short",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "mappingType": 1,
+          "pattern": "Commit SHA",
+          "type": "hidden",
+          "dateFormat": "YYYY-MM-DD HH:mm:ss"
+        },
+        {
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "type": "date",
+          "unit": "short",
+          "decimals": 2,
+          "mappingType": 1,
+          "thresholds": [],
+          "dateFormat": "MM/DD/YY h:mm:ss a",
+          "pattern": "Date",
+          "alias": "",
+          "colorMode": null
+        },
+        {
+          "type": "number",
+          "unit": "short",
+          "alias": "",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "decimals": 0,
+          "pattern": "/.*/",
+          "thresholds": []
+        }
+      ],
+      "links": [],
+      "scroll": true,
+      "id": 1,
+      "pageSize": 30,
+      "type": "table",
+      "fontSize": "90%",
+      "gridPos": {
+        "w": 24,
+        "x": 0,
+        "y": 0,
+        "h": 25
+      },
+      "showHeader": true,
+      "description": "",
+      "hideTimeOverride": false,
+      "columns": [],
+      "title": "[[full_name]] company commits table",
+      "transform": "table",
+      "timeShift": null,
+      "transparent": false,
+      "sort": {
+        "col": 3,
+        "desc": true
+      },
+      "targets": [
+        {
+          "select": [
+            [
+              {
+                "type": "field",
+                "params": [
+                  "value"
+                ]
+              },
+              {
+                "type": "mean",
+                "params": []
+              }
+            ]
+          ],
+          "orderByTime": "ASC",
+          "query": "",
+          "tags": [],
+          "alias": "",
+          "format": "table",
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "policy": "default",
+          "dsType": "influxdb",
+          "rawSql": "select\n  split_part(str, '$$$', 1) as \"Company\",\n  split_part(str, '$$$', 2) as \"Repository group\",\n  split_part(str, '$$$', 3) as \"Committer\",\n  dt as \"Date\",\n  split_part(split_part(str, '$$$', 4), '/', 1) as \"Commit Org\",\n  split_part(split_part(str, '$$$', 4), '/', 2) as \"Commit Repo\",\n  split_part(str, '$$$', 5) as \"Commit SHA\",\n  split_part(str, '$$$', 6) as \"Message\"\nfrom\n  scompany_commits_data\nwhere\n  $__timeFilter(dt)\n  and period = 'd'\n  and ('[[repogroups:csv]]' = 'null' or split_part(str, '$$$', 2) in ([[repogroups]]))\n  and ('[[companies:csv]]' = 'null' or split_part(str, '$$$', 1) in ([[companies]]))",
+          "rawQuery": true,
+          "refId": "A",
+          "resultFormat": "table"
+        }
+      ],
+      "datasource": "psql"
+    },
+    {
+      "content": "${docs:raw}",
+      "gridPos": {
+        "h": 10,
+        "w": 24,
+        "x": 0,
+        "y": 25
+      },
+      "id": 11,
+      "links": [],
+      "mode": "html",
+      "title": "Dashboard documentation",
+      "type": "text"
+    }
+  ],
+  "links": [],
   "title": "Company Commits Table",
   "uid": "56",
-  "version": 13
+  "iteration": 1557388627645,
+  "version": 13,
+  "time": {
+    "to": "now",
+    "from": "now-1M"
+  },
+  "refresh": false,
+  "style": "dark",
+  "graphTooltip": 0
 }

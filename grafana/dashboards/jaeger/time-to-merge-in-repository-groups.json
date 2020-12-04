@@ -1,114 +1,124 @@
 {
-  "annotations": {
-    "list": [
-      {
-        "builtIn": 1,
-        "datasource": "-- Grafana --",
-        "enable": true,
-        "hide": true,
-        "iconColor": "rgba(0, 211, 255, 1)",
-        "name": "Annotations \u0026 Alerts",
-        "type": "dashboard"
-      },
-      {
-        "datasource": "psql",
-        "enable": true,
-        "hide": false,
-        "iconColor": "rgba(255, 96, 96, 1)",
-        "limit": 100,
-        "name": "Releases",
-        "query": "SELECT title, description from annotations WHERE $timeFilter order by time asc",
-        "rawQuery": "select extract(epoch from time) AS time, title as text, description as tags from sannotations where $__timeFilter(time)",
-        "showIn": 0,
-        "tagsColumn": "title,description",
-        "textColumn": "",
-        "titleColumn": "[[full_name]] release",
-        "type": "alert"
-      }
-    ]
+  "time": {
+    "from": "now-1y",
+    "to": "now-1w"
   },
-  "editable": true,
-  "gnetId": null,
+  "timezone": "",
   "graphTooltip": 0,
   "id": 32,
-  "iteration": 1529593856834,
-  "links": [],
+  "uid": "27",
   "panels": [
     {
-      "aliasColors": {},
-      "bars": false,
-      "dashLength": 10,
-      "dashes": false,
-      "datasource": "psql",
-      "decimals": 2,
-      "description": "Time from open to merge.",
-      "fill": 1,
+      "percentage": false,
+      "lines": true,
+      "timeFrom": null,
       "gridPos": {
-        "h": 13,
         "w": 12,
         "x": 0,
-        "y": 0
+        "y": 0,
+        "h": 13
       },
-      "id": 8,
-      "legend": {
-        "alignAsTable": true,
-        "avg": true,
-        "current": true,
-        "max": true,
-        "min": true,
-        "rightSide": false,
-        "show": true,
-        "total": false,
-        "values": true
-      },
-      "lines": true,
-      "linewidth": 1,
-      "links": [],
-      "nullPointMode": "null",
-      "percentage": false,
-      "pointradius": 5,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [],
-      "spaceLength": 10,
-      "stack": true,
-      "steppedLine": false,
+      "datasource": "psql",
       "targets": [
         {
-          "alias": "",
-          "dsType": "influxdb",
-          "format": "time_series",
-          "groupBy": [],
-          "orderByTime": "ASC",
-          "policy": "default",
           "query": "SELECT \"value\" FROM \"time_metrics_[[repogroup]]_median_open_to_merge_[[period]]\" WHERE $timeFilter",
-          "rawQuery": true,
           "rawSql": "select\n  time,\n  value as \"Median time from open to merge (in hours)\"\nfrom\n  stime_metrics\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'tmet[[repogroup]]med'\norder by\n  time",
+          "dsType": "influxdb",
+          "groupBy": [],
           "refId": "A",
           "resultFormat": "time_series",
           "select": [
             [
               {
+                "type": "field",
                 "params": [
                   "value"
-                ],
-                "type": "field"
+                ]
               }
             ]
           ],
-          "tags": []
+          "orderByTime": "ASC",
+          "format": "time_series",
+          "rawQuery": true,
+          "tags": [],
+          "alias": "",
+          "policy": "default"
         }
       ],
-      "thresholds": [],
-      "timeFrom": null,
-      "timeShift": null,
-      "title": "Median time PRs from open to merge (Repository group [[repogroup_name]], [[period]])",
-      "tooltip": {
-        "shared": true,
-        "sort": 0,
-        "value_type": "individual"
+      "nullPointMode": "null",
+      "dashes": false,
+      "xaxis": {
+        "values": [
+          "avg"
+        ],
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true
       },
+      "seriesOverrides": [],
+      "decimals": 2,
+      "stack": true,
+      "tooltip": {
+        "sort": 0,
+        "value_type": "individual",
+        "shared": true
+      },
+      "legend": {
+        "avg": true,
+        "rightSide": false,
+        "max": true,
+        "total": false,
+        "values": true,
+        "alignAsTable": true,
+        "min": true,
+        "show": true,
+        "current": true
+      },
+      "points": false,
+      "id": 8,
+      "title": "Median time PRs from open to merge (Repository group [[repogroup_name]], [[period]])",
+      "steppedLine": false,
+      "fill": 1,
+      "aliasColors": {
+        
+      },
+      "bars": false,
+      "pointradius": 5,
+      "linewidth": 1,
+      "renderer": "flot",
+      "dashLength": 10,
+      "spaceLength": 10,
+      "timeShift": null,
+      "yaxes": [
+        {
+          "label": "",
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true,
+          "format": "h"
+        },
+        {
+          "label": "",
+          "logBase": 10,
+          "max": null,
+          "min": "0",
+          "show": true,
+          "format": "none"
+        }
+      ],
       "type": "graph",
+      "thresholds": [],
+      "yaxis": {
+        "alignLevel": null,
+        "align": false
+      },
+      "description": "Time from open to merge.",
+      "links": []
+    },
+    {
+      "percentage": false,
       "xaxis": {
         "buckets": null,
         "mode": "time",
@@ -118,81 +128,127 @@
           "avg"
         ]
       },
-      "yaxes": [
-        {
-          "format": "h",
-          "label": "",
-          "logBase": 1,
-          "max": null,
-          "min": "0",
-          "show": true
-        },
-        {
-          "format": "none",
-          "label": "",
-          "logBase": 10,
-          "max": null,
-          "min": "0",
-          "show": true
-        }
-      ],
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      }
-    },
-    {
-      "aliasColors": {},
       "bars": false,
-      "dashLength": 10,
-      "dashes": false,
-      "datasource": "psql",
-      "decimals": 2,
       "description": "Time from open to merge.",
-      "fill": 1,
-      "gridPos": {
-        "h": 13,
-        "w": 12,
-        "x": 12,
-        "y": 0
-      },
       "id": 9,
-      "legend": {
-        "alignAsTable": true,
-        "avg": true,
-        "current": true,
-        "max": true,
-        "min": true,
-        "rightSide": false,
-        "show": true,
-        "total": false,
-        "values": true
+      "type": "graph",
+      "gridPos": {
+        "x": 12,
+        "y": 0,
+        "h": 13,
+        "w": 12
       },
-      "lines": true,
-      "linewidth": 1,
-      "links": [],
-      "nullPointMode": "null",
-      "percentage": false,
-      "pointradius": 5,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [],
-      "spaceLength": 10,
-      "stack": true,
-      "steppedLine": false,
+      "thresholds": [],
+      "yaxis": {
+        "alignLevel": null,
+        "align": false
+      },
+      "fill": 1,
+      "timeFrom": null,
       "targets": [
         {
-          "alias": "",
+          "select": [
+            [
+              {
+                "type": "field",
+                "params": [
+                  "value"
+                ]
+              }
+            ]
+          ],
           "dsType": "influxdb",
+          "policy": "default",
+          "rawQuery": true,
+          "tags": [],
+          "rawSql": "select\n  time,\n  value as \"85th percentile time from open to merge (in hours)\"\nfrom\n  stime_metrics\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'tmet[[repogroup]]p85'\norder by\n  time",
+          "alias": "",
           "format": "time_series",
           "groupBy": [],
           "orderByTime": "ASC",
-          "policy": "default",
           "query": "SELECT \"value\" FROM \"time_metrics_[[repogroup]]_percentile_85_open_to_merge_[[period]]\" WHERE $timeFilter",
-          "rawQuery": true,
-          "rawSql": "select\n  time,\n  value as \"85th percentile time from open to merge (in hours)\"\nfrom\n  stime_metrics\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'tmet[[repogroup]]p85'\norder by\n  time",
           "refId": "A",
+          "resultFormat": "time_series"
+        }
+      ],
+      "nullPointMode": "null",
+      "aliasColors": {
+        
+      },
+      "decimals": 2,
+      "spaceLength": 10,
+      "yaxes": [
+        {
+          "label": "",
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true,
+          "format": "h"
+        },
+        {
+          "max": null,
+          "min": "0",
+          "show": true,
+          "format": "none",
+          "label": "",
+          "logBase": 10
+        }
+      ],
+      "tooltip": {
+        "value_type": "individual",
+        "shared": true,
+        "sort": 0
+      },
+      "legend": {
+        "show": true,
+        "alignAsTable": true,
+        "current": true,
+        "rightSide": false,
+        "max": true,
+        "total": false,
+        "avg": true,
+        "min": true,
+        "values": true
+      },
+      "timeShift": null,
+      "seriesOverrides": [],
+      "renderer": "flot",
+      "linewidth": 1,
+      "stack": true,
+      "points": false,
+      "datasource": "psql",
+      "title": "85th percentile time PRs from open to merge for (Repository group: [[repogroup_name]], [[period]])",
+      "steppedLine": false,
+      "dashes": false,
+      "links": [],
+      "pointradius": 5,
+      "lines": true,
+      "dashLength": 10
+    },
+    {
+      "targets": [
+        {
           "resultFormat": "time_series",
+          "format": "table",
+          "groupBy": [
+            {
+              "type": "time",
+              "params": [
+                "$__interval"
+              ]
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "refId": "A",
+          "tags": [],
+          "dsType": "influxdb",
+          "rawSql": "select\n  time as \"Time\",\n  descr as \"Median open to merge\"\nfrom\n  stime_metrics\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'tmet[[repogroup]]med'\norder by\n  time",
           "select": [
             [
               {
@@ -200,82 +256,85 @@
                   "value"
                 ],
                 "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
               }
             ]
           ],
-          "tags": []
-        }
-      ],
-      "thresholds": [],
-      "timeFrom": null,
-      "timeShift": null,
-      "title": "85th percentile time PRs from open to merge for (Repository group: [[repogroup_name]], [[period]])",
-      "tooltip": {
-        "shared": true,
-        "sort": 0,
-        "value_type": "individual"
-      },
-      "type": "graph",
-      "xaxis": {
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true,
-        "values": [
-          "avg"
-        ]
-      },
-      "yaxes": [
-        {
-          "format": "h",
-          "label": "",
-          "logBase": 1,
-          "max": null,
-          "min": "0",
-          "show": true
+          "alias": "",
+          "rawQuery": true,
+          "orderByTime": "ASC",
+          "query": "SELECT \"descr\" FROM \"time_metrics_[[repogroup]]_median_open_to_merge_[[period]]\" WHERE $timeFilter",
+          "policy": "default"
         },
         {
-          "format": "none",
-          "label": "",
-          "logBase": 10,
-          "max": null,
-          "min": "0",
-          "show": true
+          "dsType": "influxdb",
+          "select": [
+            [
+              {
+                "type": "field",
+                "params": [
+                  "value"
+                ]
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": [],
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "orderByTime": "ASC",
+          "query": "SELECT \"descr\" FROM \"time_metrics_[[repogroup]]_percentile_85_open_to_merge_[[period]]\" WHERE $timeFilter",
+          "rawSql": "select\n  time as \"Time\",\n  descr as \"85th percentile open to merge\"\nfrom\n  stime_metrics\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'tmet[[repogroup]]p85'\norder by\n  time",
+          "alias": "",
+          "resultFormat": "time_series",
+          "format": "table",
+          "policy": "default",
+          "rawQuery": true,
+          "refId": "D"
         }
       ],
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      }
-    },
-    {
-      "columns": [],
-      "datasource": "psql",
-      "description": "Time PRs from open to merge",
-      "fontSize": "80%",
+      "sort": {
+        "col": 0,
+        "desc": true
+      },
       "gridPos": {
         "h": 10,
         "w": 24,
         "x": 0,
         "y": 13
       },
-      "id": 10,
-      "links": [],
-      "pageSize": 10,
       "scroll": true,
-      "showHeader": true,
-      "sort": {
-        "col": 0,
-        "desc": true
-      },
+      "description": "Time PRs from open to merge",
+      "id": 10,
       "styles": [
         {
-          "alias": "Time",
-          "dateFormat": "MM/DD/YYYY",
           "pattern": "Time",
-          "type": "date"
+          "type": "date",
+          "alias": "Time",
+          "dateFormat": "MM/DD/YYYY"
         },
         {
+          "thresholds": [],
+          "type": "number",
+          "unit": "short",
           "alias": "",
           "colorMode": null,
           "colors": [
@@ -284,270 +343,74 @@
             "rgba(50, 172, 45, 0.97)"
           ],
           "decimals": 2,
-          "pattern": "/.*/",
-          "thresholds": [],
-          "type": "number",
-          "unit": "short"
+          "pattern": "/.*/"
         }
       ],
-      "targets": [
-        {
-          "alias": "",
-          "dsType": "influxdb",
-          "format": "table",
-          "groupBy": [
-            {
-              "params": [
-                "$__interval"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
-          "orderByTime": "ASC",
-          "policy": "default",
-          "query": "SELECT \"descr\" FROM \"time_metrics_[[repogroup]]_median_open_to_merge_[[period]]\" WHERE $timeFilter",
-          "rawQuery": true,
-          "rawSql": "select\n  time as \"Time\",\n  descr as \"Median open to merge\"\nfrom\n  stime_metrics\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'tmet[[repogroup]]med'\norder by\n  time",
-          "refId": "A",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": []
-        },
-        {
-          "alias": "",
-          "dsType": "influxdb",
-          "format": "table",
-          "groupBy": [
-            {
-              "params": [
-                "$__interval"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
-          "orderByTime": "ASC",
-          "policy": "default",
-          "query": "SELECT \"descr\" FROM \"time_metrics_[[repogroup]]_percentile_85_open_to_merge_[[period]]\" WHERE $timeFilter",
-          "rawQuery": true,
-          "rawSql": "select\n  time as \"Time\",\n  descr as \"85th percentile open to merge\"\nfrom\n  stime_metrics\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'tmet[[repogroup]]p85'\norder by\n  time",
-          "refId": "D",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": []
-        }
-      ],
-      "title": "Time PRs from open to merge (Repository group[[repogroup_name]], [[period]])",
+      "type": "table",
+      "links": [],
+      "columns": [],
+      "showHeader": true,
+      "fontSize": "80%",
+      "pageSize": 10,
+      "datasource": "psql",
       "transform": "table",
-      "type": "table"
+      "title": "Time PRs from open to merge (Repository group[[repogroup_name]], [[period]])"
     },
     {
+      "type": "text",
       "content": "${docs:raw}",
       "gridPos": {
-        "h": 9,
-        "w": 24,
         "x": 0,
-        "y": 23
+        "y": 23,
+        "h": 9,
+        "w": 24
       },
       "id": 11,
       "links": [],
       "mode": "html",
-      "title": "Dashboard documentation",
-      "type": "text"
+      "title": "Dashboard documentation"
     }
   ],
-  "schemaVersion": 16,
-  "style": "dark",
+  "title": "Time to Merge in Repository Groups",
+  "iteration": 1529593856834,
+  "links": [],
   "tags": [
     "dashboard",
     "jaeger"
   ],
-  "templating": {
+  "annotations": {
     "list": [
       {
-        "allValue": null,
-        "current": {
-          "tags": [],
-          "text": "7 Days MA",
-          "value": "d7"
-        },
-        "hide": 0,
-        "includeAll": false,
-        "label": "Period",
-        "multi": false,
-        "name": "period",
-        "options": [
-          {
-            "selected": false,
-            "text": "Day",
-            "value": "d"
-          },
-          {
-            "selected": true,
-            "text": "7 Days MA",
-            "value": "d7"
-          },
-          {
-            "selected": false,
-            "text": "Week",
-            "value": "w"
-          },
-          {
-            "selected": false,
-            "text": "Month",
-            "value": "m"
-          },
-          {
-            "selected": false,
-            "text": "Quarter",
-            "value": "q"
-          },
-          {
-            "selected": false,
-            "text": "Year",
-            "value": "y"
-          }
-        ],
-        "query": "d,w,m,q,y",
-        "skipUrlSync": false,
-        "type": "custom"
+        "name": "Annotations \u0026 Alerts",
+        "type": "dashboard",
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)"
       },
       {
-        "allValue": null,
-        "current": {
-          "text": "All",
-          "value": "All"
-        },
+        "tagsColumn": "title,description",
+        "titleColumn": "[[full_name]] release",
+        "iconColor": "rgba(255, 96, 96, 1)",
+        "name": "Releases",
+        "rawQuery": "select extract(epoch from time) AS time, title as text, description as tags from sannotations where $__timeFilter(time)",
+        "showIn": 0,
+        "enable": true,
+        "hide": false,
+        "textColumn": "",
+        "type": "alert",
         "datasource": "psql",
-        "hide": 0,
-        "includeAll": false,
-        "label": "Repository group",
-        "multi": false,
-        "name": "repogroup_name",
-        "options": [],
-        "query": "select all_repo_group_name from tall_repo_groups order by 1",
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": false,
-        "sort": 0,
-        "tagValuesQuery": "",
-        "tags": [],
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false
-      },
-      {
-        "allValue": null,
-        "current": {
-          "text": "all",
-          "value": "all"
-        },
-        "datasource": "psql",
-        "hide": 2,
-        "includeAll": false,
-        "label": "",
-        "multi": false,
-        "name": "repogroup",
-        "options": [],
-        "query": "select all_repo_group_value from tall_repo_groups where all_repo_group_name = '[[repogroup_name]]'",
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": true,
-        "sort": 0,
-        "tagValuesQuery": "",
-        "tags": [],
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false
-      },
-      {
-        "allValue": null,
-        "current": {
-          "text": "Prometheus",
-          "value": "Prometheus"
-        },
-        "datasource": "psql",
-        "hide": 2,
-        "includeAll": false,
-        "label": null,
-        "multi": false,
-        "name": "full_name",
-        "options": [],
-        "query": "select value_s from gha_vars where name = 'full_name'",
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": true,
-        "sort": 0,
-        "tagValuesQuery": "",
-        "tags": [],
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false
-      },
-      {
-        "allValue": null,
-        "current": {},
-        "datasource": "psql",
-        "hide": 2,
-        "includeAll": false,
-        "label": null,
-        "multi": false,
-        "name": "docs",
-        "options": [],
-        "query": "select value_s from gha_vars where name = 'time_metrics_docs_html'",
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": true,
-        "sort": 0,
-        "tagValuesQuery": "",
-        "tags": [],
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false
+        "limit": 100,
+        "query": "SELECT title, description from annotations WHERE $timeFilter order by time asc"
       }
     ]
   },
-  "time": {
-    "from": "now-1y",
-    "to": "now-1w"
-  },
+  "gnetId": null,
+  "schemaVersion": 16,
+  "style": "dark",
+  "editable": true,
+  "version": 2,
   "timepicker": {
     "refresh_intervals": [
       "5s",
@@ -573,8 +436,151 @@
       "30d"
     ]
   },
-  "timezone": "",
-  "title": "Time to Merge in Repository Groups",
-  "uid": "27",
-  "version": 2
+  "templating": {
+    "list": [
+      {
+        "name": "period",
+        "type": "custom",
+        "options": [
+          {
+            "selected": false,
+            "text": "Day",
+            "value": "d"
+          },
+          {
+            "selected": true,
+            "text": "7 Days MA",
+            "value": "d7"
+          },
+          {
+            "text": "Week",
+            "value": "w",
+            "selected": false
+          },
+          {
+            "selected": false,
+            "text": "Month",
+            "value": "m"
+          },
+          {
+            "selected": false,
+            "text": "Quarter",
+            "value": "q"
+          },
+          {
+            "selected": false,
+            "text": "Year",
+            "value": "y"
+          }
+        ],
+        "query": "d,w,m,q,y",
+        "includeAll": false,
+        "multi": false,
+        "skipUrlSync": false,
+        "allValue": null,
+        "current": {
+          "text": "7 Days MA",
+          "value": "d7",
+          "tags": []
+        },
+        "hide": 0,
+        "label": "Period"
+      },
+      {
+        "tagValuesQuery": "",
+        "type": "query",
+        "useTags": false,
+        "includeAll": false,
+        "tagsQuery": "",
+        "options": [],
+        "datasource": "psql",
+        "refresh": 1,
+        "current": {
+          "text": "All",
+          "value": "All"
+        },
+        "name": "repogroup_name",
+        "skipUrlSync": false,
+        "query": "select all_repo_group_name from tall_repo_groups order by 1",
+        "regex": "",
+        "sort": 0,
+        "tags": [],
+        "multi": false,
+        "allValue": null,
+        "hide": 0,
+        "label": "Repository group"
+      },
+      {
+        "datasource": "psql",
+        "options": [],
+        "sort": 0,
+        "includeAll": false,
+        "label": "",
+        "refresh": 1,
+        "allValue": null,
+        "skipUrlSync": true,
+        "multi": false,
+        "regex": "",
+        "tagValuesQuery": "",
+        "current": {
+          "text": "all",
+          "value": "all"
+        },
+        "hide": 2,
+        "tags": [],
+        "name": "repogroup",
+        "query": "select all_repo_group_value from tall_repo_groups where all_repo_group_name = '[[repogroup_name]]'",
+        "tagsQuery": "",
+        "useTags": false,
+        "type": "query"
+      },
+      {
+        "datasource": "psql",
+        "sort": 0,
+        "current": {
+          "text": "Prometheus",
+          "value": "Prometheus"
+        },
+        "options": [],
+        "multi": false,
+        "allValue": null,
+        "label": null,
+        "type": "query",
+        "tagValuesQuery": "",
+        "includeAll": false,
+        "refresh": 1,
+        "skipUrlSync": true,
+        "useTags": false,
+        "query": "select value_s from gha_vars where name = 'full_name'",
+        "regex": "",
+        "tags": [],
+        "name": "full_name",
+        "tagsQuery": "",
+        "hide": 2
+      },
+      {
+        "sort": 0,
+        "label": null,
+        "name": "docs",
+        "allValue": null,
+        "multi": false,
+        "datasource": "psql",
+        "type": "query",
+        "tags": [],
+        "tagsQuery": "",
+        "tagValuesQuery": "",
+        "useTags": false,
+        "regex": "",
+        "skipUrlSync": true,
+        "current": {
+          
+        },
+        "hide": 2,
+        "includeAll": false,
+        "refresh": 1,
+        "query": "select value_s from gha_vars where name = 'time_metrics_docs_html'",
+        "options": []
+      }
+    ]
+  }
 }

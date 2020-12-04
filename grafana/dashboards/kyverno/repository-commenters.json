@@ -1,35 +1,168 @@
 {
-  "annotations": {
+  "gnetId": null,
+  "links": [],
+  "timezone": "",
+  "time": {
+    "to": "now",
+    "from": "now-1y"
+  },
+  "style": "dark",
+  "title": "Repository Commenters",
+  "templating": {
     "list": [
       {
-        "iconColor": "rgba(0, 211, 255, 1)",
-        "name": "Annotations \u0026 Alerts",
-        "type": "dashboard",
-        "builtIn": 1,
-        "datasource": "-- Grafana --",
-        "enable": true,
-        "hide": true
+        "query": "d,d7,w,m,q,y",
+        "skipUrlSync": false,
+        "label": "Period",
+        "options": [
+          {
+            "text": "Day",
+            "value": "d",
+            "selected": false
+          },
+          {
+            "selected": true,
+            "text": "7 Days MA",
+            "value": "d7"
+          },
+          {
+            "value": "w",
+            "selected": false,
+            "text": "Week"
+          },
+          {
+            "value": "m",
+            "selected": false,
+            "text": "Month"
+          },
+          {
+            "selected": false,
+            "text": "Quarter",
+            "value": "q"
+          },
+          {
+            "value": "y",
+            "selected": false,
+            "text": "Year"
+          }
+        ],
+        "name": "period",
+        "type": "custom",
+        "hide": 0,
+        "allValue": null,
+        "current": {
+          "text": "7 Days MA",
+          "value": "d7",
+          "tags": []
+        },
+        "includeAll": false,
+        "multi": false
       },
       {
-        "tagsColumn": "title,description",
-        "showIn": 0,
-        "type": "alert",
-        "textColumn": "",
-        "name": "Releases",
-        "query": "SELECT title, description from annotations WHERE $timeFilter order by time asc",
-        "rawQuery": "select extract(epoch from time) AS time, title as text, description as tags from sannotations where $__timeFilter(time)",
-        "enable": true,
-        "iconColor": "rgba(255, 96, 96, 1)",
-        "titleColumn": "[[full_name]] release",
+        "multi": false,
+        "tagValuesQuery": "",
         "datasource": "psql",
-        "hide": false,
-        "limit": 100
+        "useTags": false,
+        "skipUrlSync": false,
+        "regex": "",
+        "includeAll": false,
+        "query": "select all_repo_group_name from tall_repo_groups order by 1",
+        "current": {
+          "text": "All",
+          "value": "All"
+        },
+        "hide": 0,
+        "sort": 0,
+        "name": "repogroup_name",
+        "options": [],
+        "label": "Repository group",
+        "refresh": 1,
+        "allValue": null,
+        "type": "query",
+        "tags": [],
+        "definition": "",
+        "tagsQuery": ""
+      },
+      {
+        "datasource": "psql",
+        "regex": "",
+        "options": [],
+        "sort": 0,
+        "useTags": false,
+        "label": "",
+        "refresh": 1,
+        "definition": "",
+        "current": {
+          "text": "all",
+          "value": "all"
+        },
+        "type": "query",
+        "allValue": null,
+        "hide": 2,
+        "name": "repogroup",
+        "includeAll": false,
+        "tagsQuery": "",
+        "skipUrlSync": true,
+        "query": "select all_repo_group_value from tall_repo_groups where all_repo_group_name = '[[repogroup_name]]'",
+        "tags": [],
+        "multi": false,
+        "tagValuesQuery": ""
+      },
+      {
+        "multi": false,
+        "options": [],
+        "name": "full_name",
+        "includeAll": false,
+        "refresh": 1,
+        "useTags": false,
+        "datasource": "psql",
+        "regex": "",
+        "tags": [],
+        "label": null,
+        "current": {
+          "value": "ChubaoFS",
+          "text": "ChubaoFS"
+        },
+        "tagValuesQuery": "",
+        "query": "select value_s from gha_vars where name = 'full_name'",
+        "hide": 2,
+        "sort": 0,
+        "skipUrlSync": true,
+        "tagsQuery": "",
+        "definition": "",
+        "type": "query",
+        "allValue": null
+      },
+      {
+        "datasource": "psql",
+        "regex": "",
+        "options": [],
+        "query": "select value_s from gha_vars where name = 'repo_commenters_docs_html'",
+        "useTags": false,
+        "skipUrlSync": true,
+        "label": null,
+        "sort": 0,
+        "refresh": 1,
+        "tagValuesQuery": "",
+        "definition": "",
+        "tags": [],
+        "tagsQuery": "",
+        "current": {
+          "value": "\u003ch1 id=\"dashboard-header\"\u003eChubaoFS repository commenters dashboard\u003c/h1\u003e\n\u003cp\u003eLinks:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003eMetric \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/repo_commenters.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eTSDB \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/metrics.yaml\" target=\"_blank\"\u003eseries definition\u003c/a\u003e. Search for \u003ccode\u003erepo_commenters\u003c/code\u003e\u003c/li\u003e\n\u003cli\u003eGrafana dashboard \u003ca href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/chubaofs/repository-commenters.json\" target=\"_blank\"\u003eJSON\u003c/a\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch1 id=\"description\"\u003eDescription\u003c/h1\u003e\n\u003cul\u003e\n\u003cli\u003eThis dashboard shows the number of unique commenters on a given repository group or all of them combined.\u003c/li\u003e\n\u003cli\u003eSelecting period (for example week) means that dashboard will show unique commenters in those periods.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/periods.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about periods.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/repository_groups.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about repository groups.\u003c/li\u003e\n\u003cli\u003eWe are skipping bots activity, see \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/excluding_bots.md\" target=\"_blank\"\u003eexcluding bots\u003c/a\u003e for details.\u003c/li\u003e\n\u003c/ul\u003e",
+          "text": "\u003ch1 id=\"dashboard-header\"\u003eChubaoFS repository commenters dashboard\u003c/h1\u003e\n\u003cp\u003eLinks:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003eMetric \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/repo_commenters.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eTSDB \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/metrics.yaml\" target=\"_blank\"\u003eseries definition\u003c/a\u003e. Search for \u003ccode\u003erepo_commenters\u003c/code\u003e\u003c/li\u003e\n\u003cli\u003eGrafana dashboard \u003ca href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/chubaofs/repository-commenters.json\" target=\"_blank\"\u003eJSON\u003c/a\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch1 id=\"description\"\u003eDescription\u003c/h1\u003e\n\u003cul\u003e\n\u003cli\u003eThis dashboard shows the number of unique commenters on a given repository group or all of them combined.\u003c/li\u003e\n\u003cli\u003eSelecting period (for example week) means that dashboard will show unique commenters in those periods.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/periods.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about periods.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/repository_groups.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about repository groups.\u003c/li\u003e\n\u003cli\u003eWe are skipping bots activity, see \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/excluding_bots.md\" target=\"_blank\"\u003eexcluding bots\u003c/a\u003e for details.\u003c/li\u003e\n\u003c/ul\u003e"
+        },
+        "type": "query",
+        "multi": false,
+        "hide": 2,
+        "includeAll": false,
+        "allValue": null,
+        "name": "docs"
       }
     ]
   },
-  "schemaVersion": 21,
-  "gnetId": null,
-  "links": [],
+  "iteration": 1586176689614,
+  "uid": "25",
+  "graphTooltip": 0,
   "timepicker": {
     "refresh_intervals": [
       "5s",
@@ -55,71 +188,45 @@
       "30d"
     ]
   },
-  "iteration": 1586176689614,
-  "graphTooltip": 0,
-  "style": "dark",
-  "time": {
-    "to": "now",
-    "from": "now-1y"
-  },
-  "timezone": "",
+  "version": 2,
+  "refresh": false,
+  "schemaVersion": 21,
   "panels": [
     {
-      "fillGradient": 0,
-      "renderer": "flot",
-      "xaxis": {
-        "show": true,
-        "values": [
-          "total"
-        ],
-        "buckets": null,
-        "mode": "time",
-        "name": null
-      },
-      "timeFrom": null,
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      },
+      "points": false,
       "decimals": 0,
+      "legend": {
+        "alignAsTable": true,
+        "max": true,
+        "avg": true,
+        "hideEmpty": false,
+        "values": true,
+        "current": true,
+        "hideZero": false,
+        "min": true,
+        "total": false,
+        "rightSide": false,
+        "show": true
+      },
+      "gridPos": {
+        "w": 24,
+        "x": 0,
+        "y": 0,
+        "h": 22
+      },
+      "type": "graph",
+      "seriesOverrides": [],
+      "spaceLength": 10,
       "steppedLine": false,
-      "targets": [
-        {
-          "refId": "A",
-          "hide": false,
-          "rawSql": "select\n  time,\n  value as \"Unique commenters\"\nfrom\n  srcommenters\nwhere\n  $__timeFilter(time)\n  and series = 'rcommenters[[repogroup]]'\n  and period = '[[period]]'\norder by\n  time",
-          "rawQuery": true,
-          "measurement": "reviewers_d",
-          "resultFormat": "time_series",
-          "groupBy": [],
-          "format": "time_series",
-          "query": "SELECT \"value\" FROM \"autogen\".\"repo_commenters_[[repogroup]]_[[period]][[aggregate]]\" WHERE $timeFilter",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              }
-            ]
-          ],
-          "orderByTime": "ASC",
-          "policy": "autogen",
-          "tags": [],
-          "alias": "",
-          "dsType": "influxdb"
-        }
-      ],
-      "timeRegions": [],
+      "lines": false,
       "yaxes": [
         {
+          "min": "0",
           "show": true,
           "format": "short",
           "label": "Unique commenters",
           "logBase": 1,
-          "max": null,
-          "min": "0"
+          "max": null
         },
         {
           "max": null,
@@ -130,70 +237,91 @@
           "logBase": 1
         }
       ],
-      "stack": false,
-      "gridPos": {
-        "h": 22,
-        "w": 24,
-        "x": 0,
-        "y": 0
-      },
-      "legend": {
-        "alignAsTable": true,
-        "current": true,
-        "hideZero": false,
-        "max": true,
-        "rightSide": false,
-        "total": false,
-        "avg": true,
-        "hideEmpty": false,
-        "min": true,
-        "show": true,
-        "values": true
-      },
-      "points": false,
-      "dashes": false,
-      "linewidth": 1,
-      "bars": true,
-      "aliasColors": {
-        
-      },
-      "thresholds": [],
-      "description": "Number of unique commenters.",
-      "links": [],
-      "title": "[[repogroup_name]] unique commenters ([[period]])",
-      "id": 1,
-      "timeShift": null,
-      "nullPointMode": "null",
-      "spaceLength": 10,
-      "lines": false,
-      "options": {
-        "dataLinks": []
-      },
-      "type": "graph",
-      "dashLength": 10,
+      "fill": 1,
       "tooltip": {
         "shared": false,
         "sort": 0,
         "value_type": "individual"
       },
-      "fill": 1,
-      "percentage": false,
+      "linewidth": 1,
+      "stack": false,
+      "fillGradient": 0,
+      "timeShift": null,
+      "targets": [
+        {
+          "orderByTime": "ASC",
+          "groupBy": [],
+          "dsType": "influxdb",
+          "refId": "A",
+          "rawSql": "select\n  time,\n  value as \"Unique commenters\"\nfrom\n  srcommenters\nwhere\n  $__timeFilter(time)\n  and series = 'rcommenters[[repogroup]]'\n  and period = '[[period]]'\norder by\n  time",
+          "measurement": "reviewers_d",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              }
+            ]
+          ],
+          "query": "SELECT \"value\" FROM \"autogen\".\"repo_commenters_[[repogroup]]_[[period]][[aggregate]]\" WHERE $timeFilter",
+          "hide": false,
+          "alias": "",
+          "rawQuery": true,
+          "tags": [],
+          "format": "time_series",
+          "policy": "autogen"
+        }
+      ],
+      "pointradius": 5,
+      "title": "[[repogroup_name]] unique commenters ([[period]])",
+      "id": 1,
+      "description": "Number of unique commenters.",
       "hiddenSeries": false,
-      "seriesOverrides": [],
       "datasource": "psql",
-      "pointradius": 5
+      "links": [],
+      "dashLength": 10,
+      "nullPointMode": "null",
+      "percentage": false,
+      "options": {
+        "dataLinks": []
+      },
+      "bars": true,
+      "renderer": "flot",
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "xaxis": {
+        "name": null,
+        "show": true,
+        "values": [
+          "total"
+        ],
+        "buckets": null,
+        "mode": "time"
+      },
+      "aliasColors": {
+        
+      },
+      "dashes": false,
+      "yaxis": {
+        "alignLevel": null,
+        "align": false
+      }
     },
     {
-      "content": "${docs:raw}",
       "links": [],
+      "mode": "html",
+      "title": "Dashboard documentation",
       "options": {
         
       },
-      "id": 11,
-      "title": "Dashboard documentation",
-      "mode": "html",
-      "type": "text",
       "datasource": null,
+      "content": "${docs:raw}",
+      "id": 11,
+      "type": "text",
       "gridPos": {
         "x": 0,
         "y": 22,
@@ -202,163 +330,35 @@
       }
     }
   ],
-  "version": 2,
-  "title": "Repository Commenters",
-  "refresh": false,
   "tags": [
     "dashboard",
     "kyverno"
   ],
-  "uid": "25",
-  "templating": {
+  "annotations": {
     "list": [
       {
-        "query": "d,d7,w,m,q,y",
-        "skipUrlSync": false,
-        "includeAll": false,
-        "type": "custom",
-        "hide": 0,
-        "label": "Period",
-        "multi": false,
-        "options": [
-          {
-            "selected": false,
-            "text": "Day",
-            "value": "d"
-          },
-          {
-            "text": "7 Days MA",
-            "value": "d7",
-            "selected": true
-          },
-          {
-            "selected": false,
-            "text": "Week",
-            "value": "w"
-          },
-          {
-            "value": "m",
-            "selected": false,
-            "text": "Month"
-          },
-          {
-            "value": "q",
-            "selected": false,
-            "text": "Quarter"
-          },
-          {
-            "text": "Year",
-            "value": "y",
-            "selected": false
-          }
-        ],
-        "allValue": null,
-        "current": {
-          "value": "d7",
-          "tags": [],
-          "text": "7 Days MA"
-        },
-        "name": "period"
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations \u0026 Alerts",
+        "type": "dashboard",
+        "builtIn": 1
       },
       {
-        "query": "select all_repo_group_name from tall_repo_groups order by 1",
-        "type": "query",
-        "tagValuesQuery": "",
-        "sort": 0,
-        "datasource": "psql",
-        "tags": [],
-        "name": "repogroup_name",
-        "options": [],
-        "multi": false,
-        "tagsQuery": "",
-        "includeAll": false,
-        "label": "Repository group",
-        "hide": 0,
-        "definition": "",
-        "skipUrlSync": false,
-        "regex": "",
-        "useTags": false,
-        "refresh": 1,
-        "allValue": null,
-        "current": {
-          "text": "All",
-          "value": "All"
-        }
-      },
-      {
-        "skipUrlSync": true,
-        "refresh": 1,
-        "type": "query",
-        "current": {
-          "text": "all",
-          "value": "all"
-        },
-        "query": "select all_repo_group_value from tall_repo_groups where all_repo_group_name = '[[repogroup_name]]'",
-        "hide": 2,
-        "multi": false,
-        "useTags": false,
-        "name": "repogroup",
-        "regex": "",
-        "definition": "",
-        "options": [],
-        "tagsQuery": "",
-        "label": "",
-        "allValue": null,
-        "sort": 0,
-        "includeAll": false,
-        "tags": [],
-        "datasource": "psql",
-        "tagValuesQuery": ""
-      },
-      {
-        "sort": 0,
-        "refresh": 1,
-        "useTags": false,
-        "includeAll": false,
-        "multi": false,
-        "options": [],
-        "definition": "",
-        "query": "select value_s from gha_vars where name = 'full_name'",
-        "type": "query",
-        "skipUrlSync": true,
-        "name": "full_name",
-        "current": {
-          "text": "ChubaoFS",
-          "value": "ChubaoFS"
-        },
-        "hide": 2,
-        "tags": [],
-        "label": null,
-        "tagsQuery": "",
-        "allValue": null,
-        "datasource": "psql",
-        "regex": "",
-        "tagValuesQuery": ""
-      },
-      {
-        "options": [],
-        "multi": false,
-        "label": null,
-        "useTags": false,
-        "name": "docs",
-        "skipUrlSync": true,
-        "current": {
-          "value": "\u003ch1 id=\"dashboard-header\"\u003eChubaoFS repository commenters dashboard\u003c/h1\u003e\n\u003cp\u003eLinks:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003eMetric \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/repo_commenters.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eTSDB \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/metrics.yaml\" target=\"_blank\"\u003eseries definition\u003c/a\u003e. Search for \u003ccode\u003erepo_commenters\u003c/code\u003e\u003c/li\u003e\n\u003cli\u003eGrafana dashboard \u003ca href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/chubaofs/repository-commenters.json\" target=\"_blank\"\u003eJSON\u003c/a\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch1 id=\"description\"\u003eDescription\u003c/h1\u003e\n\u003cul\u003e\n\u003cli\u003eThis dashboard shows the number of unique commenters on a given repository group or all of them combined.\u003c/li\u003e\n\u003cli\u003eSelecting period (for example week) means that dashboard will show unique commenters in those periods.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/periods.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about periods.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/repository_groups.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about repository groups.\u003c/li\u003e\n\u003cli\u003eWe are skipping bots activity, see \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/excluding_bots.md\" target=\"_blank\"\u003eexcluding bots\u003c/a\u003e for details.\u003c/li\u003e\n\u003c/ul\u003e",
-          "text": "\u003ch1 id=\"dashboard-header\"\u003eChubaoFS repository commenters dashboard\u003c/h1\u003e\n\u003cp\u003eLinks:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003eMetric \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/repo_commenters.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eTSDB \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/metrics.yaml\" target=\"_blank\"\u003eseries definition\u003c/a\u003e. Search for \u003ccode\u003erepo_commenters\u003c/code\u003e\u003c/li\u003e\n\u003cli\u003eGrafana dashboard \u003ca href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/chubaofs/repository-commenters.json\" target=\"_blank\"\u003eJSON\u003c/a\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch1 id=\"description\"\u003eDescription\u003c/h1\u003e\n\u003cul\u003e\n\u003cli\u003eThis dashboard shows the number of unique commenters on a given repository group or all of them combined.\u003c/li\u003e\n\u003cli\u003eSelecting period (for example week) means that dashboard will show unique commenters in those periods.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/periods.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about periods.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/repository_groups.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about repository groups.\u003c/li\u003e\n\u003cli\u003eWe are skipping bots activity, see \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/excluding_bots.md\" target=\"_blank\"\u003eexcluding bots\u003c/a\u003e for details.\u003c/li\u003e\n\u003c/ul\u003e"
-        },
-        "includeAll": false,
-        "tagsQuery": "",
-        "datasource": "psql",
-        "sort": 0,
-        "tagValuesQuery": "",
-        "definition": "",
-        "hide": 2,
-        "regex": "",
-        "tags": [],
-        "allValue": null,
-        "query": "select value_s from gha_vars where name = 'repo_commenters_docs_html'",
-        "refresh": 1,
-        "type": "query"
+        "hide": false,
+        "query": "SELECT title, description from annotations WHERE $timeFilter order by time asc",
+        "textColumn": "",
+        "iconColor": "rgba(255, 96, 96, 1)",
+        "titleColumn": "[[full_name]] release",
+        "tagsColumn": "title,description",
+        "showIn": 0,
+        "rawQuery": "select extract(epoch from time) AS time, title as text, description as tags from sannotations where $__timeFilter(time)",
+        "enable": true,
+        "limit": 100,
+        "type": "alert",
+        "name": "Releases",
+        "datasource": "psql"
       }
     ]
   },

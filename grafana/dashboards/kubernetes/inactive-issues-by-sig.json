@@ -1,440 +1,6 @@
 {
-  "annotations": {
-    "list": [
-      {
-        "builtIn": 1,
-        "datasource": "-- Grafana --",
-        "enable": true,
-        "hide": true,
-        "iconColor": "rgba(0, 211, 255, 1)",
-        "name": "Annotations \u0026 Alerts",
-        "type": "dashboard"
-      },
-      {
-        "datasource": "psql",
-        "enable": true,
-        "hide": false,
-        "iconColor": "rgba(255, 96, 96, 1)",
-        "limit": 100,
-        "name": "Releases",
-        "query": "SELECT title, description from annotations WHERE $timeFilter order by time asc",
-        "rawQuery": "select extract(epoch from time) AS time, title as text, description as tags from sannotations where $__timeFilter(time)",
-        "showIn": 0,
-        "tagsColumn": "title,description",
-        "textColumn": "",
-        "titleColumn": "[[full_name]] release",
-        "type": "alert"
-      }
-    ]
-  },
-  "editable": true,
-  "gnetId": null,
-  "graphTooltip": 0,
-  "id": 16,
-  "iteration": 1589369297161,
-  "links": [],
-  "panels": [
-    {
-      "aliasColors": {},
-      "bars": false,
-      "dashLength": 10,
-      "dashes": false,
-      "datasource": "psql",
-      "decimals": 0,
-      "description": "Issues by SIG that were inactive for 90 or more days at s given point in time",
-      "fill": 6,
-      "fillGradient": 0,
-      "gridPos": {
-        "h": 21,
-        "w": 24,
-        "x": 0,
-        "y": 0
-      },
-      "hiddenSeries": false,
-      "id": 12,
-      "interval": "",
-      "legend": {
-        "alignAsTable": true,
-        "avg": true,
-        "current": true,
-        "max": true,
-        "min": true,
-        "rightSide": true,
-        "show": true,
-        "sort": "avg",
-        "sortDesc": true,
-        "total": false,
-        "values": true
-      },
-      "lines": true,
-      "linewidth": 0,
-      "links": [],
-      "nullPointMode": "null as zero",
-      "options": {
-        "dataLinks": []
-      },
-      "percentage": false,
-      "pointradius": 5,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [],
-      "spaceLength": 10,
-      "stack": true,
-      "steppedLine": false,
-      "targets": [
-        {
-          "alias": "",
-          "dsType": "influxdb",
-          "format": "time_series",
-          "group": [],
-          "groupBy": [],
-          "measurement": "notused",
-          "metricColumn": "none",
-          "orderByTime": "ASC",
-          "policy": "default",
-          "query": "SELECT /^[[sigs]]$/ FROM \"sig_pr_workload_absolute_workload_d\" WHERE $timeFilter",
-          "rawQuery": true,
-          "rawSql": "select\n  time,\n  ${sigs:csv}\nfrom\n  sinactive_issues_by_sigd90\nwhere\n  $__timeFilter(time)\n  and period = 'd'\norder by\n  time",
-          "refId": "A",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              }
-            ]
-          ],
-          "tags": [],
-          "timeColumn": "time",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ]
-        }
-      ],
-      "thresholds": [],
-      "timeFrom": null,
-      "timeRegions": [],
-      "timeShift": null,
-      "title": "Inactive Issues by SIG (inactive for 90 days or more)",
-      "tooltip": {
-        "shared": true,
-        "sort": 2,
-        "value_type": "individual"
-      },
-      "transparent": true,
-      "type": "graph",
-      "xaxis": {
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true,
-        "values": []
-      },
-      "yaxes": [
-        {
-          "decimals": null,
-          "format": "short",
-          "label": "PRs",
-          "logBase": 1,
-          "max": null,
-          "min": "0",
-          "show": true
-        },
-        {
-          "format": "short",
-          "label": "",
-          "logBase": 1,
-          "max": null,
-          "min": "0",
-          "show": true
-        }
-      ],
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      }
-    },
-    {
-      "aliasColors": {},
-      "bars": false,
-      "dashLength": 10,
-      "dashes": false,
-      "datasource": "psql",
-      "decimals": 0,
-      "description": "Issues by SIG that were inactive for 30 or more days at s given point in time",
-      "fill": 6,
-      "fillGradient": 0,
-      "gridPos": {
-        "h": 21,
-        "w": 24,
-        "x": 0,
-        "y": 21
-      },
-      "hiddenSeries": false,
-      "id": 11,
-      "interval": "",
-      "legend": {
-        "alignAsTable": true,
-        "avg": true,
-        "current": true,
-        "max": true,
-        "min": true,
-        "rightSide": true,
-        "show": true,
-        "sort": "avg",
-        "sortDesc": true,
-        "total": false,
-        "values": true
-      },
-      "lines": true,
-      "linewidth": 0,
-      "links": [],
-      "nullPointMode": "null as zero",
-      "options": {
-        "dataLinks": []
-      },
-      "percentage": false,
-      "pointradius": 5,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [],
-      "spaceLength": 10,
-      "stack": true,
-      "steppedLine": false,
-      "targets": [
-        {
-          "alias": "",
-          "dsType": "influxdb",
-          "format": "time_series",
-          "group": [],
-          "groupBy": [],
-          "measurement": "notused",
-          "metricColumn": "none",
-          "orderByTime": "ASC",
-          "policy": "default",
-          "query": "SELECT /^[[sigs]]$/ FROM \"sig_pr_workload_absolute_workload_d\" WHERE $timeFilter",
-          "rawQuery": true,
-          "rawSql": "select\n  time,\n  ${sigs:csv}\nfrom\n  sinactive_issues_by_sigd30\nwhere\n  $__timeFilter(time)\n  and period = 'd'\norder by\n  time",
-          "refId": "A",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              }
-            ]
-          ],
-          "tags": [],
-          "timeColumn": "time",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ]
-        }
-      ],
-      "thresholds": [],
-      "timeFrom": null,
-      "timeRegions": [],
-      "timeShift": null,
-      "title": "Inactive Issues by SIG (inactive for 30 days or more)",
-      "tooltip": {
-        "shared": true,
-        "sort": 2,
-        "value_type": "individual"
-      },
-      "transparent": true,
-      "type": "graph",
-      "xaxis": {
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true,
-        "values": []
-      },
-      "yaxes": [
-        {
-          "decimals": null,
-          "format": "short",
-          "label": "PRs",
-          "logBase": 1,
-          "max": null,
-          "min": "0",
-          "show": true
-        },
-        {
-          "format": "short",
-          "label": "",
-          "logBase": 1,
-          "max": null,
-          "min": "0",
-          "show": true
-        }
-      ],
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      }
-    },
-    {
-      "aliasColors": {},
-      "bars": false,
-      "dashLength": 10,
-      "dashes": false,
-      "datasource": "psql",
-      "decimals": 0,
-      "description": "Issues by SIG that were inactive for 2 or more weeks at s given point in time",
-      "fill": 6,
-      "fillGradient": 0,
-      "gridPos": {
-        "h": 21,
-        "w": 24,
-        "x": 0,
-        "y": 42
-      },
-      "hiddenSeries": false,
-      "id": 2,
-      "interval": "",
-      "legend": {
-        "alignAsTable": true,
-        "avg": true,
-        "current": true,
-        "max": true,
-        "min": true,
-        "rightSide": true,
-        "show": true,
-        "sort": "avg",
-        "sortDesc": true,
-        "total": false,
-        "values": true
-      },
-      "lines": true,
-      "linewidth": 0,
-      "links": [],
-      "nullPointMode": "null as zero",
-      "options": {
-        "dataLinks": []
-      },
-      "percentage": false,
-      "pointradius": 5,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [],
-      "spaceLength": 10,
-      "stack": true,
-      "steppedLine": false,
-      "targets": [
-        {
-          "alias": "",
-          "dsType": "influxdb",
-          "format": "time_series",
-          "group": [],
-          "groupBy": [],
-          "measurement": "notused",
-          "metricColumn": "none",
-          "orderByTime": "ASC",
-          "policy": "default",
-          "query": "SELECT /^[[sigs]]$/ FROM \"sig_pr_workload_absolute_workload_d\" WHERE $timeFilter",
-          "rawQuery": true,
-          "rawSql": "select\n  time,\n  ${sigs:csv}\nfrom\n  sinactive_issues_by_sigw2\nwhere\n  $__timeFilter(time)\n  and period = 'd'\norder by\n  time",
-          "refId": "A",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              }
-            ]
-          ],
-          "tags": [],
-          "timeColumn": "time",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ]
-        }
-      ],
-      "thresholds": [],
-      "timeFrom": null,
-      "timeRegions": [],
-      "timeShift": null,
-      "title": "Inactive Issues by SIG (inactive for 2 weeks or more)",
-      "tooltip": {
-        "shared": true,
-        "sort": 2,
-        "value_type": "individual"
-      },
-      "transparent": true,
-      "type": "graph",
-      "xaxis": {
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true,
-        "values": []
-      },
-      "yaxes": [
-        {
-          "decimals": null,
-          "format": "short",
-          "label": "PRs",
-          "logBase": 1,
-          "max": null,
-          "min": "0",
-          "show": true
-        },
-        {
-          "format": "short",
-          "label": "",
-          "logBase": 1,
-          "max": null,
-          "min": "0",
-          "show": true
-        }
-      ],
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      }
-    },
-    {
-      "content": "${docs:raw}",
-      "datasource": null,
-      "gridPos": {
-        "h": 8,
-        "w": 24,
-        "x": 0,
-        "y": 63
-      },
-      "id": 10,
-      "links": [],
-      "mode": "html",
-      "options": {},
-      "title": "Dashboard documentation",
-      "type": "text"
-    }
-  ],
-  "refresh": false,
-  "schemaVersion": 21,
   "style": "dark",
+  "graphTooltip": 0,
   "tags": [
     "SIGs",
     "issues",
@@ -444,56 +10,56 @@
   "templating": {
     "list": [
       {
+        "refresh": 1,
+        "skipUrlSync": false,
+        "tagValuesQuery": "",
+        "tagsQuery": "",
         "allValue": "",
+        "tags": [],
+        "multi": true,
+        "hide": 0,
+        "regex": "",
+        "type": "query",
+        "useTags": false,
+        "definition": "",
+        "includeAll": true,
+        "options": [],
         "current": {
-          "text": "All",
           "value": [
             "$__all"
-          ]
+          ],
+          "text": "All"
         },
-        "datasource": "psql",
-        "definition": "",
-        "hide": 0,
-        "includeAll": true,
-        "label": "SIG",
-        "multi": true,
         "name": "sigs",
-        "options": [],
-        "query": "select '\"' || sig_mentions_labels_name || '\"' from tsig_mentions_labels order by 1",
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": false,
+        "datasource": "psql",
         "sort": 0,
-        "tagValuesQuery": "",
-        "tags": [],
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false
+        "label": "SIG",
+        "query": "select '\"' || sig_mentions_labels_name || '\"' from tsig_mentions_labels order by 1"
       },
       {
+        "refresh": 1,
+        "sort": 0,
+        "name": "full_name",
+        "regex": "",
+        "tagsQuery": "",
+        "datasource": "psql",
         "allValue": null,
+        "hide": 2,
+        "tags": [],
+        "multi": false,
+        "skipUrlSync": true,
+        "query": "select value_s from gha_vars where name = 'full_name'",
+        "includeAll": false,
+        "label": null,
+        "type": "query",
         "current": {
           "text": "Kubernetes",
           "value": "Kubernetes"
         },
-        "datasource": "psql",
         "definition": "",
-        "hide": 2,
-        "includeAll": false,
-        "label": null,
-        "multi": false,
-        "name": "full_name",
+        "useTags": false,
         "options": [],
-        "query": "select value_s from gha_vars where name = 'full_name'",
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": true,
-        "sort": 0,
-        "tagValuesQuery": "",
-        "tags": [],
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false
+        "tagValuesQuery": ""
       },
       {
         "allValue": null,
@@ -502,31 +68,38 @@
           "value": "\u003ch1 id=\"kubernetes-dashboard\"\u003eKubernetes Inactive issues by SIG dashboard\u003c/h1\u003e\n\u003cp\u003eLinks:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003eMetric \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/inactive_issues_by_sig.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eTSDB \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/metrics.yaml\" target=\"_blank\"\u003eseries definition\u003c/a\u003e. Search for \u003ccode\u003einactive_issues_by_sig\u003c/code\u003e\u003c/li\u003e\n\u003cli\u003eGrafana dashboard \u003ca href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/inactive-issues-by-sig.json\" target=\"_blank\"\u003eJSON\u003c/a\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch1 id=\"description\"\u003eDescription\u003c/h1\u003e\n\u003cul\u003e\n\u003cli\u003eThis dashboard shows the number of issues opened by SIG that were inactive for longer than 14, 30 and 90 days.\u003c/li\u003e\n\u003cli\u003eInactive means issues that are open and have no activity other than author and bots more than specified amount of time at given point in time, so for example data for 2 weeks ago show issues that were inactive for more than 14 days 2 weeks ago (now they may be inactive for 1 month or some activity happened earlier than 14 days ago).\u003c/li\u003e\n\u003cli\u003eIssues belongs to SIG by using \u003ccode\u003esig/*\u003c/code\u003e labels. List of SIGs to display in drop-down comes from all \u003ccode\u003esig/*\u003c/code\u003e labels.\u003c/li\u003e\n\u003c/ul\u003e"
         },
         "datasource": "psql",
-        "definition": "select value_s from gha_vars where name = 'inactive_issues_by_sig_docs_html'",
-        "hide": 2,
-        "includeAll": false,
-        "label": null,
-        "multi": false,
-        "name": "docs",
-        "options": [],
-        "query": "select value_s from gha_vars where name = 'inactive_issues_by_sig_docs_html'",
-        "refresh": 1,
         "regex": "",
-        "skipUrlSync": true,
-        "sort": 0,
-        "tagValuesQuery": "",
+        "includeAll": false,
+        "hide": 2,
+        "definition": "select value_s from gha_vars where name = 'inactive_issues_by_sig_docs_html'",
+        "name": "docs",
         "tags": [],
         "tagsQuery": "",
+        "tagValuesQuery": "",
+        "useTags": false,
+        "multi": false,
+        "options": [],
+        "refresh": 1,
+        "sort": 0,
+        "label": null,
+        "skipUrlSync": true,
         "type": "query",
-        "useTags": false
+        "query": "select value_s from gha_vars where name = 'inactive_issues_by_sig_docs_html'"
       }
     ]
   },
-  "time": {
-    "from": "now-2y",
-    "to": "now"
-  },
   "timepicker": {
+    "time_options": [
+      "5m",
+      "15m",
+      "1h",
+      "6h",
+      "12h",
+      "24h",
+      "2d",
+      "7d",
+      "30d"
+    ],
     "refresh_intervals": [
       "5s",
       "10s",
@@ -538,21 +111,456 @@
       "1h",
       "2h",
       "1d"
-    ],
-    "time_options": [
-      "5m",
-      "15m",
-      "1h",
-      "6h",
-      "12h",
-      "24h",
-      "2d",
-      "7d",
-      "30d"
     ]
   },
-  "timezone": "",
+  "editable": true,
+  "links": [],
+  "panels": [
+    {
+      "percentage": false,
+      "nullPointMode": "null as zero",
+      "links": [],
+      "aliasColors": {
+        
+      },
+      "spaceLength": 10,
+      "datasource": "psql",
+      "timeFrom": null,
+      "gridPos": {
+        "w": 24,
+        "x": 0,
+        "y": 0,
+        "h": 21
+      },
+      "seriesOverrides": [],
+      "thresholds": [],
+      "pointradius": 5,
+      "type": "graph",
+      "dashes": false,
+      "fill": 6,
+      "hiddenSeries": false,
+      "timeRegions": [],
+      "title": "Inactive Issues by SIG (inactive for 90 days or more)",
+      "legend": {
+        "sortDesc": true,
+        "total": false,
+        "min": true,
+        "rightSide": true,
+        "current": true,
+        "show": true,
+        "sort": "avg",
+        "avg": true,
+        "max": true,
+        "alignAsTable": true,
+        "values": true
+      },
+      "linewidth": 0,
+      "lines": true,
+      "timeShift": null,
+      "stack": true,
+      "id": 12,
+      "decimals": 0,
+      "interval": "",
+      "bars": false,
+      "fillGradient": 0,
+      "options": {
+        "dataLinks": []
+      },
+      "points": false,
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "targets": [
+        {
+          "format": "time_series",
+          "metricColumn": "none",
+          "groupBy": [],
+          "policy": "default",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              }
+            ]
+          ],
+          "rawSql": "select\n  time,\n  ${sigs:csv}\nfrom\n  sinactive_issues_by_sigd90\nwhere\n  $__timeFilter(time)\n  and period = 'd'\norder by\n  time",
+          "resultFormat": "time_series",
+          "timeColumn": "time",
+          "rawQuery": true,
+          "alias": "",
+          "dsType": "influxdb",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ],
+          "group": [],
+          "measurement": "notused",
+          "query": "SELECT /^[[sigs]]$/ FROM \"sig_pr_workload_absolute_workload_d\" WHERE $timeFilter",
+          "tags": [],
+          "orderByTime": "ASC",
+          "refId": "A"
+        }
+      ],
+      "dashLength": 10,
+      "description": "Issues by SIG that were inactive for 90 or more days at s given point in time",
+      "tooltip": {
+        "sort": 2,
+        "value_type": "individual",
+        "shared": true
+      },
+      "renderer": "flot",
+      "yaxes": [
+        {
+          "max": null,
+          "min": "0",
+          "show": true,
+          "decimals": null,
+          "format": "short",
+          "label": "PRs",
+          "logBase": 1
+        },
+        {
+          "min": "0",
+          "show": true,
+          "format": "short",
+          "label": "",
+          "logBase": 1,
+          "max": null
+        }
+      ],
+      "transparent": true,
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      },
+      "steppedLine": false
+    },
+    {
+      "id": 11,
+      "targets": [
+        {
+          "format": "time_series",
+          "resultFormat": "time_series",
+          "policy": "default",
+          "rawQuery": true,
+          "query": "SELECT /^[[sigs]]$/ FROM \"sig_pr_workload_absolute_workload_d\" WHERE $timeFilter",
+          "groupBy": [],
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ],
+          "orderByTime": "ASC",
+          "group": [],
+          "rawSql": "select\n  time,\n  ${sigs:csv}\nfrom\n  sinactive_issues_by_sigd30\nwhere\n  $__timeFilter(time)\n  and period = 'd'\norder by\n  time",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "dsType": "influxdb",
+          "metricColumn": "none",
+          "measurement": "notused",
+          "alias": "",
+          "refId": "A",
+          "tags": []
+        }
+      ],
+      "pointradius": 5,
+      "transparent": true,
+      "steppedLine": false,
+      "interval": "",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "label": "PRs",
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true,
+          "decimals": null,
+          "format": "short"
+        },
+        {
+          "max": null,
+          "min": "0",
+          "show": true,
+          "format": "short",
+          "label": "",
+          "logBase": 1
+        }
+      ],
+      "legend": {
+        "total": false,
+        "alignAsTable": true,
+        "current": true,
+        "max": true,
+        "avg": true,
+        "show": true,
+        "min": true,
+        "values": true,
+        "sort": "avg",
+        "sortDesc": true,
+        "rightSide": true
+      },
+      "hiddenSeries": false,
+      "linewidth": 0,
+      "spaceLength": 10,
+      "bars": false,
+      "fillGradient": 0,
+      "aliasColors": {
+        
+      },
+      "description": "Issues by SIG that were inactive for 30 or more days at s given point in time",
+      "dashes": false,
+      "datasource": "psql",
+      "timeRegions": [],
+      "title": "Inactive Issues by SIG (inactive for 30 days or more)",
+      "thresholds": [],
+      "percentage": false,
+      "stack": true,
+      "links": [],
+      "tooltip": {
+        "value_type": "individual",
+        "shared": true,
+        "sort": 2
+      },
+      "lines": true,
+      "nullPointMode": "null as zero",
+      "options": {
+        "dataLinks": []
+      },
+      "points": false,
+      "dashLength": 10,
+      "type": "graph",
+      "timeFrom": null,
+      "decimals": 0,
+      "seriesOverrides": [],
+      "renderer": "flot",
+      "gridPos": {
+        "h": 21,
+        "w": 24,
+        "x": 0,
+        "y": 21
+      },
+      "fill": 6,
+      "yaxis": {
+        "alignLevel": null,
+        "align": false
+      },
+      "timeShift": null
+    },
+    {
+      "decimals": 0,
+      "dashLength": 10,
+      "options": {
+        "dataLinks": []
+      },
+      "dashes": false,
+      "hiddenSeries": false,
+      "pointradius": 5,
+      "timeRegions": [],
+      "timeFrom": null,
+      "fillGradient": 0,
+      "steppedLine": false,
+      "nullPointMode": "null as zero",
+      "points": false,
+      "xaxis": {
+        "name": null,
+        "show": true,
+        "values": [],
+        "buckets": null,
+        "mode": "time"
+      },
+      "stack": true,
+      "links": [],
+      "tooltip": {
+        "shared": true,
+        "sort": 2,
+        "value_type": "individual"
+      },
+      "yaxes": [
+        {
+          "label": "PRs",
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true,
+          "decimals": null,
+          "format": "short"
+        },
+        {
+          "label": "",
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true,
+          "format": "short"
+        }
+      ],
+      "bars": false,
+      "title": "Inactive Issues by SIG (inactive for 2 weeks or more)",
+      "datasource": "psql",
+      "transparent": true,
+      "spaceLength": 10,
+      "thresholds": [],
+      "timeShift": null,
+      "type": "graph",
+      "linewidth": 0,
+      "percentage": false,
+      "id": 2,
+      "legend": {
+        "alignAsTable": true,
+        "sort": "avg",
+        "current": true,
+        "max": true,
+        "sortDesc": true,
+        "total": false,
+        "values": true,
+        "avg": true,
+        "min": true,
+        "rightSide": true,
+        "show": true
+      },
+      "seriesOverrides": [],
+      "targets": [
+        {
+          "format": "time_series",
+          "orderByTime": "ASC",
+          "query": "SELECT /^[[sigs]]$/ FROM \"sig_pr_workload_absolute_workload_d\" WHERE $timeFilter",
+          "metricColumn": "none",
+          "group": [],
+          "dsType": "influxdb",
+          "timeColumn": "time",
+          "resultFormat": "time_series",
+          "alias": "",
+          "refId": "A",
+          "where": [
+            {
+              "params": [],
+              "type": "macro",
+              "name": "$__timeFilter"
+            }
+          ],
+          "groupBy": [],
+          "rawQuery": true,
+          "rawSql": "select\n  time,\n  ${sigs:csv}\nfrom\n  sinactive_issues_by_sigw2\nwhere\n  $__timeFilter(time)\n  and period = 'd'\norder by\n  time",
+          "measurement": "notused",
+          "select": [
+            [
+              {
+                "type": "field",
+                "params": [
+                  "value"
+                ]
+              }
+            ]
+          ],
+          "tags": [],
+          "policy": "default"
+        }
+      ],
+      "aliasColors": {
+        
+      },
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      },
+      "interval": "",
+      "description": "Issues by SIG that were inactive for 2 or more weeks at s given point in time",
+      "fill": 6,
+      "lines": true,
+      "renderer": "flot",
+      "gridPos": {
+        "x": 0,
+        "y": 42,
+        "h": 21,
+        "w": 24
+      }
+    },
+    {
+      "content": "${docs:raw}",
+      "datasource": null,
+      "mode": "html",
+      "type": "text",
+      "links": [],
+      "options": {
+        
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 63
+      },
+      "id": 10,
+      "title": "Dashboard documentation"
+    }
+  ],
+  "schemaVersion": 21,
+  "gnetId": null,
   "title": "Inactive Issues by SIG",
+  "refresh": false,
+  "id": 16,
   "uid": "73",
-  "version": 4
+  "annotations": {
+    "list": [
+      {
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations \u0026 Alerts",
+        "type": "dashboard",
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true
+      },
+      {
+        "limit": 100,
+        "type": "alert",
+        "hide": false,
+        "enable": true,
+        "query": "SELECT title, description from annotations WHERE $timeFilter order by time asc",
+        "showIn": 0,
+        "textColumn": "",
+        "name": "Releases",
+        "iconColor": "rgba(255, 96, 96, 1)",
+        "datasource": "psql",
+        "rawQuery": "select extract(epoch from time) AS time, title as text, description as tags from sannotations where $__timeFilter(time)",
+        "tagsColumn": "title,description",
+        "titleColumn": "[[full_name]] release"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-2y",
+    "to": "now"
+  },
+  "version": 4,
+  "iteration": 1589369297161,
+  "timezone": ""
 }

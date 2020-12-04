@@ -1,95 +1,87 @@
 {
-  "annotations": {
-    "list": [
-      {
-        "builtIn": 1,
-        "datasource": "-- Grafana --",
-        "enable": true,
-        "hide": true,
-        "iconColor": "rgba(0, 211, 255, 1)",
-        "name": "Annotations \u0026 Alerts",
-        "type": "dashboard"
-      },
-      {
-        "datasource": "psql",
-        "enable": true,
-        "hide": false,
-        "iconColor": "rgba(255, 96, 96, 1)",
-        "limit": 100,
-        "name": "Releases",
-        "query": "SELECT title, description from annotations WHERE $timeFilter order by time asc",
-        "rawQuery": "select extract(epoch from time) AS time, title as text, description as tags from sannotations where $__timeFilter(time)",
-        "showIn": 0,
-        "tagsColumn": "title,description",
-        "textColumn": "",
-        "titleColumn": "[[full_name]] release",
-        "type": "alert"
-      }
-    ]
-  },
-  "editable": true,
-  "gnetId": null,
+  "timezone": "",
   "graphTooltip": 0,
-  "id": 121,
-  "iteration": 1547552832558,
+  "title": "PR Time to Engagment",
+  "tags": [
+    "dashboard",
+    "kubernetes",
+    "repogroups",
+    "PRs"
+  ],
+  "uid": "14",
+  "version": 16,
   "links": [],
+  "style": "dark",
   "panels": [
     {
-      "aliasColors": {},
-      "bars": false,
-      "dashLength": 10,
-      "dashes": false,
-      "datasource": "psql",
-      "decimals": 2,
-      "description": "Time before any comments or activities from someone other than the author",
-      "fill": 0,
-      "gridPos": {
-        "h": 13,
-        "w": 24,
-        "x": 0,
-        "y": 0
-      },
-      "id": 2,
+      "timeShift": null,
+      "linewidth": 1,
       "legend": {
-        "alignAsTable": true,
-        "avg": true,
+        "min": true,
+        "total": false,
         "current": true,
         "max": true,
-        "min": true,
+        "avg": true,
         "rightSide": false,
-        "show": true,
-        "total": false,
-        "values": true
+        "values": true,
+        "alignAsTable": true,
+        "show": true
+      },
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
       },
       "lines": true,
-      "linewidth": 1,
-      "links": [],
-      "nullPointMode": "null",
-      "percentage": false,
-      "pointradius": 5,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [
-        {
-          "alias": "15th percentile time opened to merged (in hours)"
-        }
-      ],
-      "spaceLength": 10,
-      "stack": false,
+      "gridPos": {
+        "y": 0,
+        "h": 13,
+        "w": 24,
+        "x": 0
+      },
+      "fill": 0,
       "steppedLine": false,
+      "percentage": false,
+      "dashLength": 10,
+      "type": "graph",
+      "aliasColors": {
+        
+      },
+      "spaceLength": 10,
+      "description": "Time before any comments or activities from someone other than the author",
+      "xaxis": {
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": [],
+        "buckets": null
+      },
       "targets": [
         {
-          "alias": "",
-          "dsType": "influxdb",
+          "tags": [],
           "format": "time_series",
+          "dsType": "influxdb",
           "groupBy": [],
-          "orderByTime": "ASC",
-          "policy": "default",
-          "query": "SELECT \"value\" FROM \"non_author_[[repogroup]]_percentile_85_[[period]]\" WHERE $timeFilter",
           "rawQuery": true,
+          "alias": "",
+          "orderByTime": "ASC",
+          "query": "SELECT \"value\" FROM \"non_author_[[repogroup]]_percentile_85_[[period]]\" WHERE $timeFilter",
           "rawSql": "select\n  time,\n  value as \"85th percentile time\"\nfrom\n  sfirst_non_author\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'non_auth[[repogroup]][[kind]]p85'\norder by\n  time",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              }
+            ]
+          ],
           "refId": "A",
           "resultFormat": "time_series",
+          "policy": "default"
+        },
+        {
           "select": [
             [
               {
@@ -100,42 +92,30 @@
               }
             ]
           ],
-          "tags": []
-        },
-        {
-          "alias": "",
-          "dsType": "influxdb",
-          "format": "time_series",
+          "tags": [],
           "groupBy": [],
-          "orderByTime": "ASC",
           "policy": "default",
-          "query": "SELECT \"value\" FROM \"non_author_[[repogroup]]_median_[[period]]\" WHERE $timeFilter",
           "rawQuery": true,
           "rawSql": "select\n  time,\n  value as \"Median time\"\nfrom\n  sfirst_non_author\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'non_auth[[repogroup]][[kind]]med'\norder by\n  time",
+          "format": "time_series",
+          "orderByTime": "ASC",
+          "dsType": "influxdb",
+          "query": "SELECT \"value\" FROM \"non_author_[[repogroup]]_median_[[period]]\" WHERE $timeFilter",
           "refId": "B",
           "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              }
-            ]
-          ],
-          "tags": []
+          "alias": ""
         },
         {
-          "alias": "",
           "dsType": "influxdb",
-          "format": "time_series",
-          "groupBy": [],
-          "orderByTime": "ASC",
           "policy": "default",
-          "query": "SELECT \"value\" FROM \"non_author_[[repogroup]]_percentile_15_[[period]]\" WHERE $timeFilter",
-          "rawQuery": true,
           "rawSql": "select\n  time,\n  value as \"15th percentile time\"\nfrom\n  sfirst_non_author\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'non_auth[[repogroup]][[kind]]p15'\norder by\n  time",
+          "alias": "",
+          "groupBy": [],
+          "query": "SELECT \"value\" FROM \"non_author_[[repogroup]]_percentile_15_[[period]]\" WHERE $timeFilter",
+          "format": "time_series",
+          "orderByTime": "ASC",
+          "tags": [],
+          "rawQuery": true,
           "refId": "C",
           "resultFormat": "time_series",
           "select": [
@@ -147,70 +127,54 @@
                 "type": "field"
               }
             ]
-          ],
-          "tags": []
+          ]
         }
       ],
-      "thresholds": [],
-      "timeFrom": null,
-      "timeShift": null,
-      "title": "Time before any comments or activities from someone other than the author (repo: [[repogroup_name]], kind: [[kind_name]], [[period]])",
-      "tooltip": {
-        "shared": true,
-        "sort": 0,
-        "value_type": "individual"
-      },
-      "type": "graph",
-      "xaxis": {
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true,
-        "values": []
-      },
+      "pointradius": 5,
       "yaxes": [
         {
-          "format": "h",
-          "label": "",
           "logBase": 2,
           "max": null,
           "min": "0",
-          "show": true
+          "show": true,
+          "format": "h",
+          "label": ""
         },
         {
-          "format": "short",
-          "label": "",
           "logBase": 1,
           "max": null,
           "min": "0",
-          "show": true
+          "show": true,
+          "format": "short",
+          "label": ""
         }
       ],
+      "timeFrom": null,
+      "thresholds": [],
+      "title": "Time before any comments or activities from someone other than the author (repo: [[repogroup_name]], kind: [[kind_name]], [[period]])",
+      "points": false,
+      "bars": false,
+      "decimals": 2,
       "yaxis": {
         "align": false,
         "alignLevel": null
-      }
+      },
+      "datasource": "psql",
+      "stack": false,
+      "dashes": false,
+      "links": [],
+      "id": 2,
+      "nullPointMode": "null",
+      "seriesOverrides": [
+        {
+          "alias": "15th percentile time opened to merged (in hours)"
+        }
+      ],
+      "renderer": "flot"
     },
     {
-      "columns": [],
       "datasource": "psql",
-      "description": "Time to first non-author activity",
-      "fontSize": "90%",
-      "gridPos": {
-        "h": 11,
-        "w": 24,
-        "x": 0,
-        "y": 13
-      },
-      "id": 3,
-      "links": [],
-      "pageSize": 10,
-      "scroll": true,
-      "showHeader": true,
-      "sort": {
-        "col": 0,
-        "desc": true
-      },
+      "title": "Time to first non-author activity (repo: [[repogroup]], kind: [[kind]], [[period]])",
       "styles": [
         {
           "alias": "Time",
@@ -219,6 +183,9 @@
           "type": "date"
         },
         {
+          "thresholds": [],
+          "type": "number",
+          "unit": "short",
           "alias": "",
           "colorMode": null,
           "colors": [
@@ -227,38 +194,21 @@
             "rgba(50, 172, 45, 0.97)"
           ],
           "decimals": 2,
-          "pattern": "/.*/",
-          "thresholds": [],
-          "type": "number",
-          "unit": "short"
+          "pattern": "/.*/"
         }
       ],
+      "type": "table",
+      "links": [],
+      "showHeader": true,
+      "transform": "table",
+      "id": 3,
+      "pageSize": 10,
       "targets": [
         {
-          "alias": "",
-          "dsType": "influxdb",
-          "format": "table",
-          "groupBy": [
-            {
-              "params": [
-                "$__interval"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
-          "orderByTime": "ASC",
-          "policy": "default",
-          "query": "SELECT \"descr\" FROM \"non_author_[[repogroup]]_percentile_15_[[period]]\" WHERE $timeFilter",
           "rawQuery": true,
+          "alias": "",
           "rawSql": "select\n  time as \"Time\",\n  descr as \"15th percentile\"\nfrom\n  sfirst_non_author\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'non_auth[[repogroup]][[kind]]p15'\norder by\n  time",
           "refId": "A",
-          "resultFormat": "time_series",
           "select": [
             [
               {
@@ -273,12 +223,8 @@
               }
             ]
           ],
-          "tags": []
-        },
-        {
-          "alias": "",
           "dsType": "influxdb",
-          "format": "table",
+          "query": "SELECT \"descr\" FROM \"non_author_[[repogroup]]_percentile_15_[[period]]\" WHERE $timeFilter",
           "groupBy": [
             {
               "params": [
@@ -293,12 +239,37 @@
               "type": "fill"
             }
           ],
+          "format": "table",
           "orderByTime": "ASC",
           "policy": "default",
+          "resultFormat": "time_series",
+          "tags": []
+        },
+        {
+          "orderByTime": "ASC",
+          "rawSql": "select\n  time as \"Time\",\n  descr as \"Median\"\nfrom\n  sfirst_non_author\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'non_auth[[repogroup]][[kind]]med'\norder by\n  time",
+          "tags": [],
+          "dsType": "influxdb",
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "alias": "",
           "query": "SELECT \"descr\" FROM \"non_author_[[repogroup]]_median_[[period]]\" WHERE $timeFilter",
           "rawQuery": true,
-          "rawSql": "select\n  time as \"Time\",\n  descr as \"Median\"\nfrom\n  sfirst_non_author\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'non_auth[[repogroup]][[kind]]med'\norder by\n  time",
           "refId": "B",
+          "format": "table",
+          "policy": "default",
           "resultFormat": "time_series",
           "select": [
             [
@@ -309,17 +280,35 @@
                 "type": "field"
               },
               {
-                "params": [],
-                "type": "mean"
+                "type": "mean",
+                "params": []
+              }
+            ]
+          ]
+        },
+        {
+          "rawQuery": true,
+          "rawSql": "select\n  time as \"Time\",\n  descr as \"85th percentile\"\nfrom\n  sfirst_non_author\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'non_auth[[repogroup]][[kind]]p85'\norder by\n  time",
+          "select": [
+            [
+              {
+                "type": "field",
+                "params": [
+                  "value"
+                ]
+              },
+              {
+                "type": "mean",
+                "params": []
               }
             ]
           ],
-          "tags": []
-        },
-        {
-          "alias": "",
-          "dsType": "influxdb",
           "format": "table",
+          "orderByTime": "ASC",
+          "query": "SELECT \"descr\" FROM \"non_author_[[repogroup]]_percentile_85_[[period]]\" WHERE $timeFilter",
+          "dsType": "influxdb",
+          "resultFormat": "time_series",
+          "tags": [],
           "groupBy": [
             {
               "params": [
@@ -334,253 +323,41 @@
               "type": "fill"
             }
           ],
-          "orderByTime": "ASC",
           "policy": "default",
-          "query": "SELECT \"descr\" FROM \"non_author_[[repogroup]]_percentile_85_[[period]]\" WHERE $timeFilter",
-          "rawQuery": true,
-          "rawSql": "select\n  time as \"Time\",\n  descr as \"85th percentile\"\nfrom\n  sfirst_non_author\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'non_auth[[repogroup]][[kind]]p85'\norder by\n  time",
           "refId": "C",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": []
+          "alias": ""
         }
       ],
-      "title": "Time to first non-author activity (repo: [[repogroup]], kind: [[kind]], [[period]])",
-      "transform": "table",
-      "type": "table"
+      "description": "Time to first non-author activity",
+      "scroll": true,
+      "columns": [],
+      "gridPos": {
+        "y": 13,
+        "h": 11,
+        "w": 24,
+        "x": 0
+      },
+      "fontSize": "90%",
+      "sort": {
+        "col": 0,
+        "desc": true
+      }
     },
     {
-      "content": "${docs:raw}",
-      "gridPos": {
-        "h": 9,
-        "w": 24,
-        "x": 0,
-        "y": 24
-      },
       "id": 5,
       "links": [],
       "mode": "html",
       "title": "Dashboard documentation",
-      "type": "text"
+      "type": "text",
+      "content": "${docs:raw}",
+      "gridPos": {
+        "y": 24,
+        "h": 9,
+        "w": 24,
+        "x": 0
+      }
     }
   ],
-  "schemaVersion": 16,
-  "style": "dark",
-  "tags": [
-    "dashboard",
-    "kubernetes",
-    "repogroups",
-    "PRs"
-  ],
-  "templating": {
-    "list": [
-      {
-        "allValue": null,
-        "current": {
-          "selected": true,
-          "text": "7 Days MA",
-          "value": "d7"
-        },
-        "hide": 0,
-        "includeAll": false,
-        "label": "Period",
-        "multi": false,
-        "name": "period",
-        "options": [
-          {
-            "selected": true,
-            "text": "7 Days MA",
-            "value": "d7"
-          },
-          {
-            "selected": false,
-            "text": "Week",
-            "value": "w"
-          },
-          {
-            "selected": false,
-            "text": "Month",
-            "value": "m"
-          },
-          {
-            "selected": false,
-            "text": "Quarter",
-            "value": "q"
-          },
-          {
-            "selected": false,
-            "text": "Year",
-            "value": "y"
-          }
-        ],
-        "query": "d7,w,m,q,y",
-        "skipUrlSync": false,
-        "type": "custom"
-      },
-      {
-        "allValue": null,
-        "current": {
-          "text": "All",
-          "value": "All"
-        },
-        "datasource": "psql",
-        "hide": 0,
-        "includeAll": false,
-        "label": "Repository group",
-        "multi": false,
-        "name": "repogroup_name",
-        "options": [],
-        "query": "select all_repo_group_name from tall_repo_groups order by 1",
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": false,
-        "sort": 0,
-        "tagValuesQuery": "",
-        "tags": [],
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false
-      },
-      {
-        "allValue": null,
-        "current": {
-          "text": "all",
-          "value": "all"
-        },
-        "datasource": "psql",
-        "hide": 2,
-        "includeAll": false,
-        "label": "",
-        "multi": false,
-        "name": "repogroup",
-        "options": [],
-        "query": "select all_repo_group_value from tall_repo_groups where all_repo_group_name = '[[repogroup_name]]'",
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": true,
-        "sort": 0,
-        "tagValuesQuery": "",
-        "tags": [],
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false
-      },
-      {
-        "allValue": null,
-        "current": {
-          "text": "Kubernetes",
-          "value": "Kubernetes"
-        },
-        "datasource": "psql",
-        "hide": 2,
-        "includeAll": false,
-        "label": null,
-        "multi": false,
-        "name": "full_name",
-        "options": [],
-        "query": "select value_s from gha_vars where name = 'full_name'",
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": true,
-        "sort": 0,
-        "tagValuesQuery": "",
-        "tags": [],
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false
-      },
-      {
-        "allValue": null,
-        "current": {
-          "text": "\u003ch1 id=\"kubernetes-dashboard\"\u003eKubernetes PR Time to Engagment dashboard\u003c/h1\u003e\n\u003cp\u003eLinks:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003eMetric \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/first_non_author_activity.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eTSDB \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/metrics.yaml\" target=\"_blank\"\u003eseries definition\u003c/a\u003e. Search for \u003ccode\u003efirst_non_author_activity\u003c/code\u003e\u003c/li\u003e\n\u003cli\u003eGrafana dashboard \u003ca href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/pr-time-to-engagment.json\" target=\"_blank\"\u003eJSON\u003c/a\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch1 id=\"description\"\u003eDescription\u003c/h1\u003e\n\u003cul\u003e\n\u003cli\u003eThis dashboard shows median, 15th and 85th percentices of time from creation to first non-author activity on issues and PRs created in given periods.\u003c/li\u003e\n\u003cli\u003eYou can select single repository group or summary for all of them.\u003c/li\u003e\n\u003cli\u003eYou can select PRs with a specific \u003ccode\u003ekind/\u003c/code\u003e label or summary for all of them.\u003c/li\u003e\n\u003cli\u003eSelecting period (for example week) means that dashboard will data for PRs and issues created in those periods.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/periods.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about periods.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/repository_groups.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about repository groups.\u003c/li\u003e\n\u003cli\u003eWe are skipping bots activity, see \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/excluding_bots.md\" target=\"_blank\"\u003eexcluding bots\u003c/a\u003e for details.\u003c/li\u003e\n\u003c/ul\u003e",
-          "value": "\u003ch1 id=\"kubernetes-dashboard\"\u003eKubernetes PR Time to Engagment dashboard\u003c/h1\u003e\n\u003cp\u003eLinks:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003eMetric \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/first_non_author_activity.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eTSDB \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/metrics.yaml\" target=\"_blank\"\u003eseries definition\u003c/a\u003e. Search for \u003ccode\u003efirst_non_author_activity\u003c/code\u003e\u003c/li\u003e\n\u003cli\u003eGrafana dashboard \u003ca href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/pr-time-to-engagment.json\" target=\"_blank\"\u003eJSON\u003c/a\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch1 id=\"description\"\u003eDescription\u003c/h1\u003e\n\u003cul\u003e\n\u003cli\u003eThis dashboard shows median, 15th and 85th percentices of time from creation to first non-author activity on issues and PRs created in given periods.\u003c/li\u003e\n\u003cli\u003eYou can select single repository group or summary for all of them.\u003c/li\u003e\n\u003cli\u003eYou can select PRs with a specific \u003ccode\u003ekind/\u003c/code\u003e label or summary for all of them.\u003c/li\u003e\n\u003cli\u003eSelecting period (for example week) means that dashboard will data for PRs and issues created in those periods.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/periods.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about periods.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/repository_groups.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about repository groups.\u003c/li\u003e\n\u003cli\u003eWe are skipping bots activity, see \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/excluding_bots.md\" target=\"_blank\"\u003eexcluding bots\u003c/a\u003e for details.\u003c/li\u003e\n\u003c/ul\u003e"
-        },
-        "datasource": "psql",
-        "hide": 2,
-        "includeAll": false,
-        "label": null,
-        "multi": false,
-        "name": "docs",
-        "options": [],
-        "query": "select value_s from gha_vars where name = 'pr_time_to_engagement_docs_html'",
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": true,
-        "sort": 0,
-        "tagValuesQuery": "",
-        "tags": [],
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false
-      },
-      {
-        "allValue": null,
-        "current": {
-          "tags": [],
-          "text": "All",
-          "value": "All"
-        },
-        "datasource": "psql",
-        "hide": 0,
-        "includeAll": false,
-        "label": "Kind",
-        "multi": false,
-        "name": "kind_name",
-        "options": [],
-        "query": "select sigm_lbl_kind_name_with_all from tsigm_lbl_kinds_with_all where sigm_lbl_kind_name_with_all in ('All', 'api-change', 'bug', 'feature', 'design', 'cleanup', 'documentation', 'flake', 'kep') order by 1;",
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": false,
-        "sort": 0,
-        "tagValuesQuery": "",
-        "tags": [],
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false
-      },
-      {
-        "allValue": null,
-        "current": {
-          "text": "all",
-          "value": "all"
-        },
-        "datasource": "psql",
-        "hide": 2,
-        "includeAll": false,
-        "label": "Kind",
-        "multi": false,
-        "name": "kind",
-        "options": [],
-        "query": "select sigm_lbl_kind_value_with_all from tsigm_lbl_kinds_with_all where sigm_lbl_kind_name_with_all = '[[kind_name]]'",
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": true,
-        "sort": 0,
-        "tagValuesQuery": "",
-        "tags": [],
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false
-      }
-    ]
-  },
-  "time": {
-    "from": "now-2y",
-    "to": "now-2w"
-  },
   "timepicker": {
     "refresh_intervals": [
       "5s",
@@ -606,8 +383,233 @@
       "30d"
     ]
   },
-  "timezone": "",
-  "title": "PR Time to Engagment",
-  "uid": "14",
-  "version": 16
+  "iteration": 1547552832558,
+  "time": {
+    "to": "now-2w",
+    "from": "now-2y"
+  },
+  "editable": true,
+  "templating": {
+    "list": [
+      {
+        "options": [
+          {
+            "value": "d7",
+            "selected": true,
+            "text": "7 Days MA"
+          },
+          {
+            "selected": false,
+            "text": "Week",
+            "value": "w"
+          },
+          {
+            "selected": false,
+            "text": "Month",
+            "value": "m"
+          },
+          {
+            "text": "Quarter",
+            "value": "q",
+            "selected": false
+          },
+          {
+            "text": "Year",
+            "value": "y",
+            "selected": false
+          }
+        ],
+        "allValue": null,
+        "includeAll": false,
+        "skipUrlSync": false,
+        "current": {
+          "text": "7 Days MA",
+          "value": "d7",
+          "selected": true
+        },
+        "hide": 0,
+        "type": "custom",
+        "label": "Period",
+        "multi": false,
+        "name": "period",
+        "query": "d7,w,m,q,y"
+      },
+      {
+        "multi": false,
+        "tagValuesQuery": "",
+        "includeAll": false,
+        "allValue": null,
+        "label": "Repository group",
+        "sort": 0,
+        "options": [],
+        "query": "select all_repo_group_name from tall_repo_groups order by 1",
+        "refresh": 1,
+        "skipUrlSync": false,
+        "tagsQuery": "",
+        "datasource": "psql",
+        "current": {
+          "text": "All",
+          "value": "All"
+        },
+        "regex": "",
+        "hide": 0,
+        "name": "repogroup_name",
+        "type": "query",
+        "useTags": false,
+        "tags": []
+      },
+      {
+        "datasource": "psql",
+        "regex": "",
+        "query": "select all_repo_group_value from tall_repo_groups where all_repo_group_name = '[[repogroup_name]]'",
+        "tagValuesQuery": "",
+        "multi": false,
+        "sort": 0,
+        "type": "query",
+        "name": "repogroup",
+        "options": [],
+        "refresh": 1,
+        "skipUrlSync": true,
+        "allValue": null,
+        "hide": 2,
+        "includeAll": false,
+        "tagsQuery": "",
+        "useTags": false,
+        "current": {
+          "value": "all",
+          "text": "all"
+        },
+        "label": "",
+        "tags": []
+      },
+      {
+        "datasource": "psql",
+        "name": "full_name",
+        "includeAll": false,
+        "label": null,
+        "refresh": 1,
+        "regex": "",
+        "type": "query",
+        "sort": 0,
+        "hide": 2,
+        "options": [],
+        "tags": [],
+        "multi": false,
+        "query": "select value_s from gha_vars where name = 'full_name'",
+        "tagsQuery": "",
+        "useTags": false,
+        "current": {
+          "text": "Kubernetes",
+          "value": "Kubernetes"
+        },
+        "skipUrlSync": true,
+        "tagValuesQuery": "",
+        "allValue": null
+      },
+      {
+        "tags": [],
+        "skipUrlSync": true,
+        "regex": "",
+        "allValue": null,
+        "tagValuesQuery": "",
+        "query": "select value_s from gha_vars where name = 'pr_time_to_engagement_docs_html'",
+        "useTags": false,
+        "hide": 2,
+        "multi": false,
+        "refresh": 1,
+        "type": "query",
+        "includeAll": false,
+        "name": "docs",
+        "label": null,
+        "tagsQuery": "",
+        "options": [],
+        "sort": 0,
+        "current": {
+          "text": "\u003ch1 id=\"kubernetes-dashboard\"\u003eKubernetes PR Time to Engagment dashboard\u003c/h1\u003e\n\u003cp\u003eLinks:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003eMetric \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/first_non_author_activity.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eTSDB \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/metrics.yaml\" target=\"_blank\"\u003eseries definition\u003c/a\u003e. Search for \u003ccode\u003efirst_non_author_activity\u003c/code\u003e\u003c/li\u003e\n\u003cli\u003eGrafana dashboard \u003ca href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/pr-time-to-engagment.json\" target=\"_blank\"\u003eJSON\u003c/a\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch1 id=\"description\"\u003eDescription\u003c/h1\u003e\n\u003cul\u003e\n\u003cli\u003eThis dashboard shows median, 15th and 85th percentices of time from creation to first non-author activity on issues and PRs created in given periods.\u003c/li\u003e\n\u003cli\u003eYou can select single repository group or summary for all of them.\u003c/li\u003e\n\u003cli\u003eYou can select PRs with a specific \u003ccode\u003ekind/\u003c/code\u003e label or summary for all of them.\u003c/li\u003e\n\u003cli\u003eSelecting period (for example week) means that dashboard will data for PRs and issues created in those periods.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/periods.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about periods.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/repository_groups.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about repository groups.\u003c/li\u003e\n\u003cli\u003eWe are skipping bots activity, see \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/excluding_bots.md\" target=\"_blank\"\u003eexcluding bots\u003c/a\u003e for details.\u003c/li\u003e\n\u003c/ul\u003e",
+          "value": "\u003ch1 id=\"kubernetes-dashboard\"\u003eKubernetes PR Time to Engagment dashboard\u003c/h1\u003e\n\u003cp\u003eLinks:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003eMetric \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/first_non_author_activity.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eTSDB \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/metrics.yaml\" target=\"_blank\"\u003eseries definition\u003c/a\u003e. Search for \u003ccode\u003efirst_non_author_activity\u003c/code\u003e\u003c/li\u003e\n\u003cli\u003eGrafana dashboard \u003ca href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/pr-time-to-engagment.json\" target=\"_blank\"\u003eJSON\u003c/a\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch1 id=\"description\"\u003eDescription\u003c/h1\u003e\n\u003cul\u003e\n\u003cli\u003eThis dashboard shows median, 15th and 85th percentices of time from creation to first non-author activity on issues and PRs created in given periods.\u003c/li\u003e\n\u003cli\u003eYou can select single repository group or summary for all of them.\u003c/li\u003e\n\u003cli\u003eYou can select PRs with a specific \u003ccode\u003ekind/\u003c/code\u003e label or summary for all of them.\u003c/li\u003e\n\u003cli\u003eSelecting period (for example week) means that dashboard will data for PRs and issues created in those periods.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/periods.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about periods.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/repository_groups.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about repository groups.\u003c/li\u003e\n\u003cli\u003eWe are skipping bots activity, see \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/excluding_bots.md\" target=\"_blank\"\u003eexcluding bots\u003c/a\u003e for details.\u003c/li\u003e\n\u003c/ul\u003e"
+        },
+        "datasource": "psql"
+      },
+      {
+        "tags": [],
+        "label": "Kind",
+        "skipUrlSync": false,
+        "query": "select sigm_lbl_kind_name_with_all from tsigm_lbl_kinds_with_all where sigm_lbl_kind_name_with_all in ('All', 'api-change', 'bug', 'feature', 'design', 'cleanup', 'documentation', 'flake', 'kep') order by 1;",
+        "useTags": false,
+        "current": {
+          "tags": [],
+          "text": "All",
+          "value": "All"
+        },
+        "hide": 0,
+        "includeAll": false,
+        "tagsQuery": "",
+        "allValue": null,
+        "regex": "",
+        "name": "kind_name",
+        "sort": 0,
+        "multi": false,
+        "datasource": "psql",
+        "options": [],
+        "tagValuesQuery": "",
+        "type": "query",
+        "refresh": 1
+      },
+      {
+        "includeAll": false,
+        "allValue": null,
+        "current": {
+          "value": "all",
+          "text": "all"
+        },
+        "type": "query",
+        "skipUrlSync": true,
+        "refresh": 1,
+        "name": "kind",
+        "query": "select sigm_lbl_kind_value_with_all from tsigm_lbl_kinds_with_all where sigm_lbl_kind_name_with_all = '[[kind_name]]'",
+        "useTags": false,
+        "regex": "",
+        "hide": 2,
+        "tagValuesQuery": "",
+        "tags": [],
+        "multi": false,
+        "sort": 0,
+        "datasource": "psql",
+        "label": "Kind",
+        "tagsQuery": "",
+        "options": []
+      }
+    ]
+  },
+  "gnetId": null,
+  "schemaVersion": 16,
+  "annotations": {
+    "list": [
+      {
+        "name": "Annotations \u0026 Alerts",
+        "type": "dashboard",
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)"
+      },
+      {
+        "name": "Releases",
+        "showIn": 0,
+        "textColumn": "",
+        "iconColor": "rgba(255, 96, 96, 1)",
+        "tagsColumn": "title,description",
+        "hide": false,
+        "query": "SELECT title, description from annotations WHERE $timeFilter order by time asc",
+        "rawQuery": "select extract(epoch from time) AS time, title as text, description as tags from sannotations where $__timeFilter(time)",
+        "titleColumn": "[[full_name]] release",
+        "datasource": "psql",
+        "enable": true,
+        "limit": 100,
+        "type": "alert"
+      }
+    ]
+  },
+  "id": 121
 }

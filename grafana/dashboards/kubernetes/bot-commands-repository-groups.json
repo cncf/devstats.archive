@@ -2,349 +2,165 @@
   "annotations": {
     "list": [
       {
-        "builtIn": 1,
         "datasource": "-- Grafana --",
         "enable": true,
         "hide": true,
         "iconColor": "rgba(0, 211, 255, 1)",
         "name": "Annotations \u0026 Alerts",
-        "type": "dashboard"
+        "type": "dashboard",
+        "builtIn": 1
       },
       {
-        "datasource": "psql",
-        "enable": true,
-        "hide": false,
-        "iconColor": "rgba(255, 96, 96, 1)",
         "limit": 100,
-        "name": "Releases",
         "query": "SELECT title, description from annotations WHERE $timeFilter order by time asc",
+        "textColumn": "",
+        "type": "alert",
         "rawQuery": "select extract(epoch from time) AS time, title as text, description as tags from sannotations where $__timeFilter(time)",
+        "enable": true,
+        "iconColor": "rgba(255, 96, 96, 1)",
         "showIn": 0,
         "tagsColumn": "title,description",
-        "textColumn": "",
-        "titleColumn": "[[full_name]] release",
-        "type": "alert"
+        "datasource": "psql",
+        "hide": false,
+        "name": "Releases",
+        "titleColumn": "[[full_name]] release"
       }
     ]
   },
-  "editable": true,
-  "gnetId": null,
-  "graphTooltip": 0,
-  "id": 129,
-  "links": [],
+  "uid": "5",
   "panels": [
     {
-      "aliasColors": {},
-      "bars": true,
-      "dashLength": 10,
-      "dashes": false,
-      "datasource": "psql",
-      "decimals": 0,
+      "id": 1,
       "description": "Shows how often various bot commands are used in [[repogroup_name]] repository group.",
+      "title": "Bot commands usage ([[repogroup_name]], [[period]])",
+      "spaceLength": 10,
+      "seriesOverrides": [],
+      "thresholds": [],
+      "targets": [
+        {
+          "orderByTime": "ASC",
+          "groupBy": [],
+          "resultFormat": "time_series",
+          "rawSql": "select\n  time,\n  ${commands:csv}\nfrom\n  sbot_commands\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'bot_cmds[[repogroup]]'\norder by\n  time",
+          "dsType": "influxdb",
+          "tags": [],
+          "format": "time_series",
+          "query": "SELECT /^[[commands]]$/ FROM \"bot_commands_[[repogroup]]_[[period]]\" WHERE $timeFilter",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "type": "field",
+                "params": [
+                  "value"
+                ]
+              }
+            ]
+          ],
+          "policy": "default",
+          "alias": "",
+          "rawQuery": true,
+          "measurement": "sig_federation_d"
+        }
+      ],
+      "tooltip": {
+        "sort": 2,
+        "value_type": "individual",
+        "shared": true
+      },
+      "decimals": 0,
+      "links": [],
+      "aliasColors": {
+        
+      },
+      "bars": true,
+      "percentage": false,
+      "lines": false,
+      "nullPointMode": "null as zero",
+      "dashes": false,
+      "timeShift": null,
+      "renderer": "flot",
       "fill": 1,
+      "pointradius": 5,
+      "xaxis": {
+        "name": null,
+        "show": true,
+        "values": [],
+        "buckets": null,
+        "mode": "time"
+      },
+      "dashLength": 10,
+      "transparent": true,
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      },
+      "type": "graph",
+      "legend": {
+        "current": true,
+        "hideEmpty": false,
+        "hideZero": false,
+        "max": true,
+        "min": true,
+        "sortDesc": true,
+        "values": true,
+        "avg": true,
+        "rightSide": true,
+        "alignAsTable": true,
+        "sort": "avg",
+        "total": true,
+        "show": true
+      },
+      "points": false,
+      "linewidth": 1,
+      "steppedLine": false,
+      "datasource": "psql",
+      "stack": true,
       "gridPos": {
         "h": 22,
         "w": 24,
         "x": 0,
         "y": 0
       },
-      "id": 1,
-      "legend": {
-        "alignAsTable": true,
-        "avg": true,
-        "current": true,
-        "hideEmpty": false,
-        "hideZero": false,
-        "max": true,
-        "min": true,
-        "rightSide": true,
-        "show": true,
-        "sort": "avg",
-        "sortDesc": true,
-        "total": true,
-        "values": true
-      },
-      "lines": false,
-      "linewidth": 1,
-      "links": [],
-      "nullPointMode": "null as zero",
-      "percentage": false,
-      "pointradius": 5,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [],
-      "spaceLength": 10,
-      "stack": true,
-      "steppedLine": false,
-      "targets": [
-        {
-          "alias": "",
-          "dsType": "influxdb",
-          "format": "time_series",
-          "groupBy": [],
-          "measurement": "sig_federation_d",
-          "orderByTime": "ASC",
-          "policy": "default",
-          "query": "SELECT /^[[commands]]$/ FROM \"bot_commands_[[repogroup]]_[[period]]\" WHERE $timeFilter",
-          "rawQuery": true,
-          "rawSql": "select\n  time,\n  ${commands:csv}\nfrom\n  sbot_commands\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'bot_cmds[[repogroup]]'\norder by\n  time",
-          "refId": "A",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              }
-            ]
-          ],
-          "tags": []
-        }
-      ],
-      "thresholds": [],
       "timeFrom": null,
-      "timeShift": null,
-      "title": "Bot commands usage ([[repogroup_name]], [[period]])",
-      "tooltip": {
-        "shared": true,
-        "sort": 2,
-        "value_type": "individual"
-      },
-      "transparent": true,
-      "type": "graph",
-      "xaxis": {
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true,
-        "values": []
-      },
       "yaxes": [
         {
-          "format": "short",
-          "label": "Commands usage",
-          "logBase": 1,
           "max": null,
           "min": "0",
-          "show": true
+          "show": true,
+          "format": "short",
+          "label": "Commands usage",
+          "logBase": 1
         },
         {
+          "show": true,
           "format": "short",
           "label": "",
           "logBase": 1,
           "max": null,
-          "min": "0",
-          "show": true
+          "min": "0"
         }
-      ],
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      }
+      ]
     },
     {
-      "content": "${docs:raw}",
-      "gridPos": {
-        "h": 10,
-        "w": 24,
-        "x": 0,
-        "y": 22
-      },
-      "id": 2,
-      "links": [],
       "mode": "html",
       "title": "Dashboard documentation",
-      "type": "text"
+      "type": "text",
+      "content": "${docs:raw}",
+      "gridPos": {
+        "y": 22,
+        "h": 10,
+        "w": 24,
+        "x": 0
+      },
+      "id": 2,
+      "links": []
     }
   ],
-  "schemaVersion": 16,
+  "graphTooltip": 0,
   "style": "dark",
-  "tags": [
-    "dashboard",
-    "kubernetes",
-    "repogroups"
-  ],
-  "templating": {
-    "list": [
-      {
-        "allValue": null,
-        "current": {
-          "selected": false,
-          "tags": [],
-          "text": "7 days MA",
-          "value": "d7"
-        },
-        "hide": 0,
-        "includeAll": false,
-        "label": "Period",
-        "multi": false,
-        "name": "period",
-        "options": [
-          {
-            "selected": false,
-            "text": "Day",
-            "value": "d"
-          },
-          {
-            "selected": true,
-            "text": "7 days MA",
-            "value": "d7"
-          },
-          {
-            "selected": false,
-            "text": "Week",
-            "value": "w"
-          },
-          {
-            "selected": false,
-            "text": "Month",
-            "value": "m"
-          },
-          {
-            "selected": false,
-            "text": "Quarter",
-            "value": "q"
-          },
-          {
-            "selected": false,
-            "text": "Year",
-            "value": "y"
-          }
-        ],
-        "query": "d,w,m,q,y",
-        "skipUrlSync": false,
-        "type": "custom"
-      },
-      {
-        "allValue": null,
-        "current": {
-          "text": "All",
-          "value": "All"
-        },
-        "datasource": "psql",
-        "hide": 0,
-        "includeAll": false,
-        "label": "Repository group",
-        "multi": false,
-        "name": "repogroup_name",
-        "options": [],
-        "query": "select all_repo_group_name from tall_repo_groups order by 1",
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": false,
-        "sort": 0,
-        "tagValuesQuery": "",
-        "tags": [],
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false
-      },
-      {
-        "allValue": null,
-        "current": {
-          "text": "all",
-          "value": "all"
-        },
-        "datasource": "psql",
-        "hide": 2,
-        "includeAll": false,
-        "label": "",
-        "multi": false,
-        "name": "repogroup",
-        "options": [],
-        "query": "select all_repo_group_value from tall_repo_groups where all_repo_group_name = '[[repogroup_name]]'",
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": true,
-        "sort": 0,
-        "tagValuesQuery": "",
-        "tags": [],
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false
-      },
-      {
-        "allValue": "",
-        "current": {
-          "text": "All",
-          "value": [
-            "$__all"
-          ]
-        },
-        "datasource": "psql",
-        "hide": 0,
-        "includeAll": true,
-        "label": "Commands",
-        "multi": true,
-        "name": "commands",
-        "options": [],
-        "query": "select '\"' || bot_command_name || '\"' from tbot_commands order by 1",
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": false,
-        "sort": 0,
-        "tagValuesQuery": "",
-        "tags": [],
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false
-      },
-      {
-        "allValue": null,
-        "current": {
-          "text": "Kubernetes",
-          "value": "Kubernetes"
-        },
-        "datasource": "psql",
-        "hide": 2,
-        "includeAll": false,
-        "label": null,
-        "multi": false,
-        "name": "full_name",
-        "options": [],
-        "query": "select value_s from gha_vars where name = 'full_name'",
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": true,
-        "sort": 0,
-        "tagValuesQuery": "",
-        "tags": [],
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false
-      },
-      {
-        "allValue": null,
-        "current": {
-          "text": "\u003ch1 id=\"kubernetes-dashboard\"\u003eKubernetes Bot commands repository group dashboard\u003c/h1\u003e\n\u003cp\u003eLinks:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003eMetric \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/bot_commands.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eTSDB \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/metrics.yaml\" target=\"_blank\"\u003eseries definition\u003c/a\u003e. Search for \u003ccode\u003ebot_commands\u003c/code\u003e\u003c/li\u003e\n\u003cli\u003eGrafana dashboard \u003ca href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/bot-commands-repository-groups.json\" target=\"_blank\"\u003eJSON\u003c/a\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch1 id=\"description\"\u003eDescription\u003c/h1\u003e\n\u003cul\u003e\n\u003cli\u003eThis dashboard shows how many times given bot commands were used\u003c/li\u003e\n\u003cli\u003eBot commands set is defined (hardcoded) in the metric sql, they start with \u003ccode\u003e/\u003c/code\u003e.\u003c/li\u003e\n\u003cli\u003eDrop-down commands values come from \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/bot_commands_tags.sql\" target=\"_blank\"\u003ethis\u003c/a\u003e file. You can select either all or a subset of all commands to display.\u003c/li\u003e\n\u003cli\u003eYou can select single repository group or summary for all of them.\u003c/li\u003e\n\u003cli\u003eSelecting period (for example week) means that dashboard will show bot commands used in those periods.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/periods.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about periods.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/repository_groups.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about repository groups.\u003c/li\u003e\n\u003cli\u003eWe are skipping bots when displaying bots commands usage, see \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/excluding_bots.md\" target=\"_blank\"\u003eexcluding bots\u003c/a\u003e for details.\u003c/li\u003e\n\u003cli\u003eThis means that, for example, if somebody uses wrong/non-existing bot command, bot will answer with correct usage, so it will put bot command in the comment. This activity is ignored.\u003c/li\u003e\n\u003c/ul\u003e",
-          "value": "\u003ch1 id=\"kubernetes-dashboard\"\u003eKubernetes Bot commands repository group dashboard\u003c/h1\u003e\n\u003cp\u003eLinks:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003eMetric \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/bot_commands.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eTSDB \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/metrics.yaml\" target=\"_blank\"\u003eseries definition\u003c/a\u003e. Search for \u003ccode\u003ebot_commands\u003c/code\u003e\u003c/li\u003e\n\u003cli\u003eGrafana dashboard \u003ca href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/bot-commands-repository-groups.json\" target=\"_blank\"\u003eJSON\u003c/a\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch1 id=\"description\"\u003eDescription\u003c/h1\u003e\n\u003cul\u003e\n\u003cli\u003eThis dashboard shows how many times given bot commands were used\u003c/li\u003e\n\u003cli\u003eBot commands set is defined (hardcoded) in the metric sql, they start with \u003ccode\u003e/\u003c/code\u003e.\u003c/li\u003e\n\u003cli\u003eDrop-down commands values come from \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/bot_commands_tags.sql\" target=\"_blank\"\u003ethis\u003c/a\u003e file. You can select either all or a subset of all commands to display.\u003c/li\u003e\n\u003cli\u003eYou can select single repository group or summary for all of them.\u003c/li\u003e\n\u003cli\u003eSelecting period (for example week) means that dashboard will show bot commands used in those periods.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/periods.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about periods.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/repository_groups.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about repository groups.\u003c/li\u003e\n\u003cli\u003eWe are skipping bots when displaying bots commands usage, see \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/excluding_bots.md\" target=\"_blank\"\u003eexcluding bots\u003c/a\u003e for details.\u003c/li\u003e\n\u003cli\u003eThis means that, for example, if somebody uses wrong/non-existing bot command, bot will answer with correct usage, so it will put bot command in the comment. This activity is ignored.\u003c/li\u003e\n\u003c/ul\u003e"
-        },
-        "datasource": "psql",
-        "hide": 2,
-        "includeAll": false,
-        "label": null,
-        "multi": false,
-        "name": "docs",
-        "options": [],
-        "query": "select value_s from gha_vars where name = 'bot_commands_docs_html'",
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": true,
-        "sort": 0,
-        "tagValuesQuery": "",
-        "tags": [],
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false
-      }
-    ]
-  },
-  "time": {
-    "from": "now-1y",
-    "to": "now"
-  },
+  "timezone": "",
+  "editable": true,
   "timepicker": {
     "refresh_intervals": [
       "5s",
@@ -370,8 +186,194 @@
       "30d"
     ]
   },
-  "timezone": "",
+  "links": [],
+  "time": {
+    "from": "now-1y",
+    "to": "now"
+  },
+  "templating": {
+    "list": [
+      {
+        "name": "period",
+        "query": "d,w,m,q,y",
+        "includeAll": false,
+        "options": [
+          {
+            "text": "Day",
+            "value": "d",
+            "selected": false
+          },
+          {
+            "selected": true,
+            "text": "7 days MA",
+            "value": "d7"
+          },
+          {
+            "selected": false,
+            "text": "Week",
+            "value": "w"
+          },
+          {
+            "value": "m",
+            "selected": false,
+            "text": "Month"
+          },
+          {
+            "text": "Quarter",
+            "value": "q",
+            "selected": false
+          },
+          {
+            "selected": false,
+            "text": "Year",
+            "value": "y"
+          }
+        ],
+        "allValue": null,
+        "hide": 0,
+        "multi": false,
+        "skipUrlSync": false,
+        "type": "custom",
+        "current": {
+          "selected": false,
+          "tags": [],
+          "text": "7 days MA",
+          "value": "d7"
+        },
+        "label": "Period"
+      },
+      {
+        "sort": 0,
+        "tags": [],
+        "multi": false,
+        "current": {
+          "value": "All",
+          "text": "All"
+        },
+        "hide": 0,
+        "tagsQuery": "",
+        "options": [],
+        "allValue": null,
+        "label": "Repository group",
+        "name": "repogroup_name",
+        "skipUrlSync": false,
+        "includeAll": false,
+        "regex": "",
+        "useTags": false,
+        "type": "query",
+        "query": "select all_repo_group_name from tall_repo_groups order by 1",
+        "tagValuesQuery": "",
+        "datasource": "psql",
+        "refresh": 1
+      },
+      {
+        "tags": [],
+        "hide": 2,
+        "options": [],
+        "label": "",
+        "datasource": "psql",
+        "query": "select all_repo_group_value from tall_repo_groups where all_repo_group_name = '[[repogroup_name]]'",
+        "allValue": null,
+        "current": {
+          "text": "all",
+          "value": "all"
+        },
+        "includeAll": false,
+        "refresh": 1,
+        "type": "query",
+        "useTags": false,
+        "tagsQuery": "",
+        "multi": false,
+        "sort": 0,
+        "name": "repogroup",
+        "regex": "",
+        "skipUrlSync": true,
+        "tagValuesQuery": ""
+      },
+      {
+        "hide": 0,
+        "useTags": false,
+        "query": "select '\"' || bot_command_name || '\"' from tbot_commands order by 1",
+        "label": "Commands",
+        "name": "commands",
+        "tagsQuery": "",
+        "current": {
+          "text": "All",
+          "value": [
+            "$__all"
+          ]
+        },
+        "multi": true,
+        "includeAll": true,
+        "sort": 0,
+        "datasource": "psql",
+        "refresh": 1,
+        "options": [],
+        "regex": "",
+        "tags": [],
+        "skipUrlSync": false,
+        "tagValuesQuery": "",
+        "allValue": "",
+        "type": "query"
+      },
+      {
+        "tags": [],
+        "regex": "",
+        "label": null,
+        "current": {
+          "text": "Kubernetes",
+          "value": "Kubernetes"
+        },
+        "hide": 2,
+        "name": "full_name",
+        "datasource": "psql",
+        "includeAll": false,
+        "allValue": null,
+        "query": "select value_s from gha_vars where name = 'full_name'",
+        "refresh": 1,
+        "skipUrlSync": true,
+        "options": [],
+        "sort": 0,
+        "multi": false,
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false,
+        "tagValuesQuery": ""
+      },
+      {
+        "allValue": null,
+        "options": [],
+        "query": "select value_s from gha_vars where name = 'bot_commands_docs_html'",
+        "refresh": 1,
+        "regex": "",
+        "label": null,
+        "multi": false,
+        "skipUrlSync": true,
+        "type": "query",
+        "tags": [],
+        "tagsQuery": "",
+        "hide": 2,
+        "tagValuesQuery": "",
+        "current": {
+          "text": "\u003ch1 id=\"kubernetes-dashboard\"\u003eKubernetes Bot commands repository group dashboard\u003c/h1\u003e\n\u003cp\u003eLinks:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003eMetric \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/bot_commands.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eTSDB \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/metrics.yaml\" target=\"_blank\"\u003eseries definition\u003c/a\u003e. Search for \u003ccode\u003ebot_commands\u003c/code\u003e\u003c/li\u003e\n\u003cli\u003eGrafana dashboard \u003ca href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/bot-commands-repository-groups.json\" target=\"_blank\"\u003eJSON\u003c/a\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch1 id=\"description\"\u003eDescription\u003c/h1\u003e\n\u003cul\u003e\n\u003cli\u003eThis dashboard shows how many times given bot commands were used\u003c/li\u003e\n\u003cli\u003eBot commands set is defined (hardcoded) in the metric sql, they start with \u003ccode\u003e/\u003c/code\u003e.\u003c/li\u003e\n\u003cli\u003eDrop-down commands values come from \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/bot_commands_tags.sql\" target=\"_blank\"\u003ethis\u003c/a\u003e file. You can select either all or a subset of all commands to display.\u003c/li\u003e\n\u003cli\u003eYou can select single repository group or summary for all of them.\u003c/li\u003e\n\u003cli\u003eSelecting period (for example week) means that dashboard will show bot commands used in those periods.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/periods.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about periods.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/repository_groups.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about repository groups.\u003c/li\u003e\n\u003cli\u003eWe are skipping bots when displaying bots commands usage, see \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/excluding_bots.md\" target=\"_blank\"\u003eexcluding bots\u003c/a\u003e for details.\u003c/li\u003e\n\u003cli\u003eThis means that, for example, if somebody uses wrong/non-existing bot command, bot will answer with correct usage, so it will put bot command in the comment. This activity is ignored.\u003c/li\u003e\n\u003c/ul\u003e",
+          "value": "\u003ch1 id=\"kubernetes-dashboard\"\u003eKubernetes Bot commands repository group dashboard\u003c/h1\u003e\n\u003cp\u003eLinks:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003eMetric \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/bot_commands.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eTSDB \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/metrics.yaml\" target=\"_blank\"\u003eseries definition\u003c/a\u003e. Search for \u003ccode\u003ebot_commands\u003c/code\u003e\u003c/li\u003e\n\u003cli\u003eGrafana dashboard \u003ca href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/bot-commands-repository-groups.json\" target=\"_blank\"\u003eJSON\u003c/a\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch1 id=\"description\"\u003eDescription\u003c/h1\u003e\n\u003cul\u003e\n\u003cli\u003eThis dashboard shows how many times given bot commands were used\u003c/li\u003e\n\u003cli\u003eBot commands set is defined (hardcoded) in the metric sql, they start with \u003ccode\u003e/\u003c/code\u003e.\u003c/li\u003e\n\u003cli\u003eDrop-down commands values come from \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/bot_commands_tags.sql\" target=\"_blank\"\u003ethis\u003c/a\u003e file. You can select either all or a subset of all commands to display.\u003c/li\u003e\n\u003cli\u003eYou can select single repository group or summary for all of them.\u003c/li\u003e\n\u003cli\u003eSelecting period (for example week) means that dashboard will show bot commands used in those periods.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/periods.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about periods.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/repository_groups.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about repository groups.\u003c/li\u003e\n\u003cli\u003eWe are skipping bots when displaying bots commands usage, see \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/excluding_bots.md\" target=\"_blank\"\u003eexcluding bots\u003c/a\u003e for details.\u003c/li\u003e\n\u003cli\u003eThis means that, for example, if somebody uses wrong/non-existing bot command, bot will answer with correct usage, so it will put bot command in the comment. This activity is ignored.\u003c/li\u003e\n\u003c/ul\u003e"
+        },
+        "sort": 0,
+        "datasource": "psql",
+        "name": "docs",
+        "includeAll": false,
+        "useTags": false
+      }
+    ]
+  },
   "title": "Bot commands repository groups",
-  "uid": "5",
-  "version": 22
+  "gnetId": null,
+  "id": 129,
+  "version": 22,
+  "schemaVersion": 16,
+  "tags": [
+    "dashboard",
+    "kubernetes",
+    "repogroups"
+  ]
 }

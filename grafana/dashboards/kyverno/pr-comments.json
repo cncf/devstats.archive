@@ -1,227 +1,85 @@
 {
-  "panels": [
-    {
-      "fill": 1,
-      "spaceLength": 10,
-      "datasource": "psql",
-      "decimals": 0,
-      "percentage": false,
-      "yaxes": [
-        {
-          "label": "Comments",
-          "logBase": 1,
-          "max": null,
-          "min": "0",
-          "show": true,
-          "format": "none"
-        },
-        {
-          "label": "",
-          "logBase": 1,
-          "max": null,
-          "min": "0",
-          "show": true,
-          "format": "none"
-        }
-      ],
-      "seriesOverrides": [],
-      "gridPos": {
-        "w": 24,
-        "x": 0,
-        "y": 0,
-        "h": 21
+  "iteration": 1576661437546,
+  "version": 2,
+  "schemaVersion": 21,
+  "title": "PR Comments",
+  "graphTooltip": 0,
+  "id": 24,
+  "editable": true,
+  "time": {
+    "from": "now-1y",
+    "to": "now"
+  },
+  "links": [],
+  "timezone": "",
+  "annotations": {
+    "list": [
+      {
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations \u0026 Alerts",
+        "type": "dashboard",
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true
       },
-      "stack": false,
-      "description": "Median and 85th, 95th percentile of comments for PRs created in given period",
-      "nullPointMode": "null as zero",
-      "legend": {
-        "values": true,
-        "min": true,
-        "avg": true,
-        "rightSide": false,
-        "total": false,
-        "alignAsTable": true,
-        "show": true,
-        "max": true,
-        "current": true
-      },
-      "tooltip": {
-        "sort": 0,
-        "value_type": "individual",
-        "shared": true
-      },
-      "steppedLine": false,
-      "timeShift": null,
-      "linewidth": 1,
-      "timeFrom": null,
-      "type": "graph",
-      "dashes": false,
-      "pointradius": 5,
-      "aliasColors": {
-        
-      },
-      "title": "Median and 85th, 95th percentile of number of comments for PRs ([[period]])",
-      "fillGradient": 0,
-      "lines": false,
-      "links": [],
-      "bars": true,
-      "points": false,
-      "xaxis": {
-        "show": true,
-        "values": [
-          "avg"
-        ],
-        "buckets": null,
-        "mode": "time",
-        "name": null
-      },
-      "options": {
-        "dataLinks": []
-      },
-      "timeRegions": [],
-      "id": 2,
-      "thresholds": [],
-      "dashLength": 10,
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      },
-      "targets": [
-        {
-          "rawSql": "select\n  time,\n  value as \"95th percentile for number of comments on PRs\"\nfrom\n  spr_comms_p95\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\norder by\n  time",
-          "tags": [],
-          "rawQuery": true,
-          "refId": "A",
-          "groupBy": [],
-          "orderByTime": "ASC",
-          "policy": "default",
-          "select": [
-            [
-              {
-                "type": "field",
-                "params": [
-                  "value"
-                ]
-              }
-            ]
-          ],
-          "dsType": "influxdb",
-          "query": "SELECT \"value\" FROM \"pr_comments_percentile_95_[[period]]\" WHERE $timeFilter",
-          "resultFormat": "time_series",
-          "alias": "",
-          "format": "time_series"
-        },
-        {
-          "refId": "B",
-          "tags": [],
-          "groupBy": [],
-          "policy": "default",
-          "rawSql": "select\n  time,\n  value as \"85th percentile for number of comments on PRs\"\nfrom\n  spr_comms_p85\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\norder by\n  time",
-          "dsType": "influxdb",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              }
-            ]
-          ],
-          "resultFormat": "time_series",
-          "format": "time_series",
-          "query": "SELECT \"value\" FROM \"pr_comments_percentile_85_[[period]]\" WHERE $timeFilter",
-          "rawQuery": true,
-          "alias": "",
-          "orderByTime": "ASC"
-        },
-        {
-          "refId": "C",
-          "groupBy": [],
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              }
-            ]
-          ],
-          "tags": [],
-          "rawQuery": true,
-          "format": "time_series",
-          "rawSql": "select\n  time,\n  value as \"Median for number of comments on PRs\"\nfrom\n  spr_comms_med\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\norder by\n  time",
-          "dsType": "influxdb",
-          "orderByTime": "ASC",
-          "policy": "default",
-          "query": "SELECT \"value\" FROM \"pr_comments_median_[[period]]\" WHERE $timeFilter",
-          "alias": ""
-        }
-      ],
-      "hiddenSeries": false,
-      "renderer": "flot"
-    },
-    {
-      "links": [],
-      "options": {
-        
-      },
-      "title": "Dashboard documentation",
-      "type": "text",
-      "content": "${docs:raw}",
-      "id": 11,
-      "gridPos": {
-        "h": 8,
-        "w": 24,
-        "x": 0,
-        "y": 21
-      },
-      "mode": "html",
-      "datasource": null
-    }
-  ],
+      {
+        "hide": false,
+        "enable": true,
+        "titleColumn": "[[full_name]] release",
+        "query": "SELECT title, description from annotations WHERE $timeFilter order by time asc",
+        "limit": 100,
+        "type": "alert",
+        "name": "Releases",
+        "datasource": "psql",
+        "rawQuery": "select extract(epoch from time) AS time, title as text, description as tags from sannotations where $__timeFilter(time)",
+        "tagsColumn": "title,description",
+        "textColumn": "",
+        "iconColor": "rgba(255, 96, 96, 1)",
+        "showIn": 0
+      }
+    ]
+  },
   "templating": {
     "list": [
       {
-        "regex": "",
-        "skipUrlSync": true,
-        "options": [],
-        "refresh": 1,
-        "definition": "",
-        "name": "full_name",
-        "allValue": null,
-        "includeAll": false,
-        "sort": 0,
-        "datasource": "psql",
-        "multi": false,
-        "label": null,
         "hide": 2,
-        "tagValuesQuery": "",
-        "type": "query",
-        "tagsQuery": "",
-        "useTags": false,
+        "refresh": 1,
+        "regex": "",
         "tags": [],
+        "type": "query",
+        "includeAll": false,
+        "datasource": "psql",
+        "skipUrlSync": true,
+        "useTags": false,
         "query": "select value_s from gha_vars where name = 'full_name'",
         "current": {
           "text": "ChubaoFS",
           "value": "ChubaoFS"
-        }
+        },
+        "tagValuesQuery": "",
+        "sort": 0,
+        "label": null,
+        "options": [],
+        "multi": false,
+        "definition": "",
+        "name": "full_name",
+        "tagsQuery": "",
+        "allValue": null
       },
       {
         "includeAll": false,
-        "query": "d,w,m,q,y",
         "skipUrlSync": false,
-        "type": "custom",
         "label": "Period",
         "multi": false,
         "name": "period",
+        "query": "d,w,m,q,y",
+        "type": "custom",
         "options": [
           {
+            "text": "Day",
             "value": "d",
-            "selected": false,
-            "text": "Day"
+            "selected": false
           },
           {
             "selected": false,
@@ -234,9 +92,9 @@
             "text": "Week"
           },
           {
-            "selected": false,
             "text": "Month",
-            "value": "m"
+            "value": "m",
+            "selected": false
           },
           {
             "selected": false,
@@ -244,58 +102,231 @@
             "value": "q"
           },
           {
-            "value": "y",
             "selected": false,
-            "text": "Year"
+            "text": "Year",
+            "value": "y"
           }
         ],
+        "hide": 0,
+        "allValue": null,
         "current": {
           "selected": true,
           "text": "Week",
           "value": "w"
-        },
-        "hide": 0,
-        "allValue": null
+        }
       },
       {
-        "tagValuesQuery": "",
-        "current": {
-          "value": "\u003ch1 id=\"dashboard-header\"\u003eChubaoFS PR comments dashboard\u003c/h1\u003e\n\u003cp\u003eLinks:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003eMetric \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/pr_comments.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eTSDB \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/metrics.yaml\" target=\"_blank\"\u003eseries definition\u003c/a\u003e. Search for \u003ccode\u003epr_comments\u003c/code\u003e\u003c/li\u003e\n\u003cli\u003eGrafana dashboard \u003ca href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/chubaofs/pr-comments.json\" target=\"_blank\"\u003eJSON\u003c/a\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch1 id=\"description\"\u003eDescription\u003c/h1\u003e\n\u003cul\u003e\n\u003cli\u003eThis dashboard shows median, 85th and 95th percentiles of the number of comments on PRs.\u003c/li\u003e\n\u003cli\u003eSelecting period (for example week) means that dashboard will calculate percentiles in those periods.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/periods.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about periods.\u003c/li\u003e\n\u003cli\u003eWe are skipping bots activity, see \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/excluding_bots.md\" target=\"_blank\"\u003eexcluding bots\u003c/a\u003e for details.\u003c/li\u003e\n\u003c/ul\u003e",
-          "text": "\u003ch1 id=\"dashboard-header\"\u003eChubaoFS PR comments dashboard\u003c/h1\u003e\n\u003cp\u003eLinks:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003eMetric \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/pr_comments.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eTSDB \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/metrics.yaml\" target=\"_blank\"\u003eseries definition\u003c/a\u003e. Search for \u003ccode\u003epr_comments\u003c/code\u003e\u003c/li\u003e\n\u003cli\u003eGrafana dashboard \u003ca href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/chubaofs/pr-comments.json\" target=\"_blank\"\u003eJSON\u003c/a\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch1 id=\"description\"\u003eDescription\u003c/h1\u003e\n\u003cul\u003e\n\u003cli\u003eThis dashboard shows median, 85th and 95th percentiles of the number of comments on PRs.\u003c/li\u003e\n\u003cli\u003eSelecting period (for example week) means that dashboard will calculate percentiles in those periods.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/periods.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about periods.\u003c/li\u003e\n\u003cli\u003eWe are skipping bots activity, see \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/excluding_bots.md\" target=\"_blank\"\u003eexcluding bots\u003c/a\u003e for details.\u003c/li\u003e\n\u003c/ul\u003e"
-        },
-        "options": [],
-        "tags": [],
-        "includeAll": false,
-        "skipUrlSync": true,
-        "tagsQuery": "",
-        "name": "docs",
-        "useTags": false,
-        "label": null,
-        "type": "query",
-        "query": "select value_s from gha_vars where name = 'pr_comments_docs_html'",
-        "datasource": "psql",
-        "sort": 0,
-        "multi": false,
-        "refresh": 1,
         "regex": "",
+        "tagsQuery": "",
+        "includeAll": false,
+        "label": null,
         "allValue": null,
         "definition": "",
-        "hide": 2
+        "hide": 2,
+        "skipUrlSync": true,
+        "query": "select value_s from gha_vars where name = 'pr_comments_docs_html'",
+        "datasource": "psql",
+        "useTags": false,
+        "refresh": 1,
+        "multi": false,
+        "name": "docs",
+        "current": {
+          "text": "\u003ch1 id=\"dashboard-header\"\u003eChubaoFS PR comments dashboard\u003c/h1\u003e\n\u003cp\u003eLinks:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003eMetric \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/pr_comments.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eTSDB \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/metrics.yaml\" target=\"_blank\"\u003eseries definition\u003c/a\u003e. Search for \u003ccode\u003epr_comments\u003c/code\u003e\u003c/li\u003e\n\u003cli\u003eGrafana dashboard \u003ca href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/chubaofs/pr-comments.json\" target=\"_blank\"\u003eJSON\u003c/a\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch1 id=\"description\"\u003eDescription\u003c/h1\u003e\n\u003cul\u003e\n\u003cli\u003eThis dashboard shows median, 85th and 95th percentiles of the number of comments on PRs.\u003c/li\u003e\n\u003cli\u003eSelecting period (for example week) means that dashboard will calculate percentiles in those periods.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/periods.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about periods.\u003c/li\u003e\n\u003cli\u003eWe are skipping bots activity, see \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/excluding_bots.md\" target=\"_blank\"\u003eexcluding bots\u003c/a\u003e for details.\u003c/li\u003e\n\u003c/ul\u003e",
+          "value": "\u003ch1 id=\"dashboard-header\"\u003eChubaoFS PR comments dashboard\u003c/h1\u003e\n\u003cp\u003eLinks:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003eMetric \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/pr_comments.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eTSDB \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/metrics.yaml\" target=\"_blank\"\u003eseries definition\u003c/a\u003e. Search for \u003ccode\u003epr_comments\u003c/code\u003e\u003c/li\u003e\n\u003cli\u003eGrafana dashboard \u003ca href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/chubaofs/pr-comments.json\" target=\"_blank\"\u003eJSON\u003c/a\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch1 id=\"description\"\u003eDescription\u003c/h1\u003e\n\u003cul\u003e\n\u003cli\u003eThis dashboard shows median, 85th and 95th percentiles of the number of comments on PRs.\u003c/li\u003e\n\u003cli\u003eSelecting period (for example week) means that dashboard will calculate percentiles in those periods.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/periods.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about periods.\u003c/li\u003e\n\u003cli\u003eWe are skipping bots activity, see \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/excluding_bots.md\" target=\"_blank\"\u003eexcluding bots\u003c/a\u003e for details.\u003c/li\u003e\n\u003c/ul\u003e"
+        },
+        "tagValuesQuery": "",
+        "options": [],
+        "type": "query",
+        "sort": 0,
+        "tags": []
       }
     ]
   },
-  "iteration": 1576661437546,
-  "version": 2,
+  "style": "dark",
+  "panels": [
+    {
+      "seriesOverrides": [],
+      "type": "graph",
+      "tooltip": {
+        "sort": 0,
+        "value_type": "individual",
+        "shared": true
+      },
+      "links": [],
+      "nullPointMode": "null as zero",
+      "thresholds": [],
+      "targets": [
+        {
+          "groupBy": [],
+          "alias": "",
+          "orderByTime": "ASC",
+          "resultFormat": "time_series",
+          "format": "time_series",
+          "rawSql": "select\n  time,\n  value as \"95th percentile for number of comments on PRs\"\nfrom\n  spr_comms_p95\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\norder by\n  time",
+          "refId": "A",
+          "dsType": "influxdb",
+          "query": "SELECT \"value\" FROM \"pr_comments_percentile_95_[[period]]\" WHERE $timeFilter",
+          "tags": [],
+          "rawQuery": true,
+          "policy": "default",
+          "select": [
+            [
+              {
+                "type": "field",
+                "params": [
+                  "value"
+                ]
+              }
+            ]
+          ]
+        },
+        {
+          "query": "SELECT \"value\" FROM \"pr_comments_percentile_85_[[period]]\" WHERE $timeFilter",
+          "dsType": "influxdb",
+          "rawQuery": true,
+          "groupBy": [],
+          "rawSql": "select\n  time,\n  value as \"85th percentile for number of comments on PRs\"\nfrom\n  spr_comms_p85\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\norder by\n  time",
+          "alias": "",
+          "orderByTime": "ASC",
+          "refId": "B",
+          "policy": "default",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              }
+            ]
+          ],
+          "resultFormat": "time_series",
+          "tags": [],
+          "format": "time_series"
+        },
+        {
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              }
+            ]
+          ],
+          "rawSql": "select\n  time,\n  value as \"Median for number of comments on PRs\"\nfrom\n  spr_comms_med\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\norder by\n  time",
+          "groupBy": [],
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "SELECT \"value\" FROM \"pr_comments_median_[[period]]\" WHERE $timeFilter",
+          "resultFormat": "time_series",
+          "alias": "",
+          "refId": "C",
+          "format": "time_series",
+          "tags": [],
+          "rawQuery": true,
+          "dsType": "influxdb"
+        }
+      ],
+      "hiddenSeries": false,
+      "linewidth": 1,
+      "yaxes": [
+        {
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true,
+          "format": "none",
+          "label": "Comments"
+        },
+        {
+          "label": "",
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true,
+          "format": "none"
+        }
+      ],
+      "timeFrom": null,
+      "xaxis": {
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": [
+          "avg"
+        ],
+        "buckets": null
+      },
+      "title": "Median and 85th, 95th percentile of number of comments for PRs ([[period]])",
+      "legend": {
+        "avg": true,
+        "max": true,
+        "values": true,
+        "total": false,
+        "min": true,
+        "rightSide": false,
+        "alignAsTable": true,
+        "show": true,
+        "current": true
+      },
+      "timeShift": null,
+      "dashLength": 10,
+      "steppedLine": false,
+      "decimals": 0,
+      "timeRegions": [],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      },
+      "points": false,
+      "id": 2,
+      "stack": false,
+      "fillGradient": 0,
+      "lines": false,
+      "percentage": false,
+      "aliasColors": {
+        
+      },
+      "datasource": "psql",
+      "description": "Median and 85th, 95th percentile of comments for PRs created in given period",
+      "bars": true,
+      "options": {
+        "dataLinks": []
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 0,
+        "h": 21,
+        "w": 24
+      },
+      "spaceLength": 10,
+      "renderer": "flot",
+      "dashes": false,
+      "fill": 1,
+      "pointradius": 5
+    },
+    {
+      "mode": "html",
+      "options": {
+        
+      },
+      "type": "text",
+      "id": 11,
+      "gridPos": {
+        "w": 24,
+        "x": 0,
+        "y": 21,
+        "h": 8
+      },
+      "links": [],
+      "title": "Dashboard documentation",
+      "datasource": null,
+      "content": "${docs:raw}"
+    }
+  ],
   "uid": "17",
-  "editable": true,
-  "time": {
-    "from": "now-1y",
-    "to": "now"
-  },
-  "gnetId": null,
-  "timezone": "",
-  "id": 24,
-  "schemaVersion": 21,
   "timepicker": {
     "refresh_intervals": [
       "5s",
@@ -321,40 +352,9 @@
       "30d"
     ]
   },
-  "annotations": {
-    "list": [
-      {
-        "datasource": "-- Grafana --",
-        "enable": true,
-        "hide": true,
-        "iconColor": "rgba(0, 211, 255, 1)",
-        "name": "Annotations \u0026 Alerts",
-        "type": "dashboard",
-        "builtIn": 1
-      },
-      {
-        "rawQuery": "select extract(epoch from time) AS time, title as text, description as tags from sannotations where $__timeFilter(time)",
-        "tagsColumn": "title,description",
-        "textColumn": "",
-        "enable": true,
-        "titleColumn": "[[full_name]] release",
-        "iconColor": "rgba(255, 96, 96, 1)",
-        "name": "Releases",
-        "query": "SELECT title, description from annotations WHERE $timeFilter order by time asc",
-        "datasource": "psql",
-        "limit": 100,
-        "type": "alert",
-        "hide": false,
-        "showIn": 0
-      }
-    ]
-  },
   "tags": [
     "dashboard",
     "kyverno"
   ],
-  "title": "PR Comments",
-  "style": "dark",
-  "links": [],
-  "graphTooltip": 0
+  "gnetId": null
 }

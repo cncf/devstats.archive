@@ -1,81 +1,118 @@
 {
-  "annotations": {
-    "list": [
-      {
-        "builtIn": 1,
-        "datasource": "-- Grafana --",
-        "enable": true,
-        "hide": true,
-        "iconColor": "rgba(0, 211, 255, 1)",
-        "limit": 100,
-        "name": "Annotations \u0026 Alerts",
-        "showIn": 0,
-        "type": "dashboard"
-      },
-      {
-        "datasource": "psql",
-        "enable": true,
-        "hide": false,
-        "iconColor": "rgba(255, 96, 96, 1)",
-        "limit": 100,
-        "name": "Releases",
-        "query": "SELECT title, description from annotations WHERE $timeFilter order by time asc",
-        "rawQuery": "select extract(epoch from time) AS time, title as text, description as tags from sannotations where $__timeFilter(time)",
-        "showIn": 0,
-        "tagsColumn": "title,description",
-        "textColumn": "",
-        "titleColumn": "[[full_name]] release",
-        "type": "alert"
-      }
-    ]
-  },
-  "editable": true,
   "gnetId": null,
-  "graphTooltip": 0,
-  "id": 32,
-  "iteration": 1537421133753,
-  "links": [],
   "panels": [
     {
-      "aliasColors": {},
-      "bars": false,
-      "dashLength": 10,
-      "dashes": false,
-      "datasource": "psql",
-      "decimals": 2,
-      "description": "Measures user [[metric]].",
-      "fill": 6,
-      "gridPos": {
-        "h": 17,
-        "w": 24,
-        "x": 0,
-        "y": 0
-      },
-      "id": 1,
-      "legend": {
-        "alignAsTable": true,
-        "avg": true,
-        "current": true,
-        "hideEmpty": false,
-        "hideZero": false,
-        "max": true,
-        "min": true,
-        "rightSide": true,
-        "show": true,
-        "sideWidth": null,
-        "sort": "avg",
-        "sortDesc": true,
-        "total": false,
-        "values": true
-      },
-      "lines": true,
-      "linewidth": 0,
-      "links": [],
       "nullPointMode": "null as zero",
+      "transparent": true,
+      "id": 1,
+      "lines": true,
+      "fill": 6,
+      "steppedLine": false,
+      "description": "Measures user [[metric]].",
+      "type": "graph",
+      "dashes": false,
+      "dashLength": 10,
+      "points": false,
+      "linewidth": 0,
+      "xaxis": {
+        "show": true,
+        "values": [],
+        "buckets": null,
+        "mode": "time",
+        "name": null
+      },
+      "yaxes": [
+        {
+          "max": null,
+          "min": "0",
+          "show": true,
+          "format": "short",
+          "label": "Value",
+          "logBase": 1
+        },
+        {
+          "show": true,
+          "decimals": null,
+          "format": "short",
+          "label": "All",
+          "logBase": 1,
+          "max": null,
+          "min": "0"
+        }
+      ],
+      "tooltip": {
+        "sort": 2,
+        "value_type": "individual",
+        "shared": true
+      },
+      "renderer": "flot",
+      "title": "Users [[metric]] metric ([[repogroup_name]], [[period]])",
+      "timeFrom": null,
+      "thresholds": [],
       "percentage": false,
       "pointradius": 5,
-      "points": false,
-      "renderer": "flot",
+      "legend": {
+        "current": true,
+        "avg": true,
+        "hideZero": false,
+        "min": true,
+        "rightSide": true,
+        "sort": "avg",
+        "hideEmpty": false,
+        "total": false,
+        "max": true,
+        "values": true,
+        "show": true,
+        "sideWidth": null,
+        "sortDesc": true,
+        "alignAsTable": true
+      },
+      "spaceLength": 10,
+      "decimals": 2,
+      "gridPos": {
+        "x": 0,
+        "y": 0,
+        "h": 17,
+        "w": 24
+      },
+      "yaxis": {
+        "alignLevel": null,
+        "align": false
+      },
+      "links": [],
+      "stack": true,
+      "bars": false,
+      "targets": [
+        {
+          "rawQuery": true,
+          "groupBy": [],
+          "tags": [],
+          "format": "time_series",
+          "measurement": "sig_federation_d",
+          "alias": "",
+          "rawSql": "select\n  time,\n  ${users:csv}\nfrom\n  suser_activity\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'user[[repogroup]][[metric]]'\norder by\n  time",
+          "dsType": "influxdb",
+          "refId": "B",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              }
+            ]
+          ],
+          "resultFormat": "time_series",
+          "query": "",
+          "orderByTime": "ASC",
+          "policy": "default"
+        }
+      ],
+      "aliasColors": {
+        
+      },
+      "datasource": "psql",
       "seriesOverrides": [
         {
           "alias": "All",
@@ -87,86 +124,51 @@
           "yaxis": 2
         }
       ],
-      "spaceLength": 10,
-      "stack": true,
-      "steppedLine": false,
-      "targets": [
-        {
-          "alias": "",
-          "dsType": "influxdb",
-          "format": "time_series",
-          "groupBy": [],
-          "measurement": "sig_federation_d",
-          "orderByTime": "ASC",
-          "policy": "default",
-          "query": "",
-          "rawQuery": true,
-          "rawSql": "select\n  time,\n  ${users:csv}\nfrom\n  suser_activity\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'user[[repogroup]][[metric]]'\norder by\n  time",
-          "refId": "B",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              }
-            ]
-          ],
-          "tags": []
-        }
-      ],
-      "thresholds": [],
-      "timeFrom": null,
-      "timeShift": null,
-      "title": "Users [[metric]] metric ([[repogroup_name]], [[period]])",
-      "tooltip": {
-        "shared": true,
-        "sort": 2,
-        "value_type": "individual"
-      },
-      "transparent": true,
-      "type": "graph",
-      "xaxis": {
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true,
-        "values": []
-      },
-      "yaxes": [
-        {
-          "format": "short",
-          "label": "Value",
-          "logBase": 1,
-          "max": null,
-          "min": "0",
-          "show": true
-        },
-        {
-          "decimals": null,
-          "format": "short",
-          "label": "All",
-          "logBase": 1,
-          "max": null,
-          "min": "0",
-          "show": true
-        }
-      ],
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      }
+      "timeShift": null
     },
     {
-      "aliasColors": {},
+      "xaxis": {
+        "name": null,
+        "show": true,
+        "values": [],
+        "buckets": null,
+        "mode": "time"
+      },
+      "links": [],
+      "steppedLine": false,
+      "nullPointMode": "null as zero",
+      "type": "graph",
+      "timeFrom": null,
       "bars": false,
-      "dashLength": 10,
+      "pointradius": 5,
+      "percentage": true,
       "dashes": false,
-      "datasource": "psql",
-      "decimals": 2,
-      "description": "Measures user [[metric]].",
+      "spaceLength": 10,
+      "aliasColors": {
+        
+      },
+      "stack": true,
+      "yaxes": [
+        {
+          "max": "100",
+          "min": "0",
+          "show": true,
+          "format": "short",
+          "label": "",
+          "logBase": 1
+        },
+        {
+          "logBase": 1,
+          "max": "100",
+          "min": "0",
+          "show": true,
+          "decimals": null,
+          "format": "short",
+          "label": ""
+        }
+      ],
+      "linewidth": 0,
+      "transparent": true,
       "fill": 6,
       "gridPos": {
         "h": 16,
@@ -174,49 +176,35 @@
         "x": 0,
         "y": 17
       },
-      "id": 2,
-      "legend": {
-        "alignAsTable": true,
-        "avg": true,
-        "current": true,
-        "hideEmpty": false,
-        "hideZero": false,
-        "max": true,
-        "min": true,
-        "rightSide": true,
-        "show": true,
-        "sideWidth": null,
-        "sort": "avg",
-        "sortDesc": true,
-        "total": false,
-        "values": true
-      },
       "lines": true,
-      "linewidth": 0,
-      "links": [],
-      "nullPointMode": "null as zero",
-      "percentage": true,
-      "pointradius": 5,
+      "title": "Users [[metric]] metric ([[repogroup_name]], [[period]])",
+      "id": 2,
+      "tooltip": {
+        "shared": true,
+        "sort": 2,
+        "value_type": "individual"
+      },
       "points": false,
-      "renderer": "flot",
       "seriesOverrides": [],
-      "spaceLength": 10,
-      "stack": true,
-      "steppedLine": false,
+      "dashLength": 10,
+      "thresholds": [],
+      "renderer": "flot",
+      "yaxis": {
+        "alignLevel": null,
+        "align": false
+      },
       "targets": [
         {
-          "alias": "",
-          "dsType": "influxdb",
-          "format": "time_series",
-          "groupBy": [],
-          "measurement": "sig_federation_d",
           "orderByTime": "ASC",
+          "resultFormat": "time_series",
+          "rawSql": "select\n  time,\n  ${users:csv}\nfrom\n  suser_activity\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'user[[repogroup]][[metric]]'\norder by\n  time",
+          "format": "time_series",
+          "dsType": "influxdb",
+          "tags": [],
+          "groupBy": [],
           "policy": "default",
           "query": "",
-          "rawQuery": true,
-          "rawSql": "select\n  time,\n  ${users:csv}\nfrom\n  suser_activity\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'user[[repogroup]][[metric]]'\norder by\n  time",
-          "refId": "B",
-          "resultFormat": "time_series",
+          "measurement": "sig_federation_d",
           "select": [
             [
               {
@@ -227,302 +215,103 @@
               }
             ]
           ],
-          "tags": []
+          "alias": "",
+          "rawQuery": true,
+          "refId": "B"
         }
       ],
-      "thresholds": [],
-      "timeFrom": null,
+      "decimals": 2,
+      "legend": {
+        "alignAsTable": true,
+        "max": true,
+        "min": true,
+        "sideWidth": null,
+        "total": false,
+        "sortDesc": true,
+        "rightSide": true,
+        "avg": true,
+        "hideEmpty": false,
+        "sort": "avg",
+        "hideZero": false,
+        "values": true,
+        "current": true,
+        "show": true
+      },
       "timeShift": null,
-      "title": "Users [[metric]] metric ([[repogroup_name]], [[period]])",
-      "tooltip": {
-        "shared": true,
-        "sort": 2,
-        "value_type": "individual"
-      },
-      "transparent": true,
-      "type": "graph",
-      "xaxis": {
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true,
-        "values": []
-      },
-      "yaxes": [
-        {
-          "format": "short",
-          "label": "",
-          "logBase": 1,
-          "max": "100",
-          "min": "0",
-          "show": true
-        },
-        {
-          "decimals": null,
-          "format": "short",
-          "label": "",
-          "logBase": 1,
-          "max": "100",
-          "min": "0",
-          "show": true
-        }
-      ],
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      }
+      "datasource": "psql",
+      "description": "Measures user [[metric]]."
     },
     {
-      "content": "${docs:raw}",
-      "gridPos": {
-        "h": 11,
-        "w": 24,
-        "x": 0,
-        "y": 33
-      },
-      "id": 11,
-      "links": [],
       "mode": "html",
       "title": "Dashboard documentation",
-      "type": "text"
+      "type": "text",
+      "content": "${docs:raw}",
+      "gridPos": {
+        "y": 33,
+        "h": 11,
+        "w": 24,
+        "x": 0
+      },
+      "id": 11,
+      "links": []
     }
   ],
+  "iteration": 1537421133753,
   "schemaVersion": 16,
-  "style": "dark",
-  "tags": [
-    "dashboard",
-    "virtualkubelet"
-  ],
-  "templating": {
-    "list": [
-      {
-        "allValue": null,
-        "current": {
-          "text": "CNCF",
-          "value": "CNCF"
-        },
-        "datasource": "psql",
-        "hide": 2,
-        "includeAll": false,
-        "label": null,
-        "multi": false,
-        "name": "full_name",
-        "options": [],
-        "query": "select value_s from gha_vars where name = 'full_name'",
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": true,
-        "sort": 0,
-        "tagValuesQuery": "",
-        "tags": [],
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false
-      },
-      {
-        "allValue": null,
-        "current": {
-          "tags": [],
-          "text": "Week",
-          "value": "w"
-        },
-        "hide": 0,
-        "includeAll": false,
-        "label": "Period",
-        "multi": false,
-        "name": "period",
-        "options": [
-          {
-            "selected": false,
-            "text": "Day",
-            "value": "d"
-          },
-          {
-            "selected": false,
-            "text": "7 Days MA",
-            "value": "d7"
-          },
-          {
-            "selected": true,
-            "text": "Week",
-            "value": "w"
-          },
-          {
-            "selected": false,
-            "text": "Month",
-            "value": "m"
-          },
-          {
-            "selected": false,
-            "text": "Quarter",
-            "value": "q"
-          },
-          {
-            "selected": false,
-            "text": "Year",
-            "value": "y"
-          }
-        ],
-        "query": "d,w,m,q,y",
-        "skipUrlSync": false,
-        "type": "custom"
-      },
-      {
-        "allValue": null,
-        "current": {
-          "tags": [],
-          "text": "Contributions",
-          "value": "contributions"
-        },
-        "hide": 0,
-        "includeAll": false,
-        "label": "Metric",
-        "multi": false,
-        "name": "metric",
-        "options": [
-          {
-            "selected": false,
-            "text": "All activity",
-            "value": "activity"
-          },
-          {
-            "selected": false,
-            "text": "Issues created",
-            "value": "issues"
-          },
-          {
-            "selected": false,
-            "text": "Pull requests created",
-            "value": "prs"
-          },
-          {
-            "selected": false,
-            "text": "Commits made",
-            "value": "commits"
-          },
-          {
-            "selected": false,
-            "text": "Pushes made",
-            "value": "pushes"
-          },
-          {
-            "selected": true,
-            "text": "Contributions",
-            "value": "contributions"
-          },
-          {
-            "selected": false,
-            "text": "Added comments",
-            "value": "comments"
-          }
-        ],
-        "query": "activity,issues,prs,pushes,commits,contributions,comments",
-        "skipUrlSync": false,
-        "type": "custom"
-      },
-      {
-        "allValue": null,
-        "current": {
-          "text": "All",
-          "value": "All"
-        },
-        "datasource": "psql",
-        "hide": 0,
-        "includeAll": false,
-        "label": "Repository group",
-        "multi": false,
-        "name": "repogroup_name",
-        "options": [],
-        "query": "select all_repo_group_name from tall_repo_groups order by 1",
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": false,
-        "sort": 0,
-        "tagValuesQuery": "",
-        "tags": [],
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false
-      },
-      {
-        "allValue": null,
-        "current": {
-          "text": "all",
-          "value": "all"
-        },
-        "datasource": "psql",
-        "hide": 2,
-        "includeAll": false,
-        "label": "",
-        "multi": false,
-        "name": "repogroup",
-        "options": [],
-        "query": "select all_repo_group_value from tall_repo_groups where all_repo_group_name = '[[repogroup_name]]'",
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": true,
-        "sort": 0,
-        "tagValuesQuery": "",
-        "tags": [],
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false
-      },
-      {
-        "allValue": "",
-        "current": {
-          "text": "All",
-          "value": "$__all"
-        },
-        "datasource": "psql",
-        "hide": 0,
-        "includeAll": true,
-        "label": "Users",
-        "multi": true,
-        "name": "users",
-        "options": [],
-        "query": "select '\"' || users_name || '\"' from tusers order by time asc",
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": false,
-        "sort": 0,
-        "tagValuesQuery": "",
-        "tags": [],
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false
-      },
-      {
-        "allValue": null,
-        "current": {
-          "text": "\u003ch1 id=\"dashboard-header\"\u003eCNCF users stats dashboard\u003c/h1\u003e\n\u003cp\u003eLinks:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003eMetric \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/user_activity.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eTSDB \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/metrics.yaml\" target=\"_blank\"\u003eseries definition\u003c/a\u003e. Search for \u003ccode\u003euser_activity\u003c/code\u003e\u003c/li\u003e\n\u003cli\u003eGrafana dashboard \u003ca href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/cncf/users-stats.json\" target=\"_blank\"\u003eJSON\u003c/a\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch1 id=\"description\"\u003eDescription\u003c/h1\u003e\n\u003cul\u003e\n\u003cli\u003eThis dashboard shows various user statistics.\u003c/li\u003e\n\u003cli\u003eContributor is defined as somebody who made a review, comment, commit, created PR or issue.\u003c/li\u003e\n\u003cli\u003eContribution is a review, comment, commit, issue or PR.\u003c/li\u003e\n\u003cli\u003eYou can select statistic from the metrics drop down (All activity means all events registered by GitHub).\u003c/li\u003e\n\u003cli\u003eYou can select single repository group or summary statistics for all of them combined.\u003c/li\u003e\n\u003cli\u003eYou can select multiple users or all of them in a multi select dowp down.\u003c/li\u003e\n\u003cli\u003eWe are showing to 70 most active users in the drop-down list.\u003c/li\u003e\n\u003cli\u003eSelecting period (for example week) means that dashboard will show data in those periods.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/periods.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about periods.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/repository_groups.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about repository groups.\u003c/li\u003e\n\u003cli\u003eWe are skipping bots activity, see \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/excluding_bots.md\" target=\"_blank\"\u003eexcluding bots\u003c/a\u003e for details.\u003c/li\u003e\n\u003c/ul\u003e",
-          "value": "\u003ch1 id=\"dashboard-header\"\u003eCNCF users stats dashboard\u003c/h1\u003e\n\u003cp\u003eLinks:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003eMetric \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/user_activity.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eTSDB \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/metrics.yaml\" target=\"_blank\"\u003eseries definition\u003c/a\u003e. Search for \u003ccode\u003euser_activity\u003c/code\u003e\u003c/li\u003e\n\u003cli\u003eGrafana dashboard \u003ca href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/cncf/users-stats.json\" target=\"_blank\"\u003eJSON\u003c/a\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch1 id=\"description\"\u003eDescription\u003c/h1\u003e\n\u003cul\u003e\n\u003cli\u003eThis dashboard shows various user statistics.\u003c/li\u003e\n\u003cli\u003eContributor is defined as somebody who made a review, comment, commit, created PR or issue.\u003c/li\u003e\n\u003cli\u003eContribution is a review, comment, commit, issue or PR.\u003c/li\u003e\n\u003cli\u003eYou can select statistic from the metrics drop down (All activity means all events registered by GitHub).\u003c/li\u003e\n\u003cli\u003eYou can select single repository group or summary statistics for all of them combined.\u003c/li\u003e\n\u003cli\u003eYou can select multiple users or all of them in a multi select dowp down.\u003c/li\u003e\n\u003cli\u003eWe are showing to 70 most active users in the drop-down list.\u003c/li\u003e\n\u003cli\u003eSelecting period (for example week) means that dashboard will show data in those periods.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/periods.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about periods.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/repository_groups.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about repository groups.\u003c/li\u003e\n\u003cli\u003eWe are skipping bots activity, see \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/excluding_bots.md\" target=\"_blank\"\u003eexcluding bots\u003c/a\u003e for details.\u003c/li\u003e\n\u003c/ul\u003e"
-        },
-        "datasource": "psql",
-        "hide": 2,
-        "includeAll": false,
-        "label": null,
-        "multi": false,
-        "name": "docs",
-        "options": [],
-        "query": "select value_s from gha_vars where name = 'users_stats_docs_html'",
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": true,
-        "sort": 0,
-        "tagValuesQuery": "",
-        "tags": [],
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false
-      }
-    ]
-  },
   "time": {
     "from": "now-6M",
     "to": "now"
   },
+  "uid": "48",
+  "title": "Users Statistics by Repository Group",
+  "id": 32,
+  "timezone": "",
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "name": "Annotations \u0026 Alerts",
+        "type": "dashboard",
+        "enable": true,
+        "showIn": 0,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "limit": 100
+      },
+      {
+        "tagsColumn": "title,description",
+        "textColumn": "",
+        "datasource": "psql",
+        "enable": true,
+        "hide": false,
+        "query": "SELECT title, description from annotations WHERE $timeFilter order by time asc",
+        "rawQuery": "select extract(epoch from time) AS time, title as text, description as tags from sannotations where $__timeFilter(time)",
+        "titleColumn": "[[full_name]] release",
+        "type": "alert",
+        "limit": 100,
+        "name": "Releases",
+        "showIn": 0,
+        "iconColor": "rgba(255, 96, 96, 1)"
+      }
+    ]
+  },
+  "tags": [
+    "dashboard",
+    "virtualkubelet"
+  ],
   "timepicker": {
+    "time_options": [
+      "5m",
+      "15m",
+      "1h",
+      "6h",
+      "12h",
+      "24h",
+      "2d",
+      "7d",
+      "30d"
+    ],
     "refresh_intervals": [
       "5s",
       "10s",
@@ -534,21 +323,236 @@
       "1h",
       "2h",
       "1d"
-    ],
-    "time_options": [
-      "5m",
-      "15m",
-      "1h",
-      "6h",
-      "12h",
-      "24h",
-      "2d",
-      "7d",
-      "30d"
     ]
   },
-  "timezone": "",
-  "title": "Users Statistics by Repository Group",
-  "uid": "48",
+  "editable": true,
+  "graphTooltip": 0,
+  "links": [],
+  "templating": {
+    "list": [
+      {
+        "regex": "",
+        "query": "select value_s from gha_vars where name = 'full_name'",
+        "tagsQuery": "",
+        "current": {
+          "text": "CNCF",
+          "value": "CNCF"
+        },
+        "hide": 2,
+        "refresh": 1,
+        "datasource": "psql",
+        "type": "query",
+        "options": [],
+        "useTags": false,
+        "sort": 0,
+        "includeAll": false,
+        "allValue": null,
+        "multi": false,
+        "tagValuesQuery": "",
+        "label": null,
+        "skipUrlSync": true,
+        "tags": [],
+        "name": "full_name"
+      },
+      {
+        "current": {
+          "tags": [],
+          "text": "Week",
+          "value": "w"
+        },
+        "allValue": null,
+        "name": "period",
+        "multi": false,
+        "options": [
+          {
+            "value": "d",
+            "selected": false,
+            "text": "Day"
+          },
+          {
+            "text": "7 Days MA",
+            "value": "d7",
+            "selected": false
+          },
+          {
+            "value": "w",
+            "selected": true,
+            "text": "Week"
+          },
+          {
+            "selected": false,
+            "text": "Month",
+            "value": "m"
+          },
+          {
+            "value": "q",
+            "selected": false,
+            "text": "Quarter"
+          },
+          {
+            "selected": false,
+            "text": "Year",
+            "value": "y"
+          }
+        ],
+        "hide": 0,
+        "label": "Period",
+        "skipUrlSync": false,
+        "type": "custom",
+        "query": "d,w,m,q,y",
+        "includeAll": false
+      },
+      {
+        "query": "activity,issues,prs,pushes,commits,contributions,comments",
+        "name": "metric",
+        "allValue": null,
+        "options": [
+          {
+            "selected": false,
+            "text": "All activity",
+            "value": "activity"
+          },
+          {
+            "text": "Issues created",
+            "value": "issues",
+            "selected": false
+          },
+          {
+            "text": "Pull requests created",
+            "value": "prs",
+            "selected": false
+          },
+          {
+            "selected": false,
+            "text": "Commits made",
+            "value": "commits"
+          },
+          {
+            "value": "pushes",
+            "selected": false,
+            "text": "Pushes made"
+          },
+          {
+            "value": "contributions",
+            "selected": true,
+            "text": "Contributions"
+          },
+          {
+            "text": "Added comments",
+            "value": "comments",
+            "selected": false
+          }
+        ],
+        "label": "Metric",
+        "skipUrlSync": false,
+        "multi": false,
+        "type": "custom",
+        "current": {
+          "value": "contributions",
+          "tags": [],
+          "text": "Contributions"
+        },
+        "hide": 0,
+        "includeAll": false
+      },
+      {
+        "type": "query",
+        "label": "Repository group",
+        "sort": 0,
+        "regex": "",
+        "refresh": 1,
+        "tagValuesQuery": "",
+        "datasource": "psql",
+        "tagsQuery": "",
+        "multi": false,
+        "name": "repogroup_name",
+        "allValue": null,
+        "skipUrlSync": false,
+        "current": {
+          "text": "All",
+          "value": "All"
+        },
+        "includeAll": false,
+        "options": [],
+        "query": "select all_repo_group_name from tall_repo_groups order by 1",
+        "tags": [],
+        "useTags": false,
+        "hide": 0
+      },
+      {
+        "type": "query",
+        "regex": "",
+        "tagValuesQuery": "",
+        "label": "",
+        "datasource": "psql",
+        "includeAll": false,
+        "sort": 0,
+        "useTags": false,
+        "options": [],
+        "query": "select all_repo_group_value from tall_repo_groups where all_repo_group_name = '[[repogroup_name]]'",
+        "tagsQuery": "",
+        "refresh": 1,
+        "allValue": null,
+        "current": {
+          "text": "all",
+          "value": "all"
+        },
+        "name": "repogroup",
+        "tags": [],
+        "skipUrlSync": true,
+        "multi": false,
+        "hide": 2
+      },
+      {
+        "tags": [],
+        "hide": 0,
+        "multi": true,
+        "allValue": "",
+        "type": "query",
+        "refresh": 1,
+        "tagValuesQuery": "",
+        "current": {
+          "text": "All",
+          "value": "$__all"
+        },
+        "tagsQuery": "",
+        "useTags": false,
+        "options": [],
+        "skipUrlSync": false,
+        "regex": "",
+        "label": "Users",
+        "query": "select '\"' || users_name || '\"' from tusers order by time asc",
+        "sort": 0,
+        "datasource": "psql",
+        "name": "users",
+        "includeAll": true
+      },
+      {
+        "options": [],
+        "includeAll": false,
+        "query": "select value_s from gha_vars where name = 'users_stats_docs_html'",
+        "regex": "",
+        "skipUrlSync": true,
+        "refresh": 1,
+        "name": "docs",
+        "sort": 0,
+        "current": {
+          "text": "\u003ch1 id=\"dashboard-header\"\u003eCNCF users stats dashboard\u003c/h1\u003e\n\u003cp\u003eLinks:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003eMetric \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/user_activity.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eTSDB \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/metrics.yaml\" target=\"_blank\"\u003eseries definition\u003c/a\u003e. Search for \u003ccode\u003euser_activity\u003c/code\u003e\u003c/li\u003e\n\u003cli\u003eGrafana dashboard \u003ca href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/cncf/users-stats.json\" target=\"_blank\"\u003eJSON\u003c/a\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch1 id=\"description\"\u003eDescription\u003c/h1\u003e\n\u003cul\u003e\n\u003cli\u003eThis dashboard shows various user statistics.\u003c/li\u003e\n\u003cli\u003eContributor is defined as somebody who made a review, comment, commit, created PR or issue.\u003c/li\u003e\n\u003cli\u003eContribution is a review, comment, commit, issue or PR.\u003c/li\u003e\n\u003cli\u003eYou can select statistic from the metrics drop down (All activity means all events registered by GitHub).\u003c/li\u003e\n\u003cli\u003eYou can select single repository group or summary statistics for all of them combined.\u003c/li\u003e\n\u003cli\u003eYou can select multiple users or all of them in a multi select dowp down.\u003c/li\u003e\n\u003cli\u003eWe are showing to 70 most active users in the drop-down list.\u003c/li\u003e\n\u003cli\u003eSelecting period (for example week) means that dashboard will show data in those periods.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/periods.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about periods.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/repository_groups.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about repository groups.\u003c/li\u003e\n\u003cli\u003eWe are skipping bots activity, see \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/excluding_bots.md\" target=\"_blank\"\u003eexcluding bots\u003c/a\u003e for details.\u003c/li\u003e\n\u003c/ul\u003e",
+          "value": "\u003ch1 id=\"dashboard-header\"\u003eCNCF users stats dashboard\u003c/h1\u003e\n\u003cp\u003eLinks:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003eMetric \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/user_activity.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eTSDB \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/metrics.yaml\" target=\"_blank\"\u003eseries definition\u003c/a\u003e. Search for \u003ccode\u003euser_activity\u003c/code\u003e\u003c/li\u003e\n\u003cli\u003eGrafana dashboard \u003ca href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/cncf/users-stats.json\" target=\"_blank\"\u003eJSON\u003c/a\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch1 id=\"description\"\u003eDescription\u003c/h1\u003e\n\u003cul\u003e\n\u003cli\u003eThis dashboard shows various user statistics.\u003c/li\u003e\n\u003cli\u003eContributor is defined as somebody who made a review, comment, commit, created PR or issue.\u003c/li\u003e\n\u003cli\u003eContribution is a review, comment, commit, issue or PR.\u003c/li\u003e\n\u003cli\u003eYou can select statistic from the metrics drop down (All activity means all events registered by GitHub).\u003c/li\u003e\n\u003cli\u003eYou can select single repository group or summary statistics for all of them combined.\u003c/li\u003e\n\u003cli\u003eYou can select multiple users or all of them in a multi select dowp down.\u003c/li\u003e\n\u003cli\u003eWe are showing to 70 most active users in the drop-down list.\u003c/li\u003e\n\u003cli\u003eSelecting period (for example week) means that dashboard will show data in those periods.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/periods.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about periods.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/repository_groups.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about repository groups.\u003c/li\u003e\n\u003cli\u003eWe are skipping bots activity, see \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/excluding_bots.md\" target=\"_blank\"\u003eexcluding bots\u003c/a\u003e for details.\u003c/li\u003e\n\u003c/ul\u003e"
+        },
+        "type": "query",
+        "datasource": "psql",
+        "tagValuesQuery": "",
+        "hide": 2,
+        "allValue": null,
+        "label": null,
+        "multi": false,
+        "tags": [],
+        "tagsQuery": "",
+        "useTags": false
+      }
+    ]
+  },
+  "style": "dark",
   "version": 2
 }

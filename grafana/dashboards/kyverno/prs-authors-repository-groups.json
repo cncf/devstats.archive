@@ -1,44 +1,24 @@
 {
-  "gnetId": null,
-  "title": "PRs Authors Repository Groups",
-  "annotations": {
-    "list": [
-      {
-        "iconColor": "rgba(0, 211, 255, 1)",
-        "name": "Annotations \u0026 Alerts",
-        "type": "dashboard",
-        "builtIn": 1,
-        "datasource": "-- Grafana --",
-        "enable": true,
-        "hide": true
-      },
-      {
-        "enable": true,
-        "rawQuery": "select extract(epoch from time) AS time, title as text, description as tags from sannotations where $__timeFilter(time)",
-        "textColumn": "",
-        "datasource": "psql",
-        "limit": 100,
-        "hide": false,
-        "name": "Releases",
-        "query": "SELECT title, description from annotations WHERE $timeFilter order by time asc",
-        "showIn": 0,
-        "titleColumn": "[[full_name]] release",
-        "type": "alert",
-        "iconColor": "rgba(255, 96, 96, 1)",
-        "tagsColumn": "title,description"
-      }
-    ]
+  "style": "dark",
+  "time": {
+    "from": "now-1y",
+    "to": "now"
   },
-  "graphTooltip": 0,
-  "iteration": 1586176689126,
+  "links": [],
   "templating": {
     "list": [
       {
+        "query": "d,d7,w,m,q,y",
+        "current": {
+          "text": "7 Days MA",
+          "value": "d7",
+          "tags": []
+        },
         "options": [
           {
-            "selected": false,
             "text": "Day",
-            "value": "d"
+            "value": "d",
+            "selected": false
           },
           {
             "value": "d7",
@@ -61,285 +41,137 @@
             "selected": false
           },
           {
-            "selected": false,
             "text": "Year",
-            "value": "y"
+            "value": "y",
+            "selected": false
           }
         ],
         "type": "custom",
-        "hide": 0,
-        "name": "period",
-        "includeAll": false,
-        "skipUrlSync": false,
-        "allValue": null,
-        "query": "d,d7,w,m,q,y",
         "label": "Period",
         "multi": false,
-        "current": {
-          "tags": [],
-          "text": "7 Days MA",
-          "value": "d7"
-        }
+        "name": "period",
+        "hide": 0,
+        "allValue": null,
+        "skipUrlSync": false,
+        "includeAll": false
       },
       {
+        "options": [],
+        "skipUrlSync": false,
+        "regex": "",
+        "refresh": 1,
+        "allValue": null,
+        "tagValuesQuery": "",
+        "hide": 0,
+        "query": "select all_repo_group_name from tall_repo_groups order by 1",
+        "label": "Repository group",
+        "type": "query",
         "useTags": false,
+        "definition": "",
+        "tags": [],
+        "multi": false,
+        "includeAll": false,
         "current": {
           "text": "All",
           "value": "All"
         },
-        "allValue": null,
-        "label": "Repository group",
-        "tagsQuery": "",
-        "type": "query",
-        "includeAll": false,
-        "datasource": "psql",
-        "tags": [],
-        "multi": false,
         "name": "repogroup_name",
-        "regex": "",
-        "hide": 0,
         "sort": 0,
-        "skipUrlSync": false,
-        "query": "select all_repo_group_name from tall_repo_groups order by 1",
-        "refresh": 1,
-        "options": [],
-        "definition": "",
-        "tagValuesQuery": ""
+        "tagsQuery": "",
+        "datasource": "psql"
       },
       {
-        "tagsQuery": "",
-        "allValue": null,
+        "sort": 0,
         "name": "repogroup",
-        "multi": false,
-        "regex": "",
+        "refresh": 1,
         "type": "query",
+        "hide": 2,
+        "allValue": null,
+        "skipUrlSync": true,
+        "useTags": false,
+        "includeAll": false,
         "options": [],
+        "label": "",
+        "tagsQuery": "",
+        "regex": "",
+        "tagValuesQuery": "",
+        "multi": false,
         "query": "select all_repo_group_value from tall_repo_groups where all_repo_group_name = '[[repogroup_name]]'",
-        "datasource": "psql",
         "current": {
           "text": "all",
           "value": "all"
         },
-        "includeAll": false,
-        "hide": 2,
-        "refresh": 1,
-        "tagValuesQuery": "",
-        "label": "",
-        "skipUrlSync": true,
         "definition": "",
         "tags": [],
-        "sort": 0,
-        "useTags": false
+        "datasource": "psql"
       },
       {
-        "tagValuesQuery": "",
-        "allValue": null,
-        "definition": "",
-        "skipUrlSync": true,
-        "useTags": false,
-        "tagsQuery": "",
-        "label": null,
-        "multi": false,
-        "sort": 0,
-        "includeAll": false,
-        "refresh": 1,
-        "type": "query",
-        "name": "full_name",
         "datasource": "psql",
-        "hide": 2,
-        "options": [],
-        "current": {
-          "value": "ChubaoFS",
-          "text": "ChubaoFS"
-        },
-        "tags": [],
-        "query": "select value_s from gha_vars where name = 'full_name'",
-        "regex": ""
-      },
-      {
-        "definition": "",
-        "includeAll": false,
-        "multi": false,
-        "sort": 0,
-        "useTags": false,
-        "refresh": 1,
-        "options": [],
+        "type": "query",
         "regex": "",
         "allValue": null,
-        "label": null,
-        "tags": [],
-        "query": "select value_s from gha_vars where name = 'prs_authors_chart_docs_html'",
-        "name": "docs",
-        "hide": 2,
-        "tagValuesQuery": "",
-        "tagsQuery": "",
-        "type": "query",
         "skipUrlSync": true,
+        "useTags": false,
+        "includeAll": false,
+        "query": "select value_s from gha_vars where name = 'full_name'",
+        "definition": "",
+        "options": [],
+        "tags": [],
+        "refresh": 1,
         "current": {
-          "text": "\u003ch1 id=\"dashboard-header\"\u003eChubaoFS PRs authors dashboard\u003c/h1\u003e\n\u003cp\u003eLinks:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003eMetric \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/prs_authors.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eTSDB \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/metrics.yaml\" target=\"_blank\"\u003eseries definition\u003c/a\u003e. Search for \u003ccode\u003eprs_authors\u003c/code\u003e\u003c/li\u003e\n\u003cli\u003eGrafana dashboard \u003ca href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/chubaofs/prs-authors.json\" target=\"_blank\"\u003eJSON\u003c/a\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch1 id=\"description\"\u003eDescription\u003c/h1\u003e\n\u003cul\u003e\n\u003cli\u003eThis dashboard shows the number of unique PR authors created in given periods.\u003c/li\u003e\n\u003cli\u003eSelecting period (for example week) means that dashboard will calculate authors in those periods.\u003c/li\u003e\n\u003cli\u003eYou can select single repository group or summary for all of them.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/periods.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about periods.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/repository_groups.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about repository groups.\u003c/li\u003e\n\u003cli\u003eWe are skipping bots activity, see \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/excluding_bots.md\" target=\"_blank\"\u003eexcluding bots\u003c/a\u003e for details.\u003c/li\u003e\n\u003c/ul\u003e",
-          "value": "\u003ch1 id=\"dashboard-header\"\u003eChubaoFS PRs authors dashboard\u003c/h1\u003e\n\u003cp\u003eLinks:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003eMetric \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/prs_authors.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eTSDB \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/metrics.yaml\" target=\"_blank\"\u003eseries definition\u003c/a\u003e. Search for \u003ccode\u003eprs_authors\u003c/code\u003e\u003c/li\u003e\n\u003cli\u003eGrafana dashboard \u003ca href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/chubaofs/prs-authors.json\" target=\"_blank\"\u003eJSON\u003c/a\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch1 id=\"description\"\u003eDescription\u003c/h1\u003e\n\u003cul\u003e\n\u003cli\u003eThis dashboard shows the number of unique PR authors created in given periods.\u003c/li\u003e\n\u003cli\u003eSelecting period (for example week) means that dashboard will calculate authors in those periods.\u003c/li\u003e\n\u003cli\u003eYou can select single repository group or summary for all of them.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/periods.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about periods.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/repository_groups.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about repository groups.\u003c/li\u003e\n\u003cli\u003eWe are skipping bots activity, see \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/excluding_bots.md\" target=\"_blank\"\u003eexcluding bots\u003c/a\u003e for details.\u003c/li\u003e\n\u003c/ul\u003e"
+          "text": "ChubaoFS",
+          "value": "ChubaoFS"
         },
-        "datasource": "psql"
+        "tagsQuery": "",
+        "hide": 2,
+        "label": null,
+        "name": "full_name",
+        "multi": false,
+        "sort": 0,
+        "tagValuesQuery": ""
+      },
+      {
+        "type": "query",
+        "datasource": "psql",
+        "includeAll": false,
+        "tags": [],
+        "regex": "",
+        "useTags": false,
+        "multi": false,
+        "tagsQuery": "",
+        "sort": 0,
+        "query": "select value_s from gha_vars where name = 'prs_authors_chart_docs_html'",
+        "hide": 2,
+        "current": {
+          "value": "\u003ch1 id=\"dashboard-header\"\u003eChubaoFS PRs authors dashboard\u003c/h1\u003e\n\u003cp\u003eLinks:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003eMetric \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/prs_authors.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eTSDB \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/metrics.yaml\" target=\"_blank\"\u003eseries definition\u003c/a\u003e. Search for \u003ccode\u003eprs_authors\u003c/code\u003e\u003c/li\u003e\n\u003cli\u003eGrafana dashboard \u003ca href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/chubaofs/prs-authors.json\" target=\"_blank\"\u003eJSON\u003c/a\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch1 id=\"description\"\u003eDescription\u003c/h1\u003e\n\u003cul\u003e\n\u003cli\u003eThis dashboard shows the number of unique PR authors created in given periods.\u003c/li\u003e\n\u003cli\u003eSelecting period (for example week) means that dashboard will calculate authors in those periods.\u003c/li\u003e\n\u003cli\u003eYou can select single repository group or summary for all of them.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/periods.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about periods.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/repository_groups.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about repository groups.\u003c/li\u003e\n\u003cli\u003eWe are skipping bots activity, see \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/excluding_bots.md\" target=\"_blank\"\u003eexcluding bots\u003c/a\u003e for details.\u003c/li\u003e\n\u003c/ul\u003e",
+          "text": "\u003ch1 id=\"dashboard-header\"\u003eChubaoFS PRs authors dashboard\u003c/h1\u003e\n\u003cp\u003eLinks:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003eMetric \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/prs_authors.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eTSDB \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/metrics.yaml\" target=\"_blank\"\u003eseries definition\u003c/a\u003e. Search for \u003ccode\u003eprs_authors\u003c/code\u003e\u003c/li\u003e\n\u003cli\u003eGrafana dashboard \u003ca href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/chubaofs/prs-authors.json\" target=\"_blank\"\u003eJSON\u003c/a\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch1 id=\"description\"\u003eDescription\u003c/h1\u003e\n\u003cul\u003e\n\u003cli\u003eThis dashboard shows the number of unique PR authors created in given periods.\u003c/li\u003e\n\u003cli\u003eSelecting period (for example week) means that dashboard will calculate authors in those periods.\u003c/li\u003e\n\u003cli\u003eYou can select single repository group or summary for all of them.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/periods.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about periods.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/repository_groups.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about repository groups.\u003c/li\u003e\n\u003cli\u003eWe are skipping bots activity, see \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/excluding_bots.md\" target=\"_blank\"\u003eexcluding bots\u003c/a\u003e for details.\u003c/li\u003e\n\u003c/ul\u003e"
+        },
+        "allValue": null,
+        "label": null,
+        "refresh": 1,
+        "options": [],
+        "name": "docs",
+        "skipUrlSync": true,
+        "definition": "",
+        "tagValuesQuery": ""
       }
     ]
   },
-  "timezone": "",
-  "tags": [
-    "dashboard",
-    "kyverno"
-  ],
-  "time": {
-    "from": "now-1y",
-    "to": "now"
-  },
-  "uid": "23",
-  "editable": true,
-  "links": [],
-  "version": 2,
+  "schemaVersion": 21,
   "refresh": false,
   "id": 30,
-  "panels": [
-    {
-      "xaxis": {
-        "name": null,
-        "show": true,
-        "values": [
-          "total"
-        ],
-        "buckets": null,
-        "mode": "time"
-      },
-      "linewidth": 1,
-      "timeRegions": [],
-      "tooltip": {
-        "shared": false,
-        "sort": 0,
-        "value_type": "individual"
-      },
-      "timeShift": null,
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      },
-      "seriesOverrides": [],
-      "pointradius": 5,
-      "hiddenSeries": false,
-      "targets": [
-        {
-          "groupBy": [],
-          "format": "time_series",
-          "rawQuery": true,
-          "alias": "",
-          "orderByTime": "ASC",
-          "hide": false,
-          "policy": "autogen",
-          "resultFormat": "time_series",
-          "tags": [],
-          "dsType": "influxdb",
-          "query": "SELECT \"value\" FROM \"autogen\".\"prs_authors_[[repogroup]]_[[period]][[aggregate]]\" WHERE $timeFilter",
-          "measurement": "reviewers_d",
-          "refId": "A",
-          "rawSql": "select\n  time,\n  value as \"Unique PR authors\"\nfrom\n  spr_auth\nwhere\n  $__timeFilter(time)\n  and series = 'pr_auth[[repogroup]]'\n  and period = '[[period]]'\norder by\n  time",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              }
-            ]
-          ]
-        }
-      ],
-      "dashes": false,
-      "gridPos": {
-        "h": 22,
-        "w": 24,
-        "x": 0,
-        "y": 0
-      },
-      "decimals": 0,
-      "fillGradient": 0,
-      "datasource": "psql",
-      "title": "Number of unique PRs authors in [[repogroup_name]] repository group ([[period]])",
-      "yaxes": [
-        {
-          "format": "short",
-          "label": "Unique PRs authors",
-          "logBase": 1,
-          "max": null,
-          "min": "0",
-          "show": true
-        },
-        {
-          "label": "",
-          "logBase": 1,
-          "max": null,
-          "min": "0",
-          "show": true,
-          "format": "short"
-        }
-      ],
-      "links": [],
-      "percentage": false,
-      "legend": {
-        "hideEmpty": false,
-        "max": true,
-        "values": true,
-        "show": true,
-        "hideZero": false,
-        "avg": true,
-        "total": true,
-        "alignAsTable": true,
-        "min": true,
-        "rightSide": false,
-        "current": true
-      },
-      "lines": false,
-      "bars": true,
-      "description": "Number of unique PR authors in [[repogroup_name]] repository group.",
-      "options": {
-        "dataLinks": []
-      },
-      "id": 1,
-      "stack": false,
-      "type": "graph",
-      "aliasColors": {
-        
-      },
-      "renderer": "flot",
-      "points": false,
-      "fill": 1,
-      "thresholds": [],
-      "steppedLine": false,
-      "timeFrom": null,
-      "nullPointMode": "null",
-      "dashLength": 10,
-      "spaceLength": 10
-    },
-    {
-      "gridPos": {
-        "y": 22,
-        "h": 9,
-        "w": 24,
-        "x": 0
-      },
-      "datasource": null,
-      "options": {
-        
-      },
-      "mode": "html",
-      "id": 11,
-      "links": [],
-      "type": "text",
-      "content": "${docs:raw}",
-      "title": "Dashboard documentation"
-    }
-  ],
-  "schemaVersion": 21,
-  "style": "dark",
   "timepicker": {
+    "time_options": [
+      "5m",
+      "15m",
+      "1h",
+      "6h",
+      "12h",
+      "24h",
+      "2d",
+      "7d",
+      "30d"
+    ],
     "refresh_intervals": [
       "5s",
       "10s",
@@ -351,17 +183,185 @@
       "1h",
       "2h",
       "1d"
-    ],
-    "time_options": [
-      "5m",
-      "15m",
-      "1h",
-      "6h",
-      "12h",
-      "24h",
-      "2d",
-      "7d",
-      "30d"
     ]
-  }
+  },
+  "iteration": 1586176689126,
+  "panels": [
+    {
+      "seriesOverrides": [],
+      "id": 1,
+      "hiddenSeries": false,
+      "fillGradient": 0,
+      "dashes": false,
+      "renderer": "flot",
+      "timeRegions": [],
+      "timeFrom": null,
+      "linewidth": 1,
+      "yaxes": [
+        {
+          "min": "0",
+          "show": true,
+          "format": "short",
+          "label": "Unique PRs authors",
+          "logBase": 1,
+          "max": null
+        },
+        {
+          "format": "short",
+          "label": "",
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true
+        }
+      ],
+      "type": "graph",
+      "aliasColors": {
+        
+      },
+      "tooltip": {
+        "value_type": "individual",
+        "shared": false,
+        "sort": 0
+      },
+      "bars": true,
+      "points": false,
+      "timeShift": null,
+      "legend": {
+        "current": true,
+        "hideEmpty": false,
+        "max": true,
+        "alignAsTable": true,
+        "hideZero": false,
+        "total": true,
+        "rightSide": false,
+        "values": true,
+        "avg": true,
+        "min": true,
+        "show": true
+      },
+      "gridPos": {
+        "w": 24,
+        "x": 0,
+        "y": 0,
+        "h": 22
+      },
+      "datasource": "psql",
+      "spaceLength": 10,
+      "pointradius": 5,
+      "targets": [
+        {
+          "rawSql": "select\n  time,\n  value as \"Unique PR authors\"\nfrom\n  spr_auth\nwhere\n  $__timeFilter(time)\n  and series = 'pr_auth[[repogroup]]'\n  and period = '[[period]]'\norder by\n  time",
+          "refId": "A",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "type": "field",
+                "params": [
+                  "value"
+                ]
+              }
+            ]
+          ],
+          "groupBy": [],
+          "query": "SELECT \"value\" FROM \"autogen\".\"prs_authors_[[repogroup]]_[[period]][[aggregate]]\" WHERE $timeFilter",
+          "alias": "",
+          "orderByTime": "ASC",
+          "hide": false,
+          "format": "time_series",
+          "measurement": "reviewers_d",
+          "tags": [],
+          "rawQuery": true,
+          "dsType": "influxdb",
+          "policy": "autogen"
+        }
+      ],
+      "options": {
+        "dataLinks": []
+      },
+      "lines": false,
+      "percentage": false,
+      "fill": 1,
+      "steppedLine": false,
+      "dashLength": 10,
+      "stack": false,
+      "xaxis": {
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": [
+          "total"
+        ],
+        "buckets": null
+      },
+      "links": [],
+      "title": "Number of unique PRs authors in [[repogroup_name]] repository group ([[period]])",
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      },
+      "decimals": 0,
+      "thresholds": [],
+      "nullPointMode": "null",
+      "description": "Number of unique PR authors in [[repogroup_name]] repository group."
+    },
+    {
+      "mode": "html",
+      "id": 11,
+      "title": "Dashboard documentation",
+      "gridPos": {
+        "w": 24,
+        "x": 0,
+        "y": 22,
+        "h": 9
+      },
+      "datasource": null,
+      "options": {
+        
+      },
+      "type": "text",
+      "links": [],
+      "content": "${docs:raw}"
+    }
+  ],
+  "version": 2,
+  "gnetId": null,
+  "timezone": "",
+  "tags": [
+    "dashboard",
+    "kyverno"
+  ],
+  "graphTooltip": 0,
+  "annotations": {
+    "list": [
+      {
+        "name": "Annotations \u0026 Alerts",
+        "type": "dashboard",
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)"
+      },
+      {
+        "iconColor": "rgba(255, 96, 96, 1)",
+        "rawQuery": "select extract(epoch from time) AS time, title as text, description as tags from sannotations where $__timeFilter(time)",
+        "showIn": 0,
+        "limit": 100,
+        "name": "Releases",
+        "query": "SELECT title, description from annotations WHERE $timeFilter order by time asc",
+        "type": "alert",
+        "textColumn": "",
+        "tagsColumn": "title,description",
+        "hide": false,
+        "datasource": "psql",
+        "titleColumn": "[[full_name]] release",
+        "enable": true
+      }
+    ]
+  },
+  "editable": true,
+  "title": "PRs Authors Repository Groups",
+  "uid": "23"
 }

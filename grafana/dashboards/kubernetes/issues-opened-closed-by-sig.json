@@ -1,47 +1,109 @@
 {
+  "links": [],
+  "style": "dark",
+  "title": "Issues Opened/Closed by SIG",
+  "id": 96,
   "annotations": {
     "list": [
       {
+        "name": "Annotations \u0026 Alerts",
+        "type": "dashboard",
         "builtIn": 1,
         "datasource": "-- Grafana --",
         "enable": true,
         "hide": true,
-        "iconColor": "rgba(0, 211, 255, 1)",
-        "name": "Annotations \u0026 Alerts",
-        "type": "dashboard"
+        "iconColor": "rgba(0, 211, 255, 1)"
       },
       {
-        "datasource": "psql",
-        "enable": true,
-        "hide": false,
-        "iconColor": "rgba(255, 96, 96, 1)",
-        "limit": 100,
-        "name": "Releases",
-        "query": "SELECT title, description from annotations WHERE $timeFilter order by time asc",
         "rawQuery": "select extract(epoch from time) AS time, title as text, description as tags from sannotations where $__timeFilter(time)",
-        "showIn": 0,
-        "tagsColumn": "title,description",
-        "textColumn": "",
         "titleColumn": "[[full_name]] release",
-        "type": "alert"
+        "type": "alert",
+        "hide": false,
+        "textColumn": "",
+        "datasource": "psql",
+        "tagsColumn": "title,description",
+        "name": "Releases",
+        "iconColor": "rgba(255, 96, 96, 1)",
+        "enable": true,
+        "limit": 100,
+        "query": "SELECT title, description from annotations WHERE $timeFilter order by time asc",
+        "showIn": 0
       }
     ]
   },
-  "editable": true,
-  "gnetId": null,
-  "graphTooltip": 0,
-  "id": 96,
-  "links": [],
+  "schemaVersion": 16,
   "panels": [
     {
-      "aliasColors": {},
+      "seriesOverrides": [],
+      "targets": [
+        {
+          "alias": "",
+          "policy": "default",
+          "measurement": "sig_federation_d",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              }
+            ]
+          ],
+          "dsType": "influxdb",
+          "rawQuery": true,
+          "tags": [],
+          "groupBy": [],
+          "refId": "A",
+          "format": "time_series",
+          "query": "SELECT /^[[sig]]-[[kind]]$/ FROM \"sig_mentions_labels_sig_kind_[[period]]\" WHERE $timeFilter",
+          "rawSql": "select\n  time,\n  value as \"Issues opened\"\nfrom\n  ssigm_lsk\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'sigm_lsk[[sig]][[kind]]'\norder by\n  time",
+          "orderByTime": "ASC"
+        },
+        {
+          "orderByTime": "ASC",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              }
+            ]
+          ],
+          "query": "SELECT /^[[sig]]-[[kind]]$/ FROM \"issues_closed_labels_sig_kind_[[period]]\" WHERE $timeFilter",
+          "measurement": "sig_federation_d",
+          "rawSql": "select\n  time,\n  \"value\" as \"Issues closed\"\nfrom\n  siclosed_lsk\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'iclosed_lsk[[sig]][[kind]]'\norder by\n  time",
+          "resultFormat": "time_series",
+          "tags": [],
+          "format": "time_series",
+          "refId": "B",
+          "dsType": "influxdb",
+          "groupBy": [],
+          "rawQuery": true,
+          "policy": "default",
+          "alias": ""
+        }
+      ],
       "bars": false,
-      "dashLength": 10,
+      "pointradius": 5,
+      "links": [],
+      "timeShift": null,
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      },
+      "spaceLength": 10,
+      "stack": false,
       "dashes": false,
-      "datasource": "psql",
-      "decimals": 2,
-      "description": "Show Issues opened/closed for given SIG and Kind",
+      "percentage": false,
+      "aliasColors": {
+        
+      },
       "fill": 1,
+      "title": "Issues SIG: [[sig_name]] Kind: [[kind_name]] ([[period]])",
       "gridPos": {
         "h": 18,
         "w": 24,
@@ -49,113 +111,17 @@
         "y": 0
       },
       "id": 3,
-      "legend": {
-        "alignAsTable": true,
-        "avg": true,
-        "current": true,
-        "hideEmpty": false,
-        "hideZero": false,
-        "max": true,
-        "min": true,
-        "rightSide": false,
-        "show": true,
-        "sort": "avg",
-        "sortDesc": true,
-        "total": true,
-        "values": true
-      },
-      "lines": true,
-      "linewidth": 1,
-      "links": [],
       "nullPointMode": "null as zero",
-      "percentage": false,
-      "pointradius": 5,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [],
-      "spaceLength": 10,
-      "stack": false,
-      "steppedLine": false,
-      "targets": [
-        {
-          "alias": "",
-          "dsType": "influxdb",
-          "format": "time_series",
-          "groupBy": [],
-          "measurement": "sig_federation_d",
-          "orderByTime": "ASC",
-          "policy": "default",
-          "query": "SELECT /^[[sig]]-[[kind]]$/ FROM \"sig_mentions_labels_sig_kind_[[period]]\" WHERE $timeFilter",
-          "rawQuery": true,
-          "rawSql": "select\n  time,\n  value as \"Issues opened\"\nfrom\n  ssigm_lsk\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'sigm_lsk[[sig]][[kind]]'\norder by\n  time",
-          "refId": "A",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              }
-            ]
-          ],
-          "tags": []
-        },
-        {
-          "alias": "",
-          "dsType": "influxdb",
-          "format": "time_series",
-          "groupBy": [],
-          "measurement": "sig_federation_d",
-          "orderByTime": "ASC",
-          "policy": "default",
-          "query": "SELECT /^[[sig]]-[[kind]]$/ FROM \"issues_closed_labels_sig_kind_[[period]]\" WHERE $timeFilter",
-          "rawQuery": true,
-          "rawSql": "select\n  time,\n  \"value\" as \"Issues closed\"\nfrom\n  siclosed_lsk\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'iclosed_lsk[[sig]][[kind]]'\norder by\n  time",
-          "refId": "B",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              }
-            ]
-          ],
-          "tags": []
-        }
-      ],
-      "thresholds": [],
-      "timeFrom": null,
-      "timeShift": null,
-      "title": "Issues SIG: [[sig_name]] Kind: [[kind_name]] ([[period]])",
-      "tooltip": {
-        "shared": true,
-        "sort": 2,
-        "value_type": "individual"
-      },
-      "transparent": true,
       "type": "graph",
-      "xaxis": {
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true,
-        "values": [
-          "total"
-        ]
-      },
+      "transparent": true,
       "yaxes": [
         {
-          "format": "short",
-          "label": "Issues",
           "logBase": 1,
           "max": null,
           "min": "0",
-          "show": true
+          "show": true,
+          "format": "short",
+          "label": "Issues"
         },
         {
           "format": "short",
@@ -166,12 +132,49 @@
           "show": true
         }
       ],
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      }
+      "tooltip": {
+        "shared": true,
+        "sort": 2,
+        "value_type": "individual"
+      },
+      "linewidth": 1,
+      "renderer": "flot",
+      "xaxis": {
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": [
+          "total"
+        ],
+        "buckets": null
+      },
+      "lines": true,
+      "timeFrom": null,
+      "datasource": "psql",
+      "thresholds": [],
+      "legend": {
+        "hideZero": false,
+        "sortDesc": true,
+        "total": true,
+        "values": true,
+        "current": true,
+        "max": true,
+        "min": true,
+        "rightSide": false,
+        "show": true,
+        "alignAsTable": true,
+        "avg": true,
+        "hideEmpty": false,
+        "sort": "avg"
+      },
+      "points": false,
+      "dashLength": 10,
+      "steppedLine": false,
+      "decimals": 2,
+      "description": "Show Issues opened/closed for given SIG and Kind"
     },
     {
+      "type": "text",
       "content": "${docs:raw}",
       "gridPos": {
         "h": 9,
@@ -182,220 +185,21 @@
       "id": 5,
       "links": [],
       "mode": "html",
-      "title": "Dashboard documentation",
-      "type": "text"
+      "title": "Dashboard documentation"
     }
   ],
-  "refresh": false,
-  "schemaVersion": 16,
-  "style": "dark",
-  "tags": [
-    "dashboard",
-    "kubernetes",
-    "issues",
-    "SIGs"
-  ],
-  "templating": {
-    "list": [
-      {
-        "allValue": null,
-        "current": {
-          "tags": [],
-          "text": "7 Days MA",
-          "value": "d7"
-        },
-        "hide": 0,
-        "includeAll": false,
-        "label": "Period",
-        "multi": false,
-        "name": "period",
-        "options": [
-          {
-            "selected": false,
-            "text": "Day",
-            "value": "d"
-          },
-          {
-            "selected": true,
-            "text": "7 Days MA",
-            "value": "d7"
-          },
-          {
-            "selected": false,
-            "text": "Week",
-            "value": "w"
-          },
-          {
-            "selected": false,
-            "text": "Month",
-            "value": "m"
-          },
-          {
-            "selected": false,
-            "text": "Quarter",
-            "value": "q"
-          },
-          {
-            "selected": false,
-            "text": "Year",
-            "value": "y"
-          }
-        ],
-        "query": "d,w,m,q,y",
-        "skipUrlSync": false,
-        "type": "custom"
-      },
-      {
-        "allValue": "",
-        "current": {
-          "text": "All",
-          "value": "All"
-        },
-        "datasource": "psql",
-        "hide": 0,
-        "includeAll": false,
-        "label": "SIG",
-        "multi": false,
-        "name": "sig_name",
-        "options": [],
-        "query": "select sig_mentions_labels_name_with_all from tsig_mentions_labels_with_all order by 1",
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": false,
-        "sort": 0,
-        "tagValuesQuery": "",
-        "tags": [],
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false
-      },
-      {
-        "allValue": "",
-        "current": {
-          "text": "All",
-          "value": "All"
-        },
-        "datasource": "psql",
-        "hide": 0,
-        "includeAll": false,
-        "label": "Kind",
-        "multi": false,
-        "name": "kind_name",
-        "options": [],
-        "query": "select sigm_lbl_kind_name_with_all from tsigm_lbl_kinds_with_all order by 1",
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": false,
-        "sort": 0,
-        "tagValuesQuery": "",
-        "tags": [],
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false
-      },
-      {
-        "allValue": null,
-        "current": {
-          "text": "Kubernetes",
-          "value": "Kubernetes"
-        },
-        "datasource": "psql",
-        "hide": 2,
-        "includeAll": false,
-        "label": null,
-        "multi": false,
-        "name": "full_name",
-        "options": [],
-        "query": "select value_s from gha_vars where name = 'full_name'",
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": true,
-        "sort": 0,
-        "tagValuesQuery": "",
-        "tags": [],
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false
-      },
-      {
-        "allValue": "",
-        "current": {
-          "text": "all",
-          "value": "all"
-        },
-        "datasource": "psql",
-        "hide": 2,
-        "includeAll": false,
-        "label": "",
-        "multi": false,
-        "name": "sig",
-        "options": [],
-        "query": "select sig_mentions_labels_value_with_all from tsig_mentions_labels_with_all where sig_mentions_labels_name_with_all = '[[sig_name]]'",
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": true,
-        "sort": 0,
-        "tagValuesQuery": "",
-        "tags": [],
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false
-      },
-      {
-        "allValue": "",
-        "current": {
-          "text": "all",
-          "value": "all"
-        },
-        "datasource": "psql",
-        "hide": 2,
-        "includeAll": false,
-        "label": "",
-        "multi": false,
-        "name": "kind",
-        "options": [],
-        "query": "select sigm_lbl_kind_value_with_all from tsigm_lbl_kinds_with_all where sigm_lbl_kind_name_with_all = '[[kind_name]]'",
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": true,
-        "sort": 0,
-        "tagValuesQuery": "",
-        "tags": [],
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false
-      },
-      {
-        "allValue": null,
-        "current": {
-          "text": "\u003ch1 id=\"kubernetes-dashboard\"\u003eKubernetes Issues Opened/Closed by SIG dashboard\u003c/h1\u003e\n\u003cp\u003eLinks:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003eOpened issues metric \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/labels_sig_kind.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eClosed issues metric \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/labels_sig_kind_closed.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eTSDB \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/metrics.yaml\" target=\"_blank\"\u003eseries definition\u003c/a\u003e. Search for \u003ccode\u003eIssues opened\u003c/code\u003e\u003c/li\u003e\n\u003cli\u003eGrafana dashboard \u003ca href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/issues-opened-closed-by-sig.json\" target=\"_blank\"\u003eJSON\u003c/a\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch1 id=\"description\"\u003eDescription\u003c/h1\u003e\n\u003cul\u003e\n\u003cli\u003eThis dashboard shows the chart of how many issues were opened and closed in selected periods.\u003c/li\u003e\n\u003cli\u003eYou can filter by SIG and kind.\u003c/li\u003e\n\u003cli\u003eIssue SIG is determined by \u003ccode\u003esig/*\u003c/code\u003e labels. You can also select summary for all issues by choosing \u003ccode\u003eAll\u003c/code\u003e SIG.\u003c/li\u003e\n\u003cli\u003eIssue kind is determined by \u003ccode\u003ekind/*\u003c/code\u003e labels. You can also select summary for all issues by choosing \u003ccode\u003eAll\u003c/code\u003e kind.\u003c/li\u003e\n\u003cli\u003eSelecting period (for example week) means that dashboard will show number of issues in those periods.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/periods.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about periods.\u003c/li\u003e\n\u003c/ul\u003e",
-          "value": "\u003ch1 id=\"kubernetes-dashboard\"\u003eKubernetes Issues Opened/Closed by SIG dashboard\u003c/h1\u003e\n\u003cp\u003eLinks:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003eOpened issues metric \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/labels_sig_kind.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eClosed issues metric \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/labels_sig_kind_closed.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eTSDB \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/metrics.yaml\" target=\"_blank\"\u003eseries definition\u003c/a\u003e. Search for \u003ccode\u003eIssues opened\u003c/code\u003e\u003c/li\u003e\n\u003cli\u003eGrafana dashboard \u003ca href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/issues-opened-closed-by-sig.json\" target=\"_blank\"\u003eJSON\u003c/a\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch1 id=\"description\"\u003eDescription\u003c/h1\u003e\n\u003cul\u003e\n\u003cli\u003eThis dashboard shows the chart of how many issues were opened and closed in selected periods.\u003c/li\u003e\n\u003cli\u003eYou can filter by SIG and kind.\u003c/li\u003e\n\u003cli\u003eIssue SIG is determined by \u003ccode\u003esig/*\u003c/code\u003e labels. You can also select summary for all issues by choosing \u003ccode\u003eAll\u003c/code\u003e SIG.\u003c/li\u003e\n\u003cli\u003eIssue kind is determined by \u003ccode\u003ekind/*\u003c/code\u003e labels. You can also select summary for all issues by choosing \u003ccode\u003eAll\u003c/code\u003e kind.\u003c/li\u003e\n\u003cli\u003eSelecting period (for example week) means that dashboard will show number of issues in those periods.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/periods.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about periods.\u003c/li\u003e\n\u003c/ul\u003e"
-        },
-        "datasource": "psql",
-        "hide": 2,
-        "includeAll": false,
-        "label": null,
-        "multi": false,
-        "name": "docs",
-        "options": [],
-        "query": "select value_s from gha_vars where name = 'issues_opened_closed_docs_html'",
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": true,
-        "sort": 0,
-        "tagValuesQuery": "",
-        "tags": [],
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false
-      }
-    ]
-  },
-  "time": {
-    "from": "now-3y",
-    "to": "now"
-  },
   "timepicker": {
+    "time_options": [
+      "5m",
+      "15m",
+      "1h",
+      "6h",
+      "12h",
+      "24h",
+      "2d",
+      "7d",
+      "30d"
+    ],
     "refresh_intervals": [
       "5s",
       "10s",
@@ -407,21 +211,219 @@
       "1h",
       "2h",
       "1d"
-    ],
-    "time_options": [
-      "5m",
-      "15m",
-      "1h",
-      "6h",
-      "12h",
-      "24h",
-      "2d",
-      "7d",
-      "30d"
     ]
   },
+  "gnetId": null,
+  "version": 11,
+  "time": {
+    "from": "now-3y",
+    "to": "now"
+  },
+  "graphTooltip": 0,
   "timezone": "",
-  "title": "Issues Opened/Closed by SIG",
+  "tags": [
+    "dashboard",
+    "kubernetes",
+    "issues",
+    "SIGs"
+  ],
   "uid": "39",
-  "version": 11
+  "templating": {
+    "list": [
+      {
+        "hide": 0,
+        "includeAll": false,
+        "query": "d,w,m,q,y",
+        "skipUrlSync": false,
+        "current": {
+          "tags": [],
+          "text": "7 Days MA",
+          "value": "d7"
+        },
+        "options": [
+          {
+            "text": "Day",
+            "value": "d",
+            "selected": false
+          },
+          {
+            "selected": true,
+            "text": "7 Days MA",
+            "value": "d7"
+          },
+          {
+            "value": "w",
+            "selected": false,
+            "text": "Week"
+          },
+          {
+            "selected": false,
+            "text": "Month",
+            "value": "m"
+          },
+          {
+            "value": "q",
+            "selected": false,
+            "text": "Quarter"
+          },
+          {
+            "text": "Year",
+            "value": "y",
+            "selected": false
+          }
+        ],
+        "label": "Period",
+        "name": "period",
+        "allValue": null,
+        "type": "custom",
+        "multi": false
+      },
+      {
+        "refresh": 1,
+        "type": "query",
+        "allValue": "",
+        "regex": "",
+        "includeAll": false,
+        "options": [],
+        "datasource": "psql",
+        "useTags": false,
+        "label": "SIG",
+        "hide": 0,
+        "tagValuesQuery": "",
+        "tagsQuery": "",
+        "tags": [],
+        "multi": false,
+        "name": "sig_name",
+        "sort": 0,
+        "current": {
+          "text": "All",
+          "value": "All"
+        },
+        "query": "select sig_mentions_labels_name_with_all from tsig_mentions_labels_with_all order by 1",
+        "skipUrlSync": false
+      },
+      {
+        "type": "query",
+        "label": "Kind",
+        "options": [],
+        "current": {
+          "value": "All",
+          "text": "All"
+        },
+        "tagsQuery": "",
+        "skipUrlSync": false,
+        "useTags": false,
+        "multi": false,
+        "refresh": 1,
+        "name": "kind_name",
+        "query": "select sigm_lbl_kind_name_with_all from tsigm_lbl_kinds_with_all order by 1",
+        "hide": 0,
+        "sort": 0,
+        "includeAll": false,
+        "tagValuesQuery": "",
+        "datasource": "psql",
+        "allValue": "",
+        "regex": "",
+        "tags": []
+      },
+      {
+        "includeAll": false,
+        "multi": false,
+        "tagValuesQuery": "",
+        "tagsQuery": "",
+        "sort": 0,
+        "skipUrlSync": true,
+        "tags": [],
+        "hide": 2,
+        "label": null,
+        "useTags": false,
+        "current": {
+          "value": "Kubernetes",
+          "text": "Kubernetes"
+        },
+        "options": [],
+        "query": "select value_s from gha_vars where name = 'full_name'",
+        "allValue": null,
+        "type": "query",
+        "datasource": "psql",
+        "refresh": 1,
+        "name": "full_name",
+        "regex": ""
+      },
+      {
+        "tagsQuery": "",
+        "type": "query",
+        "regex": "",
+        "includeAll": false,
+        "allValue": "",
+        "sort": 0,
+        "options": [],
+        "skipUrlSync": true,
+        "current": {
+          "text": "all",
+          "value": "all"
+        },
+        "name": "sig",
+        "query": "select sig_mentions_labels_value_with_all from tsig_mentions_labels_with_all where sig_mentions_labels_name_with_all = '[[sig_name]]'",
+        "multi": false,
+        "hide": 2,
+        "tags": [],
+        "datasource": "psql",
+        "label": "",
+        "refresh": 1,
+        "useTags": false,
+        "tagValuesQuery": ""
+      },
+      {
+        "skipUrlSync": true,
+        "datasource": "psql",
+        "type": "query",
+        "tagsQuery": "",
+        "multi": false,
+        "refresh": 1,
+        "query": "select sigm_lbl_kind_value_with_all from tsigm_lbl_kinds_with_all where sigm_lbl_kind_name_with_all = '[[kind_name]]'",
+        "sort": 0,
+        "name": "kind",
+        "includeAll": false,
+        "regex": "",
+        "label": "",
+        "options": [],
+        "current": {
+          "value": "all",
+          "text": "all"
+        },
+        "hide": 2,
+        "tags": [],
+        "allValue": "",
+        "tagValuesQuery": "",
+        "useTags": false
+      },
+      {
+        "type": "query",
+        "multi": false,
+        "current": {
+          "text": "\u003ch1 id=\"kubernetes-dashboard\"\u003eKubernetes Issues Opened/Closed by SIG dashboard\u003c/h1\u003e\n\u003cp\u003eLinks:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003eOpened issues metric \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/labels_sig_kind.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eClosed issues metric \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/labels_sig_kind_closed.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eTSDB \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/metrics.yaml\" target=\"_blank\"\u003eseries definition\u003c/a\u003e. Search for \u003ccode\u003eIssues opened\u003c/code\u003e\u003c/li\u003e\n\u003cli\u003eGrafana dashboard \u003ca href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/issues-opened-closed-by-sig.json\" target=\"_blank\"\u003eJSON\u003c/a\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch1 id=\"description\"\u003eDescription\u003c/h1\u003e\n\u003cul\u003e\n\u003cli\u003eThis dashboard shows the chart of how many issues were opened and closed in selected periods.\u003c/li\u003e\n\u003cli\u003eYou can filter by SIG and kind.\u003c/li\u003e\n\u003cli\u003eIssue SIG is determined by \u003ccode\u003esig/*\u003c/code\u003e labels. You can also select summary for all issues by choosing \u003ccode\u003eAll\u003c/code\u003e SIG.\u003c/li\u003e\n\u003cli\u003eIssue kind is determined by \u003ccode\u003ekind/*\u003c/code\u003e labels. You can also select summary for all issues by choosing \u003ccode\u003eAll\u003c/code\u003e kind.\u003c/li\u003e\n\u003cli\u003eSelecting period (for example week) means that dashboard will show number of issues in those periods.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/periods.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about periods.\u003c/li\u003e\n\u003c/ul\u003e",
+          "value": "\u003ch1 id=\"kubernetes-dashboard\"\u003eKubernetes Issues Opened/Closed by SIG dashboard\u003c/h1\u003e\n\u003cp\u003eLinks:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003eOpened issues metric \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/labels_sig_kind.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eClosed issues metric \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/labels_sig_kind_closed.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eTSDB \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/metrics.yaml\" target=\"_blank\"\u003eseries definition\u003c/a\u003e. Search for \u003ccode\u003eIssues opened\u003c/code\u003e\u003c/li\u003e\n\u003cli\u003eGrafana dashboard \u003ca href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/issues-opened-closed-by-sig.json\" target=\"_blank\"\u003eJSON\u003c/a\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch1 id=\"description\"\u003eDescription\u003c/h1\u003e\n\u003cul\u003e\n\u003cli\u003eThis dashboard shows the chart of how many issues were opened and closed in selected periods.\u003c/li\u003e\n\u003cli\u003eYou can filter by SIG and kind.\u003c/li\u003e\n\u003cli\u003eIssue SIG is determined by \u003ccode\u003esig/*\u003c/code\u003e labels. You can also select summary for all issues by choosing \u003ccode\u003eAll\u003c/code\u003e SIG.\u003c/li\u003e\n\u003cli\u003eIssue kind is determined by \u003ccode\u003ekind/*\u003c/code\u003e labels. You can also select summary for all issues by choosing \u003ccode\u003eAll\u003c/code\u003e kind.\u003c/li\u003e\n\u003cli\u003eSelecting period (for example week) means that dashboard will show number of issues in those periods.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/periods.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about periods.\u003c/li\u003e\n\u003c/ul\u003e"
+        },
+        "label": null,
+        "refresh": 1,
+        "includeAll": false,
+        "name": "docs",
+        "sort": 0,
+        "tagsQuery": "",
+        "regex": "",
+        "useTags": false,
+        "query": "select value_s from gha_vars where name = 'issues_opened_closed_docs_html'",
+        "hide": 2,
+        "datasource": "psql",
+        "allValue": null,
+        "options": [],
+        "skipUrlSync": true,
+        "tagValuesQuery": "",
+        "tags": []
+      }
+    ]
+  },
+  "editable": true,
+  "refresh": false
 }

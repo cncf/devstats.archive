@@ -1,100 +1,38 @@
 {
-  "annotations": {
-    "list": [
-      {
-        "builtIn": 1,
-        "datasource": "-- Grafana --",
-        "enable": true,
-        "hide": true,
-        "iconColor": "rgba(0, 211, 255, 1)",
-        "name": "Annotations \u0026 Alerts",
-        "type": "dashboard"
-      },
-      {
-        "datasource": "psql",
-        "enable": true,
-        "hide": false,
-        "iconColor": "rgba(255, 96, 96, 1)",
-        "limit": 100,
-        "name": "Releases",
-        "query": "SELECT title, description from annotations WHERE $timeFilter order by time asc",
-        "rawQuery": "select extract(epoch from time) AS time, title as text, description as tags from sannotations where $__timeFilter(time)",
-        "showIn": 0,
-        "tagsColumn": "title,description",
-        "textColumn": "",
-        "titleColumn": "[[full_name]] release",
-        "type": "alert"
-      }
-    ]
-  },
-  "editable": true,
-  "gnetId": null,
-  "graphTooltip": 0,
-  "id": 15,
-  "iteration": 1567416900696,
-  "links": [],
   "panels": [
     {
-      "aliasColors": {},
-      "bars": true,
-      "dashLength": 10,
-      "dashes": false,
-      "datasource": "psql",
-      "decimals": 2,
-      "description": "Show Issues opened/closed for given repository group",
+      "links": [],
+      "lines": false,
+      "nullPointMode": "null as zero",
       "fill": 1,
-      "fillGradient": 0,
       "gridPos": {
         "h": 9,
         "w": 24,
         "x": 0,
         "y": 0
       },
-      "id": 3,
-      "legend": {
-        "alignAsTable": true,
-        "avg": true,
-        "current": true,
-        "hideEmpty": false,
-        "hideZero": false,
-        "max": true,
-        "min": true,
-        "rightSide": false,
-        "show": true,
-        "sort": "avg",
-        "sortDesc": true,
-        "total": true,
-        "values": true
-      },
-      "lines": false,
-      "linewidth": 1,
-      "links": [],
-      "nullPointMode": "null as zero",
+      "transparent": true,
+      "title": "Issues Repository group: [[repogroup_name]] ([[period]])",
+      "pointradius": 5,
       "options": {
         "dataLinks": []
       },
-      "percentage": false,
-      "pointradius": 5,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [],
-      "spaceLength": 10,
-      "stack": true,
-      "steppedLine": false,
+      "bars": true,
+      "fillGradient": 0,
+      "timeShift": null,
+      "linewidth": 1,
       "targets": [
         {
-          "alias": "",
-          "dsType": "influxdb",
           "format": "time_series",
           "groupBy": [],
-          "measurement": "sig_federation_d",
-          "orderByTime": "ASC",
-          "policy": "default",
-          "query": "SELECT /^[[repogroup]]$/ FROM \"issues_opened_[[period]]\" WHERE $timeFilter",
-          "rawQuery": true,
           "rawSql": "select\n  time,\n  \"[[repogroup]]\" as \"Issues opened\"\nfrom\n  siopened\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\norder by\n  time",
-          "refId": "A",
+          "query": "SELECT /^[[repogroup]]$/ FROM \"issues_opened_[[period]]\" WHERE $timeFilter",
+          "policy": "default",
+          "dsType": "influxdb",
+          "measurement": "sig_federation_d",
           "resultFormat": "time_series",
+          "alias": "",
+          "tags": [],
           "select": [
             [
               {
@@ -105,21 +43,21 @@
               }
             ]
           ],
-          "tags": []
+          "rawQuery": true,
+          "orderByTime": "ASC",
+          "refId": "A"
         },
         {
-          "alias": "",
-          "dsType": "influxdb",
+          "policy": "default",
           "format": "time_series",
+          "dsType": "influxdb",
+          "orderByTime": "ASC",
+          "tags": [],
           "groupBy": [],
           "measurement": "sig_federation_d",
-          "orderByTime": "ASC",
-          "policy": "default",
           "query": "SELECT /^[[repogroup]]$/ FROM \"issues_closed_[[period]]\" WHERE $timeFilter",
-          "rawQuery": true,
-          "rawSql": "select\n  time,\n  \"[[repogroup]]\" as \"Issues closed\"\nfrom\n  siclosed\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\norder by\n  time",
-          "refId": "B",
           "resultFormat": "time_series",
+          "rawSql": "select\n  time,\n  \"[[repogroup]]\" as \"Issues closed\"\nfrom\n  siclosed\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\norder by\n  time",
           "select": [
             [
               {
@@ -130,21 +68,226 @@
               }
             ]
           ],
-          "tags": []
+          "refId": "B",
+          "alias": "",
+          "rawQuery": true
         }
       ],
       "thresholds": [],
+      "id": 3,
+      "type": "graph",
+      "points": false,
+      "stack": true,
+      "xaxis": {
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": [
+          "total"
+        ],
+        "buckets": null
+      },
+      "percentage": false,
+      "decimals": 2,
+      "legend": {
+        "rightSide": false,
+        "sort": "avg",
+        "sortDesc": true,
+        "current": true,
+        "hideEmpty": false,
+        "max": true,
+        "hideZero": false,
+        "alignAsTable": true,
+        "show": true,
+        "values": true,
+        "avg": true,
+        "min": true,
+        "total": true
+      },
       "timeFrom": null,
+      "spaceLength": 10,
+      "yaxis": {
+        "alignLevel": null,
+        "align": false
+      },
+      "aliasColors": {
+        
+      },
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "psql",
       "timeRegions": [],
-      "timeShift": null,
-      "title": "Issues Repository group: [[repogroup_name]] ([[period]])",
       "tooltip": {
         "shared": true,
         "sort": 2,
         "value_type": "individual"
       },
-      "transparent": true,
-      "type": "graph",
+      "description": "Show Issues opened/closed for given repository group",
+      "yaxes": [
+        {
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true,
+          "format": "short",
+          "label": "Issues"
+        },
+        {
+          "show": true,
+          "format": "short",
+          "label": "",
+          "logBase": 1,
+          "max": null,
+          "min": "0"
+        }
+      ],
+      "renderer": "flot",
+      "steppedLine": false,
+      "seriesOverrides": []
+    },
+    {
+      "spaceLength": 10,
+      "decimals": 2,
+      "seriesOverrides": [],
+      "linewidth": 1,
+      "points": false,
+      "fillGradient": 0,
+      "pointradius": 5,
+      "gridPos": {
+        "w": 24,
+        "x": 0,
+        "y": 9,
+        "h": 9
+      },
+      "timeRegions": [],
+      "nullPointMode": "null as zero",
+      "bars": true,
+      "yaxes": [
+        {
+          "label": "PRs",
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true,
+          "format": "short"
+        },
+        {
+          "max": null,
+          "min": "0",
+          "show": true,
+          "format": "short",
+          "label": "",
+          "logBase": 1
+        }
+      ],
+      "renderer": "flot",
+      "lines": false,
+      "targets": [
+        {
+          "policy": "default",
+          "resultFormat": "time_series",
+          "format": "time_series",
+          "alias": "",
+          "group": [],
+          "metricColumn": "none",
+          "groupBy": [],
+          "tags": [],
+          "select": [
+            [
+              {
+                "type": "field",
+                "params": [
+                  "value"
+                ]
+              }
+            ]
+          ],
+          "measurement": "sig_federation_d",
+          "orderByTime": "ASC",
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ],
+          "dsType": "influxdb",
+          "rawQuery": true,
+          "query": "SELECT /^[[repogroup]]$/ FROM \"issues_opened_[[period]]\" WHERE $timeFilter",
+          "rawSql": "select\n  time,\n  \"[[repogroup]]\" as \"PRs opened\"\nfrom\n  spropened\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\norder by\n  time",
+          "refId": "A"
+        },
+        {
+          "rawSql": "select\n  time,\n  \"[[repogroup]]\" as \"PRs closed\"\nfrom\n  sprclosed\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\norder by\n  time",
+          "tags": [],
+          "query": "SELECT /^[[repogroup]]$/ FROM \"issues_closed_[[period]]\" WHERE $timeFilter",
+          "group": [],
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              }
+            ]
+          ],
+          "dsType": "influxdb",
+          "where": [
+            {
+              "type": "macro",
+              "name": "$__timeFilter",
+              "params": []
+            }
+          ],
+          "format": "time_series",
+          "rawQuery": true,
+          "orderByTime": "ASC",
+          "metricColumn": "none",
+          "policy": "default",
+          "timeColumn": "time",
+          "measurement": "sig_federation_d",
+          "resultFormat": "time_series",
+          "alias": "",
+          "groupBy": [],
+          "refId": "B"
+        }
+      ],
+      "dashLength": 10,
+      "stack": true,
+      "tooltip": {
+        "value_type": "individual",
+        "shared": true,
+        "sort": 2
+      },
+      "fill": 1,
+      "legend": {
+        "hideEmpty": false,
+        "min": true,
+        "values": true,
+        "avg": true,
+        "sortDesc": true,
+        "alignAsTable": true,
+        "rightSide": false,
+        "current": true,
+        "hideZero": false,
+        "max": true,
+        "show": true,
+        "sort": "avg",
+        "total": true
+      },
+      "dashes": false,
+      "id": 13,
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      },
+      "title": "PRs Repository group: [[repogroup_name]] ([[period]])",
+      "thresholds": [],
+      "timeShift": null,
+      "timeFrom": null,
+      "links": [],
       "xaxis": {
         "buckets": null,
         "mode": "time",
@@ -154,6 +297,44 @@
           "total"
         ]
       },
+      "datasource": "psql",
+      "steppedLine": false,
+      "aliasColors": {
+        
+      },
+      "description": "Show PRs opened/closed for given repository group",
+      "percentage": false,
+      "type": "graph",
+      "transparent": true,
+      "options": {
+        "dataLinks": []
+      }
+    },
+    {
+      "pointradius": 5,
+      "description": "Show Issues opened/closed for given repository group",
+      "xaxis": {
+        "values": [
+          "total"
+        ],
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true
+      },
+      "fill": 0,
+      "linewidth": 1,
+      "transparent": true,
+      "type": "graph",
+      "steppedLine": false,
+      "decimals": 2,
+      "spaceLength": 10,
+      "dashLength": 10,
+      "timeFrom": null,
+      "options": {
+        "dataLinks": []
+      },
+      "id": 12,
       "yaxes": [
         {
           "format": "short",
@@ -164,408 +345,63 @@
           "show": true
         },
         {
+          "min": "0",
+          "show": true,
           "format": "short",
           "label": "",
           "logBase": 1,
-          "max": null,
-          "min": "0",
-          "show": true
+          "max": null
         }
       ],
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      }
-    },
-    {
-      "aliasColors": {},
-      "bars": true,
-      "dashLength": 10,
-      "dashes": false,
-      "datasource": "psql",
-      "decimals": 2,
-      "description": "Show PRs opened/closed for given repository group",
-      "fill": 1,
-      "fillGradient": 0,
-      "gridPos": {
-        "h": 9,
-        "w": 24,
-        "x": 0,
-        "y": 9
-      },
-      "id": 13,
-      "legend": {
-        "alignAsTable": true,
-        "avg": true,
-        "current": true,
-        "hideEmpty": false,
-        "hideZero": false,
-        "max": true,
-        "min": true,
-        "rightSide": false,
-        "show": true,
-        "sort": "avg",
-        "sortDesc": true,
-        "total": true,
-        "values": true
-      },
-      "lines": false,
-      "linewidth": 1,
-      "links": [],
-      "nullPointMode": "null as zero",
-      "options": {
-        "dataLinks": []
-      },
-      "percentage": false,
-      "pointradius": 5,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [],
-      "spaceLength": 10,
-      "stack": true,
-      "steppedLine": false,
-      "targets": [
-        {
-          "alias": "",
-          "dsType": "influxdb",
-          "format": "time_series",
-          "group": [],
-          "groupBy": [],
-          "measurement": "sig_federation_d",
-          "metricColumn": "none",
-          "orderByTime": "ASC",
-          "policy": "default",
-          "query": "SELECT /^[[repogroup]]$/ FROM \"issues_opened_[[period]]\" WHERE $timeFilter",
-          "rawQuery": true,
-          "rawSql": "select\n  time,\n  \"[[repogroup]]\" as \"PRs opened\"\nfrom\n  spropened\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\norder by\n  time",
-          "refId": "A",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              }
-            ]
-          ],
-          "tags": [],
-          "timeColumn": "time",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ]
-        },
-        {
-          "alias": "",
-          "dsType": "influxdb",
-          "format": "time_series",
-          "group": [],
-          "groupBy": [],
-          "measurement": "sig_federation_d",
-          "metricColumn": "none",
-          "orderByTime": "ASC",
-          "policy": "default",
-          "query": "SELECT /^[[repogroup]]$/ FROM \"issues_closed_[[period]]\" WHERE $timeFilter",
-          "rawQuery": true,
-          "rawSql": "select\n  time,\n  \"[[repogroup]]\" as \"PRs closed\"\nfrom\n  sprclosed\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\norder by\n  time",
-          "refId": "B",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              }
-            ]
-          ],
-          "tags": [],
-          "timeColumn": "time",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ]
-        }
-      ],
-      "thresholds": [],
-      "timeFrom": null,
-      "timeRegions": [],
-      "timeShift": null,
-      "title": "PRs Repository group: [[repogroup_name]] ([[period]])",
-      "tooltip": {
-        "shared": true,
-        "sort": 2,
-        "value_type": "individual"
-      },
-      "transparent": true,
-      "type": "graph",
-      "xaxis": {
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true,
-        "values": [
-          "total"
-        ]
-      },
-      "yaxes": [
-        {
-          "format": "short",
-          "label": "PRs",
-          "logBase": 1,
-          "max": null,
-          "min": "0",
-          "show": true
-        },
-        {
-          "format": "short",
-          "label": "",
-          "logBase": 1,
-          "max": null,
-          "min": "0",
-          "show": true
-        }
-      ],
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      }
-    },
-    {
-      "aliasColors": {},
-      "bars": false,
-      "dashLength": 10,
-      "dashes": false,
-      "datasource": "psql",
-      "decimals": 2,
-      "description": "Show Issues opened/closed for given repository group",
-      "fill": 0,
-      "fillGradient": 0,
       "gridPos": {
         "h": 9,
         "w": 24,
         "x": 0,
         "y": 18
       },
-      "id": 12,
+      "nullPointMode": "null as zero",
+      "timeShift": null,
       "legend": {
-        "alignAsTable": true,
-        "avg": true,
-        "current": true,
         "hideEmpty": false,
-        "hideZero": false,
-        "max": true,
         "min": true,
+        "max": true,
         "rightSide": false,
         "show": true,
-        "sort": "avg",
         "sortDesc": true,
         "total": true,
+        "current": true,
+        "hideZero": false,
+        "sort": "avg",
+        "alignAsTable": true,
+        "avg": true,
         "values": true
       },
-      "lines": true,
-      "linewidth": 1,
-      "links": [],
-      "nullPointMode": "null as zero",
-      "options": {
-        "dataLinks": []
-      },
-      "percentage": false,
-      "pointradius": 5,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [],
-      "spaceLength": 10,
       "stack": false,
-      "steppedLine": false,
-      "targets": [
-        {
-          "alias": "",
-          "dsType": "influxdb",
-          "format": "time_series",
-          "group": [],
-          "groupBy": [],
-          "measurement": "sig_federation_d",
-          "metricColumn": "none",
-          "orderByTime": "ASC",
-          "policy": "default",
-          "query": "SELECT /^[[repogroup]]$/ FROM \"issues_opened_[[period]]\" WHERE $timeFilter",
-          "rawQuery": true,
-          "rawSql": "select\n  time,\n  \"[[repogroup]]\" as \"Issues opened\"\nfrom\n  siopened\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\norder by\n  time",
-          "refId": "A",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              }
-            ]
-          ],
-          "tags": [],
-          "timeColumn": "time",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ]
-        },
-        {
-          "alias": "",
-          "dsType": "influxdb",
-          "format": "time_series",
-          "group": [],
-          "groupBy": [],
-          "measurement": "sig_federation_d",
-          "metricColumn": "none",
-          "orderByTime": "ASC",
-          "policy": "default",
-          "query": "SELECT /^[[repogroup]]$/ FROM \"issues_closed_[[period]]\" WHERE $timeFilter",
-          "rawQuery": true,
-          "rawSql": "select\n  time,\n  \"[[repogroup]]\" as \"Issues closed\"\nfrom\n  siclosed\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\norder by\n  time",
-          "refId": "B",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              }
-            ]
-          ],
-          "tags": [],
-          "timeColumn": "time",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ]
-        }
-      ],
-      "thresholds": [],
-      "timeFrom": null,
-      "timeRegions": [],
-      "timeShift": null,
       "title": "Issues Repository group: [[repogroup_name]] ([[period]])",
-      "tooltip": {
-        "shared": true,
-        "sort": 2,
-        "value_type": "individual"
-      },
-      "transparent": true,
-      "type": "graph",
-      "xaxis": {
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true,
-        "values": [
-          "total"
-        ]
-      },
-      "yaxes": [
-        {
-          "format": "short",
-          "label": "Issues",
-          "logBase": 1,
-          "max": null,
-          "min": "0",
-          "show": true
-        },
-        {
-          "format": "short",
-          "label": "",
-          "logBase": 1,
-          "max": null,
-          "min": "0",
-          "show": true
-        }
-      ],
       "yaxis": {
         "align": false,
         "alignLevel": null
-      }
-    },
-    {
-      "aliasColors": {},
-      "bars": false,
-      "dashLength": 10,
-      "dashes": false,
+      },
       "datasource": "psql",
-      "decimals": 2,
-      "description": "Show PRs opened/closed for given repository group",
-      "fill": 0,
-      "fillGradient": 0,
-      "gridPos": {
-        "h": 9,
-        "w": 24,
-        "x": 0,
-        "y": 27
-      },
-      "id": 14,
-      "legend": {
-        "alignAsTable": true,
-        "avg": true,
-        "current": true,
-        "hideEmpty": false,
-        "hideZero": false,
-        "max": true,
-        "min": true,
-        "rightSide": false,
-        "show": true,
-        "sort": "avg",
-        "sortDesc": true,
-        "total": true,
-        "values": true
-      },
-      "lines": true,
-      "linewidth": 1,
       "links": [],
-      "nullPointMode": "null as zero",
-      "options": {
-        "dataLinks": []
+      "tooltip": {
+        "shared": true,
+        "sort": 2,
+        "value_type": "individual"
       },
-      "percentage": false,
-      "pointradius": 5,
+      "timeRegions": [],
       "points": false,
       "renderer": "flot",
+      "lines": true,
+      "percentage": false,
+      "thresholds": [],
+      "fillGradient": 0,
+      "dashes": false,
+      "bars": false,
       "seriesOverrides": [],
-      "spaceLength": 10,
-      "stack": false,
-      "steppedLine": false,
       "targets": [
         {
-          "alias": "",
-          "dsType": "influxdb",
-          "format": "time_series",
-          "group": [],
-          "groupBy": [],
-          "measurement": "sig_federation_d",
-          "metricColumn": "none",
-          "orderByTime": "ASC",
-          "policy": "default",
-          "query": "SELECT /^[[repogroup]]$/ FROM \"issues_opened_[[period]]\" WHERE $timeFilter",
-          "rawQuery": true,
-          "rawSql": "select\n  time,\n  \"[[repogroup]]\" as \"PRs opened\"\nfrom\n  spropened\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\norder by\n  time",
-          "refId": "A",
-          "resultFormat": "time_series",
+          "timeColumn": "time",
           "select": [
             [
               {
@@ -576,43 +412,56 @@
               }
             ]
           ],
+          "orderByTime": "ASC",
+          "rawSql": "select\n  time,\n  \"[[repogroup]]\" as \"Issues opened\"\nfrom\n  siopened\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\norder by\n  time",
+          "format": "time_series",
+          "policy": "default",
           "tags": [],
-          "timeColumn": "time",
+          "rawQuery": true,
+          "measurement": "sig_federation_d",
+          "query": "SELECT /^[[repogroup]]$/ FROM \"issues_opened_[[period]]\" WHERE $timeFilter",
+          "resultFormat": "time_series",
+          "alias": "",
+          "groupBy": [],
+          "metricColumn": "none",
+          "group": [],
+          "refId": "A",
           "where": [
             {
-              "name": "$__timeFilter",
               "params": [],
-              "type": "macro"
+              "type": "macro",
+              "name": "$__timeFilter"
             }
-          ]
+          ],
+          "dsType": "influxdb"
         },
         {
-          "alias": "",
-          "dsType": "influxdb",
-          "format": "time_series",
-          "group": [],
-          "groupBy": [],
-          "measurement": "sig_federation_d",
-          "metricColumn": "none",
-          "orderByTime": "ASC",
-          "policy": "default",
-          "query": "SELECT /^[[repogroup]]$/ FROM \"issues_closed_[[period]]\" WHERE $timeFilter",
-          "rawQuery": true,
-          "rawSql": "select\n  time,\n  \"[[repogroup]]\" as \"PRs closed\"\nfrom\n  sprclosed\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\norder by\n  time",
-          "refId": "B",
-          "resultFormat": "time_series",
           "select": [
             [
               {
+                "type": "field",
                 "params": [
                   "value"
-                ],
-                "type": "field"
+                ]
               }
             ]
           ],
-          "tags": [],
           "timeColumn": "time",
+          "resultFormat": "time_series",
+          "rawQuery": true,
+          "policy": "default",
+          "query": "SELECT /^[[repogroup]]$/ FROM \"issues_closed_[[period]]\" WHERE $timeFilter",
+          "rawSql": "select\n  time,\n  \"[[repogroup]]\" as \"Issues closed\"\nfrom\n  siclosed\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\norder by\n  time",
+          "alias": "",
+          "orderByTime": "ASC",
+          "measurement": "sig_federation_d",
+          "refId": "B",
+          "group": [],
+          "groupBy": [],
+          "format": "time_series",
+          "metricColumn": "none",
+          "tags": [],
+          "dsType": "influxdb",
           "where": [
             {
               "name": "$__timeFilter",
@@ -622,49 +471,174 @@
           ]
         }
       ],
+      "aliasColors": {
+        
+      }
+    },
+    {
+      "dashes": false,
       "thresholds": [],
-      "timeFrom": null,
+      "lines": true,
+      "targets": [
+        {
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              }
+            ]
+          ],
+          "groupBy": [],
+          "measurement": "sig_federation_d",
+          "metricColumn": "none",
+          "alias": "",
+          "rawQuery": true,
+          "tags": [],
+          "dsType": "influxdb",
+          "orderByTime": "ASC",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ],
+          "rawSql": "select\n  time,\n  \"[[repogroup]]\" as \"PRs opened\"\nfrom\n  spropened\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\norder by\n  time",
+          "resultFormat": "time_series",
+          "group": [],
+          "timeColumn": "time",
+          "policy": "default",
+          "format": "time_series",
+          "query": "SELECT /^[[repogroup]]$/ FROM \"issues_opened_[[period]]\" WHERE $timeFilter"
+        },
+        {
+          "group": [],
+          "rawSql": "select\n  time,\n  \"[[repogroup]]\" as \"PRs closed\"\nfrom\n  sprclosed\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\norder by\n  time",
+          "timeColumn": "time",
+          "alias": "",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              }
+            ]
+          ],
+          "groupBy": [],
+          "metricColumn": "none",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "resultFormat": "time_series",
+          "format": "time_series",
+          "query": "SELECT /^[[repogroup]]$/ FROM \"issues_closed_[[period]]\" WHERE $timeFilter",
+          "refId": "B",
+          "tags": [],
+          "measurement": "sig_federation_d",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ],
+          "dsType": "influxdb",
+          "rawQuery": true
+        }
+      ],
+      "links": [],
       "timeRegions": [],
+      "pointradius": 5,
+      "decimals": 2,
+      "points": false,
+      "percentage": false,
+      "renderer": "flot",
+      "fill": 0,
       "timeShift": null,
+      "gridPos": {
+        "x": 0,
+        "y": 27,
+        "h": 9,
+        "w": 24
+      },
+      "seriesOverrides": [],
+      "bars": false,
+      "id": 14,
+      "options": {
+        "dataLinks": []
+      },
+      "timeFrom": null,
       "title": "PRs Repository group: [[repogroup_name]] ([[period]])",
+      "datasource": "psql",
+      "stack": false,
       "tooltip": {
         "shared": true,
         "sort": 2,
         "value_type": "individual"
       },
-      "transparent": true,
-      "type": "graph",
-      "xaxis": {
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true,
-        "values": [
-          "total"
-        ]
-      },
+      "description": "Show PRs opened/closed for given repository group",
       "yaxes": [
         {
+          "show": true,
           "format": "short",
           "label": "PRs",
           "logBase": 1,
           "max": null,
-          "min": "0",
-          "show": true
+          "min": "0"
         },
         {
+          "min": "0",
+          "show": true,
           "format": "short",
           "label": "",
           "logBase": 1,
-          "max": null,
-          "min": "0",
-          "show": true
+          "max": null
         }
       ],
+      "aliasColors": {
+        
+      },
+      "dashLength": 10,
       "yaxis": {
         "align": false,
         "alignLevel": null
-      }
+      },
+      "legend": {
+        "alignAsTable": true,
+        "hideEmpty": false,
+        "hideZero": false,
+        "total": true,
+        "min": true,
+        "sortDesc": true,
+        "show": true,
+        "sort": "avg",
+        "avg": true,
+        "current": true,
+        "values": true,
+        "max": true,
+        "rightSide": false
+      },
+      "type": "graph",
+      "steppedLine": false,
+      "transparent": true,
+      "linewidth": 1,
+      "xaxis": {
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": [
+          "total"
+        ],
+        "buckets": null
+      },
+      "fillGradient": 0,
+      "nullPointMode": "null as zero",
+      "spaceLength": 10
     },
     {
       "content": "${docs:raw}",
@@ -677,56 +651,118 @@
       "id": 11,
       "links": [],
       "mode": "html",
-      "options": {},
+      "options": {
+        
+      },
       "title": "Dashboard documentation",
       "type": "text"
     }
   ],
+  "timezone": "",
+  "links": [],
+  "uid": "12",
+  "style": "dark",
   "refresh": false,
   "schemaVersion": 19,
-  "style": "dark",
+  "editable": true,
+  "gnetId": null,
+  "id": 15,
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations \u0026 Alerts",
+        "type": "dashboard"
+      },
+      {
+        "showIn": 0,
+        "textColumn": "",
+        "limit": 100,
+        "name": "Releases",
+        "rawQuery": "select extract(epoch from time) AS time, title as text, description as tags from sannotations where $__timeFilter(time)",
+        "titleColumn": "[[full_name]] release",
+        "type": "alert",
+        "enable": true,
+        "query": "SELECT title, description from annotations WHERE $timeFilter order by time asc",
+        "tagsColumn": "title,description",
+        "datasource": "psql",
+        "hide": false,
+        "iconColor": "rgba(255, 96, 96, 1)"
+      }
+    ]
+  },
+  "timepicker": {
+    "time_options": [
+      "5m",
+      "15m",
+      "1h",
+      "6h",
+      "12h",
+      "24h",
+      "2d",
+      "7d",
+      "30d"
+    ],
+    "refresh_intervals": [
+      "5s",
+      "10s",
+      "30s",
+      "1m",
+      "5m",
+      "15m",
+      "30m",
+      "1h",
+      "2h",
+      "1d"
+    ]
+  },
+  "iteration": 1567416900696,
+  "title": "Issues Opened/Closed by Repository Group",
+  "time": {
+    "to": "now",
+    "from": "now-1y"
+  },
+  "version": 4,
   "tags": [
     "dashboard",
     "tikv"
   ],
+  "graphTooltip": 0,
   "templating": {
     "list": [
       {
-        "allValue": null,
+        "label": null,
+        "query": "select value_s from gha_vars where name = 'full_name'",
+        "useTags": false,
+        "hide": 2,
+        "tags": [],
+        "tagValuesQuery": "",
         "current": {
           "text": "Istio",
           "value": "Istio"
         },
-        "datasource": "psql",
-        "definition": "",
-        "hide": 2,
-        "includeAll": false,
-        "label": null,
-        "multi": false,
-        "name": "full_name",
-        "options": [],
-        "query": "select value_s from gha_vars where name = 'full_name'",
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": true,
-        "sort": 0,
-        "tagValuesQuery": "",
-        "tags": [],
-        "tagsQuery": "",
         "type": "query",
-        "useTags": false
+        "regex": "",
+        "tagsQuery": "",
+        "allValue": null,
+        "refresh": 1,
+        "sort": 0,
+        "definition": "",
+        "name": "full_name",
+        "multi": false,
+        "skipUrlSync": true,
+        "includeAll": false,
+        "datasource": "psql",
+        "options": []
       },
       {
-        "allValue": null,
-        "current": {
-          "tags": [],
-          "text": "7 Days MA",
-          "value": "d7"
-        },
-        "hide": 0,
         "includeAll": false,
         "label": "Period",
-        "multi": false,
+        "allValue": null,
         "name": "period",
         "options": [
           {
@@ -735,14 +771,14 @@
             "value": "d"
           },
           {
-            "selected": true,
             "text": "7 Days MA",
-            "value": "d7"
+            "value": "d7",
+            "selected": true
           },
           {
+            "value": "w",
             "selected": false,
-            "text": "Week",
-            "value": "w"
+            "text": "Week"
           },
           {
             "selected": false,
@@ -755,123 +791,97 @@
             "value": "q"
           },
           {
+            "value": "y",
             "selected": false,
-            "text": "Year",
-            "value": "y"
+            "text": "Year"
           }
         ],
-        "query": "d,w,m,q,y",
         "skipUrlSync": false,
-        "type": "custom"
+        "hide": 0,
+        "query": "d,w,m,q,y",
+        "type": "custom",
+        "multi": false,
+        "current": {
+          "tags": [],
+          "text": "7 Days MA",
+          "value": "d7"
+        }
       },
       {
+        "tagsQuery": "",
+        "useTags": false,
+        "label": "Repository group",
+        "sort": 0,
         "allValue": "",
+        "query": "select all_repo_group_name from tall_repo_groups order by 1",
+        "options": [],
+        "definition": "",
         "current": {
           "text": "All",
           "value": "All"
         },
-        "datasource": "psql",
-        "definition": "",
+        "skipUrlSync": false,
+        "regex": "",
         "hide": 0,
         "includeAll": false,
-        "label": "Repository group",
-        "multi": false,
-        "name": "repogroup_name",
-        "options": [],
-        "query": "select all_repo_group_name from tall_repo_groups order by 1",
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": false,
-        "sort": 0,
         "tagValuesQuery": "",
+        "datasource": "psql",
+        "name": "repogroup_name",
+        "refresh": 1,
         "tags": [],
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false
+        "multi": false,
+        "type": "query"
       },
       {
+        "name": "repogroup",
+        "datasource": "psql",
+        "skipUrlSync": true,
+        "regex": "",
+        "tagValuesQuery": "",
+        "useTags": false,
+        "refresh": 1,
+        "includeAll": false,
+        "tagsQuery": "",
+        "hide": 2,
+        "label": "",
+        "query": "select all_repo_group_value from tall_repo_groups where all_repo_group_name = '[[repogroup_name]]'",
+        "sort": 0,
         "allValue": "",
+        "type": "query",
+        "tags": [],
         "current": {
           "text": "all",
           "value": "all"
         },
-        "datasource": "psql",
         "definition": "",
-        "hide": 2,
-        "includeAll": false,
-        "label": "",
         "multi": false,
-        "name": "repogroup",
-        "options": [],
-        "query": "select all_repo_group_value from tall_repo_groups where all_repo_group_name = '[[repogroup_name]]'",
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": true,
-        "sort": 0,
-        "tagValuesQuery": "",
-        "tags": [],
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false
+        "options": []
       },
       {
-        "allValue": null,
+        "options": [],
+        "datasource": "psql",
+        "hide": 2,
+        "multi": false,
+        "skipUrlSync": true,
+        "tags": [],
+        "tagValuesQuery": "",
         "current": {
           "text": "\u003ch1 id=\"dashboard-header\"\u003eIstio issues repository group dashboard\u003c/h1\u003e\n\u003cp\u003eLinks:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003eMetric \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/issues_opened.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e (issues opened).\u003c/li\u003e\n\u003cli\u003eMetric \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/issues_closed.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e (issues closed).\u003c/li\u003e\n\u003cli\u003eTSDB \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/metrics.yaml\" target=\"_blank\"\u003eseries definition\u003c/a\u003e. Search for \u003ccode\u003eIssues repository group\u003c/code\u003e\u003c/li\u003e\n\u003cli\u003eGrafana dashboard \u003ca href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/istio/issues-repository-group.json\" target=\"_blank\"\u003eJSON\u003c/a\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch1 id=\"description\"\u003eDescription\u003c/h1\u003e\n\u003cul\u003e\n\u003cli\u003eThis dashboard shows the number of issues opened and closed in a given periods.\u003c/li\u003e\n\u003cli\u003eYou can select single repository group or summary for all of them.\u003c/li\u003e\n\u003cli\u003eSelecting period (for example week) means that dashboard will show data in those periods.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/periods.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about periods.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/repository_groups.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about repository groups.\u003c/li\u003e\n\u003c/ul\u003e",
           "value": "\u003ch1 id=\"dashboard-header\"\u003eIstio issues repository group dashboard\u003c/h1\u003e\n\u003cp\u003eLinks:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003eMetric \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/issues_opened.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e (issues opened).\u003c/li\u003e\n\u003cli\u003eMetric \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/issues_closed.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e (issues closed).\u003c/li\u003e\n\u003cli\u003eTSDB \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/metrics.yaml\" target=\"_blank\"\u003eseries definition\u003c/a\u003e. Search for \u003ccode\u003eIssues repository group\u003c/code\u003e\u003c/li\u003e\n\u003cli\u003eGrafana dashboard \u003ca href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/istio/issues-repository-group.json\" target=\"_blank\"\u003eJSON\u003c/a\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch1 id=\"description\"\u003eDescription\u003c/h1\u003e\n\u003cul\u003e\n\u003cli\u003eThis dashboard shows the number of issues opened and closed in a given periods.\u003c/li\u003e\n\u003cli\u003eYou can select single repository group or summary for all of them.\u003c/li\u003e\n\u003cli\u003eSelecting period (for example week) means that dashboard will show data in those periods.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/periods.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about periods.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/repository_groups.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about repository groups.\u003c/li\u003e\n\u003c/ul\u003e"
         },
-        "datasource": "psql",
-        "definition": "",
-        "hide": 2,
         "includeAll": false,
-        "label": null,
-        "multi": false,
-        "name": "docs",
-        "options": [],
-        "query": "select value_s from gha_vars where name = 'issues_docs_html'",
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": true,
-        "sort": 0,
-        "tagValuesQuery": "",
-        "tags": [],
-        "tagsQuery": "",
         "type": "query",
-        "useTags": false
+        "tagsQuery": "",
+        "definition": "",
+        "name": "docs",
+        "query": "select value_s from gha_vars where name = 'issues_docs_html'",
+        "allValue": null,
+        "regex": "",
+        "label": null,
+        "useTags": false,
+        "refresh": 1,
+        "sort": 0
       }
     ]
-  },
-  "time": {
-    "from": "now-1y",
-    "to": "now"
-  },
-  "timepicker": {
-    "refresh_intervals": [
-      "5s",
-      "10s",
-      "30s",
-      "1m",
-      "5m",
-      "15m",
-      "30m",
-      "1h",
-      "2h",
-      "1d"
-    ],
-    "time_options": [
-      "5m",
-      "15m",
-      "1h",
-      "6h",
-      "12h",
-      "24h",
-      "2d",
-      "7d",
-      "30d"
-    ]
-  },
-  "timezone": "",
-  "title": "Issues Opened/Closed by Repository Group",
-  "uid": "12",
-  "version": 4
+  }
 }

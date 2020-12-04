@@ -1,4 +1,293 @@
 {
+  "time": {
+    "to": "now",
+    "from": "now-5y"
+  },
+  "templating": {
+    "list": [
+      {
+        "tagsQuery": "",
+        "regex": "",
+        "definition": "",
+        "type": "query",
+        "sort": 0,
+        "name": "period_name",
+        "tags": [],
+        "label": "Range",
+        "options": [],
+        "includeAll": false,
+        "refresh": 1,
+        "tagValuesQuery": "",
+        "useTags": false,
+        "datasource": "psql",
+        "allValue": null,
+        "current": {
+          "text": "Last decade",
+          "value": "Last decade"
+        },
+        "hide": 0,
+        "multi": false,
+        "query": "select quick_ranges_name from tquick_ranges order by time",
+        "skipUrlSync": false
+      },
+      {
+        "current": {
+          "text": "Contributions",
+          "value": "contributions",
+          "selected": false,
+          "tags": []
+        },
+        "hide": 0,
+        "label": "Metric",
+        "name": "metric",
+        "query": "comments,commit_comments,commits,events,pushes,contributions,issue_comments,issues,prs,merged_prs,review_comments,active_repos",
+        "skipUrlSync": false,
+        "includeAll": false,
+        "multi": false,
+        "type": "custom",
+        "allValue": null,
+        "options": [
+          {
+            "selected": false,
+            "text": "Comments",
+            "value": "comments"
+          },
+          {
+            "value": "commit_comments",
+            "selected": false,
+            "text": "Commit comments"
+          },
+          {
+            "selected": false,
+            "text": "Commits",
+            "value": "commits"
+          },
+          {
+            "text": "GitHub Events",
+            "value": "events",
+            "selected": false
+          },
+          {
+            "selected": false,
+            "text": "GitHub pushes",
+            "value": "pushes"
+          },
+          {
+            "selected": false,
+            "text": "Issue comments",
+            "value": "issue_comments"
+          },
+          {
+            "text": "Issues",
+            "value": "issues",
+            "selected": false
+          },
+          {
+            "selected": false,
+            "text": "PRs",
+            "value": "prs"
+          },
+          {
+            "value": "merged_prs",
+            "selected": false,
+            "text": "Merged PRs"
+          },
+          {
+            "value": "review_comments",
+            "selected": false,
+            "text": "Review comments"
+          },
+          {
+            "value": "contributions",
+            "selected": true,
+            "text": "Contributions"
+          },
+          {
+            "text": "Active repositories",
+            "value": "active_repos",
+            "selected": false
+          }
+        ]
+      },
+      {
+        "label": null,
+        "multi": false,
+        "allValue": null,
+        "datasource": "psql",
+        "query": "select quick_ranges_suffix from tquick_ranges where quick_ranges_name = '[[period_name]]'",
+        "regex": "",
+        "sort": 0,
+        "definition": "",
+        "includeAll": false,
+        "tagValuesQuery": "",
+        "name": "period",
+        "tags": [],
+        "tagsQuery": "",
+        "refresh": 1,
+        "current": {
+          "text": "y10",
+          "value": "y10"
+        },
+        "options": [],
+        "type": "query",
+        "useTags": false,
+        "skipUrlSync": true,
+        "hide": 2
+      },
+      {
+        "name": "full_name",
+        "label": null,
+        "datasource": "psql",
+        "skipUrlSync": true,
+        "tagsQuery": "",
+        "type": "query",
+        "regex": "",
+        "options": [],
+        "sort": 0,
+        "tags": [],
+        "current": {
+          "value": "All CNCF",
+          "text": "All CNCF"
+        },
+        "refresh": 1,
+        "tagValuesQuery": "",
+        "hide": 2,
+        "useTags": false,
+        "includeAll": false,
+        "definition": "",
+        "query": "select value_s from gha_vars where name = 'full_name'",
+        "multi": false,
+        "allValue": null
+      },
+      {
+        "includeAll": false,
+        "allValue": null,
+        "multi": false,
+        "options": [],
+        "name": "repogroup_name",
+        "sort": 0,
+        "refresh": 1,
+        "skipUrlSync": false,
+        "tagValuesQuery": "",
+        "current": {
+          "value": "All",
+          "text": "All"
+        },
+        "datasource": "psql",
+        "tags": [],
+        "type": "query",
+        "useTags": false,
+        "definition": "",
+        "label": "Repository group",
+        "hide": 0,
+        "regex": "",
+        "query": "select all_repo_group_name from tall_repo_groups order by 1",
+        "tagsQuery": ""
+      },
+      {
+        "options": [],
+        "regex": "",
+        "datasource": "psql",
+        "type": "query",
+        "refresh": 1,
+        "label": "",
+        "name": "repogroup",
+        "query": "select all_repo_group_value from tall_repo_groups where all_repo_group_name = '[[repogroup_name]]'",
+        "tags": [],
+        "current": {
+          "text": "all",
+          "value": "all"
+        },
+        "includeAll": false,
+        "tagValuesQuery": "",
+        "tagsQuery": "",
+        "allValue": null,
+        "hide": 2,
+        "definition": "",
+        "useTags": false,
+        "skipUrlSync": true,
+        "multi": false,
+        "sort": 0
+      },
+      {
+        "allValue": null,
+        "datasource": "psql",
+        "multi": false,
+        "name": "docs",
+        "skipUrlSync": true,
+        "tagsQuery": "",
+        "type": "query",
+        "tags": [],
+        "current": {
+          "value": "\u003ch1 id=\"kubernetes-dashboard\"\u003eAll CNCF Developer Activity Counts by Repository Group dashboard\u003c/h1\u003e\n\u003cp\u003eLinks:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003eMain metric \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/project_developer_stats.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eApproves metric \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/hist_approvers.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eReviews metric \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/hist_reviewers.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eTSDB \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/metrics.yaml\" target=\"_blank\"\u003eseries definition\u003c/a\u003e. Search for \u003ccode\u003eDeveloper activity\u003c/code\u003e\u003c/li\u003e\n\u003cli\u003eGrafana dashboard \u003ca href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/developer-activity-counts-by-repository-group.json\" target=\"_blank\"\u003eJSON\u003c/a\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch1 id=\"description\"\u003eDescription\u003c/h1\u003e\n\u003cul\u003e\n\u003cli\u003eThis dashboard shows various developer metrics.\u003c/li\u003e\n\u003cli\u003eYou can select last day, month, week etc. range or date range between releases, for example \u003ccode\u003ev1.9 - v1.10\u003c/code\u003e.\u003c/li\u003e\n\u003cli\u003eYou can select single repository group or summary for all of them.\u003c/li\u003e\n\u003cli\u003eYou can select country from a drop-down or summary for all countries.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/repository_groups.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about repository groups.\u003c/li\u003e\n\u003cli\u003eWe are skipping bots when calculating statistics, see \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/excluding_bots.md\" target=\"_blank\"\u003eexcluding bots\u003c/a\u003e for details.\u003c/li\u003e\n\u003c/ul\u003e",
+          "text": "\u003ch1 id=\"kubernetes-dashboard\"\u003eAll CNCF Developer Activity Counts by Repository Group dashboard\u003c/h1\u003e\n\u003cp\u003eLinks:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003eMain metric \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/project_developer_stats.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eApproves metric \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/hist_approvers.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eReviews metric \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/hist_reviewers.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eTSDB \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/metrics.yaml\" target=\"_blank\"\u003eseries definition\u003c/a\u003e. Search for \u003ccode\u003eDeveloper activity\u003c/code\u003e\u003c/li\u003e\n\u003cli\u003eGrafana dashboard \u003ca href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/developer-activity-counts-by-repository-group.json\" target=\"_blank\"\u003eJSON\u003c/a\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch1 id=\"description\"\u003eDescription\u003c/h1\u003e\n\u003cul\u003e\n\u003cli\u003eThis dashboard shows various developer metrics.\u003c/li\u003e\n\u003cli\u003eYou can select last day, month, week etc. range or date range between releases, for example \u003ccode\u003ev1.9 - v1.10\u003c/code\u003e.\u003c/li\u003e\n\u003cli\u003eYou can select single repository group or summary for all of them.\u003c/li\u003e\n\u003cli\u003eYou can select country from a drop-down or summary for all countries.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/repository_groups.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about repository groups.\u003c/li\u003e\n\u003cli\u003eWe are skipping bots when calculating statistics, see \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/excluding_bots.md\" target=\"_blank\"\u003eexcluding bots\u003c/a\u003e for details.\u003c/li\u003e\n\u003c/ul\u003e"
+        },
+        "query": "select value_s from gha_vars where name = 'developers_summary_docs_html'",
+        "includeAll": false,
+        "regex": "",
+        "options": [],
+        "refresh": 1,
+        "sort": 0,
+        "useTags": false,
+        "label": null,
+        "tagValuesQuery": "",
+        "definition": "",
+        "hide": 2
+      },
+      {
+        "sort": 0,
+        "definition": "",
+        "query": "select sub.value from (select country_value as value, 0 as ord from tcountries where country_name = '[[country_name]]' union select 'all', 1 as ord) sub order by sub.ord limit 1",
+        "includeAll": false,
+        "tagsQuery": "",
+        "type": "query",
+        "name": "country",
+        "current": {
+          "text": "all",
+          "value": "all"
+        },
+        "hide": 2,
+        "datasource": "psql",
+        "useTags": false,
+        "skipUrlSync": true,
+        "options": [],
+        "multi": false,
+        "refresh": 1,
+        "regex": "",
+        "label": "",
+        "tagValuesQuery": "",
+        "tags": [],
+        "allValue": null
+      },
+      {
+        "tagsQuery": "",
+        "hide": 0,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "type": "query",
+        "query": "select 'All' union select country_name from tcountries order by 1",
+        "datasource": "psql",
+        "skipUrlSync": false,
+        "refresh": 1,
+        "name": "country_name",
+        "definition": "",
+        "useTags": false,
+        "includeAll": false,
+        "label": "Country",
+        "multi": false,
+        "regex": "",
+        "options": [],
+        "allValue": "all",
+        "current": {
+          "text": "All",
+          "value": "All"
+        }
+      }
+    ]
+  },
+  "links": [],
+  "id": 12,
   "annotations": {
     "list": [
       {
@@ -12,459 +301,12 @@
       }
     ]
   },
-  "editable": true,
-  "gnetId": null,
-  "graphTooltip": 0,
-  "id": 12,
-  "iteration": 1568183301397,
-  "links": [],
-  "panels": [
-    {
-      "columns": [],
-      "datasource": "psql",
-      "description": "",
-      "fontSize": "90%",
-      "gridPos": {
-        "h": 22,
-        "w": 24,
-        "x": 0,
-        "y": 0
-      },
-      "hideTimeOverride": true,
-      "id": 1,
-      "interval": "",
-      "links": [],
-      "options": {},
-      "pageSize": 1000,
-      "scroll": true,
-      "showHeader": true,
-      "sort": {
-        "col": 2,
-        "desc": true
-      },
-      "styles": [
-        {
-          "alias": "Time",
-          "dateFormat": "YYYY-MM-DD HH:mm:ss",
-          "decimals": null,
-          "pattern": "Time",
-          "type": "hidden"
-        },
-        {
-          "alias": "GitHub login",
-          "colorMode": null,
-          "colors": [
-            "rgba(245, 54, 54, 0.9)",
-            "rgba(237, 129, 40, 0.89)",
-            "rgba(50, 172, 45, 0.97)"
-          ],
-          "dateFormat": "YYYY-MM-DD HH:mm:ss",
-          "decimals": 2,
-          "pattern": "name",
-          "preserveFormat": false,
-          "thresholds": [],
-          "type": "string",
-          "unit": "short"
-        },
-        {
-          "alias": "Number",
-          "colorMode": null,
-          "colors": [
-            "rgba(245, 54, 54, 0.9)",
-            "rgba(237, 129, 40, 0.89)",
-            "rgba(50, 172, 45, 0.97)"
-          ],
-          "dateFormat": "YYYY-MM-DD HH:mm:ss",
-          "decimals": 0,
-          "pattern": "value",
-          "thresholds": [],
-          "type": "number",
-          "unit": "none"
-        },
-        {
-          "alias": "",
-          "colorMode": null,
-          "colors": [
-            "rgba(245, 54, 54, 0.9)",
-            "rgba(237, 129, 40, 0.89)",
-            "rgba(50, 172, 45, 0.97)"
-          ],
-          "decimals": 0,
-          "pattern": "/.*/",
-          "thresholds": [],
-          "type": "string",
-          "unit": "short"
-        }
-      ],
-      "targets": [
-        {
-          "alias": "",
-          "dsType": "influxdb",
-          "format": "table",
-          "group": [],
-          "groupBy": [
-            {
-              "params": [
-                "$__interval"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
-          "metricColumn": "none",
-          "orderByTime": "ASC",
-          "policy": "default",
-          "query": "SELECT \"name\", \"value\" FROM \"developers_hist_[[metric]]_[[repogroup]]_[[period]]\" WHERE $timeFilter",
-          "rawQuery": true,
-          "rawSql": "select \n  sub.\"Rank\",\n  sub.name as name,\n  sub.value \nfrom (\n  select row_number() over (order by sum(value) desc) as \"Rank\",\n    split_part(name, '$$$', 1) as name,\n    sum(value) as value\n  from\n    shdev\n  where\n    series = 'hdev_[[metric]][[repogroup]][[country]]'\n    and period = '[[period]]'\n  group by\n    split_part(name, '$$$', 1)\n) sub",
-          "refId": "A",
-          "resultFormat": "table",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": [],
-          "timeColumn": "time",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ]
-        }
-      ],
-      "title": "[[full_name]] Developers statistics ([[metric]], Range: [[period_name]], Repository group: [[repogroup_name]]), bots excluded",
-      "transform": "table",
-      "type": "table"
-    },
-    {
-      "content": "${docs:raw}",
-      "gridPos": {
-        "h": 10,
-        "w": 24,
-        "x": 0,
-        "y": 22
-      },
-      "id": 3,
-      "links": [],
-      "mode": "html",
-      "options": {},
-      "title": "Dashboard documentation",
-      "type": "text"
-    }
-  ],
   "refresh": false,
-  "schemaVersion": 19,
-  "style": "dark",
-  "tags": [
-    "dashboard",
-    "thanos",
-    "repogroups",
-    "table"
-  ],
-  "templating": {
-    "list": [
-      {
-        "allValue": null,
-        "current": {
-          "text": "Last decade",
-          "value": "Last decade"
-        },
-        "datasource": "psql",
-        "definition": "",
-        "hide": 0,
-        "includeAll": false,
-        "label": "Range",
-        "multi": false,
-        "name": "period_name",
-        "options": [],
-        "query": "select quick_ranges_name from tquick_ranges order by time",
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": false,
-        "sort": 0,
-        "tagValuesQuery": "",
-        "tags": [],
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false
-      },
-      {
-        "allValue": null,
-        "current": {
-          "selected": false,
-          "tags": [],
-          "text": "Contributions",
-          "value": "contributions"
-        },
-        "hide": 0,
-        "includeAll": false,
-        "label": "Metric",
-        "multi": false,
-        "name": "metric",
-        "options": [
-          {
-            "selected": false,
-            "text": "Comments",
-            "value": "comments"
-          },
-          {
-            "selected": false,
-            "text": "Commit comments",
-            "value": "commit_comments"
-          },
-          {
-            "selected": false,
-            "text": "Commits",
-            "value": "commits"
-          },
-          {
-            "selected": false,
-            "text": "GitHub Events",
-            "value": "events"
-          },
-          {
-            "selected": false,
-            "text": "GitHub pushes",
-            "value": "pushes"
-          },
-          {
-            "selected": false,
-            "text": "Issue comments",
-            "value": "issue_comments"
-          },
-          {
-            "selected": false,
-            "text": "Issues",
-            "value": "issues"
-          },
-          {
-            "selected": false,
-            "text": "PRs",
-            "value": "prs"
-          },
-          {
-            "selected": false,
-            "text": "Merged PRs",
-            "value": "merged_prs"
-          },
-          {
-            "selected": false,
-            "text": "Review comments",
-            "value": "review_comments"
-          },
-          {
-            "selected": true,
-            "text": "Contributions",
-            "value": "contributions"
-          },
-          {
-            "selected": false,
-            "text": "Active repositories",
-            "value": "active_repos"
-          }
-        ],
-        "query": "comments,commit_comments,commits,events,pushes,contributions,issue_comments,issues,prs,merged_prs,review_comments,active_repos",
-        "skipUrlSync": false,
-        "type": "custom"
-      },
-      {
-        "allValue": null,
-        "current": {
-          "text": "y10",
-          "value": "y10"
-        },
-        "datasource": "psql",
-        "definition": "",
-        "hide": 2,
-        "includeAll": false,
-        "label": null,
-        "multi": false,
-        "name": "period",
-        "options": [],
-        "query": "select quick_ranges_suffix from tquick_ranges where quick_ranges_name = '[[period_name]]'",
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": true,
-        "sort": 0,
-        "tagValuesQuery": "",
-        "tags": [],
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false
-      },
-      {
-        "allValue": null,
-        "current": {
-          "text": "All CNCF",
-          "value": "All CNCF"
-        },
-        "datasource": "psql",
-        "definition": "",
-        "hide": 2,
-        "includeAll": false,
-        "label": null,
-        "multi": false,
-        "name": "full_name",
-        "options": [],
-        "query": "select value_s from gha_vars where name = 'full_name'",
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": true,
-        "sort": 0,
-        "tagValuesQuery": "",
-        "tags": [],
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false
-      },
-      {
-        "allValue": null,
-        "current": {
-          "text": "All",
-          "value": "All"
-        },
-        "datasource": "psql",
-        "definition": "",
-        "hide": 0,
-        "includeAll": false,
-        "label": "Repository group",
-        "multi": false,
-        "name": "repogroup_name",
-        "options": [],
-        "query": "select all_repo_group_name from tall_repo_groups order by 1",
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": false,
-        "sort": 0,
-        "tagValuesQuery": "",
-        "tags": [],
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false
-      },
-      {
-        "allValue": null,
-        "current": {
-          "text": "all",
-          "value": "all"
-        },
-        "datasource": "psql",
-        "definition": "",
-        "hide": 2,
-        "includeAll": false,
-        "label": "",
-        "multi": false,
-        "name": "repogroup",
-        "options": [],
-        "query": "select all_repo_group_value from tall_repo_groups where all_repo_group_name = '[[repogroup_name]]'",
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": true,
-        "sort": 0,
-        "tagValuesQuery": "",
-        "tags": [],
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false
-      },
-      {
-        "allValue": null,
-        "current": {
-          "text": "\u003ch1 id=\"kubernetes-dashboard\"\u003eAll CNCF Developer Activity Counts by Repository Group dashboard\u003c/h1\u003e\n\u003cp\u003eLinks:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003eMain metric \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/project_developer_stats.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eApproves metric \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/hist_approvers.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eReviews metric \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/hist_reviewers.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eTSDB \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/metrics.yaml\" target=\"_blank\"\u003eseries definition\u003c/a\u003e. Search for \u003ccode\u003eDeveloper activity\u003c/code\u003e\u003c/li\u003e\n\u003cli\u003eGrafana dashboard \u003ca href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/developer-activity-counts-by-repository-group.json\" target=\"_blank\"\u003eJSON\u003c/a\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch1 id=\"description\"\u003eDescription\u003c/h1\u003e\n\u003cul\u003e\n\u003cli\u003eThis dashboard shows various developer metrics.\u003c/li\u003e\n\u003cli\u003eYou can select last day, month, week etc. range or date range between releases, for example \u003ccode\u003ev1.9 - v1.10\u003c/code\u003e.\u003c/li\u003e\n\u003cli\u003eYou can select single repository group or summary for all of them.\u003c/li\u003e\n\u003cli\u003eYou can select country from a drop-down or summary for all countries.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/repository_groups.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about repository groups.\u003c/li\u003e\n\u003cli\u003eWe are skipping bots when calculating statistics, see \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/excluding_bots.md\" target=\"_blank\"\u003eexcluding bots\u003c/a\u003e for details.\u003c/li\u003e\n\u003c/ul\u003e",
-          "value": "\u003ch1 id=\"kubernetes-dashboard\"\u003eAll CNCF Developer Activity Counts by Repository Group dashboard\u003c/h1\u003e\n\u003cp\u003eLinks:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003eMain metric \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/project_developer_stats.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eApproves metric \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/hist_approvers.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eReviews metric \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/hist_reviewers.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eTSDB \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/metrics.yaml\" target=\"_blank\"\u003eseries definition\u003c/a\u003e. Search for \u003ccode\u003eDeveloper activity\u003c/code\u003e\u003c/li\u003e\n\u003cli\u003eGrafana dashboard \u003ca href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/developer-activity-counts-by-repository-group.json\" target=\"_blank\"\u003eJSON\u003c/a\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch1 id=\"description\"\u003eDescription\u003c/h1\u003e\n\u003cul\u003e\n\u003cli\u003eThis dashboard shows various developer metrics.\u003c/li\u003e\n\u003cli\u003eYou can select last day, month, week etc. range or date range between releases, for example \u003ccode\u003ev1.9 - v1.10\u003c/code\u003e.\u003c/li\u003e\n\u003cli\u003eYou can select single repository group or summary for all of them.\u003c/li\u003e\n\u003cli\u003eYou can select country from a drop-down or summary for all countries.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/repository_groups.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about repository groups.\u003c/li\u003e\n\u003cli\u003eWe are skipping bots when calculating statistics, see \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/excluding_bots.md\" target=\"_blank\"\u003eexcluding bots\u003c/a\u003e for details.\u003c/li\u003e\n\u003c/ul\u003e"
-        },
-        "datasource": "psql",
-        "definition": "",
-        "hide": 2,
-        "includeAll": false,
-        "label": null,
-        "multi": false,
-        "name": "docs",
-        "options": [],
-        "query": "select value_s from gha_vars where name = 'developers_summary_docs_html'",
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": true,
-        "sort": 0,
-        "tagValuesQuery": "",
-        "tags": [],
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false
-      },
-      {
-        "allValue": null,
-        "current": {
-          "text": "all",
-          "value": "all"
-        },
-        "datasource": "psql",
-        "definition": "",
-        "hide": 2,
-        "includeAll": false,
-        "label": "",
-        "multi": false,
-        "name": "country",
-        "options": [],
-        "query": "select sub.value from (select country_value as value, 0 as ord from tcountries where country_name = '[[country_name]]' union select 'all', 1 as ord) sub order by sub.ord limit 1",
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": true,
-        "sort": 0,
-        "tagValuesQuery": "",
-        "tags": [],
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false
-      },
-      {
-        "allValue": "all",
-        "current": {
-          "text": "All",
-          "value": "All"
-        },
-        "datasource": "psql",
-        "definition": "",
-        "hide": 0,
-        "includeAll": false,
-        "label": "Country",
-        "multi": false,
-        "name": "country_name",
-        "options": [],
-        "query": "select 'All' union select country_name from tcountries order by 1",
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": false,
-        "sort": 0,
-        "tagValuesQuery": "",
-        "tags": [],
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false
-      }
-    ]
-  },
-  "time": {
-    "from": "now-5y",
-    "to": "now"
-  },
+  "graphTooltip": 0,
+  "uid": "9",
+  "version": 2,
+  "iteration": 1568183301397,
+  "title": "Developer Activity Counts by Repository Group Table",
   "timepicker": {
     "hidden": true,
     "refresh_intervals": [
@@ -491,8 +333,170 @@
       "30d"
     ]
   },
+  "editable": true,
+  "tags": [
+    "dashboard",
+    "thanos",
+    "repogroups",
+    "table"
+  ],
   "timezone": "",
-  "title": "Developer Activity Counts by Repository Group Table",
-  "uid": "9",
-  "version": 2
+  "panels": [
+    {
+      "description": "",
+      "sort": {
+        "col": 2,
+        "desc": true
+      },
+      "targets": [
+        {
+          "orderByTime": "ASC",
+          "tags": [],
+          "rawQuery": true,
+          "group": [],
+          "query": "SELECT \"name\", \"value\" FROM \"developers_hist_[[metric]]_[[repogroup]]_[[period]]\" WHERE $timeFilter",
+          "policy": "default",
+          "metricColumn": "none",
+          "rawSql": "select \n  sub.\"Rank\",\n  sub.name as name,\n  sub.value \nfrom (\n  select row_number() over (order by sum(value) desc) as \"Rank\",\n    split_part(name, '$$$', 1) as name,\n    sum(value) as value\n  from\n    shdev\n  where\n    series = 'hdev_[[metric]][[repogroup]][[country]]'\n    and period = '[[period]]'\n  group by\n    split_part(name, '$$$', 1)\n) sub",
+          "refId": "A",
+          "resultFormat": "table",
+          "timeColumn": "time",
+          "dsType": "influxdb",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ],
+          "format": "table",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "type": "mean",
+                "params": []
+              }
+            ]
+          ],
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "alias": ""
+        }
+      ],
+      "options": {
+        
+      },
+      "styles": [
+        {
+          "type": "hidden",
+          "alias": "Time",
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": null,
+          "pattern": "Time"
+        },
+        {
+          "preserveFormat": false,
+          "alias": "GitHub login",
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "thresholds": [],
+          "pattern": "name",
+          "colorMode": null,
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "type": "string",
+          "unit": "short"
+        },
+        {
+          "decimals": 0,
+          "pattern": "value",
+          "thresholds": [],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "alias": "Number",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "type": "number",
+          "unit": "none"
+        },
+        {
+          "unit": "short",
+          "alias": "",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "decimals": 0,
+          "pattern": "/.*/",
+          "thresholds": [],
+          "type": "string"
+        }
+      ],
+      "id": 1,
+      "columns": [],
+      "gridPos": {
+        "h": 22,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "showHeader": true,
+      "links": [],
+      "pageSize": 1000,
+      "datasource": "psql",
+      "transform": "table",
+      "type": "table",
+      "hideTimeOverride": true,
+      "interval": "",
+      "fontSize": "90%",
+      "scroll": true,
+      "title": "[[full_name]] Developers statistics ([[metric]], Range: [[period_name]], Repository group: [[repogroup_name]]), bots excluded"
+    },
+    {
+      "options": {
+        
+      },
+      "title": "Dashboard documentation",
+      "type": "text",
+      "content": "${docs:raw}",
+      "gridPos": {
+        "h": 10,
+        "w": 24,
+        "x": 0,
+        "y": 22
+      },
+      "id": 3,
+      "links": [],
+      "mode": "html"
+    }
+  ],
+  "style": "dark",
+  "gnetId": null,
+  "schemaVersion": 19
 }

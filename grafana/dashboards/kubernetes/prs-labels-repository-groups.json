@@ -1,1060 +1,196 @@
 {
-  "annotations": {
-    "list": [
-      {
-        "builtIn": 1,
-        "datasource": "-- Grafana --",
-        "enable": true,
-        "hide": true,
-        "iconColor": "rgba(0, 211, 255, 1)",
-        "limit": 100,
-        "name": "Annotations \u0026 Alerts",
-        "showIn": 0,
-        "type": "dashboard"
-      },
-      {
-        "datasource": "psql",
-        "enable": true,
-        "hide": false,
-        "iconColor": "rgba(255, 96, 96, 1)",
-        "limit": 100,
-        "name": "Releases",
-        "query": "SELECT title, description from annotations WHERE $timeFilter order by time asc",
-        "rawQuery": "select extract(epoch from time) AS time, title as text, description as tags from sannotations where $__timeFilter(time)",
-        "showIn": 0,
-        "tagsColumn": "title,description",
-        "textColumn": "",
-        "titleColumn": "[[full_name]] release",
-        "type": "alert"
-      }
-    ]
-  },
-  "editable": true,
-  "gnetId": null,
-  "graphTooltip": 0,
-  "id": 37,
-  "iteration": 1589351980978,
-  "links": [],
-  "panels": [
-    {
-      "cacheTimeout": null,
-      "colorBackground": false,
-      "colorValue": true,
-      "colors": [
-        "#299c46",
-        "rgba(237, 129, 40, 0.89)",
-        "#d44a3a"
-      ],
-      "datasource": "psql",
-      "decimals": null,
-      "description": "",
-      "format": "none",
-      "gauge": {
-        "maxValue": 100,
-        "minValue": 0,
-        "show": false,
-        "thresholdLabels": false,
-        "thresholdMarkers": true
-      },
-      "gridPos": {
-        "h": 4,
-        "w": 12,
-        "x": 0,
-        "y": 0
-      },
-      "id": 3,
-      "interval": null,
-      "links": [],
-      "mappingType": 1,
-      "mappingTypes": [
-        {
-          "name": "value to text",
-          "value": 1
-        },
-        {
-          "name": "range to text",
-          "value": 2
-        }
-      ],
-      "maxDataPoints": 100,
-      "nullPointMode": "connected",
-      "nullText": null,
-      "options": {},
-      "postfix": "",
-      "postfixFontSize": "50%",
-      "prefix": "Currently: ",
-      "prefixFontSize": "50%",
-      "rangeMaps": [
-        {
-          "from": "null",
-          "text": "N/A",
-          "to": "null"
-        }
-      ],
-      "repeat": null,
-      "repeatDirection": "h",
-      "sparkline": {
-        "fillColor": "rgba(31, 118, 189, 0.18)",
-        "full": true,
-        "lineColor": "rgb(31, 120, 193)",
-        "show": true
-      },
-      "tableColumn": "",
-      "targets": [
-        {
-          "alias": "",
-          "dsType": "influxdb",
-          "format": "time_series",
-          "groupBy": [
-            {
-              "params": [
-                "$__interval"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
-          "orderByTime": "ASC",
-          "policy": "default",
-          "query": "select /^[[repogroups]]: [[labels]]$/ FROM \"prs_labelled_d\" WHERE $timeFilter",
-          "rawQuery": true,
-          "rawSql": "select\n  time,\n  value\nfrom\n  sprs_labels\nwhere\n  $__timeFilter(time)\n  and series = 'prlbl[[repogroup]][[label]]'\norder by\n  time",
-          "refId": "A",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": []
-        }
-      ],
-      "thresholds": "10,100",
-      "title": "PRs from [[repogroup_name]] repo group with [[label_name]]",
-      "transparent": true,
-      "type": "singlestat",
-      "valueFontSize": "80%",
-      "valueMaps": [
-        {
-          "op": "=",
-          "text": "N/A",
-          "value": "null"
-        }
-      ],
-      "valueName": "current"
-    },
-    {
-      "cacheTimeout": null,
-      "colorBackground": false,
-      "colorValue": true,
-      "colors": [
-        "#299c46",
-        "rgba(237, 129, 40, 0.89)",
-        "#d44a3a"
-      ],
-      "datasource": "psql",
-      "decimals": null,
-      "description": "",
-      "format": "none",
-      "gauge": {
-        "maxValue": 100,
-        "minValue": 0,
-        "show": false,
-        "thresholdLabels": false,
-        "thresholdMarkers": true
-      },
-      "gridPos": {
-        "h": 4,
-        "w": 12,
-        "x": 12,
-        "y": 0
-      },
-      "id": 4,
-      "interval": null,
-      "links": [],
-      "mappingType": 1,
-      "mappingTypes": [
-        {
-          "name": "value to text",
-          "value": 1
-        },
-        {
-          "name": "range to text",
-          "value": 2
-        }
-      ],
-      "maxDataPoints": 100,
-      "nullPointMode": "connected",
-      "nullText": null,
-      "options": {},
-      "postfix": "",
-      "postfixFontSize": "50%",
-      "prefix": "Maximum:",
-      "prefixFontSize": "50%",
-      "rangeMaps": [
-        {
-          "from": "null",
-          "text": "N/A",
-          "to": "null"
-        }
-      ],
-      "sparkline": {
-        "fillColor": "rgba(31, 118, 189, 0.18)",
-        "full": true,
-        "lineColor": "rgb(31, 120, 193)",
-        "show": true
-      },
-      "tableColumn": "",
-      "targets": [
-        {
-          "alias": "",
-          "dsType": "influxdb",
-          "format": "time_series",
-          "groupBy": [
-            {
-              "params": [
-                "$__interval"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
-          "orderByTime": "ASC",
-          "policy": "default",
-          "query": "select /^[[repogroups]]: [[labels]]$/ FROM \"prs_labelled_d\" WHERE $timeFilter",
-          "rawQuery": true,
-          "rawSql": "select\n  time,\n  value\nfrom\n  sprs_labels\nwhere\n  $__timeFilter(time)\n  and series = 'prlbl[[repogroup]][[label]]'\norder by\n  time",
-          "refId": "A",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": []
-        }
-      ],
-      "thresholds": "10,100",
-      "title": "PRs from [[repogroup_name]] repo group with [[label_name]]",
-      "transparent": true,
-      "type": "singlestat",
-      "valueFontSize": "80%",
-      "valueMaps": [
-        {
-          "op": "=",
-          "text": "N/A",
-          "value": "null"
-        }
-      ],
-      "valueName": "max"
-    },
-    {
-      "aliasColors": {},
-      "bars": false,
-      "dashLength": 10,
-      "dashes": false,
-      "datasource": "psql",
-      "decimals": 0,
-      "description": "",
-      "fill": 5,
-      "fillGradient": 0,
-      "gridPos": {
-        "h": 12,
-        "w": 24,
-        "x": 0,
-        "y": 4
-      },
-      "hiddenSeries": false,
-      "id": 1,
-      "legend": {
-        "alignAsTable": true,
-        "avg": true,
-        "current": true,
-        "max": true,
-        "min": true,
-        "rightSide": false,
-        "show": true,
-        "sort": "avg",
-        "sortDesc": true,
-        "total": false,
-        "values": true
-      },
-      "lines": true,
-      "linewidth": 1,
-      "links": [],
-      "nullPointMode": "null as zero",
-      "options": {
-        "dataLinks": []
-      },
-      "percentage": false,
-      "pointradius": 5,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [],
-      "spaceLength": 10,
-      "stack": true,
-      "steppedLine": false,
-      "targets": [
-        {
-          "alias": "",
-          "dsType": "influxdb",
-          "format": "time_series",
-          "groupBy": [],
-          "measurement": "prs_kubernetes_kubernetes_d",
-          "orderByTime": "ASC",
-          "policy": "default",
-          "query": "select /^[[repogroups]]: [[labels]]$/ FROM \"prs_labelled_d\" WHERE $timeFilter",
-          "rawQuery": true,
-          "rawSql": "select\n  time,\n  value as \"[[repogroup_name]]: [[label_name]]\"\nfrom\n  sprs_labels\nwhere\n  $__timeFilter(time)\n  and series = 'prlbl[[repogroup]][[label]]'\norder by\n  time",
-          "refId": "A",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              }
-            ]
-          ],
-          "tags": []
-        }
-      ],
-      "thresholds": [],
-      "timeFrom": null,
-      "timeRegions": [],
-      "timeShift": null,
-      "title": "PRs from [[repogroup_name]] repo group with [[label_name]]",
-      "tooltip": {
-        "shared": true,
-        "sort": 2,
-        "value_type": "individual"
-      },
-      "transparent": true,
-      "type": "graph",
-      "xaxis": {
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true,
-        "values": []
-      },
-      "yaxes": [
-        {
-          "decimals": null,
-          "format": "short",
-          "label": "PRs",
-          "logBase": 1,
-          "max": null,
-          "min": "0",
-          "show": true
-        },
-        {
-          "format": "short",
-          "label": "",
-          "logBase": 1,
-          "max": null,
-          "min": "0",
-          "show": true
-        }
-      ],
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      }
-    },
-    {
-      "aliasColors": {},
-      "bars": false,
-      "dashLength": 10,
-      "dashes": false,
-      "datasource": "psql",
-      "decimals": 0,
-      "description": "",
-      "fill": 2,
-      "fillGradient": 0,
-      "gridPos": {
-        "h": 13,
-        "w": 24,
-        "x": 0,
-        "y": 16
-      },
-      "hiddenSeries": false,
-      "id": 2,
-      "legend": {
-        "alignAsTable": true,
-        "avg": true,
-        "current": true,
-        "max": true,
-        "min": true,
-        "rightSide": true,
-        "show": true,
-        "sort": "avg",
-        "sortDesc": true,
-        "total": false,
-        "values": true
-      },
-      "lines": true,
-      "linewidth": 1,
-      "links": [],
-      "nullPointMode": "null as zero",
-      "options": {
-        "dataLinks": []
-      },
-      "percentage": false,
-      "pointradius": 5,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [],
-      "spaceLength": 10,
-      "stack": true,
-      "steppedLine": false,
-      "targets": [
-        {
-          "alias": "",
-          "dsType": "influxdb",
-          "format": "time_series",
-          "groupBy": [],
-          "measurement": "prs_kubernetes_kubernetes_d",
-          "orderByTime": "ASC",
-          "policy": "default",
-          "query": "select /: [[labels]]$/ FROM \"prs_labelled_d\" WHERE $timeFilter",
-          "rawQuery": true,
-          "rawSql": "with series as (\n  select distinct l.time as time,\n    r.all_combined_repo_group_name as metric_name,\n    r.all_combined_repo_group_value as metric_value\n  from\n    sprs_labels l,\n    tall_combined_repo_groups r\n  where\n    $__timeFilter(l.time)\n    and r.all_combined_repo_group_name != 'All repos combined'\n)\nselect\n  s.time as time,\n  s.metric_name as metric,\n  coalesce(l.value, 0) as value\nfrom\n  series s\nleft join\n  sprs_labels l\non\n  l.series = 'prlbl' || s.metric_value || '[[label]]'                     \n  and l.time = s.time\norder by\n  time",
-          "refId": "A",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              }
-            ]
-          ],
-          "tags": []
-        }
-      ],
-      "thresholds": [],
-      "timeFrom": null,
-      "timeRegions": [],
-      "timeShift": null,
-      "title": "PRs with [[label_name]] labels from all repos",
-      "tooltip": {
-        "shared": true,
-        "sort": 2,
-        "value_type": "individual"
-      },
-      "transparent": true,
-      "type": "graph",
-      "xaxis": {
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true,
-        "values": []
-      },
-      "yaxes": [
-        {
-          "format": "short",
-          "label": "PRs",
-          "logBase": 1,
-          "max": null,
-          "min": "0",
-          "show": true
-        },
-        {
-          "format": "short",
-          "label": "",
-          "logBase": 1,
-          "max": null,
-          "min": "0",
-          "show": true
-        }
-      ],
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      }
-    },
-    {
-      "aliasColors": {},
-      "bars": false,
-      "dashLength": 10,
-      "dashes": false,
-      "datasource": "psql",
-      "decimals": 0,
-      "description": "",
-      "fill": 2,
-      "fillGradient": 0,
-      "gridPos": {
-        "h": 13,
-        "w": 24,
-        "x": 0,
-        "y": 29
-      },
-      "hiddenSeries": false,
-      "id": 7,
-      "legend": {
-        "alignAsTable": true,
-        "avg": true,
-        "current": true,
-        "max": true,
-        "min": true,
-        "rightSide": true,
-        "show": true,
-        "sort": "avg",
-        "sortDesc": true,
-        "total": false,
-        "values": true
-      },
-      "lines": true,
-      "linewidth": 1,
-      "links": [],
-      "nullPointMode": "null as zero",
-      "options": {
-        "dataLinks": []
-      },
-      "percentage": false,
-      "pointradius": 5,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [],
-      "spaceLength": 10,
-      "stack": true,
-      "steppedLine": false,
-      "targets": [
-        {
-          "alias": "",
-          "dsType": "influxdb",
-          "format": "time_series",
-          "groupBy": [],
-          "measurement": "prs_kubernetes_kubernetes_d",
-          "orderByTime": "ASC",
-          "policy": "default",
-          "query": "select /^[[repogroups]]: / FROM \"prs_labelled_d\" WHERE $timeFilter",
-          "rawQuery": true,
-          "rawSql": "with series as (\n  select distinct l.time as time,\n    lt.pr_labels_tags_name as metric_name,\n    lt.pr_labels_tags_value as metric_value\n  from\n    sprs_labels l,\n    tpr_labels_tags lt\n  where\n    $__timeFilter(l.time)\n    and lt.pr_labels_tags_name != 'All labels combined'\n)\nselect\n  s.time as time,\n  s.metric_name as metric,\n  coalesce(l.value, 0) as value\nfrom\n  series s\nleft join\n  sprs_labels l\non\n  l.series = 'prlbl[[repogroup]]' || s.metric_value           \n  and l.time = s.time\norder by\n  time",
-          "refId": "A",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              }
-            ]
-          ],
-          "tags": []
-        }
-      ],
-      "thresholds": [],
-      "timeFrom": null,
-      "timeRegions": [],
-      "timeShift": null,
-      "title": "PRs from [[repogroup_name]] repo group (having at least one of specified labels)",
-      "tooltip": {
-        "shared": true,
-        "sort": 2,
-        "value_type": "individual"
-      },
-      "transparent": true,
-      "type": "graph",
-      "xaxis": {
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true,
-        "values": []
-      },
-      "yaxes": [
-        {
-          "format": "short",
-          "label": "PRs",
-          "logBase": 1,
-          "max": null,
-          "min": "0",
-          "show": true
-        },
-        {
-          "format": "short",
-          "label": "",
-          "logBase": 1,
-          "max": null,
-          "min": "0",
-          "show": true
-        }
-      ],
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      }
-    },
-    {
-      "aliasColors": {},
-      "bars": false,
-      "dashLength": 10,
-      "dashes": false,
-      "datasource": "psql",
-      "decimals": 0,
-      "description": "",
-      "fill": 2,
-      "fillGradient": 0,
-      "gridPos": {
-        "h": 13,
-        "w": 24,
-        "x": 0,
-        "y": 42
-      },
-      "hiddenSeries": false,
-      "id": 6,
-      "legend": {
-        "alignAsTable": true,
-        "avg": true,
-        "current": true,
-        "max": true,
-        "min": true,
-        "rightSide": true,
-        "show": true,
-        "sort": "avg",
-        "sortDesc": true,
-        "total": false,
-        "values": true
-      },
-      "lines": true,
-      "linewidth": 1,
-      "links": [],
-      "nullPointMode": "null as zero",
-      "options": {
-        "dataLinks": []
-      },
-      "percentage": true,
-      "pointradius": 5,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [],
-      "spaceLength": 10,
-      "stack": true,
-      "steppedLine": false,
-      "targets": [
-        {
-          "alias": "",
-          "dsType": "influxdb",
-          "format": "time_series",
-          "group": [],
-          "groupBy": [],
-          "measurement": "prs_kubernetes_kubernetes_d",
-          "metricColumn": "none",
-          "orderByTime": "ASC",
-          "policy": "default",
-          "query": "select /: [[labels]]$/ FROM \"prs_labelled_d\" WHERE $timeFilter",
-          "rawQuery": true,
-          "rawSql": "with series as (\n  select distinct l.time as time,\n    r.all_combined_repo_group_name as metric_name,\n    r.all_combined_repo_group_value as metric_value\n  from\n    sprs_labels l,\n    tall_combined_repo_groups r\n  where\n    $__timeFilter(l.time)\n    and r.all_combined_repo_group_name != 'All repos combined'\n)\nselect\n  s.time as time,\n  s.metric_name as metric,\n  coalesce(l.value, 0) as value\nfrom\n  series s\nleft join\n  sprs_labels l\non\n  l.series = 'prlbl' || s.metric_value || '[[label]]'                     \n  and l.time = s.time\norder by\n  time",
-          "refId": "A",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              }
-            ]
-          ],
-          "tags": [],
-          "timeColumn": "time",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ]
-        }
-      ],
-      "thresholds": [],
-      "timeFrom": null,
-      "timeRegions": [],
-      "timeShift": null,
-      "title": "PRs with [[label_name]] labels from all repos",
-      "tooltip": {
-        "shared": true,
-        "sort": 2,
-        "value_type": "individual"
-      },
-      "transparent": true,
-      "type": "graph",
-      "xaxis": {
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true,
-        "values": []
-      },
-      "yaxes": [
-        {
-          "format": "short",
-          "label": "PRs",
-          "logBase": 1,
-          "max": "100",
-          "min": "0",
-          "show": true
-        },
-        {
-          "format": "short",
-          "label": "",
-          "logBase": 1,
-          "max": null,
-          "min": null,
-          "show": true
-        }
-      ],
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      }
-    },
-    {
-      "aliasColors": {},
-      "bars": false,
-      "dashLength": 10,
-      "dashes": false,
-      "datasource": "psql",
-      "decimals": 0,
-      "description": "",
-      "fill": 2,
-      "fillGradient": 0,
-      "gridPos": {
-        "h": 13,
-        "w": 24,
-        "x": 0,
-        "y": 55
-      },
-      "hiddenSeries": false,
-      "id": 8,
-      "legend": {
-        "alignAsTable": true,
-        "avg": true,
-        "current": true,
-        "max": true,
-        "min": true,
-        "rightSide": true,
-        "show": true,
-        "sort": "avg",
-        "sortDesc": true,
-        "total": false,
-        "values": true
-      },
-      "lines": true,
-      "linewidth": 1,
-      "links": [],
-      "nullPointMode": "null as zero",
-      "options": {
-        "dataLinks": []
-      },
-      "percentage": true,
-      "pointradius": 5,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [],
-      "spaceLength": 10,
-      "stack": true,
-      "steppedLine": false,
-      "targets": [
-        {
-          "alias": "",
-          "dsType": "influxdb",
-          "format": "time_series",
-          "group": [],
-          "groupBy": [],
-          "measurement": "prs_kubernetes_kubernetes_d",
-          "metricColumn": "none",
-          "orderByTime": "ASC",
-          "policy": "default",
-          "query": "select /^[[repogroups]]: / FROM \"prs_labelled_d\" WHERE $timeFilter",
-          "rawQuery": true,
-          "rawSql": "with series as (\n  select distinct l.time as time,\n    lt.pr_labels_tags_name as metric_name,\n    lt.pr_labels_tags_value as metric_value\n  from\n    sprs_labels l,\n    tpr_labels_tags lt\n  where\n    $__timeFilter(l.time)\n    and lt.pr_labels_tags_name != 'All labels combined'\n)\nselect\n  s.time as time,\n  s.metric_name as metric,\n  coalesce(l.value, 0) as value\nfrom\n  series s\nleft join\n  sprs_labels l\non\n  l.series = 'prlbl[[repogroup]]' || s.metric_value           \n  and l.time = s.time\norder by\n  time",
-          "refId": "A",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              }
-            ]
-          ],
-          "tags": [],
-          "timeColumn": "time",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ]
-        }
-      ],
-      "thresholds": [],
-      "timeFrom": null,
-      "timeRegions": [],
-      "timeShift": null,
-      "title": "PRs from [[repogroup_name]] repo group (having at least one of specified labels)",
-      "tooltip": {
-        "shared": true,
-        "sort": 2,
-        "value_type": "individual"
-      },
-      "transparent": true,
-      "type": "graph",
-      "xaxis": {
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true,
-        "values": []
-      },
-      "yaxes": [
-        {
-          "format": "short",
-          "label": "PRs",
-          "logBase": 1,
-          "max": "100",
-          "min": "0",
-          "show": true
-        },
-        {
-          "format": "short",
-          "label": "",
-          "logBase": 1,
-          "max": null,
-          "min": null,
-          "show": true
-        }
-      ],
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      }
-    },
-    {
-      "content": "${docs:raw}",
-      "datasource": null,
-      "gridPos": {
-        "h": 9,
-        "w": 24,
-        "x": 0,
-        "y": 68
-      },
-      "id": 5,
-      "links": [],
-      "mode": "html",
-      "options": {},
-      "title": "Dashboard documentation",
-      "type": "text"
-    }
-  ],
-  "refresh": false,
-  "schemaVersion": 21,
-  "style": "dark",
-  "tags": [
-    "dashboard",
-    "kubernetes",
-    "PRs",
-    "repogroups"
-  ],
   "templating": {
     "list": [
       {
-        "allValue": "",
-        "current": {
-          "text": "Kubernetes",
-          "value": "Kubernetes"
-        },
-        "datasource": "psql",
-        "definition": "",
+        "sort": 0,
+        "tagValuesQuery": "",
         "hide": 0,
-        "includeAll": false,
-        "label": "Repository group",
-        "multi": false,
-        "name": "repogroup_name",
-        "options": [],
-        "query": "select all_combined_repo_group_name from tall_combined_repo_groups order by 1",
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": false,
-        "sort": 0,
-        "tagValuesQuery": "",
-        "tags": [],
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false
-      },
-      {
-        "allValue": null,
         "current": {
           "text": "Kubernetes",
           "value": "Kubernetes"
         },
-        "datasource": "psql",
-        "definition": "",
-        "hide": 2,
-        "includeAll": false,
-        "label": null,
-        "multi": false,
-        "name": "full_name",
-        "options": [],
-        "query": "select value_s from gha_vars where name = 'full_name'",
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": true,
-        "sort": 0,
-        "tagValuesQuery": "",
+        "name": "repogroup_name",
+        "useTags": false,
         "tags": [],
-        "tagsQuery": "",
+        "includeAll": false,
+        "query": "select all_combined_repo_group_name from tall_combined_repo_groups order by 1",
         "type": "query",
-        "useTags": false
+        "tagsQuery": "",
+        "multi": false,
+        "label": "Repository group",
+        "definition": "",
+        "options": [],
+        "allValue": "",
+        "datasource": "psql",
+        "regex": "",
+        "refresh": 1,
+        "skipUrlSync": false
       },
       {
+        "name": "full_name",
+        "refresh": 1,
+        "sort": 0,
+        "datasource": "psql",
+        "definition": "",
+        "tagsQuery": "",
+        "multi": false,
+        "regex": "",
+        "label": null,
+        "useTags": false,
+        "options": [],
+        "skipUrlSync": true,
+        "tagValuesQuery": "",
+        "includeAll": false,
+        "query": "select value_s from gha_vars where name = 'full_name'",
+        "type": "query",
+        "current": {
+          "text": "Kubernetes",
+          "value": "Kubernetes"
+        },
+        "tags": [],
         "allValue": null,
+        "hide": 2
+      },
+      {
+        "useTags": false,
+        "definition": "",
+        "multi": false,
+        "refresh": 1,
+        "tagValuesQuery": "",
+        "name": "label_name",
+        "query": "select pr_labels_tags_name from tpr_labels_tags order by 1",
+        "regex": "",
+        "allValue": null,
+        "tagsQuery": "",
+        "includeAll": false,
+        "sort": 0,
+        "type": "query",
+        "hide": 0,
+        "options": [],
         "current": {
           "text": "needs-rebase",
           "value": "needs-rebase"
         },
         "datasource": "psql",
-        "definition": "",
-        "hide": 0,
-        "includeAll": false,
-        "label": "Label",
-        "multi": false,
-        "name": "label_name",
-        "options": [],
-        "query": "select pr_labels_tags_name from tpr_labels_tags order by 1",
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": false,
-        "sort": 0,
-        "tagValuesQuery": "",
         "tags": [],
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false
+        "label": "Label",
+        "skipUrlSync": false
       },
       {
-        "allValue": "",
+        "datasource": "psql",
+        "tags": [],
+        "tagsQuery": "",
         "current": {
           "text": "kubernetes",
           "value": "kubernetes"
         },
-        "datasource": "psql",
-        "definition": "",
         "hide": 2,
-        "includeAll": false,
-        "label": "",
-        "multi": false,
-        "name": "repogroup",
-        "options": [],
-        "query": "select all_combined_repo_group_value from tall_combined_repo_groups where all_combined_repo_group_name = '[[repogroup_name]]'",
         "refresh": 1,
         "regex": "",
-        "skipUrlSync": true,
-        "sort": 0,
-        "tagValuesQuery": "",
-        "tags": [],
-        "tagsQuery": "",
         "type": "query",
-        "useTags": false
+        "multi": false,
+        "allValue": "",
+        "definition": "",
+        "skipUrlSync": true,
+        "query": "select all_combined_repo_group_value from tall_combined_repo_groups where all_combined_repo_group_name = '[[repogroup_name]]'",
+        "useTags": false,
+        "tagValuesQuery": "",
+        "label": "",
+        "options": [],
+        "sort": 0,
+        "name": "repogroup",
+        "includeAll": false
       },
       {
+        "name": "label",
+        "type": "query",
+        "hide": 2,
+        "query": "select pr_labels_tags_value from tpr_labels_tags where pr_labels_tags_name = '[[label_name]]'",
+        "options": [],
+        "useTags": false,
         "allValue": null,
+        "includeAll": false,
+        "label": "",
+        "datasource": "psql",
+        "regex": "",
+        "skipUrlSync": true,
+        "refresh": 1,
+        "multi": false,
+        "sort": 0,
+        "definition": "",
+        "tagsQuery": "",
+        "tagValuesQuery": "",
+        "tags": [],
         "current": {
           "text": "needsrebase",
           "value": "needsrebase"
-        },
-        "datasource": "psql",
-        "definition": "",
-        "hide": 2,
-        "includeAll": false,
-        "label": "",
-        "multi": false,
-        "name": "label",
-        "options": [],
-        "query": "select pr_labels_tags_value from tpr_labels_tags where pr_labels_tags_name = '[[label_name]]'",
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": true,
-        "sort": 0,
-        "tagValuesQuery": "",
-        "tags": [],
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false
+        }
       },
       {
-        "allValue": null,
+        "sort": 0,
+        "label": null,
+        "options": [],
+        "skipUrlSync": true,
+        "datasource": "psql",
+        "regex": "",
+        "query": "select value_s from gha_vars where name = 'pr_labels_docs_html'",
+        "type": "query",
+        "multi": false,
+        "useTags": false,
         "current": {
           "text": "\u003ch1 id=\"kubernetes-dashboard\"\u003eKubernetes PR labels repository groups dashboard\u003c/h1\u003e\n\u003cp\u003eLinks:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003eMetric \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/prs_labels.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eTSDB \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/metrics.yaml\" target=\"_blank\"\u003eseries definition\u003c/a\u003e. Search for \u003ccode\u003eprs_labels\u003c/code\u003e\u003c/li\u003e\n\u003cli\u003eGrafana dashboard \u003ca href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/prs-labels-repository-groups.json\" target=\"_blank\"\u003eJSON\u003c/a\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch1 id=\"description\"\u003eDescription\u003c/h1\u003e\n\u003cul\u003e\n\u003cli\u003eThis dashboard how many PRs have a specified label(s) in a given repository group(s).\u003c/li\u003e\n\u003cli\u003eList of labels is hardcoded. It contains PR merge blocker labels.\u003c/li\u003e\n\u003cli\u003eYou can select any of labels from given set or choose \u003ccode\u003eAll labels combined\u003c/code\u003e.\u003c/li\u003e\n\u003cli\u003eYou can select single repository group or summary for all of them \u003ccode\u003eAll repos combined\u003c/code\u003e.\u003c/li\u003e\n\u003cli\u003eThere are multiple charts that show summaries for all repo groups and/or for all labels.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/repository_groups.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about repository groups.\u003c/li\u003e\n\u003c/ul\u003e",
           "value": "\u003ch1 id=\"kubernetes-dashboard\"\u003eKubernetes PR labels repository groups dashboard\u003c/h1\u003e\n\u003cp\u003eLinks:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003eMetric \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/prs_labels.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eTSDB \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/metrics.yaml\" target=\"_blank\"\u003eseries definition\u003c/a\u003e. Search for \u003ccode\u003eprs_labels\u003c/code\u003e\u003c/li\u003e\n\u003cli\u003eGrafana dashboard \u003ca href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/prs-labels-repository-groups.json\" target=\"_blank\"\u003eJSON\u003c/a\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch1 id=\"description\"\u003eDescription\u003c/h1\u003e\n\u003cul\u003e\n\u003cli\u003eThis dashboard how many PRs have a specified label(s) in a given repository group(s).\u003c/li\u003e\n\u003cli\u003eList of labels is hardcoded. It contains PR merge blocker labels.\u003c/li\u003e\n\u003cli\u003eYou can select any of labels from given set or choose \u003ccode\u003eAll labels combined\u003c/code\u003e.\u003c/li\u003e\n\u003cli\u003eYou can select single repository group or summary for all of them \u003ccode\u003eAll repos combined\u003c/code\u003e.\u003c/li\u003e\n\u003cli\u003eThere are multiple charts that show summaries for all repo groups and/or for all labels.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/repository_groups.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about repository groups.\u003c/li\u003e\n\u003c/ul\u003e"
         },
-        "datasource": "psql",
-        "definition": "",
-        "hide": 2,
-        "includeAll": false,
-        "label": null,
-        "multi": false,
         "name": "docs",
-        "options": [],
-        "query": "select value_s from gha_vars where name = 'pr_labels_docs_html'",
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": true,
-        "sort": 0,
+        "includeAll": false,
         "tagValuesQuery": "",
         "tags": [],
+        "hide": 2,
+        "definition": "",
         "tagsQuery": "",
-        "type": "query",
-        "useTags": false
+        "refresh": 1,
+        "allValue": null
       }
     ]
   },
+  "refresh": false,
+  "id": 37,
+  "version": 2,
+  "title": "PRs labels repository groups",
+  "graphTooltip": 0,
   "time": {
     "from": "now-1y",
     "to": "now"
+  },
+  "annotations": {
+    "list": [
+      {
+        "type": "dashboard",
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "showIn": 0,
+        "limit": 100,
+        "enable": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "hide": true,
+        "name": "Annotations \u0026 Alerts"
+      },
+      {
+        "enable": true,
+        "hide": false,
+        "iconColor": "rgba(255, 96, 96, 1)",
+        "limit": 100,
+        "name": "Releases",
+        "rawQuery": "select extract(epoch from time) AS time, title as text, description as tags from sannotations where $__timeFilter(time)",
+        "titleColumn": "[[full_name]] release",
+        "datasource": "psql",
+        "tagsColumn": "title,description",
+        "showIn": 0,
+        "textColumn": "",
+        "type": "alert",
+        "query": "SELECT title, description from annotations WHERE $timeFilter order by time asc"
+      }
+    ]
   },
   "timepicker": {
     "refresh_intervals": [
@@ -1081,8 +217,888 @@
       "30d"
     ]
   },
+  "iteration": 1589351980978,
+  "style": "dark",
   "timezone": "",
-  "title": "PRs labels repository groups",
+  "editable": true,
   "uid": "47",
-  "version": 2
+  "tags": [
+    "dashboard",
+    "kubernetes",
+    "PRs",
+    "repogroups"
+  ],
+  "panels": [
+    {
+      "thresholds": "10,100",
+      "title": "PRs from [[repogroup_name]] repo group with [[label_name]]",
+      "repeat": null,
+      "prefixFontSize": "50%",
+      "description": "",
+      "colors": [
+        "#299c46",
+        "rgba(237, 129, 40, 0.89)",
+        "#d44a3a"
+      ],
+      "mappingType": 1,
+      "sparkline": {
+        "show": true,
+        "fillColor": "rgba(31, 118, 189, 0.18)",
+        "full": true,
+        "lineColor": "rgb(31, 120, 193)"
+      },
+      "repeatDirection": "h",
+      "valueFontSize": "80%",
+      "gauge": {
+        "show": false,
+        "thresholdLabels": false,
+        "thresholdMarkers": true,
+        "maxValue": 100,
+        "minValue": 0
+      },
+      "interval": null,
+      "links": [],
+      "gridPos": {
+        "x": 0,
+        "y": 0,
+        "h": 4,
+        "w": 12
+      },
+      "tableColumn": "",
+      "rangeMaps": [
+        {
+          "text": "N/A",
+          "to": "null",
+          "from": "null"
+        }
+      ],
+      "nullPointMode": "connected",
+      "prefix": "Currently: ",
+      "colorBackground": false,
+      "datasource": "psql",
+      "targets": [
+        {
+          "tags": [],
+          "dsType": "influxdb",
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "rawQuery": true,
+          "rawSql": "select\n  time,\n  value\nfrom\n  sprs_labels\nwhere\n  $__timeFilter(time)\n  and series = 'prlbl[[repogroup]][[label]]'\norder by\n  time",
+          "select": [
+            [
+              {
+                "type": "field",
+                "params": [
+                  "value"
+                ]
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "query": "select /^[[repogroups]]: [[labels]]$/ FROM \"prs_labelled_d\" WHERE $timeFilter",
+          "policy": "default",
+          "resultFormat": "time_series",
+          "format": "time_series",
+          "refId": "A",
+          "alias": "",
+          "orderByTime": "ASC"
+        }
+      ],
+      "colorValue": true,
+      "mappingTypes": [
+        {
+          "name": "value to text",
+          "value": 1
+        },
+        {
+          "name": "range to text",
+          "value": 2
+        }
+      ],
+      "decimals": null,
+      "id": 3,
+      "type": "singlestat",
+      "postfixFontSize": "50%",
+      "valueMaps": [
+        {
+          "value": "null",
+          "op": "=",
+          "text": "N/A"
+        }
+      ],
+      "valueName": "current",
+      "transparent": true,
+      "options": {
+        
+      },
+      "cacheTimeout": null,
+      "postfix": "",
+      "maxDataPoints": 100,
+      "format": "none",
+      "nullText": null
+    },
+    {
+      "colors": [
+        "#299c46",
+        "rgba(237, 129, 40, 0.89)",
+        "#d44a3a"
+      ],
+      "targets": [
+        {
+          "tags": [],
+          "format": "time_series",
+          "query": "select /^[[repogroups]]: [[labels]]$/ FROM \"prs_labelled_d\" WHERE $timeFilter",
+          "select": [
+            [
+              {
+                "type": "field",
+                "params": [
+                  "value"
+                ]
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "rawQuery": true,
+          "rawSql": "select\n  time,\n  value\nfrom\n  sprs_labels\nwhere\n  $__timeFilter(time)\n  and series = 'prlbl[[repogroup]][[label]]'\norder by\n  time",
+          "refId": "A",
+          "resultFormat": "time_series",
+          "dsType": "influxdb",
+          "policy": "default",
+          "orderByTime": "ASC",
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "alias": ""
+        }
+      ],
+      "postfixFontSize": "50%",
+      "prefix": "Maximum:",
+      "transparent": true,
+      "id": 4,
+      "valueName": "max",
+      "colorBackground": false,
+      "valueFontSize": "80%",
+      "prefixFontSize": "50%",
+      "valueMaps": [
+        {
+          "op": "=",
+          "text": "N/A",
+          "value": "null"
+        }
+      ],
+      "cacheTimeout": null,
+      "colorValue": true,
+      "maxDataPoints": 100,
+      "decimals": null,
+      "gridPos": {
+        "y": 0,
+        "h": 4,
+        "w": 12,
+        "x": 12
+      },
+      "tableColumn": "",
+      "mappingType": 1,
+      "nullText": null,
+      "sparkline": {
+        "full": true,
+        "lineColor": "rgb(31, 120, 193)",
+        "show": true,
+        "fillColor": "rgba(31, 118, 189, 0.18)"
+      },
+      "datasource": "psql",
+      "type": "singlestat",
+      "rangeMaps": [
+        {
+          "from": "null",
+          "text": "N/A",
+          "to": "null"
+        }
+      ],
+      "nullPointMode": "connected",
+      "links": [],
+      "interval": null,
+      "description": "",
+      "mappingTypes": [
+        {
+          "name": "value to text",
+          "value": 1
+        },
+        {
+          "name": "range to text",
+          "value": 2
+        }
+      ],
+      "postfix": "",
+      "gauge": {
+        "maxValue": 100,
+        "minValue": 0,
+        "show": false,
+        "thresholdLabels": false,
+        "thresholdMarkers": true
+      },
+      "thresholds": "10,100",
+      "options": {
+        
+      },
+      "format": "none",
+      "title": "PRs from [[repogroup_name]] repo group with [[label_name]]"
+    },
+    {
+      "gridPos": {
+        "x": 0,
+        "y": 4,
+        "h": 12,
+        "w": 24
+      },
+      "renderer": "flot",
+      "links": [],
+      "description": "",
+      "stack": true,
+      "pointradius": 5,
+      "timeShift": null,
+      "fill": 5,
+      "timeRegions": [],
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "title": "PRs from [[repogroup_name]] repo group with [[label_name]]",
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      },
+      "hiddenSeries": false,
+      "fillGradient": 0,
+      "bars": false,
+      "spaceLength": 10,
+      "options": {
+        "dataLinks": []
+      },
+      "dashes": false,
+      "type": "graph",
+      "transparent": true,
+      "percentage": false,
+      "targets": [
+        {
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              }
+            ]
+          ],
+          "dsType": "influxdb",
+          "rawSql": "select\n  time,\n  value as \"[[repogroup_name]]: [[label_name]]\"\nfrom\n  sprs_labels\nwhere\n  $__timeFilter(time)\n  and series = 'prlbl[[repogroup]][[label]]'\norder by\n  time",
+          "groupBy": [],
+          "measurement": "prs_kubernetes_kubernetes_d",
+          "alias": "",
+          "query": "select /^[[repogroups]]: [[labels]]$/ FROM \"prs_labelled_d\" WHERE $timeFilter",
+          "tags": [],
+          "policy": "default",
+          "rawQuery": true,
+          "orderByTime": "ASC",
+          "format": "time_series",
+          "resultFormat": "time_series"
+        }
+      ],
+      "points": false,
+      "thresholds": [],
+      "yaxes": [
+        {
+          "max": null,
+          "min": "0",
+          "show": true,
+          "decimals": null,
+          "format": "short",
+          "label": "PRs",
+          "logBase": 1
+        },
+        {
+          "label": "",
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true,
+          "format": "short"
+        }
+      ],
+      "linewidth": 1,
+      "nullPointMode": "null as zero",
+      "timeFrom": null,
+      "id": 1,
+      "datasource": "psql",
+      "legend": {
+        "sort": "avg",
+        "show": true,
+        "values": true,
+        "avg": true,
+        "min": true,
+        "rightSide": false,
+        "total": false,
+        "current": true,
+        "max": true,
+        "alignAsTable": true,
+        "sortDesc": true
+      },
+      "lines": true,
+      "decimals": 0,
+      "tooltip": {
+        "shared": true,
+        "sort": 2,
+        "value_type": "individual"
+      },
+      "steppedLine": false,
+      "seriesOverrides": [],
+      "aliasColors": {
+        
+      },
+      "dashLength": 10
+    },
+    {
+      "transparent": true,
+      "percentage": false,
+      "gridPos": {
+        "x": 0,
+        "y": 16,
+        "h": 13,
+        "w": 24
+      },
+      "nullPointMode": "null as zero",
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      },
+      "points": false,
+      "description": "",
+      "timeShift": null,
+      "yaxes": [
+        {
+          "label": "PRs",
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true,
+          "format": "short"
+        },
+        {
+          "format": "short",
+          "label": "",
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true
+        }
+      ],
+      "lines": true,
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "spaceLength": 10,
+      "seriesOverrides": [],
+      "aliasColors": {
+        
+      },
+      "legend": {
+        "max": true,
+        "total": false,
+        "values": true,
+        "avg": true,
+        "show": true,
+        "sortDesc": true,
+        "alignAsTable": true,
+        "sort": "avg",
+        "current": true,
+        "min": true,
+        "rightSide": true
+      },
+      "type": "graph",
+      "title": "PRs with [[label_name]] labels from all repos",
+      "id": 2,
+      "dashLength": 10,
+      "links": [],
+      "fillGradient": 0,
+      "dashes": false,
+      "bars": false,
+      "targets": [
+        {
+          "groupBy": [],
+          "rawQuery": true,
+          "refId": "A",
+          "policy": "default",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              }
+            ]
+          ],
+          "measurement": "prs_kubernetes_kubernetes_d",
+          "format": "time_series",
+          "alias": "",
+          "dsType": "influxdb",
+          "query": "select /: [[labels]]$/ FROM \"prs_labelled_d\" WHERE $timeFilter",
+          "tags": [],
+          "orderByTime": "ASC",
+          "rawSql": "with series as (\n  select distinct l.time as time,\n    r.all_combined_repo_group_name as metric_name,\n    r.all_combined_repo_group_value as metric_value\n  from\n    sprs_labels l,\n    tall_combined_repo_groups r\n  where\n    $__timeFilter(l.time)\n    and r.all_combined_repo_group_name != 'All repos combined'\n)\nselect\n  s.time as time,\n  s.metric_name as metric,\n  coalesce(l.value, 0) as value\nfrom\n  series s\nleft join\n  sprs_labels l\non\n  l.series = 'prlbl' || s.metric_value || '[[label]]'                     \n  and l.time = s.time\norder by\n  time",
+          "resultFormat": "time_series"
+        }
+      ],
+      "timeRegions": [],
+      "decimals": 0,
+      "timeFrom": null,
+      "stack": true,
+      "tooltip": {
+        "value_type": "individual",
+        "shared": true,
+        "sort": 2
+      },
+      "renderer": "flot",
+      "options": {
+        "dataLinks": []
+      },
+      "steppedLine": false,
+      "pointradius": 5,
+      "hiddenSeries": false,
+      "thresholds": [],
+      "datasource": "psql",
+      "linewidth": 1,
+      "fill": 2
+    },
+    {
+      "bars": false,
+      "dashLength": 10,
+      "id": 7,
+      "datasource": "psql",
+      "linewidth": 1,
+      "description": "",
+      "title": "PRs from [[repogroup_name]] repo group (having at least one of specified labels)",
+      "legend": {
+        "avg": true,
+        "current": true,
+        "max": true,
+        "rightSide": true,
+        "show": true,
+        "sort": "avg",
+        "values": true,
+        "alignAsTable": true,
+        "sortDesc": true,
+        "min": true,
+        "total": false
+      },
+      "tooltip": {
+        "value_type": "individual",
+        "shared": true,
+        "sort": 2
+      },
+      "nullPointMode": "null as zero",
+      "fillGradient": 0,
+      "type": "graph",
+      "renderer": "flot",
+      "targets": [
+        {
+          "resultFormat": "time_series",
+          "tags": [],
+          "groupBy": [],
+          "dsType": "influxdb",
+          "rawQuery": true,
+          "refId": "A",
+          "query": "select /^[[repogroups]]: / FROM \"prs_labelled_d\" WHERE $timeFilter",
+          "select": [
+            [
+              {
+                "type": "field",
+                "params": [
+                  "value"
+                ]
+              }
+            ]
+          ],
+          "policy": "default",
+          "alias": "",
+          "orderByTime": "ASC",
+          "measurement": "prs_kubernetes_kubernetes_d",
+          "rawSql": "with series as (\n  select distinct l.time as time,\n    lt.pr_labels_tags_name as metric_name,\n    lt.pr_labels_tags_value as metric_value\n  from\n    sprs_labels l,\n    tpr_labels_tags lt\n  where\n    $__timeFilter(l.time)\n    and lt.pr_labels_tags_name != 'All labels combined'\n)\nselect\n  s.time as time,\n  s.metric_name as metric,\n  coalesce(l.value, 0) as value\nfrom\n  series s\nleft join\n  sprs_labels l\non\n  l.series = 'prlbl[[repogroup]]' || s.metric_value           \n  and l.time = s.time\norder by\n  time",
+          "format": "time_series"
+        }
+      ],
+      "percentage": false,
+      "timeShift": null,
+      "points": false,
+      "links": [],
+      "steppedLine": false,
+      "timeRegions": [],
+      "yaxis": {
+        "alignLevel": null,
+        "align": false
+      },
+      "timeFrom": null,
+      "seriesOverrides": [],
+      "aliasColors": {
+        
+      },
+      "dashes": false,
+      "hiddenSeries": false,
+      "spaceLength": 10,
+      "thresholds": [],
+      "decimals": 0,
+      "lines": true,
+      "options": {
+        "dataLinks": []
+      },
+      "pointradius": 5,
+      "transparent": true,
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "format": "short",
+          "label": "PRs",
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true
+        },
+        {
+          "show": true,
+          "format": "short",
+          "label": "",
+          "logBase": 1,
+          "max": null,
+          "min": "0"
+        }
+      ],
+      "gridPos": {
+        "h": 13,
+        "w": 24,
+        "x": 0,
+        "y": 29
+      },
+      "fill": 2,
+      "stack": true
+    },
+    {
+      "steppedLine": false,
+      "bars": false,
+      "spaceLength": 10,
+      "tooltip": {
+        "sort": 2,
+        "value_type": "individual",
+        "shared": true
+      },
+      "dashLength": 10,
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      },
+      "dashes": false,
+      "fill": 2,
+      "linewidth": 1,
+      "lines": true,
+      "nullPointMode": "null as zero",
+      "percentage": true,
+      "seriesOverrides": [],
+      "id": 6,
+      "yaxes": [
+        {
+          "format": "short",
+          "label": "PRs",
+          "logBase": 1,
+          "max": "100",
+          "min": "0",
+          "show": true
+        },
+        {
+          "min": null,
+          "show": true,
+          "format": "short",
+          "label": "",
+          "logBase": 1,
+          "max": null
+        }
+      ],
+      "thresholds": [],
+      "title": "PRs with [[label_name]] labels from all repos",
+      "links": [],
+      "renderer": "flot",
+      "timeFrom": null,
+      "gridPos": {
+        "y": 42,
+        "h": 13,
+        "w": 24,
+        "x": 0
+      },
+      "aliasColors": {
+        
+      },
+      "datasource": "psql",
+      "targets": [
+        {
+          "groupBy": [],
+          "refId": "A",
+          "rawSql": "with series as (\n  select distinct l.time as time,\n    r.all_combined_repo_group_name as metric_name,\n    r.all_combined_repo_group_value as metric_value\n  from\n    sprs_labels l,\n    tall_combined_repo_groups r\n  where\n    $__timeFilter(l.time)\n    and r.all_combined_repo_group_name != 'All repos combined'\n)\nselect\n  s.time as time,\n  s.metric_name as metric,\n  coalesce(l.value, 0) as value\nfrom\n  series s\nleft join\n  sprs_labels l\non\n  l.series = 'prlbl' || s.metric_value || '[[label]]'                     \n  and l.time = s.time\norder by\n  time",
+          "timeColumn": "time",
+          "group": [],
+          "resultFormat": "time_series",
+          "tags": [],
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              }
+            ]
+          ],
+          "dsType": "influxdb",
+          "policy": "default",
+          "rawQuery": true,
+          "query": "select /: [[labels]]$/ FROM \"prs_labelled_d\" WHERE $timeFilter",
+          "metricColumn": "none",
+          "alias": "",
+          "orderByTime": "ASC",
+          "format": "time_series",
+          "where": [
+            {
+              "params": [],
+              "type": "macro",
+              "name": "$__timeFilter"
+            }
+          ],
+          "measurement": "prs_kubernetes_kubernetes_d"
+        }
+      ],
+      "pointradius": 5,
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "timeShift": null,
+      "points": false,
+      "decimals": 0,
+      "description": "",
+      "legend": {
+        "max": true,
+        "sortDesc": true,
+        "total": false,
+        "values": true,
+        "alignAsTable": true,
+        "sort": "avg",
+        "avg": true,
+        "current": true,
+        "min": true,
+        "rightSide": true,
+        "show": true
+      },
+      "options": {
+        "dataLinks": []
+      },
+      "transparent": true,
+      "fillGradient": 0,
+      "hiddenSeries": false,
+      "stack": true,
+      "timeRegions": []
+    },
+    {
+      "pointradius": 5,
+      "nullPointMode": "null as zero",
+      "decimals": 0,
+      "thresholds": [],
+      "stack": true,
+      "bars": false,
+      "description": "",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "targets": [
+        {
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ],
+          "group": [],
+          "query": "select /^[[repogroups]]: / FROM \"prs_labelled_d\" WHERE $timeFilter",
+          "refId": "A",
+          "resultFormat": "time_series",
+          "rawQuery": true,
+          "groupBy": [],
+          "policy": "default",
+          "orderByTime": "ASC",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              }
+            ]
+          ],
+          "format": "time_series",
+          "timeColumn": "time",
+          "measurement": "prs_kubernetes_kubernetes_d",
+          "rawSql": "with series as (\n  select distinct l.time as time,\n    lt.pr_labels_tags_name as metric_name,\n    lt.pr_labels_tags_value as metric_value\n  from\n    sprs_labels l,\n    tpr_labels_tags lt\n  where\n    $__timeFilter(l.time)\n    and lt.pr_labels_tags_name != 'All labels combined'\n)\nselect\n  s.time as time,\n  s.metric_name as metric,\n  coalesce(l.value, 0) as value\nfrom\n  series s\nleft join\n  sprs_labels l\non\n  l.series = 'prlbl[[repogroup]]' || s.metric_value           \n  and l.time = s.time\norder by\n  time",
+          "alias": "",
+          "metricColumn": "none",
+          "tags": [],
+          "dsType": "influxdb"
+        }
+      ],
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "fill": 2,
+      "dashLength": 10,
+      "gridPos": {
+        "h": 13,
+        "w": 24,
+        "x": 0,
+        "y": 55
+      },
+      "transparent": true,
+      "dashes": false,
+      "hiddenSeries": false,
+      "points": false,
+      "options": {
+        "dataLinks": []
+      },
+      "yaxes": [
+        {
+          "min": "0",
+          "show": true,
+          "format": "short",
+          "label": "PRs",
+          "logBase": 1,
+          "max": "100"
+        },
+        {
+          "label": "",
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true,
+          "format": "short"
+        }
+      ],
+      "legend": {
+        "values": true,
+        "current": true,
+        "max": true,
+        "min": true,
+        "avg": true,
+        "alignAsTable": true,
+        "sort": "avg",
+        "rightSide": true,
+        "show": true,
+        "total": false,
+        "sortDesc": true
+      },
+      "datasource": "psql",
+      "title": "PRs from [[repogroup_name]] repo group (having at least one of specified labels)",
+      "id": 8,
+      "linewidth": 1,
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      },
+      "percentage": true,
+      "links": [],
+      "timeRegions": [],
+      "lines": true,
+      "steppedLine": false,
+      "tooltip": {
+        "sort": 2,
+        "value_type": "individual",
+        "shared": true
+      },
+      "timeShift": null,
+      "type": "graph",
+      "aliasColors": {
+        
+      },
+      "spaceLength": 10,
+      "timeFrom": null,
+      "fillGradient": 0
+    },
+    {
+      "links": [],
+      "options": {
+        
+      },
+      "content": "${docs:raw}",
+      "datasource": null,
+      "gridPos": {
+        "x": 0,
+        "y": 68,
+        "h": 9,
+        "w": 24
+      },
+      "title": "Dashboard documentation",
+      "type": "text",
+      "id": 5,
+      "mode": "html"
+    }
+  ],
+  "schemaVersion": 21,
+  "gnetId": null,
+  "links": []
 }
