@@ -10,5 +10,7 @@ Those steps are generally needed to change project status (usually from `Incubat
 - Update files: `partials/projects.html partials/projects_health.html` (remember about `cncf-` classes/separators).
 - Run to update partials: `PG_PASS=... ./devel/vars_all.sh`. Not needed with Helm installation.
 - Update test and production www index files: `apache/www/index_test.html apache/www/index_prod.html`. Possibly others too like for GraphQL.
+- To do this you can copy `prod`/`test` section from already modified `partials/projects.html` and then do the following replacements:
+- `` :'<,'>s/\[\[hostname]]/teststats.cncf.io/g `` or `` :'<,'>s/\[\[hostname]]/teststats.cncf.io/g ``, followed by `` :'<,'>s/public\/img\/projects\///g ``.
 - Install them as `/var/www/html/index.html` on test and production respectively: `cp apache/www/index_envname.html /var/www/html/index.html`.
 - Install everything: `make install`. Not needed with Helm installation, rebuild docker images and drop static pages and grafanas pods instead.
