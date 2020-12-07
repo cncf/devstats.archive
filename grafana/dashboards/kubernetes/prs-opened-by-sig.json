@@ -1,6 +1,33 @@
 {
-  "links": [],
-  "schemaVersion": 21,
+  "annotations": {
+    "list": [
+      {
+        "name": "Annotations \u0026 Alerts",
+        "type": "dashboard",
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)"
+      },
+      {
+        "textColumn": "",
+        "tagsColumn": "title,description",
+        "rawQuery": "select extract(epoch from time) AS time, title as text, description as tags from sannotations where $__timeFilter(time)",
+        "type": "alert",
+        "hide": false,
+        "datasource": "psql",
+        "iconColor": "rgba(255, 96, 96, 1)",
+        "query": "SELECT title, description from annotations WHERE $timeFilter order by time asc",
+        "name": "Releases",
+        "limit": 100,
+        "titleColumn": "[[full_name]] release",
+        "showIn": 0,
+        "enable": true
+      }
+    ]
+  },
+  "timezone": "",
   "style": "dark",
   "timepicker": {
     "refresh_intervals": [
@@ -27,60 +54,57 @@
       "30d"
     ]
   },
-  "timezone": "",
+  "title": "PRs opened by SIG",
+  "uid": "69",
+  "gnetId": null,
+  "refresh": false,
+  "version": 3,
+  "schemaVersion": 21,
   "time": {
     "from": "now-2y",
     "to": "now"
   },
-  "version": 3,
-  "annotations": {
-    "list": [
-      {
-        "hide": true,
-        "iconColor": "rgba(0, 211, 255, 1)",
-        "name": "Annotations & Alerts",
-        "type": "dashboard",
-        "builtIn": 1,
-        "datasource": "-- Grafana --",
-        "enable": true
-      },
-      {
-        "limit": 100,
-        "name": "Releases",
-        "type": "alert",
-        "enable": true,
-        "textColumn": "",
-        "tagsColumn": "title,description",
-        "titleColumn": "[[full_name]] release",
-        "hide": false,
-        "datasource": "psql",
-        "showIn": 0,
-        "rawQuery": "select extract(epoch from time) AS time, title as text, description as tags from sannotations where $__timeFilter(time)",
-        "iconColor": "rgba(255, 96, 96, 1)",
-        "query": "SELECT title, description from annotations WHERE $timeFilter order by time asc"
-      }
-    ]
-  },
-  "editable": true,
-  "title": "PRs opened by SIG",
-  "uid": "69",
-  "id": 36,
-  "refresh": false,
   "panels": [
     {
-      "id": 2,
-      "fillGradient": 0,
-      "hiddenSeries": false,
+      "steppedLine": false,
       "timeShift": null,
+      "yaxes": [
+        {
+          "max": null,
+          "min": "0",
+          "show": true,
+          "decimals": null,
+          "format": "short",
+          "label": "PRs opened",
+          "logBase": 1
+        },
+        {
+          "format": "short",
+          "label": "",
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true
+        }
+      ],
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
       "description": "PRs opened by SIG",
-      "dashLength": 10,
-      "decimals": 0,
-      "spaceLength": 10,
+      "title": "PRs opened by SIG",
       "options": {
         "dataLinks": []
       },
-      "timeRegions": [],
+      "datasource": "psql",
       "transparent": true,
+      "fill": 6,
+      "decimals": 0,
+      "links": [],
+      "bars": false,
       "targets": [
         {
           "where": [
@@ -90,20 +114,17 @@
               "type": "macro"
             }
           ],
-          "group": [],
-          "policy": "default",
-          "dsType": "influxdb",
-          "tags": [],
-          "resultFormat": "time_series",
-          "orderByTime": "ASC",
-          "timeColumn": "time",
-          "metricColumn": "none",
           "rawQuery": true,
           "refId": "A",
-          "format": "time_series",
-          "groupBy": [],
-          "alias": "",
+          "group": [],
+          "dsType": "influxdb",
+          "rawSql": "select\n  time,\n  ${sigs:csv}\nfrom\n  ssig_prs_open\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\norder by\n  time",
           "measurement": "notused",
+          "tags": [],
+          "policy": "default",
+          "resultFormat": "time_series",
+          "timeColumn": "time",
+          "alias": "",
           "select": [
             [
               {
@@ -114,150 +135,87 @@
               }
             ]
           ],
-          "rawSql": "select\n  time,\n  ${sigs:csv}\nfrom\n  ssig_prs_open\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\norder by\n  time",
-          "query": "SELECT /^[[sigs]]$/ FROM \"sig_pr_workload_absolute_workload_d\" WHERE $timeFilter"
+          "query": "SELECT /^[[sigs]]$/ FROM \"sig_pr_workload_absolute_workload_d\" WHERE $timeFilter",
+          "groupBy": [],
+          "orderByTime": "ASC",
+          "metricColumn": "none",
+          "format": "time_series"
         }
       ],
-      "nullPointMode": "null as zero",
-      "bars": false,
-      "type": "graph",
-      "fill": 6,
-      "linewidth": 0,
-      "datasource": "psql",
-      "points": false,
-      "tooltip": {
-        "value_type": "individual",
-        "shared": true,
-        "sort": 2
-      },
-      "interval": "",
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      },
-      "dashes": false,
-      "aliasColors": {},
-      "yaxes": [
-        {
-          "label": "PRs opened",
-          "logBase": 1,
-          "max": null,
-          "min": "0",
-          "show": true,
-          "decimals": null,
-          "format": "short"
-        },
-        {
-          "max": null,
-          "min": "0",
-          "show": true,
-          "format": "short",
-          "label": "",
-          "logBase": 1
-        }
-      ],
+      "hiddenSeries": false,
+      "pointradius": 5,
+      "id": 2,
       "legend": {
-        "current": true,
-        "values": true,
+        "rightSide": true,
         "sort": "avg",
         "total": false,
         "max": true,
-        "rightSide": true,
-        "alignAsTable": true,
-        "sortDesc": true,
-        "avg": true,
+        "current": true,
+        "values": true,
         "min": true,
-        "show": true
-      },
-      "steppedLine": false,
-      "lines": true,
-      "timeFrom": null,
-      "renderer": "flot",
-      "stack": true,
-      "seriesOverrides": [],
-      "thresholds": [],
-      "gridPos": {
-        "w": 24,
-        "x": 0,
-        "y": 0,
-        "h": 21
-      },
-      "title": "PRs opened by SIG",
-      "links": [],
-      "percentage": false,
-      "pointradius": 5,
-      "xaxis": {
-        "values": [],
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true
-      }
-    },
-    {
-      "aliasColors": {},
-      "id": 11,
-      "points": false,
-      "timeShift": null,
-      "links": [],
-      "pointradius": 5,
-      "xaxis": {
-        "name": null,
         "show": true,
-        "values": [],
-        "buckets": null,
-        "mode": "time"
+        "avg": true,
+        "alignAsTable": true,
+        "sortDesc": true
       },
-      "thresholds": [],
-      "stack": true,
       "gridPos": {
         "h": 21,
         "w": 24,
         "x": 0,
-        "y": 21
+        "y": 0
       },
-      "hiddenSeries": false,
+      "thresholds": [],
       "type": "graph",
-      "lines": true,
+      "nullPointMode": "null as zero",
+      "dashes": false,
+      "dashLength": 10,
+      "fillGradient": 0,
+      "spaceLength": 10,
+      "aliasColors": {
+        
+      },
+      "percentage": false,
+      "timeRegions": [],
+      "points": false,
+      "renderer": "flot",
       "seriesOverrides": [],
       "tooltip": {
-        "value_type": "individual",
         "shared": true,
-        "sort": 2
+        "sort": 2,
+        "value_type": "individual"
       },
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      },
+      "timeFrom": null,
+      "stack": true,
+      "lines": true,
+      "linewidth": 0,
+      "interval": ""
+    },
+    {
+      "type": "graph",
+      "spaceLength": 10,
+      "dashes": false,
+      "thresholds": [],
       "legend": {
         "rightSide": true,
-        "show": true,
-        "alignAsTable": true,
-        "max": true,
-        "values": true,
-        "min": true,
         "sort": "avg",
+        "alignAsTable": true,
+        "values": true,
+        "total": false,
         "current": true,
+        "min": true,
+        "max": true,
         "avg": true,
         "sortDesc": true,
-        "total": false
+        "show": true
       },
-      "steppedLine": false,
-      "yaxes": [
-        {
-          "min": "0",
-          "show": true,
-          "decimals": null,
-          "format": "short",
-          "label": "PRs opened",
-          "logBase": 1,
-          "max": "100"
-        },
-        {
-          "show": true,
-          "format": "short",
-          "label": "",
-          "logBase": 1,
-          "max": null,
-          "min": "0"
-        }
-      ],
+      "bars": false,
+      "options": {
+        "dataLinks": []
+      },
       "targets": [
         {
           "select": [
@@ -270,12 +228,8 @@
               }
             ]
           ],
-          "resultFormat": "time_series",
-          "group": [],
-          "orderByTime": "ASC",
-          "refId": "A",
-          "groupBy": [],
           "tags": [],
+          "rawQuery": true,
           "timeColumn": "time",
           "where": [
             {
@@ -284,80 +238,118 @@
               "type": "macro"
             }
           ],
-          "policy": "default",
-          "measurement": "notused",
-          "query": "SELECT /^[[sigs]]$/ FROM \"sig_pr_workload_absolute_workload_d\" WHERE $timeFilter",
-          "metricColumn": "none",
-          "rawSql": "select\n  time,\n  ${sigs:csv}\nfrom\n  ssig_prs_open\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\norder by\n  time",
-          "format": "time_series",
           "alias": "",
+          "policy": "default",
+          "resultFormat": "time_series",
+          "refId": "A",
+          "groupBy": [],
+          "format": "time_series",
+          "rawSql": "select\n  time,\n  ${sigs:csv}\nfrom\n  ssig_prs_open\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\norder by\n  time",
+          "metricColumn": "none",
+          "orderByTime": "ASC",
+          "query": "SELECT /^[[sigs]]$/ FROM \"sig_pr_workload_absolute_workload_d\" WHERE $timeFilter",
           "dsType": "influxdb",
-          "rawQuery": true
+          "measurement": "notused",
+          "group": []
         }
       ],
-      "timeFrom": null,
-      "datasource": "psql",
-      "interval": "",
       "description": "PRs opened by SIG",
-      "bars": false,
-      "fill": 6,
-      "dashLength": 10,
-      "transparent": true,
-      "decimals": 0,
-      "dashes": false,
-      "options": {
-        "dataLinks": []
+      "tooltip": {
+        "value_type": "individual",
+        "shared": true,
+        "sort": 2
       },
-      "title": "PRs opened by SIG",
-      "renderer": "flot",
-      "spaceLength": 10,
-      "nullPointMode": "null as zero",
-      "timeRegions": [],
+      "decimals": 0,
+      "dashLength": 10,
       "yaxis": {
         "align": false,
         "alignLevel": null
       },
       "linewidth": 0,
-      "percentage": true,
-      "fillGradient": 0
-    },
-    {
-      "type": "text",
-      "content": "${docs:raw}",
-      "datasource": null,
-      "links": [],
+      "yaxes": [
+        {
+          "max": "100",
+          "min": "0",
+          "show": true,
+          "decimals": null,
+          "format": "short",
+          "label": "PRs opened",
+          "logBase": 1
+        },
+        {
+          "format": "short",
+          "label": "",
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true
+        }
+      ],
+      "fill": 6,
+      "nullPointMode": "null as zero",
+      "steppedLine": false,
+      "stack": true,
+      "hiddenSeries": false,
+      "xaxis": {
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": [],
+        "buckets": null
+      },
       "gridPos": {
         "w": 24,
         "x": 0,
-        "y": 42,
-        "h": 10
+        "y": 21,
+        "h": 21
       },
-      "mode": "html",
+      "links": [],
+      "lines": true,
+      "seriesOverrides": [],
+      "percentage": true,
+      "points": false,
+      "timeShift": null,
+      "aliasColors": {
+        
+      },
+      "datasource": "psql",
+      "renderer": "flot",
+      "id": 11,
+      "pointradius": 5,
+      "transparent": true,
+      "fillGradient": 0,
+      "timeFrom": null,
+      "title": "PRs opened by SIG",
+      "timeRegions": [],
+      "interval": ""
+    },
+    {
       "id": 10,
-      "options": {},
-      "title": "Dashboard documentation"
+      "content": "${docs:raw}",
+      "title": "Dashboard documentation",
+      "gridPos": {
+        "x": 0,
+        "y": 42,
+        "h": 10,
+        "w": 24
+      },
+      "type": "text",
+      "datasource": null,
+      "links": [],
+      "mode": "html",
+      "options": {
+        
+      }
     }
   ],
-  "gnetId": null,
-  "iteration": 1589272655770,
   "graphTooltip": 0,
-  "tags": [
-    "dashboard",
-    "kubernetes",
-    "SIGs",
-    "PRs"
-  ],
+  "editable": true,
   "templating": {
     "list": [
       {
-        "skipUrlSync": false,
-        "query": "d,d7,w,m,q,y",
         "hide": 0,
-        "includeAll": false,
         "type": "custom",
-        "label": "Period",
-        "multi": false,
-        "name": "period",
+        "includeAll": false,
         "options": [
           {
             "text": "Day",
@@ -375,14 +367,14 @@
             "value": "w"
           },
           {
-            "value": "m",
             "selected": false,
-            "text": "Month"
+            "text": "Month",
+            "value": "m"
           },
           {
-            "selected": false,
             "text": "Quarter",
-            "value": "q"
+            "value": "q",
+            "selected": false
           },
           {
             "selected": false,
@@ -390,30 +382,23 @@
             "value": "y"
           }
         ],
+        "skipUrlSync": false,
+        "name": "period",
         "allValue": null,
+        "query": "d,d7,w,m,q,y",
+        "label": "Period",
         "current": {
+          "text": "7 Days MA",
           "value": "d7",
-          "tags": [],
-          "text": "7 Days MA"
-        }
+          "tags": []
+        },
+        "multi": false
       },
       {
-        "allValue": "",
-        "label": "SIG",
-        "regex": "",
-        "type": "query",
+        "tagsQuery": "",
         "skipUrlSync": false,
         "hide": 0,
-        "datasource": "psql",
-        "tagsQuery": "",
-        "useTags": false,
-        "sort": 0,
-        "tagValuesQuery": "",
-        "name": "sigs",
-        "definition": "",
-        "includeAll": true,
-        "refresh": 1,
-        "options": [],
+        "regex": "",
         "tags": [],
         "current": {
           "text": "All",
@@ -421,59 +406,80 @@
             "$__all"
           ]
         },
+        "useTags": false,
+        "tagValuesQuery": "",
+        "sort": 0,
+        "allValue": "",
+        "datasource": "psql",
+        "label": "SIG",
+        "options": [],
+        "definition": "",
         "multi": true,
-        "query": "select '\"' || sig_mentions_labels_name || '\"' from tsig_mentions_labels order by 1"
+        "type": "query",
+        "name": "sigs",
+        "refresh": 1,
+        "query": "select '\"' || sig_mentions_labels_name || '\"' from tsig_mentions_labels order by 1",
+        "includeAll": true
       },
       {
-        "multi": false,
-        "refresh": 1,
-        "definition": "",
-        "options": [],
-        "skipUrlSync": true,
-        "regex": "",
         "sort": 0,
-        "tagsQuery": "",
-        "allValue": null,
-        "hide": 2,
-        "label": null,
-        "useTags": false,
-        "name": "full_name",
         "query": "select value_s from gha_vars where name = 'full_name'",
+        "includeAll": false,
+        "datasource": "psql",
+        "allValue": null,
+        "tagValuesQuery": "",
+        "refresh": 1,
+        "name": "full_name",
+        "label": null,
+        "hide": 2,
+        "regex": "",
+        "tagsQuery": "",
+        "skipUrlSync": true,
+        "options": [],
+        "multi": false,
         "current": {
           "value": "Kubernetes",
           "text": "Kubernetes"
         },
-        "includeAll": false,
+        "type": "query",
         "tags": [],
-        "tagValuesQuery": "",
-        "datasource": "psql",
-        "type": "query"
+        "definition": "",
+        "useTags": false
       },
       {
-        "name": "docs",
-        "sort": 0,
-        "tags": [],
-        "tagsQuery": "",
-        "allValue": null,
-        "query": "select value_s from gha_vars where name = 'prs_open_by_sig_docs_html'",
-        "definition": "select value_s from gha_vars where name = 'prs_open_by_sig_docs_html'",
-        "options": [],
-        "tagValuesQuery": "",
-        "label": null,
-        "current": {
-          "text": "<h1 id=\"kubernetes-dashboard\">Kubernetes PRs opened by SIG</h1>\n<p>Links:</p>\n<ul>\n<li>Metric <a href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/prs_open_by_sig.sql\" target=\"_blank\">SQL file</a>.</li>\n<li>TSDB <a href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/metrics.yaml\" target=\"_blank\">series definition</a>. Search for <code>prs_open_by_sig</code></li>\n<li>Grafana dashboard <a href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/prs-opened-by-sig.json\" target=\"_blank\">JSON</a>.</li>\n</ul>\n<h1 id=\"description\">Description</h1>\n<ul>\n<li>This dashboard number of PRs opened by SIG</li>\n<li>We're counting PRs that were opened in given periods.</li>\n<li>PR belongs to SIG by using <code>sig/*</code> labels. List of SIG to display in drop-down comes from all <code>sig/*</code> labels.</li>\n</ul>",
-          "value": "<h1 id=\"kubernetes-dashboard\">Kubernetes PRs opened by SIG</h1>\n<p>Links:</p>\n<ul>\n<li>Metric <a href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/prs_open_by_sig.sql\" target=\"_blank\">SQL file</a>.</li>\n<li>TSDB <a href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/metrics.yaml\" target=\"_blank\">series definition</a>. Search for <code>prs_open_by_sig</code></li>\n<li>Grafana dashboard <a href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/prs-opened-by-sig.json\" target=\"_blank\">JSON</a>.</li>\n</ul>\n<h1 id=\"description\">Description</h1>\n<ul>\n<li>This dashboard number of PRs opened by SIG</li>\n<li>We're counting PRs that were opened in given periods.</li>\n<li>PR belongs to SIG by using <code>sig/*</code> labels. List of SIG to display in drop-down comes from all <code>sig/*</code> labels.</li>\n</ul>"
-        },
-        "hide": 2,
-        "refresh": 1,
-        "regex": "",
-        "datasource": "psql",
-        "useTags": false,
-        "includeAll": false,
-        "skipUrlSync": true,
         "type": "query",
-        "multi": false
+        "name": "docs",
+        "label": null,
+        "regex": "",
+        "query": "select value_s from gha_vars where name = 'prs_open_by_sig_docs_html'",
+        "useTags": false,
+        "skipUrlSync": true,
+        "allValue": null,
+        "options": [],
+        "current": {
+          "text": "\u003ch1 id=\"kubernetes-dashboard\"\u003eKubernetes PRs opened by SIG\u003c/h1\u003e\n\u003cp\u003eLinks:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003eMetric \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/prs_open_by_sig.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eTSDB \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/metrics.yaml\" target=\"_blank\"\u003eseries definition\u003c/a\u003e. Search for \u003ccode\u003eprs_open_by_sig\u003c/code\u003e\u003c/li\u003e\n\u003cli\u003eGrafana dashboard \u003ca href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/prs-opened-by-sig.json\" target=\"_blank\"\u003eJSON\u003c/a\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch1 id=\"description\"\u003eDescription\u003c/h1\u003e\n\u003cul\u003e\n\u003cli\u003eThis dashboard number of PRs opened by SIG\u003c/li\u003e\n\u003cli\u003eWe're counting PRs that were opened in given periods.\u003c/li\u003e\n\u003cli\u003ePR belongs to SIG by using \u003ccode\u003esig/*\u003c/code\u003e labels. List of SIG to display in drop-down comes from all \u003ccode\u003esig/*\u003c/code\u003e labels.\u003c/li\u003e\n\u003c/ul\u003e",
+          "value": "\u003ch1 id=\"kubernetes-dashboard\"\u003eKubernetes PRs opened by SIG\u003c/h1\u003e\n\u003cp\u003eLinks:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003eMetric \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/prs_open_by_sig.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eTSDB \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/metrics.yaml\" target=\"_blank\"\u003eseries definition\u003c/a\u003e. Search for \u003ccode\u003eprs_open_by_sig\u003c/code\u003e\u003c/li\u003e\n\u003cli\u003eGrafana dashboard \u003ca href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/prs-opened-by-sig.json\" target=\"_blank\"\u003eJSON\u003c/a\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch1 id=\"description\"\u003eDescription\u003c/h1\u003e\n\u003cul\u003e\n\u003cli\u003eThis dashboard number of PRs opened by SIG\u003c/li\u003e\n\u003cli\u003eWe're counting PRs that were opened in given periods.\u003c/li\u003e\n\u003cli\u003ePR belongs to SIG by using \u003ccode\u003esig/*\u003c/code\u003e labels. List of SIG to display in drop-down comes from all \u003ccode\u003esig/*\u003c/code\u003e labels.\u003c/li\u003e\n\u003c/ul\u003e"
+        },
+        "includeAll": false,
+        "multi": false,
+        "hide": 2,
+        "tagValuesQuery": "",
+        "tags": [],
+        "definition": "select value_s from gha_vars where name = 'prs_open_by_sig_docs_html'",
+        "sort": 0,
+        "tagsQuery": "",
+        "refresh": 1,
+        "datasource": "psql"
       }
     ]
-  }
+  },
+  "links": [],
+  "id": 36,
+  "tags": [
+    "dashboard",
+    "kubernetes",
+    "SIGs",
+    "PRs"
+  ],
+  "iteration": 1589272655770
 }

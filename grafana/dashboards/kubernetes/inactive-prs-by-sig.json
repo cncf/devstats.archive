@@ -1,7 +1,472 @@
 {
-  "iteration": 1589364661967,
   "uid": "72",
+  "annotations": {
+    "list": [
+      {
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations \u0026 Alerts",
+        "type": "dashboard",
+        "builtIn": 1
+      },
+      {
+        "textColumn": "",
+        "query": "SELECT title, description from annotations WHERE $timeFilter order by time asc",
+        "iconColor": "rgba(255, 96, 96, 1)",
+        "type": "alert",
+        "name": "Releases",
+        "showIn": 0,
+        "tagsColumn": "title,description",
+        "datasource": "psql",
+        "titleColumn": "[[full_name]] release",
+        "hide": false,
+        "rawQuery": "select extract(epoch from time) AS time, title as text, description as tags from sannotations where $__timeFilter(time)",
+        "enable": true,
+        "limit": 100
+      }
+    ]
+  },
+  "time": {
+    "to": "now",
+    "from": "now-2y"
+  },
+  "editable": true,
+  "title": "Inactive PRs by SIG",
+  "tags": [
+    "dashboard",
+    "kubernetes",
+    "SIGs",
+    "PRs"
+  ],
+  "refresh": false,
+  "gnetId": null,
+  "id": 1006,
+  "links": [],
+  "graphTooltip": 0,
+  "panels": [
+    {
+      "timeRegions": [],
+      "seriesOverrides": [],
+      "transparent": true,
+      "yaxis": {
+        "alignLevel": null,
+        "align": false
+      },
+      "interval": "",
+      "points": false,
+      "targets": [
+        {
+          "metricColumn": "none",
+          "resultFormat": "time_series",
+          "group": [],
+          "tags": [],
+          "format": "time_series",
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ],
+          "dsType": "influxdb",
+          "query": "SELECT /^[[sigs]]$/ FROM \"sig_pr_workload_absolute_workload_d\" WHERE $timeFilter",
+          "rawQuery": true,
+          "groupBy": [],
+          "measurement": "notused",
+          "alias": "",
+          "refId": "A",
+          "policy": "default",
+          "select": [
+            [
+              {
+                "type": "field",
+                "params": [
+                  "value"
+                ]
+              }
+            ]
+          ],
+          "orderByTime": "ASC",
+          "rawSql": "select\n  time,\n  ${sigs:csv}\nfrom\n  sinactive_prs_by_sigd90\nwhere\n  $__timeFilter(time)\n  and period = 'd'\norder by\n  time"
+        }
+      ],
+      "yaxes": [
+        {
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true,
+          "decimals": null,
+          "format": "short",
+          "label": "PRs"
+        },
+        {
+          "show": true,
+          "format": "short",
+          "label": "",
+          "logBase": 1,
+          "max": null,
+          "min": "0"
+        }
+      ],
+      "hiddenSeries": false,
+      "lines": true,
+      "fillGradient": 0,
+      "spaceLength": 10,
+      "links": [],
+      "decimals": 0,
+      "renderer": "flot",
+      "xaxis": {
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": [],
+        "buckets": null
+      },
+      "timeFrom": null,
+      "id": 12,
+      "pointradius": 5,
+      "gridPos": {
+        "y": 0,
+        "h": 21,
+        "w": 24,
+        "x": 0
+      },
+      "tooltip": {
+        "value_type": "individual",
+        "shared": true,
+        "sort": 2
+      },
+      "type": "graph",
+      "dashLength": 10,
+      "stack": true,
+      "nullPointMode": "null as zero",
+      "dashes": false,
+      "bars": false,
+      "options": {
+        "dataLinks": []
+      },
+      "timeShift": null,
+      "percentage": false,
+      "fill": 6,
+      "legend": {
+        "avg": true,
+        "current": true,
+        "show": true,
+        "max": true,
+        "sort": "avg",
+        "alignAsTable": true,
+        "min": true,
+        "total": false,
+        "values": true,
+        "sortDesc": true,
+        "rightSide": true
+      },
+      "linewidth": 0,
+      "thresholds": [],
+      "title": "Inactive PRs by SIG (inactive for 90 days or more)",
+      "datasource": "psql",
+      "description": "PRs by SIG that were inactive for 90 or more days at s given point in time",
+      "steppedLine": false,
+      "aliasColors": {
+        
+      }
+    },
+    {
+      "timeShift": null,
+      "legend": {
+        "sort": "avg",
+        "sortDesc": true,
+        "max": true,
+        "show": true,
+        "min": true,
+        "current": true,
+        "rightSide": true,
+        "total": false,
+        "avg": true,
+        "values": true,
+        "alignAsTable": true
+      },
+      "yaxes": [
+        {
+          "decimals": null,
+          "format": "short",
+          "label": "PRs",
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true
+        },
+        {
+          "min": "0",
+          "show": true,
+          "format": "short",
+          "label": "",
+          "logBase": 1,
+          "max": null
+        }
+      ],
+      "decimals": 0,
+      "nullPointMode": "null as zero",
+      "transparent": true,
+      "options": {
+        "dataLinks": []
+      },
+      "renderer": "flot",
+      "fillGradient": 0,
+      "lines": true,
+      "spaceLength": 10,
+      "fill": 6,
+      "pointradius": 5,
+      "title": "Inactive PRs by SIG (inactive for 30 days or more)",
+      "points": false,
+      "xaxis": {
+        "values": [],
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true
+      },
+      "dashes": false,
+      "gridPos": {
+        "w": 24,
+        "x": 0,
+        "y": 21,
+        "h": 21
+      },
+      "tooltip": {
+        "shared": true,
+        "sort": 2,
+        "value_type": "individual"
+      },
+      "datasource": "psql",
+      "steppedLine": false,
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      },
+      "seriesOverrides": [],
+      "links": [],
+      "percentage": false,
+      "targets": [
+        {
+          "measurement": "notused",
+          "query": "SELECT /^[[sigs]]$/ FROM \"sig_pr_workload_absolute_workload_d\" WHERE $timeFilter",
+          "alias": "",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ],
+          "metricColumn": "none",
+          "group": [],
+          "format": "time_series",
+          "timeColumn": "time",
+          "policy": "default",
+          "rawSql": "select\n  time,\n  ${sigs:csv}\nfrom\n  sinactive_prs_by_sigd30\nwhere\n  $__timeFilter(time)\n  and period = 'd'\norder by\n  time",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              }
+            ]
+          ],
+          "resultFormat": "time_series",
+          "orderByTime": "ASC",
+          "groupBy": [],
+          "refId": "A",
+          "rawQuery": true,
+          "tags": [],
+          "dsType": "influxdb"
+        }
+      ],
+      "hiddenSeries": false,
+      "interval": "",
+      "stack": true,
+      "description": "PRs by SIG that were inactive for 30 or more days at s given point in time",
+      "thresholds": [],
+      "dashLength": 10,
+      "linewidth": 0,
+      "bars": false,
+      "timeFrom": null,
+      "aliasColors": {
+        
+      },
+      "id": 11,
+      "type": "graph",
+      "timeRegions": []
+    },
+    {
+      "description": "PRs by SIG that were inactive for 2 or more weeks at s given point in time",
+      "renderer": "flot",
+      "yaxis": {
+        "alignLevel": null,
+        "align": false
+      },
+      "timeFrom": null,
+      "targets": [
+        {
+          "timeColumn": "time",
+          "resultFormat": "time_series",
+          "tags": [],
+          "format": "time_series",
+          "measurement": "notused",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              }
+            ]
+          ],
+          "metricColumn": "none",
+          "where": [
+            {
+              "type": "macro",
+              "name": "$__timeFilter",
+              "params": []
+            }
+          ],
+          "refId": "A",
+          "groupBy": [],
+          "rawSql": "select\n  time,\n  ${sigs:csv}\nfrom\n  sinactive_prs_by_sigw2\nwhere\n  $__timeFilter(time)\n  and period = 'd'\norder by\n  time",
+          "alias": "",
+          "group": [],
+          "orderByTime": "ASC",
+          "query": "SELECT /^[[sigs]]$/ FROM \"sig_pr_workload_absolute_workload_d\" WHERE $timeFilter",
+          "dsType": "influxdb",
+          "rawQuery": true,
+          "policy": "default"
+        }
+      ],
+      "tooltip": {
+        "value_type": "individual",
+        "shared": true,
+        "sort": 2
+      },
+      "interval": "",
+      "decimals": 0,
+      "links": [],
+      "legend": {
+        "rightSide": true,
+        "values": true,
+        "max": true,
+        "avg": true,
+        "sort": "avg",
+        "sortDesc": true,
+        "min": true,
+        "current": true,
+        "alignAsTable": true,
+        "show": true,
+        "total": false
+      },
+      "points": false,
+      "gridPos": {
+        "h": 21,
+        "w": 24,
+        "x": 0,
+        "y": 42
+      },
+      "dashes": false,
+      "id": 2,
+      "percentage": false,
+      "steppedLine": false,
+      "thresholds": [],
+      "fill": 6,
+      "pointradius": 5,
+      "transparent": true,
+      "timeRegions": [],
+      "nullPointMode": "null as zero",
+      "dashLength": 10,
+      "xaxis": {
+        "show": true,
+        "values": [],
+        "buckets": null,
+        "mode": "time",
+        "name": null
+      },
+      "bars": false,
+      "datasource": "psql",
+      "lines": true,
+      "title": "Inactive PRs by SIG (inactive for 2 weeks or more)",
+      "linewidth": 0,
+      "fillGradient": 0,
+      "timeShift": null,
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "aliasColors": {
+        
+      },
+      "stack": true,
+      "options": {
+        "dataLinks": []
+      },
+      "hiddenSeries": false,
+      "type": "graph",
+      "yaxes": [
+        {
+          "decimals": null,
+          "format": "short",
+          "label": "PRs",
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true
+        },
+        {
+          "min": "0",
+          "show": true,
+          "format": "short",
+          "label": "",
+          "logBase": 1,
+          "max": null
+        }
+      ]
+    },
+    {
+      "gridPos": {
+        "y": 63,
+        "h": 10,
+        "w": 24,
+        "x": 0
+      },
+      "mode": "html",
+      "title": "Dashboard documentation",
+      "id": 10,
+      "options": {
+        
+      },
+      "type": "text",
+      "datasource": null,
+      "links": [],
+      "content": "${docs:raw}"
+    }
+  ],
+  "schemaVersion": 21,
+  "timezone": "",
+  "iteration": 1589364661967,
   "timepicker": {
+    "time_options": [
+      "5m",
+      "15m",
+      "1h",
+      "6h",
+      "12h",
+      "24h",
+      "2d",
+      "7d",
+      "30d"
+    ],
     "refresh_intervals": [
       "5s",
       "10s",
@@ -13,546 +478,89 @@
       "1h",
       "2h",
       "1d"
-    ],
-    "time_options": [
-      "5m",
-      "15m",
-      "1h",
-      "6h",
-      "12h",
-      "24h",
-      "2d",
-      "7d",
-      "30d"
     ]
   },
-  "title": "Inactive PRs by SIG",
-  "version": 2,
-  "refresh": false,
   "templating": {
     "list": [
       {
-        "includeAll": true,
-        "options": [],
-        "refresh": 1,
-        "skipUrlSync": false,
-        "query": "select '\"' || sig_mentions_labels_name || '\"' from tsig_mentions_labels order by 1",
-        "hide": 0,
-        "multi": true,
+        "type": "query",
         "tagValuesQuery": "",
-        "sort": 0,
+        "options": [],
         "tagsQuery": "",
-        "name": "sigs",
-        "datasource": "psql",
         "definition": "",
+        "useTags": false,
+        "query": "select '\"' || sig_mentions_labels_name || '\"' from tsig_mentions_labels order by 1",
+        "tags": [],
+        "name": "sigs",
+        "label": "SIG",
+        "allValue": "",
+        "multi": true,
+        "refresh": 1,
+        "regex": "",
+        "includeAll": true,
+        "sort": 0,
+        "datasource": "psql",
         "current": {
-          "text": "All",
           "value": [
             "$__all"
-          ]
+          ],
+          "text": "All"
         },
-        "regex": "",
-        "tags": [],
-        "label": "SIG",
-        "type": "query",
-        "allValue": "",
-        "useTags": false
+        "skipUrlSync": false,
+        "hide": 0
       },
       {
+        "hide": 2,
+        "type": "query",
+        "useTags": false,
         "options": [],
         "multi": false,
+        "includeAll": false,
+        "tags": [],
+        "label": null,
+        "tagValuesQuery": "",
+        "tagsQuery": "",
+        "sort": 0,
+        "definition": "",
+        "skipUrlSync": true,
+        "datasource": "psql",
+        "refresh": 1,
+        "allValue": null,
         "name": "full_name",
+        "query": "select value_s from gha_vars where name = 'full_name'",
+        "regex": "",
         "current": {
           "value": "Kubernetes",
           "text": "Kubernetes"
-        },
-        "refresh": 1,
-        "label": null,
-        "query": "select value_s from gha_vars where name = 'full_name'",
-        "allValue": null,
-        "tagValuesQuery": "",
-        "datasource": "psql",
-        "sort": 0,
-        "definition": "",
-        "includeAll": false,
-        "regex": "",
-        "skipUrlSync": true,
-        "tags": [],
-        "hide": 2,
-        "useTags": false,
-        "type": "query",
-        "tagsQuery": ""
+        }
       },
       {
+        "label": null,
         "tagValuesQuery": "",
-        "options": [],
+        "tags": [],
+        "hide": 2,
         "type": "query",
+        "includeAll": false,
+        "allValue": null,
+        "definition": "select value_s from gha_vars where name = 'inactive_prs_by_sig_docs_html'",
+        "datasource": "psql",
         "sort": 0,
         "current": {
-          "text": "<h1 id=\"kubernetes-dashboard\">Kubernetes Inactive PRs by SIG dashboard</h1>\n<p>Links:</p>\n<ul>\n<li>Metric <a href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/inactive_prs_by_sig.sql\" target=\"_blank\">SQL file</a>.</li>\n<li>TSDB <a href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/metrics.yaml\" target=\"_blank\">series definition</a>. Search for <code>inactive_prs_by_sig</code></li>\n<li>Grafana dashboard <a href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/inactive-prs-by-sig.json\" target=\"_blank\">JSON</a>.</li>\n</ul>\n<h1 id=\"description\">Description</h1>\n<ul>\n<li>This dashboard shows the number of PRs opened by SIG that were inactive for longer than 14, 30 and 90 days.</li>\n<li>Inactive means PRs that are open and have no activity other than author and bots more than specified amount of time at given point in time, so for example data for 2 weeks ago show PRs that were inactive for more than 14 days 2 weeks ago (now they may be inactive for 1 month or some activity happened earlier than 14 days ago).</li>\n<li>PR belongs to SIG by using <code>sig/*</code> labels. List of SIGs to display in drop-down comes from all <code>sig/*</code> labels.</li>\n</ul>",
-          "value": "<h1 id=\"kubernetes-dashboard\">Kubernetes Inactive PRs by SIG dashboard</h1>\n<p>Links:</p>\n<ul>\n<li>Metric <a href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/inactive_prs_by_sig.sql\" target=\"_blank\">SQL file</a>.</li>\n<li>TSDB <a href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/metrics.yaml\" target=\"_blank\">series definition</a>. Search for <code>inactive_prs_by_sig</code></li>\n<li>Grafana dashboard <a href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/inactive-prs-by-sig.json\" target=\"_blank\">JSON</a>.</li>\n</ul>\n<h1 id=\"description\">Description</h1>\n<ul>\n<li>This dashboard shows the number of PRs opened by SIG that were inactive for longer than 14, 30 and 90 days.</li>\n<li>Inactive means PRs that are open and have no activity other than author and bots more than specified amount of time at given point in time, so for example data for 2 weeks ago show PRs that were inactive for more than 14 days 2 weeks ago (now they may be inactive for 1 month or some activity happened earlier than 14 days ago).</li>\n<li>PR belongs to SIG by using <code>sig/*</code> labels. List of SIGs to display in drop-down comes from all <code>sig/*</code> labels.</li>\n</ul>"
+          "value": "\u003ch1 id=\"kubernetes-dashboard\"\u003eKubernetes Inactive PRs by SIG dashboard\u003c/h1\u003e\n\u003cp\u003eLinks:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003eMetric \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/inactive_prs_by_sig.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eTSDB \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/metrics.yaml\" target=\"_blank\"\u003eseries definition\u003c/a\u003e. Search for \u003ccode\u003einactive_prs_by_sig\u003c/code\u003e\u003c/li\u003e\n\u003cli\u003eGrafana dashboard \u003ca href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/inactive-prs-by-sig.json\" target=\"_blank\"\u003eJSON\u003c/a\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch1 id=\"description\"\u003eDescription\u003c/h1\u003e\n\u003cul\u003e\n\u003cli\u003eThis dashboard shows the number of PRs opened by SIG that were inactive for longer than 14, 30 and 90 days.\u003c/li\u003e\n\u003cli\u003eInactive means PRs that are open and have no activity other than author and bots more than specified amount of time at given point in time, so for example data for 2 weeks ago show PRs that were inactive for more than 14 days 2 weeks ago (now they may be inactive for 1 month or some activity happened earlier than 14 days ago).\u003c/li\u003e\n\u003cli\u003ePR belongs to SIG by using \u003ccode\u003esig/*\u003c/code\u003e labels. List of SIGs to display in drop-down comes from all \u003ccode\u003esig/*\u003c/code\u003e labels.\u003c/li\u003e\n\u003c/ul\u003e",
+          "text": "\u003ch1 id=\"kubernetes-dashboard\"\u003eKubernetes Inactive PRs by SIG dashboard\u003c/h1\u003e\n\u003cp\u003eLinks:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003eMetric \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/inactive_prs_by_sig.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eTSDB \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/metrics.yaml\" target=\"_blank\"\u003eseries definition\u003c/a\u003e. Search for \u003ccode\u003einactive_prs_by_sig\u003c/code\u003e\u003c/li\u003e\n\u003cli\u003eGrafana dashboard \u003ca href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/inactive-prs-by-sig.json\" target=\"_blank\"\u003eJSON\u003c/a\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch1 id=\"description\"\u003eDescription\u003c/h1\u003e\n\u003cul\u003e\n\u003cli\u003eThis dashboard shows the number of PRs opened by SIG that were inactive for longer than 14, 30 and 90 days.\u003c/li\u003e\n\u003cli\u003eInactive means PRs that are open and have no activity other than author and bots more than specified amount of time at given point in time, so for example data for 2 weeks ago show PRs that were inactive for more than 14 days 2 weeks ago (now they may be inactive for 1 month or some activity happened earlier than 14 days ago).\u003c/li\u003e\n\u003cli\u003ePR belongs to SIG by using \u003ccode\u003esig/*\u003c/code\u003e labels. List of SIGs to display in drop-down comes from all \u003ccode\u003esig/*\u003c/code\u003e labels.\u003c/li\u003e\n\u003c/ul\u003e"
         },
-        "useTags": false,
         "query": "select value_s from gha_vars where name = 'inactive_prs_by_sig_docs_html'",
-        "regex": "",
+        "options": [],
         "name": "docs",
-        "label": null,
         "skipUrlSync": true,
-        "tagsQuery": "",
-        "multi": false,
-        "hide": 2,
-        "definition": "select value_s from gha_vars where name = 'inactive_prs_by_sig_docs_html'",
         "refresh": 1,
-        "tags": [],
-        "datasource": "psql",
-        "includeAll": false,
-        "allValue": null
+        "useTags": false,
+        "tagsQuery": "",
+        "regex": "",
+        "multi": false
       }
     ]
   },
   "style": "dark",
-  "schemaVersion": 21,
-  "timezone": "",
-  "annotations": {
-    "list": [
-      {
-        "iconColor": "rgba(0, 211, 255, 1)",
-        "name": "Annotations & Alerts",
-        "type": "dashboard",
-        "builtIn": 1,
-        "datasource": "-- Grafana --",
-        "enable": true,
-        "hide": true
-      },
-      {
-        "titleColumn": "[[full_name]] release",
-        "enable": true,
-        "iconColor": "rgba(255, 96, 96, 1)",
-        "type": "alert",
-        "name": "Releases",
-        "hide": false,
-        "rawQuery": "select extract(epoch from time) AS time, title as text, description as tags from sannotations where $__timeFilter(time)",
-        "showIn": 0,
-        "textColumn": "",
-        "limit": 100,
-        "query": "SELECT title, description from annotations WHERE $timeFilter order by time asc",
-        "tagsColumn": "title,description",
-        "datasource": "psql"
-      }
-    ]
-  },
-  "time": {
-    "from": "now-2y",
-    "to": "now"
-  },
-  "panels": [
-    {
-      "hiddenSeries": false,
-      "title": "Inactive PRs by SIG (inactive for 90 days or more)",
-      "spaceLength": 10,
-      "timeShift": null,
-      "dashLength": 10,
-      "stack": true,
-      "legend": {
-        "values": true,
-        "alignAsTable": true,
-        "avg": true,
-        "max": true,
-        "min": true,
-        "sortDesc": true,
-        "total": false,
-        "current": true,
-        "show": true,
-        "rightSide": true,
-        "sort": "avg"
-      },
-      "xaxis": {
-        "mode": "time",
-        "name": null,
-        "show": true,
-        "values": [],
-        "buckets": null
-      },
-      "nullPointMode": "null as zero",
-      "type": "graph",
-      "timeRegions": [],
-      "links": [],
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      },
-      "renderer": "flot",
-      "gridPos": {
-        "x": 0,
-        "y": 0,
-        "h": 21,
-        "w": 24
-      },
-      "yaxes": [
-        {
-          "max": null,
-          "min": "0",
-          "show": true,
-          "decimals": null,
-          "format": "short",
-          "label": "PRs",
-          "logBase": 1
-        },
-        {
-          "format": "short",
-          "label": "",
-          "logBase": 1,
-          "max": null,
-          "min": "0",
-          "show": true
-        }
-      ],
-      "interval": "",
-      "thresholds": [],
-      "datasource": "psql",
-      "decimals": 0,
-      "points": false,
-      "aliasColors": {},
-      "fill": 6,
-      "lines": true,
-      "timeFrom": null,
-      "fillGradient": 0,
-      "seriesOverrides": [],
-      "tooltip": {
-        "value_type": "individual",
-        "shared": true,
-        "sort": 2
-      },
-      "description": "PRs by SIG that were inactive for 90 or more days at s given point in time",
-      "pointradius": 5,
-      "transparent": true,
-      "targets": [
-        {
-          "group": [],
-          "rawSql": "select\n  time,\n  ${sigs:csv}\nfrom\n  sinactive_prs_by_sigd90\nwhere\n  $__timeFilter(time)\n  and period = 'd'\norder by\n  time",
-          "format": "time_series",
-          "measurement": "notused",
-          "groupBy": [],
-          "rawQuery": true,
-          "where": [
-            {
-              "type": "macro",
-              "name": "$__timeFilter",
-              "params": []
-            }
-          ],
-          "refId": "A",
-          "timeColumn": "time",
-          "dsType": "influxdb",
-          "policy": "default",
-          "query": "SELECT /^[[sigs]]$/ FROM \"sig_pr_workload_absolute_workload_d\" WHERE $timeFilter",
-          "resultFormat": "time_series",
-          "tags": [],
-          "alias": "",
-          "metricColumn": "none",
-          "select": [
-            [
-              {
-                "type": "field",
-                "params": [
-                  "value"
-                ]
-              }
-            ]
-          ],
-          "orderByTime": "ASC"
-        }
-      ],
-      "dashes": false,
-      "bars": false,
-      "options": {
-        "dataLinks": []
-      },
-      "percentage": false,
-      "steppedLine": false,
-      "id": 12,
-      "linewidth": 0
-    },
-    {
-      "decimals": 0,
-      "type": "graph",
-      "nullPointMode": "null as zero",
-      "fillGradient": 0,
-      "xaxis": {
-        "values": [],
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true
-      },
-      "timeShift": null,
-      "hiddenSeries": false,
-      "dashes": false,
-      "datasource": "psql",
-      "spaceLength": 10,
-      "timeFrom": null,
-      "fill": 6,
-      "linewidth": 0,
-      "gridPos": {
-        "x": 0,
-        "y": 21,
-        "h": 21,
-        "w": 24
-      },
-      "timeRegions": [],
-      "tooltip": {
-        "shared": true,
-        "sort": 2,
-        "value_type": "individual"
-      },
-      "stack": true,
-      "lines": true,
-      "bars": false,
-      "id": 11,
-      "links": [],
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      },
-      "yaxes": [
-        {
-          "min": "0",
-          "show": true,
-          "decimals": null,
-          "format": "short",
-          "label": "PRs",
-          "logBase": 1,
-          "max": null
-        },
-        {
-          "format": "short",
-          "label": "",
-          "logBase": 1,
-          "max": null,
-          "min": "0",
-          "show": true
-        }
-      ],
-      "transparent": true,
-      "aliasColors": {},
-      "renderer": "flot",
-      "title": "Inactive PRs by SIG (inactive for 30 days or more)",
-      "interval": "",
-      "steppedLine": false,
-      "targets": [
-        {
-          "rawQuery": true,
-          "timeColumn": "time",
-          "format": "time_series",
-          "policy": "default",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ],
-          "rawSql": "select\n  time,\n  ${sigs:csv}\nfrom\n  sinactive_prs_by_sigd30\nwhere\n  $__timeFilter(time)\n  and period = 'd'\norder by\n  time",
-          "dsType": "influxdb",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              }
-            ]
-          ],
-          "measurement": "notused",
-          "groupBy": [],
-          "group": [],
-          "orderByTime": "ASC",
-          "alias": "",
-          "refId": "A",
-          "metricColumn": "none",
-          "tags": [],
-          "query": "SELECT /^[[sigs]]$/ FROM \"sig_pr_workload_absolute_workload_d\" WHERE $timeFilter"
-        }
-      ],
-      "pointradius": 5,
-      "legend": {
-        "avg": true,
-        "sort": "avg",
-        "alignAsTable": true,
-        "values": true,
-        "current": true,
-        "min": true,
-        "rightSide": true,
-        "show": true,
-        "sortDesc": true,
-        "total": false,
-        "max": true
-      },
-      "percentage": false,
-      "options": {
-        "dataLinks": []
-      },
-      "points": false,
-      "seriesOverrides": [],
-      "dashLength": 10,
-      "description": "PRs by SIG that were inactive for 30 or more days at s given point in time",
-      "thresholds": []
-    },
-    {
-      "points": false,
-      "options": {
-        "dataLinks": []
-      },
-      "yaxes": [
-        {
-          "min": "0",
-          "show": true,
-          "decimals": null,
-          "format": "short",
-          "label": "PRs",
-          "logBase": 1,
-          "max": null
-        },
-        {
-          "min": "0",
-          "show": true,
-          "format": "short",
-          "label": "",
-          "logBase": 1,
-          "max": null
-        }
-      ],
-      "dashes": false,
-      "legend": {
-        "min": true,
-        "values": true,
-        "max": true,
-        "avg": true,
-        "current": true,
-        "rightSide": true,
-        "alignAsTable": true,
-        "show": true,
-        "sort": "avg",
-        "sortDesc": true,
-        "total": false
-      },
-      "lines": true,
-      "percentage": false,
-      "pointradius": 5,
-      "seriesOverrides": [],
-      "bars": false,
-      "description": "PRs by SIG that were inactive for 2 or more weeks at s given point in time",
-      "timeRegions": [],
-      "links": [],
-      "stack": true,
-      "timeFrom": null,
-      "nullPointMode": "null as zero",
-      "gridPos": {
-        "w": 24,
-        "x": 0,
-        "y": 42,
-        "h": 21
-      },
-      "interval": "",
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      },
-      "spaceLength": 10,
-      "type": "graph",
-      "steppedLine": false,
-      "aliasColors": {},
-      "renderer": "flot",
-      "fillGradient": 0,
-      "thresholds": [],
-      "tooltip": {
-        "sort": 2,
-        "value_type": "individual",
-        "shared": true
-      },
-      "dashLength": 10,
-      "hiddenSeries": false,
-      "xaxis": {
-        "show": true,
-        "values": [],
-        "buckets": null,
-        "mode": "time",
-        "name": null
-      },
-      "title": "Inactive PRs by SIG (inactive for 2 weeks or more)",
-      "decimals": 0,
-      "timeShift": null,
-      "id": 2,
-      "targets": [
-        {
-          "resultFormat": "time_series",
-          "format": "time_series",
-          "group": [],
-          "orderByTime": "ASC",
-          "refId": "A",
-          "rawQuery": true,
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              }
-            ]
-          ],
-          "query": "SELECT /^[[sigs]]$/ FROM \"sig_pr_workload_absolute_workload_d\" WHERE $timeFilter",
-          "dsType": "influxdb",
-          "rawSql": "select\n  time,\n  ${sigs:csv}\nfrom\n  sinactive_prs_by_sigw2\nwhere\n  $__timeFilter(time)\n  and period = 'd'\norder by\n  time",
-          "groupBy": [],
-          "metricColumn": "none",
-          "timeColumn": "time",
-          "tags": [],
-          "where": [
-            {
-              "params": [],
-              "type": "macro",
-              "name": "$__timeFilter"
-            }
-          ],
-          "alias": "",
-          "policy": "default",
-          "measurement": "notused"
-        }
-      ],
-      "fill": 6,
-      "transparent": true,
-      "linewidth": 0,
-      "datasource": "psql"
-    },
-    {
-      "gridPos": {
-        "h": 10,
-        "w": 24,
-        "x": 0,
-        "y": 63
-      },
-      "title": "Dashboard documentation",
-      "type": "text",
-      "datasource": null,
-      "id": 10,
-      "links": [],
-      "content": "${docs:raw}",
-      "mode": "html",
-      "options": {}
-    }
-  ],
-  "tags": [
-    "dashboard",
-    "kubernetes",
-    "SIGs",
-    "PRs"
-  ],
-  "links": [],
-  "gnetId": null,
-  "editable": true,
-  "graphTooltip": 0,
-  "id": 1006
+  "version": 2
 }

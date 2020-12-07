@@ -1,6 +1,7 @@
 {
-  "timezone": "",
-  "schemaVersion": 16,
+  "id": 107,
+  "gnetId": null,
+  "style": "dark",
   "tags": [
     "dashboard",
     "kubernetes",
@@ -8,11 +9,20 @@
     "approving",
     "repogroups"
   ],
-  "time": {
-    "from": "now-40M",
-    "to": "now"
-  },
+  "version": 9,
+  "timezone": "",
   "timepicker": {
+    "time_options": [
+      "5m",
+      "15m",
+      "1h",
+      "6h",
+      "12h",
+      "24h",
+      "2d",
+      "7d",
+      "30d"
+    ],
     "refresh_intervals": [
       "5s",
       "10s",
@@ -24,37 +34,47 @@
       "1h",
       "2h",
       "1d"
-    ],
-    "time_options": [
-      "5m",
-      "15m",
-      "1h",
-      "6h",
-      "12h",
-      "24h",
-      "2d",
-      "7d",
-      "30d"
     ]
   },
-  "id": 107,
+  "title": "PRs approval repository groups",
+  "annotations": {
+    "list": [
+      {
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations \u0026 Alerts",
+        "type": "dashboard",
+        "builtIn": 1
+      },
+      {
+        "titleColumn": "[[full_name]] release",
+        "datasource": "psql",
+        "name": "Releases",
+        "showIn": 0,
+        "iconColor": "rgba(255, 96, 96, 1)",
+        "query": "SELECT title, description from annotations WHERE $timeFilter order by time asc",
+        "type": "alert",
+        "limit": 100,
+        "textColumn": "",
+        "hide": false,
+        "tagsColumn": "title,description",
+        "enable": true,
+        "rawQuery": "select extract(epoch from time) AS time, title as text, description as tags from sannotations where $__timeFilter(time)"
+      }
+    ]
+  },
   "templating": {
     "list": [
       {
-        "hide": 0,
-        "type": "custom",
-        "current": {
-          "tags": [],
-          "text": "7 Days MA",
-          "value": "d7"
-        },
-        "name": "period",
-        "skipUrlSync": false,
-        "allValue": null,
-        "label": "Period",
-        "query": "d,w,m,q,y",
-        "includeAll": false,
         "multi": false,
+        "hide": 0,
+        "current": {
+          "text": "7 Days MA",
+          "value": "d7",
+          "tags": []
+        },
         "options": [
           {
             "selected": true,
@@ -72,131 +92,152 @@
             "text": "Month"
           },
           {
-            "value": "q",
             "selected": false,
-            "text": "Quarter"
+            "text": "Quarter",
+            "value": "q"
           },
           {
             "selected": false,
             "text": "Year",
             "value": "y"
           }
-        ]
+        ],
+        "type": "custom",
+        "name": "period",
+        "skipUrlSync": false,
+        "includeAll": false,
+        "allValue": null,
+        "label": "Period",
+        "query": "d,w,m,q,y"
       },
       {
-        "includeAll": false,
-        "sort": 0,
-        "datasource": "psql",
-        "hide": 0,
-        "name": "repogroup",
-        "skipUrlSync": false,
         "tagValuesQuery": "",
-        "type": "query",
-        "tags": [],
         "multi": false,
         "tagsQuery": "",
+        "type": "query",
+        "useTags": false,
+        "name": "repogroup",
+        "refresh": 1,
+        "skipUrlSync": false,
+        "datasource": "psql",
         "current": {
           "text": "All",
           "value": "All"
         },
-        "regex": "",
-        "options": [],
-        "query": "select all_repo_group_name from tall_repo_groups order by 1",
-        "useTags": false,
         "allValue": "",
         "label": "Repository group",
-        "refresh": 1
+        "query": "select all_repo_group_name from tall_repo_groups order by 1",
+        "hide": 0,
+        "tags": [],
+        "sort": 0,
+        "options": [],
+        "includeAll": false,
+        "regex": ""
       },
       {
-        "tags": [],
-        "allValue": null,
-        "label": null,
-        "refresh": 1,
-        "tagValuesQuery": "",
         "multi": false,
-        "sort": 0,
-        "tagsQuery": "",
         "current": {
           "text": "Kubernetes",
           "value": "Kubernetes"
         },
-        "includeAll": false,
-        "options": [],
-        "query": "select value_s from gha_vars where name = 'full_name'",
+        "tagsQuery": "",
         "datasource": "psql",
-        "useTags": false,
-        "name": "full_name",
+        "query": "select value_s from gha_vars where name = 'full_name'",
         "regex": "",
         "skipUrlSync": true,
+        "label": null,
+        "refresh": 1,
+        "tagValuesQuery": "",
         "type": "query",
-        "hide": 2
+        "tags": [],
+        "sort": 0,
+        "name": "full_name",
+        "allValue": null,
+        "useTags": false,
+        "hide": 2,
+        "options": [],
+        "includeAll": false
       },
       {
         "allValue": null,
-        "name": "docs",
         "multi": false,
         "tags": [],
-        "tagValuesQuery": "",
-        "useTags": false,
-        "query": "select value_s from gha_vars where name = 'pr_approval_docs_html'",
-        "includeAll": false,
-        "label": null,
-        "sort": 0,
-        "tagsQuery": "",
-        "hide": 2,
-        "type": "query",
-        "datasource": "psql",
         "options": [],
-        "skipUrlSync": true,
+        "includeAll": false,
+        "hide": 2,
+        "datasource": "psql",
+        "useTags": false,
+        "refresh": 1,
+        "tagsQuery": "",
+        "name": "docs",
+        "query": "select value_s from gha_vars where name = 'pr_approval_docs_html'",
         "regex": "",
         "current": {
-          "text": "<h1 id=\"kubernetes-dashboard\">Kubernetes PRs approval repository groups dashboard</h1>\n<p>Links:</p>\n<ul>\n<li>Metric <a href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/prs_state.sql\" target=\"_blank\">SQL file</a>.</li>\n<li>TSDB <a href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/metrics.yaml\" target=\"_blank\">series definition</a>. Search for <code>prs_state</code></li>\n<li>Grafana dashboard <a href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/prs-approval-repository-groups.json\" target=\"_blank\">JSON</a>.</li>\n</ul>\n<h1 id=\"description\">Description</h1>\n<ul>\n<li>This dashboard shows number of approved and awaiting approval non-closed PRs modifed in given periods.</li>\n<li>Non-closed PR is a PR that is either open or merged.</li>\n<li>Approved PR is a PR that is either merged or open and have <code>approved</code> or <code>lgtm</code> label.</li>\n<li>You can select single repository group or summary for all of them.</li>\n<li>Selecting period (for example week) means that dashboard will data for PRs modified in those periods.</li>\n<li>See <a href=\"https://github.com/cncf/devstats/blob/master/docs/periods.md\" target=\"_blank\">here</a> for more informations about periods.</li>\n<li>See <a href=\"https://github.com/cncf/devstats/blob/master/docs/repository_groups.md\" target=\"_blank\">here</a> for more informations about repository groups.</li>\n</ul>",
-          "value": "<h1 id=\"kubernetes-dashboard\">Kubernetes PRs approval repository groups dashboard</h1>\n<p>Links:</p>\n<ul>\n<li>Metric <a href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/prs_state.sql\" target=\"_blank\">SQL file</a>.</li>\n<li>TSDB <a href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/metrics.yaml\" target=\"_blank\">series definition</a>. Search for <code>prs_state</code></li>\n<li>Grafana dashboard <a href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/prs-approval-repository-groups.json\" target=\"_blank\">JSON</a>.</li>\n</ul>\n<h1 id=\"description\">Description</h1>\n<ul>\n<li>This dashboard shows number of approved and awaiting approval non-closed PRs modifed in given periods.</li>\n<li>Non-closed PR is a PR that is either open or merged.</li>\n<li>Approved PR is a PR that is either merged or open and have <code>approved</code> or <code>lgtm</code> label.</li>\n<li>You can select single repository group or summary for all of them.</li>\n<li>Selecting period (for example week) means that dashboard will data for PRs modified in those periods.</li>\n<li>See <a href=\"https://github.com/cncf/devstats/blob/master/docs/periods.md\" target=\"_blank\">here</a> for more informations about periods.</li>\n<li>See <a href=\"https://github.com/cncf/devstats/blob/master/docs/repository_groups.md\" target=\"_blank\">here</a> for more informations about repository groups.</li>\n</ul>"
+          "value": "\u003ch1 id=\"kubernetes-dashboard\"\u003eKubernetes PRs approval repository groups dashboard\u003c/h1\u003e\n\u003cp\u003eLinks:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003eMetric \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/prs_state.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eTSDB \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/metrics.yaml\" target=\"_blank\"\u003eseries definition\u003c/a\u003e. Search for \u003ccode\u003eprs_state\u003c/code\u003e\u003c/li\u003e\n\u003cli\u003eGrafana dashboard \u003ca href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/prs-approval-repository-groups.json\" target=\"_blank\"\u003eJSON\u003c/a\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch1 id=\"description\"\u003eDescription\u003c/h1\u003e\n\u003cul\u003e\n\u003cli\u003eThis dashboard shows number of approved and awaiting approval non-closed PRs modifed in given periods.\u003c/li\u003e\n\u003cli\u003eNon-closed PR is a PR that is either open or merged.\u003c/li\u003e\n\u003cli\u003eApproved PR is a PR that is either merged or open and have \u003ccode\u003eapproved\u003c/code\u003e or \u003ccode\u003elgtm\u003c/code\u003e label.\u003c/li\u003e\n\u003cli\u003eYou can select single repository group or summary for all of them.\u003c/li\u003e\n\u003cli\u003eSelecting period (for example week) means that dashboard will data for PRs modified in those periods.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/periods.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about periods.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/repository_groups.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about repository groups.\u003c/li\u003e\n\u003c/ul\u003e",
+          "text": "\u003ch1 id=\"kubernetes-dashboard\"\u003eKubernetes PRs approval repository groups dashboard\u003c/h1\u003e\n\u003cp\u003eLinks:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003eMetric \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/prs_state.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eTSDB \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/metrics.yaml\" target=\"_blank\"\u003eseries definition\u003c/a\u003e. Search for \u003ccode\u003eprs_state\u003c/code\u003e\u003c/li\u003e\n\u003cli\u003eGrafana dashboard \u003ca href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/prs-approval-repository-groups.json\" target=\"_blank\"\u003eJSON\u003c/a\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch1 id=\"description\"\u003eDescription\u003c/h1\u003e\n\u003cul\u003e\n\u003cli\u003eThis dashboard shows number of approved and awaiting approval non-closed PRs modifed in given periods.\u003c/li\u003e\n\u003cli\u003eNon-closed PR is a PR that is either open or merged.\u003c/li\u003e\n\u003cli\u003eApproved PR is a PR that is either merged or open and have \u003ccode\u003eapproved\u003c/code\u003e or \u003ccode\u003elgtm\u003c/code\u003e label.\u003c/li\u003e\n\u003cli\u003eYou can select single repository group or summary for all of them.\u003c/li\u003e\n\u003cli\u003eSelecting period (for example week) means that dashboard will data for PRs modified in those periods.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/periods.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about periods.\u003c/li\u003e\n\u003cli\u003eSee \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/repository_groups.md\" target=\"_blank\"\u003ehere\u003c/a\u003e for more informations about repository groups.\u003c/li\u003e\n\u003c/ul\u003e"
         },
-        "refresh": 1
+        "sort": 0,
+        "type": "query",
+        "skipUrlSync": true,
+        "tagValuesQuery": "",
+        "label": null
       }
     ]
   },
   "editable": true,
   "links": [],
-  "annotations": {
-    "list": [
-      {
-        "hide": true,
-        "iconColor": "rgba(0, 211, 255, 1)",
-        "name": "Annotations & Alerts",
-        "type": "dashboard",
-        "builtIn": 1,
-        "datasource": "-- Grafana --",
-        "enable": true
-      },
-      {
-        "datasource": "psql",
-        "hide": false,
-        "iconColor": "rgba(255, 96, 96, 1)",
-        "query": "SELECT title, description from annotations WHERE $timeFilter order by time asc",
-        "tagsColumn": "title,description",
-        "enable": true,
-        "name": "Releases",
-        "rawQuery": "select extract(epoch from time) AS time, title as text, description as tags from sannotations where $__timeFilter(time)",
-        "limit": 100,
-        "showIn": 0,
-        "textColumn": "",
-        "type": "alert",
-        "titleColumn": "[[full_name]] release"
-      }
-    ]
-  },
   "panels": [
     {
+      "tooltip": {
+        "sort": 2,
+        "value_type": "individual",
+        "shared": true
+      },
+      "id": 2,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "steppedLine": true,
+      "timeFrom": null,
+      "dashLength": 10,
+      "decimals": 2,
+      "title": "PRs approved and awaiting approval ([[repogroup]], [[period]])",
+      "percentage": false,
+      "links": [],
+      "legend": {
+        "avg": true,
+        "current": true,
+        "min": true,
+        "total": true,
+        "max": true,
+        "rightSide": false,
+        "alignAsTable": true,
+        "values": true,
+        "sort": "avg",
+        "show": true,
+        "sortDesc": true
+      },
+      "xaxis": {
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": [],
+        "buckets": null
+      },
       "thresholds": [],
-      "nullPointMode": "null as zero",
       "targets": [
         {
           "orderByTime": "ASC",
-          "alias": "",
-          "rawSql": "select\n  time,\n  \"[[repogroup]]\" as \"Approved\"\nfrom\n  spr_apprappr\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\norder by\n  time",
+          "measurement": "prs_kubernetes_kubernetes_d",
           "resultFormat": "time_series",
+          "format": "time_series",
+          "refId": "A",
+          "dsType": "influxdb",
+          "tags": [],
+          "alias": "",
+          "rawQuery": true,
+          "query": "SELECT /^[[repogroup]]$/ FROM \"prs_approve_state_approved_[[period]]\" WHERE $timeFilter",
+          "groupBy": [],
+          "policy": "default",
           "select": [
             [
               {
@@ -207,46 +248,34 @@
               }
             ]
           ],
-          "format": "time_series",
-          "policy": "default",
-          "query": "SELECT /^[[repogroup]]$/ FROM \"prs_approve_state_approved_[[period]]\" WHERE $timeFilter",
-          "dsType": "influxdb",
-          "tags": [],
-          "groupBy": [],
-          "refId": "A",
-          "measurement": "prs_kubernetes_kubernetes_d",
-          "rawQuery": true
+          "rawSql": "select\n  time,\n  \"[[repogroup]]\" as \"Approved\"\nfrom\n  spr_apprappr\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\norder by\n  time"
         },
         {
-          "resultFormat": "time_series",
-          "rawQuery": true,
-          "orderByTime": "ASC",
-          "policy": "default",
           "rawSql": "select\n  time,\n  \"[[repogroup]]\" as \"Awaiting approval\"\nfrom\n  spr_apprwait\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\norder by\n  time",
-          "tags": [],
-          "dsType": "influxdb",
+          "groupBy": [],
           "query": "SELECT /^[[repogroup]]$/ FROM \"prs_approve_state_awaiting_[[period]]\" WHERE $timeFilter",
-          "refId": "B",
+          "format": "time_series",
+          "alias": "",
           "select": [
             [
               {
+                "type": "field",
                 "params": [
                   "value"
-                ],
-                "type": "field"
+                ]
               }
             ]
           ],
-          "groupBy": [],
+          "rawQuery": true,
           "measurement": "prs_kubernetes_kubernetes_d",
-          "format": "time_series",
-          "alias": ""
+          "tags": [],
+          "policy": "default",
+          "resultFormat": "time_series",
+          "refId": "B",
+          "orderByTime": "ASC",
+          "dsType": "influxdb"
         }
       ],
-      "datasource": "psql",
-      "type": "graph",
-      "title": "PRs approved and awaiting approval ([[repogroup]], [[period]])",
-      "description": "Number of PRs",
       "yaxes": [
         {
           "label": "Pull requests",
@@ -257,90 +286,63 @@
           "format": "short"
         },
         {
-          "label": "",
           "logBase": 1,
           "max": null,
           "min": "0",
           "show": true,
-          "format": "short"
+          "format": "short",
+          "label": ""
         }
       ],
-      "xaxis": {
-        "mode": "time",
-        "name": null,
-        "show": true,
-        "values": [],
-        "buckets": null
-      },
-      "aliasColors": {},
-      "spaceLength": 10,
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      },
-      "steppedLine": true,
-      "tooltip": {
-        "shared": true,
-        "sort": 2,
-        "value_type": "individual"
-      },
-      "links": [],
-      "timeShift": null,
-      "lines": true,
-      "stack": true,
-      "percentage": false,
-      "decimals": 2,
-      "renderer": "flot",
-      "dashLength": 10,
-      "points": false,
-      "seriesOverrides": [],
-      "legend": {
-        "current": true,
-        "max": true,
-        "show": true,
-        "sortDesc": true,
-        "values": true,
-        "sort": "avg",
-        "total": true,
-        "min": true,
-        "avg": true,
-        "rightSide": false,
-        "alignAsTable": true
-      },
-      "bars": false,
-      "id": 2,
-      "timeFrom": null,
       "fill": 5,
+      "points": false,
+      "stack": true,
       "gridPos": {
         "h": 22,
         "w": 24,
         "x": 0,
         "y": 0
       },
+      "type": "graph",
+      "pointradius": 5,
+      "description": "Number of PRs",
       "dashes": false,
+      "aliasColors": {
+        
+      },
+      "datasource": "psql",
+      "spaceLength": 10,
+      "nullPointMode": "null as zero",
+      "lines": true,
+      "bars": false,
       "linewidth": 0,
-      "pointradius": 5
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      },
+      "timeShift": null
     },
     {
+      "id": 5,
+      "links": [],
+      "mode": "html",
+      "title": "Dashboard documentation",
+      "type": "text",
       "content": "${docs:raw}",
       "gridPos": {
         "x": 0,
         "y": 22,
         "h": 11,
         "w": 24
-      },
-      "id": 5,
-      "links": [],
-      "mode": "html",
-      "title": "Dashboard documentation",
-      "type": "text"
+      }
     }
   ],
-  "uid": "26",
+  "time": {
+    "from": "now-40M",
+    "to": "now"
+  },
   "refresh": false,
+  "uid": "26",
   "graphTooltip": 0,
-  "style": "dark",
-  "title": "PRs approval repository groups",
-  "gnetId": null,
-  "version": 9
+  "schemaVersion": 16
 }

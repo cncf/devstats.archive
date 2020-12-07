@@ -1,36 +1,85 @@
 {
-  "title": "PRs Mergers Table",
-  "id": 35,
-  "uid": "75",
-  "time": {
-    "from": "now-5y",
-    "to": "now"
-  },
-  "iteration": 1568187921383,
-  "graphTooltip": 0,
-  "tags": [
-    "dashboard",
-    "kubernetes",
-    "table"
-  ],
-  "style": "dark",
   "panels": [
     {
+      "title": "[[full_name]] PRs mergers (Repository group: [[repogroup_name]], Range: [[period_name]])",
+      "fontSize": "90%",
+      "styles": [
+        {
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": null,
+          "pattern": "Time",
+          "type": "hidden",
+          "alias": "Time"
+        },
+        {
+          "type": "string",
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "unit": "short",
+          "decimals": 2,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "thresholds": [],
+          "preserveFormat": false,
+          "pattern": "name",
+          "alias": "Developer",
+          "colorMode": null
+        },
+        {
+          "alias": "Merged PRs",
+          "colorMode": null,
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "unit": "none",
+          "thresholds": [],
+          "type": "number",
+          "decimals": 0,
+          "pattern": "value",
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ]
+        },
+        {
+          "type": "string",
+          "unit": "short",
+          "alias": "",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "decimals": 2,
+          "pattern": "/.*/",
+          "thresholds": []
+        }
+      ],
       "scroll": true,
-      "hideTimeOverride": true,
-      "datasource": "psql",
-      "showHeader": true,
-      "options": {},
+      "options": {
+        
+      },
+      "id": 1,
       "targets": [
         {
-          "query": "",
-          "format": "table",
-          "rawQuery": true,
           "orderByTime": "ASC",
-          "timeColumn": "time",
-          "resultFormat": "table",
-          "metricColumn": "none",
-          "dsType": "influxdb",
+          "rawSql": "select\n  row_number() over (order by value desc) as \"Rank\",\n  name,\n  value\nfrom\n  shpr_mergers\nwhere\n  series = 'hpr_mergers[[repogroup]]'\n  and period = '[[period]]'",
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
           "select": [
             [
               {
@@ -46,23 +95,15 @@
             ]
           ],
           "policy": "default",
-          "alias": "",
-          "group": [],
-          "groupBy": [
-            {
-              "params": [
-                "$__interval"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
+          "refId": "A",
+          "resultFormat": "table",
+          "rawQuery": true,
           "tags": [],
+          "query": "",
+          "metricColumn": "none",
+          "dsType": "influxdb",
+          "format": "table",
+          "group": [],
           "where": [
             {
               "name": "$__timeFilter",
@@ -70,89 +111,32 @@
               "type": "macro"
             }
           ],
-          "refId": "A",
-          "rawSql": "select\n  row_number() over (order by value desc) as \"Rank\",\n  name,\n  value\nfrom\n  shpr_mergers\nwhere\n  series = 'hpr_mergers[[repogroup]]'\n  and period = '[[period]]'"
+          "alias": "",
+          "timeColumn": "time"
         }
       ],
-      "interval": "",
+      "columns": [],
       "gridPos": {
+        "y": 0,
         "h": 22,
         "w": 24,
-        "x": 0,
-        "y": 0
+        "x": 0
       },
-      "columns": [],
+      "hideTimeOverride": true,
+      "interval": "",
+      "datasource": "psql",
       "type": "table",
-      "links": [],
-      "fontSize": "90%",
-      "pageSize": 1000,
-      "description": "Shows PRs mergers",
-      "id": 1,
       "sort": {
         "col": 2,
         "desc": true
       },
-      "styles": [
-        {
-          "pattern": "Time",
-          "type": "hidden",
-          "alias": "Time",
-          "dateFormat": "YYYY-MM-DD HH:mm:ss",
-          "decimals": null
-        },
-        {
-          "unit": "short",
-          "colorMode": null,
-          "decimals": 2,
-          "thresholds": [],
-          "type": "string",
-          "preserveFormat": false,
-          "pattern": "name",
-          "alias": "Developer",
-          "colors": [
-            "rgba(245, 54, 54, 0.9)",
-            "rgba(237, 129, 40, 0.89)",
-            "rgba(50, 172, 45, 0.97)"
-          ],
-          "dateFormat": "YYYY-MM-DD HH:mm:ss"
-        },
-        {
-          "alias": "Merged PRs",
-          "decimals": 0,
-          "colorMode": null,
-          "dateFormat": "YYYY-MM-DD HH:mm:ss",
-          "type": "number",
-          "unit": "none",
-          "pattern": "value",
-          "thresholds": [],
-          "colors": [
-            "rgba(245, 54, 54, 0.9)",
-            "rgba(237, 129, 40, 0.89)",
-            "rgba(50, 172, 45, 0.97)"
-          ]
-        },
-        {
-          "decimals": 2,
-          "pattern": "/.*/",
-          "thresholds": [],
-          "type": "string",
-          "unit": "short",
-          "alias": "",
-          "colorMode": null,
-          "colors": [
-            "rgba(245, 54, 54, 0.9)",
-            "rgba(237, 129, 40, 0.89)",
-            "rgba(50, 172, 45, 0.97)"
-          ]
-        }
-      ],
-      "title": "[[full_name]] PRs mergers (Repository group: [[repogroup_name]], Range: [[period_name]])",
-      "transform": "table"
+      "pageSize": 1000,
+      "description": "Shows PRs mergers",
+      "transform": "table",
+      "showHeader": true,
+      "links": []
     },
     {
-      "mode": "html",
-      "options": {},
-      "title": "Dashboard documentation",
       "type": "text",
       "content": "${docs:raw}",
       "gridPos": {
@@ -162,14 +146,15 @@
         "h": 11
       },
       "id": 11,
-      "links": []
+      "links": [],
+      "mode": "html",
+      "options": {
+        
+      },
+      "title": "Dashboard documentation"
     }
   ],
-  "links": [],
-  "refresh": false,
-  "gnetId": null,
   "timepicker": {
-    "hidden": true,
     "refresh_intervals": [
       "5s",
       "10s",
@@ -192,174 +177,195 @@
       "2d",
       "7d",
       "30d"
-    ]
+    ],
+    "hidden": true
   },
-  "templating": {
-    "list": [
-      {
-        "name": "period_name",
-        "datasource": "psql",
-        "multi": false,
-        "tags": [],
-        "label": "Range",
-        "options": [],
-        "definition": "",
-        "hide": 0,
-        "refresh": 1,
-        "type": "query",
-        "sort": 0,
-        "allValue": null,
-        "query": "select quick_ranges_name from tquick_ranges order by time",
-        "tagsQuery": "",
-        "tagValuesQuery": "",
-        "regex": "",
-        "skipUrlSync": false,
-        "current": {
-          "text": "Last decade",
-          "value": "Last decade"
-        },
-        "useTags": false,
-        "includeAll": false
-      },
-      {
-        "name": "full_name",
-        "includeAll": false,
-        "datasource": "psql",
-        "refresh": 1,
-        "options": [],
-        "label": null,
-        "regex": "",
-        "sort": 0,
-        "tags": [],
-        "type": "query",
-        "current": {
-          "text": "All CNCF",
-          "value": "All CNCF"
-        },
-        "skipUrlSync": true,
-        "definition": "",
-        "query": "select value_s from gha_vars where name = 'full_name'",
-        "hide": 2,
-        "useTags": false,
-        "tagsQuery": "",
-        "allValue": null,
-        "tagValuesQuery": "",
-        "multi": false
-      },
-      {
-        "tags": [],
-        "current": {
-          "text": "y10",
-          "value": "y10"
-        },
-        "multi": false,
-        "tagValuesQuery": "",
-        "type": "query",
-        "refresh": 1,
-        "label": null,
-        "allValue": null,
-        "datasource": "psql",
-        "useTags": false,
-        "includeAll": false,
-        "tagsQuery": "",
-        "regex": "",
-        "skipUrlSync": true,
-        "options": [],
-        "query": "select quick_ranges_suffix from tquick_ranges where quick_ranges_name = '[[period_name]]'",
-        "definition": "",
-        "hide": 2,
-        "sort": 0,
-        "name": "period"
-      },
-      {
-        "refresh": 1,
-        "useTags": false,
-        "sort": 0,
-        "multi": false,
-        "tags": [],
-        "tagsQuery": "",
-        "skipUrlSync": false,
-        "type": "query",
-        "query": "select all_repo_group_name from tall_repo_groups order by 1",
-        "hide": 0,
-        "label": "Repository group",
-        "datasource": "psql",
-        "definition": "",
-        "tagValuesQuery": "",
-        "current": {
-          "text": "All",
-          "value": "All"
-        },
-        "options": [],
-        "regex": "",
-        "includeAll": false,
-        "name": "repogroup_name",
-        "allValue": null
-      },
-      {
-        "useTags": false,
-        "multi": false,
-        "tags": [],
-        "refresh": 1,
-        "current": {
-          "text": "all",
-          "value": "all"
-        },
-        "datasource": "psql",
-        "sort": 0,
-        "hide": 2,
-        "name": "repogroup",
-        "tagsQuery": "",
-        "skipUrlSync": true,
-        "options": [],
-        "query": "select all_repo_group_value from tall_repo_groups where all_repo_group_name = '[[repogroup_name]]'",
-        "allValue": null,
-        "tagValuesQuery": "",
-        "includeAll": false,
-        "type": "query",
-        "regex": "",
-        "definition": "",
-        "label": ""
-      },
-      {
-        "type": "query",
-        "useTags": false,
-        "query": "select value_s from gha_vars where name = 'pr_mergers_docs_html'",
-        "tagsQuery": "",
-        "allValue": null,
-        "regex": "",
-        "options": [],
-        "tagValuesQuery": "",
-        "name": "docs",
-        "datasource": "psql",
-        "definition": "",
-        "tags": [],
-        "hide": 2,
-        "includeAll": false,
-        "skipUrlSync": true,
-        "current": {},
-        "label": null,
-        "multi": false,
-        "refresh": 1,
-        "sort": 0
-      }
-    ]
-  },
+  "graphTooltip": 0,
   "editable": true,
-  "timezone": "",
   "version": 2,
   "annotations": {
     "list": [
       {
-        "hide": true,
-        "iconColor": "rgba(0, 211, 255, 1)",
-        "name": "Annotations & Alerts",
         "type": "dashboard",
         "builtIn": 1,
         "datasource": "-- Grafana --",
-        "enable": true
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations \u0026 Alerts"
       }
     ]
   },
-  "schemaVersion": 19
+  "gnetId": null,
+  "schemaVersion": 19,
+  "iteration": 1568187921383,
+  "timezone": "",
+  "time": {
+    "from": "now-5y",
+    "to": "now"
+  },
+  "refresh": false,
+  "links": [],
+  "uid": "75",
+  "tags": [
+    "dashboard",
+    "kubernetes",
+    "table"
+  ],
+  "id": 35,
+  "templating": {
+    "list": [
+      {
+        "current": {
+          "text": "Last decade",
+          "value": "Last decade"
+        },
+        "options": [],
+        "sort": 0,
+        "refresh": 1,
+        "allValue": null,
+        "regex": "",
+        "name": "period_name",
+        "hide": 0,
+        "useTags": false,
+        "datasource": "psql",
+        "definition": "",
+        "includeAll": false,
+        "label": "Range",
+        "multi": false,
+        "query": "select quick_ranges_name from tquick_ranges order by time",
+        "tagsQuery": "",
+        "type": "query",
+        "tagValuesQuery": "",
+        "skipUrlSync": false,
+        "tags": []
+      },
+      {
+        "definition": "",
+        "regex": "",
+        "multi": false,
+        "options": [],
+        "tagsQuery": "",
+        "current": {
+          "value": "All CNCF",
+          "text": "All CNCF"
+        },
+        "includeAll": false,
+        "refresh": 1,
+        "tags": [],
+        "type": "query",
+        "tagValuesQuery": "",
+        "hide": 2,
+        "useTags": false,
+        "label": null,
+        "name": "full_name",
+        "query": "select value_s from gha_vars where name = 'full_name'",
+        "allValue": null,
+        "skipUrlSync": true,
+        "datasource": "psql",
+        "sort": 0
+      },
+      {
+        "allValue": null,
+        "regex": "",
+        "datasource": "psql",
+        "tags": [],
+        "useTags": false,
+        "query": "select quick_ranges_suffix from tquick_ranges where quick_ranges_name = '[[period_name]]'",
+        "name": "period",
+        "tagValuesQuery": "",
+        "definition": "",
+        "current": {
+          "text": "y10",
+          "value": "y10"
+        },
+        "refresh": 1,
+        "label": null,
+        "tagsQuery": "",
+        "sort": 0,
+        "multi": false,
+        "includeAll": false,
+        "hide": 2,
+        "type": "query",
+        "skipUrlSync": true,
+        "options": []
+      },
+      {
+        "includeAll": false,
+        "label": "Repository group",
+        "type": "query",
+        "regex": "",
+        "skipUrlSync": false,
+        "query": "select all_repo_group_name from tall_repo_groups order by 1",
+        "multi": false,
+        "hide": 0,
+        "sort": 0,
+        "tagsQuery": "",
+        "current": {
+          "text": "All",
+          "value": "All"
+        },
+        "name": "repogroup_name",
+        "refresh": 1,
+        "options": [],
+        "allValue": null,
+        "datasource": "psql",
+        "definition": "",
+        "tagValuesQuery": "",
+        "useTags": false,
+        "tags": []
+      },
+      {
+        "definition": "",
+        "label": "",
+        "datasource": "psql",
+        "tagsQuery": "",
+        "useTags": false,
+        "name": "repogroup",
+        "skipUrlSync": true,
+        "query": "select all_repo_group_value from tall_repo_groups where all_repo_group_name = '[[repogroup_name]]'",
+        "includeAll": false,
+        "tagValuesQuery": "",
+        "regex": "",
+        "multi": false,
+        "hide": 2,
+        "tags": [],
+        "options": [],
+        "type": "query",
+        "refresh": 1,
+        "sort": 0,
+        "current": {
+          "text": "all",
+          "value": "all"
+        },
+        "allValue": null
+      },
+      {
+        "tagsQuery": "",
+        "tagValuesQuery": "",
+        "current": {
+          
+        },
+        "definition": "",
+        "type": "query",
+        "refresh": 1,
+        "datasource": "psql",
+        "tags": [],
+        "query": "select value_s from gha_vars where name = 'pr_mergers_docs_html'",
+        "sort": 0,
+        "name": "docs",
+        "hide": 2,
+        "skipUrlSync": true,
+        "multi": false,
+        "allValue": null,
+        "regex": "",
+        "includeAll": false,
+        "options": [],
+        "label": null,
+        "useTags": false
+      }
+    ]
+  },
+  "title": "PRs Mergers Table",
+  "style": "dark"
 }
