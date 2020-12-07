@@ -6,7 +6,7 @@ select
   sub.merger,
   count(distinct sub.id) as prs
 from (
-  select 'hpr_merger,' || r.repo_group as repo_group,
+  select 'hpr_mergers,' || r.repo_group as repo_group,
     coalesce('*bot: ' || b.login || ' *', pr.dupn_merged_by_login) as merger,
     pr.id
   from
@@ -30,7 +30,7 @@ group by
   sub.merger
 having
   count(distinct sub.id) >= 1
-union select 'hpr_auth,All' as repo_group,
+union select 'hpr_mergers,All' as repo_group,
   coalesce('*bot: ' || b.login || ' *', pr.dupn_merged_by_login) as merger,
   count(distinct pr.id) as prs
 from
