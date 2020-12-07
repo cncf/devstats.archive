@@ -3,7 +3,7 @@
 <ul>
 <li>Metric <a href="https://github.com/cncf/devstats/blob/master/metrics/shared/hist_pr_mergers.sql" target="_blank">SQL file</a>.</li>
 <li>TSDB <a href="https://github.com/cncf/devstats/blob/master/metrics/shared/metrics.yaml" target="_blank">series definition</a>. Search for <code>hist_pr_mergers</code></li>
-<li>Grafana dashboard <a href="https://github.com/cncf/devstats/blob/master/grafana/dashboards/[[lower_name]]/prs-mergers-histogram.json" target="_blank">JSON</a>.</li>
+<li>Grafana dashboard <a href="https://github.com/cncf/devstats/blob/master/grafana/dashboards/[[lower_name]]/prs-mergers-table.json" target="_blank">JSON</a>.</li>
 </ul>
 <h1 id="description">Description</h1>
 <ul>
