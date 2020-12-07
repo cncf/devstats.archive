@@ -41,6 +41,7 @@ This file describes how to add new project on the test and production servers.
 - `` for f in `cat ../devstats-docker-images/k8s/all_test_projects.txt`; do cp grafana/dashboards/jaeger/new-contributors-table.json grafana/dashboards/$f/; done ``, then: `FROM_PROJ=jaeger ./util_sh/replace_proj_name_tag.sh new-contributors-table.json`.
 - You can mass update Grafana dashboards using `sqlitedb` tool: `ONLY="proj1 proj2 ..." ./devel/put_all_charts.sh`, then `devel/put_all_charts_cleanup.sh`. You need to use `ONLY` because there is no new project's Grafana yet.
 - When adding new dashboard to projects that use dashboards folders (like Kubernetes) update `cncf/devstats:grafana/proj/custom_sqlite.sql` file.
+- To update all other projects' `vars.yaml` with a new documentation for the new dashboard do: `FROM="`cat ./FROM`" TO="`cat ./TO`" FILES=`find metrics/ -iname "vars.yaml"` MODE=ss0 ./devel/mass_replace.sh`.
 - Update `partials/projects.html partials/projects_health.html metrics/all/sync_vars.yaml`. Test with: `ONLY="proj1 proj2 ..." PG_PASS=... ./devel/vars_all.sh`. In simpler cases you can use `./util_sh/generate_partials.sh`.
 - If normalized project name is not equal to lower project name, you need to update projects health metric to do the mapping, for example `series_name_map: { clouddeploymentkitforkubernetes: cdk8s }`, see `metrics/all/metrics.yaml`.
 - Update the number of projects in `metrics/all/sync_vars.yaml`.
