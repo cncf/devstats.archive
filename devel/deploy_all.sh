@@ -297,7 +297,7 @@ do
     PROJ=serverlessworkflow PROJDB=serverlessworkflow PROJREPO="serverlessworkflow/specification" ORGNAME="Serverless Workflow" PORT=3063 ICON=serverlessworkflow GRAFSUFF=serverlessworkflow GA="UA-145264316-24" ./devel/deploy_proj.sh || exit 81
   elif [ "$proj" = "k3s" ]
   then
-    PROJ=k3s                 PROJDB=k3s            PROJREPO="rancher/k3s"                     ORGNAME=K3s               PORT=3064 ICON=k3s            GRAFSUFF=k3s            GA="UA-145264316-25" ./devel/deploy_proj.sh || exit 82
+    PROJ=k3s                 PROJDB=k3s            PROJREPO="k3s-io/k3s"                      ORGNAME=K3s               PORT=3064 ICON=k3s            GRAFSUFF=k3s            GA="UA-145264316-25" ./devel/deploy_proj.sh || exit 82
   elif [ "$proj" = "backstage" ]
   then
     PROJ=backstage           PROJDB=backstage      PROJREPO="backstage/backstag"              ORGNAME=Backstage         PORT=3065 ICON=backstage      GRAFSUFF=backstage      GA="UA-145264316-26" ./devel/deploy_proj.sh || exit 83
