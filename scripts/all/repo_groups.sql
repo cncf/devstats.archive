@@ -718,7 +718,8 @@ update
 set
   repo_group = 'K3s'
 where
-  name ~ '(?i)^(ibuildthecloud|rancher)\/.*k3(s|d).*$'
+  org_login in ('k3s-io')
+  or name ~ '(?i)^(ibuildthecloud|rancher)\/.*k3(s|d).*$'
 ;
 
 -- Backstage
