@@ -1,5 +1,5 @@
-create temp table dtto as select case '{{to}}'::timestamp > now() when true then now() else '{{to}}'::timestamp end as dtto;
-create temp table issues as
+create temp table dtto{{rnd}} as select case '{{to}}'::timestamp > now() when true then now() else '{{to}}'::timestamp end as dtto;
+create temp table issues{{rnd}} as
   select sub.issue_id,
     sub.user_id,
     sub.created_at,
@@ -31,9 +31,9 @@ create temp table issues as
     ) sub
     where
       sub.closed_at is null;
-create index on issues(issue_id);
-create index on issues(user_id);
-create temp table prs as
+create index on issues{{rnd}}(issue_id);
+create index on issues{{rnd}}(user_id);
+create temp table prs{{rnd}} as
   select distinct i.issue_id,
     ipr.pull_request_id as pr_id,
     ipr.number,
@@ -65,20 +65,20 @@ create temp table prs as
         and unbounded following
       )
     ) pr,
-    issues i,
+    issues{{rnd}} i,
     gha_issues_pull_requests ipr
   where
     ipr.issue_id = i.issue_id
     and ipr.pull_request_id = pr.pr_id
     and pr.closed_at is null
     and pr.merged_at is null;
-create index on prs(issue_id);
-create index on prs(pr_id);
-create index on prs(number);
-create index on prs(repo_name);
-create index on prs(user_id);
-create index on prs(event_id);
-create temp table pr_sigs as
+create index on prs{{rnd}}(issue_id);
+create index on prs{{rnd}}(pr_id);
+create index on prs{{rnd}}(number);
+create index on prs{{rnd}}(repo_name);
+create index on prs{{rnd}}(user_id);
+create index on prs{{rnd}}(event_id);
+create temp table pr_sigs{{rnd}} as
   select sub2.issue_id,
     sub2.pr_id,
     sub2.event_id,
@@ -111,7 +111,7 @@ create temp table pr_sigs as
         lower(substring(il.dup_label_name from '(?i)sig/(.*)')) as sig
       from
         gha_issues_labels il,
-        prs pr
+        prs{{rnd}} pr
       where
         il.issue_id = pr.issue_id
         and il.event_id = pr.event_id
@@ -126,14 +126,14 @@ create temp table pr_sigs as
       and sub.sig not like '%use-only-as-a-last-resort'
       and sub.sig in (select sig_mentions_labels_name from tsig_mentions_labels)
   ) sub2;
-create index on pr_sigs(number);
-create index on pr_sigs(repo_name);
-create temp table issues_act as
+create index on pr_sigs{{rnd}}(number);
+create index on pr_sigs{{rnd}}(repo_name);
+create temp table issues_act{{rnd}} as
   select i2.number,
     i2.dup_repo_name as repo_name,
     extract(epoch from i2.updated_at - i.created_at) as diff
   from
-    issues i,
+    issues{{rnd}} i,
     gha_issues i2
   where
     i.issue_id = i2.id
@@ -153,14 +153,14 @@ create temp table issues_act as
         sub.updated_at asc
       limit 1
     );
-create index on issues_act(number);
-create index on issues_act(repo_name);
-create temp table prs_act as
+create index on issues_act{{rnd}}(number);
+create index on issues_act{{rnd}}(repo_name);
+create temp table prs_act{{rnd}} as
   select pr2.number,
     pr2.dup_repo_name as repo_name,
     extract(epoch from pr2.updated_at - pr.created_at) as diff
   from
-    prs pr,
+    prs{{rnd}} pr,
     gha_pull_requests pr2
   where
     pr.pr_id = pr2.id
@@ -180,39 +180,39 @@ create temp table prs_act as
         sub.updated_at asc
       limit 1
     );
-create index on prs_act(number);
-create index on prs_act(repo_name);
-create temp table act_on_issue as
+create index on prs_act{{rnd}}(number);
+create index on prs_act{{rnd}}(repo_name);
+create temp table act_on_issue{{rnd}} as
   select
     p.number,
     p.repo_name,
     p.created_at,
     coalesce(ia.diff, extract(epoch from d.dtto - p.created_at)) as inactive_for
   from
-    dtto d,
-    prs p
+    dtto{{rnd}} d,
+    prs{{rnd}} p
   left join
-    issues_act ia
+    issues_act{{rnd}} ia
   on
     p.repo_name = ia.repo_name
     and p.number = ia.number;
-create index on act_on_issue(number);
-create index on act_on_issue(repo_name);
-create temp table act as
+create index on act_on_issue{{rnd}}(number);
+create index on act_on_issue{{rnd}}(repo_name);
+create temp table act{{rnd}} as
   select
     aoi.number,
     aoi.repo_name,
     least(aoi.inactive_for, coalesce(pra.diff, extract(epoch from d.dtto - aoi.created_at))) as inactive_for
   from
-    dtto d,
-    act_on_issue aoi
+    dtto{{rnd}} d,
+    act_on_issue{{rnd}} aoi
   left join
-    prs_act pra
+    prs_act{{rnd}} pra
   on
     aoi.repo_name = pra.repo_name
     and aoi.number = pra.number;
-create index on act(number);
-create index on act(repo_name);
+create index on act{{rnd}}(number);
+create index on act{{rnd}}(repo_name);
 select
   'inactive_prs_by_sig;' || sub.sig || ';w2,d30,d90' as metric,
   count(distinct sub.pr) filter(where sub.inactive_for > 1209600) as inactive_14,
@@ -224,8 +224,8 @@ from
     s.repo_name || s.number::text as pr,
     a.inactive_for
   from
-    pr_sigs s,
-    act a
+    pr_sigs{{rnd}} s,
+    act{{rnd}} a
   where
     s.number = a.number
     and s.repo_name = a.repo_name
