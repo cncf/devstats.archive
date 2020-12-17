@@ -1,9 +1,6 @@
-with dtfrom as (
-  select '{{to}}'::timestamp - '1 year'::interval as dtfrom
-), dtto as (
-  select case '{{to}}'::timestamp > now() when true then now() else '{{to}}'::timestamp end as dtto
-), issues as (
-  select distinct sub.issue_id,
+create temp table dtto as select case '{{to}}'::timestamp > now() when true then now() else '{{to}}'::timestamp end as dtto;
+create temp table issues as
+  select sub.issue_id,
     sub.user_id,
     sub.created_at,
     sub.event_id
@@ -15,10 +12,9 @@ with dtfrom as (
       first_value(created_at) over issues_ordered_by_update as created_at,
       last_value(closed_at) over issues_ordered_by_update as closed_at
     from
-      gha_issues,
-      dtfrom
+      gha_issues
     where
-      created_at >= dtfrom
+      created_at >= '{{to}}'::timestamp - '1 year'::interval
       and created_at < '{{to}}'
       and updated_at < '{{to}}'
       and is_pull_request = true
@@ -34,8 +30,10 @@ with dtfrom as (
       )
     ) sub
     where
-      sub.closed_at is null
-), prs as (
+      sub.closed_at is null;
+create index on issues(issue_id);
+create index on issues(user_id);
+create temp table prs as
   select distinct i.issue_id,
     ipr.pull_request_id as pr_id,
     ipr.number,
@@ -50,10 +48,9 @@ with dtfrom as (
       last_value(closed_at) over prs_ordered_by_update as closed_at,
       last_value(merged_at) over prs_ordered_by_update as merged_at
     from
-      gha_pull_requests,
-      dtfrom
+      gha_pull_requests
     where
-      created_at >= dtfrom
+      created_at >= '{{to}}'::timestamp - '1 year'::interval
       and created_at < '{{to}}'
       and updated_at < '{{to}}'
       and event_id > 0
@@ -74,8 +71,14 @@ with dtfrom as (
     ipr.issue_id = i.issue_id
     and ipr.pull_request_id = pr.pr_id
     and pr.closed_at is null
-    and pr.merged_at is null
-), pr_sigs as (
+    and pr.merged_at is null;
+create index on prs(issue_id);
+create index on prs(pr_id);
+create index on prs(number);
+create index on prs(repo_name);
+create index on prs(user_id);
+create index on prs(event_id);
+create temp table pr_sigs as
   select sub2.issue_id,
     sub2.pr_id,
     sub2.event_id,
@@ -122,8 +125,10 @@ with dtfrom as (
       )
       and sub.sig not like '%use-only-as-a-last-resort'
       and sub.sig in (select sig_mentions_labels_name from tsig_mentions_labels)
-  ) sub2
-), issues_act as (
+  ) sub2;
+create index on pr_sigs(number);
+create index on pr_sigs(repo_name);
+create temp table issues_act as
   select i2.number,
     i2.dup_repo_name as repo_name,
     extract(epoch from i2.updated_at - i.created_at) as diff
@@ -147,8 +152,10 @@ with dtfrom as (
       order by
         sub.updated_at asc
       limit 1
-    )
-), prs_act as (
+    );
+create index on issues_act(number);
+create index on issues_act(repo_name);
+create temp table prs_act as
   select pr2.number,
     pr2.dup_repo_name as repo_name,
     extract(epoch from pr2.updated_at - pr.created_at) as diff
@@ -172,8 +179,10 @@ with dtfrom as (
       order by
         sub.updated_at asc
       limit 1
-    )
-), act_on_issue as (
+    );
+create index on prs_act(number);
+create index on prs_act(repo_name);
+create temp table act_on_issue as
   select
     p.number,
     p.repo_name,
@@ -186,8 +195,10 @@ with dtfrom as (
     issues_act ia
   on
     p.repo_name = ia.repo_name
-    and p.number = ia.number
-), act as (
+    and p.number = ia.number;
+create index on act_on_issue(number);
+create index on act_on_issue(repo_name);
+create temp table act as
   select
     aoi.number,
     aoi.repo_name,
@@ -199,8 +210,9 @@ with dtfrom as (
     prs_act pra
   on
     aoi.repo_name = pra.repo_name
-    and aoi.number = pra.number
-)
+    and aoi.number = pra.number;
+create index on act(number);
+create index on act(repo_name);
 select
   'inactive_prs_by_sig;' || sub.sig || ';w2,d30,d90' as metric,
   count(distinct sub.pr) filter(where sub.inactive_for > 1209600) as inactive_14,

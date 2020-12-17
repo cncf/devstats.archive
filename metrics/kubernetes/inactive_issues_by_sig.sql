@@ -1,8 +1,5 @@
-with dtfrom as (
-  select '{{to}}'::timestamp - '1 year'::interval as dtfrom
-), dtto as (
-  select case '{{to}}'::timestamp > now() when true then now() else '{{to}}'::timestamp end as dtto
-), issues as (
+create temp table dtto as select case '{{to}}'::timestamp > now() when true then now() else '{{to}}'::timestamp end as dtto;
+create temp table issues as
   select distinct sub.issue_id,
     sub.user_id,
     sub.created_at,
@@ -15,10 +12,9 @@ with dtfrom as (
       first_value(created_at) over issues_ordered_by_update as created_at,
       last_value(closed_at) over issues_ordered_by_update as closed_at
     from
-      gha_issues,
-      dtfrom
+      gha_issues
     where
-      created_at >= dtfrom
+      created_at >= '{{to}}'::timestamp - '1 year'::interval
       and created_at < '{{to}}'
       and updated_at < '{{to}}'
       and is_pull_request = false
@@ -34,8 +30,11 @@ with dtfrom as (
       )
     ) sub
     where
-      sub.closed_at is null
-), issues_sigs as (
+      sub.closed_at is null;
+create index on issues(issue_id);
+create index on issues(user_id);
+create index on issues(event_id);
+create temp table issues_sigs as
   select sub2.issue_id,
     sub2.event_id,
     case sub2.sig
@@ -73,8 +72,9 @@ with dtfrom as (
       )
       and sub.sig not like '%use-only-as-a-last-resort'
       and sub.sig in (select sig_mentions_labels_name from tsig_mentions_labels)
-  ) sub2
-), issues_act as (
+  ) sub2;
+create index on issues_sigs(issue_id);
+create temp table issues_act as
   select i.issue_id,
     extract(epoch from i2.updated_at - i.created_at) as diff
   from
@@ -97,8 +97,9 @@ with dtfrom as (
       order by
         sub.updated_at asc
       limit 1
-    )
-), act as (
+    );
+create index on issues_act(issue_id);
+create temp table act as
   select i.issue_id,
     coalesce(ia.diff, extract(epoch from d.dtto - i.created_at)) as inactive_for
   from
@@ -107,8 +108,8 @@ with dtfrom as (
   left join
     issues_act ia
   on
-    i.issue_id = ia.issue_id
-)
+    i.issue_id = ia.issue_id;
+create index on act(issue_id);
 select
   'inactive_issues_by_sig;' || sub.sig || ';w2,d30,d90' as metric,
   count(distinct sub.issue_id) filter(where sub.inactive_for > 1209600) as inactive_14,

@@ -1,9 +1,22 @@
 ---
 metrics:
-  - name: PRs mergers table
-    histogram: true
-    annotations_ranges: true
-    series_name_or_func: multi_row_single_column
-    sql: hist_pr_mergers
-    merge_series: hpr_mergers
-    project: '!kubernetes'
+  - name: Inactive PRs by SIG
+    series_name_or_func: multi_row_multi_column
+    sql: inactive_prs_by_sig
+    periods: d
+    multi_value: true
+    drop: 'sinactive_prs_by_sigw2,sinactive_prs_by_sigd30,sinactive_prs_by_sigd90'
+    #disabled: true
+    #allow_fail: true
+    env:
+      GHA2DB_NCPUS?: 8
+  - name: Inactive issues by SIG
+    series_name_or_func: multi_row_multi_column
+    sql: inactive_issues_by_sig
+    periods: d
+    multi_value: true
+    drop: 'sinactive_issues_by_sigw2,sinactive_issues_by_sigd30,sinactive_issues_by_sigd90'
+    #disabled: true
+    #allow_fail: true
+    env:
+      GHA2DB_NCPUS?: 8
