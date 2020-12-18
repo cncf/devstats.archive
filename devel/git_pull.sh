@@ -1,6 +1,6 @@
 #!/bin/bash
 cd ..
-for f in devstats devstatscode devstats-docker-images devstats-docker-lf devstats-example devstats-helm devstats-helm-lf devstats-k8s-lf devstats-reports devstats-helm-example devstats-helm-graphql devstats-kubernetes-dashboard json2hat-helm json2hat
+for f in devstats devstatscode devstats-docker-images devstats-docker-lf devstats-example devstats-helm devstats-helm-lf devstats-k8s-lf devstats-reports devstats-helm-example devstats-helm-graphql devstats-kubernetes-dashboard
 do
   cd $f
   echo ">>>>> pull: $f <<<<<"
