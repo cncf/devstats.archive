@@ -148,7 +148,8 @@ create temp table issue_sig_labels{{rnd}} as
   from
     gha_issues_labels
   where
-    dup_created_at >= '{{to}}'::timestamp - '1 year'::interval;
+    dup_created_at < '{{to}}'
+    and dup_created_at >= '{{to}}'::date - '1 year'::interval;
 create index on issue_sig_labels{{rnd}}(issue_id);
 create temp table sig_reviewers{{rnd}} as
   select sub2.sig,
