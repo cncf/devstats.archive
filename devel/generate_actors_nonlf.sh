@@ -84,6 +84,7 @@ PGPASSWORD="${PG_PASS}" psql -h "${PG_HOST}" -U gha_admin -tA openkruise < ./uti
 PGPASSWORD="${PG_PASS}" psql -h "${PG_HOST}" -U gha_admin -tA tinkerbell < ./util_sql/actors.sql
 PGPASSWORD="${PG_PASS}" psql -h "${PG_HOST}" -U gha_admin -tA pravega < ./util_sql/actors.sql
 PGPASSWORD="${PG_PASS}" psql -h "${PG_HOST}" -U gha_admin -tA kyverno < ./util_sql/actors.sql
+PGPASSWORD="${PG_PASS}" psql -h "${PG_HOST}" -U gha_admin -tA gitopswg < ./util_sql/actors.sql
 PGPASSWORD="${PG_PASS}" psql -h "${PG_HOST}" -U gha_admin -tA cncf < ./util_sql/actors.sql
 PGPASSWORD="${PG_PASS}" psql -h "${PG_HOST}" -U gha_admin -tA allprj < ./util_sql/actors.sql
 PGPASSWORD="${PG_PASS}" psql -h "${PG_HOST}" -U gha_admin -tA spinnaker < ./util_sql/actors.sql
