@@ -432,8 +432,11 @@ update
 set
   repo_group = 'Flux'
 where
-  org_login in ('fluxcd')
-  or name in ('weaveworks/flux')
+  name not in ('fluxcd/gitops-working-group')
+  and (
+    org_login in ('fluxcd')
+    or name in ('weaveworks/flux')
+  )
 ;
 
 
@@ -852,6 +855,15 @@ set
 where
   org_login in ('kyverno')
   or name in ('nirmata/kyverno')
+;
+
+-- GitOps WG
+update
+  gha_repos
+set
+  repo_group = 'GitOps WG'
+where
+  name in ('fluxcd/gitops-working-group')
 ;
 
 
