@@ -98,6 +98,7 @@ icontypes=(
   ["tinkerbell"]="color-light"
   ["pravega"]="color"
   ["kyverno"]="color"
+  ["gitopswg"]="color"
   ["tekton"]="color"
   ["jenkins"]="color"
   ["jenkinsx"]="color"
