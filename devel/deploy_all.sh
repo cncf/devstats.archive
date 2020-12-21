@@ -340,6 +340,9 @@ do
   elif [ "$proj" = "kyverno" ]
   then
     PROJ=kyverno             PROJDB=kyverno        PROJREPO="kyverno/kyverno"                 ORGNAME=Kyverno           PORT=3078 ICON=kyverno        GRAFSUFF=kyverno        GA="UA-145264316-39" ./devel/deploy_proj.sh || exit 97
+  elif [ "$proj" = "gitopswg" ]
+  then
+    PROJ=gitopswg            PROJDB=gitopswg       PROJREPO="fluxcd/gitops-working-group"     ORGNAME="GitOps WG"       PORT=3079 ICON=gitopswg       GRAFSUFF=gitopswg       GA="UA-145264316-40" ./devel/deploy_proj.sh || exit 98
   elif [ "$proj" = "opencontainers" ]
   then
     PROJ=opencontainers      PROJDB=opencontainers PROJREPO="opencontainers/runc"             ORGNAME=OCI               PORT=3100 ICON="-"            GRAFSUFF=opencontainers GA="UA-108085315-19" ./devel/deploy_proj.sh || exit 32
