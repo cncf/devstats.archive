@@ -1,15 +1,52 @@
 {
-  "time": {
-    "from": "now-7d",
-    "to": "now-1h"
+  "annotations": {
+    "list": [
+      {
+        "$$hashKey": "object:16",
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      },
+      {
+        "$$hashKey": "object:17",
+        "datasource": "psql",
+        "enable": true,
+        "hide": false,
+        "iconColor": "rgba(255, 96, 96, 1)",
+        "limit": 100,
+        "name": "Releases",
+        "query": "SELECT title, description from annotations WHERE $timeFilter order by time asc",
+        "rawQuery": "select extract(epoch from time) AS time, title as text, description as tags from sannotations where $__timeFilter(time)",
+        "showIn": 0,
+        "tagsColumn": "title,description",
+        "textColumn": "",
+        "titleColumn": "[[full_name]] release",
+        "type": "alert"
+      }
+    ]
   },
-  "uid": "8",
-  "links": [],
-  "style": "dark",
+  "description": "Home dashboard",
   "editable": true,
+  "gnetId": null,
   "graphTooltip": 0,
+  "id": 10,
+  "iteration": 1601987770947,
+  "links": [],
   "panels": [
     {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "psql",
+      "decimals": 0,
+      "description": "Numbers of GitHub events in all repositories hourly",
+      "fill": 5,
+      "fillGradient": 0,
       "gridPos": {
         "h": 6,
         "w": 20,
@@ -17,9 +54,10 @@
         "y": 0
       },
       "hiddenSeries": false,
+      "id": 2,
       "legend": {
-        "avg": true,
         "alignAsTable": true,
+        "avg": true,
         "current": true,
         "max": true,
         "min": true,
@@ -28,25 +66,37 @@
         "total": true,
         "values": true
       },
+      "lines": true,
+      "linewidth": 1,
+      "links": [
+        {
+          "title": "DevStats GitHub repository",
+          "url": "https://github.com/cncf/devstats"
+        }
+      ],
       "nullPointMode": "null",
-      "timeRegions": [],
-      "dashLength": 10,
-      "fill": 5,
-      "spaceLength": 10,
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
+      "options": {
+        "dataLinks": []
       },
-      "description": "Numbers of GitHub events in all repositories hourly",
+      "percentage": false,
+      "pointradius": 1,
+      "points": false,
+      "renderer": "flot",
       "seriesOverrides": [],
+      "spaceLength": 10,
       "stack": false,
+      "steppedLine": true,
       "targets": [
         {
           "alias": "",
+          "dsType": "influxdb",
+          "format": "time_series",
+          "groupBy": [],
           "orderByTime": "ASC",
           "policy": "default",
           "query": "SELECT \"value\" FROM \"events_h\" WHERE $timeFilter",
-          "tags": [],
+          "rawQuery": true,
+          "rawSql": "select\n  time,\n  value as \"Number of GitHub events hourly\"\nfrom\n  sevents_h\nwhere\n  $__timeFilter(time)\norder by\n  time",
           "refId": "A",
           "resultFormat": "time_series",
           "select": [
@@ -59,48 +109,30 @@
               }
             ]
           ],
-          "dsType": "influxdb",
-          "format": "time_series",
-          "groupBy": [],
-          "rawQuery": true,
-          "rawSql": "select\n  time,\n  value as \"Number of GitHub events hourly\"\nfrom\n  sevents_h\nwhere\n  $__timeFilter(time)\norder by\n  time"
+          "tags": []
         }
       ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
       "title": "Hourly [[full_name]] activity on GitHub",
       "tooltip": {
-        "value_type": "individual",
         "shared": false,
-        "sort": 0
+        "sort": 0,
+        "value_type": "individual"
       },
-      "id": 2,
-      "lines": true,
       "transparent": true,
       "type": "graph",
       "xaxis": {
+        "buckets": null,
+        "mode": "time",
         "name": null,
         "show": true,
         "values": [
           "total"
-        ],
-        "buckets": null,
-        "mode": "time"
+        ]
       },
-      "dashes": false,
-      "fillGradient": 0,
-      "links": [
-        {
-          "title": "DevStats GitHub repository",
-          "url": "https://github.com/cncf/devstats"
-        }
-      ],
-      "percentage": false,
-      "steppedLine": true,
-      "timeFrom": null,
-      "timeShift": null,
-      "datasource": "psql",
-      "linewidth": 1,
-      "points": false,
-      "thresholds": [],
       "yaxes": [
         {
           "format": "short",
@@ -119,19 +151,15 @@
           "show": true
         }
       ],
-      "decimals": 0,
-      "options": {
-        "dataLinks": []
-      },
-      "pointradius": 1,
-      "renderer": "flot",
-      "aliasColors": {},
-      "bars": false
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
     },
     {
-      "transparent": true,
-      "type": "text",
       "content": "Please report any bugs by opening an issue on <a href=\"https://github.com/cncf/devstats\">https://github.com/cncf/devstats</a>",
+      "datasource": null,
+      "description": "",
       "gridPos": {
         "h": 6,
         "w": 4,
@@ -140,93 +168,61 @@
       },
       "height": 220,
       "id": 1,
-      "title": "",
-      "datasource": null,
-      "description": "",
       "links": [],
-      "mode": "html"
+      "mode": "html",
+      "title": "",
+      "transparent": true,
+      "type": "text"
     },
     {
-      "id": 4,
-      "search": true,
+      "datasource": null,
       "description": "https://github.com/cncf/devstats",
+      "folderId": 0,
       "gridPos": {
-        "x": 0,
-        "y": 6,
         "h": 50,
-        "w": 24
+        "w": 24,
+        "x": 0,
+        "y": 6
       },
       "headings": false,
+      "id": 4,
+      "limit": 50,
       "links": [
         {
           "title": "devstats",
           "url": "https://github.com/cncf/devstats"
         }
       ],
+      "query": "",
+      "recent": false,
+      "search": true,
+      "starred": false,
       "tags": [
         "dashboard",
         "godotengine"
       ],
-      "datasource": null,
-      "folderId": 0,
-      "query": "",
-      "limit": 50,
-      "recent": false,
-      "starred": false,
       "title": "All [[full_name]] Dashboards",
       "type": "dashlist"
     },
     {
+      "content": "${docs:raw}",
+      "datasource": null,
+      "gridPos": {
+        "h": 14,
+        "w": 24,
+        "x": 0,
+        "y": 50
+      },
       "id": 6,
       "links": [],
       "mode": "html",
       "title": "Dashboard documentation",
-      "type": "text",
-      "content": "${docs:raw}",
-      "datasource": null,
-      "gridPos": {
-        "y": 50,
-        "h": 14,
-        "w": 24,
-        "x": 0
-      }
+      "type": "text"
     }
   ],
   "refresh": "15m",
   "schemaVersion": 22,
-  "title": "Dashboards",
-  "annotations": {
-    "list": [
-      {
-        "enable": true,
-        "hide": true,
-        "iconColor": "rgba(0, 211, 255, 1)",
-        "name": "Annotations & Alerts",
-        "type": "dashboard",
-        "$$hashKey": "object:16",
-        "builtIn": 1,
-        "datasource": "-- Grafana --"
-      },
-      {
-        "titleColumn": "[[full_name]] release",
-        "iconColor": "rgba(255, 96, 96, 1)",
-        "limit": 100,
-        "name": "Releases",
-        "rawQuery": "select extract(epoch from time) AS time, title as text, description as tags from sannotations where $__timeFilter(time)",
-        "type": "alert",
-        "enable": true,
-        "hide": false,
-        "query": "SELECT title, description from annotations WHERE $timeFilter order by time asc",
-        "$$hashKey": "object:17",
-        "showIn": 0,
-        "textColumn": "",
-        "datasource": "psql",
-        "tagsColumn": "title,description"
-      }
-    ]
-  },
-  "description": "Home dashboard",
-  "version": 3,
+  "style": "dark",
   "tags": [
     "home",
     "all",
@@ -235,30 +231,30 @@
   "templating": {
     "list": [
       {
-        "index": -1,
-        "name": "docs",
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": true,
-        "sort": 0,
-        "tags": [],
+        "allValue": null,
         "current": {
           "text": "<h1 id=\"-full_name-home-dashboard\">Godot Engine Home dashboard</h1>\n<p>Links:</p>\n<ul>\n<li>Postgres <a href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/events.sql\" target=\"_blank\">SQL file</a>, database <a href=\"https://teststats.cncf.io/backups\" target=\"_blank\">dumps</a>.</li>\n<li>TSDB <a href=\"https://github.com/cncf/devstats/blob/master/metrics/godotengine/metrics.yaml\" target=\"_blank\">series definition</a> (search for <code>name: GitHub activity</code>).</li>\n<li>Grafana dashboard <a href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/godotengine/dashboards.json\" target=\"_blank\">JSON</a>.</li>\n<li>Developer <a href=\"https://github.com/cncf/devstats/blob/master/docs/dashboards/dashboards_devel.md\" target=\"_blank\">documentation</a>.</li>\n<li>Direct <a href=\"https://godotengine.teststats.cncf.io\" target=\"_blank\">link</a>.</li>\n</ul>\n<h1 id=\"description\">Description</h1>\n<ul>\n<li>First we&#39;re displaying links to all CNCF projects defined.</li>\n<li>Next we&#39;re showing current project&#39;s hourly activity - this is the number of all GitHub events that happened for Godot Engine project hourly.</li>\n<li>This also includes bots activity (most other dashboards skip bot activity).</li>\n<li>Next we&#39;re showing HTML panel that shows all CNCF projects icons and links.</li>\n<li>Next there is a dashboard that shows a list of all dashboards defined for Godot Engine project.</li>\n</ul>",
           "value": "<h1 id=\"-full_name-home-dashboard\">Godot Engine Home dashboard</h1>\n<p>Links:</p>\n<ul>\n<li>Postgres <a href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/events.sql\" target=\"_blank\">SQL file</a>, database <a href=\"https://teststats.cncf.io/backups\" target=\"_blank\">dumps</a>.</li>\n<li>TSDB <a href=\"https://github.com/cncf/devstats/blob/master/metrics/godotengine/metrics.yaml\" target=\"_blank\">series definition</a> (search for <code>name: GitHub activity</code>).</li>\n<li>Grafana dashboard <a href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/godotengine/dashboards.json\" target=\"_blank\">JSON</a>.</li>\n<li>Developer <a href=\"https://github.com/cncf/devstats/blob/master/docs/dashboards/dashboards_devel.md\" target=\"_blank\">documentation</a>.</li>\n<li>Direct <a href=\"https://godotengine.teststats.cncf.io\" target=\"_blank\">link</a>.</li>\n</ul>\n<h1 id=\"description\">Description</h1>\n<ul>\n<li>First we&#39;re displaying links to all CNCF projects defined.</li>\n<li>Next we&#39;re showing current project&#39;s hourly activity - this is the number of all GitHub events that happened for Godot Engine project hourly.</li>\n<li>This also includes bots activity (most other dashboards skip bot activity).</li>\n<li>Next we&#39;re showing HTML panel that shows all CNCF projects icons and links.</li>\n<li>Next there is a dashboard that shows a list of all dashboards defined for Godot Engine project.</li>\n</ul>"
         },
-        "useTags": false,
-        "type": "query",
-        "definition": "",
-        "includeAll": false,
-        "options": [],
-        "query": "select value_s from gha_vars where name = 'dashboards_docs_html'",
-        "tagValuesQuery": "",
         "datasource": "psql",
+        "definition": "",
         "hide": 2,
+        "includeAll": false,
+        "index": -1,
         "label": null,
         "multi": false,
+        "name": "docs",
+        "options": [],
+        "query": "select value_s from gha_vars where name = 'dashboards_docs_html'",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": true,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
         "tagsQuery": "",
-        "allValue": null
+        "type": "query",
+        "useTags": false
       },
       {
         "allValue": null,
@@ -268,64 +264,57 @@
         },
         "datasource": "psql",
         "definition": "",
+        "hide": 2,
         "includeAll": false,
-        "multi": false,
-        "query": "select value_s from gha_vars where name = 'full_name'",
         "index": -1,
+        "label": null,
+        "multi": false,
+        "name": "full_name",
         "options": [],
+        "query": "select value_s from gha_vars where name = 'full_name'",
         "refresh": 1,
         "regex": "",
+        "skipUrlSync": true,
+        "sort": 0,
         "tagValuesQuery": "",
+        "tags": [],
         "tagsQuery": "",
         "type": "query",
-        "label": null,
-        "sort": 0,
-        "tags": [],
-        "useTags": false,
-        "hide": 2,
-        "name": "full_name",
-        "skipUrlSync": true
+        "useTags": false
       },
       {
-        "datasource": "psql",
-        "refresh": 1,
-        "useTags": false,
-        "label": null,
-        "skipUrlSync": true,
-        "tags": [],
-        "type": "query",
+        "allValue": null,
         "current": {
           "text": "teststats.cncf.io",
           "value": "teststats.cncf.io"
         },
-        "hide": 2,
-        "options": [],
-        "regex": "",
-        "tagsQuery": "",
-        "name": "hostname",
-        "query": "select value_s from gha_vars where name = 'os_hostname'",
-        "sort": 0,
-        "allValue": null,
+        "datasource": "psql",
         "definition": "",
+        "hide": 2,
         "includeAll": false,
         "index": -1,
+        "label": null,
         "multi": false,
-        "tagValuesQuery": ""
+        "name": "hostname",
+        "options": [],
+        "query": "select value_s from gha_vars where name = 'os_hostname'",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": true,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
       }
     ]
   },
+  "time": {
+    "from": "now-7d",
+    "to": "now-1h"
+  },
   "timepicker": {
-    "time_options": [
-      "5m",
-      "15m",
-      "1h",
-      "6h",
-      "12h",
-      "24h",
-      "2d",
-      "7d",
-      "30d"
-    ],
     "nowDelay": "1h",
     "refresh_intervals": [
       "5s",
@@ -338,13 +327,24 @@
       "1h",
       "2h",
       "1d"
+    ],
+    "time_options": [
+      "5m",
+      "15m",
+      "1h",
+      "6h",
+      "12h",
+      "24h",
+      "2d",
+      "7d",
+      "30d"
     ]
   },
   "timezone": "",
+  "title": "Dashboards",
+  "uid": "8",
   "variables": {
     "list": []
   },
-  "gnetId": null,
-  "id": 10,
-  "iteration": 1601987770947
+  "version": 3
 }

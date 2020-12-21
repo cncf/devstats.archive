@@ -29,13 +29,6 @@ where
 update gha_repos set repo_group = alias;
 
 update gha_repos
-set repo_group = 'Flux', alias = 'Flux'
-where name in (
-  'weaveworks/flux',
-  'fluxcd/flux'
-);
-
-update gha_repos
 set repo_group = 'GitOps WG', alias = 'GitOps WG'
 where name in (
   'fluxcd/gitops-working-group'
