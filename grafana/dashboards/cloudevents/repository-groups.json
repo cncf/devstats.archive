@@ -1,84 +1,54 @@
 {
-  "graphTooltip": 0,
-  "tags": [
-    "dashboard",
-    "cloudevents",
-    "table"
-  ],
-  "iteration": 1581497375166,
-  "refresh": false,
   "annotations": {
     "list": [
       {
-        "iconColor": "rgba(0, 211, 255, 1)",
-        "name": "Annotations \u0026 Alerts",
-        "type": "dashboard",
         "builtIn": 1,
         "datasource": "-- Grafana --",
         "enable": true,
-        "hide": true
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
       }
     ]
   },
-  "timezone": "",
-  "time": {
-    "from": "now-7d",
-    "to": "now"
-  },
+  "editable": true,
+  "gnetId": null,
+  "graphTooltip": 0,
   "id": 36,
+  "iteration": 1581497375166,
+  "links": [],
   "panels": [
     {
-      "links": [],
+      "columns": [],
       "datasource": "psql",
-      "options": {
-        
+      "description": "[[full_name]] Repository Groups definitions",
+      "fontSize": "90%",
+      "gridPos": {
+        "h": 22,
+        "w": 24,
+        "x": 0,
+        "y": 0
       },
+      "hideTimeOverride": false,
+      "id": 1,
+      "interval": "",
+      "links": [],
+      "options": {},
+      "pageSize": 25,
       "scroll": true,
+      "showHeader": true,
       "sort": {
         "col": 1,
         "desc": false
       },
-      "timeShift": null,
-      "type": "table",
-      "hideTimeOverride": false,
-      "description": "[[full_name]] Repository Groups definitions",
-      "showHeader": true,
-      "title": "[[full_name]] Repository Groups definitions",
-      "columns": [],
-      "id": 1,
-      "pageSize": 25,
-      "gridPos": {
-        "y": 0,
-        "h": 22,
-        "w": 24,
-        "x": 0
-      },
-      "interval": "",
+      "styles": [],
       "targets": [
         {
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
           "alias": "",
           "dsType": "influxdb",
-          "policy": "default",
-          "resultFormat": "table",
-          "tags": [],
-          "rawSql": "select\n  distinct coalesce(case repo_group when '' then 'Not specified' else repo_group end, 'Not specified') as \"Repository group\",\n  name as \"Repository\"\nfrom\n  gha_repos\nwhere\n  name like '%_/_%'\n  and name not like '%/%/%'\n  and ('[[repogroups:csv]]' = 'null' or coalesce(case repo_group when '' then 'Not specified' else repo_group end, 'Not specified') in ([[repogroups]]))",
+          "format": "table",
           "group": [],
-          "timeColumn": "time",
-          "orderByTime": "ASC",
           "groupBy": [
             {
               "params": [
@@ -93,11 +63,30 @@
               "type": "fill"
             }
           ],
-          "query": "",
           "metricColumn": "none",
-          "format": "table",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "",
           "rawQuery": true,
+          "rawSql": "select\n  distinct coalesce(case repo_group when '' then 'Not specified' else repo_group end, 'Not specified') as \"Repository group\",\n  name as \"Repository\"\nfrom\n  gha_repos\nwhere\n  name like '%_/_%'\n  and name not like '%/%/%'\n  and ('[[repogroups:csv]]' = 'null' or coalesce(case repo_group when '' then 'Not specified' else repo_group end, 'Not specified') in ([[repogroups]]))",
           "refId": "A",
+          "resultFormat": "table",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": [],
+          "timeColumn": "time",
           "where": [
             {
               "name": "$__timeFilter",
@@ -107,47 +96,50 @@
           ]
         }
       ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "[[full_name]] Repository Groups definitions",
       "transform": "table",
-      "styles": [],
-      "fontSize": "90%",
-      "timeFrom": null
+      "type": "table"
     }
   ],
+  "refresh": false,
   "schemaVersion": 21,
+  "style": "dark",
+  "tags": [
+    "dashboard",
+    "cloudevents",
+    "table"
+  ],
   "templating": {
     "list": [
       {
-        "regex": "",
-        "skipUrlSync": true,
-        "useTags": false,
+        "allValue": null,
         "current": {
           "text": "Kubernetes",
           "value": "Kubernetes"
         },
-        "definition": "",
-        "query": "select value_s from gha_vars where name = 'full_name'",
-        "options": [],
-        "sort": 0,
-        "tagsQuery": "",
         "datasource": "psql",
-        "tagValuesQuery": "",
-        "label": null,
-        "refresh": 1,
-        "includeAll": false,
+        "definition": "",
         "hide": 2,
-        "type": "query",
+        "includeAll": false,
+        "label": null,
         "multi": false,
-        "tags": [],
         "name": "full_name",
-        "allValue": null
+        "options": [],
+        "query": "select value_s from gha_vars where name = 'full_name'",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": true,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
       },
       {
-        "definition": "select repo_group_name from trepo_groups union select 'Not specified' order by 1",
-        "regex": "",
-        "options": [],
-        "hide": 0,
-        "multi": true,
-        "useTags": false,
+        "allValue": "null",
         "current": {
           "tags": [],
           "text": "All",
@@ -155,29 +147,33 @@
             "$__all"
           ]
         },
+        "datasource": "psql",
+        "definition": "select repo_group_name from trepo_groups union select 'Not specified' order by 1",
+        "hide": 0,
+        "includeAll": true,
+        "label": "Repository groups",
+        "multi": true,
+        "name": "repogroups",
+        "options": [],
         "query": "select repo_group_name from trepo_groups union select 'Not specified' order by 1",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": true,
+        "sort": 0,
         "tagValuesQuery": "",
+        "tags": [],
         "tagsQuery": "",
         "type": "query",
-        "label": "Repository groups",
-        "sort": 0,
-        "datasource": "psql",
-        "allValue": "null",
-        "includeAll": true,
-        "skipUrlSync": true,
-        "tags": [],
-        "refresh": 1,
-        "name": "repogroups"
+        "useTags": false
       }
     ]
   },
-  "links": [],
-  "style": "dark",
-  "uid": "68",
-  "version": 2,
-  "title": "Repository groups",
-  "gnetId": null,
+  "time": {
+    "from": "now-7d",
+    "to": "now"
+  },
   "timepicker": {
+    "hidden": true,
     "refresh_intervals": [
       "5s",
       "10s",
@@ -200,8 +196,10 @@
       "2d",
       "7d",
       "30d"
-    ],
-    "hidden": true
+    ]
   },
-  "editable": true
+  "timezone": "",
+  "title": "Repository groups",
+  "uid": "68",
+  "version": 2
 }
