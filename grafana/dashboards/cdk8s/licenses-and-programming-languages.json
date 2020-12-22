@@ -1,9 +1,4 @@
 {
-  "schemaVersion": 21,
-  "iteration": 1581599788116,
-  "id": 19,
-  "timezone": "",
-  "version": 3,
   "annotations": {
     "list": [
       {
@@ -17,46 +12,43 @@
       }
     ]
   },
-  "title": "Licenses and programming languages",
-  "graphTooltip": 0,
-  "time": {
-    "from": "now-1M",
-    "to": "now"
-  },
+  "editable": true,
   "gnetId": null,
+  "graphTooltip": 0,
+  "id": 19,
+  "iteration": 1581599788116,
+  "links": [],
   "panels": [
     {
+      "columns": [],
+      "datasource": "psql",
+      "description": "Summary for all [[full_name]] data. It includes data from repositories with unknown licenses and/or unknown programming languages.",
+      "fontSize": "100%",
       "gridPos": {
         "h": 3,
         "w": 24,
         "x": 0,
         "y": 0
       },
+      "hideTimeOverride": false,
+      "id": 15,
+      "interval": "",
       "links": [],
+      "options": {},
+      "pageSize": 2,
+      "scroll": true,
+      "showHeader": true,
       "sort": {
         "col": 2,
         "desc": true
       },
-      "timeShift": null,
+      "styles": [],
       "targets": [
         {
           "alias": "",
           "dsType": "influxdb",
           "format": "table",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
+          "group": [],
           "groupBy": [
             {
               "params": [
@@ -71,134 +63,98 @@
               "type": "fill"
             }
           ],
+          "metricColumn": "none",
+          "orderByTime": "ASC",
           "policy": "default",
+          "query": "",
+          "rawQuery": true,
+          "rawSql": "select\n  count(distinct r.license_name) filter (where r.license_name is not null and r.license_name != '' and r.license_name != 'Not found') as \"All Licenses\",\n  count(distinct rl.lang_name) filter (where rl.lang_name is not null and rl.lang_name != '' and rl.lang_name != 'unknown') as \"All Programming Languages\",\n  count(distinct r.alias) filter (where r.alias is not null) as \"All Repositories\",\n  sum(rl.lang_loc) as \"All BOC\"\nfrom\n  gha_repos r,\n  gha_repos_langs rl\nwhere\n  r.name = rl.repo_name\n  and ('[[repogroups:csv]]' = 'null' or r.repo_group in ([[repogroups]]))\n  and ('[[licenses:csv]]' = 'null' or r.license_name in ([[licenses]]))\n  and ('[[languages:csv]]' = 'null' or rl.lang_name in ([[languages]]))\n  and (r.name, r.id) = (\n    select i.name,\n      i.id\n    from\n      gha_repos i\n    where\n      i.alias = r.alias\n      and i.name like '%_/_%'\n      and i.name not like '%/%/%'\n    limit 1\n  )\n;",
           "refId": "A",
+          "resultFormat": "table",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
           "tags": [],
+          "timeColumn": "time",
           "where": [
             {
               "name": "$__timeFilter",
               "params": [],
               "type": "macro"
             }
-          ],
-          "group": [],
-          "resultFormat": "table",
-          "timeColumn": "time",
-          "orderByTime": "ASC",
-          "rawSql": "select\n  count(distinct r.license_name) filter (where r.license_name is not null and r.license_name != '' and r.license_name != 'Not found') as \"All Licenses\",\n  count(distinct rl.lang_name) filter (where rl.lang_name is not null and rl.lang_name != '' and rl.lang_name != 'unknown') as \"All Programming Languages\",\n  count(distinct r.alias) filter (where r.alias is not null) as \"All Repositories\",\n  sum(rl.lang_loc) as \"All BOC\"\nfrom\n  gha_repos r,\n  gha_repos_langs rl\nwhere\n  r.name = rl.repo_name\n  and ('[[repogroups:csv]]' = 'null' or r.repo_group in ([[repogroups]]))\n  and ('[[licenses:csv]]' = 'null' or r.license_name in ([[licenses]]))\n  and ('[[languages:csv]]' = 'null' or rl.lang_name in ([[languages]]))\n  and (r.name, r.id) = (\n    select i.name,\n      i.id\n    from\n      gha_repos i\n    where\n      i.alias = r.alias\n      and i.name like '%_/_%'\n      and i.name not like '%/%/%'\n    limit 1\n  )\n;",
-          "query": "",
-          "rawQuery": true,
-          "metricColumn": "none"
+          ]
         }
       ],
-      "transparent": true,
-      "columns": [],
-      "type": "table",
-      "options": {},
       "timeFrom": null,
-      "interval": "",
-      "transform": "table",
-      "description": "Summary for all [[full_name]] data. It includes data from repositories with unknown licenses and/or unknown programming languages.",
-      "hideTimeOverride": false,
-      "scroll": true,
-      "datasource": "psql",
+      "timeShift": null,
       "title": "Summary for all data",
-      "id": 15,
-      "fontSize": "100%",
-      "pageSize": 2,
-      "showHeader": true,
-      "styles": []
+      "transform": "table",
+      "transparent": true,
+      "type": "table"
     },
     {
-      "scroll": true,
+      "columns": [],
       "datasource": "psql",
-      "options": {},
-      "type": "table",
-      "title": "Licenses summary",
-      "timeShift": null,
-      "links": [],
-      "hideTimeOverride": false,
-      "targets": [
-        {
-          "group": [],
-          "rawSql": "select \n  r.license_name as \"License\",\n  count(distinct r.alias) as \"Repositories\"\nfrom\n  gha_repos r,\n  gha_repos_langs rl\nwhere\n  r.name = rl.repo_name\n  and ('[[repogroups:csv]]' = 'null' or r.repo_group in ([[repogroups]]))\n  and ('[[licenses:csv]]' = 'null' or r.license_name in ([[licenses]]))\n  and ('[[languages:csv]]' = 'null' or rl.lang_name in ([[languages]]))\n  and r.license_name is not null and r.license_name not in ('', 'Not found')\n  and (r.name, r.id) = (\n    select i.name,\n      i.id\n    from\n      gha_repos i\n    where\n      i.alias = r.alias\n      and i.name like '%_/_%'\n      and i.name not like '%/%/%'\n    limit 1\n  )\ngroup by\n  r.license_name\n;",
-          "rawQuery": true,
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "alias": "",
-          "dsType": "influxdb",
-          "format": "table",
-          "refId": "A",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ],
-          "timeColumn": "time",
-          "tags": [],
-          "orderByTime": "ASC",
-          "resultFormat": "table",
-          "groupBy": [
-            {
-              "params": [
-                "$__interval"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
-          "query": "",
-          "policy": "default",
-          "metricColumn": "none"
-        }
-      ],
-      "id": 1,
+      "description": "Summary of all license types used in [[full_name]] repositories. Includes data from unidentified programming languages too. Only includes data from repositories with known license.",
+      "fontSize": "90%",
       "gridPos": {
         "h": 15,
         "w": 5,
         "x": 0,
         "y": 3
       },
-      "description": "Summary of all license types used in [[full_name]] repositories. Includes data from unidentified programming languages too. Only includes data from repositories with known license.",
+      "hideTimeOverride": false,
+      "id": 1,
+      "interval": "",
+      "links": [],
+      "options": {},
+      "pageSize": 16,
+      "scroll": true,
+      "showHeader": true,
       "sort": {
         "col": 1,
         "desc": true
       },
-      "interval": "",
-      "timeFrom": null,
-      "columns": [],
       "styles": [],
-      "transform": "table",
-      "pageSize": 16,
-      "showHeader": true,
-      "fontSize": "90%"
-    },
-    {
       "targets": [
         {
-          "policy": "default",
+          "alias": "",
+          "dsType": "influxdb",
           "format": "table",
-          "metricColumn": "none",
           "group": [],
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "metricColumn": "none",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "",
+          "rawQuery": true,
+          "rawSql": "select \n  r.license_name as \"License\",\n  count(distinct r.alias) as \"Repositories\"\nfrom\n  gha_repos r,\n  gha_repos_langs rl\nwhere\n  r.name = rl.repo_name\n  and ('[[repogroups:csv]]' = 'null' or r.repo_group in ([[repogroups]]))\n  and ('[[licenses:csv]]' = 'null' or r.license_name in ([[licenses]]))\n  and ('[[languages:csv]]' = 'null' or rl.lang_name in ([[languages]]))\n  and r.license_name is not null and r.license_name not in ('', 'Not found')\n  and (r.name, r.id) = (\n    select i.name,\n      i.id\n    from\n      gha_repos i\n    where\n      i.alias = r.alias\n      and i.name like '%_/_%'\n      and i.name not like '%/%/%'\n    limit 1\n  )\ngroup by\n  r.license_name\n;",
+          "refId": "A",
+          "resultFormat": "table",
           "select": [
             [
               {
@@ -208,95 +164,58 @@
                 "type": "field"
               },
               {
-                "type": "mean",
-                "params": []
+                "params": [],
+                "type": "mean"
               }
             ]
           ],
-          "dsType": "influxdb",
-          "groupBy": [
-            {
-              "params": [
-                "$__interval"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
-          "rawSql": "select \n  rl.lang_name as \"Language\",\n  count(distinct r.alias) as \"Repositories\",\n  sum(rl.lang_loc) as \"BOC\"\nfrom\n  gha_repos r,\n  gha_repos_langs rl\nwhere\n  r.name = rl.repo_name\n  and ('[[repogroups:csv]]' = 'null' or r.repo_group in ([[repogroups]]))\n  and ('[[licenses:csv]]' = 'null' or r.license_name in ([[licenses]]))\n  and ('[[languages:csv]]' = 'null' or rl.lang_name in ([[languages]]))\n  and rl.lang_name is not null and rl.lang_name not in ('', 'unknown')\n  and (r.name, r.id) = (\n    select i.name,\n      i.id\n    from\n      gha_repos i\n    where\n      i.alias = r.alias\n      and i.name like '%_/_%'\n      and i.name not like '%/%/%'\n    limit 1\n  )\ngroup by\n  rl.lang_name\n;",
-          "alias": "",
           "tags": [],
           "timeColumn": "time",
           "where": [
             {
-              "type": "macro",
               "name": "$__timeFilter",
-              "params": []
+              "params": [],
+              "type": "macro"
             }
-          ],
-          "rawQuery": true,
-          "refId": "A",
-          "resultFormat": "table",
-          "query": "",
-          "orderByTime": "ASC"
+          ]
         }
       ],
-      "options": {},
-      "columns": [],
-      "hideTimeOverride": false,
-      "title": "Programming languages summary",
-      "description": "Summary of all programming languages used in [[full_name]] repositories. Includes data from repositories with unknown licenses. Only includes data from repositories with identified programming languages.",
-      "scroll": true,
-      "fontSize": "90%",
-      "links": [],
-      "gridPos": {
-        "w": 8,
-        "x": 5,
-        "y": 3,
-        "h": 15
-      },
+      "timeFrom": null,
       "timeShift": null,
+      "title": "Licenses summary",
       "transform": "table",
-      "styles": [],
-      "sort": {
-        "col": 2,
-        "desc": true
-      },
-      "pageSize": 16,
-      "type": "table",
-      "id": 13,
-      "interval": "",
-      "showHeader": true,
-      "datasource": "psql",
-      "timeFrom": null
+      "type": "table"
     },
     {
-      "id": 14,
-      "timeShift": null,
-      "hideTimeOverride": false,
-      "options": {},
+      "columns": [],
       "datasource": "psql",
-      "transform": "table",
+      "description": "Summary of all programming languages used in [[full_name]] repositories. Includes data from repositories with unknown licenses. Only includes data from repositories with identified programming languages.",
+      "fontSize": "90%",
       "gridPos": {
-        "y": 3,
         "h": 15,
-        "w": 11,
-        "x": 13
+        "w": 8,
+        "x": 5,
+        "y": 3
       },
+      "hideTimeOverride": false,
+      "id": 13,
+      "interval": "",
+      "links": [],
+      "options": {},
+      "pageSize": 16,
       "scroll": true,
       "showHeader": true,
       "sort": {
         "col": 2,
         "desc": true
       },
+      "styles": [],
       "targets": [
         {
-          "query": "",
+          "alias": "",
+          "dsType": "influxdb",
+          "format": "table",
+          "group": [],
           "groupBy": [
             {
               "params": [
@@ -311,7 +230,94 @@
               "type": "fill"
             }
           ],
+          "metricColumn": "none",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "",
+          "rawQuery": true,
+          "rawSql": "select \n  rl.lang_name as \"Language\",\n  count(distinct r.alias) as \"Repositories\",\n  sum(rl.lang_loc) as \"BOC\"\nfrom\n  gha_repos r,\n  gha_repos_langs rl\nwhere\n  r.name = rl.repo_name\n  and ('[[repogroups:csv]]' = 'null' or r.repo_group in ([[repogroups]]))\n  and ('[[licenses:csv]]' = 'null' or r.license_name in ([[licenses]]))\n  and ('[[languages:csv]]' = 'null' or rl.lang_name in ([[languages]]))\n  and rl.lang_name is not null and rl.lang_name not in ('', 'unknown')\n  and (r.name, r.id) = (\n    select i.name,\n      i.id\n    from\n      gha_repos i\n    where\n      i.alias = r.alias\n      and i.name like '%_/_%'\n      and i.name not like '%/%/%'\n    limit 1\n  )\ngroup by\n  rl.lang_name\n;",
+          "refId": "A",
+          "resultFormat": "table",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": [],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Programming languages summary",
+      "transform": "table",
+      "type": "table"
+    },
+    {
+      "columns": [],
+      "datasource": "psql",
+      "description": "The number of repositories and bytes of code per license and programming language. It only includes data from repositories with known licenses and programming languages used.",
+      "fontSize": "90%",
+      "gridPos": {
+        "h": 15,
+        "w": 11,
+        "x": 13,
+        "y": 3
+      },
+      "hideTimeOverride": false,
+      "id": 14,
+      "interval": "",
+      "links": [],
+      "options": {},
+      "pageSize": 16,
+      "scroll": true,
+      "showHeader": true,
+      "sort": {
+        "col": 2,
+        "desc": true
+      },
+      "styles": [],
+      "targets": [
+        {
+          "alias": "",
           "dsType": "influxdb",
+          "format": "table",
+          "group": [],
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "metricColumn": "none",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "",
+          "rawQuery": true,
           "rawSql": "select\n  r.license_name as \"License\",\n  rl.lang_name as \"Language\",\n  count(distinct r.alias) as \"Repositories\",\n  sum(rl.lang_loc) as \"BOC\"\nfrom\n  gha_repos r,\n  gha_repos_langs rl\nwhere\n  r.name = rl.repo_name\n  and ('[[repogroups:csv]]' = 'null' or r.repo_group in ([[repogroups]]))\n  and ('[[licenses:csv]]' = 'null' or r.license_name in ([[licenses]]))\n  and ('[[languages:csv]]' = 'null' or rl.lang_name in ([[languages]]))\n  and r.license_name is not null and r.license_name not in ('', 'Not found')\n  and rl.lang_name is not null and rl.lang_name not in ('', 'unknown')\n  and (r.name, r.id) = (\n    select i.name,\n      i.id\n    from\n      gha_repos i\n    where\n      i.alias = r.alias\n      and i.name like '%_/_%'\n      and i.name not like '%/%/%'\n    limit 1\n  )\ngroup by\n  r.license_name,\n  rl.lang_name\n;",
           "refId": "A",
           "resultFormat": "table",
@@ -329,66 +335,70 @@
               }
             ]
           ],
-          "group": [],
-          "metricColumn": "none",
-          "rawQuery": true,
-          "orderByTime": "ASC",
-          "policy": "default",
           "tags": [],
+          "timeColumn": "time",
           "where": [
             {
               "name": "$__timeFilter",
               "params": [],
               "type": "macro"
             }
-          ],
-          "timeColumn": "time",
-          "format": "table",
-          "alias": ""
+          ]
         }
       ],
-      "interval": "",
       "timeFrom": null,
+      "timeShift": null,
       "title": "Licenses and programming languages",
-      "links": [],
-      "type": "table",
-      "fontSize": "90%",
-      "description": "The number of repositories and bytes of code per license and programming language. It only includes data from repositories with known licenses and programming languages used.",
-      "columns": [],
-      "pageSize": 16,
-      "styles": []
+      "transform": "table",
+      "type": "table"
     },
     {
-      "title": "Repository licenses and programming languages details for [[full_name]]",
-      "type": "table",
-      "options": {},
-      "interval": "",
-      "fontSize": "80%",
-      "links": [],
-      "timeShift": null,
-      "showHeader": true,
-      "timeFrom": null,
-      "pageSize": 30,
+      "columns": [],
       "datasource": "psql",
+      "description": "Display license types and programming languages split per repository. Includes data for repositories with unknown licenses and/or unidentified programming languages.",
+      "fontSize": "80%",
       "gridPos": {
+        "h": 23,
         "w": 24,
         "x": 0,
-        "y": 18,
-        "h": 23
+        "y": 18
       },
-      "description": "Display license types and programming languages split per repository. Includes data for repositories with unknown licenses and/or unidentified programming languages.",
+      "hideTimeOverride": false,
+      "id": 12,
+      "interval": "",
+      "links": [],
+      "options": {},
+      "pageSize": 30,
+      "scroll": true,
+      "showHeader": true,
+      "sort": {
+        "col": 4,
+        "desc": true
+      },
+      "styles": [
+        {
+          "alias": "",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 3,
+          "mappingType": 1,
+          "pattern": "Language percent",
+          "thresholds": [],
+          "type": "number",
+          "unit": "short"
+        }
+      ],
       "targets": [
         {
+          "alias": "",
+          "dsType": "influxdb",
           "format": "table",
           "group": [],
-          "alias": "",
-          "refId": "A",
-          "orderByTime": "ASC",
-          "timeColumn": "time",
-          "dsType": "influxdb",
-          "policy": "default",
-          "rawQuery": true,
-          "resultFormat": "table",
           "groupBy": [
             {
               "params": [
@@ -403,17 +413,14 @@
               "type": "fill"
             }
           ],
-          "query": "",
-          "rawSql": "select \n  distinct coalesce(r.repo_group, 'No repo group') as \"Repo group\",\n  r.alias as \"Repo\",\n  r.license_name as \"License\",\n  rl.lang_name as \"Language\",\n  rl.lang_loc as \"BOC\",\n  rl.lang_perc as \"Language percent\"\nfrom\n  gha_repos r,\n  gha_repos_langs rl\nwhere\n  r.name = rl.repo_name\n  and ('[[repogroups:csv]]' = 'null' or r.repo_group in ([[repogroups]]))\n  and ('[[licenses:csv]]' = 'null' or r.license_name in ([[licenses]]))\n  and ('[[languages:csv]]' = 'null' or rl.lang_name in ([[languages]]))\n  and (r.name, r.id) = (\n    select i.name,\n      i.id\n    from\n      gha_repos i\n    where\n      i.alias = r.alias\n      and i.name like '%_/_%'\n      and i.name not like '%/%/%'\n    limit 1\n  )\n;",
-          "where": [
-            {
-              "type": "macro",
-              "name": "$__timeFilter",
-              "params": []
-            }
-          ],
           "metricColumn": "none",
-          "tags": [],
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "",
+          "rawQuery": true,
+          "rawSql": "select \n  distinct coalesce(r.repo_group, 'No repo group') as \"Repo group\",\n  r.alias as \"Repo\",\n  r.license_name as \"License\",\n  rl.lang_name as \"Language\",\n  rl.lang_loc as \"BOC\",\n  rl.lang_perc as \"Language percent\"\nfrom\n  gha_repos r,\n  gha_repos_langs rl\nwhere\n  r.name = rl.repo_name\n  and ('[[repogroups:csv]]' = 'null' or r.repo_group in ([[repogroups]]))\n  and ('[[licenses:csv]]' = 'null' or r.license_name in ([[licenses]]))\n  and ('[[languages:csv]]' = 'null' or rl.lang_name in ([[languages]]))\n  and (r.name, r.id) = (\n    select i.name,\n      i.id\n    from\n      gha_repos i\n    where\n      i.alias = r.alias\n      and i.name like '%_/_%'\n      and i.name not like '%/%/%'\n    limit 1\n  )\n;",
+          "refId": "A",
+          "resultFormat": "table",
           "select": [
             [
               {
@@ -427,172 +434,157 @@
                 "type": "mean"
               }
             ]
+          ],
+          "tags": [],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
           ]
         }
       ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Repository licenses and programming languages details for [[full_name]]",
       "transform": "table",
-      "hideTimeOverride": false,
-      "id": 12,
-      "styles": [
-        {
-          "dateFormat": "YYYY-MM-DD HH:mm:ss",
-          "mappingType": 1,
-          "alias": "",
-          "decimals": 3,
-          "colorMode": null,
-          "colors": [
-            "rgba(245, 54, 54, 0.9)",
-            "rgba(237, 129, 40, 0.89)",
-            "rgba(50, 172, 45, 0.97)"
-          ],
-          "pattern": "Language percent",
-          "thresholds": [],
-          "type": "number",
-          "unit": "short"
-        }
-      ],
-      "columns": [],
-      "scroll": true,
-      "sort": {
-        "col": 4,
-        "desc": true
-      }
+      "type": "table"
     },
     {
-      "datasource": null,
-      "options": {},
-      "mode": "html",
-      "title": "Dashboard documentation",
-      "type": "text",
       "content": "${docs:raw}",
+      "datasource": null,
       "gridPos": {
-        "y": 41,
         "h": 10,
         "w": 24,
-        "x": 0
+        "x": 0,
+        "y": 41
       },
       "id": 11,
-      "links": []
+      "links": [],
+      "mode": "html",
+      "options": {},
+      "title": "Dashboard documentation",
+      "type": "text"
     }
+  ],
+  "refresh": false,
+  "schemaVersion": 21,
+  "style": "dark",
+  "tags": [
+    "cdk8s",
+    "dashboard",
+    "table"
   ],
   "templating": {
     "list": [
       {
-        "hide": 2,
-        "refresh": 1,
-        "tagValuesQuery": "",
-        "skipUrlSync": true,
-        "sort": 0,
-        "label": null,
-        "multi": false,
-        "regex": "",
-        "tags": [],
-        "tagsQuery": "",
+        "allValue": null,
         "current": {
           "text": "All CNCF",
           "value": "All CNCF"
         },
-        "name": "full_name",
-        "query": "select value_s from gha_vars where name = 'full_name'",
         "datasource": "psql",
-        "allValue": null,
-        "useTags": false,
-        "type": "query",
         "definition": "",
+        "hide": 2,
         "includeAll": false,
-        "options": []
+        "label": null,
+        "multi": false,
+        "name": "full_name",
+        "options": [],
+        "query": "select value_s from gha_vars where name = 'full_name'",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": true,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
       },
       {
-        "tags": [],
-        "multi": false,
-        "hide": 2,
-        "name": "docs",
-        "datasource": "psql",
-        "label": null,
-        "skipUrlSync": true,
-        "tagsQuery": "",
-        "options": [],
-        "type": "query",
+        "allValue": null,
         "current": {
           "text": "<h1 id=\"dashboard-header\">All CNCF licenses and programming languages dashboard</h1>\n<p>Links:</p>\n<ul>\n<li>Grafana dashboard <a href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/all/licenses-and-programming-languages.json\" target=\"_blank\">JSON</a>.</li>\n</ul>\n<h1 id=\"description\">Description</h1>\n<ul>\n<li>This dashboard shows summary of repository licenses and programming languages.</li>\n<li>You can select one or more repository groups or summary for all of them.</li>\n<li>You can select one or more licenses type or summary for all of them.</li>\n<li>You can select one or more programming languages or summary for all of them.</li>\n<li>All staticstics are displayed for currently selected set of values from drop-downs.</li>\n<li>See <a href=\"https://github.com/cncf/devstats/blob/master/docs/repository_groups.md\" target=\"_blank\">here</a> for more informations about repository groups.</li>\n</ul>",
           "value": "<h1 id=\"dashboard-header\">All CNCF licenses and programming languages dashboard</h1>\n<p>Links:</p>\n<ul>\n<li>Grafana dashboard <a href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/all/licenses-and-programming-languages.json\" target=\"_blank\">JSON</a>.</li>\n</ul>\n<h1 id=\"description\">Description</h1>\n<ul>\n<li>This dashboard shows summary of repository licenses and programming languages.</li>\n<li>You can select one or more repository groups or summary for all of them.</li>\n<li>You can select one or more licenses type or summary for all of them.</li>\n<li>You can select one or more programming languages or summary for all of them.</li>\n<li>All staticstics are displayed for currently selected set of values from drop-downs.</li>\n<li>See <a href=\"https://github.com/cncf/devstats/blob/master/docs/repository_groups.md\" target=\"_blank\">here</a> for more informations about repository groups.</li>\n</ul>"
         },
+        "datasource": "psql",
         "definition": "select value_s from gha_vars where name = 'licenses_docs_html'",
+        "hide": 2,
+        "includeAll": false,
+        "label": null,
+        "multi": false,
+        "name": "docs",
+        "options": [],
         "query": "select value_s from gha_vars where name = 'licenses_docs_html'",
-        "regex": "",
-        "tagValuesQuery": "",
         "refresh": 1,
-        "allValue": null,
+        "regex": "",
+        "skipUrlSync": true,
         "sort": 0,
-        "useTags": false,
-        "includeAll": false
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
       },
       {
-        "regex": "",
-        "sort": 0,
-        "hide": 0,
-        "query": "select repo_group_name from trepo_groups order by 1",
-        "tagsQuery": "",
-        "includeAll": true,
-        "refresh": 1,
-        "datasource": "psql",
-        "options": [],
-        "skipUrlSync": false,
         "allValue": "null",
-        "useTags": false,
+        "current": {
+          "text": "All",
+          "value": [
+            "$__all"
+          ]
+        },
+        "datasource": "psql",
         "definition": "select repo_group_name from trepo_groups order by 1",
-        "label": "Repository groups",
-        "name": "repogroups",
-        "multi": true,
-        "current": {
-          "text": "All",
-          "value": [
-            "$__all"
-          ]
-        },
-        "type": "query",
-        "tagValuesQuery": "",
-        "tags": []
-      },
-      {
-        "multi": true,
-        "query": "select license_name from tlicenses order by 1",
-        "tags": [],
-        "sort": 0,
-        "current": {
-          "text": "All",
-          "value": [
-            "$__all"
-          ]
-        },
-        "label": "Licenses",
-        "options": [],
-        "useTags": false,
-        "tagsQuery": "",
-        "regex": "",
-        "type": "query",
         "hide": 0,
-        "name": "licenses",
-        "refresh": 1,
-        "tagValuesQuery": "",
-        "skipUrlSync": false,
-        "allValue": "null",
-        "datasource": "psql",
         "includeAll": true,
-        "definition": "select license_name from tlicenses order by 1"
+        "label": "Repository groups",
+        "multi": true,
+        "name": "repogroups",
+        "options": [],
+        "query": "select repo_group_name from trepo_groups order by 1",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
       },
       {
-        "options": [],
-        "definition": "select lang_name from tlanguages order by 1",
-        "hide": 0,
         "allValue": "null",
-        "regex": "",
-        "label": "Programming languages",
-        "multi": true,
-        "refresh": 1,
-        "tags": [],
+        "current": {
+          "text": "All",
+          "value": [
+            "$__all"
+          ]
+        },
         "datasource": "psql",
+        "definition": "select license_name from tlicenses order by 1",
+        "hide": 0,
+        "includeAll": true,
+        "label": "Licenses",
+        "multi": true,
+        "name": "licenses",
+        "options": [],
+        "query": "select license_name from tlicenses order by 1",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
         "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": "null",
         "current": {
           "tags": [],
           "text": "All",
@@ -600,24 +592,31 @@
             "$__all"
           ]
         },
-        "skipUrlSync": false,
-        "query": "select lang_name from tlanguages order by 1",
-        "sort": 0,
-        "name": "languages",
-        "useTags": false,
-        "tagValuesQuery": "",
+        "datasource": "psql",
+        "definition": "select lang_name from tlanguages order by 1",
+        "hide": 0,
         "includeAll": true,
-        "tagsQuery": ""
+        "label": "Programming languages",
+        "multi": true,
+        "name": "languages",
+        "options": [],
+        "query": "select lang_name from tlanguages order by 1",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
       }
     ]
   },
-  "refresh": false,
-  "style": "dark",
-  "tags": [
-    "cdk8s",
-    "dashboard",
-    "table"
-  ],
+  "time": {
+    "from": "now-1M",
+    "to": "now"
+  },
   "timepicker": {
     "hidden": true,
     "refresh_intervals": [
@@ -644,7 +643,8 @@
       "30d"
     ]
   },
-  "links": [],
-  "editable": true,
-  "uid": "67"
+  "timezone": "",
+  "title": "Licenses and programming languages",
+  "uid": "67",
+  "version": 3
 }

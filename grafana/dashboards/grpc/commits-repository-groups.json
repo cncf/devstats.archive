@@ -1,10 +1,517 @@
 {
-  "version": 4,
-  "title": "Commits Repository Groups",
-  "links": [],
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      },
+      {
+        "datasource": "psql",
+        "enable": true,
+        "hide": false,
+        "iconColor": "rgba(255, 96, 96, 1)",
+        "limit": 100,
+        "name": "Releases",
+        "query": "SELECT title, description from annotations WHERE $timeFilter order by time asc",
+        "rawQuery": "select extract(epoch from time) AS time, title as text, description as tags from sannotations where $__timeFilter(time)",
+        "showIn": 0,
+        "tagsColumn": "title,description",
+        "textColumn": "",
+        "titleColumn": "[[full_name]] Release",
+        "type": "alert"
+      }
+    ]
+  },
   "editable": true,
-  "timezone": "",
+  "gnetId": null,
+  "graphTooltip": 0,
+  "id": 60,
+  "iteration": 1533023703135,
+  "links": [],
+  "panels": [
+    {
+      "aliasColors": {},
+      "bars": true,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "psql",
+      "decimals": null,
+      "description": "[[full_name]] commits in given repository group",
+      "fill": 3,
+      "gridPos": {
+        "h": 21,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 2,
+      "legend": {
+        "alignAsTable": true,
+        "avg": true,
+        "current": true,
+        "max": true,
+        "min": true,
+        "rightSide": true,
+        "show": true,
+        "sort": "total",
+        "sortDesc": true,
+        "total": true,
+        "values": true
+      },
+      "lines": false,
+      "linewidth": 0,
+      "links": [],
+      "nullPointMode": "null as zero",
+      "percentage": false,
+      "pointradius": 5,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": true,
+      "steppedLine": true,
+      "targets": [
+        {
+          "alias": "",
+          "dsType": "influxdb",
+          "format": "time_series",
+          "groupBy": [],
+          "measurement": "notused",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "SELECT /^[[repogroups]]$/ FROM \"repo_group_commits_[[period]]\" WHERE $timeFilter",
+          "rawQuery": true,
+          "rawSql": "select\n  time,\n  ${repogroups:csv}\nfrom\n  scommits\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\norder by\n  time",
+          "refId": "A",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              }
+            ]
+          ],
+          "tags": []
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "[[full_name]] commits in repository groups ([[repogroups]], [[period]])",
+      "tooltip": {
+        "shared": true,
+        "sort": 2,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "decimals": null,
+          "format": "short",
+          "label": "Commits",
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": "",
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "psql",
+      "decimals": null,
+      "description": "[[full_name]] commits in given repository group",
+      "fill": 3,
+      "gridPos": {
+        "h": 21,
+        "w": 24,
+        "x": 0,
+        "y": 21
+      },
+      "id": 4,
+      "legend": {
+        "alignAsTable": true,
+        "avg": true,
+        "current": true,
+        "max": true,
+        "min": true,
+        "rightSide": true,
+        "show": true,
+        "sort": "total",
+        "sortDesc": true,
+        "total": true,
+        "values": true
+      },
+      "lines": true,
+      "linewidth": 1,
+      "links": [],
+      "nullPointMode": "null as zero",
+      "percentage": false,
+      "pointradius": 5,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "alias": "",
+          "dsType": "influxdb",
+          "format": "time_series",
+          "groupBy": [],
+          "measurement": "notused",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "SELECT /^[[repogroups]]$/ FROM \"repo_group_commits_[[period]]\" WHERE $timeFilter",
+          "rawQuery": true,
+          "rawSql": "select\n  time,\n  ${repogroups:csv}\nfrom\n  scommits\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\norder by\n  time",
+          "refId": "A",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              }
+            ]
+          ],
+          "tags": []
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "[[full_name]] commits in repository groups ([[repogroups]], [[period]])",
+      "tooltip": {
+        "shared": true,
+        "sort": 2,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "decimals": null,
+          "format": "short",
+          "label": "Commits",
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": "",
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": false
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": true,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "psql",
+      "decimals": null,
+      "description": "[[full_name]] commits in given repository group",
+      "fill": 3,
+      "gridPos": {
+        "h": 21,
+        "w": 24,
+        "x": 0,
+        "y": 42
+      },
+      "id": 3,
+      "legend": {
+        "alignAsTable": true,
+        "avg": true,
+        "current": true,
+        "max": true,
+        "min": true,
+        "rightSide": true,
+        "show": true,
+        "sort": "total",
+        "sortDesc": true,
+        "total": true,
+        "values": true
+      },
+      "lines": false,
+      "linewidth": 0,
+      "links": [],
+      "nullPointMode": "null as zero",
+      "percentage": true,
+      "pointradius": 5,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": true,
+      "steppedLine": true,
+      "targets": [
+        {
+          "alias": "",
+          "dsType": "influxdb",
+          "format": "time_series",
+          "groupBy": [],
+          "measurement": "notused",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "SELECT /^[[repogroups]]$/ FROM \"repo_group_commits_[[period]]\" WHERE $timeFilter",
+          "rawQuery": true,
+          "rawSql": "select\n  time,\n  ${repogroups:csv}\nfrom\n  scommits\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\norder by\n  time",
+          "refId": "A",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              }
+            ]
+          ],
+          "tags": []
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "[[full_name]] commits in repository groups ([[repogroups]], [[period]])",
+      "tooltip": {
+        "shared": true,
+        "sort": 2,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "decimals": null,
+          "format": "short",
+          "label": "Commits",
+          "logBase": 1,
+          "max": "100",
+          "min": "0",
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": "",
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "content": "${docs:raw}",
+      "gridPos": {
+        "h": 11,
+        "w": 24,
+        "x": 0,
+        "y": 63
+      },
+      "id": 11,
+      "links": [],
+      "mode": "html",
+      "title": "Dashboard documentation",
+      "type": "text"
+    }
+  ],
+  "refresh": false,
   "schemaVersion": 16,
+  "style": "dark",
+  "tags": [
+    "dashboard",
+    "grpc"
+  ],
+  "templating": {
+    "list": [
+      {
+        "allValue": null,
+        "current": {},
+        "datasource": "psql",
+        "hide": 2,
+        "includeAll": false,
+        "label": null,
+        "multi": false,
+        "name": "full_name",
+        "options": [],
+        "query": "select value_s from gha_vars where name = 'full_name'",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": true,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "tags": [],
+          "text": "24 Hours MA",
+          "value": "h24"
+        },
+        "hide": 0,
+        "includeAll": false,
+        "label": "Period",
+        "multi": false,
+        "name": "period",
+        "options": [
+          {
+            "selected": false,
+            "text": "Hour",
+            "value": "h"
+          },
+          {
+            "selected": true,
+            "text": "24 Hours MA",
+            "value": "h24"
+          },
+          {
+            "selected": false,
+            "text": "Day",
+            "value": "d"
+          },
+          {
+            "selected": false,
+            "text": "7 Days MA",
+            "value": "d7"
+          },
+          {
+            "selected": false,
+            "text": "Week",
+            "value": "w"
+          },
+          {
+            "selected": false,
+            "text": "Month",
+            "value": "m"
+          },
+          {
+            "selected": false,
+            "text": "Quarter",
+            "value": "q"
+          },
+          {
+            "selected": false,
+            "text": "Year",
+            "value": "y"
+          }
+        ],
+        "query": "h,d,w,m,q,y",
+        "skipUrlSync": false,
+        "type": "custom"
+      },
+      {
+        "allValue": "",
+        "current": {},
+        "datasource": "psql",
+        "hide": 0,
+        "includeAll": true,
+        "label": "Repository group",
+        "multi": true,
+        "name": "repogroups",
+        "options": [],
+        "query": "select '\"' || repo_group_name || '\"' from trepo_groups order by 1",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {},
+        "datasource": "psql",
+        "hide": 2,
+        "includeAll": false,
+        "label": null,
+        "multi": false,
+        "name": "docs",
+        "options": [],
+        "query": "select value_s from gha_vars where name = 'commits_docs_html'",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": true,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      }
+    ]
+  },
+  "time": {
+    "from": "now-30d",
+    "to": "now"
+  },
   "timepicker": {
     "refresh_intervals": [
       "5s",
@@ -30,515 +537,8 @@
       "30d"
     ]
   },
-  "id": 60,
-  "refresh": false,
-  "templating": {
-    "list": [
-      {
-        "tagValuesQuery": "",
-        "type": "query",
-        "datasource": "psql",
-        "multi": false,
-        "tagsQuery": "",
-        "name": "full_name",
-        "includeAll": false,
-        "query": "select value_s from gha_vars where name = 'full_name'",
-        "current": {},
-        "tags": [],
-        "label": null,
-        "regex": "",
-        "skipUrlSync": true,
-        "hide": 2,
-        "options": [],
-        "refresh": 1,
-        "sort": 0,
-        "allValue": null,
-        "useTags": false
-      },
-      {
-        "multi": false,
-        "options": [
-          {
-            "selected": false,
-            "text": "Hour",
-            "value": "h"
-          },
-          {
-            "text": "24 Hours MA",
-            "value": "h24",
-            "selected": true
-          },
-          {
-            "selected": false,
-            "text": "Day",
-            "value": "d"
-          },
-          {
-            "selected": false,
-            "text": "7 Days MA",
-            "value": "d7"
-          },
-          {
-            "text": "Week",
-            "value": "w",
-            "selected": false
-          },
-          {
-            "selected": false,
-            "text": "Month",
-            "value": "m"
-          },
-          {
-            "selected": false,
-            "text": "Quarter",
-            "value": "q"
-          },
-          {
-            "selected": false,
-            "text": "Year",
-            "value": "y"
-          }
-        ],
-        "allValue": null,
-        "hide": 0,
-        "type": "custom",
-        "includeAll": false,
-        "name": "period",
-        "skipUrlSync": false,
-        "current": {
-          "value": "h24",
-          "tags": [],
-          "text": "24 Hours MA"
-        },
-        "label": "Period",
-        "query": "h,d,w,m,q,y"
-      },
-      {
-        "skipUrlSync": false,
-        "query": "select '\"' || repo_group_name || '\"' from trepo_groups order by 1",
-        "regex": "",
-        "sort": 0,
-        "multi": true,
-        "datasource": "psql",
-        "tags": [],
-        "includeAll": true,
-        "name": "repogroups",
-        "options": [],
-        "useTags": false,
-        "allValue": "",
-        "hide": 0,
-        "tagsQuery": "",
-        "current": {},
-        "refresh": 1,
-        "tagValuesQuery": "",
-        "type": "query",
-        "label": "Repository group"
-      },
-      {
-        "hide": 2,
-        "tagsQuery": "",
-        "includeAll": false,
-        "current": {},
-        "allValue": null,
-        "multi": false,
-        "tagValuesQuery": "",
-        "skipUrlSync": true,
-        "name": "docs",
-        "options": [],
-        "refresh": 1,
-        "datasource": "psql",
-        "query": "select value_s from gha_vars where name = 'commits_docs_html'",
-        "regex": "",
-        "type": "query",
-        "tags": [],
-        "useTags": false,
-        "sort": 0,
-        "label": null
-      }
-    ]
-  },
-  "iteration": 1533023703135,
-  "time": {
-    "from": "now-30d",
-    "to": "now"
-  },
+  "timezone": "",
+  "title": "Commits Repository Groups",
   "uid": "2",
-  "graphTooltip": 0,
-  "annotations": {
-    "list": [
-      {
-        "enable": true,
-        "hide": true,
-        "iconColor": "rgba(0, 211, 255, 1)",
-        "name": "Annotations & Alerts",
-        "type": "dashboard",
-        "builtIn": 1,
-        "datasource": "-- Grafana --"
-      },
-      {
-        "query": "SELECT title, description from annotations WHERE $timeFilter order by time asc",
-        "showIn": 0,
-        "limit": 100,
-        "rawQuery": "select extract(epoch from time) AS time, title as text, description as tags from sannotations where $__timeFilter(time)",
-        "tagsColumn": "title,description",
-        "name": "Releases",
-        "textColumn": "",
-        "enable": true,
-        "hide": false,
-        "iconColor": "rgba(255, 96, 96, 1)",
-        "type": "alert",
-        "datasource": "psql",
-        "titleColumn": "[[full_name]] Release"
-      }
-    ]
-  },
-  "panels": [
-    {
-      "id": 2,
-      "nullPointMode": "null as zero",
-      "tooltip": {
-        "shared": true,
-        "sort": 2,
-        "value_type": "individual"
-      },
-      "aliasColors": {},
-      "fill": 3,
-      "percentage": false,
-      "renderer": "flot",
-      "steppedLine": true,
-      "dashes": false,
-      "legend": {
-        "rightSide": true,
-        "total": true,
-        "values": true,
-        "avg": true,
-        "sortDesc": true,
-        "max": true,
-        "show": true,
-        "current": true,
-        "min": true,
-        "sort": "total",
-        "alignAsTable": true
-      },
-      "linewidth": 0,
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      },
-      "timeShift": null,
-      "yaxes": [
-        {
-          "show": true,
-          "decimals": null,
-          "format": "short",
-          "label": "Commits",
-          "logBase": 1,
-          "max": null,
-          "min": "0"
-        },
-        {
-          "min": "0",
-          "show": true,
-          "format": "short",
-          "label": "",
-          "logBase": 1,
-          "max": null
-        }
-      ],
-      "lines": false,
-      "links": [],
-      "type": "graph",
-      "dashLength": 10,
-      "gridPos": {
-        "w": 24,
-        "x": 0,
-        "y": 0,
-        "h": 21
-      },
-      "datasource": "psql",
-      "title": "[[full_name]] commits in repository groups ([[repogroups]], [[period]])",
-      "seriesOverrides": [],
-      "stack": true,
-      "timeFrom": null,
-      "pointradius": 5,
-      "points": false,
-      "decimals": null,
-      "xaxis": {
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true,
-        "values": []
-      },
-      "targets": [
-        {
-          "policy": "default",
-          "refId": "A",
-          "orderByTime": "ASC",
-          "rawQuery": true,
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              }
-            ]
-          ],
-          "measurement": "notused",
-          "format": "time_series",
-          "query": "SELECT /^[[repogroups]]$/ FROM \"repo_group_commits_[[period]]\" WHERE $timeFilter",
-          "resultFormat": "time_series",
-          "alias": "",
-          "tags": [],
-          "rawSql": "select\n  time,\n  ${repogroups:csv}\nfrom\n  scommits\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\norder by\n  time",
-          "groupBy": [],
-          "dsType": "influxdb"
-        }
-      ],
-      "thresholds": [],
-      "bars": true,
-      "spaceLength": 10,
-      "description": "[[full_name]] commits in given repository group"
-    },
-    {
-      "stack": false,
-      "legend": {
-        "avg": true,
-        "rightSide": true,
-        "sort": "total",
-        "sortDesc": true,
-        "alignAsTable": true,
-        "current": true,
-        "total": true,
-        "max": true,
-        "show": true,
-        "min": true,
-        "values": true
-      },
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      },
-      "title": "[[full_name]] commits in repository groups ([[repogroups]], [[period]])",
-      "lines": true,
-      "id": 4,
-      "thresholds": [],
-      "aliasColors": {},
-      "linewidth": 1,
-      "timeFrom": null,
-      "datasource": "psql",
-      "seriesOverrides": [],
-      "decimals": null,
-      "fill": 3,
-      "tooltip": {
-        "value_type": "individual",
-        "shared": true,
-        "sort": 2
-      },
-      "spaceLength": 10,
-      "type": "graph",
-      "points": false,
-      "gridPos": {
-        "h": 21,
-        "w": 24,
-        "x": 0,
-        "y": 21
-      },
-      "targets": [
-        {
-          "format": "time_series",
-          "policy": "default",
-          "orderByTime": "ASC",
-          "rawSql": "select\n  time,\n  ${repogroups:csv}\nfrom\n  scommits\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\norder by\n  time",
-          "refId": "A",
-          "resultFormat": "time_series",
-          "measurement": "notused",
-          "select": [
-            [
-              {
-                "type": "field",
-                "params": [
-                  "value"
-                ]
-              }
-            ]
-          ],
-          "groupBy": [],
-          "query": "SELECT /^[[repogroups]]$/ FROM \"repo_group_commits_[[period]]\" WHERE $timeFilter",
-          "rawQuery": true,
-          "alias": "",
-          "dsType": "influxdb",
-          "tags": []
-        }
-      ],
-      "timeShift": null,
-      "percentage": false,
-      "steppedLine": false,
-      "description": "[[full_name]] commits in given repository group",
-      "yaxes": [
-        {
-          "label": "Commits",
-          "logBase": 1,
-          "max": null,
-          "min": "0",
-          "show": true,
-          "decimals": null,
-          "format": "short"
-        },
-        {
-          "min": "0",
-          "show": false,
-          "format": "short",
-          "label": "",
-          "logBase": 1,
-          "max": null
-        }
-      ],
-      "dashLength": 10,
-      "bars": false,
-      "nullPointMode": "null as zero",
-      "xaxis": {
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true,
-        "values": []
-      },
-      "renderer": "flot",
-      "pointradius": 5,
-      "links": [],
-      "dashes": false
-    },
-    {
-      "nullPointMode": "null as zero",
-      "dashLength": 10,
-      "tooltip": {
-        "shared": true,
-        "sort": 2,
-        "value_type": "individual"
-      },
-      "dashes": false,
-      "yaxes": [
-        {
-          "min": "0",
-          "show": true,
-          "decimals": null,
-          "format": "short",
-          "label": "Commits",
-          "logBase": 1,
-          "max": "100"
-        },
-        {
-          "label": "",
-          "logBase": 1,
-          "max": null,
-          "min": "0",
-          "show": true,
-          "format": "short"
-        }
-      ],
-      "renderer": "flot",
-      "type": "graph",
-      "targets": [
-        {
-          "orderByTime": "ASC",
-          "policy": "default",
-          "refId": "A",
-          "rawQuery": true,
-          "rawSql": "select\n  time,\n  ${repogroups:csv}\nfrom\n  scommits\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\norder by\n  time",
-          "query": "SELECT /^[[repogroups]]$/ FROM \"repo_group_commits_[[period]]\" WHERE $timeFilter",
-          "alias": "",
-          "format": "time_series",
-          "measurement": "notused",
-          "resultFormat": "time_series",
-          "dsType": "influxdb",
-          "select": [
-            [
-              {
-                "type": "field",
-                "params": [
-                  "value"
-                ]
-              }
-            ]
-          ],
-          "groupBy": [],
-          "tags": []
-        }
-      ],
-      "lines": false,
-      "aliasColors": {},
-      "steppedLine": true,
-      "timeShift": null,
-      "seriesOverrides": [],
-      "legend": {
-        "sort": "total",
-        "values": true,
-        "avg": true,
-        "rightSide": true,
-        "total": true,
-        "max": true,
-        "show": true,
-        "sortDesc": true,
-        "alignAsTable": true,
-        "min": true,
-        "current": true
-      },
-      "datasource": "psql",
-      "bars": true,
-      "decimals": null,
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      },
-      "stack": true,
-      "gridPos": {
-        "h": 21,
-        "w": 24,
-        "x": 0,
-        "y": 42
-      },
-      "thresholds": [],
-      "description": "[[full_name]] commits in given repository group",
-      "title": "[[full_name]] commits in repository groups ([[repogroups]], [[period]])",
-      "percentage": true,
-      "linewidth": 0,
-      "points": false,
-      "id": 3,
-      "xaxis": {
-        "mode": "time",
-        "name": null,
-        "show": true,
-        "values": [],
-        "buckets": null
-      },
-      "fill": 3,
-      "pointradius": 5,
-      "spaceLength": 10,
-      "timeFrom": null,
-      "links": []
-    },
-    {
-      "content": "${docs:raw}",
-      "gridPos": {
-        "x": 0,
-        "y": 63,
-        "h": 11,
-        "w": 24
-      },
-      "id": 11,
-      "links": [],
-      "mode": "html",
-      "title": "Dashboard documentation",
-      "type": "text"
-    }
-  ],
-  "tags": [
-    "dashboard",
-    "grpc"
-  ],
-  "gnetId": null,
-  "style": "dark"
+  "version": 4
 }

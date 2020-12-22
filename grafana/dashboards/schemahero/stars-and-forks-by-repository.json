@@ -1,75 +1,83 @@
 {
-  "timezone": "",
+  "annotations": {
+    "list": [
+      {
+        "$$hashKey": "object:19",
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      },
+      {
+        "$$hashKey": "object:20",
+        "datasource": "psql",
+        "enable": true,
+        "hide": false,
+        "iconColor": "rgba(255, 96, 96, 1)",
+        "limit": 100,
+        "name": "Releases",
+        "query": "SELECT title, description from annotations WHERE $timeFilter order by time asc",
+        "rawQuery": "select extract(epoch from time) AS time, title as text, description as tags from sannotations where $__timeFilter(time)",
+        "showIn": 0,
+        "tagsColumn": "title,description",
+        "textColumn": "",
+        "titleColumn": "[[full_name]] release",
+        "type": "alert"
+      }
+    ]
+  },
+  "editable": true,
+  "gnetId": null,
   "graphTooltip": 0,
   "id": 36,
-  "refresh": false,
-  "style": "dark",
-  "title": "Stars and Forks by Repository",
-  "uid": "3",
   "iteration": 1605711418106,
+  "links": [],
   "panels": [
     {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "psql",
       "decimals": 0,
+      "description": "Community stats ([[repo_name]])",
+      "fill": 0,
+      "fillGradient": 0,
       "gridPos": {
         "h": 14,
         "w": 24,
         "x": 0,
         "y": 0
       },
+      "hiddenSeries": false,
+      "id": 1,
+      "legend": {
+        "alignAsTable": false,
+        "avg": true,
+        "current": true,
+        "hideEmpty": false,
+        "hideZero": false,
+        "max": true,
+        "min": true,
+        "rightSide": false,
+        "show": true,
+        "total": false,
+        "values": true
+      },
+      "lines": true,
+      "linewidth": 1,
+      "links": [],
+      "nullPointMode": "null",
       "options": {
         "dataLinks": []
       },
-      "stack": false,
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      },
-      "datasource": "psql",
-      "linewidth": 1,
-      "points": false,
-      "steppedLine": false,
-      "timeShift": null,
-      "type": "graph",
-      "xaxis": {
-        "values": [
-          "total"
-        ],
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true
-      },
-      "dashes": false,
-      "fillGradient": 0,
-      "links": [],
+      "percentage": false,
       "pointradius": 1,
-      "tooltip": {
-        "shared": true,
-        "sort": 2,
-        "value_type": "individual"
-      },
-      "yaxes": [
-        {
-          "format": "none",
-          "label": "Stargazers",
-          "logBase": 1,
-          "max": null,
-          "min": "0",
-          "show": true
-        },
-        {
-          "min": "0",
-          "show": true,
-          "format": "none",
-          "label": "Forks, Open issues and PRs",
-          "logBase": 1,
-          "max": null
-        }
-      ],
-      "dashLength": 10,
-      "description": "Community stats ([[repo_name]])",
-      "nullPointMode": "null",
-      "spaceLength": 10,
+      "points": false,
+      "renderer": "flot",
       "seriesOverrides": [
         {
           "alias": "Stargazers",
@@ -84,86 +92,25 @@
           "yaxis": 2
         }
       ],
-      "timeFrom": null,
-      "bars": false,
-      "legend": {
-        "show": true,
-        "current": true,
-        "hideZero": false,
-        "min": true,
-        "rightSide": false,
-        "total": false,
-        "values": true,
-        "alignAsTable": false,
-        "avg": true,
-        "hideEmpty": false,
-        "max": true
-      },
-      "lines": true,
-      "percentage": false,
-      "aliasColors": {},
-      "transparent": true,
-      "fill": 0,
-      "timeRegions": [],
-      "title": "Community stats ([[repo_name]])",
-      "thresholds": [],
-      "hiddenSeries": false,
-      "id": 1,
-      "renderer": "flot",
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
       "targets": [
         {
           "alias": "",
-          "hide": false,
-          "measurement": "reviewers_d",
-          "orderByTime": "ASC",
-          "resultFormat": "time_series",
-          "tags": [],
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ],
-          "group": [],
-          "metricColumn": "none",
-          "rawQuery": true,
           "dsType": "influxdb",
           "format": "time_series",
-          "policy": "autogen",
-          "refId": "A",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              }
-            ]
-          ],
+          "group": [],
           "groupBy": [],
+          "hide": false,
+          "measurement": "reviewers_d",
+          "metricColumn": "none",
+          "orderByTime": "ASC",
+          "policy": "autogen",
           "query": "",
+          "rawQuery": true,
           "rawSql": "select\n  time,\n  value as \"Stargazers\"\nfrom\n  swatchers w\nwhere\n  $__timeFilter(time)\n  and series = 'watch[[repo]]watch'\n  and period = 'w'\norder by\n  time\n;",
-          "timeColumn": "time"
-        },
-        {
-          "policy": "autogen",
-          "rawSql": "select\n  time,\n  value as \"Forks\"\nfrom\n  swatchers w\nwhere\n  $__timeFilter(time)\n  and series = 'watch[[repo]]forks'\n  and period = 'w'\norder by\n  time\n;",
-          "dsType": "influxdb",
-          "hide": false,
-          "measurement": "reviewers_d",
-          "metricColumn": "none",
-          "query": "",
-          "tags": [],
-          "orderByTime": "ASC",
-          "rawQuery": true,
-          "refId": "B",
-          "timeColumn": "time",
-          "alias": "",
-          "format": "time_series",
-          "group": [],
-          "groupBy": [],
+          "refId": "A",
           "resultFormat": "time_series",
           "select": [
             [
@@ -175,6 +122,8 @@
               }
             ]
           ],
+          "tags": [],
+          "timeColumn": "time",
           "where": [
             {
               "name": "$__timeFilter",
@@ -184,11 +133,21 @@
           ]
         },
         {
-          "metricColumn": "none",
-          "rawQuery": true,
-          "refId": "C",
-          "resultFormat": "time_series",
+          "alias": "",
+          "dsType": "influxdb",
           "format": "time_series",
+          "group": [],
+          "groupBy": [],
+          "hide": false,
+          "measurement": "reviewers_d",
+          "metricColumn": "none",
+          "orderByTime": "ASC",
+          "policy": "autogen",
+          "query": "",
+          "rawQuery": true,
+          "rawSql": "select\n  time,\n  value as \"Forks\"\nfrom\n  swatchers w\nwhere\n  $__timeFilter(time)\n  and series = 'watch[[repo]]forks'\n  and period = 'w'\norder by\n  time\n;",
+          "refId": "B",
+          "resultFormat": "time_series",
           "select": [
             [
               {
@@ -199,72 +158,65 @@
               }
             ]
           ],
-          "timeColumn": "time",
-          "rawSql": "select\n  time,\n  value as \"Open Issues and PRs\"\nfrom\n  swatchers w\nwhere\n  $__timeFilter(time)\n  and series = 'watch[[repo]]opiss'\n  and period = 'w'\norder by\n  time\n;",
-          "orderByTime": "ASC",
-          "query": "",
           "tags": [],
+          "timeColumn": "time",
           "where": [
             {
               "name": "$__timeFilter",
               "params": [],
               "type": "macro"
             }
-          ],
-          "groupBy": [],
+          ]
+        },
+        {
+          "alias": "",
           "dsType": "influxdb",
+          "format": "time_series",
           "group": [],
+          "groupBy": [],
           "hide": false,
           "measurement": "reviewers_d",
+          "metricColumn": "none",
+          "orderByTime": "ASC",
           "policy": "autogen",
-          "alias": ""
-        }
-      ]
-    },
-    {
-      "legend": {
-        "current": true,
-        "hideEmpty": false,
-        "hideZero": false,
-        "min": true,
-        "values": true,
-        "alignAsTable": false,
-        "avg": true,
-        "max": true,
-        "rightSide": false,
-        "show": true,
-        "total": false
-      },
-      "timeShift": null,
-      "title": "Community stats combined",
-      "transparent": true,
-      "spaceLength": 10,
-      "datasource": "psql",
-      "gridPos": {
-        "h": 14,
-        "w": 24,
-        "x": 0,
-        "y": 14
-      },
-      "id": 12,
-      "nullPointMode": "null",
-      "options": {
-        "dataLinks": []
-      },
-      "seriesOverrides": [
-        {
-          "alias": "All Stargazers",
-          "yaxis": 1
-        },
-        {
-          "yaxis": 1,
-          "alias": "All Forks"
-        },
-        {
-          "alias": "All Open Issues and PRs",
-          "yaxis": 2
+          "query": "",
+          "rawQuery": true,
+          "rawSql": "select\n  time,\n  value as \"Open Issues and PRs\"\nfrom\n  swatchers w\nwhere\n  $__timeFilter(time)\n  and series = 'watch[[repo]]opiss'\n  and period = 'w'\norder by\n  time\n;",
+          "refId": "C",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              }
+            ]
+          ],
+          "tags": [],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
         }
       ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "Community stats ([[repo_name]])",
+      "tooltip": {
+        "shared": true,
+        "sort": 2,
+        "value_type": "individual"
+      },
+      "transparent": true,
+      "type": "graph",
       "xaxis": {
         "buckets": null,
         "mode": "time",
@@ -274,123 +226,105 @@
           "total"
         ]
       },
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      },
-      "dashLength": 10,
-      "dashes": false,
-      "description": "Community stats combined",
-      "links": [],
-      "points": false,
-      "stack": false,
-      "fill": 0,
-      "fillGradient": 0,
-      "percentage": false,
-      "steppedLine": false,
-      "tooltip": {
-        "shared": true,
-        "sort": 2,
-        "value_type": "individual"
-      },
       "yaxes": [
         {
-          "min": "0",
-          "show": true,
           "format": "none",
           "label": "Stargazers",
           "logBase": 1,
-          "max": null
+          "max": null,
+          "min": "0",
+          "show": true
         },
         {
+          "format": "none",
           "label": "Forks, Open issues and PRs",
           "logBase": 1,
           "max": null,
           "min": "0",
-          "show": true,
-          "format": "none"
+          "show": true
         }
       ],
-      "pointradius": 1,
-      "lines": true,
-      "timeRegions": [],
-      "type": "graph",
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
       "aliasColors": {},
       "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "psql",
+      "decimals": 0,
+      "description": "Community stats combined",
+      "fill": 0,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 14,
+        "w": 24,
+        "x": 0,
+        "y": 14
+      },
+      "hiddenSeries": false,
+      "id": 12,
+      "legend": {
+        "alignAsTable": false,
+        "avg": true,
+        "current": true,
+        "hideEmpty": false,
+        "hideZero": false,
+        "max": true,
+        "min": true,
+        "rightSide": false,
+        "show": true,
+        "total": false,
+        "values": true
+      },
+      "lines": true,
+      "linewidth": 1,
+      "links": [],
+      "nullPointMode": "null",
+      "options": {
+        "dataLinks": []
+      },
+      "percentage": false,
+      "pointradius": 1,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [
+        {
+          "alias": "All Stargazers",
+          "yaxis": 1
+        },
+        {
+          "alias": "All Forks",
+          "yaxis": 1
+        },
+        {
+          "alias": "All Open Issues and PRs",
+          "yaxis": 2
+        }
+      ],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
       "targets": [
         {
+          "alias": "",
+          "dsType": "influxdb",
+          "format": "time_series",
           "group": [],
           "groupBy": [],
+          "hide": false,
+          "measurement": "reviewers_d",
+          "metricColumn": "none",
           "orderByTime": "ASC",
           "policy": "autogen",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              }
-            ]
-          ],
-          "dsType": "influxdb",
-          "measurement": "reviewers_d",
+          "query": "",
+          "rawQuery": true,
+          "rawSql": "select\n  time,\n  value as \"All Stargazers\"\nfrom\n  swatchers w\nwhere\n  $__timeFilter(time)\n  and series = 'allwatchallwatch'\n  and period = 'w'\norder by\n  time\n;",
           "refId": "A",
           "resultFormat": "time_series",
-          "alias": "",
-          "query": "",
-          "timeColumn": "time",
-          "rawSql": "select\n  time,\n  value as \"All Stargazers\"\nfrom\n  swatchers w\nwhere\n  $__timeFilter(time)\n  and series = 'allwatchallwatch'\n  and period = 'w'\norder by\n  time\n;",
-          "tags": [],
-          "where": [
-            {
-              "type": "macro",
-              "name": "$__timeFilter",
-              "params": []
-            }
-          ],
-          "format": "time_series",
-          "hide": false,
-          "metricColumn": "none",
-          "rawQuery": true
-        },
-        {
-          "rawQuery": true,
-          "rawSql": "select\n  time,\n  value as \"All Forks\"\nfrom\n  swatchers w\nwhere\n  $__timeFilter(time)\n  and series = 'allwatchallforks'\n  and period = 'w'\norder by\n  time\n;",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              }
-            ]
-          ],
-          "alias": "",
-          "groupBy": [],
-          "metricColumn": "none",
-          "tags": [],
-          "timeColumn": "time",
-          "group": [],
-          "measurement": "reviewers_d",
-          "orderByTime": "ASC",
-          "dsType": "influxdb",
-          "refId": "B",
-          "query": "",
-          "resultFormat": "time_series",
-          "where": [
-            {
-              "params": [],
-              "type": "macro",
-              "name": "$__timeFilter"
-            }
-          ],
-          "format": "time_series",
-          "hide": false,
-          "policy": "autogen"
-        },
-        {
           "select": [
             [
               {
@@ -402,39 +336,134 @@
             ]
           ],
           "tags": [],
-          "query": "",
-          "group": [],
-          "dsType": "influxdb",
-          "groupBy": [],
-          "measurement": "reviewers_d",
+          "timeColumn": "time",
           "where": [
             {
               "name": "$__timeFilter",
               "params": [],
               "type": "macro"
             }
-          ],
+          ]
+        },
+        {
           "alias": "",
+          "dsType": "influxdb",
+          "format": "time_series",
+          "group": [],
+          "groupBy": [],
           "hide": false,
+          "measurement": "reviewers_d",
           "metricColumn": "none",
           "orderByTime": "ASC",
           "policy": "autogen",
+          "query": "",
+          "rawQuery": true,
+          "rawSql": "select\n  time,\n  value as \"All Forks\"\nfrom\n  swatchers w\nwhere\n  $__timeFilter(time)\n  and series = 'allwatchallforks'\n  and period = 'w'\norder by\n  time\n;",
+          "refId": "B",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              }
+            ]
+          ],
+          "tags": [],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        },
+        {
+          "alias": "",
+          "dsType": "influxdb",
+          "format": "time_series",
+          "group": [],
+          "groupBy": [],
+          "hide": false,
+          "measurement": "reviewers_d",
+          "metricColumn": "none",
+          "orderByTime": "ASC",
+          "policy": "autogen",
+          "query": "",
           "rawQuery": true,
           "rawSql": "select\n  time,\n  value as \"All Open Issues and PRs\"\nfrom\n  swatchers w\nwhere\n  $__timeFilter(time)\n  and series = 'allwatchallopiss'\n  and period = 'w'\norder by\n  time\n;",
           "refId": "C",
-          "format": "time_series",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              }
+            ]
+          ],
+          "tags": [],
           "timeColumn": "time",
-          "resultFormat": "time_series"
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
         }
       ],
       "thresholds": [],
       "timeFrom": null,
-      "decimals": 0,
-      "hiddenSeries": false,
-      "linewidth": 1,
-      "renderer": "flot"
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "Community stats combined",
+      "tooltip": {
+        "shared": true,
+        "sort": 2,
+        "value_type": "individual"
+      },
+      "transparent": true,
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": [
+          "total"
+        ]
+      },
+      "yaxes": [
+        {
+          "format": "none",
+          "label": "Stargazers",
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true
+        },
+        {
+          "format": "none",
+          "label": "Forks, Open issues and PRs",
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
     },
     {
+      "content": "${docs:raw}",
       "datasource": null,
       "gridPos": {
         "h": 10,
@@ -446,37 +475,43 @@
       "links": [],
       "mode": "html",
       "title": "Dashboard documentation",
-      "type": "text",
-      "content": "${docs:raw}"
+      "type": "text"
     }
+  ],
+  "refresh": false,
+  "schemaVersion": 22,
+  "style": "dark",
+  "tags": [
+    "dashboard",
+    "schemahero"
   ],
   "templating": {
     "list": [
       {
         "allValue": null,
-        "name": "full_name",
-        "skipUrlSync": true,
-        "refresh": 1,
-        "definition": "",
-        "hide": 2,
-        "index": -1,
-        "sort": 0,
-        "tags": [],
-        "tagsQuery": "",
-        "type": "query",
-        "datasource": "psql",
-        "label": null,
-        "regex": "",
-        "options": [],
-        "query": "select value_s from gha_vars where name = 'full_name'",
-        "tagValuesQuery": "",
-        "useTags": false,
         "current": {
           "text": "SchemaHero",
           "value": "SchemaHero"
         },
+        "datasource": "psql",
+        "definition": "",
+        "hide": 2,
         "includeAll": false,
-        "multi": false
+        "index": -1,
+        "label": null,
+        "multi": false,
+        "name": "full_name",
+        "options": [],
+        "query": "select value_s from gha_vars where name = 'full_name'",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": true,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
       },
       {
         "allValue": null,
@@ -485,79 +520,83 @@
           "text": "SchemaHero",
           "value": "SchemaHero"
         },
-        "options": [],
-        "tagsQuery": "",
-        "index": -1,
-        "query": "select top_repo_names_name from ttop_repo_names order by 1",
-        "refresh": 1,
-        "sort": 1,
-        "useTags": false,
-        "definition": "",
-        "multi": false,
-        "name": "repo_name",
-        "regex": "",
-        "skipUrlSync": false,
-        "tagValuesQuery": "",
-        "tags": [],
         "datasource": "psql",
+        "definition": "",
         "hide": 0,
         "includeAll": false,
+        "index": -1,
         "label": "Repository",
-        "type": "query"
-      },
-      {
-        "definition": "",
+        "multi": false,
+        "name": "repo_name",
         "options": [],
-        "sort": 0,
+        "query": "select top_repo_names_name from ttop_repo_names order by 1",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 1,
         "tagValuesQuery": "",
         "tags": [],
-        "multi": false,
-        "name": "repo",
-        "refresh": 1,
         "tagsQuery": "",
-        "useTags": false,
+        "type": "query",
+        "useTags": false
+      },
+      {
         "allValue": null,
-        "index": -1,
-        "query": "select top_repo_names_value from ttop_repo_names where top_repo_names_name = '[[repo_name]]'",
-        "regex": "",
-        "skipUrlSync": true,
         "current": {
-          "value": "schemahero",
-          "text": "schemahero"
+          "text": "schemahero",
+          "value": "schemahero"
         },
         "datasource": "psql",
-        "hide": 2,
-        "includeAll": false,
-        "label": "",
-        "type": "query"
-      },
-      {
-        "datasource": "psql",
-        "includeAll": false,
-        "tagValuesQuery": "",
-        "regex": "",
-        "skipUrlSync": true,
-        "tags": [],
-        "tagsQuery": "",
-        "useTags": false,
-        "label": null,
-        "query": "select value_s from gha_vars where name = 'community_stats_docs_html'",
-        "refresh": 1,
-        "multi": false,
-        "name": "docs",
-        "sort": 0,
-        "type": "query",
         "definition": "",
         "hide": 2,
+        "includeAll": false,
         "index": -1,
+        "label": "",
+        "multi": false,
+        "name": "repo",
+        "options": [],
+        "query": "select top_repo_names_value from ttop_repo_names where top_repo_names_name = '[[repo_name]]'",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": true,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
         "allValue": null,
         "current": {
           "text": "<h1 id=\"dashboard-header\">SchemaHero community stats dashboard</h1>\n<p>Links:</p>\n<ul>\n<li>Metric <a href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/watchers_by_alias.sql\" target=\"_blank\">SQL file</a>.</li>\n<li>TSDB <a href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/metrics.yaml\" target=\"_blank\">series definition</a>. Search for <code>watchers</code></li>\n<li>Grafana dashboard <a href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/schemahero/community-stats.json\" target=\"_blank\">JSON</a>.</li>\n</ul>\n<h1 id=\"description\">Description</h1>\n<ul>\n<li>This dashboard shows forks, stars, open issues and PRs charts for a given repository</li>\n<li>Selecting period (for example week) means that dashboard will show maximum value in those periods.</li>\n<li>See <a href=\"https://github.com/cncf/devstats/blob/master/docs/periods.md\" target=\"_blank\">here</a> for more informations about periods.</li>\n</ul>",
           "value": "<h1 id=\"dashboard-header\">SchemaHero community stats dashboard</h1>\n<p>Links:</p>\n<ul>\n<li>Metric <a href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/watchers_by_alias.sql\" target=\"_blank\">SQL file</a>.</li>\n<li>TSDB <a href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/metrics.yaml\" target=\"_blank\">series definition</a>. Search for <code>watchers</code></li>\n<li>Grafana dashboard <a href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/schemahero/community-stats.json\" target=\"_blank\">JSON</a>.</li>\n</ul>\n<h1 id=\"description\">Description</h1>\n<ul>\n<li>This dashboard shows forks, stars, open issues and PRs charts for a given repository</li>\n<li>Selecting period (for example week) means that dashboard will show maximum value in those periods.</li>\n<li>See <a href=\"https://github.com/cncf/devstats/blob/master/docs/periods.md\" target=\"_blank\">here</a> for more informations about periods.</li>\n</ul>"
         },
-        "options": []
+        "datasource": "psql",
+        "definition": "",
+        "hide": 2,
+        "includeAll": false,
+        "index": -1,
+        "label": null,
+        "multi": false,
+        "name": "docs",
+        "options": [],
+        "query": "select value_s from gha_vars where name = 'community_stats_docs_html'",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": true,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
       }
     ]
+  },
+  "time": {
+    "from": "now-1y",
+    "to": "now"
   },
   "timepicker": {
     "refresh_intervals": [
@@ -584,50 +623,11 @@
       "30d"
     ]
   },
-  "schemaVersion": 22,
-  "time": {
-    "from": "now-1y",
-    "to": "now"
-  },
-  "version": 2,
-  "tags": [
-    "dashboard",
-    "schemahero"
-  ],
+  "timezone": "",
+  "title": "Stars and Forks by Repository",
+  "uid": "3",
   "variables": {
     "list": []
   },
-  "annotations": {
-    "list": [
-      {
-        "builtIn": 1,
-        "datasource": "-- Grafana --",
-        "enable": true,
-        "hide": true,
-        "iconColor": "rgba(0, 211, 255, 1)",
-        "name": "Annotations & Alerts",
-        "type": "dashboard",
-        "$$hashKey": "object:19"
-      },
-      {
-        "$$hashKey": "object:20",
-        "iconColor": "rgba(255, 96, 96, 1)",
-        "tagsColumn": "title,description",
-        "datasource": "psql",
-        "limit": 100,
-        "query": "SELECT title, description from annotations WHERE $timeFilter order by time asc",
-        "showIn": 0,
-        "titleColumn": "[[full_name]] release",
-        "enable": true,
-        "hide": false,
-        "type": "alert",
-        "name": "Releases",
-        "rawQuery": "select extract(epoch from time) AS time, title as text, description as tags from sannotations where $__timeFilter(time)",
-        "textColumn": ""
-      }
-    ]
-  },
-  "editable": true,
-  "gnetId": null,
-  "links": []
+  "version": 2
 }

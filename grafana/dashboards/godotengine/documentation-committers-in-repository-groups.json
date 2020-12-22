@@ -1,7 +1,353 @@
 {
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      },
+      {
+        "datasource": "psql",
+        "enable": true,
+        "hide": false,
+        "iconColor": "rgba(255, 96, 96, 1)",
+        "limit": 100,
+        "name": "Releases",
+        "query": "SELECT title, description from annotations WHERE $timeFilter order by time asc",
+        "rawQuery": "select extract(epoch from time) AS time, title as text, description as tags from sannotations where $__timeFilter(time)",
+        "showIn": 0,
+        "tagsColumn": "title,description",
+        "textColumn": "",
+        "titleColumn": "[[full_name]] release",
+        "type": "alert"
+      }
+    ]
+  },
+  "editable": true,
+  "gnetId": null,
+  "graphTooltip": 0,
+  "id": 12,
   "iteration": 1571375114763,
   "links": [],
+  "panels": [
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "psql",
+      "decimals": 0,
+      "description": "",
+      "fill": 1,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 22,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 1,
+      "legend": {
+        "alignAsTable": true,
+        "avg": true,
+        "current": true,
+        "hideEmpty": false,
+        "hideZero": false,
+        "max": true,
+        "min": true,
+        "rightSide": false,
+        "show": true,
+        "total": false,
+        "values": true
+      },
+      "lines": true,
+      "linewidth": 1,
+      "links": [],
+      "nullPointMode": "null",
+      "options": {
+        "dataLinks": []
+      },
+      "percentage": false,
+      "pointradius": 1,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [
+        {
+          "alias": "Number of documentation committers",
+          "yaxis": 2
+        }
+      ],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "alias": "Number of companies commiting to documentation",
+          "dsType": "influxdb",
+          "groupBy": [],
+          "hide": false,
+          "measurement": "reviewers_d",
+          "orderByTime": "ASC",
+          "policy": "autogen",
+          "query": "",
+          "rawQuery": true,
+          "rawSql": "select\n  time,\n  value as \"Number of companies commiting to documentation\"\nfrom\n  sdoc_committers\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'docstats[[repogroup]]comps'\norder by\n  time",
+          "refId": "A",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "Number of documentation committers",
+          "dsType": "influxdb",
+          "groupBy": [],
+          "hide": false,
+          "measurement": "reviewers_d",
+          "orderByTime": "ASC",
+          "policy": "autogen",
+          "query": "",
+          "rawQuery": true,
+          "rawSql": "select\n  time,\n  value as \"Number of documentation committers\"\nfrom\n  sdoc_committers\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'docstats[[repogroup]]devs'\norder by\n  time",
+          "refId": "B",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              }
+            ]
+          ],
+          "tags": []
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "Documentation committers: companies and developers ([[repogroup_name]], [[period]])",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "transparent": true,
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": [
+          "total"
+        ]
+      },
+      "yaxes": [
+        {
+          "format": "none",
+          "label": "Companies",
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true
+        },
+        {
+          "format": "none",
+          "label": "Developers",
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "content": "${docs:raw}",
+      "datasource": null,
+      "gridPos": {
+        "h": 12,
+        "w": 24,
+        "x": 0,
+        "y": 22
+      },
+      "id": 11,
+      "links": [],
+      "mode": "html",
+      "options": {},
+      "title": "Dashboard documentation",
+      "type": "text"
+    }
+  ],
   "refresh": false,
+  "schemaVersion": 20,
+  "style": "dark",
+  "tags": [
+    "companies",
+    "dashboard",
+    "godotengine"
+  ],
+  "templating": {
+    "list": [
+      {
+        "allValue": null,
+        "current": {
+          "tags": [],
+          "text": "7 Days MA",
+          "value": "d7"
+        },
+        "hide": 0,
+        "includeAll": false,
+        "label": "Period",
+        "multi": false,
+        "name": "period",
+        "options": [
+          {
+            "selected": false,
+            "text": "7 Days MA",
+            "value": "d7"
+          },
+          {
+            "selected": false,
+            "text": "Week",
+            "value": "w"
+          },
+          {
+            "selected": false,
+            "text": "Month",
+            "value": "m"
+          },
+          {
+            "selected": false,
+            "text": "Quarter",
+            "value": "q"
+          }
+        ],
+        "query": "d7,w,m,q",
+        "skipUrlSync": false,
+        "type": "custom"
+      },
+      {
+        "allValue": null,
+        "current": {
+          "text": "CII",
+          "value": "CII"
+        },
+        "datasource": "psql",
+        "definition": "",
+        "hide": 2,
+        "includeAll": false,
+        "label": null,
+        "multi": false,
+        "name": "full_name",
+        "options": [],
+        "query": "select value_s from gha_vars where name = 'full_name'",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": true,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "tags": [],
+          "text": "All",
+          "value": "All"
+        },
+        "datasource": "psql",
+        "definition": "",
+        "hide": 0,
+        "includeAll": false,
+        "label": "Repository group",
+        "multi": false,
+        "name": "repogroup_name",
+        "options": [],
+        "query": "select all_repo_group_name from tall_repo_groups order by 1",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "text": "all",
+          "value": "all"
+        },
+        "datasource": "psql",
+        "definition": "",
+        "hide": 2,
+        "includeAll": false,
+        "label": "",
+        "multi": false,
+        "name": "repogroup",
+        "options": [],
+        "query": "select all_repo_group_value from tall_repo_groups where all_repo_group_name = '[[repogroup_name]]'",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": true,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "text": "<h1 id=\"dashboard-header\">CII documentation committers dashboard</h1>\n<p>Links:</p>\n<ul>\n<li>Metric <a href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/doc_committers.sql\" target=\"_blank\">SQL file</a>.</li>\n<li>TSDB <a href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/metrics.yaml\" target=\"_blank\">series definition</a>. Search for <code>doc_committers</code></li>\n<li>Grafana dashboard <a href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/cii/documentation-committers-in-repository-groups.json\" target=\"_blank\">JSON</a>.</li>\n</ul>\n<h1 id=\"description\">Description</h1>\n<ul>\n<li>This dashboard shows how many companies and developers are commiting documentation in a given repository group.</li>\n<li>Documentation commiter is someone who commited anything changing <code>.md</code> file(s).</li>\n<li>You can select single repository group or summary for all of them.</li>\n<li>Selecting period (for example week) means that dashboard will show data in those periods.</li>\n<li>See <a href=\"https://github.com/cncf/devstats/blob/master/docs/periods.md\" target=\"_blank\">here</a> for more informations about periods.</li>\n<li>See <a href=\"https://github.com/cncf/devstats/blob/master/docs/repository_groups.md\" target=\"_blank\">here</a> for more informations about repository groups.</li>\n<li>We are skipping bots activity, see <a href=\"https://github.com/cncf/devstats/blob/master/docs/excluding_bots.md\" target=\"_blank\">excluding bots</a> for details.</li>\n<li>We are determining user's company affiliation from <a href=\"https://github.com/cncf/devstats/blob/master/github_users.json\" target=\"_blank\">this file</a>, which is imported from <code>cncf/gitdm</code>.</li>\n</ul>",
+          "value": "<h1 id=\"dashboard-header\">CII documentation committers dashboard</h1>\n<p>Links:</p>\n<ul>\n<li>Metric <a href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/doc_committers.sql\" target=\"_blank\">SQL file</a>.</li>\n<li>TSDB <a href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/metrics.yaml\" target=\"_blank\">series definition</a>. Search for <code>doc_committers</code></li>\n<li>Grafana dashboard <a href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/cii/documentation-committers-in-repository-groups.json\" target=\"_blank\">JSON</a>.</li>\n</ul>\n<h1 id=\"description\">Description</h1>\n<ul>\n<li>This dashboard shows how many companies and developers are commiting documentation in a given repository group.</li>\n<li>Documentation commiter is someone who commited anything changing <code>.md</code> file(s).</li>\n<li>You can select single repository group or summary for all of them.</li>\n<li>Selecting period (for example week) means that dashboard will show data in those periods.</li>\n<li>See <a href=\"https://github.com/cncf/devstats/blob/master/docs/periods.md\" target=\"_blank\">here</a> for more informations about periods.</li>\n<li>See <a href=\"https://github.com/cncf/devstats/blob/master/docs/repository_groups.md\" target=\"_blank\">here</a> for more informations about repository groups.</li>\n<li>We are skipping bots activity, see <a href=\"https://github.com/cncf/devstats/blob/master/docs/excluding_bots.md\" target=\"_blank\">excluding bots</a> for details.</li>\n<li>We are determining user's company affiliation from <a href=\"https://github.com/cncf/devstats/blob/master/github_users.json\" target=\"_blank\">this file</a>, which is imported from <code>cncf/gitdm</code>.</li>\n</ul>"
+        },
+        "datasource": "psql",
+        "definition": "",
+        "hide": 2,
+        "includeAll": false,
+        "label": null,
+        "multi": false,
+        "name": "docs",
+        "options": [],
+        "query": "select value_s from gha_vars where name = 'documentation_committers_docs_html'",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": true,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      }
+    ]
+  },
   "time": {
     "from": "now-3y",
     "to": "now"
@@ -31,354 +377,8 @@
       "30d"
     ]
   },
-  "schemaVersion": 20,
-  "graphTooltip": 0,
-  "version": 2,
-  "annotations": {
-    "list": [
-      {
-        "hide": true,
-        "iconColor": "rgba(0, 211, 255, 1)",
-        "name": "Annotations & Alerts",
-        "type": "dashboard",
-        "builtIn": 1,
-        "datasource": "-- Grafana --",
-        "enable": true
-      },
-      {
-        "limit": 100,
-        "name": "Releases",
-        "tagsColumn": "title,description",
-        "enable": true,
-        "titleColumn": "[[full_name]] release",
-        "hide": false,
-        "textColumn": "",
-        "type": "alert",
-        "datasource": "psql",
-        "rawQuery": "select extract(epoch from time) AS time, title as text, description as tags from sannotations where $__timeFilter(time)",
-        "iconColor": "rgba(255, 96, 96, 1)",
-        "query": "SELECT title, description from annotations WHERE $timeFilter order by time asc",
-        "showIn": 0
-      }
-    ]
-  },
-  "uid": "61",
-  "editable": true,
-  "panels": [
-    {
-      "decimals": 0,
-      "pointradius": 1,
-      "dashLength": 10,
-      "lines": true,
-      "timeFrom": null,
-      "options": {
-        "dataLinks": []
-      },
-      "yaxis": {
-        "alignLevel": null,
-        "align": false
-      },
-      "timeRegions": [],
-      "yaxes": [
-        {
-          "logBase": 1,
-          "max": null,
-          "min": "0",
-          "show": true,
-          "format": "none",
-          "label": "Companies"
-        },
-        {
-          "logBase": 1,
-          "max": null,
-          "min": "0",
-          "show": true,
-          "format": "none",
-          "label": "Developers"
-        }
-      ],
-      "description": "",
-      "seriesOverrides": [
-        {
-          "alias": "Number of documentation committers",
-          "yaxis": 2
-        }
-      ],
-      "renderer": "flot",
-      "id": 1,
-      "gridPos": {
-        "x": 0,
-        "y": 0,
-        "h": 22,
-        "w": 24
-      },
-      "fillGradient": 0,
-      "legend": {
-        "max": true,
-        "hideZero": false,
-        "min": true,
-        "rightSide": false,
-        "avg": true,
-        "hideEmpty": false,
-        "alignAsTable": true,
-        "current": true,
-        "total": false,
-        "show": true,
-        "values": true
-      },
-      "spaceLength": 10,
-      "transparent": true,
-      "datasource": "psql",
-      "aliasColors": {},
-      "nullPointMode": "null",
-      "fill": 1,
-      "timeShift": null,
-      "tooltip": {
-        "sort": 0,
-        "value_type": "individual",
-        "shared": true
-      },
-      "steppedLine": false,
-      "xaxis": {
-        "mode": "time",
-        "name": null,
-        "show": true,
-        "values": [
-          "total"
-        ],
-        "buckets": null
-      },
-      "bars": false,
-      "percentage": false,
-      "targets": [
-        {
-          "query": "",
-          "rawQuery": true,
-          "resultFormat": "time_series",
-          "orderByTime": "ASC",
-          "tags": [],
-          "refId": "A",
-          "measurement": "reviewers_d",
-          "policy": "autogen",
-          "rawSql": "select\n  time,\n  value as \"Number of companies commiting to documentation\"\nfrom\n  sdoc_committers\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'docstats[[repogroup]]comps'\norder by\n  time",
-          "alias": "Number of companies commiting to documentation",
-          "hide": false,
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              }
-            ]
-          ],
-          "groupBy": [],
-          "dsType": "influxdb"
-        },
-        {
-          "rawSql": "select\n  time,\n  value as \"Number of documentation committers\"\nfrom\n  sdoc_committers\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'docstats[[repogroup]]devs'\norder by\n  time",
-          "tags": [],
-          "query": "",
-          "refId": "B",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              }
-            ]
-          ],
-          "hide": false,
-          "orderByTime": "ASC",
-          "alias": "Number of documentation committers",
-          "policy": "autogen",
-          "measurement": "reviewers_d",
-          "rawQuery": true,
-          "dsType": "influxdb",
-          "groupBy": []
-        }
-      ],
-      "points": false,
-      "stack": false,
-      "linewidth": 1,
-      "links": [],
-      "thresholds": [],
-      "title": "Documentation committers: companies and developers ([[repogroup_name]], [[period]])",
-      "dashes": false,
-      "type": "graph"
-    },
-    {
-      "id": 11,
-      "links": [],
-      "type": "text",
-      "datasource": null,
-      "title": "Dashboard documentation",
-      "content": "${docs:raw}",
-      "mode": "html",
-      "gridPos": {
-        "w": 24,
-        "x": 0,
-        "y": 22,
-        "h": 12
-      },
-      "options": {}
-    }
-  ],
-  "gnetId": null,
-  "style": "dark",
-  "title": "Documentation Committers in Repository Groups",
-  "templating": {
-    "list": [
-      {
-        "options": [
-          {
-            "selected": false,
-            "text": "7 Days MA",
-            "value": "d7"
-          },
-          {
-            "selected": false,
-            "text": "Week",
-            "value": "w"
-          },
-          {
-            "selected": false,
-            "text": "Month",
-            "value": "m"
-          },
-          {
-            "text": "Quarter",
-            "value": "q",
-            "selected": false
-          }
-        ],
-        "query": "d7,w,m,q",
-        "includeAll": false,
-        "label": "Period",
-        "type": "custom",
-        "multi": false,
-        "hide": 0,
-        "name": "period",
-        "skipUrlSync": false,
-        "allValue": null,
-        "current": {
-          "tags": [],
-          "text": "7 Days MA",
-          "value": "d7"
-        }
-      },
-      {
-        "includeAll": false,
-        "multi": false,
-        "name": "full_name",
-        "tagValuesQuery": "",
-        "label": null,
-        "options": [],
-        "hide": 2,
-        "skipUrlSync": true,
-        "tags": [],
-        "useTags": false,
-        "sort": 0,
-        "regex": "",
-        "refresh": 1,
-        "tagsQuery": "",
-        "current": {
-          "text": "CII",
-          "value": "CII"
-        },
-        "definition": "",
-        "query": "select value_s from gha_vars where name = 'full_name'",
-        "allValue": null,
-        "type": "query",
-        "datasource": "psql"
-      },
-      {
-        "current": {
-          "tags": [],
-          "text": "All",
-          "value": "All"
-        },
-        "query": "select all_repo_group_name from tall_repo_groups order by 1",
-        "hide": 0,
-        "type": "query",
-        "tagValuesQuery": "",
-        "definition": "",
-        "includeAll": false,
-        "options": [],
-        "multi": false,
-        "refresh": 1,
-        "sort": 0,
-        "name": "repogroup_name",
-        "label": "Repository group",
-        "tagsQuery": "",
-        "useTags": false,
-        "skipUrlSync": false,
-        "allValue": null,
-        "regex": "",
-        "datasource": "psql",
-        "tags": []
-      },
-      {
-        "tagValuesQuery": "",
-        "sort": 0,
-        "includeAll": false,
-        "current": {
-          "value": "all",
-          "text": "all"
-        },
-        "refresh": 1,
-        "datasource": "psql",
-        "definition": "",
-        "skipUrlSync": true,
-        "type": "query",
-        "useTags": false,
-        "options": [],
-        "tagsQuery": "",
-        "regex": "",
-        "label": "",
-        "query": "select all_repo_group_value from tall_repo_groups where all_repo_group_name = '[[repogroup_name]]'",
-        "multi": false,
-        "name": "repogroup",
-        "tags": [],
-        "allValue": null,
-        "hide": 2
-      },
-      {
-        "regex": "",
-        "datasource": "psql",
-        "label": null,
-        "definition": "",
-        "query": "select value_s from gha_vars where name = 'documentation_committers_docs_html'",
-        "hide": 2,
-        "name": "docs",
-        "refresh": 1,
-        "useTags": false,
-        "current": {
-          "text": "<h1 id=\"dashboard-header\">CII documentation committers dashboard</h1>\n<p>Links:</p>\n<ul>\n<li>Metric <a href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/doc_committers.sql\" target=\"_blank\">SQL file</a>.</li>\n<li>TSDB <a href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/metrics.yaml\" target=\"_blank\">series definition</a>. Search for <code>doc_committers</code></li>\n<li>Grafana dashboard <a href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/cii/documentation-committers-in-repository-groups.json\" target=\"_blank\">JSON</a>.</li>\n</ul>\n<h1 id=\"description\">Description</h1>\n<ul>\n<li>This dashboard shows how many companies and developers are commiting documentation in a given repository group.</li>\n<li>Documentation commiter is someone who commited anything changing <code>.md</code> file(s).</li>\n<li>You can select single repository group or summary for all of them.</li>\n<li>Selecting period (for example week) means that dashboard will show data in those periods.</li>\n<li>See <a href=\"https://github.com/cncf/devstats/blob/master/docs/periods.md\" target=\"_blank\">here</a> for more informations about periods.</li>\n<li>See <a href=\"https://github.com/cncf/devstats/blob/master/docs/repository_groups.md\" target=\"_blank\">here</a> for more informations about repository groups.</li>\n<li>We are skipping bots activity, see <a href=\"https://github.com/cncf/devstats/blob/master/docs/excluding_bots.md\" target=\"_blank\">excluding bots</a> for details.</li>\n<li>We are determining user's company affiliation from <a href=\"https://github.com/cncf/devstats/blob/master/github_users.json\" target=\"_blank\">this file</a>, which is imported from <code>cncf/gitdm</code>.</li>\n</ul>",
-          "value": "<h1 id=\"dashboard-header\">CII documentation committers dashboard</h1>\n<p>Links:</p>\n<ul>\n<li>Metric <a href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/doc_committers.sql\" target=\"_blank\">SQL file</a>.</li>\n<li>TSDB <a href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/metrics.yaml\" target=\"_blank\">series definition</a>. Search for <code>doc_committers</code></li>\n<li>Grafana dashboard <a href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/cii/documentation-committers-in-repository-groups.json\" target=\"_blank\">JSON</a>.</li>\n</ul>\n<h1 id=\"description\">Description</h1>\n<ul>\n<li>This dashboard shows how many companies and developers are commiting documentation in a given repository group.</li>\n<li>Documentation commiter is someone who commited anything changing <code>.md</code> file(s).</li>\n<li>You can select single repository group or summary for all of them.</li>\n<li>Selecting period (for example week) means that dashboard will show data in those periods.</li>\n<li>See <a href=\"https://github.com/cncf/devstats/blob/master/docs/periods.md\" target=\"_blank\">here</a> for more informations about periods.</li>\n<li>See <a href=\"https://github.com/cncf/devstats/blob/master/docs/repository_groups.md\" target=\"_blank\">here</a> for more informations about repository groups.</li>\n<li>We are skipping bots activity, see <a href=\"https://github.com/cncf/devstats/blob/master/docs/excluding_bots.md\" target=\"_blank\">excluding bots</a> for details.</li>\n<li>We are determining user's company affiliation from <a href=\"https://github.com/cncf/devstats/blob/master/github_users.json\" target=\"_blank\">this file</a>, which is imported from <code>cncf/gitdm</code>.</li>\n</ul>"
-        },
-        "sort": 0,
-        "tags": [],
-        "options": [],
-        "tagValuesQuery": "",
-        "skipUrlSync": true,
-        "type": "query",
-        "allValue": null,
-        "tagsQuery": "",
-        "includeAll": false,
-        "multi": false
-      }
-    ]
-  },
-  "tags": [
-    "companies",
-    "dashboard",
-    "godotengine"
-  ],
   "timezone": "",
-  "id": 12
+  "title": "Documentation Committers in Repository Groups",
+  "uid": "61",
+  "version": 2
 }

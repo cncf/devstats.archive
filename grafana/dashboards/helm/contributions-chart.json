@@ -1,42 +1,247 @@
 {
+  "annotations": {
+    "list": [
+      {
+        "$$hashKey": "object:37",
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      },
+      {
+        "$$hashKey": "object:142",
+        "datasource": "psql",
+        "enable": true,
+        "hide": false,
+        "iconColor": "rgba(255, 96, 96, 1)",
+        "limit": 100,
+        "name": "Releases",
+        "rawQuery": "select extract(epoch from time) AS time, title as text, description as tags from sannotations where $__timeFilter(time)",
+        "showIn": 0,
+        "tags": [],
+        "type": "tags"
+      }
+    ]
+  },
   "description": "",
-  "uid": "74",
+  "editable": true,
+  "gnetId": null,
+  "graphTooltip": 0,
   "id": 8,
+  "iteration": 1599300680243,
+  "links": [],
+  "panels": [
+    {
+      "aliasColors": {},
+      "bars": true,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": null,
+      "description": "Contributions mean the current metric count. Contributors mean the current metric's authors count. When the aggregation period \"7 Days MA\" is used - the weekly number of authors is displayed and the average daily number of contributions (which is the total number of contributions in a moving average week divided by 7).",
+      "fill": 0,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 21,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "hiddenSeries": false,
+      "id": 5,
+      "interval": "",
+      "legend": {
+        "alignAsTable": true,
+        "avg": true,
+        "current": true,
+        "max": true,
+        "min": true,
+        "rightSide": false,
+        "show": true,
+        "total": false,
+        "values": true
+      },
+      "lines": false,
+      "linewidth": 1,
+      "nullPointMode": "null as zero",
+      "options": {
+        "dataLinks": []
+      },
+      "percentage": false,
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [
+        {
+          "$$hashKey": "object:2209",
+          "alias": "Contributors",
+          "bars": false,
+          "color": "#C4162A",
+          "lines": true,
+          "linewidth": 2,
+          "yaxis": 2
+        },
+        {
+          "$$hashKey": "object:191",
+          "alias": "Contributions",
+          "color": "#1F60C4"
+        }
+      ],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "select\n  time,\n  value as \"Contributions\"\nfrom\n  scs\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'cs[[metric]][[repogroup]][[country]][[company]]evs'\norder by\n  time",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "lang_perc"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "gha_repos_langs",
+          "timeColumn": "dt",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        },
+        {
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "select\n  time,\n  value as \"Contributors\"\nfrom\n  scs\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'cs[[metric]][[repogroup]][[country]][[company]]acts'\norder by\n  time",
+          "refId": "B",
+          "select": [
+            [
+              {
+                "params": [
+                  "lang_perc"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "gha_repos_langs",
+          "timeColumn": "dt",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "[[metric]] chart: aggregation: [[period]], repository group: [[repogroup_name]], country: [[country_name]], company: [[company_name]]",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "$$hashKey": "object:2039",
+          "decimals": 2,
+          "format": "none",
+          "label": "Contributions",
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true
+        },
+        {
+          "$$hashKey": "object:2040",
+          "decimals": 0,
+          "format": "none",
+          "label": "Contributors",
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "content": "${docs:raw}",
+      "datasource": null,
+      "gridPos": {
+        "h": 18,
+        "w": 24,
+        "x": 0,
+        "y": 21
+      },
+      "id": 3,
+      "links": [],
+      "mode": "html",
+      "title": "Dashboard documentation",
+      "type": "text"
+    }
+  ],
+  "refresh": false,
+  "schemaVersion": 22,
+  "style": "dark",
   "tags": [
     "dashboard",
     "helm",
     "companies",
     "repogroups"
   ],
-  "style": "dark",
-  "refresh": false,
-  "graphTooltip": 0,
-  "variables": {
-    "list": []
-  },
-  "title": "Contributions chart",
-  "links": [],
   "templating": {
     "list": [
       {
-        "query": "d7,w,m",
+        "allValue": null,
         "current": {
+          "$$hashKey": "object:1598",
+          "selected": false,
           "tags": [],
           "text": "Month",
-          "value": "m",
-          "$$hashKey": "object:1598",
-          "selected": false
+          "value": "m"
         },
         "hide": 0,
         "includeAll": false,
         "label": "Period",
+        "multi": false,
         "name": "period",
         "options": [
           {
-            "value": "d7",
             "$$hashKey": "object:1598",
             "selected": true,
-            "text": "7 Days MA"
+            "text": "7 Days MA",
+            "value": "d7"
           },
           {
             "$$hashKey": "object:1600",
@@ -51,12 +256,23 @@
             "value": "m"
           }
         ],
-        "type": "custom",
-        "allValue": null,
-        "multi": false,
-        "skipUrlSync": false
+        "query": "d7,w,m",
+        "skipUrlSync": false,
+        "type": "custom"
       },
       {
+        "allValue": null,
+        "current": {
+          "$$hashKey": "object:1430",
+          "selected": true,
+          "tags": [],
+          "text": "Contributions",
+          "value": "contributions"
+        },
+        "hide": 0,
+        "includeAll": false,
+        "label": "Metric",
+        "multi": false,
         "name": "metric",
         "options": [
           {
@@ -108,10 +324,10 @@
             "value": "issues"
           },
           {
+            "$$hashKey": "object:1433",
             "selected": false,
             "text": "PRs",
-            "value": "prs",
-            "$$hashKey": "object:1433"
+            "value": "prs"
           },
           {
             "$$hashKey": "object:1434",
@@ -120,239 +336,230 @@
             "value": "mergedprs"
           },
           {
-            "value": "reviewcomments",
             "$$hashKey": "object:1435",
             "selected": false,
-            "text": "Review comments"
+            "text": "Review comments",
+            "value": "reviewcomments"
           }
         ],
-        "multi": false,
-        "skipUrlSync": false,
-        "current": {
-          "text": "Contributions",
-          "value": "contributions",
-          "$$hashKey": "object:1430",
-          "selected": true,
-          "tags": []
-        },
-        "label": "Metric",
-        "allValue": null,
-        "hide": 0,
         "query": "comments,commitcomments,commits,events,pushes,contributions,issuecomments,issues,prs,mergedprs,reviewcomments",
-        "includeAll": false,
+        "skipUrlSync": false,
         "type": "custom"
       },
       {
-        "multi": false,
+        "allValue": null,
         "current": {
           "text": "All CNCF",
           "value": "All CNCF"
         },
-        "name": "full_name",
-        "tags": [],
-        "refresh": 1,
+        "datasource": "psql",
+        "definition": "",
         "hide": 2,
-        "type": "query",
+        "includeAll": false,
+        "index": -1,
         "label": null,
-        "regex": "",
-        "index": -1,
-        "allValue": null,
-        "datasource": "psql",
-        "tagsQuery": "",
-        "sort": 0,
-        "useTags": false,
-        "includeAll": false,
+        "multi": false,
+        "name": "full_name",
+        "options": [],
         "query": "select value_s from gha_vars where name = 'full_name'",
+        "refresh": 1,
+        "regex": "",
         "skipUrlSync": true,
-        "definition": "",
+        "sort": 0,
         "tagValuesQuery": "",
-        "options": []
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
       },
       {
+        "allValue": null,
+        "current": {
+          "text": "All",
+          "value": "All"
+        },
+        "datasource": "psql",
+        "definition": "",
         "hide": 0,
-        "tags": [],
-        "regex": "",
+        "includeAll": false,
+        "index": -1,
         "label": "Repository group",
-        "tagValuesQuery": "",
-        "type": "query",
-        "datasource": "psql",
+        "multi": false,
+        "name": "repogroup_name",
         "options": [],
-        "current": {
-          "text": "All",
-          "value": "All"
-        },
-        "skipUrlSync": false,
-        "definition": "",
-        "refresh": 1,
-        "allValue": null,
-        "tagsQuery": "",
-        "includeAll": false,
-        "sort": 0,
         "query": "select all_repo_group_name from tall_repo_groups order by 1",
-        "useTags": false,
-        "index": -1,
-        "multi": false,
-        "name": "repogroup_name"
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
       },
       {
-        "current": {
-          "value": "all",
-          "text": "all"
-        },
-        "options": [],
-        "useTags": false,
-        "includeAll": false,
-        "name": "repogroup",
-        "definition": "",
-        "tags": [],
-        "label": "",
-        "refresh": 1,
-        "type": "query",
-        "hide": 2,
-        "tagValuesQuery": "",
-        "index": -1,
-        "sort": 0,
-        "tagsQuery": "",
         "allValue": null,
-        "query": "select all_repo_group_value from tall_repo_groups where all_repo_group_name = '[[repogroup_name]]'",
+        "current": {
+          "text": "all",
+          "value": "all"
+        },
         "datasource": "psql",
+        "definition": "",
+        "hide": 2,
+        "includeAll": false,
+        "index": -1,
+        "label": "",
+        "multi": false,
+        "name": "repogroup",
+        "options": [],
+        "query": "select all_repo_group_value from tall_repo_groups where all_repo_group_name = '[[repogroup_name]]'",
+        "refresh": 1,
         "regex": "",
         "skipUrlSync": true,
-        "multi": false
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
       },
       {
-        "type": "query",
-        "index": -1,
-        "hide": 0,
-        "useTags": false,
-        "query": "select sub.name from (select 'All' as name, 0 as ord union select country_name as name, 1 as ord from tcountries) sub order by sub.ord, sub.name",
-        "name": "country_name",
-        "refresh": 1,
-        "label": "Country",
-        "regex": "",
-        "includeAll": false,
-        "skipUrlSync": false,
         "allValue": "all",
-        "tags": [],
-        "definition": "select sub.name from (select 'All' as name, 0 as ord union select country_name as name, 1 as ord from tcountries) sub order by sub.ord, sub.name",
-        "multi": false,
-        "sort": 0,
-        "tagsQuery": "",
-        "datasource": "psql",
-        "options": [],
         "current": {
           "text": "All",
           "value": "All"
         },
-        "tagValuesQuery": ""
-      },
-      {
-        "tagsQuery": "",
-        "type": "query",
-        "name": "country",
-        "useTags": false,
+        "datasource": "psql",
+        "definition": "select sub.name from (select 'All' as name, 0 as ord union select country_name as name, 1 as ord from tcountries) sub order by sub.ord, sub.name",
+        "hide": 0,
+        "includeAll": false,
+        "index": -1,
+        "label": "Country",
+        "multi": false,
+        "name": "country_name",
+        "options": [],
+        "query": "select sub.name from (select 'All' as name, 0 as ord union select country_name as name, 1 as ord from tcountries) sub order by sub.ord, sub.name",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
         "tagValuesQuery": "",
         "tags": [],
-        "label": "",
-        "hide": 2,
-        "includeAll": false,
-        "regex": "",
-        "skipUrlSync": true,
-        "options": [],
-        "query": "select sub.value from (select country_value as value, 0 as ord from tcountries where country_name = '[[country_name]]' union select 'all', 1 as ord) sub order by sub.ord limit 1",
-        "index": -1,
-        "refresh": 1,
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
         "current": {
           "text": "all",
           "value": "all"
         },
         "datasource": "psql",
         "definition": "select sub.value from (select country_value as value, 0 as ord from tcountries where country_name = '[[country_name]]' union select 'all', 1 as ord) sub order by sub.ord limit 1",
-        "allValue": null,
+        "hide": 2,
+        "includeAll": false,
+        "index": -1,
+        "label": "",
         "multi": false,
-        "sort": 0
-      },
-      {
+        "name": "country",
+        "options": [],
+        "query": "select sub.value from (select country_value as value, 0 as ord from tcountries where country_name = '[[country_name]]' union select 'all', 1 as ord) sub order by sub.ord limit 1",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": true,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
         "tagsQuery": "",
         "type": "query",
-        "includeAll": false,
-        "options": [],
-        "skipUrlSync": false,
+        "useTags": false
+      },
+      {
         "allValue": "",
-        "definition": "select sub.name from (select 'All' as name, '1900-01-01' as time union select companies_name, time from tcompanies) sub order by sub.time",
-        "label": "Company",
-        "name": "company_name",
-        "index": -1,
-        "regex": "",
-        "sort": 0,
-        "useTags": false,
-        "datasource": "psql",
-        "tagValuesQuery": "",
-        "query": "select sub.name from (select 'All' as name, '1900-01-01' as time union select companies_name, time from tcompanies) sub order by sub.time",
-        "refresh": 1,
         "current": {
           "text": "All",
           "value": "All"
         },
+        "datasource": "psql",
+        "definition": "select sub.name from (select 'All' as name, '1900-01-01' as time union select companies_name, time from tcompanies) sub order by sub.time",
+        "hide": 0,
+        "includeAll": false,
+        "index": -1,
+        "label": "Company",
         "multi": false,
+        "name": "company_name",
+        "options": [],
+        "query": "select sub.name from (select 'All' as name, '1900-01-01' as time union select companies_name, time from tcompanies) sub order by sub.time",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
         "tags": [],
-        "hide": 0
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
       },
       {
-        "regex": "",
-        "hide": 2,
-        "name": "company",
-        "sort": 0,
-        "datasource": "psql",
-        "refresh": 1,
         "allValue": "",
-        "type": "query",
-        "query": "select sub.value from (select companies_value as value, 0 as ord from tcompanies where companies_name = '[[company_name]]' union select 'all', 1 as ord) sub order by sub.ord limit 1",
-        "options": [],
-        "tagsQuery": "",
-        "skipUrlSync": false,
         "current": {
           "text": "all",
           "value": "all"
         },
-        "multi": false,
-        "tagValuesQuery": "",
-        "tags": [],
+        "datasource": "psql",
         "definition": "select sub.value from (select companies_value as value, 0 as ord from tcompanies where companies_name = '[[company_name]]' union select 'all', 1 as ord) sub order by sub.ord limit 1",
+        "hide": 2,
         "includeAll": false,
         "index": -1,
         "label": "",
+        "multi": false,
+        "name": "company",
+        "options": [],
+        "query": "select sub.value from (select companies_value as value, 0 as ord from tcompanies where companies_name = '[[company_name]]' union select 'all', 1 as ord) sub order by sub.ord limit 1",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
         "useTags": false
       },
       {
-        "datasource": "psql",
-        "skipUrlSync": true,
-        "index": -1,
-        "name": "docs",
-        "refresh": 1,
-        "tags": [],
         "allValue": null,
-        "options": [],
-        "multi": false,
-        "useTags": false,
-        "hide": 2,
-        "includeAll": false,
-        "sort": 0,
-        "tagValuesQuery": "",
-        "query": "select value_s from gha_vars where name = 'contributions_chart_docs_html'",
-        "tagsQuery": "",
-        "regex": "",
-        "definition": "select value_s from gha_vars where name = 'contributions_chart_docs_html'",
-        "label": null,
-        "type": "query",
         "current": {
           "text": "<h1>All CNCF Contributions chart dashboard</h1>\n<p>Links:</p>\n<ul>\n<li>Committers metric <a href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/committers.sql\" target=\"_blank\">SQL file</a>.</li>\n<li>Contributors metric <a href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/contributors.sql\" target=\"_blank\">SQL file</a>.</li>\n<li>TSDB <a href=\"https://github.com/cncf/devstats/blob/master/metrics/all/metrics.yaml\" target=\"_blank\">series definition</a>. Search for <code>Contributions chart</code></li>\n<li>Grafana dashboard <a href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/all/contributions-chart.json\" target=\"_blank\">JSON</a>.</li>\n</ul>\n<h1 id=\"description\">Description</h1>\n<ul>\n<li>This dashboard shows various developer metrics groupped by repository groups, counteries and companies.</li>\n<li>You can select last day, month, week or 7 days moving average.</li>\n<li>If you select moving average, you will see the number of contributors in a moving 7 day average window and the number of contributions in that window divided by 7.</li>\n<li>You can select repository group or summary for all of them.</li>\n<li>You can select country from a drop-down or summary for all countries.</li>\n<li>You can select company from a drop-down or summary for all companies.</li>\n<li>See <a href=\"https://github.com/cncf/devstats/blob/master/docs/repository_groups.md\" target=\"_blank\">here</a> for more informations about repository groups.</li>\n<li>We are skipping bots when calculating statistics, see <a href=\"https://github.com/cncf/devstats/blob/master/docs/excluding_bots.md\" target=\"_blank\">excluding bots</a> for details.</li>\n<li>We are determining user's company affiliation from <a href=\"https://github.com/cncf/devstats/blob/master/github_users.json\" target=\"_blank\">this file</a>, which is imported from <code>cncf/gitdm</code>.</li>\n</ul>",
           "value": "<h1>All CNCF Contributions chart dashboard</h1>\n<p>Links:</p>\n<ul>\n<li>Committers metric <a href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/committers.sql\" target=\"_blank\">SQL file</a>.</li>\n<li>Contributors metric <a href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/contributors.sql\" target=\"_blank\">SQL file</a>.</li>\n<li>TSDB <a href=\"https://github.com/cncf/devstats/blob/master/metrics/all/metrics.yaml\" target=\"_blank\">series definition</a>. Search for <code>Contributions chart</code></li>\n<li>Grafana dashboard <a href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/all/contributions-chart.json\" target=\"_blank\">JSON</a>.</li>\n</ul>\n<h1 id=\"description\">Description</h1>\n<ul>\n<li>This dashboard shows various developer metrics groupped by repository groups, counteries and companies.</li>\n<li>You can select last day, month, week or 7 days moving average.</li>\n<li>If you select moving average, you will see the number of contributors in a moving 7 day average window and the number of contributions in that window divided by 7.</li>\n<li>You can select repository group or summary for all of them.</li>\n<li>You can select country from a drop-down or summary for all countries.</li>\n<li>You can select company from a drop-down or summary for all companies.</li>\n<li>See <a href=\"https://github.com/cncf/devstats/blob/master/docs/repository_groups.md\" target=\"_blank\">here</a> for more informations about repository groups.</li>\n<li>We are skipping bots when calculating statistics, see <a href=\"https://github.com/cncf/devstats/blob/master/docs/excluding_bots.md\" target=\"_blank\">excluding bots</a> for details.</li>\n<li>We are determining user's company affiliation from <a href=\"https://github.com/cncf/devstats/blob/master/github_users.json\" target=\"_blank\">this file</a>, which is imported from <code>cncf/gitdm</code>.</li>\n</ul>"
-        }
+        },
+        "datasource": "psql",
+        "definition": "select value_s from gha_vars where name = 'contributions_chart_docs_html'",
+        "hide": 2,
+        "includeAll": false,
+        "index": -1,
+        "label": null,
+        "multi": false,
+        "name": "docs",
+        "options": [],
+        "query": "select value_s from gha_vars where name = 'contributions_chart_docs_html'",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": true,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
       }
     ]
   },
-  "version": 6,
+  "time": {
+    "from": "now-1y",
+    "to": "now-2d"
+  },
   "timepicker": {
     "hidden": false,
     "refresh_intervals": [
@@ -379,218 +586,11 @@
       "30d"
     ]
   },
-  "gnetId": null,
   "timezone": "",
-  "editable": true,
-  "time": {
-    "from": "now-1y",
-    "to": "now-2d"
+  "title": "Contributions chart",
+  "uid": "74",
+  "variables": {
+    "list": []
   },
-  "iteration": 1599300680243,
-  "panels": [
-    {
-      "renderer": "flot",
-      "targets": [
-        {
-          "rawSql": "select\n  time,\n  value as \"Contributions\"\nfrom\n  scs\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'cs[[metric]][[repogroup]][[country]][[company]]evs'\norder by\n  time",
-          "select": [
-            [
-              {
-                "type": "column",
-                "params": [
-                  "lang_perc"
-                ]
-              }
-            ]
-          ],
-          "group": [],
-          "metricColumn": "none",
-          "refId": "A",
-          "timeColumnType": "timestamp",
-          "rawQuery": true,
-          "timeColumn": "dt",
-          "table": "gha_repos_langs",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ],
-          "format": "time_series"
-        },
-        {
-          "timeColumn": "dt",
-          "rawQuery": true,
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ],
-          "timeColumnType": "timestamp",
-          "format": "time_series",
-          "rawSql": "select\n  time,\n  value as \"Contributors\"\nfrom\n  scs\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'cs[[metric]][[repogroup]][[country]][[company]]acts'\norder by\n  time",
-          "refId": "B",
-          "select": [
-            [
-              {
-                "params": [
-                  "lang_perc"
-                ],
-                "type": "column"
-              }
-            ]
-          ],
-          "table": "gha_repos_langs",
-          "metricColumn": "none",
-          "group": []
-        }
-      ],
-      "fill": 0,
-      "spaceLength": 10,
-      "legend": {
-        "max": true,
-        "min": true,
-        "rightSide": false,
-        "avg": true,
-        "total": false,
-        "current": true,
-        "alignAsTable": true,
-        "values": true,
-        "show": true
-      },
-      "seriesOverrides": [
-        {
-          "yaxis": 2,
-          "$$hashKey": "object:2209",
-          "alias": "Contributors",
-          "bars": false,
-          "color": "#C4162A",
-          "lines": true,
-          "linewidth": 2
-        },
-        {
-          "alias": "Contributions",
-          "color": "#1F60C4",
-          "$$hashKey": "object:191"
-        }
-      ],
-      "yaxes": [
-        {
-          "decimals": 2,
-          "format": "none",
-          "label": "Contributions",
-          "logBase": 1,
-          "max": null,
-          "min": "0",
-          "show": true,
-          "$$hashKey": "object:2039"
-        },
-        {
-          "logBase": 1,
-          "max": null,
-          "min": "0",
-          "show": true,
-          "$$hashKey": "object:2040",
-          "decimals": 0,
-          "format": "none",
-          "label": "Contributors"
-        }
-      ],
-      "id": 5,
-      "nullPointMode": "null as zero",
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      },
-      "aliasColors": {},
-      "points": false,
-      "tooltip": {
-        "value_type": "individual",
-        "shared": true,
-        "sort": 0
-      },
-      "lines": false,
-      "fillGradient": 0,
-      "title": "[[metric]] chart: aggregation: [[period]], repository group: [[repogroup_name]], country: [[country_name]], company: [[company_name]]",
-      "interval": "",
-      "type": "graph",
-      "xaxis": {
-        "values": [],
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true
-      },
-      "gridPos": {
-        "h": 21,
-        "w": 24,
-        "x": 0,
-        "y": 0
-      },
-      "steppedLine": false,
-      "dashes": false,
-      "bars": true,
-      "thresholds": [],
-      "dashLength": 10,
-      "timeShift": null,
-      "timeRegions": [],
-      "stack": false,
-      "linewidth": 1,
-      "percentage": false,
-      "datasource": null,
-      "hiddenSeries": false,
-      "pointradius": 2,
-      "description": "Contributions mean the current metric count. Contributors mean the current metric's authors count. When the aggregation period \"7 Days MA\" is used - the weekly number of authors is displayed and the average daily number of contributions (which is the total number of contributions in a moving average week divided by 7).",
-      "timeFrom": null,
-      "options": {
-        "dataLinks": []
-      }
-    },
-    {
-      "type": "text",
-      "content": "${docs:raw}",
-      "datasource": null,
-      "gridPos": {
-        "h": 18,
-        "w": 24,
-        "x": 0,
-        "y": 21
-      },
-      "id": 3,
-      "links": [],
-      "mode": "html",
-      "title": "Dashboard documentation"
-    }
-  ],
-  "schemaVersion": 22,
-  "annotations": {
-    "list": [
-      {
-        "enable": true,
-        "hide": true,
-        "iconColor": "rgba(0, 211, 255, 1)",
-        "name": "Annotations & Alerts",
-        "type": "dashboard",
-        "$$hashKey": "object:37",
-        "builtIn": 1,
-        "datasource": "-- Grafana --"
-      },
-      {
-        "enable": true,
-        "datasource": "psql",
-        "name": "Releases",
-        "tags": [],
-        "$$hashKey": "object:142",
-        "type": "tags",
-        "rawQuery": "select extract(epoch from time) AS time, title as text, description as tags from sannotations where $__timeFilter(time)",
-        "hide": false,
-        "iconColor": "rgba(255, 96, 96, 1)",
-        "showIn": 0,
-        "limit": 100
-      }
-    ]
-  }
+  "version": 6
 }

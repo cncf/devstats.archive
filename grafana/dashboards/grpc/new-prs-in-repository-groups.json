@@ -1,9 +1,4 @@
 {
-  "editable": true,
-  "timezone": "",
-  "version": 2,
-  "gnetId": null,
-  "links": [],
   "annotations": {
     "list": [
       {
@@ -16,40 +11,184 @@
         "type": "dashboard"
       },
       {
+        "datasource": "psql",
+        "enable": true,
+        "hide": false,
+        "iconColor": "rgba(255, 96, 96, 1)",
+        "limit": 100,
         "name": "Releases",
         "query": "SELECT title, description from annotations WHERE $timeFilter order by time asc",
-        "titleColumn": "[[full_name]] release",
-        "enable": true,
         "rawQuery": "select extract(epoch from time) AS time, title as text, description as tags from sannotations where $__timeFilter(time)",
-        "limit": 100,
-        "iconColor": "rgba(255, 96, 96, 1)",
-        "textColumn": "",
-        "type": "alert",
         "showIn": 0,
         "tagsColumn": "title,description",
-        "datasource": "psql",
-        "hide": false
+        "textColumn": "",
+        "titleColumn": "[[full_name]] release",
+        "type": "alert"
       }
     ]
   },
-  "time": {
-    "from": "now-3y",
-    "to": "now"
-  },
+  "editable": true,
+  "gnetId": null,
+  "graphTooltip": 0,
+  "id": 23,
+  "iteration": 1579677884548,
+  "links": [],
   "panels": [
     {
-      "description": "Number of new pull requests created in [[repogroup]] repository group.",
-      "stack": false,
-      "timeRegions": [],
+      "aliasColors": {},
       "bars": true,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "psql",
+      "decimals": 0,
+      "description": "Number of new pull requests created in [[repogroup]] repository group.",
+      "fill": 1,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 22,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "hiddenSeries": false,
+      "id": 1,
+      "legend": {
+        "alignAsTable": true,
+        "avg": true,
+        "current": true,
+        "hideEmpty": false,
+        "hideZero": false,
+        "max": true,
+        "min": true,
+        "rightSide": false,
+        "show": true,
+        "total": true,
+        "values": true
+      },
+      "lines": false,
+      "linewidth": 1,
+      "links": [],
+      "nullPointMode": "null",
+      "options": {
+        "dataLinks": []
+      },
+      "percentage": false,
+      "pointradius": 5,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [
+        {
+          "alias": "/including bots/",
+          "bars": false,
+          "fill": 0,
+          "lines": true
+        }
+      ],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "alias": "",
+          "dsType": "influxdb",
+          "format": "time_series",
+          "group": [],
+          "groupBy": [],
+          "hide": false,
+          "measurement": "reviewers_d",
+          "metricColumn": "none",
+          "orderByTime": "ASC",
+          "policy": "autogen",
+          "query": "",
+          "rawQuery": true,
+          "rawSql": "select\n  time,\n  value as \"[[repogroup_name]] (excluding bots)\"\nfrom\n  snew_prs\nwhere\n  $__timeFilter(time)\n  and series = 'new_prs[[repogroup]]'\n  and period = '[[period]]'\norder by\n  time",
+          "refId": "A",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              }
+            ]
+          ],
+          "tags": [],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        },
+        {
+          "alias": "",
+          "dsType": "influxdb",
+          "format": "time_series",
+          "group": [],
+          "groupBy": [],
+          "hide": false,
+          "measurement": "reviewers_d",
+          "metricColumn": "none",
+          "orderByTime": "ASC",
+          "policy": "autogen",
+          "query": "",
+          "rawQuery": true,
+          "rawSql": "select\n  time,\n  value as \"[[repogroup_name]] (including bots)\"\nfrom\n  snew_prs\nwhere\n  $__timeFilter(time)\n  and series = 'new_prs_bots[[repogroup]]'\n  and period = '[[period]]'\norder by\n  time",
+          "refId": "B",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              }
+            ]
+          ],
+          "tags": [],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "New PRs created in [[repogroup_name]] repository group ([[period]])",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": [
+          "total"
+        ]
+      },
       "yaxes": [
         {
-          "show": true,
           "format": "none",
           "label": "New PRs",
           "logBase": 1,
           "max": null,
-          "min": "0"
+          "min": "0",
+          "show": true
         },
         {
           "format": "none",
@@ -63,203 +202,45 @@
       "yaxis": {
         "align": false,
         "alignLevel": null
-      },
-      "legend": {
-        "current": true,
-        "hideZero": false,
-        "rightSide": false,
-        "avg": true,
-        "max": true,
-        "min": true,
-        "show": true,
-        "total": true,
-        "alignAsTable": true,
-        "hideEmpty": false,
-        "values": true
-      },
-      "pointradius": 5,
-      "spaceLength": 10,
-      "steppedLine": false,
-      "tooltip": {
-        "shared": true,
-        "sort": 0,
-        "value_type": "individual"
-      },
-      "xaxis": {
-        "values": [
-          "total"
-        ],
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true
-      },
-      "percentage": false,
-      "fill": 1,
-      "fillGradient": 0,
-      "dashLength": 10,
-      "seriesOverrides": [
-        {
-          "bars": false,
-          "fill": 0,
-          "lines": true,
-          "alias": "/including bots/"
-        }
-      ],
-      "dashes": false,
-      "timeShift": null,
-      "thresholds": [],
-      "options": {
-        "dataLinks": []
-      },
-      "timeFrom": null,
-      "datasource": "psql",
-      "aliasColors": {},
-      "type": "graph",
-      "gridPos": {
-        "y": 0,
-        "h": 22,
-        "w": 24,
-        "x": 0
-      },
-      "links": [],
-      "lines": false,
-      "decimals": 0,
-      "nullPointMode": "null",
-      "title": "New PRs created in [[repogroup_name]] repository group ([[period]])",
-      "targets": [
-        {
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              }
-            ]
-          ],
-          "format": "time_series",
-          "policy": "autogen",
-          "query": "",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ],
-          "orderByTime": "ASC",
-          "tags": [],
-          "rawQuery": true,
-          "measurement": "reviewers_d",
-          "alias": "",
-          "dsType": "influxdb",
-          "resultFormat": "time_series",
-          "timeColumn": "time",
-          "hide": false,
-          "groupBy": [],
-          "rawSql": "select\n  time,\n  value as \"[[repogroup_name]] (excluding bots)\"\nfrom\n  snew_prs\nwhere\n  $__timeFilter(time)\n  and series = 'new_prs[[repogroup]]'\n  and period = '[[period]]'\norder by\n  time",
-          "refId": "A",
-          "group": [],
-          "metricColumn": "none"
-        },
-        {
-          "query": "",
-          "format": "time_series",
-          "refId": "B",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              }
-            ]
-          ],
-          "where": [
-            {
-              "type": "macro",
-              "name": "$__timeFilter",
-              "params": []
-            }
-          ],
-          "tags": [],
-          "metricColumn": "none",
-          "resultFormat": "time_series",
-          "timeColumn": "time",
-          "policy": "autogen",
-          "hide": false,
-          "dsType": "influxdb",
-          "group": [],
-          "rawSql": "select\n  time,\n  value as \"[[repogroup_name]] (including bots)\"\nfrom\n  snew_prs\nwhere\n  $__timeFilter(time)\n  and series = 'new_prs_bots[[repogroup]]'\n  and period = '[[period]]'\norder by\n  time",
-          "measurement": "reviewers_d",
-          "orderByTime": "ASC",
-          "rawQuery": true,
-          "alias": "",
-          "groupBy": []
-        }
-      ],
-      "renderer": "flot",
-      "linewidth": 1,
-      "id": 1,
-      "hiddenSeries": false,
-      "points": false
+      }
     },
     {
-      "type": "text",
-      "id": 11,
-      "mode": "html",
-      "options": {},
-      "title": "Dashboard documentation",
       "content": "${docs:raw}",
       "datasource": null,
       "gridPos": {
-        "y": 22,
         "h": 10,
         "w": 24,
-        "x": 0
+        "x": 0,
+        "y": 22
       },
-      "links": []
+      "id": 11,
+      "links": [],
+      "mode": "html",
+      "options": {},
+      "title": "Dashboard documentation",
+      "type": "text"
     }
   ],
-  "id": 23,
-  "iteration": 1579677884548,
-  "title": "New PRs in Repository Groups",
   "refresh": false,
   "schemaVersion": 21,
   "style": "dark",
-  "timepicker": {
-    "time_options": [
-      "5m",
-      "15m",
-      "1h",
-      "6h",
-      "12h",
-      "24h",
-      "2d",
-      "7d",
-      "30d"
-    ],
-    "refresh_intervals": [
-      "5s",
-      "10s",
-      "30s",
-      "1m",
-      "5m",
-      "15m",
-      "30m",
-      "1h",
-      "2h",
-      "1d"
-    ]
-  },
-  "graphTooltip": 0,
+  "tags": [
+    "dashboard",
+    "grpc"
+  ],
   "templating": {
     "list": [
       {
+        "allValue": null,
+        "current": {
+          "tags": [],
+          "text": "Week",
+          "value": "w"
+        },
         "hide": 0,
+        "includeAll": false,
+        "label": "Period",
+        "multi": false,
         "name": "period",
         "options": [
           {
@@ -268,9 +249,9 @@
             "value": "d7"
           },
           {
+            "selected": false,
             "text": "Day",
-            "value": "d",
-            "selected": false
+            "value": "d"
           },
           {
             "selected": true,
@@ -283,9 +264,9 @@
             "value": "m"
           },
           {
+            "selected": false,
             "text": "Quarter",
-            "value": "q",
-            "selected": false
+            "value": "q"
           },
           {
             "selected": false,
@@ -293,125 +274,144 @@
             "value": "y"
           }
         ],
-        "type": "custom",
-        "includeAll": false,
-        "label": "Period",
-        "current": {
-          "text": "Week",
-          "value": "w",
-          "tags": []
-        },
-        "allValue": null,
         "query": "d,d7,w,m,q,y",
-        "multi": false,
-        "skipUrlSync": false
+        "skipUrlSync": false,
+        "type": "custom"
       },
       {
-        "tagValuesQuery": "",
-        "type": "query",
-        "name": "full_name",
-        "includeAll": false,
+        "allValue": null,
         "current": {
-          "value": "All CNCF",
-          "text": "All CNCF"
+          "text": "All CNCF",
+          "value": "All CNCF"
         },
-        "sort": 0,
-        "skipUrlSync": true,
-        "tags": [],
-        "hide": 2,
-        "label": null,
-        "query": "select value_s from gha_vars where name = 'full_name'",
-        "regex": "",
-        "definition": "",
-        "multi": false,
-        "tagsQuery": "",
-        "useTags": false,
-        "options": [],
-        "refresh": 1,
         "datasource": "psql",
-        "allValue": null
+        "definition": "",
+        "hide": 2,
+        "includeAll": false,
+        "label": null,
+        "multi": false,
+        "name": "full_name",
+        "options": [],
+        "query": "select value_s from gha_vars where name = 'full_name'",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": true,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
       },
       {
-        "tagsQuery": "",
+        "allValue": null,
+        "current": {
+          "tags": [],
+          "text": "All",
+          "value": "All"
+        },
+        "datasource": "psql",
+        "definition": "",
         "hide": 0,
-        "sort": 0,
+        "includeAll": false,
+        "label": "Repository group",
         "multi": false,
         "name": "repogroup_name",
-        "includeAll": false,
         "options": [],
-        "allValue": null,
-        "useTags": false,
-        "regex": "",
-        "tagValuesQuery": "",
-        "current": {
-          "text": "All",
-          "value": "All",
-          "tags": []
-        },
-        "definition": "",
-        "label": "Repository group",
-        "type": "query",
-        "datasource": "psql",
+        "query": "select all_repo_group_name from tall_repo_groups order by 1",
         "refresh": 1,
-        "tags": [],
+        "regex": "",
         "skipUrlSync": false,
-        "query": "select all_repo_group_name from tall_repo_groups order by 1"
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
       },
       {
-        "hide": 2,
-        "sort": 0,
-        "query": "select all_repo_group_value from tall_repo_groups where all_repo_group_name = '[[repogroup_name]]'",
-        "tagValuesQuery": "",
-        "refresh": 1,
+        "allValue": null,
         "current": {
           "text": "all",
           "value": "all"
         },
-        "includeAll": false,
-        "skipUrlSync": true,
         "datasource": "psql",
         "definition": "",
-        "name": "repogroup",
-        "type": "query",
-        "allValue": null,
+        "hide": 2,
+        "includeAll": false,
         "label": "",
         "multi": false,
+        "name": "repogroup",
         "options": [],
-        "useTags": false,
+        "query": "select all_repo_group_value from tall_repo_groups where all_repo_group_name = '[[repogroup_name]]'",
+        "refresh": 1,
         "regex": "",
+        "skipUrlSync": true,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
         "tagsQuery": "",
-        "tags": []
+        "type": "query",
+        "useTags": false
       },
       {
-        "datasource": "psql",
-        "definition": "",
-        "options": [],
-        "hide": 2,
-        "name": "docs",
-        "tagsQuery": "",
-        "regex": "",
-        "tags": [],
-        "multi": false,
+        "allValue": null,
         "current": {
           "text": "<h1 id=\"dashboard-header\">All CNCF new PRs dashboard</h1>\n<p>Links:</p>\n<ul>\n<li>Metric <a href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/new_prs.sql\" target=\"_blank\">SQL file</a>.</li>\n<li>TSDB <a href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/metrics.yaml\" target=\"_blank\">series definition</a>. Search for <code>new_prs</code></li>\n<li>Grafana dashboard <a href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/all/new-prs.json\" target=\"_blank\">JSON</a>.</li>\n</ul>\n<h1 id=\"description\">Description</h1>\n<ul>\n<li>This dashboard shows the number of new PRs opened in a given repository group or in all repository groups.</li>\n<li>Selecting period (for example week) means that dashboard will count opened PRs in those periods.</li>\n<li>See <a href=\"https://github.com/cncf/devstats/blob/master/docs/periods.md\" target=\"_blank\">here</a> for more informations about periods.</li>\n<li>See <a href=\"https://github.com/cncf/devstats/blob/master/docs/repository_groups.md\" target=\"_blank\">here</a> for more informations about repository groups.</li>\n</ul>",
           "value": "<h1 id=\"dashboard-header\">All CNCF new PRs dashboard</h1>\n<p>Links:</p>\n<ul>\n<li>Metric <a href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/new_prs.sql\" target=\"_blank\">SQL file</a>.</li>\n<li>TSDB <a href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/metrics.yaml\" target=\"_blank\">series definition</a>. Search for <code>new_prs</code></li>\n<li>Grafana dashboard <a href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/all/new-prs.json\" target=\"_blank\">JSON</a>.</li>\n</ul>\n<h1 id=\"description\">Description</h1>\n<ul>\n<li>This dashboard shows the number of new PRs opened in a given repository group or in all repository groups.</li>\n<li>Selecting period (for example week) means that dashboard will count opened PRs in those periods.</li>\n<li>See <a href=\"https://github.com/cncf/devstats/blob/master/docs/periods.md\" target=\"_blank\">here</a> for more informations about periods.</li>\n<li>See <a href=\"https://github.com/cncf/devstats/blob/master/docs/repository_groups.md\" target=\"_blank\">here</a> for more informations about repository groups.</li>\n</ul>"
         },
-        "refresh": 1,
-        "query": "select value_s from gha_vars where name = 'new_prs_docs_html'",
-        "skipUrlSync": true,
-        "allValue": null,
+        "datasource": "psql",
+        "definition": "",
+        "hide": 2,
+        "includeAll": false,
         "label": null,
+        "multi": false,
+        "name": "docs",
+        "options": [],
+        "query": "select value_s from gha_vars where name = 'new_prs_docs_html'",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": true,
         "sort": 0,
-        "useTags": false,
         "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
         "type": "query",
-        "includeAll": false
+        "useTags": false
       }
     ]
   },
+  "time": {
+    "from": "now-3y",
+    "to": "now"
+  },
+  "timepicker": {
+    "refresh_intervals": [
+      "5s",
+      "10s",
+      "30s",
+      "1m",
+      "5m",
+      "15m",
+      "30m",
+      "1h",
+      "2h",
+      "1d"
+    ],
+    "time_options": [
+      "5m",
+      "15m",
+      "1h",
+      "6h",
+      "12h",
+      "24h",
+      "2d",
+      "7d",
+      "30d"
+    ]
+  },
+  "timezone": "",
+  "title": "New PRs in Repository Groups",
   "uid": "15",
-  "tags": [
-    "dashboard",
-    "grpc"
-  ]
+  "version": 2
 }

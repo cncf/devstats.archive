@@ -1,14 +1,157 @@
 {
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      },
+      {
+        "datasource": "psql",
+        "enable": true,
+        "hide": false,
+        "iconColor": "rgba(255, 96, 96, 1)",
+        "limit": 100,
+        "name": "Releases",
+        "query": "SELECT title, description from annotations WHERE $timeFilter order by time asc",
+        "rawQuery": "select extract(epoch from time) AS time, title as text, description as tags from sannotations where $__timeFilter(time)",
+        "showIn": 0,
+        "tagsColumn": "title,description",
+        "textColumn": "",
+        "titleColumn": "[[full_name]] release",
+        "type": "alert"
+      }
+    ]
+  },
+  "editable": true,
   "gnetId": null,
+  "graphTooltip": 0,
+  "id": 51,
+  "iteration": 1529598509540,
+  "links": [],
   "panels": [
     {
-      "timeShift": null,
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      },
+      "aliasColors": {},
       "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "psql",
+      "decimals": 0,
+      "description": "",
+      "fill": 1,
+      "gridPos": {
+        "h": 22,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 1,
+      "legend": {
+        "alignAsTable": true,
+        "avg": true,
+        "current": true,
+        "hideEmpty": false,
+        "hideZero": false,
+        "max": true,
+        "min": true,
+        "rightSide": false,
+        "show": true,
+        "total": false,
+        "values": true
+      },
+      "lines": true,
       "linewidth": 1,
+      "links": [],
+      "nullPointMode": "null",
+      "percentage": false,
+      "pointradius": 1,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [
+        {
+          "alias": "Number of documentation committers",
+          "yaxis": 2
+        }
+      ],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "alias": "Number of companies commiting to documentation",
+          "dsType": "influxdb",
+          "groupBy": [],
+          "hide": false,
+          "measurement": "reviewers_d",
+          "orderByTime": "ASC",
+          "policy": "autogen",
+          "query": "",
+          "rawQuery": true,
+          "rawSql": "select\n  time,\n  value as \"Number of companies commiting to documentation\"\nfrom\n  sdoc_committers\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'docstats[[repogroup]]comps'\norder by\n  time",
+          "refId": "A",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "Number of documentation committers",
+          "dsType": "influxdb",
+          "groupBy": [],
+          "hide": false,
+          "measurement": "reviewers_d",
+          "orderByTime": "ASC",
+          "policy": "autogen",
+          "query": "",
+          "rawQuery": true,
+          "rawSql": "select\n  time,\n  value as \"Number of documentation committers\"\nfrom\n  sdoc_committers\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'docstats[[repogroup]]devs'\norder by\n  time",
+          "refId": "B",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              }
+            ]
+          ],
+          "tags": []
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Documentation committers: companies and developers ([[repogroup_name]], [[period]])",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "transparent": true,
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": [
+          "total"
+        ]
+      },
       "yaxes": [
         {
           "format": "none",
@@ -19,136 +162,26 @@
           "show": true
         },
         {
+          "format": "none",
           "label": "Developers",
           "logBase": 1,
           "max": null,
           "min": "0",
-          "show": true,
-          "format": "none"
+          "show": true
         }
       ],
-      "type": "graph",
-      "targets": [
-        {
-          "rawQuery": true,
-          "groupBy": [],
-          "query": "",
-          "rawSql": "select\n  time,\n  value as \"Number of companies commiting to documentation\"\nfrom\n  sdoc_committers\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'docstats[[repogroup]]comps'\norder by\n  time",
-          "resultFormat": "time_series",
-          "orderByTime": "ASC",
-          "measurement": "reviewers_d",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              }
-            ]
-          ],
-          "dsType": "influxdb",
-          "tags": [],
-          "policy": "autogen",
-          "refId": "A",
-          "hide": false,
-          "alias": "Number of companies commiting to documentation"
-        },
-        {
-          "dsType": "influxdb",
-          "rawSql": "select\n  time,\n  value as \"Number of documentation committers\"\nfrom\n  sdoc_committers\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'docstats[[repogroup]]devs'\norder by\n  time",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              }
-            ]
-          ],
-          "tags": [],
-          "hide": false,
-          "groupBy": [],
-          "orderByTime": "ASC",
-          "refId": "B",
-          "policy": "autogen",
-          "alias": "Number of documentation committers",
-          "measurement": "reviewers_d",
-          "query": "",
-          "resultFormat": "time_series",
-          "rawQuery": true
-        }
-      ],
-      "aliasColors": {},
-      "datasource": "psql",
-      "tooltip": {
-        "sort": 0,
-        "value_type": "individual",
-        "shared": true
-      },
-      "transparent": true,
-      "gridPos": {
-        "x": 0,
-        "y": 0,
-        "h": 22,
-        "w": 24
-      },
-      "fill": 1,
-      "dashes": false,
-      "stack": false,
-      "spaceLength": 10,
-      "seriesOverrides": [
-        {
-          "yaxis": 2,
-          "alias": "Number of documentation committers"
-        }
-      ],
-      "points": false,
-      "percentage": false,
-      "pointradius": 1,
-      "description": "",
-      "steppedLine": false,
-      "nullPointMode": "null",
-      "renderer": "flot",
-      "xaxis": {
-        "mode": "time",
-        "name": null,
-        "show": true,
-        "values": [
-          "total"
-        ],
-        "buckets": null
-      },
-      "legend": {
-        "values": true,
-        "current": true,
-        "show": true,
-        "total": false,
-        "min": true,
-        "avg": true,
-        "hideEmpty": false,
-        "hideZero": false,
-        "alignAsTable": true,
-        "max": true,
-        "rightSide": false
-      },
-      "links": [],
-      "title": "Documentation committers: companies and developers ([[repogroup_name]], [[period]])",
-      "decimals": 0,
-      "dashLength": 10,
-      "id": 1,
-      "lines": true,
-      "timeFrom": null,
-      "thresholds": []
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
     },
     {
       "content": "${docs:raw}",
       "gridPos": {
-        "x": 0,
-        "y": 22,
         "h": 12,
-        "w": 24
+        "w": 24,
+        "x": 0,
+        "y": 22
       },
       "id": 11,
       "links": [],
@@ -157,34 +190,137 @@
       "type": "text"
     }
   ],
-  "version": 2,
   "refresh": false,
-  "links": [],
-  "annotations": {
+  "schemaVersion": 16,
+  "style": "dark",
+  "tags": [
+    "companies",
+    "dashboard",
+    "fluentd"
+  ],
+  "templating": {
     "list": [
       {
-        "name": "Annotations & Alerts",
-        "type": "dashboard",
-        "builtIn": 1,
-        "datasource": "-- Grafana --",
-        "enable": true,
-        "hide": true,
-        "iconColor": "rgba(0, 211, 255, 1)"
+        "allValue": null,
+        "current": {
+          "tags": [],
+          "text": "7 Days MA",
+          "value": "d7"
+        },
+        "hide": 0,
+        "includeAll": false,
+        "label": "Period",
+        "multi": false,
+        "name": "period",
+        "options": [
+          {
+            "selected": false,
+            "text": "7 Days MA",
+            "value": "d7"
+          },
+          {
+            "selected": false,
+            "text": "Week",
+            "value": "w"
+          },
+          {
+            "selected": false,
+            "text": "Month",
+            "value": "m"
+          },
+          {
+            "selected": false,
+            "text": "Quarter",
+            "value": "q"
+          }
+        ],
+        "query": "d7,w,m,q",
+        "skipUrlSync": false,
+        "type": "custom"
       },
       {
+        "allValue": null,
+        "current": {},
         "datasource": "psql",
-        "enable": true,
-        "hide": false,
-        "limit": 100,
-        "rawQuery": "select extract(epoch from time) AS time, title as text, description as tags from sannotations where $__timeFilter(time)",
-        "showIn": 0,
-        "titleColumn": "[[full_name]] release",
-        "type": "alert",
-        "query": "SELECT title, description from annotations WHERE $timeFilter order by time asc",
-        "tagsColumn": "title,description",
-        "iconColor": "rgba(255, 96, 96, 1)",
-        "name": "Releases",
-        "textColumn": ""
+        "hide": 2,
+        "includeAll": false,
+        "label": null,
+        "multi": false,
+        "name": "full_name",
+        "options": [],
+        "query": "select value_s from gha_vars where name = 'full_name'",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": true,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {},
+        "datasource": "psql",
+        "hide": 0,
+        "includeAll": false,
+        "label": "Repository group",
+        "multi": false,
+        "name": "repogroup_name",
+        "options": [],
+        "query": "select all_repo_group_name from tall_repo_groups order by 1",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {},
+        "datasource": "psql",
+        "hide": 2,
+        "includeAll": false,
+        "label": "",
+        "multi": false,
+        "name": "repogroup",
+        "options": [],
+        "query": "select all_repo_group_value from tall_repo_groups where all_repo_group_name = '[[repogroup_name]]'",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": true,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {},
+        "datasource": "psql",
+        "hide": 2,
+        "includeAll": false,
+        "label": null,
+        "multi": false,
+        "name": "docs",
+        "options": [],
+        "query": "select value_s from gha_vars where name = 'documentation_committers_docs_html'",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": true,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
       }
     ]
   },
@@ -192,7 +328,6 @@
     "from": "now-3y",
     "to": "now"
   },
-  "title": "Documentation Committers in Repository Groups",
   "timepicker": {
     "refresh_intervals": [
       "5s",
@@ -218,143 +353,8 @@
       "30d"
     ]
   },
-  "editable": true,
-  "schemaVersion": 16,
-  "tags": [
-    "companies",
-    "dashboard",
-    "fluentd"
-  ],
-  "iteration": 1529598509540,
-  "style": "dark",
-  "templating": {
-    "list": [
-      {
-        "skipUrlSync": false,
-        "allValue": null,
-        "type": "custom",
-        "name": "period",
-        "current": {
-          "value": "d7",
-          "tags": [],
-          "text": "7 Days MA"
-        },
-        "hide": 0,
-        "multi": false,
-        "options": [
-          {
-            "selected": false,
-            "text": "7 Days MA",
-            "value": "d7"
-          },
-          {
-            "selected": false,
-            "text": "Week",
-            "value": "w"
-          },
-          {
-            "text": "Month",
-            "value": "m",
-            "selected": false
-          },
-          {
-            "text": "Quarter",
-            "value": "q",
-            "selected": false
-          }
-        ],
-        "includeAll": false,
-        "query": "d7,w,m,q",
-        "label": "Period"
-      },
-      {
-        "datasource": "psql",
-        "hide": 2,
-        "skipUrlSync": true,
-        "useTags": false,
-        "tags": [],
-        "label": null,
-        "multi": false,
-        "tagsQuery": "",
-        "sort": 0,
-        "allValue": null,
-        "query": "select value_s from gha_vars where name = 'full_name'",
-        "regex": "",
-        "tagValuesQuery": "",
-        "type": "query",
-        "current": {},
-        "includeAll": false,
-        "name": "full_name",
-        "refresh": 1,
-        "options": []
-      },
-      {
-        "type": "query",
-        "useTags": false,
-        "regex": "",
-        "label": "Repository group",
-        "multi": false,
-        "sort": 0,
-        "datasource": "psql",
-        "options": [],
-        "tagValuesQuery": "",
-        "includeAll": false,
-        "refresh": 1,
-        "hide": 0,
-        "current": {},
-        "tagsQuery": "",
-        "allValue": null,
-        "skipUrlSync": false,
-        "query": "select all_repo_group_name from tall_repo_groups order by 1",
-        "name": "repogroup_name",
-        "tags": []
-      },
-      {
-        "hide": 2,
-        "options": [],
-        "refresh": 1,
-        "type": "query",
-        "current": {},
-        "tagsQuery": "",
-        "useTags": false,
-        "multi": false,
-        "name": "repogroup",
-        "regex": "",
-        "datasource": "psql",
-        "allValue": null,
-        "query": "select all_repo_group_value from tall_repo_groups where all_repo_group_name = '[[repogroup_name]]'",
-        "skipUrlSync": true,
-        "tags": [],
-        "tagValuesQuery": "",
-        "includeAll": false,
-        "sort": 0,
-        "label": ""
-      },
-      {
-        "refresh": 1,
-        "datasource": "psql",
-        "tagValuesQuery": "",
-        "options": [],
-        "allValue": null,
-        "name": "docs",
-        "useTags": false,
-        "query": "select value_s from gha_vars where name = 'documentation_committers_docs_html'",
-        "type": "query",
-        "hide": 2,
-        "current": {},
-        "tagsQuery": "",
-        "multi": false,
-        "tags": [],
-        "sort": 0,
-        "skipUrlSync": true,
-        "label": null,
-        "regex": "",
-        "includeAll": false
-      }
-    ]
-  },
   "timezone": "",
-  "id": 51,
-  "graphTooltip": 0,
-  "uid": "61"
+  "title": "Documentation Committers in Repository Groups",
+  "uid": "61",
+  "version": 2
 }

@@ -1,35 +1,76 @@
 {
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      },
+      {
+        "datasource": "psql",
+        "enable": true,
+        "hide": false,
+        "iconColor": "rgba(255, 96, 96, 1)",
+        "limit": 100,
+        "name": "Releases",
+        "query": "SELECT title, description from annotations WHERE $timeFilter order by time asc",
+        "rawQuery": "select extract(epoch from time) AS time, title as text, description as tags from sannotations where $__timeFilter(time)",
+        "showIn": 0,
+        "tagsColumn": "title,description",
+        "textColumn": "",
+        "titleColumn": "[[full_name]] release",
+        "type": "alert"
+      }
+    ]
+  },
+  "editable": true,
+  "gnetId": null,
+  "graphTooltip": 0,
+  "id": 47,
+  "iteration": 1529592686474,
   "links": [],
-  "timezone": "",
   "panels": [
     {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
       "dashes": false,
+      "datasource": "psql",
       "decimals": 0,
-      "thresholds": [],
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
+      "description": "Displays the number of new/episodic issues and the number of new/episodic issues authors.\nThe episodic author is defined as someone who hasn't created issue in the last 3 months and no more than 12 issues overall.",
+      "fill": 1,
+      "gridPos": {
+        "h": 22,
+        "w": 24,
+        "x": 0,
+        "y": 0
       },
-      "pointradius": 1,
       "id": 1,
-      "steppedLine": false,
-      "tooltip": {
-        "sort": 0,
-        "value_type": "individual",
-        "shared": true
-      },
-      "xaxis": {
+      "legend": {
+        "alignAsTable": false,
+        "avg": true,
+        "current": true,
+        "hideEmpty": false,
+        "hideZero": false,
+        "max": true,
+        "min": true,
+        "rightSide": false,
         "show": true,
-        "values": [
-          "total"
-        ],
-        "buckets": null,
-        "mode": "time",
-        "name": null
+        "total": false,
+        "values": true
       },
-      "links": [],
-      "renderer": "flot",
+      "lines": true,
       "linewidth": 1,
+      "links": [],
+      "nullPointMode": "null",
+      "percentage": false,
+      "pointradius": 1,
+      "points": false,
+      "renderer": "flot",
       "seriesOverrides": [
         {
           "alias": "New issue creators",
@@ -40,43 +81,143 @@
           "yaxis": 2
         }
       ],
-      "timeFrom": null,
-      "transparent": true,
-      "dashLength": 10,
-      "stack": false,
-      "fill": 1,
-      "datasource": "psql",
-      "nullPointMode": "null",
-      "lines": true,
-      "points": false,
       "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "alias": "",
+          "dsType": "influxdb",
+          "format": "time_series",
+          "groupBy": [],
+          "hide": false,
+          "measurement": "reviewers_d",
+          "orderByTime": "ASC",
+          "policy": "autogen",
+          "query": "SELECT \"value\" FROM \"new_issues_[[repogroup]]_issues_[[period]]\" WHERE $timeFilter",
+          "rawQuery": true,
+          "rawSql": "select\n  time,\n  value as \"Number of PRs from new contributors\"\nfrom\n  snew_contributors\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'new_contrib[[repogroup]]prs'\norder by\n  time",
+          "refId": "A",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "",
+          "dsType": "influxdb",
+          "format": "time_series",
+          "groupBy": [],
+          "hide": false,
+          "measurement": "reviewers_d",
+          "orderByTime": "ASC",
+          "policy": "autogen",
+          "query": "SELECT \"value\" FROM \"new_issues_[[repogroup]]_contributors_[[period]]\" WHERE $timeFilter",
+          "rawQuery": true,
+          "rawSql": "select\n  time,\n  value as \"New contributors\"\nfrom\n  snew_contributors\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'new_contrib[[repogroup]]contrib'\norder by\n  time",
+          "refId": "B",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "",
+          "dsType": "influxdb",
+          "format": "time_series",
+          "groupBy": [],
+          "hide": false,
+          "measurement": "reviewers_d",
+          "orderByTime": "ASC",
+          "policy": "autogen",
+          "query": "SELECT \"value\" FROM \"episodic_issues_[[repogroup]]_issues_[[period]]\" WHERE $timeFilter",
+          "rawQuery": true,
+          "rawSql": "select\n  time,\n  value as \"Number of PRs from episodic contributors\"\nfrom\n  sepisodic_contributors\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'epis_contrib[[repogroup]]prs'\norder by\n  time",
+          "refId": "C",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "",
+          "dsType": "influxdb",
+          "format": "time_series",
+          "groupBy": [],
+          "hide": false,
+          "measurement": "reviewers_d",
+          "orderByTime": "ASC",
+          "policy": "autogen",
+          "query": "SELECT \"value\" FROM \"episodic_issues_[[repogroup]]_contributors_[[period]]\" WHERE $timeFilter",
+          "rawQuery": true,
+          "rawSql": "select\n  time,\n  value as \"Episodic contributors\"\nfrom\n  sepisodic_contributors\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'epis_contrib[[repogroup]]contrib'\norder by\n  time",
+          "refId": "D",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              }
+            ]
+          ],
+          "tags": []
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
       "timeShift": null,
-      "legend": {
-        "current": true,
-        "show": true,
-        "values": true,
-        "avg": true,
-        "max": true,
-        "min": true,
-        "rightSide": false,
-        "total": false,
-        "alignAsTable": false,
-        "hideZero": false,
-        "hideEmpty": false
-      },
       "title": "New/episodic issues ([[repogroup_name]], [[period]])",
-      "bars": false,
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "transparent": true,
       "type": "graph",
-      "aliasColors": {},
-      "description": "Displays the number of new/episodic issues and the number of new/episodic issues authors.\nThe episodic author is defined as someone who hasn't created issue in the last 3 months and no more than 12 issues overall.",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": [
+          "total"
+        ]
+      },
       "yaxes": [
         {
-          "show": true,
           "format": "none",
           "label": "Issues",
           "logBase": 1,
           "max": null,
-          "min": "0"
+          "min": "0",
+          "show": true
         },
         {
           "format": "none",
@@ -87,229 +228,67 @@
           "show": true
         }
       ],
-      "percentage": false,
-      "targets": [
-        {
-          "policy": "autogen",
-          "orderByTime": "ASC",
-          "query": "SELECT \"value\" FROM \"new_issues_[[repogroup]]_issues_[[period]]\" WHERE $timeFilter",
-          "dsType": "influxdb",
-          "alias": "",
-          "refId": "A",
-          "format": "time_series",
-          "measurement": "reviewers_d",
-          "rawQuery": true,
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              }
-            ]
-          ],
-          "groupBy": [],
-          "rawSql": "select\n  time,\n  value as \"Number of PRs from new contributors\"\nfrom\n  snew_contributors\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'new_contrib[[repogroup]]prs'\norder by\n  time",
-          "tags": [],
-          "hide": false
-        },
-        {
-          "resultFormat": "time_series",
-          "query": "SELECT \"value\" FROM \"new_issues_[[repogroup]]_contributors_[[period]]\" WHERE $timeFilter",
-          "hide": false,
-          "rawSql": "select\n  time,\n  value as \"New contributors\"\nfrom\n  snew_contributors\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'new_contrib[[repogroup]]contrib'\norder by\n  time",
-          "orderByTime": "ASC",
-          "measurement": "reviewers_d",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              }
-            ]
-          ],
-          "policy": "autogen",
-          "format": "time_series",
-          "refId": "B",
-          "alias": "",
-          "rawQuery": true,
-          "tags": [],
-          "groupBy": [],
-          "dsType": "influxdb"
-        },
-        {
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              }
-            ]
-          ],
-          "tags": [],
-          "groupBy": [],
-          "rawQuery": true,
-          "resultFormat": "time_series",
-          "dsType": "influxdb",
-          "policy": "autogen",
-          "query": "SELECT \"value\" FROM \"episodic_issues_[[repogroup]]_issues_[[period]]\" WHERE $timeFilter",
-          "refId": "C",
-          "orderByTime": "ASC",
-          "hide": false,
-          "alias": "",
-          "rawSql": "select\n  time,\n  value as \"Number of PRs from episodic contributors\"\nfrom\n  sepisodic_contributors\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'epis_contrib[[repogroup]]prs'\norder by\n  time",
-          "measurement": "reviewers_d",
-          "format": "time_series"
-        },
-        {
-          "groupBy": [],
-          "refId": "D",
-          "resultFormat": "time_series",
-          "tags": [],
-          "orderByTime": "ASC",
-          "query": "SELECT \"value\" FROM \"episodic_issues_[[repogroup]]_contributors_[[period]]\" WHERE $timeFilter",
-          "rawQuery": true,
-          "rawSql": "select\n  time,\n  value as \"Episodic contributors\"\nfrom\n  sepisodic_contributors\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'epis_contrib[[repogroup]]contrib'\norder by\n  time",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              }
-            ]
-          ],
-          "format": "time_series",
-          "policy": "autogen",
-          "alias": "",
-          "dsType": "influxdb",
-          "hide": false,
-          "measurement": "reviewers_d"
-        }
-      ],
-      "gridPos": {
-        "h": 22,
-        "w": 24,
-        "x": 0,
-        "y": 0
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
       }
     },
     {
-      "mode": "html",
-      "title": "Dashboard documentation",
-      "type": "text",
       "content": "${docs:raw}",
       "gridPos": {
+        "h": 13,
         "w": 24,
         "x": 0,
-        "y": 22,
-        "h": 13
+        "y": 22
       },
       "id": 11,
-      "links": []
+      "links": [],
+      "mode": "html",
+      "title": "Dashboard documentation",
+      "type": "text"
     }
   ],
+  "refresh": false,
   "schemaVersion": 16,
   "style": "dark",
-  "annotations": {
-    "list": [
-      {
-        "name": "Annotations & Alerts",
-        "type": "dashboard",
-        "builtIn": 1,
-        "datasource": "-- Grafana --",
-        "enable": true,
-        "hide": true,
-        "iconColor": "rgba(0, 211, 255, 1)"
-      },
-      {
-        "query": "SELECT title, description from annotations WHERE $timeFilter order by time asc",
-        "rawQuery": "select extract(epoch from time) AS time, title as text, description as tags from sannotations where $__timeFilter(time)",
-        "showIn": 0,
-        "enable": true,
-        "hide": false,
-        "datasource": "psql",
-        "tagsColumn": "title,description",
-        "titleColumn": "[[full_name]] release",
-        "iconColor": "rgba(255, 96, 96, 1)",
-        "type": "alert",
-        "name": "Releases",
-        "textColumn": "",
-        "limit": 100
-      }
-    ]
-  },
-  "graphTooltip": 0,
-  "timepicker": {
-    "time_options": [
-      "5m",
-      "15m",
-      "1h",
-      "6h",
-      "12h",
-      "24h",
-      "2d",
-      "7d",
-      "30d"
-    ],
-    "refresh_intervals": [
-      "5s",
-      "10s",
-      "30s",
-      "1m",
-      "5m",
-      "15m",
-      "30m",
-      "1h",
-      "2h",
-      "1d"
-    ]
-  },
-  "editable": true,
-  "gnetId": null,
-  "refresh": false,
+  "tags": [
+    "dashboard",
+    "containerd",
+    "issues"
+  ],
   "templating": {
     "list": [
       {
-        "includeAll": false,
-        "options": [],
-        "regex": "",
-        "sort": 0,
-        "multi": false,
-        "current": {},
-        "tags": [],
         "allValue": null,
-        "skipUrlSync": true,
+        "current": {},
         "datasource": "psql",
+        "hide": 2,
+        "includeAll": false,
         "label": null,
-        "type": "query",
+        "multi": false,
         "name": "full_name",
-        "tagValuesQuery": "",
-        "tagsQuery": "",
-        "useTags": false,
+        "options": [],
         "query": "select value_s from gha_vars where name = 'full_name'",
         "refresh": 1,
-        "hide": 2
+        "regex": "",
+        "skipUrlSync": true,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
       },
       {
-        "hide": 0,
         "allValue": null,
-        "includeAll": false,
-        "label": "Period",
-        "skipUrlSync": false,
-        "type": "custom",
         "current": {
           "tags": [],
           "text": "28 Days MA",
           "value": "d28"
         },
+        "hide": 0,
+        "includeAll": false,
+        "label": "Period",
         "multi": false,
         "name": "period",
         "options": [
@@ -329,80 +308,82 @@
             "value": "m"
           },
           {
-            "value": "q",
             "selected": false,
-            "text": "Quarter"
+            "text": "Quarter",
+            "value": "q"
           },
           {
+            "selected": false,
             "text": "Year",
-            "value": "y",
-            "selected": false
+            "value": "y"
           }
         ],
-        "query": "d,w,m,q,y"
+        "query": "d,w,m,q,y",
+        "skipUrlSync": false,
+        "type": "custom"
       },
       {
-        "tagsQuery": "",
+        "allValue": null,
+        "current": {},
+        "datasource": "psql",
         "hide": 0,
-        "useTags": false,
-        "regex": "",
-        "tagValuesQuery": "",
-        "type": "query",
+        "includeAll": false,
+        "label": "Repository group",
         "multi": false,
         "name": "repogroup_name",
         "options": [],
-        "allValue": null,
-        "current": {},
         "query": "select all_repo_group_name from tall_repo_groups order by 1",
-        "label": "Repository group",
-        "includeAll": false,
-        "datasource": "psql",
         "refresh": 1,
+        "regex": "",
         "skipUrlSync": false,
         "sort": 1,
-        "tags": []
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
       },
       {
-        "sort": 0,
-        "useTags": false,
-        "regex": "",
-        "skipUrlSync": true,
-        "includeAll": false,
-        "type": "query",
+        "allValue": null,
         "current": {},
-        "query": "select all_repo_group_value from tall_repo_groups where all_repo_group_name = '[[repogroup_name]]'",
+        "datasource": "psql",
+        "hide": 2,
+        "includeAll": false,
         "label": null,
         "multi": false,
-        "tags": [],
-        "hide": 2,
-        "tagsQuery": "",
-        "datasource": "psql",
-        "tagValuesQuery": "",
-        "allValue": null,
         "name": "repogroup",
         "options": [],
-        "refresh": 1
+        "query": "select all_repo_group_value from tall_repo_groups where all_repo_group_name = '[[repogroup_name]]'",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": true,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
       },
       {
+        "allValue": null,
+        "current": {},
+        "datasource": "psql",
         "hide": 2,
-        "tagValuesQuery": "",
         "includeAll": false,
         "label": null,
-        "regex": "",
-        "tags": [],
-        "query": "select value_s from gha_vars where name = 'new_and_episodic_prs_docs_html'",
-        "skipUrlSync": true,
-        "type": "query",
-        "tagsQuery": "",
-        "options": [],
-        "refresh": 1,
-        "current": {},
         "multi": false,
-        "sort": 0,
-        "useTags": false,
         "name": "docs",
-        "datasource": "psql",
-        "allValue": null
+        "options": [],
+        "query": "select value_s from gha_vars where name = 'new_and_episodic_prs_docs_html'",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": true,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
       }
     ]
   },
@@ -410,14 +391,33 @@
     "from": "now-2y",
     "to": "now-1M"
   },
-  "tags": [
-    "dashboard",
-    "containerd",
-    "issues"
-  ],
-  "iteration": 1529592686474,
-  "uid": "14",
+  "timepicker": {
+    "refresh_intervals": [
+      "5s",
+      "10s",
+      "30s",
+      "1m",
+      "5m",
+      "15m",
+      "30m",
+      "1h",
+      "2h",
+      "1d"
+    ],
+    "time_options": [
+      "5m",
+      "15m",
+      "1h",
+      "6h",
+      "12h",
+      "24h",
+      "2d",
+      "7d",
+      "30d"
+    ]
+  },
+  "timezone": "",
   "title": "New and Episodic PR Contributors",
-  "version": 2,
-  "id": 47
+  "uid": "14",
+  "version": 2
 }

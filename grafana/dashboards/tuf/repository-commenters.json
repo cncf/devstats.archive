@@ -1,32 +1,95 @@
 {
-  "timezone": "",
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      },
+      {
+        "datasource": "psql",
+        "enable": true,
+        "hide": false,
+        "iconColor": "rgba(255, 96, 96, 1)",
+        "limit": 100,
+        "name": "Releases",
+        "query": "SELECT title, description from annotations WHERE $timeFilter order by time asc",
+        "rawQuery": "select extract(epoch from time) AS time, title as text, description as tags from sannotations where $__timeFilter(time)",
+        "showIn": 0,
+        "tagsColumn": "title,description",
+        "textColumn": "",
+        "titleColumn": "[[full_name]] release",
+        "type": "alert"
+      }
+    ]
+  },
+  "editable": true,
+  "gnetId": null,
+  "graphTooltip": 0,
+  "id": 35,
   "iteration": 1529594518232,
-  "tags": [
-    "dashboard",
-    "tuf"
-  ],
-  "uid": "25",
-  "title": "Repository Commenters",
+  "links": [],
   "panels": [
     {
-      "tooltip": {
-        "sort": 0,
-        "value_type": "individual",
-        "shared": false
+      "aliasColors": {},
+      "bars": true,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "psql",
+      "decimals": 0,
+      "description": "Number of unique commenters.",
+      "fill": 1,
+      "gridPos": {
+        "h": 22,
+        "w": 24,
+        "x": 0,
+        "y": 0
       },
-      "transparent": false,
+      "id": 1,
+      "legend": {
+        "alignAsTable": true,
+        "avg": true,
+        "current": true,
+        "hideEmpty": false,
+        "hideZero": false,
+        "max": true,
+        "min": true,
+        "rightSide": false,
+        "show": true,
+        "total": false,
+        "values": true
+      },
+      "lines": false,
+      "linewidth": 1,
+      "links": [],
+      "nullPointMode": "null",
+      "percentage": false,
+      "pointradius": 5,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
       "targets": [
         {
-          "rawQuery": true,
-          "resultFormat": "time_series",
-          "groupBy": [],
-          "policy": "autogen",
           "alias": "",
-          "tags": [],
-          "orderByTime": "ASC",
-          "rawSql": "select\n  time,\n  value as \"Unique commenters\"\nfrom\n  srcommenters\nwhere\n  $__timeFilter(time)\n  and series = 'rcommenters[[repogroup]]'\n  and period = '[[period]]'\norder by\n  time",
+          "dsType": "influxdb",
+          "format": "time_series",
+          "groupBy": [],
           "hide": false,
+          "measurement": "reviewers_d",
+          "orderByTime": "ASC",
+          "policy": "autogen",
           "query": "SELECT \"value\" FROM \"autogen\".\"repo_commenters_[[repogroup]]_[[period]][[aggregate]]\" WHERE $timeFilter",
+          "rawQuery": true,
+          "rawSql": "select\n  time,\n  value as \"Unique commenters\"\nfrom\n  srcommenters\nwhere\n  $__timeFilter(time)\n  and series = 'rcommenters[[repogroup]]'\n  and period = '[[period]]'\norder by\n  time",
+          "refId": "A",
+          "resultFormat": "time_series",
           "select": [
             [
               {
@@ -37,96 +100,59 @@
               }
             ]
           ],
-          "dsType": "influxdb",
-          "refId": "A",
-          "format": "time_series",
-          "measurement": "reviewers_d"
+          "tags": []
         }
       ],
-      "type": "graph",
-      "percentage": false,
-      "seriesOverrides": [],
-      "gridPos": {
-        "h": 22,
-        "w": 24,
-        "x": 0,
-        "y": 0
-      },
-      "timeShift": null,
-      "nullPointMode": "null",
-      "yaxes": [
-        {
-          "logBase": 1,
-          "max": null,
-          "min": "0",
-          "show": true,
-          "format": "short",
-          "label": "Unique commenters"
-        },
-        {
-          "show": true,
-          "format": "short",
-          "label": "",
-          "logBase": 1,
-          "max": null,
-          "min": "0"
-        }
-      ],
-      "renderer": "flot",
-      "points": false,
-      "links": [],
-      "linewidth": 1,
-      "pointradius": 5,
-      "decimals": 0,
-      "timeFrom": null,
-      "datasource": "psql",
-      "description": "Number of unique commenters.",
-      "lines": false,
       "thresholds": [],
-      "fill": 1,
-      "id": 1,
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      },
-      "aliasColors": {},
-      "dashes": false,
-      "steppedLine": false,
-      "spaceLength": 10,
-      "stack": false,
+      "timeFrom": null,
+      "timeShift": null,
       "title": "[[repogroup_name]] unique commenters ([[period]])",
-      "legend": {
-        "min": true,
-        "rightSide": false,
-        "values": true,
-        "avg": true,
-        "show": true,
-        "hideZero": false,
-        "hideEmpty": false,
-        "max": true,
-        "total": false,
-        "alignAsTable": true,
-        "current": true
+      "tooltip": {
+        "shared": false,
+        "sort": 0,
+        "value_type": "individual"
       },
-      "dashLength": 10,
+      "transparent": false,
+      "type": "graph",
       "xaxis": {
+        "buckets": null,
         "mode": "time",
         "name": null,
         "show": true,
         "values": [
           "total"
-        ],
-        "buckets": null
+        ]
       },
-      "bars": true
+      "yaxes": [
+        {
+          "format": "short",
+          "label": "Unique commenters",
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": "",
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
     },
     {
       "content": "${docs:raw}",
       "gridPos": {
-        "x": 0,
-        "y": 22,
         "h": 11,
-        "w": 24
+        "w": 24,
+        "x": 0,
+        "y": 22
       },
       "id": 11,
       "links": [],
@@ -136,6 +162,161 @@
     }
   ],
   "refresh": false,
+  "schemaVersion": 16,
+  "style": "dark",
+  "tags": [
+    "dashboard",
+    "tuf"
+  ],
+  "templating": {
+    "list": [
+      {
+        "allValue": null,
+        "current": {
+          "tags": [],
+          "text": "7 Days MA",
+          "value": "d7"
+        },
+        "hide": 0,
+        "includeAll": false,
+        "label": "Period",
+        "multi": false,
+        "name": "period",
+        "options": [
+          {
+            "selected": false,
+            "text": "Day",
+            "value": "d"
+          },
+          {
+            "selected": true,
+            "text": "7 Days MA",
+            "value": "d7"
+          },
+          {
+            "selected": false,
+            "text": "Week",
+            "value": "w"
+          },
+          {
+            "selected": false,
+            "text": "Month",
+            "value": "m"
+          },
+          {
+            "selected": false,
+            "text": "Quarter",
+            "value": "q"
+          },
+          {
+            "selected": false,
+            "text": "Year",
+            "value": "y"
+          }
+        ],
+        "query": "d,d7,w,m,q,y",
+        "skipUrlSync": false,
+        "type": "custom"
+      },
+      {
+        "allValue": null,
+        "current": {
+          "text": "All",
+          "value": "All"
+        },
+        "datasource": "psql",
+        "hide": 0,
+        "includeAll": false,
+        "label": "Repository group",
+        "multi": false,
+        "name": "repogroup_name",
+        "options": [],
+        "query": "select all_repo_group_name from tall_repo_groups order by 1",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "text": "all",
+          "value": "all"
+        },
+        "datasource": "psql",
+        "hide": 2,
+        "includeAll": false,
+        "label": "",
+        "multi": false,
+        "name": "repogroup",
+        "options": [],
+        "query": "select all_repo_group_value from tall_repo_groups where all_repo_group_name = '[[repogroup_name]]'",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": true,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "text": "Prometheus",
+          "value": "Prometheus"
+        },
+        "datasource": "psql",
+        "hide": 2,
+        "includeAll": false,
+        "label": null,
+        "multi": false,
+        "name": "full_name",
+        "options": [],
+        "query": "select value_s from gha_vars where name = 'full_name'",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": true,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {},
+        "datasource": "psql",
+        "hide": 2,
+        "includeAll": false,
+        "label": null,
+        "multi": false,
+        "name": "docs",
+        "options": [],
+        "query": "select value_s from gha_vars where name = 'repo_commenters_docs_html'",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": true,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      }
+    ]
+  },
+  "time": {
+    "from": "now-2y",
+    "to": "now"
+  },
   "timepicker": {
     "refresh_intervals": [
       "5s",
@@ -161,189 +342,8 @@
       "30d"
     ]
   },
-  "gnetId": null,
-  "templating": {
-    "list": [
-      {
-        "query": "d,d7,w,m,q,y",
-        "type": "custom",
-        "allValue": null,
-        "hide": 0,
-        "current": {
-          "tags": [],
-          "text": "7 Days MA",
-          "value": "d7"
-        },
-        "multi": false,
-        "options": [
-          {
-            "selected": false,
-            "text": "Day",
-            "value": "d"
-          },
-          {
-            "selected": true,
-            "text": "7 Days MA",
-            "value": "d7"
-          },
-          {
-            "value": "w",
-            "selected": false,
-            "text": "Week"
-          },
-          {
-            "text": "Month",
-            "value": "m",
-            "selected": false
-          },
-          {
-            "value": "q",
-            "selected": false,
-            "text": "Quarter"
-          },
-          {
-            "selected": false,
-            "text": "Year",
-            "value": "y"
-          }
-        ],
-        "skipUrlSync": false,
-        "includeAll": false,
-        "label": "Period",
-        "name": "period"
-      },
-      {
-        "options": [],
-        "datasource": "psql",
-        "label": "Repository group",
-        "type": "query",
-        "skipUrlSync": false,
-        "tagsQuery": "",
-        "regex": "",
-        "multi": false,
-        "query": "select all_repo_group_name from tall_repo_groups order by 1",
-        "tags": [],
-        "allValue": null,
-        "sort": 0,
-        "current": {
-          "text": "All",
-          "value": "All"
-        },
-        "includeAll": false,
-        "tagValuesQuery": "",
-        "hide": 0,
-        "refresh": 1,
-        "name": "repogroup_name",
-        "useTags": false
-      },
-      {
-        "skipUrlSync": true,
-        "tags": [],
-        "label": "",
-        "query": "select all_repo_group_value from tall_repo_groups where all_repo_group_name = '[[repogroup_name]]'",
-        "name": "repogroup",
-        "tagValuesQuery": "",
-        "current": {
-          "text": "all",
-          "value": "all"
-        },
-        "multi": false,
-        "tagsQuery": "",
-        "hide": 2,
-        "useTags": false,
-        "regex": "",
-        "sort": 0,
-        "datasource": "psql",
-        "allValue": null,
-        "options": [],
-        "refresh": 1,
-        "includeAll": false,
-        "type": "query"
-      },
-      {
-        "label": null,
-        "includeAll": false,
-        "name": "full_name",
-        "tagValuesQuery": "",
-        "useTags": false,
-        "hide": 2,
-        "multi": false,
-        "refresh": 1,
-        "current": {
-          "text": "Prometheus",
-          "value": "Prometheus"
-        },
-        "allValue": null,
-        "sort": 0,
-        "query": "select value_s from gha_vars where name = 'full_name'",
-        "type": "query",
-        "datasource": "psql",
-        "tags": [],
-        "skipUrlSync": true,
-        "tagsQuery": "",
-        "regex": "",
-        "options": []
-      },
-      {
-        "skipUrlSync": true,
-        "query": "select value_s from gha_vars where name = 'repo_commenters_docs_html'",
-        "name": "docs",
-        "options": [],
-        "type": "query",
-        "tagValuesQuery": "",
-        "useTags": false,
-        "includeAll": false,
-        "label": null,
-        "tagsQuery": "",
-        "current": {},
-        "refresh": 1,
-        "allValue": null,
-        "regex": "",
-        "sort": 0,
-        "datasource": "psql",
-        "multi": false,
-        "hide": 2,
-        "tags": []
-      }
-    ]
-  },
-  "annotations": {
-    "list": [
-      {
-        "datasource": "-- Grafana --",
-        "enable": true,
-        "hide": true,
-        "iconColor": "rgba(0, 211, 255, 1)",
-        "name": "Annotations & Alerts",
-        "type": "dashboard",
-        "builtIn": 1
-      },
-      {
-        "name": "Releases",
-        "query": "SELECT title, description from annotations WHERE $timeFilter order by time asc",
-        "tagsColumn": "title,description",
-        "hide": false,
-        "titleColumn": "[[full_name]] release",
-        "iconColor": "rgba(255, 96, 96, 1)",
-        "rawQuery": "select extract(epoch from time) AS time, title as text, description as tags from sannotations where $__timeFilter(time)",
-        "showIn": 0,
-        "datasource": "psql",
-        "enable": true,
-        "limit": 100,
-        "textColumn": "",
-        "type": "alert"
-      }
-    ]
-  },
-  "editable": true,
-  "graphTooltip": 0,
-  "id": 35,
-  "links": [],
-  "schemaVersion": 16,
-  "version": 2,
-  "style": "dark",
-  "time": {
-    "from": "now-2y",
-    "to": "now"
-  }
+  "timezone": "",
+  "title": "Repository Commenters",
+  "uid": "25",
+  "version": 2
 }

@@ -1,154 +1,162 @@
 {
-  "uid": "17",
-  "style": "dark",
-  "links": [],
-  "version": 2,
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      },
+      {
+        "datasource": "psql",
+        "enable": true,
+        "hide": false,
+        "iconColor": "rgba(255, 96, 96, 1)",
+        "limit": 100,
+        "name": "Releases",
+        "query": "SELECT title, description from annotations WHERE $timeFilter order by time asc",
+        "rawQuery": "select extract(epoch from time) AS time, title as text, description as tags from sannotations where $__timeFilter(time)",
+        "showIn": 0,
+        "tagsColumn": "title,description",
+        "textColumn": "",
+        "titleColumn": "[[full_name]] release",
+        "type": "alert"
+      }
+    ]
+  },
+  "editable": true,
+  "gnetId": null,
+  "graphTooltip": 0,
   "id": 17,
+  "iteration": 1529595546233,
+  "links": [],
   "panels": [
     {
-      "lines": false,
       "aliasColors": {},
-      "renderer": "flot",
-      "datasource": "psql",
-      "type": "graph",
-      "pointradius": 5,
-      "description": "Median and 85th, 95th percentile of comments for PRs created in given period",
-      "steppedLine": false,
-      "links": [],
-      "title": "Median and 85th, 95th percentile of number of comments for PRs ([[period]])",
       "bars": true,
       "dashLength": 10,
       "dashes": false,
+      "datasource": "psql",
       "decimals": 0,
-      "timeFrom": null,
+      "description": "Median and 85th, 95th percentile of comments for PRs created in given period",
+      "fill": 1,
+      "gridPos": {
+        "h": 21,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 2,
+      "legend": {
+        "alignAsTable": true,
+        "avg": true,
+        "current": true,
+        "max": true,
+        "min": true,
+        "rightSide": false,
+        "show": true,
+        "total": false,
+        "values": true
+      },
+      "lines": false,
+      "linewidth": 1,
+      "links": [],
+      "nullPointMode": "null as zero",
+      "percentage": false,
+      "pointradius": 5,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
       "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "alias": "",
+          "dsType": "influxdb",
+          "format": "time_series",
+          "groupBy": [],
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "SELECT \"value\" FROM \"pr_comments_percentile_95_[[period]]\" WHERE $timeFilter",
+          "rawQuery": true,
+          "rawSql": "select\n  time,\n  value as \"95th percentile for number of comments on PRs\"\nfrom\n  spr_comms_p95\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\norder by\n  time",
+          "refId": "A",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "",
+          "dsType": "influxdb",
+          "format": "time_series",
+          "groupBy": [],
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "SELECT \"value\" FROM \"pr_comments_percentile_85_[[period]]\" WHERE $timeFilter",
+          "rawQuery": true,
+          "rawSql": "select\n  time,\n  value as \"85th percentile for number of comments on PRs\"\nfrom\n  spr_comms_p85\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\norder by\n  time",
+          "refId": "B",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "",
+          "dsType": "influxdb",
+          "format": "time_series",
+          "groupBy": [],
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "SELECT \"value\" FROM \"pr_comments_median_[[period]]\" WHERE $timeFilter",
+          "rawQuery": true,
+          "rawSql": "select\n  time,\n  value as \"Median for number of comments on PRs\"\nfrom\n  spr_comms_med\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\norder by\n  time",
+          "refId": "C",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              }
+            ]
+          ],
+          "tags": []
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Median and 85th, 95th percentile of number of comments for PRs ([[period]])",
       "tooltip": {
         "shared": true,
         "sort": 0,
         "value_type": "individual"
       },
-      "timeShift": null,
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      },
-      "legend": {
-        "total": false,
-        "max": true,
-        "min": true,
-        "current": true,
-        "rightSide": false,
-        "show": true,
-        "alignAsTable": true,
-        "avg": true,
-        "values": true
-      },
-      "targets": [
-        {
-          "orderByTime": "ASC",
-          "select": [
-            [
-              {
-                "type": "field",
-                "params": [
-                  "value"
-                ]
-              }
-            ]
-          ],
-          "dsType": "influxdb",
-          "query": "SELECT \"value\" FROM \"pr_comments_percentile_95_[[period]]\" WHERE $timeFilter",
-          "rawQuery": true,
-          "rawSql": "select\n  time,\n  value as \"95th percentile for number of comments on PRs\"\nfrom\n  spr_comms_p95\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\norder by\n  time",
-          "alias": "",
-          "resultFormat": "time_series",
-          "format": "time_series",
-          "tags": [],
-          "groupBy": [],
-          "policy": "default",
-          "refId": "A"
-        },
-        {
-          "resultFormat": "time_series",
-          "rawQuery": true,
-          "rawSql": "select\n  time,\n  value as \"85th percentile for number of comments on PRs\"\nfrom\n  spr_comms_p85\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\norder by\n  time",
-          "tags": [],
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              }
-            ]
-          ],
-          "format": "time_series",
-          "refId": "B",
-          "alias": "",
-          "groupBy": [],
-          "orderByTime": "ASC",
-          "dsType": "influxdb",
-          "policy": "default",
-          "query": "SELECT \"value\" FROM \"pr_comments_percentile_85_[[period]]\" WHERE $timeFilter"
-        },
-        {
-          "format": "time_series",
-          "orderByTime": "ASC",
-          "alias": "",
-          "rawQuery": true,
-          "refId": "C",
-          "dsType": "influxdb",
-          "rawSql": "select\n  time,\n  value as \"Median for number of comments on PRs\"\nfrom\n  spr_comms_med\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\norder by\n  time",
-          "resultFormat": "time_series",
-          "policy": "default",
-          "query": "SELECT \"value\" FROM \"pr_comments_median_[[period]]\" WHERE $timeFilter",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              }
-            ]
-          ],
-          "tags": [],
-          "groupBy": []
-        }
-      ],
-      "linewidth": 1,
-      "fill": 1,
-      "seriesOverrides": [],
-      "gridPos": {
-        "x": 0,
-        "y": 0,
-        "h": 21,
-        "w": 24
-      },
-      "nullPointMode": "null as zero",
-      "id": 2,
-      "spaceLength": 10,
-      "points": false,
-      "yaxes": [
-        {
-          "min": "0",
-          "show": true,
-          "format": "none",
-          "label": "Comments",
-          "logBase": 1,
-          "max": null
-        },
-        {
-          "max": null,
-          "min": "0",
-          "show": true,
-          "format": "none",
-          "label": "",
-          "logBase": 1
-        }
-      ],
-      "thresholds": [],
+      "type": "graph",
       "xaxis": {
         "buckets": null,
         "mode": "time",
@@ -158,7 +166,28 @@
           "avg"
         ]
       },
-      "percentage": false
+      "yaxes": [
+        {
+          "format": "none",
+          "label": "Comments",
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true
+        },
+        {
+          "format": "none",
+          "label": "",
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
     },
     {
       "content": "${docs:raw}",
@@ -176,49 +205,46 @@
     }
   ],
   "schemaVersion": 16,
-  "time": {
-    "from": "now-3y",
-    "to": "now"
-  },
-  "timezone": "",
-  "gnetId": null,
-  "iteration": 1529595546233,
+  "style": "dark",
+  "tags": [
+    "dashboard",
+    "nats"
+  ],
   "templating": {
     "list": [
       {
-        "label": null,
+        "allValue": null,
         "current": {},
-        "skipUrlSync": true,
+        "datasource": "psql",
+        "hide": 2,
+        "includeAll": false,
+        "label": null,
         "multi": false,
         "name": "full_name",
-        "type": "query",
-        "allValue": null,
-        "datasource": "psql",
-        "tagValuesQuery": "",
-        "hide": 2,
-        "regex": "",
         "options": [],
         "query": "select value_s from gha_vars where name = 'full_name'",
-        "tagsQuery": "",
-        "sort": 0,
-        "includeAll": false,
         "refresh": 1,
+        "regex": "",
+        "skipUrlSync": true,
+        "sort": 0,
+        "tagValuesQuery": "",
         "tags": [],
+        "tagsQuery": "",
+        "type": "query",
         "useTags": false
       },
       {
+        "allValue": null,
         "current": {
-          "value": "w",
           "tags": [],
-          "text": "Week"
+          "text": "Week",
+          "value": "w"
         },
-        "name": "period",
-        "skipUrlSync": false,
         "hide": 0,
         "includeAll": false,
         "label": "Period",
         "multi": false,
-        "allValue": null,
+        "name": "period",
         "options": [
           {
             "selected": false,
@@ -231,9 +257,9 @@
             "value": "d7"
           },
           {
-            "value": "w",
             "selected": true,
-            "text": "Week"
+            "text": "Week",
+            "value": "w"
           },
           {
             "selected": false,
@@ -246,36 +272,41 @@
             "value": "q"
           },
           {
+            "selected": false,
             "text": "Year",
-            "value": "y",
-            "selected": false
+            "value": "y"
           }
         ],
         "query": "d,w,m,q,y",
+        "skipUrlSync": false,
         "type": "custom"
       },
       {
-        "refresh": 1,
-        "skipUrlSync": true,
-        "multi": false,
-        "current": {},
-        "query": "select value_s from gha_vars where name = 'pr_comments_docs_html'",
-        "name": "docs",
-        "tagsQuery": "",
-        "hide": 2,
-        "label": null,
-        "includeAll": false,
-        "sort": 0,
-        "regex": "",
         "allValue": null,
+        "current": {},
         "datasource": "psql",
-        "useTags": false,
-        "tagValuesQuery": "",
-        "type": "query",
+        "hide": 2,
+        "includeAll": false,
+        "label": null,
+        "multi": false,
+        "name": "docs",
         "options": [],
-        "tags": []
+        "query": "select value_s from gha_vars where name = 'pr_comments_docs_html'",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": true,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
       }
     ]
+  },
+  "time": {
+    "from": "now-3y",
+    "to": "now"
   },
   "timepicker": {
     "refresh_intervals": [
@@ -302,39 +333,8 @@
       "30d"
     ]
   },
+  "timezone": "",
   "title": "PR Comments",
-  "annotations": {
-    "list": [
-      {
-        "datasource": "-- Grafana --",
-        "enable": true,
-        "hide": true,
-        "iconColor": "rgba(0, 211, 255, 1)",
-        "name": "Annotations & Alerts",
-        "type": "dashboard",
-        "builtIn": 1
-      },
-      {
-        "datasource": "psql",
-        "showIn": 0,
-        "tagsColumn": "title,description",
-        "textColumn": "",
-        "titleColumn": "[[full_name]] release",
-        "rawQuery": "select extract(epoch from time) AS time, title as text, description as tags from sannotations where $__timeFilter(time)",
-        "type": "alert",
-        "hide": false,
-        "limit": 100,
-        "enable": true,
-        "iconColor": "rgba(255, 96, 96, 1)",
-        "name": "Releases",
-        "query": "SELECT title, description from annotations WHERE $timeFilter order by time asc"
-      }
-    ]
-  },
-  "editable": true,
-  "graphTooltip": 0,
-  "tags": [
-    "dashboard",
-    "nats"
-  ]
+  "uid": "17",
+  "version": 2
 }

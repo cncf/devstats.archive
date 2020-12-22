@@ -1,5 +1,367 @@
 {
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      },
+      {
+        "datasource": "psql",
+        "enable": true,
+        "hide": false,
+        "iconColor": "rgba(255, 96, 96, 1)",
+        "limit": 100,
+        "name": "Releases",
+        "query": "SELECT title, description from annotations WHERE $timeFilter order by time asc",
+        "rawQuery": "select extract(epoch from time) AS time, title as text, description as tags from sannotations where $__timeFilter(time)",
+        "showIn": 0,
+        "tagsColumn": "title,description",
+        "textColumn": "",
+        "titleColumn": "[[full_name]] release",
+        "type": "alert"
+      }
+    ]
+  },
+  "editable": true,
   "gnetId": null,
+  "graphTooltip": 0,
+  "id": 3,
+  "iteration": 1562950079089,
+  "links": [],
+  "panels": [
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "psql",
+      "decimals": 0,
+      "description": "",
+      "fill": 1,
+      "gridPos": {
+        "h": 22,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 1,
+      "legend": {
+        "alignAsTable": true,
+        "avg": true,
+        "current": true,
+        "hideEmpty": false,
+        "hideZero": false,
+        "max": true,
+        "min": true,
+        "rightSide": false,
+        "show": true,
+        "total": false,
+        "values": true
+      },
+      "lines": true,
+      "linewidth": 1,
+      "links": [],
+      "nullPointMode": "null",
+      "options": {},
+      "percentage": false,
+      "pointradius": 1,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [
+        {
+          "alias": "Number of contributing developers",
+          "yaxis": 2
+        }
+      ],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "alias": "Number of contributing companies",
+          "dsType": "influxdb",
+          "format": "time_series",
+          "group": [],
+          "groupBy": [],
+          "hide": false,
+          "measurement": "reviewers_d",
+          "metricColumn": "none",
+          "orderByTime": "ASC",
+          "policy": "autogen",
+          "query": "SELECT \"value\" FROM \"autogen\".\"num_stats_[[repogroup]]_companies_[[period]]\" WHERE $timeFilter",
+          "rawQuery": true,
+          "rawSql": "select\n  time,\n  value as \"Number of contributing companies\"\nfrom\n  snum_stats\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'nstats[[repogroup]]comps'\norder by\n  time",
+          "refId": "A",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              }
+            ]
+          ],
+          "tags": [],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        },
+        {
+          "alias": "Number of contributing developers",
+          "dsType": "influxdb",
+          "format": "time_series",
+          "group": [],
+          "groupBy": [],
+          "hide": false,
+          "measurement": "reviewers_d",
+          "metricColumn": "none",
+          "orderByTime": "ASC",
+          "policy": "autogen",
+          "query": "SELECT \"value\" FROM \"autogen\".\"num_stats_[[repogroup]]_developers_[[period]]\" WHERE $timeFilter",
+          "rawQuery": true,
+          "rawSql": "select\n  time,\n  value as \"Number of contributing developers\"\nfrom\n  snum_stats\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'nstats[[repogroup]]devs'\norder by\n  time",
+          "refId": "B",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              }
+            ]
+          ],
+          "tags": [],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "Contributing companies and developers ([[repogroup_name]], [[period]])",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "transparent": true,
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": [
+          "total"
+        ]
+      },
+      "yaxes": [
+        {
+          "format": "none",
+          "label": "Companies",
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true
+        },
+        {
+          "format": "none",
+          "label": "Developers",
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "content": "${docs:raw}",
+      "gridPos": {
+        "h": 12,
+        "w": 24,
+        "x": 0,
+        "y": 22
+      },
+      "id": 11,
+      "links": [],
+      "mode": "html",
+      "options": {},
+      "title": "Dashboard documentation",
+      "type": "text"
+    }
+  ],
+  "refresh": false,
+  "schemaVersion": 18,
+  "style": "dark",
+  "tags": [
+    "companies",
+    "dashboard",
+    "strimzi"
+  ],
+  "templating": {
+    "list": [
+      {
+        "allValue": null,
+        "current": {},
+        "datasource": "psql",
+        "definition": "",
+        "hide": 2,
+        "includeAll": false,
+        "label": null,
+        "multi": false,
+        "name": "full_name",
+        "options": [],
+        "query": "select value_s from gha_vars where name = 'full_name'",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": true,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "tags": [],
+          "text": "28 Days MA",
+          "value": "d28"
+        },
+        "hide": 0,
+        "includeAll": false,
+        "label": "Period",
+        "multi": false,
+        "name": "period",
+        "options": [
+          {
+            "selected": false,
+            "text": "7 Days MA",
+            "value": "d7"
+          },
+          {
+            "selected": true,
+            "text": "28 Days MA",
+            "value": "d28"
+          },
+          {
+            "selected": false,
+            "text": "Week",
+            "value": "w"
+          },
+          {
+            "selected": false,
+            "text": "Month",
+            "value": "m"
+          },
+          {
+            "selected": false,
+            "text": "Quarter",
+            "value": "q"
+          }
+        ],
+        "query": "d7,d28,w,m,q",
+        "skipUrlSync": false,
+        "type": "custom"
+      },
+      {
+        "allValue": null,
+        "current": {},
+        "datasource": "psql",
+        "definition": "",
+        "hide": 0,
+        "includeAll": false,
+        "label": "Repository group",
+        "multi": false,
+        "name": "repogroup_name",
+        "options": [],
+        "query": "select all_repo_group_name from tall_repo_groups order by 1",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {},
+        "datasource": "psql",
+        "definition": "",
+        "hide": 2,
+        "includeAll": false,
+        "label": "",
+        "multi": false,
+        "name": "repogroup",
+        "options": [],
+        "query": "select all_repo_group_value from tall_repo_groups where all_repo_group_name = '[[repogroup_name]]'",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": true,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {},
+        "datasource": "psql",
+        "definition": "",
+        "hide": 2,
+        "includeAll": false,
+        "label": null,
+        "multi": false,
+        "name": "docs",
+        "options": [],
+        "query": "select value_s from gha_vars where name = 'contributing_companies_docs_html'",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": true,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      }
+    ]
+  },
+  "time": {
+    "from": "now-2y",
+    "to": "now"
+  },
   "timepicker": {
     "refresh_intervals": [
       "5s",
@@ -25,370 +387,8 @@
       "30d"
     ]
   },
-  "version": 2,
-  "panels": [
-    {
-      "dashes": false,
-      "bars": false,
-      "renderer": "flot",
-      "spaceLength": 10,
-      "fill": 1,
-      "pointradius": 1,
-      "gridPos": {
-        "h": 22,
-        "w": 24,
-        "x": 0,
-        "y": 0
-      },
-      "legend": {
-        "total": false,
-        "hideEmpty": false,
-        "values": true,
-        "hideZero": false,
-        "rightSide": false,
-        "show": true,
-        "current": true,
-        "alignAsTable": true,
-        "max": true,
-        "min": true,
-        "avg": true
-      },
-      "tooltip": {
-        "shared": true,
-        "sort": 0,
-        "value_type": "individual"
-      },
-      "linewidth": 1,
-      "nullPointMode": "null",
-      "targets": [
-        {
-          "dsType": "influxdb",
-          "rawSql": "select\n  time,\n  value as \"Number of contributing companies\"\nfrom\n  snum_stats\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'nstats[[repogroup]]comps'\norder by\n  time",
-          "refId": "A",
-          "metricColumn": "none",
-          "where": [
-            {
-              "params": [],
-              "type": "macro",
-              "name": "$__timeFilter"
-            }
-          ],
-          "orderByTime": "ASC",
-          "group": [],
-          "timeColumn": "time",
-          "measurement": "reviewers_d",
-          "rawQuery": true,
-          "policy": "autogen",
-          "alias": "Number of contributing companies",
-          "format": "time_series",
-          "resultFormat": "time_series",
-          "query": "SELECT \"value\" FROM \"autogen\".\"num_stats_[[repogroup]]_companies_[[period]]\" WHERE $timeFilter",
-          "hide": false,
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              }
-            ]
-          ],
-          "tags": [],
-          "groupBy": []
-        },
-        {
-          "group": [],
-          "measurement": "reviewers_d",
-          "refId": "B",
-          "hide": false,
-          "tags": [],
-          "alias": "Number of contributing developers",
-          "policy": "autogen",
-          "resultFormat": "time_series",
-          "timeColumn": "time",
-          "rawQuery": true,
-          "groupBy": [],
-          "dsType": "influxdb",
-          "orderByTime": "ASC",
-          "rawSql": "select\n  time,\n  value as \"Number of contributing developers\"\nfrom\n  snum_stats\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'nstats[[repogroup]]devs'\norder by\n  time",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              }
-            ]
-          ],
-          "metricColumn": "none",
-          "query": "SELECT \"value\" FROM \"autogen\".\"num_stats_[[repogroup]]_developers_[[period]]\" WHERE $timeFilter",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ],
-          "format": "time_series"
-        }
-      ],
-      "aliasColors": {},
-      "points": false,
-      "type": "graph",
-      "decimals": 0,
-      "transparent": true,
-      "xaxis": {
-        "values": [
-          "total"
-        ],
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true
-      },
-      "stack": false,
-      "seriesOverrides": [
-        {
-          "yaxis": 2,
-          "alias": "Number of contributing developers"
-        }
-      ],
-      "lines": true,
-      "timeFrom": null,
-      "description": "",
-      "options": {},
-      "yaxes": [
-        {
-          "show": true,
-          "format": "none",
-          "label": "Companies",
-          "logBase": 1,
-          "max": null,
-          "min": "0"
-        },
-        {
-          "logBase": 1,
-          "max": null,
-          "min": "0",
-          "show": true,
-          "format": "none",
-          "label": "Developers"
-        }
-      ],
-      "timeShift": null,
-      "timeRegions": [],
-      "title": "Contributing companies and developers ([[repogroup_name]], [[period]])",
-      "id": 1,
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      },
-      "datasource": "psql",
-      "percentage": false,
-      "links": [],
-      "steppedLine": false,
-      "thresholds": [],
-      "dashLength": 10
-    },
-    {
-      "id": 11,
-      "links": [],
-      "mode": "html",
-      "options": {},
-      "title": "Dashboard documentation",
-      "type": "text",
-      "content": "${docs:raw}",
-      "gridPos": {
-        "h": 12,
-        "w": 24,
-        "x": 0,
-        "y": 22
-      }
-    }
-  ],
-  "time": {
-    "from": "now-2y",
-    "to": "now"
-  },
-  "title": "Companies Contributing in Repository Groups",
-  "templating": {
-    "list": [
-      {
-        "current": {},
-        "refresh": 1,
-        "tags": [],
-        "tagsQuery": "",
-        "datasource": "psql",
-        "multi": false,
-        "type": "query",
-        "options": [],
-        "tagValuesQuery": "",
-        "name": "full_name",
-        "regex": "",
-        "sort": 0,
-        "skipUrlSync": true,
-        "useTags": false,
-        "label": null,
-        "allValue": null,
-        "definition": "",
-        "query": "select value_s from gha_vars where name = 'full_name'",
-        "hide": 2,
-        "includeAll": false
-      },
-      {
-        "allValue": null,
-        "query": "d7,d28,w,m,q",
-        "skipUrlSync": false,
-        "includeAll": false,
-        "multi": false,
-        "type": "custom",
-        "current": {
-          "tags": [],
-          "text": "28 Days MA",
-          "value": "d28"
-        },
-        "hide": 0,
-        "options": [
-          {
-            "selected": false,
-            "text": "7 Days MA",
-            "value": "d7"
-          },
-          {
-            "text": "28 Days MA",
-            "value": "d28",
-            "selected": true
-          },
-          {
-            "selected": false,
-            "text": "Week",
-            "value": "w"
-          },
-          {
-            "text": "Month",
-            "value": "m",
-            "selected": false
-          },
-          {
-            "selected": false,
-            "text": "Quarter",
-            "value": "q"
-          }
-        ],
-        "label": "Period",
-        "name": "period"
-      },
-      {
-        "regex": "",
-        "sort": 0,
-        "tagValuesQuery": "",
-        "type": "query",
-        "datasource": "psql",
-        "definition": "",
-        "hide": 0,
-        "options": [],
-        "query": "select all_repo_group_name from tall_repo_groups order by 1",
-        "multi": false,
-        "refresh": 1,
-        "allValue": null,
-        "useTags": false,
-        "name": "repogroup_name",
-        "label": "Repository group",
-        "tags": [],
-        "skipUrlSync": false,
-        "tagsQuery": "",
-        "current": {},
-        "includeAll": false
-      },
-      {
-        "regex": "",
-        "definition": "",
-        "name": "repogroup",
-        "skipUrlSync": true,
-        "sort": 0,
-        "includeAll": false,
-        "options": [],
-        "current": {},
-        "query": "select all_repo_group_value from tall_repo_groups where all_repo_group_name = '[[repogroup_name]]'",
-        "tags": [],
-        "label": "",
-        "useTags": false,
-        "refresh": 1,
-        "allValue": null,
-        "hide": 2,
-        "tagValuesQuery": "",
-        "tagsQuery": "",
-        "type": "query",
-        "datasource": "psql",
-        "multi": false
-      },
-      {
-        "multi": false,
-        "tagValuesQuery": "",
-        "tags": [],
-        "type": "query",
-        "hide": 2,
-        "skipUrlSync": true,
-        "datasource": "psql",
-        "definition": "",
-        "useTags": false,
-        "current": {},
-        "includeAll": false,
-        "query": "select value_s from gha_vars where name = 'contributing_companies_docs_html'",
-        "options": [],
-        "regex": "",
-        "sort": 0,
-        "allValue": null,
-        "name": "docs",
-        "label": null,
-        "refresh": 1,
-        "tagsQuery": ""
-      }
-    ]
-  },
   "timezone": "",
-  "annotations": {
-    "list": [
-      {
-        "iconColor": "rgba(0, 211, 255, 1)",
-        "name": "Annotations & Alerts",
-        "type": "dashboard",
-        "builtIn": 1,
-        "datasource": "-- Grafana --",
-        "enable": true,
-        "hide": true
-      },
-      {
-        "limit": 100,
-        "rawQuery": "select extract(epoch from time) AS time, title as text, description as tags from sannotations where $__timeFilter(time)",
-        "type": "alert",
-        "enable": true,
-        "iconColor": "rgba(255, 96, 96, 1)",
-        "titleColumn": "[[full_name]] release",
-        "name": "Releases",
-        "query": "SELECT title, description from annotations WHERE $timeFilter order by time asc",
-        "textColumn": "",
-        "datasource": "psql",
-        "hide": false,
-        "showIn": 0,
-        "tagsColumn": "title,description"
-      }
-    ]
-  },
-  "tags": [
-    "companies",
-    "dashboard",
-    "strimzi"
-  ],
+  "title": "Companies Contributing in Repository Groups",
   "uid": "7",
-  "graphTooltip": 0,
-  "editable": true,
-  "refresh": false,
-  "schemaVersion": 18,
-  "links": [],
-  "iteration": 1562950079089,
-  "style": "dark",
-  "id": 3
+  "version": 2
 }

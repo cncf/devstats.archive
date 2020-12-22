@@ -1,7 +1,4 @@
 {
-  "style": "dark",
-  "graphTooltip": 0,
-  "iteration": 1529593413417,
   "annotations": {
     "list": [
       {
@@ -14,43 +11,83 @@
         "type": "dashboard"
       },
       {
-        "titleColumn": "[[full_name]] release",
+        "datasource": "psql",
         "enable": true,
         "hide": false,
-        "datasource": "psql",
         "iconColor": "rgba(255, 96, 96, 1)",
-        "query": "SELECT title, description from annotations WHERE $timeFilter order by time asc",
         "limit": 100,
         "name": "Releases",
+        "query": "SELECT title, description from annotations WHERE $timeFilter order by time asc",
+        "rawQuery": "select extract(epoch from time) AS time, title as text, description as tags from sannotations where $__timeFilter(time)",
         "showIn": 0,
         "tagsColumn": "title,description",
-        "rawQuery": "select extract(epoch from time) AS time, title as text, description as tags from sannotations where $__timeFilter(time)",
         "textColumn": "",
+        "titleColumn": "[[full_name]] release",
         "type": "alert"
       }
     ]
   },
-  "tags": [
-    "dashboard",
-    "cni"
-  ],
   "editable": true,
-  "time": {
-    "to": "now",
-    "from": "now-3y"
-  },
-  "timezone": "",
-  "version": 2,
+  "gnetId": null,
+  "graphTooltip": 0,
+  "id": 37,
+  "iteration": 1529593413417,
+  "links": [],
   "panels": [
     {
-      "renderer": "flot",
-      "id": 2,
+      "aliasColors": {},
+      "bars": true,
+      "dashLength": 10,
       "dashes": false,
+      "datasource": "psql",
+      "decimals": 0,
+      "description": "Number of PRs merged in given repository group",
+      "fill": 3,
+      "gridPos": {
+        "h": 15,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 2,
+      "legend": {
+        "alignAsTable": true,
+        "avg": true,
+        "current": true,
+        "max": true,
+        "min": true,
+        "rightSide": true,
+        "show": true,
+        "sort": "avg",
+        "sortDesc": true,
+        "total": true,
+        "values": true
+      },
+      "lines": false,
+      "linewidth": 0,
+      "links": [],
+      "nullPointMode": "null as zero",
+      "percentage": false,
+      "pointradius": 5,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": true,
+      "steppedLine": true,
       "targets": [
         {
-          "tags": [],
-          "rawSql": "select\n  time,\n  ${repogroups:csv}\nfrom\n  sgrp_pr_merg\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\norder by\n  time",
+          "alias": "$col",
           "dsType": "influxdb",
+          "groupBy": [],
+          "measurement": "notused",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "SELECT /^[[repogroups]]$/ FROM \"group_prs_merged_[[period]]\" WHERE $timeFilter",
+          "rawQuery": true,
+          "rawSql": "select\n  time,\n  ${repogroups:csv}\nfrom\n  sgrp_pr_merg\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\norder by\n  time",
+          "refId": "A",
+          "resultFormat": "time_series",
           "select": [
             [
               {
@@ -61,51 +98,19 @@
               }
             ]
           ],
-          "orderByTime": "ASC",
-          "policy": "default",
-          "refId": "A",
-          "resultFormat": "time_series",
-          "alias": "$col",
-          "groupBy": [],
-          "measurement": "notused",
-          "query": "SELECT /^[[repogroups]]$/ FROM \"group_prs_merged_[[period]]\" WHERE $timeFilter",
-          "rawQuery": true
+          "tags": []
         }
       ],
-      "gridPos": {
-        "x": 0,
-        "y": 0,
-        "h": 15,
-        "w": 24
-      },
-      "yaxes": [
-        {
-          "min": "0",
-          "show": true,
-          "format": "short",
-          "label": "Pull requests merged",
-          "logBase": 1,
-          "max": null
-        },
-        {
-          "label": "",
-          "logBase": 1,
-          "max": null,
-          "min": "0",
-          "show": true,
-          "format": "short"
-        }
-      ],
-      "steppedLine": true,
+      "thresholds": [],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "PRs merged per repository groups ([[repogroups]], [[period]])",
       "tooltip": {
         "shared": true,
         "sort": 2,
         "value_type": "individual"
       },
-      "percentage": false,
-      "aliasColors": {},
-      "bars": true,
-      "pointradius": 5,
+      "type": "graph",
       "xaxis": {
         "buckets": null,
         "mode": "time",
@@ -113,120 +118,81 @@
         "show": true,
         "values": []
       },
-      "decimals": 0,
-      "timeFrom": null,
-      "linewidth": 0,
-      "timeShift": null,
-      "points": false,
-      "type": "graph",
-      "stack": true,
-      "legend": {
-        "total": true,
-        "show": true,
-        "rightSide": true,
-        "avg": true,
-        "current": true,
-        "sortDesc": true,
-        "alignAsTable": true,
-        "min": true,
-        "sort": "avg",
-        "values": true,
-        "max": true
-      },
-      "nullPointMode": "null as zero",
-      "datasource": "psql",
-      "dashLength": 10,
-      "seriesOverrides": [],
-      "thresholds": [],
-      "fill": 3,
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      },
-      "description": "Number of PRs merged in given repository group",
-      "spaceLength": 10,
-      "lines": false,
-      "title": "PRs merged per repository groups ([[repogroups]], [[period]])",
-      "links": []
-    },
-    {
-      "dashLength": 10,
-      "id": 3,
-      "points": false,
-      "fill": 5,
-      "links": [],
-      "nullPointMode": "null as zero",
-      "legend": {
-        "show": true,
-        "max": true,
-        "avg": true,
-        "total": true,
-        "values": true,
-        "rightSide": true,
-        "alignAsTable": true,
-        "current": true,
-        "min": true
-      },
-      "type": "graph",
-      "percentage": false,
-      "xaxis": {
-        "values": [],
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true
-      },
-      "seriesOverrides": [],
-      "title": "PRs merged in all [[full_name]] repositories ([[period]])",
-      "bars": true,
-      "lines": false,
-      "decimals": 0,
-      "spaceLength": 10,
-      "linewidth": 1,
-      "pointradius": 5,
-      "yaxis": {
-        "alignLevel": null,
-        "align": false
-      },
-      "datasource": "psql",
-      "thresholds": [],
-      "aliasColors": {},
-      "gridPos": {
-        "x": 0,
-        "y": 15,
-        "h": 12,
-        "w": 24
-      },
-      "timeFrom": null,
-      "steppedLine": false,
-      "timeShift": null,
-      "dashes": false,
-      "tooltip": {
-        "shared": true,
-        "sort": 0,
-        "value_type": "individual"
-      },
       "yaxes": [
         {
-          "show": true,
           "format": "short",
-          "label": "PRs merged",
+          "label": "Pull requests merged",
           "logBase": 1,
           "max": null,
-          "min": "0"
+          "min": "0",
+          "show": true
         },
         {
-          "min": "0",
-          "show": true,
           "format": "short",
           "label": "",
           "logBase": 1,
-          "max": null
+          "max": null,
+          "min": "0",
+          "show": true
         }
       ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": true,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "psql",
+      "decimals": 0,
+      "description": "PRs merged in all [[full_name]] repositories",
+      "fill": 5,
+      "gridPos": {
+        "h": 12,
+        "w": 24,
+        "x": 0,
+        "y": 15
+      },
+      "id": 3,
+      "legend": {
+        "alignAsTable": true,
+        "avg": true,
+        "current": true,
+        "max": true,
+        "min": true,
+        "rightSide": true,
+        "show": true,
+        "total": true,
+        "values": true
+      },
+      "lines": false,
+      "linewidth": 1,
+      "links": [],
+      "nullPointMode": "null as zero",
+      "percentage": false,
+      "pointradius": 5,
+      "points": false,
       "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
       "targets": [
         {
+          "alias": "PRs merged",
+          "dsType": "influxdb",
+          "groupBy": [],
+          "measurement": "all_prs_merged_h",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "SELECT \"value\" FROM \"all_prs_merged_[[period]]\" WHERE $timeFilter",
+          "rawQuery": true,
+          "rawSql": "select\n  time,\n  \"value\" as \"All PRs merged\"\nfrom\n  sall_prs_merged\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\norder by\n  time",
+          "refId": "A",
+          "resultFormat": "time_series",
           "select": [
             [
               {
@@ -237,82 +203,106 @@
               }
             ]
           ],
-          "refId": "A",
-          "tags": [],
-          "query": "SELECT \"value\" FROM \"all_prs_merged_[[period]]\" WHERE $timeFilter",
-          "rawSql": "select\n  time,\n  \"value\" as \"All PRs merged\"\nfrom\n  sall_prs_merged\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\norder by\n  time",
-          "dsType": "influxdb",
-          "measurement": "all_prs_merged_h",
-          "alias": "PRs merged",
-          "orderByTime": "ASC",
-          "policy": "default",
-          "rawQuery": true,
-          "groupBy": [],
-          "resultFormat": "time_series"
+          "tags": []
         }
       ],
-      "description": "PRs merged in all [[full_name]] repositories",
-      "stack": false
+      "thresholds": [],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "PRs merged in all [[full_name]] repositories ([[period]])",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "format": "short",
+          "label": "PRs merged",
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": "",
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
     },
     {
+      "content": "${docs:raw}",
+      "gridPos": {
+        "h": 11,
+        "w": 24,
+        "x": 0,
+        "y": 27
+      },
       "id": 11,
       "links": [],
       "mode": "html",
       "title": "Dashboard documentation",
-      "type": "text",
-      "content": "${docs:raw}",
-      "gridPos": {
-        "x": 0,
-        "y": 27,
-        "h": 11,
-        "w": 24
-      }
+      "type": "text"
     }
   ],
-  "gnetId": null,
-  "schemaVersion": 16,
-  "id": 37,
-  "links": [],
   "refresh": false,
-  "uid": "24",
+  "schemaVersion": 16,
+  "style": "dark",
+  "tags": [
+    "dashboard",
+    "cni"
+  ],
   "templating": {
     "list": [
       {
+        "allValue": null,
+        "current": {},
+        "datasource": "psql",
+        "hide": 2,
+        "includeAll": false,
+        "label": null,
         "multi": false,
+        "name": "full_name",
         "options": [],
+        "query": "select value_s from gha_vars where name = 'full_name'",
         "refresh": 1,
         "regex": "",
-        "hide": 2,
-        "sort": 0,
         "skipUrlSync": true,
-        "allValue": null,
-        "query": "select value_s from gha_vars where name = 'full_name'",
+        "sort": 0,
         "tagValuesQuery": "",
-        "current": {},
-        "useTags": false,
-        "label": null,
-        "name": "full_name",
         "tags": [],
-        "type": "query",
-        "includeAll": false,
         "tagsQuery": "",
-        "datasource": "psql"
+        "type": "query",
+        "useTags": false
       },
       {
-        "name": "period",
-        "includeAll": false,
-        "multi": false,
         "allValue": null,
-        "hide": 0,
-        "query": "d,w,m,q,y",
-        "type": "custom",
-        "label": "Period",
-        "skipUrlSync": false,
         "current": {
           "tags": [],
           "text": "7 Days MA",
           "value": "d7"
         },
+        "hide": 0,
+        "includeAll": false,
+        "label": "Period",
+        "multi": false,
+        "name": "period",
         "options": [
           {
             "selected": false,
@@ -344,51 +334,58 @@
             "text": "Year",
             "value": "y"
           }
-        ]
+        ],
+        "query": "d,w,m,q,y",
+        "skipUrlSync": false,
+        "type": "custom"
       },
       {
-        "hide": 0,
-        "type": "query",
-        "current": {},
-        "includeAll": true,
-        "multi": true,
-        "sort": 0,
         "allValue": "",
-        "skipUrlSync": false,
-        "useTags": false,
-        "refresh": 1,
+        "current": {},
         "datasource": "psql",
-        "name": "repogroups",
-        "tags": [],
+        "hide": 0,
+        "includeAll": true,
         "label": "Repository group",
-        "regex": "",
-        "tagValuesQuery": "",
-        "tagsQuery": "",
+        "multi": true,
+        "name": "repogroups",
         "options": [],
-        "query": "select '\"' || repo_group_name || '\"' from trepo_groups order by 1"
+        "query": "select '\"' || repo_group_name || '\"' from trepo_groups order by 1",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
       },
       {
         "allValue": null,
-        "includeAll": false,
-        "refresh": 1,
-        "tagValuesQuery": "",
-        "name": "docs",
-        "skipUrlSync": true,
-        "type": "query",
-        "label": null,
-        "datasource": "psql",
-        "options": [],
-        "regex": "",
-        "sort": 0,
-        "useTags": false,
-        "tags": [],
         "current": {},
-        "multi": false,
-        "tagsQuery": "",
+        "datasource": "psql",
         "hide": 2,
-        "query": "select value_s from gha_vars where name = 'prs_merged_docs_html'"
+        "includeAll": false,
+        "label": null,
+        "multi": false,
+        "name": "docs",
+        "options": [],
+        "query": "select value_s from gha_vars where name = 'prs_merged_docs_html'",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": true,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
       }
     ]
+  },
+  "time": {
+    "from": "now-3y",
+    "to": "now"
   },
   "timepicker": {
     "refresh_intervals": [
@@ -415,5 +412,8 @@
       "30d"
     ]
   },
-  "title": "PRs Merged Repository Groups"
+  "timezone": "",
+  "title": "PRs Merged Repository Groups",
+  "uid": "24",
+  "version": 2
 }

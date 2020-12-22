@@ -1,34 +1,785 @@
 {
-  "schemaVersion": 21,
   "annotations": {
     "list": [
       {
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
         "enable": true,
         "hide": true,
         "iconColor": "rgba(0, 211, 255, 1)",
-        "name": "Annotations \u0026 Alerts",
-        "type": "dashboard",
-        "builtIn": 1,
-        "datasource": "-- Grafana --"
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
       },
       {
-        "textColumn": "",
-        "limit": 100,
-        "rawQuery": "select extract(epoch from time) AS time, title as text, description as tags from sannotations where $__timeFilter(time)",
-        "enable": true,
         "datasource": "psql",
-        "name": "Releases",
-        "showIn": 0,
-        "iconColor": "rgba(255, 96, 96, 1)",
-        "titleColumn": "[[full_name]] release",
-        "type": "alert",
-        "tagsColumn": "title,description",
+        "enable": true,
         "hide": false,
-        "query": "SELECT title, description from annotations WHERE $timeFilter order by time asc"
+        "iconColor": "rgba(255, 96, 96, 1)",
+        "limit": 100,
+        "name": "Releases",
+        "query": "SELECT title, description from annotations WHERE $timeFilter order by time asc",
+        "rawQuery": "select extract(epoch from time) AS time, title as text, description as tags from sannotations where $__timeFilter(time)",
+        "showIn": 0,
+        "tagsColumn": "title,description",
+        "textColumn": "",
+        "titleColumn": "[[full_name]] release",
+        "type": "alert"
       }
     ]
   },
-  "version": 3,
+  "editable": true,
+  "gnetId": null,
+  "graphTooltip": 0,
+  "id": 1,
+  "iteration": 1589273795171,
+  "links": [],
+  "panels": [
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "psql",
+      "decimals": 0,
+      "description": "PRs by SIG that were open for 90 or more days at s given point in time",
+      "fill": 6,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 21,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "hiddenSeries": false,
+      "id": 12,
+      "interval": "",
+      "legend": {
+        "alignAsTable": true,
+        "avg": true,
+        "current": true,
+        "max": true,
+        "min": true,
+        "rightSide": true,
+        "show": true,
+        "sort": "avg",
+        "sortDesc": true,
+        "total": false,
+        "values": true
+      },
+      "lines": true,
+      "linewidth": 0,
+      "links": [],
+      "nullPointMode": "null as zero",
+      "options": {
+        "dataLinks": []
+      },
+      "percentage": false,
+      "pointradius": 5,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": true,
+      "steppedLine": false,
+      "targets": [
+        {
+          "alias": "",
+          "dsType": "influxdb",
+          "format": "time_series",
+          "group": [],
+          "groupBy": [],
+          "measurement": "notused",
+          "metricColumn": "none",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "SELECT /^[[sigs]]$/ FROM \"sig_pr_workload_absolute_workload_d\" WHERE $timeFilter",
+          "rawQuery": true,
+          "rawSql": "select\n  time,\n  ${sigs:csv}\nfrom\n  sawaiting_prs_by_sigd90\nwhere\n  $__timeFilter(time)\n  and period = 'd'\norder by\n  time",
+          "refId": "A",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              }
+            ]
+          ],
+          "tags": [],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "Awaiting PRs by SIG (open for 90 days or more)",
+      "tooltip": {
+        "shared": true,
+        "sort": 2,
+        "value_type": "individual"
+      },
+      "transparent": true,
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "decimals": null,
+          "format": "short",
+          "label": "PRs",
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": "",
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "psql",
+      "decimals": 0,
+      "description": "PRs by SIG that were open for 60 or more days at s given point in time",
+      "fill": 6,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 21,
+        "w": 24,
+        "x": 0,
+        "y": 21
+      },
+      "hiddenSeries": false,
+      "id": 13,
+      "interval": "",
+      "legend": {
+        "alignAsTable": true,
+        "avg": true,
+        "current": true,
+        "max": true,
+        "min": true,
+        "rightSide": true,
+        "show": true,
+        "sort": "avg",
+        "sortDesc": true,
+        "total": false,
+        "values": true
+      },
+      "lines": true,
+      "linewidth": 0,
+      "links": [],
+      "nullPointMode": "null as zero",
+      "options": {
+        "dataLinks": []
+      },
+      "percentage": false,
+      "pointradius": 5,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": true,
+      "steppedLine": false,
+      "targets": [
+        {
+          "alias": "",
+          "dsType": "influxdb",
+          "format": "time_series",
+          "group": [],
+          "groupBy": [],
+          "measurement": "notused",
+          "metricColumn": "none",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "SELECT /^[[sigs]]$/ FROM \"sig_pr_workload_absolute_workload_d\" WHERE $timeFilter",
+          "rawQuery": true,
+          "rawSql": "select\n  time,\n  ${sigs:csv}\nfrom\n  sawaiting_prs_by_sigd60\nwhere\n  $__timeFilter(time)\n  and period = 'd'\norder by\n  time",
+          "refId": "A",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              }
+            ]
+          ],
+          "tags": [],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "Awaiting PRs by SIG (open for 60 days or more)",
+      "tooltip": {
+        "shared": true,
+        "sort": 2,
+        "value_type": "individual"
+      },
+      "transparent": true,
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "decimals": null,
+          "format": "short",
+          "label": "PRs",
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": "",
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "psql",
+      "decimals": 0,
+      "description": "PRs by SIG that were open for 30 or more days at s given point in time",
+      "fill": 6,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 21,
+        "w": 24,
+        "x": 0,
+        "y": 42
+      },
+      "hiddenSeries": false,
+      "id": 11,
+      "interval": "",
+      "legend": {
+        "alignAsTable": true,
+        "avg": true,
+        "current": true,
+        "max": true,
+        "min": true,
+        "rightSide": true,
+        "show": true,
+        "sort": "avg",
+        "sortDesc": true,
+        "total": false,
+        "values": true
+      },
+      "lines": true,
+      "linewidth": 0,
+      "links": [],
+      "nullPointMode": "null as zero",
+      "options": {
+        "dataLinks": []
+      },
+      "percentage": false,
+      "pointradius": 5,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": true,
+      "steppedLine": false,
+      "targets": [
+        {
+          "alias": "",
+          "dsType": "influxdb",
+          "format": "time_series",
+          "group": [],
+          "groupBy": [],
+          "measurement": "notused",
+          "metricColumn": "none",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "SELECT /^[[sigs]]$/ FROM \"sig_pr_workload_absolute_workload_d\" WHERE $timeFilter",
+          "rawQuery": true,
+          "rawSql": "select\n  time,\n  ${sigs:csv}\nfrom\n  sawaiting_prs_by_sigd30\nwhere\n  $__timeFilter(time)\n  and period = 'd'\norder by\n  time",
+          "refId": "A",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              }
+            ]
+          ],
+          "tags": [],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "Awaiting PRs by SIG (open for 30 days or more)",
+      "tooltip": {
+        "shared": true,
+        "sort": 2,
+        "value_type": "individual"
+      },
+      "transparent": true,
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "decimals": null,
+          "format": "short",
+          "label": "PRs",
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": "",
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "psql",
+      "decimals": 0,
+      "description": "PRs by SIG that were open for 10 or more days at s given point in time",
+      "fill": 6,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 21,
+        "w": 24,
+        "x": 0,
+        "y": 63
+      },
+      "hiddenSeries": false,
+      "id": 2,
+      "interval": "",
+      "legend": {
+        "alignAsTable": true,
+        "avg": true,
+        "current": true,
+        "max": true,
+        "min": true,
+        "rightSide": true,
+        "show": true,
+        "sort": "avg",
+        "sortDesc": true,
+        "total": false,
+        "values": true
+      },
+      "lines": true,
+      "linewidth": 0,
+      "links": [],
+      "nullPointMode": "null as zero",
+      "options": {
+        "dataLinks": []
+      },
+      "percentage": false,
+      "pointradius": 5,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": true,
+      "steppedLine": false,
+      "targets": [
+        {
+          "alias": "",
+          "dsType": "influxdb",
+          "format": "time_series",
+          "group": [],
+          "groupBy": [],
+          "measurement": "notused",
+          "metricColumn": "none",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "SELECT /^[[sigs]]$/ FROM \"sig_pr_workload_absolute_workload_d\" WHERE $timeFilter",
+          "rawQuery": true,
+          "rawSql": "select\n  time,\n  ${sigs:csv}\nfrom\n  sawaiting_prs_by_sigd10\nwhere\n  $__timeFilter(time)\n  and period = 'd'\norder by\n  time",
+          "refId": "A",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              }
+            ]
+          ],
+          "tags": [],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "Awaiting PRs by SIG (open for 10 days or more)",
+      "tooltip": {
+        "shared": true,
+        "sort": 2,
+        "value_type": "individual"
+      },
+      "transparent": true,
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "decimals": null,
+          "format": "short",
+          "label": "PRs",
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": "",
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "psql",
+      "decimals": 0,
+      "description": "Stalled PRs by SIG that were open for 1 year or more days at s given point in time",
+      "fill": 6,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 21,
+        "w": 24,
+        "x": 0,
+        "y": 84
+      },
+      "hiddenSeries": false,
+      "id": 14,
+      "interval": "",
+      "legend": {
+        "alignAsTable": true,
+        "avg": true,
+        "current": true,
+        "max": true,
+        "min": true,
+        "rightSide": true,
+        "show": true,
+        "sort": "avg",
+        "sortDesc": true,
+        "total": false,
+        "values": true
+      },
+      "lines": true,
+      "linewidth": 0,
+      "links": [],
+      "nullPointMode": "null as zero",
+      "options": {
+        "dataLinks": []
+      },
+      "percentage": false,
+      "pointradius": 5,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": true,
+      "steppedLine": false,
+      "targets": [
+        {
+          "alias": "",
+          "dsType": "influxdb",
+          "format": "time_series",
+          "group": [],
+          "groupBy": [],
+          "measurement": "notused",
+          "metricColumn": "none",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "SELECT /^[[sigs]]$/ FROM \"sig_pr_workload_absolute_workload_d\" WHERE $timeFilter",
+          "rawQuery": true,
+          "rawSql": "select\n  time,\n  ${sigs:csv}\nfrom\n  sawaiting_prs_by_sigy\nwhere\n  $__timeFilter(time)\n  and period = 'd'\norder by\n  time",
+          "refId": "A",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              }
+            ]
+          ],
+          "tags": [],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "Stalled PRs by SIG (open for 1 year or more)",
+      "tooltip": {
+        "shared": true,
+        "sort": 2,
+        "value_type": "individual"
+      },
+      "transparent": true,
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "decimals": null,
+          "format": "short",
+          "label": "PRs",
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": "",
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "content": "${docs:raw}",
+      "datasource": null,
+      "gridPos": {
+        "h": 10,
+        "w": 24,
+        "x": 0,
+        "y": 105
+      },
+      "id": 10,
+      "links": [],
+      "mode": "html",
+      "options": {},
+      "title": "Dashboard documentation",
+      "type": "text"
+    }
+  ],
+  "refresh": false,
+  "schemaVersion": 21,
+  "style": "dark",
+  "tags": [
+    "dashboard",
+    "kubernetes",
+    "SIGs",
+    "PRs"
+  ],
+  "templating": {
+    "list": [
+      {
+        "allValue": "",
+        "current": {
+          "text": "All",
+          "value": [
+            "$__all"
+          ]
+        },
+        "datasource": "psql",
+        "definition": "",
+        "hide": 0,
+        "includeAll": true,
+        "label": "SIG",
+        "multi": true,
+        "name": "sigs",
+        "options": [],
+        "query": "select '\"' || sig_mentions_labels_name || '\"' from tsig_mentions_labels order by 1",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "text": "Kubernetes",
+          "value": "Kubernetes"
+        },
+        "datasource": "psql",
+        "definition": "",
+        "hide": 2,
+        "includeAll": false,
+        "label": null,
+        "multi": false,
+        "name": "full_name",
+        "options": [],
+        "query": "select value_s from gha_vars where name = 'full_name'",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": true,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "text": "<h1 id=\"kubernetes-dashboard\">Kubernetes Awaiting PRs by SIG</h1>\n<p>Links:</p>\n<ul>\n<li>Metric <a href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/awaiting_prs_by_sig.sql\" target=\"_blank\">SQL file</a>.</li>\n<li>TSDB <a href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/metrics.yaml\" target=\"_blank\">series definition</a>. Search for <code>awaiting_prs_by_sig</code></li>\n<li>Grafana dashboard <a href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/awaiting-prs-by-sig.json\" target=\"_blank\">JSON</a>.</li>\n</ul>\n<h1 id=\"description\">Description</h1>\n<ul>\n<li>This dashboard shows the number of PRs opened by SIG that were open for longer than 10, 30, 60, 90 days and 1 year.</li>\n<li>We're counting PRs that were opened more than specified amaount of time at given point in time, so for example data for 1 month ago</li>\n<li>show PRs that were open for more than 10, 30, .. days 1 month ago (now they may be open for 2 months or merged already).</li>\n<li>PR belongs to SIG by using <code>sig/*</code> labels. List of SIGs to display in drop-down comes from all <code>sig/*</code> labels.</li>\n</ul>",
+          "value": "<h1 id=\"kubernetes-dashboard\">Kubernetes Awaiting PRs by SIG</h1>\n<p>Links:</p>\n<ul>\n<li>Metric <a href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/awaiting_prs_by_sig.sql\" target=\"_blank\">SQL file</a>.</li>\n<li>TSDB <a href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/metrics.yaml\" target=\"_blank\">series definition</a>. Search for <code>awaiting_prs_by_sig</code></li>\n<li>Grafana dashboard <a href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/awaiting-prs-by-sig.json\" target=\"_blank\">JSON</a>.</li>\n</ul>\n<h1 id=\"description\">Description</h1>\n<ul>\n<li>This dashboard shows the number of PRs opened by SIG that were open for longer than 10, 30, 60, 90 days and 1 year.</li>\n<li>We're counting PRs that were opened more than specified amaount of time at given point in time, so for example data for 1 month ago</li>\n<li>show PRs that were open for more than 10, 30, .. days 1 month ago (now they may be open for 2 months or merged already).</li>\n<li>PR belongs to SIG by using <code>sig/*</code> labels. List of SIGs to display in drop-down comes from all <code>sig/*</code> labels.</li>\n</ul>"
+        },
+        "datasource": "psql",
+        "definition": "select value_s from gha_vars where name = 'awaiting_prs_by_sig_docs_html'",
+        "hide": 2,
+        "includeAll": false,
+        "label": null,
+        "multi": false,
+        "name": "docs",
+        "options": [],
+        "query": "select value_s from gha_vars where name = 'awaiting_prs_by_sig_docs_html'",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": true,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      }
+    ]
+  },
+  "time": {
+    "from": "now-1y",
+    "to": "now"
+  },
   "timepicker": {
     "refresh_intervals": [
       "5s",
@@ -54,771 +805,8 @@
       "30d"
     ]
   },
-  "id": 1,
-  "tags": [
-    "dashboard",
-    "kubernetes",
-    "SIGs",
-    "PRs"
-  ],
-  "gnetId": null,
   "timezone": "",
-  "panels": [
-    {
-      "title": "Awaiting PRs by SIG (open for 90 days or more)",
-      "legend": {
-        "current": true,
-        "rightSide": true,
-        "sort": "avg",
-        "max": true,
-        "show": true,
-        "total": false,
-        "avg": true,
-        "min": true,
-        "sortDesc": true,
-        "values": true,
-        "alignAsTable": true
-      },
-      "tooltip": {
-        "shared": true,
-        "sort": 2,
-        "value_type": "individual"
-      },
-      "options": {
-        "dataLinks": []
-      },
-      "id": 12,
-      "linewidth": 0,
-      "timeShift": null,
-      "gridPos": {
-        "x": 0,
-        "y": 0,
-        "h": 21,
-        "w": 24
-      },
-      "links": [],
-      "spaceLength": 10,
-      "bars": false,
-      "timeFrom": null,
-      "stack": true,
-      "nullPointMode": "null as zero",
-      "targets": [
-        {
-          "measurement": "notused",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ],
-          "policy": "default",
-          "query": "SELECT /^[[sigs]]$/ FROM \"sig_pr_workload_absolute_workload_d\" WHERE $timeFilter",
-          "refId": "A",
-          "rawSql": "select\n  time,\n  ${sigs:csv}\nfrom\n  sawaiting_prs_by_sigd90\nwhere\n  $__timeFilter(time)\n  and period = 'd'\norder by\n  time",
-          "rawQuery": true,
-          "resultFormat": "time_series",
-          "dsType": "influxdb",
-          "format": "time_series",
-          "timeColumn": "time",
-          "groupBy": [],
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              }
-            ]
-          ],
-          "metricColumn": "none",
-          "tags": [],
-          "group": [],
-          "alias": "",
-          "orderByTime": "ASC"
-        }
-      ],
-      "aliasColors": {
-        
-      },
-      "type": "graph",
-      "timeRegions": [],
-      "yaxes": [
-        {
-          "decimals": null,
-          "format": "short",
-          "label": "PRs",
-          "logBase": 1,
-          "max": null,
-          "min": "0",
-          "show": true
-        },
-        {
-          "format": "short",
-          "label": "",
-          "logBase": 1,
-          "max": null,
-          "min": "0",
-          "show": true
-        }
-      ],
-      "dashLength": 10,
-      "xaxis": {
-        "name": null,
-        "show": true,
-        "values": [],
-        "buckets": null,
-        "mode": "time"
-      },
-      "seriesOverrides": [],
-      "fill": 6,
-      "dashes": false,
-      "renderer": "flot",
-      "steppedLine": false,
-      "description": "PRs by SIG that were open for 90 or more days at s given point in time",
-      "fillGradient": 0,
-      "hiddenSeries": false,
-      "lines": true,
-      "percentage": false,
-      "points": false,
-      "datasource": "psql",
-      "transparent": true,
-      "decimals": 0,
-      "pointradius": 5,
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      },
-      "interval": "",
-      "thresholds": []
-    },
-    {
-      "id": 13,
-      "bars": false,
-      "xaxis": {
-        "values": [],
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true
-      },
-      "dashes": false,
-      "links": [],
-      "title": "Awaiting PRs by SIG (open for 60 days or more)",
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      },
-      "fillGradient": 0,
-      "aliasColors": {
-        
-      },
-      "hiddenSeries": false,
-      "dashLength": 10,
-      "timeShift": null,
-      "points": false,
-      "transparent": true,
-      "lines": true,
-      "interval": "",
-      "pointradius": 5,
-      "spaceLength": 10,
-      "thresholds": [],
-      "seriesOverrides": [],
-      "options": {
-        "dataLinks": []
-      },
-      "type": "graph",
-      "timeRegions": [],
-      "renderer": "flot",
-      "targets": [
-        {
-          "measurement": "notused",
-          "rawQuery": true,
-          "format": "time_series",
-          "refId": "A",
-          "alias": "",
-          "dsType": "influxdb",
-          "query": "SELECT /^[[sigs]]$/ FROM \"sig_pr_workload_absolute_workload_d\" WHERE $timeFilter",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ],
-          "resultFormat": "time_series",
-          "groupBy": [],
-          "select": [
-            [
-              {
-                "type": "field",
-                "params": [
-                  "value"
-                ]
-              }
-            ]
-          ],
-          "orderByTime": "ASC",
-          "timeColumn": "time",
-          "metricColumn": "none",
-          "group": [],
-          "tags": [],
-          "rawSql": "select\n  time,\n  ${sigs:csv}\nfrom\n  sawaiting_prs_by_sigd60\nwhere\n  $__timeFilter(time)\n  and period = 'd'\norder by\n  time",
-          "policy": "default"
-        }
-      ],
-      "yaxes": [
-        {
-          "label": "PRs",
-          "logBase": 1,
-          "max": null,
-          "min": "0",
-          "show": true,
-          "decimals": null,
-          "format": "short"
-        },
-        {
-          "label": "",
-          "logBase": 1,
-          "max": null,
-          "min": "0",
-          "show": true,
-          "format": "short"
-        }
-      ],
-      "linewidth": 0,
-      "percentage": false,
-      "decimals": 0,
-      "stack": true,
-      "gridPos": {
-        "w": 24,
-        "x": 0,
-        "y": 21,
-        "h": 21
-      },
-      "legend": {
-        "current": true,
-        "avg": true,
-        "max": true,
-        "rightSide": true,
-        "sortDesc": true,
-        "values": true,
-        "sort": "avg",
-        "min": true,
-        "alignAsTable": true,
-        "total": false,
-        "show": true
-      },
-      "description": "PRs by SIG that were open for 60 or more days at s given point in time",
-      "datasource": "psql",
-      "nullPointMode": "null as zero",
-      "timeFrom": null,
-      "fill": 6,
-      "tooltip": {
-        "sort": 2,
-        "value_type": "individual",
-        "shared": true
-      },
-      "steppedLine": false
-    },
-    {
-      "timeFrom": null,
-      "timeRegions": [],
-      "fill": 6,
-      "options": {
-        "dataLinks": []
-      },
-      "fillGradient": 0,
-      "xaxis": {
-        "show": true,
-        "values": [],
-        "buckets": null,
-        "mode": "time",
-        "name": null
-      },
-      "aliasColors": {
-        
-      },
-      "bars": false,
-      "pointradius": 5,
-      "legend": {
-        "values": true,
-        "show": true,
-        "sortDesc": true,
-        "avg": true,
-        "sort": "avg",
-        "alignAsTable": true,
-        "max": true,
-        "total": false,
-        "current": true,
-        "min": true,
-        "rightSide": true
-      },
-      "steppedLine": false,
-      "nullPointMode": "null as zero",
-      "seriesOverrides": [],
-      "points": false,
-      "dashLength": 10,
-      "tooltip": {
-        "shared": true,
-        "sort": 2,
-        "value_type": "individual"
-      },
-      "gridPos": {
-        "w": 24,
-        "x": 0,
-        "y": 42,
-        "h": 21
-      },
-      "description": "PRs by SIG that were open for 30 or more days at s given point in time",
-      "interval": "",
-      "renderer": "flot",
-      "hiddenSeries": false,
-      "yaxis": {
-        "alignLevel": null,
-        "align": false
-      },
-      "stack": true,
-      "type": "graph",
-      "yaxes": [
-        {
-          "max": null,
-          "min": "0",
-          "show": true,
-          "decimals": null,
-          "format": "short",
-          "label": "PRs",
-          "logBase": 1
-        },
-        {
-          "logBase": 1,
-          "max": null,
-          "min": "0",
-          "show": true,
-          "format": "short",
-          "label": ""
-        }
-      ],
-      "id": 11,
-      "links": [],
-      "timeShift": null,
-      "linewidth": 0,
-      "lines": true,
-      "percentage": false,
-      "title": "Awaiting PRs by SIG (open for 30 days or more)",
-      "spaceLength": 10,
-      "datasource": "psql",
-      "thresholds": [],
-      "targets": [
-        {
-          "policy": "default",
-          "format": "time_series",
-          "rawQuery": true,
-          "refId": "A",
-          "resultFormat": "time_series",
-          "measurement": "notused",
-          "groupBy": [],
-          "dsType": "influxdb",
-          "rawSql": "select\n  time,\n  ${sigs:csv}\nfrom\n  sawaiting_prs_by_sigd30\nwhere\n  $__timeFilter(time)\n  and period = 'd'\norder by\n  time",
-          "tags": [],
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              }
-            ]
-          ],
-          "group": [],
-          "timeColumn": "time",
-          "where": [
-            {
-              "type": "macro",
-              "name": "$__timeFilter",
-              "params": []
-            }
-          ],
-          "orderByTime": "ASC",
-          "alias": "",
-          "metricColumn": "none",
-          "query": "SELECT /^[[sigs]]$/ FROM \"sig_pr_workload_absolute_workload_d\" WHERE $timeFilter"
-        }
-      ],
-      "transparent": true,
-      "dashes": false,
-      "decimals": 0
-    },
-    {
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      },
-      "thresholds": [],
-      "tooltip": {
-        "sort": 2,
-        "value_type": "individual",
-        "shared": true
-      },
-      "yaxes": [
-        {
-          "label": "PRs",
-          "logBase": 1,
-          "max": null,
-          "min": "0",
-          "show": true,
-          "decimals": null,
-          "format": "short"
-        },
-        {
-          "min": "0",
-          "show": true,
-          "format": "short",
-          "label": "",
-          "logBase": 1,
-          "max": null
-        }
-      ],
-      "points": false,
-      "timeRegions": [],
-      "links": [],
-      "fill": 6,
-      "options": {
-        "dataLinks": []
-      },
-      "lines": true,
-      "spaceLength": 10,
-      "description": "PRs by SIG that were open for 10 or more days at s given point in time",
-      "type": "graph",
-      "aliasColors": {
-        
-      },
-      "nullPointMode": "null as zero",
-      "transparent": true,
-      "interval": "",
-      "datasource": "psql",
-      "percentage": false,
-      "timeShift": null,
-      "steppedLine": false,
-      "xaxis": {
-        "name": null,
-        "show": true,
-        "values": [],
-        "buckets": null,
-        "mode": "time"
-      },
-      "hiddenSeries": false,
-      "decimals": 0,
-      "bars": false,
-      "legend": {
-        "min": true,
-        "sort": "avg",
-        "alignAsTable": true,
-        "max": true,
-        "show": true,
-        "current": true,
-        "values": true,
-        "total": false,
-        "rightSide": true,
-        "sortDesc": true,
-        "avg": true
-      },
-      "fillGradient": 0,
-      "dashes": false,
-      "dashLength": 10,
-      "title": "Awaiting PRs by SIG (open for 10 days or more)",
-      "seriesOverrides": [],
-      "pointradius": 5,
-      "timeFrom": null,
-      "targets": [
-        {
-          "rawQuery": true,
-          "resultFormat": "time_series",
-          "rawSql": "select\n  time,\n  ${sigs:csv}\nfrom\n  sawaiting_prs_by_sigd10\nwhere\n  $__timeFilter(time)\n  and period = 'd'\norder by\n  time",
-          "policy": "default",
-          "refId": "A",
-          "groupBy": [],
-          "alias": "",
-          "tags": [],
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ],
-          "measurement": "notused",
-          "group": [],
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              }
-            ]
-          ],
-          "query": "SELECT /^[[sigs]]$/ FROM \"sig_pr_workload_absolute_workload_d\" WHERE $timeFilter",
-          "orderByTime": "ASC",
-          "dsType": "influxdb",
-          "format": "time_series",
-          "timeColumn": "time",
-          "metricColumn": "none"
-        }
-      ],
-      "stack": true,
-      "gridPos": {
-        "w": 24,
-        "x": 0,
-        "y": 63,
-        "h": 21
-      },
-      "id": 2,
-      "linewidth": 0,
-      "renderer": "flot"
-    },
-    {
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      },
-      "tooltip": {
-        "shared": true,
-        "sort": 2,
-        "value_type": "individual"
-      },
-      "yaxes": [
-        {
-          "format": "short",
-          "label": "PRs",
-          "logBase": 1,
-          "max": null,
-          "min": "0",
-          "show": true,
-          "decimals": null
-        },
-        {
-          "format": "short",
-          "label": "",
-          "logBase": 1,
-          "max": null,
-          "min": "0",
-          "show": true
-        }
-      ],
-      "points": false,
-      "dashes": false,
-      "interval": "",
-      "linewidth": 0,
-      "aliasColors": {
-        
-      },
-      "gridPos": {
-        "y": 84,
-        "h": 21,
-        "w": 24,
-        "x": 0
-      },
-      "bars": false,
-      "lines": true,
-      "renderer": "flot",
-      "links": [],
-      "targets": [
-        {
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ],
-          "dsType": "influxdb",
-          "rawQuery": true,
-          "refId": "A",
-          "tags": [],
-          "alias": "",
-          "select": [
-            [
-              {
-                "type": "field",
-                "params": [
-                  "value"
-                ]
-              }
-            ]
-          ],
-          "groupBy": [],
-          "resultFormat": "time_series",
-          "orderByTime": "ASC",
-          "metricColumn": "none",
-          "format": "time_series",
-          "policy": "default",
-          "rawSql": "select\n  time,\n  ${sigs:csv}\nfrom\n  sawaiting_prs_by_sigy\nwhere\n  $__timeFilter(time)\n  and period = 'd'\norder by\n  time",
-          "timeColumn": "time",
-          "measurement": "notused",
-          "group": [],
-          "query": "SELECT /^[[sigs]]$/ FROM \"sig_pr_workload_absolute_workload_d\" WHERE $timeFilter"
-        }
-      ],
-      "dashLength": 10,
-      "datasource": "psql",
-      "type": "graph",
-      "legend": {
-        "show": true,
-        "rightSide": true,
-        "sort": "avg",
-        "min": true,
-        "total": false,
-        "max": true,
-        "current": true,
-        "values": true,
-        "alignAsTable": true,
-        "avg": true,
-        "sortDesc": true
-      },
-      "fillGradient": 0,
-      "hiddenSeries": false,
-      "percentage": false,
-      "xaxis": {
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true,
-        "values": []
-      },
-      "transparent": true,
-      "timeFrom": null,
-      "timeRegions": [],
-      "seriesOverrides": [],
-      "timeShift": null,
-      "steppedLine": false,
-      "description": "Stalled PRs by SIG that were open for 1 year or more days at s given point in time",
-      "spaceLength": 10,
-      "title": "Stalled PRs by SIG (open for 1 year or more)",
-      "decimals": 0,
-      "id": 14,
-      "options": {
-        "dataLinks": []
-      },
-      "pointradius": 5,
-      "nullPointMode": "null as zero",
-      "fill": 6,
-      "stack": true,
-      "thresholds": []
-    },
-    {
-      "gridPos": {
-        "x": 0,
-        "y": 105,
-        "h": 10,
-        "w": 24
-      },
-      "id": 10,
-      "content": "${docs:raw}",
-      "type": "text",
-      "title": "Dashboard documentation",
-      "options": {
-        
-      },
-      "datasource": null,
-      "links": [],
-      "mode": "html"
-    }
-  ],
-  "time": {
-    "from": "now-1y",
-    "to": "now"
-  },
   "title": "Awaiting PRs by SIG",
   "uid": "70",
-  "refresh": false,
-  "templating": {
-    "list": [
-      {
-        "tagValuesQuery": "",
-        "regex": "",
-        "datasource": "psql",
-        "skipUrlSync": false,
-        "useTags": false,
-        "allValue": "",
-        "multi": true,
-        "options": [],
-        "sort": 0,
-        "label": "SIG",
-        "type": "query",
-        "definition": "",
-        "hide": 0,
-        "tags": [],
-        "tagsQuery": "",
-        "name": "sigs",
-        "includeAll": true,
-        "query": "select '\"' || sig_mentions_labels_name || '\"' from tsig_mentions_labels order by 1",
-        "refresh": 1,
-        "current": {
-          "text": "All",
-          "value": [
-            "$__all"
-          ]
-        }
-      },
-      {
-        "label": null,
-        "useTags": false,
-        "regex": "",
-        "tags": [],
-        "tagValuesQuery": "",
-        "skipUrlSync": true,
-        "tagsQuery": "",
-        "hide": 2,
-        "definition": "",
-        "sort": 0,
-        "includeAll": false,
-        "allValue": null,
-        "refresh": 1,
-        "query": "select value_s from gha_vars where name = 'full_name'",
-        "type": "query",
-        "options": [],
-        "name": "full_name",
-        "multi": false,
-        "current": {
-          "value": "Kubernetes",
-          "text": "Kubernetes"
-        },
-        "datasource": "psql"
-      },
-      {
-        "hide": 2,
-        "refresh": 1,
-        "allValue": null,
-        "useTags": false,
-        "regex": "",
-        "datasource": "psql",
-        "name": "docs",
-        "tagsQuery": "",
-        "type": "query",
-        "current": {
-          "text": "\u003ch1 id=\"kubernetes-dashboard\"\u003eKubernetes Awaiting PRs by SIG\u003c/h1\u003e\n\u003cp\u003eLinks:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003eMetric \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/awaiting_prs_by_sig.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eTSDB \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/metrics.yaml\" target=\"_blank\"\u003eseries definition\u003c/a\u003e. Search for \u003ccode\u003eawaiting_prs_by_sig\u003c/code\u003e\u003c/li\u003e\n\u003cli\u003eGrafana dashboard \u003ca href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/awaiting-prs-by-sig.json\" target=\"_blank\"\u003eJSON\u003c/a\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch1 id=\"description\"\u003eDescription\u003c/h1\u003e\n\u003cul\u003e\n\u003cli\u003eThis dashboard shows the number of PRs opened by SIG that were open for longer than 10, 30, 60, 90 days and 1 year.\u003c/li\u003e\n\u003cli\u003eWe're counting PRs that were opened more than specified amaount of time at given point in time, so for example data for 1 month ago\u003c/li\u003e\n\u003cli\u003eshow PRs that were open for more than 10, 30, .. days 1 month ago (now they may be open for 2 months or merged already).\u003c/li\u003e\n\u003cli\u003ePR belongs to SIG by using \u003ccode\u003esig/*\u003c/code\u003e labels. List of SIGs to display in drop-down comes from all \u003ccode\u003esig/*\u003c/code\u003e labels.\u003c/li\u003e\n\u003c/ul\u003e",
-          "value": "\u003ch1 id=\"kubernetes-dashboard\"\u003eKubernetes Awaiting PRs by SIG\u003c/h1\u003e\n\u003cp\u003eLinks:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003eMetric \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/awaiting_prs_by_sig.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eTSDB \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/metrics.yaml\" target=\"_blank\"\u003eseries definition\u003c/a\u003e. Search for \u003ccode\u003eawaiting_prs_by_sig\u003c/code\u003e\u003c/li\u003e\n\u003cli\u003eGrafana dashboard \u003ca href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/awaiting-prs-by-sig.json\" target=\"_blank\"\u003eJSON\u003c/a\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch1 id=\"description\"\u003eDescription\u003c/h1\u003e\n\u003cul\u003e\n\u003cli\u003eThis dashboard shows the number of PRs opened by SIG that were open for longer than 10, 30, 60, 90 days and 1 year.\u003c/li\u003e\n\u003cli\u003eWe're counting PRs that were opened more than specified amaount of time at given point in time, so for example data for 1 month ago\u003c/li\u003e\n\u003cli\u003eshow PRs that were open for more than 10, 30, .. days 1 month ago (now they may be open for 2 months or merged already).\u003c/li\u003e\n\u003cli\u003ePR belongs to SIG by using \u003ccode\u003esig/*\u003c/code\u003e labels. List of SIGs to display in drop-down comes from all \u003ccode\u003esig/*\u003c/code\u003e labels.\u003c/li\u003e\n\u003c/ul\u003e"
-        },
-        "definition": "select value_s from gha_vars where name = 'awaiting_prs_by_sig_docs_html'",
-        "query": "select value_s from gha_vars where name = 'awaiting_prs_by_sig_docs_html'",
-        "tags": [],
-        "skipUrlSync": true,
-        "multi": false,
-        "sort": 0,
-        "options": [],
-        "tagValuesQuery": "",
-        "includeAll": false,
-        "label": null
-      }
-    ]
-  },
-  "iteration": 1589273795171,
-  "style": "dark",
-  "links": [],
-  "graphTooltip": 0,
-  "editable": true
+  "version": 3
 }

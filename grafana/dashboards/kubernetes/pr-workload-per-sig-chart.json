@@ -1,14 +1,1026 @@
 {
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      },
+      {
+        "datasource": "psql",
+        "enable": true,
+        "hide": false,
+        "iconColor": "rgba(255, 96, 96, 1)",
+        "limit": 100,
+        "name": "Releases",
+        "query": "SELECT title, description from annotations WHERE $timeFilter order by time asc",
+        "rawQuery": "select extract(epoch from time) AS time, title as text, description as tags from sannotations where $__timeFilter(time)",
+        "showIn": 0,
+        "tagsColumn": "title,description",
+        "textColumn": "",
+        "titleColumn": "[[full_name]] release",
+        "type": "alert"
+      }
+    ]
+  },
+  "editable": true,
+  "gnetId": null,
+  "graphTooltip": 0,
+  "id": 111,
+  "links": [],
+  "panels": [
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "psql",
+      "decimals": 0,
+      "description": "Absolute PR workload",
+      "fill": 6,
+      "gridPos": {
+        "h": 21,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 2,
+      "legend": {
+        "alignAsTable": true,
+        "avg": true,
+        "current": true,
+        "max": true,
+        "min": true,
+        "rightSide": true,
+        "show": true,
+        "sort": "total",
+        "sortDesc": true,
+        "total": false,
+        "values": true
+      },
+      "lines": true,
+      "linewidth": 0,
+      "links": [],
+      "nullPointMode": "null as zero",
+      "percentage": false,
+      "pointradius": 5,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": true,
+      "steppedLine": false,
+      "targets": [
+        {
+          "alias": "",
+          "dsType": "influxdb",
+          "format": "time_series",
+          "groupBy": [],
+          "measurement": "notused",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "SELECT /^[[sigs]]$/ FROM \"sig_pr_workload_absolute_workload_d\" WHERE $timeFilter",
+          "rawQuery": true,
+          "rawSql": "select\n  time,\n  ${sigs:csv}\nfrom\n  ssig_pr_wlabs\nwhere\n  $__timeFilter(time)\norder by\n  time",
+          "refId": "A",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              }
+            ]
+          ],
+          "tags": []
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Absolute PR workload",
+      "tooltip": {
+        "shared": true,
+        "sort": 2,
+        "value_type": "individual"
+      },
+      "transparent": true,
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "decimals": null,
+          "format": "short",
+          "label": "Absolute PR workload",
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": "",
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "psql",
+      "decimals": 0,
+      "description": "Relative PR workload",
+      "fill": 6,
+      "gridPos": {
+        "h": 21,
+        "w": 24,
+        "x": 0,
+        "y": 21
+      },
+      "id": 5,
+      "legend": {
+        "alignAsTable": true,
+        "avg": true,
+        "current": true,
+        "max": true,
+        "min": true,
+        "rightSide": true,
+        "show": true,
+        "sort": "total",
+        "sortDesc": true,
+        "total": false,
+        "values": true
+      },
+      "lines": true,
+      "linewidth": 0,
+      "links": [],
+      "nullPointMode": "null as zero",
+      "percentage": false,
+      "pointradius": 5,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": true,
+      "steppedLine": false,
+      "targets": [
+        {
+          "alias": "",
+          "dsType": "influxdb",
+          "format": "time_series",
+          "groupBy": [],
+          "measurement": "notused",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "SELECT /^[[sigs]]$/ FROM \"sig_pr_workload_relative_workload_d\" WHERE $timeFilter",
+          "rawQuery": true,
+          "rawSql": "select\n  time,\n  ${sigs:csv}\nfrom\n  ssig_pr_wlrel\nwhere\n  $__timeFilter(time)\norder by\n  time",
+          "refId": "A",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              }
+            ]
+          ],
+          "tags": []
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Relative PR workload",
+      "tooltip": {
+        "shared": true,
+        "sort": 2,
+        "value_type": "individual"
+      },
+      "transparent": true,
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "decimals": null,
+          "format": "short",
+          "label": "Relative PR workload",
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": "",
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "psql",
+      "decimals": null,
+      "description": "Absolute PR workload",
+      "fill": 0,
+      "gridPos": {
+        "h": 21,
+        "w": 24,
+        "x": 0,
+        "y": 42
+      },
+      "id": 4,
+      "legend": {
+        "alignAsTable": true,
+        "avg": true,
+        "current": true,
+        "max": true,
+        "min": true,
+        "rightSide": true,
+        "show": true,
+        "sideWidth": null,
+        "sort": "total",
+        "sortDesc": true,
+        "total": false,
+        "values": true
+      },
+      "lines": true,
+      "linewidth": 1,
+      "links": [],
+      "nullPointMode": "null as zero",
+      "percentage": false,
+      "pointradius": 5,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "alias": "",
+          "dsType": "influxdb",
+          "format": "time_series",
+          "groupBy": [],
+          "measurement": "notused",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "SELECT /^[[sigs]]$/ FROM \"sig_pr_workload_absolute_workload_d\" WHERE $timeFilter",
+          "rawQuery": true,
+          "rawSql": "select\n  time,\n  ${sigs:csv}\nfrom\n  ssig_pr_wlabs\nwhere\n  $__timeFilter(time)\norder by\n  time",
+          "refId": "A",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              }
+            ]
+          ],
+          "tags": []
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Absolute PR workload",
+      "tooltip": {
+        "shared": true,
+        "sort": 2,
+        "value_type": "individual"
+      },
+      "transparent": true,
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "decimals": null,
+          "format": "short",
+          "label": "Absolute PR workload",
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": "",
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": false
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "psql",
+      "decimals": null,
+      "description": "Relative PR workload",
+      "fill": 0,
+      "gridPos": {
+        "h": 21,
+        "w": 24,
+        "x": 0,
+        "y": 63
+      },
+      "id": 6,
+      "legend": {
+        "alignAsTable": true,
+        "avg": true,
+        "current": true,
+        "max": true,
+        "min": true,
+        "rightSide": true,
+        "show": true,
+        "sideWidth": null,
+        "sort": "total",
+        "sortDesc": true,
+        "total": false,
+        "values": true
+      },
+      "lines": true,
+      "linewidth": 1,
+      "links": [],
+      "nullPointMode": "null as zero",
+      "percentage": false,
+      "pointradius": 5,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "alias": "",
+          "dsType": "influxdb",
+          "format": "time_series",
+          "groupBy": [],
+          "measurement": "notused",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "SELECT /^[[sigs]]$/ FROM \"sig_pr_workload_relative_workload_d\" WHERE $timeFilter",
+          "rawQuery": true,
+          "rawSql": "select\n  time,\n  ${sigs:csv}\nfrom\n  ssig_pr_wlrel\nwhere\n  $__timeFilter(time)\norder by\n  time",
+          "refId": "A",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              }
+            ]
+          ],
+          "tags": []
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Relative PR workload",
+      "tooltip": {
+        "shared": true,
+        "sort": 2,
+        "value_type": "individual"
+      },
+      "transparent": true,
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "decimals": null,
+          "format": "short",
+          "label": "Relative PR workload",
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": "",
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": false
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "psql",
+      "decimals": 0,
+      "description": "Absolute PR workload",
+      "fill": 7,
+      "gridPos": {
+        "h": 21,
+        "w": 24,
+        "x": 0,
+        "y": 84
+      },
+      "id": 3,
+      "legend": {
+        "alignAsTable": true,
+        "avg": true,
+        "current": true,
+        "max": true,
+        "min": true,
+        "rightSide": true,
+        "show": true,
+        "sort": "total",
+        "sortDesc": true,
+        "total": false,
+        "values": true
+      },
+      "lines": true,
+      "linewidth": 0,
+      "links": [],
+      "nullPointMode": "null as zero",
+      "percentage": true,
+      "pointradius": 5,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": true,
+      "steppedLine": false,
+      "targets": [
+        {
+          "alias": "",
+          "dsType": "influxdb",
+          "format": "time_series",
+          "groupBy": [],
+          "measurement": "notused",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "SELECT /^[[sigs]]$/ FROM \"sig_pr_workload_absolute_workload_d\" WHERE $timeFilter",
+          "rawQuery": true,
+          "rawSql": "select\n  time,\n  ${sigs:csv}\nfrom\n  ssig_pr_wlabs\nwhere\n  $__timeFilter(time)\norder by\n  time",
+          "refId": "A",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              }
+            ]
+          ],
+          "tags": []
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Absolute PR workload",
+      "tooltip": {
+        "shared": true,
+        "sort": 2,
+        "value_type": "individual"
+      },
+      "transparent": true,
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "decimals": null,
+          "format": "short",
+          "label": "Absolute PR workload",
+          "logBase": 1,
+          "max": "100",
+          "min": "0",
+          "show": true
+        },
+        {
+          "decimals": null,
+          "format": "short",
+          "label": "",
+          "logBase": 1,
+          "max": "100",
+          "min": "0",
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "psql",
+      "decimals": 0,
+      "description": "Relative PR workload",
+      "fill": 7,
+      "gridPos": {
+        "h": 21,
+        "w": 24,
+        "x": 0,
+        "y": 105
+      },
+      "id": 7,
+      "legend": {
+        "alignAsTable": true,
+        "avg": true,
+        "current": true,
+        "max": true,
+        "min": true,
+        "rightSide": true,
+        "show": true,
+        "sort": "total",
+        "sortDesc": true,
+        "total": false,
+        "values": true
+      },
+      "lines": true,
+      "linewidth": 0,
+      "links": [],
+      "nullPointMode": "null as zero",
+      "percentage": true,
+      "pointradius": 5,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": true,
+      "steppedLine": false,
+      "targets": [
+        {
+          "alias": "",
+          "dsType": "influxdb",
+          "format": "time_series",
+          "groupBy": [],
+          "measurement": "notused",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "SELECT /^[[sigs]]$/ FROM \"sig_pr_workload_relative_workload_d\" WHERE $timeFilter",
+          "rawQuery": true,
+          "rawSql": "select\n  time,\n  ${sigs:csv}\nfrom\n  ssig_pr_wlrel\nwhere\n  $__timeFilter(time)\norder by\n  time",
+          "refId": "A",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              }
+            ]
+          ],
+          "tags": []
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Relative PR workload",
+      "tooltip": {
+        "shared": true,
+        "sort": 2,
+        "value_type": "individual"
+      },
+      "transparent": true,
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "decimals": null,
+          "format": "short",
+          "label": "Relative PR workload",
+          "logBase": 1,
+          "max": "100",
+          "min": "0",
+          "show": true
+        },
+        {
+          "decimals": null,
+          "format": "short",
+          "label": "",
+          "logBase": 1,
+          "max": "100",
+          "min": "0",
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "psql",
+      "decimals": null,
+      "description": "Number of SIG reviewers",
+      "fill": 0,
+      "gridPos": {
+        "h": 21,
+        "w": 24,
+        "x": 0,
+        "y": 126
+      },
+      "id": 8,
+      "legend": {
+        "alignAsTable": true,
+        "avg": true,
+        "current": true,
+        "max": true,
+        "min": true,
+        "rightSide": true,
+        "show": true,
+        "sideWidth": null,
+        "sort": "total",
+        "sortDesc": true,
+        "total": false,
+        "values": true
+      },
+      "lines": true,
+      "linewidth": 1,
+      "links": [],
+      "nullPointMode": "null as zero",
+      "percentage": false,
+      "pointradius": 5,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "alias": "",
+          "dsType": "influxdb",
+          "format": "time_series",
+          "groupBy": [],
+          "measurement": "notused",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "SELECT /^[[sigs]]$/ FROM \"sig_pr_workload_reviewers_d\" WHERE $timeFilter",
+          "rawQuery": true,
+          "rawSql": "select\n  time,\n  ${sigs:csv}\nfrom\n  ssig_pr_wlrev\nwhere\n  $__timeFilter(time)\norder by\n  time",
+          "refId": "A",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              }
+            ]
+          ],
+          "tags": []
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Number of SIG reviewers",
+      "tooltip": {
+        "shared": true,
+        "sort": 2,
+        "value_type": "individual"
+      },
+      "transparent": true,
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "decimals": null,
+          "format": "short",
+          "label": "Reviewers",
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": "",
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": false
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "psql",
+      "decimals": null,
+      "description": "Number of SIG PRs",
+      "fill": 0,
+      "gridPos": {
+        "h": 21,
+        "w": 24,
+        "x": 0,
+        "y": 147
+      },
+      "id": 9,
+      "legend": {
+        "alignAsTable": true,
+        "avg": true,
+        "current": true,
+        "max": true,
+        "min": true,
+        "rightSide": true,
+        "show": true,
+        "sideWidth": null,
+        "sort": "total",
+        "sortDesc": true,
+        "total": false,
+        "values": true
+      },
+      "lines": true,
+      "linewidth": 1,
+      "links": [],
+      "nullPointMode": "null as zero",
+      "percentage": false,
+      "pointradius": 5,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "alias": "",
+          "dsType": "influxdb",
+          "format": "time_series",
+          "groupBy": [],
+          "measurement": "notused",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "SELECT /^[[sigs]]$/ FROM \"sig_pr_workload_issues_d\" WHERE $timeFilter",
+          "rawQuery": true,
+          "rawSql": "select\n  time,\n  ${sigs:csv}\nfrom\n  ssig_pr_wliss\nwhere\n  $__timeFilter(time)\norder by\n  time",
+          "refId": "A",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              }
+            ]
+          ],
+          "tags": []
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Number of SIG PRs",
+      "tooltip": {
+        "shared": true,
+        "sort": 2,
+        "value_type": "individual"
+      },
+      "transparent": true,
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "decimals": null,
+          "format": "short",
+          "label": "PRs",
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": "",
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": false
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "content": "${docs:raw}",
+      "gridPos": {
+        "h": 18,
+        "w": 24,
+        "x": 0,
+        "y": 168
+      },
+      "id": 10,
+      "links": [],
+      "mode": "html",
+      "title": "Dashboard documentation",
+      "type": "text"
+    }
+  ],
+  "refresh": false,
+  "schemaVersion": 16,
+  "style": "dark",
   "tags": [
     "dashboard",
     "kubernetes",
     "SIGs",
     "PRs"
   ],
-  "uid": "33",
-  "id": 111,
-  "graphTooltip": 0,
-  "gnetId": null,
+  "templating": {
+    "list": [
+      {
+        "allValue": "",
+        "current": {
+          "text": "All",
+          "value": [
+            "$__all"
+          ]
+        },
+        "datasource": "psql",
+        "hide": 0,
+        "includeAll": true,
+        "label": "SIG",
+        "multi": true,
+        "name": "sigs",
+        "options": [],
+        "query": "select '\"' || sig_mentions_labels_name || '\"' from tsig_mentions_labels order by 1",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "text": "Kubernetes",
+          "value": "Kubernetes"
+        },
+        "datasource": "psql",
+        "hide": 2,
+        "includeAll": false,
+        "label": null,
+        "multi": false,
+        "name": "full_name",
+        "options": [],
+        "query": "select value_s from gha_vars where name = 'full_name'",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": true,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "text": "<h1 id=\"kubernetes-dashboard\">Kubernetes PR Workload per SIG dashboards (chart and table)</h1>\n<p>Links:</p>\n<ul>\n<li>Chart version metric <a href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/pr_workload.sql\" target=\"_blank\">SQL file</a>.</li>\n<li>Table version metric <a href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/pr_workload_table.sql\" target=\"_blank\">SQL file</a>.</li>\n<li>TSDB <a href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/metrics.yaml\" target=\"_blank\">series definition</a>. Search for <code>pr_workload</code></li>\n<li>Grafana dashboard <a href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/pr-workload-per-sig-chart.json\" target=\"_blank\">JSON</a> (chart version).</li>\n<li>Grafana dashboard <a href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/pr-workload-per-sig-table.json\" target=\"_blank\">JSON</a> (table version).</li>\n</ul>\n<h1 id=\"description\">Description</h1>\n<ul>\n<li>Those dashboards show PR workload for SIGs</li>\n<li>Chart version allows to see absolute and relative PR worklod as line charts, stacked charts and stacked percent charts.</li>\n<li>Chart version also allows to see chart of SIG PRs and SIG reviewers. You can select list of SIGs to display.</li>\n<li>Table version allows to see absolute and relative PR workload per SIG and number of PRs and reviewers for given SIGs.</li>\n<li>Table version also allows to choose period to display metric, like last month, year, particular release etc.</li>\n<li>For chart version we're counting PRs that were opened at given point in time (not closed, not merged).</li>\n<li>For table version we're counting PRs taht were open at the period's end (for last week it is now), for v1.9 - v1.10 it is v1.10</li>\n<li>PR size comes from <code>size/*</code> labels. Different sizes, have different weights.</li>\n<li>xs: 0.25, small, s: 0.5, large, l: 2, xl: 4, xxl: 8. All other size labels (or no size label) have weight 1.</li>\n<li>PR belongs to SIG by using <code>sig/*</code> labels. List of SIGs to display in drop-down comes from all <code>sig/*</code> labels.</li>\n<li>Absolute PR workload is a weighted sum of all PRs for a given SIG using size labels as weights.</li>\n<li>Relative PR workload for given SIG is absolute PR workload divided by number of reviewers for given SIG.</li>\n<li>Number of reviewers is calculated in last month preceeding given point in time for chart version.</li>\n<li>For table version we're conting reviewers in a selected period.</li>\n<li>Reviewer is somebody who added <code>/lgtm</code> or <code>/approve</code> text or <code>lgtm</code> or <code>approve</code> label.</li>\n<li>We are skipping bots when calculating statistics, see <a href=\"https://github.com/cncf/devstats/blob/master/docs/excluding_bots.md\" target=\"_blank\">excluding bots</a> for details.</li>\n</ul>",
+          "value": "<h1 id=\"kubernetes-dashboard\">Kubernetes PR Workload per SIG dashboards (chart and table)</h1>\n<p>Links:</p>\n<ul>\n<li>Chart version metric <a href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/pr_workload.sql\" target=\"_blank\">SQL file</a>.</li>\n<li>Table version metric <a href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/pr_workload_table.sql\" target=\"_blank\">SQL file</a>.</li>\n<li>TSDB <a href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/metrics.yaml\" target=\"_blank\">series definition</a>. Search for <code>pr_workload</code></li>\n<li>Grafana dashboard <a href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/pr-workload-per-sig-chart.json\" target=\"_blank\">JSON</a> (chart version).</li>\n<li>Grafana dashboard <a href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/pr-workload-per-sig-table.json\" target=\"_blank\">JSON</a> (table version).</li>\n</ul>\n<h1 id=\"description\">Description</h1>\n<ul>\n<li>Those dashboards show PR workload for SIGs</li>\n<li>Chart version allows to see absolute and relative PR worklod as line charts, stacked charts and stacked percent charts.</li>\n<li>Chart version also allows to see chart of SIG PRs and SIG reviewers. You can select list of SIGs to display.</li>\n<li>Table version allows to see absolute and relative PR workload per SIG and number of PRs and reviewers for given SIGs.</li>\n<li>Table version also allows to choose period to display metric, like last month, year, particular release etc.</li>\n<li>For chart version we're counting PRs that were opened at given point in time (not closed, not merged).</li>\n<li>For table version we're counting PRs taht were open at the period's end (for last week it is now), for v1.9 - v1.10 it is v1.10</li>\n<li>PR size comes from <code>size/*</code> labels. Different sizes, have different weights.</li>\n<li>xs: 0.25, small, s: 0.5, large, l: 2, xl: 4, xxl: 8. All other size labels (or no size label) have weight 1.</li>\n<li>PR belongs to SIG by using <code>sig/*</code> labels. List of SIGs to display in drop-down comes from all <code>sig/*</code> labels.</li>\n<li>Absolute PR workload is a weighted sum of all PRs for a given SIG using size labels as weights.</li>\n<li>Relative PR workload for given SIG is absolute PR workload divided by number of reviewers for given SIG.</li>\n<li>Number of reviewers is calculated in last month preceeding given point in time for chart version.</li>\n<li>For table version we're conting reviewers in a selected period.</li>\n<li>Reviewer is somebody who added <code>/lgtm</code> or <code>/approve</code> text or <code>lgtm</code> or <code>approve</code> label.</li>\n<li>We are skipping bots when calculating statistics, see <a href=\"https://github.com/cncf/devstats/blob/master/docs/excluding_bots.md\" target=\"_blank\">excluding bots</a> for details.</li>\n</ul>"
+        },
+        "datasource": "psql",
+        "hide": 2,
+        "includeAll": false,
+        "label": null,
+        "multi": false,
+        "name": "docs",
+        "options": [],
+        "query": "select value_s from gha_vars where name = 'pr_workload_docs_html'",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": true,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      }
+    ]
+  },
   "time": {
     "from": "now-6M",
     "to": "now"
@@ -38,1036 +1050,8 @@
       "30d"
     ]
   },
-  "editable": true,
-  "panels": [
-    {
-      "timeFrom": null,
-      "timeShift": null,
-      "steppedLine": false,
-      "bars": false,
-      "yaxis": {
-        "alignLevel": null,
-        "align": false
-      },
-      "linewidth": 0,
-      "points": false,
-      "aliasColors": {
-        
-      },
-      "fill": 6,
-      "datasource": "psql",
-      "description": "Absolute PR workload",
-      "title": "Absolute PR workload",
-      "thresholds": [],
-      "yaxes": [
-        {
-          "min": "0",
-          "show": true,
-          "decimals": null,
-          "format": "short",
-          "label": "Absolute PR workload",
-          "logBase": 1,
-          "max": null
-        },
-        {
-          "show": true,
-          "format": "short",
-          "label": "",
-          "logBase": 1,
-          "max": null,
-          "min": "0"
-        }
-      ],
-      "seriesOverrides": [],
-      "type": "graph",
-      "stack": true,
-      "pointradius": 5,
-      "transparent": true,
-      "lines": true,
-      "dashLength": 10,
-      "gridPos": {
-        "w": 24,
-        "x": 0,
-        "y": 0,
-        "h": 21
-      },
-      "id": 2,
-      "percentage": false,
-      "renderer": "flot",
-      "decimals": 0,
-      "dashes": false,
-      "xaxis": {
-        "name": null,
-        "show": true,
-        "values": [],
-        "buckets": null,
-        "mode": "time"
-      },
-      "tooltip": {
-        "value_type": "individual",
-        "shared": true,
-        "sort": 2
-      },
-      "targets": [
-        {
-          "policy": "default",
-          "groupBy": [],
-          "dsType": "influxdb",
-          "rawSql": "select\n  time,\n  ${sigs:csv}\nfrom\n  ssig_pr_wlabs\nwhere\n  $__timeFilter(time)\norder by\n  time",
-          "tags": [],
-          "alias": "",
-          "orderByTime": "ASC",
-          "query": "SELECT /^[[sigs]]$/ FROM \"sig_pr_workload_absolute_workload_d\" WHERE $timeFilter",
-          "resultFormat": "time_series",
-          "format": "time_series",
-          "measurement": "notused",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              }
-            ]
-          ],
-          "refId": "A",
-          "rawQuery": true
-        }
-      ],
-      "links": [],
-      "spaceLength": 10,
-      "nullPointMode": "null as zero",
-      "legend": {
-        "max": true,
-        "sortDesc": true,
-        "total": false,
-        "rightSide": true,
-        "min": true,
-        "avg": true,
-        "show": true,
-        "sort": "total",
-        "values": true,
-        "current": true,
-        "alignAsTable": true
-      }
-    },
-    {
-      "yaxes": [
-        {
-          "label": "Relative PR workload",
-          "logBase": 1,
-          "max": null,
-          "min": "0",
-          "show": true,
-          "decimals": null,
-          "format": "short"
-        },
-        {
-          "max": null,
-          "min": "0",
-          "show": true,
-          "format": "short",
-          "label": "",
-          "logBase": 1
-        }
-      ],
-      "targets": [
-        {
-          "resultFormat": "time_series",
-          "refId": "A",
-          "groupBy": [],
-          "rawSql": "select\n  time,\n  ${sigs:csv}\nfrom\n  ssig_pr_wlrel\nwhere\n  $__timeFilter(time)\norder by\n  time",
-          "dsType": "influxdb",
-          "measurement": "notused",
-          "query": "SELECT /^[[sigs]]$/ FROM \"sig_pr_workload_relative_workload_d\" WHERE $timeFilter",
-          "tags": [],
-          "policy": "default",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              }
-            ]
-          ],
-          "format": "time_series",
-          "rawQuery": true,
-          "alias": "",
-          "orderByTime": "ASC"
-        }
-      ],
-      "percentage": false,
-      "pointradius": 5,
-      "id": 5,
-      "aliasColors": {
-        
-      },
-      "fill": 6,
-      "gridPos": {
-        "x": 0,
-        "y": 21,
-        "h": 21,
-        "w": 24
-      },
-      "thresholds": [],
-      "lines": true,
-      "xaxis": {
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true,
-        "values": []
-      },
-      "datasource": "psql",
-      "spaceLength": 10,
-      "timeFrom": null,
-      "linewidth": 0,
-      "tooltip": {
-        "sort": 2,
-        "value_type": "individual",
-        "shared": true
-      },
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      },
-      "transparent": true,
-      "decimals": 0,
-      "title": "Relative PR workload",
-      "points": false,
-      "dashes": false,
-      "timeShift": null,
-      "nullPointMode": "null as zero",
-      "seriesOverrides": [],
-      "bars": false,
-      "steppedLine": false,
-      "legend": {
-        "min": true,
-        "sort": "total",
-        "rightSide": true,
-        "sortDesc": true,
-        "show": true,
-        "max": true,
-        "total": false,
-        "alignAsTable": true,
-        "avg": true,
-        "current": true,
-        "values": true
-      },
-      "dashLength": 10,
-      "links": [],
-      "type": "graph",
-      "stack": true,
-      "description": "Relative PR workload",
-      "renderer": "flot"
-    },
-    {
-      "linewidth": 1,
-      "type": "graph",
-      "stack": false,
-      "targets": [
-        {
-          "measurement": "notused",
-          "query": "SELECT /^[[sigs]]$/ FROM \"sig_pr_workload_absolute_workload_d\" WHERE $timeFilter",
-          "tags": [],
-          "refId": "A",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              }
-            ]
-          ],
-          "policy": "default",
-          "resultFormat": "time_series",
-          "alias": "",
-          "groupBy": [],
-          "rawSql": "select\n  time,\n  ${sigs:csv}\nfrom\n  ssig_pr_wlabs\nwhere\n  $__timeFilter(time)\norder by\n  time",
-          "rawQuery": true,
-          "dsType": "influxdb",
-          "format": "time_series",
-          "orderByTime": "ASC"
-        }
-      ],
-      "aliasColors": {
-        
-      },
-      "spaceLength": 10,
-      "seriesOverrides": [],
-      "nullPointMode": "null as zero",
-      "datasource": "psql",
-      "yaxes": [
-        {
-          "min": "0",
-          "show": true,
-          "decimals": null,
-          "format": "short",
-          "label": "Absolute PR workload",
-          "logBase": 1,
-          "max": null
-        },
-        {
-          "label": "",
-          "logBase": 1,
-          "max": null,
-          "min": "0",
-          "show": false,
-          "format": "short"
-        }
-      ],
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      },
-      "legend": {
-        "sideWidth": null,
-        "show": true,
-        "values": true,
-        "total": false,
-        "sortDesc": true,
-        "current": true,
-        "alignAsTable": true,
-        "max": true,
-        "rightSide": true,
-        "sort": "total",
-        "avg": true,
-        "min": true
-      },
-      "dashLength": 10,
-      "decimals": null,
-      "id": 4,
-      "lines": true,
-      "pointradius": 5,
-      "dashes": false,
-      "thresholds": [],
-      "title": "Absolute PR workload",
-      "timeShift": null,
-      "steppedLine": false,
-      "percentage": false,
-      "fill": 0,
-      "points": false,
-      "gridPos": {
-        "h": 21,
-        "w": 24,
-        "x": 0,
-        "y": 42
-      },
-      "xaxis": {
-        "values": [],
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true
-      },
-      "timeFrom": null,
-      "links": [],
-      "tooltip": {
-        "shared": true,
-        "sort": 2,
-        "value_type": "individual"
-      },
-      "renderer": "flot",
-      "bars": false,
-      "description": "Absolute PR workload",
-      "transparent": true
-    },
-    {
-      "title": "Relative PR workload",
-      "percentage": false,
-      "aliasColors": {
-        
-      },
-      "lines": true,
-      "timeShift": null,
-      "yaxes": [
-        {
-          "min": "0",
-          "show": true,
-          "decimals": null,
-          "format": "short",
-          "label": "Relative PR workload",
-          "logBase": 1,
-          "max": null
-        },
-        {
-          "format": "short",
-          "label": "",
-          "logBase": 1,
-          "max": null,
-          "min": "0",
-          "show": false
-        }
-      ],
-      "dashes": false,
-      "transparent": true,
-      "type": "graph",
-      "nullPointMode": "null as zero",
-      "spaceLength": 10,
-      "renderer": "flot",
-      "datasource": "psql",
-      "timeFrom": null,
-      "bars": false,
-      "pointradius": 5,
-      "decimals": null,
-      "targets": [
-        {
-          "groupBy": [],
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              }
-            ]
-          ],
-          "resultFormat": "time_series",
-          "measurement": "notused",
-          "format": "time_series",
-          "rawSql": "select\n  time,\n  ${sigs:csv}\nfrom\n  ssig_pr_wlrel\nwhere\n  $__timeFilter(time)\norder by\n  time",
-          "dsType": "influxdb",
-          "orderByTime": "ASC",
-          "query": "SELECT /^[[sigs]]$/ FROM \"sig_pr_workload_relative_workload_d\" WHERE $timeFilter",
-          "tags": [],
-          "policy": "default",
-          "rawQuery": true,
-          "refId": "A",
-          "alias": ""
-        }
-      ],
-      "dashLength": 10,
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      },
-      "points": false,
-      "tooltip": {
-        "sort": 2,
-        "value_type": "individual",
-        "shared": true
-      },
-      "links": [],
-      "gridPos": {
-        "y": 63,
-        "h": 21,
-        "w": 24,
-        "x": 0
-      },
-      "id": 6,
-      "steppedLine": false,
-      "legend": {
-        "sort": "total",
-        "sortDesc": true,
-        "show": true,
-        "min": true,
-        "values": true,
-        "rightSide": true,
-        "alignAsTable": true,
-        "total": false,
-        "current": true,
-        "max": true,
-        "avg": true,
-        "sideWidth": null
-      },
-      "linewidth": 1,
-      "xaxis": {
-        "name": null,
-        "show": true,
-        "values": [],
-        "buckets": null,
-        "mode": "time"
-      },
-      "thresholds": [],
-      "fill": 0,
-      "seriesOverrides": [],
-      "stack": false,
-      "description": "Relative PR workload"
-    },
-    {
-      "links": [],
-      "steppedLine": false,
-      "description": "Absolute PR workload",
-      "thresholds": [],
-      "timeShift": null,
-      "bars": false,
-      "decimals": 0,
-      "aliasColors": {
-        
-      },
-      "percentage": true,
-      "lines": true,
-      "transparent": true,
-      "points": false,
-      "pointradius": 5,
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      },
-      "legend": {
-        "current": true,
-        "rightSide": true,
-        "sort": "total",
-        "sortDesc": true,
-        "show": true,
-        "values": true,
-        "total": false,
-        "min": true,
-        "max": true,
-        "avg": true,
-        "alignAsTable": true
-      },
-      "seriesOverrides": [],
-      "id": 3,
-      "xaxis": {
-        "show": true,
-        "values": [],
-        "buckets": null,
-        "mode": "time",
-        "name": null
-      },
-      "stack": true,
-      "title": "Absolute PR workload",
-      "timeFrom": null,
-      "spaceLength": 10,
-      "fill": 7,
-      "nullPointMode": "null as zero",
-      "dashes": false,
-      "datasource": "psql",
-      "gridPos": {
-        "y": 84,
-        "h": 21,
-        "w": 24,
-        "x": 0
-      },
-      "tooltip": {
-        "value_type": "individual",
-        "shared": true,
-        "sort": 2
-      },
-      "renderer": "flot",
-      "linewidth": 0,
-      "yaxes": [
-        {
-          "min": "0",
-          "show": true,
-          "decimals": null,
-          "format": "short",
-          "label": "Absolute PR workload",
-          "logBase": 1,
-          "max": "100"
-        },
-        {
-          "label": "",
-          "logBase": 1,
-          "max": "100",
-          "min": "0",
-          "show": true,
-          "decimals": null,
-          "format": "short"
-        }
-      ],
-      "dashLength": 10,
-      "type": "graph",
-      "targets": [
-        {
-          "tags": [],
-          "policy": "default",
-          "alias": "",
-          "format": "time_series",
-          "rawQuery": true,
-          "refId": "A",
-          "orderByTime": "ASC",
-          "query": "SELECT /^[[sigs]]$/ FROM \"sig_pr_workload_absolute_workload_d\" WHERE $timeFilter",
-          "groupBy": [],
-          "rawSql": "select\n  time,\n  ${sigs:csv}\nfrom\n  ssig_pr_wlabs\nwhere\n  $__timeFilter(time)\norder by\n  time",
-          "select": [
-            [
-              {
-                "type": "field",
-                "params": [
-                  "value"
-                ]
-              }
-            ]
-          ],
-          "measurement": "notused",
-          "dsType": "influxdb",
-          "resultFormat": "time_series"
-        }
-      ]
-    },
-    {
-      "stack": true,
-      "targets": [
-        {
-          "tags": [],
-          "groupBy": [],
-          "rawSql": "select\n  time,\n  ${sigs:csv}\nfrom\n  ssig_pr_wlrel\nwhere\n  $__timeFilter(time)\norder by\n  time",
-          "measurement": "notused",
-          "dsType": "influxdb",
-          "format": "time_series",
-          "policy": "default",
-          "resultFormat": "time_series",
-          "refId": "A",
-          "rawQuery": true,
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              }
-            ]
-          ],
-          "query": "SELECT /^[[sigs]]$/ FROM \"sig_pr_workload_relative_workload_d\" WHERE $timeFilter",
-          "alias": "",
-          "orderByTime": "ASC"
-        }
-      ],
-      "linewidth": 0,
-      "legend": {
-        "sort": "total",
-        "max": true,
-        "alignAsTable": true,
-        "values": true,
-        "rightSide": true,
-        "current": true,
-        "show": true,
-        "sortDesc": true,
-        "min": true,
-        "total": false,
-        "avg": true
-      },
-      "datasource": "psql",
-      "xaxis": {
-        "mode": "time",
-        "name": null,
-        "show": true,
-        "values": [],
-        "buckets": null
-      },
-      "spaceLength": 10,
-      "links": [],
-      "lines": true,
-      "pointradius": 5,
-      "yaxes": [
-        {
-          "decimals": null,
-          "format": "short",
-          "label": "Relative PR workload",
-          "logBase": 1,
-          "max": "100",
-          "min": "0",
-          "show": true
-        },
-        {
-          "min": "0",
-          "show": true,
-          "decimals": null,
-          "format": "short",
-          "label": "",
-          "logBase": 1,
-          "max": "100"
-        }
-      ],
-      "title": "Relative PR workload",
-      "points": false,
-      "steppedLine": false,
-      "id": 7,
-      "timeShift": null,
-      "seriesOverrides": [],
-      "transparent": true,
-      "dashLength": 10,
-      "aliasColors": {
-        
-      },
-      "renderer": "flot",
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      },
-      "timeFrom": null,
-      "tooltip": {
-        "sort": 2,
-        "value_type": "individual",
-        "shared": true
-      },
-      "decimals": 0,
-      "nullPointMode": "null as zero",
-      "fill": 7,
-      "gridPos": {
-        "y": 105,
-        "h": 21,
-        "w": 24,
-        "x": 0
-      },
-      "percentage": true,
-      "thresholds": [],
-      "dashes": false,
-      "type": "graph",
-      "bars": false,
-      "description": "Relative PR workload"
-    },
-    {
-      "dashLength": 10,
-      "thresholds": [],
-      "description": "Number of SIG reviewers",
-      "bars": false,
-      "fill": 0,
-      "title": "Number of SIG reviewers",
-      "steppedLine": false,
-      "timeShift": null,
-      "linewidth": 1,
-      "percentage": false,
-      "datasource": "psql",
-      "type": "graph",
-      "decimals": null,
-      "pointradius": 5,
-      "aliasColors": {
-        
-      },
-      "stack": false,
-      "yaxis": {
-        "alignLevel": null,
-        "align": false
-      },
-      "tooltip": {
-        "value_type": "individual",
-        "shared": true,
-        "sort": 2
-      },
-      "legend": {
-        "max": true,
-        "min": true,
-        "rightSide": true,
-        "alignAsTable": true,
-        "sortDesc": true,
-        "sideWidth": null,
-        "total": false,
-        "show": true,
-        "current": true,
-        "avg": true,
-        "values": true,
-        "sort": "total"
-      },
-      "nullPointMode": "null as zero",
-      "id": 8,
-      "dashes": false,
-      "xaxis": {
-        "values": [],
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true
-      },
-      "transparent": true,
-      "seriesOverrides": [],
-      "yaxes": [
-        {
-          "max": null,
-          "min": "0",
-          "show": true,
-          "decimals": null,
-          "format": "short",
-          "label": "Reviewers",
-          "logBase": 1
-        },
-        {
-          "logBase": 1,
-          "max": null,
-          "min": "0",
-          "show": false,
-          "format": "short",
-          "label": ""
-        }
-      ],
-      "timeFrom": null,
-      "gridPos": {
-        "h": 21,
-        "w": 24,
-        "x": 0,
-        "y": 126
-      },
-      "renderer": "flot",
-      "targets": [
-        {
-          "policy": "default",
-          "tags": [],
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              }
-            ]
-          ],
-          "alias": "",
-          "dsType": "influxdb",
-          "rawQuery": true,
-          "groupBy": [],
-          "format": "time_series",
-          "resultFormat": "time_series",
-          "query": "SELECT /^[[sigs]]$/ FROM \"sig_pr_workload_reviewers_d\" WHERE $timeFilter",
-          "refId": "A",
-          "orderByTime": "ASC",
-          "measurement": "notused",
-          "rawSql": "select\n  time,\n  ${sigs:csv}\nfrom\n  ssig_pr_wlrev\nwhere\n  $__timeFilter(time)\norder by\n  time"
-        }
-      ],
-      "links": [],
-      "points": false,
-      "lines": true,
-      "spaceLength": 10
-    },
-    {
-      "tooltip": {
-        "shared": true,
-        "sort": 2,
-        "value_type": "individual"
-      },
-      "linewidth": 1,
-      "xaxis": {
-        "name": null,
-        "show": true,
-        "values": [],
-        "buckets": null,
-        "mode": "time"
-      },
-      "points": false,
-      "targets": [
-        {
-          "orderByTime": "ASC",
-          "tags": [],
-          "format": "time_series",
-          "measurement": "notused",
-          "alias": "",
-          "refId": "A",
-          "policy": "default",
-          "dsType": "influxdb",
-          "rawSql": "select\n  time,\n  ${sigs:csv}\nfrom\n  ssig_pr_wliss\nwhere\n  $__timeFilter(time)\norder by\n  time",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              }
-            ]
-          ],
-          "query": "SELECT /^[[sigs]]$/ FROM \"sig_pr_workload_issues_d\" WHERE $timeFilter",
-          "resultFormat": "time_series",
-          "rawQuery": true,
-          "groupBy": []
-        }
-      ],
-      "links": [],
-      "yaxis": {
-        "alignLevel": null,
-        "align": false
-      },
-      "seriesOverrides": [],
-      "timeFrom": null,
-      "spaceLength": 10,
-      "percentage": false,
-      "pointradius": 5,
-      "description": "Number of SIG PRs",
-      "nullPointMode": "null as zero",
-      "transparent": true,
-      "renderer": "flot",
-      "timeShift": null,
-      "stack": false,
-      "decimals": null,
-      "type": "graph",
-      "fill": 0,
-      "yaxes": [
-        {
-          "min": "0",
-          "show": true,
-          "decimals": null,
-          "format": "short",
-          "label": "PRs",
-          "logBase": 1,
-          "max": null
-        },
-        {
-          "format": "short",
-          "label": "",
-          "logBase": 1,
-          "max": null,
-          "min": "0",
-          "show": false
-        }
-      ],
-      "datasource": "psql",
-      "dashes": false,
-      "id": 9,
-      "bars": false,
-      "aliasColors": {
-        
-      },
-      "lines": true,
-      "thresholds": [],
-      "dashLength": 10,
-      "gridPos": {
-        "h": 21,
-        "w": 24,
-        "x": 0,
-        "y": 147
-      },
-      "steppedLine": false,
-      "legend": {
-        "current": true,
-        "avg": true,
-        "sideWidth": null,
-        "rightSide": true,
-        "show": true,
-        "total": false,
-        "alignAsTable": true,
-        "min": true,
-        "values": true,
-        "sort": "total",
-        "sortDesc": true,
-        "max": true
-      },
-      "title": "Number of SIG PRs"
-    },
-    {
-      "gridPos": {
-        "y": 168,
-        "h": 18,
-        "w": 24,
-        "x": 0
-      },
-      "id": 10,
-      "links": [],
-      "mode": "html",
-      "title": "Dashboard documentation",
-      "type": "text",
-      "content": "${docs:raw}"
-    }
-  ],
-  "links": [],
-  "schemaVersion": 16,
-  "version": 16,
   "timezone": "",
-  "refresh": false,
-  "style": "dark",
-  "annotations": {
-    "list": [
-      {
-        "datasource": "-- Grafana --",
-        "enable": true,
-        "hide": true,
-        "iconColor": "rgba(0, 211, 255, 1)",
-        "name": "Annotations \u0026 Alerts",
-        "type": "dashboard",
-        "builtIn": 1
-      },
-      {
-        "enable": true,
-        "name": "Releases",
-        "query": "SELECT title, description from annotations WHERE $timeFilter order by time asc",
-        "rawQuery": "select extract(epoch from time) AS time, title as text, description as tags from sannotations where $__timeFilter(time)",
-        "tagsColumn": "title,description",
-        "datasource": "psql",
-        "textColumn": "",
-        "iconColor": "rgba(255, 96, 96, 1)",
-        "hide": false,
-        "showIn": 0,
-        "titleColumn": "[[full_name]] release",
-        "limit": 100,
-        "type": "alert"
-      }
-    ]
-  },
-  "templating": {
-    "list": [
-      {
-        "useTags": false,
-        "name": "sigs",
-        "type": "query",
-        "hide": 0,
-        "regex": "",
-        "allValue": "",
-        "tagsQuery": "",
-        "datasource": "psql",
-        "options": [],
-        "includeAll": true,
-        "refresh": 1,
-        "tagValuesQuery": "",
-        "skipUrlSync": false,
-        "tags": [],
-        "multi": true,
-        "sort": 0,
-        "label": "SIG",
-        "current": {
-          "text": "All",
-          "value": [
-            "$__all"
-          ]
-        },
-        "query": "select '\"' || sig_mentions_labels_name || '\"' from tsig_mentions_labels order by 1"
-      },
-      {
-        "regex": "",
-        "name": "full_name",
-        "sort": 0,
-        "useTags": false,
-        "datasource": "psql",
-        "current": {
-          "text": "Kubernetes",
-          "value": "Kubernetes"
-        },
-        "multi": false,
-        "includeAll": false,
-        "hide": 2,
-        "type": "query",
-        "refresh": 1,
-        "skipUrlSync": true,
-        "query": "select value_s from gha_vars where name = 'full_name'",
-        "allValue": null,
-        "tagValuesQuery": "",
-        "label": null,
-        "options": [],
-        "tags": [],
-        "tagsQuery": ""
-      },
-      {
-        "label": null,
-        "hide": 2,
-        "useTags": false,
-        "current": {
-          "text": "\u003ch1 id=\"kubernetes-dashboard\"\u003eKubernetes PR Workload per SIG dashboards (chart and table)\u003c/h1\u003e\n\u003cp\u003eLinks:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003eChart version metric \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/pr_workload.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eTable version metric \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/pr_workload_table.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eTSDB \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/metrics.yaml\" target=\"_blank\"\u003eseries definition\u003c/a\u003e. Search for \u003ccode\u003epr_workload\u003c/code\u003e\u003c/li\u003e\n\u003cli\u003eGrafana dashboard \u003ca href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/pr-workload-per-sig-chart.json\" target=\"_blank\"\u003eJSON\u003c/a\u003e (chart version).\u003c/li\u003e\n\u003cli\u003eGrafana dashboard \u003ca href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/pr-workload-per-sig-table.json\" target=\"_blank\"\u003eJSON\u003c/a\u003e (table version).\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch1 id=\"description\"\u003eDescription\u003c/h1\u003e\n\u003cul\u003e\n\u003cli\u003eThose dashboards show PR workload for SIGs\u003c/li\u003e\n\u003cli\u003eChart version allows to see absolute and relative PR worklod as line charts, stacked charts and stacked percent charts.\u003c/li\u003e\n\u003cli\u003eChart version also allows to see chart of SIG PRs and SIG reviewers. You can select list of SIGs to display.\u003c/li\u003e\n\u003cli\u003eTable version allows to see absolute and relative PR workload per SIG and number of PRs and reviewers for given SIGs.\u003c/li\u003e\n\u003cli\u003eTable version also allows to choose period to display metric, like last month, year, particular release etc.\u003c/li\u003e\n\u003cli\u003eFor chart version we're counting PRs that were opened at given point in time (not closed, not merged).\u003c/li\u003e\n\u003cli\u003eFor table version we're counting PRs taht were open at the period's end (for last week it is now), for v1.9 - v1.10 it is v1.10\u003c/li\u003e\n\u003cli\u003ePR size comes from \u003ccode\u003esize/*\u003c/code\u003e labels. Different sizes, have different weights.\u003c/li\u003e\n\u003cli\u003exs: 0.25, small, s: 0.5, large, l: 2, xl: 4, xxl: 8. All other size labels (or no size label) have weight 1.\u003c/li\u003e\n\u003cli\u003ePR belongs to SIG by using \u003ccode\u003esig/*\u003c/code\u003e labels. List of SIGs to display in drop-down comes from all \u003ccode\u003esig/*\u003c/code\u003e labels.\u003c/li\u003e\n\u003cli\u003eAbsolute PR workload is a weighted sum of all PRs for a given SIG using size labels as weights.\u003c/li\u003e\n\u003cli\u003eRelative PR workload for given SIG is absolute PR workload divided by number of reviewers for given SIG.\u003c/li\u003e\n\u003cli\u003eNumber of reviewers is calculated in last month preceeding given point in time for chart version.\u003c/li\u003e\n\u003cli\u003eFor table version we're conting reviewers in a selected period.\u003c/li\u003e\n\u003cli\u003eReviewer is somebody who added \u003ccode\u003e/lgtm\u003c/code\u003e or \u003ccode\u003e/approve\u003c/code\u003e text or \u003ccode\u003elgtm\u003c/code\u003e or \u003ccode\u003eapprove\u003c/code\u003e label.\u003c/li\u003e\n\u003cli\u003eWe are skipping bots when calculating statistics, see \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/excluding_bots.md\" target=\"_blank\"\u003eexcluding bots\u003c/a\u003e for details.\u003c/li\u003e\n\u003c/ul\u003e",
-          "value": "\u003ch1 id=\"kubernetes-dashboard\"\u003eKubernetes PR Workload per SIG dashboards (chart and table)\u003c/h1\u003e\n\u003cp\u003eLinks:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003eChart version metric \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/pr_workload.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eTable version metric \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/pr_workload_table.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eTSDB \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/metrics.yaml\" target=\"_blank\"\u003eseries definition\u003c/a\u003e. Search for \u003ccode\u003epr_workload\u003c/code\u003e\u003c/li\u003e\n\u003cli\u003eGrafana dashboard \u003ca href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/pr-workload-per-sig-chart.json\" target=\"_blank\"\u003eJSON\u003c/a\u003e (chart version).\u003c/li\u003e\n\u003cli\u003eGrafana dashboard \u003ca href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/pr-workload-per-sig-table.json\" target=\"_blank\"\u003eJSON\u003c/a\u003e (table version).\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch1 id=\"description\"\u003eDescription\u003c/h1\u003e\n\u003cul\u003e\n\u003cli\u003eThose dashboards show PR workload for SIGs\u003c/li\u003e\n\u003cli\u003eChart version allows to see absolute and relative PR worklod as line charts, stacked charts and stacked percent charts.\u003c/li\u003e\n\u003cli\u003eChart version also allows to see chart of SIG PRs and SIG reviewers. You can select list of SIGs to display.\u003c/li\u003e\n\u003cli\u003eTable version allows to see absolute and relative PR workload per SIG and number of PRs and reviewers for given SIGs.\u003c/li\u003e\n\u003cli\u003eTable version also allows to choose period to display metric, like last month, year, particular release etc.\u003c/li\u003e\n\u003cli\u003eFor chart version we're counting PRs that were opened at given point in time (not closed, not merged).\u003c/li\u003e\n\u003cli\u003eFor table version we're counting PRs taht were open at the period's end (for last week it is now), for v1.9 - v1.10 it is v1.10\u003c/li\u003e\n\u003cli\u003ePR size comes from \u003ccode\u003esize/*\u003c/code\u003e labels. Different sizes, have different weights.\u003c/li\u003e\n\u003cli\u003exs: 0.25, small, s: 0.5, large, l: 2, xl: 4, xxl: 8. All other size labels (or no size label) have weight 1.\u003c/li\u003e\n\u003cli\u003ePR belongs to SIG by using \u003ccode\u003esig/*\u003c/code\u003e labels. List of SIGs to display in drop-down comes from all \u003ccode\u003esig/*\u003c/code\u003e labels.\u003c/li\u003e\n\u003cli\u003eAbsolute PR workload is a weighted sum of all PRs for a given SIG using size labels as weights.\u003c/li\u003e\n\u003cli\u003eRelative PR workload for given SIG is absolute PR workload divided by number of reviewers for given SIG.\u003c/li\u003e\n\u003cli\u003eNumber of reviewers is calculated in last month preceeding given point in time for chart version.\u003c/li\u003e\n\u003cli\u003eFor table version we're conting reviewers in a selected period.\u003c/li\u003e\n\u003cli\u003eReviewer is somebody who added \u003ccode\u003e/lgtm\u003c/code\u003e or \u003ccode\u003e/approve\u003c/code\u003e text or \u003ccode\u003elgtm\u003c/code\u003e or \u003ccode\u003eapprove\u003c/code\u003e label.\u003c/li\u003e\n\u003cli\u003eWe are skipping bots when calculating statistics, see \u003ca href=\"https://github.com/cncf/devstats/blob/master/docs/excluding_bots.md\" target=\"_blank\"\u003eexcluding bots\u003c/a\u003e for details.\u003c/li\u003e\n\u003c/ul\u003e"
-        },
-        "tagValuesQuery": "",
-        "skipUrlSync": true,
-        "query": "select value_s from gha_vars where name = 'pr_workload_docs_html'",
-        "allValue": null,
-        "tags": [],
-        "multi": false,
-        "regex": "",
-        "name": "docs",
-        "tagsQuery": "",
-        "options": [],
-        "sort": 0,
-        "type": "query",
-        "includeAll": false,
-        "refresh": 1,
-        "datasource": "psql"
-      }
-    ]
-  },
-  "title": "PR Workload per SIG Chart"
+  "title": "PR Workload per SIG Chart",
+  "uid": "33",
+  "version": 16
 }

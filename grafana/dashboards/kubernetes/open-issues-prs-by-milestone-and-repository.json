@@ -1,7 +1,409 @@
 {
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      },
+      {
+        "datasource": "psql",
+        "enable": true,
+        "hide": false,
+        "iconColor": "rgba(255, 96, 96, 1)",
+        "limit": 100,
+        "name": "Releases",
+        "query": "SELECT title, description from annotations WHERE $timeFilter order by time asc",
+        "rawQuery": "select extract(epoch from time) AS time, title as text, description as tags from sannotations where $__timeFilter(time)",
+        "showIn": 0,
+        "tagsColumn": "title,description",
+        "textColumn": "",
+        "titleColumn": "[[full_name]] release",
+        "type": "alert"
+      }
+    ]
+  },
   "editable": true,
+  "gnetId": null,
+  "graphTooltip": 0,
   "id": 114,
   "links": [],
+  "panels": [
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "psql",
+      "decimals": 0,
+      "description": "Number of open PRs and Issues for a given SIG: [[sig_name]] and Milestone: [[milestone_name]]",
+      "fill": 2,
+      "gridPos": {
+        "h": 22,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 1,
+      "legend": {
+        "alignAsTable": true,
+        "avg": true,
+        "current": true,
+        "hideEmpty": false,
+        "hideZero": false,
+        "max": true,
+        "min": true,
+        "rightSide": false,
+        "show": true,
+        "sideWidth": null,
+        "total": false,
+        "values": true
+      },
+      "lines": true,
+      "linewidth": 1,
+      "links": [],
+      "nullPointMode": "null",
+      "percentage": false,
+      "pointradius": 5,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [
+        {
+          "alias": "Open PRs",
+          "yaxis": 2
+        }
+      ],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": true,
+      "targets": [
+        {
+          "alias": "",
+          "dsType": "influxdb",
+          "format": "time_series",
+          "groupBy": [],
+          "hide": false,
+          "measurement": "reviewers_d",
+          "orderByTime": "ASC",
+          "policy": "autogen",
+          "query": "SELECT \"value\" FROM \"open_issues_sigs_milestones_[[sig]]_[[milestone]]_[[repo]]_d\" WHERE $timeFilter",
+          "rawQuery": true,
+          "rawSql": "select\n  time,\n  value as \"Open issues\"\nfrom\n  sissues_milestones\nwhere\n  $__timeFilter(time)\n  and series = 'isigml[[sig]][[milestone]][[repo]]'\norder by\n  time",
+          "refId": "A",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "",
+          "dsType": "influxdb",
+          "format": "time_series",
+          "groupBy": [],
+          "hide": false,
+          "measurement": "reviewers_d",
+          "orderByTime": "ASC",
+          "policy": "autogen",
+          "query": "SELECT \"value\" FROM \"open_prs_sigs_milestones_[[sig]]_[[milestone]]_[[repo]]_d\" WHERE $timeFilter",
+          "rawQuery": true,
+          "rawSql": "select\n  time,\n  value as \"Open PRs\"\nfrom\n  sprs_milestones\nwhere\n  $__timeFilter(time)\n  and series = 'prsigml[[sig]][[milestone]][[repo]]'\norder by\n  time",
+          "refId": "B",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              }
+            ]
+          ],
+          "tags": []
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Open issues/PRs (SIG: [[sig_name]], Milestone: [[milestone_name]])",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "transparent": false,
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": [
+          "total"
+        ]
+      },
+      "yaxes": [
+        {
+          "decimals": 0,
+          "format": "none",
+          "label": "Open Issues",
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true
+        },
+        {
+          "decimals": 0,
+          "format": "none",
+          "label": "Open PRs",
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "content": "${docs:raw}",
+      "gridPos": {
+        "h": 12,
+        "w": 24,
+        "x": 0,
+        "y": 22
+      },
+      "id": 2,
+      "links": [],
+      "mode": "html",
+      "title": "Dashboard documentation",
+      "type": "text"
+    }
+  ],
+  "refresh": false,
+  "schemaVersion": 16,
+  "style": "dark",
+  "tags": [
+    "dashboard",
+    "kubernetes",
+    "issues",
+    "PRs",
+    "repos"
+  ],
+  "templating": {
+    "list": [
+      {
+        "allValue": null,
+        "current": {
+          "text": "All",
+          "value": "All"
+        },
+        "datasource": "psql",
+        "hide": 0,
+        "includeAll": false,
+        "label": "SIG",
+        "multi": false,
+        "name": "sig_name",
+        "options": [],
+        "query": "select sig_mentions_labels_name_with_all from tsig_mentions_labels_with_all order by 1",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "text": "all",
+          "value": "all"
+        },
+        "datasource": "psql",
+        "hide": 2,
+        "includeAll": false,
+        "label": "",
+        "multi": false,
+        "name": "sig",
+        "options": [],
+        "query": "select sig_mentions_labels_value_with_all from tsig_mentions_labels_with_all where sig_mentions_labels_name_with_all = '[[sig_name]]'",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": true,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "text": "All",
+          "value": "All"
+        },
+        "datasource": "psql",
+        "hide": 0,
+        "includeAll": false,
+        "label": "Milestone",
+        "multi": false,
+        "name": "milestone_name",
+        "options": [],
+        "query": "select all_milestones_name from tall_milestones order by all_milestones_value",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "text": "all",
+          "value": "all"
+        },
+        "datasource": "psql",
+        "hide": 2,
+        "includeAll": false,
+        "label": "",
+        "multi": false,
+        "name": "milestone",
+        "options": [],
+        "query": "select all_milestones_value from tall_milestones where all_milestones_name = '[[milestone_name]]'",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": true,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "text": "kubernetes/kubernetes",
+          "value": "kubernetes/kubernetes"
+        },
+        "datasource": "psql",
+        "hide": 0,
+        "includeAll": false,
+        "label": "Repository",
+        "multi": false,
+        "name": "repo_name",
+        "options": [],
+        "query": "select top_repo_names_name_with_all from ttop_repo_names_with_all order by 1",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 1,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "text": "kuberneteskubernetes",
+          "value": "kuberneteskubernetes"
+        },
+        "datasource": "psql",
+        "hide": 2,
+        "includeAll": false,
+        "label": "",
+        "multi": false,
+        "name": "repo",
+        "options": [],
+        "query": "select top_repo_names_value_with_all from ttop_repo_names_with_all where top_repo_names_name_with_all = '[[repo_name]]'",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": true,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "text": "Kubernetes",
+          "value": "Kubernetes"
+        },
+        "datasource": "psql",
+        "hide": 2,
+        "includeAll": false,
+        "label": null,
+        "multi": false,
+        "name": "full_name",
+        "options": [],
+        "query": "select value_s from gha_vars where name = 'full_name'",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": true,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "text": "<h1 id=\"kubernetes-dashboard\">Kubernetes open issues/PRs by milestone and repository dashboard</h1>\n<p>Links:</p>\n<ul>\n<li>Open issues metric <a href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/open_issues_sigs_milestones.sql\" target=\"_blank\">SQL file</a>.</li>\n<li>Open PRs metric <a href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/open_prs_sigs_milestones.sql\" target=\"_blank\">SQL file</a>.</li>\n<li>TSDB <a href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/metrics.yaml\" target=\"_blank\">series definition</a>. Search for <code>sigs_milestones</code></li>\n<li>Grafana dashboard <a href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/open-issues-prs-by-milestone-and-repository.json\" target=\"_blank\">JSON</a>.</li>\n</ul>\n<h1 id=\"description\">Description</h1>\n<ul>\n<li>Dashboard shows number of open issues and PRs for given SIG and milestone.</li>\n<li>It shows number of issues/PRs that were open at given point in time.</li>\n<li>It detects issue/PR SIG by <code>sig/*</code> labels. You can also select all SIGs.</li>\n<li>You can filter by specific milestone or select all milestones.</li>\n<li>You can filter by specific repository or select all repositories.</li>\n<li>Milestone and labels set is determined from last issue/PR comment before or at given point in time.</li>\n<li>We're using special dedicated tool that uses GitHub API to get newest issue/PR state because labels/milestones are usually updated by k8s-bot after the comment (in reaction to comment's command).</li>\n</ul>",
+          "value": "<h1 id=\"kubernetes-dashboard\">Kubernetes open issues/PRs by milestone and repository dashboard</h1>\n<p>Links:</p>\n<ul>\n<li>Open issues metric <a href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/open_issues_sigs_milestones.sql\" target=\"_blank\">SQL file</a>.</li>\n<li>Open PRs metric <a href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/open_prs_sigs_milestones.sql\" target=\"_blank\">SQL file</a>.</li>\n<li>TSDB <a href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/metrics.yaml\" target=\"_blank\">series definition</a>. Search for <code>sigs_milestones</code></li>\n<li>Grafana dashboard <a href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/open-issues-prs-by-milestone-and-repository.json\" target=\"_blank\">JSON</a>.</li>\n</ul>\n<h1 id=\"description\">Description</h1>\n<ul>\n<li>Dashboard shows number of open issues and PRs for given SIG and milestone.</li>\n<li>It shows number of issues/PRs that were open at given point in time.</li>\n<li>It detects issue/PR SIG by <code>sig/*</code> labels. You can also select all SIGs.</li>\n<li>You can filter by specific milestone or select all milestones.</li>\n<li>You can filter by specific repository or select all repositories.</li>\n<li>Milestone and labels set is determined from last issue/PR comment before or at given point in time.</li>\n<li>We're using special dedicated tool that uses GitHub API to get newest issue/PR state because labels/milestones are usually updated by k8s-bot after the comment (in reaction to comment's command).</li>\n</ul>"
+        },
+        "datasource": "psql",
+        "hide": 2,
+        "includeAll": false,
+        "label": null,
+        "multi": false,
+        "name": "docs",
+        "options": [],
+        "query": "select value_s from gha_vars where name = 'sig_milestones_docs_html'",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": true,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      }
+    ]
+  },
+  "time": {
+    "from": "now-2y",
+    "to": "now"
+  },
   "timepicker": {
     "refresh_intervals": [
       "5s",
@@ -27,412 +429,8 @@
       "30d"
     ]
   },
-  "style": "dark",
-  "time": {
-    "from": "now-2y",
-    "to": "now"
-  },
   "timezone": "",
-  "templating": {
-    "list": [
-      {
-        "datasource": "psql",
-        "current": {
-          "text": "All",
-          "value": "All"
-        },
-        "label": "SIG",
-        "name": "sig_name",
-        "skipUrlSync": false,
-        "hide": 0,
-        "query": "select sig_mentions_labels_name_with_all from tsig_mentions_labels_with_all order by 1",
-        "regex": "",
-        "options": [],
-        "type": "query",
-        "sort": 0,
-        "useTags": false,
-        "multi": false,
-        "tagsQuery": "",
-        "tags": [],
-        "allValue": null,
-        "tagValuesQuery": "",
-        "refresh": 1,
-        "includeAll": false
-      },
-      {
-        "allValue": null,
-        "sort": 0,
-        "refresh": 1,
-        "label": "",
-        "tagValuesQuery": "",
-        "useTags": false,
-        "type": "query",
-        "includeAll": false,
-        "options": [],
-        "current": {
-          "text": "all",
-          "value": "all"
-        },
-        "regex": "",
-        "tagsQuery": "",
-        "skipUrlSync": true,
-        "hide": 2,
-        "tags": [],
-        "multi": false,
-        "query": "select sig_mentions_labels_value_with_all from tsig_mentions_labels_with_all where sig_mentions_labels_name_with_all = '[[sig_name]]'",
-        "name": "sig",
-        "datasource": "psql"
-      },
-      {
-        "sort": 0,
-        "regex": "",
-        "current": {
-          "text": "All",
-          "value": "All"
-        },
-        "allValue": null,
-        "hide": 0,
-        "skipUrlSync": false,
-        "label": "Milestone",
-        "datasource": "psql",
-        "tagsQuery": "",
-        "name": "milestone_name",
-        "includeAll": false,
-        "refresh": 1,
-        "tagValuesQuery": "",
-        "multi": false,
-        "useTags": false,
-        "type": "query",
-        "options": [],
-        "tags": [],
-        "query": "select all_milestones_name from tall_milestones order by all_milestones_value"
-      },
-      {
-        "refresh": 1,
-        "current": {
-          "text": "all",
-          "value": "all"
-        },
-        "type": "query",
-        "hide": 2,
-        "query": "select all_milestones_value from tall_milestones where all_milestones_name = '[[milestone_name]]'",
-        "tagValuesQuery": "",
-        "options": [],
-        "tagsQuery": "",
-        "datasource": "psql",
-        "multi": false,
-        "label": "",
-        "name": "milestone",
-        "regex": "",
-        "useTags": false,
-        "tags": [],
-        "skipUrlSync": true,
-        "allValue": null,
-        "sort": 0,
-        "includeAll": false
-      },
-      {
-        "hide": 0,
-        "name": "repo_name",
-        "tagsQuery": "",
-        "sort": 1,
-        "type": "query",
-        "datasource": "psql",
-        "label": "Repository",
-        "allValue": null,
-        "refresh": 1,
-        "tags": [],
-        "query": "select top_repo_names_name_with_all from ttop_repo_names_with_all order by 1",
-        "useTags": false,
-        "skipUrlSync": false,
-        "includeAll": false,
-        "regex": "",
-        "tagValuesQuery": "",
-        "multi": false,
-        "current": {
-          "value": "kubernetes/kubernetes",
-          "text": "kubernetes/kubernetes"
-        },
-        "options": []
-      },
-      {
-        "regex": "",
-        "options": [],
-        "allValue": null,
-        "useTags": false,
-        "skipUrlSync": true,
-        "current": {
-          "value": "kuberneteskubernetes",
-          "text": "kuberneteskubernetes"
-        },
-        "query": "select top_repo_names_value_with_all from ttop_repo_names_with_all where top_repo_names_name_with_all = '[[repo_name]]'",
-        "refresh": 1,
-        "sort": 0,
-        "type": "query",
-        "hide": 2,
-        "tags": [],
-        "datasource": "psql",
-        "tagValuesQuery": "",
-        "includeAll": false,
-        "multi": false,
-        "label": "",
-        "tagsQuery": "",
-        "name": "repo"
-      },
-      {
-        "name": "full_name",
-        "options": [],
-        "refresh": 1,
-        "tagsQuery": "",
-        "tagValuesQuery": "",
-        "hide": 2,
-        "useTags": false,
-        "multi": false,
-        "type": "query",
-        "label": null,
-        "datasource": "psql",
-        "query": "select value_s from gha_vars where name = 'full_name'",
-        "regex": "",
-        "allValue": null,
-        "current": {
-          "text": "Kubernetes",
-          "value": "Kubernetes"
-        },
-        "tags": [],
-        "includeAll": false,
-        "sort": 0,
-        "skipUrlSync": true
-      },
-      {
-        "query": "select value_s from gha_vars where name = 'sig_milestones_docs_html'",
-        "datasource": "psql",
-        "label": null,
-        "options": [],
-        "useTags": false,
-        "type": "query",
-        "tagValuesQuery": "",
-        "regex": "",
-        "hide": 2,
-        "includeAll": false,
-        "sort": 0,
-        "skipUrlSync": true,
-        "tagsQuery": "",
-        "refresh": 1,
-        "tags": [],
-        "current": {
-          "text": "\u003ch1 id=\"kubernetes-dashboard\"\u003eKubernetes open issues/PRs by milestone and repository dashboard\u003c/h1\u003e\n\u003cp\u003eLinks:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003eOpen issues metric \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/open_issues_sigs_milestones.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eOpen PRs metric \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/open_prs_sigs_milestones.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eTSDB \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/metrics.yaml\" target=\"_blank\"\u003eseries definition\u003c/a\u003e. Search for \u003ccode\u003esigs_milestones\u003c/code\u003e\u003c/li\u003e\n\u003cli\u003eGrafana dashboard \u003ca href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/open-issues-prs-by-milestone-and-repository.json\" target=\"_blank\"\u003eJSON\u003c/a\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch1 id=\"description\"\u003eDescription\u003c/h1\u003e\n\u003cul\u003e\n\u003cli\u003eDashboard shows number of open issues and PRs for given SIG and milestone.\u003c/li\u003e\n\u003cli\u003eIt shows number of issues/PRs that were open at given point in time.\u003c/li\u003e\n\u003cli\u003eIt detects issue/PR SIG by \u003ccode\u003esig/*\u003c/code\u003e labels. You can also select all SIGs.\u003c/li\u003e\n\u003cli\u003eYou can filter by specific milestone or select all milestones.\u003c/li\u003e\n\u003cli\u003eYou can filter by specific repository or select all repositories.\u003c/li\u003e\n\u003cli\u003eMilestone and labels set is determined from last issue/PR comment before or at given point in time.\u003c/li\u003e\n\u003cli\u003eWe're using special dedicated tool that uses GitHub API to get newest issue/PR state because labels/milestones are usually updated by k8s-bot after the comment (in reaction to comment's command).\u003c/li\u003e\n\u003c/ul\u003e",
-          "value": "\u003ch1 id=\"kubernetes-dashboard\"\u003eKubernetes open issues/PRs by milestone and repository dashboard\u003c/h1\u003e\n\u003cp\u003eLinks:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003eOpen issues metric \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/open_issues_sigs_milestones.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eOpen PRs metric \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/open_prs_sigs_milestones.sql\" target=\"_blank\"\u003eSQL file\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003eTSDB \u003ca href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/metrics.yaml\" target=\"_blank\"\u003eseries definition\u003c/a\u003e. Search for \u003ccode\u003esigs_milestones\u003c/code\u003e\u003c/li\u003e\n\u003cli\u003eGrafana dashboard \u003ca href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/open-issues-prs-by-milestone-and-repository.json\" target=\"_blank\"\u003eJSON\u003c/a\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n\u003ch1 id=\"description\"\u003eDescription\u003c/h1\u003e\n\u003cul\u003e\n\u003cli\u003eDashboard shows number of open issues and PRs for given SIG and milestone.\u003c/li\u003e\n\u003cli\u003eIt shows number of issues/PRs that were open at given point in time.\u003c/li\u003e\n\u003cli\u003eIt detects issue/PR SIG by \u003ccode\u003esig/*\u003c/code\u003e labels. You can also select all SIGs.\u003c/li\u003e\n\u003cli\u003eYou can filter by specific milestone or select all milestones.\u003c/li\u003e\n\u003cli\u003eYou can filter by specific repository or select all repositories.\u003c/li\u003e\n\u003cli\u003eMilestone and labels set is determined from last issue/PR comment before or at given point in time.\u003c/li\u003e\n\u003cli\u003eWe're using special dedicated tool that uses GitHub API to get newest issue/PR state because labels/milestones are usually updated by k8s-bot after the comment (in reaction to comment's command).\u003c/li\u003e\n\u003c/ul\u003e"
-        },
-        "multi": false,
-        "name": "docs",
-        "allValue": null
-      }
-    ]
-  },
   "title": "Open issues/PRs by milestone and repository",
-  "tags": [
-    "dashboard",
-    "kubernetes",
-    "issues",
-    "PRs",
-    "repos"
-  ],
-  "graphTooltip": 0,
-  "panels": [
-    {
-      "percentage": false,
-      "nullPointMode": "null",
-      "gridPos": {
-        "y": 0,
-        "h": 22,
-        "w": 24,
-        "x": 0
-      },
-      "points": false,
-      "aliasColors": {
-        
-      },
-      "bars": false,
-      "stack": false,
-      "seriesOverrides": [
-        {
-          "alias": "Open PRs",
-          "yaxis": 2
-        }
-      ],
-      "renderer": "flot",
-      "legend": {
-        "alignAsTable": true,
-        "values": true,
-        "max": true,
-        "current": true,
-        "hideEmpty": false,
-        "hideZero": false,
-        "min": true,
-        "rightSide": false,
-        "total": false,
-        "show": true,
-        "sideWidth": null,
-        "avg": true
-      },
-      "tooltip": {
-        "value_type": "individual",
-        "shared": true,
-        "sort": 0
-      },
-      "title": "Open issues/PRs (SIG: [[sig_name]], Milestone: [[milestone_name]])",
-      "dashes": false,
-      "spaceLength": 10,
-      "yaxis": {
-        "alignLevel": null,
-        "align": false
-      },
-      "decimals": 0,
-      "fill": 2,
-      "id": 1,
-      "thresholds": [],
-      "targets": [
-        {
-          "rawQuery": true,
-          "rawSql": "select\n  time,\n  value as \"Open issues\"\nfrom\n  sissues_milestones\nwhere\n  $__timeFilter(time)\n  and series = 'isigml[[sig]][[milestone]][[repo]]'\norder by\n  time",
-          "policy": "autogen",
-          "hide": false,
-          "groupBy": [],
-          "select": [
-            [
-              {
-                "type": "field",
-                "params": [
-                  "value"
-                ]
-              }
-            ]
-          ],
-          "orderByTime": "ASC",
-          "tags": [],
-          "query": "SELECT \"value\" FROM \"open_issues_sigs_milestones_[[sig]]_[[milestone]]_[[repo]]_d\" WHERE $timeFilter",
-          "format": "time_series",
-          "refId": "A",
-          "resultFormat": "time_series",
-          "alias": "",
-          "measurement": "reviewers_d",
-          "dsType": "influxdb"
-        },
-        {
-          "tags": [],
-          "format": "time_series",
-          "rawSql": "select\n  time,\n  value as \"Open PRs\"\nfrom\n  sprs_milestones\nwhere\n  $__timeFilter(time)\n  and series = 'prsigml[[sig]][[milestone]][[repo]]'\norder by\n  time",
-          "policy": "autogen",
-          "groupBy": [],
-          "resultFormat": "time_series",
-          "alias": "",
-          "refId": "B",
-          "measurement": "reviewers_d",
-          "query": "SELECT \"value\" FROM \"open_prs_sigs_milestones_[[sig]]_[[milestone]]_[[repo]]_d\" WHERE $timeFilter",
-          "dsType": "influxdb",
-          "orderByTime": "ASC",
-          "hide": false,
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              }
-            ]
-          ],
-          "rawQuery": true
-        }
-      ],
-      "lines": true,
-      "description": "Number of open PRs and Issues for a given SIG: [[sig_name]] and Milestone: [[milestone_name]]",
-      "steppedLine": true,
-      "yaxes": [
-        {
-          "show": true,
-          "decimals": 0,
-          "format": "none",
-          "label": "Open Issues",
-          "logBase": 1,
-          "max": null,
-          "min": "0"
-        },
-        {
-          "show": true,
-          "decimals": 0,
-          "format": "none",
-          "label": "Open PRs",
-          "logBase": 1,
-          "max": null,
-          "min": "0"
-        }
-      ],
-      "pointradius": 5,
-      "type": "graph",
-      "dashLength": 10,
-      "timeShift": null,
-      "transparent": false,
-      "timeFrom": null,
-      "datasource": "psql",
-      "xaxis": {
-        "show": true,
-        "values": [
-          "total"
-        ],
-        "buckets": null,
-        "mode": "time",
-        "name": null
-      },
-      "links": [],
-      "linewidth": 1
-    },
-    {
-      "id": 2,
-      "links": [],
-      "mode": "html",
-      "title": "Dashboard documentation",
-      "type": "text",
-      "content": "${docs:raw}",
-      "gridPos": {
-        "x": 0,
-        "y": 22,
-        "h": 12,
-        "w": 24
-      }
-    }
-  ],
-  "refresh": false,
-  "schemaVersion": 16,
-  "gnetId": null,
-  "version": 13,
-  "annotations": {
-    "list": [
-      {
-        "type": "dashboard",
-        "builtIn": 1,
-        "datasource": "-- Grafana --",
-        "enable": true,
-        "hide": true,
-        "iconColor": "rgba(0, 211, 255, 1)",
-        "name": "Annotations \u0026 Alerts"
-      },
-      {
-        "limit": 100,
-        "enable": true,
-        "iconColor": "rgba(255, 96, 96, 1)",
-        "tagsColumn": "title,description",
-        "hide": false,
-        "datasource": "psql",
-        "textColumn": "",
-        "showIn": 0,
-        "rawQuery": "select extract(epoch from time) AS time, title as text, description as tags from sannotations where $__timeFilter(time)",
-        "titleColumn": "[[full_name]] release",
-        "type": "alert",
-        "name": "Releases",
-        "query": "SELECT title, description from annotations WHERE $timeFilter order by time asc"
-      }
-    ]
-  },
-  "uid": "22"
+  "uid": "22",
+  "version": 13
 }

@@ -1,196 +1,109 @@
 {
-  "uid": "4",
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "limit": 100,
+        "name": "Annotations & Alerts",
+        "showIn": 0,
+        "type": "dashboard"
+      },
+      {
+        "datasource": "psql",
+        "enable": true,
+        "hide": false,
+        "iconColor": "rgba(255, 96, 96, 1)",
+        "limit": 100,
+        "name": "Releases",
+        "query": "SELECT title, description from annotations WHERE $timeFilter order by time asc",
+        "rawQuery": "select extract(epoch from time) AS time, title as text, description as tags from sannotations where $__timeFilter(time)",
+        "showIn": 0,
+        "tagsColumn": "title,description",
+        "textColumn": "",
+        "titleColumn": "[[full_name]] release",
+        "type": "alert"
+      }
+    ]
+  },
+  "editable": true,
+  "gnetId": null,
+  "graphTooltip": 0,
   "id": 56,
+  "iteration": 1529594740081,
   "links": [],
   "panels": [
     {
       "aliasColors": {},
-      "links": [],
-      "dashLength": 10,
       "bars": false,
-      "title": "Companies [[metric]] metric ([[repogroup_name]], [[period]])",
+      "dashLength": 10,
+      "dashes": false,
       "datasource": "psql",
+      "decimals": 2,
+      "description": "Measures company [[metric]]. Independent means developers working on their own.",
+      "fill": 6,
+      "gridPos": {
+        "h": 17,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 1,
+      "legend": {
+        "alignAsTable": true,
+        "avg": true,
+        "current": true,
+        "hideEmpty": false,
+        "hideZero": false,
+        "max": true,
+        "min": true,
+        "rightSide": true,
+        "show": true,
+        "sideWidth": null,
+        "sort": "avg",
+        "sortDesc": true,
+        "total": true,
+        "values": true
+      },
+      "lines": true,
+      "linewidth": 0,
+      "links": [],
+      "nullPointMode": "null as zero",
+      "percentage": false,
+      "pointradius": 5,
+      "points": false,
+      "renderer": "flot",
       "seriesOverrides": [
         {
-          "yaxis": 2,
           "alias": "All",
           "bars": false,
           "fill": 0,
           "lines": true,
           "linewidth": 1,
-          "stack": false
+          "stack": false,
+          "yaxis": 2
         }
       ],
-      "stack": true,
-      "description": "Measures company [[metric]]. Independent means developers working on their own.",
-      "linewidth": 0,
       "spaceLength": 10,
-      "pointradius": 5,
-      "yaxes": [
-        {
-          "label": "Per company",
-          "logBase": 1,
-          "max": null,
-          "min": "0",
-          "show": true,
-          "format": "short"
-        },
-        {
-          "max": null,
-          "min": "0",
-          "show": true,
-          "decimals": null,
-          "format": "short",
-          "label": "All",
-          "logBase": 1
-        }
-      ],
-      "legend": {
-        "current": true,
-        "hideZero": false,
-        "show": true,
-        "hideEmpty": false,
-        "sortDesc": true,
-        "sort": "avg",
-        "total": true,
-        "values": true,
-        "avg": true,
-        "max": true,
-        "sideWidth": null,
-        "alignAsTable": true,
-        "min": true,
-        "rightSide": true
-      },
-      "thresholds": [],
-      "fill": 6,
-      "type": "graph",
-      "timeFrom": null,
-      "timeShift": null,
-      "tooltip": {
-        "sort": 2,
-        "value_type": "individual",
-        "shared": true
-      },
-      "yaxis": {
-        "alignLevel": null,
-        "align": false
-      },
+      "stack": true,
       "steppedLine": false,
-      "dashes": false,
-      "decimals": 2,
-      "lines": true,
-      "xaxis": {
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true,
-        "values": []
-      },
-      "nullPointMode": "null as zero",
-      "points": false,
-      "transparent": true,
-      "renderer": "flot",
       "targets": [
         {
-          "orderByTime": "ASC",
+          "alias": "",
+          "dsType": "influxdb",
+          "format": "time_series",
           "groupBy": [],
           "measurement": "sig_federation_d",
-          "rawSql": "select\n  time,\n  ${companies:csv}\nfrom\n  scompany_activity\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'company[[repogroup]][[metric]]'\norder by\n  time",
-          "query": "SELECT /^[[companies]]$/ FROM \"company_[[repogroup]]_[[metric]]_[[period]]\" WHERE $timeFilter",
-          "resultFormat": "time_series",
-          "dsType": "influxdb",
-          "tags": [],
-          "rawQuery": true,
+          "orderByTime": "ASC",
           "policy": "default",
-          "select": [
-            [
-              {
-                "type": "field",
-                "params": [
-                  "value"
-                ]
-              }
-            ]
-          ],
+          "query": "SELECT /^[[companies]]$/ FROM \"company_[[repogroup]]_[[metric]]_[[period]]\" WHERE $timeFilter",
+          "rawQuery": true,
+          "rawSql": "select\n  time,\n  ${companies:csv}\nfrom\n  scompany_activity\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'company[[repogroup]][[metric]]'\norder by\n  time",
           "refId": "B",
-          "alias": "",
-          "format": "time_series"
-        }
-      ],
-      "gridPos": {
-        "w": 24,
-        "x": 0,
-        "y": 0,
-        "h": 17
-      },
-      "id": 1,
-      "percentage": false
-    },
-    {
-      "dashes": false,
-      "fill": 6,
-      "id": 2,
-      "percentage": true,
-      "type": "graph",
-      "points": false,
-      "thresholds": [],
-      "renderer": "flot",
-      "timeShift": null,
-      "title": "Companies [[metric]] metric ([[repogroup_name]], [[period]])",
-      "dashLength": 10,
-      "steppedLine": false,
-      "seriesOverrides": [],
-      "transparent": true,
-      "yaxes": [
-        {
-          "min": "0",
-          "show": true,
-          "format": "short",
-          "label": "",
-          "logBase": 1,
-          "max": "100"
-        },
-        {
-          "show": true,
-          "decimals": null,
-          "format": "short",
-          "label": "",
-          "logBase": 1,
-          "max": "100",
-          "min": "0"
-        }
-      ],
-      "bars": false,
-      "timeFrom": null,
-      "legend": {
-        "hideZero": false,
-        "min": true,
-        "show": true,
-        "rightSide": true,
-        "sideWidth": null,
-        "max": true,
-        "sortDesc": true,
-        "avg": true,
-        "hideEmpty": false,
-        "total": true,
-        "sort": "avg",
-        "values": true,
-        "alignAsTable": true,
-        "current": true
-      },
-      "tooltip": {
-        "shared": true,
-        "sort": 2,
-        "value_type": "individual"
-      },
-      "datasource": "psql",
-      "linewidth": 0,
-      "nullPointMode": "null as zero",
-      "lines": true,
-      "links": [],
-      "pointradius": 5,
-      "targets": [
-        {
+          "resultFormat": "time_series",
           "select": [
             [
               {
@@ -201,65 +114,420 @@
               }
             ]
           ],
-          "groupBy": [],
-          "dsType": "influxdb",
-          "alias": "",
-          "orderByTime": "ASC",
-          "query": "SELECT /^[[companies]]$/ FROM \"company_[[repogroup]]_[[metric]]_[[period]]\" WHERE $timeFilter",
-          "resultFormat": "time_series",
-          "tags": [],
-          "format": "time_series",
-          "measurement": "sig_federation_d",
-          "rawQuery": true,
-          "refId": "B",
-          "policy": "default",
-          "rawSql": "select\n  time,\n  ${companies:csv}\nfrom\n  scompany_activity\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'company[[repogroup]][[metric]]'\norder by\n  time"
+          "tags": []
         }
       ],
-      "stack": true,
-      "gridPos": {
-        "y": 17,
-        "h": 16,
-        "w": 24,
-        "x": 0
+      "thresholds": [],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Companies [[metric]] metric ([[repogroup_name]], [[period]])",
+      "tooltip": {
+        "shared": true,
+        "sort": 2,
+        "value_type": "individual"
       },
-      "aliasColors": {},
-      "decimals": 2,
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      },
-      "description": "Measures company [[metric]]. Independent means developers working on their own.",
-      "spaceLength": 10,
+      "transparent": true,
+      "type": "graph",
       "xaxis": {
-        "values": [],
         "buckets": null,
         "mode": "time",
         "name": null,
-        "show": true
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "format": "short",
+          "label": "Per company",
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true
+        },
+        {
+          "decimals": null,
+          "format": "short",
+          "label": "All",
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
       }
     },
     {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "psql",
+      "decimals": 2,
+      "description": "Measures company [[metric]]. Independent means developers working on their own.",
+      "fill": 6,
+      "gridPos": {
+        "h": 16,
+        "w": 24,
+        "x": 0,
+        "y": 17
+      },
+      "id": 2,
+      "legend": {
+        "alignAsTable": true,
+        "avg": true,
+        "current": true,
+        "hideEmpty": false,
+        "hideZero": false,
+        "max": true,
+        "min": true,
+        "rightSide": true,
+        "show": true,
+        "sideWidth": null,
+        "sort": "avg",
+        "sortDesc": true,
+        "total": true,
+        "values": true
+      },
+      "lines": true,
+      "linewidth": 0,
+      "links": [],
+      "nullPointMode": "null as zero",
+      "percentage": true,
+      "pointradius": 5,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": true,
+      "steppedLine": false,
+      "targets": [
+        {
+          "alias": "",
+          "dsType": "influxdb",
+          "format": "time_series",
+          "groupBy": [],
+          "measurement": "sig_federation_d",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "SELECT /^[[companies]]$/ FROM \"company_[[repogroup]]_[[metric]]_[[period]]\" WHERE $timeFilter",
+          "rawQuery": true,
+          "rawSql": "select\n  time,\n  ${companies:csv}\nfrom\n  scompany_activity\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'company[[repogroup]][[metric]]'\norder by\n  time",
+          "refId": "B",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              }
+            ]
+          ],
+          "tags": []
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Companies [[metric]] metric ([[repogroup_name]], [[period]])",
+      "tooltip": {
+        "shared": true,
+        "sort": 2,
+        "value_type": "individual"
+      },
+      "transparent": true,
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "format": "short",
+          "label": "",
+          "logBase": 1,
+          "max": "100",
+          "min": "0",
+          "show": true
+        },
+        {
+          "decimals": null,
+          "format": "short",
+          "label": "",
+          "logBase": 1,
+          "max": "100",
+          "min": "0",
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "content": "${docs:raw}",
+      "gridPos": {
+        "h": 14,
+        "w": 24,
+        "x": 0,
+        "y": 33
+      },
+      "id": 11,
       "links": [],
       "mode": "html",
       "title": "Dashboard documentation",
-      "type": "text",
-      "content": "${docs:raw}",
-      "gridPos": {
-        "x": 0,
-        "y": 33,
-        "h": 14,
-        "w": 24
-      },
-      "id": 11
+      "type": "text"
     }
   ],
-  "graphTooltip": 0,
+  "schemaVersion": 16,
+  "style": "dark",
+  "tags": [
+    "companies",
+    "dashboard",
+    "vitess"
+  ],
+  "templating": {
+    "list": [
+      {
+        "allValue": null,
+        "current": {},
+        "datasource": "psql",
+        "hide": 2,
+        "includeAll": false,
+        "label": null,
+        "multi": false,
+        "name": "full_name",
+        "options": [],
+        "query": "select value_s from gha_vars where name = 'full_name'",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": true,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "tags": [],
+          "text": "7 Days MA",
+          "value": "d7"
+        },
+        "hide": 0,
+        "includeAll": false,
+        "label": "Period",
+        "multi": false,
+        "name": "period",
+        "options": [
+          {
+            "selected": false,
+            "text": "Day",
+            "value": "d"
+          },
+          {
+            "selected": true,
+            "text": "7 Days MA",
+            "value": "d7"
+          },
+          {
+            "selected": false,
+            "text": "Week",
+            "value": "w"
+          },
+          {
+            "selected": false,
+            "text": "Month",
+            "value": "m"
+          },
+          {
+            "selected": false,
+            "text": "Quarter",
+            "value": "q"
+          },
+          {
+            "selected": false,
+            "text": "Year",
+            "value": "y"
+          }
+        ],
+        "query": "d,w,m,q,y",
+        "skipUrlSync": false,
+        "type": "custom"
+      },
+      {
+        "allValue": null,
+        "current": {
+          "tags": [],
+          "text": "All activity",
+          "value": "activity"
+        },
+        "hide": 0,
+        "includeAll": false,
+        "label": "Metric",
+        "multi": false,
+        "name": "metric",
+        "options": [
+          {
+            "selected": false,
+            "text": "All activity",
+            "value": "activity"
+          },
+          {
+            "selected": false,
+            "text": "Active authors",
+            "value": "authors"
+          },
+          {
+            "selected": false,
+            "text": "Issues created",
+            "value": "issues"
+          },
+          {
+            "selected": false,
+            "text": "Pull requests created",
+            "value": "prs"
+          },
+          {
+            "selected": false,
+            "text": "Commits",
+            "value": "commits"
+          },
+          {
+            "selected": false,
+            "text": "Commiters",
+            "value": "committers"
+          },
+          {
+            "selected": false,
+            "text": "Pushes",
+            "value": "pushes"
+          },
+          {
+            "selected": false,
+            "text": "Pushers",
+            "value": "pushers"
+          },
+          {
+            "selected": true,
+            "text": "Contributions",
+            "value": "contributions"
+          },
+          {
+            "selected": false,
+            "text": "Contributors",
+            "value": "contributors"
+          },
+          {
+            "selected": false,
+            "text": "Comments",
+            "value": "comments"
+          }
+        ],
+        "query": "activity,authors,issues,prs,commits,committers,pushers,pushes,comments,contributions,contributors",
+        "skipUrlSync": false,
+        "type": "custom"
+      },
+      {
+        "allValue": null,
+        "current": {},
+        "datasource": "psql",
+        "hide": 0,
+        "includeAll": false,
+        "label": "Repository group",
+        "multi": false,
+        "name": "repogroup_name",
+        "options": [],
+        "query": "select all_repo_group_name from tall_repo_groups order by 1",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {},
+        "datasource": "psql",
+        "hide": 2,
+        "includeAll": false,
+        "label": "",
+        "multi": false,
+        "name": "repogroup",
+        "options": [],
+        "query": "select all_repo_group_value from tall_repo_groups where all_repo_group_name = '[[repogroup_name]]'",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": true,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": "",
+        "current": {},
+        "datasource": "psql",
+        "hide": 0,
+        "includeAll": true,
+        "label": "Companies",
+        "multi": true,
+        "name": "companies",
+        "options": [],
+        "query": "select '\"' || companies_name || '\"' from tcompanies order by time asc",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {},
+        "datasource": "psql",
+        "hide": 2,
+        "includeAll": false,
+        "label": null,
+        "multi": false,
+        "name": "docs",
+        "options": [],
+        "query": "select value_s from gha_vars where name = 'companies_stats_docs_html'",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": true,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      }
+    ]
+  },
   "time": {
     "from": "now-2y",
     "to": "now"
   },
-  "iteration": 1529594740081,
   "timepicker": {
     "refresh_intervals": [
       "5s",
@@ -285,276 +553,8 @@
       "30d"
     ]
   },
-  "version": 2,
-  "title": "Company Statistics by Repository Group",
-  "annotations": {
-    "list": [
-      {
-        "builtIn": 1,
-        "datasource": "-- Grafana --",
-        "enable": true,
-        "showIn": 0,
-        "limit": 100,
-        "name": "Annotations & Alerts",
-        "iconColor": "rgba(0, 211, 255, 1)",
-        "type": "dashboard",
-        "hide": true
-      },
-      {
-        "enable": true,
-        "rawQuery": "select extract(epoch from time) AS time, title as text, description as tags from sannotations where $__timeFilter(time)",
-        "type": "alert",
-        "iconColor": "rgba(255, 96, 96, 1)",
-        "query": "SELECT title, description from annotations WHERE $timeFilter order by time asc",
-        "showIn": 0,
-        "datasource": "psql",
-        "limit": 100,
-        "tagsColumn": "title,description",
-        "titleColumn": "[[full_name]] release",
-        "hide": false,
-        "name": "Releases",
-        "textColumn": ""
-      }
-    ]
-  },
-  "templating": {
-    "list": [
-      {
-        "includeAll": false,
-        "label": null,
-        "refresh": 1,
-        "allValue": null,
-        "skipUrlSync": true,
-        "tagsQuery": "",
-        "current": {},
-        "useTags": false,
-        "tagValuesQuery": "",
-        "type": "query",
-        "name": "full_name",
-        "sort": 0,
-        "multi": false,
-        "options": [],
-        "hide": 2,
-        "query": "select value_s from gha_vars where name = 'full_name'",
-        "tags": [],
-        "regex": "",
-        "datasource": "psql"
-      },
-      {
-        "label": "Period",
-        "type": "custom",
-        "name": "period",
-        "skipUrlSync": false,
-        "current": {
-          "tags": [],
-          "text": "7 Days MA",
-          "value": "d7"
-        },
-        "hide": 0,
-        "allValue": null,
-        "includeAll": false,
-        "multi": false,
-        "options": [
-          {
-            "selected": false,
-            "text": "Day",
-            "value": "d"
-          },
-          {
-            "selected": true,
-            "text": "7 Days MA",
-            "value": "d7"
-          },
-          {
-            "selected": false,
-            "text": "Week",
-            "value": "w"
-          },
-          {
-            "selected": false,
-            "text": "Month",
-            "value": "m"
-          },
-          {
-            "text": "Quarter",
-            "value": "q",
-            "selected": false
-          },
-          {
-            "selected": false,
-            "text": "Year",
-            "value": "y"
-          }
-        ],
-        "query": "d,w,m,q,y"
-      },
-      {
-        "label": "Metric",
-        "multi": false,
-        "hide": 0,
-        "options": [
-          {
-            "text": "All activity",
-            "value": "activity",
-            "selected": false
-          },
-          {
-            "selected": false,
-            "text": "Active authors",
-            "value": "authors"
-          },
-          {
-            "text": "Issues created",
-            "value": "issues",
-            "selected": false
-          },
-          {
-            "selected": false,
-            "text": "Pull requests created",
-            "value": "prs"
-          },
-          {
-            "value": "commits",
-            "selected": false,
-            "text": "Commits"
-          },
-          {
-            "selected": false,
-            "text": "Commiters",
-            "value": "committers"
-          },
-          {
-            "selected": false,
-            "text": "Pushes",
-            "value": "pushes"
-          },
-          {
-            "selected": false,
-            "text": "Pushers",
-            "value": "pushers"
-          },
-          {
-            "text": "Contributions",
-            "value": "contributions",
-            "selected": true
-          },
-          {
-            "value": "contributors",
-            "selected": false,
-            "text": "Contributors"
-          },
-          {
-            "selected": false,
-            "text": "Comments",
-            "value": "comments"
-          }
-        ],
-        "query": "activity,authors,issues,prs,commits,committers,pushers,pushes,comments,contributions,contributors",
-        "skipUrlSync": false,
-        "current": {
-          "value": "activity",
-          "tags": [],
-          "text": "All activity"
-        },
-        "type": "custom",
-        "allValue": null,
-        "includeAll": false,
-        "name": "metric"
-      },
-      {
-        "skipUrlSync": false,
-        "includeAll": false,
-        "refresh": 1,
-        "allValue": null,
-        "datasource": "psql",
-        "regex": "",
-        "query": "select all_repo_group_name from tall_repo_groups order by 1",
-        "tagsQuery": "",
-        "sort": 0,
-        "current": {},
-        "type": "query",
-        "options": [],
-        "tagValuesQuery": "",
-        "hide": 0,
-        "tags": [],
-        "multi": false,
-        "name": "repogroup_name",
-        "useTags": false,
-        "label": "Repository group"
-      },
-      {
-        "name": "repogroup",
-        "options": [],
-        "tagsQuery": "",
-        "label": "",
-        "refresh": 1,
-        "type": "query",
-        "current": {},
-        "useTags": false,
-        "allValue": null,
-        "tagValuesQuery": "",
-        "includeAll": false,
-        "tags": [],
-        "datasource": "psql",
-        "skipUrlSync": true,
-        "regex": "",
-        "hide": 2,
-        "query": "select all_repo_group_value from tall_repo_groups where all_repo_group_name = '[[repogroup_name]]'",
-        "multi": false,
-        "sort": 0
-      },
-      {
-        "tagsQuery": "",
-        "useTags": false,
-        "hide": 0,
-        "multi": true,
-        "tags": [],
-        "includeAll": true,
-        "allValue": "",
-        "query": "select '\"' || companies_name || '\"' from tcompanies order by time asc",
-        "type": "query",
-        "datasource": "psql",
-        "name": "companies",
-        "refresh": 1,
-        "tagValuesQuery": "",
-        "label": "Companies",
-        "sort": 0,
-        "regex": "",
-        "current": {},
-        "options": [],
-        "skipUrlSync": false
-      },
-      {
-        "regex": "",
-        "label": null,
-        "multi": false,
-        "allValue": null,
-        "name": "docs",
-        "tags": [],
-        "current": {},
-        "hide": 2,
-        "query": "select value_s from gha_vars where name = 'companies_stats_docs_html'",
-        "skipUrlSync": true,
-        "includeAll": false,
-        "refresh": 1,
-        "tagValuesQuery": "",
-        "datasource": "psql",
-        "sort": 0,
-        "type": "query",
-        "useTags": false,
-        "tagsQuery": "",
-        "options": []
-      }
-    ]
-  },
-  "editable": true,
-  "tags": [
-    "companies",
-    "dashboard",
-    "vitess"
-  ],
-  "gnetId": null,
-  "style": "dark",
   "timezone": "",
-  "schemaVersion": 16
+  "title": "Company Statistics by Repository Group",
+  "uid": "4",
+  "version": 2
 }

@@ -1,7 +1,293 @@
 {
-  "style": "dark",
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
   "gnetId": null,
+  "graphTooltip": 0,
+  "id": 20,
+  "iteration": 1586176671222,
+  "links": [],
+  "panels": [
+    {
+      "columns": [],
+      "datasource": "psql",
+      "description": "",
+      "fontSize": "90%",
+      "gridPos": {
+        "h": 25,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "hideTimeOverride": false,
+      "id": 1,
+      "links": [],
+      "options": {},
+      "pageSize": 30,
+      "scroll": true,
+      "showHeader": true,
+      "sort": {
+        "col": 1,
+        "desc": false
+      },
+      "styles": [
+        {
+          "alias": "Contributor",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "pattern": "str",
+          "preserveFormat": false,
+          "thresholds": [],
+          "type": "string",
+          "unit": "short"
+        },
+        {
+          "alias": "First contribution",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "MM/DD/YY h:mm:ss a",
+          "decimals": 0,
+          "pattern": "dt",
+          "thresholds": [],
+          "type": "date",
+          "unit": "none"
+        },
+        {
+          "alias": "",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "",
+          "thresholds": [],
+          "type": "number",
+          "unit": "short"
+        },
+        {
+          "alias": "",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "decimals": 0,
+          "pattern": "/.*/",
+          "thresholds": [],
+          "type": "number",
+          "unit": "short"
+        }
+      ],
+      "targets": [
+        {
+          "alias": "",
+          "dsType": "influxdb",
+          "format": "table",
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "",
+          "rawQuery": true,
+          "rawSql": "select str, dt from \"snew_contributors_data\" where $__timeFilter(dt) and series = 'ncd[[repogroup]]' and period = 'd'",
+          "refId": "A",
+          "resultFormat": "table",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "[[full_name]] New contributors table (Repository group [[repogroup_name]])",
+      "transform": "table",
+      "type": "table"
+    },
+    {
+      "content": "${docs:raw}",
+      "datasource": null,
+      "gridPos": {
+        "h": 11,
+        "w": 24,
+        "x": 0,
+        "y": 25
+      },
+      "id": 11,
+      "links": [],
+      "mode": "html",
+      "options": {},
+      "title": "Dashboard documentation",
+      "type": "text"
+    }
+  ],
+  "refresh": false,
+  "schemaVersion": 21,
+  "style": "dark",
+  "tags": [
+    "dashboard",
+    "kyverno",
+    "table"
+  ],
+  "templating": {
+    "list": [
+      {
+        "allValue": null,
+        "current": {
+          "text": "ChubaoFS",
+          "value": "ChubaoFS"
+        },
+        "datasource": "psql",
+        "definition": "",
+        "hide": 2,
+        "includeAll": false,
+        "label": null,
+        "multi": false,
+        "name": "full_name",
+        "options": [],
+        "query": "select value_s from gha_vars where name = 'full_name'",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": true,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "text": "All",
+          "value": "All"
+        },
+        "datasource": "psql",
+        "definition": "",
+        "hide": 0,
+        "includeAll": false,
+        "label": "Repository group",
+        "multi": false,
+        "name": "repogroup_name",
+        "options": [],
+        "query": "select all_repo_group_name from tall_repo_groups order by 1",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "text": "all",
+          "value": "all"
+        },
+        "datasource": "psql",
+        "definition": "",
+        "hide": 2,
+        "includeAll": false,
+        "label": "",
+        "multi": false,
+        "name": "repogroup",
+        "options": [],
+        "query": "select all_repo_group_value from tall_repo_groups where all_repo_group_name = '[[repogroup_name]]'",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": true,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "text": "<h1 id=\"dashboard-header\">ChubaoFS new contributors table dashboard</h1>\n<p>Links:</p>\n<ul>\n<li>New contributors metric <a href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/new_contributors_data.sql\" target=\"_blank\">SQL file</a>.</li>\n<li>TSDB <a href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/metrics.yaml\" target=\"_blank\">series definition</a>. Search for <code>New contributors table</code></li>\n<li>Grafana dashboard <a href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/chubaofs/new-contributors-table.json\" target=\"_blank\">JSON</a>.</li>\n</ul>\n<h1 id=\"description\">Description</h1>\n<ul>\n<li>This dashboard shows statistics about new PR contributors.</li>\n<li>New contributor (PR creator) is someone whose PR was merged for the first time.</li>\n<li>You can select single repository group or summary for all of them.</li>\n<li>You can select date range to show new contributors for this period.</li>\n<li>See <a href=\"https://github.com/cncf/devstats/blob/master/docs/repository_groups.md\" target=\"_blank\">here</a> for more informations about repository groups.</li>\n</ul>",
+          "value": "<h1 id=\"dashboard-header\">ChubaoFS new contributors table dashboard</h1>\n<p>Links:</p>\n<ul>\n<li>New contributors metric <a href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/new_contributors_data.sql\" target=\"_blank\">SQL file</a>.</li>\n<li>TSDB <a href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/metrics.yaml\" target=\"_blank\">series definition</a>. Search for <code>New contributors table</code></li>\n<li>Grafana dashboard <a href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/chubaofs/new-contributors-table.json\" target=\"_blank\">JSON</a>.</li>\n</ul>\n<h1 id=\"description\">Description</h1>\n<ul>\n<li>This dashboard shows statistics about new PR contributors.</li>\n<li>New contributor (PR creator) is someone whose PR was merged for the first time.</li>\n<li>You can select single repository group or summary for all of them.</li>\n<li>You can select date range to show new contributors for this period.</li>\n<li>See <a href=\"https://github.com/cncf/devstats/blob/master/docs/repository_groups.md\" target=\"_blank\">here</a> for more informations about repository groups.</li>\n</ul>"
+        },
+        "datasource": "psql",
+        "definition": "",
+        "hide": 2,
+        "includeAll": false,
+        "label": null,
+        "multi": false,
+        "name": "docs",
+        "options": [],
+        "query": "select value_s from gha_vars where name = 'new_contributors_docs_html'",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": true,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      }
+    ]
+  },
+  "time": {
+    "from": "now-6M",
+    "to": "now"
+  },
   "timepicker": {
+    "hidden": false,
     "refresh_intervals": [
       "5s",
       "10s",
@@ -24,296 +310,10 @@
       "2d",
       "7d",
       "30d"
-    ],
-    "hidden": false
-  },
-  "version": 2,
-  "editable": true,
-  "title": "New Contributors Table",
-  "annotations": {
-    "list": [
-      {
-        "hide": true,
-        "iconColor": "rgba(0, 211, 255, 1)",
-        "name": "Annotations & Alerts",
-        "type": "dashboard",
-        "builtIn": 1,
-        "datasource": "-- Grafana --",
-        "enable": true
-      }
     ]
   },
   "timezone": "",
-  "links": [],
+  "title": "New Contributors Table",
   "uid": "52",
-  "iteration": 1586176671222,
-  "graphTooltip": 0,
-  "schemaVersion": 21,
-  "tags": [
-    "dashboard",
-    "kyverno",
-    "table"
-  ],
-  "time": {
-    "from": "now-6M",
-    "to": "now"
-  },
-  "id": 20,
-  "templating": {
-    "list": [
-      {
-        "definition": "",
-        "name": "full_name",
-        "type": "query",
-        "multi": false,
-        "label": null,
-        "regex": "",
-        "tags": [],
-        "includeAll": false,
-        "tagsQuery": "",
-        "useTags": false,
-        "options": [],
-        "query": "select value_s from gha_vars where name = 'full_name'",
-        "current": {
-          "text": "ChubaoFS",
-          "value": "ChubaoFS"
-        },
-        "hide": 2,
-        "sort": 0,
-        "tagValuesQuery": "",
-        "datasource": "psql",
-        "allValue": null,
-        "refresh": 1,
-        "skipUrlSync": true
-      },
-      {
-        "name": "repogroup_name",
-        "includeAll": false,
-        "query": "select all_repo_group_name from tall_repo_groups order by 1",
-        "refresh": 1,
-        "sort": 0,
-        "multi": false,
-        "tags": [],
-        "skipUrlSync": false,
-        "hide": 0,
-        "type": "query",
-        "tagsQuery": "",
-        "options": [],
-        "tagValuesQuery": "",
-        "current": {
-          "text": "All",
-          "value": "All"
-        },
-        "label": "Repository group",
-        "allValue": null,
-        "useTags": false,
-        "definition": "",
-        "datasource": "psql",
-        "regex": ""
-      },
-      {
-        "options": [],
-        "datasource": "psql",
-        "refresh": 1,
-        "tagsQuery": "",
-        "query": "select all_repo_group_value from tall_repo_groups where all_repo_group_name = '[[repogroup_name]]'",
-        "includeAll": false,
-        "current": {
-          "text": "all",
-          "value": "all"
-        },
-        "useTags": false,
-        "name": "repogroup",
-        "tags": [],
-        "regex": "",
-        "skipUrlSync": true,
-        "hide": 2,
-        "type": "query",
-        "tagValuesQuery": "",
-        "label": "",
-        "definition": "",
-        "allValue": null,
-        "sort": 0,
-        "multi": false
-      },
-      {
-        "options": [],
-        "skipUrlSync": true,
-        "datasource": "psql",
-        "current": {
-          "text": "<h1 id=\"dashboard-header\">ChubaoFS new contributors table dashboard</h1>\n<p>Links:</p>\n<ul>\n<li>New contributors metric <a href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/new_contributors_data.sql\" target=\"_blank\">SQL file</a>.</li>\n<li>TSDB <a href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/metrics.yaml\" target=\"_blank\">series definition</a>. Search for <code>New contributors table</code></li>\n<li>Grafana dashboard <a href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/chubaofs/new-contributors-table.json\" target=\"_blank\">JSON</a>.</li>\n</ul>\n<h1 id=\"description\">Description</h1>\n<ul>\n<li>This dashboard shows statistics about new PR contributors.</li>\n<li>New contributor (PR creator) is someone whose PR was merged for the first time.</li>\n<li>You can select single repository group or summary for all of them.</li>\n<li>You can select date range to show new contributors for this period.</li>\n<li>See <a href=\"https://github.com/cncf/devstats/blob/master/docs/repository_groups.md\" target=\"_blank\">here</a> for more informations about repository groups.</li>\n</ul>",
-          "value": "<h1 id=\"dashboard-header\">ChubaoFS new contributors table dashboard</h1>\n<p>Links:</p>\n<ul>\n<li>New contributors metric <a href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/new_contributors_data.sql\" target=\"_blank\">SQL file</a>.</li>\n<li>TSDB <a href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/metrics.yaml\" target=\"_blank\">series definition</a>. Search for <code>New contributors table</code></li>\n<li>Grafana dashboard <a href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/chubaofs/new-contributors-table.json\" target=\"_blank\">JSON</a>.</li>\n</ul>\n<h1 id=\"description\">Description</h1>\n<ul>\n<li>This dashboard shows statistics about new PR contributors.</li>\n<li>New contributor (PR creator) is someone whose PR was merged for the first time.</li>\n<li>You can select single repository group or summary for all of them.</li>\n<li>You can select date range to show new contributors for this period.</li>\n<li>See <a href=\"https://github.com/cncf/devstats/blob/master/docs/repository_groups.md\" target=\"_blank\">here</a> for more informations about repository groups.</li>\n</ul>"
-        },
-        "regex": "",
-        "type": "query",
-        "tagValuesQuery": "",
-        "sort": 0,
-        "tags": [],
-        "tagsQuery": "",
-        "label": null,
-        "query": "select value_s from gha_vars where name = 'new_contributors_docs_html'",
-        "includeAll": false,
-        "multi": false,
-        "refresh": 1,
-        "definition": "",
-        "hide": 2,
-        "name": "docs",
-        "allValue": null,
-        "useTags": false
-      }
-    ]
-  },
-  "refresh": false,
-  "panels": [
-    {
-      "columns": [],
-      "scroll": true,
-      "styles": [
-        {
-          "dateFormat": "YYYY-MM-DD HH:mm:ss",
-          "decimals": 2,
-          "thresholds": [],
-          "colors": [
-            "rgba(245, 54, 54, 0.9)",
-            "rgba(237, 129, 40, 0.89)",
-            "rgba(50, 172, 45, 0.97)"
-          ],
-          "preserveFormat": false,
-          "colorMode": null,
-          "pattern": "str",
-          "type": "string",
-          "alias": "Contributor",
-          "unit": "short"
-        },
-        {
-          "dateFormat": "MM/DD/YY h:mm:ss a",
-          "colorMode": null,
-          "colors": [
-            "rgba(245, 54, 54, 0.9)",
-            "rgba(237, 129, 40, 0.89)",
-            "rgba(50, 172, 45, 0.97)"
-          ],
-          "unit": "none",
-          "pattern": "dt",
-          "thresholds": [],
-          "type": "date",
-          "decimals": 0,
-          "alias": "First contribution"
-        },
-        {
-          "decimals": 2,
-          "colors": [
-            "rgba(245, 54, 54, 0.9)",
-            "rgba(237, 129, 40, 0.89)",
-            "rgba(50, 172, 45, 0.97)"
-          ],
-          "alias": "",
-          "unit": "short",
-          "dateFormat": "YYYY-MM-DD HH:mm:ss",
-          "colorMode": null,
-          "mappingType": 1,
-          "type": "number",
-          "thresholds": [],
-          "pattern": ""
-        },
-        {
-          "decimals": 0,
-          "pattern": "/.*/",
-          "thresholds": [],
-          "type": "number",
-          "unit": "short",
-          "alias": "",
-          "colorMode": null,
-          "colors": [
-            "rgba(245, 54, 54, 0.9)",
-            "rgba(237, 129, 40, 0.89)",
-            "rgba(50, 172, 45, 0.97)"
-          ]
-        }
-      ],
-      "pageSize": 30,
-      "gridPos": {
-        "h": 25,
-        "w": 24,
-        "x": 0,
-        "y": 0
-      },
-      "links": [],
-      "sort": {
-        "desc": false,
-        "col": 1
-      },
-      "fontSize": "90%",
-      "title": "[[full_name]] New contributors table (Repository group [[repogroup_name]])",
-      "timeShift": null,
-      "id": 1,
-      "options": {},
-      "type": "table",
-      "targets": [
-        {
-          "tags": [],
-          "query": "",
-          "select": [
-            [
-              {
-                "type": "field",
-                "params": [
-                  "value"
-                ]
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "rawQuery": true,
-          "format": "table",
-          "policy": "default",
-          "alias": "",
-          "orderByTime": "ASC",
-          "groupBy": [
-            {
-              "params": [
-                "$__interval"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
-          "resultFormat": "table",
-          "rawSql": "select str, dt from \"snew_contributors_data\" where $__timeFilter(dt) and series = 'ncd[[repogroup]]' and period = 'd'",
-          "refId": "A",
-          "dsType": "influxdb"
-        }
-      ],
-      "timeFrom": null,
-      "showHeader": true,
-      "transform": "table",
-      "hideTimeOverride": false,
-      "datasource": "psql",
-      "description": ""
-    },
-    {
-      "datasource": null,
-      "gridPos": {
-        "y": 25,
-        "h": 11,
-        "w": 24,
-        "x": 0
-      },
-      "options": {},
-      "content": "${docs:raw}",
-      "type": "text",
-      "title": "Dashboard documentation",
-      "mode": "html",
-      "links": [],
-      "id": 11
-    }
-  ]
+  "version": 2
 }

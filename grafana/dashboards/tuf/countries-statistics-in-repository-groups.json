@@ -1,38 +1,93 @@
 {
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      },
+      {
+        "datasource": "psql",
+        "enable": true,
+        "hide": false,
+        "iconColor": "rgba(255, 96, 96, 1)",
+        "limit": 100,
+        "name": "Releases",
+        "query": "SELECT title, description from annotations WHERE $timeFilter order by time asc",
+        "rawQuery": "select extract(epoch from time) AS time, title as text, description as tags from sannotations where $__timeFilter(time)",
+        "showIn": 0,
+        "tagsColumn": "title,description",
+        "textColumn": "",
+        "titleColumn": "[[full_name]] Release",
+        "type": "alert"
+      }
+    ]
+  },
+  "editable": true,
+  "gnetId": null,
+  "graphTooltip": 0,
+  "id": 64,
+  "iteration": 1536910182172,
+  "links": [],
   "panels": [
     {
-      "type": "graph",
-      "pointradius": 5,
-      "thresholds": [],
+      "aliasColors": {},
+      "bars": true,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "psql",
+      "decimals": null,
+      "description": "[[full_name]] [[metric]] countries stats ([[repogroup_name]])",
+      "fill": 3,
+      "gridPos": {
+        "h": 21,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 2,
+      "legend": {
+        "alignAsTable": true,
+        "avg": true,
+        "current": true,
+        "max": true,
+        "min": true,
+        "rightSide": true,
+        "show": true,
+        "sort": "avg",
+        "sortDesc": true,
+        "total": false,
+        "values": true
+      },
+      "lines": false,
+      "linewidth": 0,
+      "links": [],
       "nullPointMode": "null as zero",
       "percentage": false,
-      "xaxis": {
-        "name": null,
-        "show": true,
-        "values": [],
-        "buckets": null,
-        "mode": "time"
-      },
-      "timeShift": null,
-      "yaxis": {
-        "alignLevel": null,
-        "align": false
-      },
-      "dashes": false,
-      "timeFrom": null,
-      "bars": true,
-      "aliasColors": {},
+      "pointradius": 5,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": true,
+      "steppedLine": true,
       "targets": [
         {
           "alias": "",
           "dsType": "influxdb",
           "format": "time_series",
-          "orderByTime": "ASC",
-          "resultFormat": "time_series",
-          "tags": [],
           "groupBy": [],
+          "measurement": "notused",
+          "orderByTime": "ASC",
+          "policy": "default",
           "rawQuery": true,
+          "rawSql": "select\n  time,\n  ${countries:csv}\nfrom\n  s[[cum]]\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = '[[cum]][[repogroup]][[metric]]'\norder by\n  time",
           "refId": "A",
+          "resultFormat": "time_series",
           "select": [
             [
               {
@@ -43,26 +98,26 @@
               }
             ]
           ],
-          "policy": "default",
-          "rawSql": "select\n  time,\n  ${countries:csv}\nfrom\n  s[[cum]]\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = '[[cum]][[repogroup]][[metric]]'\norder by\n  time",
-          "measurement": "notused"
+          "tags": []
         }
       ],
-      "points": false,
-      "gridPos": {
-        "y": 0,
-        "h": 21,
-        "w": 24,
-        "x": 0
-      },
-      "description": "[[full_name]] [[metric]] countries stats ([[repogroup_name]])",
+      "thresholds": [],
+      "timeFrom": null,
+      "timeShift": null,
       "title": "[[full_name]] [[metric]] countries stats ([[repogroup_name]])",
-      "links": [],
-      "stack": true,
-      "dashLength": 10,
-      "seriesOverrides": [],
-      "decimals": null,
-      "lines": false,
+      "tooltip": {
+        "shared": true,
+        "sort": 2,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
       "yaxes": [
         {
           "decimals": null,
@@ -74,213 +129,73 @@
           "show": true
         },
         {
+          "format": "short",
+          "label": "",
           "logBase": 1,
           "max": null,
           "min": "0",
-          "show": true,
-          "format": "short",
-          "label": ""
+          "show": true
         }
       ],
-      "id": 2,
-      "renderer": "flot",
-      "legend": {
-        "current": true,
-        "sort": "avg",
-        "sortDesc": true,
-        "values": true,
-        "max": true,
-        "min": true,
-        "total": false,
-        "rightSide": true,
-        "alignAsTable": true,
-        "avg": true,
-        "show": true
-      },
-      "fill": 3,
-      "tooltip": {
-        "value_type": "individual",
-        "shared": true,
-        "sort": 2
-      },
-      "linewidth": 0,
-      "datasource": "psql",
-      "spaceLength": 10,
-      "steppedLine": true
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
     },
     {
-      "dashLength": 10,
-      "datasource": "psql",
-      "renderer": "flot",
-      "type": "graph",
-      "stack": false,
-      "spaceLength": 10,
-      "tooltip": {
-        "sort": 2,
-        "value_type": "individual",
-        "shared": true
-      },
-      "lines": true,
-      "xaxis": {
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true,
-        "values": []
-      },
-      "legend": {
-        "alignAsTable": true,
-        "values": true,
-        "max": true,
-        "rightSide": true,
-        "show": true,
-        "sortDesc": true,
-        "avg": true,
-        "min": true,
-        "total": false,
-        "current": true,
-        "sort": "avg"
-      },
-      "thresholds": [],
-      "timeFrom": null,
-      "fill": 3,
-      "targets": [
-        {
-          "rawSql": "select\n  time,\n  ${countries:csv}\nfrom\n  s[[cum]]\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = '[[cum]][[repogroup]][[metric]]'\norder by\n  time",
-          "alias": "",
-          "dsType": "influxdb",
-          "format": "time_series",
-          "policy": "default",
-          "orderByTime": "ASC",
-          "resultFormat": "time_series",
-          "rawQuery": true,
-          "refId": "A",
-          "select": [
-            [
-              {
-                "type": "field",
-                "params": [
-                  "value"
-                ]
-              }
-            ]
-          ],
-          "tags": [],
-          "groupBy": [],
-          "measurement": "notused"
-        }
-      ],
-      "timeShift": null,
-      "title": "[[full_name]] [[metric]] countries stats ([[repogroup_name]])",
-      "steppedLine": false,
-      "id": 4,
-      "decimals": null,
-      "nullPointMode": "null as zero",
-      "linewidth": 1,
-      "percentage": false,
-      "seriesOverrides": [],
       "aliasColors": {},
       "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "psql",
+      "decimals": null,
+      "description": "[[full_name]] [[metric]] countries stats ([[repogroup_name]])",
+      "fill": 3,
       "gridPos": {
         "h": 21,
         "w": 24,
         "x": 0,
         "y": 21
       },
-      "pointradius": 5,
-      "yaxes": [
-        {
-          "format": "short",
-          "label": "Value",
-          "logBase": 1,
-          "max": null,
-          "min": "0",
-          "show": true,
-          "decimals": null
-        },
-        {
-          "max": null,
-          "min": "0",
-          "show": false,
-          "format": "short",
-          "label": "",
-          "logBase": 1
-        }
-      ],
-      "dashes": false,
-      "description": "[[full_name]] [[metric]] countries stats ([[repogroup_name]])",
-      "links": [],
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      },
-      "points": false
-    },
-    {
-      "fill": 3,
-      "aliasColors": {},
-      "timeShift": null,
-      "timeFrom": null,
-      "type": "graph",
-      "percentage": true,
-      "lines": false,
-      "dashLength": 10,
-      "decimals": null,
-      "title": "[[full_name]] [[metric]] countries stats ([[repogroup_name]])",
-      "nullPointMode": "null as zero",
-      "spaceLength": 10,
-      "id": 3,
-      "steppedLine": true,
-      "linewidth": 0,
+      "id": 4,
       "legend": {
+        "alignAsTable": true,
         "avg": true,
         "current": true,
-        "alignAsTable": true,
-        "rightSide": true,
-        "sortDesc": true,
-        "values": true,
         "max": true,
         "min": true,
+        "rightSide": true,
         "show": true,
+        "sort": "avg",
+        "sortDesc": true,
         "total": false,
-        "sort": "avg"
+        "values": true
       },
+      "lines": true,
+      "linewidth": 1,
+      "links": [],
+      "nullPointMode": "null as zero",
+      "percentage": false,
       "pointradius": 5,
-      "xaxis": {
-        "show": true,
-        "values": [],
-        "buckets": null,
-        "mode": "time",
-        "name": null
-      },
-      "stack": true,
-      "gridPos": {
-        "h": 21,
-        "w": 24,
-        "x": 0,
-        "y": 42
-      },
-      "thresholds": [],
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      },
-      "bars": true,
-      "datasource": "psql",
+      "points": false,
       "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
       "targets": [
         {
-          "groupBy": [],
-          "resultFormat": "time_series",
           "alias": "",
           "dsType": "influxdb",
           "format": "time_series",
+          "groupBy": [],
+          "measurement": "notused",
           "orderByTime": "ASC",
+          "policy": "default",
           "rawQuery": true,
           "rawSql": "select\n  time,\n  ${countries:csv}\nfrom\n  s[[cum]]\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = '[[cum]][[repogroup]][[metric]]'\norder by\n  time",
-          "measurement": "notused",
           "refId": "A",
-          "policy": "default",
+          "resultFormat": "time_series",
           "select": [
             [
               {
@@ -294,43 +209,162 @@
           "tags": []
         }
       ],
-      "dashes": false,
-      "points": false,
+      "thresholds": [],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "[[full_name]] [[metric]] countries stats ([[repogroup_name]])",
+      "tooltip": {
+        "shared": true,
+        "sort": 2,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
       "yaxes": [
         {
+          "decimals": null,
+          "format": "short",
+          "label": "Value",
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": "",
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": false
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": true,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "psql",
+      "decimals": null,
+      "description": "[[full_name]] [[metric]] countries stats ([[repogroup_name]])",
+      "fill": 3,
+      "gridPos": {
+        "h": 21,
+        "w": 24,
+        "x": 0,
+        "y": 42
+      },
+      "id": 3,
+      "legend": {
+        "alignAsTable": true,
+        "avg": true,
+        "current": true,
+        "max": true,
+        "min": true,
+        "rightSide": true,
+        "show": true,
+        "sort": "avg",
+        "sortDesc": true,
+        "total": false,
+        "values": true
+      },
+      "lines": false,
+      "linewidth": 0,
+      "links": [],
+      "nullPointMode": "null as zero",
+      "percentage": true,
+      "pointradius": 5,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": true,
+      "steppedLine": true,
+      "targets": [
+        {
+          "alias": "",
+          "dsType": "influxdb",
+          "format": "time_series",
+          "groupBy": [],
+          "measurement": "notused",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "rawQuery": true,
+          "rawSql": "select\n  time,\n  ${countries:csv}\nfrom\n  s[[cum]]\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = '[[cum]][[repogroup]][[metric]]'\norder by\n  time",
+          "refId": "A",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              }
+            ]
+          ],
+          "tags": []
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "[[full_name]] [[metric]] countries stats ([[repogroup_name]])",
+      "tooltip": {
+        "shared": true,
+        "sort": 2,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "decimals": null,
           "format": "short",
           "label": "Value",
           "logBase": 1,
           "max": "100",
           "min": "0",
-          "show": true,
-          "decimals": null
+          "show": true
         },
         {
+          "format": "short",
+          "label": "",
           "logBase": 1,
           "max": null,
           "min": "0",
-          "show": true,
-          "format": "short",
-          "label": ""
+          "show": true
         }
       ],
-      "links": [],
-      "seriesOverrides": [],
-      "tooltip": {
-        "sort": 2,
-        "value_type": "individual",
-        "shared": true
-      },
-      "description": "[[full_name]] [[metric]] countries stats ([[repogroup_name]])"
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
     },
     {
       "content": "${docs:raw}",
       "gridPos": {
+        "h": 16,
         "w": 24,
         "x": 0,
-        "y": 63,
-        "h": 16
+        "y": 63
       },
       "id": 1,
       "links": [],
@@ -339,139 +373,136 @@
       "type": "text"
     }
   ],
-  "timezone": "",
-  "version": 2,
   "refresh": false,
-  "iteration": 1536910182172,
-  "time": {
-    "from": "now-3y",
-    "to": "now-1M"
-  },
-  "links": [],
   "schemaVersion": 16,
+  "style": "dark",
+  "tags": [
+    "dashboard",
+    "tuf"
+  ],
   "templating": {
     "list": [
       {
-        "label": null,
-        "type": "query",
-        "hide": 2,
-        "regex": "",
-        "name": "full_name",
-        "sort": 0,
-        "datasource": "psql",
-        "multi": false,
-        "tagValuesQuery": "",
-        "tags": [],
-        "options": [],
-        "refresh": 1,
-        "tagsQuery": "",
-        "includeAll": false,
-        "skipUrlSync": true,
-        "query": "select value_s from gha_vars where name = 'full_name'",
         "allValue": null,
         "current": {
           "text": "All CNCF",
           "value": "All CNCF"
         },
+        "datasource": "psql",
+        "hide": 2,
+        "includeAll": false,
+        "label": null,
+        "multi": false,
+        "name": "full_name",
+        "options": [],
+        "query": "select value_s from gha_vars where name = 'full_name'",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": true,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
         "useTags": false
       },
       {
-        "tagValuesQuery": "",
+        "allValue": null,
         "current": {
+          "tags": [],
           "text": "Quarter",
-          "value": "Quarter",
-          "tags": []
+          "value": "Quarter"
         },
+        "datasource": "psql",
         "hide": 0,
-        "label": "Period",
-        "tagsQuery": "",
-        "name": "period_name",
-        "sort": 0,
-        "type": "query",
-        "refresh": 1,
         "includeAll": false,
+        "label": "Period",
+        "multi": false,
+        "name": "period_name",
         "options": [],
         "query": "select split_part(cumperiod_name, '/', 2) from tcumperiods where cumperiod_name like '[[cum]]/%';",
-        "skipUrlSync": false,
-        "useTags": false,
-        "multi": false,
-        "tags": [],
-        "datasource": "psql",
+        "refresh": 1,
         "regex": "",
-        "allValue": null
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
       },
       {
-        "tagValuesQuery": "",
-        "datasource": "psql",
-        "sort": 0,
-        "label": "Countries",
-        "tagsQuery": "",
-        "skipUrlSync": false,
-        "useTags": false,
-        "hide": 0,
-        "regex": "",
+        "allValue": "",
         "current": {
           "text": "All",
           "value": "$__all"
         },
+        "datasource": "psql",
+        "hide": 0,
         "includeAll": true,
-        "options": [],
-        "type": "query",
+        "label": "Countries",
         "multi": true,
         "name": "countries",
+        "options": [],
         "query": "select '\"' || country_name || '\"' from tcountries order by time asc",
         "refresh": 1,
-        "tags": [],
-        "allValue": ""
-      },
-      {
-        "includeAll": false,
-        "multi": false,
-        "sort": 0,
-        "query": "select all_repo_group_name from tall_repo_groups order by 1",
-        "label": "Repository group",
-        "options": [],
-        "tagsQuery": "",
-        "hide": 0,
-        "current": {
-          "text": "All",
-          "value": "All",
-          "tags": []
-        },
+        "regex": "",
         "skipUrlSync": false,
-        "datasource": "psql",
-        "refresh": 1,
-        "useTags": false,
-        "tags": [],
+        "sort": 0,
         "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
         "type": "query",
-        "allValue": null,
-        "name": "repogroup_name",
-        "regex": ""
+        "useTags": false
       },
       {
+        "allValue": null,
+        "current": {
+          "tags": [],
+          "text": "All",
+          "value": "All"
+        },
+        "datasource": "psql",
+        "hide": 0,
+        "includeAll": false,
+        "label": "Repository group",
+        "multi": false,
+        "name": "repogroup_name",
         "options": [],
-        "query": "select all_repo_group_value from tall_repo_groups where all_repo_group_name = '[[repogroup_name]]'",
+        "query": "select all_repo_group_name from tall_repo_groups order by 1",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
         "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
         "current": {
           "text": "all",
           "value": "all"
         },
-        "tagsQuery": "",
-        "useTags": false,
-        "skipUrlSync": true,
-        "tagValuesQuery": "",
+        "datasource": "psql",
         "hide": 2,
-        "name": "repogroup",
-        "refresh": 1,
-        "regex": "",
         "includeAll": false,
         "label": "",
-        "datasource": "psql",
         "multi": false,
-        "allValue": null,
+        "name": "repogroup",
+        "options": [],
+        "query": "select all_repo_group_value from tall_repo_groups where all_repo_group_name = '[[repogroup_name]]'",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": true,
         "sort": 0,
-        "tags": []
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
       },
       {
         "allValue": null,
@@ -481,14 +512,16 @@
           "text": "Committers",
           "value": "rcommitters"
         },
-        "name": "metric",
-        "skipUrlSync": false,
         "hide": 0,
+        "includeAll": false,
+        "label": "Metric",
+        "multi": false,
+        "name": "metric",
         "options": [
           {
-            "value": "contributions",
             "selected": false,
-            "text": "Contributions"
+            "text": "Contributions",
+            "value": "contributions"
           },
           {
             "selected": false,
@@ -496,9 +529,9 @@
             "value": "contributors"
           },
           {
-            "value": "users",
             "selected": false,
-            "text": "Users"
+            "text": "Users",
+            "value": "users"
           },
           {
             "selected": false,
@@ -506,14 +539,14 @@
             "value": "events"
           },
           {
+            "selected": false,
             "text": "Pushers",
-            "value": "committers",
-            "selected": false
+            "value": "committers"
           },
           {
+            "selected": false,
             "text": "Pushes",
-            "value": "commits",
-            "selected": false
+            "value": "commits"
           },
           {
             "selected": true,
@@ -526,9 +559,9 @@
             "value": "rcommits"
           },
           {
-            "value": "prcreators",
             "selected": false,
-            "text": "PR creators"
+            "text": "PR creators",
+            "value": "prcreators"
           },
           {
             "selected": false,
@@ -536,24 +569,24 @@
             "value": "prs"
           },
           {
-            "value": "issuecreators",
             "selected": false,
-            "text": "Issue creators"
+            "text": "Issue creators",
+            "value": "issuecreators"
           },
           {
-            "value": "issues",
             "selected": false,
-            "text": "Issues"
+            "text": "Issues",
+            "value": "issues"
           },
           {
+            "selected": false,
             "text": "Commenters",
-            "value": "commenters",
-            "selected": false
+            "value": "commenters"
           },
           {
-            "value": "comments",
             "selected": false,
-            "text": "Comments"
+            "text": "Comments",
+            "value": "comments"
           },
           {
             "selected": false,
@@ -576,9 +609,9 @@
             "value": "watches"
           },
           {
-            "value": "forkers",
             "selected": false,
-            "text": "Forkers"
+            "text": "Forkers",
+            "value": "forkers"
           },
           {
             "selected": false,
@@ -586,25 +619,27 @@
             "value": "forks"
           }
         ],
-        "multi": false,
         "query": "contributions,contributors,users,events,committers,commits,rcommitters,rcommits,prcreators,prs,issuecreators,issues,commenters,comments,reviewers,reviews,watchers,watches,forkers,forks",
-        "type": "custom",
-        "includeAll": false,
-        "label": "Metric"
+        "skipUrlSync": false,
+        "type": "custom"
       },
       {
+        "allValue": null,
         "current": {
+          "selected": true,
           "text": "No",
-          "value": "countries",
-          "selected": true
+          "value": "countries"
         },
+        "hide": 0,
+        "includeAll": false,
         "label": "Cumulative",
+        "multi": false,
         "name": "cum",
         "options": [
           {
+            "selected": false,
             "text": "Yes",
-            "value": "countriescum",
-            "selected": false
+            "value": "countriescum"
           },
           {
             "selected": true,
@@ -612,108 +647,65 @@
             "value": "countries"
           }
         ],
-        "hide": 0,
-        "includeAll": false,
         "query": "countries,countriescum",
-        "type": "custom",
-        "allValue": null,
-        "multi": false,
-        "skipUrlSync": false
+        "skipUrlSync": false,
+        "type": "custom"
       },
       {
-        "sort": 0,
-        "includeAll": false,
-        "query": "select value_s from gha_vars where name = 'countries_stats_docs_html'",
-        "tagValuesQuery": "",
-        "useTags": false,
-        "regex": "",
-        "tagsQuery": "",
-        "options": [],
-        "current": {
-          "value": "<h1 id=\"dashboard-header\">All CNCF countries stats dashboard</h1>\n<p>Links:</p>\n<ul>\n<li>Metric <a href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/countries.sql\" target=\"_blank\">SQL file</a>.</li>\n<li>Cumulative metric <a href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/countries_cum.sql\" target=\"_blank\">SQL file</a>.</li>\n<li>TSDB <a href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/metrics.yaml\" target=\"_blank\">series definition</a>. Search for <code>countries</code></li>\n<li>Grafana dashboard <a href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/all/countries-stats.json\" target=\"_blank\">JSON</a>.</li>\n</ul>\n<h1 id=\"description\">Description</h1>\n<ul>\n<li>This dashboard shows contributor countries statistics (cumulative and in given periods).</li>\n<li>Contributor is defined as somebody who made a review, comment, commit, created PR or issue.</li>\n<li>Contribution is a review, comment, commit, issue or PR.</li>\n<li>We are determining contributor's country by using GitHub localization and searching for a country using <a href=\"http://www.geonames.org\" target=\"_blank\">geonames</a> database.</li>\n<li>You can select single repository group or summary statistics for all of them combined.</li>\n<li>You can choose to display contributors, contributions, users, actvity, committers, commits etc.</li>\n<li>You can select cumulative statistics or statistics in given periods.</li>\n<li>Selecting period (for example week) means that dashboard will show data in those periods.</li>\n<li>See <a href=\"https://github.com/cncf/devstats/blob/master/docs/periods.md\" target=\"_blank\">here</a> for more informations about periods.</li>\n<li>See <a href=\"https://github.com/cncf/devstats/blob/master/docs/repository_groups.md\" target=\"_blank\">here</a> for more informations about repository groups.</li>\n<li>We are skipping bots activity, see <a href=\"https://github.com/cncf/devstats/blob/master/docs/excluding_bots.md\" target=\"_blank\">excluding bots</a> for details.</li>\n</ul>",
-          "text": "<h1 id=\"dashboard-header\">All CNCF countries stats dashboard</h1>\n<p>Links:</p>\n<ul>\n<li>Metric <a href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/countries.sql\" target=\"_blank\">SQL file</a>.</li>\n<li>Cumulative metric <a href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/countries_cum.sql\" target=\"_blank\">SQL file</a>.</li>\n<li>TSDB <a href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/metrics.yaml\" target=\"_blank\">series definition</a>. Search for <code>countries</code></li>\n<li>Grafana dashboard <a href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/all/countries-stats.json\" target=\"_blank\">JSON</a>.</li>\n</ul>\n<h1 id=\"description\">Description</h1>\n<ul>\n<li>This dashboard shows contributor countries statistics (cumulative and in given periods).</li>\n<li>Contributor is defined as somebody who made a review, comment, commit, created PR or issue.</li>\n<li>Contribution is a review, comment, commit, issue or PR.</li>\n<li>We are determining contributor's country by using GitHub localization and searching for a country using <a href=\"http://www.geonames.org\" target=\"_blank\">geonames</a> database.</li>\n<li>You can select single repository group or summary statistics for all of them combined.</li>\n<li>You can choose to display contributors, contributions, users, actvity, committers, commits etc.</li>\n<li>You can select cumulative statistics or statistics in given periods.</li>\n<li>Selecting period (for example week) means that dashboard will show data in those periods.</li>\n<li>See <a href=\"https://github.com/cncf/devstats/blob/master/docs/periods.md\" target=\"_blank\">here</a> for more informations about periods.</li>\n<li>See <a href=\"https://github.com/cncf/devstats/blob/master/docs/repository_groups.md\" target=\"_blank\">here</a> for more informations about repository groups.</li>\n<li>We are skipping bots activity, see <a href=\"https://github.com/cncf/devstats/blob/master/docs/excluding_bots.md\" target=\"_blank\">excluding bots</a> for details.</li>\n</ul>"
-        },
         "allValue": null,
+        "current": {
+          "text": "<h1 id=\"dashboard-header\">All CNCF countries stats dashboard</h1>\n<p>Links:</p>\n<ul>\n<li>Metric <a href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/countries.sql\" target=\"_blank\">SQL file</a>.</li>\n<li>Cumulative metric <a href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/countries_cum.sql\" target=\"_blank\">SQL file</a>.</li>\n<li>TSDB <a href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/metrics.yaml\" target=\"_blank\">series definition</a>. Search for <code>countries</code></li>\n<li>Grafana dashboard <a href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/all/countries-stats.json\" target=\"_blank\">JSON</a>.</li>\n</ul>\n<h1 id=\"description\">Description</h1>\n<ul>\n<li>This dashboard shows contributor countries statistics (cumulative and in given periods).</li>\n<li>Contributor is defined as somebody who made a review, comment, commit, created PR or issue.</li>\n<li>Contribution is a review, comment, commit, issue or PR.</li>\n<li>We are determining contributor's country by using GitHub localization and searching for a country using <a href=\"http://www.geonames.org\" target=\"_blank\">geonames</a> database.</li>\n<li>You can select single repository group or summary statistics for all of them combined.</li>\n<li>You can choose to display contributors, contributions, users, actvity, committers, commits etc.</li>\n<li>You can select cumulative statistics or statistics in given periods.</li>\n<li>Selecting period (for example week) means that dashboard will show data in those periods.</li>\n<li>See <a href=\"https://github.com/cncf/devstats/blob/master/docs/periods.md\" target=\"_blank\">here</a> for more informations about periods.</li>\n<li>See <a href=\"https://github.com/cncf/devstats/blob/master/docs/repository_groups.md\" target=\"_blank\">here</a> for more informations about repository groups.</li>\n<li>We are skipping bots activity, see <a href=\"https://github.com/cncf/devstats/blob/master/docs/excluding_bots.md\" target=\"_blank\">excluding bots</a> for details.</li>\n</ul>",
+          "value": "<h1 id=\"dashboard-header\">All CNCF countries stats dashboard</h1>\n<p>Links:</p>\n<ul>\n<li>Metric <a href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/countries.sql\" target=\"_blank\">SQL file</a>.</li>\n<li>Cumulative metric <a href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/countries_cum.sql\" target=\"_blank\">SQL file</a>.</li>\n<li>TSDB <a href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/metrics.yaml\" target=\"_blank\">series definition</a>. Search for <code>countries</code></li>\n<li>Grafana dashboard <a href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/all/countries-stats.json\" target=\"_blank\">JSON</a>.</li>\n</ul>\n<h1 id=\"description\">Description</h1>\n<ul>\n<li>This dashboard shows contributor countries statistics (cumulative and in given periods).</li>\n<li>Contributor is defined as somebody who made a review, comment, commit, created PR or issue.</li>\n<li>Contribution is a review, comment, commit, issue or PR.</li>\n<li>We are determining contributor's country by using GitHub localization and searching for a country using <a href=\"http://www.geonames.org\" target=\"_blank\">geonames</a> database.</li>\n<li>You can select single repository group or summary statistics for all of them combined.</li>\n<li>You can choose to display contributors, contributions, users, actvity, committers, commits etc.</li>\n<li>You can select cumulative statistics or statistics in given periods.</li>\n<li>Selecting period (for example week) means that dashboard will show data in those periods.</li>\n<li>See <a href=\"https://github.com/cncf/devstats/blob/master/docs/periods.md\" target=\"_blank\">here</a> for more informations about periods.</li>\n<li>See <a href=\"https://github.com/cncf/devstats/blob/master/docs/repository_groups.md\" target=\"_blank\">here</a> for more informations about repository groups.</li>\n<li>We are skipping bots activity, see <a href=\"https://github.com/cncf/devstats/blob/master/docs/excluding_bots.md\" target=\"_blank\">excluding bots</a> for details.</li>\n</ul>"
+        },
+        "datasource": "psql",
         "hide": 2,
-        "tags": [],
+        "includeAll": false,
+        "label": null,
         "multi": false,
-        "type": "query",
         "name": "docs",
-        "skipUrlSync": true,
-        "refresh": 1,
-        "datasource": "psql",
-        "label": null
-      },
-      {
-        "skipUrlSync": true,
-        "current": {
-          "value": "q",
-          "text": "q"
-        },
-        "refresh": 1,
-        "tagValuesQuery": "",
-        "useTags": false,
-        "regex": "",
-        "label": "",
-        "query": "select split_part(cumperiod_name, '/', 3) from tcumperiods where cumperiod_name like '[[cum]]/[[period_name]]/%';",
-        "includeAll": false,
-        "datasource": "psql",
-        "sort": 0,
-        "tagsQuery": "",
         "options": [],
-        "type": "query",
-        "allValue": null,
+        "query": "select value_s from gha_vars where name = 'countries_stats_docs_html'",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": true,
+        "sort": 0,
+        "tagValuesQuery": "",
         "tags": [],
-        "multi": false,
-        "hide": 2,
-        "name": "period"
-      }
-    ]
-  },
-  "title": "Countries Statistics in Repository Groups",
-  "annotations": {
-    "list": [
-      {
-        "hide": true,
-        "iconColor": "rgba(0, 211, 255, 1)",
-        "name": "Annotations & Alerts",
-        "type": "dashboard",
-        "builtIn": 1,
-        "datasource": "-- Grafana --",
-        "enable": true
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
       },
       {
-        "showIn": 0,
+        "allValue": null,
+        "current": {
+          "text": "q",
+          "value": "q"
+        },
         "datasource": "psql",
-        "hide": false,
-        "limit": 100,
-        "iconColor": "rgba(255, 96, 96, 1)",
-        "titleColumn": "[[full_name]] Release",
-        "tagsColumn": "title,description",
-        "enable": true,
-        "name": "Releases",
-        "rawQuery": "select extract(epoch from time) AS time, title as text, description as tags from sannotations where $__timeFilter(time)",
-        "textColumn": "",
-        "type": "alert",
-        "query": "SELECT title, description from annotations WHERE $timeFilter order by time asc"
+        "hide": 2,
+        "includeAll": false,
+        "label": "",
+        "multi": false,
+        "name": "period",
+        "options": [],
+        "query": "select split_part(cumperiod_name, '/', 3) from tcumperiods where cumperiod_name like '[[cum]]/[[period_name]]/%';",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": true,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
       }
     ]
   },
-  "editable": true,
-  "graphTooltip": 0,
-  "style": "dark",
+  "time": {
+    "from": "now-3y",
+    "to": "now-1M"
+  },
   "timepicker": {
-    "time_options": [
-      "5m",
-      "15m",
-      "1h",
-      "6h",
-      "12h",
-      "24h",
-      "2d",
-      "7d",
-      "30d"
-    ],
     "refresh_intervals": [
       "5s",
       "10s",
@@ -725,13 +717,21 @@
       "1h",
       "2h",
       "1d"
+    ],
+    "time_options": [
+      "5m",
+      "15m",
+      "1h",
+      "6h",
+      "12h",
+      "24h",
+      "2d",
+      "7d",
+      "30d"
     ]
   },
+  "timezone": "",
+  "title": "Countries Statistics in Repository Groups",
   "uid": "50",
-  "gnetId": null,
-  "tags": [
-    "dashboard",
-    "tuf"
-  ],
-  "id": 64
+  "version": 2
 }

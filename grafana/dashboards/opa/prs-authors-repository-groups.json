@@ -1,91 +1,95 @@
 {
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      },
+      {
+        "datasource": "psql",
+        "enable": true,
+        "hide": false,
+        "iconColor": "rgba(255, 96, 96, 1)",
+        "limit": 100,
+        "name": "Releases",
+        "query": "SELECT title, description from annotations WHERE $timeFilter order by time asc",
+        "rawQuery": "select extract(epoch from time) AS time, title as text, description as tags from sannotations where $__timeFilter(time)",
+        "showIn": 0,
+        "tagsColumn": "title,description",
+        "textColumn": "",
+        "titleColumn": "[[full_name]] release",
+        "type": "alert"
+      }
+    ]
+  },
+  "editable": true,
+  "gnetId": null,
+  "graphTooltip": 0,
+  "id": 10,
+  "iteration": 1529596706238,
+  "links": [],
   "panels": [
     {
-      "decimals": 0,
-      "tooltip": {
-        "shared": false,
-        "sort": 0,
-        "value_type": "individual"
-      },
-      "xaxis": {
-        "values": [
-          "total"
-        ],
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true
-      },
-      "percentage": false,
-      "fill": 1,
-      "id": 1,
-      "renderer": "flot",
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      },
-      "steppedLine": false,
-      "timeShift": null,
-      "linewidth": 1,
-      "nullPointMode": "null",
-      "points": false,
-      "spaceLength": 10,
-      "transparent": false,
-      "pointradius": 5,
-      "description": "Number of unique PR authors in [[repogroup_name]] repository group.",
+      "aliasColors": {},
+      "bars": true,
       "dashLength": 10,
       "dashes": false,
-      "legend": {
-        "hideEmpty": false,
-        "hideZero": false,
-        "alignAsTable": true,
-        "max": true,
-        "min": true,
-        "values": true,
-        "current": true,
-        "avg": true,
-        "rightSide": false,
-        "show": true,
-        "total": true
-      },
-      "type": "graph",
-      "bars": true,
-      "timeFrom": null,
+      "datasource": "psql",
+      "decimals": 0,
+      "description": "Number of unique PR authors in [[repogroup_name]] repository group.",
+      "fill": 1,
       "gridPos": {
         "h": 22,
         "w": 24,
         "x": 0,
         "y": 0
       },
+      "id": 1,
+      "legend": {
+        "alignAsTable": true,
+        "avg": true,
+        "current": true,
+        "hideEmpty": false,
+        "hideZero": false,
+        "max": true,
+        "min": true,
+        "rightSide": false,
+        "show": true,
+        "total": true,
+        "values": true
+      },
+      "lines": false,
+      "linewidth": 1,
       "links": [],
-      "aliasColors": {},
-      "stack": false,
+      "nullPointMode": "null",
+      "percentage": false,
+      "pointradius": 5,
+      "points": false,
+      "renderer": "flot",
       "seriesOverrides": [],
-      "yaxes": [
-        {
-          "max": null,
-          "min": "0",
-          "show": true,
-          "format": "short",
-          "label": "Unique PRs authors",
-          "logBase": 1
-        },
-        {
-          "min": "0",
-          "show": true,
-          "format": "short",
-          "label": "",
-          "logBase": 1,
-          "max": null
-        }
-      ],
-      "datasource": "psql",
-      "title": "Number of unique PRs authors in [[repogroup_name]] repository group ([[period]])",
-      "thresholds": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
       "targets": [
         {
+          "alias": "",
+          "dsType": "influxdb",
+          "format": "time_series",
+          "groupBy": [],
+          "hide": false,
+          "measurement": "reviewers_d",
+          "orderByTime": "ASC",
+          "policy": "autogen",
+          "query": "SELECT \"value\" FROM \"autogen\".\"prs_authors_[[repogroup]]_[[period]][[aggregate]]\" WHERE $timeFilter",
           "rawQuery": true,
-          "tags": [],
+          "rawSql": "select\n  time,\n  value as \"Unique PR authors\"\nfrom\n  spr_auth\nwhere\n  $__timeFilter(time)\n  and series = 'pr_auth[[repogroup]]'\n  and period = '[[period]]'\norder by\n  time",
+          "refId": "A",
+          "resultFormat": "time_series",
           "select": [
             [
               {
@@ -96,40 +100,87 @@
               }
             ]
           ],
-          "alias": "",
-          "measurement": "reviewers_d",
-          "resultFormat": "time_series",
-          "hide": false,
-          "groupBy": [],
-          "orderByTime": "ASC",
-          "policy": "autogen",
-          "refId": "A",
-          "rawSql": "select\n  time,\n  value as \"Unique PR authors\"\nfrom\n  spr_auth\nwhere\n  $__timeFilter(time)\n  and series = 'pr_auth[[repogroup]]'\n  and period = '[[period]]'\norder by\n  time",
-          "dsType": "influxdb",
-          "format": "time_series",
-          "query": "SELECT \"value\" FROM \"autogen\".\"prs_authors_[[repogroup]]_[[period]][[aggregate]]\" WHERE $timeFilter"
+          "tags": []
         }
       ],
-      "lines": false
+      "thresholds": [],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Number of unique PRs authors in [[repogroup_name]] repository group ([[period]])",
+      "tooltip": {
+        "shared": false,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "transparent": false,
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": [
+          "total"
+        ]
+      },
+      "yaxes": [
+        {
+          "format": "short",
+          "label": "Unique PRs authors",
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": "",
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
     },
     {
+      "content": "${docs:raw}",
+      "gridPos": {
+        "h": 11,
+        "w": 24,
+        "x": 0,
+        "y": 22
+      },
+      "id": 11,
       "links": [],
       "mode": "html",
       "title": "Dashboard documentation",
-      "type": "text",
-      "content": "${docs:raw}",
-      "gridPos": {
-        "y": 22,
-        "h": 11,
-        "w": 24,
-        "x": 0
-      },
-      "id": 11
+      "type": "text"
     }
+  ],
+  "refresh": false,
+  "schemaVersion": 16,
+  "style": "dark",
+  "tags": [
+    "dashboard",
+    "opa"
   ],
   "templating": {
     "list": [
       {
+        "allValue": null,
+        "current": {
+          "tags": [],
+          "text": "7 Days MA",
+          "value": "d7"
+        },
+        "hide": 0,
+        "includeAll": false,
+        "label": "Period",
+        "multi": false,
         "name": "period",
         "options": [
           {
@@ -143,14 +194,14 @@
             "value": "d7"
           },
           {
+            "selected": false,
             "text": "Week",
-            "value": "w",
-            "selected": false
+            "value": "w"
           },
           {
+            "selected": false,
             "text": "Month",
-            "value": "m",
-            "selected": false
+            "value": "m"
           },
           {
             "selected": false,
@@ -158,147 +209,111 @@
             "value": "q"
           },
           {
-            "value": "y",
             "selected": false,
-            "text": "Year"
+            "text": "Year",
+            "value": "y"
           }
         ],
-        "type": "custom",
-        "skipUrlSync": false,
-        "includeAll": false,
-        "multi": false,
-        "label": "Period",
         "query": "d,d7,w,m,q,y",
-        "allValue": null,
-        "current": {
-          "text": "7 Days MA",
-          "value": "d7",
-          "tags": []
-        },
-        "hide": 0
+        "skipUrlSync": false,
+        "type": "custom"
       },
       {
-        "regex": "",
-        "refresh": 1,
+        "allValue": null,
         "current": {
           "text": "All",
           "value": "All"
         },
-        "skipUrlSync": false,
-        "useTags": false,
+        "datasource": "psql",
+        "hide": 0,
+        "includeAll": false,
+        "label": "Repository group",
         "multi": false,
         "name": "repogroup_name",
-        "datasource": "psql",
-        "tags": [],
-        "allValue": null,
+        "options": [],
         "query": "select all_repo_group_name from tall_repo_groups order by 1",
-        "label": "Repository group",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
         "sort": 0,
         "tagValuesQuery": "",
-        "includeAll": false,
+        "tags": [],
         "tagsQuery": "",
         "type": "query",
-        "hide": 0,
-        "options": []
+        "useTags": false
       },
       {
-        "query": "select all_repo_group_value from tall_repo_groups where all_repo_group_name = '[[repogroup_name]]'",
-        "label": "",
-        "hide": 2,
-        "options": [],
-        "tagValuesQuery": "",
-        "tags": [],
+        "allValue": null,
         "current": {
           "text": "all",
           "value": "all"
         },
-        "tagsQuery": "",
         "datasource": "psql",
+        "hide": 2,
         "includeAll": false,
-        "regex": "",
-        "type": "query",
-        "skipUrlSync": true,
-        "sort": 0,
-        "useTags": false,
+        "label": "",
         "multi": false,
         "name": "repogroup",
-        "allValue": null,
-        "refresh": 1
-      },
-      {
-        "regex": "",
         "options": [],
-        "tagValuesQuery": "",
-        "name": "full_name",
+        "query": "select all_repo_group_value from tall_repo_groups where all_repo_group_name = '[[repogroup_name]]'",
+        "refresh": 1,
+        "regex": "",
         "skipUrlSync": true,
         "sort": 0,
-        "query": "select value_s from gha_vars where name = 'full_name'",
-        "allValue": null,
+        "tagValuesQuery": "",
         "tags": [],
-        "includeAll": false,
-        "refresh": 1,
-        "useTags": false,
-        "hide": 2,
-        "label": null,
         "tagsQuery": "",
-        "datasource": "psql",
-        "multi": false,
         "type": "query",
-        "current": {}
+        "useTags": false
       },
       {
-        "multi": false,
-        "regex": "",
-        "tags": [],
-        "options": [],
-        "type": "query",
         "allValue": null,
-        "hide": 2,
-        "includeAll": false,
-        "refresh": 1,
-        "sort": 0,
         "current": {},
-        "label": null,
-        "useTags": false,
         "datasource": "psql",
-        "name": "docs",
+        "hide": 2,
+        "includeAll": false,
+        "label": null,
+        "multi": false,
+        "name": "full_name",
+        "options": [],
+        "query": "select value_s from gha_vars where name = 'full_name'",
+        "refresh": 1,
+        "regex": "",
         "skipUrlSync": true,
+        "sort": 0,
         "tagValuesQuery": "",
+        "tags": [],
         "tagsQuery": "",
-        "query": "select value_s from gha_vars where name = 'prs_authors_chart_docs_html'"
-      }
-    ]
-  },
-  "annotations": {
-    "list": [
-      {
-        "builtIn": 1,
-        "datasource": "-- Grafana --",
-        "enable": true,
-        "hide": true,
-        "iconColor": "rgba(0, 211, 255, 1)",
-        "name": "Annotations & Alerts",
-        "type": "dashboard"
+        "type": "query",
+        "useTags": false
       },
       {
-        "iconColor": "rgba(255, 96, 96, 1)",
-        "tagsColumn": "title,description",
-        "textColumn": "",
-        "enable": true,
-        "showIn": 0,
-        "type": "alert",
+        "allValue": null,
+        "current": {},
         "datasource": "psql",
-        "hide": false,
-        "limit": 100,
-        "rawQuery": "select extract(epoch from time) AS time, title as text, description as tags from sannotations where $__timeFilter(time)",
-        "name": "Releases",
-        "query": "SELECT title, description from annotations WHERE $timeFilter order by time asc",
-        "titleColumn": "[[full_name]] release"
+        "hide": 2,
+        "includeAll": false,
+        "label": null,
+        "multi": false,
+        "name": "docs",
+        "options": [],
+        "query": "select value_s from gha_vars where name = 'prs_authors_chart_docs_html'",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": true,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
       }
     ]
   },
-  "uid": "23",
-  "version": 3,
+  "time": {
+    "from": "now-2y",
+    "to": "now"
+  },
   "timepicker": {
     "refresh_intervals": [
       "5s",
@@ -324,23 +339,8 @@
       "30d"
     ]
   },
-  "title": "PRs Authors Repository Groups",
-  "gnetId": null,
   "timezone": "",
-  "iteration": 1529596706238,
-  "style": "dark",
-  "time": {
-    "from": "now-2y",
-    "to": "now"
-  },
-  "links": [],
-  "tags": [
-    "dashboard",
-    "opa"
-  ],
-  "id": 10,
-  "refresh": false,
-  "schemaVersion": 16,
-  "editable": true,
-  "graphTooltip": 0
+  "title": "PRs Authors Repository Groups",
+  "uid": "23",
+  "version": 3
 }

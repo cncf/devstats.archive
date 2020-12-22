@@ -1,19 +1,106 @@
 {
-  "title": "Issues Age by Repository Group",
+  "annotations": {
+    "list": [
+      {
+        "datasource": "psql",
+        "enable": true,
+        "hide": false,
+        "iconColor": "rgba(255, 96, 96, 1)",
+        "limit": 100,
+        "name": "Releases",
+        "query": "SELECT title, description from annotations WHERE $timeFilter order by time asc",
+        "rawQuery": "select extract(epoch from time) AS time, title as text, description as tags from sannotations where $__timeFilter(time)",
+        "showIn": 0,
+        "tagsColumn": "title,description",
+        "textColumn": "",
+        "titleColumn": "[[full_name]] release",
+        "type": "alert"
+      },
+      {
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "limit": 100,
+        "name": "Annotations & Alerts",
+        "showIn": 0,
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "gnetId": null,
+  "graphTooltip": 0,
+  "id": 50,
+  "iteration": 1529593394160,
+  "links": [],
   "panels": [
     {
+      "cacheTimeout": null,
+      "colorBackground": false,
+      "colorValue": false,
       "colors": [
         "rgba(245, 54, 54, 0.9)",
         "rgba(237, 129, 40, 0.89)",
         "rgba(50, 172, 45, 0.97)"
       ],
+      "datasource": "psql",
+      "description": "Current median closing time for recent issues.",
+      "format": "none",
+      "gauge": {
+        "maxValue": 100,
+        "minValue": 0,
+        "show": false,
+        "thresholdLabels": false,
+        "thresholdMarkers": true
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 14,
+        "x": 0,
+        "y": 0
+      },
+      "id": 2,
+      "interval": null,
+      "links": [],
       "mappingType": 1,
-      "cacheTimeout": null,
-      "title": "Current median time to close for issues created last [[period]] for repository group [[repogroup_name]], Priority: [[prio_name]]",
+      "mappingTypes": [
+        {
+          "name": "value to text",
+          "value": 1
+        },
+        {
+          "name": "range to text",
+          "value": 2
+        }
+      ],
+      "maxDataPoints": 100,
+      "nullPointMode": "connected",
+      "nullText": null,
+      "postfix": "",
+      "postfixFontSize": "50%",
+      "prefix": "",
+      "prefixFontSize": "50%",
+      "rangeMaps": [
+        {
+          "from": "null",
+          "text": "N/A",
+          "to": "null"
+        }
+      ],
+      "sparkline": {
+        "fillColor": "rgba(31, 118, 189, 0.18)",
+        "full": false,
+        "lineColor": "rgb(31, 120, 193)",
+        "show": false
+      },
+      "tableColumn": "descr",
       "targets": [
         {
-          "tags": [],
-          "orderByTime": "ASC",
+          "alias": "",
+          "dsType": "influxdb",
+          "format": "table",
           "groupBy": [
             {
               "params": [
@@ -28,159 +115,13 @@
               "type": "fill"
             }
           ],
+          "orderByTime": "ASC",
+          "policy": "default",
           "query": "SELECT \"descr\" FROM \"autogen\".\"issues_age_[[repogroup]]_[[prio]]_median_[[period]]\" WHERE $timeFilter",
+          "rawQuery": true,
           "rawSql": "select\n  descr\nfrom\n  sissues_age\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'iage[[repogroup]][[prio]]m'\norder by\n  time desc\nlimit 1",
           "refId": "A",
-          "alias": "",
           "resultFormat": "time_series",
-          "policy": "default",
-          "rawQuery": true,
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              },
-              {
-                "type": "mean",
-                "params": []
-              }
-            ]
-          ],
-          "dsType": "influxdb",
-          "format": "table"
-        }
-      ],
-      "id": 2,
-      "interval": null,
-      "gridPos": {
-        "h": 3,
-        "w": 14,
-        "x": 0,
-        "y": 0
-      },
-      "prefixFontSize": "50%",
-      "nullText": null,
-      "valueMaps": [
-        {
-          "op": "=",
-          "text": "N/A",
-          "value": "null"
-        }
-      ],
-      "colorValue": false,
-      "sparkline": {
-        "show": false,
-        "fillColor": "rgba(31, 118, 189, 0.18)",
-        "full": false,
-        "lineColor": "rgb(31, 120, 193)"
-      },
-      "links": [],
-      "maxDataPoints": 100,
-      "prefix": "",
-      "valueFontSize": "50%",
-      "nullPointMode": "connected",
-      "colorBackground": false,
-      "type": "singlestat",
-      "datasource": "psql",
-      "format": "none",
-      "valueName": "current",
-      "postfix": "",
-      "tableColumn": "descr",
-      "thresholds": "",
-      "rangeMaps": [
-        {
-          "from": "null",
-          "text": "N/A",
-          "to": "null"
-        }
-      ],
-      "gauge": {
-        "show": false,
-        "thresholdLabels": false,
-        "thresholdMarkers": true,
-        "maxValue": 100,
-        "minValue": 0
-      },
-      "mappingTypes": [
-        {
-          "name": "value to text",
-          "value": 1
-        },
-        {
-          "value": 2,
-          "name": "range to text"
-        }
-      ],
-      "description": "Current median closing time for recent issues.",
-      "postfixFontSize": "50%"
-    },
-    {
-      "postfixFontSize": "50%",
-      "prefix": "",
-      "colorValue": false,
-      "cacheTimeout": null,
-      "gauge": {
-        "thresholdLabels": false,
-        "thresholdMarkers": true,
-        "maxValue": 100,
-        "minValue": 0,
-        "show": false
-      },
-      "gridPos": {
-        "y": 0,
-        "h": 3,
-        "w": 10,
-        "x": 14
-      },
-      "links": [],
-      "valueMaps": [
-        {
-          "op": "=",
-          "text": "N/A",
-          "value": "null"
-        }
-      ],
-      "thresholds": "",
-      "mappingType": 1,
-      "colors": [
-        "rgba(245, 54, 54, 0.9)",
-        "rgba(237, 129, 40, 0.89)",
-        "rgba(50, 172, 45, 0.97)"
-      ],
-      "title": "Number of closed issues opened last [[period]] for repository group [[repogroup_name]], Priority: [[prio_name]]",
-      "interval": null,
-      "sparkline": {
-        "full": false,
-        "lineColor": "rgb(31, 120, 193)",
-        "show": false,
-        "fillColor": "rgba(31, 118, 189, 0.18)"
-      },
-      "rangeMaps": [
-        {
-          "from": "null",
-          "text": "N/A",
-          "to": "null"
-        }
-      ],
-      "format": "none",
-      "tableColumn": "descr",
-      "mappingTypes": [
-        {
-          "name": "value to text",
-          "value": 1
-        },
-        {
-          "value": 2,
-          "name": "range to text"
-        }
-      ],
-      "valueName": "current",
-      "valueFontSize": "50%",
-      "targets": [
-        {
           "select": [
             [
               {
@@ -195,6 +136,87 @@
               }
             ]
           ],
+          "tags": []
+        }
+      ],
+      "thresholds": "",
+      "title": "Current median time to close for issues created last [[period]] for repository group [[repogroup_name]], Priority: [[prio_name]]",
+      "type": "singlestat",
+      "valueFontSize": "50%",
+      "valueMaps": [
+        {
+          "op": "=",
+          "text": "N/A",
+          "value": "null"
+        }
+      ],
+      "valueName": "current"
+    },
+    {
+      "cacheTimeout": null,
+      "colorBackground": false,
+      "colorValue": false,
+      "colors": [
+        "rgba(245, 54, 54, 0.9)",
+        "rgba(237, 129, 40, 0.89)",
+        "rgba(50, 172, 45, 0.97)"
+      ],
+      "datasource": "psql",
+      "description": "Number of closed issues opened recently",
+      "format": "none",
+      "gauge": {
+        "maxValue": 100,
+        "minValue": 0,
+        "show": false,
+        "thresholdLabels": false,
+        "thresholdMarkers": true
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 10,
+        "x": 14,
+        "y": 0
+      },
+      "id": 4,
+      "interval": null,
+      "links": [],
+      "mappingType": 1,
+      "mappingTypes": [
+        {
+          "name": "value to text",
+          "value": 1
+        },
+        {
+          "name": "range to text",
+          "value": 2
+        }
+      ],
+      "maxDataPoints": 100,
+      "nullPointMode": "connected",
+      "nullText": null,
+      "postfix": "",
+      "postfixFontSize": "50%",
+      "prefix": "",
+      "prefixFontSize": "50%",
+      "rangeMaps": [
+        {
+          "from": "null",
+          "text": "N/A",
+          "to": "null"
+        }
+      ],
+      "sparkline": {
+        "fillColor": "rgba(31, 118, 189, 0.18)",
+        "full": false,
+        "lineColor": "rgb(31, 120, 193)",
+        "show": false
+      },
+      "tableColumn": "descr",
+      "targets": [
+        {
+          "alias": "",
+          "dsType": "influxdb",
+          "format": "time_series",
           "groupBy": [
             {
               "params": [
@@ -203,66 +225,94 @@
               "type": "time"
             },
             {
-              "type": "fill",
               "params": [
                 "null"
-              ]
+              ],
+              "type": "fill"
             }
           ],
-          "refId": "A",
           "orderByTime": "ASC",
           "policy": "default",
           "query": "SELECT \"value\" FROM \"autogen\".\"issues_age_[[repogroup]]_[[prio]]_number_[[period]]\" WHERE $timeFilter",
-          "alias": "",
-          "tags": [],
-          "resultFormat": "time_series",
-          "dsType": "influxdb",
-          "format": "time_series",
+          "rawQuery": true,
           "rawSql": "select\n  time, value\nfrom\n  sissues_age\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'iage[[repogroup]][[prio]]n'\norder by\n  time desc\nlimit 1",
-          "rawQuery": true
+          "refId": "A",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
         }
       ],
-      "nullText": null,
-      "id": 4,
-      "maxDataPoints": 100,
-      "prefixFontSize": "50%",
-      "description": "Number of closed issues opened recently",
-      "nullPointMode": "connected",
-      "colorBackground": false,
-      "datasource": "psql",
+      "thresholds": "",
+      "title": "Number of closed issues opened last [[period]] for repository group [[repogroup_name]], Priority: [[prio_name]]",
       "type": "singlestat",
-      "postfix": ""
+      "valueFontSize": "50%",
+      "valueMaps": [
+        {
+          "op": "=",
+          "text": "N/A",
+          "value": "null"
+        }
+      ],
+      "valueName": "current"
     },
     {
-      "nullPointMode": "null",
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "psql",
+      "decimals": 2,
+      "description": "Median time to close and number of issues created in [[repogroup]] repository group.",
+      "fill": 3,
+      "gridPos": {
+        "h": 13,
+        "w": 24,
+        "x": 0,
+        "y": 3
+      },
+      "id": 1,
       "legend": {
-        "current": true,
-        "show": true,
-        "hideEmpty": false,
-        "hideZero": false,
-        "min": true,
-        "sideWidth": null,
-        "total": false,
-        "values": true,
         "alignAsTable": false,
         "avg": true,
+        "current": true,
+        "hideEmpty": false,
+        "hideZero": false,
         "max": true,
-        "rightSide": false
+        "min": true,
+        "rightSide": false,
+        "show": true,
+        "sideWidth": null,
+        "total": false,
+        "values": true
       },
+      "lines": false,
+      "linewidth": 0,
+      "links": [],
+      "nullPointMode": "null",
+      "percentage": false,
       "pointradius": 1,
-      "title": "Number/Median time to close of Issues in [[repogroup_name]] repository group ([[period]]), Priority: [[prio_name]]",
-      "transparent": false,
-      "datasource": "psql",
       "points": false,
-      "decimals": 2,
-      "type": "graph",
+      "renderer": "flot",
       "seriesOverrides": [
         {
+          "alias": "Median time to close issue",
           "fill": 2,
           "lines": true,
           "linewidth": 0,
-          "yaxis": 1,
-          "alias": "Median time to close issue"
+          "yaxis": 1
         },
         {
           "alias": "Average number of issues opened",
@@ -272,68 +322,24 @@
           "yaxis": 2
         }
       ],
-      "thresholds": [],
-      "dashLength": 10,
-      "description": "Median time to close and number of issues created in [[repogroup]] repository group.",
-      "fill": 3,
-      "id": 1,
-      "lines": false,
-      "yaxis": {
-        "alignLevel": null,
-        "align": false
-      },
-      "tooltip": {
-        "shared": true,
-        "sort": 0,
-        "value_type": "individual"
-      },
-      "gridPos": {
-        "w": 24,
-        "x": 0,
-        "y": 3,
-        "h": 13
-      },
-      "renderer": "flot",
-      "dashes": false,
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
       "targets": [
         {
-          "rawQuery": true,
-          "orderByTime": "ASC",
-          "query": "SELECT \"value\" FROM \"autogen\".\"issues_age_[[repogroup]]_[[prio]]_number_[[period]]\" WHERE $timeFilter",
-          "policy": "autogen",
-          "rawSql": "select\n  time,\n  value as \"Average number of issues opened\"\nfrom\n  sissues_age\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'iage[[repogroup]][[prio]]n'\norder by\n  time",
-          "resultFormat": "time_series",
-          "refId": "A",
-          "groupBy": [],
-          "measurement": "reviewers_d",
-          "tags": [],
           "alias": "",
           "dsType": "influxdb",
           "format": "time_series",
-          "hide": false,
-          "select": [
-            [
-              {
-                "type": "field",
-                "params": [
-                  "value"
-                ]
-              }
-            ]
-          ]
-        },
-        {
-          "hide": false,
-          "policy": "autogen",
-          "orderByTime": "ASC",
-          "rawQuery": true,
-          "query": "SELECT \"value\" FROM \"autogen\".\"issues_age_[[repogroup]]_[[prio]]_median_[[period]]\" WHERE $timeFilter",
-          "measurement": "reviewers_d",
-          "format": "time_series",
-          "rawSql": "select\n  time,\n  value as \"Median time to close issue\"\nfrom\n  sissues_age\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'iage[[repogroup]][[prio]]m'\norder by\n  time",
-          "tags": [],
-          "dsType": "influxdb",
           "groupBy": [],
+          "hide": false,
+          "measurement": "reviewers_d",
+          "orderByTime": "ASC",
+          "policy": "autogen",
+          "query": "SELECT \"value\" FROM \"autogen\".\"issues_age_[[repogroup]]_[[prio]]_number_[[period]]\" WHERE $timeFilter",
+          "rawQuery": true,
+          "rawSql": "select\n  time,\n  value as \"Average number of issues opened\"\nfrom\n  sissues_age\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'iage[[repogroup]][[prio]]n'\norder by\n  time",
+          "refId": "A",
+          "resultFormat": "time_series",
           "select": [
             [
               {
@@ -344,21 +350,64 @@
               }
             ]
           ],
+          "tags": []
+        },
+        {
           "alias": "",
+          "dsType": "influxdb",
+          "format": "time_series",
+          "groupBy": [],
+          "hide": false,
+          "measurement": "reviewers_d",
+          "orderByTime": "ASC",
+          "policy": "autogen",
+          "query": "SELECT \"value\" FROM \"autogen\".\"issues_age_[[repogroup]]_[[prio]]_median_[[period]]\" WHERE $timeFilter",
+          "rawQuery": true,
+          "rawSql": "select\n  time,\n  value as \"Median time to close issue\"\nfrom\n  sissues_age\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'iage[[repogroup]][[prio]]m'\norder by\n  time",
           "refId": "B",
-          "resultFormat": "time_series"
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              }
+            ]
+          ],
+          "tags": []
         }
       ],
-      "aliasColors": {},
+      "thresholds": [],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Number/Median time to close of Issues in [[repogroup_name]] repository group ([[period]]), Priority: [[prio_name]]",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "transparent": false,
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": [
+          "total"
+        ]
+      },
       "yaxes": [
         {
-          "min": "0",
-          "show": true,
           "decimals": null,
           "format": "h",
           "label": "Median issue close time",
           "logBase": 1,
-          "max": null
+          "max": null,
+          "min": "0",
+          "show": true
         },
         {
           "decimals": null,
@@ -370,143 +419,39 @@
           "show": true
         }
       ],
-      "steppedLine": false,
-      "stack": false,
-      "timeFrom": null,
-      "percentage": false,
-      "timeShift": null,
-      "xaxis": {
-        "show": true,
-        "values": [
-          "total"
-        ],
-        "buckets": null,
-        "mode": "time",
-        "name": null
-      },
-      "bars": false,
-      "linewidth": 0,
-      "spaceLength": 10,
-      "links": []
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
     },
     {
+      "columns": [],
+      "datasource": "psql",
+      "description": "Median time to close and the number​ of issues created in [[repogroup]] repository group.",
+      "fontSize": "90%",
       "gridPos": {
         "h": 11,
         "w": 24,
         "x": 0,
         "y": 16
       },
-      "title": "Number/Median time to close of Issues in [[repogroup_name]] repository group ([[period]]), Priority: [[prio_name]]",
-      "description": "Median time to close and the number​ of issues created in [[repogroup]] repository group.",
-      "fontSize": "90%",
+      "id": 3,
+      "links": [],
       "pageSize": 10,
-      "transform": "table",
-      "type": "table",
+      "scroll": true,
       "showHeader": true,
-      "targets": [
-        {
-          "refId": "A",
-          "tags": [],
-          "dsType": "influxdb",
-          "query": "SELECT \"descr\" FROM \"autogen\".\"issues_age_[[repogroup]]_[[prio]]_median_[[period]]\" WHERE $timeFilter",
-          "format": "table",
-          "policy": "default",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "orderByTime": "ASC",
-          "rawQuery": true,
-          "alias": "",
-          "groupBy": [
-            {
-              "params": [
-                "$__interval"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
-          "rawSql": "select\n  time as \"Time\",\n  descr as \"Median time to close issue\"\nfrom\n  sissues_age\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'iage[[repogroup]][[prio]]m'\norder by\n  time",
-          "resultFormat": "time_series"
-        },
-        {
-          "orderByTime": "ASC",
-          "policy": "default",
-          "groupBy": [
-            {
-              "params": [
-                "$__interval"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
-          "rawSql": "select\n  time as \"Time\",\n  value as \"Average number of issues opened\"\nfrom\n  sissues_age\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'iage[[repogroup]][[prio]]n'\norder by\n  time",
-          "refId": "B",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": [],
-          "rawQuery": true,
-          "format": "table",
-          "query": "SELECT \"value\" FROM \"autogen\".\"issues_age_[[repogroup]]_[[prio]]_number_[[period]]\" WHERE $timeFilter",
-          "resultFormat": "time_series",
-          "alias": "",
-          "dsType": "influxdb"
-        }
-      ],
       "sort": {
         "col": 0,
         "desc": true
       },
-      "scroll": true,
-      "transparent": false,
-      "columns": [],
-      "datasource": "psql",
-      "id": 3,
-      "links": [],
       "styles": [
         {
+          "alias": "Time",
           "dateFormat": "MM/DD/YYYY",
           "pattern": "Time",
-          "type": "date",
-          "alias": "Time"
+          "type": "date"
         },
         {
-          "type": "number",
-          "unit": "short",
           "alias": "",
           "colorMode": null,
           "colors": [
@@ -516,17 +461,107 @@
           ],
           "decimals": 2,
           "pattern": "/.*/",
-          "thresholds": []
+          "thresholds": [],
+          "type": "number",
+          "unit": "short"
         }
-      ]
+      ],
+      "targets": [
+        {
+          "alias": "",
+          "dsType": "influxdb",
+          "format": "table",
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "SELECT \"descr\" FROM \"autogen\".\"issues_age_[[repogroup]]_[[prio]]_median_[[period]]\" WHERE $timeFilter",
+          "rawQuery": true,
+          "rawSql": "select\n  time as \"Time\",\n  descr as \"Median time to close issue\"\nfrom\n  sissues_age\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'iage[[repogroup]][[prio]]m'\norder by\n  time",
+          "refId": "A",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "",
+          "dsType": "influxdb",
+          "format": "table",
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "SELECT \"value\" FROM \"autogen\".\"issues_age_[[repogroup]]_[[prio]]_number_[[period]]\" WHERE $timeFilter",
+          "rawQuery": true,
+          "rawSql": "select\n  time as \"Time\",\n  value as \"Average number of issues opened\"\nfrom\n  sissues_age\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'iage[[repogroup]][[prio]]n'\norder by\n  time",
+          "refId": "B",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        }
+      ],
+      "title": "Number/Median time to close of Issues in [[repogroup_name]] repository group ([[period]]), Priority: [[prio_name]]",
+      "transform": "table",
+      "transparent": false,
+      "type": "table"
     },
     {
       "content": "${docs:raw}",
       "gridPos": {
+        "h": 11,
         "w": 24,
         "x": 0,
-        "y": 22,
-        "h": 11
+        "y": 22
       },
       "id": 11,
       "links": [],
@@ -535,74 +570,58 @@
       "type": "text"
     }
   ],
-  "version": 2,
-  "iteration": 1529593394160,
-  "timepicker": {
-    "time_options": [
-      "5m",
-      "15m",
-      "1h",
-      "6h",
-      "12h",
-      "24h",
-      "2d",
-      "7d",
-      "30d"
-    ],
-    "refresh_intervals": [
-      "5s",
-      "10s",
-      "30s",
-      "1m",
-      "5m",
-      "15m",
-      "30m",
-      "1h",
-      "2h",
-      "1d"
-    ]
-  },
-  "timezone": "",
+  "refresh": false,
+  "schemaVersion": 16,
   "style": "dark",
-  "uid": "11",
-  "gnetId": null,
-  "editable": true,
-  "graphTooltip": 0,
+  "tags": [
+    "dashboard",
+    "cni"
+  ],
   "templating": {
     "list": [
       {
-        "sort": 0,
+        "allValue": null,
         "current": {},
-        "type": "query",
-        "name": "full_name",
-        "includeAll": false,
-        "refresh": 1,
-        "label": null,
-        "regex": "",
-        "hide": 2,
-        "query": "select value_s from gha_vars where name = 'full_name'",
-        "tagsQuery": "",
         "datasource": "psql",
-        "useTags": false,
-        "skipUrlSync": true,
+        "hide": 2,
+        "includeAll": false,
+        "label": null,
+        "multi": false,
+        "name": "full_name",
         "options": [],
+        "query": "select value_s from gha_vars where name = 'full_name'",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": true,
+        "sort": 0,
         "tagValuesQuery": "",
         "tags": [],
-        "multi": false,
-        "allValue": null
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
       },
       {
+        "allValue": null,
+        "current": {
+          "tags": [],
+          "text": "7 Days MA",
+          "value": "d7"
+        },
+        "hide": 0,
+        "includeAll": false,
         "label": "Period",
+        "multi": false,
+        "name": "period",
         "options": [
           {
-            "value": "d",
             "selected": false,
-            "text": "Day"
+            "text": "Day",
+            "value": "d"
           },
           {
-            "value": "d7",
             "selected": true,
-            "text": "7 Days MA"
+            "text": "7 Days MA",
+            "value": "d7"
           },
           {
             "selected": false,
@@ -620,172 +639,153 @@
             "value": "q"
           },
           {
+            "selected": false,
             "text": "Year",
-            "value": "y",
-            "selected": false
+            "value": "y"
           }
         ],
-        "type": "custom",
-        "allValue": null,
-        "name": "period",
         "query": "d,d7,w,m,q,y",
         "skipUrlSync": false,
-        "includeAll": false,
-        "current": {
-          "tags": [],
-          "text": "7 Days MA",
-          "value": "d7"
-        },
-        "hide": 0,
-        "multi": false
+        "type": "custom"
       },
       {
-        "tags": [],
-        "sort": 0,
-        "label": "Repository group",
-        "multi": false,
-        "regex": "",
-        "type": "query",
-        "name": "repogroup_name",
-        "options": [],
-        "skipUrlSync": false,
-        "datasource": "psql",
         "allValue": null,
         "current": {},
-        "includeAll": false,
-        "query": "select all_repo_group_name from tall_repo_groups order by 1",
+        "datasource": "psql",
         "hide": 0,
+        "includeAll": false,
+        "label": "Repository group",
+        "multi": false,
+        "name": "repogroup_name",
+        "options": [],
+        "query": "select all_repo_group_name from tall_repo_groups order by 1",
         "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
         "tagValuesQuery": "",
+        "tags": [],
         "tagsQuery": "",
+        "type": "query",
         "useTags": false
       },
       {
         "allValue": null,
         "current": {},
-        "type": "query",
-        "regex": "",
-        "tagValuesQuery": "",
-        "label": "",
+        "datasource": "psql",
         "hide": 2,
+        "includeAll": false,
+        "label": "",
         "multi": false,
+        "name": "repogroup",
+        "options": [],
         "query": "select all_repo_group_value from tall_repo_groups where all_repo_group_name = '[[repogroup_name]]'",
         "refresh": 1,
-        "name": "repogroup",
-        "includeAll": false,
-        "skipUrlSync": true,
-        "useTags": false,
-        "datasource": "psql",
-        "sort": 0,
-        "tags": [],
-        "options": [],
-        "tagsQuery": ""
-      },
-      {
-        "query": "select priority_labels_name_with_all from tpriority_labels_with_all order by 1",
         "regex": "",
-        "tags": [],
-        "hide": 0,
-        "type": "query",
-        "tagsQuery": "",
-        "datasource": "psql",
-        "multi": false,
-        "useTags": false,
+        "skipUrlSync": true,
         "sort": 0,
-        "label": "Priority",
-        "current": {},
-        "skipUrlSync": false,
         "tagValuesQuery": "",
-        "name": "prio_name",
-        "includeAll": false,
-        "options": [],
-        "refresh": 1,
-        "allValue": ""
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
       },
       {
-        "current": {},
-        "refresh": 1,
-        "multi": false,
-        "query": "select priority_labels_value_with_all from tpriority_labels_with_all where priority_labels_name_with_all = '[[prio_name]]'",
-        "tagsQuery": "",
-        "hide": 2,
-        "tags": [],
         "allValue": "",
+        "current": {},
         "datasource": "psql",
+        "hide": 0,
+        "includeAll": false,
         "label": "Priority",
-        "tagValuesQuery": "",
-        "type": "query",
-        "regex": "",
-        "useTags": false,
-        "includeAll": false,
+        "multi": false,
+        "name": "prio_name",
         "options": [],
-        "name": "prio",
-        "skipUrlSync": true,
-        "sort": 0
-      },
-      {
-        "name": "docs",
-        "allValue": null,
+        "query": "select priority_labels_name_with_all from tpriority_labels_with_all order by 1",
         "refresh": 1,
-        "skipUrlSync": true,
-        "includeAll": false,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
         "tags": [],
         "tagsQuery": "",
-        "multi": false,
-        "sort": 0,
         "type": "query",
-        "hide": 2,
-        "query": "select value_s from gha_vars where name = 'issues_age_docs_html'",
-        "label": null,
-        "regex": "",
-        "tagValuesQuery": "",
-        "datasource": "psql",
-        "useTags": false,
-        "current": {},
-        "options": []
-      }
-    ]
-  },
-  "annotations": {
-    "list": [
-      {
-        "iconColor": "rgba(255, 96, 96, 1)",
-        "name": "Releases",
-        "textColumn": "",
-        "datasource": "psql",
-        "limit": 100,
-        "tagsColumn": "title,description",
-        "titleColumn": "[[full_name]] release",
-        "query": "SELECT title, description from annotations WHERE $timeFilter order by time asc",
-        "rawQuery": "select extract(epoch from time) AS time, title as text, description as tags from sannotations where $__timeFilter(time)",
-        "type": "alert",
-        "enable": true,
-        "hide": false,
-        "showIn": 0
+        "useTags": false
       },
       {
-        "builtIn": 1,
-        "hide": true,
-        "name": "Annotations & Alerts",
-        "type": "dashboard",
-        "datasource": "-- Grafana --",
-        "iconColor": "rgba(0, 211, 255, 1)",
-        "enable": true,
-        "limit": 100,
-        "showIn": 0
+        "allValue": "",
+        "current": {},
+        "datasource": "psql",
+        "hide": 2,
+        "includeAll": false,
+        "label": "Priority",
+        "multi": false,
+        "name": "prio",
+        "options": [],
+        "query": "select priority_labels_value_with_all from tpriority_labels_with_all where priority_labels_name_with_all = '[[prio_name]]'",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": true,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {},
+        "datasource": "psql",
+        "hide": 2,
+        "includeAll": false,
+        "label": null,
+        "multi": false,
+        "name": "docs",
+        "options": [],
+        "query": "select value_s from gha_vars where name = 'issues_age_docs_html'",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": true,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
       }
     ]
   },
-  "tags": [
-    "dashboard",
-    "cni"
-  ],
   "time": {
     "from": "now-3y",
     "to": "now-1w"
   },
-  "id": 50,
-  "schemaVersion": 16,
-  "links": [],
-  "refresh": false
+  "timepicker": {
+    "refresh_intervals": [
+      "5s",
+      "10s",
+      "30s",
+      "1m",
+      "5m",
+      "15m",
+      "30m",
+      "1h",
+      "2h",
+      "1d"
+    ],
+    "time_options": [
+      "5m",
+      "15m",
+      "1h",
+      "6h",
+      "12h",
+      "24h",
+      "2d",
+      "7d",
+      "30d"
+    ]
+  },
+  "timezone": "",
+  "title": "Issues Age by Repository Group",
+  "uid": "11",
+  "version": 2
 }

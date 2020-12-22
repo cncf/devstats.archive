@@ -1,5 +1,283 @@
 {
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "gnetId": null,
+  "graphTooltip": 0,
   "id": 64,
+  "iteration": 1541500383578,
+  "links": [],
+  "panels": [
+    {
+      "columns": [],
+      "datasource": "psql",
+      "description": "",
+      "fontSize": "90%",
+      "gridPos": {
+        "h": 25,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "hideTimeOverride": false,
+      "id": 1,
+      "links": [],
+      "pageSize": 30,
+      "scroll": true,
+      "showHeader": true,
+      "sort": {
+        "col": 1,
+        "desc": false
+      },
+      "styles": [
+        {
+          "alias": "Contributor",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "pattern": "str",
+          "preserveFormat": false,
+          "thresholds": [],
+          "type": "string",
+          "unit": "short"
+        },
+        {
+          "alias": "First contribution",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "MM/DD/YY h:mm:ss a",
+          "decimals": 0,
+          "pattern": "dt",
+          "thresholds": [],
+          "type": "date",
+          "unit": "none"
+        },
+        {
+          "alias": "",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "",
+          "thresholds": [],
+          "type": "number",
+          "unit": "short"
+        },
+        {
+          "alias": "",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "decimals": 0,
+          "pattern": "/.*/",
+          "thresholds": [],
+          "type": "number",
+          "unit": "short"
+        }
+      ],
+      "targets": [
+        {
+          "alias": "",
+          "dsType": "influxdb",
+          "format": "table",
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "",
+          "rawQuery": true,
+          "rawSql": "select str, dt from \"snew_contributors_data\" where $__timeFilter(dt) and series = 'ncd[[repogroup]]' and period = 'd'",
+          "refId": "A",
+          "resultFormat": "table",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "[[full_name]] New contributors table (Repository group [[repogroup_name]])",
+      "transform": "table",
+      "transparent": false,
+      "type": "table"
+    },
+    {
+      "content": "${docs:raw}",
+      "gridPos": {
+        "h": 11,
+        "w": 24,
+        "x": 0,
+        "y": 25
+      },
+      "id": 11,
+      "links": [],
+      "mode": "html",
+      "title": "Dashboard documentation",
+      "type": "text"
+    }
+  ],
+  "refresh": false,
+  "schemaVersion": 16,
+  "style": "dark",
+  "tags": [
+    "dashboard",
+    "telepresence",
+    "table"
+  ],
+  "templating": {
+    "list": [
+      {
+        "allValue": null,
+        "current": {},
+        "datasource": "psql",
+        "hide": 2,
+        "includeAll": false,
+        "label": null,
+        "multi": false,
+        "name": "full_name",
+        "options": [],
+        "query": "select value_s from gha_vars where name = 'full_name'",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": true,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "text": "All",
+          "value": "All"
+        },
+        "datasource": "psql",
+        "hide": 0,
+        "includeAll": false,
+        "label": "Repository group",
+        "multi": false,
+        "name": "repogroup_name",
+        "options": [],
+        "query": "select all_repo_group_name from tall_repo_groups order by 1",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "text": "all",
+          "value": "all"
+        },
+        "datasource": "psql",
+        "hide": 2,
+        "includeAll": false,
+        "label": "",
+        "multi": false,
+        "name": "repogroup",
+        "options": [],
+        "query": "select all_repo_group_value from tall_repo_groups where all_repo_group_name = '[[repogroup_name]]'",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": true,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "isNone": true,
+          "text": "None",
+          "value": ""
+        },
+        "datasource": "psql",
+        "hide": 2,
+        "includeAll": false,
+        "label": null,
+        "multi": false,
+        "name": "docs",
+        "options": [],
+        "query": "select value_s from gha_vars where name = 'new_contributors_docs_html'",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": true,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      }
+    ]
+  },
+  "time": {
+    "from": "now-1M",
+    "to": "now"
+  },
   "timepicker": {
     "hidden": false,
     "refresh_intervals": [
@@ -26,286 +304,8 @@
       "30d"
     ]
   },
-  "tags": [
-    "dashboard",
-    "telepresence",
-    "table"
-  ],
-  "schemaVersion": 16,
-  "gnetId": null,
-  "refresh": false,
-  "uid": "52",
-  "editable": true,
   "timezone": "",
-  "style": "dark",
-  "annotations": {
-    "list": [
-      {
-        "type": "dashboard",
-        "builtIn": 1,
-        "datasource": "-- Grafana --",
-        "enable": true,
-        "hide": true,
-        "iconColor": "rgba(0, 211, 255, 1)",
-        "name": "Annotations & Alerts"
-      }
-    ]
-  },
   "title": "New Contributors Table",
-  "version": 4,
-  "links": [],
-  "panels": [
-    {
-      "transparent": false,
-      "showHeader": true,
-      "styles": [
-        {
-          "unit": "short",
-          "alias": "Contributor",
-          "preserveFormat": false,
-          "type": "string",
-          "decimals": 2,
-          "thresholds": [],
-          "colorMode": null,
-          "colors": [
-            "rgba(245, 54, 54, 0.9)",
-            "rgba(237, 129, 40, 0.89)",
-            "rgba(50, 172, 45, 0.97)"
-          ],
-          "dateFormat": "YYYY-MM-DD HH:mm:ss",
-          "pattern": "str"
-        },
-        {
-          "dateFormat": "MM/DD/YY h:mm:ss a",
-          "type": "date",
-          "unit": "none",
-          "colors": [
-            "rgba(245, 54, 54, 0.9)",
-            "rgba(237, 129, 40, 0.89)",
-            "rgba(50, 172, 45, 0.97)"
-          ],
-          "thresholds": [],
-          "pattern": "dt",
-          "alias": "First contribution",
-          "colorMode": null,
-          "decimals": 0
-        },
-        {
-          "pattern": "",
-          "thresholds": [],
-          "colorMode": null,
-          "colors": [
-            "rgba(245, 54, 54, 0.9)",
-            "rgba(237, 129, 40, 0.89)",
-            "rgba(50, 172, 45, 0.97)"
-          ],
-          "alias": "",
-          "dateFormat": "YYYY-MM-DD HH:mm:ss",
-          "decimals": 2,
-          "mappingType": 1,
-          "type": "number",
-          "unit": "short"
-        },
-        {
-          "alias": "",
-          "colorMode": null,
-          "colors": [
-            "rgba(245, 54, 54, 0.9)",
-            "rgba(237, 129, 40, 0.89)",
-            "rgba(50, 172, 45, 0.97)"
-          ],
-          "decimals": 0,
-          "pattern": "/.*/",
-          "thresholds": [],
-          "type": "number",
-          "unit": "short"
-        }
-      ],
-      "type": "table",
-      "sort": {
-        "desc": false,
-        "col": 1
-      },
-      "timeFrom": null,
-      "description": "",
-      "hideTimeOverride": false,
-      "scroll": true,
-      "id": 1,
-      "title": "[[full_name]] New contributors table (Repository group [[repogroup_name]])",
-      "pageSize": 30,
-      "targets": [
-        {
-          "orderByTime": "ASC",
-          "query": "",
-          "rawQuery": true,
-          "alias": "",
-          "groupBy": [
-            {
-              "params": [
-                "$__interval"
-              ],
-              "type": "time"
-            },
-            {
-              "type": "fill",
-              "params": [
-                "null"
-              ]
-            }
-          ],
-          "refId": "A",
-          "resultFormat": "table",
-          "dsType": "influxdb",
-          "rawSql": "select str, dt from \"snew_contributors_data\" where $__timeFilter(dt) and series = 'ncd[[repogroup]]' and period = 'd'",
-          "tags": [],
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              },
-              {
-                "type": "mean",
-                "params": []
-              }
-            ]
-          ],
-          "format": "table",
-          "policy": "default"
-        }
-      ],
-      "transform": "table",
-      "gridPos": {
-        "h": 25,
-        "w": 24,
-        "x": 0,
-        "y": 0
-      },
-      "fontSize": "90%",
-      "links": [],
-      "timeShift": null,
-      "columns": [],
-      "datasource": "psql"
-    },
-    {
-      "id": 11,
-      "links": [],
-      "mode": "html",
-      "title": "Dashboard documentation",
-      "type": "text",
-      "content": "${docs:raw}",
-      "gridPos": {
-        "y": 25,
-        "h": 11,
-        "w": 24,
-        "x": 0
-      }
-    }
-  ],
-  "graphTooltip": 0,
-  "templating": {
-    "list": [
-      {
-        "tags": [],
-        "query": "select value_s from gha_vars where name = 'full_name'",
-        "name": "full_name",
-        "tagValuesQuery": "",
-        "skipUrlSync": true,
-        "useTags": false,
-        "label": null,
-        "allValue": null,
-        "includeAll": false,
-        "type": "query",
-        "options": [],
-        "current": {},
-        "regex": "",
-        "sort": 0,
-        "hide": 2,
-        "tagsQuery": "",
-        "multi": false,
-        "refresh": 1,
-        "datasource": "psql"
-      },
-      {
-        "current": {
-          "text": "All",
-          "value": "All"
-        },
-        "datasource": "psql",
-        "sort": 0,
-        "allValue": null,
-        "name": "repogroup_name",
-        "tagValuesQuery": "",
-        "refresh": 1,
-        "hide": 0,
-        "includeAll": false,
-        "multi": false,
-        "type": "query",
-        "useTags": false,
-        "label": "Repository group",
-        "options": [],
-        "tags": [],
-        "query": "select all_repo_group_name from tall_repo_groups order by 1",
-        "tagsQuery": "",
-        "skipUrlSync": false,
-        "regex": ""
-      },
-      {
-        "useTags": false,
-        "options": [],
-        "allValue": null,
-        "current": {
-          "value": "all",
-          "text": "all"
-        },
-        "refresh": 1,
-        "label": "",
-        "tags": [],
-        "tagsQuery": "",
-        "datasource": "psql",
-        "includeAll": false,
-        "multi": false,
-        "skipUrlSync": true,
-        "tagValuesQuery": "",
-        "type": "query",
-        "hide": 2,
-        "name": "repogroup",
-        "regex": "",
-        "sort": 0,
-        "query": "select all_repo_group_value from tall_repo_groups where all_repo_group_name = '[[repogroup_name]]'"
-      },
-      {
-        "sort": 0,
-        "type": "query",
-        "refresh": 1,
-        "datasource": "psql",
-        "label": null,
-        "query": "select value_s from gha_vars where name = 'new_contributors_docs_html'",
-        "options": [],
-        "regex": "",
-        "hide": 2,
-        "name": "docs",
-        "includeAll": false,
-        "tagValuesQuery": "",
-        "tags": [],
-        "tagsQuery": "",
-        "useTags": false,
-        "skipUrlSync": true,
-        "current": {
-          "isNone": true,
-          "text": "None",
-          "value": ""
-        },
-        "allValue": null,
-        "multi": false
-      }
-    ]
-  },
-  "time": {
-    "from": "now-1M",
-    "to": "now"
-  },
-  "iteration": 1541500383578
+  "uid": "52",
+  "version": 4
 }

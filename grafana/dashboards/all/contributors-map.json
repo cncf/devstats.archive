@@ -1,7 +1,27 @@
 {
-  "version": 2,
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "gnetId": null,
+  "graphTooltip": 0,
+  "id": 8,
+  "iteration": 1562224646796,
+  "links": [],
   "panels": [
     {
+      "circleMaxSize": "100",
+      "circleMinSize": "1",
       "colors": [
         "#ff0000",
         "#ff4000",
@@ -13,26 +33,47 @@
         "#80ff00",
         "#00ff40"
       ],
-      "circleMinSize": "1",
+      "decimals": 0,
+      "description": "Number of contributions in different countries.",
+      "esMetric": "Count",
+      "gridPos": {
+        "h": 27,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
       "hideEmpty": false,
-      "circleMaxSize": "100",
+      "hideZero": false,
+      "id": 2,
+      "initialZoom": "3",
+      "interval": "1h",
+      "links": [],
+      "locationData": "countries",
+      "mapCenter": "custom",
+      "mapCenterLatitude": "30",
+      "mapCenterLongitude": 0,
+      "maxDataPoints": 1,
+      "mouseWheelZoom": true,
+      "options": {},
+      "repeat": null,
+      "repeatDirection": "h",
+      "showLegend": true,
+      "stickyLabels": false,
+      "tableQueryOptions": {
+        "geohashField": "geohash",
+        "latitudeField": "latitude",
+        "longitudeField": "longitude",
+        "metricField": "metric",
+        "queryType": "geohash"
+      },
       "targets": [
         {
-          "table": "shpr_comps",
-          "timeColumn": "\"time\"",
-          "timeColumnType": "timestamp",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ],
+          "format": "time_series",
           "group": [],
           "metricColumn": "none",
-          "refId": "A",
           "rawQuery": true,
           "rawSql": "select\n  now() as \"time\",\n  round(sqrt(count(distinct sub.[[type]])::numeric), 0) as \"value\",\n  coalesce(sub.country_id, '') as \"name\"\nfrom (\n  select\n    a.login,\n    e.id as event_id,\n    coalesce(a.country_id, '') as country_id\n  from\n    gha_actors a,\n    gha_events e,\n    gha_repos r\n  where\n    e.repo_id = r.id\n    and e.dup_repo_name = r.name\n    and r.repo_group in ([[repogroups]])\n    and e.dup_actor_login = a.login\n    and e.type in ('IssuesEvent', 'PullRequestEvent', 'PushEvent', 'PullRequestReviewCommentEvent', 'IssueCommentEvent', 'CommitCommentEvent')\n    and $__timeFilter(e.created_at)\n    and (e.dup_actor_login in ([[contributors]]) or '[[contributors:csv]]' = 'null')\n    and lower(a.login) not like all(array['devstats-sync', 'googlebot', 'coveralls', 'rktbot', 'coreosbot', 'web-flow', 'prometheus-roobot', 'cncf-bot', 'kernelprbot', 'istio-testing', 'spinnakerbot', 'pikbot', 'spinnaker-release', 'docker-jenkins', 'golangcibot', 'opencontrail-ci-admin', 'k8s-%', '%-bot', '%-robot', 'bot-%', 'robot-%', '%[bot]%', '%-jenkins', '%-ci%bot', '%-testing', 'codecov-%', '%clabot%', '%cla-bot%', '%-gerrit', '%-bot-%'])\n  union select\n    a.login,\n    c.event_id,\n    coalesce(a.country_id, '') as country_id\n  from\n    gha_actors a,\n    gha_commits c,\n    gha_repos r\n  where\n    c.dup_repo_id = r.id\n    and c.dup_repo_name = r.name\n    and r.repo_group in ([[repogroups]])\n    and c.dup_author_login = a.login\n    and $__timeFilter(c.dup_created_at)\n    and (c.dup_author_login in ([[contributors]]) or '[[contributors:csv]]' = 'null')\n    and lower(a.login) not like all(array['devstats-sync', 'googlebot', 'coveralls', 'rktbot', 'coreosbot', 'web-flow', 'prometheus-roobot', 'cncf-bot', 'kernelprbot', 'istio-testing', 'spinnakerbot', 'pikbot', 'spinnaker-release', 'docker-jenkins', 'golangcibot', 'opencontrail-ci-admin', 'k8s-%', '%-bot', '%-robot', 'bot-%', 'robot-%', '%[bot]%', '%-jenkins', '%-ci%bot', '%-testing', 'codecov-%', '%clabot%', '%cla-bot%', '%-gerrit', '%-bot-%'])\n  union select\n    a.login,\n    c.event_id,\n    coalesce(a.country_id, '') as country_id\n  from\n    gha_actors a,\n    gha_commits c,\n    gha_repos r\n  where\n    c.dup_repo_id = r.id\n    and c.dup_repo_name = r.name\n    and r.repo_group in ([[repogroups]])\n    and c.dup_committer_login = a.login\n    and $__timeFilter(c.dup_created_at)\n    and (c.dup_committer_login in ([[contributors]]) or '[[contributors:csv]]' = 'null')\n    and lower(a.login) not like all(array['devstats-sync', 'googlebot', 'coveralls', 'rktbot', 'coreosbot', 'web-flow', 'prometheus-roobot', 'cncf-bot', 'kernelprbot', 'istio-testing', 'spinnakerbot', 'pikbot', 'spinnaker-release', 'docker-jenkins', 'golangcibot', 'opencontrail-ci-admin', 'k8s-%', '%-bot', '%-robot', 'bot-%', 'robot-%', '%[bot]%', '%-jenkins', '%-ci%bot', '%-testing', 'codecov-%', '%clabot%', '%cla-bot%', '%-gerrit', '%-bot-%'])\n) sub\nwhere\n  sub.country_id != ''\ngroup by\n  sub.country_id",
+          "refId": "A",
           "select": [
             [
               {
@@ -43,57 +84,127 @@
               }
             ]
           ],
-          "format": "time_series"
+          "table": "shpr_comps",
+          "timeColumn": "\"time\"",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
         }
       ],
-      "gridPos": {
-        "h": 27,
-        "w": 24,
-        "x": 0,
-        "y": 0
-      },
-      "unitSingle": "",
-      "timeFrom": null,
-      "unitSingular": "",
-      "links": [],
-      "tableQueryOptions": {
-        "geohashField": "geohash",
-        "latitudeField": "latitude",
-        "longitudeField": "longitude",
-        "metricField": "metric",
-        "queryType": "geohash"
-      },
-      "valueName": "current",
-      "description": "Number of contributions in different countries.",
-      "interval": "1h",
       "thresholds": "7,10,15,20,30,50,70,100",
-      "title": "Contributions",
-      "initialZoom": "3",
-      "locationData": "countries",
-      "id": 2,
-      "maxDataPoints": 1,
-      "decimals": 0,
-      "showLegend": true,
-      "mapCenterLatitude": "30",
-      "stickyLabels": false,
-      "repeatDirection": "h",
-      "options": {
-        
-      },
-      "esMetric": "Count",
-      "type": "grafana-worldmap-panel",
+      "timeFrom": null,
       "timeShift": null,
-      "mapCenterLongitude": 0,
-      "mouseWheelZoom": true,
-      "unitPlural": "",
+      "title": "Contributions",
       "transparent": true,
-      "hideZero": false,
-      "mapCenter": "custom",
-      "repeat": null
+      "type": "grafana-worldmap-panel",
+      "unitPlural": "",
+      "unitSingle": "",
+      "unitSingular": "",
+      "valueName": "current"
     }
   ],
-  "gnetId": null,
-  "editable": true,
+  "refresh": false,
+  "schemaVersion": 18,
+  "style": "dark",
+  "tags": [
+    "dashboard",
+    "all"
+  ],
+  "templating": {
+    "list": [
+      {
+        "allValue": null,
+        "current": {
+          "tags": [],
+          "text": "All",
+          "value": [
+            "$__all"
+          ]
+        },
+        "datasource": "psql",
+        "definition": "select distinct repo_group from gha_repos where repo_group is not null order by 1",
+        "hide": 0,
+        "includeAll": true,
+        "label": "Repository groups",
+        "multi": true,
+        "name": "repogroups",
+        "options": [],
+        "query": "select distinct repo_group from gha_repos where repo_group is not null order by 1",
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": "null",
+        "current": {
+          "text": "All",
+          "value": "$__all"
+        },
+        "datasource": "psql",
+        "definition": "select sub.actor from (select e.dup_actor_login as actor, count(distinct e.id) as cnt from gha_events e, gha_repos r where $__timeFilter(e.created_at) and e.repo_id = r.id and e.dup_repo_name = r.name and r.repo_group in ($repogroups) and lower(dup_actor_login) not like all(array['devstats-sync', 'googlebot', 'coveralls', 'rktbot', 'coreosbot', 'web-flow', 'prometheus-roobot', 'cncf-bot', 'kernelprbot', 'istio-testing', 'spinnakerbot', 'pikbot', 'spinnaker-release', 'docker-jenkins', 'golangcibot', 'opencontrail-ci-admin', 'k8s-%', '%-bot', '%-robot', 'bot-%', 'robot-%', '%[bot]%', '%-jenkins', '%-ci%bot', '%-testing', 'codecov-%', '%clabot%', '%cla-bot%', '%-gerrit', '%-bot-%']) group by e.dup_actor_login order by cnt desc limit 200) sub",
+        "hide": 0,
+        "includeAll": true,
+        "label": "Contributors",
+        "multi": true,
+        "name": "contributors",
+        "options": [],
+        "query": "select sub.actor from (select e.dup_actor_login as actor, count(distinct e.id) as cnt from gha_events e, gha_repos r where $__timeFilter(e.created_at) and e.repo_id = r.id and e.dup_repo_name = r.name and r.repo_group in ($repogroups) and lower(dup_actor_login) not like all(array['devstats-sync', 'googlebot', 'coveralls', 'rktbot', 'coreosbot', 'web-flow', 'prometheus-roobot', 'cncf-bot', 'kernelprbot', 'istio-testing', 'spinnakerbot', 'pikbot', 'spinnaker-release', 'docker-jenkins', 'golangcibot', 'opencontrail-ci-admin', 'k8s-%', '%-bot', '%-robot', 'bot-%', 'robot-%', '%[bot]%', '%-jenkins', '%-ci%bot', '%-testing', 'codecov-%', '%clabot%', '%cla-bot%', '%-gerrit', '%-bot-%']) group by e.dup_actor_login order by cnt desc limit 200) sub",
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "selected": true,
+          "tags": [],
+          "text": "Contributors",
+          "value": "login"
+        },
+        "hide": 0,
+        "includeAll": false,
+        "label": "Type",
+        "multi": false,
+        "name": "type",
+        "options": [
+          {
+            "selected": true,
+            "text": "Contributors",
+            "value": "login"
+          },
+          {
+            "selected": false,
+            "text": "Contributions",
+            "value": "event_id"
+          }
+        ],
+        "query": "Contributors,Contributions",
+        "skipUrlSync": false,
+        "type": "custom"
+      }
+    ]
+  },
+  "time": {
+    "from": "2011-12-31T23:00:00.000Z",
+    "to": "now"
+  },
   "timepicker": {
     "refresh_intervals": [
       "5s",
@@ -119,121 +230,8 @@
       "30d"
     ]
   },
-  "refresh": false,
-  "links": [],
-  "annotations": {
-    "list": [
-      {
-        "name": "Annotations \u0026 Alerts",
-        "type": "dashboard",
-        "builtIn": 1,
-        "datasource": "-- Grafana --",
-        "enable": true,
-        "hide": true,
-        "iconColor": "rgba(0, 211, 255, 1)"
-      }
-    ]
-  },
-  "graphTooltip": 0,
-  "time": {
-    "from": "2011-12-31T23:00:00.000Z",
-    "to": "now"
-  },
-  "uid": "64",
-  "iteration": 1562224646796,
-  "templating": {
-    "list": [
-      {
-        "allValue": null,
-        "skipUrlSync": false,
-        "refresh": 2,
-        "type": "query",
-        "multi": true,
-        "definition": "select distinct repo_group from gha_repos where repo_group is not null order by 1",
-        "tagValuesQuery": "",
-        "label": "Repository groups",
-        "name": "repogroups",
-        "regex": "",
-        "includeAll": true,
-        "useTags": false,
-        "datasource": "psql",
-        "options": [],
-        "query": "select distinct repo_group from gha_repos where repo_group is not null order by 1",
-        "hide": 0,
-        "sort": 0,
-        "tags": [],
-        "current": {
-          "text": "All",
-          "value": [
-            "$__all"
-          ],
-          "tags": []
-        },
-        "tagsQuery": ""
-      },
-      {
-        "useTags": false,
-        "query": "select sub.actor from (select e.dup_actor_login as actor, count(distinct e.id) as cnt from gha_events e, gha_repos r where $__timeFilter(e.created_at) and e.repo_id = r.id and e.dup_repo_name = r.name and r.repo_group in ($repogroups) and lower(dup_actor_login) not like all(array['devstats-sync', 'googlebot', 'coveralls', 'rktbot', 'coreosbot', 'web-flow', 'prometheus-roobot', 'cncf-bot', 'kernelprbot', 'istio-testing', 'spinnakerbot', 'pikbot', 'spinnaker-release', 'docker-jenkins', 'golangcibot', 'opencontrail-ci-admin', 'k8s-%', '%-bot', '%-robot', 'bot-%', 'robot-%', '%[bot]%', '%-jenkins', '%-ci%bot', '%-testing', 'codecov-%', '%clabot%', '%cla-bot%', '%-gerrit', '%-bot-%']) group by e.dup_actor_login order by cnt desc limit 200) sub",
-        "tagsQuery": "",
-        "refresh": 2,
-        "label": "Contributors",
-        "multi": true,
-        "skipUrlSync": false,
-        "current": {
-          "value": "$__all",
-          "text": "All"
-        },
-        "datasource": "psql",
-        "tagValuesQuery": "",
-        "tags": [],
-        "allValue": "null",
-        "options": [],
-        "hide": 0,
-        "sort": 0,
-        "type": "query",
-        "name": "contributors",
-        "definition": "select sub.actor from (select e.dup_actor_login as actor, count(distinct e.id) as cnt from gha_events e, gha_repos r where $__timeFilter(e.created_at) and e.repo_id = r.id and e.dup_repo_name = r.name and r.repo_group in ($repogroups) and lower(dup_actor_login) not like all(array['devstats-sync', 'googlebot', 'coveralls', 'rktbot', 'coreosbot', 'web-flow', 'prometheus-roobot', 'cncf-bot', 'kernelprbot', 'istio-testing', 'spinnakerbot', 'pikbot', 'spinnaker-release', 'docker-jenkins', 'golangcibot', 'opencontrail-ci-admin', 'k8s-%', '%-bot', '%-robot', 'bot-%', 'robot-%', '%[bot]%', '%-jenkins', '%-ci%bot', '%-testing', 'codecov-%', '%clabot%', '%cla-bot%', '%-gerrit', '%-bot-%']) group by e.dup_actor_login order by cnt desc limit 200) sub",
-        "includeAll": true,
-        "regex": ""
-      },
-      {
-        "allValue": null,
-        "current": {
-          "text": "Contributors",
-          "value": "login",
-          "selected": true,
-          "tags": []
-        },
-        "includeAll": false,
-        "options": [
-          {
-            "selected": true,
-            "text": "Contributors",
-            "value": "login"
-          },
-          {
-            "selected": false,
-            "text": "Contributions",
-            "value": "event_id"
-          }
-        ],
-        "name": "type",
-        "type": "custom",
-        "label": "Type",
-        "query": "Contributors,Contributions",
-        "hide": 0,
-        "multi": false,
-        "skipUrlSync": false
-      }
-    ]
-  },
-  "schemaVersion": 18,
-  "tags": [
-    "dashboard",
-    "all"
-  ],
-  "style": "dark",
   "timezone": "",
-  "id": 8,
-  "title": "Contributors Map"
+  "title": "Contributors Map",
+  "uid": "64",
+  "version": 2
 }
