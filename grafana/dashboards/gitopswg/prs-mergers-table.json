@@ -1,53 +1,76 @@
 {
-  "title": "PRs Mergers Table",
-  "id": 35,
-  "uid": "75",
-  "time": {
-    "from": "now-5y",
-    "to": "now"
-  },
-  "iteration": 1568187921383,
   "graphTooltip": 0,
-  "tags": [
-    "dashboard",
-    "gitopswg",
-    "table"
-  ],
+  "iteration": 1568187921383,
   "style": "dark",
+  "links": [],
+  "gnetId": null,
+  "editable": true,
   "panels": [
     {
-      "scroll": true,
-      "hideTimeOverride": true,
-      "datasource": "psql",
       "showHeader": true,
-      "options": {},
+      "styles": [
+        {
+          "type": "hidden",
+          "alias": "Time",
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": null,
+          "pattern": "Time"
+        },
+        {
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "unit": "short",
+          "decimals": 2,
+          "type": "string",
+          "thresholds": [],
+          "preserveFormat": false,
+          "alias": "Developer",
+          "pattern": "name",
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "colorMode": null
+        },
+        {
+          "alias": "Merged PRs",
+          "type": "number",
+          "thresholds": [],
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "pattern": "value",
+          "decimals": 0,
+          "colorMode": null,
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "unit": "none"
+        },
+        {
+          "type": "string",
+          "unit": "short",
+          "alias": "",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "decimals": 2,
+          "pattern": "/.*/",
+          "thresholds": []
+        }
+      ],
+      "scroll": true,
+      "columns": [],
+      "title": "[[full_name]] PRs mergers (Repository group: [[repogroup_name]], Range: [[period_name]])",
+      "options": {
+        
+      },
       "targets": [
         {
-          "query": "",
-          "format": "table",
-          "rawQuery": true,
-          "orderByTime": "ASC",
-          "timeColumn": "time",
-          "resultFormat": "table",
-          "metricColumn": "none",
-          "dsType": "influxdb",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              },
-              {
-                "type": "mean",
-                "params": []
-              }
-            ]
-          ],
           "policy": "default",
-          "alias": "",
-          "group": [],
           "groupBy": [
             {
               "params": [
@@ -62,114 +85,87 @@
               "type": "fill"
             }
           ],
-          "tags": [],
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "type": "mean",
+                "params": []
+              }
+            ]
+          ],
+          "format": "table",
+          "rawSql": "select\n  row_number() over (order by value desc) as \"Rank\",\n  name,\n  value\nfrom\n  shpr_mergers\nwhere\n  series = 'hpr_mergers[[repogroup]]'\n  and period = '[[period]]'",
+          "orderByTime": "ASC",
+          "query": "",
+          "metricColumn": "none",
+          "resultFormat": "table",
+          "alias": "",
+          "group": [],
           "where": [
             {
-              "name": "$__timeFilter",
               "params": [],
-              "type": "macro"
+              "type": "macro",
+              "name": "$__timeFilter"
             }
           ],
           "refId": "A",
-          "rawSql": "select\n  row_number() over (order by value desc) as \"Rank\",\n  name,\n  value\nfrom\n  shpr_mergers\nwhere\n  series = 'hpr_mergers[[repogroup]]'\n  and period = '[[period]]'"
+          "rawQuery": true,
+          "dsType": "influxdb",
+          "tags": [],
+          "timeColumn": "time"
         }
       ],
-      "interval": "",
+      "datasource": "psql",
+      "pageSize": 1000,
+      "type": "table",
+      "fontSize": "90%",
+      "hideTimeOverride": true,
       "gridPos": {
         "h": 22,
         "w": 24,
         "x": 0,
         "y": 0
       },
-      "columns": [],
-      "type": "table",
+      "transform": "table",
+      "interval": "",
       "links": [],
-      "fontSize": "90%",
-      "pageSize": 1000,
       "description": "Shows PRs mergers",
       "id": 1,
       "sort": {
         "col": 2,
         "desc": true
-      },
-      "styles": [
-        {
-          "pattern": "Time",
-          "type": "hidden",
-          "alias": "Time",
-          "dateFormat": "YYYY-MM-DD HH:mm:ss",
-          "decimals": null
-        },
-        {
-          "unit": "short",
-          "colorMode": null,
-          "decimals": 2,
-          "thresholds": [],
-          "type": "string",
-          "preserveFormat": false,
-          "pattern": "name",
-          "alias": "Developer",
-          "colors": [
-            "rgba(245, 54, 54, 0.9)",
-            "rgba(237, 129, 40, 0.89)",
-            "rgba(50, 172, 45, 0.97)"
-          ],
-          "dateFormat": "YYYY-MM-DD HH:mm:ss"
-        },
-        {
-          "alias": "Merged PRs",
-          "decimals": 0,
-          "colorMode": null,
-          "dateFormat": "YYYY-MM-DD HH:mm:ss",
-          "type": "number",
-          "unit": "none",
-          "pattern": "value",
-          "thresholds": [],
-          "colors": [
-            "rgba(245, 54, 54, 0.9)",
-            "rgba(237, 129, 40, 0.89)",
-            "rgba(50, 172, 45, 0.97)"
-          ]
-        },
-        {
-          "decimals": 2,
-          "pattern": "/.*/",
-          "thresholds": [],
-          "type": "string",
-          "unit": "short",
-          "alias": "",
-          "colorMode": null,
-          "colors": [
-            "rgba(245, 54, 54, 0.9)",
-            "rgba(237, 129, 40, 0.89)",
-            "rgba(50, 172, 45, 0.97)"
-          ]
-        }
-      ],
-      "title": "[[full_name]] PRs mergers (Repository group: [[repogroup_name]], Range: [[period_name]])",
-      "transform": "table"
+      }
     },
     {
-      "mode": "html",
-      "options": {},
+      "options": {
+        
+      },
       "title": "Dashboard documentation",
       "type": "text",
       "content": "${docs:raw}",
       "gridPos": {
-        "w": 24,
         "x": 0,
         "y": 26,
-        "h": 11
+        "h": 11,
+        "w": 24
       },
       "id": 11,
-      "links": []
+      "links": [],
+      "mode": "html"
     }
   ],
-  "links": [],
+  "timezone": "",
+  "schemaVersion": 19,
+  "uid": "75",
+  "title": "PRs Mergers Table",
   "refresh": false,
-  "gnetId": null,
   "timepicker": {
-    "hidden": true,
     "refresh_intervals": [
       "5s",
       "10s",
@@ -192,174 +188,184 @@
       "2d",
       "7d",
       "30d"
-    ]
+    ],
+    "hidden": true
   },
   "templating": {
     "list": [
       {
-        "name": "period_name",
-        "datasource": "psql",
-        "multi": false,
-        "tags": [],
-        "label": "Range",
-        "options": [],
-        "definition": "",
-        "hide": 0,
-        "refresh": 1,
-        "type": "query",
-        "sort": 0,
-        "allValue": null,
-        "query": "select quick_ranges_name from tquick_ranges order by time",
         "tagsQuery": "",
-        "tagValuesQuery": "",
+        "query": "select quick_ranges_name from tquick_ranges order by time",
         "regex": "",
+        "hide": 0,
+        "options": [],
+        "tags": [],
+        "sort": 0,
+        "refresh": 1,
         "skipUrlSync": false,
+        "allValue": null,
         "current": {
           "text": "Last decade",
           "value": "Last decade"
         },
+        "type": "query",
+        "definition": "",
+        "name": "period_name",
+        "tagValuesQuery": "",
+        "datasource": "psql",
         "useTags": false,
-        "includeAll": false
+        "includeAll": false,
+        "label": "Range",
+        "multi": false
       },
       {
-        "name": "full_name",
-        "includeAll": false,
+        "allValue": null,
         "datasource": "psql",
-        "refresh": 1,
         "options": [],
-        "label": null,
-        "regex": "",
-        "sort": 0,
         "tags": [],
+        "regex": "",
         "type": "query",
+        "includeAll": false,
+        "sort": 0,
+        "label": null,
+        "hide": 2,
+        "refresh": 1,
+        "useTags": false,
+        "definition": "",
+        "query": "select value_s from gha_vars where name = 'full_name'",
+        "tagValuesQuery": "",
         "current": {
           "text": "All CNCF",
           "value": "All CNCF"
         },
-        "skipUrlSync": true,
-        "definition": "",
-        "query": "select value_s from gha_vars where name = 'full_name'",
-        "hide": 2,
-        "useTags": false,
         "tagsQuery": "",
-        "allValue": null,
-        "tagValuesQuery": "",
+        "name": "full_name",
+        "skipUrlSync": true,
         "multi": false
       },
       {
-        "tags": [],
-        "current": {
-          "text": "y10",
-          "value": "y10"
-        },
+        "definition": "",
         "multi": false,
         "tagValuesQuery": "",
-        "type": "query",
-        "refresh": 1,
-        "label": null,
         "allValue": null,
-        "datasource": "psql",
+        "current": {
+          "value": "y10",
+          "text": "y10"
+        },
+        "skipUrlSync": true,
+        "label": null,
         "useTags": false,
+        "tags": [],
+        "name": "period",
+        "type": "query",
         "includeAll": false,
         "tagsQuery": "",
         "regex": "",
-        "skipUrlSync": true,
-        "options": [],
         "query": "select quick_ranges_suffix from tquick_ranges where quick_ranges_name = '[[period_name]]'",
-        "definition": "",
-        "hide": 2,
+        "datasource": "psql",
+        "options": [],
         "sort": 0,
-        "name": "period"
+        "refresh": 1,
+        "hide": 2
       },
       {
-        "refresh": 1,
-        "useTags": false,
-        "sort": 0,
-        "multi": false,
-        "tags": [],
-        "tagsQuery": "",
-        "skipUrlSync": false,
         "type": "query",
-        "query": "select all_repo_group_name from tall_repo_groups order by 1",
-        "hide": 0,
+        "skipUrlSync": false,
         "label": "Repository group",
-        "datasource": "psql",
-        "definition": "",
-        "tagValuesQuery": "",
+        "allValue": null,
+        "refresh": 1,
         "current": {
           "text": "All",
           "value": "All"
         },
-        "options": [],
-        "regex": "",
         "includeAll": false,
+        "tagsQuery": "",
+        "multi": false,
+        "tagValuesQuery": "",
+        "hide": 0,
+        "datasource": "psql",
+        "useTags": false,
         "name": "repogroup_name",
-        "allValue": null
+        "tags": [],
+        "query": "select all_repo_group_name from tall_repo_groups order by 1",
+        "sort": 0,
+        "definition": "",
+        "regex": "",
+        "options": []
       },
       {
-        "useTags": false,
-        "multi": false,
+        "tagsQuery": "",
+        "hide": 2,
+        "skipUrlSync": true,
+        "regex": "",
         "tags": [],
-        "refresh": 1,
         "current": {
           "text": "all",
           "value": "all"
         },
-        "datasource": "psql",
-        "sort": 0,
-        "hide": 2,
-        "name": "repogroup",
-        "tagsQuery": "",
-        "skipUrlSync": true,
-        "options": [],
-        "query": "select all_repo_group_value from tall_repo_groups where all_repo_group_name = '[[repogroup_name]]'",
         "allValue": null,
-        "tagValuesQuery": "",
-        "includeAll": false,
+        "useTags": false,
+        "refresh": 1,
         "type": "query",
-        "regex": "",
+        "options": [],
+        "label": "",
+        "datasource": "psql",
         "definition": "",
-        "label": ""
+        "tagValuesQuery": "",
+        "multi": false,
+        "includeAll": false,
+        "name": "repogroup",
+        "sort": 0,
+        "query": "select all_repo_group_value from tall_repo_groups where all_repo_group_name = '[[repogroup_name]]'"
       },
       {
-        "type": "query",
-        "useTags": false,
+        "current": {
+          
+        },
+        "label": null,
         "query": "select value_s from gha_vars where name = 'pr_mergers_docs_html'",
-        "tagsQuery": "",
-        "allValue": null,
         "regex": "",
-        "options": [],
-        "tagValuesQuery": "",
-        "name": "docs",
-        "datasource": "psql",
-        "definition": "",
         "tags": [],
-        "hide": 2,
+        "multi": false,
+        "allValue": null,
+        "options": [],
+        "sort": 0,
+        "datasource": "psql",
+        "refresh": 1,
+        "type": "query",
         "includeAll": false,
         "skipUrlSync": true,
-        "current": {},
-        "label": null,
-        "multi": false,
-        "refresh": 1,
-        "sort": 0
+        "useTags": false,
+        "hide": 2,
+        "tagsQuery": "",
+        "name": "docs",
+        "tagValuesQuery": "",
+        "definition": ""
       }
     ]
   },
-  "editable": true,
-  "timezone": "",
   "version": 2,
+  "time": {
+    "from": "now-5y",
+    "to": "now"
+  },
+  "id": 35,
   "annotations": {
     "list": [
       {
-        "hide": true,
         "iconColor": "rgba(0, 211, 255, 1)",
-        "name": "Annotations & Alerts",
+        "name": "Annotations \u0026 Alerts",
         "type": "dashboard",
         "builtIn": 1,
         "datasource": "-- Grafana --",
-        "enable": true
+        "enable": true,
+        "hide": true
       }
     ]
   },
-  "schemaVersion": 19
+  "tags": [
+    "dashboard",
+    "gitopswg",
+    "table"
+  ]
 }
