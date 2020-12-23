@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"io/ioutil"
+	"math/rand"
 	"os"
 	"reflect"
 	"strconv"
@@ -52,6 +53,7 @@ type metricTests struct {
 
 // Tests all metrics
 func TestMetrics(t *testing.T) {
+	rand.Seed(time.Now().UnixNano())
 	// Environment context parse
 	var ctx lib.Ctx
 	ctx.Init()
@@ -411,6 +413,11 @@ func executeMetricTestCase(testMetric *metricTestCase, tests *metricTests, ctx *
 	return
 }
 
+// random string
+func randString() string {
+	return fmt.Sprintf("%d", rand.Uint64())
+}
+
 // execute metric metrics/{{metric}}.sql with {{from}} and {{to}} replaced by from/YMDHMS, to/YMDHMS
 // end result slice of slices of any type
 func executeMetric(c *sql.DB, ctx *lib.Ctx, metric, msql string, from, to time.Time, period string, n int, replaces [][]string) (result [][]interface{}, err error) {
@@ -460,6 +467,7 @@ func executeMetric(c *sql.DB, ctx *lib.Ctx, metric, msql string, from, to time.T
 	sqlQuery, sHours = lib.PrepareQuickRangeQuery(sqlQuery, period, qrFrom, qrTo)
 	sqlQuery = strings.Replace(sqlQuery, "{{range}}", sHours, -1)
 	sqlQuery = strings.Replace(sqlQuery, "{{project_scale}}", "1.0", -1)
+	sqlQuery = strings.Replace(sqlQuery, "{{rnd}}", randString(), -1)
 
 	// Execute SQL
 	rows, err := lib.QuerySQL(c, ctx, sqlQuery)
