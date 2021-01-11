@@ -31,7 +31,8 @@ update gha_repos set repo_group = alias;
 update gha_repos
 set repo_group = 'GitOps WG', alias = 'GitOps WG'
 where name in (
-  'fluxcd/gitops-working-group'
+  'fluxcd/gitops-working-group',
+  'gitops-working-group/gitops-working-group'
 );
 
 select
