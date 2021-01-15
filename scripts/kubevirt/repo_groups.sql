@@ -121,6 +121,7 @@ update gha_repos set repo_group = 'SIG userinterface' where name in (
 
 -- All other unknown repositories should have 'Other' repository group
 -- update gha_repos set repo_group = 'Other' where repo_group is null;
+update gha_repos set repo_group = 'Other' where repo_group not like 'SIG%' or repo_group is null;
 
 -- By default alias is the newest repo name for given repo ID
 update
