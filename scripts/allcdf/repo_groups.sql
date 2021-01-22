@@ -42,7 +42,8 @@ set
 where
   org_login in (
     'jenkins-x', 'jenkins-x-quickstarts', 'jenkins-x-apps',
-    'jenkins-x-charts', 'jenkins-x-buildpacks'
+    'jenkins-x-charts', 'jenkins-x-buildpacks',
+    'jenkins-x-images', 'jenkins-x-plugins'
   )
 ;
 
