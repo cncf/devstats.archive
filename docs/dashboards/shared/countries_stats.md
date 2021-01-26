@@ -17,7 +17,7 @@
 <li>You can select single repository group or summary statistics for all of them combined.</li>
 <li>You can choose to display contributors, contributions, users, actvity, committers, commits etc.</li>
 <li>You can select cumulative statistics or statistics in given periods.</li>
-<li>When you select MA period (moving average), it displays data for N-years, for example data for 2020 with 5 Years MA period means a summary data for 2015-2020.</li>
+<li>When you select N Years period it displays data for N-years, for example data for 2020-01-01 with 5 Years period means a summary data for 2015-01-01 00:00:00-2020-01-01 00:00:00.</li>
 <li>Selecting period (for example week) means that dashboard will show data in those periods.</li>
 <li>See <a href="https://github.com/cncf/devstats/blob/master/docs/periods.md" target="_blank">here</a> for more informations about periods.</li>
 <li>See <a href="https://github.com/cncf/devstats/blob/master/docs/repository_groups.md" target="_blank">here</a> for more informations about repository groups.</li>
