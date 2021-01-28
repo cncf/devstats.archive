@@ -41,7 +41,7 @@ do
     icon="cert-manager"
   fi
   # TODO: remove when we have icons
-  if ( [ "$icon" = "gitopswg" ] || [ "$icon" = "openkruise" ] || [ "$icon" = "cdk8s" ] || [ "$icon" = "cnigenie" ] || [ "$icon" = "istio" ] || [ "$icon" = "knative" ] || [ "$icon" = "contrib" ] || [ "$icon" = "sam" ] || [ "$icon" = "azf" ] || [ "$icon" = "riff" ] || [ "$icon" = "fn" ] || [ "$icon" = "openwhisk" ] || [ "$icon" = "openfaas" ] || [ "$icon" = "cii" ] )
+  if ( [ "$icon" = "gitopswg" ] || [ "$icon" = "openkruise" ] || [ "$icon" = "cnigenie" ] || [ "$icon" = "istio" ] || [ "$icon" = "knative" ] || [ "$icon" = "contrib" ] || [ "$icon" = "sam" ] || [ "$icon" = "azf" ] || [ "$icon" = "riff" ] || [ "$icon" = "fn" ] || [ "$icon" = "openwhisk" ] || [ "$icon" = "openfaas" ] || [ "$icon" = "cii" ] )
   then
     icon="cncf"
   fi
@@ -55,8 +55,14 @@ do
   then
     path="projects/$icon"
   fi
-  cp "$HOME/dev/$iconorg/artwork/$path/icon/$icontype/$icon-$mid-$icontype.svg" "grafana/img/$suff.svg" || exit 2
-  convert "$HOME/dev/$iconorg/artwork/$path/icon/$icontype/$icon-$mid-$icontype.png" -resize 32x32 "grafana/img/${suff}32.png" || exit 3
+  if [ "$icon" = "cdk8s" ]
+  then
+    cp "$HOME/dev/$iconorg/artwork/$path/icon/$icon.$mid.$icontype.svg" "grafana/img/$suff.svg" || exit 2
+    convert "$HOME/dev/$iconorg/artwork/$path/icon/$icon.$mid.$icontype.png" -resize 32x32 "grafana/img/${suff}32.png" || exit 3
+  else
+    cp "$HOME/dev/$iconorg/artwork/$path/icon/$icontype/$icon-$mid-$icontype.svg" "grafana/img/$suff.svg" || exit 2
+    convert "$HOME/dev/$iconorg/artwork/$path/icon/$icontype/$icon-$mid-$icontype.png" -resize 32x32 "grafana/img/${suff}32.png" || exit 3
+  fi
 done
 
 # Special cases
