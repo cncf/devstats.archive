@@ -905,7 +905,7 @@ set
   repo_group = 'Kube-OVN'
 where
   org_login in ('kubeovn')
-  or name in ('alauna/kube-ovn')
+  or name in ('alauda/kube-ovn')
 ;
 
 -- Curiefense
