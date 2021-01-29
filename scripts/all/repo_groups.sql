@@ -895,7 +895,8 @@ update
 set
   repo_group = 'Athenz'
 where
-  name ~ '(?i)^yahoo\/.*athenz.*$'
+  org_login in ('Athenz')
+  or name ~ '(?i)^yahoo\/.*athenz.*$'
 ;
 
 -- Kube-OVN
