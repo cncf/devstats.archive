@@ -31,7 +31,7 @@ update gha_repos set repo_group = alias;
 update gha_repos
 set repo_group = 'Athenz', alias = 'Athenz'
 where name in (
-  'Athenz/athenz',
+  'AthenZ/athenz',
   'yahoo/athenz'
 );
 
