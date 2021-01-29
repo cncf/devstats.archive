@@ -904,7 +904,8 @@ update
 set
   repo_group = 'Kube-OVN'
 where
-  name in ('alauna/kube-ovn')
+  org_login in ('kubeovn')
+  or name in ('alauna/kube-ovn')
 ;
 
 -- Curiefense
