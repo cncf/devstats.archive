@@ -867,6 +867,64 @@ where
   or name in ('fluxcd/gitops-working-group')
 ;
 
+-- Piraeus-Datastore
+update
+  gha_repos
+set
+  repo_group = 'Piraeus-Datastore'
+where
+  org_login in ('piraeusdatastore')
+;
+
+-- k8dash
+update
+  gha_repos
+set
+  repo_group = 'k8dash'
+where
+  name in (
+    'indeedeng/k8dash',
+    'indeedeng/k8dash-website',
+    'herbrandson/k8dash'
+  )
+;
+
+-- Athenz
+update
+  gha_repos
+set
+  repo_group = 'Athenz'
+where
+  name ~ '(?i)^yahoo\/.*athenz.*$'
+;
+
+-- Kube-OVN
+update
+  gha_repos
+set
+  repo_group = 'Kube-OVN'
+where
+  name in ('alauna/kube-ovn')
+;
+
+-- Curiefense
+update
+  gha_repos
+set
+  repo_group = 'Curiefense'
+where
+  org_login in ('curiefense')
+;
+
+-- Distribution
+update
+  gha_repos
+set
+  repo_group = 'Distribution'
+where
+  org_login in ('distribution')
+  or name in ('docker/distribution')
+;
 
 -- CNCF
 update
