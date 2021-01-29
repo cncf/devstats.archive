@@ -1,5 +1,6 @@
 #!/bin/bash
 # PROD=1 - use prod server instead of test
+# NOSORT=1 - skip sorting JSONs received from Grafana DB dump
 . ./devel/all_projs.sh || exit 2
 mkdir sqlite 1>/dev/null 2>/dev/null
 touch sqlite/touch
@@ -23,6 +24,13 @@ do
   sqlitedb "grafana.$proj.db" || exit 2
   rm -f "grafana.$proj.db" || exit 3
   rm -f grafana/dashboards/$proj/*.json || exit 4
-  mv sqlite/*.json grafana/dashboards/$proj/ || exit 5
+  if [ -z "${NOSORT}" ]
+  then
+    for f in sqlite/*.json
+    do
+      ./util_sh/sort_json.sh "${f}" || exit 5
+    done
+  fi
+  mv sqlite/*.json grafana/dashboards/$proj/ || exit 6
 done
 echo 'OK'
