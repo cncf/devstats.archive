@@ -351,7 +351,7 @@ do
     PROJ=k8dash              PROJDB=k8dash         PROJREPO="indeedeng/k8dash"                ORGNAME=k8dash            PORT=3081 ICON=k8dash         GRAFSUFF=k8dash         GA="UA-145264316-42" ./devel/deploy_proj.sh || exit 100
   elif [ "$proj" = "athenz" ]
   then
-    PROJ=athenz              PROJDB=athenz         PROJREPO="yahoo/athenz"                    ORGNAME=Athenz            PORT=3082 ICON=athenz         GRAFSUFF=athenz         GA="UA-145264316-43" ./devel/deploy_proj.sh || exit 101
+    PROJ=athenz              PROJDB=athenz         PROJREPO="AthenZ/athenz"                   ORGNAME=Athenz            PORT=3082 ICON=athenz         GRAFSUFF=athenz         GA="UA-145264316-43" ./devel/deploy_proj.sh || exit 101
   elif [ "$proj" = "kubeovn" ]
   then
     PROJ=kubeovn             PROJDB=kubeovn        PROJREPO="alauda/kube-ovn"                 ORGNAME=Kube-OVN          PORT=3083 ICON=kubeovn        GRAFSUFF=kubeovn        GA="UA-145264316-44" ./devel/deploy_proj.sh || exit 102
