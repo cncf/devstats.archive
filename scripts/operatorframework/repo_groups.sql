@@ -35,6 +35,7 @@ where name in (
   'operator-framework/operator-sdk-samples',
   'operator-framework/operator-sdk-ansible-util',
   'operator-framework/java-operator',
+  'operator-framework/java-operator-sdk',
   'operator-framework/tekton-scorecard-image',
   'operator-framework/learn-operator'
 );
