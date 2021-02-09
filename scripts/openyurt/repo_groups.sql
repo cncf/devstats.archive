@@ -31,7 +31,8 @@ update gha_repos set repo_group = alias;
 update gha_repos
 set repo_group = 'OpenYurt', alias = 'OpenYurt'
 where name in (
-  'alibaba/openyurt'
+  'alibaba/openyurt',
+  'openyurtio/openyurt'
 );
 
 select

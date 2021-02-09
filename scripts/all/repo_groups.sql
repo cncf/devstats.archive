@@ -770,6 +770,7 @@ set
   repo_group = 'OpenYurt'
 where
   name in ('alibaba/openyurt')
+  or org_login in ('openyurtio')
 ;
 
 -- Open Service Mesh

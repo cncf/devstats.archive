@@ -312,7 +312,7 @@ do
     PROJ=porter              PROJDB=porter         PROJREPO="getporter/porter"                ORGNAME=Porter            PORT=3068 ICON=porter         GRAFSUFF=porter         GA="UA-145264316-29" ./devel/deploy_proj.sh || exit 86
   elif [ "$proj" = "openyurt" ]
   then
-    PROJ=openyurt            PROJDB=openyurt       PROJREPO="alibaba/openyurt"                ORGNAME=OpenYurt          PORT=3069 ICON=openyurt       GRAFSUFF=openyurt       GA="UA-145264316-30" ./devel/deploy_proj.sh || exit 87
+    PROJ=openyurt            PROJDB=openyurt       PROJREPO="openyurtio/openyurt"             ORGNAME=OpenYurt          PORT=3069 ICON=openyurt       GRAFSUFF=openyurt       GA="UA-145264316-30" ./devel/deploy_proj.sh || exit 87
   elif [ "$proj" = "openservicemesh" ]
   then
     PROJ=openservicemesh     PROJDB=openservicemesh PROJREPO="openservicemesh/osm"            ORGNAME="Open Service Mesh" PORT=3070 ICON=openservicemesh GRAFSUFF=openservicemesh GA="UA-145264316-31" ./devel/deploy_proj.sh || exit 88
