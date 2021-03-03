@@ -270,14 +270,7 @@ update gha_repos set repo_group = 'SIG Network' where lower(name) in (
 );
 
 update gha_repos set repo_group = 'SIG Node' where lower(name) in (
-  'kubernetes-incubator/cri-containerd',
-  'kubernetes-incubator/cri-o',
-  'kubernetes-incubator/cri-tools',
-  'kubernetes-incubator/node-feature-discovery',
-  'kubernetes-incubator/ocid',
-  'kubernetes-incubator/rktlet',
   'kubernetes-retired/rktlet',
-  'kubernetes-sigs/cri-o',
   'kubernetes-sigs/cri-tools',
   'kubernetes-sigs/node-feature-discovery',
   'kubernetes-sigs/node-feature-discovery-operator',
@@ -286,7 +279,6 @@ update gha_repos set repo_group = 'SIG Node' where lower(name) in (
   'kubernetes/frakti',
   'kubernetes/node-api',
   'kubernetes/node-problem-detector',
-  'kubernetes/ocid',
   'kubernetes/rktlet'
 );
 
