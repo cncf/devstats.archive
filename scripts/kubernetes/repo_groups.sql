@@ -271,6 +271,7 @@ update gha_repos set repo_group = 'SIG Network' where lower(name) in (
 
 update gha_repos set repo_group = 'SIG Node' where lower(name) in (
   -- renamed and deleted repositores are kept in the list for the stats from the past
+  -- list of SIG Node projects: https://github.com/kubernetes/community/tree/master/sig-node#subprojects
   'kubernetes-incubator/cri-containerd',   -- renamed to https://github.com/containerd/cri
   'kubernetes-incubator/cri-o',            -- renamed to https://github.com/cri-o/cri-o
   'kubernetes-incubator/cri-tools',        -- renamed to https://github.com/kubernetes-sigs/cri-tools
