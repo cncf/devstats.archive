@@ -270,16 +270,25 @@ update gha_repos set repo_group = 'SIG Network' where lower(name) in (
 );
 
 update gha_repos set repo_group = 'SIG Node' where lower(name) in (
-  'kubernetes-retired/rktlet',
+  -- keeping kubernetes-incubator for historical data
+  'kubernetes-incubator/cri-containerd',   -- renamed to https://github.com/containerd/cri
+  'kubernetes-incubator/cri-o',            -- renamed to https://github.com/cri-o/cri-o
+  'kubernetes-incubator/cri-tools',        -- renamed to https://github.com/kubernetes-sigs/cri-tools
+  'kubernetes-incubator/node-feature-discovery', -- renamed to https://github.com/kubernetes-sigs/node-feature-discovery
+  'kubernetes-incubator/ocid',             -- renamed to https://github.com/cri-o/cri-o
+  'kubernetes-incubator/rktlet',           -- renamed to kubernetes-retired/rktlet
+  'kubernetes-retired/rktlet',             -- archived
+  -- 'kubernetes-sigs/cri-o',              -- CRI-O was part of SIG Node but is a separate project now
   'kubernetes-sigs/cri-tools',
   'kubernetes-sigs/node-feature-discovery',
   'kubernetes-sigs/node-feature-discovery-operator',
   'kubernetes-sigs/security-profiles-operator',
   'kubernetes/cri-api',
   'kubernetes/frakti',
-  'kubernetes/node-api',
+  'kubernetes/node-api',                   -- EOL. This is no longer maintained. Keeping for historical reasons 
   'kubernetes/node-problem-detector',
-  'kubernetes/rktlet'
+  'kubernetes/ocid',                       -- ocid is part of cri-o now. This repository doesn't exist any longer. Keeping for historical reasons
+  'kubernetes/rktlet'                      -- EOL. This is no longer maintained. Keeping for historical reasons 
 );
 
 update gha_repos set repo_group = 'SIG Release' where lower(name) in (
