@@ -270,24 +270,26 @@ update gha_repos set repo_group = 'SIG Network' where lower(name) in (
 );
 
 update gha_repos set repo_group = 'SIG Node' where lower(name) in (
-  'kubernetes-incubator/cri-containerd',
-  'kubernetes-incubator/cri-o',
-  'kubernetes-incubator/cri-tools',
-  'kubernetes-incubator/node-feature-discovery',
-  'kubernetes-incubator/ocid',
-  'kubernetes-incubator/rktlet',
-  'kubernetes-retired/rktlet',
-  'kubernetes-sigs/cri-o',
+  -- renamed and deleted repositores are kept in the list for the stats from the past
+  -- list of SIG Node projects: https://github.com/kubernetes/community/tree/master/sig-node#subprojects
+  'kubernetes-incubator/cri-containerd',   -- renamed to https://github.com/containerd/cri
+  'kubernetes-incubator/cri-o',            -- renamed to https://github.com/cri-o/cri-o
+  'kubernetes-incubator/cri-tools',        -- renamed to https://github.com/kubernetes-sigs/cri-tools
+  'kubernetes-incubator/node-feature-discovery', -- renamed to https://github.com/kubernetes-sigs/node-feature-discovery
+  'kubernetes-incubator/ocid',             -- renamed to https://github.com/cri-o/cri-o
+  'kubernetes-incubator/rktlet',           -- renamed to kubernetes-retired/rktlet
+  'kubernetes-retired/rktlet',             -- EOL. Archived
+  'kubernetes-sigs/cri-o',                 -- renamed to https://github.com/cri-o/cri-o
   'kubernetes-sigs/cri-tools',
   'kubernetes-sigs/node-feature-discovery',
   'kubernetes-sigs/node-feature-discovery-operator',
   'kubernetes-sigs/security-profiles-operator',
   'kubernetes/cri-api',
   'kubernetes/frakti',
-  'kubernetes/node-api',
+  'kubernetes/node-api',                   -- EOL. This is no longer maintained
   'kubernetes/node-problem-detector',
-  'kubernetes/ocid',
-  'kubernetes/rktlet'
+  'kubernetes/ocid',                       -- ocid is part of cri-o now. This repository doesn't exist any longer
+  'kubernetes/rktlet'                      -- renamed to https://github.com/kubernetes-retired/rktlet
 );
 
 update gha_repos set repo_group = 'SIG Release' where lower(name) in (
