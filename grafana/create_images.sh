@@ -40,8 +40,12 @@ do
   then
     icon="cert-manager"
   fi
+  if [ "$icon" = "kubeovn" ]
+  then
+    icon="kube-ovn"
+  fi
   # TODO: remove when we have icons
-  if ( [ "$icon" = "piraeus" ] || [ "$icon" = "k8dash" ] || [ "$icon" = "kubeovn" ] || [ "$icon" = "distribution" ] || [ "$icon" = "gitopswg" ] || [ "$icon" = "openkruise" ] || [ "$icon" = "cnigenie" ] || [ "$icon" = "istio" ] || [ "$icon" = "knative" ] || [ "$icon" = "contrib" ] || [ "$icon" = "sam" ] || [ "$icon" = "azf" ] || [ "$icon" = "riff" ] || [ "$icon" = "fn" ] || [ "$icon" = "openwhisk" ] || [ "$icon" = "openfaas" ] || [ "$icon" = "cii" ] )
+  if ( [ "$icon" = "piraeus" ] || [ "$icon" = "k8dash" ] || [ "$icon" = "distribution" ] || [ "$icon" = "gitopswg" ] || [ "$icon" = "openkruise" ] || [ "$icon" = "cnigenie" ] || [ "$icon" = "istio" ] || [ "$icon" = "knative" ] || [ "$icon" = "contrib" ] || [ "$icon" = "sam" ] || [ "$icon" = "azf" ] || [ "$icon" = "riff" ] || [ "$icon" = "fn" ] || [ "$icon" = "openwhisk" ] || [ "$icon" = "openfaas" ] || [ "$icon" = "cii" ] )
   then
     icon="cncf"
   fi
