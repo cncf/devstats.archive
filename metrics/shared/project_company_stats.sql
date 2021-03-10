@@ -367,14 +367,13 @@ where
   or (sub.metric = 'Repositories' and sub.value > 1 * {{project_scale}} * sqrt({{range}}/1450.0))
   or (sub.metric = 'Watchers' and sub.value > 3 * {{project_scale}} * sqrt({{range}}/1450.0))
   or (sub.metric in (
-    'Commit commenters',
-    'Commits',
-    'Committers',
-    'Pushers',
-    'Contributors',
-    'Contributions'
-    )
-  ) and sub.value > 0.2 * {{project_scale}} * sqrt({{range}}/1450.0)
+      'Commit commenters',
+      'Commits',
+      'Committers',
+      'Pushers',
+      'Contributors',
+      'Contributions'
+    ) and sub.value > 0.2 * {{project_scale}} * sqrt({{range}}/1450.0))
 order by
   metric asc,
   value desc,
