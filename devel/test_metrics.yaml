@@ -1,8 +1,39 @@
 ---
 metrics:
-  - name: Project statistics
-    histogram: true
-    annotations_ranges: true
+  - name: PR time to engagement
+    series_name_or_func: multi_row_multi_column
+    sql: first_non_author_activity
+    periods: d,w,m,q,y
+    aggregate: 1,7
+    skip: d,w7,m7,q7,y7
+    desc: time_diff_as_string
+    merge_series: first_non_author
+    drop: sfirst_non_author
+  - name: PR Time to Approve and Merge
+    series_name_or_func: multi_row_multi_column
+    sql: time_metrics
+    periods: d,w,m,q,y
+    aggregate: 1,7
+    skip: w7,m7,q7,y7
+    desc: time_diff_as_string
+    merge_series: time_metrics
+    drop: stime_metrics
+  - name: Github Stats by Repository Group
     series_name_or_func: multi_row_single_column
-    sql: project_stats
-    merge_series: pstat
+    sql: github_stats_by_repo_groups
+    periods: h,d,w,m,q,y
+    aggregate: 1,7,24
+    skip: h7,w7,m7,q7,y7,d24,w24,m24,q24,y24
+    multi_value: true
+    merge_series: gh_stats_rgrp
+    drop: sgh_stats_rgrp
+  - name: Github Stats by Repository
+    series_name_or_func: multi_row_single_column
+    sql: github_stats_by_repos
+    periods: h,d,w,m,q,y
+    aggregate: 1,7,24
+    skip: h7,w7,m7,q7,y7,d24,w24,m24,q24,y24
+    multi_value: true
+    merge_series: gh_stats_r
+    drop: gh_stats_r
+    allow_fail: true
