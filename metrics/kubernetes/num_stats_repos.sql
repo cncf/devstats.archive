@@ -31,10 +31,6 @@ from (
   from
     gha_events ev
   left join
-    gha_events_commits_files ecf
-  on
-    ecf.event_id = ev.id
-  left join
     gha_actors_affiliations affs
   on
     ev.actor_id = affs.actor_id
