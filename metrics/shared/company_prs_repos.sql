@@ -1,0 +1,39 @@
+select
+  sub.repo || '$$$' || sub.company || '$$$' || sub.github_id || '$$$' || sub.author_names || '$$$' || sub.author_emails || '$$$' || sub.country as data,
+  sub.PRs as value
+from (
+  select
+    pr.dup_repo_name as repo,
+    aa.company_name as company,
+    a.login as github_id,
+    coalesce(a.country_name, '-') as country,
+    coalesce(string_agg(distinct an.name, ', '), '-') as author_names,
+    coalesce(string_agg(distinct ae.email, ', '), '-') as author_emails,
+    count(distinct pr.id) as PRs
+  from
+    gha_pull_requests pr,
+    gha_actors_affiliations aa,
+    gha_actors a,
+    gha_actors_names an,
+    gha_actors_emails ae
+  where
+    aa.actor_id = pr.user_id
+    and an.actor_id = a.id
+    and ae.actor_id = a.id
+    and aa.actor_id = a.id
+    and aa.dt_from <= pr.created_at
+    and aa.dt_to > pr.created_at
+    -- and pr.dup_type = 'PullRequestEvent'
+    -- and pr.state = 'open'
+    and aa.company_name != ''
+    and aa.company_name in (select companies_name from tcompanies)
+    and {{period:pr.created_at}}
+    and (lower(pr.dup_user_login) {{exclude_bots}})
+    and pr.dup_repo_name in (select repo_name from trepos)
+  group by
+    company,
+    repo,
+    github_id,
+    country
+  ) sub
+;
