@@ -156,12 +156,20 @@ metrics:
     periods: d
     merge_series: prs_milestones
     drop: sprs_milestones
-  - name: Developer activity counts by repositroy group
+  - name: Developer activity counts
     histogram: true
     annotations_ranges: true
     series_name_or_func: multi_row_single_column
     sqls: [hist_reviewers, hist_approvers, project_developer_stats]
     merge_series: hdev
+    env:
+      GHA2DB_NCPUS?: 8
+  - name: Developer activity counts (repositories)
+    histogram: true
+    annotations_ranges: true
+    series_name_or_func: multi_row_single_column
+    sqls: [hist_reviewers_repos, hist_approvers_repos, project_developer_stats_repos]
+    merge_series: hdev_repos
     env:
       GHA2DB_NCPUS?: 8
   - name: Overall project statistics
