@@ -46,6 +46,7 @@ from (
       'PushEvent'
     )
     and (lower(ev.dup_actor_login) {{exclude_bots}})
+    and ev.dup_repo_name in (select repo_name from trepos)
   ) sub
 where
   sub.name is not null
