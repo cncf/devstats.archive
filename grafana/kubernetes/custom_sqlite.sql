@@ -113,7 +113,7 @@ where
     'open-pr-age-by-repository-group',
     'pr-comments',
     'pr-time-to-approve-and-merge',
-    'pr-time-to-engagment',
+    'pr-time-to-engagement',
     'pr-workload-per-sig-chart',
     'pr-workload-per-sig-table',
     'prs-approval-repository-groups',
