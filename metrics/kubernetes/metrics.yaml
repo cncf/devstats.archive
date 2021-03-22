@@ -65,6 +65,15 @@ metrics:
     desc: time_diff_as_string
     merge_series: issues_age
     drop: sissues_age
+  - name: Issues age by SIG and repository
+    series_name_or_func: multi_row_multi_column
+    sql: issues_age_repos
+    periods: d,w,m,q,y
+    aggregate: 1,7
+    skip: w7,m7,q7,y7
+    desc: time_diff_as_string
+    merge_series: issues_age_repos
+    drop: sissues_age_repos
   - name: PR comments
     series_name_or_func: single_row_multi_column
     sql: pr_comments
@@ -376,6 +385,14 @@ metrics:
     periods: d
     multi_value: true
     drop: 'sinactive_issues_by_sigw2;sinactive_issues_by_sigd30;sinactive_issues_by_sigd90'
+    env:
+      GHA2DB_NCPUS?: 8
+  - name: Inactive issues by SIG and repository
+    series_name_or_func: multi_row_multi_column
+    sql: inactive_issues_by_sig_repos
+    periods: d
+    multi_value: true
+    drop: 'sinactive_issues_by_sigr_reposw2;sinactive_issues_by_sig_reposd30;sinactive_issues_by_sig_reposd90'
     env:
       GHA2DB_NCPUS?: 8
   - name: Contributions chart
