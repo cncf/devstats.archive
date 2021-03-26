@@ -1,7 +1,8 @@
 <h1 id="kubernetes-dashboard">[[full_name]] Company statistics by repository groups dashboard</h1>
 <p>Links:</p>
 <ul>
-<li>Metric <a href="https://github.com/cncf/devstats/blob/master/metrics/shared/company_activity.sql" target="_blank">SQL file</a>.</li>
+<li>Metrics (repo groups) <a href="https://github.com/cncf/devstats/blob/master/metrics/shared/company_activity_commits.sql" target="_blank">commits</a>, <a href="https://github.com/cncf/devstats/blob/master/metrics/shared/company_activity.sql" target="_blank">others</a>.</li>
+<li>Metrics (repositories) <a href="https://github.com/cncf/devstats/blob/master/metrics/shared/company_activity_commits_repos.sql" target="_blank">commits</a>, <a href="https://github.com/cncf/devstats/blob/master/metrics/shared/company_activity_repos.sql" target="_blank">others</a>.</li>
 <li>TSDB <a href="https://github.com/cncf/devstats/blob/master/metrics/kubernetes/metrics.yaml" target="_blank">series definition</a>. Search for <code>company_activity</code></li>
 <li>Grafana dashboard <a href="https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/company-statistics-by-repository-group.json" target="_blank">JSON</a>.</li>
 </ul>
@@ -12,7 +13,8 @@
 <li>Contribution is a review, comment, commit, issue or PR.</li>
 <li>All activity counts all GitHub events.</li>
 <li>You can select all companies or choose some subset of them.</li>
-<li>You can select single repository group or summary for all of them.</li>
+<li>You can select single repository group or summary for all of them (for 2 top panels showing repository groups).</li>
+<li>You can repository for 2 bottom panels showing per single repository statistics.</li>
 <li>We are showing top 255 most active companies in the drop-down list.</li>
 <li>Selecting period (for example week) means that dashboard will show statistics in those periods.</li>
 <li>See <a href="https://github.com/cncf/devstats/blob/master/docs/periods.md" target="_blank">here</a> for more informations about periods.</li>
