@@ -93,7 +93,7 @@ with issues as (
   ) sub2
 )
 select
-  'sig_prs_open;' || s.sig || '`' || s.repo || ';prs' as metric,
+  'sig_prs_open,' || s.sig || '`' || s.repo as metric,
   round(count(distinct s.issue_id) / {{n}}, 2) as open_prs
 from
   pr_sigs s
