@@ -216,7 +216,7 @@ create temp table act{{rnd}} as
 create index on act{{rnd}}(number);
 create index on act{{rnd}}(repo_name);
 select
-  'inactive_prs_by_sig_repos;' || sub.sig || ';' || sub.repo || ';w2,d30,d90' as metric,
+  'inactive_prs_by_sig_repos;' || sub.sig || '_' || sub.repo || ';w2,d30,d90' as metric,
   count(distinct sub.pr) filter(where sub.inactive_for > 1209600) as inactive_14,
   count(distinct sub.pr) filter(where sub.inactive_for > 2592000) as inactive_30,
   count(distinct sub.pr) filter(where sub.inactive_for > 7776000) as inactive_90

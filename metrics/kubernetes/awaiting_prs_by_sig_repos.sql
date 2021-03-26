@@ -103,7 +103,7 @@ with dtfrom as (
   select case '{{to}}'::timestamp > now() when true then now() else '{{to}}'::timestamp end as dtto
 )
 select
-  'awaiting_prs_by_sig_repos;' || sub.sig || ';' || sub.repo || ';d10,d30,d60,d90,y' as metric,
+  'awaiting_prs_by_sig_repos;' || sub.sig || '_' || sub.repo || ';d10,d30,d60,d90,y' as metric,
   count(distinct sub.issue_id) filter(where sub.age > 864000) as open_10,
   count(distinct sub.issue_id) filter(where sub.age > 2592000) as open_30,
   count(distinct sub.issue_id) filter(where sub.age > 5184000) as open_60,
