@@ -1,7 +1,8 @@
 <h1 id="kubernetes-dashboard">[[full_name]] PR Time to Engagement dashboard</h1>
 <p>Links:</p>
 <ul>
-<li>Metric <a href="https://github.com/cncf/devstats/blob/master/metrics/shared/first_non_author_activity.sql" target="_blank">SQL file</a>.</li>
+<li>Metric (repo groups) <a href="https://github.com/cncf/devstats/blob/master/metrics/kubernetes/first_non_author_activity.sql" target="_blank">SQL file</a>.</li>
+<li>Metric (repositories) <a href="https://github.com/cncf/devstats/blob/master/metrics/kubernetes/first_non_author_activity_repos.sql" target="_blank">SQL file</a>.</li>
 <li>TSDB <a href="https://github.com/cncf/devstats/blob/master/metrics/kubernetes/metrics.yaml" target="_blank">series definition</a>. Search for <code>first_non_author_activity</code></li>
 <li>Grafana dashboard <a href="https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/pr-time-to-engagement.json" target="_blank">JSON</a>.</li>
 </ul>
