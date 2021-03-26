@@ -8,7 +8,8 @@
 <h1 id="description">Description</h1>
 <ul>
 <li>This dashboard shows median, 15th and 85th percentices of time from creation to first non-author activity on issues and PRs created in given periods.</li>
-<li>You can select single repository group or summary for all of them.</li>
+<li>You can select single repository group or summary for all of them (for 2 top panels showing repository groups).</li>
+<li>You can repository for 2 bottom panels showing per single repository statistics.</li>
 <li>You can select PRs with a specific <code>kind/*</code> label or summary for all of them.</li>
 <li>Selecting period (for example week) means that dashboard will data for PRs and issues created in those periods.</li>
 <li>See <a href="https://github.com/cncf/devstats/blob/master/docs/periods.md" target="_blank">here</a> for more informations about periods.</li>
