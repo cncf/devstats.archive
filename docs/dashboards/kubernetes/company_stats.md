@@ -1,8 +1,8 @@
 <h1 id="kubernetes-dashboard">[[full_name]] Company statistics by repository groups dashboard</h1>
 <p>Links:</p>
 <ul>
-<li>Metrics (repo groups) <a href="https://github.com/cncf/devstats/blob/master/metrics/shared/company_activity_commits.sql" target="_blank">commits</a>, <a href="https://github.com/cncf/devstats/blob/master/metrics/shared/company_activity.sql" target="_blank">others</a>.</li>
-<li>Metrics (repositories) <a href="https://github.com/cncf/devstats/blob/master/metrics/shared/company_activity_commits_repos.sql" target="_blank">commits</a>, <a href="https://github.com/cncf/devstats/blob/master/metrics/shared/company_activity_repos.sql" target="_blank">others</a>.</li>
+<li>Metrics (repo groups) <a href="https://github.com/cncf/devstats/blob/master/metrics/kubernetes/company_activity_commits.sql" target="_blank">commits</a>, <a href="https://github.com/cncf/devstats/blob/master/metrics/kubernetes/company_activity.sql" target="_blank">others</a>.</li>
+<li>Metrics (repositories) <a href="https://github.com/cncf/devstats/blob/master/metrics/kubernetes/company_activity_commits_repos.sql" target="_blank">commits</a>, <a href="https://github.com/cncf/devstats/blob/master/metrics/kubernetes/company_activity_repos.sql" target="_blank">others</a>.</li>
 <li>TSDB <a href="https://github.com/cncf/devstats/blob/master/metrics/kubernetes/metrics.yaml" target="_blank">series definition</a>. Search for <code>company_activity</code></li>
 <li>Grafana dashboard <a href="https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/company-statistics-by-repository-group.json" target="_blank">JSON</a>.</li>
 </ul>
