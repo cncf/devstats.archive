@@ -324,7 +324,7 @@ do
     PROJ=schemahero          PROJDB=schemahero     PROJREPO="schemahero/schemahero"           ORGNAME=SchemaHero        PORT=3072 ICON=schemahero     GRAFSUFF=schemahero     GA="UA-145264316-33" ./devel/deploy_proj.sh || exit 91
   elif [ "$proj" = "cdk8s" ]
   then
-    PROJ=cdk8s               PROJDB=cdk8s          PROJREPO="awslabs/cdk8s" ORGNAME="Cloud Deployment Kit for Kubernetes" PORT=3073 ICON=cdk8s        GRAFSUFF=cdk8s          GA="UA-145264316-34" ./devel/deploy_proj.sh || exit 92
+    PROJ=cdk8s               PROJDB=cdk8s          PROJREPO="cdk8s-team/cdk8s" ORGNAME="Cloud Deployment Kit for Kubernetes" PORT=3073 ICON=cdk8s     GRAFSUFF=cdk8s          GA="UA-145264316-34" ./devel/deploy_proj.sh || exit 92
   elif [ "$proj" = "certmanager" ]
   then
     PROJ=certmanager         PROJDB=certmanager    PROJREPO="jetstack/cert-manager"           ORGNAME="cert-manager"    PORT=3074 ICON=certmanager    GRAFSUFF=certmanager    GA="UA-145264316-35" ./devel/deploy_proj.sh || exit 93
