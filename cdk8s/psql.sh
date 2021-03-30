@@ -13,7 +13,7 @@ fi
 > run.log
 GHA2DB_PROJECT=cdk8s PG_DB=cdk8s GHA2DB_LOCAL=1 structure 2>>errors.txt | tee -a run.log || exit 1
 ./devel/db.sh psql cdk8s -c "create extension if not exists pgcrypto" || exit 1
-GHA2DB_PROJECT=cdk8s PG_DB=cdk8s GHA2DB_LOCAL=1 gha2db 2020-03-02 0 today now 'awslabs/cdk8s' 2>>errors.txt | tee -a run.log || exit 2
+GHA2DB_PROJECT=cdk8s PG_DB=cdk8s GHA2DB_LOCAL=1 gha2db 2020-03-02 0 today now 'cdk8s-team,awslabs/cdk8s' 2>>errors.txt | tee -a run.log || exit 2
 GHA2DB_PROJECT=cdk8s PG_DB=cdk8s GHA2DB_LOCAL=1 GHA2DB_MGETC=y GHA2DB_SKIPTABLE=1 GHA2DB_INDEX=1 structure 2>>errors.txt | tee -a run.log || exit 3
 GHA2DB_PROJECT=cdk8s PG_DB=cdk8s ./shared/setup_repo_groups.sh 2>>errors.txt | tee -a run.log || exit 4
 GHA2DB_PROJECT=cdk8s PG_DB=cdk8s ./shared/import_affs.sh 2>>errors.txt | tee -a run.log || exit 5
