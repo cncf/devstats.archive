@@ -802,12 +802,14 @@ where
 ;
 
 -- Cloud Deployment Kit for Kubernetes
+-- CDK8s
 update
   gha_repos
 set
   repo_group = 'Cloud Deployment Kit for Kubernetes'
 where
-  name in ('awslabs/cdk8s')
+  org_login in ('cdk8s-team')
+  or name in ('awslabs/cdk8s')
 ;
 
 -- cert-manager
