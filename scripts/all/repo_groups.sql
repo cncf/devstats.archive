@@ -931,6 +931,44 @@ where
   or name in ('docker/distribution')
 ;
 
+-- ingraind
+update
+  gha_repos
+set
+  repo_group = 'ingraind'
+where
+  org_login in ('ingraind')
+  or name in ('redsift/ingraind')
+;
+
+-- Kuberhealthy
+update
+  gha_repos
+set
+  repo_group = 'Kuberhealthy'
+where
+  name in ('Comcast/kuberhealthy')
+;
+
+-- K8GB
+update
+  gha_repos
+set
+  repo_group = 'K8GB'
+where
+  name in ('AbsaOSS/k8gb', 'AbsaOSS/ohmyglb')
+;
+
+-- Trickster
+update
+  gha_repos
+set
+  repo_group = 'Trickster'
+where
+  org_login in ('tricksterproxy')
+  or name in ('Comcast/trickster')
+;
+
 -- CNCF
 update
   gha_repos
