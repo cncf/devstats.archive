@@ -361,6 +361,18 @@ do
   elif [ "$proj" = "distribution" ]
   then
     PROJ=distribution        PROJDB=distribution   PROJREPO="distribution/distribution"       ORGNAME=Distribution      PORT=3085 ICON=distribution   GRAFSUFF=distribution   GA="UA-145264316-46" ./devel/deploy_proj.sh || exit 104
+  elif [ "$proj" = "ingraind" ]
+  then
+    PROJ=ingraind            PROJDB=ingraind       PROJREPO="ingraind/ingraind"               ORGNAME=ingraind          PORT=3086 ICON=ingraind       GRAFSUFF=ingraind       GA="UA-145264316-47" ./devel/deploy_proj.sh || exit 105
+  elif [ "$proj" = "kuberhealthy" ]
+  then
+    PROJ=kuberhealthy        PROJDB=kuberhealthy   PROJREPO="Comcast/kuberhealthy"            ORGNAME=Distribution      PORT=3087 ICON=kuberhealthy   GRAFSUFF=kuberhealthy   GA="UA-145264316-48" ./devel/deploy_proj.sh || exit 106
+  elif [ "$proj" = "k8gb" ]
+  then
+    PROJ=k8gb                PROJDB=k8gb           PROJREPO="AbsaOSS/k8gb"                    ORGNAME=K8GB              PORT=3088 ICON=k8gb           GRAFSUFF=k8gb           GA="UA-145264316-49" ./devel/deploy_proj.sh || exit 107
+  elif [ "$proj" = "trickster" ]
+  then
+    PROJ=trickster           PROJDB=trickster      PROJREPO="tricksterproxy/trickster"        ORGNAME=Trickster         PORT=3089 ICON=trickster      GRAFSUFF=trickster      GA="UA-145264316-50" ./devel/deploy_proj.sh || exit 108
   elif [ "$proj" = "opencontainers" ]
   then
     PROJ=opencontainers      PROJDB=opencontainers PROJREPO="opencontainers/runc"             ORGNAME=OCI               PORT=3100 ICON="-"            GRAFSUFF=opencontainers GA="UA-108085315-19" ./devel/deploy_proj.sh || exit 32
