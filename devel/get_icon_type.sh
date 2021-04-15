@@ -109,6 +109,7 @@ icontypes=(
   ["kuberhealthy"]="color"
   ["k8gb"]="color"
   ["trickster"]="color"
+  ["emissaryingress"]="color"
   ["tekton"]="color"
   ["jenkins"]="color"
   ["jenkinsx"]="color"

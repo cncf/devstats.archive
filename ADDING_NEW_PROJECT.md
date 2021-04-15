@@ -1,4 +1,4 @@
-# Adding new project
+## Adding new project
 
 This file describes how to add new project on the test and production servers.
 
