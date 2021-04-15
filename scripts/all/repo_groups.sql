@@ -969,6 +969,16 @@ where
   or name in ('Comcast/trickster')
 ;
 
+-- Emissary-ingress
+update
+  gha_repos
+set
+  repo_group = 'Emissary-ingress'
+where
+  org_login in ('emissary-ingress')
+  or name in ('datawire/ambassador')
+;
+
 -- CNCF
 update
   gha_repos
