@@ -373,6 +373,9 @@ do
   elif [ "$proj" = "trickster" ]
   then
     PROJ=trickster           PROJDB=trickster      PROJREPO="tricksterproxy/trickster"        ORGNAME=Trickster         PORT=3089 ICON=trickster      GRAFSUFF=trickster      GA="UA-145264316-50" ./devel/deploy_proj.sh || exit 108
+  elif [ "$proj" = "emissaryingress" ]
+  then
+    PROJ=emissaryingress     PROJDB=emissaryingress PROJREPO="datawire/ambassador"            ORGNAME=Emissary-ingress  PORT=3090 ICON=emissaryingress GRAFSUFF=emissaryingress GA="UA-145264316-51" ./devel/deploy_proj.sh || exit 109
   elif [ "$proj" = "opencontainers" ]
   then
     PROJ=opencontainers      PROJDB=opencontainers PROJREPO="opencontainers/runc"             ORGNAME=OCI               PORT=3100 ICON="-"            GRAFSUFF=opencontainers GA="UA-108085315-19" ./devel/deploy_proj.sh || exit 32
