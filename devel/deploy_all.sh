@@ -363,7 +363,7 @@ do
     PROJ=distribution        PROJDB=distribution   PROJREPO="distribution/distribution"       ORGNAME=Distribution      PORT=3085 ICON=distribution   GRAFSUFF=distribution   GA="UA-145264316-46" ./devel/deploy_proj.sh || exit 104
   elif [ "$proj" = "ingraind" ]
   then
-    PROJ=ingraind            PROJDB=ingraind       PROJREPO="ingraind/ingraind"               ORGNAME=ingraind          PORT=3086 ICON=ingraind       GRAFSUFF=ingraind       GA="UA-145264316-47" ./devel/deploy_proj.sh || exit 105
+    PROJ=ingraind            PROJDB=ingraind       PROJREPO="foniod/ingraind"                 ORGNAME=ingraind          PORT=3086 ICON=ingraind       GRAFSUFF=ingraind       GA="UA-145264316-47" ./devel/deploy_proj.sh || exit 105
   elif [ "$proj" = "kuberhealthy" ]
   then
     PROJ=kuberhealthy        PROJDB=kuberhealthy   PROJREPO="Comcast/kuberhealthy"            ORGNAME=Distribution      PORT=3087 ICON=kuberhealthy   GRAFSUFF=kuberhealthy   GA="UA-145264316-48" ./devel/deploy_proj.sh || exit 106

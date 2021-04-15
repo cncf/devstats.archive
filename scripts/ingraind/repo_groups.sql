@@ -32,7 +32,8 @@ update gha_repos
 set repo_group = 'ingraind', alias = 'ingraind'
 where name in (
   'redsift/ingraind',
-  'ingraind/ingraind'
+  'ingraind/ingraind',
+  'foniod/ingraind'
 );
 
 select

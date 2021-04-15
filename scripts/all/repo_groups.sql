@@ -937,7 +937,7 @@ update
 set
   repo_group = 'ingraind'
 where
-  org_login in ('ingraind')
+  org_login in ('ingraind', 'foniod')
   or name in ('redsift/ingraind')
 ;
 
