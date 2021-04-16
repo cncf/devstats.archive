@@ -30,7 +30,8 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 129,
+  "id": 3,
+  "iteration": 1618562022437,
   "links": [],
   "panels": [
     {
@@ -41,13 +42,19 @@
       "datasource": "psql",
       "decimals": 0,
       "description": "Shows how often various bot commands are used in [[repogroup_name]] repository group.",
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
       "fill": 1,
+      "fillGradient": 0,
       "gridPos": {
         "h": 22,
         "w": 24,
         "x": 0,
         "y": 0
       },
+      "hiddenSeries": false,
       "id": 1,
       "legend": {
         "alignAsTable": true,
@@ -68,7 +75,11 @@
       "linewidth": 1,
       "links": [],
       "nullPointMode": "null as zero",
+      "options": {
+        "alertThreshold": true
+      },
       "percentage": false,
+      "pluginVersion": "7.5.4",
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
@@ -105,6 +116,7 @@
       ],
       "thresholds": [],
       "timeFrom": null,
+      "timeRegions": [],
       "timeShift": null,
       "title": "Bot commands usage ([[repogroup_name]], [[period]])",
       "tooltip": {
@@ -145,26 +157,167 @@
       }
     },
     {
-      "content": "${docs:raw}",
+      "aliasColors": {},
+      "bars": true,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "psql",
+      "decimals": 0,
+      "description": "Shows how often various bot commands are used in [[repo_name]] repository.",
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "fill": 1,
+      "fillGradient": 0,
       "gridPos": {
-        "h": 12,
+        "h": 22,
         "w": 24,
         "x": 0,
         "y": 22
       },
+      "hiddenSeries": false,
+      "id": 3,
+      "legend": {
+        "alignAsTable": true,
+        "avg": true,
+        "current": true,
+        "hideEmpty": false,
+        "hideZero": false,
+        "max": true,
+        "min": true,
+        "rightSide": true,
+        "show": true,
+        "sort": "avg",
+        "sortDesc": true,
+        "total": true,
+        "values": true
+      },
+      "lines": false,
+      "linewidth": 1,
+      "links": [],
+      "nullPointMode": "null as zero",
+      "options": {
+        "alertThreshold": true
+      },
+      "percentage": false,
+      "pluginVersion": "7.5.4",
+      "pointradius": 5,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": true,
+      "steppedLine": false,
+      "targets": [
+        {
+          "alias": "",
+          "dsType": "influxdb",
+          "format": "time_series",
+          "group": [],
+          "groupBy": [],
+          "measurement": "sig_federation_d",
+          "metricColumn": "none",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "SELECT /^[[commands]]$/ FROM \"bot_commands_[[repogroup]]_[[period]]\" WHERE $timeFilter",
+          "rawQuery": true,
+          "rawSql": "select\n  time,\n  ${commands:csv}\nfrom\n  sbot_commands_repos\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'bot_cmds[[repo]]'\norder by\n  time",
+          "refId": "A",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              }
+            ]
+          ],
+          "tags": [],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "Bot commands usage ([[repo_name]], [[period]])",
+      "tooltip": {
+        "shared": true,
+        "sort": 2,
+        "value_type": "individual"
+      },
+      "transparent": true,
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "format": "short",
+          "label": "Commands usage",
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": "",
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "datasource": null,
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 14,
+        "w": 24,
+        "x": 0,
+        "y": 44
+      },
       "id": 2,
       "links": [],
-      "mode": "html",
+      "options": {
+        "content": "${docs:raw}",
+        "mode": "html"
+      },
+      "pluginVersion": "7.5.4",
       "title": "Dashboard documentation",
       "type": "text"
     }
   ],
-  "schemaVersion": 16,
+  "schemaVersion": 27,
   "style": "dark",
   "tags": [
     "dashboard",
     "kubernetes",
-    "repogroups"
+    "repogroups",
+    "repos"
   ],
   "templating": {
     "list": [
@@ -176,6 +329,8 @@
           "text": "7 days MA",
           "value": "d7"
         },
+        "description": null,
+        "error": null,
         "hide": 0,
         "includeAll": false,
         "label": "Period",
@@ -220,10 +375,14 @@
       {
         "allValue": null,
         "current": {
+          "selected": false,
           "text": "All",
           "value": "All"
         },
         "datasource": "psql",
+        "definition": "",
+        "description": null,
+        "error": null,
         "hide": 0,
         "includeAll": false,
         "label": "Repository group",
@@ -244,10 +403,42 @@
       {
         "allValue": null,
         "current": {
+          "selected": true,
+          "text": "kubernetes/kubernetes",
+          "value": "kubernetes/kubernetes"
+        },
+        "datasource": "psql",
+        "definition": "select repo_name from trepos order by 1",
+        "description": null,
+        "error": null,
+        "hide": 0,
+        "includeAll": false,
+        "label": "Repository",
+        "multi": false,
+        "name": "repo_name",
+        "options": [],
+        "query": "select repo_name from trepos order by 1",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "selected": false,
           "text": "all",
           "value": "all"
         },
         "datasource": "psql",
+        "definition": "",
+        "description": null,
+        "error": null,
         "hide": 2,
         "includeAll": false,
         "label": "",
@@ -266,14 +457,48 @@
         "useTags": false
       },
       {
+        "allValue": null,
+        "current": {
+          "selected": false,
+          "text": "kuberneteskubernetes",
+          "value": "kuberneteskubernetes"
+        },
+        "datasource": "psql",
+        "definition": "select repo_value from trepos where repo_name = '[[repo_name]]'",
+        "description": null,
+        "error": null,
+        "hide": 2,
+        "includeAll": false,
+        "label": "",
+        "multi": false,
+        "name": "repo",
+        "options": [],
+        "query": "select repo_value from trepos where repo_name = '[[repo_name]]'",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": true,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
         "allValue": "",
         "current": {
-          "text": "All",
+          "selected": true,
+          "text": [
+            "All"
+          ],
           "value": [
             "$__all"
           ]
         },
         "datasource": "psql",
+        "definition": "",
+        "description": null,
+        "error": null,
         "hide": 0,
         "includeAll": true,
         "label": "Commands",
@@ -294,10 +519,14 @@
       {
         "allValue": null,
         "current": {
+          "selected": false,
           "text": "Kubernetes",
           "value": "Kubernetes"
         },
         "datasource": "psql",
+        "definition": "",
+        "description": null,
+        "error": null,
         "hide": 2,
         "includeAll": false,
         "label": null,
@@ -318,10 +547,14 @@
       {
         "allValue": null,
         "current": {
-          "text": "<h1 id=\"kubernetes-dashboard\">Kubernetes Bot commands repository group dashboard</h1>\n<p>Links:</p>\n<ul>\n<li>Metric <a href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/bot_commands.sql\" target=\"_blank\">SQL file</a>.</li>\n<li>TSDB <a href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/metrics.yaml\" target=\"_blank\">series definition</a>. Search for <code>bot_commands</code></li>\n<li>Grafana dashboard <a href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/bot-commands-repository-groups.json\" target=\"_blank\">JSON</a>.</li>\n</ul>\n<h1 id=\"description\">Description</h1>\n<ul>\n<li>This dashboard shows how many times given bot commands were used</li>\n<li>Bot commands set is defined (hardcoded) in the metric sql, they start with <code>/</code>.</li>\n<li>Drop-down commands values come from <a href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/bot_commands_tags.sql\" target=\"_blank\">this</a> file. You can select either all or a subset of all commands to display.</li>\n<li>You can select single repository group or summary for all of them.</li>\n<li>Selecting period (for example week) means that dashboard will show bot commands used in those periods.</li>\n<li>See <a href=\"https://github.com/cncf/devstats/blob/master/docs/periods.md\" target=\"_blank\">here</a> for more informations about periods.</li>\n<li>See <a href=\"https://github.com/cncf/devstats/blob/master/docs/repository_groups.md\" target=\"_blank\">here</a> for more informations about repository groups.</li>\n<li>We are skipping bots when displaying bots commands usage, see <a href=\"https://github.com/cncf/devstats/blob/master/docs/excluding_bots.md\" target=\"_blank\">excluding bots</a> for details.</li>\n<li>This means that, for example, if somebody uses wrong/non-existing bot command, bot will answer with correct usage, so it will put bot command in the comment. This activity is ignored.</li>\n</ul>",
-          "value": "<h1 id=\"kubernetes-dashboard\">Kubernetes Bot commands repository group dashboard</h1>\n<p>Links:</p>\n<ul>\n<li>Metric <a href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/bot_commands.sql\" target=\"_blank\">SQL file</a>.</li>\n<li>TSDB <a href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/metrics.yaml\" target=\"_blank\">series definition</a>. Search for <code>bot_commands</code></li>\n<li>Grafana dashboard <a href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/bot-commands-repository-groups.json\" target=\"_blank\">JSON</a>.</li>\n</ul>\n<h1 id=\"description\">Description</h1>\n<ul>\n<li>This dashboard shows how many times given bot commands were used</li>\n<li>Bot commands set is defined (hardcoded) in the metric sql, they start with <code>/</code>.</li>\n<li>Drop-down commands values come from <a href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/bot_commands_tags.sql\" target=\"_blank\">this</a> file. You can select either all or a subset of all commands to display.</li>\n<li>You can select single repository group or summary for all of them.</li>\n<li>Selecting period (for example week) means that dashboard will show bot commands used in those periods.</li>\n<li>See <a href=\"https://github.com/cncf/devstats/blob/master/docs/periods.md\" target=\"_blank\">here</a> for more informations about periods.</li>\n<li>See <a href=\"https://github.com/cncf/devstats/blob/master/docs/repository_groups.md\" target=\"_blank\">here</a> for more informations about repository groups.</li>\n<li>We are skipping bots when displaying bots commands usage, see <a href=\"https://github.com/cncf/devstats/blob/master/docs/excluding_bots.md\" target=\"_blank\">excluding bots</a> for details.</li>\n<li>This means that, for example, if somebody uses wrong/non-existing bot command, bot will answer with correct usage, so it will put bot command in the comment. This activity is ignored.</li>\n</ul>"
+          "selected": false,
+          "text": "<h1 id=\"kubernetes-dashboard\">Kubernetes Bot commands repository group dashboard</h1>\n<p>Links:</p>\n<ul>\n<li>Metric <a href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/bot_commands.sql\" target=\"_blank\">SQL file</a>.</li>\n<li>TSDB <a href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/metrics.yaml\" target=\"_blank\">series definition</a>. Search for <code>bot_commands</code></li>\n<li>Grafana dashboard <a href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/bot-commands-repository-groups.json\" target=\"_blank\">JSON</a>.</li>\n</ul>\n<h1 id=\"description\">Description</h1>\n<ul>\n<li>This dashboard shows how many times given bot commands were used.</li>\n<li>Bot commands set is defined (hardcoded) in the metric sql, they start with <code>/</code>.</li>\n<li>Drop-down commands values come from <a href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/bot_commands_tags.sql\" target=\"_blank\">this</a> file. You can select either all or a subset of all commands to display.</li>\n<li>You can select single repository group or summary for all of them.</li>\n<li>Selecting period (for example week) means that dashboard will show bot commands used in those periods.</li>\n<li>See <a href=\"https://github.com/cncf/devstats/blob/master/docs/periods.md\" target=\"_blank\">here</a> for more informations about periods.</li>\n<li>See <a href=\"https://github.com/cncf/devstats/blob/master/docs/repository_groups.md\" target=\"_blank\">here</a> for more informations about repository groups.</li>\n<li>We are skipping bots when displaying bots commands usage, see <a href=\"https://github.com/cncf/devstats/blob/master/docs/excluding_bots.md\" target=\"_blank\">excluding bots</a> for details.</li>\n<li>This means that, for example, if somebody uses wrong/non-existing bot command, bot will answer with correct usage, so it will put bot command in the comment. This activity is ignored.</li>\n</ul>",
+          "value": "<h1 id=\"kubernetes-dashboard\">Kubernetes Bot commands repository group dashboard</h1>\n<p>Links:</p>\n<ul>\n<li>Metric <a href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/bot_commands.sql\" target=\"_blank\">SQL file</a>.</li>\n<li>TSDB <a href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/metrics.yaml\" target=\"_blank\">series definition</a>. Search for <code>bot_commands</code></li>\n<li>Grafana dashboard <a href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/bot-commands-repository-groups.json\" target=\"_blank\">JSON</a>.</li>\n</ul>\n<h1 id=\"description\">Description</h1>\n<ul>\n<li>This dashboard shows how many times given bot commands were used.</li>\n<li>Bot commands set is defined (hardcoded) in the metric sql, they start with <code>/</code>.</li>\n<li>Drop-down commands values come from <a href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/bot_commands_tags.sql\" target=\"_blank\">this</a> file. You can select either all or a subset of all commands to display.</li>\n<li>You can select single repository group or summary for all of them.</li>\n<li>Selecting period (for example week) means that dashboard will show bot commands used in those periods.</li>\n<li>See <a href=\"https://github.com/cncf/devstats/blob/master/docs/periods.md\" target=\"_blank\">here</a> for more informations about periods.</li>\n<li>See <a href=\"https://github.com/cncf/devstats/blob/master/docs/repository_groups.md\" target=\"_blank\">here</a> for more informations about repository groups.</li>\n<li>We are skipping bots when displaying bots commands usage, see <a href=\"https://github.com/cncf/devstats/blob/master/docs/excluding_bots.md\" target=\"_blank\">excluding bots</a> for details.</li>\n<li>This means that, for example, if somebody uses wrong/non-existing bot command, bot will answer with correct usage, so it will put bot command in the comment. This activity is ignored.</li>\n</ul>"
         },
         "datasource": "psql",
+        "definition": "",
+        "description": null,
+        "error": null,
         "hide": 2,
         "includeAll": false,
         "label": null,
@@ -373,5 +606,5 @@
   "timezone": "",
   "title": "Bot commands repository groups",
   "uid": "5",
-  "version": 22
+  "version": 3
 }
