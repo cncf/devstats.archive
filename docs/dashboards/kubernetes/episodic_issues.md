@@ -3,8 +3,8 @@
 <ul>
 <li>New issues metric (repo groups) <a href="https://github.com/cncf/devstats/blob/master/metrics/shared/new_issues.sql" target="_blank">SQL file</a>.</li>
 <li>Episodic issues metric (repo groups) <a href="https://github.com/cncf/devstats/blob/master/metrics/shared/episodic_issues.sql" target="_blank">SQL file</a>.</li>
-<li>New issues metric (repos) <a href="https://github.com/cncf/devstats/blob/master/metrics/shared/new_issues_repos.sql" target="_blank">SQL file</a>.</li>
-<li>Episodic issues metric (repos) <a href="https://github.com/cncf/devstats/blob/master/metrics/shared/episodic_issues_repos.sql" target="_blank">SQL file</a>.</li>
+<li>New issues metric (repos) <a href="https://github.com/cncf/devstats/blob/master/metrics/kubernetes/new_issues_repos.sql" target="_blank">SQL file</a>.</li>
+<li>Episodic issues metric (repos) <a href="https://github.com/cncf/devstats/blob/master/metrics/kubernetes/episodic_issues_repos.sql" target="_blank">SQL file</a>.</li>
 <li>TSDB <a href="https://github.com/cncf/devstats/blob/master/metrics/kubernetes/metrics.yaml" target="_blank">series definition</a>. Search for <code>New and episodic issue</code></li>
 <li>Grafana dashboard <a href="https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/new-and-episodic-issue-creators.json" target="_blank">JSON</a>.</li>
 </ul>

@@ -3,8 +3,8 @@
 <ul>
 <li>New PRs metric (repo groups) <a href="https://github.com/cncf/devstats/blob/master/metrics/shared/new_contributors.sql" target="_blank">SQL file</a>.</li>
 <li>Episodic PRs metric (repo groups) <a href="https://github.com/cncf/devstats/blob/master/metrics/shared/episodic_contributors.sql" target="_blank">SQL file</a>.</li>
-<li>New PRs metric (repos) <a href="https://github.com/cncf/devstats/blob/master/metrics/shared/new_contributors_repos.sql" target="_blank">SQL file</a>.</li>
-<li>Episodic PRs metric (repos) <a href="https://github.com/cncf/devstats/blob/master/metrics/shared/episodic_contributors_repos.sql" target="_blank">SQL file</a>.</li>
+<li>New PRs metric (repos) <a href="https://github.com/cncf/devstats/blob/master/metrics/kubernetes/new_contributors_repos.sql" target="_blank">SQL file</a>.</li>
+<li>Episodic PRs metric (repos) <a href="https://github.com/cncf/devstats/blob/master/metrics/kubernetes/episodic_contributors_repos.sql" target="_blank">SQL file</a>.</li>
 <li>TSDB <a href="https://github.com/cncf/devstats/blob/master/metrics/kubernetes/metrics.yaml" target="_blank">series definition</a>. Search for <code>New and episodic PR</code></li>
 <li>Grafana dashboard <a href="https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/new-and-episodic-pr-contributors.json" target="_blank">JSON</a>.</li>
 </ul>
