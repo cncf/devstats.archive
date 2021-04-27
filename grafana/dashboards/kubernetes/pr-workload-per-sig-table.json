@@ -15,13 +15,18 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 110,
+  "id": 36,
+  "iteration": 1619514877305,
   "links": [],
   "panels": [
     {
       "columns": [],
       "datasource": "psql",
       "description": "PR workloads (Range: [[period_name]])",
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
       "fontSize": "80%",
       "gridPos": {
         "h": 22,
@@ -42,6 +47,7 @@
       "styles": [
         {
           "alias": "Time",
+          "align": "auto",
           "dateFormat": "YYYY-MM-DD HH:mm:ss",
           "decimals": null,
           "pattern": "Time",
@@ -49,6 +55,7 @@
         },
         {
           "alias": "",
+          "align": "auto",
           "colorMode": "value",
           "colors": [
             "rgba(50, 172, 45, 0.97)",
@@ -68,6 +75,7 @@
         },
         {
           "alias": "",
+          "align": "auto",
           "colorMode": "value",
           "colors": [
             "rgba(50, 172, 45, 0.97)",
@@ -86,6 +94,7 @@
         },
         {
           "alias": "",
+          "align": "auto",
           "colorMode": "value",
           "colors": [
             "rgba(50, 172, 45, 0.97)",
@@ -104,6 +113,7 @@
         },
         {
           "alias": "",
+          "align": "auto",
           "colorMode": "value",
           "colors": [
             "rgba(245, 54, 54, 0.9)",
@@ -122,6 +132,7 @@
         },
         {
           "alias": "",
+          "align": "auto",
           "colorMode": null,
           "colors": [
             "rgba(245, 54, 54, 0.9)",
@@ -180,43 +191,239 @@
       ],
       "title": "PR workloads (Range: [[period_name]])",
       "transform": "table",
-      "transparent": false,
-      "type": "table"
+      "type": "table-old"
     },
     {
-      "content": "${docs:raw}",
+      "columns": [],
+      "datasource": "psql",
+      "description": "PR workloads (Range: [[period_name]], Repository: [[repo_name]])",
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "fontSize": "80%",
       "gridPos": {
-        "h": 18,
+        "h": 22,
         "w": 24,
         "x": 0,
         "y": 22
       },
+      "hideTimeOverride": true,
+      "id": 3,
+      "links": [],
+      "pageSize": 1000,
+      "scroll": true,
+      "showHeader": true,
+      "sort": {
+        "col": 5,
+        "desc": true
+      },
+      "styles": [
+        {
+          "alias": "Time",
+          "align": "auto",
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": null,
+          "pattern": "Time",
+          "type": "hidden"
+        },
+        {
+          "alias": "",
+          "align": "auto",
+          "colorMode": "value",
+          "colors": [
+            "rgba(50, 172, 45, 0.97)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(245, 54, 54, 0.9)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 0,
+          "pattern": "Number of PRs",
+          "preserveFormat": false,
+          "thresholds": [
+            "10",
+            "100"
+          ],
+          "type": "number",
+          "unit": "none"
+        },
+        {
+          "alias": "",
+          "align": "auto",
+          "colorMode": "value",
+          "colors": [
+            "rgba(50, 172, 45, 0.97)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(245, 54, 54, 0.9)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 0,
+          "pattern": "Absolute PR workload",
+          "thresholds": [
+            "10",
+            "100"
+          ],
+          "type": "number",
+          "unit": "none"
+        },
+        {
+          "alias": "",
+          "align": "auto",
+          "colorMode": "value",
+          "colors": [
+            "rgba(50, 172, 45, 0.97)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(245, 54, 54, 0.9)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "pattern": "Relative PR workload",
+          "thresholds": [
+            "5",
+            "10"
+          ],
+          "type": "number",
+          "unit": "none"
+        },
+        {
+          "alias": "",
+          "align": "auto",
+          "colorMode": "value",
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 0,
+          "pattern": "Number of Reviewers",
+          "thresholds": [
+            "10",
+            "30"
+          ],
+          "type": "number",
+          "unit": "none"
+        },
+        {
+          "alias": "",
+          "align": "auto",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "decimals": 0,
+          "pattern": "/.*/",
+          "thresholds": [],
+          "type": "number",
+          "unit": "short"
+        }
+      ],
+      "targets": [
+        {
+          "alias": "",
+          "dsType": "influxdb",
+          "format": "table",
+          "group": [],
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "metricColumn": "none",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "select \"sig\" as SIG, \"issues\" as \"Number of PRs\", \"reviewers\" as \"Number of Reviewers\", \"absolute_workload\" as \"Absolute PR workload\", \"relative_workload\" as \"Relative PR workload\" FROM \"pr_workload_sigs_[[period]]\" WHERE $timeFilter",
+          "rawQuery": true,
+          "rawSql": "select sig as \"SIG\", iss as \"Number of PRs\", rev as \"Number of Reviewers\", abs as \"Absolute PR workload\", rel as \"Relative PR workload\" from shpr_wrlsigs where period = '[[period]]' and repo = '[[repo_name]]'",
+          "refId": "A",
+          "resultFormat": "table",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": [],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "PR workloads (Range: [[period_name]], Repository: [[repo_name]])",
+      "transform": "table",
+      "type": "table-old"
+    },
+    {
+      "datasource": null,
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 19,
+        "w": 24,
+        "x": 0,
+        "y": 44
+      },
       "id": 2,
       "links": [],
-      "mode": "html",
+      "options": {
+        "content": "${docs:raw}",
+        "mode": "html"
+      },
+      "pluginVersion": "7.5.4",
       "title": "Dashboard documentation",
       "type": "text"
     }
   ],
   "refresh": false,
-  "schemaVersion": 16,
+  "schemaVersion": 27,
   "style": "dark",
   "tags": [
     "dashboard",
     "kubernetes",
     "table",
     "PRs",
-    "SIGs"
+    "SIGs",
+    "repos"
   ],
   "templating": {
     "list": [
       {
         "allValue": null,
         "current": {
+          "selected": false,
           "text": "Last month",
           "value": "Last month"
         },
         "datasource": "psql",
+        "definition": "",
+        "description": null,
+        "error": null,
         "hide": 0,
         "includeAll": false,
         "label": "Range",
@@ -237,10 +444,14 @@
       {
         "allValue": null,
         "current": {
+          "selected": false,
           "text": "m",
           "value": "m"
         },
         "datasource": "psql",
+        "definition": "",
+        "description": null,
+        "error": null,
         "hide": 2,
         "includeAll": false,
         "label": null,
@@ -261,10 +472,14 @@
       {
         "allValue": null,
         "current": {
+          "selected": false,
           "text": "<h1 id=\"kubernetes-dashboard\">Kubernetes PR Workload per SIG dashboards (chart and table)</h1>\n<p>Links:</p>\n<ul>\n<li>Chart version metric <a href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/pr_workload.sql\" target=\"_blank\">SQL file</a>.</li>\n<li>Table version metric <a href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/pr_workload_table.sql\" target=\"_blank\">SQL file</a>.</li>\n<li>TSDB <a href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/metrics.yaml\" target=\"_blank\">series definition</a>. Search for <code>pr_workload</code></li>\n<li>Grafana dashboard <a href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/pr-workload-per-sig-chart.json\" target=\"_blank\">JSON</a> (chart version).</li>\n<li>Grafana dashboard <a href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/pr-workload-per-sig-table.json\" target=\"_blank\">JSON</a> (table version).</li>\n</ul>\n<h1 id=\"description\">Description</h1>\n<ul>\n<li>Those dashboards show PR workload for SIGs</li>\n<li>Chart version allows to see absolute and relative PR worklod as line charts, stacked charts and stacked percent charts.</li>\n<li>Chart version also allows to see chart of SIG PRs and SIG reviewers. You can select list of SIGs to display.</li>\n<li>Table version allows to see absolute and relative PR workload per SIG and number of PRs and reviewers for given SIGs.</li>\n<li>Table version also allows to choose period to display metric, like last month, year, particular release etc.</li>\n<li>For chart version we're counting PRs that were opened at given point in time (not closed, not merged).</li>\n<li>For table version we're counting PRs taht were open at the period's end (for last week it is now), for v1.9 - v1.10 it is v1.10</li>\n<li>PR size comes from <code>size/*</code> labels. Different sizes, have different weights.</li>\n<li>xs: 0.25, small, s: 0.5, large, l: 2, xl: 4, xxl: 8. All other size labels (or no size label) have weight 1.</li>\n<li>PR belongs to SIG by using <code>sig/*</code> labels. List of SIGs to display in drop-down comes from all <code>sig/*</code> labels.</li>\n<li>Absolute PR workload is a weighted sum of all PRs for a given SIG using size labels as weights.</li>\n<li>Relative PR workload for given SIG is absolute PR workload divided by number of reviewers for given SIG.</li>\n<li>Number of reviewers is calculated in last month preceeding given point in time for chart version.</li>\n<li>For table version we're conting reviewers in a selected period.</li>\n<li>Reviewer is somebody who added <code>/lgtm</code> or <code>/approve</code> text or <code>lgtm</code> or <code>approve</code> label.</li>\n<li>We are skipping bots when calculating statistics, see <a href=\"https://github.com/cncf/devstats/blob/master/docs/excluding_bots.md\" target=\"_blank\">excluding bots</a> for details.</li>\n</ul>",
           "value": "<h1 id=\"kubernetes-dashboard\">Kubernetes PR Workload per SIG dashboards (chart and table)</h1>\n<p>Links:</p>\n<ul>\n<li>Chart version metric <a href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/pr_workload.sql\" target=\"_blank\">SQL file</a>.</li>\n<li>Table version metric <a href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/pr_workload_table.sql\" target=\"_blank\">SQL file</a>.</li>\n<li>TSDB <a href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/metrics.yaml\" target=\"_blank\">series definition</a>. Search for <code>pr_workload</code></li>\n<li>Grafana dashboard <a href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/pr-workload-per-sig-chart.json\" target=\"_blank\">JSON</a> (chart version).</li>\n<li>Grafana dashboard <a href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/pr-workload-per-sig-table.json\" target=\"_blank\">JSON</a> (table version).</li>\n</ul>\n<h1 id=\"description\">Description</h1>\n<ul>\n<li>Those dashboards show PR workload for SIGs</li>\n<li>Chart version allows to see absolute and relative PR worklod as line charts, stacked charts and stacked percent charts.</li>\n<li>Chart version also allows to see chart of SIG PRs and SIG reviewers. You can select list of SIGs to display.</li>\n<li>Table version allows to see absolute and relative PR workload per SIG and number of PRs and reviewers for given SIGs.</li>\n<li>Table version also allows to choose period to display metric, like last month, year, particular release etc.</li>\n<li>For chart version we're counting PRs that were opened at given point in time (not closed, not merged).</li>\n<li>For table version we're counting PRs taht were open at the period's end (for last week it is now), for v1.9 - v1.10 it is v1.10</li>\n<li>PR size comes from <code>size/*</code> labels. Different sizes, have different weights.</li>\n<li>xs: 0.25, small, s: 0.5, large, l: 2, xl: 4, xxl: 8. All other size labels (or no size label) have weight 1.</li>\n<li>PR belongs to SIG by using <code>sig/*</code> labels. List of SIGs to display in drop-down comes from all <code>sig/*</code> labels.</li>\n<li>Absolute PR workload is a weighted sum of all PRs for a given SIG using size labels as weights.</li>\n<li>Relative PR workload for given SIG is absolute PR workload divided by number of reviewers for given SIG.</li>\n<li>Number of reviewers is calculated in last month preceeding given point in time for chart version.</li>\n<li>For table version we're conting reviewers in a selected period.</li>\n<li>Reviewer is somebody who added <code>/lgtm</code> or <code>/approve</code> text or <code>lgtm</code> or <code>approve</code> label.</li>\n<li>We are skipping bots when calculating statistics, see <a href=\"https://github.com/cncf/devstats/blob/master/docs/excluding_bots.md\" target=\"_blank\">excluding bots</a> for details.</li>\n</ul>"
         },
         "datasource": "psql",
+        "definition": "",
+        "description": null,
+        "error": null,
         "hide": 2,
         "includeAll": false,
         "label": null,
@@ -276,6 +491,34 @@
         "regex": "",
         "skipUrlSync": true,
         "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "selected": true,
+          "text": "kubernetes/kubernetes",
+          "value": "kubernetes/kubernetes"
+        },
+        "datasource": null,
+        "definition": "select repo_name from trepos order by 1",
+        "description": null,
+        "error": null,
+        "hide": 0,
+        "includeAll": false,
+        "label": "Repository",
+        "multi": false,
+        "name": "repo_name",
+        "options": [],
+        "query": "select repo_name from trepos order by 1",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 1,
         "tagValuesQuery": "",
         "tags": [],
         "tagsQuery": "",
@@ -317,5 +560,5 @@
   "timezone": "",
   "title": "PR Workload per SIG Table",
   "uid": "34",
-  "version": 13
+  "version": 4
 }

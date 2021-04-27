@@ -2,7 +2,9 @@
 <p>Links:</p>
 <ul>
 <li>Chart version metric <a href="https://github.com/cncf/devstats/blob/master/metrics/kubernetes/pr_workload.sql" target="_blank">SQL file</a>.</li>
+<li>Chart repositories version metric <a href="https://github.com/cncf/devstats/blob/master/metrics/kubernetes/pr_workload_repos.sql" target="_blank">SQL file</a>.</li>
 <li>Table version metric <a href="https://github.com/cncf/devstats/blob/master/metrics/kubernetes/pr_workload_table.sql" target="_blank">SQL file</a>.</li>
+<li>Table repositories version metric <a href="https://github.com/cncf/devstats/blob/master/metrics/kubernetes/pr_workload_table_repos.sql" target="_blank">SQL file</a>.</li>
 <li>TSDB <a href="https://github.com/cncf/devstats/blob/master/metrics/kubernetes/metrics.yaml" target="_blank">series definition</a>. Search for <code>pr_workload</code></li>
 <li>Grafana dashboard <a href="https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/pr-workload-per-sig-chart.json" target="_blank">JSON</a> (chart version).</li>
 <li>Grafana dashboard <a href="https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/pr-workload-per-sig-table.json" target="_blank">JSON</a> (table version).</li>
@@ -14,6 +16,7 @@
 <li>Chart version also allows to see chart of SIG PRs and SIG reviewers. You can select list of SIGs to display.</li>
 <li>Table version allows to see absolute and relative PR workload per SIG and number of PRs and reviewers for given SIGs.</li>
 <li>Table version also allows to choose period to display metric, like last month, year, particular release etc.</li>
+<li>You can select repository for bottom panel showing per single repository statistics.</li>
 <li>For chart version we're counting PRs that were opened at given point in time (not closed, not merged).</li>
 <li>For table version we're counting PRs taht were open at the period's end (for last week it is now), for v1.9 - v1.10 it is v1.10</li>
 <li>PR size comes from <code>size/*</code> labels. Different sizes, have different weights.</li>
