@@ -31,7 +31,8 @@ update gha_repos set repo_group = alias;
 update gha_repos
 set repo_group = 'Kuberhealthy', alias = 'Kuberhealthy'
 where name in (
-  'Comcast/kuberhealthy'
+  'Comcast/kuberhealthy',
+  'kuberhealthy/kuberhealthy'
 );
 
 select

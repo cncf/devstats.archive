@@ -29,11 +29,12 @@ where
 update gha_repos set repo_group = alias;
 
 update gha_repos
-set repo_group = 'ingraind', alias = 'ingraind'
+set repo_group = 'Foniod', alias = 'Foniod'
 where name in (
   'redsift/ingraind',
   'ingraind/ingraind',
-  'foniod/ingraind'
+  'foniod/ingraind',
+  'foniod/foniod'
 );
 
 select

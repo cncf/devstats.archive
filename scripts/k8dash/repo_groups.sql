@@ -29,7 +29,7 @@ where
 update gha_repos set repo_group = alias;
 
 update gha_repos
-set repo_group = 'k8dash', alias = 'k8dash'
+set repo_group = 'Skooner', alias = 'Skooner'
 where name in (
   'indeedeng/k8dash',
   'herbrandson/k8dash'
