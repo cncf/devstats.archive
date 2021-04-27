@@ -30,8 +30,8 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 91,
-  "iteration": 1547556577760,
+  "id": 32,
+  "iteration": 1619522578421,
   "links": [],
   "panels": [
     {
@@ -42,13 +42,19 @@
       "datasource": "psql",
       "decimals": 2,
       "description": "Stacked times from open to lgtm, approve and merge.",
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
       "fill": 1,
+      "fillGradient": 0,
       "gridPos": {
         "h": 13,
         "w": 12,
         "x": 0,
         "y": 0
       },
+      "hiddenSeries": false,
       "id": 8,
       "legend": {
         "alignAsTable": true,
@@ -65,7 +71,11 @@
       "linewidth": 1,
       "links": [],
       "nullPointMode": "null",
+      "options": {
+        "alertThreshold": true
+      },
       "percentage": false,
+      "pluginVersion": "7.5.4",
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
@@ -78,7 +88,9 @@
           "alias": "",
           "dsType": "influxdb",
           "format": "time_series",
+          "group": [],
           "groupBy": [],
+          "metricColumn": "none",
           "orderByTime": "ASC",
           "policy": "default",
           "query": "SELECT \"value\" FROM \"time_metrics_[[repogroup]]_[[size]]_[[apichange]]_median_open_to_lgtm_[[period]]\" WHERE $timeFilter",
@@ -96,13 +108,23 @@
               }
             ]
           ],
-          "tags": []
+          "tags": [],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
         },
         {
           "alias": "",
           "dsType": "influxdb",
           "format": "time_series",
+          "group": [],
           "groupBy": [],
+          "metricColumn": "none",
           "orderByTime": "ASC",
           "policy": "default",
           "query": "SELECT \"value\" FROM \"time_metrics_[[repogroup]]_[[size]]_[[apichange]]_median_lgtm_to_approve_[[period]]\" WHERE $timeFilter",
@@ -120,13 +142,23 @@
               }
             ]
           ],
-          "tags": []
+          "tags": [],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
         },
         {
           "alias": "",
           "dsType": "influxdb",
           "format": "time_series",
+          "group": [],
           "groupBy": [],
+          "metricColumn": "none",
           "orderByTime": "ASC",
           "policy": "default",
           "query": "SELECT \"value\" FROM \"time_metrics_[[repogroup]]_[[size]]_[[apichange]]_median_approve_to_merge_[[period]]\" WHERE $timeFilter",
@@ -144,11 +176,20 @@
               }
             ]
           ],
-          "tags": []
+          "tags": [],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
         }
       ],
       "thresholds": [],
       "timeFrom": null,
+      "timeRegions": [],
       "timeShift": null,
       "title": "Median time PRs from open to lgtm, approve, merge for [[repogroup_name]] repository group ([[period]], API change: [[apichange]], Size: [[size_name]], Kind: [[kind_name]])",
       "tooltip": {
@@ -197,13 +238,19 @@
       "datasource": "psql",
       "decimals": 2,
       "description": "Stacked times from open to lgtm, approve and merge for mono-repos kubernetes and contrib",
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
       "fill": 1,
+      "fillGradient": 0,
       "gridPos": {
         "h": 13,
         "w": 12,
         "x": 12,
         "y": 0
       },
+      "hiddenSeries": false,
       "id": 9,
       "legend": {
         "alignAsTable": true,
@@ -220,7 +267,11 @@
       "linewidth": 1,
       "links": [],
       "nullPointMode": "null",
+      "options": {
+        "alertThreshold": true
+      },
       "percentage": false,
+      "pluginVersion": "7.5.4",
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
@@ -304,6 +355,7 @@
       ],
       "thresholds": [],
       "timeFrom": null,
+      "timeRegions": [],
       "timeShift": null,
       "title": "85th percentile time PRs from open to lgtm, approve, merge for [[repogroup_name]] repository group ([[period]], API change: [[apichange]], Size: [[size_name]], Kind: [[kind_name]])",
       "tooltip": {
@@ -348,6 +400,10 @@
       "columns": [],
       "datasource": "psql",
       "description": "Time PRs from open to lgtm, approve, merge",
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
       "fontSize": "80%",
       "gridPos": {
         "h": 10,
@@ -367,12 +423,14 @@
       "styles": [
         {
           "alias": "Time",
+          "align": "auto",
           "dateFormat": "MM/DD/YYYY",
           "pattern": "Time",
           "type": "date"
         },
         {
           "alias": "",
+          "align": "auto",
           "colorMode": null,
           "colors": [
             "rgba(245, 54, 54, 0.9)",
@@ -635,30 +693,791 @@
         }
       ],
       "title": "Time PRs from open to lgtm, approve, merge for [[repogroup_name]] repository group ([[period]], API change: [[apichange]], Size: [[size_name]], Kind: [[kind_name]])",
-      "transform": "table",
-      "type": "table"
+      "transform": "timeseries_to_rows",
+      "type": "table-old"
     },
     {
-      "content": "${docs:raw}",
+      "aliasColors": {},
+      "bars": true,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "psql",
+      "decimals": 2,
+      "description": "Stacked times from open to lgtm, approve and merge.",
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "fill": 1,
+      "fillGradient": 0,
       "gridPos": {
-        "h": 16,
-        "w": 24,
+        "h": 13,
+        "w": 12,
         "x": 0,
         "y": 23
       },
+      "hiddenSeries": false,
+      "id": 11,
+      "legend": {
+        "alignAsTable": true,
+        "avg": true,
+        "current": true,
+        "max": true,
+        "min": true,
+        "rightSide": false,
+        "show": true,
+        "total": false,
+        "values": true
+      },
+      "lines": false,
+      "linewidth": 1,
+      "links": [],
+      "nullPointMode": "null",
+      "options": {
+        "alertThreshold": true
+      },
+      "percentage": false,
+      "pluginVersion": "7.5.4",
+      "pointradius": 5,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": true,
+      "steppedLine": false,
+      "targets": [
+        {
+          "alias": "",
+          "dsType": "influxdb",
+          "format": "time_series",
+          "group": [],
+          "groupBy": [],
+          "metricColumn": "none",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "SELECT \"value\" FROM \"time_metrics_[[repogroup]]_[[size]]_[[apichange]]_median_open_to_lgtm_[[period]]\" WHERE $timeFilter",
+          "rawQuery": true,
+          "rawSql": "select\n  time,\n  value as \"Median time from open to LGTM (in hours)\"\nfrom\n  stime_metrics_repos\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'tmet[[repo]][[size]][[kind]][[apichange]]medo2l'\norder by\n  time",
+          "refId": "A",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              }
+            ]
+          ],
+          "tags": [],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        },
+        {
+          "alias": "",
+          "dsType": "influxdb",
+          "format": "time_series",
+          "group": [],
+          "groupBy": [],
+          "metricColumn": "none",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "SELECT \"value\" FROM \"time_metrics_[[repogroup]]_[[size]]_[[apichange]]_median_lgtm_to_approve_[[period]]\" WHERE $timeFilter",
+          "rawQuery": true,
+          "rawSql": "select\n  time,\n  value as \"Median time from LGTM to approve (in hours)\"\nfrom\n  stime_metrics_repos\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'tmet[[repo]][[size]][[kind]][[apichange]]medl2a'\norder by\n  time",
+          "refId": "B",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              }
+            ]
+          ],
+          "tags": [],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        },
+        {
+          "alias": "",
+          "dsType": "influxdb",
+          "format": "time_series",
+          "group": [],
+          "groupBy": [],
+          "metricColumn": "none",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "SELECT \"value\" FROM \"time_metrics_[[repogroup]]_[[size]]_[[apichange]]_median_approve_to_merge_[[period]]\" WHERE $timeFilter",
+          "rawQuery": true,
+          "rawSql": "select\n  time,\n  value as \"Median time from approve to merge (in hours)\"\nfrom\n  stime_metrics_repos\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'tmet[[repo]][[size]][[kind]][[apichange]]meda2m'\norder by\n  time",
+          "refId": "C",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              }
+            ]
+          ],
+          "tags": [],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "Median time PRs from open to lgtm, approve, merge for [[repo_name]] repository ([[period]], API change: [[apichange]], Size: [[size_name]], Kind: [[kind_name]])",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": [
+          "avg"
+        ]
+      },
+      "yaxes": [
+        {
+          "format": "h",
+          "label": "",
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true
+        },
+        {
+          "format": "none",
+          "label": "",
+          "logBase": 10,
+          "max": null,
+          "min": "0",
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": true,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "psql",
+      "decimals": 2,
+      "description": "Stacked times from open to lgtm, approve and merge for mono-repos kubernetes and contrib",
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "fill": 1,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 13,
+        "w": 12,
+        "x": 12,
+        "y": 23
+      },
+      "hiddenSeries": false,
+      "id": 12,
+      "legend": {
+        "alignAsTable": true,
+        "avg": true,
+        "current": true,
+        "max": true,
+        "min": true,
+        "rightSide": false,
+        "show": true,
+        "total": false,
+        "values": true
+      },
+      "lines": false,
+      "linewidth": 1,
+      "links": [],
+      "nullPointMode": "null",
+      "options": {
+        "alertThreshold": true
+      },
+      "percentage": false,
+      "pluginVersion": "7.5.4",
+      "pointradius": 5,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": true,
+      "steppedLine": false,
+      "targets": [
+        {
+          "alias": "",
+          "dsType": "influxdb",
+          "format": "time_series",
+          "group": [],
+          "groupBy": [],
+          "metricColumn": "none",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "SELECT \"value\" FROM \"time_metrics_[[repogroup]]_[[size]]_[[apichange]]_percentile_85_open_to_lgtm_[[period]]\" WHERE $timeFilter",
+          "rawQuery": true,
+          "rawSql": "select\n  time,\n  value as \"85th percentile time from open to LGTM (in hours)\"\nfrom\n  stime_metrics_repos\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'tmet[[repo]][[size]][[kind]][[apichange]]p85o2l'\norder by\n  time",
+          "refId": "A",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              }
+            ]
+          ],
+          "tags": [],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        },
+        {
+          "alias": "",
+          "dsType": "influxdb",
+          "format": "time_series",
+          "group": [],
+          "groupBy": [],
+          "metricColumn": "none",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "SELECT \"value\" FROM \"time_metrics_[[repogroup]]_[[size]]_[[apichange]]_percentile_85_lgtm_to_approve_[[period]]\" WHERE $timeFilter",
+          "rawQuery": true,
+          "rawSql": "select\n  time,\n  value as \"85th percentile time from LGTM to approve (in hours)\"\nfrom\n  stime_metrics_repos\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'tmet[[repo]][[size]][[kind]][[apichange]]p85l2a'\norder by\n  time",
+          "refId": "B",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              }
+            ]
+          ],
+          "tags": [],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        },
+        {
+          "alias": "",
+          "dsType": "influxdb",
+          "format": "time_series",
+          "group": [],
+          "groupBy": [],
+          "metricColumn": "none",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "SELECT \"value\" FROM \"time_metrics_[[repogroup]]_[[size]]_[[apichange]]_percentile_85_approve_to_merge_[[period]]\" WHERE $timeFilter",
+          "rawQuery": true,
+          "rawSql": "select\n  time,\n  value as \"85th percentile time from approve to merge (in hours)\"\nfrom\n  stime_metrics_repos\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'tmet[[repo]][[size]][[kind]][[apichange]]p85a2m'\norder by\n  time",
+          "refId": "C",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              }
+            ]
+          ],
+          "tags": [],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "85th percentile time PRs from open to lgtm, approve, merge for [[repo_name]] repository ([[period]], API change: [[apichange]], Size: [[size_name]], Kind: [[kind_name]])",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": [
+          "avg"
+        ]
+      },
+      "yaxes": [
+        {
+          "format": "h",
+          "label": "",
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true
+        },
+        {
+          "format": "none",
+          "label": "",
+          "logBase": 10,
+          "max": null,
+          "min": "0",
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "columns": [],
+      "datasource": "psql",
+      "description": "Time PRs from open to lgtm, approve, merge",
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "fontSize": "80%",
+      "gridPos": {
+        "h": 10,
+        "w": 24,
+        "x": 0,
+        "y": 36
+      },
+      "id": 13,
+      "links": [],
+      "pageSize": 10,
+      "scroll": true,
+      "showHeader": true,
+      "sort": {
+        "col": 0,
+        "desc": true
+      },
+      "styles": [
+        {
+          "alias": "Time",
+          "align": "auto",
+          "dateFormat": "MM/DD/YYYY",
+          "pattern": "Time",
+          "type": "date"
+        },
+        {
+          "alias": "",
+          "align": "auto",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "decimals": 2,
+          "pattern": "/.*/",
+          "thresholds": [],
+          "type": "number",
+          "unit": "short"
+        }
+      ],
+      "targets": [
+        {
+          "alias": "",
+          "dsType": "influxdb",
+          "format": "table",
+          "group": [],
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "metricColumn": "none",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "SELECT \"descr\" FROM \"time_metrics_[[repogroup]]_[[size]]_[[apichange]]_median_open_to_lgtm_[[period]]\" WHERE $timeFilter",
+          "rawQuery": true,
+          "rawSql": "select\n  time as \"Time\",\n  descr as \"Median open to LGTM\"\nfrom\n  stime_metrics_repos\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'tmet[[repo]][[size]][[kind]][[apichange]]medo2l'\norder by\n  time",
+          "refId": "A",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": [],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        },
+        {
+          "alias": "",
+          "dsType": "influxdb",
+          "format": "table",
+          "group": [],
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "metricColumn": "none",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "SELECT \"descr\" FROM \"time_metrics_[[repogroup]]_[[size]]_[[apichange]]_median_lgtm_to_approve_[[period]]\" WHERE $timeFilter",
+          "rawQuery": true,
+          "rawSql": "select\n  time as \"Time\",\n  descr as \"Median LGTM to approve\"\nfrom\n  stime_metrics_repos\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'tmet[[repo]][[size]][[kind]][[apichange]]medl2a'\norder by\n  time",
+          "refId": "B",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": [],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        },
+        {
+          "alias": "",
+          "dsType": "influxdb",
+          "format": "table",
+          "group": [],
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "metricColumn": "none",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "SELECT \"descr\" FROM \"time_metrics_[[repogroup]]_[[size]]_[[apichange]]_median_approve_to_merge_[[period]]\" WHERE $timeFilter",
+          "rawQuery": true,
+          "rawSql": "select\n  time as \"Time\",\n  descr as \"Median approve to merge\"\nfrom\n  stime_metrics_repos\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'tmet[[repo]][[size]][[kind]][[apichange]]meda2m'\norder by\n  time",
+          "refId": "C",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": [],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        },
+        {
+          "alias": "",
+          "dsType": "influxdb",
+          "format": "table",
+          "group": [],
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "metricColumn": "none",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "SELECT \"descr\" FROM \"time_metrics_[[repogroup]]_[[size]]_[[apichange]]_percentile_85_open_to_lgtm_[[period]]\" WHERE $timeFilter",
+          "rawQuery": true,
+          "rawSql": "select\n  time as \"Time\",\n  descr as \"85th percentile open to LGTM\"\nfrom\n  stime_metrics_repos\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'tmet[[repo]][[size]][[kind]][[apichange]]p85o2l'\norder by\n  time",
+          "refId": "D",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": [],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        },
+        {
+          "alias": "",
+          "dsType": "influxdb",
+          "format": "table",
+          "group": [],
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "metricColumn": "none",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "SELECT \"descr\" FROM \"time_metrics_[[repogroup]]_[[size]]_[[apichange]]_percentile_85_lgtm_to_approve_[[period]]\" WHERE $timeFilter",
+          "rawQuery": true,
+          "rawSql": "select\n  time as \"Time\",\n  descr as \"85th percentile LGTM to approve\"\nfrom\n  stime_metrics_repos\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'tmet[[repo]][[size]][[kind]][[apichange]]p85l2a'\norder by\n  time",
+          "refId": "E",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": [],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        },
+        {
+          "alias": "",
+          "dsType": "influxdb",
+          "format": "table",
+          "group": [],
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "metricColumn": "none",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "SELECT \"descr\" FROM \"time_metrics_[[repogroup]]_[[size]]_[[apichange]]_percentile_85_approve_to_merge_[[period]]\" WHERE $timeFilter",
+          "rawQuery": true,
+          "rawSql": "select\n  time as \"Time\",\n  descr as \"85th percentile approve to merge\"\nfrom\n  stime_metrics_repos\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'tmet[[repo]][[size]][[kind]][[apichange]]p85a2m'\norder by\n  time",
+          "refId": "F",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": [],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "Time PRs from open to lgtm, approve, merge for [[repo_name]] repository ([[period]], API change: [[apichange]], Size: [[size_name]], Kind: [[kind_name]])",
+      "transform": "timeseries_to_rows",
+      "type": "table-old"
+    },
+    {
+      "datasource": null,
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 19,
+        "w": 24,
+        "x": 0,
+        "y": 46
+      },
       "id": 5,
       "links": [],
-      "mode": "html",
+      "options": {
+        "content": "${docs:raw}",
+        "mode": "html"
+      },
+      "pluginVersion": "7.5.4",
       "title": "Dashboard documentation",
       "type": "text"
     }
   ],
-  "schemaVersion": 16,
+  "schemaVersion": 27,
   "style": "dark",
   "tags": [
     "dashboard",
     "kubernetes",
-    "repogroups"
+    "repogroups",
+    "repos"
   ],
   "templating": {
     "list": [
@@ -669,6 +1488,8 @@
           "text": "7 Days MA",
           "value": "d7"
         },
+        "description": null,
+        "error": null,
         "hide": 0,
         "includeAll": false,
         "label": "Period",
@@ -713,10 +1534,14 @@
       {
         "allValue": null,
         "current": {
+          "selected": false,
           "text": "Kubernetes",
           "value": "Kubernetes"
         },
         "datasource": "psql",
+        "definition": "",
+        "description": null,
+        "error": null,
         "hide": 0,
         "includeAll": false,
         "label": "Repository group",
@@ -737,10 +1562,14 @@
       {
         "allValue": null,
         "current": {
+          "selected": false,
           "text": "kubernetes",
           "value": "kubernetes"
         },
         "datasource": "psql",
+        "definition": "",
+        "description": null,
+        "error": null,
         "hide": 2,
         "includeAll": false,
         "label": "",
@@ -761,10 +1590,68 @@
       {
         "allValue": null,
         "current": {
+          "selected": true,
+          "text": "kubernetes/kubernetes",
+          "value": "kubernetes/kubernetes"
+        },
+        "datasource": "psql",
+        "definition": "select repo_name from trepos order by 1",
+        "description": null,
+        "error": null,
+        "hide": 0,
+        "includeAll": false,
+        "label": "Repository",
+        "multi": false,
+        "name": "repo_name",
+        "options": [],
+        "query": "select repo_name from trepos order by 1",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "selected": false,
+          "text": "kuberneteskubernetes",
+          "value": "kuberneteskubernetes"
+        },
+        "datasource": "psql",
+        "definition": "select repo_value from trepos where repo_name = '[[repo_name]]'",
+        "description": null,
+        "error": null,
+        "hide": 2,
+        "includeAll": false,
+        "label": "",
+        "multi": false,
+        "name": "repo",
+        "options": [],
+        "query": "select repo_value from trepos where repo_name = '[[repo_name]]'",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": true,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
           "tags": [],
           "text": "All",
           "value": "a"
         },
+        "description": null,
+        "error": null,
         "hide": 0,
         "includeAll": false,
         "label": "API change",
@@ -794,10 +1681,14 @@
       {
         "allValue": null,
         "current": {
+          "selected": false,
           "text": "All",
           "value": "All"
         },
         "datasource": "psql",
+        "definition": "",
+        "description": null,
+        "error": null,
         "hide": 0,
         "includeAll": false,
         "label": "Size",
@@ -818,10 +1709,14 @@
       {
         "allValue": null,
         "current": {
+          "selected": false,
           "text": "all",
           "value": "all"
         },
         "datasource": "psql",
+        "definition": "",
+        "description": null,
+        "error": null,
         "hide": 2,
         "includeAll": false,
         "label": null,
@@ -842,10 +1737,14 @@
       {
         "allValue": null,
         "current": {
+          "selected": false,
           "text": "Kubernetes",
           "value": "Kubernetes"
         },
         "datasource": "psql",
+        "definition": "",
+        "description": null,
+        "error": null,
         "hide": 2,
         "includeAll": false,
         "label": null,
@@ -866,10 +1765,14 @@
       {
         "allValue": null,
         "current": {
-          "text": "<h1 id=\"kubernetes-dashboard\">Kubernetes PR Time to Approve and Merge dashboard</h1>\n<p>Links:</p>\n<ul>\n<li>Metric <a href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/time_metrics.sql\" target=\"_blank\">SQL file</a>.</li>\n<li>TSDB <a href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/metrics.yaml\" target=\"_blank\">series definition</a>. Search for <code>time_metrics</code></li>\n<li>Grafana dashboard <a href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/pr-time-to-approve-and-merge.json\" target=\"_blank\">JSON</a>.</li>\n</ul>\n<h1 id=\"description\">Description</h1>\n<ul>\n<li>This dashboard show median and 85th percentile time for merged PRs from open to LGTM, approve and merge.</li>\n<li>LGTM happens when <code>lgtm</code> label is added on a PR.</li>\n<li>Approve happens when <code>approved</code> label is added on a PR.</li>\n<li>Open to LGTM time is defined as time from open to LGTM when LGTM is present or from open to approve when approve is present or from open to merge if no lgtm and approve is present.</li>\n<li>It means that adding approved label when there is no lgtm label means LGTM too. Merging PR without approve or lgtm labels also means LGTM.</li>\n<li>LGTM to approve is defined as time from LGTM to approve when approve is present or froim lgtm to merge if there is no approved label. If there is no LGTM this is zero.</li>\n<li>It means that merging PR means approving it.</li>\n<li>Approve to merge is defined as time from approve to merge is approved label is present. It is zero otherwise.</li>\n<li>You can filter by PR size. PR size is defined by <code>size/*</code> label. You can select All to get all PRs.</li>\n<li>You can filter by API change. PR belongs to API change yes when it has <code>kind/api-change</code> label. You can select All to get all PRs.</li>\n<li>You can select single repository group or summary for all of them.</li>\n<li>Selecting period (for example week) means that dashboard will data for PRs created in those periods.</li>\n<li>See <a href=\"https://github.com/cncf/devstats/blob/master/docs/periods.md\" target=\"_blank\">here</a> for more informations about periods.</li>\n<li>See <a href=\"https://github.com/cncf/devstats/blob/master/docs/repository_groups.md\" target=\"_blank\">here</a> for more informations about repository groups.</li>\n</ul>",
-          "value": "<h1 id=\"kubernetes-dashboard\">Kubernetes PR Time to Approve and Merge dashboard</h1>\n<p>Links:</p>\n<ul>\n<li>Metric <a href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/time_metrics.sql\" target=\"_blank\">SQL file</a>.</li>\n<li>TSDB <a href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/metrics.yaml\" target=\"_blank\">series definition</a>. Search for <code>time_metrics</code></li>\n<li>Grafana dashboard <a href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/pr-time-to-approve-and-merge.json\" target=\"_blank\">JSON</a>.</li>\n</ul>\n<h1 id=\"description\">Description</h1>\n<ul>\n<li>This dashboard show median and 85th percentile time for merged PRs from open to LGTM, approve and merge.</li>\n<li>LGTM happens when <code>lgtm</code> label is added on a PR.</li>\n<li>Approve happens when <code>approved</code> label is added on a PR.</li>\n<li>Open to LGTM time is defined as time from open to LGTM when LGTM is present or from open to approve when approve is present or from open to merge if no lgtm and approve is present.</li>\n<li>It means that adding approved label when there is no lgtm label means LGTM too. Merging PR without approve or lgtm labels also means LGTM.</li>\n<li>LGTM to approve is defined as time from LGTM to approve when approve is present or froim lgtm to merge if there is no approved label. If there is no LGTM this is zero.</li>\n<li>It means that merging PR means approving it.</li>\n<li>Approve to merge is defined as time from approve to merge is approved label is present. It is zero otherwise.</li>\n<li>You can filter by PR size. PR size is defined by <code>size/*</code> label. You can select All to get all PRs.</li>\n<li>You can filter by API change. PR belongs to API change yes when it has <code>kind/api-change</code> label. You can select All to get all PRs.</li>\n<li>You can select single repository group or summary for all of them.</li>\n<li>Selecting period (for example week) means that dashboard will data for PRs created in those periods.</li>\n<li>See <a href=\"https://github.com/cncf/devstats/blob/master/docs/periods.md\" target=\"_blank\">here</a> for more informations about periods.</li>\n<li>See <a href=\"https://github.com/cncf/devstats/blob/master/docs/repository_groups.md\" target=\"_blank\">here</a> for more informations about repository groups.</li>\n</ul>"
+          "selected": false,
+          "text": "<h1 id=\"kubernetes-dashboard\">Kubernetes PR Time to Approve and Merge dashboard</h1>\n<p>Links:</p>\n<ul>\n<li>Metric <a href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/time_metrics.sql\" target=\"_blank\">SQL file</a>.</li>\n<li>TSDB <a href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/metrics.yaml\" target=\"_blank\">series definition</a>. Search for <code>time_metrics</code></li>\n<li>Grafana dashboard <a href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/pr-time-to-approve-and-merge.json\" target=\"_blank\">JSON</a>.</li>\n</ul>\n<h1 id=\"description\">Description</h1>\n<ul>\n<li>This dashboard show median and 85th percentile time for merged PRs from open to LGTM, approve and merge.</li>\n<li>LGTM happens when <code>lgtm</code> label is added on a PR.</li>\n<li>Approve happens when <code>approved</code> label is added on a PR.</li>\n<li>Open to LGTM time is defined as time from open to LGTM when LGTM is present or from open to approve when approve is present or from open to merge if neither lgtm nor approve is present.</li>\n<li>It means that adding approved label when there is no lgtm label means LGTM too. Merging PR without approve or lgtm labels also means LGTM.</li>\n<li>LGTM to approve is defined as time from LGTM to approve when approve is present or from lgtm to merge if there is no approved label. If there is no LGTM this is zero.</li>\n<li>It means that merging PR means approving it.</li>\n<li>Approve to merge is defined as time from approve to merge if approved label is present. It is zero otherwise.</li>\n<li>You can filter by PR size. PR size is defined by <code>size/*</code> label. You can select All to get all PRs.</li>\n<li>You can select PRs with a specific <code>kind/*</code> label or summary for all of them.</li>\n<li>You can filter by API change. PR belongs to API change yes when it has <code>kind/api-change</code> label. You can select All to get all PRs.</li>\n<li>You can select single repository group or summary for all of them.</li>\n<li>Selecting period (for example week) means that dashboard will data for PRs created in those periods.</li>\n<li>See <a href=\"https://github.com/cncf/devstats/blob/master/docs/periods.md\" target=\"_blank\">here</a> for more informations about periods.</li>\n<li>See <a href=\"https://github.com/cncf/devstats/blob/master/docs/repository_groups.md\" target=\"_blank\">here</a> for more informations about repository groups.</li>\n</ul>",
+          "value": "<h1 id=\"kubernetes-dashboard\">Kubernetes PR Time to Approve and Merge dashboard</h1>\n<p>Links:</p>\n<ul>\n<li>Metric <a href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/time_metrics.sql\" target=\"_blank\">SQL file</a>.</li>\n<li>TSDB <a href=\"https://github.com/cncf/devstats/blob/master/metrics/kubernetes/metrics.yaml\" target=\"_blank\">series definition</a>. Search for <code>time_metrics</code></li>\n<li>Grafana dashboard <a href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/pr-time-to-approve-and-merge.json\" target=\"_blank\">JSON</a>.</li>\n</ul>\n<h1 id=\"description\">Description</h1>\n<ul>\n<li>This dashboard show median and 85th percentile time for merged PRs from open to LGTM, approve and merge.</li>\n<li>LGTM happens when <code>lgtm</code> label is added on a PR.</li>\n<li>Approve happens when <code>approved</code> label is added on a PR.</li>\n<li>Open to LGTM time is defined as time from open to LGTM when LGTM is present or from open to approve when approve is present or from open to merge if neither lgtm nor approve is present.</li>\n<li>It means that adding approved label when there is no lgtm label means LGTM too. Merging PR without approve or lgtm labels also means LGTM.</li>\n<li>LGTM to approve is defined as time from LGTM to approve when approve is present or from lgtm to merge if there is no approved label. If there is no LGTM this is zero.</li>\n<li>It means that merging PR means approving it.</li>\n<li>Approve to merge is defined as time from approve to merge if approved label is present. It is zero otherwise.</li>\n<li>You can filter by PR size. PR size is defined by <code>size/*</code> label. You can select All to get all PRs.</li>\n<li>You can select PRs with a specific <code>kind/*</code> label or summary for all of them.</li>\n<li>You can filter by API change. PR belongs to API change yes when it has <code>kind/api-change</code> label. You can select All to get all PRs.</li>\n<li>You can select single repository group or summary for all of them.</li>\n<li>Selecting period (for example week) means that dashboard will data for PRs created in those periods.</li>\n<li>See <a href=\"https://github.com/cncf/devstats/blob/master/docs/periods.md\" target=\"_blank\">here</a> for more informations about periods.</li>\n<li>See <a href=\"https://github.com/cncf/devstats/blob/master/docs/repository_groups.md\" target=\"_blank\">here</a> for more informations about repository groups.</li>\n</ul>"
         },
         "datasource": "psql",
+        "definition": "",
+        "description": null,
+        "error": null,
         "hide": 2,
         "includeAll": false,
         "label": null,
@@ -890,11 +1793,14 @@
       {
         "allValue": null,
         "current": {
-          "tags": [],
+          "selected": false,
           "text": "All",
           "value": "All"
         },
         "datasource": "psql",
+        "definition": "",
+        "description": null,
+        "error": null,
         "hide": 0,
         "includeAll": false,
         "label": "Kind",
@@ -915,10 +1821,14 @@
       {
         "allValue": null,
         "current": {
+          "selected": false,
           "text": "all",
           "value": "all"
         },
         "datasource": "psql",
+        "definition": "",
+        "description": null,
+        "error": null,
         "hide": 2,
         "includeAll": false,
         "label": null,
@@ -970,5 +1880,5 @@
   "timezone": "",
   "title": "PR Time to Approve and Merge",
   "uid": "44",
-  "version": 10
+  "version": 4
 }
