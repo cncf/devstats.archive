@@ -879,11 +879,11 @@ where
   org_login in ('piraeusdatastore')
 ;
 
--- k8dash
+-- Skooner
 update
   gha_repos
 set
-  repo_group = 'k8dash'
+  repo_group = 'Skooner'
 where
   name in (
     'indeedeng/k8dash',
@@ -931,11 +931,11 @@ where
   or name in ('docker/distribution')
 ;
 
--- ingraind
+-- Foniod
 update
   gha_repos
 set
-  repo_group = 'ingraind'
+  repo_group = 'Foniod'
 where
   org_login in ('ingraind', 'foniod')
   or name in ('redsift/ingraind')
@@ -947,7 +947,8 @@ update
 set
   repo_group = 'Kuberhealthy'
 where
-  name in ('Comcast/kuberhealthy')
+  org_login in ('kuberhealthy')
+  or name in ('Comcast/kuberhealthy')
 ;
 
 -- K8GB
