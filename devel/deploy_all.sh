@@ -348,7 +348,7 @@ do
     PROJ=piraeus             PROJDB=piraeus        PROJREPO="piraeusdatastore/piraeus-operator" ORGNAME=Piraeus-Datastore PORT=3080 ICON=piraeus      GRAFSUFF=piraeus        GA="UA-145264316-41" ./devel/deploy_proj.sh || exit 99
   elif [ "$proj" = "k8dash" ]
   then
-    PROJ=k8dash              PROJDB=k8dash         PROJREPO="indeedeng/k8dash"                ORGNAME=k8dash            PORT=3081 ICON=k8dash         GRAFSUFF=k8dash         GA="UA-145264316-42" ./devel/deploy_proj.sh || exit 100
+    PROJ=k8dash              PROJDB=k8dash         PROJREPO="indeedeng/k8dash"                ORGNAME=Skooner           PORT=3081 ICON=k8dash         GRAFSUFF=k8dash         GA="UA-145264316-42" ./devel/deploy_proj.sh || exit 100
   elif [ "$proj" = "athenz" ]
   then
     PROJ=athenz              PROJDB=athenz         PROJREPO="AthenZ/athenz"                   ORGNAME=Athenz            PORT=3082 ICON=athenz         GRAFSUFF=athenz         GA="UA-145264316-43" ./devel/deploy_proj.sh || exit 101
@@ -363,10 +363,10 @@ do
     PROJ=distribution        PROJDB=distribution   PROJREPO="distribution/distribution"       ORGNAME=Distribution      PORT=3085 ICON=distribution   GRAFSUFF=distribution   GA="UA-145264316-46" ./devel/deploy_proj.sh || exit 104
   elif [ "$proj" = "ingraind" ]
   then
-    PROJ=ingraind            PROJDB=ingraind       PROJREPO="foniod/ingraind"                 ORGNAME=ingraind          PORT=3086 ICON=ingraind       GRAFSUFF=ingraind       GA="UA-145264316-47" ./devel/deploy_proj.sh || exit 105
+    PROJ=ingraind            PROJDB=ingraind       PROJREPO="foniod/foniod"                   ORGNAME=Foniod            PORT=3086 ICON=ingraind       GRAFSUFF=ingraind       GA="UA-145264316-47" ./devel/deploy_proj.sh || exit 105
   elif [ "$proj" = "kuberhealthy" ]
   then
-    PROJ=kuberhealthy        PROJDB=kuberhealthy   PROJREPO="Comcast/kuberhealthy"            ORGNAME=Distribution      PORT=3087 ICON=kuberhealthy   GRAFSUFF=kuberhealthy   GA="UA-145264316-48" ./devel/deploy_proj.sh || exit 106
+    PROJ=kuberhealthy        PROJDB=kuberhealthy   PROJREPO="Comcast/kuberhealthy"            ORGNAME=Kuberhealthy      PORT=3087 ICON=kuberhealthy   GRAFSUFF=kuberhealthy   GA="UA-145264316-48" ./devel/deploy_proj.sh || exit 106
   elif [ "$proj" = "k8gb" ]
   then
     PROJ=k8gb                PROJDB=k8gb           PROJREPO="AbsaOSS/k8gb"                    ORGNAME=K8GB              PORT=3088 ICON=k8gb           GRAFSUFF=k8gb           GA="UA-145264316-49" ./devel/deploy_proj.sh || exit 107
