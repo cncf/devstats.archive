@@ -12,7 +12,7 @@
 <li>Bot commands set is defined (hardcoded) in the metric sql, they start with <code>/</code>.</li>
 <li>Drop-down commands values come from <a href="https://github.com/cncf/devstats/blob/master/metrics/kubernetes/bot_commands_tags.sql" target="_blank">this</a> file. You can select either all or a subset of all commands to display.</li>
 <li>You can select single repository group or summary for all of them (for the top panel).</li>
-<li>You can repository for bottom panel showing per single repository statistics.</li>
+<li>You can select repository for bottom panel showing per single repository statistics.</li>
 <li>Selecting period (for example week) means that dashboard will show bot commands used in those periods.</li>
 <li>See <a href="https://github.com/cncf/devstats/blob/master/docs/periods.md" target="_blank">here</a> for more informations about periods.</li>
 <li>See <a href="https://github.com/cncf/devstats/blob/master/docs/repository_groups.md" target="_blank">here</a> for more informations about repository groups.</li>

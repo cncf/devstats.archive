@@ -11,7 +11,7 @@
 <li>This dashboard shows how many companies and developers are contributing in a given repository group.</li>
 <li>By contributor we mean someone who made a review, comment, commit, created issue or PR, reviwed PR, commented on issue or PR.</li>
 <li>You can select single repository group or summary for all of them (for the top panel showing repository groups).</li>
-<li>You can repository for the bottom panel showing per single repository statistics.</li>
+<li>You can select repository for the bottom panel showing per single repository statistics.</li>
 <li>Selecting period (for example week) means that dashboard will show data in those periods.</li>
 <li>See <a href="https://github.com/cncf/devstats/blob/master/docs/periods.md" target="_blank">here</a> for more informations about periods.</li>
 <li>See <a href="https://github.com/cncf/devstats/blob/master/docs/repository_groups.md" target="_blank">here</a> for more informations about repository groups.</li>

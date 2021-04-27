@@ -13,7 +13,7 @@
 <li>Pusher is somebody who pushed the commit into the repository, committer is somebody who made/authored a commit/PR pushed by the pusher, this can be the same person or not.</li>
 <li>You can select last day, month, week etc. range or date range between releases, for example <code>v1.9 - v1.10</code>.</li>
 <li>You can select single repository group or summary for all of them (for the top panel).</li>
-<li>You can repository for bottom panel showing per single repository statistics.</li>
+<li>You can select repository for bottom panel showing per single repository statistics.</li>
 <li>See <a href="https://github.com/cncf/devstats/blob/master/docs/repository_groups.md" target="_blank">here</a> for more informations about repository groups.</li>
 <li>We are skipping bots when calculating statistics, see <a href="https://github.com/cncf/devstats/blob/master/docs/excluding_bots.md" target="_blank">excluding bots</a> for details.</li>
 </ul>

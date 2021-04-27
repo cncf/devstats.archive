@@ -20,7 +20,7 @@
 <li>You can select last day, month, week or 7 days moving average.</li>
 <li>If you select moving average, you will see the number of contributors in a moving 7 day average window and the number of contributions in that window divided by 7.</li>
 <li>You can select repository group or summary for all of them (for the top panel).</li>
-<li>You can repository for bottom panel showing per single repository statistics.</li>
+<li>You can select repository for bottom panel showing per single repository statistics.</li>
 <li>You can select country from a drop-down or summary for all countries.</li>
 <li>You can select company from a drop-down or summary for all companies.</li>
 <li>See <a href="https://github.com/cncf/devstats/blob/master/docs/repository_groups.md" target="_blank">here</a> for more informations about repository groups.</li>

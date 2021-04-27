@@ -16,7 +16,7 @@
 <li>Episodic contributor (PR creator) is someone who haven't created any PR in 3 months before given project and haven't created more than 12 PRs overall.</li>
 <li>Episodic PR is a PR created by episodic contributor.</li>
 <li>You can select single repository group or summary for all of them (for the top panel).</li>
-<li>You can repository for bottom panel showing per single repository statistics.</li>
+<li>You can select repository for bottom panel showing per single repository statistics.</li>
 <li>Selecting period (for example week) means that dashboard will calculate statistics in those periods.</li>
 <li>See <a href="https://github.com/cncf/devstats/blob/master/docs/periods.md" target="_blank">here</a> for more informations about periods.</li>
 <li>See <a href="https://github.com/cncf/devstats/blob/master/docs/repository_groups.md" target="_blank">here</a> for more informations about repository groups.</li>

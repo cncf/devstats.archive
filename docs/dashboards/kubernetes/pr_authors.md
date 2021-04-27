@@ -10,7 +10,7 @@
 <ul>
 <li>This dashboard shows the number of unique PRs authors who created PRs in given periods.</li>
 <li>You can select single repository group or summary for all of them (for the top panel).</li>
-<li>You can repository for bottom panel showing per single repository statistics.</li>
+<li>You can select repository for bottom panel showing per single repository statistics.</li>
 <li>Selecting period (for example week) means that dashboard will show number of PR creators in those periods.</li>
 <li>See <a href="https://github.com/cncf/devstats/blob/master/docs/periods.md" target="_blank">here</a> for more informations about periods.</li>
 <li>See <a href="https://github.com/cncf/devstats/blob/master/docs/repository_groups.md" target="_blank">here</a> for more informations about repository groups.</li>
