@@ -44,15 +44,19 @@ do
   then
     icon="kube-ovn"
   fi
+  if [ "$icon" = "gitops" ]
+  then
+    icon="opengitops"
+  fi
   # TODO: remove when we have icons
-  if ( [ "$icon" = "emissaryingress" ] || [ "$icon" = "ingraind" ] || [ "$icon" = "kuberhealthy" ] || [ "$icon" = "k8gb" ] || [ "$icon" = "trickster" ] || [ "$icon" = "k8dash" ] || [ "$icon" = "distribution" ] || [ "$icon" = "gitopswg" ] || [ "$icon" = "openkruise" ] || [ "$icon" = "cnigenie" ] || [ "$icon" = "istio" ] || [ "$icon" = "knative" ] || [ "$icon" = "contrib" ] || [ "$icon" = "sam" ] || [ "$icon" = "azf" ] || [ "$icon" = "riff" ] || [ "$icon" = "fn" ] || [ "$icon" = "openwhisk" ] || [ "$icon" = "openfaas" ] || [ "$icon" = "cii" ] )
+  if ( [ "$icon" = "emissaryingress" ] || [ "$icon" = "ingraind" ] || [ "$icon" = "kuberhealthy" ] || [ "$icon" = "k8gb" ] || [ "$icon" = "trickster" ] || [ "$icon" = "k8dash" ] || [ "$icon" = "distribution" ] || [ "$icon" = "cnigenie" ] || [ "$icon" = "istio" ] || [ "$icon" = "knative" ] || [ "$icon" = "contrib" ] || [ "$icon" = "sam" ] || [ "$icon" = "azf" ] || [ "$icon" = "riff" ] || [ "$icon" = "fn" ] || [ "$icon" = "openwhisk" ] || [ "$icon" = "openfaas" ] || [ "$icon" = "cii" ] )
   then
     icon="cncf"
   fi
   icontype=`./devel/get_icon_type.sh "$proj"` || exit 1
   iconorg=`./devel/get_icon_source.sh "$proj"` || exit 4
   path=$icon
-  if ( [ "$path" = "devstats" ] || [ "$path" = "cncf" ] )
+  if ( [ "$path" = "devstats" ] || [ "$path" = "cncf" ] || [ "$path" = "gitopswg" ] )
   then
     path="other/$icon"
   elif [ "$iconorg" = "cncf" ]
