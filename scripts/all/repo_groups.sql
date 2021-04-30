@@ -980,6 +980,63 @@ where
   or name in ('datawire/ambassador')
 ;
 
+-- WasmEdge Runtime
+update
+  gha_repos
+set
+  repo_group = 'WasmEdge Runtime'
+where
+  org_login in ('wasmerio', 'WAFoundation', 'wafoundation', 'getwasmer')
+  or name in ('wampio/wasmer')
+;
+
+-- ChaosBlade
+update
+  gha_repos
+set
+  repo_group = 'ChaosBlade'
+where
+  org_login in ('chaosblade-io')
+;
+
+-- Vineyard
+update
+  gha_repos
+set
+  repo_group = 'Vineyard'
+where
+  name in ('alibaba/v6d', 'alibaba/libvineyard')
+;
+
+-- Antrea
+update
+  gha_repos
+set
+  repo_group = 'Antrea'
+where
+  name in ('vmware-tanzu/antrea')
+;
+
+-- Fluid
+update
+  gha_repos
+set
+  repo_group = 'Fluid'
+where
+  org_login in ('fluid-cloudnative')
+  or name in ('cheyang/fluid')
+;
+
+-- Submariner
+update
+  gha_repos
+set
+  repo_group = 'Submariner'
+where
+  org_login in ('submariner-io')
+  or name in ('rancher/submariner')
+;
+
 -- CNCF
 update
   gha_repos
