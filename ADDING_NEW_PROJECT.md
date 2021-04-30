@@ -25,9 +25,9 @@ This file describes how to add new project on the test and production servers.
 - Update `all` and `everything` REGEXPs. Run `` ONLY=`cat devel/all_prod_projects.txt` SKIP=all ./util_sh/all_cncf_re.sh > out `` to get `all` value for all CNCF projects.
 - Then run `SKIP=all ./util_sh/all_cncf_re.sh > out` to get everything value, replace `all,` with `everything,` and save as `util_data/project_re.txt`.
 - Update `devel/generate_actors_nonlf.sh`, possibly other `devel/generate_actors_*.sh` files.
+- Copy setup scripts and then adjust them: `cp -R oldproject/ projectname/`, `vim projectname/*`. Most them can be shared for all projects in `./shared/`, usually only `psql.sh` is project specific.
 - Add Google Analytics (GA) for the new domain and keep the `UA-...` code for deployment.
 - Review `grafana/copy_artwork_icons.sh apache/www/copy_icons.sh grafana/create_images.sh grafana/change_title_and_icons_all.sh` - maybe you need to add special case. Icon related scripts are marked 'ARTWORK'.
-- Copy setup scripts and then adjust them: `cp -R oldproject/ projectname/`, `vim projectname/*`. Most them can be shared for all projects in `./shared/`, usually only `psql.sh` is project specific.
 - Update automatic deploy script: `./devel/deploy_all.sh`.
 - Some projects should not be added to 'All CNCF' (like openconatiners, istio, spinnaker, knative, linux, zephyr, sam, azf, riff, fn, openwhisk, openfaas, nodejs, cii), update `devel/deploy_proj.sh` in such cases.
 - Copy `metrics/oldproject` to `metrics/projectname`. Update `./metrics/projectname/vars.yaml` file.
