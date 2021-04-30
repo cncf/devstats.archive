@@ -48,7 +48,7 @@ do
     icon="opengitops"
   fi
   # TODO: remove when we have icons
-  if ( [ "$icon" = "emissaryingress" ] || [ "$icon" = "ingraind" ] || [ "$icon" = "kuberhealthy" ] || [ "$icon" = "k8gb" ] || [ "$icon" = "trickster" ] || [ "$icon" = "k8dash" ] || [ "$icon" = "distribution" ] || [ "$icon" = "cnigenie" ] || [ "$icon" = "istio" ] || [ "$icon" = "knative" ] || [ "$icon" = "contrib" ] || [ "$icon" = "sam" ] || [ "$icon" = "azf" ] || [ "$icon" = "riff" ] || [ "$icon" = "fn" ] || [ "$icon" = "openwhisk" ] || [ "$icon" = "openfaas" ] || [ "$icon" = "cii" ] )
+  if ( [ "$icon" = "emissaryingress" ] || [ "$icon" = "ingraind" ] || [ "$icon" = "k8gb" ] || [ "$icon" = "trickster" ] || [ "$icon" = "k8dash" ] || [ "$icon" = "distribution" ] || [ "$icon" = "cnigenie" ] || [ "$icon" = "istio" ] || [ "$icon" = "knative" ] || [ "$icon" = "contrib" ] || [ "$icon" = "sam" ] || [ "$icon" = "azf" ] || [ "$icon" = "riff" ] || [ "$icon" = "fn" ] || [ "$icon" = "openwhisk" ] || [ "$icon" = "openfaas" ] || [ "$icon" = "cii" ] )
   then
     icon="cncf"
   fi
