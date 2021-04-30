@@ -13,6 +13,9 @@ with topu as (
       'PullRequestEvent', 'PullRequestReviewCommentEvent', 'PushEvent'
     )
     and lower(e.dup_actor_login) not like all(array[
+        'backstage-service', 'openssl-machine', 'sizebot', 'dependabot', 'cncf-ci',
+        'svcbot-qecnsdp', 'nsmbot', 'ti-srebot', 'cf-buildpacks-eng', 'bosh-ci-push-pull',
+        'gprasath', 'zephyr-github', 'zephyrbot', 'strimzi-ci', 'athenabot', 'poiana',
         'k8s-reviewable', 'codecov-io', 'grpc-testing', 'k8s-teamcity-mesosphere',
         'angular-builds', 'devstats-sync', 'googlebot', 'hibernate-ci', 'coveralls', 'rktbot',
         'coreosbot', 'web-flow', 'prometheus-roobot', 'cncf-bot', 'kernelprbot', 'istio-testing',
