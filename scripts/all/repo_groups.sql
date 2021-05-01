@@ -986,8 +986,8 @@ update
 set
   repo_group = 'WasmEdge Runtime'
 where
-  org_login in ('wasmerio', 'WAFoundation', 'wafoundation', 'getwasmer')
-  or name in ('wampio/wasmer')
+  org_login in ('WasmEdge')
+  or name in ('second-state/SSVM')
 ;
 
 -- ChaosBlade
