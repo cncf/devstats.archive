@@ -6,16 +6,11 @@ select
   max(created_at) as date_to
 from (
   select * from
-    [githubarchive:month.202010],
-    [githubarchive:month.202009],
-    [githubarchive:month.202008],
-    [githubarchive:month.202007],
-    [githubarchive:month.202006],
-    [githubarchive:month.202005],
-    [githubarchive:month.202004],
-    [githubarchive:month.202003],
-    [githubarchive:month.202002],
-    [githubarchive:month.202001],
+    [githubarchive:month.202104],
+    [githubarchive:month.202103],
+    [githubarchive:month.202102],
+    [githubarchive:month.202101]
+    [githubarchive:year.2020],
     [githubarchive:year.2019],
     [githubarchive:year.2018],
     [githubarchive:year.2017],
@@ -28,16 +23,11 @@ where
     select
       repo.id
     from
-      [githubarchive:month.202010],
-      [githubarchive:month.202009],
-      [githubarchive:month.202008],
-      [githubarchive:month.202007],
-      [githubarchive:month.202006],
-      [githubarchive:month.202005],
-      [githubarchive:month.202004],
-      [githubarchive:month.202003],
-      [githubarchive:month.202002],
-      [githubarchive:month.202001]
+      [githubarchive:month.202104],
+      [githubarchive:month.202103],
+      [githubarchive:month.202102],
+      [githubarchive:month.202101]
+      [githubarchive:year.2020],
     where
       repo.name like 'org_name/%'
     group by
