@@ -31,7 +31,7 @@ update gha_repos set repo_group = alias;
 update gha_repos
 set repo_group = 'Antrea', alias = 'Antrea'
 where name in (
-  'vmware-tenzu/antrea'
+  'vmware-tanzu/antrea'
 );
 
 select
