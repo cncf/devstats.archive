@@ -31,6 +31,7 @@ update gha_repos set repo_group = alias;
 update gha_repos
 set repo_group = 'Submariner', alias = 'Submariner'
 where name in (
+  'rancher/submariner',
   'submariner-io/submariner'
 );
 
