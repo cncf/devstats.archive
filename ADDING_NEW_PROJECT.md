@@ -35,6 +35,7 @@ This file describes how to add new project on the test and production servers.
 - `cp -Rv grafana/oldproject/ grafana/projectname/` and then update files. Usually `%s/Oldproject/Newproject/g`, `%s/oldproject/newproject/g|w|next`.
 - Try to source from Grafana with most similar project start date: `cp -Rv grafana/dashboards/oldproject/ grafana/dashboards/projectname/` and then update files.  Use `devel/mass_replace.sh` script, it contains some examples in the comments.
 - Something like this: `` MODE=ss0 FROM='"oldproject"' TO='"newproject"' FILES=`find ./grafana/dashboards/newproject -type f -iname '*.json'` ./devel/mass_replace.sh ``.
+- For multiple projects as once: `` for f in wasmedge chaosblade vineyard antrea fluid submariner; do cp -Rv grafana/dashboards/porter/ "grafana/dashboards/${f}/"; MODE=ss0 FROM='"porter"' TO="\"${f}\"" FILES=`find "./grafana/dashboards/${f}/" -type f -iname '*.json'` ./devel/mass_replace.sh; done ``.
 - Update `grafana/dashboards/proj/dashboards.json` for all already existing projects, add new project using `devel/mass_replace.sh` or `devel/replace.sh`.
 - For example: `./devel/dashboards_replace_from_to.sh dashboards.json` with `FROM` file containing old links and `TO` file containing new links.
 - When adding new dashboard to all projects, you can add to single project (for example "cncf") and then populate to all others via something like: `FROM_PROJ=cncf ./devel/add_dashboard.sh dashboard-name.json`, or old approach:
