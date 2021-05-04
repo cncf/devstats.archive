@@ -35,7 +35,7 @@ This file describes how to add new project on the test and production servers.
 - `cp -Rv grafana/oldproject/ grafana/projectname/` and then update files. Usually `%s/Oldproject/Newproject/g`, `%s/oldproject/newproject/g|w|next`.
 - Try to source from Grafana with most similar project start date: `cp -Rv grafana/dashboards/oldproject/ grafana/dashboards/projectname/` and then update files.  Use `devel/mass_replace.sh` script, it contains some examples in the comments.
 - Something like this: `` MODE=ss0 FROM='"oldproject"' TO='"newproject"' FILES=`find ./grafana/dashboards/newproject -type f -iname '*.json'` ./devel/mass_replace.sh ``.
-- For multiple projects as once: `` for f in wasmedge chaosblade vineyard antrea fluid submariner; do cp -Rv grafana/dashboards/porter/ "grafana/dashboards/${f}/"; MODE=ss0 FROM='"porter"' TO="\"${f}\"" FILES=`find "./grafana/dashboards/${f}/" -type f -iname '*.json'` ./devel/mass_replace.sh; done ``.
+- For multiple projects at once: `` for f in wasmedge chaosblade vineyard antrea fluid submariner; do cp -Rv grafana/dashboards/porter/ "grafana/dashboards/${f}/"; MODE=ss0 FROM='"porter"' TO="\"${f}\"" FILES=`find "./grafana/dashboards/${f}/" -type f -iname '*.json'` ./devel/mass_replace.sh; done ``.
 - Update `grafana/dashboards/proj/dashboards.json` for all already existing projects, add new project using `devel/mass_replace.sh` or `devel/replace.sh`.
 - For example: `./devel/dashboards_replace_from_to.sh dashboards.json` with `FROM` file containing old links and `TO` file containing new links.
 - When adding new dashboard to all projects, you can add to single project (for example "cncf") and then populate to all others via something like: `FROM_PROJ=cncf ./devel/add_dashboard.sh dashboard-name.json`, or old approach:
@@ -46,7 +46,7 @@ This file describes how to add new project on the test and production servers.
 - Update `partials/projects.html partials/projects_health.html metrics/all/sync_vars.yaml`. Test with: `ONLY="proj1 proj2 ..." PG_PASS=... ./devel/vars_all.sh`. In simpler cases you can use `./util_sh/generate_partials.sh`. Also check `util_sh/update_json_value.sh`.
 - If normalized project name is not equal to lower project name, you need to update projects health metric to do the mapping, for example `series_name_map: { clouddeploymentkitforkubernetes: cdk8s }`, see `metrics/*/*.yaml`.
 - Update the number of projects in `metrics/all/sync_vars.yaml`.
-- Update Apache proxy and SSL files `apache/www/index_* apache/*/sites-enabled/* apache/*/sites.txt` files.
+- Update Apache proxy and SSL files `apache/www/index_* apache/*/sites-enabled/* apache/*/sites.txt` files. You can copy from `partials/projects.yaml` adn then: `:'<,'>s/\[\[hostname]]/devstats.cncf.io/g`, `:'<,'>s/public\/img\/projects\///g` and `:'<,'>s/devstats\.cncf\.io/teststats.cncf.io/g`.
 - Run deploy all script: `GHA2DB_PROJECTS_OVERRIDE="+proj1,+proj2" SKIPCERT=1 HEALTH=1 SKIPTEMP=1 CUSTGRAFPATH=1 PG_PASS=... ./devel/deploy_all.sh`. If succeeded `make install`.
 - Bacause this can take few hours to complete (for a project 6 years old for example), run next sync manually. Get sync command from `crontab -l` and prepend it with `GHA2DB_RECENT_RANGE="6 hours"` to avoid missing GitHub API events.
 - You can also deploy automatically from webhook (even on the test server), but it takes very long time and is harder to debug, see [continuous deployment](https://github.com/cncf/devstats/blob/master/CONTINUOUS_DEPLOYMENT.md).
