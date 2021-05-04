@@ -31,6 +31,7 @@ update gha_repos set repo_group = alias;
 update gha_repos
 set repo_group = 'WasmEdge Runtime', alias = 'WasmEdge Runtime'
 where name in (
+  'second-state/SSVM',
   'WasmEdge/WasmEdge'
 );
 
