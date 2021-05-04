@@ -376,6 +376,24 @@ do
   elif [ "$proj" = "emissaryingress" ]
   then
     PROJ=emissaryingress     PROJDB=emissaryingress PROJREPO="datawire/ambassador"            ORGNAME=Emissary-ingress  PORT=3090 ICON=emissaryingress GRAFSUFF=emissaryingress GA="UA-145264316-51" ./devel/deploy_proj.sh || exit 109
+  elif [ "$proj" = "wasmedge" ]
+  then
+    PROJ=wasmedge            PROJDB=wasmedge        PROJREPO="WasmEdge/WasmEdge"              ORGNAME='WasmEdge Runtime' PORT=3091 ICON=wasmedge      GRAFSUFF=wasmedge       GA="UA-145264316-52" ./devel/deploy_proj.sh || exit 110
+  elif [ "$proj" = "chaosblade" ]
+  then
+    PROJ=chaosblade          PROJDB=chaosblade      PROJREPO="chaosblade-io/chaosblade"       ORGNAME=ChaosBlade        PORT=3092 ICON=chaosblade     GRAFSUFF=chaosblade     GA="UA-145264316-53" ./devel/deploy_proj.sh || exit 111
+  elif [ "$proj" = "vineyard" ]
+  then
+    PROJ=vineyard            PROJDB=vineyard        PROJREPO="alibaba/v6d"                    ORGNAME=Vineyard          PORT=3093 ICON=vineyard       GRAFSUFF=vineyard       GA="UA-145264316-54" ./devel/deploy_proj.sh || exit 112
+  elif [ "$proj" = "antrea" ]
+  then
+    PROJ=antrea              PROJDB=antrea          PROJREPO="vmware-tanzu/antrea"            ORGNAME=Antrea            PORT=3094 ICON=antrea         GRAFSUFF=antrea         GA="UA-145264316-55" ./devel/deploy_proj.sh || exit 113
+  elif [ "$proj" = "fluid" ]
+  then
+    PROJ=fluid               PROJDB=fluid           PROJREPO="fluid-cloudnative/fluid"        ORGNAME=Fluid             PORT=3095 ICON=fluid          GRAFSUFF=fluid          GA="UA-145264316-56" ./devel/deploy_proj.sh || exit 114
+  elif [ "$proj" = "submariner" ]
+  then
+    PROJ=submariner          PROJDB=submariner      PROJREPO="submariner-io/submariner"       ORGNAME=Submariner        PORT=3096 ICON=submariner     GRAFSUFF=submariner     GA="UA-145264316-57" ./devel/deploy_proj.sh || exit 115
   elif [ "$proj" = "opencontainers" ]
   then
     PROJ=opencontainers      PROJDB=opencontainers PROJREPO="opencontainers/runc"             ORGNAME=OCI               PORT=3100 ICON="-"            GRAFSUFF=opencontainers GA="UA-108085315-19" ./devel/deploy_proj.sh || exit 32
