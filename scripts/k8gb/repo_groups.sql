@@ -32,7 +32,8 @@ update gha_repos
 set repo_group = 'K8GB', alias = 'K8GB'
 where name in (
   'AbsaOSS/k8gb',
-  'AbsaOSS/ohmyglb'
+  'AbsaOSS/ohmyglb',
+  'k8gb-io/k8gb'
 );
 
 select

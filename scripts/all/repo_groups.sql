@@ -957,7 +957,8 @@ update
 set
   repo_group = 'K8GB'
 where
-  name in ('AbsaOSS/k8gb', 'AbsaOSS/ohmyglb')
+  org_login in ('k8gb-io')
+  or name in ('AbsaOSS/k8gb', 'AbsaOSS/ohmyglb')
 ;
 
 -- Trickster

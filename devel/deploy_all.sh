@@ -369,7 +369,7 @@ do
     PROJ=kuberhealthy        PROJDB=kuberhealthy   PROJREPO="Comcast/kuberhealthy"            ORGNAME=Kuberhealthy      PORT=3087 ICON=kuberhealthy   GRAFSUFF=kuberhealthy   GA="UA-145264316-48" ./devel/deploy_proj.sh || exit 106
   elif [ "$proj" = "k8gb" ]
   then
-    PROJ=k8gb                PROJDB=k8gb           PROJREPO="AbsaOSS/k8gb"                    ORGNAME=K8GB              PORT=3088 ICON=k8gb           GRAFSUFF=k8gb           GA="UA-145264316-49" ./devel/deploy_proj.sh || exit 107
+    PROJ=k8gb                PROJDB=k8gb           PROJREPO="k8gb-io/k8gb"                    ORGNAME=K8GB              PORT=3088 ICON=k8gb           GRAFSUFF=k8gb           GA="UA-145264316-49" ./devel/deploy_proj.sh || exit 107
   elif [ "$proj" = "trickster" ]
   then
     PROJ=trickster           PROJDB=trickster      PROJREPO="tricksterproxy/trickster"        ORGNAME=Trickster         PORT=3089 ICON=trickster      GRAFSUFF=trickster      GA="UA-145264316-50" ./devel/deploy_proj.sh || exit 108
