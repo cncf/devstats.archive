@@ -117,7 +117,7 @@ create temp table act{{rnd}} as
     i.issue_id = ia.issue_id;
 create index on act{{rnd}}(issue_id);
 select
-  'inactive_issues_by_sig_repos;' || sub.sig || '_' || sub.repo || ';w2,d30,d90' as metric,
+  'inactive_issues_by_sig_repos;' || sub.sig || '`' || sub.repo || ';w2,d30,d90' as metric,
   count(distinct sub.issue_id) filter(where sub.inactive_for > 1209600) as inactive_14,
   count(distinct sub.issue_id) filter(where sub.inactive_for > 2592000) as inactive_30,
   count(distinct sub.issue_id) filter(where sub.inactive_for > 7776000) as inactive_90

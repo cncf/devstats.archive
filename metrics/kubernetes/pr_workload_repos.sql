@@ -197,7 +197,7 @@ create temp table sig_reviewers{{rnd}} as
     sub2.repo;
 create index on sig_reviewers{{rnd}}(sig);
 select
-  'sig_pr_wrl;' || sub.sig || '_' || sub.repo || ';iss,abs,rev,rel' as metric,
+  'sig_pr_wrl;' || sub.sig || '`' || sub.repo || ';iss,abs,rev,rel' as metric,
   sub.iss,
   sub.abs,
   coalesce(sr.rev, 0) as rev,
