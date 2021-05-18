@@ -91,7 +91,8 @@ where
     'issues-age-by-sig-and-repository-groups',
     'issues-opened-closed-by-sig',
     'new-and-episodic-issue-creators',
-    'inactive-issues-by-sig'
+    'inactive-issues-by-sig',
+    'inactive-issues-by-sig-and-repository'
   )
 ;
 
