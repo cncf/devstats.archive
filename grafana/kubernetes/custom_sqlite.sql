@@ -123,7 +123,8 @@ where
     'prs-opened-by-sig',
     'awaiting-prs-by-sig',
     'prs-labels-by-sig',
-    'inactive-prs-by-sig'
+    'inactive-prs-by-sig',
+    'inactive-prs-by-sig-and-repository'
   )
 ;
 
