@@ -2,7 +2,7 @@
 <p>Links:</p>
 <ul>
 <li>Metric <a href="https://github.com/cncf/devstats/blob/master/metrics/kubernetes/inactive_issues_by_sig.sql" target="_blank">SQL file</a>.</li>
-<li>Metric (repositories version) <a href="https://github.com/cncf/devstats/blob/master/metrics/kubernetes/inactive_issues_by_sig.sql" target="_blank">SQL file</a>.</li>
+<li>Metric (repositories version) <a href="https://github.com/cncf/devstats/blob/master/metrics/kubernetes/inactive_issues_by_sig_repos.sql" target="_blank">SQL file</a>.</li>
 <li>TSDB <a href="https://github.com/cncf/devstats/blob/master/metrics/kubernetes/metrics.yaml" target="_blank">series definition</a>. Search for <code>inactive_issues_by_sig(_repos)</code></li>
 <li>Grafana dashboard <a href="https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/inactive-issues-by-sig.json" target="_blank">JSON</a>.</li>
 <li>Grafana dashboard (repositories version) <a href="https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/inactive-issues-by-sig-and-repository.json" target="_blank">JSON</a>.</li>
