@@ -122,6 +122,7 @@ where
     'prs-labels-repositories',
     'prs-opened-by-sig',
     'awaiting-prs-by-sig',
+    'awaiting-prs-by-sig-and-repository',
     'prs-labels-by-sig',
     'inactive-prs-by-sig',
     'inactive-prs-by-sig-and-repository'
