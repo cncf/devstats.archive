@@ -2,6 +2,7 @@
 <p>Links:</p>
 <ul>
 <li>Metric <a href="https://github.com/cncf/devstats/blob/master/metrics/kubernetes/prs_open_by_sig.sql" target="_blank">SQL file</a>.</li>
+<li>Metric (repositories) <a href="https://github.com/cncf/devstats/blob/master/metrics/kubernetes/prs_open_by_sig_repos.sql" target="_blank">SQL file</a>.</li>
 <li>TSDB <a href="https://github.com/cncf/devstats/blob/master/metrics/kubernetes/metrics.yaml" target="_blank">series definition</a>. Search for <code>prs_open_by_sig</code></li>
 <li>Grafana dashboard <a href="https://github.com/cncf/devstats/blob/master/grafana/dashboards/kubernetes/prs-opened-by-sig.json" target="_blank">JSON</a>.</li>
 </ul>
@@ -10,4 +11,5 @@
 <li>This dashboard shows the number of PRs opened by SIG.</li>
 <li>We're counting PRs that were opened in given periods.</li>
 <li>PR belongs to SIG by using <code>sig/*</code> labels. List of SIGs to display in drop-down comes from all <code>sig/*</code> labels.</li>
+<li>You can select repository for bottom panels showing per single repository statistics.</li>
 </ul>
