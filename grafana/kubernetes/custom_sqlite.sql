@@ -117,6 +117,7 @@ where
     'pr-time-to-engagement',
     'pr-workload-per-sig-chart',
     'pr-workload-per-sig-table',
+    'pr-workload-per-sig-and-repository-chart',
     'prs-approval-repository-groups',
     'prs-labels-repository-groups',
     'prs-labels-repositories',
