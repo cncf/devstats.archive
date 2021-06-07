@@ -1006,7 +1006,8 @@ update
 set
   repo_group = 'Vineyard'
 where
-  name in ('alibaba/v6d', 'alibaba/libvineyard')
+  org_login in ('v6d-io')
+  or name in ('alibaba/v6d', 'alibaba/libvineyard')
 ;
 
 -- Antrea

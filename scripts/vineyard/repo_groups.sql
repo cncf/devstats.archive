@@ -31,6 +31,7 @@ update gha_repos set repo_group = alias;
 update gha_repos
 set repo_group = 'Vineyard', alias = 'Vineyard'
 where name in (
+  'v6d-io/v6d',
   'alibaba/libvineyard',
   'alibaba/v6d'
 );
