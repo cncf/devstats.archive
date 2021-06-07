@@ -384,7 +384,7 @@ do
     PROJ=chaosblade          PROJDB=chaosblade      PROJREPO="chaosblade-io/chaosblade"       ORGNAME=ChaosBlade        PORT=3092 ICON=chaosblade     GRAFSUFF=chaosblade     GA="UA-145264316-53" ./devel/deploy_proj.sh || exit 111
   elif [ "$proj" = "vineyard" ]
   then
-    PROJ=vineyard            PROJDB=vineyard        PROJREPO="alibaba/v6d"                    ORGNAME=Vineyard          PORT=3093 ICON=vineyard       GRAFSUFF=vineyard       GA="UA-145264316-54" ./devel/deploy_proj.sh || exit 112
+    PROJ=vineyard            PROJDB=vineyard        PROJREPO="v6d-io/v6d"                     ORGNAME=Vineyard          PORT=3093 ICON=vineyard       GRAFSUFF=vineyard       GA="UA-145264316-54" ./devel/deploy_proj.sh || exit 112
   elif [ "$proj" = "antrea" ]
   then
     PROJ=antrea              PROJDB=antrea          PROJREPO="vmware-tanzu/antrea"            ORGNAME=Antrea            PORT=3094 ICON=antrea         GRAFSUFF=antrea         GA="UA-145264316-55" ./devel/deploy_proj.sh || exit 113
