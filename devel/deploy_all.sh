@@ -375,7 +375,7 @@ do
     PROJ=trickster           PROJDB=trickster      PROJREPO="tricksterproxy/trickster"        ORGNAME=Trickster         PORT=3089 ICON=trickster      GRAFSUFF=trickster      GA="UA-145264316-50" ./devel/deploy_proj.sh || exit 108
   elif [ "$proj" = "emissaryingress" ]
   then
-    PROJ=emissaryingress     PROJDB=emissaryingress PROJREPO="datawire/ambassador"            ORGNAME=Emissary-ingress  PORT=3090 ICON=emissaryingress GRAFSUFF=emissaryingress GA="UA-145264316-51" ./devel/deploy_proj.sh || exit 109
+    PROJ=emissaryingress     PROJDB=emissaryingress PROJREPO="emissary-ingress/emissary"      ORGNAME=Emissary-ingress  PORT=3090 ICON=emissaryingress GRAFSUFF=emissaryingress GA="UA-145264316-51" ./devel/deploy_proj.sh || exit 109
   elif [ "$proj" = "wasmedge" ]
   then
     PROJ=wasmedge            PROJDB=wasmedge        PROJREPO="WasmEdge/WasmEdge"              ORGNAME='WasmEdge Runtime' PORT=3091 ICON=wasmedge      GRAFSUFF=wasmedge       GA="UA-145264316-52" ./devel/deploy_proj.sh || exit 110

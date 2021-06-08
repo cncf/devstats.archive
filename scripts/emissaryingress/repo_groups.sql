@@ -31,6 +31,7 @@ update gha_repos set repo_group = alias;
 update gha_repos
 set repo_group = 'Emissary-ingress', alias = 'Emissary-ingress'
 where name in (
+  'emissary-ingress/emissary',
   'emissary-ingress/ambassador',
   'datawire/ambassador'
 );
