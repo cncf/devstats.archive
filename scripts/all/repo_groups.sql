@@ -526,7 +526,7 @@ update
 set
   repo_group = 'Argo'
 where
-  org_login in ('argoproj')
+  org_login in ('argoproj', 'argoproj-labs')
 ;
 
 -- Volcano
