@@ -32,7 +32,8 @@ update gha_repos
 set repo_group = 'Trickster', alias = 'Trickster'
 where name in (
   'Comcast/trickster',
-  'tricksterproxy/trickster'
+  'tricksterproxy/trickster',
+  'trickstercache/trickster'
 );
 
 select

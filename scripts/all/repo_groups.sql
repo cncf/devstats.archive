@@ -967,7 +967,7 @@ update
 set
   repo_group = 'Trickster'
 where
-  org_login in ('tricksterproxy')
+  org_login in ('tricksterproxy', 'trickstercache')
   or name in ('Comcast/trickster')
 ;
 

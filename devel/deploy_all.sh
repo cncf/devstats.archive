@@ -372,7 +372,7 @@ do
     PROJ=k8gb                PROJDB=k8gb           PROJREPO="k8gb-io/k8gb"                    ORGNAME=K8GB              PORT=3088 ICON=k8gb           GRAFSUFF=k8gb           GA="UA-145264316-49" ./devel/deploy_proj.sh || exit 107
   elif [ "$proj" = "trickster" ]
   then
-    PROJ=trickster           PROJDB=trickster      PROJREPO="tricksterproxy/trickster"        ORGNAME=Trickster         PORT=3089 ICON=trickster      GRAFSUFF=trickster      GA="UA-145264316-50" ./devel/deploy_proj.sh || exit 108
+    PROJ=trickster           PROJDB=trickster      PROJREPO="trickstercache/trickster"        ORGNAME=Trickster         PORT=3089 ICON=trickster      GRAFSUFF=trickster      GA="UA-145264316-50" ./devel/deploy_proj.sh || exit 108
   elif [ "$proj" = "emissaryingress" ]
   then
     PROJ=emissaryingress     PROJDB=emissaryingress PROJREPO="emissary-ingress/emissary"      ORGNAME=Emissary-ingress  PORT=3090 ICON=emissaryingress GRAFSUFF=emissaryingress GA="UA-145264316-51" ./devel/deploy_proj.sh || exit 109
