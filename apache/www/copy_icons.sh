@@ -10,6 +10,7 @@ do
   fi
   icon=$proj
   mid="icon"
+  dash='-'
   if [ "$icon" = "all" ]
   then
     icon="cncf"
@@ -50,23 +51,31 @@ do
   then
     icon="cncf-distribution"
   fi
+  if [ "$icon" = "wasmedge" ]
+  then
+    icon="wasm-edge-runtime"
+  fi
   # TODO: remove when we have icons
-  if ( [ "$icon" = "wasmedge" ] || [ "$icon" = "chaosblade" ] || [ "$icon" = "ingraind" ] || [ "$icon" = "k8dash" ] || [ "$icon" = "cnigenie" ] || [ "$icon" = "istio" ] || [ "$icon" = "knative" ] || [ "$icon" = "contrib" ] || [ "$icon" = "sam" ] || [ "$icon" = "azf" ] || [ "$icon" = "riff" ] || [ "$icon" = "fn" ] || [ "$icon" = "openwhisk" ] || [ "$icon" = "openfaas" ] || [ "$icon" = "cii" ] )
+  if ( [ "$icon" = "chaosblade" ] || [ "$icon" = "ingraind" ] || [ "$icon" = "k8dash" ] || [ "$icon" = "cnigenie" ] || [ "$icon" = "istio" ] || [ "$icon" = "knative" ] || [ "$icon" = "contrib" ] || [ "$icon" = "sam" ] || [ "$icon" = "azf" ] || [ "$icon" = "riff" ] || [ "$icon" = "fn" ] || [ "$icon" = "openwhisk" ] || [ "$icon" = "openfaas" ] || [ "$icon" = "cii" ] )
   then
     icon="cncf"
   fi
   icontype=`./devel/get_icon_type.sh "$proj"` || exit 1
   iconorg=`./devel/get_icon_source.sh "$proj"` || exit 4
   path=$icon
-  if ( [ "$path" = "devstats" ] || [ "$path" = "cncf" ] || [ "$path" = "gitopswg" ] )
+  if ( [ "$path" = "devstats" ] || [ "$path" = "cncf" ] || [ "$path" = "gitopswg" ] || [ "$path" = "wasm-edge-runtime" ] )
   then
+    if [ "$path" = "wasm-edge-runtime" ]
+    then
+      dash='_'
+    fi
     path="other/$icon"
   elif [ "$iconorg" = "cncf" ]
   then
     path="projects/$icon"
   fi
-  convert "$HOME/dev/$iconorg/artwork/$path/icon/$icontype/$icon-$mid-$icontype.png" -resize 80x80 "/var/www/html/img/$proj-icon-color.png" || exit 2
-  cp "$HOME/dev/$iconorg/artwork/$path/icon/$icontype/$icon-$mid-$icontype.svg" "/var/www/html/img/$proj-icon-color.svg" || exit 3
+  convert "$HOME/dev/$iconorg/artwork/$path/icon/$icontype/${icon}${dash}$mid-$icontype.png" -resize 80x80 "/var/www/html/img/$proj-icon-color.png" || exit 2
+  cp "$HOME/dev/$iconorg/artwork/$path/icon/$icontype/${icon}${dash}$mid-$icontype.svg" "/var/www/html/img/$proj-icon-color.svg" || exit 3
 done
 
 # Special cases
