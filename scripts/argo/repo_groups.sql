@@ -29,6 +29,10 @@ where
 update gha_repos set repo_group = alias;
 
 update gha_repos
+set repo_group = 'Argo', alias = 'Argo'
+where name in ('argoproj/argo');
+
+update gha_repos
 set repo_group = 'argoproj-labs', alias = 'argoproj-labs'
 where org_login in ('argoproj-labs');
 
