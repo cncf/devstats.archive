@@ -45,7 +45,6 @@ update gha_repos set repo_group = 'SIG API Machinery' where lower(name) in (
   'kubernetes-sigs/kube-storage-version-migrator',
   'kubernetes-sigs/kubebuilder',
   'kubernetes-sigs/kubebuilder-declarative-pattern',
-  'kubernetes-sigs/kubebuilder-delcarative-pattern',
   'kubernetes-sigs/kubebuilder-release-tools',
   'kubernetes-sigs/legacyflag',
   'kubernetes-sigs/meta-controller',
