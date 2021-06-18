@@ -132,7 +132,6 @@ update gha_repos set repo_group = 'SIG Cloud Provider' where lower(name) in (
   'kubernetes-sigs/cloud-provider-baiducloud',
   'kubernetes-sigs/cloud-provider-huaweicloud',
   'kubernetes-sigs/compute-persistent-disk-csi-driver',
-  'kubernetes-sigs/compute-persistent-disk-csi-driver-',
   'kubernetes-sigs/gcp-compute-persistent-disk-csi-driver',
   'kubernetes-sigs/gcp-filestore-csi-driver',
   'kubernetes-sigs/vsphere-csi-driver',
