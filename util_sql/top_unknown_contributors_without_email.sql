@@ -16,7 +16,7 @@ with topu as (
         'imgbotapp', 'backstage-service', 'openssl-machine', 'sizebot', 'dependabot', 'cncf-ci',
         'svcbot-qecnsdp', 'nsmbot', 'ti-srebot', 'cf-buildpacks-eng', 'bosh-ci-push-pull',
         'gprasath', 'zephyr-github', 'zephyrbot', 'strimzi-ci', 'athenabot', 'poiana',
-        'k8s-reviewable', 'codecov-io', 'grpc-testing', 'k8s-teamcity-mesosphere',
+        'k8s-reviewable', 'codecov-io', 'grpc-testing', 'k8s-teamcity-mesosphere', 'goreleaserbot',
         'angular-builds', 'devstats-sync', 'googlebot', 'hibernate-ci', 'coveralls', 'rktbot',
         'coreosbot', 'web-flow', 'prometheus-roobot', 'cncf-bot', 'kernelprbot', 'istio-testing',
         'spinnakerbot', 'pikbot', 'spinnaker-release','strimzi-ci', 'athenabot', 'jenkins-%',
