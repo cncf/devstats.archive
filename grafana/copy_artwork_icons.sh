@@ -68,12 +68,8 @@ do
   icontype=`./devel/get_icon_type.sh "$proj"` || exit 1
   iconorg=`./devel/get_icon_source.sh "$proj"` || exit 18
   path=$icon
-  if ( [ "$path" = "devstats" ] || [ "$path" = "cncf" ] || [ "$path" = "gitopswg" ] || [ "$path" = "wasm-edge-runtime" ] )
+  if ( [ "$path" = "devstats" ] || [ "$path" = "cncf" ] || [ "$path" = "gitopswg" ] )
   then
-    if [ "$path" = "wasm-edge-runtime" ]
-    then
-      dash='_'
-    fi
     path="other/$icon"
   elif [ "$iconorg" = "cncf" ]
   then
