@@ -31,6 +31,7 @@ update gha_repos set repo_group = alias;
 update gha_repos
 set repo_group = 'Skooner', alias = 'Skooner'
 where name in (
+  'skooner-k8s/skooner',
   'indeedeng/k8dash',
   'herbrandson/k8dash'
 );

@@ -890,6 +890,7 @@ where
     'indeedeng/k8dash-website',
     'herbrandson/k8dash'
   )
+  or org_login in ('skooner-k8s')
 ;
 
 -- Athenz
@@ -1017,6 +1018,7 @@ set
   repo_group = 'Antrea'
 where
   name in ('vmware-tanzu/antrea')
+  or org_login in ('antrea-io')
 ;
 
 -- Fluid

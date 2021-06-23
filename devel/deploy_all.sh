@@ -348,13 +348,13 @@ do
     PROJ=piraeus             PROJDB=piraeus        PROJREPO="piraeusdatastore/piraeus-operator" ORGNAME=Piraeus-Datastore PORT=3080 ICON=piraeus      GRAFSUFF=piraeus        GA="UA-145264316-41" ./devel/deploy_proj.sh || exit 99
   elif [ "$proj" = "k8dash" ]
   then
-    PROJ=k8dash              PROJDB=k8dash         PROJREPO="indeedeng/k8dash"                ORGNAME=Skooner           PORT=3081 ICON=k8dash         GRAFSUFF=k8dash         GA="UA-145264316-42" ./devel/deploy_proj.sh || exit 100
+    PROJ=k8dash              PROJDB=k8dash         PROJREPO="skooner-k8s/skooner"             ORGNAME=Skooner           PORT=3081 ICON=k8dash         GRAFSUFF=k8dash         GA="UA-145264316-42" ./devel/deploy_proj.sh || exit 100
   elif [ "$proj" = "athenz" ]
   then
     PROJ=athenz              PROJDB=athenz         PROJREPO="AthenZ/athenz"                   ORGNAME=Athenz            PORT=3082 ICON=athenz         GRAFSUFF=athenz         GA="UA-145264316-43" ./devel/deploy_proj.sh || exit 101
   elif [ "$proj" = "kubeovn" ]
   then
-    PROJ=kubeovn             PROJDB=kubeovn        PROJREPO="alauda/kube-ovn"                 ORGNAME=Kube-OVN          PORT=3083 ICON=kubeovn        GRAFSUFF=kubeovn        GA="UA-145264316-44" ./devel/deploy_proj.sh || exit 102
+    PROJ=kubeovn             PROJDB=kubeovn        PROJREPO="kubeovn/kube-ovn"                ORGNAME=Kube-OVN          PORT=3083 ICON=kubeovn        GRAFSUFF=kubeovn        GA="UA-145264316-44" ./devel/deploy_proj.sh || exit 102
   elif [ "$proj" = "curiefense" ]
   then
     PROJ=curiefense          PROJDB=curiefense     PROJREPO="curiefense/curiefense"           ORGNAME=Curiefense        PORT=3084 ICON=curiefense     GRAFSUFF=curiefense     GA="UA-145264316-45" ./devel/deploy_proj.sh || exit 103
@@ -366,7 +366,7 @@ do
     PROJ=ingraind            PROJDB=ingraind       PROJREPO="foniod/foniod"                   ORGNAME=Foniod            PORT=3086 ICON=ingraind       GRAFSUFF=ingraind       GA="UA-145264316-47" ./devel/deploy_proj.sh || exit 105
   elif [ "$proj" = "kuberhealthy" ]
   then
-    PROJ=kuberhealthy        PROJDB=kuberhealthy   PROJREPO="Comcast/kuberhealthy"            ORGNAME=Kuberhealthy      PORT=3087 ICON=kuberhealthy   GRAFSUFF=kuberhealthy   GA="UA-145264316-48" ./devel/deploy_proj.sh || exit 106
+    PROJ=kuberhealthy        PROJDB=kuberhealthy   PROJREPO="kuberhealthy/kuberhealthy"       ORGNAME=Kuberhealthy      PORT=3087 ICON=kuberhealthy   GRAFSUFF=kuberhealthy   GA="UA-145264316-48" ./devel/deploy_proj.sh || exit 106
   elif [ "$proj" = "k8gb" ]
   then
     PROJ=k8gb                PROJDB=k8gb           PROJREPO="k8gb-io/k8gb"                    ORGNAME=K8GB              PORT=3088 ICON=k8gb           GRAFSUFF=k8gb           GA="UA-145264316-49" ./devel/deploy_proj.sh || exit 107
@@ -387,7 +387,7 @@ do
     PROJ=vineyard            PROJDB=vineyard        PROJREPO="v6d-io/v6d"                     ORGNAME=Vineyard          PORT=3093 ICON=vineyard       GRAFSUFF=vineyard       GA="UA-145264316-54" ./devel/deploy_proj.sh || exit 112
   elif [ "$proj" = "antrea" ]
   then
-    PROJ=antrea              PROJDB=antrea          PROJREPO="vmware-tanzu/antrea"            ORGNAME=Antrea            PORT=3094 ICON=antrea         GRAFSUFF=antrea         GA="UA-145264316-55" ./devel/deploy_proj.sh || exit 113
+    PROJ=antrea              PROJDB=antrea          PROJREPO="antrea-io/antrea"               ORGNAME=Antrea            PORT=3094 ICON=antrea         GRAFSUFF=antrea         GA="UA-145264316-55" ./devel/deploy_proj.sh || exit 113
   elif [ "$proj" = "fluid" ]
   then
     PROJ=fluid               PROJDB=fluid           PROJREPO="fluid-cloudnative/fluid"        ORGNAME=Fluid             PORT=3095 ICON=fluid          GRAFSUFF=fluid          GA="UA-145264316-56" ./devel/deploy_proj.sh || exit 114

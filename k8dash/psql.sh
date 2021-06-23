@@ -13,7 +13,7 @@ fi
 > run.log
 GHA2DB_PROJECT=k8dash PG_DB=k8dash GHA2DB_LOCAL=1 structure 2>>errors.txt | tee -a run.log || exit 1
 ./devel/db.sh psql k8dash -c "create extension if not exists pgcrypto" || exit 1
-GHA2DB_PROJECT=k8dash PG_DB=k8dash GHA2DB_LOCAL=1 gha2db 2019-03-05 0 today now 'indeedeng/k8dash,indeedeng/k8dash-website,herbrandson/k8dash' 2>>errors.txt | tee -a run.log || exit 2
+GHA2DB_PROJECT=k8dash PG_DB=k8dash GHA2DB_LOCAL=1 gha2db 2019-03-05 0 today now 'skooner-k8s,indeedeng/k8dash,indeedeng/k8dash-website,herbrandson/k8dash' 2>>errors.txt | tee -a run.log || exit 2
 GHA2DB_PROJECT=k8dash PG_DB=k8dash GHA2DB_LOCAL=1 GHA2DB_MGETC=y GHA2DB_SKIPTABLE=1 GHA2DB_INDEX=1 structure 2>>errors.txt | tee -a run.log || exit 3
 GHA2DB_PROJECT=k8dash PG_DB=k8dash ./shared/setup_repo_groups.sh 2>>errors.txt | tee -a run.log || exit 4
 GHA2DB_PROJECT=k8dash PG_DB=k8dash ./shared/import_affs.sh 2>>errors.txt | tee -a run.log || exit 5
