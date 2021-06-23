@@ -1041,6 +1041,61 @@ where
   or name in ('rancher/submariner')
 ;
 
+-- Pixie
+update
+  gha_repos
+set
+  repo_group = 'Pixie'
+where
+  name ~ '(?i)^pixie-labs\/(.*pixie.*|.*px.*|grafana-plugin)$'
+;
+
+-- Meshery
+update
+  gha_repos
+set
+  repo_group = 'Meshery'
+where
+  name ~ '(?i)layer5io\/.*meshery'
+;
+
+-- Service Mesh Performance
+update
+  gha_repos
+set
+  repo_group = 'Service Mesh Performance'
+where
+  name ~ '(?i)layer5io\/.*(service-mesh|performance|benchmark)'
+;
+
+-- KubeVela
+update
+  gha_repos
+set
+  repo_group = 'KubeVela'
+where
+  name ~ '(?i)oam-dev\/.*vela'
+;
+
+-- kube-vip
+update
+  gha_repos
+set
+  repo_group = 'kube-vip'
+where
+  name in ('plunder-app/kube-vip')
+  or org_login in ('kube-vip')
+;
+
+-- KubeDL
+update
+  gha_repos
+set
+  repo_group = 'KubeDL'
+where
+  name in ('alibaba/kubedl')
+;
+
 -- CNCF
 update
   gha_repos
