@@ -61,8 +61,16 @@ do
   then
     icon="wasm-edge-runtime"
   fi
+  if [ "$icon" = "k8dash" ]
+  then
+    icon="skooner"
+  fi
+  if [ "$icon" = "ingraind" ]
+  then
+    icon="fonio"
+  fi
   # TODO: remove when we have icons
-  if ( [ "$icon" = "pixie" ] || [ "$icon" = "meshery" ] || [ "$icon" = "servicemeshperformance" ] || [ "$icon" = "kubevela" ] || [ "$icon" = "kubevip" ] || [ "$icon" = "kubedl" ] || [ "$icon" = "chaosblade" ] || [ "$icon" = "ingraind" ] || [ "$icon" = "k8dash" ] || [ "$icon" = "cnigenie" ] || [ "$icon" = "istio" ] || [ "$icon" = "knative" ] || [ "$icon" = "contrib" ] || [ "$icon" = "sam" ] || [ "$icon" = "azf" ] || [ "$icon" = "riff" ] || [ "$icon" = "fn" ] || [ "$icon" = "openwhisk" ] || [ "$icon" = "openfaas" ] || [ "$icon" = "cii" ] )
+  if ( [ "$icon" = "pixie" ] || [ "$icon" = "meshery" ] || [ "$icon" = "servicemeshperformance" ] || [ "$icon" = "kubevip" ] || [ "$icon" = "kubedl" ] || [ "$icon" = "cnigenie" ] || [ "$icon" = "istio" ] || [ "$icon" = "knative" ] || [ "$icon" = "contrib" ] || [ "$icon" = "sam" ] || [ "$icon" = "azf" ] || [ "$icon" = "riff" ] || [ "$icon" = "fn" ] || [ "$icon" = "openwhisk" ] || [ "$icon" = "openfaas" ] || [ "$icon" = "cii" ] )
   then
     icon="cncf"
   fi
@@ -75,6 +83,10 @@ do
   elif [ "$iconorg" = "cncf" ]
   then
     path="projects/$icon"
+  fi
+  if [ "$icon" = "skooner" ]
+  then
+    icon=Skooner
   fi
   cp "$HOME/dev/$iconorg/artwork/$path/icon/$icontype/$icon$dash$mid-$icontype.svg" "grafana/img/$suff.svg" || exit 2
   convert "$HOME/dev/$iconorg/artwork/$path/icon/$icontype/$icon$dash$mid-$icontype.png" -resize 32x32 "grafana/img/${suff}32.png" || exit 3
