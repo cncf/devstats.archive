@@ -33,7 +33,8 @@ set repo_group = 'Service Mesh Performance', alias = 'Service Mesh Performance'
 where name in (
   'layer5io/service-mesh-benchmark-spec',
   'layer5io/service-mesh-performance-specification',
-  'layer5io/service-mesh-performance'
+  'layer5io/service-mesh-performance',
+  'service-mesh-performance/service-mesh-performance'
 );
 
 select

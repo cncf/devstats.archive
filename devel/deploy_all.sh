@@ -402,7 +402,7 @@ do
     PROJ=meshery             PROJDB=meshery         PROJREPO="layer5io/meshery"               ORGNAME=Meshery           PORT=3098 ICON=meshery        GRAFSUFF=meshery        GA="UA-145264316-59" ./devel/deploy_proj.sh || exit 117
   elif [ "$proj" = "servicemeshperformance" ]
   then
-    PROJ=servicemeshperformance PROJDB=servicemeshperformance PROJREPO="layer5io/service-mesh-performance" ORGNAME='Service Mesh Performance' PORT=3099 ICON=servicemeshperformance GRAFSUFF=servicemeshperformance GA="UA-145264316-60" ./devel/deploy_proj.sh || exit 118
+    PROJ=servicemeshperformance PROJDB=servicemeshperformance PROJREPO="service-mesh-performance/service-mesh-performance" ORGNAME='Service Mesh Performance' PORT=3099 ICON=servicemeshperformance GRAFSUFF=servicemeshperformance GA="UA-145264316-60" ./devel/deploy_proj.sh || exit 118
   elif [ "$proj" = "kubevela" ]
   then
     PROJ=kubevela            PROJDB=kubevela        PROJREPO="oam-dev/kubevela"               ORGNAME=KubeVela          PORT=3100 ICON=kubevela       GRAFSUFF=kubevela       GA="UA-145264316-61" ./devel/deploy_proj.sh || exit 119

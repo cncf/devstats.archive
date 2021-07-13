@@ -1065,7 +1065,8 @@ update
 set
   repo_group = 'Service Mesh Performance'
 where
-  name ~ '(?i)layer5io\/.*(service-mesh|performance|benchmark)'
+  org_login in ('service-mesh-performance')
+  or name ~ '(?i)layer5io\/.*(service-mesh|performance|benchmark)'
 ;
 
 -- KubeVela
