@@ -1097,6 +1097,43 @@ where
   name in ('alibaba/kubedl')
 ;
 
+-- Krustlet
+update
+  gha_repos
+set
+  repo_group = 'Krustlet'
+where
+  name in ('deislabs/krustlet')
+;
+
+-- Krator
+update
+  gha_repos
+set
+  repo_group = 'Krator'
+where
+  org_login in ('krator-rs')
+;
+
+-- ORAS
+update
+  gha_repos
+set
+  repo_group = 'ORAS'
+where
+  repo in ('deislabs/oras', 'shizhMSFT/oras')
+  or org_login in ('oras-project')
+;
+
+-- wasmCloud
+update
+  gha_repos
+set
+  repo_group = 'wasmCloud'
+where
+  org_login in ('wasmCloud', 'wascc', 'wascaruntime', 'waxosuit')
+;
+
 -- CNCF
 update
   gha_repos
