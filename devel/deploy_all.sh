@@ -412,6 +412,18 @@ do
   elif [ "$proj" = "kubedl" ]
   then
     PROJ=kubedl              PROJDB=kubedl          PROJREPO="alibaba/kubedl"                 ORGNAME=KubeDL            PORT=3102 ICON=kubedl         GRAFSUFF=kubedl         GA="UA-145264316-63" ./devel/deploy_proj.sh || exit 121
+  elif [ "$proj" = "krustlet" ]
+  then
+    PROJ=krustlet            PROJDB=krustlet        PROJREPO="deislabs/krustlet"              ORGNAME=Krustlet          PORT=3103 ICON=krustlet       GRAFSUFF=krustlet       GA="UA-145264316-64" ./devel/deploy_proj.sh || exit 122
+  elif [ "$proj" = "krator" ]
+  then
+    PROJ=krator              PROJDB=krator          PROJREPO="krator-rs/krator"               ORGNAME=Krator            PORT=3104 ICON=krator         GRAFSUFF=krator         GA="UA-145264316-65" ./devel/deploy_proj.sh || exit 123
+  elif [ "$proj" = "oras" ]
+  then
+    PROJ=oras                PROJDB=oras            PROJREPO="oras-project/oras"              ORGNAME=ORAS              PORT=3105 ICON=oras           GRAFSUFF=oras           GA="UA-145264316-66" ./devel/deploy_proj.sh || exit 124
+  elif [ "$proj" = "wasmcloud" ]
+  then
+    PROJ=wasmcloud           PROJDB=wasmcloud       PROJREPO="wasmCloud/wasmCloud"            ORGNAME=wasmCloud         PORT=3106 ICON=wasmcloud      GRAFSUFF=wasmcloud      GA="UA-145264316-67" ./devel/deploy_proj.sh || exit 125
   elif [ "$proj" = "opencontainers" ]
   then
     PROJ=opencontainers      PROJDB=opencontainers PROJREPO="opencontainers/runc"             ORGNAME=OCI               PORT=3220 ICON="-"            GRAFSUFF=opencontainers GA="UA-108085315-19" ./devel/deploy_proj.sh || exit 32
