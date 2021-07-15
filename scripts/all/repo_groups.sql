@@ -1121,7 +1121,7 @@ update
 set
   repo_group = 'ORAS'
 where
-  repo in ('deislabs/oras', 'shizhMSFT/oras')
+  name in ('deislabs/oras', 'shizhMSFT/oras')
   or org_login in ('oras-project')
 ;
 
