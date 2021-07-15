@@ -70,7 +70,7 @@ do
     icon="fonio"
   fi
   # TODO: remove when we have icons
-  if ( [ "$icon" = "krustlet" ] || [ "$icon" = "krator" ] || [ "$icon" = "oras" ] || [ "$icon" = "wasmcloud" ] || [ "$icon" = "pixie" ] || [ "$icon" = "meshery" ] || [ "$icon" = "servicemeshperformance" ] || [ "$icon" = "kubevip" ] || [ "$icon" = "kubedl" ] || [ "$icon" = "cnigenie" ] || [ "$icon" = "istio" ] || [ "$icon" = "knative" ] || [ "$icon" = "contrib" ] || [ "$icon" = "sam" ] || [ "$icon" = "azf" ] || [ "$icon" = "riff" ] || [ "$icon" = "fn" ] || [ "$icon" = "openwhisk" ] || [ "$icon" = "openfaas" ] || [ "$icon" = "cii" ] )
+  if ( [ "$icon" = "krustlet" ] || [ "$icon" = "krator" ] || [ "$icon" = "oras" ] || [ "$icon" = "wasmcloud" ] || [ "$icon" = "pixie" ] || [ "$icon" = "meshery" ] || [ "$icon" = "kubevip" ] || [ "$icon" = "kubedl" ] || [ "$icon" = "cnigenie" ] || [ "$icon" = "istio" ] || [ "$icon" = "knative" ] || [ "$icon" = "contrib" ] || [ "$icon" = "sam" ] || [ "$icon" = "azf" ] || [ "$icon" = "riff" ] || [ "$icon" = "fn" ] || [ "$icon" = "openwhisk" ] || [ "$icon" = "openfaas" ] || [ "$icon" = "cii" ] )
   then
     icon="cncf"
   fi
@@ -87,6 +87,12 @@ do
   if [ "$icon" = "skooner" ]
   then
     icon=Skooner
+  fi
+  if [ "$icon" = "servicemeshperformance" ]
+  then
+    cp "$HOME/dev/cncf/artwork/projects/servicemeshperformance/icon/smp-light.svg" "grafana/img/$suff.svg" || exit 2
+    convert "$HOME/dev/cncf/artwork/projects/servicemeshperformance/icon/smp-light.png" -resize 32x32 "grafana/img/${suff}32.png" || exit 3
+    continue
   fi
   cp "$HOME/dev/$iconorg/artwork/$path/icon/$icontype/$icon$dash$mid-$icontype.svg" "grafana/img/$suff.svg" || exit 2
   convert "$HOME/dev/$iconorg/artwork/$path/icon/$icontype/$icon$dash$mid-$icontype.png" -resize 32x32 "grafana/img/${suff}32.png" || exit 3
