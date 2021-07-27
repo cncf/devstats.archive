@@ -64,7 +64,7 @@ do
     icon="fonio"
   fi
   # TODO: remove when we have icons
-  if ( [ "$icon" = "krustlet" ] || [ "$icon" = "krator" ] || [ "$icon" = "oras" ] || [ "$icon" = "wasmcloud" ] || [ "$icon" = "pixie" ] || [ "$icon" = "meshery" ] || [ "$icon" = "kubevip" ] || [ "$icon" = "kubedl" ] || [ "$icon" = "cnigenie" ] || [ "$icon" = "istio" ] || [ "$icon" = "knative" ] || [ "$icon" = "contrib" ] || [ "$icon" = "sam" ] || [ "$icon" = "azf" ] || [ "$icon" = "riff" ] || [ "$icon" = "fn" ] || [ "$icon" = "openwhisk" ] || [ "$icon" = "openfaas" ] || [ "$icon" = "cii" ] )
+  if ( [ "$icon" = "krator" ] || [ "$icon" = "oras" ] || [ "$icon" = "wasmcloud" ] || [ "$icon" = "pixie" ] || [ "$icon" = "kubevip" ] || [ "$icon" = "kubedl" ] || [ "$icon" = "cnigenie" ] || [ "$icon" = "istio" ] || [ "$icon" = "knative" ] || [ "$icon" = "contrib" ] || [ "$icon" = "sam" ] || [ "$icon" = "azf" ] || [ "$icon" = "riff" ] || [ "$icon" = "fn" ] || [ "$icon" = "openwhisk" ] || [ "$icon" = "openfaas" ] || [ "$icon" = "cii" ] )
   then
     icon="cncf"
   fi
@@ -86,6 +86,16 @@ do
   then
     convert "$HOME/dev/cncf/artwork/projects/servicemeshperformance/icon/smp-light.png" -resize 80x80 "/var/www/html/img/$proj-icon-color.png" || exit 10
     cp "$HOME/dev/cncf/artwork/projects/servicemeshperformance/icon/smp-light.svg" "/var/www/html/img/$proj-icon-color.svg" || exit 11
+    continue
+  elif [ "$icon" = "krustlet" ]
+  then
+    convert "$HOME/dev/$iconorg/artwork/$path/icon/${icon}${dash}$mid-$icontype.png" -resize 80x80 "/var/www/html/img/$proj-icon-color.png" || exit 12
+    cp "$HOME/dev/$iconorg/artwork/$path/icon/${icon}${dash}$mid-$icontype.svg" "/var/www/html/img/$proj-icon-color.svg" || exit 13
+    continue
+  elif [ "$icon" = "meshery" ]
+  then
+    convert "$HOME/dev/cncf/artwork/projects/meshery/icon/meshery-logo-light.png" -resize 80x80 "/var/www/html/img/$proj-icon-color.png" || exit 14
+    cp "$HOME/dev/cncf/artwork/projects/meshery/icon/meshery-logo-light.svg" "/var/www/html/img/$proj-icon-color.svg" || exit 15
     continue
   fi
   convert "$HOME/dev/$iconorg/artwork/$path/icon/$icontype/${icon}${dash}$mid-$icontype.png" -resize 80x80 "/var/www/html/img/$proj-icon-color.png" || exit 2
