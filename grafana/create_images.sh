@@ -93,11 +93,6 @@ do
     cp "$HOME/dev/cncf/artwork/projects/servicemeshperformance/icon/smp-light.svg" "grafana/img/$suff.svg" || exit 2
     convert "$HOME/dev/cncf/artwork/projects/servicemeshperformance/icon/smp-light.png" -resize 32x32 "grafana/img/${suff}32.png" || exit 3
     continue
-  elif [ "$icon" = "krustlet" ]
-  then
-    cp "$HOME/dev/$iconorg/artwork/$path/icon/${icon}${dash}$mid-$icontype.svg" "grafana/img/$suff.svg" || exit 13
-    convert "$HOME/dev/$iconorg/artwork/$path/icon/${icon}${dash}$mid-$icontype.png" -resize 32x32 "grafana/img/${suff}32.png" || exit 12
-    continue
   elif [ "$icon" = "meshery" ]
   then
     cp "$HOME/dev/cncf/artwork/projects/meshery/icon/meshery-logo-light.svg" "grafana/img/$suff.svg" || exit 15
