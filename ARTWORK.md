@@ -23,4 +23,4 @@
 
 - Generate new static images, go to `cncf/devstats-docker-images`: `DOCKER_USER=... SKIP_FULL=1 SKIP_MIN=1 SKIP_TESTS=1 SKIP_GRAFANA=1 SKIP_PATRONI=1 SKIP_REPORTS=1 SKIP_API=1 ./images/build_images.sh`.
 - After new static images are generated, replace old static pods: `k get po -A | grep static` and then `k delete po -n devstats-test/devstats-prod devstats-static-prod-xxxxxxxxxx-yyyyy`.
-- Go to `cncf/devstats-k8s-lf/util` on both `prod` and `test` nodes (`master` and `node-0`), run: `./delete_objects.sh po devstats-grafana-`.
+- Go to `cncf/devstats-k8s-lf/util` on both `prod` and `test` nodes (`master` and `node-0`), run: `[ITER=1] ./delete_objects.sh po devstats-grafana-`.
