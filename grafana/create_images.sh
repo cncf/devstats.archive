@@ -70,7 +70,7 @@ do
     icon="fonio"
   fi
   # TODO: remove when we have icons
-  if ( [ "$icon" = "krator" ] || [ "$icon" = "oras" ] || [ "$icon" = "wasmcloud" ] || [ "$icon" = "pixie" ] || [ "$icon" = "kubevip" ] || [ "$icon" = "kubedl" ] || [ "$icon" = "cnigenie" ] || [ "$icon" = "istio" ] || [ "$icon" = "knative" ] || [ "$icon" = "contrib" ] || [ "$icon" = "sam" ] || [ "$icon" = "azf" ] || [ "$icon" = "riff" ] || [ "$icon" = "fn" ] || [ "$icon" = "openwhisk" ] || [ "$icon" = "openfaas" ] || [ "$icon" = "cii" ] )
+  if ( [ "$icon" = "krator" ] || [ "$icon" = "oras" ] || [ "$icon" = "pixie" ] || [ "$icon" = "kubevip" ] || [ "$icon" = "kubedl" ] || [ "$icon" = "cnigenie" ] || [ "$icon" = "istio" ] || [ "$icon" = "knative" ] || [ "$icon" = "contrib" ] || [ "$icon" = "sam" ] || [ "$icon" = "azf" ] || [ "$icon" = "riff" ] || [ "$icon" = "fn" ] || [ "$icon" = "openwhisk" ] || [ "$icon" = "openfaas" ] || [ "$icon" = "cii" ] )
   then
     icon="cncf"
   fi
@@ -97,6 +97,11 @@ do
   then
     cp "$HOME/dev/cncf/artwork/projects/meshery/icon/meshery-logo-light.svg" "grafana/img/$suff.svg" || exit 15
     convert "$HOME/dev/cncf/artwork/projects/meshery/icon/meshery-logo-light.png" -resize 32x32 "grafana/img/${suff}32.png" || exit 14
+    continue
+  elif [ "$icon" = "wasmcloud" ]
+  then
+    cp "$HOME/dev/cncf/artwork/projects/wasmcloud/icon/color/wasmcloud.icon_green.svg" "grafana/img/$suff.svg" || exit 15
+    convert "$HOME/dev/cncf/artwork/projects/wasmcloud/icon/color/wasmcloud.icon_green.png" -resize 32x32 "grafana/img/${suff}32.png" || exit 14
     continue
   fi
   cp "$HOME/dev/$iconorg/artwork/$path/icon/$icontype/$icon$dash$mid-$icontype.svg" "grafana/img/$suff.svg" || exit 2
