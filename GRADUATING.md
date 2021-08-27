@@ -8,6 +8,7 @@ Those steps are generally needed to change project status (usually from `Incubat
 - Run: `./devel/dashboards_replace_from_to.sh dashboards.json`.
 - Put new home dashboards: `./devel/put_all_charts.sh` and then `./devel/put_all_charts_cleanup.sh`. Not needed with Helm installation.
 - Update files: `partials/projects.html partials/projects_health.html` (remember about `cncf-` classes/separators).
+- For updating `partials/projects.html` or `apache/www/index_*.html`, copy the Graduated/Incubating/Sandbox section into some text file and then `KIND=Graduated SIZE=9 ./tsplit < graduated.txt > new_graduated.txt`.
 - Run to update partials: `PG_PASS=... ./devel/vars_all.sh`. Not needed with Helm installation.
 - Update test and production www index files: `apache/www/index_test.html apache/www/index_prod.html`. Possibly others too like for GraphQL.
 - To do this you can copy `prod`/`test` section from already modified `partials/projects.html` and then do the following replacements:
