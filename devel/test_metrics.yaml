@@ -1,12 +1,18 @@
 ---
 metrics:
-  - name: Users stats
+  - name: Countries stats
     series_name_or_func: multi_row_multi_column
-    sqls: [user_activity, user_activity_commits, user_activity_issues, user_activity_prs]
-    periods: d,w,m,q,y
-    aggregate: 1,7
-    skip: w7,m7,q7,y7
+    sqls: [countries, committers_countries]
+    periods: w,m,q,y,y2,y3,y5
     multi_value: true
-    merge_series: user_activity
-    drop: suser_activity
-    project: '!kubernetes'
+    merge_series: countries
+    drop: scountries
+  - name: Countries stats cumulative
+    series_name_or_func: multi_row_multi_column
+    sqls: [countries_cum, committers_countries_cum]
+    periods: m
+    multi_value: true
+    merge_series: countriescum
+    drop: scountriescum
+    env:
+      GHA2DB_NCPUS?: 4
