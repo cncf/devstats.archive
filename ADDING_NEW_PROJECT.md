@@ -44,6 +44,7 @@ This file describes how to add new project on the test and production servers.
 - When adding new dashboard to projects that use dashboards folders (like Kubernetes) update `cncf/devstats:grafana/proj/custom_sqlite.sql` file.
 - To update all other projects' `vars.yaml` with a new documentation for the new dashboard do: `FROM="`cat ./FROM`" TO="`cat ./TO`" FILES=`find metrics/ -iname "vars.yaml"` MODE=ss0 ./devel/mass_replace.sh`.
 - Update `partials/projects.html partials/projects_health.html metrics/all/sync_vars.yaml`. Test with: `ONLY="proj1 proj2 ..." PG_PASS=... ./devel/vars_all.sh`. In simpler cases you can use `./util_sh/generate_partials.sh`. Also check `util_sh/update_json_value.sh`.
+- For updating `partials/projects.html` or `apache/www/index_*.html`, copy the Graduated/Incubating/Sandbox section into some text file and then `KIND=Graduated SIZE=9 ./tsplit < graduated.txt > new_graduated.txt`.
 - If normalized project name is not equal to lower project name, you need to update projects health metric to do the mapping, for example `series_name_map: { clouddeploymentkitforkubernetes: cdk8s }`, see `metrics/*/*.yaml`.
 - Update the number of projects in `metrics/all/sync_vars.yaml`.
 - Update Apache proxy and SSL files `apache/www/index_* apache/*/sites-enabled/* apache/*/sites.txt` files. You can copy from `partials/projects.yaml` adn then: `:'<,'>s/\[\[hostname]]/devstats.cncf.io/g`, `:'<,'>s/public\/img\/projects\///g` and `:'<,'>s/devstats\.cncf\.io/teststats.cncf.io/g`.
