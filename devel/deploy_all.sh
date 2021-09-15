@@ -396,7 +396,7 @@ do
     PROJ=submariner          PROJDB=submariner      PROJREPO="submariner-io/submariner"       ORGNAME=Submariner        PORT=3096 ICON=submariner     GRAFSUFF=submariner     GA="UA-145264316-57" ./devel/deploy_proj.sh || exit 115
   elif [ "$proj" = "pixie" ]
   then
-    PROJ=pixie               PROJDB=pixie           PROJREPO="pixie-labs/pixie"               ORGNAME=Pixie             PORT=3097 ICON=pixie          GRAFSUFF=pixie          GA="UA-145264316-58" ./devel/deploy_proj.sh || exit 116
+    PROJ=pixie               PROJDB=pixie           PROJREPO="pixie-io/pixie"                 ORGNAME=Pixie             PORT=3097 ICON=pixie          GRAFSUFF=pixie          GA="UA-145264316-58" ./devel/deploy_proj.sh || exit 116
   elif [ "$proj" = "meshery" ]
   then
     PROJ=meshery             PROJDB=meshery         PROJREPO="layer5io/meshery"               ORGNAME=Meshery           PORT=3098 ICON=meshery        GRAFSUFF=meshery        GA="UA-145264316-59" ./devel/deploy_proj.sh || exit 117

@@ -1047,7 +1047,7 @@ update
 set
   repo_group = 'Pixie'
 where
-  name ~ '(?i)^pixie-labs\/(.*pixie.*|.*px.*|grafana-plugin)$'
+  name ~ '(?i)^pixie-(io|labs)\/(.*pixie.*|.*px.*|grafana-plugin)$'
 ;
 
 -- Meshery
