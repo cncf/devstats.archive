@@ -424,6 +424,21 @@ do
   elif [ "$proj" = "wasmcloud" ]
   then
     PROJ=wasmcloud           PROJDB=wasmcloud       PROJREPO="wasmCloud/wasmCloud"            ORGNAME=wasmCloud         PORT=3106 ICON=wasmcloud      GRAFSUFF=wasmcloud      GA="UA-145264316-67" ./devel/deploy_proj.sh || exit 125
+  elif [ "$proj" = "akri" ]
+  then
+    PROJ=akri                PROJDB=Akri            PROJREPO="deislabs/akri"                  ORGNAME=Akri              PORT=3107 ICON=akri           GRAFSUFF=akri           GA="UA-145264316-68" ./devel/deploy_proj.sh || exit 126
+  elif [ "$proj" = "metallb" ]
+  then
+    PROJ=metallb             PROJDB=metallb         PROJREPO="metallb/metallb"                ORGNAME=MetalLB           PORT=3108 ICON=metallb        GRAFSUFF=metallb        GA="UA-145264316-69" ./devel/deploy_proj.sh || exit 127
+  elif [ "$proj" = "karmada" ]
+  then
+    PROJ=karmada             PROJDB=karmada         PROJREPO="karmada-io/karmada"             ORGNAME=Karmada           PORT=3109 ICON=karmada        GRAFSUFF=karmada        GA="UA-145264316-70" ./devel/deploy_proj.sh || exit 128
+  elif [ "$proj" = "inclavarecontainers" ]
+  then
+    PROJ=inclavarecontainers PROJDB=inclavarecontainers PROJREPO="alibaba/inclavare-containers" ORGNAME="Inclavare Containers" PORT=3110 ICON=inclavarecontainers GRAFSUFF=inclavarecontainers GA="UA-145264316-71" ./devel/deploy_proj.sh || exit 129
+  elif [ "$proj" = "superedge" ]
+  then
+    PROJ=superedge           PROJDB=superedge       PROJREPO="superedge/superedge"            ORGNAME=SuperEdge         PORT=3111 ICON=superedge      GRAFSUFF=superedge      GA="UA-145264316-72" ./devel/deploy_proj.sh || exit 130
   elif [ "$proj" = "opencontainers" ]
   then
     PROJ=opencontainers      PROJDB=opencontainers PROJREPO="opencontainers/runc"             ORGNAME=OCI               PORT=3220 ICON="-"            GRAFSUFF=opencontainers GA="UA-108085315-19" ./devel/deploy_proj.sh || exit 32
