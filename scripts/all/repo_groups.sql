@@ -1134,6 +1134,52 @@ where
   org_login in ('wasmCloud', 'wascc', 'wascaruntime', 'waxosuit')
 ;
 
+-- Akri
+update
+  gha_repos
+set
+  repo_group = 'Akri'
+where
+  name in ('deislabs/akri')
+;
+
+-- MetalLB
+update
+  gha_repos
+set
+  repo_group = 'MetalLB'
+where
+  org_login in ('metallb')
+  or name in ('danderson/metallb', 'google/metallb')
+;
+
+-- Karmada
+update
+  gha_repos
+set
+  repo_group = 'Karmada'
+where
+  org_login in ('karmada-io')
+;
+
+-- Inclavare Containers
+update
+  gha_repos
+set
+  repo_group = 'Inclavare Containers'
+where
+  name in ('alibaba/inclavare-containers')
+;
+
+-- SuperEdge
+update
+  gha_repos
+set
+  repo_group = 'SuperEdge'
+where
+  org_login in ('superedge')
+;
+
 -- CNCF
 update
   gha_repos
