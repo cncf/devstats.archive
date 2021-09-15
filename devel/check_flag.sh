@@ -1,4 +1,5 @@
 #!/bin/bash
+# DURABLE=1 - db command must succeed, if not wait until it does.
 if [ -z "$1" ]
 then
   echo "$0: you need to provide database name as an argument"
@@ -19,16 +20,35 @@ then
   echo "$0: You need to set PG_PASS environment variable to run this script"
   exit 4
 fi
+seconds=60
+if [ ! -z "$4" ]
+then
+  seconds=$4
+fi
 user=gha_admin
 if [ ! -z "${PG_USER}" ]
 then
   user="${PG_USER}"
 fi
-
-echo "checking $2 flag on $1 database, expected value $3"
-exists=`PG_USER="${user}" ./devel/db.sh psql "$1" -tAc "select 1 from gha_computed where metric = '$2' union select 0 order by 1 desc limit 1"` || exit 5
-if [ ! "$exists" = "$3" ]
-then
-  echo "$1 expecting $2 to be $3, got $exists"
-  exit 6
-fi
+while true
+do
+  echo "checking $2 flag on $1 database, expected value $3"
+  if [ -z "$DURABLE" ]
+  then
+    exists=`PG_USER="${user}" ./devel/db.sh psql "$1" -tAc "select 1 from gha_computed where metric = '$2' union select 0 order by 1 desc limit 1"` || exit 5
+  else
+    exists=`PG_USER="${user}" ./devel/db.sh psql "$1" -tAc "select 1 from gha_computed where metric = '$2' union select 0 order by 1 desc limit 1"`
+    if [ ! "$?" = "0" ]
+    then
+      echo "command failed, waiting $seconds seconds"
+      sleep $seconds
+      continue
+    fi
+  fi
+  if [ ! "$exists" = "$3" ]
+  then
+    echo "$1 expecting $2 to be $3, got $exists"
+    exit 6
+  fi
+  break
+done

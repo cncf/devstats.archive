@@ -1,4 +1,5 @@
 #!/bin/bash
+# DURABLE=1 - db command must succeed, if not wait until it does.
 if [ -z "$1" ]
 then
   echo "$0: you need to provide database name as an argument"
@@ -32,7 +33,18 @@ fi
 while true
 do
   echo "checking $2 flag on $1 database, expected value $3"
-  exists=`PG_USER="${user}" ./devel/db.sh psql "$1" -tAc "select 1 from gha_computed where metric = '$2' union select 0 order by 1 desc limit 1"` || exit 5
+  if [ -z "$DURABLE" ]
+  then
+    exists=`PG_USER="${user}" ./devel/db.sh psql "$1" -tAc "select 1 from gha_computed where metric = '$2' union select 0 order by 1 desc limit 1"` || exit 5
+  else
+    exists=`PG_USER="${user}" ./devel/db.sh psql "$1" -tAc "select 1 from gha_computed where metric = '$2' union select 0 order by 1 desc limit 1"`
+    if [ ! "$?" = "0" ]
+    then
+      echo "command failed, waiting $seconds seconds"
+      sleep $seconds
+      continue
+    fi
+  fi
   if [ ! "$exists" = "$3" ]
   then
     echo "$1 expecting $2 to be $3, got '$exists', waiting $seconds seconds"
