@@ -1047,7 +1047,8 @@ update
 set
   repo_group = 'Pixie'
 where
-  name ~ '(?i)^pixie-labs\/(.*pixie.*|.*px.*|grafana-plugin)$'
+  org_login in ('pixie-io')
+  or name ~ '(?i)^pixie-labs\/(.*pixie.*|.*px.*|grafana-plugin)$'
 ;
 
 -- Meshery
