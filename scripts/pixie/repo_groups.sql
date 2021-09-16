@@ -31,7 +31,8 @@ update gha_repos set repo_group = alias;
 update gha_repos
 set repo_group = 'Pixie', alias = 'Pixie'
 where name in (
-  'pixie-labs/pixie'
+  'pixie-labs/pixie',
+  'pixie-io/pixie'
 );
 
 select
