@@ -24,7 +24,7 @@ with topu as (
         'cadvisorjenkinsbot', 'gitcoinbot', 'katacontainersbot', 'prombot', 'prowbot', 'travis%bot',
         'k8s-%', '%-bot', '%-robot', 'bot-%', 'robot-%', '%[bot]%', '%[robot]%', '%-jenkins',
         '%-ci%bot', '%-testing', 'codecov-%', '%clabot%', '%cla-bot%', '%-gerrit', '%-bot-%', 
-        '%envoy-filter-example%'
+        '%envoy-filter-example%', 'github-action-benchmark'
     ])
     and aa.actor_id is null
 ), others as (
