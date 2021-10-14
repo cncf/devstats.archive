@@ -117,6 +117,7 @@ PGPASSWORD="${PG_PASS}" psql -h "${PG_HOST}" -U gha_admin -tA metallb < ./util_s
 PGPASSWORD="${PG_PASS}" psql -h "${PG_HOST}" -U gha_admin -tA karmada < ./util_sql/actors.sql
 PGPASSWORD="${PG_PASS}" psql -h "${PG_HOST}" -U gha_admin -tA inclavarecontainers < ./util_sql/actors.sql
 PGPASSWORD="${PG_PASS}" psql -h "${PG_HOST}" -U gha_admin -tA superedge < ./util_sql/actors.sql
+PGPASSWORD="${PG_PASS}" psql -h "${PG_HOST}" -U gha_admin -tA cilium < ./util_sql/actors.sql
 PGPASSWORD="${PG_PASS}" psql -h "${PG_HOST}" -U gha_admin -tA cncf < ./util_sql/actors.sql
 PGPASSWORD="${PG_PASS}" psql -h "${PG_HOST}" -U gha_admin -tA allprj < ./util_sql/actors.sql
 PGPASSWORD="${PG_PASS}" psql -h "${PG_HOST}" -U gha_admin -tA spinnaker < ./util_sql/actors.sql
