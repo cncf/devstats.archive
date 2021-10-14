@@ -131,6 +131,7 @@ icontypes=(
   ["karmada"]="color"
   ["inclavarecontainers"]="color"
   ["superedge"]="color"
+  ["cilium"]="color"
   ["tekton"]="color"
   ["jenkins"]="color"
   ["jenkinsx"]="color"
