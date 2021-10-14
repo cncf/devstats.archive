@@ -36,5 +36,5 @@ do
   fi
   break
 done
-echo "Bootstrap complete, waiting final ${waitafter}s"
+echo "Bootstrap complete, waiting final ${waitafter}"
 sleep $waitafter
