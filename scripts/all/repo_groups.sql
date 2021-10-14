@@ -1181,6 +1181,16 @@ where
   org_login in ('superedge')
 ;
 
+-- Cilium
+update
+  gha_repos
+set
+  repo_group = 'Cilium'
+where
+  name in ('noironetworks/cilium-net')
+  or org_login in ('cilium')
+;
+
 -- CNCF
 update
   gha_repos
