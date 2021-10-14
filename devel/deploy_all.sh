@@ -438,7 +438,10 @@ do
     PROJ=inclavarecontainers PROJDB=inclavarecontainers PROJREPO="alibaba/inclavare-containers" ORGNAME="Inclavare Containers" PORT=3110 ICON=inclavarecontainers GRAFSUFF=inclavarecontainers GA="UA-145264316-71" ./devel/deploy_proj.sh || exit 129
   elif [ "$proj" = "superedge" ]
   then
-    PROJ=superedge           PROJDB=superedge       PROJREPO="superedge/superedge"            ORGNAME=SuperEdge         PORT=3111 ICON=superedge      GRAFSUFF=superedge      GA="UA-145264316-72" ./devel/deploy_proj.sh || exit 130
+    PROJ=superedge           PROJDB=superedge      PROJREPO="superedge/superedge"             ORGNAME=SuperEdge         PORT=3111 ICON=superedge      GRAFSUFF=superedge      GA="UA-145264316-72" ./devel/deploy_proj.sh || exit 130
+  elif [ "$proj" = "cilium" ]
+  then
+    PROJ=cilium              PROJDB=cilium         PROJREPO="cilium/cilium"                   ORGNAME=Cilium            PORT=3112 ICON=cilium         GRAFSUFF=cilium         GA="UA-145264316-73" ./devel/deploy_proj.sh || exit 131
   elif [ "$proj" = "opencontainers" ]
   then
     PROJ=opencontainers      PROJDB=opencontainers PROJREPO="opencontainers/runc"             ORGNAME=OCI               PORT=3220 ICON="-"            GRAFSUFF=opencontainers GA="UA-108085315-19" ./devel/deploy_proj.sh || exit 32
