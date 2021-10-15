@@ -31,6 +31,7 @@ update gha_repos set repo_group = alias;
 update gha_repos
 set repo_group = 'K3s', alias = 'K3s'
 where name in (
+  'ibuildthecloud/k3s',
   'rancher/k3s',
   'k3s-io/k3s'
 );
