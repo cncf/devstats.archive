@@ -722,7 +722,7 @@ set
   repo_group = 'K3s'
 where
   org_login in ('k3s-io')
-  or name ~ '(?i)^(ibuildthecloud|rancher)\/.*k3(s|d).*$'
+  -- or name ~ '(?i)^(ibuildthecloud|rancher)\/.*k3(s|d).*$'
 ;
 
 -- Backstage
