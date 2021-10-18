@@ -118,5 +118,5 @@ from
 where
   created_at < '{{to}}'
   and type in ('PullRequestEvent', 'PullRequestReviewCommentEvent', 'CommitCommentEvent')
-  and (lower(dup_user_login) {{exclude_bots}})
+  and (lower(dup_actor_login) {{exclude_bots}})
 ;
