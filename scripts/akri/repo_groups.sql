@@ -31,7 +31,8 @@ update gha_repos set repo_group = alias;
 update gha_repos
 set repo_group = 'Akri', alias = 'Akri'
 where name in (
-  'deislabs/akri'
+  'deislabs/akri',
+  'project-akri/akri'
 );
 
 select

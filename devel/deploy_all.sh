@@ -426,7 +426,7 @@ do
     PROJ=wasmcloud           PROJDB=wasmcloud       PROJREPO="wasmCloud/wasmCloud"            ORGNAME=wasmCloud         PORT=3106 ICON=wasmcloud      GRAFSUFF=wasmcloud      GA="UA-145264316-67" ./devel/deploy_proj.sh || exit 125
   elif [ "$proj" = "akri" ]
   then
-    PROJ=akri                PROJDB=Akri            PROJREPO="deislabs/akri"                  ORGNAME=Akri              PORT=3107 ICON=akri           GRAFSUFF=akri           GA="UA-145264316-68" ./devel/deploy_proj.sh || exit 126
+    PROJ=akri                PROJDB=Akri            PROJREPO="project-akri/akri"              ORGNAME=Akri              PORT=3107 ICON=akri           GRAFSUFF=akri           GA="UA-145264316-68" ./devel/deploy_proj.sh || exit 126
   elif [ "$proj" = "metallb" ]
   then
     PROJ=metallb             PROJDB=metallb         PROJREPO="metallb/metallb"                ORGNAME=MetalLB           PORT=3108 ICON=metallb        GRAFSUFF=metallb        GA="UA-145264316-69" ./devel/deploy_proj.sh || exit 127

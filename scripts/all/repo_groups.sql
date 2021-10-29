@@ -1141,7 +1141,8 @@ update
 set
   repo_group = 'Akri'
 where
-  name in ('deislabs/akri')
+  org_login in ('project-akri')
+  or name in ('deislabs/akri')
 ;
 
 -- MetalLB
