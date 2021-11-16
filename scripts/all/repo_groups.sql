@@ -1192,6 +1192,42 @@ where
   or org_login in ('cilium')
 ;
 
+-- Dapr
+update
+  gha_repos
+set
+  repo_group = 'Dapr'
+where
+  org_login in ('dapr')
+;
+
+-- OpenELB
+update
+  gha_repos
+set
+  repo_group = 'OpenELB'
+where
+  name in ('kubesphere/openelb', 'kubesphere/porterlb', 'kubesphere/porter')
+;
+
+-- Open Cluster Management
+update
+  gha_repos
+set
+  repo_group = 'Open Cluster Management'
+where
+  org_login in ('open-cluster-management-io', 'open-cluster-management')
+;
+
+-- VS Code Kubernetes Tools
+update
+  gha_repos
+set
+  repo_group = 'VS Code Kubernetes Tools'
+where
+  name in ('Azure/vscode-kubernetes-tools')
+;
+
 -- CNCF
 update
   gha_repos
