@@ -442,6 +442,18 @@ do
   elif [ "$proj" = "cilium" ]
   then
     PROJ=cilium              PROJDB=cilium         PROJREPO="cilium/cilium"                   ORGNAME=Cilium            PORT=3112 ICON=cilium         GRAFSUFF=cilium         GA="UA-145264316-73" ./devel/deploy_proj.sh || exit 131
+  elif [ "$proj" = "dapr" ]
+  then
+    PROJ=dapr                PROJDB=dapr           PROJREPO="dapr/dapr"                       ORGNAME=Dapr              PORT=3113 ICON=dapr           GRAFSUFF=dapr           GA="UA-145264316-74" ./devel/deploy_proj.sh || exit 132
+  elif [ "$proj" = "openelb" ]
+  then
+    PROJ=openelb             PROJDB=openelb        PROJREPO="kubesphere/openelb"              ORGNAME=openELB           PORT=3114 ICON=openelb        GRAFSUFF=openelb        GA="UA-145264316-75" ./devel/deploy_proj.sh || exit 133
+  elif [ "$proj" = "openclustermanagement" ]
+  then
+    PROJ=openclustermanagement PROJDB=openclustermanagement PROJREPO="open-cluster-management-io/api" ORGNAME="Open Cluster Management" PORT=3115 ICON=openclustermanagement GRAFSUFF=openclustermanagement GA="UA-145264316-76" ./devel/deploy_proj.sh || exit 134
+  elif [ "$proj" = "vscodek8stools" ]
+  then
+    PROJ=vscodek8stools      PROJDB=vscodek8stools PROJREPO="Azure/vscode-kubernetes-tools"   ORGNAME="VS Code Kubernetes Tools" PORT=3116 ICON=vscodek8stools GRAFSUFF=vscodek8stools GA="UA-145264316-77" ./devel/deploy_proj.sh || exit 135
   elif [ "$proj" = "opencontainers" ]
   then
     PROJ=opencontainers      PROJDB=opencontainers PROJREPO="opencontainers/runc"             ORGNAME=OCI               PORT=3220 ICON="-"            GRAFSUFF=opencontainers GA="UA-108085315-19" ./devel/deploy_proj.sh || exit 32
