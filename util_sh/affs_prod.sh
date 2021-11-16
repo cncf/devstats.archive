@@ -23,19 +23,22 @@ GHA2DB_RECENT_RANGE="4 hours" GHA2DB_TMOFFSET="-4" devstats
 ONLY="distribution ingraind kuberhealthy k8gb trickster emissaryingress wasmedge chaosblade vineyard antrea fluid submariner" ./devel/all_affs.sh || exit 7
 GHA2DB_RECENT_RANGE="4 hours" GHA2DB_TMOFFSET="-4" devstats
 
-ONLY="pixie meshery servicemeshperformance kubevela kubevip kubedl krustlet krator oras wasmcloud akri metallb karmada inclavarecontainers superedge cilium" ./devel/all_affs.sh || exit 8
+ONLY="pixie meshery servicemeshperformance kubevela kubevip kubedl krustlet krator oras wasmcloud akri metallb karmada" ./devel/all_affs.sh || exit 8
 GHA2DB_RECENT_RANGE="4 hours" GHA2DB_TMOFFSET="-4" devstats
 
-ONLY="crio networkservicemesh openebs opentelemetry thanos flux intoto strimzi kubevirt longhorn chubaofs keda" ./devel/all_affs.sh || exit 9
+ONLY="inclavarecontainers superedge cilium dapr openelb openclustermanagement vscodek8stools" ./devel/all_affs.sh || exit 9
 GHA2DB_RECENT_RANGE="4 hours" GHA2DB_TMOFFSET="-4" devstats
 
-ONLY="smi argo volcano cnigenie keptn kudo cloudcustodian dex litmuschaos artifacthub kuma parsec bfe crossplane" ./devel/all_affs.sh || exit 10
+ONLY="crio networkservicemesh openebs opentelemetry thanos flux intoto strimzi kubevirt longhorn chubaofs keda" ./devel/all_affs.sh || exit 10
 GHA2DB_RECENT_RANGE="4 hours" GHA2DB_TMOFFSET="-4" devstats
 
-ONLY="contour operatorframework chaosmesh serverlessworkflow k3s backstage tremor metal3 porter openyurt openservicemesh" ./devel/all_affs.sh || exit 11
+ONLY="smi argo volcano cnigenie keptn kudo cloudcustodian dex litmuschaos artifacthub kuma parsec bfe crossplane" ./devel/all_affs.sh || exit 11
 GHA2DB_RECENT_RANGE="4 hours" GHA2DB_TMOFFSET="-4" devstats
 
-ONLY="all" ./devel/all_affs.sh || exit 11
+ONLY="contour operatorframework chaosmesh serverlessworkflow k3s backstage tremor metal3 porter openyurt openservicemesh" ./devel/all_affs.sh || exit 12
+GHA2DB_RECENT_RANGE="4 hours" GHA2DB_TMOFFSET="-4" devstats
+
+ONLY="all" ./devel/all_affs.sh || exit 13
 GHA2DB_RECENT_RANGE="4 hours" GHA2DB_TMOFFSET="-4" devstats
 
 ./devel/columns_all.sh
