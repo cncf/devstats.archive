@@ -447,13 +447,25 @@ do
     PROJ=dapr                PROJDB=dapr           PROJREPO="dapr/dapr"                       ORGNAME=Dapr              PORT=3113 ICON=dapr           GRAFSUFF=dapr           GA="UA-145264316-74" ./devel/deploy_proj.sh || exit 132
   elif [ "$proj" = "openelb" ]
   then
-    PROJ=openelb             PROJDB=openelb        PROJREPO="kubesphere/openelb"              ORGNAME=openELB           PORT=3114 ICON=openelb        GRAFSUFF=openelb        GA="UA-145264316-75" ./devel/deploy_proj.sh || exit 133
+    PROJ=openelb             PROJDB=openelb        PROJREPO="kubesphere/openelb"              ORGNAME=OpenELB           PORT=3114 ICON=openelb        GRAFSUFF=openelb        GA="UA-145264316-75" ./devel/deploy_proj.sh || exit 133
   elif [ "$proj" = "openclustermanagement" ]
   then
     PROJ=openclustermanagement PROJDB=openclustermanagement PROJREPO="open-cluster-management-io/api" ORGNAME="Open Cluster Management" PORT=3115 ICON=openclustermanagement GRAFSUFF=openclustermanagement GA="UA-145264316-76" ./devel/deploy_proj.sh || exit 134
   elif [ "$proj" = "vscodek8stools" ]
   then
     PROJ=vscodek8stools      PROJDB=vscodek8stools PROJREPO="Azure/vscode-kubernetes-tools"   ORGNAME="VS Code Kubernetes Tools" PORT=3116 ICON=vscodek8stools GRAFSUFF=vscodek8stools GA="UA-145264316-77" ./devel/deploy_proj.sh || exit 135
+  elif [ "$proj" = "nocalhost" ]
+  then
+    PROJ=nocalhost           PROJDB=nocalhost      PROJREPO="nocalhost/nocalhost"             ORGNAME=Nocalhost         PORT=3117 ICON=nocalhost      GRAFSUFF=nocalhost      GA="UA-145264316-78" ./devel/deploy_proj.sh || exit 136
+  elif [ "$proj" = "kubearmor" ]
+  then
+    PROJ=kubearmor           PROJDB=kubearmor      PROJREPO="kubearmor/KubeArmor"             ORGNAME=KubeArmor         PORT=3118 ICON=kubearmor      GRAFSUFF=kubearmor      GA="UA-145264316-79" ./devel/deploy_proj.sh || exit 137
+  elif [ "$proj" = "k8up" ]
+  then
+    PROJ=k8up                PROJDB=k8up           PROJREPO="k8up-io/k8up"                    ORGNAME=K8up              PORT=3119 ICON=k8up           GRAFSUFF=k8up           GA="UA-145264316-80" ./devel/deploy_proj.sh || exit 138
+  elif [ "$proj" = "kubers" ]
+  then
+    PROJ=kubers              PROJDB=kubers         PROJREPO="kube-rs/kube-rs"                 ORGNAME=kube-rs           PORT=3120 ICON=kubers         GRAFSUFF=kubers         GA="UA-145264316-81" ./devel/deploy_proj.sh || exit 139
   elif [ "$proj" = "opencontainers" ]
   then
     PROJ=opencontainers      PROJDB=opencontainers PROJREPO="opencontainers/runc"             ORGNAME=OCI               PORT=3220 ICON="-"            GRAFSUFF=opencontainers GA="UA-108085315-19" ./devel/deploy_proj.sh || exit 32
