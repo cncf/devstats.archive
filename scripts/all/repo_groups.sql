@@ -1228,6 +1228,45 @@ where
   name in ('Azure/vscode-kubernetes-tools')
 ;
 
+-- Nocalhost
+update
+  gha_repos
+set
+  repo_group = 'Nocalhost'
+where
+  org_login in ('nocalhost')
+;
+
+-- KubeArmor
+update
+  gha_repos
+set
+  repo_group = 'KubeArmor'
+where
+  name in ('accuknox/KubeArmor')
+  or org_login in ('kubearmor')
+;
+
+-- K8up
+update
+  gha_repos
+set
+  repo_group = 'K8up'
+where
+  name in ('vshn/k8up')
+  or org_login in ('k8up-io')
+;
+
+-- kube-rs
+update
+  gha_repos
+set
+  repo_group = 'kube-rs'
+where
+  name in ('clux/kube-rs', 'clux/kubernetes-rust')
+  or org_login in ('kube-rs')
+;
+
 -- CNCF
 update
   gha_repos
