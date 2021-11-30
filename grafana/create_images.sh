@@ -74,7 +74,7 @@ do
     icon="inclavare"
   fi
   # TODO: remove when we have icons
-  if ( [ "$icon" = "nocalhost" ] || [ "$icon" = "kubearmor" ] || [ "$icon" = "k8up" ] || [ "$icon" = "kubers" ] || [ "$icon" = "openelb" ] || [ "$icon" = "openclustermanagement" ] || [ "$icon" = "vscodek8stools" ] || [ "$icon" = "metallb" ] || [ "$icon" = "cilium" ] || [ "$icon" = "krator" ] || [ "$icon" = "oras" ] || [ "$icon" = "kubevip" ] || [ "$icon" = "cnigenie" ] || [ "$icon" = "istio" ] || [ "$icon" = "knative" ] || [ "$icon" = "contrib" ] || [ "$icon" = "sam" ] || [ "$icon" = "azf" ] || [ "$icon" = "riff" ] || [ "$icon" = "fn" ] || [ "$icon" = "openwhisk" ] || [ "$icon" = "openfaas" ] || [ "$icon" = "cii" ] )
+  if ( [ "$icon" = "kubers" ] || [ "$icon" = "openelb" ] || [ "$icon" = "vscodek8stools" ] || [ "$icon" = "metallb" ] || [ "$icon" = "cilium" ] || [ "$icon" = "krator" ] || [ "$icon" = "oras" ] || [ "$icon" = "kubevip" ] || [ "$icon" = "cnigenie" ] || [ "$icon" = "istio" ] || [ "$icon" = "knative" ] || [ "$icon" = "contrib" ] || [ "$icon" = "sam" ] || [ "$icon" = "azf" ] || [ "$icon" = "riff" ] || [ "$icon" = "fn" ] || [ "$icon" = "openwhisk" ] || [ "$icon" = "openfaas" ] || [ "$icon" = "cii" ] )
   then
     icon="cncf"
   fi
@@ -106,6 +106,16 @@ do
   then
     cp "$HOME/dev/cncf/artwork/projects/wasmcloud/icon/color/wasmcloud.icon_green.svg" "grafana/img/$suff.svg" || exit 15
     convert "$HOME/dev/cncf/artwork/projects/wasmcloud/icon/color/wasmcloud.icon_green.png" -resize 32x32 "grafana/img/${suff}32.png" || exit 14
+    continue
+  elif [ "$icon" = "k8up" ]
+  then
+    cp "$HOME/dev/cncf/artwork/projects/k8up/icon/k8up-icon-color.svg" "grafana/img/$suff.svg" || exit 17
+    convert "$HOME/dev/cncf/artwork/projects/k8up/icon/k8up-icon-color.png" -resize 32x32 "grafana/img/${suff}32.png" || exit 16
+    continue
+  elif [ "$icon" = "openclustermanagement" ]
+  then
+    cp "$HOME/dev/cncf/artwork/projects/open-cluster-management/icon/color/ocm-icon-color.svg" "grafana/img/$suff.svg" || exit 19
+    convert "$HOME/dev/cncf/artwork/projects/open-cluster-management/icon/color/ocm-icon-color.png" -resize 32x32 "grafana/img/${suff}32.png" || exit 18
     continue
   fi
   cp "$HOME/dev/$iconorg/artwork/$path/icon/$icontype/$icon$dash$mid-$icontype.svg" "grafana/img/$suff.svg" || exit 2
