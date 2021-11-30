@@ -68,7 +68,7 @@ do
     icon="inclavare"
   fi
   # TODO: remove when we have icons
-  if ( [ "$icon" = "nocalhost" ] || [ "$icon" = "kubearmor" ] || [ "$icon" = "k8up" ] || [ "$icon" = "kubers" ] || [ "$icon" = "openelb" ] || [ "$icon" = "openclustermanagement" ] || [ "$icon" = "vscodek8stools" ] || [ "$icon" = "metallb" ] || [ "$icon" = "cilium" ] || [ "$icon" = "krator" ] || [ "$icon" = "oras" ] || [ "$icon" = "kubevip" ] || [ "$icon" = "cnigenie" ] || [ "$icon" = "istio" ] || [ "$icon" = "knative" ] || [ "$icon" = "contrib" ] || [ "$icon" = "sam" ] || [ "$icon" = "azf" ] || [ "$icon" = "riff" ] || [ "$icon" = "fn" ] || [ "$icon" = "openwhisk" ] || [ "$icon" = "openfaas" ] || [ "$icon" = "cii" ] )
+  if ( [ "$icon" = "kubers" ] || [ "$icon" = "openelb" ] || [ "$icon" = "vscodek8stools" ] || [ "$icon" = "metallb" ] || [ "$icon" = "cilium" ] || [ "$icon" = "krator" ] || [ "$icon" = "oras" ] || [ "$icon" = "kubevip" ] || [ "$icon" = "cnigenie" ] || [ "$icon" = "istio" ] || [ "$icon" = "knative" ] || [ "$icon" = "contrib" ] || [ "$icon" = "sam" ] || [ "$icon" = "azf" ] || [ "$icon" = "riff" ] || [ "$icon" = "fn" ] || [ "$icon" = "openwhisk" ] || [ "$icon" = "openfaas" ] || [ "$icon" = "cii" ] )
   then
     icon="cncf"
   fi
@@ -100,6 +100,16 @@ do
   then
     convert "$HOME/dev/cncf/artwork/projects/wasmcloud/icon/color/wasmcloud.icon_green.png" -resize 80x80 "/var/www/html/img/$proj-icon-color.png" || exit 16
     cp "$HOME/dev/cncf/artwork/projects/wasmcloud/icon/color/wasmcloud.icon_green.svg" "/var/www/html/img/$proj-icon-color.svg" || exit 17
+    continue
+  elif [ "$icon" = "k8up" ]
+  then
+    convert "$HOME/dev/cncf/artwork/projects/k8up/icon/k8up-icon-color.png" -resize 80x80 "/var/www/html/img/$proj-icon-color.png" || exit 18
+    cp "$HOME/dev/cncf/artwork/projects/k8up/icon/k8up-icon-color.svg" "/var/www/html/img/$proj-icon-color.svg" || exit 19
+    continue
+  elif [ "$icon" = "openclustermanagement" ]
+  then
+    convert "$HOME/dev/cncf/artwork/projects/open-cluster-management/icon/color/ocm-icon-color.png" -resize 80x80 "/var/www/html/img/$proj-icon-color.png" || exit 20
+    cp "$HOME/dev/cncf/artwork/projects/open-cluster-management/icon/color/ocm-icon-color.svg" "/var/www/html/img/$proj-icon-color.svg" || exit 21
     continue
   fi
   convert "$HOME/dev/$iconorg/artwork/$path/icon/$icontype/${icon}${dash}$mid-$icontype.png" -resize 80x80 "/var/www/html/img/$proj-icon-color.png" || exit 2
