@@ -42,6 +42,39 @@ The rest of this document describes current bare metal deployment on metal.equin
 - [A Kubernetes Application End-to-End: DevStats](https://www.youtube.com/watch?v=U2PTifzzKNE&t=58s).
 
 
+# Architecture
+
+DevStats is deployed using [Helm](https://helm.sh) on [Kubernetes](https://kubernetes.io) running on bare metal servers provided by [Equinix](https://www.equinix.com).
+
+DevStats is written in [Go](https://go.dev), it uses [GitHub archives](https://www.gharchive.org), [GitHub API](https://docs.github.com/en/rest) and [git](https://git-scm.com) as its main data sources.
+
+Under the hood, DevStats uses the following CNCF projects:
+- Helm (for deployment).
+- containerd (as a Kubernetes container runtime, CRI).
+- cert-manager (for HTTPS/SSL certificates).
+- OpenEBS (for local storage volumes support).
+- MetalLB (as a load balancer for bare metal servers).
+- CoreDNS (Kubernetes internal DNS).
+
+And other projects, including:
+- Ubuntu (containers base operating system).
+- kubeadm (for installing Kubernetes).
+- NFS (for shared write network volumes support).
+- NGINX (for ingress).
+- Calico (as a networking for Kubernetes, CNI).
+- Golang (DevStats is written in Go).
+- PostgreSQL (DevStats database is Postgres).
+- patroni (HA deployment of PostgreSQL database, tweaked for DevStats).
+- GitHub archives (main data source).
+- GitHub API (data source).
+- git (data source).
+- Grafana (UI).
+- Let's Encrypt (provides HTTPS/SSL certificates).
+- Travis CI (continuous integration & testing).
+
+Please check [this](https://github.com/cncf/devstats-helm#architecture) for a detailed architecture description.
+
+
 # Deploying on your own project(s)
 
 See the simple [DevStats example](https://github.com/cncf/devstats-example) repository for single project deployment (Homebrew), follow [instructions](https://github.com/cncf/devstats-example/blob/master/SETUP_OTHER_PROJECT.md) to deploy for your own project.
