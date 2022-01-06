@@ -57,6 +57,7 @@ Under the hood, DevStats uses the following CNCF projects:
 - CoreDNS (Kubernetes internal DNS).
 
 And other projects, including:
+- Equinix (bare metal servers provider).
 - Ubuntu (containers base operating system).
 - kubeadm (for installing Kubernetes).
 - NFS (for shared write network volumes support).
