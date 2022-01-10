@@ -31,7 +31,8 @@ update gha_repos set repo_group = alias;
 update gha_repos
 set repo_group = 'VS Code Kubernetes Tools', alias = 'VS Code Kubernetes Tools'
 where name in (
-  'Azure/vscode-kubernetes-tools'
+  'Azure/vscode-kubernetes-tools',
+  'vscode-kubernetes-tools/vscode-kubernetes-tools'
 );
 
 select

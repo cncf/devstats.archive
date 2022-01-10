@@ -1226,6 +1226,7 @@ set
   repo_group = 'VS Code Kubernetes Tools'
 where
   name in ('Azure/vscode-kubernetes-tools')
+  or org_login in ('vscode-kubernetes-tools')
 ;
 
 -- Nocalhost

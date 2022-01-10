@@ -453,7 +453,7 @@ do
     PROJ=openclustermanagement PROJDB=openclustermanagement PROJREPO="open-cluster-management-io/api" ORGNAME="Open Cluster Management" PORT=3115 ICON=openclustermanagement GRAFSUFF=openclustermanagement GA="UA-145264316-76" ./devel/deploy_proj.sh || exit 134
   elif [ "$proj" = "vscodek8stools" ]
   then
-    PROJ=vscodek8stools      PROJDB=vscodek8stools PROJREPO="Azure/vscode-kubernetes-tools"   ORGNAME="VS Code Kubernetes Tools" PORT=3116 ICON=vscodek8stools GRAFSUFF=vscodek8stools GA="UA-145264316-77" ./devel/deploy_proj.sh || exit 135
+    PROJ=vscodek8stools      PROJDB=vscodek8stools PROJREPO="vscode-kubernetes-tools/vscode-kubernetes-tools" ORGNAME="VS Code Kubernetes Tools" PORT=3116 ICON=vscodek8stools GRAFSUFF=vscodek8stools GA="UA-145264316-77" ./devel/deploy_proj.sh || exit 135
   elif [ "$proj" = "nocalhost" ]
   then
     PROJ=nocalhost           PROJDB=nocalhost      PROJREPO="nocalhost/nocalhost"             ORGNAME=Nocalhost         PORT=3117 ICON=nocalhost      GRAFSUFF=nocalhost      GA="UA-145264316-78" ./devel/deploy_proj.sh || exit 136
