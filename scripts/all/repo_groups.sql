@@ -1216,7 +1216,7 @@ update
 set
   repo_group = 'Open Cluster Management'
 where
-  org_login in ('open-cluster-management-io', 'open-cluster-management')
+  org_login in ('open-cluster-management-io')
 ;
 
 -- VS Code Kubernetes Tools
