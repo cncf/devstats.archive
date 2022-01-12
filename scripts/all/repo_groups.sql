@@ -1268,6 +1268,16 @@ where
   or org_login in ('kube-rs')
 ;
 
+-- Devfile
+update
+  gha_repos
+set
+  repo_group = 'Devfile'
+where
+  name in ('che-incubator/devworkspace-api')
+  or org_login in ('devfile')
+;
+
 -- CNCF
 update
   gha_repos
