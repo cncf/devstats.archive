@@ -22,8 +22,8 @@ where
       org.id
     from
 --      [githubarchive:month.202201],
-      [githubarchive:year.2021]
-      [githubarchive:year.2020]
+      [githubarchive:year.2021],
+      [githubarchive:year.2020],
       [githubarchive:year.2019]
     where
       org.login = '{{org}}'
