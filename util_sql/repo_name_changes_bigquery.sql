@@ -7,17 +7,9 @@ select
   min(created_at) as date_from,
   max(created_at) as date_to
 from
-  -- TABLE_DATE_RANGE([githubarchive:day.], TIMESTAMP('2018-01-01'), TIMESTAMP('2019-08-01'))
-  [githubarchive:month.202110],
-  [githubarchive:month.202109],
-  [githubarchive:month.202108],
-  [githubarchive:month.202107],
-  [githubarchive:month.202106],
-  [githubarchive:month.202105],
-  [githubarchive:month.202104],
-  [githubarchive:month.202103],
-  [githubarchive:month.202102],
-  [githubarchive:month.202101],
+--  TABLE_DATE_RANGE([githubarchive:day.], TIMESTAMP('2018-01-01'), TIMESTAMP('2019-08-01'))
+--  [githubarchive:month.202201],
+  [githubarchive:year.2021],
   [githubarchive:year.2020],
   [githubarchive:year.2019],
   [githubarchive:year.2018],
@@ -30,17 +22,9 @@ where
     select
       repo.id
     from
-      -- TABLE_DATE_RANGE([githubarchive:day.], TIMESTAMP('2018-01-01'), TIMESTAMP('2019-08-01'))
-      [githubarchive:month.202110],
-      [githubarchive:month.202109],
-      [githubarchive:month.202108],
-      [githubarchive:month.202107],
-      [githubarchive:month.202106],
-      [githubarchive:month.202105],
-      [githubarchive:month.202104],
-      [githubarchive:month.202103],
-      [githubarchive:month.202102],
-      [githubarchive:month.202101],
+--      TABLE_DATE_RANGE([githubarchive:day.], TIMESTAMP('2018-01-01'), TIMESTAMP('2019-08-01'))
+--      [githubarchive:month.202201],
+      [githubarchive:year.2021],
       [githubarchive:year.2020],
       [githubarchive:year.2019],
       [githubarchive:year.2018],
