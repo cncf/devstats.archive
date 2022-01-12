@@ -140,6 +140,7 @@ icontypes=(
   ["kubearmor"]="color"
   ["k8up"]="color"
   ["kubers"]="color"
+  ["devfile"]="color"
   ["tekton"]="color"
   ["jenkins"]="color"
   ["jenkinsx"]="color"

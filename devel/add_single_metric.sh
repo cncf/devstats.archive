@@ -1,4 +1,4 @@
-#!/bin/bash
+#!bin/bash
 # HEALTH=1 - regenerate health metric
 if [ -z "${PG_DB}" ]
 then
