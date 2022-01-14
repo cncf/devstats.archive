@@ -1057,7 +1057,8 @@ update
 set
   repo_group = 'Meshery'
 where
-  name ~ '(?i)layer5io\/.*meshery'
+  org_login in ('meshery')
+  or name ~ '(?i)layer5io\/.*meshery'
 ;
 
 -- Service Mesh Performance

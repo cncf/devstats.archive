@@ -399,7 +399,7 @@ do
     PROJ=pixie               PROJDB=pixie           PROJREPO="pixie-io/pixie"                 ORGNAME=Pixie             PORT=3097 ICON=pixie          GRAFSUFF=pixie          GA="UA-145264316-58" ./devel/deploy_proj.sh || exit 116
   elif [ "$proj" = "meshery" ]
   then
-    PROJ=meshery             PROJDB=meshery         PROJREPO="layer5io/meshery"               ORGNAME=Meshery           PORT=3098 ICON=meshery        GRAFSUFF=meshery        GA="UA-145264316-59" ./devel/deploy_proj.sh || exit 117
+    PROJ=meshery             PROJDB=meshery         PROJREPO="meshery/meshery"                ORGNAME=Meshery           PORT=3098 ICON=meshery        GRAFSUFF=meshery        GA="UA-145264316-59" ./devel/deploy_proj.sh || exit 117
   elif [ "$proj" = "servicemeshperformance" ]
   then
     PROJ=servicemeshperformance PROJDB=servicemeshperformance PROJREPO="service-mesh-performance/service-mesh-performance" ORGNAME='Service Mesh Performance' PORT=3099 ICON=servicemeshperformance GRAFSUFF=servicemeshperformance GA="UA-145264316-60" ./devel/deploy_proj.sh || exit 118

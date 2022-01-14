@@ -31,6 +31,7 @@ update gha_repos set repo_group = alias;
 update gha_repos
 set repo_group = 'Meshery', alias = 'Meshery'
 where name in (
+  'meshery/meshery',
   'layer5io/meshery'
 );
 
