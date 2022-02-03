@@ -327,7 +327,7 @@ do
     PROJ=cdk8s               PROJDB=cdk8s          PROJREPO="cdk8s-team/cdk8s" ORGNAME="Cloud Deployment Kit for Kubernetes" PORT=3073 ICON=cdk8s     GRAFSUFF=cdk8s          GA="UA-145264316-34" ./devel/deploy_proj.sh || exit 92
   elif [ "$proj" = "certmanager" ]
   then
-    PROJ=certmanager         PROJDB=certmanager    PROJREPO="jetstack/cert-manager"           ORGNAME="cert-manager"    PORT=3074 ICON=certmanager    GRAFSUFF=certmanager    GA="UA-145264316-35" ./devel/deploy_proj.sh || exit 93
+    PROJ=certmanager         PROJDB=certmanager    PROJREPO="cert-manager/cert-manager"       ORGNAME="cert-manager"    PORT=3074 ICON=certmanager    GRAFSUFF=certmanager    GA="UA-145264316-35" ./devel/deploy_proj.sh || exit 93
   elif [ "$proj" = "openkruise" ]
   then
     PROJ=openkruise          PROJDB=openkruise     PROJREPO="openkruise/kruise"               ORGNAME=OpenKruise        PORT=3075 ICON=openkruise     GRAFSUFF=openkruise     GA="UA-145264316-36" ./devel/deploy_proj.sh || exit 94
