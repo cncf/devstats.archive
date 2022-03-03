@@ -2,15 +2,6 @@
   "annotations": {
     "list": [
       {
-        "builtIn": 1,
-        "datasource": "-- Grafana --",
-        "enable": true,
-        "hide": true,
-        "iconColor": "rgba(0, 211, 255, 1)",
-        "name": "Annotations & Alerts",
-        "type": "dashboard"
-      },
-      {
         "datasource": "psql",
         "enable": true,
         "hide": false,
@@ -24,14 +15,25 @@
         "textColumn": "",
         "titleColumn": "[[full_name]] release",
         "type": "alert"
+      },
+      {
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "limit": 100,
+        "name": "Annotations & Alerts",
+        "showIn": 0,
+        "type": "dashboard"
       }
     ]
   },
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 41,
-  "iteration": 1529596404652,
+  "id": 13,
+  "iteration": 1543674670933,
   "links": [],
   "panels": [
     {
@@ -44,7 +46,7 @@
         "rgba(50, 172, 45, 0.97)"
       ],
       "datasource": "psql",
-      "description": "Current median age of opened PRs.",
+      "description": "Current median closing time for recent issues.",
       "format": "none",
       "gauge": {
         "maxValue": 100,
@@ -115,9 +117,9 @@
           ],
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "SELECT \"descr\" FROM \"autogen\".\"prs_age_[[repogroup]]_median_[[period]][[aggregate]]\" WHERE $timeFilter",
+          "query": "SELECT \"descr\" FROM \"autogen\".\"issues_age_[[repogroup]]_[[prio]]_median_[[period]]\" WHERE $timeFilter",
           "rawQuery": true,
-          "rawSql": "select\n  descr\nfrom\n  sprs_age\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'prs_age[[repogroup]]m'\norder by\n  time desc\nlimit 1",
+          "rawSql": "select\n  descr\nfrom\n  sissues_age\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'iage[[repogroup]][[prio]]m'\norder by\n  time desc\nlimit 1",
           "refId": "A",
           "resultFormat": "time_series",
           "select": [
@@ -138,7 +140,7 @@
         }
       ],
       "thresholds": "",
-      "title": "Current median age of opened PRs in [[repogroup_name]] repository group ([[period]])",
+      "title": "Current median time to close for issues created last [[period]] for repository group [[repogroup_name]], Priority: [[prio_name]]",
       "type": "singlestat",
       "valueFontSize": "50%",
       "valueMaps": [
@@ -160,7 +162,7 @@
         "rgba(50, 172, 45, 0.97)"
       ],
       "datasource": "psql",
-      "description": "Current average number of opened PRs.",
+      "description": "Number of closed issues opened recently",
       "format": "none",
       "gauge": {
         "maxValue": 100,
@@ -231,9 +233,9 @@
           ],
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "SELECT \"value\" FROM \"autogen\".\"prs_age_[[repogroup]]_number_[[period]][[aggregate]]\" WHERE $timeFilter",
+          "query": "SELECT \"value\" FROM \"autogen\".\"issues_age_[[repogroup]]_[[prio]]_number_[[period]]\" WHERE $timeFilter",
           "rawQuery": true,
-          "rawSql": "select\n  time, value\nfrom\n  sprs_age\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'prs_age[[repogroup]]n'\norder by\n  time desc\nlimit 1",
+          "rawSql": "select\n  time, value\nfrom\n  sissues_age\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'iage[[repogroup]][[prio]]n'\norder by\n  time desc\nlimit 1",
           "refId": "A",
           "resultFormat": "time_series",
           "select": [
@@ -254,7 +256,7 @@
         }
       ],
       "thresholds": "",
-      "title": "Current average number of opened PRs in [[repogroup_name]] repository group ([[period]])",
+      "title": "Number of closed issues opened last [[period]] for repository group [[repogroup_name]], Priority: [[prio_name]]",
       "type": "singlestat",
       "valueFontSize": "50%",
       "valueMaps": [
@@ -273,7 +275,7 @@
       "dashes": false,
       "datasource": "psql",
       "decimals": 2,
-      "description": "Median age and number of pull requests created in [[repogroup]] repository group.",
+      "description": "Median time to close and number of issues created in [[repogroup]] repository group.",
       "fill": 3,
       "gridPos": {
         "h": 13,
@@ -306,14 +308,14 @@
       "renderer": "flot",
       "seriesOverrides": [
         {
-          "alias": "Median age of opened PRs",
+          "alias": "Median time to close issue",
           "fill": 2,
           "lines": true,
           "linewidth": 0,
           "yaxis": 1
         },
         {
-          "alias": "Average number of PRs opened",
+          "alias": "Average number of issues opened",
           "fill": 0,
           "lines": true,
           "linewidth": 1,
@@ -333,9 +335,9 @@
           "measurement": "reviewers_d",
           "orderByTime": "ASC",
           "policy": "autogen",
-          "query": "SELECT \"value\" FROM \"autogen\".\"prs_age_[[repogroup]]_number_[[period]][[aggregate]]\" WHERE $timeFilter",
+          "query": "SELECT \"value\" FROM \"autogen\".\"issues_age_[[repogroup]]_[[prio]]_number_[[period]]\" WHERE $timeFilter",
           "rawQuery": true,
-          "rawSql": "select\n  time,\n  value as \"Average number of PRs opened\"\nfrom\n  sprs_age\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'prs_age[[repogroup]]n'\norder by\n  time",
+          "rawSql": "select\n  time,\n  value as \"Average number of issues opened\"\nfrom\n  sissues_age\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'iage[[repogroup]][[prio]]n'\norder by\n  time",
           "refId": "A",
           "resultFormat": "time_series",
           "select": [
@@ -359,9 +361,9 @@
           "measurement": "reviewers_d",
           "orderByTime": "ASC",
           "policy": "autogen",
-          "query": "SELECT \"value\" FROM \"autogen\".\"prs_age_[[repogroup]]_median_[[period]][[aggregate]]\" WHERE $timeFilter",
+          "query": "SELECT \"value\" FROM \"autogen\".\"issues_age_[[repogroup]]_[[prio]]_median_[[period]]\" WHERE $timeFilter",
           "rawQuery": true,
-          "rawSql": "select\n  time,\n  value as \"Median age of opened PRs\"\nfrom\n  sprs_age\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'prs_age[[repogroup]]m'\norder by\n  time",
+          "rawSql": "select\n  time,\n  value as \"Median time to close issue\"\nfrom\n  sissues_age\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'iage[[repogroup]][[prio]]m'\norder by\n  time",
           "refId": "B",
           "resultFormat": "time_series",
           "select": [
@@ -380,7 +382,7 @@
       "thresholds": [],
       "timeFrom": null,
       "timeShift": null,
-      "title": "Number/Age of Pull requests in [[repogroup_name]] repository group ([[period]])",
+      "title": "Number/Median time to close of Issues in [[repogroup_name]] repository group ([[period]]), Priority: [[prio_name]]",
       "tooltip": {
         "shared": true,
         "sort": 0,
@@ -399,16 +401,18 @@
       },
       "yaxes": [
         {
+          "decimals": null,
           "format": "h",
-          "label": "Median PRs age",
+          "label": "Median issue close time",
           "logBase": 1,
           "max": null,
           "min": "0",
           "show": true
         },
         {
+          "decimals": null,
           "format": "short",
-          "label": "Average opened PRs number",
+          "label": "Average issues opened",
           "logBase": 1,
           "max": null,
           "min": "0",
@@ -423,7 +427,7 @@
     {
       "columns": [],
       "datasource": "psql",
-      "description": "Median age and number of pull requests created in [[repogroup]] repository group.",
+      "description": "Median time to close and the number​ of issues created in [[repogroup]] repository group.",
       "fontSize": "90%",
       "gridPos": {
         "h": 11,
@@ -483,9 +487,9 @@
           ],
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "SELECT \"descr\" FROM \"autogen\".\"prs_age_[[repogroup]]_median_[[period]][[aggregate]]\" WHERE $timeFilter",
+          "query": "SELECT \"descr\" FROM \"autogen\".\"issues_age_[[repogroup]]_[[prio]]_median_[[period]]\" WHERE $timeFilter",
           "rawQuery": true,
-          "rawSql": "select\n  time as \"Time\",\n  descr as \"Median opened PRs age\"\nfrom\n  sprs_age\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'prs_age[[repogroup]]m'\norder by\n  time",
+          "rawSql": "select\n  time as \"Time\",\n  descr as \"Median time to close issue\"\nfrom\n  sissues_age\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'iage[[repogroup]][[prio]]m'\norder by\n  time",
           "refId": "A",
           "resultFormat": "time_series",
           "select": [
@@ -524,9 +528,9 @@
           ],
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "SELECT \"value\" FROM \"autogen\".\"prs_age_[[repogroup]]_number_[[period]][[aggregate]]\" WHERE $timeFilter",
+          "query": "SELECT \"value\" FROM \"autogen\".\"issues_age_[[repogroup]]_[[prio]]_number_[[period]]\" WHERE $timeFilter",
           "rawQuery": true,
-          "rawSql": "select\n  time as \"Time\",\n  value as \"Average number of opened PRs\"\nfrom\n  sprs_age\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'prs_age[[repogroup]]n'\norder by\n  time",
+          "rawSql": "select\n  time as \"Time\",\n  value as \"Average number of issues opened\"\nfrom\n  sissues_age\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'iage[[repogroup]][[prio]]n'\norder by\n  time",
           "refId": "B",
           "resultFormat": "time_series",
           "select": [
@@ -546,7 +550,7 @@
           "tags": []
         }
       ],
-      "title": "Number/Age of Pull requests in [[repogroup_name]] repository group ([[period]])",
+      "title": "Number/Median time to close of Issues in [[repogroup_name]] repository group ([[period]]), Priority: [[prio_name]]",
       "transform": "table",
       "transparent": false,
       "type": "table"
@@ -575,6 +579,30 @@
   ],
   "templating": {
     "list": [
+      {
+        "allValue": null,
+        "current": {
+          "text": "Spinnaker",
+          "value": "Spinnaker"
+        },
+        "datasource": "psql",
+        "hide": 2,
+        "includeAll": false,
+        "label": null,
+        "multi": false,
+        "name": "full_name",
+        "options": [],
+        "query": "select value_s from gha_vars where name = 'full_name'",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": true,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
       {
         "allValue": null,
         "current": {
@@ -672,16 +700,44 @@
         "useTags": false
       },
       {
-        "allValue": null,
-        "current": {},
+        "allValue": "",
+        "current": {
+          "tags": [],
+          "text": "All",
+          "value": "All"
+        },
+        "datasource": "psql",
+        "hide": 0,
+        "includeAll": false,
+        "label": "Priority",
+        "multi": false,
+        "name": "prio_name",
+        "options": [],
+        "query": "select priority_labels_name_with_all from tpriority_labels_with_all order by 1",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": "",
+        "current": {
+          "text": "all",
+          "value": "all"
+        },
         "datasource": "psql",
         "hide": 2,
         "includeAll": false,
-        "label": null,
+        "label": "Priority",
         "multi": false,
-        "name": "full_name",
+        "name": "prio",
         "options": [],
-        "query": "select value_s from gha_vars where name = 'full_name'",
+        "query": "select priority_labels_value_with_all from tpriority_labels_with_all where priority_labels_name_with_all = '[[prio_name]]'",
         "refresh": 1,
         "regex": "",
         "skipUrlSync": true,
@@ -694,7 +750,10 @@
       },
       {
         "allValue": null,
-        "current": {},
+        "current": {
+          "text": "<h1 id=\"dashboard-header\">Spinnaker issues age dashboard</h1>\n<p>Links:</p>\n<ul>\n<li>Metric <a href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/issues_age.sql\" target=\"_blank\">SQL file</a>.</li>\n<li>TSDB <a href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/metrics.yaml\" target=\"_blank\">series definition</a>. Search for <code>issues_age</code></li>\n<li>Grafana dashboard <a href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/spinnaker/issues-age.json\" target=\"_blank\">JSON</a>.</li>\n</ul>\n<h1 id=\"description\">Description</h1>\n<ul>\n<li>This dashboard shows median time to close issues opened in selected periods and average number of closed issues opened in those periods.</li>\n<li>Selecting period (for example week) means that dashboard will calculate data for issues opened in those periods.</li>\n<li>You can select single repository group or summary for all of them.</li>\n<li>You can select all issues or issues with a specific priority.</li>\n<li>Issue priority is defined as a label <a href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/labels_priorities_tags_with_all.sql\" target=\"_blank\">here</a>.</li>\n<li>See <a href=\"https://github.com/cncf/devstats/blob/master/docs/periods.md\" target=\"_blank\">here</a> for more informations about periods.</li>\n<li>See <a href=\"https://github.com/cncf/devstats/blob/master/docs/repository_groups.md\" target=\"_blank\">here</a> for more informations about repository groups.</li>\n</ul>",
+          "value": "<h1 id=\"dashboard-header\">Spinnaker issues age dashboard</h1>\n<p>Links:</p>\n<ul>\n<li>Metric <a href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/issues_age.sql\" target=\"_blank\">SQL file</a>.</li>\n<li>TSDB <a href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/metrics.yaml\" target=\"_blank\">series definition</a>. Search for <code>issues_age</code></li>\n<li>Grafana dashboard <a href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/spinnaker/issues-age.json\" target=\"_blank\">JSON</a>.</li>\n</ul>\n<h1 id=\"description\">Description</h1>\n<ul>\n<li>This dashboard shows median time to close issues opened in selected periods and average number of closed issues opened in those periods.</li>\n<li>Selecting period (for example week) means that dashboard will calculate data for issues opened in those periods.</li>\n<li>You can select single repository group or summary for all of them.</li>\n<li>You can select all issues or issues with a specific priority.</li>\n<li>Issue priority is defined as a label <a href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/labels_priorities_tags_with_all.sql\" target=\"_blank\">here</a>.</li>\n<li>See <a href=\"https://github.com/cncf/devstats/blob/master/docs/periods.md\" target=\"_blank\">here</a> for more informations about periods.</li>\n<li>See <a href=\"https://github.com/cncf/devstats/blob/master/docs/repository_groups.md\" target=\"_blank\">here</a> for more informations about repository groups.</li>\n</ul>"
+        },
         "datasource": "psql",
         "hide": 2,
         "includeAll": false,
@@ -702,7 +761,7 @@
         "multi": false,
         "name": "docs",
         "options": [],
-        "query": "select value_s from gha_vars where name = 'prs_age_docs_html'",
+        "query": "select value_s from gha_vars where name = 'issues_age_docs_html'",
         "refresh": 1,
         "regex": "",
         "skipUrlSync": true,
@@ -716,7 +775,7 @@
     ]
   },
   "time": {
-    "from": "now-1y",
+    "from": "now-6M",
     "to": "now-1w"
   },
   "timepicker": {
@@ -745,7 +804,7 @@
     ]
   },
   "timezone": "",
-  "title": "Open PR Age by Repository Group",
-  "uid": "19",
+  "title": "Issues Age by Repository Group",
+  "uid": "11",
   "version": 2
 }

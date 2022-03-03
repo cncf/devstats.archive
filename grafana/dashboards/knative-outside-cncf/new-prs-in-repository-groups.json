@@ -30,8 +30,8 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 35,
-  "iteration": 1529596412403,
+  "id": 23,
+  "iteration": 1579677884548,
   "links": [],
   "panels": [
     {
@@ -41,14 +41,16 @@
       "dashes": false,
       "datasource": "psql",
       "decimals": 0,
-      "description": "Number of unique commenters.",
+      "description": "Number of new pull requests created in [[repogroup]] repository group.",
       "fill": 1,
+      "fillGradient": 0,
       "gridPos": {
         "h": 22,
         "w": 24,
         "x": 0,
         "y": 0
       },
+      "hiddenSeries": false,
       "id": 1,
       "legend": {
         "alignAsTable": true,
@@ -60,18 +62,28 @@
         "min": true,
         "rightSide": false,
         "show": true,
-        "total": false,
+        "total": true,
         "values": true
       },
       "lines": false,
       "linewidth": 1,
       "links": [],
       "nullPointMode": "null",
+      "options": {
+        "dataLinks": []
+      },
       "percentage": false,
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
-      "seriesOverrides": [],
+      "seriesOverrides": [
+        {
+          "alias": "/including bots/",
+          "bars": false,
+          "fill": 0,
+          "lines": true
+        }
+      ],
       "spaceLength": 10,
       "stack": false,
       "steppedLine": false,
@@ -80,14 +92,16 @@
           "alias": "",
           "dsType": "influxdb",
           "format": "time_series",
+          "group": [],
           "groupBy": [],
           "hide": false,
           "measurement": "reviewers_d",
+          "metricColumn": "none",
           "orderByTime": "ASC",
           "policy": "autogen",
-          "query": "SELECT \"value\" FROM \"autogen\".\"repo_commenters_[[repogroup]]_[[period]][[aggregate]]\" WHERE $timeFilter",
+          "query": "",
           "rawQuery": true,
-          "rawSql": "select\n  time,\n  value as \"Unique commenters\"\nfrom\n  srcommenters\nwhere\n  $__timeFilter(time)\n  and series = 'rcommenters[[repogroup]]'\n  and period = '[[period]]'\norder by\n  time",
+          "rawSql": "select\n  time,\n  value as \"[[repogroup_name]] (excluding bots)\"\nfrom\n  snew_prs\nwhere\n  $__timeFilter(time)\n  and series = 'new_prs[[repogroup]]'\n  and period = '[[period]]'\norder by\n  time",
           "refId": "A",
           "resultFormat": "time_series",
           "select": [
@@ -100,19 +114,63 @@
               }
             ]
           ],
-          "tags": []
+          "tags": [],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        },
+        {
+          "alias": "",
+          "dsType": "influxdb",
+          "format": "time_series",
+          "group": [],
+          "groupBy": [],
+          "hide": false,
+          "measurement": "reviewers_d",
+          "metricColumn": "none",
+          "orderByTime": "ASC",
+          "policy": "autogen",
+          "query": "",
+          "rawQuery": true,
+          "rawSql": "select\n  time,\n  value as \"[[repogroup_name]] (including bots)\"\nfrom\n  snew_prs\nwhere\n  $__timeFilter(time)\n  and series = 'new_prs_bots[[repogroup]]'\n  and period = '[[period]]'\norder by\n  time",
+          "refId": "B",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              }
+            ]
+          ],
+          "tags": [],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
         }
       ],
       "thresholds": [],
       "timeFrom": null,
+      "timeRegions": [],
       "timeShift": null,
-      "title": "[[repogroup_name]] unique commenters ([[period]])",
+      "title": "New PRs created in [[repogroup_name]] repository group ([[period]])",
       "tooltip": {
-        "shared": false,
+        "shared": true,
         "sort": 0,
         "value_type": "individual"
       },
-      "transparent": false,
       "type": "graph",
       "xaxis": {
         "buckets": null,
@@ -125,15 +183,15 @@
       },
       "yaxes": [
         {
-          "format": "short",
-          "label": "Unique commenters",
+          "format": "none",
+          "label": "New PRs",
           "logBase": 1,
           "max": null,
           "min": "0",
           "show": true
         },
         {
-          "format": "short",
+          "format": "none",
           "label": "",
           "logBase": 1,
           "max": null,
@@ -148,8 +206,9 @@
     },
     {
       "content": "${docs:raw}",
+      "datasource": null,
       "gridPos": {
-        "h": 11,
+        "h": 10,
         "w": 24,
         "x": 0,
         "y": 22
@@ -157,12 +216,13 @@
       "id": 11,
       "links": [],
       "mode": "html",
+      "options": {},
       "title": "Dashboard documentation",
       "type": "text"
     }
   ],
   "refresh": false,
-  "schemaVersion": 16,
+  "schemaVersion": 21,
   "style": "dark",
   "tags": [
     "dashboard",
@@ -174,8 +234,8 @@
         "allValue": null,
         "current": {
           "tags": [],
-          "text": "7 Days MA",
-          "value": "d7"
+          "text": "Week",
+          "value": "w"
         },
         "hide": 0,
         "includeAll": false,
@@ -185,16 +245,16 @@
         "options": [
           {
             "selected": false,
-            "text": "Day",
-            "value": "d"
-          },
-          {
-            "selected": true,
             "text": "7 Days MA",
             "value": "d7"
           },
           {
             "selected": false,
+            "text": "Day",
+            "value": "d"
+          },
+          {
+            "selected": true,
             "text": "Week",
             "value": "w"
           },
@@ -221,10 +281,37 @@
       {
         "allValue": null,
         "current": {
+          "text": "All CNCF",
+          "value": "All CNCF"
+        },
+        "datasource": "psql",
+        "definition": "",
+        "hide": 2,
+        "includeAll": false,
+        "label": null,
+        "multi": false,
+        "name": "full_name",
+        "options": [],
+        "query": "select value_s from gha_vars where name = 'full_name'",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": true,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "tags": [],
           "text": "All",
           "value": "All"
         },
         "datasource": "psql",
+        "definition": "",
         "hide": 0,
         "includeAll": false,
         "label": "Repository group",
@@ -249,6 +336,7 @@
           "value": "all"
         },
         "datasource": "psql",
+        "definition": "",
         "hide": 2,
         "includeAll": false,
         "label": "",
@@ -269,38 +357,18 @@
       {
         "allValue": null,
         "current": {
-          "text": "Prometheus",
-          "value": "Prometheus"
+          "text": "<h1 id=\"dashboard-header\">All CNCF new PRs dashboard</h1>\n<p>Links:</p>\n<ul>\n<li>Metric <a href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/new_prs.sql\" target=\"_blank\">SQL file</a>.</li>\n<li>TSDB <a href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/metrics.yaml\" target=\"_blank\">series definition</a>. Search for <code>new_prs</code></li>\n<li>Grafana dashboard <a href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/all/new-prs.json\" target=\"_blank\">JSON</a>.</li>\n</ul>\n<h1 id=\"description\">Description</h1>\n<ul>\n<li>This dashboard shows the number of new PRs opened in a given repository group or in all repository groups.</li>\n<li>Selecting period (for example week) means that dashboard will count opened PRs in those periods.</li>\n<li>See <a href=\"https://github.com/cncf/devstats/blob/master/docs/periods.md\" target=\"_blank\">here</a> for more informations about periods.</li>\n<li>See <a href=\"https://github.com/cncf/devstats/blob/master/docs/repository_groups.md\" target=\"_blank\">here</a> for more informations about repository groups.</li>\n</ul>",
+          "value": "<h1 id=\"dashboard-header\">All CNCF new PRs dashboard</h1>\n<p>Links:</p>\n<ul>\n<li>Metric <a href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/new_prs.sql\" target=\"_blank\">SQL file</a>.</li>\n<li>TSDB <a href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/metrics.yaml\" target=\"_blank\">series definition</a>. Search for <code>new_prs</code></li>\n<li>Grafana dashboard <a href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/all/new-prs.json\" target=\"_blank\">JSON</a>.</li>\n</ul>\n<h1 id=\"description\">Description</h1>\n<ul>\n<li>This dashboard shows the number of new PRs opened in a given repository group or in all repository groups.</li>\n<li>Selecting period (for example week) means that dashboard will count opened PRs in those periods.</li>\n<li>See <a href=\"https://github.com/cncf/devstats/blob/master/docs/periods.md\" target=\"_blank\">here</a> for more informations about periods.</li>\n<li>See <a href=\"https://github.com/cncf/devstats/blob/master/docs/repository_groups.md\" target=\"_blank\">here</a> for more informations about repository groups.</li>\n</ul>"
         },
         "datasource": "psql",
-        "hide": 2,
-        "includeAll": false,
-        "label": null,
-        "multi": false,
-        "name": "full_name",
-        "options": [],
-        "query": "select value_s from gha_vars where name = 'full_name'",
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": true,
-        "sort": 0,
-        "tagValuesQuery": "",
-        "tags": [],
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false
-      },
-      {
-        "allValue": null,
-        "current": {},
-        "datasource": "psql",
+        "definition": "",
         "hide": 2,
         "includeAll": false,
         "label": null,
         "multi": false,
         "name": "docs",
         "options": [],
-        "query": "select value_s from gha_vars where name = 'repo_commenters_docs_html'",
+        "query": "select value_s from gha_vars where name = 'new_prs_docs_html'",
         "refresh": 1,
         "regex": "",
         "skipUrlSync": true,
@@ -314,7 +382,7 @@
     ]
   },
   "time": {
-    "from": "now-2y",
+    "from": "now-3y",
     "to": "now"
   },
   "timepicker": {
@@ -343,7 +411,7 @@
     ]
   },
   "timezone": "",
-  "title": "Repository Commenters",
-  "uid": "25",
+  "title": "New PRs in Repository Groups",
+  "uid": "15",
   "version": 2
 }

@@ -52,7 +52,7 @@ fi
 if [ -z "$ADD_ALLCDF" ]
 then
   if ( [ -z "$SKIPADDALL" ] && [ ! "$PROJ" = "all" ] && [ ! "$PROJ" = "opencontainers" ] && \
-       [ ! "$PROJ" = "istio" ] && [ ! "$PROJ" = "knative" ] && [ ! "$PROJ" = "nodejs" ] && \
+       [ ! "$PROJ" = "istio" ] && [ ! "$PROJ" = "nodejs" ] && \
        [ ! "$PROJ" = "linux" ] && [ ! "$PROJ" = "zephyr" ] && [ ! "$PROJ" = "contrib" ] && \
        [ ! "$PROJ" = "sam" ] && [ ! "$PROJ" = "azf" ] && [ ! "$PROJ" = "riff" ] && \
        [ ! "$PROJ" = "fn" ] && [ ! "$PROJ" = "openwhisk" ] && [ ! "$PROJ" = "openfaas" ] && \

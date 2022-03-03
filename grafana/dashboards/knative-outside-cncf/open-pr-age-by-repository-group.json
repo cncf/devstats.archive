@@ -30,60 +30,94 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 33,
-  "iteration": 1529596415657,
+  "id": 22,
+  "iteration": 1543674815323,
   "links": [],
   "panels": [
     {
-      "aliasColors": {},
-      "bars": false,
-      "dashLength": 10,
-      "dashes": false,
+      "cacheTimeout": null,
+      "colorBackground": false,
+      "colorValue": false,
+      "colors": [
+        "rgba(245, 54, 54, 0.9)",
+        "rgba(237, 129, 40, 0.89)",
+        "rgba(50, 172, 45, 0.97)"
+      ],
       "datasource": "psql",
-      "decimals": 2,
-      "description": "Time from open to merge.",
-      "fill": 1,
+      "description": "Current median age of opened PRs.",
+      "format": "none",
+      "gauge": {
+        "maxValue": 100,
+        "minValue": 0,
+        "show": false,
+        "thresholdLabels": false,
+        "thresholdMarkers": true
+      },
       "gridPos": {
-        "h": 13,
-        "w": 12,
+        "h": 3,
+        "w": 14,
         "x": 0,
         "y": 0
       },
-      "id": 8,
-      "legend": {
-        "alignAsTable": true,
-        "avg": true,
-        "current": true,
-        "max": true,
-        "min": true,
-        "rightSide": false,
-        "show": true,
-        "total": false,
-        "values": true
-      },
-      "lines": true,
-      "linewidth": 1,
+      "id": 2,
+      "interval": null,
       "links": [],
-      "nullPointMode": "null",
-      "percentage": false,
-      "pointradius": 5,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [],
-      "spaceLength": 10,
-      "stack": true,
-      "steppedLine": false,
+      "mappingType": 1,
+      "mappingTypes": [
+        {
+          "name": "value to text",
+          "value": 1
+        },
+        {
+          "name": "range to text",
+          "value": 2
+        }
+      ],
+      "maxDataPoints": 100,
+      "nullPointMode": "connected",
+      "nullText": null,
+      "postfix": "",
+      "postfixFontSize": "50%",
+      "prefix": "",
+      "prefixFontSize": "50%",
+      "rangeMaps": [
+        {
+          "from": "null",
+          "text": "N/A",
+          "to": "null"
+        }
+      ],
+      "sparkline": {
+        "fillColor": "rgba(31, 118, 189, 0.18)",
+        "full": false,
+        "lineColor": "rgb(31, 120, 193)",
+        "show": false
+      },
+      "tableColumn": "descr",
       "targets": [
         {
           "alias": "",
           "dsType": "influxdb",
-          "format": "time_series",
-          "groupBy": [],
+          "format": "table",
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "SELECT \"value\" FROM \"time_metrics_[[repogroup]]_median_open_to_merge_[[period]]\" WHERE $timeFilter",
+          "query": "SELECT \"descr\" FROM \"autogen\".\"prs_age_[[repogroup]]_median_[[period]][[aggregate]]\" WHERE $timeFilter",
           "rawQuery": true,
-          "rawSql": "select\n  time,\n  value as \"Median time from open to merge (in hours)\"\nfrom\n  stime_metrics\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'tmet[[repogroup]]med'\norder by\n  time",
+          "rawSql": "select\n  descr\nfrom\n  sprs_age\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'prs_age[[repogroup]]m'\norder by\n  time desc\nlimit 1",
           "refId": "A",
           "resultFormat": "time_series",
           "select": [
@@ -93,53 +127,144 @@
                   "value"
                 ],
                 "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
               }
             ]
           ],
           "tags": []
         }
       ],
-      "thresholds": [],
-      "timeFrom": null,
-      "timeShift": null,
-      "title": "Median time PRs from open to merge (Repository group [[repogroup_name]], [[period]])",
-      "tooltip": {
-        "shared": true,
-        "sort": 0,
-        "value_type": "individual"
-      },
-      "type": "graph",
-      "xaxis": {
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true,
-        "values": [
-          "avg"
-        ]
-      },
-      "yaxes": [
+      "thresholds": "",
+      "title": "Current median age of opened PRs in [[repogroup_name]] repository group ([[period]])",
+      "type": "singlestat",
+      "valueFontSize": "50%",
+      "valueMaps": [
         {
-          "format": "h",
-          "label": "",
-          "logBase": 1,
-          "max": null,
-          "min": "0",
-          "show": true
-        },
-        {
-          "format": "none",
-          "label": "",
-          "logBase": 10,
-          "max": null,
-          "min": "0",
-          "show": true
+          "op": "=",
+          "text": "N/A",
+          "value": "null"
         }
       ],
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      }
+      "valueName": "current"
+    },
+    {
+      "cacheTimeout": null,
+      "colorBackground": false,
+      "colorValue": false,
+      "colors": [
+        "rgba(245, 54, 54, 0.9)",
+        "rgba(237, 129, 40, 0.89)",
+        "rgba(50, 172, 45, 0.97)"
+      ],
+      "datasource": "psql",
+      "description": "Current average number of opened PRs.",
+      "format": "none",
+      "gauge": {
+        "maxValue": 100,
+        "minValue": 0,
+        "show": false,
+        "thresholdLabels": false,
+        "thresholdMarkers": true
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 10,
+        "x": 14,
+        "y": 0
+      },
+      "id": 4,
+      "interval": null,
+      "links": [],
+      "mappingType": 1,
+      "mappingTypes": [
+        {
+          "name": "value to text",
+          "value": 1
+        },
+        {
+          "name": "range to text",
+          "value": 2
+        }
+      ],
+      "maxDataPoints": 100,
+      "nullPointMode": "connected",
+      "nullText": null,
+      "postfix": "",
+      "postfixFontSize": "50%",
+      "prefix": "",
+      "prefixFontSize": "50%",
+      "rangeMaps": [
+        {
+          "from": "null",
+          "text": "N/A",
+          "to": "null"
+        }
+      ],
+      "sparkline": {
+        "fillColor": "rgba(31, 118, 189, 0.18)",
+        "full": false,
+        "lineColor": "rgb(31, 120, 193)",
+        "show": false
+      },
+      "tableColumn": "descr",
+      "targets": [
+        {
+          "alias": "",
+          "dsType": "influxdb",
+          "format": "time_series",
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "SELECT \"value\" FROM \"autogen\".\"prs_age_[[repogroup]]_number_[[period]][[aggregate]]\" WHERE $timeFilter",
+          "rawQuery": true,
+          "rawSql": "select\n  time, value\nfrom\n  sprs_age\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'prs_age[[repogroup]]n'\norder by\n  time desc\nlimit 1",
+          "refId": "A",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        }
+      ],
+      "thresholds": "",
+      "title": "Current average number of opened PRs in [[repogroup_name]] repository group ([[period]])",
+      "type": "singlestat",
+      "valueFontSize": "50%",
+      "valueMaps": [
+        {
+          "op": "=",
+          "text": "N/A",
+          "value": "null"
+        }
+      ],
+      "valueName": "current"
     },
     {
       "aliasColors": {},
@@ -148,37 +273,55 @@
       "dashes": false,
       "datasource": "psql",
       "decimals": 2,
-      "description": "Time from open to merge.",
-      "fill": 1,
+      "description": "Median age and number of pull requests created in [[repogroup]] repository group.",
+      "fill": 3,
       "gridPos": {
         "h": 13,
-        "w": 12,
-        "x": 12,
-        "y": 0
+        "w": 24,
+        "x": 0,
+        "y": 3
       },
-      "id": 9,
+      "id": 1,
       "legend": {
-        "alignAsTable": true,
+        "alignAsTable": false,
         "avg": true,
         "current": true,
+        "hideEmpty": false,
+        "hideZero": false,
         "max": true,
         "min": true,
         "rightSide": false,
         "show": true,
+        "sideWidth": null,
         "total": false,
         "values": true
       },
-      "lines": true,
-      "linewidth": 1,
+      "lines": false,
+      "linewidth": 0,
       "links": [],
       "nullPointMode": "null",
       "percentage": false,
-      "pointradius": 5,
+      "pointradius": 1,
       "points": false,
       "renderer": "flot",
-      "seriesOverrides": [],
+      "seriesOverrides": [
+        {
+          "alias": "Median age of opened PRs",
+          "fill": 2,
+          "lines": true,
+          "linewidth": 0,
+          "yaxis": 1
+        },
+        {
+          "alias": "Average number of PRs opened",
+          "fill": 0,
+          "lines": true,
+          "linewidth": 1,
+          "yaxis": 2
+        }
+      ],
       "spaceLength": 10,
-      "stack": true,
+      "stack": false,
       "steppedLine": false,
       "targets": [
         {
@@ -186,12 +329,40 @@
           "dsType": "influxdb",
           "format": "time_series",
           "groupBy": [],
+          "hide": false,
+          "measurement": "reviewers_d",
           "orderByTime": "ASC",
-          "policy": "default",
-          "query": "SELECT \"value\" FROM \"time_metrics_[[repogroup]]_percentile_85_open_to_merge_[[period]]\" WHERE $timeFilter",
+          "policy": "autogen",
+          "query": "SELECT \"value\" FROM \"autogen\".\"prs_age_[[repogroup]]_number_[[period]][[aggregate]]\" WHERE $timeFilter",
           "rawQuery": true,
-          "rawSql": "select\n  time,\n  value as \"85th percentile time from open to merge (in hours)\"\nfrom\n  stime_metrics\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'tmet[[repogroup]]p85'\norder by\n  time",
+          "rawSql": "select\n  time,\n  value as \"Average number of PRs opened\"\nfrom\n  sprs_age\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'prs_age[[repogroup]]n'\norder by\n  time",
           "refId": "A",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "",
+          "dsType": "influxdb",
+          "format": "time_series",
+          "groupBy": [],
+          "hide": false,
+          "measurement": "reviewers_d",
+          "orderByTime": "ASC",
+          "policy": "autogen",
+          "query": "SELECT \"value\" FROM \"autogen\".\"prs_age_[[repogroup]]_median_[[period]][[aggregate]]\" WHERE $timeFilter",
+          "rawQuery": true,
+          "rawSql": "select\n  time,\n  value as \"Median age of opened PRs\"\nfrom\n  sprs_age\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'prs_age[[repogroup]]m'\norder by\n  time",
+          "refId": "B",
           "resultFormat": "time_series",
           "select": [
             [
@@ -209,12 +380,13 @@
       "thresholds": [],
       "timeFrom": null,
       "timeShift": null,
-      "title": "85th percentile time PRs from open to merge for (Repository group: [[repogroup_name]], [[period]])",
+      "title": "Number/Age of Pull requests in [[repogroup_name]] repository group ([[period]])",
       "tooltip": {
         "shared": true,
         "sort": 0,
         "value_type": "individual"
       },
+      "transparent": false,
       "type": "graph",
       "xaxis": {
         "buckets": null,
@@ -222,22 +394,22 @@
         "name": null,
         "show": true,
         "values": [
-          "avg"
+          "total"
         ]
       },
       "yaxes": [
         {
           "format": "h",
-          "label": "",
+          "label": "Median PRs age",
           "logBase": 1,
           "max": null,
           "min": "0",
           "show": true
         },
         {
-          "format": "none",
-          "label": "",
-          "logBase": 10,
+          "format": "short",
+          "label": "Average opened PRs number",
+          "logBase": 1,
           "max": null,
           "min": "0",
           "show": true
@@ -251,15 +423,15 @@
     {
       "columns": [],
       "datasource": "psql",
-      "description": "Time PRs from open to merge",
-      "fontSize": "80%",
+      "description": "Median age and number of pull requests created in [[repogroup]] repository group.",
+      "fontSize": "90%",
       "gridPos": {
-        "h": 10,
+        "h": 11,
         "w": 24,
         "x": 0,
-        "y": 13
+        "y": 16
       },
-      "id": 10,
+      "id": 3,
       "links": [],
       "pageSize": 10,
       "scroll": true,
@@ -311,9 +483,9 @@
           ],
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "SELECT \"descr\" FROM \"time_metrics_[[repogroup]]_median_open_to_merge_[[period]]\" WHERE $timeFilter",
+          "query": "SELECT \"descr\" FROM \"autogen\".\"prs_age_[[repogroup]]_median_[[period]][[aggregate]]\" WHERE $timeFilter",
           "rawQuery": true,
-          "rawSql": "select\n  time as \"Time\",\n  descr as \"Median open to merge\"\nfrom\n  stime_metrics\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'tmet[[repogroup]]med'\norder by\n  time",
+          "rawSql": "select\n  time as \"Time\",\n  descr as \"Median opened PRs age\"\nfrom\n  sprs_age\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'prs_age[[repogroup]]m'\norder by\n  time",
           "refId": "A",
           "resultFormat": "time_series",
           "select": [
@@ -352,10 +524,10 @@
           ],
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "SELECT \"descr\" FROM \"time_metrics_[[repogroup]]_percentile_85_open_to_merge_[[period]]\" WHERE $timeFilter",
+          "query": "SELECT \"value\" FROM \"autogen\".\"prs_age_[[repogroup]]_number_[[period]][[aggregate]]\" WHERE $timeFilter",
           "rawQuery": true,
-          "rawSql": "select\n  time as \"Time\",\n  descr as \"85th percentile open to merge\"\nfrom\n  stime_metrics\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'tmet[[repogroup]]p85'\norder by\n  time",
-          "refId": "D",
+          "rawSql": "select\n  time as \"Time\",\n  value as \"Average number of opened PRs\"\nfrom\n  sprs_age\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'prs_age[[repogroup]]n'\norder by\n  time",
+          "refId": "B",
           "resultFormat": "time_series",
           "select": [
             [
@@ -374,8 +546,9 @@
           "tags": []
         }
       ],
-      "title": "Time PRs from open to merge (Repository group[[repogroup_name]], [[period]])",
+      "title": "Number/Age of Pull requests in [[repogroup_name]] repository group ([[period]])",
       "transform": "table",
+      "transparent": false,
       "type": "table"
     },
     {
@@ -384,7 +557,7 @@
         "h": 11,
         "w": 24,
         "x": 0,
-        "y": 23
+        "y": 27
       },
       "id": 11,
       "links": [],
@@ -393,6 +566,7 @@
       "type": "text"
     }
   ],
+  "refresh": false,
   "schemaVersion": 16,
   "style": "dark",
   "tags": [
@@ -445,7 +619,7 @@
             "value": "y"
           }
         ],
-        "query": "d,w,m,q,y",
+        "query": "d,d7,w,m,q,y",
         "skipUrlSync": false,
         "type": "custom"
       },
@@ -499,10 +673,7 @@
       },
       {
         "allValue": null,
-        "current": {
-          "text": "Prometheus",
-          "value": "Prometheus"
-        },
+        "current": {},
         "datasource": "psql",
         "hide": 2,
         "includeAll": false,
@@ -531,7 +702,7 @@
         "multi": false,
         "name": "docs",
         "options": [],
-        "query": "select value_s from gha_vars where name = 'time_metrics_docs_html'",
+        "query": "select value_s from gha_vars where name = 'prs_age_docs_html'",
         "refresh": 1,
         "regex": "",
         "skipUrlSync": true,
@@ -545,7 +716,7 @@
     ]
   },
   "time": {
-    "from": "now-1y",
+    "from": "now-6M",
     "to": "now-1w"
   },
   "timepicker": {
@@ -574,7 +745,7 @@
     ]
   },
   "timezone": "",
-  "title": "Time to Merge in Repository Groups",
-  "uid": "27",
+  "title": "Open PR Age by Repository Group",
+  "uid": "19",
   "version": 2
 }

@@ -30,32 +30,30 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 47,
-  "iteration": 1529596392489,
+  "id": 20,
+  "iteration": 1543674773028,
   "links": [],
   "panels": [
     {
       "aliasColors": {},
-      "bars": false,
+      "bars": true,
       "dashLength": 10,
       "dashes": false,
       "datasource": "psql",
       "decimals": 0,
-      "description": "Displays number of new/episodic PRs and number of new/episodic PRs authors.\nThe episodic author is defined as someone who hasn't created PRs in the last 3 months and no more than 12 PRs overall.",
+      "description": "Median and 85th, 95th percentile of comments for PRs created in given period",
       "fill": 1,
       "gridPos": {
-        "h": 22,
+        "h": 21,
         "w": 24,
         "x": 0,
         "y": 0
       },
-      "id": 1,
+      "id": 2,
       "legend": {
-        "alignAsTable": false,
+        "alignAsTable": true,
         "avg": true,
         "current": true,
-        "hideEmpty": false,
-        "hideZero": false,
         "max": true,
         "min": true,
         "rightSide": false,
@@ -63,24 +61,15 @@
         "total": false,
         "values": true
       },
-      "lines": true,
+      "lines": false,
       "linewidth": 1,
       "links": [],
-      "nullPointMode": "null",
+      "nullPointMode": "null as zero",
       "percentage": false,
-      "pointradius": 1,
+      "pointradius": 5,
       "points": false,
       "renderer": "flot",
-      "seriesOverrides": [
-        {
-          "alias": "New contributors",
-          "yaxis": 2
-        },
-        {
-          "alias": "Episodic contributors",
-          "yaxis": 2
-        }
-      ],
+      "seriesOverrides": [],
       "spaceLength": 10,
       "stack": false,
       "steppedLine": false,
@@ -90,13 +79,11 @@
           "dsType": "influxdb",
           "format": "time_series",
           "groupBy": [],
-          "hide": false,
-          "measurement": "reviewers_d",
           "orderByTime": "ASC",
-          "policy": "autogen",
-          "query": "SELECT \"value\" FROM \"new_contributors_[[repogroup]]_prs_[[period]]\" WHERE $timeFilter",
+          "policy": "default",
+          "query": "SELECT \"value\" FROM \"pr_comments_percentile_95_[[period]]\" WHERE $timeFilter",
           "rawQuery": true,
-          "rawSql": "select\n  time,\n  value as \"Number of issues from new contributors\"\nfrom\n  snew_issues\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'new_iss[[repogroup]]iss'\norder by\n  time",
+          "rawSql": "select\n  time,\n  value as \"95th percentile for number of comments on PRs\"\nfrom\n  spr_comms_p95\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\norder by\n  time",
           "refId": "A",
           "resultFormat": "time_series",
           "select": [
@@ -116,13 +103,11 @@
           "dsType": "influxdb",
           "format": "time_series",
           "groupBy": [],
-          "hide": false,
-          "measurement": "reviewers_d",
           "orderByTime": "ASC",
-          "policy": "autogen",
-          "query": "SELECT \"value\" FROM \"new_contributors_[[repogroup]]_contributors_[[period]]\" WHERE $timeFilter",
+          "policy": "default",
+          "query": "SELECT \"value\" FROM \"pr_comments_percentile_85_[[period]]\" WHERE $timeFilter",
           "rawQuery": true,
-          "rawSql": "select\n  time,\n  value as \"New issue creators\"\nfrom\n  snew_issues\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'new_iss[[repogroup]]contrib'\norder by\n  time",
+          "rawSql": "select\n  time,\n  value as \"85th percentile for number of comments on PRs\"\nfrom\n  spr_comms_p85\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\norder by\n  time",
           "refId": "B",
           "resultFormat": "time_series",
           "select": [
@@ -142,40 +127,12 @@
           "dsType": "influxdb",
           "format": "time_series",
           "groupBy": [],
-          "hide": false,
-          "measurement": "reviewers_d",
           "orderByTime": "ASC",
-          "policy": "autogen",
-          "query": "SELECT \"value\" FROM \"episodic_contributors_[[repogroup]]_prs_[[period]]\" WHERE $timeFilter",
+          "policy": "default",
+          "query": "SELECT \"value\" FROM \"pr_comments_median_[[period]]\" WHERE $timeFilter",
           "rawQuery": true,
-          "rawSql": "select\n  time,\n  value as \"Number of issues from episodic contributors\"\nfrom\n  sepisodic_issues\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'epis_iss[[repogroup]]iss'\norder by\n  time",
+          "rawSql": "select\n  time,\n  value as \"Median for number of comments on PRs\"\nfrom\n  spr_comms_med\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\norder by\n  time",
           "refId": "C",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              }
-            ]
-          ],
-          "tags": []
-        },
-        {
-          "alias": "",
-          "dsType": "influxdb",
-          "format": "time_series",
-          "groupBy": [],
-          "hide": false,
-          "measurement": "reviewers_d",
-          "orderByTime": "ASC",
-          "policy": "autogen",
-          "query": "SELECT \"value\" FROM \"episodic_contributors_[[repogroup]]_contributors_[[period]]\" WHERE $timeFilter",
-          "rawQuery": true,
-          "rawSql": "select\n  time,\n  value as \"Episodic issue creators\"\nfrom\n  sepisodic_issues\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\n  and series = 'epis_iss[[repogroup]]contrib'\norder by\n  time",
-          "refId": "D",
           "resultFormat": "time_series",
           "select": [
             [
@@ -193,13 +150,12 @@
       "thresholds": [],
       "timeFrom": null,
       "timeShift": null,
-      "title": "New/episodic issues ([[repogroup_name]], [[period]])",
+      "title": "Median and 85th, 95th percentile of number of comments for PRs ([[period]])",
       "tooltip": {
         "shared": true,
         "sort": 0,
         "value_type": "individual"
       },
-      "transparent": true,
       "type": "graph",
       "xaxis": {
         "buckets": null,
@@ -207,13 +163,13 @@
         "name": null,
         "show": true,
         "values": [
-          "total"
+          "avg"
         ]
       },
       "yaxes": [
         {
           "format": "none",
-          "label": "Issues",
+          "label": "Comments",
           "logBase": 1,
           "max": null,
           "min": "0",
@@ -221,7 +177,7 @@
         },
         {
           "format": "none",
-          "label": "Issue creators",
+          "label": "",
           "logBase": 1,
           "max": null,
           "min": "0",
@@ -236,10 +192,10 @@
     {
       "content": "${docs:raw}",
       "gridPos": {
-        "h": 13,
+        "h": 10,
         "w": 24,
         "x": 0,
-        "y": 22
+        "y": 21
       },
       "id": 11,
       "links": [],
@@ -248,19 +204,20 @@
       "type": "text"
     }
   ],
-  "refresh": false,
   "schemaVersion": 16,
   "style": "dark",
   "tags": [
     "dashboard",
-    "knative",
-    "PRs"
+    "knative"
   ],
   "templating": {
     "list": [
       {
         "allValue": null,
-        "current": {},
+        "current": {
+          "text": "Knative",
+          "value": "Knative"
+        },
         "datasource": "psql",
         "hide": 2,
         "includeAll": false,
@@ -283,8 +240,8 @@
         "allValue": null,
         "current": {
           "tags": [],
-          "text": "28 Days MA",
-          "value": "d28"
+          "text": "Week",
+          "value": "w"
         },
         "hide": 0,
         "includeAll": false,
@@ -293,12 +250,17 @@
         "name": "period",
         "options": [
           {
-            "selected": true,
-            "text": "28 Days MA",
-            "value": "d28"
+            "selected": false,
+            "text": "Day",
+            "value": "d"
           },
           {
             "selected": false,
+            "text": "7 Days MA",
+            "value": "d7"
+          },
+          {
+            "selected": true,
             "text": "Week",
             "value": "w"
           },
@@ -324,49 +286,10 @@
       },
       {
         "allValue": null,
-        "current": {},
-        "datasource": "psql",
-        "hide": 0,
-        "includeAll": false,
-        "label": "Repository group",
-        "multi": false,
-        "name": "repogroup_name",
-        "options": [],
-        "query": "select all_repo_group_name from tall_repo_groups order by 1",
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": false,
-        "sort": 1,
-        "tagValuesQuery": "",
-        "tags": [],
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false
-      },
-      {
-        "allValue": null,
-        "current": {},
-        "datasource": "psql",
-        "hide": 2,
-        "includeAll": false,
-        "label": null,
-        "multi": false,
-        "name": "repogroup",
-        "options": [],
-        "query": "select all_repo_group_value from tall_repo_groups where all_repo_group_name = '[[repogroup_name]]'",
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": true,
-        "sort": 0,
-        "tagValuesQuery": "",
-        "tags": [],
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false
-      },
-      {
-        "allValue": null,
-        "current": {},
+        "current": {
+          "text": "<h1 id=\"dashboard-header\">Knative PR comments dashboard</h1>\n<p>Links:</p>\n<ul>\n<li>Metric <a href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/pr_comments.sql\" target=\"_blank\">SQL file</a>.</li>\n<li>TSDB <a href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/metrics.yaml\" target=\"_blank\">series definition</a>. Search for <code>pr_comments</code></li>\n<li>Grafana dashboard <a href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/knative/pr-comments.json\" target=\"_blank\">JSON</a>.</li>\n</ul>\n<h1 id=\"description\">Description</h1>\n<ul>\n<li>This dashboard shows median, 85th and 95th percentiles of the number of comments on PRs.</li>\n<li>Selecting period (for example week) means that dashboard will calculate percentiles in those periods.</li>\n<li>See <a href=\"https://github.com/cncf/devstats/blob/master/docs/periods.md\" target=\"_blank\">here</a> for more informations about periods.</li>\n<li>We are skipping bots activity, see <a href=\"https://github.com/cncf/devstats/blob/master/docs/excluding_bots.md\" target=\"_blank\">excluding bots</a> for details.</li>\n</ul>",
+          "value": "<h1 id=\"dashboard-header\">Knative PR comments dashboard</h1>\n<p>Links:</p>\n<ul>\n<li>Metric <a href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/pr_comments.sql\" target=\"_blank\">SQL file</a>.</li>\n<li>TSDB <a href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/metrics.yaml\" target=\"_blank\">series definition</a>. Search for <code>pr_comments</code></li>\n<li>Grafana dashboard <a href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/knative/pr-comments.json\" target=\"_blank\">JSON</a>.</li>\n</ul>\n<h1 id=\"description\">Description</h1>\n<ul>\n<li>This dashboard shows median, 85th and 95th percentiles of the number of comments on PRs.</li>\n<li>Selecting period (for example week) means that dashboard will calculate percentiles in those periods.</li>\n<li>See <a href=\"https://github.com/cncf/devstats/blob/master/docs/periods.md\" target=\"_blank\">here</a> for more informations about periods.</li>\n<li>We are skipping bots activity, see <a href=\"https://github.com/cncf/devstats/blob/master/docs/excluding_bots.md\" target=\"_blank\">excluding bots</a> for details.</li>\n</ul>"
+        },
         "datasource": "psql",
         "hide": 2,
         "includeAll": false,
@@ -374,7 +297,7 @@
         "multi": false,
         "name": "docs",
         "options": [],
-        "query": "select value_s from gha_vars where name = 'new_and_episodic_issues_docs_html'",
+        "query": "select value_s from gha_vars where name = 'pr_comments_docs_html'",
         "refresh": 1,
         "regex": "",
         "skipUrlSync": true,
@@ -388,8 +311,8 @@
     ]
   },
   "time": {
-    "from": "now-1y",
-    "to": "now-1w"
+    "from": "now-6M",
+    "to": "now"
   },
   "timepicker": {
     "refresh_intervals": [
@@ -417,7 +340,7 @@
     ]
   },
   "timezone": "",
-  "title": "New and Episodic Issue Creators",
-  "uid": "13",
+  "title": "PR Comments",
+  "uid": "17",
   "version": 2
 }

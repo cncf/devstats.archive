@@ -30,65 +30,87 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 35,
-  "iteration": 1529596412403,
+  "id": 23,
+  "iteration": 1543674829778,
   "links": [],
   "panels": [
     {
       "aliasColors": {},
-      "bars": true,
+      "bars": false,
       "dashLength": 10,
       "dashes": false,
       "datasource": "psql",
-      "decimals": 0,
-      "description": "Number of unique commenters.",
-      "fill": 1,
+      "decimals": 2,
+      "description": "Number of PRs",
+      "fill": 5,
       "gridPos": {
         "h": 22,
         "w": 24,
         "x": 0,
         "y": 0
       },
-      "id": 1,
+      "id": 2,
       "legend": {
         "alignAsTable": true,
         "avg": true,
         "current": true,
-        "hideEmpty": false,
-        "hideZero": false,
         "max": true,
         "min": true,
         "rightSide": false,
         "show": true,
-        "total": false,
+        "sort": "avg",
+        "sortDesc": true,
+        "total": true,
         "values": true
       },
-      "lines": false,
-      "linewidth": 1,
+      "lines": true,
+      "linewidth": 0,
       "links": [],
-      "nullPointMode": "null",
+      "nullPointMode": "null as zero",
       "percentage": false,
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
       "seriesOverrides": [],
       "spaceLength": 10,
-      "stack": false,
-      "steppedLine": false,
+      "stack": true,
+      "steppedLine": true,
       "targets": [
         {
-          "alias": "",
+          "alias": "Approved",
           "dsType": "influxdb",
-          "format": "time_series",
           "groupBy": [],
-          "hide": false,
-          "measurement": "reviewers_d",
+          "measurement": "",
           "orderByTime": "ASC",
-          "policy": "autogen",
-          "query": "SELECT \"value\" FROM \"autogen\".\"repo_commenters_[[repogroup]]_[[period]][[aggregate]]\" WHERE $timeFilter",
+          "policy": "default",
+          "query": "SELECT /^[[repogroup]]$/ FROM \"prs_approve_state_approved_[[period]]\" WHERE $timeFilter",
           "rawQuery": true,
-          "rawSql": "select\n  time,\n  value as \"Unique commenters\"\nfrom\n  srcommenters\nwhere\n  $__timeFilter(time)\n  and series = 'rcommenters[[repogroup]]'\n  and period = '[[period]]'\norder by\n  time",
+          "rawSql": "select\n  time,\n  \"[[repogroup]]\" as \"Approved\"\nfrom\n  spr_apprappr\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\norder by\n  time",
           "refId": "A",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "Awaiting approval",
+          "dsType": "influxdb",
+          "groupBy": [],
+          "measurement": "",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "SELECT /^[[repogroup]]$/ FROM \"prs_approve_state_awaiting_[[period]]\" WHERE $timeFilter",
+          "rawQuery": true,
+          "rawSql": "select\n  time,\n  \"[[repogroup]]\" as \"Awaiting approval\"\nfrom\n  spr_apprwait\nwhere\n  $__timeFilter(time)\n  and period = '[[period]]'\norder by\n  time",
+          "refId": "B",
           "resultFormat": "time_series",
           "select": [
             [
@@ -106,27 +128,24 @@
       "thresholds": [],
       "timeFrom": null,
       "timeShift": null,
-      "title": "[[repogroup_name]] unique commenters ([[period]])",
+      "title": "PRs approved and awaiting approval ([[repogroup]], [[period]])",
       "tooltip": {
-        "shared": false,
-        "sort": 0,
+        "shared": true,
+        "sort": 2,
         "value_type": "individual"
       },
-      "transparent": false,
       "type": "graph",
       "xaxis": {
         "buckets": null,
         "mode": "time",
         "name": null,
         "show": true,
-        "values": [
-          "total"
-        ]
+        "values": []
       },
       "yaxes": [
         {
           "format": "short",
-          "label": "Unique commenters",
+          "label": "Pull requests",
           "logBase": 1,
           "max": null,
           "min": "0",
@@ -172,6 +191,27 @@
     "list": [
       {
         "allValue": null,
+        "current": {},
+        "datasource": "psql",
+        "hide": 2,
+        "includeAll": false,
+        "label": null,
+        "multi": false,
+        "name": "full_name",
+        "options": [],
+        "query": "select value_s from gha_vars where name = 'full_name'",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": true,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
         "current": {
           "tags": [],
           "text": "7 Days MA",
@@ -183,11 +223,6 @@
         "multi": false,
         "name": "period",
         "options": [
-          {
-            "selected": false,
-            "text": "Day",
-            "value": "d"
-          },
           {
             "selected": true,
             "text": "7 Days MA",
@@ -214,16 +249,13 @@
             "value": "y"
           }
         ],
-        "query": "d,d7,w,m,q,y",
+        "query": "d,w,m,q,y",
         "skipUrlSync": false,
         "type": "custom"
       },
       {
-        "allValue": null,
-        "current": {
-          "text": "All",
-          "value": "All"
-        },
+        "allValue": "",
+        "current": {},
         "datasource": "psql",
         "hide": 0,
         "includeAll": false,
@@ -243,11 +275,8 @@
         "useTags": false
       },
       {
-        "allValue": null,
-        "current": {
-          "text": "all",
-          "value": "all"
-        },
+        "allValue": "",
+        "current": {},
         "datasource": "psql",
         "hide": 2,
         "includeAll": false,
@@ -268,30 +297,6 @@
       },
       {
         "allValue": null,
-        "current": {
-          "text": "Prometheus",
-          "value": "Prometheus"
-        },
-        "datasource": "psql",
-        "hide": 2,
-        "includeAll": false,
-        "label": null,
-        "multi": false,
-        "name": "full_name",
-        "options": [],
-        "query": "select value_s from gha_vars where name = 'full_name'",
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": true,
-        "sort": 0,
-        "tagValuesQuery": "",
-        "tags": [],
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false
-      },
-      {
-        "allValue": null,
         "current": {},
         "datasource": "psql",
         "hide": 2,
@@ -300,7 +305,7 @@
         "multi": false,
         "name": "docs",
         "options": [],
-        "query": "select value_s from gha_vars where name = 'repo_commenters_docs_html'",
+        "query": "select value_s from gha_vars where name = 'prs_approval_docs_html'",
         "refresh": 1,
         "regex": "",
         "skipUrlSync": true,
@@ -314,7 +319,7 @@
     ]
   },
   "time": {
-    "from": "now-2y",
+    "from": "now-6M",
     "to": "now"
   },
   "timepicker": {
@@ -343,7 +348,7 @@
     ]
   },
   "timezone": "",
-  "title": "Repository Commenters",
-  "uid": "25",
+  "title": "PRs Approval Repository Groups",
+  "uid": "20",
   "version": 2
 }

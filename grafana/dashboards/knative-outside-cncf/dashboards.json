@@ -27,67 +27,70 @@
       }
     ]
   },
+  "description": "Home dashboard",
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 35,
-  "iteration": 1529596412403,
+  "id": 8,
+  "iteration": 1539254495588,
   "links": [],
   "panels": [
     {
       "aliasColors": {},
-      "bars": true,
+      "bars": false,
       "dashLength": 10,
       "dashes": false,
       "datasource": "psql",
       "decimals": 0,
-      "description": "Number of unique commenters.",
-      "fill": 1,
+      "description": "Numbers of GitHub events in all repositories hourly",
+      "fill": 5,
       "gridPos": {
-        "h": 22,
-        "w": 24,
+        "h": 6,
+        "w": 20,
         "x": 0,
         "y": 0
       },
-      "id": 1,
+      "id": 2,
       "legend": {
         "alignAsTable": true,
         "avg": true,
         "current": true,
-        "hideEmpty": false,
-        "hideZero": false,
         "max": true,
         "min": true,
         "rightSide": false,
         "show": true,
-        "total": false,
+        "total": true,
         "values": true
       },
-      "lines": false,
+      "lines": true,
       "linewidth": 1,
-      "links": [],
+      "links": [
+        {
+          "title": "DevStats GitHub repository",
+          "type": "absolute",
+          "url": "https://github.com/cncf/devstats"
+        }
+      ],
       "nullPointMode": "null",
       "percentage": false,
-      "pointradius": 5,
+      "pointradius": 1,
       "points": false,
       "renderer": "flot",
       "seriesOverrides": [],
       "spaceLength": 10,
       "stack": false,
-      "steppedLine": false,
+      "steppedLine": true,
       "targets": [
         {
           "alias": "",
           "dsType": "influxdb",
           "format": "time_series",
           "groupBy": [],
-          "hide": false,
-          "measurement": "reviewers_d",
           "orderByTime": "ASC",
-          "policy": "autogen",
-          "query": "SELECT \"value\" FROM \"autogen\".\"repo_commenters_[[repogroup]]_[[period]][[aggregate]]\" WHERE $timeFilter",
+          "policy": "default",
+          "query": "SELECT \"value\" FROM \"events_h\" WHERE $timeFilter",
           "rawQuery": true,
-          "rawSql": "select\n  time,\n  value as \"Unique commenters\"\nfrom\n  srcommenters\nwhere\n  $__timeFilter(time)\n  and series = 'rcommenters[[repogroup]]'\n  and period = '[[period]]'\norder by\n  time",
+          "rawSql": "select\n  time,\n  value as \"Number of GitHub events hourly\"\nfrom\n  sevents_h\nwhere\n  $__timeFilter(time)\norder by\n  time",
           "refId": "A",
           "resultFormat": "time_series",
           "select": [
@@ -106,13 +109,13 @@
       "thresholds": [],
       "timeFrom": null,
       "timeShift": null,
-      "title": "[[repogroup_name]] unique commenters ([[period]])",
+      "title": "Hourly [[full_name]] activity on GitHub",
       "tooltip": {
         "shared": false,
         "sort": 0,
         "value_type": "individual"
       },
-      "transparent": false,
+      "transparent": true,
       "type": "graph",
       "xaxis": {
         "buckets": null,
@@ -126,7 +129,7 @@
       "yaxes": [
         {
           "format": "short",
-          "label": "Unique commenters",
+          "label": "Activity",
           "logBase": 1,
           "max": null,
           "min": "0",
@@ -147,115 +150,89 @@
       }
     },
     {
-      "content": "${docs:raw}",
+      "content": "Please report any bugs by opening an issue on <a href=\"https://github.com/cncf/devstats\">https://github.com/cncf/devstats</a>",
+      "description": "",
       "gridPos": {
-        "h": 11,
+        "h": 6,
+        "w": 4,
+        "x": 20,
+        "y": 0
+      },
+      "height": 220,
+      "id": 1,
+      "links": [],
+      "mode": "html",
+      "title": "",
+      "transparent": true,
+      "type": "text"
+    },
+    {
+      "description": "https://github.com/cncf/devstats",
+      "folderId": 0,
+      "gridPos": {
+        "h": 50,
         "w": 24,
         "x": 0,
-        "y": 22
+        "y": 6
       },
-      "id": 11,
+      "headings": false,
+      "id": 4,
+      "limit": 50,
+      "links": [
+        {
+          "title": "devstats",
+          "type": "absolute",
+          "url": "https://github.com/cncf/devstats"
+        }
+      ],
+      "query": "",
+      "recent": false,
+      "search": true,
+      "starred": false,
+      "tags": [
+        "dashboard",
+        "knative"
+      ],
+      "title": "All [[full_name]] Dashboards",
+      "transparent": false,
+      "type": "dashlist"
+    },
+    {
+      "content": "${docs:raw}",
+      "gridPos": {
+        "h": 12,
+        "w": 24,
+        "x": 0,
+        "y": 43
+      },
+      "id": 6,
       "links": [],
       "mode": "html",
       "title": "Dashboard documentation",
       "type": "text"
     }
   ],
-  "refresh": false,
+  "refresh": "15m",
   "schemaVersion": 16,
   "style": "dark",
   "tags": [
-    "dashboard",
+    "home",
+    "all",
     "knative"
   ],
   "templating": {
     "list": [
       {
         "allValue": null,
-        "current": {
-          "tags": [],
-          "text": "7 Days MA",
-          "value": "d7"
-        },
-        "hide": 0,
-        "includeAll": false,
-        "label": "Period",
-        "multi": false,
-        "name": "period",
-        "options": [
-          {
-            "selected": false,
-            "text": "Day",
-            "value": "d"
-          },
-          {
-            "selected": true,
-            "text": "7 Days MA",
-            "value": "d7"
-          },
-          {
-            "selected": false,
-            "text": "Week",
-            "value": "w"
-          },
-          {
-            "selected": false,
-            "text": "Month",
-            "value": "m"
-          },
-          {
-            "selected": false,
-            "text": "Quarter",
-            "value": "q"
-          },
-          {
-            "selected": false,
-            "text": "Year",
-            "value": "y"
-          }
-        ],
-        "query": "d,d7,w,m,q,y",
-        "skipUrlSync": false,
-        "type": "custom"
-      },
-      {
-        "allValue": null,
-        "current": {
-          "text": "All",
-          "value": "All"
-        },
-        "datasource": "psql",
-        "hide": 0,
-        "includeAll": false,
-        "label": "Repository group",
-        "multi": false,
-        "name": "repogroup_name",
-        "options": [],
-        "query": "select all_repo_group_name from tall_repo_groups order by 1",
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": false,
-        "sort": 0,
-        "tagValuesQuery": "",
-        "tags": [],
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false
-      },
-      {
-        "allValue": null,
-        "current": {
-          "text": "all",
-          "value": "all"
-        },
+        "current": {},
         "datasource": "psql",
         "hide": 2,
         "includeAll": false,
-        "label": "",
+        "label": null,
         "multi": false,
-        "name": "repogroup",
+        "name": "docs",
         "options": [],
-        "query": "select all_repo_group_value from tall_repo_groups where all_repo_group_name = '[[repogroup_name]]'",
+        "query": "select value_s from gha_vars where name = 'dashboards_docs_html'",
         "refresh": 1,
         "regex": "",
         "skipUrlSync": true,
@@ -268,10 +245,7 @@
       },
       {
         "allValue": null,
-        "current": {
-          "text": "Prometheus",
-          "value": "Prometheus"
-        },
+        "current": {},
         "datasource": "psql",
         "hide": 2,
         "includeAll": false,
@@ -292,15 +266,18 @@
       },
       {
         "allValue": null,
-        "current": {},
+        "current": {
+          "text": "teststats.cncf.io",
+          "value": "teststats.cncf.io"
+        },
         "datasource": "psql",
         "hide": 2,
         "includeAll": false,
         "label": null,
         "multi": false,
-        "name": "docs",
+        "name": "hostname",
         "options": [],
-        "query": "select value_s from gha_vars where name = 'repo_commenters_docs_html'",
+        "query": "select value_s from gha_vars where name = 'os_hostname'",
         "refresh": 1,
         "regex": "",
         "skipUrlSync": true,
@@ -314,10 +291,11 @@
     ]
   },
   "time": {
-    "from": "now-2y",
-    "to": "now"
+    "from": "now-7d",
+    "to": "now-1h"
   },
   "timepicker": {
+    "nowDelay": "1h",
     "refresh_intervals": [
       "5s",
       "10s",
@@ -343,7 +321,7 @@
     ]
   },
   "timezone": "",
-  "title": "Repository Commenters",
-  "uid": "25",
+  "title": "Dashboards",
+  "uid": "8",
   "version": 2
 }
