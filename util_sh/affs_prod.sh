@@ -26,7 +26,7 @@ GHA2DB_RECENT_RANGE="4 hours" GHA2DB_TMOFFSET="-4" devstats
 ONLY="pixie meshery servicemeshperformance kubevela kubevip kubedl krustlet krator oras wasmcloud akri metallb karmada" ./devel/all_affs.sh || exit 8
 GHA2DB_RECENT_RANGE="4 hours" GHA2DB_TMOFFSET="-4" devstats
 
-ONLY="inclavarecontainers superedge cilium dapr openelb openclustermanagement vscodek8stools nocalhost kubearmor k8up kubers devfile" ./devel/all_affs.sh || exit 9
+ONLY="inclavarecontainers superedge cilium dapr openelb openclustermanagement vscodek8stools nocalhost kubearmor k8up kubers devfile knative" ./devel/all_affs.sh || exit 9
 GHA2DB_RECENT_RANGE="4 hours" GHA2DB_TMOFFSET="-4" devstats
 
 ONLY="crio networkservicemesh openebs opentelemetry thanos flux intoto strimzi kubevirt longhorn chubaofs keda" ./devel/all_affs.sh || exit 10
