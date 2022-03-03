@@ -469,6 +469,9 @@ do
   elif [ "$proj" = "devfile" ]
   then
     PROJ=devfile             PROJDB=devfile        PROJREPO="devfile/api"                     ORGNAME=devfile           PORT=3121 ICON=devfile        GRAFSUFF=devfile        GA="UA-145264316-82" ./devel/deploy_proj.sh || exit 140
+  elif [ "$proj" = "knative" ]
+  then
+    PROJ=knative             PROJDB=knative        PROJREPO="knative/serving"                 ORGNAME=Knative           PORT=3122 ICON=knative        GRAFSUFF=knative        GA="UA-145264316-83" ./devel/deploy_proj.sh || exit 41
   elif [ "$proj" = "opencontainers" ]
   then
     PROJ=opencontainers      PROJDB=opencontainers PROJREPO="opencontainers/runc"             ORGNAME=OCI               PORT=3220 ICON="-"            GRAFSUFF=opencontainers GA="UA-108085315-19" ./devel/deploy_proj.sh || exit 32
@@ -478,9 +481,6 @@ do
   elif [ "$proj" = "istio" ]
   then
     PROJ=istio               PROJDB=istio          PROJREPO="istio/istio"                     ORGNAME=Istio             PORT=3221 ICON=cncf           GRAFSUFF=istio          GA="-"               ./devel/deploy_proj.sh || exit 34
-  elif [ "$proj" = "knative" ]
-  then
-    PROJ=knative             PROJDB=knative        PROJREPO="knative/serving"                 ORGNAME=Knative           PORT=3223 ICON=cncf           GRAFSUFF=knative        GA="-"               ./devel/deploy_proj.sh || exit 41
   elif [ "$proj" = "sam" ]
   then
     PROJ=sam                 PROJDB=sam            PROJREPO="awslabs/serverless-application-model" ORGNAME="AWS SAM"    PORT=3224 ICON=cncf           GRAFSUFF=sam            GA="-"               ./devel/deploy_proj.sh || exit 54
