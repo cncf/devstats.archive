@@ -8,6 +8,8 @@ select
   max(created_at) as date_to
 from
 --  [githubarchive:month.202201],
+  [githubarchive:month.202202],
+  [githubarchive:month.202201],
   [githubarchive:year.2021],
   [githubarchive:year.2020],
   [githubarchive:year.2019],
@@ -22,9 +24,16 @@ where
       org.id
     from
 --      [githubarchive:month.202201],
+      [githubarchive:month.202202],
+      [githubarchive:month.202201],
       [githubarchive:year.2021],
       [githubarchive:year.2020],
       [githubarchive:year.2019]
+      [githubarchive:year.2018],
+      [githubarchive:year.2017],
+      [githubarchive:year.2016],
+      [githubarchive:year.2015],
+      [githubarchive:year.2014]
     where
       org.login = '{{org}}'
     group by
