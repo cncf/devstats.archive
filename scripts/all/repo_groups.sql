@@ -1279,6 +1279,15 @@ where
   or org_login in ('devfile')
 ;
 
+-- Knative
+update
+  gha_repos
+set
+  repo_group = 'Knative'
+where
+  org_login in ('knative', 'knative-sandbox')
+;
+
 -- CNCF
 update
   gha_repos
