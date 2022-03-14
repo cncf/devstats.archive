@@ -1288,6 +1288,24 @@ where
   org_login in ('knative', 'knative-sandbox')
 ;
 
+-- FabEdge
+update
+  gha_repos
+set
+  repo_group = 'FabEdge'
+where
+  org_login in ('FabEdge')
+;
+
+-- Confidential Containers
+update
+  gha_repos
+set
+  repo_group = 'Confidential Containers'
+where
+  org_login in ('confidential-containers')
+;
+
 -- CNCF
 update
   gha_repos
