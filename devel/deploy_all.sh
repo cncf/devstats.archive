@@ -472,6 +472,12 @@ do
   elif [ "$proj" = "knative" ]
   then
     PROJ=knative             PROJDB=knative        PROJREPO="knative/serving"                 ORGNAME=Knative           PORT=3122 ICON=knative        GRAFSUFF=knative        GA="UA-145264316-83" ./devel/deploy_proj.sh || exit 41
+  elif [ "$proj" = "fabedge" ]
+  then
+    PROJ=fabedge             PROJDB=fabedge        PROJREPO="FabEdge/fabedge"                 ORGNAME=fabEdge           PORT=3123 ICON=fabedge        GRAFSUFF=fabedge        GA="UA-145264316-84" ./devel/deploy_proj.sh || exit 42
+  elif [ "$proj" = "confidentialcontainers" ]
+  then
+    PROJ=confidentialcontainers PROJDB=confidentialcontainers PROJREPO="confidential-containers/operator" ORGNAME='Confidential Containers' PORT=3124 ICON=confidentialcontainers GRAFSUFF=confidentialcontainers GA="UA-145264316-85" ./devel/deploy_proj.sh || exit 43
   elif [ "$proj" = "opencontainers" ]
   then
     PROJ=opencontainers      PROJDB=opencontainers PROJREPO="opencontainers/runc"             ORGNAME=OCI               PORT=3220 ICON="-"            GRAFSUFF=opencontainers GA="UA-108085315-19" ./devel/deploy_proj.sh || exit 32
