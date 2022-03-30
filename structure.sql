@@ -836,7 +836,7 @@ ALTER TABLE public.gha_logs OWNER TO gha_admin;
 --
 
 CREATE SEQUENCE public.gha_logs_id_seq
-    AS integer
+    AS bigint
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
