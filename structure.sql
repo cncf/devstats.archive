@@ -820,7 +820,7 @@ ALTER TABLE public.gha_labels OWNER TO gha_admin;
 --
 
 CREATE TABLE public.gha_logs (
-    id integer NOT NULL,
+    id bigint NOT NULL,
     dt timestamp without time zone DEFAULT now(),
     prog character varying(32) NOT NULL,
     proj character varying(32) NOT NULL,
