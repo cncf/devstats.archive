@@ -242,6 +242,7 @@ from (
   or (sub.metric = 'contributions' and sub.value > 10 * {{project_scale}} * sqrt({{range}}/1450.0))
   or (sub.metric = 'commit_comments' and sub.value > 3 * {{project_scale}} * sqrt({{range}}/1450.0))
   or (sub.metric = 'comments' and sub.value > 20 * {{project_scale}} * sqrt({{range}}/1450.0))
+  or (sub.metric = 'reviews' and sub.value > 15 * {{project_scale}} * sqrt({{range}}/1450.0))
   or (sub.metric = 'issue_comments' and sub.value > 20 * {{project_scale}} * sqrt({{range}}/1450.0))
   or (sub.metric = 'review_comments' and sub.value > 20 * {{project_scale}} * sqrt({{range}}/1450.0))
   or (sub.metric in (
@@ -515,6 +516,7 @@ from (
   or (sub.metric = 'contributions' and sub.value > 5 * {{project_scale}} * sqrt({{range}}/1450.0))
   or (sub.metric = 'commit_comments' and sub.value > 2 * {{project_scale}} * sqrt({{range}}/1450.0))
   or (sub.metric = 'comments' and sub.value > 10 * {{project_scale}} * sqrt({{range}}/1450.0))
+  or (sub.metric = 'reviews' and sub.value > 5 * {{project_scale}} * sqrt({{range}}/1450.0))
   or (sub.metric = 'issue_comments' and sub.value > 10 * {{project_scale}} * sqrt({{range}}/1450.0))
   or (sub.metric = 'review_comments' and sub.value > 10 * {{project_scale}} * sqrt({{range}}/1450.0))
   or (sub.metric in (
@@ -753,6 +755,7 @@ from (
   or (sub.metric = 'contributions' and sub.value > 5 * {{project_scale}} * sqrt({{range}}/1450.0))
   or (sub.metric = 'commit_comments' and sub.value > 2 * {{project_scale}} * sqrt({{range}}/1450.0))
   or (sub.metric = 'comments' and sub.value > 10 * {{project_scale}} * sqrt({{range}}/1450.0))
+  or (sub.metric = 'reviews' and sub.value > 5 * {{project_scale}} * sqrt({{range}}/1450.0))
   or (sub.metric = 'issue_comments' and sub.value > 10 * {{project_scale}} * sqrt({{range}}/1450.0))
   or (sub.metric = 'review_comments' and sub.value > 10 * {{project_scale}} * sqrt({{range}}/1450.0))
   or (sub.metric in (
