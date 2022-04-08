@@ -67,12 +67,25 @@ end
 
 # Analysis of JSON data to determine PSQL tables to create
 def analysis(prefix, calls, jsons)
+  return if jsons.count == 0
+  if jsons[0].match?(Regexp.new('^dirre:'))
+    ary = jsons[0].split ':'
+    dir = ary[1]
+    re = Regexp.new(ary[2])
+    files = []
+    Dir.entries(dir).each do |f|
+      files << dir + '/' + f if re.match?(f)
+    end
+    jsons = files
+  end
   n = 0
   occ = {}
   ml = {}
   strs = {}
   calls = calls.split(',').map(&:strip)
-  jsons.each do |json|
+  all = jsons.count
+  jsons.each_with_index do |json, idx|
+    STDERR.puts "#{(idx.to_f/all.to_f)*100.0} %" if (idx % 20000 == 0) & (idx > 0)
     h = JSON.parse(File.read(json)).to_h
     oh = h
     calls.each do |call|
