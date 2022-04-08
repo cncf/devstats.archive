@@ -275,6 +275,7 @@ List of tables:
 - `gha_repos`: const, repos
 - `gha_teams`: variable, teams
 - `gha_teams_repositories`: variable, teams repositories connections
+- `gha_reviews`: variable, reviews
 - `gha_logs`: this is a table that holds all tools logs (unless `GHA2DB_SKIPLOG` is set)
 - `gha_texts`: this is a compute table, that contains texts from comments, commits, issues and pull requests, updated by `gha2db_sync` and structure tools
 - `gha_issues_pull_requests`: this is a compute table that contains PRs and issues connections, updated by `gha2db_sync` and structure tools

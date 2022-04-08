@@ -67,6 +67,7 @@ end
 
 # Analysis of JSON data to determine PSQL tables to create
 def analysis(prefix, calls, jsons)
+  STDERR.puts "analysis #{prefix} #{calls}"
   return if jsons.count == 0
   if jsons[0].match?(Regexp.new('^dirre:'))
     ary = jsons[0].split ':'

@@ -41,3 +41,4 @@ ruby ./analysis/analysis.rb new_payload_pull_request_base_repo_owner 'payload,pu
 ruby ./analysis/analysis.rb new_payload_pull_request_head_repo_owner 'payload,pull_request,head,repo,owner' 'dirre:jsons:\.json$' | tee analysis/new_payload_pull_request_head_repo_owner.txt
 ruby ./analysis/analysis.rb new_payload_review 'payload,review' 'dirre:jsons:\.json$' | tee analysis/new_payload_review.txt
 ruby ./analysis/analysis.rb new_payload_review_user 'payload,review,user' 'dirre:jsons:\.json$' | tee analysis/new_payload_review_user.txt
+for f in analysis/*.json; do cat "$f" | jq -rS '.' >> temp; mv temp "$f"; done
