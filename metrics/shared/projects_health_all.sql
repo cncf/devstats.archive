@@ -37,7 +37,7 @@ with projects as (
       from
         gha_events
       where
-        type in ('IssuesEvent', 'PullRequestEvent', 'PushEvent', 'CommitCommentEvent', 'IssueCommentEvent', 'PullRequestReviewCommentEvent')
+        type in ('IssuesEvent', 'PullRequestEvent', 'PushEvent', 'CommitCommentEvent', 'IssueCommentEvent', 'PullRequestReviewCommentEvent', 'PullRequestReviewEvent')
         and created_at >= now() - '1 year'::interval
         and (lower(dup_actor_login) {{exclude_bots}})
       union select dup_repo_id as repo_id,
@@ -74,7 +74,7 @@ with projects as (
       from
         gha_events
       where
-        type in ('IssuesEvent', 'PullRequestEvent', 'PushEvent', 'CommitCommentEvent', 'IssueCommentEvent', 'PullRequestReviewCommentEvent')
+        type in ('IssuesEvent', 'PullRequestEvent', 'PushEvent', 'CommitCommentEvent', 'IssueCommentEvent', 'PullRequestReviewCommentEvent', 'PullRequestReviewEvent')
         and created_at < now() - '1 year'::interval
         and (lower(dup_actor_login) {{exclude_bots}})
       union select dup_repo_id as repo_id,
@@ -110,7 +110,7 @@ with projects as (
       from
         gha_events
       where
-        type in ('IssuesEvent', 'PullRequestEvent', 'PushEvent', 'CommitCommentEvent', 'IssueCommentEvent', 'PullRequestReviewCommentEvent')
+        type in ('IssuesEvent', 'PullRequestEvent', 'PushEvent', 'CommitCommentEvent', 'IssueCommentEvent', 'PullRequestReviewCommentEvent', 'PullRequestReviewEvent')
         and created_at < now() - '6 months'::interval
         and (lower(dup_actor_login) {{exclude_bots}})
       union select dup_repo_id as repo_id,
@@ -146,7 +146,7 @@ with projects as (
       from
         gha_events
       where
-        type in ('IssuesEvent', 'PullRequestEvent', 'PushEvent', 'CommitCommentEvent', 'IssueCommentEvent', 'PullRequestReviewCommentEvent')
+        type in ('IssuesEvent', 'PullRequestEvent', 'PushEvent', 'CommitCommentEvent', 'IssueCommentEvent', 'PullRequestReviewCommentEvent', 'PullRequestReviewEvent')
         and created_at < now() - '3 months'::interval
         and (lower(dup_actor_login) {{exclude_bots}})
       union select dup_repo_id as repo_id,
@@ -182,7 +182,7 @@ with projects as (
       from
         gha_events
       where
-        type in ('IssuesEvent', 'PullRequestEvent', 'PushEvent', 'CommitCommentEvent', 'IssueCommentEvent', 'PullRequestReviewCommentEvent')
+        type in ('IssuesEvent', 'PullRequestEvent', 'PushEvent', 'CommitCommentEvent', 'IssueCommentEvent', 'PullRequestReviewCommentEvent', 'PullRequestReviewEvent')
         and created_at >= now() - '1 year'::interval
         and (lower(dup_actor_login) {{exclude_bots}})
       union select dup_repo_id as repo_id,
@@ -227,7 +227,7 @@ with projects as (
       from
         gha_events
       where
-        type in ('IssuesEvent', 'PullRequestEvent', 'PushEvent', 'CommitCommentEvent', 'IssueCommentEvent', 'PullRequestReviewCommentEvent')
+        type in ('IssuesEvent', 'PullRequestEvent', 'PushEvent', 'CommitCommentEvent', 'IssueCommentEvent', 'PullRequestReviewCommentEvent', 'PullRequestReviewEvent')
         and created_at >= now() - '6 months'::interval
         and (lower(dup_actor_login) {{exclude_bots}})
       union select dup_repo_id as repo_id,
@@ -272,7 +272,7 @@ with projects as (
       from
         gha_events
       where
-        type in ('IssuesEvent', 'PullRequestEvent', 'PushEvent', 'CommitCommentEvent', 'IssueCommentEvent', 'PullRequestReviewCommentEvent')
+        type in ('IssuesEvent', 'PullRequestEvent', 'PushEvent', 'CommitCommentEvent', 'IssueCommentEvent', 'PullRequestReviewCommentEvent', 'PullRequestReviewEvent')
         and created_at >= now() - '3 months'::interval
         and (lower(dup_actor_login) {{exclude_bots}})
       union select dup_repo_id as repo_id,

@@ -88,7 +88,8 @@ from (
       when 'IssuesEvent' then 'Issue creators'
       when 'PullRequestEvent' then 'PR creators'
       when 'PushEvent' then 'Pushers'
-      when 'PullRequestReviewCommentEvent' then 'PR reviewers'
+      when 'PullRequestReviewEvent' then 'PR reviewers'
+      when 'PullRequestReviewCommentEvent' then 'PR review commenters'
       when 'IssueCommentEvent' then 'Issue commenters'
       when 'CommitCommentEvent' then 'Commit commenters'
       when 'WatchEvent' then 'Watchers'
@@ -106,7 +107,7 @@ from (
     and e.type in (
       'IssuesEvent', 'PullRequestEvent', 'PushEvent',
       'PullRequestReviewCommentEvent', 'IssueCommentEvent',
-      'CommitCommentEvent', 'ForkEvent', 'WatchEvent'
+      'CommitCommentEvent', 'ForkEvent', 'WatchEvent', 'PullRequestReviewEvent'
     )
     and {{period:e.created_at}}
     and (lower(e.dup_actor_login) {{exclude_bots}})
@@ -125,7 +126,7 @@ from (
     and af.dt_from <= e.created_at
     and af.dt_to > e.created_at
     and e.type in (
-      'PushEvent', 'PullRequestEvent', 'IssuesEvent',
+      'PushEvent', 'PullRequestEvent', 'IssuesEvent', 'PullRequestReviewEvent',
       'CommitCommentEvent', 'IssueCommentEvent', 'PullRequestReviewCommentEvent'
     )
     and {{period:e.created_at}}
@@ -144,7 +145,7 @@ from (
     and af.dt_from <= e.created_at
     and af.dt_to > e.created_at
     and e.type in (
-      'PushEvent', 'PullRequestEvent', 'IssuesEvent',
+      'PushEvent', 'PullRequestEvent', 'IssuesEvent', 'PullRequestReviewEvent',
       'CommitCommentEvent', 'IssueCommentEvent', 'PullRequestReviewCommentEvent'
     )
     and {{period:e.created_at}}
@@ -193,6 +194,21 @@ from (
     and af.dt_from <= c.created_at
     and af.dt_to > c.created_at
     and {{period:c.created_at}}
+    and (lower(c.dup_user_login) {{exclude_bots}})
+    and af.company_name != ''
+  group by
+    af.company_name
+  union select 'PR reviews' as metric,
+    af.company_name as company,
+    count(distinct c.id) as value
+  from
+    gha_reviews c,
+    gha_actors_affiliations af
+  where
+    c.user_id = af.actor_id
+    and af.dt_from <= c.submitted_at
+    and af.dt_to > c.submitted_at
+    and {{period:c.submitted_at}}
     and (lower(c.dup_user_login) {{exclude_bots}})
     and af.company_name != ''
   group by
@@ -258,7 +274,8 @@ from (
       when 'IssuesEvent' then 'Issue creators'
       when 'PullRequestEvent' then 'PR creators'
       when 'PushEvent' then 'Pushers'
-      when 'PullRequestReviewCommentEvent' then 'PR reviewers'
+      when 'PullRequestReviewEvent' then 'PR reviewers'
+      when 'PullRequestReviewCommentEvent' then 'PR review commenters'
       when 'IssueCommentEvent' then 'Issue commenters'
       when 'CommitCommentEvent' then 'Commit commenters'
       when 'WatchEvent' then 'Watchers'
@@ -272,7 +289,7 @@ from (
     e.type in (
       'IssuesEvent', 'PullRequestEvent', 'PushEvent',
       'PullRequestReviewCommentEvent', 'IssueCommentEvent',
-      'CommitCommentEvent', 'ForkEvent', 'WatchEvent'
+      'CommitCommentEvent', 'ForkEvent', 'WatchEvent', 'PullRequestReviewEvent'
     )
     and {{period:e.created_at}}
     and (lower(e.dup_actor_login) {{exclude_bots}})
@@ -285,7 +302,7 @@ from (
     gha_events e
   where
     e.type in (
-      'PushEvent', 'PullRequestEvent', 'IssuesEvent',
+      'PushEvent', 'PullRequestEvent', 'IssuesEvent', 'PullRequestReviewEvent',
       'CommitCommentEvent', 'IssueCommentEvent', 'PullRequestReviewCommentEvent'
     )
     and {{period:e.created_at}}
@@ -297,7 +314,7 @@ from (
     gha_events e
   where
     e.type in (
-      'PushEvent', 'PullRequestEvent', 'IssuesEvent',
+      'PushEvent', 'PullRequestEvent', 'IssuesEvent', 'PullRequestReviewEvent',
       'CommitCommentEvent', 'IssueCommentEvent', 'PullRequestReviewCommentEvent'
     )
     and {{period:e.created_at}}
@@ -325,6 +342,14 @@ from (
     gha_comments c
   where
     {{period:c.created_at}}
+    and (lower(c.dup_user_login) {{exclude_bots}})
+  union select 'PR reviews' as metric,
+    'All' as company,
+    count(distinct c.id) as value
+  from
+    gha_reviews c
+  where
+    {{period:c.submitted_at}}
     and (lower(c.dup_user_login) {{exclude_bots}})
   union select 'Issues' as metric,
     'All' as company,
@@ -356,6 +381,7 @@ from (
 where
   (sub.metric = 'Commenters' and sub.value > 2 * {{project_scale}} * sqrt({{range}}/1450.0))
   or (sub.metric = 'Comments' and sub.value > 3 * {{project_scale}} * sqrt({{range}}/1450.0))
+  or (sub.metric = 'PR reviews' and sub.value > 2 * {{project_scale}} * sqrt({{range}}/1450.0))
   or (sub.metric = 'Events' and sub.value > 10 * {{project_scale}} * sqrt({{range}}/1450.0))
   or (sub.metric = 'Forkers' and sub.value > 2 * {{project_scale}} * sqrt({{range}}/1450.0))
   or (sub.metric = 'Issue commenters' and sub.value > 1 * {{project_scale}} * sqrt({{range}}/1450.0))
@@ -363,6 +389,7 @@ where
   or (sub.metric = 'Issues' and sub.value > 1 * {{project_scale}} * sqrt({{range}}/1450.0))
   or (sub.metric = 'PR creators' and sub.value > 1 * {{project_scale}} * sqrt({{range}}/1450.0))
   or (sub.metric = 'PR reviewers' and sub.value > 1 * {{project_scale}} * sqrt({{range}}/1450.0))
+  or (sub.metric = 'PR review commenters' and sub.value > 1 * {{project_scale}} * sqrt({{range}}/1450.0))
   or (sub.metric = 'PRs' and sub.value > 1 * {{project_scale}} * sqrt({{range}}/1450.0))
   or (sub.metric = 'Repositories' and sub.value > 1 * {{project_scale}} * sqrt({{range}}/1450.0))
   or (sub.metric = 'Watchers' and sub.value > 3 * {{project_scale}} * sqrt({{range}}/1450.0))

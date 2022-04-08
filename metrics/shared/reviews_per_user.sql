@@ -6,7 +6,7 @@ from
 where
   created_at >= '{{from}}'
   and created_at < '{{to}}'
-  and type in ('PullRequestReviewCommentEvent')
+  and type in ('PullRequestReviewCommentEvent', 'PullRequestReviewEvent')
   and dup_actor_login in (select reviewers_name from treviewers)
 group by
   dup_actor_login
@@ -15,7 +15,7 @@ union select 'rev_per_usr,' || concat(dup_actor_login, '`', dup_repo_name) as re
 from
   gha_events
 where
-  type in ('PullRequestReviewCommentEvent')
+  type in ('PullRequestReviewCommentEvent', 'PullRequestReviewEvent')
   and created_at >= '{{from}}'
   and created_at < '{{to}}'
   and dup_actor_login in (select reviewers_name from treviewers)

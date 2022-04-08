@@ -18,7 +18,7 @@ from (
     (lower(dup_actor_login) {{exclude_bots}})
     and created_at > now() - '3 months'::interval
     and (
-      type = 'PullRequestReviewCommentEvent'
+      type in ('PullRequestReviewCommentEvent', 'PullRequestReviewEvent')
       or id in (
         select min(event_id)
         from

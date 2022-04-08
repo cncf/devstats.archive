@@ -17,7 +17,7 @@ where
   and ev.created_at < '{{to}}'
   and ev.type in (
     'PullRequestReviewCommentEvent', 'PushEvent', 'PullRequestEvent',
-    'IssuesEvent', 'IssueCommentEvent', 'CommitCommentEvent'
+    'IssuesEvent', 'IssueCommentEvent', 'CommitCommentEvent', 'PullRequestReviewEvent'
   )
 union select 'nstats;' || r.repo_group || ';comps,devs,unks' as name,
   count(distinct affs.company_name) as n_companies,
@@ -41,7 +41,7 @@ where
   and ev.created_at < '{{to}}'
   and ev.type in (
     'PullRequestReviewCommentEvent', 'PushEvent', 'PullRequestEvent',
-    'IssuesEvent', 'IssueCommentEvent', 'CommitCommentEvent'
+    'IssuesEvent', 'IssueCommentEvent', 'CommitCommentEvent', 'PullRequestReviewEvent'
     'PushEvent'
   )
 group by

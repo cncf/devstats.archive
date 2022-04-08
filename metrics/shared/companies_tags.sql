@@ -16,7 +16,7 @@ select
     )
     and e.type in (
       'PullRequestReviewCommentEvent', 'PushEvent', 'PullRequestEvent',
-      'IssuesEvent', 'IssueCommentEvent', 'CommitCommentEvent'
+      'IssuesEvent', 'IssueCommentEvent', 'CommitCommentEvent', 'PullRequestReviewEvent'
     )
     and e.created_at > now() - '3 years'::interval
     and (lower(e.dup_actor_login) {{exclude_bots}})

@@ -13,7 +13,7 @@ from (
     where
       type in (
         'PullRequestReviewCommentEvent', 'PushEvent', 'PullRequestEvent',
-        'IssuesEvent', 'IssueCommentEvent', 'CommitCommentEvent'
+        'IssuesEvent', 'IssueCommentEvent', 'CommitCommentEvent', 'PullRequestReviewEvent'
       )
       and created_at > now() - '3 months'::interval
       and (lower(dup_actor_login) {{exclude_bots}})

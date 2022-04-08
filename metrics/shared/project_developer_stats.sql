@@ -76,6 +76,7 @@ from (
   union select case e.type
       when 'PushEvent' then 'pushes'
       when 'PullRequestReviewCommentEvent' then 'review_comments'
+      when 'PullRequestReviewEvent' then 'reviews'
       when 'IssueCommentEvent' then 'issue_comments'
       when 'CommitCommentEvent' then 'commit_comments'
     end as metric,
@@ -92,7 +93,7 @@ from (
     and aa.dt_to > e.created_at
   where
     e.type in (
-      'PushEvent', 'PullRequestReviewCommentEvent',
+      'PushEvent', 'PullRequestReviewCommentEvent', 'PullRequestReviewEvent',
       'IssueCommentEvent', 'CommitCommentEvent'
     )
     and {{period:e.created_at}}
@@ -115,7 +116,7 @@ from (
     and aa.dt_to > e.created_at
   where
     e.type in (
-      'PushEvent', 'PullRequestEvent', 'IssuesEvent',
+      'PushEvent', 'PullRequestEvent', 'IssuesEvent', 'PullRequestReviewEvent',
       'CommitCommentEvent', 'IssueCommentEvent', 'PullRequestReviewCommentEvent'
     )
     and {{period:e.created_at}}
@@ -271,6 +272,7 @@ from (
   union select case sub.type
       when 'PushEvent' then 'pushes'
       when 'PullRequestReviewCommentEvent' then 'review_comments'
+      when 'PullRequestReviewEvent' then 'reviews'
       when 'IssueCommentEvent' then 'issue_comments'
       when 'CommitCommentEvent' then 'commit_comments'
     end as metric,
@@ -297,7 +299,7 @@ from (
       r.name = e.dup_repo_name
       and r.id = e.repo_id
       and e.type in (
-        'PushEvent', 'PullRequestReviewCommentEvent',
+        'PushEvent', 'PullRequestReviewCommentEvent', 'PullRequestReviewEvent',
         'IssueCommentEvent', 'CommitCommentEvent'
       )
       and {{period:e.created_at}}
@@ -333,7 +335,7 @@ from (
       r.name = e.dup_repo_name
       and r.id = e.repo_id
       and e.type in (
-        'PushEvent', 'PullRequestEvent', 'IssuesEvent',
+        'PushEvent', 'PullRequestEvent', 'IssuesEvent', 'PullRequestReviewEvent',
         'CommitCommentEvent', 'IssueCommentEvent', 'PullRequestReviewCommentEvent'
       )
       and {{period:e.created_at}}
@@ -545,6 +547,7 @@ from (
   union select case e.type
       when 'PushEvent' then 'pushes'
       when 'PullRequestReviewCommentEvent' then 'review_comments'
+      when 'PullRequestReviewEvent' then 'reviews'
       when 'IssueCommentEvent' then 'issue_comments'
       when 'CommitCommentEvent' then 'commit_comments'
     end as metric,
@@ -564,7 +567,7 @@ from (
   where
     (e.actor_id = a.id or e.dup_actor_login = a.login)
     and e.type in (
-      'PushEvent', 'PullRequestReviewCommentEvent',
+      'PushEvent', 'PullRequestReviewCommentEvent', 'PullRequestReviewEvent',
       'IssueCommentEvent', 'CommitCommentEvent'
     )
     and {{period:e.created_at}}
@@ -592,7 +595,7 @@ from (
   where
     (e.actor_id = a.id or e.dup_actor_login = a.login)
     and e.type in (
-      'PushEvent', 'PullRequestEvent', 'IssuesEvent',
+      'PushEvent', 'PullRequestEvent', 'IssuesEvent', 'PullRequestReviewEvent',
       'CommitCommentEvent', 'IssueCommentEvent', 'PullRequestReviewCommentEvent'
     )
     and {{period:e.created_at}}
@@ -785,6 +788,7 @@ from (
   union select case sub.type
       when 'PushEvent' then 'pushes'
       when 'PullRequestReviewCommentEvent' then 'review_comments'
+      when 'PullRequestReviewEvent' then 'reviews'
       when 'IssueCommentEvent' then 'issue_comments'
       when 'CommitCommentEvent' then 'commit_comments'
     end as metric,
@@ -815,7 +819,7 @@ from (
       and r.id = e.repo_id
       and (e.actor_id = a.id or e.dup_actor_login = a.login)
       and e.type in (
-        'PushEvent', 'PullRequestReviewCommentEvent',
+        'PushEvent', 'PullRequestReviewCommentEvent', 'PullRequestReviewEvent',
         'IssueCommentEvent', 'CommitCommentEvent'
       )
       and {{period:e.created_at}}
@@ -857,7 +861,7 @@ from (
       and r.id = e.repo_id
       and (e.actor_id = a.id or e.dup_actor_login = a.login)
       and e.type in (
-        'PushEvent', 'PullRequestEvent', 'IssuesEvent',
+        'PushEvent', 'PullRequestEvent', 'IssuesEvent', 'PullRequestReviewEvent',
         'CommitCommentEvent', 'IssueCommentEvent', 'PullRequestReviewCommentEvent'
       )
       and {{period:e.created_at}}
@@ -1070,6 +1074,7 @@ from (
   or (sub.metric = 'comments' and sub.value > 2 * {{project_scale}} * sqrt({{range}}/1450.0))
   or (sub.metric = 'issue_comments' and sub.value > 2 * {{project_scale}} * sqrt({{range}}/1450.0))
   or (sub.metric = 'review_comments' and sub.value > 2 * {{project_scale}} * sqrt({{range}}/1450.0))
+  or (sub.metric = 'reviews' and sub.value > 2 * {{project_scale}} * sqrt({{range}}/1450.0))
   or (sub.metric in (
     'contributions',
     'commits',
