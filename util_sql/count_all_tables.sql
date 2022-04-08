@@ -4,6 +4,7 @@ select 'actors_affiliations' as name, count(*) as count_value from gha_actors_af
 select 'assets' as name, count(*) as count_value from gha_assets union
 select 'branches' as name, count(*) as count_value from gha_branches union
 select 'comments' as name, count(*) as count_value from gha_comments union
+select 'reviews' as name, count(*) as count_value from gha_reviews union
 select 'commits' as name, count(*) as count_value from gha_commits union
 select 'commits files' as name, count(*) as count_value from gha_commits_files union
 select 'companies' as name, count(*) as count_value from gha_companies union

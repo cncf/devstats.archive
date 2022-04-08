@@ -91,5 +91,8 @@ do
   cmd="$op gha_repos where name like '${repo}'"
   echo ${cmd}
   ./devel/db.sh psql "$1" -tAc "${cmd}" || exit 27
+  cmd="$op gha_reviews where dup_repo_name like '${repo}'"
+  echo ${cmd}
+  ./devel/db.sh psql "$1" -tAc "${cmd}" || exit 28
 done
 echo 'OK: you need to clean gha_orgs manually'

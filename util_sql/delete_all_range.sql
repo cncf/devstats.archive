@@ -7,6 +7,7 @@ delete from gha_events where created_at > '{{from}}' and created_at < '{{to}}';
 delete from gha_assets where dup_created_at > '{{from}}' and dup_created_at < '{{to}}';
 delete from gha_branches where dup_created_at > '{{from}}' and dup_created_at < '{{to}}';
 delete from gha_comments where dup_created_at > '{{from}}' and dup_created_at < '{{to}}';
+delete from gha_reviews where dup_created_at > '{{from}}' and dup_created_at < '{{to}}';
 delete from gha_commits where dup_created_at > '{{from}}' and dup_created_at < '{{to}}';
 delete from gha_commits_files where dt > '{{from}}' and dt < '{{to}}';
 delete from gha_computed where dt > '{{from}}' and dt < '{{to}}';

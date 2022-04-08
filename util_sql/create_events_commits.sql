@@ -39,6 +39,21 @@ from (
     c.commit_id = cf.sha
     -- or c.original_commit_id = cf.sha
   union select cf.sha,
+    r.event_id,
+    r.dup_repo_name || '/' || cf.path as path,
+    cf.ext,
+    cf.dt,
+    cf.size,
+    r.dup_repo_id,
+    r.dup_repo_name,
+    r.dup_type,
+    r.dup_created_at
+  from
+    gha_reviews r,
+    gha_commits_files cf
+  where
+    r.commit_id = cf.sha
+  union select cf.sha,
     c.event_id,
     c.dup_repo_name || '/' || cf.path as path,
     cf.ext,

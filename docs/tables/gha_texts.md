@@ -6,15 +6,15 @@
 - You can see its SQL structure here: [structure.sql](https://github.com/cncf/devstats/blob/master/structure.sql#L726-L735).
 - This table is updated every hour via [util_sql/postprocess_texts.sql](https://github.com/cncf/devstats/blob/master/util_sql/postprocess_texts.sql).
 - It is called by [this code](https://github.com/cncf/devstats/blob/master/structure.go#L1162-L1187) that uses [gha_postprocess_scripts](https://github.com/cncf/devstats/blob/master/docs/tables/gha_postprocess_scripts.md) table to get postprocess scripts to run. One of them, defined above creates entries for `gha_texts` table every hour.
-- It adds all new comments, commit messages, issue titles, issue texts, PR titles, PR texts since last hour.
-- See documentation for [issues](https://github.com/cncf/devstats/blob/master/docs/tables/gha_issues.md), [PRs](https://github.com/cncf/devstats/blob/master/docs/tables/gha_pull_requests.md) and [commits](https://github.com/cncf/devstats/blob/master/docs/tables/gha_commits.md) tables.
+- It adds all new comments, commit messages, issue titles, issue texts, PR titles, PR texts, PR reviews texts since last hour.
+- See documentation for [issues](https://github.com/cncf/devstats/blob/master/docs/tables/gha_issues.md), [PRs](https://github.com/cncf/devstats/blob/master/docs/tables/gha_pull_requests.md), [comments](https://github.com/cncf/devstats/blob/master/docs/tables/gha_comments.md), [reviews](https://github.com/cncf/devstats/blob/master/docs/tables/gha_reviews.md) and [commits](https://github.com/cncf/devstats/blob/master/docs/tables/gha_commits.md) tables.
 - This SQL script is scheduled to run every hour by: [util_sql/default_postprocess_scripts.sql](https://github.com/cncf/devstats/blob/master/util_sql/default_postprocess_scripts.sql#L1).
 - Default postprocess scripts are defined by [kubernetes/setup_scripts.sh](https://github.com/cncf/devstats/blob/master/kubernetes/setup_scripts.sh#L4). This is `{{projectname}}/setup_scripts.sh` for other projects.
 - Setup scripts is called by main Postgres init script, for kubernetes it is: [kubernetes/psql.sh](https://github.com/cncf/devstats/blob/master/kubernetes/psql.sh#L14).
 - This is a part of standard when adding new project, for adding new project please see: [adding new project](https://github.com/cncf/devstats/blob/master/ADDING_NEW_PROJECT.md).
 - When adding a project to an existing database that contains merge result from multiple projects, you need to manually remove eventual duplicates using: [./devel/remove_db_dups.sh](https://github.com/cncf/devstats/blob/master/devel/remove_db_dups.sh), as suggested by [cmd/merge_dbs/merge_dbs.go](https://github.com/cncf/devstats/blob/master/cmd/merge_dbs/merge_dbs.go#L197).
 - Informations about creating project that is a merge of other multiple projects can be found in [adding new project](https://github.com/cncf/devstats/blob/master/ADDING_NEW_PROJECT.md).
-- Its primary key isn't `event_id`, because it adds both title and body of issues and commits.
+- Its primary key isn't `event_id`, because it adds both title and body of issues and PRs.
 
 # Columns
 

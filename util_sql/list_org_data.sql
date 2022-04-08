@@ -14,6 +14,7 @@ select * from gha_payloads where dup_repo_name in (select name from repos);
 select * from gha_commits where dup_repo_name in (select name from repos);
 select * from gha_pages where dup_repo_name in (select name from repos);
 select * from gha_comments where dup_repo_name in (select name from repos);
+select * from gha_reviews where dup_repo_name in (select name from repos);
 select * from gha_issues where dup_repo_name in (select name from repos);
 select * from gha_milestones where dup_repo_name in (select name from repos);
 select * from gha_issues_labels where dup_repo_name in (select name from repos);

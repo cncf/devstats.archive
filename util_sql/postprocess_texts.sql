@@ -185,4 +185,31 @@ where
       and event_id >= 329900000000000
     )
   )
+union select
+  event_id, body, submitted_at, dup_repo_id, dup_repo_name, dup_actor_id, dup_actor_login, dup_type
+from
+  gha_reviews
+where
+  body != ''
+  and (
+    (
+      event_id > (
+        select max_event_id from var where opt = 0
+      )
+      and event_id < 281474976710657
+    )
+    or (
+      event_id > (
+        select max_event_id from var where opt = 1
+      )
+      and event_id >= 281474976710657
+      and event_id < 329900000000000
+    )
+    or (
+      event_id > (
+        select max_event_id from var where opt = 2
+      )
+      and event_id >= 329900000000000
+    )
+  )
 ;
