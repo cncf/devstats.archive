@@ -1,7 +1,7 @@
 #!/bin/bash
 echo "You need to have example set of JSONs from >= 2015 in jsons/ directory"
 # To generate them, use for example:
-# GHA2DB_JSON=1 GHA2DB_NODB=1 gha2db 2016-06-02 17 2016-06-02 17
+# GHA2DB_LOCAL=1 GHA2DB_JSON=1 GHA2DB_NODB=1 ./gha2db 2022-04-06 18 2022-04-06 18
 ruby ./analysis/analysis.rb new '' jsons/*.json | tee analysis/new.txt
 ruby ./analysis/analysis.rb new_actor 'actor' jsons/*.json | tee analysis/new_actor.txt
 ruby ./analysis/analysis.rb new_repo 'repo' jsons/*.json | tee analysis/new_repo.txt
@@ -39,3 +39,5 @@ ruby ./analysis/analysis.rb new_payload_pull_request_head_user 'payload,pull_req
 ruby ./analysis/analysis.rb new_payload_pull_request_milestone_creator 'payload,pull_request,milestone,creator' jsons/*.json | tee analysis/new_payload_pull_request_milestone_creator.txt
 ruby ./analysis/analysis.rb new_payload_pull_request_base_repo_owner 'payload,pull_request,base,repo,owner' jsons/*.json | tee analysis/new_payload_pull_request_base_repo_owner.txt
 ruby ./analysis/analysis.rb new_payload_pull_request_head_repo_owner 'payload,pull_request,head,repo,owner' jsons/*.json | tee analysis/new_payload_pull_request_head_repo_owner.txt
+ruby ./analysis/analysis.rb new_payload_pull_request_review 'payload,pull_request,review' jsons/*.json | tee analysis/new_payload_pull_request_review.txt
+ruby ./analysis/analysis.rb new_payload_pull_request_review_user 'payload,pull_request,review,user' jsons/*.json | tee analysis/new_payload_pull_request_review_user.txt
