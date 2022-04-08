@@ -1,9 +1,9 @@
 select
-  concat('user;', sub.cuser, '`', sub.repo_group, ';activity,pushes,comments,contributions'),
+  concat('user;', sub.cuser, '`', sub.repo_group, ';activity,pushes,comments,reviews,contributions'),
   round(sub.activity / {{n}}, 2) as activity,
   round(sub.pushes / {{n}}, 2) as pushes,
-  round(sub.reviews / {{n}}, 2) as reviews,
   round((sub.review_comments + sub.issue_comments + sub.commit_comments) / {{n}}, 2) as comments,
+  round(sub.reviews / {{n}}, 2) as reviews,
   round(sub.contributions / {{n}}, 2) as contributions
 from (
   select dup_actor_login as cuser,

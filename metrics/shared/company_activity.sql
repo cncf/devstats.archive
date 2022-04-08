@@ -1,5 +1,5 @@
 select
-  concat('company;', sub.company, '`', sub.repo_group, ';activity,authors,issues,prs,pushers,pushes,comments,contributions,contributors'),
+  concat('company;', sub.company, '`', sub.repo_group, ';activity,authors,issues,prs,pushers,pushes,comments,reviews,contributions,contributors'),
   round(sub.activity / {{n}}, 2) as activity,
   sub.authors,
   round(sub.issues / {{n}}, 2) as issues,
