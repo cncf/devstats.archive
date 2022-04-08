@@ -27,6 +27,7 @@ CREATE INDEX reviews_dup_repo_id_idx ON public.gha_reviews USING btree (dup_repo
 CREATE INDEX reviews_dup_repo_name_idx ON public.gha_reviews USING btree (dup_repo_name);
 CREATE INDEX reviews_dup_type_idx ON public.gha_reviews USING btree (dup_type);
 CREATE INDEX reviews_dup_user_login_idx ON public.gha_reviews USING btree (dup_user_login);
+CREATE INDEX reviews_dup_created_at_idx ON public.gha_reviews USING btree (dup_created_at);
 CREATE INDEX reviews_event_id_idx ON public.gha_reviews USING btree (event_id);
 CREATE INDEX reviews_submitted_at_idx ON public.gha_reviews USING btree (submitted_at);
 CREATE INDEX reviews_user_id_idx ON public.gha_reviews USING btree (user_id);

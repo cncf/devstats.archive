@@ -2683,6 +2683,13 @@ CREATE INDEX reviews_dup_user_login_idx ON public.gha_reviews USING btree (dup_u
 
 
 --
+-- Name: reviews_dup_created_at_idx; Type: INDEX; Schema: public; Owner: gha_admin
+--
+
+CREATE INDEX reviews_dup_created_at_idx ON public.gha_reviews USING btree (dup_created_at);
+
+
+--
 -- Name: reviews_event_id_idx; Type: INDEX; Schema: public; Owner: gha_admin
 --
 
