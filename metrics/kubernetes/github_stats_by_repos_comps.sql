@@ -13,7 +13,7 @@ with matching as (
   where
     created_at >= '{{from}}'
     and created_at < '{{to}}'
-    and type in ('PullRequestReviewCommentEvent')
+    and type in ('PullRequestReviewCommentEvent', 'PullRequestReviewEvent')
 )
 select 'gstat_r_commits,' || r.alias as repo,
   round(count(distinct c.sha) / {{n}}, 2) as metric

@@ -106,7 +106,7 @@ where
   and r.id = e.repo_id
   and r.name = e.dup_repo_name
   and e.created_at < '{{to}}'
-  and e.type in ('PullRequestEvent', 'PullRequestReviewCommentEvent', 'CommitCommentEvent')
+  and e.type in ('PullRequestEvent', 'PullRequestReviewCommentEvent', 'CommitCommentEvent', 'PullRequestReviewEvent')
   and (lower(e.dup_actor_login) {{exclude_bots}})
  group by
   r.alias
@@ -117,6 +117,6 @@ from
   gha_events
 where
   created_at < '{{to}}'
-  and type in ('PullRequestEvent', 'PullRequestReviewCommentEvent', 'CommitCommentEvent')
+  and type in ('PullRequestEvent', 'PullRequestReviewCommentEvent', 'CommitCommentEvent', 'PullRequestReviewEvent')
   and (lower(dup_actor_login) {{exclude_bots}})
 ;

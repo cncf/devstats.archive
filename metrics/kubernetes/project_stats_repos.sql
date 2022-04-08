@@ -39,7 +39,7 @@ from (
     {{period:e.created_at}}
     and (lower(e.dup_actor_login) {{exclude_bots}})
     and e.type in (
-      'PushEvent', 'PullRequestEvent', 'IssuesEvent',
+      'PushEvent', 'PullRequestEvent', 'IssuesEvent', 'PullRequestReviewEvent',
       'CommitCommentEvent', 'IssueCommentEvent', 'PullRequestReviewCommentEvent'
     )
     and e.dup_repo_name in (select repo_name from trepos)
@@ -55,7 +55,7 @@ where
   {{period:created_at}}
   and (lower(dup_actor_login) {{exclude_bots}})
   and type in (
-    'PushEvent', 'PullRequestEvent', 'IssuesEvent',
+    'PushEvent', 'PullRequestEvent', 'IssuesEvent', 'PullRequestReviewEvent',
     'CommitCommentEvent', 'IssueCommentEvent', 'PullRequestReviewCommentEvent'
   )
 union select
@@ -71,7 +71,7 @@ from (
     {{period:e.created_at}}
     and (lower(e.dup_actor_login) {{exclude_bots}})
     and e.type in (
-      'PushEvent', 'PullRequestEvent', 'IssuesEvent',
+      'PushEvent', 'PullRequestEvent', 'IssuesEvent', 'PullRequestReviewEvent',
       'CommitCommentEvent', 'IssueCommentEvent', 'PullRequestReviewCommentEvent'
     )
     and e.dup_repo_name in (select repo_name from trepos)
@@ -87,7 +87,7 @@ where
   {{period:created_at}}
   and (lower(dup_actor_login) {{exclude_bots}})
   and type in (
-    'PushEvent', 'PullRequestEvent', 'IssuesEvent',
+    'PushEvent', 'PullRequestEvent', 'IssuesEvent', 'PullRequestReviewEvent',
     'CommitCommentEvent', 'IssueCommentEvent', 'PullRequestReviewCommentEvent'
   )
 union select
@@ -149,7 +149,8 @@ union select sub.repo,
     when 'IssuesEvent' then 'Issue creators'
     when 'PullRequestEvent' then 'PR creators'
     when 'PushEvent' then 'Pushers'
-    when 'PullRequestReviewCommentEvent' then 'PR reviewers'
+    when 'PullRequestReviewCommentEvent' then 'PR review commenters'
+    when 'PullRequestReviewEvent' then 'PR reviewers'
     when 'IssueCommentEvent' then 'Issue commenters'
     when 'CommitCommentEvent' then 'Commit commenters'
     when 'WatchEvent' then 'Stargazers'
@@ -166,7 +167,7 @@ from (
     e.type in (
       'IssuesEvent', 'PullRequestEvent', 'PushEvent',
       'PullRequestReviewCommentEvent', 'IssueCommentEvent',
-      'CommitCommentEvent', 'ForkEvent', 'WatchEvent'
+      'CommitCommentEvent', 'ForkEvent', 'WatchEvent', 'PullRequestReviewEvent'
     )
     and {{period:e.created_at}}
     and (lower(e.dup_actor_login) {{exclude_bots}})
@@ -180,7 +181,8 @@ union select 'pstat,All' as repo,
     when 'IssuesEvent' then 'Issue creators'
     when 'PullRequestEvent' then 'PR creators'
     when 'PushEvent' then 'Pushers'
-    when 'PullRequestReviewCommentEvent' then 'PR reviewers'
+    when 'PullRequestReviewCommentEvent' then 'PR review commenters'
+    when 'PullRequestReviewEvent' then 'PR reviewers'
     when 'IssueCommentEvent' then 'Issue commenters'
     when 'CommitCommentEvent' then 'Commit commenters'
     when 'WatchEvent' then 'Stargazers'
@@ -193,7 +195,7 @@ where
   type in (
     'IssuesEvent', 'PullRequestEvent', 'PushEvent',
     'PullRequestReviewCommentEvent', 'IssueCommentEvent',
-    'CommitCommentEvent', 'ForkEvent', 'WatchEvent'
+    'CommitCommentEvent', 'ForkEvent', 'WatchEvent', 'PullRequestReviewEvent'
   )
   and {{period:created_at}}
   and (lower(dup_actor_login) {{exclude_bots}})
@@ -261,6 +263,29 @@ from
   gha_comments
 where
   {{period:created_at}}
+  and (lower(dup_user_login) {{exclude_bots}})
+union select sub.repo,
+  'PR reviews' as name,
+  count(distinct sub.id) as value
+from (
+  select 'pstat,' || c.dup_repo_name as repo,
+    c.id
+  from
+    gha_reviews c
+  where
+    {{period:c.submitted_at}}
+    and (lower(c.dup_user_login) {{exclude_bots}})
+    and c.dup_repo_name in (select repo_name from trepos)
+  ) sub
+group by
+  sub.repo
+union select 'pstat,All' as repo,
+  'PR reviews' as name,
+  count(distinct id) as value
+from
+  gha_reviews
+where
+  {{period:submitted_at}}
   and (lower(dup_user_login) {{exclude_bots}})
 union select sub.repo,
   'Issues' as name,

@@ -35,7 +35,7 @@ from
 where
   created_at >= '{{from}}'
   and created_at < '{{to}}'
-  and type in ('PullRequestReviewCommentEvent')
+  and type in ('PullRequestReviewCommentEvent', 'PullRequestReviewEvent')
   and dup_actor_login in (select reviewers_name from treviewers)
 group by
   dup_actor_login
@@ -45,7 +45,7 @@ from
   gha_events
 where
   dup_actor_login in (select reviewers_name from treviewers)
-  and type in ('PullRequestReviewCommentEvent')
+  and type in ('PullRequestReviewCommentEvent', 'PullRequestReviewEvent')
   and created_at >= '{{from}}'
   and created_at < '{{to}}'
 group by

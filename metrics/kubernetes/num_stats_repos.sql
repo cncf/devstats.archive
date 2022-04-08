@@ -17,7 +17,7 @@ where
   and ev.created_at < '{{to}}'
   and ev.type in (
     'PullRequestReviewCommentEvent', 'PushEvent', 'PullRequestEvent',
-    'IssuesEvent', 'IssueCommentEvent', 'CommitCommentEvent'
+    'IssuesEvent', 'IssueCommentEvent', 'CommitCommentEvent', 'PullRequestReviewEvent'
   )
   and (lower(ev.dup_actor_login) {{exclude_bots}})
 union select sub.name,
@@ -42,8 +42,7 @@ from (
     and ev.created_at < '{{to}}'
     and ev.type in (
       'PullRequestReviewCommentEvent', 'PushEvent', 'PullRequestEvent',
-      'IssuesEvent', 'IssueCommentEvent', 'CommitCommentEvent'
-      'PushEvent'
+      'IssuesEvent', 'IssueCommentEvent', 'CommitCommentEvent', 'PullRequestReviewEvent'
     )
     and (lower(ev.dup_actor_login) {{exclude_bots}})
     and ev.dup_repo_name in (select repo_name from trepos)

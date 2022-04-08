@@ -10,9 +10,10 @@ from (
     count(id) as activity,
     count(id) filter(where type = 'PushEvent') as pushes,
     count(id) filter(where type = 'PullRequestReviewCommentEvent') as review_comments,
+    count(id) filter(where type = 'PullRequestReviewEvent') as reviews,
     count(id) filter(where type = 'IssueCommentEvent') as issue_comments,
     count(id) filter(where type = 'CommitCommentEvent') as commit_comments,
-    count(id) filter(where type in ('IssuesEvent', 'PullRequestEvent', 'PushEvent', 'PullRequestReviewCommentEvent', 'IssueCommentEvent', 'CommitCommentEvent')) as contributions
+    count(id) filter(where type in ('IssuesEvent', 'PullRequestEvent', 'PushEvent', 'PullRequestReviewCommentEvent', 'IssueCommentEvent', 'PullRequestReviewEvent', 'CommitCommentEvent')) as contributions
   from
     gha_events
   where
@@ -27,9 +28,10 @@ from (
     count(distinct ev.id) as activity,
     count(distinct ev.id) filter(where ev.type = 'PushEvent') as pushes,
     count(distinct ev.id) filter(where ev.type = 'PullRequestReviewCommentEvent') as review_comments,
+    count(distinct ev.id) filter(where type = 'PullRequestReviewEvent') as reviews,
     count(distinct ev.id) filter(where ev.type = 'IssueCommentEvent') as issue_comments,
     count(distinct ev.id) filter(where ev.type = 'CommitCommentEvent') as commit_comments,
-    count(distinct ev.id) filter(where ev.type in ('IssuesEvent', 'PullRequestEvent', 'PushEvent', 'PullRequestReviewCommentEvent', 'IssueCommentEvent', 'CommitCommentEvent')) as contributions
+    count(distinct ev.id) filter(where ev.type in ('IssuesEvent', 'PullRequestEvent', 'PushEvent', 'PullRequestReviewCommentEvent', 'IssueCommentEvent', 'PullRequestReviewEvent', 'CommitCommentEvent')) as contributions
   from
     gha_repos r,
     gha_events ev
@@ -52,9 +54,10 @@ from (
     count(id) as activity,
     count(id) filter(where type = 'PushEvent') as pushes,
     count(id) filter(where type = 'PullRequestReviewCommentEvent') as review_comments,
+    count(id) filter(where type = 'PullRequestReviewEvent') as reviews,
     count(id) filter(where type = 'IssueCommentEvent') as issue_comments,
     count(id) filter(where type = 'CommitCommentEvent') as commit_comments,
-    count(id) filter(where type in ('IssuesEvent', 'PullRequestEvent', 'PushEvent', 'PullRequestReviewCommentEvent', 'IssueCommentEvent', 'CommitCommentEvent')) as contributions
+    count(id) filter(where type in ('IssuesEvent', 'PullRequestEvent', 'PushEvent', 'PullRequestReviewCommentEvent', 'IssueCommentEvent', 'PullRequestReviewEvent', 'CommitCommentEvent')) as contributions
   from
     gha_events
   where
@@ -66,9 +69,10 @@ from (
     count(distinct ev.id) as activity,
     count(distinct ev.id) filter(where ev.type = 'PushEvent') as pushes,
     count(distinct ev.id) filter(where ev.type = 'PullRequestReviewCommentEvent') as review_comments,
+    count(distinct ev.id) filter(where type = 'PullRequestReviewEvent') as reviews,
     count(distinct ev.id) filter(where ev.type = 'IssueCommentEvent') as issue_comments,
     count(distinct ev.id) filter(where ev.type = 'CommitCommentEvent') as commit_comments,
-    count(distinct ev.id) filter(where ev.type in ('IssuesEvent', 'PullRequestEvent', 'PushEvent', 'PullRequestReviewCommentEvent', 'IssueCommentEvent', 'CommitCommentEvent')) as contributions
+    count(distinct ev.id) filter(where ev.type in ('IssuesEvent', 'PullRequestEvent', 'PushEvent', 'PullRequestReviewCommentEvent', 'IssueCommentEvent', 'PullRequestReviewEvent', 'CommitCommentEvent')) as contributions
   from
     gha_repos r,
     gha_events ev

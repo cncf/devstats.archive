@@ -11,7 +11,7 @@ with matching as (
     gha_events
   where
     {{period:created_at}}
-    and type in ('PullRequestReviewCommentEvent')
+    and type in ('PullRequestReviewCommentEvent', 'PullRequestReviewEvent')
 )
 select
   'hdev_reviews,' || sub.repo || '_All' as metric ,
