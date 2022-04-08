@@ -78,7 +78,7 @@ do
     icon="kube-rs"
   fi
   # TODO: remove when we have icons
-  if ( [ "$icon" = "fabedge" ] || [ "$icon" = "confidentialcontainers" ] || [ "$icon" = "openelb" ] || [ "$icon" = "vscodek8stools" ] || [ "$icon" = "oras" ] || [ "$icon" = "kubevip" ] || [ "$icon" = "cnigenie" ] || [ "$icon" = "istio" ] || [ "$icon" = "contrib" ] || [ "$icon" = "sam" ] || [ "$icon" = "azf" ] || [ "$icon" = "riff" ] || [ "$icon" = "fn" ] || [ "$icon" = "openwhisk" ] || [ "$icon" = "openfaas" ] || [ "$icon" = "cii" ] )
+  if ( [ "$icon" = "fabedge" ] || [ "$icon" = "openelb" ] || [ "$icon" = "vscodek8stools" ] || [ "$icon" = "kubevip" ] || [ "$icon" = "cnigenie" ] || [ "$icon" = "istio" ] || [ "$icon" = "contrib" ] || [ "$icon" = "sam" ] || [ "$icon" = "azf" ] || [ "$icon" = "riff" ] || [ "$icon" = "fn" ] || [ "$icon" = "openwhisk" ] || [ "$icon" = "openfaas" ] || [ "$icon" = "cii" ] )
   then
     icon="cncf"
   fi
@@ -125,6 +125,16 @@ do
   then
     cp "$HOME/dev/cncf/artwork/projects/cilium/icon/color/cilium_icon-color.svg" "grafana/img/$suff.svg" || exit 21
     convert "$HOME/dev/cncf/artwork/projects/cilium/icon/color/cilium_icon-color.png" -resize 32x32 "grafana/img/${suff}32.png" || exit 20
+    continue
+  elif [ "$icon" = "confidentialcontainers" ]
+  then
+    cp "$HOME/dev/cncf/artwork/projects/confidential-containers/icon/color/confidential-containers-icon.svg" "grafana/img/$suff.svg" || exit 23
+    convert "$HOME/dev/cncf/artwork/projects/confidential-containers/icon/color/confidential-containers-icon.png" -resize 32x32 "grafana/img/${suff}32.png" || exit 22
+    continue
+  elif [ "$icon" = "oras" ]
+  then
+    cp "$HOME/dev/cncf/artwork/projects/oras/horizontal/color/oras-horizontal-color.svg" "grafana/img/$suff.svg" || exit 25
+    convert "$HOME/dev/cncf/artwork/projects/oras/horizontal/color/oras-horizontal-color.png" -resize 32x32 "grafana/img/${suff}32.png" || exit 24
     continue
   fi
   cp "$HOME/dev/$iconorg/artwork/$path/icon/$icontype/$icon$dash$mid-$icontype.svg" "grafana/img/$suff.svg" || exit 2
