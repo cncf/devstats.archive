@@ -8,7 +8,7 @@ select
   round(sub.pushes / {{n}}, 2) as pushes,
   round((sub.review_comments + sub.issue_comments + sub.commit_comments) / {{n}}, 2) as comments,
   round(sub.reviews / {{n}}, 2) as reviews,
-  round((sub.review_comments + sub.issue_comments + sub.commit_comments + sub.pushes + sub.issues + sub.prs) / {{n}}, 2) as contributions,
+  round((sub.review_comments + sub.issue_comments + sub.commit_comments + sub.pushes + sub.reviews + sub.issues + sub.prs) / {{n}}, 2) as contributions,
   sub.contributors
 from (
   select affs.company_name as company,

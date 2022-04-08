@@ -1,13 +1,14 @@
 select
-  concat('company;', sub.company, '`', sub.repo, ';activity,authors,issues,prs,pushers,pushes,comments,contributions,contributors'),
+  concat('company;', sub.company, '`', sub.repo, ';activity,authors,issues,prs,pushers,pushes,reviews,comments,contributions,contributors'),
   round(sub.activity / {{n}}, 2) as activity,
   sub.authors,
   round(sub.issues / {{n}}, 2) as issues,
   round(sub.prs / {{n}}, 2) as prs,
   sub.pushers,
   round(sub.pushes / {{n}}, 2) as pushes,
+  round(sub.reviews / {{n}}, 2) as reviews,
   round((sub.review_comments + sub.issue_comments + sub.commit_comments) / {{n}}, 2) as comments,
-  round((sub.review_comments + sub.issue_comments + sub.commit_comments + sub.pushes + sub.issues + sub.prs) / {{n}}, 2) as contributions,
+  round((sub.review_comments + sub.issue_comments + sub.commit_comments + sub.pushes + sub.reviews + sub.issues + sub.prs) / {{n}}, 2) as contributions,
   sub.contributors
 from (
   select affs.company_name as company,
@@ -19,7 +20,8 @@ from (
     count(distinct ev.id) filter(where ev.type = 'IssuesEvent') as issues,
     count(distinct ev.id) filter(where ev.type = 'PullRequestEvent') as prs,
     count(distinct ev.id) filter(where ev.type = 'PushEvent') as pushes,
-    count(distinct ev.id) filter(where ev.type in ('PullRequestReviewCommentEvent', 'PullRequestReviewEvent')) as review_comments,
+    count(distinct ev.id) filter(where ev.type = 'PullRequestReviewCommentEvent') as review_comments,
+    count(distinct ev.id) filter(where ev.type = 'PullRequestReviewEvent') as reviews,
     count(distinct ev.id) filter(where ev.type = 'IssueCommentEvent') as issue_comments,
     count(distinct ev.id) filter(where ev.type = 'CommitCommentEvent') as commit_comments
   from
@@ -45,7 +47,8 @@ from (
     count(distinct ev.id) filter(where ev.type = 'IssuesEvent') as issues,
     count(distinct ev.id) filter(where ev.type = 'PullRequestEvent') as prs,
     count(distinct ev.id) filter(where ev.type = 'PushEvent') as pushes,
-    count(distinct ev.id) filter(where ev.type in ('PullRequestReviewCommentEvent', 'PullRequestReviewEvent')) as review_comments,
+    count(distinct ev.id) filter(where ev.type = 'PullRequestReviewCommentEvent') as review_comments,
+    count(distinct ev.id) filter(where ev.type = 'PullRequestReviewEvent') as reviews,
     count(distinct ev.id) filter(where ev.type = 'IssueCommentEvent') as issue_comments,
     count(distinct ev.id) filter(where ev.type = 'CommitCommentEvent') as commit_comments
   from
@@ -73,7 +76,8 @@ from (
     count(distinct ev.id) filter(where ev.type = 'IssuesEvent') as issues,
     count(distinct ev.id) filter(where ev.type = 'PullRequestEvent') as prs,
     count(distinct ev.id) filter(where ev.type = 'PushEvent') as pushes,
-    count(distinct ev.id) filter(where ev.type in ('PullRequestReviewCommentEvent', 'PullRequestReviewEvent')) as review_comments,
+    count(distinct ev.id) filter(where ev.type = 'PullRequestReviewCommentEvent') as review_comments,
+    count(distinct ev.id) filter(where ev.type = 'PullRequestReviewEvent') as reviews,
     count(distinct ev.id) filter(where ev.type = 'IssueCommentEvent') as issue_comments,
     count(distinct ev.id) filter(where ev.type = 'CommitCommentEvent') as commit_comments
   from
@@ -91,7 +95,8 @@ from (
     count(distinct ev.id) filter(where ev.type = 'IssuesEvent') as issues,
     count(distinct ev.id) filter(where ev.type = 'PullRequestEvent') as prs,
     count(distinct ev.id) filter(where ev.type = 'PushEvent') as pushes,
-    count(distinct ev.id) filter(where ev.type in ('PullRequestReviewCommentEvent', 'PullRequestReviewEvent')) as review_comments,
+    count(distinct ev.id) filter(where ev.type = 'PullRequestReviewCommentEvent') as review_comments,
+    count(distinct ev.id) filter(where ev.type = 'PullRequestReviewEvent') as reviews,
     count(distinct ev.id) filter(where ev.type = 'IssueCommentEvent') as issue_comments,
     count(distinct ev.id) filter(where ev.type = 'CommitCommentEvent') as commit_comments
   from
