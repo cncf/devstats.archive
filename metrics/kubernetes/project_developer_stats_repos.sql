@@ -67,7 +67,7 @@ from (
   union select case e.type
       when 'PushEvent' then 'pushes'
       when 'PullRequestReviewCommentEvent' then 'review_comments'
-      when 'PullRequestReviewEvent' then 'reviews'
+      when 'PullRequestReviewEvent' then 'raw_reviews'
       when 'IssueCommentEvent' then 'issue_comments'
       when 'CommitCommentEvent' then 'commit_comments'
     end as metric,
@@ -263,7 +263,7 @@ from (
   union select case sub.type
       when 'PushEvent' then 'pushes'
       when 'PullRequestReviewCommentEvent' then 'review_comments'
-      when 'PullRequestReviewEvent' then 'reviews'
+      when 'PullRequestReviewEvent' then 'raw_reviews'
       when 'IssueCommentEvent' then 'issue_comments'
       when 'CommitCommentEvent' then 'commit_comments'
     end as metric,
@@ -494,7 +494,7 @@ from (
   union select case e.type
       when 'PushEvent' then 'pushes'
       when 'PullRequestReviewCommentEvent' then 'review_comments'
-      when 'PullRequestReviewEvent' then 'reviews'
+      when 'PullRequestReviewEvent' then 'raw_reviews'
       when 'IssueCommentEvent' then 'issue_comments'
       when 'CommitCommentEvent' then 'commit_comments'
     end as metric,
@@ -735,7 +735,7 @@ from (
   union select case sub.type
       when 'PushEvent' then 'pushes'
       when 'PullRequestReviewCommentEvent' then 'review_comments'
-      when 'PullRequestReviewEvent' then 'reviews'
+      when 'PullRequestReviewEvent' then 'raw_reviews'
       when 'IssueCommentEvent' then 'issue_comments'
       when 'CommitCommentEvent' then 'commit_comments'
     end as metric,

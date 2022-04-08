@@ -361,7 +361,7 @@ where
 group by
   sub.repo_group
 union select sub.repo_group,
-  'PR Reviews' as name,
+  'PR reviews' as name,
   count(distinct sub.id) as value
 from (
   select 'pstat,' || coalesce(ecf.repo_group, r.repo_group) as repo_group,
