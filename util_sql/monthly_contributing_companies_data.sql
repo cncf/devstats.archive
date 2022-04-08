@@ -23,7 +23,7 @@ from
 where
   e.created_at >= d.f
   and e.created_at < d.t
-  and e.type in ('IssuesEvent', 'PullRequestEvent', 'PushEvent', 'CommitCommentEvent', 'IssueCommentEvent', 'PullRequestReviewCommentEvent')
+  and e.type in ('IssuesEvent', 'PullRequestEvent', 'PushEvent', 'CommitCommentEvent', 'IssueCommentEvent', 'PullRequestReviewCommentEvent', 'PullRequestReviewEvent')
   and (lower(e.dup_actor_login) {{exclude_bots}})
   and e.actor_id = af.actor_id
   and af.dt_from <= e.created_at

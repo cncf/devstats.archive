@@ -8,7 +8,7 @@ select
   count(sub.id) as events,
   count(sub.id) filter (where sub.type = 'PushEvent') as pushes,
   count(sub.id) filter (where sub.type in ('PushEvent', 'IssuesEvent', 'PullRequestEvent')) as contributions,
-  count(sub.id) filter (where sub.type = 'PullRequestReviewCommentEvent') as pr_reviews,
+  count(sub.id) filter (where sub.type = 'PullRequestReviewCommentEvent', 'PullRequestReviewEvent') as pr_reviews,
   count(sub.id) filter (where sub.type = 'ForkEvent') as forks,
   count(sub.id) filter (where sub.type = 'PullRequestEvent') as prs,
   count(sub.id) filter (where sub.type = 'IssuesEvent') as issues,

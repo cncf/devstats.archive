@@ -5,7 +5,7 @@ from
   gha_repos r
 where
   e.created_at < '{{date}}'
-  and e.type in ('IssuesEvent', 'PullRequestEvent', 'PushEvent', 'CommitCommentEvent', 'IssueCommentEvent', 'PullRequestReviewCommentEvent')
+  and e.type in ('IssuesEvent', 'PullRequestEvent', 'PushEvent', 'CommitCommentEvent', 'IssueCommentEvent', 'PullRequestReviewCommentEvent', 'PullRequestReviewEvent')
   and (lower(e.dup_actor_login) {{exclude_bots}})
   and e.repo_id = r.id
   and e.dup_repo_name = r.name

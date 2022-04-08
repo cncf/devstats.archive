@@ -23,7 +23,7 @@ Links:
 - The exact psql regexp is: `(?i)(?:^|\n|\r)\s*/(?:lgtm|approve)\s*(?:\n|\r|$)`.
 - We're only looking for texts created between `{{from}}` and `{{to}}` dates. Values for `from` and `to` will be replaced with final periods described later.
 - We are counting actors who added text matching given regexp.
-- Then we're creating 'reviews' object (used by `with` clause) that contains all event IDs (`gha_events`) that belong to GitHub event type: `PullRequestReviewCommentEvent`.
+- Then we're creating 'reviews' object (used by `with` clause) that contains all event IDs (`gha_events`) that belong to GitHub event type: `PullRequestReviewCommentEvent`, `PullRequestReviewEvent`.
 - For more information about `gha_events` table please check: [docs/tables/gha_event.md](https://github.com/cncf/devstats/blob/master/docs/tables/gha_events.md).
 - Then comes the final select which returns multiple rows for either repositories or repository groups.
 - Each row returns single value, so the metric type is: `multi_row_single_column`.
@@ -34,7 +34,7 @@ Links:
 - We are checking that author is not a bot (see [excluding bots](https://github.com/cncf/devstats/blob/master/docs/excluding_bots.md))
 - We are counting actors who added `lgtm` or `approve` label in a given period (`gha_issues_events_labels` table).
 - For more information about `gha_issues_events_labels` table please check: [docs/tables/gha_issues_events_labels.md](https://github.com/cncf/devstats/blob/master/docs/tables/gha_issues_events_labels.md).
-- We are counting actors who added PR review comment (event type `PullRequestReviewCommentEvent`).
+- We are counting actors who added PR review comment (event type `PullRequestReviewCommentEvent`, `PullRequestReviewEvent`).
 - Event belong to a given repository group or repository.
 - For repository group definition check: [repository groups](https://github.com/cncf/devstats/blob/master/docs/repository_groups.md) (table `gha_events` and commit files for file level granularity repo groups).
 - For more information about `gha_repos` table please check: [docs/tables/gha_repos.md](https://github.com/cncf/devstats/blob/master/docs/tables/gha_repos.md).

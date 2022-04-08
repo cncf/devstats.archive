@@ -19,7 +19,7 @@
 # Columns
 
 - `id`: GitHub event ID.
-- `type`: GitHub event type, can be: PullRequestReviewCommentEvent, MemberEvent, PushEvent, ReleaseEvent, CreateEvent, GollumEvent, TeamAddEvent, DeleteEvent, PublicEvent, ForkEvent, PullRequestEvent, IssuesEvent, WatchEvent, IssueCommentEvent, CommitCommentEvent.
+- `type`: GitHub event type, can be: PullRequestReviewEvent, PullRequestReviewCommentEvent, MemberEvent, PushEvent, ReleaseEvent, CreateEvent, GollumEvent, TeamAddEvent, DeleteEvent, PublicEvent, ForkEvent, PullRequestEvent, IssuesEvent, WatchEvent, IssueCommentEvent, CommitCommentEvent.
 - `actor_id`: GitHub actor ID (actor who created this event).
 - `repo_id`: GitHub repository ID.
 - `public`: Is this event public? Always `true` because private events are not gathered by GHA (GitHub Archives).

@@ -25,4 +25,4 @@
 - `actor_login`: actor GitHub login responsible for this text. Refers to [gha_actors](https://github.com/cncf/devstats/blob/master/docs/tables/gha_actors.md) table.
 - `repo_id`: GitHub repository ID where this text was added. Refers to [gha_repos](https://github.com/cncf/devstats/blob/master/docs/tables/gha_repos.md) table.
 - `repo_name`: GitHub repository name where this text was added. please not that repository names can change in time, but ID remains the same.
-- `type`: GitHub event type, can be: PullRequestReviewCommentEvent, MemberEvent, PushEvent, ReleaseEvent, CreateEvent, GollumEvent, TeamAddEvent, DeleteEvent, PublicEvent, ForkEvent, PullRequestEvent, IssuesEvent, WatchEvent, IssueCommentEvent, CommitCommentEvent.
+- `type`: GitHub event type, can be: PullRequestReviewEvent, PullRequestReviewCommentEvent, MemberEvent, PushEvent, ReleaseEvent, CreateEvent, GollumEvent, TeamAddEvent, DeleteEvent, PublicEvent, ForkEvent, PullRequestEvent, IssuesEvent, WatchEvent, IssueCommentEvent, CommitCommentEvent.

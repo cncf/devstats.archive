@@ -19,11 +19,11 @@ from (
     count(distinct ev.id) as activity,
     count(distinct ev.actor_id) as authors,
     count(distinct ev.actor_id) filter(where ev.type = 'PushEvent') as pushers,
-    count(distinct ev.actor_id) filter (where ev.type in ('IssuesEvent', 'PullRequestEvent', 'PushEvent', 'CommitCommentEvent', 'IssueCommentEvent', 'PullRequestReviewCommentEvent')) as contributors,
+    count(distinct ev.actor_id) filter (where ev.type in ('IssuesEvent', 'PullRequestEvent', 'PushEvent', 'CommitCommentEvent', 'IssueCommentEvent', 'PullRequestReviewCommentEvent', 'PullRequestReviewEvent')) as contributors,
     count(distinct ev.id) filter(where ev.type = 'IssuesEvent') as issues,
     count(distinct ev.id) filter(where ev.type = 'PullRequestEvent') as prs,
     count(distinct ev.id) filter(where ev.type = 'PushEvent') as pushes,
-    count(distinct ev.id) filter(where ev.type = 'PullRequestReviewCommentEvent') as review_comments,
+    count(distinct ev.id) filter(where ev.type in ('PullRequestReviewCommentEvent', 'PullRequestReviewEvent')) as review_comments,
     count(distinct ev.id) filter(where ev.type = 'IssueCommentEvent') as issue_comments,
     count(distinct ev.id) filter(where ev.type = 'CommitCommentEvent') as commit_comments
   from
@@ -45,11 +45,11 @@ from (
     count(distinct ev.id) as activity,
     count(distinct ev.actor_id) as authors,
     count(distinct ev.actor_id) filter(where ev.type = 'PushEvent') as pushers,
-    count(distinct ev.actor_id) filter (where ev.type in ('IssuesEvent', 'PullRequestEvent', 'PushEvent', 'CommitCommentEvent', 'IssueCommentEvent', 'PullRequestReviewCommentEvent')) as contributors,
+    count(distinct ev.actor_id) filter (where ev.type in ('IssuesEvent', 'PullRequestEvent', 'PushEvent', 'CommitCommentEvent', 'IssueCommentEvent', 'PullRequestReviewCommentEvent', 'PullRequestReviewEvent')) as contributors,
     count(distinct ev.id) filter(where ev.type = 'IssuesEvent') as issues,
     count(distinct ev.id) filter(where ev.type = 'PullRequestEvent') as prs,
     count(distinct ev.id) filter(where ev.type = 'PushEvent') as pushes,
-    count(distinct ev.id) filter(where ev.type = 'PullRequestReviewCommentEvent') as review_comments,
+    count(distinct ev.id) filter(where ev.type in ('PullRequestReviewCommentEvent', 'PullRequestReviewEvent')) as review_comments,
     count(distinct ev.id) filter(where ev.type = 'IssueCommentEvent') as issue_comments,
     count(distinct ev.id) filter(where ev.type = 'CommitCommentEvent') as commit_comments
   from
@@ -78,11 +78,11 @@ from (
     count(distinct ev.id) as activity,
     count(distinct ev.actor_id) as authors,
     count(distinct ev.actor_id) filter(where ev.type = 'PushEvent') as pushers,
-    count(distinct ev.actor_id) filter (where ev.type in ('IssuesEvent', 'PullRequestEvent', 'PushEvent', 'CommitCommentEvent', 'IssueCommentEvent', 'PullRequestReviewCommentEvent')) as contributors,
+    count(distinct ev.actor_id) filter (where ev.type in ('IssuesEvent', 'PullRequestEvent', 'PushEvent', 'CommitCommentEvent', 'IssueCommentEvent', 'PullRequestReviewCommentEvent', 'PullRequestReviewEvent')) as contributors,
     count(distinct ev.id) filter(where ev.type = 'IssuesEvent') as issues,
     count(distinct ev.id) filter(where ev.type = 'PullRequestEvent') as prs,
     count(distinct ev.id) filter(where ev.type = 'PushEvent') as pushes,
-    count(distinct ev.id) filter(where ev.type = 'PullRequestReviewCommentEvent') as review_comments,
+    count(distinct ev.id) filter(where ev.type in ('PullRequestReviewCommentEvent', 'PullRequestReviewEvent')) as review_comments,
     count(distinct ev.id) filter(where ev.type = 'IssueCommentEvent') as issue_comments,
     count(distinct ev.id) filter(where ev.type = 'CommitCommentEvent') as commit_comments
   from
@@ -96,11 +96,11 @@ from (
     count(distinct ev.id) as activity,
     count(distinct ev.actor_id) as authors,
     count(distinct ev.actor_id) filter(where ev.type = 'PushEvent') as pushers,
-    count(distinct ev.actor_id) filter (where ev.type in ('IssuesEvent', 'PullRequestEvent', 'PushEvent', 'CommitCommentEvent', 'IssueCommentEvent', 'PullRequestReviewCommentEvent')) as contributors,
+    count(distinct ev.actor_id) filter (where ev.type in ('IssuesEvent', 'PullRequestEvent', 'PushEvent', 'CommitCommentEvent', 'IssueCommentEvent', 'PullRequestReviewCommentEvent', 'PullRequestReviewEvent')) as contributors,
     count(distinct ev.id) filter(where ev.type = 'IssuesEvent') as issues,
     count(distinct ev.id) filter(where ev.type = 'PullRequestEvent') as prs,
     count(distinct ev.id) filter(where ev.type = 'PushEvent') as pushes,
-    count(distinct ev.id) filter(where ev.type = 'PullRequestReviewCommentEvent') as review_comments,
+    count(distinct ev.id) filter(where ev.type in ('PullRequestReviewCommentEvent', 'PullRequestReviewEvent')) as review_comments,
     count(distinct ev.id) filter(where ev.type = 'IssueCommentEvent') as issue_comments,
     count(distinct ev.id) filter(where ev.type = 'CommitCommentEvent') as commit_comments
   from

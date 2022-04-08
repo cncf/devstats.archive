@@ -21,7 +21,7 @@ from (
       and e.created_at < '{{to}}'
       and e.type in (
         'PullRequestReviewCommentEvent', 'PushEvent', 'PullRequestEvent',
-        'IssuesEvent', 'IssueCommentEvent', 'CommitCommentEvent'
+        'IssuesEvent', 'IssueCommentEvent', 'CommitCommentEvent', 'PullRequestReviewEvent'
       )
     group by
       a.login,

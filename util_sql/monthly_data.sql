@@ -15,8 +15,8 @@ select
   d.rel,
   d.f,
   d.t,
-  count(distinct e.actor_id) filter (where e.type in ('IssuesEvent', 'PullRequestEvent', 'PushEvent', 'CommitCommentEvent', 'IssueCommentEvent', 'PullRequestReviewCommentEvent')) as contributors,
-  count(distinct e.id) filter (where e.type in ('IssuesEvent', 'PullRequestEvent', 'PushEvent', 'CommitCommentEvent', 'IssueCommentEvent', 'PullRequestReviewCommentEvent')) as contributions,
+  count(distinct e.actor_id) filter (where e.type in ('IssuesEvent', 'PullRequestEvent', 'PushEvent', 'CommitCommentEvent', 'IssueCommentEvent', 'PullRequestReviewCommentEvent', 'PullRequestReviewEvent')) as contributors,
+  count(distinct e.id) filter (where e.type in ('IssuesEvent', 'PullRequestEvent', 'PushEvent', 'CommitCommentEvent', 'IssueCommentEvent', 'PullRequestReviewCommentEvent', 'PullRequestReviewEvent')) as contributions,
   count(distinct e.actor_id) filter (where e.type = 'PushEvent') as pushers,
   count(distinct e.id) filter (where e.type = 'PushEvent') as pushers,
   count(distinct e.actor_id) filter (where e.type = 'PullRequestEvent') as prcreators,
@@ -25,8 +25,8 @@ select
   count(distinct e.id) filter (where e.type = 'IssuesEvent') as issues,
   count(distinct e.actor_id) filter (where e.type in ('CommitCommentEvent', 'IssueCommentEvent')) as commenters,
   count(distinct e.id) filter (where e.type in ('CommitCommentEvent', 'IssueCommentEvent')) as comments,
-  count(distinct e.actor_id) filter (where e.type = 'PullRequestReviewCommentEvent') as reviewers,
-  count(distinct e.id) filter (where e.type = 'PullRequestReviewCommentEvent') as reviews,
+  count(distinct e.actor_id) filter (where e.type in ('PullRequestReviewCommentEvent', 'PullRequestReviewEvent')) as reviewers,
+  count(distinct e.id) filter (where e.type in ('PullRequestReviewCommentEvent', 'PullRequestReviewEvent')) as reviews,
   count(distinct e.actor_id) filter (where e.type = 'WatchEvent') as watchers,
   count(distinct e.id) filter (where e.type = 'WatchEvent') as watches,
   count(distinct e.actor_id) filter (where e.type = 'ForkEvent') as forkers,
@@ -37,7 +37,7 @@ from
 where
   e.created_at >= d.f
   and e.created_at < d.t
-  and e.type in ('IssuesEvent', 'PullRequestEvent', 'PushEvent', 'CommitCommentEvent', 'IssueCommentEvent', 'PullRequestReviewCommentEvent', 'WatchEvent', 'ForkEvent')
+  and e.type in ('IssuesEvent', 'PullRequestEvent', 'PushEvent', 'CommitCommentEvent', 'IssueCommentEvent', 'PullRequestReviewCommentEvent', 'WatchEvent', 'ForkEvent', 'PullRequestReviewEvent')
   and (lower(e.dup_actor_login) {{exclude_bots}})
 group by
   d.rel,

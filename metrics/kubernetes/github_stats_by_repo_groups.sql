@@ -13,7 +13,7 @@ with matching as (
   where
     created_at >= '{{from}}'
     and created_at < '{{to}}'
-    and type in ('PullRequestReviewCommentEvent')
+    and type in ('PullRequestReviewCommentEvent', 'PullRequestReviewEvent')
 )
 select
   sub.repo_group,

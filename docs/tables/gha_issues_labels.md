@@ -21,7 +21,7 @@ Columns starting with `dup_` are duplicated from other tables, to speedup proces
 - `dup_actor_login`: Duplicated GitHub actor login (from [gha_actors](https://github.com/cncf/devstats/blob/master/docs/tables/gha_actors.md) table).
 - `dup_repo_id`: GitHub repository ID, see [gha_repos](https://github.com/cncf/devstats/blob/master/docs/tables/gha_repos.md).
 - `dup_repo_name`: Duplicated GitHub repository name (note that repository name can change in time, but repository ID remains the same, see [gha_repos](https://github.com/cncf/devstats/blob/master/docs/tables/gha_repos.md) table).
-- `dup_type`: GitHub event type, can be: PullRequestReviewCommentEvent, MemberEvent, PushEvent, ReleaseEvent, CreateEvent, GollumEvent, TeamAddEvent, DeleteEvent, PublicEvent, ForkEvent, PullRequestEvent, IssuesEvent, WatchEvent, IssueCommentEvent, CommitCommentEvent.
+- `dup_type`: GitHub event type, can be: PullRequestReviewEvent, PullRequestReviewCommentEvent, MemberEvent, PushEvent, ReleaseEvent, CreateEvent, GollumEvent, TeamAddEvent, DeleteEvent, PublicEvent, ForkEvent, PullRequestEvent, IssuesEvent, WatchEvent, IssueCommentEvent, CommitCommentEvent.
 - `dup_created_at`: Event creation date.
 - `dup_issue_number`: Issue number, see [gha_issues](https://github.com/cncf/devstats/blob/master/docs/tables/gha_issues.md).
 - `dup_label_name`: Label name, see [gha_labels](https://github.com/cncf/devstats/blob/master/docs/tables/gha_labels.md).

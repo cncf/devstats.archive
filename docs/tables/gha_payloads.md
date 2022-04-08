@@ -18,7 +18,7 @@
 
 Most important columns are (most of them are only filled for a specific event type, so most can be null - with the exception of `event_id` and those starting with `dup_` which are copied from [gha_actors](https://github.com/cncf/devstats/blob/master/docs/tables/gha_actors.md), [gha_repos](https://github.com/cncf/devstats/blob/master/docs/tables/gha_repos.md) and [gha_events](https://github.com/cncf/devstats/blob/master/docs/tables/gha_events.md)):
 - `event_id`: GitHub event ID.
-- `dup_type`: GitHub event type, can be: PullRequestReviewCommentEvent, MemberEvent, PushEvent, ReleaseEvent, CreateEvent, GollumEvent, TeamAddEvent, DeleteEvent, PublicEvent, ForkEvent, PullRequestEvent, IssuesEvent, WatchEvent, IssueCommentEvent, CommitCommentEvent.
+- `dup_type`: GitHub event type, can be: PullRequestReviewEvent, PullRequestReviewCommentEvent, MemberEvent, PushEvent, ReleaseEvent, CreateEvent, GollumEvent, TeamAddEvent, DeleteEvent, PublicEvent, ForkEvent, PullRequestEvent, IssuesEvent, WatchEvent, IssueCommentEvent, CommitCommentEvent.
 - `head`: HEAD branch SHA.
 - `action`: Action type, defined for some event types, can be null or `created`, `published`, `labeled`, `closed`, `opened`, `started`, `reopened`, `added`.
 - `issue_id`: Issue ID (for Issue related events), see [gha_issues](https://github.com/cncf/devstats/blob/master/docs/tables/gha_issues.md).

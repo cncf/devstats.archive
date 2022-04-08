@@ -9,6 +9,7 @@ select
       dup_actor_login = a.actor
       and type in (
         'PullRequestReviewCommentEvent',
+        'PullRequestReviewEvent',
         'CommitCommentEvent',
         'IssueCommentEvent',
         'IssuesEvent',
@@ -729,6 +730,7 @@ left join (
     created_at >= now() - '{{period}}'::interval
     and type in (
       'PullRequestReviewCommentEvent',
+      'PullRequestReviewEvent',
       'CommitCommentEvent',
       'IssueCommentEvent',
       'IssuesEvent',

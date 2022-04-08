@@ -11,7 +11,7 @@ from (
     e.actor_id = aa.actor_id
     and e.type in (
       'PullRequestReviewCommentEvent', 'PushEvent', 'PullRequestEvent',
-      'IssuesEvent', 'IssueCommentEvent', 'CommitCommentEvent'
+      'IssuesEvent', 'IssueCommentEvent', 'CommitCommentEvent', 'PullRequestReviewEvent'
     )
     and e.created_at >= '{{from}}'
     and e.created_at < '{{to}}'

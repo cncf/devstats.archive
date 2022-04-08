@@ -4,6 +4,6 @@ from
   gha_events
 where
   created_at < '{{date}}'
-  and type in ('IssuesEvent', 'PullRequestEvent', 'PushEvent', 'CommitCommentEvent', 'IssueCommentEvent', 'PullRequestReviewCommentEvent')
+  and type in ('IssuesEvent', 'PullRequestEvent', 'PushEvent', 'CommitCommentEvent', 'IssueCommentEvent', 'PullRequestReviewCommentEvent', 'PullRequestReviewEvent')
   and (lower(dup_actor_login) {{exclude_bots}})
 ;

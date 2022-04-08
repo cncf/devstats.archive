@@ -28,6 +28,6 @@
 - `repo_group`: repository group - this is updated every hour based on commit's file's repository's repo group and (possibly for Kubernetes) file level granularity repository groups definitions, see [repo groups](https://github.com/cncf/devstats/blob/master/docs/repository_groups.md).
 - `dup_repo_id`:  GitHub repository ID of given commit's file
 - `dup_repo_name`: GitHub repository name, please note that repo name can change in time, but repo ID remains the same. Full path can contain historical repo names.
-- `dup_type`: GitHub event type, can be: PullRequestReviewCommentEvent, MemberEvent, PushEvent, ReleaseEvent, CreateEvent, GollumEvent, TeamAddEvent, DeleteEvent, PublicEvent, ForkEvent, PullRequestEvent, IssuesEvent, WatchEvent, IssueCommentEvent, CommitCommentEvent.
+- `dup_type`: GitHub event type, can be: PullRequestReviewEvent, PullRequestReviewCommentEvent, MemberEvent, PushEvent, ReleaseEvent, CreateEvent, GollumEvent, TeamAddEvent, DeleteEvent, PublicEvent, ForkEvent, PullRequestEvent, IssuesEvent, WatchEvent, IssueCommentEvent, CommitCommentEvent.
 - `dup_created_at`: GitHub event's creation date.
 - Columns starting with `dup_` are copied from `gha_events` table entry, info [here](https://github.com/cncf/devstats/blob/master/docs/tables/gha_events.md).

@@ -19,7 +19,7 @@ from (
   where
     e.actor_id = a.id
     and (lower(a.login) {{exclude_bots}})
-    and e.type in ('IssuesEvent', 'PullRequestEvent', 'PushEvent', 'CommitCommentEvent', 'IssueCommentEvent', 'PullRequestReviewCommentEvent')
+    and e.type in ('IssuesEvent', 'PullRequestEvent', 'PushEvent', 'CommitCommentEvent', 'IssueCommentEvent', 'PullRequestReviewCommentEvent', 'PullRequestReviewEvent')
     and e.created_at >= '{{from}}'
   group by
     coalesce(af.company_name, 'Unknown')

@@ -116,7 +116,7 @@ from (
     gha_pull_requests pr,
     gha_commits_files cf
   where
-    pr.dup_type in ('PullRequestReviewCommentEvent', 'PullRequestEvent')
+    pr.dup_type in ('PullRequestReviewCommentEvent', 'PullRequestEvent', 'PullRequestReviewEvent')
     and (
       pr.head_sha = cf.sha
       or pr.merge_commit_sha = cf.sha

@@ -20,7 +20,7 @@ where
   and a.login not like '%-robot'
   and e.type in (
     'PullRequestReviewCommentEvent', 'PushEvent', 'PullRequestEvent',
-    'IssuesEvent', 'IssueCommentEvent', 'CommitCommentEvent'
+    'IssuesEvent', 'IssueCommentEvent', 'CommitCommentEvent', 'PullRequestReviewEvent'
   )
   and af.actor_id is null
   and e.created_at >= now() - '{{ago}}'::interval

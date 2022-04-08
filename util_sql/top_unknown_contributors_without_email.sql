@@ -9,7 +9,7 @@ with topu as (
     e.actor_id = aa.actor_id
   where
     e.type in (
-      'CommitCommentEvent', 'IssueCommentEvent', 'IssuesEvent',
+      'CommitCommentEvent', 'IssueCommentEvent', 'IssuesEvent', 'PullRequestReviewEvent', 
       'PullRequestEvent', 'PullRequestReviewCommentEvent', 'PushEvent'
     )
     and lower(e.dup_actor_login) not like all(array[
@@ -65,7 +65,7 @@ on
 where
   t.actor_id = e.actor_id
   and e.type in (
-      'CommitCommentEvent', 'IssueCommentEvent', 'IssuesEvent',
+      'CommitCommentEvent', 'IssueCommentEvent', 'IssuesEvent', 'PullRequestReviewEvent',
       'PullRequestEvent', 'PullRequestReviewCommentEvent', 'PushEvent'
     )
   and (ae.email is null or ae.email like '%users.noreply.github.com')
