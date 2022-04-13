@@ -40,7 +40,7 @@ db.sh psql $db -tAc "insert into gha_issues_assignees select * from tmp_gha_issu
 db.sh psql $db -tAc "drop table tmp_gha_issues_assignees"
 
 db.sh psql $db -tAc "create table tmp_gha_pull_requests_assignees (like gha_pull_requests_assignees including defaults)" 
-db.sh psql $db -tAc "\copy tmp_gha_pull_requests_assignees from './$db.prs_assignees.tsv'"
+db.sh psql $db -tAc "\copy tmp_gha_pull_requests_assignees from './$db.pr_assignees.tsv'"
 db.sh psql $db -tAc "insert into gha_pull_requests_assignees select * from tmp_gha_pull_requests_assignees on conflict do nothing"
 db.sh psql $db -tAc "drop table tmp_gha_pull_requests_assignees"
 
