@@ -1210,6 +1210,7 @@ COPY public.gha_assets (id, event_id, name, label, uploader_id, content_type, st
 --
 
 COPY public.gha_bot_logins (pattern) FROM stdin;
+facebook-github-whois-bot-0
 knative-automation
 covbot
 cdk8s-automation

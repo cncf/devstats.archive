@@ -25,7 +25,7 @@ with topu as (
         'k8s-%', '%-bot', '%-robot', 'bot-%', 'robot-%', '%[bot]%', '%[robot]%', '%-jenkins',
         '%-ci%bot', '%-testing', 'codecov-%', '%clabot%', '%cla-bot%', '%-gerrit', '%-bot-%', 
         '%envoy-filter-example%', 'github-action-benchmark', 'knative-automation', 'covbot',
-        'cdk8s-automation', 'github-action-benchmark', 'goreleaserbot'
+        'cdk8s-automation', 'github-action-benchmark', 'goreleaserbot', 'facebook-github-whois-bot-0'
     ])
     and aa.actor_id is null
 ), others as (
