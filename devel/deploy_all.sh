@@ -474,10 +474,19 @@ do
     PROJ=knative             PROJDB=knative        PROJREPO="knative/serving"                 ORGNAME=Knative           PORT=3122 ICON=knative        GRAFSUFF=knative        GA="UA-145264316-83" ./devel/deploy_proj.sh || exit 41
   elif [ "$proj" = "fabedge" ]
   then
-    PROJ=fabedge             PROJDB=fabedge        PROJREPO="FabEdge/fabedge"                 ORGNAME=fabEdge           PORT=3123 ICON=fabedge        GRAFSUFF=fabedge        GA="UA-145264316-84" ./devel/deploy_proj.sh || exit 42
+    PROJ=fabedge             PROJDB=fabedge        PROJREPO="FabEdge/fabedge"                 ORGNAME=FabEdge           PORT=3123 ICON=fabedge        GRAFSUFF=fabedge        GA="UA-145264316-84" ./devel/deploy_proj.sh || exit 42
   elif [ "$proj" = "confidentialcontainers" ]
   then
     PROJ=confidentialcontainers PROJDB=confidentialcontainers PROJREPO="confidential-containers/operator" ORGNAME='Confidential Containers' PORT=3124 ICON=confidentialcontainers GRAFSUFF=confidentialcontainers GA="UA-145264316-85" ./devel/deploy_proj.sh || exit 43
+  elif [ "$proj" = "openfunction" ]
+  then
+    PROJ=openfunction        PROJDB=openfunction   PROJREPO="OpenFunction/OpenFunction"       ORGNAME=OpenFunction      PORT=3125 ICON=openfunction   GRAFSUFF=openfunction   GA="UA-145264316-86" ./devel/deploy_proj.sh || exit 44
+  elif [ "$proj" = "teller" ]
+  then
+    PROJ=teller              PROJDB=teller         PROJREPO="SpectralOps/teller"              ORGNAME=Teller            PORT=3126 ICON=teller         GRAFSUFF=teller         GA="UA-145264316-87" ./devel/deploy_proj.sh || exit 45
+  elif [ "$proj" = "sealer" ]
+  then
+    PROJ=sealer              PROJDB=sealer         PROJREPO="alibaba/sealer"                  ORGNAME=sealer            PORT=3127 ICON=sealer         GRAFSUFF=sealer         GA="UA-145264316-88" ./devel/deploy_proj.sh || exit 46
   elif [ "$proj" = "opencontainers" ]
   then
     PROJ=opencontainers      PROJDB=opencontainers PROJREPO="opencontainers/runc"             ORGNAME=OCI               PORT=3220 ICON="-"            GRAFSUFF=opencontainers GA="UA-108085315-19" ./devel/deploy_proj.sh || exit 32
