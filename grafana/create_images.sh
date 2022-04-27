@@ -136,6 +136,11 @@ do
     cp "$HOME/dev/cncf/artwork/projects/oras/horizontal/color/oras-horizontal-color.svg" "grafana/img/$suff.svg" || exit 25
     convert "$HOME/dev/cncf/artwork/projects/oras/horizontal/color/oras-horizontal-color.png" -resize 32x32 "grafana/img/${suff}32.png" || exit 24
     continue
+  elif [ "$icon" = "fabedge" ]
+  then
+    cp "$HOME/dev/cncf/artwork/projects/fabedge/icon/color/fabedge-color.svg" "grafana/img/$suff.svg" || exit 21
+    convert "$HOME/dev/cncf/artwork/projects/fabedge/icon/color/fabedge-color.png" -resize 32x32 "grafana/img/${suff}32.png" || exit 20
+    continue
   fi
   cp "$HOME/dev/$iconorg/artwork/$path/icon/$icontype/$icon$dash$mid-$icontype.svg" "grafana/img/$suff.svg" || exit 2
   convert "$HOME/dev/$iconorg/artwork/$path/icon/$icontype/$icon$dash$mid-$icontype.png" -resize 32x32 "grafana/img/${suff}32.png" || exit 3

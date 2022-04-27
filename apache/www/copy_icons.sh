@@ -130,6 +130,11 @@ do
     convert "$HOME/dev/cncf/artwork/projects/oras/horizontal/color/oras-horizontal-color.png" -resize 80x80 "/var/www/html/img/$proj-icon-color.png" || exit 26
     cp "$HOME/dev/cncf/artwork/projects/oras/horizontal/color/oras-horizontal-color.svg" "/var/www/html/img/$proj-icon-color.svg" || exit 27
     continue
+  elif [ "$icon" = "fabedge" ]
+  then
+    convert "$HOME/dev/cncf/artwork/projects/fabedge/icon/color/fabedge-color.png" -resize 80x80 "/var/www/html/img/$proj-icon-color.png" || exit 22
+    cp "$HOME/dev/cncf/artwork/projects/fabedge/icon/color/fabedge-color.svg" "/var/www/html/img/$proj-icon-color.svg" || exit 23
+    continue
   fi
   convert "$HOME/dev/$iconorg/artwork/$path/icon/$icontype/${icon}${dash}$mid-$icontype.png" -resize 80x80 "/var/www/html/img/$proj-icon-color.png" || exit 2
   cp "$HOME/dev/$iconorg/artwork/$path/icon/$icontype/${icon}${dash}$mid-$icontype.svg" "/var/www/html/img/$proj-icon-color.svg" || exit 3
