@@ -1297,6 +1297,37 @@ where
   org_login in ('FabEdge')
 ;
 
+-- OpenFunction
+update
+  gha_repos
+set
+  repo_group = 'OpenFunction'
+where
+  org_login in ('OpenFunction')
+;
+
+-- Teller
+update
+  gha_repos
+set
+  repo_group = 'Teller'
+where
+  name in (
+    'SpectralOps/teller',
+    'SpectralOps/helm-teller',
+    'SpectralOps/setup-teller-action'
+  )
+;
+
+-- sealer
+update
+  gha_repos
+set
+  repo_group = 'sealer'
+where
+  name in ('alibaba/sealer')
+;
+
 -- Confidential Containers
 update
   gha_repos
