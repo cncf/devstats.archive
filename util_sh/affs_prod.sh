@@ -29,7 +29,7 @@ GHA2DB_RECENT_RANGE="4 hours" GHA2DB_TMOFFSET="-4" devstats
 ONLY="inclavarecontainers superedge cilium dapr openelb openclustermanagement vscodek8stools nocalhost kubearmor" ./devel/all_affs.sh || exit 9
 GHA2DB_RECENT_RANGE="4 hours" GHA2DB_TMOFFSET="-4" devstats
 
-ONLY="k8up kubers devfile knative fabedge confidentialcontainers" ./devel/all_affs.sh || exit 10
+ONLY="k8up kubers devfile knative fabedge confidentialcontainers openfunction teller sealer" ./devel/all_affs.sh || exit 10
 GHA2DB_RECENT_RANGE="4 hours" GHA2DB_TMOFFSET="-4" devstats
 
 ONLY="crio networkservicemesh openebs opentelemetry thanos flux intoto strimzi kubevirt longhorn chubaofs keda" ./devel/all_affs.sh || exit 11
