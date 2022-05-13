@@ -36,12 +36,12 @@ fi
 if [ ! -z "$SKIP_IMP_AFFS" ]
 then
   rval=$(((RANDOM%100)+1))
-  if [ "$rval" -gt "$SKIP_IMP_AFFS" ]
+  if [ "$SKIP_IMP_AFFS" -gt "$rval" ]
   then
-    echo "Random value: $rval > $SKIP_IMP_AFFS, skipping importing affiliations"
+    echo "Random value: $rval < $SKIP_IMP_AFFS, skipping importing affiliations"
     export SKIP_IMP_AFFS=1
   else
-    echo "Random value: $rval <= $SKIP_IMP_AFFS, importing"
+    echo "Random value: $rval >= $SKIP_IMP_AFFS, importing"
     export SKIP_IMP_AFFS=''
   fi
 fi
@@ -53,12 +53,12 @@ fi
 if [ ! -z "$SKIP_UPD_AFFS" ]
 then
   rval=$(((RANDOM%100)+1))
-  if [ "$rval" -gt "$SKIP_UPD_AFFS" ]
+  if [ "$SKIP_UPD_AFFS" -gt "$rval" ]
   then
-    echo "Random value: $rval > $SKIP_UPD_AFFS, skipping TSDB regenerate (company related)"
+    echo "Random value: $rval < $SKIP_UPD_AFFS, skipping TSDB regenerate (company related)"
     export SKIP_UPD_AFFS=1
   else
-    echo "Random value: $rval <= $SKIP_UPD_AFFS, performing TSDB regenerate (company related)"
+    echo "Random value: $rval >= $SKIP_UPD_AFFS, performing TSDB regenerate (company related)"
     export SKIP_UPD_AFFS=''
   fi
 fi
