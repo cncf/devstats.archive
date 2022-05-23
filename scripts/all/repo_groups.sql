@@ -41,13 +41,13 @@ where
 ;
 
 -- OpenTracing
-update
-  gha_repos
-set
-  repo_group = 'OpenTracing'
-where
-  org_login = 'opentracing'
-;
+-- update
+--   gha_repos
+-- set
+--  repo_group = 'OpenTracing'
+-- where
+--  org_login = 'opentracing'
+-- ;
 
 -- Fluentd
 update
@@ -410,7 +410,7 @@ update
 set
   repo_group = 'OpenTelemetry'
 where
-  org_login in ('open-telemetry')
+  org_login in ('open-telemetry', 'opentracing')
 ;
 
 -- Thanos
