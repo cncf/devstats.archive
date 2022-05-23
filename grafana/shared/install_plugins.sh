@@ -37,7 +37,7 @@ install_plugin btplc-trend-box-panel || exit 13
 install_plugin grafana-clock-panel || exit 14
 install_plugin farski-blendstat-panel || exit 15
 install_plugin yesoreyeram-boomtable-panel || exit 16
-install_plugin digrich-bubblechart-panel || exit 17
+# install_plugin digrich-bubblechart-panel || exit 17
 install_plugin neocat-cal-heatmap-panel || exit 18
 install_plugin petrslavotinek-carpetplot-panel || exit 19
 echo 'Plugins installed'
