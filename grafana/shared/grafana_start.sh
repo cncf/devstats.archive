@@ -1,5 +1,7 @@
 #!/bin/bash
 # DO_CLEANUP=1 - ONLY when using non-shared, volatile grafana image (cleanups all but current project data files)
+# Note that /grafana is now shared between all 130+ grafana instances.
+SHARED_GRAFANA=1
 if ( [ -z "$ICON" ] || [ -z "$ORGNAME" ] || [ -z "$PG_HOST" ] || [ -z "$PG_PORT" ] || [ -z "$PG_PASS" ] || [ -z "$PG_DB" ] || [ -z "$GF_SECURITY_ADMIN_USER" ] || [ -z "$GF_SECURITY_ADMIN_PASSWORD" ] || [ -z "$PROJ" ] )
 then
   echo "$0: you need to set PG_HOST=..., PG_PORT=..., PG_PASS=..., PG_DB=..., GF_SECURITY_ADMIN_USER=..., GF_SECURITY_ADMIN_PASSWORD=..., ICON=..., ORGNAME=... and PROJ=..."
@@ -100,14 +102,32 @@ fi
 # Set organization name and home dashboard
 echo 'Provisioning other preferences'
 cfile="grafana/shared/update_sqlite.sql"
+if [ ! -z "${SHARED_GRAFANA}" ]
+then
+  cp "${cfile}" /update_sqlite.sql
+  cfile="/update_sqlite.sql"
+fi
 MODE=ss FROM='{{org}}' TO="${ORGNAME}" replacer "$cfile" || exit 22
 sqlite3 -echo -header -csv /var/lib/grafana/grafana.db < "$cfile" || exit 9
+if [ ! -z "${SHARED_GRAFANA}" ]
+then
+  rm -f "${cfile}"
+fi
 
 # Optional script that may fail and can be ignored (to handle incompatible grafana versions)
 cfile="grafana/shared/update_sqlite_optional.sql"
+if [ ! -z "${SHARED_GRAFANA}" ]
+then
+  cp "${cfile}" /update_sqlite_optional.sql
+  cfile="/update_sqlite_optional.sql"
+fi
 MODE=ss FROM='{{org}}' TO="${ORGNAME}" replacer "$cfile"
 echo "Next command can fail, this is optional"
 sqlite3 -echo -header -csv /var/lib/grafana/grafana.db < "$cfile"
+if [ ! -z "${SHARED_GRAFANA}" ]
+then
+  rm -f "${cfile}"
+fi
 
 # Per project specific grafana scripts
 if [ -f "grafana/${PROJ}/custom_sqlite.sql" ]
@@ -119,7 +139,7 @@ then
 fi
 
 # Cleanup unneeded data (when deployed on volatile, non-shared image)
-if [ ! -z "$DO_CLEANUP" ]
+if ( [ ! -z "${DO_CLEANUP}" ] && [ -z "${SHARED_GRAFANA}" ] )
 then
   for f in /grafana/*
   do
