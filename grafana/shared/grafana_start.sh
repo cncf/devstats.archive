@@ -1,7 +1,7 @@
 #!/bin/bash
 # DO_CLEANUP=1 - ONLY when using non-shared, volatile grafana image (cleanups all but current project data files)
 # Note that /grafana is now shared between all 130+ grafana instances.
-SHARED_GRAFANA=1
+export SHARED_GRAFANA=1
 if ( [ -z "$ICON" ] || [ -z "$ORGNAME" ] || [ -z "$PG_HOST" ] || [ -z "$PG_PORT" ] || [ -z "$PG_PASS" ] || [ -z "$PG_DB" ] || [ -z "$GF_SECURITY_ADMIN_USER" ] || [ -z "$GF_SECURITY_ADMIN_PASSWORD" ] || [ -z "$PROJ" ] )
 then
   echo "$0: you need to set PG_HOST=..., PG_PORT=..., PG_PASS=..., PG_DB=..., GF_SECURITY_ADMIN_USER=..., GF_SECURITY_ADMIN_PASSWORD=..., ICON=..., ORGNAME=... and PROJ=..."
