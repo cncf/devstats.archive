@@ -42,20 +42,20 @@ cp grafana/img/*.svg /usr/share/grafana/public/img/projects/ || exit 26
 cfile="/etc/grafana/grafana.ini"
 cp "$cfile" "${cfile}.orig" || exit 27
 cp ./grafana/shared/grafana.ini.example "$cfile" || exit 16
-MODE=ss FROM='{{project}}' TO="$PROJ" replacer "$cfile" || exit 17
-MODE=ss FROM='{{url}}' TO="$host" replacer "$cfile" || exit 18
-MODE=ss FROM='{{ga}}' TO="$ga" replacer "$cfile" || exit 19
-MODE=ss FROM='{{org}}' TO="$ORGNAME" replacer "$cfile" || exit 20
+MODE=ss FROM='{{project}}' TO="$PROJ" /grafana/replacer "$cfile" || exit 17
+MODE=ss FROM='{{url}}' TO="$host" /grafana/replacer "$cfile" || exit 18
+MODE=ss FROM='{{ga}}' TO="$ga" /grafana/replacer "$cfile" || exit 19
+MODE=ss FROM='{{org}}' TO="$ORGNAME" /grafana/replacer "$cfile" || exit 20
 cp ./grafana/shared/robots.txt /usr/share/grafana/public/robots.txt || exit 29
 
 # Setup Grafana provisioning
 echo 'Updating provisioning yaml'
 cp ./grafana/shared/datasource.yaml.example /usr/share/grafana/conf/provisioning/datasources/datasources.yaml || exit 15
 cfile="/usr/share/grafana/conf/provisioning/datasources/datasources.yaml"
-MODE=ss FROM='{{url}}' TO="${PG_HOST}:${PG_PORT}" replacer "$cfile" || exit 2
-MODE=ss FROM='{{PG_PASS}}' TO="${PG_PASS}" replacer "$cfile" || exit 3
-MODE=ss FROM='{{PG_DB}}' TO="${PG_DB}" replacer "$cfile" || exit 4
-MODE=ss FROM='{{PG_USER}}' TO="ro_user" replacer "$cfile" || exit 5
+MODE=ss FROM='{{url}}' TO="${PG_HOST}:${PG_PORT}" /grafana/replacer "$cfile" || exit 2
+MODE=ss FROM='{{PG_PASS}}' TO="${PG_PASS}" /grafana/replacer "$cfile" || exit 3
+MODE=ss FROM='{{PG_DB}}' TO="${PG_DB}" /grafana/replacer "$cfile" || exit 4
+MODE=ss FROM='{{PG_USER}}' TO="ro_user" /grafana/replacer "$cfile" || exit 5
 
 echo 'Starting Grafana'
 cwd=`pwd`
@@ -94,9 +94,9 @@ done
 echo 'Provisioning dashboards'
 if [ -z "$PG_HOST_RW" ]
 then
-  sqlitedb /var/lib/grafana/grafana.db grafana/dashboards/$PROJ/*.json || exit 8
+  /grafana/sqlitedb /var/lib/grafana/grafana.db grafana/dashboards/$PROJ/*.json || exit 8
 else
-  PG_HOST="${PG_HOST_RW}" sqlitedb /var/lib/grafana/grafana.db grafana/dashboards/$PROJ/*.json || exit 28
+  PG_HOST="${PG_HOST_RW}" /grafana/sqlitedb /var/lib/grafana/grafana.db grafana/dashboards/$PROJ/*.json || exit 28
 fi
 
 # Set organization name and home dashboard
@@ -107,7 +107,7 @@ then
   cp "${cfile}" /update_sqlite.sql
   cfile="/update_sqlite.sql"
 fi
-MODE=ss FROM='{{org}}' TO="${ORGNAME}" replacer "$cfile" || exit 22
+MODE=ss FROM='{{org}}' TO="${ORGNAME}" /grafana/replacer "$cfile" || exit 22
 sqlite3 -echo -header -csv /var/lib/grafana/grafana.db < "$cfile" || exit 9
 if [ ! -z "${SHARED_GRAFANA}" ]
 then
@@ -121,7 +121,7 @@ then
   cp "${cfile}" /update_sqlite_optional.sql
   cfile="/update_sqlite_optional.sql"
 fi
-MODE=ss FROM='{{org}}' TO="${ORGNAME}" replacer "$cfile"
+MODE=ss FROM='{{org}}' TO="${ORGNAME}" /grafana/replacer "$cfile"
 echo "Next command can fail, this is optional"
 sqlite3 -echo -header -csv /var/lib/grafana/grafana.db < "$cfile"
 if [ ! -z "${SHARED_GRAFANA}" ]
@@ -134,7 +134,7 @@ if [ -f "grafana/${PROJ}/custom_sqlite.sql" ]
 then
   echo 'Provisioning other preferences (project specific)'
   cfile="grafana/${PROJ}/custom_sqlite.sql"
-  MODE=ss FROM='{{org}}' TO="${ORGNAME}" replacer "$cfile"
+  MODE=ss FROM='{{org}}' TO="${ORGNAME}" /grafana/replacer "$cfile"
   sqlite3 -echo -header -csv /var/lib/grafana/grafana.db < "$cfile" || exit 23
 fi
 
