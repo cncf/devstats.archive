@@ -1,8 +1,14 @@
 #!/bin/bash
+# DO_CLEANUP=1 - ONLY when using non-shared, volatile grafana image (cleanups all but current project data files)
 if ( [ -z "$ICON" ] || [ -z "$ORGNAME" ] || [ -z "$PG_HOST" ] || [ -z "$PG_PORT" ] || [ -z "$PG_PASS" ] || [ -z "$PG_DB" ] || [ -z "$GF_SECURITY_ADMIN_USER" ] || [ -z "$GF_SECURITY_ADMIN_PASSWORD" ] || [ -z "$PROJ" ] )
 then
   echo "$0: you need to set PG_HOST=..., PG_PORT=..., PG_PASS=..., PG_DB=..., GF_SECURITY_ADMIN_USER=..., GF_SECURITY_ADMIN_PASSWORD=..., ICON=..., ORGNAME=... and PROJ=..."
   exit 1
+fi
+
+if ( [ "$PROJ" = "cncf" ] || [ "$PROJ" = "all" ] )
+then
+  /usr/bin/install_plugins.sh || echo "Failed installing plugins, proceeding anyway..."
 fi
 
 # Patch Grafana per our project
@@ -110,6 +116,32 @@ then
   cfile="grafana/${PROJ}/custom_sqlite.sql"
   MODE=ss FROM='{{org}}' TO="${ORGNAME}" replacer "$cfile"
   sqlite3 -echo -header -csv /var/lib/grafana/grafana.db < "$cfile" || exit 23
+fi
+
+# Cleanup unneeded data (when deployed on volatile, non-shared image)
+if [ ! -z "$DO_CLEANUP" ]
+then
+  for f in /grafana/*
+  do
+    if ( [ "$f" = "/grafana/dashboards" ] || [ "$f" = "/grafana/shared" ] || [ "$f" = "/grafana/img" ] || [ "$f" = "/grafana/${PROJ}" ] )
+    then
+      echo "Skipping $f"
+      continue
+    fi
+    if [ -d "$f" ]
+    then
+      rm -f $f/*
+    fi
+  done
+  for f in /grafana/dashboards/*
+  do
+    if [ "$f" = "/grafana/dashboards/${PROJ}" ]
+    then
+      echo "Skipping $f"
+      continue
+    fi
+    rm -rf $f
+  done
 fi
 
 # Expose final grafana.db file
