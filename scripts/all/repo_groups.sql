@@ -1328,6 +1328,70 @@ where
   name in ('alibaba/sealer')
 ;
 
+-- Clusterpedia
+update
+  gha_repos
+set
+  repo_group = 'Clusterpedia'
+where
+  org_login in ('clusterpedia-io')
+;
+
+-- OpenCost
+update
+  gha_repos
+set
+  repo_group = 'OpenCost'
+where
+  org_login in ('kubecost')
+;
+
+-- Aeraki Mesh
+update
+  gha_repos
+set
+  repo_group = 'Aeraki Mesh'
+where
+  org_login in ('aeraki-mesh', 'aeraki-framework')
+;
+
+-- Curve
+update
+  gha_repos
+set
+  repo_group = 'Curve'
+where
+  org_login in ('opencurve')
+;
+
+-- OpenFeature
+update
+  gha_repos
+set
+  repo_group = 'OpenFeature'
+where
+  org_login in ('open-feature', 'openfeatureflags')
+;
+
+-- kubewarden
+update
+  gha_repos
+set
+  repo_group = 'kubewarden'
+where
+  org_login in ('kubewarden', 'chimera-kube')
+;
+
+-- DevStream
+update
+  gha_repos
+set
+  repo_group = 'DevStream'
+where
+  org_login in ('devstream-io')
+  or name in ('marico-dev/stream', 'marico-dev/OpenStream')
+;
+
 -- Confidential Containers
 update
   gha_repos
