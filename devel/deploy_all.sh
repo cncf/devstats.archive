@@ -487,6 +487,27 @@ do
   elif [ "$proj" = "sealer" ]
   then
     PROJ=sealer              PROJDB=sealer         PROJREPO="alibaba/sealer"                  ORGNAME=sealer            PORT=3127 ICON=sealer         GRAFSUFF=sealer         GA="UA-145264316-88" ./devel/deploy_proj.sh || exit 46
+  elif [ "$proj" = "clusterpedia" ]
+  then
+    PROJ=clusterpedia        PROJDB=clusterpedia   PROJREPO="clusterpedia-io/clusterpedia"    ORGNAME=Clusterpedia      PORT=3128 ICON=clusterpedia   GRAFSUFF=clusterpedia   GA="UA-145264316-89" ./devel/deploy_proj.sh || exit 47
+  elif [ "$proj" = "opencost" ]
+  then
+    PROJ=opencost            PROJDB=opencost       PROJREPO="kubecost/opencost"               ORGNAME=OpenCost          PORT=3129 ICON=opencost       GRAFSUFF=opencost       GA="UA-145264316-90" ./devel/deploy_proj.sh || exit 48
+  elif [ "$proj" = "aerakimesh" ]
+  then
+    PROJ=aerakimesh          PROJDB=aerakimesh     PROJREPO="aeraki-mesh/aeraki"              ORGNAME='Aeraki Mesh'     PORT=3130 ICON=aerakimesh     GRAFSUFF=aerakimesh     GA="UA-145264316-91" ./devel/deploy_proj.sh || exit 49
+  elif [ "$proj" = "curve" ]
+  then
+    PROJ=curve               PROJDB=curve          PROJREPO="opencurve/curve"                 ORGNAME=Curve             PORT=3131 ICON=curve          GRAFSUFF=curve          GA="UA-145264316-92" ./devel/deploy_proj.sh || exit 50
+  elif [ "$proj" = "openfeature" ]
+  then
+    PROJ=openfeature         PROJDB=openfeature    PROJREPO="open-feature/spec"               ORGNAME=OpenFeature       PORT=3132 ICON=openfeature    GRAFSUFF=openfeature    GA="UA-145264316-93" ./devel/deploy_proj.sh || exit 51
+  elif [ "$proj" = "kubewarden" ]
+  then
+    PROJ=kubewarden          PROJDB=kubewarden     PROJREPO="kubewarden/kubewarden-controller" ORGNAME=kubewarden       PORT=3133 ICON=kubewarden     GRAFSUFF=kubewarden     GA="UA-145264316-94" ./devel/deploy_proj.sh || exit 52
+  elif [ "$proj" = "devstream" ]
+  then
+    PROJ=devstream           PROJDB=devstream      PROJREPO="devstream-io/devstream"          ORGNAME=DevStream         PORT=3134 ICON=devstream      GRAFSUFF=devstream      GA="UA-145264316-95" ./devel/deploy_proj.sh || exit 53
   elif [ "$proj" = "opencontainers" ]
   then
     PROJ=opencontainers      PROJDB=opencontainers PROJREPO="opencontainers/runc"             ORGNAME=OCI               PORT=3220 ICON="-"            GRAFSUFF=opencontainers GA="UA-108085315-19" ./devel/deploy_proj.sh || exit 32
