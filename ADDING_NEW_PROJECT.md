@@ -58,6 +58,12 @@ This file describes how to add new project on the test and production servers.
 - If added disabled project, remember to add it to `crontab -e` via `GHA2DB_PROJECTS_OVERRIDE="+new_disabled_project"`.
 - Also add in other devstats repositories, follow `cncf/devstats-helm:ADDING_NEW_PROJECTS.md`.
 - Update cncf/gitdm affiliations with [official project maintainers](https://docs.google.com/spreadsheets/d/1Pr8cyp8RLrNGx9WBAgQvBzUUmqyOv69R7QAFKhacJEM/edit#gid=262035321).
+- Create Grafana data for new project(s): `tar cf devstats-grafana.tar grafana/shared grafana/img/*.svg grafana/img/*.png grafana/*/change_title_and_icons.sh grafana/*/custom_sqlite.sql grafana/dashboards/*/*.json`.
+- SFTP it to devstats node: `sftp root@node-N`, `mput devstats-grafana.tar`. SSH into that node: `ssh root@node-N`, get static pod name: `k get po -n devstats-prod | grep static-prod`.
+- Copy new grafana data to that pod: `k cp devstats-grafana.tar -n devstats-prod devstats-static-prod-5779c5dd5d-2prpr:/devstats-grafana.tar`, shell into that pod: `k exec -itn devstats-prod devstats-static-prod-5779c5dd5d-2prpr -- bash`.
+- Untar that file: `tar xvf /devstats-grafana.tar`, `cd /grafana/`, `cp -v shared/* /usr/share/nginx/html/backups/grafana/shared/`, `cp -v img/* /usr/share/nginx/html/backups/grafana/img/`.
+- Per-project data: `` for f in prj1 prj2; do cp -Rv "$f/" "/usr/share/nginx/html/backups/grafana/$f"; cp -Rv "dashboards/$f/" "/usr/share/nginx/html/backups/grafana/dashboards/$f"; done ``.
+- Permissions: `chmod -R ugo+rwx /usr/share/nginx/html/backups/grafana/`, cleanup: `rm -rf devstats-grafana.tar /grafana/`. Also `rm devstats-grafana.tar` locally.
 
 # Updating artwork icons
 
