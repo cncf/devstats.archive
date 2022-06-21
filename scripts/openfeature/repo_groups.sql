@@ -29,7 +29,7 @@ where
 update gha_repos set repo_group = alias;
 
 update gha_repos
-set repo_group = 'OpenFeature', alias = 'openFeature'
+set repo_group = 'OpenFeature', alias = 'OpenFeature'
 where name in (
   'open-feature/spec',
   'openfeatureflags/spec'
