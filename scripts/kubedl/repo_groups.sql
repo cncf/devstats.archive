@@ -31,7 +31,8 @@ update gha_repos set repo_group = alias;
 update gha_repos
 set repo_group = 'KubeDL', alias = 'KubeDL'
 where name in (
-  'alibaba/kubedl'
+  'alibaba/kubedl',
+  'kubedl-io/kubedl'
 );
 
 select

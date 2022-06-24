@@ -1096,7 +1096,8 @@ update
 set
   repo_group = 'KubeDL'
 where
-  name in ('alibaba/kubedl')
+  org_login in ('kubedl-io')
+  or name in ('alibaba/kubedl')
 ;
 
 -- Krustlet
