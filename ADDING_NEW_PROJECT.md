@@ -64,7 +64,8 @@ This file describes how to add new project on the test and production servers.
 - Create Grafana data for new project(s): `tar cf devstats-grafana.tar grafana/shared grafana/img/*.svg grafana/img/*.png grafana/*/change_title_and_icons.sh grafana/*/custom_sqlite.sql grafana/dashboards/*/*.json`.
 - SFTP it to devstats node: `sftp root@node-N`, `mput devstats-grafana.tar`. SSH into that node: `ssh root@node-N`, get static pod name: `k get po -n devstats-prod | grep static-prod`.
 - Copy new grafana data to that pod: `k cp devstats-grafana.tar -n devstats-prod devstats-static-prod-5779c5dd5d-2prpr:/devstats-grafana.tar`, shell into that pod: `k exec -itn devstats-prod devstats-static-prod-5779c5dd5d-2prpr -- bash`.
-- Untar that file: `tar xvf /devstats-grafana.tar`, `cd /grafana/`, `cp -v shared/* /usr/share/nginx/html/backups/grafana/shared/`, `cp -v img/* /usr/share/nginx/html/backups/grafana/img/`.
+- Untar that file: `rm -rf /grafana`, `tar xvf /devstats-grafana.tar`, `cd /grafana/`, `cp -v shared/* /usr/share/nginx/html/backups/grafana/shared/`, `cp -v img/* /usr/share/nginx/html/backups/grafana/img/`.
+- Or all files at once: `rm -rf /usr/share/nginx/html/backups/grafana && mv /grafana /usr/share/nginx/html/backups/grafana && rm /devstats-grafana.tar`.
 - Per-project data: `` for f in prj1 prj2; do cp -Rv "$f/" "/usr/share/nginx/html/backups/grafana/$f"; cp -Rv "dashboards/$f/" "/usr/share/nginx/html/backups/grafana/dashboards/$f"; done ``.
 - Permissions: `chmod -R ugo+rwx /usr/share/nginx/html/backups/grafana/`, cleanup: `rm -rf devstats-grafana.tar /grafana/`. Also `rm devstats-grafana.tar` locally.
 - To get updated Grafana dashboards (saved using browser): `PROD=1 ONLY='clusterpedia opencost aerakimesh curve openfeature kubewarden devstream' ./devel/get_all_sqlite_jsons.sh`.
