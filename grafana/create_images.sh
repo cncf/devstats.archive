@@ -78,7 +78,7 @@ do
     icon="kube-rs"
   fi
   # TODO: remove when we have icons
-  if ( [ "$icon" = "openfunction" ] || [ "$icon" = "clusterpedia" ] || [ "$icon" = "opencost" ] || [ "$icon" = "aerakimesh" ] || [ "$icon" = "curve" ] || [ "$icon" = "openfeature" ] || [ "$icon" = "kubewarden" ] || [ "$icon" = "devstream" ] || [ "$icon" = "sealer" ] || [ "$icon" = "openelb" ] || [ "$icon" = "vscodek8stools" ] || [ "$icon" = "kubevip" ] || [ "$icon" = "cnigenie" ] || [ "$icon" = "istio" ] || [ "$icon" = "contrib" ] || [ "$icon" = "sam" ] || [ "$icon" = "azf" ] || [ "$icon" = "riff" ] || [ "$icon" = "fn" ] || [ "$icon" = "openwhisk" ] || [ "$icon" = "openfaas" ] || [ "$icon" = "cii" ] )
+  if ( [ "$icon" = "openfunction" ] || [ "$icon" = "clusterpedia" ] || [ "$icon" = "opencost" ] || [ "$icon" = "aerakimesh" ] || [ "$icon" = "curve" ] || [ "$icon" = "openfeature" ] || [ "$icon" = "kubewarden" ] || [ "$icon" = "sealer" ] || [ "$icon" = "openelb" ] || [ "$icon" = "vscodek8stools" ] || [ "$icon" = "kubevip" ] || [ "$icon" = "cnigenie" ] || [ "$icon" = "istio" ] || [ "$icon" = "contrib" ] || [ "$icon" = "sam" ] || [ "$icon" = "azf" ] || [ "$icon" = "riff" ] || [ "$icon" = "fn" ] || [ "$icon" = "openwhisk" ] || [ "$icon" = "openfaas" ] || [ "$icon" = "cii" ] )
   then
     icon="cncf"
   fi
