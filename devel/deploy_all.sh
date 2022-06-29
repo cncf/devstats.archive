@@ -405,7 +405,7 @@ do
     PROJ=servicemeshperformance PROJDB=servicemeshperformance PROJREPO="service-mesh-performance/service-mesh-performance" ORGNAME='Service Mesh Performance' PORT=3099 ICON=servicemeshperformance GRAFSUFF=servicemeshperformance GA="UA-145264316-60" ./devel/deploy_proj.sh || exit 118
   elif [ "$proj" = "kubevela" ]
   then
-    PROJ=kubevela            PROJDB=kubevela        PROJREPO="oam-dev/kubevela"               ORGNAME=KubeVela          PORT=3100 ICON=kubevela       GRAFSUFF=kubevela       GA="UA-145264316-61" ./devel/deploy_proj.sh || exit 119
+    PROJ=kubevela            PROJDB=kubevela        PROJREPO="kubevela/kubevela"              ORGNAME=KubeVela          PORT=3100 ICON=kubevela       GRAFSUFF=kubevela       GA="UA-145264316-61" ./devel/deploy_proj.sh || exit 119
   elif [ "$proj" = "kubevip" ]
   then
     PROJ=kubevip             PROJDB=kubevip         PROJREPO="kube-vip/kube-vip"              ORGNAME=kube-vip          PORT=3101 ICON=kubevip        GRAFSUFF=kubevip        GA="UA-145264316-62" ./devel/deploy_proj.sh || exit 120
