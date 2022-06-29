@@ -31,7 +31,8 @@ update gha_repos set repo_group = alias;
 update gha_repos
 set repo_group = 'KubeVela', alias = 'KubeVela'
 where name in (
-  'oam-dev/kubevela'
+  'oam-dev/kubevela',
+  'kubevela/kubevela'
 );
 
 select
