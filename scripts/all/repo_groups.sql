@@ -1077,7 +1077,8 @@ update
 set
   repo_group = 'KubeVela'
 where
-  name ~ '(?i)oam-dev\/.*vela'
+  org_login in ('kubevela')
+  or name ~ '(?i)oam-dev\/.*vela'
 ;
 
 -- kube-vip
