@@ -2,7 +2,7 @@ with commits_data as (
   select r.repo_group as repo_group,
     c.sha,
     c.dup_actor_id as actor_id,
-    c.dup_actor_login as actor_login,
+    lower(c.dup_actor_login) as actor_login,
     coalesce(aa.company_name, '') as company
   from
     gha_repos r,
@@ -21,7 +21,7 @@ with commits_data as (
   union select r.repo_group as repo_group,
     c.sha,
     c.author_id as actor_id,
-    c.dup_author_login as actor_login,
+    lower(c.dup_author_login) as actor_login,
     coalesce(aa.company_name, '') as company
   from
     gha_repos r,
@@ -41,7 +41,7 @@ with commits_data as (
   union select r.repo_group as repo_group,
     c.sha,
     c.committer_id as actor_id,
-    c.dup_committer_login as actor_login,
+    lower(c.dup_committer_login) as actor_login,
     coalesce(aa.company_name, '') as company
   from
     gha_repos r,
@@ -80,7 +80,7 @@ from (
       when 'IssueCommentEvent' then 'issue_comments'
       when 'CommitCommentEvent' then 'commit_comments'
     end as metric,
-    e.dup_actor_login as author,
+    lower(e.dup_actor_login) as author,
     coalesce(aa.company_name, '') as company,
     count(e.id) as value
   from
@@ -100,10 +100,10 @@ from (
     and (lower(e.dup_actor_login) {{exclude_bots}})
   group by
     e.type,
-    e.dup_actor_login,
+    lower(e.dup_actor_login),
     aa.company_name
   union select 'contributions' as metric,
-    e.dup_actor_login as author,
+    lower(e.dup_actor_login) as author,
     coalesce(aa.company_name, '') as company,
     count(e.id) as value
   from
@@ -122,10 +122,10 @@ from (
     and {{period:e.created_at}}
     and (lower(e.dup_actor_login) {{exclude_bots}})
   group by
-    e.dup_actor_login,
+    lower(e.dup_actor_login),
     aa.company_name
   union select 'active_repos' as metric,
-    e.dup_actor_login as author,
+    lower(e.dup_actor_login) as author,
     coalesce(aa.company_name, '') as company,
     count(distinct e.repo_id) as value
   from
@@ -140,10 +140,10 @@ from (
     {{period:e.created_at}}
     and (lower(e.dup_actor_login) {{exclude_bots}})
   group by
-    e.dup_actor_login,
+    lower(e.dup_actor_login),
     aa.company_name
   union select 'comments' as metric,
-    dup_user_login as author,
+    lower(dup_user_login) as author,
     coalesce(aa.company_name, '') as company,
     count(distinct id) as value
   from
@@ -158,10 +158,10 @@ from (
     {{period:c.created_at}}
     and (lower(c.dup_user_login) {{exclude_bots}})
   group by
-    c.dup_user_login,
+    lower(c.dup_user_login),
     aa.company_name
   union select 'issues' as metric,
-    i.dup_user_login as author,
+    lower(i.dup_user_login) as author,
     coalesce(aa.company_name, '') as company,
     count(distinct i.id) as value
   from
@@ -177,10 +177,10 @@ from (
     and i.is_pull_request = false
     and (lower(i.dup_user_login) {{exclude_bots}})
   group by
-    i.dup_user_login,
+    lower(i.dup_user_login),
     aa.company_name
   union select 'prs' as metric,
-    i.dup_user_login as author,
+    lower(i.dup_user_login) as author,
     coalesce(aa.company_name, '') as company,
     count(distinct i.id) as value
   from
@@ -196,10 +196,10 @@ from (
     and i.is_pull_request = true
     and (lower(i.dup_user_login) {{exclude_bots}})
   group by
-    i.dup_user_login,
+    lower(i.dup_user_login),
     aa.company_name
   union select 'merged_prs' as metric,
-    i.dup_user_login as author,
+    lower(i.dup_user_login) as author,
     coalesce(aa.company_name, '') as company,
     count(distinct i.id) as value
   from
@@ -215,10 +215,10 @@ from (
     {{period:i.merged_at}}
     and (lower(i.dup_user_login) {{exclude_bots}})
   group by
-    i.dup_user_login,
+    lower(i.dup_user_login),
     aa.company_name
   union select 'events' as metric,
-    e.dup_actor_login as author,
+    lower(e.dup_actor_login) as author,
     coalesce(aa.company_name, '') as company,
     count(e.id) as value
   from
@@ -233,7 +233,7 @@ from (
     {{period:e.created_at}}
     and (lower(e.dup_actor_login) {{exclude_bots}})
   group by
-    e.dup_actor_login,
+    lower(e.dup_actor_login),
     aa.company_name
   ) sub
 /*where
@@ -284,7 +284,7 @@ from (
   from (
     select r.repo_group as repo_group,
       e.type,
-      e.dup_actor_login as author,
+      lower(e.dup_actor_login) as author,
       coalesce(aa.company_name, '') as company,
       e.id
     from
@@ -320,7 +320,7 @@ from (
     count(distinct sub.id) as value
   from (
     select r.repo_group as repo_group,
-      e.dup_actor_login as author,
+      lower(e.dup_actor_login) as author,
       coalesce(aa.company_name, '') as company,
       e.id
     from
@@ -355,7 +355,7 @@ from (
     count(distinct sub.repo_id) as value
   from (
     select r.repo_group as repo_group,
-      e.dup_actor_login as author,
+      lower(e.dup_actor_login) as author,
       coalesce(aa.company_name, '') as company,
       e.repo_id
     from
@@ -386,7 +386,7 @@ from (
     count(distinct sub.id) as value
   from (
     select r.repo_group as repo_group,
-      c.dup_user_login as author,
+      lower(c.dup_user_login) as author,
       coalesce(aa.company_name, '') as company,
       c.id
     from
@@ -420,7 +420,7 @@ from (
     count(distinct sub.id) as value
   from (
     select r.repo_group as repo_group,
-      i.dup_user_login as author,
+      lower(i.dup_user_login) as author,
       coalesce(aa.company_name, '') as company,
       i.id,
       i.is_pull_request
@@ -453,7 +453,7 @@ from (
     count(distinct sub.id) as value
   from (
     select r.repo_group as repo_group,
-      i.dup_user_login as author,
+      lower(i.dup_user_login) as author,
       coalesce(aa.company_name, '') as company,
       i.id
     from
@@ -485,7 +485,7 @@ from (
     count(distinct sub.id) as value
   from (
     select r.repo_group as repo_group,
-      e.dup_actor_login as author,
+      lower(e.dup_actor_login) as author,
       coalesce(aa.company_name, '') as company,
       e.id
     from
@@ -554,7 +554,7 @@ from (
       when 'CommitCommentEvent' then 'commit_comments'
     end as metric,
     a.country_name as country,
-    a.login as author,
+    lower(a.login) as author,
     coalesce(aa.company_name, '') as company,
     count(distinct e.id) as value
   from
@@ -578,11 +578,11 @@ from (
   group by
     e.type,
     a.country_name,
-    a.login,
+    lower(a.login),
     aa.company_name
   union select 'contributions' as metric,
     a.country_name as country,
-    a.login as author,
+    lower(a.login) as author,
     coalesce(aa.company_name, '') as company,
     count(distinct e.id) as value
   from
@@ -605,11 +605,11 @@ from (
     and a.country_name is not null
   group by
     a.country_name,
-    a.login,
+    lower(a.login),
     aa.company_name
   union select 'active_repos' as metric,
     a.country_name as country,
-    a.login as author,
+    lower(a.login) as author,
     coalesce(aa.company_name, '') as company,
     count(distinct e.repo_id) as value
   from
@@ -628,11 +628,11 @@ from (
     and a.country_name is not null
   group by
     a.country_name,
-    a.login,
+    lower(a.login),
     aa.company_name
   union select 'comments' as metric,
     a.country_name as country,
-    a.login as author,
+    lower(a.login) as author,
     coalesce(aa.company_name, '') as company,
     count(distinct c.id) as value
   from
@@ -651,11 +651,11 @@ from (
     and a.country_name is not null
   group by
     a.country_name,
-    a.login,
+    lower(a.login),
     aa.company_name
   union select 'issues' as metric,
     a.country_name as country,
-    a.login as author,
+    lower(a.login) as author,
     coalesce(aa.company_name, '') as company,
     count(distinct i.id) as value
   from
@@ -675,11 +675,11 @@ from (
     and a.country_name is not null
   group by
     a.country_name,
-    a.login,
+    lower(a.login),
     aa.company_name
   union select 'prs' as metric,
     a.country_name as country,
-    a.login as author,
+    lower(a.login) as author,
     coalesce(aa.company_name, '') as company,
     count(distinct pr.id) as value
   from
@@ -699,11 +699,11 @@ from (
     and a.country_name is not null
   group by
     a.country_name,
-    a.login,
+    lower(a.login),
     aa.company_name
   union select 'merged_prs' as metric,
     a.country_name as country,
-    a.login as author,
+    lower(a.login) as author,
     coalesce(aa.company_name, '') as company,
     count(distinct pr.id) as value
   from
@@ -723,11 +723,11 @@ from (
     and a.country_name is not null
   group by
     a.country_name,
-    a.login,
+    lower(a.login),
     aa.company_name
   union select 'events' as metric,
     a.country_name as country,
-    a.login as author,
+    lower(a.login) as author,
     coalesce(aa.company_name, '') as company,
     count(distinct e.id) as value
   from
@@ -746,7 +746,7 @@ from (
     and a.country_name is not null
   group by
     a.country_name,
-    a.login,
+    lower(a.login),
     aa.company_name
   ) sub
 /*where
@@ -804,7 +804,7 @@ from (
     select r.repo_group as repo_group,
       e.type,
       a.country_name as country,
-      a.login as author,
+      lower(a.login) as author,
       coalesce(aa.company_name, '') as company,
       e.id
     from
@@ -846,7 +846,7 @@ from (
   from (
     select r.repo_group as repo_group,
       a.country_name as country,
-      a.login as author,
+      lower(a.login) as author,
       coalesce(aa.company_name, '') as company,
       e.id
     from
@@ -887,7 +887,7 @@ from (
   from (
     select r.repo_group as repo_group,
       a.country_name as country,
-      a.login as author,
+      lower(a.login) as author,
       coalesce(aa.company_name, '') as company,
       e.repo_id
     from
@@ -924,7 +924,7 @@ from (
   from (
     select r.repo_group as repo_group,
       a.country_name as country,
-      a.login as author,
+      lower(a.login) as author,
       coalesce(aa.company_name, '') as company,
       c.id
     from
@@ -964,7 +964,7 @@ from (
   from (
     select r.repo_group as repo_group,
       a.country_name as country,
-      a.login as author,
+      lower(a.login) as author,
       coalesce(aa.company_name, '') as company,
       i.id,
       i.is_pull_request
@@ -1003,7 +1003,7 @@ from (
   from (
     select r.repo_group as repo_group,
       a.country_name as country,
-      a.login as author,
+      lower(a.login) as author,
       coalesce(aa.company_name, '') as company,
       i.id
     from
@@ -1041,7 +1041,7 @@ from (
   from (
     select r.repo_group as repo_group,
       a.country_name as country,
-      a.login as author,
+      lower(a.login) as author,
       coalesce(aa.company_name, '') as company,
       e.id
     from
