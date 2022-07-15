@@ -78,7 +78,7 @@ do
     icon="kube-rs"
   fi
   # TODO: remove when we have icons
-  if ( [ "$icon" = "openfunction" ] || [ "$icon" = "clusterpedia" ] || [ "$icon" = "opencost" ] || [ "$icon" = "aerakimesh" ] || [ "$icon" = "curve" ] || [ "$icon" = "openfeature" ] || [ "$icon" = "kubewarden" ] || [ "$icon" = "sealer" ] || [ "$icon" = "openelb" ] || [ "$icon" = "vscodek8stools" ] || [ "$icon" = "kubevip" ] || [ "$icon" = "cnigenie" ] || [ "$icon" = "istio" ] || [ "$icon" = "contrib" ] || [ "$icon" = "sam" ] || [ "$icon" = "azf" ] || [ "$icon" = "riff" ] || [ "$icon" = "fn" ] || [ "$icon" = "openwhisk" ] || [ "$icon" = "openfaas" ] || [ "$icon" = "cii" ] )
+  if ( [ "$icon" = "aerakimesh" ] || [ "$icon" = "openfeature" ] || [ "$icon" = "kubewarden" ] || [ "$icon" = "sealer" ] || [ "$icon" = "openelb" ] || [ "$icon" = "vscodek8stools" ] || [ "$icon" = "kubevip" ] || [ "$icon" = "cnigenie" ] || [ "$icon" = "istio" ] || [ "$icon" = "contrib" ] || [ "$icon" = "sam" ] || [ "$icon" = "azf" ] || [ "$icon" = "riff" ] || [ "$icon" = "fn" ] || [ "$icon" = "openwhisk" ] || [ "$icon" = "openfaas" ] || [ "$icon" = "cii" ] )
   then
     icon="cncf"
   fi
@@ -140,6 +140,16 @@ do
   then
     cp "$HOME/dev/cncf/artwork/projects/fabedge/icon/color/fabedge-color.svg" "grafana/img/$suff.svg" || exit 21
     convert "$HOME/dev/cncf/artwork/projects/fabedge/icon/color/fabedge-color.png" -resize 32x32 "grafana/img/${suff}32.png" || exit 20
+    continue
+  elif [ "$icon" = "opencost" ]
+  then
+    convert "$HOME/dev/$iconorg/artwork/$path/icon/$icontype/Opencost_Icon_Color.png" -resize 80x80 "/var/www/html/img/$proj-icon-color.png" || exit 2
+    cp "$HOME/dev/$iconorg/artwork/$path/icon/$icontype/Opencost_Icon_Color.svg" "/var/www/html/img/$proj-icon-color.svg" || exit 3
+    continue
+  elif [ "$icon" = "curve" ]
+  then
+    convert "$HOME/dev/$iconorg/artwork/$path/icon/$icontype/curve_icon_color.png" -resize 80x80 "/var/www/html/img/$proj-icon-color.png" || exit 2
+    cp "$HOME/dev/$iconorg/artwork/$path/icon/$icontype/curve_icon_color.svg" "/var/www/html/img/$proj-icon-color.svg" || exit 3
     continue
   fi
   cp "$HOME/dev/$iconorg/artwork/$path/icon/$icontype/$icon$dash$mid-$icontype.svg" "grafana/img/$suff.svg" || exit 2
