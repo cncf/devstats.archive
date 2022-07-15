@@ -31,4 +31,4 @@
 - Execute: `tar cfv img.tar grafana/img/ && sftp root@node-2`, `mput img.tar`. Once done on `node-2`: `rm -f img.tar`.
 - Execute on node-2: `k get po -A | grep devstats-static-test`, `k cp -n devstats-test img.tar devstats-static-test-5bcb77dbc5-sw72s:/img.tar`, `k exec -itn devstats-test devstats-static-test-5bcb77dbc5-sw72s -- bash`, `tar xvf img.tar && cp -v /grafana/img/* /usr/share/nginx/html/backups/grafana/img/ && rm /img.tar && exit`.
 - Execute on node-2: `k get po -A | grep devstats-static-prod`, `k cp -n devstats-prod img.tar devstats-static-prod-5b96c8b9f9-fk875:/img.tar`, `k exec -itn devstats-prod devstats-static-prod-5b96c8b9f9-fk875 -- bash`, `tar xvf img.tar && cp -v /grafana/img/* /usr/share/nginx/html/backups/grafana/img/ && rm /img.tar && exit`.
-- Execute on node-2: `rm -f img.tar`.
+- Execute on node-2: `rm -f img.tar; k delete po -n devstats-test devstats-static-test-5bcb77dbc5-sw72s; k delete po -n devstats-prod devstats-static-prod-5b96c8b9f9-fk875`.
