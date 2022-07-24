@@ -50,7 +50,7 @@ DevStats is written in [Go](https://go.dev), it uses [GitHub archives](https://w
 
 Under the hood, DevStats uses the following CNCF projects:
 - Helm (for deployment).
-- containerized (as a Kubernetes container runtime, CRI).
+- containerd (as a Kubernetes container runtime, CRI).
 - cert-manager (for HTTPS/SSL certificates).
 - OpenEBS (for local storage volumes support).
 - MetalLB (as a load balancer for bare metal servers).
