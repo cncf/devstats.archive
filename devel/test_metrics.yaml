@@ -29,3 +29,20 @@ metrics:
 #     merge_series: hdev
 #     env:
 #       GHA2DB_NCPUS?: 12
+  - name: Community stats
+    series_name_or_func: multi_row_multi_column
+    sql: watchers_by_alias
+    periods: w
+    merge_series: watchers
+    drop: swatchers
+  - name: Contributions chart
+    series_name_or_func: multi_row_multi_column
+    sqls: [committers, contributors]
+    periods: d,w,m
+    aggregate: 1,7
+    skip: d,w7,m7
+    merge_series: cs
+    drop: scs
+    project: '!kubernetes'
+    env:
+      GHA2DB_NCPUS?: 8
