@@ -1394,6 +1394,43 @@ where
   or name in ('marico-dev/stream', 'marico-dev/OpenStream')
 ;
 
+-- Hexa Policy Orchestrator
+update
+  gha_repos
+set
+  repo_group = 'Hexa Policy Orchestrator'
+where
+  org_login in ('hexa-org')
+;
+
+-- Konveyor
+update
+  gha_repos
+set
+  repo_group = 'Konveyor'
+where
+  org_login in ('konveyor')
+  or name in ('fusor/mig-operator')
+;
+
+-- Armada
+update
+  gha_repos
+set
+  repo_group = 'Armada'
+where
+  name in ('G-Research/armada')
+;
+
+-- External Secrets Operator
+update
+  gha_repos
+set
+  repo_group = 'External Secrets Operator'
+where
+  org_login in ('external-secrets')
+;
+
 -- Confidential Containers
 update
   gha_repos
