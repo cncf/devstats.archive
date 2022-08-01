@@ -47,7 +47,12 @@ where
     where
       org.login = '{{org}}'
     group by
-      org.id
+      org.id,
+      created_at
+    order by
+      created_at desc
+    limit
+      1
   )
 group by
   org_id, org, repo, rid

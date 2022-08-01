@@ -49,8 +49,12 @@ where
     where
       repo.name = '{{org_repo}}'
     group by
-      repo.id
-    limit 1
+      repo.id,
+      created_at
+    order by
+      created_at desc
+    limit
+      1
   )
 group by
   org, repo, rid, oid
