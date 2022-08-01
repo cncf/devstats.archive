@@ -508,6 +508,18 @@ do
   elif [ "$proj" = "devstream" ]
   then
     PROJ=devstream           PROJDB=devstream      PROJREPO="devstream-io/devstream"          ORGNAME=DevStream         PORT=3134 ICON=devstream      GRAFSUFF=devstream      GA="UA-145264316-95" ./devel/deploy_proj.sh || exit 53
+  elif [ "$proj" = "hexapolicyorchestrator" ]
+  then
+    PROJ=hexapolicyorchestrator PROJDB=hexapolicyorchestrator PROJREPO="hexa-org/policy-orchestrator" ORGNAME="Hexa Policy Orchestrator" PORT=3135 ICON=hexapolicyorchestrator GRAFSUFF=hexapolicyorchestrator GA="UA-145264316-96" ./devel/deploy_proj.sh || exit 54
+  elif [ "$proj" = "konveyor" ]
+  then
+    PROJ=konveyor            PROJDB=konveyor       PROJREPO="konveyor/mig-operator"           ORGNAME=Konveyor          PORT=3136 ICON=konveyor       GRAFSUFF=konveyor       GA="UA-145264316-97" ./devel/deploy_proj.sh || exit 55
+  elif [ "$proj" = "armada" ]
+  then
+    PROJ=armada              PROJDB=armada         PROJREPO="G-Research/armada"               ORGNAME=Armada            PORT=3137 ICON=armada         GRAFSUFF=armada         GA="UA-145264316-98" ./devel/deploy_proj.sh || exit 56
+  elif [ "$proj" = "externalsecretsoperator" ]
+  then
+    PROJ=externalsecretsoperator PROJDB=externalsecretsoperator PROJREPO="external-secrets/external-secrets" ORGNAME="External Secrets Operator" PORT=3138 ICON=externalsecretsoperator GRAFSUFF=externalsecretsoperator GA="UA-145264316-99" ./devel/deploy_proj.sh || exit 57
   elif [ "$proj" = "opencontainers" ]
   then
     PROJ=opencontainers      PROJDB=opencontainers PROJREPO="opencontainers/runc"             ORGNAME=OCI               PORT=3220 ICON="-"            GRAFSUFF=opencontainers GA="UA-108085315-19" ./devel/deploy_proj.sh || exit 32
