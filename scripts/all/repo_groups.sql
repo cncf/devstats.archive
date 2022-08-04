@@ -1108,6 +1108,7 @@ set
   repo_group = 'Krustlet'
 where
   name in ('deislabs/krustlet')
+  or org_login in ('krustlet')
 ;
 
 -- Krator

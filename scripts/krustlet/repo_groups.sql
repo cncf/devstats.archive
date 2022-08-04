@@ -31,7 +31,8 @@ update gha_repos set repo_group = alias;
 update gha_repos
 set repo_group = 'Krustlet', alias = 'Krustlet'
 where name in (
-  'deislabs/krustlet'
+  'deislabs/krustlet',
+  'krustlet/krustlet'
 );
 
 select

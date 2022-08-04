@@ -414,7 +414,7 @@ do
     PROJ=kubedl              PROJDB=kubedl          PROJREPO="kubedl-io/kubedl"               ORGNAME=KubeDL            PORT=3102 ICON=kubedl         GRAFSUFF=kubedl         GA="UA-145264316-63" ./devel/deploy_proj.sh || exit 121
   elif [ "$proj" = "krustlet" ]
   then
-    PROJ=krustlet            PROJDB=krustlet        PROJREPO="deislabs/krustlet"              ORGNAME=Krustlet          PORT=3103 ICON=krustlet       GRAFSUFF=krustlet       GA="UA-145264316-64" ./devel/deploy_proj.sh || exit 122
+    PROJ=krustlet            PROJDB=krustlet        PROJREPO="krustlet/krustlet"              ORGNAME=Krustlet          PORT=3103 ICON=krustlet       GRAFSUFF=krustlet       GA="UA-145264316-64" ./devel/deploy_proj.sh || exit 122
   elif [ "$proj" = "krator" ]
   then
     PROJ=krator              PROJDB=krator          PROJREPO="krator-rs/krator"               ORGNAME=Krator            PORT=3104 ICON=krator         GRAFSUFF=krator         GA="UA-145264316-65" ./devel/deploy_proj.sh || exit 123
