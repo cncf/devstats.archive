@@ -478,13 +478,13 @@ where
   or name in ('rancher/longhorn')
 ;
 
--- ChubaoFS
+-- CubeFS
 update
   gha_repos
 set
-  repo_group = 'ChubaoFS'
+  repo_group = 'CubeFS'
 where
-  org_login in ('chubaofs')
+  org_login in ('chubaofs', 'cubefs')
   or name in (
     'containerfs/containerfs.github.io', 'containerfilesystem/cfs', 'containerfilesystem/doc-zh'
   )

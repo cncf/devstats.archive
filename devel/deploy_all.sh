@@ -237,7 +237,7 @@ do
     PROJ=longhorn            PROJDB=longhorn       PROJREPO="longhorn/longhorn"               ORGNAME=Longhorn          PORT=3043 ICON=longhorn       GRAFSUFF=longhorn       GA="UA-145264316-4"  ./devel/deploy_proj.sh || exit 61
   elif [ "$proj" = "chubaofs" ]
   then
-    PROJ=chubaofs            PROJDB=chubaofs       PROJREPO="chubaofs/chubaofs"               ORGNAME=ChubaoFS          PORT=3044 ICON=chubaofs       GRAFSUFF=chubaofs       GA="UA-145264316-5"  ./devel/deploy_proj.sh || exit 62
+    PROJ=chubaofs            PROJDB=chubaofs       PROJREPO="cubefs/cubefs"                   ORGNAME=CubeFS            PORT=3044 ICON=chubaofs       GRAFSUFF=chubaofs       GA="UA-145264316-5"  ./devel/deploy_proj.sh || exit 62
   elif [ "$proj" = "keda" ]
   then
     PROJ=keda                PROJDB=keda           PROJREPO="kedacore/keda"                   ORGNAME=KEDA              PORT=3045 ICON=keda           GRAFSUFF=keda           GA="UA-145264316-6"  ./devel/deploy_proj.sh || exit 63

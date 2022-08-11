@@ -11,22 +11,22 @@ then
   for f in `find ${GRAFANA_DATA} -type f -exec grep -l "'Grafana - '" "{}" \; | sort | uniq`
   do
     ls -l "$f"
-    vim --not-a-term -c "%s/'Grafana - '/'ChubaoFS DevStats - '/g" -c 'wq!' "$f"
+    vim --not-a-term -c "%s/'Grafana - '/'CubeFS DevStats - '/g" -c 'wq!' "$f"
   done
   for f in `find ${GRAFANA_DATA} -type f -exec grep -l '"Grafana - "' "{}" \; | sort | uniq`
   do
     ls -l "$f"
-    vim --not-a-term -c '%s/"Grafana - "/"ChubaoFS DevStats - "/g' -c 'wq!' "$f"
+    vim --not-a-term -c '%s/"Grafana - "/"CubeFS DevStats - "/g' -c 'wq!' "$f"
   done
   for f in `find ${GRAFANA_DATA} -type f -exec grep -l "' - Grafana'" "{}" \; | sort | uniq`
   do
     ls -l "$f"
-    vim --not-a-term -c "%s/' - Grafana'/' - ChubaoFS DevStats'/g" -c 'wq!' "$f"
+    vim --not-a-term -c "%s/' - Grafana'/' - CubeFS DevStats'/g" -c 'wq!' "$f"
   done
   for f in `find ${GRAFANA_DATA} -type f -exec grep -l '" - Grafana"' "{}" \; | sort | uniq`
   do
     ls -l "$f"
-    vim --not-a-term -c '%s/" - Grafana"/" - ChubaoFS DevStats"/g' -c 'wq!' "$f"
+    vim --not-a-term -c '%s/" - Grafana"/" - CubeFS DevStats"/g' -c 'wq!' "$f"
   done
 fi
 cp -n ${GRAFANA_DATA}/public/img/grafana_icon.svg ${GRAFANA_DATA}/public/img/grafana_icon.svg.bak
