@@ -484,7 +484,7 @@ update
 set
   repo_group = 'CubeFS'
 where
-  org_login in ('chubaofs', 'cubefs')
+  org_login in ('chubaofs', 'cubefs', 'cubeFS')
   or name in (
     'containerfs/containerfs.github.io', 'containerfilesystem/cfs', 'containerfilesystem/doc-zh'
   )

@@ -32,6 +32,7 @@ update gha_repos
 set repo_group = 'ChubaoFS', alias = 'ChubaoFS'
 where name in (
   'cubefs/cubefs',
+  'cubeFS/cubefs',
   'chubaofs/chubaofs',
   'chubaofs/cfs',
   'containerfilesystem/cfs'
