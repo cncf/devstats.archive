@@ -65,6 +65,7 @@ This file describes how to add new project on the test and production servers.
 - SFTP it to devstats node: `sftp root@node-N`, `mput devstats-grafana.tar`. SSH into that node: `ssh root@node-N`, get static pod name: `k get po -n devstats-prod | grep static-prod`, `k get po -n devstats-test | grep static-test`.
 - Copy new grafana data to that pod: `k cp devstats-grafana.tar -n devstats-prod devstats-static-prod-5779c5dd5d-2prpr:/devstats-grafana.tar`, shell into that pod: `k exec -itn devstats-prod devstats-static-prod-5779c5dd5d-2prpr -- bash`.
 - Update shared grafana files: `` rm -rf /grafana && tar xvf /devstats-grafana.tar && cd /grafana/ && cp -v shared/* /usr/share/nginx/html/backups/grafana/shared/ && cp -v img/* /usr/share/nginx/html/backups/grafana/img/ && echo OK ``.
+- If you want to update all dashboards: `rm -rf /usr/share/nginx/html/backups/grafana/dashboards/ && cp -Rv dashboards/ /usr/share/nginx/html/backups/grafana/dashboards`.
 - Or all files at once: `rm -rf /usr/share/nginx/html/backups/grafana && mv /grafana /usr/share/nginx/html/backups/grafana && rm /devstats-grafana.tar`.
 - You need to do this for both `devstats-test` and `devstats-prod`.
 - Per-project data: `` for f in prj1 prj2; do cp -Rv "$f/" "/usr/share/nginx/html/backups/grafana/$f"; cp -Rv "dashboards/$f/" "/usr/share/nginx/html/backups/grafana/dashboards/$f"; done ``.
