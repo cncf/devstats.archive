@@ -13,7 +13,7 @@ fi
 > run.log
 GHA2DB_PROJECT=crossplane PG_DB=crossplane GHA2DB_LOCAL=1 structure 2>>errors.txt | tee -a run.log || exit 1
 ./devel/db.sh psql crossplane -c "create extension if not exists pgcrypto" || exit 1
-GHA2DB_PROJECT=crossplane PG_DB=crossplane GHA2DB_LOCAL=1 gha2db 2018-12-04 0 today now 'crossplane,crossplaneio' 2>>errors.txt | tee -a run.log || exit 2
+GHA2DB_PROJECT=crossplane PG_DB=crossplane GHA2DB_LOCAL=1 gha2db 2018-12-04 0 today now 'crossplane,crossplaneio,crossplane-contrib' 2>>errors.txt | tee -a run.log || exit 2
 GHA2DB_PROJECT=crossplane PG_DB=crossplane GHA2DB_LOCAL=1 GHA2DB_MGETC=y GHA2DB_SKIPTABLE=1 GHA2DB_INDEX=1 structure 2>>errors.txt | tee -a run.log || exit 3
 GHA2DB_PROJECT=crossplane PG_DB=crossplane ./shared/setup_repo_groups.sh 2>>errors.txt | tee -a run.log || exit 4
 GHA2DB_PROJECT=crossplane PG_DB=crossplane ./shared/import_affs.sh 2>>errors.txt | tee -a run.log || exit 5
