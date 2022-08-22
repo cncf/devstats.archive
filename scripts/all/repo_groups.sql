@@ -672,7 +672,8 @@ set
 where
   org_login in (
     'crossplane',
-    'crossplaneio'
+    'crossplaneio',
+    'crossplane-contrib'
   )
 ;
 
