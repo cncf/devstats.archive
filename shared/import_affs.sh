@@ -16,4 +16,5 @@ fi
 GHA2DB_LOCAL=1 runq scripts/clean_affiliations.sql || exit 1
 GHA2DB_LOCAL=1 import_affs || exit 2
 GHA2DB_LOCAL=1 runq util_sql/update_country_names.sql || exit 3
-GHA2DB_TAGS_YAML=metrics/$GHA2DB_PROJECT/tags_affs.yaml GHA2DB_LOCAL=1 tags
+GHA2DB_TAGS_YAML=metrics/$GHA2DB_PROJECT/tags_affs.yaml GHA2DB_LOCAL=1 tags || exit 4
+GHA2DB_COLUMNS_YAML=metrics/$GHA2DB_PROJECT/columns_affs.yaml GHA2DB_LOCAL=1 columns || exit 5
