@@ -71,8 +71,12 @@ do
   then
     icon="kube-rs"
   fi
+  if [ "$icon" = "hexapolicyorchestrator" ]
+  then
+    icon="hexa"
+  fi
   # TODO: remove when we have icons
-  if ( [ "$icon" = "hexapolicyorchestrator" ] || [ "$icon" = "konveyor" ] || [ "$icon" = "armada" ] || [ "$icon" = "externalsecretsoperator" ] || [ "$icon" = "aerakimesh" ] || [ "$icon" = "kubewarden" ] || [ "$icon" = "sealer" ] || [ "$icon" = "openelb" ] || [ "$icon" = "vscodek8stools" ] || [ "$icon" = "kubevip" ] || [ "$icon" = "cnigenie" ] || [ "$icon" = "istio" ] || [ "$icon" = "contrib" ] || [ "$icon" = "sam" ] || [ "$icon" = "azf" ] || [ "$icon" = "riff" ] || [ "$icon" = "fn" ] || [ "$icon" = "openwhisk" ] || [ "$icon" = "openfaas" ] || [ "$icon" = "cii" ] )
+  if ( [ "$icon" = "konveyor" ] || [ "$icon" = "armada" ] || [ "$icon" = "aerakimesh" ] || [ "$icon" = "kubewarden" ] || [ "$icon" = "sealer" ] || [ "$icon" = "openelb" ] || [ "$icon" = "vscodek8stools" ] || [ "$icon" = "kubevip" ] || [ "$icon" = "cnigenie" ] || [ "$icon" = "istio" ] || [ "$icon" = "contrib" ] || [ "$icon" = "sam" ] || [ "$icon" = "azf" ] || [ "$icon" = "riff" ] || [ "$icon" = "fn" ] || [ "$icon" = "openwhisk" ] || [ "$icon" = "openfaas" ] || [ "$icon" = "cii" ] )
   then
     icon="cncf"
   fi
@@ -144,6 +148,16 @@ do
   then
     convert "$HOME/dev/$iconorg/artwork/$path/icon/$icontype/curve_icon_color.png" -resize 80x80 "/var/www/html/img/$proj-icon-color.png" || exit 2
     cp "$HOME/dev/$iconorg/artwork/$path/icon/$icontype/curve_icon_color.svg" "/var/www/html/img/$proj-icon-color.svg" || exit 3
+    continue
+  elif [ "$icon" = "externalsecretsoperator" ]
+  then
+    convert "$HOME/dev/$iconorg/artwork/projects/external-secrets-operator/icon/$icontype/eso-icon-color.png" -resize 80x80 "/var/www/html/img/$proj-icon-color.png" || exit 2
+    cp "$HOME/dev/$iconorg/artwork/projects/external-secrets-operator/icon/$icontype/eso-icon-color.svg" "/var/www/html/img/$proj-icon-color.svg" || exit 3
+    continue
+  elif [ "$icon" = "hexa" ]
+  then
+    convert "$HOME/dev/$iconorg/artwork/$path/icon/${icon}${dash}$mid-$icontype.png" -resize 80x80 "/var/www/html/img/$proj-icon-color.png" || exit 2
+    cp "$HOME/dev/$iconorg/artwork/$path/icon/${icon}${dash}$mid-$icontype.svg" "/var/www/html/img/$proj-icon-color.svg" || exit 3
     continue
   fi
   convert "$HOME/dev/$iconorg/artwork/$path/icon/$icontype/${icon}${dash}$mid-$icontype.png" -resize 80x80 "/var/www/html/img/$proj-icon-color.png" || exit 2

@@ -77,8 +77,12 @@ do
   then
     icon="kube-rs"
   fi
+  if [ "$icon" = "hexapolicyorchestrator" ]
+  then
+    icon="hexa"
+  fi
   # TODO: remove when we have icons
-  if ( [ "$icon" = "hexapolicyorchestrator" ] || [ "$icon" = "konveyor" ] || [ "$icon" = "armada" ] || [ "$icon" = "externalsecretsoperator" ] || [ "$icon" = "aerakimesh" ] || [ "$icon" = "kubewarden" ] || [ "$icon" = "sealer" ] || [ "$icon" = "openelb" ] || [ "$icon" = "vscodek8stools" ] || [ "$icon" = "kubevip" ] || [ "$icon" = "cnigenie" ] || [ "$icon" = "istio" ] || [ "$icon" = "contrib" ] || [ "$icon" = "sam" ] || [ "$icon" = "azf" ] || [ "$icon" = "riff" ] || [ "$icon" = "fn" ] || [ "$icon" = "openwhisk" ] || [ "$icon" = "openfaas" ] || [ "$icon" = "cii" ] )
+  if ( [ "$icon" = "konveyor" ] || [ "$icon" = "armada" ] || [ "$icon" = "aerakimesh" ] || [ "$icon" = "kubewarden" ] || [ "$icon" = "sealer" ] || [ "$icon" = "openelb" ] || [ "$icon" = "vscodek8stools" ] || [ "$icon" = "kubevip" ] || [ "$icon" = "cnigenie" ] || [ "$icon" = "istio" ] || [ "$icon" = "contrib" ] || [ "$icon" = "sam" ] || [ "$icon" = "azf" ] || [ "$icon" = "riff" ] || [ "$icon" = "fn" ] || [ "$icon" = "openwhisk" ] || [ "$icon" = "openfaas" ] || [ "$icon" = "cii" ] )
   then
     icon="cncf"
   fi
@@ -150,6 +154,16 @@ do
   then
     cp "$HOME/dev/$iconorg/artwork/$path/icon/$icontype/curve_icon_color.svg" "grafana/img/$suff.svg" || exit 3
     convert "$HOME/dev/$iconorg/artwork/$path/icon/$icontype/curve_icon_color.png" -resize 32x32 "grafana/img/${suff}32.png" || exit 2
+    continue
+  elif [ "$icon" = "externalsecretsoperator" ]
+  then
+    cp "$HOME/dev/$iconorg/artwork/projects/external-secrets-operator/icon/$icontype/eso-icon-color.svg" "grafana/img/$suff.svg" || exit 3
+    convert "$HOME/dev/$iconorg/artwork/projects/external-secrets-operator/icon/$icontype/eso-icon-color.png" -resize 32x32 "grafana/img/${suff}32.png" || exit 2
+    continue
+  elif [ "$icon" = "hexa" ]
+  then
+    cp "$HOME/dev/$iconorg/artwork/$path/icon/$icon$dash$mid-$icontype.svg" "grafana/img/$suff.svg" || exit 2
+    convert "$HOME/dev/$iconorg/artwork/$path/icon/$icon$dash$mid-$icontype.png" -resize 32x32 "grafana/img/${suff}32.png" || exit 3
     continue
   fi
   cp "$HOME/dev/$iconorg/artwork/$path/icon/$icontype/$icon$dash$mid-$icontype.svg" "grafana/img/$suff.svg" || exit 2
