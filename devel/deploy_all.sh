@@ -520,6 +520,24 @@ do
   elif [ "$proj" = "externalsecretsoperator" ]
   then
     PROJ=externalsecretsoperator PROJDB=externalsecretsoperator PROJREPO="external-secrets/external-secrets" ORGNAME="External Secrets Operator" PORT=3138 ICON=externalsecretsoperator GRAFSUFF=externalsecretsoperator GA="UA-145264316-99" ./devel/deploy_proj.sh || exit 57
+  elif [ "$proj" = "serverlessdevs" ]
+  then
+         PROJ=serverlessdevs PROJDB=serverlessdevs PROJREPO="Serverless-Devs/Serverless-Devs" ORGNAME='Serverless Devs' PORT=3139 ICON=serverlessdevs GRAFSUFF=serverlessdevs GA="UA-145264316-100" ./devel/deploy_proj.sh || exit 141
+  elif [ "$proj" = "containerssh" ]
+  then
+         PROJ=containerssh   PROJDB=containerssh   PROJREPO="ContainerSSH/ContainerSSH"       ORGNAME=ContainerSSH      PORT=3140 ICON=containerssh   GRAFSUFF=containerssh   GA="UA-241436121-1" ./devel/deploy_proj.sh || exit 142
+  elif [ "$proj" = "openfga" ]
+  then
+         PROJ=openfga        PROJDB=openfga        PROJREPO="openfga/openfga"                 ORGNAME=OpenFGA           PORT=3141 ICON=openfga        GRAFSUFF=openfga        GA="UA-241436121-2" ./devel/deploy_proj.sh || exit 143
+  elif [ "$proj" = "kured" ]
+  then
+         PROJ=kured          PROJDB=kured          PROJREPO="weaveworks/kured"                ORGNAME=Kured             PORT=3142 ICON=kured          GRAFSUFF=kured          GA="UA-241436121-3" ./devel/deploy_proj.sh || exit 144
+  elif [ "$proj" = "carvel" ]
+  then
+         PROJ=carvel         PROJDB=carvel         PROJREPO="vmware-tanzu/carvel-kapp"        ORGNAME=Carvel            PORT=3143 ICON=carvel         GRAFSUFF=carvel         GA="UA-241436121-4" ./devel/deploy_proj.sh || exit 145
+  elif [ "$proj" = "lima" ]
+  then
+         PROJ=lima           PROJDB=lima           PROJREPO="lima-vm/lima"                    ORGNAME=Lima              PORT=3144 ICON=lima           GRAFSUFF=lima           GA="UA-241436121-5" ./devel/deploy_proj.sh || exit 146
   elif [ "$proj" = "opencontainers" ]
   then
     PROJ=opencontainers      PROJDB=opencontainers PROJREPO="opencontainers/runc"             ORGNAME=OCI               PORT=3220 ICON="-"            GRAFSUFF=opencontainers GA="UA-108085315-19" ./devel/deploy_proj.sh || exit 32
