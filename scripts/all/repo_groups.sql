@@ -1433,6 +1433,62 @@ where
   org_login in ('external-secrets')
 ;
 
+-- Serverless Devs
+update
+  gha_repos
+set
+  repo_group = 'Serverless Devs'
+where
+  org_login in ('Serverless-Devs', 'ServerlessTool')
+;
+
+-- ContainerSSH
+update
+  gha_repos
+set
+  repo_group = 'ContainerSSH'
+where
+  org_login in ('ContainerSSH')
+  or name in ('janoszen/ContainerSSH', 'janoszen/containerssh')
+;
+
+-- OpenFGA
+update
+  gha_repos
+set
+  repo_group = 'OpenFGA'
+where
+  org_login in ('openfga')
+;
+
+-- Kured
+update
+  gha_repos
+set
+  repo_group = 'Kured'
+where
+  name in ('weaveworks/kured')
+;
+
+-- Carvel
+update
+  gha_repos
+set
+  repo_group = 'Carvel'
+where
+  name ~ '(?i)^(vmware-tanzu\/.*carvel.*|k14s\/.*)$'
+;
+
+-- Lima
+update
+  gha_repos
+set
+  repo_group = 'Lima'
+where
+  org_login in ('lima-vm')
+  or name in ('AkihiroSuda/lima')
+;
+
 -- Confidential Containers
 update
   gha_repos
