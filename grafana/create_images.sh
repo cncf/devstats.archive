@@ -81,8 +81,12 @@ do
   then
     icon="hexa"
   fi
+  if [ "$icon" = "serverlessdevs" ]
+  then
+    icon="serverless-devs"
+  fi
   # TODO: remove when we have icons
-  if ( [ "$icon" = "serverlessdevs" ] || [ "$icon" = "containerssh" ] || [ "$icon" = "openfga" ] || [ "$icon" = "kured" ] || [ "$icon" = "carvel" ] || [ "$icon" = "lima" ] || [ "$icon" = "armada" ] || [ "$icon" = "aerakimesh" ] || [ "$icon" = "kubewarden" ] || [ "$icon" = "sealer" ] || [ "$icon" = "openelb" ] || [ "$icon" = "vscodek8stools" ] || [ "$icon" = "kubevip" ] || [ "$icon" = "cnigenie" ] || [ "$icon" = "istio" ] || [ "$icon" = "contrib" ] || [ "$icon" = "sam" ] || [ "$icon" = "azf" ] || [ "$icon" = "riff" ] || [ "$icon" = "fn" ] || [ "$icon" = "openwhisk" ] || [ "$icon" = "openfaas" ] || [ "$icon" = "cii" ] )
+  if ( [ "$icon" = "containerssh" ] || [ "$icon" = "openfga" ] || [ "$icon" = "kured" ] || [ "$icon" = "carvel" ] || [ "$icon" = "lima" ] || [ "$icon" = "armada" ] || [ "$icon" = "aerakimesh" ] || [ "$icon" = "kubewarden" ] || [ "$icon" = "sealer" ] || [ "$icon" = "openelb" ] || [ "$icon" = "vscodek8stools" ] || [ "$icon" = "kubevip" ] || [ "$icon" = "cnigenie" ] || [ "$icon" = "istio" ] || [ "$icon" = "contrib" ] || [ "$icon" = "sam" ] || [ "$icon" = "azf" ] || [ "$icon" = "riff" ] || [ "$icon" = "fn" ] || [ "$icon" = "openwhisk" ] || [ "$icon" = "openfaas" ] || [ "$icon" = "cii" ] )
   then
     icon="cncf"
   fi
@@ -92,6 +96,9 @@ do
   if ( [ "$path" = "devstats" ] || [ "$path" = "cncf" ] || [ "$path" = "gitopswg" ] )
   then
     path="other/$icon"
+  elif [ "$icon" = "brigade" ]
+  then
+    path="archived/$icon"
   elif [ "$iconorg" = "cncf" ]
   then
     path="projects/$icon"
