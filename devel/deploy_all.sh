@@ -531,7 +531,7 @@ do
          PROJ=openfga        PROJDB=openfga        PROJREPO="openfga/openfga"                 ORGNAME=OpenFGA           PORT=3141 ICON=openfga        GRAFSUFF=openfga        GA="UA-241436121-2" ./devel/deploy_proj.sh || exit 143
   elif [ "$proj" = "kured" ]
   then
-         PROJ=kured          PROJDB=kured          PROJREPO="weaveworks/kured"                ORGNAME=Kured             PORT=3142 ICON=kured          GRAFSUFF=kured          GA="UA-241436121-3" ./devel/deploy_proj.sh || exit 144
+         PROJ=kured          PROJDB=kured          PROJREPO="kubereboot/kured"                ORGNAME=Kured             PORT=3142 ICON=kured          GRAFSUFF=kured          GA="UA-241436121-3" ./devel/deploy_proj.sh || exit 144
   elif [ "$proj" = "carvel" ]
   then
          PROJ=carvel         PROJDB=carvel         PROJREPO="vmware-tanzu/carvel-kapp"        ORGNAME=Carvel            PORT=3143 ICON=carvel         GRAFSUFF=carvel         GA="UA-241436121-4" ./devel/deploy_proj.sh || exit 145

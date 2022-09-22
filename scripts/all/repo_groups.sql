@@ -1467,7 +1467,8 @@ update
 set
   repo_group = 'Kured'
 where
-  name in ('weaveworks/kured')
+  org_login in ('kubereboot')
+  or name in ('weaveworks/kured')
 ;
 
 -- Carvel

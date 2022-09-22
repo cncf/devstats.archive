@@ -31,7 +31,8 @@ update gha_repos set repo_group = alias;
 update gha_repos
 set repo_group = 'Kured', alias = 'Kured'
 where name in (
-  'weaveworks/kured'
+  'weaveworks/kured',
+  'kubereboot/kured'
 );
 
 select
