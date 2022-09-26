@@ -1,23 +1,22 @@
 ---
 metrics:
-  - name: Users stats
+  - name: Contributions chart
     series_name_or_func: multi_row_multi_column
-    sqls: [user_activity, user_activity_commits, user_activity_issues, user_activity_prs]
-    periods: d,w,m,q,y
-    aggregate: 1,7
-    skip: w7,m7,q7,y7
-    multi_value: true
-    merge_series: user_activity
-    drop: suser_activity
-    allow_fail: true
-    project: '!kubernetes'
-  - name: User reviews
-    series_name_or_func: multi_row_single_column
-    sql: reviews_per_user
-    periods: d,w,m,q,y
-    aggregate: 1,7
-    skip: w7,m7,q7,y7
-    multi_value: true
-    merge_series: user_reviews
-    drop: suser_reviews
-    allow_fail: true
+    sqls: [reviewers, approvers, committers, contributors]
+    periods: w,m
+    merge_series: cs
+    drop: scs
+    project: kubernetes
+    env:
+      GHA2DB_NCPUS?@d7: 4
+      GHA2DB_NCPUS?!d7: 10
+  - name: Contributions chart (repositories)
+    series_name_or_func: multi_row_multi_column
+    sqls: [reviewers_repos, approvers_repos, committers_repos, contributors_repos]
+    periods: w,m
+    merge_series: csr
+    drop: scsr
+    project: kubernetes
+    env:
+      GHA2DB_NCPUS?@d7: 4
+      GHA2DB_NCPUS?!d7: 10
