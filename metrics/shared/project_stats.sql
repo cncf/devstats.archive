@@ -68,7 +68,7 @@ from (
     gha_commits c
   where
     {{period:c.dup_created_at}}
-    and (lower(e.dup_author_login) {{exclude_bots}})
+    and (lower(c.dup_author_login) {{exclude_bots}})
     and c.author_id = a.id
   union select
     a.country_id
@@ -77,7 +77,7 @@ from (
     gha_commits c
   where
     {{period:c.dup_created_at}}
-    and (lower(e.dup_committer_login) {{exclude_bots}})
+    and (lower(c.dup_committer_login) {{exclude_bots}})
     and c.committer_id = a.id
 ) sub
 union select
@@ -113,7 +113,7 @@ from (
     {{period:c.dup_created_at}}
     and c.dup_repo_id = r.id
     and c.dup_repo_name = r.name
-    and (lower(e.dup_author_login) {{exclude_bots}})
+    and (lower(c.dup_author_login) {{exclude_bots}})
     and c.author_id = a.id
   union select
     a.country_id,
@@ -126,7 +126,7 @@ from (
     {{period:c.dup_created_at}}
     and c.dup_repo_id = r.id
     and c.dup_repo_name = r.name
-    and (lower(e.dup_committer_login) {{exclude_bots}})
+    and (lower(c.dup_committer_login) {{exclude_bots}})
     and c.committer_id = a.id
 ) sub
 where
