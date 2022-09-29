@@ -36,6 +36,104 @@ with commits_data as (
     and (lower(c.dup_committer_login) {{exclude_bots}})
 )
 select
+  'pstat,All' as repo_group,
+  'Projects/Repository groups' as name,
+  count(distinct repo_group) as value
+from
+  gha_repos
+where
+  repo_group is not null
+union select
+  'pstat,All' as repo_group,
+  'Countries' as name,
+  count(distinct sub.country_id) as value
+from (
+  select
+    a.country_id
+  from
+    gha_events e,
+    gha_actors a
+  where
+    {{period:e.created_at}}
+    and (lower(e.dup_actor_login) {{exclude_bots}})
+    and e.actor_id = a.id
+    and e.type in (
+      'PushEvent', 'PullRequestEvent', 'IssuesEvent', 'PullRequestReviewEvent',
+      'CommitCommentEvent', 'IssueCommentEvent', 'PullRequestReviewCommentEvent'
+    )
+  union select
+    a.country_id
+  from
+    gha_actors a,
+    gha_commits c
+  where
+    {{period:c.dup_created_at}}
+    and (lower(e.dup_author_login) {{exclude_bots}})
+    and c.author_id = a.id
+  union select
+    a.country_id
+  from
+    gha_actors a,
+    gha_commits c
+  where
+    {{period:c.dup_created_at}}
+    and (lower(e.dup_committer_login) {{exclude_bots}})
+    and c.committer_id = a.id
+) sub
+union select
+  'pstat,' || sub.repo_group as repo_group,
+  'Countries' as name,
+  count(distinct sub.country_id) as value
+from (
+  select
+    a.country_id,
+    r.repo_group
+  from
+    gha_events e,
+    gha_actors a,
+    gha_repos r
+  where
+    {{period:e.created_at}}
+    and e.repo_id = r.id
+    and e.dup_repo_name = r.name
+    and (lower(e.dup_actor_login) {{exclude_bots}})
+    and e.actor_id = a.id
+    and e.type in (
+      'PushEvent', 'PullRequestEvent', 'IssuesEvent', 'PullRequestReviewEvent',
+      'CommitCommentEvent', 'IssueCommentEvent', 'PullRequestReviewCommentEvent'
+    )
+  union select
+    a.country_id,
+    r.repo_group
+  from
+    gha_actors a,
+    gha_commits c,
+    gha_repos r
+  where
+    {{period:c.dup_created_at}}
+    and c.dup_repo_id = r.id
+    and c.dup_repo_name = r.name
+    and (lower(e.dup_author_login) {{exclude_bots}})
+    and c.author_id = a.id
+  union select
+    a.country_id,
+    r.repo_group
+  from
+    gha_actors a,
+    gha_commits c,
+    gha_repos r
+  where
+    {{period:c.dup_created_at}}
+    and c.dup_repo_id = r.id
+    and c.dup_repo_name = r.name
+    and (lower(e.dup_committer_login) {{exclude_bots}})
+    and c.committer_id = a.id
+) sub
+where
+  sub.repo_group is not null
+group by
+  sub.repo_group
+union select
   sub.repo_group,
   'Contributors' as name,
   count(distinct sub.actor) as value
