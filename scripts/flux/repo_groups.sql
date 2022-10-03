@@ -32,7 +32,8 @@ update gha_repos
 set repo_group = 'Flux', alias = 'Flux'
 where name in (
   'weaveworks/flux',
-  'fluxcd/flux'
+  'fluxcd/flux',
+  'fluxcd/flux2'
 );
 
 update gha_repos
