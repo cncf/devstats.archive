@@ -1490,6 +1490,15 @@ where
   or name in ('AkihiroSuda/lima')
 ;
 
+-- Istio
+update
+  gha_repos
+set
+  repo_group = 'Istio'
+where
+  org_login in ('istio')
+;
+
 -- Confidential Containers
 update
   gha_repos

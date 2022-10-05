@@ -35,7 +35,7 @@ GHA2DB_RECENT_RANGE="4 hours" GHA2DB_TMOFFSET="-4" devstats
 ONLY="aerakimesh curve openfeature kubewarden devstream hexapolicyorchestrator konveyor armada externalsecretsoperator serverlessdevs" ./devel/all_affs.sh || exit 11
 GHA2DB_RECENT_RANGE="4 hours" GHA2DB_TMOFFSET="-4" devstats
 
-ONLY="containerssh openfga kured carvel lima" ./devel/all_affs.sh || exit 12
+ONLY="containerssh openfga kured carvel lima istio" ./devel/all_affs.sh || exit 12
 GHA2DB_RECENT_RANGE="4 hours" GHA2DB_TMOFFSET="-4" devstats
 
 ONLY="crio networkservicemesh openebs opentelemetry thanos flux intoto strimzi kubevirt longhorn chubaofs keda" ./devel/all_affs.sh || exit 13
