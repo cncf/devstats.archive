@@ -538,15 +538,15 @@ do
   elif [ "$proj" = "lima" ]
   then
          PROJ=lima           PROJDB=lima           PROJREPO="lima-vm/lima"                    ORGNAME=Lima              PORT=3144 ICON=lima           GRAFSUFF=lima           GA="UA-241436121-5" ./devel/deploy_proj.sh || exit 146
+  elif [ "$proj" = "istio" ]
+  then
+    PROJ=istio               PROJDB=istio          PROJREPO="istio/istio"                     ORGNAME=Istio             PORT=3221 ICON=istio          GRAFSUFF=istio          GA="UA-241436121-6"  ./devel/deploy_proj.sh || exit 34
   elif [ "$proj" = "opencontainers" ]
   then
     PROJ=opencontainers      PROJDB=opencontainers PROJREPO="opencontainers/runc"             ORGNAME=OCI               PORT=3220 ICON="-"            GRAFSUFF=opencontainers GA="UA-108085315-19" ./devel/deploy_proj.sh || exit 32
   elif [ "$proj" = "cncf" ]
   then
     PROJ=cncf                PROJDB=cncf           PROJREPO="cncf/landscapeapp"               ORGNAME=CNCF              PORT=3255 ICON=cncf           GRAFSUFF=cncf           GA="UA-108085315-8"  ./devel/deploy_proj.sh || exit 33
-  elif [ "$proj" = "istio" ]
-  then
-    PROJ=istio               PROJDB=istio          PROJREPO="istio/istio"                     ORGNAME=Istio             PORT=3221 ICON=cncf           GRAFSUFF=istio          GA="-"               ./devel/deploy_proj.sh || exit 34
   elif [ "$proj" = "sam" ]
   then
     PROJ=sam                 PROJDB=sam            PROJREPO="awslabs/serverless-application-model" ORGNAME="AWS SAM"    PORT=3224 ICON=cncf           GRAFSUFF=sam            GA="-"               ./devel/deploy_proj.sh || exit 54
