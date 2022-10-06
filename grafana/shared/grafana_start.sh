@@ -94,6 +94,7 @@ done
 echo 'Provisioning dashboards'
 if [ -z "$PG_HOST_RW" ]
 then
+  ls -l grafana/dashboards/$PROJ/*.json
   /grafana/sqlitedb /var/lib/grafana/grafana.db grafana/dashboards/$PROJ/*.json || exit 8
 else
   PG_HOST="${PG_HOST_RW}" /grafana/sqlitedb /var/lib/grafana/grafana.db grafana/dashboards/$PROJ/*.json || exit 28
