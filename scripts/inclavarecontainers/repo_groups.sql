@@ -31,7 +31,8 @@ update gha_repos set repo_group = alias;
 update gha_repos
 set repo_group = 'Inclavare Containers', alias = 'Inclavare Containers'
 where name in (
-  'alibaba/inclavare-containers'
+  'alibaba/inclavare-containers',
+  'inclavare-containers/inclavare-containers'
 );
 
 select

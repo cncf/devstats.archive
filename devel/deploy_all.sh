@@ -435,7 +435,7 @@ do
     PROJ=karmada             PROJDB=karmada         PROJREPO="karmada-io/karmada"             ORGNAME=Karmada           PORT=3109 ICON=karmada        GRAFSUFF=karmada        GA="UA-145264316-70" ./devel/deploy_proj.sh || exit 128
   elif [ "$proj" = "inclavarecontainers" ]
   then
-    PROJ=inclavarecontainers PROJDB=inclavarecontainers PROJREPO="alibaba/inclavare-containers" ORGNAME="Inclavare Containers" PORT=3110 ICON=inclavarecontainers GRAFSUFF=inclavarecontainers GA="UA-145264316-71" ./devel/deploy_proj.sh || exit 129
+    PROJ=inclavarecontainers PROJDB=inclavarecontainers PROJREPO="inclavare-containers/inclavare-containers" ORGNAME="Inclavare Containers" PORT=3110 ICON=inclavarecontainers GRAFSUFF=inclavarecontainers GA="UA-145264316-71" ./devel/deploy_proj.sh || exit 129
   elif [ "$proj" = "superedge" ]
   then
     PROJ=superedge           PROJDB=superedge      PROJREPO="superedge/superedge"             ORGNAME=SuperEdge         PORT=3111 ICON=superedge      GRAFSUFF=superedge      GA="UA-145264316-72" ./devel/deploy_proj.sh || exit 130

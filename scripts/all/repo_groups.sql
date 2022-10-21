@@ -1176,6 +1176,7 @@ set
   repo_group = 'Inclavare Containers'
 where
   name in ('alibaba/inclavare-containers')
+  or org_login in ('inclavare-containers')
 ;
 
 -- SuperEdge
