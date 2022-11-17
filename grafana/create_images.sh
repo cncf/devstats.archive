@@ -86,7 +86,7 @@ do
     icon="serverless-devs"
   fi
   # TODO: remove when we have icons
-  if ( [ "$icon" = "carvel" ] || [ "$icon" = "lima" ] || [ "$icon" = "armada" ] || [ "$icon" = "aerakimesh" ] || [ "$icon" = "kubewarden" ] || [ "$icon" = "sealer" ] || [ "$icon" = "openelb" ] || [ "$icon" = "vscodek8stools" ] || [ "$icon" = "kubevip" ] || [ "$icon" = "cnigenie" ] || [ "$icon" = "istio" ] || [ "$icon" = "contrib" ] || [ "$icon" = "sam" ] || [ "$icon" = "azf" ] || [ "$icon" = "riff" ] || [ "$icon" = "fn" ] || [ "$icon" = "openwhisk" ] || [ "$icon" = "openfaas" ] || [ "$icon" = "cii" ] )
+  if ( [ "$icon" = "carvel" ] || [ "$icon" = "lima" ] || [ "$icon" = "aerakimesh" ] || [ "$icon" = "sealer" ] || [ "$icon" = "openelb" ] || [ "$icon" = "vscodek8stools" ] || [ "$icon" = "kubevip" ] || [ "$icon" = "cnigenie" ] || [ "$icon" = "istio" ] || [ "$icon" = "contrib" ] || [ "$icon" = "sam" ] || [ "$icon" = "azf" ] || [ "$icon" = "riff" ] || [ "$icon" = "fn" ] || [ "$icon" = "openwhisk" ] || [ "$icon" = "openfaas" ] || [ "$icon" = "cii" ] )
   then
     icon="cncf"
   fi
@@ -176,6 +176,11 @@ do
   then
     cp "$HOME/dev/$iconorg/artwork/$path/icon/containerssh-icon-light.svg" "grafana/img/$suff.svg" || exit 2
     convert "$HOME/dev/$iconorg/artwork/$path/icon/containerssh-icon-light.png" -resize 32x32 "grafana/img/${suff}32.png" || exit 3
+    continue
+  elif [ "$icon" = "kubewarden" ]
+  then
+    cp "$HOME/dev/$iconorg/artwork/$path/icon/$icontype/$proj.icon.svg" "grafana/img/$suff.svg" || exit 2
+    convert "$HOME/dev/$iconorg/artwork/$path/icon/$icontype/$proj.icon.png" -resize 32x32 "grafana/img/${suff}32.png" || exit 3
     continue
   fi
   cp "$HOME/dev/$iconorg/artwork/$path/icon/$icontype/$icon$dash$mid-$icontype.svg" "grafana/img/$suff.svg" || exit 2
