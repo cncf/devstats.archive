@@ -8,7 +8,7 @@
 - To get some JSONs from SQLite use `GRAFANA=suffix devel/get_from_sqlite.sh path/to/jsons/*.json`. This will overwrite JSONs given as arguments if they differ from those from the database.
 - To import all project's dashboards JSONs into a temporary database files (stored in the current directory) use `ONLY=project devel/import_all_sqlite_jsons.sh`. Skip `ONLY=...` to process all projects. This is not updating real Grafana database(s).
 - All tools save `.json` -> `.json.was` if modification is made. To find all `.json.was` files and move them back to `.json` use: `devel/update_from_sqlite.sh`.
-- When you made manul changes on grafana.db file use: `GRAFANA=suffix devel/update_sqlite_manually.sh your_file.db` to update given grafana DB using this file.
+- When you made manual changes on grafana.db file use: `GRAFANA=suffix devel/update_sqlite_manually.sh your_file.db` to update given grafana DB using this file.
 
 # Example
 
