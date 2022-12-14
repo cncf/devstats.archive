@@ -541,6 +541,36 @@ do
   elif [ "$proj" = "istio" ]
   then
     PROJ=istio               PROJDB=istio          PROJREPO="istio/istio"                     ORGNAME=Istio             PORT=3221 ICON=istio          GRAFSUFF=istio          GA="UA-241436121-6"  ./devel/deploy_proj.sh || exit 34
+  elif [ "$proj" = "merbridge" ]
+  then
+    PROJ=merbridge           PROJDB=merbridge      PROJREPO="merbridge/merbridge"             ORGNAME=Merbridge         PORT=3222 ICON=merbridge      GRAFSUFF=merbridge      GA="UA-241436121-7"  ./devel/deploy_proj.sh || exit 147
+  elif [ "$proj" = "devspace" ]
+  then
+    PROJ=devspace            PROJDB=devspace       PROJREPO="devspace-cloud/devspace-cloud"   ORGNAME=DevSpace          PORT=3223 ICON=devspace       GRAFSUFF=devspace       GA="UA-241436121-8"  ./devel/deploy_proj.sh || exit 148
+  elif [ "$proj" = "capsule" ]
+  then
+    PROJ=capsule             PROJDB=capsule        PROJREPO="cpasule-rs/capsule"              ORGNAME=capsule           PORT=3224 ICON=capsule        GRAFSUFF=capsule        GA="UA-241436121-9"  ./devel/deploy_proj.sh || exit 149
+  elif [ "$proj" = "zot" ]
+  then
+    PROJ=zot                 PROJDB=zot            PROJREPO="project-zot/zot"                 ORGNAME=zot               PORT=3225 ICON=zot            GRAFSUFF=zot            GA="UA-241436121-10" ./devel/deploy_proj.sh || exit 150
+  elif [ "$proj" = "paralus" ]
+  then
+    PROJ=paralus             PROJDB=paralus        PROJREPO="paralus/paralus"                 ORGNAME=paralus           PORT=3226 ICON=paralus        GRAFSUFF=paralus        GA="UA-241436121-11" ./devel/deploy_proj.sh || exit 151
+  elif [ "$proj" = "carina" ]
+  then
+    PROJ=carina              PROJDB=carina         PROJREPO="carina-io/carina"                ORGNAME=Carina            PORT=3227 ICON=carina         GRAFSUFF=carina         GA="UA-241436121-12" ./devel/deploy_proj.sh || exit 152
+  elif [ "$proj" = "ko" ]
+  then
+    PROJ=ko                  PROJDB=ko             PROJREPO="ko-build/ko"                     ORGNAME=ko                PORT=3228 ICON=ko             GRAFSUFF=ko             GA="UA-241436121-13" ./devel/deploy_proj.sh || exit 153
+  elif [ "$proj" = "opcr" ]
+  then
+    PROJ=opcr                PROJDB=opcr           PROJREPO="opcr-io/policy"                  ORGNAME=OPCR              PORT=3229 ICON=opcr           GRAFSUFF=opcr           GA="UA-241436121-14" ./devel/deploy_proj.sh || exit 154
+  elif [ "$proj" = "werf" ]
+  then
+    PROJ=werf                PROJDB=werf           PROJREPO="werf/werf"                       ORGNAME=werf              PORT=3230 ICON=werf           GRAFSUFF=werf           GA="UA-241436121-15" ./devel/deploy_proj.sh || exit 155
+  elif [ "$proj" = "kubescape" ]
+  then
+    PROJ=kubescape           PROJDB=kubescape      PROJREPO="kubescape/kubescape"             ORGNAME=Kubescape         PORT=3231 ICON=kubescape      GRAFSUFF=kubescape      GA="UA-241436121-16" ./devel/deploy_proj.sh || exit 156
   elif [ "$proj" = "opencontainers" ]
   then
     PROJ=opencontainers      PROJDB=opencontainers PROJREPO="opencontainers/runc"             ORGNAME=OCI               PORT=3220 ICON="-"            GRAFSUFF=opencontainers GA="UA-108085315-19" ./devel/deploy_proj.sh || exit 32
