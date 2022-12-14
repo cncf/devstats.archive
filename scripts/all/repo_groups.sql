@@ -1507,7 +1507,7 @@ set
   repo_group = 'Merbridge'
 where
   org_login in ('merbridge')
-  or name in ('kube7jun/mepf', 'kube7jun/mebpf');
+  or name in ('kebe7jun/mepf', 'kebe7jun/mebpf');
 ;
 
 -- DevSpace
