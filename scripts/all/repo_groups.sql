@@ -1500,6 +1500,105 @@ where
   org_login in ('istio')
 ;
 
+-- Merbridge
+update
+  gha_repos
+set
+  repo_group = 'Merbridge'
+where
+  org_login in ('merbridge')
+  or name in ('kube7jun/mepf', 'kube7jun/mebpf');
+;
+
+-- DevSpace
+update
+  gha_repos
+set
+  repo_group = 'DevSpace'
+where
+  org_login in ('devspace-cloud', 'covexo')
+;
+
+-- Capsule
+update
+  gha_repos
+set
+  repo_group = 'Capsule'
+where
+  org_login in ('capsule-rs')
+;
+
+-- zot
+update
+  gha_repos
+set
+  repo_group = 'zot'
+where
+  org_login in ('project-zot')
+  or name in ('anavu/zot')
+;
+
+-- Paralus
+update
+  gha_repos
+set
+  repo_group = 'paralus'
+where
+  org_login in ('paralus')
+;
+
+-- Carina
+update
+  gha_repos
+set
+  repo_group = 'Carina'
+where
+  org_login in ('carina-io')
+;
+
+-- ko
+update
+  gha_repos
+set
+  repo_group = 'ko'
+where
+  org_login in ('ko-build')
+  or name in ('google/ko')
+;
+
+-- OPCR
+update
+  gha_repos
+set
+  repo_group = 'OPCR'
+where
+  org_login in ('opcr-io')
+;
+
+-- werf
+update
+  gha_repos
+set
+  repo_group = 'werf'
+where
+  org_login in ('werf')
+  or name in (
+    'flant/werf',
+    'flant/dapp',
+    'flant/dapper'
+  )
+;
+
+-- Kubescape
+update
+  gha_repos
+set
+  repo_group = 'Kubescape'
+where
+  org_login in ('kubescape')
+  or name in ('armosec/kubescape')
+;
+
 -- Confidential Containers
 update
   gha_repos
