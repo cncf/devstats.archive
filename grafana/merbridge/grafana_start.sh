@@ -1,3 +1,3 @@
 #!/bin/bash
-cd /usr/share/grafana.membridge
-grafana-server -config /etc/grafana.membridge/grafana.ini cfg:default.paths.data=/var/lib/grafana.membridge 1>/var/log/grafana.membridge.log 2>&1
+cd /usr/share/grafana.merbridge
+grafana-server -config /etc/grafana.merbridge/grafana.ini cfg:default.paths.data=/var/lib/grafana.merbridge 1>/var/log/grafana.merbridge.log 2>&1
