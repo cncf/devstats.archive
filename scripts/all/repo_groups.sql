@@ -1535,7 +1535,7 @@ set
   repo_group = 'zot'
 where
   org_login in ('project-zot')
-  or name in ('anavu/zot')
+  or name in ('anuvu/zot')
 ;
 
 -- Paralus

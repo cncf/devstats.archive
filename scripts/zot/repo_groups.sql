@@ -32,7 +32,7 @@ update gha_repos
 set repo_group = 'zot', alias = 'zot'
 where name in (
   'project-zot/zot',
-  'anavu/zot'
+  'anuvu/zot'
 );
 
 select
