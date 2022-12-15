@@ -31,6 +31,7 @@ update gha_repos set repo_group = alias;
 update gha_repos
 set repo_group = 'Notary', alias = 'Notary'
 where name in (
+  'notaryproject/notary',
   'theupdateframework/notary',
   'docker/notary'
 );

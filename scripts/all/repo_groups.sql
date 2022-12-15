@@ -147,7 +147,8 @@ update
 set
   repo_group = 'Notary'
 where
-  name in ('theupdateframework/notary', 'docker/notary')
+  org_login in ('notaryproject')
+  or name in ('theupdateframework/notary', 'docker/notary')
 ;
 
 -- TUF
@@ -156,8 +157,11 @@ update
 set
   repo_group = 'TUF'
 where
-  org_login = 'theupdateframework'
-  and name != 'theupdateframework/notary' 
+  name in ('theupdateframework', 'tuf')
+  or (
+    org_login = 'theupdateframework'
+    and name != 'theupdateframework/notary' 
+  )
 ;
 
 -- Rook
