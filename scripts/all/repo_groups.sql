@@ -1542,7 +1542,7 @@ where
 update
   gha_repos
 set
-  repo_group = 'paralus'
+  repo_group = 'Paralus'
 where
   org_login in ('paralus')
 ;

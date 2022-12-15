@@ -29,7 +29,7 @@ where
 update gha_repos set repo_group = alias;
 
 update gha_repos
-set repo_group = 'Paralus', alias = 'paralus'
+set repo_group = 'Paralus', alias = 'Paralus'
 where name in (
   'paralus/paralus'
 );
