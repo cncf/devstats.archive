@@ -29,7 +29,7 @@ where
 update gha_repos set repo_group = alias;
 
 update gha_repos
-set repo_group = 'Merbridge', alias = 'merbridge'
+set repo_group = 'Merbridge', alias = 'Merbridge'
 where name in (
   'merbridge/merbridge',
   'kebe7jun/mepf',
