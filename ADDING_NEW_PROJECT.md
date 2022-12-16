@@ -62,6 +62,7 @@ This file describes how to add new project on the test and production servers.
 ## Update shared Grafana data
 
 - Create Grafana data for new project(s): `cp ../devstatscode/sqlitedb ../devstatscode/runq ../devstatscode/replacer grafana/ && tar cf devstats-grafana.tar grafana/runq grafana/sqlitedb grafana/replacer grafana/shared grafana/img/*.svg grafana/img/*.png grafana/*/change_title_and_icons.sh grafana/*/custom_sqlite.sql grafana/dashboards/*/*.json`.
+- Note that if you added new projects links then you need to copy `grafana/dashboards/*/*.json` for all Grafana instances, not just the new ones - so the old Grafanas will have new links.
 - SFTP it to devstats node: `sftp root@node-N`, `mput devstats-grafana.tar`. SSH into that node: `ssh root@node-N`, get static pod name: `k get po -n devstats-prod | grep static-prod`, `k get po -n devstats-test | grep static-test`.
 - Copy new grafana data to that pod: `k cp devstats-grafana.tar -n devstats-prod devstats-static-prod-5779c5dd5d-2prpr:/devstats-grafana.tar`, shell into that pod: `k exec -itn devstats-prod devstats-static-prod-5779c5dd5d-2prpr -- bash`.
 - Update shared grafana files: `` rm -rf /grafana && tar xvf /devstats-grafana.tar && cd /grafana/ && cp -v shared/* /usr/share/nginx/html/backups/grafana/shared/ && cp -v img/* /usr/share/nginx/html/backups/grafana/img/ && echo OK ``.
