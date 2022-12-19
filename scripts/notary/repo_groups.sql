@@ -36,6 +36,13 @@ where name in (
   'docker/notary'
 );
 
+update gha_repos
+set repo_group = 'Notary V2', alias = 'Notary V2'
+where name in (
+  'notaryproject/notation',
+  'notaryproject/nv2'
+);
+
 select
   repo_group,
   count(*) as number_of_repos

@@ -141,7 +141,7 @@ do
          PROJ=jaeger         PROJDB=jaeger         PROJREPO="jaegertracing/jaeger"            ORGNAME=Jaeger            PORT=3011 ICON=jaeger         GRAFSUFF=jaeger         GA="UA-108085315-14" ./devel/deploy_proj.sh || exit 13
   elif [ "$proj" = "notary" ]
   then
-         PROJ=notary         PROJDB=notary         PROJREPO="notaryproject/notary"            ORGNAME=Notary            PORT=3012 ICON=notary         GRAFSUFF=notary         GA="UA-108085315-15" ./devel/deploy_proj.sh || exit 14
+         PROJ=notary         PROJDB=notary         PROJREPO="notaryproject/notation"          ORGNAME=Notary            PORT=3012 ICON=notary         GRAFSUFF=notary         GA="UA-108085315-15" ./devel/deploy_proj.sh || exit 14
   elif [ "$proj" = "tuf" ]
   then
          PROJ=tuf            PROJDB=tuf            PROJREPO="theupdateframework/tuf"          ORGNAME=TUF               PORT=3013 ICON=tuf            GRAFSUFF=tuf            GA="UA-108085315-16" ./devel/deploy_proj.sh || exit 15
