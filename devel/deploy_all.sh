@@ -447,7 +447,7 @@ do
     PROJ=dapr                PROJDB=dapr           PROJREPO="dapr/dapr"                       ORGNAME=Dapr              PORT=3113 ICON=dapr           GRAFSUFF=dapr           GA="UA-145264316-74" ./devel/deploy_proj.sh || exit 132
   elif [ "$proj" = "openelb" ]
   then
-    PROJ=openelb             PROJDB=openelb        PROJREPO="kubesphere/openelb"              ORGNAME=OpenELB           PORT=3114 ICON=openelb        GRAFSUFF=openelb        GA="UA-145264316-75" ./devel/deploy_proj.sh || exit 133
+    PROJ=openelb             PROJDB=openelb        PROJREPO="openelb/openelb"                 ORGNAME=OpenELB           PORT=3114 ICON=openelb        GRAFSUFF=openelb        GA="UA-145264316-75" ./devel/deploy_proj.sh || exit 133
   elif [ "$proj" = "openclustermanagement" ]
   then
     PROJ=openclustermanagement PROJDB=openclustermanagement PROJREPO="open-cluster-management-io/api" ORGNAME="Open Cluster Management" PORT=3115 ICON=openclustermanagement GRAFSUFF=openclustermanagement GA="UA-145264316-76" ./devel/deploy_proj.sh || exit 134

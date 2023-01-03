@@ -1217,7 +1217,8 @@ update
 set
   repo_group = 'OpenELB'
 where
-  name in ('kubesphere/openelb', 'kubesphere/porterlb', 'kubesphere/porter')
+  org_login in ('openelb')
+  or name in ('kubesphere/openelb', 'kubesphere/porterlb', 'kubesphere/porter')
 ;
 
 -- Open Cluster Management

@@ -31,6 +31,7 @@ update gha_repos set repo_group = alias;
 update gha_repos
 set repo_group = 'OpenELB', alias = 'OpenELB'
 where name in (
+  'openelb/openelb',
   'kubesphere/openelb',
   'kubesphere/porterlb',
   'kubesphere/porter'
