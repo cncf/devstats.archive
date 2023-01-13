@@ -272,7 +272,7 @@ union select sub.repo_group,
     when 'PullRequestReviewEvent' then 'PR reviewers'
     when 'IssueCommentEvent' then 'Issue commenters'
     when 'CommitCommentEvent' then 'Commit commenters'
-    when 'WatchEvent' then 'Stargazers'
+    when 'WatchEvent' then 'Stargazers/Watchers'
     when 'ForkEvent' then 'Forkers'
   end as name,
   count(distinct sub.actor_id) as value
@@ -308,7 +308,7 @@ union select 'pstat,All' as repo_group,
     when 'PullRequestReviewEvent' then 'PR reviewers'
     when 'IssueCommentEvent' then 'Issue commenters'
     when 'CommitCommentEvent' then 'Commit commenters'
-    when 'WatchEvent' then 'Stargazers'
+    when 'WatchEvent' then 'Stargazers/Watchers'
     when 'ForkEvent' then 'Forkers'
   end as name,
   count(distinct actor_id) as value
