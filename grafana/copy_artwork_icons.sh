@@ -91,7 +91,7 @@ do
   if ( [ "$path" = "devstats" ] || [ "$path" = "cncf" ] || [ "$path" = "gitopswg" ] )
   then
     path="other/$icon"
-  elif [ "$icon" = "brigade" ]
+  elif ( [ "$icon" = "brigade" ] || [ "$icon" = "opentracing" ] )
   then
     path="archived/$icon"
   elif [ "$iconorg" = "cncf" ]
