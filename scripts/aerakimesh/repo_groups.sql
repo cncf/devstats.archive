@@ -28,12 +28,12 @@ where
 ;
 update gha_repos set repo_group = alias;
 
-update gha_repos
-set repo_group = 'Aeraki Mesh', alias = 'Aeraki Mesh'
-where name in (
-  'aeraki-mesh/aeraki',
-  'aeraki-framework/aeraki'
-);
+-- update gha_repos
+-- set repo_group = 'Aeraki Mesh', alias = 'Aeraki Mesh'
+-- where name in (
+--   'aeraki-mesh/aeraki',
+--   'aeraki-framework/aeraki'
+-- );
 
 select
   repo_group,
