@@ -14,5 +14,6 @@
 <li>This also includes bots activity (most other dashboards skip bot activity).</li>
 <li>Next we&#39;re showing HTML panel that shows all CNCF projects icons and links.</li>
 <li>Next there is a dashboard that shows a list of all dashboards defined for [[full_name]] project.</li>
+<li>You can use &#39;Last updated&#39; dashboard too see when given SQL metric was calculated - each dashboard has a list of its SQL metrics</li>
 </ul>
 
