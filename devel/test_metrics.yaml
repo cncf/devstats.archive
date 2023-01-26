@@ -1,23 +1,24 @@
 ---
 metrics:
-  - name: Users stats
-    series_name_or_func: multi_row_multi_column
-    sqls: [user_activity, user_activity_commits, user_activity_issues, user_activity_prs]
-    periods: d,w,m,q,y
-    aggregate: 1,7
-    skip: w7,m7,q7,y7
-    multi_value: true
-    merge_series: user_activity
-    drop: suser_activity
-    allow_fail: true
-    project: '!kubernetes'
-  - name: User reviews
+  - name: Companies table
+    sql: project_company_stats
     series_name_or_func: multi_row_single_column
-    sql: reviews_per_user
-    periods: d,w,m,q,y
-    aggregate: 1,7
-    skip: w7,m7,q7,y7
-    multi_value: true
-    merge_series: user_reviews
-    drop: suser_reviews
-    allow_fail: true
+    histogram: true
+    annotations_ranges: true
+    merge_series: hcom
+  - name: Developer activity counts
+    histogram: true
+    annotations_ranges: true
+    series_name_or_func: multi_row_single_column
+    sqls: [hist_reviewers, hist_approvers, project_developer_stats]
+    merge_series: hdev
+    env:
+      GHA2DB_NCPUS?: 4
+  - name: Developer activity counts (repositories)
+    histogram: true
+    annotations_ranges: true
+    series_name_or_func: multi_row_single_column
+    sqls: [hist_reviewers_repos, hist_approvers_repos, project_developer_stats_repos]
+    merge_series: hdev_repos
+    env:
+      GHA2DB_NCPUS?: 4
