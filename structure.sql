@@ -670,6 +670,18 @@ CREATE TABLE public.gha_computed (
 ALTER TABLE public.gha_computed OWNER TO gha_admin;
 
 --
+-- Name: gha_last_computed; Type: TABLE; Schema: public; Owner: gha_admin
+--
+
+CREATE TABLE public.gha_last_computed (
+    metric text NOT NULL,
+    dt timestamp without time zone NOT NULL
+);
+
+
+ALTER TABLE public.gha_last_computed OWNER TO gha_admin;
+
+--
 -- Name: gha_countries; Type: TABLE; Schema: public; Owner: gha_admin
 --
 
@@ -1346,6 +1358,14 @@ COPY public.gha_computed (metric, dt) FROM stdin;
 
 
 --
+-- Data for Name: gha_last_computed; Type: TABLE DATA; Schema: public; Owner: gha_admin
+--
+
+COPY public.gha_last_computed (metric, dt) FROM stdin;
+\.
+
+
+--
 -- Data for Name: gha_countries; Type: TABLE DATA; Schema: public; Owner: gha_admin
 --
 
@@ -1944,6 +1964,14 @@ ALTER TABLE ONLY public.gha_companies
 
 ALTER TABLE ONLY public.gha_computed
     ADD CONSTRAINT gha_computed_pkey PRIMARY KEY (metric, dt);
+
+
+--
+-- Name: gha_last_computed gha_last_computed_pkey; Type: CONSTRAINT; Schema: public; Owner: gha_admin
+--
+
+ALTER TABLE ONLY public.gha_last_computed
+    ADD CONSTRAINT gha_last_computed_pkey PRIMARY KEY (metric);
 
 
 --
