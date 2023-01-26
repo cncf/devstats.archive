@@ -71,6 +71,7 @@ This file describes how to add new project on the test and production servers.
 - Or copy dashboards manually: `` for f in merbridge devspace capsule zot paralus carina ko opcr werf kubescape; do echo $f; cp -Rv dashboards/$f/ /usr/share/nginx/html/backups/grafana/dashboards/$f; done ``.
 - Or copy per-project files manually: `` for f in merbridge devspace capsule zot paralus carina ko opcr werf kubescape; do echo $f; cp -Rv $f/ /usr/share/nginx/html/backups/grafana/$f; done ``.
 - Or all files at once: `rm -rf /usr/share/nginx/html/backups/grafana && mv /grafana /usr/share/nginx/html/backups/grafana && rm /devstats-grafana.tar`.
+- Do all/everything command: `rm -rf /grafana && tar xf /devstats-grafana.tar && rm -rf /usr/share/nginx/html/backups/grafana && mv /grafana /usr/share/nginx/html/backups/grafana && rm /devstats-grafana.tar && echo 'All OK'`.
 - You need to do this for both `devstats-test` and `devstats-prod`.
 - Per-project data: `` for f in prj1 prj2; do cp -Rv "$f/" "/usr/share/nginx/html/backups/grafana/$f"; cp -Rv "dashboards/$f/" "/usr/share/nginx/html/backups/grafana/dashboards/$f"; done ``.
 - Permissions: `chmod -R ugo+rwx /usr/share/nginx/html/backups/grafana/`, cleanup: `rm -rf devstats-grafana.tar /grafana/`. Also `rm devstats-grafana.tar` locally.
