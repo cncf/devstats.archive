@@ -39,6 +39,7 @@ This file describes how to add new project on the test and production servers.
 - Update `grafana/dashboards/proj/dashboards.json` for all already existing projects, add new project using `devel/mass_replace.sh` or `devel/replace.sh`.
 - For example: `./devel/dashboards_replace_from_to.sh dashboards.json` with `FROM` file containing old links and `TO` file containing new links.
 - When adding a new dashboard to all projects, you can add to single project (for example "cncf") and then populate to all others via something like: `FROM_PROJ=cncf ./devel/add_dashboard.sh dashboard-name.json`, or old approach:
+- When adding a new dashboard remember to add `dashboard` and `project-slug` tags to it so it will be visible in `Dashboards` list.
 - `` for f in `cat ../devstats-docker-images/k8s/all_test_projects.txt`; do cp grafana/dashboards/jaeger/new-contributors-table.json grafana/dashboards/$f/; done ``, then: `FROM_PROJ=jaeger ./util_sh/replace_proj_name_tag.sh new-contributors-table.json`.
 - You can mass update Grafana dashboards using `sqlitedb` tool: `ONLY="proj1 proj2 ..." ./devel/put_all_charts.sh`, then `devel/put_all_charts_cleanup.sh`. You need to use `ONLY` because there is no new project's Grafana yet.
 - When adding new dashboard to projects that use dashboards folders (like Kubernetes) update `cncf/devstats:grafana/proj/custom_sqlite.sql` file.
