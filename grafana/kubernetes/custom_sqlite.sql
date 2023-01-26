@@ -144,7 +144,8 @@ set
 where
   slug in (
     'repository-groups',
-    'licenses-and-programming-languages'
+    'licenses-and-programming-languages',
+    'last-updated'
   )
 ;
 
