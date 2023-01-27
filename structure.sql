@@ -675,7 +675,11 @@ ALTER TABLE public.gha_computed OWNER TO gha_admin;
 
 CREATE TABLE public.gha_last_computed (
     metric text NOT NULL,
-    dt timestamp without time zone NOT NULL
+    dt timestamp without time zone NOT NULL,
+    start_dt timestamp without time zone,
+    took interval,
+    took_as_string character varying(64),
+    command character varying(512)
 );
 
 
@@ -1361,7 +1365,7 @@ COPY public.gha_computed (metric, dt) FROM stdin;
 -- Data for Name: gha_last_computed; Type: TABLE DATA; Schema: public; Owner: gha_admin
 --
 
-COPY public.gha_last_computed (metric, dt) FROM stdin;
+COPY public.gha_last_computed (metric, dt, start_dt, took, took_as_str, command) FROM stdin;
 \.
 
 
