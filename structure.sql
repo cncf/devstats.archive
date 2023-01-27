@@ -677,7 +677,7 @@ CREATE TABLE public.gha_last_computed (
     metric text NOT NULL,
     dt timestamp without time zone NOT NULL,
     start_dt timestamp without time zone,
-    took interval,
+    took bigint,
     took_as_string text,
     command text
 );
