@@ -678,8 +678,8 @@ CREATE TABLE public.gha_last_computed (
     dt timestamp without time zone NOT NULL,
     start_dt timestamp without time zone,
     took interval,
-    took_as_string character varying(64),
-    command character varying(512)
+    took_as_string text,
+    command text
 );
 
 
