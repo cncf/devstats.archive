@@ -22,7 +22,7 @@ update
 set
   repo_group = 'Tekton'
 where
-  org_login in ('knative', 'tektoncd')
+  org_login in ('knative', 'tektoncd', 'tektoncd-catalog')
 ;
 
 -- Jenkins
