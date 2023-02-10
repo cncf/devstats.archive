@@ -103,7 +103,7 @@ do
     PROJ=spinnaker           PROJDB=spinnaker      PROJREPO="spinnaker/spinnaker"             ORGNAME=Spinnaker         PORT=3102 ICON=spinnaker      GRAFSUFF=spinnaker      GA="UA-108085315-38" ./devel/deploy_proj.sh || exit 35
   elif [ "$proj" = "tekton" ]
   then
-    PROJ=tekton              PROJDB=tekton         PROJREPO="knative/build"                   ORGNAME=Tekton            PORT=3104 ICON=tekton         GRAFSUFF=tekton         GA="UA-108085315-39" ./devel/deploy_proj.sh || exit 42
+    PROJ=tekton              PROJDB=tekton         PROJREPO="tektoncd/pipeline"               ORGNAME=Tekton            PORT=3104 ICON=tekton         GRAFSUFF=tekton         GA="UA-108085315-39" ./devel/deploy_proj.sh || exit 42
   elif [ "$proj" = "jenkins" ]
   then
     PROJ=jenkins             PROJDB=jenkins        PROJREPO="jenkinsci/jenkins"               ORGNAME=Jenkins           PORT=3105 ICON=jenkins        GRAFSUFF=jenkins        GA="UA-108085315-40" ./devel/deploy_proj.sh || exit 43
