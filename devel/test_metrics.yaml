@@ -6,6 +6,7 @@ metrics:
     series_name_or_func: multi_row_single_column
     sqls: [hist_reviewers, hist_approvers, project_developer_stats]
     merge_series: hdev
+    project: kubernetes
     env:
       GHA2DB_NCPUS?: 4
   - name: Developer activity counts (repositories)
@@ -14,5 +15,15 @@ metrics:
     series_name_or_func: multi_row_single_column
     sqls: [hist_reviewers_repos, hist_approvers_repos, project_developer_stats_repos]
     merge_series: hdev_repos
+    project: kubernetes
     env:
       GHA2DB_NCPUS?: 4
+  - name: Developer summary
+    sql: project_developer_stats
+    series_name_or_func: multi_row_single_column
+    histogram: true
+    annotations_ranges: true
+    merge_series: hdev
+    project: '!kubernetes'
+    env:
+      GHA2DB_NCPUS?: 8
