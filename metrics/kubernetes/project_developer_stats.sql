@@ -70,6 +70,28 @@ with commits_data as (
     and c.committer_id is not null
     and {{period:c.dup_created_at}}
     and (lower(c.dup_committer_login) {{exclude_bots}})
+  union select r.repo_group as repo_group,
+    cr.sha,
+    cr.actor_id as actor_id,
+    lower(cr.actor_login) as actor_login,
+    coalesce(aa.company_name, '') as company
+  from
+    gha_repos r,
+    gha_commits_roles cr
+  left join
+    gha_actors_affiliations aa
+  on
+    aa.actor_id = cr.actor_id
+    and aa.dt_from <= cr.dup_created_at
+    and aa.dt_to > cr.dup_created_at
+  where
+    cr.dup_repo_id = r.id
+    and cr.dup_repo_name = r.name
+    and cr.actor_id is not null
+    and cr.actor_id != 0
+    and cr.role = 'Co-authored-by'
+    and {{period:cr.dup_created_at}}
+    and (lower(cr.actor_login) {{exclude_bots}})
 )
 select 
   'hdev_' || sub.metric || ',All_All' as metric,
