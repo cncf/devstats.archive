@@ -31,9 +31,9 @@ update gha_repos set repo_group = alias;
 update gha_repos
 set repo_group = 'OpenCost', alias = 'OpenCost'
 where name in (
-  'opencost/opencost',
-  'opencost/opencost-website',
-  'opencost/opencost-helm-chart'
+  'kubecost/cost-model',
+  'kubecost/opencost',
+  'opencost/opencost'
 );
 
 select

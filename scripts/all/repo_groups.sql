@@ -1353,7 +1353,7 @@ update
 set
   repo_group = 'OpenCost'
 where
-  org_login in ('opencost')
+  org_login in ('opencost', 'kubecost')
 ;
 
 -- Aeraki Mesh
