@@ -160,7 +160,7 @@ where
   name in ('theupdateframework', 'tuf')
   or (
     org_login = 'theupdateframework'
-    and name != 'theupdateframework/notary' 
+    and name != 'theupdateframework/notary'
   )
 ;
 
@@ -1353,7 +1353,7 @@ update
 set
   repo_group = 'OpenCost'
 where
-  org_login in ('kubecost')
+  org_login in ('opencost')
 ;
 
 -- Aeraki Mesh
