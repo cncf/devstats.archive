@@ -197,13 +197,13 @@ do
   then
          PROJ=dragonfly      PROJDB=dragonfly      PROJREPO="dragonflyoss/Dragonfly"          ORGNAME=Dragonfly         PORT=3030 ICON=dragonfly      GRAFSUFF=dragonfly       GA="UA-108085315-35" ./devel/deploy_proj.sh || exit 39
   elif [ "$proj" = "virtualkubelet" ]
-  then 
+  then
     PROJ=virtualkubelet      PROJDB=virtualkubelet PROJREPO="virtual-kubelet/virtual-kubelet" ORGNAME="Virtual Kubelet" PORT=3031 ICON=virtualkubelet GRAFSUFF=virtualkubelet GA="UA-108085315-36" ./devel/deploy_proj.sh || exit 40
   elif [ "$proj" = "kubeedge" ]
-  then 
+  then
     PROJ=kubeedge            PROJDB=kubeedge       PROJREPO="kubeedge/kubeedge"               ORGNAME=KubeEdge          PORT=3032 ICON=kubeedge       GRAFSUFF=kubeedge       GA="UA-108085315-43" ./devel/deploy_proj.sh || exit 43
   elif [ "$proj" = "brigade" ]
-  then 
+  then
     PROJ=brigade             PROJDB=brigade        PROJREPO="brigadecore/brigade"             ORGNAME=Brigade           PORT=3033 ICON=brigade        GRAFSUFF=brigade        GA="UA-108085315-44" ./devel/deploy_proj.sh || exit 44
   elif [ "$proj" = "crio" ]
   then
@@ -492,7 +492,7 @@ do
     PROJ=clusterpedia        PROJDB=clusterpedia   PROJREPO="clusterpedia-io/clusterpedia"    ORGNAME=Clusterpedia      PORT=3128 ICON=clusterpedia   GRAFSUFF=clusterpedia   GA="UA-145264316-89" ./devel/deploy_proj.sh || exit 47
   elif [ "$proj" = "opencost" ]
   then
-    PROJ=opencost            PROJDB=opencost       PROJREPO="kubecost/opencost"               ORGNAME=OpenCost          PORT=3129 ICON=opencost       GRAFSUFF=opencost       GA="UA-145264316-90" ./devel/deploy_proj.sh || exit 48
+    PROJ=opencost            PROJDB=opencost       PROJREPO="opencost/opencost"               ORGNAME=OpenCost          PORT=3129 ICON=opencost       GRAFSUFF=opencost       GA="UA-145264316-90" ./devel/deploy_proj.sh || exit 48
   elif [ "$proj" = "aerakimesh" ]
   then
     PROJ=aerakimesh          PROJDB=aerakimesh     PROJREPO="aeraki-mesh/aeraki"              ORGNAME='Aeraki Mesh'     PORT=3130 ICON=aerakimesh     GRAFSUFF=aerakimesh     GA="UA-145264316-91" ./devel/deploy_proj.sh || exit 49
