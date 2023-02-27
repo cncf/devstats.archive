@@ -6,6 +6,7 @@ Those steps are generally needed to change project status (usually from `Incubat
 - Add `graduated_date` or similar (`incubating_date`, `archived_date`).
 - Graduation/Incubation dates are [here](https://docs.google.com/spreadsheets/d/10-rSBsSMQZD6nCLBkyKfeU4kdffB4bOSV0NnZqF5bBk/edit#gid=1632287387).
 - Change projects links order on all home dashboards. Take for example `grafana/dashboards/all/dashboards.json`, copy list of projects links into `FROM` file, change order accordingly and paste it into `TO` file.
+- See `Update shared Grafana data` in `ADDING_NEW_PROJECT.md`.
 - Run: `./devel/dashboards_replace_from_to.sh dashboards.json`.
 - Put new home dashboards: `./devel/put_all_charts.sh` and then `./devel/put_all_charts_cleanup.sh`. Not needed with Helm installation.
 - Update files: `partials/projects.html partials/projects_health.html` (remember about `cncf-` classes/separators).
