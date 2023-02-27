@@ -1483,7 +1483,7 @@ update
 set
   repo_group = 'Carvel'
 where
-  name ~ '(?i)^(vmware-tanzu\/.*carvel.*|k14s\/.*)$'
+  name ~ '(?i)^(vmware-tanzu\/.*carvel.*|k14s\/.*|carvel-dev\/.*)$'
 ;
 
 -- Lima

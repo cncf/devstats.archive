@@ -31,7 +31,15 @@ update gha_repos set repo_group = alias;
 update gha_repos
 set repo_group = 'Carvel', alias = 'Carvel'
 where name in (
-  'vmware-tanzu/carvel-kapp'
+  'vmware-tanzu/carvel',
+  'carvel-dev/carvel'
+);
+
+update gha_repos
+set repo_group = 'kapp', alias = 'kapp'
+where name in (
+  'vmware-tanzu/carvel-kapp',
+  'carvel-dev/kapp'
 );
 
 select
