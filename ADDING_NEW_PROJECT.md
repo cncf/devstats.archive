@@ -15,7 +15,7 @@ This file describes how to add new project on the test and production servers.
 
 - Do not commit changes until all is ready, or commit with `[no deploy]` in the commit message.
 - Add project entry to `projects.yaml` file. Find projects orgs, repos, select start date, eventually add test coverage for complex regular expression in `regexp_test.go`.
-- To identify repo and/or org name changes, date ranges for entrire projest use `util_sh/(repo|org)_name_changes_bigquery.sh org|org/repo`. You may need to update `util_sql/(org_repo)_name_changes_bigquery.sql` to include newest months.
+- To identify repo and/or org name changes, date ranges for entire project use `util_sh/(repo|org)_name_changes_bigquery.sh org|org/repo`. You may need to update `util_sql/(org_repo)_name_changes_bigquery.sql` to include newest months.
 - Main repo can be empty `''` - in this case only two annotations will be added: 'start date - CNCF join date' and 'CNCF join date - now".
 - CNCF join dates are listed [here](https://github.com/cncf/toc#projects).
 - Update projects list files: `devel/all_prod_dbs.txt devel/all_prod_projects.txt devel/all_test_dbs.txt devel/all_test_projects.txt util_sh/affs_test.sh util_sh/affs_prod.sh CONTRIBUTORS.md devel/get_icon_type.sh devel/get_icon_source.sh devel/add_single_metric.sh`.
@@ -51,7 +51,7 @@ This file describes how to add new project on the test and production servers.
 - Update Apache proxy and SSL files `apache/www/index_* apache/*/sites-enabled/* apache/*/sites.txt` files. You can copy from `partials/projects.yaml` adn then: `:'<,'>s/\[\[hostname]]/devstats.cncf.io/g`, `:'<,'>s/public\/img\/projects\///g` and `:'<,'>s/devstats\.cncf\.io/teststats.cncf.io/g`.
 - Generate new artwork icons: `[TEST_SERVER=1] ./devel/icons_all.sh`.
 - Run deploy all script: `GHA2DB_PROJECTS_OVERRIDE="+proj1,+proj2" SKIPCERT=1 HEALTH=1 SKIPTEMP=1 CUSTGRAFPATH=1 PG_PASS=... ./devel/deploy_all.sh`. If succeeded `make install`.
-- Bacause this can take few hours to complete (for a project 6 years old for example), run next sync manually. Get sync command from `crontab -l` and prepend it with `GHA2DB_RECENT_RANGE="6 hours"` to avoid missing GitHub API events.
+- Because this can take few hours to complete (for a project 6 years old for example), run next sync manually. Get sync command from `crontab -l` and prepend it with `GHA2DB_RECENT_RANGE="6 hours"` to avoid missing GitHub API events.
 - You can also deploy automatically from webhook (even on the test server), but it takes very long time and is harder to debug, see [continuous deployment](https://github.com/cncf/devstats/blob/master/CONTINUOUS_DEPLOYMENT.md).
 - Open `newproject.teststats.cncf.io` login with admin/admin, change the default password. Everything should be automatically populated, in case of any problems refer to `GRAFANA.md` file.
 - You should visit all dashboards and adjust date ranges and for some dashboards automatically selected values.
