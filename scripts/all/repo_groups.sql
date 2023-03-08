@@ -1604,6 +1604,25 @@ where
   or name in ('armosec/kubescape')
 ;
 
+-- Inspektor Gadget
+update
+  gha_repos
+set
+  repo_group = 'Inspektor Gadget'
+where
+  org_login in ('inspektor-gadget')
+  or name in ('kinvolk/inspektor-gadget')
+;
+
+-- Clusternet
+update
+  gha_repos
+set
+  repo_group = 'Clusternet'
+where
+  org_login in ('clusternet')
+;
+
 -- Confidential Containers
 update
   gha_repos
