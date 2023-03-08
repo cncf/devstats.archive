@@ -46,7 +46,7 @@ GHA2DB_RECENT_RANGE="4 hours" GHA2DB_TMOFFSET="-4" GHA2DB_PROJECTS_OVERRIDE="+cn
 ONLY="aerakimesh curve openfeature kubewarden devstream hexapolicyorchestrator konveyor armada externalsecretsoperator serverlessdevs containerssh" ./devel/all_affs.sh || exit 15
 GHA2DB_RECENT_RANGE="4 hours" GHA2DB_TMOFFSET="-4" GHA2DB_PROJECTS_OVERRIDE="+cncf,+opencontainers,+sam,+azf,+riff,+fn,+openwhisk,+openfaas" devstats
 
-ONLY="openfga kured carvel lima istio merbridge devspace capsule zot paralus carina ko opcr werf kubescape" ./devel/all_affs.sh || exit 16
+ONLY="openfga kured carvel lima istio merbridge devspace capsule zot paralus carina ko opcr werf kubescape inspektorgadget clusternet" ./devel/all_affs.sh || exit 16
 GHA2DB_RECENT_RANGE="4 hours" GHA2DB_TMOFFSET="-4" GHA2DB_PROJECTS_OVERRIDE="+cncf,+opencontainers,+sam,+azf,+riff,+fn,+openwhisk,+openfaas" devstats
 
 ONLY="cncf opencontainers sam azf riff fn openwhisk openfaas" GHA2DB_PROJECTS_OVERRIDE="+cncf,+opencontainers,+sam,+azf,+riff,+fn,+openwhisk,+openfaas" ./devel/all_affs.sh || exit 17
