@@ -571,6 +571,12 @@ do
   elif [ "$proj" = "kubescape" ]
   then
     PROJ=kubescape           PROJDB=kubescape      PROJREPO="kubescape/kubescape"             ORGNAME=Kubescape         PORT=3231 ICON=kubescape      GRAFSUFF=kubescape      GA="UA-241436121-16" ./devel/deploy_proj.sh || exit 156
+  elif [ "$proj" = "inspektorgadget" ]
+  then
+    PROJ=inspektorgadget     PROJDB=inspektorgadget PROJREPO="inspektor-gadget/inspektor-gadget" ORGNAME="Inspektor Gadget" PORT=3232 ICON=inspektorgadget GRAFSUFF=inspektorgadget GA="UA-241436121-17" ./devel/deploy_proj.sh || exit 157
+  elif [ "$proj" = "clusternet" ]
+  then
+    PROJ=clusternet          PROJDB=clusternet     PROJREPO="clusternet/clusternet"           ORGNAME=Clusternet        PORT=3233 ICON=clusternet     GRAFSUFF=clusternet     GA="UA-241436121-18" ./devel/deploy_proj.sh || exit 158
   elif [ "$proj" = "opencontainers" ]
   then
     PROJ=opencontainers      PROJDB=opencontainers PROJREPO="opencontainers/runc"             ORGNAME=OCI               PORT=3220 ICON="-"            GRAFSUFF=opencontainers GA="UA-108085315-19" ./devel/deploy_proj.sh || exit 32
