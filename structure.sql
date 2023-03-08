@@ -678,7 +678,7 @@ CREATE TABLE public.gha_last_computed (
     dt timestamp without time zone NOT NULL,
     start_dt timestamp without time zone,
     took bigint,
-    took_as_string text,
+    took_as_str text,
     command text
 );
 
