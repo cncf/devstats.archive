@@ -1,29 +1,85 @@
 ---
 metrics:
-  - name: Developer activity counts
+#   - name: Countries stats cumulative
+#     series_name_or_func: multi_row_multi_column
+#     sqls: [countries_cum, committers_countries_cum]
+#     periods: m
+#     multi_value: true
+#     merge_series: countriescum
+#     drop: scountriescum
+#     env:
+#       GHA2DB_NCPUS?: 4
+  - name: Contributions chart
+    series_name_or_func: multi_row_multi_column
+    sqls: [committers, contributors]
+    periods: w,m
+    merge_series: cs
+    drop: scs
+    project: '!kubernetes'
+    env:
+      GHA2DB_NCPUS?@d7: 4
+      GHA2DB_NCPUS?!d7: 10
+  - name: User reviews
+    series_name_or_func: multi_row_single_column
+    sql: reviews_per_user
+    periods: d,w,m,q,y
+    aggregate: 1,7
+    skip: w7,m7,q7,y7
+    multi_value: true
+    merge_series: user_reviews
+    drop: suser_reviews
+    allow_fail: true
+  - name: PRs approval
+    series_name_or_func: multi_row_multi_column
+    sql: prs_state
+    periods: d,w,m,q,y
+    aggregate: 1,7
+    skip: d,w7,m7,q7,y7
+    multi_value: true
+    escape_value_name: true
+    drop: 'spr_apprappr;spr_apprwait'
+  - name: Top commenters
     histogram: true
     annotations_ranges: true
     series_name_or_func: multi_row_single_column
-    sqls: [hist_reviewers, hist_approvers, project_developer_stats]
-    merge_series: hdev
-    project: kubernetes
-    env:
-      GHA2DB_NCPUS?: 4
-  - name: Developer activity counts (repositories)
+    sql: hist_commenters
+    merge_series: htop_commenters
+  - name: PRs authors histogram
     histogram: true
     annotations_ranges: true
     series_name_or_func: multi_row_single_column
-    sqls: [hist_reviewers_repos, hist_approvers_repos, project_developer_stats_repos]
-    merge_series: hdev_repos
-    project: kubernetes
-    env:
-      GHA2DB_NCPUS?: 4
+    sql: hist_pr_authors
+    merge_series: hpr_auth
+  - name: PRs authors companies histogram
+    histogram: true
+    annotations_ranges: true
+    series_name_or_func: multi_row_single_column
+    sql: hist_pr_companies
+    merge_series: hpr_comps
+  - name: Project statistics
+    histogram: true
+    annotations_ranges: true
+    series_name_or_func: multi_row_single_column
+    sql: project_stats
+    merge_series: pstat
+  - name: Companies summary
+    sqls: [project_company_stats, doc_committers_hist]
+    series_name_or_func: multi_row_single_column
+    histogram: true
+    annotations_ranges: true
+    merge_series: hcom
   - name: Developer summary
     sql: project_developer_stats
     series_name_or_func: multi_row_single_column
     histogram: true
     annotations_ranges: true
+    allow_fail: true
+    wait_after_fail: 300
     merge_series: hdev
-    project: '!kubernetes'
     env:
-      GHA2DB_NCPUS?: 8
+      GHA2DB_NCPUS?: 4
+  - name: Company PRs in repository groups
+    sql: company_prs
+    series_name_or_func: company_prs
+    histogram: true
+    annotations_ranges: true
