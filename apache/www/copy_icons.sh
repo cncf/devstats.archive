@@ -79,6 +79,14 @@ do
   then
     icon="serverless-devs"
   fi
+  if [ "$icon" = "cdevents" ]
+  then
+    dash="_"
+  fi
+  if [ "$icon" = "screwdrivercd" ]
+  then
+    icon="screwdriver"
+  fi
   # TODO: remove when we have icons
   if ( [ "$icon" = "inspektorgadget" ] || [ "$icon" = "lima" ] || [ "$icon" = "sealer" ] || [ "$icon" = "openelb" ] || [ "$icon" = "vscodek8stools" ] || [ "$icon" = "kubevip" ] || [ "$icon" = "cnigenie" ] || [ "$icon" = "devspace" ] || [ "$icon" = "capsule" ] || [ "$icon" = "ko" ] || [ "$icon" = "contrib" ] || [ "$icon" = "sam" ] || [ "$icon" = "azf" ] || [ "$icon" = "riff" ] || [ "$icon" = "fn" ] || [ "$icon" = "openwhisk" ] || [ "$icon" = "openfaas" ] || [ "$icon" = "cii" ] )
   then
@@ -181,9 +189,12 @@ do
     convert "$HOME/dev/$iconorg/artwork/$path/icon/$icontype/${icon}${dash}$icontype-$mid.png" -resize 80x80 "/var/www/html/img/$proj-icon-color.png" || exit 2
     cp "$HOME/dev/$iconorg/artwork/$path/icon/$icontype/${icon}${dash}$icontype-$mid.svg" "/var/www/html/img/$proj-icon-color.svg" || exit 3
     continue
+  elif [ "$icon" = "pyrsia" ]
+  then
+    convert "$HOME/dev/cdfoundation/artwork/pyrsia/artwork/logo.png" -resize 80x80 "/var/www/html/img/$proj-icon-color.png" || exit 2
+    cp "$HOME/dev/cdfoundation/artwork/pyrsia/artwork/logo.svg" "/var/www/html/img/$proj-icon-color.svg" || exit 3
+    continue
   fi
-  convert "$HOME/dev/$iconorg/artwork/$path/icon/$icontype/${icon}${dash}$mid-$icontype.png" -resize 80x80 "/var/www/html/img/$proj-icon-color.png" || exit 2
-  cp "$HOME/dev/$iconorg/artwork/$path/icon/$icontype/${icon}${dash}$mid-$icontype.svg" "/var/www/html/img/$proj-icon-color.svg" || exit 3
 done
 
 # Special cases

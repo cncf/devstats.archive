@@ -85,6 +85,14 @@ do
   then
     icon="serverless-devs"
   fi
+  if [ "$icon" = "screwdrivercd" ]
+  then
+    icon="screwdriver"
+  fi
+  if [ "$icon" = "cdevents" ]
+  then
+    dash="_"
+  fi
   # TODO: remove when we have icons
   if ( [ "$icon" = "inspektorgadget" ] || [ "$icon" = "lima" ] || [ "$icon" = "sealer" ] || [ "$icon" = "openelb" ] || [ "$icon" = "vscodek8stools" ] || [ "$icon" = "kubevip" ] || [ "$icon" = "cnigenie" ] || [ "$icon" = "devspace" ] || [ "$icon" = "capsule" ] || [ "$icon" = "ko" ] || [ "$icon" = "contrib" ] || [ "$icon" = "sam" ] || [ "$icon" = "azf" ] || [ "$icon" = "riff" ] || [ "$icon" = "fn" ] || [ "$icon" = "openwhisk" ] || [ "$icon" = "openfaas" ] || [ "$icon" = "cii" ] )
   then
@@ -186,6 +194,11 @@ do
   then
     cp "$HOME/dev/$iconorg/artwork/$path/icon/$icontype/$icon$dash$icontype-$mid.svg" "grafana/img/$suff.svg" || exit 2
     convert "$HOME/dev/$iconorg/artwork/$path/icon/$icontype/$icon$dash$icontype-$mid.png" -resize 32x32 "grafana/img/${suff}32.png" || exit 3
+    continue
+  elif [ "$icon" = "pyrsia" ]
+  then
+    cp "$HOME/dev/cdfoundation/artwork/pyrsia/artwork/logo.svg" "grafana/img/$suff.svg" || exit 2
+    convert "$HOME/dev/cdfoundation/artwork/pyrsia/artwork/logo.png" -resize 32x32 "grafana/img/${suff}32.png" || exit 3
     continue
   fi
   cp "$HOME/dev/$iconorg/artwork/$path/icon/$icontype/$icon$dash$mid-$icontype.svg" "grafana/img/$suff.svg" || exit 2
