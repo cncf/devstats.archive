@@ -1,0 +1,347 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      },
+      {
+        "datasource": "psql",
+        "enable": true,
+        "hide": false,
+        "iconColor": "rgba(255, 96, 96, 1)",
+        "limit": 100,
+        "name": "Releases",
+        "query": "SELECT title, description from annotations WHERE $timeFilter order by time asc",
+        "rawQuery": "select extract(epoch from time) AS time, title as text, description as tags from sannotations where $__timeFilter(time)",
+        "showIn": 0,
+        "tagsColumn": "title,description",
+        "textColumn": "",
+        "titleColumn": "[[full_name]] release",
+        "type": "alert"
+      }
+    ]
+  },
+  "description": "Home dashboard",
+  "editable": true,
+  "gnetId": null,
+  "graphTooltip": 0,
+  "id": 9,
+  "iteration": 1551950379966,
+  "links": [],
+  "panels": [
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "psql",
+      "decimals": 0,
+      "description": "Numbers of GitHub events in all repositories hourly",
+      "fill": 5,
+      "gridPos": {
+        "h": 6,
+        "w": 20,
+        "x": 0,
+        "y": 0
+      },
+      "id": 2,
+      "legend": {
+        "alignAsTable": true,
+        "avg": true,
+        "current": true,
+        "max": true,
+        "min": true,
+        "rightSide": false,
+        "show": true,
+        "total": true,
+        "values": true
+      },
+      "lines": true,
+      "linewidth": 1,
+      "links": [
+        {
+          "title": "DevStats GitHub repository",
+          "type": "absolute",
+          "url": "https://github.com/cncf/devstats"
+        }
+      ],
+      "nullPointMode": "null",
+      "percentage": false,
+      "pointradius": 1,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": true,
+      "targets": [
+        {
+          "alias": "",
+          "dsType": "influxdb",
+          "format": "time_series",
+          "group": [],
+          "groupBy": [],
+          "metricColumn": "none",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "SELECT \"value\" FROM \"events_h\" WHERE $timeFilter",
+          "rawQuery": true,
+          "rawSql": "select\n  time,\n  value as \"Number of GitHub events hourly\"\nfrom\n  sevents_h\nwhere\n  $__timeFilter(time)\norder by\n  time",
+          "refId": "A",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              }
+            ]
+          ],
+          "tags": [],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "Hourly [[full_name]] activity on GitHub",
+      "tooltip": {
+        "shared": false,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "transparent": true,
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": [
+          "total"
+        ]
+      },
+      "yaxes": [
+        {
+          "format": "short",
+          "label": "Activity",
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": "",
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "content": "Please report any bugs by opening an issue on <a href=\"https://github.com/cncf/devstats\">https://github.com/cncf/devstats</a>",
+      "description": "",
+      "gridPos": {
+        "h": 6,
+        "w": 4,
+        "x": 20,
+        "y": 0
+      },
+      "height": 220,
+      "id": 1,
+      "links": [],
+      "mode": "html",
+      "title": "",
+      "transparent": true,
+      "type": "text"
+    },
+    {
+      "description": "https://github.com/cncf/devstats",
+      "folderId": 0,
+      "gridPos": {
+        "h": 50,
+        "w": 24,
+        "x": 0,
+        "y": 6
+      },
+      "headings": false,
+      "id": 4,
+      "limit": 50,
+      "links": [
+        {
+          "title": "devstats",
+          "type": "absolute",
+          "url": "https://github.com/cncf/devstats"
+        }
+      ],
+      "query": "",
+      "recent": false,
+      "search": true,
+      "starred": false,
+      "tags": [
+        "dashboard",
+        "screwdrivercd"
+      ],
+      "title": "All [[full_name]] Dashboards",
+      "transparent": false,
+      "type": "dashlist"
+    },
+    {
+      "content": "${docs:raw}",
+      "gridPos": {
+        "h": 12,
+        "w": 24,
+        "x": 0,
+        "y": 40
+      },
+      "id": 6,
+      "links": [],
+      "mode": "html",
+      "title": "Dashboard documentation",
+      "type": "text"
+    }
+  ],
+  "refresh": "15m",
+  "schemaVersion": 16,
+  "style": "dark",
+  "tags": [
+    "home",
+    "all",
+    "screwdrivercd"
+  ],
+  "templating": {
+    "list": [
+      {
+        "allValue": null,
+        "current": {
+          "text": "<h1 id=\"-full_name-home-dashboard\">Jenkins X Home dashboard</h1>\n<p>Links:</p>\n<ul>\n<li>Postgres <a href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/events.sql\" target=\"_blank\">SQL file</a>.</li>\n<li>TSDB <a href=\"https://github.com/cncf/devstats/blob/master/metrics/jenkinsx/metrics.yaml\" target=\"_blank\">series definition</a> (search for <code>name: GitHub activity</code>).</li>\n<li>Grafana dashboard <a href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/jenkinsx/dashboards.json\" target=\"_blank\">JSON</a>.</li>\n<li>Developer <a href=\"https://github.com/cncf/devstats/blob/master/docs/dashboards/dashboards_devel.md\" target=\"_blank\">documentation</a>.</li>\n<li>Direct <a href=\"https://jenkinsx.devstats.cd.foundation\" target=\"_blank\">link</a>.</li>\n</ul>\n<h1 id=\"description\">Description</h1>\n<ul>\n<li>First we&#39;re displaying links to all CNCF projects defined.</li>\n<li>Next we&#39;re showing current project&#39;s hourly activity - this is the number of all GitHub events that happened for Jenkins X project hourly.</li>\n<li>This also includes bots activity (most other dashboards skip bot activity).</li>\n<li>Next we&#39;re showing HTML panel that shows all CNCF projects icons and links.</li>\n<li>Next there is a dashboard that shows a list of all dashboards defined for Jenkins X project.</li>\n</ul>",
+          "value": "<h1 id=\"-full_name-home-dashboard\">Jenkins X Home dashboard</h1>\n<p>Links:</p>\n<ul>\n<li>Postgres <a href=\"https://github.com/cncf/devstats/blob/master/metrics/shared/events.sql\" target=\"_blank\">SQL file</a>.</li>\n<li>TSDB <a href=\"https://github.com/cncf/devstats/blob/master/metrics/jenkinsx/metrics.yaml\" target=\"_blank\">series definition</a> (search for <code>name: GitHub activity</code>).</li>\n<li>Grafana dashboard <a href=\"https://github.com/cncf/devstats/blob/master/grafana/dashboards/jenkinsx/dashboards.json\" target=\"_blank\">JSON</a>.</li>\n<li>Developer <a href=\"https://github.com/cncf/devstats/blob/master/docs/dashboards/dashboards_devel.md\" target=\"_blank\">documentation</a>.</li>\n<li>Direct <a href=\"https://jenkinsx.devstats.cd.foundation\" target=\"_blank\">link</a>.</li>\n</ul>\n<h1 id=\"description\">Description</h1>\n<ul>\n<li>First we&#39;re displaying links to all CNCF projects defined.</li>\n<li>Next we&#39;re showing current project&#39;s hourly activity - this is the number of all GitHub events that happened for Jenkins X project hourly.</li>\n<li>This also includes bots activity (most other dashboards skip bot activity).</li>\n<li>Next we&#39;re showing HTML panel that shows all CNCF projects icons and links.</li>\n<li>Next there is a dashboard that shows a list of all dashboards defined for Jenkins X project.</li>\n</ul>"
+        },
+        "datasource": "psql",
+        "definition": "",
+        "hide": 2,
+        "includeAll": false,
+        "label": null,
+        "multi": false,
+        "name": "docs",
+        "options": [],
+        "query": "select value_s from gha_vars where name = 'dashboards_docs_html'",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": true,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "text": "Jenkins X",
+          "value": "Jenkins X"
+        },
+        "datasource": "psql",
+        "definition": "",
+        "hide": 2,
+        "includeAll": false,
+        "label": null,
+        "multi": false,
+        "name": "full_name",
+        "options": [],
+        "query": "select value_s from gha_vars where name = 'full_name'",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": true,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "text": "devstats.cd.foundation",
+          "value": "devstats.cd.foundation"
+        },
+        "datasource": "psql",
+        "definition": "",
+        "hide": 2,
+        "includeAll": false,
+        "label": null,
+        "multi": false,
+        "name": "hostname",
+        "options": [],
+        "query": "select value_s from gha_vars where name = 'os_hostname'",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": true,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      }
+    ]
+  },
+  "time": {
+    "from": "now-7d",
+    "to": "now-1h"
+  },
+  "timepicker": {
+    "nowDelay": "1h",
+    "refresh_intervals": [
+      "5s",
+      "10s",
+      "30s",
+      "1m",
+      "5m",
+      "15m",
+      "30m",
+      "1h",
+      "2h",
+      "1d"
+    ],
+    "time_options": [
+      "5m",
+      "15m",
+      "1h",
+      "6h",
+      "12h",
+      "24h",
+      "2d",
+      "7d",
+      "30d"
+    ]
+  },
+  "timezone": "",
+  "title": "Dashboards",
+  "uid": "8",
+  "version": 2
+}
