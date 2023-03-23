@@ -47,6 +47,52 @@ where
   )
 ;
 
+-- CDEvents
+update
+  gha_repos
+set
+  repo_group = 'CDEvents'
+where
+  org_login in ('cdevents')
+;
+
+-- Ortelius
+update
+  gha_repos
+set
+  repo_group = 'Ortelius'
+where
+  org_login in ('ortelius', 'DeployHubProject', 'OpenMake-Software')
+;
+
+-- Pyrsia
+update
+  gha_repos
+set
+  repo_group = 'Pyrsia'
+where
+  org_login in ('pyrsia')
+;
+
+-- Screwdriver CD
+update
+  gha_repos
+set
+  repo_group = 'Screwdriver CD'
+where
+  org_login in ('screwdriver-cd')
+;
+
+-- Shipwright
+update
+  gha_repos
+set
+  repo_group = 'Shipwright'
+where
+  org_login in ('shipwright-io')
+  or name in ('redhat-developer/build', 'redhat-developer/buildv2', 'redhat-developer/buildv2-operator')
+;
+
 with repo_latest as (
   select sub.repo_id,
     sub.repo_name
