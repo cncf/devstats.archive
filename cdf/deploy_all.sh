@@ -110,6 +110,21 @@ do
   elif [ "$proj" = "jenkinsx" ]
   then
     PROJ=jenkinsx            PROJDB=jenkinsx       PROJREPO="jenkins-x/jx"                    ORGNAME='Jenkins X'       PORT=3106 ICON=jenkinsx       GRAFSUFF=jenkinsx       GA="UA-108085315-41" ./devel/deploy_proj.sh || exit 44
+  elif [ "$proj" = "cdevents" ]
+  then
+    PROJ=cdevents            PROJDB=cdevents       PROJREPO="cdevents/spec"                   ORGNAME=CDEvents          PORT=3107 ICON=cdevents       GRAFSUFF=cdevents       GA="" ./devel/deploy_proj.sh || exit 45
+  elif [ "$proj" = "ortelius" ]
+  then
+    PROJ=ortelius            PROJDB=ortelius       PROJREPO="ortelius/ortelius"               ORGNAME=Ortelius          PORT=3108 ICON=ortelius       GRAFSUFF=ortelius       GA="" ./devel/deploy_proj.sh || exit 46
+  elif [ "$proj" = "pyrsia" ]
+  then
+    PROJ=pyrsia              PROJDB=pyrsia         PROJREPO="pyrsia/pyrsia"                   ORGNAME=Pyrsia            PORT=3109 ICON=pyrsia         GRAFSUFF=pyrsia         GA="" ./devel/deploy_proj.sh || exit 47
+  elif [ "$proj" = "screwdrivercd" ]
+  then
+    PROJ=screwdrivercd       PROJDB=screwdrivercd  PROJREPO="screwdriver-cd/screwdriver"      ORGNAME='Screwdriver CD'  PORT=3110 ICON=screwdrivercd  GRAFSUFF=screwdrivercd  GA="" ./devel/deploy_proj.sh || exit 48
+  elif [ "$proj" = "shipwright" ]
+  then
+    PROJ=shipwright          PROJDB=shipwright     PROJREPO="shipwright-io/build"             ORGNAME=Shipwright        PORT=3111 ICON=shipwright     GRAFSUFF=shipwright     GA="" ./devel/deploy_proj.sh || exit 49
   elif [ "$proj" = "allcdf" ]
   then
     PROJ=allcdf              PROJDB=allcdf         PROJREPO="not/used"                        ORGNAME="All CDF"         PORT=3255 ICON=cdf            GRAFSUFF=allcdf         GA="UA-108085315-42" ./devel/deploy_proj.sh || exit 45
