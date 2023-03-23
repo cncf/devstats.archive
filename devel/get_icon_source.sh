@@ -10,6 +10,11 @@ iconsrcs=(
   ["tekton"]="cdfoundation"
   ["jenkins"]="cdfoundation"
   ["jenkinsx"]="cdfoundation"
+  ["cdevents"]="cdfoundation"
+  ["ortelius"]="cdfoundation"
+  ["pyrsia"]="cdfoundation"
+  ["screwdrivercd"]="cdfoundation"
+  ["shipwright"]="cdfoundation"
   ["cdf"]="cdfoundation"
   ["allcdf"]="cdfoundation"
 )
