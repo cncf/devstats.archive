@@ -32,6 +32,7 @@ set
   repo_group = 'Jenkins'
 where
   org_login in ('jenkinsci', 'jenkins-infra', 'jenkins-zh', 'stapler')
+  or name in ('jenkins-infra', 'jenkins')
 ;
 
 -- Jenkins X

@@ -56,6 +56,7 @@ set
   repo_group = 'Fluentd'
 where
   name ~ '(?i)^(fluent|fluent-plugins-nursery\/.*fluent.*|.+\/fluentd?-plugin-.+|baritolog\/barito-fluent-plugin|blacknight95\/aws-fluent-plugin-kinesis|sumologic\/fluentd-kubernetes-sumologic|sumologic\/fluentd-output-sumologic|wallynegima\/scenario-manager-plugin|aliyun\/aliyun-odps-fluentd-plugin|awslabs\/aws-fluent-plugin-kinesis|campanja\/fluent-output-router|grafana\/loki\/|jdoconnor\/fluentd_https_out|newrelic\/newrelic-fluentd-output|roma42427\/filter_wms_auth|scalyr\/scalyr-fluentd|sebryu\/fluent_plugin_in_websocket|tagomoris\/fluent-helper-plugin-spec|y-ken\/fluent-mixin-rewrite-tag-name|y-ken\/fluent-mixin-type-converter)$'
+  or org_login in ('fluent')
 ;
 
 -- Linkerd
@@ -727,7 +728,7 @@ set
   repo_group = 'K3s'
 where
   org_login in ('k3s-io')
-  -- or name ~ '(?i)^(ibuildthecloud|rancher)\/.*k3(s|d).*$'
+  or name ~ '(?i)^(ibuildthecloud|rancher)\/.*k3(s|d).*$'
 ;
 
 -- Backstage
@@ -1305,6 +1306,7 @@ set
   repo_group = 'FabEdge'
 where
   org_login in ('FabEdge')
+  or name like 'FabEdge/%'
 ;
 
 -- OpenFunction
@@ -1399,7 +1401,7 @@ set
   repo_group = 'DevStream'
 where
   org_login in ('devstream-io')
-  or name in ('marico-dev/stream', 'marico-dev/OpenStream')
+  or name in ('merico-dev/stream', 'merico-dev/OpenStream')
 ;
 
 -- Hexa Policy Orchestrator
