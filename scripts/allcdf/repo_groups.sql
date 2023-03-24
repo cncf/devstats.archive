@@ -31,7 +31,7 @@ update
 set
   repo_group = 'Jenkins'
 where
-  org_login in ('jenkinsci')
+  org_login in ('jenkinsci', 'jenkins-infra', 'jenkins-zh', 'stapler')
 ;
 
 -- Jenkins X
