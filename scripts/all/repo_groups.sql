@@ -1316,6 +1316,7 @@ set
   repo_group = 'OpenFunction'
 where
   org_login in ('OpenFunction')
+  or name in ('OpenFunction/OpenFunction')
 ;
 
 -- Teller
@@ -1374,6 +1375,7 @@ set
   repo_group = 'Curve'
 where
   org_login in ('opencurve')
+  or name like 'opencurve/%'
 ;
 
 -- OpenFeature
@@ -1645,6 +1647,16 @@ where
     'cncf/hub',
     'cncf/wg-serverless-workflow'
   )
+;
+
+-- GraphQL
+update
+  gha_repos
+set
+  repo_group = 'GraphQL'
+where
+  org_login in ('graphql')
+  or name in ('facebook/graphql')
 ;
 
 with repo_latest as (
