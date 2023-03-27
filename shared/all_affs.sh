@@ -1,7 +1,7 @@
 #!/bin/bash
 # SKIPTEMP=1 skip regenerating data into temporary database and use current database directly
-# SKIP_IMP_AFFS=percent - % chance to skip import_affs.sh phase
-# SKIP_UPD_AFFS=percent - % chance to skip update_affs.sh phase (default 50%)
+# SKIP_IMP_AFFS=percent - % chance to skip import_affs.sh phase, "0" to force always run
+# SKIP_UPD_AFFS=percent - % chance to skip update_affs.sh phase (default 50%), "0" to force always run
 if ( [ -z "$GHA2DB_PROJECT" ] || [ -z "$PG_DB" ] || [ -z "$PG_PASS" ] )
 then
   echo "$0: you need to set GHA2DB_PROJECT, PG_DB, PG_PASS env variables to use this script"
