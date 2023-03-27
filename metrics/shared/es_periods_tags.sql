@@ -9,6 +9,7 @@ union select 'd28', '1d'
 union select 'w', '1w'
 union select 'm', '1m'
 union select 'q', '1q'
+union select 'm6', '1m'
 union select 'y', '1y'
 union select 'y10', '1y'
 ;
